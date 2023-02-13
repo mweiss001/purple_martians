@@ -4,7 +4,11 @@
 #include "mwGraph.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
-
+#include "mwColor.h"
+#include "mwInput.h"
+#include "mwEventQueue.h"
+#include "z_menu.h"
+#include "z_fnx.h"
 
 mwGraph mwG[10];
 
@@ -144,7 +148,7 @@ void mwGraph::proc_graph(void)
 void mwGraph::draw_graph(int draw_only)
 {
    al_show_mouse_cursor(display);
-   if ((mouse_x > graph_x1) && (mouse_x < graph_x2) && (mouse_y > graph_y1) && (mouse_y < graph_y2)) mouse_on_graph = true;
+   if ((mI.mouse_x > graph_x1) && (mI.mouse_x < graph_x2) && (mI.mouse_y > graph_y1) && (mI.mouse_y < graph_y2)) mouse_on_graph = true;
    if ((mouse_on_graph) && (!mouse_on_scrollbar)) al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
    mouse_on_graph = false;
    mouse_on_scrollbar = false;
@@ -168,11 +172,11 @@ void mwGraph::draw_graph(int draw_only)
    //printf("x_axis_min:%5.1f  x_axis_max:%5.1f  x_axis_rng:%5.1f\n", x_axis_min, x_axis_max, x_axis_rng);
    //printf("y_axis_min:%5.1f  y_axis_max:%5.1f  y_axis_rng:%5.1f\n", y_axis_min, y_axis_max, y_axis_rng);
    //printf("graph_x1:%d graph_y1:%d graph_x2:%d graph_y2:%d graph_w:%d graph_h:%d\n", graph_x1, graph_y1, graph_x2, graph_y2, graph_w, graph_h );
-   // al_draw_rectangle(graph_x1, graph_y1, graph_x2, graph_y2, palette_color[10], 1); // frame entire graph area for testing
+   // al_draw_rectangle(graph_x1, graph_y1, graph_x2, graph_y2, mC.pc[10], 1); // frame entire graph area for testing
    // debug - show axis range values
-   // al_draw_filled_rectangle(              10, 10, 600, 30, palette_color[0]); // erase background
-   // al_draw_textf(mF.pr8, palette_color[15], 10, 10, 0, "x_axis_min:%5.1f  x_axis_max:%5.1f  x_axis_rng:%5.1f", x_axis_min, x_axis_max, x_axis_rng);
-   // al_draw_textf(mF.pr8, palette_color[15], 10, 18, 0, "y_axis_min:%5.1f  y_axis_max:%5.1f  y_axis_rng:%5.1f", y_axis_min, y_axis_max, y_axis_rng);
+   // al_draw_filled_rectangle(              10, 10, 600, 30, mC.pc[0]); // erase background
+   // al_draw_textf(mF.pr8, mC.pc[15], 10, 10, 0, "x_axis_min:%5.1f  x_axis_max:%5.1f  x_axis_rng:%5.1f", x_axis_min, x_axis_max, x_axis_rng);
+   // al_draw_textf(mF.pr8, mC.pc[15], 10, 18, 0, "y_axis_min:%5.1f  y_axis_max:%5.1f  y_axis_rng:%5.1f", y_axis_min, y_axis_max, y_axis_rng);
 }
 
 
@@ -242,8 +246,8 @@ void mwGraph::draw_series_legend(void)
       series_legend_x2 = series_legend_x1 + max_width + 36;
       series_legend_y2 = series_legend_y1 + height + 2;
 
-      al_draw_filled_rectangle(series_legend_x1, series_legend_y1, series_legend_x2, series_legend_y2, palette_color[0]);
-      al_draw_rectangle(       series_legend_x1, series_legend_y1, series_legend_x2, series_legend_y2, palette_color[15], 1);
+      al_draw_filled_rectangle(series_legend_x1, series_legend_y1, series_legend_x2, series_legend_y2, mC.pc[0]);
+      al_draw_rectangle(       series_legend_x1, series_legend_y1, series_legend_x2, series_legend_y2, mC.pc[15], 1);
 
       int x1 = series_legend_x1;
       int y1 = series_legend_y1;
@@ -252,7 +256,7 @@ void mwGraph::draw_series_legend(void)
 
       int mouse_ypos = -1;
       int mouse_sel = -1;
-      if ((mouse_x > series_legend_x1) && (mouse_x < series_legend_x2) && (mouse_y > series_legend_y1) && (mouse_y < series_legend_y2)) mouse_ypos = mouse_y-1;
+      if ((mI.mouse_x > series_legend_x1) && (mI.mouse_x < series_legend_x2) && (mI.mouse_y > series_legend_y1) && (mI.mouse_y < series_legend_y2)) mouse_ypos = mI.mouse_y-1;
 
       for (int s=0; s<series_limit; s++)
          if ((series[s].num_data) || (series_legend_type == 1))
@@ -269,24 +273,24 @@ void mwGraph::draw_series_legend(void)
             if ((mouse_ypos != -1) && (mouse_ypos > y1) && (mouse_ypos <= y1+bh))
             {
                mouse_sel = s;
-               al_draw_rectangle(x1+1, y1+1, x2-1, y1+1+bh, palette_color[15], 0);
+               al_draw_rectangle(x1+1, y1+1, x2-1, y1+1+bh, mC.pc[15], 0);
             }
             mw_get_text_dimensions(f, series[s].name, bx, by, bw, bh);
             bh+=1;
-            al_draw_text(f, palette_color[c1], x1+2-bx, y1+2-by, 0, series[s].name);
-            if (series_legend_show_counts) al_draw_textf(f, palette_color[c1], x2+2, y1+2-by, 0, "%d", series[s].num_data);
+            al_draw_text(f, mC.pc[c1], x1+2-bx, y1+2-by, 0, series[s].name);
+            if (series_legend_show_counts) al_draw_textf(f, mC.pc[c1], x2+2, y1+2-by, 0, "%d", series[s].num_data);
             float lx1 = x2-30;
             float lx2 = x2-4;
             float ly1 = y1+bh/2+1.5;
             int lco = 0;
             mw_draw_line2(        lx1, ly1, lx2, ly1, plot_line_size, 10, c1, 10, c2, lco);
-            al_draw_filled_circle(lx1, ly1,           plot_point_size, palette_color[c1]);
-            al_draw_filled_circle(lx2, ly1,           plot_point_size, palette_color[c1]);
+            al_draw_filled_circle(lx1, ly1,           plot_point_size, mC.pc[c1]);
+            al_draw_filled_circle(lx2, ly1,           plot_point_size, mC.pc[c1]);
             y1+=bh;
          }
-      if ((mouse_b[1][0]) && (mouse_sel != -1))
+      if ((mI.mouse_b[1][0]) && (mouse_sel != -1))
       {
-         while (mouse_b[1][0]) proc_event_queue();
+         while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
          series[mouse_sel].active = !series[mouse_sel].active;
       }
    }
@@ -551,17 +555,17 @@ void mwGraph::draw_title(int set_size_only)
          {
             ALLEGRO_BITMAP* t = al_create_bitmap(bw+4+pad*2, bh+4+pad*2);
             al_set_target_bitmap(t);
-            al_clear_to_color(palette_color[0]);
-            al_draw_text(mF.pr8, palette_color[title_text_color], 2+pad-bx, 2+pad-by, 0, title_text);
+            al_clear_to_color(mC.pc[0]);
+            al_draw_text(mF.pr8, mC.pc[title_text_color], 2+pad-bx, 2+pad-by, 0, title_text);
 
             for(float a=0.5; a<2.5; a+=0.5)
-               al_draw_rounded_rectangle(a, a, bw+4+pad*2-a, bh+4+pad*2-a, 1, 1, palette_color[title_frame_color+(int)(a*64)], 1.5);
+               al_draw_rounded_rectangle(a, a, bw+4+pad*2-a, bh+4+pad*2-a, 1, 1, mC.pc[title_frame_color+(int)(a*64)], 1.5);
 
             al_set_target_backbuffer(display);
             int xc = plot_x1+plot_w/2;
             al_draw_rotated_bitmap(t, 0, 0, xc-bw/2, plot_y1+1, 0, 0);
             al_destroy_bitmap(t);
-            al_draw_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, palette_color[title_frame_color], 2); // frame plot area again
+            al_draw_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, mC.pc[title_frame_color], 2); // frame plot area again
          }
       }
       if (title_draw_style == 1)
@@ -575,9 +579,9 @@ void mwGraph::draw_title(int set_size_only)
          {
             ALLEGRO_BITMAP* t = al_create_bitmap(bw+2+pad*2, bh+2+pad*2);
             al_set_target_bitmap(t);
-            al_clear_to_color(palette_color[0]);
-            al_draw_text(mF.pr8, palette_color[title_text_color], 1+pad-bx, 1+pad-by, 0, title_text);
-            al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, palette_color[title_frame_color], 1);
+            al_clear_to_color(mC.pc[0]);
+            al_draw_text(mF.pr8, mC.pc[title_text_color], 1+pad-bx, 1+pad-by, 0, title_text);
+            al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, mC.pc[title_frame_color], 1);
 
             al_set_target_backbuffer(display);
             int xc = plot_x1+plot_w/2;
@@ -675,9 +679,9 @@ void mwGraph::x_axis_draw_legend(int set_size_only)
       {
          ALLEGRO_BITMAP* t = al_create_bitmap(bw+2+pad*2, bh+2+pad*2);
          al_set_target_bitmap(t);
-         al_clear_to_color(palette_color[0]);
-         al_draw_text(f, palette_color[x_axis_legend_text_color], 1+pad-bx, 1+pad-by, 0, msg);
-         al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, palette_color[x_axis_legend_frame_color], 1);
+         al_clear_to_color(mC.pc[0]);
+         al_draw_text(f, mC.pc[x_axis_legend_text_color], 1+pad-bx, 1+pad-by, 0, msg);
+         al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, mC.pc[x_axis_legend_frame_color], 1);
          al_set_target_backbuffer(display);
          int xc = plot_x1+plot_w/2;
          mwD.mw_set_clipping_rect(graph_x1, graph_y1, graph_w, graph_h);
@@ -712,8 +716,8 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
 
          if (!x_axis_grid_label_draw_on) x_axis_label_y3 = x_axis_label_y2 = x_axis_label_y1;
 
-         al_draw_filled_rectangle(plot_x1-12, x_axis_label_y1+1, plot_x2+12, x_axis_label_y3, palette_color[0]);         // erase background
-         //al_draw_rectangle(       plot_x1-12, x_axis_label_y1+1, plot_x2+12, x_axis_label_y3, palette_color[15+128], 1); // debug frame
+         al_draw_filled_rectangle(plot_x1-12, x_axis_label_y1+1, plot_x2+12, x_axis_label_y3, mC.pc[0]);         // erase background
+         //al_draw_rectangle(       plot_x1-12, x_axis_label_y1+1, plot_x2+12, x_axis_label_y3, mC.pc[15+128], 1); // debug frame
 
          // if we are showing scaled values, set and use temp scaled vars
          double sx_axis_min = x_axis_min / x_axis_divider;
@@ -751,8 +755,8 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
          }
          int number_of_major_gridlines = (sx_axis_rng/x_gl_span);
 
-         //al_draw_filled_rectangle              (plot_x1-12, plot_y2+50, x_axis_label_y1, plot_y2+58, palette_color[0]);
-         // al_draw_textf(mF.pr8, palette_color[15], plot_x1+50, plot_y2-42, 0, "gspan:%-3.5f  num of major gridlines:%d", x_gl_span, (int) (sx_axis_rng/x_gl_span));
+         //al_draw_filled_rectangle              (plot_x1-12, plot_y2+50, x_axis_label_y1, plot_y2+58, mC.pc[0]);
+         // al_draw_textf(mF.pr8, mC.pc[15], plot_x1+50, plot_y2-42, 0, "gspan:%-3.5f  num of major gridlines:%d", x_gl_span, (int) (sx_axis_rng/x_gl_span));
 
 
          int mj_col = x_axis_grid_label_color+128;
@@ -768,7 +772,7 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
             for (double i=gx2; i<=sx_axis_max; i+=ns)
             {
                convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly);
-               al_draw_line(lx, x_axis_label_y0+1, lx, x_axis_label_y1-1, palette_color[mn_col], mn_size);
+               al_draw_line(lx, x_axis_label_y0+1, lx, x_axis_label_y1-1, mC.pc[mn_col], mn_size);
             }
          }
          if ((number_of_major_gridlines > 5) && (number_of_major_gridlines < 11))
@@ -778,7 +782,7 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
             for (double i=gx2; i<=sx_axis_max; i+=ns)
             {
                convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly);
-               al_draw_line(lx, x_axis_label_y0+1, lx, x_axis_label_y1-1, palette_color[mn_col], mn_size);
+               al_draw_line(lx, x_axis_label_y0+1, lx, x_axis_label_y1-1, mC.pc[mn_col], mn_size);
             }
          }
          if (number_of_major_gridlines < 6)
@@ -788,7 +792,7 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
             for (double i=gx2; i<=sx_axis_max; i+=ns)
             {
                convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly);
-               al_draw_line(lx, x_axis_label_y0+1, lx, x_axis_label_y1-1, palette_color[mn_col], mn_size);
+               al_draw_line(lx, x_axis_label_y0+1, lx, x_axis_label_y1-1, mC.pc[mn_col], mn_size);
             }
          }
          // major gridlines with labels
@@ -796,13 +800,13 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
          for (double i=gx2; i<=sx_axis_max; i+=x_gl_span)
          {
             convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly);
-            al_draw_line(lx, x_axis_label_y0, lx, x_axis_label_y2, palette_color[mj_col], mj_size);
-            if (x_axis_grid_label_draw_on) al_draw_text(f, palette_color[x_axis_grid_label_color], lx-bx, x_axis_label_y2-by, ALLEGRO_ALIGN_CENTER, x_axis_get_val_text(i* x_axis_divider, 0));
+            al_draw_line(lx, x_axis_label_y0, lx, x_axis_label_y2, mC.pc[mj_col], mj_size);
+            if (x_axis_grid_label_draw_on) al_draw_text(f, mC.pc[x_axis_grid_label_color], lx-bx, x_axis_label_y2-by, ALLEGRO_ALIGN_CENTER, x_axis_get_val_text(i* x_axis_divider, 0));
          }
          if (0) // label on origin
          {
-            al_draw_line(plot_x1, plot_y2+1, plot_x1, x_axis_label_y2, palette_color[mj_col], mj_size);
-            al_draw_textf(f, palette_color[x_axis_grid_label_color], plot_x1, x_axis_label_y2-by, ALLEGRO_ALIGN_CENTER, x_axis_get_val_text(x_axis_min, 0));
+            al_draw_line(plot_x1, plot_y2+1, plot_x1, x_axis_label_y2, mC.pc[mj_col], mj_size);
+            al_draw_textf(f, mC.pc[x_axis_grid_label_color], plot_x1, x_axis_label_y2-by, ALLEGRO_ALIGN_CENTER, x_axis_get_val_text(x_axis_min, 0));
          }
       }
    }
@@ -832,9 +836,9 @@ void mwGraph::y_axis_draw_legend(int set_size_only)
       {
          ALLEGRO_BITMAP* t = al_create_bitmap(bw+2+pad*2, bh+2+pad*2);
          al_set_target_bitmap(t);
-         al_clear_to_color(palette_color[0]);
-         al_draw_text(f, palette_color[y_axis_legend_text_color], 1+pad-bx, 1+pad-by, 0, msg);
-         al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, palette_color[y_axis_legend_frame_color], 1);
+         al_clear_to_color(mC.pc[0]);
+         al_draw_text(f, mC.pc[y_axis_legend_text_color], 1+pad-bx, 1+pad-by, 0, msg);
+         al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, mC.pc[y_axis_legend_frame_color], 1);
 
          al_set_target_backbuffer(display);
          int yc = plot_y2 - (plot_y2 - plot_y1) /2;
@@ -892,13 +896,13 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
          int mn_col = y_axis_grid_label_color+160;
          float mn_size = .5;
 
-         al_draw_filled_rectangle(y_axis_label_x3, plot_y1-5, y_axis_label_x1-1, plot_y2+4, palette_color[0]);     // erase background
-         // al_draw_rectangle       (y_axis_label_x3, plot_y1-5, y_axis_label_x1-1, plot_y2+4, palette_color[15+128], 1); // show for debug
+         al_draw_filled_rectangle(y_axis_label_x3, plot_y1-5, y_axis_label_x1-1, plot_y2+4, mC.pc[0]);     // erase background
+         // al_draw_rectangle       (y_axis_label_x3, plot_y1-5, y_axis_label_x1-1, plot_y2+4, mC.pc[15+128], 1); // show for debug
 
          int number_of_major_gridlines = (sy_axis_rng/y_gl_span);
 
-         //al_draw_filled_rectangle              (plot_x1-12, plot_y2+50, x_axis_label_y1, plot_y2+58, palette_color[0]);
-         // al_draw_textf(mF.pr8, palette_color[15], plot_x1+50, plot_y2-42, 0, "gspan:%-3.5f  num of major gridlines:%d", x_gl_span, (int) (sx_axis_rng/x_gl_span));
+         //al_draw_filled_rectangle              (plot_x1-12, plot_y2+50, x_axis_label_y1, plot_y2+58, mC.pc[0]);
+         // al_draw_textf(mF.pr8, mC.pc[15], plot_x1+50, plot_y2-42, 0, "gspan:%-3.5f  num of major gridlines:%d", x_gl_span, (int) (sx_axis_rng/x_gl_span));
 
          // minor gridlines with no labels
          if ((number_of_major_gridlines > 10) && (number_of_major_gridlines < 16))
@@ -908,7 +912,7 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
             for (double i=gy2; i<=sy_axis_max; i+=ns)
             {
                convert_gxy_to_sxy(9999, i*y_axis_divider, lx, ly);
-               al_draw_line(y_axis_label_x1+1, ly, y_axis_label_x0-1, ly, palette_color[mn_col], mn_size);
+               al_draw_line(y_axis_label_x1+1, ly, y_axis_label_x0-1, ly, mC.pc[mn_col], mn_size);
             }
          }
 
@@ -919,7 +923,7 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
             for (double i=gy2; i<=sy_axis_max; i+=ns)
             {
                convert_gxy_to_sxy(9999, i*y_axis_divider, lx, ly);
-               al_draw_line(y_axis_label_x1+1, ly, y_axis_label_x0-1, ly, palette_color[mn_col], mn_size);
+               al_draw_line(y_axis_label_x1+1, ly, y_axis_label_x0-1, ly, mC.pc[mn_col], mn_size);
             }
          }
          if (number_of_major_gridlines < 6)
@@ -929,7 +933,7 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
             for (double i=gy2; i<=sy_axis_max; i+=ns)
             {
                convert_gxy_to_sxy(9999, i*y_axis_divider, lx, ly);
-               if (y_axis_grid_label_draw_on) al_draw_line(y_axis_label_x1+1, ly, y_axis_label_x0-1, ly, palette_color[mn_col], mn_size);
+               if (y_axis_grid_label_draw_on) al_draw_line(y_axis_label_x1+1, ly, y_axis_label_x0-1, ly, mC.pc[mn_col], mn_size);
             }
          }
 
@@ -937,13 +941,13 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
          for (double i=gy2; i<sy_axis_max; i+=y_gl_span)
          {
             convert_gxy_to_sxy(9999, i*y_axis_divider, lx, ly);
-            al_draw_line(y_axis_label_x2, ly, y_axis_label_x0-1, ly, palette_color[mj_col], mj_size);
-            if (y_axis_grid_label_draw_on) al_draw_text(f, palette_color[y_axis_grid_label_color], y_axis_label_x2-bx, ly-by-bh/2, ALLEGRO_ALIGN_RIGHT, y_axis_get_val_text(i, 0));
+            al_draw_line(y_axis_label_x2, ly, y_axis_label_x0-1, ly, mC.pc[mj_col], mj_size);
+            if (y_axis_grid_label_draw_on) al_draw_text(f, mC.pc[y_axis_grid_label_color], y_axis_label_x2-bx, ly-by-bh/2, ALLEGRO_ALIGN_RIGHT, y_axis_get_val_text(i, 0));
          }
          if (0) // label origin
          {
-            al_draw_line(y_axis_label_x2, plot_y2, plot_x1-1, plot_y2, palette_color[mj_col], mj_size);
-            al_draw_textf(f, palette_color[y_axis_grid_label_color], y_axis_label_x2-bx, plot_y2-by-bh/2, ALLEGRO_ALIGN_RIGHT, y_axis_get_val_text((y_axis_min / y_axis_divider), 0));
+            al_draw_line(y_axis_label_x2, plot_y2, plot_x1-1, plot_y2, mC.pc[mj_col], mj_size);
+            al_draw_textf(f, mC.pc[y_axis_grid_label_color], y_axis_label_x2-bx, plot_y2-by-bh/2, ALLEGRO_ALIGN_RIGHT, y_axis_get_val_text((y_axis_min / y_axis_divider), 0));
          }
       }
    }
@@ -1143,7 +1147,7 @@ int mwGraph::find_closest_point_to_mouse(int &sp, int &ip)
             if ((series[s].data[i][0] >= x_axis_min) && (series[s].data[i][0] <= x_axis_max))
                if (convert_gxy_to_sxy(series[s].data[i][0], series[s].data[i][1], sx, sy))
                {
-                  double dist = sqrt( pow(mouse_x-sx, 2) + pow(mouse_y- sy, 2) );
+                  double dist = sqrt( pow(mI.mouse_x-sx, 2) + pow(mI.mouse_y- sy, 2) );
                   if (first_time == 1)
                   {
                      min_dist = dist;
@@ -1209,11 +1213,11 @@ void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALL
    }
 
    // draw
-   al_draw_filled_rectangle(x, y, x+max_width+4, y+height+2, palette_color[0]); // erase old
-   al_draw_rectangle(       x, y, x+max_width+4, y+height+2, palette_color[color], 1);
-   if (s != -1) al_draw_textf(f, palette_color[color], x+2-bx, y+y1-by, 0, "%s", series[s].name);
-   al_draw_textf(f, palette_color[color], x+2-bx, y+y2-by, 0, "%s", y_axis_get_val_text(my, 2));
-   al_draw_textf(f, palette_color[color], x+2-bx, y+y3-by, 0, "%s", x_axis_get_val_text(mx, 1));
+   al_draw_filled_rectangle(x, y, x+max_width+4, y+height+2, mC.pc[0]); // erase old
+   al_draw_rectangle(       x, y, x+max_width+4, y+height+2, mC.pc[color], 1);
+   if (s != -1) al_draw_textf(f, mC.pc[color], x+2-bx, y+y1-by, 0, "%s", series[s].name);
+   al_draw_textf(f, mC.pc[color], x+2-bx, y+y2-by, 0, "%s", y_axis_get_val_text(my, 2));
+   al_draw_textf(f, mC.pc[color], x+2-bx, y+y3-by, 0, "%s", x_axis_get_val_text(mx, 1));
 
 
 }
@@ -1234,7 +1238,7 @@ void mwGraph::draw_plot_area(void)
             {
                double x = plot_x1 + (series[s].data[i][0]-x_axis_min) * plot_w / x_axis_rng;
                double y = plot_y2 - (series[s].data[i][1]-y_axis_min) * plot_h / y_axis_rng;
-               al_draw_filled_circle(x, y, plot_point_size, palette_color[series[s].color1]);
+               al_draw_filled_circle(x, y, plot_point_size, mC.pc[series[s].color1]);
             }
          }
          if (type == 2) // line
@@ -1254,28 +1258,28 @@ void mwGraph::draw_plot_area(void)
                   oy = y;
                }
 
-               if (series_legend_force_solid_lines) al_draw_line(ox, oy, x, y, palette_color[series[s].color1], plot_line_size);
+               if (series_legend_force_solid_lines) al_draw_line(ox, oy, x, y, mC.pc[series[s].color1], plot_line_size);
                else segments_drawn += mw_draw_line2(ox, oy, x, y, plot_line_size, 10, series[s].color1, 10, series[s].color2, line_color_offset);
 
 
                lines_drawn++;
-               al_draw_filled_circle(x, y, plot_point_size, palette_color[series[s].color1]);
+               al_draw_filled_circle(x, y, plot_point_size, mC.pc[series[s].color1]);
                ox = x;
                oy = y;
             }
          }
       }
-   if (plot_show_performance) al_draw_textf(mF.pr8, palette_color[15], plot_x1+4, plot_y1+4, 0, "plot time:%3.2f ms  lines drawn:%d segments drawn:%d", (al_get_time() - st)*1000, lines_drawn, segments_drawn);
+   if (plot_show_performance) al_draw_textf(mF.pr8, mC.pc[15], plot_x1+4, plot_y1+4, 0, "plot time:%3.2f ms  lines drawn:%d segments drawn:%d", (al_get_time() - st)*1000, lines_drawn, segments_drawn);
    al_reset_clipping_rectangle();
 }
 
 int mwGraph::proc_series_legend_menu(void)
 {
-   if ((series_legend_draw_on) && (mouse_x > series_legend_x1) && (mouse_x < series_legend_x2) && (mouse_y > series_legend_y1) && (mouse_y < series_legend_y2))
+   if ((series_legend_draw_on) && (mI.mouse_x > series_legend_x1) && (mI.mouse_x < series_legend_x2) && (mI.mouse_y > series_legend_y1) && (mI.mouse_y < series_legend_y2))
    {
       al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
-      al_draw_rectangle(series_legend_x1, series_legend_y1, series_legend_x2, series_legend_y2, palette_color[10], 1);
-      if (mouse_b[2][0])
+      al_draw_rectangle(series_legend_x1, series_legend_y1, series_legend_x2, series_legend_y2, mC.pc[10], 1);
+      if (mI.mouse_b[2][0])
       {
          sprintf(global_string[5][0],"Series Legend Menu");
          sprintf(global_string[5][1],"------------------");
@@ -1308,7 +1312,7 @@ int mwGraph::proc_series_legend_menu(void)
 
 void mwGraph::proc_plot_menu(void)
 {
-   if (mouse_b[2][0])
+   if (mI.mouse_b[2][0])
    {
       sprintf(global_string[5][0],"Main Plot Menu");
       sprintf(global_string[5][1],"--------------");
@@ -1396,14 +1400,14 @@ void mwGraph::proc_plot_mouse_cursor_crosshairs(double mx1, double my1)
       x = plot_x1 + (series[s].data[i][0]-x_axis_min) * plot_w / x_axis_rng;
       y = plot_y2 - (series[s].data[i][1]-y_axis_min) * plot_h / y_axis_rng;
       col = 14;
-      al_draw_circle(x, y, 4, palette_color[col], 1);
+      al_draw_circle(x, y, 4, mC.pc[col], 1);
       draw_point_data(x, y, series[s].data[i][0], series[s].data[i][1], col, mF.pr8, s);
    }
    else // show mouse position
    {
       col = 15;
-      x = mouse_x;
-      y = mouse_y;
+      x = mI.mouse_x;
+      y = mI.mouse_y;
       draw_point_data(x, y, mx1, my1, col, mF.pixl, -1);
    }
    if (linked_group_id)
@@ -1412,8 +1416,8 @@ void mwGraph::proc_plot_mouse_cursor_crosshairs(double mx1, double my1)
          if (mwG[g].linked_group_id == linked_group_id) mwG[g].x_axis_cursor_pos = x;
    }
    mwD.mw_set_clipping_rect(plot_x1, plot_y1, plot_w, plot_h);
-   al_draw_line(plot_x1, y, plot_x2, y, palette_color[col+64], 0);
-   al_draw_line(x, plot_y1, x, plot_y2, palette_color[col+64], 0);
+   al_draw_line(plot_x1, y, plot_x2, y, mC.pc[col+64], 0);
+   al_draw_line(x, plot_y1, x, plot_y2, mC.pc[col+64], 0);
    al_reset_clipping_rectangle();
 }
 
@@ -1421,8 +1425,8 @@ void mwGraph::proc_plot_mouse_cursor_crosshairs(double mx1, double my1)
 
 void mwGraph::proc_plot_area(int draw_only)
 {
-   al_draw_filled_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, palette_color[title_frame_color+224]); // erase plot background
-   al_draw_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, palette_color[title_frame_color], 2);         // frame plot
+   al_draw_filled_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, mC.pc[title_frame_color+224]); // erase plot background
+   al_draw_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, mC.pc[title_frame_color], 2);         // frame plot
 
    x_axis_draw_gridlines_and_labels(0);
    y_axis_draw_gridlines_and_labels(0);
@@ -1434,7 +1438,7 @@ void mwGraph::proc_plot_area(int draw_only)
       if (!proc_series_legend_menu())
       {
          double mx1, my1;
-         if (convert_sxy_to_gxy(mouse_x, mouse_y, mx1, my1)) // not on series legend, test if on plot arae
+         if (convert_sxy_to_gxy(mI.mouse_x, mI.mouse_y, mx1, my1)) // not on series legend, test if on plot arae
          {
             al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 
@@ -1442,23 +1446,23 @@ void mwGraph::proc_plot_area(int draw_only)
 
             proc_plot_mouse_cursor_crosshairs(mx1, my1);
 
-            if (mouse_b[1][0])
+            if (mI.mouse_b[1][0])
             {
                double mx2 = mx1;
                double my2 = my1;
-               if (SHFT()) // [SHIFT] + draw rectangle to set new zoom area
+               if (mI.SHFT()) // [SHIFT] + draw rectangle to set new zoom area
                {
-                  int rmx = mouse_x;
-                  int rmy = mouse_y;
-                  while (mouse_b[1][0])
+                  int rmx = mI.mouse_x;
+                  int rmy = mI.mouse_y;
+                  while (mI.mouse_b[1][0])
                   {
-                     proc_event_queue();
-                     convert_sxy_to_gxy(mouse_x, mouse_y, mx2, my2);
+                     mwEQ.proc_event_queue();
+                     convert_sxy_to_gxy(mI.mouse_x, mI.mouse_y, mx2, my2);
                      {
                         draw_graph(1);
                         mwD.mw_set_clipping_rect(plot_x1, plot_y1, plot_w, plot_h);
-                        al_draw_textf(mF.pr8, palette_color[14], rmx, rmy -10, 0, "[SHIFT] + draw box zooms to new area");
-                        al_draw_rectangle(rmx, rmy, mouse_x, mouse_y, palette_color[14], 1);
+                        al_draw_textf(mF.pr8, mC.pc[14], rmx, rmy -10, 0, "[SHIFT] + draw box zooms to new area");
+                        al_draw_rectangle(rmx, rmy, mI.mouse_x, mI.mouse_y, mC.pc[14], 1);
                         al_reset_clipping_rectangle();
                         al_flip_display();
                      }
@@ -1470,27 +1474,27 @@ void mwGraph::proc_plot_area(int draw_only)
                {
                   double old_x_axis_min = x_axis_min;
                   double old_x_axis_max = x_axis_max;
-                  int rmx = mouse_x;
+                  int rmx = mI.mouse_x;
                   double x_scaler =  x_axis_rng / plot_w;
 
                   double old_y_axis_min = y_axis_min;
                   double old_y_axis_max = y_axis_max;
-                  int rmy = mouse_y;
+                  int rmy = mI.mouse_y;
                   double y_scaler =  y_axis_rng / plot_h;
 
-                  while (mouse_b[1][0])
+                  while (mI.mouse_b[1][0])
                   {
-                     proc_event_queue();
-                     if (convert_sxy_to_gxy(mouse_x, mouse_y, mx2, my2))
+                     mwEQ.proc_event_queue();
+                     if (convert_sxy_to_gxy(mI.mouse_x, mI.mouse_y, mx2, my2))
                      {
                         if ((!x_axis_zoom_lock) && (!x_axis_slave))
                         {
-                           double mdx = (mouse_x - rmx) * x_scaler;
+                           double mdx = (mI.mouse_x - rmx) * x_scaler;
                            x_axis_min = old_x_axis_min - mdx;
                            x_axis_max = old_x_axis_max - mdx;
                         }
 
-                        double mdy = (mouse_y - rmy) * y_scaler;
+                        double mdy = (mI.mouse_y - rmy) * y_scaler;
                         double new_y_axis_min = old_y_axis_min + mdy;
                         double new_y_axis_max = old_y_axis_max + mdy;
                         if (y_axis_zoom_lock)
@@ -1516,9 +1520,9 @@ void mwGraph::proc_plot_area(int draw_only)
                }
             } // end of mouse b1 pressed
 
-            if (mouse_dz) // zoom with mouse wheel, centered on mouse position
+            if (mI.mouse_dz) // zoom with mouse wheel, centered on mouse position
             {
-               if (mouse_dz < 0)
+               if (mI.mouse_dz < 0)
                {
                   if ((!x_axis_zoom_lock) && (!x_axis_slave))
                   {
@@ -1537,7 +1541,7 @@ void mwGraph::proc_plot_area(int draw_only)
                      y_axis_max = y_axis_min + y_axis_rng;     // set new max
                   }
                }
-               if (mouse_dz > 0)
+               if (mI.mouse_dz > 0)
                {
                   if ((!x_axis_zoom_lock) && (!x_axis_slave))
                   {
@@ -1556,7 +1560,7 @@ void mwGraph::proc_plot_area(int draw_only)
                      y_axis_max = y_axis_min + y_axis_rng;     // set new max
                   }
                }
-               mouse_dz = 0;
+               mI.mouse_dz = 0;
                enforce_axis_limits();
             } // end of mouse_dz
          }  // end of mouse on plot area
@@ -1565,13 +1569,13 @@ void mwGraph::proc_plot_area(int draw_only)
             if (linked_group_id) // part of a linked group
             {
                // mouse is on this graph, but not on plot area
-               if ((mouse_x > graph_x1) && (mouse_x < graph_x2) && (mouse_y > graph_y1) && (mouse_y < graph_y2))
+               if ((mI.mouse_x > graph_x1) && (mI.mouse_x < graph_x2) && (mI.mouse_y > graph_y1) && (mI.mouse_y < graph_y2))
                {
                   for (int g=0; g<10; g++) // set all linked x_axis_cursor_pos to invalid
                      if (mwG[g].linked_group_id == linked_group_id) mwG[g].x_axis_cursor_pos = 99999; // set all linked cursors to not valid
                }
                if (x_axis_cursor_pos > -99998)
-                  al_draw_line(x_axis_cursor_pos, plot_y1, x_axis_cursor_pos, plot_y2, palette_color[15], 0); // draw if valid
+                  al_draw_line(x_axis_cursor_pos, plot_y1, x_axis_cursor_pos, plot_y2, mC.pc[15], 0); // draw if valid
             }
          }
       }  // end of mouse not on series legend
@@ -1600,47 +1604,47 @@ int mwGraph::y_axis_draw_scrollbar(int set_size_only)
          int sbby1 = y_axis_scrollbar_bar_y1 = sby2 - ((y_axis_max - y_disp_min) / y_disp_rng) * sbh;
          int sbby2 = y_axis_scrollbar_bar_y2 = sby2 - ((y_axis_min - y_disp_min) / y_disp_rng) * sbh;
 
-         al_draw_filled_rectangle(sbx1,   sby1,    sbx2,   sby2,    palette_color[0]);        // erase
-         al_draw_filled_rectangle(sbx1+1, sbby1+1, sbx2-1, sbby2-1, palette_color[15+160]);   // draw bar
-         al_draw_rectangle(       sbx1,   sby1,    sbx2,   sby2,    palette_color[15+96], 1); // frame
+         al_draw_filled_rectangle(sbx1,   sby1,    sbx2,   sby2,    mC.pc[0]);        // erase
+         al_draw_filled_rectangle(sbx1+1, sbby1+1, sbx2-1, sbby2-1, mC.pc[15+160]);   // draw bar
+         al_draw_rectangle(       sbx1,   sby1,    sbx2,   sby2,    mC.pc[15+96], 1); // frame
 
          if (!y_axis_slave)
          {
-            int mx = mouse_x;
-            int my = mouse_y;
+            int mx = mI.mouse_x;
+            int my = mI.mouse_y;
             if ((mx > sbx1) && (mx < sbx2))
             {
                if ((my > sby1) && (my < sby2)) // on entire scrollbar
                {
                   mouse_on_scrollbar = true;
-                  al_draw_rectangle(sbx1, sby1, sbx2, sby2, palette_color[15], 1);
-                  if (mouse_b[2][0]) return 1;
+                  al_draw_rectangle(sbx1, sby1, sbx2, sby2, mC.pc[15], 1);
+                  if (mI.mouse_b[2][0]) return 1;
                }
                if ((my > sbby2-5) && (my < sbby2) && (!y_axis_zoom_lock)) // on scrollbar bar min adjust
                {
-                  al_draw_rectangle(sbx1, sbby2, sbx2, sbby2, palette_color[15], 1);
+                  al_draw_rectangle(sbx1, sbby2, sbx2, sbby2, mC.pc[15], 1);
                   al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N);
                   return 6;
                }
                if ((my < sbby1+5) && (my > sbby1) && (!y_axis_zoom_lock)) // on scrollbar bar max adjust
                {
-                  al_draw_rectangle(sbx1, sbby1, sbx2, sbby1, palette_color[15], 1);
+                  al_draw_rectangle(sbx1, sbby1, sbx2, sbby1, mC.pc[15], 1);
                   al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N);
                   return 5;
                }
                if ((my > sbby2-1) && (my < sby2)) // on scrollbar between bar and data min
                {
-                  al_draw_rectangle(sbx1, my, sbx2, my, palette_color[15], 1);
+                  al_draw_rectangle(sbx1, my, sbx2, my, mC.pc[15], 1);
                   return 4;
                }
                if ((my < sbby1+1) && (my > sby1)  && (!y_axis_zoom_lock)) // on scrollbar between bar and data max
                {
-                  al_draw_rectangle(sbx1, my, sbx2, my, palette_color[15], 1);
+                  al_draw_rectangle(sbx1, my, sbx2, my, mC.pc[15], 1);
                   return 3;
                }
                if ((my < sbby2) && (my > sbby1)) // on scrollbar bar
                {
-                  al_draw_rectangle(sbx1, sbby1, sbx2, sbby2, palette_color[15], 1);
+                  al_draw_rectangle(sbx1, sbby1, sbx2, sbby2, mC.pc[15], 1);
                   al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE);
                   return 2;
                }
@@ -1661,18 +1665,18 @@ void mwGraph::y_axis_proc_scrollbar(int draw_only)
       y_axis_rng = mwG[c].y_axis_rng;
    }
    int sb = y_axis_draw_scrollbar(0);
-   if ((sb) && (!draw_only) && (y_axis_scrollbar_draw_on) && (mouse_b[1][0]))
+   if ((sb) && (!draw_only) && (y_axis_scrollbar_draw_on) && (mI.mouse_b[1][0]))
    {
       double old_y_axis_min = y_axis_min;
       double old_y_axis_max = y_axis_max;
       double y_scaler = y_disp_rng / y_axis_scrollbar_h;
-      int rmy = mouse_y;
+      int rmy = mI.mouse_y;
 
       if (sb == 2) // drag adjust axis mix and max
       {
-         while (mouse_b[1][0])
+         while (mI.mouse_b[1][0])
          {
-            double mdy = (mouse_y - rmy) * y_scaler;
+            double mdy = (mI.mouse_y - rmy) * y_scaler;
             double new_y_axis_min = old_y_axis_min - mdy;
             double new_y_axis_max = old_y_axis_max - mdy;
 
@@ -1682,45 +1686,45 @@ void mwGraph::y_axis_proc_scrollbar(int draw_only)
             enforce_axis_limits();
             draw_graph(1);
             al_flip_display();
-            proc_event_queue();
+            mwEQ.proc_event_queue();
          }
       }
       if (sb == 6) // drag adjust axis_min
       {
-         while (mouse_b[1][0])
+         while (mI.mouse_b[1][0])
          {
-            double mdy = (mouse_y - rmy) * y_scaler;
+            double mdy = (mI.mouse_y - rmy) * y_scaler;
             y_axis_min = old_y_axis_min - mdy;
 
             enforce_axis_limits();
             draw_graph(1);
             al_flip_display();
-            proc_event_queue();
+            mwEQ.proc_event_queue();
          }
       }
       if (sb == 5) // drag adjust axis_min
       {
-         while (mouse_b[1][0])
+         while (mI.mouse_b[1][0])
          {
-            double mdy = (mouse_y - rmy) * y_scaler;
+            double mdy = (mI.mouse_y - rmy) * y_scaler;
             y_axis_max = old_y_axis_max - mdy;
 
             enforce_axis_limits();
             draw_graph(1);
             al_flip_display();
-            proc_event_queue();
+            mwEQ.proc_event_queue();
          }
       }
       if (sb == 4) // set new pos (jump to new pos between data_min and axis_min )
       {
-         double mdy = (mouse_y - y_axis_scrollbar_bar_y2) * y_scaler;
+         double mdy = (mI.mouse_y - y_axis_scrollbar_bar_y2) * y_scaler;
          y_axis_min = old_y_axis_min - mdy;
          y_axis_max = old_y_axis_max - mdy;
          enforce_axis_limits();
       }
       if (sb == 3) // adjust y_axis_max
       {
-         double mdy = (mouse_y - y_axis_scrollbar_bar_y1) * y_scaler;
+         double mdy = (mI.mouse_y - y_axis_scrollbar_bar_y1) * y_scaler;
          y_axis_max = old_y_axis_max - mdy;
          enforce_axis_limits();
       }
@@ -1745,48 +1749,48 @@ int mwGraph::x_axis_draw_scrollbar(int set_size_only)
          int sbbx1 = x_axis_scrollbar_bar_x1 = ((x_axis_min - x_disp_min) / x_disp_rng) * sbw + sbx1;
          int sbbx2 = x_axis_scrollbar_bar_x2 = ((x_axis_max - x_disp_min) / x_disp_rng) * sbw + sbx1;
 
-         al_draw_filled_rectangle(sbx1,    sby1, sbx2,    sby2, palette_color[0]);        // erase
-         al_draw_filled_rectangle(sbbx1+1, sby1, sbbx2-1, sby2, palette_color[15+160]);   // draw bar
-         al_draw_rectangle(       sbx1,    sby1, sbx2,    sby2, palette_color[15+96], 1); // frame
+         al_draw_filled_rectangle(sbx1,    sby1, sbx2,    sby2, mC.pc[0]);        // erase
+         al_draw_filled_rectangle(sbbx1+1, sby1, sbbx2-1, sby2, mC.pc[15+160]);   // draw bar
+         al_draw_rectangle(       sbx1,    sby1, sbx2,    sby2, mC.pc[15+96], 1); // frame
 
          if (!x_axis_zoom_lock)
          {
-            int mx = mouse_x;
-            int my = mouse_y;
+            int mx = mI.mouse_x;
+            int my = mI.mouse_y;
             if ((my > sby1) && (my < sby2))
             {
                if ((mx > sbx1) && (mx < sbx2)) // on entire scrollbar
                {
                   mouse_on_scrollbar = true;
-                  al_draw_rectangle(sbx1, sby1, sbx2, sby2, palette_color[15], 1);
-                  if (mouse_b[2][0]) return 1;
+                  al_draw_rectangle(sbx1, sby1, sbx2, sby2, mC.pc[15], 1);
+                  if (mI.mouse_b[2][0]) return 1;
                }
 
                if ((mx > sbbx1) && (mx < sbbx1+5)) // on scrollbar bar min adjust
                {
-                  al_draw_rectangle(sbbx1, sby1, sbbx1, sby2, palette_color[15], 1);
+                  al_draw_rectangle(sbbx1, sby1, sbbx1, sby2, mC.pc[15], 1);
                   al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_W);
                   return 6;
                }
                if ((mx < sbbx2) && (mx > sbbx2-5)) // on scrollbar bar max adjust
                {
-                  al_draw_rectangle(sbbx2, sby1, sbbx2, sby2, palette_color[15], 1);
+                  al_draw_rectangle(sbbx2, sby1, sbbx2, sby2, mC.pc[15], 1);
                   al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_W);
                   return 5;
                }
                if ((mx < sbbx1+1) && (mx > sbx1)) // on scrollbar between bar and data min
                {
-                  al_draw_rectangle(mx, sby1, mx, sby2, palette_color[15], 1);
+                  al_draw_rectangle(mx, sby1, mx, sby2, mC.pc[15], 1);
                   return 4;
                }
                if ((mx > sbbx2-1) && (mx < sbx2)) // on scrollbar between bar and data max
                {
-                  al_draw_rectangle(mx, sby1, mx, sby2, palette_color[15], 1);
+                  al_draw_rectangle(mx, sby1, mx, sby2, mC.pc[15], 1);
                   return 3;
                }
                if ((mx > sbbx1) && (mx < sbbx2))  // on scrollbar bar
                {
-                  al_draw_rectangle(sbbx1, sby1, sbbx2, sby2, palette_color[15], 1);
+                  al_draw_rectangle(sbbx1, sby1, sbbx2, sby2, mC.pc[15], 1);
                   al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE);
                   return 2;
                }
@@ -1809,60 +1813,60 @@ void mwGraph::x_axis_proc_scrollbar(int draw_only)
    }
    int sb = x_axis_draw_scrollbar(0);
 
-   if ((sb) && (!draw_only) && (x_axis_scrollbar_draw_on) && (mouse_b[1][0]))
+   if ((sb) && (!draw_only) && (x_axis_scrollbar_draw_on) && (mI.mouse_b[1][0]))
    {
       double old_x_axis_min = x_axis_min;
       double old_x_axis_max = x_axis_max;
       double x_scaler = x_disp_rng / x_axis_scrollbar_w;
-      int rmx = mouse_x;
+      int rmx = mI.mouse_x;
 
       if (sb == 2) // drag adjust axis mix and max
       {
-         while (mouse_b[1][0])
+         while (mI.mouse_b[1][0])
          {
-            double mdx = (rmx - mouse_x) * x_scaler;
+            double mdx = (rmx - mI.mouse_x) * x_scaler;
             x_axis_min = old_x_axis_min - mdx;
             x_axis_max = old_x_axis_max - mdx;
             enforce_axis_limits();
             draw_graph(1);
             al_flip_display();
-            proc_event_queue();
+            mwEQ.proc_event_queue();
          }
       }
       if (sb == 6) // drag adjust axis_min
       {
-         while (mouse_b[1][0])
+         while (mI.mouse_b[1][0])
          {
-            double mdx = (rmx - mouse_x) * x_scaler;
+            double mdx = (rmx - mI.mouse_x) * x_scaler;
             x_axis_min = old_x_axis_min - mdx;
             enforce_axis_limits();
             draw_graph(1);
             al_flip_display();
-            proc_event_queue();
+            mwEQ.proc_event_queue();
          }
       }
       if (sb == 5) // drag adjust axis_max
       {
-         while (mouse_b[1][0])
+         while (mI.mouse_b[1][0])
          {
-            double mdx = (rmx - mouse_x) * x_scaler;
+            double mdx = (rmx - mI.mouse_x) * x_scaler;
             x_axis_max = old_x_axis_max - mdx;
             enforce_axis_limits();
             draw_graph(1);
             al_flip_display();
-            proc_event_queue();
+            mwEQ.proc_event_queue();
          }
       }
       if (sb == 4) // set new pos (jump to new pos between data_min and axis_min )
       {
-         double mdx = (x_axis_scrollbar_bar_x1 - mouse_x) * x_scaler;
+         double mdx = (x_axis_scrollbar_bar_x1 - mI.mouse_x) * x_scaler;
          x_axis_min = old_x_axis_min - mdx;
          x_axis_max = old_x_axis_max - mdx;
          enforce_axis_limits();
       }
       if (sb == 3) // adjust x_axis_max
       {
-         double mdx = (x_axis_scrollbar_bar_x2 - mouse_x) * x_scaler;
+         double mdx = (x_axis_scrollbar_bar_x2 - mI.mouse_x) * x_scaler;
          x_axis_max = old_x_axis_max - mdx;
          enforce_axis_limits();
       }

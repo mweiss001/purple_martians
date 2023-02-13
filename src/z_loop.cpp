@@ -1,6 +1,6 @@
 // z_loop.cpp
 #include "pm.h"
-
+#include "z_loop.h"
 #include "mwQuickGraph.h"
 #include "z_sound.h"
 #include "z_log.h"
@@ -16,152 +16,27 @@
 #include "mwDisplay.h"
 #include "mwTimeStamp.h"
 #include "mwFont.h"
-
-
-void proc_events(ALLEGRO_EVENT ev)
-{
-   if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) mwD.proc_display_change();
-   if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) fast_exit(0);
-   if (ev.type == ALLEGRO_EVENT_MOUSE_WARPED)
-   {
-      mouse_x = ev.mouse.x / mwD.display_transform_double;
-      mouse_y = ev.mouse.y / mwD.display_transform_double;
-   }
-   if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
-   {
-      mouse_x = ev.mouse.x / mwD.display_transform_double;
-      mouse_y = ev.mouse.y / mwD.display_transform_double;
-      mouse_z = ev.mouse.z / mwD.display_transform_double;
-      mouse_dx = ev.mouse.dx;
-      mouse_dy = ev.mouse.dy;
-      mouse_dz = ev.mouse.dz;
-
-      al_set_timer_count(mou_timer, 0);
-      al_show_mouse_cursor(display);
-
-
-   }
-   if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
-   {
-      if (ev.mouse.button == 1) mouse_b[1][0] = true;
-      if (ev.mouse.button == 2) mouse_b[2][0] = true;
-      if (ev.mouse.button == 3) mouse_b[3][0] = true;
-      if (ev.mouse.button == 4) mouse_b[4][0] = true;
-   }
-   if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
-   {
-      if (ev.mouse.button == 1) mouse_b[1][0] = false;
-      if (ev.mouse.button == 2) mouse_b[2][0] = false;
-      if (ev.mouse.button == 3) mouse_b[3][0] = false;
-      if (ev.mouse.button == 4) mouse_b[4][0] = false;
-   }
-   if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
-   {
-      int k = ev.keyboard.keycode;
-      key[k][0] = true;
-   }
-   if (ev.type == ALLEGRO_EVENT_KEY_UP)
-   {
-      int k = ev.keyboard.keycode;
-      key[k][0] = false;
-      if (k == ALLEGRO_KEY_PRINTSCREEN) key[k][0] = true; // special exception to make PRINTSCREEN work
-   }
-   if (ev.type == ALLEGRO_EVENT_KEY_CHAR)
-   {
-      key_pressed_ASCII = ev.keyboard.unichar;
-      serial_key_check(key_pressed_ASCII);
-      menu_update = 1;
-      //printf("key_pressed_ASCII:%d\n", key_pressed_ASCII);
-   }
-   if (ev.type == ALLEGRO_EVENT_JOYSTICK_AXIS)
-   {
-      int jy = getJoystickNum(ev.joystick.id);
-      int jo = 0; // offset
-      if (jy == 0) jo = 0;
-      if (jy == 1) jo = 20;
-      int ax = ev.joystick.axis;
-      float pos = ev.joystick.pos;
-      if (ax == 0) // x axis
-      {
-         key[130+jo][0] = false;
-         key[131+jo][0] = false;
-         if (pos > 0) key[131+jo][0] = true;
-         if (pos < 0) key[130+jo][0] = true;
-      }
-      if (ax == 1) // y axis
-      {
-         key[128+jo][0] = false;
-         key[129+jo][0] = false;
-         if (pos > 0) key[129+jo][0] = true;
-         if (pos < 0) key[128+jo][0] = true;
-      }
-   }
-   if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN)
-   {
-      int jy = getJoystickNum(ev.joystick.id);
-      int sc = get_scan_code_from_joystick(jy, 1, ev.joystick.button);
-      key[sc][0] = true;
-   }
-   if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_UP)
-   {
-      int jy = getJoystickNum(ev.joystick.id);
-      int sc = get_scan_code_from_joystick(jy, 1, ev.joystick.button);
-      key[sc][0] = false;
-   }
-   if (ev.type == ALLEGRO_EVENT_TIMER)
-   {
-      if (ev.timer.source == fps_timer) program_update = 1;
-      if (ev.timer.source == sec_timer) program_update_1s = 1;
-      if (ev.timer.source == png_timer) players1[active_local_player].client_ping_flag = 1;
-      if (ev.timer.source == mou_timer) al_hide_mouse_cursor(display);
-      if (ev.timer.source == mnu_timer) menu_update = 1;
-   }
-}
-
-void proc_keys_held(void)
-{
-   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++)
-   {
-      if ((key[k][0] == true) && (key[k][1] == false)) key[k][2] = true; // just pressed
-      else key[k][2] = false;
-      if ((key[k][0] == false) && (key[k][1] == true)) key[k][3] = true; // just released
-      else key[k][3] = false;
-      key[k][1] = key[k][0]; // previous for next time
-   }
-   for (int m=1; m<5; m++)
-   {
-      if ((mouse_b[m][0] == true) && (mouse_b[m][1] == false)) mouse_b[m][2] = true; // just pressed
-      else mouse_b[m][2] = false;
-      if ((mouse_b[m][0] == false) && (mouse_b[m][1] == true)) mouse_b[m][3] = true; // just released
-      else mouse_b[m][3] = false;
-      mouse_b[m][1] = mouse_b[m][0]; // previous for next time
-   }
-}
-
-void proc_event_queue(void)
-{
-   key[ALLEGRO_KEY_PRINTSCREEN][0] = 0; // hack to make PRINTSCREEN key work properly
-   key_pressed_ASCII = 0;
-
-   while (!al_is_event_queue_empty(event_queue))
-   {
-      ALLEGRO_EVENT ev;
-      al_get_next_event(event_queue, &ev);
-      proc_events(ev);
-   }
-   proc_keys_held();
-   function_key_check();
-}
-
-void proc_event_queue_menu(void)
-{
-   proc_event_queue();
-
-   // do this so that the game keys can be used in menus and visual level select
-   clear_controls(active_local_player);
-   set_controls_from_player_key_check(active_local_player);
-}
-
+#include "z_lift.h"
+#include "n_client.h"
+#include "n_server.h"
+#include "z_bullets.h"
+#include "e_visual_level.h"
+#include "mwGameMovesArray.h"
+#include "mwPMEvent.h"
+#include "mwInput.h"
+#include "mwEventQueue.h"
+#include "mwBitmap.h"
+#include "z_menu.h"
+#include "mwProgramState.h"
+#include "z_item.h"
+#include "z_enemy.h"
+#include "z_level.h"
+#include "e_editor_main.h"
+#include "z_control.h"
+#include "z_file.h"
+#include "z_fnx.h"
+#include "z_screen.h"
+#include "z_screen_overlay.h"
 
 
 void draw_frame(void)
@@ -210,67 +85,69 @@ void loop_frame(int times) // used for fast forwarding after rewind
 {
    for (int i=0; i<times; i++)
    {
-      proc_game_moves_array();
+      mwGMA.proc_game_moves_array();
       if (players[0].level_done_mode) proc_level_done_mode();
       else move_frame();
-      frame_num++;
+      mwPS.frame_num++;
    }
-}
-
-int has_player_acknowledged(int p)
-{
-   int start_pos = game_move_entry_pos;
-   int end_pos = start_pos - 1000;
-   if (end_pos < 0) end_pos = 0;
-   for (int x=start_pos; x>end_pos; x--) // look back for ack
-      if ((game_moves[x][1] == 8) && (game_moves[x][2] == p)) return 1;
-   return 0;
 }
 
 int have_all_players_acknowledged(void)
 {
+   int ret = 1; // yes by default
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((players[p].active) && (!has_player_acknowledged(p))) return 0;
-   return 1;
+   {
+      if (players[p].active)
+      {
+         if (mwGMA.has_player_acknowledged(p))
+         {
+            players[p].level_done_ack = 1;
+         }
+         else
+         {
+            players[p].level_done_ack = 0;
+            ret = 0;
+         }
+      }
+   }
+   return ret;
 }
-
-
 
 void game_menu(void)
 {
-   old_program_state = 1;
+   mwPS.old_program_state = 1;
    if (!mwL.splash_screen_done) { mwL.splash_screen(); mwL.splash_screen_done = 1; }
-   if (!resume_allowed) load_level(start_level, 0);
-   if (top_menu_sel < 3) top_menu_sel = 3;
-   while (top_menu_sel != 1)
+   if (!resume_allowed) load_level(start_level, 0, 0);
+   if (mwPS.top_menu_sel < 3) mwPS.top_menu_sel = 3;
+   while (mwPS.top_menu_sel != 1)
    {
-      top_menu_sel = zmenu(7, top_menu_sel, 10);
-      if  (top_menu_sel == 1)  { program_state = 0;                                           return; } // exit
-      if  (top_menu_sel == 2)  { visual_level_select(); top_menu_sel = 3;                             } // visual level select
-      if ((top_menu_sel == 4) && (resume_allowed)) { new_program_state = 13;                  return; } // resume game
-      if  (top_menu_sel == 3)  { new_program_state = 10;  top_menu_sel = 4;                   return; } // start new game
-      if  (top_menu_sel == 5)  { new_program_state = 20;                                      return; } // host network game
-      if  (top_menu_sel == 6)  { new_program_state = 24;                                      return; } // join network game
-      if  (top_menu_sel == 7)  { new_program_state = 3;                                       return; } // settings
-      if  (top_menu_sel == 8)  { play_level = edit_menu(start_level); new_program_state = 10; return; } // level editor
-      if  (top_menu_sel == 9)  { new_program_state = 2;  older_program_state = 1;             return; } // demo mode
-      if  (top_menu_sel == 10)                                                                help(""); // help
-      if ((top_menu_sel > 100) && (top_menu_sel < 200)) // right pressed on menu item
+      mwPS.top_menu_sel = zmenu(7, mwPS.top_menu_sel, 10);
+      if  (mwPS.top_menu_sel == 1)  { mwPS.program_state = 0;                                           return; } // exit
+      if  (mwPS.top_menu_sel == 2)  { visual_level_select(); mwPS.top_menu_sel = 3;                             } // visual level select
+      if ((mwPS.top_menu_sel == 4) && (resume_allowed)) { mwPS.new_program_state = 13;                  return; } // resume game
+      if  (mwPS.top_menu_sel == 3)  { mwPS.new_program_state = 10;  mwPS.top_menu_sel = 4;                   return; } // start new game
+      if  (mwPS.top_menu_sel == 5)  { mwPS.new_program_state = 20;                                      return; } // host network game
+      if  (mwPS.top_menu_sel == 6)  { mwPS.new_program_state = 24;                                      return; } // join network game
+      if  (mwPS.top_menu_sel == 7)  { mwPS.new_program_state = 3;                                       return; } // settings
+      if  (mwPS.top_menu_sel == 8)  { play_level = edit_menu(start_level); mwPS.new_program_state = 10; return; } // level editor
+      if  (mwPS.top_menu_sel == 9)  { mwPS.new_program_state = 2;  mwPS.older_program_state = 1;             return; } // demo mode
+      if  (mwPS.top_menu_sel == 10)                                                                help(""); // help
+      if ((mwPS.top_menu_sel > 100) && (mwPS.top_menu_sel < 200)) // right pressed on menu item
       {
-         top_menu_sel -= 100;
-         if (top_menu_sel == 2)
+         mwPS.top_menu_sel -= 100;
+         if (mwPS.top_menu_sel == 2)
          {
             set_start_level(++start_level); // start level increment
-            load_level(start_level, 0);
+            load_level(start_level, 0, 0);
          }
       }
-      if ((top_menu_sel > 200) && (top_menu_sel < 300)) // left pressed on menu item
+      if ((mwPS.top_menu_sel > 200) && (mwPS.top_menu_sel < 300)) // left pressed on menu item
       {
-         top_menu_sel -= 200;
-         if (top_menu_sel == 2)
+         mwPS.top_menu_sel -= 200;
+         if (mwPS.top_menu_sel == 2)
          {
             set_start_level(--start_level); // start level decrement
-            load_level(start_level, 0);
+            load_level(start_level, 0, 0);
          }
       }
    }
@@ -281,24 +158,24 @@ void proc_program_state(void)
    // ----------------------------------------------------------
    // handle all the changes from one state to another
    // ----------------------------------------------------------
-   if (new_program_state)
+   if (mwPS.new_program_state)
    {
-      if (new_program_state != program_state)
+      if (mwPS.new_program_state != mwPS.program_state)
       {
-         if (new_program_state ==  2) program_state =  2; // demo_mode
-         if (new_program_state ==  3) program_state =  3; // config
-         if (new_program_state == 10) program_state = 10; // start new game
-         if (new_program_state == 12) program_state = 12; // level_done
-         if (new_program_state == 13) program_state = 13; // resume
-         if (new_program_state == 14) program_state = 14; // run demo
-         if (new_program_state == 20) program_state = 20; // start server game
-         if (new_program_state == 21) program_state = 21; // client wait for initial state
-         if (new_program_state == 22) program_state = 22; // client load level and set up
-         if (new_program_state == 23) program_state = 23; // client wait for sjon
-         if (new_program_state == 24) program_state = 24; // client init network and send cjon
-         if (new_program_state == 25) program_state = 25; // client exit and clean up network
+         if (mwPS.new_program_state ==  2) mwPS.program_state =  2; // demo_mode
+         if (mwPS.new_program_state ==  3) mwPS.program_state =  3; // config
+         if (mwPS.new_program_state == 10) mwPS.program_state = 10; // start new game
+         if (mwPS.new_program_state == 12) mwPS.program_state = 12; // level_done
+         if (mwPS.new_program_state == 13) mwPS.program_state = 13; // resume
+         if (mwPS.new_program_state == 14) mwPS.program_state = 14; // run demo
+         if (mwPS.new_program_state == 20) mwPS.program_state = 20; // start server game
+         if (mwPS.new_program_state == 21) mwPS.program_state = 21; // client wait for initial state
+         if (mwPS.new_program_state == 22) mwPS.program_state = 22; // client load level and set up
+         if (mwPS.new_program_state == 23) mwPS.program_state = 23; // client wait for sjon
+         if (mwPS.new_program_state == 24) mwPS.program_state = 24; // client init network and send cjon
+         if (mwPS.new_program_state == 25) mwPS.program_state = 25; // client exit and clean up network
 
-         if (new_program_state == 1) // game menu or fast exit
+         if (mwPS.new_program_state == 1) // game menu or fast exit
          {
             if (ima_server) server_exit();
             if (ima_client) client_exit();
@@ -307,36 +184,36 @@ void proc_program_state(void)
             if (autosave_game_on_game_exit) blind_save_game_moves(2);
 
             stop_sound();
-            if (program_state != 3) stamp();
+            if (mwPS.program_state != 3) stamp();
 
-            program_state = old_program_state; // go back to the state that called 0,1,2 or 3
+            mwPS.program_state = mwPS.old_program_state; // go back to the state that called 0,1,2 or 3
          }
       }
-      new_program_state = 0;
+      mwPS.new_program_state = 0;
    }
-   if (program_state == 0) main_loop_exit = 1; // quit
-   if (program_state == 1) game_menu();  // game menu (this blocks)
-   if (program_state == 2) mwDM.demo_mode();  // demo mode
-   if (program_state == 3) settings_pages(-1);  // this blocks
+   if (mwPS.program_state == 0) mwPS.main_loop_exit = 1; // quit
+   if (mwPS.program_state == 1) game_menu();  // game menu (this blocks)
+   if (mwPS.program_state == 2) mwDM.demo_mode();  // demo mode
+   if (mwPS.program_state == 3) settings_pages(-1);  // this blocks
 
    //---------------------------------------
    // 25 - client exit
    //---------------------------------------
-   if (program_state == 25) // client exit
+   if (mwPS.program_state == 25) // client exit
    {
       client_exit();
-      new_program_state = 1;
+      mwPS.new_program_state = 1;
    }
 
 
    //---------------------------------------
    // 24 - client new game
    //---------------------------------------
-   if (program_state == 24)
+   if (mwPS.program_state == 24)
    {
       if (!client_init())
       {
-         new_program_state = 25;
+         mwPS.new_program_state = 25;
          return;
       }
 
@@ -349,29 +226,29 @@ void proc_program_state(void)
       for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1); // full reset
       players[0].active = 1;
 
-      new_program_state = 23;
+      mwPS.new_program_state = 23;
    }
 
    //---------------------------------------
    // 23 - client wait for join
    //---------------------------------------
-   if (program_state == 23)
+   if (mwPS.program_state == 23)
    {
       client_fast_packet_loop();
       client_read_packet_buffer();
-      if (key[ALLEGRO_KEY_ESCAPE][1]) new_program_state = 25; // give them an escape option
+      if (mI.key[ALLEGRO_KEY_ESCAPE][1]) mwPS.new_program_state = 25; // give them an escape option
    }
 
    //---------------------------------------
    // 22 - client level setup
    //---------------------------------------
-   if (program_state == 22)
+   if (mwPS.program_state == 22)
    {
       printf("client set up level\n");
 
-      if (!load_level(play_level, 0))
+      if (!load_level(play_level, 0, 0))
       {
-         new_program_state = 25;
+         mwPS.new_program_state = 25;
          return;
       }
 
@@ -380,14 +257,14 @@ void proc_program_state(void)
          set_player_start_pos(p, 0);     // get starting position for all players, active or not
 
 
-      clear_game_moves();
+      mwGMA.initialize();
 
-      frame_num = 0;
+      mwPS.frame_num = 0;
       reset_states();
       clear_bullets();
       mwBM.initialize();
-      clear_keys();
-      clear_pm_events();
+      mI.initialize();
+      mwPME.initialize();
 
       if (LOG_NET)
       {
@@ -395,22 +272,22 @@ void proc_program_state(void)
          add_log_entry_header(10, 0, msg, 3);
       }
 
-      show_player_join_quit_timer = 0;
+      mwPS.show_player_join_quit_timer = 0;
       start_music(0);
       mwTS.init_timestamps();
-      new_program_state = 21;
+      mwPS.new_program_state = 21;
    }
 
    //---------------------------------------
    // 21 - client wait for intial state
    //---------------------------------------
-   if (program_state == 21)
+   if (mwPS.program_state == 21)
    {
       client_fast_packet_loop();
       client_read_packet_buffer();
       client_apply_dif();
 
-      if (key[ALLEGRO_KEY_ESCAPE][3]) program_state = 25;
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) mwPS.program_state = 25;
 
       sprintf(msg, "Waiting for game state from server");
       float stretch = ( (float)mwD.SCREEN_W / ((strlen(msg)+2)*8));
@@ -418,16 +295,16 @@ void proc_program_state(void)
 
       al_flip_display();
 
-      if (frame_num > 0)
+      if (mwPS.frame_num > 0)
       {
-         printf("got initial state for frame:%d\n", frame_num);
+         printf("got initial state for frame:%d\n", mwPS.frame_num);
          int p = active_local_player;
 
          // set holdoff 200 frames in future so client won't try to drop while syncing
-         players1[p].client_last_stdf_rx_frame_num = frame_num + 200;
+         players1[p].client_last_stdf_rx_frame_num = mwPS.frame_num + 200;
 
          if (LOG_NET_join) add_log_entry_header(11, p, "Game state updated - starting chase and lock", 1);
-         program_state = 11;
+         mwPS.program_state = 11;
       }
    }
 
@@ -437,19 +314,19 @@ void proc_program_state(void)
    //---------------------------------------
    // 20 - server new game
    //---------------------------------------
-   if (program_state == 20)
+   if (mwPS.program_state == 20)
    {
       if (!server_init())
       {
          server_exit();
-         new_program_state = 19;
+         mwPS.new_program_state = 19;
          return;
       }
 
       play_level = start_level;
-      if (!load_level(play_level, 0))
+      if (!load_level(play_level, 0, 0))
       {
-         new_program_state = 19;
+         mwPS.new_program_state = 19;
          return;
       }
 
@@ -462,30 +339,30 @@ void proc_program_state(void)
 
       players[0].active = 1;
       players[0].control_method = 3;
-      strncpy(players1[0].hostname, local_hostname, 16);
+      strncpy(players1[0].hostname, mwPS.local_hostname, 16);
 
 
-      clear_game_moves(); // clear game moves array, except for demo mode
-      frame_num = 0;
+      mwGMA.initialize();
+      mwPS.frame_num = 0;
       reset_states();
       clear_bullets();
       mwBM.initialize();
-      clear_keys();
-      clear_pm_events();
+      mI.initialize();
+      mwPME.initialize();
 
       game_vars_to_state(srv_client_state[0][1]);
-      srv_client_state_frame_num[0][1] = frame_num;
+      srv_client_state_frame_num[0][1] = mwPS.frame_num;
       if (LOG_NET_stdf)
       {
-         sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+         sprintf(msg, "stdf saved server state[1]:%d\n", mwPS.frame_num);
          add_log_entry2(27, 0, msg);
       }
 
-      add_game_move(0, 0, 0, play_level);       // [00] game_start
+      mwGMA.add_game_move(0, 0, 0, play_level);       // [00] game_start
 
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (players[p].active) add_game_move(0, 1, p, players[p].color); // 1 - player_state and color
+         if (players[p].active) mwGMA.add_game_move(0, 1, p, players[p].color); // 1 - player_state and color
 
       if (LOG_NET)
       {
@@ -493,45 +370,30 @@ void proc_program_state(void)
          add_log_entry_header(10, 0, msg, 3);
       }
 
-      show_player_join_quit_timer = 0;
+      mwPS.show_player_join_quit_timer = 0;
       start_music(0); // rewind and start theme
       mwTS.init_timestamps();
-      program_state = 11;
+      mwPS.program_state = 11;
    }
 
    //---------------------------------------
    // 19 - server exit
    //---------------------------------------
-   if (program_state == 19) // server exit
+   if (mwPS.program_state == 19) // server exit
    {
       server_exit();
-      new_program_state = 1;
+      mwPS.new_program_state = 1;
    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
    //---------------------------------------
    // 10 - single player new game
    //---------------------------------------
-   if (program_state == 10)
+   if (mwPS.program_state == 10)
    {
       play_level = start_level;
-      if (!load_level(play_level, 0))
+      if (!load_level(play_level, 0, 0))
       {
-         new_program_state = 1;
+         mwPS.new_program_state = 1;
          return;
       }
 
@@ -542,20 +404,20 @@ void proc_program_state(void)
       }
       players[0].active = 1;
 
-      clear_game_moves(); // clear game moves array, except for demo mode
+      mwGMA.initialize();
 
       clear_bullets();
       mwBM.initialize();
-      clear_keys();
-      clear_pm_events();
+      mI.initialize();
+      mwPME.initialize();
 
       stimp();
-      frame_num = 0;
-      show_player_join_quit_timer = 0;
+      mwPS.frame_num = 0;
+      mwPS.show_player_join_quit_timer = 0;
       start_music(0); // rewind and start theme
 
       mwTS.init_timestamps();
-      program_state = 11;
+      mwPS.program_state = 11;
 
       // set up mwQuickGraph here
       mwQG[0].initialize(1);
@@ -568,7 +430,7 @@ void proc_program_state(void)
    //---------------------------------------
    // 12 - level done
    //---------------------------------------
-   if (program_state == 12)
+   if (mwPS.program_state == 12)
    {
       stop_sound();
 
@@ -578,7 +440,7 @@ void proc_program_state(void)
 
       if (players[active_local_player].control_method == 1) // run demo mode saved game file
       {
-         new_program_state = 2;
+         mwPS.new_program_state = 2;
          al_rest(1);
          return; // to exit immediately
       }
@@ -614,9 +476,9 @@ void proc_program_state(void)
 
 
       // every mode after this should require load level so why don't I do it here at the top
-      if (!load_level(play_level, 0))
+      if (!load_level(play_level, 0, 0))
       {
-         new_program_state = 1;
+         mwPS.new_program_state = 1;
          return;
       }
 
@@ -628,37 +490,36 @@ void proc_program_state(void)
       }
       players[0].active = 1;
 
+      mwGMA.initialize();
 
-      clear_game_moves(); // clear game moves array, except for demo mode
 
-
-      frame_num = 0;
+      mwPS.frame_num = 0;
       reset_states();
       clear_bullets();
       mwBM.initialize();
-      clear_keys();
-      clear_pm_events();
+      mI.initialize();
+      mwPME.initialize();
 
       if (ima_server) // set server initial state (for both 2-new game and 5-level done when server)
       {
          players[0].control_method = 3;
 
          game_vars_to_state(srv_client_state[0][1]);
-         srv_client_state_frame_num[0][1] = frame_num;
+         srv_client_state_frame_num[0][1] = mwPS.frame_num;
 
          if (LOG_NET_stdf)
          {
-            //   printf("saved server state[1]:%d\n\n", frame_num);
-            sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+            //   printf("saved server state[1]:%d\n\n", mwPS.frame_num);
+            sprintf(msg, "stdf saved server state[1]:%d\n", mwPS.frame_num);
             add_log_entry2(27, 0, msg);
          }
       }
 
-      add_game_move(0, 0, 0, play_level);       // [00] game_start
+      mwGMA.add_game_move(0, 0, 0, play_level);       // [00] game_start
 
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (players[p].active) add_game_move(0, 1, p, players[p].color); // [01] player_state and color
+         if (players[p].active) mwGMA.add_game_move(0, 1, p, players[p].color); // [01] player_state and color
 
       if (LOG_NET)
       {
@@ -669,32 +530,32 @@ void proc_program_state(void)
       // only do fancy zoom into level if not in netgame  .. also warp if I can figure out how to do that here
       if ((!ima_client) && (!ima_server)) stimp();
 
-      show_player_join_quit_timer = 0;
+      mwPS.show_player_join_quit_timer = 0;
       start_music(0); // rewind and start theme
       mwTS.init_timestamps();
-      program_state = 11;
+      mwPS.program_state = 11;
    }
 
 
    //---------------------------------------
    // resume game
    //---------------------------------------
-   if (program_state == 13)
+   if (mwPS.program_state == 13)
    {
       start_music(1); // resume theme
       stimp();
-      program_state = 11;
+      mwPS.program_state = 11;
    }
 
 
    //---------------------------------------
    // run demo
    //---------------------------------------
-   if (program_state == 14)
+   if (mwPS.program_state == 14)
    {
-      if (!load_level(play_level, 0))
+      if (!load_level(play_level, 0, 0))
       {
-         new_program_state = 1;
+         mwPS.new_program_state = 1;
          return;
       }
 
@@ -708,17 +569,17 @@ void proc_program_state(void)
       players[0].active = 1;
       players[0].control_method = 1; // rungame demo mode
 
-      frame_num = 0;
+      mwPS.frame_num = 0;
       clear_bullets();
       mwBM.initialize();
-      clear_keys();
-      clear_pm_events();
+      mI.initialize();
+      mwPME.initialize();
 
-      show_player_join_quit_timer = 0;
+      mwPS.show_player_join_quit_timer = 0;
       start_music(0); // rewind and start theme
       stimp();
       mwTS.init_timestamps();
-      program_state = 11;
+      mwPS.program_state = 11;
    }
 }
 
@@ -770,12 +631,6 @@ void proc_level_done_mode(void)
       if (!ima_client)
       {
          if (have_all_players_acknowledged()) players[0].level_done_timer = 0; // skip
-         for (int p=0; p<NUM_PLAYERS; p++)
-            if (players[p].active)
-            {
-               if (has_player_acknowledged(p)) players[p].level_done_ack = 1;
-               else players[p].level_done_ack = 0;
-            }
       }
    }
    if (--players[0].level_done_timer <= 0) // time to change to next level_done_mode
@@ -788,7 +643,7 @@ void proc_level_done_mode(void)
       if (players[0].level_done_mode == 4) players[0].level_done_timer = 0;
       if (players[0].level_done_mode == 3) players[0].level_done_timer = 0;
       if (players[0].level_done_mode == 2) players[0].level_done_timer = 10;  // delay to load next level
-      if (players[0].level_done_mode == 1) program_state = 12;                // load new level
+      if (players[0].level_done_mode == 1) mwPS.program_state = 12;                // load new level
    }
 }
 
@@ -803,7 +658,7 @@ void proc_level_done_mode(void)
 
 void main_loop(void)
 {
-   while (!main_loop_exit)
+   while (!mwPS.main_loop_exit)
    {
       // ----------------------------------------------------------
       // process state and state changes
@@ -814,7 +669,7 @@ void main_loop(void)
       // ----------------------------------------------------------
       // process event queue
       // ----------------------------------------------------------
-      proc_event_queue();
+      mwEQ.proc_event_queue();
 
 
       // ----------------------------------------------------------
@@ -827,14 +682,14 @@ void main_loop(void)
       // ----------------------------------------------------------
       // do things based on the 40 Hz fps_timer event
       // ----------------------------------------------------------
-      if (program_update)
+      if (mwEQ.program_update)
       {
-         program_update = 0;
+         mwEQ.program_update = 0;
 
-         if (program_state == 11) // game loop running
+         if (mwPS.program_state == 11) // game loop running
          {
-            frame_num++;
-            update_animation();
+            mwPS.frame_num++;
+            mwB.update_animation();
 
             mwTS.timestamp_frame_start = al_get_time();
 
@@ -844,7 +699,7 @@ void main_loop(void)
             if (ima_client) client_control();
 
             proc_player_input();
-            proc_game_moves_array();
+            mwGMA.proc_game_moves_array();
 
             if (players[0].level_done_mode) proc_level_done_mode();
             else move_frame();
@@ -878,10 +733,10 @@ void main_loop(void)
       // ----------------------------------------------------------
       // do things based on the 1 Hz sec_timer event
       // ----------------------------------------------------------
-      if (program_update_1s)
+      if (mwEQ.program_update_1s)
       {
-         program_update_1s = 0;
-         if (program_state == 11) // game loop running
+         mwEQ.program_update_1s = 0;
+         if (mwPS.program_state == 11) // game loop running
          {
             if (ima_server)
             {

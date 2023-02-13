@@ -8,6 +8,17 @@
 
 #include "mwRollingAverage.h"
 #include "mwFont.h"
+#include "z_lift.h"
+#include "z_bullets.h"
+#include "mwTimeStamp.h"
+#include "mwColor.h"
+#include "mwProgramState.h"
+#include "z_menu.h"
+#include "z_item.h"
+#include "z_enemy.h"
+#include "z_screen.h"
+#include "z_screen_overlay.h"
+
 
 mwDrawSequence mwDS;
 
@@ -74,7 +85,7 @@ void mwDrawSequence::calc(void)
    seq[8][1] = 0;
 
    // set actual based on current frame num
-   int oe = frame_num % 2; // odd/even  0 = even 1 = odd
+   int oe = mwPS.frame_num % 2; // odd/even  0 = even 1 = odd
 
    for (int i=0; i<10; i++)
    {
@@ -138,12 +149,12 @@ char * mwDrawSequence::get_line(int s)
 
 void mwDrawSequence::show_text(int x, int y)
 {
-   al_draw_filled_rectangle(x, y, x+240, y+100, palette_color[0]);
+   al_draw_filled_rectangle(x, y, x+240, y+100, mC.pc[0]);
    for (int i=0; i<11; i++)
-      al_draw_textf(mF.pr8, palette_color[15], 1+x, 1+y+i*9, 0, "%s", get_line(i));
+      al_draw_textf(mF.pr8, mC.pc[15], 1+x, 1+y+i*9, 0, "%s", get_line(i));
 
 //
-//   al_draw_filled_rectangle(x, y, x+340, y+90, palette_color[0]);
+//   al_draw_filled_rectangle(x, y, x+340, y+90, mC.pc[0]);
 //
 //   double tot = 0;
 //   int col = 15;
@@ -153,9 +164,9 @@ void mwDrawSequence::show_text(int x, int y)
 //      col = 15;
 //      if ((i == 0) || (i == 7) || (i == 9)) col = 13;
 //      tot += RA[i].avg;
-//      al_draw_textf(mF.pr8, palette_color[col], x, y+i*8, 0, "%3.3f", RA[i].avg*1000);
+//      al_draw_textf(mF.pr8, mC.pc[col], x, y+i*8, 0, "%3.3f", RA[i].avg*1000);
 //   }
-//   al_draw_textf(mF.pr8, palette_color[15], x, y+10*8, 0, "%3.3f", tot*1000);
+//   al_draw_textf(mF.pr8, mC.pc[15], x, y+10*8, 0, "%3.3f", tot*1000);
 //
 //   // show odd only
 //   tot = 0;
@@ -165,11 +176,11 @@ void mwDrawSequence::show_text(int x, int y)
 //      if ((i == 0) || (i == 7) || (i == 9)) col = 13;
 //      if ((seq[i][1] == 1) || (col == 13))
 //      {
-//         al_draw_textf(mF.pr8, palette_color[col], x+60, y+i*8, 0, "%3.3f", RA[i].avg*1000);
+//         al_draw_textf(mF.pr8, mC.pc[col], x+60, y+i*8, 0, "%3.3f", RA[i].avg*1000);
 //         tot += RA[i].avg;
 //      }
 //   }
-//   al_draw_textf(mF.pr8, palette_color[15], x+60, y+10*8, 0, "%3.3f", tot*1000);
+//   al_draw_textf(mF.pr8, mC.pc[15], x+60, y+10*8, 0, "%3.3f", tot*1000);
 //
 //   // show even only
 //   tot = 0;
@@ -179,11 +190,11 @@ void mwDrawSequence::show_text(int x, int y)
 //      if ((i == 0) || (i == 7) || (i == 9)) col = 13;
 //      if ((seq[i][1] == 2) || (col == 13))
 //      {
-//         al_draw_textf(mF.pr8, palette_color[col], x+120, y+i*8, 0, "%3.3f", RA[i].avg*1000);
+//         al_draw_textf(mF.pr8, mC.pc[col], x+120, y+i*8, 0, "%3.3f", RA[i].avg*1000);
 //         tot += RA[i].avg;
 //      }
 //   }
-//   al_draw_textf(mF.pr8, palette_color[15], x+120, y+10*8, 0, "%3.3f", tot*1000);
+//   al_draw_textf(mF.pr8, mC.pc[15], x+120, y+10*8, 0, "%3.3f", tot*1000);
 //
 //
 //   // show names
@@ -191,7 +202,7 @@ void mwDrawSequence::show_text(int x, int y)
 //   {
 //      col = 15;
 //      if ((i == 0) || (i == 7) || (i == 9)) col = 13;
-//      al_draw_textf(mF.pr8, palette_color[col], x+180, y+i*8, 0, "- %s", name_long[i]);
+//      al_draw_textf(mF.pr8, mC.pc[col], x+180, y+i*8, 0, "- %s", name_long[i]);
 //   }
 //
 

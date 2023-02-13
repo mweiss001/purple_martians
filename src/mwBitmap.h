@@ -28,17 +28,20 @@ class mwBitmap
 
 
 
+   ALLEGRO_BITMAP *text_title = NULL;
+   int text_title_bitmaps_create = 1;
+   int text_title_draw_color = -1;
 
+   ALLEGRO_BITMAP *large_text_overlay_bitmap;
+   int large_text_overlay_state = 0;
 
+   // animation sequence array
+   int zz[20][NUM_ANS];
 
+   void reset_animation_sequences(void);
+   void update_animation(void);
 
-
-
-
-
-
-
-
+   int sa[NUM_SPRITES][2]; // shape attributes
 
 
 

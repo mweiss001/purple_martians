@@ -1,6 +1,12 @@
 // z_sound.cpp
 #include "pm.h"
 #include "z_sound.h"
+#include "mwProgramState.h"
+#include "z_config.h"
+#include "z_fnx.h"
+
+
+
 
 // ------------------------------------------------
 // ---------------- sound -------------------------
@@ -106,7 +112,7 @@ void set_st_scaler(void)
 void start_music(int resume)
 {
    // reset sound counters
-   for (int c=0; c<8; c++) sample_delay[c] = frame_num;
+   for (int c=0; c<8; c++) sample_delay[c] = mwPS.frame_num;
    if (sound_on)
    {
       if (!resume) al_rewind_audio_stream(pm_theme_stream);

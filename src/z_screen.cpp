@@ -1,6 +1,7 @@
 // z_screen.cpp
 
 #include "pm.h"
+#include "z_screen.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 #include "z_player.h"
@@ -10,6 +11,17 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
+#include "z_lift.h"
+#include "z_bullets.h"
+#include "mwColor.h"
+#include "mwProgramState.h"
+#include "z_menu.h"
+#include "z_item.h"
+#include "z_enemy.h"
+#include "z_level.h"
+#include "z_fnx.h"
+
+
 
 
 void get_new_background(int full)
@@ -274,7 +286,7 @@ void draw_hyst_rect(void)
    float hx2 = mwD.SCREEN_W/2 + x_size;
    float hy1 = mwD.SCREEN_H/2 - y_size;
    float hy2 = mwD.SCREEN_H/2 + y_size;
-   al_draw_rectangle(hx1, hy1, hx2, hy2, palette_color[10], 0);
+   al_draw_rectangle(hx1, hy1, hx2, hy2, mC.pc[10], 0);
 }
 
 
@@ -301,7 +313,7 @@ void get_new_screen_buffer(int type, int x, int y)
 
    // draw frame in local player's color
    for (int x = 0; x < BORDER_WIDTH; x++)
-      al_draw_rectangle(x+0.5f, x+0.5f, (mwD.SCREEN_W-1-x)+0.5f, (mwD.SCREEN_H-1-x)+0.5f,  palette_color[c + (x * 16)], 1);
+      al_draw_rectangle(x+0.5f, x+0.5f, (mwD.SCREEN_W-1-x)+0.5f, (mwD.SCREEN_H-1-x)+0.5f,  mC.pc[c + (x * 16)], 1);
 
 
 
@@ -321,7 +333,7 @@ void get_new_screen_buffer(int type, int x, int y)
    {
       int a = sbw - sls; // how much smaller?
       sbw = sls;         // new screen_buffer blit width = sls
-      if (!level_editor_running) sbx += a/2;        // new screen_buffer blit xpos
+      if (!mwPS.level_editor_running) sbx += a/2;        // new screen_buffer blit xpos
    }
 
    // is the entire level smaller than the screen buffer height?
@@ -329,7 +341,7 @@ void get_new_screen_buffer(int type, int x, int y)
    {
       int a = sbh - sls; // how much smaller?
       sbh = sls;         // new screen_buffer blit height = sls
-      if (!level_editor_running) sby += a/2;        // new screen_buffer blit ypos
+      if (!mwPS.level_editor_running) sby += a/2;        // new screen_buffer blit ypos
    }
 
    // find the size of the source screen from actual screen size and scaler
@@ -426,7 +438,7 @@ void get_new_screen_buffer(int type, int x, int y)
       if (clamp_y0) hy1 = 0;
       if (clamp_x1) hx2 = mwD.SCREEN_W;
       if (clamp_y1) hy2 = mwD.SCREEN_H;
-      al_draw_rectangle(hx1, hy1, hx2, hy2, palette_color[10], 0);
+      al_draw_rectangle(hx1, hy1, hx2, hy2, mC.pc[10], 0);
    }
 
    // in level editor mode, if the level is smaller than the screen edges, draw a thin line to show where it ends...
@@ -448,9 +460,9 @@ void get_new_screen_buffer(int type, int x, int y)
          yl = sby+sls;
          ydraw = 1;
       }
-      if (xdraw) al_draw_line(xl, bw, xl, yl, palette_color[c], 0);
-      if (ydraw) al_draw_line(bw, yl, xl, yl, palette_color[c], 0);
-      //al_draw_rectangle(sbx, sby, sbx+sbw, sby+sbh, palette_color[c], 0);
+      if (xdraw) al_draw_line(xl, bw, xl, yl, mC.pc[c], 0);
+      if (ydraw) al_draw_line(bw, yl, xl, yl, mC.pc[c], 0);
+      //al_draw_rectangle(sbx, sby, sbx+sbw, sby+sbh, mC.pc[c], 0);
    }
 
 }
@@ -460,11 +472,11 @@ void set_map_var(void)
    // determine menu_map_size and position
    int y_size = mwD.SCREEN_H-160;
    int x_size = mwD.SCREEN_W-260;
-   if (y_size < x_size) menu_map_size = y_size;
-   else menu_map_size = x_size;
-   if (menu_map_size < 10) menu_map_size = 10;
-   menu_map_x = mwD.SCREEN_W/2-(menu_map_size/2);
-   menu_map_y = 140;
+   if (y_size < x_size) mwL.menu_map_size = y_size;
+   else mwL.menu_map_size = x_size;
+   if (mwL.menu_map_size < 10) mwL.menu_map_size = 10;
+   mwL.menu_map_x = mwD.SCREEN_W/2-(mwL.menu_map_size/2);
+   mwL.menu_map_y = 140;
 
    // splash screen logo position
    mwL.mdw_splash_logo_x = mwD.SCREEN_W/2;
@@ -476,10 +488,10 @@ void set_map_var(void)
    mwL.mdw_splash_logo_scale = min_d / 500; // 400 is the exact size, make it bigger for padding
 
    // map screen logo position and size
-   float sp = menu_map_x - BORDER_WIDTH;    // how much space do I have between the map and the screen edge?
+   float sp = mwL.menu_map_x - BORDER_WIDTH;    // how much space do I have between the map and the screen edge?
    mwL.mdw_map_logo_scale = sp / 500; // 400 is the exact size, make it bigger for padding
    mwL.mdw_map_logo_x = BORDER_WIDTH + sp/2;
-   mwL.mdw_map_logo_y = menu_map_y + mwL.mdw_map_logo_scale * 200; // align top of logo with top of map
+   mwL.mdw_map_logo_y = mwL.menu_map_y + mwL.mdw_map_logo_scale * 200; // align top of logo with top of map
 
    // this is the link from splash to map
    mwL.mdw_logo_scale_dec = (mwL.mdw_splash_logo_scale - mwL.mdw_map_logo_scale) / 320;
@@ -496,10 +508,10 @@ void set_map_var(void)
 void mark_non_default_block(int x, int y)
 {
    int c = l[x][y] & 1023;
-   if ((sa[c][0] & PM_BTILE_MOST_FLAGS) != (l[x][y] & PM_BTILE_MOST_FLAGS))
+   if ((mwB.sa[c][0] & PM_BTILE_MOST_FLAGS) != (l[x][y] & PM_BTILE_MOST_FLAGS))
    {
-      al_draw_line(x*20, y*20, x*20+20, y*20+20, palette_color[10], 1);
-      al_draw_line(x*20+20, y*20, x*20, y*20+20, palette_color[10], 1);
+      al_draw_line(x*20, y*20, x*20+20, y*20+20, mC.pc[10], 1);
+      al_draw_line(x*20+20, y*20, x*20, y*20+20, mC.pc[10], 1);
    }
 }
 
@@ -514,7 +526,7 @@ void init_level_background2(int s, int e)
       for (int y=0; y<100; y++)
       {
          al_draw_bitmap(mwB.btile[l[x][y] & 1023], x*20, y*20, 0);
-         if ((level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
+         if ((mwPS.level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
       }
 }
 
@@ -529,14 +541,14 @@ void init_level_background(int type) // fill level_background with block tiles
          for (int y=0; y<100; y++)
          {
             al_draw_bitmap(mwB.btile[l[x][y] & 1023], x*20, y*20, 0);
-            if ((level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
+            if ((mwPS.level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
          }
 
    }
 
    if (type == 1)
    {
-      if (frame_num % 40 == 0)
+      if (mwPS.frame_num % 40 == 0)
       {
          al_set_target_bitmap(mwB.level_background);
          al_clear_to_color(al_map_rgb(0,0,0));
@@ -544,13 +556,13 @@ void init_level_background(int type) // fill level_background with block tiles
             for (int y=0; y<100; y++)
             {
                al_draw_bitmap(mwB.btile[l[x][y] & 1023], x*20, y*20, 0);
-               if ((level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
+               if ((mwPS.level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
             }
       }
    }
    if (type == 2)
    {
-      int sq = frame_num % 40;
+      int sq = mwPS.frame_num % 40;
       if (sq == 0)  init_level_background2(0,  10);
       if (sq == 4)  init_level_background2(10, 20);
       if (sq == 8)  init_level_background2(20, 30);
@@ -606,16 +618,16 @@ void draw_level(void) // draws the map on the menu screen
    int blocks = 0;
    if (valid_level_loaded) blocks = 1;
 
-   draw_level2(NULL, menu_map_x, menu_map_y, menu_map_size, blocks, 1, 1, 1, 1);
+   draw_level2(NULL, mwL.menu_map_x, mwL.menu_map_y, mwL.menu_map_size, blocks, 1, 1, 1, 1);
 
    int text_x = mwD.SCREEN_W / 2;
-   int text_y = menu_map_y - 16;
-   al_draw_textf(mF.pr8, palette_color[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", start_level );
+   int text_y = mwL.menu_map_y - 16;
+   al_draw_textf(mF.pr8, mC.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", start_level );
    text_y += 8;
 
-   if (resume_allowed) al_draw_text(mF.pr8, palette_color[14], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  (paused)  ");
-   else if (valid_level_loaded) al_draw_text(mF.pr8, palette_color[9], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  start level  ");
-   else al_draw_text(mF.pr8, palette_color[10], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  not found !  ");
+   if (resume_allowed) al_draw_text(mF.pr8, mC.pc[14], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  (paused)  ");
+   else if (valid_level_loaded) al_draw_text(mF.pr8, mC.pc[9], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  start level  ");
+   else al_draw_text(mF.pr8, mC.pc[10], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  not found !  ");
 }
 
 
@@ -647,7 +659,7 @@ void frame_and_title(int show_players)
 
    // draw the border
    for (int x = 0; x < BORDER_WIDTH; x++)
-      al_draw_rectangle(x+0.5f, x+0.5f, (mwD.SCREEN_W-1-x)+0.5f, (mwD.SCREEN_H-1-x)+0.5f,  palette_color[color + (x * 16)], 1);
+      al_draw_rectangle(x+0.5f, x+0.5f, (mwD.SCREEN_W-1-x)+0.5f, (mwD.SCREEN_H-1-x)+0.5f,  mC.pc[color + (x * 16)], 1);
 
    // draw the title on top on the border
    draw_title(mwD.SCREEN_W/2, 2, 322, 32, color);
@@ -658,7 +670,7 @@ void frame_and_title(int show_players)
 
 
    // draw the version text centered on the bottom of the border
-   al_draw_textf(mF.pr8, palette_color[tc], mwD.SCREEN_W/2, mwD.SCREEN_H-10, ALLEGRO_ALIGN_CENTRE, "Version %s", pm_version_string);
+   al_draw_textf(mF.pr8, mC.pc[tc], mwD.SCREEN_W/2, mwD.SCREEN_H-10, ALLEGRO_ALIGN_CENTRE, "Version %s", mwPS.pm_version_string);
 
    if (show_players)
    {
@@ -719,7 +731,7 @@ void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, in
    al_set_target_bitmap(temp);
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
-   al_draw_text(f, palette_color[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt1);
+   al_draw_text(f, mC.pc[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt1);
 
    if (dbmp != NULL) al_set_target_bitmap(dbmp);
    else al_set_target_backbuffer(display);
@@ -736,28 +748,28 @@ void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, in
 
 void draw_title(int x, int y, int w, int h, int color)
 {
-   sprintf(msg, "%s Martians!", color_name[color]); // overwrite with color name
+   sprintf(msg, "%s Martians!", mC.color_name[color]); // overwrite with color name
    int bbx1, bby1, bbw1, bbh1;
    al_get_text_dimensions(mF.sauc, msg, &bbx1, &bby1, &bbw1, &bbh1);
-   if ((text_title_bitmaps_create) || (text_title_draw_color != color))
+   if ((mwB.text_title_bitmaps_create) || (mwB.text_title_draw_color != color))
    {
-      text_title_bitmaps_create = 0;
-      text_title_draw_color = color;
-      al_destroy_bitmap(text_title);
-      text_title = al_create_bitmap(bbw1,bbh1);
+      mwB.text_title_bitmaps_create = 0;
+      mwB.text_title_draw_color = color;
+      al_destroy_bitmap(mwB.text_title);
+      mwB.text_title = al_create_bitmap(bbw1,bbh1);
 
-      if(!text_title)
+      if(!mwB.text_title)
       {
          sprintf(msg, "Error creating text_title %d %d\n", bbw1,bbh1);
          m_err(msg);
       }
       //else printf("created text_title %d %d\n", bbw1,bbh1);
-      al_set_target_bitmap(text_title);
+      al_set_target_bitmap(mwB.text_title);
       al_clear_to_color(al_map_rgba(0,0,0,0));
-      al_draw_text(mF.sauc, palette_color[color], 0-bbx1, 0-bby1, 0, msg);
+      al_draw_text(mF.sauc, mC.pc[color], 0-bbx1, 0-bby1, 0, msg);
    }
    al_set_target_backbuffer(display);
-   al_draw_scaled_bitmap(text_title, 0, 0, bbw1, bbh1, x-w/2, y, w, h, 0);
+   al_draw_scaled_bitmap(mwB.text_title, 0, 0, bbw1, bbh1, x-w/2, y, w, h, 0);
 }
 
 void draw_large_text_overlay(int type, int color)
@@ -766,28 +778,28 @@ void draw_large_text_overlay(int type, int color)
    char m2[80] = {0};
    int rebuild = 0;
 
-   if ((type == 1) && (large_text_overlay_state != 1))
+   if ((type == 1) && (mwB.large_text_overlay_state != 1))
    {
       sprintf(m1, "PURPLE");
       sprintf(m2, "MARTIANS");
-      large_text_overlay_state = 1;
+      mwB.large_text_overlay_state = 1;
       rebuild = 1;
    }
 
-   if ((type == 2) && (large_text_overlay_state != 2))
+   if ((type == 2) && (mwB.large_text_overlay_state != 2))
    {
       color = players[active_local_player].color;
       sprintf(m1, "LEVEL");
       sprintf(m2, "DONE");
-      large_text_overlay_state = 2;
+      mwB.large_text_overlay_state = 2;
       rebuild = 1;
    }
 
-   if ((type == 3) && (large_text_overlay_state != 3))
+   if ((type == 3) && (mwB.large_text_overlay_state != 3))
    {
       sprintf(m1, "DEMO");
       sprintf(m2, "MODE");
-      large_text_overlay_state = 3;
+      mwB.large_text_overlay_state = 3;
       rebuild = 1;
    }
 
@@ -810,12 +822,12 @@ void draw_large_text_overlay(int type, int color)
       ALLEGRO_BITMAP *t1 = al_create_bitmap(bbw3, bbh3);
       al_set_target_bitmap(t1);
       al_clear_to_color(al_map_rgba(0,0,0,0));
-      al_draw_text(mF.sauc, palette_color[color], 0-bbx1 + (bbw3-bbw1)/2, 0-bby1, 0, m1);
+      al_draw_text(mF.sauc, mC.pc[color], 0-bbx1 + (bbw3-bbw1)/2, 0-bby1, 0, m1);
 
       ALLEGRO_BITMAP *t2 = al_create_bitmap(bbw3, bbh3);
       al_set_target_bitmap(t2);
       al_clear_to_color(al_map_rgba(0,0,0,0));
-      al_draw_text(mF.sauc, palette_color[color], 0-bbx2 + (bbw3-bbw2)/2, 0-bby2, 0, m2);
+      al_draw_text(mF.sauc, mC.pc[color], 0-bbx2 + (bbw3-bbw2)/2, 0-bby2, 0, m2);
 
       int xs = mwD.SCREEN_W*7/8; // x size
       int ys = mwD.SCREEN_H*3/8; // y size
@@ -829,10 +841,10 @@ void draw_large_text_overlay(int type, int color)
       int yl1 = mwD.SCREEN_H*3/4 - ys/2;
       int yl2 = ys;
 
-      al_destroy_bitmap(large_text_overlay_bitmap);
-      large_text_overlay_bitmap = al_create_bitmap(mwD.SCREEN_W, mwD.SCREEN_H);
+      al_destroy_bitmap(mwB.large_text_overlay_bitmap);
+      mwB.large_text_overlay_bitmap = al_create_bitmap(mwD.SCREEN_W, mwD.SCREEN_H);
 
-      al_set_target_bitmap(large_text_overlay_bitmap);
+      al_set_target_bitmap(mwB.large_text_overlay_bitmap);
       al_clear_to_color(al_map_rgb(0,0,0));
 
 
@@ -850,7 +862,7 @@ void draw_large_text_overlay(int type, int color)
 //   if (type == 3) opa = 0.05;
    ALLEGRO_COLOR fc = al_map_rgba_f(opa, opa, opa, opa);
    al_set_target_backbuffer(display);
-   al_draw_tinted_bitmap(large_text_overlay_bitmap, fc, 0, 0, 0);
+   al_draw_tinted_bitmap(mwB.large_text_overlay_bitmap, fc, 0, 0, 0);
 }
 
 
@@ -881,14 +893,14 @@ void draw_large_text_overlay(int type, int color)
 void draw_percent_barc(int cx, int y, int width, int height, int percent, int c1, int c2, int fc)
 {
    int x = cx - width/2; // get x from center
-   al_draw_filled_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, palette_color[c1]); //  all c1 to start
+   al_draw_filled_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, mC.pc[c1]); //  all c1 to start
    if (percent > 0)
    {
       int w2 = (int) (width * ((float)percent/100)); // how much green
-      al_draw_filled_rectangle(x+0.5f, y+0.5f, x + w2+0.5f, y + height+0.5f, palette_color[c2]); //  then c2
+      al_draw_filled_rectangle(x+0.5f, y+0.5f, x + w2+0.5f, y + height+0.5f, mC.pc[c2]); //  then c2
    }
 
-   if (fc) al_draw_rectangle(x-0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, palette_color[fc], 1); //  frame
+   if (fc) al_draw_rectangle(x-0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, mC.pc[fc], 1); //  frame
 
 }
 
@@ -899,13 +911,13 @@ void draw_percent_barc(int cx, int y, int width, int height, int percent, int c1
 void draw_percent_bar(int cx, int y, int width, int height, int percent)
 {
    int x = cx - width/2; // get x from center
-   al_draw_filled_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, palette_color[10]); //  all red to start
+   al_draw_filled_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, mC.pc[10]); //  all red to start
    if (percent > 0)
    {
       int w2 = (int) (width * ((float)percent/100)); // how much green
-      al_draw_filled_rectangle(x+0.5f, y+0.5f, x + w2+0.5f, y + height+0.5f, palette_color[11]); //  green
+      al_draw_filled_rectangle(x+0.5f, y+0.5f, x + w2+0.5f, y + height+0.5f, mC.pc[11]); //  green
    }
-   al_draw_rectangle(x+0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, palette_color[15], 1); //  white frame
+   al_draw_rectangle(x+0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, mC.pc[15], 1); //  white frame
 }
 
 
@@ -914,7 +926,7 @@ void draw_percent_bar_line(int cx, int y, int width, int height, int rise, int c
 {
    int x = cx - width/2; // get x from center
    int w2 = (int) (width * ((float)percent/100)); // position
-   al_draw_line(x+0.5f+w2, y+0.5f-rise, x+0.5f+w2, y+0.5f+height+rise, palette_color[color], 1);
+   al_draw_line(x+0.5f+w2, y+0.5f-rise, x+0.5f+w2, y+0.5f+height+rise, mC.pc[color], 1);
 }
 
 
@@ -924,6 +936,6 @@ void draw_percent_bar_range(int cx, int y, int width, int height, int color, int
    int x = cx - width/2; // get x from center
    int w1 = (int) (width * ((float)start/100));
    int w2 = (int) (width * ((float)end/100));
-   al_draw_filled_rectangle(x+w1+0.5f, y+1.5f, x+w2+0.5f, y+height+0.5f, palette_color[color]);
-   al_draw_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, palette_color[15], 1); //  white frame
+   al_draw_filled_rectangle(x+w1+0.5f, y+1.5f, x+w2+0.5f, y+height+0.5f, mC.pc[color]);
+   al_draw_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, mC.pc[15], 1); //  white frame
 }

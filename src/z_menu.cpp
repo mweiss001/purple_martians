@@ -1,5 +1,7 @@
 // z_menu.cpp
+
 #include "pm.h"
+#include "z_menu.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 #include "z_player.h"
@@ -9,9 +11,22 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
+#include "z_lift.h"
+#include "mwWidgets.h"
+#include "mwColor.h"
+#include "mwInput.h"
+#include "mwEventQueue.h"
+#include "mwProgramState.h"
+#include "z_item.h"
+#include "z_enemy.h"
+#include "z_level.h"
+#include "z_fnx.h"
+#include "z_screen.h"
+
 
 char help_string[5000][200];
-
+char global_string[20][25][80];
+char msg[1024];
 
 int load_help(void)
 {
@@ -72,7 +87,7 @@ void chop_first_x_char(char *str, int n)
 void help(const char *topic)
 {
 //   if (mwD.SCREEN_H < 480) return;       // wont work with mwD.SCREEN_H < 480
-   help_screens_running = 1;
+   mwPS.help_screens_running = 1;
    int num_of_lines = load_help();
    char section_names[60][80];
    int section_first_lines[60];
@@ -176,13 +191,13 @@ void help(const char *topic)
       last_pos = num_of_lines - lpp - 2;
 
       for (int x=0; x<16; x++)
-         al_draw_rectangle(dx+x, x, dx+639-x, mwD.SCREEN_H-1-x, palette_color[fc+(x*16)], 1);
+         al_draw_rectangle(dx+x, x, dx+639-x, mwD.SCREEN_H-1-x, mC.pc[fc+(x*16)], 1);
 
-      al_draw_text(mF.pr8, palette_color[ftc], dx+320,                    2, ALLEGRO_ALIGN_CENTRE, "Purple Martians Help");
-      al_draw_text(mF.pr8, palette_color[ftc], dx+16,                     2, 0, "<UP><DOWN>");
-      al_draw_text(mF.pr8, palette_color[ftc], dx+640-(11*8)-16,          2, 0, "<ESC>-quits");
-      al_draw_text(mF.pr8, palette_color[ftc], dx+16,            mwD.SCREEN_H-9, 0, "<PAGEUP><PAGEDOWN>");
-      al_draw_text(mF.pr8, palette_color[ftc], dx+640-(11*8)-16, mwD.SCREEN_H-9, 0, "<HOME><END>");
+      al_draw_text(mF.pr8, mC.pc[ftc], dx+320,                    2, ALLEGRO_ALIGN_CENTRE, "Purple Martians Help");
+      al_draw_text(mF.pr8, mC.pc[ftc], dx+16,                     2, 0, "<UP><DOWN>");
+      al_draw_text(mF.pr8, mC.pc[ftc], dx+640-(11*8)-16,          2, 0, "<ESC>-quits");
+      al_draw_text(mF.pr8, mC.pc[ftc], dx+16,            mwD.SCREEN_H-9, 0, "<PAGEUP><PAGEDOWN>");
+      al_draw_text(mF.pr8, mC.pc[ftc], dx+640-(11*8)-16, mwD.SCREEN_H-9, 0, "<HOME><END>");
 
       for (int c=0; c<lpp; c++) // cycle lines
       {
@@ -216,20 +231,20 @@ void help(const char *topic)
                chop_first_x_char(msg, 9);
                for (int x=0;x<16;x++)
                {
-                  al_draw_line(dx+x, 28+(c*8)+x, dx+639-x, 28+(c*8)+x, palette_color[sc+(x*16)], 1 );
-                  al_draw_line(dx+x, 28+(c*8)-x, dx+639-x, 28+(c*8)-x, palette_color[sc+(x*16)], 1 );
+                  al_draw_line(dx+x, 28+(c*8)+x, dx+639-x, 28+(c*8)+x, mC.pc[sc+(x*16)], 1 );
+                  al_draw_line(dx+x, 28+(c*8)-x, dx+639-x, 28+(c*8)-x, mC.pc[sc+(x*16)], 1 );
                }
-               al_draw_text(mF.pr8, palette_color[stc], dx+320, 24+(c*8),  ALLEGRO_ALIGN_CENTER, msg);
+               al_draw_text(mF.pr8, mC.pc[stc], dx+320, 24+(c*8),  ALLEGRO_ALIGN_CENTER, msg);
                msg[0]= 0;
             }
             if (strncmp(msg, "<end of file>", 13) == 0)
             {
                for (int x=0;x<16;x++)
                {
-                  al_draw_line(dx+x, 28+(c*8)+x, dx+639-x, 28+(c*8)+x, palette_color[sc+(x*16)], 1 );
-                  al_draw_line(dx+x, 28+(c*8)-x, dx+639-x, 28+(c*8)-x, palette_color[sc+(x*16)], 1 );
+                  al_draw_line(dx+x, 28+(c*8)+x, dx+639-x, 28+(c*8)+x, mC.pc[sc+(x*16)], 1 );
+                  al_draw_line(dx+x, 28+(c*8)-x, dx+639-x, 28+(c*8)-x, mC.pc[sc+(x*16)], 1 );
                }
-               al_draw_text(mF.pr8, palette_color[stc], dx+320, 24+(c*8),  ALLEGRO_ALIGN_CENTER, msg);
+               al_draw_text(mF.pr8, mC.pc[stc], dx+320, 24+(c*8),  ALLEGRO_ALIGN_CENTER, msg);
                c = lpp;   // end the cycle lines loop to prevent drawing unitialized lines
                msg[0]= 0;
             }
@@ -265,7 +280,7 @@ void help(const char *topic)
                 buff2[1] = msg[4];
                 buff2[2] = msg[5];
                 buff2[3] = 0;
-                int ans = zz[0][atoi(buff2)];
+                int ans = mwB.zz[0][atoi(buff2)];
                 al_draw_bitmap(mwB.tile[ans], dx+sxc, sy, 0 );
                 msg[0]= 0;
             }
@@ -280,7 +295,7 @@ void help(const char *topic)
 
                 //printf("s:'%s' i:%d\n", buff2, atoi(buff2));
 
-                int ans = zz[0][atoi(buff2)];
+                int ans = mwB.zz[0][atoi(buff2)];
                 al_draw_bitmap(mwB.btile[ans], dx+sx, sy, 0 );
 
                 chop_first_x_char(msg, 6);
@@ -292,7 +307,7 @@ void help(const char *topic)
                 buff2[0] = msg[2];
                 buff2[1] = msg[3];
                 buff2[2] = 0;
-                int ans = zz[0][atoi(buff2)];
+                int ans = mwB.zz[0][atoi(buff2)];
                 al_draw_bitmap(mwB.tile[ans], dx+sx, sy, 0 );
 
                 chop_first_x_char(msg, 5);
@@ -308,7 +323,7 @@ void help(const char *topic)
                 buff2[3] = 0;
                 int health = atoi(buff2);
                 draw_percent_bar(dx+sxc+10, sy, 88, 10, health);
-                al_draw_textf(mF.pr8, palette_color[14], dx+sxc+10, sy+2, ALLEGRO_ALIGN_CENTER, "Health:%-2d", health);
+                al_draw_textf(mF.pr8, mC.pc[14], dx+sxc+10, sy+2, ALLEGRO_ALIGN_CENTER, "Health:%-2d", health);
                 msg[0]= 0;
             }
             if (strncmp(msg, "<pc", 3) == 0) // <pcxx> show player and color text (centered)
@@ -317,9 +332,9 @@ void help(const char *topic)
                 buff2[1] = msg[4];
                 buff2[2] = 0;
                 int pco = atoi(buff2);
-                int ans = zz[1][9];
+                int ans = mwB.zz[1][9];
                 al_draw_bitmap(mwB.player_tile[pco][ans], dx+sxc-40, sy, 0 );
-                al_draw_text(mF.pr8, palette_color[pco], dx+sxc+24-40, sy+7, 0, color_name[pco]);
+                al_draw_text(mF.pr8, mC.pc[pco], dx+sxc+24-40, sy+7, 0, mC.color_name[pco]);
                 msg[0]= 0;
             }
             if (strncmp(msg, "<p", 2) == 0) // <pxx> show player (left just)
@@ -329,7 +344,7 @@ void help(const char *topic)
                 buff2[1] = msg[3];
                 buff2[2] = 0;
                 int pco = atoi(buff2);
-                int ans = zz[1][9];
+                int ans = mwB.zz[1][9];
                 al_draw_bitmap(mwB.player_tile[pco][ans], dx+sx, sy, 0 );
                 chop_first_x_char(msg, 5);
                 xindent +=24;
@@ -413,7 +428,7 @@ void help(const char *topic)
                buff2[2] = 0;
                color = atoi(buff2);
                chop_first_x_char(msg, 5);
-               al_draw_line(dx+20, sy+16, dx+620, sy+16, palette_color[color], 2);
+               al_draw_line(dx+20, sy+16, dx+620, sy+16, mC.pc[color], 2);
                msg[0]= 0;
             }
 
@@ -446,24 +461,24 @@ void help(const char *topic)
                txt[nexttag] = 0;                  // terminate 'txt' with NULL to shorten string
                chop_first_x_char(msg, nexttag);   // remove this from the beginning of 'msg'
             }
-            if (just) al_draw_text(mF.pr8, palette_color[color], dx+320,          24+(c*8), ALLEGRO_ALIGN_CENTER, txt );
-            else      al_draw_text(mF.pr8, palette_color[color], dx+20 + xindent, 24+(c*8)+tay, 0, txt );
+            if (just) al_draw_text(mF.pr8, mC.pc[color], dx+320,          24+(c*8), ALLEGRO_ALIGN_CENTER, txt );
+            else      al_draw_text(mF.pr8, mC.pc[color], dx+20 + xindent, 24+(c*8)+tay, 0, txt );
             xindent += strlen(txt) * 8;
          } // end of while nexttag != -1
       } // end of cycle lines
 
 
-      proc_event_queue();
-      if (key[ALLEGRO_KEY_ESCAPE][0])  quit = 1;
-      if (key[ALLEGRO_KEY_UP][0])   line --;
-      if (key[ALLEGRO_KEY_DOWN][0]) line ++;
-      if (key[ALLEGRO_KEY_HOME][0]) line = 0;
-      if (key[ALLEGRO_KEY_END][0])  line = last_pos;
-      if (key[ALLEGRO_KEY_PGUP][3])
+      mwEQ.proc_event_queue();
+      if (mI.key[ALLEGRO_KEY_ESCAPE][0])  quit = 1;
+      if (mI.key[ALLEGRO_KEY_UP][0])   line --;
+      if (mI.key[ALLEGRO_KEY_DOWN][0]) line ++;
+      if (mI.key[ALLEGRO_KEY_HOME][0]) line = 0;
+      if (mI.key[ALLEGRO_KEY_END][0])  line = last_pos;
+      if (mI.key[ALLEGRO_KEY_PGUP][3])
       {
          while ((strncmp(help_string[--line], "<section>", 9) != 0) && (line > 0));
       }
-      if (key[ALLEGRO_KEY_PGDN][3])
+      if (mI.key[ALLEGRO_KEY_PGDN][3])
       {
          while ((strncmp(help_string[++line], "<section>", 9) != 0) && (line < num_of_lines - lpp));
       }
@@ -471,10 +486,10 @@ void help(const char *topic)
       // limits
       if (line < 0)  line = 0;
       if (line > last_pos)  line = last_pos;
-      if (got_num) al_draw_textf(mF.pr8, palette_color[ftc], dx+320, mwD.SCREEN_H-9, ALLEGRO_ALIGN_CENTER, "jump to section %1d_", got_num-48);
-      if (key_pressed_ASCII)
+      if (got_num) al_draw_textf(mF.pr8, mC.pc[ftc], dx+320, mwD.SCREEN_H-9, ALLEGRO_ALIGN_CENTER, "jump to section %1d_", got_num-48);
+      if (mI.key_pressed_ASCII)
       {
-          int k = key_pressed_ASCII;
+          int k = mI.key_pressed_ASCII;
           if ((k>47) && (k<58))   // if 0-9
           {
              if (got_num) // last keypress was num
@@ -489,19 +504,19 @@ void help(const char *topic)
       }
 
       al_flip_display();
-      frame_num++;
-      update_animation();
+      mwPS.frame_num++;
+      mwB.update_animation();
       al_rest(0.02);
-      while ((key[ALLEGRO_KEY_ESCAPE][0]) || (mouse_b[2][0]))
+      while ((mI.key[ALLEGRO_KEY_ESCAPE][0]) || (mI.mouse_b[2][0]))
       {
          quit = 1;
-         proc_event_queue();
+         mwEQ.proc_event_queue();
       }
    }  // end of while not quit
    al_destroy_bitmap(status_window);
    al_destroy_bitmap(selection_window);
    al_destroy_bitmap(hlift);
-   help_screens_running = 0;
+   mwPS.help_screens_running = 0;
 }
 
 void menu_setup(void)
@@ -605,22 +620,6 @@ void menu_setup(void)
    enemy_tile[13] = 374;
 
 
-   strcpy (color_name[0],  "Zombie");
-   strcpy (color_name[1],  "Violet");
-   strcpy (color_name[2],  "Mauve");
-   strcpy (color_name[3],  "Bluey");
-   strcpy (color_name[4],  "Reddy");
-   strcpy (color_name[5],  "Pink");
-   strcpy (color_name[6],  "Taan");
-   strcpy (color_name[7],  "Orange");
-   strcpy (color_name[8],  "Purple");
-   strcpy (color_name[9],  "Forest");
-   strcpy (color_name[10], "Red");
-   strcpy (color_name[11], "Green");
-   strcpy (color_name[12], "Blue");
-   strcpy (color_name[13], "Aqua");
-   strcpy (color_name[14], "Yellow");
-   strcpy (color_name[15], "White");
 
    strcpy (global_string[2][0], "Level Editor Pop-Up Menu");
    strcpy (global_string[2][1], "------------------------");
@@ -696,31 +695,31 @@ int tmenu(int menu_num, int menu_pos, int x1, int y1)  // this menu function doe
 
       // draw menu title
       int mt = strlen(global_string[menu_num][0])*8;
-      al_draw_filled_rectangle(x1-2, y1-2, x1+mt+2, y1+yh, palette_color[pc+128]);
-      al_draw_rectangle(       x1-2, y1-2, x1+mt+2, y1+yh, palette_color[15], 1);
-      al_draw_text(mF.pr8, palette_color[15], x1, y1+1, 0, global_string[menu_num][0]);
+      al_draw_filled_rectangle(x1-2, y1-2, x1+mt+2, y1+yh, mC.pc[pc+128]);
+      al_draw_rectangle(       x1-2, y1-2, x1+mt+2, y1+yh, mC.pc[15], 1);
+      al_draw_text(mF.pr8, mC.pc[15], x1, y1+1, 0, global_string[menu_num][0]);
 
       // erase menu background
-      al_draw_filled_rectangle(x1-2, y1+12, x2, y2, palette_color[pc+128+48]);
-      al_draw_rectangle(x1-2, y1+12, x2, y2, palette_color[15], 1);
+      al_draw_filled_rectangle(x1-2, y1+12, x2, y2, mC.pc[pc+128+48]);
+      al_draw_rectangle(x1-2, y1+12, x2, y2, mC.pc[15], 1);
 
       // draw the menu items
       for (c=1; c<last_list_item; c++)
       {
          int b = 15+48; // default text color
          int h = 15;    // highlight text color
-         al_draw_text(mF.pr8, palette_color[b], x1, y1+(c*12)+2, 0, global_string[menu_num][c]);
+         al_draw_text(mF.pr8, mC.pc[b], x1, y1+(c*12)+2, 0, global_string[menu_num][c]);
          if (c == highlight)
          {
-            al_draw_filled_rectangle(            x1-2, y1+(c*12), x2, y1+(c*12)+11, palette_color[h+128]);
-            al_draw_text(mF.pr8, palette_color[h], x1,   y1+(c*12)+2, 0, global_string[menu_num][c]);
-            al_draw_rectangle(                   x1-2, y1+(c*12), x2, y1+(c*12)+11, palette_color[h], 1);
+            al_draw_filled_rectangle(            x1-2, y1+(c*12), x2, y1+(c*12)+11, mC.pc[h+128]);
+            al_draw_text(mF.pr8, mC.pc[h], x1,   y1+(c*12)+2, 0, global_string[menu_num][c]);
+            al_draw_rectangle(                   x1-2, y1+(c*12), x2, y1+(c*12)+11, mC.pc[h], 1);
          }
       }
 
-      if ( (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1 ) && (mouse_y < y2) )
+      if ( (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1 ) && (mI.mouse_y < y2) )
       {
-         highlight = (mouse_y - y1)/yh;
+         highlight = (mI.mouse_y - y1)/yh;
       }
       else highlight = 0;
 
@@ -728,21 +727,21 @@ int tmenu(int menu_num, int menu_pos, int x1, int y1)  // this menu function doe
       if (highlight > last_list_item-1) highlight = 0;
 
 
-      if (mouse_b[1][0])
+      if (mI.mouse_b[1][0])
       {
-         while (mouse_b[1][0]) proc_event_queue();
+         while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
          selection = highlight;
       }
 
-      if (mouse_b[2][0])
+      if (mI.mouse_b[2][0])
       {
-         while (mouse_b[2][0]) proc_event_queue();
+         while (mI.mouse_b[2][0]) mwEQ.proc_event_queue();
          selection = 0;
       }
 
-      if (key[ALLEGRO_KEY_ESCAPE][0])
+      if (mI.key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (key[ALLEGRO_KEY_ESCAPE][0]) proc_event_queue();
+         while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue();
          selection = 0; // default position for back
       }
 
@@ -766,7 +765,7 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
    int left_held = 0;
    int right_held = 0;
 
-   clear_keys();
+   mI.initialize();
 
    while (selection == 999)
    {
@@ -775,8 +774,8 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
 
-      while (!menu_update) proc_event_queue_menu();
-      menu_update = 0;
+      while (!mwEQ.menu_update) mwEQ.proc_event_queue_menu();
+      mwEQ.menu_update = 0;
 
 
       frame_and_title(1);
@@ -813,52 +812,52 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
          if (c == highlight)
          {
             int sl = strlen(global_string[menu_num][c]) * 4;
-            al_draw_rectangle(mx-sl-2+0.5f, y+(c*10)-1+0.5f, mx+sl+0.5f, y+(c*10)+9+0.5f, palette_color[b+80], 1);
+            al_draw_rectangle(mx-sl-2+0.5f, y+(c*10)-1+0.5f, mx+sl+0.5f, y+(c*10)+9+0.5f, mC.pc[b+80], 1);
          }
-         al_draw_text(mF.pr8, palette_color[b], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[menu_num][c]);
+         al_draw_text(mF.pr8, mC.pc[b], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[menu_num][c]);
          c++;
       }
       last_list_item = c-1;
 
 
-      if (((key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) && (right_held == 0))
+      if (((mI.key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) && (right_held == 0))
       {
          right_held = 1;
          selection = highlight + 100;
       }
-      if ( (!(key[ALLEGRO_KEY_RIGHT][0])) &&  (!(players[0].right)) )  right_held = 0;
-      if (((key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) && (left_held == 0))
+      if ( (!(mI.key[ALLEGRO_KEY_RIGHT][0])) &&  (!(players[0].right)) )  right_held = 0;
+      if (((mI.key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) && (left_held == 0))
       {
          left_held = 1;
          selection = highlight + 200;
       }
-      if ( (!(key[ALLEGRO_KEY_LEFT][0])) &&  (!(players[0].left)) )  left_held = 0;
-      if (((key[ALLEGRO_KEY_DOWN][0]) || (players[0].down))  && (down_held == 0))
+      if ( (!(mI.key[ALLEGRO_KEY_LEFT][0])) &&  (!(players[0].left)) )  left_held = 0;
+      if (((mI.key[ALLEGRO_KEY_DOWN][0]) || (players[0].down))  && (down_held == 0))
       {
          if (++highlight > last_list_item) highlight = last_list_item;
          down_held = 1;
          mwDM.demo_mode_countdown_val = mwDM.demo_mode_countdown_reset;
          mwDM.demo_mode_enabled = 0;
       }
-      if ( (!(key[ALLEGRO_KEY_DOWN][0])) && (!(players[0].down))) down_held = 0;
-      if (((key[ALLEGRO_KEY_UP][0]) || (players[0].up)) && (up_held == 0))
+      if ( (!(mI.key[ALLEGRO_KEY_DOWN][0])) && (!(players[0].down))) down_held = 0;
+      if (((mI.key[ALLEGRO_KEY_UP][0]) || (players[0].up)) && (up_held == 0))
       {
          if (--highlight < 2) highlight = 2;
          up_held = 1;
          mwDM.demo_mode_countdown_val = mwDM.demo_mode_countdown_reset;
          mwDM.demo_mode_enabled = 0;
       }
-      if ( (!(key[ALLEGRO_KEY_UP][0])) && (!(players[0].up))) up_held = 0;
+      if ( (!(mI.key[ALLEGRO_KEY_UP][0])) && (!(players[0].up))) up_held = 0;
 
 
       // shortcut keys
-      if (key[ALLEGRO_KEY_L][0])                      return 8; // level editor
-      if (key[ALLEGRO_KEY_O][0] && SHFT() && CTRL() ) return 7; // settings
+      if (mI.key[ALLEGRO_KEY_L][0])                      return 8; // level editor
+      if (mI.key[ALLEGRO_KEY_O][0] && mI.SHFT() && mI.CTRL() ) return 7; // settings
 
-      if (key[ALLEGRO_KEY_PGDN][0])   highlight = last_list_item;
-      if (key[ALLEGRO_KEY_PGUP][0])   highlight = 2;
-      if (key[ALLEGRO_KEY_ENTER][0])  selection = highlight;
-      if (key[ALLEGRO_KEY_ESCAPE][0]) selection = 1;
+      if (mI.key[ALLEGRO_KEY_PGDN][0])   highlight = last_list_item;
+      if (mI.key[ALLEGRO_KEY_PGUP][0])   highlight = 2;
+      if (mI.key[ALLEGRO_KEY_ENTER][0])  selection = highlight;
+      if (mI.key[ALLEGRO_KEY_ESCAPE][0]) selection = 1;
    }
    return selection;
 }
@@ -871,7 +870,7 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
 
 // this menu function does not pass through like the next one
 // it waits for a selection and then exits
-// its is entered with mouse_b[2][0] pressed and exits when released
+// its is entered with mI.mouse_b[2][0] pressed and exits when released
 int pmenu(int menu_num, int bg_color)
 {
    int highlight = 2;
@@ -879,12 +878,12 @@ int pmenu(int menu_num, int bg_color)
    int last_list_item;
    int c, b;
 
-   int kx = mouse_x;
+   int kx = mI.mouse_x;
    if (kx < 100) kx = 100;
    if (kx > mwD.SCREEN_W-100) kx = mwD.SCREEN_W-100;
 
    int up = 0;
-   int ky = mouse_y-20;
+   int ky = mI.mouse_y-20;
    if (menu_num == 2) if (ky > mwD.SCREEN_H - 160) up=1; // main editor menu
    if (menu_num == 6) if (ky > mwD.SCREEN_H - 60) up=1;  // lift step menu
    if (menu_num == 5) if (ky > mwD.SCREEN_H - 80) up=1;  // generic menu
@@ -907,8 +906,8 @@ int pmenu(int menu_num, int bg_color)
                c++;
             }
             w = max_strlen*4 + 2;
-            al_draw_filled_rectangle(kx-w, ky-2, kx+w, ky+c*8+1, palette_color[bg_color+192]); // blank background
-            al_draw_rectangle       (kx-w, ky-2, kx+w, ky+c*8+1, palette_color[bg_color], 1);     // frame entire menu
+            al_draw_filled_rectangle(kx-w, ky-2, kx+w, ky+c*8+1, mC.pc[bg_color+192]); // blank background
+            al_draw_rectangle       (kx-w, ky-2, kx+w, ky+c*8+1, mC.pc[bg_color], 1);     // frame entire menu
          }
          c = 0;
          while (strcmp(global_string[menu_num][c],"end") != 0)
@@ -921,25 +920,25 @@ int pmenu(int menu_num, int bg_color)
             if (sl > max_strlen) max_strlen = sl;
             w = sl*4;
 
-            if (bg_color == 0) al_draw_filled_rectangle(kx-w, ky+(c*8), kx+w, ky+(c*8)+8, palette_color[0]);
-            al_draw_text(mF.pr8, palette_color[b], kx, ky+(c*8),  ALLEGRO_ALIGN_CENTER, global_string[menu_num][c]);
+            if (bg_color == 0) al_draw_filled_rectangle(kx-w, ky+(c*8), kx+w, ky+(c*8)+8, mC.pc[0]);
+            al_draw_text(mF.pr8, mC.pc[b], kx, ky+(c*8),  ALLEGRO_ALIGN_CENTER, global_string[menu_num][c]);
             c++;
          }
          last_list_item = c-1;
          al_flip_display();
-         proc_event_queue();
+         mwEQ.proc_event_queue();
          highlight = 2;
-         if ( (mouse_x > (kx - 100)) && (mouse_x < (kx+100)) )
-            if ( (mouse_y > ky ) && (mouse_y < ky + ((last_list_item+1)*8)) )
-               highlight = (mouse_y-ky) / 8;
-         if (!(mouse_b[2][0])) selection = highlight; // mouse b2 released
+         if ( (mI.mouse_x > (kx - 100)) && (mI.mouse_x < (kx+100)) )
+            if ( (mI.mouse_y > ky ) && (mI.mouse_y < ky + ((last_list_item+1)*8)) )
+               highlight = (mI.mouse_y-ky) / 8;
+         if (!(mI.mouse_b[2][0])) selection = highlight; // mouse b2 released
 
       } while (selection == 999);
    }
    if (up)  // reverse version
    {
       if (menu_num == 5) ky += 18;  // generic menu
-      else ky = mouse_y+12; // to put mouse on default button
+      else ky = mI.mouse_y+12; // to put mouse on default button
       if (ky > mwD.SCREEN_H) ky = mwD.SCREEN_H;
       do   // until selection is made
       {
@@ -957,8 +956,8 @@ int pmenu(int menu_num, int bg_color)
                c++;
             }
             w = max_strlen*4 + 2;
-            al_draw_filled_rectangle(kx-w, ky+9, kx+w, ky-c*8+6, palette_color[bg_color+192]); // blank background
-            al_draw_rectangle       (kx-w, ky+9, kx+w, ky-c*8+6, palette_color[bg_color], 1);     // frame entire menu
+            al_draw_filled_rectangle(kx-w, ky+9, kx+w, ky-c*8+6, mC.pc[bg_color+192]); // blank background
+            al_draw_rectangle       (kx-w, ky+9, kx+w, ky-c*8+6, mC.pc[bg_color], 1);     // frame entire menu
          }
 
          c = 0;
@@ -968,21 +967,21 @@ int pmenu(int menu_num, int bg_color)
             if (c == 0) b = 9;
             if (c == highlight) b=9;
             int w = strlen(global_string[menu_num][c])*4;
-            if (bg_color == 0) al_draw_filled_rectangle(kx-w, ky-(c*8), kx+w, ky-(c*8)+8, palette_color[0]);
-            al_draw_text(mF.pr8, palette_color[b], kx, ky-(c*8),  ALLEGRO_ALIGN_CENTER, global_string[menu_num][c]);
+            if (bg_color == 0) al_draw_filled_rectangle(kx-w, ky-(c*8), kx+w, ky-(c*8)+8, mC.pc[0]);
+            al_draw_text(mF.pr8, mC.pc[b], kx, ky-(c*8),  ALLEGRO_ALIGN_CENTER, global_string[menu_num][c]);
             c++;
          }
          last_list_item = c-1;
 
          al_flip_display();
-         proc_event_queue();
+         mwEQ.proc_event_queue();
 
          //show_mouse(screen);
          highlight = 2;
-         if ( (mouse_x > (kx - 100)) && (mouse_x < (kx+100)) )
-            if ( (mouse_y < ky ) && (mouse_y > ky - ((last_list_item+1)*8) ) )
-               highlight = (ky-mouse_y+8) / 8;
-         if (!(mouse_b[2][0])) selection = highlight; // mouse b2 released
+         if ( (mI.mouse_x > (kx - 100)) && (mI.mouse_x < (kx+100)) )
+            if ( (mI.mouse_y < ky ) && (mI.mouse_y > ky - ((last_list_item+1)*8) ) )
+               highlight = (ky-mI.mouse_y+8) / 8;
+         if (!(mI.mouse_b[2][0])) selection = highlight; // mouse b2 released
 
       } while (selection == 999);
    }
@@ -1036,13 +1035,13 @@ void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color
 
    if (restore) // black background, text color text
    {
-      al_draw_filled_rectangle(x, y, x+8, y+8, palette_color[0]);
-      al_draw_text(mF.pr8, palette_color[cursor_color], x, y, 0, msg);
+      al_draw_filled_rectangle(x, y, x+8, y+8, mC.pc[0]);
+      al_draw_text(mF.pr8, mC.pc[cursor_color], x, y, 0, msg);
    }
    else // red background, black text
    {
-      al_draw_filled_rectangle(x, y, x+8, y+8, palette_color[10]);
-      al_draw_text(mF.pr8, palette_color[0], x, y, 0, msg);
+      al_draw_filled_rectangle(x, y, x+8, y+8, mC.pc[10]);
+      al_draw_text(mF.pr8, mC.pc[0], x, y, 0, msg);
    }
 }
 
@@ -1095,51 +1094,51 @@ int edit_pmsg_text(int c, int new_msg)
       if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,10,15,0, 1,0,1,0, "Cancel")) { quit = 1; bad = 1; }
 
 
-//      al_draw_filled_rectangle(xa, by1-30, xb, by1-10, palette_color[0]);
-//      al_draw_rectangle(xa, by1-30, xb, by1-10, palette_color[15], 1);
-//      al_draw_textf(mF.pr8, palette_color[15], xa, by1-20, 0, "%d/%d %d", cursor_pos, char_count, strlen(f));
+//      al_draw_filled_rectangle(xa, by1-30, xb, by1-10, mC.pc[0]);
+//      al_draw_rectangle(xa, by1-30, xb, by1-10, mC.pc[15], 1);
+//      al_draw_textf(mF.pr8, mC.pc[15], xa, by1-20, 0, "%d/%d %d", cursor_pos, char_count, strlen(f));
 
-      proc_event_queue();
+      mwEQ.proc_event_queue();
 
-      if (key[ALLEGRO_KEY_HOME][0])  cursor_pos = 0;
-      if (key[ALLEGRO_KEY_END][0])   cursor_pos = char_count;
-      if (key[ALLEGRO_KEY_RIGHT][3])
+      if (mI.key[ALLEGRO_KEY_HOME][0])  cursor_pos = 0;
+      if (mI.key[ALLEGRO_KEY_END][0])   cursor_pos = char_count;
+      if (mI.key[ALLEGRO_KEY_RIGHT][3])
       {
-         if (SHFT() && CTRL())
+         if (mI.SHFT() && mI.CTRL())
          {
             while ((++cursor_pos < char_count) && (f[cursor_pos] != 10));  // find next LF
          }
-         else if (SHFT())
+         else if (mI.SHFT())
          {
             while ((++cursor_pos < char_count) && (f[cursor_pos] != 32) && (f[cursor_pos] != 10));  // find next space or LF
          }
-         else if (CTRL()) cursor_pos+=16;
+         else if (mI.CTRL()) cursor_pos+=16;
 
          else cursor_pos++;
          if (cursor_pos > char_count) cursor_pos = char_count;             // make sure we are not past the end
       }
 
-      if (key[ALLEGRO_KEY_LEFT][3])
+      if (mI.key[ALLEGRO_KEY_LEFT][3])
       {
          //al_rest(0.02);
-         while (key[ALLEGRO_KEY_LEFT][3]) proc_event_queue();               // wait for release
+         while (mI.key[ALLEGRO_KEY_LEFT][3]) mwEQ.proc_event_queue();               // wait for release
 
-         if ((SHFT()) && (CTRL()))
+         if ((mI.SHFT()) && (mI.CTRL()))
          {
             while ((--cursor_pos > 0) && (f[cursor_pos] != 10));  // find next LF
          }
-         else if (SHFT())
+         else if (mI.SHFT())
          {
             while ((--cursor_pos > 0) && (f[cursor_pos] != 32) && (f[cursor_pos] != 10)); // find next space or LF
          }
-         else if (CTRL()) cursor_pos-=16;
+         else if (mI.CTRL()) cursor_pos-=16;
 
          else cursor_pos--;
          if (cursor_pos < 0) cursor_pos = 0;                             // make sure we are not before the start
       }
 
 
-      if (key[ALLEGRO_KEY_UP][3])                                           // move up one line
+      if (mI.key[ALLEGRO_KEY_UP][3])                                           // move up one line
       {
          int ocp = cursor_pos;                                           // get original position
          while ((--cursor_pos > 0) && (f[cursor_pos] != 10));           // find previous LF
@@ -1148,7 +1147,7 @@ int edit_pmsg_text(int c, int new_msg)
          cursor_pos -= mv;                                               // subtract move
          if (cursor_pos < 0) cursor_pos = 0;                             // make sure we are not before the start
       }
-      if (key[ALLEGRO_KEY_DOWN][3])                                         // move down one line
+      if (mI.key[ALLEGRO_KEY_DOWN][3])                                         // move down one line
       {
          int ocp = cursor_pos;                                           // get original position
          while ((++cursor_pos < char_count) && (f[cursor_pos] != 10));  // find next LF
@@ -1157,14 +1156,14 @@ int edit_pmsg_text(int c, int new_msg)
          cursor_pos -= mv;                                               // subtract move
          if (cursor_pos > char_count) cursor_pos = char_count;           // make sure we are not past the end
       }
-      if ((key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
+      if ((mI.key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
       {
          al_rest(0.02);
          for (int aa = cursor_pos; aa < char_count; aa++) f[aa]=f[aa+1];
          char_count--;
          f[char_count] = (char)NULL; // set last to NULL
       }
-      if ((key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
+      if ((mI.key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
       {
          al_rest(0.02);
          cursor_pos--;
@@ -1172,10 +1171,10 @@ int edit_pmsg_text(int c, int new_msg)
          char_count--;
          f[char_count] = (char)NULL; // set last to NULL
       }
-      if (key_pressed_ASCII)
+      if (mI.key_pressed_ASCII)
       {
          al_rest(0.07);
-         int k = key_pressed_ASCII;
+         int k = mI.key_pressed_ASCII;
          if (k == 13) k = 10; // replace CR with LF
 
          if ( (k == 10) || ((k>31) && (k<127))) // if alphanumeric
@@ -1187,13 +1186,13 @@ int edit_pmsg_text(int c, int new_msg)
             f[char_count] = (char)NULL; // set last to NULL
          }
       }
-      if (key[ALLEGRO_KEY_ESCAPE][3])
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3])
       {
          quit = 1;
          bad = 1;
       }
       al_flip_display();
-      al_draw_filled_rectangle(xa, ey, xb, ey+10*bts, palette_color[0]);
+      al_draw_filled_rectangle(xa, ey, xb, ey+10*bts, mC.pc[0]);
       al_rest(0.07);
 
    } // end of while (!quit)
@@ -1217,7 +1216,7 @@ void edit_server_name(int type, int x, int y)
    int old_cp=0;
    int blink_count = 3;
    int blink_counter = 0;
-   while (key[ALLEGRO_KEY_ENTER][0]) proc_event_queue();
+   while (mI.key[ALLEGRO_KEY_ENTER][0]) mwEQ.proc_event_queue();
    int quit = 0;
    while (!quit)
    {
@@ -1234,11 +1233,11 @@ void edit_server_name(int type, int x, int y)
 
       al_flip_display();
       // clear text background
-      al_draw_filled_rectangle(tx-w-8, ty1-4-2, tx+w+18, ty1+4+3, palette_color[0]);
+      al_draw_filled_rectangle(tx-w-8, ty1-4-2, tx+w+18, ty1+4+3, mC.pc[0]);
 
-      al_draw_text(mF.pr8, palette_color[15], tx, ty1-14, ALLEGRO_ALIGN_CENTER, "Set Server IP or Hostname");
+      al_draw_text(mF.pr8, mC.pc[15], tx, ty1-14, ALLEGRO_ALIGN_CENTER, "Set Server IP or Hostname");
       // frame text
-      al_draw_rectangle       (tx-w-1, ty1-4-1, tx+w+6, ty1+6, palette_color[15], 1);
+      al_draw_rectangle       (tx-w-1, ty1-4-1, tx+w+6, ty1+6, mC.pc[15], 1);
 
       rtextout_centre(mF.pr8, NULL, fst, tx, ty1+1, 15, 1, 0, 1);
 
@@ -1254,23 +1253,23 @@ void edit_server_name(int type, int x, int y)
       }
 
       al_rest(.08);
-      proc_event_queue();
-      if (key[ALLEGRO_KEY_RIGHT][0])
+      mwEQ.proc_event_queue();
+      if (mI.key[ALLEGRO_KEY_RIGHT][0])
       {
          if (++cursor_pos > char_count) cursor_pos = char_count;
       }
-      if (key[ALLEGRO_KEY_LEFT][0])
+      if (mI.key[ALLEGRO_KEY_LEFT][0])
       {
          if (--cursor_pos < 0) cursor_pos = 0;
       }
-      if ((key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
+      if ((mI.key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
       {
          for (int a = cursor_pos; a < char_count; a++)
            fst[a]=fst[a+1];
          --char_count;
          fst[char_count] = (char)NULL; // set last to NULL
       }
-      if ((key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
+      if ((mI.key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
       {
          cursor_pos--;
          for (int a = cursor_pos; a < char_count; a++)
@@ -1279,7 +1278,7 @@ void edit_server_name(int type, int x, int y)
          fst[char_count] = (char)NULL; // set last to NULL
       }
 
-      int k = key_pressed_ASCII;
+      int k = mI.key_pressed_ASCII;
       if ((k>31) && (k<127)) // insert if alphanumeric or return
       {
          // move over to make room
@@ -1295,13 +1294,13 @@ void edit_server_name(int type, int x, int y)
 
          fst[char_count] = (char)NULL; // set last to NULL
       }
-      if (key[ALLEGRO_KEY_ENTER][3])
+      if (mI.key[ALLEGRO_KEY_ENTER][3])
       {
          strcpy(m_serveraddress, fst);
          quit = 1;
       }
 
-      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 
    }
 }
@@ -1332,9 +1331,9 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
 
       // draw updated lift
       for (a=0; a<10; a++)
-        al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[color + ((9 - a)*16)], 2 );
-      al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color] );
-      al_draw_text(mF.pr8, palette_color[color+160], tx, ty1, ALLEGRO_ALIGN_CENTRE, fst);
+        al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mC.pc[color + ((9 - a)*16)], 2 );
+      al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, mC.pc[color] );
+      al_draw_text(mF.pr8, mC.pc[color+160], tx, ty1, ALLEGRO_ALIGN_CENTRE, fst);
 
 
       if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1, 15, 0);
@@ -1348,16 +1347,16 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
          blink_counter = 0;
       }
 
-      proc_event_queue();
-      if (key[ALLEGRO_KEY_RIGHT][0])
+      mwEQ.proc_event_queue();
+      if (mI.key[ALLEGRO_KEY_RIGHT][0])
       {
          if (++cursor_pos >= char_count) cursor_pos = char_count-1;
       }
-      if (key[ALLEGRO_KEY_LEFT][0])
+      if (mI.key[ALLEGRO_KEY_LEFT][0])
       {
          if (--cursor_pos < 0) cursor_pos = 0;
       }
-      if ((key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
+      if ((mI.key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
       {
          for (a = cursor_pos; a < char_count; a++)
            fst[a]=fst[a+1];
@@ -1365,7 +1364,7 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
          // set last to NULL
          fst[char_count] = (char)NULL;
       }
-      if ((key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
+      if ((mI.key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
       {
          cursor_pos--;
          for (a = cursor_pos; a < char_count; a++)
@@ -1375,7 +1374,7 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
          fst[char_count] = (char)NULL;
       }
 
-      int k = key_pressed_ASCII;
+      int k = mI.key_pressed_ASCII;
       if ((k>31) && (k<127)) // insert if alphanumeric or return
       {
          // move over to make room
@@ -1392,8 +1391,8 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
          // set last to NULL
          fst[char_count] = (char)NULL;
       }
-      if (key[ALLEGRO_KEY_ENTER][3]) return 1;
-      if (key[ALLEGRO_KEY_ESCAPE][3]) return 0;
+      if (mI.key[ALLEGRO_KEY_ENTER][3]) return 1;
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) return 0;
    }
 }
 

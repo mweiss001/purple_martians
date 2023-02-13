@@ -599,7 +599,7 @@ or rather any setup that is done before the first loop will be done on frame 1..
 
 it is done, these are the first lines
 
-frame_num++;
+mwPS.frame_num++;
 update_animation();
 
 lets see what still works...
@@ -1059,17 +1059,17 @@ I think it's worth a try....
 
 this is a tricky bit of code here....
 
-   // check to see if frame_nums match and its time to apply dif or if initial state when frame_num == 0
-   if ((frame_num != client_state_dif_dst) && (frame_num != 0))
+   // check to see if frame_nums match and its time to apply dif or if initial state when mwPS.frame_num == 0
+   if ((mwPS.frame_num != client_state_dif_dst) && (mwPS.frame_num != 0))
    {
 
 
 first of all if the match then do it
-second of all if frame_num == 0 do it
+second of all if mwPS.frame_num == 0 do it
 third of all...
 if newer than last applied dif....
 
-what is the varaible for the last applied dif frame_num? 'client_state_base_frame_num'
+what is the varaible for the last applied dif mwPS.frame_num? 'client_state_base_frame_num'
 
 so check if the dest of the dif_dest on deck is newer than that
 
@@ -1366,7 +1366,7 @@ I need to map the axis range to the screen range!!!!
    {
       float x = screen_x1 + (data[i][0]-x_axis_min) * xm;
       float y = screen_y2 - (data[i][1]-y_axis_min) * ym;
-      al_draw_rectangle(x, y, x+1, y+1, palette_color[10], 1);
+      al_draw_rectangle(x, y, x+1, y+1, mC.pc[10], 1);
    }
 
 
@@ -2018,7 +2018,7 @@ now how im I going to implement this?
 
 ideally I would like to call something very similar to draw_line
 
-al_draw_line(100, 110, 200, 110, palette_color[15], 1);
+al_draw_line(100, 110, 200, 110, mC.pc[15], 1);
 mw_draw_line(100, 110, 200, 110, col1, col2);
 
 
@@ -2060,11 +2060,11 @@ void mw_draw_line(int x1, int y1, int x2, int y2, int c1, int c2)
       if ((cycle % 8) < 4) c = c2;
       cycle++;
 
-//      al_draw_filled_circle(x, y, 1, palette_color[c]);
-      al_draw_filled_rectangle(x-0.5, y-0.5, x+0.5, y+0.5, palette_color[c]);
+//      al_draw_filled_circle(x, y, 1, mC.pc[c]);
+      al_draw_filled_rectangle(x-0.5, y-0.5, x+0.5, y+0.5, mC.pc[c]);
 
 //   printf("x:%d y:%d  cycle:%d  dtd:%d\n", x, y, cycle, display_transform_double);
-      //al_put_pixel(p[i][0], p[i][1], palette_color[p[i][2]]);
+      //al_put_pixel(p[i][0], p[i][1], mC.pc[p[i][2]]);
    }
 }
 
@@ -2168,7 +2168,7 @@ void mw_draw_line(int x1, int y1, int x2, int y2, float thickness, int cycle_tot
       int x2 = mw_p[i][0];
       int y2 = mw_p[i][1];
       int c =  mw_p[i][2];
-      al_draw_line(x1, y1, x2, y2, palette_color[c], thickness);
+      al_draw_line(x1, y1, x2, y2, mC.pc[c], thickness);
       //printf("x:%d y:%d  cycle:%d  dtd:%d\n", x, y, cycle, display_transform_double);
    }
 }
@@ -2244,7 +2244,7 @@ void mw_draw_line2(int x1, int y1, int x2, int y2, float thickness)
 
    while (xa < x2)
    {
-      al_draw_line(xa, ya, xb, yb, palette_color[c], thickness);
+      al_draw_line(xa, ya, xb, yb, mC.pc[c], thickness);
       if (c == 15) c = 10;
       else if (c == 10) c = 15;
       xa+=xinc;
@@ -2310,7 +2310,7 @@ if second one is 0 just draw normally
 
 
 
-if (series[s].color2 == 0) al_draw_line(ox, oy, x, y, palette_color[series[s].color1], 1.0);
+if (series[s].color2 == 0) al_draw_line(ox, oy, x, y, mC.pc[series[s].color1], 1.0);
 else                       mw_draw_line(ox, oy, x, y, 1.0, 8, series[s].color1, 10, series[s].color2, 0, 0);
 
 wait how??
@@ -2591,7 +2591,7 @@ int check_and_draw(double x1, double y1, double x2, double y2, double xa, double
       printf("%s   drawn at xa:%3.0f ya:%3.0f xb:%3.0f yb:%3.0f\n", t, xa, ya, xb, yb);
 
 
-      al_draw_line(xa, ya, xb, yb, palette_color[col], thickness);
+      al_draw_line(xa, ya, xb, yb, mC.pc[col], thickness);
       segments_drawn++;
 
 
@@ -2614,7 +2614,7 @@ int mw_draw_line(double x1, double y1, double x2, double y2, float thickness, in
 
    int segments_drawn = 0;
 
-   if (c1_col == 0) al_draw_line(x1, y1, x2, y2, palette_color[c0_col], thickness);
+   if (c1_col == 0) al_draw_line(x1, y1, x2, y2, mC.pc[c0_col], thickness);
    else
    {
       int color_span = c0_val + c1_val + c2_val;
@@ -2722,7 +2722,7 @@ int check_and_draw(double x1, double y1, double line_length, double line_xinc, d
       double xb = x1 + zb * line_xinc;
       double yb = y1 + zb * line_yinc;
       if (debug_print) printf("%s   drawn at za:%3.0f zb:%3.0f\n", t, za, zb);
-      al_draw_line(xa, ya, xb, yb, palette_color[col], thickness);
+      al_draw_line(xa, ya, xb, yb, mC.pc[col], thickness);
       segments_drawn++;
    }
    return end_adj;
@@ -2739,7 +2739,7 @@ int mw_draw_line(double x1, double y1, double x2, double y2, float thickness, in
    int segments_drawn = 0;
 
    int color_span = c0_val + c1_val + c2_val;
-   if ((color_span < 1) || ((c1_col == 0) && (c2_col == 0))) al_draw_line(x1, y1, x2, y2, palette_color[c0_col], thickness);
+   if ((color_span < 1) || ((c1_col == 0) && (c2_col == 0))) al_draw_line(x1, y1, x2, y2, mC.pc[c0_col], thickness);
    else
    {
       if (debug_print) printf("lco:%d color_span:%d\n", line_color_offset, color_span); // line_color_offset is in pixels, from 0 to color_span
@@ -2909,8 +2909,8 @@ x_axis_get_size_and_arrange_pos();
 y_axis_get_size_and_arrange_pos();
 enforce_axis_limits();
 
-al_draw_filled_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, palette_color[title_frame_color+224]); // erase plot background
-al_draw_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, palette_color[title_frame_color], 2); // frame plot
+al_draw_filled_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, mC.pc[title_frame_color+224]); // erase plot background
+al_draw_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, mC.pc[title_frame_color], 2); // frame plot
 
 x_axis_draw();
 y_axis_draw();
@@ -2931,7 +2931,7 @@ can I refine it? yes I can...
 void mwGraph::draw_graph(int draw_only)
 {
    al_show_mouse_cursor(display);
-   if ((mouse_x > graph_x1) && (mouse_x < graph_x2) && (mouse_y > graph_y1) && (mouse_y < graph_y2))
+   if ((mI.mouse_x > graph_x1) && (mI.mouse_x < graph_x2) && (mI.mouse_y > graph_y1) && (mI.mouse_y < graph_y2))
       al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 
    x_axis_get_size_and_arrange_pos();
@@ -3110,8 +3110,8 @@ do only the line....done
          else // show mouse position
          {
             col = 15;
-            x = mouse_x;
-            y = mouse_y;
+            x = mI.mouse_x;
+            y = mI.mouse_y;
             draw_point_data(x, y, mx1, my1, col, f3, -1);
          }
          if (linked_group_id)
@@ -3124,12 +3124,12 @@ do only the line....done
       } // end of mouse on plot area
       else // mouse not on plot area
       {
-         if ((mouse_x > graph_x1) && (mouse_x < graph_x2) && (mouse_y > graph_y1) && (mouse_y < graph_y2)) // not on plot, but on graph
+         if ((mI.mouse_x > graph_x1) && (mI.mouse_x < graph_x2) && (mI.mouse_y > graph_y1) && (mI.mouse_y < graph_y2)) // not on plot, but on graph
             for (int g=0; g<10; g++)
                if (mG[g].linked_group_id == linked_group_id) mG[g].x_axis_cursor_pos = 99999; // set all linked cursors to not valid
 
          if (x_axis_cursor_pos > -99998)
-            al_draw_line(x_axis_cursor_pos, plot_y1, x_axis_cursor_pos, plot_y2, palette_color[15], 0); // draw if valid
+            al_draw_line(x_axis_cursor_pos, plot_y1, x_axis_cursor_pos, plot_y2, mC.pc[15], 0); // draw if valid
       }
 
 
@@ -3373,8 +3373,8 @@ make it a part of draw plot??
 this is the way it is now:
 void mwGraph::proc_plot_area(int draw_only)
 {
-   al_draw_filled_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, palette_color[title_frame_color+224]); // erase plot background
-   al_draw_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, palette_color[title_frame_color], 2);         // frame plot
+   al_draw_filled_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, mC.pc[title_frame_color+224]); // erase plot background
+   al_draw_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, mC.pc[title_frame_color], 2);         // frame plot
 
    x_axis_draw();
    y_axis_draw();
@@ -3541,7 +3541,7 @@ void add_timestamp(int type, int f1, int f2, double t1, double t2)
 {
    if (timestamps_index < 9998)
    {
-      timestamps[timestamps_index].frame0 = frame_num;
+      timestamps[timestamps_index].frame0 = mwPS.frame_num;
       timestamps[timestamps_index].frame1 = f1;
       timestamps[timestamps_index].frame2 = f2;
       timestamps[timestamps_index].type   = type;
@@ -3578,15 +3578,15 @@ void add_timestamp(int type, int f1, int f2, double t1, double t2)
 
 
 
-//            if (get_delta(frame_num,   3, frame_num,   4, res)) printf("time in draw: %5.1f us\n", res*1000000);
-//            if (get_delta(frame_num,   1, frame_num,   2, res)) printf("time in move: %5.1f us\n", res*1000000);
+//            if (get_delta(mwPS.frame_num,   3, mwPS.frame_num,   4, res)) printf("time in draw: %5.1f us\n", res*1000000);
+//            if (get_delta(mwPS.frame_num,   1, mwPS.frame_num,   2, res)) printf("time in move: %5.1f us\n", res*1000000);
 //
-//            if (get_delta(frame_num-2, 1, frame_num-1, 1, res)) printf("total fram time: %5.1f us\n", res*1000000);
+//            if (get_delta(mwPS.frame_num-2, 1, mwPS.frame_num-1, 1, res)) printf("total fram time: %5.1f us\n", res*1000000);
 
 
 
 
-now that I have the frame_num inc at the very start of every frame it should make timing easier.
+now that I have the mwPS.frame_num inc at the very start of every frame it should make timing easier.
 
 
 I don't know why I have multiple frame numbers in the structure
@@ -3954,7 +3954,7 @@ exit with any key..goes back to config...good
 
 exit with ESC key..skips past config to menu...fix this
 added this in rungame_key_check to eat ESC
-while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
+while (mI.key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
 
 now it does stimp and goes back to config....
 from there you can run another file...
@@ -4127,7 +4127,7 @@ v[2][1] = 200;
 v[3][0] = 200;
 v[3][1] = 100;
 
-al_draw_filled_polygon(*v, 4, palette_color[14]);
+al_draw_filled_polygon(*v, 4, mC.pc[14]);
 
 this is all it takes....
 
@@ -4411,7 +4411,7 @@ fast_exit and
 
 void function_key_check(void)
 {
-   if (key[ALLEGRO_KEY_F4][3])
+   if (mI.key[ALLEGRO_KEY_F4][3])
    {
       blind_save_game_moves(3);
       save_log_file();
@@ -4579,21 +4579,21 @@ void draw_text_in_box(const char* txt, ALLEGRO_FONT *f, int x, int y, int color,
    if (type == 0) // the regular method
    {
       al_get_text_dimensions(f, txt, &bx, &by, &bw, &bh);
-      al_draw_rectangle(x, y, x+bw+4, y+bh+4, palette_color[color], 1);
-      al_draw_textf(f, palette_color[color], x+2, y+2, 0, txt);
+      al_draw_rectangle(x, y, x+bw+4, y+bh+4, mC.pc[color], 1);
+      al_draw_textf(f, mC.pc[color], x+2, y+2, 0, txt);
    }
    if (type == 1) // use bx, by to offset text
    {
       al_get_text_dimensions(f, txt, &bx, &by, &bw, &bh);
-      al_draw_rectangle(x, y, x+bw+4, y+bh+4, palette_color[color], 1);
-      al_draw_textf(f, palette_color[color], x+2-bx, y+2-by, 0, txt);
+      al_draw_rectangle(x, y, x+bw+4, y+bh+4, mC.pc[color], 1);
+      al_draw_textf(f, mC.pc[color], x+2-bx, y+2-by, 0, txt);
    }
 
    if (type == 2) // use my method to force by offset and bh size
    {
       mw_get_text_dimensions(f, txt, bx, by, bw, bh);
-      al_draw_rectangle(x, y, x+bw+4, y+bh+4, palette_color[color], 1);
-      al_draw_textf(f, palette_color[color], x+2-bx, y+2-by, 0, txt);
+      al_draw_rectangle(x, y, x+bw+4, y+bh+4, mC.pc[color], 1);
+      al_draw_textf(f, mC.pc[color], x+2-bx, y+2-by, 0, txt);
    }
 }
 
@@ -4601,7 +4601,7 @@ void draw_text_in_box(const char* txt, ALLEGRO_FONT *f, int x, int y, int color,
 void temp_test(void)
 {
    al_set_target_backbuffer(display);
-   al_clear_to_color(palette_color[0]);
+   al_clear_to_color(mC.pc[0]);
 
    ALLEGRO_FONT *f = font;
 
@@ -5231,10 +5231,10 @@ LOG_NET_stdf
    //---------------------------------------
    // set server initial state (for both 2-new game and 5-level done when server)
    game_vars_to_state(srv_stdf_state[1]);
-   srv_stdf_state_frame_num[1] = frame_num;
+   srv_stdf_state_frame_num[1] = mwPS.frame_num;
    if (LOG_NET_stdf)
    {
-      sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+      sprintf(msg, "stdf saved server state[1]:%d\n", mwPS.frame_num);
       add_log_entry2(27, 0, msg);
    }
 
@@ -5412,10 +5412,10 @@ LOG_NET_stdf [27][29] [both]
    //---------------------------------------
    // set server initial state (for both 2-new game and 5-level done when server)
    game_vars_to_state(srv_stdf_state[1]);
-   srv_stdf_state_frame_num[1] = frame_num;
+   srv_stdf_state_frame_num[1] = mwPS.frame_num;
    if (LOG_NET_stdf)
    {
-      sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+      sprintf(msg, "stdf saved server state[1]:%d\n", mwPS.frame_num);
       add_log_entry2(27, 0, msg);
    }
 
@@ -6223,12 +6223,12 @@ same thing as bmsg....
 
 old:
 al_clear_to_color(al_map_rgb(0,0,0));
-al_draw_text(font0, palette_color[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt1);
+al_draw_text(font0, mC.pc[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt1);
 al_convert_mask_to_alpha(temp, al_map_rgb(0, 0, 0)) ;
 
 new:
 al_clear_to_color(al_map_rgba(0,0,0,0));
-al_draw_text(font0, palette_color[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt1);
+al_draw_text(font0, mC.pc[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt1);
 
 now it is transparent and really fast...
 
@@ -6370,9 +6370,9 @@ void mtextout(char *txt1, int x, int y, float x_scale, float y_scale, int col)
    al_clear_to_color(al_map_rgb(0,0,0));
 
 
-//   al_draw_text(font,palette_color[col], 0, 0, 0, txt1 );
+//   al_draw_text(font,mC.pc[col], 0, 0, 0, txt1 );
 
-   al_draw_text(f1, palette_color[col], 0-bbx1, 0-bby1, 0, txt1);
+   al_draw_text(f1, mC.pc[col], 0-bbx1, 0-bby1, 0, txt1);
 
 
    al_convert_mask_to_alpha(temps, al_map_rgb(0, 0, 0)) ;
@@ -6406,7 +6406,7 @@ void mtextout_centre(const char *txt1, int x, int y, float x_scale, float y_scal
    int dw = (int) ((float)sw * x_scale);
    int dh = (int) ((float)sh * y_scale);
 
-   al_draw_text(font, palette_color[col], 0, 0, 0, txt1);
+   al_draw_text(font, mC.pc[col], 0, 0, 0, txt1);
    al_convert_mask_to_alpha(temp, al_map_rgb(0, 0, 0)) ;
 
    al_set_target_backbuffer(display);
@@ -6773,13 +6773,13 @@ it seems to take a while to actually change off zero...
 i cant run ping graph...i broks it..fixed
 691-622 = 69
 
-still does not seem to send first ping till frame_num>0 (initial state rx?)
+still does not seem to send first ping till mwPS.frame_num>0 (initial state rx?)
 
 
 this is getting complicated...is is worth it to send pings while still in setup?
 while still in setup stdf packets are being processed and timer is being adjusted...
 might as well be based on a real setpoint based on a real ping...
-while in setup the loop happens very fast and frame_num is not incremented...
+while in setup the loop happens very fast and mwPS.frame_num is not incremented...
 
 need another way to trigger sending pings...
 
@@ -6970,7 +6970,7 @@ now can I finally look at what changing s1 and s2 do?
 
 server_rewind is called and it determines if it is time to make a new state and send dif...
 
-if the current frame_num matches the frame_num of the last saved base+s1+s2....
+if the current mwPS.frame_num matches the mwPS.frame_num of the last saved base+s1+s2....
 
 then it is time....
 
@@ -7050,30 +7050,30 @@ fnx memset..done
 loop: 2 places....
 old:
 game_vars_to_state(srv_stdf_state[1]);
-srv_stdf_state_frame_num[1] = frame_num;
+srv_stdf_state_frame_num[1] = mwPS.frame_num;
 
 new:
 game_vars_to_state(srv_client_state[0][1]);
-srv_client_state_frame_num[0][1] = frame_num;
+srv_client_state_frame_num[0][1] = mwPS.frame_num;
 
 server 1:
-//frame_num = srv_stdf_state_frame_num[1]; // set rewind frame num
+//mwPS.frame_num = srv_stdf_state_frame_num[1]; // set rewind frame num
 //state_to_game_vars(srv_stdf_state[1]);   // apply rewind state
-frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
+mwPS.frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
 state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
 
 server 2:
 //game_vars_to_state(srv_stdf_state[1]);
-//srv_stdf_state_frame_num[1] = frame_num;
+//srv_stdf_state_frame_num[1] = mwPS.frame_num;
 game_vars_to_state(srv_client_state[0][1]);
-srv_client_state_frame_num[0][1] = frame_num;
+srv_client_state_frame_num[0][1] = mwPS.frame_num;
 
 
 4 more in server:
-if (frame_num == srv_client_state_frame_num[0][1] + s3)
+if (mwPS.frame_num == srv_client_state_frame_num[0][1] + s3)
 sprintf(msg, "stdf rewind to:%d\n", srv_client_state_frame_num[0][1]);
 if (cdat_frame_num < srv_client_state_frame_num[0][1])
-printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", frame_num, p, cdat_frame_num, srv_client_state_frame_num[0][1], players1[p].late_cdats);
+printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", mwPS.frame_num, p, cdat_frame_num, srv_client_state_frame_num[0][1], players1[p].late_cdats);
 
 
 
@@ -7222,7 +7222,7 @@ how is sgms calculated?
 
 void server_proc_cdat_packet(double timestamp)
 {
-   players1[p].server_game_move_sync = cdat_frame_num - frame_num;
+   players1[p].server_game_move_sync = cdat_frame_num - mwPS.frame_num;
 
 
 what does this tell me?
@@ -7245,11 +7245,11 @@ It looks like my raw calclution of dsync...when it goes over 25, it subtracts 25
 
    int src = PacketGet4ByteInt();
    int dst = PacketGet4ByteInt();
-   players1[p].client_sync = dst - frame_num;               // crude integer sync based on frame numbers
+   players1[p].client_sync = dst - mwPS.frame_num;               // crude integer sync based on frame numbers
 
-   if (players1[p].client_last_stdf_rx_frame_num != frame_num)       // this is the first stdf received for this frame
+   if (players1[p].client_last_stdf_rx_frame_num != mwPS.frame_num)       // this is the first stdf received for this frame
    {
-      players1[p].client_last_stdf_rx_frame_num = frame_num;         // client keeps track of last stdf rx'd and quits if too long
+      players1[p].client_last_stdf_rx_frame_num = mwPS.frame_num;         // client keeps track of last stdf rx'd and quits if too long
       players1[p].dsync = al_get_time() - timestamp;                 // time between when the packet was received into the packet buffer and now
       players1[p].dsync += (double) players1[p].client_sync * 0.025; // add to integer sync in case we are out by a lot
       dsync_array_add();
@@ -7664,7 +7664,7 @@ am I not resetting that on client?
 
 
 reset_states()
-client_state_dif_src = -1; // -1 will never match a frame_num
+client_state_dif_src = -1; // -1 will never match a mwPS.frame_num
 client_state_dif_dst = -1;
 
 this will mark if we have not received a state yet, or the state is a bad decompress
@@ -7688,11 +7688,11 @@ void client_apply_diff(void)
    }
    else
    {
-//      if (frame_num == 0)
+//      if (mwPS.frame_num == 0)
 //      {
 //         printf("initial state - dif_src:%d dif_dts:%d  cbsfn:%d \n", client_state_dif_src, client_state_dif_dst, client_state_base_frame_num);
 //      }
-//      if ((client_state_dif_dst > client_state_base_frame_num) || (frame_num == 0)) // stored dif with a new dest, or initial state (frame 0)
+//      if ((client_state_dif_dst > client_state_base_frame_num) || (mwPS.frame_num == 0)) // stored dif with a new dest, or initial state (frame 0)
 
 
 
@@ -7751,13 +7751,13 @@ It is just a natural consequence of the client being ahead of the server..
 What if on the client, I check to see if dif_src is much larger than current frame number?
 Won't this also catch initial state? Maybe not...is not initial state dif_src == 0?
 
-if (client_state_dif_src - frame_num > 100)
+if (client_state_dif_src - mwPS.frame_num > 100)
 
 
 I have rewritten the client_apply_dif() again..
 
 
-this time I have front loaded all the tests and added one for  if (client_state_dif_src - frame_num > 100)
+this time I have front loaded all the tests and added one for  if (client_state_dif_src - mwPS.frame_num > 100)
 it only seems to catch when level done and client is ahead of server...
 
 
@@ -7771,9 +7771,9 @@ void client_apply_dif(void)
    }
    else
    {
-      if (client_state_dif_src - frame_num > 100)
+      if (client_state_dif_src - mwPS.frame_num > 100)
       {
-         sprintf(msg, "dif_src is > 100 frames in the future - src:%d frame_num:%d\n", client_state_dif_src, frame_num);
+         sprintf(msg, "dif_src is > 100 frames in the future - src:%d mwPS.frame_num:%d\n", client_state_dif_src, mwPS.frame_num);
          if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
       }
       else
@@ -7802,13 +7802,13 @@ void client_apply_dif(void)
             }
             else // we have a matching base to apply dif
             {
-               int ff = players1[p].client_rewind = frame_num - client_state_dif_dst; // dst compared to current frame_num
+               int ff = players1[p].client_rewind = mwPS.frame_num - client_state_dif_dst; // dst compared to current mwPS.frame_num
                char tmsg[64];
-               if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", frame_num);
+               if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", mwPS.frame_num);
                if (ff > 0)  sprintf(tmsg, "rewind [%d] frames\n", ff);
                if (ff < 0)  sprintf(tmsg, "early [%d] frames\n", -ff);
-               if (frame_num == 0) sprintf(tmsg, "initial state\n");
-               if ((ff < 0) && (frame_num != 0))
+               if (mwPS.frame_num == 0) sprintf(tmsg, "initial state\n");
+               if ((ff < 0) && (mwPS.frame_num != 0))
                {
                   sprintf(msg, "dif [%d to %d] not applied yet - [%d] early\n", client_state_dif_src, client_state_dif_dst, -ff);
                   if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
@@ -7833,7 +7833,7 @@ void client_apply_dif(void)
                         if (l[x][y] != old_l[x][y])
                         {
                            // printf("dif at x:%d y:%d\n", x, y);
-                           al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                           al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
                            al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
                         }
 
@@ -7842,19 +7842,19 @@ void client_apply_dif(void)
                   if (players[p].control_method == 2) players[p].control_method = 4;
                   if (players[p].control_method == 8) new_program_state = 1; // server quit
 
-                  // update frame_num and client base frame_num
-                  frame_num = client_state_base_frame_num = client_state_dif_dst;
+                  // update mwPS.frame_num and client base mwPS.frame_num
+                  mwPS.frame_num = client_state_base_frame_num = client_state_dif_dst;
 
                   // for initial state only
-                  if (frame_num == 0) set_frame_nums(client_state_dif_dst);
+                  if (mwPS.frame_num == 0) set_frame_nums(client_state_dif_dst);
 
-                  players1[p].client_last_dif_applied = frame_num;
+                  players1[p].client_last_dif_applied = mwPS.frame_num;
 
                   if (ff) loop_frame(ff); // if we rewound time, play it back
 
                   client_send_stak();
 
-                  players1[p].client_move_lag = frame_num - client_state_dif_src;
+                  players1[p].client_move_lag = mwPS.frame_num - client_state_dif_src;
 
                   sprintf(msg, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
                   if (LOG_NET_dif_applied) add_log_entry2(30, p, msg);
@@ -7894,13 +7894,13 @@ this is a log of how it works
 [10][0][0]+--------------------------------------------------------------------------+
 [31][1][1]dif is not valid - src:-1 dst:-1
 [27][1][2]rx dif complete [2273 to 2275] sync[2273] dsync[56839.2ms] - decompressed
-[31][1][2]dif_src is > 100 frames in the future - src:2273 frame_num:2
-[31][1][3]dif_src is > 100 frames in the future - src:2273 frame_num:3
-[31][1][4]dif_src is > 100 frames in the future - src:2273 frame_num:4
-[31][1][5]dif_src is > 100 frames in the future - src:2273 frame_num:5
-[31][1][6]dif_src is > 100 frames in the future - src:2273 frame_num:6
-[31][1][7]dif_src is > 100 frames in the future - src:2273 frame_num:7
-[31][1][8]dif_src is > 100 frames in the future - src:2273 frame_num:8
+[31][1][2]dif_src is > 100 frames in the future - src:2273 mwPS.frame_num:2
+[31][1][3]dif_src is > 100 frames in the future - src:2273 mwPS.frame_num:3
+[31][1][4]dif_src is > 100 frames in the future - src:2273 mwPS.frame_num:4
+[31][1][5]dif_src is > 100 frames in the future - src:2273 mwPS.frame_num:5
+[31][1][6]dif_src is > 100 frames in the future - src:2273 mwPS.frame_num:6
+[31][1][7]dif_src is > 100 frames in the future - src:2273 mwPS.frame_num:7
+[31][1][8]dif_src is > 100 frames in the future - src:2273 mwPS.frame_num:8
 [27][1][9]rx dif complete [0 to 3] sync[-6] dsync[-136.1ms] - decompressed
 [31][1][9]Resetting client base state to zero
 [30][1][9]dif [0 to 3] applied - rewind [6] frames
@@ -7939,13 +7939,13 @@ difs are then compressed, optionally broken into packet sized pieces and sent fr
 when a client has all the pieces of a dif, and the state on which it is based,
 it applies the dif to its base state, recreating the server state..
 
-                  // update frame_num and client base frame_num
-                  frame_num = client_state_base_frame_num = client_state_dif_dst;
+                  // update mwPS.frame_num and client base mwPS.frame_num
+                  mwPS.frame_num = client_state_base_frame_num = client_state_dif_dst;
 
-removed this... i don't think it ever applies... in the previous line frame_num will be set to something non-zero
+removed this... i don't think it ever applies... in the previous line mwPS.frame_num will be set to something non-zero
 
                   // for initial state only
-            //      if (frame_num == 0) set_frame_nums(client_state_dif_dst);
+            //      if (mwPS.frame_num == 0) set_frame_nums(client_state_dif_dst);
 
 
 
@@ -8054,8 +8054,8 @@ netgame_client_sync
 I just found something I didn't realize
 
       Packet("stdf");
-      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
-      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src mwPS.frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst mwPS.frame_num
       PacketPut1ByteInt(packet_num);
       PacketPut1ByteInt(num_packets);
       PacketPut4ByteInt(start_byte);
@@ -8481,11 +8481,11 @@ maybe on the server the rewind thing gets broken...
    int s3 = s1+s2;
 
    // is it time to make a new dif and send to clients?
-   if (frame_num == srv_client_state_frame_num[0][1] + s3)
+   if (mwPS.frame_num == srv_client_state_frame_num[0][1] + s3)
    {
 
 
-   if (frame_num >= srv_client_state_frame_num[0][1] + s3)
+   if (mwPS.frame_num >= srv_client_state_frame_num[0][1] + s3)
 
 I think that fixed that...lets see if I can lower s2 to 0 also...
 looks good....
@@ -8857,11 +8857,11 @@ void server_proc_stak_packet(void)
    players1[p].client_chase_fps = PacketGetDouble();
    players1[p].dsync            = PacketGetDouble();
 
-   players1[p].server_sync = frame_num - client_frame_num;
+   players1[p].server_sync = mwPS.frame_num - client_frame_num;
 
    int sfn1 = ack_frame_num;
    int cfn = client_frame_num;
-   int sfn2 = frame_num;
+   int sfn2 = mwPS.frame_num;
 
    players1[p].sc_sync = sfn1 - cfn; // packet stdf from s to c  sfn1-cfn
    players1[p].cs_sync = cfn - sfn2; // packet stak from c to s  cfn-sfn
@@ -8915,7 +8915,7 @@ void server_proc_stak_packet(void)
    players1[p].client_chase_fps = PacketGetDouble();
    players1[p].dsync            = PacketGetDouble();
 
-   players1[p].server_sync = frame_num - client_frame_num;
+   players1[p].server_sync = mwPS.frame_num - client_frame_num;
    server_lock_client(p);
 
 
@@ -8931,7 +8931,7 @@ void server_lock_client(int p)
    }
    if (players1[p].sync_stabilization_holdoff > 20) // we have been stable for over 20 frames
    {
-      add_game_move(frame_num + 4, 1, p, players[p].color);
+      add_game_move(mwPS.frame_num + 4, 1, p, players[p].color);
       players1[p].sync_stabilization_holdoff = 0;
 
       sprintf(msg,"Player:%d has locked and will become active in 4 frames!", p);
@@ -8944,8 +8944,8 @@ server uses it to drop clients if it goes over 100
 
          if ((players[p].active) && (players1[p].server_sync > 100))
          {
-            //printf("[%4d] server_sync:[%4d] drop p:%d \n", frame_num, players1[p].server_sync, p);
-            add_game_move(frame_num + 4, 2, p, 70); // make client inactive (reason sync > 100)
+            //printf("[%4d] server_sync:[%4d] drop p:%d \n", mwPS.frame_num, players1[p].server_sync, p);
+            add_game_move(mwPS.frame_num + 4, 2, p, 70); // make client inactive (reason sync > 100)
 
             sprintf(msg,"Server dropped player:%d (server sync > 100)", p);
             if (LOG_NET) add_log_entry_header(10, p, msg, 1);
@@ -8984,7 +8984,7 @@ it show it on the client (duh!) and uses the varaible client_sync...
 on the client,
 
 calculated in rx_stdf:
-players1[p].client_sync = dst - frame_num;                        // crude integer sync based on frame numbers
+players1[p].client_sync = dst - mwPS.frame_num;                        // crude integer sync based on frame numbers
 
 then used to calculate higher resolution dsync:
 players1[p].dsync += (double) players1[p].client_sync * 0.025; // add to integer sync in case we are out by a lot
@@ -9026,8 +9026,8 @@ or just don't do it...lets try not doing it....
 
 //         if ((players[p].active) && (players1[p].server_sync > 100))
 //         {
-//            //printf("[%4d] server_sync:[%4d] drop p:%d \n", frame_num, players1[p].server_sync, p);
-//            add_game_move(frame_num + 4, 2, p, 70); // make client inactive (reason sync > 100)
+//            //printf("[%4d] server_sync:[%4d] drop p:%d \n", mwPS.frame_num, players1[p].server_sync, p);
+//            add_game_move(mwPS.frame_num + 4, 2, p, 70); // make client inactive (reason sync > 100)
 //
 //            sprintf(msg,"Server dropped player:%d (server sync > 100)", p);
 //            if (LOG_NET) add_log_entry_header(10, p, msg, 1);
@@ -9048,7 +9048,7 @@ added this to control....
 
       else if (players[p].control_method == 4) // not active and control method 4 is a client waiting for server to make it active
       {
-         if (key[ALLEGRO_KEY_ESCAPE][1]) new_program_state = 25; // give them an escape option
+         if (mI.key[ALLEGRO_KEY_ESCAPE][1]) new_program_state = 25; // give them an escape option
       }
 
 there do not seem to be any other escape routes in client setup...
@@ -9226,8 +9226,8 @@ I think I use 1022/1024 bytes already
 
 
       Packet("stdf");
-      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
-      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src mwPS.frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst mwPS.frame_num
       PacketPut1ByteInt(packet_num);
       PacketPut1ByteInt(num_packets);
       PacketPut4ByteInt(start_byte);
@@ -9584,7 +9584,7 @@ but the way I have things set up, after loading a state, both client and server 
 
 what if I changed it to:
 
-server saves states after all input and moves are done for frame_num
+server saves states after all input and moves are done for mwPS.frame_num
 then when loading them the first thing that shoud be done is to increment the frame number and start at the top of the loop.
 
 basically I would be changing the states behaviuor from:
@@ -10065,18 +10065,18 @@ but more importantly, I don't think that skip drawing frame ever triggers!
 old:
 int proc_frame_skip(void)
 {
-   if ((frame_num+1) < al_get_timer_count(fps_timer)) // skip drawing frame
+   if ((mwPS.frame_num+1) < al_get_timer_count(fps_timer)) // skip drawing frame
    {
       players1[active_local_player].frames_skipped++;
       mwT[1].add_data(1); // add to tally
       //players1[active_local_player].frames_skipped_last_sec_tally++;
-      printf("Skipped drawing frame:%d\n", frame_num);
+      printf("Skipped drawing frame:%d\n", mwPS.frame_num);
       return 0;
    }
    return 1;
 }
 
-   if ((frame_num+0) < al_get_timer_count(fps_timer)) // skip drawing frame
+   if ((mwPS.frame_num+0) < al_get_timer_count(fps_timer)) // skip drawing frame
 
 
 it appears that in single player and client that fn is one less than timer
@@ -10093,8 +10093,8 @@ the only thing I use the actual timer value for is deciding if I skip drawing
 
 void set_frame_nums(int fn)
 {
-   // reset frame_num and fps_timer count
-	frame_num = fn;
+   // reset mwPS.frame_num and fps_timer count
+	mwPS.frame_num = fn;
    al_set_timer_count(fps_timer, fn);
    reset_animation_sequence_frame_nums(fn);
 }
@@ -10104,12 +10104,12 @@ at the start of loop i check to see if the counter is too far ahead
 
 void proc_timer_adjust(void)
 {
-   if (al_get_timer_count(fps_timer) > frame_num+1)
+   if (al_get_timer_count(fps_timer) > mwPS.frame_num+1)
    {
       players1[active_local_player].timer_adjust++;
       mwT[2].add_data(1); // add to tally
-      al_set_timer_count(fps_timer, frame_num+1);
-      printf("Adjusted timer - fn:%d timer:%d\n", frame_num, (int) al_get_timer_count(fps_timer));
+      al_set_timer_count(fps_timer, mwPS.frame_num+1);
+      printf("Adjusted timer - fn:%d timer:%d\n", mwPS.frame_num, (int) al_get_timer_count(fps_timer));
    }
 }
 
@@ -10118,12 +10118,12 @@ then later in the loop if check it again to see if I skip drawing:
 
 int proc_frame_skip(void)
 {
-   if ((frame_num+1) < al_get_timer_count(fps_timer)) // skip drawing frame
+   if ((mwPS.frame_num+1) < al_get_timer_count(fps_timer)) // skip drawing frame
    {
       players1[active_local_player].frames_skipped++;
       mwT[1].add_data(1); // add to tally
       //players1[active_local_player].frames_skipped_last_sec_tally++;
-      printf("Skipped drawing frame:%d\n", frame_num);
+      printf("Skipped drawing frame:%d\n", mwPS.frame_num);
       return 0;
    }
    return 1;
@@ -10138,12 +10138,12 @@ do it once..
 
 int proc_frame_skip(void)
 {
-   if (al_get_timer_count(fps_timer) > frame_num) // skip drawing frame
+   if (al_get_timer_count(fps_timer) > mwPS.frame_num) // skip drawing frame
    {
-      al_set_timer_count(fps_timer, frame_num); // set timer to current frame
+      al_set_timer_count(fps_timer, mwPS.frame_num); // set timer to current frame
       players1[active_local_player].frames_skipped++;
       mwT[1].add_data(1); // add to tally
-      //printf("Skipped drawing frame:%d\n", frame_num);
+      //printf("Skipped drawing frame:%d\n", mwPS.frame_num);
       return 0;
    }
    return 1;
@@ -10153,7 +10153,7 @@ this has the effect of forcing timer to always have the value of frame number
 
 the timer will fire and event an increment the timer
 
-the loop will increment frame_num
+the loop will increment mwPS.frame_num
 
 if, while processing the loop, the timer increments again, the loop will not be drawn
 
@@ -10164,9 +10164,9 @@ wont that speed up the game enough to catch up?
 
 I want to try this without the reset timer...
 
-the one thing I am not checking for is if the timer is behind frame_num
+the one thing I am not checking for is if the timer is behind mwPS.frame_num
 we don't want to stop or slow the game to catch up to the timer (i think?)
-so we should move the timer ahead to the actual frame_num...
+so we should move the timer ahead to the actual mwPS.frame_num...
 not sure if this ever happens though...
 
 first:
@@ -10175,18 +10175,18 @@ change
 int proc_frame_skip(void)
 {
    int draw_frame = 1;
-   if (al_get_timer_count(fps_timer) > frame_num)
+   if (al_get_timer_count(fps_timer) > mwPS.frame_num)
    {
       draw_frame = 0;
       players1[active_local_player].frames_skipped++;
       mwT[1].add_data(1); // add to tally
-      //printf("Skipped drawing frame:%d\n", frame_num);
+      //printf("Skipped drawing frame:%d\n", mwPS.frame_num);
    }
-   al_set_timer_count(fps_timer, frame_num); // set timer to current frame
+   al_set_timer_count(fps_timer, mwPS.frame_num); // set timer to current frame
    return draw_frame;
 }
 
-frame_num is the reference.
+mwPS.frame_num is the reference.
 set the timer from this, not the other way around
 
 why do I get to a place where clients cannot join server?
@@ -10194,9 +10194,9 @@ the only thing I can do is reset the server
 clients stall at waiting for initial state...
 
 client log shows that they cannot apply dif from over 100 frames in the future..
-if (client_state_dif_src - frame_num > 100)
+if (client_state_dif_src - mwPS.frame_num > 100)
 fixed...
-if ((client_state_dif_src - frame_num > 100) && (frame_num != 0))
+if ((client_state_dif_src - mwPS.frame_num > 100) && (mwPS.frame_num != 0))
 
 
 now I want to make a much more minimal overlay
@@ -10267,8 +10267,8 @@ FPS skipped..just skipped drawing is all, not actually skipped...
 have a look at this...
 
 on the 1 Hz timer:
-actual_fps = frame_num - last_fps_frame_num;
-last_fps_frame_num = frame_num;
+actual_fps = mwPS.frame_num - last_fps_frame_num;
+last_fps_frame_num = mwPS.frame_num;
 
 why? what good is this?
 
@@ -10378,7 +10378,7 @@ I don't want to embed frame numbers in it anymore..
 
 how does it work now?
 
-   // 2 = frame_num of last seq change
+   // 2 = mwPS.frame_num of last seq change
    // 3 = seq change delay count
 
 what I need to do is:
@@ -10391,20 +10391,20 @@ void update_animation(void)
 {
    // 0 = current shape
    // 1 = current shape index
-   // 2 = frame_num of last seq change
+   // 2 = mwPS.frame_num of last seq change
    // 3 = seq change delay count
    // 4 = num of shapes in seq (15 shapes max)
    // 5 = shape 0
    // 19 = shape 14
 
-  // printf("update_animation :%d\n", frame_num);
+  // printf("update_animation :%d\n", mwPS.frame_num);
 
 
    for (int y=0; y<NUM_ANS; y++)
       if (zz[4][y] != 0)
-         if ((frame_num - zz[2][y]) > zz[3][y])
+         if ((mwPS.frame_num - zz[2][y]) > zz[3][y])
          {
-            zz[2][y] = frame_num;                     // set counter
+            zz[2][y] = mwPS.frame_num;                     // set counter
             zz[1][y]++;                               // next bitmap
             if (zz[1][y] > zz[4][y]) zz[1][y] = 0;    // is bitmap past end?
             zz[0][y] = zz[ 5 + zz[1][y] ] [y];        // put shape in 0
@@ -10423,7 +10423,7 @@ void update_animation(void)
    // 5 = shape 0
    // 19 = shape 14
 
-   // printf("update_animation :%d\n", frame_num);
+   // printf("update_animation :%d\n", mwPS.frame_num);
 
    for (int y=0; y<NUM_ANS; y++)
       if (zz[4][y] != 0)
@@ -11099,7 +11099,7 @@ I want to get rid of the old proc_controllers();
 
 I think most of the time, I am waiting for input, or a key to be released ...
 
-in those case, a straight replacement with proc_event_queue would work...
+in those case, a straight replacement with mwEQ.proc_event_queue would work...
 
 other times, the menu_timer_block thing is being used...
 
@@ -11110,13 +11110,13 @@ down to 135...
 I going to do a global replace for things like... while () proc_controllers()
 
 proc_controllers()
-proc_event_queue()
+mwEQ.proc_event_queue()
 proc_event_queue_menu()
 
 
 this is a replacement for when I want a timer
 
-      while (!program_update) proc_event_queue();
+      while (!program_update) mwEQ.proc_event_queue();
       program_update = 0;
 
 but then I'll never get the 3's to fire.. use 0 instead
@@ -11139,7 +11139,7 @@ no, I don't think I will...
    for menu and visual level select...
 
 
-    while (!menu_update) proc_event_queue();
+    while (!menu_update) mwEQ.proc_event_queue();
     menu_update = 0;
 
 
@@ -11161,14 +11161,14 @@ edit_pmsg_text looks a little funny
 
 
 0   - proc_controllers()
-147 - proc_event_queue()
+147 - mwEQ.proc_event_queue()
 17  - proc_event_queue_menu()
 
 officially gone!!!
 void proc_controllers(void)
 {
    int menu_timer_block=1;
-   key[ALLEGRO_KEY_PRINTSCREEN][0] = 0; // hack to make PRINTSCREEN key work properly
+   mI.key[ALLEGRO_KEY_PRINTSCREEN][0] = 0; // hack to make PRINTSCREEN key work properly
    key_pressed_ASCII = 0;
 
    while (menu_timer_block)
@@ -11217,7 +11217,7 @@ go the fuck to bed!!
 
 still can't escape from level editor
 
-145 - proc_event_queue()
+145 - mwEQ.proc_event_queue()
 
 what are my key array things?
 0 = pressed
@@ -11252,8 +11252,8 @@ edit_menu sets some stuff up, then does this loop
 
 
 cm_redraw_level_editor_background();
-- proc_event_queue
-- does the delay (currently by calling proc_event_queue and waiting on program_update)
+- mwEQ.proc_event_queue
+- does the delay (currently by calling mwEQ.proc_event_queue and waiting on program_update)
 - gets new background
 - draws lifts, enemies, items
 - draws overlay specific to mode
@@ -11350,11 +11350,11 @@ ov_
 changed the behaviour of cm_redraw_level_editor_background..
 
 old:
-proc_event_queue and block, waiting for program_update
+mwEQ.proc_event_queue and block, waiting for program_update
 draw
 
 new:
-proc_event_queue
+mwEQ.proc_event_queue
 if program_update, draw
 no blocking...
 
@@ -12162,8 +12162,1041 @@ extern int text_title_draw_color;
 extern ALLEGRO_BITMAP *large_text_overlay_bitmap;
 extern int large_text_overlay_state;
 
-
 but I am not sure they belong...
+
+
+
+lifts is next....
+
+e_lift.cpp 500 lines
+z_lift.cpp 500 lines
+pm.h
+
+// ------------------------------------------------
+// ---------------- lifts -----------------------
+// ------------------------------------------------
+extern int num_lifts;
+extern char lift_step_type_name[10][10];
+extern struct lift lifts[NUM_LIFTS];
+extern struct lift_step lift_steps[NUM_LIFTS][40];
+
+struct lift
+{
+   al_fixed fx;
+   al_fixed fy;
+   al_fixed fxinc;
+   al_fixed fyinc;
+
+   al_fixed fw;
+   al_fixed fh;
+   al_fixed fwinc;
+   al_fixed fhinc;
+
+   int x1;
+   int y1;
+   int x2;
+   int y2;
+   int width;
+   int height;
+   int flags;
+   int mode;
+   int val1;
+   int val2;
+   int color;
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+struct lift_step
+{
+   int type;
+   int x;
+   int y;
+   int w;
+   int h;
+   int val;
+};
+
+// e_lift.h
+al_fixed lift_get_distance_to_previous_move_step(int lift, int step);
+void show_all_lifts(void);
+void lift_step_set_size_from_previous_move_step(int lift, int step);
+int lift_find_previous_move_step(int lift, int step);
+void erase_lift(int lift);
+void delete_lift_step(int l, int step);
+void lift_setup(void);
+int create_lift(void);
+void move_lift_step(int lift, int step);
+int get_new_lift_step(int lift, int step);
+int insert_lift_step(int lift, int step);
+void insert_steps_until_quit(int lift, int step);
+void set_all_steps(int l, int s, int what);
+void step_popup_menu(int lift, int step);
+int draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d);
+void draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, int rc, int d);
+int draw_steps(int x1, int x2, int y, int lift, int current_step, int highlight_step, int d);
+
+// z_lift.h
+int construct_lift(int l, char* lift_name);
+void clear_lift(int l);
+int construct_lift_step(int l, int s, int type, int x, int y, int w, int h, int val);
+void clear_lift_step(int l, int s);
+void set_lift_to_step(int l, int s);
+int is_player_riding_lift(int l);
+void draw_lift_line(int l);
+void draw_lift(int l, int x1, int y1, int x2, int y2);
+void draw_lifts();
+void set_lift_xyinc(int d, int step);
+int lift_check_prox(int l, int pd);
+void move_lifts(int ignore_prox);
+
+what is my plan here?
+
+I still want lifts and lift_steps accessible
+
+I think I still want the seperation of e_lifts and z_lifts
+
+One possibility:
+- put both in one file
+- make one header file
+
+that would be easy
+
+cons:
+the one file would be >1000 lines
+nbd
+
+now I only have one file: z_lift.cpp
+one one header z_lift.h
+
+now pm.h is less than 100 lines!!
+
+523 function defs
+200 lines global vars
+
+some low hanging fruit...
+sliders, should just get a h file
+
+renamed to mwWidgets, even though it wont have a class, its a generic group
+
+
+
+
+here is some low hanging fruit:
+
+
+// n_client.h
+void client_read_packet_buffer(void);
+void client_fast_packet_loop(void);
+int  ClientInitNetwork(const char *serveraddress);
+void ClientExitNetwork(void);
+int  ClientCheckResponse(void);
+int  ClientReceive(void *data);
+void ClientSend(void *data, int len);
+void client_flush(void);
+int  client_init_join(void);
+void client_exit(void);
+int  client_init(void);
+void client_read_game_move_from_packet(int x);
+void client_send_ping(void);
+void client_process_stdf_packet(double timestamp);
+void client_apply_dif();
+void client_block_until_initial_state_received(void);
+void client_process_sdat_packet(void);
+void client_process_serr_packet(void);
+void client_proc_player_drop(void);
+void client_control(void);
+void client_local_control(int p);
+void process_bandwidth_counters(int p);
+
+// n_network.h
+extern int NetworkDriver;
+int NetworkInit();
+
+// n_packet.h
+extern char packetbuffer[1024];
+extern int packetsize;
+void set_packetpos(int pos);
+int get_packetpos(void);
+void Packet(const char *id);
+int PacketRead(const char *id);
+void PacketAddByte(char b);
+char PacketGetByte(void);
+void PacketAddString(char*);
+void PacketReadString(char*);
+void PacketPut1ByteInt(int b);
+void PacketPut2ByteInt(int b);
+void PacketPut3ByteInt(int b);
+void PacketPut4ByteInt(int b);
+int PacketGet1ByteInt(void);
+int PacketGet2ByteInt(void);
+int PacketGet3ByteInt(void);
+int PacketGet4ByteInt(void);
+void PacketPutDouble(double);
+double PacketGetDouble(void);
+
+//n_server.h
+int ServerInitNetwork(void);
+void ServerExitNetwork(void);
+void ServerListen(void);
+int ServerReceive(void *data, int *sender);
+void ServerBroadcast(void *data, int len);
+void ServerSendTo(void *data, int len, int who, int player);
+void server_flush(void);
+int  server_init(void);
+void server_exit(void);
+void server_send_dif(int p);
+void server_create_new_state(void);
+void server_rewind(void);
+void server_send_sdat(void);
+void server_proc_player_drop(void);
+void server_proc_cdat_packet(double timestamp);
+void server_proc_stak_packet(double timestamp);
+void server_proc_cjon_packet(int who);
+void server_control();
+void server_fast_packet_loop(void);
+
+done..
+
+give bullets a header file..done
+
+visual_level..done
+
+396 function def
+167 globals
+
+I want to make game_moves array a class...maybe...
+
+
+
+
+
+
+   if (players[0].level_done_mode == 5) // skippable 15s timeout
+   {
+      if (!ima_client)
+      {
+         if (have_all_players_acknowledged()) players[0].level_done_timer = 0; // skip
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if (players[p].active)
+            {
+               if (mwGMA.has_player_acknowledged(p)) players[p].level_done_ack = 1;
+               else players[p].level_done_ack = 0;
+            }
+      }
+   }
+
+
+i want to move this to have_all_players_acknowledged()...should be pretty straightforward
+
+
+
+            for (int p=0; p<NUM_PLAYERS; p++)
+            if (players[p].active)
+            {
+               if (mwGMA.has_player_acknowledged(p)) players[p].level_done_ack = 1;
+               else players[p].level_done_ack = 0;
+            }
+
+GMA works...
+
+
+level_header should only live in file.cpp..done..
+
+
+I have intoduced a bug somehwere...
+
+when I resize the screen, I lose screen_overlay...maybe just the fonts..they need to be reloaded also? yes. fixed..
+
+
+
+move these declatations to logo...done
+
+extern ALLEGRO_BITMAP *logo_ichael;
+extern ALLEGRO_BITMAP *logo_avid;
+extern ALLEGRO_BITMAP *logo_eiss;
+extern int logo_text_bitmaps_create;
+
+tile_helper.h ..done
+pde.h..done
+
+
+I am thinking of making color a class.. mwColor mC
+yes...
+
+old:
+mC.pc[15]
+
+new:
+mC.c[15];
+
+or:
+mC.white;
+
+it will return an actual ALLEGRO_COLOR..
+
+I will also have all the color names in the class
+
+maybe later I will extend it to have more fading than just the 16 preset levels
+
+also it will have the flash colors
+
+to start with, and replace all occurance of color...how many?...1143!...
+I'll just do a straight replace of mC.pc with mC.pc
+
+flash_color is not actually a color, its an index
+
+It compiles and runs!!
+now for some more features..
+add color names...done..
+
+add specific colors like:
+
+mC.white..etc..done...
+
+make flash colors actual colors instead of indexes..done, but most use case still use the indexes...
+
+
+pm_events .. the one used in the game for triggers and such...
+
+make it its own class. It has a lot going on...
+mwPMEvent mwPME
+
+I think I have it all in there and working...
+
+
+
+mouse
+keys
+joystick
+event
+timers
+queue
+
+lets call these mwInput
+mouse
+keys
+joystick
+
+
+OK now I have a huge search and repalce to do:
+
+
+extern char skc[64]; // serial key check
+extern int skc_index;
+
+extern char *key_names[]; 12-done
+extern bool mI.key[ALLEGRO_KEY_MAX][4];  297
+extern int key_pressed_ASCII;18-done
+
+extern int mouse_x; 107-done all blind replace
+extern int mI.mouse_y; 124- done all blind
+extern int mouse_z; 4-done
+extern int mouse_dx; 4-done
+extern int mouse_dy; 5-done
+extern int mouse_dz; 12-done
+
+extern bool mI.mouse_b[5][4]; 183 blind
+
+clear_keys
+proc_keys_held
+
+
+globals < 100 !!
+
+what esle can I add to mwInput?
+function_key_check()..done
+
+all done from control.cpp
+
+
+
+
+put event queue and timers into mwEventQueue
+do it...you've come too far to stop now!!
+
+now add timers...
+
+I have about 40 globals variables left!!!
+
+put animation_sequence array in with bitmaps...
+also rest and update...done...
+
+what aboout sa, shape atributes?  same place? yup..done
+
+last of the bitmaps there too...done
+
+
+I'm gettting down to the last of them
+
+I want something like a class called mwProgramState to catch a lot of things like:
+
+
+add to bmsg:
+extern int game_event_retrigger_holdoff[10];
+extern float game_event_retrigger_holdoff_tally[10];
+
+
+add to logo
+// position and size of map on menu screen
+extern int menu_map_size;
+extern int menu_map_x;
+extern int menu_map_y;
+done...
+
+
+make this a part of menu..
+extern char global_string[20][25][80];
+menu.h
+done..
+setup menu
+
+
+
+I think I am ready to make all of these part of a class called mwProgramState
+
+extern int program_state;
+extern int new_program_state;
+extern int old_program_state;
+extern int older_program_state;
+
+extern int top_menu_sel;
+extern int main_loop_exit;
+
+extern int autosave_level_editor_state;
+extern int level_editor_running;
+extern int help_screens_running;
+extern int visual_level_select_running;
+
+// frame_speed, frames per second, mwPS.frame_num stuff
+extern int speed_testing;
+extern int frame_speed;
+extern int speed_control_lock;
+extern int mwPS.frame_num;
+
+extern int show_debug_overlay;
+extern int show_player_join_quit_timer;
+extern int show_player_join_quit_player;
+extern int show_player_join_quit_jq;
+
+extern int eco_draw;
+
+// temp testing variable
+extern int pct_x;
+extern int pct_y;
+extern char msg[1024];
+
+// some global strings
+extern char level_filename[80];
+extern char local_hostname[80];
+extern char pm_version_string[80];
+extern char al_version_string[80];
+
+
+
+need to fix level_filename later...vl uses is to get a filename from make_filename....
+
+
+
+there is some weird shit going on where I work with filenames...
+I should examine as fix it...
+
+the first thing I did was get rid of the global level_filename...
+
+
+my base functions are:
+
+int save_level(int level_to_save)
+always returns 0
+
+int load_level(int level_to_load, int load_only)
+returns 1 on success, 0 on failure
+
+      if (!load_only)
+      {
+         valid_level_loaded = 1;
+         lift_setup();
+         for (int x=0; x<500; x++)
+            if (item[x][0]) // only if active set x y
+            {
+               itemf[x][0] = al_itofix(item[x][4]);
+               itemf[x][1] = al_itofix(item[x][5]);
+            }
+         level_check();
+         init_level_background(0); // draw blocks on level_background
+         mwB.reset_animation_sequences();
+         //set_player_start_pos(0, 0);
+      }
+
+
+they both take an integer level num and call make filename..
+
+To print with padding by Zeros, we use the following format specifier with the printf() statement,
+
+    %d : No padding.
+    %01d : 1 digit padding with zeros.
+    %02d : 2 digits padding with zeros.
+    %03d : 4 digits padding with zeros.
+
+replaced make_filename with:
+
+char lf[255];
+sprintf(lf, "levels/level%03d.pml", level_num);
+
+now load and save level make their own filename
+save level does not return anything...
+
+
+
+load_level_prompt()
+
+is called from level_editor popup menu and from regular menu..
+
+also from command line but that never works...
+
+what if command line is passed a level that deosn exist?
+level loading error..
+
+
+edit_menu is called by:
+
+pm -e (uses play_level)
+pm -e num (uses num if 0 < num < 400)
+game_menu (uses start_level)
+
+in edit menu if passed 0 it would run the prompt, but that never occurs...
+
+
+I am happy with how load level prompt works
+
+save_level_prompt..good...
+
+le popmnu new
+le regmnu new
+le regmnu save_as
+
+what is left?
+
+why does level viewer not work?
+It just gives errors for every level it cannot find...
+can I make that optional? yes I can...
+
+not sure if the level viewer copying thing is working...it is..
+
+
+msg...784 matches...that's just lazy
+
+where can I hide it? z_menu...just like global_string...
+
+
+
+Now I have this left for global variables:
+
+
+// items
+int item[500][16];      // item ints
+al_fixed itemf[500][4]; // item fixeds
+int item_num_of_type[30];
+int item_first_num[30];
+char item_name[30][40];
+char pmsgtext[500][500] = {0};
+int item_tile[20];
+
+// enemies
+int Ei[100][32];        // enemy ints
+al_fixed Efi[100][16];  // enemy fixeds
+int e_num_of_type[50];
+int e_first_num[50];
+char enemy_name[100][2][40] = {0};
+int num_enemy;
+int enemy_tile[20];
+
+
+
+
+// ------------------------------------------------
+// ---------------- level -------------------------
+// ------------------------------------------------
+int l[100][100];
+int warp_level_location = 0;
+int start_level;
+int play_level;
+int valid_level_loaded;
+int last_level_loaded; // used by level editor and load file to keep track of last level loaded
+int resume_allowed=0;
+int number_of_starts;
+int number_of_purple_coins;
+
+
+for level I need to make a cpp file or a class
+lets just do a cpp file for now..
+z_level.cpp and z_level.h
+
+
+20230212 4:36PM all globals are gone!!
+well...at least from pm.h..there are still some in other files but they are only externed where needed...
+
+now I plan to make .h files and move all function prototypes there...
+
+I still have 250 function in 18 files...
+
+tell me again why I would want them spread over 18 files instead of all in one place?
+
+and why would I want 18 more files?...
+
+I now have 100 files...58 cpp and 42 header
+
+Purple Martians Source Code Line Counts [2023-02-12  17:27:41]
+
+[ total][  code][cd_onl][commnt][cm_onl][ cd+cm][ blank]
+--------------------------------------------------------
+[  2872][  2172][  1734][   605][   167][   438][   533] - z_item.cpp
+[  2705][  1951][  1367][   848][   264][   584][   490] - z_enemy.cpp
+[  2087][  1755][  1347][   515][   107][   408][   225] - e_object_viewer.cpp
+[  2544][  1683][  1466][   405][   188][   217][   673] - z_log.cpp
+[  1875][  1599][  1448][   207][    56][   151][   220] - mwGraph.cpp
+[  1745][  1343][  1124][   319][   100][   219][   302] - z_player.cpp
+[  1865][  1334][  1110][   275][    51][   224][   480] - mwWidgets.cpp
+[  1658][  1222][  1019][   335][   132][   203][   304] - z_fnx.cpp
+[  1416][  1140][  1009][   181][    50][   131][   226] - z_menu.cpp
+[  1250][  1003][   901][   139][    37][   102][   210] - z_screen_overlay.cpp
+[  1281][   963][   834][   188][    59][   129][   259] - e_bitmap_tools.cpp
+[  1595][   905][   820][   183][    98][    85][   592] - e_glt.cpp
+[  1157][   901][   731][   219][    49][   170][   207] - z_lift.cpp
+[  1078][   891][   755][   195][    59][   136][   128] - e_edit_selection.cpp
+[  1129][   802][   737][   125][    60][    65][   267] - z_settings.cpp
+[   994][   735][   659][   108][    32][    76][   227] - e_fnx.cpp
+[   851][   716][   401][   363][    48][   315][    87] - e_editor_main.cpp
+[   782][   689][   606][   101][    18][    83][    75] - e_group_edit.cpp
+[   874][   657][   621][    99][    63][    36][   154] - z_file.cpp
+[   937][   634][   548][   166][    80][    86][   223] - z_screen.cpp
+[   765][   616][   559][    92][    35][    57][   114] - n_client.cpp
+[   777][   611][   562][   100][    51][    49][   115] - n_server.cpp
+[   819][   587][   536][   117][    66][    51][   166] - e_visual_level.cpp
+[  1140][   548][   472][   343][   267][    76][   325] - z_args.cpp
+[   759][   538][   461][   160][    83][    77][   138] - z_loop.cpp
+[   622][   510][   385][   150][    25][   125][    87] - e_item.cpp
+[   642][   489][   416][   118][    45][    73][   108] - mwWindowManager.cpp
+[   705][   477][   457][    93][    73][    20][   155] - mwLogo.cpp
+[   542][   434][   387][    77][    30][    47][    78] - e_window_common.cpp
+[   560][   432][   407][    28][     3][    25][   125] - mwInput.cpp
+[   588][   416][   191][   258][    33][   225][   139] - e_tile_helper.cpp
+[   527][   387][   309][    98][    20][    78][   120] - mwBottomMessage.cpp
+[   565][   372][   369][    63][    60][     3][   133] - mwDisplay.cpp
+[   439][   367][   327][    48][     8][    40][    64] - e_pde.cpp
+[   451][   328][   328][    31][    31][     0][    92] - pm.h
+[   360][   297][   237][    71][    11][    60][    52] - e_enemy.cpp
+[   341][   291][   272][    31][    12][    19][    38] - mwWindow.cpp
+[   405][   289][   288][    22][    21][     1][    95] - z_config.cpp
+[   308][   221][   180][    56][    15][    41][    72] - mwPMEvent.cpp
+[   285][   208][   202][    26][    20][     6][    57] - z_main.cpp
+[   303][   198][   173][    81][    56][    25][    49] - mwGameMovesArray.cpp
+[   256][   181][   180][     5][     4][     1][    71] - mwGraph.h
+[   250][   178][   148][    46][    16][    30][    56] - z_bullets.cpp
+[   216][   156][   138][    27][     9][    18][    51] - z_player.h
+[   199][   149][   149][     0][     0][     0][    50] - libnet.h
+[   184][   141][   139][     8][     6][     2][    37] - n_packet.cpp
+[   151][   124][   113][    18][     7][    11][    20] - z_control.cpp
+[   146][   117][   115][    11][     9][     2][    20] - z_sound.cpp
+[   219][   115][   106][    68][    59][     9][    45] - mwDrawSequence.cpp
+[   151][   108][    99][    16][     7][     9][    36] - mwQuickGraph.cpp
+[   187][   100][    92][    42][    34][     8][    53] - mwBitmap.cpp
+[   131][    92][    91][    17][    16][     1][    23] - mwInput.h
+[   124][    89][    75][    24][    10][    14][    25] - n_netgame.cpp
+[   154][    85][    68][    45][    28][    17][    41] - mwColor.cpp
+[   117][    85][    77][    13][     5][     8][    27] - mwFont.cpp
+[   130][    75][    70][    16][    11][     5][    44] - mwDemoMode.cpp
+[    87][    74][    74][     1][     1][     0][    12] - mwTimeStamp.cpp
+[    81][    69][    69][     4][     4][     0][     8] - z_lift.h
+[    91][    65][    62][     5][     2][     3][    24] - mwDisplay.h
+[   106][    65][    59][    12][     6][     6][    35] - mwEventQueue.cpp
+[   114][    61][    58][    12][     9][     3][    44] - z_log.h
+[    64][    60][    58][     4][     2][     2][     2] - z_item.h
+[    77][    56][    52][    14][    10][     4][    11] - mwWindow.h
+[    72][    51][    51][     5][     5][     0][    16] - mwTally.cpp
+[    69][    40][    37][     5][     2][     3][    27] - mwLogo.h
+[    86][    40][    38][     3][     1][     2][    45] - mwWindowManager.h
+[    53][    38][    32][     7][     1][     6][    14] - mwRollingAverage.cpp
+[    42][    31][    30][     2][     1][     1][    10] - mwColor.h
+[    53][    31][    30][     6][     5][     1][    17] - mwProgramState.h
+[    35][    31][    31][     1][     1][     0][     3] - n_packet.h
+[    37][    31][    29][     3][     1][     2][     5] - z_enemy.h
+[    52][    30][    29][     3][     2][     1][    20] - mwBitmap.h
+[    36][    30][    30][     1][     1][     0][     5] - mwWidgets.h
+[    41][    27][    27][     3][     3][     0][    11] - mwProgramState.cpp
+[    40][    25][    24][     2][     1][     1][    14] - mwBottomMessage.h
+[    48][    25][    25][    10][    10][     0][    13] - n_network.cpp
+[    36][    24][    24][     1][     1][     0][    11] - mwTimeStamp.h
+[    36][    24][    16][    14][     6][     8][     6] - n_netgame.h
+[    35][    23][    22][     2][     1][     1][    11] - mwQuickGraph.h
+[    24][    22][    22][     1][     1][     0][     1] - n_client.h
+[    27][    21][    21][     2][     2][     0][     4] - z_bullets.h
+[    23][    20][    20][     1][     1][     0][     2] - e_bitmap_tools.h
+[    35][    20][    14][     7][     1][     6][    14] - mwEventQueue.h
+[    21][    19][    19][     1][     1][     0][     1] - e_visual_level.h
+[    27][    19][    19][     1][     1][     0][     7] - mwDemoMode.h
+[    38][    19][    18][     2][     1][     1][    18] - mwDrawSequence.h
+[    35][    19][    17][     3][     1][     2][    15] - mwGameMovesArray.h
+[    30][    19][    18][     2][     1][     1][    10] - mwTally.h
+[    21][    19][    19][     1][     1][     0][     1] - n_server.h
+[    29][    16][    15][     2][     1][     1][    12] - mwPMEvent.h
+[    24][    16][    15][     2][     1][     1][     7] - mwRollingAverage.h
+[    23][    16][    16][     2][     2][     0][     5] - z_sound.h
+[    29][    13][     7][     7][     1][     6][    15] - mwFont.h
+[    17][    13][    13][     1][     1][     0][     3] - z_menu.h
+[    18][    10][     9][     2][     1][     1][     7] - z_level.cpp
+[    11][     9][     9][     1][     1][     0][     1] - e_pde.h
+[    14][     9][     9][     1][     1][     0][     4] - z_level.h
+[    12][     6][     5][     2][     1][     1][     5] - e_tile_helper.h
+[    17][     5][     5][     5][     5][     0][     7] - z_settings.h
+[     3][     2][     2][     1][     1][     0][     0] - n_network.h
+-------------------------------------------------------- - totals
+[ 47082][ 34769][ 29614][  8162][  3007][  5155][  9306] - 100 files
+
+On to something else...
+
+what about those defines..kept the ones that worked
+
+Purple Martians Version 7.24.2
+Allegro Version: 5.2.7.1
+System ID: Windows
+Desktop Resolution: 3840x2160
+
+
+Purple Martians Source Code Line Counts [2023-02-12  18:26:29]
+
+[ total][  code][cd_onl][commnt][cm_onl][ cd+cm][ blank]
+--------------------------------------------------------
+[  2876][  2176][  1738][   605][   167][   438][   533] - z_item.cpp
+[  2705][  1953][  1369][   848][   264][   584][   488] - z_enemy.cpp
+[  2088][  1758][  1350][   515][   107][   408][   223] - e_object_viewer.cpp
+[  2544][  1683][  1466][   405][   188][   217][   673] - z_log.cpp
+[  1875][  1600][  1449][   207][    56][   151][   219] - mwGraph.cpp
+[  1749][  1346][  1127][   319][   100][   219][   303] - z_player.cpp
+[  1865][  1335][  1111][   275][    51][   224][   479] - mwWidgets.cpp
+[  1661][  1225][  1022][   335][   132][   203][   304] - z_fnx.cpp
+[  1417][  1142][  1011][   181][    50][   131][   225] - z_menu.cpp
+[  1255][  1005][   903][   139][    37][   102][   213] - z_screen_overlay.cpp
+[  1287][   968][   839][   188][    59][   129][   260] - e_bitmap_tools.cpp
+[  1600][   909][   824][   183][    98][    85][   593] - e_glt.cpp
+[  1163][   905][   735][   219][    49][   170][   209] - z_lift.cpp
+[  1082][   896][   760][   195][    59][   136][   127] - e_edit_selection.cpp
+[  1136][   806][   741][   125][    60][    65][   270] - z_settings.cpp
+[   998][   738][   662][   108][    32][    76][   228] - e_fnx.cpp
+[   856][   721][   406][   363][    48][   315][    87] - e_editor_main.cpp
+[   786][   693][   610][   101][    18][    83][    75] - e_group_edit.cpp
+[   883][   660][   624][    99][    63][    36][   160] - z_file.cpp
+[   941][   636][   550][   166][    80][    86][   225] - z_screen.cpp
+[   771][   620][   563][    92][    35][    57][   116] - n_client.cpp
+[   781][   613][   564][   100][    51][    49][   117] - n_server.cpp
+[   823][   590][   539][   117][    66][    51][   167] - e_visual_level.cpp
+[  1147][   554][   478][   343][   267][    76][   326] - z_args.cpp
+[   765][   545][   468][   160][    83][    77][   137] - z_loop.cpp
+[   622][   513][   388][   150][    25][   125][    84] - e_item.cpp
+[   648][   496][   423][   118][    45][    73][   107] - mwWindowManager.cpp
+[   705][   478][   458][    93][    73][    20][   154] - mwLogo.cpp
+[   549][   442][   395][    77][    30][    47][    77] - e_window_common.cpp
+[   565][   437][   412][    28][     3][    25][   125] - mwInput.cpp
+[   592][   418][   193][   258][    33][   225][   141] - e_tile_helper.cpp
+[   527][   387][   309][    98][    20][    78][   120] - mwBottomMessage.cpp
+[   572][   375][   372][    63][    60][     3][   137] - mwDisplay.cpp
+[   441][   368][   328][    48][     8][    40][    65] - e_pde.cpp
+[   360][   299][   239][    71][    11][    60][    50] - e_enemy.cpp
+[   347][   297][   278][    31][    12][    19][    38] - mwWindow.cpp
+[   409][   291][   290][    22][    21][     1][    97] - z_config.cpp
+[   308][   222][   181][    56][    15][    41][    71] - mwPMEvent.cpp
+[   293][   214][   208][    26][    20][     6][    59] - z_main.cpp
+[   307][   201][   176][    81][    56][    25][    50] - mwGameMovesArray.cpp
+[   256][   181][   180][     5][     4][     1][    71] - mwGraph.h
+[   252][   180][   150][    46][    16][    30][    56] - z_bullets.cpp
+[   216][   156][   138][    27][     9][    18][    51] - z_player.h
+[   199][   149][   149][     0][     0][     0][    50] - libnet.h
+[   184][   141][   139][     8][     6][     2][    37] - n_packet.cpp
+[   154][   126][   115][    18][     7][    11][    21] - z_control.cpp
+[   151][   119][   117][    11][     9][     2][    23] - z_sound.cpp
+[   219][   117][   108][    68][    59][     9][    43] - mwDrawSequence.cpp
+[   130][   110][   110][     5][     5][     0][    15] - pm.h
+[   151][   108][    99][    16][     7][     9][    36] - mwQuickGraph.cpp
+[   190][   101][    93][    42][    34][     8][    55] - mwBitmap.cpp
+[   131][    92][    91][    17][    16][     1][    23] - mwInput.h
+[   124][    89][    75][    24][    10][    14][    25] - n_netgame.cpp
+[   119][    86][    78][    13][     5][     8][    28] - mwFont.cpp
+[   154][    85][    68][    45][    28][    17][    41] - mwColor.cpp
+[   130][    76][    71][    16][    11][     5][    43] - mwDemoMode.cpp
+[    86][    76][    74][     4][     2][     2][     8] - z_item.h
+[    87][    74][    74][     1][     1][     0][    12] - mwTimeStamp.cpp
+[    81][    69][    69][     4][     4][     0][     8] - z_lift.h
+[   106][    67][    61][    12][     6][     6][    33] - mwEventQueue.cpp
+[    91][    65][    62][     5][     2][     3][    24] - mwDisplay.h
+[   114][    61][    58][    12][     9][     3][    44] - z_log.h
+[    77][    56][    52][    14][    10][     4][    11] - mwWindow.h
+[    72][    51][    51][     5][     5][     0][    16] - mwTally.cpp
+[    51][    42][    40][     4][     2][     2][     7] - z_enemy.h
+[    69][    40][    37][     5][     2][     3][    27] - mwLogo.h
+[    86][    40][    38][     3][     1][     2][    45] - mwWindowManager.h
+[    53][    38][    32][     7][     1][     6][    14] - mwRollingAverage.cpp
+[    39][    37][    37][     1][     1][     0][     1] - z_fnx.h
+[    42][    31][    30][     2][     1][     1][    10] - mwColor.h
+[    53][    31][    30][     6][     5][     1][    17] - mwProgramState.h
+[    35][    31][    31][     1][     1][     0][     3] - n_packet.h
+[    52][    30][    29][     3][     2][     1][    20] - mwBitmap.h
+[    36][    30][    30][     1][     1][     0][     5] - mwWidgets.h
+[    41][    27][    27][     3][     3][     0][    11] - mwProgramState.cpp
+[    40][    25][    24][     2][     1][     1][    14] - mwBottomMessage.h
+[    48][    25][    25][    10][    10][     0][    13] - n_network.cpp
+[    36][    24][    24][     1][     1][     0][    11] - mwTimeStamp.h
+[    36][    24][    16][    14][     6][     8][     6] - n_netgame.h
+[    35][    23][    22][     2][     1][     1][    11] - mwQuickGraph.h
+[    24][    22][    22][     1][     1][     0][     1] - n_client.h
+[    22][    21][    21][     1][     1][     0][     0] - e_fnx.h
+[    27][    21][    21][     2][     2][     0][     4] - z_bullets.h
+[    23][    20][    20][     1][     1][     0][     2] - e_bitmap_tools.h
+[    35][    20][    14][     7][     1][     6][    14] - mwEventQueue.h
+[    22][    20][    20][     1][     1][     0][     1] - z_screen.h
+[    21][    19][    19][     1][     1][     0][     1] - e_visual_level.h
+[    27][    19][    19][     1][     1][     0][     7] - mwDemoMode.h
+[    38][    19][    18][     2][     1][     1][    18] - mwDrawSequence.h
+[    35][    19][    17][     3][     1][     2][    15] - mwGameMovesArray.h
+[    30][    19][    18][     2][     1][     1][    10] - mwTally.h
+[    21][    19][    19][     1][     1][     0][     1] - n_server.h
+[    20][    18][    18][     1][     1][     0][     1] - z_file.h
+[    29][    16][    15][     2][     1][     1][    12] - mwPMEvent.h
+[    24][    16][    15][     2][     1][     1][     7] - mwRollingAverage.h
+[    23][    16][    16][     2][     2][     0][     5] - z_sound.h
+[    17][    14][    14][     1][     1][     0][     2] - e_edit_selection.h
+[    15][    13][    13][     1][     1][     0][     1] - e_group_edit.h
+[    29][    13][     7][     7][     1][     6][    15] - mwFont.h
+[    17][    13][    13][     1][     1][     0][     3] - z_menu.h
+[    15][    13][    13][     1][     1][     0][     1] - z_screen_overlay.h
+[    14][    11][    11][     1][     1][     0][     2] - e_object_viewer.h
+[    18][    10][     9][     2][     1][     1][     7] - z_level.cpp
+[    11][     9][     9][     1][     1][     0][     1] - e_pde.h
+[    14][     9][     9][     1][     1][     0][     4] - z_level.h
+[     9][     8][     8][     1][     1][     0][     0] - e_editor_main.h
+[    11][     8][     8][     1][     1][     0][     2] - z_loop.h
+[    10][     7][     7][     1][     1][     0][     2] - z_control.h
+[    10][     7][     7][     1][     1][     0][     2] - z_main.h
+[    12][     6][     5][     2][     1][     1][     5] - e_tile_helper.h
+[    17][     5][     5][     5][     5][     0][     7] - z_settings.h
+[     7][     4][     4][     1][     1][     0][     2] - e_window_common.h
+[     6][     4][     4][     1][     1][     0][     1] - z_args.h
+[     4][     3][     3][     1][     1][     0][     0] - e_glt.h
+[     3][     2][     2][     1][     1][     0][     0] - n_network.h
+[     4][     2][     2][     1][     1][     0][     1] - z_config.h
+-------------------------------------------------------- - totals
+[ 47189][ 34913][ 29758][  8153][  2998][  5155][  9278] - 116 files
+
+
+pm.h has been stripped of all global variables and function prototypes
+
+god help us all...
+
+
+now, why do lifts need a button from bitmap_editor..
+
+
+I will replace with a button...but...
+
+the one thing I like about the old button was that they showed a highlight when the mouse was on them
+
+
+I want to make a new type of button...
+
+text and returs 1 when pressed, just like buttont, but...
+
+this one will show a highlight when moused over
+and will draw centered
+and will auto size based on text length...
+
+how about all that?..done...
+
+
+Its time for a push, I shoudl be done for today...
+
+
+20230212 7:18PM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -8,15 +8,28 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
+#include "n_network.h"
+#include "n_client.h"
+#include "mwTimeStamp.h"
+#include "mwColor.h"
+#include "mwInput.h"
+#include "mwEventQueue.h"
+#include "mwProgramState.h"
+#include "z_menu.h"
+#include "z_level.h"
+#include "z_config.h"
+#include "z_fnx.h"
+#include "z_loop.h"
+#include "z_screen.h"
 
 
-// n_network.h
-extern int NetworkDriver;
+
 
 // these are never referenced outside of this file
 NET_CONN *ServerConn = NULL;
 NET_CHANNEL *ServerChannel;
 
+float tmaj_i = 0;
 
 int ClientInitNetwork(const char *serveraddress)
 {
@@ -156,8 +169,8 @@ int ClientCheckResponse(void) // check for a repsonse from the server
       int done = 10;
       while (done)
       {
-         proc_event_queue();
-         if (key[ALLEGRO_KEY_ESCAPE][1]) return -2;
+         mwEQ.proc_event_queue();
+         if (mI.key[ALLEGRO_KEY_ESCAPE][1]) return -2;
 
          printf(".");
          packetsize = net_receive(ServerChannel, packetbuffer, 1024, address);
@@ -234,7 +247,7 @@ int client_init(void)
 {
    if (LOG_NET) log_versions();
 
-   sprintf(msg, "Client mode started on localhost:[%s]", local_hostname);
+   sprintf(msg, "Client mode started on localhost:[%s]", mwPS.local_hostname);
    printf("\n%s\n", msg);
    if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
@@ -247,7 +260,7 @@ int client_init(void)
    printf("sending cjon\n");
    Packet("cjon");
    PacketPut1ByteInt(players[0].color); // requested color
-   PacketAddString(local_hostname);
+   PacketAddString(mwPS.local_hostname);
    ClientSend(packetbuffer, packetsize);
 
    if (LOG_NET_join)
@@ -278,7 +291,7 @@ void client_process_sjon_packet(void)
       sprintf(msg,"Server replied with 'SERVER FULL'\n");
       printf("%s", msg);
       if (LOG_NET_join) add_log_entry2(11, active_local_player, msg);
-      new_program_state = 25;
+      mwPS.new_program_state = 25;
    }
    else // join allowed
    {
@@ -286,7 +299,7 @@ void client_process_sjon_packet(void)
       players[p].control_method = 4;
       players[p].color = color;
       strncpy(players1[0].hostname, m_serveraddress, 16);
-      strncpy(players1[p].hostname, local_hostname, 16);
+      strncpy(players1[p].hostname, mwPS.local_hostname, 16);
       ima_client = 1;
 
       play_level = pl;
@@ -315,7 +328,7 @@ void client_process_sjon_packet(void)
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          add_log_entry_centered_text(11, 0, 76, "", "+", "-");
       }
-      new_program_state = 22;
+      mwPS.new_program_state = 22;
    }
 }
 
@@ -335,7 +348,7 @@ void client_send_ping(void)
    Packet("ping");
    PacketPutDouble(al_get_time());
    ClientSend(packetbuffer, packetsize);
-   // printf("%d ping server\n", frame_num);
+   // printf("%d ping server\n", mwPS.frame_num);
 }
 
 
@@ -347,7 +360,7 @@ void client_send_stak(void)
    Packet("stak");
    PacketPut1ByteInt(p);
    PacketPut4ByteInt(client_state_base_frame_num);
-   PacketPut4ByteInt(frame_num);
+   PacketPut4ByteInt(mwPS.frame_num);
    PacketPutDouble(players1[p].client_chase_fps);
    PacketPutDouble(players1[p].dsync_avg);
    ClientSend(packetbuffer, packetsize);
@@ -363,9 +376,9 @@ void client_apply_dif(void)
    }
    else
    {
-      if ((client_state_dif_src - frame_num > 100) && (frame_num != 0))
+      if ((client_state_dif_src - mwPS.frame_num > 100) && (mwPS.frame_num != 0))
       {
-         sprintf(msg, "dif_src is > 100 frames in the future - src:%d frame_num:%d\n", client_state_dif_src, frame_num);
+         sprintf(msg, "dif_src is > 100 frames in the future - src:%d mwPS.frame_num:%d\n", client_state_dif_src, mwPS.frame_num);
          if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
       }
       else
@@ -393,13 +406,13 @@ void client_apply_dif(void)
             }
             else // we have a matching base to apply dif
             {
-               int ff = players1[p].client_rewind = frame_num - client_state_dif_dst; // dst compared to current frame_num
+               int ff = players1[p].client_rewind = mwPS.frame_num - client_state_dif_dst; // dst compared to current mwPS.frame_num
                char tmsg[64];
-               if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", frame_num);
+               if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", mwPS.frame_num);
                if (ff > 0)  sprintf(tmsg, "rewind [%d] frames\n", ff);
                if (ff < 0)  sprintf(tmsg, "early [%d] frames\n", -ff);
-               if (frame_num == 0) sprintf(tmsg, "initial state\n");
-               if ((ff < 0) && (frame_num != 0))
+               if (mwPS.frame_num == 0) sprintf(tmsg, "initial state\n");
+               if ((ff < 0) && (mwPS.frame_num != 0))
                {
                   sprintf(msg, "dif [%d to %d] not applied yet - [%d] early\n", client_state_dif_src, client_state_dif_dst, -ff);
                   if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
@@ -424,9 +437,9 @@ void client_apply_dif(void)
                   float xcor = oldpx - al_fixtof(players[p].PX);
 
 
-                  if (frame_num > players1[p].xcor_reset_frame)
+                  if (mwPS.frame_num > players1[p].xcor_reset_frame)
                   {
-                     players1[p].xcor_reset_frame = frame_num + 100;
+                     players1[p].xcor_reset_frame = mwPS.frame_num + 100;
                      players1[p].xcor_max = 0;
 
                   }
@@ -444,7 +457,7 @@ void client_apply_dif(void)
                         if (l[x][y] != old_l[x][y])
                         {
                            // printf("dif at x:%d y:%d\n", x, y);
-                           al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                           al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
                            al_draw_bitmap(mwB.btile[l[x][y] & 1023], x*20, y*20, 0);
                         }
 
@@ -454,18 +467,18 @@ void client_apply_dif(void)
                   // fix control methods
                   players[0].control_method = 2; // on client, server is mode 2
                   if (players[p].control_method == 2) players[p].control_method = 4;
-                  if (players[p].control_method == 8) new_program_state = 1; // server quit
+                  if (players[p].control_method == 8) mwPS.new_program_state = 1; // server quit
 
-                  // update frame_num and client base frame_num
-                  frame_num = client_state_base_frame_num = client_state_dif_dst;
+                  // update mwPS.frame_num and client base mwPS.frame_num
+                  mwPS.frame_num = client_state_base_frame_num = client_state_dif_dst;
 
-                  players1[p].client_last_dif_applied = frame_num;
+                  players1[p].client_last_dif_applied = mwPS.frame_num;
 
                   if (ff) loop_frame(ff); // if we rewound time, play it back
 
                   client_send_stak();
 
-                  if (client_state_dif_src) players1[p].client_move_lag = frame_num - client_state_dif_src;
+                  if (client_state_dif_src) players1[p].client_move_lag = mwPS.frame_num - client_state_dif_src;
 
                   sprintf(msg, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
                   if (LOG_NET_dif_applied) add_log_entry2(30, p, msg);
@@ -501,15 +514,15 @@ void client_timer_adjust(void)
 
    float t_adj = p_adj + i_adj; // total adj
 
-   float fps_chase = frame_speed - t_adj;
+   float fps_chase = mwPS.frame_speed - t_adj;
 
    if (fps_chase < 10) fps_chase = 10; // never let this go negative
    if (fps_chase > 70) fps_chase = 70;
-   al_set_timer_speed(fps_timer, ( 1 / fps_chase));
+   al_set_timer_speed(mwEQ.fps_timer, ( 1 / fps_chase));
    players1[p].client_chase_fps = fps_chase;
 
    sprintf(msg, "tmst mv:[%5.2f] ma:[%5.2f] sp:[%5.2f] er:[%6.2f] pa:[%6.2f] ia:[%6.2f] ta:[%6.2f]\n", mv*1000, mva*1000, sp*1000, err*1000, p_adj, i_adj, t_adj);
-   if (LOG_TMR_client_timer_adj) if (frame_num) add_log_entry2(44, 0, msg);
+   if (LOG_TMR_client_timer_adj) if (mwPS.frame_num) add_log_entry2(44, 0, msg);
 
    sprintf(msg, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.3f]\n", players1[p].dsync*1000, players1[p].client_chase_offset*1000, fps_chase);
    if (LOG_NET_client_timer_adj) add_log_entry2(36, p, msg);
@@ -531,11 +544,11 @@ void client_process_stdf_packet(double timestamp)
    sprintf(msg, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d \n", seq+1, max_seq, src, dst, sb, sz);
    if (LOG_NET_stdf_all_packets) add_log_entry2(28, p, msg);
 
-   int client_sync = dst - frame_num;                             // crude integer sync based on frame numbers
+   int client_sync = dst - mwPS.frame_num;                             // crude integer sync based on frame numbers
 
-   if (players1[p].client_last_stdf_rx_frame_num != frame_num)    // this is the first stdf received for this frame
+   if (players1[p].client_last_stdf_rx_frame_num != mwPS.frame_num)    // this is the first stdf received for this frame
    {
-      players1[p].client_last_stdf_rx_frame_num = frame_num;      // client keeps track of last stdf rx'd and quits if too long
+      players1[p].client_last_stdf_rx_frame_num = mwPS.frame_num;      // client keeps track of last stdf rx'd and quits if too long
       players1[p].dsync = al_get_time() - timestamp;              // time between when the packet was received into the packet buffer and now
       players1[p].dsync += (double) client_sync * 0.025;          // combine with client_sync
 
@@ -547,11 +560,11 @@ void client_process_stdf_packet(double timestamp)
 
 
    memcpy(client_state_buffer + sb, packetbuffer+23, sz);     // put the piece of data in the buffer
-   client_state_buffer_pieces[seq] = dst;                     // mark it with destination frame_num
+   client_state_buffer_pieces[seq] = dst;                     // mark it with destination mwPS.frame_num
 
    int complete = 1;                                          // did we just get the last packet? (yes by default)
    for (int i=0; i< max_seq; i++)
-      if (client_state_buffer_pieces[i] != dst) complete = 0; // no, if any piece not at latest frame_num
+      if (client_state_buffer_pieces[i] != dst) complete = 0; // no, if any piece not at latest mwPS.frame_num
 
    if (complete)
    {
@@ -601,7 +614,7 @@ void process_bandwidth_counters(int p)
    players1[p].rx_current_bytes_for_this_frame = 0;
    players1[p].rx_current_packets_for_this_frame = 0;
 
-   if (frame_num % 40 == 0) // tally freq = 40 frames = 1s
+   if (mwPS.frame_num % 40 == 0) // tally freq = 40 frames = 1s
    {
       // get maximums per tally
       if (players1[p].tx_bytes_per_tally >   players1[p].tx_max_bytes_per_tally)   players1[p].tx_max_bytes_per_tally =   players1[p].tx_bytes_per_tally;
@@ -645,13 +658,13 @@ void client_proc_player_drop(void)
       tsw();
       players1[p].quit_reason = 92;
       if (LOG_NET) log_ending_stats(p);
-      new_program_state = 1;
+      mwPS.new_program_state = 1;
    }
 
    int lsf = players1[p].client_last_stdf_rx_frame_num;
-   if ((frame_num > 0) && (lsf > 0)) // check to see if server connection is lost
+   if ((mwPS.frame_num > 0) && (lsf > 0)) // check to see if server connection is lost
    {
-      int ss = frame_num - lsf;
+      int ss = mwPS.frame_num - lsf;
       if (ss > 120)
       {
          if (LOG_NET)
@@ -659,7 +672,7 @@ void client_proc_player_drop(void)
             sprintf(msg, "Local Player Client %d Lost Server Connection!", p);
             add_log_entry_centered_text(10, p, 76, "", "+", "-");
             add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-            sprintf(msg, "frame_num:[%d] last_stdf_rx:[%d] dif:[%d]", frame_num, lsf, ss);
+            sprintf(msg, "mwPS.frame_num:[%d] last_stdf_rx:[%d] dif:[%d]", mwPS.frame_num, lsf, ss);
             add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
             add_log_entry_centered_text(10, p, 76, "", "+", "-");
          }
@@ -671,7 +684,7 @@ void client_proc_player_drop(void)
          tsw();
          players1[p].quit_reason = 75;
          if (LOG_NET) log_ending_stats(p);
-         new_program_state = 25;
+         mwPS.new_program_state = 25;
       }
    }
 }
@@ -693,7 +706,7 @@ void client_fast_packet_loop(void)
          double t1 = PacketGetDouble();
          double t2 = al_get_time();
          players1[p].ping = t2 - t0;
-         //printf("%d rx pong [%3.1f ms] - send pang\n", frame_num, players1[p].ping * 1000);
+         //printf("%d rx pong [%3.1f ms] - send pang\n", mwPS.frame_num, players1[p].ping * 1000);
 
          mwRA[1].add_data(players1[p].ping); // send to rolling average
          players1[p].ping_avg = mwRA[1].avg;
@@ -705,7 +718,7 @@ void client_fast_packet_loop(void)
          if (LOG_NET_client_ping) add_log_entry2(37, p, msg);
 
          sprintf(msg, "tmst ping:[%5.2f] pavg:[%5.2f]\n", players1[p].ping*1000, players1[p].ping_avg*1000);
-         if (LOG_TMR_client_ping) if (frame_num) add_log_entry2(44, 0, msg);
+         if (LOG_TMR_client_ping) if (mwPS.frame_num) add_log_entry2(44, 0, msg);
 
          Packet("pang");
          PacketPutDouble(t1);
@@ -721,7 +734,7 @@ void client_fast_packet_loop(void)
          for (int i=0; i<200; i++)
             if (!packet_buffers[i].active) // find empty
             {
-               //printf("%d stored packet:%d size:%d type:%d\n", frame_num, i, packetsize, type);
+               //printf("%d stored packet:%d size:%d type:%d\n", mwPS.frame_num, i, packetsize, type);
 
                packet_buffers[i].active = 1;
                packet_buffers[i].type = type;

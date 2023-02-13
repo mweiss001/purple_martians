@@ -1,72 +1,33 @@
 // z_file.cpp
 #include "pm.h"
+#include "z_file.h"
 #include "z_log.h"
 #include "mwWindowManager.h"
 #include "z_player.h"
 #include "n_netgame.h"
 #include "mwDemoMode.h"
 #include "mwBitmap.h"
+#include "z_lift.h"
+#include "mwGameMovesArray.h"
+#include "mwDisplay.h"
+#include "z_menu.h"
+#include "z_item.h"
+#include "z_enemy.h"
+#include "z_level.h"
+#include "z_fnx.h"
+#include "z_screen.h"
+
+
+
+
+
+
+
 
 FILE *filepntr;
 
-void make_filename(int x)
-{
-   char temp[255];
-   strcpy( temp, "levels/level");
+int level_header[20] = {0};
 
-   if (x < 10) sprintf(msg,"00%-1d", x);
-   if ((x  > 9) && (x  < 100)) sprintf(msg,"0%-2d", x);
-   if (x > 99) sprintf(msg,"%-3d", x);
-
-   strcat( temp, msg);
-   strcat( temp, ".pml");
-   strcpy(level_filename, temp);
-
-}
-int load_level_prompt()
-{
-   sprintf(level_filename,"levels\\");
-   if (mw_file_select("Load Selection", level_filename, ".pml", 0))
-   {
-      int len = strlen(level_filename);
-      char g[10];
-      g[0] = level_filename[len-7];
-      g[1] = level_filename[len-6];
-      g[2] = level_filename[len-5];
-      g[3] = 0;
-      int num = atoi(g);
-      load_level(num,0);
-   }
-   return 0;
-}
-
-int save_level_prompt()
-{
-   char title[80];
-   int len = strlen(level_filename);
-   char g[10];
-   g[0] = level_filename[len-7];
-   g[1] = level_filename[len-6];
-   g[2] = level_filename[len-5];
-   g[3] = 0;
-   int num = atoi(g);
-   sprintf(level_filename,"levels\\level%03d.pml", num);
-   sprintf(title,"Save Level %d ",num);
-   if (mw_file_select(title, level_filename, ".pml", 1))
-   {
-
-      len = strlen(level_filename);
-      g[0] = level_filename[len-7];
-      g[1] = level_filename[len-6];
-      g[2] = level_filename[len-5];
-      g[3] = 0;
-      num = atoi(g);
-      save_level(num);
-      last_level_loaded = num;
-      return 1;
-   }
-   else return 0; // user pressed cancel
-}
 
 
 
@@ -75,31 +36,31 @@ void save_sprit(void)
    //printf("saving sprit001.pm\n");
 
    for (int c=0; c<NUM_ANS; c++) // set all animation initial
-      if (zz[4][c])
+      if (mwB.zz[4][c])
       {
-         zz[0][c]=zz[5][c];
-         zz[1][c]=0;
-         zz[2][c]=0;
+         mwB.zz[0][c]=mwB.zz[5][c];
+         mwB.zz[1][c]=0;
+         mwB.zz[2][c]=0;
       }
 
    // ensure sa[][0] does not have any bits set other than the ones we want
    for (int c=0; c<NUM_SPRITES; c++)
    {
-      sa[c][0] &= PM_BTILE_ALL_FLAGS;
-      sa[c][1] = 0; // not used
+      mwB.sa[c][0] &= PM_BTILE_ALL_FLAGS;
+      mwB.sa[c][1] = 0; // not used
    }
 
    FILE *fp = fopen("bitmaps/sprit001.pm", "wb");
-   fwrite(zz, sizeof(zz), 1, fp);
-   fwrite(sa, sizeof(sa), 1, fp);
+   fwrite(mwB.zz, sizeof(mwB.zz), 1, fp);
+   fwrite(mwB.sa, sizeof(mwB.sa), 1, fp);
    fclose(fp);
 }
 
 void load_sprit(void)
 {
    FILE *fp = fopen("bitmaps/sprit001.pm", "rb");
-   fread(zz, sizeof(zz), 1, fp);
-   fread(sa, sizeof(sa), 1, fp);
+   fread(mwB.zz, sizeof(mwB.zz), 1, fp);
+   fread(mwB.sa, sizeof(mwB.sa), 1, fp);
    fclose(fp);
 }
 
@@ -233,6 +194,8 @@ int load_tiles(void)
 
 void zero_level_data(void)
 {
+   for (int i=0; i<20; i++) level_header[i] = 0;
+
    for (int c=0; c<100; c++)    // blocks
       for (int x=0; x<100; x++)
            l[c][x] = 0;
@@ -330,29 +293,67 @@ void level_check(void)
 
 
 
-int load_level(int level_to_load, int load_only)
+
+
+
+
+
+
+
+
+
+
+
+#define PML_SIZE 384960
+
+
+void pml_to_var(char * b) // for load level
 {
-   //printf("loading: %s\n", level_filename);
+   int sz = 0, offset = 0;
+   sz = sizeof(level_header); memcpy(level_header, b+offset, sz); offset += sz;
+   sz = sizeof(l);            memcpy(l,            b+offset, sz); offset += sz;
+   sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
+   sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(Efi);          memcpy(Efi,          b+offset, sz); offset += sz;
+   sz = sizeof(lifts);        memcpy(lifts,        b+offset, sz); offset += sz;
+   sz = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, sz); offset += sz;
+   sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
+}
 
-   for (int i=0; i<20; i++) level_header[i] = 0;
+void var_to_pml(char * b) // for save level
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(level_header); memcpy(b+offset, level_header, sz);
+   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
+   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
+   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
+   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
+   offset += sz; sz = sizeof(lifts);        memcpy(b+offset, lifts,        sz);
+   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
+   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
+}
 
-   int level_load_error = 0;
 
-   last_level_loaded = level_to_load;
+
+int load_level(int level_num, int load_only, int fail_silently)
+{
+   zero_level_data();
+   last_level_loaded = level_num;
    valid_level_loaded = 0;
    resume_allowed = 0;
 
-   zero_level_data();
+   char lf[255];
+   sprintf(lf, "levels/level%03d.pml", level_num);
+   //printf("loading: %s\n", lf);
 
-   make_filename(level_to_load);   // update filename
-   FILE *fp = fopen(level_filename,"rb");
+   FILE *fp = fopen(lf, "rb");
    if (!fp)
    {
-      //sprintf(msg, "Error opening %s ", level_filename);
-      //m_err(msg);
-      level_load_error = 1;
+      sprintf(msg, "Error opening %s", lf);
+      if (!fail_silently) m_err(msg);
+      return 0;
    }
-   if (!level_load_error)  // file open !
+   else  // file open !
    {
       // read the compressed data
       char cmp[PML_SIZE];
@@ -364,19 +365,9 @@ int load_level(int level_to_load, int load_only)
       uLongf destLen = sizeof(pml);
       uncompress((Bytef*)pml, (uLongf*)&destLen, (Bytef*)cmp, sizeof(cmp));
 
+      // copy to game variables
       pml_to_var(pml);
-   } // end of file open
 
-   if (level_load_error)
-   {
-      sprintf(msg, "Level loading error occurred for: %s ", level_filename);
-      printf("%s\n", msg);
-      m_err(msg);
-      num_lifts = 0;
-      return 0;
-   }
-   else
-   {
       num_lifts = level_header[5];
       if (!load_only)
       {
@@ -390,17 +381,16 @@ int load_level(int level_to_load, int load_only)
             }
          level_check();
          init_level_background(0); // draw blocks on level_background
-         reset_animation_sequences();
          //set_player_start_pos(0, 0);
       }
       return 1;
    }
 }
 
-int save_level(int level_to_save)
+void save_level(int level_num)
 {
+   last_level_loaded = level_num;
    level_check();
-
    for (int i=0; i<20; i++) level_header[i] = 0;
 
    level_header[0] = 5; // .pml level version
@@ -410,7 +400,9 @@ int save_level(int level_to_save)
    lift_setup();
    level_header[5] = num_lifts;  // num of lifts
 
-   make_filename(level_to_save);   // update filename
+   char lf[255];
+   sprintf(lf, "levels/level%03d.pml", level_num);
+   //printf("saving: %s\n", lf);
 
    // put variables in pml
    char pml[PML_SIZE];
@@ -423,11 +415,61 @@ int save_level(int level_to_save)
    int cmp_size = destLen;
 
    // write cmp to file
-   FILE *fp = fopen(level_filename,"wb");
+   FILE *fp = fopen(lf,"wb");
    fwrite(cmp, cmp_size, 1, fp);
    fclose(fp);
-   return 0;
 }
+
+
+
+int load_level_prompt(void)
+{
+   char lf[256];
+   sprintf(lf,"levels\\");
+   if (mw_file_select("Load Selection", lf, ".pml", 0))
+   {
+      int len = strlen(lf);
+      char g[10];
+      g[0] = lf[len-7];
+      g[1] = lf[len-6];
+      g[2] = lf[len-5];
+      g[3] = 0;
+      int num = atoi(g);
+      load_level(num, 0, 0);
+      return 1;
+   }
+   return 0; // user pressed cancel
+}
+
+int save_level_prompt(void)
+{
+   int num = last_level_loaded;
+
+   char title[80];
+   sprintf(title,"Save Level %d ",num);
+
+   char lf[256];
+   sprintf(lf,"levels\\level%03d.pml", num);
+   if (mw_file_select(title, lf, ".pml", 1))
+   {
+      int len = strlen(lf);
+      char g[10];
+      g[0] = lf[len-7];
+      g[1] = lf[len-6];
+      g[2] = lf[len-5];
+      g[3] = 0;
+      num = atoi(g);
+      save_level(num);
+      return 1;
+   }
+   return 0; // user pressed cancel
+}
+
+
+
+
+
+
 
 
 int mw_file_select(const char * title, char * fn, const char * ext, int save)
@@ -502,9 +544,6 @@ int mw_file_select(const char * title, char * fn, const char * ext, int save)
 }
 
 
-
-
-
 char tmp[100];
 char* cmtos(int cm)
 {
@@ -561,19 +600,19 @@ void save_gm_txt(char *sfname)
 
    filepntr = fopen(fname,"w");
 
-   fprintf(filepntr,"number of entries %d\n", game_move_entry_pos);
+   fprintf(filepntr,"number of entries %d\n", mwGMA.game_move_entry_pos);
    fprintf(filepntr,"deathmatch_pbullets %d\n", deathmatch_pbullets);
    fprintf(filepntr,"deathmatch_pbullets_damage %d\n", deathmatch_pbullets_damage);
    fprintf(filepntr,"suicide_pbullets %d\n", suicide_pbullets);
 
    fprintf(filepntr,"[ gm][frame][t][p][cm]\n");
 
-   for (int x=0; x<game_move_entry_pos; x++)
+   for (int x=0; x<mwGMA.game_move_entry_pos; x++)
    {
-      int f = game_moves[x][0]; // frame
-      int t = game_moves[x][1]; // type
-      int p = game_moves[x][2]; // player
-      int v = game_moves[x][3]; // value
+      int f = mwGMA.game_moves[x][0]; // frame
+      int t = mwGMA.game_moves[x][1]; // type
+      int p = mwGMA.game_moves[x][2]; // player
+      int v = mwGMA.game_moves[x][3]; // value
 
       fprintf(filepntr,"[%3d][%5d][%d][%d][%2d]", x, f, t, p, v);
 
@@ -582,7 +621,7 @@ void save_gm_txt(char *sfname)
       if (t == 2) fprintf(filepntr,"-------------PLAYER %d INACTIVE------------", p);
       if (t == 3) fprintf(filepntr,"-------------CLIENT %d JOIN!-------------- ", p);
       if (t == 4) fprintf(filepntr,"-------------CLIENT %d QUIT!-------------- ", p);
-      if (t == 5) fprintf(filepntr,"%s", cmtos(game_moves[x][3]));
+      if (t == 5) fprintf(filepntr,"%s", cmtos(mwGMA.game_moves[x][3]));
       if (t == 8) fprintf(filepntr,"-------------PLAYER %d ACKNOWLEDGE---------", p);
 
 
@@ -598,15 +637,15 @@ void save_gm_gm(char *sfname)
    sprintf(fname, "savegame/%s.gm", sfname);
    filepntr = fopen(fname,"w");
 
-   fprintf(filepntr,"%d\n", game_move_entry_pos);  // num_entries
+   fprintf(filepntr,"%d\n", mwGMA.game_move_entry_pos);  // num_entries
 
    fprintf(filepntr,"%d\n", deathmatch_pbullets);
    fprintf(filepntr,"%d\n", deathmatch_pbullets_damage );
    fprintf(filepntr,"%d\n", suicide_pbullets);
 
-   for (int x=0; x<game_move_entry_pos; x++)
+   for (int x=0; x<mwGMA.game_move_entry_pos; x++)
       for (int y=0; y<4; y++)
-         fprintf(filepntr,"%d\n", game_moves[x][y]);
+         fprintf(filepntr,"%d\n", mwGMA.game_moves[x][y]);
    fclose(filepntr);
 }
 
@@ -767,7 +806,7 @@ int load_gm(const char *sfname )
    {
       //printf("processing file %s\n", fname);
 
-      clear_game_moves();
+      mwGMA.initialize();
 
       int loop, ch;
       char buff[2000];
@@ -783,7 +822,7 @@ int load_gm(const char *sfname )
             ch = fgetc(filepntr);
          }
          buff[loop] = 0;
-         game_move_entry_pos = atoi(buff);
+         mwGMA.game_move_entry_pos = atoi(buff);
 
          loop = 0;
          ch = fgetc(filepntr);
@@ -819,7 +858,7 @@ int load_gm(const char *sfname )
          suicide_pbullets = atoi(buff);
 
          // then get all the entries
-         for (int x=0; x<game_move_entry_pos; x++)
+         for (int x=0; x<mwGMA.game_move_entry_pos; x++)
             for (int y=0; y<4; y++)
             {
                loop = 0;
@@ -831,11 +870,11 @@ int load_gm(const char *sfname )
                   ch = fgetc(filepntr);
                }
                buff[loop] = 0;
-               game_moves[x][y] = atoi(buff);
+               mwGMA.game_moves[x][y] = atoi(buff);
             }
          fclose(filepntr);
-         play_level = game_moves[0][3]; // set play level
-         mwDM.demo_mode_last_frame = game_moves[game_move_entry_pos-1][0];
+         play_level = mwGMA.game_moves[0][3]; // set play level
+         mwDM.demo_mode_last_frame = mwGMA.game_moves[mwGMA.game_move_entry_pos-1][0];
          //printf("dmlf:%d\n", mwDM.demo_mode_last_frame );
          return 1;
       }

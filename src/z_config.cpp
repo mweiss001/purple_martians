@@ -1,6 +1,7 @@
 // z_config.cpp
 
 #include "pm.h"
+#include "z_config.h"
 #include "z_log.h"
 #include "z_sound.h"
 #include "z_settings.h"
@@ -10,6 +11,13 @@
 #include "mwBottomMessage.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
+#include "z_menu.h"
+#include "mwProgramState.h"
+#include "z_level.h"
+#include "z_fnx.h"
+
+
+
 
 
 #define STRINGIFY_HELPER(x) #x
@@ -64,7 +72,7 @@ void save_config(void)
       asci(SCREEN, mwD.saved_display_transform_double)
       asci(SCREEN, mwD.display_transform_double_max)
 
-      asci(SCREEN, eco_draw)
+      asci(SCREEN, mwPS.eco_draw)
 
 
 
@@ -75,7 +83,7 @@ void save_config(void)
       ascf(GAME, mwD.viewport_x_div)
       ascf(GAME, mwD.viewport_y_div)
       asci(GAME, settings_current_page)
-      asci(GAME, speed_control_lock)
+      asci(GAME, mwPS.speed_control_lock)
 
       asci(GAMECONTROLS, players1[0].up_key)
       asci(GAMECONTROLS, players1[0].down_key)
@@ -201,7 +209,7 @@ void save_config(void)
 
       asci(OVERLAY, number_of_debug_overlay_modes);
 
-      asci(LEVEL_EDITOR, autosave_level_editor_state);
+      asci(LEVEL_EDITOR, mwPS.autosave_level_editor_state);
 
    }
    al_save_config_file("pm.cfg", cfg);
@@ -245,7 +253,7 @@ void load_config(void)
 
    agci(SCREEN, mwBM.bottom_msg_on, 1)
 
-   agci(SCREEN, eco_draw, 0)
+   agci(SCREEN, mwPS.eco_draw, 0)
 
 
 
@@ -261,7 +269,7 @@ void load_config(void)
    agcf(GAME, mwD.viewport_x_div, 0.33)
    agcf(GAME, mwD.viewport_y_div, 0.33)
    agci(GAME, settings_current_page, 0)
-   agci(GAME, speed_control_lock, 1)
+   agci(GAME, mwPS.speed_control_lock, 1)
 
    agci(GAMECONTROLS, players1[0].up_key,    ALLEGRO_KEY_UP)
    agci(GAMECONTROLS, players1[0].down_key,  ALLEGRO_KEY_DOWN)
@@ -393,7 +401,7 @@ void load_config(void)
 
    agci(OVERLAY, number_of_debug_overlay_modes, 2);
 
-   agci(LEVEL_EDITOR, autosave_level_editor_state, 0);
+   agci(LEVEL_EDITOR, mwPS.autosave_level_editor_state, 0);
 
    al_destroy_config(cfg);
    save_config();

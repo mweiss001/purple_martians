@@ -4,6 +4,18 @@
 #include "mwWindowManager.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
+#include "e_tile_helper.h"
+#include "mwColor.h"
+#include "mwInput.h"
+#include "z_menu.h"
+#include "e_edit_selection.h"
+#include "e_fnx.h"
+#include "e_group_edit.h"
+#include "e_object_viewer.h"
+#include "e_window_common.h"
+#include "z_screen.h"
+
+
 
 mwWindow::mwWindow()
 {
@@ -62,7 +74,7 @@ void mwWindow::set_size(int sw, int sh)
 
 int mwWindow::detect_mouse(void)
 {
-   if ((mouse_x >= x1) && (mouse_x <= x2) && (mouse_y >= y1) && (mouse_y <= y2) && (!hidden)) return 1;
+   if ((mI.mouse_x >= x1) && (mI.mouse_x <= x2) && (mI.mouse_y >= y1) && (mI.mouse_y <= y2) && (!hidden)) return 1;
    else return 0;
 }
 
@@ -80,17 +92,17 @@ void mwWindow::process_mouse(void)
 {
    if (!hidden)
    {
-      if (mouse_b[1][0])
+      if (mI.mouse_b[1][0])
       {
          // moveable and mouse on title bar
-         if ((moveable) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y1+8))
+         if ((moveable) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y1+8))
          {
-            int mxo = mouse_x - x1; // get offset from mouse position to window x, y
-            int myo = mouse_y - y1;
+            int mxo = mI.mouse_x - x1; // get offset from mouse position to window x, y
+            int myo = mI.mouse_y - y1;
             moving = 1;
-            while (mouse_b[1][0])
+            while (mI.mouse_b[1][0])
             {
-               set_pos(mouse_x-mxo, mouse_y-myo);
+               set_pos(mI.mouse_x-mxo, mI.mouse_y-myo);
                mwWM.redraw_level_editor_background(0);
                get_new_screen_buffer(3, 0, 0);
                mwWM.cycle_windows(1); // draw only
@@ -98,15 +110,15 @@ void mwWindow::process_mouse(void)
             moving = 0;
          }
          // resizable and mouse on lower right corner
-         if ((resizable) && (mouse_x > x2-10) && (mouse_x < x2) && (mouse_y > y2-10) && (mouse_y < y2))
+         if ((resizable) && (mI.mouse_x > x2-10) && (mI.mouse_x < x2) && (mI.mouse_y > y2-10) && (mI.mouse_y < y2))
          {
-            int mxo = mouse_x - x2; // get offset from mouse position to window x, y
-            int myo = mouse_y - y2;
+            int mxo = mI.mouse_x - x2; // get offset from mouse position to window x, y
+            int myo = mI.mouse_y - y2;
             moving = 1;
-            while (mouse_b[1][0])
+            while (mI.mouse_b[1][0])
             {
-               x2 = mouse_x-mxo;
-               y2 = mouse_y-myo;
+               x2 = mI.mouse_x-mxo;
+               y2 = mI.mouse_y-myo;
                w = x2 - x1;
                h = y2 - y1;
                mwWM.redraw_level_editor_background(0);
@@ -118,7 +130,7 @@ void mwWindow::process_mouse(void)
       }
 
       // mouse b2 anywhere on window
-      if ((mouse_b[2][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+      if ((mI.mouse_b[2][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
       {
 
          if (index == 3) // filter window
@@ -219,47 +231,47 @@ void mwWindow::process_mouse(void)
 void mwWindow::draw(int draw_only)
 {
    // erase background
-   if ((!hidden) && (index != 8)) al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
+   if ((!hidden) && (index != 8)) al_draw_filled_rectangle(x1, y1, x2, y2, mC.pc[0]);
 
    // default window
    if ((index != 1) && (index != 2) && (index != 3) && (index != 4) && (index != 5) && (index != 6) && (index != 7) && (index != 8) && (index != 9))
    {
       // frame window
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[color], 1);
+      al_draw_rectangle(x1, y1, x2, y2, mC.pc[color], 1);
 
       // frame title bar
-      al_draw_rectangle(x1, y1, x2, y1+11, palette_color[color], 1);
+      al_draw_rectangle(x1, y1, x2, y1+11, mC.pc[color], 1);
 
       // title
-      al_draw_textf(mF.pr8, palette_color[color], x1+2, y1+2, 0, "title:%s", title);
+      al_draw_textf(mF.pr8, mC.pc[color], x1+2, y1+2, 0, "title:%s", title);
 
-      al_draw_textf(mF.pr8, palette_color[color], x1+2, y1+12, 0, "index:%d", index);
+      al_draw_textf(mF.pr8, mC.pc[color], x1+2, y1+12, 0, "index:%d", index);
 
-      al_draw_textf(mF.pr8, palette_color[color], x1+2, y1+22, 0, "layer:%d", layer);
-      al_draw_textf(mF.pr8, palette_color[color], x1+2, y1+30, 0, "focus:%d", have_focus);
+      al_draw_textf(mF.pr8, mC.pc[color], x1+2, y1+22, 0, "layer:%d", layer);
+      al_draw_textf(mF.pr8, mC.pc[color], x1+2, y1+30, 0, "focus:%d", have_focus);
 
-      al_draw_textf(mF.pr8, palette_color[color], x1+2, y1+38, 0, "x1:%d x2:%d w:%d", x1, x2, w);
-      al_draw_textf(mF.pr8, palette_color[color], x1+2, y1+46, 0, "y1:%d y2:%d h:%d", y1, y2, h);
+      al_draw_textf(mF.pr8, mC.pc[color], x1+2, y1+38, 0, "x1:%d x2:%d w:%d", x1, x2, w);
+      al_draw_textf(mF.pr8, mC.pc[color], x1+2, y1+46, 0, "y1:%d y2:%d h:%d", y1, y2, h);
 
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[10], 1);
+      al_draw_rectangle(x1, y1, x2, y2, mC.pc[10], 1);
 
       if (have_focus)
       {
          // frame entire window
-         al_draw_rectangle(x1, y1, x2, y2, palette_color[10], 1);
+         al_draw_rectangle(x1, y1, x2, y2, mC.pc[10], 1);
 
          // frame title bar
          if (moveable)
          {
-            if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y1+8))
-               al_draw_rectangle(x1, y1, x2, y1+11, palette_color[10], 1);
+            if ((mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y1+8))
+               al_draw_rectangle(x1, y1, x2, y1+11, mC.pc[10], 1);
          }
 
          // lower right corner
          if (resizable)
          {
-            if ((mouse_x > x2-10) && (mouse_x < x2) && (mouse_y > y2-10) && (mouse_y < y2)) // lower right corner for resize
-               al_draw_rectangle(x2-10, y2-10, x2, y2, palette_color[10], 1);
+            if ((mI.mouse_x > x2-10) && (mI.mouse_x < x2) && (mI.mouse_y > y2-10) && (mI.mouse_y < y2)) // lower right corner for resize
+               al_draw_rectangle(x2-10, y2-10, x2, y2, mC.pc[10], 1);
          }
       }
    }
@@ -276,7 +288,7 @@ void mwWindow::draw(int draw_only)
    {
       int fc = 15;
       if (have_focus) fc = 10;
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], 1); // frame entire window
+      al_draw_rectangle(x1, y1, x2, y2, mC.pc[fc], 1); // frame entire window
       y2 = 1 + cm_draw_filter_buttons(x1+1, x2-1, y1+1, filter_mode, d);
       h = y2 - y1;
    }
@@ -291,7 +303,7 @@ void mwWindow::draw(int draw_only)
 
       int fc = 13;
       if (have_focus) fc = 10;
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], 1); // frame entire window
+      al_draw_rectangle(x1, y1, x2, y2, mC.pc[fc], 1); // frame entire window
    }
    if (index == 5) // ge list
    {
@@ -311,7 +323,7 @@ void mwWindow::draw(int draw_only)
          titlex("Group Edit Controls", 15, 13, x1, x2, y1+1);
          int fc = 13;
          if (have_focus) fc = 10;
-         al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], 1); // frame entire window
+         al_draw_rectangle(x1, y1, x2, y2, mC.pc[fc], 1); // frame entire window
       }
    }
    if (index == 7) // object viewer
@@ -329,7 +341,7 @@ void mwWindow::draw(int draw_only)
       titlex("Tile Helper", 15, 13, x1, x2, y1+1);
       int fc = 13+64;
       if (have_focus) fc = 13;
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], 1); // frame entire window
+      al_draw_rectangle(x1, y1, x2, y2, mC.pc[fc], 1); // frame entire window
       th_draw_buttons(x1+1, x2-1, y1+60, d);
    }
 }

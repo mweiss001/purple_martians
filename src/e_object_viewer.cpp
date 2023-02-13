@@ -1,9 +1,28 @@
 // e_object_viewer.cpp
 #include "pm.h"
+#include "e_object_viewer.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
+#include "z_lift.h"
+#include "mwWidgets.h"
+#include "mwColor.h"
+#include "mwPMEvent.h"
+#include "mwInput.h"
+#include "mwDisplay.h"
+#include "mwEventQueue.h"
+#include "z_menu.h"
+#include "z_item.h"
+#include "z_enemy.h"
+#include "e_fnx.h"
+#include "z_screen.h"
+
+
+#define MAP_LOCK_KEY ALLEGRO_KEY_Z
+
+
+
 
 int create_obj(int obt, int type, int num)
 {
@@ -149,7 +168,7 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
    if (obt == 2) type = item[num][0];
    if (obt == 3) type = Ei[num][0];
 
-//   al_draw_rectangle(x1-1, y1-1, x2+1, y2+1, palette_color[10], 1);  // outline entire window
+//   al_draw_rectangle(x1-1, y1-1, x2+1, y2+1, mC.pc[10], 1);  // outline entire window
 
    int xc = (x1+x2)/2;
    int yt = y1+14;
@@ -170,7 +189,7 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
    legend_color[4] = 0;   // unused
    legend_color[5] = 0;   // unused
 
-   legend_highlight == 1 ? legend_color[1] = flash_color : legend_color[1] = 13;
+   legend_highlight == 1 ? legend_color[1] = mC.flash_color : legend_color[1] = 13;
 
 
    // title bar
@@ -180,28 +199,28 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
    if (obt == 4) sprintf(msg, "Lift Viewer [%d]", num);
 
    for (int x=0; x<15; x++)
-      al_draw_line(x1, y1+x, x2, y1+x, palette_color[13+(x*16)], 1);
-   al_draw_text(mF.pr8, palette_color[15], xc, y1+2, ALLEGRO_ALIGN_CENTER,  msg);
+      al_draw_line(x1, y1+x, x2, y1+x, mC.pc[13+(x*16)], 1);
+   al_draw_text(mF.pr8, mC.pc[15], xc, y1+2, ALLEGRO_ALIGN_CENTER,  msg);
 
 
    if (obt == 4)  // lifts
    {
       mwWM.mW[7].num_legend_lines = 0;
-      al_draw_rectangle(xc-94, yt, xc+94, yt+22, palette_color[15], 1);
-      al_draw_textf(mF.pr8, palette_color[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",num+1, num_lifts);
+      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mC.pc[15], 1);
+      al_draw_textf(mF.pr8, mC.pc[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",num+1, num_lifts);
    }
    if (obt == 3)  // enemies
    {
-      al_draw_rectangle(xc-94, yt, xc+94, yt+22, palette_color[15], 1);
+      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mC.pc[15], 1);
       draw_enemy(num, 1, xc-92, yt+1);
       sprintf(msg,"%s %d of %d", (const char *)enemy_name[type][0],1+num - e_first_num[type],e_num_of_type[type]);
-      al_draw_text(mF.pr8, palette_color[13], xc-69, yt+8, 0, msg);
+      al_draw_text(mF.pr8, mC.pc[13], xc-69, yt+8, 0, msg);
       switch (type)
       {
          case 3: // archwagon
             sprintf(lmsg[1],"ArchWagon Location");
             sprintf(lmsg[2],"Bullet Proximity");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
          break;
          case 4:
             mwWM.mW[7].num_legend_lines = 2;
@@ -214,20 +233,20 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
          case 6: // cannon
             sprintf(lmsg[1],"Cannon Location");
             sprintf(lmsg[2],"Bullet Proximity");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
          break;
          case 7: // podzilla
             mwWM.mW[7].num_legend_lines = 4;
             sprintf(lmsg[1],"Podzilla Location");
             sprintf(lmsg[2],"Extended Postion");
             sprintf(lmsg[3],"Trigger Box");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
-            legend_highlight == 3 ? legend_color[3] = flash_color : legend_color[3] = 14;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
+            legend_highlight == 3 ? legend_color[3] = mC.flash_color : legend_color[3] = 14;
          break;
          case 8: // trakbot
             sprintf(lmsg[1],"TrakBot Location");
             sprintf(lmsg[2],"Bullet Proximity");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
          break;
          case 9: // cloner
             mwWM.mW[7].num_legend_lines = 5;
@@ -235,9 +254,9 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             sprintf(lmsg[2],"Source Area");
             sprintf(lmsg[3],"Destination Area");
             sprintf(lmsg[4],"Trigger Box");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 11;
-            legend_highlight == 3 ? legend_color[3] = flash_color : legend_color[3] = 10;
-            legend_highlight == 4 ? legend_color[4] = flash_color : legend_color[4] = 14;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 11;
+            legend_highlight == 3 ? legend_color[3] = mC.flash_color : legend_color[3] = 10;
+            legend_highlight == 4 ? legend_color[4] = mC.flash_color : legend_color[4] = 14;
          break;
          case 11:
             mwWM.mW[7].num_legend_lines = 2;
@@ -248,8 +267,8 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             sprintf(lmsg[1],"Flapper Location");
             sprintf(lmsg[2],"Bullet Proximity");
             sprintf(lmsg[3],"Height Above Player");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
-            legend_highlight == 3 ? legend_color[3] = flash_color : legend_color[3] = 10;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
+            legend_highlight == 3 ? legend_color[3] = mC.flash_color : legend_color[3] = 10;
          break;
 
          case 13: // vinepod
@@ -259,10 +278,10 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             sprintf(lmsg[3],"Control Point 1");
             sprintf(lmsg[4],"Control Point 2");
             sprintf(lmsg[5],"Trigger Box");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
-            legend_highlight == 3 ? legend_color[3] = flash_color : legend_color[3] = 6;
-            legend_highlight == 4 ? legend_color[4] = flash_color : legend_color[4] = 7;
-            legend_highlight == 5 ? legend_color[5] = flash_color : legend_color[5] = 14;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
+            legend_highlight == 3 ? legend_color[3] = mC.flash_color : legend_color[3] = 6;
+            legend_highlight == 4 ? legend_color[4] = mC.flash_color : legend_color[4] = 7;
+            legend_highlight == 5 ? legend_color[5] = mC.flash_color : legend_color[5] = 14;
          break;
 
 
@@ -271,15 +290,15 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
    }
    if (obt == 2)  // items
    {
-      al_draw_rectangle(xc-94, yt, xc+94, yt+22, palette_color[15], 1);
+      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mC.pc[15], 1);
       draw_item(num, 1, xc-94, yt+1);
       sprintf(msg,"%s %d of %d", item_name[type], 1+num - item_first_num[type],item_num_of_type[type]);
-      al_draw_text(mF.pr8, palette_color[13], xc-69, yt+8, 0, msg);
+      al_draw_text(mF.pr8, mC.pc[13], xc-69, yt+8, 0, msg);
       switch (type)
       {
          case 1: // door
          {
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
             if (item[num][8] == 0)  // exit only, no destination
             {
                // find src door(s)
@@ -313,7 +332,7 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
          case 4: // key
             sprintf(lmsg[1],"Key Location");
             sprintf(lmsg[2],"Block Range");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
          break;
          case 5:
              mwWM.mW[7].num_legend_lines = 2;
@@ -330,29 +349,29 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
          case 8:
             sprintf(lmsg[1],"Bomb Location");
             sprintf(lmsg[2],"Damage Range");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
          break;
          case 9: // trigger
             sprintf(lmsg[1],"Trigger Item Location");
             sprintf(lmsg[2],"Trigger Field");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
          break;
          case 10:
             mwWM.mW[7].num_legend_lines = 3;
             sprintf(lmsg[1],"Scroll Location");
             sprintf(lmsg[2],"Message Area");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
             if (item[num][2] & PM_ITEM_PMSG_TRIGGER_BOX)
             {
                mwWM.mW[7].num_legend_lines = 4;
                sprintf(lmsg[3],"Trigger Area");
-               legend_highlight == 3 ? legend_color[3] = flash_color : legend_color[3] = 14;
+               legend_highlight == 3 ? legend_color[3] = mC.flash_color : legend_color[3] = 14;
             }
          break;
          case 11:
             sprintf(lmsg[1],"Rocket Location");
             sprintf(lmsg[2],"Damage Range");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
          break;
          case 12:
              mwWM.mW[7].num_legend_lines = 2;
@@ -361,37 +380,37 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
          case 14: // switch
             sprintf(lmsg[1],"Switch Location");
             sprintf(lmsg[2],"Block Range");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
          break;
          case 15:
             sprintf(lmsg[1],"Sproingy Location");
             sprintf(lmsg[2],"Jump Height");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
          break;
          case 16: // block manip
             sprintf(lmsg[1],"Block Manip Item Location");
             sprintf(lmsg[2],"Manip Field");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 12;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 12;
          break;
          case 17: // block damage
             sprintf(lmsg[1],"Item Location");
             sprintf(lmsg[2],"Damage Area");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
+            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
          break;
       } // end of switch case
    }  // end of items
 
-   al_draw_rectangle(x1, y1, x2, y2, palette_color[13], 1);  // outline entire window
+   al_draw_rectangle(x1, y1, x2, y2, mC.pc[13], 1);  // outline entire window
 
    if (mwWM.mW[7].num_legend_lines > 0)
    {
-      al_draw_text(mF.pr8, palette_color[legend_color[0]], xc, y2-36+ (4-mwWM.mW[7].num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
-      al_draw_rectangle(xc-100, y2-38+ (4-mwWM.mW[7].num_legend_lines)*8, xc+100, y2-1, palette_color[13], 1); // big frame
-      al_draw_rectangle(xc-100, y2-38+ (4-mwWM.mW[7].num_legend_lines)*8, xc+100, y2-28+ (4-mwWM.mW[7].num_legend_lines)*8, palette_color[13], 1); // top frame
+      al_draw_text(mF.pr8, mC.pc[legend_color[0]], xc, y2-36+ (4-mwWM.mW[7].num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
+      al_draw_rectangle(xc-100, y2-38+ (4-mwWM.mW[7].num_legend_lines)*8, xc+100, y2-1, mC.pc[13], 1); // big frame
+      al_draw_rectangle(xc-100, y2-38+ (4-mwWM.mW[7].num_legend_lines)*8, xc+100, y2-28+ (4-mwWM.mW[7].num_legend_lines)*8, mC.pc[13], 1); // top frame
    }
 
    for (int x=1; x<mwWM.mW[7].num_legend_lines; x++)// draw text lines
-      al_draw_text(mF.pr8, palette_color[legend_color[x]], xc, y2-26+(3-mwWM.mW[7].num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
+      al_draw_text(mF.pr8, mC.pc[legend_color[x]], xc, y2-26+(3-mwWM.mW[7].num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
 }
 void ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 {
@@ -468,19 +487,19 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
       // process mouse on list of step buttons
       int step_pointer = -99;
-      if ((mouse_x > xa + 10) && (mouse_x < xb - 10)) // is mouse on step buttons?
+      if ((mI.mouse_x > xa + 10) && (mI.mouse_x < xb - 10)) // is mouse on step buttons?
       {
          int step0_y_offset = ysb + 14 + bts;
-         int mouse_step = (mouse_y - step0_y_offset) / bts;               // calculate step that mouse is on
+         int mouse_step = (mI.mouse_y - step0_y_offset) / bts;               // calculate step that mouse is on
          if ((mouse_step >= 0) && (mouse_step < lifts[lift].num_steps))   // is this a valid step?
          {
             step_pointer = mouse_step;  // set step pointer to this step
-            if (mouse_b[1][0])
+            if (mI.mouse_b[1][0])
             {
                step = mouse_step; // set current step to this step
                lifts[lift].current_step = step; // set current step in lift
             }
-            if (mouse_b[2][0]) step_popup_menu(lift, step_pointer); // step pop-up menu for this step
+            if (mI.mouse_b[2][0]) step_popup_menu(lift, step_pointer); // step pop-up menu for this step
          }
       }
 
@@ -1002,12 +1021,12 @@ void ov_draw_overlays(int legend_highlight)
       int xc = (x1 + x2) / 2;
       int yc = (y1 + y2) / 2;
 
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[color], 1);
+      al_draw_rectangle(x1, y1, x2, y2, mC.pc[color], 1);
 
-      al_draw_line(xc, 0, xc, y1, palette_color[color], 1);
-      al_draw_line(xc, y2, xc, 2000, palette_color[color], 1);
-      al_draw_line(0, yc, x1, yc, palette_color[color], 1);
-      al_draw_line(x2, yc, 2000, yc, palette_color[color], 1);
+      al_draw_line(xc, 0, xc, y1, mC.pc[color], 1);
+      al_draw_line(xc, y2, xc, 2000, mC.pc[color], 1);
+      al_draw_line(0, yc, x1, yc, mC.pc[color], 1);
+      al_draw_line(x2, yc, 2000, yc, mC.pc[color], 1);
    }
    if (obt == 3)  // enemies
    {
@@ -1016,21 +1035,21 @@ void ov_draw_overlays(int legend_highlight)
       int obj_y = al_fixtoi(Efi[num][1])+10;
 
       int color = 13;
-      if (legend_highlight == 1) color = flash_color;
+      if (legend_highlight == 1) color = mC.flash_color;
       crosshairs_full(obj_x, obj_y, color, 1);
 
       if ((type == 3) || (type == 6) || (type == 8) || (type == 12)) // archwagon, cannon, trakbot, flapper
       {
          // draw yellow bullet prox circle
          int color = 14;
-         if (legend_highlight == 2) color = flash_color;
-         al_draw_circle(obj_x, obj_y, Ei[num][17], palette_color[color], 1);
+         if (legend_highlight == 2) color = mC.flash_color;
+         al_draw_circle(obj_x, obj_y, Ei[num][17], mC.pc[color], 1);
       }
       if (type == 7) // podzilla
       {
          // extended position
          int color1 = 10;
-         if (legend_highlight == 2) color1 = flash_color;
+         if (legend_highlight == 2) color1 = mC.flash_color;
 
          int px=0, py=0;
          get_pod_extended_position(num, &px, &py);
@@ -1041,16 +1060,16 @@ void ov_draw_overlays(int legend_highlight)
          al_draw_scaled_rotated_bitmap(mwB.tile[Ei[num][1]], 10, 10, px+10, py+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
 
          // draw connecting line
-         al_draw_line(obj_x, obj_y, px+10, py+10, palette_color[10], 1);
+         al_draw_line(obj_x, obj_y, px+10, py+10, mC.pc[10], 1);
 
          // trigger box
          int color = 14;
-         if (legend_highlight == 3) color = flash_color;
+         if (legend_highlight == 3) color = mC.flash_color;
          int tx1 = Ei[num][11];
          int ty1 = Ei[num][12];
          int tx2 = Ei[num][11]+Ei[num][13] + 20;
          int ty2 = Ei[num][12]+Ei[num][14] + 20;
-         al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color], 1);
+         al_draw_rectangle(tx1, ty1, tx2, ty2, mC.pc[color], 1);
       }
 
       if (type == 13) // vinepod
@@ -1063,13 +1082,13 @@ void ov_draw_overlays(int legend_highlight)
       if (type == 9) // cloner
       {
          int color2 = 11;
-         if (legend_highlight == 2) color2 = flash_color;
+         if (legend_highlight == 2) color2 = mC.flash_color;
 
          int color3 = 10;
-         if (legend_highlight == 3) color3 = flash_color;
+         if (legend_highlight == 3) color3 = mC.flash_color;
 
          int color4 = 14;
-         if (legend_highlight == 4) color4 = flash_color;
+         if (legend_highlight == 4) color4 = mC.flash_color;
 
          int cw = Ei[num][19];     // width
          int ch = Ei[num][20];     // height
@@ -1078,34 +1097,34 @@ void ov_draw_overlays(int legend_highlight)
          int cy1 = Ei[num][16];
          int cx2 = cx1 + cw;
          int cy2 = cy1 + ch;
-         al_draw_rectangle(cx1, cy1, cx2, cy2, palette_color[color2], 1);
+         al_draw_rectangle(cx1, cy1, cx2, cy2, mC.pc[color2], 1);
 
          int cx3 = Ei[num][17];    // destination
          int cy3 = Ei[num][18];
          int cx4 = cx3 + cw;
          int cy4 = cy3 + ch;
-         al_draw_rectangle(cx3, cy3, cx4, cy4, palette_color[color3], 1);
+         al_draw_rectangle(cx3, cy3, cx4, cy4, mC.pc[color3], 1);
 
          // draw trigger box
          int tx1 = Ei[num][11];
          int ty1 = Ei[num][12];
          int tx2 = Ei[num][11]+Ei[num][13] + 20;
          int ty2 = Ei[num][12]+Ei[num][14] + 20;
-         al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color4], 1);
+         al_draw_rectangle(tx1, ty1, tx2, ty2, mC.pc[color4], 1);
       }
       if (type == 12) // flapper
       {
          int color = 10;
-         if (legend_highlight == 3) color = flash_color;
+         if (legend_highlight == 3) color = mC.flash_color;
 
          // draw red height above player line
          int hab = Ei[num][20];
-         al_draw_line(obj_x-40, obj_y+hab, obj_x+40, obj_y+hab, palette_color[color], 3);
+         al_draw_line(obj_x-40, obj_y+hab, obj_x+40, obj_y+hab, mC.pc[color], 3);
 
          // draw flap height
          int fh = Ei[num][21];
-         al_draw_line(obj_x-60, obj_y+fh, obj_x+60, obj_y+fh, palette_color[12], 1);
-         al_draw_line(obj_x-60, obj_y-fh, obj_x+60, obj_y-fh, palette_color[12], 1);
+         al_draw_line(obj_x-60, obj_y+fh, obj_x+60, obj_y+fh, mC.pc[12], 1);
+         al_draw_line(obj_x-60, obj_y-fh, obj_x+60, obj_y-fh, mC.pc[12], 1);
       }
    }
    if (obt == 2)  // items
@@ -1114,14 +1133,14 @@ void ov_draw_overlays(int legend_highlight)
       int obj_x = item[num][4]+10;
       int obj_y = item[num][5]+10;
       int color = 13;
-      if (legend_highlight == 1) color = flash_color;
+      if (legend_highlight == 1) color = mC.flash_color;
       crosshairs_full(obj_x, obj_y, color, 1);
       switch (type)
       {
          case 1: // door
          {
             int color = 10;
-            if (legend_highlight == 2) color = flash_color;
+            if (legend_highlight == 2) color = mC.flash_color;
             if (item[num][8] == 0)  // exit only, no destination
             {
                // find src door(s)
@@ -1133,7 +1152,7 @@ void ov_draw_overlays(int legend_highlight)
                      int x2 = item[i][4]+10;
                      int y2 = item[i][5]+10;
                      crosshairs_full(x2, y2, color, 1);
-                     al_draw_line(obj_x, obj_y, x2, y2, palette_color[color], 1);
+                     al_draw_line(obj_x, obj_y, x2, y2, mC.pc[color], 1);
                   }
             }
 
@@ -1144,14 +1163,14 @@ void ov_draw_overlays(int legend_highlight)
                int x2 = item[di][4]+10;
                int y2 = item[di][5]+10;
                crosshairs_full(x2, y2, color, 1);
-               al_draw_line(obj_x, obj_y, x2, y2, palette_color[color], 1);
+               al_draw_line(obj_x, obj_y, x2, y2, mC.pc[color], 1);
             }
          }
          break;
          case 4: // key
          {
             int color = 10;
-            if (legend_highlight == 2) color = flash_color;
+            if (legend_highlight == 2) color = mC.flash_color;
             int x2 = item[num][6];
             int y2 = item[num][7];
             int x3 = x2 + item[num][8] - 1;
@@ -1163,9 +1182,9 @@ void ov_draw_overlays(int legend_highlight)
             if (y2 == 0) y2 = 1;
 
             // draw range
-            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+            al_draw_line(0, y4, 1999, y4, mC.pc[color], 1);
+            al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
 
             // show blocks that will be affected
             proc_key_block_range(num, 2);
@@ -1174,7 +1193,7 @@ void ov_draw_overlays(int legend_highlight)
          case 14: // switch
          {
             int color = 10;
-            if (legend_highlight == 2) color = flash_color;
+            if (legend_highlight == 2) color = mC.flash_color;
             int x2 = item[num][6];
             int y2 = item[num][7];
             int x3 = x2 + item[num][8] - 1;
@@ -1186,9 +1205,9 @@ void ov_draw_overlays(int legend_highlight)
             if (y2 == 0) y2 = 1;
 
             // draw range
-            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+            al_draw_line(0, y4, 1999, y4, mC.pc[color], 1);
+            al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
 
             // show blocks that will be affected
             proc_switch_block_range(num, 2);
@@ -1197,14 +1216,14 @@ void ov_draw_overlays(int legend_highlight)
          case 8: // bomb
          {
             int color = 14;
-            if (legend_highlight == 2) color = flash_color;
-            al_draw_circle(obj_x, obj_y, item[num][7], palette_color[color], 1); // draw yellow bomb damage
+            if (legend_highlight == 2) color = mC.flash_color;
+            al_draw_circle(obj_x, obj_y, item[num][7], mC.pc[color], 1); // draw yellow bomb damage
          }
          break;
          case 9: // trigger
          {
             int color = 14;
-            if (legend_highlight == 2) color = flash_color;
+            if (legend_highlight == 2) color = mC.flash_color;
 
             int x2 = item[num][6];
             int y2 = item[num][7];
@@ -1214,17 +1233,17 @@ void ov_draw_overlays(int legend_highlight)
             int y4 = (y2+y3)/2;
 
             // draw range
-            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+            al_draw_line(0, y4, 1999, y4, mC.pc[color], 1);
+            al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
 
-            find_and_show_event_links(1, num, 0);
+            mwPME.find_and_show_event_links(1, num, 0);
          }
          break;
          case 10: // pmsg
          {
             int color = 10;
-            if (legend_highlight == 2) color = flash_color;
+            if (legend_highlight == 2) color = mC.flash_color;
 
             int mx=0, my=0, mw=0, mh=0;
             get_int_3216(item[num][10], mx, my);
@@ -1236,17 +1255,17 @@ void ov_draw_overlays(int legend_highlight)
             int x4 = (x2+x3)/2;
             int y4 = (y2+y3)/2;
 
-            al_draw_textf(mF.pr8, palette_color[15], x4, y2-10, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d", mx, my);
-            al_draw_textf(mF.pr8, palette_color[15], x4, y3+2,  ALLEGRO_ALIGN_CENTRE, "w:%d h:%d", mw, mh);
+            al_draw_textf(mF.pr8, mC.pc[15], x4, y2-10, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d", mx, my);
+            al_draw_textf(mF.pr8, mC.pc[15], x4, y3+2,  ALLEGRO_ALIGN_CENTRE, "w:%d h:%d", mw, mh);
 
-            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+            al_draw_line(0, y4, 1999, y4, mC.pc[color], 1);
+            al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
 
             if (item[num][2] & PM_ITEM_PMSG_TRIGGER_BOX)
             {
                int color = 14;
-               if (legend_highlight == 3) color = flash_color;
+               if (legend_highlight == 3) color = mC.flash_color;
 
                int x2 = item[num][6];
                int y2 = item[num][7];
@@ -1255,23 +1274,23 @@ void ov_draw_overlays(int legend_highlight)
                int x4 = (x2+x3)/2;
                int y4 = (y2+y3)/2;
 
-               al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-               al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-               al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+               al_draw_line(0, y4, 1999, y4, mC.pc[color], 1);
+               al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
+               al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
             }
          }
          break;
          case 11: // rocket
          {
             int color = 14;
-            if (legend_highlight == 2) color = flash_color;
-            al_draw_circle(obj_x, obj_y, item[num][7], palette_color[color], 1); // draw yellow bomb damage
+            if (legend_highlight == 2) color = mC.flash_color;
+            al_draw_circle(obj_x, obj_y, item[num][7], mC.pc[color], 1); // draw yellow bomb damage
          }
          break;
          case 15: // sproingy
          {
             int color = 14;
-            if (legend_highlight == 2) color = flash_color;
+            if (legend_highlight == 2) color = mC.flash_color;
             int y = al_fixtoi(get_sproingy_jump_height(num));
             crosshairs_full(obj_x, obj_y-y, color, 1);
          }
@@ -1279,7 +1298,7 @@ void ov_draw_overlays(int legend_highlight)
          case 16: // block manip
          {
             int color = 12;
-            if (legend_highlight == 2) color = flash_color;
+            if (legend_highlight == 2) color = mC.flash_color;
             int x2 = item[num][6];
             int y2 = item[num][7];
             int x3 = x2 + item[num][8]-1;
@@ -1288,18 +1307,18 @@ void ov_draw_overlays(int legend_highlight)
             int y4 = (y2+y3)/2;
 
             // draw range
-            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+            al_draw_line(0, y4, 1999, y4, mC.pc[color], 1);
+            al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
 
-            find_and_show_event_links(2, num, 0);
+            mwPME.find_and_show_event_links(2, num, 0);
 
          }
          break;
          case 17: // block damage
          {
             int color = 10;
-            if (legend_highlight == 2) color = flash_color;
+            if (legend_highlight == 2) color = mC.flash_color;
             int x2 = item[num][6];
             int y2 = item[num][7];
             int x3 = x2 + item[num][8]-1;
@@ -1308,11 +1327,11 @@ void ov_draw_overlays(int legend_highlight)
             int y4 = (y2+y3)/2;
 
             // draw range
-            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+            al_draw_line(0, y4, 1999, y4, mC.pc[color], 1);
+            al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
 
-            find_and_show_event_links(2, num, 0);
+            mwPME.find_and_show_event_links(2, num, 0);
          }
          break;
 
@@ -1376,7 +1395,7 @@ void ov_process_mouse(void)
          int type = Ei[b][0];
 
          // check to see if we can set this object to be the current object
-         if ((mwWM.hx>ex+msn) && (mwWM.hx<ex+msp) && (mwWM.hy>ey+msn) && (mwWM.hy<ey+msp) && (!mwWM.mW[7].viewer_lock) && (!key[MAP_LOCK_KEY][0]) && (mwWM.obj_filter[3][type]))
+         if ((mwWM.hx>ex+msn) && (mwWM.hx<ex+msp) && (mwWM.hy>ey+msn) && (mwWM.hy<ey+msp) && (!mwWM.mW[7].viewer_lock) && (!mI.key[MAP_LOCK_KEY][0]) && (mwWM.obj_filter[3][type]))
          {
             // set this enemy to current object
             mwWM.mW[7].obt = 3;
@@ -1510,7 +1529,7 @@ void ov_process_mouse(void)
          int iy = item[b][5];
          int type = item[b][0];
          // check to see if we can set this object to be the current object
-         if ((mwWM.hx>ix+msn) && (mwWM.hx<ix+msp) && (mwWM.hy>iy+msn) && (mwWM.hy<iy+msp) && (!mwWM.mW[7].viewer_lock) && (!key[MAP_LOCK_KEY][0]) && (mwWM.obj_filter[2][type]))
+         if ((mwWM.hx>ix+msn) && (mwWM.hx<ix+msp) && (mwWM.hy>iy+msn) && (mwWM.hy<iy+msp) && (!mwWM.mW[7].viewer_lock) && (!mI.key[MAP_LOCK_KEY][0]) && (mwWM.obj_filter[2][type]))
          {
             // set this item to current object
             mwWM.mW[7].obt = 2;
@@ -1612,7 +1631,7 @@ void ov_process_mouse(void)
    mouse_on_lift = 0;
    if (mwWM.obj_filter[4][1])
    {
-      if ((!key[MAP_LOCK_KEY][0]) && (!mwWM.mW[7].viewer_lock)) // no lock...check all lifts and steps
+      if ((!mI.key[MAP_LOCK_KEY][0]) && (!mwWM.mW[7].viewer_lock)) // no lock...check all lifts and steps
       {
          for (int x=0; x<num_lifts; x++)  // cycle lifts
             for (int y=0; y<lifts[x].num_steps; y++)  // cycle steps
@@ -1634,7 +1653,7 @@ void ov_process_mouse(void)
                }
       }
 
-      if (((key[MAP_LOCK_KEY][0]) || (mwWM.mW[7].viewer_lock)) && (mwWM.mW[7].obt == 4)) // locked, but locked to current lift
+      if (((mI.key[MAP_LOCK_KEY][0]) || (mwWM.mW[7].viewer_lock)) && (mwWM.mW[7].obt == 4)) // locked, but locked to current lift
       {
          int x = lift; // check only current lift
          for (int y=0; y<lifts[x].num_steps; y++)  // cycle steps
@@ -1656,7 +1675,7 @@ void ov_process_mouse(void)
    if (mouse_on_lift)
    {
       mouse_on_obj = 1;
-      if (mouse_b[2][0]) step_popup_menu(lift, step);
+      if (mI.mouse_b[2][0]) step_popup_menu(lift, step);
 
       // is mouse on lower right adjustable corner
       int x2 = lift_steps[lift][step].x + lift_steps[lift][step].w;
@@ -1674,7 +1693,7 @@ void ov_process_mouse(void)
    else if (mouse_adj) al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE);
    else al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 
-   if (mouse_b[1][0])
+   if (mI.mouse_b[1][0])
    {
       // get offset from where mouse was clicked to lift step upper left origin
       int lsox=0, lsoy=0;
@@ -1687,7 +1706,7 @@ void ov_process_mouse(void)
       }
 
 
-      while (mouse_b[1][0])
+      while (mI.mouse_b[1][0])
       {
          if (mouse_on_obj)
          {
@@ -1706,7 +1725,7 @@ void ov_process_mouse(void)
                itemf[n][0] = al_itofix(mwWM.gx*20);
                itemf[n][1] = al_itofix(mwWM.gy*20);
 
-               if (SHFT()) // move stuff also
+               if (mI.SHFT()) // move stuff also
                {
                    if ((it == 4) || (it == 9) || (it == 10) || (it == 14) || (it == 16) || (it == 17)) // key, trigger, msg, switch, manip, damage
                    {
@@ -1733,7 +1752,7 @@ void ov_process_mouse(void)
                Efi[mwWM.mW[7].num][0] = al_itofix(mwWM.gx*20);
                Efi[mwWM.mW[7].num][1] = al_itofix(mwWM.gy*20);
 
-               if (SHFT()) // move stuff also
+               if (mI.SHFT()) // move stuff also
                {
                   // move podzilla's trigger box too
                   if (Ei[mwWM.mW[7].num][0] == 7)
@@ -1929,12 +1948,12 @@ void ov_process_mouse(void)
             Ei[mwWM.mW[7].num][18] = mwWM.gy*20;
          }
          mwWM.redraw_level_editor_background();
-      } // end of while mouse_b[1][0] pressed
-   } // end of if mouse_b[1][0] pressed
+      } // end of while mI.mouse_b[1][0] pressed
+   } // end of if mI.mouse_b[1][0] pressed
 
-   if (mouse_b[2][0])
+   if (mI.mouse_b[2][0])
    {
-      while (mouse_b[2][0]) proc_event_queue();
+      while (mI.mouse_b[2][0]) mwEQ.proc_event_queue();
       mwWM.set_windows(1);
    }
 }
@@ -1987,9 +2006,9 @@ void ov_process_keypress(void)
       lifts[mwWM.mW[7].num].current_step = step;
    }
 
-   while (key[ALLEGRO_KEY_DELETE][0]) { proc_event_queue(); mb = 20; }
-   while (key[ALLEGRO_KEY_RIGHT][0])  { proc_event_queue(); mb = 21; }
-   while (key[ALLEGRO_KEY_LEFT][0])   { proc_event_queue(); mb = 22; }
+   while (mI.key[ALLEGRO_KEY_DELETE][0]) { mwEQ.proc_event_queue(); mb = 20; }
+   while (mI.key[ALLEGRO_KEY_RIGHT][0])  { mwEQ.proc_event_queue(); mb = 21; }
+   while (mI.key[ALLEGRO_KEY_LEFT][0])   { mwEQ.proc_event_queue(); mb = 22; }
 
    switch(mb)
    {
@@ -2007,7 +2026,7 @@ void ov_process_keypress(void)
          }
          if (mwWM.mW[7].obt==4)
          {
-            while (!key[ALLEGRO_KEY_ESCAPE][0])
+            while (!mI.key[ALLEGRO_KEY_ESCAPE][0])
             {
                if (mwWM.redraw_level_editor_background())
                {
@@ -2017,7 +2036,7 @@ void ov_process_keypress(void)
                   mwWM.cycle_windows(1); // draw only
                }
             }
-            while (key[ALLEGRO_KEY_ESCAPE][0]) proc_event_queue(); // wait for release
+            while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue(); // wait for release
             lift_setup(); // reset all lifts to step 0
          }
       }

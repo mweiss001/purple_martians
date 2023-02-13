@@ -6,9 +6,17 @@
 #include "n_packet.h"
 #include "mwTally.h"
 #include "mwTimeStamp.h"
+#include "n_network.h"
+#include "n_client.h"
+#include "n_server.h"
+#include "mwGameMovesArray.h"
+#include "mwProgramState.h"
+#include "z_menu.h"
+#include "z_level.h"
+#include "z_fnx.h"
+#include "z_loop.h"
 
-// n_network.h
-extern int NetworkDriver;
+
 
 // these are never referenced outside of this file
 #define MAX_CLIENTS 32
@@ -295,7 +303,7 @@ int server_init(void)
       add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       printf("\n%s\n", msg);
 
-      sprintf(msg, "Server hostname:    [%s]", local_hostname);
+      sprintf(msg, "Server hostname:    [%s]", mwPS.local_hostname);
       add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       printf("%s\n", msg);
 
@@ -347,9 +355,9 @@ void server_rewind(void)
 {
    int s1 = players1[0].server_state_freq;
 
-   if (frame_num >= srv_client_state_frame_num[0][1] + s1)    // is it time to create a new state?
+   if (mwPS.frame_num >= srv_client_state_frame_num[0][1] + s1)    // is it time to create a new state?
    {
-      int ff = frame_num - srv_client_state_frame_num[0][1];  // almost always equals s1, unless s1 has changed
+      int ff = mwPS.frame_num - srv_client_state_frame_num[0][1];  // almost always equals s1, unless s1 has changed
 
       // rewind and fast forward from last state to apply late client input
 
@@ -363,7 +371,7 @@ void server_rewind(void)
       if (LOG_TMR_rwnd) t0 = al_get_time();
 
       state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
-      frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
+      mwPS.frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
 
       loop_frame(ff);
 
@@ -381,11 +389,11 @@ void server_create_new_state(void)
 
       // save state as a base for next rewind
       game_vars_to_state(srv_client_state[0][1]);
-      srv_client_state_frame_num[0][1] = frame_num+1;
+      srv_client_state_frame_num[0][1] = mwPS.frame_num+1;
 
       if (LOG_NET_stdf)
       {
-         sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+         sprintf(msg, "stdf saved server state[1]:%d\n", mwPS.frame_num);
          //printf(msg);
          add_log_entry2(27, 0, msg);
       }
@@ -408,8 +416,8 @@ void server_send_dif(int p) // send dif to a specific client
    // put current state in client's state slot 1
    game_vars_to_state(srv_client_state[p][1]);
 
-   // put current frame_num
-   srv_client_state_frame_num[p][1] = frame_num;
+   // put current mwPS.frame_num
+   srv_client_state_frame_num[p][1] = mwPS.frame_num;
 
    // make a new dif from base and current
    get_state_dif(srv_client_state[p][0], srv_client_state[p][1], dif, STATE_SIZE);
@@ -446,8 +454,8 @@ void server_send_dif(int p) // send dif to a specific client
       }
 
       Packet("stdf");
-      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
-      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src mwPS.frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst mwPS.frame_num
       PacketPut1ByteInt(packet_num);
       PacketPut1ByteInt(num_packets);
       PacketPut4ByteInt(start_byte);
@@ -471,10 +479,10 @@ void server_proc_player_drop(void)
       {
 
 
-         if (players1[p].server_last_stak_rx_frame_num + 100 < frame_num)
+         if (players1[p].server_last_stak_rx_frame_num + 100 < mwPS.frame_num)
          {
-            //printf("[%4d][%4d] drop p:%d \n", frame_num, players1[p].server_last_stak_rx_frame_num, p);
-            add_game_move(frame_num + 4, 2, p, 71); // make client inactive (reason no stak for 100 frames)
+            //printf("[%4d][%4d] drop p:%d \n", mwPS.frame_num, players1[p].server_last_stak_rx_frame_num, p);
+            mwGMA.add_game_move(mwPS.frame_num + 4, 2, p, 71); // make client inactive (reason no stak for 100 frames)
 
             sprintf(msg,"Server dropped player:%d (last stak rx > 100)", p);
             if (LOG_NET) add_log_entry_header(10, p, msg, 1);
@@ -482,13 +490,13 @@ void server_proc_player_drop(void)
       }
 
    // check to see if we are approaching limit of game_moves array and do something if we are
-   if (game_move_entry_pos > (GAME_MOVES_SIZE - 100))
+   if (mwGMA.game_move_entry_pos > (GAME_MOVES_SIZE - 100))
    {
       sprintf(msg,"Server Approaching %d Game Moves! - Shutting Down", GAME_MOVES_SIZE);
       if (LOG_NET) add_log_entry_header(10, 0, msg, 0);
 
       // insert state inactive special move
-      add_game_move2(frame_num + 8, 2, 0, 64); // type 2 - player inactive
+      mwGMA.add_game_move2(mwPS.frame_num + 8, 2, 0, 64); // type 2 - player inactive
    }
 }
 
@@ -502,7 +510,7 @@ void server_proc_cdat_packet(double timestamp)
    players1[p].client_cdat_packets_tx++;
 
    // calculate game_move_sync
-   players1[p].server_game_move_sync = cdat_frame_num - frame_num;
+   players1[p].server_game_move_sync = cdat_frame_num - mwPS.frame_num;
 
    // calculate game_move_dsync
    players1[p].game_move_dsync = ( (double) players1[p].server_game_move_sync * 0.025) + mwTS.timestamp_frame_start - timestamp;
@@ -519,8 +527,8 @@ void server_proc_cdat_packet(double timestamp)
    }
    else
    {
-      add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
-      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, players1[p].server_game_move_sync, game_move_entry_pos);
+      mwGMA.add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
+      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, players1[p].server_game_move_sync, mwGMA.game_move_entry_pos);
    }
    if (LOG_NET_cdat) add_log_entry2(35, p, msg);
 }
@@ -534,7 +542,7 @@ void server_lock_client(int p)
    }
    if (players1[p].sync_stabilization_holdoff > 20) // we have been stable for over 20 frames
    {
-      add_game_move(frame_num + 4, 1, p, players[p].color);
+      mwGMA.add_game_move(mwPS.frame_num + 4, 1, p, players[p].color);
       players1[p].sync_stabilization_holdoff = 0;
 
       sprintf(msg,"Player:%d has locked and will become active in 4 frames!", p);
@@ -555,7 +563,7 @@ void server_proc_stak_packet(double timestamp)
 
 
    // calculate stak_sync
-   int stak_sync = frame_num - srv_client_state_frame_num[0][1];
+   int stak_sync = mwPS.frame_num - srv_client_state_frame_num[0][1];
 
    // calculate stak_dsync
    players1[p].stak_dsync = ( (double) stak_sync * 0.025) + mwTS.timestamp_frame_start - timestamp;
@@ -566,7 +574,7 @@ void server_proc_stak_packet(double timestamp)
    char tmsg2[80];
 
    // this is used to see if client is still alive
-   players1[p].server_last_stak_rx_frame_num = frame_num;
+   players1[p].server_last_stak_rx_frame_num = mwPS.frame_num;
 
    sprintf(tmsg1, "rx stak d[%4.1f] c[%4.1f] a:%d c:%d", players1[p].dsync*1000, players1[p].client_chase_fps, ack_frame_num, client_frame_num );
 
@@ -638,14 +646,14 @@ void server_proc_cjon_packet(int who)
       players[cn].color = color;
       players[cn].control_method = 2; //server client view only
       players1[cn].who = who;
-      players1[cn].server_last_stak_rx_frame_num = frame_num + 200;
+      players1[cn].server_last_stak_rx_frame_num = mwPS.frame_num + 200;
       sprintf(players1[cn].hostname, "%s", temp_name);
 
-      add_game_move(frame_num, 3, cn, color); // add a game move type 3 to mark client started join
+      mwGMA.add_game_move(mwPS.frame_num, 3, cn, color); // add a game move type 3 to mark client started join
 
       Packet("sjon"); // reply with sjon
       PacketPut2ByteInt(play_level);
-      PacketPut4ByteInt(frame_num);
+      PacketPut4ByteInt(mwPS.frame_num);
       PacketPut1ByteInt(cn);
       PacketPut1ByteInt(color);
       PacketPut1ByteInt(deathmatch_pbullets);
@@ -663,7 +671,7 @@ void server_proc_cjon_packet(int who)
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Player Color:[%d]", color);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Server frame_num:[%d]", frame_num);
+         sprintf(msg,"Server mwPS.frame_num:[%d]", mwPS.frame_num);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Deathmatch player bullets:[%d]", deathmatch_pbullets);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
@@ -729,7 +737,7 @@ void server_fast_packet_loop(void)
          for (int i=0; i<200; i++)
             if (!packet_buffers[i].active) // find empty
             {
-               //printf("%d stored packet:%d size:%d type:%d\n", frame_num, i, packetsize, type);
+               //printf("%d stored packet:%d size:%d type:%d\n", mwPS.frame_num, i, packetsize, type);
                packet_buffers[i].active = 1;
                packet_buffers[i].type = type;
                packet_buffers[i].timestamp = timestamp;
@@ -747,7 +755,7 @@ void server_read_packet_buffer(void)
    for (int i=0; i<200; i++)
       if (packet_buffers[i].active)
       {
-         //printf("%d read packet:%d  size:%d \n", frame_num, i, packet_buffers[i].packetsize);
+         //printf("%d read packet:%d  size:%d \n", mwPS.frame_num, i, packet_buffers[i].packetsize);
 
          memcpy(packetbuffer, packet_buffers[i].data, 1024);
          packetsize = packet_buffers[i].packetsize;

@@ -1,12 +1,22 @@
-// e_sliders.cpp
-
+// mwWidgets.cpp
 #include "pm.h"
+#include "mwWidgets.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 #include "mwDisplay.h"
 #include "e_bitmap_tools.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
+#include "z_lift.h"
+#include "mwColor.h"
+#include "mwPMEvent.h"
+#include "mwInput.h"
+#include "mwEventQueue.h"
+#include "z_menu.h"
+#include "z_item.h"
+#include "z_enemy.h"
+#include "e_fnx.h"
+
 
 
 char smsg[80];
@@ -66,7 +76,7 @@ void draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, i
 
          int col = q1+a;
          while (col > 255) col -=16;
-         al_draw_rounded_rectangle(x1+c, y1+c, x2-c, y2-c, 1, 1, palette_color[col], 1);
+         al_draw_rounded_rectangle(x1+c, y1+c, x2-c, y2-c, 1, 1, mC.pc[col], 1);
       }
    }
 }
@@ -76,8 +86,8 @@ void draw_slider_text(int x1, int y1, int x2, int y2, int q2, int q5)
 {
    int xt = (x2+x1)/2;
    int yt = y1 + (y2-y1-8)/2;
-   if (q5) al_draw_text(mF.pr8, palette_color[q2], x1+4, yt, 0, smsg);
-   else    al_draw_text(mF.pr8, palette_color[q2], xt, yt, ALLEGRO_ALIGN_CENTER, smsg);
+   if (q5) al_draw_text(mF.pr8, mC.pc[q2], x1+4, yt, 0, smsg);
+   else    al_draw_text(mF.pr8, mC.pc[q2], xt, yt, ALLEGRO_ALIGN_CENTER, smsg);
 }
 
 float get_slider_position(float sdx, float sul, float sll, int x1, int y1, int x2, int y2)
@@ -103,13 +113,13 @@ float get_slider_position2(float sul, float sll, float sinc, int q4 ,int x1, int
    }
    else
    {
-      proc_event_queue();
+      mwEQ.proc_event_queue();
       al_flip_display();
    }
 
 
-   float my = mouse_y;
-   float mx = mouse_x;
+   float my = mI.mouse_y;
+   float mx = mI.mouse_x;
    float a, b, c, d, e, f ;
 
    // enforce limits
@@ -138,13 +148,13 @@ float get_slider_position3(float f, float sul, float sll, float sinc, int q4, in
    }
    else
    {
-      proc_event_queue();
+      mwEQ.proc_event_queue();
       al_flip_display();
    }
-   if (mouse_dz)
+   if (mI.mouse_dz)
    {
-      int dif = mouse_dz;
-      mouse_dz = 0;
+      int dif = mI.mouse_dz;
+      mI.mouse_dz = 0;
 
       f += dif * sinc;                  // only allow increments of sinc
       if (f < sll) f = sll;             // limit check
@@ -166,10 +176,10 @@ float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, i
    int sx2 = (int)f + bw;
    // draw slider bar
    for (int i=0; i<bw+1; i++)
-      al_draw_rectangle(sx1+i, y1+i, sx2-i, y2-i, palette_color[col+192-(i*64)], 1);
+      al_draw_rectangle(sx1+i, y1+i, sx2-i, y2-i, mC.pc[col+192-(i*64)], 1);
 
    // draw rectangle around slider bar to show highlight
-   if (dm == 2) al_draw_rectangle(sx1-1, y1, sx2+1, y2, palette_color[15], 1);
+   if (dm == 2) al_draw_rectangle(sx1-1, y1, sx2+1, y2, mC.pc[15], 1);
    return f;
 }
 
@@ -205,14 +215,14 @@ void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    if (!q7)
    {
       // is mouse on adjustment bar?
-      if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
+      if ((mI.mouse_x > dsx-bw) && (mI.mouse_x < dsx+bw) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
       {
          draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-         al_draw_text(mF.pr8, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
+         al_draw_text(mF.pr8, mC.pc[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
-         if (mouse_b[3][0]) // only when initially clicked
+         if (mI.mouse_b[3][0]) // only when initially clicked
          {
-            while (mouse_b[3][0])
+            while (mI.mouse_b[3][0])
             {
                var = (int)get_slider_position3((float) var, sul, sll, sinc, q4, x1, y1, x2, y2);
                if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
@@ -220,9 +230,9 @@ void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
                draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float)var, sul, sll, 2);
             }
          }
-         if (mouse_b[1][0])
+         if (mI.mouse_b[1][0])
          {
-            while (mouse_b[1][0])
+            while (mI.mouse_b[1][0])
             {
                var = (int) get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
                if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
@@ -233,9 +243,9 @@ void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       }
       else // if not on adjustment bar, is mouse pressed anywhere else on this button?
       {
-         if ((mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+         if ((mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
          {
-            while (mouse_b[1][0])
+            while (mI.mouse_b[1][0])
             {
                var = (int) get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
                if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
@@ -260,22 +270,22 @@ void mdw_slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1);
 
    // is mouse on adjustment bar?
-   if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mI.mouse_x > dsx-bw) && (mI.mouse_x < dsx+bw) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       draw_slider_text(x1, y1, x2, y2, q2, q5);
-      if (mouse_b[3][0])
+      if (mI.mouse_b[3][0])
       {
-         while (mouse_b[3][0])
+         while (mI.mouse_b[3][0])
          {
             var = (int)get_slider_position3((float) var, sul, sll, sinc, q4, x1, y1, x2, y2);
             sprintf(smsg, "%s%d", txt, var);
             draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float)var, sul, sll, 2);
          }
       }
-      if (mouse_b[1][0])
+      if (mI.mouse_b[1][0])
       {
-         while (mouse_b[1][0])
+         while (mI.mouse_b[1][0])
          {
             var = (int) get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
             sprintf(smsg, "%s%d", txt, var);
@@ -298,14 +308,14 @@ void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1);
 
    // is mouse on adjustment bar?
-   if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mI.mouse_x > dsx-bw) && (mI.mouse_x < dsx+bw) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-      al_draw_text(mF.pr8, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
+      al_draw_text(mF.pr8, mC.pc[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
-      if (mouse_b[3][0])
+      if (mI.mouse_b[3][0])
       {
-         while (mouse_b[3][0])
+         while (mI.mouse_b[3][0])
          {
             var = al_ftofix(get_slider_position3(al_fixtof(var), sul, sll, sinc, q4, x1, y1, x2, y2));
             sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
@@ -314,9 +324,9 @@ void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
          if (bn == 22) scale_bouncer_and_cannon_speed(num);
          if (bn == 29) recalc_pod(num);
       }
-      if (mouse_b[1][0])
+      if (mI.mouse_b[1][0])
       {
-         while (mouse_b[1][0])
+         while (mI.mouse_b[1][0])
          {
             var = al_ftofix(get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2)); // update var
             sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
@@ -341,14 +351,14 @@ void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1);
 
    // is mouse on adjustment bar?
-   if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mI.mouse_x > dsx-bw) && (mI.mouse_x < dsx+bw) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-      al_draw_text(mF.pr8, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
+      al_draw_text(mF.pr8, mC.pc[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
-      if (mouse_b[3][0])
+      if (mI.mouse_b[3][0])
       {
-         while (mouse_b[3][0])
+         while (mI.mouse_b[3][0])
          {
             var = get_slider_position3(var, sul, sll, sinc, q4, x1, y1, x2, y2);
             sprintf(smsg, "%s%3.2f", txt, var);
@@ -356,9 +366,9 @@ void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
             if (bn == 1) mwD.scale_factor_current = mwD.scale_factor;
          }
       }
-      if (mouse_b[1][0])
+      if (mI.mouse_b[1][0])
       {
-         while (mouse_b[1][0])
+         while (mI.mouse_b[1][0])
          {
             var = get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
             sprintf(smsg, "%s%3.2f", txt, var);
@@ -593,9 +603,9 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    int press = 0;
    int retval = 0;
 
-   if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
    {
-      while (mouse_b[1][0]) proc_event_queue(); // wait for release
+      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
       press = 1;
    }
 
@@ -673,7 +683,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
          }
          Ei[num][5] = main_ans;
          Ei[num][3] = main_ans;
-         Ei[num][1] = zz[5][main_ans];
+         Ei[num][1] = mwB.zz[5][main_ans];
       }
    }
    if (bn == 14)
@@ -1010,7 +1020,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
          int i = get_trigger_item(2, item[num][0], num );
          if (i > -1)
          {
-            int ev = get_unused_pm_event();
+            int ev = mwPME.get_unused_pm_event();
             item[num][1] = ev;
 
             if (item[num][0] == 16) // block manip
@@ -1239,7 +1249,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
          int i = get_trigger_item(4, type, num );
          if (i > -1)
          {
-            int ev = get_unused_pm_event();
+            int ev = mwPME.get_unused_pm_event();
             lift_steps[num][type].val = ev;
             set_trigger_event(i, 0, 0, ev, 0); // toggle ON trigger
          }
@@ -1253,12 +1263,12 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    if (bn == 13)
    {
       float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
-      al_draw_rotated_bitmap(mwB.tile[zz[0][Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
+      al_draw_rotated_bitmap(mwB.tile[mwB.zz[0][Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
    if (bn == 14)
    {
       float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
-      al_draw_rotated_bitmap(mwB.tile[zz[0][Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
+      al_draw_rotated_bitmap(mwB.tile[mwB.zz[0][Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
 
    if (bn == 310)
@@ -1267,7 +1277,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       int x = (x2+x1)/2+60;
       int y = (y2+y1)/2-10;
 
-      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, palette_color[0]);
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mC.pc[0]);
       al_draw_bitmap(mwB.btile[tn&1023], x, y, 0);
    }
 
@@ -1277,7 +1287,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       int x = (x2+x1)/2+60;
       int y = (y2+y1)/2-10;
 
-      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, palette_color[0]);
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mC.pc[0]);
       al_draw_bitmap(mwB.btile[tn&1023], x, y, 0);
    }
    if (q6) y1+=bts;
@@ -1297,14 +1307,92 @@ int mdw_buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
    draw_slider_text(x1, y1,  x2, y2, q2, q5);
 
-   if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
    {
-      while (mouse_b[1][0]) proc_event_queue(); // wait for release
+      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
    return ret;
 }
+
+
+
+
+// displays a text string, and returns 1 if pressed
+// auto width based on text length x1 is the center
+// highlight outline when moused over
+
+
+int mdw_buttontca(int xc, int &y1, int xd, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+{
+   int y2 = y1+bts-2;
+   int ret = 0;
+   sprintf(smsg, "%s", txt);
+
+   int tl = (strlen(txt)+1)*4;
+
+   int x1 = xc-tl;
+   int x2 = xc+tl;
+
+
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
+   draw_slider_text(x1, y1,  x2, y2, q2, q5);
+
+   if ((mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2)) // mouse on button
+   {
+      // show highlight
+      al_draw_rounded_rectangle(x1, y1, x2, y2, 1, 1, mC.pc[q3], 1);
+
+      if ((!q7) && (mI.mouse_b[1][0]))
+      {
+         while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+         ret = 1;
+      }
+
+
+
+   }
+
+
+
+   if ((!q7) && (mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
+   {
+      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+      ret = 1;
+   }
+   if (q6) y1+=bts;
+   return ret;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1318,9 +1406,9 @@ int mdw_buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int type, 
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
    draw_slider_text(x1, y1,  x2, y2, q2, q5);
 
-   if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
    {
-//      while (mouse_b[1][0]) proc_event_queue(); // wait for release
+//      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
@@ -1355,12 +1443,12 @@ int mdw_buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, in
 
    // draw tile
    int x = x1+14;
-   al_draw_filled_rectangle(x-1, y1+0, x+21, y1+22, palette_color[0]);
+   al_draw_filled_rectangle(x-1, y1+0, x+21, y1+22, mC.pc[0]);
    al_draw_bitmap(mwB.btile[tn], x, y1+1, 0);
 
-   if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
    {
-      while (mouse_b[1][0]) proc_event_queue(); // wait for release
+      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
@@ -1378,9 +1466,9 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
 {
    int y2 = y1+bts-2;
    int press = 0;
-   if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
    {
-      while (mouse_b[1][0]) proc_event_queue(); // wait for release
+      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
       press = 1;
    }
 
@@ -1631,14 +1719,14 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
 void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
    int y2 = y1+bts-2;
-   al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]); // erase
+   al_draw_filled_rectangle(x1, y1, x2, y2, mC.pc[0]); // erase
 
    // draw colors (1-15)
    float a = x2-x1; // range
    float b = a/15;  // color swatch width
    if (b<2) b = 2;  // min width
    for (int c=0; c<15; c++)
-      al_draw_filled_rectangle((int)(x1+c*b), y1, (int)(b+x1+c*b), y2, palette_color[(int)c+1]);
+      al_draw_filled_rectangle((int)(x1+c*b), y1, (int)(b+x1+c*b), y2, mC.pc[(int)c+1]);
 
    if (bn == 2) sprintf(smsg, "Select Text Color");
    if (bn == 3) sprintf(smsg, "Select Frame Color");
@@ -1652,13 +1740,13 @@ void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
    draw_slider_text(x1, y1,  x2, y2, q2, q5);
 
    // draw outline
-   al_draw_rectangle(x1, y1, x2, y2, palette_color[15], 1);
+   al_draw_rectangle(x1, y1, x2, y2, mC.pc[15], 1);
 
    // is mouse pressed on button?
-   if ((!q7) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (mouse_b[1][0]))
+   if ((!q7) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2) && (mI.mouse_b[1][0]))
    {
-      while (mouse_b[1][0]) proc_event_queue();
-      int color = (int)(1+(mouse_x-x1)/b);
+      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
+      int color = (int)(1+(mI.mouse_x-x1)/b);
 
       if (bn == 2) // text color
       {
@@ -1704,9 +1792,9 @@ int mdw_toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type, int 
    int y2 = y1+bts-2;
    int ret = 0;
    // is mouse pressed on this button?
-   if ((mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!q7))
+   if ((mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2) && (!q7))
    {
-      while (mouse_b[1][0]) proc_event_queue(); // wait for release
+      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
       var = ! var;
    }
    if (var)
@@ -1745,14 +1833,14 @@ int mdw_togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
    int ret = 0;
 
    // debug show mouse detection area
-//   if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!q7))
-//      al_draw_rectangle(x1, y1, x2, y2, palette_color[10], 1);
+//   if ((mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2) && (!q7))
+//      al_draw_rectangle(x1, y1, x2, y2, mC.pc[10], 1);
 
 
    // is mouse pressed on this button?
-   if ((mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!q7))
+   if ((mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2) && (!q7))
    {
-      while (mouse_b[1][0]) proc_event_queue(); // wait for release
+      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
       var = ! var;
    }
 
@@ -1773,13 +1861,13 @@ int mdw_togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
    float mtx = rx2+6;
    float mty = myc-4;
 
-   if (q1>0) al_draw_rectangle(x1, y1, x2, y2, palette_color[q1], 1);
+   if (q1>0) al_draw_rectangle(x1, y1, x2, y2, mC.pc[q1], 1);
 
 
-   if (var) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, palette_color[frame_col]);
-   else     al_draw_rectangle(       rx1, ry1, rx2, ry2, palette_color[frame_col], 1);
+   if (var) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, mC.pc[frame_col]);
+   else     al_draw_rectangle(       rx1, ry1, rx2, ry2, mC.pc[frame_col], 1);
 
-   al_draw_text(mF.pr8, palette_color[text_col], mtx, mty, 0, t);
+   al_draw_text(mF.pr8, mC.pc[text_col], mtx, mty, 0, t);
 
    if (var) ret = 1;
    else ret = 0;
@@ -1829,9 +1917,9 @@ int mdw_togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int 
    int y2 = y1+bts-2;
 
    // is mouse pressed on this button?
-   if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
    {
-      while (mouse_b[1][0]) proc_event_queue(); // wait for release
+      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
       var ^= flag;
    }
    if (var & flag)

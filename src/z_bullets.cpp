@@ -1,9 +1,20 @@
 // z_bullets.cpp
 
+#include "z_bullets.h"
 #include "pm.h"
 #include "z_player.h"
 #include "n_netgame.h"
 #include "mwBitmap.h"
+#include "z_level.h"
+#include "z_fnx.h"
+#include "z_screen_overlay.h"
+
+
+
+int pbullet[50][6];
+int pm_bullet_collision_box = 8;
+struct ebullet ebullets[50];
+
 
 void proc_pbullet_collision(int p, int b)
 {
@@ -198,16 +209,16 @@ void draw_ebullets()
 
 /*
    // temp testing
-   al_draw_circle(tx1+10, ty1+10, 10, palette_color[ttc1], 2 );
-   al_draw_textf(mF.pr8, palette_color[ttc1], tx1, ty1-10, 0, "%.3f",ttfloat1);
+   al_draw_circle(tx1+10, ty1+10, 10, mC.pc[ttc1], 2 );
+   al_draw_textf(mF.pr8, mC.pc[ttc1], tx1, ty1-10, 0, "%.3f",ttfloat1);
 
 
-   al_draw_circle(tx2+10, ty2+10, 10, palette_color[ttc2], 2 );
-   al_draw_textf(mF.pr8, palette_color[ttc2], tx2, ty2+30, 0, "%.3f",ttfloat2);
+   al_draw_circle(tx2+10, ty2+10, 10, mC.pc[ttc2], 2 );
+   al_draw_textf(mF.pr8, mC.pc[ttc2], tx2, ty2+30, 0, "%.3f",ttfloat2);
 
 
    // temp testing
-   al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[ttc1], 2 );
+   al_draw_rectangle(tx1, ty1, tx2, ty2, mC.pc[ttc1], 2 );
 */
 
 
@@ -216,7 +227,7 @@ void draw_ebullets()
       if (ebullets[b].active)
       {
          int t = ebullets[b].shape;
-         if (t > 1000) t = zz[0][ebullets[b].shape-1000];
+         if (t > 1000) t = mwB.zz[0][ebullets[b].shape-1000];
          al_draw_bitmap(mwB.tile[t], al_fixtof(ebullets[b].fx), al_fixtof(ebullets[b].fy), 0);
       }
 }

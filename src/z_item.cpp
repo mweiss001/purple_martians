@@ -1,27 +1,52 @@
 // z_item.cpp
-
 #include "pm.h"
+#include "z_item.h"
 #include "z_sound.h"
 #include "z_player.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
+#include "z_lift.h"
+#include "mwWidgets.h"
+#include "z_bullets.h"
+#include "mwColor.h"
+#include "mwPMEvent.h"
+#include "mwDisplay.h"
+#include "mwProgramState.h"
+#include "z_menu.h"
+#include "z_enemy.h"
+#include "z_level.h"
+#include "e_fnx.h"
+#include "z_fnx.h"
+#include "z_screen.h"
+#include "z_screen_overlay.h"
+
+
+// items
+int item[500][16];      // item ints
+al_fixed itemf[500][4]; // item fixeds
+int item_num_of_type[30];
+int item_first_num[30];
+char item_name[30][40];
+char pmsgtext[500][500] = {0};
+int item_tile[20];
+
 
 int item_data(int x, int y)
 {
    int inum = sort_item(0);
-                               al_draw_textf(mF.pr8, palette_color[12], x, y, 0, "%d Items",      inum);                 y+=8;
-                               al_draw_textf(mF.pr8, palette_color[12], x, y, 0, "--------");                            y+=8;
-                               al_draw_textf(mF.pr8, palette_color[13], x, y, 0, "%d Starts",     item_num_of_type[5]);  y+=8;
-                               al_draw_textf(mF.pr8, palette_color[13], x, y, 0, "%d Exits",      item_num_of_type[3]);  y+=8;
-   if (item_num_of_type[12]) { al_draw_textf(mF.pr8, palette_color[10], x, y, 0, "%d Warps",      item_num_of_type[12]); y+=8; }
-   if (item_num_of_type[1])  { al_draw_textf(mF.pr8, palette_color[13], x, y, 0, "%d Doors",      item_num_of_type[1]);  y+=8; }
-   if (item_num_of_type[4])  { al_draw_textf(mF.pr8, palette_color[13], x, y, 0, "%d Keys",       item_num_of_type[4]);  y+=8; }
-   if (item_num_of_type[14]) { al_draw_textf(mF.pr8, palette_color[13], x, y, 0, "%d Switches",   item_num_of_type[14]); y+=8; }
-   if (item_num_of_type[15]) { al_draw_textf(mF.pr8, palette_color[13], x, y, 0, "%d Sproingies", item_num_of_type[15]); y+=8; }
-   if (item_num_of_type[8])  { al_draw_textf(mF.pr8, palette_color[14], x, y, 0, "%d Bombs",      item_num_of_type[8]);  y+=8; }
-   if (item_num_of_type[11]) { al_draw_textf(mF.pr8, palette_color[14], x, y, 0, "%d Rockets",    item_num_of_type[11]); y+=8; }
-   if (item_num_of_type[7])  { al_draw_textf(mF.pr8, palette_color[14], x, y, 0, "%d Mines",      item_num_of_type[7]);  y+=8; }
-   if (item_num_of_type[6])  { al_draw_textf(mF.pr8, palette_color[14], x, y, 0, "%d Orbs",       item_num_of_type[6]);  y+=8; }
+                               al_draw_textf(mF.pr8, mC.pc[12], x, y, 0, "%d Items",      inum);                 y+=8;
+                               al_draw_textf(mF.pr8, mC.pc[12], x, y, 0, "--------");                            y+=8;
+                               al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Starts",     item_num_of_type[5]);  y+=8;
+                               al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Exits",      item_num_of_type[3]);  y+=8;
+   if (item_num_of_type[12]) { al_draw_textf(mF.pr8, mC.pc[10], x, y, 0, "%d Warps",      item_num_of_type[12]); y+=8; }
+   if (item_num_of_type[1])  { al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Doors",      item_num_of_type[1]);  y+=8; }
+   if (item_num_of_type[4])  { al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Keys",       item_num_of_type[4]);  y+=8; }
+   if (item_num_of_type[14]) { al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Switches",   item_num_of_type[14]); y+=8; }
+   if (item_num_of_type[15]) { al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Sproingies", item_num_of_type[15]); y+=8; }
+   if (item_num_of_type[8])  { al_draw_textf(mF.pr8, mC.pc[14], x, y, 0, "%d Bombs",      item_num_of_type[8]);  y+=8; }
+   if (item_num_of_type[11]) { al_draw_textf(mF.pr8, mC.pc[14], x, y, 0, "%d Rockets",    item_num_of_type[11]); y+=8; }
+   if (item_num_of_type[7])  { al_draw_textf(mF.pr8, mC.pc[14], x, y, 0, "%d Mines",      item_num_of_type[7]);  y+=8; }
+   if (item_num_of_type[6])  { al_draw_textf(mF.pr8, mC.pc[14], x, y, 0, "%d Orbs",       item_num_of_type[6]);  y+=8; }
 
    for (int c=1; c<20; c++)
       if ((c!= 1) && (c !=3) && (c!= 4) && (c != 5) && (c != 6) && (c!= 7) && (c!= 8) && (c!= 9) && (c!= 11) && (c!= 12) && (c!= 14) && (c!= 15) && (c!= 16) && (c!= 17) )
@@ -31,7 +56,7 @@ int item_data(int x, int y)
             if (c ==  0) sprintf(msg, "%d type 0      ", item_num_of_type[c]);
             if (c ==  2) sprintf(msg, "%d Bonus       ", item_num_of_type[c]);
             if (c == 10) sprintf(msg, "%d Messages    ", item_num_of_type[c]);
-            al_draw_text(mF.pr8, palette_color[3], x, y, 0, msg);
+            al_draw_text(mF.pr8, mC.pc[3], x, y, 0, msg);
             y+=8;
          }
    return y;
@@ -118,16 +143,16 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
 
    if (frame_width == 0)
    {
-      if (level_editor_running) al_draw_rectangle(x1, y1, x2, y2, palette_color[15], 1);
+      if (mwPS.level_editor_running) al_draw_rectangle(x1, y1, x2, y2, mC.pc[15], 1);
    }
-   else al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[fc+13*16]);  // background
+   else al_draw_filled_rectangle(x1, y1, x2, y2, mC.pc[fc+13*16]);  // background
 
 
-   if ((eco_draw) && (frame_width > 1)) frame_width = 1;
+   if ((mwPS.eco_draw) && (frame_width > 1)) frame_width = 1;
 
    if (frame_width == 1)
    {
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], 1);
+      al_draw_rectangle(x1, y1, x2, y2, mC.pc[fc], 1);
    }
 
 
@@ -136,22 +161,22 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
    if (frame_width == 2)
    {
       for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[fc+a*128], 1.5);
+         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mC.pc[fc+a*128], 1.5);
    }
    if (frame_width == 4)
    {
       for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[fc+a*48], 1.5);
+         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mC.pc[fc+a*48], 1.5);
    }
    if (frame_width == 12)
    {
       for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 6, 6, palette_color[fc+a*16], 1.5);
+         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 6, 6, mC.pc[fc+a*16], 1.5);
    }
 
 
    // debug show inner frame
-//   al_draw_rounded_rectangle(x1+frame_width, y1+frame_width, x2-frame_width, y2-frame_width, 4, 4, palette_color[15], 1);
+//   al_draw_rounded_rectangle(x1+frame_width, y1+frame_width, x2-frame_width, y2-frame_width, 4, 4, mC.pc[15], 1);
 
 
 
@@ -164,12 +189,12 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
       if (pt[cursor_pos] == 10) sprintf(msg, "LF");
       if (pt[cursor_pos] == 32) sprintf(msg, "SPACE");
 
-      al_draw_textf(mF.pr8, palette_color[15], xc+4, y2+2, ALLEGRO_ALIGN_CENTRE, "%d/%d/500 [%s] ", cursor_pos, (int) strlen(pt), msg);
+      al_draw_textf(mF.pr8, mC.pc[15], xc+4, y2+2, ALLEGRO_ALIGN_CENTRE, "%d/%d/500 [%s] ", cursor_pos, (int) strlen(pt), msg);
 
-//      al_draw_textf(mF.pr8, palette_color[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "[%s] %d/%d/500", msg, cursor_pos, (int) strlen(pt));
+//      al_draw_textf(mF.pr8, mC.pc[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "[%s] %d/%d/500", msg, cursor_pos, (int) strlen(pt));
 
-//      al_draw_textf(mF.pr8, palette_color[15], x2-60, y2-9, 0, "[%s]", msg);
-      //al_draw_textf(mF.pr8, palette_color[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
+//      al_draw_textf(mF.pr8, mC.pc[15], x2-60, y2-9, 0, "[%s]", msg);
+      //al_draw_textf(mF.pr8, mC.pc[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
    }
 
 
@@ -201,8 +226,8 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
    } while ((sp > 2) && (line_height < 100));
 
 
-//   al_draw_textf(mF.pr8, palette_color[15], xc+4, y2+20, ALLEGRO_ALIGN_CENTRE, "lh:%2.1f nl:%d th:%2.1f", line_height, extra.num_lines, text_height);
-//   al_draw_textf(mF.pr8, palette_color[15], xc+4, y2+28, ALLEGRO_ALIGN_CENTRE, "fh:%d fh-fw:%d sp:%2.1f", h, h - frame_width*2, sp);
+//   al_draw_textf(mF.pr8, mC.pc[15], xc+4, y2+20, ALLEGRO_ALIGN_CENTRE, "lh:%2.1f nl:%d th:%2.1f", line_height, extra.num_lines, text_height);
+//   al_draw_textf(mF.pr8, mC.pc[15], xc+4, y2+28, ALLEGRO_ALIGN_CENTRE, "fh:%d fh-fw:%d sp:%2.1f", h, h - frame_width*2, sp);
 
 
    float y3 = y1+frame_width+line_height/2-3.5;
@@ -215,7 +240,7 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
 
    }
 
-   al_draw_multiline_text(mF.pr8, palette_color[tc], xc, y3, max_text_width, line_height, ALLEGRO_ALIGN_CENTRE, pt);
+   al_draw_multiline_text(mF.pr8, mC.pc[tc], xc, y3, max_text_width, line_height, ALLEGRO_ALIGN_CENTRE, pt);
 
    if (cursor_blink)
    {
@@ -235,14 +260,14 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
       }
       else pt[cursor_pos] = 95;
 
-      al_draw_multiline_text(mF.pr8, palette_color[10], xc+cursor_on_special*8, y3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
+      al_draw_multiline_text(mF.pr8, mC.pc[10], xc+cursor_on_special*8, y3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
    }
 
 //      // crosshairs for alignment
-//      al_draw_line(x1, y1, x2, y2, palette_color[fc], 1);
-//      al_draw_line(x1, y2, x2, y1, palette_color[fc], 1);
-//      al_draw_line(x1+w/2, y1,     x1+w/2, y2,     palette_color[fc], 1);
-//      al_draw_line(x1,     y1+h/2, x2,       y1+h/2, palette_color[fc], 1);
+//      al_draw_line(x1, y1, x2, y2, mC.pc[fc], 1);
+//      al_draw_line(x1, y2, x2, y1, mC.pc[fc], 1);
+//      al_draw_line(x1+w/2, y1,     x1+w/2, y2,     mC.pc[fc], 1);
+//      al_draw_line(x1,     y1+h/2, x2,       y1+h/2, mC.pc[fc], 1);
 
 }
 
@@ -261,7 +286,7 @@ void draw_door(int i, int x, int y, int custom)
    }
    else if (item[i][13] == 1083) // new style doors
    {
-      int an = zz[1][83];             // cheat and use shape index from base door animation sequence
+      int an = mwB.zz[1][83];             // cheat and use shape index from base door animation sequence
       if (item[i][8] == 0) an = 7-an; // exit only, run the sequence backwards
       tmp = mwB.door_tile[0][col][an];
    }
@@ -275,7 +300,7 @@ void draw_door(int i, int x, int y, int custom)
       int line_color = item[item[i][9]][6];
 
       if (item[i][12] == 1) // if always draw lines (1)
-         al_draw_line(x+10, y+10, dx+10, dy+10, palette_color[line_color], 1);  // draw a line connecting them
+         al_draw_line(x+10, y+10, dx+10, dy+10, mC.pc[line_color], 1);  // draw a line connecting them
 
       if (!drawn)
       {
@@ -283,7 +308,7 @@ void draw_door(int i, int x, int y, int custom)
             if ((players[p].active) && (players[p].marked_door == i))
             {
                if (item[i][12] > 0)  // always draw or only draw when touching ( 1 or 2)
-                  al_draw_line(x+10, y+10, dx+10, dy+10, palette_color[line_color], 1);  // draw a line connecting them
+                  al_draw_line(x+10, y+10, dx+10, dy+10, mC.pc[line_color], 1);  // draw a line connecting them
 
                // bigger door when player touching it
                al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, x-5, y-6, 30, 26, 0 );
@@ -292,10 +317,10 @@ void draw_door(int i, int x, int y, int custom)
                else al_draw_scaled_bitmap(mwB.tile[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
 
                if (item[i][11] == 1) // enter with <up>
-                  al_draw_text(mF.pr8, palette_color[15],  x+3, y-14, 0, "up");
+                  al_draw_text(mF.pr8, mC.pc[15],  x+3, y-14, 0, "up");
 
                if (item[i][11] == 2) // enter with <down>
-                  al_draw_text(mF.pr8, palette_color[15],  x-5, y-14, 0, "down");
+                  al_draw_text(mF.pr8, mC.pc[15],  x-5, y-14, 0, "down");
                drawn = 1;
             }
       }
@@ -313,7 +338,7 @@ void draw_door(int i, int x, int y, int custom)
 int seq_color(int mod, int c1, int c2)
 {
    int col = c1; // initial color
-   if ( (frame_num % mod) < mod/2) col = c2; // other color
+   if ( (mwPS.frame_num % mod) < mod/2) col = c2; // other color
    return col;
 }
 
@@ -366,7 +391,7 @@ int seq_color2(void)
 
 
 
-   int mod = frame_num % 40;
+   int mod = mwPS.frame_num % 40;
    return ca[mod];
 }
 
@@ -396,7 +421,7 @@ int seq_color3(void)
    ca[ci] = b+160; ci++;
    ca[ci] = b+192; ci++;
 
-   int mod = frame_num % 20;
+   int mod = mwPS.frame_num % 20;
    return ca[mod];
 }
 
@@ -406,9 +431,9 @@ void bomb_block_crosshairs(int e, int f)
    int col = seq_color2();
    if (col)
    {
-      al_draw_rectangle(e*20, f*20, e*20+20, f*20+20, palette_color[col], 1);
-      al_draw_line(e*20, f*20, e*20+19, f*20+19, palette_color[col], 1);
-      al_draw_line(e*20, f*20+19, e*20+19, f*20, palette_color[col], 1);
+      al_draw_rectangle(e*20, f*20, e*20+20, f*20+20, mC.pc[col], 1);
+      al_draw_line(e*20, f*20, e*20+19, f*20+19, mC.pc[col], 1);
+      al_draw_line(e*20, f*20+19, e*20+19, f*20, mC.pc[col], 1);
    }
 }
 
@@ -466,21 +491,21 @@ void bomb_crosshairs(float x, float y)
 //   // radius seq
 //   int ms = 8;  // min size
 //   int ns = 16; // seq length
-//   int sq = frame_num % ns;
+//   int sq = mwPS.frame_num % ns;
 //   if (sq < ns/2) rad = ms+sq;
 //   else rad = ms+ns-sq;
 
    if (col)
    {
       // circle with a slash
-      al_draw_circle(x, y, rad, palette_color[col], 1);
+      al_draw_circle(x, y, rad, mC.pc[col], 1);
       float h = sqrt ((rad * rad) / 2) + 0;
-      al_draw_line(x-h, y-h, x+h, y+h, palette_color[col], 1);
+      al_draw_line(x-h, y-h, x+h, y+h, mC.pc[col], 1);
 //      // circle with crosshairs
-//      al_draw_circle(x, y, rad, palette_color[col], 1);
+//      al_draw_circle(x, y, rad, mC.pc[col], 1);
 //      float h = sqrt ((rad * rad) / 2) + 6;
-//      al_draw_line(x-h, y-h, x+h, y+h, palette_color[col], 1);
-//      al_draw_line(x-h, y+h, x+h, y-h, palette_color[col], 1);
+//      al_draw_line(x-h, y-h, x+h, y+h, mC.pc[col], 1);
+//      al_draw_line(x-h, y+h, x+h, y-h, mC.pc[col], 1);
    }
 }
 
@@ -611,19 +636,19 @@ void draw_lit_bomb(int i)
       al_draw_bitmap(mwB.tile[539], px, py, 0);
 
       // draw a line connecting detonator and bomb
-      al_draw_line(x+10, y+10, px+10, py+8, palette_color[207], 0);
+      al_draw_line(x+10, y+10, px+10, py+8, mC.pc[207], 0);
 
       // show damage range circle
       int col = seq_color2();
-      if (col) al_draw_circle(x+10, y+10, item[i][7], palette_color[col], 2);
+      if (col) al_draw_circle(x+10, y+10, item[i][7], mC.pc[col], 2);
    }
 
 
    if (item[i][6] == 1) // fuse burning
    {
-      int num_seq_shapes = zz[4][fuse_seq] + 1;   // number of shapes in seq
+      int num_seq_shapes = mwB.zz[4][fuse_seq] + 1;   // number of shapes in seq
       int si = (int)(r * (float)num_seq_shapes);  // ratio * number of shapes
-      int shape = zz[5+si][fuse_seq];             // get shape to draw
+      int shape = mwB.zz[5+si][fuse_seq];             // get shape to draw
       //printf("ratio:%f shape_index:%d\n", r, si);
       al_draw_bitmap(mwB.tile[shape], x, y, 0);
 
@@ -631,21 +656,21 @@ void draw_lit_bomb(int i)
       float cr = 6; // clock radius
       float pi = ALLEGRO_PI;
       float rd = pi*2*r - pi/2; // countdown position in radians
-      al_draw_circle(x+10, y+13, cr, palette_color[15], 0);
-      al_draw_pieslice(x+10, y+13, cr, rd, 0, palette_color[15], 0);
-      al_draw_arc(x+10, y+13, cr, -pi/2, pi*2*r, palette_color[10], 0);
+      al_draw_circle(x+10, y+13, cr, mC.pc[15], 0);
+      al_draw_pieslice(x+10, y+13, cr, rd, 0, mC.pc[15], 0);
+      al_draw_arc(x+10, y+13, cr, -pi/2, pi*2*r, mC.pc[10], 0);
 
       // show damage range circle
       int col = seq_color2();
-      if (col) al_draw_circle(x+10, y+10, item[i][7], palette_color[col], 2);
+      if (col) al_draw_circle(x+10, y+10, item[i][7], mC.pc[col], 2);
 
    }
 
    if (item[i][6] == 2) // explosion mode
    {
-      int num_seq_shapes = zz[4][expl_seq] + 1;   // number of shapes in seq
+      int num_seq_shapes = mwB.zz[4][expl_seq] + 1;   // number of shapes in seq
       int si = (int)(r * (float)num_seq_shapes);  // ratio * number of shapes
-      int shape = zz[5+si][expl_seq];             // get shape to draw
+      int shape = mwB.zz[5+si][expl_seq];             // get shape to draw
 
       // set size of explosion
       float max_scale = item[i][7] / 10;         // max scale = damage / 10
@@ -654,9 +679,9 @@ void draw_lit_bomb(int i)
       al_draw_scaled_rotated_bitmap(mwB.tile[shape], 10, 10, x+10, y+10, sc, sc, 0, 0);
 
       // show damage range circle
-      al_draw_circle(x+10, y+10, (float)item[i][7]*r-8, palette_color[10], 1);
-      al_draw_circle(x+10, y+10, (float)item[i][7]*r, palette_color[14], 2);
-      al_draw_circle(x+10, y+10, (float)item[i][7]*r+8, palette_color[10], 1);
+      al_draw_circle(x+10, y+10, (float)item[i][7]*r-8, mC.pc[10], 1);
+      al_draw_circle(x+10, y+10, (float)item[i][7]*r, mC.pc[14], 2);
+      al_draw_circle(x+10, y+10, (float)item[i][7]*r+8, mC.pc[10], 1);
    }
 
    bomb_blocks( i, 1, item[i][7], itemf[i][0], itemf[i][1]); // mark blocks that will be destroyed
@@ -664,7 +689,7 @@ void draw_lit_bomb(int i)
    bomb_players(i, 1, item[i][7], itemf[i][0], itemf[i][1]); // mark players in damage range
 
    // debug show sequence numbers
-   //al_draw_textf(mF.pr8, palette_color[15], x, y-20, 0, "%d / %d  %f ", item[i][8], item[i][9], (float)item[i][8]/(float)item[i][9]);
+   //al_draw_textf(mF.pr8, mC.pc[15], x, y-20, 0, "%d / %d  %f ", item[i][8], item[i][9], (float)item[i][8]/(float)item[i][9]);
 }
 
 void draw_rocket_lines(int i)
@@ -680,7 +705,7 @@ void draw_rocket_lines(int i)
    if (speed < 2000) speed = 2000; // if moving too slow, lines won't be drawn
 
    // temp show speed
-   //al_draw_textf(mF.pr8, palette_color[10], al_fixtof(fxi)+30, al_fixtof(fyi)+10, ALLEGRO_ALIGN_CENTER, "%d" ,speed );
+   //al_draw_textf(mF.pr8, mC.pc[10], al_fixtof(fxi)+30, al_fixtof(fyi)+10, ALLEGRO_ALIGN_CENTER, "%d" ,speed );
 
 
    al_fixed angle = al_itofix((item[i][10]-640) / 10);  // angle
@@ -708,9 +733,9 @@ void draw_rocket_lines(int i)
          float fyif = al_fixtof(fyi)+10;
 
          int col = seq_color2(); // color sequence
-         if (col) al_draw_circle(fxf, fyf, item[i][7], palette_color[col], 2); // show damage range circle
-         al_draw_filled_circle(fxf, fyf, 5, palette_color[col]); // show center
-         al_draw_line(fxif, fyif, fxf, fyf, palette_color[10+80], 0); // draw connecting line
+         if (col) al_draw_circle(fxf, fyf, item[i][7], mC.pc[col], 2); // show damage range circle
+         al_draw_filled_circle(fxf, fyf, 5, mC.pc[col]); // show center
+         al_draw_line(fxif, fyif, fxf, fyf, mC.pc[10+80], 0); // draw connecting line
 
          bomb_blocks( i, 1, item[i][7], fx, fy); // mark blocks that will be destroyed
          bomb_enemies(i, 1, item[i][7], fx, fy); // mark enemies that will be destroyed
@@ -751,7 +776,7 @@ void draw_item(int i, int custom, int cx, int cy)
    }
 
    int shape = item[i][1];                       // get shape
-   if (shape > 999) shape = zz[0][shape-1000];   // ans
+   if (shape > 999) shape = mwB.zz[0][shape-1000];   // ans
    int drawn = 0;
 
 
@@ -764,7 +789,7 @@ void draw_item(int i, int custom, int cx, int cy)
       if ((timer_count) || (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) draw_pop_message(i, 0, 0, 0, 0, 0, msg);
 
       // if hide scroll and not running level editor flag scroll as being drawn already
-      if ((!(item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL)) && (!level_editor_running)) drawn = 1;
+      if ((!(item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL)) && (!mwPS.level_editor_running)) drawn = 1;
 
    }
 
@@ -789,7 +814,7 @@ void draw_item(int i, int custom, int cx, int cy)
    {
       // moving key in final stage gets static shape not ans
       shape = item[i][1];                           // get shape
-      if (shape > 999) shape = zz[5][shape-1000];   // get first shape only
+      if (shape > 999) shape = mwB.zz[5][shape-1000];   // get first shape only
 
       // stretch the key
       float sc = 1 + 4*((10 - (float)item[i][11]) / 10);
@@ -810,7 +835,7 @@ void draw_item(int i, int custom, int cx, int cy)
       float seq = 9 - item[i][11]; // starts at 0, goes to 8
       int xo = (int)(seq * xinc / 2);
       int yo = (int)(seq * yinc / 2);
-      al_draw_rectangle(x1+xo, y1+yo, x2-xo, y2-yo, palette_color[15], 1);
+      al_draw_rectangle(x1+xo, y1+yo, x2-xo, y2-yo, mC.pc[15], 1);
    }
 
 
@@ -830,7 +855,7 @@ void draw_item(int i, int custom, int cx, int cy)
       if (number_of_starts > 1)
       {
          al_draw_bitmap(mwB.tile[shape], x, y, 0);
-         al_draw_textf(mF.pixl, palette_color[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", item[i][7]);
+         al_draw_textf(mF.pixl, mC.pc[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", item[i][7]);
          drawn = 1;
       }
    }
@@ -838,15 +863,15 @@ void draw_item(int i, int custom, int cx, int cy)
    if (type == 3) // exit
    {
       al_draw_bitmap(mwB.tile[399], x, y, 0); // 'exit' text not shown
-      if (frame_num % 60 > 30)
-         al_draw_text(mF.pixl, palette_color[10], x+11, y-2, ALLEGRO_ALIGN_CENTER, "EXIT");
+      if (mwPS.frame_num % 60 > 30)
+         al_draw_text(mF.pixl, mC.pc[10], x+11, y-2, ALLEGRO_ALIGN_CENTER, "EXIT");
 
       int exit_enemys_left = num_enemy - item[i][8];
       if (exit_enemys_left > 0) // locked
       {
          al_draw_bitmap(mwB.tile[366], x, y, 0); // show lock
-         if (frame_num % 60 < 30)
-            al_draw_textf(mF.pixl, palette_color[14], x+11, y-2, ALLEGRO_ALIGN_CENTER, "%d", exit_enemys_left);
+         if (mwPS.frame_num % 60 < 30)
+            al_draw_textf(mF.pixl, mC.pc[14], x+11, y-2, ALLEGRO_ALIGN_CENTER, "%d", exit_enemys_left);
 
       }
       drawn = 1;
@@ -854,7 +879,7 @@ void draw_item(int i, int custom, int cx, int cy)
 
    if ((type == 2) && (item[i][6] == 3)) // purple coin custom draw
    {
-      if (!level_editor_running)
+      if (!mwPS.level_editor_running)
       {
          spin_shape(shape, x, y, 0, 0, 19, 19, 0.8, 0.5, 40);
          drawn = 1;
@@ -866,11 +891,11 @@ void draw_item(int i, int custom, int cx, int cy)
 
 
 
-   if (!level_editor_running)
+   if (!mwPS.level_editor_running)
    {
       // if item is expiring show how many seconds left it has
       if ((item[i][14]>10) && (type != 9) && (type != 16) && (type != 17))
-         al_draw_textf(mF.pixl, palette_color[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
+         al_draw_textf(mF.pixl, mC.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
    }
 }
 
@@ -1074,7 +1099,7 @@ void move_items()
                {
                   item[i][0] = 66; // change to different type to prevent use
                   int sq = 10-ttl;
-                  item[i][1] = zz[5+sq][74];
+                  item[i][1] = mwB.zz[5+sq][74];
                }
                if (ttl == 1) item[i][0] = 0; // kill instantly
                item[i][14]--;
@@ -1427,15 +1452,15 @@ void proc_orb(int i)
    }
 
    // clear all events
-   pm_event[item[i][10]] = 0;
-   pm_event[item[i][11]] = 0;
-   pm_event[item[i][12]] = 0;
-   pm_event[item[i][13]] = 0;
+   mwPME.event[item[i][10]] = 0;
+   mwPME.event[item[i][11]] = 0;
+   mwPME.event[item[i][12]] = 0;
+   mwPME.event[item[i][13]] = 0;
    int FLAGS = item[i][2];
-   if   (FLAGS & PM_ITEM_ORB_STATE)  pm_event[item[i][10]] = 1;
-   if (!(FLAGS & PM_ITEM_ORB_STATE)) pm_event[item[i][11]] = 1;
-   if   (FLAGS & PM_ITEM_ORB_TGON)   pm_event[item[i][12]] = 1;
-   if   (FLAGS & PM_ITEM_ORB_TGOF)   pm_event[item[i][13]] = 1;
+   if   (FLAGS & PM_ITEM_ORB_STATE)  mwPME.event[item[i][10]] = 1;
+   if (!(FLAGS & PM_ITEM_ORB_STATE)) mwPME.event[item[i][11]] = 1;
+   if   (FLAGS & PM_ITEM_ORB_TGON)   mwPME.event[item[i][12]] = 1;
+   if   (FLAGS & PM_ITEM_ORB_TGOF)   mwPME.event[item[i][13]] = 1;
 }
 
 void draw_orb(int i, int x, int y)
@@ -1503,12 +1528,12 @@ void proc_door_collision(int p, int i)
                // to prevent immediate triggering when destination door, wait for release and re-press
 
                // if key held is old, ignore
-               if (item[i][10] && item[i][10] < frame_num-1) item[i][10] = 0;
+               if (item[i][10] && item[i][10] < mwPS.frame_num-1) item[i][10] = 0;
 
                // up pressed and !pressed last frame
                if ((players[p].up) && (!item[i][10])) do_entry = 1;
 
-               if (players[p].up) item[i][10] = frame_num;
+               if (players[p].up) item[i][10] = mwPS.frame_num;
                else item[i][10] = 0;
 
             }
@@ -1518,12 +1543,12 @@ void proc_door_collision(int p, int i)
                // to prevent immediate triggering when destination door, wait for release and re-press
 
                // if key held is old, ignore
-               if (item[i][10] && item[i][10] < frame_num-1) item[i][10] = 0;
+               if (item[i][10] && item[i][10] < mwPS.frame_num-1) item[i][10] = 0;
 
                // down pressed and !pressed last frame
                if ((players[p].down) && (!item[i][10])) do_entry = 1;
 
-               if (players[p].down) item[i][10] = frame_num;
+               if (players[p].down) item[i][10] = mwPS.frame_num;
                else item[i][10] = 0;
             }
          }
@@ -1589,7 +1614,7 @@ void proc_door_collision(int p, int i)
                      itemf[c][1] = players[p].PY;
                   }
 
-                  item[li][10] = frame_num;
+                  item[li][10] = mwPS.frame_num;
                }
                else
                {
@@ -1861,14 +1886,14 @@ void proc_warp_collision(int p, int i)
 
 void proc_switch_collision(int p, int i)
 {
-   if (item[i][11] < frame_num) // if not lockout
+   if (item[i][11] < mwPS.frame_num) // if not lockout
    {
       // if falling and landing on it
       if ( (players[p].PX  > itemf[i][0] - al_itofix(12)) && (players[p].PX  < itemf[i][0] + al_itofix(12)) &&
            (players[p].PY  > itemf[i][1] - al_itofix(16)) && (players[p].PY  < itemf[i][1] - al_itofix(8)) &&
            (players[p].yinc > al_itofix(0)) )  // falling
       {
-         item[i][11] = frame_num + 4; // switch lockout for next 4 frames
+         item[i][11] = mwPS.frame_num + 4; // switch lockout for next 4 frames
          game_event(30, 0, 0, p, i, 0, 0);
 
          if (item[i][1] > 111) item[i][1] -= 16;
@@ -2077,21 +2102,21 @@ void proc_trigger(int i)
 
    FLAGS = item[i][3]; // update FLAGS
 
-/*   if (FLAGS & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", frame_num);
-   if (FLAGS & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", frame_num);
-   if (FLAGS & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", frame_num);
-   if (FLAGS & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", frame_num); */
+/*   if (FLAGS & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", mwPS.frame_num);
+   if (FLAGS & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", mwPS.frame_num);
+   if (FLAGS & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", mwPS.frame_num);
+   if (FLAGS & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", mwPS.frame_num); */
 
    // clear them all
-   pm_event[item[i][11]] = 0;
-   pm_event[item[i][12]] = 0;
-   pm_event[item[i][13]] = 0;
-   pm_event[item[i][14]] = 0;
+   mwPME.event[item[i][11]] = 0;
+   mwPME.event[item[i][12]] = 0;
+   mwPME.event[item[i][13]] = 0;
+   mwPME.event[item[i][14]] = 0;
 
-   if   (FLAGS & PM_ITEM_TRIGGER_CURR)  pm_event[item[i][11]] = 1;
-   if (!(FLAGS & PM_ITEM_TRIGGER_CURR)) pm_event[item[i][12]] = 1;
-   if   (FLAGS & PM_ITEM_TRIGGER_TGON)  pm_event[item[i][13]] = 1;
-   if   (FLAGS & PM_ITEM_TRIGGER_TGOF)  pm_event[item[i][14]] = 1;
+   if   (FLAGS & PM_ITEM_TRIGGER_CURR)  mwPME.event[item[i][11]] = 1;
+   if (!(FLAGS & PM_ITEM_TRIGGER_CURR)) mwPME.event[item[i][12]] = 1;
+   if   (FLAGS & PM_ITEM_TRIGGER_TGON)  mwPME.event[item[i][13]] = 1;
+   if   (FLAGS & PM_ITEM_TRIGGER_TGOF)  mwPME.event[item[i][14]] = 1;
 }
 
 void set_item_trigger_location_from_lift(int i, int a20)
@@ -2203,7 +2228,7 @@ void detect_trigger_collisions(int i)
 
 void draw_trigger(int i, int x, int y)
 {
-   if (level_editor_running)
+   if (mwPS.level_editor_running)
    {
       al_draw_bitmap(mwB.tile[991], x, y, 0); // draw item shape in level editor, invisible when game running
       if (item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 1); // snap to lift here because main function wont be called while in level editor
@@ -2242,7 +2267,7 @@ item[][12] = draw color
 void proc_block_manip(int i)
 {
    int et = item[i][1]; // pm_event trigger we are looking for
-   if (pm_event[et])
+   if (mwPME.event[et])
    {
       al_set_target_bitmap(mwB.level_background);
       int x1 = item[i][6]/20;
@@ -2260,7 +2285,7 @@ void proc_block_manip(int i)
             if (mode == 1) // set all blocks to block 1
             {
                l[x][y] = block1;
-               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
                al_draw_bitmap(mwB.btile[block1&1023], x*20, y*20, 0 );
             }
 
@@ -2269,7 +2294,7 @@ void proc_block_manip(int i)
                if (l[x][y] == block2)
                {
                   l[x][y] = block1;
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
                   al_draw_bitmap(mwB.btile[block1&1023], x*20, y*20, 0 );
                }
             }
@@ -2279,13 +2304,13 @@ void proc_block_manip(int i)
                if (l[x][y] == block1)
                {
                   l[x][y] = block2;
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
                   al_draw_bitmap(mwB.btile[block2&1023], x*20, y*20, 0 );
                }
                else if (l[x][y] == block2)
                {
                   l[x][y] = block1;
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
                   al_draw_bitmap(mwB.btile[block1&1023], x*20, y*20, 0 );
                }
             }
@@ -2297,7 +2322,7 @@ void proc_block_manip(int i)
 
 void draw_block_manip(int i, int x, int y)
 {
-   if (level_editor_running)
+   if (mwPS.level_editor_running)
    {
       al_draw_bitmap(mwB.tile[989], x, y, 0); // draw item shape in level editor, invisible when game running
    }
@@ -2520,7 +2545,7 @@ void draw_block_damage(int i, int x, int y, int custom)
    float x2 = x1 + item[i][8];
    float y2 = y1 + item[i][9];
 
-   if (level_editor_running)
+   if (mwPS.level_editor_running)
    {
       al_draw_bitmap(mwB.tile[988], x0, y0, 0); // draw item shape in level editor, invisible when game running
       if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i, 1); // set this here only when level editor is running
@@ -2567,8 +2592,8 @@ void draw_block_damage(int i, int x, int y, int custom)
 
          if (mode == 2) col = 11;
          if (mode == 3) col = 10;
-         if (timer_draw_mode1) al_draw_textf(mF.pixl,   palette_color[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
-         if (timer_draw_mode2) al_draw_textf(mF.pr8, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode1) al_draw_textf(mF.pixl,   mC.pc[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(mF.pr8, mC.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
 
       }
       if ((timer_draw_mode3) || (timer_draw_mode4)) // percent bar
@@ -2620,8 +2645,8 @@ void draw_block_damage(int i, int x, int y, int custom)
       }
 
 
-      if (timer_draw_mode1) al_draw_textf(mF.pixl,   palette_color[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
-      if (timer_draw_mode2) al_draw_textf(mF.pr8, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+      if (timer_draw_mode1) al_draw_textf(mF.pixl,   mC.pc[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
+      if (timer_draw_mode2) al_draw_textf(mF.pr8, mC.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
       if (timer_draw_mode3) draw_percent_bar(x0+9, y0+5, 32, 8,  percent);
       if (timer_draw_mode4) draw_percent_bar(x0+9, y0+1, 64, 16, percent);
    }
@@ -2645,17 +2670,17 @@ void proc_block_damage(int i)
 
    if (mode == 1)
    {
-      if (pm_event[et]) item[i][3] ^= PM_ITEM_DAMAGE_CURR; // toggle current damage flag
+      if (mwPME.event[et]) item[i][3] ^= PM_ITEM_DAMAGE_CURR; // toggle current damage flag
    }
    if (mode == 2) // damage unless timer running  (no damage when triggered)
    {
-      if (pm_event[et]) item[i][13] = item[i][12];              // reset timer
+      if (mwPME.event[et]) item[i][13] = item[i][12];              // reset timer
       if (item[i][13] == 0) item[i][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
       else                  item[i][3] &= ~PM_ITEM_DAMAGE_CURR; // set damage off
    }
    if (mode == 3) // damage when timer is running (no damage until triggered)
    {
-      if (pm_event[et]) item[i][13] = item[i][12];             // reset timer
+      if (mwPME.event[et]) item[i][13] = item[i][12];             // reset timer
       if (item[i][13] > 0) item[i][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
       else                 item[i][3] &= ~PM_ITEM_DAMAGE_CURR; // set damage off
    }

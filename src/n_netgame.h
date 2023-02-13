@@ -23,14 +23,11 @@ extern int srv_client_state_frame_num[8][2];
 extern char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
 extern int  client_state_buffer_pieces[16];   // to mark packet pieces as received
 extern char client_state_base[STATE_SIZE];    // last ack state
-extern int  client_state_base_frame_num;      // last ack state frame_num
+extern int  client_state_base_frame_num;      // last ack state mwPS.frame_num
 extern char client_state_dif[STATE_SIZE];     // uncompressed dif
-extern int  client_state_dif_src;             // uncompressed dif src frame_num
-extern int  client_state_dif_dst;             // uncompressed dif dst frame_num
+extern int  client_state_dif_src;             // uncompressed dif src mwPS.frame_num
+extern int  client_state_dif_dst;             // uncompressed dif dst mwPS.frame_num
 
-
-void pml_to_var(char * b);
-void var_to_pml(char * b);
 void game_vars_to_state(char * b);
 void state_to_game_vars(char * b);
 void get_state_dif(char *a, char *b, char *c, int size);

@@ -1,10 +1,34 @@
 // e_visual_level.cpp
 #include "pm.h"
+#include "e_visual_level.h"
 #include "z_player.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
+#include "z_lift.h"
+#include "mwColor.h"
+#include "mwInput.h"
+#include "mwEventQueue.h"
+#include "mwProgramState.h"
+#include "z_menu.h"
+#include "z_item.h"
+#include "z_enemy.h"
+#include "z_level.h"
+#include "z_file.h"
+#include "z_fnx.h"
+#include "z_screen.h"
 
 
+
+// ------------------------------------------------
+// ----- visual level select ----------------------
+// ------------------------------------------------
+ALLEGRO_BITMAP * grid_bmp = NULL;
+ALLEGRO_BITMAP * level_icon_bmp[NUM_LEV];
+int le[NUM_LEV]; // level exists array
+int num_levs;
+int sel_x, sel_y, sel_size;
+int grid_cols, grid_rows, grid_size, grid_width, grid_height;
+int load_visual_level_select_done = 0;
 
 // globals
 int sel = 0;
@@ -22,9 +46,9 @@ int lev_show_level_data(int x_pos, int y_pos)
    int ey_pos = enemy_data(x_pos, y_pos);
    int iy_pos = item_data(x_pos+135, y_pos);
    ey_pos = ey_pos + 8;
-   al_draw_textf(mF.pr8, palette_color[15], x_pos, ey_pos, 0,"%d Lifts  ", num_lifts);
+   al_draw_textf(mF.pr8, mC.pc[15], x_pos, ey_pos, 0,"%d Lifts  ", num_lifts);
    ey_pos += 8;
-   al_draw_text(mF.pr8, palette_color[15], x_pos, ey_pos, 0, "-------");
+   al_draw_text(mF.pr8, mC.pc[15], x_pos, ey_pos, 0, "-------");
    ey_pos += 8;
    if (iy_pos > ey_pos) return iy_pos;
    else return ey_pos;
@@ -34,30 +58,30 @@ void mark_rect(int sel, int color)
 {
    int y = (sel/20) * 50;
    int x = (sel % 20) * 50;
-   al_draw_rectangle(x,     y, x+49, y+49, palette_color[color], 1);
-   al_draw_rectangle(x+1, y+1, x+48, y+48, palette_color[color], 1);
+   al_draw_rectangle(x,     y, x+49, y+49, mC.pc[color], 1);
+   al_draw_rectangle(x+1, y+1, x+48, y+48, mC.pc[color], 1);
 }
 
 void show_cur(void)
 {
    int xpos = 1000+ (1280 - 1000)/2;
-   al_draw_text(mF.pr8, palette_color[14], xpos, 4, ALLEGRO_ALIGN_CENTER,"Currently selected level");
-   al_draw_textf(mF.pr8, palette_color[15], xpos, 15, ALLEGRO_ALIGN_CENTER, "Level:[%d]", cur);
-   al_draw_rectangle(1000, 24, 1279, 303, palette_color[14], 1 );
-   al_draw_rectangle(1001, 25, 1278, 302, palette_color[14], 1 );
+   al_draw_text(mF.pr8, mC.pc[14], xpos, 4, ALLEGRO_ALIGN_CENTER,"Currently selected level");
+   al_draw_textf(mF.pr8, mC.pc[15], xpos, 15, ALLEGRO_ALIGN_CENTER, "Level:[%d]", cur);
+   al_draw_rectangle(1000, 24, 1279, 303, mC.pc[14], 1 );
+   al_draw_rectangle(1001, 25, 1278, 302, mC.pc[14], 1 );
 
    int ts = 110;
-   al_draw_rectangle(1000, 24, 1279, 303+ts, palette_color[14], 1 );
-   al_draw_rectangle(1001, 25, 1278, 302+ts, palette_color[14], 1 );
+   al_draw_rectangle(1000, 24, 1279, 303+ts, mC.pc[14], 1 );
+   al_draw_rectangle(1001, 25, 1278, 302+ts, mC.pc[14], 1 );
 
-   if (load_level(cur, 0))
+   if (load_level(cur, 0, 1))
    {
       al_set_target_backbuffer(display);
       draw_level2(NULL, 1002, 26, 276, 1, 1, 1, 1, 0);
       al_set_target_backbuffer(display);
       lev_show_level_data(1010, 308);
    }
-   else al_draw_text(mF.pr8, palette_color[10], xpos, 30, ALLEGRO_ALIGN_CENTER,"not found");
+   else al_draw_text(mF.pr8, mC.pc[10], xpos, 30, ALLEGRO_ALIGN_CENTER,"not found");
 
 }
 
@@ -65,23 +89,23 @@ void show_msel(void)
 {
    int xpos = 1000+ (1280 - 1000)/2;
    int yo = 1024/2 - 96;
-   al_draw_text(mF.pr8, palette_color[10], xpos, yo + 4, ALLEGRO_ALIGN_CENTER,"Level under mouse");
-   al_draw_textf(mF.pr8, palette_color[10], xpos, yo + 15, ALLEGRO_ALIGN_CENTER, "Level:[%d]", sel);
-   al_draw_rectangle(1000, yo + 24, 1279, yo + 303, palette_color[10], 1 );
-   al_draw_rectangle(1001, yo + 25, 1278, yo + 302, palette_color[10], 1 );
+   al_draw_text(mF.pr8, mC.pc[10], xpos, yo + 4, ALLEGRO_ALIGN_CENTER,"Level under mouse");
+   al_draw_textf(mF.pr8, mC.pc[10], xpos, yo + 15, ALLEGRO_ALIGN_CENTER, "Level:[%d]", sel);
+   al_draw_rectangle(1000, yo + 24, 1279, yo + 303, mC.pc[10], 1 );
+   al_draw_rectangle(1001, yo + 25, 1278, yo + 302, mC.pc[10], 1 );
 
    int ts = 110;
-   al_draw_rectangle(1000, yo + 24, 1279, yo + 303+ts, palette_color[10], 1 );
-   al_draw_rectangle(1001, yo + 25, 1278, yo + 302+ts, palette_color[10], 1 );
+   al_draw_rectangle(1000, yo + 24, 1279, yo + 303+ts, mC.pc[10], 1 );
+   al_draw_rectangle(1001, yo + 25, 1278, yo + 302+ts, mC.pc[10], 1 );
 
-   if (load_level(sel, 0))
+   if (load_level(sel, 0, 1))
    {
       al_set_target_backbuffer(display);
       draw_level2(NULL, 1002, yo+26, 276, 1, 1, 1, 1, 0);
       al_set_target_backbuffer(display);
       lev_show_level_data(1010, yo + 308);
    }
-   else al_draw_text(mF.pr8, palette_color[10], xpos, yo + 30, ALLEGRO_ALIGN_CENTER,"not found" );
+   else al_draw_text(mF.pr8, mC.pc[10], xpos, yo + 30, ALLEGRO_ALIGN_CENTER,"not found" );
 }
 
 
@@ -137,14 +161,14 @@ void compare_curr(int sel)
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
    sprintf(msg, "<-------------- Compare Level:%d -------------->", sel);
-   al_draw_text(mF.pr8, palette_color[15], 0, ypos, 0, msg); ypos+=8;
+   al_draw_text(mF.pr8, mC.pc[15], 0, ypos, 0, msg); ypos+=8;
    printf("%s\n", msg);
    al_flip_display();
 
 
    // load every level
    for (int x=0; x<num_levs; x++)
-      if (load_level(le[x], 1))
+      if (load_level(le[x], 1, 1))
       {
          int sb1 = 0, sb2 = 0, sbm = 0;
          for (int a=0; a<100; a++)
@@ -166,14 +190,14 @@ void compare_curr(int sel)
          {
             al_set_target_backbuffer(display);
             sprintf(msg, "----> match [%3d%%] with level:%3d <----", match, le[x]);
-            al_draw_text(mF.pr8, palette_color[15], 0, ypos, 0, msg); ypos+=8;
+            al_draw_text(mF.pr8, mC.pc[15], 0, ypos, 0, msg); ypos+=8;
             num_matches++;
          }
 
       }
    al_set_target_backbuffer(display);
    sprintf(msg, "<--------Done. Press any key to continue------->");
-   al_draw_text(mF.pr8, palette_color[15], 0, ypos, 0, msg);
+   al_draw_text(mF.pr8, mC.pc[15], 0, ypos, 0, msg);
    printf("%s\n", msg);
    al_flip_display();
    tsw();
@@ -217,19 +241,19 @@ void compare_all(void)
    al_clear_to_color(al_map_rgb(0,0,0));
 
    sprintf(msg, "<----------- Compare all Levels ----------->");
-   al_draw_text(mF.pr8, palette_color[15], mwD.SCREEN_W/2, ypos, ALLEGRO_ALIGN_CENTER, msg);
+   al_draw_text(mF.pr8, mC.pc[15], mwD.SCREEN_W/2, ypos, ALLEGRO_ALIGN_CENTER, msg);
    printf("%s\n", msg);
 
    ypos = 60;
 
    sprintf(msg, "<-------------List of matches------------------>");
-   al_draw_text(mF.pr8, palette_color[15], 10, ypos, 0, msg); ypos+=8;
+   al_draw_text(mF.pr8, mC.pc[15], 10, ypos, 0, msg); ypos+=8;
    printf("%s\n", msg);
    al_flip_display();
 
    // load every level (outer loop)
    for (int x=0; x<num_levs; x++)
-      if (load_level(le[x], 1))
+      if (load_level(le[x], 1, 1))
       {
 
          al_set_target_backbuffer(display);
@@ -237,7 +261,7 @@ void compare_all(void)
          draw_percent_bar(mwD.SCREEN_W/2, 10, mwD.SCREEN_W-200, 14, pc );
 
          sprintf(msg, "checking level:%d", le[x]);
-         al_draw_text(mF.pr8, palette_color[15], mwD.SCREEN_W/2, 14, ALLEGRO_ALIGN_CENTER, msg);
+         al_draw_text(mF.pr8, mC.pc[15], mwD.SCREEN_W/2, 14, ALLEGRO_ALIGN_CENTER, msg);
 
          printf("%s\n", msg);
 
@@ -253,7 +277,7 @@ void compare_all(void)
 
          // load every level (inner loop)
          for (int x1=0; x1<num_levs; x1++)
-            if (load_level(le[x1], 1))
+            if (load_level(le[x1], 1, 1))
             {
 
                al_set_target_backbuffer(display);
@@ -261,7 +285,7 @@ void compare_all(void)
                draw_percent_bar(mwD.SCREEN_W/2, 30, mwD.SCREEN_W-200, 14, pc );
 
                sprintf(msg, "checking level:%d", le[x1]);
-               al_draw_text(mF.pr8, palette_color[15], mwD.SCREEN_W/2, 34, ALLEGRO_ALIGN_CENTER, msg);
+               al_draw_text(mF.pr8, mC.pc[15], mwD.SCREEN_W/2, 34, ALLEGRO_ALIGN_CENTER, msg);
 
                al_flip_display();
 
@@ -281,21 +305,21 @@ void compare_all(void)
                   {
                      al_set_target_backbuffer(display);
                      sprintf(msg, "----> level%d - match [%d%%] with level:%d <----", le[x], match, le[x1]);
-                     al_draw_text(mF.pr8, palette_color[15], 10, ypos, 0, msg); ypos+=8;
+                     al_draw_text(mF.pr8, mC.pc[15], 10, ypos, 0, msg); ypos+=8;
                      printf("%s\n", msg);
                      num_matches++;
                    }
                }
-               proc_event_queue_menu();
-               if (key[ALLEGRO_KEY_ESCAPE][3]) x1 = num_levs; // break out of inner loop
+               mwEQ.proc_event_queue_menu();
+               if (mI.key[ALLEGRO_KEY_ESCAPE][3]) x1 = num_levs; // break out of inner loop
             } // next level (inner loop)
-         proc_event_queue_menu();
-         if (key[ALLEGRO_KEY_ESCAPE][3]) x = num_levs;  // break out of outer loop
+         mwEQ.proc_event_queue_menu();
+         if (mI.key[ALLEGRO_KEY_ESCAPE][3]) x = num_levs;  // break out of outer loop
    } // next level (outer loop)
 
    al_set_target_backbuffer(display);
    sprintf(msg, "<--------Done. Press any key to continue------->");
-   al_draw_text(mF.pr8, palette_color[15], 10, ypos, 0, msg);
+   al_draw_text(mF.pr8, mC.pc[15], 10, ypos, 0, msg);
    printf("%s\n", msg);
    al_flip_display();
    tsw();
@@ -319,17 +343,17 @@ void lev_draw(int full)
          {
             int level = my*20 + mx;
             int col = 11;
-            if (!load_level(level, 0)) col = 10;
+            if (!load_level(level, 0, 1)) col = 10;
             al_set_target_bitmap(le_temp);
             if (valid_level_loaded) draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0);
-            al_draw_textf(mF.pr8, palette_color[col], mx*ms +ms/2, my*ms+ms/2, ALLEGRO_ALIGN_CENTER, "%d", level);
+            al_draw_textf(mF.pr8, mC.pc[col], mx*ms +ms/2, my*ms+ms/2, ALLEGRO_ALIGN_CENTER, "%d", level);
 
             // show progress bar
             int pc = level*100 / 400;
             al_set_target_backbuffer(display);
             //al_clear_to_color(al_map_rgb(0,0,0));
             draw_percent_bar(mwD.SCREEN_W/2, mwD.SCREEN_H/2, mwD.SCREEN_W-200, 20, pc );
-            al_draw_text(mF.pr8, palette_color[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Levels");
+            al_draw_text(mF.pr8, mC.pc[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Levels");
             al_flip_display();
          }
 
@@ -347,23 +371,22 @@ void lev_draw(int full)
    int xpos = 1000 + (1280 - 1000)/2;
    int ty1 = 840;
 
-   al_draw_text(mF.pr8, palette_color[14], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "Change currently selected");
-   al_draw_text(mF.pr8, palette_color[14], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "level with left mouse button");
+   al_draw_text(mF.pr8, mC.pc[14], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "Change currently selected");
+   al_draw_text(mF.pr8, mC.pc[14], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "level with left mouse button");
    ty1+=20;
 
-   al_draw_text(mF.pr8, palette_color[10], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "Move currently selected");
-   al_draw_text(mF.pr8, palette_color[10], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "level to empty level");
-   al_draw_text(mF.pr8, palette_color[10], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "with right mouse button");
+   al_draw_text(mF.pr8, mC.pc[10], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "Move currently selected");
+   al_draw_text(mF.pr8, mC.pc[10], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "level to empty level");
+   al_draw_text(mF.pr8, mC.pc[10], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "with right mouse button");
    ty1+=20;
 
-   al_draw_text(mF.pr8, palette_color[11], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "View currently selected" );
-   al_draw_text(mF.pr8, palette_color[11], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "level full screen");
-   al_draw_text(mF.pr8, palette_color[11], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "by holding 'S'");
-   al_draw_text(mF.pr8, palette_color[11], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "or right mouse button");
+   al_draw_text(mF.pr8, mC.pc[11], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "View currently selected" );
+   al_draw_text(mF.pr8, mC.pc[11], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "level full screen");
+   al_draw_text(mF.pr8, mC.pc[11], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "by holding 'S'");
+   al_draw_text(mF.pr8, mC.pc[11], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "or right mouse button");
    ty1+=20;
-   al_draw_text(mF.pr8, palette_color[12], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "Quit with ESC");
+   al_draw_text(mF.pr8, mC.pc[12], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "Quit with ESC");
 }
-
 
 void level_viewer(void)
 {
@@ -377,7 +400,7 @@ void level_viewer(void)
 
    while (!quit)
    {
-      proc_event_queue_menu();
+      mwEQ.proc_event_queue_menu();
 
       if (redraw)
       {
@@ -389,61 +412,66 @@ void level_viewer(void)
          al_flip_display();
       }
 
-      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
-      if (key[ALLEGRO_KEY_A][3])
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+      if (mI.key[ALLEGRO_KEY_A][3])
       {
          compare_all();
          redraw = 1;
       }
-      if (key[ALLEGRO_KEY_C][3])
+      if (mI.key[ALLEGRO_KEY_C][0])
       {
+         while (mI.key[ALLEGRO_KEY_C][0]) mwEQ.proc_event_queue_menu();
          compare_curr(sel);
          redraw = 1;
       }
 
-      if (key[ALLEGRO_KEY_S][0])
+      if (mI.key[ALLEGRO_KEY_S][0])
       {
-         if (load_level(cur, 0)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
+         while (mI.key[ALLEGRO_KEY_S][0]) mwEQ.proc_event_queue_menu();
+         if (load_level(cur, 0, 1)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
          al_flip_display();
-         while (key[ALLEGRO_KEY_S][0]) proc_event_queue_menu();
+         while (mI.key[ALLEGRO_KEY_S][0]) mwEQ.proc_event_queue_menu();
          redraw = 1;
       }
 
 
-      if ((mouse_x < 1000) && (mouse_y < 1000))  // mouse is on the level grid
+      if ((mI.mouse_x < 1000) && (mI.mouse_y < 1000))  // mouse is on the level grid
       {
-         sel = (mouse_y/50) * 20 + (mouse_x/50); // highlight the level the mouse is over
+         sel = (mI.mouse_y/50) * 20 + (mI.mouse_x/50); // highlight the level the mouse is over
          if (sel != old_sel)
          {
             old_sel = sel;
             redraw = 1;
          }
-         if (mouse_b[1][0]) // set new current level (and show full screen while mouse b1 pressed)
+         if (mI.mouse_b[1][0]) // set new current level (and show full screen while mouse b1 pressed)
          {
             cur = sel;
-            if (load_level(cur, 0)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
+            if (load_level(cur, 0, 1)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
             al_flip_display();
             redraw = 1;
-            while (mouse_b[1][0]) proc_event_queue_menu();
+            while (mI.mouse_b[1][0]) mwEQ.proc_event_queue_menu();
          }
 
-         if (mouse_b[2][0]) // copy current to selected
+         if (mI.mouse_b[2][0]) // copy current to selected
          {
-            while (mouse_b[2][0]) proc_event_queue_menu();
+            while (mI.mouse_b[2][0]) mwEQ.proc_event_queue_menu();
             if ((cur != 0) && (sel !=0) && (cur != sel))
             {
-               if (load_level(cur, 0) == 1) // cur exists
-                  if (load_level(sel, 0) == 0) // sel does not exist
+               if (load_level(cur, 0, 1) == 1) // cur exists
+                  if (load_level(sel, 0, 1) == 0) // sel does not exist
                   {
                      sprintf(msg, "Level:%d to Level:%d ?", cur, sel);
                      if (al_show_native_message_box(display,
                                  "Move?", "Are you sure you want to move", msg, NULL,
                                  ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
                      {
-                        load_level(cur, 0);           // load current level
+                        char lf[256];
+
+                        load_level(cur, 0, 1);           // load current level
                         save_level(sel);              // save as new level
-                        make_filename(cur);           // make filename for old
-                        ALLEGRO_FS_ENTRY *df = al_create_fs_entry(level_filename);
+
+                        sprintf(lf, "levels/level%03d.pml", cur); // make filename for old
+                        ALLEGRO_FS_ENTRY *df = al_create_fs_entry(lf);
                         al_remove_fs_entry(df);
                         redraw = 2;                   // redraw everything (reload all levels)
                      }
@@ -461,20 +489,20 @@ void show_cur_vs(int cur, int x1, int y1, int size, int fc)
    int x2 = x1 + size;
    int y2 = y1 + size;
    int xc = x1 + size / 2; // text center
-   al_draw_text(mF.pr8, palette_color[15], xc, y1+4-5, ALLEGRO_ALIGN_CENTER,"Currently selected level");
+   al_draw_text(mF.pr8, mC.pc[15], xc, y1+4-5, ALLEGRO_ALIGN_CENTER,"Currently selected level");
    for (int a=0; a<16; a++)
-      al_draw_rectangle(x1+0-a, y1+24-a, x2-0+a, y2+24+a, palette_color[fc + (15-a)*16], 1 );
+      al_draw_rectangle(x1+0-a, y1+24-a, x2-0+a, y2+24+a, mC.pc[fc + (15-a)*16], 1 );
    int tc = 15;
    if (fc == 15) tc = 0;
-   al_draw_textf(mF.pr8, palette_color[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d", cur);
-   if (load_level(cur, 0))
+   al_draw_textf(mF.pr8, mC.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d", cur);
+   if (load_level(cur, 0, 1))
    {
       draw_level2(NULL, x1+2, y1+26, size-3, 1, 1, 1, 1, 0);
       int ty1 = lev_show_level_data(x1+2, y2+32+24);
       for (int a=0; a<16; a++)
-         al_draw_rectangle(x1+0-a, y2+55-a, x2-0+a, ty1+a, palette_color[fc + (15-a)*16], 1 );
+         al_draw_rectangle(x1+0-a, y2+55-a, x2-0+a, ty1+a, mC.pc[fc + (15-a)*16], 1 );
    }
-   else al_draw_text(mF.pr8, palette_color[10], xc, y1+30, ALLEGRO_ALIGN_CENTER, "not found" );
+   else al_draw_text(mF.pr8, mC.pc[10], xc, y1+30, ALLEGRO_ALIGN_CENTER, "not found" );
 }
 
 void load_visual_level_select(void)
@@ -604,7 +632,7 @@ void load_visual_level_select(void)
 
    // load every level and get icon bitmaps
    for (int x=0; x<num_levs; x++)
-      if (load_level(le[x], 0))
+      if (load_level(le[x], 0, 1))
       {
          al_set_target_bitmap(level_icon_bmp[x]);
          draw_level2(level_icon_bmp[x], 0, 0, grid_size, 1, 1, 1, 1, 0);
@@ -612,7 +640,7 @@ void load_visual_level_select(void)
 
          al_set_target_backbuffer(display);
          draw_percent_bar(mwD.SCREEN_W/2, mwD.SCREEN_H/2, mwD.SCREEN_W-200, 20, pc );
-         al_draw_text(mF.pr8, palette_color[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating level icon grid");
+         al_draw_text(mF.pr8, mC.pc[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating level icon grid");
          al_flip_display();
       }
 
@@ -633,7 +661,7 @@ void load_visual_level_select(void)
          if (lev)
          {
             al_draw_bitmap(level_icon_bmp[grid_pos], bx1, by1, 0);
-            al_draw_textf(mF.pr8, palette_color[15], bx1 + grid_size/2-8, by1 + grid_size/2-4, 0, "%d", lev);
+            al_draw_textf(mF.pr8, mC.pc[15], bx1 + grid_size/2-8, by1 + grid_size/2-4, 0, "%d", lev);
          }
       } // end of grid iterate
    for (int x=0; x<num_levs; x++)  al_destroy_bitmap(level_icon_bmp[x]);
@@ -641,12 +669,12 @@ void load_visual_level_select(void)
 
 int visual_level_select(void)
 {
-   visual_level_select_running = 1;
+   mwPS.visual_level_select_running = 1;
 
    int p = active_local_player;
    int fc = players[p].color; // frame color
 
-   while ( (key[ALLEGRO_KEY_ENTER][0]) || (players[0].fire) || (players[0].jump) ) proc_event_queue_menu();;
+   while ( (mI.key[ALLEGRO_KEY_ENTER][0]) || (players[0].fire) || (players[0].jump) ) mwEQ.proc_event_queue_menu();;
 
    if (!load_visual_level_select_done) load_visual_level_select();
 
@@ -687,7 +715,7 @@ int visual_level_select(void)
          int gx2 = 15 + grid_width;
          int gy2 = 15 + grid_height;
          for (int a=-16; a<0; a++)
-            al_draw_rectangle(16+a, 16+a, gx2-a, gy2-a, palette_color[256+fc+a*16], 1);
+            al_draw_rectangle(16+a, 16+a, gx2-a, gy2-a, mC.pc[256+fc+a*16], 1);
 
          // frame the selection on grid
          int bx1 = 16 + grid_sel_col * grid_size;
@@ -695,7 +723,7 @@ int visual_level_select(void)
          int bx2 = bx1 + grid_size - 1;
          int by2 = by1 + grid_size - 1;
          for (int a=-16; a<0; a++)
-            al_draw_rectangle(bx1+a, by1+a, bx2-a, by2-a, palette_color[256+fc+a*16], 1);
+            al_draw_rectangle(bx1+a, by1+a, bx2-a, by2-a, mC.pc[256+fc+a*16], 1);
 
          // show the large selected level
          show_cur_vs(selected_level, sel_x, 70, sel_size, fc);
@@ -710,59 +738,59 @@ int visual_level_select(void)
          int y1 = ty1+15;
          int y2 = ty1+46;
          for (int a=0; a<16; a++)
-            al_draw_rectangle(x1-a, y1-a, x2+a, y2+a, palette_color[fc + (15-a)*16], 1 );
+            al_draw_rectangle(x1-a, y1-a, x2+a, y2+a, mC.pc[fc + (15-a)*16], 1 );
 
          // draw the legend
-         al_draw_text(mF.pr8, palette_color[14], tx, ty1+=16, ALLEGRO_ALIGN_CENTER, "Choose a level with <ENTER>");
-         al_draw_text(mF.pr8, palette_color[11], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Arrow keys change selection" );
-         al_draw_text(mF.pr8, palette_color[10], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "<ESC> to abort");
+         al_draw_text(mF.pr8, mC.pc[14], tx, ty1+=16, ALLEGRO_ALIGN_CENTER, "Choose a level with <ENTER>");
+         al_draw_text(mF.pr8, mC.pc[11], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Arrow keys change selection" );
+         al_draw_text(mF.pr8, mC.pc[10], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "<ESC> to abort");
 
          al_flip_display();
       } // end of redraw
 
 
 
-      proc_event_queue_menu();
+      mwEQ.proc_event_queue_menu();
 
-      if (((key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) && (left_held == 0))
+      if (((mI.key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) && (left_held == 0))
       {
          left_held = 1;
-         while ((key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) proc_event_queue_menu();
+         while ((mI.key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) mwEQ.proc_event_queue_menu();
          if (--grid_sel_col < 0) grid_sel_col = 0;
          vl_redraw = 1;
       }
-      if ( (!(key[ALLEGRO_KEY_LEFT][0])) &&  (!(players[0].left)) )  left_held = 0;
+      if ( (!(mI.key[ALLEGRO_KEY_LEFT][0])) &&  (!(players[0].left)) )  left_held = 0;
 
-      if (((key[ALLEGRO_KEY_UP][0]) || (players[0].up)) && (up_held == 0))
+      if (((mI.key[ALLEGRO_KEY_UP][0]) || (players[0].up)) && (up_held == 0))
       {
          up_held = 1;
-         while ((key[ALLEGRO_KEY_UP][0]) || (players[0].up)) proc_event_queue_menu();
+         while ((mI.key[ALLEGRO_KEY_UP][0]) || (players[0].up)) mwEQ.proc_event_queue_menu();
          if (--grid_sel_row < 0) grid_sel_row = 0;
          vl_redraw = 1;
       }
-      if ( (!(key[ALLEGRO_KEY_UP][0])) && (!(players[0].up)) ) up_held = 0;
+      if ( (!(mI.key[ALLEGRO_KEY_UP][0])) && (!(players[0].up)) ) up_held = 0;
 
-      if (((key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) && (right_held == 0))
+      if (((mI.key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) && (right_held == 0))
       {
          right_held = 1;
-         while ((key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) proc_event_queue_menu();
+         while ((mI.key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) mwEQ.proc_event_queue_menu();
          if (++grid_sel_col > grid_cols-1) grid_sel_col = grid_cols-1;
          // don't allow select of empty level
          if (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--;
          vl_redraw = 1;
       }
-      if ( (!(key[ALLEGRO_KEY_RIGHT][0])) &&  (!(players[0].right)) )  right_held = 0;
+      if ( (!(mI.key[ALLEGRO_KEY_RIGHT][0])) &&  (!(players[0].right)) )  right_held = 0;
 
-      if (((key[ALLEGRO_KEY_DOWN][0]) || (players[0].down)) && (down_held == 0))
+      if (((mI.key[ALLEGRO_KEY_DOWN][0]) || (players[0].down)) && (down_held == 0))
       {
          down_held = 1;
-         while ((key[ALLEGRO_KEY_DOWN][0]) || (players[0].down)) proc_event_queue_menu();
+         while ((mI.key[ALLEGRO_KEY_DOWN][0]) || (players[0].down)) mwEQ.proc_event_queue_menu();
          if (++grid_sel_row > grid_rows-1) grid_sel_row = grid_rows-1;
          // don't allow select of empty level
          if (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_row--;
          vl_redraw = 1;
       }
-      if ( (!(key[ALLEGRO_KEY_DOWN][0])) && (!(players[0].down)) ) down_held = 0;
+      if ( (!(mI.key[ALLEGRO_KEY_DOWN][0])) && (!(players[0].down)) ) down_held = 0;
 
       // these checks would normally never be needed, unless screen size changes
       if (grid_sel_col > grid_cols-1) grid_sel_col = 0;
@@ -776,18 +804,18 @@ int visual_level_select(void)
       // update selected row
       selected_level = le[grid_sel_row * grid_cols + grid_sel_col];
 
-      if ( (key[ALLEGRO_KEY_ENTER][3]) || (players[0].fire) || (players[0].jump) )
+      if ( (mI.key[ALLEGRO_KEY_ENTER][3]) || (players[0].fire) || (players[0].jump) )
       {
-         while ((players[0].jump) || (players[0].fire)) proc_event_queue_menu();
+         while ((players[0].jump) || (players[0].fire)) mwEQ.proc_event_queue_menu();
          quit = 1;
       }
-      if (key[ALLEGRO_KEY_ESCAPE][3])
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3])
       {
          selected_level = 0;
          quit = 1;
       }
    }
-   visual_level_select_running = 0;
+   mwPS.visual_level_select_running = 0;
    play_level = selected_level;
    set_start_level(play_level);
    printf("level selected:%d\n", play_level);

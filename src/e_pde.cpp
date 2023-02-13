@@ -1,7 +1,22 @@
 // e_pde.cpp
 #include "pm.h"
+#include "e_pde.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
+#include "mwWidgets.h"
+#include "mwColor.h"
+#include "mwInput.h"
+#include "mwEventQueue.h"
+#include "z_menu.h"
+#include "z_fnx.h"
+
+
+
+
+
+int PDEi[100][32];
+al_fixed PDEfx[100][16];
+char PDEt[100][20][40];
 
 int load_PDE()
 {
@@ -162,32 +177,32 @@ void PDE_sort(void)
 void PDE_edit_text(int EN)
 {
    int line_length = 30;
-   int tx = mouse_x/8;
-   int ty1 = (mouse_y-20)/8;
+   int tx = mI.mouse_x/8;
+   int ty1 = (mI.mouse_y-20)/8;
    int quit = 0;
    while (!quit)
    {
       // redraw
       // erase background
-      al_draw_filled_rectangle(0, 20, 256, 180, palette_color[0]);
-      al_draw_rectangle(0, 20, 256, 180, palette_color[14], 1);
-      al_draw_text(mF.pr8, palette_color[14], 128, 12,  ALLEGRO_ALIGN_CENTER, "Text Edit Mode");
+      al_draw_filled_rectangle(0, 20, 256, 180, mC.pc[0]);
+      al_draw_rectangle(0, 20, 256, 180, mC.pc[14], 1);
+      al_draw_text(mF.pr8, mC.pc[14], 128, 12,  ALLEGRO_ALIGN_CENTER, "Text Edit Mode");
 
       // redraw all the text
       for (int x=0; x<20; x++)
-         al_draw_text(mF.pr8, palette_color[15], 0, 20+(x*8), 0, PDEt[EN][x]);
+         al_draw_text(mF.pr8, mC.pc[15], 0, 20+(x*8), 0, PDEt[EN][x]);
 
       // mark the text entry position
-      al_draw_filled_rectangle((tx*8), 20+(ty1*8), (tx*8)+8, 20+(ty1*8)+8, palette_color[138]);
+      al_draw_filled_rectangle((tx*8), 20+(ty1*8), (tx*8)+8, 20+(ty1*8)+8, mC.pc[138]);
       msg[0] = PDEt[EN][ty1][tx];
       if (msg[0] == (char)NULL) msg[0] = 32;
       msg[1] = (char)NULL;
-      al_draw_text(mF.pr8, palette_color[10], (tx*8), 20+(ty1*8), 0, msg);
+      al_draw_text(mF.pr8, mC.pc[10], (tx*8), 20+(ty1*8), 0, msg);
       al_flip_display();
 
 
-      proc_event_queue();
-      int k = key_pressed_ASCII;
+      mwEQ.proc_event_queue();
+      int k = mI.key_pressed_ASCII;
       if ((k>31) && (k<127)) // insert if alphanumeric or return
       {
          int z = strlen(PDEt[EN][ty1]);
@@ -203,17 +218,17 @@ void PDE_edit_text(int EN)
          }
       }
 
-      if (key[ALLEGRO_KEY_BACKSPACE][0])
+      if (mI.key[ALLEGRO_KEY_BACKSPACE][0])
       {
-         while (key[ALLEGRO_KEY_BACKSPACE][0]) proc_event_queue();
+         while (mI.key[ALLEGRO_KEY_BACKSPACE][0]) mwEQ.proc_event_queue();
          if (--tx<0) tx = 0;
          int z = strlen(PDEt[EN][ty1]);
          for (int x=tx; x<z; x++)
             PDEt[EN][ty1][x] = PDEt[EN][ty1][x+1];
       }
-      if (key[ALLEGRO_KEY_ENTER][3])
+      if (mI.key[ALLEGRO_KEY_ENTER][3])
       {
-         while (key[ALLEGRO_KEY_ENTER][0]) proc_event_queue();
+         while (mI.key[ALLEGRO_KEY_ENTER][0]) mwEQ.proc_event_queue();
          for (int y=19; y>ty1; y--)  // slide all down
             strcpy(PDEt[EN][y],PDEt[EN][y-1]);
          if (strlen(PDEt[EN][ty1]) == 999) // cursor past end of line
@@ -228,9 +243,9 @@ void PDE_edit_text(int EN)
             ty1++;
          }
       }
-      if (key[ALLEGRO_KEY_DELETE][0])
+      if (mI.key[ALLEGRO_KEY_DELETE][0])
       {
-         while (key[ALLEGRO_KEY_DELETE][0]) proc_event_queue();
+         while (mI.key[ALLEGRO_KEY_DELETE][0]) mwEQ.proc_event_queue();
          if (PDEt[EN][ty1][tx] == (char)NULL)
          {
             for (int x=0; x<=30-tx; x++) // get portion from line below
@@ -245,38 +260,38 @@ void PDE_edit_text(int EN)
                PDEt[EN][ty1][x] = PDEt[EN][ty1][x+1];
          }
       }
-      if (key[ALLEGRO_KEY_RIGHT][0])
+      if (mI.key[ALLEGRO_KEY_RIGHT][0])
       {
-         while (key[ALLEGRO_KEY_RIGHT][0]) proc_event_queue();
+         while (mI.key[ALLEGRO_KEY_RIGHT][0]) mwEQ.proc_event_queue();
          if (++tx > line_length-1) tx = line_length-1;
       }
-      if (key[ALLEGRO_KEY_LEFT][0])
+      if (mI.key[ALLEGRO_KEY_LEFT][0])
       {
-         while (key[ALLEGRO_KEY_LEFT][0]) proc_event_queue();
+         while (mI.key[ALLEGRO_KEY_LEFT][0]) mwEQ.proc_event_queue();
          if (--tx < 0) tx = 0;
       }
-      if (key[ALLEGRO_KEY_UP][0])
+      if (mI.key[ALLEGRO_KEY_UP][0])
       {
-         while (key[ALLEGRO_KEY_UP][0]) proc_event_queue();
+         while (mI.key[ALLEGRO_KEY_UP][0]) mwEQ.proc_event_queue();
             if (--ty1 < 0) ty1 = 0;
       }
-      if (key[ALLEGRO_KEY_DOWN][0])
+      if (mI.key[ALLEGRO_KEY_DOWN][0])
       {
-         while (key[ALLEGRO_KEY_DOWN][0]) proc_event_queue();
+         while (mI.key[ALLEGRO_KEY_DOWN][0]) mwEQ.proc_event_queue();
          if (++ty1 > 19) ty1 = 19;
       }
 
 
-      if ((mouse_b[1][0]) && (mouse_x < 250) && (mouse_y > 20) && (mouse_y < 180))
+      if ((mI.mouse_b[1][0]) && (mI.mouse_x < 250) && (mI.mouse_y > 20) && (mI.mouse_y < 180))
       {
-         ty1 = (mouse_y-20)/8;
-         tx = mouse_x/8;
+         ty1 = (mI.mouse_y-20)/8;
+         tx = mI.mouse_x/8;
       }
       if (tx > (signed int)strlen(PDEt[EN][ty1])) tx = strlen(PDEt[EN][ty1]);
 
-      while ((key[ALLEGRO_KEY_ESCAPE][0]) || (mouse_b[2][0]))
+      while ((mI.key[ALLEGRO_KEY_ESCAPE][0]) || (mI.mouse_b[2][0]))
       {
-         proc_event_queue();
+         mwEQ.proc_event_queue();
          quit = 1;
       }
    }
@@ -286,7 +301,7 @@ void PDE_edit_text(int EN)
 
 void predefined_enemies(void)
 {
-   while (mouse_b[2][0]) proc_event_queue();
+   while (mI.mouse_b[2][0]) mwEQ.proc_event_queue();
    if (load_PDE())
    {
       int EN = 0, redraw = 1;
@@ -313,16 +328,16 @@ void predefined_enemies(void)
 
             a = PDEi[EN][1]; // bmp or ans
             if (a < NUM_SPRITES) b = a; // bmp
-            if (a > 999) b = zz[5][a-1000]; // ans
+            if (a > 999) b = mwB.zz[5][a-1000]; // ans
 
             al_draw_bitmap(mwB.tile[b], 0,0,0);
 
             for (int x=0; x<20; x++)
-               al_draw_text(mF.pr8, palette_color[15], 0, 20+(x*8), 0, PDEt[EN][x]);
+               al_draw_text(mF.pr8, mC.pc[15], 0, 20+(x*8), 0, PDEt[EN][x]);
 
             if (rt < 99)
             {
-               al_draw_textf(mF.pr8, palette_color[15], 40, 0, 0, "Predefined Enemy %d", EN);
+               al_draw_textf(mF.pr8, mC.pc[15], 40, 0, 0, "Predefined Enemy %d", EN);
                for (int x=0; x<16; x++)
                {
                   sprintf(msg,"F[%d]:", x);
@@ -335,7 +350,7 @@ void predefined_enemies(void)
             }
             if ((rt > 99) && (rt < 200))
             {
-               al_draw_textf(mF.pr8, palette_color[15], 40, 0, 0, "Predefined Item %d", EN);
+               al_draw_textf(mF.pr8, mC.pc[15], 40, 0, 0, "Predefined Item %d", EN);
                for (int x=0; x<16; x++)
                {
                   sprintf(msg,"I[%d]:", x);
@@ -344,7 +359,7 @@ void predefined_enemies(void)
             }
             if (rt > 199)
             {
-               al_draw_textf(mF.pr8, palette_color[15], 40, 0, 0, "Special Creator %d", EN);
+               al_draw_textf(mF.pr8, mC.pc[15], 40, 0, 0, "Special Creator %d", EN);
 
 
                for (int x=0; x<16; x++)
@@ -365,49 +380,49 @@ void predefined_enemies(void)
 
          redraw=1;
 
-         proc_event_queue();
+         mwEQ.proc_event_queue();
 
-         if (CTRL() && key[ALLEGRO_KEY_S][0]) // sort
+         if (mI.CTRL() && mI.key[ALLEGRO_KEY_S][0]) // sort
          {
-            while (key[ALLEGRO_KEY_S][0]) proc_event_queue();
+            while (mI.key[ALLEGRO_KEY_S][0]) mwEQ.proc_event_queue();
             PDE_sort();
             redraw = 1;
          }
 
-         if ((mouse_b[1][0]) && (mouse_x < 240) && (mouse_y > 20) && (mouse_y < 180)) PDE_edit_text(EN);
+         if ((mI.mouse_b[1][0]) && (mI.mouse_x < 240) && (mI.mouse_y > 20) && (mI.mouse_y < 180)) PDE_edit_text(EN);
 
-         if (key[ALLEGRO_KEY_RIGHT][0])
+         if (mI.key[ALLEGRO_KEY_RIGHT][0])
          {
-            while (key[ALLEGRO_KEY_RIGHT][0]) proc_event_queue();
+            while (mI.key[ALLEGRO_KEY_RIGHT][0]) mwEQ.proc_event_queue();
             EN +=1;
             if (EN > 99) EN = 99;
             redraw =1;
          }
 
-         if (key[ALLEGRO_KEY_LEFT][0])
+         if (mI.key[ALLEGRO_KEY_LEFT][0])
          {
-            while (key[ALLEGRO_KEY_LEFT][0]) proc_event_queue();
+            while (mI.key[ALLEGRO_KEY_LEFT][0]) mwEQ.proc_event_queue();
             EN -=1;
             if (EN < 0) EN = 0;
             redraw =1;
          }
-         if (key[ALLEGRO_KEY_PGUP][0])
+         if (mI.key[ALLEGRO_KEY_PGUP][0])
          {
-            while (key[ALLEGRO_KEY_PGUP][0]) proc_event_queue();
+            while (mI.key[ALLEGRO_KEY_PGUP][0]) mwEQ.proc_event_queue();
             EN +=10;
             if (EN > 99) EN = 99;
             redraw =1;
          }
-         if (key[ALLEGRO_KEY_PGDN][0])
+         if (mI.key[ALLEGRO_KEY_PGDN][0])
          {
-            while (key[ALLEGRO_KEY_PGDN][0]) proc_event_queue();
+            while (mI.key[ALLEGRO_KEY_PGDN][0]) mwEQ.proc_event_queue();
             EN -=10;
             if (EN < 0) EN = 0;
             redraw =1;
          }
-         if (CTRL() && key[ALLEGRO_KEY_DELETE][0]) // DELETE PD
+         if (mI.CTRL() && mI.key[ALLEGRO_KEY_DELETE][0]) // DELETE PD
          {
-            while (key[ALLEGRO_KEY_DELETE][0]) proc_event_queue();
+            while (mI.key[ALLEGRO_KEY_DELETE][0]) mwEQ.proc_event_queue();
 
             for (int y=0; y<32; y++) PDEi[EN][y] = 0;
             for (int y=0; y<16; y++) PDEfx[EN][y] = al_itofix(0);
@@ -416,9 +431,9 @@ void predefined_enemies(void)
             redraw =1;
             //PDE_sort();
          }
-         if (key[ALLEGRO_KEY_ESCAPE][0])
+         if (mI.key[ALLEGRO_KEY_ESCAPE][0])
          {
-            while (key[ALLEGRO_KEY_ESCAPE][0]) proc_event_queue();
+            while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue();
             quit = 1;
          }
       }
