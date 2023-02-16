@@ -7,7 +7,6 @@
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "z_lift.h"
-#include "z_bullets.h"
 #include "mwGameMovesArray.h"
 #include "mwColor.h"
 #include "mwPMEvent.h"
@@ -21,7 +20,7 @@
 #include "z_level.h"
 #include "z_config.h"
 #include "z_main.h"
-
+#include "mwShots.h"
 
 
 int check_and_draw(double x1, double y1, double line_length, double line_xinc, double line_yinc, double za, double zb, int col, float thickness, int &segments_drawn, int &lco)
@@ -546,7 +545,7 @@ int find_closest_player_flapper(int EN, int dir)
                         |
                        +64
 
-        only shoots a bullet at players in a 90 degree pie slice
+        only shoots at players in a 90 degree pie slice
         45  to 135 for +xinc (-32 to +32)
         225 to 315 for -xinc (96 to -96)
 
@@ -712,116 +711,6 @@ int find_closest_player(int EN)
          }
       }
    return closest_player;
-}
-void fire_enemy_bulletz(int EN, int bullet_ans, al_fixed px, al_fixed py)
-{
-   al_fixed xlen = px - Efi[EN][0];   // get the x distance between enemy and player
-   al_fixed ylen = py - Efi[EN][1];   // get the y distance between enemy and player
-   al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
-   al_fixed speed = Efi[EN][7];                  // speed
-   al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
-   al_fixed xinc = al_fixdiv(xlen, scaler);        // calc xinc
-   al_fixed yinc = al_fixdiv(ylen, scaler);        // calc yinc
-
-   for (int b=0; b<50; b++)  // find empty e_bullet
-      if (!ebullets[b].active)
-      {
-         ebullets[b].active = 1;
-         ebullets[b].shape = 1000 + bullet_ans;
-         ebullets[b].fx = Efi[EN][0];
-         ebullets[b].fy = Efi[EN][1];
-         ebullets[b].fxinc = xinc;
-         ebullets[b].fyinc = yinc;
-         b=50;
-      }
-}
-void fire_enemy_bulleta(int EN, int bullet_ans, int p)
-{
-   float bx = Efi[EN][0];
-   float by = Efi[EN][1];
-   float bv = Efi[EN][7];
-
-   float px  = players[p].PX;
-   float py  = players[p].PY;
-   float pvx = players[p].xinc;
-   float pvy = players[p].yinc;
-
-   if (players[p].player_ride) // if player is riding lift
-   {
-      int d = players[p].player_ride - 32; // lift number
-      pvx += lifts[d].fxinc;
-      pvy += lifts[d].fyinc;
-   }
-
-
-   // Edgar's method
-   //float A = pow(pvx,2) + pow(pvy,2) - pow(bv,2);
-   //float B = 2*(px*pvx) + 2*(py*pvy) -2*(bx*pvx) -2*(by*pvy);
-   //float C = pow(px,2) + pow(bx,2) + pow(py,2) + pow(by,2) - 2*(bx*px) -2*(by*py);
-
-   // Peter's method
-   float x = px-bx;
-   float y = py-by;
-   float A = pow(pvx,2) + pow(pvy,2) - pow(bv,2);
-   float B = 2*(x*pvx) + 2*(y*pvy);
-   float C = pow(x,2) + pow(y,2);
-
-
-// Egdar: You will have to check your code for division by A=0 and for a negative B^2 - 4AC discriminant.
-
-// Quadratic Formula: The roots of a quadratic equation ax2 + bx + c = 0 are given by x = [-b ± √(b² - 4ac)]/2a.
-// The discriminant of the quadratic equation is D = b2 - 4ac
-// For D > 0 the roots are real and distinct.
-// For D = 0 the roots are real and equal.
-// For D < 0 the roots do not exist, or the roots are imaginary.
-
-   float D = pow(B,2) - 4*(A*C); // discriminant
-
-//   if (A == 0)     printf("A == 0 in function 'fire_enemy_bulleta'\n");
-//   else if (D < 0) printf("negative discriminant in function 'fire_enemy_bulleta'\n");
-//   else
-//   {
-//      float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
-//      al_fixed px1 = px + al_fixmul(pvx, al_ftofix(t)); // get player target position based on t
-//      al_fixed py1 = py + al_fixmul(pvy, al_ftofix(t));
-//      fire_enemy_bulletz(EN, bullet_ans, px1, py1);
-//   }
-//
-
-   //if ((A != 0) && (D >= 0)) // this complains about comparing a float to zero
-   if ( ((A > 0) || (A < 0)) && (D >= 0))
-   {
-      float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
-      al_fixed px1 = px + al_fixmul(pvx, al_ftofix(t)); // get player target position based on t
-      al_fixed py1 = py + al_fixmul(pvy, al_ftofix(t));
-      fire_enemy_bulletz(EN, bullet_ans, px1, py1);
-   }
-   else fire_enemy_bulletz(EN, bullet_ans, px, py);
-
-}
-
-void fire_enemy_x_bullet(int EN, int p)
-{
-   al_fixed x_bullet_speed = Efi[EN][7];
-   for (int b=0; b<50; b++)  // find empty e_bullet
-      if (!ebullets[b].active)
-      {
-         ebullets[b].active = 1;
-         ebullets[b].fyinc = al_itofix(0);
-         ebullets[b].fx = Efi[EN][0];
-         ebullets[b].fy = Efi[EN][1];
-         if (Efi[EN][0] < players[p].PX)
-         {
-            ebullets[b].fxinc = x_bullet_speed;
-            ebullets[b].shape = 488;
-         }
-         if (Efi[EN][0] >= players[p].PX)
-         {
-            ebullets[b].fxinc = -x_bullet_speed;
-            ebullets[b].shape = 489;
-         }
-         b=50; // end loop
-      }
 }
 
 
@@ -1596,8 +1485,8 @@ void show_var_sizes(void)
    printf("itemf    :%6d\n", (int)sizeof(itemf)        );
    printf("lifts    :%6d\n", (int)sizeof(lifts)        );
    printf("l        :%6d\n", (int)sizeof(l)            );
-   printf("pbullet  :%6d\n", (int)sizeof(pbullet)      );
-   printf("ebullets :%6d\n", (int)sizeof(ebullets)     );
+   printf("mwS.p    :%6d\n", (int)sizeof(mwS.p)        );
+   printf("mwS.e    :%6d\n", (int)sizeof(mwS.e)        );
    printf("pm_event :%6d\n", (int)sizeof(mwPME.event)  );
 
    sz = 0;
@@ -1608,8 +1497,8 @@ void show_var_sizes(void)
    sz+= sizeof(itemf)        ;
    sz+= sizeof(lifts)        ;
    sz+= sizeof(l)            ;
-   sz+= sizeof(pbullet)      ;
-   sz+= sizeof(ebullets)     ;
+   sz+= sizeof(mwS.p)        ;
+   sz+= sizeof(mwS.e)        ;
    sz+= sizeof(mwPME.event)  ;
    printf("---------:------\n");
    printf("total    :%6d\n",  sz );

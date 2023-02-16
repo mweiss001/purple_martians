@@ -66,7 +66,7 @@ void show_player_stat_box(int tx, int y, int p)
 
    c = 15;
    al_draw_textf(mF.pr8, mC.pc[15], tx+24, y, 0, "Deaths:%d", players[p].stat_respawns); y+=8;
-   al_draw_textf(mF.pr8, mC.pc[15], tx+24, y, 0, "Shots:%d", players[p].stat_bullets_fired); y+=8;
+   al_draw_textf(mF.pr8, mC.pc[15], tx+24, y, 0, "Shots:%d", players[p].stat_shots_fired); y+=8;
    al_draw_textf(mF.pr8, mC.pc[15], tx+24, y, 0, "Enemy Hits:%d", players[p].stat_enemy_hits); y+=8;
    al_draw_textf(mF.pr8, mC.pc[15], tx+24, y, 0, "Purple Coins:%d/%d", players[p].stat_purple_coins, number_of_purple_coins); y+=8;
 

@@ -8,7 +8,6 @@
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "z_lift.h"
-#include "z_bullets.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwDisplay.h"
@@ -20,7 +19,7 @@
 #include "z_fnx.h"
 #include "z_screen.h"
 #include "z_screen_overlay.h"
-
+#include "mwShots.h"
 
 
 struct player players[NUM_PLAYERS];
@@ -717,9 +716,6 @@ void proc_player_riding_rocket(int p)
    players[p].PX = itemf[c][0];
    players[p].PY = itemf[c][1];
 
-   // players[p].xinc = players[p].yinc = 0;
-   // would it hurt here to set players xinx, yinc the same as the item?
-   // i want to be able to use xinx, yinc for bullet targetting
    players[p].xinc = itemf[c][2];
    players[p].yinc = itemf[c][3];
 
@@ -739,7 +735,6 @@ void proc_player_bounds_check(int p)
 
 void proc_player_collisions(int p)
 {
-   al_fixed f10 = al_itofix(10);
    al_fixed f16 = al_itofix(16);
 
    // items
@@ -772,48 +767,50 @@ void proc_player_collisions(int p)
           && (players[p].PY > ey1) && (players[p].PY < ey2)) Ei[e][22] = p+1;
       }
    }
-   // ebullets
+
+   // eshots
    for (int b=0; b<50; b++)
-      if (ebullets[b].active)  // if active
+      if (mwS.e[b].active)  // if active
       {
-         // new collision box is based on bullet speed and has both x and y component
-         al_fixed ax = abs(ebullets[b].fxinc);
-         al_fixed ay = abs(ebullets[b].fyinc);
+         // new collision box is based on shot speed and has both x and y component
+         float ax = fabs(mwS.e[b].xinc);
+         float ay = fabs(mwS.e[b].yinc);
 
          // enforce minimums
-         if (ax < al_itofix(4)) ax = al_itofix(4);
-         if (ay < al_itofix(4)) ay = al_itofix(4);
+         if (ax < 4) ax = 4;
+         if (ay < 4) ay = 4;
 
-         al_fixed bx1 = ebullets[b].fx - ax;
-         al_fixed bx2 = ebullets[b].fx + ax;
-         al_fixed by1 = ebullets[b].fy - ay;
-         al_fixed by2 = ebullets[b].fy + ay;
-         if ((players[p].PX > bx1) && (players[p].PX < bx2)
-          && (players[p].PY > by1) && (players[p].PY < by2)) proc_ebullet_collision(p, b);
+         al_fixed bx1 = al_ftofix(mwS.e[b].x - ax);
+         al_fixed bx2 = al_ftofix(mwS.e[b].x + ax);
+         al_fixed by1 = al_ftofix(mwS.e[b].y - ay);
+         al_fixed by2 = al_ftofix(mwS.e[b].y + ay);
+
+
+         if ((players[p].PX > bx1) && (players[p].PX < bx2) && (players[p].PY > by1) && (players[p].PY < by2)) mwS.proc_eshot_collision(p, b);
       }
 
-   // pbullets
+   // pshots
    for (int b=0; b<50; b++)
-      if (pbullet[b][0])  // if active
+      if (mwS.p[b].active)
       {
-         al_fixed bx1 = al_itofix(pbullet[b][2]) - f10;
-         al_fixed bx2 = al_itofix(pbullet[b][2]) + f10;
-         al_fixed by1 = al_itofix(pbullet[b][3]) - f10;
-         al_fixed by2 = al_itofix(pbullet[b][3]) + f10;
+         al_fixed bx1 = al_ftofix(mwS.p[b].x - 10);
+         al_fixed bx2 = al_ftofix(mwS.p[b].x + 10);
+         al_fixed by1 = al_ftofix(mwS.p[b].x - 10);
+         al_fixed by2 = al_ftofix(mwS.p[b].x + 10);
 
          if ((players[p].PX > bx1) && (players[p].PX < bx2)
           && (players[p].PY > by1) && (players[p].PY < by2))
          {
-            int pb = pbullet[b][1]; // the player that fired this bullet
-            if ((deathmatch_pbullets) && (pb != p))
+            int pb = mwS.p[b].player; // player that fired the shot
+            if ((mwS.deathmatch_shots) && (pb != p))
             {
-                proc_pbullet_collision(p, b);
-                game_event(40, 0, 0, p, pb, 0, deathmatch_pbullets_damage);
+                mwS.proc_pshot_collision(p, b);
+                game_event(40, 0, 0, p, pb, 0, mwS.deathmatch_shot_damage);
             }
-            if ((suicide_pbullets) && (pb == p))
+            if ((mwS.suicide_shots) && (pb == p))
             {
-                proc_pbullet_collision(p, b);
-                game_event(41, 0, 0, p, pb, 0, deathmatch_pbullets_damage);
+                mwS.proc_pshot_collision(p, b);
+                game_event(41, 0, 0, p, pb, 0, mwS.deathmatch_shot_damage);
             }
          }
       }
@@ -1227,7 +1224,7 @@ void move_players(void)
             }
 
             // common to all not paused modes
-            proc_pbullet_shoot(p);
+            mwS.proc_player_shoot(p);
             proc_player_carry(p);
             proc_player_collisions(p);
             proc_player_health(p);
@@ -1504,17 +1501,17 @@ void init_player(int p, int t)
       players[p].right_xinc = al_itofix(0);
 
 
-      players[p].bullet_wait_counter=0;
-      players[p].request_bullet = 0;
-      players[p].bullet_wait = 4;
-      players[p].bullet_speed = 12;
+      players[p].shot_wait_counter=0;
+      players[p].request_shot = 0;
+      players[p].shot_wait = 4;
+      players[p].shot_speed = 12;
 
       players[p].draw_rot = al_itofix(0);
       players[p].draw_scale = al_itofix(1);
       players[p].shape = 0;
 
       players[p].stat_respawns = 0;
-      players[p].stat_bullets_fired = 0;
+      players[p].stat_shots_fired = 0;
       players[p].stat_enemy_hits = 0;
       players[p].stat_player_hits = 0;
       players[p].stat_self_hits = 0;

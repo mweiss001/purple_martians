@@ -21,6 +21,9 @@
 #include "z_fnx.h"
 #include "z_loop.h"
 #include "z_screen.h"
+#include "mwShots.h"
+
+
 
 
 
@@ -282,9 +285,9 @@ void client_process_sjon_packet(void)
 
    int p = PacketGet1ByteInt();      // client player number
    int color = PacketGet1ByteInt();  // client player color
-   int dmp = PacketGet1ByteInt();    // deathmatch_pbullets
-   int dmd = PacketGet2ByteInt();    // deathmatch_pbullets_damage
-   int spb = PacketGet1ByteInt();    // suicide_pbullets
+   int ds = PacketGet1ByteInt();     // deathmatch_shots
+   int dd = PacketGet2ByteInt();     // deathmatch_shot_damage
+   int ss = PacketGet1ByteInt();     // suicide_shots
 
    if (p == 99) // server full, join denied
    {
@@ -304,9 +307,9 @@ void client_process_sjon_packet(void)
 
       play_level = pl;
 
-      deathmatch_pbullets = dmp;
-      deathmatch_pbullets_damage = dmd-1000;
-      suicide_pbullets = spb;
+      mwS.deathmatch_shots = ds;
+      mwS.deathmatch_shot_damage = dd-1000;
+      mwS.suicide_shots = ss;
 
       if (LOG_NET_join)
       {
@@ -320,11 +323,11 @@ void client_process_sjon_packet(void)
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Server Frame Num:[%d]", server_sjon_frame_num);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Deathmatch player bullets:[%d]", deathmatch_pbullets);
+         sprintf(msg,"Deathmatch player shots:[%d]", mwS.deathmatch_shots);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Deathmatch player bullet damage:[%d]", deathmatch_pbullets_damage);
+         sprintf(msg,"Deathmatch player shot damage:[%d]", mwS.deathmatch_shot_damage);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Suicide player bullets:[%d]", suicide_pbullets);
+         sprintf(msg,"Suicide player shots:[%d]", mwS.suicide_shots);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          add_log_entry_centered_text(11, 0, 76, "", "+", "-");
       }

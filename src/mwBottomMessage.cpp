@@ -8,29 +8,20 @@
 #include "mwTimeStamp.h"
 #include "mwColor.h"
 #include "mwProgramState.h"
-#include "z_menu.h"
 #include "z_item.h"
 #include "z_enemy.h"
 
 
-
 mwBottomMessage mwBM;
 
-mwBottomMessage::mwBottomMessage()
+void mwBottomMessage::create_bitmaps(void)
 {
-//   // create bitmaps
-//   for (int x=0; x<20; x++)
-//   {
-//      bmsg_bmp[x] = al_create_bitmap(800, 20);
-//      al_set_target_bitmap(bmsg_bmp[x]);
-//      al_clear_to_color(al_map_rgba(0,0,0,0));
-//      bmsg_bmp2[x] = bmsg_bmp[x]; // pointers only
-//   }
-//   bmsg_temp = al_create_bitmap(800, 20); // create a temp bitmap to build a single line
-//   al_set_target_bitmap(bmsg_temp);
-//   al_clear_to_color(al_map_rgba(0,0,0,0));
-//
-//   initialize();
+   for (int x=0; x<20; x++)
+   {
+      bmsg_bmp[x] = mwB.create_and_clear_bitmap(800, 20);
+      bmsg_bmp2[x] = bmsg_bmp[x]; // pointers only
+   }
+   bmsg_temp = mwB.create_and_clear_bitmap(800, 20); // temp bitmap for building new lines
 }
 
 void mwBottomMessage::initialize(void)
@@ -70,6 +61,7 @@ int mwBottomMessage::draw_tile2(int tn, int bmsg_length, int xo, int yo)
 
 int mwBottomMessage::draw_player(int p, int bmsg_length)
 {
+   char msg[256];
    int len = 0;
    if (0) // 'Player x'
    {
@@ -94,6 +86,7 @@ int mwBottomMessage::draw_player(int p, int bmsg_length)
 
 int mwBottomMessage::draw_enemy(int e_type, int bmsg_length)
 {
+   char msg[256];
    int len = 0;
    if (0) // enemy name
    {
@@ -124,6 +117,7 @@ int mwBottomMessage::draw_enemy(int e_type, int bmsg_length)
 
 int mwBottomMessage::draw_health(int h, int bmsg_length)
 {
+   char msg[256];
    int col = 9; // green
    if (h < 0) col = 10; // red
    if (h == 0) col = 13; // blue
@@ -134,6 +128,7 @@ int mwBottomMessage::draw_health(int h, int bmsg_length)
 
 void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
+   char msg[256];
    if (LOG_TMR_bmsg_add) t0 = al_get_time();
 
    // event retrigger holdoff for these events that can repeat every frame
@@ -255,7 +250,7 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
          bmsg_length += draw_enemy(z2, bmsg_length);
          bmsg_length += draw_health(-z4, bmsg_length);
       }
-      if (ev == 44) // player got shot by bullet
+      if (ev == 44) // player got hit by enemy
       {
          custom_drawn = 1;
          bmsg_length += draw_text(" got hit by ", 15, bmsg_length);
@@ -305,12 +300,12 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
          bmsg_length += draw_health(-damage, bmsg_length);
       }
 
-      if (ev == 60) // player killed enemy with a bullet
+      if (ev == 60) // player killed enemy with a shot
       {
          custom_drawn = 1;
          bmsg_length += draw_text(" killed ", 15, bmsg_length);
          bmsg_length += draw_enemy(Ei[z2][0], bmsg_length);
-         bmsg_length += draw_text(" with a bullet.", 15, bmsg_length);
+         bmsg_length += draw_text(" with a shot.", 15, bmsg_length);
       }
       if (ev == 62) // player killed enemy with explosion
       {
@@ -448,79 +443,6 @@ void mwBottomMessage::draw()
    }
    if (LOG_TMR_bmsg_draw) add_log_TMR(al_get_time() - t0, "bmsg_draw", 0);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

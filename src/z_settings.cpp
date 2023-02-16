@@ -23,6 +23,7 @@
 #include "z_file.h"
 #include "z_fnx.h"
 #include "z_screen.h"
+#include "mwShots.h"
 
 
 
@@ -519,22 +520,22 @@ void settings_pages(int set_page)
          ya+=10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, deathmatch_pbullets, "Deathmatch player bullets", fc, fc);
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's bullets affect other players?");
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mwS.deathmatch_shots, "Deathmatch player shots", fc, fc);
+         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's shots affect other players?");
 
          ya+=10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, suicide_pbullets, "Suicide player bullets", fc, fc);
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's bullets affect themselves?");
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mwS.suicide_shots, "Suicide player shots", fc, fc);
+         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's shots affect themselves?");
 
          ya+=10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
          ya+=4;
 
-         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, deathmatch_pbullets_damage, 100, -10, 1, "Player bullet damage:");
+         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwS.deathmatch_shot_damage, 100, -10, 1, "Player shot damage:");
          ya+=4;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The amount of damage player's bullets");
+         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The amount of damage player's shots");
          al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya+8, ALLEGRO_ALIGN_CENTER, "do to other players and themselves.");
 
          ya+=18;

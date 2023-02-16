@@ -3,11 +3,9 @@
 class mwColor
 {
    public:
-
-   mwColor(); // default constructor
-   void initialize(void);
-
+   mwColor(); // constructor
    void process_flash_color(void);
+   void show_palette(void);
 
    ALLEGRO_COLOR pc[256];
    int flash_color = 0;

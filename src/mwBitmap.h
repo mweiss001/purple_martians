@@ -4,6 +4,7 @@ class mwBitmap
 {
    public:
 
+   ALLEGRO_BITMAP * create_and_clear_bitmap(int x, int y);
    void create_bitmaps(void);
    void rebuild_bitmaps(void);
 
@@ -42,8 +43,6 @@ class mwBitmap
    void update_animation(void);
 
    int sa[NUM_SPRITES][2]; // shape attributes
-
-
 
 };
 

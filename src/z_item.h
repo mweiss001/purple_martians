@@ -34,7 +34,7 @@ void proc_moving_key(int i);
 void move_items();
 int player_drop_item(int p);
 void proc_player_carry(int p);
-int proc_orb_bullet_collision(int i);
+int proc_orb_shot_collision(int i);
 void proc_orb(int i);
 void draw_orb(int i, int x, int y);
 void proc_orb_collision(int p, int i);

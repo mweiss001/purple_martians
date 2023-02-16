@@ -19,7 +19,6 @@
 #include "z_lift.h"
 #include "n_client.h"
 #include "n_server.h"
-#include "z_bullets.h"
 #include "e_visual_level.h"
 #include "mwGameMovesArray.h"
 #include "mwPMEvent.h"
@@ -37,6 +36,8 @@
 #include "z_fnx.h"
 #include "z_screen.h"
 #include "z_screen_overlay.h"
+#include "mwShots.h"
+
 
 
 void draw_frame(void)
@@ -46,8 +47,8 @@ void draw_frame(void)
 //   draw_lifts();
 //   draw_items();
 //   draw_enemies();
-//   draw_ebullets();
-//   draw_pbullets();
+//   draw_eshots();
+//   draw_pshots();
 //   draw_players();
 //   get_new_screen_buffer(0, 0, 0);
 //   draw_screen_overlay();
@@ -58,9 +59,9 @@ void move_frame(void)
 {
    double t1, t2, t3, t4, t5, t6;
    if ((LOG_TMR_move_tot) || (LOG_TMR_move_all)) t0 = al_get_time();
-   move_ebullets();
+   mwS.move_eshots();
    if (LOG_TMR_move_all) t1 = al_get_time();
-   move_pbullets();
+   mwS.move_pshots();
    if (LOG_TMR_move_all) t2 = al_get_time();
    move_lifts(0);
    if (LOG_TMR_move_all) t3 = al_get_time();
@@ -72,7 +73,7 @@ void move_frame(void)
    if (LOG_TMR_move_all)
    {
       t6 = al_get_time();
-      sprintf(msg, "tmst m-ebul:[%0.4f] m-pbul:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
+      sprintf(msg, "tmst m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
       (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000, (t4-t3)*1000, (t5-t4)*1000, (t6-t5)*1000, (t6-t0)*1000);
       //printf("\n%s\n", msg);
       add_log_entry2(44, 0, msg);
@@ -261,7 +262,7 @@ void proc_program_state(void)
 
       mwPS.frame_num = 0;
       reset_states();
-      clear_bullets();
+      mwS.clear_shots();
       mwBM.initialize();
       mI.initialize();
       mwPME.initialize();
@@ -345,7 +346,7 @@ void proc_program_state(void)
       mwGMA.initialize();
       mwPS.frame_num = 0;
       reset_states();
-      clear_bullets();
+      mwS.clear_shots();
       mwBM.initialize();
       mI.initialize();
       mwPME.initialize();
@@ -406,7 +407,7 @@ void proc_program_state(void)
 
       mwGMA.initialize();
 
-      clear_bullets();
+      mwS.clear_shots();
       mwBM.initialize();
       mI.initialize();
       mwPME.initialize();
@@ -495,7 +496,7 @@ void proc_program_state(void)
 
       mwPS.frame_num = 0;
       reset_states();
-      clear_bullets();
+      mwS.clear_shots();
       mwBM.initialize();
       mI.initialize();
       mwPME.initialize();
@@ -570,7 +571,7 @@ void proc_program_state(void)
       players[0].control_method = 1; // rungame demo mode
 
       mwPS.frame_num = 0;
-      clear_bullets();
+      mwS.clear_shots();
       mwBM.initialize();
       mI.initialize();
       mwPME.initialize();

@@ -280,7 +280,7 @@ int create_pod(void)
    Ei[e][2] = 0;     // draw type
    Efi[e][12] = al_itofix(1);  // scale
    Efi[e][14] = al_itofix(0);  // rotation
-   Efi[e][7] = al_itofix(6);     // bullet speed
+   Efi[e][7] = al_itofix(6);     // shot speed
    Efi[e][9] = al_itofix(10);    // default speed
    Ei[e][7] = 20;    // default seq delay
    Ei[e][9] = 20;    // default delay
@@ -316,7 +316,7 @@ int create_vinepod(void)
    Ei[e][2] = 0;               // draw type
    Efi[e][12] = al_itofix(1);  // scale
    Efi[e][14] = al_itofix(0);  // rotation
-   Efi[e][7] = al_itofix(6);   // bullet speed
+   Efi[e][7] = al_itofix(6);   // shot speed
    Ei[e][17] = 120;            // extend time
    Ei[e][19] = 20;             // pause
    Ei[e][25] = 13;             // health bonus

@@ -15,6 +15,7 @@
 #include "z_level.h"
 #include "z_fnx.h"
 #include "z_loop.h"
+#include "mwShots.h"
 
 
 
@@ -656,9 +657,9 @@ void server_proc_cjon_packet(int who)
       PacketPut4ByteInt(mwPS.frame_num);
       PacketPut1ByteInt(cn);
       PacketPut1ByteInt(color);
-      PacketPut1ByteInt(deathmatch_pbullets);
-      PacketPut2ByteInt(deathmatch_pbullets_damage+1000);
-      PacketPut1ByteInt(suicide_pbullets);
+      PacketPut1ByteInt(mwS.deathmatch_shots);
+      PacketPut2ByteInt(mwS.deathmatch_shot_damage+1000);
+      PacketPut1ByteInt(mwS.suicide_shots);
       ServerSendTo(packetbuffer, packetsize, who, cn);
 
       if (LOG_NET_join)
@@ -673,11 +674,11 @@ void server_proc_cjon_packet(int who)
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Server mwPS.frame_num:[%d]", mwPS.frame_num);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Deathmatch player bullets:[%d]", deathmatch_pbullets);
+         sprintf(msg,"Deathmatch player shots:[%d]", mwS.deathmatch_shots);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Deathmatch player bullet damage:[%d]", deathmatch_pbullets_damage);
+         sprintf(msg,"Deathmatch player shot damage:[%d]", mwS.deathmatch_shot_damage);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Suicide player bullets:[%d]", suicide_pbullets);
+         sprintf(msg,"Suicide player shots:[%d]", mwS.suicide_shots);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          add_log_entry_centered_text(11, 0, 76, "", "+", "-");
       }

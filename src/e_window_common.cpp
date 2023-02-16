@@ -11,7 +11,7 @@
 #include "z_lift.h"
 #include "mwWidgets.h"
 #include "e_visual_level.h"
-#include "e_pde.h"
+#include "mwPDE.h"
 #include "mwColor.h"
 #include "mwPMEvent.h"
 #include "mwInput.h"
@@ -132,7 +132,7 @@ void cm_process_menu_bar(int d)
       strcpy (global_string[5][6],"Default Flag Editor");
       strcpy (global_string[5][7],"end");
       int ret = tmenu(5, 1, x1, by1-1);
-      if (ret == 1) predefined_enemies();
+      if (ret == 1) mPDE.run();
       if (ret == 2) global_level();
       if (ret == 3) level_viewer();
       if (ret == 4) animation_sequence_editor();
@@ -411,11 +411,11 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, int have_fo
       // draw special blocks
       for (c=0; c<16*mwWM.mW[2].select_window_num_special_lines; c++)
       {
-         int tn = PDEi[c][1]; // default is the mwB.tile in PDEi[c][1]
+         int tn = mPDE.PDEi[c][1]; // default is the mwB.tile in PDEi[c][1]
          if (tn > 999) tn = mwB.zz[0][tn-1000]; // ans
          al_draw_bitmap(mwB.tile[tn], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0 );
 
-         if ((PDEi[c][0] == 108) && (PDEi[c][11])) al_draw_bitmap(mwB.tile[440], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0); // bomb sticky spikes
+         if ((mPDE.PDEi[c][0] == 108) && (mPDE.PDEi[c][11])) al_draw_bitmap(mwB.tile[440], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0); // bomb sticky spikes
 
       }
    }
@@ -459,15 +459,15 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, int have_fo
          {
             // set  text length (number of lines)
             for (int x=0; x<20; x++)
-               if (strncmp(PDEt[ret][x],"<end>", 5) == 0) tl = x;
+               if (strncmp(mPDE.PDEt[ret][x],"<end>", 5) == 0) tl = x;
             if (tl<5) tl = 5;
 
              // remove line endings
             for (int x=0; x<20; x++)
                for (int z=0; z<40; z++)
                {
-                  if (PDEt[ret][x][z] == 10) PDEt[ret][x][z] = 32;
-                  if (PDEt[ret][x][z] == 13) PDEt[ret][x][z] = 32;
+                  if (mPDE.PDEt[ret][x][z] == 10) mPDE.PDEt[ret][x][z] = 32;
+                  if (mPDE.PDEt[ret][x][z] == 13) mPDE.PDEt[ret][x][z] = 32;
                }
 
             // erase and frame
@@ -480,12 +480,12 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, int have_fo
 
             // draw text for this pde
             for (int x=0; x<tl; x++)
-               al_draw_text(mF.pr8, mC.pc[15], x1+2, y1 + select_window_text_y+14+(x*8), 0, PDEt[ret][x]);
+               al_draw_text(mF.pr8, mC.pc[15], x1+2, y1 + select_window_text_y+14+(x*8), 0, mPDE.PDEt[ret][x]);
 
             if (mI.mouse_b[1][0])
             {
                while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();     // wait for release
-               int pn = PDEi[ret][0];
+               int pn = mPDE.PDEi[ret][0];
                if (pn < 200)
                {
                   mwWM.mW[1].draw_item_type = 5;

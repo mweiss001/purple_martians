@@ -9,98 +9,48 @@
 #include "mwLogo.h"
 #include "z_screen.h"
 
-
-
-
 mwBitmap mwB;
+
+ALLEGRO_BITMAP * mwBitmap::create_and_clear_bitmap(int x, int y)
+{
+   ALLEGRO_BITMAP * bmp = al_create_bitmap(x, y);
+   al_set_target_bitmap(bmp);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   return bmp;
+}
+
 
 // done at start only now
 void mwBitmap::create_bitmaps(void)
 {
+   // this bitmap format will be used for all bitmaps, it is never changed
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
 
-   // create memory bitmaps as temp storage for restoring tilemaps after screen change
+   // these bitmap flags are only for the M_XXX memory bitmaps
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   mwB.M_tilemap  = al_create_bitmap(640,640);
-   mwB.M_btilemap = al_create_bitmap(640,640);
-   mwB.M_ptilemap = al_create_bitmap(480,320);
-   mwB.M_dtilemap = al_create_bitmap(160,640);
 
-   al_set_target_bitmap(mwB.M_tilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
+   // create memory bitmaps as temp storage for restoring tilemaps after screen change
+   M_tilemap  = create_and_clear_bitmap(640, 640);
+   M_btilemap = create_and_clear_bitmap(640, 640);
+   M_ptilemap = create_and_clear_bitmap(480, 320);
+   M_dtilemap = create_and_clear_bitmap(160, 160);
 
-   al_set_target_bitmap(mwB.M_btilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-   al_set_target_bitmap(mwB.M_ptilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-   al_set_target_bitmap(mwB.M_dtilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-//   printf("mwB.M_tilemap\n");
-//   show_pixel_format(al_get_bitmap_format(mwB.M_tilemap));
-//   show_bitmap_flags(al_get_bitmap_flags(mwB.M_tilemap));
+   // this bitmap format is used for every other bitmap created, it is never changed
+   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
 
    // create tilemap bitmaps
-   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
-   mwB.tilemap  = al_create_bitmap(640, 640);
-   mwB.btilemap = al_create_bitmap(640, 640);
-   mwB.ptilemap = al_create_bitmap(480, 320);
-   mwB.dtilemap = al_create_bitmap(160, 640);
-
-   al_set_target_bitmap(mwB.tilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-   al_set_target_bitmap(mwB.btilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-   al_set_target_bitmap(mwB.ptilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-   al_set_target_bitmap(mwB.dtilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-
-//   printf("tilemap\n");
-//   show_pixel_format(al_get_bitmap_format(mwB.tilemap));
-//   show_bitmap_flags(al_get_bitmap_flags(mwB.tilemap));
-
+   tilemap  = create_and_clear_bitmap(640, 640);
+   btilemap = create_and_clear_bitmap(640, 640);
+   ptilemap = create_and_clear_bitmap(480, 320);
+   dtilemap = create_and_clear_bitmap(160, 160);
 
    // create level_background and mwB.level_buffer bitmaps
-//   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
-// al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA);
-//   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
-   mwB.level_background = al_create_bitmap(2000,2000);
-   al_set_target_bitmap(mwB.level_background);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
+   level_background  = create_and_clear_bitmap(2000, 2000);
+   level_buffer      = create_and_clear_bitmap(2000, 2000);
 
-   mwB.level_buffer = al_create_bitmap(2000,2000);
-   al_set_target_bitmap(mwB.level_buffer);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-//   printf("level_background\n");
-//   show_pixel_format(al_get_bitmap_format(mwB.level_background));
-//   show_bitmap_flags(al_get_bitmap_flags(mwB.level_background));
-
-   // reset defaults to use for new bitmaps
-//   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
-//   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
-
-   // bottom msg bitmaps
-   for (int x=0; x<20; x++)
-   {
-      mwBM.bmsg_bmp[x] = al_create_bitmap(800, 20);
-      al_set_target_bitmap(mwBM.bmsg_bmp[x]);
-      al_clear_to_color(al_map_rgba(0,0,0,0));
-      mwBM.bmsg_bmp2[x] = mwBM.bmsg_bmp[x];
-   }
-   mwBM.bmsg_temp = al_create_bitmap(800, 20); // create a temp bitmap to build a single line
-   al_set_target_bitmap(mwBM.bmsg_temp);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
+   // create bottom message bitmaps
+   mwBM.create_bitmaps();
 }
-
 
 
 
@@ -128,7 +78,8 @@ void mwBitmap::rebuild_bitmaps(void)
    al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(mwB.M_dtilemap, 0, 0, 0);
 
-   mF.initialize();
+   mF.load_fonts();
+
 
    init_level_background(0);
    mwD.set_display_transform();

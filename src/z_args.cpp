@@ -428,6 +428,11 @@ void temp_test(void)
    al_set_target_backbuffer(display);
    al_clear_to_color(mC.pc[0]);
 
+//   mC.show_palette();
+//   al_flip_display();
+//   tsw();
+
+
 
    // netgame frame timing
 

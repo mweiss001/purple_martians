@@ -13019,228 +13019,118 @@ Its time for a push, I shoudl be done for today...
 20230212 7:18PM
 
 
+20230214 4:00AM
+remove menu fromn e_bitmap by making msg local to funtions is in done..4x
+make DS have static RA's done
 
+PDE could be a class to reduce a few globals
+mwPDE mPDE..done...
 
+glt no globals and no msg...done
 
+color done...
 
+cleanup is going well...
 
 
 
 
 
+remove globals in bullets, can it be made a class?
 
+mwBullets mwBullets
 
+what about mwShots mShots
 
+mShots.e[].active
+mShots.e[].shape
+mShots.e[].fx
+mShots.e[].fy
+mShots.e[].fxinc
+mShots.e[].fyinc
 
+mShots.p[].active
+mShots.p[].player
+mShots.p[].x
+mShots.p[].y
+mShots.p[].xinc
+mShots.p[].yinc
 
+why don't I also start here with changing all fixed to floats
 
+how about you do that first?
 
+ebullet fixed to floats
+then test with all types of enemies that shoot bullets...
+I think I did it...
 
+now make the class...
 
 
+mShots.e[].active
+mShots.e[].shape
+mShots.e[].fx
+mShots.e[].fy
+mShots.e[].fxinc
+mShots.e[].fyinc
 
+mShots.p[].active
+mShots.p[].player
+mShots.p[].x
+mShots.p[].y
+mShots.p[].xinc
+mShots.p[].yinc
 
 
 
+to start with just replace variables all the variables with the ones in the class
 
+old:
+ebullets[].active
+ebullets[].shape
 
+new:
+mwS.e[].active
+mwS.e[].shape
 
+done...
 
+next remove old variable defs..
 
 
+next change all pbullet refs to class and use floats...
 
+old:
+pbullet[][0] - active
+pbullet[][1] - player
+pbullet[][2] - int x
+pbullet[][3] - int y
+pbullet[][4] - int xinc
+pbullet[][5] - int yinc
 
+new
+mwS.p[].active
+mwS.p[].player
+mwS.p[].x
+mwS.p[].y
+mwS.p[].xinc
+mwS.p[].yinc
 
+done...
+now what?
+mwShots has been all renamed..only thing left would be to add some bullet functions..done...
+void mwShots::fire_enemy_bulletz(int EN, int bullet_ans, al_fixed px, al_fixed py)
+void mwShots::fire_enemy_bulleta(int EN, int bullet_ans, int p)
+void mwShots::fire_enemy_x_bullet(int EN, int p)
+replace deathmatch_pbullets and suicide bullets with shots..done and also made a part of class...
+bul
 
+all ref to bullet, bull, bul have been removed from game...
 
+nice....
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+how about changing lifts back to floats?
+then items, players, enemies...
 
 
 

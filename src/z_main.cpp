@@ -214,7 +214,7 @@ int initial_setup(void)
       m_err("Failed to initialize ttf addon.\n");
       return 0;
    }
-   mF.initialize();
+   mF.load_fonts();
 
    // --- keyboard -------------------
    if (!al_install_keyboard())
