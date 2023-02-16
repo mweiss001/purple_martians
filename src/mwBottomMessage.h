@@ -17,8 +17,8 @@ class mwBottomMessage
    int game_event_retrigger_holdoff[10];
    float game_event_retrigger_holdoff_tally[10];
 
-   mwBottomMessage(); // default constructor
    void initialize(void);
+   void create_bitmaps(void);
 
    void add(int ev, int x, int y, int z1, int z2, int z3, int z4);
 

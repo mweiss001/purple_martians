@@ -7,7 +7,6 @@
 #include "mwBitmap.h"
 #include "z_lift.h"
 #include "mwWidgets.h"
-#include "z_bullets.h"
 #include "mwColor.h"
 #include "mwPMEvent.h"
 #include "mwDisplay.h"
@@ -19,7 +18,7 @@
 #include "z_fnx.h"
 #include "z_screen.h"
 #include "z_screen_overlay.h"
-
+#include "mwShots.h"
 
 // items
 int item[500][16];      // item ints
@@ -1367,16 +1366,16 @@ item[][13] = TGOF pm_event
 
 */
 
-int proc_orb_bullet_collision(int i)
+int proc_orb_shot_collision(int i)
 {
    int s = 8; // collison box size
-   int x = al_fixtoi(itemf[i][0]);
-   int y = al_fixtoi(itemf[i][1]);
+   float x = al_fixtof(itemf[i][0]);
+   float y = al_fixtof(itemf[i][1]);
    for (int b=0; b<50; b++)
-      if (pbullet[b][0])
+      if (mwS.p[b].active)
       {
-         int bx = pbullet[b][2];
-         int by = pbullet[b][3];
+         float bx = mwS.p[b].x;
+         float by = mwS.p[b].y;
          if ((x > bx-s) && (x < bx+s) && (y > by-s) && (y < by+s)) return 1;
       }
    return 0;
@@ -1408,7 +1407,7 @@ void proc_orb(int i)
    }
 
 
-   if ((item[i][2] & PM_ITEM_ORB_TRIG_BULLET) && (proc_orb_bullet_collision(i))) item[i][2] |= PM_ITEM_ORB_TRIG_CURR; // set CURR flag
+   if ((item[i][2] & PM_ITEM_ORB_TRIG_SHOT) && (proc_orb_shot_collision(i))) item[i][2] |= PM_ITEM_ORB_TRIG_CURR; // set CURR flag
 
 
 
@@ -2057,8 +2056,8 @@ item[][14] = TGOF pm_event #
 #define PM_ITEM_TRIGGER_PLAYER   0b0000000000000001
 #define PM_ITEM_TRIGGER_ENEMY    0b0000000000000010
 #define PM_ITEM_TRIGGER_ITEM     0b0000000000000100
-#define PM_ITEM_TRIGGER_PBUL     0b0000000000001000
-#define PM_ITEM_TRIGGER_EBUL     0b0000000000010000
+#define PM_ITEM_TRIGGER_PSHOT     0b0000000000001000
+#define PM_ITEM_TRIGGER_ESHOT     0b0000000000010000
 #define PM_ITEM_TRIGGER_CURR     0b0000000000100000
 #define PM_ITEM_TRIGGER_PREV     0b0000000001000000
 #define PM_ITEM_TRIGGER_TGON     0b0000000010000000
@@ -2204,20 +2203,20 @@ void detect_trigger_collisions(int i)
             al_fixed y = itemf[c][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
-   if (FLAGS & PM_ITEM_TRIGGER_PBUL) // check player bullets
+   if (FLAGS & PM_ITEM_TRIGGER_PSHOT) // check player shots
       for (int b=0; b<50; b++)
-         if (pbullet[b][0])
+         if (mwS.p[b].active)
          {
-            al_fixed x = al_itofix(pbullet[b][2]);
-            al_fixed y = al_itofix(pbullet[b][3]);
+            al_fixed x = al_ftofix(mwS.p[b].x);
+            al_fixed y = al_ftofix(mwS.p[b].y);
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
-   if (FLAGS & PM_ITEM_TRIGGER_EBUL) // check enemy bullets
+   if (FLAGS & PM_ITEM_TRIGGER_ESHOT) // check enemy shots
       for (int b=0; b<50; b++)
-         if (ebullets[b].active)
+         if (mwS.e[b].active)
          {
-            al_fixed x = ebullets[b].fx;
-            al_fixed y = ebullets[b].fy;
+            al_fixed x = al_ftofix(mwS.e[b].x);
+            al_fixed y = al_ftofix(mwS.e[b].y);
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
 }
@@ -2350,8 +2349,8 @@ item[][3]  = flags
 #define PM_ITEM_DAMAGE_PLAYER   0b00000000000000001
 #define PM_ITEM_DAMAGE_ENEMY    0b00000000000000010
 #define PM_ITEM_DAMAGE_ITEM     0b00000000000000100
-#define PM_ITEM_DAMAGE_PBUL     0b00000000000001000
-#define PM_ITEM_DAMAGE_EBUL     0b00000000000010000
+#define PM_ITEM_DAMAGE_PSHOT     0b00000000000001000
+#define PM_ITEM_DAMAGE_ESHOT     0b00000000000010000
 #define PM_ITEM_DAMAGE_CURR     0b00000000000100000
 #define PM_ITEM_DAMAGE_LIFT_ON  0b00000000001000000
 #define PM_ITEM_DAMAGE_LIFT_XC  0b00000000010000000
@@ -2439,8 +2438,8 @@ void proc_item_damage_collisions(int i)
    int cdp =  ((cd) && (FLAGS & PM_ITEM_DAMAGE_PLAYER)); // damage active and player flag
    int cde =  ((cd) && (FLAGS & PM_ITEM_DAMAGE_ENEMY));  // damage active and enemy flag
    int cdi =  ((cd) && (FLAGS & PM_ITEM_DAMAGE_ITEM));   // damage active and item flag
-   int cdpb = ((cd) && (FLAGS & PM_ITEM_DAMAGE_PBUL));   // damage active and player bullet flag
-   int cdeb = ((cd) && (FLAGS & PM_ITEM_DAMAGE_EBUL));   // damage active and enemy bullet flag
+   int cdpb = ((cd) && (FLAGS & PM_ITEM_DAMAGE_PSHOT));   // damage active and player shot flag
+   int cdeb = ((cd) && (FLAGS & PM_ITEM_DAMAGE_ESHOT));   // damage active and enemy shot flag
 
    // damage field
    al_fixed tfx1 = al_itofix(item[i][6]-10);
@@ -2488,8 +2487,8 @@ void proc_item_damage_collisions(int i)
             al_fixed y = Efi[e2][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
-               Ei[e2][31] = 3;           // flag that this enemy got shot with bullet
-               //Ei[e2][26] = x;           // number of player's bullet that hit enemy
+               Ei[e2][31] = 3;           // flag that this enemy got shot
+               //Ei[e2][26] = x;           // number of player's shot that hit enemy
             }
          }
    if (cdi)
@@ -2511,21 +2510,21 @@ void proc_item_damage_collisions(int i)
                }
             }
          }
-   if (cdpb) // check player bullets
+   if (cdpb) // check player shots
       for (int b=0; b<50; b++)
-         if (pbullet[b][0])
+         if (mwS.p[b].active)
          {
-            al_fixed x = al_itofix(pbullet[b][2]);
-            al_fixed y = al_itofix(pbullet[b][3]);
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) pbullet[b][0] = 0; // kill the bullet
+            al_fixed x = al_ftofix(mwS.p[b].x);
+            al_fixed y = al_ftofix(mwS.p[b].y);
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mwS.p[b].active = 0; // kill the shot
          }
-   if (cdeb) // check enemy bullets
+   if (cdeb) // check enemy shots
       for (int b=0; b<50; b++)
-         if (ebullets[b].active)
+         if (mwS.e[b].active)
          {
-            al_fixed x = ebullets[b].fx;
-            al_fixed y = ebullets[b].fy;
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) ebullets[b].active = 0; // kill the bullet
+            al_fixed x = al_ftofix(mwS.e[b].x);
+            al_fixed y = al_ftofix(mwS.e[b].y);
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mwS.e[b].active = 0; // kill the shot
          }
 }
 

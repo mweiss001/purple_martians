@@ -16,8 +16,8 @@
 
 
 
-int blt[NUM_SPRITES];
-void show_block_list(void)
+
+void show_block_list(int blt[])
 {
    int y = 0;
    int count_unique = 0;
@@ -27,9 +27,9 @@ void show_block_list(void)
       if (blt[z])
       {
          count_unique++;
-         al_draw_bitmap(mwB.tile[z], 180, y, 0);
-         //al_draw_textf(mF.pr8, mC.pc[11], 200, 10+y, 0, "sa%d   block# %d   count %d ",mwB.sa[z][0],  z, blt[z] );
-         al_draw_textf(mF.pr8, mC.pc[11], 200, y, 0, "block:%d count:%d ", z, blt[z] );
+         al_draw_bitmap(mwB.btile[z], 180, y, 0);
+         //al_draw_textf(mF.pr8, mC.pc[11], 200, y+6, 0, "sa%d   block# %d   count %d ",mwB.sa[z][0],  z, blt[z] );
+         al_draw_textf(mF.pr8, mC.pc[11], 200, y+6, 0, "block:%d count:%d ", z, blt[z] );
          printf("block:%d count:%d\n", z, blt[z] );
          y+=20;
          if (y > mwD.SCREEN_H-20)
@@ -49,7 +49,7 @@ void show_block_list(void)
 }
 
 
-void remove_unused_tiles(void)
+void remove_unused_tiles(int blt[])
 {
    for (int z=0; z<NUM_SPRITES; z++)
    {
@@ -72,9 +72,10 @@ void remove_unused_tiles(void)
 }
 
 
-
 void global_level(void)
 {
+   int blt[NUM_SPRITES];
+
    int old_start_level = start_level;
 
    int le[200]; // level exists array
@@ -139,17 +140,25 @@ void global_level(void)
 
 
 
-      for (int y=0; y<500; y++)
-         if (item[y][0] == 2) // bonus
-         {
-            if (item[y][6] == 2)
-            {
-               item[y][6] = 3;
-               count0++;
-               printf("Level:%3d\n", le[x]);
-            }
+//      for (int y=0; y<500; y++)
+//         if (item[y][0] == 2) // bonus
+//         {
+//            if (item[y][6] == 2)
+//            {
+//               item[y][6] = 3;
+//               count0++;
+//               printf("Level:%3d\n", le[x]);
+//            }
+//         }
 
-         }
+
+      // block counter
+      for (int y=0; y<100; y++)
+         for (int z=0; z<100; z++)
+            blt[l[y][z] & 1023]++; // inc block counter
+
+
+
 
       if (0)
       {
@@ -167,10 +176,11 @@ void global_level(void)
    printf("Total count3:%d \n",count3 );
    printf("min:%d max:%d\n", min, max);
 
-//   show_block_list();
+
+   show_block_list(blt);
 //   tsw();
 
- //  remove_unused_tiles();
+ //  remove_unused_tiles(blt);
 
 
    start_level = old_start_level;
@@ -1244,26 +1254,6 @@ then semisolid...add to solid
          }
 
 */
-
-/*
-      // blocks
-      for (int y=0; y<100; y++)
-         for (int z=0; z<100; z++)
-         {
-          //  blt[l[y][z]]++; // inc block counter
-
-            if (l[y][z] & PM_BTILE_SHOW_SELECT_WIN)
-            {
-
-               l[y][z] &= ~PM_BTILE_SHOW_SELECT_WIN;
-
-               printf("Lev:%3d  block:%d\n" ,le[x], l[y][z] & 1023);
-               count0++;
-            }
-         }
-
-*/
-
 
 
 

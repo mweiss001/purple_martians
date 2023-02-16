@@ -103,8 +103,6 @@
 		<Unit filename="src/e_item.cpp" />
 		<Unit filename="src/e_object_viewer.cpp" />
 		<Unit filename="src/e_object_viewer.h" />
-		<Unit filename="src/e_pde.cpp" />
-		<Unit filename="src/e_pde.h" />
 		<Unit filename="src/e_tile_helper.cpp" />
 		<Unit filename="src/e_tile_helper.h" />
 		<Unit filename="src/e_visual_level.cpp" />
@@ -135,6 +133,8 @@
 		<Unit filename="src/mwInput.h" />
 		<Unit filename="src/mwLogo.cpp" />
 		<Unit filename="src/mwLogo.h" />
+		<Unit filename="src/mwPDE.cpp" />
+		<Unit filename="src/mwPDE.h" />
 		<Unit filename="src/mwPMEvent.cpp" />
 		<Unit filename="src/mwPMEvent.h" />
 		<Unit filename="src/mwProgramState.cpp" />
@@ -143,6 +143,8 @@
 		<Unit filename="src/mwQuickGraph.h" />
 		<Unit filename="src/mwRollingAverage.cpp" />
 		<Unit filename="src/mwRollingAverage.h" />
+		<Unit filename="src/mwShots.cpp" />
+		<Unit filename="src/mwShots.h" />
 		<Unit filename="src/mwTally.cpp" />
 		<Unit filename="src/mwTally.h" />
 		<Unit filename="src/mwTimeStamp.cpp" />
@@ -166,8 +168,6 @@
 		<Unit filename="src/pm.h" />
 		<Unit filename="src/z_args.cpp" />
 		<Unit filename="src/z_args.h" />
-		<Unit filename="src/z_bullets.cpp" />
-		<Unit filename="src/z_bullets.h" />
 		<Unit filename="src/z_config.cpp" />
 		<Unit filename="src/z_config.h" />
 		<Unit filename="src/z_control.cpp" />

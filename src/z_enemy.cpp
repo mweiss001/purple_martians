@@ -8,7 +8,6 @@
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "z_lift.h"
-#include "z_bullets.h"
 #include "mwColor.h"
 #include "mwProgramState.h"
 #include "z_menu.h"
@@ -16,7 +15,7 @@
 #include "z_level.h"
 #include "z_fnx.h"
 #include "z_screen_overlay.h"
-
+#include "mwShots.h"
 
 
 // enemies
@@ -321,7 +320,6 @@ void draw_enemy(int e, int custom, int cx, int cy)
    }
    #endif
 
-
    #ifdef SHOW_TRAKBOT_BULLET_TRIGGER_CIRCLE
    if (Ei[e][0] == 8) // trakbot
    {
@@ -351,28 +349,6 @@ void draw_enemy(int e, int custom, int cx, int cy)
       al_draw_circle(EXint+10, EYint+10, prox, mC.pc[color], 1);
    }
    #endif
-
-
-/* // show any bullet prox
-
-      int prox = Ei[e][17];
-      int color = 14; // default circle color
-      al_draw_circle(EXint+10, EYint+10, prox, mC.pc[color], 1);
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 
@@ -385,30 +361,30 @@ void draw_enemies(void)
          draw_enemy(e, 0, 0, 0);
 }
 
-void proc_enemy_collision_with_pbullet(int e)
+void proc_enemy_collision_with_pshot(int e)
 {
-   int ex = al_fixtoi(Efi[e][0]);
-   int ey = al_fixtoi(Efi[e][1]);
+   float ex = al_fixtof(Efi[e][0]);
+   float ey = al_fixtof(Efi[e][1]);
 
    for (int c=0; c<50; c++)
-      if (pbullet[c][0])
+      if (mwS.p[c].active)
       {
-         // bullet collision box size adjusted with bullet speed
-         int cx = pm_bullet_collision_box + abs(pbullet[c][4]/2);
-         int cy = pm_bullet_collision_box + abs(pbullet[c][5]/2);
+         // shot collision box size adjusted with shot speed
+         float cx = fabs(mwS.p[c].xinc/2) + 8;
+         float cy = fabs(mwS.p[c].yinc/2) + 8;
 
-         // bullet collision box size adjusted with enemies collision box size
-         cx += Ei[e][29] - 10;
-         cy += Ei[e][29] - 10;
+         // shot collision box size adjusted with enemies collision box size
+         cx += (float) Ei[e][29] - 10;
+         cy += (float) Ei[e][29] - 10;
 
-         int bx1 = pbullet[c][2] - cx;
-         int bx2 = pbullet[c][2] + cx;
-         int by1 = pbullet[c][3] - cy;
-         int by2 = pbullet[c][3] + cy;
+         float bx1 = mwS.p[c].x - cx;
+         float bx2 = mwS.p[c].x + cx;
+         float by1 = mwS.p[c].y - cy;
+         float by2 = mwS.p[c].y + cy;
 
-         // check for collision with player's bullets
+         // check for collision with player's shots
 
-         printf("test\n");
+         // printf("test\n");
 
 
          if ((ex > bx1) && (ex < bx2) && (ey > by1) && (ey < by2))
@@ -416,11 +392,11 @@ void proc_enemy_collision_with_pbullet(int e)
 
             printf("hit!\n");
 
-            int p = pbullet[c][1];   // player number that shot bullet
-            Ei[e][31] = 1;           // flag that this enemy got shot with bullet
-            Ei[e][26] = p;           // number of player's bullet that hit enemy
+            int p = mwS.p[c].player;       // player number of shot
+            Ei[e][31] = 1;                 // flag that this enemy got sho
+            Ei[e][26] = p;                 // number of player that shot enemy
             players[p].stat_enemy_hits++;  // add to number of hits the player has
-            pbullet[c][0] = 0;       // bullet dies
+            mwS.p[c].active = 0;           // shot dies
          }
       }
 }
@@ -434,7 +410,7 @@ void move_enemies()
       {
          if (LOG_TMR_move_enem) t0 = al_get_time();
          num_enemy++; // enemy count
-         if (Ei[e][0] < 50) proc_enemy_collision_with_pbullet(e);
+         if (Ei[e][0] < 50) proc_enemy_collision_with_pshot(e);
          // check for time to live
          int ttl = Ei[e][27];
          if (ttl)
@@ -660,8 +636,8 @@ void enemy_killed(int e)
 
 //   Ei[][14] = base ypo for debug drawing
 
-//   Ei[][15] = bullet retrigger time
-//   Ei[][16] = bullet retrigger counter
+//   Ei[][15] = shot retrigger time
+//   Ei[][16] = shot retrigger counter
 
 //   Ei[][17] = prox width
 //   Ei[][18] = prox height
@@ -680,7 +656,7 @@ void enemy_killed(int e)
 //   Efi[][4]  = health decrement
 //   Efi[][5]  = max x speed
 //   Efi[][6]  = x accel
-//   Efi[][7]  = bullet speed
+//   Efi[][7]  = shot speed
 
 //   Efi[][8]  = flap offset for next loop
 //   Efi[][9]  = flap speed counter
@@ -701,7 +677,7 @@ void enemy_flapper(int e)
 
    int p = -1; // default if no player found in trigger box
 
-   // show if empty or has bullet ready
+   // show if empty or has shot ready
    if (Ei[e][16] < 0) Ei[e][3] = 61;
    else Ei[e][3] = 60;
 
@@ -726,7 +702,7 @@ void enemy_flapper(int e)
          p = find_closest_player_flapper(e, 1);
          if (p != -1)
          {
-            fire_enemy_bulleta(e, 62, p);
+            mwS.fire_enemy_shota(e, 62, p);
             Ei[e][16] = Ei[e][15]; // set new prox wait
          }
       }
@@ -749,7 +725,7 @@ void enemy_flapper(int e)
          p = find_closest_player_flapper(e, 0);
          if (p != -1)
          {
-            fire_enemy_bulleta(e, 62, p);
+            mwS.fire_enemy_shota(e, 62, p);
             Ei[e][16] = Ei[e][15]; // set new prox wait
          }
        }
@@ -1117,7 +1093,7 @@ void set_trakbot_mode(int e, int mode)
 //     Efi[e][3] = yinc
 //     Efi[e][4] = LIFE decrement
 
-//     Efi[e][7] = bullet speed
+//     Efi[e][7] = shot speed
 
 //     Efi[e][11] = scale multiplier
 //     Efi[e][12] = scale;
@@ -1128,7 +1104,7 @@ void enemy_trakbot(int e)
 {
    al_fixed mv;
    int dp = 0; // debug print
-   int bullet_request = 0;
+   int shot_request = 0;
    int mode = Ei[e][5];
    int prox = Ei[e][17];
 
@@ -1139,12 +1115,12 @@ void enemy_trakbot(int e)
    }
    enemy_player_hit_proc(e);
 
-   if (--Ei[e][16] < 0)  // bullet retrigger wait
+   if (--Ei[e][16] < 0)  // shot retrigger wait
    {
-      bullet_request = 1; // try to shoot
-      Ei[e][3] = 17;     // show trakbot with bullet
+      shot_request = 1; // try to shoot
+      Ei[e][3] = 17;     // show trakbot with shot
    }
-   else Ei[e][3] = 18;   // show trakbot without bullet
+   else Ei[e][3] = 18;   // show trakbot without shot
 
 
    if (Ei[e][4] != 0)   // if falling
@@ -1399,7 +1375,7 @@ void enemy_trakbot(int e)
          break;
       } // end of switch mode
 
-      if (bullet_request)
+      if (shot_request)
       {
          int quad = 0;
          switch (mode)
@@ -1412,7 +1388,7 @@ void enemy_trakbot(int e)
          int p = find_closest_player_quad(e, quad, prox);
          if (p != -1)
          {
-            fire_enemy_bulleta(e, 20, p);
+            mwS.fire_enemy_shota(e, 20, p);
             Ei[e][16] = Ei[e][15]; // set new prox wait
          }
       }
@@ -1523,7 +1499,7 @@ void enemy_podzilla(int e)
       if (--Ei[e][8] <= 0)
       {
          int p = find_closest_player(e);
-         fire_enemy_bulleta(e, 54, p);
+         mwS.fire_enemy_shota(e, 54, p);
          Ei[e][5] = 3; // set next mode
          Ei[e][8] = Ei[e][9];
       }
@@ -1632,7 +1608,7 @@ void enemy_vinepod(int e)
       if (--Ei[e][18] <= 0)
       {
          int p = find_closest_player(e);
-         fire_enemy_bulleta(e, 54, p);
+         mwS.fire_enemy_shota(e, 54, p);
          Ei[e][15] = 3; // set next mode
          Ei[e][18] = Ei[e][19];
       }
@@ -1793,7 +1769,7 @@ void enemy_cannon(int e)
          Efi[e][2]  = al_fixmul(Efi[e][2],  mul);  // x speed
          Efi[e][3]  = al_fixmul(Efi[e][3],  mul);  // y speed
          Efi[e][5]  = al_fixmul(Efi[e][5],  mul);  // seek speed
-         Efi[e][7]  = al_fixmul(Efi[e][7],  mul);  // bullet speed
+         Efi[e][7]  = al_fixmul(Efi[e][7],  mul);  // shot speed
          Efi[e][12] = al_fixmul(Efi[e][12], al_ftofix(1.1)); // scale
 
          Ei[e][29] += 2; // collison box size
@@ -1819,7 +1795,7 @@ void enemy_cannon(int e)
       if (--Ei[e][16] < 0) // cannon shot wait
       {
          Ei[e][16] = Ei[e][15]; // reset cannon shot wait
-         if (p != -1) fire_enemy_bulleta(e, 55, p);
+         if (p != -1) mwS.fire_enemy_shota(e, 55, p);
       }
 
    bouncer_cannon_common(e);
@@ -1893,11 +1869,11 @@ void enemy_bouncer(int e)
 // see walker_archwagon_common
 
 Ei[][3]   ans (2=wagon with arrow, 3=empty wagon)
-Ei[][15]  bullet retrigger value
-Ei[][16]  bullet retrigger count
-Ei[][17]  bullet prox
+Ei[][15]  shot retrigger value
+Ei[][16]  shot retrigger count
+Ei[][17]  shot prox
 
-Efi[][7]  bullet speed
+Efi[][7]  shot speed
 
 */
 
@@ -1921,8 +1897,8 @@ void enemy_archwagon(int e)
    }
    else
    {
-      int swl = 10; // bullet prox window low
-      int swh = 6;  // bullet prox window high
+      int swl = 10; // shot prox window low
+      int swh = 6;  // shot prox window high
       Ei[e][3] = 2; // wagon with arrow ans
 
       if (Ei[e][2]) // attempt shoot right
@@ -1931,7 +1907,7 @@ void enemy_archwagon(int e)
                if ((EXint > al_fixtoi(players[p].PX) - Ei[e][17]) && (EXint < al_fixtoi(players[p].PX) ))
                   if ((EYint > al_fixtoi(players[p].PY) - swh) && (EYint < al_fixtoi(players[p].PY) + swl ))
                   {
-                     fire_enemy_x_bullet(e, p);
+                     mwS.fire_enemy_x_shot(e, p);
                      Ei[e][16] = Ei[e][15]; // set new prox wait
                   }
 
@@ -1941,7 +1917,7 @@ void enemy_archwagon(int e)
                if ((EXint > al_fixtoi(players[p].PX) ) && (EXint < al_fixtoi(players[p].PX)  + Ei[e][17]))
                   if ((EYint > al_fixtoi(players[p].PY)  - swh) && (EYint < al_fixtoi(players[p].PY) + swl ))
                   {
-                     fire_enemy_x_bullet(e, p);
+                     mwS.fire_enemy_x_shot(e, p);
                      Ei[e][16] = Ei[e][15]; // set new prox wait
                   }
    }
@@ -2169,7 +2145,7 @@ void enemy_block_walker(int e)
 
       l[ex][ey] = 168 | PM_BTILE_ALL_SOLID;
 
-      l[ex][ey] |= PM_BTILE_BREAKABLE_PBUL;
+      l[ex][ey] |= PM_BTILE_BREAKABLE_PSHOT;
 
       al_set_target_bitmap(mwB.level_background);
       al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, mC.pc[0]);
@@ -2471,11 +2447,11 @@ Efi[][12] // scale
 Efi[][14] // rot
 
 -------------------------------------------------------------------------
--- Variables used in proc_enemy_collision_with_pbullet(int e)
+-- Variables used in proc_enemy_collision_with_pshot(int e)
 -------------------------------------------------------------------------
-Ei[][26]  // player number that hit enemy with bullet
+Ei[][26]  // player number that hit enemy with shot
 Ei[][29]  // enemies collison box size
-Ei[][31]  // flag that this enemy got shot with bullet
+Ei[][31]  // flag that this enemy got shot with shot
 
 Efi[][0] // x
 Efi[][1] // y
@@ -2520,7 +2496,7 @@ Ei[][24] // health bonus shape
 Ei[][25] // health bonus amount
 Ei[][26] // player num that killed enemy
 Ei[][30] // death loop count
-Ei[][31] // hit type (bullet or bomb)
+Ei[][31] // hit type (shot or bomb)
 
 
 Efi[][4]  // life dec
@@ -2546,7 +2522,7 @@ Ei[][27] = time to live
 Ei[][28] = cloner create id
 Ei[][29] = collision box size
 Ei[][30] = death loop count
-Ei[][31] = flag that this enemy got shot with bullet
+Ei[][31] = flag that this enemy got shot with shot
 
 
 Efi[][0] =  x
@@ -2587,13 +2563,13 @@ similar types
 
 [3] - Archwagon -----------------------------------------------------------------------------
 Ei[][3]   ans (2=wagon with arrow, 3=empty wagon)
-Ei[][15]  bullet retrigger value
-Ei[][16]  bullet retrigger count
-Ei[][17]  bullet prox
+Ei[][15]  shot retrigger value
+Ei[][16]  shot retrigger count
+Ei[][17]  shot prox
 
 Efi[][2]  y speed speed
 Efi[][6]  x speed speed
-Efi[][7]  bullet speed
+Efi[][7]  shot speed
 
 walker_archwagon_common(int e)
 Ei[][5]   jump/fall -160 max jump, 160 max fall
@@ -2617,12 +2593,12 @@ Efi[][5] seek speed
 Ei[][7]   seek counter
 Ei[][8]   seek count
 Ei[][9]   extra hits to kill
-Ei[][15]  bullet retrigger value
-Ei[][16]  bullet retrigger counter
-Ei[][17]  bullet prox
+Ei[][15]  shot retrigger value
+Ei[][16]  shot retrigger counter
+Ei[][17]  shot prox
 
 Efi[][5]  seek speed
-Efi[][7]  bullet speed
+Efi[][7]  shot speed
 Efi[][12] scale
 Efi[][14] rot
 
@@ -2638,16 +2614,16 @@ Ei[][13] = trigger box x2
 Ei[][14] = trigger box y2
 
 [8]--trakbot-----------------------------------------------------------------------------
-Ei[][3]  base animation seq (17=trakbot with bullet, 18=trakbot without bullet)
+Ei[][3]  base animation seq (17=trakbot with shot, 18=trakbot without shot)
 Ei[][4]  fall 160 max fall
 Ei[][5]  mode
 Ei[][7]  drop mode(0=no, 1=yes)
 Ei[][8]  twirling counter
 Ei[][15] shoot holdoff value
 Ei[][16] shoot holdoff counter
-Ei[][17] bullet prox
+Ei[][17] shot prox
 Ei[][20] rot
-Efi[][7] bullet speed
+Efi[][7] shot speed
 
 [9]--cloner-----------------------------------------------------------------------------
 
@@ -2684,8 +2660,8 @@ Ei[][12]  jump before wall
 
 [12]--flapper-----------------------------------------------------------------------------
 Ei[][14] base yo for debug drawing
-Ei[][15] bullet retrigger time
-Ei[][16] bullet retrigger counter
+Ei[][15] shot retrigger time
+Ei[][16] shot retrigger counter
 Ei[][17] prox width
 Ei[][18] prox height
 Ei[][19] prox depth
@@ -2695,7 +2671,7 @@ Ei[][21] flap height
 
 Efi[][5] max x speed
 Efi[][6] x accel
-Efi[][7] bullet speed
+Efi[][7] shot speed
 
 
 Efi[][8] flap offset for next loop

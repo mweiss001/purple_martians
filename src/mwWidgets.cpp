@@ -835,11 +835,11 @@ int mdw_button(int x1, int &y1, int x2, int bts,
          else if (item[num][2] & PM_ITEM_ORB_TRIG_DOWN)
          {
             item[num][2] &= ~PM_ITEM_ORB_TRIG_DOWN;  // clear flag
-            item[num][2] |= PM_ITEM_ORB_TRIG_BULLET; // set flag
+            item[num][2] |= PM_ITEM_ORB_TRIG_SHOT; // set flag
          }
-         else if (item[num][2] & PM_ITEM_ORB_TRIG_BULLET)
+         else if (item[num][2] & PM_ITEM_ORB_TRIG_SHOT)
          {
-            item[num][2] &= ~PM_ITEM_ORB_TRIG_BULLET; // clear flag
+            item[num][2] &= ~PM_ITEM_ORB_TRIG_SHOT; // clear flag
             item[num][2] |= PM_ITEM_ORB_TRIG_TOUCH; // set flag
          }
       }
@@ -849,7 +849,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       if (item[num][2] & PM_ITEM_ORB_TRIG_TOUCH)  sprintf(smsg, "Trigger:Touch");
       if (item[num][2] & PM_ITEM_ORB_TRIG_UP)     sprintf(smsg, "Trigger:Up");
       if (item[num][2] & PM_ITEM_ORB_TRIG_DOWN)   sprintf(smsg, "Trigger:Down");
-      if (item[num][2] & PM_ITEM_ORB_TRIG_BULLET) sprintf(smsg, "Trigger:Bullet");
+      if (item[num][2] & PM_ITEM_ORB_TRIG_SHOT) sprintf(smsg, "Trigger:Bullet");
    }
 
 

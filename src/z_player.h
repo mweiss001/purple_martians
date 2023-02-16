@@ -57,10 +57,10 @@ struct player // synced between server and client
    // flags that indicate a control has been activated or held
    int up, down, left, right, jump, fire, fire_held, menu;
 
-   int bullet_wait_counter, request_bullet, bullet_wait, bullet_speed;
+   int shot_wait_counter, request_shot, shot_wait, shot_speed;
 
    int stat_respawns;
-   int stat_bullets_fired;
+   int stat_shots_fired;
    int stat_enemy_hits;
    int stat_player_hits;
    int stat_self_hits;

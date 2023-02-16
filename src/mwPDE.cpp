@@ -1,24 +1,18 @@
-// e_pde.cpp
+// mwPDE.cpp
+
 #include "pm.h"
-#include "e_pde.h"
+#include "mwPDE.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwWidgets.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "z_menu.h"
 #include "z_fnx.h"
 
+mwPDE mPDE;
 
-
-
-
-int PDEi[100][32];
-al_fixed PDEfx[100][16];
-char PDEt[100][20][40];
-
-int load_PDE()
+int mwPDE::load()
 {
    FILE *fp =fopen("bitmaps/pde.pm","rb");
    if (fp)
@@ -33,7 +27,7 @@ int load_PDE()
    return 0;
 }
 
-void save_PDE()
+void mwPDE::save()
 {
    FILE *fp =fopen("bitmaps/pde.pm","wb");
    if (fp)
@@ -47,7 +41,7 @@ void save_PDE()
 }
 
 
-void PDE_swap(int s1, int s2)
+void mwPDE::pde_swap(int s1, int s2)
 {
    for (int y=0; y<32; y++)
    {
@@ -71,7 +65,7 @@ void PDE_swap(int s1, int s2)
 }
 
 
-void PDE_sort(void)
+void mwPDE::pde_sort(void)
 {
    // first just sort by type
    int swap_flag = 1;
@@ -82,7 +76,7 @@ void PDE_sort(void)
       {
          if (PDEi[x][0] > PDEi[x+1][0]) // sort by type
          {
-            PDE_swap(x, x + 1);
+            pde_swap(x, x + 1);
             swap_flag++; // if any swaps
          }
       }
@@ -118,27 +112,27 @@ void PDE_sort(void)
          {
             do_swap = 0;
             swap_flag++; // if any swaps
-            PDE_swap(x, x + 1);
+            pde_swap(x, x + 1);
          } // end of swap
       } // end of for x
    } // end of while swap flag
 
 
 
-   for (int x=0; x<50; x++) PDE_swap(x, x + 50); // move all to + 50
+   for (int x=0; x<50; x++) pde_swap(x, x + 50); // move all to + 50
 
    int insert_pos = 0; // creators to 0
    for (int x=50; x<100; x++)
    {
       int rt = PDEi[x][0];
-      if (rt > 199) PDE_swap(x, insert_pos++);
+      if (rt > 199) pde_swap(x, insert_pos++);
    }
 
    insert_pos = 32; // keys to 32
    for (int x=50; x<100; x++)
    {
       int rt = PDEi[x][0];
-      if (rt == 104) PDE_swap(x, insert_pos++);
+      if (rt == 104) pde_swap(x, insert_pos++);
    }
 
 
@@ -146,7 +140,7 @@ void PDE_sort(void)
    for (int x=50; x<100; x++)
    {
       int rt = PDEi[x][0];
-      if (rt == 114) PDE_swap(x, insert_pos++);
+      if (rt == 114) pde_swap(x, insert_pos++);
    }
 
 
@@ -154,14 +148,14 @@ void PDE_sort(void)
    for (int x=50; x<100; x++)
    {
       int rt = PDEi[x][0];
-      if ((rt > 99) && (rt < 200)) PDE_swap(x, insert_pos++);
+      if ((rt > 99) && (rt < 200)) pde_swap(x, insert_pos++);
    }
 
    insert_pos = 48; // enemies to 48
    for (int x=50; x<100; x++)
    {
       int rt = PDEi[x][0];
-      if ((rt) && (rt < 99)) PDE_swap(x, insert_pos++);
+      if ((rt) && (rt < 99)) pde_swap(x, insert_pos++);
    }
 
 
@@ -174,8 +168,9 @@ void PDE_sort(void)
 
 
 
-void PDE_edit_text(int EN)
+void mwPDE::edit_text(int EN)
 {
+   char msg[1024];
    int line_length = 30;
    int tx = mI.mouse_x/8;
    int ty1 = (mI.mouse_y-20)/8;
@@ -299,10 +294,11 @@ void PDE_edit_text(int EN)
 
 
 
-void predefined_enemies(void)
+void mwPDE::run(void)
 {
+   char msg[1024];
    while (mI.mouse_b[2][0]) mwEQ.proc_event_queue();
-   if (load_PDE())
+   if (load())
    {
       int EN = 0, redraw = 1;
 
@@ -375,8 +371,8 @@ void predefined_enemies(void)
          }
 
          y5 = 200;
-         if (mdw_buttont(100, y5, 160, 16, 0,0,0,0,    0,10,15,0, 1,0,1,0, "Save")) save_PDE();
-         if (mdw_buttont(100, y5, 160, 16, 0,0,0,0,    0, 9,15,0, 1,0,1,0, "Load")) load_PDE();
+         if (mdw_buttont(100, y5, 160, 16, 0,0,0,0,    0,10,15,0, 1,0,1,0, "Save")) save();
+         if (mdw_buttont(100, y5, 160, 16, 0,0,0,0,    0, 9,15,0, 1,0,1,0, "Load")) load();
 
          redraw=1;
 
@@ -385,11 +381,11 @@ void predefined_enemies(void)
          if (mI.CTRL() && mI.key[ALLEGRO_KEY_S][0]) // sort
          {
             while (mI.key[ALLEGRO_KEY_S][0]) mwEQ.proc_event_queue();
-            PDE_sort();
+            pde_sort();
             redraw = 1;
          }
 
-         if ((mI.mouse_b[1][0]) && (mI.mouse_x < 240) && (mI.mouse_y > 20) && (mI.mouse_y < 180)) PDE_edit_text(EN);
+         if ((mI.mouse_b[1][0]) && (mI.mouse_x < 240) && (mI.mouse_y > 20) && (mI.mouse_y < 180)) edit_text(EN);
 
          if (mI.key[ALLEGRO_KEY_RIGHT][0])
          {
@@ -439,3 +435,4 @@ void predefined_enemies(void)
       }
    }
 }
+

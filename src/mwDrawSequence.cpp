@@ -6,10 +6,8 @@
 #include "mwDrawSequence.h"
 #include <limits>
 
-#include "mwRollingAverage.h"
 #include "mwFont.h"
 #include "z_lift.h"
-#include "z_bullets.h"
 #include "mwTimeStamp.h"
 #include "mwColor.h"
 #include "mwProgramState.h"
@@ -18,6 +16,10 @@
 #include "z_enemy.h"
 #include "z_screen.h"
 #include "z_screen_overlay.h"
+
+#include "mwShots.h"
+
+
 
 
 mwDrawSequence mwDS;
@@ -44,8 +46,8 @@ void mwDrawSequence::initialize(void)
    sprintf(name_long[1], "draw_lifts");
    sprintf(name_long[2], "draw_items");
    sprintf(name_long[3], "draw_enemies");
-   sprintf(name_long[4], "draw_ebullets");
-   sprintf(name_long[5], "draw_pbullets");
+   sprintf(name_long[4], "draw_eshots");
+   sprintf(name_long[5], "draw_pshots");
    sprintf(name_long[6], "draw_players");
    sprintf(name_long[7], "get_new_screen_buffer");
    sprintf(name_long[8], "draw_screen_overlay");
@@ -113,10 +115,10 @@ void mwDrawSequence::draw(void)
    if (seq[3][0]) draw_enemies();
    t4 = al_get_time(); add(3, t4-t3);
 
-   if (seq[4][0]) draw_ebullets();
+   if (seq[4][0]) mwS.draw_eshots();
    t5 = al_get_time(); add(4, t5-t4);
 
-   if (seq[5][0]) draw_pbullets();
+   if (seq[5][0]) mwS.draw_pshots();
    t6 = al_get_time(); add(5, t6-t5);
 
    if (seq[6][0]) draw_players();
@@ -133,7 +135,7 @@ void mwDrawSequence::draw(void)
 
    if (LOG_TMR_draw_all)
    {
-      sprintf(msg, "tmst d-bkgr:[%0.4f] d-lift:[%0.4f] d-item:[%0.4f] d-enem:[%0.4f] d-ebul:[%0.4f] d-pbul:[%0.4f] d-plyr:[%0.4f] d-buff:[%0.4f] d-ovrl:[%0.4f] d-flip:[%0.4f] d-totl:[%0.4f]\n",
+      sprintf(msg, "tmst d-bkgr:[%0.4f] d-lift:[%0.4f] d-item:[%0.4f] d-enem:[%0.4f] d-esht:[%0.4f] d-psht:[%0.4f] d-plyr:[%0.4f] d-buff:[%0.4f] d-ovrl:[%0.4f] d-flip:[%0.4f] d-totl:[%0.4f]\n",
       (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000, (t4-t3)*1000, (t5-t4)*1000, (t6-t5)*1000, (t7-t6)*1000, (t8-t7)*1000, (t9-t8)*1000, (t10-t9)*1000, (t10-t0)*1000);
       //printf("\n%s\n", msg);
       add_log_entry2(44, 0, msg);

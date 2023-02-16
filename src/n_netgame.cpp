@@ -4,12 +4,11 @@
 #include "z_player.h"
 #include "n_netgame.h"
 #include "z_lift.h"
-#include "z_bullets.h"
 #include "mwPMEvent.h"
 #include "z_item.h"
 #include "z_enemy.h"
 #include "z_level.h"
-
+#include "mwShots.h"
 
 
 
@@ -24,9 +23,7 @@ int ima_client = 0;
 char m_serveraddress[256] = "192.168.1.2";
 int TCP = 0;
 int zlib_cmp = 7;
-int deathmatch_pbullets = 0;
-int deathmatch_pbullets_damage = 5;
-int suicide_pbullets = 0;
+
 
 // server's copies of client states
 char srv_client_state[8][2][STATE_SIZE];
@@ -51,8 +48,8 @@ void game_vars_to_state(char * b)
    offset += sz; sz = sizeof(itemf);       memcpy(b+offset, itemf,    sz);
    offset += sz; sz = sizeof(lifts);       memcpy(b+offset, lifts,    sz);
    offset += sz; sz = sizeof(l);           memcpy(b+offset, l,        sz);
-   offset += sz; sz = sizeof(pbullet);     memcpy(b+offset, pbullet,  sz);
-   offset += sz; sz = sizeof(ebullets);    memcpy(b+offset, ebullets, sz);
+   offset += sz; sz = sizeof(mwS.p);       memcpy(b+offset, mwS.p,    sz);
+   offset += sz; sz = sizeof(mwS.e);       memcpy(b+offset, mwS.e,    sz);
    offset += sz; sz = sizeof(mwPME.event); memcpy(b+offset, mwPME.event, sz);
 }
 
@@ -66,8 +63,8 @@ void state_to_game_vars(char * b)
    sz = sizeof(itemf);       memcpy(itemf,       b+offset, sz); offset += sz;
    sz = sizeof(lifts);       memcpy(lifts,       b+offset, sz); offset += sz;
    sz = sizeof(l);           memcpy(l,           b+offset, sz); offset += sz;
-   sz = sizeof(pbullet);     memcpy(pbullet,     b+offset, sz); offset += sz;
-   sz = sizeof(ebullets);    memcpy(ebullets,    b+offset, sz); offset += sz;
+   sz = sizeof(mwS.p);       memcpy(mwS.p,       b+offset, sz); offset += sz;
+   sz = sizeof(mwS.e);       memcpy(mwS.e,       b+offset, sz); offset += sz;
    sz = sizeof(mwPME.event); memcpy(mwPME.event, b+offset, sz); offset += sz;
 }
 

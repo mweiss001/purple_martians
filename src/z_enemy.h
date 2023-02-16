@@ -13,7 +13,7 @@ int enemy_data(int x_pos, int y_pos);
 void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color, int clip_mode);
 void draw_enemy(int e, int custom, int cx, int cy);
 void draw_enemies(void);
-void proc_enemy_collision_with_pbullet(int e);
+void proc_enemy_collision_with_pshot(int e);
 void move_enemies();
 void enemy_deathcount(int e);
 void enemy_player_hit_proc(int e);

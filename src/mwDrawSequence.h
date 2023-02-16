@@ -1,6 +1,9 @@
 // mwDrawSequence.h
 
 
+#include "mwRollingAverage.h"
+
+
 class mwDrawSequence
 {
    public:
@@ -17,6 +20,9 @@ class mwDrawSequence
    double time_avg[20];
    double time_min[20];
    double time_max[20];
+
+
+   mwRollingAverage RA[20];
 
 
    void add(int s, double v);

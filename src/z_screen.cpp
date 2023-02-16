@@ -12,7 +12,6 @@
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "z_lift.h"
-#include "z_bullets.h"
 #include "mwColor.h"
 #include "mwProgramState.h"
 #include "z_menu.h"
@@ -20,8 +19,7 @@
 #include "z_enemy.h"
 #include "z_level.h"
 #include "z_fnx.h"
-
-
+#include "mwShots.h"
 
 
 void get_new_background(int full)
@@ -577,13 +575,6 @@ void init_level_background(int type) // fill level_background with block tiles
 }
 
 
-
-
-
-
-
-
-
 void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players)
 {
    if (blocks) get_new_background(1);
@@ -595,8 +586,8 @@ void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int item
       if (resume_allowed)
       {
          if (players) draw_players();
-         draw_ebullets();
-         draw_pbullets();
+         mwS.draw_eshots();
+         mwS.draw_pshots();
       }
    }
    if (b == NULL) al_set_target_backbuffer(display);

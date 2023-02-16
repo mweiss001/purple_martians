@@ -3,28 +3,24 @@
 #include "pm.h"
 #include "mwFont.h"
 #include "mwDisplay.h"
-#include "z_menu.h"
 #include "z_fnx.h"
-
 
 
 mwFont mF;
 
-void mwFont::initialize(void)
+void mwFont::load_fonts(void)
 {
    al_destroy_font(bltn);
    bltn = al_create_builtin_font();
    if (!bltn)
    {
-      sprintf(msg, "Failed to create_builtin_font");
-      m_err(msg);
-      printf("%s\n", msg);
+      m_err("Failed to create_builtin_font");
       exit(0);
    }
 
    // now we get pristine font from bitmap in the interest of drawing faster
    ALLEGRO_BITMAP* tmp = al_load_bitmap("bitmaps/Pristine_8.bmp");
-   if (!tmp) m_err((char*)"Can't load bitmaps//Pristine_8.bmp");
+   if (!tmp) m_err("Can't load bitmaps//Pristine_8.bmp");
    else
    {
       al_convert_mask_to_alpha(tmp, al_map_rgb(0, 0, 0)) ;
@@ -37,7 +33,7 @@ void mwFont::initialize(void)
 
    // pristine 16x16 version
    tmp = al_load_bitmap("bitmaps/Pristine_16.bmp");
-   if (!tmp) m_err((char*)"Can't load bitmaps//Pristine_16.bmp");
+   if (!tmp) m_err("Can't load bitmaps//Pristine_16.bmp");
    else
    {
       al_convert_mask_to_alpha(tmp, al_map_rgb(0, 0, 0)) ;
@@ -71,10 +67,12 @@ void mwFont::initialize(void)
 
 void mwFont::convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bmp_filename, int char_size)
 {
+   char msg[1024];
+   char fn[256];
    // converts ttf fonts to bitmap mF.pr8 to draw faster and have consistant size
-   sprintf(msg, "bitmaps/%s", ttf_filename);
-   ALLEGRO_FONT *cf = al_load_ttf_font(msg, char_size, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
-   if(!cf)
+   sprintf(fn, "bitmaps/%s", ttf_filename);
+   ALLEGRO_FONT *cf = al_load_ttf_font(fn, char_size, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
+   if (!cf)
    {
       sprintf(msg, "Failed to load font from bitmaps/%s", ttf_filename);
       m_err("Failed to load font from bitmaps/Pristine.ttf");
@@ -89,7 +87,6 @@ void mwFont::convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bm
 
    ALLEGRO_BITMAP *b = al_create_bitmap(bmp_w, bmp_h);
    al_set_target_bitmap(b);
-
    al_clear_to_color(al_map_rgb(255, 0, 0));  // set entire bitmap to red, this will be the background color separating the glyphs
 
    int y = bw;
@@ -103,11 +100,11 @@ void mwFont::convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bm
       }
       y+=step0;
    }
-   al_convert_mask_to_alpha(b, al_map_rgb(0, 0, 0)); // does not actually save in bmp format :(
+   al_convert_mask_to_alpha(b, al_map_rgb(0, 0, 0)); // alpha does not actually save in bmp format :(
    al_set_target_backbuffer(display);
    al_draw_bitmap(b, 0, 0, 0);
-   sprintf(msg, "bitmaps/%s", bmp_filename);
-   al_save_bitmap(msg, b);
+   sprintf(fn, "bitmaps/%s", bmp_filename);
+   al_save_bitmap(fn, b);
    al_destroy_font(cf);
 }
 

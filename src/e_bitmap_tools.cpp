@@ -2,14 +2,13 @@
 #include "pm.h"
 #include "e_bitmap_tools.h"
 #include "mwWindowManager.h"
+#include "mwColor.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwWidgets.h"
-#include "mwColor.h"
 #include "mwInput.h"
 #include "mwDisplay.h"
 #include "mwEventQueue.h"
-#include "z_menu.h"
 #include "z_level.h"
 #include "e_editor_main.h"
 #include "e_fnx.h"
@@ -301,6 +300,7 @@ int select_bitmap(int tn)
 int bmp_index = 0;
 int select_bitmap_ans(int zzindx)
 {
+   char msg[1024];
    int quit = 0;
    while (!quit)
    {
@@ -355,6 +355,7 @@ int select_bitmap_ans(int zzindx)
 
 void animation_sequence_editor(void)
 {
+   char msg[1024];
    int zzindx = 3;
    int pointer = zzindx;
    int quit = 0;
@@ -515,8 +516,8 @@ int draw_flag_rects(int tn, int x, int y, int w, int h, int ys, int last_flag_sh
    if (tn & PM_BTILE_SEMISOLID_ENEMY)  fa[6]  += 1; // tally set
    if (tn & PM_BTILE_SEMISOLID_ITEM)   fa[7]  += 1; // tally set
    if (tn & PM_BTILE_BOMBABLE)         fa[8]  += 1; // tally set
-   if (tn & PM_BTILE_BREAKABLE_PBUL)   fa[9]  += 1; // tally set
-   if (tn & PM_BTILE_BREAKABLE_EBUL)   fa[10] += 1; // tally set
+   if (tn & PM_BTILE_BREAKABLE_PSHOT)   fa[9]  += 1; // tally set
+   if (tn & PM_BTILE_BREAKABLE_ESHOT)   fa[10] += 1; // tally set
    if (tn & PM_BTILE_LADDER_MOVE)      fa[11] += 1; // tally set
    if (tn & PM_BTILE_ROPE_MOVE)        fa[12] += 1; // tally set
    if (tn & PM_BTILE_SECRET)           fa[13] += 1; // tally set
@@ -552,8 +553,8 @@ void draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w, int h, int ys)
          if (highlight ==  6) mwB.sa[tn][0] ^= PM_BTILE_SEMISOLID_ENEMY;
          if (highlight ==  7) mwB.sa[tn][0] ^= PM_BTILE_SEMISOLID_ITEM;
          if (highlight ==  8) mwB.sa[tn][0] ^= PM_BTILE_BOMBABLE;
-         if (highlight ==  9) mwB.sa[tn][0] ^= PM_BTILE_BREAKABLE_PBUL;
-         if (highlight == 10) mwB.sa[tn][0] ^= PM_BTILE_BREAKABLE_EBUL;
+         if (highlight ==  9) mwB.sa[tn][0] ^= PM_BTILE_BREAKABLE_PSHOT;
+         if (highlight == 10) mwB.sa[tn][0] ^= PM_BTILE_BREAKABLE_ESHOT;
          if (highlight == 11) mwB.sa[tn][0] ^= PM_BTILE_LADDER_MOVE;
          if (highlight == 12) mwB.sa[tn][0] ^= PM_BTILE_ROPE_MOVE;
          if (highlight == 13) mwB.sa[tn][0] ^= PM_BTILE_SECRET;
@@ -596,8 +597,8 @@ void draw_flags(int x1, int y1, int* num, int *mpow, int view_only, int clear_ba
             if (highlight ==  6) (*num) ^= PM_BTILE_SEMISOLID_ENEMY;
             if (highlight ==  7) (*num) ^= PM_BTILE_SEMISOLID_ITEM;
             if (highlight ==  8) (*num) ^= PM_BTILE_BOMBABLE;
-            if (highlight ==  9) (*num) ^= PM_BTILE_BREAKABLE_PBUL;
-            if (highlight == 10) (*num) ^= PM_BTILE_BREAKABLE_EBUL;
+            if (highlight ==  9) (*num) ^= PM_BTILE_BREAKABLE_PSHOT;
+            if (highlight == 10) (*num) ^= PM_BTILE_BREAKABLE_ESHOT;
             if (highlight == 11) (*num) ^= PM_BTILE_LADDER_MOVE;
             if (highlight == 12) (*num) ^= PM_BTILE_ROPE_MOVE;
             if (highlight == 13) (*num) ^= PM_BTILE_SECRET;
@@ -647,10 +648,10 @@ void draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, 
          if (mwB.sa[tn][0] & PM_BTILE_BOMBABLE)         fa[8][1] += 1; // tally set
          else                                       fa[8][0] += 1; // tally clear
 
-         if (mwB.sa[tn][0] & PM_BTILE_BREAKABLE_PBUL)   fa[9][1] += 1; // tally set
+         if (mwB.sa[tn][0] & PM_BTILE_BREAKABLE_PSHOT)   fa[9][1] += 1; // tally set
          else                                       fa[9][0] += 1; // tally clear
 
-         if (mwB.sa[tn][0] & PM_BTILE_BREAKABLE_EBUL)   fa[10][1] += 1; // tally set
+         if (mwB.sa[tn][0] & PM_BTILE_BREAKABLE_ESHOT)   fa[10][1] += 1; // tally set
          else                                       fa[10][0] += 1; // tally clear
 
          if (mwB.sa[tn][0] & PM_BTILE_LADDER_MOVE)      fa[11][1] += 1; // tally set
@@ -697,8 +698,8 @@ void draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, 
          if (highlight ==  6) set_flag = PM_BTILE_SEMISOLID_ENEMY;
          if (highlight ==  7) set_flag = PM_BTILE_SEMISOLID_ITEM;
          if (highlight ==  8) set_flag = PM_BTILE_BOMBABLE;
-         if (highlight ==  9) set_flag = PM_BTILE_BREAKABLE_PBUL;
-         if (highlight == 10) set_flag = PM_BTILE_BREAKABLE_EBUL;
+         if (highlight ==  9) set_flag = PM_BTILE_BREAKABLE_PSHOT;
+         if (highlight == 10) set_flag = PM_BTILE_BREAKABLE_ESHOT;
          if (highlight == 11) set_flag = PM_BTILE_LADDER_MOVE;
          if (highlight == 12) set_flag = PM_BTILE_ROPE_MOVE;
          if (highlight == 13) set_flag = PM_BTILE_SECRET;
@@ -719,6 +720,7 @@ void draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, 
 
 void edit_btile_attributes(void)
 {
+   char msg[1024];
    int x, y;
    int mode = 0;
    int quit = 0;
@@ -1012,6 +1014,7 @@ int draw_and_process_button(int x, int y, const char * text, int c1, int c2, int
 // this one has abitrary first and second bmp file
 void copy_tiles(void)
 {
+   char msg[1024];
    int quit = 0;
    int gridlines = 1;
    al_set_target_backbuffer(display);

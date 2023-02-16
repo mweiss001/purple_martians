@@ -15,6 +15,7 @@
 #include "mwProgramState.h"
 #include "z_level.h"
 #include "z_fnx.h"
+#include "mwShots.h"
 
 
 
@@ -98,9 +99,9 @@ void save_config(void)
 
       al_set_config_value(cfg, "NETWORK", "server_IP", m_serveraddress);
       asci(NETWORK, TCP)
-      asci(NETWORK, deathmatch_pbullets)
-      asci(NETWORK, deathmatch_pbullets_damage)
-      asci(NETWORK, suicide_pbullets)
+      asci(NETWORK, mwS.deathmatch_shots)
+      asci(NETWORK, mwS.deathmatch_shot_damage)
+      asci(NETWORK, mwS.suicide_shots)
 
       asci(NETWORK, players1[0].server_state_freq_mode)
 
@@ -288,9 +289,9 @@ void load_config(void)
    else sprintf(m_serveraddress, "%s", val);
 
    agci(NETWORK, TCP, 0)
-   agci(NETWORK, deathmatch_pbullets, 0)
-   agci(NETWORK, deathmatch_pbullets_damage, 5)
-   agci(NETWORK, suicide_pbullets, 0)
+   agci(NETWORK, mwS.deathmatch_shots, 0)
+   agci(NETWORK, mwS.deathmatch_shot_damage, 5)
+   agci(NETWORK, mwS.suicide_shots, 0)
 
    agci(NETWORK, players1[0].server_state_freq_mode, 1)
 

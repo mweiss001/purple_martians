@@ -7,13 +7,6 @@ mwColor mC;
 
 mwColor::mwColor()
 {
-   initialize();
-}
-
-void mwColor::initialize(void)
-{
-   // printf("make palette\n");
-
    pc[0]  = al_map_rgb(  0,   0,   0); // black
    pc[1]  = al_map_rgb(191, 108, 232); // alt purple 1
    pc[2]  = al_map_rgb(136,  32, 172); // alt purple 2
@@ -31,15 +24,8 @@ void mwColor::initialize(void)
    pc[14] = al_map_rgb(255, 255,   0); // yellow
    pc[15] = al_map_rgb(255, 255, 255); // white
 
-   // special case reversed white (0)
-   for (int x=1; x<16; x++)
-   {
-      int c = (x+1)*16 - 1;
-      pc[x*16]  = al_map_rgb(c, c, c);
-   }
-
-   // all the other base colors from 1-15
-   for (int a=1; a<16; a++) // iterate base colors
+   // fade base colors 1-15
+   for (int a=1; a<16; a++)
    {
       // extract r, g, b in float format
       float r, g, b;
@@ -54,6 +40,12 @@ void mwColor::initialize(void)
       }
    }
 
+   // reverse fade black (color 0)
+   for (int x=1; x<16; x++)
+   {
+      int c = (x+1)*16 - 1;
+      pc[x*16]  = al_map_rgb(c, c, c);
+   }
 
    strcpy (color_name[0],  "Zombie");
    strcpy (color_name[1],  "Violet");
@@ -88,40 +80,26 @@ void mwColor::initialize(void)
    Aqua   = pc[13];
    Yellow = pc[14];
    White  = pc[15];
-
-//   for (int x=0; x<16; x++)
-//   {
-//      unsigned char ur, ug, ub;
-//      al_unmap_rgb(mC.pc[a+x*16], &ur, &ug, &ub);
-//      printf("%2d %3d r:%3d g:%3d b:%3d \n", x, a+x*16, ur, ug, ub );
-//   }
-//   for (int x=0; x<16; x++)
-//   al_draw_line(10, 10+x*2, 200, 10+x*2, mC.pc[10+x*16], 2);
-//   int sz = 16;
-//   al_draw_rectangle(0, 0, 17*sz, 17*sz, mC.pc[15], 2);
-//
-//   for (int a=0; a<16; a++)
-//      for (int b=0; b<16; b++)
-//         al_draw_filled_rectangle(a*sz, b*sz, a*sz+sz, b*sz+sz, mC.pc[b*16+a]);
-//   al_draw_text(mF.pr8, mC.pc[9], 400, 400, ALLEGRO_ALIGN_CENTRE, "Hello World");
-
 }
 
+void mwColor::show_palette(void)
+{
+   int x = 100;
+   int y = 100;
+   int sz = 10;
 
+   for (int a=0; a<16; a++)
+      for (int b=0; b<16; b++)
+         al_draw_filled_rectangle(x+a*sz, y+b*sz, x+a*sz+sz-1, y+b*sz+sz-1, pc[a*16+b]);
+   al_draw_rectangle(x, y, x+16*sz-1, y+16*sz-1, White, 0);
 
-
-
-
-
-//void process_flash_color(void)
-//{
-//   if (++flash_counter > 16) flash_counter = 1;
-//   if ((flash_counter > 0)  && (flash_counter < 5))  { flash_color = 10; flash_color2 = 15; }
-//   if ((flash_counter > 4)  && (flash_counter < 9))  { flash_color = 14; flash_color2 = 11; }
-//   if ((flash_counter > 8)  && (flash_counter < 13)) { flash_color = 15; flash_color2 = 10; }
-//   if ((flash_counter > 12) && (flash_counter < 17)) { flash_color = 11; flash_color2 = 14; }
-//}
-
+   for (int x=0; x<16; x++)
+   {
+      unsigned char ur, ug, ub;
+      al_unmap_rgb(pc[x], &ur, &ug, &ub);
+      printf("%2d r:%3d g:%3d b:%3d \n", x, ur, ug, ub);
+   }
+}
 
 void mwColor::process_flash_color(void)
 {
@@ -130,12 +108,8 @@ void mwColor::process_flash_color(void)
    if ((flash_counter > 8)  && (flash_counter < 15))  { flash_color = 14; flash_color2 = 11; }
    if ((flash_counter > 16)  && (flash_counter < 23)) { flash_color = 15; flash_color2 = 10; }
    if ((flash_counter > 24) && (flash_counter < 33))  { flash_color = 11; flash_color2 = 14; }
-
    Flash1 = pc[flash_color];
    Flash2 = pc[flash_color2];
-
-
-
 }
 
 

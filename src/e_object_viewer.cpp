@@ -909,8 +909,8 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF         ","Triggered by Players:ON          ", 15+dim, 15, 9+dim, 9);
             mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF         ","Triggered by Enemies:ON          ", 15+dim, 15, 9+dim, 9);
             mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF           ","Triggered by Items:ON            ", 15+dim, 15, 9+dim, 9);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][3], PM_ITEM_TRIGGER_PBUL,   "Triggered by Player's Bullets:OFF","Triggered by Player's Bullets:ON ", 15+dim, 15, 9+dim, 9);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][3], PM_ITEM_TRIGGER_EBUL,   "Triggered by Enemy's Bullets:OFF ","Triggered by Enemy's Bullets:ON  ", 15+dim, 15, 9+dim, 9);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][3], PM_ITEM_TRIGGER_PSHOT,   "Triggered by Player's Bullets:OFF","Triggered by Player's Bullets:ON ", 15+dim, 15, 9+dim, 9);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][3], PM_ITEM_TRIGGER_ESHOT,   "Triggered by Enemy's Bullets:OFF ","Triggered by Enemy's Bullets:ON  ", 15+dim, 15, 9+dim, 9);
             ya+=4; // spacer
             mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][11], 99, 0, 1,    "Set Event Always While On   :", "OFF");
             mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][12], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
@@ -980,8 +980,8 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                   mdw_slideri( xa, ya, xb, bts, 0,0,0,0,   0,10,15,15, 1,0,1,d, item[n][15], 2000, -2000, 1,        "Player Damage:" );
             mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",          "Affects Enemies:ON",          15+dim, 15, 10+dim, 10);
             mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_ITEM,    "Affects Items:OFF",            "Affects Items:ON",            15+dim, 15, 10+dim, 10);
-            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_PBUL,    "Affects Player's Bullets:OFF", "Affects Player's Bullets:ON", 15+dim, 15, 10+dim, 10);
-            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_EBUL,    "Affects Enemy's Bullets:OFF",  "Affects Enemy's Bullets:ON",  15+dim, 15, 10+dim, 10);
+            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_PSHOT,    "Affects Player's Bullets:OFF", "Affects Player's Bullets:ON", 15+dim, 15, 10+dim, 10);
+            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_ESHOT,    "Affects Enemy's Bullets:OFF",  "Affects Enemy's Bullets:ON",  15+dim, 15, 10+dim, 10);
             ya+=4; // spacer
             if (mdw_togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",             "Follows Lift:ON ",            15+dim, 15, 6+dim, 6))
             {
@@ -1040,7 +1040,7 @@ void ov_draw_overlays(int legend_highlight)
 
       if ((type == 3) || (type == 6) || (type == 8) || (type == 12)) // archwagon, cannon, trakbot, flapper
       {
-         // draw yellow bullet prox circle
+         // draw yellow shot prox circle
          int color = 14;
          if (legend_highlight == 2) color = mC.flash_color;
          al_draw_circle(obj_x, obj_y, Ei[num][17], mC.pc[color], 1);
@@ -1417,7 +1417,7 @@ void ov_process_mouse(void)
    {
       int b = mwWM.mW[7].num;
       int type = Ei[b][0];
-      if ((type == 3) || (type == 6) || (type == 8) || (type == 12)) // archwagon, cannon, trakbot and flapper bullet prox
+      if ((type == 3) || (type == 6) || (type == 8) || (type == 12)) // archwagon, cannon, trakbot and flapper shot prox
       {
          float x0 = al_fixtof(Efi[b][0])+10; // get center of item location
          float y0 = al_fixtof(Efi[b][1])+10;
@@ -1896,7 +1896,7 @@ void ov_process_mouse(void)
             float dist = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse to item
             item[mwWM.mW[7].num][7] = (int) dist;
          }
-         if (mouse_on_trk) // adjust trakbot bulet prox
+         if (mouse_on_trk) // adjust trakbot shot prox
          {
             float x0 = al_fixtof(Efi[mwWM.mW[7].num][0])+10; // get center of item location
             float y0 = al_fixtof(Efi[mwWM.mW[7].num][1])+10;

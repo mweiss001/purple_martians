@@ -5,7 +5,7 @@
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "z_lift.h"
-#include "e_pde.h"
+#include "mwPDE.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwDisplay.h"
@@ -460,7 +460,7 @@ char* em_get_text_description_of_block_based_on_flags(int flags)
 
    if (flags & PM_BTILE_SOLID_PLAYER)     sprintf(msg, "Solid");
    if (flags & PM_BTILE_SEMISOLID_PLAYER) sprintf(msg, "Semi-Solid");
-   if (flags & PM_BTILE_BREAKABLE_PBUL)   sprintf(msg, "Breakable");
+   if (flags & PM_BTILE_BREAKABLE_PSHOT)   sprintf(msg, "Breakable");
    if (flags & PM_BTILE_BOMBABLE)         sprintf(msg, "Bombable");
    if (flags & PM_BTILE_LADDER_MOVE)      sprintf(msg, "Ladder");
    if (flags & PM_BTILE_ROPE_MOVE)        sprintf(msg, "Rope");
@@ -488,11 +488,11 @@ void em_show_draw_item_cursor(void)
             draw_enemy(num, 1, x*20, y*20);
          break;
          case 5: // PDE
-            int a = PDEi[num][1]; // bmp or ans
+            int a = mPDE.PDEi[num][1]; // bmp or ans
             if (a > 999) a = mwB.zz[5][a-1000]; // ans
             al_draw_bitmap(mwB.tile[a], x*20, y*20, 0);
 
-            if ((PDEi[num][0] == 108) && (PDEi[num][11])) al_draw_bitmap(mwB.tile[440], x*20, y*20, 0); // bomb sticky spikes
+            if ((mPDE.PDEi[num][0] == 108) && (mPDE.PDEi[num][11])) al_draw_bitmap(mwB.tile[440], x*20, y*20, 0); // bomb sticky spikes
 
 
 
@@ -536,16 +536,16 @@ void em_show_item_info(int x, int y, int color, int type, int num)
       }
       break;
       case 5:
-         a = PDEi[num][1]; // bmp or ans
+         a = mPDE.PDEi[num][1]; // bmp or ans
          if (a < NUM_SPRITES) b = a; // bmp
          if (a > 999) b = mwB.zz[5][a-1000]; // ans
          al_draw_bitmap(mwB.tile[b], x, y, 0);
 
-         if ((PDEi[num][0] == 108) && (PDEi[num][11])) al_draw_bitmap(mwB.tile[440], x, y, 0); // bomb sticky spikes
+         if ((mPDE.PDEi[num][0] == 108) && (mPDE.PDEi[num][11])) al_draw_bitmap(mwB.tile[440], x, y, 0); // bomb sticky spikes
 
          a = Ei[num][0]; // type
          al_draw_text(mF.pr8, mC.pc[color], x+22, y+2, 0, "Special Item");
-         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+12, 0, "%s", PDEt[num][1]);
+         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+12, 0, "%s", mPDE.PDEt[num][1]);
       break;
    }
 }
@@ -723,13 +723,13 @@ void em_process_mouse(void)
          }
          break;
          case 5: // Special
-         if ((PDEi[din][0] > 99) && (PDEi[din][0] < 200)) // PDE item
+         if ((mPDE.PDEi[din][0] > 99) && (mPDE.PDEi[din][0] < 200)) // PDE item
          {
             int d = get_empty_item(); // get a place to put it
             if (d == -1)  break;
             // copy from pde
             for (int x=0; x<16; x++) // item
-               item[d][x] = PDEi[din][x];
+               item[d][x] = mPDE.PDEi[din][x];
             item[d][0] -= 100;
             item[d][4] = mwWM.gx*20;
             item[d][5] = mwWM.gy*20;
@@ -741,12 +741,12 @@ void em_process_mouse(void)
             }
             sort_item(1);
          }
-         if (PDEi[din][0] < 99) // PDE enemy
+         if (mPDE.PDEi[din][0] < 99) // PDE enemy
          {
             int d = get_empty_enemy(); // get a place to put it
             if (d == -1)  break;
-            for (int x=0; x<32; x++) Ei[d][x]  = PDEi[din][x];
-            for (int x=0; x<16; x++) Efi[d][x] = PDEfx[din][x];
+            for (int x=0; x<32; x++) Ei[d][x]  = mPDE.PDEi[din][x];
+            for (int x=0; x<16; x++) Efi[d][x] = mPDE.PDEfx[din][x];
             Efi[d][0] = al_itofix(mwWM.gx*20);  // set new x,y
             Efi[d][1] = al_itofix(mwWM.gy*20);
             sort_enemy();

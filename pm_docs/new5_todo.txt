@@ -65,6 +65,24 @@ I'm getting a stimp in single player
 
 
 
+
+
+
+
+
+
+
+
+file.cpp...
+do something about level header...is it used for ft stuff?..num lifts?...
+
+also global filepointer?  kill it...no need for that...
+
+
+
+
+
+
 I would be nice be be able to do tc and netem things from within my program..
 but I would need to figure out how to do that as non-root
 
@@ -460,7 +478,7 @@ make a level that relies on being able to carry a door through a door
 ------------------------------------------------------
 
 how about an enemy that jumps over the player and fires down when directly over
-invincible to sideways player bullets
+invincible to sideways player shots
 
 What if I made a cloner that could detect when what it created was destroyed and make a new ones?
 
@@ -471,7 +489,7 @@ what if when a player is in a cloner src that fires, a free man is created?
 
 stationary cannon
 wait, there is more!
-uses prox to fire bullet instead of timer
+uses prox to fire shot instead of timer
 
 
 ------------------------------------------------------
@@ -657,11 +675,11 @@ number of:
 
 enemies left
 enemies killed
-bullets fired
+shots fired
 
 per player:
 enemies killed
-bullets fired
+shots fired
 damage taken
 health picked up
 

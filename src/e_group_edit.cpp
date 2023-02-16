@@ -281,9 +281,9 @@ void ge_set_valid_controls(void)
             if ((etyp != 4) && (etyp != 6))                                               ge_data[22].valid = 0; // seek speed (bouncer and cannon)
             if (etyp != 6)                                                                ge_data[23].valid = 0; // extra hits to kill (cannon)
 
-            if ((etyp != 3) && (etyp != 6) && (etyp != 7) && (etyp != 8) && (etyp != 12)) ge_data[24].valid = 0; // bullet speed (archwagon, cannon, podzilla, trakbot, flapper)
-            if ((etyp != 3) && (etyp != 6) && (etyp != 8) && (etyp != 12))                ge_data[25].valid = 0; // bullet retrigger (archwagon, cannon, trakbot, flapper)
-            if ((etyp != 3) && (etyp != 6) && (etyp != 8) && (etyp != 12))                ge_data[26].valid = 0; // bullet proximity (archwagon, cannon, trakbot, flapper)
+            if ((etyp != 3) && (etyp != 6) && (etyp != 7) && (etyp != 8) && (etyp != 12)) ge_data[24].valid = 0; // shot speed (archwagon, cannon, podzilla, trakbot, flapper)
+            if ((etyp != 3) && (etyp != 6) && (etyp != 8) && (etyp != 12))                ge_data[25].valid = 0; // shot retrigger (archwagon, cannon, trakbot, flapper)
+            if ((etyp != 3) && (etyp != 6) && (etyp != 8) && (etyp != 12))                ge_data[26].valid = 0; // shot proximity (archwagon, cannon, trakbot, flapper)
 
             if (etyp != 12) // flapper specific
             {

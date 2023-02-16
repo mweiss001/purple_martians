@@ -5,7 +5,7 @@
 #include "mwFont.h"
 #include "z_lift.h"
 #include "e_tile_helper.h"
-#include "e_pde.h"
+#include "mwPDE.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
@@ -51,7 +51,7 @@ void mwWindowManager::initialize(int edit_level)
    else load_level_prompt();                  // prompt for level
 
 
-   load_PDE();
+   mPDE.load();
    sort_enemy();
    sort_item(1);
    em_set_swbl();

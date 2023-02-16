@@ -1,14 +1,13 @@
 // mwRollingAverage.h
+#ifndef mwRollingAverage_H
+#define mwRollingAverage_H
 
 class mwRollingAverage
 {
    public:
-
    mwRollingAverage(); // default constructor
    void initialize(void);
-
    void add_data(double d);
-
    double arr[8];
    int    num_filled;
    int    index;
@@ -19,6 +18,4 @@ class mwRollingAverage
 };
 extern mwRollingAverage mwRA[4];
 
-extern mwRollingAverage RA[20];
-
-
+#endif

@@ -16,9 +16,7 @@
 #include "z_level.h"
 #include "z_fnx.h"
 #include "z_screen.h"
-
-
-
+#include "mwShots.h"
 
 
 
@@ -27,8 +25,6 @@
 FILE *filepntr;
 
 int level_header[20] = {0};
-
-
 
 
 void save_sprit(void)
@@ -601,9 +597,9 @@ void save_gm_txt(char *sfname)
    filepntr = fopen(fname,"w");
 
    fprintf(filepntr,"number of entries %d\n", mwGMA.game_move_entry_pos);
-   fprintf(filepntr,"deathmatch_pbullets %d\n", deathmatch_pbullets);
-   fprintf(filepntr,"deathmatch_pbullets_damage %d\n", deathmatch_pbullets_damage);
-   fprintf(filepntr,"suicide_pbullets %d\n", suicide_pbullets);
+   fprintf(filepntr,"deathmatch_shots %d\n", mwS.deathmatch_shots);
+   fprintf(filepntr,"deathmatch_shot_damage %d\n", mwS.deathmatch_shot_damage);
+   fprintf(filepntr,"suicide_shots %d\n", mwS.suicide_shots);
 
    fprintf(filepntr,"[ gm][frame][t][p][cm]\n");
 
@@ -639,9 +635,9 @@ void save_gm_gm(char *sfname)
 
    fprintf(filepntr,"%d\n", mwGMA.game_move_entry_pos);  // num_entries
 
-   fprintf(filepntr,"%d\n", deathmatch_pbullets);
-   fprintf(filepntr,"%d\n", deathmatch_pbullets_damage );
-   fprintf(filepntr,"%d\n", suicide_pbullets);
+   fprintf(filepntr,"%d\n", mwS.deathmatch_shots);
+   fprintf(filepntr,"%d\n", mwS.deathmatch_shot_damage );
+   fprintf(filepntr,"%d\n", mwS.suicide_shots);
 
    for (int x=0; x<mwGMA.game_move_entry_pos; x++)
       for (int y=0; y<4; y++)
@@ -833,7 +829,7 @@ int load_gm(const char *sfname )
             ch = fgetc(filepntr);
          }
          buff[loop] = 0;
-         deathmatch_pbullets= atoi(buff);
+         mwS.deathmatch_shots= atoi(buff);
 
          loop = 0;
          ch = fgetc(filepntr);
@@ -844,7 +840,7 @@ int load_gm(const char *sfname )
             ch = fgetc(filepntr);
          }
          buff[loop] = 0;
-         deathmatch_pbullets_damage= atoi(buff);
+         mwS.deathmatch_shot_damage= atoi(buff);
 
          loop = 0;
          ch = fgetc(filepntr);
@@ -855,7 +851,7 @@ int load_gm(const char *sfname )
             ch = fgetc(filepntr);
          }
          buff[loop] = 0;
-         suicide_pbullets = atoi(buff);
+         mwS.suicide_shots = atoi(buff);
 
          // then get all the entries
          for (int x=0; x<mwGMA.game_move_entry_pos; x++)

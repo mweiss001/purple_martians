@@ -8,9 +8,6 @@ extern int ima_client;
 extern char m_serveraddress[256];
 extern int TCP;
 extern int zlib_cmp;
-extern int deathmatch_pbullets;
-extern int deathmatch_pbullets_damage;
-extern int suicide_pbullets;
 
 
 #define STATE_SIZE 112928
