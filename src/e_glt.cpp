@@ -11,9 +11,8 @@
 #include "z_file.h"
 #include "z_fnx.h"
 #include "z_screen.h"
-
-
-
+#include "z_enemy.h"
+#include "z_lift.h"
 
 
 
@@ -74,24 +73,17 @@ void remove_unused_tiles(int blt[])
 
 void global_level(void)
 {
-   int blt[NUM_SPRITES];
+   //int blt[NUM_SPRITES] = {0};
 
    int old_start_level = start_level;
 
-   int le[200]; // level exists array
+   int le[200] = {0}; // level exists array
 
    int num_levs = 0;
    char fn[20] = "levels/level000.PML";
-   int x, z;
-
-   // clear filename array
-   for (x=0; x<200; x++) le[x] = 0;
-
-   // clear block list
-   for (z=0; z<1024; z++) blt[z] = 0;
 
    // level range to look for
-   for (x=0; x<400; x++)
+   for (int x=0; x<400; x++)
    {
       int h, d, rem = x;
 
@@ -127,7 +119,7 @@ void global_level(void)
 
 
    // iterate array of found levels
-   for (x=0; x<num_levs; x++)
+   for (int x=0; x<num_levs; x++)
    {
       al_set_target_backbuffer(display);
       al_flip_display();
@@ -137,8 +129,6 @@ void global_level(void)
       al_draw_text(mF.pr8, mC.pc[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2+7 , ALLEGRO_ALIGN_CENTER, "Doing glt...");
       al_draw_textf(mF.pr8, mC.pc[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       load_level(le[x], 1, 1);
-
-
 
 //      for (int y=0; y<500; y++)
 //         if (item[y][0] == 2) // bonus
@@ -151,14 +141,17 @@ void global_level(void)
 //            }
 //         }
 
+//
+//      // block counter
+//      for (int y=0; y<100; y++)
+//         for (int z=0; z<100; z++)
+//            blt[l[y][z] & 1023]++; // inc block counter
 
-      // block counter
-      for (int y=0; y<100; y++)
-         for (int z=0; z<100; z++)
-            blt[l[y][z] & 1023]++; // inc block counter
-
-
-
+//      for (int l=0; l<NUM_LIFTS; l++)
+//         if (lifts[l].active)
+//         {
+//         }
+//
 
       if (0)
       {
@@ -176,12 +169,8 @@ void global_level(void)
    printf("Total count3:%d \n",count3 );
    printf("min:%d max:%d\n", min, max);
 
-
-   show_block_list(blt);
-//   tsw();
-
- //  remove_unused_tiles(blt);
-
+   //show_block_list(blt);
+   tsw();
 
    start_level = old_start_level;
    load_level(start_level, 0, 0);
@@ -251,22 +240,22 @@ void global_level(void)
                if ((shape < 147) || (shape > 1020))
                   printf("Level:%3d - Enemy:%2d - type%2d - bad shape%d\n", le[x], y, type, shape);
 
-               al_fixed scale = Efi[y][12];
-               if ((scale < al_ftofix(.2)) || (scale > al_ftofix(10)))
-                  printf("Level:%3d - Enemy:%2d - type%2d - bad scale%f\n", le[x], y, type, al_fixtof(scale));
+               float scale = Ef[y][12];
+               if ((scale < 0.2) || (scale > 10))
+                  printf("Level:%3d - Enemy:%2d - type%2d - bad scale%f\n", le[x], y, type, scale);
 
-               al_fixed rot = Efi[y][14];
-               if ((rot < al_itofix(-256)) || (rot > al_itofix(256)))
-                  printf("Level:%3d - Enemy:%2d - type%2d - bad rot%f\n", le[x], y, type, al_fixtof(rot));
+               float rot = Ef[y][14];
+               if ((rot < -256) || (rot > 256))
+                  printf("Level:%3d - Enemy:%2d - type%2d - bad rot%f\n", le[x], y, type, rot);
             }
 
-            al_fixed xpos = Efi[y][0];
-            if ((xpos < al_itofix(20)) || (xpos > al_itofix(1960)))
-               printf("Level:%3d - Enemy:%2d - type%2d - bad xpos%f\n", le[x], y, type, al_fixtof(xpos));
+            float xpos = Ef[y][0];
+            if ((xpos < 20) || (xpos > 1980))
+               printf("Level:%3d - Enemy:%2d - type%2d - bad xpos%f\n", le[x], y, type, xpos);
 
-            al_fixed ypos = Efi[y][1];
-            if ((ypos < al_itofix(20)) || (ypos > al_itofix(1960)))
-               printf("Level:%3d - Enemy:%2d - type%2d - bad ypos%f\n", le[x], y, type, al_fixtof(ypos));
+            float ypos = Ef[y][1];
+            if ((ypos < 20) || (ypos > 1980))
+               printf("Level:%3d - Enemy:%2d - type%2d - bad ypos%f\n", le[x], y, type, ypos);
 
          }
       }
@@ -359,87 +348,6 @@ void global_level(void)
 
 
 
-
-
-
-
-
-
-
-
-
-
-/*
-
-// get min max item shapes
-      for (int y=0; y<500; y++)
-         if (item[y][0])
-         {
-            count0++;
-            if (item[y][1] > max ) max = item[y][1];
-
-            if (item[y][1] > 0)
-               if (item[y][1] < min ) min = item[y][1];
-
-            if (item[y][1] == 0) count1++;
-            if (item[y][1] > 0) count2++;
-         }
-
-
-
-
-         for (int y=0; y<100; y++)
-            if (Ei[y][0] == 12) // flapper
-               if (Ei[y][19] == 0)
-               {
-//                  Ei[y][17] = 160;
-  //                Ei[y][18] = 40;
-                  Ei[y][19] = 100;
-               }
-
-
-         for (int y=0; y<100; y++)
-            if (Ei[y][0])
-            {
-               Ei[y][28] = 0;
-            }
-
-
-         for (int y=0; y<100; y++)
-            if (Ei[y][0] == 9) // cloner only
-               if ((Ei[y][19] ==0) && (Ei[y][20] ==0))
-               {
-
-
-                  printf("lev%d\n", le[x]);
-
-                }
-
-
-*/
-
-/*
-
-
-Ei[y][15] = al_fixtoi(Efi[y][6])/20;    // source x
-Ei[y][16] = al_fixtoi(Efi[y][7])/20;    // source y
-
-Ei[y][17] = al_fixtoi(Efi[y][8])/20;    // dest x
-Ei[y][18] = al_fixtoi(Efi[y][9])/20;    // dest y
-
-Ei[y][19] = al_fixtoi(Efi[y][2])/20;    // w
-Ei[y][20] = al_fixtoi(Efi[y][3])/20;    // h
-
-
-Ef[y][2] = 0;
-Ef[y][3] = 0;
-Ef[y][6] = 0;
-Ef[y][7] = 0;
-Ef[y][8] = 0;
-Ef[y][9] = 0;
-
-
-*/
 
 /*
      if (le[x] == 61)
@@ -717,251 +625,6 @@ Ef[y][9] = 0;
 */
 
 
-
-
-
-
-      // enemies
-/*
-
-         for (int y=0; y<100; y++)
-            if (Ei[y][0] == 3) // archwagon
-            {
-               count0++;
-
-//               if (Efi[y][6] == al_itofix(0)) count1++;
-
- //              if (Efi[y][6] == al_ftofix(2.85)) count2++;
-
-   //            if (Efi[y][2] == al_itofix(0)) count3++;
-
-
-
-
-               if (Efi[y][2] == Efi[y][6]) count1++;
-               if (Efi[y][2] == -Efi[y][6]) count2++;
-
-
-               if (Efi[y][2] > al_itofix(0)) Efi[y][2] = Efi[y][6];
-               if (Efi[y][2] < al_itofix(0)) Efi[y][2] = -Efi[y][6];
-
-
-
-
-//               al_fixed xlen = Efi[y][2];
-  //             al_fixed ylen = Efi[y][3];
-    //           printf("e:%d  %d [%f] [%f] \n", y, Ei[y][20], al_fixtof(xlen), al_fixtof(ylen));
-            }
-
-
-
-*/
-
-
-
-
-//
-//
-//
-//      for (int y=0; y<500; y++)
-//         if (item[y][0] == 11) // rocket
-//         {
-//            int t =  item[y][3];
-//
-//            printf("Lev:%3d t:%d\n" ,le[x], t);
-//
-//            if (t == 0) count0++;
-//            if (t == 1) count1++;
-//            if (t == -2) count2++;
-//            if (t == -1) count3++;
-//
-//            item[y][3] = 1;
-//
-//         }
-
-
-
-
-
-/*
-
-
-
-      // enemies
-
-//      if (le[x] == 1) // level 1 only
-
-
-         for (y=0; y<100; y++)
-            if (Ei[y][0] == 6) // cannon only
-            {
-               count0++;
-
-//               al_fixed xlen = Efi[y][2];
-  //             al_fixed ylen = Efi[y][3];
-    //           printf("e:%d  %d [%f] [%f] \n", y, Ei[y][20], al_fixtof(xlen), al_fixtof(ylen));
-            }
-
-  */
-
-/*
-            int r1 = get_rot_from_xyinc(y);
-            int r2 = get_rot_from_xyinc(y);
-
-            al_fixed xlen = Efi[y][2];
-            al_fixed ylen = Efi[y][3];
-
-
-            printf("Lev:%3d e:%d  %d %d %d [%f] [%f] \n" ,le[x], y, Ei[y][20], r1, r2, al_fixtof(xlen), al_fixtof(ylen));
-
-            Ei[y][20] = r2;
-*/
-
-         //printf("----------l:%3d \n",le[x] );
-
-
-//         for (int y=0; y<100; y++)
-//            if ((Ei[y][0] == 3) && (Ei[y][4] !=2))
-//               printf("l:%3d E:%2d 4:%2d \n",le[x], y, Ei[y][4] );
-
-
-//        for (int y=0; y<100; y++)
-//           if (Ei[y][0] == 9)
-//           {
-//              Ei[y][1] = 550;
-//              Ei[y][2] = 0;
-//           }
-
-
-
-
-
-
-/*
-         for (int y=0; y<100; y++)
-            if (Ei[y][0])
-            {
-               count0++;
-               if (Ei[y][29] != 10)  // how many cbs are non standard
-               {
-                  count1++;
-   //               Ei[y][29] = 10;
-                  printf("l:%3d E:%2d T:%2d C:%2d \n",le[x], y, Ei[y][0], Ei[y][29] );
-
-               }
-
-
-
-               }
-
-
-*/
-
-/*
-         for (int y=0; y<100; y++)
-            if (Ei[y][0] == 11) // cannon only
-            {
-               count0++;
-
-               printf("Lev:%3d b:%d\n",le[x], y);
-
-//               al_fixed xlen = Efi[y][2];
-  //             al_fixed ylen = Efi[y][3];
-    //           printf("e:%d  %d [%f] [%f] \n", y, Ei[y][20], al_fixtof(xlen), al_fixtof(ylen));
-            }
-
-*/
-
-
-
-   /*
-
-
-
-      for (y=0; y<100; y++)
-      {
-         if (Ei[y][0])
-         {
-
-
-            printf("Lev:%3d b:%d\n",le[x], y);
-
-
-
-
-
-            if (Ei[y][29] != 10)  // how many cbs are non standard
-            {
-               Ei[y][29] = 10;
-               printf("l:%3d E:%2d T:%2d C:%2d \n",le[x], y, Ei[y][0], Ei[y][29] );
-               count++;
-            }
-         }
-
-         if (Ei[y][0] == 9) // cloner
-         {
-            printf("l:%3d E:%2d [cloner  ] C:%2d \n",le[x], y, Ei[y][29] );
-            Ei[y][29] = 10;  // set collision box
-            count++;
-         }
-         if (Ei[y][0] == 7)  // podzilla only
-         {
-            printf("l:%3d E:%2d [podzilla] C:%2d \n",le[x], y, Ei[y][29] );
-            Ei[y][29] = 10;  // set collision box
-            count++;
-
-         }
-      }
-
-
-
-
-      for (y=0; y<100; y++)
-         if (Ei[y][0])
-         {
-             Ef[y][14] = (float)Ei[y][20];
-             Ei[y][20] = 0;
-         }
-
-
-
-
-      for (y=0; y<100; y++)
-         if (Ei[y][0])
-         {
-            if (Ei[y][0] == 9999)  // set bonus
-            {
-               Ei[y][24] = 3;
-               Ei[y][25] = 3;
-            }
-
-            if (Ei[y][0] == 9999)  // erase enemy types here
-            {
-               for (z=0; z<32; z++)
-                  Ei[y][z] = 0;
-               for (z=0; z<16; z++)
-                  Ef[y][z] = 0;
-            }
-         }
-
-
-      for (int y=0; y<100; y++)
-         if (Ei[y][0] == 8) Ei[y][1] = 384;
-
-
-
-    for (int y=0; y<500; y++)
-         if (item[y][0] == 14) //switch
-         {
-            if (item[y][1] == 422) count2++;
-            if (item[y][1] == 423) count2++;
-            if (item[y][1] == 364) count2++;
-            if (item[y][1] == 365) count2++;
-
-
-            }
-
-*/
   /*
 
       // blocks
@@ -1385,67 +1048,6 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-
-
-
-      // copy lifts to temp structure to resize
-      for (int l=0; l<num_lifts; l++)
-      {
-         lifts2[l].fx =            lifts[l].fx;
-         lifts2[l].fy =            lifts[l].fy;
-         lifts2[l].fxinc =         lifts[l].fxinc;
-         lifts2[l].fyinc =         lifts[l].fyinc;
-
-         lifts2[l].fw =            al_itofix(lifts[l].width);
-         lifts2[l].fh =            al_itofix(lifts[l].height);
-         lifts2[l].fwinc =         al_itofix(0);
-         lifts2[l].fhinc =         al_itofix(0);
-
-         lifts2[l].x1 =            lifts[l].x1;
-         lifts2[l].y1 =            lifts[l].y1;
-         lifts2[l].x2 =            lifts[l].x2;
-         lifts2[l].y2 =            lifts[l].y2;
-
-         lifts2[l].width =         lifts[l].width;
-         lifts2[l].height =        lifts[l].height;
-         lifts2[l].flags = 0;
-         lifts2[l].mode = 0;
-         lifts2[l].val1 = 0;
-         lifts2[l].val2 = 0;
-         lifts2[l].color =         lifts[l].color;
-         lifts2[l].current_step =  lifts[l].current_step;
-         lifts2[l].num_steps =     lifts[l].num_steps;
-         lifts2[l].limit_counter = lifts[l].limit_counter;
-         lifts2[l].limit_type =    lifts[l].limit_type;
-         strcpy(lifts2[l].lift_name, lifts[l].lift_name);
-
-         for (int s=0; s<40; s++)
-         {
-            lift_steps2[l][s].type = lift_steps[l][s].type;
-            lift_steps2[l][s].x    = lift_steps[l][s].x;
-            lift_steps2[l][s].y    = lift_steps[l][s].y;
-            lift_steps2[l][s].w    = 0;
-            lift_steps2[l][s].h    = 0;
-            lift_steps2[l][s].val  = lift_steps[l][s].val;
-
-         }
-      }
-
-
-*/
 /*
       // set flags for all lifts
       for (int l=0; l<num_lifts; l++)

@@ -19,14 +19,6 @@
 #include "mwShots.h"
 
 
-
-
-
-FILE *filepntr;
-
-int level_header[20] = {0};
-
-
 void save_sprit(void)
 {
    //printf("saving sprit001.pm\n");
@@ -190,8 +182,6 @@ int load_tiles(void)
 
 void zero_level_data(void)
 {
-   for (int i=0; i<20; i++) level_header[i] = 0;
-
    for (int c=0; c<100; c++)    // blocks
       for (int x=0; x<100; x++)
            l[c][x] = 0;
@@ -200,14 +190,14 @@ void zero_level_data(void)
    {
       for (int x=0; x<500; x++) pmsgtext[c][x] = 0;
       for (int x=0; x<16; x++) item[c][x] = 0;
-      for (int x=0; x<4; x++) itemf[c][x] = al_itofix(0);
+      for (int x=0; x<4; x++) itemf[c][x] = 0;
    }
    sort_item(1);
 
    for (int c=0; c<100; c++)
    {
-      for (int x=0; x<16; x++)  Efi[c][x] = al_itofix(0); // enemy al_fixed
-      for (int x=0; x<32; x++)  Ei[c][x] = 0;          // enemy ints
+      for (int x=0; x<16; x++)  Ef[c][x] = 0; // enemy floats
+      for (int x=0; x<32; x++)  Ei[c][x] = 0; // enemy ints
    }
    sort_enemy();
 
@@ -217,7 +207,6 @@ void zero_level_data(void)
       for (int x=0; x<40; x++)
          clear_lift_step(c,x);
    }
-   num_lifts = 0;
 }
 
 void level_check(void)
@@ -300,17 +289,16 @@ void level_check(void)
 
 
 
-#define PML_SIZE 384960
+#define PML_SIZE 384080
 
 
 void pml_to_var(char * b) // for load level
 {
    int sz = 0, offset = 0;
-   sz = sizeof(level_header); memcpy(level_header, b+offset, sz); offset += sz;
    sz = sizeof(l);            memcpy(l,            b+offset, sz); offset += sz;
    sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
    sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
-   sz = sizeof(Efi);          memcpy(Efi,          b+offset, sz); offset += sz;
+   sz = sizeof(Ef);           memcpy(Ef,           b+offset, sz); offset += sz;
    sz = sizeof(lifts);        memcpy(lifts,        b+offset, sz); offset += sz;
    sz = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, sz); offset += sz;
    sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
@@ -319,11 +307,10 @@ void pml_to_var(char * b) // for load level
 void var_to_pml(char * b) // for save level
 {
    int sz = 0, offset = 0;
-   offset += sz; sz = sizeof(level_header); memcpy(b+offset, level_header, sz);
    offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
    offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
    offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
-   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
+   offset += sz; sz = sizeof(Ef);           memcpy(b+offset, Ef,           sz);
    offset += sz; sz = sizeof(lifts);        memcpy(b+offset, lifts,        sz);
    offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
    offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
@@ -364,7 +351,6 @@ int load_level(int level_num, int load_only, int fail_silently)
       // copy to game variables
       pml_to_var(pml);
 
-      num_lifts = level_header[5];
       if (!load_only)
       {
          valid_level_loaded = 1;
@@ -372,8 +358,8 @@ int load_level(int level_num, int load_only, int fail_silently)
          for (int x=0; x<500; x++)
             if (item[x][0]) // only if active set x y
             {
-               itemf[x][0] = al_itofix(item[x][4]);
-               itemf[x][1] = al_itofix(item[x][5]);
+               itemf[x][0] = item[x][4];
+               itemf[x][1] = item[x][5];
             }
          level_check();
          init_level_background(0); // draw blocks on level_background
@@ -387,18 +373,15 @@ void save_level(int level_num)
 {
    last_level_loaded = level_num;
    level_check();
-   for (int i=0; i<20; i++) level_header[i] = 0;
 
-   level_header[0] = 5; // .pml level version
-   level_header[3] = sort_item(1); // num_of_items
+   sort_item(1);
    sort_enemy();
-   level_header[4] = num_enemy;  // num_of_enemies
    lift_setup();
-   level_header[5] = num_lifts;  // num of lifts
 
    char lf[255];
    sprintf(lf, "levels/level%03d.pml", level_num);
    //printf("saving: %s\n", lf);
+
 
    // put variables in pml
    char pml[PML_SIZE];

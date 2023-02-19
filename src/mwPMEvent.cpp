@@ -74,9 +74,10 @@ void mwPMEvent::show_all_events(void)
       if ((item[i][0] == 17) && (item[i][1])) show_event_line(x, y, item[i][1], 1, i, 0);
    }
 
-   for (int l=0; l<num_lifts; l++) // iterate lifts
-      for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
-         if (((lift_steps[l][s].type & 31) == 5) && (lift_steps[l][s].val)) show_event_line(x, y, lift_steps[l][s].val, 2, l, s);
+   for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
+      if (lifts[l].active)
+         for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
+            if (((lift_steps[l][s].type & 31) == 5) && (lift_steps[l][s].val)) show_event_line(x, y, lift_steps[l][s].val, 2, l, s);
 
 
 
@@ -165,9 +166,10 @@ int mwPMEvent::is_pm_event_used(int ev)
       if ((item[i][0] == 17) && (item[i][1] == ev)) return 1;
    }
 
-   for (int l=0; l<num_lifts; l++) // iterate lifts
-      for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
-         if (((lift_steps[l][s].type & 31) == 5) && (lift_steps[l][s].val == ev)) return 1;
+   for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
+      if (lifts[l].active)
+         for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
+            if (((lift_steps[l][s].type & 31) == 5) && (lift_steps[l][s].val == ev)) return 1;
 
    return 0;
 }
@@ -225,19 +227,20 @@ void mwPMEvent::find_and_show_event_links(int type, int i, int num2)
                   int y2 = item[i2][5]+10;
                   al_draw_line(x1, y1, x2, y2, mC.pc[10], 2);
                }
-            for (int l=0; l<num_lifts; l++) // iterate lifts
-               for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
-                  if (((lift_steps[l][s].type & 31) == 5) && (lift_steps[l][s].val == ev))
-                  {
-                     //printf("found a match with a lift:%d step:%d ", l, s);
-                     int pms = lift_find_previous_move_step(l, s);
-                     int x2 = lift_steps[l][pms].x + lift_steps[l][pms].w / 2;
-                     int y2 = lift_steps[l][pms].y + lift_steps[l][pms].h / 2;
+            for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
+               if (lifts[l].active)
+                  for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
+                     if (((lift_steps[l][s].type & 31) == 5) && (lift_steps[l][s].val == ev))
+                     {
+                        //printf("found a match with a lift:%d step:%d ", l, s);
+                        int pms = lift_find_previous_move_step(l, s);
+                        int x2 = lift_steps[l][pms].x + lift_steps[l][pms].w / 2;
+                        int y2 = lift_steps[l][pms].y + lift_steps[l][pms].h / 2;
 
-                     //printf("pms:%d x:%d y:%d\n", pms, x2, y2);
+                        //printf("pms:%d x:%d y:%d\n", pms, x2, y2);
 
-                     al_draw_line(x1, y1, x2, y2, mC.pc[10], 2);
-                  }
+                        al_draw_line(x1, y1, x2, y2, mC.pc[10], 2);
+                     }
          }
       }
    }

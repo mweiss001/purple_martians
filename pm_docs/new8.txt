@@ -13129,8 +13129,1296 @@ all ref to bullet, bull, bul have been removed from game...
 
 nice....
 
+
+One thing..my new short class instance names may be kind of cryptic...like mwS for shots
+alternatives? mwShot.e[].active
+I can always search and replace later
+
+
 how about changing lifts back to floats?
 then items, players, enemies...
+
+make it a class
+that constains 2 arrays of structs
+
+what about inheritance?
+
+how many things all have x, y, xinc, yinc
+
+players
+enemies
+items
+lifts
+e shots
+p shots
+
+how many have active, bitmap
+players
+enemies
+items
+e shots
+p shots
+
+later
+
+
+back to lifts..
+
+I also want to add active to lifts
+
+and maybe get rid of level header...
+where used?
+3 times in fnx, but only for size display..
+10 times in file.cpp
+
+when saving level:
+- erase level_header
+fill from:
+   level_header[0] = 5; // .pml level version
+   level_header[3] = sort_item(1); // num_of_items
+   sort_enemy();
+   level_header[4] = num_enemy;  // num_of_enemies
+   lift_setup();
+   level_header[5] = num_lifts;  // num of lifts
+
+when loading level:
+    num_lifts = level_header[5];
+
+I want to use a different method of iterating lifts and lose level_header
+
+also turn lifts into a class
+
+also change fixed to floats
+
+also do something about the int versions of x1, y1, x2, y2, width, height
+
+where to start...
+
+iterator:
+
+old:
+for (int l=0; l<num_lifts; l++) // iterate lifts
+
+new:
+for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
+   if (lifts[l].active)
+
+
+I can have a member of the lifts class that tells me how many lifts are active
+and a sort function that pretty much just removes spaces..optional, why bother?
+it would break event links if there are any...
+
+
+added active to lift struct..
+now crashes hard when loading any level with lifts...
+remove and rethink this...
+
+should I just jump to class?
+and change all the variables at that time?
+mwLift mwLifts
+started the class...
+
+
+in order to change variables I need to make a shadow varaible for lifts (lift steps is not changing)
+
+load old
+convert to new
+save
+
+
+old:
+
+struct lift
+{
+   al_fixed fx;
+   al_fixed fy;
+   al_fixed fxinc;
+   al_fixed fyinc;
+   al_fixed fw;
+   al_fixed fh;
+   al_fixed fwinc;
+   al_fixed fhinc;
+
+   int x1;
+   int y1;
+   int x2;
+   int y2;
+   int width;
+   int height;
+
+   int flags;
+   int mode;
+   int val1;
+   int val2;
+   int color;
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+
+new:
+
+struct lift2
+{
+   float x1;
+   float y1;
+   float x2;
+   float y2;
+   float w;
+   float h;
+   float xinc;
+   float yinc;
+   float winc;
+   float hinc;
+
+   int active;
+   int flags;
+   int mode;
+   int val1;
+   int val2;
+   int color;
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+
+
+
+I still think I should do this in small steps:
+first just add active..
+
+step 1:
+make shadow struct array lifts2 with added variable..done
+
+
+step2
+load normal
+in glt copy to shadow
+modify save to use new struct and new PML_SIZE
+run glt..
+
+now all levels are save in new format.
+
+add var to lifts struct
+increase PML_SIZE
+
+load all level succesfully!!
+
+remove mod to save...
+
+
+wow that was a lot to modify save level format...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Variables used to save levels in pml format
+
+level_header:    80
+l           : 40000
+item        : 32000
+Efi         :  6400
+Ei          : 12800
+lifts       :  5280
+lift_steps  : 38400
+pmsgtext    :250000
+------------:------
+total       :384960
+
+Variables used for netgame state exchange
+
+players  :  2048
+Ei       : 12800
+Efi      :  6400
+item     : 32000
+itemf    :  8000
+lifts    :  5280
+l        : 40000
+mwS.p    :  1200
+mwS.e    :  1200
+pm_event :  4000
+---------:------
+total    :112928
+
+
+Variables used to save levels in pml format
+
+level_header:    80
+l           : 40000
+item        : 32000
+Efi         :  6400
+Ei          : 12800
+lifts2       :  5440
+lift_steps  : 38400
+pmsgtext    :250000
+------------:------
+total       :385120
+
+Variables used for netgame state exchange
+
+players  :  2048
+Ei       : 12800
+Efi      :  6400
+item     : 32000
+itemf    :  8000
+lifts2    :  5440
+l        : 40000
+mwS.p    :  1200
+mwS.e    :  1200
+pm_event :  4000
+---------:------
+total    :113088
+
+
+
+#define PML_SIZE 384960
+
++160
+
+#define PML_SIZE 385120
+
+
+
+now fix the iterators
+
+start with move and draw...
+
+make a function to get the next empty lift...
+
+like item and enemy..
+
+I have removed all refs to num_lifts...
+next:
+
+does erase do the job of closing gaps, or do I need something else?..its good
+figure out next and prev in ov..done
+re implement num_lifts for display only..done
+remove level header completely..not used..next time I re-do level format remove it...
+what is going on with ft_? it all seems to work..it still uses ft_level_header but I dont care right now
+in es copy and delete seem to be working good..
+make a test level and try copy and paste and from disk...
+copying 4 lifts works..
+clearing lifts only erases half of them...fixed
+
+all this is working so well...
+what next??
+replace fixed...
+
+all 8 at once?  why not?
+
+step 1
+lifts2 has fixed replaced with floats
+
+step 2
+old vars
+Variables used to save levels in pml format
+
+level_header:    80
+l           : 40000
+item        : 32000
+Efi         :  6400
+Ei          : 12800
+lifts       :  5440
+lift_steps  : 38400
+pmsgtext    :250000
+------------:------
+total       :385120
+
+
+new vars (lifts2) and remove level_header
+Variables used to save levels in pml format
+
+l           : 40000
+item        : 32000
+Efi         :  6400
+Ei          : 12800
+lifts2       :  5440
+lift_steps  : 38400
+pmsgtext    :250000
+------------:------
+total       :385040
+
+
+don't reduce size of PML_SIZE until after re-saving
+
+step 3
+void var_to_pml(char * b) // for save level
+{
+   int sz = 0, offset = 0;
+//   offset += sz; sz = sizeof(level_header); memcpy(b+offset, level_header, sz);
+   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
+   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
+   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
+   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
+   offset += sz; sz = sizeof(lifts2);        memcpy(b+offset, lifts2,        sz);
+   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
+   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
+}
+
+
+step 4
+in glt:
+
+      for (int l=0; l<NUM_LIFTS; l++)
+         if (lifts[l].active)
+         {
+            lifts2[l].x = al_fixtof(lifts[l].fx);
+            lifts2[l].y = al_fixtof(lifts[l].fy);
+            lifts2[l].w = al_fixtof(lifts[l].fw);
+            lifts2[l].h = al_fixtof(lifts[l].fh);
+            lifts2[l].xinc = al_fixtof(lifts[l].fxinc);
+            lifts2[l].yinc = al_fixtof(lifts[l].fyinc);
+            lifts2[l].winc = al_fixtof(lifts[l].fwinc);
+            lifts2[l].hinc = al_fixtof(lifts[l].fhinc);
+
+            lifts2[l].active = lifts[l].active;
+
+            lifts2[l].x1 = lifts[l].x1;
+            lifts2[l].y1 = lifts[l].y1;
+            lifts2[l].x2 = lifts[l].x2;
+            lifts2[l].y2 = lifts[l].y2;
+            lifts2[l].width = lifts[l].width;
+            lifts2[l].height = lifts[l].height;
+
+            lifts2[l].flags = lifts[l].flags;
+            lifts2[l].mode = lifts[l].mode;
+            lifts2[l].val1 = lifts[l].val1;
+            lifts2[l].val2 = lifts[l].val2;
+
+            lifts2[l].color = lifts[l].color;
+            lifts2[l].current_step = lifts[l].current_step;
+            lifts2[l].num_steps = lifts[l].num_steps;
+            lifts2[l].limit_counter = lifts[l].limit_counter;
+            lifts2[l].limit_type = lifts[l].limit_type;
+
+            sprintf(lifts2[l].lift_name, lifts[l].lift_name);
+
+         }
+
+
+step 5
+make backup of levels...
+
+
+step 6
+run glt
+
+
+step 7:
+disable glt
+
+you fucked up..go back to step 3
+
+this was wrong....
+
+void var_to_pml(char * b) // for save level
+{
+   int sz = 0, offset = 0;
+//   offset += sz; sz = sizeof(level_header); memcpy(b+offset, level_header, sz);
+   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
+   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
+   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
+   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
+   offset += sz; sz = sizeof(lifts);        memcpy(b+offset, lifts,        sz);
+   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
+   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
+}
+
+restored levels from backup...
+
+set this properly:
+
+void pml_to_var(char * b) // for load level
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(level_header); memcpy(level_header, b+offset, sz); offset += sz;
+   sz = sizeof(l);            memcpy(l,            b+offset, sz); offset += sz;
+   sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
+   sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(Efi);          memcpy(Efi,          b+offset, sz); offset += sz;
+   sz = sizeof(lifts);        memcpy(lifts,        b+offset, sz); offset += sz;
+   sz = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, sz); offset += sz;
+   sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
+}
+
+void var_to_pml(char * b) // for save level
+{
+   int sz = 0, offset = 0;
+//   offset += sz; sz = sizeof(level_header); memcpy(b+offset, level_header, sz);
+   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
+   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
+   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
+   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
+   offset += sz; sz = sizeof(lifts2);        memcpy(b+offset, lifts2,        sz);
+   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
+   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
+}
+
+
+step 6
+run glt
+
+step 7
+disable glt
+
+step 8
+change load
+
+void pml_to_var(char * b) // for load level
+{
+   int sz = 0, offset = 0;
+//   sz = sizeof(level_header); memcpy(level_header, b+offset, sz); offset += sz;
+   sz = sizeof(l);            memcpy(l,            b+offset, sz); offset += sz;
+   sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
+   sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(Efi);          memcpy(Efi,          b+offset, sz); offset += sz;
+   sz = sizeof(lifts);        memcpy(lifts,        b+offset, sz); offset += sz;
+   sz = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, sz); offset += sz;
+   sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
+}
+
+void var_to_pml(char * b) // for save level
+{
+   int sz = 0, offset = 0;
+//   offset += sz; sz = sizeof(level_header); memcpy(b+offset, level_header, sz);
+   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
+   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
+   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
+   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
+   offset += sz; sz = sizeof(lifts);        memcpy(b+offset, lifts,        sz);
+   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
+   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
+}
+
+
+step 9:
+
+fix struct declaration
+
+struct lift
+{
+   float x;
+   float y;
+   float xinc;
+   float yinc;
+
+   float w;
+   float h;
+   float winc;
+   float hinc;
+
+   int x1;
+   int y1;
+   int x2;
+   int y2;
+   int width;
+   int height;
+
+   int active;
+
+   int flags;
+   int mode;
+   int val1;
+   int val2;
+   int color;
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+
+
+level_header has been completely removed
+
+now remove the integer shit in lift
+
+   int x1;
+   int y1;
+   int x2;
+   int y2;
+   int width;
+   int height;
+
+
+
+step 1
+lifts2 has fixed replaced with floats
+
+step 2
+
+Variables used to save levels in pml format
+
+l           : 40000
+item        : 32000
+Efi         :  6400
+Ei          : 12800
+lifts2       :  4480
+lift_steps  : 38400
+pmsgtext    :250000
+------------:------
+total       :384080
+
+don't reduce size of PML_SIZE until after re-saving
+
+step 3
+
+struct lift2
+{
+   float x;
+   float y;
+   float xinc;
+   float yinc;
+
+   float w;
+   float h;
+   float winc;
+   float hinc;
+
+   int active;
+   int flags;
+   int mode;
+   int val1;
+   int val2;
+   int color;
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+
+void pml_to_var(char * b) // for load level
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(l);            memcpy(l,            b+offset, sz); offset += sz;
+   sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
+   sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(Efi);          memcpy(Efi,          b+offset, sz); offset += sz;
+   sz = sizeof(lifts);        memcpy(lifts,        b+offset, sz); offset += sz;
+   sz = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, sz); offset += sz;
+   sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
+}
+
+void var_to_pml(char * b) // for save level
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
+   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
+   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
+   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
+   offset += sz; sz = sizeof(lifts2);        memcpy(b+offset, lifts2,        sz);
+   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
+   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
+}
+
+
+
+step 4:
+in glt do nothing, just load and save
+
+
+
+
+step 5 backup levels
+
+step 6 do glt...
+
+
+
+wrong!
+
+restore levels...
+
+in glt copy from lifts to lifts2...
+
+
+
+OK now I think I have it:
+
+struct lift
+{
+   float x;
+   float y;
+   float xinc;
+   float yinc;
+
+   float w;
+   float h;
+   float winc;
+   float hinc;
+
+   int active;
+   int flags;
+   int mode;
+   int val1;
+   int val2;
+   int color;
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+
+Variables used to save levels in pml format
+
+l           : 40000
+item        : 32000
+Efi         :  6400
+Ei          : 12800
+lifts       :  4480
+lift_steps  : 38400
+pmsgtext    :250000
+------------:------
+total       :384080
+
+
+level_header is completely gone...
+
+lifts have been converted to floats
+
+
+now working on item fixed to float..
+
+
+change all these to not even pass x, y..get it from itemfl
+
+         bomb_blocks( i, 1, item[i][7], fx, fy); // mark blocks that will be destroyed
+         bomb_enemies(i, 1, item[i][7], fx, fy); // mark enemies that will be destroyed
+         bomb_players(i, 1, item[i][7], fx, fy); // mark players in damage range
+
+
+
+I got it all to compile!! now I have some bugs to fix...
+
+
+first I want to record some performance metrics:
+348 al_fixed
+138 al_ftofix
+383 al_itofix
+207 al_fixtoi
+124 al_fixtof
+
+
+bugs..
+player start position..fixed
+jump on spring..fixed
+
+OK its looking good...
+
+what fixed to replace now?
+player...the big one
+
+   al_fixed PX, PY;       // players position
+   al_fixed xinc, yinc;   // players momentum
+   al_fixed right_xinc, left_xinc;
+
+   al_fixed LIFE;
+   al_fixed old_LIFE;
+
+   al_fixed draw_rot;
+   al_fixed draw_scale;
+   al_fixed door_draw_rot;
+   al_fixed door_draw_rot_inc;
+
+lets do LIFE and old LIFE first
+I also want to take this opportunity to rename it to health
+done..
+
+
+now PX, PY and rename to x, y
+I should do all:
+
+   al_fixed PX, PY;       // players position
+   al_fixed xinc, yinc;   // players momentum
+   al_fixed right_xinc, left_xinc;
+
+at the same time...
+
+x, y, fxinc, fyinc, fright_xinc, fleft_yinc
+
+the name change is important to find all the places it needs changing
+
+convert all to float
+
+
+I got stuck in the door move stuff...
+
+there are ints:
+   int door_xinc;
+   int door_yinc;
+
+that are used as fixed even though not declared as ints...I think...
+
+
+I think I need to do the door ones at the same time..
+
+   int door_xinc;
+   int door_yinc;
+
+   float door_fxinc;
+   float door_fyinc;
+
+
+
+
+ran into another issue with solidfm
+
+
+they get passed fixeds and return fixed...
+
+can I make a float wrapper?
+
+they are used for ladder move and trakbot only...Ill need to fix them later...
+
+well it compiles...
+
+there is probably a lot broken...
+
+remove these also:
+
+   al_fixed draw_rot;
+   al_fixed draw_scale;
+   int door_draw_rot_num_steps;
+   al_fixed door_draw_rot;
+   al_fixed door_draw_rot_inc;
+
+
+start with these:
+
+   al_fixed draw_rot;
+   al_fixed draw_scale;
+
+done..
+
+next:
+   al_fixed door_draw_rot;
+   al_fixed door_draw_rot_inc;
+
+
+compiles clean but there are so many things to fix...
+
+first I want to record some performance metrics:
+292 al_fixed
+91  al_ftofix
+287 al_itofix
+138 al_fixtoi
+114 al_fixtof
+
+
+to fix:
+rotation
+rocket and door
+
+ladder and rope
+
+the rocket rotates like it should, but not player..
+
+
+how does rotation work?
+
+uses radians
+
+pi/2 = 90
+pi radians = 180
+
+
+how is it done in items?
+
+      float rot = al_fixtof(al_fixmul(al_itofix(item[i][10]/10), al_fixtorad_r));
+      al_draw_rotated_bitmap(mwB.tile[shape], 10, 10, x+10, y+10, rot, 0);
+
+
+
+fuck all that...
+I am going to start from scratch
+if I have to store rotation as an int, how would I do that?
+
+I figured it out and added notes in pm_docs
+
+now implement for rocket
+
+in proc_lit_rocket(int i)
+angle is read from item[i][10] and used to calculate x and yinc inc and apply
+also acceleration is processed
+
+in proc_player_riding_rocket(int p)
+player's controls are used to change angle
+player gets pos and incs set from rocket
+
+not much I could change there
+steerability is simply the amount added or subtracted from the angle
+
+I still think I should multiply by 100 to save angle as int
+do it and fix whatever breaks
+
+this is how it is drawn
+
+    // these types need rotation
+   if ((type == 11) || (type == 98) ||  // rockets
+      ((type == 4) && (item[i][11] > 0))) // moving key
+   {
+      float rot = al_fixtof(al_fixmul(al_itofix(item[i][10]/10), al_fixtorad_r));
+      al_draw_rotated_bitmap(mwB.tile[shape], 10, 10, x+10, y+10, rot, 0);
+      drawn = 1;
+   }
+
+
+Lets start with changing how it is draw
+
+how do I want to do it?
+
+should the angle be the one for draw or for trig?
+
+I choose the trig one
+this is how it is drawn now, deal with it...
+      float rot = (float) item[i][10] / 1000;
+      al_draw_rotated_bitmap(mwB.tile[shape], 10, 10, x+10, y+10, rot, 0);
+
+how was it done before?
+
+when a rocket was created and all..
+
+[10] is zero in PDE for rocket
+
+fixed rocket lines...
+
+multiplied steerability by 2
+what if I just left it and increased the slider limit..
+set rocket initial direction..done
+
+what else do I need to fix?
+when letting go of rocket, player warps...added to bugs...
+
+now why do I have scale and door scale and all that?
+
+check door stuff..
+
+I think I fixed the player rotation stuff in door travel
+
+door creator position bad...fixed
+
+what about orb rotation?
+there is another item that rotates...it works fine...
+
+time for players ladders and bullshit like that...
+make a wrapper...done..
+
+first I want to record some performance metrics:
+235 al_fixed
+78  al_ftofix
+246 al_itofix
+135 al_fixtoi
+109 al_fixtof
+
+now the last big one: enemies
+
+620 occurances of Efi
+
+
+
+just like items, I will need to change the structure, then run glt
+
+
+
+step 1 - backup levels
+
+step 2 - add Ef[][16]
+
+// enemies
+int Ei[100][32];        // enemy ints
+al_fixed Efi[100][16];  // enemy fixeds
+float Ef[100][16];      // enemy floats
+
+extern int Ei[100][32];        // enemy ints
+extern al_fixed Efi[100][16];  // enemy fixeds
+extern float Ef[100][16];      // enemy floats
+
+step 3 - glt
+      // copy enemy fixed to to new float array
+      for (int e=0; e<100; e++)
+         for (int f=0; f<16; f++)
+            Ef[e][f] = al_fixtof(Efi[e][f]);
+
+
+step 4 - file.
+
+void pml_to_var(char * b) // for load level
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(l);            memcpy(l,            b+offset, sz); offset += sz;
+   sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
+   sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(Efi);          memcpy(Efi,          b+offset, sz); offset += sz;
+   sz = sizeof(lifts);        memcpy(lifts,        b+offset, sz); offset += sz;
+   sz = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, sz); offset += sz;
+   sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
+}
+
+void var_to_pml(char * b) // for save level
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
+   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
+   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
+   offset += sz; sz = sizeof(Ef);           memcpy(b+offset, Ef,           sz);
+   offset += sz; sz = sizeof(lifts);        memcpy(b+offset, lifts,        sz);
+   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
+   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
+}
+
+
+step 5 run glt
+
+step 6
+disable glt
+fix file
+comment out Efi..
+
+
+then fix!! 620 refs...
+also in es I have this :
+al_fixed ft_Efi[100][16];
+
+change it too..
+float ft_Ef[100][16];
+
+PDEfx will also need changing later
+rot for ft enemies
+
+
+flapper does some weird flap sequences based on 0-100 and 0-255 and fixed sin
+
+//   Efi[][8]  = flap offset for next loop
+
+
+
+finally compiles clean!!!
+
+
+first I want to record some performance metrics:
+71 al_fixed
+22 al_ftofix
+66 al_itofix
+28 al_fixtoi
+51 al_fixtof
+
+get_sproingy_jump_height(int num)
+2 calls
+
+
+convert PDE to use floats again
+then remove the last calls to sliderf..done
+
+
+now can I rename all the float ones from d to f...done...
+
+key rotation..fixed..
+fix the solid routines..done
+fixed is no longer needed anywhere..
+
+20230219 5:00AM
+
+how many left?
+33 al_fixed
+15 al_ftofix
+45 al_itofix
+21 al_fixtoi
+43 al_fixtof
+
+
+fix enemy rotations, start with trakbot
+look in enemy draw code:
+float rot = Ef[e][14];
+float sc =  Ef[e][12];
+al_draw_scaled_rotated_bitmap(mwB.tile[tn], 10, 3, EXint+10, EYint+10, sc, sc, rot, flags);
+
+deg fix rad
+0   0   0
+270 192 3p/2
+
+trakbot is done..
+check bouncers...good
+vinepods, pozilla..good
+flapper..no
+jumpworm..good
+fix flapper flap thingy..done
+
+find a way to not use fixed trig in logo..done...
+fixed trig 0-256
+
+removed all the old solid functions
+
+20230219 6:46 AM
+0 al_fixed
+0 al_ftofix
+0 al_itofix
+0 al_fixtoi
+0 al_fixtof
+
+they are all gone!!
+
+cannon explosion death sequence looks different
+need to fix rot inc in death sequence
+done...
+
+when letting go of rocket, player warps...fixed
+
+
+
+
+
+lifts have strange artifacts in many levels...
+
+clean up messed up levels
+
+
+what about 'could not find move step!!' error?
+
+lev 1 good
+lev 2 2 lifts, one does not move..
+lev 3 2 lifts, both move fine
+lev 4 3 lifts, all move fine
+when speed is too low, lifts don't move...fixed
+
+5 no lifts
+6 phantom lifts from level 4...removed
+7 fixed
+8
+9
+10
+11
+12
+13 has 15 lifts
+14
+15
+16
+17 has 17 lifts
+18 2
+19 13
+-36 done
+
+80
+81
+82
+83-99 done
+
+
+100
+108 37 lifts
+109
+155 39 lifts
+
+I have gone through all 127 levels and removed bad lifts!
+
+now what?
+
+
+bullet targetting
+seek xincs
+set rot..etc
+enemy stuff
+
+
+I want to make a nice solution for angles
+x,y is the reference, the angle will be refences to that point
+      float xlen = mx-x;
+      float ylen = my-y;
+now get the answer in rad and shift by 90 deg
+      float ra = atan2(ylen, xlen) + pi/2;;
+
+
+now do the flapper targetting...
+I think I got it..
+
+all of that stuff is looking very good now
+
+these functions in z_fnx are all looking great..
+maybe later they can become a part of something like an enemy class
+
+they are only 200 lines:
+
+void set_enemy_rot_from_incs(int e);
+void set_enemy_rot_from_player(int e, int p);
+void seek_set_xyinc(int e);
+int find_closest_player(int e);
+int find_closest_player_flapper(int e);
+int find_closest_player_trakbot(int e);
+int find_closest_player_cannon(int e);
+float deg_to_rad(float deg);
+
+
+20230219 12:48  I should do a push..it has been a while....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

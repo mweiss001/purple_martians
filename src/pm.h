@@ -22,6 +22,8 @@
 #define BORDER_WIDTH 14
 #define NUM_LIFTS 40
 
+#define VISUAL_LEVEL_SELECT_MAX_LEVEL 200
+
 // enemy debug stuff
 //#define SHOW_CANNON_COLLISION_BOX
 //#define SHOW_FLAPPER_DEBUG

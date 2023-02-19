@@ -16,6 +16,13 @@
 #include "z_main.h"
 
 
+#include "mwInput.h"
+#include "mwEventQueue.h"
+#include "mwBitmap.h"
+#include "mwFont.h"
+
+
+
 void pm_copy_src(const char* filepath)
 {
    char sys_cmd[500];
@@ -427,6 +434,80 @@ void temp_test(void)
 
    al_set_target_backbuffer(display);
    al_clear_to_color(mC.pc[0]);
+   int quit = 0;
+   float x = mwD.SCREEN_W/2;
+   float y = mwD.SCREEN_H/2;
+   while (!quit)
+   {
+      float pi = ALLEGRO_PI;
+
+      float mx = mI.mouse_x;
+      float my = mI.mouse_y;
+      float xlen = mx-x;
+      float ylen = my-y;
+      float hy = sqrt(pow(xlen, 2) + pow(ylen, 2));
+      float ra = atan2(ylen, xlen) + pi/2;;
+
+      float a = ra;
+      if (ra < 0) a = ra + pi*2;
+      float a2 = 360 * (a/(pi*2));
+
+      int aa = a*1000;
+
+
+      al_draw_textf(mF.pr8, mC.pc[15], 100, 100, 0, "xlen:%f ylen:%f hy:%f", xlen, ylen, hy);
+      al_draw_textf(mF.pr8, mC.pc[15], 100, 110, 0, "ra:%f", ra);
+      al_draw_textf(mF.pr8, mC.pc[15], 100, 120, 0, "a+:%f", a);
+      al_draw_textf(mF.pr8, mC.pc[15], 100, 130, 0, "a2:%f", a2);
+
+
+
+      al_draw_line(x, y, mx, my, mC.pc[15], 1);
+      al_draw_rotated_bitmap(mwB.tile[248], 10, 10, x, y, (float)aa/1000, 0);
+      al_flip_display();
+      al_clear_to_color(mC.pc[0]);
+      mwEQ.proc_event_queue();
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //   mC.show_palette();
 //   al_flip_display();

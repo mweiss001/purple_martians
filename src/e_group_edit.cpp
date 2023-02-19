@@ -24,7 +24,7 @@
 struct ge_datum
 {
    char name[40];
-   int vartyp;     // 2=item, 3=Ei, 4=Efi, 5=initial direction, 6=initial position
+   int vartyp;     // 2=item, 3=Ei, 4=Ef, 5=initial direction, 6=initial position
    int varnum;     // index of the variable
    int valid;      // does it apply to items in list
    int collapsed;  // how it is drawn
@@ -378,8 +378,8 @@ void ge_enemy_initial_position_random(int e, int csw)
    }
    if (empt)
    {
-      Efi[e][0] = al_itofix(x)*20;
-      Efi[e][1] = al_itofix(y)*20;
+      Ef[e][0] = x*20;
+      Ef[e][1] = y*20;
    }
    else printf("could not find empty block space for enemy\n");
 }
@@ -406,8 +406,8 @@ void ge_item_initial_position_random(int i, int csw)
    {
       item[i][4] = x*20;
       item[i][5] = y*20;
-      itemf[i][0] = al_itofix(item[i][4]);
-      itemf[i][1] = al_itofix(item[i][5]);
+      itemf[i][0] = item[i][4];
+      itemf[i][1] = item[i][5];
    }
    else printf("could not find empty block space for item\n");
 }
@@ -463,7 +463,7 @@ int ge_draw_list_items(int x1, int y1, int ni)
 
                   if (vt == 2) al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2d", item[num][vn]);
                   if (vt == 3) al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2d", Ei[num][vn]);
-                  if (vt == 4) al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2.1f", al_fixtof(Efi[num][vn]));
+                  if (vt == 4) al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2.1f", Ef[num][vn]);
                   if (vt == 5) al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2d", Ei[num][2]);
                   xt+=40;
                }
@@ -585,9 +585,9 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d)
                         int num = mwWM.obj_list[i][1];
 
                         float val = 0;
-                        if (gvt == 2) val = (float)  item[num][gvn];
-                        if (gvt == 3) val = (float)    Ei[num][gvn];
-                        if (gvt == 4) val = al_fixtof(Efi[num][gvn]);
+                        if (gvt == 2) val = (float) item[num][gvn];
+                        if (gvt == 3) val = (float) Ei[num][gvn];
+                        if (gvt == 4) val =         Ef[num][gvn];
 
                         if (val < mins) mins = val;
                         if (val > maxs) maxs = val;
@@ -601,8 +601,8 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d)
                   float mna = ge_data[ge_num].min_allowed;
                   float mxa = ge_data[ge_num].max_allowed;
 
-                  mdw_sliderd(x1+8, by, x4, bts, 0,0,0,0, 0,3,15,0,1,0,0,d, ge_data[ge_num].adj_min, mxa, mna, .1, "Min:");
-                  mdw_sliderd(x4,   by, x2, bts, 0,0,0,0, 0,3,15,0,1,0,1,d, ge_data[ge_num].adj_max, mxa, mna, .1, "Max:");
+                  mdw_sliderf(x1+8, by, x4, bts, 0,0,0,0, 0,3,15,0,1,0,0,d, ge_data[ge_num].adj_min, mxa, mna, .1, "Min:");
+                  mdw_sliderf(x4,   by, x2, bts, 0,0,0,0, 0,3,15,0,1,0,1,d, ge_data[ge_num].adj_max, mxa, mna, .1, "Max:");
 
                   mdw_buttonp(    x1+8, by, x3, bts,   100,0,0,0,  0, 4,15,0,1,1,0,d, ge_data[ge_num].adj_mode); // Action type
                   if (mdw_buttont(x3,  by, x2, bts,      0,0,0,0,  0,10,15,0,1,0,1,d, "Do It!"))
@@ -619,7 +619,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d)
 
                               if (gvt == 2) item[num][gvn] = (float) val;
                               if (gvt == 3) Ei[num][gvn]   = (float) val;
-                              if (gvt == 4) Efi[num][gvn]  = al_ftofix(val);
+                              if (gvt == 4) Ef[num][gvn]   = (float) val;
                               if ((gvt == 4) && (gvn == 9)) recalc_pod(num);
                               if ((gvt == 4) && (gvn == 5) && ((Ei[num][0] == 4) || (Ei[num][0] == 6))) scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
                            }
@@ -634,7 +634,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d)
                               int num = mwWM.obj_list[i][1];
                               if (gvt == 2) item[num][gvn] = (float) val;
                               if (gvt == 3) Ei[num][gvn]   = (float) val;
-                              if (gvt == 4) Efi[num][gvn]  = al_ftofix(val);
+                              if (gvt == 4) Ef[num][gvn]   = (float) val;
                               if ((gvt == 4) && (gvn == 9)) recalc_pod(num);
                               if ((gvt == 4) && (gvn == 5) && ((Ei[num][0] == 4) || (Ei[num][0] == 6))) scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
                               val += inc;
@@ -649,7 +649,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d)
                               int num = mwWM.obj_list[i][1];
                               if (gvt == 2) item[num][gvn] = (float) val;
                               if (gvt == 3) Ei[num][gvn]   = (float) val;
-                              if (gvt == 4) Efi[num][gvn]  = al_ftofix(val);
+                              if (gvt == 4) Ef[num][gvn]   = (float) val;
                               if ((gvt == 4) && (gvn == 9)) recalc_pod(num);
                               if ((gvt == 4) && (gvn == 5) && ((Ei[num][0] == 4) || (Ei[num][0] == 6))) scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
                            }
@@ -716,13 +716,8 @@ void ge_add_selection_to_list(int set_filters)
    int rx2 = mwWM.bx2*20+20;
    int ry2 = mwWM.by2*20+20;
 
-   al_fixed frx1 = al_itofix(rx1);
-   al_fixed fry1 = al_itofix(ry1);
-   al_fixed frx2 = al_itofix(rx2);
-   al_fixed fry2 = al_itofix(ry2);
-
    for (int b=0; b<100; b++) // add enemies in selection
-      if ((Ei[b][0]) && (Efi[b][0] >= frx1) && (Efi[b][0] < frx2) && (Efi[b][1] >= fry1) && (Efi[b][1] < fry2)) ge_add_to_obj_list(3, b);
+      if ((Ei[b][0]) && (Ef[b][0] >= rx1) && (Ef[b][0] < rx2) && (Ef[b][1] >= ry1) && (Ef[b][1] < ry2)) ge_add_to_obj_list(3, b);
 
    for (int b=0; b<500; b++) // add items in selection
       if ((item[b][0]) && (item[b][4] >= rx1) && (item[b][4] < rx2) && (item[b][5] >= ry1) && (item[b][5] < ry2)) ge_add_to_obj_list(2, b);
@@ -771,9 +766,7 @@ void ge_process_mouse(void)
             int type = Ei[e][0];
             if ((type) && (mwWM.obj_filter[3][type])) // filter for this type of enemy
             {
-               int sox = al_fixtoi(Efi[e][0]/20);
-               int soy = al_fixtoi(Efi[e][1]/20);
-               if ((mwWM.gx == sox) && (mwWM.gy == soy)) ge_add_to_obj_list(3, e);
+               if ((mwWM.gx == Ef[e][0]/20) && (mwWM.gy == Ef[e][1]/20)) ge_add_to_obj_list(3, e);
             }
          }
       }

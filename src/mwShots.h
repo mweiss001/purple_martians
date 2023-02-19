@@ -43,9 +43,9 @@ class mwShots
    void move_eshots(void);
    void draw_eshots(void);
 
-   void fire_enemy_shotz(int EN, int shot_ans, al_fixed px, al_fixed py);
-   void fire_enemy_shota(int EN, int shot_ans, int p);
-   void fire_enemy_x_shot(int EN, int p);
+   void fire_enemy_shotz(int e, int shot_ans, float px, float py);
+   void fire_enemy_shota(int e, int shot_ans, int p);
+   void fire_enemy_x_shot(int e, int p);
 
 };
 extern mwShots mwS;

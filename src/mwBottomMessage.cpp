@@ -400,7 +400,7 @@ void mwBottomMessage::draw()
 
          int nb = 8;  // number of bottom message lines to display (max 20)
 
-         int dfb = 2000 - al_fixtoi(players[active_local_player].PY); // player distance from bottom of level
+         int dfb = 2000 - players[active_local_player].y; // player distance from bottom of level
          if (dfb < 300)  nb = 4;
          if (dfb < 200)  nb = 2;
 

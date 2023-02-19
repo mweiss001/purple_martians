@@ -29,8 +29,8 @@ int ft_l[100][100];
 int ft_item[500][16];
 char ft_pmsgtext[500][500] = {0};
 
-int ft_Ei[100][32];
-al_fixed ft_Efi[100][16];
+int   ft_Ei[100][32];
+float ft_Ef[100][16];
 
 char ft_ln[NUM_LIFTS][80];
 int ft_lift[NUM_LIFTS][6];
@@ -61,10 +61,6 @@ void es_pointer_text(int x1, int x2, int y, int mouse_on_window)
    int eib=0;
    int iib=0;
    int lib=0;
-   al_fixed frx1 = al_itofix(rx1); // source
-   al_fixed fry1 = al_itofix(ry1);
-   al_fixed frx2 = al_itofix(rx2);
-   al_fixed fry2 = al_itofix(ry2);
 
    // count items in box
    for (int b=0; b<500; b++)
@@ -78,20 +74,16 @@ void es_pointer_text(int x1, int x2, int y, int mouse_on_window)
    // count enemies in box
    for (int b=0; b<100; b++)
       if ((Ei[b][0]) && (mwWM.obj_filter[3][Ei[b][0]]))
-         if (Efi[b][0] >= frx1)
-            if (Efi[b][0] < frx2)
-               if (Efi[b][1] >= fry1)
-                  if (Efi[b][1] < fry2)
+         if (Ef[b][0] >= rx1)
+            if (Ef[b][0] < rx2)
+               if (Ef[b][1] >= ry1)
+                  if (Ef[b][1] < ry2)
                      eib++;
 
    // count lifts in box
    if (mwWM.obj_filter[4][1])
-      for (int d=0; d<num_lifts; d++)
-         if (lifts[d].x1 >= rx1)
-            if (lifts[d].x1 < rx2)
-               if (lifts[d].y1 >= ry1)
-                  if (lifts[d].y1 < ry2)
-                     lib++;
+      for (int d=0; d<NUM_LIFTS; d++)
+         if ((lifts[d].active) && (lifts[d].x >= rx1) && (lifts[d].x < rx2) && (lifts[d].y >= ry1) && (lifts[d].y < ry2)) lib++;
 
 
    y+=24;
@@ -188,7 +180,7 @@ void es_clear_ft(void)
    for (int c=0; c<100; c++) // ft_enemies
    {
       for (int x=0; x<32; x++) ft_Ei[c][x] = 0;
-      for (int x=0; x<16; x++) ft_Efi[c][x] = al_itofix(0);
+      for (int x=0; x<16; x++) ft_Ef[c][x] = 0;
    }
    for (int l=0; l<NUM_LIFTS; l++)  // ft_lifts
    {
@@ -295,7 +287,7 @@ int es_load_selection(void)
             buff[loop] = (char)NULL;
             ft_Ei[c][x] = atoi(buff);
          }
-         for (x=0; x<16; x++)  // then 16 fixeds
+         for (x=0; x<16; x++)  // then 16 floats
          {
             loop = 0;
             ch = fgetc(filepntr);
@@ -306,7 +298,7 @@ int es_load_selection(void)
                ch = fgetc(filepntr);
             }
             buff[loop] = (char)NULL;
-            ft_Efi[c][x] = atoi(buff);
+            ft_Ef[c][x] = atof(buff);
          }
       }
       for (c=0; c<ft_level_header[5]; c++) // lifts
@@ -370,10 +362,6 @@ void es_save_selection(int save)
    int x2 = mwWM.bx2*20+20;
    int y2 = mwWM.by2*20+20;
 
-   al_fixed fx1 = al_itofix(x1);
-   al_fixed fy1 = al_itofix(y1);
-   al_fixed fx2 = al_itofix(x2);
-   al_fixed fy2 = al_itofix(y2);
 
    es_clear_ft();
 
@@ -416,17 +404,17 @@ void es_save_selection(int save)
 
    // enemies
    for (b=0; b<100; b++) // check for enemies in box
-      if ((Ei[b][0]) && (mwWM.obj_filter[3][Ei[b][0]]) && (Efi[b][0] >= fx1) && (Efi[b][0] < fx2) && (Efi[b][1] >= fy1) && (Efi[b][1] < fy2))
+      if ((Ei[b][0]) && (mwWM.obj_filter[3][Ei[b][0]]) && (Ef[b][0] >= x1) && (Ef[b][0] < x2) && (Ef[b][1] >= y1) && (Ef[b][1] < y2))
       {
          //printf("copying enemy:%d to ft\n", b);
          c = eib++;
          for (y=0; y<32; y++)
             ft_Ei[c][y] = Ei[b][y];
          for (y=0; y<16; y++)
-            ft_Efi[c][y] = Efi[b][y];
+            ft_Ef[c][y] = Ef[b][y];
 
-         ft_Efi[c][0]-= fx1;
-         ft_Efi[c][1]-= fy1;
+         ft_Ef[c][0]-= x1;
+         ft_Ef[c][1]-= y1;
 
          if (ft_Ei[c][0] == 13) // vinepod
          {
@@ -454,8 +442,8 @@ void es_save_selection(int save)
 
    // lifts
    if (mwWM.obj_filter[4][1])
-      for (b=0; b<num_lifts; b++) // source, if in selection
-         if ((lifts[b].x1 >= x1) && (lifts[b].x1 < x2) && (lifts[b].y1 >= y1) && (lifts[b].y1 < y2))
+      for (b=0; b<NUM_LIFTS; b++) // source, if in selection
+         if ((lifts[b].active) && (lifts[b].x >= x1) && (lifts[b].x < x2) && (lifts[b].y >= y1) && (lifts[b].y < y2))
          {
             c = lib++; // destination
 
@@ -537,7 +525,7 @@ void es_save_selection(int save)
          for (c=0; c < ft_level_header[4]; c++) // enemy int and float
          {
             for (x=0; x<32; x++) fprintf(filepntr,"%d\n",ft_Ei[c][x]);
-            for (x=0; x<16; x++) fprintf(filepntr,"%d\n",ft_Efi[c][x]);
+            for (x=0; x<16; x++) fprintf(filepntr,"%d\n",ft_Ei[c][x]);
          }
          for (c=0; c < ft_level_header[5]; c++) // lifts
          {
@@ -572,18 +560,16 @@ void es_do_fcopy(int qx1, int qy1)
    {
       for (b=0; b<ft_level_header[5]; b++)
       {
-         //int copied = 0;
-         if (num_lifts < NUM_LIFTS)
+         int l = get_empty_lift();
+         if (l > -1)
          {
             int lim = 0;
-            c = num_lifts++; // dest lift
-            //copied = 1000+c;
-            construct_lift(c, ft_ln[b]);
-            lifts[c].mode      = ft_lift[b][0];
-            lifts[c].flags     = ft_lift[b][1];
-            lifts[c].num_steps = ft_lift[b][3];
-            lifts[c].val1      = ft_lift[b][4];
-            lifts[c].val2      = ft_lift[b][5];
+            construct_lift(l, ft_ln[b]);
+            lifts[l].mode      = ft_lift[b][0];
+            lifts[l].flags     = ft_lift[b][1];
+            lifts[l].num_steps = ft_lift[b][3];
+            lifts[l].val1      = ft_lift[b][4];
+            lifts[l].val2      = ft_lift[b][5];
 
 
             for (y=0; y<ft_lift[b][3]; y++) // copy steps
@@ -614,13 +600,12 @@ void es_do_fcopy(int qx1, int qy1)
                }
 
                //printf("contructing step:%d\n", y);
-               construct_lift_step(c, y, type, vx, vy, vw, vh, val);
+               construct_lift_step(l, y, type, vx, vy, vw, vh, val);
             }
-            set_lift_to_step(c, 0);
+            set_lift_to_step(l, 0);
             if (lim)
             {
-               erase_lift(c);
-               //copied = -1;
+               erase_lift(l);
             }
          }
       }
@@ -639,22 +624,22 @@ void es_do_fcopy(int qx1, int qy1)
                int lim = 0;
                for (y=0; y<32; y++)        // copy 32 ints
                   Ei[c][y] = ft_Ei[b][y];
-               for (y=0; y<16; y++)        // copy 16 al_fixed
-                  Efi[c][y] = ft_Efi[b][y];
+               for (y=0; y<16; y++)        // copy 16 floats
+                  Ef[c][y] = ft_Ef[b][y];
 
                // apply offsets
-               Efi[c][0] += al_itofix(x3);
-               Efi[c][1] += al_itofix(y3);
+               Ef[c][0] += x3;
+               Ef[c][1] += y3;
 
                if (erase_out_of_bounds_main)
                {
-                  if (check_limit(al_fixtoi(Efi[c][0]), 0, 1980)) lim = 1;
-                  if (check_limit(al_fixtoi(Efi[c][1]), 0, 1980)) lim = 1;
+                  if (check_limit(Ef[c][0], 0, 1980)) lim = 1;
+                  if (check_limit(Ef[c][1], 0, 1980)) lim = 1;
                }
                else // adjust if out of bounds
                {
-                  Efi[c][0] = al_itofix(enforce_limit(al_fixtoi(Efi[c][0]), 0, 1980));
-                  Efi[c][1] = al_itofix(enforce_limit(al_fixtoi(Efi[c][1]), 0, 1980));
+                  Ef[c][0] = enforce_limit(Ef[c][0], 0, 1980);
+                  Ef[c][1] = enforce_limit(Ef[c][1], 0, 1980);
                }
 
                if (Ei[c][0] == 13) // vinepod
@@ -684,7 +669,7 @@ void es_do_fcopy(int qx1, int qy1)
                {
                   //copied = -1;
                   for (y=0; y<32; y++) Ei[c][y] = 0;
-                  for (y=0; y<16; y++) Efi[c][y] = al_itofix(0);
+                  for (y=0; y<16; y++) Ef[c][y] = 0;
                }
                c = 100; // end loop
             } // end of found empty
@@ -789,10 +774,6 @@ void es_do_clear(void)
    int y1 = mwWM.by1*20;
    int x2 = mwWM.bx2*20+20;
    int y2 = mwWM.by2*20+20;
-   al_fixed fx1 = al_itofix(x1);
-   al_fixed fy1 = al_itofix(y1);
-   al_fixed fx2 = al_itofix(x2);
-   al_fixed fy2 = al_itofix(y2);
 
    // blocks
    if (mwWM.obj_filter[1][1])
@@ -807,16 +788,17 @@ void es_do_clear(void)
    // enemies
    for (int e=0; e<100; e++)
       if ((Ei[e][0]) && (mwWM.obj_filter[3][Ei[e][0]]))
-         if ((Efi[e][0] >= fx1) && (Efi[e][0] < fx2) && (Efi[e][1] >= fy1) && (Efi[e][1] < fy2))
+         if ((Ef[e][0] >= x1) && (Ef[e][0] < x2) && (Ef[e][1] >= y1) && (Ef[e][1] < y2))
          {
             for (int y=0; y<32; y++) Ei[e][y] = 0;
-            for (int y=0; y<16; y++) Efi[e][y] = al_itofix(0);
+            for (int y=0; y<16; y++) Ef[e][y] = 0;
          }
 
    // lifts
    if (mwWM.obj_filter[4][1])
-      for (int l=num_lifts-1; l>=0; l--) // have to iterate backwards because erase_lift() does a resort after every erase
-         if ((lifts[l].x1 >= x1) && (lifts[l].x1 < x2) && (lifts[l].y1 >= y1) && (lifts[l].y1 < y2)) erase_lift(l);
+      for (int l=NUM_LIFTS-1; l>=0; l--) // have to iterate backward beacuse erase_lift changes list order
+         if (lifts[l].active)
+            if ((lifts[l].x >= x1) && (lifts[l].x < x2) && (lifts[l].y >= y1) && (lifts[l].y < y2)) erase_lift(l);
 
    sort_enemy();
    sort_item(1);
@@ -945,7 +927,7 @@ void es_draw_item_ft(int i)
 
    if (type == 11) // rockets
    {
-      float rot = al_fixtof(al_fixmul(al_itofix(ft_item[i][10]/10), al_fixtorad_r));
+      float rot = (float) item[i][10] / 1000;
       al_draw_rotated_bitmap(mwB.tile[shape], 10, 10, x+10, y+10, rot, 0);
       drawn = 1;
    }
@@ -958,8 +940,8 @@ void es_draw_item_ft(int i)
 void es_draw_enemy_ft(int e)
 {
    int type = ft_Ei[e][0];
-   int EXint = al_fixtoi(ft_Efi[e][0]);
-   int EYint = al_fixtoi(ft_Efi[e][1]);
+   int EXint = ft_Ef[e][0];
+   int EYint = ft_Ef[e][1];
    int flags = 0;
    if (ft_Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
    if (ft_Ei[e][2] == 1) flags = 0;
@@ -967,8 +949,8 @@ void es_draw_enemy_ft(int e)
    if (ft_Ei[e][2] == 3) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
    int tn = ft_Ei[e][1];
 
-   float rot = al_fixtof(al_fixmul(ft_Efi[e][14], al_fixtorad_r));
-   float sc = al_fixtof(ft_Efi[e][12]);
+   float rot = ft_Ef[e][14];
+   float sc  = ft_Ef[e][12];
    al_draw_scaled_rotated_bitmap(mwB.tile[tn], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
 
    if (type == 9) // cloner

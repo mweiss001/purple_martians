@@ -502,7 +502,7 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, int have_fo
                      case 206: create_obj(2, 10,0);  break; // msg
                      case 207: create_obj(3, 9, 0);  break; // cloner
                      case 208: create_lift();        break; // lift
-                     case 209: create_door(1);       break; // one way al_fixed exit door
+                     case 209: create_door(1);       break; // one way fixed exit door
                      case 210: create_door(2);       break; // one way linked exit door
                      case 211: create_door(3);       break; // two way door set
                      case 213: create_obj(2, 9, 0);  break; // trigger

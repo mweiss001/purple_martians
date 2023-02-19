@@ -57,11 +57,19 @@ I'm getting a stimp in single player
 
 
 
+cloner sometimes does not create (see level 97)
+could be detecting not empty destination?
+cannot reproduce...
+
+
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
 
+make lifts a class
 
 
 
@@ -69,14 +77,6 @@ I'm getting a stimp in single player
 
 
 
-
-
-
-
-file.cpp...
-do something about level header...is it used for ft stuff?..num lifts?...
-
-also global filepointer?  kill it...no need for that...
 
 
 

@@ -210,7 +210,7 @@ void show_player_join_quit(void)
            y_pos += (int)(ra2 * y_pos_move);
       }
       if (stretch < .1) stretch = .1;
-      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, y_pos, color, stretch, 0, .5);
+      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, y_pos, color, stretch, 0.5);
    }
 }
 
@@ -590,8 +590,6 @@ void draw_common_debug_overlay(int p, int &cx, int &cy)
       cy+=9;
       al_draw_textf(mF.pr8, mC.pc[15], cx+1, cy, 0, "scale_factor:%3.2f", mwD.scale_factor); cy+=9;
       al_draw_textf(mF.pr8, mC.pc[15], cx+1, cy, 0, "frames per second:%d", mwPS.frame_speed); cy+=9;
-      //al_draw_textf(mF.pr8, mC.pc[15], cx+1, cy, 0, "px:%d     py:%d", al_fixtoi(players[p].PX), al_fixtoi(players[p].PY)); cy+=9;
-      //al_draw_textf(mF.pr8, mC.pc[15], cx+1, cy, 0, "pxinc:%1.2f  pyinc:%1.2f", al_fixtof(players[p].xinc), al_fixtof(players[p].yinc)); cy+=9;
       if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_dbgcom", 0);
       cy +=4;
    }
@@ -801,10 +799,10 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
    {
       int color = players[p].color;
       sprintf(msg, "Please wait for server syncronization");
-      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2-32, color, 2, 0, 1);
+      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2-32, color, 2, 1);
 
       sprintf(msg, "[%2.1f]", abs(players1[p].client_chase_offset - players1[p].dsync)*1000);
-      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, color, 4, 0, 1);
+      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, color, 4, 1);
    }
    if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_client", 0);
 
@@ -1002,8 +1000,8 @@ void draw_top_frame(int p)
    tdx += strlen(msg)*8;
 
    // draw health bar
-   draw_percent_bar(tdx+44, tdy, 88, 10, al_fixtoi(players[p].LIFE));
-   al_draw_textf(mF.pr8, mC.pc[16], tdx+44, tdy+2, ALLEGRO_ALIGN_CENTRE,"Health:%-2d", al_fixtoi(players[p].LIFE));
+   draw_percent_bar(tdx+44, tdy, 88, 10, (int)players[p].health);
+   al_draw_textf(mF.pr8, mC.pc[16], tdx+44, tdy+2, ALLEGRO_ALIGN_CENTRE,"Health:%-2d", (int) players[p].health );
    tdx += 88;
 
 

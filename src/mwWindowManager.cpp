@@ -307,8 +307,8 @@ int mwWindowManager::redraw_level_editor_background(void)
             int type = (Ei[e][0]);
             if ((type) && (obj_filter[3][type]))
             {
-               x = al_fixtoi(Efi[e][0]);
-               y = al_fixtoi(Efi[e][1]);
+               x = Ef[e][0];
+               y = Ef[e][1];
                al_draw_rectangle(x, y, x+20, y+20, mC.pc[13], 1);
             }
          }
@@ -329,8 +329,8 @@ int mwWindowManager::redraw_level_editor_background(void)
                   }
                   if (typ == 3) // enemy
                   {
-                     x = al_fixtoi(Efi[num][0]/20);
-                     y = al_fixtoi(Efi[num][1]/20);
+                     x = Ef[num][0]/20;
+                     y = Ef[num][1]/20;
                   }
                   if ((gx == x) && (gy == y)) mwWM.obj_list[i][2] = 1; // turn on highlight for this list item
                }
@@ -350,8 +350,8 @@ int mwWindowManager::redraw_level_editor_background(void)
                }
                if (typ == 3)
                {
-                  x = al_fixtoi(Efi[num][0]);
-                  y = al_fixtoi(Efi[num][1]);
+                  x = Ef[num][0];
+                  y = Ef[num][1];
                }
                if (mwWM.obj_list[i][2]) al_draw_rectangle(x-2, y-2, x+20+2, y+20+2, mC.Flash1, 1); // highlight
                else                al_draw_rectangle(x,   y,   x+20,   y+20,   mC.pc[10], 1);

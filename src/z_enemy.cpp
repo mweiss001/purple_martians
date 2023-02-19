@@ -16,11 +16,14 @@
 #include "z_fnx.h"
 #include "z_screen_overlay.h"
 #include "mwShots.h"
+#include "z_solid.h"
+
 
 
 // enemies
 int Ei[100][32];        // enemy ints
-al_fixed Efi[100][16];  // enemy fixeds
+float Ef[100][16];      // enemy floats
+
 int e_num_of_type[50];
 int e_first_num[50];
 char enemy_name[100][2][40] = {0};
@@ -66,8 +69,8 @@ void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int s
 void draw_enemy(int e, int custom, int cx, int cy)
 {
    int type = Ei[e][0];
-   int EXint = al_fixtoi(Efi[e][0]);
-   int EYint = al_fixtoi(Efi[e][1]);
+   int EXint = Ef[e][0];
+   int EYint = Ef[e][1];
    if (custom)
    {
       EXint = cx;
@@ -154,8 +157,8 @@ void draw_enemy(int e, int custom, int cx, int cy)
    if (Ei[e][2] == 3) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
    int tn = Ei[e][1];
 
-   float rot = al_fixtof(al_fixmul(Efi[e][14], al_fixtorad_r));
-   float sc = al_fixtof(Efi[e][12]);
+   float rot = Ef[e][14];
+   float sc =  Ef[e][12];
 
    if ((type == 13) && (Ei[e][15] != 0)) // different rotation point for vinepod
       al_draw_scaled_rotated_bitmap(mwB.tile[tn], 10, 3, EXint+10, EYint+10, sc, sc, rot, flags);
@@ -232,8 +235,8 @@ void draw_enemy(int e, int custom, int cx, int cy)
    if (Ei[e][0] == 5) // jumpworm
    {
       // enemy position (add 10 to get the center)
-      int x1 = al_fixtoi(Efi[e][0]);
-      int y1 = al_fixtoi(Efi[e][1]);
+      int x1 = Ef[e][0];
+      int y1 = Ef[e][1];
       int x2 = x1 + 20;
       int y2 = y1 + 20;
       al_draw_rectangle(x1, y1, x2, y2, mC.pc[14], 1);
@@ -247,25 +250,25 @@ void draw_enemy(int e, int custom, int cx, int cy)
       int cbs = Ei[e][29]; // collision box size
 
       // enemy position (add 10 to get the center)
-      int x1 = al_fixtoi(Efi[e][0]) + 10;
-      int y1 = al_fixtoi(Efi[e][1]) + 10;
+      int x1 = Ef[e][0] + 10;
+      int y1 = Ef[e][1] + 10;
 
       int il = cbs;
       int color = 11;
       //  printf("x1:%d  y1:%d il:%d  color:%d\n",x1, y1, il, color);
 
       // check for collision with player
-      al_fixed b = al_itofix(Ei[e][29]); // collision box size
+      int b = Ei[e][29]; // collision box size
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((players[p].active) && (!players[p].paused))
          {
-            al_fixed px = players[p].PX;
-            al_fixed py = players[p].PY;
+            float px = players[p].PX;
+            float py = players[p].PY;
 
-            al_fixed ex1 = Efi[e][0] - b;
-            al_fixed ex2 = Efi[e][0] + b;
-            al_fixed ey1 = Efi[e][1] - b;
-            al_fixed ey2 = Efi[e][1] + b;
+            float ex1 = Ef[e][0] - b;
+            float ex2 = Ef[e][0] + b;
+            float ey1 = Ef[e][1] - b;
+            float ey2 = Ef[e][1] + b;
 
             // if player in collision box color = red
             if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) color = 10;
@@ -287,8 +290,17 @@ void draw_enemy(int e, int custom, int cx, int cy)
    #ifdef SHOW_FLAPPER_DEBUG
    if (Ei[e][0] == 12) // flapper
    {
+      int prox = Ei[e][17];
+      int color = 14;        // default color
+      int ex = EXint+10;
+      int ey = EYint+10;
+      float pi = ALLEGRO_PI;
 
-     // draw flap height
+      float th1 = -pi/4;   // 45 deg
+      float th2 = th1+pi;  // 225 deg
+      float thd = pi / 2;  // 90 deg
+
+      // draw flap height
       int base =  Ei[e][14]+10;
       int y1 = base - Ei[e][21];
       int y2 = base + Ei[e][21];
@@ -300,23 +312,14 @@ void draw_enemy(int e, int custom, int cx, int cy)
       int hab =  Ei[e][20];
       al_draw_line(EXint-40, base+hab, EXint+40, base+hab, mC.pc[12], 1);
 
-//            // draw trigger box
-//            int width =  Ei[e][17];
-//            int height = Ei[e][18];
-//            int depth =  Ei[e][19];
-//            al_draw_rectangle(EXint-width+10, EYint-height, EXint+width+10, EYint+depth, mC.pc[14], 1);
-
-
-      int prox = Ei[e][17];
-      int color = 14; // default circle color
-      //al_draw_circle(EXint+10, EYint+10, prox, mC.pc[color], 1);
-
-      if (Efi[e][2] > al_itofix(0)) al_draw_pieslice(EXint+10, EYint+10, prox, 0.785, -1.571,    mC.pc[color], 1);
-      else al_draw_pieslice(EXint+10, EYint+10, prox, 3.927, -1.571,    mC.pc[color], 1);
-
-
-
-
+      int p = find_closest_player_flapper(e);
+      if (p != -1)
+      {
+         color = 10;
+         bomb_crosshairs(players[p].x+10, players[p].y+10); // mark targetted player
+      }
+      if (Ef[e][2] > 0) al_draw_pieslice(ex, ey, prox, th1, thd, mC.pc[color], 1);
+      else              al_draw_pieslice(ex, ey, prox, th2, thd, mC.pc[color], 1);
    }
    #endif
 
@@ -324,29 +327,31 @@ void draw_enemy(int e, int custom, int cx, int cy)
    if (Ei[e][0] == 8) // trakbot
    {
       int prox = Ei[e][17];
-      int color = 14; // default circle color
-
+      int color = 14;        // default color
+      int ex = EXint+10;
+      int ey = EYint+10;
+      float pi = ALLEGRO_PI;
       // is any player in range?
-      int mode = Ei[e][5];
+      int p = find_closest_player_trakbot(e);
+      if (p != -1)
+      {
+         color = 10;
+         bomb_crosshairs(players[p].x+10, players[p].y+10); // mark targetted player
+      }
+
+
       int quad;
-      switch (mode)
+      switch (Ei[e][5]) // mode
       {
          case 0: case 5: quad = 1; break; // floor right, lwall up
          case 1: case 4: quad = 2; break; // rwall up floor left
          case 2: case 7: quad = 3; break; // ceil left, rwall down
          case 3: case 6: quad = 4; break; // lwall down, ceil right
       }
-      int p = find_closest_player_quad(e, quad, prox);
-      if (p != -1)
-      {
-         color = 10; // change circle color to red
-         // mark player with blue crosshairs
-         int px = al_fixtoi(players[p].PX)+10;
-         int py = al_fixtoi(players[p].PY)+10;
-         al_draw_line(px-20, py, px+20, py, mC.pc[13], 1);
-         al_draw_line(px, py-20, px, py+20, mC.pc[13], 1);
-      }
-      al_draw_circle(EXint+10, EYint+10, prox, mC.pc[color], 1);
+      if (quad == 1) al_draw_pieslice(ex, ey, prox, -pi/2, pi/2, mC.pc[color], 0);
+      if (quad == 4) al_draw_pieslice(ex, ey, prox, 0,     pi/2, mC.pc[color], 0);
+      if (quad == 3) al_draw_pieslice(ex, ey, prox, pi/2,  pi/2, mC.pc[color], 0);
+      if (quad == 2) al_draw_pieslice(ex, ey, prox, pi,    pi/2, mC.pc[color], 0);
    }
    #endif
 }
@@ -363,8 +368,8 @@ void draw_enemies(void)
 
 void proc_enemy_collision_with_pshot(int e)
 {
-   float ex = al_fixtof(Efi[e][0]);
-   float ey = al_fixtof(Efi[e][1]);
+   float ex = Ef[e][0];
+   float ey = Ef[e][1];
 
    for (int c=0; c<50; c++)
       if (mwS.p[c].active)
@@ -383,15 +388,9 @@ void proc_enemy_collision_with_pshot(int e)
          float by2 = mwS.p[c].y + cy;
 
          // check for collision with player's shots
-
-         // printf("test\n");
-
-
          if ((ex > bx1) && (ex < bx2) && (ey > by1) && (ey < by2))
          {
-
-            printf("hit!\n");
-
+            //printf("hit!\n");
             int p = mwS.p[c].player;       // player number of shot
             Ei[e][31] = 1;                 // flag that this enemy got sho
             Ei[e][26] = p;                 // number of player that shot enemy
@@ -418,7 +417,7 @@ void move_enemies()
             if (ttl < 11)
             {
                Ei[e][0] = 66;             // change to different type to prevent use
-               Efi[e][4] = al_itofix(0);  // cant hurt anymore
+               Ef[e][4] = 0;  // cant hurt anymore
                Ei[e][29] = 0;             // no collision box
                int sq = 10-ttl;
                Ei[e][1] = mwB.zz[5+sq][74];
@@ -428,8 +427,8 @@ void move_enemies()
          }
 
          // check for out of bounds
-         if ((Efi[e][0] < al_itofix(0)) || (Efi[e][0] > al_itofix(1999))) Ei[e][0]=0;
-         if ((Efi[e][1] < al_itofix(0)) || (Efi[e][1] > al_itofix(1999))) Ei[e][0]=0;
+         if ((Ef[e][0] < 0) || (Ef[e][0] > 1980)) Ei[e][0]=0;
+         if ((Ef[e][1] < 0) || (Ef[e][1] > 1980)) Ei[e][0]=0;
 
          switch (Ei[e][0])
          {
@@ -476,13 +475,13 @@ void move_enemies()
 
 void enemy_deathcount(int e)
 {
-   int EXint = al_fixtoi(Efi[e][0]);
-   int EYint = al_fixtoi(Efi[e][1]);
-   Efi[e][14] += Efi[e][13]; // rot inc
-   Efi[e][12] = al_fixmul(Efi[e][11], Efi[e][12]); // scale inc
+   int EXint = Ef[e][0];
+   int EYint = Ef[e][1];
+   Ef[e][14] += Ef[e][13]; // rot inc
+   Ef[e][12] *= Ef[e][11]; // scale scaler
 
-   Efi[e][0] += Efi[e][2]; // xinc
-   Efi[e][1] += Efi[e][3]; // yinc
+   Ef[e][0] += Ef[e][2]; // xinc
+   Ef[e][1] += Ef[e][3]; // yinc
 
    Ei[e][1] = mwB.zz[0][ Ei[e][3] ]; // draw current ans shape
    // dec and check countdown timer
@@ -505,10 +504,10 @@ void enemy_deathcount(int e)
 
             item[c][14] = 800; // time to live
 
-            itemf[c][0] = al_itofix(item[c][4]);
-            itemf[c][1] = al_itofix(item[c][5]);
-            itemf[c][2] = al_itofix(0);
-            itemf[c][3] = al_itofix(0);
+            itemf[c][0] = item[c][4];
+            itemf[c][1] = item[c][5];
+            itemf[c][2] = 0;
+            itemf[c][3] = 0;
             break; // end loop
          }
    }
@@ -521,9 +520,9 @@ void enemy_player_hit_proc(int e)
       if (Ei[e][22]) // player hit!
       {
          int p = Ei[e][22]-1;
-         players[p].LIFE -= Efi[e][4];
+         players[p].health -= Ef[e][4];
 
-         game_event(44, 0, 0, p, e, 0, al_fixtoi(Efi[e][4]));
+         game_event(44, 0, 0, p, e, 0, Ef[e][4]);
          Ei[e][22] = 0;  // clear hit
          Ei[e][23] = 60; // set retrigger amount
       }
@@ -533,97 +532,90 @@ void enemy_player_hit_proc(int e)
 
 void enemy_killed(int e)
 {
-   int na, dl;
-   int hbm = 1;                 // default health bonus multiplier x1
-   if (Ei[e][31] == 2) hbm = 2; // explosion x2
-
-   Efi[e][2] = al_itofix(0); // xinc
-   Efi[e][3] = al_itofix(0); // yinc
+   Ef[e][2] = 0;       // xinc
+   Ef[e][3] = 0;       // yinc
 
    switch (Ei[e][0])
    {
       case 3: // archwagon
-         na = Ei[e][3] = 34;  // new ans
-         dl = Ei[e][30] = 20; // death_loop_wait; set delay
-         Ei[e][24] = 929+(hbm-1)*32; // shape
-         Efi[e][11] = al_ftofix(1.08); // scale multiplier
-         Efi[e][13] = al_itofix(0);// 255/dl/2; rot inc
+         Ei[e][3]  = 34;    // new ans
+         Ei[e][30] = 20;    // death_loop_wait; set delay
+         Ei[e][24] = 929;   // health bonus tile
+         Ef[e][11] = 1.08;  // scale multiplier
+         Ef[e][13] = 0;     // rot inc
       break;
       case 4: // bouncer
-         if (Ei[e][3] == 29) Ei[e][3] = 46;
+         if (Ei[e][3] == 29) Ei[e][3] = 46;  // new ans
          if (Ei[e][3] == 14) Ei[e][3] = 13;
-//         na = Ei[e][3]; //new ans
-//         if (na == 29) na = 46;
-//         if (na == 14) na = 13;
-//         Ei[e][3] = na; // new ans
-         dl = Ei[e][30] = 20; // death_loop_wait;  set delay
-         Ei[e][24] = 928+(hbm-1)*32; // shape
-         Efi[e][11] = al_ftofix(1.03); // scale multiplier
-         Efi[e][13] = al_itofix(2); // 255/dl/2;  rot inc
+         Ei[e][30] = 20;    // death_loop_wait;  set delay
+         Ei[e][24] = 928;   // health bonus tile
+         Ef[e][11] = 1.03;  // scale multiplier
+         Ef[e][13] = 0.05;  // rot inc
       break;
-      case 5: //jump worm
-         na = Ei[e][3] = 79;  // new ans
-         dl = Ei[e][30] = 20; // death_loop_wait; set delay
-         Ei[e][24] = 935+(hbm-1)*32; // shape
-         Efi[e][11] = al_ftofix(.96); // scale multiplier
-         Efi[e][13] = al_itofix(20); // 255/dl/2;  rot inc
-         Efi[e][3] = al_ftofix(-2); // yinc
+      case 5: //jumpworm
+         Ei[e][3]  = 79;    // new ans
+         Ei[e][30] = 20;    // death_loop_wait; set delay
+         Ei[e][24] = 935;   // health bonus tile
+         Ef[e][11] = 0.96;  // scale multiplier
+         Ef[e][13] = 0.5;   // rot inc
+         Ef[e][3] = -2;     // yinc
       break;
       case 6: // cannon
-         na = Ei[e][3] = 37;  // new ans
-         dl = Ei[e][30] = 20; // death_loop_wait; set delay
-         Ei[e][24] = 930+(hbm-1)*32; // shape
-         Efi[e][11] = al_ftofix(1.08); // scale multiplier
-         Efi[e][13] = al_itofix(1); // 255/dl/2;  rot inc
+         Ei[e][3]  = 37;    // new ans
+         Ei[e][30] = 20;    // death_loop_wait; set delay
+         Ei[e][24] = 930;   // health bonus tile
+         Ef[e][11] = 1.08;  // scale multiplier
+         Ef[e][13] = 0.024; // rot inc
       break;
       case 7: case 13: // podzilla, vinepod
-         na = Ei[e][3] = 45;  // new ans
-         dl = Ei[e][30] = 40; // death_loop_wait; set delay
-         Ei[e][24] = 932+(hbm-1)*32; // shape
-         Efi[e][12] = al_ftofix(2.8); // initial scale
-         Efi[e][11] = al_ftofix(.94); // scale multiplier
-         Efi[e][13] = al_itofix(0);  // 255/dl/2;  rot inc
+         Ei[e][3]  = 45;    // new ans
+         Ei[e][30] = 40;    // death_loop_wait; set delay
+         Ei[e][24] = 932;   // health bonus tile
+         Ef[e][12] = 2.8;   // initial scale
+         Ef[e][11] = 0.94;  // scale multiplier
+         Ef[e][13] = 0;     // rot inc
       break;
       case 8: // trakbot
-         na = Ei[e][3] = 44;  // new ans
-         dl = Ei[e][30] = 12; // death_loop_wait; set delay
-         Ei[e][24] = 931+(hbm-1)*32; // shape
-         Efi[e][11] = al_ftofix(1.00); // scale multiplier
-         Efi[e][13] = al_ftofix(255/dl*3/4); // rot inc
+         Ei[e][3]  = 44;    // new ans
+         Ei[e][30] = 12;    // death_loop_wait; set delay
+         Ei[e][24] = 931;   // health bonus tile
+         Ef[e][11] = 1.00;  // scale multiplier
+         Ef[e][13] = 0.4;   // rot inc
       break;
       case 9: // cloner
-         na = Ei[e][3] = 105;  // new ans
-         dl = Ei[e][30] = 40; // death_loop_wait; set delay
-         Ei[e][24] = 934+(hbm-1)*32; // shape
-         Efi[e][11] = al_ftofix(.98); // scale multiplier
-         Efi[e][13] = al_ftofix(306/dl); // rot inc
+         Ei[e][3]  = 105;   // new ans
+         Ei[e][30] = 40;    // death_loop_wait; set delay
+         Ei[e][24] = 934;   // health bonus tile
+         Ef[e][11] = 0.98;  // scale multiplier
+         Ef[e][13] = 0.2;   // rot inc
       break;
       case 12: // flapper
-         na = Ei[e][3] = 63;  // new ans
-         dl = Ei[e][30] = 20; // death_loop_wait; set delay
-         Ei[e][24] = 933+(hbm-1)*32; // shape
-         Efi[e][11] = al_ftofix(1.04); // scale multiplier
-         Efi[e][13] = al_itofix(0); // rot inc
+         Ei[e][3]  = 63;    // new ans
+         Ei[e][30] = 20;    // death_loop_wait; set delay
+         Ei[e][24] = 933;   // health bonus tile
+         Ef[e][11] = 1.04;  // scale multiplier
+         Ef[e][13] = 0;     // rot inc
       break;
 
-   } // end of switch
-
-   // almost all do this but not enough to do by default
-   int a = Ei[e][0];
-   if (a==3 || a==4 || a==5 || a==6 || a==7 || a==8 || a==9 || a==12 || a==13)
-   {
-      mwB.zz[0][na] = mwB.zz[5][na]; // set shape
-      mwB.zz[1][na] = 0;         // point to zero
-      mwB.zz[2][na] = 0;         // set counter
-      mwB.zz[3][na] = dl / mwB.zz[4][na]; // set ans timer
-
-      Efi[e][4] = al_itofix(0);  // cant hurt anymore
-      Ei[e][25]*=hbm;            // health bonus
-
-      if (hbm == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
-      if (hbm == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
-      Ei[e][0] = 99; // set type to death loop
    }
+
+   int hbm = 1;                 // default health bonus multiplier x1
+   if (Ei[e][31] == 2) hbm = 2; // explosion x2
+   Ei[e][25] *= hbm;            // health bonus amount
+   Ei[e][24] += (hbm-1)*32;     // health bonus tile multiplier for diamonds
+
+   Ei[e][0] = 99;      // set type to death loop
+   Ef[e][4] = 0;       // can't hurt player anymore
+   int na = Ei[e][3];  // new ans
+   int dl = Ei[e][30]; // death_loop_wait; set delay
+
+   mwB.zz[0][na] = mwB.zz[5][na];      // set shape
+   mwB.zz[1][na] = 0;                  // point to zero
+   mwB.zz[2][na] = 0;                  // set counter
+   mwB.zz[3][na] = dl / mwB.zz[4][na]; // set ans timer
+
+   if (hbm == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
+   if (hbm == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
 }
 
 
@@ -649,24 +641,23 @@ void enemy_killed(int e)
 //   Ei[][30] = collision box
 //   Ei[][31] = health bonus
 
-//   Efi[][0]  = x pos
-//   Efi[][1]  = y pos
-//   Efi[][2]  = x inc
-//   Efi[][3]  = y inc
-//   Efi[][4]  = health decrement
-//   Efi[][5]  = max x speed
-//   Efi[][6]  = x accel
-//   Efi[][7]  = shot speed
+//   Ef[][0]  = x pos
+//   Ef[][1]  = y pos
+//   Ef[][2]  = x inc
+//   Ef[][3]  = y inc
+//   Ef[][4]  = health decrement
+//   Ef[][5]  = max x speed
+//   Ef[][6]  = x accel
+//   Ef[][7]  = shot speed
 
-//   Efi[][8]  = flap offset for next loop
-//   Efi[][9]  = flap speed counter
-//   Efi[][10] = flap speed inc
+//   Ef[][8]  = flap offset for next loop
+//   Ef[][9]  = flap speed counter
+//   Ef[][10] = flap speed inc
+
 
 
 void enemy_flapper(int e)
 {
-   al_fixed f0 = al_itofix(0);
-   al_fixed f100 = al_itofix(100);
 
    if (Ei[e][31]) // hit
    {
@@ -685,21 +676,21 @@ void enemy_flapper(int e)
    // ------------ x move ---------------
    if (Ei[e][2])  // move right
    {
-      Efi[e][2] += Efi[e][6];                           // accel
-      if (Efi[e][2] > Efi[e][5]) Efi[e][2] = Efi[e][5]; // max speed
-      Efi[e][0] += Efi[e][2];                           // apply xinc
+      Ef[e][2] += Ef[e][6];                         // accel
+      if (Ef[e][2] > Ef[e][5]) Ef[e][2] = Ef[e][5]; // max speed
+      Ef[e][0] += Ef[e][2];                         // apply xinc
 
-      if (is_right_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1, 2))
+      if (is_right_solid(Ef[e][0], Ef[e][1], 1, 2))
       {
-         Efi[e][0] -= Efi[e][2];    // take back last move
-         Efi[e][2] = -Efi[e][5]/3;  // set accel to bounce back with 1/3 max accel
-         Ei[e][2] = 0;              // change direction
+         Ef[e][0] -= Ef[e][2];    // take back last move
+         Ef[e][2] = -Ef[e][5]/3;  // set accel to bounce back with 1/3 max accel
+         Ei[e][2] = 0;            // change direction
       }
       // try to shoot right
 
       if (--Ei[e][16] < 0)
       {
-         p = find_closest_player_flapper(e, 1);
+         p = find_closest_player_flapper(e);
          if (p != -1)
          {
             mwS.fire_enemy_shota(e, 62, p);
@@ -709,20 +700,20 @@ void enemy_flapper(int e)
    }
    else  // move left
    {
-      Efi[e][2] -= Efi[e][6];                             // accel
-      if (Efi[e][2] < -Efi[e][5]) Efi[e][2] = -Efi[e][5]; // max speed
-      Efi[e][0] += Efi[e][2];                             // apply xinc
+      Ef[e][2] -= Ef[e][6];                           // accel
+      if (Ef[e][2] < -Ef[e][5]) Ef[e][2] = -Ef[e][5]; // max speed
+      Ef[e][0] += Ef[e][2];                           // apply xinc
 
-      if (is_left_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1, 2))
+      if (is_left_solid(Ef[e][0], Ef[e][1], 1, 2))
       {
-         Efi[e][0] -= Efi[e][2];   // take back last move
-         Efi[e][2] = Efi[e][5]/3;  // set accel to bounce back with 1/3 max accel
-         Ei[e][2] = 1;             // change direction
+         Ef[e][0] -= Ef[e][2];   // take back last move
+         Ef[e][2] = Ef[e][5]/3;  // set accel to bounce back with 1/3 max accel
+         Ei[e][2] = 1;           // change direction
       }
       // try to shoot left
       if (--Ei[e][16] < 0)
       {
-         p = find_closest_player_flapper(e, 0);
+         p = find_closest_player_flapper(e);
          if (p != -1)
          {
             mwS.fire_enemy_shota(e, 62, p);
@@ -732,26 +723,29 @@ void enemy_flapper(int e)
    }
 
    // ------------ y seek  ---------------
-   al_fixed seek_yinc = f0;  // yinc for this pass
+   float seek_yinc = 0;  // yinc for this pass
 
    // (comment out this line to only seek if player in trigger box)
    p = find_closest_player(e); // always seek closest player in y axis
 
    if (p != -1) // only seek in y axis if valid player in prox
    {
-      al_fixed rat = al_itofix(1); // default scaling ratio for seek_yinc
-      al_fixed h = al_itofix(Ei[e][20]); // height_above_player
+
+
+      float rat = 1; // default scaling ratio for seek_yinc
+      float h = Ei[e][20]; // height_above_player
+
       // difference between actual y and desired y
-      al_fixed df = Efi[e][1] - (players[p].PY - h);
-      if (df < f0)
+      float df = Ef[e][1] - (players[p].y - h);
+      if (df < 0)
       {
-         if (df > -f100) rat = al_fixdiv(-df, f100);
-         seek_yinc += al_fixmul(Efi[e][3], rat);
+         if (df > -100) rat = -df / 100;
+         seek_yinc += Ef[e][3] * rat;
       }
-      if (df > f0)
+      if (df > 0)
       {
-         if (df < f100) rat = al_fixdiv(df, f100);
-         seek_yinc -= al_fixmul(Efi[e][3], rat);
+         if (df < 100) rat = df / 100;
+         seek_yinc -= Ef[e][3] * rat;
       }
    }
 
@@ -759,46 +753,47 @@ void enemy_flapper(int e)
    /* flap sequence
       Efi[][9]  - counter   goes from 0 to 100
       Efi[][10] - counter increment (flap speed)
-      Ei[][21]  - flap height     */
+      Ei[][21]  - max flap height     */
 
-   float f = al_fixtof(Efi[e][9]);
+   float f = Ef[e][9];
 
    // shape offset
    int so = (int)(f/16.66); // 100/6 = 16.66
    Ei[e][1] = mwB.zz[8+so][Ei[e][3]];
 
-   //convert 0-100 to 0-256 to get fixed binary angle
-   al_fixed th = al_ftofix(f * 2.56);
+   //convert 0-100 to (0-2*PI) to get angle in rad
+   float th = (f / 100) * ALLEGRO_PI*2;
 
    // get sin ratio and scale with flap height
-   al_fixed yo = al_fixsin(th) * Ei[e][21];
+   float yo = sin(th) * Ei[e][21];
 
    // find difference from last flap offset
-   al_fixed flap_yinc = yo - Efi[e][8];
-   Efi[e][8] = yo; // save this flap offset for next time
+   float flap_yinc = yo - Ef[e][8];
+
+   Ef[e][8] = yo; // save this flap offset for next time
 
    // set base ypos for debug drawing
-   Ei[e][14] = al_fixtoi(Efi[e][1] - yo);
+   Ei[e][14] = Ef[e][1] - yo;
 
    // inc flap counter and roll over
-   Efi[e][9] += Efi[e][10];
-   if (Efi[e][9] >= f100) Efi[e][9] = f0;
+   Ef[e][9] += Ef[e][10];
+   if (Ef[e][9] >= 100) Ef[e][9] = 0;
 
-//   printf("f:%f y:%f sy:%f fy:%f\n", f, al_fixtof(Efi[e][1]), al_fixtof(seek_yinc), al_fixtof(flap_yinc));
+//   printf("f:%f y:%f sy:%f fy:%f\n", f, Ef[e][1], seek_yinc, flap_yinc);
 
    // combine the 2 yincs
-   al_fixed yinc = flap_yinc + seek_yinc;
+   float yinc = flap_yinc + seek_yinc;
 
    // check for floor or ceiling collisions
-   if (yinc < f0) // moving up
+   if (yinc < 0) // moving up
    {
-      yinc = is_up_solidfm(Efi[e][0], Efi[e][1], -yinc, 0);
-      Efi[e][1] -= yinc; // apply allowed move
+      yinc = is_up_solidf(Ef[e][0], Ef[e][1], -yinc, 0);
+      Ef[e][1] -= yinc; // apply allowed move
    }
-   else if (yinc > f0) // moving down
+   else if (yinc > 0) // moving down
    {
-      yinc = is_down_solidfm(Efi[e][0], Efi[e][1], yinc, 0);
-      Efi[e][1] += yinc; // apply allowed move
+      yinc = is_down_solidf(Ef[e][0], Ef[e][1], yinc, 0);
+      Ef[e][1] += yinc; // apply allowed move
    }
 }
 
@@ -810,8 +805,8 @@ int is_player_in_trigger_box(int x1, int y1, int x2, int y2)
    for (int p=0; p<NUM_PLAYERS; p++)
       if ((players[p].active) && (!players[p].paused))
       {
-         int px = al_fixtoi(players[p].PX);
-         int py = al_fixtoi(players[p].PY);
+         int px = players[p].x;
+         int py = players[p].y;
          if ((px > x1) && (px < x2) && (py > y1) && (py < y2)) return 1;
       }
    return 0;
@@ -820,14 +815,14 @@ int is_player_in_trigger_box(int x1, int y1, int x2, int y2)
 
 void cloner_create(int e)
 {
-   al_fixed x1 = al_itofix(Ei[e][15]-2);    // source
-   al_fixed y1 = al_itofix(Ei[e][16]-2);
-   al_fixed x3 = al_itofix(Ei[e][17]-2);    // destination
-   al_fixed y3 = al_itofix(Ei[e][18]-2);
-   al_fixed w =  al_itofix(Ei[e][19]);     // width
-   al_fixed h =  al_itofix(Ei[e][20]);     // height
-   al_fixed x2 = x1 + w;
-   al_fixed y2 = y1 + h;
+   float x1 = Ei[e][15]-2;    // source
+   float y1 = Ei[e][16]-2;
+   float x3 = Ei[e][17]-2;    // destination
+   float y3 = Ei[e][18]-2;
+   float  w = Ei[e][19];     // width
+   float  h = Ei[e][20];     // height
+   float x2 = x1 + w;
+   float y2 = y1 + h;
 
 
    int no=0, cl=Ei[e][10]; // limit on number of created objects
@@ -845,22 +840,22 @@ void cloner_create(int e)
       // check for enemies in box
       for (int b=0; b<100; b++)
          if (Ei[b][0])
-            if ((Efi[b][0] > x1) && (Efi[b][0] < x2) && (Efi[b][1] > y1) && (Efi[b][1] < y2) && (no < cl))
+            if ((Ef[b][0] > x1) && (Ef[b][0] < x2) && (Ef[b][1] > y1) && (Ef[b][1] < y2) && (no < cl))
             {
                // check if new position is empty
-               al_fixed new_x_pos = Efi[b][0] + x3 - x1;
-               al_fixed new_y_pos = Efi[b][1] + y3 - y1;
-               int nx = al_fixtoi(new_x_pos) / 20;
-               int ny = al_fixtoi(new_y_pos) / 20;
+               float new_x_pos = Ef[b][0] + x3 - x1;
+               float new_y_pos = Ef[b][1] + y3 - y1;
+               int nx = new_x_pos / 20;
+               int ny = new_y_pos / 20;
                if (is_block_empty(nx, ny, 1, 0, 0)) // block only
                {
                   for (int c=0; c<100; c++) // look for a place to put it
                      if (Ei[c][0] == 0)  // found empty
                      {
-                        for (int y=0; y<32; y++)  Ei[c][y] =  Ei[b][y];
-                        for (int y=0; y<16; y++) Efi[c][y] = Efi[b][y];
-                        Efi[c][0] = new_x_pos;
-                        Efi[c][1] = new_y_pos;
+                        for (int y=0; y<32; y++) Ei[c][y] = Ei[b][y];
+                        for (int y=0; y<16; y++) Ef[c][y] = Ef[b][y];
+                        Ef[c][0] = new_x_pos;
+                        Ef[c][1] = new_y_pos;
                         Ei[c][27] = Ei[e][9]; // set time to live
                         Ei[c][28] = 1000+e;   // tag with cloner item id
                         c = 100; // end loop
@@ -872,13 +867,16 @@ void cloner_create(int e)
       // check for items in box
       for (int b=0; b<500; b++)
          if (item[b][0])
-            if ((itemf[b][0] > x1) && (itemf[b][0] < x2) && (itemf[b][1] > y1) && (itemf[b][1] < y2) && (no < cl))
+         {
+            float ix = itemf[b][0];
+            float iy = itemf[b][1];
+            if ((ix > x1) && (ix < x2) && (iy > y1) && (iy < y2) && (no < cl))
             {
                // check if new position is empty
-               al_fixed new_x_pos = itemf[b][0] + x3 - x1;
-               al_fixed new_y_pos = itemf[b][1] + y3 - y1;
-               int nx = al_fixtoi(new_x_pos) / 20;
-               int ny = al_fixtoi(new_y_pos) / 20;
+               float new_x_pos = ix + x3 - x1;
+               float new_y_pos = iy + y3 - y1;
+               int nx = new_x_pos / 20;
+               int ny = new_y_pos / 20;
                if (is_block_empty(nx, ny, 1, 0, 0)) // block only
                {
                   for (int c=0; c<500; c++)
@@ -887,8 +885,8 @@ void cloner_create(int e)
                         for (int y=0; y<16; y++) item[c][y] = item[b][y];
                         itemf[c][0]= new_x_pos;
                         itemf[c][1]= new_y_pos;
-                        itemf[c][2]= al_itofix(0);
-                        itemf[c][3]= al_itofix(0);
+                        itemf[c][2]= 0;
+                        itemf[c][3]= 0;
 
                         // are we copying something that already has an expiry date?? if so leave it
                         if (item[b][14] == 0) item[c][14] = Ei[e][9]; // otherwise set time to live from cloner
@@ -899,6 +897,7 @@ void cloner_create(int e)
                      }
                }
             }
+         }
    }
 }
 
@@ -1009,8 +1008,6 @@ void enemy_cloner(int e)
    }
    if (player_in_box) Ei[e][5] = 1; // for next time
    else Ei[e][5] = 0;
-
-
    if (create_now) cloner_create(e);
 }
 
@@ -1020,42 +1017,16 @@ void set_trakbot_mode(int e, int mode)
    Ei[e][5] = mode;
    switch (mode)
    {
-      case 0:                                                  // floor right
-         Ei[e][2] = 1;                                        // no h flip
-         Efi[e][14] = al_itofix(0);                              // rotation = 0 deg
-      break;
-      case 1:                                                  // rwall up
-         Ei[e][2] = 1;                                        // no h flip
-         Efi[e][14] = al_itofix(192);                            // rotation = 270 deg
-      break;
-      case 2:                                                  // ceil left
-         Ei[e][2] = 1;                                        // no h flip
-         Efi[e][14] = al_itofix(128);                            // 180 deg
-      break;
-      case 3:                                                  // lwall down
-         Ei[e][2] = 1;                                        // no h flip
-         Efi[e][14] = al_itofix(64);                             // 90 deg
-      break;
-      case 4:                                                  // floor left
-         Ei[e][2] = 0;                                        // h flip
-         Efi[e][14] = al_itofix(0);                              // rotation = 0 deg
-      break;
-      case 5:                                                  // lwall up
-         Ei[e][2] = 0;                                        // h flip
-         Efi[e][14] = al_itofix(64);                             // 90 deg
-      break;
-      case 6:                                                  // ceil right
-         Ei[e][2] = 0;                                        // h flip
-         Efi[e][14] = al_itofix(128);                            // 180 deg
-      break;
-      case 7:                                                  // rwall down
-         Ei[e][2] = 0;                                        // h flip
-         Efi[e][14] = al_itofix(192);                            // 270 deg
-      break;
+      case 0: Ei[e][2] = 1; Ef[e][14] = deg_to_rad(0);   break; // floor right
+      case 1: Ei[e][2] = 1; Ef[e][14] = deg_to_rad(270); break; // rwall up
+      case 2: Ei[e][2] = 1; Ef[e][14] = deg_to_rad(180); break; // ceil left
+      case 3: Ei[e][2] = 1; Ef[e][14] = deg_to_rad(90);  break; // lwall down
+      case 4: Ei[e][2] = 0; Ef[e][14] = deg_to_rad(0);   break; // floor left
+      case 5: Ei[e][2] = 0; Ef[e][14] = deg_to_rad(90);  break; // lwall up
+      case 6: Ei[e][2] = 0; Ef[e][14] = deg_to_rad(180); break; // ceil right
+      case 7: Ei[e][2] = 0; Ef[e][14] = deg_to_rad(270); break; // rwall down
    }
 }
-
-
 
 //--8--trakbot-----------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
@@ -1087,26 +1058,25 @@ void set_trakbot_mode(int e, int mode)
 //     Ei[e][30] = death loop count
 //     Ei[e][31] = enemy hit
 
-//     Efi[e][0] = x
-//     Efi[e][1] = y
-//     Efi[e][2] = xinc
-//     Efi[e][3] = yinc
-//     Efi[e][4] = LIFE decrement
+//     Ef[e][0] = x
+//     Ef[e][1] = y
+//     Ef[e][2] = xinc
+//     Ef[e][3] = yinc
+//     Ef[e][4] = LIFE decrement
 
-//     Efi[e][7] = shot speed
+//     Ef[e][7] = shot speed
 
-//     Efi[e][11] = scale multiplier
-//     Efi[e][12] = scale;
-//     Efi[e][13] = rot inc
+//     Ef[e][11] = scale multiplier
+//     Ef[e][12] = scale;
+//     Ef[e][13] = rot inc
 
 
 void enemy_trakbot(int e)
 {
-   al_fixed mv;
+   float mv;
    int dp = 0; // debug print
    int shot_request = 0;
    int mode = Ei[e][5];
-   int prox = Ei[e][17];
 
    if (Ei[e][31]) // hit
    {
@@ -1125,20 +1095,20 @@ void enemy_trakbot(int e)
 
    if (Ei[e][4] != 0)   // if falling
    {
-      if (dp) printf("mode:fall  x:%1.2f  y:%1.2f\n", al_fixtof(Efi[e][0]), al_fixtof(Efi[e][1])); //   printf(" [%.2f] ", al_fixtof(speed));
+      if (dp) printf("mode:fall  x:%1.2f  y:%1.2f\n", Ef[e][0], Ef[e][1]);
 
       Ei[e][4] += 5;                                             // add acceleration to fsll
       if (Ei[e][4] > 160)  Ei[e][4] = 160;                      // terminal velocity
-      al_fixed fall_yinc = (Efi[e][3] * Ei[e][4]) / 100;           // (fix * int) / int
-      mv = is_down_solidfm(Efi[e][0], Efi[e][1], fall_yinc, 0); // will we hit floor during this move?
+      float fall_yinc = Ef[e][3] * Ei[e][4] / 100;              // (fix * int) / int
+      mv = is_down_solidf(Ef[e][0], Ef[e][1], fall_yinc, 0);   // will we hit floor during this move?
       if (mv < fall_yinc) Ei[e][4] = 0;                          // end fall if allowed move less than requested move
-      Efi[e][1] += mv;                                           // move the allowed amount
-      if (Efi[e][1] > al_itofix(1999)) Ei[e][0]=0;                 // kill if falls past bottom of level
+      Ef[e][1] += mv;                                           // move the allowed amount
+      if (Ef[e][1] > 1980) Ei[e][0]=0;                 // kill if falls past bottom of level
 
       // seek player while falling
       int p = find_closest_player(e);
-      al_fixed ex = Efi[e][0];
-      al_fixed px = players[p].PX;
+      float ex = Ef[e][0];
+      float px = players[p].x;
 
       if (px > ex) mode = 0;
       else mode = 4;
@@ -1148,14 +1118,14 @@ void enemy_trakbot(int e)
    {
       if ((Ei[e][7]) && ((mode == 2) || (mode == 6))) // if drop mode on and trakbot on ceiling
       {
-         al_fixed ex = Efi[e][0];
-         al_fixed ey = Efi[e][1];
-         al_fixed ew = al_itofix(15);
+         float ex = Ef[e][0];
+         float  ey = Ef[e][1];
+         float ew = 15;
          for (int p=0; p<NUM_PLAYERS; p++) // if any player passes underneath
             if ((players[p].active) && (!players[p].paused))
             {
-               al_fixed px = players[p].PX;
-               al_fixed py = players[p].PY;
+               float px = players[p].x;
+               float py = players[p].y;
                if ((px < ex + ew) && (px > ex - ew) && (py > ey))  // if directly above player
                {
                   if (dp) printf("just dropped on player:%d\n", p);
@@ -1169,223 +1139,215 @@ void enemy_trakbot(int e)
 
    if (Ei[e][4] == 0)  // if not still not fall
    {
-      if (dp) printf("mode:%d  x:%1.2f  y:%1.2f - ", mode, al_fixtof(Efi[e][0]), al_fixtof(Efi[e][1])); //   printf(" [%.2f] ", al_fixtof(speed));
+      if (dp) printf("mode:%d  x:%1.2f  y:%1.2f - ", mode, Ef[e][0], Ef[e][1]);
       switch (mode)
       {
          case 0:                                                  // floor right
             Ei[e][2] = 1;                                        // no h flip
-            Efi[e][14] = al_itofix(0);                              // rotation = 0 deg
-            if (dp) { if (is_down_solidfm(Efi[e][0], Efi[e][1], al_itofix(1), 0) < al_itofix(1)) printf(" - 0 with solid floor\n"); else  printf(" - 0 with NOT solid floor\n"); }
-            mv = is_down_solidfm(Efi[e][0], Efi[e][1], Efi[e][2], 1);
-            if (mv < Efi[e][2]) // allowed move less than requested move
+            Ef[e][14] = deg_to_rad(0);
+            if (dp) { if (is_down_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 0 with solid floor\n"); else  printf(" - 0 with NOT solid floor\n"); }
+            mv = is_down_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 1);
+            if (mv < Ef[e][2]) // allowed move less than requested move
             {
-               if (dp) printf("will lose floor during this move - mv%1.2f \n", al_fixtof(mv));
-               Efi[e][0] += mv;                                  // move the allowed amount
+               if (dp) printf("will lose floor during this move - mv%1.2f \n", mv);
+               Ef[e][0] += mv;                                  // move the allowed amount
                mode = 3;                                          // next mode (lwall down) (cw)
-               Efi[e][14] = al_itofix(32);                          // 45 deg
-               Efi[e][1] += al_itofix(1);                           // move down 1 to catch new wall
+               Ef[e][14] = deg_to_rad(45);
+               Ef[e][1] += 1;                           // move down 1 to catch new wall
                break;
             }
-            mv = is_right_solidfm(Efi[e][0], Efi[e][1], Efi[e][2], 0);
-            if (mv < Efi[e][2]) // allowed move less than requested move
+            mv = is_right_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 0);
+            if (mv < Ef[e][2]) // allowed move less than requested move
             {
-               if (dp) printf("will hit wall during this move - mv%1.2f \n", al_fixtof(mv));
-               Efi[e][0] += mv;                                  // move the allowed amount
+               if (dp) printf("will hit wall during this move - mv%1.2f \n", mv);
+               Ef[e][0] += mv;                                  // move the allowed amount
                mode = 1;                                          // next mode (rwall up) (ccw)
-               Efi[e][14] = al_itofix(224);                         // 315 deg
+               Ef[e][14] = deg_to_rad(315);
                break;
             }
-            Efi[e][0] += mv;  // if neither of these matched, move the allowed amount
+            Ef[e][0] += mv;  // if neither of these matched, move the allowed amount
          break;
          case 1:                                                  // rwall up
             Ei[e][2] = 1;                                        // no h flip
-            Efi[e][14] = al_itofix(192);                            // rotation = 270 deg
-            if (dp) { if (is_right_solidfm(Efi[e][0], Efi[e][1], al_itofix(1), 0) < al_itofix(1)) printf(" - 1 with solid r wall\n"); else  printf(" - 1 with NOT solid r wall\n"); }
-            mv = is_right_solidfm(Efi[e][0], Efi[e][1], Efi[e][3], -1);
-            if (mv < Efi[e][3]) // allowed move less than requested move
+            Ef[e][14] = deg_to_rad(270);
+            if (dp) { if (is_right_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 1 with solid r wall\n"); else  printf(" - 1 with NOT solid r wall\n"); }
+            mv = is_right_solidf(Ef[e][0], Ef[e][1], Ef[e][3], -1);
+            if (mv < Ef[e][3]) // allowed move less than requested move
             {
-               if (dp) printf("will lose rwall during this move - mv%1.2f \n", al_fixtof(mv));
-               Efi[e][1] -= mv;                                  // move the allowed amount
+               if (dp) printf("will lose rwall during this move - mv%1.2f \n", mv);
+               Ef[e][1] -= mv;                                  // move the allowed amount
                mode = 0;                                          // next mode (floor right) (cw)
-               Efi[e][14] = al_itofix(224);                         // 315 deg
-               Efi[e][0] += al_itofix(1);                           // move right 1 to catch new wall
+               Ef[e][14] = deg_to_rad(315);
+               Ef[e][0] += 1;                           // move right 1 to catch new wall
                break;
             }
-            mv = is_up_solidfm(Efi[e][0], Efi[e][1], Efi[e][3], 0);
-            if (mv < Efi[e][3]) // allowed move less than requested move
+            mv = is_up_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 0);
+            if (mv < Ef[e][3]) // allowed move less than requested move
             {
-               if (dp) printf("will hit ceiling during this move - mv%1.2f \n", al_fixtof(mv));
+               if (dp) printf("will hit ceiling during this move - mv%1.2f \n", mv);
                mode = 2;                                          // next mode (ceil left) (ccw)
-               Efi[e][14] = al_itofix(160);                         // 225 deg
-               Efi[e][1] -= mv;                                  // move the allowed amount
+               Ef[e][14] = deg_to_rad(225);
+               Ef[e][1] -= mv;                                  // move the allowed amount
                break;
             }
-            Efi[e][1] -= mv;  // if neither of these matched, move the allowed amount
+            Ef[e][1] -= mv;  // if neither of these matched, move the allowed amount
          break;
          case 2:                                                  // ceil left
             Ei[e][2] = 1;                                        // no h flip
-            Efi[e][14] = al_itofix(128);                            // 180 deg
-            if (dp) { if (is_up_solidfm(Efi[e][0], Efi[e][1], al_itofix(1), 0) < al_itofix(1)) printf(" - 2 with solid ceil\n"); else  printf(" - 2 with NOT solid ceil\n"); }
-            mv = is_up_solidfm(Efi[e][0], Efi[e][1], Efi[e][2], -1);
-            if (mv < Efi[e][2]) // allowed move less than requested move
+            Ef[e][14] = deg_to_rad(180);
+            if (dp) { if (is_up_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 2 with solid ceil\n"); else  printf(" - 2 with NOT solid ceil\n"); }
+            mv = is_up_solidf(Ef[e][0], Ef[e][1], Ef[e][2], -1);
+            if (mv < Ef[e][2]) // allowed move less than requested move
             {
-               if (dp) printf("will lose ceiling during this move - mv%1.2f \n", al_fixtof(mv));
-               Efi[e][0] -= mv;                                  // move the allowed amount
+               if (dp) printf("will lose ceiling during this move - mv%1.2f \n", mv);
+               Ef[e][0] -= mv;                                  // move the allowed amount
                mode = 1;                                          // next mode (rwall up) (cw)
-               Efi[e][14] = al_itofix(160);                         // 225 deg
-               Efi[e][1] -= al_itofix(1);                           // move up 1 to catch new wall
+               Ef[e][14] = deg_to_rad(225);
+               Ef[e][1] -= 1;                           // move up 1 to catch new wall
                break;
             }
-            mv = is_left_solidfm(Efi[e][0], Efi[e][1], Efi[e][2], 0);
-            if (mv < Efi[e][2]) // allowed move less than requested move
+            mv = is_left_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 0);
+            if (mv < Ef[e][2]) // allowed move less than requested move
             {
-               if (dp) printf("will hit lwall during this move - mv%1.2f \n", al_fixtof(mv));
+               if (dp) printf("will hit lwall during this move - mv%1.2f \n", mv);
                mode = 3;                                          // next mode (lwall down) (ccw)
-               Efi[e][14] = al_itofix(96);                          // 135 deg
-               Efi[e][0] -= mv;                                  // move the allowed amount
+               Ef[e][14] = deg_to_rad(135);
+               Ef[e][0] -= mv;                                  // move the allowed amount
                break;
             }
-            Efi[e][0] -= mv;  // if neither of these matched, move the allowed amount
+            Ef[e][0] -= mv;  // if neither of these matched, move the allowed amount
          break;
          case 3:                                                  // lwall down
             Ei[e][2] = 1;                                        // no h flip
-            Efi[e][14] = al_itofix(64);                             // 90 deg
-            if (dp) { if (is_left_solidfm(Efi[e][0], Efi[e][1], al_itofix(1), 0) < al_itofix(1)) printf(" - 3 with solid lwall\n"); else  printf(" - 3 with NOT solid lwall\n"); }
-            mv = is_left_solidfm(Efi[e][0], Efi[e][1], Efi[e][3], 1);
-            if (mv < Efi[e][3]) // allowed move less than requested move
+            Ef[e][14] = deg_to_rad(90);
+            if (dp) { if (is_left_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 3 with solid lwall\n"); else  printf(" - 3 with NOT solid lwall\n"); }
+            mv = is_left_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 1);
+            if (mv < Ef[e][3]) // allowed move less than requested move
             {
-               if (dp) printf("will lose lwall during this move - mv%1.2f \n", al_fixtof(mv));
-               Efi[e][1] += mv;                                  // move the allowed amount
+               if (dp) printf("will lose lwall during this move - mv%1.2f \n", mv);
+               Ef[e][1] += mv;                                  // move the allowed amount
                mode = 2;                                          // next mode  (ceil left) (cw)
-               Efi[e][14] = al_itofix(96);                          // 135 deg
-               Efi[e][0] -= al_itofix(1);                           // move left 1 to catch new wall
+               Ef[e][14] = deg_to_rad(135);
+               Ef[e][0] -= 1;                           // move left 1 to catch new wall
                break;
             }
-            mv = is_down_solidfm(Efi[e][0], Efi[e][1], Efi[e][3], 0);
-            if (mv < Efi[e][3]) // allowed move less than requested move
+            mv = is_down_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 0);
+            if (mv < Ef[e][3]) // allowed move less than requested move
             {
-               if (dp) printf("will hit floor during this move - mv%1.2f \n", al_fixtof(mv));
+               if (dp) printf("will hit floor during this move - mv%1.2f \n", mv);
                mode = 0;                                          // next mode (floor right) (ccw)
-               Efi[e][14] = al_itofix(32);                          // 45 deg
-               Efi[e][1] += mv;                                  // move the allowed amount
+               Ef[e][14] = deg_to_rad(45);
+               Ef[e][1] += mv;                                  // move the allowed amount
                break;
             }
-            Efi[e][1] += mv;  // if neither of these matched, move the allowed amount
+            Ef[e][1] += mv;  // if neither of these matched, move the allowed amount
          break;
          case 4:                                                  // floor left
             Ei[e][2] = 0;                                        // h flip
-            Efi[e][14] = al_itofix(0);                              // rotation = 0 deg
-            if (dp) { if (is_down_solidfm(Efi[e][0], Efi[e][1], al_itofix(1), 0) < al_itofix(1)) printf(" - 4 with solid floor\n"); else  printf(" - 4 with NOT solid floor\n"); }
+            Ef[e][14] = deg_to_rad(0);
+            if (dp) { if (is_down_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 4 with solid floor\n"); else  printf(" - 4 with NOT solid floor\n"); }
 
-            mv = is_down_solidfm(Efi[e][0], Efi[e][1], Efi[e][2], -1);
-            if (mv < Efi[e][2])                                  // allowed move less than requested move
+            mv = is_down_solidf(Ef[e][0], Ef[e][1], Ef[e][2], -1);
+            if (mv < Ef[e][2])                                  // allowed move less than requested move
             {
-               Efi[e][0] -= mv;                                  // move the allowed amount
+               Ef[e][0] -= mv;                                  // move the allowed amount
                mode = 7;                                          // next mode (rwall down) (ccw)
-               Efi[e][14] = al_itofix(224);                         // 315 deg
-               Efi[e][1] += al_itofix(1);                           // move down 1 to catch new wall
-               if (dp) printf("lost floor during this move - mv%1.2f \n", al_fixtof(mv));
+               Ef[e][14] = deg_to_rad(315);
+               Ef[e][1] += 1;                           // move down 1 to catch new wall
+               if (dp) printf("lost floor during this move - mv%1.2f \n", mv);
                break;
             }
-            mv = is_left_solidfm(Efi[e][0], Efi[e][1], Efi[e][2], 0);
-            if (mv < Efi[e][2])                                  // allowed move less than requested move
+            mv = is_left_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 0);
+            if (mv < Ef[e][2])                                  // allowed move less than requested move
             {
-               Efi[e][0] -= mv;                                  // move the allowed amount
+               Ef[e][0] -= mv;                                  // move the allowed amount
                mode = 5;                                          // next mode (lwall up) (cw)
-               Efi[e][14] = al_itofix(32);                          // 45 deg
-               if (dp) printf("hit lwall during this move - mv%1.2f \n", al_fixtof(mv));
+               Ef[e][14] = deg_to_rad(45);
+               if (dp) printf("hit lwall during this move - mv%1.2f \n", mv);
                break;
             }
-            Efi[e][0] -= mv;  // if neither of these matched, move the allowed amount
+            Ef[e][0] -= mv;  // if neither of these matched, move the allowed amount
          break;
          case 5:                                                  // lwall up
             Ei[e][2] = 0;                                        // h flip
-            Efi[e][14] = al_itofix(64);                             // 90 deg
-            if (dp) { if (is_left_solidfm(Efi[e][0], Efi[e][1], al_itofix(1), 0) < al_itofix(1)) printf(" - 5 with solid left\n"); else  printf(" - 5 with NOT solid left\n"); }
-            mv = is_left_solidfm(Efi[e][0], Efi[e][1], Efi[e][3], -1);
-            if (mv < Efi[e][3])                                  // allowed move less than requested move
+            Ef[e][14] = deg_to_rad(90);
+            if (dp) { if (is_left_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 5 with solid left\n"); else  printf(" - 5 with NOT solid left\n"); }
+            mv = is_left_solidf(Ef[e][0], Ef[e][1], Ef[e][3], -1);
+            if (mv < Ef[e][3])                                  // allowed move less than requested move
             {
-               Efi[e][1] -= mv;                                  // move the allowed amount
+               Ef[e][1] -= mv;                                  // move the allowed amount
                mode = 4;                                          // next mode (floor left) (ccw)
-               Efi[e][14] = al_itofix(32);                          // 45 deg
-               Efi[e][0] -= al_itofix(1);                           // move left 1 to catch new wall
-               if (dp) printf("lost lwall during this move - mv%1.2f \n", al_fixtof(mv));
+               Ef[e][14] = deg_to_rad(45);
+               Ef[e][0] -= 1;                           // move left 1 to catch new wall
+               if (dp) printf("lost lwall during this move - mv%1.2f \n", mv);
                break;
             }
-            mv = is_up_solidfm(Efi[e][0], Efi[e][1], Efi[e][3], 0);
-            if (mv < Efi[e][3])                                  // allowed move less than requested move
+            mv = is_up_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 0);
+            if (mv < Ef[e][3])                                  // allowed move less than requested move
             {
-               Efi[e][1] -= mv;                                  // move the allowed amount
+               Ef[e][1] -= mv;                                  // move the allowed amount
                mode = 6;                                          // next mode (ceil right) (cw)
-               Efi[e][14] = al_itofix(96);                          // 135 deg
-               if (dp) printf("hit ceil during this move - mv%1.2f \n", al_fixtof(mv));
+               Ef[e][14] = deg_to_rad(135);
+               if (dp) printf("hit ceil during this move - mv%1.2f \n", mv);
                break;
             }
-            Efi[e][1] -= mv;  // if neither of these matched, move the allowed amount
+            Ef[e][1] -= mv;  // if neither of these matched, move the allowed amount
          break;
          case 6:                                                  // ceil right
             Ei[e][2] = 0;                                        // h flip
-            Efi[e][14] = al_itofix(128);                            // 180 deg
-            if (dp) { if (is_up_solidfm(Efi[e][0], Efi[e][1], al_itofix(1), 0) < al_itofix(1)) printf(" - 6 with solid ceil\n"); else  printf(" - 6 with NOT solid ceil\n"); }
-            mv = is_up_solidfm(Efi[e][0], Efi[e][1], Efi[e][2], 1);
-            if (mv < Efi[e][2])                                  // allowed move less than requested move
+            Ef [e][14] = deg_to_rad(180);
+            if (dp) { if (is_up_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 6 with solid ceil\n"); else  printf(" - 6 with NOT solid ceil\n"); }
+            mv = is_up_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 1);
+            if (mv < Ef[e][2])                                  // allowed move less than requested move
             {
-               Efi[e][0] += mv;                                  // move the allowed amount
+               Ef[e][0] += mv;                                  // move the allowed amount
                mode = 5;                                          // next mode (lwall up ) (ccw)
-               Efi[e][14] = al_itofix(96);                          // 135 deg
-               Efi[e][1] -= al_itofix(1);                           // move up 1 to catch new wall
-               if (dp) printf("lost ceil during this move - mv%1.2f \n", al_fixtof(mv));
+               Ef[e][14] = deg_to_rad(135);
+               Ef[e][1] -= 1;                           // move up 1 to catch new wall
+               if (dp) printf("lost ceil during this move - mv%1.2f \n", mv);
                break;
             }
-            mv = is_right_solidfm(Efi[e][0], Efi[e][1], Efi[e][2], 0);
-            if (mv < Efi[e][2])                                  // allowed move less than requested move
+            mv = is_right_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 0);
+            if (mv < Ef[e][2])                                  // allowed move less than requested move
             {
-               Efi[e][0] += mv;                                  // move the allowed amount
+               Ef[e][0] += mv;                                  // move the allowed amount
                mode = 7;                                          // next mode (rwall down) (cw)
-               Efi[e][14] = al_itofix(160);                         // 225 deg
-               if (dp) printf("hit rwall during this move - mv%1.2f \n", al_fixtof(mv));
+               Ef[e][14] = deg_to_rad(225);
+               if (dp) printf("hit rwall during this move - mv%1.2f \n", mv);
                break;
             }
-            Efi[e][0] += mv;  // if neither of these matched, move the allowed amount
+            Ef[e][0] += mv;  // if neither of these matched, move the allowed amount
          break;
          case 7:                                                  // rwall down
             Ei[e][2] = 0;                                        // h flip
-            Efi[e][14] = al_itofix(192);                            // 270 deg
-            if (dp) { if (is_right_solidfm(Efi[e][0], Efi[e][1], al_itofix(1), 0) < al_itofix(1)) printf(" - 7 with solid rwall\n"); else  printf(" - 7 with NOT solid rwall\n"); }
-            mv = is_right_solidfm(Efi[e][0], Efi[e][1], Efi[e][3], 1);
-            if (mv < Efi[e][3])                                  // allowed move less than requested move
+            Ef[e][14] = deg_to_rad(270);
+            if (dp) { if (is_right_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 7 with solid rwall\n"); else  printf(" - 7 with NOT solid rwall\n"); }
+            mv = is_right_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 1);
+            if (mv < Ef[e][3])                                  // allowed move less than requested move
             {
-               Efi[e][1] += mv;                                  // move the allowed amount
+               Ef[e][1] += mv;                                  // move the allowed amount
                mode = 6;                                          // next mode (ceil right) (ccw)
-               Efi[e][14] = al_itofix(160);                         // 225 deg
-               Efi[e][0] += al_itofix(1);                           // move right 1 to catch new wall
-               if (dp) printf("lost rwall during this move - mv%1.2f \n", al_fixtof(mv));
+               Ef[e][14] = deg_to_rad(225);
+               Ef[e][0] += 1;                           // move right 1 to catch new wall
+               if (dp) printf("lost rwall during this move - mv%1.2f \n", mv);
                break;
             }
-            mv = is_down_solidfm(Efi[e][0], Efi[e][1], Efi[e][3], 0);
-            if (mv < Efi[e][3])                                  // allowed move less than requested move
+            mv = is_down_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 0);
+            if (mv < Ef[e][3])                                  // allowed move less than requested move
             {
-               Efi[e][1] += mv;                                  // move the allowed amount
+               Ef[e][1] += mv;                                  // move the allowed amount
                mode = 4;                                          // next mode (floor left) (cw)
-               Efi[e][14] = al_itofix(224);                         // 315 deg
-               if (dp) printf("hit floor during this move - mv%1.2f \n", al_fixtof(mv));
+               Ef[e][14] = deg_to_rad(315);
+               if (dp) printf("hit floor during this move - mv%1.2f \n", mv);
                break;
             }
-            Efi[e][1] += mv;  // if neither of these matched, move the allowed amount
+            Ef[e][1] += mv;  // if neither of these matched, move the allowed amount
          break;
       } // end of switch mode
 
       if (shot_request)
       {
-         int quad = 0;
-         switch (mode)
-         {
-            case 0: case 5: quad = 1; break; // floor right, lwall up
-            case 1: case 4: quad = 2; break; // rwall up floor left
-            case 2: case 7: quad = 3; break; // ceil left, rwall down
-            case 3: case 6: quad = 4; break; // lwall down, ceil right
-         }
-         int p = find_closest_player_quad(e, quad, prox);
+         int p = find_closest_player_trakbot(e);
          if (p != -1)
          {
             mwS.fire_enemy_shota(e, 20, p);
@@ -1414,25 +1376,25 @@ void enemy_trakbot(int e)
    int b = Ei[e][3];    // ans
    if ((mode == 0) || (mode == 6)) // x+ floor right and ceil right
    {
-      int ex = al_fixtoi(Efi[e][0]);
+      int ex = Ef[e][0];
       int s = ex % 6;
       Ei[e][1] = mwB.zz[10-s][b];
    }
    if ((mode == 1) || (mode == 5)) // y- rwall up and lwall up
    {
-      int ey = al_fixtoi(Efi[e][1]);
+      int ey = Ef[e][1];
       int s = ey % 6;
       Ei[e][1] = mwB.zz[5+s][b];
    }
    if ((mode == 2) || (mode == 4)) // x- ceil left or floor left
    {
-      int ex = al_fixtoi(Efi[e][0]);
+      int ex = Ef[e][0];
       int s = ex % 6;
       Ei[e][1] = mwB.zz[5+s][b];
    }
    if ((mode == 3) || (mode == 7)) // y+ lwall down or rwall down
    {
-      int ey = al_fixtoi(Efi[e][1]);
+      int ey = Ef[e][1];
       int s = ey % 6;
       Ei[e][1] = mwB.zz[10-s][b];
    }
@@ -1475,8 +1437,8 @@ void enemy_podzilla(int e)
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((players[p].active) && (!players[p].paused))
          {
-            int px = al_fixtoi(players[p].PX);
-            int py = al_fixtoi(players[p].PY);
+            int px = players[p].x;
+            int py = players[p].y;
             if ((px > x1) && (px < x2) && (py > y1) &&  (py < y2))
             {
                Ei[e][5] = 1;   // set next mode
@@ -1485,8 +1447,8 @@ void enemy_podzilla(int e)
    }
    if (Ei[e][5] == 1) // mode 1; extend
    {
-      Efi[e][0] += Efi[e][2];
-      Efi[e][1] += Efi[e][3];
+      Ef[e][0] += Ef[e][2];
+      Ef[e][1] += Ef[e][3];
       if (++Ei[e][6] >= Ei[e][7]) // extend done
       {
          Ei[e][5] = 2; // set next mode
@@ -1511,8 +1473,8 @@ void enemy_podzilla(int e)
 
    if (Ei[e][5] == 4) // mode 4; retract
    {
-      Efi[e][0] -= Efi[e][2];
-      Efi[e][1] -= Efi[e][3];
+      Ef[e][0] -= Ef[e][2];
+      Ef[e][1] -= Ef[e][3];
       if (--Ei[e][6] <= 0)  // retract done
       Ei[e][5] = 0; // set next mode (back to trigger)
    }
@@ -1525,8 +1487,8 @@ void enemy_podzilla(int e)
    Ei[e][1] = mwB.zz[5+s][15];
 
    // set rotation
-   if (!Ei[e][5]) Efi[e][14] = get_rot_from_xyinc(e);              // rotate to face direction of movement
-   else Efi[e][14] = get_rot_from_PXY(e, find_closest_player(e));  // rotate to face player in any mode except wait
+   if (!Ei[e][5]) set_enemy_rot_from_incs(e);                            // rotate to face direction of movement
+   else           set_enemy_rot_from_player(e, find_closest_player(e));  // rotate to face player in any mode except wait
 }
 
 
@@ -1587,8 +1549,8 @@ void enemy_vinepod(int e)
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((players[p].active) && (!players[p].paused))
          {
-            int px = al_fixtoi(players[p].PX);
-            int py = al_fixtoi(players[p].PY);
+            int px = players[p].x;
+            int py = players[p].y;
             if ((px > x1) && (px < x2) && (py > y1) &&  (py < y2))
             {
                Ei[e][15] = 1;   // set next mode
@@ -1643,17 +1605,15 @@ void enemy_vinepod(int e)
 
    // set position
    int npi = Ei[e][16]*2; // index into array
-   Efi[e][0] = al_ftofix(dest[npi]);
-   Efi[e][1] = al_ftofix(dest[npi+1]);
+   Ef[e][0] = dest[npi];
+   Ef[e][1] = dest[npi+1];
 
    // set rotation
-   al_fixed xlen = al_ftofix(dest[npi+2] - dest[npi+0]);  // get the x distance
-   al_fixed ylen = al_ftofix(dest[npi+3] - dest[npi+1]);  // get the y distance
-   Efi[e][14] = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
+   float xlen = dest[npi+2] - dest[npi+0];  // get the x distance
+   float ylen = dest[npi+3] - dest[npi+1];  // get the y distance
+   Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI/2;  // rotation
 
-   if ((Ei[e][15] == 2) || (Ei[e][15] == 3)) Efi[e][14] = get_rot_from_PXY(e, find_closest_player(e));  // rotate to face player in wait modes
-
-
+   if ((Ei[e][15] == 2) || (Ei[e][15] == 3)) set_enemy_rot_from_player(e, find_closest_player(e)); // rotate to face player in wait modes
 
 }
 
@@ -1688,46 +1648,45 @@ void bouncer_cannon_common(int e)
       seek_set_xyinc(e);
    }
 
-   al_fixed f0 = al_itofix(0);
 
-   if ((Efi[e][2]) > f0)  // move right
+   if ((Ef[e][2]) > 0)  // move right
    {
-     Efi[e][0] += Efi[e][2];
-     if (is_right_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1, 2)) // bounce
+     Ef[e][0] += Ef[e][2];
+     if (is_right_solid(Ef[e][0], Ef[e][1], 1, 2)) // bounce
      {
         Ei[e][7]++; // inc bounce count
-        Efi[e][2] =- Efi[e][2]; // reverse xinc
-        Efi[e][0] += Efi[e][2]; // take back last move
+        Ef[e][2] =- Ef[e][2]; // reverse xinc
+        Ef[e][0] += Ef[e][2]; // take back last move
      }
    }
-   if ((Efi[e][2]) < f0)  // move left
+   if ((Ef[e][2]) < 0)  // move left
    {
-      Efi[e][0] += Efi[e][2];
-      if (is_left_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1, 2)) // bounce
+      Ef[e][0] += Ef[e][2];
+      if (is_left_solid(Ef[e][0], Ef[e][1], 1, 2)) // bounce
       {
          Ei[e][7]++;
-         Efi[e][2] =- Efi[e][2]; // reverse xinc
-         Efi[e][0] += Efi[e][2]; // take back last move
+         Ef[e][2] =- Ef[e][2]; // reverse xinc
+         Ef[e][0] += Ef[e][2]; // take back last move
       }
    }
-   if (Efi[e][3] > f0) // move down
+   if (Ef[e][3] > 0) // move down
    {
-      Efi[e][1] += Efi[e][3];
-      if (is_down_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1, 2))
+      Ef[e][1] += Ef[e][3];
+      if (is_down_solid(Ef[e][0], Ef[e][1], 1, 2))
       {
          Ei[e][7]++;
-         Efi[e][3] =- Efi[e][3]; // reverse yinc
-         Efi[e][1] += Efi[e][3]; // take back last move
+         Ef[e][3] =- Ef[e][3]; // reverse yinc
+         Ef[e][1] += Ef[e][3]; // take back last move
       }
    }
-   if (Efi[e][3] < f0)  // move up
+   if (Ef[e][3] < 0)  // move up
    {
-      Efi[e][1] += Efi[e][3];
-      if (is_up_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 0, 2) == 1)
+      Ef[e][1] += Ef[e][3];
+      if (is_up_solid(Ef[e][0], Ef[e][1], 0, 2) == 1)
       {
          Ei[e][7]++;
-         Efi[e][3] =- Efi[e][3]; // reverse yinc
-         Efi[e][1] += Efi[e][3]; // take back last move
+         Ef[e][3] =- Ef[e][3]; // reverse yinc
+         Ef[e][1] += Ef[e][3]; // take back last move
       }
    }
 }
@@ -1760,55 +1719,43 @@ void enemy_cannon(int e)
          Ei[e][9]--;        // one less hit
          Ei[e][31] = 0;     // clear hit
 
-         al_fixed mul = al_ftofix(1.2);
+         float mul = 1.2;
+         if (Ef[e][5] > 10) mul = 1.1;
+         if (Ef[e][5] > 20) mul = 1.05;
 
-         if (Efi[e][5] > al_itofix(10)) mul = al_ftofix(1.1);
-         if (Efi[e][5] > al_itofix(20)) mul = al_ftofix(1.05);
+         Ef[e][2]  *= mul; // x speed
+         Ef[e][3]  *= mul; // y speed
+         Ef[e][5]  *= mul; // seek speed
+         Ef[e][7]  *= mul; // shot speed
+         Ef[e][12] *= 1.1; // scale
 
-
-         Efi[e][2]  = al_fixmul(Efi[e][2],  mul);  // x speed
-         Efi[e][3]  = al_fixmul(Efi[e][3],  mul);  // y speed
-         Efi[e][5]  = al_fixmul(Efi[e][5],  mul);  // seek speed
-         Efi[e][7]  = al_fixmul(Efi[e][7],  mul);  // shot speed
-         Efi[e][12] = al_fixmul(Efi[e][12], al_ftofix(1.1)); // scale
-
-         Ei[e][29] += 2; // collison box size
-//
-//printf("%d %f %f %f %f %f \n",Ei[e][9],
-//                            al_fixtof(Efi[e][2]),
-//                            al_fixtof(Efi[e][3]),
-//                            al_fixtof(Efi[e][5]),
-//                            al_fixtof(Efi[e][7]),
-//                            al_fixtof(Efi[e][12]) );
-//
-//
-//
-
+         Ei[e][29] += 2; // collision box size
       }
    }
 
-//   int p = find_closest_player(e);
-   int p = find_closest_player_cannon(e, Ei[e][17]);
+   int p = find_closest_player_cannon(e);
+   if (p != -1) set_enemy_rot_from_player(e, p); // rotate to face player if player in proximity
+   else         set_enemy_rot_from_incs(e);      // set rotation based on direction of travel
+
+   // set bitmap
+   float rtio = Ei[e][16] / Ei[e][15];
+   Ei[e][1] = 412;                  // green cannon by default
+   if (rtio < 0.3)  Ei[e][1] = 413; // less green cannon
+   if (rtio < 0.2)  Ei[e][1] = 414; // orange cannon
+   if (rtio < 0.1)  Ei[e][1] = 415; // red cannon
 
    // time to shoot cannonball ?
    if (Ei[e][15])
       if (--Ei[e][16] < 0) // cannon shot wait
       {
-         Ei[e][16] = Ei[e][15]; // reset cannon shot wait
-         if (p != -1) mwS.fire_enemy_shota(e, 55, p);
+        Ei[e][16] = 0; // don't let it go below zero, because it is used for ratio, but also don't reset it unless fired
+        if (p != -1)
+         {
+            Ei[e][16] = Ei[e][15]; // reset cannon shot wait
+            mwS.fire_enemy_shota(e, 55, p);
+         }
       }
-
    bouncer_cannon_common(e);
-
-   if (p != -1) Efi[e][14] = get_rot_from_PXY(e, p); // set rotation to face player
-   else Efi[e][14] = get_rot_from_xyinc(e); // set rotation based on direction of travel
-
-   // set bitmap
-   al_fixed ratio = al_fixdiv(al_itofix(Ei[e][16]), al_itofix(Ei[e][15]));
-   Ei[e][1] = 412;  // green cannon by default
-   if (ratio < al_ftofix(0.3))  Ei[e][1] = 413; // less green cannon
-   if (ratio < al_ftofix(0.2))  Ei[e][1] = 414; // orange cannon
-   if (ratio < al_ftofix(0.1))  Ei[e][1] = 415; // red cannon
 }
 
 //--4--bouncer-----------------------------------------------------------------------------
@@ -1824,18 +1771,16 @@ void enemy_bouncer(int e)
 
    bouncer_cannon_common(e);
 
+   set_enemy_rot_from_incs(e);  // set rotation based on direction of travel
+
+
    // set animation sequence
    if (Ei[e][7]) Ei[e][3] = Ei[e][5]; // main ans
    else Ei[e][3] = Ei[e][6]; // seek ans
 
-   // set rotation based on direction of travel
-   Efi[e][14] = get_rot_from_xyinc(e);
 
-
-   // set the bitmap from mwPS.frame_num mod by animation sequence
-
-   // animation sequence number
-   int ans = Ei[e][3];
+   // set the bitmap from frame_num mod by animation sequence
+   int ans = Ei[e][3]; // animation sequence number
 
    // number of shapes in animation sequence
    int ns = mwB.zz[4][ans];
@@ -1873,15 +1818,15 @@ Ei[][15]  shot retrigger value
 Ei[][16]  shot retrigger count
 Ei[][17]  shot prox
 
-Efi[][7]  shot speed
+Ef[][7]  shot speed
 
 */
 
 
 void enemy_archwagon(int e)
 {
-   int EXint = al_fixtoi(Efi[e][0]);
-   int EYint = al_fixtoi(Efi[e][1]);
+   int EXint = Ef[e][0];
+   int EYint = Ef[e][1];
 
    if (Ei[e][31]) // hit
    {
@@ -1901,11 +1846,13 @@ void enemy_archwagon(int e)
       int swh = 6;  // shot prox window high
       Ei[e][3] = 2; // wagon with arrow ans
 
+
+
       if (Ei[e][2]) // attempt shoot right
          for (int p=0; p<NUM_PLAYERS; p++)
             if ((players[p].active) && (!players[p].paused) )
-               if ((EXint > al_fixtoi(players[p].PX) - Ei[e][17]) && (EXint < al_fixtoi(players[p].PX) ))
-                  if ((EYint > al_fixtoi(players[p].PY) - swh) && (EYint < al_fixtoi(players[p].PY) + swl ))
+               if ((EXint > players[p].x - Ei[e][17]) && (EXint < players[p].x) )
+                  if ((EYint > players[p].y - swh) && (EYint < players[p].y + swl ))
                   {
                      mwS.fire_enemy_x_shot(e, p);
                      Ei[e][16] = Ei[e][15]; // set new prox wait
@@ -1914,8 +1861,8 @@ void enemy_archwagon(int e)
       if (!Ei[e][2]) // attempt shoot left
          for (int p=0; p<NUM_PLAYERS; p++)
             if ((players[p].active) && (!players[p].paused) )
-               if ((EXint > al_fixtoi(players[p].PX) ) && (EXint < al_fixtoi(players[p].PX)  + Ei[e][17]))
-                  if ((EYint > al_fixtoi(players[p].PY)  - swh) && (EYint < al_fixtoi(players[p].PY) + swl ))
+               if ((EXint > players[p].x ) && (EXint < players[p].x + Ei[e][17]))
+                  if ((EYint > players[p].y  - swh) && (EYint < players[p].y + swl ))
                   {
                      mwS.fire_enemy_x_shot(e, p);
                      Ei[e][16] = Ei[e][15]; // set new prox wait
@@ -1957,16 +1904,16 @@ Ei[][10]  turn before hole
 Ei[][11]  jump before hole
 Ei[][12]  jump before wall
 
-Efi[][2]  y speed
-Efi[][6]  x speed
+Ef[][2]  y speed
+Ef[][6]  x speed
 
 */
 
 
 void walker_archwagon_common(int e)
 {
-   int EXint = al_fixtoi(Efi[e][0]);
-   int EYint = al_fixtoi(Efi[e][1]);
+   int EXint = Ef[e][0];
+   int EYint = Ef[e][1];
 
    int on_solid = 0;
    int on_lift = 0;
@@ -1977,28 +1924,23 @@ void walker_archwagon_common(int e)
 
 
    // check if stuck
-   int EXintR = al_fixtoi(Efi[e][0]+Efi[e][6]);
-   int EXintL = al_fixtoi(Efi[e][0]-Efi[e][6]);
-
+   int EXintR = Ef[e][0] + Ef[e][6];
+   int EXintL = Ef[e][0] - Ef[e][6];
 
    if ((is_left_solid(EXintL, EYint, 1, 2)) && (is_right_solid(EXintR, EYint, 1, 2))) // stuck
    {
       int p = find_closest_player(e);
-      if (EXint < al_fixtoi(players[p].PX)-5) Ei[e][2] = 1;
-      if (EXint > al_fixtoi(players[p].PX)+5) Ei[e][2] = 0;
+      if (EXint < players[p].x-5) Ei[e][2] = 1;
+      if (EXint > players[p].x+5) Ei[e][2] = 0;
    }
    else
    {
-
-
-
-
       if (Ei[e][2] == 1)  // move right
       {
          int change_dir = 0;
-         Efi[e][2] = Efi[e][6];
-         Efi[e][0] += Efi[e][2];
-         EXint= al_fixtoi(Efi[e][0]);
+         Ef[e][2] = Ef[e][6];
+         Ef[e][0] += Ef[e][2];
+         EXint= Ef[e][0];
          if ((on_solid) || (on_lift))
          {
             if (Ei[e][10]) // turn before hole
@@ -2011,16 +1953,16 @@ void walker_archwagon_common(int e)
          if ((is_right_solid(EXint, EYint, 1, 2)) || (change_dir))
          {
             Ei[e][2] = 0; // change direction;
-            Efi[e][0] -= Efi[e][2]; // take back last move
-            EXint= al_fixtoi(Efi[e][0]);
+            Ef[e][0] -= Ef[e][2]; // take back last move
+            EXint= Ef[e][0];
          }
       }
       else if (Ei[e][2] == 0)  // move left
       {
          int change_dir = 0;
-         Efi[e][2] = -Efi[e][6];
-         Efi[e][0] += Efi[e][2];
-         EXint= al_fixtoi(Efi[e][0]);
+         Ef[e][2] = -Ef[e][6];
+         Ef[e][0] += Ef[e][2];
+         EXint = Ef[e][0];
          if ((on_solid) || (on_lift))
          {
             if (Ei[e][10]) // turn before hole
@@ -2032,28 +1974,27 @@ void walker_archwagon_common(int e)
          }
          if ((is_left_solid(EXint, EYint, 1, 2)) || (change_dir))
          {
-            Efi[e][0] -= Efi[e][2]; // take back last move
+            Ef[e][0] -= Ef[e][2]; // take back last move
             Ei[e][2] = 1; // change direction;
-            EXint= al_fixtoi(Efi[e][0]);
+            EXint = Ef[e][0];
          }
       }
 
       if (!Ei[e][8]) // follow mode
       {
          int p = find_closest_player(e);
-         if (EXint < al_fixtoi(players[p].PX)-5) Ei[e][2] = 1;
-         if (EXint > al_fixtoi(players[p].PX)+5) Ei[e][2] = 0;
+         if (EXint < players[p].x-5) Ei[e][2] = 1;
+         if (EXint > players[p].x+5) Ei[e][2] = 0;
       }
    }
 
 
    if ((on_solid) && (Ei[e][5] >= 0)) // solid and not jumping (falling or steady)
    {
-      Efi[e][1] -= al_itofix ((al_fixtoi(Efi[e][1]) % 20));  // align with floor
-      Efi[e][1] = al_itofix (al_fixtoi(Efi[e][1]));  // remove decimal
+      Ef[e][1] -= (int)(Ef[e][1]) % 20;    // align with floor
+      Ef[e][1] =  (int)(Ef[e][1]);  // remove decimal
       Ei[e][5] = 0;
    }
-
 
 
 
@@ -2063,17 +2004,17 @@ void walker_archwagon_common(int e)
       if (Ei[e][5] > 160) Ei[e][5] = 160; // terminal velocity
 
       // apply y move
-      al_fixed ym = Ei[e][5] * Efi[e][3];
-      al_fixed ym1 = ym/100;
+      float ym = Ei[e][5] * Ef[e][3];
+      float ym1 = ym/100;
 
-      Efi[e][1] += ym1;
+      Ef[e][1] += ym1;
 
-      EYint = al_fixtoi(Efi[e][1]);
+      EYint = Ef[e][1];
       if (is_down_solid(EXint, EYint, 1, 2))
       {
          on_solid = 1;
-         Efi[e][1] -= al_itofix ((al_fixtoi(Efi[e][1]) % 20));  // align with floor
-         Efi[e][1] = al_itofix (al_fixtoi(Efi[e][1]));  // remove decimal
+         Ef[e][1] -= (int) (Ef[e][1]) % 20;  // align with floor
+         Ef[e][1] =  (int) (Ef[e][1]);  // remove decimal
          Ei[e][5] = 0;
       }
    }
@@ -2089,34 +2030,32 @@ void walker_archwagon_common(int e)
       if (Ei[e][5] < -160) Ei[e][5] = -160; // terminal velocity
 
       // apply y move
-      al_fixed ym = Ei[e][5] * Efi[e][3];
-      al_fixed ym1 = ym/100;
-      Efi[e][1] += ym1;
+      float ym = Ei[e][5] * Ef[e][3];
+      float ym1 = ym/100;
+      Ef[e][1] += ym1;
 
-      EYint = al_fixtoi(Efi[e][1]);
+      EYint = Ef[e][1];
       if ((is_up_solid(EXint, EYint, 1, 2) == 1) || (is_up_solid(EXint, EYint, 1, 2) > 31) )
          Ei[e][5] = 0;  // stop rising
    }
 
    if (on_lift)
    {
-      Efi[e][1] += lifts[ret-32].fyinc ;  // move with lift
+      Ef[e][1] += lifts[ret-32].yinc;  // move with lift
    }
 
 
    if ((on_solid) || (on_lift))
    {
-      // mwPS.frame_num jump
+      // frame_num jump
       if ((Ei[e][6] > 0) && ((mwPS.frame_num % Ei[e][6]) == 1)) Ei[e][5] = -160;
 
       // check for jump if player passes above
       if (Ei[e][7] > 0)
          for (int p=0; p<NUM_PLAYERS; p++)
             if ((players[p].active) && (!players[p].paused) )
-               if ((EXint < (al_fixtoi(players[p].PX) + Ei[e][7])) &&
-                   (EXint > (al_fixtoi(players[p].PX) - Ei[e][7])) &&
-                   (EYint > al_fixtoi(players[p].PY)))
-                      Ei[e][5] = -160;
+               if ((EXint < players[p].x + Ei[e][7]) && (EXint > players[p].x - Ei[e][7]) &&
+                   (EYint > players[p].y)) Ei[e][5] = -160;
    }
 
 }
@@ -2131,8 +2070,8 @@ void walker_archwagon_common(int e)
 
 void enemy_block_walker(int e)
 {
-   int EXint = al_fixtoi(Efi[e][0]);
-   int EYint = al_fixtoi(Efi[e][1]);
+   int EXint = Ef[e][0];
+   int EYint = Ef[e][1];
 
    enemy_player_hit_proc(e);
 
@@ -2193,8 +2132,8 @@ Ei[][12]  jump before wall
 Ei[][13]  change dir on next cycle 0
 Ei[][14]  cycle offset
 
-Efi[][2]  y speed
-Efi[][6]  x speed when jumping
+Ef[][2]  y speed
+Ef[][6]  x speed when jumping
 
  */
 
@@ -2202,8 +2141,8 @@ Efi[][6]  x speed when jumping
 
 void enemy_jumpworm(int e)
 {
-   int EXint = al_fixtoi(Efi[e][0]);
-   int EYint = al_fixtoi(Efi[e][1]);
+   int EXint = Ef[e][0];
+   int EYint = Ef[e][1];
 
    if (Ei[e][31]) // hit
    {
@@ -2232,12 +2171,12 @@ void enemy_jumpworm(int e)
       if (Ei[e][2])
       {
           Ei[e][2] = 0;
-          Efi[e][0] += al_itofix(10);
+          Ef[e][0] += 10;
       }
       else
       {
           Ei[e][2] = 1;
-          Efi[e][0] -= al_itofix(10);
+          Ef[e][0] -= 10;
       }
    }
 
@@ -2252,7 +2191,7 @@ void enemy_jumpworm(int e)
    if (ret >= 32) // on lift
    {
       on_lift = 1;
-      Efi[e][1] += lifts[ret-32].fyinc ;  // move with lift
+      Ef[e][1] += lifts[ret-32].yinc;  // move with lift
    }
 
    // x move when on ground (0-4 move) (5-9 retract)
@@ -2261,8 +2200,8 @@ void enemy_jumpworm(int e)
       if (Ei[e][2] == 1)  // move right
       {
          int change_dir = 0;
-         Efi[e][0] += al_itofix(2);
-         EXint = al_fixtoi(Efi[e][0]);
+         Ef[e][0] += 2;
+         EXint = Ef[e][0];
          if ((on_solid) || (on_lift))
          {
             if (Ei[e][10]) // turn before hole
@@ -2284,8 +2223,8 @@ void enemy_jumpworm(int e)
       if (Ei[e][2] == 0)  // move left
       {
          int change_dir = 0;
-         Efi[e][0] -= al_itofix(2);
-         EXint = al_fixtoi(Efi[e][0]);
+         Ef[e][0] -= 2;
+         EXint = Ef[e][0];
          if ((on_solid) || (on_lift))
          {
             if (Ei[e][10]) // turn before hole
@@ -2321,8 +2260,8 @@ void enemy_jumpworm(int e)
 
    if ((on_solid) && (Ei[e][5] >= 0)) // solid and not jumping (falling or steady)
    {
-      Efi[e][1] -= al_itofix ((al_fixtoi(Efi[e][1]) % 20));  // align with floor
-      Efi[e][1] = al_itofix (al_fixtoi(Efi[e][1]));  // remove decimal
+      Ef[e][1] -= (int) (Ef[e][1]) % 20;  // align with floor
+      Ef[e][1] =  (int) Ef[e][1];  // remove decimal
       Ei[e][5] = 0;
    }
 
@@ -2332,16 +2271,16 @@ void enemy_jumpworm(int e)
       if (Ei[e][5] > 160) Ei[e][5] = 160; // terminal velocity
 
       // apply y move
-      al_fixed ym = Ei[e][5] * Efi[e][3];
-      al_fixed ym1 = ym/100;
-      Efi[e][1] += ym1;
+      float ym = Ei[e][5] * Ef[e][3];
+      float ym1 = ym / 100;
+      Ef[e][1] += ym1;
 
-      EYint = al_fixtoi(Efi[e][1]);
+      EYint = Ef[e][1];
       if (is_down_solid(EXint, EYint, 1, 2))
       {
          on_solid = 1;
-         Efi[e][1] -= al_itofix ((al_fixtoi(Efi[e][1]) % 20));  // align with floor
-         Efi[e][1] = al_itofix (al_fixtoi(Efi[e][1]));  // remove decimal
+         Ef[e][1] -= (int) (Ef[e][1]) % 20;  // align with floor
+         Ef[e][1] =  (int) Ef[e][1];  // remove decimal
          Ei[e][5] = 0;
       }
    }
@@ -2352,14 +2291,14 @@ void enemy_jumpworm(int e)
       if (Ei[e][5] < -160) Ei[e][5] = -160; // max velocity
 
       // apply y move
-      al_fixed ym = Ei[e][5] * Efi[e][3];
-      al_fixed ym1 = ym/100;
-      Efi[e][1] += ym1;
-      EYint = al_fixtoi(Efi[e][1]) + 0;
+      float ym = Ei[e][5] * Ef[e][3];
+      float ym1 = ym/100;
+      Ef[e][1] += ym1;
+      EYint = Ef[e][1];
       if ((is_up_solid(EXint, EYint, 1, 2) == 1) || (is_up_solid(EXint, EYint, 1, 2) > 31) )
       {
          Ei[e][5] = 1;     // stop rising
-         Efi[e][1] -= ym1; // take back move
+         Ef[e][1] -= ym1; // take back move
       }
    }
 
@@ -2374,54 +2313,52 @@ void enemy_jumpworm(int e)
       if (Ei[e][7] > 0)
          for (int p=0; p<NUM_PLAYERS; p++)
             if ((players[p].active) && (!players[p].paused) )
-               if ((EXint < (al_fixtoi(players[p].PX) + Ei[e][7])) &&
-                   (EXint > (al_fixtoi(players[p].PX) - Ei[e][7])) &&
-                   (EYint > al_fixtoi(players[p].PY)))
-                      attempt_jump = 1;
+               if ((EXint < players[p].x + Ei[e][7]) && (EXint > players[p].x - Ei[e][7]) &&
+                   (EYint > players[p].y)) attempt_jump = 1;
    }
 
    if (attempt_jump)
    {
-      EXint = al_fixtoi(Efi[e][0]);
-      EYint = al_fixtoi(Efi[e][1]);
+      EXint = Ef[e][0];
+      EYint = Ef[e][1];
       if ((is_up_solid(EXint, EYint, 1, 2) != 1) && (is_up_solid(EXint, EYint, 1, 2) < 32) ) Ei[e][5] = -160;
    }
 
-   Efi[e][14] = al_itofix(0); // default is no rotation
+   Ef[e][14] = 0; // default is no rotation
 
 
    // x move differently if jumping or falling
    if ((Ei[e][5]) || (!on_solid))
    {
-      al_fixed js = Efi[e][6]; // x speed for jump
+      float js = Ef[e][6]; // x speed for jump
       if (Ei[e][2] == 1)                              // move right
       {
-         if (is_right_solid(EXint+al_fixtoi(js), EYint, 1, 2))
+         if (is_right_solid(EXint+js, EYint, 1, 2))
          {
             Ei[e][2] = 0;                             // change direction
             Ei[e][5] -= Ei[e][8];                     // wall jump boost
             if (Ei[e][5] < -160) Ei[e][5] = -160;     // max jump
          }
-         else Efi[e][0] += js;                        // make the move
+         else Ef[e][0] += js;                        // make the move
       }
       else if (Ei[e][2] == 0)                         // move left
       {
-         if (is_left_solid(EXint-al_fixtoi(js), EYint, 1, 2))
+         if (is_left_solid(EXint-js, EYint, 1, 2))
          {
             Ei[e][2] = 1;                             // change direction
             Ei[e][5] -= Ei[e][8];                     // wall jump boost
             if (Ei[e][5] < -160) Ei[e][5] = -160;     // max jump
         }
-         else Efi[e][0] -= js;                        // make the move
+         else Ef[e][0] -= js;                        // make the move
       }
 
 
       // set shape
       Ei[e][1] = 704;              // only one shape for falling or jumping
-      al_fixed ym = Ei[e][5] * Efi[e][3] / 100;
-      al_fixed angle = al_fixatan2(ym, js);
+      float ym = Ei[e][5] * Ef[e][3] / 100;
+      float angle = atan2(ym, js);
       if (!Ei[e][2]) angle = -angle;   // reverse angle depending on x direction
-      Efi[e][14] = angle;
+      Ef[e][14] = angle;
    }
 }
 
@@ -2441,10 +2378,10 @@ by function
 Ei[][1] // bitmap
 Ei[][2] // draw mode (v and h flips)
 
-Efi[][0]  // x
-Efi[][1]  // y
-Efi[][12] // scale
-Efi[][14] // rot
+Ef[][0]  // x
+Ef[][1]  // y
+Ef[][12] // scale
+Ef[][14] // rot
 
 -------------------------------------------------------------------------
 -- Variables used in proc_enemy_collision_with_pshot(int e)
@@ -2453,8 +2390,8 @@ Ei[][26]  // player number that hit enemy with shot
 Ei[][29]  // enemies collison box size
 Ei[][31]  // flag that this enemy got shot with shot
 
-Efi[][0] // x
-Efi[][1] // y
+Ef[][0] // x
+Ef[][1] // y
 
 -------------------------------------------------------------------------
 -- Variables used in move_enemies() common
@@ -2462,7 +2399,7 @@ Efi[][1] // y
 Ei[e][27] // time to live
 Ei[e][29] // collision box
 
-Efi[e][4] // life dec
+Ef[e][4] // life dec
 
 -------------------------------------------------------------------------
 -- Variables used in enemy_deathcount(int e)
@@ -2473,10 +2410,10 @@ Ei[][24] // health bonus shape
 Ei[][25] // health bonus amount
 Ei[][30] // death loop count
 
-Efi[][11]  // scale inc
-Efi[][12]  // scale
-Efi[][13]  // rot inc
-Efi[][14]  // rot
+Ef[][11]  // scale inc
+Ef[][12]  // scale
+Ef[][13]  // rot inc
+Ef[][14]  // rot
 
 
 -------------------------------------------------------------------------
@@ -2485,7 +2422,7 @@ Efi[][14]  // rot
 Ei[][22] // player hit flag and player num + 1
 Ei[][23] // hit player retrigger
 
-Efi[][4] // life dec
+Ef[][4] // life dec
 
 -------------------------------------------------------------------------
 -- Variables used in enemy_killed(int e)
@@ -2499,9 +2436,9 @@ Ei[][30] // death loop count
 Ei[][31] // hit type (shot or bomb)
 
 
-Efi[][4]  // life dec
-Efi[][11] // scale multiplier
-Efi[][13] // rot inc
+Ef[][4]  // life dec
+Ef[][11] // scale multiplier
+Ef[][13] // rot inc
 
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
@@ -2525,17 +2462,17 @@ Ei[][30] = death loop count
 Ei[][31] = flag that this enemy got shot with shot
 
 
-Efi[][0] =  x
-Efi[][1] =  y
-Efi[][2] =  xinc
-Efi[][3] =  yinc
-Efi[][4] =  LIFE decrement
+Ef[][0] =  x
+Ef[][1] =  y
+Ef[][2] =  xinc
+Ef[][3] =  yinc
+Ef[][4] =  LIFE decrement
 
 
-Efi[][11] = scale multiplier
-Efi[][12] = scale;
-Efi[][13] = rot inc
-Efi[][14] = rot
+Ef[][11] = scale multiplier
+Ef[][12] = scale;
+Ef[][13] = rot inc
+Ef[][14] = rot
 
 
 
@@ -2550,15 +2487,23 @@ Efi[][14] = rot
 9  - Cloner
 11 - Block Walker
 12 - Flapper
-13 - Spline Podzilla
+13 - Vinepod
+
 
 
 similar types
-3 - Archwagon
+3  - Archwagon
 11 - Block Walker
 
 4 - Bouncer
 6 - Cannon
+
+7  - Podzilla
+13 - Vinepod
+
+
+
+
 
 
 [3] - Archwagon -----------------------------------------------------------------------------
@@ -2567,9 +2512,9 @@ Ei[][15]  shot retrigger value
 Ei[][16]  shot retrigger count
 Ei[][17]  shot prox
 
-Efi[][2]  y speed speed
-Efi[][6]  x speed speed
-Efi[][7]  shot speed
+Ef[][2]  y speed speed
+Ef[][6]  x speed speed
+Ef[][7]  shot speed
 
 walker_archwagon_common(int e)
 Ei[][5]   jump/fall -160 max jump, 160 max fall
@@ -2587,7 +2532,7 @@ Ei[][5]  main ans
 Ei[][6]  seek ans
 Ei[][7]  seek counter
 Ei[][8]  seek count
-Efi[][5] seek speed
+Ef[][5] seek speed
 
 [6]--cannon-----------------------------------------------------------------------------
 Ei[][7]   seek counter
@@ -2597,10 +2542,10 @@ Ei[][15]  shot retrigger value
 Ei[][16]  shot retrigger counter
 Ei[][17]  shot prox
 
-Efi[][5]  seek speed
-Efi[][7]  shot speed
-Efi[][12] scale
-Efi[][14] rot
+Ef[][5]  seek speed
+Ef[][7]  shot speed
+Ef[][12] scale
+Ef[][14] rot
 
 [7]--podzilla-----------------------------------------------------------------------------
 Ei[][5] = mode
@@ -2623,7 +2568,7 @@ Ei[][15] shoot holdoff value
 Ei[][16] shoot holdoff counter
 Ei[][17] shot prox
 Ei[][20] rot
-Efi[][7] shot speed
+Ef[][7] shot speed
 
 [9]--cloner-----------------------------------------------------------------------------
 
@@ -2669,13 +2614,13 @@ Ei[][19] prox depth
 Ei[][20] height above player
 Ei[][21] flap height
 
-Efi[][5] max x speed
-Efi[][6] x accel
-Efi[][7] shot speed
+Ef[][5] max x speed
+Ef[][6] x accel
+Ef[][7] shot speed
 
 
-Efi[][8] flap offset for next loop
-Efi[][9] flap speed counter
-Efi[][10] flap speed inc
+Ef[][8] flap offset for next loop
+Ef[][9] flap speed counter
+Ef[][10] flap speed inc
 
 */

@@ -131,6 +131,8 @@
 		<Unit filename="src/mwGraph.h" />
 		<Unit filename="src/mwInput.cpp" />
 		<Unit filename="src/mwInput.h" />
+		<Unit filename="src/mwLift.cpp" />
+		<Unit filename="src/mwLift.h" />
 		<Unit filename="src/mwLogo.cpp" />
 		<Unit filename="src/mwLogo.h" />
 		<Unit filename="src/mwPDE.cpp" />
@@ -200,6 +202,8 @@
 		<Unit filename="src/z_screen_overlay.h" />
 		<Unit filename="src/z_settings.cpp" />
 		<Unit filename="src/z_settings.h" />
+		<Unit filename="src/z_solid.cpp" />
+		<Unit filename="src/z_solid.h" />
 		<Unit filename="src/z_sound.cpp" />
 		<Unit filename="src/z_sound.h" />
 		<Extensions />

@@ -15,22 +15,18 @@ void m_err(const char * err_msg);
 void window_title(void);
 int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy);
 void tsw(void);
-al_fixed get_rot_from_xyinc(int EN);
-al_fixed get_rot_from_PXY(int EN, int p);
-void seek_set_xyinc(int EN);
-void seek_set_xyinc(int EN, int x, int y);
-int find_closest_player_flapper(int EN, int dir);
-int find_closest_player_quad(int EN, int quad, int prox);
-int find_closest_player_cannon(int e, int dist);
-int find_closest_player(int EN);
-int is_solid(int b, int c, int type);
-int is_solidu(int b, int c, int type);
-int is_right_solid(int solid_x, int solid_y, int lift_check, int type);
-int is_left_solid(int solid_x, int solid_y, int lift_check, int type);
-int is_down_solid(int solid_x, int solid_y, int lift_check, int type);
-int is_up_solid(int solid_x, int solid_y, int lift_check, int type);
-al_fixed is_up_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
-al_fixed is_down_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
-al_fixed is_left_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
-al_fixed is_right_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
+
+
+
+void set_enemy_rot_from_incs(int e);
+void set_enemy_rot_from_player(int e, int p);
+void seek_set_xyinc(int e);
+int find_closest_player(int e);
+int find_closest_player_flapper(int e);
+int find_closest_player_trakbot(int e);
+int find_closest_player_cannon(int e);
+float deg_to_rad(float deg);
+
+
+
 void show_var_sizes(void);

@@ -361,7 +361,6 @@ void mwLogo::mdw_an(float x, float y, float sc)
    // total 1024
 
    if (++mdw_an_seq > 1023) mdw_an_seq = 0;
-   al_fixed t;
 
    // 1st static
    if (mdw_an_seq < 128)
@@ -372,8 +371,8 @@ void mwLogo::mdw_an(float x, float y, float sc)
    // y rot
    if ((mdw_an_seq > 127) && (mdw_an_seq < 384))
    {
-      t = al_itofix(mdw_an_seq - 128);
-      y_scale = base_scale * al_fixtof(al_fixcos(t));
+      float nt = ((float)(mdw_an_seq - 128) / 256) * ALLEGRO_PI*2;
+      y_scale = base_scale * cos(nt);
    }
    // 2nd static
    if ((mdw_an_seq > 383) && (mdw_an_seq < 512))
@@ -384,21 +383,21 @@ void mwLogo::mdw_an(float x, float y, float sc)
    // x rot
    if ((mdw_an_seq > 511) && (mdw_an_seq < 704))
    {
-      t = al_itofix(mdw_an_seq - 512);
-      x_scale = base_scale * al_fixtof(al_fixcos(t));
+      float nt = ((float)(mdw_an_seq - 512) / 256) * ALLEGRO_PI*2;
+      x_scale = base_scale * cos(nt);
    }
    // xy rot
    if ((mdw_an_seq > 703) && (mdw_an_seq < 960))
    {
-      t = al_itofix(mdw_an_seq - 704);
-      x_scale = base_scale * al_fixtof(al_fixsin(t));
-      y_scale = base_scale * al_fixtof(al_fixcos(t));
+      float nt = ((float)(mdw_an_seq - 705) / 256) * ALLEGRO_PI*2;
+      x_scale = base_scale * sin(nt);
+      y_scale = base_scale * cos(nt);
    }
    // x link
    if ((mdw_an_seq > 959) && (mdw_an_seq < 1024))
    {
-      t = al_itofix(mdw_an_seq - 960);
-      x_scale = base_scale * al_fixtof(al_fixsin(t));
+      float nt = ((float)(mdw_an_seq - 705) / 256) * ALLEGRO_PI*2;
+      x_scale = base_scale * sin(nt);
    }
    draw_logo(x, y, x_scale, y_scale);
 }
@@ -426,19 +425,19 @@ int mwLogo::mdw_an2(void)
    // grow and spin in both axis
    if ((mdw_an_seq > -1) && (mdw_an_seq < 256))
    {
-      al_fixed t = al_itofix(mdw_an_seq);
+      float nt = ((float)(mdw_an_seq - 0) / 256) * ALLEGRO_PI*2;
       float s = (float)mdw_an_seq / 320;
       if (s > 1) s = 1;
-      x_scale = s * mdw_splash_logo_scale * al_fixtof(al_fixsin(t));
-      y_scale = s * mdw_splash_logo_scale * al_fixtof(al_fixcos(t));
+      x_scale = s * mdw_splash_logo_scale * sin(nt);
+      y_scale = s * mdw_splash_logo_scale * cos(nt);
    }
    // fix x scale
    if ((mdw_an_seq > 255) && (mdw_an_seq < 319))
    {
-      al_fixed t = al_itofix(mdw_an_seq-256);
+      float nt = ((float)(mdw_an_seq - 256) / 256) * ALLEGRO_PI*2;
       float s = (float)mdw_an_seq / 320;
       if (s > 1) s = 1;
-      x_scale = s * mdw_splash_logo_scale * al_fixtof(al_fixsin(t));
+      x_scale = s * mdw_splash_logo_scale * sin(nt);
       y_scale = s * mdw_splash_logo_scale;
    }
    // freeze
@@ -450,8 +449,8 @@ int mwLogo::mdw_an2(void)
    // spin back to prepare for dual flip...
    if ((mdw_an_seq > 447) && (mdw_an_seq < 640))
    {
-      al_fixed t = al_itofix(mdw_an_seq-448);
-      x_scale = mdw_splash_logo_scale * al_fixtof(al_fixcos(t));
+      float nt = ((float)(mdw_an_seq - 448) / 256) * ALLEGRO_PI*2;
+      x_scale = mdw_splash_logo_scale * cos(nt);
    }
    // shrink and move
    if ((mdw_an_seq > 639) && (mdw_an_seq < 960))
@@ -463,18 +462,17 @@ int mwLogo::mdw_an2(void)
    // dual flip
    if ((mdw_an_seq > 639) && (mdw_an_seq < 896))
    {
-      al_fixed t = al_itofix(mdw_an_seq-640);
-      x_scale = mdw_splash_logo_scale * al_fixtof(al_fixsin(t));
-      y_scale = mdw_splash_logo_scale * al_fixtof(al_fixcos(t));
+      float nt = ((float)(mdw_an_seq - 640) / 256) * ALLEGRO_PI*2;
+      x_scale = mdw_splash_logo_scale * sin(nt);
+      y_scale = mdw_splash_logo_scale * cos(nt);
    }
    // back to original
    if ((mdw_an_seq > 895) && (mdw_an_seq < 960))
    {
-      al_fixed t = al_itofix(mdw_an_seq-896);
-      x_scale = mdw_splash_logo_scale * al_fixtof(al_fixsin(t));
+      float nt = ((float)(mdw_an_seq - 896) / 256) * ALLEGRO_PI*2;
+      x_scale = mdw_splash_logo_scale * sin(nt);
       y_scale = mdw_splash_logo_scale;
    }
-   //draw_mdw((int)mdw_splash_logo_x, (int)mdw_splash_logo_y, x_scale, y_scale, mdw_splash_logo_th);
    draw_logo(mdw_splash_logo_x, mdw_splash_logo_y, x_scale, y_scale);
    return 0;
 }

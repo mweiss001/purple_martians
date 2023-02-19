@@ -55,8 +55,8 @@ void stimp(void) // transition from menu to game
 
    // find where to grab the source screen from based on the players position
    int alp = active_local_player;
-   int PX = al_fixtoi(players[alp].PX) + 10;
-   int PY = al_fixtoi(players[alp].PY) + 10;
+   int PX = players[alp].x + 10;
+   int PY = players[alp].y + 10;
 
    // this method has a hysteresis rectangle in the middle of the screen where there is no scroll
    int x_size = SW / 18; // larger number is smaller window
@@ -73,8 +73,8 @@ void stimp(void) // transition from menu to game
    if (mwD.WY > (2000 - SH)) mwD.WY = 2000 - SH;
 
    // this is where the player will be when stimp is done and the level starts
-   PX = al_fixtoi(players[alp].PX);
-   PY = al_fixtoi(players[alp].PY);
+   PX = players[alp].x;
+   PY = players[alp].y;
 
    float px_final = (PX-mwD.WX) * mwD.scale_factor_current + bw;
    float py_final = (PY-mwD.WY) * mwD.scale_factor_current + bw;
@@ -167,8 +167,8 @@ void stamp(void) // transition from game to menu
 
    // find where to grab the source screen from based on the players position
    int alp = active_local_player;
-   int PX = al_fixtoi(players[alp].PX) + 10;
-   int PY = al_fixtoi(players[alp].PY) + 10;
+   int PX = players[alp].x + 10;
+   int PY = players[alp].y + 10;
 
    // this method has a hysteresis rectangle in the middle of the screem where there is no scroll
    int x_size = SW / 18; // larger number is smaller window
@@ -186,8 +186,8 @@ void stamp(void) // transition from game to menu
    if (mwD.WY > (2000 - SH)) mwD.WY = 2000 - SH;
 
    // this is where the player will be when stimp is done and the level starts
-   PX = al_fixtoi(players[alp].PX);
-   PY = al_fixtoi(players[alp].PY);
+   PX = players[alp].x;
+   PY = players[alp].y;
 
    float px_final = (PX-mwD.WX) * mwD.scale_factor_current + bw;
    float py_final = (PY-mwD.WY) * mwD.scale_factor_current + bw;
@@ -356,8 +356,8 @@ void get_new_screen_buffer(int type, int x, int y)
    // find where to grab the source screen from based on the players position
    if (type == 0)
    {
-      PX = al_fixtoi(players[p].PX) + 10;
-      PY = al_fixtoi(players[p].PY) + 10;
+      PX = players[p].x + 10;
+      PY = players[p].y + 10;
    }
    if (type == 1)
    {
@@ -713,9 +713,9 @@ void frame_and_title(int show_players)
 
 
 
-void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, int rot, float op)
+void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, float op)
 {
-   // draws rotated stretched text
+   // draws stretched text
    // used in many places
    int sw = strlen(txt1) * 8;
    ALLEGRO_BITMAP *temp = al_create_bitmap(sw, 8);
@@ -726,9 +726,8 @@ void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, in
 
    if (dbmp != NULL) al_set_target_bitmap(dbmp);
    else al_set_target_backbuffer(display);
-   float frot = al_fixtof(al_fixmul(al_itofix(rot), al_fixtorad_r));
 
-   al_draw_tinted_scaled_rotated_bitmap(temp, al_map_rgba_f(op, op, op, op), sw/2, 4, x, y, scale, scale, frot, 0);
+   al_draw_tinted_scaled_rotated_bitmap(temp, al_map_rgba_f(op, op, op, op), sw/2, 4, x, y, scale, scale, 0, 0);
    al_destroy_bitmap(temp);
 }
 

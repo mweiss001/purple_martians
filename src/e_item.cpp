@@ -80,8 +80,8 @@ int sort_item(int set_pos)
       {
          if (set_pos)
          {
-            itemf[c][0] = al_itofix(item[c][4]);
-            itemf[c][1] = al_itofix(item[c][5]);
+            itemf[c][0] = item[c][4];
+            itemf[c][1] = item[c][5];
          }
 
 
@@ -119,9 +119,9 @@ int sort_item(int set_pos)
             }
             for (d=0; d<4; d++)
             {
-               temp = itemf[c][d];
+               float ftemp = itemf[c][d];
                itemf[c][d] = itemf[c+1][d];
-               itemf[c+1][d] = temp;
+               itemf[c+1][d] = ftemp;
             }
          }
       }
@@ -501,7 +501,6 @@ int create_door(int type)
          {
             if (getxy("Door", 2, 1, c) == 1)
             {
-               l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
 
                item[c][0] = 1;    // type 1
                item[c][13] = 1083;    // base draw shape or ans
@@ -517,8 +516,6 @@ int create_door(int type)
                if (getxy("Destination Door", 2, 1, d) == 1)
                {
                   item[c][9] = d;    // linked exit
-
-                  l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
 
                   item[d][0] = 1;    // type 1
 
@@ -557,7 +554,6 @@ int create_door(int type)
          {
             if (getxy("1st Door", 2, 1, c) == 1)
             {
-               l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
 
                item[c][0] = 1;    // type 1
 
@@ -575,7 +571,6 @@ int create_door(int type)
                if (getxy("2nd Door", 2, 1, d) == 1)
                {
                   item[c][9] = d;    // linked exit
-                  l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
 
                   item[d][0] = 1;    // type 1
                   item[d][2] = 1;    // draw mode normal

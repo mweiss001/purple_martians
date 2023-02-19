@@ -296,52 +296,8 @@ void mdw_slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    if (q6 == 1) y1+=bts;
 }
 
-// fixed version
-void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-                 al_fixed &var, float sul, float sll, float sinc, const char *txt)
-{
-   int y2 = y1+bts-2;
-   float sdx = al_fixtof(var);
-
-   // draw the slider
-   sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
-   float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1);
-
-   // is mouse on adjustment bar?
-   if ((!q7) && (mI.mouse_x > dsx-bw) && (mI.mouse_x < dsx+bw) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
-   {
-      draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-      al_draw_text(mF.pr8, mC.pc[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
-
-      if (mI.mouse_b[3][0])
-      {
-         while (mI.mouse_b[3][0])
-         {
-            var = al_ftofix(get_slider_position3(al_fixtof(var), sul, sll, sinc, q4, x1, y1, x2, y2));
-            sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
-            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, al_fixtof(var), sul, sll, 2);
-         }
-         if (bn == 22) scale_bouncer_and_cannon_speed(num);
-         if (bn == 29) recalc_pod(num);
-      }
-      if (mI.mouse_b[1][0])
-      {
-         while (mI.mouse_b[1][0])
-         {
-            var = al_ftofix(get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2)); // update var
-            sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
-            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, al_fixtof(var), sul, sll, 1);
-         }
-         if (bn == 22) scale_bouncer_and_cannon_speed(num);
-         if (bn == 29) recalc_pod(num);
-      }
-   }
-   if (q6 == 1) y1+=bts;
-}
-
-
 // float version
-void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  float &var, float sul, float sll, float sinc, const char *txt)
 {
    int y2 = y1+bts-2;
@@ -1262,12 +1218,12 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    // special cases that need bitmaps draw on them
    if (bn == 13)
    {
-      float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+      float rot = Ef[num][14];
       al_draw_rotated_bitmap(mwB.tile[mwB.zz[0][Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
    if (bn == 14)
    {
-      float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+      float rot = Ef[num][14];
       al_draw_rotated_bitmap(mwB.tile[mwB.zz[0][Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
 

@@ -13,7 +13,7 @@ void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, f
 void draw_level(void);
 int get_contrasting_color(int color);
 void frame_and_title(int show_players);
-void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, int rot, float op);
+void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, float op);
 void draw_title(int tx, int ty, int ttw, int tth, int color);
 void draw_large_text_overlay(int type, int color);
 void draw_percent_barc(int cx, int y, int width, int height, int percent, int c1, int c2, int fc);

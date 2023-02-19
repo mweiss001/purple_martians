@@ -1,0 +1,56 @@
+
+
+this simple test shows how to draw rotated bitmaps and how to get the angle
+with atan2..
+
+
+
+   al_set_target_backbuffer(display);
+   al_clear_to_color(mC.pc[0]);
+   int quit = 0;
+   float x = mwD.SCREEN_W/2;
+   float y = mwD.SCREEN_H/2;
+   while (!quit)
+   {
+      float mx = mI.mouse_x;
+      float my = mI.mouse_y;
+      float xlen = mx-x;
+      float ylen = my-y;
+      float hy = sqrt(pow(xlen, 2) + pow(ylen, 2));
+      float a = atan2(ylen, xlen);
+      al_draw_textf(mF.pr8, mC.pc[15], 100, 100, 0, "xlen:%f ylen:%f hy:%f", xlen, ylen, hy);
+      al_draw_textf(mF.pr8, mC.pc[15], 100, 110, 0, "a:%f", a);
+      al_draw_line(x, y, mx, my, mC.pc[15], 1);
+      al_draw_rotated_bitmap(mwB.tile[248], 10, 10, x, y, a+ALLEGRO_PI/2, 0);
+      al_flip_display();
+      al_clear_to_color(mC.pc[0]);
+      mwEQ.proc_event_queue();
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+   }
+
+
+beacuse of the differences in a regular cartesian grid and the screen
+you need to add 90deg or PI/2 to your angle
+
+
+if you have to store angle as an int premultiply by at least 100
+or you will lose resolution
+
+no premul = 6 angles
+x1   = 6 angles
+x10  = 60 angles
+x100 = 600 angles
+
+
+
+
+
+
+
+
+
+
+
+
+
+

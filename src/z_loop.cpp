@@ -292,7 +292,7 @@ void proc_program_state(void)
 
       sprintf(msg, "Waiting for game state from server");
       float stretch = ( (float)mwD.SCREEN_W / ((strlen(msg)+2)*8));
-      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, 10, stretch, 0, 1);
+      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, 10, stretch, 1);
 
       al_flip_display();
 
@@ -597,16 +597,16 @@ void proc_level_done_mode(void)
             players[p].paused = 5; // set player paused
 
             // get distance between player and exit
-            al_fixed dx = al_itofix(players[0].level_done_x) - players[p].PX;
-            al_fixed dy = al_itofix(players[0].level_done_y) - players[p].PY;
+            float dx = players[0].level_done_x - players[p].x;
+            float dy = players[0].level_done_y - players[p].y;
 
             // get move
-            players[p].xinc = al_fixdiv(dx, al_itofix(60));
-            players[p].yinc = al_fixdiv(dy, al_itofix(60));
+            players[p].xinc = dx/60;
+            players[p].yinc = dy/60;
 
             // set left right direction
-            if (players[p].xinc > al_itofix(0)) players[p].left_right = 1;
-            if (players[p].xinc < al_itofix(0)) players[p].left_right = 0;
+            if (players[p].xinc > 0) players[p].left_right = 1;
+            if (players[p].xinc < 0) players[p].left_right = 0;
          }
    }
    if (players[0].level_done_mode == 8) // players seek exit
@@ -614,8 +614,8 @@ void proc_level_done_mode(void)
       for (int p=0; p<NUM_PLAYERS; p++)
          if (players[p].active)
          {
-            players[p].PX += players[p].xinc;
-            players[p].PY += players[p].yinc;
+            players[p].x += players[p].xinc;
+            players[p].y += players[p].yinc;
          }
    }
    if (players[0].level_done_mode == 7) // shrink and rotate
@@ -623,8 +623,8 @@ void proc_level_done_mode(void)
       for (int p=0; p<NUM_PLAYERS; p++)
          if (players[p].active)
          {
-            players[p].draw_scale -= al_ftofix(0.05);
-            players[p].draw_rot -= al_ftofix(8);
+            players[p].draw_scale -= 0.05;
+            players[p].draw_rot -= 8;
          }
    }
    if (players[0].level_done_mode == 5) // skippable 15s timeout
