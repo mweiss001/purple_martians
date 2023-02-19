@@ -1239,7 +1239,7 @@ void edit_server_name(int type, int x, int y)
       // frame text
       al_draw_rectangle       (tx-w-1, ty1-4-1, tx+w+6, ty1+6, mC.pc[15], 1);
 
-      rtextout_centre(mF.pr8, NULL, fst, tx, ty1+1, 15, 1, 0, 1);
+      rtextout_centre(mF.pr8, NULL, fst, tx, ty1+1, 15, 1, 1);
 
       if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1-3, 15, 0);
       else show_cursor(fst, cursor_pos, tx, ty1-3, 15, 1);
@@ -1319,8 +1319,9 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
       al_flip_display();
       al_rest(0.05);
 
-      int x2 = x1 + (lifts[lift].width) -1;
-      int y2 = y1 + (lifts[lift].height) -1;
+
+      int x2 = x1 + (lifts[lift].w) -1;
+      int y2 = y1 + (lifts[lift].h) -1;
       int tx = ((x1+x2)/2);
       int ty1 = ((y1+y2)/2) - 3;
 

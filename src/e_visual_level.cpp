@@ -46,7 +46,7 @@ int lev_show_level_data(int x_pos, int y_pos)
    int ey_pos = enemy_data(x_pos, y_pos);
    int iy_pos = item_data(x_pos+135, y_pos);
    ey_pos = ey_pos + 8;
-   al_draw_textf(mF.pr8, mC.pc[15], x_pos, ey_pos, 0,"%d Lifts  ", num_lifts);
+   al_draw_textf(mF.pr8, mC.pc[15], x_pos, ey_pos, 0,"%d Lifts  ", get_num_lifts());
    ey_pos += 8;
    al_draw_text(mF.pr8, mC.pc[15], x_pos, ey_pos, 0, "-------");
    ey_pos += 8;
@@ -513,7 +513,7 @@ void load_visual_level_select(void)
 
    // level range to look for
    int lll = 1;   // lower level limit
-   int ull = 199; // upper level limit
+   int ull = VISUAL_LEVEL_SELECT_MAX_LEVEL; // upper level limit
 
    char fn[20] = "levels/level000.pml";
    // look for levels that exist and put them in array

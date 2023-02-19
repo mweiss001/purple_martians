@@ -43,9 +43,9 @@ void game_vars_to_state(char * b)
    int sz = 0, offset = 0;
    offset += sz; sz = sizeof(players);     memcpy(b+offset, players,  sz);
    offset += sz; sz = sizeof(Ei);          memcpy(b+offset, Ei,       sz);
-   offset += sz; sz = sizeof(Efi);         memcpy(b+offset, Efi,      sz);
+   offset += sz; sz = sizeof(Ef);          memcpy(b+offset, Ef,       sz);
    offset += sz; sz = sizeof(item);        memcpy(b+offset, item,     sz);
-   offset += sz; sz = sizeof(itemf);       memcpy(b+offset, itemf,    sz);
+   offset += sz; sz = sizeof(itemf);      memcpy(b+offset, itemf,   sz);
    offset += sz; sz = sizeof(lifts);       memcpy(b+offset, lifts,    sz);
    offset += sz; sz = sizeof(l);           memcpy(b+offset, l,        sz);
    offset += sz; sz = sizeof(mwS.p);       memcpy(b+offset, mwS.p,    sz);
@@ -58,9 +58,9 @@ void state_to_game_vars(char * b)
    int sz = 0, offset = 0;
    sz = sizeof(players);     memcpy(players,     b+offset, sz); offset += sz;
    sz = sizeof(Ei);          memcpy(Ei,          b+offset, sz); offset += sz;
-   sz = sizeof(Efi);         memcpy(Efi,         b+offset, sz); offset += sz;
+   sz = sizeof(Ef);          memcpy(Ef,          b+offset, sz); offset += sz;
    sz = sizeof(item);        memcpy(item,        b+offset, sz); offset += sz;
-   sz = sizeof(itemf);       memcpy(itemf,       b+offset, sz); offset += sz;
+   sz = sizeof(itemf);      memcpy(itemf,      b+offset, sz); offset += sz;
    sz = sizeof(lifts);       memcpy(lifts,       b+offset, sz); offset += sz;
    sz = sizeof(l);           memcpy(l,           b+offset, sz); offset += sz;
    sz = sizeof(mwS.p);       memcpy(mwS.p,       b+offset, sz); offset += sz;

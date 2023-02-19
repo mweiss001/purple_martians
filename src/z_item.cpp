@@ -19,10 +19,13 @@
 #include "z_screen.h"
 #include "z_screen_overlay.h"
 #include "mwShots.h"
+#include "z_solid.h"
+
 
 // items
 int item[500][16];      // item ints
-al_fixed itemf[500][4]; // item fixeds
+float itemf[500][4]; // item floats
+
 int item_num_of_type[30];
 int item_first_num[30];
 char item_name[30][40];
@@ -294,8 +297,8 @@ void draw_door(int i, int x, int y, int custom)
    if ((item[i][8] == 1) && (!custom)) // linked item destination
    {
       // linked destination item position
-      int dx = al_fixtoi(itemf[item[i][9]][0]);
-      int dy = al_fixtoi(itemf[item[i][9]][1]);
+      int dx = itemf[item[i][9]][0];
+      int dy = itemf[item[i][9]][1];
       int line_color = item[item[i][9]][6];
 
       if (item[i][12] == 1) // if always draw lines (1)
@@ -436,18 +439,13 @@ void bomb_block_crosshairs(int e, int f)
    }
 }
 
-void bomb_blocks(int i, int t, int dr, al_fixed fx, al_fixed fy)
+void bomb_blocks(int i, int t, int dr)
 {
-
-
    // center of bomb
-//   float x = al_fixtoi(itemf[i][0]) + 10;
-//   float y = al_fixtoi(itemf[i][1]) + 10;
-   float x = al_fixtoi(fx) + 10;
-   float y = al_fixtoi(fy) + 10;
+   float x = itemf[i][0] + 10;
+   float y = itemf[i][1] + 10;
 
 //   printf("bomb_blocks %d %d   %1.3f %1.3f \n", t, dr, x, y);
-
 
    float d = (float)dr;
 
@@ -508,16 +506,18 @@ void bomb_crosshairs(float x, float y)
    }
 }
 
-void bomb_enemies(int i, int t, int dr, al_fixed x, al_fixed y)
+void bomb_enemies(int i, int t, int dr)
 {
+   float x = itemf[i][0];
+   float y = itemf[i][1];
+
    for (int e=0; e<100 ; e++) // enemies in damage window?
       if ((Ei[e][0]) && (Ei[e][0] != 10))
       {
-//         al_fixed dist = al_fixhypot( (Efi[e][0] - itemf[i][0]), (Efi[e][1] - itemf[i][1]) );
-         al_fixed dist = al_fixhypot( (Efi[e][0] - x), (Efi[e][1] - y));
-         if (dist < al_itofix(dr))
+         float dist = sqrt(pow(Ef[e][0]-x, 2) + pow(Ef[e][1]-y, 2));
+         if (dist < dr)
          {
-            if (t == 1) bomb_crosshairs(10 + al_fixtof(Efi[e][0]), 10 + al_fixtof(Efi[e][1]));
+            if (t == 1) bomb_crosshairs(Ef[e][0]+10, Ef[e][1]+10);
             if (t == 2)
             {
                Ei[e][31] = 2; // set bomb hit
@@ -527,31 +527,33 @@ void bomb_enemies(int i, int t, int dr, al_fixed x, al_fixed y)
       }
 }
 
-void bomb_players(int i, int t, int dr, al_fixed x, al_fixed y)
+void bomb_players(int i, int t, int dr)
 {
+   float x = itemf[i][0];
+   float y = itemf[i][1];
+
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       if ((players[p].active) && (!players[p].paused))
       {
-         al_fixed dist = al_fixhypot( (players[p].PX - x), (players[p].PY - y) );
-         if (dist < al_itofix(dr))
+         float dist = sqrt( pow( (players[p].x - x), 2) + pow( (players[p].y - y), 2)   );
+         if (dist < dr)
          {
             // calculate bomb damage based on blast size and player's distance
-            al_fixed damage = al_fixdiv(al_itofix(dr), dist); // damage window size / distance (scale of 1 - 4)
+            float damage = dr / dist; // damage window size / distance (scale of 1 - 4)
             damage *= 20; // multiply by 20 (scale of 20-80)
-            if (damage > al_itofix(80)) damage = al_itofix(80);
-            int dmg = al_fixtoi(damage);
-
+            if (damage > 80) damage = 80;
+            int dmg = damage;
             if (t == 1) // add potential bomb damage for display
             {
                players1[p].potential_bomb_damage += dmg;
                players1[p].health_display = 40;
                players1[p].last_health_adjust = 0;
-               bomb_crosshairs(10 + al_fixtof(players[p].PX), 10 + al_fixtof(players[p].PY));
+               bomb_crosshairs(players[p].x + 10, players[p].y + 10);
             }
             if ((t == 2) && (item[i][8] == 0)) // only do damage once at end of explosion seq
             {
-               players[p].LIFE -= damage;
+               players[p].health -= damage;
                int p2 = item[i][13]; // player that last touched bomb
                if (p == p2) game_event(53, 0, 0, p, 0, 0, dmg);
                else game_event(52, 0, 0, p, p2, 0, dmg);
@@ -602,9 +604,9 @@ void proc_lit_bomb(int i)
       int dr = (int) (  (float)item[i][7] * r); // damage range scaled by ratio
 
       // do damage
-      bomb_blocks( i, 2, dr, itemf[i][0], itemf[i][1]);
-      bomb_enemies(i, 2, dr, itemf[i][0], itemf[i][1]);
-      bomb_players(i, 2, dr, itemf[i][0], itemf[i][1]);
+      bomb_blocks( i, 2, dr);
+      bomb_enemies(i, 2, dr);
+      bomb_players(i, 2, dr);
 
       if (item[i][8] == 16) game_event(22,0,0,0,0,0,0); // explosion sound
 
@@ -614,8 +616,8 @@ void proc_lit_bomb(int i)
 
 void draw_lit_bomb(int i)
 {
-   int x = al_fixtoi(itemf[i][0]);
-   int y = al_fixtoi(itemf[i][1]);
+   int x = itemf[i][0];
+   int y = itemf[i][1];
    int fuse_seq = 96;
    int expl_seq = 97;
    float r = 1 - (float)item[i][8] / (float)item[i][9]; // countdown timer ratio (0 - 1)
@@ -628,8 +630,8 @@ void draw_lit_bomb(int i)
       // get detonator position relative to player
       int p = item[i][13];
       int xo = players[p].left_right*28-14;
-      int px = al_fixtoi(players[p].PX) + xo;
-      int py = al_fixtoi(players[p].PY) + -1;
+      int px = players[p].x + xo;
+      int py = players[p].y + -1;
 
       // draw detonator
       al_draw_bitmap(mwB.tile[539], px, py, 0);
@@ -683,9 +685,9 @@ void draw_lit_bomb(int i)
       al_draw_circle(x+10, y+10, (float)item[i][7]*r+8, mC.pc[10], 1);
    }
 
-   bomb_blocks( i, 1, item[i][7], itemf[i][0], itemf[i][1]); // mark blocks that will be destroyed
-   bomb_enemies(i, 1, item[i][7], itemf[i][0], itemf[i][1]); // mark enemies
-   bomb_players(i, 1, item[i][7], itemf[i][0], itemf[i][1]); // mark players in damage range
+   bomb_blocks( i, 1, item[i][7]); // mark blocks that will be destroyed
+   bomb_enemies(i, 1, item[i][7]); // mark enemies
+   bomb_players(i, 1, item[i][7]); // mark players in damage range
 
    // debug show sequence numbers
    //al_draw_textf(mF.pr8, mC.pc[15], x, y-20, 0, "%d / %d  %f ", item[i][8], item[i][9], (float)item[i][8]/(float)item[i][9]);
@@ -693,52 +695,47 @@ void draw_lit_bomb(int i)
 
 void draw_rocket_lines(int i)
 {
-   al_fixed fxi = itemf[i][0]; // initial position
-   al_fixed fyi = itemf[i][1];
+   float fxi = itemf[i][0]; // initial position
+   float fyi = itemf[i][1];
 
-   al_fixed fx = fxi; // path variables
-   al_fixed fy = fyi;
-
+   float fx = fxi; // path variables
+   float fy = fyi;
 
    int speed = item[i][11];
    if (speed < 2000) speed = 2000; // if moving too slow, lines won't be drawn
 
-   // temp show speed
-   //al_draw_textf(mF.pr8, mC.pc[10], al_fixtof(fxi)+30, al_fixtof(fyi)+10, ALLEGRO_ALIGN_CENTER, "%d" ,speed );
-
-
-   al_fixed angle = al_itofix((item[i][10]-640) / 10);  // angle
-   al_fixed fxinc = (al_fixcos(angle) * speed) / 1000;  // x and y increments
-   al_fixed fyinc = (al_fixsin(angle) * speed) / 1000;
+   float angle = ((float) item[i][10] / 1000)-ALLEGRO_PI/2;
+   float fxinc = (cos(angle) * item[i][11]) / 1000;
+   float fyinc = (sin(angle) * item[i][11]) / 1000;
 
    for (int j=0; j<1000; j++)
    {
-      int x = al_fixtoi(fx += fxinc); // apply the increments
-      int y = al_fixtoi(fy += fyinc);
+      float x = fx += fxinc; // apply the increments
+      float y = fy += fyinc;
 
       if ((x < 0) || (x > 2000) || (y < 0) || (y > 2000)) j = 1000; // level bounds check
 
       // check for wall collisions
-      if ( ((fyinc < al_itofix(0))    && (is_up_solid(   x, y, 0, 3) == 1)) ||
-           ((fyinc > al_itofix(0))    && (is_down_solid( x, y, 0, 3) == 1)) ||
-           ((fyinc > al_itofix(0))    && (is_down_solid( x, y, 0, 3) == 2)) ||
-           ((fxinc < al_ftofix(-1.1)) && (is_left_solid( x, y, 0, 3) == 1)) ||
-           ((fxinc > al_ftofix(1.1))  && (is_right_solid(x, y, 0, 3) == 1)) )
+      if ( ((fyinc < 0)    && (is_up_solid(   x, y, 0, 3) == 1)) ||
+           ((fyinc > 0)    && (is_down_solid( x, y, 0, 3) == 1)) ||
+           ((fyinc > 0)    && (is_down_solid( x, y, 0, 3) == 2)) ||
+           ((fxinc < -1.1) && (is_left_solid( x, y, 0, 3) == 1)) ||
+           ((fxinc > 1.1)  && (is_right_solid(x, y, 0, 3) == 1)) )
       {
 
-         float fxf =  al_fixtof(fx)+10; // offset floats for display purposes
-         float fyf =  al_fixtof(fy)+10;
-         float fxif = al_fixtof(fxi)+10;
-         float fyif = al_fixtof(fyi)+10;
+         float fxf =  fx+10; // offset floats for display purposes
+         float fyf =  fy+10;
+         float fxif = fxi+10;
+         float fyif = fyi+10;
 
          int col = seq_color2(); // color sequence
          if (col) al_draw_circle(fxf, fyf, item[i][7], mC.pc[col], 2); // show damage range circle
          al_draw_filled_circle(fxf, fyf, 5, mC.pc[col]); // show center
          al_draw_line(fxif, fyif, fxf, fyf, mC.pc[10+80], 0); // draw connecting line
 
-         bomb_blocks( i, 1, item[i][7], fx, fy); // mark blocks that will be destroyed
-         bomb_enemies(i, 1, item[i][7], fx, fy); // mark enemies that will be destroyed
-         bomb_players(i, 1, item[i][7], fx, fy); // mark players in damage range
+         bomb_blocks( i, 1, item[i][7]); // mark blocks that will be destroyed
+         bomb_enemies(i, 1, item[i][7]); // mark enemies that will be destroyed
+         bomb_players(i, 1, item[i][7]); // mark players in damage range
 
          j = 1000; // to break out of loop
       }
@@ -765,8 +762,8 @@ void draw_rocket_lines(int i)
 void draw_item(int i, int custom, int cx, int cy)
 {
    int type = item[i][0];
-   int x = al_fixtoi(itemf[i][0]);
-   int y = al_fixtoi(itemf[i][1]);
+   int x = itemf[i][0];
+   int y = itemf[i][1];
 
    if (custom)
    {
@@ -812,20 +809,20 @@ void draw_item(int i, int custom, int cx, int cy)
    if ((type == 4) && (item[i][11] > 0) && (item[i][11] < 10))
    {
       // moving key in final stage gets static shape not ans
-      shape = item[i][1];                           // get shape
+      shape = item[i][1];                               // get shape
       if (shape > 999) shape = mwB.zz[5][shape-1000];   // get first shape only
 
       // stretch the key
-      float sc = 1 + 4*((10 - (float)item[i][11]) / 10);
-      float rot = al_fixtof(al_fixmul(al_itofix(item[i][10]/10), al_fixtorad_r));
+      float sc = 1 + 5*((10 - (float)item[i][11]) / 10);
+      float rot = (float) item[i][10] / 1000;
       al_draw_scaled_rotated_bitmap(mwB.tile[shape],10, 10, x+10, y+10, sc, sc, rot, 0);
-      drawn = 1;
 
       // draw a collapsing rectangle
-      int x1 = item[i][6] * 20;
-      int y1 = item[i][7] * 20;
-      int x2 = (item[i][8]+1) * 20;
-      int y2 = (item[i][9]+1) * 20;
+      int x1 = item[i][6];
+      int y1 = item[i][7];
+      int x2 = (item[i][6] + item[i][8]);
+      int y2 = (item[i][7] + item[i][9]);
+
       int xw = x2-x1;
       int yh = y2-y1;
       float xinc = xw/8;
@@ -834,15 +831,16 @@ void draw_item(int i, int custom, int cx, int cy)
       float seq = 9 - item[i][11]; // starts at 0, goes to 8
       int xo = (int)(seq * xinc / 2);
       int yo = (int)(seq * yinc / 2);
-      al_draw_rectangle(x1+xo, y1+yo, x2-xo, y2-yo, mC.pc[15], 1);
+      al_draw_rectangle(x1+xo, y1+yo, x2-xo, y2-yo, mC.White, 1);
+      drawn = 1;
    }
 
 
     // these types need rotation
    if ((type == 11) || (type == 98) ||  // rockets
-      ((type == 4) && (item[i][11] > 0))) // moving key
+      ((type == 4) && (item[i][11] > 0) && (!drawn)) ) // moving key
    {
-      float rot = al_fixtof(al_fixmul(al_itofix(item[i][10]/10), al_fixtorad_r));
+      float rot = (float) item[i][10] / 1000;
       al_draw_rotated_bitmap(mwB.tile[shape], 10, 10, x+10, y+10, rot, 0);
       drawn = 1;
    }
@@ -935,16 +933,16 @@ void proc_pmsg(int i)
    // check for player in trigger box
    if (item[i][2] & PM_ITEM_PMSG_TRIGGER_BOX)
    {
-      al_fixed tfx1 = al_itofix(item[i][6]-10);
-      al_fixed tfy1 = al_itofix(item[i][7]-10);
-      al_fixed tfx2 = tfx1 + al_itofix(item[i][8]);
-      al_fixed tfy2 = tfy1 + al_itofix(item[i][9]);
+      int tfx1 = item[i][6]-10;
+      int tfy1 = item[i][7]-10;
+      int tfx2 = tfx1 + item[i][8];
+      int tfy2 = tfy1 + item[i][9];
 
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((players[p].active) && (!players[p].paused))
          {
-            al_fixed x = players[p].PX;
-            al_fixed y = players[p].PY;
+            int x = players[p].x;
+            int y = players[p].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) proc_pmsg_reset_timer(i);
          }
    }
@@ -954,8 +952,8 @@ void proc_pmsg(int i)
 
 int is_item_stuck_to_wall(int i)
 {
-   int x = al_fixtoi(itemf[i][0]);
-   int y = al_fixtoi(itemf[i][1]);
+   int x = itemf[i][0];
+   int y = itemf[i][1];
    if ( (is_left_solid(x,y, 0, 3)) || (is_right_solid(x,y, 0, 3)) || (is_down_solid(x,y, 0, 3)) || (is_up_solid(x,y, 0, 3)) ) return 1;
    return 0;
 }
@@ -1073,8 +1071,8 @@ void move_items()
    for (int i=0; i<500; i++)
       if (item[i][0])
       {
-         int x = al_fixtoi(itemf[i][0]);
-         int y = al_fixtoi(itemf[i][1]);
+         int x = itemf[i][0];
+         int y = itemf[i][1];
          if ((x<0) || (x>1980) || (y<0) || (y>1980)) item[i][0] = 0; // remove if out of bounds
 
          int type = item[i][0];
@@ -1122,8 +1120,8 @@ void move_items()
                if ((type == 99) && (item[i][11])) sticky = 1;
                if ((sticky) && (is_item_stuck_to_wall(i)) )
                {
-                  itemf[i][2] = al_itofix(0);  // xinc
-                  itemf[i][3] = al_itofix(0);  // yinc
+                  itemf[i][2] = 0;  // xinc
+                  itemf[i][3] = 0;  // yinc
                }
                else
                {
@@ -1132,47 +1130,46 @@ void move_items()
                   itemf[i][1] += itemf[i][3];  // yinc
 
                   // slow down xinc (friction)
-                  if (itemf[i][2] > al_itofix(0))
+                  if (itemf[i][2] > 0)
                   {
-                      itemf[i][2] -= al_ftofix(.01);     // slow down +xinc
-                         if (itemf[i][2] < al_itofix(0)) // set to zero if crosses zero
-                            itemf[i][2] = al_itofix(0);
+                     itemf[i][2] -= .01;                    // slow down +xinc
+                     if (itemf[i][2] < 0) itemf[i][2] = 0; // set to zero if crosses zero
                   }
 
-                  if (itemf[i][2] < al_itofix(0))
+                  if (itemf[i][2] < 0)
                   {
-                      itemf[i][2] += al_ftofix(.01);     // slow down - xinc
-                         if (itemf[i][2] > al_itofix(0)) // set to zero if crosses zero
-                            itemf[i][2] = al_itofix(0);
+                     itemf[i][2] += .01;                    // slow down - xinc
+                     if (itemf[i][2] > 0) itemf[i][2] = 0; // set to zero if crosses zero
+
                   }
 
-                  x = al_fixtoi(itemf[i][0]);
-                  y = al_fixtoi(itemf[i][1]);
+                  x = itemf[i][0];
+                  y = itemf[i][1];
 
 
-                  // moving right
-                  if ((itemf[i][2] > al_itofix(0)) && (is_right_solid(x,y, 1, 3)))
-                  {
-                     if (!sticky) itemf[i][0] -= itemf[i][2];  // take back xinc
-                     itemf[i][2] = al_itofix(0);     // stop
-                  }
-
-                  // moving left
-                  if ((itemf[i][2] < al_itofix(0)) && (is_left_solid(x,y, 1, 3)))
+                  // moving right and hit wall
+                  if ((itemf[i][2] > 0) && (is_right_solid(x,y, 1, 3)))
                   {
                      if (!sticky) itemf[i][0] -= itemf[i][2];  // take back xinc
-                     itemf[i][2] = al_itofix(0);     // stop
+                     itemf[i][2] = 0;                           // stop
                   }
 
-                  x = al_fixtoi(itemf[i][0]);
-                  y = al_fixtoi(itemf[i][1]);
+                  // moving left and hit wall
+                  if ((itemf[i][2] < 0) && (is_left_solid(x,y, 1, 3)))
+                  {
+                     if (!sticky) itemf[i][0] -= itemf[i][2];  // take back xinc
+                     itemf[i][2] = 0;                           // stop
+                  }
+
+                  x = itemf[i][0];
+                  y = itemf[i][1];
 
                   // moving up
-                  if (itemf[i][3] < al_itofix(0))
+                  if (itemf[i][3] < 0)
                   {
                      if (is_up_solid(x, y, 0, 3) == 1)    // only check for solid blocks
-                        itemf[i][3] = al_itofix(0);        // if collision kill upwards yinc
-                     else itemf[i][3] += al_ftofix(.1);    // else de-accel
+                        itemf[i][3] = 0;                 // if collision kill upwards yinc
+                     else itemf[i][3] += .1;             // else de-accel
                   }
                   else // not moving up
                   {
@@ -1181,62 +1178,62 @@ void move_items()
                      {
 
                         if (! ((type == 99) && (item[i][6] == 2))) // no gravity for exploding bomb
-                           itemf[i][3] += al_ftofix(.1);           // apply gravity to yinc
+                           itemf[i][3] += .1;                     // apply gravity to yinc
 
-                        if (itemf[i][3] > al_itofix(3)) itemf[i][3] = al_itofix(3);  // max gravity
+                        if (itemf[i][3] > 3) itemf[i][3] = 3;  // max gravity
                      }
                      if (a) // slow down xinc if block or lift below
                      {
-                        if (itemf[i][2] > al_itofix(0)) itemf[i][2] -= al_ftofix(.12);
-                        if (itemf[i][2] < al_itofix(0)) itemf[i][2] += al_ftofix(.12);
+                        if (itemf[i][2] > 0) itemf[i][2] -= .12;
+                        if (itemf[i][2] < 0) itemf[i][2] += .12;
                      }
 
                      if ((a==1) || (a==2)) // align with ground if block below
                      {
-                        itemf[i][1] = al_itofix((y/20)*20); // align with ground
-                        itemf[i][3] = al_itofix(0);  // zero yinc
+                        itemf[i][1] = (y/20)*20; // align with ground
+                        itemf[i][3] = 0;         // zero yinc
                      }
 
                      if (a > 31) // item riding lift
                      {
                         int capture = 0;
 
-                        if (lifts[a-32].fyinc < al_itofix(0)) // lift is moving up
+                        if (lifts[a-32].yinc < 0) // lift is moving up
                         {
-                           int offset = al_fixtoi(lifts[a-32].fy) - y;   // to prevent lift from picking up early when lift going up
+                           int offset = lifts[a-32].y - y;   // to prevent lift from picking up early when lift going up
                            if (offset < 21) capture = 1;
                         }
-                        if (lifts[a-32].fyinc >= al_itofix(0)) // lift is moving down or steady
+                        if (lifts[a-32].yinc >= 0) // lift is moving down or steady
                         {
                            if (is_down_solid(x, y, 0, 3)) capture = 0; // to prevent lift attempting to take item down through solid block
                            else capture = 1;
-                           int offset = al_fixtoi(lifts[a-32].fy) - y;   // to prevent lift from picking up early when item going down
+                           int offset = lifts[a-32].y - y;   // to prevent lift from picking up early when item going down
                            if (offset > 21) capture = 0;
                         }
                         if (capture)
                         {
-                           al_fixed lxi = lifts[a-32].fxinc;
-                           al_fixed lyi = lifts[a-32].fyinc;
+                           float lxi = lifts[a-32].xinc;
+                           float lyi = lifts[a-32].yinc;
 
-                           itemf[i][0] += lxi;                             // move x with lift's xinc
-                           itemf[i][1]  = lifts[a-32].fy - al_itofix(20);  // align with lift's y
+                           itemf[i][0] += lxi;                 // move x with lift's xinc
+                           itemf[i][1]  = lifts[a-32].y - 20;  // align with lift's y
 
-                           x = al_fixtoi(itemf[i][0]);
-                           y = al_fixtoi(itemf[i][1]);
+                           x = itemf[i][0];
+                           y = itemf[i][1];
 
-                           if (lyi > al_itofix(0)) // down
-                              if (is_down_solid(x, y, 0, 3))                      // no lift check
-                                 itemf[i][1] = al_itofix(y - (y % 20));        // item not on lift anymore, align with block
+                           if (lyi > 0) // down
+                              if (is_down_solid(x, y, 0, 3))       // no lift check
+                                 itemf[i][1] = (y - (y % 20));    // item not on lift anymore, align with block
 
-                           if (lyi < al_itofix(0)) // up
+                           if (lyi < 0) // up
                               if (is_up_solid(x, y, 0, 3) == 1)
-                                 itemf[i][1] += al_itofix(10);
+                                 itemf[i][1] += 10;
 
-                           if (lxi > al_itofix(0)) // right
+                           if (lxi > 0) // right
                               if (is_right_solid(x, y, 1, 3))
                                  itemf[i][0] -= lxi;
 
-                           if (lxi < al_itofix(0)) // left
+                           if (lxi < 0) // left
                               if (is_left_solid(x, y, 1, 3))
                                  itemf[i][0] -= lxi;
                         }
@@ -1258,8 +1255,8 @@ int player_drop_item(int p)
    if (item[i][0] != 99) // not lit bomb
    {
       // check to see if the item is embedded in the wall
-      int x = al_fixtoi(itemf[i][0] );
-      int y = al_fixtoi(itemf[i][1] );
+      int x = itemf[i][0];
+      int y = itemf[i][1];
 
       if (players[p].left_right) // right
       {
@@ -1269,7 +1266,7 @@ int player_drop_item(int p)
             x--;
             wall_stuck++; // just how stuck was it?
          }
-         itemf[i][0] = al_itofix(x);
+         itemf[i][0] = x;
       }
 
       if (!players[p].left_right) // left
@@ -1280,10 +1277,10 @@ int player_drop_item(int p)
             x++;
             wall_stuck++; // just how stuck was it?
          }
-         itemf[i][0] = al_itofix(x);
+         itemf[i][0] = x;
        }
    }
-   else itemf[i][1] += al_itofix(2); // when putting bomb in wall, this stops it from snapping to block above
+   else itemf[i][1] += 2; // when putting bomb in wall, this stops it from snapping to block above
    return wall_stuck;
 }
 
@@ -1302,9 +1299,9 @@ void proc_player_carry(int p)
          if (item[i][0] != 98)            // not lit rocket
          {
             // set item position relative to player that's carrying it
-            itemf[i][1] = players[p].PY - al_itofix(2);
-            if (!players[p].left_right) itemf[i][0] = players[p].PX - al_itofix(15);
-            if (players[p].left_right) itemf[i][0] = players[p].PX + al_itofix(15);
+            itemf[i][1] = players[p].y - 2;
+            if (!players[p].left_right) itemf[i][0] = players[p].x - 15;
+            if (players[p].left_right)  itemf[i][0] = players[p].x + 15;
          }
          if (!players[p].fire) // drop
          {
@@ -1312,8 +1309,8 @@ void proc_player_carry(int p)
 
             if (players[p].paused && players[p].paused_type == 2) // door travel
             {
-               itemf[i][2] = al_itofix(0);
-               itemf[i][3] = al_itofix(0);
+               itemf[i][2] = 0;
+               itemf[i][3] = 0;
             }
             else if (wall_stuck < 6)
             {
@@ -1321,14 +1318,14 @@ void proc_player_carry(int p)
                {
                   itemf[i][2] = players[p].xinc;  // inherit the players momentum
                   itemf[i][3] = players[p].yinc;
-                  if (players[p].up)    itemf[i][3] -= al_itofix(6); // throw item upwards
-                  if (players[p].down)  itemf[i][3] = al_itofix(3); // throw item downwards
-                  if (players[p].left)  itemf[i][2] -= al_itofix(2); // throw item left
-                  if (players[p].right) itemf[i][2] += al_itofix(2); // throw item right
+                  if (players[p].up)    itemf[i][3] -= 6; // throw item upwards
+                  if (players[p].down)  itemf[i][3] =  3; // throw item downwards
+                  if (players[p].left)  itemf[i][2] -= 2; // throw item left
+                  if (players[p].right) itemf[i][2] += 2; // throw item right
                }
 
                // prevent sticky bombs from sticking to the ground when throwing upwards
-               if ((item[i][0] == 99) && (item[i][11]) && (players[p].up)) itemf[i][1] -= al_itofix(2);
+               if ((item[i][0] == 99) && (item[i][11]) && (players[p].up)) itemf[i][1] -= 2;
 
             }
          }
@@ -1369,8 +1366,8 @@ item[][13] = TGOF pm_event
 int proc_orb_shot_collision(int i)
 {
    int s = 8; // collison box size
-   float x = al_fixtof(itemf[i][0]);
-   float y = al_fixtof(itemf[i][1]);
+   float x = itemf[i][0];
+   float y = itemf[i][1];
    for (int b=0; b<50; b++)
       if (mwS.p[b].active)
       {
@@ -1514,7 +1511,6 @@ void proc_door_collision(int p, int i)
       // item[x][12] draw lines always, never
       // item[x][13] base animation shape
 
-
       if (item[i][8]) // do nothing if exit only
       {
          players[p].marked_door = i;
@@ -1574,9 +1570,8 @@ void proc_door_collision(int p, int i)
             }
 
             // get the destination
-            al_fixed dx = al_itofix(0), dy = al_itofix(0);
+            float dx=0, dy=0;
             int li = item[i][9]; // linked item number
-
             if ((li > -1) && (li < 500))
             {
                dx = itemf[li][0];
@@ -1584,12 +1579,12 @@ void proc_door_collision(int p, int i)
             }
             else bad_exit = 1;
 
-            if ( (dx < al_itofix(0)) || (dx > al_itofix(1980)) ) bad_exit = 1;
-            if ( (dy < al_itofix(0)) || (dy > al_itofix(1980)) ) bad_exit = 1;
+            if ((dx < 0) || (dx > 1980)) bad_exit = 1;
+            if ((dy < 0) || (dy > 1980)) bad_exit = 1;
 
             if (!bad_exit)
             {
-               if (item[i][13]) game_event(5, 0, 0, p, i, 0, 0); // no event if door is inivisible
+               if (item[i][13]) game_event(5, 0, 0, p, i, 0, 0); // no event if door is invisible
 
                int instant_move = 0;
                if (item[i][7] == 0) // 0 = auto
@@ -1603,14 +1598,14 @@ void proc_door_collision(int p, int i)
 
                if (instant_move)
                {
-                  players[p].PX = itemf[li][0];
-                  players[p].PY = itemf[li][1];
+                  players[p].x = itemf[li][0];
+                  players[p].y = itemf[li][1];
 
                   if (is_player_riding_rocket(p))
                   {
                      int c = players[p].carry_item-1;
-                     itemf[c][0] = players[p].PX;
-                     itemf[c][1] = players[p].PY;
+                     itemf[c][0] = players[p].x;
+                     itemf[c][1] = players[p].y;
                   }
 
                   item[li][10] = mwPS.frame_num;
@@ -1618,43 +1613,38 @@ void proc_door_collision(int p, int i)
                else
                {
                   // snap player to the source door
-                  players[p].PX = itemf[i][0];
-                  players[p].PY = itemf[i][1];
+                  players[p].x = itemf[i][0];
+                  players[p].y = itemf[i][1];
 
-                  players[p].right_xinc=al_itofix(0);
-                  players[p].left_xinc=al_itofix(0);
+                  players[p].right_xinc = 0;
+                  players[p].left_xinc  = 0;
 
                   // set player's xinc and yinc
-                  al_fixed xlen = players[p].PX - dx;                // get the x distance between player and exit
-                  al_fixed ylen = players[p].PY - dy;                // get the y distance between player and exit
-                  al_fixed hy_dist =  al_fixhypot(xlen, ylen);          // hypotenuse distance
-                  al_fixed speed = al_itofix(15);                       // speed
-                  al_fixed scaler = al_fixdiv(hy_dist, speed);          // get scaler
-                  players[p].door_xinc = al_fixdiv(xlen, scaler);    // calc xinc
-                  players[p].door_yinc = al_fixdiv(ylen, scaler);    // calc yinc
+                  float xlen = players[p].x - dx;     // get the x distance between player and exit
+                  float ylen = players[p].y - dy;     // get the y distance between player and exit
+                  float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
+                  float speed = 15;                        // speed
+                  float scaler = hy_dist / speed;          // get scaler
+                  players[p].door_xinc = xlen / scaler;    // calc xinc
+                  players[p].door_yinc = ylen / scaler;    // calc yinc
 
-                  // get rotation from players xinc, yinc
-                  players[p].door_draw_rot = al_fixatan2(players[p].door_yinc, players[p].door_xinc) - al_itofix(64);
+                  // set players rotation from xinc, yinc
+                  players[p].door_draw_rot = atan2(players[p].door_yinc, players[p].door_xinc) - ALLEGRO_PI/2;
 
-                  // get the number of steps
-                  al_fixed ns;
-                  if (abs(xlen) > abs(ylen)) ns = al_fixdiv(xlen, players[p].door_xinc);
-                  else  ns = al_fixdiv(ylen, players[p].door_yinc);
-                  int num_steps = al_fixtoi(ns);
+                  int num_steps = scaler;
 
                   if ((num_steps > 0) && (num_steps < 2000))
                   {
-                     players[p].door_draw_rot_num_steps = 12;
-                     int ddrns = players[p].door_draw_rot_num_steps;
+                     int ddrns = players[p].door_draw_rot_num_steps = 12;
                      players[p].door_num_steps = num_steps;
                      players[p].paused = 1;
                      players[p].paused_type = 2;
                      players[p].paused_mode = 1;
                      players[p].paused_mode_count = ddrns;
                      players[p].door_item = i;
-                     players[p].door_draw_rot_inc = al_fixdiv(players[p].door_draw_rot, al_itofix(ddrns));
+                     players[p].door_draw_rot_inc = players[p].door_draw_rot / ddrns;
                   }
-                  // printf("ns:%d xinc:%3.2f yinc:%3.2f \n", num_steps, al_fixtof(players[p].xinc), al_fixtof(players[p].yinc));
+                  // printf("ns:%d xinc:%3.2f yinc:%3.2f \n", num_steps, players[p].xinc, players[p].yinc);
                } // end of if not instant move
             }  // end of if not bad exit
          } // end of do entry
@@ -1694,16 +1684,16 @@ void proc_start_collision(int p, int i)
    if (ns == 0)
    {
       printf("Error: no start found.\n");
-      players[p].PX = al_itofix(20);
-      players[p].PY = al_itofix(20);;
+      players[p].x = 20;
+      players[p].y = 20;;
    }
 
    if (ns == 1)
    {
       players[p].spawn_point_index = 0;
       int ps = s[players[p].spawn_point_index];
-      players[p].PX = itemf[ps][0];
-      players[p].PY = itemf[ps][1];
+      players[p].x = itemf[ps][0];
+      players[p].y = itemf[ps][1];
    }
 */
 
@@ -1755,25 +1745,14 @@ void proc_bonus_collision(int p, int i)
 
    if (bonus_type == 1) // health bonus
    {
-      al_fixed f100 = al_itofix(100);
-
-
-      if (players[p].LIFE < f100)
+      if (players[p].health < 100)
       {
          item[i][0] = 0;
-         players[p].LIFE += al_itofix(item[i][7]);
-         if (players[p].LIFE > f100) players[p].LIFE = f100;
-
+         players[p].health += item[i][7];
+         if (players[p].health > 100) players[p].health = 100;
          game_event(72, 0, 0, p, i, item[i][1], item[i][7]);
       }
    }
-
-   if (bonus_type == 2) // free man
-   {
-      item[i][0] = 0;
-      game_event(70, 0, 0, p, i, 0, 0);
-   }
-
    if (bonus_type == 3) // purple coin!!!
    {
       item[i][0] = 0;
@@ -1791,8 +1770,8 @@ void proc_exit_collision(int p, int i)
       {
          players[0].level_done_mode = 9;
          players[0].level_done_timer = 0;
-         players[0].level_done_x = al_fixtoi(itemf[i][0]);
-         players[0].level_done_y = al_fixtoi(itemf[i][1]);
+         players[0].level_done_x = itemf[i][0];
+         players[0].level_done_y = itemf[i][1];
          players[0].level_done_player = p;
          players[0].level_done_next_level = play_level + 1;
          game_event(4, 0, 0, 0, 0, 0, 0);
@@ -1805,26 +1784,19 @@ void proc_key_collision(int p, int i)
 {
    if (item[i][11] == 0) // only collide if not already moving
    {
-      int x2 = (item[i][6] + item[i][8] / 2);         // get the center of the block range
-      int y2 = (item[i][7] + item[i][9] / 2);
-      al_fixed xlen = al_itofix(x2) - itemf[i][0];     // distance between block range and key
-      al_fixed ylen = al_itofix(y2) - itemf[i][1];
-      al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
-
-   //   printf("hy_dist:%d\n", al_fixtoi(hy_dist));
-
-      al_fixed speed = al_itofix(12);                  // speed
-      al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
-      al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
-      al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
+      float x2 = (item[i][6] + item[i][8] / 2) -10;     // get the center of the block range
+      float y2 = (item[i][7] + item[i][9] / 2) -10;
+      float xlen = x2 - itemf[i][0];                    // distance between block range and key
+      float ylen = y2 - itemf[i][1];
+      float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
+      float speed = 8;                    // speed
+      float scaler = hy_dist / speed;     // get scaler (time, time = dist/speed)
+      float xinc = xlen / scaler;         // calc xinc
+      float yinc = ylen / scaler;         // calc yinc
       itemf[i][2] = xinc;
       itemf[i][3] = yinc;
-      al_fixed angle = al_fixatan2(ylen, xlen);        // get the angle for item rotation
-      item[i][10] = al_fixtoi(angle) * 10;
-      al_fixed ns;                                     // get the number of steps
-      if (abs(xlen) > abs(ylen)) ns = al_fixdiv(xlen, xinc);
-      else  ns = al_fixdiv(ylen, yinc);
-      int num_steps = al_fixtoi(ns);
+      item[i][10] = atan2(yinc, xinc) * 1000;
+      int num_steps = scaler;
       item[i][11] = num_steps + 10;                    // add 10 for final sequence
       game_event(2, 0, 0, p, i, 0, 0);
    }
@@ -1832,7 +1804,7 @@ void proc_key_collision(int p, int i)
 
 void proc_mine_collision(int p, int i)
 {
-   players[p].LIFE -= al_itofix(item[i][8]) / 10;
+   players[p].health -= item[i][8] / 10;
    game_event(50, 0, 0, p, i, 0, item[i][8]);
 }
 
@@ -1875,8 +1847,8 @@ void proc_warp_collision(int p, int i)
       players[0].level_done_timer = 0;
 
 
-      players[0].level_done_x = al_fixtoi(itemf[i][0]);
-      players[0].level_done_y = al_fixtoi(itemf[i][1]);
+      players[0].level_done_x = itemf[i][0];
+      players[0].level_done_y = itemf[i][1];
       players[0].level_done_player = p;
       players[0].level_done_next_level = item[i][8];
       game_event(4, 0, 0, p, i, 0, 0);
@@ -1887,10 +1859,11 @@ void proc_switch_collision(int p, int i)
 {
    if (item[i][11] < mwPS.frame_num) // if not lockout
    {
-      // if falling and landing on it
-      if ( (players[p].PX  > itemf[i][0] - al_itofix(12)) && (players[p].PX  < itemf[i][0] + al_itofix(12)) &&
-           (players[p].PY  > itemf[i][1] - al_itofix(16)) && (players[p].PY  < itemf[i][1] - al_itofix(8)) &&
-           (players[p].yinc > al_itofix(0)) )  // falling
+      float px = players[p].x;
+      float py = players[p].y;
+      float ix = itemf[i][0];
+      float iy = itemf[i][1];
+      if ( (px > ix-12) && (px < ix+12) && (py > iy-16) && (py < iy-8) && (players[p].yinc > 0) )  // falling
       {
          item[i][11] = mwPS.frame_num + 4; // switch lockout for next 4 frames
          game_event(30, 0, 0, p, i, 0, 0);
@@ -1906,15 +1879,18 @@ void proc_switch_collision(int p, int i)
 
 void proc_sproingy_collision(int p, int i)
 {
-   if ( (players[p].PX  > itemf[i][0] - al_itofix(10)) &&
-        (players[p].PX  < itemf[i][0] + al_itofix(10)) &&
-        (players[p].PY  > itemf[i][1] - al_itofix(16)) &&
-        (players[p].PY  < itemf[i][1] - al_itofix(8)) &&
-        (players[p].yinc > al_itofix(0)) && // falling
+   float px = players[p].x;
+   float py = players[p].y;
+   float ix = itemf[i][0];
+   float iy = itemf[i][1];
+   if ( (px > ix-10) && (px < ix+10) && (py > iy-16) && (py < iy-8) &&
+        (players[p].yinc > 0) && // falling
         (players[p].jump) )   //  jump pressed
+
+
    {
       game_event(31, 0, 0, p, i, 0, 0);
-      players[p].yinc = al_itofix(0) - al_fixdiv(al_itofix(item[i][7]), al_ftofix(7.1));
+      players[p].yinc = 0 - (float) item[i][7] / 7.1;
    }
 }
 
@@ -1972,33 +1948,36 @@ void proc_item_collision(int p, int i)
 }
 
 
-
 void proc_lit_rocket(int i)
 {
    lit_item = 1;
 
-   int max_speed = item[i][8]*1000;
    int accel = item[i][9];
-   if (item[i][11] < max_speed) item[i][11]+=accel;   // add accel to speed
+   int max_speed = item[i][8]*1000;
+   item[i][11] += accel;                                  // add accel to speed
+   if (item[i][11] > max_speed) item[i][11] = max_speed;  // enforce max speed
 
-   al_fixed angle = al_itofix((item[i][10]-640) / 10);
-   itemf[i][2] = (al_fixcos(angle) * item[i][11]) / 1000;
-   itemf[i][3] = (al_fixsin(angle) * item[i][11]) / 1000;
+   float angle = ((float) item[i][10] / 1000)-ALLEGRO_PI/2;
+   itemf[i][2] = (cos(angle) * item[i][11]) / 1000;
+   itemf[i][3] = (sin(angle) * item[i][11]) / 1000;
 
-   int x = al_fixtoi(itemf[i][0] += itemf[i][2]); // apply the increments
-   int y = al_fixtoi(itemf[i][1] += itemf[i][3]);
+   itemf[i][0] += itemf[i][2]; // apply the increments
+   itemf[i][1] += itemf[i][3];
+
 
    // check for wall collisions
-   if ( ((itemf[i][3]<al_itofix(0)) && (is_up_solid(     x, y, 0, 3) == 1)) ||
-        ((itemf[i][3]>al_itofix(0)) && (is_down_solid(   x, y, 0, 3) == 1)) ||
-        ((itemf[i][3]>al_itofix(0)) && (is_down_solid(   x, y, 0, 3) == 2)) ||
-        ((itemf[i][2]<al_ftofix(-1.1)) && (is_left_solid(x, y, 0, 3) == 1)) ||
-        ((itemf[i][2]>al_ftofix(1.1)) && (is_right_solid(x, y, 0, 3) == 1)) )
+   int x = itemf[i][0];
+   int y = itemf[i][1];
+   if ( ((itemf[i][3]<0)    && (is_up_solid(   x, y, 0, 3) == 1)) ||
+        ((itemf[i][3]>0)    && (is_down_solid( x, y, 0, 3) == 1)) ||
+        ((itemf[i][3]>0)    && (is_down_solid( x, y, 0, 3) == 2)) ||
+        ((itemf[i][2]<-1.1) && (is_left_solid( x, y, 0, 3) == 1)) ||
+        ((itemf[i][2]>1.1)  && (is_right_solid(x, y, 0, 3) == 1)) )
    {
 
       // stop movement
-      itemf[i][2] = al_itofix(0);
-      itemf[i][3] = al_itofix(0);
+      itemf[i][2] = 0;
+      itemf[i][3] = 0;
 
       item[i][0] = 99;   // change to lit bomb
       item[i][6] = 2;    // mode 2; explosion
@@ -2018,15 +1997,13 @@ void proc_lit_rocket(int i)
    {
       // if any players are riding this rocket, bind them to rocket's position
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ( (players[p].active) && (!players[p].paused) && (players[p].carry_item) && (players[p].carry_item == i+1 ))
+         if ( (players[p].active) && (!players[p].paused) && (players[p].carry_item == i+1 ))
          {
-            players[p].PX = itemf[i][0];
-            players[p].PY = itemf[i][1];
+            players[p].x = itemf[i][0];
+            players[p].y = itemf[i][1];
          }
    }
 }
-
-
 
 
 
@@ -2121,11 +2098,11 @@ void proc_trigger(int i)
 void set_item_trigger_location_from_lift(int i, int a20)
 {
    int d = item[i][10]; // lift number
-   if (d < num_lifts) // only proceed if lift number is valid
+   if (lifts[d].active) // only proceed if lift number is valid
    {
       // x axis
-      int lx1 = lifts[d].x1;
-      int lx2 = lifts[d].x2;
+      int lx1 = lifts[d].x;
+      int lx2 = lifts[d].x + lifts[d].w;
       int C = item[i][3] & PM_ITEM_TRIGGER_LIFT_XC;
       int F = item[i][3] & PM_ITEM_TRIGGER_LIFT_XF;
       int L = item[i][3] & PM_ITEM_TRIGGER_LIFT_XL;
@@ -2142,8 +2119,8 @@ void set_item_trigger_location_from_lift(int i, int a20)
          if (( F) && ( L)) item[i][6] = lx2 - item[i][8]; // fx2 = lx2
       }
       // y axis
-      int ly1 = lifts[d].y1;
-      int ly2 = lifts[d].y2;
+      int ly1 = lifts[d].y;
+      int ly2 = lifts[d].y + lifts[d].h;
       C = item[i][3] & PM_ITEM_TRIGGER_LIFT_YC;
       F = item[i][3] & PM_ITEM_TRIGGER_LIFT_YF;
       L = item[i][3] & PM_ITEM_TRIGGER_LIFT_YL;
@@ -2174,49 +2151,49 @@ void detect_trigger_collisions(int i)
    int FLAGS = item[i][3];
 
    // trigger field
-   al_fixed tfx1 = al_itofix(item[i][6]-10);
-   al_fixed tfy1 = al_itofix(item[i][7]-10);
-   al_fixed tfx2 = tfx1 + al_itofix(item[i][8]);
-   al_fixed tfy2 = tfy1 + al_itofix(item[i][9]);
+   int tfx1 = item[i][6]-10;
+   int tfy1 = item[i][7]-10;
+   int tfx2 = tfx1 + item[i][8];
+   int tfy2 = tfy1 + item[i][9];
 
    if (FLAGS & PM_ITEM_TRIGGER_PLAYER)
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((players[p].active) && (!players[p].paused))
          {
-            al_fixed x = players[p].PX;
-            al_fixed y = players[p].PY;
+            int x = players[p].x;
+            int y = players[p].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
    if (FLAGS & PM_ITEM_TRIGGER_ENEMY)
       for (int e2=0; e2<100; e2++)
          if (Ei[e2][0])
          {
-            al_fixed x = Efi[e2][0];
-            al_fixed y = Efi[e2][1];
+            int x = Ef[e2][0];
+            int y = Ef[e2][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
    if (FLAGS & PM_ITEM_TRIGGER_ITEM)
       for (int c=0; c<500; c++)
          if (item[c][0])
          {
-            al_fixed x = itemf[c][0];
-            al_fixed y = itemf[c][1];
+            int x = itemf[c][0];
+            int y = itemf[c][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
    if (FLAGS & PM_ITEM_TRIGGER_PSHOT) // check player shots
       for (int b=0; b<50; b++)
          if (mwS.p[b].active)
          {
-            al_fixed x = al_ftofix(mwS.p[b].x);
-            al_fixed y = al_ftofix(mwS.p[b].y);
+            int x = mwS.p[b].x;
+            int y = mwS.p[b].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
    if (FLAGS & PM_ITEM_TRIGGER_ESHOT) // check enemy shots
       for (int b=0; b<50; b++)
          if (mwS.e[b].active)
          {
-            al_fixed x = al_ftofix(mwS.e[b].x);
-            al_fixed y = al_ftofix(mwS.e[b].y);
+            int x = mwS.e[b].x;
+            int y = mwS.e[b].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
 }
@@ -2380,11 +2357,11 @@ item[][15] = damage
 void set_item_damage_location_from_lift(int i, int a20)
 {
    int d = item[i][10]; // lift number
-   if (d < num_lifts) // only proceed if lift number is valid
+   if (lifts[d].active) // only proceed if lift number is valid
    {
       // x axis
-      int lx1 = lifts[d].x1;
-      int lx2 = lifts[d].x2;
+      int lx1 = lifts[d].x;
+      int lx2 = lifts[d].x + lifts[d].w;
       int C = item[i][3] & PM_ITEM_DAMAGE_LIFT_XC;
       int F = item[i][3] & PM_ITEM_DAMAGE_LIFT_XF;
       int L = item[i][3] & PM_ITEM_DAMAGE_LIFT_XL;
@@ -2401,8 +2378,8 @@ void set_item_damage_location_from_lift(int i, int a20)
          if (( F) && ( L)) item[i][6] = lx2 - item[i][8]; // fx2 = lx2
       }
       // y axis
-      int ly1 = lifts[d].y1;
-      int ly2 = lifts[d].y2;
+      int ly1 = lifts[d].y;
+      int ly2 = lifts[d].y + lifts[d].h;
       C = item[i][3] & PM_ITEM_DAMAGE_LIFT_YC;
       F = item[i][3] & PM_ITEM_DAMAGE_LIFT_YF;
       L = item[i][3] & PM_ITEM_DAMAGE_LIFT_YL;
@@ -2442,38 +2419,37 @@ void proc_item_damage_collisions(int i)
    int cdeb = ((cd) && (FLAGS & PM_ITEM_DAMAGE_ESHOT));   // damage active and enemy shot flag
 
    // damage field
-   al_fixed tfx1 = al_itofix(item[i][6]-10);
-   al_fixed tfy1 = al_itofix(item[i][7]-10);
-   al_fixed tfx2 = tfx1 + al_itofix(item[i][8]);
-   al_fixed tfy2 = tfy1 + al_itofix(item[i][9]);
+   int tfx1 = item[i][6]-10;
+   int tfy1 = item[i][7]-10;
+   int tfx2 = tfx1 + item[i][8];
+   int tfy2 = tfy1 + item[i][9];
 
    if (cdp)
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((players[p].active) && (!players[p].paused))
          {
-            al_fixed x = players[p].PX;
-            al_fixed y = players[p].PY;
+            int x = players[p].x;
+            int y = players[p].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
                if (FLAGS & PM_ITEM_DAMAGE_INSTGIB)
                {
-                  players[p].LIFE = al_itofix(0);
+                  players[p].health = 0;
                   //game_event(59, 0, 0, p, i, 0, 0);
                }
                else
                {
                   if (item[i][15] > 0) // lose health
                   {
-                     players[p].LIFE -= al_fixdiv(al_itofix(item[i][15]), al_itofix(100));
+                     players[p].health -= item[i][15]/100;
                      game_event(59, 0, 0, p, i, 0, 0); // only do damage noise when taking health..??
                   }
                   else // gain health
                   {
-                     al_fixed f100 = al_itofix(100);
-                     if (players[p].LIFE < f100)
+                     if (players[p].health < 100)
                      {
-                        players[p].LIFE -= al_fixdiv(al_itofix(item[i][15]), al_itofix(100));
-                        if (players[p].LIFE > f100) players[p].LIFE = f100;
+                        players[p].health -= item[i][15]/100;
+                        if (players[p].health > 100) players[p].health = 100;
                      }
                   }
                }
@@ -2483,8 +2459,8 @@ void proc_item_damage_collisions(int i)
       for (int e2=0; e2<100; e2++)
          if (Ei[e2][0])
          {
-            al_fixed x = Efi[e2][0];
-            al_fixed y = Efi[e2][1];
+            int x = Ef[e2][0];
+            int y = Ef[e2][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
                Ei[e2][31] = 3;           // flag that this enemy got shot
@@ -2495,8 +2471,8 @@ void proc_item_damage_collisions(int i)
       for (int i=0; i<500; i++)
          if (item[i][0])
          {
-            al_fixed x = itemf[i][0];
-            al_fixed y = itemf[i][1];
+            int x = itemf[i][0];
+            int y = itemf[i][0];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
                // orb, trig, bm, bd -- kill these immed
@@ -2514,16 +2490,16 @@ void proc_item_damage_collisions(int i)
       for (int b=0; b<50; b++)
          if (mwS.p[b].active)
          {
-            al_fixed x = al_ftofix(mwS.p[b].x);
-            al_fixed y = al_ftofix(mwS.p[b].y);
+            int x = mwS.p[b].x;
+            int y = mwS.p[b].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mwS.p[b].active = 0; // kill the shot
          }
    if (cdeb) // check enemy shots
       for (int b=0; b<50; b++)
          if (mwS.e[b].active)
          {
-            al_fixed x = al_ftofix(mwS.e[b].x);
-            al_fixed y = al_ftofix(mwS.e[b].y);
+            int x = mwS.e[b].x;
+            int y = mwS.e[b].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mwS.e[b].active = 0; // kill the shot
          }
 }

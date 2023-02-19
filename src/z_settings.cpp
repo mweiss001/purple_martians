@@ -688,7 +688,7 @@ void settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          float old_demo_mode_overlay_opacity = mwDM.demo_mode_overlay_opacity;
-         mdw_sliderd(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwDM.demo_mode_overlay_opacity, 0.8, 0, .01, "Demo mode overlay opacity:");
+         mdw_sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwDM.demo_mode_overlay_opacity, 0.8, 0, .01, "Demo mode overlay opacity:");
          if (old_demo_mode_overlay_opacity != mwDM.demo_mode_overlay_opacity) save_config();
 
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, test_opacity, "Test demo mode overlay opacity", tc, fc);
@@ -824,8 +824,8 @@ void settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          ya +=1;
-         mdw_sliderd(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwD.viewport_x_div, 1, 0.01, .01, "Hysteresis scale x:");
-         mdw_sliderd(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwD.viewport_y_div, 1, 0.01, .01, "Hysteresis scale y:");
+         mdw_sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwD.viewport_x_div, 1, 0.01, .01, "Hysteresis scale x:");
+         mdw_sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwD.viewport_y_div, 1, 0.01, .01, "Hysteresis scale y:");
 
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mwD.viewport_show_hyst, "Show Hysteresis Rectangle", tc, fc);
 

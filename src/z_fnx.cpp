@@ -301,8 +301,6 @@ void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float 
 
 }
 
-
-
 void change_block(int x, int y, int block)
 {
    l[x][y] = block;
@@ -310,7 +308,6 @@ void change_block(int x, int y, int block)
    al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
    al_draw_bitmap(mwB.btile[block & 1023], x*20, y*20, 0);
 }
-
 
 void get_hostname(int print)
 {
@@ -333,7 +330,6 @@ void get_hostname(int print)
    fclose(fp);
 }
 
-
 void mw_get_text_dimensions(ALLEGRO_FONT *f, const char* txt, int &bx, int &by, int &bw, int &bh)
 {
     // first get from the allegro method
@@ -348,7 +344,6 @@ void mw_get_text_dimensions(ALLEGRO_FONT *f, const char* txt, int &bx, int &by, 
 void make_palette(void)
 {
    // printf("make palette\n");
-
    mC.pc[0]  = al_map_rgb(  0,   0,   0); // black
    mC.pc[1]  = al_map_rgb(191, 108, 232); // alt purple 1
    mC.pc[2]  = al_map_rgb(136,  32, 172); // alt purple 2
@@ -427,21 +422,21 @@ void window_title(void)
 
 int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy)
 {
-   int empty = 1; // default is empty
+   int mpty = 1; // default is empty
 
-   if (test_block) if (l[x][y] > 31) empty = 0;
+   if (test_block) if (l[x][y] > 31) mpty = 0;
 
    if (test_enemy)
       for (int c=0; c<100; c++)
          if (Ei[c][0])
-            if ((Efi[c][0] == al_itofix(x*20)) && (Efi[c][1] == al_itofix(y*20))) empty = 0;
+            if ((Ef[c][0] == x*20) && (Ef[c][1] == y*20)) mpty = 0;
 
    if (test_item)
       for (int c=0; c<500; c++)
          if (item[c][0])
-            if ((item[c][4] == (x*20)) && (item[c][5] == (y*20))) empty = 0;
+            if ((item[c][4] == (x*20)) && (item[c][5] == (y*20))) mpty = 0;
 
-   return empty;
+   return mpty;
 }
 
 
@@ -467,243 +462,93 @@ void tsw(void)
 }
 
 
-al_fixed get_rot_from_xyinc(int EN)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// used in pod when moving
+// used in bouncer always
+// used in cannon when player not in prox range
+// used in level editor scale_bouncer_and_cannon_speed(int e)
+void set_enemy_rot_from_incs(int e)
 {
-   al_fixed xlen = Efi[EN][2];
-   al_fixed ylen = Efi[EN][3];
-   al_fixed angle = al_fixatan2(ylen, xlen);
-   return angle - al_itofix(64);
+   Ef[e][14] = atan2(Ef[e][3], Ef[e][2]) - ALLEGRO_PI/2;
 }
 
-al_fixed get_rot_from_PXY(int EN, int p)
+// used in cannon when player in prox range
+// used in podzilla and vinepod
+void set_enemy_rot_from_player(int e, int p)
 {
-   al_fixed xlen = players[p].PX - Efi[EN][0];
-   al_fixed ylen = players[p].PY - Efi[EN][1];
-   al_fixed angle = al_fixatan2(ylen, xlen);
-   return angle - al_itofix(64);
-}
-
-void seek_set_xyinc(int EN)
-{
-   int p = find_closest_player(EN);
-   al_fixed xlen = players[p].PX - Efi[EN][0];   // get the x distance between enemy and player
-   al_fixed ylen = players[p].PY - Efi[EN][1];   // get the y distance between enemy and player
-   al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
-   al_fixed speed = Efi[EN][5];                  // speed
-   al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
-   al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
-   al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
-   Efi[EN][2] = xinc;
-   Efi[EN][3] = yinc;
-}
-
-void seek_set_xyinc(int EN, int x, int y)
-{
-   al_fixed xlen = al_itofix(x) - Efi[EN][0];       // get the x distance between enemy and x
-   al_fixed ylen = al_itofix(y) - Efi[EN][1];       // get the y distance between enemy and y
-   al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
-   al_fixed speed = Efi[EN][5];                     // speed
-   al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler (it's time... distance/speed is time)
-   al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc  (what is this? v? distance/time = speed
-   al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
-   Efi[EN][2] = xinc;
-   Efi[EN][3] = yinc;
-}
-
-
-
-
-
-
-
-int find_closest_player_flapper(int EN, int dir)
-{
-   al_fixed prox = al_itofix(Ei[EN][17]); // al_fixed version of prox
-
-   al_fixed d[NUM_PLAYERS]; // array of distances for each player
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      d[p] = al_itofix(-1); // default result (player not in range or not active)
-      if ((players[p].active) && (!players[p].paused))
-      {
-         al_fixed xlen = players[p].PX - Efi[EN][0]; // get x distance
-         al_fixed ylen = players[p].PY - Efi[EN][1]; // get y distance
-         al_fixed dist = al_fixhypot(xlen, ylen);
-
-         al_fixed angle = al_fixatan2(ylen, xlen);
-
-         int ngl = al_fixtoi(angle);
-
-         // printf("angle:%d\n", ngl);
-
-         /*
-                       -64
-                        |
-             -127       |
-           128/-128 ----+---- 0
-              127       |
-                        |
-                       +64
-
-        only shoots at players in a 90 degree pie slice
-        45  to 135 for +xinc (-32 to +32)
-        225 to 315 for -xinc (96 to -96)
-
-        but it is actually from (96 to 128) and (-96 to -128)
-        not (96 to -96)
-
-
-         */
-
-
-         if ((dir == 1) && (ngl > -32) && (ngl < 32) && (dist < prox)) d[p] = dist; // right
-         if ((dir == 0) && ((ngl > 96) || (ngl < -96)) && (dist < prox)) d[p] = dist; // left
-
-
-
-
-      }
-   }
-
-   al_fixed closest_val = al_itofix(9999);
-   int closest_p = -1;
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      if ((d[p] != al_itofix(-1)) && (d[p] < closest_val))
-      {
-         closest_val = d[p];
-         closest_p = p;
-      }
-   }
-   if (closest_val == al_itofix(9999)) return -1;    // no player in range
-   else return closest_p;
-}
-//
-//int find_closest_player_flapper(int EN, int dir)
-//{
-//   al_fixed width = al_itofix(Ei[EN][17]); // al_fixed version of width
-//   int height  = Ei[EN][18];
-//   int depth   = Ei[EN][19];
-//
-//   // get the enemy's trigger box y values
-//   int ey = al_fixtoi(Efi[EN][1]);
-//   int ey1 = ey - height;
-//   int ey2 = ey + depth;
-//
-//   al_fixed d[NUM_PLAYERS]; // array of distances for each player
-//   for (int p=0; p<NUM_PLAYERS; p++)
-//   {
-//      d[p] = al_itofix(-1); // default result (player not in range or not active)
-//      if ((players[p].active) && (!players[p].paused))
-//      {
-//         // is player in the y range?
-//         int py = al_fixtoi(players[p].PY)+10;
-//         if ((py > ey1) && (py < ey2))
-//         {
-//            al_fixed xlen = players[p].PX - Efi[EN][0]; // get x distance
-//            if ((!dir) && (xlen < al_itofix(0))) d[p] = -xlen; // left
-//            if ( (dir) && (xlen > al_itofix(0))) d[p] =  xlen; // right
-//         }
-//      }
-//      // check if distance is within range (width); invalidate if not
-//      if (d[p] > width) d[p] = al_itofix(-1);
-//   }
-//
-//   al_fixed closest_val = al_itofix(9999);
-//   int closest_p = -1;
-//   for (int p=0; p<NUM_PLAYERS; p++)
-//   {
-//      if ((d[p] != al_itofix(-1)) && (d[p] < closest_val))
-//      {
-//         closest_val = d[p];
-//         closest_p = p;
-//      }
-//   }
-//   if (closest_val == al_itofix(9999)) return -1;    // no player in range
-//   else return closest_p;
-//}
-
-
-int find_closest_player_quad(int EN, int quad, int prox)
-{
-   int closest_p = -1;    // return -1 if no player in range
-   al_fixed closest_val = al_itofix(3000);
-
-   al_fixed fz = al_itofix(0);
-   al_fixed fm1 = al_itofix(-1);
-   al_fixed fprox = al_itofix(prox);
-
-   al_fixed d[NUM_PLAYERS];
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      d[p] = fm1; // default result (players not in quad or not active)
-      if ((players[p].active) && (!players[p].paused))
-      {
-         al_fixed xlen = players[p].PX - Efi[EN][0];
-         al_fixed ylen = players[p].PY - Efi[EN][1];
-
-/*           normal cartesian
-              I    x+  Y+        II | I
-             II    x-  Y+       ----+----
-             III   x-  Y-       III | IV
-             IV    x+  Y-
-
-             screen
-              I    x+  Y-        II | I
-             II    x-  Y-       ----+----
-             III   x-  Y+       III | IV
-             IV    x+  Y+ */
-
-            if ((quad == 1) && (xlen >= fz) && (ylen <= fz)) d[p] = al_fixhypot(xlen,ylen);
-            if ((quad == 2) && (xlen <= fz) && (ylen <= fz)) d[p] = al_fixhypot(xlen,ylen);
-            if ((quad == 3) && (xlen <= fz) && (ylen >= fz)) d[p] = al_fixhypot(xlen,ylen);
-            if ((quad == 4) && (xlen >= fz) && (ylen >= fz)) d[p] = al_fixhypot(xlen,ylen);
-         }
-         // check if distances are within range
-         if (d[p] > fprox) d[p] = fm1;
-   }
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if ((d[p] != fm1) && (d[p] < closest_val))
-      {
-         closest_val = d[p];
-         closest_p = p;
-      }
-   if (closest_val == al_itofix(3000)) return -1;    // no player in range
-   else return closest_p;
+   float xlen = players[p].x - Ef[e][0];
+   float ylen = players[p].y - Ef[e][1];
+   Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI/2;
 }
 
 
-
-// finds closest player
-// if closest player is not within dist, returns -1
-int find_closest_player_cannon(int e, int dist)
+// used once in bouncer cannon common
+void seek_set_xyinc(int e)
 {
-   int closest_player = -1; // default if no player within distance
-   al_fixed hd = al_itofix(10000);
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if ((players[p].active) && (!players[p].paused))
-      {
-         al_fixed h = al_fixhypot((players[p].PX - Efi[e][0]), (players[p].PY - Efi[e][1]));
-         if (h < hd)
-         {
-             hd = h;
-             closest_player = p;
-         }
-      }
-   if (al_fixtoi(hd) < dist) return closest_player;
-   else return -1;
+   int p = find_closest_player(e);
+   float xlen = players[p].x - Ef[e][0];
+   float ylen = players[p].y - Ef[e][1];
+   float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
+   float speed = Ef[e][5];                              // speed
+   float scaler = hy_dist / speed;     // get scaler
+   Ef[e][2] = xlen / scaler;         // calc xinc
+   Ef[e][3] = ylen / scaler;         // calc 7inc
 }
 
-
-
-int find_closest_player(int EN)
+// used by flapper y seek
+// used by trakbot falling seek
+// used by podzilla shoot
+// used by podzilla to set rot when extended
+// used by vinepod shoot
+// used by vinepod to set rot when extended
+// used by walker_archwagon_common in follow mode
+// used by walker_archwagon_common to face left or right when can't move
+// used by bouncer cannon common set_seek
+int find_closest_player(int e)
 {
    int closest_player = 0; // defaults to zero (will always return a valid player)
-   al_fixed hd = al_itofix(10000);
+   float hd = 99999;
    for (int p=0; p<NUM_PLAYERS; p++)
       if ((players[p].active) && (!players[p].paused))
       {
-         al_fixed h = al_fixhypot((players[p].PX - Efi[EN][0]), (players[p].PY - Efi[EN][1]));
+         float xlen = players[p].x - Ef[e][0];
+         float ylen = players[p].y - Ef[e][1];
+         float h = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
          if (h < hd)
          {
              hd = h;
@@ -714,760 +559,182 @@ int find_closest_player(int EN)
 }
 
 
+// used only by flapper
+int find_closest_player_flapper(int e)
+{
+   int dir = Ei[e][2];
 
+   float prox = Ei[e][17];
+   float d[NUM_PLAYERS]; // array of distances for each player
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      d[p] = -1;
+      if ((players[p].active) && (!players[p].paused))
+      {
+         float xlen = players[p].x - Ef[e][0];            // get x distance
+         float ylen = players[p].y - Ef[e][1];            // get y distance
+         float dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
+         float angle = atan2(ylen, xlen) + ALLEGRO_PI/2;  // get raw angle and add 90 deg in radians
+         float da = (angle / (ALLEGRO_PI*2)) * 360;       // convert from radians to degrees
+         if (da < 0) da += 360;                           // add 360 if negative
 
+         if ((dir == 1) && (da >  45) && (da < 135) && (dist < prox)) d[p] = dist; // right
+         if ((dir == 0) && (da > 225) && (da < 315) && (dist < prox)) d[p] = dist; // left
 
+         // printf("angle:%d\n", ngl);
 /*
-
-backup copies of the old method----------------------------------------------------------------------------------------------------
-
-// returns 1 for solid block, 2 for semi-solid, or 32+lift_num for lift
-int is_right_solid(int solid_x, int solid_y, int lift_check)
-{
-   int a, b, c, d;
-   int xx = solid_x / 20 + 1;
-   int yy = solid_y / 20;
-   int cc = solid_y / 20 + 1;
-   a = solid_y % 20;
-
-   if (lift_check)
-      for (d = 0; d<num_lifts; d++)
-
-         if (solid_y > lifts[d].y1 - 18)
-            if (solid_y < lifts[d].y2 - 2)
-               if (solid_x < lifts[d].x1 - 8)
-                  if (solid_x > lifts[d].x1 - 18)
-                     return 32+d;
-
-   if (a > 16)  // next block only
-   {
-      c = l[xx][cc];
-      if ((c > 63) && (c < NUM_SPRITES)) return 1;
-      if ((c > 31) && (c < NUM_SPRITES)) return 2;
-   }
-   if (a < 3)    // this block only
-   {
-      c = l[xx][yy];
-      if ((c > 63) && (c < NUM_SPRITES)) return 1;
-      if ((c > 31) && (c < NUM_SPRITES)) return 2;
-   }
-   if ((a > 2) && (a < 17)) // dual compare with ||
-   {
-      b = l[xx][yy];
-      c = l[xx][cc];
-      if ( ((b > 63) && (b < NUM_SPRITES)) || ((c > 63) && (c < NUM_SPRITES)) ) return 1;
-      if ( ((b > 31) && (b < NUM_SPRITES)) || ((c > 31) && (c < NUM_SPRITES)) ) return 2;
-   }
-   return 0;
-}
-
-
-
-
-// returns 1 for solid block, 2 for semi-solid, or 32+lift_num for lift
-int is_left_solid(int solid_x, int solid_y, int lift_check)
-{
-   int a, b, c, d;
-   int xx = solid_x / 20;
-   int yy = solid_y / 20;
-   int cc = solid_y / 20 + 1;
-   a = solid_y % 20;
-   if (lift_check)
-      for (d = 0; d<num_lifts; d++)
-         if (solid_y > lifts[d].y1 - 18)
-            if (solid_y < lifts[d].y2 - 2)
-               if (solid_x < lifts[d].x2 + 2)
-                  if (solid_x > lifts[d].x2 - 8)
-                     return 32+d;
-
-   if (a > 16)  // next block only
-   {
-      c = l[xx][cc];
-      if ((c > 63) && (c < NUM_SPRITES)) return 1;
-      if ((c > 31) && (c < NUM_SPRITES)) return 2;
-   }
-   if (a < 3)    // this block only
-   {
-      c = l[xx][yy];
-      if ((c > 63) && (c < NUM_SPRITES)) return 1;
-      if ((c > 31) && (c < NUM_SPRITES)) return 2;
-   }
-   if ((a > 2) && (a < 17)) // dual compare with ||
-   {
-      b = l[xx][yy];
-      c = l[xx][cc];
-      if ( ((b > 63) && (b < NUM_SPRITES)) || ((c > 63) && (c < NUM_SPRITES)) ) return 1;
-      if ( ((b > 31) && (b < NUM_SPRITES)) || ((c > 31) && (c < NUM_SPRITES)) ) return 2;
-   }
-   return 0;
-}
-
-
-
-// returns 1 for solid block, 2 for semi-solid, or 32+lift_num for lift
-int is_down_solid(int solid_x, int solid_y, int lift_check)
-{
-   int a, b, c, d;
-   int yy = solid_y / 20 + 1;
-   int cc = solid_x / 20;
-   int xx = solid_x / 20 + 1;
-   a = solid_x % 20;
-   if (lift_check)
-      for (d = 0; d<num_lifts; d++)
-            if (solid_x > lifts[d].x1-18)
-               if (solid_x < lifts[d].x2-2)
-                  if (solid_y > lifts[d].y1 - 25)
-                     if (solid_y < lifts[d].y1 - 10)
-                         return d+32;
-
-   if (a > 16)  // next block only
-   {
-      c = l[xx][yy];
-      if ((c > 63) && (c < NUM_SPRITES)) return 1;
-      if ((c > 31) && (c < NUM_SPRITES)) return 2;
-   }
-   if (a < 3)    // this block only
-   {
-      c = l[cc][yy];
-      if ((c > 63) && (c < NUM_SPRITES)) return 1;
-      if ((c > 31) && (c < NUM_SPRITES)) return 2;
-   }
-   if ((a > 2) && (a <17)) // dual compare with ||
-   {
-      b = l[xx][yy];
-      c = l[cc][yy];
-      if ( ((b > 63) && (b < NUM_SPRITES)) || ((c > 63) && (c < NUM_SPRITES)) ) return 1;
-      if ( ((b > 31) && (b < NUM_SPRITES)) || ((c > 31) && (c < NUM_SPRITES)) ) return 2;
-   }
-
-   return 0;
-}
-
-
-// returns 1 for solid block, 2 for semi-solid, or 32+lift_num for lift
-int is_up_solid(int solid_x, int solid_y, int lift_check)
-{
-   int yy = (solid_y - 2) / 20;
-   int cc = solid_x / 20;
-   int xx = solid_x / 20 + 1;
-   int a = solid_x % 20;
-
-   if (lift_check)
-      for (int d = 0; d<num_lifts; d++)
-         if (solid_x > lifts[d].x1 - 18)
-            if (solid_x < lifts[d].x2 - 2)
-               if (solid_y < lifts[d].y2 + 2)
-                  if (solid_y > lifts[d].y2 - 10)
-                     return d+32;
-
-   if (a > 16)  // next block only
-   {
-      int c = l[xx][yy];
-      if ((c > 63) && (c < NUM_SPRITES)) return 1;
-      if ((c > 31) && (c < NUM_SPRITES)) return 2;
-   }
-   if (a < 3)    // this block only
-   {
-      int c = l[cc][yy];
-      if ((c > 63) && (c < NUM_SPRITES)) return 1;
-      if ((c > 31) && (c < NUM_SPRITES)) return 2;
-   }
-   if ((a > 2) && (a < 17))// dual compare with ||
-   {
-      int b = l[cc][yy];
-      int c = l[xx][yy];
-      if ( ((b > 63) && (b < NUM_SPRITES)) || ((c > 63) && (c < NUM_SPRITES)) ) return 1;
-      if ( ((b > 31) && (b < NUM_SPRITES)) || ((c > 31) && (c < NUM_SPRITES)) ) return 2;
-   }
-   return 0;
-}
-backup copies of the old method----------------------------------------------------------------------------------------------------
-backup copies of the old method----------------------------------------------------------------------------------------------------
-backup copies of the old method----------------------------------------------------------------------------------------------------
-backup copies of the old method----------------------------------------------------------------------------------------------------
-
-
+                       -64
+                        |
+             -127       |
+           128/-128 ----+---- 0
+              127       |
+                        |
+                       +64
+        only shoots at players in a 90 degree pie slice
+        45  to 135 for +xinc (-32 to +32)
+        225 to 315 for -xinc (96 to -96)
 */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// helper function for is_right_solid, is_left_solid, is_down_solid
-int is_solid(int b, int c, int type)
-{
-   if (b == -1) // do c only
-   {
-      if ((type == 1) && (c & PM_BTILE_SOLID_PLAYER)) return 1;
-      if ((type == 2) && (c & PM_BTILE_SOLID_ENEMY))  return 1;
-      if ((type == 3) && (c & PM_BTILE_SOLID_ITEM))   return 1;
-      if ((type == 4) && (c & PM_BTILE_SOLID_PBUL))   return 1;
-      if ((type == 5) && (c & PM_BTILE_SOLID_EBUL))   return 1;
-   }
-   else
-   {
-      if ((type == 1) && ((b & PM_BTILE_SOLID_PLAYER) || (c & PM_BTILE_SOLID_PLAYER)))  return 1;
-      if ((type == 2) && ((b & PM_BTILE_SOLID_ENEMY)  || (c & PM_BTILE_SOLID_ENEMY)))   return 1;
-      if ((type == 3) && ((b & PM_BTILE_SOLID_ITEM)   || (c & PM_BTILE_SOLID_ITEM)))    return 1;
-      if ((type == 4) && ((b & PM_BTILE_SOLID_PBUL)   || (c & PM_BTILE_SOLID_PBUL)))    return 1;
-      if ((type == 5) && ((b & PM_BTILE_SOLID_EBUL)   || (c & PM_BTILE_SOLID_EBUL)))    return 1;
-   }
-   return 0;
-}
-
-// custom type for is_up_solid, to take into account semisolid exceptions
-int is_solidu(int b, int c, int type)
-{
-   if (b == -1) // do c only
-   {
-      if ((type == 1) && (c & PM_BTILE_SOLID_PLAYER) && (!(c & PM_BTILE_SEMISOLID_PLAYER))) return 1;
-      if ((type == 2) && (c & PM_BTILE_SOLID_ENEMY)  && (!(c & PM_BTILE_SEMISOLID_ENEMY)))  return 1;
-      if ((type == 3) && (c & PM_BTILE_SOLID_ITEM)   && (!(c & PM_BTILE_SEMISOLID_ITEM)))   return 1;
-      if ((type == 4) && (c & PM_BTILE_SOLID_PBUL)) return 1;
-      if ((type == 5) && (c & PM_BTILE_SOLID_EBUL)) return 1;
-   }
-   else
-   {
-      if ( (type == 1) &&
-           ( ((b & PM_BTILE_SOLID_PLAYER) && (!(b & PM_BTILE_SEMISOLID_PLAYER))) ||
-             ((c & PM_BTILE_SOLID_PLAYER) && (!(c & PM_BTILE_SEMISOLID_PLAYER))) )
-         ) return 1;
-     if ( (type == 2) &&
-           ( ((b & PM_BTILE_SOLID_ENEMY)  && (!(b & PM_BTILE_SEMISOLID_ENEMY))) ||
-             ((c & PM_BTILE_SOLID_ENEMY)  && (!(c & PM_BTILE_SEMISOLID_ENEMY))) )
-         ) return 1;
-      if ( (type == 3) &&
-           ( ((b & PM_BTILE_SOLID_ITEM)   && (!(b & PM_BTILE_SEMISOLID_ITEM))) ||
-             ((c & PM_BTILE_SOLID_ITEM)   && (!(c & PM_BTILE_SEMISOLID_ITEM))) )
-         ) return 1;
-      if ((type == 4) && ((b & PM_BTILE_SOLID_PBUL)   || (c & PM_BTILE_SOLID_PBUL)))    return 1;
-      if ((type == 5) && ((b & PM_BTILE_SOLID_EBUL)   || (c & PM_BTILE_SOLID_EBUL)))    return 1;
-   }
-   return 0;
-}
-
-// returns 1 for solid block, 32+lift_num for lift
-int is_right_solid(int solid_x, int solid_y, int lift_check, int type)
-{
-   int xx = solid_x / 20 + 1;
-   int yy = solid_y / 20;
-   int cc = solid_y / 20 + 1;
-   int a = solid_y % 20;
-
-   if (lift_check)
-      for (int d=0; d<num_lifts; d++)
-         if ( ((type == 1) && (lifts[d].flags & PM_LIFT_SOLID_PLAYER)) ||
-              ((type == 2) && (lifts[d].flags & PM_LIFT_SOLID_ENEMY )) ||
-              ((type == 3) && (lifts[d].flags & PM_LIFT_SOLID_ITEM  )) )
-         if (solid_y > lifts[d].y1 - 18)
-            if (solid_y < lifts[d].y2 - 2)
-               if (solid_x < lifts[d].x1 - 8)
-                  if (solid_x > lifts[d].x1 - 18)
-                     return 32+d;
-   if (a > 16)  // next block only
-      if (is_solid( -1, l[xx][cc], type)) return 1;
-
-   if (a < 3)    // this block only
-      if (is_solid( -1, l[xx][yy], type)) return 1;
-
-   if ((a > 2) && (a <17)) // dual compare with ||
-      if (is_solid( l[xx][yy], l[xx][cc], type)) return 1;
-
-   return 0;
-}
-
-// returns 1 for solid block, 32+lift_num for lift
-int is_left_solid(int solid_x, int solid_y, int lift_check, int type)
-{
-   int xx = solid_x / 20;
-   int yy = solid_y / 20;
-   int cc = solid_y / 20 + 1;
-   int a = solid_y % 20;
-   if (lift_check)
-      for (int d = 0; d<num_lifts; d++)
-         if ( ((type == 1) && (lifts[d].flags & PM_LIFT_SOLID_PLAYER)) ||
-              ((type == 2) && (lifts[d].flags & PM_LIFT_SOLID_ENEMY )) ||
-              ((type == 3) && (lifts[d].flags & PM_LIFT_SOLID_ITEM  )) )
-         if (solid_y > lifts[d].y1 - 18)
-            if (solid_y < lifts[d].y2 - 2)
-               if (solid_x < lifts[d].x2 + 2)
-                  if (solid_x > lifts[d].x2 - 8)
-                     return 32+d;
-
-   if (a > 16)  // next block only
-      if (is_solid( -1, l[xx][cc], type)) return 1;
-
-   if (a < 3)    // this block only
-      if (is_solid( -1, l[xx][yy], type)) return 1;
-
-   if ((a > 2) && (a <17)) // dual compare with ||
-      if (is_solid( l[xx][yy], l[xx][cc], type)) return 1;
-
-   return 0;
-}
-
-// returns 1 for solid block, 32+lift_num for lift
-int is_down_solid(int solid_x, int solid_y, int lift_check, int type)
-{
-   int yy = solid_y / 20 + 1;
-   int cc = solid_x / 20;
-   int xx = solid_x / 20 + 1;
-   int a = solid_x % 20;
-   if (lift_check)
-      for (int d=0; d<num_lifts; d++)
-         if ( ((type == 1) && (lifts[d].flags & PM_LIFT_SOLID_PLAYER)) ||
-              ((type == 2) && (lifts[d].flags & PM_LIFT_SOLID_ENEMY )) ||
-              ((type == 3) && (lifts[d].flags & PM_LIFT_SOLID_ITEM  )) )
-            if (solid_x > lifts[d].x1-18)
-               if (solid_x < lifts[d].x2-2)
-                  if (solid_y > lifts[d].y1 - 25)
-                     if (solid_y < lifts[d].y1 - 10)
-                         return d+32;
-
-   if (a > 16)  // next block only
-      if (is_solid( -1, l[xx][yy], type)) return 1;
-
-   if (a < 3)    // this block only
-      if (is_solid( -1, l[cc][yy], type)) return 1;
-
-   if ((a > 2) && (a <17)) // dual compare with ||
-      if (is_solid( l[xx][yy], l[cc][yy], type)) return 1;
-   return 0;
-}
-
-// returns 1 for solid block, 32+lift_num for lift
-int is_up_solid(int solid_x, int solid_y, int lift_check, int type)
-{
-   int yy = (solid_y - 2) / 20;
-   int cc = solid_x / 20;
-   int xx = solid_x / 20 + 1;
-   int a = solid_x % 20;
-
-   if (lift_check)
-      for (int d = 0; d<num_lifts; d++)
-         if ( ((type == 1) && (lifts[d].flags & PM_LIFT_SOLID_PLAYER)) ||
-              ((type == 2) && (lifts[d].flags & PM_LIFT_SOLID_ENEMY )) ||
-              ((type == 3) && (lifts[d].flags & PM_LIFT_SOLID_ITEM  )) )
-         if (solid_x > lifts[d].x1 - 18)
-            if (solid_x < lifts[d].x2 - 2)
-               if (solid_y < lifts[d].y2 + 2)
-                  if (solid_y > lifts[d].y2 - 10)
-                    return d+32;
-
-   if (a > 16)  // next block only
-      if (is_solidu( -1, l[xx][yy], type)) return 1;
-
-   if (a < 3)    // this block only
-      if (is_solidu( -1, l[cc][yy], type)) return 1;
-
-   if ((a > 2) && (a <17)) // dual compare with ||
-      if (is_solidu( l[xx][yy], l[cc][yy], type)) return 1;
-
-   return 0;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-These 4 functions:
-
-al_fixed is_up_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
-al_fixed is_down_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
-al_fixed is_left_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
-al_fixed is_right_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
-
-are used with trakbot only (for now).
-
-They are more accurate than the other ones, they work to the exact pixel.
-This was needed when trakbot clings to walls, ceilings and floors,
-and need to navigate single block openings.
-
-It is possible to move exactly adjacent to a solid, and not trigger a solid.
-
-These checks have some new parameters:
-'al_fixed fmove' - is the distance of the requested move
-we want to know if we can move that far
-the functions returns 'al_fixed allowed_move' - how far before the condition is met.
-
-it is assumed that whatever calls the functions will add fmove to position (fx or fy) on return
-by comparing requested move to allowed move you can tell if a collision occured:
-
-mv = is_down_solidfm(Efi[EN][0], Efi[EN][1], Efi[EN][2], 1);
-if (mv < Efi[EN][2]) // allowed move less than requested move
-
-'int dir' - the direction to look and the type of thing we are checking for
-
-if dir == 0, we are looking in the direction of the named function for the next solid
-
-for example:
-is_down_solidfm(fx, fy, fmove, 0)
-looks down from fy, fmove amount for a solid
-if none is found, the full fmove is returned
-if solid is found, fmove is adjusted to make the move line up with solid
-
-if (dir == 1 or -1) we are looking at a right angle from the named function
-for the next empty
-
-for example:
-is_down_solidfm(fx, fy, fmove, 1)
-looks right (+1 in x dir) from fx for the next empty below
-if none is found, the full fmove is returned
-if empty is found, fmove is adjusted to make the move line up to the next empty
-
-is_down_solidfm(fx, fy, fmove, -1)
-looks left (-1 in x dir) from fx for the next empty below
-if none is found, the full fmove is returned
-if empty is found, fmove is adjusted to make the move line up to the next empty
-
-if you just want to know if the floor below you is solid:
-is_down_solidfm(fx, fy, al_itofix(1), 0)
-
-also they completely ignore lifts
-
-
-*/
-
-al_fixed is_up_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
-{
-   int ix = al_fixtoi(fx);
-   int iy = al_fixtoi(fy);
-   int im = al_fixtoi(fmove);
-   int move = 0;
-   for (int t=0; t<=im; t++)
-   {
-      int j = 0, a, b=0, c=0, ret = 0, xx, yy, cc;
-      if (dir == 0) yy = (iy-t-1) / 20;
-      else
-      {
-         yy = (iy-1) / 20;
-         j = dir * t;
-      }
-      cc = (ix+j) / 20;
-      xx = (ix+j) / 20 + 1;
-      a = (ix+j) % 20;
-
-      if (a == 0)    // this block only
-      {
-         c = l[cc][yy];
-         ret = is_solid(-1, c, 2);
-      }
-      else // dual compare with ||
-      {
-         b = l[xx][yy];
-         c = l[cc][yy];
-         ret = is_solid(b, c, 2);
-      }
-      if (dir == 0) // solid mode - look up for next solid
-      {
-         if (ret) // as soon as solid is found, return
-         {
-             int fp = iy - move;             // next solid pos
-             al_fixed dist = fy - al_itofix(fp);   // distance from initial pos
-             if (dist > fmove) dist = fmove; // limit to requested if over
-             return dist;
-         }
-         else move++;
-      }
-      else // empty mode - look left or right for next empty
-      {
-         if (ret == 0) // as soon as an empty is found, return
-         {
-            if (dir == 1) // look right
-            {
-                int fp = ix + move;             // next empty pos
-                al_fixed dist = al_itofix(fp) - fx;   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-            if (dir == -1) // look left
-            {
-                int fp = ix - move;             // next empty pos
-                al_fixed dist = fx - al_itofix(fp);   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-         }
-         else move++;
       }
    }
-   // finished the loop with finding either case;
-   return fmove; // max move allowed
-}
 
-
-al_fixed is_down_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
-{
-   int ix = al_fixtoi(fx);
-   int iy = al_fixtoi(fy);
-   int im = al_fixtoi(fmove);
-   int move = 0;
-   for (int t=0; t<=im; t++)
+   float closest_val = 9999;
+   int closest_p = -1;
+   for (int p=0; p<NUM_PLAYERS; p++)
    {
-      int j = 0, a, b=0, c=0, ret = 0, xx, yy, cc;
-      if (dir == 0) yy = (iy + t) / 20 + 1;
-      else
+      if ((d[p] != -1) && (d[p] < closest_val))
       {
-         yy = iy / 20 + 1;
-         j = dir * t;
-      }
-      cc = (ix+j) / 20;
-      xx = (ix+j) / 20 + 1;
-      a = (ix+j) % 20;
-      if (a == 0)    // this block only
-      {
-         c = l[cc][yy];
-         ret = is_solid(-1, c, 2);
-      }
-      else // dual compare with ||
-      {
-         b = l[xx][yy];
-         c = l[cc][yy];
-         ret = is_solid(b, c, 2);
-      }
-      if (dir == 0) // solid mode - looks down for next solid
-      {
-         if (ret) // as soon as solid is found, return
-         {
-             int fp = iy + move;             // next solid pos
-             al_fixed dist = al_itofix(fp) - fy;   // distance from initial pos
-             if (dist > fmove) dist = fmove; // limit to requested if over
-             return dist;
-         }
-         else move++;
-      }
-      else // empty mode - look left or right for next empty
-      {
-         if (ret == 0) // as soon as an empty is found, return
-         {
-            if (dir == 1) // look right
-            {
-                int fp = ix + move;             // next empty pos
-                al_fixed dist = al_itofix(fp) - fx;   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-            if (dir == -1) // look left
-            {
-                int fp = ix - move;             // next empty pos
-                al_fixed dist = fx - al_itofix(fp);   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-         }
-         else move++;
+         closest_val = d[p];
+         closest_p = p;
       }
    }
-   // finished the loop with finding either case;
-   return fmove; // max move allowed
+   if (closest_val == 9999) return -1;    // no player in range
+   else return closest_p;
+
 }
 
-al_fixed is_left_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
+
+//           normal cartesian
+//              I    x+  Y+        II | I
+//             II    x-  Y+       ----+----
+//             III   x-  Y-       III | IV
+//             IV    x+  Y-
+//
+//             screen
+//              I    x+  Y-        II | I
+//             II    x-  Y-       ----+----
+//             III   x-  Y+       III | IV
+//             IV    x+  Y+
+// used by trakbot only
+
+
+
+
+//int find_closest_player_quad(int e, int quad, int prox)
+int find_closest_player_trakbot(int e)
 {
-   int ix = al_fixtoi(fx);
-   int iy = al_fixtoi(fy);
-   int im = al_fixtoi(fmove);
-   int move = 0;
-   for (int t=0; t<=im; t++)
+   int quad = 0;
+   float prox = Ei[e][17];
+   switch (Ei[e][5])
    {
-      int j = 0, a, b=0, c=0, ret = 0, xx, yy, cc;
-      if (dir == 0) xx = (ix-t-1) / 20;
-      else
-      {
-         xx = (ix-1) / 20;
-         j = dir * t;
-      }
-      yy = (iy+j) / 20;
-      cc = (iy+j) / 20 + 1;
-      a = (iy+j) % 20;
-      if (a == 0)    // this block only
-      {
-         c = l[xx][yy];
-         ret = is_solid(-1, c, 2);
-      }
-      else // dual compare with ||
-      {
-         b = l[xx][yy];
-         c = l[xx][cc];
-         ret = is_solid(b, c, 2);
-      }
-
-      if (dir == 0) // solid mode - looks left for next solid
-      {
-         if (ret) // as soon as solid is found, return
-         {
-             int fp = ix - move;             // next solid pos
-             al_fixed dist = fx - al_itofix(fp);   // distance from initial pos
-             if (dist > fmove) dist = fmove; // limit to requested if over
-             return dist;
-         }
-         else move++;
-      }
-      else // empty mode - look up or down for next empty
-      {
-         if (ret == 0) // as soon as an empty is found, return
-         {
-            if (dir == 1) // look down
-            {
-                int fp = iy + move;             // next empty pos
-                al_fixed dist = al_itofix(fp) - fy;   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-            if (dir == -1) // look up
-            {
-                int fp = iy - move;             // next empty pos
-                al_fixed dist = fy - al_itofix(fp);   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-         }
-         else move++;
-      }
+      case 0: case 5: quad = 1; break; // floor right, lwall up
+      case 1: case 4: quad = 2; break; // rwall up floor left
+      case 2: case 7: quad = 3; break; // ceil left, rwall down
+      case 3: case 6: quad = 4; break; // lwall down, ceil right
    }
-   // finished the loop with finding either case;
-   return fmove; // max move allowed
+
+   int closest_p = -1;    // return -1 if no player in range
+   float closest_val = 3000;
+   float d[NUM_PLAYERS];
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      d[p] = -1;
+      if ((players[p].active) && (!players[p].paused))
+      {
+         float xlen = players[p].x - Ef[e][0];            // get x distance
+         float ylen = players[p].y - Ef[e][1];            // get y distance
+         float dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
+         float angle = atan2(ylen, xlen) + ALLEGRO_PI/2;  // get raw angle and add 90 deg in radians
+         float da = (angle / (ALLEGRO_PI*2)) * 360;       // convert from radians to degrees
+         if (da < 0) da += 360;                           // add 360 if negative
+
+         // printf("angle:%f   da:%f\n", angle, da);
+
+         if ((quad == 1) && (da>  0) && (da< 90)) d[p] = dist;
+         if ((quad == 4) && (da> 90) && (da<180)) d[p] = dist;
+         if ((quad == 3) && (da>180) && (da<270)) d[p] = dist;
+         if ((quad == 2) && (da>270) && (da<359)) d[p] = dist;
+      }
+      if (d[p] > prox) d[p] = -1; // add, if distance is within range
+   }
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((d[p] != -1) && (d[p] < closest_val))
+      {
+         closest_val = d[p];
+         closest_p = p;
+      }
+   if (closest_val == 3000) return -1; // no player in range
+   else return closest_p;
 }
 
 
-al_fixed is_right_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
+// finds closest player...if closest player is not within dist, returns -1
+// used only by cannon
+int find_closest_player_cannon(int e)
 {
-   int ix = al_fixtoi(fx);
-   int iy = al_fixtoi(fy);
-   int im = al_fixtoi(fmove);
-   int move = 0;
-   for (int t=0; t<=im; t++)
-   {
-      int j = 0, a, b=0, c=0, ret = 0, xx, yy, cc;
-      if (dir == 0) xx = (ix + t) / 20 + 1;
-      else
+   float prox = Ei[e][17];
+   int closest_player = -1; // default if no player within distance
+   float hd = 99999;
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active) && (!players[p].paused))
       {
-         xx = (ix) / 20 + 1;
-         j = dir * t;
-      }
-      yy = (iy+j) / 20;
-      cc = (iy+j) / 20 + 1;
-
-      a = (iy+j) % 20;
-
-      if (a == 0)    // this block only
-      {
-         c = l[xx][yy];
-         ret = is_solid(-1, c, 2);
-      }
-      else // dual compare with ||
-      {
-         b = l[xx][yy];
-         c = l[xx][cc];
-         ret = is_solid(b, c, 2);
-      }
-      if (dir == 0) // solid mode - looks right for next solid
-      {
-         if (ret) // as soon as solid is found, return
+         float xlen = players[p].x - Ef[e][0];
+         float ylen = players[p].y - Ef[e][1];
+         float h = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
+         if (h < hd)
          {
-             int fp = ix + move;             // next solid pos
-             al_fixed dist = al_itofix(fp) - fx;   // distance from initial pos
-             if (dist > fmove) dist = fmove; // limit to requested if over
-             return dist;
+             hd = h;
+             closest_player = p;
          }
-         else move++;
       }
-      else // empty mode - look up or down for next empty
-      {
-         if (ret == 0) // as soon as an empty is found, return
-         {
-            if (dir == 1) // look down
-            {
-                int fp = iy + move;             // next empty pos
-                al_fixed dist = al_itofix(fp) - fy;   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-            if (dir == -1) // look up
-            {
-                int fp = iy - move;             // next empty pos
-                al_fixed dist = fy - al_itofix(fp);   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-         }
-         else move++;
-      }
-   }
-   // finished the loop with finding either case;
-   return fmove; // max move allowed
+   if (hd < prox) return closest_player;
+   else return -1;
 }
+
+
+float deg_to_rad(float deg)
+{
+   return (deg/360) * ALLEGRO_PI*2;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void show_var_sizes(void)
 {
-   int level_header[20] = {0};
-
    printf("\nVariables used to save levels in pml format\n\n");
-
-   printf("level_header:%6d\n",  (int)sizeof(level_header) );
    printf("l           :%6d\n",  (int)sizeof(l)            );
    printf("item        :%6d\n",  (int)sizeof(item)         );
-   printf("Efi         :%6d\n",  (int)sizeof(Efi)          );
+   printf("Ef          :%6d\n",  (int)sizeof(Ef)           );
    printf("Ei          :%6d\n",  (int)sizeof(Ei)           );
    printf("lifts       :%6d\n",  (int)sizeof(lifts)        );
    printf("lift_steps  :%6d\n",  (int)sizeof(lift_steps)   );
    printf("pmsgtext    :%6d\n",  (int)sizeof(pmsgtext)     );
 
    int sz = 0;
-   sz+= sizeof(level_header);
    sz+= sizeof(l)            ;
    sz+= sizeof(item)         ;
-   sz+= sizeof(Efi)          ;
+   sz+= sizeof(Ef)           ;
    sz+= sizeof(Ei)           ;
    sz+= sizeof(lifts)        ;
    sz+= sizeof(lift_steps)   ;
@@ -1475,14 +742,13 @@ void show_var_sizes(void)
    printf("------------:------\n");
    printf("total       :%6d\n",  sz );
 
-
    printf("\nVariables used for netgame state exchange\n\n");
 
    printf("players  :%6d\n", (int)sizeof(players)      );
    printf("Ei       :%6d\n", (int)sizeof(Ei)           );
-   printf("Efi      :%6d\n", (int)sizeof(Efi)          );
+   printf("Ef       :%6d\n", (int)sizeof(Ef)           );
    printf("item     :%6d\n", (int)sizeof(item)         );
-   printf("itemf    :%6d\n", (int)sizeof(itemf)        );
+   printf("itemf   :%6d\n", (int)sizeof(itemf)       );
    printf("lifts    :%6d\n", (int)sizeof(lifts)        );
    printf("l        :%6d\n", (int)sizeof(l)            );
    printf("mwS.p    :%6d\n", (int)sizeof(mwS.p)        );
@@ -1492,9 +758,9 @@ void show_var_sizes(void)
    sz = 0;
    sz+= sizeof(players)      ;
    sz+= sizeof(Ei)           ;
-   sz+= sizeof(Efi)          ;
+   sz+= sizeof(Ef)           ;
    sz+= sizeof(item)         ;
-   sz+= sizeof(itemf)        ;
+   sz+= sizeof(itemf)       ;
    sz+= sizeof(lifts)        ;
    sz+= sizeof(l)            ;
    sz+= sizeof(mwS.p)        ;
@@ -1502,7 +768,6 @@ void show_var_sizes(void)
    sz+= sizeof(mwPME.event)  ;
    printf("---------:------\n");
    printf("total    :%6d\n",  sz );
-
 
    printf("\nOther Large Variables\n\n");
 
@@ -1517,34 +782,5 @@ void show_var_sizes(void)
 
    sz = (int)sizeof(log_lines_int);
    printf("log_lines_int :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
-
-//
-//   sz = (int)sizeof(&level_background);
-//   printf("level_background :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
-
-
-//   extern ALLEGRO_BITMAP *tilemap;
-//extern ALLEGRO_BITMAP *btilemap;
-//extern ALLEGRO_BITMAP *ptilemap;
-//extern ALLEGRO_BITMAP *dtilemap;
-//extern ALLEGRO_BITMAP *M_tilemap;
-//extern ALLEGRO_BITMAP *M_btilemap;
-//extern ALLEGRO_BITMAP *M_ptilemap;
-//extern ALLEGRO_BITMAP *M_dtilemap;
-//
-//extern ALLEGRO_BITMAP *mwB.tile[NUM_SPRITES];
-//extern ALLEGRO_BITMAP *btile[NUM_SPRITES];
-//
-//extern int mwB.sa[NUM_SPRITES][2];
-//
-//extern ALLEGRO_BITMAP *player_tile[16][32];
-//extern ALLEGRO_BITMAP *door_tile[2][16][8];
-//
-//extern ALLEGRO_BITMAP *level_background;
-//extern ALLEGRO_BITMAP *level_buffer;
-
-
 }
-
-
 

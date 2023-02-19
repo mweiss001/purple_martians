@@ -427,7 +427,7 @@ void client_apply_dif(void)
                   memcpy(old_l, l, sizeof(l));
 
                   // make a copy of players x pos
-                  float oldpx = al_fixtof(players[p].PX);
+                  float oldpx = players[p].x;
 
                   // apply dif to base state
                   apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
@@ -437,7 +437,7 @@ void client_apply_dif(void)
 
 
                   // make a copy of players x pos
-                  float xcor = oldpx - al_fixtof(players[p].PX);
+                  float xcor = oldpx - players[p].x;
 
 
                   if (mwPS.frame_num > players1[p].xcor_reset_frame)
@@ -656,7 +656,7 @@ void client_proc_player_drop(void)
    {
       sprintf(msg, "SERVER ENDED GAME!");
       float stretch = ( (float)mwD.SCREEN_W / (strlen(msg)*8)) - 1;
-      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, players[p].color, stretch, 0, 1);
+      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, players[p].color, stretch, 1);
       al_flip_display();
       tsw();
       players1[p].quit_reason = 92;
@@ -682,7 +682,7 @@ void client_proc_player_drop(void)
 
          sprintf(msg, "LOST SERVER CONNECTION!");
          float stretch = ( (float)mwD.SCREEN_W / (strlen(msg)*8)) - 1;
-         rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, players[p].color, stretch, 0, 1);
+         rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, players[p].color, stretch, 1);
          al_flip_display();
          tsw();
          players1[p].quit_reason = 75;

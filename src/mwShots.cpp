@@ -15,32 +15,32 @@ mwShots mwS;
 
 void mwShots::proc_pshot_collision(int p, int b)
 {
-   players[p].LIFE -= al_itofix(deathmatch_shot_damage);
+   players[p].health -= deathmatch_shot_damage;
 
-   al_fixed bxinc = al_ftofix(mwS.p[b].xinc / 3);
-   al_fixed z = al_itofix(0);
-   if (bxinc > z) players[p].right_xinc += bxinc;
-   if (bxinc < z) players[p].left_xinc += bxinc;
+   float bxinc = mwS.p[b].xinc/3;
 
-   if (players[p].right_xinc > al_itofix(4)) players[p].right_xinc = al_itofix(4);
-   if (players[p].left_xinc < al_itofix(-4)) players[p].left_xinc = al_itofix(-4);
+   if (bxinc > 0) players[p].right_xinc += bxinc;
+   if (bxinc < 0) players[p].left_xinc += bxinc;
 
-   players[p].yinc += al_ftofix(mwS.p[b].yinc/2);
-   if (players[p].yinc > al_itofix( 5)) players[p].yinc = al_itofix( 5);
-   if (players[p].yinc < al_itofix(-5)) players[p].yinc = al_itofix(-5);
+   if (players[p].right_xinc > 4) players[p].right_xinc = 4;
+   if (players[p].left_xinc < -4) players[p].left_xinc = -4;
+
+   players[p].yinc += mwS.p[b].yinc/2;
+   if (players[p].yinc >  5) players[p].yinc =  5;
+   if (players[p].yinc < -5) players[p].yinc = -5;
 
    if (mwS.p[b].yinc < 0)  // player got shot from below
    {
       players[p].player_ride = 0;
-      players[p].PY += players[p].yinc;
+      players[p].y += players[p].yinc;
    }
    mwS.p[b].active = 0;  // shot dies
 }
 
 void mwShots::proc_player_shoot(int p)
 {
-   float x = al_fixtof(players[p].PX) ;
-   float y = al_fixtof(players[p].PY) ;
+   float x = players[p].x;
+   float y = players[p].y;
    float bs = (float) players[p].shot_speed;
 
    if (players[p].fire)
@@ -147,26 +147,26 @@ void mwShots::proc_eshot_collision(int p, int b)
       case 1054:  e_type = 7;  damage = 10; break; // green ball
       case 1062:  e_type = 12; damage = 8;  break; // flapper thing
    }
-   players[p].LIFE -= al_itofix(damage);
+   players[p].health -= damage;
 
    game_event(43, 0, 0, p, e_type, 0, damage);
 
    // recoil !!
    if (mwS.e[b].xinc > 0)
    {
-      players[p].right_xinc += al_ftofix(mwS.e[b].xinc/2);
-      if (players[p].right_xinc > al_itofix(4)) players[p].right_xinc = al_itofix(4);
+      players[p].right_xinc += mwS.e[b].xinc/2;
+      if (players[p].right_xinc > 4) players[p].right_xinc = 4;
    }
    if (mwS.e[b].xinc < 0)
    {
-      players[p].left_xinc += al_ftofix(mwS.e[b].xinc/2);
-      if (players[p].left_xinc < al_itofix(-4)) players[p].left_xinc = al_itofix(-4);
+      players[p].left_xinc += mwS.e[b].xinc/2;
+      if (players[p].left_xinc < -4) players[p].left_xinc = -4;
    }
 
-   players[p].yinc += al_ftofix(mwS.e[b].yinc/2);
+   players[p].yinc += mwS.e[b].yinc/2;
 
-   if (players[p].yinc > al_itofix( 5)) players[p].yinc = al_itofix( 5);
-   if (players[p].yinc < al_itofix(-8)) players[p].yinc = al_itofix(-8);
+   if (players[p].yinc >  5) players[p].yinc =  5;
+   if (players[p].yinc < -8) players[p].yinc = -8;
 
    mwS.e[b].active = 0; // shot dies
 }
@@ -242,36 +242,36 @@ void mwShots::clear_shots(void)
 }
 
 
-void mwShots::fire_enemy_shotz(int EN, int shot_ans, al_fixed px, al_fixed py)
+void mwShots::fire_enemy_shotz(int e, int shot_ans, float px, float py)
 {
-   al_fixed xlen = px - Efi[EN][0];   // get the x distance between enemy and player
-   al_fixed ylen = py - Efi[EN][1];   // get the y distance between enemy and player
-   al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
-   al_fixed speed = Efi[EN][7];                  // speed
-   al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
-   al_fixed xinc = al_fixdiv(xlen, scaler);        // calc xinc
-   al_fixed yinc = al_fixdiv(ylen, scaler);        // calc yinc
+   float xlen = px - Ef[e][0];   // get the x distance between enemy and player
+   float ylen = py - Ef[e][1];   // get the y distance between enemy and player
+   float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));    // hypotenuse distance
+   float speed = Ef[e][7];            // speed
+   float scaler = hy_dist / speed;    // get scaler
+   float xinc = xlen / scaler;        // calc xinc
+   float yinc = ylen / scaler;        // calc yinc
 
    for (int b=0; b<50; b++)  // find empty e_shot
       if (!mwS.e[b].active)
       {
          mwS.e[b].active = 1;
          mwS.e[b].shape = 1000 + shot_ans;
-         mwS.e[b].x = al_fixtof(Efi[EN][0]);
-         mwS.e[b].y = al_fixtof(Efi[EN][1]);
-         mwS.e[b].xinc = al_fixtof(xinc);
-         mwS.e[b].yinc = al_fixtof(yinc);
+         mwS.e[b].x = Ef[e][0];
+         mwS.e[b].y = Ef[e][1];
+         mwS.e[b].xinc = xinc;
+         mwS.e[b].yinc = yinc;
          b=50;
       }
 }
-void mwShots::fire_enemy_shota(int EN, int shot_ans, int p)
+void mwShots::fire_enemy_shota(int e, int shot_ans, int p)
 {
-   float bx = Efi[EN][0];
-   float by = Efi[EN][1];
-   float bv = Efi[EN][7];
+   float bx = Ef[e][0];
+   float by = Ef[e][1];
+   float bv = Ef[e][7];
 
-   float px  = players[p].PX;
-   float py  = players[p].PY;
+   float px  = players[p].x;
+   float py  = players[p].y;
    float pvx = players[p].xinc;
    float pvy = players[p].yinc;
 
@@ -280,14 +280,9 @@ void mwShots::fire_enemy_shota(int EN, int shot_ans, int p)
    if (players[p].player_ride) // if player is riding lift
    {
       int d = players[p].player_ride - 32; // lift number
-      pvx += lifts[d].fxinc;
-      pvy += lifts[d].fyinc;
+      pvx += lifts[d].xinc;
+      pvy += lifts[d].yinc;
    }
-
-
-
-
-
    // Edgar's method
    //float A = pow(pvx,2) + pow(pvy,2) - pow(bv,2);
    //float B = 2*(px*pvx) + 2*(py*pvy) -2*(bx*pvx) -2*(by*pvy);
@@ -300,12 +295,9 @@ void mwShots::fire_enemy_shota(int EN, int shot_ans, int p)
    float B = 2*(x*pvx) + 2*(y*pvy);
    float C = pow(x,2) + pow(y,2);
 
-
 // Egdar: You will have to check your code for division by A=0 and for a negative B^2 - 4AC discriminant.
 
 // Quadratic Formula: The roots of a quadratic equation ax2 + bx + c = 0 are given by x = [-b +/- sqrt(b^2 - 4ac)] / 2a.
-
-
 // The discriminant of the quadratic equation is D = b2 - 4ac
 // For D > 0 the roots are real and distinct.
 // For D = 0 the roots are real and equal.
@@ -313,45 +305,35 @@ void mwShots::fire_enemy_shota(int EN, int shot_ans, int p)
 
    float D = pow(B,2) - 4*(A*C); // discriminant
 
-//   if (A == 0)     printf("A == 0 in function 'fire_enemy_shota'\n");
-//   else if (D < 0) printf("negative discriminant in function 'fire_enemy_shota'\n");
-//   else
-//   {
-//      float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
-//      al_fixed px1 = px + al_fixmul(pvx, al_ftofix(t)); // get player target position based on t
-//      al_fixed py1 = py + al_fixmul(pvy, al_ftofix(t));
-//      fire_enemy_shotz(EN, shot_ans, px1, py1);
-//   }
-//
-
    //if ((A != 0) && (D >= 0)) // this complains about comparing a float to zero
    if ( ((A > 0) || (A < 0)) && (D >= 0))
    {
       float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
-      al_fixed px1 = px + al_fixmul(pvx, al_ftofix(t)); // get player target position based on t
-      al_fixed py1 = py + al_fixmul(pvy, al_ftofix(t));
-      fire_enemy_shotz(EN, shot_ans, px1, py1);
+      float px1 = px + pvx * t; // get player target position based on t
+      float py1 = py + pvy * t;
+      fire_enemy_shotz(e, shot_ans, px1, py1);
    }
-   else fire_enemy_shotz(EN, shot_ans, px, py);
+   else fire_enemy_shotz(e, shot_ans, px, py);
 
 }
 
-void mwShots::fire_enemy_x_shot(int EN, int p)
+void mwShots::fire_enemy_x_shot(int e, int p)
 {
-   float x_shot_speed = al_fixtof(Efi[EN][7]);
+   float x_shot_speed = Ef[e][7];
    for (int b=0; b<50; b++)  // find empty e_shot
       if (!mwS.e[b].active)
       {
          mwS.e[b].active = 1;
-         mwS.e[b].yinc = al_itofix(0);
-         mwS.e[b].x = al_fixtof(Efi[EN][0]);
-         mwS.e[b].y = al_fixtof(Efi[EN][1]);
-         if (Efi[EN][0] < players[p].PX)
+         mwS.e[b].yinc = 0;
+         mwS.e[b].x = Ef[e][0];
+         mwS.e[b].y = Ef[e][1];
+
+         if (Ef[e][0] < players[p].x)
          {
             mwS.e[b].xinc = x_shot_speed;
             mwS.e[b].shape = 488;
          }
-         if (Efi[EN][0] >= players[p].PX)
+         if (Ef[e][0] >= players[p].x)
          {
             mwS.e[b].xinc = -x_shot_speed;
             mwS.e[b].shape = 489;

@@ -1,7 +1,7 @@
 // z_item.h
-
 extern int item[500][16];      // item ints
-extern al_fixed itemf[500][4]; // item fixeds
+extern float itemf[500][4]; // item floats
+
 extern int item_num_of_type[30];
 extern int item_first_num[30];
 extern char item_name[30][40];
@@ -16,10 +16,10 @@ int seq_color(int mod, int c1, int c2);
 int seq_color2(void);
 int seq_color3(void);
 void bomb_block_crosshairs(int e, int f);
-void bomb_blocks(int i, int t, int dr, al_fixed fx, al_fixed fy);
+void bomb_blocks(int i, int t, int dr);
 void bomb_crosshairs(float x, float y);
-void bomb_enemies(int i, int t, int dr, al_fixed x, al_fixed y);
-void bomb_players(int i, int t, int dr, al_fixed x, al_fixed y);
+void bomb_enemies(int i, int t, int dr);
+void bomb_players(int i, int t, int dr);
 void proc_lit_bomb(int i);
 void draw_lit_bomb(int i);
 void draw_rocket_lines(int i);

@@ -247,7 +247,8 @@ void load_config(void)
    agci(SCREEN, mwD.saved_display_transform_double, 0)
 
    agcf(SCREEN, mwD.scale_factor, 1.0)
-   mwD.set_scale_factor(/*scale_factor*/ 1.0, 1);
+   //mwD.set_scale_factor(1.0, 1); // reset to 1.0 with every program start
+   mwD.set_scale_factor(mwD.scale_factor, 1);
 
    agci(SCREEN, mwL.show_splash_screen, 1)
    if (!mwL.show_splash_screen) mwL.splash_screen_done = 1;

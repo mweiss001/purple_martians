@@ -17,7 +17,7 @@ int mwPDE::load()
    FILE *fp =fopen("bitmaps/pde.pm","rb");
    if (fp)
    {
-      fread(PDEfx, sizeof(PDEfx), 1, fp);
+      fread(PDEf,  sizeof(PDEf), 1, fp);
       fread(PDEi,  sizeof(PDEi),  1, fp);
       fread(PDEt,  sizeof(PDEt),  1, fp);
       fclose(fp);
@@ -32,9 +32,9 @@ void mwPDE::save()
    FILE *fp =fopen("bitmaps/pde.pm","wb");
    if (fp)
    {
-      fwrite(PDEfx, sizeof(PDEfx), 1, fp);
-      fwrite(PDEi,  sizeof(PDEi),  1, fp);
-      fwrite(PDEt,  sizeof(PDEt),  1, fp);
+      fwrite(PDEf, sizeof(PDEf), 1, fp);
+      fwrite(PDEi, sizeof(PDEi), 1, fp);
+      fwrite(PDEt, sizeof(PDEt), 1, fp);
       fclose(fp);
    }
    else m_err("Error saving pde.pm");
@@ -51,9 +51,9 @@ void mwPDE::pde_swap(int s1, int s2)
    }
    for (int y=0; y<16; y++)
    {
-      al_fixed temp   = PDEfx[s1][y];
-      PDEfx[s1][y] = PDEfx[s2][y];
-      PDEfx[s2][y] = temp;
+      float temp   = PDEf[s1][y];
+      PDEf[s1][y] = PDEf[s2][y];
+      PDEf[s2][y] = temp;
    }
    for (int y=0; y<20; y++)
    {
@@ -168,7 +168,7 @@ void mwPDE::pde_sort(void)
 
 
 
-void mwPDE::edit_text(int EN)
+void mwPDE::edit_text(int e)
 {
    char msg[1024];
    int line_length = 30;
@@ -185,11 +185,11 @@ void mwPDE::edit_text(int EN)
 
       // redraw all the text
       for (int x=0; x<20; x++)
-         al_draw_text(mF.pr8, mC.pc[15], 0, 20+(x*8), 0, PDEt[EN][x]);
+         al_draw_text(mF.pr8, mC.pc[15], 0, 20+(x*8), 0, PDEt[e][x]);
 
       // mark the text entry position
       al_draw_filled_rectangle((tx*8), 20+(ty1*8), (tx*8)+8, 20+(ty1*8)+8, mC.pc[138]);
-      msg[0] = PDEt[EN][ty1][tx];
+      msg[0] = PDEt[e][ty1][tx];
       if (msg[0] == (char)NULL) msg[0] = 32;
       msg[1] = (char)NULL;
       al_draw_text(mF.pr8, mC.pc[10], (tx*8), 20+(ty1*8), 0, msg);
@@ -200,14 +200,14 @@ void mwPDE::edit_text(int EN)
       int k = mI.key_pressed_ASCII;
       if ((k>31) && (k<127)) // insert if alphanumeric or return
       {
-         int z = strlen(PDEt[EN][ty1]);
+         int z = strlen(PDEt[e][ty1]);
          if (z > line_length) z = line_length;
          for (int x=z; x>tx; x--)
-            PDEt[EN][ty1][x] = PDEt[EN][ty1][x-1];
-         PDEt[EN][ty1][tx] = k;
+            PDEt[e][ty1][x] = PDEt[e][ty1][x-1];
+         PDEt[e][ty1][tx] = k;
          if (++tx > line_length) // end of line?
          {
-            PDEt[EN][ty1][tx] = (char)NULL; // terminate the line
+            PDEt[e][ty1][tx] = (char)NULL; // terminate the line
             ty1++;  // LF
             tx = 0; // CR
          }
@@ -217,23 +217,23 @@ void mwPDE::edit_text(int EN)
       {
          while (mI.key[ALLEGRO_KEY_BACKSPACE][0]) mwEQ.proc_event_queue();
          if (--tx<0) tx = 0;
-         int z = strlen(PDEt[EN][ty1]);
+         int z = strlen(PDEt[e][ty1]);
          for (int x=tx; x<z; x++)
-            PDEt[EN][ty1][x] = PDEt[EN][ty1][x+1];
+            PDEt[e][ty1][x] = PDEt[e][ty1][x+1];
       }
       if (mI.key[ALLEGRO_KEY_ENTER][3])
       {
          while (mI.key[ALLEGRO_KEY_ENTER][0]) mwEQ.proc_event_queue();
          for (int y=19; y>ty1; y--)  // slide all down
-            strcpy(PDEt[EN][y],PDEt[EN][y-1]);
-         if (strlen(PDEt[EN][ty1]) == 999) // cursor past end of line
-            PDEt[EN][ty1+1][0] = (char)NULL; // next line empty
-         if ((signed int)strlen(PDEt[EN][ty1]) >= tx) // cursor not past end of line
+            strcpy(PDEt[e][y],PDEt[e][y-1]);
+         if (strlen(PDEt[e][ty1]) == 999) // cursor past end of line
+            PDEt[e][ty1+1][0] = (char)NULL; // next line empty
+         if ((signed int)strlen(PDEt[e][ty1]) >= tx) // cursor not past end of line
          {
             for (int x=0; x <= 30-tx; x++)         // split line at tx
-                PDEt[EN][ty1+1][x] = PDEt[EN][ty1+1][tx+x];
+                PDEt[e][ty1+1][x] = PDEt[e][ty1+1][tx+x];
 
-            PDEt[EN][ty1][tx] = (char)NULL;  // terminate top line
+            PDEt[e][ty1][tx] = (char)NULL;  // terminate top line
             tx = 0;
             ty1++;
          }
@@ -241,18 +241,18 @@ void mwPDE::edit_text(int EN)
       if (mI.key[ALLEGRO_KEY_DELETE][0])
       {
          while (mI.key[ALLEGRO_KEY_DELETE][0]) mwEQ.proc_event_queue();
-         if (PDEt[EN][ty1][tx] == (char)NULL)
+         if (PDEt[e][ty1][tx] == (char)NULL)
          {
             for (int x=0; x<=30-tx; x++) // get portion from line below
-                PDEt[EN][ty1][tx+x] = PDEt[EN][ty1+1][x];
+                PDEt[e][ty1][tx+x] = PDEt[e][ty1+1][x];
             for (int y=ty1+1; y<19; y++)  // slide all up
-               strcpy(PDEt[EN][y],PDEt[EN][y+1]);
-            PDEt[EN][19][0] = (char)NULL; // last line empty
+               strcpy(PDEt[e][y],PDEt[e][y+1]);
+            PDEt[e][19][0] = (char)NULL; // last line empty
          }
          else
          {
-            for (int x = tx; x < (int)strlen(PDEt[EN][ty1]); x++)
-               PDEt[EN][ty1][x] = PDEt[EN][ty1][x+1];
+            for (int x = tx; x < (int)strlen(PDEt[e][ty1]); x++)
+               PDEt[e][ty1][x] = PDEt[e][ty1][x+1];
          }
       }
       if (mI.key[ALLEGRO_KEY_RIGHT][0])
@@ -282,7 +282,7 @@ void mwPDE::edit_text(int EN)
          ty1 = (mI.mouse_y-20)/8;
          tx = mI.mouse_x/8;
       }
-      if (tx > (signed int)strlen(PDEt[EN][ty1])) tx = strlen(PDEt[EN][ty1]);
+      if (tx > (signed int)strlen(PDEt[e][ty1])) tx = strlen(PDEt[e][ty1]);
 
       while ((mI.key[ALLEGRO_KEY_ESCAPE][0]) || (mI.mouse_b[2][0]))
       {
@@ -300,7 +300,7 @@ void mwPDE::run(void)
    while (mI.mouse_b[2][0]) mwEQ.proc_event_queue();
    if (load())
    {
-      int EN = 0, redraw = 1;
+      int e = 0, redraw = 1;
 
       int y5 = 10;
       int xa = 280;
@@ -314,7 +314,7 @@ void mwPDE::run(void)
          if (redraw)
          {
             int a,b=0;
-            int rt = PDEi[EN][0];
+            int rt = PDEi[e][0];
             redraw = 0;
 
             y5 = 0;
@@ -322,50 +322,50 @@ void mwPDE::run(void)
             al_flip_display();
             al_clear_to_color(al_map_rgb(0,0,0));
 
-            a = PDEi[EN][1]; // bmp or ans
+            a = PDEi[e][1]; // bmp or ans
             if (a < NUM_SPRITES) b = a; // bmp
             if (a > 999) b = mwB.zz[5][a-1000]; // ans
 
             al_draw_bitmap(mwB.tile[b], 0,0,0);
 
             for (int x=0; x<20; x++)
-               al_draw_text(mF.pr8, mC.pc[15], 0, 20+(x*8), 0, PDEt[EN][x]);
+               al_draw_text(mF.pr8, mC.pc[15], 0, 20+(x*8), 0, PDEt[e][x]);
 
             if (rt < 99)
             {
-               al_draw_textf(mF.pr8, mC.pc[15], 40, 0, 0, "Predefined Enemy %d", EN);
+               al_draw_textf(mF.pr8, mC.pc[15], 40, 0, 0, "Predefined Enemy %d", e);
                for (int x=0; x<16; x++)
                {
                   sprintf(msg,"F[%d]:", x);
-                  mdw_sliderf(xa, y5, xb-4, 16, 0,0,0,0,  0,12,15,15,  0,0,0,0, PDEfx[EN][x], 1000, 0, 1, msg);
+                  mdw_sliderf(xa, y5, xb-4, 16, 0,0,0,0,  0,12,15,15,  0,0,0,0, PDEf[e][x], 1000, 0, 1, msg);
                   sprintf(msg,"I[%d]:", x);
-                  mdw_slideri(xb, y5, xc-4, 16, 0,0,0,0,  0,11,15,15,  0,0,0,0, PDEi[EN][x], 1100, -2, 1, msg);
+                  mdw_slideri(xb, y5, xc-4, 16, 0,0,0,0,  0,11,15,15,  0,0,0,0, PDEi[e][x], 1100, -2, 1, msg);
                   sprintf(msg,"I[%d]:", x+16);
-                  mdw_slideri(xc, y5, xd-4, 16, 0,0,0,0,  0,11,15,15,  0,0,1,0, PDEi[EN][x+16], 1000, 0, 1, msg);
+                  mdw_slideri(xc, y5, xd-4, 16, 0,0,0,0,  0,11,15,15,  0,0,1,0, PDEi[e][x+16], 1000, 0, 1, msg);
                }
             }
             if ((rt > 99) && (rt < 200))
             {
-               al_draw_textf(mF.pr8, mC.pc[15], 40, 0, 0, "Predefined Item %d", EN);
+               al_draw_textf(mF.pr8, mC.pc[15], 40, 0, 0, "Predefined Item %d", e);
                for (int x=0; x<16; x++)
                {
                   sprintf(msg,"I[%d]:", x);
-                  mdw_slideri(xa, y5, xb, 16, 0,0,0,0,  0,11,15,15,  0,0,1,0, PDEi[EN][x], 1100, -2, 1, msg);
+                  mdw_slideri(xa, y5, xb, 16, 0,0,0,0,  0,11,15,15,  0,0,1,0, PDEi[e][x], 1100, -2, 1, msg);
                }
             }
             if (rt > 199)
             {
-               al_draw_textf(mF.pr8, mC.pc[15], 40, 0, 0, "Special Creator %d", EN);
+               al_draw_textf(mF.pr8, mC.pc[15], 40, 0, 0, "Special Creator %d", e);
 
 
                for (int x=0; x<16; x++)
                {
                   sprintf(msg,"F[%d]:", x);
-                  mdw_sliderf(xa, y5, xb-4, 16, 0,0,0,0,  0,12,15,15,  0,0,0,0, PDEfx[EN][x], 1000, 0, 1, msg);
+                  mdw_sliderf(xa, y5, xb-4, 16, 0,0,0,0,  0,12,15,15,  0,0,0,0, PDEf[e][x], 1000, 0, 1, msg);
                   sprintf(msg,"I[%d]:", x);
-                  mdw_slideri(xb, y5, xc-4, 16, 0,0,0,0,  0,11,15,15,  0,0,0,0, PDEi[EN][x], 1100, -2, 1, msg);
+                  mdw_slideri(xb, y5, xc-4, 16, 0,0,0,0,  0,11,15,15,  0,0,0,0, PDEi[e][x], 1100, -2, 1, msg);
                   sprintf(msg,"I[%d]:", x+16);
-                  mdw_slideri(xc, y5, xd-4, 16, 0,0,0,0,  0,11,15,15,  0,0,1,0, PDEi[EN][x+16], 1000, 0, 1, msg);
+                  mdw_slideri(xc, y5, xd-4, 16, 0,0,0,0,  0,11,15,15,  0,0,1,0, PDEi[e][x+16], 1000, 0, 1, msg);
                }
             }
          }
@@ -385,45 +385,45 @@ void mwPDE::run(void)
             redraw = 1;
          }
 
-         if ((mI.mouse_b[1][0]) && (mI.mouse_x < 240) && (mI.mouse_y > 20) && (mI.mouse_y < 180)) edit_text(EN);
+         if ((mI.mouse_b[1][0]) && (mI.mouse_x < 240) && (mI.mouse_y > 20) && (mI.mouse_y < 180)) edit_text(e);
 
          if (mI.key[ALLEGRO_KEY_RIGHT][0])
          {
             while (mI.key[ALLEGRO_KEY_RIGHT][0]) mwEQ.proc_event_queue();
-            EN +=1;
-            if (EN > 99) EN = 99;
+            e +=1;
+            if (e > 99) e = 99;
             redraw =1;
          }
 
          if (mI.key[ALLEGRO_KEY_LEFT][0])
          {
             while (mI.key[ALLEGRO_KEY_LEFT][0]) mwEQ.proc_event_queue();
-            EN -=1;
-            if (EN < 0) EN = 0;
+            e -=1;
+            if (e < 0) e = 0;
             redraw =1;
          }
          if (mI.key[ALLEGRO_KEY_PGUP][0])
          {
             while (mI.key[ALLEGRO_KEY_PGUP][0]) mwEQ.proc_event_queue();
-            EN +=10;
-            if (EN > 99) EN = 99;
+            e +=10;
+            if (e > 99) e = 99;
             redraw =1;
          }
          if (mI.key[ALLEGRO_KEY_PGDN][0])
          {
             while (mI.key[ALLEGRO_KEY_PGDN][0]) mwEQ.proc_event_queue();
-            EN -=10;
-            if (EN < 0) EN = 0;
+            e -=10;
+            if (e < 0) e = 0;
             redraw =1;
          }
          if (mI.CTRL() && mI.key[ALLEGRO_KEY_DELETE][0]) // DELETE PD
          {
             while (mI.key[ALLEGRO_KEY_DELETE][0]) mwEQ.proc_event_queue();
 
-            for (int y=0; y<32; y++) PDEi[EN][y] = 0;
-            for (int y=0; y<16; y++) PDEfx[EN][y] = al_itofix(0);
-            for (int y=0; y<20; y++) strcpy(PDEt[EN][y],"");
-            PDEi[EN][0] = 9999; // mark as empty
+            for (int y=0; y<32; y++) PDEi[e][y] = 0;
+            for (int y=0; y<16; y++) PDEf[e][y] = 0;
+            for (int y=0; y<20; y++) strcpy(PDEt[e][y],"");
+            PDEi[e][0] = 9999; // mark as empty
             redraw =1;
             //PDE_sort();
          }

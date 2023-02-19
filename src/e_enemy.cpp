@@ -15,9 +15,12 @@
 void erase_enemy(int e)
 {
    for (int a=0; a<32; a++) Ei[e][a] = 0;
-   for (int a=0; a<16; a++) Efi[e][a] = al_itofix(0);
+   for (int a=0; a<16; a++) Ef[e][a] = 0;
+
 }
 
+
+// fix this here..............returns even if full!!!!
 int get_empty_enemy(void)
 {
    int en = -1;
@@ -28,11 +31,7 @@ int get_empty_enemy(void)
          break;
       }
    if (en == -1) al_show_native_message_box(display, "Error", "Error creating enemy", "Enemy list full!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
-   else
-   {   // zero the enemy before use
-      for (int i=0; i<32; i++) Ei[en][i] = 0;
-      for (int i=0; i<16; i++) Efi[en][i] = al_itofix(0);
-   }
+   else erase_enemy(en);
    return en;
 }
 
@@ -57,38 +56,29 @@ int get_empty_enemy(int type)
 
 void recalc_pod(int e)
 {
-   al_fixed xlen = Efi[e][5] - Efi[e][0];           // get the x distance
-   al_fixed ylen = Efi[e][6] - Efi[e][1];           // get the y distance
-   al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
-   al_fixed speed = Efi[e][9];                      // speed
-   al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
-   al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
-   al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
-   Efi[e][2] = xinc;
-   Efi[e][3] = yinc;
-   Efi[e][14] = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
-
-   // set number of steps (or time)
-   al_fixed ns;
-   if (abs(xlen) > abs(ylen)) ns = al_fixdiv(xlen, xinc);
-   else  ns = al_fixdiv(ylen, yinc);
-   int num_steps = al_fixtoi(ns);
-   if ((num_steps > 0) && (num_steps < 2000))
-      Ei[e][7] = num_steps;
+   float xlen = Ef[e][5] - Ef[e][0];           // get the x distance
+   float ylen = Ef[e][6] - Ef[e][1];           // get the y distance
+   float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));    // hypotenuse distance
+   float speed = Ef[e][9];                      // speed
+   float scaler = al_fixdiv(hy_dist, speed);     // get scaler
+   Ef[e][2] = xlen / scaler;         // calc xinc
+   Ef[e][3] = ylen / scaler;         // calc yinc
+   Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI/2;  // rotation
+   Ei[e][7] = scaler; // num steps
 }
 
 
 void get_pod_extended_position(int e, int *x, int *y)
 {
-   al_fixed ex = Efi[e][0];
-   al_fixed ey = Efi[e][1];
+   float ex = Ef[e][0];
+   float ey = Ef[e][1];
    for (int j=0; j<Ei[e][7]; j++)
    {
-      ex += Efi[e][2];
-      ey += Efi[e][3];
+      ex += Ef[e][2];
+      ey += Ef[e][3];
    }
-   *x = al_fixtoi(ex);
-   *y = al_fixtoi(ey);
+   *x = ex;
+   *y = ey;
 }
 
 
@@ -102,7 +92,7 @@ void show_level_data(void)
    {
       y_pos = enemy_data(x_pos, y_pos) + 8;
       y_pos = item_data(x_pos, y_pos) + 8;
-      al_draw_textf(mF.pr8, mC.pc[15], x_pos, y_pos,   0, "%d Lifts  ", num_lifts);
+      al_draw_textf(mF.pr8, mC.pc[15], x_pos, y_pos,   0, "%d Lifts  ", get_num_lifts());
       al_draw_text(mF.pr8, mC.pc[15], x_pos, y_pos+8,  0, "-------");
    }
    al_flip_display();
@@ -153,7 +143,7 @@ void show_all_enemies(void)
       for (int j=0; j<16; j++)
       {
          char msg2[80];
-         sprintf(msg2,"[%3.2f] ", al_fixtof(Efi[e][j]));
+         sprintf(msg2,"[%3.2f] ", Ef[e][j]);
          strcat(msg, msg2);
       }
       al_draw_text(mF.pr8, mC.pc[9], 54, tp2, 0, msg);
@@ -190,9 +180,9 @@ void sort_enemy(void)
             }
             for (int x=0; x<16; x++)
             {
-               al_fixed ftemp = Efi[e][x];
-               Efi[e][x] = Efi[e+1][x];
-               Efi[e+1][x] = ftemp;
+               float ftemp = Ef[e][x];
+               Ef[e][x] = Ef[e+1][x];
+               Ef[e+1][x] = ftemp;
             }
          }
    }
@@ -230,8 +220,8 @@ int create_cloner(void)
    int aborted_create = 0;
    int e = get_empty_enemy(9); // type 9 cloner
 
-   Efi[e][12] = al_itofix(1);  // scale
-   Efi[e][14] = al_itofix(0);  // rotation
+   Ef[e][12] = 1;  // scale
+   Ef[e][14] = 0;  // rotation
 
    Ei[e][1] = 550;   // shape
    Ei[e][2] = 0;     // draw type
@@ -278,15 +268,15 @@ int create_pod(void)
 
    Ei[e][1] = 374;   // shape
    Ei[e][2] = 0;     // draw type
-   Efi[e][12] = al_itofix(1);  // scale
-   Efi[e][14] = al_itofix(0);  // rotation
-   Efi[e][7] = al_itofix(6);     // shot speed
-   Efi[e][9] = al_itofix(10);    // default speed
+   Ef[e][12] = 1;  // scale
+   Ef[e][14] = 0;  // rotation
+   Ef[e][7] = 6;     // shot speed
+   Ef[e][9] = 10;    // default speed
    Ei[e][7] = 20;    // default seq delay
    Ei[e][9] = 20;    // default delay
    Ei[e][25] = 12;  // health bonus
    Ei[e][29] = 10;  // default collision box
-   Efi[e][4] = al_itofix(2);   // damage
+   Ef[e][4] = 2;   // damage
 
    if (getxy("Podzilla", 3, 7, e) == 1)
    {
@@ -314,20 +304,20 @@ int create_vinepod(void)
 
    Ei[e][1] = 374;             // shape
    Ei[e][2] = 0;               // draw type
-   Efi[e][12] = al_itofix(1);  // scale
-   Efi[e][14] = al_itofix(0);  // rotation
-   Efi[e][7] = al_itofix(6);   // shot speed
+   Ef[e][12] = 1;  // scale
+   Ef[e][14] = 0;  // rotation
+   Ef[e][7] = 6;   // shot speed
    Ei[e][17] = 120;            // extend time
    Ei[e][19] = 20;             // pause
    Ei[e][25] = 13;             // health bonus
    Ei[e][29] = 10;             // default collision box
-   Efi[e][4] = al_itofix(2);   // damage
+   Ef[e][4] = 2;   // damage
 
    if (getxy("VinePod Initial Position", 3, 17, e) == 1)
    {
       // enforce that 34 is 01
-      Ei[e][3] = al_fixtoi(Efi[e][0]);
-      Ei[e][4] = al_fixtoi(Efi[e][1]);
+      Ei[e][3] = Ef[e][0];
+      Ei[e][4] = Ef[e][1];
 
       // temporarily set control points to the same as initial position
       Ei[e][5] = Ei[e][3];

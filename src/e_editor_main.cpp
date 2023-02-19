@@ -528,7 +528,7 @@ void em_show_item_info(int x, int y, int color, int type, int num)
       case 4:
       {
          int col = lifts[num].color;
-         int width = lifts[num].width;
+         int width = lifts[num].w;
          if (width > 140) width = 140;
          for (a=0; a<10; a++)
             al_draw_rectangle(x+a, y+a, x+(width)-1-a, y+19-a, mC.pc[col+((9-a)*16)], 1 );
@@ -579,8 +579,8 @@ void em_find_point_item(void)
    for (int e=0; e<100; e++) // check for enemy
       if ((Ei[e][0]) && (ob < max_ob))
       {
-         int x = al_fixtoi(Efi[e][0]);
-         int y = al_fixtoi(Efi[e][1]);
+         int x = Ef[e][0];
+         int y = Ef[e][1];
          if ( (mwWM.hx >= x) && (mwWM.hx <= x+19) && (mwWM.hy > y) && (mwWM.hy < y+19) && (ob < max_ob))
          {
              mo[ob][0] = 3;
@@ -588,17 +588,18 @@ void em_find_point_item(void)
              ob++;
          }
       }
-   for (int l=0; l<num_lifts; l++) // check for lifts
-   {
-      int x = lifts[l].x1;
-      int y = lifts[l].y1;
-      if ( (mwWM.hx >= x) && (mwWM.hx <= x+19) && (mwWM.hy > y) && (mwWM.hy < y+19) && (ob < max_ob))
+   for (int l=0; l<NUM_LIFTS; l++) // check for lifts
+      if (lifts[l].active)
       {
-          mo[ob][0] = 4;
-          mo[ob][1] = l;
-          ob++;
+         int x = lifts[l].x;
+         int y = lifts[l].y;
+         if ( (mwWM.hx >= x) && (mwWM.hx <= x+19) && (mwWM.hy > y) && (mwWM.hy < y+19) && (ob < max_ob))
+         {
+             mo[ob][0] = 4;
+             mo[ob][1] = l;
+             ob++;
+         }
       }
-   }
    //al_draw_textf(mF.pr8, mC.pc[15], 100, 100, 0, "mouse is on: %d objects", ob);
    //for (int a=0; a<ob; a++) al_draw_textf(mF.pr8, mC.pc[15], 100, 108+a*8, 0, "%d %d ", mo[a][0], mo[a][1]);
 
@@ -665,16 +666,16 @@ void em_process_mouse(void)
          {
             int type = Ei[din][0];
 
-            int ofx = mwWM.gx*20 - al_fixtoi(Efi[din][0]); // get offset of move in 2000 format
-            int ofy = mwWM.gy*20 - al_fixtoi(Efi[din][1]);
+            int ofx = mwWM.gx*20 - Ef[din][0]; // get offset of move in 2000 format
+            int ofy = mwWM.gy*20 - Ef[din][1];
 
             int c = get_empty_enemy(type); // get a place to put it
             if (c == -1)  break;
-            for (int x=0; x<32; x++) Ei[c][x]  = Ei[din][x];
-            for (int x=0; x<16; x++) Efi[c][x] = Efi[din][x];
+            for (int x=0; x<32; x++) Ei[c][x] = Ei[din][x];
+            for (int x=0; x<16; x++) Ef[c][x] = Ef[din][x];
 
-            Efi[c][0] += al_itofix(ofx);  // apply offsets
-            Efi[c][1] += al_itofix(ofy);
+            Ef[c][0] += ofx;  // apply offsets
+            Ef[c][1] += ofy;
 
             if (type == 13) // vinepod
             {
@@ -691,8 +692,8 @@ void em_process_mouse(void)
                if (mI.SHFT()) // move stuff also
                //if (al_show_native_message_box(display, "Move?", "Move podzilla's extended position too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
                {
-                   Efi[c][5] = Efi[din][5] + al_itofix(ofx);
-                   Efi[c][6] = Efi[din][6] + al_itofix(ofy);
+                   Ef[c][5] = Ef[din][5] + ofx;
+                   Ef[c][6] = Ef[din][6] + ofy;
                }
                if (mI.SHFT()) // move stuff also
                //if (al_show_native_message_box(display, "Move?", "Move podzilla's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
@@ -735,8 +736,8 @@ void em_process_mouse(void)
             item[d][5] = mwWM.gy*20;
             if (item[d][0] == 4)
             {
-               itemf[d][0] = al_itofix(item[d][4]);
-               itemf[d][1] = al_itofix(item[d][5]);
+               itemf[d][0] = item[d][4];
+               itemf[d][1] = item[d][5];
                get_block_range("Block Range", &item[d][6], &item[d][7], &item[d][8], &item[d][9], 1);
             }
             sort_item(1);
@@ -745,10 +746,10 @@ void em_process_mouse(void)
          {
             int d = get_empty_enemy(); // get a place to put it
             if (d == -1)  break;
-            for (int x=0; x<32; x++) Ei[d][x]  = mPDE.PDEi[din][x];
-            for (int x=0; x<16; x++) Efi[d][x] = mPDE.PDEfx[din][x];
-            Efi[d][0] = al_itofix(mwWM.gx*20);  // set new x,y
-            Efi[d][1] = al_itofix(mwWM.gy*20);
+            for (int x=0; x<32; x++) Ei[d][x] = mPDE.PDEi[din][x];
+            for (int x=0; x<16; x++) Ef[d][x] = mPDE.PDEf[din][x];
+            Ef[d][0] = mwWM.gx*20;  // set new x,y
+            Ef[d][1] = mwWM.gy*20;
             sort_enemy();
          }
          break;

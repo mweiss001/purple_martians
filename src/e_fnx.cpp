@@ -250,19 +250,18 @@ void printBits(size_t const size, void const * const ptr)
    sprintf(msg, "%s", st);
 }
 
-al_fixed get_sproingy_jump_height(int num)
+float get_sproingy_jump_height(int num)
 {
-   al_fixed t1 = al_fixdiv(al_itofix(item[num][7]), al_ftofix(7.1));
-   al_fixed t2 = al_itofix(-15); // jump starts not at zero, but at almost one block height off ground
-   while (t1 > al_itofix(0))
+   float t1 = item[num][7] / 7.1;
+   float t2 = -15; // jump starts not at zero, but at almost one block height off ground
+
+   while (t1 > 0)
    {
-      t2 += t1; // distance moved this time period
-      t1 -= al_ftofix(.2); // minus slow gravity
+      t2 += t1;  // distance moved this time period
+      t1 -= 0.2; // minus slow gravity
    }
    return t2;
 }
-
-
 
 
 // used for calculating sproinginess from jump height
@@ -285,30 +284,26 @@ int get_sp(float jh)
 
 
 
-
-
 // used only in sliders for button set new direction (cannon and podzilla)
-void set_xyinc_rot(int EN, int x2, int y2)
+void set_xyinc_rot(int e, int x2, int y2)
 {
-   al_fixed xlen = al_itofix(x2) - Efi[EN][0];      // get the x distance between enemy and x2
-   al_fixed ylen = al_itofix(y2) - Efi[EN][1];      // get the y distance between enemy and y2
-   al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
-   al_fixed speed = Efi[EN][5];                  // speed
-   al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
-   al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
-   al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
-   Efi[EN][2] = xinc;
-   Efi[EN][3] = yinc;
-   Efi[EN][14] = al_fixatan2(ylen, xlen) - al_itofix(64);
+   float xlen = x2 - Ef[e][0];      // get the x distance between enemy and x2
+   float ylen = y2 - Ef[e][1];      // get the y distance between enemy and y2
+   float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2)); // hypotenuse distance
+   float speed = Ef[e][5];                  // speed
+   float scaler = hy_dist / speed;     // get scaler
+   Ef[e][2] = xlen / scaler;         // calc xinc
+   Ef[e][3] = ylen / scaler;         // calc yinc
+   Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI / 2;
 }
 
 // used only in sliders for button set new direction (rocket)
 void set_rocket_rot(int num, int x2, int y2)
 {
-   al_fixed xlen = al_itofix(x2) - al_itofix(item[num][4]);      // get the x distance between item and x2
-   al_fixed ylen = al_itofix(y2) - al_itofix(item[num][5]);      // get the y distance between item and y2
-   al_fixed rot = al_fixatan2(ylen, xlen) + al_itofix(64);
-   item[num][10] = al_fixtoi(rot) * 10;
+   float xlen = x2 - item[num][4];      // get the x distance between item and x2
+   float ylen = y2 - item[num][5];      // get the y distance between item and y2
+   float a = atan2(ylen, xlen) + ALLEGRO_PI/2;
+   item[num][10] = a * 1000;
 }
 
 int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type)
@@ -406,8 +401,8 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
 void draw_vinepod_controls(int num, int legend_highlight)
 {
    // enforce that 34 is 01
-   Ei[num][3] = al_fixtoi(Efi[num][0]);
-   Ei[num][4] = al_fixtoi(Efi[num][1]);
+   Ei[num][3] = Ef[num][0];
+   Ei[num][4] = Ef[num][1];
 
    // put variables in spline array
    float pnts[8];
@@ -424,9 +419,9 @@ void draw_vinepod_controls(int num, int legend_highlight)
    int ipy = Ei[num][4];
 
    // set initial rotation
-   al_fixed xlen = al_ftofix(dest[4] - dest[0]);            // get the x distance
-   al_fixed ylen = al_ftofix(dest[5] - dest[1]);            // get the y distance
-   Efi[num][14] = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
+   float xlen = dest[4] - dest[0];            // get the x distance
+   float ylen = dest[5] - dest[1];            // get the y distance
+   Ef[num][14] = atan2(ylen, xlen) - ALLEGRO_PI/2;  // rotation
 
    // extended position
    int color1 = 10;
@@ -439,13 +434,12 @@ void draw_vinepod_controls(int num, int legend_highlight)
    al_draw_textf(mF.pixl, mC.White, epx+22, epy+8, 0, "y:%d", epy-ipy);
 
    // set extended rotation
-   xlen = al_ftofix(dest[198] - dest[194]);                     // get the x distance
-   ylen = al_ftofix(dest[199] - dest[193]);                     // get the y distance
-   al_fixed ext_rot = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
+   xlen = dest[198] - dest[194];            // get the x distance
+   ylen = dest[199] - dest[193];            // get the y distance
+   float ext_rot = atan2(ylen, xlen) - ALLEGRO_PI/2;  // rotation
 
    // draw mwB.tile at extended pos
-   float rot = al_fixtof(al_fixmul(ext_rot, al_fixtorad_r));
-   al_draw_scaled_rotated_bitmap(mwB.tile[Ei[num][1]], 10, 10, epx+10, epy+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
+   al_draw_scaled_rotated_bitmap(mwB.tile[Ei[num][1]], 10, 10, epx+10, epy+10, 1, 1, ext_rot, ALLEGRO_FLIP_HORIZONTAL);
 
    // control point 1
    color1 = 6;
@@ -506,12 +500,12 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
 
    while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
 
-
    // get original values in case we are cancelled and need to restore them
-   int original_dx=0, original_dy=0;
-   al_fixed original_rot  = al_itofix(0); // for direction
-   al_fixed original_xinc = al_itofix(0);
-   al_fixed original_yinc = al_itofix(0);
+   int original_dx=0;
+   int original_dy=0;
+   float original_rot  = 0; // for direction
+   float original_xinc = 0;
+   float original_yinc = 0;
 
 
    if (obj_type == 2) // items
@@ -521,13 +515,13 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
    }
    if (obj_type == 3) // enemies
    {
-      original_dx = al_fixtoi(Efi[num][0]);
-      original_dy = al_fixtoi(Efi[num][1]);
+      original_dx = Ef[num][0];
+      original_dy = Ef[num][1];
    }
    if (obj_type == 99) // pod extended
    {
-      original_dx = al_fixtoi(Efi[num][5]);
-      original_dy = al_fixtoi(Efi[num][6]);
+      original_dx = Ef[num][5];
+      original_dy = Ef[num][6];
    }
    if (obj_type == 98) // cloner destination
    {
@@ -540,9 +534,9 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
    }
    if (obj_type == 96) // cannon or bouncer initial direction
    {
-      original_rot  = Efi[num][14];
-      original_xinc = Efi[num][2];
-      original_yinc = Efi[num][3];
+      original_rot  = Ef[num][14];
+      original_xinc = Ef[num][2];
+      original_yinc = Ef[num][3];
    }
    if (obj_type == 90) // vinepod extended
    {
@@ -560,8 +554,6 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       original_dy = Ei[num][8];
    }
 
-
-
    if (obj_type == 4) // lift
    {
       original_dx = lift_steps[lift][step].x;
@@ -576,11 +568,11 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
 
       if (obj_type == 99) // move pod extended
       {
-         int ex = al_fixtoi(Efi[num][0])+10;
-         int ey = al_fixtoi(Efi[num][1])+10;
-         int px = al_fixtoi(Efi[num][5])+10;
-         int py = al_fixtoi(Efi[num][6])+10;
-         float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+         int ex = Ef[num][0]+10;
+         int ey = Ef[num][1]+10;
+         int px = Ef[num][5]+10;
+         int py = Ef[num][6]+10;
+         float rot = Ef[num][14];
          al_draw_scaled_rotated_bitmap(mwB.tile[Ei[num][1]], 10, 10, px, py, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
          al_draw_line(ex, ey, px, py, mC.pc[10], 1); // connect with line
       }
@@ -603,17 +595,19 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          int iy = item[num][5]+10;
          int dx = mwWM.gx*20+10;
          int dy = mwWM.gy*20+10;
-         float rot = al_fixtof(al_fixmul(al_itofix(item[num][10]/10), al_fixtorad_r));
+
+         float rot = (float)item[num][10] / 1000;
          al_draw_rotated_bitmap(mwB.tile[item[num][1]], 10, 10, dx, dy, rot, 0);
+
          al_draw_line(ix, iy, dx, dy, mC.pc[10], 1);     // connect with line
       }
       if (obj_type == 96) // set cannon or bouncer direction
       {
-         int ex = al_fixtoi(Efi[num][0])+10;
-         int ey = al_fixtoi(Efi[num][1])+10;
+         int ex = Ef[num][0]+10;
+         int ey = Ef[num][1]+10;
          int dx = mwWM.gx*20+10;
          int dy = mwWM.gy*20+10;
-         float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+         float rot = Ef[num][14];
          al_draw_scaled_rotated_bitmap(mwB.tile[Ei[num][1]], 10, 10, dx, dy, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile
          al_draw_line(ex, ey, dx, dy, mC.pc[10], 1);   // connect with line
       }
@@ -635,14 +629,12 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       switch (obj_type)
       {
          case 2: // items
-            item[num][4] = mwWM.gx*20;
-            item[num][5] = mwWM.gy*20;
-            itemf[num][0] = al_itofix(mwWM.gx*20);
-            itemf[num][1] = al_itofix(mwWM.gy*20);
+            itemf[num][0] = item[num][4] = mwWM.gx*20;
+            itemf[num][1] = item[num][5] = mwWM.gy*20;
          break;
          case 3: // show enem
-            Efi[num][0] = al_itofix(mwWM.gx*20);
-            Efi[num][1] = al_itofix(mwWM.gy*20);
+            Ef[num][0] = mwWM.gx*20;
+            Ef[num][1] = mwWM.gy*20;
          break;
          case 4: // show lift
          {
@@ -653,8 +645,8 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          break;
          case 99: // move pod extended
          {
-            Efi[num][5] = al_itofix(mwWM.gx*20);
-            Efi[num][6] = al_itofix(mwWM.gy*20);
+            Ef[num][5] = mwWM.gx*20;
+            Ef[num][6] = mwWM.gy*20;
             recalc_pod(num);
          }
          break;
@@ -725,13 +717,13 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       {
          item[num][4] = original_dx;
          item[num][5] = original_dy;
-         itemf[num][0] = al_itofix(original_dx);
-         itemf[num][1] = al_itofix(original_dy);
+         itemf[num][0] = original_dx;
+         itemf[num][1] = original_dy;
       }
       if (obj_type == 3)
       {
-          Efi[num][0] = al_itofix(original_dx);
-          Efi[num][1] = al_itofix(original_dy);
+          Ef[num][0] = original_dx;
+          Ef[num][1] = original_dy;
       }
       if (obj_type == 90)
       {
@@ -750,13 +742,13 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       }
       if (obj_type == 99)
       {
-          Efi[num][5] = al_itofix(original_dx);
-          Efi[num][6] = al_itofix(original_dy);
+          Ef[num][5] = original_dx;
+          Ef[num][6] = original_dy;
       }
       if (obj_type == 98)
       {
-          Efi[num][5] = original_dx;
-          Efi[num][6] = original_dy;
+          Ef[num][5] = original_dx;
+          Ef[num][6] = original_dy;
       }
       if (obj_type == 97) // restore rocket direction
       {
@@ -764,9 +756,9 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       }
       if (obj_type == 96) // cannon or bouncer initial direction
       {
-         Efi[num][14] = original_rot;
-         Efi[num][2]  = original_xinc;
-         Efi[num][3]  = original_yinc;
+         Ef[num][14] = original_rot;
+         Ef[num][2]  = original_xinc;
+         Ef[num][3]  = original_yinc;
       }
       if (obj_type == 4)
       {
@@ -955,24 +947,24 @@ void titlex(const char *txt, int tc, int fc, int x1, int x2, int y)
    al_draw_text(mF.pr8, mC.pc[tc], (x1+x2)/2, y+2, ALLEGRO_ALIGN_CENTER,  txt);
 }
 
-// when speed is changed in level editor (Efi[][5]) scale the xinc, yinc to match
+// when speed is changed in level editor (Ef[][5]) scale the xinc, yinc to match
 void scale_bouncer_and_cannon_speed(int e)
 {
    // new v
-   float nv =  al_fixtof(Efi[e][5]);
+   float nv =  Ef[e][5];
 
    // get the original x and y velocities
-   float oxv = al_fixtof(Efi[e][2]);
-   float oyv = al_fixtof(Efi[e][3]);
+   float oxv = Ef[e][2];
+   float oyv = Ef[e][3];
 
    // get the combined original velocity
    float ov = sqrt( pow(oxv, 2) + pow(oyv, 2) );
 
    // if this was previously stationary, set direction to 100% up
-   if (al_ftofix(ov) == al_ftofix(0))
+   if (ov == 0)
    {
-      Efi[e][3] = -Efi[e][5];
-      Efi[e][14] = get_rot_from_xyinc(e); // set rotation
+      Ef[e][3] = -Ef[e][5];
+      set_enemy_rot_from_incs(e); // set rotation
    }
    else
    {
@@ -985,13 +977,13 @@ void scale_bouncer_and_cannon_speed(int e)
          oxv *= sc;
          oyv *= sc;
 
-         Efi[e][2] = al_ftofix(oxv);
-         Efi[e][3] = al_ftofix(oyv);
+         Ef[e][2] = oxv;
+         Ef[e][3] = oyv;
       }
       else // if new speed not > 0, zero both x and y
       {
-         Efi[e][2] = al_ftofix(0);
-         Efi[e][3] = al_ftofix(0);
+         Ef[e][2] = 0;
+         Ef[e][3] = 0;
       }
 
    }

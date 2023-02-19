@@ -24,12 +24,12 @@ struct player // synced between server and client
    int level_done_player;
    int level_done_next_level;
 
-   al_fixed PX, PY;       // players position
-   al_fixed xinc, yinc;   // players momentum
-   al_fixed right_xinc, left_xinc;
+   float x, y;       // players position
+   float xinc, yinc;   // players momentum
+   float right_xinc, left_xinc;
 
-   al_fixed LIFE;
-   al_fixed old_LIFE;
+   float health;
+   float old_health;
 
    int on_ladder;
    int on_rope;
@@ -38,15 +38,20 @@ struct player // synced between server and client
 
    int shape; // index to player_tile
    int color; // used to draw frames and stuff in players color
-   al_fixed draw_rot;
-   al_fixed draw_scale;
+
+   float draw_rot;
+   float draw_scale;
+
    int door_draw_rot_num_steps;
-   al_fixed door_draw_rot;
-   al_fixed door_draw_rot_inc;
+   float door_draw_rot;
+   float door_draw_rot_inc;
+
+   float door_xinc;
+   float door_yinc;
+
    int marked_door;
    int door_item;
-   int door_xinc;
-   int door_yinc;
+
    int door_num_steps;
 
    int spawn_point_index;
@@ -70,12 +75,10 @@ struct player // synced between server and client
    int stat_player_exploded;
    int stat_self_exploded;
 
-   al_fixed stat_LIFE_inc;
-   al_fixed stat_LIFE_dec;
-   al_fixed stat_LIFE_wasted;
-
    int spare_int1;
-
+   int spare_int2;
+   int spare_int3;
+   int spare_int4;
 
 };
 

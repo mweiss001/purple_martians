@@ -1,12 +1,16 @@
 // z_enemy.h
 
 extern int Ei[100][32];        // enemy ints
-extern al_fixed Efi[100][16];  // enemy fixeds
+extern float Ef[100][16];      // enemy floats
+
 extern int e_num_of_type[50];
 extern int e_first_num[50];
 extern char enemy_name[100][2][40];
 extern int num_enemy;
 extern int enemy_tile[20];
+
+
+
 
 
 int enemy_data(int x_pos, int y_pos);
