@@ -41,6 +41,7 @@ void enemy_jumpworm(int e);
 
 
 // e_enemy.h
+void set_enemy_text(void);
 void erase_enemy(int e);
 int get_empty_enemy(void);
 int get_empty_enemy(int type);

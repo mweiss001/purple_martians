@@ -6,7 +6,7 @@
 #include "mwWindowManager.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "z_lift.h"
+#include "mwLift.h"
 #include "mwWidgets.h"
 #include "mwColor.h"
 #include "mwPMEvent.h"
@@ -16,10 +16,9 @@
 #include "z_menu.h"
 #include "z_item.h"
 #include "z_enemy.h"
-#include "z_level.h"
+#include "mwLevel.h"
 #include "e_fnx.h"
-#include "z_file.h"
-#include "z_fnx.h"
+
 #include "z_screen.h"
 
 
@@ -83,7 +82,7 @@ void es_pointer_text(int x1, int x2, int y, int mouse_on_window)
    // count lifts in box
    if (mwWM.obj_filter[4][1])
       for (int d=0; d<NUM_LIFTS; d++)
-         if ((lifts[d].active) && (lifts[d].x >= rx1) && (lifts[d].x < rx2) && (lifts[d].y >= ry1) && (lifts[d].y < ry2)) lib++;
+         if ((Lift.cur[d].active) && (Lift.cur[d].x >= rx1) && (Lift.cur[d].x < rx2) && (Lift.cur[d].y >= ry1) && (Lift.cur[d].y < ry2)) lib++;
 
 
    y+=24;
@@ -107,7 +106,7 @@ void es_do_brf(int x, int y, int flood_block)
 {
    int show_progress = 0;
    int f[100][100] = {0};   // array of blocks to mark
-   int rb = l[x][y];        // block num to replace
+   int rb = mLevel.l[x][y];        // block num to replace
    f[x][y] = 1;             // mark initial block pos in array
 
    int times=0, found=0;
@@ -119,22 +118,22 @@ void es_do_brf(int x, int y, int flood_block)
          for (int b=0; b<100; b++)
             if (f[a][b]) // iterate already marked
             {
-               if ((a >  0) && (l[a-1][b]) == rb) // look left
+               if ((a >  0) && (mLevel.l[a-1][b]) == rb) // look left
                {
                   if (f[a-1][b] == 0) found++; // found unmarked
                   f[a-1][b] = 1; // mark it
                }
-               if ((b >  0) && (l[a][b-1]) == rb) // look up
+               if ((b >  0) && (mLevel.l[a][b-1]) == rb) // look up
                {
                   if (f[a][b-1] == 0) found++; // found unmarked
                   f[a][b-1] = 1; // mark it
                }
-               if ((a < 99) && (l[a+1][b]) == rb) // look right
+               if ((a < 99) && (mLevel.l[a+1][b]) == rb) // look right
                {
                   if (f[a+1][b] == 0) found++; // found unmarked
                   f[a+1][b] = 1; // mark it
                }
-               if ((b < 99) && (l[a][b+1]) == rb) // look down
+               if ((b < 99) && (mLevel.l[a][b+1]) == rb) // look down
                {
                   if (f[a][b+1] == 0) found++; // found unmarked
                   f[a][b+1] = 1; // mark it
@@ -206,13 +205,13 @@ int es_load_selection(void)
       if (!al_filename_exists(sel_filename))
       {
          sprintf(msg, "Can't Find %s ", sel_filename);
-         m_err(msg);
+         mI.m_err(msg);
          return 0;
       }
       if ((filepntr=fopen(sel_filename,"r")) == NULL)
       {
          sprintf(msg, "Error opening %s ", sel_filename);
-         m_err(msg);
+         mI.m_err(msg);
          return 0;
       }
       for (c=0; c<20; c++) // level header
@@ -370,8 +369,8 @@ void es_save_selection(int save)
       for (y=0; y<(mwWM.by2-mwWM.by1+1); y++)
          if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (mwWM.bx1+x >= 0) && (mwWM.bx1+x < 100) && (mwWM.by1+y >= 0) && (mwWM.by1+y < 100) )
          {
-            if (mwWM.obj_filter[1][1])                          ft_l[x][y] = l[mwWM.bx1+x][mwWM.by1+y];                       // get block and flags
-            if ((!mwWM.obj_filter[1][1]) && (mwWM.obj_filter[1][2])) ft_l[x][y] = l[mwWM.bx1+x][mwWM.by1+y] & PM_BTILE_MOST_FLAGS; // get flags only
+            if (mwWM.obj_filter[1][1])                               ft_l[x][y] = mLevel.l[mwWM.bx1+x][mwWM.by1+y];                       // get block and flags
+            if ((!mwWM.obj_filter[1][1]) && (mwWM.obj_filter[1][2])) ft_l[x][y] = mLevel.l[mwWM.bx1+x][mwWM.by1+y] & PM_BTILE_MOST_FLAGS; // get flags only
          }
 
 
@@ -443,35 +442,35 @@ void es_save_selection(int save)
    // lifts
    if (mwWM.obj_filter[4][1])
       for (b=0; b<NUM_LIFTS; b++) // source, if in selection
-         if ((lifts[b].active) && (lifts[b].x >= x1) && (lifts[b].x < x2) && (lifts[b].y >= y1) && (lifts[b].y < y2))
+         if ((Lift.cur[b].active) && (Lift.cur[b].x >= x1) && (Lift.cur[b].x < x2) && (Lift.cur[b].y >= y1) && (Lift.cur[b].y < y2))
          {
             c = lib++; // destination
 
-            strcpy(ft_ln[c], lifts[b].lift_name);
+            strcpy(ft_ln[c], Lift.cur[b].lift_name);
 
-            ft_lift[c][0] = lifts[b].mode;
-            ft_lift[c][1] = lifts[b].flags;
-            ft_lift[c][2] = lifts[b].color;
-            ft_lift[c][3] = lifts[b].num_steps;
-            ft_lift[c][4] = lifts[b].val1;
-            ft_lift[c][5] = lifts[b].val2;
+            ft_lift[c][0] = Lift.cur[b].mode;
+            ft_lift[c][1] = Lift.cur[b].flags;
+            ft_lift[c][2] = Lift.cur[b].color;
+            ft_lift[c][3] = Lift.cur[b].num_steps;
+            ft_lift[c][4] = Lift.cur[b].val1;
+            ft_lift[c][5] = Lift.cur[b].val2;
 
 
-            for (y = 0; y < lifts[b].num_steps; y++) // copy steps
+            for (y = 0; y < Lift.cur[b].num_steps; y++) // copy steps
             {
-               int vx = lift_steps[b][y].x;
-               int vy = lift_steps[b][y].y;
-               if ((lift_steps[b][y].type & 31) == 1) // shift move steps
+               int vx = Lift.stp[b][y].x;
+               int vy = Lift.stp[b][y].y;
+               if ((Lift.stp[b][y].type & 31) == 1) // shift move steps
                {
                   vx -= x1;
                   vy -= y1;
                }
                ft_ls[c][y][0] = vx;
                ft_ls[c][y][1] = vy;
-               ft_ls[c][y][2] = lift_steps[b][y].w;
-               ft_ls[c][y][3] = lift_steps[b][y].h;
-               ft_ls[c][y][4] = lift_steps[b][y].val;
-               ft_ls[c][y][5] = lift_steps[b][y].type;
+               ft_ls[c][y][2] = Lift.stp[b][y].w;
+               ft_ls[c][y][3] = Lift.stp[b][y].h;
+               ft_ls[c][y][4] = Lift.stp[b][y].val;
+               ft_ls[c][y][5] = Lift.stp[b][y].type;
             }
          }
 
@@ -560,16 +559,16 @@ void es_do_fcopy(int qx1, int qy1)
    {
       for (b=0; b<ft_level_header[5]; b++)
       {
-         int l = get_empty_lift();
+         int l = Lift.get_empty_lift();
          if (l > -1)
          {
             int lim = 0;
-            construct_lift(l, ft_ln[b]);
-            lifts[l].mode      = ft_lift[b][0];
-            lifts[l].flags     = ft_lift[b][1];
-            lifts[l].num_steps = ft_lift[b][3];
-            lifts[l].val1      = ft_lift[b][4];
-            lifts[l].val2      = ft_lift[b][5];
+            Lift.construct_lift(l, ft_ln[b]);
+            Lift.cur[l].mode      = ft_lift[b][0];
+            Lift.cur[l].flags     = ft_lift[b][1];
+            Lift.cur[l].num_steps = ft_lift[b][3];
+            Lift.cur[l].val1      = ft_lift[b][4];
+            Lift.cur[l].val2      = ft_lift[b][5];
 
 
             for (y=0; y<ft_lift[b][3]; y++) // copy steps
@@ -600,12 +599,12 @@ void es_do_fcopy(int qx1, int qy1)
                }
 
                //printf("contructing step:%d\n", y);
-               construct_lift_step(l, y, type, vx, vy, vw, vh, val);
+               Lift.construct_lift_step(l, y, type, vx, vy, vw, vh, val);
             }
-            set_lift_to_step(l, 0);
+            Lift.set_lift_to_step(l, 0);
             if (lim)
             {
-               erase_lift(l);
+               Lift.erase_lift(l);
             }
          }
       }
@@ -778,7 +777,7 @@ void es_do_clear(void)
    // blocks
    if (mwWM.obj_filter[1][1])
       for (int x=mwWM.bx1; x<mwWM.bx2+1; x++)
-         for (int y=mwWM.by1; y<mwWM.by2+1; y++) l[x][y]=0;
+         for (int y=mwWM.by1; y<mwWM.by2+1; y++) mLevel.l[x][y]=0;
 
    // items
    for (int i=0; i<500; i++)
@@ -797,8 +796,8 @@ void es_do_clear(void)
    // lifts
    if (mwWM.obj_filter[4][1])
       for (int l=NUM_LIFTS-1; l>=0; l--) // have to iterate backward beacuse erase_lift changes list order
-         if (lifts[l].active)
-            if ((lifts[l].x >= x1) && (lifts[l].x < x2) && (lifts[l].y >= y1) && (lifts[l].y < y2)) erase_lift(l);
+         if (Lift.cur[l].active)
+            if ((Lift.cur[l].x >= x1) && (Lift.cur[l].x < x2) && (Lift.cur[l].y >= y1) && (Lift.cur[l].y < y2)) Lift.erase_lift(l);
 
    sort_enemy();
    sort_item(1);
@@ -810,17 +809,17 @@ void set_block_with_flag_filters(int x, int y, int tn)
    if ((x>=0) && (x<100) && (y>=0) && (y<100))
    {
       // blocks and flags
-      if ((mwWM.obj_filter[1][1]) && (mwWM.obj_filter[1][2])) l[x][y] = tn;
+      if ((mwWM.obj_filter[1][1]) && (mwWM.obj_filter[1][2])) mLevel.l[x][y] = tn;
 
       // flags only
       if ((!mwWM.obj_filter[1][1]) && (mwWM.obj_filter[1][2]))
       {
          int flags = tn & PM_BTILE_MOST_FLAGS; // get only flags from draw item
-         l[x][y] &= ~PM_BTILE_MOST_FLAGS;                       // clear flags in destination
-         l[x][y] |= flags;                                      // merge
+         mLevel.l[x][y] &= ~PM_BTILE_MOST_FLAGS;                       // clear flags in destination
+         mLevel.l[x][y] |= flags;                                      // merge
       }
       // blocks only (same as block and flags?)
-      if ((mwWM.obj_filter[1][1]) && (!mwWM.obj_filter[1][2])) l[x][y] = tn;
+      if ((mwWM.obj_filter[1][1]) && (!mwWM.obj_filter[1][2])) mLevel.l[x][y] = tn;
    }
 }
 

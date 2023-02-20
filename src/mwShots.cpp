@@ -4,12 +4,13 @@
 #include "mwShots.h"
 #include "n_netgame.h"
 #include "mwBitmap.h"
-#include "z_level.h"
-#include "z_fnx.h"
+#include "mwLevel.h"
+
 #include "z_screen_overlay.h"
 #include "z_enemy.h"
 #include "z_player.h"
-#include "z_lift.h"
+#include "mwLift.h"
+
 
 mwShots mwS;
 
@@ -119,11 +120,11 @@ void mwShots::move_pshots()
          // level block collision
          int x = ((mwS.p[b].x+10) / 20);
          int y = ((mwS.p[b].y+10) / 20);
-         int d = l[x][y];
+         int d = mLevel.l[x][y];
          if ((d & PM_BTILE_SOLID_PBUL) || (d & PM_BTILE_BREAKABLE_PSHOT)) // shot hit solid or breakable wall
          {
             mwS.p[b].active = 0;  // shot is done
-            if (d & PM_BTILE_BREAKABLE_PSHOT) change_block(x, y, 0);
+            if (d & PM_BTILE_BREAKABLE_PSHOT) mLevel.change_block(x, y, 0);
          }
       }
 }
@@ -185,11 +186,11 @@ void mwShots::move_eshots()
          // check if hit wall (or more accurately if co-located with a block)
          int xi = (mwS.e[b].x+10)/20;
          int yi = (mwS.e[b].y+10)/20;
-         int d = l[xi][yi];
+         int d = mLevel.l[xi][yi];
          if (d & PM_BTILE_SOLID_EBUL)  // shot hit solid or breakable wall
          {
             mwS.e[b].active = 0;                                   // shot dies
-            if (d & PM_BTILE_BREAKABLE_ESHOT) change_block(xi, yi, 0); // breakable wall
+            if (d & PM_BTILE_BREAKABLE_ESHOT) mLevel.change_block(xi, yi, 0); // breakable wall
          }
       }
 }
@@ -280,8 +281,8 @@ void mwShots::fire_enemy_shota(int e, int shot_ans, int p)
    if (players[p].player_ride) // if player is riding lift
    {
       int d = players[p].player_ride - 32; // lift number
-      pvx += lifts[d].xinc;
-      pvy += lifts[d].yinc;
+      pvx += Lift.cur[d].xinc;
+      pvy += Lift.cur[d].yinc;
    }
    // Edgar's method
    //float A = pow(pvx,2) + pow(pvy,2) - pow(bv,2);

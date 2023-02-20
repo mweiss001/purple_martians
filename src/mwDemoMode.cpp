@@ -3,8 +3,10 @@
 #include "pm.h"
 #include "mwDemoMode.h"
 #include "mwProgramState.h"
-#include "z_level.h"
-#include "z_file.h"
+#include "mwLevel.h"
+
+#include "mwGameMovesArray.h"
+
 
 
 
@@ -102,9 +104,9 @@ void mwDemoMode::demo_mode(void)
    }
    else lev = 0;
 
-   if (load_gm(al_get_fs_entry_name(demo_FS_filenames[lev])))
+   if (mwGMA.load_gm(al_get_fs_entry_name(demo_FS_filenames[lev])))
    {
-      printf("pass:%d - playing demo level:%d\n", pass, play_level);
+      printf("pass:%d - playing demo level:%d\n", pass, mLevel.play_level);
       mwPS.new_program_state = 14;
       mwPS.old_program_state = 2;
    }

@@ -8,7 +8,10 @@
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "z_menu.h"
-#include "z_fnx.h"
+#include "mwMenu.h"
+#include "mw_multicolor_line.h"
+
+
 
 mwGraph mwG[10];
 
@@ -237,7 +240,7 @@ void mwGraph::draw_series_legend(void)
       for (int s=0; s<series_limit; s++) // run through to get sizes
          if ((series[s].num_data) || (series_legend_type == 1))
          {
-            mw_get_text_dimensions(f, series[s].name, bx, by, bw, bh);
+            mF.mw_get_text_dimensions(f, series[s].name, bx, by, bw, bh);
             bh+=1;
             if (bw > max_width) max_width = bw;
             if (bh>0) height += bh;
@@ -275,7 +278,7 @@ void mwGraph::draw_series_legend(void)
                mouse_sel = s;
                al_draw_rectangle(x1+1, y1+1, x2-1, y1+1+bh, mC.pc[15], 0);
             }
-            mw_get_text_dimensions(f, series[s].name, bx, by, bw, bh);
+            mF.mw_get_text_dimensions(f, series[s].name, bx, by, bw, bh);
             bh+=1;
             al_draw_text(f, mC.pc[c1], x1+2-bx, y1+2-by, 0, series[s].name);
             if (series_legend_show_counts) al_draw_textf(f, mC.pc[c1], x2+2, y1+2-by, 0, "%d", series[s].num_data);
@@ -550,7 +553,7 @@ void mwGraph::draw_title(int set_size_only)
          title_draw_size = 0;
          int pad = 2;
          int bx, by, bw, bh;
-         mw_get_text_dimensions(mF.pr8, title_text, bx, by, bw, bh);
+         mF.mw_get_text_dimensions(mF.pr8, title_text, bx, by, bw, bh);
          if (!set_size_only)
          {
             ALLEGRO_BITMAP* t = al_create_bitmap(bw+4+pad*2, bh+4+pad*2);
@@ -572,7 +575,7 @@ void mwGraph::draw_title(int set_size_only)
       {
          int pad = 1;
          int bx, by, bw, bh;
-         mw_get_text_dimensions(mF.pr8, title_text, bx, by, bw, bh);
+         mF.mw_get_text_dimensions(mF.pr8, title_text, bx, by, bw, bh);
          title_draw_size = bh+2+pad*2;
 
          if (!set_size_only)
@@ -668,10 +671,10 @@ void mwGraph::x_axis_draw_legend(int set_size_only)
       ALLEGRO_FONT *f = mF.pr8;
       if (x_axis_legend_font) f = mF.pixl;
       int bx, by, bw, bh;
-      mw_get_text_dimensions(f, msg, bx, by, bw, bh);
+      mF.mw_get_text_dimensions(f, msg, bx, by, bw, bh);
 
       if (bw > plot_w) f = mF.pixl; // if legend is too big for area, try smaller font
-      mw_get_text_dimensions(f, msg, bx, by, bw, bh);
+      mF.mw_get_text_dimensions(f, msg, bx, by, bw, bh);
 
       x_axis_legend_draw_size = bh+2+pad*2+1;
 
@@ -698,7 +701,7 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
    ALLEGRO_FONT *f = mF.pr8;
    if (x_axis_grid_label_font) f = mF.pixl;
    int bx, by, bw, bh;
-   mw_get_text_dimensions(f, "1234", bx, by, bw, bh);
+   mF.mw_get_text_dimensions(f, "1234", bx, by, bw, bh);
    x_axis_grid_label_text_size = bh;
 
    x_axis_grid_label_draw_size = 0;
@@ -739,12 +742,12 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
             {
                // get current label
                convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly); // get screen position
-               mw_get_text_dimensions(f, x_axis_get_val_text(i* x_axis_divider, 0), bx, by, bw, bh); // get text dimensions of label
+               mF.mw_get_text_dimensions(f, x_axis_get_val_text(i* x_axis_divider, 0), bx, by, bw, bh); // get text dimensions of label
                int cur_end = lx + bw/2; // xpos at the end of this label
 
                // get next label
                convert_gxy_to_sxy((i+x_gl_span) * x_axis_divider, 9999, lx, ly); // get screen position
-               mw_get_text_dimensions(f, x_axis_get_val_text((i+x_gl_span) * x_axis_divider, 0), bx, by, bw, bh); // get text dimensions of label
+               mF.mw_get_text_dimensions(f, x_axis_get_val_text((i+x_gl_span) * x_axis_divider, 0), bx, by, bw, bh); // get text dimensions of label
                int next_start = lx - bw/2; // xpos at the start of this label
 
                int space = next_start - cur_end;
@@ -825,10 +828,10 @@ void mwGraph::y_axis_draw_legend(int set_size_only)
       ALLEGRO_FONT *f = mF.pr8;
       if (y_axis_legend_font) f = mF.pixl;
       int bx, by, bw, bh;
-      mw_get_text_dimensions(f, msg, bx, by, bw, bh);
+      mF.mw_get_text_dimensions(f, msg, bx, by, bw, bh);
 
       if (bw > plot_h) f = mF.pixl; // if legend is too big for area, try smaller font
-      mw_get_text_dimensions(f, msg, bx, by, bw, bh);
+      mF.mw_get_text_dimensions(f, msg, bx, by, bw, bh);
 
       y_axis_legend_draw_size = bh+2+pad*2;
 
@@ -874,7 +877,7 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
       for (double i=gy2; i<sy_axis_max; i+=y_gl_span)
       {
          convert_gxy_to_sxy(9999, i * y_axis_divider, lx, ly);
-         mw_get_text_dimensions(f, y_axis_get_val_text(i, 0), bx, by, bw, bh);
+         mF.mw_get_text_dimensions(f, y_axis_get_val_text(i, 0), bx, by, bw, bh);
          if (bw >  max_width) max_width = bw;
       }
       y_axis_grid_label_text_size = max_width+1;
@@ -1017,7 +1020,7 @@ int mwGraph::calc_data_range(void)
    if (x_data_rng == 0)
    {
       printf("No Data.\n");
-      m_err("No Data.");
+      mI.m_err("No Data.");
       // fast_exit(0);
       return 0;
    }
@@ -1180,7 +1183,7 @@ void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALL
    // size of series name
    if (s != -1)
    {
-      mw_get_text_dimensions(f, series[s].name, bx, by, bw, bh);
+      mF.mw_get_text_dimensions(f, series[s].name, bx, by, bw, bh);
       if (bw > max_width) max_width = bw;
       height += bh+2;
       y2 = y1 + bh+2;
@@ -1188,13 +1191,13 @@ void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALL
    else y2 = y1;
 
    // size of y label
-   mw_get_text_dimensions(f, y_axis_get_val_text(my, 1), bx, by, bw, bh);
+   mF.mw_get_text_dimensions(f, y_axis_get_val_text(my, 1), bx, by, bw, bh);
    if (bw > max_width) max_width = bw;
    height += bh+2;
    y3 = y2 + bh+2;
 
    // size of x label
-   mw_get_text_dimensions(f, x_axis_get_val_text(mx, 2), bx, by, bw, bh);
+   mF.mw_get_text_dimensions(f, x_axis_get_val_text(mx, 2), bx, by, bw, bh);
    if (bw > max_width) max_width = bw;
    height += bh+2;
 
@@ -1281,19 +1284,19 @@ int mwGraph::proc_series_legend_menu(void)
       al_draw_rectangle(series_legend_x1, series_legend_y1, series_legend_x2, series_legend_y2, mC.pc[10], 1);
       if (mI.mouse_b[2][0])
       {
-         sprintf(global_string[5][0],"Series Legend Menu");
-         sprintf(global_string[5][1],"------------------");
-         sprintf(global_string[5][2],"Line Size +");
-         sprintf(global_string[5][3],"Line Size -");
-         sprintf(global_string[5][4],"Point Size +");
-         sprintf(global_string[5][5],"Point Size -");
-         sprintf(global_string[5][6],"Series Legend Size");
-         sprintf(global_string[5][7],"Force Solid Lines");
-         sprintf(global_string[5][8],"Show Counts");
-         sprintf(global_string[5][9],"Hide Series Legend");
+         sprintf(mMenu.menu_string[0],"Series Legend Menu");
+         sprintf(mMenu.menu_string[1],"------------------");
+         sprintf(mMenu.menu_string[2],"Line Size +");
+         sprintf(mMenu.menu_string[3],"Line Size -");
+         sprintf(mMenu.menu_string[4],"Point Size +");
+         sprintf(mMenu.menu_string[5],"Point Size -");
+         sprintf(mMenu.menu_string[6],"Series Legend Size");
+         sprintf(mMenu.menu_string[7],"Force Solid Lines");
+         sprintf(mMenu.menu_string[8],"Show Counts");
+         sprintf(mMenu.menu_string[9],"Hide Series Legend");
 
-         sprintf(global_string[5][10],"end");
-         switch (pmenu(5, 13))
+         sprintf(mMenu.menu_string[10],"end");
+         switch (mMenu.pmenu(5, 13))
          {
             case 2: if (++plot_line_size > 5) plot_line_size = 5;  break;
             case 3: if (--plot_line_size < 0) plot_line_size = 0;  break;
@@ -1314,53 +1317,53 @@ void mwGraph::proc_plot_menu(void)
 {
    if (mI.mouse_b[2][0])
    {
-      sprintf(global_string[5][0],"Main Plot Menu");
-      sprintf(global_string[5][1],"--------------");
-      sprintf(global_string[5][2],"Auto Range Entire Plot");
-      sprintf(global_string[5][3],"Auto Range X Axis");
-      sprintf(global_string[5][4],"Auto Range Y Axis");
+      sprintf(mMenu.menu_string[0],"Main Plot Menu");
+      sprintf(mMenu.menu_string[1],"--------------");
+      sprintf(mMenu.menu_string[2],"Auto Range Entire Plot");
+      sprintf(mMenu.menu_string[3],"Auto Range X Axis");
+      sprintf(mMenu.menu_string[4],"Auto Range Y Axis");
 
-      if (plot_show_performance) sprintf(global_string[5][5],"Hide Performance Stats");
-      else                       sprintf(global_string[5][5],"Show Performance Stats");
+      if (plot_show_performance) sprintf(mMenu.menu_string[5],"Hide Performance Stats");
+      else                       sprintf(mMenu.menu_string[5],"Show Performance Stats");
 
-      if (series_legend_draw_on) sprintf(global_string[5][6],"Hide Series Legend");
-      else                       sprintf(global_string[5][6],"Show Series Legend");
+      if (series_legend_draw_on) sprintf(mMenu.menu_string[6],"Hide Series Legend");
+      else                       sprintf(mMenu.menu_string[6],"Show Series Legend");
 
-      if (series_legend_size)    sprintf(global_string[5][7],"Series Legend Size:Large");
-      else                       sprintf(global_string[5][7],"Series Legend Size:Small");
+      if (series_legend_size)    sprintf(mMenu.menu_string[7],"Series Legend Size:Large");
+      else                       sprintf(mMenu.menu_string[7],"Series Legend Size:Small");
 
-      if (series_legend_force_solid_lines) sprintf(global_string[5][8],"Force Solid Lines:ON");
-      else                                 sprintf(global_string[5][8],"Force Solid Lines:OFF");
+      if (series_legend_force_solid_lines) sprintf(mMenu.menu_string[8],"Force Solid Lines:ON");
+      else                                 sprintf(mMenu.menu_string[8],"Force Solid Lines:OFF");
 
       int ya = 9;
-      if (y_axis_zoom_lock == 0) sprintf(global_string[5][ya],"-- Y Axis: [Unlocked] --");
-      if (y_axis_zoom_lock == 1) sprintf(global_string[5][ya],"-- Y Axis: [Locked] --");
-      if (y_axis_zoom_lock == 2) sprintf(global_string[5][ya],"-- Y Axis: [Auto Range] --");
+      if (y_axis_zoom_lock == 0) sprintf(mMenu.menu_string[ya],"-- Y Axis: [Unlocked] --");
+      if (y_axis_zoom_lock == 1) sprintf(mMenu.menu_string[ya],"-- Y Axis: [Locked] --");
+      if (y_axis_zoom_lock == 2) sprintf(mMenu.menu_string[ya],"-- Y Axis: [Auto Range] --");
 
 
       if (y_axis_zoom_lock == 0) // unlocked
       {
-         sprintf(global_string[5][ya+1],"Lock Y Axis");
-         sprintf(global_string[5][ya+2],"Auto Range Y Axis");
+         sprintf(mMenu.menu_string[ya+1],"Lock Y Axis");
+         sprintf(mMenu.menu_string[ya+2],"Auto Range Y Axis");
       }
       if (y_axis_zoom_lock == 1) // locked
       {
-         sprintf(global_string[5][ya+1],"Unlock Y Axis");
-         sprintf(global_string[5][ya+2],"Auto Range Y Axis");
+         sprintf(mMenu.menu_string[ya+1],"Unlock Y Axis");
+         sprintf(mMenu.menu_string[ya+2],"Auto Range Y Axis");
       }
       if (y_axis_zoom_lock == 2) // auto
       {
-         sprintf(global_string[5][ya+1],"Unlock Y Axis");
-         sprintf(global_string[5][ya+2],"Lock Y Axis");
+         sprintf(mMenu.menu_string[ya+1],"Unlock Y Axis");
+         sprintf(mMenu.menu_string[ya+2],"Lock Y Axis");
       }
 
       ya = 12;
-      if (x_axis_zoom_lock == 0) sprintf(global_string[5][ya],"-- X Axis: [Unlocked] --");
-      else                       sprintf(global_string[5][ya],"-- X Axis: [Locked] --");
-      if (x_axis_slave)          sprintf(global_string[5][ya],"-- X Axis: [Slave] --");
+      if (x_axis_zoom_lock == 0) sprintf(mMenu.menu_string[ya],"-- X Axis: [Unlocked] --");
+      else                       sprintf(mMenu.menu_string[ya],"-- X Axis: [Locked] --");
+      if (x_axis_slave)          sprintf(mMenu.menu_string[ya],"-- X Axis: [Slave] --");
 
-      sprintf(global_string[5][13],"end");
-      switch (pmenu(5, 13))
+      sprintf(mMenu.menu_string[13],"end");
+      switch (mMenu.pmenu(5, 13))
       {
          case 2: autorange_axis(1, 1); break;
          case 3: autorange_axis(1, 0); break;

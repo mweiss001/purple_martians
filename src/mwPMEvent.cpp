@@ -4,11 +4,11 @@
 #include "mwPMEvent.h"
 #include "mwFont.h"
 #include "mwColor.h"
-#include "z_lift.h"
+#include "mwLift.h"
 #include "mwDisplay.h"
 #include "z_item.h"
-#include "z_fnx.h"
 
+#include "mwInput.h"
 
 
 mwPMEvent mwPME;
@@ -75,15 +75,15 @@ void mwPMEvent::show_all_events(void)
    }
 
    for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
-      if (lifts[l].active)
-         for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
-            if (((lift_steps[l][s].type & 31) == 5) && (lift_steps[l][s].val)) show_event_line(x, y, lift_steps[l][s].val, 2, l, s);
+      if (Lift.cur[l].active)
+         for (int s=0; s<Lift.cur[l].num_steps; s++) // iterate steps
+            if (((Lift.stp[l][s].type & 31) == 5) && (Lift.stp[l][s].val)) show_event_line(x, y, Lift.stp[l][s].val, 2, l, s);
 
 
 
 
    al_flip_display();
-   tsw(); // wait for keypress
+   mI.tsw(); // wait for keypress
 }
 
 
@@ -167,9 +167,9 @@ int mwPMEvent::is_pm_event_used(int ev)
    }
 
    for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
-      if (lifts[l].active)
-         for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
-            if (((lift_steps[l][s].type & 31) == 5) && (lift_steps[l][s].val == ev)) return 1;
+      if (Lift.cur[l].active)
+         for (int s=0; s<Lift.cur[l].num_steps; s++) // iterate steps
+            if (((Lift.stp[l][s].type & 31) == 5) && (Lift.stp[l][s].val == ev)) return 1;
 
    return 0;
 }
@@ -228,14 +228,14 @@ void mwPMEvent::find_and_show_event_links(int type, int i, int num2)
                   al_draw_line(x1, y1, x2, y2, mC.pc[10], 2);
                }
             for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
-               if (lifts[l].active)
-                  for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
-                     if (((lift_steps[l][s].type & 31) == 5) && (lift_steps[l][s].val == ev))
+               if (Lift.cur[l].active)
+                  for (int s=0; s<Lift.cur[l].num_steps; s++) // iterate steps
+                     if (((Lift.stp[l][s].type & 31) == 5) && (Lift.stp[l][s].val == ev))
                      {
                         //printf("found a match with a lift:%d step:%d ", l, s);
-                        int pms = lift_find_previous_move_step(l, s);
-                        int x2 = lift_steps[l][pms].x + lift_steps[l][pms].w / 2;
-                        int y2 = lift_steps[l][pms].y + lift_steps[l][pms].h / 2;
+                        int pms = Lift.lift_find_previous_move_step(l, s);
+                        int x2 = Lift.stp[l][pms].x + Lift.stp[l][pms].w / 2;
+                        int y2 = Lift.stp[l][pms].y + Lift.stp[l][pms].h / 2;
 
                         //printf("pms:%d x:%d y:%d\n", pms, x2, y2);
 
@@ -271,19 +271,19 @@ void mwPMEvent::find_and_show_event_links(int type, int i, int num2)
    {
       int lift = i;
       int step = num2;
-      int stype = lift_steps[lift][step].type & 31;
+      int stype = Lift.stp[lift][step].type & 31;
 
       // get position from previous move step
-      int pms = lift_find_previous_move_step(lift, step);
-      int x1 = lift_steps[lift][pms].x + lift_steps[lift][pms].w / 2;
-      int y1 = lift_steps[lift][pms].y + lift_steps[lift][pms].h / 2;
+      int pms = Lift.lift_find_previous_move_step(lift, step);
+      int x1 = Lift.stp[lift][pms].x + Lift.stp[lift][pms].w / 2;
+      int y1 = Lift.stp[lift][pms].y + Lift.stp[lift][pms].h / 2;
 
 //      printf("current lift:%d step:%d stype:%d  ", i, step, stype );
 //      printf("pms:%d x:%d y:%d\n", pms, x1, y1);
 
       if (stype == 5) // only if this step is "wait for trig"
       {
-         int ev = lift_steps[lift][step].val; // get event
+         int ev = Lift.stp[lift][step].val; // get event
          if (ev > 0) // don't do anything for link if zero
          {
             for (int i2=0; i2<500; i2++)

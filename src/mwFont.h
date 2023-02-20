@@ -7,6 +7,10 @@ class mwFont
 
    public:
    void load_fonts(void);
+
+   void mw_get_text_dimensions(ALLEGRO_FONT *f, const char* txt, int &bx, int &by, int &bw, int &bh);
+
+
    ALLEGRO_FONT *bltn; // built-in thick 8x8
    ALLEGRO_FONT *pr8;  // pristine 8x8
    ALLEGRO_FONT *pr16; // pristine 16x16

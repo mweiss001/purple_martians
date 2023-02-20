@@ -6,13 +6,13 @@
 #include "mwLogo.h"
 #include "mwColor.h"
 #include "mwDisplay.h"
-#include "z_menu.h"
+//#include "z_menu.h"
 #include "mwProgramState.h"
-#include "z_level.h"
+#include "mwLevel.h"
 #include "e_editor_main.h"
 #include "z_config.h"
-#include "z_file.h"
-#include "z_fnx.h"
+#include "mwHelp.h"
+
 #include "z_main.h"
 
 
@@ -20,7 +20,7 @@
 #include "mwEventQueue.h"
 #include "mwBitmap.h"
 #include "mwFont.h"
-
+#include "mwGameMovesArray.h"
 
 
 void pm_copy_src(const char* filepath)
@@ -106,11 +106,11 @@ void copy_files_to_clients(int type)
 //   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
-   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
-   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
-   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
-   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+//   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
 
 
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
@@ -222,18 +222,15 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       // run level editor -- eg: 'pm.exe -e'
       if (strcmp(argument_array[1],"-e") == 0 )
       {
-         play_level = start_level;
-         set_start_level(play_level);
-         printf("running level editor for level:%d\n", play_level);
-         play_level = edit_menu(play_level);
-         set_start_level(play_level);
+         printf("running level editor for level:%d\n", mLevel.start_level);
+         mLevel.set_start_level(edit_menu(mLevel.start_level));
          fast_exit(0);
       }
 
 
       if (strcmp(argument_array[1],"-h") == 0 )  // help
       {
-         help("Command Line");
+         mHelp.help("Command Line");
          fast_exit(0);
       }
 
@@ -247,7 +244,6 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       {
          copy_files_to_clients(1); // pm.exe and levels only
          mwL.show_splash_screen = 0;
-         play_level = start_level;
          mwPS.new_program_state = 20;
          return;
       }
@@ -264,18 +260,17 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          fast_exit(0);
       }
 
-      // no server specified; use the one from the config file
+      // join netgame - no server specified, use server from config file
       if (strcmp(argument_array[1],"-c") == 0 )
       {
          mwL.show_splash_screen = 0;
          mwPS.new_program_state = 24;
          return;
       }
-      // no start level specified; use play level from config file
+      // host netgame - use start level from config file
       if (strcmp(argument_array[1],"-s") == 0 )
       {
          mwL.show_splash_screen = 0;
-         play_level = start_level;
          mwPS.new_program_state = 20;
          return;
       }
@@ -283,7 +278,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-f") == 0 )
       {
          mwL.show_splash_screen = 0;
-         if (load_gm("-"))
+         if (mwGMA.load_gm("-"))
          {
             mwPS.new_program_state = 14;
             return;
@@ -296,31 +291,24 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       if ((pl > 0) && (pl < 400))
       {
          mwL.show_splash_screen = 0;
-         play_level = pl;
-         set_start_level(pl);
-         printf("started game on level:%d\n", play_level);
+         mLevel.set_start_level(pl);
+         printf("started game on level:%d\n", pl);
          mwPS.new_program_state = 10;
       }
       else
       {
          printf("%s could not be parsed to an integer level number\n", argument_array[1]);
-
          printf("trying to run as a demo file\n");
 
          // let's see if it is a valid gm file
-
-         if (load_gm(argument_array[1]))
+         if (mwGMA.load_gm(argument_array[1]))
          {
             mwL.show_splash_screen = 0;
             mwPS.new_program_state = 14;
             return;
          }
       }
-
-
-
    } // end of argument_count == 2
-
 
    if (argument_count == 3) // example 'pmwin arg1 arg2'
    {
@@ -330,32 +318,45 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          int pl = atoi(argument_array[2]);
          if ((pl > 0) && (pl < 400))
          {
-            play_level = pl;
-            set_start_level(pl);
+            mLevel.set_start_level(pl);
             printf("running level editor for level:%d\n", pl);
             pl = edit_menu(pl);
-            set_start_level(pl);
+            mLevel.set_start_level(pl);
             fast_exit(0);
          }
          else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
       }
       if (strcmp(argument_array[1],"-c") == 0 )
       {
-         mwL.show_splash_screen = 0;
          sprintf(m_serveraddress, "%s", argument_array[2]);
          save_config();
+         mwL.show_splash_screen = 0;
          mwPS.new_program_state = 24;
          return;
       }
       if (strcmp(argument_array[1],"-s") == 0 )
       {
-         mwL.show_splash_screen = 0;
-         play_level = atoi(argument_array[2]);
-         mwPS.new_program_state = 20;
-         return;
+         int pl = atoi(argument_array[2]);
+         if ((pl > 0) && (pl < 400))
+         {
+            mLevel.set_start_level(pl);
+            mwL.show_splash_screen = 0;
+            mwPS.new_program_state = 20;
+            return;
+         }
+         else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
       }
    } // end of argument_count == 3
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -511,7 +512,7 @@ void temp_test(void)
 
 //   mC.show_palette();
 //   al_flip_display();
-//   tsw();
+//   mI.tsw();
 
 
 
@@ -871,7 +872,7 @@ void temp_test(void)
 //      }
 //
 //   al_flip_display();
-//   tsw();
+//   mI.tsw();
 //
 //
 
@@ -1018,7 +1019,7 @@ void temp_test(void)
 //
 //al_flip_display();
 //
-//tsw();
+//mI.tsw();
 //
 //
 
@@ -1109,7 +1110,7 @@ void temp_test(void)
 //      for (int a=b; a<b+128; a++)
 //         al_draw_textf(mF.pr8, mC.pc[15], x, y+=8, 0, "%d-[%c] %d-[%c]", a, a, a+128, a+128);
 //      al_flip_display();
-//      tsw();
+//      mI.tsw();
 //   }
 
 

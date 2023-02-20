@@ -4,7 +4,7 @@
 #include "z_player.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
-#include "z_lift.h"
+#include "mwLift.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
@@ -12,10 +12,11 @@
 #include "z_menu.h"
 #include "z_item.h"
 #include "z_enemy.h"
-#include "z_level.h"
-#include "z_file.h"
-#include "z_fnx.h"
+#include "mwLevel.h"
+
+
 #include "z_screen.h"
+
 
 
 
@@ -46,7 +47,7 @@ int lev_show_level_data(int x_pos, int y_pos)
    int ey_pos = enemy_data(x_pos, y_pos);
    int iy_pos = item_data(x_pos+135, y_pos);
    ey_pos = ey_pos + 8;
-   al_draw_textf(mF.pr8, mC.pc[15], x_pos, ey_pos, 0,"%d Lifts  ", get_num_lifts());
+   al_draw_textf(mF.pr8, mC.pc[15], x_pos, ey_pos, 0,"%d Lifts  ", Lift.get_num_lifts());
    ey_pos += 8;
    al_draw_text(mF.pr8, mC.pc[15], x_pos, ey_pos, 0, "-------");
    ey_pos += 8;
@@ -74,7 +75,7 @@ void show_cur(void)
    al_draw_rectangle(1000, 24, 1279, 303+ts, mC.pc[14], 1 );
    al_draw_rectangle(1001, 25, 1278, 302+ts, mC.pc[14], 1 );
 
-   if (load_level(cur, 0, 1))
+   if (mLevel.load_level(cur, 0, 1))
    {
       al_set_target_backbuffer(display);
       draw_level2(NULL, 1002, 26, 276, 1, 1, 1, 1, 0);
@@ -98,7 +99,7 @@ void show_msel(void)
    al_draw_rectangle(1000, yo + 24, 1279, yo + 303+ts, mC.pc[10], 1 );
    al_draw_rectangle(1001, yo + 25, 1278, yo + 302+ts, mC.pc[10], 1 );
 
-   if (load_level(sel, 0, 1))
+   if (mLevel.load_level(sel, 0, 1))
    {
       al_set_target_backbuffer(display);
       draw_level2(NULL, 1002, yo+26, 276, 1, 1, 1, 1, 0);
@@ -122,7 +123,7 @@ void compare_curr(int sel)
    // copy current level to m
    for (int a=0; a<100; a++)
       for (int b=0; b<100; b++)
-         m[a][b] = l[a][b];
+         m[a][b] = mLevel.l[a][b];
 
    // iterate and load levels
    int le[NUM_LEV]; // level exists array
@@ -168,17 +169,17 @@ void compare_curr(int sel)
 
    // load every level
    for (int x=0; x<num_levs; x++)
-      if (load_level(le[x], 1, 1))
+      if (mLevel.load_level(le[x], 1, 1))
       {
          int sb1 = 0, sb2 = 0, sbm = 0;
          for (int a=0; a<100; a++)
             for (int b=0; b<100; b++)
             {
-               if (l[a][b]) sb2++;
+               if (mLevel.l[a][b]) sb2++;
                if (m[a][b])
                {
                   sb1++;
-                  if (m[a][b] == l[a][b]) sbm++;
+                  if (m[a][b] == mLevel.l[a][b]) sbm++;
                   }
             }
 
@@ -200,7 +201,7 @@ void compare_curr(int sel)
    al_draw_text(mF.pr8, mC.pc[15], 0, ypos, 0, msg);
    printf("%s\n", msg);
    al_flip_display();
-   tsw();
+   mI.tsw();
 }
 void compare_all(void)
 {
@@ -253,7 +254,7 @@ void compare_all(void)
 
    // load every level (outer loop)
    for (int x=0; x<num_levs; x++)
-      if (load_level(le[x], 1, 1))
+      if (mLevel.load_level(le[x], 1, 1))
       {
 
          al_set_target_backbuffer(display);
@@ -271,13 +272,13 @@ void compare_all(void)
          for (int a=0; a<100; a++)
             for (int b=0; b<100; b++)
             {
-               m[a][b] = l[a][b];
-               if (l[a][b]) sb++; // count solid blocksin source
+               m[a][b] = mLevel.l[a][b];
+               if (mLevel.l[a][b]) sb++; // count solid blocksin source
             }
 
          // load every level (inner loop)
          for (int x1=0; x1<num_levs; x1++)
-            if (load_level(le[x1], 1, 1))
+            if (mLevel.load_level(le[x1], 1, 1))
             {
 
                al_set_target_backbuffer(display);
@@ -293,7 +294,7 @@ void compare_all(void)
                for (int a=0; a<100; a++)
                   for (int b=0; b<100; b++)
                      if (m[a][b])
-                        if (m[a][b] == l[a][b]) sbm++; // count solid block matches
+                        if (m[a][b] == mLevel.l[a][b]) sbm++; // count solid block matches
 
                int match = sbm*100/sb;
 
@@ -322,7 +323,7 @@ void compare_all(void)
    al_draw_text(mF.pr8, mC.pc[15], 10, ypos, 0, msg);
    printf("%s\n", msg);
    al_flip_display();
-   tsw();
+   mI.tsw();
 }
 
 
@@ -343,9 +344,9 @@ void lev_draw(int full)
          {
             int level = my*20 + mx;
             int col = 11;
-            if (!load_level(level, 0, 1)) col = 10;
+            if (!mLevel.load_level(level, 0, 1)) col = 10;
             al_set_target_bitmap(le_temp);
-            if (valid_level_loaded) draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0);
+            if (mLevel.valid_level_loaded) draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0);
             al_draw_textf(mF.pr8, mC.pc[col], mx*ms +ms/2, my*ms+ms/2, ALLEGRO_ALIGN_CENTER, "%d", level);
 
             // show progress bar
@@ -428,7 +429,7 @@ void level_viewer(void)
       if (mI.key[ALLEGRO_KEY_S][0])
       {
          while (mI.key[ALLEGRO_KEY_S][0]) mwEQ.proc_event_queue_menu();
-         if (load_level(cur, 0, 1)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
+         if (mLevel.load_level(cur, 0, 1)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
          al_flip_display();
          while (mI.key[ALLEGRO_KEY_S][0]) mwEQ.proc_event_queue_menu();
          redraw = 1;
@@ -446,7 +447,7 @@ void level_viewer(void)
          if (mI.mouse_b[1][0]) // set new current level (and show full screen while mouse b1 pressed)
          {
             cur = sel;
-            if (load_level(cur, 0, 1)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
+            if (mLevel.load_level(cur, 0, 1)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
             al_flip_display();
             redraw = 1;
             while (mI.mouse_b[1][0]) mwEQ.proc_event_queue_menu();
@@ -457,8 +458,8 @@ void level_viewer(void)
             while (mI.mouse_b[2][0]) mwEQ.proc_event_queue_menu();
             if ((cur != 0) && (sel !=0) && (cur != sel))
             {
-               if (load_level(cur, 0, 1) == 1) // cur exists
-                  if (load_level(sel, 0, 1) == 0) // sel does not exist
+               if (mLevel.load_level(cur, 0, 1) == 1) // cur exists
+                  if (mLevel.load_level(sel, 0, 1) == 0) // sel does not exist
                   {
                      sprintf(msg, "Level:%d to Level:%d ?", cur, sel);
                      if (al_show_native_message_box(display,
@@ -467,8 +468,8 @@ void level_viewer(void)
                      {
                         char lf[256];
 
-                        load_level(cur, 0, 1);           // load current level
-                        save_level(sel);              // save as new level
+                        mLevel.load_level(cur, 0, 1);           // load current level
+                        mLevel.save_level(sel);              // save as new level
 
                         sprintf(lf, "levels/level%03d.pml", cur); // make filename for old
                         ALLEGRO_FS_ENTRY *df = al_create_fs_entry(lf);
@@ -495,7 +496,7 @@ void show_cur_vs(int cur, int x1, int y1, int size, int fc)
    int tc = 15;
    if (fc == 15) tc = 0;
    al_draw_textf(mF.pr8, mC.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d", cur);
-   if (load_level(cur, 0, 1))
+   if (mLevel.load_level(cur, 0, 1))
    {
       draw_level2(NULL, x1+2, y1+26, size-3, 1, 1, 1, 1, 0);
       int ty1 = lev_show_level_data(x1+2, y2+32+24);
@@ -515,29 +516,15 @@ void load_visual_level_select(void)
    int lll = 1;   // lower level limit
    int ull = VISUAL_LEVEL_SELECT_MAX_LEVEL; // upper level limit
 
-   char fn[20] = "levels/level000.pml";
    // look for levels that exist and put them in array
    for (int x=lll; x<ull; x++)
    {
-      int h, d, rem = x;
-
-      h = rem/100; // hundreds
-      fn[12] = 48+h;
-      rem -=h*100;
-
-      d = rem/10;  // tens
-      fn[13] = 48 + d;
-      rem -=d*10;
-
-      fn[14] = 48 + rem;
+      char fn[256];
+      sprintf(fn, "levels/level%03d.pml", x);
       if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
    }
 
-
-
-
    // now we have the number of levels, we can figure out grid sizes
-
    // make selection map size 1/3 of mwD.SCREEN_W
    sel_size = mwD.SCREEN_W / 3;
 
@@ -632,7 +619,7 @@ void load_visual_level_select(void)
 
    // load every level and get icon bitmaps
    for (int x=0; x<num_levs; x++)
-      if (load_level(le[x], 0, 1))
+      if (mLevel.load_level(le[x], 0, 1))
       {
          al_set_target_bitmap(level_icon_bmp[x]);
          draw_level2(level_icon_bmp[x], 0, 0, grid_size, 1, 1, 1, 1, 0);
@@ -687,7 +674,8 @@ int visual_level_select(void)
    int right_held = 0;
 
    // get the initial selection
-   int selected_level = start_level;
+   int selected_level = mLevel.start_level;
+
    int ss = 0;
    for (int x=0; x<num_levs; x++)
       if (le[x] == selected_level) ss = x;
@@ -807,17 +795,16 @@ int visual_level_select(void)
       if ( (mI.key[ALLEGRO_KEY_ENTER][3]) || (players[0].fire) || (players[0].jump) )
       {
          while ((players[0].jump) || (players[0].fire)) mwEQ.proc_event_queue_menu();
+         mLevel.set_start_level(selected_level);
          quit = 1;
       }
       if (mI.key[ALLEGRO_KEY_ESCAPE][3])
       {
-         selected_level = 0;
-         quit = 1;
+         mLevel.set_start_level(selected_level);
+         quit = 2;
       }
    }
    mwPS.visual_level_select_running = 0;
-   play_level = selected_level;
-   set_start_level(play_level);
-   printf("level selected:%d\n", play_level);
-   return selected_level;
+   if (quit == 1) return 1;
+   return 0;
 }

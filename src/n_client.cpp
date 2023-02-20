@@ -16,9 +16,9 @@
 #include "mwEventQueue.h"
 #include "mwProgramState.h"
 #include "z_menu.h"
-#include "z_level.h"
+#include "mwLevel.h"
 #include "z_config.h"
-#include "z_fnx.h"
+
 #include "z_loop.h"
 #include "z_screen.h"
 #include "mwShots.h"
@@ -39,7 +39,7 @@ int ClientInitNetwork(const char *serveraddress)
 	if(NetworkInit())
    {
       sprintf(msg, "Error: failed to initialize network");
-      m_err(msg);
+      mI.m_err(msg);
       if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       return 0;
    }
@@ -49,14 +49,14 @@ int ClientInitNetwork(const char *serveraddress)
       if(!ServerConn)
       {
          sprintf(msg, "Error: Client failed to create netconnection (TCP)");
-         m_err(msg);
+         mI.m_err(msg);
          if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
          return 0;
       }
       if(net_connect(ServerConn, serveraddress))
       {
          sprintf(msg, "Error: Client failed to set netconnection target: server[%s] (TCP)", serveraddress);
-         m_err(msg);
+         mI.m_err(msg);
          if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
          net_closeconn(ServerConn);
    		return 0;
@@ -70,7 +70,7 @@ int ClientInitNetwork(const char *serveraddress)
       {
          sprintf(msg, "Error: Client failed to create netchannel (UDP)");
          printf("%s\n", msg);
-         m_err(msg);
+         mI.m_err(msg);
          if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
          return 0;
       }
@@ -78,7 +78,7 @@ int ClientInitNetwork(const char *serveraddress)
       {
          sprintf(msg, "Error: Client failed to set netchannel target: server[%s] (UDP)", serveraddress);
          printf("%s\n", msg);
-         m_err(msg);
+         mI.m_err(msg);
          if (LOG_NET) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          return 0;
       }
@@ -111,7 +111,7 @@ int ClientInitNetwork(const char *serveraddress)
          if (++tries > 2)
          {
             sprintf(msg,"Did not get reply from server");
-            m_err(msg);
+            mI.m_err(msg);
             printf("%s\n", msg);
             if (LOG_NET)
             {
@@ -124,7 +124,7 @@ int ClientInitNetwork(const char *serveraddress)
       if (ccr == -1)
       {
          sprintf(msg,"TCP response Error!");
-         m_err(msg);
+         mI.m_err(msg);
          printf("%s\n", msg);
          if (LOG_NET)
          {
@@ -136,7 +136,7 @@ int ClientInitNetwork(const char *serveraddress)
       if (ccr == -2)
       {
          sprintf(msg,"Cancelled");
-         //m_err(msg);
+         //mI.m_err(msg);
          printf("%s\n", msg);
          if (LOG_NET)
          {
@@ -305,7 +305,10 @@ void client_process_sjon_packet(void)
       strncpy(players1[p].hostname, mwPS.local_hostname, 16);
       ima_client = 1;
 
-      play_level = pl;
+      mLevel.play_level = pl;
+
+
+
 
       mwS.deathmatch_shots = ds;
       mwS.deathmatch_shot_damage = dd-1000;
@@ -315,7 +318,7 @@ void client_process_sjon_packet(void)
       {
          sprintf(msg,"Client received join invitation from server");
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Level:[%d]", play_level);
+         sprintf(msg,"Level:[%d]", mLevel.play_level);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Player Number:[%d]", p);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
@@ -424,7 +427,7 @@ void client_apply_dif(void)
                {
                   // make a copy of level array l[][]
                   int old_l[100][100];
-                  memcpy(old_l, l, sizeof(l));
+                  memcpy(old_l, mLevel.l, sizeof(mLevel.l));
 
                   // make a copy of players x pos
                   float oldpx = players[p].x;
@@ -457,11 +460,11 @@ void client_apply_dif(void)
                   al_set_target_bitmap(mwB.level_background);
                   for (int x=0; x<100; x++)
                      for (int y=0; y<100; y++)
-                        if (l[x][y] != old_l[x][y])
+                        if (mLevel.l[x][y] != old_l[x][y])
                         {
                            // printf("dif at x:%d y:%d\n", x, y);
                            al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
-                           al_draw_bitmap(mwB.btile[l[x][y] & 1023], x*20, y*20, 0);
+                           al_draw_bitmap(mwB.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
                         }
 
                   add_log_TMR(al_get_time() - t0, "oldl", 0);
@@ -658,7 +661,7 @@ void client_proc_player_drop(void)
       float stretch = ( (float)mwD.SCREEN_W / (strlen(msg)*8)) - 1;
       rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, players[p].color, stretch, 1);
       al_flip_display();
-      tsw();
+      mI.tsw();
       players1[p].quit_reason = 92;
       if (LOG_NET) log_ending_stats(p);
       mwPS.new_program_state = 1;
@@ -684,7 +687,7 @@ void client_proc_player_drop(void)
          float stretch = ( (float)mwD.SCREEN_W / (strlen(msg)*8)) - 1;
          rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, players[p].color, stretch, 1);
          al_flip_display();
-         tsw();
+         mI.tsw();
          players1[p].quit_reason = 75;
          if (LOG_NET) log_ending_stats(p);
          mwPS.new_program_state = 25;

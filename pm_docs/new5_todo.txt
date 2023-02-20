@@ -64,17 +64,47 @@ cannot reproduce...
 
 
 
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-
-make lifts a class
-
+help should be made a class...
 
 
 
 
+
+
+
+
+here is a huge one:
+can level editor be brought under the program state unmbrella?
+I sort of duplicate level editor modes with program states
+
+
+
+
+
+
+can visual level be made into a class?
+
+what about 2 color line draw?
+
+
+
+
+
+
+
+
+
+I want to see if I can make the player motion more smooth..
+especially when riding lifts
+but also when the background is scrolling
+
+the player and the rocket might benefit from drawing directly on the screen instead of the screen buffer
+it worked for bottom messages, the scaling looks ways better..
 
 
 

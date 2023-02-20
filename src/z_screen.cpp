@@ -11,16 +11,16 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "z_lift.h"
+#include "mwLift.h"
 #include "mwColor.h"
 #include "mwProgramState.h"
 #include "z_menu.h"
 #include "z_item.h"
 #include "z_enemy.h"
-#include "z_level.h"
-#include "z_fnx.h"
-#include "mwShots.h"
+#include "mwLevel.h"
 
+#include "mwShots.h"
+#include "mwInput.h"
 
 void get_new_background(int full)
 {
@@ -505,8 +505,8 @@ void set_map_var(void)
 
 void mark_non_default_block(int x, int y)
 {
-   int c = l[x][y] & 1023;
-   if ((mwB.sa[c][0] & PM_BTILE_MOST_FLAGS) != (l[x][y] & PM_BTILE_MOST_FLAGS))
+   int c = mLevel.l[x][y] & 1023;
+   if ((mwB.sa[c][0] & PM_BTILE_MOST_FLAGS) != (mLevel.l[x][y] & PM_BTILE_MOST_FLAGS))
    {
       al_draw_line(x*20, y*20, x*20+20, y*20+20, mC.pc[10], 1);
       al_draw_line(x*20+20, y*20, x*20, y*20+20, mC.pc[10], 1);
@@ -523,7 +523,7 @@ void init_level_background2(int s, int e)
    for (int x=s; x<e; x++)
       for (int y=0; y<100; y++)
       {
-         al_draw_bitmap(mwB.btile[l[x][y] & 1023], x*20, y*20, 0);
+         al_draw_bitmap(mwB.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
          if ((mwPS.level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
       }
 }
@@ -538,7 +538,7 @@ void init_level_background(int type) // fill level_background with block tiles
       for (int x=0; x<100; x++)
          for (int y=0; y<100; y++)
          {
-            al_draw_bitmap(mwB.btile[l[x][y] & 1023], x*20, y*20, 0);
+            al_draw_bitmap(mwB.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
             if ((mwPS.level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
          }
 
@@ -553,7 +553,7 @@ void init_level_background(int type) // fill level_background with block tiles
          for (int x=0; x<100; x++)
             for (int y=0; y<100; y++)
             {
-               al_draw_bitmap(mwB.btile[l[x][y] & 1023], x*20, y*20, 0);
+               al_draw_bitmap(mwB.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
                if ((mwPS.level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
             }
       }
@@ -578,12 +578,12 @@ void init_level_background(int type) // fill level_background with block tiles
 void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players)
 {
    if (blocks) get_new_background(1);
-   if (valid_level_loaded)
+   if (mLevel.valid_level_loaded)
    {
-      if (lifts)   draw_lifts();
+      if (lifts)   Lift.draw_lifts();
       if (items)   draw_items();
       if (enemies) draw_enemies();
-      if (resume_allowed)
+      if (mLevel.resume_allowed)
       {
          if (players) draw_players();
          mwS.draw_eshots();
@@ -607,17 +607,17 @@ void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, f
 void draw_level(void) // draws the map on the menu screen
 {
    int blocks = 0;
-   if (valid_level_loaded) blocks = 1;
+   if (mLevel.valid_level_loaded) blocks = 1;
 
    draw_level2(NULL, mwL.menu_map_x, mwL.menu_map_y, mwL.menu_map_size, blocks, 1, 1, 1, 1);
 
    int text_x = mwD.SCREEN_W / 2;
    int text_y = mwL.menu_map_y - 16;
-   al_draw_textf(mF.pr8, mC.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", start_level );
+   al_draw_textf(mF.pr8, mC.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", mLevel.start_level );
    text_y += 8;
 
-   if (resume_allowed) al_draw_text(mF.pr8, mC.pc[14], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  (paused)  ");
-   else if (valid_level_loaded) al_draw_text(mF.pr8, mC.pc[9], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  start level  ");
+   if (mLevel.resume_allowed) al_draw_text(mF.pr8, mC.pc[14], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  (paused)  ");
+   else if (mLevel.valid_level_loaded) al_draw_text(mF.pr8, mC.pc[9], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  start level  ");
    else al_draw_text(mF.pr8, mC.pc[10], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  not found !  ");
 }
 
@@ -751,7 +751,7 @@ void draw_title(int x, int y, int w, int h, int color)
       if(!mwB.text_title)
       {
          sprintf(msg, "Error creating text_title %d %d\n", bbw1,bbh1);
-         m_err(msg);
+         mI.m_err(msg);
       }
       //else printf("created text_title %d %d\n", bbw1,bbh1);
       al_set_target_bitmap(mwB.text_title);

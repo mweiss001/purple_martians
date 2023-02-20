@@ -7,7 +7,8 @@
 #include "e_tile_helper.h"
 #include "mwColor.h"
 #include "mwInput.h"
-#include "z_menu.h"
+//#include "z_menu.h"
+#include "mwMenu.h"
 #include "e_edit_selection.h"
 #include "e_fnx.h"
 #include "e_group_edit.h"
@@ -135,16 +136,16 @@ void mwWindow::process_mouse(void)
 
          if (index == 3) // filter window
          {
-            sprintf(global_string[6][0],"Filters");
-            sprintf(global_string[6][1],"---------------");
-            sprintf(global_string[6][2],"All On");
-            sprintf(global_string[6][3],"All Items On");
-            sprintf(global_string[6][4],"All Enemies On");
-            sprintf(global_string[6][5],"All Off");
-            sprintf(global_string[6][6],"All Items Off");
-            sprintf(global_string[6][7],"All Enemies Off");
-            sprintf(global_string[6][8],"end");
-            switch (pmenu(6, 13))
+            sprintf(mMenu.menu_string[0],"Filters");
+            sprintf(mMenu.menu_string[1],"---------------");
+            sprintf(mMenu.menu_string[2],"All On");
+            sprintf(mMenu.menu_string[3],"All Items On");
+            sprintf(mMenu.menu_string[4],"All Enemies On");
+            sprintf(mMenu.menu_string[5],"All Off");
+            sprintf(mMenu.menu_string[6],"All Items Off");
+            sprintf(mMenu.menu_string[7],"All Enemies Off");
+            sprintf(mMenu.menu_string[8],"end");
+            switch (mMenu.pmenu(6, 13))
             {
                 case 2:
                    for (int i=0; i<5; i++)
@@ -182,17 +183,17 @@ void mwWindow::process_mouse(void)
          }
          if (index == 1) // status window
          {
-            sprintf(global_string[6][0],"Status Window");
-            sprintf(global_string[6][1],"--------------");
+            sprintf(mMenu.menu_string[0],"Status Window");
+            sprintf(mMenu.menu_string[1],"--------------");
 
-            if (mwWM.mW[1].show_flag_details) sprintf(global_string[6][2],"Hide Block Flags");
-            else                   sprintf(global_string[6][2],"Show Block Flags");
+            if (mwWM.mW[1].show_flag_details) sprintf(mMenu.menu_string[2],"Hide Block Flags");
+            else                   sprintf(mMenu.menu_string[2],"Show Block Flags");
 
-            if (mwWM.mW[1].show_non_default_blocks) sprintf(global_string[6][3],"Hide Non-Default Blocks");
-            else                         sprintf(global_string[6][3],"Show Non-Default Blocks");
+            if (mwWM.mW[1].show_non_default_blocks) sprintf(mMenu.menu_string[3],"Hide Non-Default Blocks");
+            else                         sprintf(mMenu.menu_string[3],"Show Non-Default Blocks");
 
-            sprintf(global_string[6][4],"end");
-            switch (pmenu(6, 13))
+            sprintf(mMenu.menu_string[4],"end");
+            switch (mMenu.pmenu(6, 13))
             {
                 case 2: mwWM.mW[1].show_flag_details =! mwWM.mW[1].show_flag_details; break;
                 case 3: mwWM.mW[1].show_non_default_blocks =! mwWM.mW[1].show_non_default_blocks; init_level_background(0); break;
@@ -200,17 +201,17 @@ void mwWindow::process_mouse(void)
          }
          if (index == 5) // ge list
          {
-            sprintf(global_string[6][0],"Group Edit Object List");
-            sprintf(global_string[6][1],"----------------------");
+            sprintf(mMenu.menu_string[0],"Group Edit Object List");
+            sprintf(mMenu.menu_string[1],"----------------------");
 
             if (mwWM.mW[5].show_sel_frame)
             {
-                sprintf(global_string[6][2],"Hide Selection");
-                sprintf(global_string[6][3],"Add Filtered Selection To List");
-                sprintf(global_string[6][4],"Add Selection To List And Set Filters");
-                sprintf(global_string[6][5],"end");
+                sprintf(mMenu.menu_string[2],"Hide Selection");
+                sprintf(mMenu.menu_string[3],"Add Filtered Selection To List");
+                sprintf(mMenu.menu_string[4],"Add Selection To List And Set Filters");
+                sprintf(mMenu.menu_string[5],"end");
 
-                  switch (pmenu(6, 13))
+                  switch (mMenu.pmenu(6, 13))
                   {
                       case 2: mwWM.mW[5].show_sel_frame = 0; break;
                       case 3: ge_add_selection_to_list(0); break;
@@ -219,9 +220,9 @@ void mwWindow::process_mouse(void)
             }
             else
             {
-               sprintf(global_string[6][2],"Show Selection");
-               sprintf(global_string[6][3],"end");
-               if (pmenu(6, 13) == 2) mwWM.mW[5].show_sel_frame = 1;
+               sprintf(mMenu.menu_string[2],"Show Selection");
+               sprintf(mMenu.menu_string[3],"end");
+               if (mMenu.pmenu(6, 13) == 2) mwWM.mW[5].show_sel_frame = 1;
             }
          }
       }

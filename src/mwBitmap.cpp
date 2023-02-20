@@ -8,6 +8,12 @@
 #include "e_visual_level.h"
 #include "mwLogo.h"
 #include "z_screen.h"
+#include "mwInput.h"
+#include "mwLevel.h"
+#include "mwProgramState.h"
+
+
+
 
 mwBitmap mwB;
 
@@ -33,7 +39,7 @@ void mwBitmap::create_bitmaps(void)
    M_tilemap  = create_and_clear_bitmap(640, 640);
    M_btilemap = create_and_clear_bitmap(640, 640);
    M_ptilemap = create_and_clear_bitmap(480, 320);
-   M_dtilemap = create_and_clear_bitmap(160, 160);
+   M_dtilemap = create_and_clear_bitmap(160, 640);
 
    // this bitmap format is used for every other bitmap created, it is never changed
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
@@ -42,9 +48,9 @@ void mwBitmap::create_bitmaps(void)
    tilemap  = create_and_clear_bitmap(640, 640);
    btilemap = create_and_clear_bitmap(640, 640);
    ptilemap = create_and_clear_bitmap(480, 320);
-   dtilemap = create_and_clear_bitmap(160, 160);
+   dtilemap = create_and_clear_bitmap(160, 640);
 
-   // create level_background and mwB.level_buffer bitmaps
+   // create level_background and level_buffer bitmaps
    level_background  = create_and_clear_bitmap(2000, 2000);
    level_buffer      = create_and_clear_bitmap(2000, 2000);
 
@@ -127,6 +133,198 @@ void mwBitmap::update_animation(void)
          }
       }
 }
+
+
+
+
+int mwBitmap::load_tiles(void)
+{
+   int load_error = 0;
+
+   // get main tiles
+   mwB.tilemap = al_load_bitmap("bitmaps/tiles.bmp");
+   if (!mwB.tilemap)
+   {
+      mI.m_err("Can't load tiles from bitmaps/tiles.bmp");
+      load_error = 1;
+   }
+   else
+   {
+      //printf("load good\n");
+      al_convert_mask_to_alpha(mwB.tilemap, al_map_rgb(0, 0, 0)) ;
+      al_set_target_bitmap(mwB.M_tilemap);
+      al_draw_bitmap(mwB.tilemap, 0, 0, 0);
+      for (int y=0; y<32; y++)
+         for (int x=0; x<32; x++)
+            mwB.tile[y*32 + x] = al_create_sub_bitmap(mwB.tilemap, x*20, y*20, 20, 20);
+   }
+
+   // get block tiles
+   mwB.btilemap = al_load_bitmap("bitmaps/block_tiles.bmp");
+   if (!mwB.btilemap)
+   {
+      mI.m_err("Can't load tiles from bitmaps/block_tiles.bmp");
+      load_error = 1;
+   }
+   else
+   {
+      //printf("load good\n");
+      al_convert_mask_to_alpha(mwB.btilemap, al_map_rgb(0, 0, 0)) ;
+      al_set_target_bitmap(mwB.M_btilemap);
+      al_draw_bitmap(mwB.btilemap, 0, 0, 0);
+      for (int y=0; y<32; y++)
+         for (int x=0; x<32; x++)
+            mwB.btile[y*32 + x] = al_create_sub_bitmap(mwB.btilemap, x*20, y*20, 20, 20);
+   }
+
+   //fill_player_tile();
+   // get player tiles
+   mwB.ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
+   if (!mwB.ptilemap)
+   {
+      mI.m_err("Can't load tiles from bitmaps/player_tiles.bmp");
+      load_error = 1;
+   }
+   else
+   {
+      //printf("load good\n");
+      al_convert_mask_to_alpha(mwB.ptilemap, al_map_rgb(0, 0, 0)) ;
+      al_set_target_bitmap(mwB.M_ptilemap);
+      al_draw_bitmap(mwB.ptilemap, 0, 0, 0);
+      for (int a=0; a<16; a++)
+         for (int b=0; b<24; b++)
+            mwB.player_tile[a][b] = al_create_sub_bitmap(mwB.ptilemap, b*20, a*20, 20, 20);
+
+   }
+
+   // get door tiles
+   mwB.dtilemap = al_load_bitmap("bitmaps/door_tiles.bmp");
+   if (!mwB.dtilemap)
+   {
+      mI.m_err("Can't load tiles from bitmaps/door_tiles.bmp");
+      load_error = 1;
+   }
+   else
+   {
+      //printf("load good\n");
+      al_convert_mask_to_alpha(mwB.dtilemap, al_map_rgb(0, 0, 0)) ;
+      al_set_target_bitmap(mwB.M_dtilemap);
+      al_draw_bitmap(mwB.dtilemap, 0, 0, 0);
+      for (int a=0; a<16; a++)
+         for (int b=0; b<8; b++)
+         {
+            mwB.door_tile[0][a][b] = al_create_sub_bitmap(mwB.dtilemap, b*20,     a*20, 20, 20);
+            mwB.door_tile[1][a][b] = al_create_sub_bitmap(mwB.dtilemap, b*20, 320+a*20, 20, 20);
+         }
+   }
+
+   load_sprit(); // get animation sequences and shape attributes
+
+   if (load_error) return 0;
+   else return 1;
+}
+
+
+void mwBitmap::save_sprit(void)
+{
+   //printf("saving sprit001.pm\n");
+
+   for (int c=0; c<NUM_ANS; c++) // set all animation initial
+      if (mwB.zz[4][c])
+      {
+         mwB.zz[0][c]=mwB.zz[5][c];
+         mwB.zz[1][c]=0;
+         mwB.zz[2][c]=0;
+      }
+
+   // ensure sa[][0] does not have any bits set other than the ones we want
+   for (int c=0; c<NUM_SPRITES; c++)
+   {
+      mwB.sa[c][0] &= PM_BTILE_ALL_FLAGS;
+      mwB.sa[c][1] = 0; // not used
+   }
+
+   FILE *fp = fopen("bitmaps/sprit001.pm", "wb");
+   fwrite(mwB.zz, sizeof(mwB.zz), 1, fp);
+   fwrite(mwB.sa, sizeof(mwB.sa), 1, fp);
+   fclose(fp);
+}
+
+void mwBitmap::load_sprit(void)
+{
+   FILE *fp = fopen("bitmaps/sprit001.pm", "rb");
+   fread(mwB.zz, sizeof(mwB.zz), 1, fp);
+   fread(mwB.sa, sizeof(mwB.sa), 1, fp);
+   fclose(fp);
+}
+
+
+
+
+void mwBitmap::spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle)
+{
+   int cti = cycle; // how many frame a full spin takes
+
+   float ct = (int)cti; //cycle time
+   float ct1 = ct/4;    // 20
+   float ct2 = ct/2;    // 40
+   float ct3 = ct1*3;   // 60
+   float ct4 = ct;      // 80
+
+   int tm = mwPS.frame_num % cti; // get a number from 0 to cti than increments every frame
+
+   float tmr = (int) tm;
+
+   float xs = 0;
+   int flags = 0;
+
+
+   // 80-60 = narrow to wide xs = 0 to 20 regular draw
+   // 60-40 = wide to narrow xs = 20 to 0 regular draw
+
+   // 40    = narrowest      xs = 0       flip draw from regular to reverse
+
+   // 40-20 = narrow to wide xs = 0 to 20 reverse draw
+   // 20-0  = wide to narrow xs = 20 to 0 reverse draw
+
+   // 0     = narrowest      xs = 0       flip draw from reverse to regular
+
+
+   if (tmr > ct2)
+   {
+      if (tmr>ct3) xs = ct4-tmr;  // 80-60 ---> 0-20
+      else         xs = tmr-ct2;  // 60-40 ---> 20-0
+   }
+   else
+   {
+      if (tmr>ct1) xs = ct2-tmr;    // 40-20 ---> 0-20
+      else xs = tmr;                // 20-0  ---> 20-0
+      flags |= ALLEGRO_FLIP_HORIZONTAL;
+   }
+
+   // scale xs (if ct == 80 scale = 1)
+   // or more accurately full width of tile (20) * 4
+   float xscale = (tsw*4)/ct;
+   xs *= xscale;
+
+   float ys=tsh; // y scale is the same as the source height of the tile
+
+
+   // optionally scale the entire thing
+   xs *= scale;
+   ys *= scale;
+
+   // get draw offsets based on scale of final tile
+   int xo = 10 - (xs/2); // x offset
+   int yo = 10 - (ys/2); // x offset
+
+   ALLEGRO_COLOR c2 = al_map_rgba_f(dim, dim, dim, 1.0); // show dimmer on back side
+
+   if (flags == 0) al_draw_scaled_bitmap(       mwB.tile[tn],     tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
+   else            al_draw_tinted_scaled_bitmap(mwB.tile[tn], c2, tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
+
+}
+
 
 
 

@@ -12,10 +12,12 @@
 #include "mwEventQueue.h"
 #include "mwProgramState.h"
 #include "z_config.h"
-#include "z_file.h"
-#include "z_fnx.h"
+
+
 #include "z_main.h"
 #include "z_screen.h"
+#include "mwGameMovesArray.h"
+
 
 
 mwInput mI;
@@ -236,7 +238,7 @@ void mwInput::function_key_check(void)
 
       if (mI.key[ALLEGRO_KEY_F4][3])
       {
-         if (autosave_game_on_game_exit) blind_save_game_moves(3);
+         if (autosave_game_on_game_exit) mwGMA.blind_save_game_moves(3);
          if (autosave_log_on_program_exit) save_log_file();
       }
 
@@ -257,7 +259,7 @@ void mwInput::function_key_check(void)
                else if (mI.CTRL())         mwPS.frame_speed -=20;
                else                        mwPS.frame_speed -=1;
                if (mwPS.frame_speed < 5)        mwPS.frame_speed =5;
-               set_speed();
+               mwEQ.set_speed();
             }
             if (mI.key[ALLEGRO_KEY_F8][2])
             {
@@ -266,13 +268,13 @@ void mwInput::function_key_check(void)
                else if (mI.CTRL())         mwPS.frame_speed +=20;
                else                        mwPS.frame_speed += 1;
                if (mwPS.frame_speed > 100000)  mwPS.frame_speed = 100000;
-               set_speed();
+               mwEQ.set_speed();
             }
          }
          if ((mI.key[ALLEGRO_KEY_F7][0]) && (mI.key[ALLEGRO_KEY_F7][1]) && (mI.key[ALLEGRO_KEY_F8][0]) && (mI.key[ALLEGRO_KEY_F8][1]))
          {
             mwPS.frame_speed = 40;
-            set_speed();
+            mwEQ.set_speed();
          }
       }
 
@@ -535,6 +537,31 @@ int mwInput::CTRL(void)
 }
 
 
+
+void mwInput::m_err(const char * err_msg)
+{
+   fprintf(stderr, "%s\n", err_msg);
+   al_show_native_message_box(display, "Error", "Error:", err_msg, NULL,  ALLEGRO_MESSAGEBOX_ERROR );
+}
+
+void mwInput::tsw(void)
+{
+   al_flush_event_queue(mwEQ.event_queue);
+   int quit = 0;
+   while(!quit)
+   {
+      while (!al_is_event_queue_empty(mwEQ.event_queue))
+      {
+         ALLEGRO_EVENT ev;
+         if (al_get_next_event(mwEQ.event_queue, &ev))
+         {
+             if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) fast_exit(0);
+             if (ev.type == ALLEGRO_EVENT_KEY_DOWN) quit = 1;
+         }
+      }
+   }
+   while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue();
+}
 
 
 

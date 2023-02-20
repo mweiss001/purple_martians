@@ -6,11 +6,112 @@
 #include "mwColor.h"
 #include "z_menu.h"
 #include "z_item.h"
-#include "z_level.h"
+#include "mwLevel.h"
 #include "e_fnx.h"
 #include "e_object_viewer.h"
-#include "z_fnx.h"
 
+#include "z_item_pmsg.h"
+#include "mwInput.h"
+
+
+
+void set_item_text(void)
+{
+   strcpy(item_name[0],  "item_empty");
+   strcpy(item_name[1],  "Door");
+   strcpy(item_name[2],  "Bonus");
+   strcpy(item_name[3],  "Exit");
+   strcpy(item_name[4],  "Key");
+   strcpy(item_name[5],  "Start");
+   strcpy(item_name[6],  "Orb");
+   strcpy(item_name[7],  "Mine");
+   strcpy(item_name[8],  "Bomb");
+   strcpy(item_name[9],  "Trigger");
+   strcpy(item_name[10], "Message");
+   strcpy(item_name[11], "Rocket");
+   strcpy(item_name[12], "Warp");
+   strcpy(item_name[13], "undef");
+   strcpy(item_name[14], "Switch");
+   strcpy(item_name[15], "Sproingy");
+   strcpy(item_name[16], "Block Manip");
+   strcpy(item_name[17], "Block Damage");
+
+   item_tile[0]  = 0;
+   item_tile[1]  = 448;
+   item_tile[2]  = 304;
+   item_tile[3]  = 398;
+   item_tile[4]  = 272;
+   item_tile[5]  = 383;
+   item_tile[6]  = 0;
+   item_tile[7]  = 456;
+   item_tile[8]  = 538;
+   item_tile[9]  = 991;
+   item_tile[10] = 256;
+   item_tile[11] = 249;
+   item_tile[12] = 825;
+   item_tile[13] = 0;
+   item_tile[14] = 745;
+   item_tile[15] = 237;
+   item_tile[16] = 989;
+   item_tile[17] = 988;
+   item_tile[18] = 0;
+   item_tile[19] = 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int item_data(int x, int y)
+{
+   int inum = sort_item(0);
+                               al_draw_textf(mF.pr8, mC.pc[12], x, y, 0, "%d Items",      inum);                 y+=8;
+                               al_draw_textf(mF.pr8, mC.pc[12], x, y, 0, "--------");                            y+=8;
+                               al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Starts",     item_num_of_type[5]);  y+=8;
+                               al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Exits",      item_num_of_type[3]);  y+=8;
+   if (item_num_of_type[12]) { al_draw_textf(mF.pr8, mC.pc[10], x, y, 0, "%d Warps",      item_num_of_type[12]); y+=8; }
+   if (item_num_of_type[1])  { al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Doors",      item_num_of_type[1]);  y+=8; }
+   if (item_num_of_type[4])  { al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Keys",       item_num_of_type[4]);  y+=8; }
+   if (item_num_of_type[14]) { al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Switches",   item_num_of_type[14]); y+=8; }
+   if (item_num_of_type[15]) { al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Sproingies", item_num_of_type[15]); y+=8; }
+   if (item_num_of_type[8])  { al_draw_textf(mF.pr8, mC.pc[14], x, y, 0, "%d Bombs",      item_num_of_type[8]);  y+=8; }
+   if (item_num_of_type[11]) { al_draw_textf(mF.pr8, mC.pc[14], x, y, 0, "%d Rockets",    item_num_of_type[11]); y+=8; }
+   if (item_num_of_type[7])  { al_draw_textf(mF.pr8, mC.pc[14], x, y, 0, "%d Mines",      item_num_of_type[7]);  y+=8; }
+   if (item_num_of_type[6])  { al_draw_textf(mF.pr8, mC.pc[14], x, y, 0, "%d Orbs",       item_num_of_type[6]);  y+=8; }
+
+   for (int c=1; c<20; c++)
+      if ((c!= 1) && (c !=3) && (c!= 4) && (c != 5) && (c != 6) && (c!= 7) && (c!= 8) && (c!= 9) && (c!= 11) && (c!= 12) && (c!= 14) && (c!= 15) && (c!= 16) && (c!= 17) )
+         if (item_num_of_type[c]) // not zero
+         {
+                         sprintf(msg, "%d type %d???  ", item_num_of_type[c], c); // default unknown
+            if (c ==  0) sprintf(msg, "%d type 0      ", item_num_of_type[c]);
+            if (c ==  2) sprintf(msg, "%d Bonus       ", item_num_of_type[c]);
+            if (c == 10) sprintf(msg, "%d Messages    ", item_num_of_type[c]);
+            al_draw_text(mF.pr8, mC.pc[3], x, y, 0, msg);
+            y+=8;
+         }
+   return y;
+}
 
 void show_all_items(void)
 {
@@ -55,13 +156,13 @@ void show_all_items(void)
       if (text_pos > mwD.SCREEN_H - 10)
       {
          al_flip_display();
-         tsw(); // wait for keypress
+         mI.tsw(); // wait for keypress
          al_clear_to_color(al_map_rgb(0,0,0));
          text_pos = 0;
       }
    }
    al_flip_display();
-   tsw(); // wait for keypress
+   mI.tsw(); // wait for keypress
    al_destroy_bitmap(tmp);
 }
 
@@ -165,7 +266,7 @@ int sort_item(int set_pos)
          item[c][15] = 0;
 
    // set number of starts...
-   number_of_starts = item_num_of_type[5];
+   mLevel.number_of_starts = item_num_of_type[5];
 
 
    return inum;
@@ -390,7 +491,7 @@ int create_exit(int c)
    item[c][8] = 100;          // num enemies left alive to activate this exit
    if (getxy("Exit", 2, 3, c) == 1) // xorg, yorg
    {
-      l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
+      mLevel.l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
       return 1;
    }
    else return 0;
@@ -438,7 +539,7 @@ void show_all_pmsg(void)
             if (text_pos > mwD.SCREEN_H - 20)
             {
                al_flip_display();
-               tsw(); // wait for keypress
+               mI.tsw(); // wait for keypress
                al_clear_to_color(al_map_rgb(0,0,0));
                text_pos = 0;
             }
@@ -447,7 +548,7 @@ void show_all_pmsg(void)
       }
    }
    al_flip_display();
-   tsw(); // wait for keypress
+   mI.tsw(); // wait for keypress
 }
 
 int create_pmsg(int c)

@@ -1,5 +1,7 @@
 // z_lift.cpp
 
+/*
+
 #include "pm.h"
 #include "z_lift.h"
 #include "z_player.h"
@@ -1114,3 +1116,4 @@ void move_lifts(int ignore_prox)
 
       } // end of lift iterate
 }
+*/

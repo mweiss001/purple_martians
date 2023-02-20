@@ -9,11 +9,13 @@
 #include "mwInput.h"
 #include "mwDisplay.h"
 #include "mwEventQueue.h"
-#include "z_level.h"
+
+//#include "mwLevel.h"
+#include "mwLevel.h"
+
 #include "e_editor_main.h"
 #include "e_fnx.h"
-#include "z_file.h"
-#include "z_fnx.h"
+
 #include "z_screen.h"
 
 
@@ -150,7 +152,8 @@ void colorize_tile(void)
    al_clear_to_color(al_map_rgb(0, 0, 0));
    for (int d=0; d<32; d++) al_draw_bitmap(switch_tiles[d], 20+d*20, 200, 0);
 
-   al_flip_display(); tsw(); // wait for keypress
+   al_flip_display();
+   mI.tsw(); // wait for keypress
 
 
 
@@ -158,7 +161,7 @@ void colorize_tile(void)
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
    al_draw_bitmap(mwB.tilemap, 0, 0, 0);
-   al_flip_display(); tsw(); // wait for keypress
+   al_flip_display(); mI.tsw(); // wait for keypress
 
 
 
@@ -173,7 +176,7 @@ void colorize_tile(void)
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
    al_draw_bitmap(mwB.tilemap, 0, 0, 0);
-   al_flip_display(); tsw(); // wait for keypress
+   al_flip_display(); mI.tsw(); // wait for keypress
 
 
    al_set_target_bitmap(mwB.tilemap);
@@ -191,7 +194,7 @@ void colorize_tile(void)
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
    al_draw_bitmap(mwB.tilemap, 0, 0, 0);
-   al_flip_display(); tsw(); // wait for keypress
+   al_flip_display(); mI.tsw(); // wait for keypress
 
 }
 
@@ -205,7 +208,7 @@ void combine_tile(void)
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
    al_draw_bitmap(mwB.tilemap, 0, 0, 0);
-   al_flip_display(); tsw(); // wait for keypress
+   al_flip_display(); mI.tsw(); // wait for keypress
 
 
    al_set_target_bitmap(mwB.tile[534]);
@@ -218,7 +221,7 @@ void combine_tile(void)
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
    al_draw_bitmap(mwB.tilemap, 0, 0, 0);
-   al_flip_display(); tsw(); // wait for keypress
+   al_flip_display(); mI.tsw(); // wait for keypress
 
 
   //   al_save_bitmap("bitmaps/tiles.bmp", mwB.tilemap);
@@ -252,7 +255,7 @@ int select_bitmap(int tn)
       get_new_screen_buffer(3, 0, 0);
 
       int local_point_item_type = 1;
-      int local_point_item_num = l[mwWM.gx][mwWM.gy];
+      int local_point_item_num = mLevel.l[mwWM.gx][mwWM.gy];
 
       int swx1 = 200;
       int swy1 = 200;
@@ -447,7 +450,7 @@ void animation_sequence_editor(void)
          }
       }
       mdw_slideri(xa, y5, xb, 16, 0,0,0,0,  0,12,15,15,  0,0,1,0, mwB.zz[3][zzindx], 100, 0, 1, "Animation Delay:");
-      if (mdw_buttont(xa, y5, xb, 16, 0,0,0,0,    0,10,15,0, 1,0,1,0, "Save Changes")) save_sprit();
+      if (mdw_buttont(xa, y5, xb, 16, 0,0,0,0,    0,10,15,0, 1,0,1,0, "Save Changes")) mwB.save_sprit();
 
       if (mI.key[ALLEGRO_KEY_DELETE][0]) // erase current sequence
       {
@@ -904,7 +907,7 @@ void edit_btile_attributes(void)
          if (mI.mouse_b[1][0])
          {
             while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
-            save_sprit();
+            mwB.save_sprit();
           }
       }
 
@@ -1035,7 +1038,7 @@ void copy_tiles(void)
    if (!b1)
    {
       sprintf(msg, "Error loading tiles from:%s", b1_fn);
-      m_err(msg);
+      mI.m_err(msg);
    }
 
    int b1_x = 10;
@@ -1060,7 +1063,7 @@ void copy_tiles(void)
    if (!b2)
    {
       sprintf(msg, "Error loading tiles from:%s", b2_fn);
-      m_err(msg);
+      mI.m_err(msg);
    }
    int b2_x = 700;
    int b2_y = 20;
@@ -1078,7 +1081,7 @@ void copy_tiles(void)
          al_destroy_bitmap(b1);
          sprintf(b1_fn, "bitmaps\\");
          if (mw_file_select("Load Bitmap File", b1_fn, ".bmp", 0)) b1 = al_load_bitmap(b1_fn);
-         if (!b2) m_err("Load Error");
+         if (!b2) mI.m_err("Load Error");
          else
          {
             b1_w = al_get_bitmap_width(b1);
@@ -1095,7 +1098,7 @@ void copy_tiles(void)
          al_destroy_bitmap(b2);
          sprintf(b2_fn, "bitmaps\\");
          if (mw_file_select("Load Bitmap File", b2_fn, ".bmp", 0)) b2 = al_load_bitmap(b2_fn);
-         if (!b2) m_err("Load Error");
+         if (!b2) mI.m_err("Load Error");
          else
          {
             b2_w = al_get_bitmap_width(b2);
@@ -1112,7 +1115,7 @@ void copy_tiles(void)
          ALLEGRO_BITMAP *db2 = NULL;
          sprintf(b2_fn, "bitmaps\\");
          if (mw_file_select("Load Bitmap File", b2_fn, ".bmp", 0)) db2 = al_load_bitmap(b2_fn);
-         if (!db2) m_err("Load Error");
+         if (!db2) mI.m_err("Load Error");
          else
          {
             int db2_w = al_get_bitmap_width(db2);

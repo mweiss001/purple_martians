@@ -7,13 +7,12 @@
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "z_item.h"
-#include "z_level.h"
-#include "z_file.h"
-#include "z_fnx.h"
+#include "mwLevel.h"
+
+
 #include "z_screen.h"
 #include "z_enemy.h"
-#include "z_lift.h"
-
+#include "mwInput.h"
 
 
 void show_block_list(int blt[])
@@ -35,7 +34,7 @@ void show_block_list(int blt[])
          {
             al_flip_display();
             al_clear_to_color(al_map_rgb(0,0,0));
-            tsw();
+            mI.tsw();
             y = 0;
          }
       }
@@ -43,7 +42,7 @@ void show_block_list(int blt[])
    printf("\nunique blocks:%d\n", count_unique);
 
    al_flip_display();
-   tsw();
+   mI.tsw();
 
 }
 
@@ -75,7 +74,7 @@ void global_level(void)
 {
    //int blt[NUM_SPRITES] = {0};
 
-   int old_start_level = start_level;
+   int old_start_level = mLevel.start_level;
 
    int le[200] = {0}; // level exists array
 
@@ -128,18 +127,14 @@ void global_level(void)
       draw_percent_bar(mwD.SCREEN_W/2, mwD.SCREEN_H/2, mwD.SCREEN_W-200, 20, (x+1)*100 / num_levs);
       al_draw_text(mF.pr8, mC.pc[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2+7 , ALLEGRO_ALIGN_CENTER, "Doing glt...");
       al_draw_textf(mF.pr8, mC.pc[11], 10, 10+x*8, 0, "lev:%d", le[x]);
-      load_level(le[x], 1, 1);
+      mLevel.load_level(le[x], 1, 1);
 
-//      for (int y=0; y<500; y++)
-//         if (item[y][0] == 2) // bonus
-//         {
-//            if (item[y][6] == 2)
-//            {
-//               item[y][6] = 3;
-//               count0++;
-//               printf("Level:%3d\n", le[x]);
-//            }
-//         }
+      for (int y=0; y<500; y++)
+         if (item[y][0] == 11) // rocket
+         {
+             printf("Level:%3d st:%d\n", le[x], item[y][6]);
+           //  item[y][6] = (float)item[y][6] * 2.5;
+         }
 
 //
 //      // block counter
@@ -153,9 +148,18 @@ void global_level(void)
 //         }
 //
 
+
+
+
+
+
+
+
+
+
       if (0)
       {
-         save_level(le[x]);
+         mLevel.save_level(le[x]);
          al_set_target_backbuffer(display);
          al_draw_textf(mF.pr8, mC.pc[10], 110, 10+x*8, 0, "lev:%d", le[x]);
       }
@@ -170,10 +174,8 @@ void global_level(void)
    printf("min:%d max:%d\n", min, max);
 
    //show_block_list(blt);
-   tsw();
-
-   start_level = old_start_level;
-   load_level(start_level, 0, 0);
+   mI.tsw();
+   mLevel.set_start_level(old_start_level);
 }
 
 

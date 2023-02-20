@@ -8,7 +8,7 @@
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "z_level.h"
+#include "mwLevel.h"
 #include "e_fnx.h"
 #include "z_screen.h"
 
@@ -384,14 +384,14 @@ void th_replace(int type)
             }
             if (fb == 0)
             {
-               l[a][b] = 0;
+               mLevel.l[a][b] = 0;
             }
 
             if (fb > 0)
             {
                // change only tile portion (lower 10 bits)
-               l[a][b] &= 0b11111111111111110000000000000000; // clear lower bits
-               l[a][b] |= fb; // merge tile number
+               mLevel.l[a][b] &= 0b11111111111111110000000000000000; // clear lower bits
+               mLevel.l[a][b] |= fb; // merge tile number
             }
          }
    init_level_background(0);
@@ -521,7 +521,7 @@ int th_compare_tile(int rb, int cb, int group)
 
 void th_find_connected(int x, int y, int group)
 {
-   int rb = l[x][y];  // block num to match
+   int rb = mLevel.l[x][y];  // block num to match
    thl[x][y] = -1;    // mark initial block pos in array
 
    int times=0, found=0;
@@ -533,22 +533,22 @@ void th_find_connected(int x, int y, int group)
          for (int b=0; b<100; b++)
             if (thl[a][b] == -1) // iterate already marked
             {
-               if ((a > 0) && (th_compare_tile(rb, l[a-1][b], group))) // look left
+               if ((a > 0) && (th_compare_tile(rb, mLevel.l[a-1][b], group))) // look left
                {
                   if (thl[a-1][b] != -1) found++; // found unmarked
                   thl[a-1][b] = -1; // mark it
                }
-               if ((b > 0) && (th_compare_tile(rb, l[a][b-1], group))) // look up
+               if ((b > 0) && (th_compare_tile(rb, mLevel.l[a][b-1], group))) // look up
                {
                   if (thl[a][b-1] != -1) found++; // found unmarked
                   thl[a][b-1] = -1; // mark it
                }
-               if ((a < 99) && (th_compare_tile(rb, l[a+1][b], group))) // look right
+               if ((a < 99) && (th_compare_tile(rb, mLevel.l[a+1][b], group))) // look right
                {
                   if (thl[a+1][b] != -1) found++; // found unmarked
                   thl[a+1][b] = -1; // mark it
                }
-               if ((b < 99) && (th_compare_tile(rb, l[a][b+1], group))) // look down
+               if ((b < 99) && (th_compare_tile(rb, mLevel.l[a][b+1], group))) // look down
                {
                   if (thl[a][b+1] != -1) found++; // found unmarked
                   thl[a][b+1] = -1; // mark it
@@ -580,7 +580,7 @@ void th_process_mouse(void)
       {
          for (int x=0; x<100; x++)
             for (int y=0; y<100; y++)
-               if (th_compare_tile(l[mwWM.gx][mwWM.gy], l[x][y], mwWM.mW[9].th_group)) thl[x][y] = mwWM.mW[9].th_add_del;
+               if (th_compare_tile(mLevel.l[mwWM.gx][mwWM.gy], mLevel.l[x][y], mwWM.mW[9].th_group)) thl[x][y] = mwWM.mW[9].th_add_del;
       }
    }
 

@@ -23,8 +23,14 @@ class mwInput
    void test_keys(int x, int sy);
    void set_controls_to_custom_sets(int s);
 
+
    int SHFT(void);
    int CTRL(void);
+
+   void tsw(void);
+   void m_err(const char * err_msg);
+
+
 
    ALLEGRO_JOYSTICK *joy0 = NULL;
    ALLEGRO_JOYSTICK *joy1 = NULL;

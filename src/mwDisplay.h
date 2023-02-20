@@ -31,6 +31,8 @@ class mwDisplay
    int display_adapter_num = 0;
    float WX_shift_speed = 0;
 
+   void set_window_title(void);
+
    int viewport_mode;
    int viewport_show_hyst;
    float viewport_x_div;
@@ -66,6 +68,9 @@ class mwDisplay
    void show_display_options(void);
    void show_display_orienation(void);
    void show_fullscreen_modes(void);
+   void show_var_sizes(void);
+
+
    void auto_set_display_transform_double(void);
    void set_saved_display_transform(int sdt);
    void cycle_display_transform(void);

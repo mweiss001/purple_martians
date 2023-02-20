@@ -1,7 +1,7 @@
 // z_solid.cpp
 #include "pm.h"
-#include "z_lift.h"
-#include "z_level.h"
+#include "mwLift.h"
+#include "mwLevel.h"
 
 
 // helper function for is_right_solid, is_left_solid, is_down_solid
@@ -61,16 +61,16 @@ int lift_check_helper(int solid_x, int solid_y, int lift_check, int type, int di
 {
    if (lift_check)
       for (int d=0; d<NUM_LIFTS; d++)
-         if (lifts[d].active)
+         if (Lift.cur[d].active)
          {
-            int x1 = lifts[d].x;
-            int y1 = lifts[d].y;
-            int x2 = lifts[d].x + lifts[d].w;
-            int y2 = lifts[d].y + lifts[d].h;
+            int x1 = Lift.cur[d].x;
+            int y1 = Lift.cur[d].y;
+            int x2 = Lift.cur[d].x + Lift.cur[d].w;
+            int y2 = Lift.cur[d].y + Lift.cur[d].h;
 
-            if ( ((type == 1) && (lifts[d].flags & PM_LIFT_SOLID_PLAYER)) ||
-                 ((type == 2) && (lifts[d].flags & PM_LIFT_SOLID_ENEMY )) ||
-                 ((type == 3) && (lifts[d].flags & PM_LIFT_SOLID_ITEM  )) )
+            if ( ((type == 1) && (Lift.cur[d].flags & PM_LIFT_SOLID_PLAYER)) ||
+                 ((type == 2) && (Lift.cur[d].flags & PM_LIFT_SOLID_ENEMY )) ||
+                 ((type == 3) && (Lift.cur[d].flags & PM_LIFT_SOLID_ITEM  )) )
             {
                if ((dir == 0) && (solid_y > y1 - 18) && (solid_y < y2 - 2) && (solid_x < x1 - 8) && (solid_x > x1 - 18)) return 32+d; // right
                if ((dir == 1) && (solid_y > y1 - 18) && (solid_y < y2 - 2) && (solid_x < x2 + 2) && (solid_x > x2 - 8 )) return 32+d; // left
@@ -109,13 +109,13 @@ int is_right_solid(int solid_x, int solid_y, int lift_check, int type)
    int a = solid_y % 20;
 
    if (a > 16)  // next block only
-      if (is_solid( -1, l[xx][cc], type)) return 1;
+      if (is_solid( -1, mLevel.l[xx][cc], type)) return 1;
 
    if (a < 3)    // this block only
-      if (is_solid( -1, l[xx][yy], type)) return 1;
+      if (is_solid( -1, mLevel.l[xx][yy], type)) return 1;
 
    if ((a > 2) && (a <17)) // dual compare with ||
-      if (is_solid( l[xx][yy], l[xx][cc], type)) return 1;
+      if (is_solid( mLevel.l[xx][yy], mLevel.l[xx][cc], type)) return 1;
 
    return 0;
 }
@@ -144,13 +144,13 @@ int is_left_solid(int solid_x, int solid_y, int lift_check, int type)
 //                        return 32+d;
 
    if (a > 16)  // next block only
-      if (is_solid( -1, l[xx][cc], type)) return 1;
+      if (is_solid( -1, mLevel.l[xx][cc], type)) return 1;
 
    if (a < 3)    // this block only
-      if (is_solid( -1, l[xx][yy], type)) return 1;
+      if (is_solid( -1, mLevel.l[xx][yy], type)) return 1;
 
    if ((a > 2) && (a <17)) // dual compare with ||
-      if (is_solid( l[xx][yy], l[xx][cc], type)) return 1;
+      if (is_solid( mLevel.l[xx][yy], mLevel.l[xx][cc], type)) return 1;
 
    return 0;
 }
@@ -178,13 +178,13 @@ int is_down_solid(int solid_x, int solid_y, int lift_check, int type)
    int xx = solid_x / 20 + 1;
    int a = solid_x % 20;
    if (a > 16)  // next block only
-      if (is_solid( -1, l[xx][yy], type)) return 1;
+      if (is_solid( -1, mLevel.l[xx][yy], type)) return 1;
 
    if (a < 3)    // this block only
-      if (is_solid( -1, l[cc][yy], type)) return 1;
+      if (is_solid( -1, mLevel.l[cc][yy], type)) return 1;
 
    if ((a > 2) && (a <17)) // dual compare with ||
-      if (is_solid( l[xx][yy], l[cc][yy], type)) return 1;
+      if (is_solid( mLevel.l[xx][yy], mLevel.l[cc][yy], type)) return 1;
    return 0;
 }
 
@@ -213,13 +213,13 @@ int is_up_solid(int solid_x, int solid_y, int lift_check, int type)
    int a = solid_x % 20;
 
    if (a > 16)  // next block only
-      if (is_solidu( -1, l[xx][yy], type)) return 1;
+      if (is_solidu( -1, mLevel.l[xx][yy], type)) return 1;
 
    if (a < 3)    // this block only
-      if (is_solidu( -1, l[cc][yy], type)) return 1;
+      if (is_solidu( -1, mLevel.l[cc][yy], type)) return 1;
 
    if ((a > 2) && (a <17)) // dual compare with ||
-      if (is_solidu( l[xx][yy], l[cc][yy], type)) return 1;
+      if (is_solidu( mLevel.l[xx][yy], mLevel.l[cc][yy], type)) return 1;
 
    return 0;
 }
@@ -327,13 +327,13 @@ float is_up_solidf(float fx, float fy, float fmove, int dir)
 
       if (a == 0)    // this block only
       {
-         c = l[cc][yy];
+         c = mLevel.l[cc][yy];
          ret = is_solid(-1, c, 2);
       }
       else // dual compare with ||
       {
-         b = l[xx][yy];
-         c = l[cc][yy];
+         b = mLevel.l[xx][yy];
+         c = mLevel.l[cc][yy];
          ret = is_solid(b, c, 2);
       }
       if (dir == 0) // solid mode - look up for next solid
@@ -396,13 +396,13 @@ float is_down_solidf(float fx, float fy, float fmove, int dir)
       a = (ix+j) % 20;
       if (a == 0)    // this block only
       {
-         c = l[cc][yy];
+         c = mLevel.l[cc][yy];
          ret = is_solid(-1, c, 2);
       }
       else // dual compare with ||
       {
-         b = l[xx][yy];
-         c = l[cc][yy];
+         b = mLevel.l[xx][yy];
+         c = mLevel.l[cc][yy];
          ret = is_solid(b, c, 2);
       }
       if (dir == 0) // solid mode - looks down for next solid
@@ -462,13 +462,13 @@ float is_left_solidf(float fx, float fy, float fmove, int dir)
       a = (iy+j) % 20;
       if (a == 0)    // this block only
       {
-         c = l[xx][yy];
+         c = mLevel.l[xx][yy];
          ret = is_solid(-1, c, 2);
       }
       else // dual compare with ||
       {
-         b = l[xx][yy];
-         c = l[xx][cc];
+         b = mLevel.l[xx][yy];
+         c = mLevel.l[xx][cc];
          ret = is_solid(b, c, 2);
       }
 
@@ -531,13 +531,13 @@ float is_right_solidf(float fx, float fy, float fmove, int dir)
 
       if (a == 0)    // this block only
       {
-         c = l[xx][yy];
+         c = mLevel.l[xx][yy];
          ret = is_solid(-1, c, 2);
       }
       else // dual compare with ||
       {
-         b = l[xx][yy];
-         c = l[xx][cc];
+         b = mLevel.l[xx][yy];
+         c = mLevel.l[xx][cc];
          ret = is_solid(b, c, 2);
       }
       if (dir == 0) // solid mode - looks right for next solid

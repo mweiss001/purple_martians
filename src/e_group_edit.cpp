@@ -14,9 +14,9 @@
 #include "z_item.h"
 #include "z_enemy.h"
 #include "e_fnx.h"
-#include "z_fnx.h"
-#include "z_screen.h"
 
+#include "z_screen.h"
+#include "mwLevel.h"
 
 
 
@@ -374,7 +374,7 @@ void ge_enemy_initial_position_random(int e, int csw)
          if ((x < mwWM.bx1) || (x >= mwWM.bx2+1)) empt = 0;
          if ((y < mwWM.by1) || (y >= mwWM.by2+1)) empt = 0;
       }
-      if (!is_block_empty(x, y, 1, 1, 1)) empt = 0;
+      if (!mLevel.is_block_empty(x, y, 1, 1, 1)) empt = 0;
    }
    if (empt)
    {
@@ -400,7 +400,7 @@ void ge_item_initial_position_random(int i, int csw)
          if ((y < mwWM.by1) || (y >= mwWM.by2+1)) empt = 0;
       }
 
-      if (!is_block_empty(x, y, 1, 1, 1)) empt = 0;
+      if (!mLevel.is_block_empty(x, y, 1, 1, 1)) empt = 0;
    }
    if (empt)
    {

@@ -3,8 +3,8 @@
 #include "pm.h"
 #include "mwFont.h"
 #include "mwDisplay.h"
-#include "z_fnx.h"
 
+#include "mwInput.h"
 
 mwFont mF;
 
@@ -14,54 +14,62 @@ void mwFont::load_fonts(void)
    bltn = al_create_builtin_font();
    if (!bltn)
    {
-      m_err("Failed to create_builtin_font");
+      mI.m_err("Failed to create_builtin_font");
       exit(0);
    }
 
    // now we get pristine font from bitmap in the interest of drawing faster
    ALLEGRO_BITMAP* tmp = al_load_bitmap("bitmaps/Pristine_8.bmp");
-   if (!tmp) m_err("Can't load bitmaps//Pristine_8.bmp");
+   if (!tmp) mI.m_err("Can't load bitmaps//Pristine_8.bmp");
    else
    {
       al_convert_mask_to_alpha(tmp, al_map_rgb(0, 0, 0)) ;
       al_destroy_font(pr8);
       int ranges[] = {32, 127};
       pr8 = al_grab_font_from_bitmap(tmp, 1, ranges);
-      if (!pr8) m_err("Failed to load font from bitmaps/Pristine_8.bmp");
+      if (!pr8) mI.m_err("Failed to load font from bitmaps/Pristine_8.bmp");
       al_destroy_bitmap(tmp);
    }
 
    // pristine 16x16 version
    tmp = al_load_bitmap("bitmaps/Pristine_16.bmp");
-   if (!tmp) m_err("Can't load bitmaps//Pristine_16.bmp");
+   if (!tmp) mI.m_err("Can't load bitmaps//Pristine_16.bmp");
    else
    {
       al_convert_mask_to_alpha(tmp, al_map_rgb(0, 0, 0)) ;
       al_destroy_font(pr16);
       int ranges[] = {32, 127};
       pr16 = al_grab_font_from_bitmap(tmp, 1, ranges);
-      if (!pr16) m_err("Failed to load font from bitmaps/Pristine_16.bmp");
+      if (!pr16) mI.m_err("Failed to load font from bitmaps/Pristine_16.bmp");
       al_destroy_bitmap(tmp);
    }
 
    al_destroy_font(acha);
    acha = al_load_ttf_font("bitmaps/Achafont.ttf", 240, 0);
-   if (!acha) m_err("Failed to load font from bitmaps/Achafont.ttf");
+   if (!acha) mI.m_err("Failed to load font from bitmaps/Achafont.ttf");
 
    int sfs = al_get_display_option(display, ALLEGRO_MAX_BITMAP_SIZE) / 20;
    //printf("Saucer font size:%d\n", sfs);
    al_destroy_font(sauc);
    sauc = al_load_ttf_font("bitmaps/SaucerBB.ttf", sfs, 0);
-   if (!sauc) m_err("Failed to load font from bitmaps/SaucerBB.ttf");
+   if (!sauc) mI.m_err("Failed to load font from bitmaps/SaucerBB.ttf");
 
    al_destroy_font(pixl);
    pixl = al_load_ttf_font("bitmaps/PixelGosub.otf", 7, ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_KERNING);
-   if (!pixl) m_err("Failed to load font from bitmaps/PixelGosub.otf");
+   if (!pixl) mI.m_err("Failed to load font from bitmaps/PixelGosub.otf");
 }
 
 
+void mwFont::mw_get_text_dimensions(ALLEGRO_FONT *f, const char* txt, int &bx, int &by, int &bw, int &bh)
+{
+    // first get from the allegro method
+   al_get_text_dimensions(f, txt, &bx, &by, &bw, &bh);
 
-
+   // then override for my nefarious purposes!
+   if (f == mF.pixl)    { by = 4; bh = 5; }
+   if (f == mF.pr8)  { by = 0; bh = 8; bx = 0; bw = 8*strlen(txt); }
+   if (f == mF.bltn) { by = 0; bh = 8; }
+}
 
 
 
@@ -75,7 +83,7 @@ void mwFont::convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bm
    if (!cf)
    {
       sprintf(msg, "Failed to load font from bitmaps/%s", ttf_filename);
-      m_err("Failed to load font from bitmaps/Pristine.ttf");
+      mI.m_err("Failed to load font from bitmaps/Pristine.ttf");
    }
    else printf("loaded font %s\n", msg);
 

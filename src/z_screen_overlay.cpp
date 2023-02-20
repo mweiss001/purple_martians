@@ -23,7 +23,7 @@
 #include "mwProgramState.h"
 #include "z_menu.h"
 #include "z_enemy.h"
-#include "z_level.h"
+#include "mwLevel.h"
 #include "z_screen.h"
 
 
@@ -68,7 +68,7 @@ void show_player_stat_box(int tx, int y, int p)
    al_draw_textf(mF.pr8, mC.pc[15], tx+24, y, 0, "Deaths:%d", players[p].stat_respawns); y+=8;
    al_draw_textf(mF.pr8, mC.pc[15], tx+24, y, 0, "Shots:%d", players[p].stat_shots_fired); y+=8;
    al_draw_textf(mF.pr8, mC.pc[15], tx+24, y, 0, "Enemy Hits:%d", players[p].stat_enemy_hits); y+=8;
-   al_draw_textf(mF.pr8, mC.pc[15], tx+24, y, 0, "Purple Coins:%d/%d", players[p].stat_purple_coins, number_of_purple_coins); y+=8;
+   al_draw_textf(mF.pr8, mC.pc[15], tx+24, y, 0, "Purple Coins:%d/%d", players[p].stat_purple_coins, mLevel.number_of_purple_coins); y+=8;
 
 }
 
@@ -994,8 +994,8 @@ void draw_top_frame(int p)
    // ----------------------------------
    if (LOG_TMR_scrn_overlay) tt = al_get_time();
 
-   if (mwD.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%d En:%d ",                play_level, mwPS.frame_num/40, num_enemy); // special case for narrow screens
-   else                sprintf(msg,"Level:%d | Time:%d | Enemies:%d  ", play_level, mwPS.frame_num/40, num_enemy);
+   if (mwD.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%d En:%d ",            mLevel.play_level, mwPS.frame_num/40, num_enemy); // special case for narrow screens
+   else                sprintf(msg,"Level:%d | Time:%d | Enemies:%d  ", mLevel.play_level, mwPS.frame_num/40, num_enemy);
    al_draw_text(mF.pr8, mC.pc[tc], tdx, tdy+2,  0, msg);
    tdx += strlen(msg)*8;
 
@@ -1008,7 +1008,7 @@ void draw_top_frame(int p)
    // draw purple coins
    al_draw_scaled_bitmap(mwB.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
    // spin_shape(197, tdx+5, tdy-3, 0, 0, 19, 19, 0.6, 0.5, 60);
-   al_draw_textf(mF.pr8, mC.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", players[active_local_player].stat_purple_coins, number_of_purple_coins);
+   al_draw_textf(mF.pr8, mC.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", players[active_local_player].stat_purple_coins, mLevel.number_of_purple_coins);
 
 
 

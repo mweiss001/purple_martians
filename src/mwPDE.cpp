@@ -8,7 +8,7 @@
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "z_fnx.h"
+
 
 mwPDE mPDE;
 
@@ -23,7 +23,7 @@ int mwPDE::load()
       fclose(fp);
       return 1;
    }
-   m_err("Error loading pde.pm");
+   mI.m_err("Error loading pde.pm");
    return 0;
 }
 
@@ -37,7 +37,7 @@ void mwPDE::save()
       fwrite(PDEt, sizeof(PDEt), 1, fp);
       fclose(fp);
    }
-   else m_err("Error saving pde.pm");
+   else mI.m_err("Error saving pde.pm");
 }
 
 

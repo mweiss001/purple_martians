@@ -13,10 +13,10 @@
 #include "mwDisplay.h"
 #include "z_menu.h"
 #include "mwProgramState.h"
-#include "z_level.h"
-#include "z_fnx.h"
-#include "mwShots.h"
+#include "mwLevel.h"
 
+#include "mwShots.h"
+#include "mwInput.h"
 
 
 
@@ -55,7 +55,7 @@ void save_config(void)
    if(!cfg)
    {
       sprintf(msg, "error opening pm.cfg to save");
-      m_err(msg);
+      mI.m_err(msg);
       printf("%s\n", msg);
    }
    else
@@ -78,7 +78,7 @@ void save_config(void)
 
 
       asci(GAME, players[0].color)
-      asci(GAME, start_level)
+      asci(GAME, mLevel.start_level)
       asci(GAME, mwD.viewport_mode)
       asci(GAME, mwD.viewport_show_hyst)
       ascf(GAME, mwD.viewport_x_div)
@@ -219,7 +219,9 @@ void save_config(void)
 
 void load_config(void)
 {
-   menu_setup();
+
+
+
 
    // this only reads the values and validates
    // after that, it immediately calls save_config() to save and update menu text
@@ -258,13 +260,9 @@ void load_config(void)
    agci(SCREEN, mwPS.eco_draw, 0)
 
 
-
-
-   agci(GAME, start_level, 1)
-   set_start_level(start_level);
+   agci(GAME, mLevel.start_level, 1)
 
    agci(GAME, players[0].color, 8)
-   set_player_color(0, players[0].color);
 
    agci(GAME, mwD.viewport_mode, 1)
    agci(GAME, mwD.viewport_show_hyst, 0)

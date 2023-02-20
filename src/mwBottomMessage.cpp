@@ -58,27 +58,25 @@ int mwBottomMessage::draw_tile2(int tn, int bmsg_length, int xo, int yo)
    return 20;
 }
 
-
 int mwBottomMessage::draw_player(int p, int bmsg_length)
 {
    char msg[256];
+   sprintf(msg, "Player %d", p);
    int len = 0;
    if (0) // 'Player x'
    {
-      sprintf(msg, "Player %d", p);
       len += draw_text(msg, players[p].color, bmsg_length);
    }
 
    if (1) // player tile
    {
-      al_draw_bitmap(mwB.player_tile[players[p].color][1], bmsg_length + len, 0, 0); // draw shape
-      len += 20;
+      al_draw_bitmap(mwB.player_tile[players[p].color][1], bmsg_length, 0, 0); // draw tile
+      len += 16;
    }
    if (0) // 'Player x' and tile
    {
-      sprintf(msg, "Player %d ", p);
-      len += draw_text(msg, players[p].color, bmsg_length + len);
-      al_draw_bitmap(mwB.player_tile[players[p].color][1], bmsg_length + len, 0, 0); // draw shape
+      len += draw_text(msg, players[p].color, bmsg_length) + 12;
+      al_draw_bitmap(mwB.player_tile[players[p].color][1], bmsg_length + len, 0, 0); // draw tile
       len += 20;
    }
    return len;
@@ -86,31 +84,24 @@ int mwBottomMessage::draw_player(int p, int bmsg_length)
 
 int mwBottomMessage::draw_enemy(int e_type, int bmsg_length)
 {
-   char msg[256];
    int len = 0;
    if (0) // enemy name
    {
-      sprintf(msg, "%s", enemy_name[e_type][0]);
-      len += draw_text(msg, 15, bmsg_length);
+      len += draw_text(enemy_name[e_type][0], 15, bmsg_length);
    }
    if (1) // enemy tile
    {
-      draw_tile(enemy_tile[e_type], bmsg_length);
-      len = 20;
+      len += draw_tile(enemy_tile[e_type], bmsg_length);
    }
    if (0) // name and tile
    {
-      sprintf(msg, "%s ", enemy_name[e_type][0]);
-      len += draw_text(msg, 15, bmsg_length);
-      draw_tile(enemy_tile[e_type], bmsg_length+len);
-      len +=20;
+      len += draw_text(enemy_name[e_type][0], 15, bmsg_length) + 8;
+      len += draw_tile(enemy_tile[e_type], bmsg_length+len);
    }
    if (0) // tile and name
    {
-      draw_tile(enemy_tile[e_type], bmsg_length);
-      len +=20;
-      sprintf(msg, " %s", enemy_name[e_type][0]);
-      len += draw_text(msg, 15, bmsg_length+len);
+      len += draw_tile(enemy_tile[e_type], bmsg_length-4) + 8;
+      len += draw_text(enemy_name[e_type][0], 15, bmsg_length+len);
    }
    return len;
 }
@@ -304,21 +295,15 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
       {
          custom_drawn = 1;
          bmsg_length += draw_text(" killed ", 15, bmsg_length);
-         bmsg_length += draw_enemy(Ei[z2][0], bmsg_length);
+         bmsg_length += draw_enemy(z3, bmsg_length);
          bmsg_length += draw_text(" with a shot.", 15, bmsg_length);
       }
       if (ev == 62) // player killed enemy with explosion
       {
          custom_drawn = 1;
          bmsg_length += draw_text(" killed ", 15, bmsg_length);
-         bmsg_length += draw_enemy(Ei[z2][0], bmsg_length);
+         bmsg_length += draw_enemy(z3, bmsg_length);
          bmsg_length += draw_text(" with explosion!", 15, bmsg_length);
-      }
-      if (ev == 70) // player got a free man
-      {
-         custom_drawn = 1;
-         bmsg_length += draw_text(" got a free man! ", 15, bmsg_length);
-         bmsg_length += draw_tile(265, bmsg_length);
       }
 
       if (ev == 71) // player got a purple coin
@@ -336,7 +321,7 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
          if (z3 == 1023) bt = 304;
          if (z3 == 1027) bt = 240;
          if (z3 == 1035) bt = 320;
-         bmsg_length += draw_tile(bt, bmsg_length);
+         bmsg_length += draw_tile2(bt, bmsg_length, -8, -3) -8;
          bmsg_length += draw_health(z4, bmsg_length);
       }
       if (ev == 80) // player joined

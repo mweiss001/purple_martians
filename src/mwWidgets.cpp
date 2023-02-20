@@ -7,7 +7,7 @@
 #include "e_bitmap_tools.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "z_lift.h"
+#include "mwLift.h"
 #include "mwColor.h"
 #include "mwPMEvent.h"
 #include "mwInput.h"
@@ -16,8 +16,8 @@
 #include "z_item.h"
 #include "z_enemy.h"
 #include "e_fnx.h"
-
-
+#include "z_item_door.h"
+#include "mwHelp.h"
 
 char smsg[80];
 int bw = 3; // slider adjustment bar width
@@ -720,39 +720,39 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       {
          if (o==3)
          {
-            if (t == 3)  help("Archwagon Viewer");
-            if (t == 4)  help("Bouncer Viewer");
-            if (t == 5)  help("Jumpworm Viewer");
-            if (t == 6)  help("Cannon Viewer");
-            if (t == 7)  help("Podzilla Viewer");
-            if (t == 8)  help("Trakbot Viewer");
-            if (t == 9)  help("Cloner Viewer");
-            if (t == 10) help("Field Viewer");
-            if (t == 11) help("Block Walker Viewer");
-            if (t == 12) help("Flapper Viewer");
+            if (t == 3)  mHelp.help("Archwagon Viewer");
+            if (t == 4)  mHelp.help("Bouncer Viewer");
+            if (t == 5)  mHelp.help("Jumpworm Viewer");
+            if (t == 6)  mHelp.help("Cannon Viewer");
+            if (t == 7)  mHelp.help("Podzilla Viewer");
+            if (t == 8)  mHelp.help("Trakbot Viewer");
+            if (t == 9)  mHelp.help("Cloner Viewer");
+            if (t == 10) mHelp.help("Field Viewer");
+            if (t == 11) mHelp.help("Block Walker Viewer");
+            if (t == 12) mHelp.help("Flapper Viewer");
          }
          if (o==2)
          {
-            if (t == 1)  help("Door Viewer");
-            if (t == 2)  help("Bonus Viewer");
-            if (t == 3)  help("Exit Viewer");
-            if (t == 4)  help("Key Viewer");
-            if (t == 5)  help("Start Viewer");
-            if (t == 6)  help("Orb Viewer");
-            if (t == 7)  help("Mine Viewer");
-            if (t == 8)  help("Bomb Viewer");
-            if (t == 9)  help("Trigger Viewer");
-            if (t == 10) help("Message Viewer");
-            if (t == 11) help("Rocket Viewer");
-            if (t == 12) help("Warp Viewer");
-            if (t == 14) help("Switch Viewer");
-            if (t == 15) help("Sproingy Viewer");
-            if (t == 16) help("Block Manip Viewer");
-            if (t == 17) help("Block Damage Viewer");
+            if (t == 1)  mHelp.help("Door Viewer");
+            if (t == 2)  mHelp.help("Bonus Viewer");
+            if (t == 3)  mHelp.help("Exit Viewer");
+            if (t == 4)  mHelp.help("Key Viewer");
+            if (t == 5)  mHelp.help("Start Viewer");
+            if (t == 6)  mHelp.help("Orb Viewer");
+            if (t == 7)  mHelp.help("Mine Viewer");
+            if (t == 8)  mHelp.help("Bomb Viewer");
+            if (t == 9)  mHelp.help("Trigger Viewer");
+            if (t == 10) mHelp.help("Message Viewer");
+            if (t == 11) mHelp.help("Rocket Viewer");
+            if (t == 12) mHelp.help("Warp Viewer");
+            if (t == 14) mHelp.help("Switch Viewer");
+            if (t == 15) mHelp.help("Sproingy Viewer");
+            if (t == 16) mHelp.help("Block Manip Viewer");
+            if (t == 17) mHelp.help("Block Damage Viewer");
          }
          if (o==4)
          {
-            help("Lift Viewer");
+            mHelp.help("Lift Viewer");
          }
       }
    }
@@ -1161,7 +1161,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    {
       int l = type;
       int s = obt;
-      int v = lift_steps[l][s].val;
+      int v = Lift.stp[l][s].val;
 
       if (num == -1) sprintf(smsg, "Details");  // show row header
       if (num == 0)  sprintf(smsg, "blank");
@@ -1179,16 +1179,16 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    }
    if (bn == 504)
    {
-      sprintf(smsg, "Name:%s", lifts[num].lift_name); // edit lift name
+      sprintf(smsg, "Name:%s", Lift.cur[num].lift_name); // edit lift name
       if (press) return 1;
    }
    if (bn == 505) // lift step end step mode
    {
       sprintf(smsg, "Undefined value");
-      if (lift_steps[num][type].val == 0) sprintf(smsg, "Loop to Start");
-      if (lift_steps[num][type].val == 1) sprintf(smsg, "Warp to Start");
-      if (lift_steps[num][type].val == 2) sprintf(smsg, "Freeze Here  ");
-      if (press) if (++lift_steps[num][type].val > 2) lift_steps[num][type].val = 0; // lift step end step mode
+      if (Lift.stp[num][type].val == 0) sprintf(smsg, "Loop to Start");
+      if (Lift.stp[num][type].val == 1) sprintf(smsg, "Warp to Start");
+      if (Lift.stp[num][type].val == 2) sprintf(smsg, "Freeze Here  ");
+      if (press) if (++Lift.stp[num][type].val > 2) Lift.stp[num][type].val = 0; // lift step end step mode
    }
    if (bn == 506)
    {
@@ -1198,7 +1198,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 520)
    {
-      sprintf(smsg, "Set Event Trigger (%d)", lift_steps[num][type].val);
+      sprintf(smsg, "Set Event Trigger (%d)", Lift.stp[num][type].val);
       if (press)
       {
          //printf("520 type:%d num:%d \n", type, num);
@@ -1206,7 +1206,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
          if (i > -1)
          {
             int ev = mwPME.get_unused_pm_event();
-            lift_steps[num][type].val = ev;
+            Lift.stp[num][type].val = ev;
             set_trigger_event(i, 0, 0, ev, 0); // toggle ON trigger
          }
       }
@@ -1719,7 +1719,7 @@ void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
          fc = color;
          set_int_3216(item[num][13], tc, fc);
       }
-      if (bn == 4) lifts[num].color = color; // lift color
+      if (bn == 4) Lift.cur[num].color = color; // lift color
       if (bn == 5)
       {
          item[num][6] = color;     // door color
@@ -1733,8 +1733,8 @@ void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
       {
         // printf("n:%d t:%d c:%d\n",num, type, color);
          int cf = color << 28; // shift 4 bits of color into place
-         lift_steps[num][type].type &= 0b00001111111111111111111111111111; // clear old color
-         lift_steps[num][type].type |= cf; // merge color with type
+         Lift.stp[num][type].type &= 0b00001111111111111111111111111111; // clear old color
+         Lift.stp[num][type].type |= cf; // merge color with type
       }
    }
    if (q6 == 1) y1+=bts;

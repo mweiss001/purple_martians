@@ -12,9 +12,13 @@
 #include "mwEventQueue.h"
 #include "z_args.h"
 #include "z_config.h"
-#include "z_file.h"
-#include "z_fnx.h"
+
+#include "z_item.h"
+#include "z_enemy.h"
+
 #include "z_loop.h"
+#include "mwLevel.h"
+#include "mwGameMovesArray.h"
 
 
 
@@ -92,7 +96,7 @@ void fast_exit(int why)
 {
    if (why != 0) players1[active_local_player].quit_reason = why; // don't overwrite if not zero
    if (autosave_log_on_program_exit) save_log_file();
-   if (autosave_game_on_game_exit) blind_save_game_moves(3);
+   if (autosave_game_on_game_exit) mwGMA.blind_save_game_moves(3);
    final_wrapup();
    exit(0);
 }
@@ -137,7 +141,23 @@ void set_and_get_versions(void)
    sprintf(mwPS.al_version_string, "Allegro Version: %d.%d.%d.%d", major, minor, revision, release);
    printf("%s\n", mwPS.al_version_string);
 
-   get_hostname(0);
+
+   // get hostname
+   char msg[256];
+   sprintf(msg, "hostname");
+   FILE *fp;
+   fp = popen(msg,"r");
+   int loop = 0;
+   int ch = fgetc(fp);
+   while((ch != '\n') && (ch != EOF))
+   {
+      mwPS.local_hostname[loop] = ch;
+      loop++;
+      ch = fgetc(fp);
+   }
+   mwPS.local_hostname[loop] = 0;
+   fclose(fp);
+
 }
 
 void get_desktop_resolution()
@@ -171,14 +191,14 @@ int initial_setup(void)
    mwEQ.event_queue = al_create_event_queue();
    if(!mwEQ.event_queue)
    {
-      m_err("Failed to create event queue.\n");
+      mI.m_err("Failed to create event queue.\n");
       return 0;
    }
 
    // --- display --------------------
    if (!mwD.init_display())
    {
-      m_err("Failed to initialize display.\n");
+      mI.m_err("Failed to initialize display.\n");
       return 0;
    }
 
@@ -187,31 +207,31 @@ int initial_setup(void)
    // --- allegro add ons ------------
    if(!al_init_native_dialog_addon())
    {
-      m_err("Failed to initialize native dialog addon.\n");
+      mI.m_err("Failed to initialize native dialog addon.\n");
       return 0;
    }
 
    if(!al_init_primitives_addon())
    {
-      m_err("Failed to initialize primitives addon.\n");
+      mI.m_err("Failed to initialize primitives addon.\n");
       return 0;
    }
 
    if(!al_init_image_addon())
    {
-      m_err("Failed to initialize image addon.\n");
+      mI.m_err("Failed to initialize image addon.\n");
       return 0;
    }
 
    if(!al_init_font_addon())
    {
-      m_err("Failed to initialize font addon.\n");
+      mI.m_err("Failed to initialize font addon.\n");
       return 0;
    }
 
    if(!al_init_ttf_addon())
    {
-      m_err("Failed to initialize ttf addon.\n");
+      mI.m_err("Failed to initialize ttf addon.\n");
       return 0;
    }
    mF.load_fonts();
@@ -219,7 +239,7 @@ int initial_setup(void)
    // --- keyboard -------------------
    if (!al_install_keyboard())
    {
-      m_err("Failed to install keyboard.\n");
+      mI.m_err("Failed to install keyboard.\n");
       return 0;
    }
    //else printf("installed keyboard\n");
@@ -229,7 +249,7 @@ int initial_setup(void)
    // --- mouse ----------------------
    if (!al_install_mouse())
    {
-      m_err("Failed to install mouse.\n");
+      mI.m_err("Failed to install mouse.\n");
       return 0;
    }
    //else printf("installed mouse\n");
@@ -240,7 +260,7 @@ int initial_setup(void)
    // --- joystick -------------------
    if (!al_install_joystick())
    {
-      m_err("Failed to install joystick.\n");
+      mI.m_err("Failed to install joystick.\n");
       return 0;
    }
    //else printf("installed joystick\n");
@@ -259,7 +279,7 @@ int initial_setup(void)
       al_register_event_source(mwEQ.event_queue, al_get_joystick_event_source());
    }
 
-   load_tiles();
+   mwB.load_tiles();
    al_set_display_icon(display, mwB.tile[401]);
 
    mwEQ.create_timers();
@@ -272,6 +292,12 @@ int initial_setup(void)
    players[0].active = 1;
 
    mwDM.demo_mode_enabled = mwDM.demo_mode_config_enable; // set only at startup from cofing file
+
+   mLevel.set_start_level();
+
+
+   set_item_text();
+   set_enemy_text();
 
    return 1;
 }

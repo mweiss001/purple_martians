@@ -3,14 +3,67 @@
 #include "pm.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
-#include "z_lift.h"
+#include "mwLift.h"
 #include "mwColor.h"
 #include "z_menu.h"
 #include "z_item.h"
 #include "z_enemy.h"
-#include "z_level.h"
+#include "mwLevel.h"
 #include "e_fnx.h"
-#include "z_fnx.h"
+
+#include "mwInput.h"
+
+
+
+
+void set_enemy_text(void)
+{
+   strcpy (enemy_name[0][0],  "empty");
+   strcpy (enemy_name[1][0],  "undef");
+   strcpy (enemy_name[2][0],  "undef");
+   strcpy (enemy_name[3][0],  "ArchWagon");
+   strcpy (enemy_name[4][0],  "Bouncer");
+   strcpy (enemy_name[5][0],  "JumpWorm");
+   strcpy (enemy_name[6][0],  "Cannon");
+   strcpy (enemy_name[7][0],  "PodZilla");
+   strcpy (enemy_name[8][0],  "TrakBot");
+   strcpy (enemy_name[9][0],  "Cloner");
+   strcpy (enemy_name[10][0], "undef");
+   strcpy (enemy_name[11][0], "Block Walker");
+   strcpy (enemy_name[12][0], "Flapper");
+   strcpy (enemy_name[13][0], "VinePod");
+
+   strcpy (enemy_name[0][1],  "mpty");
+   strcpy (enemy_name[1][1],  "undf");
+   strcpy (enemy_name[2][1],  "undf");
+   strcpy (enemy_name[3][1],  "arch");
+   strcpy (enemy_name[4][1],  "boun");
+   strcpy (enemy_name[5][1],  "jump");
+   strcpy (enemy_name[6][1],  "cann");
+   strcpy (enemy_name[7][1],  "podz");
+   strcpy (enemy_name[8][1],  "trak");
+   strcpy (enemy_name[9][1],  "clon");
+   strcpy (enemy_name[10][1], "undf");
+   strcpy (enemy_name[11][1], "blkw");
+   strcpy (enemy_name[12][1], "flap");
+   strcpy (enemy_name[13][1], "vine");
+   strcpy (enemy_name[66][1], "dth2");
+   strcpy (enemy_name[99][1], "dth1");
+
+   enemy_tile[3]  = 496;
+   enemy_tile[4]  = 508;
+   enemy_tile[5]  = 706;
+   enemy_tile[6]  = 415;
+   enemy_tile[7]  = 374;
+   enemy_tile[8]  = 384;
+   enemy_tile[9]  = 550;
+   enemy_tile[10] = 550;
+   enemy_tile[11] = 866;
+   enemy_tile[12] = 159;
+   enemy_tile[13] = 374;
+}
+
+
 
 void erase_enemy(int e)
 {
@@ -88,15 +141,15 @@ void show_level_data(void)
    al_clear_to_color(al_map_rgb(0,0,0));
    int y_pos = 40;
    int x_pos = 40;
-   if (valid_level_loaded)
+   if (mLevel.valid_level_loaded)
    {
       y_pos = enemy_data(x_pos, y_pos) + 8;
       y_pos = item_data(x_pos, y_pos) + 8;
-      al_draw_textf(mF.pr8, mC.pc[15], x_pos, y_pos,   0, "%d Lifts  ", get_num_lifts());
+      al_draw_textf(mF.pr8, mC.pc[15], x_pos, y_pos,   0, "%d Lifts  ", Lift.get_num_lifts());
       al_draw_text(mF.pr8, mC.pc[15], x_pos, y_pos+8,  0, "-------");
    }
    al_flip_display();
-   tsw(); // wait for keypress
+   mI.tsw(); // wait for keypress
 }
 
 
@@ -151,13 +204,13 @@ void show_all_enemies(void)
       if (text_pos > mwD.SCREEN_H - 10)
       {
          al_flip_display();
-         tsw(); // wait for keypress
+         mI.tsw(); // wait for keypress
          al_clear_to_color(al_map_rgb(0,0,0));
          text_pos = 0;
       }
    }
    al_flip_display();
-   tsw(); // wait for keypress
+   mI.tsw(); // wait for keypress
    al_destroy_bitmap(tmp);
 }
 

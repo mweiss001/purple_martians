@@ -5,9 +5,8 @@
 #include "z_player.h"
 #include "mwDrawSequence.h"
 #include <limits>
-
 #include "mwFont.h"
-#include "z_lift.h"
+#include "mwLift.h"
 #include "mwTimeStamp.h"
 #include "mwColor.h"
 #include "mwProgramState.h"
@@ -106,7 +105,7 @@ void mwDrawSequence::draw(void)
    if (seq[0][0]) get_new_background(1);
    t1 = al_get_time(); add(0, t1-t0);
 
-   if (seq[1][0]) draw_lifts();
+   if (seq[1][0]) Lift.draw_lifts();
    t2 = al_get_time(); add(1, t2-t1);
 
    if (seq[2][0]) draw_items();
