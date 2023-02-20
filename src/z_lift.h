@@ -3,6 +3,8 @@
 // ------------------------------------------------
 // ---------------- lifts -----------------------
 // ------------------------------------------------
+
+/*
 extern char lift_step_type_name[10][10];
 extern struct lift lifts[NUM_LIFTS];
 extern struct lift_step lift_steps[NUM_LIFTS][40];
@@ -40,7 +42,6 @@ struct lift_step
    int val;
 };
 
-
 int construct_lift(int l, char* lift_name);
 void clear_lift(int l);
 int get_empty_lift(void);
@@ -77,3 +78,4 @@ void draw_lifts();
 void set_lift_xyinc(int l, int step);
 int lift_check_prox(int l, int pd);
 void move_lifts(int ignore_prox);
+*/

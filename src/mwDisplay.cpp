@@ -8,8 +8,22 @@
 #include "mwProgramState.h"
 #include "z_menu.h"
 #include "z_config.h"
-#include "z_fnx.h"
+
 #include "z_screen.h"
+#include "mwInput.h"
+
+
+
+
+#include "z_player.h"
+#include "mwLift.h"
+#include "mwGameMovesArray.h"
+#include "mwPMEvent.h"
+#include "z_item.h"
+#include "z_enemy.h"
+#include "mwLevel.h"
+#include "mwShots.h"
+#include "z_log.h"
 
 
 
@@ -213,6 +227,70 @@ void mwDisplay::show_fullscreen_modes(void)
    }
 }
 
+void mwDisplay::show_var_sizes(void)
+{
+   printf("\nVariables used to save levels in pml format\n\n");
+   printf("mLevel.l    :%6d\n",  (int)sizeof(mLevel.l)     );
+   printf("item        :%6d\n",  (int)sizeof(item)         );
+   printf("Ef          :%6d\n",  (int)sizeof(Ef)           );
+   printf("Ei          :%6d\n",  (int)sizeof(Ei)           );
+   printf("Lift.cur    :%6d\n",  (int)sizeof(Lift.cur)     );
+   printf("Lift.stp    :%6d\n",  (int)sizeof(Lift.stp)     );
+   printf("pmsgtext    :%6d\n",  (int)sizeof(pmsgtext)     );
+
+   int sz = 0;
+   sz+= sizeof(mLevel.l)     ;
+   sz+= sizeof(item)         ;
+   sz+= sizeof(Ef)           ;
+   sz+= sizeof(Ei)           ;
+   sz+= sizeof(Lift.cur)     ;
+   sz+= sizeof(Lift.stp)     ;
+   sz+= sizeof(pmsgtext)     ;
+   printf("------------:------\n");
+   printf("total       :%6d\n",  sz );
+
+   printf("\nVariables used for netgame state exchange\n\n");
+
+   printf("players  :%6d\n", (int)sizeof(players)      );
+   printf("Ei       :%6d\n", (int)sizeof(Ei)           );
+   printf("Ef       :%6d\n", (int)sizeof(Ef)           );
+   printf("item     :%6d\n", (int)sizeof(item)         );
+   printf("itemf    :%6d\n", (int)sizeof(itemf)        );
+   printf("Lift.cur :%6d\n", (int)sizeof(Lift.cur)     );
+   printf("mLevel.l :%6d\n", (int)sizeof(mLevel.l)     );
+   printf("mwS.p    :%6d\n", (int)sizeof(mwS.p)        );
+   printf("mwS.e    :%6d\n", (int)sizeof(mwS.e)        );
+   printf("pm_event :%6d\n", (int)sizeof(mwPME.event)  );
+
+   sz = 0;
+   sz+= sizeof(players)      ;
+   sz+= sizeof(Ei)           ;
+   sz+= sizeof(Ef)           ;
+   sz+= sizeof(item)         ;
+   sz+= sizeof(itemf)        ;
+   sz+= sizeof(Lift.cur)     ;
+   sz+= sizeof(mLevel.l)     ;
+   sz+= sizeof(mwS.p)        ;
+   sz+= sizeof(mwS.e)        ;
+   sz+= sizeof(mwPME.event)  ;
+   printf("---------:------\n");
+   printf("total    :%6d\n",  sz );
+
+   printf("\nOther Large Variables\n\n");
+
+   sz = (int)sizeof(mwGMA.game_moves);
+   printf("game_moves    :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
+   sz = (int)sizeof(log_msg);
+   printf("log_msg       :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
+   sz = (int)sizeof(log_lines);
+   printf("log_lines     :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
+   sz = (int)sizeof(log_lines_int);
+   printf("log_lines_int :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+}
+
 
 
 
@@ -350,6 +428,15 @@ void mwDisplay::show_display_adapters(void)
    }
 }
 
+void mwDisplay::set_window_title(void)
+{
+//   sprintf(msg, "Purple Martians");
+   sprintf(msg, "Purple Martians %s", mwPS.pm_version_string);
+//   sprintf(msg, "Purple Martians %s   [%d x %d]", mwPS.pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H);
+//   sprintf(msg, "%d x %d", mwD.SCREEN_W, mwD.SCREEN_H);
+//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", mwPS.pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H,  disp_w_curr, disp_h_curr, display_transform_double);
+   al_set_window_title(display, msg);
+}
 
 
 
@@ -452,7 +539,7 @@ int mwDisplay::init_display(void)
    if(!display)
    {
       sprintf(msg, "Error creating display\n");
-      m_err(msg);
+      mI.m_err(msg);
       exit(0);
    }
    if (!fullscreen) al_set_window_position(display, disp_x_wind, disp_y_wind);
@@ -468,7 +555,7 @@ int mwDisplay::init_display(void)
 
 
    set_display_transform();
-   window_title();
+   set_window_title();
 
 //   show_display_flags(al_get_display_flags(display));
 //   show_display_options();
@@ -478,7 +565,6 @@ int mwDisplay::init_display(void)
 
    //printf("init screen\n");
    mwB.create_bitmaps();
-   make_palette();
    return 1;
 }
 
@@ -510,7 +596,7 @@ void mwDisplay::proc_display_change(void)
    mwB.rebuild_bitmaps();
    save_config();
    //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
-   window_title();
+   set_window_title();
 
 }
 
@@ -568,5 +654,26 @@ void mwDisplay::proc_display_change_fromfs(void)
    al_set_window_position(display, disp_x_wind, disp_y_wind);
    proc_display_change();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -25,6 +25,22 @@ class mwGameMovesArray
    void proc_player_active_game_move(int x);
    void proc_player_inactive_game_move(int x);
 
+
+
+
+   //char* cmtos(int cm);
+   void save_gm_txt(char *sfname);
+   void save_gm_gm(char *sfname);
+   void save_gm();
+   void blind_save_game_moves(int d);
+   int load_gm(const char *sfname);
+
+
+
+
+
+
+
 };
 extern mwGameMovesArray mwGMA;
 

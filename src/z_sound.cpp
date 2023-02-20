@@ -3,8 +3,8 @@
 #include "z_sound.h"
 #include "mwProgramState.h"
 #include "z_config.h"
-#include "z_fnx.h"
-
+//
+#include "mwInput.h"
 
 
 
@@ -33,14 +33,14 @@ void load_sound() // for normal loading of sound driver and samples
    {
       if(!al_install_audio())
       {
-         m_err("Failed to initialize audio.\n");
+         mI.m_err("Failed to initialize audio.\n");
          err = 1;
       }
       //else printf("init audio\n");
 
       if ((!err) && (!al_init_acodec_addon()))
       {
-         m_err("Failed to initialize audio codecs.\n");
+         mI.m_err("Failed to initialize audio codecs.\n");
          err = 1;
       }
       //else printf("init audio codecs\n");
@@ -53,21 +53,21 @@ void load_sound() // for normal loading of sound driver and samples
       else
       {
          voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
-         if (voice == NULL) m_err("Failed to create voice.\n");
+         if (voice == NULL) mI.m_err("Failed to create voice.\n");
          al_set_default_voice(voice);
 
          mn_mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
-         if (mn_mixer == NULL) m_err("Failed to create mn_mixer\n");
+         if (mn_mixer == NULL) mI.m_err("Failed to create mn_mixer\n");
 
          se_mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
-         if (se_mixer == NULL) m_err("Failed to create se_mixer\n");
+         if (se_mixer == NULL) mI.m_err("Failed to create se_mixer\n");
 
          st_mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
-         if (st_mixer == NULL) m_err("Failed to create st_mixer\n");
+         if (st_mixer == NULL) mI.m_err("Failed to create st_mixer\n");
 
-         if (!al_attach_mixer_to_voice(mn_mixer, voice)) m_err("Failed attaching mn_mixer\n");
-         if (!al_attach_mixer_to_mixer(se_mixer, mn_mixer)) m_err("Failed attaching se_mixer\n");
-         if (!al_attach_mixer_to_mixer(st_mixer, mn_mixer)) m_err("Failed attaching st_mixer\n");
+         if (!al_attach_mixer_to_voice(mn_mixer, voice)) mI.m_err("Failed attaching mn_mixer\n");
+         if (!al_attach_mixer_to_mixer(se_mixer, mn_mixer)) mI.m_err("Failed attaching se_mixer\n");
+         if (!al_attach_mixer_to_mixer(st_mixer, mn_mixer)) mI.m_err("Failed attaching st_mixer\n");
 
          al_set_default_mixer(se_mixer);
          al_reserve_samples(20);
@@ -82,10 +82,10 @@ void load_sound() // for normal loading of sound driver and samples
          al_attach_sample_instance_to_mixer(sid_hiss, se_mixer);
 
 //         pm_theme_stream = al_load_audio_stream("snd/pm.mp3", 8, 1024);
-//         if (pm_theme_stream == NULL) m_err("Error loading snd/pm.xm\n");
+//         if (pm_theme_stream == NULL) mI.m_err("Error loading snd/pm.xm\n");
 
          pm_theme_stream = al_load_audio_stream("snd/pm.wav", 8, 1024);
-         if (pm_theme_stream == NULL) m_err("Error loading snd/pm.wav\n");
+         if (pm_theme_stream == NULL) mI.m_err("Error loading snd/pm.wav\n");
 
          al_set_audio_stream_playmode(pm_theme_stream, ALLEGRO_PLAYMODE_LOOP);
          al_set_audio_stream_playing(pm_theme_stream, 0);

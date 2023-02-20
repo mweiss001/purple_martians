@@ -3,11 +3,11 @@
 #include "pm.h"
 #include "z_player.h"
 #include "n_netgame.h"
-#include "z_lift.h"
+#include "mwLift.h"
 #include "mwPMEvent.h"
 #include "z_item.h"
 #include "z_enemy.h"
-#include "z_level.h"
+#include "mwLevel.h"
 #include "mwShots.h"
 
 
@@ -45,9 +45,9 @@ void game_vars_to_state(char * b)
    offset += sz; sz = sizeof(Ei);          memcpy(b+offset, Ei,       sz);
    offset += sz; sz = sizeof(Ef);          memcpy(b+offset, Ef,       sz);
    offset += sz; sz = sizeof(item);        memcpy(b+offset, item,     sz);
-   offset += sz; sz = sizeof(itemf);      memcpy(b+offset, itemf,   sz);
-   offset += sz; sz = sizeof(lifts);       memcpy(b+offset, lifts,    sz);
-   offset += sz; sz = sizeof(l);           memcpy(b+offset, l,        sz);
+   offset += sz; sz = sizeof(itemf);       memcpy(b+offset, itemf,    sz);
+   offset += sz; sz = sizeof(Lift.cur);    memcpy(b+offset, Lift.cur, sz);
+   offset += sz; sz = sizeof(mLevel.l);    memcpy(b+offset, mLevel.l, sz);
    offset += sz; sz = sizeof(mwS.p);       memcpy(b+offset, mwS.p,    sz);
    offset += sz; sz = sizeof(mwS.e);       memcpy(b+offset, mwS.e,    sz);
    offset += sz; sz = sizeof(mwPME.event); memcpy(b+offset, mwPME.event, sz);
@@ -60,9 +60,9 @@ void state_to_game_vars(char * b)
    sz = sizeof(Ei);          memcpy(Ei,          b+offset, sz); offset += sz;
    sz = sizeof(Ef);          memcpy(Ef,          b+offset, sz); offset += sz;
    sz = sizeof(item);        memcpy(item,        b+offset, sz); offset += sz;
-   sz = sizeof(itemf);      memcpy(itemf,      b+offset, sz); offset += sz;
-   sz = sizeof(lifts);       memcpy(lifts,       b+offset, sz); offset += sz;
-   sz = sizeof(l);           memcpy(l,           b+offset, sz); offset += sz;
+   sz = sizeof(itemf);       memcpy(itemf,       b+offset, sz); offset += sz;
+   sz = sizeof(Lift.cur);    memcpy(Lift.cur,    b+offset, sz); offset += sz;
+   sz = sizeof(mLevel.l);    memcpy(mLevel.l,    b+offset, sz); offset += sz;
    sz = sizeof(mwS.p);       memcpy(mwS.p,       b+offset, sz); offset += sz;
    sz = sizeof(mwS.e);       memcpy(mwS.e,       b+offset, sz); offset += sz;
    sz = sizeof(mwPME.event); memcpy(mwPME.event, b+offset, sz); offset += sz;

@@ -189,7 +189,6 @@ struct player1 // not synced between server and client
 
 };
 
-
 void set_player_start_pos(int p, int cont);
 void proc_player_health(int p);
 void proc_player_xy_move_test(int p);
@@ -214,6 +213,5 @@ void get_players_shape(int p);
 int is_player_color_used(int color);
 void init_player(int p, int t);
 void fill_player_tile(void);
-
 
 #endif // z_player_H

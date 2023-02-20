@@ -13,7 +13,7 @@ class mwEventQueue
    int program_update_1s;
    int menu_update;
 
-
+   void set_speed(void);
 
    void proc_events(ALLEGRO_EVENT ev);
    void proc_event_queue(void);

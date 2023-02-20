@@ -6,7 +6,7 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "z_lift.h"
+#include "mwLift.h"
 #include "mwWidgets.h"
 #include "mwColor.h"
 #include "mwPMEvent.h"
@@ -15,11 +15,8 @@
 #include "z_menu.h"
 #include "z_item.h"
 #include "z_enemy.h"
-#include "z_fnx.h"
 #include "z_screen.h"
-
-
-
+#include "z_player.h"
 
 
 /*
@@ -36,6 +33,32 @@ b4:[00000000 00000000 00000000 00000000 ]
 af:'00001000 00000000 00000000 00000000 '
 
 */
+
+
+
+
+
+
+
+
+void chop_first_x_char(char *str, int n)
+{
+   char tmp[200];
+   for(int x=n; x < (signed int)strlen(str)+1; x++)
+      tmp[x-n] = str[x]; // chop first n
+   strcpy(str, tmp);
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 int exit_level_editor_dialog(void)
@@ -556,8 +579,8 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
 
    if (obj_type == 4) // lift
    {
-      original_dx = lift_steps[lift][step].x;
-      original_dy = lift_steps[lift][step].y;
+      original_dx = Lift.stp[lift][step].x;
+      original_dy = Lift.stp[lift][step].y;
    }
 
    while(!quit)
@@ -638,9 +661,9 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          break;
          case 4: // show lift
          {
-            lift_steps[lift][step].x = mwWM.gx*20;
-            lift_steps[lift][step].y = mwWM.gy*20;
-            set_lift_to_step(lift, step);   // set current step in current lift
+            Lift.stp[lift][step].x = mwWM.gx*20;
+            Lift.stp[lift][step].y = mwWM.gy*20;
+            Lift.set_lift_to_step(lift, step);   // set current step in current lift
          }
          break;
          case 99: // move pod extended
@@ -762,13 +785,21 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       }
       if (obj_type == 4)
       {
-         lift_steps[lift][step].x = original_dx;
-         lift_steps[lift][step].y = original_dy;
+         Lift.stp[lift][step].x = original_dx;
+         Lift.stp[lift][step].y = original_dy;
       }
    }
    return retval;
 }
 
+
+
+int round20(int val) // pass it an int and it will round it to the nearest 20
+{
+   int m = val%20;
+   if (m<10) return (val - m);
+   else return val + (20-m);
+}
 
 
 
@@ -797,9 +828,9 @@ int get_trigger_item(int obj_type, int sub_type, int num )
    }
    if (obj_type == 4)
    {
-      int pms = lift_find_previous_move_step(lift, step);
-      x2 = lift_steps[lift][pms].x + lift_steps[lift][pms].w / 2;
-      y2 = lift_steps[lift][pms].y + lift_steps[lift][pms].h / 2;
+      int pms = Lift.lift_find_previous_move_step(lift, step);
+      x2 = Lift.stp[lift][pms].x + Lift.stp[lift][pms].w / 2;
+      y2 = Lift.stp[lift][pms].y + Lift.stp[lift][pms].h / 2;
    }
 
    while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
@@ -988,3 +1019,381 @@ void scale_bouncer_and_cannon_speed(int e)
 
    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int mw_file_select(const char * title, char * fn, const char * ext, int save)
+{
+   // no matter what I do I cannot start the native file chooser with the file I pass to it selected
+   // i have tried everything I can think of
+   // the filename and path is absolute, but still shows up blank
+
+   int mode = 0; // default
+   if (save) mode = ALLEGRO_FILECHOOSER_SAVE;
+
+   char wext[100];
+   sprintf(wext, "*%s", ext);
+
+
+   //printf("fn:%s\n", fn);
+   // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
+   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fn);
+   sprintf(fn, "%s", al_get_fs_entry_name(FS_fname));
+   //printf("FS_fn:'%s'  title:'%s' ext:'%s'  mode:%d\n", fn, title, wext, mode);
+   ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fn, title, wext, mode);
+   if (afc==NULL) printf("failed to create native filechooser dialog\n");
+
+   if (al_show_native_file_dialog(display, afc))
+   {
+      if (al_get_native_file_dialog_count(afc) == 1)
+      {
+         const char * r = al_get_native_file_dialog_path(afc, 0);
+         sprintf(fn, "%s", r);
+
+         //enforce extension
+         if (save)
+         {
+            printf("save file name and path is:%s\n", fn);
+            ALLEGRO_PATH *tp = al_create_path(fn);
+            const char * pfn = al_get_path_filename(tp);
+            if (pfn == NULL)
+            {
+               printf("filename is NULL??\n");
+               al_destroy_native_file_dialog(afc);
+               return 0;
+            }
+            printf("save file name is:%s\n", pfn);
+
+
+            const char * pfe = al_get_path_extension(tp);
+            if (pfe == NULL)
+            {
+               printf("extension is NULL\n");
+               al_set_path_extension(tp, ext);
+            }
+
+            if (strcmp(ext, pfe) != 0)
+            {
+               printf("extensions do not match [%s] [%s] \n", pfe, ext);
+               al_set_path_extension(tp, ext);
+            }
+
+            printf("extension is:%s\n", pfe);
+            sprintf(fn, "%s", al_path_cstr(tp, ALLEGRO_NATIVE_PATH_SEP));
+            // printf("final path and filename is:%s\n", fn);
+
+         }
+
+         al_destroy_native_file_dialog(afc);
+         return 1;
+      }
+   }
+   //else printf("file select cancelled\n" );
+   al_destroy_native_file_dialog(afc);
+   return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//----------------------------------------------------------------------------
+// these all used to be in z_fnx.cpp and have been gone through on 20230220
+//----------------------------------------------------------------------------
+
+
+
+// used in pod when moving
+// used in bouncer always
+// used in cannon when player not in prox range
+// used in level editor scale_bouncer_and_cannon_speed(int e)
+void set_enemy_rot_from_incs(int e)
+{
+   Ef[e][14] = atan2(Ef[e][3], Ef[e][2]) - ALLEGRO_PI/2;
+}
+
+// used in cannon when player in prox range
+// used in podzilla and vinepod
+void set_enemy_rot_from_player(int e, int p)
+{
+   float xlen = players[p].x - Ef[e][0];
+   float ylen = players[p].y - Ef[e][1];
+   Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI/2;
+}
+
+
+// used once in bouncer cannon common
+void seek_set_xyinc(int e)
+{
+   int p = find_closest_player(e);
+   float xlen = players[p].x - Ef[e][0];
+   float ylen = players[p].y - Ef[e][1];
+   float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
+   float speed = Ef[e][5];                              // speed
+   float scaler = hy_dist / speed;     // get scaler
+   Ef[e][2] = xlen / scaler;         // calc xinc
+   Ef[e][3] = ylen / scaler;         // calc 7inc
+}
+
+// used by flapper y seek
+// used by trakbot falling seek
+// used by podzilla shoot
+// used by podzilla to set rot when extended
+// used by vinepod shoot
+// used by vinepod to set rot when extended
+// used by walker_archwagon_common in follow mode
+// used by walker_archwagon_common to face left or right when can't move
+// used by bouncer cannon common set_seek
+int find_closest_player(int e)
+{
+   int closest_player = 0; // defaults to zero (will always return a valid player)
+   float hd = 99999;
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active) && (!players[p].paused))
+      {
+         float xlen = players[p].x - Ef[e][0];
+         float ylen = players[p].y - Ef[e][1];
+         float h = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
+         if (h < hd)
+         {
+             hd = h;
+             closest_player = p;
+         }
+      }
+   return closest_player;
+}
+
+
+// used only by flapper
+int find_closest_player_flapper(int e)
+{
+   int dir = Ei[e][2];
+
+   float prox = Ei[e][17];
+   float d[NUM_PLAYERS]; // array of distances for each player
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      d[p] = -1;
+      if ((players[p].active) && (!players[p].paused))
+      {
+         float xlen = players[p].x - Ef[e][0];            // get x distance
+         float ylen = players[p].y - Ef[e][1];            // get y distance
+         float dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
+         float angle = atan2(ylen, xlen) + ALLEGRO_PI/2;  // get raw angle and add 90 deg in radians
+         float da = (angle / (ALLEGRO_PI*2)) * 360;       // convert from radians to degrees
+         if (da < 0) da += 360;                           // add 360 if negative
+
+         if ((dir == 1) && (da >  45) && (da < 135) && (dist < prox)) d[p] = dist; // right
+         if ((dir == 0) && (da > 225) && (da < 315) && (dist < prox)) d[p] = dist; // left
+
+         // printf("angle:%d\n", ngl);
+/*
+                       -64
+                        |
+             -127       |
+           128/-128 ----+---- 0
+              127       |
+                        |
+                       +64
+        only shoots at players in a 90 degree pie slice
+        45  to 135 for +xinc (-32 to +32)
+        225 to 315 for -xinc (96 to -96)
+*/
+
+      }
+   }
+
+   float closest_val = 9999;
+   int closest_p = -1;
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      if ((d[p] != -1) && (d[p] < closest_val))
+      {
+         closest_val = d[p];
+         closest_p = p;
+      }
+   }
+   if (closest_val == 9999) return -1;    // no player in range
+   else return closest_p;
+
+}
+
+
+//           normal cartesian
+//              I    x+  Y+        II | I
+//             II    x-  Y+       ----+----
+//             III   x-  Y-       III | IV
+//             IV    x+  Y-
+//
+//             screen
+//              I    x+  Y-        II | I
+//             II    x-  Y-       ----+----
+//             III   x-  Y+       III | IV
+//             IV    x+  Y+
+// used by trakbot only
+
+
+
+
+//int find_closest_player_quad(int e, int quad, int prox)
+int find_closest_player_trakbot(int e)
+{
+   int quad = 0;
+   float prox = Ei[e][17];
+   switch (Ei[e][5])
+   {
+      case 0: case 5: quad = 1; break; // floor right, lwall up
+      case 1: case 4: quad = 2; break; // rwall up floor left
+      case 2: case 7: quad = 3; break; // ceil left, rwall down
+      case 3: case 6: quad = 4; break; // lwall down, ceil right
+   }
+
+   int closest_p = -1;    // return -1 if no player in range
+   float closest_val = 3000;
+   float d[NUM_PLAYERS];
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      d[p] = -1;
+      if ((players[p].active) && (!players[p].paused))
+      {
+         float xlen = players[p].x - Ef[e][0];            // get x distance
+         float ylen = players[p].y - Ef[e][1];            // get y distance
+         float dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
+         float angle = atan2(ylen, xlen) + ALLEGRO_PI/2;  // get raw angle and add 90 deg in radians
+         float da = (angle / (ALLEGRO_PI*2)) * 360;       // convert from radians to degrees
+         if (da < 0) da += 360;                           // add 360 if negative
+
+         // printf("angle:%f   da:%f\n", angle, da);
+
+         if ((quad == 1) && (da>  0) && (da< 90)) d[p] = dist;
+         if ((quad == 4) && (da> 90) && (da<180)) d[p] = dist;
+         if ((quad == 3) && (da>180) && (da<270)) d[p] = dist;
+         if ((quad == 2) && (da>270) && (da<359)) d[p] = dist;
+      }
+      if (d[p] > prox) d[p] = -1; // add, if distance is within range
+   }
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((d[p] != -1) && (d[p] < closest_val))
+      {
+         closest_val = d[p];
+         closest_p = p;
+      }
+   if (closest_val == 3000) return -1; // no player in range
+   else return closest_p;
+}
+
+
+// finds closest player...if closest player is not within dist, returns -1
+// used only by cannon
+int find_closest_player_cannon(int e)
+{
+   float prox = Ei[e][17];
+   int closest_player = -1; // default if no player within distance
+   float hd = 99999;
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active) && (!players[p].paused))
+      {
+         float xlen = players[p].x - Ef[e][0];
+         float ylen = players[p].y - Ef[e][1];
+         float h = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
+         if (h < hd)
+         {
+             hd = h;
+             closest_player = p;
+         }
+      }
+   if (hd < prox) return closest_player;
+   else return -1;
+}
+
+
+float deg_to_rad(float deg)
+{
+   return (deg/360) * ALLEGRO_PI*2;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -9,8 +9,7 @@ extern char m_serveraddress[256];
 extern int TCP;
 extern int zlib_cmp;
 
-
-#define STATE_SIZE 112928
+#define STATE_SIZE 112128
 
 // server's copies of client states
 extern char srv_client_state[8][2][STATE_SIZE];

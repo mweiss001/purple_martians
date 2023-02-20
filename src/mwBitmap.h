@@ -8,6 +8,16 @@ class mwBitmap
    void create_bitmaps(void);
    void rebuild_bitmaps(void);
 
+   int load_tiles(void);
+   void save_sprit(void);
+   void load_sprit(void);
+
+
+   void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle);
+
+
+
+
    ALLEGRO_BITMAP *tilemap;
    ALLEGRO_BITMAP *btilemap;
    ALLEGRO_BITMAP *ptilemap;

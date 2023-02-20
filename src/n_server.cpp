@@ -12,11 +12,11 @@
 #include "mwGameMovesArray.h"
 #include "mwProgramState.h"
 #include "z_menu.h"
-#include "z_level.h"
-#include "z_fnx.h"
+#include "mwLevel.h"
+
 #include "z_loop.h"
 #include "mwShots.h"
-
+#include "mwInput.h"
 
 
 // these are never referenced outside of this file
@@ -36,7 +36,7 @@ int ServerInitNetwork() // Initialize the server
    {
       sprintf(msg, "Error: failed to initialize network\n");
       printf("%s", msg);
-      m_err(msg);
+      mI.m_err(msg);
       if (LOG_NET) add_log_entry2(10, 0, msg);
       return -1;
    }
@@ -47,7 +47,7 @@ int ServerInitNetwork() // Initialize the server
       {
          sprintf(msg, "Error: failed to open listening connection\n");
          printf("%s", msg);
-         m_err(msg);
+         mI.m_err(msg);
          if (LOG_NET) add_log_entry2(10, 0, msg);
          return -1;
       }
@@ -55,7 +55,7 @@ int ServerInitNetwork() // Initialize the server
       {
          sprintf(msg, "Error: cannot listen\n");
          printf("%s", msg);
-         m_err(msg);
+         mI.m_err(msg);
          if (LOG_NET) add_log_entry2(10, 0, msg);
          return -1;
       }
@@ -68,7 +68,7 @@ int ServerInitNetwork() // Initialize the server
       {
          sprintf(msg, "Error: failed to open listening channel\n");
          printf("%s", msg);
-         m_err(msg);
+         mI.m_err(msg);
          if (LOG_NET) add_log_entry2(10, 0, msg);
          return -1;
       }
@@ -76,7 +76,7 @@ int ServerInitNetwork() // Initialize the server
       {
          sprintf(msg, "Error: failed to assign target to listening channel\n");
          printf("%s", msg);
-         m_err(msg);
+         mI.m_err(msg);
          if (LOG_NET) add_log_entry2(10, 0, msg);
          net_closechannel(ListenChannel);
          return -1;
@@ -308,7 +308,7 @@ int server_init(void)
       add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       printf("%s\n", msg);
 
-      sprintf(msg, "Level:              [%d]", play_level);
+      sprintf(msg, "Level:              [%d]", mLevel.play_level);
       add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       printf("%s\n", msg);
    }
@@ -317,7 +317,7 @@ int server_init(void)
    {
       sprintf(msg, "Could not find internet driver!");
       printf("\n%s\n\n", msg);
-      m_err(msg);
+      mI.m_err(msg);
       if (LOG_NET) add_log_entry2(10, 0, msg);
       return 0;
    }
@@ -653,7 +653,7 @@ void server_proc_cjon_packet(int who)
       mwGMA.add_game_move(mwPS.frame_num, 3, cn, color); // add a game move type 3 to mark client started join
 
       Packet("sjon"); // reply with sjon
-      PacketPut2ByteInt(play_level);
+      PacketPut2ByteInt(mLevel.play_level);
       PacketPut4ByteInt(mwPS.frame_num);
       PacketPut1ByteInt(cn);
       PacketPut1ByteInt(color);
@@ -666,7 +666,7 @@ void server_proc_cjon_packet(int who)
       {
          sprintf(msg,"Server replied with join invitation:");
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Level:[%d]", play_level);
+         sprintf(msg,"Level:[%d]", mLevel.play_level);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Player Number:[%d]", cn);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");

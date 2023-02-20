@@ -52,6 +52,12 @@ class mwWindowManager
    int get_max_layer(void);
    int cycle_windows(int draw_only);
 
+
+   void save_mW(void);
+   void load_mW(void);
+
+
+
 };
 extern mwWindowManager mwWM;
 #endif

@@ -7,7 +7,7 @@
 #include "mwTally.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "z_lift.h"
+#include "mwLift.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwDisplay.h"
@@ -15,12 +15,14 @@
 #include "z_menu.h"
 #include "z_item.h"
 #include "z_enemy.h"
-#include "z_level.h"
-#include "z_fnx.h"
+#include "mwLevel.h"
+
 #include "z_screen.h"
 #include "z_screen_overlay.h"
 #include "mwShots.h"
 #include "z_solid.h"
+#include "z_item_door.h"
+
 
 struct player players[NUM_PLAYERS];
 struct player1 players1[NUM_PLAYERS];
@@ -31,12 +33,12 @@ void set_player_start_pos(int p, int cont)
 {
    //printf("set player:%d start pos\n", p);
    int found = 0;
-   if (warp_level_location)
+   if (mLevel.warp_level_location)
    {
       for (int i=0; i<500; i++)
          if (item[i][0] == 12)
          {
-            if (item[i][8] == warp_level_location)
+            if (item[i][8] == mLevel.warp_level_location)
             {
                found = 1;
                //printf("Found warp level location %d\n", warp_level_location);
@@ -44,7 +46,7 @@ void set_player_start_pos(int p, int cont)
                players[p].y = itemf[i][1] + 20;
             }
          }
-      warp_level_location = 0;
+      mLevel.warp_level_location = 0;
    }
 
    if (found == 0)
@@ -314,8 +316,8 @@ void proc_player_xy_move(int p)
    if (players[p].player_ride) // if player is riding lift
    {
       int d = players[p].player_ride - 32; // lift number
-      if ((lifts[d].xinc > 0) && (!is_right_solid(x, y, 1, 1))) players[p].x  += lifts[d].xinc; // moving right
-      if ((lifts[d].xinc < 0) && (!is_left_solid (x, y, 1, 1))) players[p].x  += lifts[d].xinc; // moving left
+      if ((Lift.cur[d].xinc > 0) && (!is_right_solid(x, y, 1, 1))) players[p].x  += Lift.cur[d].xinc; // moving right
+      if ((Lift.cur[d].xinc < 0) && (!is_left_solid (x, y, 1, 1))) players[p].x  += Lift.cur[d].xinc; // moving left
    }
 
    if (int a = is_left_solid(x, y, 1, 1))
@@ -325,8 +327,8 @@ void proc_player_xy_move(int p)
          if (!is_right_solid(x, y, 0, 1))
          {
             int l = a-32; // lift that is pushing
-            players[p].x = lifts[l].x + lifts[l].w + 1; // snap to lift pos + width
-            players[p].right_xinc = lifts[l].xinc;     // set players xinc from lift
+            players[p].x = Lift.cur[l].x + Lift.cur[l].w + 1; // snap to lift pos + width
+            players[p].right_xinc = Lift.cur[l].xinc;     // set players xinc from lift
          }
          else // player is getting squished
          {
@@ -349,8 +351,8 @@ void proc_player_xy_move(int p)
          if (!is_left_solid(x, y, 0, 1))
          {
             int l = a-32; // lift that is pushing
-            players[p].x = lifts[l].x - 20;            // snap to lift pos - 20
-            players[p].left_xinc = lifts[a-32].xinc;  // set players xinc from lift
+            players[p].x = Lift.cur[l].x - 20;            // snap to lift pos - 20
+            players[p].left_xinc = Lift.cur[a-32].xinc;  // set players xinc from lift
          }
          else // player is getting squished
          {
@@ -374,14 +376,14 @@ void proc_player_xy_move(int p)
 
    if (a > 31)
    {
-      if (lifts[a-32].yinc > 0)              // is lift going down
+      if (Lift.cur[a-32].yinc > 0)              // is lift going down
       {
          if (is_down_solid(x, y, 0, 1)) players[p].player_ride = 0;  // check for block below ignoring lifts
          else players[p].player_ride = a;
       }
-      if (lifts[a-32].yinc <= 0)             // is lift going up or steady
+      if (Lift.cur[a-32].yinc <= 0)             // is lift going up or steady
       {
-          int offset = lifts[a-32].y - y;   // to prevent lift from picking up early
+          int offset = Lift.cur[a-32].y - y;   // to prevent lift from picking up early
           if (offset < 21) players[p].player_ride = a;
       }
    }
@@ -398,7 +400,7 @@ void proc_player_xy_move(int p)
       int y = players[p].y;
 
       // if moving up and solid block above
-      if ((lifts[d].yinc < 0) && (is_up_solid(x, y, 0, 1) == 1))
+      if ((Lift.cur[d].yinc < 0) && (is_up_solid(x, y, 0, 1) == 1))
       {
          players[p].player_ride = 0;  // player knocked off lift due to collision above
          players[p].health -= 1;      // take some damage
@@ -414,17 +416,17 @@ void proc_player_xy_move(int p)
       }
 
       if (players[p].player_ride)        // if still riding
-         players[p].y = lifts[d].y - 20; // align with fy
+         players[p].y = Lift.cur[d].y - 20; // align with fy
 
       // moving down
-      if (lifts[d].yinc > 0)
+      if (Lift.cur[d].yinc > 0)
       {
          if (is_down_solid(x, y, 0, 1))             // no lift check
          {
             players[p].player_ride = 0;             // ride over
             players[p].y = y - (y % 20);            // align with floor
          }
-         else players[p].y = lifts[d].y - 20;       // align with fy
+         else players[p].y = Lift.cur[d].y - 20;       // align with fy
       }
 
 
@@ -475,7 +477,7 @@ void proc_player_xy_move(int p)
 
             // check for collision with lift above if lift is moving down
             int a = is_up_solid(x, y, 1, 1);
-            if ((a > 31) && (lifts[a-32].yinc > 0))
+            if ((a > 31) && (Lift.cur[a-32].yinc > 0))
             {
                // take some damage
                players[p].health -= 1;
@@ -505,6 +507,7 @@ void proc_player_xy_move(int p)
 void proc_player_paused(int p)
 {
    players[p].player_ride = 0;
+   if (players[p].paused_type == 2) proc_player_door_move(p);
    if (players[p].paused_type == 1) // frozen after player dies, until the timer runs out
    {
       players[p].carry_item = 0;
@@ -514,15 +517,12 @@ void proc_player_paused(int p)
          for (int i=0; i<500; i++)
             if ((item[i][0] == 99) && (item[i][6] == 3)) // lit bomb with remote detonator
             {
-               // change back to regular bomb
-               item[i][0] = 8;
-
+               item[i][0] = 8; // change back to regular bomb
                // set bomb to explode!
                //item[i][6] = 2; // mode 2; explosion
                //item[i][8] = item[i][9] = 20; // explosion timer
             }
       }
-
       if (--players[p].paused > 0)
       {
          float sa = .025;
@@ -535,7 +535,6 @@ void proc_player_paused(int p)
 
          players[p].draw_rot += ra; // rotate player
       }
-
       else // frozen done !!
       {
          players[p].paused = 0;
@@ -549,113 +548,7 @@ void proc_player_paused(int p)
          draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
       }
    }
-   if (players[p].paused_type == 2)// paused type 2: door move
-   {
-      int x = players[p].door_item;
-      int ddrns = players[p].door_draw_rot_num_steps;
-      float amount_to_shrink = 0.5;
-      float sa = amount_to_shrink / ddrns;  // shrink and grow player inc
-      int as = 7; // door open/close animation speed
-
-      if (players[p].paused_mode == 1) // mode 1: enter door
-      {
-         players[p].paused_mode_count--;
-         if (players[p].paused_mode_count)
-         {
-            players[p].draw_scale -= sa; // shrink player
-            players[p].draw_rot += players[p].door_draw_rot_inc; // rotate player
-
-            // open door
-            float ratio = 1 - (float) players[p].paused_mode_count / ddrns;
-            float shape_shift = ratio * as;
-
-            if (item[x][13] == 448)
-               item[x][1] = 448 + (int)shape_shift;
-//            printf("ratio:%f scaled_ratio%f int_sr:%d shape:%d \n", ratio, shape_shift, int(shape_shift), item[x][1] );
-
-         }
-         else // next mode
-         {
-            if (item[x][13] == 448) item[x][1] = 448; // restore door shape
-            players[p].paused_mode = 2;
-            players[p].paused_mode_count = players[p].door_num_steps;
-            players[p].xinc = players[p].door_xinc;
-            players[p].yinc = players[p].door_yinc;
-            players[p].draw_rot = players[p].door_draw_rot;
-         }
-      }
-
-      if (players[p].paused_mode == 2) // mode 2: player move
-      {
-         players[p].paused_mode_count--;
-         if (players[p].paused_mode_count)
-         {
-            players[p].x -= players[p].xinc;
-            players[p].y -= players[p].yinc;
-         }
-         else // mode 2 done
-         {
-            players[p].paused_mode = 3;
-            players[p].paused_mode_count = ddrns;
-
-            players[p].xinc=0;
-            players[p].yinc=0;
-
-
-            // snap to dest...
-            if (item[x][8] == 0) // regular dest
-            {
-               players[p].x  = item[x][6] * 20;
-               players[p].y  = item[x][7] * 20;
-            }
-            if (item[x][8] == 1) // linked item dest
-            {
-               int li = item[x][9]; // linked item number
-               players[p].x  = itemf[li][0];
-               players[p].y  = itemf[li][1];
-               // set destination key held to prevent immediate retriggering
-               item[li][10] = mwPS.frame_num;
-            }
-          }
-      } // end of mode 2
-
-      if (players[p].paused_mode == 3) // mode 3: exit
-      {
-         players[p].paused_mode_count--;
-         if (players[p].paused_mode_count)
-         {
-            players[p].draw_scale += sa;                         // un-shrink player
-            players[p].draw_rot -= players[p].door_draw_rot_inc; // un-rotate player
-            // close door (only if linked item exit)
-            if (item[x][8] == 1)    // if linked item exit
-            {
-               float ratio = 1 - (float) players[p].paused_mode_count / ddrns;
-               float shape_shift = ratio * 6 ;
-               int li = item[x][9]; // linked item number
-               if (item[li][13] == 448)
-                  item[li][1] = 454 - (int)shape_shift;
-//                 printf("ratio:%f scaled_ratio%f int_sr:%d shape:%d \n", ratio, shape_shift, int(shape_shift), item[li][1] );
-
-            }
-         }
-         else // next mode (done)
-         {
-            // if linked item exit
-            if (item[x][8] == 1) // liked item dest
-            {
-               int li = item[x][9]; // linked item number
-               if (item[li][13] == 448)
-                  item[li][1] = 448;   // restore door shape
-               item[li][10] = mwPS.frame_num;   // key hold off
-
-            }
-            players[p].paused = 0;  // the entire thing is done
-         }
-      }
-      proc_player_carry(p);
-   } // end of door move
-}  // end of if player paused
-
+}
 
 void reset_player_scale_and_rot(int p)
 {
@@ -688,18 +581,16 @@ void proc_player_stuck_in_blocks(int p)
 void proc_player_riding_rocket(int p)
 {
    int c = players[p].carry_item-1;
-   int rot_inc = item[c][6]*2;
-   if (players[p].left)  item[c][10]-=rot_inc;
-   if (players[p].right) item[c][10]+=rot_inc;
+   float rot_inc = item[c][6];
+   if (players[p].left)  item[c][10] -= rot_inc;
+   if (players[p].right) item[c][10] += rot_inc;
 
-   players[p].left_xinc = players[p].right_xinc = 0;
-
-   players[p].x = itemf[c][0];
-   players[p].y = itemf[c][1];
-
+   players[p].x    = itemf[c][0];  // set the player's position and incs the same as the rocket
+   players[p].y    = itemf[c][1];
    players[p].xinc = itemf[c][2];
    players[p].yinc = itemf[c][3];
 
+   players[p].left_xinc = players[p].right_xinc = 0;
    players[p].draw_rot = (float)item[c][10] / 1000;
    players[p].draw_scale = 0.5;
 }
@@ -834,7 +725,7 @@ int is_player_within_ladder_reach(int p)
    for (int x=bx1; x<=bx2; x++)
       for (int y=by1; y<=by2; y++)
       {
-         if (l[x][y] & PM_BTILE_LADDER_MOVE) return 1;
+         if (mLevel.l[x][y] & PM_BTILE_LADDER_MOVE) return 1;
       }
    return 0;
 }
@@ -881,7 +772,7 @@ int is_player_within_rope_reach(int p)
    if (good_height)
    for (int x=bx1; x<=bx2; x++)
    {
-      if (l[x][by] & PM_BTILE_ROPE_MOVE) return 1;
+      if (mLevel.l[x][by] & PM_BTILE_ROPE_MOVE) return 1;
    }
    return 0;
 }
@@ -1370,7 +1261,7 @@ void get_players_shape(int p)
    // if player riding lift animate with player's xpos relative to lift
    if (players[p].player_ride)
    {
-      int rx = 20 + (int) players[p].x - lifts[players[p].player_ride-32].x;
+      int rx = 20 + (int) players[p].x - Lift.cur[players[p].player_ride-32].x;
       pos = (rx / 4) % 5;  // try 5 for now
    }
 
@@ -1592,7 +1483,7 @@ void fill_player_tile(void)
    if (0) // load from disk
    {
       mwB.ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
-      if (!mwB.ptilemap) m_err((char*)"Can't load tiles from bitmaps/player_tiles.bmp");
+      if (!mwB.ptilemap) mI.m_err((char*)"Can't load tiles from bitmaps/player_tiles.bmp");
       else
       {
          //printf("load good\n");
@@ -1691,7 +1582,7 @@ void fill_player_tile(void)
           for (b=0; b<24; b++)
              al_draw_bitmap(mwB.player_tile[a][b], b*20, a*20, 0);
        al_flip_display();
-       tsw();
+       mI.tsw();
 
        al_rest(10);
 
@@ -1713,6 +1604,6 @@ void fill_player_tile(void)
 
        al_save_bitmap("bitmaps/player_tiles.bmp", mwB.ptilemap);
 
-       tsw();
+       mI.tsw();
    }
 }

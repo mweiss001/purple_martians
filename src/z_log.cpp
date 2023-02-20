@@ -10,13 +10,19 @@
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "z_menu.h"
+#include "e_fnx.h"
 #include "mwProgramState.h"
-#include "z_level.h"
+#include "mwLevel.h"
+#include "mwHelp.h"
+
+#include "z_menu.h"
+
 
 // ------------------------------------------------
 // ----------------- logging ----------------------
 // ------------------------------------------------
+
+
 
 char log_msg[NUM_LOG_CHAR]; // for logging
 int log_msg_pos = 0;
@@ -283,7 +289,7 @@ void log_ending_stats_server()
 
    add_log_entry_centered_text(10, 0, 76, "", "+", "-");
 
-   sprintf(msg,"level.....................[%d]", play_level);
+   sprintf(msg,"level.....................[%d]", mLevel.play_level);
    add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total frames..............[%d]", mwPS.frame_num);
@@ -356,7 +362,7 @@ void save_log_file(void)
    strncpy(lh, mwPS.local_hostname, 16); // to remove compiler error in case local_hostname is too long
 
    char ph[80];
-   sprintf(ph, "-[%d][%s].txt", play_level, lh );
+   sprintf(ph, "-[%d][%s].txt", mLevel.play_level, lh );
 
    strcat(filename, ph);
 
@@ -923,7 +929,7 @@ int log_file_viewer(int type)
       ly+=4;
       if (mdw_buttont(xa, ly, xb, 16, 0,0,0,0, 0,13,15,0, 1,0,1,0, "Ping Graph"))         log_ping_graph(num_lines);
       ly+=4;
-      if (mdw_buttont(xa, ly, xb, 16, 0,0,0,0, 0,14,15,0, 1,0,1,0, "Help"))               help("Log File Viewer");
+      if (mdw_buttont(xa, ly, xb, 16, 0,0,0,0, 0,14,15,0, 1,0,1,0, "Help"))               mHelp.help("Log File Viewer");
 
       al_flip_display();
 

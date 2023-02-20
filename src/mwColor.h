@@ -4,8 +4,11 @@ class mwColor
 {
    public:
    mwColor(); // constructor
+   void make_palette(void);
+
    void process_flash_color(void);
    void show_palette(void);
+
 
    ALLEGRO_COLOR pc[256];
    int flash_color = 0;

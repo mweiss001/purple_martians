@@ -3,7 +3,7 @@
 #include "mwWindowManager.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
-#include "z_lift.h"
+#include "mwLift.h"
 #include "e_tile_helper.h"
 #include "mwPDE.h"
 #include "mwColor.h"
@@ -14,14 +14,15 @@
 #include "z_menu.h"
 #include "z_item.h"
 #include "z_enemy.h"
-#include "z_level.h"
+#include "mwLevel.h"
 #include "e_edit_selection.h"
 #include "e_editor_main.h"
 #include "e_fnx.h"
 #include "e_group_edit.h"
 #include "e_object_viewer.h"
-#include "z_file.h"
+
 #include "z_screen.h"
+#include "z_item_pmsg.h"
 
 
 mwWindowManager mwWM;
@@ -47,8 +48,8 @@ void mwWindowManager::initialize(int edit_level)
    for (int i=0; i<5; i++)
       for (int j=0; j<20; j++) obj_filter[i][j] = 1;
 
-   if (edit_level) load_level(edit_level, 0, 0); // load passed level
-   else load_level_prompt();                  // prompt for level
+   if (edit_level) mLevel.load_level(edit_level, 0, 0); // load passed level
+   else mLevel.load_level_prompt();                  // prompt for level
 
 
    mPDE.load();
@@ -77,7 +78,7 @@ void mwWindowManager::loop(int edit_level)
 
    if (mwPS.autosave_level_editor_state) save_mW();
    mwPS.level_editor_running = 0;
-   resume_allowed = 0;
+   mLevel.resume_allowed = 0;
    al_hide_mouse_cursor(display);
 }
 
@@ -218,7 +219,7 @@ void mwWindowManager::process_keypress(void)
    if (active == 0)
    {
       int ret = exit_level_editor_dialog();
-      if (ret == 0) save_level(last_level_loaded); // save and exit
+      if (ret == 0) mLevel.save_level(mLevel.last_level_loaded); // save and exit
       if (ret == 2) active = 1; // cancel
    }
 }
@@ -253,7 +254,7 @@ int mwWindowManager::redraw_level_editor_background(void)
       mwD.proc_scale_factor_change();
 
       get_new_background(0);
-      draw_lifts();
+      Lift.draw_lifts();
       draw_items();
       draw_enemies();
 
@@ -643,6 +644,39 @@ int mwWindowManager::cycle_windows(int draw_only)
 
    }
    return mouse_on_window;
+}
+
+
+void mwWindowManager::save_mW(void)
+{
+   FILE *fp = fopen("bitmaps/mW.pm", "wb");
+   if (fp)
+   {
+      fwrite(&mwWM, sizeof(mwWM), 1, fp);
+      fclose(fp);
+   }
+   else printf("error saving mW.pm\n");
+}
+
+void mwWindowManager::load_mW(void)
+{
+   FILE *fp = fopen("bitmaps/mW.pm", "rb");
+   if (fp)
+   {
+      fread(&mwWM, sizeof(mwWM), 1, fp);
+      fclose(fp);
+   }
+   else
+   {
+      printf("error loading mW.pm -- using defaults\n");
+   }
+
+   // delete it...
+
+   char sys_cmd[500];
+   sprintf(sys_cmd, "del bitmaps\\mW.pm");
+   //printf("%s\n",sys_cmd);
+   system(sys_cmd);
 }
 
 

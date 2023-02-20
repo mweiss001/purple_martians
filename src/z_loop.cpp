@@ -16,7 +16,7 @@
 #include "mwDisplay.h"
 #include "mwTimeStamp.h"
 #include "mwFont.h"
-#include "z_lift.h"
+#include "mwLift.h"
 #include "n_client.h"
 #include "n_server.h"
 #include "e_visual_level.h"
@@ -26,14 +26,20 @@
 #include "mwEventQueue.h"
 #include "mwBitmap.h"
 #include "z_menu.h"
+
+#include "mwMenu.h"
+
+
+#include "mwHelp.h"
+
 #include "mwProgramState.h"
 #include "z_item.h"
 #include "z_enemy.h"
-#include "z_level.h"
+#include "mwLevel.h"
 #include "e_editor_main.h"
 #include "z_control.h"
-#include "z_file.h"
-#include "z_fnx.h"
+
+
 #include "z_screen.h"
 #include "z_screen_overlay.h"
 #include "mwShots.h"
@@ -63,7 +69,7 @@ void move_frame(void)
    if (LOG_TMR_move_all) t1 = al_get_time();
    mwS.move_pshots();
    if (LOG_TMR_move_all) t2 = al_get_time();
-   move_lifts(0);
+   Lift.move_lifts(0);
    if (LOG_TMR_move_all) t3 = al_get_time();
    move_players();
    if (LOG_TMR_move_all) t4 = al_get_time();
@@ -118,37 +124,38 @@ void game_menu(void)
 {
    mwPS.old_program_state = 1;
    if (!mwL.splash_screen_done) { mwL.splash_screen(); mwL.splash_screen_done = 1; }
-   if (!resume_allowed) load_level(start_level, 0, 0);
+   if (!mLevel.resume_allowed) mLevel.set_start_level();
    if (mwPS.top_menu_sel < 3) mwPS.top_menu_sel = 3;
    while (mwPS.top_menu_sel != 1)
    {
-      mwPS.top_menu_sel = zmenu(7, mwPS.top_menu_sel, 10);
+//      mwPS.top_menu_sel = zmenu(7, mwPS.top_menu_sel, 10);
+
+      mwPS.top_menu_sel = mMenu.zmenu(mwPS.top_menu_sel, 10);
+
       if  (mwPS.top_menu_sel == 1)  { mwPS.program_state = 0;                                           return; } // exit
-      if  (mwPS.top_menu_sel == 2)  { visual_level_select(); mwPS.top_menu_sel = 3;                             } // visual level select
-      if ((mwPS.top_menu_sel == 4) && (resume_allowed)) { mwPS.new_program_state = 13;                  return; } // resume game
-      if  (mwPS.top_menu_sel == 3)  { mwPS.new_program_state = 10;  mwPS.top_menu_sel = 4;                   return; } // start new game
+      if  (mwPS.top_menu_sel == 2)  { if (visual_level_select()) mwPS.top_menu_sel = 3;                         } // visual level select
+      if ((mwPS.top_menu_sel == 4) && (mLevel.resume_allowed)) { mwPS.new_program_state = 13;           return; } // resume game
+      if  (mwPS.top_menu_sel == 3)  { mwPS.new_program_state = 10;  mwPS.top_menu_sel = 4;              return; } // start new game
       if  (mwPS.top_menu_sel == 5)  { mwPS.new_program_state = 20;                                      return; } // host network game
       if  (mwPS.top_menu_sel == 6)  { mwPS.new_program_state = 24;                                      return; } // join network game
       if  (mwPS.top_menu_sel == 7)  { mwPS.new_program_state = 3;                                       return; } // settings
-      if  (mwPS.top_menu_sel == 8)  { play_level = edit_menu(start_level); mwPS.new_program_state = 10; return; } // level editor
-      if  (mwPS.top_menu_sel == 9)  { mwPS.new_program_state = 2;  mwPS.older_program_state = 1;             return; } // demo mode
-      if  (mwPS.top_menu_sel == 10)                                                                help(""); // help
+      if  (mwPS.top_menu_sel == 8)  { mLevel.set_start_level(edit_menu(mLevel.start_level)); mwPS.new_program_state = 10; return; } // level editor
+      if  (mwPS.top_menu_sel == 9)  { mwPS.new_program_state = 2;  mwPS.older_program_state = 1;        return; } // demo mode
+      if  (mwPS.top_menu_sel == 10)                                                                     mHelp.help(""); // help
       if ((mwPS.top_menu_sel > 100) && (mwPS.top_menu_sel < 200)) // right pressed on menu item
       {
          mwPS.top_menu_sel -= 100;
-         if (mwPS.top_menu_sel == 2)
+         if (mwPS.top_menu_sel == 2) // next level
          {
-            set_start_level(++start_level); // start level increment
-            load_level(start_level, 0, 0);
+            mLevel.next_level();
          }
       }
       if ((mwPS.top_menu_sel > 200) && (mwPS.top_menu_sel < 300)) // left pressed on menu item
       {
          mwPS.top_menu_sel -= 200;
-         if (mwPS.top_menu_sel == 2)
+         if (mwPS.top_menu_sel == 2) // prev level
          {
-            set_start_level(--start_level); // start level decrement
-            load_level(start_level, 0, 0);
+            mLevel.prev_level();
          }
       }
    }
@@ -182,7 +189,7 @@ void proc_program_state(void)
             if (ima_client) client_exit();
 
             if (autosave_log_on_game_exit) save_log_file();
-            if (autosave_game_on_game_exit) blind_save_game_moves(2);
+            if (autosave_game_on_game_exit) mwGMA.blind_save_game_moves(2);
 
             stop_sound();
             if (mwPS.program_state != 3) stamp();
@@ -247,7 +254,8 @@ void proc_program_state(void)
    {
       printf("client set up level\n");
 
-      if (!load_level(play_level, 0, 0))
+
+      if (!mLevel.load_level(mLevel.play_level, 0, 0))
       {
          mwPS.new_program_state = 25;
          return;
@@ -269,7 +277,7 @@ void proc_program_state(void)
 
       if (LOG_NET)
       {
-         sprintf(msg,"LEVEL %d STARTED", play_level);
+         sprintf(msg,"LEVEL %d STARTED", mLevel.play_level);
          add_log_entry_header(10, 0, msg, 3);
       }
 
@@ -324,12 +332,7 @@ void proc_program_state(void)
          return;
       }
 
-      play_level = start_level;
-      if (!load_level(play_level, 0, 0))
-      {
-         mwPS.new_program_state = 19;
-         return;
-      }
+      mLevel.set_start_level();
 
       // reset players
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -359,7 +362,7 @@ void proc_program_state(void)
          add_log_entry2(27, 0, msg);
       }
 
-      mwGMA.add_game_move(0, 0, 0, play_level);       // [00] game_start
+      mwGMA.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
 
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -367,7 +370,7 @@ void proc_program_state(void)
 
       if (LOG_NET)
       {
-         sprintf(msg,"LEVEL %d STARTED", play_level);
+         sprintf(msg,"LEVEL %d STARTED", mLevel.play_level);
          add_log_entry_header(10, 0, msg, 3);
       }
 
@@ -391,12 +394,8 @@ void proc_program_state(void)
    //---------------------------------------
    if (mwPS.program_state == 10)
    {
-      play_level = start_level;
-      if (!load_level(play_level, 0, 0))
-      {
-         mwPS.new_program_state = 1;
-         return;
-      }
+
+      mLevel.set_start_level();
 
       for (int p=0; p<NUM_PLAYERS; p++)
       {
@@ -452,11 +451,11 @@ void proc_program_state(void)
       if (ima_server) server_flush();
       if (ima_client) client_flush();
 
-      blind_save_game_moves(1);
+      mwGMA.blind_save_game_moves(1);
 
       if (autosave_log_on_level_done) save_log_file();
 
-      play_level = players[0].level_done_next_level;
+      mLevel.play_level = players[0].level_done_next_level;
 
       if (0) // reset clients
       {
@@ -477,7 +476,7 @@ void proc_program_state(void)
 
 
       // every mode after this should require load level so why don't I do it here at the top
-      if (!load_level(play_level, 0, 0))
+      if (!mLevel.load_level(mLevel.play_level, 0, 0))
       {
          mwPS.new_program_state = 1;
          return;
@@ -516,7 +515,7 @@ void proc_program_state(void)
          }
       }
 
-      mwGMA.add_game_move(0, 0, 0, play_level);       // [00] game_start
+      mwGMA.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
 
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -524,7 +523,7 @@ void proc_program_state(void)
 
       if (LOG_NET)
       {
-         sprintf(msg,"LEVEL %d STARTED", play_level);
+         sprintf(msg,"LEVEL %d STARTED", mLevel.play_level);
          add_log_entry_header(10, 0, msg, 3);
       }
 
@@ -554,7 +553,7 @@ void proc_program_state(void)
    //---------------------------------------
    if (mwPS.program_state == 14)
    {
-      if (!load_level(play_level, 0, 0))
+      if (!mLevel.load_level(mLevel.play_level, 0, 0))
       {
          mwPS.new_program_state = 1;
          return;

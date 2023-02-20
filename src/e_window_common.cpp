@@ -8,7 +8,7 @@
 #include "e_bitmap_tools.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "z_lift.h"
+#include "mwLift.h"
 #include "mwWidgets.h"
 #include "e_visual_level.h"
 #include "mwPDE.h"
@@ -18,14 +18,18 @@
 #include "mwEventQueue.h"
 #include "z_menu.h"
 #include "mwProgramState.h"
-#include "z_level.h"
+#include "mwLevel.h"
 #include "z_enemy.h"
 #include "z_item.h"
 #include "e_edit_selection.h"
 #include "e_editor_main.h"
 #include "e_glt.h"
 #include "e_object_viewer.h"
-#include "z_file.h"
+
+#include "mwHelp.h"
+
+#include "mwMenu.h"
+
 
 
 void cm_process_menu_bar(int d)
@@ -41,50 +45,50 @@ void cm_process_menu_bar(int d)
    int bts = 10;
    if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "File"))
    {
-      strcpy (global_string[5][0],"File"); // PD sub menu
-      strcpy (global_string[5][1],"New");
-      strcpy (global_string[5][2],"Load");
-      strcpy (global_string[5][3],"Reload");
-      strcpy (global_string[5][4],"Save");
-      strcpy (global_string[5][5],"Save As");
-      strcpy (global_string[5][6],"Exit");
-      strcpy (global_string[5][7],"end");
-      int ret = tmenu(5, 1, x1, by1-1);
+      strcpy (mMenu.menu_string[0],"File"); // PD sub menu
+      strcpy (mMenu.menu_string[1],"New");
+      strcpy (mMenu.menu_string[2],"Load");
+      strcpy (mMenu.menu_string[3],"Reload");
+      strcpy (mMenu.menu_string[4],"Save");
+      strcpy (mMenu.menu_string[5],"Save As");
+      strcpy (mMenu.menu_string[6],"Exit");
+      strcpy (mMenu.menu_string[7],"end");
+      int ret = mMenu.tmenu(1, x1, by1-1);
       if (ret == 1)
       {
          if (al_show_native_message_box(display, "New Level", "Clicking OK will create a new blank level", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
          {
-            zero_level_data();
-            save_level_prompt();
+            mLevel.zero_level_data();
+            mLevel.save_level_prompt();
          }
-         load_level(last_level_loaded, 0, 0);
+         mLevel.load_level(mLevel.last_level_loaded, 0, 0);
       }
-      if (ret == 2) load_level_prompt();
-      if (ret == 3) load_level(last_level_loaded, 0, 0);
-      if (ret == 4) save_level(last_level_loaded);
-      if (ret == 5) save_level_prompt();
+      if (ret == 2) mLevel.load_level_prompt();
+      if (ret == 3) mLevel.load_level(mLevel.last_level_loaded, 0, 0);
+      if (ret == 4) mLevel.save_level(mLevel.last_level_loaded);
+      if (ret == 5) mLevel.save_level_prompt();
       if (ret == 6) mwWM.active = 0;
       al_set_target_backbuffer(display);
    }
    x1 += 44;
    if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "View"))
    {
-      strcpy (global_string[5][0],"View");
-      strcpy (global_string[5][1],"Toggle Fullscreen       F12");
-      strcpy (global_string[5][2],"Zoom Out                 F5");
-      strcpy (global_string[5][3],"Zoom In                  F6");
-      strcpy (global_string[5][4],"Reset Zoom            F5+F6");
-      sprintf(global_string[5][5],"Text Double:Auto");
-      sprintf(global_string[5][6],"Text Double:1");
-      sprintf(global_string[5][7],"Text Double:2");
-      sprintf(global_string[5][8],"Text Double:3");
+      strcpy (mMenu.menu_string[0],"View");
+      strcpy (mMenu.menu_string[1],"Toggle Fullscreen       F12");
+      strcpy (mMenu.menu_string[2],"Zoom Out                 F5");
+      strcpy (mMenu.menu_string[3],"Zoom In                  F6");
+      strcpy (mMenu.menu_string[4],"Reset Zoom            F5+F6");
+      sprintf(mMenu.menu_string[5],"Text Double:Auto");
+      sprintf(mMenu.menu_string[6],"Text Double:1");
+      sprintf(mMenu.menu_string[7],"Text Double:2");
+      sprintf(mMenu.menu_string[8],"Text Double:3");
 
-      if (mwPS.autosave_level_editor_state) sprintf(global_string[5][9],"Autosave State:ON ");
-      else                                  sprintf(global_string[5][9],"Autosave State:OFF");
-      sprintf(global_string[5][10],"Reset State");
+      if (mwPS.autosave_level_editor_state) sprintf(mMenu.menu_string[9],"Autosave State:ON ");
+      else                                  sprintf(mMenu.menu_string[9],"Autosave State:OFF");
+      sprintf(mMenu.menu_string[10],"Reset State");
 
-      strcpy (global_string[5][11],"end");
-      int ret = tmenu(5, 1, x1, by1-1);
+      strcpy (mMenu.menu_string[11],"end");
+      int ret = mMenu.tmenu(1, x1, by1-1);
       if (ret == 1) mwD.toggle_fullscreen();
       if (ret == 2) mwD.set_scale_factor(mwD.scale_factor * .90, 0);
       if (ret == 3) mwD.set_scale_factor(mwD.scale_factor * 1.1, 0);
@@ -94,28 +98,28 @@ void cm_process_menu_bar(int d)
       if (ret == 7) mwD.set_saved_display_transform(2);
       if (ret == 8) mwD.set_saved_display_transform(3);
       if (ret == 9) mwPS.autosave_level_editor_state = ! mwPS.autosave_level_editor_state;
-      if (ret == 10) { mwWM.set_windows(0); save_mW(); }
+      if (ret == 10) { mwWM.set_windows(0); mwWM.save_mW(); }
    }
    x1 += 44;
 
    if (mdw_buttont(x1, by1, x1+40, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "Lists"))
    {
-      strcpy (global_string[5][0],"Lists");
-      strcpy (global_string[5][1],"List all Items");
-      strcpy (global_string[5][2],"List all Enemies");
-      strcpy (global_string[5][3],"List all Lifts");
-      strcpy (global_string[5][4],"List all pmsg");
-      strcpy (global_string[5][5],"List all Events");
-      strcpy (global_string[5][6],"Level Check");
-      strcpy (global_string[5][7],"Show Level Data");
-      strcpy (global_string[5][8],"end");
-      int ret = tmenu(5, 1, x1, by1-1);
+      strcpy (mMenu.menu_string[0],"Lists");
+      strcpy (mMenu.menu_string[1],"List all Items");
+      strcpy (mMenu.menu_string[2],"List all Enemies");
+      strcpy (mMenu.menu_string[3],"List all Lifts");
+      strcpy (mMenu.menu_string[4],"List all pmsg");
+      strcpy (mMenu.menu_string[5],"List all Events");
+      strcpy (mMenu.menu_string[6],"Level Check");
+      strcpy (mMenu.menu_string[7],"Show Level Data");
+      strcpy (mMenu.menu_string[8],"end");
+      int ret = mMenu.tmenu(1, x1, by1-1);
       if (ret == 1) show_all_items();
       if (ret == 2) show_all_enemies();
-      if (ret == 3) show_all_lifts();
+      if (ret == 3) Lift.show_all_lifts();
       if (ret == 4) show_all_pmsg();
       if (ret == 5) mwPME.show_all_events();
-      if (ret == 6) level_check();
+      if (ret == 6) mLevel.level_check();
       if (ret == 7) show_level_data();
    }
    x1 += 52;
@@ -123,15 +127,15 @@ void cm_process_menu_bar(int d)
 
    if (mdw_buttont(x1, by1, x1+64, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "Advanced"))
    {
-      strcpy (global_string[5][0],"Advanced");
-      strcpy (global_string[5][1],"Predefined Enemy Editor");
-      strcpy (global_string[5][2],"Global Level Thingy!!");
-      strcpy (global_string[5][3],"Level Viewer!");
-      strcpy (global_string[5][4],"Animation Sequence Editor");
-      strcpy (global_string[5][5],"Copy Tiles");
-      strcpy (global_string[5][6],"Default Flag Editor");
-      strcpy (global_string[5][7],"end");
-      int ret = tmenu(5, 1, x1, by1-1);
+      strcpy (mMenu.menu_string[0],"Advanced");
+      strcpy (mMenu.menu_string[1],"Predefined Enemy Editor");
+      strcpy (mMenu.menu_string[2],"Global Level Thingy!!");
+      strcpy (mMenu.menu_string[3],"Level Viewer!");
+      strcpy (mMenu.menu_string[4],"Animation Sequence Editor");
+      strcpy (mMenu.menu_string[5],"Copy Tiles");
+      strcpy (mMenu.menu_string[6],"Default Flag Editor");
+      strcpy (mMenu.menu_string[7],"end");
+      int ret = mMenu.tmenu(1, x1, by1-1);
       if (ret == 1) mPDE.run();
       if (ret == 2) global_level();
       if (ret == 3) level_viewer();
@@ -143,13 +147,13 @@ void cm_process_menu_bar(int d)
 
    if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "Help"))
    {
-      strcpy (global_string[5][0],"Help");
-      strcpy (global_string[5][1],"Level Editor Basics");
-      strcpy (global_string[5][2],"Credits");
-      strcpy (global_string[5][3],"end");
-      int ret = tmenu(5, 1, x1, by1-1);
-      if (ret == 1) help("Level Editor Basics");
-      if (ret == 2) help("Credits");
+      strcpy (mMenu.menu_string[0],"Help");
+      strcpy (mMenu.menu_string[1],"Level Editor Basics");
+      strcpy (mMenu.menu_string[2],"Credits");
+      strcpy (mMenu.menu_string[3],"end");
+      int ret = mMenu.tmenu(1, x1, by1-1);
+      if (ret == 1) mHelp.help("Level Editor Basics");
+      if (ret == 2) mHelp.help("Credits");
    }
    x1 += 44;
 
@@ -163,14 +167,14 @@ void cm_process_menu_bar(int d)
 
    if (mdw_buttont(x1, by1, x1+140, bts, 0,0,0,0, 0,-1,15,0, 0,1,0,d, msg))
    {
-      strcpy (global_string[5][0],msg);
-      strcpy (global_string[5][1],"Mode:Main Edit");
-      strcpy (global_string[5][2],"Mode:Edit Selection");
-      strcpy (global_string[5][3],"Mode:Group Edit");
-      strcpy (global_string[5][4],"Mode:Object Viewer");
-      strcpy (global_string[5][5],"Mode:Tile Helper");
-      strcpy (global_string[5][6],"end");
-      int ret = tmenu(5, 1, x1+4, by1-1);
+      strcpy (mMenu.menu_string[0],msg);
+      strcpy (mMenu.menu_string[1],"Mode:Main Edit");
+      strcpy (mMenu.menu_string[2],"Mode:Edit Selection");
+      strcpy (mMenu.menu_string[3],"Mode:Group Edit");
+      strcpy (mMenu.menu_string[4],"Mode:Object Viewer");
+      strcpy (mMenu.menu_string[5],"Mode:Tile Helper");
+      strcpy (mMenu.menu_string[6],"end");
+      int ret = mMenu.tmenu(1, x1+4, by1-1);
       if (ret == 1) mwWM.set_windows(1);
       if (ret == 2) mwWM.set_windows(2);
       if (ret == 3) mwWM.set_windows(3);
@@ -182,7 +186,7 @@ void cm_process_menu_bar(int d)
    int y2 = mwD.SCREEN_H-BORDER_WIDTH+3;
    x1 = mwD.SCREEN_W-172;
    al_draw_textf(mF.pr8, mC.pc[9],  x1+2,  y2, 0, "Level:");
-   al_draw_textf(mF.pr8, mC.pc[15], x1+50, y2, 0, "%d ",last_level_loaded);
+   al_draw_textf(mF.pr8, mC.pc[15], x1+50, y2, 0, "%d ", mLevel.last_level_loaded);
    x1 += 80;
 
    al_draw_text( mF.pr8, mC.pc[9],  x1,    y2, 0, "x:");
@@ -301,8 +305,8 @@ void cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int have_focus
    if ((have_focus) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y1+8)) c = 14; // highlight to indicate move is possible
    al_draw_rectangle(x1, y1, x2, y1+11, mC.pc[c], 1);
 
-   al_draw_textf(mF.pr8, mC.pc[9],  x1+2,   y1+2, 0, "Status Window   level:%d ",last_level_loaded);
-   al_draw_textf(mF.pr8, mC.pc[15], x1+178, y1+2, 0, "%d ",last_level_loaded);
+   al_draw_textf(mF.pr8, mC.pc[9],  x1+2,   y1+2, 0, "Status Window   level:%d ", mLevel.last_level_loaded);
+   al_draw_textf(mF.pr8, mC.pc[15], x1+178, y1+2, 0, "%d ", mLevel.last_level_loaded);
 
    int mow = mwWM.is_mouse_on_any_window();
    if (mow)
@@ -321,7 +325,7 @@ void cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int have_focus
 
    int by1 = y1+1;
    if (mdw_buttont(x2-10, by1, x2-2,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mwWM.mW[1].active = 0;
-   if (mdw_buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"?")) help("Status Window");
+   if (mdw_buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"?")) mHelp.help("Status Window");
 
 
    // draw item area
@@ -350,7 +354,7 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, int have_fo
    int by1 = y1+2;
 
    if (mdw_buttont(x2-10,  by1, x2-2,   9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "X"))       mwWM.mW[2].active = 0;
-   if (mdw_buttont(x2-22,  by1, x2-14,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "?"))       help("Selection Window");
+   if (mdw_buttont(x2-22,  by1, x2-14,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "?"))       mHelp.help("Selection Window");
    if (mdw_buttont(x2-153, by1, x2-105, 9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Blocks"))  mwWM.mW[2].select_window_block_on = !mwWM.mW[2].select_window_block_on;
    if (mdw_buttont(x2-90,  by1, x2-34,  9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Special")) mwWM.mW[2].select_window_special_on = !mwWM.mW[2].select_window_special_on;
 
@@ -501,7 +505,7 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, int have_fo
                      case 204: create_obj(3, 7, 0);  break; // pod
                      case 206: create_obj(2, 10,0);  break; // msg
                      case 207: create_obj(3, 9, 0);  break; // cloner
-                     case 208: create_lift();        break; // lift
+                     case 208: Lift.create_lift(); break; // lift
                      case 209: create_door(1);       break; // one way fixed exit door
                      case 210: create_door(2);       break; // one way linked exit door
                      case 211: create_door(3);       break; // two way door set

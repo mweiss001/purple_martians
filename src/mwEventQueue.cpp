@@ -23,6 +23,11 @@ void mwEventQueue::initialize(void)
 }
 
 
+void mwEventQueue::set_speed(void)
+{
+   al_set_timer_speed(mwEQ.fps_timer, 1/(float)mwPS.frame_speed);
+}
+
 
 
 

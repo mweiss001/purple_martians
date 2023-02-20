@@ -16,14 +16,16 @@
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "z_menu.h"
+#include "mwMenu.h"
 #include "mwProgramState.h"
 #include "z_enemy.h"
-#include "z_level.h"
+#include "mwLevel.h"
 #include "z_config.h"
-#include "z_file.h"
-#include "z_fnx.h"
+
+
 #include "z_screen.h"
 #include "mwShots.h"
+#include "mwGameMovesArray.h"
 
 
 
@@ -243,8 +245,8 @@ void settings_pages(int set_page)
       for (int c=0; c<7; c++)       // show first 7 menu items
       {
          int b = 15;
-         if ((!resume_allowed) && (c==4)) b+=80; // dimmer if can't resume
-         al_draw_text(mF.pr8, mC.pc[b], mwD.SCREEN_W/2, 14+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[7][c]);
+         if ((!mLevel.resume_allowed) && (c==4)) b+=80; // dimmer if can't resume
+         al_draw_text(mF.pr8, mC.pc[b], mwD.SCREEN_W/2, 14+(c*10)+1, ALLEGRO_ALIGN_CENTRE, mMenu.menu_string[c]);
       }
 
       while (!mwEQ.menu_update) mwEQ.proc_event_queue();
@@ -649,7 +651,7 @@ void settings_pages(int set_page)
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,14,tc, 0,  1,0,1,0, "Save current game in progress")) save_gm();
+         if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,14,tc, 0,  1,0,1,0, "Save current game in progress")) mwGMA.save_gm();
          ya -=2;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -661,7 +663,7 @@ void settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Choose file and run saved game"))
-         if (load_gm("-"))
+         if (mwGMA.load_gm("-"))
          {
             mwPS.new_program_state = 14;
             mwPS.old_program_state = 3;
@@ -730,7 +732,7 @@ void settings_pages(int set_page)
             mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,e,e,e, 0,0,1,0, mwPS.frame_speed, 200, 4, 1, "Frame Speed:");
          }
 
-         if (old_frame_speed != mwPS.frame_speed) set_speed();
+         if (old_frame_speed != mwPS.frame_speed) mwEQ.set_speed();
          ya -=6;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -771,20 +773,20 @@ void settings_pages(int set_page)
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show vars")) show_var_sizes();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "hostname")) get_hostname(1);
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show vars")) mwD.show_var_sizes();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "hostname"))                          printf("Local hostname:%s\n", mwPS.local_hostname);
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'mwB.tilemap'"))   mwD.show_bitmap_flags(al_get_bitmap_flags(mwB.tilemap));
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'mwB.M_tilemap'")) mwD.show_bitmap_flags(al_get_bitmap_flags(mwB.M_tilemap));
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'mwB.tilemap'"))   mwD.show_pixel_format(al_get_bitmap_format(mwB.tilemap));
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'mwB.M_tilemap'")) mwD.show_pixel_format(al_get_bitmap_format(mwB.M_tilemap));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'display'"))   mwD.show_pixel_format(al_get_display_format(display));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display flags"))            mwD.show_display_flags(al_get_display_flags(display));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display options"))          mwD.show_display_options();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display orienation"))       mwD.show_display_orienation();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show refesh rate")) printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show fullscreen modes"))         mwD.show_fullscreen_modes();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display adapters"))         mwD.show_display_adapters();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show code statistics"))          show_code_stats();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'display'"))       mwD.show_pixel_format(al_get_display_format(display));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display flags"))                mwD.show_display_flags(al_get_display_flags(display));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display options"))              mwD.show_display_options();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display orienation"))           mwD.show_display_orienation();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show refesh rate"))                  printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show fullscreen modes"))             mwD.show_fullscreen_modes();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display adapters"))             mwD.show_display_adapters();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show code statistics"))              show_code_stats();
 
 //         ya -=2;
 //         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);

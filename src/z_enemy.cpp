@@ -7,17 +7,17 @@
 #include "mwTimeStamp.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "z_lift.h"
+#include "mwLift.h"
 #include "mwColor.h"
 #include "mwProgramState.h"
 #include "z_menu.h"
 #include "z_item.h"
-#include "z_level.h"
-#include "z_fnx.h"
+#include "mwLevel.h"
+
 #include "z_screen_overlay.h"
 #include "mwShots.h"
 #include "z_solid.h"
-
+#include "e_fnx.h"
 
 
 // enemies
@@ -535,7 +535,8 @@ void enemy_killed(int e)
    Ef[e][2] = 0;       // xinc
    Ef[e][3] = 0;       // yinc
 
-   switch (Ei[e][0])
+   int type = Ei[e][0];
+   switch (type)
    {
       case 3: // archwagon
          Ei[e][3]  = 34;    // new ans
@@ -614,8 +615,8 @@ void enemy_killed(int e)
    mwB.zz[2][na] = 0;                  // set counter
    mwB.zz[3][na] = dl / mwB.zz[4][na]; // set ans timer
 
-   if (hbm == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
-   if (hbm == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
+   if (hbm == 1) game_event(60, 0, 0, Ei[e][26], e, type, 0);
+   if (hbm == 2) game_event(62, 0, 0, Ei[e][26], e, type, 0);
 }
 
 
@@ -847,7 +848,7 @@ void cloner_create(int e)
                float new_y_pos = Ef[b][1] + y3 - y1;
                int nx = new_x_pos / 20;
                int ny = new_y_pos / 20;
-               if (is_block_empty(nx, ny, 1, 0, 0)) // block only
+               if (mLevel.is_block_empty(nx, ny, 1, 0, 0)) // block only
                {
                   for (int c=0; c<100; c++) // look for a place to put it
                      if (Ei[c][0] == 0)  // found empty
@@ -877,7 +878,7 @@ void cloner_create(int e)
                float new_y_pos = iy + y3 - y1;
                int nx = new_x_pos / 20;
                int ny = new_y_pos / 20;
-               if (is_block_empty(nx, ny, 1, 0, 0)) // block only
+               if (mLevel.is_block_empty(nx, ny, 1, 0, 0)) // block only
                {
                   for (int c=0; c<500; c++)
                      if (item[c][0] == 0) // found empty
@@ -2041,7 +2042,7 @@ void walker_archwagon_common(int e)
 
    if (on_lift)
    {
-      Ef[e][1] += lifts[ret-32].yinc;  // move with lift
+      Ef[e][1] += Lift.cur[ret-32].yinc;  // move with lift
    }
 
 
@@ -2082,9 +2083,9 @@ void enemy_block_walker(int e)
       int ex = EXint/20;
       int ey = EYint/20;
 
-      l[ex][ey] = 168 | PM_BTILE_ALL_SOLID;
+      mLevel.l[ex][ey] = 168 | PM_BTILE_ALL_SOLID;
 
-      l[ex][ey] |= PM_BTILE_BREAKABLE_PSHOT;
+      mLevel.l[ex][ey] |= PM_BTILE_BREAKABLE_PSHOT;
 
       al_set_target_bitmap(mwB.level_background);
       al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, mC.pc[0]);
@@ -2191,7 +2192,7 @@ void enemy_jumpworm(int e)
    if (ret >= 32) // on lift
    {
       on_lift = 1;
-      Ef[e][1] += lifts[ret-32].yinc;  // move with lift
+      Ef[e][1] += Lift.cur[ret-32].yinc;  // move with lift
    }
 
    // x move when on ground (0-4 move) (5-9 retract)

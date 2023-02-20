@@ -6139,13 +6139,13 @@ put the code here in the comments for future reference...
 //
 //
 //   ALLEGRO_BITMAP* tmp234 = al_load_bitmap("bitmaps/new_p_8.bmp");
-//   if (!tmp234) m_err((char*)"Can't load bitmaps//new_p_8.bmp");
+//   if (!tmp234) mI.m_err((char*)"Can't load bitmaps//new_p_8.bmp");
 //   else
 //   {
 //      al_destroy_font(font);
 //      int ranges[] = {32, 127};
 //      font = al_grab_font_from_bitmap(tmp234, 1, ranges);
-//      if(!font) m_err("Failed to load font from bitmaps/Pristine.ttf");
+//      if(!font) mI.m_err("Failed to load font from bitmaps/Pristine.ttf");
 //      al_destroy_bitmap(tmp234);
 //   }
 //
@@ -14266,6 +14266,898 @@ float deg_to_rad(float deg);
 
 
 20230219 12:48  I should do a push..it has been a while....
+
+
+test netgame
+
+Variables used for netgame state exchange
+
+players  :  2048
+Ei       : 12800
+Ef       :  6400
+item     : 32000
+itemf    :  8000
+lifts    :  4480
+l        : 40000
+mwS.p    :  1200
+mwS.e    :  1200
+pm_event :  4000
+---------:------
+total    :112128
+
+it got 800 bytes smaller
+800 / 40 = 20 / 4 = 5...could be 5 ints smaller in lifts
+
+//#define STATE_SIZE 112928
+#define STATE_SIZE 112128
+
+of course it still works...I'm not just banging rocks together here....
+
+what next?
+
+I had started making lifts a class...
+
+I have 1200 lines of code in z_lifts.cpp
+
+lets move the data structures first and fix all references to them...
+
+this is what I have now:
+
+class mwLift
+{
+   public:
+
+   mwLift(); // default constructor
+   void initialize(void);
+
+   struct lift lifts[NUM_LIFTS];
+   struct lift_step lift_steps[NUM_LIFTS][40];
+   char lift_step_type_name[10][10];
+
+};
+extern mwLift mwLifts;
+
+
+old:
+lifts[].x
+lift_steps[][].x
+
+new:
+mwLifts.l[].x
+mwLifts.lift_steps[][].x
+
+comment out the old and lets change shit...
+
+actually it might be easier if I did all the funtions at the same time...
+then I won't have to change them only to change them back later...
+ok do it...
+
+copied all header and function..compiles clean
+
+now comment out the old and watch everything break!
+compiles clean and completely removed old z_lifts files
+
+
+can I make the names shorter?
+
+mwLifts.lifts[].x
+mwLifts.lift_steps[][].x
+
+Lifts.l[] 13 to 7 (-6)
+Lifts.steps[][] 18 to 11 (-7)
+
+yes, do it
+
+130 lifts
+86 steps
+41 member function refs
+
+now I've gone and fucked it all up
+
+lifts within the class now has changed
+
+it does not like the single letter l...
+
+what else can I call it?  curr, main,
+cur for lifts
+stp for steps..
+
+like this:
+lift.cur[]
+lift.stp[][]
+
+OK lets try to make that happen
+
+replace
+Lifts.l[
+lift.cur[
+
+replace
+Lifts.steps[
+lift.stp[
+
+
+now that the class name is 'lift' I can't use that as a local int anymore
+
+I should have just called it Lift dammit!!
+
+there is a reason for complicated variable name
+
+to simple and search and replace fails hard
+
+Once more with feeling...
+replace lift. with Lift.
+
+done..and it compiles:
+
+here is what the variables are called now:
+
+   struct lift       cur[NUM_LIFTS];
+   struct lift_step  stp[NUM_LIFTS][40];
+   char lift_step_type_name[10][10];
+
+Lift.cur[]
+Lift.stp[][]
+
+so now that I have done that, what did I gain?
+
+
+not sure...
+
+
+
+
+z_item has ~3000 lines
+e_item has 600
+
+
+some items that are complex maybe should have there own source files..
+
+I'm thinking doors, keys, rockets,
+
+z_item.cpp
+z_item_door.cpp
+z_item_rocket.cpp
+
+
+lets try it with keys..
+
+just as a test to see how it could work...
+
+got 100 lines out of z_items.cpp
+and as a bonus, most stuff related to key is in the same place..
+
+
+there is a bunch of stuff related to seq_color that I could find a place for..
+
+the sorting stuff could go in e_items..
+
+seq colors..part of bomb_blocks
+
+I want to put bombs and rockets in their own file
+
+z_item_bomb.cpp also rockets...500 lines
+
+pmsg..done
+
+also move switch to key..done
+
+
+make one source file for all 4 of these closely related things:
+
+call it trigger..
+
+door
+trigger
+bd
+bm
+
+this will be the last for a while...
+
+how nice can I make z_items.cpp look now?
+now I only have around 600 lines
+
+how big is z_enemy.cpp? 2400 lines...maybe later...
+
+
+
+
+Server opened channel for `192.168.1.122:24785' and sent reply
+Shutting down the server
+
+C:\pm>pm
+
+Purple Martians Version 7.24.2
+Allegro Version: 5.2.7.1
+System ID: Windows
+Desktop Resolution: 3840x2160
+
+
+Purple Martians Source Code Line Counts [2023-02-19  17:18:27]
+
+[ total][  code][cd_onl][commnt][cm_onl][ cd+cm][ blank]
+--------------------------------------------------------
+[  2626][  1926][  1382][   787][   243][   544][   457] - z_enemy.cpp
+[  2088][  1760][  1352][   514][   106][   408][   222] - e_object_viewer.cpp
+[  2544][  1683][  1466][   405][   188][   217][   673] - z_log.cpp
+[  1875][  1600][  1449][   207][    56][   151][   219] - mwGraph.cpp
+[  1899][  1327][  1101][   278][    52][   226][   520] - mwWidgets.cpp
+[  1611][  1250][  1058][   279][    87][   192][   274] - z_player.cpp
+[  1253][  1005][   903][   137][    35][   102][   213] - z_screen_overlay.cpp
+[  1249][  1003][   907][   142][    46][    96][   200] - z_menu.cpp
+[  1290][   971][   842][   188][    59][   129][   260] - e_bitmap_tools.cpp
+[  1136][   897][   731][   206][    40][   166][   199] - mwLift.cpp
+[  1119][   888][   722][   207][    41][   166][   190] - z_lift.cpp
+[  1064][   881][   747][   190][    56][   134][   127] - e_edit_selection.cpp
+[  1137][   807][   742][   125][    60][    65][   270] - z_settings.cpp
+[   990][   734][   658][   108][    32][    76][   224] - e_fnx.cpp
+[   857][   722][   407][   363][    48][   315][    87] - e_editor_main.cpp
+[   926][   702][   560][   175][    33][   142][   191] - z_item_trigger.cpp
+[  1191][   699][   635][   129][    65][    64][   427] - e_glt.cpp
+[   779][   687][   604][   101][    18][    83][    74] - e_group_edit.cpp
+[   862][   650][   618][    95][    63][    32][   149] - z_file.cpp
+[   815][   642][   537][   140][    35][   105][   138] - z_item.cpp
+[   931][   635][   549][   166][    80][    86][   216] - z_screen.cpp
+[   774][   621][   564][    92][    35][    57][   118] - n_client.cpp
+[   782][   614][   565][   100][    51][    49][   117] - n_server.cpp
+[   823][   590][   539][   117][    66][    51][   167] - e_visual_level.cpp
+[  1233][   585][   509][   346][   270][    76][   378] - z_args.cpp
+[   766][   545][   468][   160][    83][    77][   138] - z_loop.cpp
+[   650][   539][   416][   148][    25][   123][    86] - e_item.cpp
+[   786][   539][   456][   155][    72][    83][   175] - z_fnx.cpp
+[   649][   497][   424][   118][    45][    73][   107] - mwWindowManager.cpp
+[   703][   477][   457][    92][    72][    20][   154] - mwLogo.cpp
+[   549][   442][   395][    77][    30][    47][    77] - e_window_common.cpp
+[   565][   437][   412][    28][     3][    25][   125] - mwInput.cpp
+[   583][   436][   345][   150][    59][    91][    88] - z_solid.cpp
+[   592][   418][   193][   258][    33][   225][   141] - e_tile_helper.cpp
+[   449][   393][   316][    87][    10][    77][    46] - mwBottomMessage.cpp
+[   521][   384][   299][   132][    47][    85][    90] - z_item_bomb.cpp
+[   572][   375][   372][    63][    60][     3][   137] - mwDisplay.cpp
+[   438][   367][   327][    48][     8][    40][    63] - mwPDE.cpp
+[   347][   297][   278][    31][    12][    19][    38] - mwWindow.cpp
+[   411][   293][   291][    23][    21][     2][    97] - z_config.cpp
+[   350][   288][   228][    71][    11][    60][    51] - e_enemy.cpp
+[   455][   282][   235][    85][    38][    47][   135] - z_item_pmsg.cpp
+[   390][   265][   188][   130][    53][    77][    72] - z_item_door.cpp
+[   353][   256][   217][    67][    28][    39][    69] - mwShots.cpp
+[   311][   225][   184][    56][    15][    41][    71] - mwPMEvent.cpp
+[   293][   214][   208][    26][    20][     6][    59] - z_main.cpp
+[   307][   201][   176][    81][    56][    25][    50] - mwGameMovesArray.cpp
+[   256][   181][   180][     5][     4][     1][    71] - mwGraph.h
+[   251][   163][   127][    53][    17][    36][    71] - z_item_key.cpp
+[   217][   156][   138][    27][     9][    18][    52] - z_player.h
+[   199][   149][   149][     0][     0][     0][    50] - libnet.h
+[   184][   141][   139][     8][     6][     2][    37] - n_packet.cpp
+[   154][   126][   115][    18][     7][    11][    21] - z_control.cpp
+[   151][   119][   117][    11][     9][     2][    23] - z_sound.cpp
+[   220][   116][   107][    68][    59][     9][    45] - mwDrawSequence.cpp
+[   132][   111][   111][     5][     5][     0][    16] - pm.h
+[   151][   108][    99][    16][     7][     9][    36] - mwQuickGraph.cpp
+[   128][    97][    81][    20][     4][    16][    27] - mwColor.cpp
+[   131][    92][    91][    17][    16][     1][    23] - mwInput.h
+[   121][    86][    72][    24][    10][    14][    25] - n_netgame.cpp
+[   116][    85][    77][    13][     5][     8][    26] - mwFont.cpp
+[   141][    79][    72][    29][    22][     7][    40] - mwBitmap.cpp
+[   130][    76][    71][    16][    11][     5][    43] - mwDemoMode.cpp
+[    87][    74][    74][     1][     1][     0][    12] - mwTimeStamp.cpp
+[    94][    73][    72][     6][     5][     1][    16] - mwLift.h
+[    81][    68][    68][     4][     4][     0][     9] - z_lift.h
+[   106][    67][    61][    12][     6][     6][    33] - mwEventQueue.cpp
+[    91][    65][    62][     5][     2][     3][    24] - mwDisplay.h
+[   114][    61][    58][    12][     9][     3][    44] - z_log.h
+[    77][    56][    52][    14][    10][     4][    11] - mwWindow.h
+[    72][    51][    51][     5][     5][     0][    16] - mwTally.cpp
+[    55][    42][    40][     4][     2][     2][    11] - z_enemy.h
+[    69][    40][    37][     5][     2][     3][    27] - mwLogo.h
+[    86][    40][    38][     3][     1][     2][    45] - mwWindowManager.h
+[    54][    39][    39][     1][     1][     0][    14] - mwShots.h
+[    49][    37][    31][     7][     1][     6][    11] - mwRollingAverage.cpp
+[    48][    37][    35][     4][     2][     2][     9] - z_item.h
+[    51][    31][    30][     3][     2][     1][    18] - mwBitmap.h
+[    40][    31][    30][     2][     1][     1][     8] - mwColor.h
+[    53][    31][    30][     6][     5][     1][    17] - mwProgramState.h
+[    35][    31][    31][     1][     1][     0][     3] - n_packet.h
+[    37][    29][    29][     1][     1][     0][     7] - mwWidgets.h
+[    41][    27][    27][     3][     3][     0][    11] - mwProgramState.cpp
+[    40][    25][    25][     1][     1][     0][    14] - mwBottomMessage.h
+[    48][    25][    25][    10][    10][     0][    13] - n_network.cpp
+[    36][    24][    24][     1][     1][     0][    11] - mwTimeStamp.h
+[    32][    24][    24][     1][     1][     0][     7] - z_fnx.h
+[    35][    23][    22][     2][     1][     1][    11] - mwQuickGraph.h
+[    24][    22][    22][     1][     1][     0][     1] - n_client.h
+[    22][    21][    21][     1][     1][     0][     0] - e_fnx.h
+[    44][    21][    20][     2][     1][     1][    22] - mwDrawSequence.h
+[    32][    21][    13][    14][     6][     8][     5] - n_netgame.h
+[    23][    20][    20][     1][     1][     0][     2] - e_bitmap_tools.h
+[    35][    20][    14][     7][     1][     6][    14] - mwEventQueue.h
+[    22][    20][    20][     1][     1][     0][     1] - z_screen.h
+[    21][    19][    19][     1][     1][     0][     1] - e_visual_level.h
+[    27][    19][    19][     1][     1][     0][     7] - mwDemoMode.h
+[    35][    19][    17][     3][     1][     2][    15] - mwGameMovesArray.h
+[    30][    19][    18][     2][     1][     1][    10] - mwTally.h
+[    21][    19][    19][     1][     1][     0][     1] - n_server.h
+[    21][    18][    17][     2][     1][     1][     2] - mwRollingAverage.h
+[    20][    18][    18][     1][     1][     0][     1] - z_file.h
+[    29][    16][    15][     2][     1][     1][    12] - mwPMEvent.h
+[    23][    16][    16][     2][     2][     0][     5] - z_sound.h
+[    24][    15][    15][     1][     1][     0][     8] - mwPDE.h
+[    17][    14][    14][     1][     1][     0][     2] - e_edit_selection.h
+[    23][    14][     8][     7][     1][     6][     8] - mwFont.h
+[    20][    14][    14][     1][     1][     0][     5] - z_item_bomb.h
+[    20][    14][    14][     1][     1][     0][     5] - z_item_trigger.h
+[    15][    13][    13][     1][     1][     0][     1] - e_group_edit.h
+[    15][    13][    13][     1][     1][     0][     1] - z_screen_overlay.h
+[    16][    12][    12][     1][     1][     0][     3] - z_menu.h
+[    14][    11][    11][     1][     1][     0][     2] - e_object_viewer.h
+[    18][    10][     9][     2][     1][     1][     7] - z_level.cpp
+[    12][    10][    10][     1][     1][     0][     1] - z_solid.h
+[    14][     9][     9][     1][     1][     0][     4] - z_level.h
+[     9][     8][     8][     1][     1][     0][     0] - e_editor_main.h
+[    11][     8][     8][     1][     1][     0][     2] - z_loop.h
+[    10][     7][     7][     1][     1][     0][     2] - z_control.h
+[    10][     7][     7][     1][     1][     0][     2] - z_main.h
+[    12][     6][     5][     2][     1][     1][     5] - e_tile_helper.h
+[    11][     6][     6][     1][     1][     0][     4] - z_item_key.h
+[    17][     5][     5][     5][     5][     0][     7] - z_settings.h
+[     7][     4][     4][     1][     1][     0][     2] - e_window_common.h
+[     6][     4][     4][     1][     1][     0][     1] - z_args.h
+[    11][     4][     4][     1][     1][     0][     6] - z_item_door.h
+[    21][     4][     4][     1][     1][     0][    16] - z_item_pmsg.h
+[     4][     3][     3][     1][     1][     0][     0] - e_glt.h
+[     3][     2][     2][     1][     1][     0][     0] - n_network.h
+[     4][     2][     2][     1][     1][     0][     1] - z_config.h
+-------------------------------------------------------- - totals
+[ 47880][ 35512][ 30292][  8207][  2987][  5220][  9381] - 130 files
+
+
+about 600 lines more than last time I looked....
+
+
+
+bug - sometimes rocket bomb lines do not work properly
+the bomb_blocks circle is way behind...
+fixed...
+
+bug - door animation sequence sometimes disappears
+door tiles don't get rebuilt...
+at what point are they bad?
+can I check them right after creating them...
+goddamn I'm dum!!!
+
+
+here is what I notice...
+
+
+explosions are slightly more powerful than before
+test this...
+level 12 aim rocket lower center and 2 rows of blocks can be destroyed...seems the same...
+
+rockets turn at a different rate
+how to test this?
+before, rotation was 0-256 fixed...x10
+
+0    =  0 deg
+640  = 90 deg
+-640 = 270 deg_to_rad
+1200 = 180 deg
+
+steerability slider 1-50
+item[][6]
+
+that was added directly to angle, it wrapped forever...
+
+what values do I have now
+
+
+0    =  0 deg
+1500 = 90 deg
+3100 = 180 deg
+4600 = 270 deg
+
+so to convert
+
+3142/1280 = 2.45
+
+void proc_player_riding_rocket(int p)
+{
+   float rot_inc = (float)item[c][6] * 2.45;
+
+this seems really close...
+
+I would like to use glt and multiply all the vals by 2.5
+
+then increase the slider range to 0-100
+
+then manually adjust directions...
+ok do it...
+
+
+I really don't have that many rockets in my levels
+
+
+Running Global Level Test
+Level:  6 st:16
+Level:  8 st:45
+Level: 11 st:38
+Level: 11 st:25
+Level: 11 st:50
+Level: 11 st:30
+Level: 11 st:40
+Level: 11 st:50
+Level: 11 st:25
+Level: 11 st:1
+Level: 12 st:21
+Level: 12 st:21
+Level: 17 st:22
+Level: 22 st:30
+Level: 23 st:10
+Level: 26 st:35
+Level: 28 st:24
+Level: 50 st:16
+Level: 83 st:20
+Level: 84 st:32
+Level:101 st:20
+Level:102 st:25
+Level:105 st:8
+Level:105 st:8
+Level:105 st:8
+Level:105 st:8
+Level:105 st:20
+Level:155 st:1
+
+only 28 up to here...
+now can I do something about the initial directions?
+or should I just adjust them all manually? yes...
+
+rockets are done...
+
+bottom messages do not show enemies anymore and item are not lined up...fixed
+also I want some settings controls for them..
+
+make it when left and right on levels, go to the next found level, not missing
+done and it works great!!
+
+
+if cancel from visual level don't reset level to 1
+
+there are many different ways of doing this
+- whenever selection is changed in vls make it change start_level
+- exit with esc back to menu
+- exit with enter, run level
+
+- whenever selection is changed in vls do not change start_level
+- exit with esc back to menu no change
+- exit with enter, change start_level and run
+
+which way do I like it? the first way..
+
+
+here I am making a filename in a stupid way:
+
+   char fn[20] = "levels/level000.pml";
+   // look for levels that exist and put them in array
+   for (int x=lll; x<ull; x++)
+   {
+      int h, d, rem = x;
+
+      h = rem/100; // hundreds
+      fn[12] = 48+h;
+      rem -=h*100;
+
+      d = rem/10;  // tens
+      fn[13] = 48 + d;
+      rem -=d*10;
+
+      fn[14] = 48 + rem;
+      if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
+   }
+
+   char lf[255];
+   sprintf(lf, "levels/level%03d.pml", level_num);
+   //printf("saving: %s\n", lf);
+
+
+right now z_level just has some variable definitions
+I could make it into a class and add a bunch of methods
+like what?
+calc num of purple coins
+take care of all the start block things
+take care or erasing blocks and redrawing the level editor background when blocks change
+calc num of enemies left alive??
+mwLevel mLevel
+.la[100][100]
+
+done...
+move tsw and merr to mwInput...done...
+
+move more things out of file:
+bitmaps
+game moves
+WM
+then file will be done...
+
+the only thing left in file is mw_file_select..used by bitmap_tools, edit_selection, and mwLevel..
+I think I'll just put it in z_fnx for now...done
+
+remove z_file from project...done...
+
+
+void make_palette(void); -- to color
+now called from display init...
+moved to mwColor class and called in contructor...works good..
+void window_title(void); -- to display..done
+void mw_get_text_dimensions(ALLEGRO_FONT *f, const char* txt, int &bx, int &by, int &bw, int &bh);  -- to font..dpne
+
+
+void get_hostname(int print); used in main and when clicking on button in settings..
+maybe do inline?
+print only from settings..done
+inline in main
+
+
+void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle);
+move to bitmaps..
+
+void show_var_sizes(void);
+move to display with all the other console text dumps..
+
+
+the pile is getting small...
+
+should I make multi color lines its own thing?
+it does not need to be a class, it only has 3 functions:
+
+call it mw_multicolor_line...
+
+move everything left into e_fnx...done
+
+remove z_fnx...done
+
+
+
+help should be made a class...
+mwHelp mHelp
+done..
+
+
+I should be more consistant with my naming conventions
+
+class names all start with mw then CamelCase...
+they are already all like that...
+but the instances of classes are all over the place
+sometimes I made them shorter, but that hurts readability...just like too long does also...
+
+
+menu stuff...
+
+I should get rid of global_string
+
+use something local and fill it everytime it is called...
+
+I will still need to store it somewhere:
+
+how about a class?
+
+this time though, create instances when needed, nothing global
+put all three menu type in the class..
+use a common global string and have methods to assist with filling it
+
+zmenu and tmenu done...
+pmenu done..
+disabling all old vars...done...
+
+now move the text setup into item and enemy respectivbely...done
+
+now the only thing left in z_menu is the text editing stuff....
+
+and that fucking msg...
+
+
+well its 3:40
+
+20230220 3:40PM
+
+push...
+
+Purple Martians Source Code Line Counts [2023-02-20  15:45:36]
+
+[ total][  code][cd_onl][commnt][cm_onl][ cd+cm][ blank]
+--------------------------------------------------------
+[  2627][  1927][  1383][   787][   243][   544][   457] - z_enemy.cpp
+[  2089][  1761][  1353][   514][   106][   408][   222] - e_object_viewer.cpp
+[  2550][  1685][  1468][   405][   188][   217][   677] - z_log.cpp
+[  1878][  1601][  1450][   207][    56][   151][   221] - mwGraph.cpp
+[  1899][  1328][  1102][   278][    52][   226][   519] - mwWidgets.cpp
+[  1609][  1249][  1056][   280][    87][   193][   273] - z_player.cpp
+[  1253][  1005][   903][   137][    35][   102][   213] - z_screen_overlay.cpp
+[  1293][   970][   841][   189][    60][   129][   263] - e_bitmap_tools.cpp
+[  1399][   945][   834][   189][    78][   111][   376] - e_fnx.cpp
+[  1140][   899][   733][   206][    40][   166][   201] - mwLift.cpp
+[  1119][   888][   722][   207][    41][   166][   190] - z_lift.cpp
+[  1063][   879][   745][   190][    56][   134][   128] - e_edit_selection.cpp
+[  1139][   807][   742][   125][    60][    65][   272] - z_settings.cpp
+[   862][   723][   408][   363][    48][   315][    91] - e_editor_main.cpp
+[   925][   702][   560][   174][    32][   142][   191] - z_item_trigger.cpp
+[  1194][   701][   637][   121][    57][    64][   436] - e_glt.cpp
+[   779][   687][   604][   101][    18][    83][    74] - e_group_edit.cpp
+[   815][   641][   536][   140][    35][   105][   139] - z_item.cpp
+[   931][   635][   549][   166][    80][    86][   216] - z_screen.cpp
+[   777][   620][   563][    92][    35][    57][   122] - n_client.cpp
+[   782][   614][   565][   100][    51][    49][   117] - n_server.cpp
+[  1234][   582][   506][   347][   271][    76][   381] - z_args.cpp
+[   718][   580][   457][   148][    25][   123][   113] - e_item.cpp
+[   810][   580][   531][   115][    66][    49][   164] - e_visual_level.cpp
+[   765][   533][   456][   161][    84][    77][   148] - z_loop.cpp
+[   682][   522][   449][   120][    47][    73][   113] - mwWindowManager.cpp
+[   703][   477][   457][    92][    72][    20][   154] - mwLogo.cpp
+[   683][   465][   426][   124][    85][    39][   133] - mwGameMovesArray.cpp
+[   592][   459][   434][    28][     3][    25][   130] - mwInput.cpp
+[   553][   443][   396][    77][    30][    47][    80] - e_window_common.cpp
+[   679][   442][   439][    67][    64][     3][   173] - mwDisplay.cpp
+[   583][   436][   345][   150][    59][    91][    88] - z_solid.cpp
+[   492][   422][   366][    73][    17][    56][    53] - mwHelp.cpp
+[   592][   418][   193][   258][    33][   225][   141] - e_tile_helper.cpp
+[   495][   380][   295][   120][    35][    85][    80] - z_item_bomb.cpp
+[   434][   379][   303][    86][    10][    76][    45] - mwBottomMessage.cpp
+[   438][   366][   326][    48][     8][    40][    64] - mwPDE.cpp
+[   403][   332][   272][    71][    11][    60][    60] - e_enemy.cpp
+[   475][   322][   297][    62][    37][    25][   116] - mwMenu.cpp
+[   434][   303][   287][    28][    12][    16][   119] - mwLevel.cpp
+[   348][   297][   278][    32][    13][    19][    38] - mwWindow.cpp
+[   409][   290][   288][    23][    21][     2][    98] - z_config.cpp
+[   455][   282][   235][    85][    38][    47][   135] - z_item_pmsg.cpp
+[   390][   265][   188][   130][    53][    77][    72] - z_item_door.cpp
+[   353][   255][   216][    67][    28][    39][    70] - mwShots.cpp
+[   319][   232][   226][    27][    21][     6][    66] - z_main.cpp
+[   311][   225][   184][    56][    15][    41][    71] - mwPMEvent.cpp
+[   339][   212][   187][    68][    43][    25][    84] - mwBitmap.cpp
+[   256][   197][   185][    29][    17][    12][    42] - z_menu.cpp
+[   256][   181][   180][     5][     4][     1][    71] - mwGraph.h
+[   251][   162][   126][    53][    17][    36][    72] - z_item_key.cpp
+[   217][   156][   138][    27][     9][    18][    52] - z_player.h
+[   199][   149][   149][     0][     0][     0][    50] - libnet.h
+[   166][   148][   131][    20][     3][    17][    15] - mw_multicolor_line.cpp
+[   184][   141][   139][     8][     6][     2][    37] - n_packet.cpp
+[   188][   133][   100][    56][    23][    33][    32] - mwColor.cpp
+[   154][   126][   115][    18][     7][    11][    21] - z_control.cpp
+[   151][   119][   117][    12][    10][     2][    22] - z_sound.cpp
+[   220][   116][   107][    68][    59][     9][    45] - mwDrawSequence.cpp
+[   132][   111][   111][     5][     5][     0][    16] - pm.h
+[   151][   108][    99][    16][     7][     9][    36] - mwQuickGraph.cpp
+[   137][    94][    93][    17][    16][     1][    27] - mwInput.h
+[   124][    92][    84][    15][     7][     8][    25] - mwFont.cpp
+[   121][    86][    72][    24][    10][    14][    25] - n_netgame.cpp
+[   132][    76][    71][    16][    11][     5][    45] - mwDemoMode.cpp
+[    87][    74][    74][     1][     1][     0][    12] - mwTimeStamp.cpp
+[    94][    73][    72][     6][     5][     1][    16] - mwLift.h
+[   111][    71][    65][    12][     6][     6][    34] - mwEventQueue.cpp
+[    81][    68][    68][     4][     4][     0][     9] - z_lift.h
+[    96][    67][    64][     5][     2][     3][    27] - mwDisplay.h
+[   114][    61][    58][    12][     9][     3][    44] - z_log.h
+[    77][    56][    52][    14][    10][     4][    11] - mwWindow.h
+[    72][    51][    51][     5][     5][     0][    16] - mwTally.cpp
+[    56][    43][    41][     4][     2][     2][    11] - z_enemy.h
+[    92][    42][    40][     3][     1][     2][    49] - mwWindowManager.h
+[    69][    40][    37][     5][     2][     3][    27] - mwLogo.h
+[    54][    39][    39][     1][     1][     0][    14] - mwShots.h
+[    49][    38][    36][     4][     2][     2][     9] - z_item.h
+[    49][    37][    31][     7][     1][     6][    11] - mwRollingAverage.cpp
+[    61][    35][    34][     3][     2][     1][    24] - mwBitmap.h
+[    59][    32][    32][     4][     4][     0][    23] - e_fnx.h
+[    43][    32][    31][     2][     1][     1][    10] - mwColor.h
+[    53][    31][    30][     6][     5][     1][    17] - mwProgramState.h
+[    35][    31][    31][     1][     1][     0][     3] - n_packet.h
+[    37][    29][    29][     1][     1][     0][     7] - mwWidgets.h
+[    43][    28][    27][     2][     1][     1][    14] - mwLevel.h
+[    41][    27][    27][     3][     3][     0][    11] - mwProgramState.cpp
+[    40][    25][    25][     1][     1][     0][    14] - mwBottomMessage.h
+[    48][    25][    25][    10][    10][     0][    13] - n_network.cpp
+[    51][    24][    22][     4][     2][     2][    25] - mwGameMovesArray.h
+[    36][    24][    24][     1][     1][     0][    11] - mwTimeStamp.h
+[    35][    23][    22][     2][     1][     1][    11] - mwQuickGraph.h
+[    24][    22][    22][     1][     1][     0][     1] - n_client.h
+[    44][    21][    20][     2][     1][     1][    22] - mwDrawSequence.h
+[    35][    21][    15][     7][     1][     6][    13] - mwEventQueue.h
+[    32][    21][    13][    14][     6][     8][     5] - n_netgame.h
+[    23][    20][    20][     1][     1][     0][     2] - e_bitmap_tools.h
+[    22][    20][    20][     1][     1][     0][     1] - z_screen.h
+[    21][    19][    19][     1][     1][     0][     1] - e_visual_level.h
+[    27][    19][    19][     1][     1][     0][     7] - mwDemoMode.h
+[    30][    19][    18][     2][     1][     1][    10] - mwTally.h
+[    21][    19][    19][     1][     1][     0][     1] - n_server.h
+[    21][    18][    17][     2][     1][     1][     2] - mwRollingAverage.h
+[    29][    16][    15][     2][     1][     1][    12] - mwPMEvent.h
+[    23][    16][    16][     2][     2][     0][     5] - z_sound.h
+[    27][    15][     9][     7][     1][     6][    11] - mwFont.h
+[    24][    15][    15][     1][     1][     0][     8] - mwPDE.h
+[    17][    14][    14][     1][     1][     0][     2] - e_edit_selection.h
+[    20][    14][    14][     1][     1][     0][     5] - z_item_trigger.h
+[    15][    13][    13][     1][     1][     0][     1] - e_group_edit.h
+[    24][    13][    12][     2][     1][     1][    10] - mwMenu.h
+[    15][    13][    13][     1][     1][     0][     1] - z_screen_overlay.h
+[    14][    11][    11][     1][     1][     0][     2] - e_object_viewer.h
+[    20][    10][    10][     5][     5][     0][     5] - z_item_bomb.h
+[    12][    10][    10][     1][     1][     0][     1] - z_solid.h
+[    16][     9][     9][     1][     1][     0][     6] - mwHelp.h
+[     9][     8][     8][     1][     1][     0][     0] - e_editor_main.h
+[    11][     8][     8][     1][     1][     0][     2] - z_loop.h
+[    10][     7][     7][     1][     1][     0][     2] - z_control.h
+[    10][     7][     7][     1][     1][     0][     2] - z_main.h
+[    12][     6][     5][     2][     1][     1][     5] - e_tile_helper.h
+[    11][     6][     6][     1][     1][     0][     4] - z_item_key.h
+[    17][     5][     5][     5][     5][     0][     7] - z_settings.h
+[     7][     4][     4][     1][     1][     0][     2] - e_window_common.h
+[     6][     4][     4][     1][     1][     0][     1] - z_args.h
+[    11][     4][     4][     1][     1][     0][     6] - z_item_door.h
+[    21][     4][     4][     1][     1][     0][    16] - z_item_pmsg.h
+[     7][     4][     4][     1][     1][     0][     2] - z_menu.h
+[     4][     3][     3][     1][     1][     0][     0] - e_glt.h
+[     6][     2][     2][     1][     1][     0][     3] - mw_multicolor_line.h
+[     3][     2][     2][     1][     1][     0][     0] - n_network.h
+[     4][     2][     2][     1][     1][     0][     1] - z_config.h
+-------------------------------------------------------- - totals
+[ 48239][ 35551][ 30333][  8226][  3008][  5218][  9680] - 132 files
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
