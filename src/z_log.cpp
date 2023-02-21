@@ -15,8 +15,6 @@
 #include "mwLevel.h"
 #include "mwHelp.h"
 
-#include "z_menu.h"
-
 
 // ------------------------------------------------
 // ----------------- logging ----------------------
@@ -103,6 +101,7 @@ int autosave_game_on_level_done = 0;
 
 void log_bandwidth_stats(int p)
 {
+   char msg[1024];
    sprintf(msg,"total tx bytes............[%d]", players1[p].tx_total_bytes);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
@@ -155,6 +154,7 @@ void log_bandwidth_stats(int p)
 
 void log_reason_for_player_quit(int p)
 {
+   char msg[1024];
    char tmsg[80];
    sprintf(tmsg,"unknown");
    int r = players1[p].quit_reason;
@@ -176,6 +176,7 @@ void log_reason_for_player_quit(int p)
 
 void add_log_TMR(double dt, const char *tag, int p)
 {
+   char msg[1024];
    sprintf(msg, "tmst %s:[%0.4f]\n", tag, dt*1000);
    add_log_entry2(44, p, msg);
 }
@@ -185,6 +186,7 @@ void add_log_TMR(double dt, const char *tag, int p)
 
 void log_time_date_stamp(void)
 {
+   char msg[1024];
    char tmsg[80];
    struct tm *timenow;
    time_t now = time(NULL);
@@ -198,6 +200,7 @@ void log_time_date_stamp(void)
 
 void log_versions(void)
 {
+   char msg[1024];
    add_log_entry_centered_text(10, 0, 76, "", "+", "-");
    sprintf(msg, "Purple Martians Version %s", mwPS.pm_version_string);
    add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
@@ -208,6 +211,7 @@ void log_versions(void)
 
 void log_player_array(void)
 {
+   char msg[1024];
    add_log_entry_header(10, 0,  "Player Array", 0);
    add_log_entry_position_text(10, 0, 76, 10, "[p][wh][a][co][m]", "|", " ");
    for (int p=0; p<NUM_PLAYERS; p++)
@@ -241,6 +245,7 @@ void log_player_array(void)
 
 void log_player_array2(void)
 {
+   char msg[1024];
    sprintf(msg, "[p][a][m][sy]");
    add_log_entry_position_text(26, 0, 76, 10, msg, "|", " ");
    for (int p=0; p<NUM_PLAYERS; p++)
@@ -255,6 +260,7 @@ void log_player_array2(void)
 
 void log_ending_stats(int p)
 {
+   char msg[1024];
    sprintf(msg,"Client %d (%s) ending stats", p, players1[p].hostname);
    add_log_entry_header(10, p, msg, 0);
 
@@ -284,6 +290,7 @@ void log_ending_stats(int p)
 
 void log_ending_stats_server()
 {
+   char msg[1024];
    sprintf(msg,"Server (%s) ending stats", mwPS.local_hostname);
    add_log_entry_header(10, 0, msg, 0);
 
@@ -581,6 +588,7 @@ int load_log_lines_array_from_static_file(const char* f)
 
 int log_file_viewer(int type)
 {
+   char msg[1024];
    al_show_mouse_cursor(display);
    char fname[1024];
    sprintf(fname, "logs/");
@@ -2448,6 +2456,7 @@ void mw_code_stat(struct code_stat &cs)
 
 void show_code_stats(void)
 {
+   char msg[1024];
    struct code_stat cs[200] = {0};
 
    char fname[1024];

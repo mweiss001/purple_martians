@@ -10,30 +10,28 @@
 #include "mwBitmap.h"
 #include "mwLift.h"
 #include "mwWidgets.h"
-#include "e_visual_level.h"
+#include "mwVisualLevel.h"
 #include "mwPDE.h"
 #include "mwColor.h"
 #include "mwPMEvent.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "z_menu.h"
 #include "mwProgramState.h"
 #include "mwLevel.h"
 #include "z_enemy.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "e_edit_selection.h"
 #include "e_editor_main.h"
 #include "e_glt.h"
 #include "e_object_viewer.h"
-
 #include "mwHelp.h"
-
 #include "mwMenu.h"
 
 
 
 void cm_process_menu_bar(int d)
 {
+   char msg[1024];
    al_set_target_backbuffer(display);
 
    mwWM.mW[8].set_pos(0, 0);
@@ -114,10 +112,10 @@ void cm_process_menu_bar(int d)
       strcpy (mMenu.menu_string[7],"Show Level Data");
       strcpy (mMenu.menu_string[8],"end");
       int ret = mMenu.tmenu(1, x1, by1-1);
-      if (ret == 1) show_all_items();
+      if (ret == 1) mItem.show_all_items();
       if (ret == 2) show_all_enemies();
       if (ret == 3) Lift.show_all_lifts();
-      if (ret == 4) show_all_pmsg();
+      if (ret == 4) mItem.show_all_pmsg();
       if (ret == 5) mwPME.show_all_events();
       if (ret == 6) mLevel.level_check();
       if (ret == 7) show_level_data();
@@ -138,7 +136,7 @@ void cm_process_menu_bar(int d)
       int ret = mMenu.tmenu(1, x1, by1-1);
       if (ret == 1) mPDE.run();
       if (ret == 2) global_level();
-      if (ret == 3) level_viewer();
+      if (ret == 3) mVisualLevel.level_viewer();
       if (ret == 4) animation_sequence_editor();
       if (ret == 5) copy_tiles();
       if (ret == 6) edit_btile_attributes();
@@ -345,6 +343,7 @@ void cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int have_focus
 
 void cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, int have_focus)
 {
+   char msg[1024];
    // frame entire window
    al_draw_rectangle(x1, y1, x2, y2, mC.pc[9], 1);
 
@@ -506,9 +505,9 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, int have_fo
                      case 206: create_obj(2, 10,0);  break; // msg
                      case 207: create_obj(3, 9, 0);  break; // cloner
                      case 208: Lift.create_lift(); break; // lift
-                     case 209: create_door(1);       break; // one way fixed exit door
-                     case 210: create_door(2);       break; // one way linked exit door
-                     case 211: create_door(3);       break; // two way door set
+                     case 209: mItem.create_door(1);       break; // one way fixed exit door
+                     case 210: mItem.create_door(2);       break; // one way linked exit door
+                     case 211: mItem.create_door(3);       break; // two way door set
                      case 213: create_obj(2, 9, 0);  break; // trigger
                      case 214: create_obj(2, 16, 0); break; // block manip
                      case 215: create_obj(2, 17, 0); break; // block damage
@@ -534,7 +533,7 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, int have_fo
          al_draw_text(mF.pr8, mC.pc[9], x1+2, syt+2,  0, "Description");
 
          // draw text for this block
-         em_get_text_description_of_block_based_on_flags(ret);
+         em_get_text_description_of_block_based_on_flags(ret, msg);
          al_draw_text (mF.pr8, mC.pc[15], x1+2, syt+14, 0, "---------------------");
          al_draw_textf(mF.pr8, mC.pc[15], x1+2, syt+22, 0, "Block %d - %s ", ret&1023, msg);
          al_draw_text (mF.pr8, mC.pc[15], x1+2, syt+30, 0, "---------------------");

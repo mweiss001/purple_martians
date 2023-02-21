@@ -234,8 +234,8 @@ class mwGraph
    void enforce_axis_limits(void);
    void enforce_axis_limits(int type);
 
-   char* x_axis_get_val_text(double val, int units);
-   char* y_axis_get_val_text(double val, int units);
+   char* x_axis_get_val_text(double val, int units, char*);
+   char* y_axis_get_val_text(double val, int units, char*);
 
    int find_closest_point_to_mouse(int &s, int &i);
 

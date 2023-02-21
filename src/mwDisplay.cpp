@@ -6,20 +6,14 @@
 #include "mwWindowManager.h"
 #include "mwBitmap.h"
 #include "mwProgramState.h"
-#include "z_menu.h"
 #include "z_config.h"
-
 #include "z_screen.h"
 #include "mwInput.h"
-
-
-
-
 #include "z_player.h"
 #include "mwLift.h"
 #include "mwGameMovesArray.h"
 #include "mwPMEvent.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
 #include "mwLevel.h"
 #include "mwShots.h"
@@ -231,21 +225,21 @@ void mwDisplay::show_var_sizes(void)
 {
    printf("\nVariables used to save levels in pml format\n\n");
    printf("mLevel.l    :%6d\n",  (int)sizeof(mLevel.l)     );
-   printf("item        :%6d\n",  (int)sizeof(item)         );
+   printf("mItem.item  :%6d\n",  (int)sizeof(mItem.item)   );
    printf("Ef          :%6d\n",  (int)sizeof(Ef)           );
    printf("Ei          :%6d\n",  (int)sizeof(Ei)           );
    printf("Lift.cur    :%6d\n",  (int)sizeof(Lift.cur)     );
    printf("Lift.stp    :%6d\n",  (int)sizeof(Lift.stp)     );
-   printf("pmsgtext    :%6d\n",  (int)sizeof(pmsgtext)     );
+   printf("mItem.pmsgtext  :%6d\n",  (int)sizeof(mItem.pmsgtext)     );
 
    int sz = 0;
    sz+= sizeof(mLevel.l)     ;
-   sz+= sizeof(item)         ;
+   sz+= sizeof(mItem.item)         ;
    sz+= sizeof(Ef)           ;
    sz+= sizeof(Ei)           ;
    sz+= sizeof(Lift.cur)     ;
    sz+= sizeof(Lift.stp)     ;
-   sz+= sizeof(pmsgtext)     ;
+   sz+= sizeof(mItem.pmsgtext)     ;
    printf("------------:------\n");
    printf("total       :%6d\n",  sz );
 
@@ -254,8 +248,8 @@ void mwDisplay::show_var_sizes(void)
    printf("players  :%6d\n", (int)sizeof(players)      );
    printf("Ei       :%6d\n", (int)sizeof(Ei)           );
    printf("Ef       :%6d\n", (int)sizeof(Ef)           );
-   printf("item     :%6d\n", (int)sizeof(item)         );
-   printf("itemf    :%6d\n", (int)sizeof(itemf)        );
+   printf("mItem.item     :%6d\n", (int)sizeof(mItem.item)         );
+   printf("mItem.itemf    :%6d\n", (int)sizeof(mItem.itemf)        );
    printf("Lift.cur :%6d\n", (int)sizeof(Lift.cur)     );
    printf("mLevel.l :%6d\n", (int)sizeof(mLevel.l)     );
    printf("mwS.p    :%6d\n", (int)sizeof(mwS.p)        );
@@ -266,8 +260,8 @@ void mwDisplay::show_var_sizes(void)
    sz+= sizeof(players)      ;
    sz+= sizeof(Ei)           ;
    sz+= sizeof(Ef)           ;
-   sz+= sizeof(item)         ;
-   sz+= sizeof(itemf)        ;
+   sz+= sizeof(mItem.item)         ;
+   sz+= sizeof(mItem.itemf)        ;
    sz+= sizeof(Lift.cur)     ;
    sz+= sizeof(mLevel.l)     ;
    sz+= sizeof(mwS.p)        ;
@@ -430,6 +424,7 @@ void mwDisplay::show_display_adapters(void)
 
 void mwDisplay::set_window_title(void)
 {
+   char msg[1024];
 //   sprintf(msg, "Purple Martians");
    sprintf(msg, "Purple Martians %s", mwPS.pm_version_string);
 //   sprintf(msg, "Purple Martians %s   [%d x %d]", mwPS.pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H);
@@ -443,6 +438,7 @@ void mwDisplay::set_window_title(void)
 
 int mwDisplay::init_display(void)
 {
+   char msg[1024];
    scale_factor_inc = 0.03;
 
    int num_adapters = al_get_num_video_adapters();

@@ -12,12 +12,13 @@
 #include "mwPMEvent.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "z_menu.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
 #include "e_fnx.h"
-#include "z_item_door.h"
 #include "mwHelp.h"
+
+
+
 
 char smsg[80];
 int bw = 3; // slider adjustment bar width
@@ -492,19 +493,19 @@ void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
 
 void set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3)
 {
-   if (item[i][0] == 6) // orb
+   if (mItem.item[i][0] == 6) // orb
    {
-      item[i][10] = ev0;
-      item[i][11] = ev1;
-      item[i][12] = ev2;
-      item[i][13] = ev3;
+      mItem.item[i][10] = ev0;
+      mItem.item[i][11] = ev1;
+      mItem.item[i][12] = ev2;
+      mItem.item[i][13] = ev3;
    }
-   if (item[i][0] == 9) // trigger
+   if (mItem.item[i][0] == 9) // trigger
    {
-      item[i][11] = ev0;
-      item[i][12] = ev1;
-      item[i][13] = ev2;
-      item[i][14] = ev3;
+      mItem.item[i][11] = ev0;
+      mItem.item[i][12] = ev1;
+      mItem.item[i][13] = ev2;
+      mItem.item[i][14] = ev3;
    }
 }
 
@@ -513,11 +514,11 @@ void set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3)
 
 int get_frame_size(int num)
 {
-   if (item[num][2] & PM_ITEM_PMSG_FRAME0) return 0;
-   if (item[num][2] & PM_ITEM_PMSG_FRAME1) return 1;
-   if (item[num][2] & PM_ITEM_PMSG_FRAME2) return 2;
-   if (item[num][2] & PM_ITEM_PMSG_FRAME4) return 4;
-   if (item[num][2] & PM_ITEM_PMSG_FRAME12) return 12;
+   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME0) return 0;
+   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME1) return 1;
+   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME2) return 2;
+   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME4) return 4;
+   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME12) return 12;
    return 0;
 }
 
@@ -525,17 +526,17 @@ int get_frame_size(int num)
 void set_frame_size(int num, int frame_size)
 {
    // clear all flags
-   item[num][2] &= ~PM_ITEM_PMSG_FRAME0;
-   item[num][2] &= ~PM_ITEM_PMSG_FRAME1;
-   item[num][2] &= ~PM_ITEM_PMSG_FRAME2;
-   item[num][2] &= ~PM_ITEM_PMSG_FRAME4;
-   item[num][2] &= ~PM_ITEM_PMSG_FRAME12;
+   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME0;
+   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME1;
+   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME2;
+   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME4;
+   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME12;
 
-   if (frame_size == 0)  item[num][2] |= PM_ITEM_PMSG_FRAME0;
-   if (frame_size == 1)  item[num][2] |= PM_ITEM_PMSG_FRAME1;
-   if (frame_size == 2)  item[num][2] |= PM_ITEM_PMSG_FRAME2;
-   if (frame_size == 4)  item[num][2] |= PM_ITEM_PMSG_FRAME4;
-   if (frame_size == 12) item[num][2] |= PM_ITEM_PMSG_FRAME12;
+   if (frame_size == 0)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME0;
+   if (frame_size == 1)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME1;
+   if (frame_size == 2)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME2;
+   if (frame_size == 4)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME4;
+   if (frame_size == 12) mItem.item[num][2] |= PM_ITEM_PMSG_FRAME12;
 }
 
 
@@ -569,14 +570,14 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 4)
    {
-      if (item[num][8] == 0) sprintf(smsg, "disabled");
-      if (item[num][8] == 1) sprintf(smsg, "Set Desination Item (%d)", item[num][9]);
+      if (mItem.item[num][8] == 0) sprintf(smsg, "disabled");
+      if (mItem.item[num][8] == 1) sprintf(smsg, "Set Desination Item (%d)", mItem.item[num][9]);
       if (press)
       {
-         if (item[num][8] == 1) // Set Linked Item
+         if (mItem.item[num][8] == 1) // Set Linked Item
          {
              int i = get_item(2, 1, num );
-             if (i > -1) item[num][9] = i;
+             if (i > -1) mItem.item[num][9] = i;
          }
       }
    }
@@ -588,8 +589,8 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       {
          int x=0, y=0, w=0, h=0;
          get_block_range("Message Area", &x, &y, &w, &h, 1);
-         set_int_3216(item[num][10], x, y);
-         set_int_3216(item[num][11], w, h);
+         set_int_3216(mItem.item[num][10], x, y);
+         set_int_3216(mItem.item[num][11], w, h);
 
       }
    }
@@ -662,17 +663,17 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    {
       if (press)
       {
-         item[num][8] = !item[num][8];
+         mItem.item[num][8] = !mItem.item[num][8];
          // check for bad link
-         int link = item[num][9];
-         if (item[link][0] != 1) // link is not door
+         int link = mItem.item[num][9];
+         if (mItem.item[link][0] != 1) // link is not door
          {
-            item[num][9] = num;  // link to self
-            item[num][11] = 1;   // trigger with up
+            mItem.item[num][9] = num;  // link to self
+            mItem.item[num][11] = 1;   // trigger with up
          }
       }
-      if (item[num][8] == 0) sprintf(smsg, "Door Type:Exit Only");
-      if (item[num][8] == 1) sprintf(smsg, "Door Type:Normal   ");
+      if (mItem.item[num][8] == 0) sprintf(smsg, "Door Type:Exit Only");
+      if (mItem.item[num][8] == 1) sprintf(smsg, "Door Type:Normal   ");
    }
 
 
@@ -681,7 +682,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       sprintf(smsg, "Change Door Shape");
       if (press)
       {
-         int shape = item[num][13];
+         int shape = mItem.item[num][13];
          if (shape == 448) shape = 1083;
          else if (shape == 1083) shape = 0;
          else if (shape == 0) shape = 448;
@@ -689,8 +690,8 @@ int mdw_button(int x1, int &y1, int x2, int bts,
          if ((shape != 448)  && (shape != 1083) && (shape != 0)) shape = 1083;
 //         if ((shape != 448) && (shape != 1083)) shape = 1083;
 
-         item[num][13] = shape;
-         item[num][1] = shape;
+         mItem.item[num][13] = shape;
+         mItem.item[num][1] = shape;
 
 //         if (shape != -1) change_linked_door_color_and_shape(num);
       }
@@ -706,8 +707,8 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
       if (o == 2)
       {
-         t = item[n][0];
-         sprintf(smsg,"%s Help", item_name[t]);
+         t = mItem.item[n][0];
+         sprintf(smsg,"%s Help", mItem.item_name[t]);
       }
       if (o == 3)
       {
@@ -759,13 +760,13 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 77)
    {
-      if (item[num][12] == 0) sprintf(smsg, "Type:Fuse Timer");
-      if (item[num][12] == 1) sprintf(smsg, "Type:Remote Detonator");
+      if (mItem.item[num][12] == 0) sprintf(smsg, "Type:Fuse Timer");
+      if (mItem.item[num][12] == 1) sprintf(smsg, "Type:Remote Detonator");
       if (press)
       {
-         item[num][12] = !item[num][12];
-         if (item[num][12]) item[num][1] = 537;
-         else item[num][1] = 464;
+         mItem.item[num][12] = !mItem.item[num][12];
+         if (mItem.item[num][12]) mItem.item[num][1] = 537;
+         else mItem.item[num][1] = 464;
       }
    }
 
@@ -778,69 +779,69 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    {
       if (press)
       {
-         if (item[num][2] & PM_ITEM_ORB_TRIG_TOUCH)
+         if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_TOUCH)
          {
-            item[num][2] &= ~PM_ITEM_ORB_TRIG_TOUCH; // clear flag
-            item[num][2] |= PM_ITEM_ORB_TRIG_UP; // set flag
+            mItem.item[num][2] &= ~PM_ITEM_ORB_TRIG_TOUCH; // clear flag
+            mItem.item[num][2] |= PM_ITEM_ORB_TRIG_UP; // set flag
          }
-         else if (item[num][2] & PM_ITEM_ORB_TRIG_UP)
+         else if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_UP)
          {
-            item[num][2] &= ~PM_ITEM_ORB_TRIG_UP; // clear flag
-            item[num][2] |= PM_ITEM_ORB_TRIG_DOWN; // set flag
+            mItem.item[num][2] &= ~PM_ITEM_ORB_TRIG_UP; // clear flag
+            mItem.item[num][2] |= PM_ITEM_ORB_TRIG_DOWN; // set flag
          }
-         else if (item[num][2] & PM_ITEM_ORB_TRIG_DOWN)
+         else if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_DOWN)
          {
-            item[num][2] &= ~PM_ITEM_ORB_TRIG_DOWN;  // clear flag
-            item[num][2] |= PM_ITEM_ORB_TRIG_SHOT; // set flag
+            mItem.item[num][2] &= ~PM_ITEM_ORB_TRIG_DOWN;  // clear flag
+            mItem.item[num][2] |= PM_ITEM_ORB_TRIG_SHOT; // set flag
          }
-         else if (item[num][2] & PM_ITEM_ORB_TRIG_SHOT)
+         else if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_SHOT)
          {
-            item[num][2] &= ~PM_ITEM_ORB_TRIG_SHOT; // clear flag
-            item[num][2] |= PM_ITEM_ORB_TRIG_TOUCH; // set flag
+            mItem.item[num][2] &= ~PM_ITEM_ORB_TRIG_SHOT; // clear flag
+            mItem.item[num][2] |= PM_ITEM_ORB_TRIG_TOUCH; // set flag
          }
       }
 
       sprintf(smsg, "undef");
 
-      if (item[num][2] & PM_ITEM_ORB_TRIG_TOUCH)  sprintf(smsg, "Trigger:Touch");
-      if (item[num][2] & PM_ITEM_ORB_TRIG_UP)     sprintf(smsg, "Trigger:Up");
-      if (item[num][2] & PM_ITEM_ORB_TRIG_DOWN)   sprintf(smsg, "Trigger:Down");
-      if (item[num][2] & PM_ITEM_ORB_TRIG_SHOT) sprintf(smsg, "Trigger:Bullet");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_TOUCH)  sprintf(smsg, "Trigger:Touch");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_UP)     sprintf(smsg, "Trigger:Up");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_DOWN)   sprintf(smsg, "Trigger:Down");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_SHOT) sprintf(smsg, "Trigger:Bullet");
    }
 
 
    if (bn == 92) // orb mode
    {
-      if (press) item[num][6]++;
-      if ((item[num][6] < 0) || (item[num][6] > 4)) item[num][6] = 0;
+      if (press) mItem.item[num][6]++;
+      if ((mItem.item[num][6] < 0) || (mItem.item[num][6] > 4)) mItem.item[num][6] = 0;
       sprintf(smsg, "undef");
-      if (item[num][6] == 0) sprintf(smsg, "Mode:Toggle");
-      if (item[num][6] == 1)
+      if (mItem.item[num][6] == 0) sprintf(smsg, "Mode:Toggle");
+      if (mItem.item[num][6] == 1)
       {
          sprintf(smsg, "Mode:Stick ON");
-         item[num][2] &= ~PM_ITEM_ORB_STATE;
+         mItem.item[num][2] &= ~PM_ITEM_ORB_STATE;
       }
-      if (item[num][6] == 2)
+      if (mItem.item[num][6] == 2)
       {
          sprintf(smsg, "Mode:Stick OFF");
-         item[num][2] |= PM_ITEM_ORB_STATE;
+         mItem.item[num][2] |= PM_ITEM_ORB_STATE;
       }
-      if (item[num][6] == 3)
+      if (mItem.item[num][6] == 3)
       {
          sprintf(smsg, "Mode:Timed ON");
-         item[num][2] &= ~PM_ITEM_ORB_STATE;
+         mItem.item[num][2] &= ~PM_ITEM_ORB_STATE;
       }
-      if (item[num][6] == 4)
+      if (mItem.item[num][6] == 4)
       {
          sprintf(smsg, "Mode:Timed OFF");
-         item[num][2] |= PM_ITEM_ORB_STATE;
+         mItem.item[num][2] |= PM_ITEM_ORB_STATE;
       }
    }
 
    if (bn == 94) // orb rotation
    {
       // get rb
-      int rb = (item[num][2] & PM_ITEM_ORB_ROTB) >> 14;
+      int rb = (mItem.item[num][2] & PM_ITEM_ORB_ROTB) >> 14;
 
       if (press) rb++;
       if ((rb < 0) || (rb > 3)) rb = 0;
@@ -849,8 +850,8 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
       // set rb
       rb = rb << 14; // shift bits into place
-      item[num][2] &= ~PM_ITEM_ORB_ROTB; // clear bits in target
-      item[num][2] |= rb; // merge
+      mItem.item[num][2] &= ~PM_ITEM_ORB_ROTB; // clear bits in target
+      mItem.item[num][2] |= rb; // merge
 
 
    }
@@ -858,9 +859,9 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 211) // Trigger Field X Lift Alignment
    {
-      int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
-      int F = item[num][3] & PM_ITEM_TRIGGER_LIFT_XF;
-      int L = item[num][3] & PM_ITEM_TRIGGER_LIFT_XL;
+      int C = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
+      int F = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XF;
+      int L = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XL;
       if (C) sprintf(smsg, "Lift X Align:Center");
       else
       {
@@ -871,44 +872,44 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       }
       if (press)
       {
-         int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
-         int F = item[num][3] & PM_ITEM_TRIGGER_LIFT_XF;
-         int L = item[num][3] & PM_ITEM_TRIGGER_LIFT_XL;
+         int C = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
+         int F = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XF;
+         int L = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XL;
          if (C)    // 1 X X
          {  // set to 0 0 0
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
          }
          else if ((!F) && (!L)) // 0 0 0
          {               // set to 0 0 1
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
-            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XL; // set   L flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XL; // set   L flag
          }
          else if ((!F) && (L)) // 0 0 1
          {              // set to 0 1 0
-            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XF; // set   F flag
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XF; // set   F flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
          }
          else if ((F) && (!L)) // 0 1 0
          {              // set to 0 1 1
-            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XF; // set   F flag
-            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XL; // set   L flag
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XF; // set   F flag
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XL; // set   L flag
          }
          else if ((F) && (L))  // 0 1 1
          {              // set to 1 0 0
-            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XC; // set   C flag
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XC; // set   C flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
          }
       }
    }
    if (bn == 212) // Trigger Field Y Lift Alignment
    {
-      int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_YC;
-      int F = item[num][3] & PM_ITEM_TRIGGER_LIFT_YF;
-      int L = item[num][3] & PM_ITEM_TRIGGER_LIFT_YL;
+      int C = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_YC;
+      int F = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_YF;
+      int L = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_YL;
       if (C) sprintf(smsg, "Lift Y Align:Center");
       else
       {
@@ -919,37 +920,37 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       }
       if (press)
       {
-         int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_YC;
-         int F = item[num][3] & PM_ITEM_TRIGGER_LIFT_YF;
-         int L = item[num][3] & PM_ITEM_TRIGGER_LIFT_YL;
+         int C = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_YC;
+         int F = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_YF;
+         int L = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_YL;
 
          if (C)    // 1 X X
          {  // set to 0 0 0
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YC; // clear C flag
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YC; // clear C flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
          }
          else if ((!F) && (!L)) // 0 0 0
          {               // set to 0 0 1
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YC; // clear C flag
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
-            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YL; // set   L flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YC; // clear C flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YL; // set   L flag
          }
          else if ((!F) && (L)) // 0 0 1
          {              // set to 0 1 0
-            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YF; // set   F flag
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YF; // set   F flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
          }
          else if ((F) && (!L)) // 0 1 0
          {              // set to 0 1 1
-            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YF; // set   F flag
-            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YL; // set   L flag
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YF; // set   F flag
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YL; // set   L flag
          }
          else if ((F) && (L))  // 0 1 1
          {              // set to 1 0 0
-            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YC; // set   C flag
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
-            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
+            mItem.item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YC; // set   C flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
+            mItem.item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
          }
       }
    }
@@ -958,35 +959,35 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 310) // block 1 select...
    {
-      int tn = item[num][10]&1023; // block 1
+      int tn = mItem.item[num][10]&1023; // block 1
       sprintf(smsg, "Block 1: %d", tn);
-      if (press) item[num][10] = select_bitmap(item[num][10]);
+      if (press) mItem.item[num][10] = select_bitmap(mItem.item[num][10]);
    }
    if (bn == 311) // block 2 select...
    {
-      int tn = item[num][11]&1023; // block 2
+      int tn = mItem.item[num][11]&1023; // block 2
       sprintf(smsg, "Block 2: %d", tn);
-      if (press) item[num][11] = select_bitmap(item[num][11]);
+      if (press) mItem.item[num][11] = select_bitmap(mItem.item[num][11]);
    }
    if (bn == 320)
    {
-      sprintf(smsg, "Set Event Trigger (%d)", item[num][1]);
+      sprintf(smsg, "Set Event Trigger (%d)", mItem.item[num][1]);
       if (press)
       {
-         int i = get_trigger_item(2, item[num][0], num );
+         int i = get_trigger_item(2, mItem.item[num][0], num );
          if (i > -1)
          {
             int ev = mwPME.get_unused_pm_event();
-            item[num][1] = ev;
+            mItem.item[num][1] = ev;
 
-            if (item[num][0] == 16) // block manip
+            if (mItem.item[num][0] == 16) // block manip
             {
-               if (item[num][3] == 3) set_trigger_event(i, 0, 0, ev, 0); // mode 3 - toggle blocks - needs a toggle ON trigger
+               if (mItem.item[num][3] == 3) set_trigger_event(i, 0, 0, ev, 0); // mode 3 - toggle blocks - needs a toggle ON trigger
                else                   set_trigger_event(i, ev, 0, 0, 0); // needs a regular ON trigger
             }
-            if (item[num][0] == 17) // block damage
+            if (mItem.item[num][0] == 17) // block damage
             {
-               if (item[num][11] == 1) set_trigger_event(i, 0, 0, ev, 0); // mode 1 - toggle damage - needs a toggle ON trigger
+               if (mItem.item[num][11] == 1) set_trigger_event(i, 0, 0, ev, 0); // mode 1 - toggle damage - needs a toggle ON trigger
                else                    set_trigger_event(i, ev, 0, 0, 0); // needs a regular ON trigger
             }
          }
@@ -996,40 +997,40 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    if (bn == 401) // timer draw mode
    {
                                                  sprintf(smsg, "Timer Display: OFF          ");
-      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_SN) sprintf(smsg, "Timer Display: Small Number ");
-      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_BN) sprintf(smsg, "Timer Display: Large Number ");
-      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_SP) sprintf(smsg, "Timer Display: Small Percent");
-      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_BP) sprintf(smsg, "Timer Display: Large Percent");
+      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SN) sprintf(smsg, "Timer Display: Small Number ");
+      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BN) sprintf(smsg, "Timer Display: Large Number ");
+      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SP) sprintf(smsg, "Timer Display: Small Percent");
+      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BP) sprintf(smsg, "Timer Display: Large Percent");
       if (press)
       {
-         if (item[num][3] & PM_ITEM_DAMAGE_TIMR_SN)
+         if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SN)
          {
-            item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SN; // clear
-            item[num][3] |=  PM_ITEM_DAMAGE_TIMR_BN; // set
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SN; // clear
+            mItem.item[num][3] |=  PM_ITEM_DAMAGE_TIMR_BN; // set
          }
-         else if (item[num][3] & PM_ITEM_DAMAGE_TIMR_BN)
+         else if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BN)
          {
-            item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_BN; // clear
-            item[num][3] |=  PM_ITEM_DAMAGE_TIMR_SP; // set
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_BN; // clear
+            mItem.item[num][3] |=  PM_ITEM_DAMAGE_TIMR_SP; // set
          }
-         else if (item[num][3] & PM_ITEM_DAMAGE_TIMR_SP)
+         else if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SP)
          {
-            item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SP; // clear
-            item[num][3] |=  PM_ITEM_DAMAGE_TIMR_BP; // set
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SP; // clear
+            mItem.item[num][3] |=  PM_ITEM_DAMAGE_TIMR_BP; // set
          }
-         else if (item[num][3] & PM_ITEM_DAMAGE_TIMR_BP)
+         else if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BP)
          {
-            item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SN; // clear all
-            item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_BN; // clear all
-            item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SP; // clear all
-            item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_BP; // clear all
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SN; // clear all
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_BN; // clear all
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SP; // clear all
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_BP; // clear all
          }
-         else if ( (!(item[num][3] & PM_ITEM_DAMAGE_TIMR_SN))
-                && (!(item[num][3] & PM_ITEM_DAMAGE_TIMR_BN))
-                && (!(item[num][3] & PM_ITEM_DAMAGE_TIMR_SP))
-                && (!(item[num][3] & PM_ITEM_DAMAGE_TIMR_BP)) ) // all clear
+         else if ( (!(mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SN))
+                && (!(mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BN))
+                && (!(mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SP))
+                && (!(mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BP)) ) // all clear
          {
-            item[num][3] |=  PM_ITEM_DAMAGE_TIMR_SN; // set
+            mItem.item[num][3] |=  PM_ITEM_DAMAGE_TIMR_SN; // set
          }
       }
    }
@@ -1040,9 +1041,9 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 411) // DAMAGE Field X Lift Alignment
    {
-      int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_XC;
-      int F = item[num][3] & PM_ITEM_DAMAGE_LIFT_XF;
-      int L = item[num][3] & PM_ITEM_DAMAGE_LIFT_XL;
+      int C = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_XC;
+      int F = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_XF;
+      int L = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_XL;
 
       if (C) sprintf(smsg, "Lift X Align:Center");
       else
@@ -1054,46 +1055,46 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       }
       if (press)
       {
-         int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_XC;
-         int F = item[num][3] & PM_ITEM_DAMAGE_LIFT_XF;
-         int L = item[num][3] & PM_ITEM_DAMAGE_LIFT_XL;
+         int C = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_XC;
+         int F = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_XF;
+         int L = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_XL;
 
 
          if (C)    // 1 X X
          {  // set to 0 0 0
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XC; // clear C flag
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XC; // clear C flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
          }
          else if ((!F) && (!L)) // 0 0 0
          {               // set to 0 0 1
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XC; // clear C flag
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
-            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XL; // set   L flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XC; // clear C flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
+            mItem.item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XL; // set   L flag
          }
          else if ((!F) && (L)) // 0 0 1
          {              // set to 0 1 0
-            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XF; // set   F flag
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
+            mItem.item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XF; // set   F flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
          }
          else if ((F) && (!L)) // 0 1 0
          {              // set to 0 1 1
-            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XF; // set   F flag
-            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XL; // set   L flag
+            mItem.item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XF; // set   F flag
+            mItem.item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XL; // set   L flag
          }
          else if ((F) && (L))  // 0 1 1
          {              // set to 1 0 0
-            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XC; // set   C flag
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
+            mItem.item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XC; // set   C flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
          }
       }
    }
    if (bn == 412) // DAMAGE Field Y Lift Alignment
    {
-      int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_YC;
-      int F = item[num][3] & PM_ITEM_DAMAGE_LIFT_YF;
-      int L = item[num][3] & PM_ITEM_DAMAGE_LIFT_YL;
+      int C = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_YC;
+      int F = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_YF;
+      int L = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_YL;
 
       if (C) sprintf(smsg, "Lift Y Align:Center");
       else
@@ -1105,37 +1106,37 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       }
       if (press)
       {
-         int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_YC;
-         int F = item[num][3] & PM_ITEM_DAMAGE_LIFT_YF;
-         int L = item[num][3] & PM_ITEM_DAMAGE_LIFT_YL;
+         int C = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_YC;
+         int F = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_YF;
+         int L = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_YL;
 
          if (C)    // 1 X X
          {  // set to 0 0 0
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YC; // clear C flag
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YC; // clear C flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
          }
          else if ((!F) && (!L)) // 0 0 0
          {               // set to 0 0 1
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YC; // clear C flag
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
-            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YL; // set   L flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YC; // clear C flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
+            mItem.item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YL; // set   L flag
          }
          else if ((!F) && (L)) // 0 0 1
          {              // set to 0 1 0
-            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YF; // set   F flag
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
+            mItem.item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YF; // set   F flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
          }
          else if ((F) && (!L)) // 0 1 0
          {              // set to 0 1 1
-            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YF; // set   F flag
-            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YL; // set   L flag
+            mItem.item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YF; // set   F flag
+            mItem.item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YL; // set   L flag
          }
          else if ((F) && (L))  // 0 1 1
          {              // set to 1 0 0
-            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YC; // set   C flag
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
-            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
+            mItem.item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YC; // set   C flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
+            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
          }
       }
    }
@@ -1229,7 +1230,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 310)
    {
-      int tn = item[num][10];
+      int tn = mItem.item[num][10];
       int x = (x2+x1)/2+60;
       int y = (y2+y1)/2-10;
 
@@ -1239,7 +1240,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 311)
    {
-      int tn = item[num][11];
+      int tn = mItem.item[num][11];
       int x = (x2+x1)/2+60;
       int y = (y2+y1)/2-10;
 
@@ -1576,7 +1577,7 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if (var == 0)
       {
          sprintf(smsg, "MODE:Always ON");
-         item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
+         mItem.item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
 
       }
 
@@ -1584,13 +1585,13 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if (var == 2)
       {
          sprintf(smsg, "MODE:ON Until Triggered");
-         item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
+         mItem.item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
       }
 
       if (var == 3)
       {
          sprintf(smsg, "MODE:OFF Until Triggered");
-         item[num][3] &=  ~PM_ITEM_DAMAGE_CURR; // set damage off
+         mItem.item[num][3] &=  ~PM_ITEM_DAMAGE_CURR; // set damage off
       }
 
       if (var == 4) sprintf(smsg, "MODE:Timed ON And OFF");
@@ -1707,26 +1708,26 @@ void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
       if (bn == 2) // text color
       {
          int tc=0, fc = 0;
-         get_int_3216(item[num][13], tc, fc);
+         get_int_3216(mItem.item[num][13], tc, fc);
          tc = color;
-         set_int_3216(item[num][13], tc, fc);
+         set_int_3216(mItem.item[num][13], tc, fc);
       }
 
       if (bn == 3) // frame color
       {
          int tc=0, fc = 0;                  // text and frame colors
-         get_int_3216(item[num][13], tc, fc);
+         get_int_3216(mItem.item[num][13], tc, fc);
          fc = color;
-         set_int_3216(item[num][13], tc, fc);
+         set_int_3216(mItem.item[num][13], tc, fc);
       }
       if (bn == 4) Lift.cur[num].color = color; // lift color
       if (bn == 5)
       {
-         item[num][6] = color;     // door color
-         change_linked_door_color_and_shape(num);
+         mItem.item[num][6] = color;     // door color
+         mItem.change_linked_door_color_and_shape(num);
       }
-      if (bn == 6) item[num][2] = color;     // trigger color
-      if (bn == 7) item[num][12] = color;    // block manip color
+      if (bn == 6) mItem.item[num][2] = color;     // trigger color
+      if (bn == 7) mItem.item[num][12] = color;    // block manip color
 
 
       if (bn == 8) // lift step color

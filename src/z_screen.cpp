@@ -14,8 +14,7 @@
 #include "mwLift.h"
 #include "mwColor.h"
 #include "mwProgramState.h"
-#include "z_menu.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
 #include "mwLevel.h"
 
@@ -581,7 +580,7 @@ void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int item
    if (mLevel.valid_level_loaded)
    {
       if (lifts)   Lift.draw_lifts();
-      if (items)   draw_items();
+      if (items)   mItem.draw_items();
       if (enemies) draw_enemies();
       if (mLevel.resume_allowed)
       {
@@ -738,6 +737,7 @@ void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, in
 
 void draw_title(int x, int y, int w, int h, int color)
 {
+   char msg[1024];
    sprintf(msg, "%s Martians!", mC.color_name[color]); // overwrite with color name
    int bbx1, bby1, bbw1, bbh1;
    al_get_text_dimensions(mF.sauc, msg, &bbx1, &bby1, &bbw1, &bbh1);

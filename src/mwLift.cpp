@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwLift.h"
-
 #include "z_player.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
@@ -15,11 +14,9 @@
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwMenu.h"
-
 #include "mwProgramState.h"
 #include "e_fnx.h"
 #include "e_object_viewer.h"
-
 #include "z_screen.h"
 
 mwLift Lift;

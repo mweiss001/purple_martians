@@ -5,7 +5,6 @@
 #include "n_netgame.h"
 #include "mwBitmap.h"
 #include "mwLevel.h"
-
 #include "z_screen_overlay.h"
 #include "z_enemy.h"
 #include "z_player.h"

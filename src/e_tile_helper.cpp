@@ -13,8 +13,6 @@
 #include "z_screen.h"
 
 
-
-
 int thl[100][100] = {0}; // tile helper
 
 void th_replace(int type)
@@ -400,12 +398,10 @@ void th_replace(int type)
 
 int th_draw_buttons(int x3, int x4, int yfb, int d)
 {
-
    int bts = 16;
    x3+=4;
    x4-=4;
    int yfb_old = yfb;
-
 
    int marked_count = 0;
    for (int a=0; a<100; a++)

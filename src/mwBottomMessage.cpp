@@ -8,7 +8,7 @@
 #include "mwTimeStamp.h"
 #include "mwColor.h"
 #include "mwProgramState.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
 
 
@@ -136,7 +136,7 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
    if (ev == 59) // raw damage that needs to be tallied
    {
       int p = z1;
-      float damage = (float)item[z2][15] / 100; // damage from item 17 - block damage
+      float damage = (float)mItem.item[z2][15] / 100; // damage from item 17 - block damage
 
       if (players1[p].block_damage_holdoff < mwPS.frame_num) // triggered and not in holdoff
       {
@@ -201,7 +201,7 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
 
          int c1 =0;  // color
          int tn = 0; // tile_numer
-         int k = item[z2][1] - 1039;
+         int k = mItem.item[z2][1] - 1039;
          char tmsg[20] = {0};
 
          if (k == 0) { sprintf(tmsg, "red");    c1 = 10; tn = 272; } // red
@@ -218,7 +218,7 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
       {
          custom_drawn = 1;
          bmsg_length += draw_text(" flipped a switch ", 15, bmsg_length);
-         bmsg_length += draw_tile2(item[z2][1], bmsg_length, -10, -2);
+         bmsg_length += draw_tile2(mItem.item[z2][1], bmsg_length, -10, -2);
       }
 
       if (ev == 40) // player got shot by another player
@@ -285,7 +285,7 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
       {
          custom_drawn = 1;
          int damage = (int) players1[z1].block_damage_tally;
-         int type = item[players1[z1].block_damage_item_number][2];
+         int type = mItem.item[players1[z1].block_damage_item_number][2];
          if (type == 2) bmsg_length += draw_text(" was hurt by spikey floor ", 15, bmsg_length);
          else           bmsg_length += draw_text(" was hurt by block damage ", 15, bmsg_length);
          bmsg_length += draw_health(-damage, bmsg_length);

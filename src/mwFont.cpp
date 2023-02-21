@@ -3,7 +3,6 @@
 #include "pm.h"
 #include "mwFont.h"
 #include "mwDisplay.h"
-
 #include "mwInput.h"
 
 mwFont mF;

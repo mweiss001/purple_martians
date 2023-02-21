@@ -6,7 +6,7 @@
 #include "n_netgame.h"
 #include "z_log.h"
 #include "mwProgramState.h"
-#include "z_menu.h"
+//#include "z_menu.h"
 #include "mwLevel.h"
 #include "z_control.h"
 
@@ -96,6 +96,8 @@ void mwGameMovesArray::add_game_move2(int frame, int type, int data1, int data2)
 
 void mwGameMovesArray::add_game_move(int frame, int type, int data1, int data2)
 {
+   char msg[1024];
+
    // ----------------------------------------------------------------------------------------
    // if we are in level_done_mode 5, all moves are converted to type 8, level done acknowledge
    // ----------------------------------------------------------------------------------------
@@ -194,6 +196,8 @@ void mwGameMovesArray::proc_player_client_quit_game_move(int x)
 
 void mwGameMovesArray::proc_player_active_game_move(int x)
 {
+   char msg[1024];
+
    int p            = game_moves[x][2]; // player number
    players[p].color = game_moves[x][3]; // color
 
@@ -224,6 +228,7 @@ void mwGameMovesArray::proc_player_active_game_move(int x)
 
 void mwGameMovesArray::proc_player_inactive_game_move(int x)
 {
+   char msg[1024];
    int p   = game_moves[x][2]; // player number
    int val = game_moves[x][3]; // reason
 
@@ -308,23 +313,6 @@ void mwGameMovesArray::proc_player_inactive_game_move(int x)
       game_event(81, 0, 0, p, 0, 0, 0);
    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

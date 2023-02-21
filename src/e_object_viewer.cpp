@@ -12,14 +12,11 @@
 #include "mwInput.h"
 #include "mwDisplay.h"
 #include "mwEventQueue.h"
-#include "z_menu.h"
 #include "mwHelp.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
 #include "e_fnx.h"
 #include "z_screen.h"
-#include "z_item_pmsg.h"
-#include "z_item_key.h"
 
 #define MAP_LOCK_KEY ALLEGRO_KEY_Z
 
@@ -30,7 +27,7 @@ int create_obj(int obt, int type, int num)
 {
    if (obt == 2) // items
    {
-      int ret = create_item(type);
+      int ret = mItem.create_item(type);
       if (ret > 500)
       {
          al_show_native_message_box(display,
@@ -79,7 +76,7 @@ void ov_get_size(void)
    int obt = mwWM.mW[7].obt;
    int num = mwWM.mW[7].num;
    int type=0, w=300;
-   if (obt == 2) type = item[num][0];
+   if (obt == 2) type = mItem.item[num][0];
    if (obt == 3) type = Ei[num][0];
 
    ov_check_if_valid(type);
@@ -127,47 +124,48 @@ void set_switch_tile(int i)
    int nc = 0; // number of colors
    int c[4] = {0};
 
-   if (item[i][10] & 0b0001) { c[nc] = 9;  nc++;} // green
-   if (item[i][10] & 0b0010) { c[nc] = 10; nc++;} // red
-   if (item[i][10] & 0b0100) { c[nc] = 12; nc++;} // blue
-   if (item[i][10] & 0b1000) { c[nc] = 8;  nc++;} // purple
+   if (mItem.item[i][10] & 0b0001) { c[nc] = 9;  nc++;} // green
+   if (mItem.item[i][10] & 0b0010) { c[nc] = 10; nc++;} // red
+   if (mItem.item[i][10] & 0b0100) { c[nc] = 12; nc++;} // blue
+   if (mItem.item[i][10] & 0b1000) { c[nc] = 8;  nc++;} // purple
 
    // no colors selected
-   if (nc == 0) item[i][1] = b;                     // white
+   if (nc == 0) mItem.item[i][1] = b;                     // white
 
    // one color selected
-   if ((nc == 1) && (c[0] == 9))  item[i][1] = b+1; // green
-   if ((nc == 1) && (c[0] == 10)) item[i][1] = b+2; // red
-   if ((nc == 1) && (c[0] == 12)) item[i][1] = b+3; // blue
-   if ((nc == 1) && (c[0] == 8))  item[i][1] = b+4; // purple
+   if ((nc == 1) && (c[0] == 9))  mItem.item[i][1] = b+1; // green
+   if ((nc == 1) && (c[0] == 10)) mItem.item[i][1] = b+2; // red
+   if ((nc == 1) && (c[0] == 12)) mItem.item[i][1] = b+3; // blue
+   if ((nc == 1) && (c[0] == 8))  mItem.item[i][1] = b+4; // purple
 
 
    // two colors selected
-   if ((nc == 2) && (c[0] == 9)  && (c[1] == 10)) item[i][1] = b+5;  // green red
-   if ((nc == 2) && (c[0] == 9)  && (c[1] == 12)) item[i][1] = b+6;  // green blue
-   if ((nc == 2) && (c[0] == 9)  && (c[1] == 8))  item[i][1] = b+7;  // green purple
-   if ((nc == 2) && (c[0] == 10) && (c[1] == 12)) item[i][1] = b+8;  // red blue
-   if ((nc == 2) && (c[0] == 10) && (c[1] == 8))  item[i][1] = b+9;  // red purple
-   if ((nc == 2) && (c[0] == 12) && (c[1] == 8))  item[i][1] = b+10; // blue purple
+   if ((nc == 2) && (c[0] == 9)  && (c[1] == 10)) mItem.item[i][1] = b+5;  // green red
+   if ((nc == 2) && (c[0] == 9)  && (c[1] == 12)) mItem.item[i][1] = b+6;  // green blue
+   if ((nc == 2) && (c[0] == 9)  && (c[1] == 8))  mItem.item[i][1] = b+7;  // green purple
+   if ((nc == 2) && (c[0] == 10) && (c[1] == 12)) mItem.item[i][1] = b+8;  // red blue
+   if ((nc == 2) && (c[0] == 10) && (c[1] == 8))  mItem.item[i][1] = b+9;  // red purple
+   if ((nc == 2) && (c[0] == 12) && (c[1] == 8))  mItem.item[i][1] = b+10; // blue purple
 
    // three colors selected
-   if ((nc == 3) && (c[0] == 9)  && (c[1] == 10) && (c[2] == 12)) item[i][1] = b+11;  // green red  blue
-   if ((nc == 3) && (c[0] == 9)  && (c[1] == 10) && (c[2] == 8))  item[i][1] = b+12;  // green red  purple
-   if ((nc == 3) && (c[0] == 9)  && (c[1] == 12) && (c[2] == 8))  item[i][1] = b+13;  // green blue purple
-   if ((nc == 3) && (c[0] == 10) && (c[1] == 12) && (c[2] == 8))  item[i][1] = b+14;  // red   blue purple
+   if ((nc == 3) && (c[0] == 9)  && (c[1] == 10) && (c[2] == 12)) mItem.item[i][1] = b+11;  // green red  blue
+   if ((nc == 3) && (c[0] == 9)  && (c[1] == 10) && (c[2] == 8))  mItem.item[i][1] = b+12;  // green red  purple
+   if ((nc == 3) && (c[0] == 9)  && (c[1] == 12) && (c[2] == 8))  mItem.item[i][1] = b+13;  // green blue purple
+   if ((nc == 3) && (c[0] == 10) && (c[1] == 12) && (c[2] == 8))  mItem.item[i][1] = b+14;  // red   blue purple
 
    // four colors selected
-   if (nc == 4) item[i][1] = b+15;  // green red blue purple
+   if (nc == 4) mItem.item[i][1] = b+15;  // green red blue purple
 
 }
 
 
 void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
 {
+   char msg[1024];
    int obt = mwWM.mW[7].obt;
    int num = mwWM.mW[7].num;
    int type=0;
-   if (obt == 2) type = item[num][0];
+   if (obt == 2) type = mItem.item[num][0];
    if (obt == 3) type = Ei[num][0];
 
 //   al_draw_rectangle(x1-1, y1-1, x2+1, y2+1, mC.pc[10], 1);  // outline entire window
@@ -293,20 +291,20 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
    if (obt == 2)  // items
    {
       al_draw_rectangle(xc-94, yt, xc+94, yt+22, mC.pc[15], 1);
-      draw_item(num, 1, xc-94, yt+1);
-      sprintf(msg,"%s %d of %d", item_name[type], 1+num - item_first_num[type],item_num_of_type[type]);
+      mItem.draw_item(num, 1, xc-94, yt+1);
+      sprintf(msg,"%s %d of %d", mItem.item_name[type], 1+num - mItem.item_first_num[type], mItem.item_num_of_type[type]);
       al_draw_text(mF.pr8, mC.pc[13], xc-69, yt+8, 0, msg);
       switch (type)
       {
          case 1: // door
          {
             legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
-            if (item[num][8] == 0)  // exit only, no destination
+            if (mItem.item[num][8] == 0)  // exit only, no destination
             {
                // find src door(s)
                int num_src = 0;
                for (int i=0; i<500; i++)
-                  if ((item[i][0] == 1) && (item[i][9] == num))
+                  if ((mItem.item[i][0] == 1) && (mItem.item[i][9] == num))
                   {
                      num_src++;
                   }
@@ -316,7 +314,7 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
                if (num_src >  1) sprintf(lmsg[2],"Source Door Positions");
             }
 
-            if (item[num][8] == 1)  // draw destination
+            if (mItem.item[num][8] == 1)  // draw destination
             {
                sprintf(lmsg[1],"Door Location");
                sprintf(lmsg[2],"Destination");
@@ -363,7 +361,7 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             sprintf(lmsg[1],"Scroll Location");
             sprintf(lmsg[2],"Message Area");
             legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
-            if (item[num][2] & PM_ITEM_PMSG_TRIGGER_BOX)
+            if (mItem.item[num][2] & PM_ITEM_PMSG_TRIGGER_BOX)
             {
                mwWM.mW[7].num_legend_lines = 4;
                sprintf(lmsg[3],"Trigger Area");
@@ -419,7 +417,7 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    int obt = mwWM.mW[7].obt;
    int n = mwWM.mW[7].num;
    int type=0;
-   if (obt == 2) type = item[n][0];
+   if (obt == 2) type = mItem.item[n][0];
    if (obt == 3) type = Ei[n][0];
 
 
@@ -742,16 +740,16 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       switch (type) // item subtypes
       {
          case 1: // door
-            mdw_buttonp(   xa, ya, xb, bts, 22,0,0,0,  0,13,15,0, 1,0,1,d, item[n][3]); // stat | fall | carry
+            mdw_buttonp(   xa, ya, xb, bts, 22,0,0,0,  0,13,15,0, 1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
             mdw_button(    xa, ya, xb, bts, 49,n,0,0,  0,12,15,0, 1,0,1,d); // door type
-            if (item[n][8]) // regular door (not exit only)
+            if (mItem.item[n][8]) // regular door (not exit only)
             {
                ya+=4; // spacer
                mdw_button( xa, ya, xb, bts,  4,n,0,0,  0,11,15,0, 1,0,1,d); // set linked item
-               mdw_buttonp(xa, ya, xb, bts, 50,n,0,0,  0,11,15,0, 1,0,1,d, item[n][11]); // door entry type
-               mdw_buttonp(xa, ya, xb, bts, 53,n,0,0,  0,11,15,0, 1,0,1,d, item[n][7]); // move type
-               mdw_buttonp(xa, ya, xb, bts, 51,n,0,0,  0,11,15,0, 1,0,1,d, item[n][12]); // exit link show
+               mdw_buttonp(xa, ya, xb, bts, 50,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][11]); // door entry type
+               mdw_buttonp(xa, ya, xb, bts, 53,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][7]); // move type
+               mdw_buttonp(xa, ya, xb, bts, 51,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][12]); // exit link show
             }
             ya+=4; // spacer
             mdw_button(    xa, ya, xb, bts, 52,n,0,0,  0,13,15,0, 1,0,1,d); // get new shape
@@ -759,211 +757,211 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          break;
 
          case 2: // bonus
-            if (item[n][6] == 1) // health bonus
+            if (mItem.item[n][6] == 1) // health bonus
             {
-               mdw_buttonp(xa, ya, xb, bts, 22,0,0,0,   0,13,15,0,  1,0,1,d, item[n][3]); // stat | fall | carry
+               mdw_buttonp(xa, ya, xb, bts, 22,0,0,0,   0,13,15,0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
                ya+=4; // spacer
-               mdw_buttonp(xa, ya, xb, bts, 101,0,0,0,  0,11,15,0,  1,0,1,d, item[n][6]); // bonus type
-               mdw_slideri(xa, ya, xb, bts, 0,0,0,0,    0,11,15,15, 1,0,1,d, item[n][7], 100, 2, 1, "Health Bonus:");
-               item[n][1] = 1035;
-               item[n][2] = 1;
-               if (item[n][7] == 10) item[n][1] = 1023;
-               if (item[n][7] == 50) item[n][1] = 1027;
+               mdw_buttonp(xa, ya, xb, bts, 101,0,0,0,  0,11,15,0,  1,0,1,d, mItem.item[n][6]); // bonus type
+               mdw_slideri(xa, ya, xb, bts, 0,0,0,0,    0,11,15,15, 1,0,1,d, mItem.item[n][7], 100, 2, 1, "Health Bonus:");
+               mItem.item[n][1] = 1035;
+               mItem.item[n][2] = 1;
+               if (mItem.item[n][7] == 10) mItem.item[n][1] = 1023;
+               if (mItem.item[n][7] == 50) mItem.item[n][1] = 1027;
             }
-            else if (item[n][6] == 2) // free man
+            else if (mItem.item[n][6] == 2) // free man
             {
-               mdw_buttonp(xa, ya, xb, bts, 21, 0,0,0,  0,13,15,0,  1,0,1,d, item[n][3]); // stat | fall
+               mdw_buttonp(xa, ya, xb, bts, 21, 0,0,0,  0,13,15,0,  1,0,1,d, mItem.item[n][3]); // stat | fall
                ya+=4; // spacer
-               mdw_buttonp(xa, ya, xb, bts, 101,0,0,0,  0,10,15,0,  1,0,1,d, item[n][6]); // bonus type
-               item[n][1] = 1038;
-               item[n][2] = 1;
+               mdw_buttonp(xa, ya, xb, bts, 101,0,0,0,  0,10,15,0,  1,0,1,d, mItem.item[n][6]); // bonus type
+               mItem.item[n][1] = 1038;
+               mItem.item[n][2] = 1;
             }
-            else if (item[n][6] == 3) // purple coin
+            else if (mItem.item[n][6] == 3) // purple coin
             {
-               mdw_buttonp(xa, ya, xb, bts, 21, 0,0,0,  0,13,15,0, 1,0,1,d, item[n][3]); // stat | fall
+               mdw_buttonp(xa, ya, xb, bts, 21, 0,0,0,  0,13,15,0, 1,0,1,d, mItem.item[n][3]); // stat | fall
                ya+=4; // spacer
-               mdw_buttonp(xa, ya, xb, bts, 101,0,0,0,  0, 8,15,0, 1,0,1,d, item[n][6]); // bonus type
-               item[n][1] = 197;
-               item[n][2] = 0;
+               mdw_buttonp(xa, ya, xb, bts, 101,0,0,0,  0, 8,15,0, 1,0,1,d, mItem.item[n][6]); // bonus type
+               mItem.item[n][1] = 197;
+               mItem.item[n][2] = 0;
             }
          break;
          case 3: // exit
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, item[n][3]); // stat | fall | carry
+            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, item[n][8], 100, 0, 1,  "Enemy Count Lock:");
+            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][8], 100, 0, 1,  "Enemy Count Lock:");
          break;
          case 4: // key
-            mdw_buttonp(    xa, ya, xb, bts, 21,0,0,0,  0,13,15, 0,  1,0,1,d, item[n][3]); // stat | fall
+            mdw_buttonp(    xa, ya, xb, bts, 21,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall
             ya+=4; // spacer
-            mdw_buttonp(    xa, ya, xb, bts, 102,0,0,0, 0, 8,15, 0,  1,0,1,d, item[n][1]); // color
+            mdw_buttonp(    xa, ya, xb, bts, 102,0,0,0, 0, 8,15, 0,  1,0,1,d, mItem.item[n][1]); // color
             ya+=4; // spacer
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15, 0,  1,0,1,d, "Get New Block Range")) get_block_range("Block Range", &item[n][6], &item[n][7], &item[n][8], &item[n][9], 1);
+            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15, 0,  1,0,1,d, "Get New Block Range")) get_block_range("Block Range", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
-            mdw_toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, item[n][12], "Remove All Blocks", "Remove Only Matching", 15, 15, 7, 7);
+            mdw_toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][12], "Remove All Blocks", "Remove Only Matching", 15, 15, 7, 7);
          break;
          case 5: // start
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, item[n][3]); // stat | fall | carry
+            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mdw_buttonp(    xa, ya, xb, bts, 78,0,0,0,  0,11,15,0,   1,0,1,d, item[n][6]); // start mode
-            mdw_buttonp(    xa, ya, xb, bts, 79,0,0,0,  0,11,15,0,   1,0,1,d, item[n][7]); // start index
+            mdw_buttonp(    xa, ya, xb, bts, 78,0,0,0,  0,11,15,0,   1,0,1,d, mItem.item[n][6]); // start mode
+            mdw_buttonp(    xa, ya, xb, bts, 79,0,0,0,  0,11,15,0,   1,0,1,d, mItem.item[n][7]); // start index
          break;
          case 6: // orb
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, item[n][3]); // stat | fall | carry
+            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
             mdw_button(     xa, ya, xb, bts, 94,n,0,0,  0, 7,15, 0,  1,0,1,d);             // rotation
             ya+=4; // spacer
             mdw_button(     xa, ya, xb, bts, 90,n,0,0,  0,12,15, 0,  1,0,1,d);             // orb trigger type
             ya+=4; // spacer
             mdw_button(     xa, ya, xb, bts, 92,n,0,0,  0, 8,15, 0,  1,0,1,d);             // mode
-            if (item[n][6] == 0)                                                           // only show initial state for toggle mode
-               mdw_togglf(  xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 15, 15, 8, 8);
-            if ((item[n][6] == 3) || (item[n][6] == 4))                                    // only show timer for mode 3 and 4
-               mdw_slideri(xa, ya, xb, bts,     0,0,0,0,   0,8,15,15,  1,0,1,d, item[n][7], 400, 1, 1,  "Time:");
+            if (mItem.item[n][6] == 0)                                                           // only show initial state for toggle mode
+               mdw_togglf(  xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 15, 15, 8, 8);
+            if ((mItem.item[n][6] == 3) || (mItem.item[n][6] == 4))                                    // only show timer for mode 3 and 4
+               mdw_slideri(xa, ya, xb, bts,     0,0,0,0,   0,8,15,15,  1,0,1,d, mItem.item[n][7], 400, 1, 1,  "Time:");
             ya+=4; // spacer
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][10], 99, 0, 1,    "Set Event Always While On   :", "OFF");
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][11], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][12], 99, 0, 1,    "Set Event When Switching On :", "OFF");
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][13], 99, 0, 1,    "Set Event When Switching Off:", "OFF");
+            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][10], 99, 0, 1,    "Set Event Always While On   :", "OFF");
+            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][11], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
+            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1,    "Set Event When Switching On :", "OFF");
+            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1,    "Set Event When Switching Off:", "OFF");
          break;
          case 7: // mine
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, item[n][3]); // stat | fall | carry
+            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, item[n][8], 20, 1, 1,  "Mine Damage:");
+            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][8], 20, 1, 1,  "Mine Damage:");
          break;
          case 8: // bomb
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, item[n][3]); // stat | fall | carry
+            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
             mdw_button(     xa, ya, xb, bts, 77,n,0,0,  0,12,15, 0,  1,0,1,d);          // fuse timer / remote detonator
-            if (!item[n][12])
-               mdw_slideri( xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, item[n][9], 2000, 1,  1,  "Fuse Length:");
+            if (!mItem.item[n][12])
+               mdw_slideri( xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][9], 2000, 1,  1,  "Fuse Length:");
             ya+=4; // spacer
-            mdw_toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, item[n][11], "Sticky:Off", "Sticky:On", 15, 15, 4, 4);
+            mdw_toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][11], "Sticky:Off", "Sticky:On", 15, 15, 4, 4);
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,14,15,15,  1,0,1,d, item[n][7], 1200, 20, 1,  "Damage Range:");
+            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,14,15,15,  1,0,1,d, mItem.item[n][7], 1200, 20, 1,  "Damage Range:");
          break;
          case 10: // message
 
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON",  15+dim, 15, 9+dim, 9);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON",  15+dim, 15, 9+dim, 9);
             ya+=4; // spacer
             mdw_button(xa, ya, xb, bts, 6,n,0,0,   0,10,15,0,   1,0,1,d); // Set Message Area
             mdw_button(xa, ya, xb, bts, 7,n,0,0,   0,10,15,0,   1,0,1,d); // Set Message Frame
             ya+=4; // spacer
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_PMSG_TRIGGER_BOX , "Trigger Box:OFF", "Trigger Box:ON",  15+dim, 15, 14+dim, 14);
-            if (item[n][2] & PM_ITEM_PMSG_TRIGGER_BOX)
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,14,15,0,  1,0,1,d, "Set Trigger Area")) get_block_range("Trigger Area", &item[n][6], &item[n][7], &item[n][8], &item[n][9], 1);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_PMSG_TRIGGER_BOX , "Trigger Box:OFF", "Trigger Box:ON",  15+dim, 15, 14+dim, 14);
+            if (mItem.item[n][2] & PM_ITEM_PMSG_TRIGGER_BOX)
+            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,14,15,0,  1,0,1,d, "Set Trigger Area")) get_block_range("Trigger Area", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_PMSG_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON",  15+dim, 15, 12+dim, 12);
-            if (!(item[n][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
-            mdw_slideri(xa, ya, xb, bts,     0,0,0,0,   0,12,15,15,  1,0,1,d, item[n][12], 400, 0, 1,  "Message display time:");
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_PMSG_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON",  15+dim, 15, 12+dim, 12);
+            if (!(mItem.item[n][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
+            mdw_slideri(xa, ya, xb, bts,     0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][12], 400, 0, 1,  "Message display time:");
             ya+=4; // spacer
             mdw_colsel(     xa, ya, xb, bts, 2,n,0,0,   0, 0, 0, 0,  0,0,1,d);  // frame color select
             mdw_colsel(     xa, ya, xb, bts, 3,n,0,0,   0, 0, 0, 0,  0,0,1,d);  // text color select
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,15,13, 0,  1,0,1,d, "Edit Message")) edit_pmsg_text(n, 0);
+            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,15,13, 0,  1,0,1,d, "Edit Message")) mItem.edit_pmsg_text(n, 0);
             ya+=bts*2; // leave space for OK and Cancel buttons
             // draw the current one last to ensure it is on top
             mwWM.mW[7].pop_msg_viewer_pos = ya+bts/2+2;
 
-            draw_pop_message(n, 1, (xa+xb)/2, mwWM.mW[7].pop_msg_viewer_pos, 0, 0, pmsgtext[n]); // show the message
+            mItem.draw_pop_message(n, 1, (xa+xb)/2, mwWM.mW[7].pop_msg_viewer_pos, 0, 0, mItem.pmsgtext[n]); // show the message
 
             ya+=bts*8;
          break;
          case 11: // rocket
-            mdw_buttonp(    xa, ya, xb, bts, 23,0,0,0,  0,13,15,0,  1,0,1,d, item[n][3]); // stat | fall | | ride through door
+            mdw_buttonp(    xa, ya, xb, bts, 23,0,0,0,  0,13,15,0,  1,0,1,d, mItem.item[n][3]); // stat | fall | | ride through door
             ya+=4; // spacer
             if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Set Initial Direction")) getxy("Initial Direction", 97, 11, n);
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, item[n][8], 20,  1, 1,  "Maximum Speed:");
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, item[n][9], 200, 1, 1,  "Acceleration:");
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, item[n][6], 100, 0, 1,  "Steerability:");
+            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, mItem.item[n][8], 20,  1, 1,  "Maximum Speed:");
+            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, mItem.item[n][9], 200, 1, 1,  "Acceleration:");
+            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, mItem.item[n][6], 100, 0, 1,  "Steerability:");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,14,15,15, 1,0,1,d, item[n][7], 1200, 20, 1,  "Damage Range:");
+            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,14,15,15, 1,0,1,d, mItem.item[n][7], 1200, 20, 1,  "Damage Range:");
 
          break;
          case 14: // switch
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,14, 1,0,1,d, item[n][3]); // stat | fall | carry
+            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,14, 1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Block Range")) get_block_range("Block Range", &item[n][6], &item[n][7], &item[n][8], &item[n][9], 1);
+            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Block Range")) get_block_range("Block Range", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][10], 0b0001 , "Green:OFF", "Green:ON",  15+dim, 15, 9+dim, 9);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][10], 0b0010 , "Red:OFF",   "Red:ON",    15+dim, 15, 10+dim, 10);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][10], 0b0100 , "Blue:OFF",  "Blue:ON",   15+dim, 15, 12+dim, 12);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][10], 0b1000 , "Purple:OFF","Purple:ON", 15+dim, 15, 8+dim, 8);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b0001 , "Green:OFF", "Green:ON",  15+dim, 15, 9+dim, 9);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b0010 , "Red:OFF",   "Red:ON",    15+dim, 15, 10+dim, 10);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b0100 , "Blue:OFF",  "Blue:ON",   15+dim, 15, 12+dim, 12);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b1000 , "Purple:OFF","Purple:ON", 15+dim, 15, 8+dim, 8);
             set_switch_tile(n);
          break;
          case 15: // sproingy
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0, 1,0,1,d, item[n][3]); // stat | fall | carry
+            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0, 1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, item[n][7], 200, 40, 1, "Sproinginess:" );
+            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, mItem.item[n][7], 200, 40, 1, "Sproinginess:" );
          break;
          case 12: // warp
-            mdw_buttonp(    xa, ya, xb, bts, 21,0,0,0,  0,13,15, 0,  1,0,1,d, item[n][3]); // stat | fall
+            mdw_buttonp(    xa, ya, xb, bts, 21,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, item[n][8], 300, 1, 1, "Warp Level:" );
+            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][8], 300, 1, 1, "Warp Level:" );
          break;
          case 9: // trigger
          {
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,0,   1,0,1,d, "Get New Trigger Field")) get_block_range("Trigger Rectangle", &item[n][6], &item[n][7], &item[n][8], &item[n][9], 1);
+            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,0,   1,0,1,d, "Get New Trigger Field")) get_block_range("Trigger Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
             // draw trigger field on/off with optional color select if on
-            if (mdw_togglf( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, 15, 15+dim, item[n][2]))
+            if (mdw_togglf( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, 15, 15+dim, mItem.item[n][2]))
                mdw_colsel(  xa, ya, xb, bts, 6,n,0,0,    0,0,0,0,     0,0,1,d); // color select
             ya+=4; // spacer
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF         ","Triggered by Players:ON          ", 15+dim, 15, 9+dim, 9);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF         ","Triggered by Enemies:ON          ", 15+dim, 15, 9+dim, 9);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF           ","Triggered by Items:ON            ", 15+dim, 15, 9+dim, 9);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][3], PM_ITEM_TRIGGER_PSHOT,   "Triggered by Player's Bullets:OFF","Triggered by Player's Bullets:ON ", 15+dim, 15, 9+dim, 9);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][3], PM_ITEM_TRIGGER_ESHOT,   "Triggered by Enemy's Bullets:OFF ","Triggered by Enemy's Bullets:ON  ", 15+dim, 15, 9+dim, 9);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF         ","Triggered by Players:ON          ", 15+dim, 15, 9+dim, 9);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF         ","Triggered by Enemies:ON          ", 15+dim, 15, 9+dim, 9);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF           ","Triggered by Items:ON            ", 15+dim, 15, 9+dim, 9);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_PSHOT,   "Triggered by Player's Bullets:OFF","Triggered by Player's Bullets:ON ", 15+dim, 15, 9+dim, 9);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ESHOT,   "Triggered by Enemy's Bullets:OFF ","Triggered by Enemy's Bullets:ON  ", 15+dim, 15, 9+dim, 9);
             ya+=4; // spacer
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][11], 99, 0, 1,    "Set Event Always While On   :", "OFF");
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][12], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][13], 99, 0, 1,    "Set Event When Switching On :", "OFF");
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][14], 99, 0, 1,    "Set Event When Switching Off:", "OFF");
+            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][11], 99, 0, 1,    "Set Event Always While On   :", "OFF");
+            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
+            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1,    "Set Event When Switching On :", "OFF");
+            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][14], 99, 0, 1,    "Set Event When Switching Off:", "OFF");
             ya+=4; // spacer
-            if (mdw_togglf( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][3], PM_ITEM_TRIGGER_LIFT_ON, "Follows Lift:OFF","Follows Lift:ON ", 15+dim, 15, 6+dim, 6))
+            if (mdw_togglf( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_LIFT_ON, "Follows Lift:OFF","Follows Lift:ON ", 15+dim, 15, 6+dim, 6))
             {
-               mdw_slideri( xa, ya, xb, bts, 0,0,0,0,    0,6,15,15,   1,0,1,d,item[n][10], 39, 0, 1, "Lift Number:" );  // Lift Number
+               mdw_slideri( xa, ya, xb, bts, 0,0,0,0,    0,6,15,15,   1,0,1,d,mItem.item[n][10], 39, 0, 1, "Lift Number:" );  // Lift Number
                mdw_button(  xa, ya, xb, bts, 211,n,0,0,  0,6,15,0,    1,0,1,d);  // X Alignment
                mdw_button(  xa, ya, xb, bts, 212,n,0,0,  0,6,15,0,    1,0,1,d);  // Y Alignment
             }
          }
          break;
          case 16: // block manip
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,14,  1,0,1,d, "Get New Block Manip Field")) get_block_range("Block Manip Rectangle", &item[n][6], &item[n][7], &item[n][8], &item[n][9], 1);
+            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,14,  1,0,1,d, "Get New Block Manip Field")) get_block_range("Block Manip Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
-            if (mdw_toggle( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, item[n][2], "Draw Block Manip Field:OFF", "Draw Block Manip Field:ON ", 15, 15, 15+96, item[n][12]))
+            if (mdw_toggle( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][2], "Draw Block Manip Field:OFF", "Draw Block Manip Field:ON ", 15, 15, 15+96, mItem.item[n][12]))
                mdw_colsel(  xa, ya, xb, bts, 7,n,0,0,    0,0,0,0,     0,0,1,d);               // color select
             ya+=4; // spacer
-            mdw_buttonp(    xa, ya, xb, bts, 301,0,0,0,  0,14,15,0,   1,0,0,d, item[n][3]);   // mode
+            mdw_buttonp(    xa, ya, xb, bts, 301,0,0,0,  0,14,15,0,   1,0,0,d, mItem.item[n][3]);   // mode
             ya+=22; // spacer
             mdw_button(     xa, ya, xb, bts, 310,n,0,0,  0, 8,15,0,   1,0,0,d);               // block 1
             ya+=22; // spacer
             mdw_button(     xa, ya, xb, bts, 311,n,0,0,  0, 8,15,0,   1,0,0,d);               // block 2
             ya+=22; // spacer
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][1], 99, 0, 1,    "Event Trigger:", "OFF");
+            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][1], 99, 0, 1,    "Event Trigger:", "OFF");
             mdw_button(     xa, ya, xb, bts, 320,n,0,0,  0,13,15,0,   1,0,1,d);               // set trigger
          break;
          case 17: // block damage
          {
-            if (mdw_buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Block Damage Field")) get_block_range("Block Damage Rectangle", &item[n][6], &item[n][7], &item[n][8], &item[n][9], 1);
+            if (mdw_buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Block Damage Field")) get_block_range("Block Damage Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
-            mdw_buttonp(       xa, ya, xb, bts, 404,0,0,0, 0, 8,15,0,  1,0,1,d, item[n][2]); // damage draw mode
+            mdw_buttonp(       xa, ya, xb, bts, 404,0,0,0, 0, 8,15,0,  1,0,1,d, mItem.item[n][2]); // damage draw mode
             ya+=4; // spacer
             int p=7; // mode color
-            mdw_buttonp(       xa, ya, xb, bts, 402,n,0,0, 0,p,15,0,   1,0,1,d, item[n][11]); // MODE
-            int MODE = item[n][11];
+            mdw_buttonp(       xa, ya, xb, bts, 402,n,0,0, 0,p,15,0,   1,0,1,d, mItem.item[n][11]); // MODE
+            int MODE = mItem.item[n][11];
 
             ya+=4; // spacer
             if (MODE == 1) // toggle
-               mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_CURR, "Initial State:OFF","Initial State:ON ", 15+dim, 15, p+dim, p);
+               mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_CURR, "Initial State:OFF","Initial State:ON ", 15+dim, 15, p+dim, p);
             if (MODE == 2) // ON until triggered
-               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,item[n][12], 1000, 0, 1, "OFF Time:" );
+               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "OFF Time:" );
             if (MODE == 3) // OFF until triggered
-               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,item[n][12], 1000, 0, 1, "ON Time:" );
+               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "ON Time:" );
             if (MODE == 4) // Timed on and off
             {
-               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,item[n][12], 1000, 0, 1, "Total Time:" );
-               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,item[n][14], 1000, 0, 1, "Damage Time:" );
-               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,item[n][13], 1000, 0, 1, "Initial Time:" );
+               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "Total Time:" );
+               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][14], 1000, 0, 1, "Damage Time:" );
+               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][13], 1000, 0, 1, "Initial Time:" );
             }
             if ((MODE == 2) || (MODE == 3) || (MODE == 4))
             {
@@ -973,21 +971,21 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             if ((MODE == 1) || (MODE == 2) || (MODE == 3)) // Mode 1, 2, and 3
             {
                ya+=4; // spacer
-               mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,   0,13,15,15, 1,0,1,d, item[n][1], 99, 0, 1, "Event Trigger:", "OFF");
+               mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,   0,13,15,15, 1,0,1,d, mItem.item[n][1], 99, 0, 1, "Event Trigger:", "OFF");
                mdw_button(     xa, ya, xb, bts, 320,n,0,0, 0,13,15, 0, 1,0,1,d); // set trigger
             }
             ya+=4; // spacer
-            if (mdw_togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_PLAYER,  "Affects Players:OFF",          "Affects Players:ON",          15+dim, 15, 10+dim, 10))
-               if (!mdw_togglf(xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_INSTGIB, "Player Instant Death:OFF",     "Player Instant Death:ON",     15+dim, 15, 10+dim, 10))
-                  mdw_slideri( xa, ya, xb, bts, 0,0,0,0,   0,10,15,15, 1,0,1,d, item[n][15], 2000, -2000, 1,        "Player Damage:" );
-            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",          "Affects Enemies:ON",          15+dim, 15, 10+dim, 10);
-            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_ITEM,    "Affects Items:OFF",            "Affects Items:ON",            15+dim, 15, 10+dim, 10);
-            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_PSHOT,    "Affects Player's Bullets:OFF", "Affects Player's Bullets:ON", 15+dim, 15, 10+dim, 10);
-            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_ESHOT,    "Affects Enemy's Bullets:OFF",  "Affects Enemy's Bullets:ON",  15+dim, 15, 10+dim, 10);
+            if (mdw_togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PLAYER,  "Affects Players:OFF",          "Affects Players:ON",          15+dim, 15, 10+dim, 10))
+               if (!mdw_togglf(xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_INSTGIB, "Player Instant Death:OFF",     "Player Instant Death:ON",     15+dim, 15, 10+dim, 10))
+                  mdw_slideri( xa, ya, xb, bts, 0,0,0,0,   0,10,15,15, 1,0,1,d, mItem.item[n][15], 2000, -2000, 1,        "Player Damage:" );
+            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",          "Affects Enemies:ON",          15+dim, 15, 10+dim, 10);
+            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ITEM,    "Affects Items:OFF",            "Affects Items:ON",            15+dim, 15, 10+dim, 10);
+            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PSHOT,    "Affects Player's Bullets:OFF", "Affects Player's Bullets:ON", 15+dim, 15, 10+dim, 10);
+            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ESHOT,    "Affects Enemy's Bullets:OFF",  "Affects Enemy's Bullets:ON",  15+dim, 15, 10+dim, 10);
             ya+=4; // spacer
-            if (mdw_togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",             "Follows Lift:ON ",            15+dim, 15, 6+dim, 6))
+            if (mdw_togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",             "Follows Lift:ON ",            15+dim, 15, 6+dim, 6))
             {
-               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,6,15,15,  1,0,1,d,item[n][10], 39, 0, 1, "Lift Number:" );
+               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,6,15,15,  1,0,1,d,mItem.item[n][10], 39, 0, 1, "Lift Number:" );
                mdw_button(     xa, ya, xb, bts, 411,n,0,0, 0,6,15,0,   1,0,1,d);  // X Alignment
                mdw_button(     xa, ya, xb, bts, 412,n,0,0, 0,6,15,0,   1,0,1,d);  // Y Alignment
             }
@@ -1131,9 +1129,9 @@ void ov_draw_overlays(int legend_highlight)
    }
    if (obt == 2)  // items
    {
-      int type = item[num][0];
-      int obj_x = item[num][4]+10;
-      int obj_y = item[num][5]+10;
+      int type = mItem.item[num][0];
+      int obj_x = mItem.item[num][4]+10;
+      int obj_y = mItem.item[num][5]+10;
       int color = 13;
       if (legend_highlight == 1) color = mC.flash_color;
       crosshairs_full(obj_x, obj_y, color, 1);
@@ -1143,27 +1141,27 @@ void ov_draw_overlays(int legend_highlight)
          {
             int color = 10;
             if (legend_highlight == 2) color = mC.flash_color;
-            if (item[num][8] == 0)  // exit only, no destination
+            if (mItem.item[num][8] == 0)  // exit only, no destination
             {
                // find src door(s)
                int num_src = 0;
                for (int i=0; i<500; i++)
-                  if ((item[i][0] == 1) && (item[i][9] == num))
+                  if ((mItem.item[i][0] == 1) && (mItem.item[i][9] == num))
                   {
                      num_src++;
-                     int x2 = item[i][4]+10;
-                     int y2 = item[i][5]+10;
+                     int x2 = mItem.item[i][4]+10;
+                     int y2 = mItem.item[i][5]+10;
                      crosshairs_full(x2, y2, color, 1);
                      al_draw_line(obj_x, obj_y, x2, y2, mC.pc[color], 1);
                   }
             }
 
-            if (item[num][8] == 1)  // draw destination
+            if (mItem.item[num][8] == 1)  // draw destination
             {
                // dest item
-               int di = item[num][9];
-               int x2 = item[di][4]+10;
-               int y2 = item[di][5]+10;
+               int di = mItem.item[num][9];
+               int x2 = mItem.item[di][4]+10;
+               int y2 = mItem.item[di][5]+10;
                crosshairs_full(x2, y2, color, 1);
                al_draw_line(obj_x, obj_y, x2, y2, mC.pc[color], 1);
             }
@@ -1173,10 +1171,10 @@ void ov_draw_overlays(int legend_highlight)
          {
             int color = 10;
             if (legend_highlight == 2) color = mC.flash_color;
-            int x2 = item[num][6];
-            int y2 = item[num][7];
-            int x3 = x2 + item[num][8] - 1;
-            int y3 = y2 + item[num][9] - 1;;
+            int x2 = mItem.item[num][6];
+            int y2 = mItem.item[num][7];
+            int x3 = x2 + mItem.item[num][8] - 1;
+            int y3 = y2 + mItem.item[num][9] - 1;;
             int x4 = (x2+x3)/2;
             int y4 = (y2+y3)/2;
 
@@ -1189,17 +1187,17 @@ void ov_draw_overlays(int legend_highlight)
             al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
 
             // show blocks that will be affected
-            proc_key_block_range(num, 2);
+            mItem.proc_key_block_range(num, 2);
          }
          break;
          case 14: // switch
          {
             int color = 10;
             if (legend_highlight == 2) color = mC.flash_color;
-            int x2 = item[num][6];
-            int y2 = item[num][7];
-            int x3 = x2 + item[num][8] - 1;
-            int y3 = y2 + item[num][9] - 1;;
+            int x2 = mItem.item[num][6];
+            int y2 = mItem.item[num][7];
+            int x3 = x2 + mItem.item[num][8] - 1;
+            int y3 = y2 + mItem.item[num][9] - 1;;
             int x4 = (x2+x3)/2;
             int y4 = (y2+y3)/2;
 
@@ -1212,14 +1210,14 @@ void ov_draw_overlays(int legend_highlight)
             al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
 
             // show blocks that will be affected
-            proc_switch_block_range(num, 2);
+            mItem.proc_switch_block_range(num, 2);
          }
          break;
          case 8: // bomb
          {
             int color = 14;
             if (legend_highlight == 2) color = mC.flash_color;
-            al_draw_circle(obj_x, obj_y, item[num][7], mC.pc[color], 1); // draw yellow bomb damage
+            al_draw_circle(obj_x, obj_y, mItem.item[num][7], mC.pc[color], 1); // draw yellow bomb damage
          }
          break;
          case 9: // trigger
@@ -1227,10 +1225,10 @@ void ov_draw_overlays(int legend_highlight)
             int color = 14;
             if (legend_highlight == 2) color = mC.flash_color;
 
-            int x2 = item[num][6];
-            int y2 = item[num][7];
-            int x3 = x2 + item[num][8] - 1;
-            int y3 = y2 + item[num][9] - 1;;
+            int x2 = mItem.item[num][6];
+            int y2 = mItem.item[num][7];
+            int x3 = x2 + mItem.item[num][8] - 1;
+            int y3 = y2 + mItem.item[num][9] - 1;;
             int x4 = (x2+x3)/2;
             int y4 = (y2+y3)/2;
 
@@ -1248,8 +1246,8 @@ void ov_draw_overlays(int legend_highlight)
             if (legend_highlight == 2) color = mC.flash_color;
 
             int mx=0, my=0, mw=0, mh=0;
-            get_int_3216(item[num][10], mx, my);
-            get_int_3216(item[num][11], mw, mh);
+            get_int_3216(mItem.item[num][10], mx, my);
+            get_int_3216(mItem.item[num][11], mw, mh);
             int x2 = mx;
             int y2 = my;
             int x3 = mx + mw;
@@ -1264,15 +1262,15 @@ void ov_draw_overlays(int legend_highlight)
             al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
             al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
 
-            if (item[num][2] & PM_ITEM_PMSG_TRIGGER_BOX)
+            if (mItem.item[num][2] & PM_ITEM_PMSG_TRIGGER_BOX)
             {
                int color = 14;
                if (legend_highlight == 3) color = mC.flash_color;
 
-               int x2 = item[num][6];
-               int y2 = item[num][7];
-               int x3 = x2 + item[num][8] - 1;
-               int y3 = y2 + item[num][9] - 1;;
+               int x2 = mItem.item[num][6];
+               int y2 = mItem.item[num][7];
+               int x3 = x2 + mItem.item[num][8] - 1;
+               int y3 = y2 + mItem.item[num][9] - 1;;
                int x4 = (x2+x3)/2;
                int y4 = (y2+y3)/2;
 
@@ -1286,7 +1284,7 @@ void ov_draw_overlays(int legend_highlight)
          {
             int color = 14;
             if (legend_highlight == 2) color = mC.flash_color;
-            al_draw_circle(obj_x, obj_y, item[num][7], mC.pc[color], 1); // draw yellow bomb damage
+            al_draw_circle(obj_x, obj_y, mItem.item[num][7], mC.pc[color], 1); // draw yellow bomb damage
          }
          break;
          case 15: // sproingy
@@ -1301,10 +1299,10 @@ void ov_draw_overlays(int legend_highlight)
          {
             int color = 12;
             if (legend_highlight == 2) color = mC.flash_color;
-            int x2 = item[num][6];
-            int y2 = item[num][7];
-            int x3 = x2 + item[num][8]-1;
-            int y3 = y2 + item[num][9]-1;;
+            int x2 = mItem.item[num][6];
+            int y2 = mItem.item[num][7];
+            int x3 = x2 + mItem.item[num][8]-1;
+            int y3 = y2 + mItem.item[num][9]-1;;
             int x4 = (x2+x3)/2;
             int y4 = (y2+y3)/2;
 
@@ -1321,10 +1319,10 @@ void ov_draw_overlays(int legend_highlight)
          {
             int color = 10;
             if (legend_highlight == 2) color = mC.flash_color;
-            int x2 = item[num][6];
-            int y2 = item[num][7];
-            int x3 = x2 + item[num][8]-1;
-            int y3 = y2 + item[num][9]-1;;
+            int x2 = mItem.item[num][6];
+            int y2 = mItem.item[num][7];
+            int x3 = x2 + mItem.item[num][8]-1;
+            int y3 = y2 + mItem.item[num][9]-1;;
             int x4 = (x2+x3)/2;
             int y4 = (y2+y3)/2;
 
@@ -1525,11 +1523,11 @@ void ov_process_mouse(void)
    // --  detect if mouse pointer is on item
    // -----------------------------------------------------------
    for (int b=0; b<500; b++)
-      if (item[b][0])
+      if (mItem.item[b][0])
       {
-         int ix = item[b][4];
-         int iy = item[b][5];
-         int type = item[b][0];
+         int ix = mItem.item[b][4];
+         int iy = mItem.item[b][5];
+         int type = mItem.item[b][0];
          // check to see if we can set this object to be the current object
          if ((mwWM.hx>ix+msn) && (mwWM.hx<ix+msp) && (mwWM.hy>iy+msn) && (mwWM.hy<iy+msp) && (!mwWM.mW[7].viewer_lock) && (!mI.key[MAP_LOCK_KEY][0]) && (mwWM.obj_filter[2][type]))
          {
@@ -1551,7 +1549,7 @@ void ov_process_mouse(void)
    if (mwWM.mW[7].obt == 2)
    {
       int b = mwWM.mW[7].num;
-      int type = item[b][0];
+      int type = mItem.item[b][0];
 
 
 
@@ -1559,8 +1557,8 @@ void ov_process_mouse(void)
       {
 
          int mx=0, my=0, mw=0, mh=0;
-         get_int_3216(item[b][10], mx, my);
-         get_int_3216(item[b][11], mw, mh);
+         get_int_3216(mItem.item[b][10], mx, my);
+         get_int_3216(mItem.item[b][11], mw, mh);
 
 
          int x1=mx, y1=my;
@@ -1582,12 +1580,12 @@ void ov_process_mouse(void)
       }
       if ((type == 8) || (type == 11)) // bomb or rocket
       {
-         float x0 = (float) item[mwWM.mW[7].num][4]+10; // get center of item location
-         float y0 = (float) item[mwWM.mW[7].num][5]+10;
+         float x0 = (float) mItem.item[mwWM.mW[7].num][4]+10; // get center of item location
+         float y0 = (float) mItem.item[mwWM.mW[7].num][5]+10;
          float fx = (float) mwWM.hx;
          float fy = (float) mwWM.hy;
          float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse to item
-         float bdr = (float) item[mwWM.mW[7].num][7]; // bomb damage radius
+         float bdr = (float) mItem.item[mwWM.mW[7].num][7]; // bomb damage radius
          float dif = dst-bdr; // difference
          if ((dif < 3 ) && (dif > -3))  // mouse is on blast radius circle
          {
@@ -1597,8 +1595,8 @@ void ov_process_mouse(void)
       }
       if (type == 15) // sproingy
       {
-         int x1 = item[mwWM.mW[7].num][4];
-         int y1 = item[mwWM.mW[7].num][5];
+         int x1 = mItem.item[mwWM.mW[7].num][4];
+         int y1 = mItem.item[mwWM.mW[7].num][5];
          int y2 = y1 - get_sproingy_jump_height(mwWM.mW[7].num);
 
          if ((mwWM.hx>x1+msn) && (mwWM.hx<x1+msp) && (mwWM.hy>y2+msn) && (mwWM.hy<y2+msp))
@@ -1609,10 +1607,10 @@ void ov_process_mouse(void)
       }
       if ((type == 4) || (type == 9) || (type == 10) || (type == 14) || (type == 16) || (type == 17)) // key, switch, trigger, manip, damage, msg trigger
       {
-         int x1 = item[mwWM.mW[7].num][6];
-         int y1 = item[mwWM.mW[7].num][7];
-         int x2 = x1 + item[mwWM.mW[7].num][8];
-         int y2 = y1 + item[mwWM.mW[7].num][9];
+         int x1 = mItem.item[mwWM.mW[7].num][6];
+         int y1 = mItem.item[mwWM.mW[7].num][7];
+         int x2 = x1 + mItem.item[mwWM.mW[7].num][8];
+         int y2 = y1 + mItem.item[mwWM.mW[7].num][9];
 
          if ((mwWM.hx>x1-mst) && (mwWM.hx<x1+mst) && (mwWM.hy>y1-mst) && (mwWM.hy<y1+mst)) // upper left corner (move)
          {
@@ -1717,31 +1715,31 @@ void ov_process_mouse(void)
             if (mwWM.mW[7].obt == 2) // move item
             {
                int n = mwWM.mW[7].num;
-               int it = item[n][0]; // item_type
+               int it = mItem.item[n][0]; // item_type
 
                // get offset of move
-               int x_off = mwWM.gx - item[n][4] / 20;
-               int y_off = mwWM.gy - item[n][5] / 20;
+               int x_off = mwWM.gx - mItem.item[n][4] / 20;
+               int y_off = mwWM.gy - mItem.item[n][5] / 20;
 
-               item[n][4] = mwWM.gx*20;
-               item[n][5] = mwWM.gy*20;
-               itemf[n][0] = mwWM.gx*20;
-               itemf[n][1] = mwWM.gy*20;
+               mItem.item[n][4] = mwWM.gx*20;
+               mItem.item[n][5] = mwWM.gy*20;
+               mItem.itemf[n][0] = mwWM.gx*20;
+               mItem.itemf[n][1] = mwWM.gy*20;
 
                if (mI.SHFT()) // move stuff also
                {
                    if ((it == 4) || (it == 9) || (it == 10) || (it == 14) || (it == 16) || (it == 17)) // key, trigger, msg, switch, manip, damage
                    {
-                      item[n][6] += x_off*20;
-                      item[n][7] += y_off*20;
+                      mItem.item[n][6] += x_off*20;
+                      mItem.item[n][7] += y_off*20;
                    }
                    if (it == 10) // msg
                    {
                       int x1=0, y1=0;
-                      get_int_3216(item[n][10], x1, y1);
+                      get_int_3216(mItem.item[n][10], x1, y1);
                       x1 += x_off*20;
                       y1 += y_off*20;
-                      set_int_3216(item[n][10], x1, y1);
+                      set_int_3216(mItem.item[n][10], x1, y1);
                    }
                }
             }
@@ -1853,14 +1851,14 @@ void ov_process_mouse(void)
          }
          if (mouse_on_msg_ul) // move msg
          {
-            set_int_3216(item[mwWM.mW[7].num][10], mwWM.hx, mwWM.hy);
+            set_int_3216(mItem.item[mwWM.mW[7].num][10], mwWM.hx, mwWM.hy);
          }
 
          if (mouse_on_msg_lr) // move msg
          {
             int mx=0, my=0, mw=0, mh=0;
-            get_int_3216(item[mwWM.mW[7].num][10], mx, my);
-            get_int_3216(item[mwWM.mW[7].num][11], mw, mh);
+            get_int_3216(mItem.item[mwWM.mW[7].num][10], mx, my);
+            get_int_3216(mItem.item[mwWM.mW[7].num][11], mw, mh);
 
             // don't allow lr to be less than ul
             if (mwWM.hx < mx+8) mwWM.hx = mx+8;
@@ -1870,7 +1868,7 @@ void ov_process_mouse(void)
             mw = mwWM.hx - mx;
             mh = mwWM.hy - my;
 
-            set_int_3216(item[mwWM.mW[7].num][11], mw, mh);
+            set_int_3216(mItem.item[mwWM.mW[7].num][11], mw, mh);
 
 
 
@@ -1880,24 +1878,24 @@ void ov_process_mouse(void)
          if (mouse_on_sp) // adjust sproingy jump height
          {
             //al_hide_mouse_cursor(display);
-            //item[mW[7].num][7] -= mouse_dy/2;
+            //mItem.item[mW[7].num][7] -= mouse_dy/2;
             int get_sp(float jh);
-            float y0 = (float) item[mwWM.mW[7].num][5]+10;
+            float y0 = (float) mItem.item[mwWM.mW[7].num][5]+10;
             float fy = (float) mwWM.hy;
-            item[mwWM.mW[7].num][7] = get_sp(y0-fy);
+            mItem.item[mwWM.mW[7].num][7] = get_sp(y0-fy);
 
             // bounds check
-            if (item[mwWM.mW[7].num][7] < 40) item[mwWM.mW[7].num][7] = 40;
-            if (item[mwWM.mW[7].num][7] > 200) item[mwWM.mW[7].num][7] = 200;
+            if (mItem.item[mwWM.mW[7].num][7] < 40) mItem.item[mwWM.mW[7].num][7] = 40;
+            if (mItem.item[mwWM.mW[7].num][7] > 200) mItem.item[mwWM.mW[7].num][7] = 200;
          }
          if (mouse_on_bmb) // adjust bomb blast radius
          {
-            float x0 = (float) item[mwWM.mW[7].num][4]+10; // get center of item location
-            float y0 = (float) item[mwWM.mW[7].num][5]+10;
+            float x0 = (float) mItem.item[mwWM.mW[7].num][4]+10; // get center of item location
+            float y0 = (float) mItem.item[mwWM.mW[7].num][5]+10;
             float fx = (float) mwWM.hx;
             float fy = (float) mwWM.hy;
             float dist = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse to item
-            item[mwWM.mW[7].num][7] = (int) dist;
+            mItem.item[mwWM.mW[7].num][7] = (int) dist;
          }
          if (mouse_on_trk) // adjust trakbot shot prox
          {
@@ -1912,18 +1910,18 @@ void ov_process_mouse(void)
          if (mouse_on_kbr_ul) // move block range from ul
          {
             // set new position
-            item[mwWM.mW[7].num][6] = mwWM.gx*20;
-            item[mwWM.mW[7].num][7] = mwWM.gy*20;
+            mItem.item[mwWM.mW[7].num][6] = mwWM.gx*20;
+            mItem.item[mwWM.mW[7].num][7] = mwWM.gy*20;
          }
          if (mouse_on_kbr_lr) // adjust block range from lr
          {
             // don't allow lr to be less than ul
-            if (mwWM.gx < item[mwWM.mW[7].num][6]/20) mwWM.gx = item[mwWM.mW[7].num][6]/20;
-            if (mwWM.gy < item[mwWM.mW[7].num][7]/20) mwWM.gy = item[mwWM.mW[7].num][7]/20;
+            if (mwWM.gx < mItem.item[mwWM.mW[7].num][6]/20) mwWM.gx = mItem.item[mwWM.mW[7].num][6]/20;
+            if (mwWM.gy < mItem.item[mwWM.mW[7].num][7]/20) mwWM.gy = mItem.item[mwWM.mW[7].num][7]/20;
 
             // set new position
-            item[mwWM.mW[7].num][8] = mwWM.gx*20 - item[mwWM.mW[7].num][6];
-            item[mwWM.mW[7].num][9] = mwWM.gy*20 - item[mwWM.mW[7].num][7];
+            mItem.item[mwWM.mW[7].num][8] = mwWM.gx*20 - mItem.item[mwWM.mW[7].num][6];
+            mItem.item[mwWM.mW[7].num][9] = mwWM.gy*20 - mItem.item[mwWM.mW[7].num][7];
          }
          if (mouse_on_csb_ul) // move cloner source box from ul
          {
@@ -1966,7 +1964,7 @@ void ov_set_to_0(void)
 {
    mwWM.mW[7].obt = 2;
    mwWM.mW[7].num = 0;
-   if (item[mwWM.mW[7].num][0] == 0) mwWM.set_windows(1);
+   if (mItem.item[mwWM.mW[7].num][0] == 0) mwWM.set_windows(1);
 }
 
 void ov_check_if_valid(int type)
@@ -1977,9 +1975,9 @@ void ov_check_if_valid(int type)
 
    if (mwWM.mW[7].obt==2)
    {
-      if (item_num_of_type[type] < 1) ov_set_to_0();
-      if (item[mwWM.mW[7].num][0] != type) ov_set_to_0();
-      if (item[mwWM.mW[7].num][0] == 0) ov_set_to_0();
+      if (mItem.item_num_of_type[type] < 1) ov_set_to_0();
+      if (mItem.item[mwWM.mW[7].num][0] != type) ov_set_to_0();
+      if (mItem.item[mwWM.mW[7].num][0] == 0) ov_set_to_0();
    }
    if (mwWM.mW[7].obt==3)
    {
@@ -1995,9 +1993,10 @@ void ov_check_if_valid(int type)
 
 void ov_process_keypress(void)
 {
+   char msg[1024];
    int mb = mwWM.mW[7].mb;
    int type=0, lift=0, step=0;
-   if (mwWM.mW[7].obt == 2) type = item[mwWM.mW[7].num][0];
+   if (mwWM.mW[7].obt == 2) type = mItem.item[mwWM.mW[7].num][0];
    if (mwWM.mW[7].obt == 3) type = Ei[mwWM.mW[7].num][0];
    if (mwWM.mW[7].obt == 4)
    {
@@ -2017,7 +2016,7 @@ void ov_process_keypress(void)
       {
          if (mwWM.mW[7].obt==2)
          {
-            sprintf(msg,"%s", item_name[type]);
+            sprintf(msg,"%s", mItem.item_name[type]);
             getxy(msg, mwWM.mW[7].obt, type, mwWM.mW[7].num);
          }
          if (mwWM.mW[7].obt==3)
@@ -2048,9 +2047,9 @@ void ov_process_keypress(void)
       case 20: // delete
          if (mwWM.mW[7].obt== 2)
          {
-            erase_item(mwWM.mW[7].num);
-            sort_item(1);
-            if (mwWM.mW[7].num >= item_first_num[type]+item_num_of_type[type]) mwWM.mW[7].num--;
+            mItem.erase_item(mwWM.mW[7].num);
+            mItem.sort_item(1);
+            if (mwWM.mW[7].num >= mItem.item_first_num[type]+ mItem.item_num_of_type[type]) mwWM.mW[7].num--;
             ov_check_if_valid(type);
          }
          if (mwWM.mW[7].obt == 3)
@@ -2068,13 +2067,13 @@ void ov_process_keypress(void)
          }
       break;
       case 21: // next
-         if ((mwWM.mW[7].obt==2) && (++mwWM.mW[7].num >= item_first_num[type] + item_num_of_type[type])) mwWM.mW[7].num--;
+         if ((mwWM.mW[7].obt==2) && (++mwWM.mW[7].num >= mItem.item_first_num[type] + mItem.item_num_of_type[type])) mwWM.mW[7].num--;
          if ((mwWM.mW[7].obt==3) && (++mwWM.mW[7].num >= e_first_num[type] + e_num_of_type[type])) mwWM.mW[7].num--;
          if (mwWM.mW[7].obt==4) mwWM.mW[7].num = Lift.get_next_lift(mwWM.mW[7].num);
       break;
       case 22: // previous
          if ((mwWM.mW[7].obt==3) && (--mwWM.mW[7].num < e_first_num[type])) mwWM.mW[7].num++;
-         if ((mwWM.mW[7].obt==2) && (--mwWM.mW[7].num < item_first_num[type])) mwWM.mW[7].num++;
+         if ((mwWM.mW[7].obt==2) && (--mwWM.mW[7].num < mItem.item_first_num[type])) mwWM.mW[7].num++;
          if (mwWM.mW[7].obt==4) mwWM.mW[7].num = Lift.get_prev_lift(mwWM.mW[7].num);
       break;
    } // end of switch (mb)

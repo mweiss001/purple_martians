@@ -21,7 +21,6 @@
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwProgramState.h"
-#include "z_menu.h"
 #include "z_enemy.h"
 #include "mwLevel.h"
 #include "z_screen.h"
@@ -177,6 +176,7 @@ void set_player_join_quit_display(int p, int type, int time)
 
 void show_player_join_quit(void)
 {
+   char msg[1024];
    if (mwPS.show_player_join_quit_timer)
    {
       int t =  mwPS.show_player_join_quit_timer--;
@@ -216,6 +216,7 @@ void show_player_join_quit(void)
 
 void sdg_show_column(int col, int &x, int y)
 {
+   char msg[1024];
    y-=8;
 
    int color = 15;
@@ -762,6 +763,7 @@ void draw_server_debug_overlay(int p, int &cx, int &cy)
 
 void draw_demo_debug_overlay(int p, int &cx, int &cy)
 {
+   char msg[1024];
    double tt;
 
    if (LOG_TMR_scrn_overlay) tt = al_get_time();
@@ -793,6 +795,7 @@ void draw_demo_debug_overlay(int p, int &cx, int &cy)
 
 void draw_client_debug_overlay(int p, int &cx, int &cy)
 {
+   char msg[1024];
    double tt = 0;
 
    if (!players[p].active)
@@ -983,6 +986,7 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
 
 void draw_top_frame(int p)
 {
+   char msg[1024];
    int tdx = BORDER_WIDTH;
    int tdy = 0;
    int tc = get_contrasting_color(players[p].color);
@@ -1028,6 +1032,7 @@ void draw_top_frame(int p)
 
 void draw_bottom_frame(int p)
 {
+   char msg[1024];
    int bdy = mwD.SCREEN_H - 10;
    int bdx = BORDER_WIDTH;
    int ts = 0;  // text spacing

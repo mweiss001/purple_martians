@@ -5,7 +5,7 @@
 #include "mwFont.h"
 #include "mwBottomMessage.h"
 #include "mwDisplay.h"
-#include "e_visual_level.h"
+#include "mwVisualLevel.h"
 #include "mwLogo.h"
 #include "z_screen.h"
 #include "mwInput.h"
@@ -93,7 +93,7 @@ void mwBitmap::rebuild_bitmaps(void)
    large_text_overlay_state = 0;
    text_title_bitmaps_create = 1;
    set_map_var();
-   load_visual_level_select_done = 0;
+   mVisualLevel.load_visual_level_select_done = 0;
 }
 
 

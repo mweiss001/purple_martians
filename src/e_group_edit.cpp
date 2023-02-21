@@ -10,13 +10,13 @@
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "z_menu.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
 #include "e_fnx.h"
-
 #include "z_screen.h"
 #include "mwLevel.h"
+
+
 
 
 
@@ -339,7 +339,7 @@ void ge_remove_obj_list_filtered_items(void)
       {
          int type = mwWM.obj_list[i][0];
          int num = mwWM.obj_list[i][1];
-         if ((type == 2) && (mwWM.obj_filter[type][item[num][0]] == 0)) ge_remove_obj_list_item(i);
+         if ((type == 2) && (mwWM.obj_filter[type][mItem.item[num][0]] == 0)) ge_remove_obj_list_item(i);
          if ((type == 3) && (mwWM.obj_filter[type][  Ei[num][0]] == 0)) ge_remove_obj_list_item(i);
       }
 }
@@ -404,10 +404,10 @@ void ge_item_initial_position_random(int i, int csw)
    }
    if (empt)
    {
-      item[i][4] = x*20;
-      item[i][5] = y*20;
-      itemf[i][0] = item[i][4];
-      itemf[i][1] = item[i][5];
+      mItem.item[i][4] = x*20;
+      mItem.item[i][5] = y*20;
+      mItem.itemf[i][0] = mItem.item[i][4];
+      mItem.itemf[i][1] = mItem.item[i][5];
    }
    else printf("could not find empty block space for item\n");
 }
@@ -448,7 +448,7 @@ int ge_draw_list_items(int x1, int y1, int ni)
             al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2d",i); xt+=24; // list item number
 
             int tn = 0;
-            if (type == 2) tn = item_tile[item[num][0]];
+            if (type == 2) tn = mItem.item_tile[mItem.item[num][0]];
             if (type == 3) tn = enemy_tile[Ei[num][0]];
             al_draw_scaled_bitmap(mwB.tile[tn], 0, 0, 20, 20, xt, y1, 8, 8, 0); xt+=16; // bitmap
 
@@ -461,7 +461,7 @@ int ge_draw_list_items(int x1, int y1, int ni)
                   int vt = ge_data[ge_num].vartyp;
                   int vn = ge_data[ge_num].varnum;
 
-                  if (vt == 2) al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2d", item[num][vn]);
+                  if (vt == 2) al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2d", mItem.item[num][vn]);
                   if (vt == 3) al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2d", Ei[num][vn]);
                   if (vt == 4) al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2.1f", Ef[num][vn]);
                   if (vt == 5) al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2d", Ei[num][2]);
@@ -538,6 +538,7 @@ void ge_show_obj_list(int x, int y, int *ew, int *eh, int d)
 
 int ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d)
 {
+   char msg[1024];
    int nc = 0; // number of valid controls
 
 
@@ -585,7 +586,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d)
                         int num = mwWM.obj_list[i][1];
 
                         float val = 0;
-                        if (gvt == 2) val = (float) item[num][gvn];
+                        if (gvt == 2) val = (float) mItem.item[num][gvn];
                         if (gvt == 3) val = (float) Ei[num][gvn];
                         if (gvt == 4) val =         Ef[num][gvn];
 
@@ -617,7 +618,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d)
                               int num = mwWM.obj_list[i][1];
                               float val = mdw_rnd(mn, mx);
 
-                              if (gvt == 2) item[num][gvn] = (float) val;
+                              if (gvt == 2) mItem.item[num][gvn] = (float) val;
                               if (gvt == 3) Ei[num][gvn]   = (float) val;
                               if (gvt == 4) Ef[num][gvn]   = (float) val;
                               if ((gvt == 4) && (gvn == 9)) recalc_pod(num);
@@ -632,7 +633,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d)
                            if (mwWM.obj_list[i][0])
                            {
                               int num = mwWM.obj_list[i][1];
-                              if (gvt == 2) item[num][gvn] = (float) val;
+                              if (gvt == 2) mItem.item[num][gvn] = (float) val;
                               if (gvt == 3) Ei[num][gvn]   = (float) val;
                               if (gvt == 4) Ef[num][gvn]   = (float) val;
                               if ((gvt == 4) && (gvn == 9)) recalc_pod(num);
@@ -647,7 +648,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d)
                            if (mwWM.obj_list[i][0])
                            {
                               int num = mwWM.obj_list[i][1];
-                              if (gvt == 2) item[num][gvn] = (float) val;
+                              if (gvt == 2) mItem.item[num][gvn] = (float) val;
                               if (gvt == 3) Ei[num][gvn]   = (float) val;
                               if (gvt == 4) Ef[num][gvn]   = (float) val;
                               if ((gvt == 4) && (gvn == 9)) recalc_pod(num);
@@ -671,10 +672,10 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d)
                   {
                      int sbx = 0, sby = 0; // start block x and y
                      for (int c=0; c<500; c++)
-                        if (item[c][0] == 5)
+                        if (mItem.item[c][0] == 5)
                         {
-                           sbx = item[c][4];
-                           sby = item[c][5];
+                           sbx = mItem.item[c][4];
+                           sby = mItem.item[c][5];
                         }
                      for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
                         if (mwWM.obj_list[i][0])
@@ -720,7 +721,7 @@ void ge_add_selection_to_list(int set_filters)
       if ((Ei[b][0]) && (Ef[b][0] >= rx1) && (Ef[b][0] < rx2) && (Ef[b][1] >= ry1) && (Ef[b][1] < ry2)) ge_add_to_obj_list(3, b);
 
    for (int b=0; b<500; b++) // add items in selection
-      if ((item[b][0]) && (item[b][4] >= rx1) && (item[b][4] < rx2) && (item[b][5] >= ry1) && (item[b][5] < ry2)) ge_add_to_obj_list(2, b);
+      if ((mItem.item[b][0]) && (mItem.item[b][4] >= rx1) && (mItem.item[b][4] < rx2) && (mItem.item[b][5] >= ry1) && (mItem.item[b][5] < ry2)) ge_add_to_obj_list(2, b);
 
    // set filters to what is actually in the list
    if (set_filters)
@@ -730,7 +731,7 @@ void ge_add_selection_to_list(int set_filters)
       {
          int typ = mwWM.obj_list[i][0];
          int num = mwWM.obj_list[i][1];
-         if (typ == 2) mwWM.obj_filter[typ][item[num][0]] = 1;
+         if (typ == 2) mwWM.obj_filter[typ][mItem.item[num][0]] = 1;
          if (typ == 3) mwWM.obj_filter[typ][  Ei[num][0]] = 1;
       }
    }
@@ -752,11 +753,11 @@ void ge_process_mouse(void)
          // is mouse on item
          for (int i=0; i<500; i++)
          {
-            int type = item[i][0];
+            int type = mItem.item[i][0];
             if ((type) && (mwWM.obj_filter[2][type])) // filter for this type of item
             {
-               int sox = item[i][4]/20;
-               int soy = item[i][5]/20;
+               int sox = mItem.item[i][4]/20;
+               int soy = mItem.item[i][5]/20;
                if ((mwWM.gx == sox) && (mwWM.gy == soy)) ge_add_to_obj_list(2, i);
             }
          }

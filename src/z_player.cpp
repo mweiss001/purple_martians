@@ -12,16 +12,13 @@
 #include "mwInput.h"
 #include "mwDisplay.h"
 #include "mwProgramState.h"
-#include "z_menu.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
 #include "mwLevel.h"
-
 #include "z_screen.h"
 #include "z_screen_overlay.h"
 #include "mwShots.h"
 #include "z_solid.h"
-#include "z_item_door.h"
 
 
 struct player players[NUM_PLAYERS];
@@ -36,14 +33,14 @@ void set_player_start_pos(int p, int cont)
    if (mLevel.warp_level_location)
    {
       for (int i=0; i<500; i++)
-         if (item[i][0] == 12)
+         if (mItem.item[i][0] == 12)
          {
-            if (item[i][8] == mLevel.warp_level_location)
+            if (mItem.item[i][8] == mLevel.warp_level_location)
             {
                found = 1;
                //printf("Found warp level location %d\n", warp_level_location);
-               players[p].x = itemf[i][0];
-               players[p].y = itemf[i][1] + 20;
+               players[p].x = mItem.itemf[i][0];
+               players[p].y = mItem.itemf[i][1] + 20;
             }
          }
       mLevel.warp_level_location = 0;
@@ -55,10 +52,10 @@ void set_player_start_pos(int p, int cont)
       int ns = 0; // count number of starts
       int s[8] = {0};
       for (int i=0; i<500; i++)
-         if (item[i][0] == 5)
+         if (mItem.item[i][0] == 5)
          {
             ns++;
-            s[item[i][7]] = i; // save index of this start
+            s[mItem.item[i][7]] = i; // save index of this start
          }
       if (ns == 0)
       {
@@ -70,21 +67,21 @@ void set_player_start_pos(int p, int cont)
       {
          players[p].spawn_point_index = 0;
          int ps = s[players[p].spawn_point_index];
-         players[p].x = itemf[ps][0];
-         players[p].y = itemf[ps][1];
+         players[p].x = mItem.itemf[ps][0];
+         players[p].y = mItem.itemf[ps][1];
       }
 
 
       if (ns > 1)
       {
-         int mode = item[s[0]][6];
+         int mode = mItem.item[s[0]][6];
 
          if (mode == 0)
          {
             printf("Error: in start mode:0 there should be only one start.. all other starts are ignored.\n");
             players[p].spawn_point_index = 0;
-            players[p].x = itemf[s[0]][0];
-            players[p].y = itemf[s[0]][1];
+            players[p].x = mItem.itemf[s[0]][0];
+            players[p].y = mItem.itemf[s[0]][1];
 
          }
 
@@ -93,14 +90,14 @@ void set_player_start_pos(int p, int cont)
             if (p % 2) // odd
             {
                players[p].spawn_point_index = 1;
-               players[p].x = itemf[s[1]][0];
-               players[p].y = itemf[s[1]][1];
+               players[p].x = mItem.itemf[s[1]][0];
+               players[p].y = mItem.itemf[s[1]][1];
             }
             else
             {
                players[p].spawn_point_index = 0;
-               players[p].x = itemf[s[0]][0];
-               players[p].y = itemf[s[0]][1];
+               players[p].x = mItem.itemf[s[0]][0];
+               players[p].y = mItem.itemf[s[0]][1];
             }
          }
 
@@ -108,8 +105,8 @@ void set_player_start_pos(int p, int cont)
          {
             if (!cont) players[p].spawn_point_index = 0; // initial
             int ps = s[players[p].spawn_point_index];
-            players[p].x = itemf[ps][0];
-            players[p].y = itemf[ps][1];
+            players[p].x = mItem.itemf[ps][0];
+            players[p].y = mItem.itemf[ps][1];
          }
 
       }
@@ -138,10 +135,10 @@ void set_player_start_pos(int p, int cont)
    }
 
    for (int i=0; i<500; i++)
-      if ((item[i][0] == 5) && (item[i][7] == players[p].spawn_point_index))
+      if ((mItem.item[i][0] == 5) && (mItem.item[i][7] == players[p].spawn_point_index))
       {
-         players[p].PX = itemf[i][0];
-         players[p].PY = itemf[i][1];
+         players[p].PX = mItem.itemf[i][0];
+         players[p].PY = mItem.itemf[i][1];
 
       }
 
@@ -161,10 +158,10 @@ void set_player_start_pos(int p, int cont)
    int s[8] = {0};
 
    for (int i=0; i<500; i++)
-      if (item[i][0] == 5)
+      if (mItem.item[i][0] == 5)
       {
          ns++;
-         s[item[i][7]] = i; // save index of this start
+         s[mItem.item[i][7]] = i; // save index of this start
       }
 
    if (ns == 0)
@@ -187,8 +184,8 @@ void set_player_start_pos(int p, int cont)
       // item index of start to use
       int i = s[stu];
 
-      players[p].PX = itemf[i][0];
-      players[p].PY = itemf[i][1];
+      players[p].PX = mItem.itemf[i][0];
+      players[p].PY = mItem.itemf[i][1];
    }
 
    */
@@ -198,6 +195,7 @@ void set_player_start_pos(int p, int cont)
 
 void proc_player_health(int p)
 {
+   char msg[1024];
    if ((mwPS.frame_num) && (mwPS.frame_num == players1[p].block_damage_holdoff)) game_event(58, 0, 0, p, 0, 0, 0);
 
    if (players[p].old_health != players[p].health)
@@ -507,7 +505,7 @@ void proc_player_xy_move(int p)
 void proc_player_paused(int p)
 {
    players[p].player_ride = 0;
-   if (players[p].paused_type == 2) proc_player_door_move(p);
+   if (players[p].paused_type == 2) mItem.proc_player_door_move(p);
    if (players[p].paused_type == 1) // frozen after player dies, until the timer runs out
    {
       players[p].carry_item = 0;
@@ -515,12 +513,12 @@ void proc_player_paused(int p)
       {
          // does this player have any bomb remotes?
          for (int i=0; i<500; i++)
-            if ((item[i][0] == 99) && (item[i][6] == 3)) // lit bomb with remote detonator
+            if ((mItem.item[i][0] == 99) && (mItem.item[i][6] == 3)) // lit bomb with remote detonator
             {
-               item[i][0] = 8; // change back to regular bomb
+               mItem.item[i][0] = 8; // change back to regular bomb
                // set bomb to explode!
-               //item[i][6] = 2; // mode 2; explosion
-               //item[i][8] = item[i][9] = 20; // explosion timer
+               //mItem.item[i][6] = 2; // mode 2; explosion
+               //mItem.item[i][8] = mItem.item[i][9] = 20; // explosion timer
             }
       }
       if (--players[p].paused > 0)
@@ -559,7 +557,7 @@ void reset_player_scale_and_rot(int p)
 
 int is_player_riding_rocket(int p)
 {
-   if ((players[p].carry_item) && (item[players[p].carry_item-1][0] == 98)) return 1;
+   if ((players[p].carry_item) && (mItem.item[players[p].carry_item-1][0] == 98)) return 1;
    return 0;
 }
 
@@ -581,17 +579,17 @@ void proc_player_stuck_in_blocks(int p)
 void proc_player_riding_rocket(int p)
 {
    int c = players[p].carry_item-1;
-   float rot_inc = item[c][6];
-   if (players[p].left)  item[c][10] -= rot_inc;
-   if (players[p].right) item[c][10] += rot_inc;
+   float rot_inc = mItem.item[c][6];
+   if (players[p].left)  mItem.item[c][10] -= rot_inc;
+   if (players[p].right) mItem.item[c][10] += rot_inc;
 
-   players[p].x    = itemf[c][0];  // set the player's position and incs the same as the rocket
-   players[p].y    = itemf[c][1];
-   players[p].xinc = itemf[c][2];
-   players[p].yinc = itemf[c][3];
+   players[p].x    = mItem.itemf[c][0];  // set the player's position and incs the same as the rocket
+   players[p].y    = mItem.itemf[c][1];
+   players[p].xinc = mItem.itemf[c][2];
+   players[p].yinc = mItem.itemf[c][3];
 
    players[p].left_xinc = players[p].right_xinc = 0;
-   players[p].draw_rot = (float)item[c][10] / 1000;
+   players[p].draw_rot = (float)mItem.item[c][10] / 1000;
    players[p].draw_scale = 0.5;
 }
 
@@ -615,13 +613,13 @@ void proc_player_collisions(int p)
    players[p].marked_door = -1; // so player can touch only one door
    for (int x=0; x<500; x++)
    {
-      if ((item[x][0]) && (item[x][0] != 9) && (item[x][0] != 16) && (item[x][0] != 17))
+      if ((mItem.item[x][0]) && (mItem.item[x][0] != 9) && (mItem.item[x][0] != 16) && (mItem.item[x][0] != 17))
       {
-         float ix1 = itemf[x][0] - 16;
-         float ix2 = itemf[x][0] + 16;
-         float iy1 = itemf[x][1] - 16;
-         float iy2 = itemf[x][1] + 16;
-         if ((px > ix1) && (px < ix2) && (py > iy1) && (py < iy2) && (!players[p].paused) ) proc_item_collision(p, x);
+         float ix1 = mItem.itemf[x][0] - 16;
+         float ix2 = mItem.itemf[x][0] + 16;
+         float iy1 = mItem.itemf[x][1] - 16;
+         float iy2 = mItem.itemf[x][1] + 16;
+         if ((px > ix1) && (px < ix2) && (py > iy1) && (py < iy2) && (!players[p].paused) ) mItem.proc_item_collision(p, x);
       }
    }
    // enemies
@@ -1091,7 +1089,7 @@ void move_players(void)
 
             // common to all not paused modes
             mwS.proc_player_shoot(p);
-            proc_player_carry(p);
+            mItem.proc_player_carry(p);
             proc_player_collisions(p);
             proc_player_health(p);
             proc_player_bounds_check(p);
@@ -1256,7 +1254,7 @@ void get_players_shape(int p)
    int pos = ((int) players[p].x / 6) % 6;  // 6 shapes in sequence
 
    // if riding rocket use static shape
-   if ((players[p].carry_item) && (item[players[p].carry_item-1][0] == 98)) pos = 0;
+   if ((players[p].carry_item) && (mItem.item[players[p].carry_item-1][0] == 98)) pos = 0;
 
    // if player riding lift animate with player's xpos relative to lift
    if (players[p].player_ride)

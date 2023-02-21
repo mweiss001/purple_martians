@@ -2,10 +2,9 @@
 
 #include "pm.h"
 #include "mwLevel.h"
-#include "z_menu.h"
 #include "z_config.h"
 #include "mwLift.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
 #include "z_screen.h"
 #include "mwInput.h"
@@ -136,8 +135,8 @@ int mwLevel::is_block_empty(int x, int y, int test_block, int test_item, int tes
 
    if (test_item)
       for (int c=0; c<500; c++)
-         if (item[c][0])
-            if ((item[c][4] == (x*20)) && (item[c][5] == (y*20))) mpty = 0;
+         if (mItem.item[c][0])
+            if ((mItem.item[c][4] == (x*20)) && (mItem.item[c][5] == (y*20))) mpty = 0;
 
    return mpty;
 }
@@ -155,30 +154,31 @@ void pml_to_var(char * b) // for load level
 {
    int sz = 0, offset = 0;
    sz = sizeof(mLevel.l);     memcpy(mLevel.l,     b+offset, sz); offset += sz;
-   sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
+   sz = sizeof(mItem.item);   memcpy(mItem.item,   b+offset, sz); offset += sz;
    sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
    sz = sizeof(Ef);           memcpy(Ef,           b+offset, sz); offset += sz;
    sz = sizeof(Lift.cur);     memcpy(Lift.cur,     b+offset, sz); offset += sz;
    sz = sizeof(Lift.stp);     memcpy(Lift.stp,     b+offset, sz); offset += sz;
-   sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
+   sz = sizeof(mItem.pmsgtext);     memcpy(mItem.pmsgtext,     b+offset, sz); offset += sz;
 }
 
 void var_to_pml(char * b) // for save level
 {
    int sz = 0, offset = 0;
    offset += sz; sz = sizeof(mLevel.l);     memcpy(b+offset, mLevel.l,     sz);
-   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
+   offset += sz; sz = sizeof(mItem.item);   memcpy(b+offset, mItem.item,   sz);
    offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
    offset += sz; sz = sizeof(Ef);           memcpy(b+offset, Ef,           sz);
    offset += sz; sz = sizeof(Lift.cur);     memcpy(b+offset, Lift.cur,     sz);
    offset += sz; sz = sizeof(Lift.stp);     memcpy(b+offset, Lift.stp,     sz);
-   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
+   offset += sz; sz = sizeof(mItem.pmsgtext);     memcpy(b+offset, mItem.pmsgtext,     sz);
 }
 
 
 
 int mwLevel::load_level(int level_num, int load_only, int fail_silently)
 {
+   char msg[1024];
    zero_level_data();
    last_level_loaded = level_num;
    valid_level_loaded = 0;
@@ -215,10 +215,10 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
          mLevel.valid_level_loaded = 1;
          Lift.lift_setup();
          for (int x=0; x<500; x++)
-            if (item[x][0]) // only if active set x y
+            if (mItem.item[x][0]) // only if active set x y
             {
-               itemf[x][0] = item[x][4];
-               itemf[x][1] = item[x][5];
+               mItem.itemf[x][0] = mItem.item[x][4];
+               mItem.itemf[x][1] = mItem.item[x][5];
             }
          level_check();
          init_level_background(0); // draw blocks on level_background
@@ -233,7 +233,7 @@ void mwLevel::save_level(int level_num)
    last_level_loaded = level_num;
    level_check();
 
-   sort_item(1);
+   mItem.sort_item(1);
    sort_enemy();
    Lift.lift_setup();
 
@@ -328,11 +328,11 @@ void mwLevel::zero_level_data(void)
 
    for (int c=0; c<500; c++)  // items
    {
-      for (int x=0; x<500; x++) pmsgtext[c][x] = 0;
-      for (int x=0; x<16; x++)  item[c][x] = 0;
-      for (int x=0; x<4; x++)   itemf[c][x] = 0;
+      for (int x=0; x<500; x++) mItem.pmsgtext[c][x] = 0;
+      for (int x=0; x<16; x++)  mItem.item[c][x] = 0;
+      for (int x=0; x<4; x++)   mItem.itemf[c][x] = 0;
    }
-   sort_item(1);
+   mItem.sort_item(1);
 
    for (int c=0; c<100; c++)
    {
@@ -362,7 +362,7 @@ void mwLevel::level_check(void)
    // set number of purple coins
    number_of_purple_coins = 0;
    for (int c=0; c < 500; c++)
-      if ((item[c][0] == 2) && (item[c][6] == 3)) number_of_purple_coins++;
+      if ((mItem.item[c][0] == 2) && (mItem.item[c][6] == 3)) number_of_purple_coins++;
 
 /*
    int error = 0;
@@ -373,9 +373,9 @@ void mwLevel::level_check(void)
 
 
    for (int i=0; i<500; i++)
-      if (item[i][0] == 5)
+      if (mItem.item[i][0] == 5)
       {
-         int x = item[i][7]; // start index
+         int x = mItem.item[i][7]; // start index
          if (x < 0) mI.m_err("Level has a start index less than 0");
          if (x > 7) mI.m_err("Level has a start index more than 7");
          if ((x >=0) && (x<8))

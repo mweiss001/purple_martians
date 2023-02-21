@@ -12,11 +12,10 @@
 #include "mwEventQueue.h"
 #include "mwProgramState.h"
 #include "z_config.h"
-
-
 #include "z_main.h"
 #include "z_screen.h"
 #include "mwGameMovesArray.h"
+
 
 
 

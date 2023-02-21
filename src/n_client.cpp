@@ -15,17 +15,11 @@
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwProgramState.h"
-#include "z_menu.h"
 #include "mwLevel.h"
 #include "z_config.h"
-
 #include "z_loop.h"
 #include "z_screen.h"
 #include "mwShots.h"
-
-
-
-
 
 
 // these are never referenced outside of this file
@@ -36,6 +30,7 @@ float tmaj_i = 0;
 
 int ClientInitNetwork(const char *serveraddress)
 {
+   char msg[1024];
 	if(NetworkInit())
    {
       sprintf(msg, "Error: failed to initialize network");
@@ -225,6 +220,7 @@ void client_flush(void)
 
 void ClientExitNetwork(void)
 {
+   char msg[1024];
    sprintf(msg, "Shutting down the client network");
    printf("\n%s\n", msg);
    if (LOG_NET) add_log_entry_header(10, 0, msg, 1);
@@ -248,6 +244,7 @@ void ClientExitNetwork(void)
 
 int client_init(void)
 {
+   char msg[1024];
    if (LOG_NET) log_versions();
 
    sprintf(msg, "Client mode started on localhost:[%s]", mwPS.local_hostname);
@@ -278,6 +275,7 @@ int client_init(void)
 
 void client_process_sjon_packet(void)
 {
+   char msg[1024];
    printf("Client received sjon\n");
 
    int pl = PacketGet2ByteInt();   // play level
@@ -374,6 +372,7 @@ void client_send_stak(void)
 
 void client_apply_dif(void)
 {
+   char msg[1024];
    int p = active_local_player;
    if ((client_state_dif_src == -1) || (client_state_dif_dst == -1)) // check if valid dif
    {
@@ -501,6 +500,7 @@ void client_apply_dif(void)
 
 void client_timer_adjust(void)
 {
+   char msg[1024];
    int p = active_local_player;
 
    float mva = players1[p].dsync_avg;            // measured value
@@ -537,6 +537,7 @@ void client_timer_adjust(void)
 
 void client_process_stdf_packet(double timestamp)
 {
+   char msg[1024];
    int p = active_local_player;
 
    int src = PacketGet4ByteInt();
@@ -596,6 +597,7 @@ void client_process_stdf_packet(double timestamp)
 
 void process_bandwidth_counters(int p)
 {
+   char msg[1024];
    // get maximums per frame
    if (players1[p].tx_current_packets_for_this_frame > players1[p].tx_max_packets_per_frame) players1[p].tx_max_packets_per_frame = players1[p].tx_current_packets_for_this_frame;
    if (players1[p].tx_current_bytes_for_this_frame >   players1[p].tx_max_bytes_per_frame)   players1[p].tx_max_bytes_per_frame =   players1[p].tx_current_bytes_for_this_frame;
@@ -653,6 +655,7 @@ void process_bandwidth_counters(int p)
 
 void client_proc_player_drop(void)
 {
+   char msg[1024];
    int p = active_local_player;
 
    if (players[p].control_method == 8)
@@ -700,6 +703,7 @@ void client_proc_player_drop(void)
 
 void client_fast_packet_loop(void)
 {
+   char msg[1024];
    int p = active_local_player;
 
    while ((packetsize = ClientReceive(packetbuffer)))

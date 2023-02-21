@@ -1,16 +1,14 @@
 // e_enemy.cpp
 
 #include "pm.h"
+#include "z_enemy.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwLift.h"
 #include "mwColor.h"
-#include "z_menu.h"
-#include "z_item.h"
-#include "z_enemy.h"
+#include "mwItems.h"
 #include "mwLevel.h"
 #include "e_fnx.h"
-
 #include "mwInput.h"
 
 
@@ -144,7 +142,7 @@ void show_level_data(void)
    if (mLevel.valid_level_loaded)
    {
       y_pos = enemy_data(x_pos, y_pos) + 8;
-      y_pos = item_data(x_pos, y_pos) + 8;
+      y_pos = mItem.item_data(x_pos, y_pos) + 8;
       al_draw_textf(mF.pr8, mC.pc[15], x_pos, y_pos,   0, "%d Lifts  ", Lift.get_num_lifts());
       al_draw_text(mF.pr8, mC.pc[15], x_pos, y_pos+8,  0, "-------");
    }
@@ -156,6 +154,7 @@ void show_level_data(void)
 
 void show_all_enemies(void)
 {
+   char msg[1024];
    ALLEGRO_BITMAP *tmp;
    tmp = al_create_bitmap(20, 20);
 

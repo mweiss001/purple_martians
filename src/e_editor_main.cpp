@@ -10,19 +10,14 @@
 #include "mwInput.h"
 #include "mwDisplay.h"
 #include "mwEventQueue.h"
-#include "z_menu.h"
 #include "mwHelp.h"
-
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
 #include "mwLevel.h"
 #include "e_fnx.h"
 #include "e_object_viewer.h"
-
 #include "z_screen.h"
-
 #include "mwMenu.h"
-
 
 
 #ifndef CLASS_MWWINDOWS_DEFINED
@@ -459,7 +454,8 @@ void em_set_block_range(void)
    } // end of box shape with corners
 }
 
-char* em_get_text_description_of_block_based_on_flags(int flags)
+
+char* em_get_text_description_of_block_based_on_flags(int flags, char * msg)
 {
    sprintf(msg, "Empty");  // default
 
@@ -487,7 +483,7 @@ void em_show_draw_item_cursor(void)
             else al_draw_bitmap(mwB.btile[num&1023], x*20, y*20, 0);
          break;
          case 2: // item
-            draw_item(num, 1, x*20, y*20);
+            mItem.draw_item(num, 1, x*20, y*20);
          break;
          case 3: // enemy
             draw_enemy(num, 1, x*20, y*20);
@@ -509,6 +505,7 @@ void em_show_draw_item_cursor(void)
 
 void em_show_item_info(int x, int y, int color, int type, int num)
 {
+   char msg[1024];
    int a, b;
    switch (type)
    {
@@ -516,13 +513,13 @@ void em_show_item_info(int x, int y, int color, int type, int num)
          if (mwWM.mW[1].show_non_default_blocks) draw_block_non_default_flags(num, x, y);
          else al_draw_bitmap(mwB.btile[num&1023], x, y, 0);
          al_draw_textf(mF.pr8, mC.pc[color], x+22, y+2, 0, "Block #%d",num&1023);
-         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+12, 0, "%s", em_get_text_description_of_block_based_on_flags(num) );
+         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+12, 0, "%s", em_get_text_description_of_block_based_on_flags(num, msg));
       break;
       case 2:
-         draw_item(num, 1, x, y);
-         a = item[num][0]; // type
-         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+2, 0, "%s", item_name[a]);
-         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+12, 0, "%d of %d", 1+num - item_first_num[a], item_num_of_type[a]);
+         mItem.draw_item(num, 1, x, y);
+         a = mItem.item[num][0]; // type
+         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+2, 0, "%s", mItem.item_name[a]);
+         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+12, 0, "%d of %d", 1+num - mItem.item_first_num[a], mItem.item_num_of_type[a]);
       break;
       case 3:
          draw_enemy(num, 1, x, y);
@@ -570,10 +567,10 @@ void em_find_point_item(void)
        mo[a][1] = 1;
    }
    for (int i=0; i<500; i++) // check for item
-      if ((item[i][0]) && (ob < max_ob))
+      if ((mItem.item[i][0]) && (ob < max_ob))
       {
-         int x = item[i][4];
-         int y = item[i][5];
+         int x = mItem.item[i][4];
+         int y = mItem.item[i][5];
          if ( (mwWM.hx >= x) && (mwWM.hx <= x+19) && (mwWM.hy > y) && (mwWM.hy < y+19) && (ob < max_ob))
          {
              mo[ob][0] = 2;
@@ -641,30 +638,30 @@ void em_process_mouse(void)
          break;
          case 2:  // item
          {
-            int type = item[din][0];
-            int ofx = mwWM.gx*20 - item[din][4]; // get offset of move in 2000 format
-            int ofy = mwWM.gy*20 - item[din][5];
-            int c = get_empty_item(); // get a place to put it
+            int type = mItem.item[din][0];
+            int ofx = mwWM.gx*20 - mItem.item[din][4]; // get offset of move in 2000 format
+            int ofy = mwWM.gy*20 - mItem.item[din][5];
+            int c = mItem.get_empty_item(); // get a place to put it
 
             printf("din:%d c:%d\n", din, c);
 
             if (c == -1)  break;
-            for (int b=0; b<16; b++) item[c][b] = item[din][b]; // copy from draw item
-            item[c][4] += ofx; // adjust with offsets
-            item[c][5] += ofy;
+            for (int b=0; b<16; b++) mItem.item[c][b] = mItem.item[din][b]; // copy from draw item
+            mItem.item[c][4] += ofx; // adjust with offsets
+            mItem.item[c][5] += ofy;
             if ((type == 4) || (type == 9) || (type == 10) || (type == 16) || (type == 17)) // move range for key, trig, msg, manip, damage
             {
-               item[c][6] += ofx; // adjust with offsets
-               item[c][7] += ofy;
+               mItem.item[c][6] += ofx; // adjust with offsets
+               mItem.item[c][7] += ofy;
             }
             if (type == 10)
             {
                int x=0, y=0;
-               get_int_3216(item[c][10], x, y); // get x and y of upper left corner
-               set_int_3216(item[c][10], x+ofx, y+ofy);
-               strcpy(pmsgtext[c], pmsgtext[din]); // msg
+               get_int_3216(mItem.item[c][10], x, y); // get x and y of upper left corner
+               set_int_3216(mItem.item[c][10], x+ofx, y+ofy);
+               strcpy(mItem.pmsgtext[c], mItem.pmsgtext[din]); // msg
             }
-            sort_item(1);
+            mItem.sort_item(1);
          }
          break;
          case 3:    // enemy
@@ -731,21 +728,21 @@ void em_process_mouse(void)
          case 5: // Special
          if ((mPDE.PDEi[din][0] > 99) && (mPDE.PDEi[din][0] < 200)) // PDE item
          {
-            int d = get_empty_item(); // get a place to put it
+            int d = mItem.get_empty_item(); // get a place to put it
             if (d == -1)  break;
             // copy from pde
             for (int x=0; x<16; x++) // item
-               item[d][x] = mPDE.PDEi[din][x];
-            item[d][0] -= 100;
-            item[d][4] = mwWM.gx*20;
-            item[d][5] = mwWM.gy*20;
-            if (item[d][0] == 4)
+               mItem.item[d][x] = mPDE.PDEi[din][x];
+            mItem.item[d][0] -= 100;
+            mItem.item[d][4] = mwWM.gx*20;
+            mItem.item[d][5] = mwWM.gy*20;
+            if (mItem.item[d][0] == 4)
             {
-               itemf[d][0] = item[d][4];
-               itemf[d][1] = item[d][5];
-               get_block_range("Block Range", &item[d][6], &item[d][7], &item[d][8], &item[d][9], 1);
+               mItem.itemf[d][0] = mItem.item[d][4];
+               mItem.itemf[d][1] = mItem.item[d][5];
+               get_block_range("Block Range", &mItem.item[d][6], &mItem.item[d][7], &mItem.item[d][8], &mItem.item[d][9], 1);
             }
-            sort_item(1);
+            mItem.sort_item(1);
          }
          if (mPDE.PDEi[din][0] < 99) // PDE enemy
          {
@@ -770,9 +767,9 @@ void em_process_mouse(void)
             sprintf(mMenu.menu_string[4], "                ");
          break;
          case 2:
-            sprintf(mMenu.menu_string[2], "Copy %s  ",  item_name[item[mwWM.mW[1].point_item_num][0]]);
-            sprintf(mMenu.menu_string[3], "View %s  ",  item_name[item[mwWM.mW[1].point_item_num][0]]);
-            sprintf(mMenu.menu_string[4], "Delete %s ", item_name[item[mwWM.mW[1].point_item_num][0]]);
+            sprintf(mMenu.menu_string[2], "Copy %s  ",  mItem.item_name[mItem.item[mwWM.mW[1].point_item_num][0]]);
+            sprintf(mMenu.menu_string[3], "View %s  ",  mItem.item_name[mItem.item[mwWM.mW[1].point_item_num][0]]);
+            sprintf(mMenu.menu_string[4], "Delete %s ", mItem.item_name[mItem.item[mwWM.mW[1].point_item_num][0]]);
          break;
          case 3:
             sprintf(mMenu.menu_string[2], "Copy %s  ",  (const char *)enemy_name[Ei[mwWM.mW[1].point_item_num][0]][0]);
@@ -810,8 +807,8 @@ void em_process_mouse(void)
                      mwWM.mW[1].draw_item_type = 1;
                      mwWM.mW[1].draw_item_num = 0;
                   }
-                  erase_item(mwWM.mW[1].point_item_num);
-                  sort_item(1);
+                  mItem.erase_item(mwWM.mW[1].point_item_num);
+                  mItem.sort_item(1);
                break;
                case 3: // delete enemy
                   if ((mwWM.mW[1].draw_item_type == 3) && (mwWM.mW[1].draw_item_num == mwWM.mW[1].point_item_num)) // are you deleting the draw item?
@@ -844,7 +841,7 @@ void em_process_mouse(void)
          case 13: // load level
             mLevel.load_level_prompt();
             sort_enemy();
-            sort_item(1);
+            mItem.sort_item(1);
          break;
          case 14: mLevel.save_level(mLevel.last_level_loaded); break; // save level
          case 15: mwWM.active = 0; break; // save and exit

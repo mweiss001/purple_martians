@@ -12,15 +12,11 @@
 #include "mwEventQueue.h"
 #include "z_args.h"
 #include "z_config.h"
-
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
-
 #include "z_loop.h"
 #include "mwLevel.h"
 #include "mwGameMovesArray.h"
-
-
 
 
 void final_wrapup(void)
@@ -296,7 +292,7 @@ int initial_setup(void)
    mLevel.set_start_level();
 
 
-   set_item_text();
+   mItem.set_item_text();
    set_enemy_text();
 
    return 1;
