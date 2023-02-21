@@ -6,10 +6,8 @@
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "mwLevel.h"
-
-
 #include "z_screen.h"
 #include "z_enemy.h"
 #include "mwInput.h"
@@ -130,10 +128,10 @@ void global_level(void)
       mLevel.load_level(le[x], 1, 1);
 
       for (int y=0; y<500; y++)
-         if (item[y][0] == 11) // rocket
+         if (mItem.item[y][0] == 11) // rocket
          {
-             printf("Level:%3d st:%d\n", le[x], item[y][6]);
-           //  item[y][6] = (float)item[y][6] * 2.5;
+             printf("Level:%3d st:%d\n", le[x], mItem.item[y][6]);
+           //  mItem.item[y][6] = (float)mItem.item[y][6] * 2.5;
          }
 
 //
@@ -270,7 +268,7 @@ void global_level(void)
       //------------------------------------------------------------------------------------------------------------------
       for (int c=0; c<500; c++)
       {
-         int type = item[c][0];
+         int type = mItem.item[c][0];
          int good = 0;
 
          if (type)
@@ -295,7 +293,7 @@ void global_level(void)
             if (!good)
             {
                printf("Level:%3d - Item: %2d - bad type:%d   <----- will be erased!!!!!\n", le[x], c, type);
-               item[c][0] = 0;
+               mItem.item[c][0] = 0;
             }
 
 
@@ -305,18 +303,18 @@ void global_level(void)
             {
                if ((type != 9) && (type != 16) && (type != 17)) // don't check shape for these items...custom draw
                {
-                  if ((item[c][1] < 169) || (item[c][1] > 1084))
-                     printf("Level:%3d - Item: %2d - type:%2d - bad shape:%d\n", le[x], c, type, item[c][1]);
+                  if ((mItem.item[c][1] < 169) || (mItem.item[c][1] > 1084))
+                     printf("Level:%3d - Item: %2d - type:%2d - bad shape:%d\n", le[x], c, type, mItem.item[c][1]);
                }
 
 
 
                if ((type == 9) || (type == 16) || (type == 17)) // check field range values
                {
-                  int x1 = item[c][6];
-                  int y1 = item[c][7];
-                  int x2 = item[c][6] + item[c][8];
-                  int y2 = item[c][7] + item[c][9];
+                  int x1 = mItem.item[c][6];
+                  int y1 = mItem.item[c][7];
+                  int x2 = mItem.item[c][6] + mItem.item[c][8];
+                  int y2 = mItem.item[c][7] + mItem.item[c][9];
 
                   if ((x1 < 0) || (x1 > 1980)) printf("Level:%3d - Item: %2d - type:%2d - bad field x1 pos %d\n", le[x], c, type, x1);
                   if ((x2 < 0) || (x2 > 1980)) printf("Level:%3d - Item: %2d - type:%2d - bad field x2 pos %d\n", le[x], c, type, x2);
@@ -334,11 +332,11 @@ void global_level(void)
 
 
 
-               int xpos = item[c][4];
+               int xpos = mItem.item[c][4];
                if ((xpos < 0) || (xpos > 1980))
                    printf("Level:%3d - Item: %2d - type:%2d - bad xpos%d\n", le[x], c, type, xpos);
 
-               int ypos = item[c][5];
+               int ypos = mItem.item[c][5];
                if ((ypos < 0) || (ypos > 1980))
                    printf("Level:%3d - Item: %2d - type:%2d - bad ypos%d\n", le[x], c, type, ypos);
             }
@@ -354,13 +352,13 @@ void global_level(void)
 /*
      if (le[x] == 61)
       for (int y=0; y<500; y++)
-         if (item[y][0] == 1) // door only
-            if (item[y][6] == 8) // color 8 only
-               if (item[y][8] == 1) // linked only
+         if (mItem.item[y][0] == 1) // door only
+            if (mItem.item[y][6] == 8) // color 8 only
+               if (mItem.item[y][8] == 1) // linked only
                {
-                    printf("lev%d door:%d move_type:%d\n", le[x], y, item[y][7] );
+                    printf("lev%d door:%d move_type:%d\n", le[x], y, mItem.item[y][7] );
 
-                    item[y][7] = 1;
+                    mItem.item[y][7] = 1;
                }
 
 */
@@ -368,11 +366,11 @@ void global_level(void)
 /*
 
       for (int y=0; y<500; y++)
-         if (item[y][0] == 14) // switch only
+         if (mItem.item[y][0] == 14) // switch only
          {
-             if (item[y][1] == 746) count0++;
+             if (mItem.item[y][1] == 746) count0++;
 
-             if (item[y][1] == 746) item[y][1] = 745;
+             if (mItem.item[y][1] == 746) mItem.item[y][1] = 745;
          }
 
 
@@ -383,28 +381,28 @@ void global_level(void)
 /*
 
       for (int y=0; y<500; y++)
-         if (item[y][0] == 2) // free man
+         if (mItem.item[y][0] == 2) // free man
          {
-            //item[y][6] = 1;
+            //mItem.item[y][6] = 1;
 
             count0++;
-            if (item[y][6] == 2) count1++;
+            if (mItem.item[y][6] == 2) count1++;
 
-//            item[y][0] = 2;
-  //          item[y][6] = 2;
+//            mItem.item[y][0] = 2;
+  //          mItem.item[y][6] = 2;
 
 */
 
 
 
 
-/*            if (item[y][7] == 10) count1++;
-            if (item[y][7] == 50) count2++;
+/*            if (mItem.item[y][7] == 10) count1++;
+            if (mItem.item[y][7] == 50) count2++;
 
-            if ((item[y][7] != 10) && (item[y][7] != 50))
+            if ((mItem.item[y][7] != 10) && (mItem.item[y][7] != 50))
             {
 
-               printf("Level:%3d - Item: %2d - type:%2d - bonus health:%d\n", le[x], y, 2, item[y][7]);
+               printf("Level:%3d - Item: %2d - type:%2d - bonus health:%d\n", le[x], y, 2, mItem.item[y][7]);
 
 */
 
@@ -415,19 +413,19 @@ void global_level(void)
 
 
 /*
-             if (item[y][7] != 0) count0++;
+             if (mItem.item[y][7] != 0) count0++;
 
 
 
-             if (item[y][0] == 11) count1++;
-             if ((item[y][0] == 11) && (item[y][10] = 0)) count2++;
+             if (mItem.item[y][0] == 11) count1++;
+             if ((mItem.item[y][0] == 11) && (mItem.item[y][10] = 0)) count2++;
 
-             if ((item[y][10] != 0) && (item[y][0] != 11))  count3++;
+             if ((mItem.item[y][10] != 0) && (mItem.item[y][0] != 11))  count3++;
 
 */
 
-//            item[y][10] = item[y][4]/20;
- //           item[y][11] = item[y][5]/20;
+//            mItem.item[y][10] = mItem.item[y][4]/20;
+ //           mItem.item[y][11] = mItem.item[y][5]/20;
 
 
 
@@ -448,24 +446,24 @@ void global_level(void)
 
 
       for (int y=0; y<500; y++)
-         if (item[y][0] == 4) // keys only
+         if (mItem.item[y][0] == 4) // keys only
          {
              count0++;
 
 
-             int x1 = item[y][6]*20;
+             int x1 = mItem.item[y][6]*20;
 
-             int y1 = item[y][7]*20;
+             int y1 = mItem.item[y][7]*20;
 
-             int x2 = (item[y][8] - item[y][6]+1) * 20;
-             int y2 = (item[y][9] - item[y][7]+1) * 20;
+             int x2 = (mItem.item[y][8] - mItem.item[y][6]+1) * 20;
+             int y2 = (mItem.item[y][9] - mItem.item[y][7]+1) * 20;
 
 
 
-             item[y][6] = x1;
-             item[y][7] = y1;
-             item[y][8] = x2;
-             item[y][9] = y2;
+             mItem.item[y][6] = x1;
+             mItem.item[y][7] = y1;
+             mItem.item[y][8] = x2;
+             mItem.item[y][9] = y2;
 
          }
 
@@ -482,7 +480,7 @@ void global_level(void)
 
 /*
 
-         if (item[y][0] == 10) // msg only
+         if (mItem.item[y][0] == 10) // msg only
          {
 
             count0++;
@@ -497,15 +495,15 @@ void global_level(void)
 
              /*
 
-             if (item[y][0] == 11) count1++;
-             if ((item[y][0] == 11) && (item[y][10] = 0)) count2++;
+             if (mItem.item[y][0] == 11) count1++;
+             if ((mItem.item[y][0] == 11) && (mItem.item[y][10] = 0)) count2++;
 
-             if ((item[y][10] != 0) && (item[y][0] != 11))  count3++;
+             if ((mItem.item[y][10] != 0) && (mItem.item[y][0] != 11))  count3++;
 
 
 
-//            item[y][10] = item[y][4]/20;
- //           item[y][11] = item[y][5]/20;
+//            mItem.item[y][10] = mItem.item[y][4]/20;
+ //           mItem.item[y][11] = mItem.item[y][5]/20;
 
 
  */
@@ -519,22 +517,22 @@ void global_level(void)
 
 /*
       for (int y=0; y<500; y++)
-         if (item[y][0] == 1) // door only
+         if (mItem.item[y][0] == 1) // door only
          {
-            item[y][6] = item[y][14];
-            item[y][14] = 0;
-            item[y][15] = 0;
+            mItem.item[y][6] = mItem.item[y][14];
+            mItem.item[y][14] = 0;
+            mItem.item[y][15] = 0;
         }
 
 */
 
 /*
 
-            if (item[y][8] == 0) count1++; // old door
-            if (item[y][8] == 1) count2++; // new door
-            if (item[y][8] == 2) count3++; // exit only
+            if (mItem.item[y][8] == 0) count1++; // old door
+            if (mItem.item[y][8] == 1) count2++; // new door
+            if (mItem.item[y][8] == 2) count3++; // exit only
 
-            if (item[y][8] == 2) item[y][8] = 0;
+            if (mItem.item[y][8] == 2) mItem.item[y][8] = 0;
 
            }
 
@@ -542,13 +540,13 @@ void global_level(void)
 
 /*
       for (int y=0; y<500; y++)
-         if (item[y][0] == 1) // door only
+         if (mItem.item[y][0] == 1) // door only
          {
             count0++;
-            if (item[y][13] == 448) count1++;
-            if (item[y][13] == 1083) count2++;
+            if (mItem.item[y][13] == 448) count1++;
+            if (mItem.item[y][13] == 1083) count2++;
 
-            if ((item[y][13] != 1083) && (item[y][13] != 448))
+            if ((mItem.item[y][13] != 1083) && (mItem.item[y][13] != 448))
                printf("lev%d\n", le[x]);
 
          }
@@ -562,7 +560,7 @@ void global_level(void)
 
 /*
 
-            if (item[y][8] == 0)
+            if (mItem.item[y][8] == 0)
             {
                // create a new item and link to it
                int found_empty_items = 0;
@@ -572,36 +570,36 @@ void global_level(void)
                if (found_empty_items)
                {
                   // new item
-                  item[c][0] = 1;
-                  item[c][1] = 1084; // ans shape
-                  item[c][2] = 1; // draw mode
-                  item[c][3] = 0; // stationary
+                  mItem.item[c][0] = 1;
+                  mItem.item[c][1] = 1084; // ans shape
+                  mItem.item[c][2] = 1; // draw mode
+                  mItem.item[c][3] = 0; // stationary
 
-                  item[c][4] = item[y][6]*20;
-                  item[c][5] = item[y][7]*20;
+                  mItem.item[c][4] = mItem.item[y][6]*20;
+                  mItem.item[c][5] = mItem.item[y][7]*20;
 
-                  item[c][8] = 2; // exit only
-                  item[c][9] = 0; // link
-                  item[c][11] = 0; // immediate
-                  item[c][12] = 1; // draw lines always
-                  item[c][13] = 1084; // ans shape
+                  mItem.item[c][8] = 2; // exit only
+                  mItem.item[c][9] = 0; // link
+                  mItem.item[c][11] = 0; // immediate
+                  mItem.item[c][12] = 1; // draw lines always
+                  mItem.item[c][13] = 1084; // ans shape
 
 
                   // this item
-                  item[y][1] = 1083; // ans shape
-                  item[y][2] = 1;    // draw mode
-                  item[y][3] = 0;    // stat
+                  mItem.item[y][1] = 1083; // ans shape
+                  mItem.item[y][2] = 1;    // draw mode
+                  mItem.item[y][3] = 0;    // stat
 
-                  item[y][6] = 0;
-                  item[y][7] = 0;
-                  item[y][8] = 1; // linked exit
-                  item[y][9] = c; // link
-                  item[y][11] = 0; // immediate
-                  item[y][12] = 1; // draw lines always
-                  item[y][13] = 1083; // base ans shape
+                  mItem.item[y][6] = 0;
+                  mItem.item[y][7] = 0;
+                  mItem.item[y][8] = 1; // linked exit
+                  mItem.item[y][9] = c; // link
+                  mItem.item[y][11] = 0; // immediate
+                  mItem.item[y][12] = 1; // draw lines always
+                  mItem.item[y][13] = 1083; // base ans shape
 
 
-//                  l[item[c][4]/20][item[c][5]/20] = 0;   // zero block
+//                  l[mItem.item[c][4]/20][mItem.item[c][5]/20] = 0;   // zero block
 
 
                  }
@@ -622,7 +620,7 @@ void global_level(void)
 
 
       for (y=0; y<500; y++)
-         if (item[y][0] == 0) item[y][0] = 0;
+         if (mItem.item[y][0] == 0) mItem.item[y][0] = 0;
 
 */
 
@@ -898,22 +896,22 @@ then semisolid...add to solid
 
 
       for (int y=0; y<500; y++)
-         if (item[y][0] == 16) // block manip
+         if (mItem.item[y][0] == 16) // block manip
          {
 
             printf("Lev:%3d\n" ,le[x]);
 
             if (le[x] == 314)
             {
-               int tn = item[y][10] & 1023; // get tile only
+               int tn = mItem.item[y][10] & 1023; // get tile only
                tn |= sa[tn][0]; // apply default flags
                tn &= ~PM_BTILE_SHOW_SELECT_WIN; // remove select win flags
-               item[y][10] = tn;
+               mItem.item[y][10] = tn;
 
-               tn = item[y][11] & 1023; // get tile only
+               tn = mItem.item[y][11] & 1023; // get tile only
                tn |= sa[tn][0]; // apply default flags
                tn &= ~PM_BTILE_SHOW_SELECT_WIN; // remove select win flags
-               item[y][11] = tn;
+               mItem.item[y][11] = tn;
 
             }
          }
@@ -1091,10 +1089,10 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
       // converting pmsg position from 100 to 2000 format
       for (int y=0; y<500; y++)
-         if (item[y][0] == 10) // p msg
+         if (mItem.item[y][0] == 10) // p msg
          {
-            item[y][10] *= 20;
-            item[y][11] *= 20;
+            mItem.item[y][10] *= 20;
+            mItem.item[y][11] *= 20;
          }
 
       // converting pod and cloner trigger from 100 x1 y1 x2 y2 to 2000 xywh format
@@ -1148,15 +1146,15 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
 /*
       for (int y=0; y<500; y++)
-         if (item[y][0] == 14) // switch
+         if (mItem.item[y][0] == 14) // switch
          {
-            int t = item[y][1];
+            int t = mItem.item[y][1];
 
-            for (int i=6; i<16; i++) item[y][i] = 0; // clear all ints from 6 up
+            for (int i=6; i<16; i++) mItem.item[y][i] = 0; // clear all ints from 6 up
 
-            item[y][2] = 0;
-            item[y][8] = 2000;
-            item[y][9] = 2000;
+            mItem.item[y][2] = 0;
+            mItem.item[y][8] = 2000;
+            mItem.item[y][9] = 2000;
 
 
 //            printf("Lev:%3d t:%d\n" ,le[x], t);
@@ -1169,26 +1167,26 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
             if (t == 745) // green
             {
-               item[y][1] = 97;
-               item[y][10] = 1;
+               mItem.item[y][1] = 97;
+               mItem.item[y][10] = 1;
             }
 
             if (t == 777) // red
             {
-               item[y][1] = 98;
-               item[y][10] = 2;
+               mItem.item[y][1] = 98;
+               mItem.item[y][10] = 2;
             }
 
             if (t == 809) // blue
             {
-               item[y][1] = 99;
-               item[y][10] = 4;
+               mItem.item[y][1] = 99;
+               mItem.item[y][10] = 4;
             }
 
             if (t == 841) // purple
             {
-               item[y][1] = 100;
-               item[y][10] = 8;
+               mItem.item[y][1] = 100;
+               mItem.item[y][10] = 8;
             }
          }
 */

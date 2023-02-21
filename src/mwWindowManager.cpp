@@ -11,8 +11,7 @@
 #include "mwEventQueue.h"
 #include "mwBitmap.h"
 #include "mwProgramState.h"
-#include "z_menu.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
 #include "mwLevel.h"
 #include "e_edit_selection.h"
@@ -20,9 +19,8 @@
 #include "e_fnx.h"
 #include "e_group_edit.h"
 #include "e_object_viewer.h"
-
 #include "z_screen.h"
-#include "z_item_pmsg.h"
+
 
 
 mwWindowManager mwWM;
@@ -54,7 +52,7 @@ void mwWindowManager::initialize(int edit_level)
 
    mPDE.load();
    sort_enemy();
-   sort_item(1);
+   mItem.sort_item(1);
    em_set_swbl();
 
    mI.initialize();
@@ -234,6 +232,7 @@ void mwWindowManager::redraw_level_editor_background(int mode)
 
 int mwWindowManager::redraw_level_editor_background(void)
 {
+   char msg[1024];
    int drawn = 0;
 
    mwEQ.proc_event_queue();
@@ -255,7 +254,7 @@ int mwWindowManager::redraw_level_editor_background(void)
 
       get_new_background(0);
       Lift.draw_lifts();
-      draw_items();
+      mItem.draw_items();
       draw_enemies();
 
 
@@ -295,11 +294,11 @@ int mwWindowManager::redraw_level_editor_background(void)
          // mark objects on map that are capable of being added to list
          for (int i=0; i<500; i++)
          {
-            int type = (item[i][0]);
+            int type = (mItem.item[i][0]);
             if ((type) && (obj_filter[2][type]))
             {
-               x = item[i][4];
-               y = item[i][5];
+               x = mItem.item[i][4];
+               y = mItem.item[i][5];
                al_draw_rectangle(x, y, x+20, y+20, mC.pc[13], 1);
             }
          }
@@ -325,8 +324,8 @@ int mwWindowManager::redraw_level_editor_background(void)
                   int num = mwWM.obj_list[i][1];
                   if (typ == 2) // item
                   {
-                     x = item[num][4]/20;
-                     y = item[num][5]/20;
+                     x = mItem.item[num][4]/20;
+                     y = mItem.item[num][5]/20;
                   }
                   if (typ == 3) // enemy
                   {
@@ -346,8 +345,8 @@ int mwWindowManager::redraw_level_editor_background(void)
                int num = mwWM.obj_list[i][1];
                if (typ == 2)
                {
-                  x = item[num][4];
-                  y = item[num][5];
+                  x = mItem.item[num][4];
+                  y = mItem.item[num][5];
                }
                if (typ == 3)
                {
@@ -363,10 +362,10 @@ int mwWindowManager::redraw_level_editor_background(void)
       if (level_editor_mode == 4) // ov
       {
          // if current object is message, show all messages
-         if ((mW[7].obt == 2) && (item[mW[7].num][0] == 10))
+         if ((mW[7].obt == 2) && (mItem.item[mW[7].num][0] == 10))
          {
             for (int i=0; i<500; i++)
-               if (item[i][0] == 10) draw_pop_message(i, 0, 0, 0, 0, 0, msg);
+               if (mItem.item[i][0] == 10) mItem.draw_pop_message(i, 0, 0, 0, 0, 0, msg);
          }
 
          // if mouse on legend line, show highlight

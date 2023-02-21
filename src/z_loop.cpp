@@ -19,30 +19,24 @@
 #include "mwLift.h"
 #include "n_client.h"
 #include "n_server.h"
-#include "e_visual_level.h"
+#include "mwVisualLevel.h"
 #include "mwGameMovesArray.h"
 #include "mwPMEvent.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwBitmap.h"
-#include "z_menu.h"
-
 #include "mwMenu.h"
-
-
 #include "mwHelp.h"
-
 #include "mwProgramState.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
 #include "mwLevel.h"
 #include "e_editor_main.h"
 #include "z_control.h"
-
-
 #include "z_screen.h"
 #include "z_screen_overlay.h"
 #include "mwShots.h"
+
 
 
 
@@ -63,6 +57,7 @@ void draw_frame(void)
 
 void move_frame(void)
 {
+   char msg[1024];
    double t1, t2, t3, t4, t5, t6;
    if ((LOG_TMR_move_tot) || (LOG_TMR_move_all)) t0 = al_get_time();
    mwS.move_eshots();
@@ -75,7 +70,7 @@ void move_frame(void)
    if (LOG_TMR_move_all) t4 = al_get_time();
    move_enemies();
    if (LOG_TMR_move_all) t5 = al_get_time();
-   move_items();
+   mItem.move_items();
    if (LOG_TMR_move_all)
    {
       t6 = al_get_time();
@@ -133,7 +128,7 @@ void game_menu(void)
       mwPS.top_menu_sel = mMenu.zmenu(mwPS.top_menu_sel, 10);
 
       if  (mwPS.top_menu_sel == 1)  { mwPS.program_state = 0;                                           return; } // exit
-      if  (mwPS.top_menu_sel == 2)  { if (visual_level_select()) mwPS.top_menu_sel = 3;                         } // visual level select
+      if  (mwPS.top_menu_sel == 2)  { if (mVisualLevel.visual_level_select()) mwPS.top_menu_sel = 3;                         } // visual level select
       if ((mwPS.top_menu_sel == 4) && (mLevel.resume_allowed)) { mwPS.new_program_state = 13;           return; } // resume game
       if  (mwPS.top_menu_sel == 3)  { mwPS.new_program_state = 10;  mwPS.top_menu_sel = 4;              return; } // start new game
       if  (mwPS.top_menu_sel == 5)  { mwPS.new_program_state = 20;                                      return; } // host network game
@@ -163,6 +158,7 @@ void game_menu(void)
 
 void proc_program_state(void)
 {
+   char msg[1024];
    // ----------------------------------------------------------
    // handle all the changes from one state to another
    // ----------------------------------------------------------

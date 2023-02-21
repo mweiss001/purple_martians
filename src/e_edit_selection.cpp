@@ -13,13 +13,12 @@
 #include "mwInput.h"
 #include "mwDisplay.h"
 #include "mwEventQueue.h"
-#include "z_menu.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
 #include "mwLevel.h"
 #include "e_fnx.h"
-
 #include "z_screen.h"
+
 
 
 
@@ -36,7 +35,6 @@ int ft_lift[NUM_LIFTS][6];
 int ft_ls[NUM_LIFTS][40][6];
 
 ALLEGRO_BITMAP *ft_bmp = NULL;  //  file temp paste bmp
-
 
 
 
@@ -63,11 +61,11 @@ void es_pointer_text(int x1, int x2, int y, int mouse_on_window)
 
    // count items in box
    for (int b=0; b<500; b++)
-      if ((item[b][0]) && (mwWM.obj_filter[2][item[b][0]]))
-         if (item[b][4] >= rx1)
-            if (item[b][4] < rx2)
-               if (item[b][5] >= ry1)
-                  if (item[b][5] < ry2)
+      if ((mItem.item[b][0]) && (mwWM.obj_filter[2][mItem.item[b][0]]))
+         if (mItem.item[b][4] >= rx1)
+            if (mItem.item[b][4] < rx2)
+               if (mItem.item[b][5] >= ry1)
+                  if (mItem.item[b][5] < ry2)
                      iib++;
 
    // count enemies in box
@@ -194,6 +192,7 @@ void es_clear_ft(void)
 
 int es_load_selection(void)
 {
+   char msg[1024];
    FILE *filepntr;
    int loop, ch, c, x, y;
    char sel_filename[500];
@@ -376,28 +375,28 @@ void es_save_selection(int save)
 
    // items
    for (b=0; b<500; b++)
-      if ((item[b][0]) && (mwWM.obj_filter[2][item[b][0]]) && (item[b][4] >= x1) && (item[b][4] < x2) && (item[b][5] >= y1) && (item[b][5] < y2))
+      if ((mItem.item[b][0]) && (mwWM.obj_filter[2][mItem.item[b][0]]) && (mItem.item[b][4] >= x1) && (mItem.item[b][4] < x2) && (mItem.item[b][5] >= y1) && (mItem.item[b][5] < y2))
       {
          c = iib++;
          // copy all 16 variables
          for (y=0; y<16; y++)
-             ft_item[c][y] = item[b][y];
+             ft_item[c][y] = mItem.item[b][y];
 
          // set new x, y (now relative to the selection window ul corner)
-         ft_item[c][4] = item[b][4] - x1;
-         ft_item[c][5] = item[b][5] - y1;
+         ft_item[c][4] = mItem.item[b][4] - x1;
+         ft_item[c][5] = mItem.item[b][5] - y1;
 
-         if ((item[b][0] == 4) || (item[b][0] == 9) || (item[b][0] == 10) || (item[b][0] == 16) || (item[b][0] == 17)) // key, trigger, manip, damage
+         if ((mItem.item[b][0] == 4) || (mItem.item[b][0] == 9) || (mItem.item[b][0] == 10) || (mItem.item[b][0] == 16) || (mItem.item[b][0] == 17)) // key, trigger, manip, damage
          {   // set new destination
-            ft_item[c][6] = item[b][6] - mwWM.bx1*20;
-            ft_item[c][7] = item[b][7] - mwWM.by1*20;
+            ft_item[c][6] = mItem.item[b][6] - mwWM.bx1*20;
+            ft_item[c][7] = mItem.item[b][7] - mwWM.by1*20;
          }
-         if (item[b][0] == 10) // message
+         if (mItem.item[b][0] == 10) // message
          {
             int x=0, y=0;
-            get_int_3216(item[b][10], x, y);                        // get x and y
+            get_int_3216(mItem.item[b][10], x, y);                        // get x and y
             set_int_3216(ft_item[c][10], x - mwWM.bx1*20, y - mwWM.by1*20);   // add offset and set x and y
-            strcpy(ft_pmsgtext[c], pmsgtext[b]);
+            strcpy(ft_pmsgtext[c], mItem.pmsgtext[b]);
          }
       }
 
@@ -702,27 +701,27 @@ void es_do_fcopy(int qx1, int qy1)
          //int copied = 0;
          for (c=0; c<500; c++) // search for empty place to copy to
          {
-            if (item[c][0] == 0) // found empty
+            if (mItem.item[c][0] == 0) // found empty
             {
                //copied = 1000+c;
                int lim = 0;
                // copy all 16 variables
                for (y=0; y<16; y++)
-                     item[c][y] = ft_item[b][y];
+                     mItem.item[c][y] = ft_item[b][y];
 
                // apply offsets
-               item[c][4] += x3;
-               item[c][5] += y3;
+               mItem.item[c][4] += x3;
+               mItem.item[c][5] += y3;
 
                if (erase_out_of_bounds_main)
                {
-                  if (check_limit(item[c][4], 0, 1980)) lim = 1;
-                  if (check_limit(item[c][5], 0, 1980)) lim = 1;
+                  if (check_limit(mItem.item[c][4], 0, 1980)) lim = 1;
+                  if (check_limit(mItem.item[c][5], 0, 1980)) lim = 1;
                }
                else // adjust if out of bounds
                {
-                  item[c][4] = enforce_limit(item[c][4], 0, 1980);
-                  item[c][5] = enforce_limit(item[c][5], 0, 1980);
+                  mItem.item[c][4] = enforce_limit(mItem.item[c][4], 0, 1980);
+                  mItem.item[c][5] = enforce_limit(mItem.item[c][5], 0, 1980);
                }
 
                // does this copy item have an entry in the clt table?
@@ -732,30 +731,30 @@ void es_do_fcopy(int qx1, int qy1)
                      int var_index = clt[i][1]; // var #
                      int ev2 = clt[i][3];       // new ev
 
-                     item[c][var_index] = ev2;
+                     mItem.item[c][var_index] = ev2;
                   }
 
-               if ((item[c][0] == 4) || (item[c][0] == 9)|| (item[c][0] == 10) || (item[c][0] == 16) || (item[c][0] == 17)) // key, trigger, manip, damage
+               if ((mItem.item[c][0] == 4) || (mItem.item[c][0] == 9)|| (mItem.item[c][0] == 10) || (mItem.item[c][0] == 16) || (mItem.item[c][0] == 17)) // key, trigger, manip, damage
                {
-                  item[c][6] += qx1*20;
-                  item[c][7] += qy1*20;
+                  mItem.item[c][6] += qx1*20;
+                  mItem.item[c][7] += qy1*20;
                }
-               if (item[c][0] == 5) // start
+               if (mItem.item[c][0] == 5) // start
                {
                   // do something here to prevent exact duplicates
                }
-               if (item[c][0] == 10) // message
+               if (mItem.item[c][0] == 10) // message
                {
                   int x=0, y=0;
-                  get_int_3216(item[c][10], x, y);                     // get x y
-                  set_int_3216(item[c][10], x + qx1*20, y + qy1*20);   // add offset and set x y
-                  strcpy(pmsgtext[c], ft_pmsgtext[b]);
+                  get_int_3216(mItem.item[c][10], x, y);                     // get x y
+                  set_int_3216(mItem.item[c][10], x + qx1*20, y + qy1*20);   // add offset and set x y
+                  strcpy(mItem.pmsgtext[c], ft_pmsgtext[b]);
                }
                // limits exceeded; erase
                if (lim)
                {
                   printf("erase:%d\n",c);
-                  erase_item(c);
+                  mItem.erase_item(c);
                   //copied = -1;
                }
                c = 500; // end loop
@@ -763,7 +762,7 @@ void es_do_fcopy(int qx1, int qy1)
          }  // end if iterate real item array
       } // end of attempt copy
    sort_enemy();
-   sort_item(1);
+   mItem.sort_item(1);
    init_level_background(0);
 }
 
@@ -781,8 +780,8 @@ void es_do_clear(void)
 
    // items
    for (int i=0; i<500; i++)
-      if ((item[i][0]) && (mwWM.obj_filter[2][item[i][0]]))
-         if ((item[i][4] >= x1) && (item[i][4] < x2) && (item[i][5] >= y1) && (item[i][5] < y2)) erase_item(i);
+      if ((mItem.item[i][0]) && (mwWM.obj_filter[2][mItem.item[i][0]]))
+         if ((mItem.item[i][4] >= x1) && (mItem.item[i][4] < x2) && (mItem.item[i][5] >= y1) && (mItem.item[i][5] < y2)) mItem.erase_item(i);
 
    // enemies
    for (int e=0; e<100; e++)
@@ -800,7 +799,7 @@ void es_do_clear(void)
             if ((Lift.cur[l].x >= x1) && (Lift.cur[l].x < x2) && (Lift.cur[l].y >= y1) && (Lift.cur[l].y < y2)) Lift.erase_lift(l);
 
    sort_enemy();
-   sort_item(1);
+   mItem.sort_item(1);
    init_level_background(0);
 }
 
@@ -926,7 +925,7 @@ void es_draw_item_ft(int i)
 
    if (type == 11) // rockets
    {
-      float rot = (float) item[i][10] / 1000;
+      float rot = (float) mItem.item[i][10] / 1000;
       al_draw_rotated_bitmap(mwB.tile[shape], 10, 10, x+10, y+10, rot, 0);
       drawn = 1;
    }

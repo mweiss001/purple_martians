@@ -69,9 +69,9 @@ cannot reproduce...
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-help should be made a class...
+what is still left to remove globals?
 
-
+what about items and enemies?
 
 
 
@@ -85,11 +85,11 @@ I sort of duplicate level editor modes with program states
 
 
 
-
-
 can visual level be made into a class?
+yes..it was easy..it only has 2 entry points..
 
-what about 2 color line draw?
+
+
 
 
 

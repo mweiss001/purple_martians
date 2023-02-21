@@ -3,9 +3,7 @@
 #include "z_sound.h"
 #include "mwProgramState.h"
 #include "z_config.h"
-//
 #include "mwInput.h"
-
 
 
 // ------------------------------------------------

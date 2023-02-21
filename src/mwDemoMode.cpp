@@ -4,10 +4,7 @@
 #include "mwDemoMode.h"
 #include "mwProgramState.h"
 #include "mwLevel.h"
-
 #include "mwGameMovesArray.h"
-
-
 
 
 mwDemoMode mwDM;

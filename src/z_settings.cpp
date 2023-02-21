@@ -15,37 +15,19 @@
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "z_menu.h"
 #include "mwMenu.h"
 #include "mwProgramState.h"
 #include "z_enemy.h"
 #include "mwLevel.h"
 #include "z_config.h"
-
-
+#include "e_fnx.h"
 #include "z_screen.h"
 #include "mwShots.h"
 #include "mwGameMovesArray.h"
 
-
-
-
-
-
 int settings_current_page = 0;
-
 int overlay_grid[10][4] = {0};
-
 int number_of_debug_overlay_modes = 2;
-
-
-
-
-
-
-
-
-
 
 void set_all_logging(int v)
 {
@@ -68,7 +50,6 @@ void set_all_logging(int v)
    LOG_TMR_bmsg_add=v;
    LOG_TMR_bmsg_draw=v;
    LOG_TMR_scrn_overlay=v;
-
    LOG_TMR_draw_tot=v;
    LOG_TMR_draw_all=v;
    LOG_TMR_sdif=v;
@@ -76,8 +57,6 @@ void set_all_logging(int v)
    LOG_TMR_rwnd=v;
    LOG_TMR_client_timer_adj=v;
    LOG_TMR_client_ping=v;
-
-
 }
 
 
@@ -181,6 +160,7 @@ void draw_tab(struct settings_tab st[], int p, int col, int text_color)
 
 void settings_pages(int set_page)
 {
+   char msg[1024];
    if (set_page != -1)  settings_current_page = set_page;
    int page = settings_current_page;
 

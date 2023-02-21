@@ -13,6 +13,7 @@
 #include "mwProgramState.h"
 #include "z_screen.h"
 
+
 mwHelp mHelp;
 
 int mwHelp::load_help(void)

@@ -5,14 +5,10 @@
 #include "n_netgame.h"
 #include "mwLift.h"
 #include "mwPMEvent.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
 #include "mwLevel.h"
 #include "mwShots.h"
-
-
-
-
 
 
 // ------------------------------------------------
@@ -44,8 +40,8 @@ void game_vars_to_state(char * b)
    offset += sz; sz = sizeof(players);     memcpy(b+offset, players,  sz);
    offset += sz; sz = sizeof(Ei);          memcpy(b+offset, Ei,       sz);
    offset += sz; sz = sizeof(Ef);          memcpy(b+offset, Ef,       sz);
-   offset += sz; sz = sizeof(item);        memcpy(b+offset, item,     sz);
-   offset += sz; sz = sizeof(itemf);       memcpy(b+offset, itemf,    sz);
+   offset += sz; sz = sizeof(mItem.item);  memcpy(b+offset, mItem.item, sz);
+   offset += sz; sz = sizeof(mItem.itemf); memcpy(b+offset, mItem.itemf, sz);
    offset += sz; sz = sizeof(Lift.cur);    memcpy(b+offset, Lift.cur, sz);
    offset += sz; sz = sizeof(mLevel.l);    memcpy(b+offset, mLevel.l, sz);
    offset += sz; sz = sizeof(mwS.p);       memcpy(b+offset, mwS.p,    sz);
@@ -59,8 +55,8 @@ void state_to_game_vars(char * b)
    sz = sizeof(players);     memcpy(players,     b+offset, sz); offset += sz;
    sz = sizeof(Ei);          memcpy(Ei,          b+offset, sz); offset += sz;
    sz = sizeof(Ef);          memcpy(Ef,          b+offset, sz); offset += sz;
-   sz = sizeof(item);        memcpy(item,        b+offset, sz); offset += sz;
-   sz = sizeof(itemf);       memcpy(itemf,       b+offset, sz); offset += sz;
+   sz = sizeof(mItem.item);  memcpy(mItem.item,  b+offset, sz); offset += sz;
+   sz = sizeof(mItem.itemf); memcpy(mItem.itemf, b+offset, sz); offset += sz;
    sz = sizeof(Lift.cur);    memcpy(Lift.cur,    b+offset, sz); offset += sz;
    sz = sizeof(mLevel.l);    memcpy(mLevel.l,    b+offset, sz); offset += sz;
    sz = sizeof(mwS.p);       memcpy(mwS.p,       b+offset, sz); offset += sz;

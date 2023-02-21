@@ -35,6 +35,9 @@ void titlex(const char *txt, int tc, int fc, int x1, int x2, int y);
 void scale_bouncer_and_cannon_speed(int e);
 
 
+void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore);
+void edit_server_name(int type, int x, int y);
+int edit_lift_name(int lift, int step_ty, int bts, char *fst);
 
 //----------------------------------------------------------------------------
 // these all used to be in z_fnx.h and have been gone through on 20230220
@@ -51,6 +54,10 @@ int find_closest_player_flapper(int e);
 int find_closest_player_trakbot(int e);
 int find_closest_player_cannon(int e);
 float deg_to_rad(float deg);
+
+
+
+
 
 
 

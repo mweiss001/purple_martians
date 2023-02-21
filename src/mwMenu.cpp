@@ -2,47 +2,19 @@
 
 #include "pm.h"
 #include "mwMenu.h"
-
-
-
-
-
-
-// z_menu.cpp
-
-//#include "mwWindow.h"
 #include "mwWindowManager.h"
 #include "z_player.h"
-//#include "n_netgame.h"
 #include "mwLogo.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
-//#include "mwBitmap.h"
-//#include "mwLift.h"
-//#include "mwWidgets.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-//#include "mwProgramState.h"
-//#include "z_item.h"
-//#include "z_enemy.h"
 #include "mwLevel.h"
 #include "z_screen.h"
-//
-//
-//
-//
-
-
-
-
-
-
 
 mwMenu mMenu;
-
-
 
 
 mwMenu::mwMenu()

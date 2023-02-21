@@ -15,7 +15,6 @@
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwProgramState.h"
-#include "z_menu.h"
 #include "z_config.h"
 
 
@@ -108,6 +107,7 @@ void rungame_key_check(int p)
 
 void proc_player_input(void)
 {
+   char msg[1024];
    for (int p=0; p<NUM_PLAYERS; p++)
       if (players[p].active) // cycle all active players
       {

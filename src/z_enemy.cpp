@@ -10,8 +10,7 @@
 #include "mwLift.h"
 #include "mwColor.h"
 #include "mwProgramState.h"
-#include "z_menu.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "mwLevel.h"
 
 #include "z_screen_overlay.h"
@@ -402,6 +401,7 @@ void proc_enemy_collision_with_pshot(int e)
 
 void move_enemies()
 {
+   char msg[1024];
    if (LOG_TMR_move_enem) mwTS.init_timestamps();
    num_enemy = 0; // count enemies
    for (int e=0; e<100; e++)
@@ -489,25 +489,25 @@ void enemy_deathcount(int e)
    {
       Ei[e][0] = 0; // kill enemy
       for (int c=0; c<500; c++)
-         if (item[c][0] == 0) // find empty
+         if (mItem.item[c][0] == 0) // find empty
          {
-            for (int y=0; y<16; y++) item[c][y] = 0; // clear item
-            item[c][0] = 2;           // type - bonus
-            item[c][1] = Ei[e][24];  // flower shape
-            item[c][2] = 1; // draw mode normal
-            item[c][3] = -1; // carryable
-            item[c][4] = EXint;
-            item[c][5] = EYint;
-            item[c][6] = 1; // bonus type 1 - health
-            item[c][7] = Ei[e][25];  //  life
-            item[c][8] = 0;
+            for (int y=0; y<16; y++) mItem.item[c][y] = 0; // clear item
+            mItem.item[c][0] = 2;           // type - bonus
+            mItem.item[c][1] = Ei[e][24];  // flower shape
+            mItem.item[c][2] = 1; // draw mode normal
+            mItem.item[c][3] = -1; // carryable
+            mItem.item[c][4] = EXint;
+            mItem.item[c][5] = EYint;
+            mItem.item[c][6] = 1; // bonus type 1 - health
+            mItem.item[c][7] = Ei[e][25];  //  life
+            mItem.item[c][8] = 0;
 
-            item[c][14] = 800; // time to live
+            mItem.item[c][14] = 800; // time to live
 
-            itemf[c][0] = item[c][4];
-            itemf[c][1] = item[c][5];
-            itemf[c][2] = 0;
-            itemf[c][3] = 0;
+            mItem.itemf[c][0] = mItem.item[c][4];
+            mItem.itemf[c][1] = mItem.item[c][5];
+            mItem.itemf[c][2] = 0;
+            mItem.itemf[c][3] = 0;
             break; // end loop
          }
    }
@@ -833,7 +833,7 @@ void cloner_create(int e)
       for (int x=0; x<100; x++)
          if ((Ei[x][0]) && (Ei[x][28] == 1000 + e)) no++;
       for (int x=0; x<500; x++)
-         if ((item[x][0]) && (item[x][15] == 1000 + e)) no++;
+         if ((mItem.item[x][0]) && (mItem.item[x][15] == 1000 + e)) no++;
    }
    else cl = 600; // no limit is same as max limit
    if (no < cl) // if number of objects < create limit
@@ -867,10 +867,10 @@ void cloner_create(int e)
 
       // check for items in box
       for (int b=0; b<500; b++)
-         if (item[b][0])
+         if (mItem.item[b][0])
          {
-            float ix = itemf[b][0];
-            float iy = itemf[b][1];
+            float ix = mItem.itemf[b][0];
+            float iy = mItem.itemf[b][1];
             if ((ix > x1) && (ix < x2) && (iy > y1) && (iy < y2) && (no < cl))
             {
                // check if new position is empty
@@ -881,18 +881,18 @@ void cloner_create(int e)
                if (mLevel.is_block_empty(nx, ny, 1, 0, 0)) // block only
                {
                   for (int c=0; c<500; c++)
-                     if (item[c][0] == 0) // found empty
+                     if (mItem.item[c][0] == 0) // found empty
                      {
-                        for (int y=0; y<16; y++) item[c][y] = item[b][y];
-                        itemf[c][0]= new_x_pos;
-                        itemf[c][1]= new_y_pos;
-                        itemf[c][2]= 0;
-                        itemf[c][3]= 0;
+                        for (int y=0; y<16; y++) mItem.item[c][y] = mItem.item[b][y];
+                        mItem.itemf[c][0]= new_x_pos;
+                        mItem.itemf[c][1]= new_y_pos;
+                        mItem.itemf[c][2]= 0;
+                        mItem.itemf[c][3]= 0;
 
                         // are we copying something that already has an expiry date?? if so leave it
-                        if (item[b][14] == 0) item[c][14] = Ei[e][9]; // otherwise set time to live from cloner
-                        if (item[c][0] == 10) strcpy(pmsgtext[c], pmsgtext[b]); // message
-                        item[c][15] = 1000+e;   // tag with cloner item id
+                        if (mItem.item[b][14] == 0) mItem.item[c][14] = Ei[e][9]; // otherwise set time to live from cloner
+                        if (mItem.item[c][0] == 10) strcpy(mItem.pmsgtext[c], mItem.pmsgtext[b]); // message
+                        mItem.item[c][15] = 1000+e;   // tag with cloner item id
                         c = 500; // end loop
                         no++;    // one more object created
                      }

@@ -6,7 +6,6 @@
 #include "mwLogo.h"
 #include "mwColor.h"
 #include "mwDisplay.h"
-//#include "z_menu.h"
 #include "mwProgramState.h"
 #include "mwLevel.h"
 #include "e_editor_main.h"

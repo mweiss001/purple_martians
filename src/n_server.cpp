@@ -11,7 +11,7 @@
 #include "n_server.h"
 #include "mwGameMovesArray.h"
 #include "mwProgramState.h"
-#include "z_menu.h"
+//#include "z_menu.h"
 #include "mwLevel.h"
 
 #include "z_loop.h"
@@ -31,6 +31,7 @@ NET_CHANNEL *ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for ea
 
 int ServerInitNetwork() // Initialize the server
 {
+   char msg[1024];
    init_packet_buffer();
    if(NetworkInit())
    {
@@ -92,6 +93,7 @@ int ServerInitNetwork() // Initialize the server
 
 void ServerListen()
 {
+   char msg[1024];
    if (TCP) // listen for connections
    {
       NET_CONN *newconn;
@@ -249,6 +251,7 @@ void server_flush(void)
 
 void ServerExitNetwork() // Shut the server down
 {
+   char msg[1024];
    sprintf(msg, "Shutting down the server");
    printf("%s\n", msg);
    if (LOG_NET) add_log_entry_header(10, 0, msg, 1);
@@ -295,6 +298,7 @@ void ServerExitNetwork() // Shut the server down
 
 int server_init(void)
 {
+   char msg[1024];
    if (LOG_NET)
    {
       log_versions();
@@ -354,6 +358,7 @@ void server_exit(void)
 
 void server_rewind(void)
 {
+   char msg[1024];
    int s1 = players1[0].server_state_freq;
 
    if (mwPS.frame_num >= srv_client_state_frame_num[0][1] + s1)    // is it time to create a new state?
@@ -384,6 +389,7 @@ void server_rewind(void)
 
 void server_create_new_state(void)
 {
+   char msg[1024];
    if (players1[0].server_send_dif)
    {
       players1[0].server_send_dif = 0;
@@ -408,6 +414,7 @@ void server_create_new_state(void)
 
 void server_send_dif(int p) // send dif to a specific client
 {
+   char msg[1024];
    // if last_ack_state_frame == 0 set base to all zeros
    if (srv_client_state_frame_num[p][0] == 0) memset(srv_client_state[p][0], 0, STATE_SIZE);
 
@@ -474,6 +481,7 @@ void server_send_dif(int p) // send dif to a specific client
 
 void server_proc_player_drop(void)
 {
+   char msg[1024];
    // check to see if we need to drop clients
    for (int p=1; p<NUM_PLAYERS; p++)   // server only; skip p[0]
       if (players[p].control_method == 2)
@@ -504,6 +512,7 @@ void server_proc_player_drop(void)
 
 void server_proc_cdat_packet(double timestamp)
 {
+   char msg[1024];
    int p = PacketGet1ByteInt();
    int cdat_frame_num = PacketGet4ByteInt();
    int cm = PacketGet1ByteInt();
@@ -536,6 +545,7 @@ void server_proc_cdat_packet(double timestamp)
 
 void server_lock_client(int p)
 {
+   char msg[1024];
    if ((!players[p].active) && (players[p].control_method == 2)) // inactive client chasing for lock
    {
       if ((players1[p].dsync > -0.2) && (players1[p].dsync < 0.03)) players1[p].sync_stabilization_holdoff++; // -200 to +30
@@ -553,6 +563,7 @@ void server_lock_client(int p)
 
 void server_proc_stak_packet(double timestamp)
 {
+   char msg[1024];
    int p                                    = PacketGet1ByteInt();
    int ack_frame_num                        = PacketGet4ByteInt();
    int client_frame_num                     = PacketGet4ByteInt();
@@ -601,6 +612,7 @@ void server_proc_stak_packet(double timestamp)
 
 void server_proc_cjon_packet(int who)
 {
+   char msg[1024];
    char temp_name[16];
    int color = PacketGet1ByteInt();
    PacketReadString(temp_name);

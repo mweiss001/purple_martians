@@ -11,7 +11,6 @@
 #include "mwBottomMessage.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
-#include "z_menu.h"
 #include "mwProgramState.h"
 #include "mwLevel.h"
 
@@ -51,6 +50,7 @@ main()
 
 void save_config(void)
 {
+   char msg[1024];
    ALLEGRO_CONFIG * cfg = al_load_config_file("pm.cfg");
    if(!cfg)
    {
@@ -219,6 +219,7 @@ void save_config(void)
 
 void load_config(void)
 {
+   char msg[1024];
 
 
 

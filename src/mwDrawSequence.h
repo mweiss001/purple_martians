@@ -27,7 +27,7 @@ class mwDrawSequence
 
    void add(int s, double v);
 
-   char * get_line(int s);
+   char* get_line(int s, char*);
 
    void show_text(int x, int y);
 

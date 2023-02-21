@@ -7,7 +7,6 @@
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "z_menu.h"
 #include "mwMenu.h"
 #include "mw_multicolor_line.h"
 
@@ -185,6 +184,7 @@ void mwGraph::draw_graph(int draw_only)
 
 void mwGraph::set_series_legend_type(int type)
 {
+   char msg[1024];
    series_legend_type = type;
    if (type == 1) // set series 0-7 all active as player 0-7
    {
@@ -663,6 +663,7 @@ void mwGraph::set_y_axis_labels(int type, int font, int tick_size, int color)
 
 void mwGraph::x_axis_draw_legend(int set_size_only)
 {
+   char msg[1024];
    x_axis_legend_draw_size = 0;
    if (x_axis_legend_draw_on)
    {
@@ -697,6 +698,7 @@ void mwGraph::x_axis_draw_legend(int set_size_only)
 
 void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
 {
+   char msg[1024];
    double lx = 0, ly = 0;
    ALLEGRO_FONT *f = mF.pr8;
    if (x_axis_grid_label_font) f = mF.pixl;
@@ -742,12 +744,12 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
             {
                // get current label
                convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly); // get screen position
-               mF.mw_get_text_dimensions(f, x_axis_get_val_text(i* x_axis_divider, 0), bx, by, bw, bh); // get text dimensions of label
+               mF.mw_get_text_dimensions(f, x_axis_get_val_text(i* x_axis_divider, 0, msg), bx, by, bw, bh); // get text dimensions of label
                int cur_end = lx + bw/2; // xpos at the end of this label
 
                // get next label
                convert_gxy_to_sxy((i+x_gl_span) * x_axis_divider, 9999, lx, ly); // get screen position
-               mF.mw_get_text_dimensions(f, x_axis_get_val_text((i+x_gl_span) * x_axis_divider, 0), bx, by, bw, bh); // get text dimensions of label
+               mF.mw_get_text_dimensions(f, x_axis_get_val_text((i+x_gl_span) * x_axis_divider, 0, msg), bx, by, bw, bh); // get text dimensions of label
                int next_start = lx - bw/2; // xpos at the start of this label
 
                int space = next_start - cur_end;
@@ -804,12 +806,12 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
          {
             convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly);
             al_draw_line(lx, x_axis_label_y0, lx, x_axis_label_y2, mC.pc[mj_col], mj_size);
-            if (x_axis_grid_label_draw_on) al_draw_text(f, mC.pc[x_axis_grid_label_color], lx-bx, x_axis_label_y2-by, ALLEGRO_ALIGN_CENTER, x_axis_get_val_text(i* x_axis_divider, 0));
+            if (x_axis_grid_label_draw_on) al_draw_text(f, mC.pc[x_axis_grid_label_color], lx-bx, x_axis_label_y2-by, ALLEGRO_ALIGN_CENTER, x_axis_get_val_text(i* x_axis_divider, 0, msg));
          }
          if (0) // label on origin
          {
             al_draw_line(plot_x1, plot_y2+1, plot_x1, x_axis_label_y2, mC.pc[mj_col], mj_size);
-            al_draw_textf(f, mC.pc[x_axis_grid_label_color], plot_x1, x_axis_label_y2-by, ALLEGRO_ALIGN_CENTER, x_axis_get_val_text(x_axis_min, 0));
+            al_draw_textf(f, mC.pc[x_axis_grid_label_color], plot_x1, x_axis_label_y2-by, ALLEGRO_ALIGN_CENTER, x_axis_get_val_text(x_axis_min, 0, msg));
          }
       }
    }
@@ -817,6 +819,7 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
 
 void mwGraph::y_axis_draw_legend(int set_size_only)
 {
+   char msg[1024];
    y_axis_legend_draw_size = 0;
    if (y_axis_legend_draw_on)
    {
@@ -855,6 +858,7 @@ void mwGraph::y_axis_draw_legend(int set_size_only)
 
 void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
 {
+   char msg[1024];
    ALLEGRO_FONT *f = mF.pr8;
    if (y_axis_grid_label_font) f = mF.pixl;
    int bx, by, bw, bh;
@@ -877,7 +881,7 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
       for (double i=gy2; i<sy_axis_max; i+=y_gl_span)
       {
          convert_gxy_to_sxy(9999, i * y_axis_divider, lx, ly);
-         mF.mw_get_text_dimensions(f, y_axis_get_val_text(i, 0), bx, by, bw, bh);
+         mF.mw_get_text_dimensions(f, y_axis_get_val_text(i, 0, msg), bx, by, bw, bh);
          if (bw >  max_width) max_width = bw;
       }
       y_axis_grid_label_text_size = max_width+1;
@@ -945,12 +949,12 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
          {
             convert_gxy_to_sxy(9999, i*y_axis_divider, lx, ly);
             al_draw_line(y_axis_label_x2, ly, y_axis_label_x0-1, ly, mC.pc[mj_col], mj_size);
-            if (y_axis_grid_label_draw_on) al_draw_text(f, mC.pc[y_axis_grid_label_color], y_axis_label_x2-bx, ly-by-bh/2, ALLEGRO_ALIGN_RIGHT, y_axis_get_val_text(i, 0));
+            if (y_axis_grid_label_draw_on) al_draw_text(f, mC.pc[y_axis_grid_label_color], y_axis_label_x2-bx, ly-by-bh/2, ALLEGRO_ALIGN_RIGHT, y_axis_get_val_text(i, 0, msg));
          }
          if (0) // label origin
          {
             al_draw_line(y_axis_label_x2, plot_y2, plot_x1-1, plot_y2, mC.pc[mj_col], mj_size);
-            al_draw_textf(f, mC.pc[y_axis_grid_label_color], y_axis_label_x2-bx, plot_y2-by-bh/2, ALLEGRO_ALIGN_RIGHT, y_axis_get_val_text((y_axis_min / y_axis_divider), 0));
+            al_draw_textf(f, mC.pc[y_axis_grid_label_color], y_axis_label_x2-bx, plot_y2-by-bh/2, ALLEGRO_ALIGN_RIGHT, y_axis_get_val_text((y_axis_min / y_axis_divider), 0, msg));
          }
       }
    }
@@ -1064,7 +1068,7 @@ void mwGraph::set_series(int s, const char* text, int color1, int color2)
    series[s].active = 1;
 }
 
-char* mwGraph::x_axis_get_val_text(double val, int units)
+char* mwGraph::x_axis_get_val_text(double val, int units, char* msg)
 {
    char t1[80] = {0};
    char t2[80] = {0};
@@ -1087,7 +1091,7 @@ char* mwGraph::x_axis_get_val_text(double val, int units)
    return msg;
 }
 
-char* mwGraph::y_axis_get_val_text(double val, int units)
+char* mwGraph::y_axis_get_val_text(double val, int units, char* msg)
 {
   // units
   // 0 - dont show
@@ -1172,6 +1176,7 @@ int mwGraph::find_closest_point_to_mouse(int &sp, int &ip)
 
 void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALLEGRO_FONT *f, int s)
 {
+   char msg[1024];
    if (s == -1) color = 15;
    else color = series[s].color1;
 
@@ -1191,13 +1196,13 @@ void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALL
    else y2 = y1;
 
    // size of y label
-   mF.mw_get_text_dimensions(f, y_axis_get_val_text(my, 1), bx, by, bw, bh);
+   mF.mw_get_text_dimensions(f, y_axis_get_val_text(my, 1, msg), bx, by, bw, bh);
    if (bw > max_width) max_width = bw;
    height += bh+2;
    y3 = y2 + bh+2;
 
    // size of x label
-   mF.mw_get_text_dimensions(f, x_axis_get_val_text(mx, 2), bx, by, bw, bh);
+   mF.mw_get_text_dimensions(f, x_axis_get_val_text(mx, 2, msg), bx, by, bw, bh);
    if (bw > max_width) max_width = bw;
    height += bh+2;
 
@@ -1219,8 +1224,8 @@ void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALL
    al_draw_filled_rectangle(x, y, x+max_width+4, y+height+2, mC.pc[0]); // erase old
    al_draw_rectangle(       x, y, x+max_width+4, y+height+2, mC.pc[color], 1);
    if (s != -1) al_draw_textf(f, mC.pc[color], x+2-bx, y+y1-by, 0, "%s", series[s].name);
-   al_draw_textf(f, mC.pc[color], x+2-bx, y+y2-by, 0, "%s", y_axis_get_val_text(my, 2));
-   al_draw_textf(f, mC.pc[color], x+2-bx, y+y3-by, 0, "%s", x_axis_get_val_text(mx, 1));
+   al_draw_textf(f, mC.pc[color], x+2-bx, y+y2-by, 0, "%s", y_axis_get_val_text(my, 2, msg));
+   al_draw_textf(f, mC.pc[color], x+2-bx, y+y3-by, 0, "%s", x_axis_get_val_text(mx, 1, msg));
 
 
 }

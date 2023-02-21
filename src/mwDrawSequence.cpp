@@ -10,8 +10,7 @@
 #include "mwTimeStamp.h"
 #include "mwColor.h"
 #include "mwProgramState.h"
-#include "z_menu.h"
-#include "z_item.h"
+#include "mwItems.h"
 #include "z_enemy.h"
 #include "z_screen.h"
 #include "z_screen_overlay.h"
@@ -99,6 +98,7 @@ void mwDrawSequence::calc(void)
 
 void mwDrawSequence::draw(void)
 {
+   char msg[1024];
    double t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
    t0 = al_get_time();
 
@@ -108,7 +108,7 @@ void mwDrawSequence::draw(void)
    if (seq[1][0]) Lift.draw_lifts();
    t2 = al_get_time(); add(1, t2-t1);
 
-   if (seq[2][0]) draw_items();
+   if (seq[2][0]) mItem.draw_items();
    t3 = al_get_time(); add(2, t3-t2);
 
    if (seq[3][0]) draw_enemies();
@@ -142,7 +142,7 @@ void mwDrawSequence::draw(void)
    if (LOG_TMR_draw_tot) add_log_TMR(t10-t0, "draw", 0);
 }
 
-char * mwDrawSequence::get_line(int s)
+char * mwDrawSequence::get_line(int s, char* msg)
 {
    sprintf(msg, "%3.3f - %s", RA[s].avg*1000, name_long[s]);
    return msg;
@@ -150,9 +150,10 @@ char * mwDrawSequence::get_line(int s)
 
 void mwDrawSequence::show_text(int x, int y)
 {
+   char msg[1024];
    al_draw_filled_rectangle(x, y, x+240, y+100, mC.pc[0]);
    for (int i=0; i<11; i++)
-      al_draw_textf(mF.pr8, mC.pc[15], 1+x, 1+y+i*9, 0, "%s", get_line(i));
+      al_draw_textf(mF.pr8, mC.pc[15], 1+x, 1+y+i*9, 0, "%s", get_line(i, msg));
 
 //
 //   al_draw_filled_rectangle(x, y, x+340, y+90, mC.pc[0]);

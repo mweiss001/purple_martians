@@ -49,4 +49,50 @@ It's a must download for fans of this genre of game. Rating: A+
 
 
 
+20230220
+
+Purple Martians is a 2D-Platformer that features a extraordinary mixture of jumping, fighting and puzzling. The game is much more feature-rich than suggested by the spartan graphic style and comes with over 60 levels that differ greatly in size and difficulty, a wide variety of game mechanics, gamecontroller support and an included level editor.
+
+The game was realized with the Allegro-Lib – a framework that was pretty common in the early 2000s but was mostly replaced by the big game engines, SDL, and Godot. While Aleggro is still being developed, its roots go back to the 90s, and games made with it often tend to be a bit heavy handed – maybe because many quality of live features that are common nowadays weren’t available for it in its heydays.
+
+Purple Martians isn’t a full exception to the rule: Movement, and especially jumping might feel a bit peculiar at first, but after finishing the tutorial levels (which is advisable, as many unique mechanics are explained there) and the first two or three levels it begins to feel most natural. The level of detail that was realized here in the game play is rare: There is a bunch of special objects (jumping pads, teleports, bombs, spawns, keys, and much more) that can often even be moved by the player – and the game makes use of the many possible combinations and opportunities this creates – every stage I played till now got slightly own mechanics and thus offered its own little variation of the overall gameplay: A few of them are combat oriented, some consist mainly of obstacles you must bypass – most of them, however, need you to solve a logical puzzle to open up the goal.
+
+The overall difficulty rises fast and soon exceeds the genre standards – the developer clearly used a decent amount of time to test the game themself and to design creative, yet sometimes a bit keyed levels and central puzzles for them – for some of them I required a quite good chunk of time and attempts, but as far as I can tell they are all solvable (although I didn’t find a solution for level 8 and thus skipped it – full level selection is available from start).
+
+The assets are frugal but functional; the sprites are well recognizable and work well with the neon color palette used by the game, and combined with the absence of any eye-candy all combines for a singular and stringent retro aesthetic. There is only one music track, but since it is rather low key and blends well with the – most charming – SFX, this is enough. Clearly the design of the core gameplay and the related features were the developers priority. The technical realization is flawless: Resolution scaling and game controller support work like a charm, I encountered no bugs and the performance was stable even in levels that featured a absurd number of enemies.
+
+The games atmosphere is rather unique and surely belongs to a category that is reserved for obscure independent games that are untouched by commercial orientated streamlining – it bears some resemblance to „Risk of Rain“, but is even more outlandish and quirky (what I consider as great). Yet both the refinement and scope of the game are uncommon for productions of this size – „Purple Martians“ offers a vast amount of fun for adventurous platformer veterans and underground game connoisseurs alike.
+
+The game is FLOSS and available for Windows and Linux. I could run the native version on my OpenSuse after following the readme and creating a symlink for libFLAC.so.8 to libFLAC.so.12. Windows version should run out of the box.
+2 comments
+
+    Francesco sagt:	
+    20/02/2023 um 14:42 Uhr	
+
+    Fantastic review as always, I suspect the engine is “Allegro”.
+    Antworten
+        Valentin sagt:	
+        20/02/2023 um 15:50 Uhr	
+
+        Thanks a lot!
+        You are of course right, corrected it :).
+        Greetings!
+        Antworten
+
+Schreibe einen Kommentar
+
+Deine E-Mail-Adresse wird nicht veröffentlicht. Erforderliche Felder sind mit * markiert
+
+Kommentar *
+
+Name *
+
+E-Mail *
+
+Website
+
+Meinen Namen, meine E-Mail-Adresse und meine Website in diesem Browser, für die nächste Kommentierung, speichern.
+
+Homepage and Imprint	
+
 

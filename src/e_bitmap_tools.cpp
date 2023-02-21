@@ -9,13 +9,9 @@
 #include "mwInput.h"
 #include "mwDisplay.h"
 #include "mwEventQueue.h"
-
-//#include "mwLevel.h"
 #include "mwLevel.h"
-
 #include "e_editor_main.h"
 #include "e_fnx.h"
-
 #include "z_screen.h"
 
 

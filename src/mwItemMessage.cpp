@@ -1,69 +1,46 @@
-// z_item_pmsg.cpp
-
+// mwItemMessage.cpp
 
 #include "pm.h"
-#include "z_item.h"
-//#include "z_sound.h"
+#include "mwItems.h"
 #include "z_player.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-//#include "mwLift.h"
 #include "mwWidgets.h"
 #include "mwColor.h"
-//#include "mwPMEvent.h"
 #include "mwDisplay.h"
 #include "mwProgramState.h"
-//#include "z_menu.h"
-//#include "z_enemy.h"
-//#include "mwLevel.h"
 #include "e_fnx.h"
-//
-//#include "z_screen.h"
-//#include "z_screen_overlay.h"
-//#include "mwShots.h"
-//#include "z_solid.h"
-//#include "z_item_key.h"
-
-
 #include "mwWindowManager.h"
 #include "mwEventQueue.h"
 #include "mwInput.h"
 
-
-
-
-
-
-
-
-void proc_pmsg_reset_timer(int i)
+void mwItems::proc_pmsg_reset_timer(int i)
 {
    int timer_count=0, timer_val=0;
-   get_int_3216(item[i][12], timer_count, timer_val);
+   get_int_3216(mItem.item[i][12], timer_count, timer_val);
    timer_count = timer_val;
-   set_int_3216(item[i][12], timer_count, timer_val);
+   set_int_3216(mItem.item[i][12], timer_count, timer_val);
 }
 
-void proc_pmsg(int i)
+void mwItems::proc_pmsg(int i)
 {
    // count down the timer
-   if (!(item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
+   if (!(mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
    {
       int timer_count=0, timer_val=0;
-      get_int_3216(item[i][12], timer_count, timer_val);
+      get_int_3216(mItem.item[i][12], timer_count, timer_val);
 
       if (timer_count > 0) timer_count--;
-      set_int_3216(item[i][12], timer_count, timer_val);
+      set_int_3216(mItem.item[i][12], timer_count, timer_val);
    }
 
-
    // check for player in trigger box
-   if (item[i][2] & PM_ITEM_PMSG_TRIGGER_BOX)
+   if (mItem.item[i][2] & PM_ITEM_PMSG_TRIGGER_BOX)
    {
-      int tfx1 = item[i][6]-10;
-      int tfy1 = item[i][7]-10;
-      int tfx2 = tfx1 + item[i][8];
-      int tfy2 = tfy1 + item[i][9];
+      int tfx1 = mItem.item[i][6]-10;
+      int tfy1 = mItem.item[i][7]-10;
+      int tfx2 = tfx1 + mItem.item[i][8];
+      int tfy2 = tfy1 + mItem.item[i][9];
 
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((players[p].active) && (!players[p].paused))
@@ -73,16 +50,7 @@ void proc_pmsg(int i)
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) proc_pmsg_reset_timer(i);
          }
    }
-
-
 }
-
-
-
-
-
-
-
 
 typedef struct DRAW_CUSTOM_LINE_EXTRA
 {
@@ -96,13 +64,7 @@ static bool draw_multiline_cb(int line_num, const char *line, int size, void *ex
    return 1;
 }
 
-
-
-
-
-
-
-void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
+void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
 {
    char msg[1024];
 
@@ -122,9 +84,9 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
 
 
    int x1=0, y1=0, w=0, h=0, tc=0, fc = 0;
-   get_int_3216(item[i][10], x1, y1);       // get x and y
-   get_int_3216(item[i][11], w, h);         // get width and height
-   get_int_3216(item[i][13], tc, fc);       // get text and frame colors
+   get_int_3216(mItem.item[i][10], x1, y1);       // get x and y
+   get_int_3216(mItem.item[i][11], w, h);         // get width and height
+   get_int_3216(mItem.item[i][13], tc, fc);       // get text and frame colors
 
    if (custom) // get custom x and y
    {
@@ -137,12 +99,7 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
    int xc = x1 + w / 2;
    int y2 = y1 + h;
 
-
-
    int frame_width = get_frame_size(i);
-
-
-
 
    if (frame_width == 0)
    {
@@ -290,7 +247,7 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
 
 
 
-int edit_pmsg_text(int c, int new_msg)
+int mwItems::edit_pmsg_text(int c, int new_msg)
 {
    int bts = 16;
    int char_count;
@@ -448,8 +405,3 @@ int edit_pmsg_text(int c, int new_msg)
       return 1;
    }
 }
-
-
-
-
-
