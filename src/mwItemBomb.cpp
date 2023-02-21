@@ -331,7 +331,7 @@ void mwItems::proc_lit_bomb(int i)
 
          // force player to drop item
          for (int p=0; p<NUM_PLAYERS; p++)
-            if ((players[p].active) && (players[p].carry_item-1 == i)) player_drop_item(p);
+            if ((players[p].active) && (players[p].carry_item-1 == i)) player_drop_item(p, i);
 
          // check for other co-located bombs
          for (int ii=0; ii<500; ii++)

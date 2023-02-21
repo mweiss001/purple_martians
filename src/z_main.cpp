@@ -291,8 +291,6 @@ int initial_setup(void)
 
    mLevel.set_start_level();
 
-
-   mItem.set_item_text();
    set_enemy_text();
 
    return 1;

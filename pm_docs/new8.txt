@@ -15233,12 +15233,24 @@ Purple Martians Source Code Line Counts [2023-02-20  23:33:51]
 [ 47894][ 35597][ 30380][  8163][  2946][  5217][  9351] - 124 files
 
 
+now: (final)
+700 mwItems.cpp
+650 mwItemEditorFnz.cpp
+800 mwItemTrigger.cpp
+500 mwItemBomb.cpp
+400 mwItemMessage.cp
+200 mwItemKey.cpp
+350 mwItemDoor.cpp
+100 mwItems.h
+-------------
+3700 lines
 
 
 
+in draw item make custom functions to draw key, start, exit, rocket message...
 
-
-
+push..
+maybe I'll get to do something at work...
 
 
 
