@@ -132,6 +132,7 @@
 		<Unit filename="src/mwInput.h" />
 		<Unit filename="src/mwItemBomb.cpp" />
 		<Unit filename="src/mwItemDoor.cpp" />
+		<Unit filename="src/mwItemEditorFnx.cpp" />
 		<Unit filename="src/mwItemKey.cpp" />
 		<Unit filename="src/mwItemMessage.cpp" />
 		<Unit filename="src/mwItemTrigger.cpp" />
@@ -190,11 +191,6 @@
 		<Unit filename="src/z_control.h" />
 		<Unit filename="src/z_enemy.cpp" />
 		<Unit filename="src/z_enemy.h" />
-		<Unit filename="src/z_item_bomb.h" />
-		<Unit filename="src/z_item_door.h" />
-		<Unit filename="src/z_item_key.h" />
-		<Unit filename="src/z_item_pmsg.h" />
-		<Unit filename="src/z_item_trigger.h" />
 		<Unit filename="src/z_log.cpp" />
 		<Unit filename="src/z_log.h" />
 		<Unit filename="src/z_loop.cpp" />

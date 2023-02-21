@@ -160,10 +160,10 @@ void mwItems::proc_door_collision(int p, int i)
                 //printf("do entry, player is carrying item:%d\n", ci);
 
                // check to see if player is carrying this door
-                if (ci == i) player_drop_item(p);
+                if (ci == i) player_drop_item(p, ci);
 
                // check to see if player is carrying an item without the carry through door flag set
-               if (mItem.item[ci][3] != -2)  player_drop_item(p);
+               if (mItem.item[ci][3] != -2)  player_drop_item(p, ci);
             }
 
             // get the destination
