@@ -119,10 +119,15 @@
 		<Unit filename="src/mwDrawSequence.h" />
 		<Unit filename="src/mwEnemy.cpp" />
 		<Unit filename="src/mwEnemy.h" />
+		<Unit filename="src/mwEnemyArchwagon.cpp" />
+		<Unit filename="src/mwEnemyCannon.cpp" />
 		<Unit filename="src/mwEnemyCloner.cpp" />
+		<Unit filename="src/mwEnemyEditorFnx.cpp" />
 		<Unit filename="src/mwEnemyFlapper.cpp" />
+		<Unit filename="src/mwEnemyFnx.cpp" />
 		<Unit filename="src/mwEnemyJumpworm.cpp" />
 		<Unit filename="src/mwEnemyTrakbot.cpp" />
+		<Unit filename="src/mwEnemyVinePod.cpp" />
 		<Unit filename="src/mwEventQueue.cpp" />
 		<Unit filename="src/mwEventQueue.h" />
 		<Unit filename="src/mwFont.cpp" />

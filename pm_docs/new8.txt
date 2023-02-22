@@ -15583,6 +15583,346 @@ Purple Martians Source Code Line Counts [2023-02-21  21:16:32]
 
 
 
+I want to change the name of enemy move functions...
+
+
+old:
+
+enemy_cannon
+
+new:
+move_cannon
+
+etc..
+
+done:
+move_archwagon
+move_block_walker
+move_arch_block_common
+move_cannon
+move_bouncer
+move_bouncer_cannon_common
+move_cloner
+move_flapper
+move_jumpworm
+move_trakbot
+move_podzilla
+move_vinepod
+
+
+
+
+int is_player_in_trigger_box(int x1, int y1, int x2, int y2);
+
+is used only once by cloner
+
+could I do it more genrically?
+what else tests for this?
+pod and vine
+trigger
+block damage
+
+
+vine:
+//     Ei[e][11] = trigger box x
+//     Ei[e][12] = trigger box y
+//     Ei[e][13] = trigger box w
+//     Ei[e][14] = trigger box h
+pod:
+//     Ei[e][11] = trigger box x
+//     Ei[e][12] = trigger box y
+//     Ei[e][13] = trigger box w
+//     Ei[e][14] = trigger box h
+cloner:
+//      Ei[e][11] = trigger box x1
+//      Ei[e][12] = trigger box y1
+//      Ei[e][13] = trigger box x2
+//      Ei[e][14] = trigger box y2
+
+just enemy for now..
+
+int mwEnemy::is_player_in_enemy_trigger_box(int e)
+{
+   int x1 = Ei[e][11] - 10; // trigger box
+   int y1 = Ei[e][12] - 10;
+   int x2 = Ei[e][11] + Ei[e][13] + 10;
+   int y2 = Ei[e][12] + Ei[e][14] + 10;
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active) && (!players[p].paused))
+      {
+         int px = players[p].x;
+         int py = players[p].y;
+         if ((px > x1) && (px < x2) && (py > y1) && (py < y2)) return 1;
+      }
+   return 0;
+}
+
+done and patched in for cloner, pod, vine...
+
+
+void show_level_data(void);
+void mwEnemy::show_level_data(void)
+{
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   int y_pos = 40;
+   int x_pos = 40;
+   if (mLevel.valid_level_loaded)
+   {
+      y_pos = show_enemy_data(x_pos, y_pos) + 8;
+      y_pos = mItem.item_data(x_pos, y_pos) + 8;
+      al_draw_textf(mF.pr8, mC.pc[15], x_pos, y_pos,   0, "%d Lifts  ", Lift.get_num_lifts());
+      al_draw_text(mF.pr8, mC.pc[15], x_pos, y_pos+8,  0, "-------");
+   }
+   al_flip_display();
+   mI.tsw(); // wait for keypress
+}
+
+is in enemy, but I want to move it..
+only used by level editor menu
+other places?
+
+int mwVisualLevel::lev_show_level_data(int x_pos, int y_pos)
+int mwVisualLevel::lev_show_level_data(int x_pos, int y_pos)
+{
+   int ey_pos = mEnemy.show_enemy_data(x_pos, y_pos);
+   int iy_pos = mItem.item_data(x_pos+135, y_pos);
+   ey_pos = ey_pos + 8;
+   al_draw_textf(mF.pr8, mC.pc[15], x_pos, ey_pos, 0,"%d Lifts  ", Lift.get_num_lifts());
+   ey_pos += 8;
+   al_draw_text(mF.pr8, mC.pc[15], x_pos, ey_pos, 0, "-------");
+   ey_pos += 8;
+   if (iy_pos > ey_pos) return iy_pos;
+   else return ey_pos;
+}
+
+make a generic version and put it in mwLevel.cpp..done
+1 call from visual and 1 from level editor menu...
+
+but the best part is
+void show_level_data(void);
+is removed from enemy class...
+
+how about:
+mwEnemyEditorFnx
+
+this is used in lots of place...move out of enemy to e_fnx...
+void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color, int clip_mode);
+
+done..
+
+now mwEnemy.cpp is less than 500 lines before the huge comment section at the end...
+
+
+
+Purple Martians Version 7.24.2
+Allegro Version: 5.2.7.1
+System ID: Windows
+Desktop Resolution: 3840x2160
+
+
+Purple Martians Source Code Line Counts [2023-02-22  07:41:51]
+
+[ total][  code][cd_onl][commnt][cm_onl][ cd+cm][ blank]
+--------------------------------------------------------
+[  2088][  1760][  1352][   514][   106][   408][   222] - e_object_viewer.cpp
+[  2559][  1695][  1478][   405][   188][   217][   676] - z_log.cpp
+[  1883][  1606][  1455][   207][    56][   151][   221] - mwGraph.cpp
+[  1900][  1326][  1100][   278][    52][   226][   522] - mwWidgets.cpp
+[  1607][  1248][  1055][   280][    87][   193][   272] - z_player.cpp
+[  1258][  1010][   908][   137][    35][   102][   213] - z_screen_overlay.cpp
+[  1472][   999][   908][   149][    58][    91][   415] - e_fnx.cpp
+[  1289][   970][   841][   188][    59][   129][   260] - e_bitmap_tools.cpp
+[  1137][   899][   733][   206][    40][   166][   198] - mwLift.cpp
+[  1119][   888][   722][   207][    41][   166][   190] - z_lift.cpp
+[  1062][   879][   745][   190][    56][   134][   127] - e_edit_selection.cpp
+[  1119][   808][   743][   125][    60][    65][   251] - z_settings.cpp
+[   859][   723][   408][   363][    48][   315][    88] - e_editor_main.cpp
+[   821][   705][   563][   165][    23][   142][    93] - mwItemTrigger.cpp
+[  1192][   701][   637][   121][    57][    64][   434] - e_glt.cpp
+[   780][   687][   604][   101][    18][    83][    75] - e_group_edit.cpp
+[   931][   635][   549][   166][    80][    86][   216] - z_screen.cpp
+[   781][   629][   572][    92][    35][    57][   117] - n_client.cpp
+[   794][   625][   576][   101][    52][    49][   117] - n_server.cpp
+[  1233][   582][   506][   346][   270][    76][   381] - z_args.cpp
+[   705][   562][   408][   176][    22][   154][   121] - mwEnemy.cpp
+[   786][   557][   509][   110][    62][    48][   167] - mwVisualLevel.cpp
+[   676][   552][   469][   107][    24][    83][   100] - mwItems.cpp
+[   649][   540][   417][   148][    25][   123][    84] - mwItemEditorFnx.cpp
+[   761][   534][   457][   161][    84][    77][   143] - z_loop.cpp
+[   681][   521][   448][   120][    47][    73][   113] - mwWindowManager.cpp
+[   704][   477][   457][    92][    72][    20][   155] - mwLogo.cpp
+[   671][   467][   428][   125][    86][    39][   118] - mwGameMovesArray.cpp
+[   591][   459][   434][    28][     3][    25][   129] - mwInput.cpp
+[   553][   444][   397][    77][    30][    47][    79] - e_window_common.cpp
+[   675][   443][   440][    67][    64][     3][   168] - mwDisplay.cpp
+[   583][   436][   345][   150][    59][    91][    88] - z_solid.cpp
+[   493][   422][   366][    73][    17][    56][    54] - mwHelp.cpp
+[   588][   418][   193][   258][    33][   225][   137] - e_tile_helper.cpp
+[   522][   394][   306][   128][    40][    88][    88] - mwItemBombRocket.cpp
+[   434][   379][   303][    86][    10][    76][    45] - mwBottomMessage.cpp
+[   439][   366][   326][    48][     8][    40][    65] - mwPDE.cpp
+[   398][   332][   213][   154][    35][   119][    31] - mwEnemyTrakbot.cpp
+[   395][   328][   268][    71][    11][    60][    56] - mwEnemyEditorFnx.cpp
+[   454][   326][   310][    28][    12][    16][   116] - mwLevel.cpp
+[   447][   322][   297][    49][    24][    25][   101] - mwMenu.cpp
+[   347][   297][   278][    31][    12][    19][    38] - mwWindow.cpp
+[   424][   294][   246][    76][    28][    48][   102] - mwItemMessage.cpp
+[   410][   291][   289][    23][    21][     2][    98] - z_config.cpp
+[   358][   265][   188][   114][    37][    77][    56] - mwItemDoor.cpp
+[   352][   255][   216][    67][    28][    39][    69] - mwShots.cpp
+[   311][   230][   224][    27][    21][     6][    60] - z_main.cpp
+[   315][   226][   178][    71][    23][    48][    66] - mwEnemyArchwagon.cpp
+[   310][   225][   184][    56][    15][    41][    70] - mwPMEvent.cpp
+[   339][   212][   187][    68][    43][    25][    84] - mwBitmap.cpp
+[   266][   206][   162][    58][    14][    44][    46] - mwEnemyJumpworm.cpp
+[   290][   182][   134][    88][    40][    48][    68] - mwEnemyCloner.cpp
+[   256][   181][   180][     5][     4][     1][    71] - mwGraph.h
+[   281][   176][   122][   105][    51][    54][    54] - mwEnemyVinePod.cpp
+[   204][   167][   129][    54][    16][    38][    21] - mwItemKeySwitch.cpp
+[   235][   166][   133][    69][    36][    33][    33] - mwEnemyFnx.cpp
+[   217][   156][   138][    27][     9][    18][    52] - z_player.h
+[   199][   149][   149][     0][     0][     0][    50] - libnet.h
+[   166][   148][   131][    20][     3][    17][    15] - mw_multicolor_line.cpp
+[   184][   141][   139][     8][     6][     2][    37] - n_packet.cpp
+[   188][   133][   100][    56][    23][    33][    32] - mwColor.cpp
+[   154][   126][   115][    18][     7][    11][    21] - z_control.cpp
+[   172][   125][    81][    61][    17][    44][    30] - mwEnemyCannon.cpp
+[   149][   119][   117][    11][     9][     2][    21] - z_sound.cpp
+[   221][   117][   108][    68][    59][     9][    45] - mwDrawSequence.cpp
+[   138][   113][   100][    23][    10][    13][    15] - mwItemStartExitWarp.cpp
+[   132][   110][   110][     5][     5][     0][    17] - pm.h
+[   151][   108][    99][    16][     7][     9][    36] - mwQuickGraph.cpp
+[   188][   103][    74][    73][    44][    29][    41] - mwEnemyFlapper.cpp
+[   137][    94][    93][    17][    16][     1][    27] - mwInput.h
+[   123][    92][    84][    15][     7][     8][    24] - mwFont.cpp
+[   120][    92][    89][    11][     8][     3][    20] - mwItems.h
+[   117][    86][    72][    24][    10][    14][    21] - n_netgame.cpp
+[   129][    76][    71][    16][    11][     5][    42] - mwDemoMode.cpp
+[    87][    74][    74][     1][     1][     0][    12] - mwTimeStamp.cpp
+[    94][    73][    72][     6][     5][     1][    16] - mwLift.h
+[   112][    71][    65][    12][     6][     6][    35] - mwEventQueue.cpp
+[    81][    68][    68][     4][     4][     0][     9] - z_lift.h
+[    96][    67][    64][     5][     2][     3][    27] - mwDisplay.h
+[   114][    61][    58][    12][     9][     3][    44] - z_log.h
+[    86][    57][    55][    12][    10][     2][    19] - mwEnemy.h
+[    77][    56][    52][    14][    10][     4][    11] - mwWindow.h
+[    72][    51][    51][     5][     5][     0][    16] - mwTally.cpp
+[    92][    42][    40][     3][     1][     2][    49] - mwWindowManager.h
+[    69][    40][    37][     5][     2][     3][    27] - mwLogo.h
+[    54][    39][    39][     1][     1][     0][    14] - mwShots.h
+[    49][    37][    31][     7][     1][     6][    11] - mwRollingAverage.cpp
+[    61][    35][    34][     3][     2][     1][    24] - mwBitmap.h
+[    43][    32][    31][     2][     1][     1][    10] - mwColor.h
+[    41][    32][    31][     2][     1][     1][     8] - mwVisualLevel.h
+[    53][    31][    30][     6][     5][     1][    17] - mwProgramState.h
+[    35][    31][    31][     1][     1][     0][     3] - n_packet.h
+[    47][    29][    28][     2][     1][     1][    17] - mwLevel.h
+[    37][    29][    29][     1][     1][     0][     7] - mwWidgets.h
+[    54][    28][    28][     1][     1][     0][    25] - e_fnx.h
+[    41][    27][    27][     3][     3][     0][    11] - mwProgramState.cpp
+[    40][    25][    25][     1][     1][     0][    14] - mwBottomMessage.h
+[    48][    25][    25][    10][    10][     0][    13] - n_network.cpp
+[    51][    24][    22][     4][     2][     2][    25] - mwGameMovesArray.h
+[    36][    24][    24][     1][     1][     0][    11] - mwTimeStamp.h
+[    35][    23][    22][     2][     1][     1][    11] - mwQuickGraph.h
+[    24][    22][    22][     1][     1][     0][     1] - n_client.h
+[    44][    21][    20][     2][     1][     1][    22] - mwDrawSequence.h
+[    35][    21][    15][     7][     1][     6][    13] - mwEventQueue.h
+[    32][    21][    13][    14][     6][     8][     5] - n_netgame.h
+[    23][    20][    20][     1][     1][     0][     2] - e_bitmap_tools.h
+[    22][    20][    20][     1][     1][     0][     1] - z_screen.h
+[    27][    19][    19][     1][     1][     0][     7] - mwDemoMode.h
+[    30][    19][    18][     2][     1][     1][    10] - mwTally.h
+[    21][    19][    19][     1][     1][     0][     1] - n_server.h
+[    21][    18][    17][     2][     1][     1][     2] - mwRollingAverage.h
+[    29][    16][    15][     2][     1][     1][    12] - mwPMEvent.h
+[    23][    16][    16][     2][     2][     0][     5] - z_sound.h
+[    27][    15][     9][     7][     1][     6][    11] - mwFont.h
+[    24][    15][    15][     1][     1][     0][     8] - mwPDE.h
+[    17][    14][    14][     1][     1][     0][     2] - e_edit_selection.h
+[    15][    13][    13][     1][     1][     0][     1] - e_group_edit.h
+[    24][    13][    12][     2][     1][     1][    10] - mwMenu.h
+[    15][    13][    13][     1][     1][     0][     1] - z_screen_overlay.h
+[    14][    11][    11][     1][     1][     0][     2] - e_object_viewer.h
+[    12][    10][    10][     1][     1][     0][     1] - z_solid.h
+[    16][     9][     9][     1][     1][     0][     6] - mwHelp.h
+[    11][     8][     8][     1][     1][     0][     2] - e_editor_main.h
+[    11][     8][     8][     1][     1][     0][     2] - z_loop.h
+[    10][     7][     7][     1][     1][     0][     2] - z_control.h
+[    10][     7][     7][     1][     1][     0][     2] - z_main.h
+[    12][     6][     5][     2][     1][     1][     5] - e_tile_helper.h
+[    17][     5][     5][     5][     5][     0][     7] - z_settings.h
+[     7][     4][     4][     1][     1][     0][     2] - e_window_common.h
+[     6][     4][     4][     1][     1][     0][     1] - z_args.h
+[     4][     3][     3][     1][     1][     0][     0] - e_glt.h
+[     6][     2][     2][     1][     1][     0][     3] - mw_multicolor_line.h
+[     3][     2][     2][     1][     1][     0][     0] - n_network.h
+[     4][     2][     2][     1][     1][     0][     1] - z_config.h
+-------------------------------------------------------- - totals
+[ 47973][ 35649][ 30436][  8173][  2960][  5213][  9364] - 134 files
+
+
+
+push....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

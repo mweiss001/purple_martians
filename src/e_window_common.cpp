@@ -118,7 +118,8 @@ void cm_process_menu_bar(int d)
       if (ret == 4) mItem.show_all_pmsg();
       if (ret == 5) mwPME.show_all_events();
       if (ret == 6) mLevel.level_check();
-      if (ret == 7) mEnemy.show_level_data();
+      if (ret == 7) mLevel.show_level_data(40, 40, 1);
+
    }
    x1 += 52;
 

@@ -388,7 +388,7 @@ int mwItems::draw_trigger(int i, int x, int y)
       float y1 = mItem.item[i][7];
       float x2 = x1 + mItem.item[i][8];
       float y2 = y1 + mItem.item[i][9];
-      mEnemy.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
+      rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
    }
    return 1;
 }
@@ -477,7 +477,7 @@ int mwItems::draw_block_manip(int i, int x, int y)
       float y1 = mItem.item[i][7];
       float x2 = x1 + mItem.item[i][8];
       float y2 = y1 + mItem.item[i][9];
-      mEnemy.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
+      rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
    }
    return 1;
 }
@@ -689,7 +689,7 @@ int mwItems::draw_block_damage(int i, int x, int y, int custom)
       {
          int col = 11;
          if (FLAGS & PM_ITEM_DAMAGE_CURR) col = 10;
-         mEnemy.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
+         rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
       }
 
       if (draw_mode == 2) // spikey floor
