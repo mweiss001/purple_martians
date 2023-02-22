@@ -13,7 +13,7 @@
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "e_fnx.h"
 #include "mwHelp.h"
 
@@ -620,10 +620,10 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       sprintf(smsg, "Set Initial Direction");// trakbot direction
       if (press)
       {
-         if (++Ei[num][5] > 7) Ei[num][5] = 0;
-         set_trakbot_mode(num, Ei[num][5]);
+         if (++mEnemy.Ei[num][5] > 7) mEnemy.Ei[num][5] = 0;
+         mEnemy.set_trakbot_mode(num, mEnemy.Ei[num][5]);
       }
-      if ((Ei[num][5] < 0) || (Ei[num][5] > 7)) Ei[num][5] = 0; // enforce limits
+      if ((mEnemy.Ei[num][5] < 0) || (mEnemy.Ei[num][5] > 7)) mEnemy.Ei[num][5] = 0; // enforce limits
    }
 
    if (bn == 13)
@@ -631,16 +631,16 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       sprintf(smsg, "Main Shape");
       if (press)
       {
-         int main_ans = Ei[num][5];
+         int main_ans = mEnemy.Ei[num][5];
          if (main_ans == 31) main_ans = 14;
          else
          {
             if (main_ans == 29) main_ans = 31;
             if (main_ans == 14) main_ans = 29;
          }
-         Ei[num][5] = main_ans;
-         Ei[num][3] = main_ans;
-         Ei[num][1] = mwB.zz[5][main_ans];
+         mEnemy.Ei[num][5] = main_ans;
+         mEnemy.Ei[num][3] = main_ans;
+         mEnemy.Ei[num][1] = mwB.zz[5][main_ans];
       }
    }
    if (bn == 14)
@@ -648,14 +648,14 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       sprintf(smsg, "Seek Shape");
       if (press)
       {
-         int seek_ans = Ei[num][6];
+         int seek_ans = mEnemy.Ei[num][6];
          if (seek_ans == 31) seek_ans = 14;
          else
          {
             if (seek_ans == 29) seek_ans = 31;
             if (seek_ans == 14) seek_ans = 29;
          }
-         Ei[num][6] = seek_ans;
+         mEnemy.Ei[num][6] = seek_ans;
       }
    }
 
@@ -712,8 +712,8 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       }
       if (o == 3)
       {
-         t = Ei[n][0];
-         sprintf(smsg,"%s Help", (const char *)enemy_name[t][0]);
+         t = mEnemy.Ei[n][0];
+         sprintf(smsg,"%s Help", (const char *)mEnemy.enemy_name[t][0]);
       }
       if (o == 4) sprintf(smsg,"Lift Help");
 
@@ -1219,13 +1219,13 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    // special cases that need bitmaps draw on them
    if (bn == 13)
    {
-      float rot = Ef[num][14];
-      al_draw_rotated_bitmap(mwB.tile[mwB.zz[0][Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
+      float rot = mEnemy.Ef[num][14];
+      al_draw_rotated_bitmap(mwB.tile[mwB.zz[0][mEnemy.Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
    if (bn == 14)
    {
-      float rot = Ef[num][14];
-      al_draw_rotated_bitmap(mwB.tile[mwB.zz[0][Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
+      float rot = mEnemy.Ef[num][14];
+      al_draw_rotated_bitmap(mwB.tile[mwB.zz[0][mEnemy.Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
 
    if (bn == 310)
@@ -1477,13 +1477,13 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if (var == 0)
       {
          sprintf(smsg, "Trigger Type:Timer Runs  ");
-         Ei[num][7] = Ei[num][6]; // set counter
+         mEnemy.Ei[num][7] = mEnemy.Ei[num][6]; // set counter
       }
 
       if (var == 1)
       {
          sprintf(smsg, "Trigger Type:Timer Resets");
-         Ei[num][7] = Ei[num][6]; // set counter
+         mEnemy.Ei[num][7] = mEnemy.Ei[num][6]; // set counter
       }
 
       if (var == 2) sprintf(smsg, "Trigger Type:Immediate   ");

@@ -12,7 +12,7 @@
 #include "mwBitmap.h"
 #include "mwProgramState.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "e_edit_selection.h"
 #include "e_editor_main.h"
@@ -51,7 +51,7 @@ void mwWindowManager::initialize(int edit_level)
 
 
    mPDE.load();
-   sort_enemy();
+   mEnemy.sort_enemy();
    mItem.sort_item(1);
    em_set_swbl();
 
@@ -255,7 +255,7 @@ int mwWindowManager::redraw_level_editor_background(void)
       get_new_background(0);
       Lift.draw_lifts();
       mItem.draw_items();
-      draw_enemies();
+      mEnemy.draw_enemies();
 
 
       if (level_editor_mode == 1) // edit menu
@@ -304,11 +304,11 @@ int mwWindowManager::redraw_level_editor_background(void)
          }
          for (int e=0; e<100; e++)
          {
-            int type = (Ei[e][0]);
+            int type = (mEnemy.Ei[e][0]);
             if ((type) && (obj_filter[3][type]))
             {
-               x = Ef[e][0];
-               y = Ef[e][1];
+               x = mEnemy.Ef[e][0];
+               y = mEnemy.Ef[e][1];
                al_draw_rectangle(x, y, x+20, y+20, mC.pc[13], 1);
             }
          }
@@ -329,8 +329,8 @@ int mwWindowManager::redraw_level_editor_background(void)
                   }
                   if (typ == 3) // enemy
                   {
-                     x = Ef[num][0]/20;
-                     y = Ef[num][1]/20;
+                     x = mEnemy.Ef[num][0]/20;
+                     y = mEnemy.Ef[num][1]/20;
                   }
                   if ((gx == x) && (gy == y)) mwWM.obj_list[i][2] = 1; // turn on highlight for this list item
                }
@@ -350,8 +350,8 @@ int mwWindowManager::redraw_level_editor_background(void)
                }
                if (typ == 3)
                {
-                  x = Ef[num][0];
-                  y = Ef[num][1];
+                  x = mEnemy.Ef[num][0];
+                  y = mEnemy.Ef[num][1];
                }
                if (mwWM.obj_list[i][2]) al_draw_rectangle(x-2, y-2, x+20+2, y+20+2, mC.Flash1, 1); // highlight
                else                al_draw_rectangle(x,   y,   x+20,   y+20,   mC.pc[10], 1);

@@ -272,8 +272,8 @@ the functions returns 'float allowed_move' - how far before the condition is met
 it is assumed that whatever calls the functions will add fmove to position (fx or fy) on return
 by comparing requested move to allowed move you can tell if a collision occured:
 
-mv = is_down_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 1);
-if (mv < Ef[e][2]) // allowed move less than requested move
+mv = is_down_solidf(mEnemy.Ef[e][0], mEnemy.Ef[e][1], mEnemy.Ef[e][2], 1);
+if (mv < mEnemy.Ef[e][2]) // allowed move less than requested move
 
 'int dir' - the direction to look and the type of thing we are checking for
 if dir == 0, we are looking in the direction of the named function for the next solid

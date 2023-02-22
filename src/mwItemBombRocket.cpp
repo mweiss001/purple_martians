@@ -1,4 +1,4 @@
-// mw_ItemBomb.cpp
+// mw_ItemBombRocket.cpp
 
 #include "pm.h"
 #include "mwItems.h"
@@ -6,7 +6,7 @@
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwProgramState.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "z_screen_overlay.h"
 #include "z_solid.h"
@@ -260,16 +260,16 @@ void mwItems::bomb_crosshairs(float x, float y)
 void mwItems::bomb_enemies(int i, int t, int dr, float x, float y)
 {
    for (int e=0; e<100 ; e++) // enemies in damage window?
-      if (Ei[e][0])
+      if (mEnemy.Ei[e][0])
       {
-         float dist = sqrt(pow(Ef[e][0]-x, 2) + pow(Ef[e][1]-y, 2));
+         float dist = sqrt(pow(mEnemy.Ef[e][0]-x, 2) + pow(mEnemy.Ef[e][1]-y, 2));
          if (dist < dr)
          {
-            if (t == 1) bomb_crosshairs(Ef[e][0]+10, Ef[e][1]+10);
+            if (t == 1) bomb_crosshairs(mEnemy.Ef[e][0]+10, mEnemy.Ef[e][1]+10);
             if (t == 2)
             {
-               Ei[e][31] = 2; // set bomb hit
-               Ei[e][26] = mItem.item[i][13];  // player that did bomb
+               mEnemy.Ei[e][31] = 2; // set bomb hit
+               mEnemy.Ei[e][26] = mItem.item[i][13];  // player that did bomb
             }
          }
       }
@@ -359,7 +359,24 @@ void mwItems::proc_lit_bomb(int i)
    }
 }
 
-void mwItems::draw_lit_bomb(int i)
+
+
+int mwItems::draw_bomb(int i, int x, int y, int shape)
+{
+   if (mItem.item[i][11]) al_draw_bitmap(mwB.tile[440], x, y, 0); // bomb sticky spikes
+
+   // either draw here and mark as drawn
+   // al_draw_bitmap(mwB.tile[shape], x, y, 0);
+   // return 1;
+
+   // or don't mark it and let the regular draw catch it
+   return 0;
+}
+
+
+
+
+int mwItems::draw_lit_bomb(int i)
 {
    int x = itemf[i][0];
    int y = itemf[i][1];
@@ -371,6 +388,7 @@ void mwItems::draw_lit_bomb(int i)
    {
       // draw bomb
       al_draw_bitmap(mwB.tile[538], x, y, 0);
+      if (mItem.item[i][11]) al_draw_bitmap(mwB.tile[440], x, y, 0);  // bomb sticky spikes
 
       // get detonator position relative to player
       int p = mItem.item[i][13];
@@ -387,6 +405,7 @@ void mwItems::draw_lit_bomb(int i)
       // show damage range circle
       int col = seq_color2();
       if (col) al_draw_circle(x+10, y+10, mItem.item[i][7], mC.pc[col], 2);
+
    }
 
 
@@ -396,7 +415,10 @@ void mwItems::draw_lit_bomb(int i)
       int si = (int)(r * (float)num_seq_shapes);  // ratio * number of shapes
       int shape = mwB.zz[5+si][fuse_seq];             // get shape to draw
       //printf("ratio:%f shape_index:%d\n", r, si);
+
+      // draw bomb
       al_draw_bitmap(mwB.tile[shape], x, y, 0);
+      if (mItem.item[i][11]) al_draw_bitmap(mwB.tile[440], x, y, 0);  // bomb sticky spikes
 
       // show countdown clock
       float cr = 6; // clock radius
@@ -436,6 +458,17 @@ void mwItems::draw_lit_bomb(int i)
 
    // debug show sequence numbers
    //al_draw_textf(mF.pr8, mC.pc[15], x, y-20, 0, "%d / %d  %f ", mItem.item[i][8], mItem.item[i][9], (float)mItem.item[i][8]/(float)mItem.item[i][9]);
+
+   return 1;
+}
+
+
+int mwItems::draw_rocket(int i, int x, int y, int shape)
+{
+   float rot = (float) mItem.item[i][10] / 1000;
+   al_draw_rotated_bitmap(mwB.tile[shape], 10, 10, x+10, y+10, rot, 0);
+   draw_rocket_lines(i);
+   return 1;
 }
 
 void mwItems::draw_rocket_lines(int i)

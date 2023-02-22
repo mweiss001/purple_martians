@@ -13,7 +13,7 @@
 #include "z_args.h"
 #include "z_config.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "z_loop.h"
 #include "mwLevel.h"
 #include "mwGameMovesArray.h"
@@ -290,8 +290,6 @@ int initial_setup(void)
    mwDM.demo_mode_enabled = mwDM.demo_mode_config_enable; // set only at startup from cofing file
 
    mLevel.set_start_level();
-
-   set_enemy_text();
 
    return 1;
 }

@@ -14,7 +14,7 @@
 #include "mwDisplay.h"
 #include "mwEventQueue.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "e_fnx.h"
 #include "z_screen.h"
@@ -70,11 +70,11 @@ void es_pointer_text(int x1, int x2, int y, int mouse_on_window)
 
    // count enemies in box
    for (int b=0; b<100; b++)
-      if ((Ei[b][0]) && (mwWM.obj_filter[3][Ei[b][0]]))
-         if (Ef[b][0] >= rx1)
-            if (Ef[b][0] < rx2)
-               if (Ef[b][1] >= ry1)
-                  if (Ef[b][1] < ry2)
+      if ((mEnemy.Ei[b][0]) && (mwWM.obj_filter[3][mEnemy.Ei[b][0]]))
+         if (mEnemy.Ef[b][0] >= rx1)
+            if (mEnemy.Ef[b][0] < rx2)
+               if (mEnemy.Ef[b][1] >= ry1)
+                  if (mEnemy.Ef[b][1] < ry2)
                      eib++;
 
    // count lifts in box
@@ -402,14 +402,14 @@ void es_save_selection(int save)
 
    // enemies
    for (b=0; b<100; b++) // check for enemies in box
-      if ((Ei[b][0]) && (mwWM.obj_filter[3][Ei[b][0]]) && (Ef[b][0] >= x1) && (Ef[b][0] < x2) && (Ef[b][1] >= y1) && (Ef[b][1] < y2))
+      if ((mEnemy.Ei[b][0]) && (mwWM.obj_filter[3][mEnemy.Ei[b][0]]) && (mEnemy.Ef[b][0] >= x1) && (mEnemy.Ef[b][0] < x2) && (mEnemy.Ef[b][1] >= y1) && (mEnemy.Ef[b][1] < y2))
       {
          //printf("copying enemy:%d to ft\n", b);
          c = eib++;
          for (y=0; y<32; y++)
-            ft_Ei[c][y] = Ei[b][y];
+            ft_Ei[c][y] = mEnemy.Ei[b][y];
          for (y=0; y<16; y++)
-            ft_Ef[c][y] = Ef[b][y];
+            ft_Ef[c][y] = mEnemy.Ef[b][y];
 
          ft_Ef[c][0]-= x1;
          ft_Ef[c][1]-= y1;
@@ -616,58 +616,58 @@ void es_do_fcopy(int qx1, int qy1)
          //int copied = 0;
          for (c=0; c<100; c++)
          {
-            if (Ei[c][0] == 0) // found empty
+            if (mEnemy.Ei[c][0] == 0) // found empty
             {
                //copied = 1000+c;
                int lim = 0;
                for (y=0; y<32; y++)        // copy 32 ints
-                  Ei[c][y] = ft_Ei[b][y];
+                  mEnemy.Ei[c][y] = ft_Ei[b][y];
                for (y=0; y<16; y++)        // copy 16 floats
-                  Ef[c][y] = ft_Ef[b][y];
+                  mEnemy.Ef[c][y] = ft_Ef[b][y];
 
                // apply offsets
-               Ef[c][0] += x3;
-               Ef[c][1] += y3;
+               mEnemy.Ef[c][0] += x3;
+               mEnemy.Ef[c][1] += y3;
 
                if (erase_out_of_bounds_main)
                {
-                  if (check_limit(Ef[c][0], 0, 1980)) lim = 1;
-                  if (check_limit(Ef[c][1], 0, 1980)) lim = 1;
+                  if (check_limit(mEnemy.Ef[c][0], 0, 1980)) lim = 1;
+                  if (check_limit(mEnemy.Ef[c][1], 0, 1980)) lim = 1;
                }
                else // adjust if out of bounds
                {
-                  Ef[c][0] = enforce_limit(Ef[c][0], 0, 1980);
-                  Ef[c][1] = enforce_limit(Ef[c][1], 0, 1980);
+                  mEnemy.Ef[c][0] = enforce_limit(mEnemy.Ef[c][0], 0, 1980);
+                  mEnemy.Ef[c][1] = enforce_limit(mEnemy.Ef[c][1], 0, 1980);
                }
 
-               if (Ei[c][0] == 13) // vinepod
+               if (mEnemy.Ei[c][0] == 13) // vinepod
                {
                   for (int i=3; i<12; i+=2)
                   {
-                     Ei[c][i+0]+= x3;
-                     Ei[c][i+1]+= y3;
+                     mEnemy.Ei[c][i+0]+= x3;
+                     mEnemy.Ei[c][i+1]+= y3;
                   }
                }
 
-               if (Ei[c][0] == 7) // podzilla trigger box
+               if (mEnemy.Ei[c][0] == 7) // podzilla trigger box
                {
-                  Ei[c][11]+= x3;
-                  Ei[c][12]+= y3;
+                  mEnemy.Ei[c][11]+= x3;
+                  mEnemy.Ei[c][12]+= y3;
                }
-               if (Ei[c][0] == 9) // cloner
+               if (mEnemy.Ei[c][0] == 9) // cloner
                {
-                  Ei[c][11]+= x3;
-                  Ei[c][12]+= y3;
-                  Ei[c][15]+= x3;
-                  Ei[c][16]+= y3;
-                  Ei[c][17]+= x3;
-                  Ei[c][18]+= y3;
+                  mEnemy.Ei[c][11]+= x3;
+                  mEnemy.Ei[c][12]+= y3;
+                  mEnemy.Ei[c][15]+= x3;
+                  mEnemy.Ei[c][16]+= y3;
+                  mEnemy.Ei[c][17]+= x3;
+                  mEnemy.Ei[c][18]+= y3;
                }
                if (lim)
                {
                   //copied = -1;
-                  for (y=0; y<32; y++) Ei[c][y] = 0;
-                  for (y=0; y<16; y++) Ef[c][y] = 0;
+                  for (y=0; y<32; y++) mEnemy.Ei[c][y] = 0;
+                  for (y=0; y<16; y++) mEnemy.Ef[c][y] = 0;
                }
                c = 100; // end loop
             } // end of found empty
@@ -761,7 +761,7 @@ void es_do_fcopy(int qx1, int qy1)
             } // end of found empty
          }  // end if iterate real item array
       } // end of attempt copy
-   sort_enemy();
+   mEnemy.sort_enemy();
    mItem.sort_item(1);
    init_level_background(0);
 }
@@ -785,11 +785,11 @@ void es_do_clear(void)
 
    // enemies
    for (int e=0; e<100; e++)
-      if ((Ei[e][0]) && (mwWM.obj_filter[3][Ei[e][0]]))
-         if ((Ef[e][0] >= x1) && (Ef[e][0] < x2) && (Ef[e][1] >= y1) && (Ef[e][1] < y2))
+      if ((mEnemy.Ei[e][0]) && (mwWM.obj_filter[3][mEnemy.Ei[e][0]]))
+         if ((mEnemy.Ef[e][0] >= x1) && (mEnemy.Ef[e][0] < x2) && (mEnemy.Ef[e][1] >= y1) && (mEnemy.Ef[e][1] < y2))
          {
-            for (int y=0; y<32; y++) Ei[e][y] = 0;
-            for (int y=0; y<16; y++) Ef[e][y] = 0;
+            for (int y=0; y<32; y++) mEnemy.Ei[e][y] = 0;
+            for (int y=0; y<16; y++) mEnemy.Ef[e][y] = 0;
          }
 
    // lifts
@@ -798,7 +798,7 @@ void es_do_clear(void)
          if (Lift.cur[l].active)
             if ((Lift.cur[l].x >= x1) && (Lift.cur[l].x < x2) && (Lift.cur[l].y >= y1) && (Lift.cur[l].y < y2)) Lift.erase_lift(l);
 
-   sort_enemy();
+   mEnemy.sort_enemy();
    mItem.sort_item(1);
    init_level_background(0);
 }
@@ -977,11 +977,11 @@ void es_draw_enemy_ft(int e)
       // show box mode (0=none) (1=trig only) (2=src/dst only) (3=all)
       int q = ft_Ei[e][4];
       if ((q == 1) || (q == 3))
-         rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64, 0); // trigger box
+         mEnemy.rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64, 0); // trigger box
       if ((q == 2) || (q == 3))
       {
-         rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64, 0); // source
-         rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
+         mEnemy.rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64, 0); // source
+         mEnemy.rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
       }
    }
 }

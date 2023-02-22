@@ -9,7 +9,7 @@
 #include "mwItems.h"
 #include "mwLevel.h"
 #include "z_screen.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "mwInput.h"
 
 
@@ -210,7 +210,7 @@ void global_level(void)
       for (int y=0; y<100; y++)
       {
          int good = 0;
-         int type = Ei[y][0];
+         int type = mEnemy.Ei[y][0];
          if (type == 0)  good = 1; // this is a legal value
          if (type == 3)  good = 1;
          if (type == 4)  good = 1;
@@ -225,12 +225,12 @@ void global_level(void)
 
          if (!good)
          {
-            Ei[y][0] = 0; // erase
+            mEnemy.Ei[y][0] = 0; // erase
             printf("Level:%3d - Enemy:%d - bad type:%d   <----- will be erased!!!!!\n", le[x], y, type);
          }
             else if (type) // only check the rest if type valid
          {
-            int shape = Ei[y][1];
+            int shape = mEnemy.Ei[y][1];
             // min is flapper with 155
             // max is block walker 864
 
@@ -240,20 +240,20 @@ void global_level(void)
                if ((shape < 147) || (shape > 1020))
                   printf("Level:%3d - Enemy:%2d - type%2d - bad shape%d\n", le[x], y, type, shape);
 
-               float scale = Ef[y][12];
+               float scale = mEnemy.Ef[y][12];
                if ((scale < 0.2) || (scale > 10))
                   printf("Level:%3d - Enemy:%2d - type%2d - bad scale%f\n", le[x], y, type, scale);
 
-               float rot = Ef[y][14];
+               float rot = mEnemy.Ef[y][14];
                if ((rot < -256) || (rot > 256))
                   printf("Level:%3d - Enemy:%2d - type%2d - bad rot%f\n", le[x], y, type, rot);
             }
 
-            float xpos = Ef[y][0];
+            float xpos = mEnemy.Ef[y][0];
             if ((xpos < 20) || (xpos > 1980))
                printf("Level:%3d - Enemy:%2d - type%2d - bad xpos%f\n", le[x], y, type, xpos);
 
-            float ypos = Ef[y][1];
+            float ypos = mEnemy.Ef[y][1];
             if ((ypos < 20) || (ypos > 1980))
                printf("Level:%3d - Enemy:%2d - type%2d - bad ypos%f\n", le[x], y, type, ypos);
 
@@ -1098,15 +1098,15 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
       // converting pod and cloner trigger from 100 x1 y1 x2 y2 to 2000 xywh format
 
       for (int y=0; y<100; y++)
-         if ((Ei[y][0] == 7) || (Ei[y][0] == 9))
+         if ((mEnemy.Ei[y][0] == 7) || (mEnemy.Ei[y][0] == 9))
          {
-            int w = Ei[y][13] - Ei[y][11];
-            Ei[y][11] *= 20;
-            Ei[y][13] = w*20;
+            int w = mEnemy.Ei[y][13] - mEnemy.Ei[y][11];
+            mEnemy.Ei[y][11] *= 20;
+            mEnemy.Ei[y][13] = w*20;
 
-            int h = Ei[y][14] - Ei[y][12];
-            Ei[y][12] *= 20;
-            Ei[y][14] = h*20;
+            int h = mEnemy.Ei[y][14] - mEnemy.Ei[y][12];
+            mEnemy.Ei[y][12] *= 20;
+            mEnemy.Ei[y][14] = h*20;
 
          }
 
@@ -1114,14 +1114,14 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
       // converting cloner source and dest from 100 xywh to 2000 xywh format
       for (int y=0; y<100; y++)
-         if (Ei[y][0] == 9)
+         if (mEnemy.Ei[y][0] == 9)
          {
-            Ei[y][15] *= 20;
-            Ei[y][16] *= 20;
-            Ei[y][17] *= 20;
-            Ei[y][18] *= 20;
-            Ei[y][19] *= 20;
-            Ei[y][20] *= 20;
+            mEnemy.Ei[y][15] *= 20;
+            mEnemy.Ei[y][16] *= 20;
+            mEnemy.Ei[y][17] *= 20;
+            mEnemy.Ei[y][18] *= 20;
+            mEnemy.Ei[y][19] *= 20;
+            mEnemy.Ei[y][20] *= 20;
          }
 
 */
@@ -1130,13 +1130,13 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
 
 //      for (int y=0; y<100; y++)
-//         if (Ei[y][0] == 10)
+//         if (mEnemy.Ei[y][0] == 10)
 //            printf("Lev:%3d b:%d\n",le[x], y);
 
 /*
 
       for (int y=0; y<100; y++)
-         if (Ei[y][0] == 14) Ei[y][0] = 0;
+         if (mEnemy.Ei[y][0] == 14) mEnemy.Ei[y][0] = 0;
 */
 
 

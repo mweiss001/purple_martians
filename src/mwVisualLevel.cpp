@@ -11,7 +11,7 @@
 #include "mwEventQueue.h"
 #include "mwProgramState.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "z_screen.h"
 
@@ -20,7 +20,7 @@ mwVisualLevel mVisualLevel;
 
 int mwVisualLevel::lev_show_level_data(int x_pos, int y_pos)
 {
-   int ey_pos = enemy_data(x_pos, y_pos);
+   int ey_pos = mEnemy.enemy_data(x_pos, y_pos);
    int iy_pos = mItem.item_data(x_pos+135, y_pos);
    ey_pos = ey_pos + 8;
    al_draw_textf(mF.pr8, mC.pc[15], x_pos, ey_pos, 0,"%d Lifts  ", Lift.get_num_lifts());

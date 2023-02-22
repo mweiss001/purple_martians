@@ -21,7 +21,7 @@
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwProgramState.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "z_screen.h"
 
@@ -998,8 +998,8 @@ void draw_top_frame(int p)
    // ----------------------------------
    if (LOG_TMR_scrn_overlay) tt = al_get_time();
 
-   if (mwD.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%d En:%d ",            mLevel.play_level, mwPS.frame_num/40, num_enemy); // special case for narrow screens
-   else                sprintf(msg,"Level:%d | Time:%d | Enemies:%d  ", mLevel.play_level, mwPS.frame_num/40, num_enemy);
+   if (mwD.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%d En:%d ",            mLevel.play_level, mwPS.frame_num/40, mEnemy.num_enemy); // special case for narrow screens
+   else                sprintf(msg,"Level:%d | Time:%d | Enemies:%d  ", mLevel.play_level, mwPS.frame_num/40, mEnemy.num_enemy);
    al_draw_text(mF.pr8, mC.pc[tc], tdx, tdy+2,  0, msg);
    tdx += strlen(msg)*8;
 

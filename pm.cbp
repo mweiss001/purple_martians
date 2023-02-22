@@ -93,7 +93,6 @@
 		<Unit filename="src/e_edit_selection.h" />
 		<Unit filename="src/e_editor_main.cpp" />
 		<Unit filename="src/e_editor_main.h" />
-		<Unit filename="src/e_enemy.cpp" />
 		<Unit filename="src/e_fnx.cpp" />
 		<Unit filename="src/e_fnx.h" />
 		<Unit filename="src/e_glt.cpp" />
@@ -118,6 +117,12 @@
 		<Unit filename="src/mwDisplay.h" />
 		<Unit filename="src/mwDrawSequence.cpp" />
 		<Unit filename="src/mwDrawSequence.h" />
+		<Unit filename="src/mwEnemy.cpp" />
+		<Unit filename="src/mwEnemy.h" />
+		<Unit filename="src/mwEnemyCloner.cpp" />
+		<Unit filename="src/mwEnemyFlapper.cpp" />
+		<Unit filename="src/mwEnemyJumpworm.cpp" />
+		<Unit filename="src/mwEnemyTrakbot.cpp" />
 		<Unit filename="src/mwEventQueue.cpp" />
 		<Unit filename="src/mwEventQueue.h" />
 		<Unit filename="src/mwFont.cpp" />
@@ -130,11 +135,12 @@
 		<Unit filename="src/mwHelp.h" />
 		<Unit filename="src/mwInput.cpp" />
 		<Unit filename="src/mwInput.h" />
-		<Unit filename="src/mwItemBomb.cpp" />
+		<Unit filename="src/mwItemBombRocket.cpp" />
 		<Unit filename="src/mwItemDoor.cpp" />
 		<Unit filename="src/mwItemEditorFnx.cpp" />
-		<Unit filename="src/mwItemKey.cpp" />
+		<Unit filename="src/mwItemKeySwitch.cpp" />
 		<Unit filename="src/mwItemMessage.cpp" />
+		<Unit filename="src/mwItemStartExitWarp.cpp" />
 		<Unit filename="src/mwItemTrigger.cpp" />
 		<Unit filename="src/mwItems.cpp" />
 		<Unit filename="src/mwItems.h" />
@@ -189,8 +195,6 @@
 		<Unit filename="src/z_config.h" />
 		<Unit filename="src/z_control.cpp" />
 		<Unit filename="src/z_control.h" />
-		<Unit filename="src/z_enemy.cpp" />
-		<Unit filename="src/z_enemy.h" />
 		<Unit filename="src/z_log.cpp" />
 		<Unit filename="src/z_log.h" />
 		<Unit filename="src/z_loop.cpp" />

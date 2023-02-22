@@ -18,7 +18,7 @@
 #include "mwEventQueue.h"
 #include "mwProgramState.h"
 #include "mwLevel.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "mwItems.h"
 #include "e_edit_selection.h"
 #include "e_editor_main.h"
@@ -113,12 +113,12 @@ void cm_process_menu_bar(int d)
       strcpy (mMenu.menu_string[8],"end");
       int ret = mMenu.tmenu(1, x1, by1-1);
       if (ret == 1) mItem.show_all_items();
-      if (ret == 2) show_all_enemies();
+      if (ret == 2) mEnemy.show_all_enemies();
       if (ret == 3) Lift.show_all_lifts();
       if (ret == 4) mItem.show_all_pmsg();
       if (ret == 5) mwPME.show_all_events();
       if (ret == 6) mLevel.level_check();
-      if (ret == 7) show_level_data();
+      if (ret == 7) mEnemy.show_level_data();
    }
    x1 += 52;
 

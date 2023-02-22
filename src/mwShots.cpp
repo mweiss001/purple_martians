@@ -6,7 +6,7 @@
 #include "mwBitmap.h"
 #include "mwLevel.h"
 #include "z_screen_overlay.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "z_player.h"
 #include "mwLift.h"
 
@@ -244,10 +244,10 @@ void mwShots::clear_shots(void)
 
 void mwShots::fire_enemy_shotz(int e, int shot_ans, float px, float py)
 {
-   float xlen = px - Ef[e][0];   // get the x distance between enemy and player
-   float ylen = py - Ef[e][1];   // get the y distance between enemy and player
+   float xlen = px - mEnemy.Ef[e][0];   // get the x distance between enemy and player
+   float ylen = py - mEnemy.Ef[e][1];   // get the y distance between enemy and player
    float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));    // hypotenuse distance
-   float speed = Ef[e][7];            // speed
+   float speed = mEnemy.Ef[e][7];            // speed
    float scaler = hy_dist / speed;    // get scaler
    float xinc = xlen / scaler;        // calc xinc
    float yinc = ylen / scaler;        // calc yinc
@@ -257,8 +257,8 @@ void mwShots::fire_enemy_shotz(int e, int shot_ans, float px, float py)
       {
          mwS.e[b].active = 1;
          mwS.e[b].shape = 1000 + shot_ans;
-         mwS.e[b].x = Ef[e][0];
-         mwS.e[b].y = Ef[e][1];
+         mwS.e[b].x = mEnemy.Ef[e][0];
+         mwS.e[b].y = mEnemy.Ef[e][1];
          mwS.e[b].xinc = xinc;
          mwS.e[b].yinc = yinc;
          b=50;
@@ -266,9 +266,9 @@ void mwShots::fire_enemy_shotz(int e, int shot_ans, float px, float py)
 }
 void mwShots::fire_enemy_shota(int e, int shot_ans, int p)
 {
-   float bx = Ef[e][0];
-   float by = Ef[e][1];
-   float bv = Ef[e][7];
+   float bx = mEnemy.Ef[e][0];
+   float by = mEnemy.Ef[e][1];
+   float bv = mEnemy.Ef[e][7];
 
    float px  = players[p].x;
    float py  = players[p].y;
@@ -319,21 +319,21 @@ void mwShots::fire_enemy_shota(int e, int shot_ans, int p)
 
 void mwShots::fire_enemy_x_shot(int e, int p)
 {
-   float x_shot_speed = Ef[e][7];
+   float x_shot_speed = mEnemy.Ef[e][7];
    for (int b=0; b<50; b++)  // find empty e_shot
       if (!mwS.e[b].active)
       {
          mwS.e[b].active = 1;
          mwS.e[b].yinc = 0;
-         mwS.e[b].x = Ef[e][0];
-         mwS.e[b].y = Ef[e][1];
+         mwS.e[b].x = mEnemy.Ef[e][0];
+         mwS.e[b].y = mEnemy.Ef[e][1];
 
-         if (Ef[e][0] < players[p].x)
+         if (mEnemy.Ef[e][0] < players[p].x)
          {
             mwS.e[b].xinc = x_shot_speed;
             mwS.e[b].shape = 488;
          }
-         if (Ef[e][0] >= players[p].x)
+         if (mEnemy.Ef[e][0] >= players[p].x)
          {
             mwS.e[b].xinc = -x_shot_speed;
             mwS.e[b].shape = 489;

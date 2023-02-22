@@ -1,0 +1,138 @@
+// mw_ItemStartExitWarp.cpp
+
+#include "pm.h"
+#include "mwItems.h"
+#include "z_player.h"
+#include "mwBitmap.h"
+#include "mwColor.h"
+#include "mwProgramState.h"
+#include "mwEnemy.h"
+#include "mwLevel.h"
+#include "z_screen_overlay.h"
+#include "mwFont.h"
+
+int mwItems::draw_start(int i, int x, int y, int shape)
+{
+   if ((mLevel.number_of_starts > 1) && (mwPS.level_editor_running)) // put start seq number, but only in lev editor
+   {
+      al_draw_bitmap(mwB.tile[shape], x, y, 0);
+      al_draw_textf(mF.pixl, mC.pc[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", mItem.item[i][7]);
+      return 1;
+   }
+   return 0;
+}
+
+int mwItems::draw_exit(int i, int x, int y, int shape)
+{
+   al_draw_bitmap(mwB.tile[399], x, y, 0); // 'exit' text not shown
+   if (mwPS.frame_num % 60 > 30)
+      al_draw_text(mF.pixl, mC.pc[10], x+11, y-2, ALLEGRO_ALIGN_CENTER, "EXIT");
+
+   int exit_enemys_left = mEnemy.num_enemy - mItem.item[i][8];
+   if (exit_enemys_left > 0) // locked
+   {
+      al_draw_bitmap(mwB.tile[366], x, y, 0); // show lock
+      if (mwPS.frame_num % 60 < 30)
+         al_draw_textf(mF.pixl, mC.pc[14], x+11, y-2, ALLEGRO_ALIGN_CENTER, "%d", exit_enemys_left);
+
+   }
+   return 1;
+}
+
+void mwItems::proc_start_collision(int p, int i)
+{
+   int ns = 0; // count number of starts
+   int s[8] = {0};
+   for (int i=0; i<500; i++)
+      if (mItem.item[i][0] == 5)
+      {
+         ns++;
+         s[mItem.item[i][7]] = i; // save index of this start
+      }
+/*
+   if (ns == 0)
+   {
+      printf("Error: no start found.\n");
+      players[p].x = 20;
+      players[p].y = 20;;
+   }
+
+   if (ns == 1)
+   {
+      players[p].spawn_point_index = 0;
+      int ps = s[players[p].spawn_point_index];
+      players[p].x = itemf[ps][0];
+      players[p].y = itemf[ps][1];
+   }
+*/
+
+   if (ns > 1)
+   {
+      int mode = mItem.item[s[0]][6];
+
+      if (mode == 2) // check point common
+      {
+         for (p=0; p<8; p++)
+            players[p].spawn_point_index = mItem.item[i][7]; // set new spawn point for all players
+
+         // mark this one as active and all others as not
+         for (int ii=0; ii<500; ii++)
+            if (mItem.item[ii][0] == 5)
+            {
+               if (mItem.item[ii][7] == mItem.item[i][7]) mItem.item[ii][1] = 1021;
+               else mItem.item[ii][1] = 1011;
+            }
+      }
+
+      if (mode == 3) // check point individual
+      {
+         players[p].spawn_point_index = mItem.item[i][7]; // set new spawn point for this player
+      }
+
+   }
+//   players[p].spawn_point_index = mItem.item[i][7]; // set new spawn point
+//   // mark this one as active and all others as not
+//   for (int ii=0; ii<500; ii++)
+//      if (mItem.item[ii][0] == 5)
+//      {
+//         if (mItem.item[ii][7] == mItem.item[i][7]) mItem.item[ii][1] = 1021;
+//         else mItem.item[ii][1] = 1011;
+//      }
+}
+
+void mwItems::proc_exit_collision(int p, int i)
+{
+   int exit_enemys_left = mEnemy.num_enemy - mItem.item[i][8];
+   if (exit_enemys_left <= 0)
+   {
+      if (players[0].level_done_mode == 0)
+      {
+         players[0].level_done_mode = 9;
+         players[0].level_done_timer = 0;
+         players[0].level_done_x = itemf[i][0];
+         players[0].level_done_y = itemf[i][1];
+         players[0].level_done_player = p;
+         players[0].level_done_next_level = mLevel.play_level + 1;
+         game_event(4, 0, 0, 0, 0, 0, 0);
+      }
+   }
+   else game_event(3, 0, 0, p, i, exit_enemys_left, 0); // not enough dead yet
+}
+
+void mwItems::proc_warp_collision(int p, int i)
+{
+   if (players[0].level_done_mode == 0)
+   {
+      if (mLevel.play_level > 1) mLevel.warp_level_location = mLevel.play_level;
+//      players[0].level_done_mode = 3;
+//      players[0].level_done_timer = 0;
+
+      players[0].level_done_mode = 2;
+      players[0].level_done_timer = 0;
+      players[0].level_done_x = itemf[i][0];
+      players[0].level_done_y = itemf[i][1];
+      players[0].level_done_player = p;
+      players[0].level_done_next_level = mItem.item[i][8];
+      game_event(4, 0, 0, p, i, 0, 0);
+   }
+}

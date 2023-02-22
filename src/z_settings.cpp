@@ -17,7 +17,7 @@
 #include "mwEventQueue.h"
 #include "mwMenu.h"
 #include "mwProgramState.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "z_config.h"
 #include "e_fnx.h"
@@ -1081,7 +1081,7 @@ void settings_pages(int set_page)
          int y4 = ya - line_spacing;
 
 
-         rectangle_with_diagonal_lines(x2+1, y3, x3, y4, 4, 10, 10+64, 1);
+         mEnemy.rectangle_with_diagonal_lines(x2+1, y3, x3, y4, 4, 10, 10+64, 1);
          al_draw_rectangle(x1, y3, x2, y4, mC.pc[11], 1);
 
 

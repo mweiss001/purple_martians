@@ -1,4 +1,4 @@
-// mwItemKey.cpp
+// mwItemKeySwitch.cpp
 #include "pm.h"
 #include "mwItems.h"
 #include "z_player.h"
@@ -9,43 +9,48 @@
 #include "mwProgramState.h"
 #include "mwDisplay.h"
 
-int mwItems::draw_key(int i)
+
+int mwItems::draw_key(int i, int x, int y, int tile)
 {
-   // moving key in final sequence
-   if ((mItem.item[i][11] > 0) && (mItem.item[i][11] < 10))
+   int el = mItem.item[i][11];
+   if (el > 0) // moving key
    {
-      int x = itemf[i][0];
-      int y = itemf[i][1];
+      if (el < 10) // moving key in final sequence
+      {
+         // moving key in final stage gets static shape not ans
+         int tile = mItem.item[i][1];                   // get tile
+         if (tile > 999) tile = mwB.zz[5][tile-1000];   // get first tile in ans
 
-      // moving key in final stage gets static shape not ans
-      int tile = mItem.item[i][1];                         // get tile
-      if (tile > 999) tile = mwB.zz[5][tile-1000];   // get first tile in ans
+         // stretch the key
+         float sc = 1 + 5*((10 - (float)mItem.item[i][11]) / 10);
+         float rot = (float) mItem.item[i][10] / 1000;
+         al_draw_scaled_rotated_bitmap(mwB.tile[tile],10, 10, x+10, y+10, sc, sc, rot, 0);
 
-      // stretch the key
-      float sc = 1 + 5*((10 - (float)mItem.item[i][11]) / 10);
-      float rot = (float) mItem.item[i][10] / 1000;
-      al_draw_scaled_rotated_bitmap(mwB.tile[tile],10, 10, x+10, y+10, sc, sc, rot, 0);
+         // draw a collapsing rectangle
+         int x1 = mItem.item[i][6];
+         int y1 = mItem.item[i][7];
+         int x2 = (mItem.item[i][6] + mItem.item[i][8]);
+         int y2 = (mItem.item[i][7] + mItem.item[i][9]);
 
-      // draw a collapsing rectangle
-      int x1 = mItem.item[i][6];
-      int y1 = mItem.item[i][7];
-      int x2 = (mItem.item[i][6] + mItem.item[i][8]);
-      int y2 = (mItem.item[i][7] + mItem.item[i][9]);
+         int xw = x2-x1;
+         int yh = y2-y1;
+         float xinc = xw/8;
+         float yinc = yh/8;
 
-      int xw = x2-x1;
-      int yh = y2-y1;
-      float xinc = xw/8;
-      float yinc = yh/8;
-
-      float seq = 9 - mItem.item[i][11]; // starts at 0, goes to 8
-      int xo = (int)(seq * xinc / 2);
-      int yo = (int)(seq * yinc / 2);
-      al_draw_rectangle(x1+xo, y1+yo, x2-xo, y2-yo, mC.White, 1);
+         float seq = 9 - mItem.item[i][11]; // starts at 0, goes to 8
+         int xo = (int)(seq * xinc / 2);
+         int yo = (int)(seq * yinc / 2);
+         al_draw_rectangle(x1+xo, y1+yo, x2-xo, y2-yo, mC.White, 1);
+      }
+      else
+      {
+         float rot = (float) mItem.item[i][10] / 1000;
+         al_draw_rotated_bitmap(mwB.tile[tile], 10, 10, x+10, y+10, rot, 0);
+      }
       return 1;
    }
    return 0;
 }
-
 
 void mwItems::proc_key_collision(int p, int i)
 {

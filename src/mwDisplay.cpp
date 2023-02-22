@@ -14,7 +14,7 @@
 #include "mwGameMovesArray.h"
 #include "mwPMEvent.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwShots.h"
 #include "z_log.h"
@@ -226,8 +226,8 @@ void mwDisplay::show_var_sizes(void)
    printf("\nVariables used to save levels in pml format\n\n");
    printf("mLevel.l    :%6d\n",  (int)sizeof(mLevel.l)     );
    printf("mItem.item  :%6d\n",  (int)sizeof(mItem.item)   );
-   printf("Ef          :%6d\n",  (int)sizeof(Ef)           );
-   printf("Ei          :%6d\n",  (int)sizeof(Ei)           );
+   printf("mEnemy.Ef          :%6d\n",  (int)sizeof(mEnemy.Ef)           );
+   printf("mEnemy.Ei          :%6d\n",  (int)sizeof(mEnemy.Ei)           );
    printf("Lift.cur    :%6d\n",  (int)sizeof(Lift.cur)     );
    printf("Lift.stp    :%6d\n",  (int)sizeof(Lift.stp)     );
    printf("mItem.pmsgtext  :%6d\n",  (int)sizeof(mItem.pmsgtext)     );
@@ -235,8 +235,8 @@ void mwDisplay::show_var_sizes(void)
    int sz = 0;
    sz+= sizeof(mLevel.l)     ;
    sz+= sizeof(mItem.item)         ;
-   sz+= sizeof(Ef)           ;
-   sz+= sizeof(Ei)           ;
+   sz+= sizeof(mEnemy.Ef)           ;
+   sz+= sizeof(mEnemy.Ei)           ;
    sz+= sizeof(Lift.cur)     ;
    sz+= sizeof(Lift.stp)     ;
    sz+= sizeof(mItem.pmsgtext)     ;
@@ -246,8 +246,8 @@ void mwDisplay::show_var_sizes(void)
    printf("\nVariables used for netgame state exchange\n\n");
 
    printf("players  :%6d\n", (int)sizeof(players)      );
-   printf("Ei       :%6d\n", (int)sizeof(Ei)           );
-   printf("Ef       :%6d\n", (int)sizeof(Ef)           );
+   printf("mEnemy.Ei       :%6d\n", (int)sizeof(mEnemy.Ei)           );
+   printf("mEnemy.Ef       :%6d\n", (int)sizeof(mEnemy.Ef)           );
    printf("mItem.item     :%6d\n", (int)sizeof(mItem.item)         );
    printf("mItem.itemf    :%6d\n", (int)sizeof(mItem.itemf)        );
    printf("Lift.cur :%6d\n", (int)sizeof(Lift.cur)     );
@@ -258,8 +258,8 @@ void mwDisplay::show_var_sizes(void)
 
    sz = 0;
    sz+= sizeof(players)      ;
-   sz+= sizeof(Ei)           ;
-   sz+= sizeof(Ef)           ;
+   sz+= sizeof(mEnemy.Ei)           ;
+   sz+= sizeof(mEnemy.Ef)           ;
    sz+= sizeof(mItem.item)         ;
    sz+= sizeof(mItem.itemf)        ;
    sz+= sizeof(Lift.cur)     ;
