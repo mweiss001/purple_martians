@@ -11,7 +11,7 @@
 #include "mwColor.h"
 #include "mwProgramState.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "z_screen.h"
 #include "z_screen_overlay.h"
 
@@ -111,7 +111,7 @@ void mwDrawSequence::draw(void)
    if (seq[2][0]) mItem.draw_items();
    t3 = al_get_time(); add(2, t3-t2);
 
-   if (seq[3][0]) draw_enemies();
+   if (seq[3][0]) mEnemy.draw_enemies();
    t4 = al_get_time(); add(3, t4-t3);
 
    if (seq[4][0]) mwS.draw_eshots();

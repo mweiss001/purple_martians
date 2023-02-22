@@ -64,6 +64,23 @@ static bool draw_multiline_cb(int line_num, const char *line, int size, void *ex
    return 1;
 }
 
+int mwItems::draw_message(int i, int custom)
+{
+   char msg[1024];
+   if (!custom) // pop up message
+   {
+      int timer_count=0, timer_val=0;
+      get_int_3216(mItem.item[i][12], timer_count, timer_val);
+
+      // if timer running or always show, draw the message
+      if ((timer_count) || (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) draw_pop_message(i, 0, 0, 0, 0, 0, msg);
+
+      // if hide scroll and not running level editor flag scroll as being drawn already
+      if ((!(mItem.item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL)) && (!mwPS.level_editor_running)) return 1;
+   }
+   return 0;
+}
+
 void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
 {
    char msg[1024];

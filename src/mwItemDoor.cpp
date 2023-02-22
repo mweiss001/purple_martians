@@ -31,7 +31,7 @@ void mwItems::change_linked_door_color_and_shape(int door)
       }
 }
 
-void mwItems::draw_door(int i, int x, int y, int custom)
+int mwItems::draw_door(int i, int x, int y, int custom)
 {
    ALLEGRO_BITMAP *tmp = NULL;
    int col = mItem.item[i][6];
@@ -90,6 +90,7 @@ void mwItems::draw_door(int i, int x, int y, int custom)
       if (mItem.item[i][8] == 0) al_draw_bitmap(mwB.tile[1015], x, y, 0); // OUT
       else al_draw_bitmap(mwB.tile[1014], x, y, 0); // IN
    }
+   return 1;
 }
 
 void mwItems::proc_door_collision(int p, int i)

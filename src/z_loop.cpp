@@ -29,7 +29,7 @@
 #include "mwHelp.h"
 #include "mwProgramState.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "e_editor_main.h"
 #include "z_control.h"
@@ -68,7 +68,7 @@ void move_frame(void)
    if (LOG_TMR_move_all) t3 = al_get_time();
    move_players();
    if (LOG_TMR_move_all) t4 = al_get_time();
-   move_enemies();
+   mEnemy.move_enemies();
    if (LOG_TMR_move_all) t5 = al_get_time();
    mItem.move_items();
    if (LOG_TMR_move_all)

@@ -15,7 +15,7 @@
 #include "mwColor.h"
 #include "mwProgramState.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "mwLevel.h"
 
 #include "mwShots.h"
@@ -581,7 +581,7 @@ void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int item
    {
       if (lifts)   Lift.draw_lifts();
       if (items)   mItem.draw_items();
-      if (enemies) draw_enemies();
+      if (enemies) mEnemy.draw_enemies();
       if (mLevel.resume_allowed)
       {
          if (players) draw_players();

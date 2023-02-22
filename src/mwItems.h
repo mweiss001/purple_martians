@@ -16,29 +16,36 @@ class mwItems
    char pmsgtext[500][500];
    int item_tile[20];
 
-   void draw_item(int i, int custom, int cx, int cy);
    void draw_items(void);
+   void draw_item(int i, int custom, int cx, int cy);
+   int draw_bonus(int i, int x, int y, int shape);
 
    void move_items();
    int is_item_stuck_to_wall(int i);
    int player_drop_item(int p, int i);
    void proc_player_carry(int p);
 
-   void proc_start_collision(int p, int i);
-   void proc_bonus_collision(int p, int i);
-   void proc_exit_collision(int p, int i);
-   void proc_mine_collision(int p, int i);
-   void proc_warp_collision(int p, int i);
-   void proc_sproingy_collision(int p, int i);
    void proc_item_collision(int p, int i);
+   void proc_bonus_collision(int p, int i);
+   void proc_mine_collision(int p, int i);
+   void proc_sproingy_collision(int p, int i);
 
-   // mwItemBomb.cpp
-   void draw_lit_bomb(int i);
+   // mwItemStartExitWarp
+   int draw_start(int i, int x, int y, int shape);
+   int draw_exit(int i, int x, int y, int shape);
+   void proc_start_collision(int p, int i);
+   void proc_exit_collision(int p, int i);
+   void proc_warp_collision(int p, int i);
+
+   // mwItemBombRocket.cpp
+   int draw_bomb(int i, int x, int y, int shape);
+   int draw_lit_bomb(int i);
    void proc_lit_bomb(int i);
    void proc_bomb_collision(int p, int i);
 
    void proc_rocket_collision(int p, int i);
    void proc_lit_rocket(int i);
+   int draw_rocket(int i, int x, int y, int shape);
    void draw_rocket_lines(int i);
 
    int seq_color(int mod, int c1, int c2);
@@ -51,13 +58,13 @@ class mwItems
    void bomb_players(int i, int t, int dr, float x, float y);
 
    // mwItemDoor.cpp
-   void draw_door(int i, int x, int y, int custom);
+   int draw_door(int i, int x, int y, int custom);
    void proc_door_collision(int p, int i);
    void proc_player_door_move(int p);
    void change_linked_door_color_and_shape(int door);
 
-   // mwItemKey.cpp
-   int draw_key(int i);
+   // mwItemKeySwitch.cpp
+   int draw_key(int i, int x, int y, int tile);
    void proc_key_collision(int p, int i);
    void proc_moving_key(int i);
    void proc_key_block_range(int i, int action);
@@ -65,26 +72,27 @@ class mwItems
    void proc_switch_block_range(int i, int action);
 
    // mwItemMessage.cpp
+   int draw_message(int i, int custom);
    void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f);
    void proc_pmsg(int i);
    void proc_pmsg_reset_timer(int i);
    int edit_pmsg_text(int c, int new_msg);
 
    // mwItemTrigger.cpp
-   void draw_orb(int i, int x, int y);
+   int draw_orb(int i, int x, int y);
    void proc_orb(int i);
    int proc_orb_shot_collision(int i);
    void proc_orb_collision(int p, int i);
 
-   void draw_trigger(int i, int x, int y);
+   int draw_trigger(int i, int x, int y);
    void proc_trigger(int i);
    void set_item_trigger_location_from_lift(int i, int a20);
    void detect_trigger_collisions(int i);
 
-   void draw_block_manip(int i, int x, int y);
+   int draw_block_manip(int i, int x, int y);
    void proc_block_manip(int i);
 
-   void draw_block_damage(int i, int x, int y, int custom);
+   int draw_block_damage(int i, int x, int y, int custom);
    void proc_block_damage(int i);
    void set_item_damage_location_from_lift(int i, int a20);
    void proc_item_damage_collisions(int i);

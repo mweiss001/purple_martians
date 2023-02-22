@@ -9,7 +9,7 @@
 #include "mwColor.h"
 #include "mwProgramState.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 
 
 mwBottomMessage mwBM;
@@ -87,21 +87,21 @@ int mwBottomMessage::draw_enemy(int e_type, int bmsg_length)
    int len = 0;
    if (0) // enemy name
    {
-      len += draw_text(enemy_name[e_type][0], 15, bmsg_length);
+      len += draw_text(mEnemy.enemy_name[e_type][0], 15, bmsg_length);
    }
    if (1) // enemy tile
    {
-      len += draw_tile(enemy_tile[e_type], bmsg_length);
+      len += draw_tile(mEnemy.enemy_tile[e_type], bmsg_length);
    }
    if (0) // name and tile
    {
-      len += draw_text(enemy_name[e_type][0], 15, bmsg_length) + 8;
-      len += draw_tile(enemy_tile[e_type], bmsg_length+len);
+      len += draw_text(mEnemy.enemy_name[e_type][0], 15, bmsg_length) + 8;
+      len += draw_tile(mEnemy.enemy_tile[e_type], bmsg_length+len);
    }
    if (0) // tile and name
    {
-      len += draw_tile(enemy_tile[e_type], bmsg_length-4) + 8;
-      len += draw_text(enemy_name[e_type][0], 15, bmsg_length+len);
+      len += draw_tile(mEnemy.enemy_tile[e_type], bmsg_length-4) + 8;
+      len += draw_text(mEnemy.enemy_name[e_type][0], 15, bmsg_length+len);
    }
    return len;
 }
@@ -245,7 +245,7 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
       {
          custom_drawn = 1;
          bmsg_length += draw_text(" got hit by ", 15, bmsg_length);
-         bmsg_length += draw_enemy(Ei[z2][0], bmsg_length);
+         bmsg_length += draw_enemy(mEnemy.Ei[z2][0], bmsg_length);
          bmsg_length += draw_health(-z4, bmsg_length);
       }
       if (ev == 50) // player hit a mine

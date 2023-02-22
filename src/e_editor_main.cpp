@@ -12,7 +12,7 @@
 #include "mwEventQueue.h"
 #include "mwHelp.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "e_fnx.h"
 #include "e_object_viewer.h"
@@ -486,7 +486,7 @@ void em_show_draw_item_cursor(void)
             mItem.draw_item(num, 1, x*20, y*20);
          break;
          case 3: // enemy
-            draw_enemy(num, 1, x*20, y*20);
+            mEnemy.draw_enemy(num, 1, x*20, y*20);
          break;
          case 5: // PDE
             int a = mPDE.PDEi[num][1]; // bmp or ans
@@ -522,10 +522,10 @@ void em_show_item_info(int x, int y, int color, int type, int num)
          al_draw_textf(mF.pr8, mC.pc[color], x+22, y+12, 0, "%d of %d", 1+num - mItem.item_first_num[a], mItem.item_num_of_type[a]);
       break;
       case 3:
-         draw_enemy(num, 1, x, y);
-         a = Ei[num][0]; // type
-         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+2, 0, "%s", enemy_name[a][0]);
-         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+12, 0, "%d of %d", 1+num - e_first_num[a], e_num_of_type[a]);
+         mEnemy.draw_enemy(num, 1, x, y);
+         a = mEnemy.Ei[num][0]; // type
+         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+2, 0, "%s", mEnemy.enemy_name[a][0]);
+         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+12, 0, "%d of %d", 1+num - mEnemy.e_first_num[a], mEnemy.e_num_of_type[a]);
       break;
       case 4:
       {
@@ -545,7 +545,7 @@ void em_show_item_info(int x, int y, int color, int type, int num)
 
          if ((mPDE.PDEi[num][0] == 108) && (mPDE.PDEi[num][11])) al_draw_bitmap(mwB.tile[440], x, y, 0); // bomb sticky spikes
 
-         a = Ei[num][0]; // type
+         a = mEnemy.Ei[num][0]; // type
          al_draw_text(mF.pr8, mC.pc[color], x+22, y+2, 0, "Special Item");
          al_draw_textf(mF.pr8, mC.pc[color], x+22, y+12, 0, "%s", mPDE.PDEt[num][1]);
       break;
@@ -579,10 +579,10 @@ void em_find_point_item(void)
          }
       }
    for (int e=0; e<100; e++) // check for enemy
-      if ((Ei[e][0]) && (ob < max_ob))
+      if ((mEnemy.Ei[e][0]) && (ob < max_ob))
       {
-         int x = Ef[e][0];
-         int y = Ef[e][1];
+         int x = mEnemy.Ef[e][0];
+         int y = mEnemy.Ef[e][1];
          if ( (mwWM.hx >= x) && (mwWM.hx <= x+19) && (mwWM.hy > y) && (mwWM.hy < y+19) && (ob < max_ob))
          {
              mo[ob][0] = 3;
@@ -666,25 +666,25 @@ void em_process_mouse(void)
          break;
          case 3:    // enemy
          {
-            int type = Ei[din][0];
+            int type = mEnemy.Ei[din][0];
 
-            int ofx = mwWM.gx*20 - Ef[din][0]; // get offset of move in 2000 format
-            int ofy = mwWM.gy*20 - Ef[din][1];
+            int ofx = mwWM.gx*20 - mEnemy.Ef[din][0]; // get offset of move in 2000 format
+            int ofy = mwWM.gy*20 - mEnemy.Ef[din][1];
 
-            int c = get_empty_enemy(type); // get a place to put it
+            int c = mEnemy.get_empty_enemy(type); // get a place to put it
             if (c == -1)  break;
-            for (int x=0; x<32; x++) Ei[c][x] = Ei[din][x];
-            for (int x=0; x<16; x++) Ef[c][x] = Ef[din][x];
+            for (int x=0; x<32; x++) mEnemy.Ei[c][x] = mEnemy.Ei[din][x];
+            for (int x=0; x<16; x++) mEnemy.Ef[c][x] = mEnemy.Ef[din][x];
 
-            Ef[c][0] += ofx;  // apply offsets
-            Ef[c][1] += ofy;
+            mEnemy.Ef[c][0] += ofx;  // apply offsets
+            mEnemy.Ef[c][1] += ofy;
 
             if (type == 13) // vinepod
             {
                for (int i=3; i<12; i+=2)
                {
-                  Ei[c][i+0] = Ei[din][i+0] + ofx;
-                  Ei[c][i+1] = Ei[din][i+1] + ofy;
+                  mEnemy.Ei[c][i+0] = mEnemy.Ei[din][i+0] + ofx;
+                  mEnemy.Ei[c][i+1] = mEnemy.Ei[din][i+1] + ofy;
                }
             }
 
@@ -694,35 +694,35 @@ void em_process_mouse(void)
                if (mI.SHFT()) // move stuff also
                //if (al_show_native_message_box(display, "Move?", "Move podzilla's extended position too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
                {
-                   Ef[c][5] = Ef[din][5] + ofx;
-                   Ef[c][6] = Ef[din][6] + ofy;
+                   mEnemy.Ef[c][5] = mEnemy.Ef[din][5] + ofx;
+                   mEnemy.Ef[c][6] = mEnemy.Ef[din][6] + ofy;
                }
                if (mI.SHFT()) // move stuff also
                //if (al_show_native_message_box(display, "Move?", "Move podzilla's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
                {
-                  Ei[c][11] = Ei[din][11] + ofx;
-                  Ei[c][12] = Ei[din][12] + ofy;
+                  mEnemy.Ei[c][11] = mEnemy.Ei[din][11] + ofx;
+                  mEnemy.Ei[c][12] = mEnemy.Ei[din][12] + ofy;
                }
-               recalc_pod(c);
+               mEnemy.recalc_pod(c);
             }
             if (type == 9) // cloner
             {
                //if (al_show_native_message_box(display, "Move?", "Move cloner's source and destination boxes too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
                if (mI.SHFT()) // move stuff also
                {
-                  Ei[c][15] = Ei[din][15] + ofx;
-                  Ei[c][16] = Ei[din][16] + ofy;
-                  Ei[c][17] = Ei[din][17] + ofx;
-                  Ei[c][18] = Ei[din][18] + ofy;
+                  mEnemy.Ei[c][15] = mEnemy.Ei[din][15] + ofx;
+                  mEnemy.Ei[c][16] = mEnemy.Ei[din][16] + ofy;
+                  mEnemy.Ei[c][17] = mEnemy.Ei[din][17] + ofx;
+                  mEnemy.Ei[c][18] = mEnemy.Ei[din][18] + ofy;
                }
                //if (al_show_native_message_box(display, "Move?", "Move cloner's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
                if (mI.SHFT()) // move stuff also
                {
-                  Ei[c][11] = Ei[din][11] + ofx;
-                  Ei[c][12] = Ei[din][12] + ofy;
+                  mEnemy.Ei[c][11] = mEnemy.Ei[din][11] + ofx;
+                  mEnemy.Ei[c][12] = mEnemy.Ei[din][12] + ofy;
                }
             }
-            sort_enemy();
+            mEnemy.sort_enemy();
          }
          break;
          case 5: // Special
@@ -746,13 +746,13 @@ void em_process_mouse(void)
          }
          if (mPDE.PDEi[din][0] < 99) // PDE enemy
          {
-            int d = get_empty_enemy(); // get a place to put it
+            int d = mEnemy.get_empty_enemy(); // get a place to put it
             if (d == -1)  break;
-            for (int x=0; x<32; x++) Ei[d][x] = mPDE.PDEi[din][x];
-            for (int x=0; x<16; x++) Ef[d][x] = mPDE.PDEf[din][x];
-            Ef[d][0] = mwWM.gx*20;  // set new x,y
-            Ef[d][1] = mwWM.gy*20;
-            sort_enemy();
+            for (int x=0; x<32; x++) mEnemy.Ei[d][x] = mPDE.PDEi[din][x];
+            for (int x=0; x<16; x++) mEnemy.Ef[d][x] = mPDE.PDEf[din][x];
+            mEnemy.Ef[d][0] = mwWM.gx*20;  // set new x,y
+            mEnemy.Ef[d][1] = mwWM.gy*20;
+            mEnemy.sort_enemy();
          }
          break;
       } // end of switch case
@@ -772,9 +772,9 @@ void em_process_mouse(void)
             sprintf(mMenu.menu_string[4], "Delete %s ", mItem.item_name[mItem.item[mwWM.mW[1].point_item_num][0]]);
          break;
          case 3:
-            sprintf(mMenu.menu_string[2], "Copy %s  ",  (const char *)enemy_name[Ei[mwWM.mW[1].point_item_num][0]][0]);
-            sprintf(mMenu.menu_string[3], "View %s  ",  (const char *)enemy_name[Ei[mwWM.mW[1].point_item_num][0]][0]);
-            sprintf(mMenu.menu_string[4], "Delete %s ", (const char *)enemy_name[Ei[mwWM.mW[1].point_item_num][0]][0]);
+            sprintf(mMenu.menu_string[2], "Copy %s  ",  (const char *)mEnemy.enemy_name[mEnemy.Ei[mwWM.mW[1].point_item_num][0]][0]);
+            sprintf(mMenu.menu_string[3], "View %s  ",  (const char *)mEnemy.enemy_name[mEnemy.Ei[mwWM.mW[1].point_item_num][0]][0]);
+            sprintf(mMenu.menu_string[4], "Delete %s ", (const char *)mEnemy.enemy_name[mEnemy.Ei[mwWM.mW[1].point_item_num][0]][0]);
          break;
          case 4:
             sprintf(mMenu.menu_string[2], "              ");
@@ -816,8 +816,8 @@ void em_process_mouse(void)
                      mwWM.mW[1].draw_item_type = 1;
                      mwWM.mW[1].draw_item_num = 0;
                   }
-                  erase_enemy(mwWM.mW[1].point_item_num);
-                  sort_enemy();
+                  mEnemy.erase_enemy(mwWM.mW[1].point_item_num);
+                  mEnemy.sort_enemy();
                break;
                case 4: // delete lift
                   Lift.erase_lift(mwWM.mW[1].point_item_num);
@@ -840,7 +840,7 @@ void em_process_mouse(void)
          break;
          case 13: // load level
             mLevel.load_level_prompt();
-            sort_enemy();
+            mEnemy.sort_enemy();
             mItem.sort_item(1);
          break;
          case 14: mLevel.save_level(mLevel.last_level_loaded); break; // save level

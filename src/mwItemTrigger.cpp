@@ -9,7 +9,7 @@
 #include "mwColor.h"
 #include "mwPMEvent.h"
 #include "mwProgramState.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "e_fnx.h"
 #include "z_screen.h"
@@ -141,7 +141,7 @@ void mwItems::proc_orb(int i)
    if   (FLAGS & PM_ITEM_ORB_TGOF)   mwPME.event[mItem.item[i][13]] = 1;
 }
 
-void mwItems::draw_orb(int i, int x, int y)
+int mwItems::draw_orb(int i, int x, int y)
 {
    mItem.item[i][1] = 418;                                          // green orb
    if (mItem.item[i][2] & PM_ITEM_ORB_STATE) mItem.item[i][1] = 419;      // red orb
@@ -169,6 +169,7 @@ void mwItems::draw_orb(int i, int x, int y)
       }
    }
    if (!drawn) al_draw_rotated_bitmap(mwB.tile[mItem.item[i][1]], 10, 10, x+10, y+10, a, 0);
+   return 1;
 }
 void mwItems::proc_orb_collision(int p, int i)
 {
@@ -336,10 +337,10 @@ void mwItems::detect_trigger_collisions(int i)
          }
    if (FLAGS & PM_ITEM_TRIGGER_ENEMY)
       for (int e2=0; e2<100; e2++)
-         if (Ei[e2][0])
+         if (mEnemy.Ei[e2][0])
          {
-            int x = Ef[e2][0];
-            int y = Ef[e2][1];
+            int x = mEnemy.Ef[e2][0];
+            int y = mEnemy.Ef[e2][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mItem.item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
    if (FLAGS & PM_ITEM_TRIGGER_ITEM)
@@ -372,7 +373,7 @@ void mwItems::detect_trigger_collisions(int i)
 
 
 
-void mwItems::draw_trigger(int i, int x, int y)
+int mwItems::draw_trigger(int i, int x, int y)
 {
    if (mwPS.level_editor_running)
    {
@@ -387,8 +388,9 @@ void mwItems::draw_trigger(int i, int x, int y)
       float y1 = mItem.item[i][7];
       float x2 = x1 + mItem.item[i][8];
       float y2 = y1 + mItem.item[i][9];
-      rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
+      mEnemy.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
    }
+   return 1;
 }
 
 
@@ -462,7 +464,7 @@ void mwItems::proc_block_manip(int i)
    }
 }
 
-void mwItems::draw_block_manip(int i, int x, int y)
+int mwItems::draw_block_manip(int i, int x, int y)
 {
    if (mwPS.level_editor_running)
    {
@@ -475,8 +477,9 @@ void mwItems::draw_block_manip(int i, int x, int y)
       float y1 = mItem.item[i][7];
       float x2 = x1 + mItem.item[i][8];
       float y2 = y1 + mItem.item[i][9];
-      rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
+      mEnemy.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
    }
+   return 1;
 }
 
 /*
@@ -613,14 +616,14 @@ void mwItems::proc_item_damage_collisions(int i)
          }
    if (cde)
       for (int e2=0; e2<100; e2++)
-         if (Ei[e2][0])
+         if (mEnemy.Ei[e2][0])
          {
-            int x = Ef[e2][0];
-            int y = Ef[e2][1];
+            int x = mEnemy.Ef[e2][0];
+            int y = mEnemy.Ef[e2][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
-               Ei[e2][31] = 3;           // flag that this enemy got shot
-               //Ei[e2][26] = x;           // number of player's shot that hit enemy
+               mEnemy.Ei[e2][31] = 3;           // flag that this enemy got shot
+               //mEnemy.Ei[e2][26] = x;           // number of player's shot that hit enemy
             }
          }
    if (cdi)
@@ -660,7 +663,7 @@ void mwItems::proc_item_damage_collisions(int i)
          }
 }
 
-void mwItems::draw_block_damage(int i, int x, int y, int custom)
+int mwItems::draw_block_damage(int i, int x, int y, int custom)
 {
    int draw_mode = mItem.item[i][2];
    int mode = mItem.item[i][11];
@@ -686,7 +689,7 @@ void mwItems::draw_block_damage(int i, int x, int y, int custom)
       {
          int col = 11;
          if (FLAGS & PM_ITEM_DAMAGE_CURR) col = 10;
-         rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
+         mEnemy.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
       }
 
       if (draw_mode == 2) // spikey floor
@@ -775,6 +778,7 @@ void mwItems::draw_block_damage(int i, int x, int y, int custom)
       if (timer_draw_mode3) draw_percent_bar(x0+9, y0+5, 32, 8,  percent);
       if (timer_draw_mode4) draw_percent_bar(x0+9, y0+1, 64, 16, percent);
    }
+   return 1;
 }
 
 void mwItems::proc_block_damage(int i)

@@ -5,7 +5,7 @@
 #include "z_config.h"
 #include "mwLift.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "z_screen.h"
 #include "mwInput.h"
 #include "mwBitmap.h"
@@ -130,8 +130,8 @@ int mwLevel::is_block_empty(int x, int y, int test_block, int test_item, int tes
 
    if (test_enemy)
       for (int c=0; c<100; c++)
-         if (Ei[c][0])
-            if ((Ef[c][0] == x*20) && (Ef[c][1] == y*20)) mpty = 0;
+         if (mEnemy.Ei[c][0])
+            if ((mEnemy.Ef[c][0] == x*20) && (mEnemy.Ef[c][1] == y*20)) mpty = 0;
 
    if (test_item)
       for (int c=0; c<500; c++)
@@ -155,8 +155,8 @@ void pml_to_var(char * b) // for load level
    int sz = 0, offset = 0;
    sz = sizeof(mLevel.l);     memcpy(mLevel.l,     b+offset, sz); offset += sz;
    sz = sizeof(mItem.item);   memcpy(mItem.item,   b+offset, sz); offset += sz;
-   sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
-   sz = sizeof(Ef);           memcpy(Ef,           b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ei);           memcpy(mEnemy.Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ef);           memcpy(mEnemy.Ef,           b+offset, sz); offset += sz;
    sz = sizeof(Lift.cur);     memcpy(Lift.cur,     b+offset, sz); offset += sz;
    sz = sizeof(Lift.stp);     memcpy(Lift.stp,     b+offset, sz); offset += sz;
    sz = sizeof(mItem.pmsgtext);     memcpy(mItem.pmsgtext,     b+offset, sz); offset += sz;
@@ -167,8 +167,8 @@ void var_to_pml(char * b) // for save level
    int sz = 0, offset = 0;
    offset += sz; sz = sizeof(mLevel.l);     memcpy(b+offset, mLevel.l,     sz);
    offset += sz; sz = sizeof(mItem.item);   memcpy(b+offset, mItem.item,   sz);
-   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
-   offset += sz; sz = sizeof(Ef);           memcpy(b+offset, Ef,           sz);
+   offset += sz; sz = sizeof(mEnemy.Ei);           memcpy(b+offset, mEnemy.Ei,           sz);
+   offset += sz; sz = sizeof(mEnemy.Ef);           memcpy(b+offset, mEnemy.Ef,           sz);
    offset += sz; sz = sizeof(Lift.cur);     memcpy(b+offset, Lift.cur,     sz);
    offset += sz; sz = sizeof(Lift.stp);     memcpy(b+offset, Lift.stp,     sz);
    offset += sz; sz = sizeof(mItem.pmsgtext);     memcpy(b+offset, mItem.pmsgtext,     sz);
@@ -234,7 +234,7 @@ void mwLevel::save_level(int level_num)
    level_check();
 
    mItem.sort_item(1);
-   sort_enemy();
+   mEnemy.sort_enemy();
    Lift.lift_setup();
 
    char lf[255];
@@ -336,10 +336,10 @@ void mwLevel::zero_level_data(void)
 
    for (int c=0; c<100; c++)
    {
-      for (int x=0; x<16; x++)  Ef[c][x] = 0; // enemy floats
-      for (int x=0; x<32; x++)  Ei[c][x] = 0; // enemy ints
+      for (int x=0; x<16; x++)  mEnemy.Ef[c][x] = 0; // enemy floats
+      for (int x=0; x<32; x++)  mEnemy.Ei[c][x] = 0; // enemy ints
    }
-   sort_enemy();
+   mEnemy.sort_enemy();
 
    for (int c=0; c<40; c++) // lifts
    {
@@ -359,10 +359,18 @@ void mwLevel::zero_level_data(void)
 
 void mwLevel::level_check(void)
 {
-   // set number of purple coins
+   // set number of purple coins and starts
    number_of_purple_coins = 0;
-   for (int c=0; c < 500; c++)
-      if ((mItem.item[c][0] == 2) && (mItem.item[c][6] == 3)) number_of_purple_coins++;
+   number_of_starts = 0;
+
+   for (int i=0; i<500; i++)
+   {
+      if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 3)) number_of_purple_coins++;
+      if (mItem.item[i][0] == 5) number_of_starts++;
+   }
+
+
+
 
 /*
    int error = 0;

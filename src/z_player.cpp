@@ -13,7 +13,7 @@
 #include "mwDisplay.h"
 #include "mwProgramState.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "z_screen.h"
 #include "z_screen_overlay.h"
@@ -625,14 +625,14 @@ void proc_player_collisions(int p)
    // enemies
    for (int e=0; e<100; e++)
    {
-      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if active and not deathcount
+      if ((mEnemy.Ei[e][0]) && (mEnemy.Ei[e][0] != 99)) // if active and not deathcount
       {
-         float b = Ei[e][29]; // collision box size
-         float ex1 = Ef[e][0] - b;
-         float ex2 = Ef[e][0] + b;
-         float ey1 = Ef[e][1] - b;
-         float ey2 = Ef[e][1] + b;
-         if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) Ei[e][22] = p+1;
+         float b = mEnemy.Ei[e][29]; // collision box size
+         float ex1 = mEnemy.Ef[e][0] - b;
+         float ex2 = mEnemy.Ef[e][0] + b;
+         float ey1 = mEnemy.Ef[e][1] - b;
+         float ey2 = mEnemy.Ef[e][1] + b;
+         if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) mEnemy.Ei[e][22] = p+1;
       }
    }
 

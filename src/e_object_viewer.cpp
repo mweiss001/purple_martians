@@ -14,7 +14,7 @@
 #include "mwEventQueue.h"
 #include "mwHelp.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "e_fnx.h"
 #include "z_screen.h"
 
@@ -41,8 +41,8 @@ int create_obj(int obt, int type, int num)
    {
       if (type == 7)
       {
-         int e = create_pod();
-         if ((e>=0) && (e<99) && (Ei[e][0] == 7))
+         int e = mEnemy.create_pod();
+         if ((e>=0) && (e<99) && (mEnemy.Ei[e][0] == 7))
          {
             object_viewer(3, e);
             num = e;
@@ -50,8 +50,8 @@ int create_obj(int obt, int type, int num)
       }
       if (type == 9)
       {
-         int e = create_cloner();
-         if ((e>=0) && (e<99) && (Ei[e][0] == 9))
+         int e = mEnemy.create_cloner();
+         if ((e>=0) && (e<99) && (mEnemy.Ei[e][0] == 9))
          {
             object_viewer(3, e);
             num = e;
@@ -59,8 +59,8 @@ int create_obj(int obt, int type, int num)
       }
       if (type == 13)
       {
-         int e = create_vinepod();
-         if ((e>=0) && (e<99) && (Ei[e][0] == 13))
+         int e = mEnemy.create_vinepod();
+         if ((e>=0) && (e<99) && (mEnemy.Ei[e][0] == 13))
          {
             object_viewer(3, e);
             num = e;
@@ -77,7 +77,7 @@ void ov_get_size(void)
    int num = mwWM.mW[7].num;
    int type=0, w=300;
    if (obt == 2) type = mItem.item[num][0];
-   if (obt == 3) type = Ei[num][0];
+   if (obt == 3) type = mEnemy.Ei[num][0];
 
    ov_check_if_valid(type);
 
@@ -166,7 +166,7 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
    int num = mwWM.mW[7].num;
    int type=0;
    if (obt == 2) type = mItem.item[num][0];
-   if (obt == 3) type = Ei[num][0];
+   if (obt == 3) type = mEnemy.Ei[num][0];
 
 //   al_draw_rectangle(x1-1, y1-1, x2+1, y2+1, mC.pc[10], 1);  // outline entire window
 
@@ -212,8 +212,8 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
    if (obt == 3)  // enemies
    {
       al_draw_rectangle(xc-94, yt, xc+94, yt+22, mC.pc[15], 1);
-      draw_enemy(num, 1, xc-92, yt+1);
-      sprintf(msg,"%s %d of %d", (const char *)enemy_name[type][0],1+num - e_first_num[type],e_num_of_type[type]);
+      mEnemy.draw_enemy(num, 1, xc-92, yt+1);
+      sprintf(msg,"%s %d of %d", (const char *)mEnemy.enemy_name[type][0],1+num - mEnemy.e_first_num[type],mEnemy.e_num_of_type[type]);
       al_draw_text(mF.pr8, mC.pc[13], xc-69, yt+8, 0, msg);
       switch (type)
       {
@@ -418,7 +418,7 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    int n = mwWM.mW[7].num;
    int type=0;
    if (obt == 2) type = mItem.item[n][0];
-   if (obt == 3) type = Ei[n][0];
+   if (obt == 3) type = mEnemy.Ei[n][0];
 
 
 
@@ -553,178 +553,178 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       switch (type) // enemy subtypes
       {
          case 3:     // archwag
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Ef[n][6],  9,  0.7, 0.01, "X-Speed:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Ef[n][3],  16, 0.7, 0.01, "Y-Speed:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  9,  0.7, 0.01, "X-Speed:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  16, 0.7, 0.01, "Y-Speed:");
             ya+=4; // spacer
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
+            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
+            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
             ya+=4; // spacer
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
             ya+=4; // spacer
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
          case 4: // bouncer
-            mdw_sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, Ef[n][5],  12, 0, 0.01, "Speed:");
+            mdw_sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][5],  12, 0, 0.01, "Speed:");
             ya+=4; // spacer
             if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,d, "Set Initial Direction"))  getxy("Initial Direction", 96, 4, n);
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Ei[n][8], 100, 0, 1,   "Seek Count:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][8], 100, 0, 1,   "Seek Count:");
             ya+=4; // spacer
             mdw_button(     xa, ya, xb, bts,  13,n,0,0, 0, 8, 9, 0,  1,0,1,d); // main shape
             ya+=4; // spacer
             mdw_button(     xa, ya, xb, bts,  14,n,0,0, 0, 8, 9, 0,  1,0,1,d); // seek shape
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,    "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ef[n][4] , 10, 0, 0.1,  "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][25], 50, 0, 1,    "Health Bonus:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,    "Collision Box:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4] , 10, 0, 0.1,  "Health Decrement:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,    "Health Bonus:");
          break;
          case 5:     // jumpworm
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Ef[n][6],  12, 0.4, 0.01,"X-Speed (Jump):");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,11,15,15,  1,0,1,d, Ei[n][4],  12, 1, 1,     "X-Speed (Ground):1/");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Ef[n][3],  9, 0.4, 0.01, "Y-Speed:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  12, 0.4, 0.01,"X-Speed (Jump):");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,11,15,15,  1,0,1,d, mEnemy.Ei[n][4],  12, 1, 1,     "X-Speed (Ground):1/");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  9, 0.4, 0.01, "Y-Speed:");
             ya+=4; // spacer
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
+            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
             ya+=4; // spacer
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][8],  160, 0, 1,    "Wall Jump Boost:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][8],  160, 0, 1,    "Wall Jump Boost:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
          case 6: // cannon
-            mdw_sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, Ef[n][5],  12, 0, 0.01, "Speed:");
+            mdw_sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][5],  12, 0, 0.01, "Speed:");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Ei[n][8], 100, 0, 1,     "Seek Count:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][8], 100, 0, 1,     "Seek Count:");
             if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,d, "Set Initial Direction"))  getxy("Initial Direction", 96, 4, n);
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,8, 15,15,  1,0,1,d, Ei[n][9], 40, 0, 1,      "Extra Hits To Kill:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,8, 15,15,  1,0,1,d, mEnemy.Ei[n][9], 40, 0, 1,      "Extra Hits To Kill:");
             ya+=4; // spacer
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
          case 7: // podzilla
-            mdw_sliderf(    xa, ya, xb, bts,  29,n,0,0, 0, 9,15,15,  1,0,1,d, Ef[n][9] , 30, 0.5, 0.5, "Speed:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][9], 240, 0, 1,      "Pause:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+            mdw_sliderf(    xa, ya, xb, bts,  29,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][9] , 30, 0.5, 0.5, "Speed:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][9], 240, 0, 1,      "Pause:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
             ya+=4; // spacer
             if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Move Extended Position")) getxy("Pod Extended Position", 99, 7, n);
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) get_block_range("Trigger Box", &Ei[n][11], &Ei[n][12], &Ei[n][13], &Ei[n][14], 2);
+            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) get_block_range("Trigger Box", &mEnemy.Ei[n][11], &mEnemy.Ei[n][12], &mEnemy.Ei[n][13], &mEnemy.Ei[n][14], 2);
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
          case 8: // trakbot
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Ef[n][2],  10, .5, 0.1, "X-Speed:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Ef[n][3],  10, .5, 0.1, "Y-Speed:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][2],  10, .5, 0.1, "X-Speed:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  10, .5, 0.1, "Y-Speed:");
             ya+=4; // spacer
             mdw_button(     xa, ya, xb, bts,  11,n,0,0, 0,12,15, 0,  1,0,1,d);  // initial direction
             ya+=4; // spacer
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][7], "Drop Mode:Off", "Drop Mode:On ", 15, 15, 6+64, 6);
+            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][7], "Drop Mode:Off", "Drop Mode:On ", 15, 15, 6+64, 6);
             ya+=4; // spacer
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
          case 9: // cloner
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][30], "Not Invincible", "Invincible!", 15, 15, 12, 10);
+            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][30], "Not Invincible", "Invincible!", 15, 15, 12, 10);
             ya+=4; // spacer
-            mdw_buttonp(    xa, ya, xb, bts,  27,n,0,0, 0,12,15, 0,  1,0,1,d, Ei[n][8]); // trigger type
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Ei[n][6], 1000, 20, 1, "Delay Timer:");
+            mdw_buttonp(    xa, ya, xb, bts,  27,n,0,0, 0,12,15, 0,  1,0,1,d, mEnemy.Ei[n][8]); // trigger type
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][6], 1000, 20, 1, "Delay Timer:");
             ya+=4; // spacer
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, Ei[n][9], 4800, 0, 1,  "Created Time To Live:", "-");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, Ei[n][10], 600, 0, 1,  "Max Created Objects:", "-");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, mEnemy.Ei[n][9], 4800, 0, 1,  "Created Time To Live:", "-");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, mEnemy.Ei[n][10], 600, 0, 1,  "Max Created Objects:", "-");
             ya+=4; // spacer
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,d, "Set Source Area")) get_block_range("Cloner Source Area", &Ei[n][15], &Ei[n][16], &Ei[n][19], &Ei[n][20], 1);
+            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,d, "Set Source Area")) get_block_range("Cloner Source Area", &mEnemy.Ei[n][15], &mEnemy.Ei[n][16], &mEnemy.Ei[n][19], &mEnemy.Ei[n][20], 1);
             if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Set Destination")) getxy("Cloner Destination", 98, 9, n);
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) get_block_range("Trigger Box", &Ei[n][11], &Ei[n][12], &Ei[n][13], &Ei[n][14], 2);
+            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) get_block_range("Trigger Box", &mEnemy.Ei[n][11], &mEnemy.Ei[n][12], &mEnemy.Ei[n][13], &mEnemy.Ei[n][14], 2);
             ya+=4; // spacer
-            mdw_buttonp(    xa, ya, xb, bts,  81,0,0,0, 0,13,15, 0,  1,0,1,d, Ei[n][4]); // show boxes
+            mdw_buttonp(    xa, ya, xb, bts,  81,0,0,0, 0,13,15, 0,  1,0,1,d, mEnemy.Ei[n][4]); // show boxes
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,   "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ef[n][4],  10, 0, 0.1, "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][25], 50, 0, 1,   "Health Bonus:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,   "Collision Box:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1, "Health Decrement:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,   "Health Bonus:");
          break;
          case 11: // block walker
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Ef[n][6],  9, 0.7, 0.01, "X-Speed:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Ef[n][3],  9, 0.7, 0.01, "Y-Speed:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  9, 0.7, 0.01, "X-Speed:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  9, 0.7, 0.01, "Y-Speed:");
             ya+=4; // spacer
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
+            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
+            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
             ya+=4; // spacer
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
          case 12: // flapper
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Ef[n][5],  8, .5, 0.1,  "X-Speed:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Ef[n][6],  1, 0.01, 0.01, "X-Accel:");
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 15, 15, 12, 12);
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][5],  8, .5, 0.1,  "X-Speed:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  1, 0.01, 0.01, "X-Accel:");
+            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 15, 15, 12, 12);
             ya+=4; // spacer
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, Ef[n][3],  5, 0, 0.01,      "Y-Speed:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, Ef[n][10],  8, .5, 0.1,     "Flap Speed:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, Ei[n][21], 400, 0, 5,       "Flap Height:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, Ei[n][20], 1000, -1000, 10, "Height Above Player:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ef[n][3],  5, 0, 0.01,      "Y-Speed:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ef[n][10],  8, .5, 0.1,     "Flap Speed:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][21], 400, 0, 5,       "Flap Height:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][20], 1000, -1000, 10, "Height Above Player:");
             ya+=4; // spacer
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
 
          case 13: // vinepod
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][17], 400, 10, 10,  "Extend Time:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][19], 400,  0,  1,  "Pause:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 400, 10, 10,  "Extend Time:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][19], 400,  0,  1,  "Pause:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
             ya+=4; // spacer
 
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, Ei[n][20], PM_ENEMY_VINEPOD_SHOW_PATH, "Hide Path","Show Path", 15+dim, 15, 14+dim, 14);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, Ei[n][20], PM_ENEMY_VINEPOD_INV_INIT, "Invincible At Rest:OFF", "Invincible At Rest:ON ", 15+dim, 15, 14+dim, 14);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, Ei[n][20], PM_ENEMY_VINEPOD_INV_EXTN, "Invincible Extended:OFF", "Invincible Extended:ON ", 15+dim, 15, 14+dim, 14);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, Ei[n][20], PM_ENEMY_VINEPOD_INV_MOVE, "Invincible Moving:OFF", "Invincible Moving:ON ", 15+dim, 15, 14+dim, 14);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_SHOW_PATH, "Hide Path","Show Path", 15+dim, 15, 14+dim, 14);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_INIT, "Invincible At Rest:OFF", "Invincible At Rest:ON ", 15+dim, 15, 14+dim, 14);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_EXTN, "Invincible Extended:OFF", "Invincible Extended:ON ", 15+dim, 15, 14+dim, 14);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_MOVE, "Invincible Moving:OFF", "Invincible Moving:ON ", 15+dim, 15, 14+dim, 14);
 
             ya+=4; // spacer
 
             if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Set Extended Position")) getxy("Vinepod Extended Position", 90, 13, n);
             if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0, 6,15, 0,  1,0,1,d, "Set Control Point 1")) getxy("Vinepod Control Point 1", 91, 13, n);
             if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0, 7,15, 0,  1,0,1,d, "Set Control Point 2")) getxy("Vinepod Control Point 2", 92, 13, n);
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) get_block_range("Trigger Box", &Ei[n][11], &Ei[n][12], &Ei[n][13], &Ei[n][14], 2);
+            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) get_block_range("Trigger Box", &mEnemy.Ei[n][11], &mEnemy.Ei[n][12], &mEnemy.Ei[n][13], &mEnemy.Ei[n][14], 2);
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
 
 
@@ -1030,9 +1030,9 @@ void ov_draw_overlays(int legend_highlight)
    }
    if (obt == 3)  // enemies
    {
-      int type = Ei[num][0];
-      int obj_x = Ef[num][0]+10;
-      int obj_y = Ef[num][1]+10;
+      int type = mEnemy.Ei[num][0];
+      int obj_x = mEnemy.Ef[num][0]+10;
+      int obj_y = mEnemy.Ef[num][1]+10;
 
       int color = 13;
       if (legend_highlight == 1) color = mC.flash_color;
@@ -1043,7 +1043,7 @@ void ov_draw_overlays(int legend_highlight)
          // draw yellow shot prox circle
          int color = 14;
          if (legend_highlight == 2) color = mC.flash_color;
-         al_draw_circle(obj_x, obj_y, Ei[num][17], mC.pc[color], 1);
+         al_draw_circle(obj_x, obj_y, mEnemy.Ei[num][17], mC.pc[color], 1);
       }
       if (type == 7) // podzilla
       {
@@ -1052,12 +1052,12 @@ void ov_draw_overlays(int legend_highlight)
          if (legend_highlight == 2) color1 = mC.flash_color;
 
          int px=0, py=0;
-         get_pod_extended_position(num, &px, &py);
+         mEnemy.get_pod_extended_position(num, &px, &py);
          crosshairs_full(px+10, py+10, color1, 1);
 
          // draw tile at extended pos
-         float rot = Ef[num][14];
-         al_draw_scaled_rotated_bitmap(mwB.tile[Ei[num][1]], 10, 10, px+10, py+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
+         float rot = mEnemy.Ef[num][14];
+         al_draw_scaled_rotated_bitmap(mwB.tile[mEnemy.Ei[num][1]], 10, 10, px+10, py+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
 
          // draw connecting line
          al_draw_line(obj_x, obj_y, px+10, py+10, mC.pc[10], 1);
@@ -1065,10 +1065,10 @@ void ov_draw_overlays(int legend_highlight)
          // trigger box
          int color = 14;
          if (legend_highlight == 3) color = mC.flash_color;
-         int tx1 = Ei[num][11];
-         int ty1 = Ei[num][12];
-         int tx2 = Ei[num][11]+Ei[num][13] + 20;
-         int ty2 = Ei[num][12]+Ei[num][14] + 20;
+         int tx1 = mEnemy.Ei[num][11];
+         int ty1 = mEnemy.Ei[num][12];
+         int tx2 = mEnemy.Ei[num][11]+mEnemy.Ei[num][13] + 20;
+         int ty2 = mEnemy.Ei[num][12]+mEnemy.Ei[num][14] + 20;
          al_draw_rectangle(tx1, ty1, tx2, ty2, mC.pc[color], 1);
       }
 
@@ -1090,26 +1090,26 @@ void ov_draw_overlays(int legend_highlight)
          int color4 = 14;
          if (legend_highlight == 4) color4 = mC.flash_color;
 
-         int cw = Ei[num][19];     // width
-         int ch = Ei[num][20];     // height
+         int cw = mEnemy.Ei[num][19];     // width
+         int ch = mEnemy.Ei[num][20];     // height
 
-         int cx1 = Ei[num][15];    // source
-         int cy1 = Ei[num][16];
+         int cx1 = mEnemy.Ei[num][15];    // source
+         int cy1 = mEnemy.Ei[num][16];
          int cx2 = cx1 + cw;
          int cy2 = cy1 + ch;
          al_draw_rectangle(cx1, cy1, cx2, cy2, mC.pc[color2], 1);
 
-         int cx3 = Ei[num][17];    // destination
-         int cy3 = Ei[num][18];
+         int cx3 = mEnemy.Ei[num][17];    // destination
+         int cy3 = mEnemy.Ei[num][18];
          int cx4 = cx3 + cw;
          int cy4 = cy3 + ch;
          al_draw_rectangle(cx3, cy3, cx4, cy4, mC.pc[color3], 1);
 
          // draw trigger box
-         int tx1 = Ei[num][11];
-         int ty1 = Ei[num][12];
-         int tx2 = Ei[num][11]+Ei[num][13] + 20;
-         int ty2 = Ei[num][12]+Ei[num][14] + 20;
+         int tx1 = mEnemy.Ei[num][11];
+         int ty1 = mEnemy.Ei[num][12];
+         int tx2 = mEnemy.Ei[num][11]+mEnemy.Ei[num][13] + 20;
+         int ty2 = mEnemy.Ei[num][12]+mEnemy.Ei[num][14] + 20;
          al_draw_rectangle(tx1, ty1, tx2, ty2, mC.pc[color4], 1);
       }
       if (type == 12) // flapper
@@ -1118,11 +1118,11 @@ void ov_draw_overlays(int legend_highlight)
          if (legend_highlight == 3) color = mC.flash_color;
 
          // draw red height above player line
-         int hab = Ei[num][20];
+         int hab = mEnemy.Ei[num][20];
          al_draw_line(obj_x-40, obj_y+hab, obj_x+40, obj_y+hab, mC.pc[color], 3);
 
          // draw flap height
-         int fh = Ei[num][21];
+         int fh = mEnemy.Ei[num][21];
          al_draw_line(obj_x-60, obj_y+fh, obj_x+60, obj_y+fh, mC.pc[12], 1);
          al_draw_line(obj_x-60, obj_y-fh, obj_x+60, obj_y-fh, mC.pc[12], 1);
       }
@@ -1388,11 +1388,11 @@ void ov_process_mouse(void)
    // --  detect if mouse pointer is on enemy
    // -----------------------------------------------------------
    for (int b=0; b<100; b++)
-      if (Ei[b][0])
+      if (mEnemy.Ei[b][0])
       {
-         int ex = Ef[b][0];
-         int ey = Ef[b][1];
-         int type = Ei[b][0];
+         int ex = mEnemy.Ef[b][0];
+         int ey = mEnemy.Ef[b][1];
+         int type = mEnemy.Ei[b][0];
 
          // check to see if we can set this object to be the current object
          if ((mwWM.hx>ex+msn) && (mwWM.hx<ex+msp) && (mwWM.hy>ey+msn) && (mwWM.hy<ey+msp) && (!mwWM.mW[7].viewer_lock) && (!mI.key[MAP_LOCK_KEY][0]) && (mwWM.obj_filter[3][type]))
@@ -1416,15 +1416,15 @@ void ov_process_mouse(void)
    if (mwWM.mW[7].obt == 3)
    {
       int b = mwWM.mW[7].num;
-      int type = Ei[b][0];
+      int type = mEnemy.Ei[b][0];
       if ((type == 3) || (type == 6) || (type == 8) || (type == 12)) // archwagon, cannon, trakbot and flapper shot prox
       {
-         float x0 = Ef[b][0]+10; // get center of enemy
-         float y0 = Ef[b][1]+10;
+         float x0 = mEnemy.Ef[b][0]+10; // get center of enemy
+         float y0 = mEnemy.Ef[b][1]+10;
          float fx = (float) mwWM.hx;
          float fy = (float) mwWM.hy;
          float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse
-         float bdr = (float) Ei[b][17]; // prox radius
+         float bdr = (float) mEnemy.Ei[b][17]; // prox radius
          float dif = dst-bdr; // difference
          if ((dif < 3 ) && (dif > -3))  // mouse is on prox circle
          {
@@ -1435,7 +1435,7 @@ void ov_process_mouse(void)
       if (type == 7) // podzilla extended position
       {
          int px=0, py=0;
-         get_pod_extended_position(b, &px, &py);
+         mEnemy.get_pod_extended_position(b, &px, &py);
          if ((mwWM.hx>px+msn) && (mwWM.hx<px+msp) && (mwWM.hy>py+msn) && (mwWM.hy<py+msp))
          {
             mouse_move = 1;
@@ -1445,24 +1445,24 @@ void ov_process_mouse(void)
 
       if (type == 13) // vinepod extended position
       {
-         int px = Ei[b][9];
-         int py = Ei[b][10];
+         int px = mEnemy.Ei[b][9];
+         int py = mEnemy.Ei[b][10];
          if ((mwWM.hx>px+msn) && (mwWM.hx<px+msp) && (mwWM.hy>py+msn) && (mwWM.hy<py+msp))
          {
             mouse_move = 1;
             mouse_on_vpodx = 1;
          }
 
-         px = Ei[b][5];
-         py = Ei[b][6];
+         px = mEnemy.Ei[b][5];
+         py = mEnemy.Ei[b][6];
          if ((mwWM.hx>px+msn) && (mwWM.hx<px+msp) && (mwWM.hy>py+msn) && (mwWM.hy<py+msp))
          {
             mouse_move = 1;
             mouse_on_vpod1 = 1;
          }
 
-         px = Ei[b][7];
-         py = Ei[b][8];
+         px = mEnemy.Ei[b][7];
+         py = mEnemy.Ei[b][8];
          if ((mwWM.hx>px+msn) && (mwWM.hx<px+msp) && (mwWM.hy>py+msn) && (mwWM.hy<py+msp))
          {
             mouse_move = 1;
@@ -1475,10 +1475,10 @@ void ov_process_mouse(void)
 
       if ((type == 7) || (type == 13) || (type == 9)) // podzilla, vinepod and cloner trigger box
       {
-         int x1 = Ei[b][11];
-         int y1 = Ei[b][12];
-         int x2 = Ei[b][11]+Ei[b][13]+20;
-         int y2 = Ei[b][12]+Ei[b][14]+20;
+         int x1 = mEnemy.Ei[b][11];
+         int y1 = mEnemy.Ei[b][12];
+         int x2 = mEnemy.Ei[b][11]+mEnemy.Ei[b][13]+20;
+         int y2 = mEnemy.Ei[b][12]+mEnemy.Ei[b][14]+20;
          if ((mwWM.hx>x1-mst) && (mwWM.hx<x1+mst) && (mwWM.hy>y1-mst) && (mwWM.hy<y1+mst)) // upper left corner (move)
          {
             mouse_on_tb_ul = 1;
@@ -1492,14 +1492,14 @@ void ov_process_mouse(void)
       }
       if (type == 9) // cloner source and destination boxes
       {
-         int w = Ei[mwWM.mW[7].num][19];     // width
-         int h = Ei[mwWM.mW[7].num][20];     // height
-         int x1 = Ei[mwWM.mW[7].num][15];    // source box
-         int y1 = Ei[mwWM.mW[7].num][16];
+         int w = mEnemy.Ei[mwWM.mW[7].num][19];     // width
+         int h = mEnemy.Ei[mwWM.mW[7].num][20];     // height
+         int x1 = mEnemy.Ei[mwWM.mW[7].num][15];    // source box
+         int y1 = mEnemy.Ei[mwWM.mW[7].num][16];
          int x2 = x1 + w - 1;
          int y2 = y1 + h - 1;
-         int x3 = Ei[mwWM.mW[7].num][17];    // dest box
-         int y3 = Ei[mwWM.mW[7].num][18];
+         int x3 = mEnemy.Ei[mwWM.mW[7].num][17];    // dest box
+         int y3 = mEnemy.Ei[mwWM.mW[7].num][18];
          if ((mwWM.hx>x1-mst) && (mwWM.hx<x1+mst) && (mwWM.hy>y1-mst) && (mwWM.hy<y1+mst)) // source upper left corner (move)
          {
             mouse_on_csb_ul = 1;
@@ -1746,47 +1746,47 @@ void ov_process_mouse(void)
             if (mwWM.mW[7].obt == 3) // move enemy
             {
                // get offset of move
-               int x_off = mwWM.gx - Ef[mwWM.mW[7].num][0] / 20;
-               int y_off = mwWM.gy - Ef[mwWM.mW[7].num][1] / 20;
+               int x_off = mwWM.gx - mEnemy.Ef[mwWM.mW[7].num][0] / 20;
+               int y_off = mwWM.gy - mEnemy.Ef[mwWM.mW[7].num][1] / 20;
 
                // set new position
-               Ef[mwWM.mW[7].num][0] = mwWM.gx*20;
-               Ef[mwWM.mW[7].num][1] = mwWM.gy*20;
+               mEnemy.Ef[mwWM.mW[7].num][0] = mwWM.gx*20;
+               mEnemy.Ef[mwWM.mW[7].num][1] = mwWM.gy*20;
 
                if (mI.SHFT()) // move stuff also
                {
                   // move podzilla's trigger box too
-                  if (Ei[mwWM.mW[7].num][0] == 7)
+                  if (mEnemy.Ei[mwWM.mW[7].num][0] == 7)
                   {
-                     Ei[mwWM.mW[7].num][11] += x_off*20;
-                     Ei[mwWM.mW[7].num][12] += y_off*20;
+                     mEnemy.Ei[mwWM.mW[7].num][11] += x_off*20;
+                     mEnemy.Ei[mwWM.mW[7].num][12] += y_off*20;
                   }
 
                   // move vinepod's stuff also
-                  if (Ei[mwWM.mW[7].num][0] == 13)
+                  if (mEnemy.Ei[mwWM.mW[7].num][0] == 13)
                   {
                      // control point and extended pos
-                     Ei[mwWM.mW[7].num][5] += x_off*20;
-                     Ei[mwWM.mW[7].num][6] += y_off*20;
-                     Ei[mwWM.mW[7].num][7] += x_off*20;
-                     Ei[mwWM.mW[7].num][8] += y_off*20;
-                     Ei[mwWM.mW[7].num][9] += x_off*20;
-                     Ei[mwWM.mW[7].num][10] += y_off*20;
+                     mEnemy.Ei[mwWM.mW[7].num][5] += x_off*20;
+                     mEnemy.Ei[mwWM.mW[7].num][6] += y_off*20;
+                     mEnemy.Ei[mwWM.mW[7].num][7] += x_off*20;
+                     mEnemy.Ei[mwWM.mW[7].num][8] += y_off*20;
+                     mEnemy.Ei[mwWM.mW[7].num][9] += x_off*20;
+                     mEnemy.Ei[mwWM.mW[7].num][10] += y_off*20;
 
                      // trigger box
-                     Ei[mwWM.mW[7].num][11] += x_off*20;
-                     Ei[mwWM.mW[7].num][12] += y_off*20;
+                     mEnemy.Ei[mwWM.mW[7].num][11] += x_off*20;
+                     mEnemy.Ei[mwWM.mW[7].num][12] += y_off*20;
                   }
 
                   // move cloner's stuff too
-                  if (Ei[mwWM.mW[7].num][0] == 9)
+                  if (mEnemy.Ei[mwWM.mW[7].num][0] == 9)
                   {
-                     Ei[mwWM.mW[7].num][11] += x_off*20; // trigger box
-                     Ei[mwWM.mW[7].num][12] += y_off*20;
-                     Ei[mwWM.mW[7].num][15] += x_off*20; // source
-                     Ei[mwWM.mW[7].num][16] += y_off*20;
-                     Ei[mwWM.mW[7].num][17] += x_off*20; // dest
-                     Ei[mwWM.mW[7].num][18] += y_off*20;
+                     mEnemy.Ei[mwWM.mW[7].num][11] += x_off*20; // trigger box
+                     mEnemy.Ei[mwWM.mW[7].num][12] += y_off*20;
+                     mEnemy.Ei[mwWM.mW[7].num][15] += x_off*20; // source
+                     mEnemy.Ei[mwWM.mW[7].num][16] += y_off*20;
+                     mEnemy.Ei[mwWM.mW[7].num][17] += x_off*20; // dest
+                     mEnemy.Ei[mwWM.mW[7].num][18] += y_off*20;
                   }
                }
             }
@@ -1813,41 +1813,41 @@ void ov_process_mouse(void)
          }
          if (mouse_on_podx)
          {
-            Ef[mwWM.mW[7].num][5] = mwWM.gx * 20;
-            Ef[mwWM.mW[7].num][6] = mwWM.gy * 20;
-            recalc_pod(mwWM.mW[7].num);
+            mEnemy.Ef[mwWM.mW[7].num][5] = mwWM.gx * 20;
+            mEnemy.Ef[mwWM.mW[7].num][6] = mwWM.gy * 20;
+            mEnemy.recalc_pod(mwWM.mW[7].num);
          }
          if (mouse_on_vpodx)
          {
-            Ei[mwWM.mW[7].num][9]  = mwWM.gx * 20;
-            Ei[mwWM.mW[7].num][10] = mwWM.gy * 20;
+            mEnemy.Ei[mwWM.mW[7].num][9]  = mwWM.gx * 20;
+            mEnemy.Ei[mwWM.mW[7].num][10] = mwWM.gy * 20;
          }
          if (mouse_on_vpod1)
          {
-            Ei[mwWM.mW[7].num][5] = mwWM.gx * 20;
-            Ei[mwWM.mW[7].num][6] = mwWM.gy * 20;
+            mEnemy.Ei[mwWM.mW[7].num][5] = mwWM.gx * 20;
+            mEnemy.Ei[mwWM.mW[7].num][6] = mwWM.gy * 20;
          }
          if (mouse_on_vpod2)
          {
-            Ei[mwWM.mW[7].num][7] = mwWM.gx * 20;
-            Ei[mwWM.mW[7].num][8] = mwWM.gy * 20;
+            mEnemy.Ei[mwWM.mW[7].num][7] = mwWM.gx * 20;
+            mEnemy.Ei[mwWM.mW[7].num][8] = mwWM.gy * 20;
          }
 
 
          if (mouse_on_tb_ul) // move trigger box from ul
          {
             //printf("mouse pressed on tb_ul\n");
-            Ei[mwWM.mW[7].num][11] = mwWM.gx*20;
-            Ei[mwWM.mW[7].num][12] = mwWM.gy*20;
+            mEnemy.Ei[mwWM.mW[7].num][11] = mwWM.gx*20;
+            mEnemy.Ei[mwWM.mW[7].num][12] = mwWM.gy*20;
          }
          if (mouse_on_tb_lr)  // resize trigger box from lr
          {
             // prevent lr corner from being less than ul corner
-            if (mwWM.gx < Ei[mwWM.mW[7].num][11]/20) mwWM.gx = Ei[mwWM.mW[7].num][11]/20;
-            if (mwWM.gy < Ei[mwWM.mW[7].num][12]/20) mwWM.gy = Ei[mwWM.mW[7].num][12]/20;
+            if (mwWM.gx < mEnemy.Ei[mwWM.mW[7].num][11]/20) mwWM.gx = mEnemy.Ei[mwWM.mW[7].num][11]/20;
+            if (mwWM.gy < mEnemy.Ei[mwWM.mW[7].num][12]/20) mwWM.gy = mEnemy.Ei[mwWM.mW[7].num][12]/20;
             // set new postion
-            Ei[mwWM.mW[7].num][13] = mwWM.gx*20 - Ei[mwWM.mW[7].num][11];
-            Ei[mwWM.mW[7].num][14] = mwWM.gy*20 - Ei[mwWM.mW[7].num][12];
+            mEnemy.Ei[mwWM.mW[7].num][13] = mwWM.gx*20 - mEnemy.Ei[mwWM.mW[7].num][11];
+            mEnemy.Ei[mwWM.mW[7].num][14] = mwWM.gy*20 - mEnemy.Ei[mwWM.mW[7].num][12];
          }
          if (mouse_on_msg_ul) // move msg
          {
@@ -1899,12 +1899,12 @@ void ov_process_mouse(void)
          }
          if (mouse_on_trk) // adjust trakbot shot prox
          {
-            float x0 = Ef[mwWM.mW[7].num][0]+10; // get center of item location
-            float y0 = Ef[mwWM.mW[7].num][1]+10;
+            float x0 = mEnemy.Ef[mwWM.mW[7].num][0]+10; // get center of item location
+            float y0 = mEnemy.Ef[mwWM.mW[7].num][1]+10;
             float fx = (float) mwWM.hx;
             float fy = (float) mwWM.hy;
             float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse
-            Ei[mwWM.mW[7].num][17] = (int) dst;
+            mEnemy.Ei[mwWM.mW[7].num][17] = (int) dst;
          }
          // ranges for key, trigger, manip and damage
          if (mouse_on_kbr_ul) // move block range from ul
@@ -1925,28 +1925,28 @@ void ov_process_mouse(void)
          }
          if (mouse_on_csb_ul) // move cloner source box from ul
          {
-            Ei[mwWM.mW[7].num][15] = mwWM.gx*20; // set new postion
-            Ei[mwWM.mW[7].num][16] = mwWM.gy*20;
+            mEnemy.Ei[mwWM.mW[7].num][15] = mwWM.gx*20; // set new postion
+            mEnemy.Ei[mwWM.mW[7].num][16] = mwWM.gy*20;
          } // end of mouse csb_ul
          if (mouse_on_csb_lr) // resize box from lr
          {
             // get ul corner
-            int x1 = Ei[mwWM.mW[7].num][15]/20;
-            int y1 = Ei[mwWM.mW[7].num][16]/20;
+            int x1 = mEnemy.Ei[mwWM.mW[7].num][15]/20;
+            int y1 = mEnemy.Ei[mwWM.mW[7].num][16]/20;
 
             // prevent lr corner from being less than ul corner
             if (mwWM.gx < x1+1) mwWM.gx = x1+1;
             if (mwWM.gy < y1+1) mwWM.gy = y1+1;
 
             // set new sizes
-            Ei[mwWM.mW[7].num][19] = (mwWM.gx-x1)*20;
-            Ei[mwWM.mW[7].num][20] = (mwWM.gy-y1)*20;
+            mEnemy.Ei[mwWM.mW[7].num][19] = (mwWM.gx-x1)*20;
+            mEnemy.Ei[mwWM.mW[7].num][20] = (mwWM.gy-y1)*20;
          } // end of mouse csb_lr
 
          if (mouse_on_cdb_ul) // cloner destination ul
          {
-            Ei[mwWM.mW[7].num][17] = mwWM.gx*20; // set new postion
-            Ei[mwWM.mW[7].num][18] = mwWM.gy*20;
+            mEnemy.Ei[mwWM.mW[7].num][17] = mwWM.gx*20; // set new postion
+            mEnemy.Ei[mwWM.mW[7].num][18] = mwWM.gy*20;
          }
          mwWM.redraw_level_editor_background();
       } // end of while mI.mouse_b[1][0] pressed
@@ -1981,8 +1981,8 @@ void ov_check_if_valid(int type)
    }
    if (mwWM.mW[7].obt==3)
    {
-      if (e_num_of_type[type] < 1) ov_set_to_0();
-      if (Ei[mwWM.mW[7].num][0] != type) ov_set_to_0();
+      if (mEnemy.e_num_of_type[type] < 1) ov_set_to_0();
+      if (mEnemy.Ei[mwWM.mW[7].num][0] != type) ov_set_to_0();
    }
 
    if (mwWM.mW[7].obt==4)
@@ -1997,7 +1997,7 @@ void ov_process_keypress(void)
    int mb = mwWM.mW[7].mb;
    int type=0, lift=0, step=0;
    if (mwWM.mW[7].obt == 2) type = mItem.item[mwWM.mW[7].num][0];
-   if (mwWM.mW[7].obt == 3) type = Ei[mwWM.mW[7].num][0];
+   if (mwWM.mW[7].obt == 3) type = mEnemy.Ei[mwWM.mW[7].num][0];
    if (mwWM.mW[7].obt == 4)
    {
       lift = mwWM.mW[7].num;
@@ -2021,7 +2021,7 @@ void ov_process_keypress(void)
          }
          if (mwWM.mW[7].obt==3)
          {
-            sprintf(msg,"%s", enemy_name[type][0]);
+            sprintf(msg,"%s", mEnemy.enemy_name[type][0]);
             getxy(msg, mwWM.mW[7].obt, type, mwWM.mW[7].num);
          }
          if (mwWM.mW[7].obt==4)
@@ -2054,9 +2054,9 @@ void ov_process_keypress(void)
          }
          if (mwWM.mW[7].obt == 3)
          {
-            Ei[mwWM.mW[7].num][0] = 0;
-            sort_enemy();
-            if (mwWM.mW[7].num >= e_first_num[type]+e_num_of_type[type]) mwWM.mW[7].num--;
+            mEnemy.Ei[mwWM.mW[7].num][0] = 0;
+            mEnemy.sort_enemy();
+            if (mwWM.mW[7].num >= mEnemy.e_first_num[type]+mEnemy.e_num_of_type[type]) mwWM.mW[7].num--;
             ov_check_if_valid(type);
          }
          if (mwWM.mW[7].obt == 4)
@@ -2068,11 +2068,11 @@ void ov_process_keypress(void)
       break;
       case 21: // next
          if ((mwWM.mW[7].obt==2) && (++mwWM.mW[7].num >= mItem.item_first_num[type] + mItem.item_num_of_type[type])) mwWM.mW[7].num--;
-         if ((mwWM.mW[7].obt==3) && (++mwWM.mW[7].num >= e_first_num[type] + e_num_of_type[type])) mwWM.mW[7].num--;
+         if ((mwWM.mW[7].obt==3) && (++mwWM.mW[7].num >= mEnemy.e_first_num[type] + mEnemy.e_num_of_type[type])) mwWM.mW[7].num--;
          if (mwWM.mW[7].obt==4) mwWM.mW[7].num = Lift.get_next_lift(mwWM.mW[7].num);
       break;
       case 22: // previous
-         if ((mwWM.mW[7].obt==3) && (--mwWM.mW[7].num < e_first_num[type])) mwWM.mW[7].num++;
+         if ((mwWM.mW[7].obt==3) && (--mwWM.mW[7].num < mEnemy.e_first_num[type])) mwWM.mW[7].num++;
          if ((mwWM.mW[7].obt==2) && (--mwWM.mW[7].num < mItem.item_first_num[type])) mwWM.mW[7].num++;
          if (mwWM.mW[7].obt==4) mwWM.mW[7].num = Lift.get_prev_lift(mwWM.mW[7].num);
       break;

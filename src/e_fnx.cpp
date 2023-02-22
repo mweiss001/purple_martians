@@ -13,7 +13,7 @@
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwItems.h"
-#include "z_enemy.h"
+#include "mwEnemy.h"
 #include "z_screen.h"
 #include "z_player.h"
 #include "n_netgame.h"
@@ -294,14 +294,14 @@ int get_sp(float jh)
 // used only in sliders for button set new direction (cannon and podzilla)
 void set_xyinc_rot(int e, int x2, int y2)
 {
-   float xlen = x2 - Ef[e][0];      // get the x distance between enemy and x2
-   float ylen = y2 - Ef[e][1];      // get the y distance between enemy and y2
+   float xlen = x2 - mEnemy.Ef[e][0];      // get the x distance between enemy and x2
+   float ylen = y2 - mEnemy.Ef[e][1];      // get the y distance between enemy and y2
    float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2)); // hypotenuse distance
-   float speed = Ef[e][5];                  // speed
+   float speed = mEnemy.Ef[e][5];                  // speed
    float scaler = hy_dist / speed;     // get scaler
-   Ef[e][2] = xlen / scaler;         // calc xinc
-   Ef[e][3] = ylen / scaler;         // calc yinc
-   Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI / 2;
+   mEnemy.Ef[e][2] = xlen / scaler;         // calc xinc
+   mEnemy.Ef[e][3] = ylen / scaler;         // calc yinc
+   mEnemy.Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI / 2;
 }
 
 // used only in sliders for button set new direction (rocket)
@@ -408,12 +408,12 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
 void draw_vinepod_controls(int num, int legend_highlight)
 {
    // enforce that 34 is 01
-   Ei[num][3] = Ef[num][0];
-   Ei[num][4] = Ef[num][1];
+   mEnemy.Ei[num][3] = mEnemy.Ef[num][0];
+   mEnemy.Ei[num][4] = mEnemy.Ef[num][1];
 
    // put variables in spline array
    float pnts[8];
-   for (int i=0; i<8; i++) pnts[i] = Ei[num][i+3]+10;
+   for (int i=0; i<8; i++) pnts[i] = mEnemy.Ei[num][i+3]+10;
 
    al_draw_spline(pnts, mC.pc[10], 0);
 
@@ -422,19 +422,19 @@ void draw_vinepod_controls(int num, int legend_highlight)
    al_calculate_spline(dest, 8, pnts, 0, 100);
 
    // initial position
-   int ipx = Ei[num][3];
-   int ipy = Ei[num][4];
+   int ipx = mEnemy.Ei[num][3];
+   int ipy = mEnemy.Ei[num][4];
 
    // set initial rotation
    float xlen = dest[4] - dest[0];            // get the x distance
    float ylen = dest[5] - dest[1];            // get the y distance
-   Ef[num][14] = atan2(ylen, xlen) - ALLEGRO_PI/2;  // rotation
+   mEnemy.Ef[num][14] = atan2(ylen, xlen) - ALLEGRO_PI/2;  // rotation
 
    // extended position
    int color1 = 10;
    if (legend_highlight == 2) color1 = mC.flash_color;
-   int epx = Ei[num][9];
-   int epy = Ei[num][10];
+   int epx = mEnemy.Ei[num][9];
+   int epy = mEnemy.Ei[num][10];
    crosshairs_full(epx+10, epy+10, color1, 1);
 
    al_draw_textf(mF.pixl, mC.White, epx+22, epy+0, 0, "x:%d", epx-ipx);
@@ -446,13 +446,13 @@ void draw_vinepod_controls(int num, int legend_highlight)
    float ext_rot = atan2(ylen, xlen) - ALLEGRO_PI/2;  // rotation
 
    // draw mwB.tile at extended pos
-   al_draw_scaled_rotated_bitmap(mwB.tile[Ei[num][1]], 10, 10, epx+10, epy+10, 1, 1, ext_rot, ALLEGRO_FLIP_HORIZONTAL);
+   al_draw_scaled_rotated_bitmap(mwB.tile[mEnemy.Ei[num][1]], 10, 10, epx+10, epy+10, 1, 1, ext_rot, ALLEGRO_FLIP_HORIZONTAL);
 
    // control point 1
    color1 = 6;
    if (legend_highlight == 3) color1 = mC.flash_color;
-   int px = Ei[num][5];
-   int py = Ei[num][6];
+   int px = mEnemy.Ei[num][5];
+   int py = mEnemy.Ei[num][6];
    al_draw_line(ipx+10, ipy+10, px+10, py+10, mC.pc[color1], 0);
    al_draw_line(epx+10, epy+10, px+10, py+10, mC.pc[color1], 0);
    al_draw_filled_circle(px+10, py+10, 3, mC.pc[color1]);
@@ -465,8 +465,8 @@ void draw_vinepod_controls(int num, int legend_highlight)
    // control point 2
    color1 = 7;
    if (legend_highlight == 4) color1 = mC.flash_color;
-   px = Ei[num][7];
-   py = Ei[num][8];
+   px = mEnemy.Ei[num][7];
+   py = mEnemy.Ei[num][8];
    al_draw_line(ipx+10, ipy+10, px+10, py+10, mC.pc[color1], 0);
    al_draw_line(epx+10, epy+10, px+10, py+10, mC.pc[color1], 0);
    al_draw_filled_circle(px+10, py+10, 3, mC.pc[color1]);
@@ -477,10 +477,10 @@ void draw_vinepod_controls(int num, int legend_highlight)
    // trigger box
    int color = 14;
    if (legend_highlight == 5) color = mC.flash_color;
-   int tx1 = Ei[num][11];
-   int ty1 = Ei[num][12];
-   int tx2 = Ei[num][11]+Ei[num][13] + 20;
-   int ty2 = Ei[num][12]+Ei[num][14] + 20;
+   int tx1 = mEnemy.Ei[num][11];
+   int ty1 = mEnemy.Ei[num][12];
+   int tx2 = mEnemy.Ei[num][11]+mEnemy.Ei[num][13] + 20;
+   int ty2 = mEnemy.Ei[num][12]+mEnemy.Ei[num][14] + 20;
    al_draw_rectangle(tx1, ty1, tx2, ty2, mC.pc[color], 1);
 
 
@@ -522,18 +522,18 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
    }
    if (obj_type == 3) // enemies
    {
-      original_dx = Ef[num][0];
-      original_dy = Ef[num][1];
+      original_dx = mEnemy.Ef[num][0];
+      original_dy = mEnemy.Ef[num][1];
    }
    if (obj_type == 99) // pod extended
    {
-      original_dx = Ef[num][5];
-      original_dy = Ef[num][6];
+      original_dx = mEnemy.Ef[num][5];
+      original_dy = mEnemy.Ef[num][6];
    }
    if (obj_type == 98) // cloner destination
    {
-      original_dx = Ei[num][17];
-      original_dy = Ei[num][18];
+      original_dx = mEnemy.Ei[num][17];
+      original_dy = mEnemy.Ei[num][18];
    }
    if (obj_type == 97) // rocket initial direction
    {
@@ -541,24 +541,24 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
    }
    if (obj_type == 96) // cannon or bouncer initial direction
    {
-      original_rot  = Ef[num][14];
-      original_xinc = Ef[num][2];
-      original_yinc = Ef[num][3];
+      original_rot  = mEnemy.Ef[num][14];
+      original_xinc = mEnemy.Ef[num][2];
+      original_yinc = mEnemy.Ef[num][3];
    }
    if (obj_type == 90) // vinepod extended
    {
-      original_dx = Ei[num][9];
-      original_dy = Ei[num][10];
+      original_dx = mEnemy.Ei[num][9];
+      original_dy = mEnemy.Ei[num][10];
    }
    if (obj_type == 91) // vinepod cp1
    {
-      original_dx = Ei[num][5];
-      original_dy = Ei[num][6];
+      original_dx = mEnemy.Ei[num][5];
+      original_dy = mEnemy.Ei[num][6];
    }
    if (obj_type == 92) // vinepod cp2
    {
-      original_dx = Ei[num][7];
-      original_dy = Ei[num][8];
+      original_dx = mEnemy.Ei[num][7];
+      original_dy = mEnemy.Ei[num][8];
    }
 
    if (obj_type == 4) // lift
@@ -575,12 +575,12 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
 
       if (obj_type == 99) // move pod extended
       {
-         int ex = Ef[num][0]+10;
-         int ey = Ef[num][1]+10;
-         int px = Ef[num][5]+10;
-         int py = Ef[num][6]+10;
-         float rot = Ef[num][14];
-         al_draw_scaled_rotated_bitmap(mwB.tile[Ei[num][1]], 10, 10, px, py, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
+         int ex = mEnemy.Ef[num][0]+10;
+         int ey = mEnemy.Ef[num][1]+10;
+         int px = mEnemy.Ef[num][5]+10;
+         int py = mEnemy.Ef[num][6]+10;
+         float rot = mEnemy.Ef[num][14];
+         al_draw_scaled_rotated_bitmap(mwB.tile[mEnemy.Ei[num][1]], 10, 10, px, py, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
          al_draw_line(ex, ey, px, py, mC.pc[10], 1); // connect with line
       }
 
@@ -589,12 +589,12 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
 
       if (obj_type == 98) // move cloner destination
       {
-         float dx1 = (float)Ei[num][17];
-         float dy1 = (float)Ei[num][18];
-         float dx2 = dx1 + (float)Ei[num][19];
-         float dy2 = dy1 + (float)Ei[num][20];
+         float dx1 = (float)mEnemy.Ei[num][17];
+         float dy1 = (float)mEnemy.Ei[num][18];
+         float dx2 = dx1 + (float)mEnemy.Ei[num][19];
+         float dy2 = dy1 + (float)mEnemy.Ei[num][20];
          int dc1 = 10 + 128; // destination box color
-         rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
+         mEnemy.rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
       }
       if (obj_type == 97) // set new rocket direction
       {
@@ -610,12 +610,12 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       }
       if (obj_type == 96) // set cannon or bouncer direction
       {
-         int ex = Ef[num][0]+10;
-         int ey = Ef[num][1]+10;
+         int ex = mEnemy.Ef[num][0]+10;
+         int ey = mEnemy.Ef[num][1]+10;
          int dx = mwWM.gx*20+10;
          int dy = mwWM.gy*20+10;
-         float rot = Ef[num][14];
-         al_draw_scaled_rotated_bitmap(mwB.tile[Ei[num][1]], 10, 10, dx, dy, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile
+         float rot = mEnemy.Ef[num][14];
+         al_draw_scaled_rotated_bitmap(mwB.tile[mEnemy.Ei[num][1]], 10, 10, dx, dy, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile
          al_draw_line(ex, ey, dx, dy, mC.pc[10], 1);   // connect with line
       }
 
@@ -640,8 +640,8 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
             mItem.itemf[num][1] = mItem.item[num][5] = mwWM.gy*20;
          break;
          case 3: // show enem
-            Ef[num][0] = mwWM.gx*20;
-            Ef[num][1] = mwWM.gy*20;
+            mEnemy.Ef[num][0] = mwWM.gx*20;
+            mEnemy.Ef[num][1] = mwWM.gy*20;
          break;
          case 4: // show lift
          {
@@ -652,15 +652,15 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          break;
          case 99: // move pod extended
          {
-            Ef[num][5] = mwWM.gx*20;
-            Ef[num][6] = mwWM.gy*20;
-            recalc_pod(num);
+            mEnemy.Ef[num][5] = mwWM.gx*20;
+            mEnemy.Ef[num][6] = mwWM.gy*20;
+            mEnemy.recalc_pod(num);
          }
          break;
          case 98: // cloner destination
          {
-            Ei[num][17] = mwWM.gx*20;
-            Ei[num][18] = mwWM.gy*20;
+            mEnemy.Ei[num][17] = mwWM.gx*20;
+            mEnemy.Ei[num][18] = mwWM.gy*20;
          }
          break;
          case 97: // set new rocket direction
@@ -675,20 +675,20 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          break;
          case 90: // vinepod extended
          {
-            Ei[num][9] = mwWM.gx*20;
-            Ei[num][10] = mwWM.gy*20;
+            mEnemy.Ei[num][9] = mwWM.gx*20;
+            mEnemy.Ei[num][10] = mwWM.gy*20;
          }
          break;
          case 91: // vinepod cp1
          {
-            Ei[num][5] = mwWM.gx*20;
-            Ei[num][6] = mwWM.gy*20;
+            mEnemy.Ei[num][5] = mwWM.gx*20;
+            mEnemy.Ei[num][6] = mwWM.gy*20;
          }
          break;
          case 92: // vinepod cp2
          {
-            Ei[num][7] = mwWM.gx*20;
-            Ei[num][8] = mwWM.gy*20;
+            mEnemy.Ei[num][7] = mwWM.gx*20;
+            mEnemy.Ei[num][8] = mwWM.gy*20;
          }
          break;
       }
@@ -729,33 +729,33 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       }
       if (obj_type == 3)
       {
-          Ef[num][0] = original_dx;
-          Ef[num][1] = original_dy;
+          mEnemy.Ef[num][0] = original_dx;
+          mEnemy.Ef[num][1] = original_dy;
       }
       if (obj_type == 90)
       {
-          Ei[num][9] = original_dx;
-          Ei[num][10] = original_dy;
+          mEnemy.Ei[num][9] = original_dx;
+          mEnemy.Ei[num][10] = original_dy;
       }
       if (obj_type == 91)
       {
-          Ei[num][5] = original_dx;
-          Ei[num][6] = original_dy;
+          mEnemy.Ei[num][5] = original_dx;
+          mEnemy.Ei[num][6] = original_dy;
       }
       if (obj_type == 92)
       {
-          Ei[num][7] = original_dx;
-          Ei[num][8] = original_dy;
+          mEnemy.Ei[num][7] = original_dx;
+          mEnemy.Ei[num][8] = original_dy;
       }
       if (obj_type == 99)
       {
-          Ef[num][5] = original_dx;
-          Ef[num][6] = original_dy;
+          mEnemy.Ef[num][5] = original_dx;
+          mEnemy.Ef[num][6] = original_dy;
       }
       if (obj_type == 98)
       {
-          Ef[num][5] = original_dx;
-          Ef[num][6] = original_dy;
+          mEnemy.Ef[num][5] = original_dx;
+          mEnemy.Ef[num][6] = original_dy;
       }
       if (obj_type == 97) // restore rocket direction
       {
@@ -763,9 +763,9 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       }
       if (obj_type == 96) // cannon or bouncer initial direction
       {
-         Ef[num][14] = original_rot;
-         Ef[num][2]  = original_xinc;
-         Ef[num][3]  = original_yinc;
+         mEnemy.Ef[num][14] = original_rot;
+         mEnemy.Ef[num][2]  = original_xinc;
+         mEnemy.Ef[num][3]  = original_yinc;
       }
       if (obj_type == 4)
       {
@@ -962,15 +962,15 @@ void titlex(const char *txt, int tc, int fc, int x1, int x2, int y)
    al_draw_text(mF.pr8, mC.pc[tc], (x1+x2)/2, y+2, ALLEGRO_ALIGN_CENTER,  txt);
 }
 
-// when speed is changed in level editor (Ef[][5]) scale the xinc, yinc to match
+// when speed is changed in level editor (mEnemy.Ef[][5]) scale the xinc, yinc to match
 void scale_bouncer_and_cannon_speed(int e)
 {
    // new v
-   float nv =  Ef[e][5];
+   float nv =  mEnemy.Ef[e][5];
 
    // get the original x and y velocities
-   float oxv = Ef[e][2];
-   float oyv = Ef[e][3];
+   float oxv = mEnemy.Ef[e][2];
+   float oyv = mEnemy.Ef[e][3];
 
    // get the combined original velocity
    float ov = sqrt( pow(oxv, 2) + pow(oyv, 2) );
@@ -978,8 +978,8 @@ void scale_bouncer_and_cannon_speed(int e)
    // if this was previously stationary, set direction to 100% up
    if (ov == 0)
    {
-      Ef[e][3] = -Ef[e][5];
-      set_enemy_rot_from_incs(e); // set rotation
+      mEnemy.Ef[e][3] = -mEnemy.Ef[e][5];
+      mEnemy.set_enemy_rot_from_incs(e); // set rotation
    }
    else
    {
@@ -992,13 +992,13 @@ void scale_bouncer_and_cannon_speed(int e)
          oxv *= sc;
          oyv *= sc;
 
-         Ef[e][2] = oxv;
-         Ef[e][3] = oyv;
+         mEnemy.Ef[e][2] = oxv;
+         mEnemy.Ef[e][3] = oyv;
       }
       else // if new speed not > 0, zero both x and y
       {
-         Ef[e][2] = 0;
-         Ef[e][3] = 0;
+         mEnemy.Ef[e][2] = 0;
+         mEnemy.Ef[e][3] = 0;
       }
 
    }
@@ -1136,220 +1136,38 @@ int mw_file_select(const char * title, char * fn, const char * ext, int save)
 
 
 
-//----------------------------------------------------------------------------
-// these all used to be in z_fnx.cpp and have been gone through on 20230220
-//----------------------------------------------------------------------------
-
-
-
-// used in pod when moving
-// used in bouncer always
-// used in cannon when player not in prox range
-// used in level editor scale_bouncer_and_cannon_speed(int e)
-void set_enemy_rot_from_incs(int e)
-{
-   Ef[e][14] = atan2(Ef[e][3], Ef[e][2]) - ALLEGRO_PI/2;
-}
-
-// used in cannon when player in prox range
-// used in podzilla and vinepod
-void set_enemy_rot_from_player(int e, int p)
-{
-   float xlen = players[p].x - Ef[e][0];
-   float ylen = players[p].y - Ef[e][1];
-   Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI/2;
-}
-
-
-// used once in bouncer cannon common
-void seek_set_xyinc(int e)
-{
-   int p = find_closest_player(e);
-   float xlen = players[p].x - Ef[e][0];
-   float ylen = players[p].y - Ef[e][1];
-   float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
-   float speed = Ef[e][5];                              // speed
-   float scaler = hy_dist / speed;     // get scaler
-   Ef[e][2] = xlen / scaler;         // calc xinc
-   Ef[e][3] = ylen / scaler;         // calc 7inc
-}
-
-// used by flapper y seek
-// used by trakbot falling seek
-// used by podzilla shoot
-// used by podzilla to set rot when extended
-// used by vinepod shoot
-// used by vinepod to set rot when extended
-// used by walker_archwagon_common in follow mode
-// used by walker_archwagon_common to face left or right when can't move
-// used by bouncer cannon common set_seek
-int find_closest_player(int e)
-{
-   int closest_player = 0; // defaults to zero (will always return a valid player)
-   float hd = 99999;
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if ((players[p].active) && (!players[p].paused))
-      {
-         float xlen = players[p].x - Ef[e][0];
-         float ylen = players[p].y - Ef[e][1];
-         float h = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
-         if (h < hd)
-         {
-             hd = h;
-             closest_player = p;
-         }
-      }
-   return closest_player;
-}
-
-
-// used only by flapper
-int find_closest_player_flapper(int e)
-{
-   int dir = Ei[e][2];
-
-   float prox = Ei[e][17];
-   float d[NUM_PLAYERS]; // array of distances for each player
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      d[p] = -1;
-      if ((players[p].active) && (!players[p].paused))
-      {
-         float xlen = players[p].x - Ef[e][0];            // get x distance
-         float ylen = players[p].y - Ef[e][1];            // get y distance
-         float dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
-         float angle = atan2(ylen, xlen) + ALLEGRO_PI/2;  // get raw angle and add 90 deg in radians
-         float da = (angle / (ALLEGRO_PI*2)) * 360;       // convert from radians to degrees
-         if (da < 0) da += 360;                           // add 360 if negative
-
-         if ((dir == 1) && (da >  45) && (da < 135) && (dist < prox)) d[p] = dist; // right
-         if ((dir == 0) && (da > 225) && (da < 315) && (dist < prox)) d[p] = dist; // left
-
-         // printf("angle:%d\n", ngl);
-/*
-                       -64
-                        |
-             -127       |
-           128/-128 ----+---- 0
-              127       |
-                        |
-                       +64
-        only shoots at players in a 90 degree pie slice
-        45  to 135 for +xinc (-32 to +32)
-        225 to 315 for -xinc (96 to -96)
-*/
-
-      }
-   }
-
-   float closest_val = 9999;
-   int closest_p = -1;
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      if ((d[p] != -1) && (d[p] < closest_val))
-      {
-         closest_val = d[p];
-         closest_p = p;
-      }
-   }
-   if (closest_val == 9999) return -1;    // no player in range
-   else return closest_p;
-
-}
-
-
-//           normal cartesian
-//              I    x+  Y+        II | I
-//             II    x-  Y+       ----+----
-//             III   x-  Y-       III | IV
-//             IV    x+  Y-
-//
-//             screen
-//              I    x+  Y-        II | I
-//             II    x-  Y-       ----+----
-//             III   x-  Y+       III | IV
-//             IV    x+  Y+
-// used by trakbot only
 
 
 
 
-//int find_closest_player_quad(int e, int quad, int prox)
-int find_closest_player_trakbot(int e)
-{
-   int quad = 0;
-   float prox = Ei[e][17];
-   switch (Ei[e][5])
-   {
-      case 0: case 5: quad = 1; break; // floor right, lwall up
-      case 1: case 4: quad = 2; break; // rwall up floor left
-      case 2: case 7: quad = 3; break; // ceil left, rwall down
-      case 3: case 6: quad = 4; break; // lwall down, ceil right
-   }
-
-   int closest_p = -1;    // return -1 if no player in range
-   float closest_val = 3000;
-   float d[NUM_PLAYERS];
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      d[p] = -1;
-      if ((players[p].active) && (!players[p].paused))
-      {
-         float xlen = players[p].x - Ef[e][0];            // get x distance
-         float ylen = players[p].y - Ef[e][1];            // get y distance
-         float dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
-         float angle = atan2(ylen, xlen) + ALLEGRO_PI/2;  // get raw angle and add 90 deg in radians
-         float da = (angle / (ALLEGRO_PI*2)) * 360;       // convert from radians to degrees
-         if (da < 0) da += 360;                           // add 360 if negative
-
-         // printf("angle:%f   da:%f\n", angle, da);
-
-         if ((quad == 1) && (da>  0) && (da< 90)) d[p] = dist;
-         if ((quad == 4) && (da> 90) && (da<180)) d[p] = dist;
-         if ((quad == 3) && (da>180) && (da<270)) d[p] = dist;
-         if ((quad == 2) && (da>270) && (da<359)) d[p] = dist;
-      }
-      if (d[p] > prox) d[p] = -1; // add, if distance is within range
-   }
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if ((d[p] != -1) && (d[p] < closest_val))
-      {
-         closest_val = d[p];
-         closest_p = p;
-      }
-   if (closest_val == 3000) return -1; // no player in range
-   else return closest_p;
-}
 
 
-// finds closest player...if closest player is not within dist, returns -1
-// used only by cannon
-int find_closest_player_cannon(int e)
-{
-   float prox = Ei[e][17];
-   int closest_player = -1; // default if no player within distance
-   float hd = 99999;
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if ((players[p].active) && (!players[p].paused))
-      {
-         float xlen = players[p].x - Ef[e][0];
-         float ylen = players[p].y - Ef[e][1];
-         float h = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
-         if (h < hd)
-         {
-             hd = h;
-             closest_player = p;
-         }
-      }
-   if (hd < prox) return closest_player;
-   else return -1;
-}
 
 
-float deg_to_rad(float deg)
-{
-   return (deg/360) * ALLEGRO_PI*2;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
