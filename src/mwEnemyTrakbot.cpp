@@ -51,7 +51,7 @@
 //     Ef[e][13] = rot inc
 
 
-void mwEnemy::enemy_trakbot(int e)
+void mwEnemy::move_trakbot(int e)
 {
    float mv;
    int dp = 0; // debug print

@@ -33,6 +33,10 @@ class mwLevel
    int load_level_prompt();
    int save_level_prompt();
 
+   int show_level_data(int x_pos, int y_pos, int type);
+
+
+
    void zero_level_data(void);
    void level_check(void);
 

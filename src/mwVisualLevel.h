@@ -27,7 +27,6 @@ class mwVisualLevel
    int draw_frames = 1;
    int vl_redraw = 1;
 
-   int lev_show_level_data(int x_pos, int y_pos);
    void mark_rect(int sel, int color);
    void show_cur(void);
    void show_msel(void);

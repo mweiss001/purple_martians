@@ -7,6 +7,7 @@
 #include "mwItems.h"
 #include "mwEnemy.h"
 #include "z_screen.h"
+#include "mwFont.h"
 #include "mwInput.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
@@ -302,16 +303,27 @@ int mwLevel::save_level_prompt(void)
 }
 
 
+int mwLevel::show_level_data(int x_pos, int y_pos, int type)
+{
+   if (type == 1) al_clear_to_color(al_map_rgb(0,0,0));
 
+   int ey_pos = mEnemy.show_enemy_data(x_pos, y_pos);
+   int iy_pos = mItem.item_data(x_pos+135, y_pos);
+   ey_pos = ey_pos + 8;
+   al_draw_textf(mF.pr8, mC.pc[15], x_pos, ey_pos, 0,"%d Lifts  ", Lift.get_num_lifts());
+   ey_pos += 8;
+   al_draw_text(mF.pr8, mC.pc[15], x_pos, ey_pos, 0, "-------");
+   ey_pos += 8;
 
+   if (type == 1)
+   {
+      al_flip_display();
+      mI.tsw();
+   }
 
-
-
-
-
-
-
-
+   if (iy_pos > ey_pos) return iy_pos;
+   else return ey_pos;
+}
 
 
 

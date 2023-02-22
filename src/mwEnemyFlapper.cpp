@@ -45,7 +45,7 @@
 
 
 
-void mwEnemy::enemy_flapper(int e)
+void mwEnemy::move_flapper(int e)
 {
 
    if (Ei[e][31]) // hit

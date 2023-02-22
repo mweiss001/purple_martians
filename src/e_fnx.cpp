@@ -594,7 +594,7 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          float dx2 = dx1 + (float)mEnemy.Ei[num][19];
          float dy2 = dy1 + (float)mEnemy.Ei[num][20];
          int dc1 = 10 + 128; // destination box color
-         mEnemy.rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
+         rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
       }
       if (obj_type == 97) // set new rocket direction
       {
@@ -945,6 +945,35 @@ int get_item(int obj_type, int sub_type, int num )
    if (!mouse_on_item) ret_item = -1;
    return ret_item;
 }
+
+
+
+void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color, int clip_mode)
+{
+   int d = mwD.display_transform_double;
+   if (!clip_mode) d = 1;
+
+   al_set_clipping_rectangle(x1*d, y1*d, (x2-x1)*d, (y2-y1)*d);
+
+   // find largest dimension
+   float xd = x2-x1;
+   float yd = y2-y1;
+   float ld = xd;
+   if (yd > ld) ld = yd;
+   for (float k=-ld; k<ld; k+=spacing)
+      al_draw_line(x1+k, y1-k, x1+ld+k, y1+ld-k, mC.pc[line_color], 0);
+   al_draw_rectangle(x1+0.5, y1+0.5, x2-0.5, y2-0.5, mC.pc[frame_color], 1);
+   al_reset_clipping_rectangle();
+}
+
+
+
+
+
+
+
+
+
 
 
 void crosshairs_full(int x, int y, int color, int line_width) // draws a square and crosshairs around a full 20x20 block on level buffer

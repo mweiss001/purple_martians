@@ -31,6 +31,10 @@ int get_item(int obj_type, int sub_type, int num);
 void crosshairs_full(int x, int y, int color, int line_width);
 void titlex(const char *txt, int tc, int fc, int x1, int x2, int y);
 
+void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color, int clip_mode);
+
+
+
 
 void scale_bouncer_and_cannon_speed(int e);
 
@@ -38,6 +42,8 @@ void scale_bouncer_and_cannon_speed(int e);
 void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore);
 void edit_server_name(int type, int x, int y);
 int edit_lift_name(int lift, int step_ty, int bts, char *fst);
+
+
 
 
 int mw_file_select(const char * title, char * fn, const char * ext, int save);

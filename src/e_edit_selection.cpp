@@ -977,11 +977,11 @@ void es_draw_enemy_ft(int e)
       // show box mode (0=none) (1=trig only) (2=src/dst only) (3=all)
       int q = ft_Ei[e][4];
       if ((q == 1) || (q == 3))
-         mEnemy.rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64, 0); // trigger box
+         rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64, 0); // trigger box
       if ((q == 2) || (q == 3))
       {
-         mEnemy.rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64, 0); // source
-         mEnemy.rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
+         rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64, 0); // source
+         rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
       }
    }
 }

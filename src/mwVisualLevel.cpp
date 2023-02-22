@@ -18,19 +18,6 @@
 
 mwVisualLevel mVisualLevel;
 
-int mwVisualLevel::lev_show_level_data(int x_pos, int y_pos)
-{
-   int ey_pos = mEnemy.enemy_data(x_pos, y_pos);
-   int iy_pos = mItem.item_data(x_pos+135, y_pos);
-   ey_pos = ey_pos + 8;
-   al_draw_textf(mF.pr8, mC.pc[15], x_pos, ey_pos, 0,"%d Lifts  ", Lift.get_num_lifts());
-   ey_pos += 8;
-   al_draw_text(mF.pr8, mC.pc[15], x_pos, ey_pos, 0, "-------");
-   ey_pos += 8;
-   if (iy_pos > ey_pos) return iy_pos;
-   else return ey_pos;
-}
-
 void mwVisualLevel::mark_rect(int sel, int color)
 {
    int y = (sel/20) * 50;
@@ -56,7 +43,7 @@ void mwVisualLevel::show_cur(void)
       al_set_target_backbuffer(display);
       draw_level2(NULL, 1002, 26, 276, 1, 1, 1, 1, 0);
       al_set_target_backbuffer(display);
-      lev_show_level_data(1010, 308);
+      mLevel.show_level_data(1010, 308, 0);
    }
    else al_draw_text(mF.pr8, mC.pc[10], xpos, 30, ALLEGRO_ALIGN_CENTER,"not found");
 
@@ -80,7 +67,7 @@ void mwVisualLevel::show_msel(void)
       al_set_target_backbuffer(display);
       draw_level2(NULL, 1002, yo+26, 276, 1, 1, 1, 1, 0);
       al_set_target_backbuffer(display);
-      lev_show_level_data(1010, yo + 308);
+      mLevel.show_level_data(1010, yo + 308, 0);
    }
    else al_draw_text(mF.pr8, mC.pc[10], xpos, yo + 30, ALLEGRO_ALIGN_CENTER,"not found" );
 }
@@ -478,7 +465,7 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
    if (mLevel.load_level(cur, 0, 1))
    {
       draw_level2(NULL, x1+2, y1+26, size-3, 1, 1, 1, 1, 0);
-      int ty1 = lev_show_level_data(x1+2, y2+32+24);
+      int ty1 = mLevel.show_level_data(x1+2, y2+32+24, 0);
       for (int a=0; a<16; a++)
          al_draw_rectangle(x1+0-a, y2+55-a, x2-0+a, ty1+a, mC.pc[fc + (15-a)*16], 1 );
    }
