@@ -3,7 +3,7 @@
 #include "pm.h"
 #include "mwEventQueue.h"
 #include "mwDisplay.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwInput.h"
 #include "mwProgramState.h"
 #include "z_control.h"
@@ -77,7 +77,7 @@ void mwEventQueue::proc_events(ALLEGRO_EVENT ev)
    {
       if (ev.timer.source == fps_timer) program_update = 1;
       if (ev.timer.source == sec_timer) program_update_1s = 1;
-      if (ev.timer.source == png_timer) players1[active_local_player].client_ping_flag = 1;
+      if (ev.timer.source == png_timer) mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 1;
       if (ev.timer.source == mou_timer) al_hide_mouse_cursor(display);
       if (ev.timer.source == mnu_timer) menu_update = 1;
    }
@@ -105,8 +105,8 @@ void mwEventQueue::proc_event_queue_menu(void)
    proc_event_queue();
 
    // this is done so that the game controls can be used to navigate menus and visual level select
-   clear_controls(active_local_player);
-   set_controls_from_player_key_check(active_local_player);
+   clear_controls(mPlayer.active_local_player);
+   set_controls_from_player_key_check(mPlayer.active_local_player);
 }
 
 

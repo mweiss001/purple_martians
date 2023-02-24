@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwEnemy.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwBitmap.h"
 #include "mwShots.h"
 #include "z_solid.h"
@@ -82,7 +82,7 @@ void mwEnemy::move_flapper(int e)
          p = find_closest_player_flapper(e);
          if (p != -1)
          {
-            mwS.fire_enemy_shota(e, 62, p);
+            mShot.fire_enemy_shota(e, 62, p);
             Ei[e][16] = Ei[e][15]; // set new prox wait
          }
       }
@@ -105,7 +105,7 @@ void mwEnemy::move_flapper(int e)
          p = find_closest_player_flapper(e);
          if (p != -1)
          {
-            mwS.fire_enemy_shota(e, 62, p);
+            mShot.fire_enemy_shota(e, 62, p);
             Ei[e][16] = Ei[e][15]; // set new prox wait
          }
        }
@@ -125,7 +125,7 @@ void mwEnemy::move_flapper(int e)
       float h = Ei[e][20]; // height_above_player
 
       // difference between actual y and desired y
-      float df = Ef[e][1] - (players[p].y - h);
+      float df = Ef[e][1] - (mPlayer.syn[p].y - h);
       if (df < 0)
       {
          if (df > -100) rat = -df / 100;

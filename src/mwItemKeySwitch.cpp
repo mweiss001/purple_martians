@@ -1,7 +1,7 @@
 // mwItemKeySwitch.cpp
 #include "pm.h"
 #include "mwItems.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwLevel.h"
 #include "z_screen_overlay.h"
 #include "mwBitmap.h"
@@ -122,11 +122,11 @@ void mwItems::proc_switch_collision(int p, int i)
 {
    if (mItem.item[i][11] < mwPS.frame_num) // if not lockout
    {
-      float px = players[p].x;
-      float py = players[p].y;
+      float px = mPlayer.syn[p].x;
+      float py = mPlayer.syn[p].y;
       float ix = itemf[i][0];
       float iy = itemf[i][1];
-      if ( (px > ix-12) && (px < ix+12) && (py > iy-16) && (py < iy-8) && (players[p].yinc > 0) )  // falling
+      if ( (px > ix-12) && (px < ix+12) && (py > iy-16) && (py < iy-8) && (mPlayer.syn[p].yinc > 0) )  // falling
       {
          mItem.item[i][11] = mwPS.frame_num + 4; // switch lockout for next 4 frames
          game_event(30, 0, 0, p, i, 0, 0);

@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "z_log.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwDrawSequence.h"
 #include <limits>
 #include "mwFont.h"
@@ -105,7 +105,7 @@ void mwDrawSequence::draw(void)
    if (seq[0][0]) get_new_background(1);
    t1 = al_get_time(); add(0, t1-t0);
 
-   if (seq[1][0]) Lift.draw_lifts();
+   if (seq[1][0]) mLift.draw_lifts();
    t2 = al_get_time(); add(1, t2-t1);
 
    if (seq[2][0]) mItem.draw_items();
@@ -114,13 +114,13 @@ void mwDrawSequence::draw(void)
    if (seq[3][0]) mEnemy.draw_enemies();
    t4 = al_get_time(); add(3, t4-t3);
 
-   if (seq[4][0]) mwS.draw_eshots();
+   if (seq[4][0]) mShot.draw_eshots();
    t5 = al_get_time(); add(4, t5-t4);
 
-   if (seq[5][0]) mwS.draw_pshots();
+   if (seq[5][0]) mShot.draw_pshots();
    t6 = al_get_time(); add(5, t6-t5);
 
-   if (seq[6][0]) draw_players();
+   if (seq[6][0]) mPlayer.draw_players();
    t7 = al_get_time(); add(6, t7-t6);
 
    get_new_screen_buffer(0, 0, 0);

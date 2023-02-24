@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwEnemy.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwBitmap.h"
 #include "mwShots.h"
 #include "z_solid.h"
@@ -65,7 +65,7 @@ void mwEnemy::move_podzilla(int e)
       if (--Ei[e][8] <= 0)
       {
          int p = find_closest_player(e);
-         mwS.fire_enemy_shota(e, 54, p);
+         mShot.fire_enemy_shota(e, 54, p);
          Ei[e][5] = 3; // set next mode
          Ei[e][8] = Ei[e][9];
       }
@@ -157,7 +157,7 @@ void mwEnemy::move_vinepod(int e)
       if (--Ei[e][18] <= 0)
       {
          int p = find_closest_player(e);
-         mwS.fire_enemy_shota(e, 54, p);
+         mShot.fire_enemy_shota(e, 54, p);
          Ei[e][15] = 3; // set next mode
          Ei[e][18] = Ei[e][19];
       }

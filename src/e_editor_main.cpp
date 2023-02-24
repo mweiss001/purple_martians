@@ -529,12 +529,12 @@ void em_show_item_info(int x, int y, int color, int type, int num)
       break;
       case 4:
       {
-         int col = Lift.cur[num].color;
-         int width = Lift.cur[num].w;
+         int col = mLift.cur[num].color;
+         int width = mLift.cur[num].w;
          if (width > 140) width = 140;
          for (a=0; a<10; a++)
             al_draw_rectangle(x+a, y+a, x+(width)-1-a, y+19-a, mC.pc[col+((9-a)*16)], 1 );
-         al_draw_text(mF.pr8, mC.pc[col+160], x+(width/2), y+6, ALLEGRO_ALIGN_CENTER, Lift.cur[num].lift_name);
+         al_draw_text(mF.pr8, mC.pc[col+160], x+(width/2), y+6, ALLEGRO_ALIGN_CENTER, mLift.cur[num].lift_name);
       }
       break;
       case 5:
@@ -591,10 +591,10 @@ void em_find_point_item(void)
          }
       }
    for (int l=0; l<NUM_LIFTS; l++) // check for lifts
-      if (Lift.cur[l].active)
+      if (mLift.cur[l].active)
       {
-         int x = Lift.cur[l].x;
-         int y = Lift.cur[l].y;
+         int x = mLift.cur[l].x;
+         int y = mLift.cur[l].y;
          if ( (mwWM.hx >= x) && (mwWM.hx <= x+19) && (mwWM.hy > y) && (mwWM.hy < y+19) && (ob < max_ob))
          {
              mo[ob][0] = 4;
@@ -778,8 +778,8 @@ void em_process_mouse(void)
          break;
          case 4:
             sprintf(mMenu.menu_string[2], "              ");
-            sprintf(mMenu.menu_string[3], "View Lift '%s'",   Lift.cur[mwWM.mW[1].point_item_num].lift_name);
-            sprintf(mMenu.menu_string[4], "Delete Lift '%s'", Lift.cur[mwWM.mW[1].point_item_num].lift_name);
+            sprintf(mMenu.menu_string[3], "View Lift '%s'",   mLift.cur[mwWM.mW[1].point_item_num].lift_name);
+            sprintf(mMenu.menu_string[4], "Delete Lift '%s'", mLift.cur[mwWM.mW[1].point_item_num].lift_name);
          break;
       }
 
@@ -820,7 +820,7 @@ void em_process_mouse(void)
                   mEnemy.sort_enemy();
                break;
                case 4: // delete lift
-                  Lift.erase_lift(mwWM.mW[1].point_item_num);
+                  mLift.erase_lift(mwWM.mW[1].point_item_num);
                break;
             }
          break;

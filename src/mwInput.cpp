@@ -3,15 +3,15 @@
 #include "pm.h"
 #include "mwInput.h"
 #include "mwDisplay.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "z_log.h"
 #include "n_netgame.h"
-#include "z_settings.h"
+#include "mwSettings.h"
 #include "mwColor.h"
 #include "mwFont.h"
 #include "mwEventQueue.h"
 #include "mwProgramState.h"
-#include "z_config.h"
+#include "mwConfig.h"
 #include "z_main.h"
 #include "z_screen.h"
 #include "mwGameMovesArray.h"
@@ -209,8 +209,8 @@ void mwInput::serial_key_check(int key)
    {
       if (memcmp((skc + skc_index-tl), tst, tl) == 0)
       {
-         players1[active_local_player].fake_keypress_mode =! players1[active_local_player].fake_keypress_mode;
-         printf("fake keypress mode:%d\n", players1[active_local_player].fake_keypress_mode);
+         mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode =! mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode;
+         printf("fake keypress mode:%d\n", mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode);
       }
    }
 }
@@ -226,8 +226,8 @@ void mwInput::function_key_check(void)
    {
       if (mI.key[ALLEGRO_KEY_F1][3])
       {
-         players1[active_local_player].fake_keypress_mode =! players1[active_local_player].fake_keypress_mode;
-         printf("fake keypress mode:%d\n", players1[active_local_player].fake_keypress_mode);
+         mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode =! mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode;
+         printf("fake keypress mode:%d\n", mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode);
       }
 
 
@@ -283,7 +283,7 @@ void mwInput::function_key_check(void)
 
       if (mI.key[ALLEGRO_KEY_F10][2])
       {
-         if (++mwPS.show_debug_overlay >= number_of_debug_overlay_modes) mwPS.show_debug_overlay = 0;
+         if (++mwPS.show_debug_overlay >= mSettings.number_of_debug_overlay_modes) mwPS.show_debug_overlay = 0;
       }
    } // end of if not game exit
 
@@ -361,7 +361,7 @@ int mwInput::my_readkey(int x, int y, int tc, int bts, int num) // used only to 
 {
    int quit = 0, ret = 0;
 
-   redraw_all_controls(x, y, bts, tc, 0, num);
+   mSettings.redraw_all_controls(x, y, bts, tc, 0, num);
    al_flip_display();
 
    while (!quit)
@@ -416,16 +416,16 @@ void mwInput::get_all_keys(int x, int y, int tc, int bts) // prompts for all sev
    {
       switch (key_sel)
       {
-         case  2: players1[0].up_key    =  my_readkey(x,y,tc,bts,0); break;
-         case  3: players1[0].down_key  =  my_readkey(x,y,tc,bts,1); break;
-         case  4: players1[0].left_key  =  my_readkey(x,y,tc,bts,2); break;
-         case  5: players1[0].right_key =  my_readkey(x,y,tc,bts,3); break;
-         case  6: players1[0].jump_key  =  my_readkey(x,y,tc,bts,4); break;
-         case  7: players1[0].fire_key  =  my_readkey(x,y,tc,bts,5); break;
-         case  8: players1[0].menu_key  =  my_readkey(x,y,tc,bts,6); break;
+         case  2: mPlayer.loc[0].up_key    =  my_readkey(x,y,tc,bts,0); break;
+         case  3: mPlayer.loc[0].down_key  =  my_readkey(x,y,tc,bts,1); break;
+         case  4: mPlayer.loc[0].left_key  =  my_readkey(x,y,tc,bts,2); break;
+         case  5: mPlayer.loc[0].right_key =  my_readkey(x,y,tc,bts,3); break;
+         case  6: mPlayer.loc[0].jump_key  =  my_readkey(x,y,tc,bts,4); break;
+         case  7: mPlayer.loc[0].fire_key  =  my_readkey(x,y,tc,bts,5); break;
+         case  8: mPlayer.loc[0].menu_key  =  my_readkey(x,y,tc,bts,6); break;
       }
    }
-   save_config();
+   mConfig.save();
 }
 
 void mwInput::test_keys(int x, int sy)
@@ -452,19 +452,19 @@ void mwInput::test_keys(int x, int sy)
       al_draw_text(mF.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "keys that can be detected at one time.");
       al_draw_text(mF.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------" );
       y +=24;
-      if (players[0].up) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "UP" );
+      if (mPlayer.syn[0].up) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "UP" );
       y +=8;
-      if (players[0].down) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "DOWN" );
+      if (mPlayer.syn[0].down) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "DOWN" );
       y +=8;
-      if (players[0].left) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "LEFT" );
+      if (mPlayer.syn[0].left) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "LEFT" );
       y +=8;
-      if (players[0].right) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "RIGHT");
+      if (mPlayer.syn[0].right) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "RIGHT");
       y +=8;
-      if (players[0].jump) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "JUMP" );
+      if (mPlayer.syn[0].jump) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "JUMP" );
       y +=8;
-      if (players[0].fire) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "FIRE" );
+      if (mPlayer.syn[0].fire) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "FIRE" );
       y +=8;
-      if (players[0].menu) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "MENU" );
+      if (mPlayer.syn[0].menu) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "MENU" );
 
       al_flip_display();
       mwEQ.proc_event_queue_menu();
@@ -477,43 +477,43 @@ void mwInput::set_controls_to_custom_sets(int s)
 {
    if (s == 1) // set all to joy1
    {
-      players1[0].up_key = 128;
-      players1[0].down_key = 129;
-      players1[0].right_key = 131;
-      players1[0].left_key = 130;
-      players1[0].jump_key = 133;
-      players1[0].fire_key = 132;
-      players1[0].menu_key = 135;
+      mPlayer.loc[0].up_key = 128;
+      mPlayer.loc[0].down_key = 129;
+      mPlayer.loc[0].right_key = 131;
+      mPlayer.loc[0].left_key = 130;
+      mPlayer.loc[0].jump_key = 133;
+      mPlayer.loc[0].fire_key = 132;
+      mPlayer.loc[0].menu_key = 135;
    }
    if (s == 2) // set all to joy2
    {
-      players1[0].up_key = 148;
-      players1[0].down_key = 149;
-      players1[0].right_key = 151;
-      players1[0].left_key = 150;
-      players1[0].jump_key = 153;
-      players1[0].fire_key = 152;
-      players1[0].menu_key = 155;
+      mPlayer.loc[0].up_key = 148;
+      mPlayer.loc[0].down_key = 149;
+      mPlayer.loc[0].right_key = 151;
+      mPlayer.loc[0].left_key = 150;
+      mPlayer.loc[0].jump_key = 153;
+      mPlayer.loc[0].fire_key = 152;
+      mPlayer.loc[0].menu_key = 155;
    }
    if (s == 3) // set all to arrows
    {
-      players1[0].up_key = 84;
-      players1[0].down_key = 85;
-      players1[0].right_key = 83;
-      players1[0].left_key = 82;
-      players1[0].jump_key = 75;
-      players1[0].fire_key = 3;
-      players1[0].menu_key = 59;
+      mPlayer.loc[0].up_key = 84;
+      mPlayer.loc[0].down_key = 85;
+      mPlayer.loc[0].right_key = 83;
+      mPlayer.loc[0].left_key = 82;
+      mPlayer.loc[0].jump_key = 75;
+      mPlayer.loc[0].fire_key = 3;
+      mPlayer.loc[0].menu_key = 59;
    }
    if (s == 4) // set all to IJKL
    {
-      players1[0].up_key = 9;
-      players1[0].down_key = 11;
-      players1[0].right_key = 12;
-      players1[0].left_key = 10;
-      players1[0].jump_key = 75;
-      players1[0].fire_key = 3;
-      players1[0].menu_key = 59;
+      mPlayer.loc[0].up_key = 9;
+      mPlayer.loc[0].down_key = 11;
+      mPlayer.loc[0].right_key = 12;
+      mPlayer.loc[0].left_key = 10;
+      mPlayer.loc[0].jump_key = 75;
+      mPlayer.loc[0].fire_key = 3;
+      mPlayer.loc[0].menu_key = 59;
    }
 }
 

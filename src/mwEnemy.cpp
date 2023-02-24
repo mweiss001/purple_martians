@@ -3,7 +3,7 @@
 #include "pm.h"
 #include "mwEnemy.h"
 #include "z_log.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwDisplay.h"
 #include "mwTimeStamp.h"
 #include "mwFont.h"
@@ -81,10 +81,10 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
       // check for collision with player
       int b = Ei[e][29]; // collision box size
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((players[p].active) && (!players[p].paused))
+         if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
          {
-            float px = players[p].PX;
-            float py = players[p].PY;
+            float px = mPlayer.syn[p].PX;
+            float py = mPlayer.syn[p].PY;
 
             float ex1 = Ef[e][0] - b;
             float ex2 = Ef[e][0] + b;
@@ -137,7 +137,7 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
       if (p != -1)
       {
          color = 10;
-         bomb_crosshairs(players[p].x+10, players[p].y+10); // mark targetted player
+         bomb_crosshairs(mPlayer.syn[p].x+10, mPlayer.syn[p].y+10); // mark targetted player
       }
       if (Ef[e][2] > 0) al_draw_pieslice(ex, ey, prox, th1, thd, mC.pc[color], 1);
       else              al_draw_pieslice(ex, ey, prox, th2, thd, mC.pc[color], 1);
@@ -157,7 +157,7 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
       if (p != -1)
       {
          color = 10;
-         bomb_crosshairs(players[p].x+10, players[p].y+10); // mark targetted player
+         bomb_crosshairs(mPlayer.syn[p].x+10, mPlayer.syn[p].y+10); // mark targetted player
       }
 
 
@@ -187,39 +187,100 @@ void mwEnemy::draw_enemies(void)
          draw_enemy(e, 0, 0, 0);
 }
 
+//void mwEnemy::proc_enemy_collision_with_pshot(int e)
+//{
+//   float ex = Ef[e][0];
+//   float ey = Ef[e][1];
+//
+//   for (int c=0; c<50; c++)
+//      if (mShot.p[c].active)
+//      {
+//         // shot collision box size adjusted with shot speed
+//         float cx = fabs(mShot.p[c].xinc/2) + 8;
+//         float cy = fabs(mShot.p[c].yinc/2) + 8;
+//
+//         // shot collision box size adjusted with enemies collision box size
+//         cx += (float) Ei[e][29] - 10;
+//         cy += (float) Ei[e][29] - 10;
+//
+//         float bx1 = mShot.p[c].x - cx;
+//         float bx2 = mShot.p[c].x + cx;
+//         float by1 = mShot.p[c].y - cy;
+//         float by2 = mShot.p[c].y + cy;
+//
+//         // check for collision with player's shots
+//         if ((ex > bx1) && (ex < bx2) && (ey > by1) && (ey < by2))
+//         {
+//            //printf("hit!\n");
+//            int p = mShot.p[c].player;       // player number of shot
+//            Ei[e][31] = 1;                 // flag that this enemy got shot
+//            Ei[e][26] = p;                 // number of player that shot enemy
+//            mPlayer.syn[p].stat_enemy_hits++;  // add to number of hits the player has
+//            mShot.p[c].active = 0;           // shot dies
+//         }
+//      }
+//}
+
 void mwEnemy::proc_enemy_collision_with_pshot(int e)
 {
-   float ex = Ef[e][0];
-   float ey = Ef[e][1];
+   // enemy collison box
+   float cb = (float) Ei[e][29]; // collision box size
+   float x1 = Ef[e][0] - cb;
+   float y1 = Ef[e][1] - cb;
+   float x2 = Ef[e][0] + cb;
+   float y2 = Ef[e][1] + cb;
 
    for (int c=0; c<50; c++)
-      if (mwS.p[c].active)
+      if (mShot.p[c].active)
       {
-         // shot collision box size adjusted with shot speed
-         float cx = fabs(mwS.p[c].xinc/2) + 8;
-         float cy = fabs(mwS.p[c].yinc/2) + 8;
+         // shot position
+         float x = mShot.p[c].x;
+         float y = mShot.p[c].y;
 
-         // shot collision box size adjusted with enemies collision box size
-         cx += (float) Ei[e][29] - 10;
-         cy += (float) Ei[e][29] - 10;
+         // adjust enemy collision box with shot speed
+         float cx = fabs(mShot.p[c].xinc/2);
+         float cy = fabs(mShot.p[c].yinc/2);
 
-         float bx1 = mwS.p[c].x - cx;
-         float bx2 = mwS.p[c].x + cx;
-         float by1 = mwS.p[c].y - cy;
-         float by2 = mwS.p[c].y + cy;
-
-         // check for collision with player's shots
-         if ((ex > bx1) && (ex < bx2) && (ey > by1) && (ey < by2))
+         if ((x > x1-cx) && (x < x2+cx) && (y > y1-cy) && (y < y2+cy))
          {
             //printf("hit!\n");
-            int p = mwS.p[c].player;       // player number of shot
-            Ei[e][31] = 1;                 // flag that this enemy got sho
+            int p = mShot.p[c].player;       // player number of shot
+            Ei[e][31] = 1;                 // flag that this enemy got shot
             Ei[e][26] = p;                 // number of player that shot enemy
-            players[p].stat_enemy_hits++;  // add to number of hits the player has
-            mwS.p[c].active = 0;           // shot dies
+            mPlayer.syn[p].stat_enemy_hits++;  // add to number of hits the player has
+            mShot.p[c].active = 0;           // shot dies
          }
       }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void mwEnemy::move_enemies()
 {
@@ -337,19 +398,19 @@ void mwEnemy::enemy_deathcount(int e)
 
 void mwEnemy::enemy_player_hit_proc(int e)
 {
-   if (--Ei[e][23]<0) // hit player retrigger
+   if (--Ei[e][23] < 0) // hit player retrigger
    {
       if (Ei[e][22]) // player hit!
       {
          int p = Ei[e][22]-1;
-         players[p].health -= Ef[e][4];
+         mPlayer.syn[p].health -= Ef[e][4];
 
          game_event(44, 0, 0, p, e, 0, Ef[e][4]);
          Ei[e][22] = 0;  // clear hit
          Ei[e][23] = 60; // set retrigger amount
       }
    }
-  else Ei[e][22] = 0;
+   else Ei[e][22] = 0;
 }
 
 void mwEnemy::enemy_killed(int e)

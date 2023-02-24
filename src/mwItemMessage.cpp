@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwItems.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwWidgets.h"
@@ -43,10 +43,10 @@ void mwItems::proc_pmsg(int i)
       int tfy2 = tfy1 + mItem.item[i][9];
 
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((players[p].active) && (!players[p].paused))
+         if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
          {
-            int x = players[p].x;
-            int y = players[p].y;
+            int x = mPlayer.syn[p].x;
+            int y = mPlayer.syn[p].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) proc_pmsg_reset_timer(i);
          }
    }

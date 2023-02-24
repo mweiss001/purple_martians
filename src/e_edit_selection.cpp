@@ -80,7 +80,7 @@ void es_pointer_text(int x1, int x2, int y, int mouse_on_window)
    // count lifts in box
    if (mwWM.obj_filter[4][1])
       for (int d=0; d<NUM_LIFTS; d++)
-         if ((Lift.cur[d].active) && (Lift.cur[d].x >= rx1) && (Lift.cur[d].x < rx2) && (Lift.cur[d].y >= ry1) && (Lift.cur[d].y < ry2)) lib++;
+         if ((mLift.cur[d].active) && (mLift.cur[d].x >= rx1) && (mLift.cur[d].x < rx2) && (mLift.cur[d].y >= ry1) && (mLift.cur[d].y < ry2)) lib++;
 
 
    y+=24;
@@ -441,35 +441,35 @@ void es_save_selection(int save)
    // lifts
    if (mwWM.obj_filter[4][1])
       for (b=0; b<NUM_LIFTS; b++) // source, if in selection
-         if ((Lift.cur[b].active) && (Lift.cur[b].x >= x1) && (Lift.cur[b].x < x2) && (Lift.cur[b].y >= y1) && (Lift.cur[b].y < y2))
+         if ((mLift.cur[b].active) && (mLift.cur[b].x >= x1) && (mLift.cur[b].x < x2) && (mLift.cur[b].y >= y1) && (mLift.cur[b].y < y2))
          {
             c = lib++; // destination
 
-            strcpy(ft_ln[c], Lift.cur[b].lift_name);
+            strcpy(ft_ln[c], mLift.cur[b].lift_name);
 
-            ft_lift[c][0] = Lift.cur[b].mode;
-            ft_lift[c][1] = Lift.cur[b].flags;
-            ft_lift[c][2] = Lift.cur[b].color;
-            ft_lift[c][3] = Lift.cur[b].num_steps;
-            ft_lift[c][4] = Lift.cur[b].val1;
-            ft_lift[c][5] = Lift.cur[b].val2;
+            ft_lift[c][0] = mLift.cur[b].mode;
+            ft_lift[c][1] = mLift.cur[b].flags;
+            ft_lift[c][2] = mLift.cur[b].color;
+            ft_lift[c][3] = mLift.cur[b].num_steps;
+            ft_lift[c][4] = mLift.cur[b].val1;
+            ft_lift[c][5] = mLift.cur[b].val2;
 
 
-            for (y = 0; y < Lift.cur[b].num_steps; y++) // copy steps
+            for (y = 0; y < mLift.cur[b].num_steps; y++) // copy steps
             {
-               int vx = Lift.stp[b][y].x;
-               int vy = Lift.stp[b][y].y;
-               if ((Lift.stp[b][y].type & 31) == 1) // shift move steps
+               int vx = mLift.stp[b][y].x;
+               int vy = mLift.stp[b][y].y;
+               if ((mLift.stp[b][y].type & 31) == 1) // shift move steps
                {
                   vx -= x1;
                   vy -= y1;
                }
                ft_ls[c][y][0] = vx;
                ft_ls[c][y][1] = vy;
-               ft_ls[c][y][2] = Lift.stp[b][y].w;
-               ft_ls[c][y][3] = Lift.stp[b][y].h;
-               ft_ls[c][y][4] = Lift.stp[b][y].val;
-               ft_ls[c][y][5] = Lift.stp[b][y].type;
+               ft_ls[c][y][2] = mLift.stp[b][y].w;
+               ft_ls[c][y][3] = mLift.stp[b][y].h;
+               ft_ls[c][y][4] = mLift.stp[b][y].val;
+               ft_ls[c][y][5] = mLift.stp[b][y].type;
             }
          }
 
@@ -558,16 +558,16 @@ void es_do_fcopy(int qx1, int qy1)
    {
       for (b=0; b<ft_level_header[5]; b++)
       {
-         int l = Lift.get_empty_lift();
+         int l = mLift.get_empty_lift();
          if (l > -1)
          {
             int lim = 0;
-            Lift.construct_lift(l, ft_ln[b]);
-            Lift.cur[l].mode      = ft_lift[b][0];
-            Lift.cur[l].flags     = ft_lift[b][1];
-            Lift.cur[l].num_steps = ft_lift[b][3];
-            Lift.cur[l].val1      = ft_lift[b][4];
-            Lift.cur[l].val2      = ft_lift[b][5];
+            mLift.construct_lift(l, ft_ln[b]);
+            mLift.cur[l].mode      = ft_lift[b][0];
+            mLift.cur[l].flags     = ft_lift[b][1];
+            mLift.cur[l].num_steps = ft_lift[b][3];
+            mLift.cur[l].val1      = ft_lift[b][4];
+            mLift.cur[l].val2      = ft_lift[b][5];
 
 
             for (y=0; y<ft_lift[b][3]; y++) // copy steps
@@ -598,12 +598,12 @@ void es_do_fcopy(int qx1, int qy1)
                }
 
                //printf("contructing step:%d\n", y);
-               Lift.construct_lift_step(l, y, type, vx, vy, vw, vh, val);
+               mLift.construct_lift_step(l, y, type, vx, vy, vw, vh, val);
             }
-            Lift.set_lift_to_step(l, 0);
+            mLift.set_lift_to_step(l, 0);
             if (lim)
             {
-               Lift.erase_lift(l);
+               mLift.erase_lift(l);
             }
          }
       }
@@ -795,8 +795,8 @@ void es_do_clear(void)
    // lifts
    if (mwWM.obj_filter[4][1])
       for (int l=NUM_LIFTS-1; l>=0; l--) // have to iterate backward beacuse erase_lift changes list order
-         if (Lift.cur[l].active)
-            if ((Lift.cur[l].x >= x1) && (Lift.cur[l].x < x2) && (Lift.cur[l].y >= y1) && (Lift.cur[l].y < y2)) Lift.erase_lift(l);
+         if (mLift.cur[l].active)
+            if ((mLift.cur[l].x >= x1) && (mLift.cur[l].x < x2) && (mLift.cur[l].y >= y1) && (mLift.cur[l].y < y2)) mLift.erase_lift(l);
 
    mEnemy.sort_enemy();
    mItem.sort_item(1);

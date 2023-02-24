@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwVisualLevel.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwLift.h"
@@ -624,10 +624,10 @@ int mwVisualLevel::visual_level_select(void)
 {
    mwPS.visual_level_select_running = 1;
 
-   int p = active_local_player;
-   int fc = players[p].color; // frame color
+   int p = mPlayer.active_local_player;
+   int fc = mPlayer.syn[p].color; // frame color
 
-   while ( (mI.key[ALLEGRO_KEY_ENTER][0]) || (players[0].fire) || (players[0].jump) ) mwEQ.proc_event_queue_menu();;
+   while ( (mI.key[ALLEGRO_KEY_ENTER][0]) || (mPlayer.syn[0].fire) || (mPlayer.syn[0].jump) ) mwEQ.proc_event_queue_menu();;
 
    if (!load_visual_level_select_done) load_visual_level_select();
 
@@ -706,45 +706,45 @@ int mwVisualLevel::visual_level_select(void)
 
       mwEQ.proc_event_queue_menu();
 
-      if (((mI.key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) && (left_held == 0))
+      if (((mI.key[ALLEGRO_KEY_LEFT][0]) || (mPlayer.syn[0].left)) && (left_held == 0))
       {
          left_held = 1;
-         while ((mI.key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) mwEQ.proc_event_queue_menu();
+         while ((mI.key[ALLEGRO_KEY_LEFT][0]) || (mPlayer.syn[0].left)) mwEQ.proc_event_queue_menu();
          if (--grid_sel_col < 0) grid_sel_col = 0;
          vl_redraw = 1;
       }
-      if ( (!(mI.key[ALLEGRO_KEY_LEFT][0])) &&  (!(players[0].left)) )  left_held = 0;
+      if ( (!(mI.key[ALLEGRO_KEY_LEFT][0])) &&  (!(mPlayer.syn[0].left)) )  left_held = 0;
 
-      if (((mI.key[ALLEGRO_KEY_UP][0]) || (players[0].up)) && (up_held == 0))
+      if (((mI.key[ALLEGRO_KEY_UP][0]) || (mPlayer.syn[0].up)) && (up_held == 0))
       {
          up_held = 1;
-         while ((mI.key[ALLEGRO_KEY_UP][0]) || (players[0].up)) mwEQ.proc_event_queue_menu();
+         while ((mI.key[ALLEGRO_KEY_UP][0]) || (mPlayer.syn[0].up)) mwEQ.proc_event_queue_menu();
          if (--grid_sel_row < 0) grid_sel_row = 0;
          vl_redraw = 1;
       }
-      if ( (!(mI.key[ALLEGRO_KEY_UP][0])) && (!(players[0].up)) ) up_held = 0;
+      if ( (!(mI.key[ALLEGRO_KEY_UP][0])) && (!(mPlayer.syn[0].up)) ) up_held = 0;
 
-      if (((mI.key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) && (right_held == 0))
+      if (((mI.key[ALLEGRO_KEY_RIGHT][0]) || (mPlayer.syn[0].right)) && (right_held == 0))
       {
          right_held = 1;
-         while ((mI.key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) mwEQ.proc_event_queue_menu();
+         while ((mI.key[ALLEGRO_KEY_RIGHT][0]) || (mPlayer.syn[0].right)) mwEQ.proc_event_queue_menu();
          if (++grid_sel_col > grid_cols-1) grid_sel_col = grid_cols-1;
          // don't allow select of empty level
          if (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--;
          vl_redraw = 1;
       }
-      if ( (!(mI.key[ALLEGRO_KEY_RIGHT][0])) &&  (!(players[0].right)) )  right_held = 0;
+      if ( (!(mI.key[ALLEGRO_KEY_RIGHT][0])) &&  (!(mPlayer.syn[0].right)) )  right_held = 0;
 
-      if (((mI.key[ALLEGRO_KEY_DOWN][0]) || (players[0].down)) && (down_held == 0))
+      if (((mI.key[ALLEGRO_KEY_DOWN][0]) || (mPlayer.syn[0].down)) && (down_held == 0))
       {
          down_held = 1;
-         while ((mI.key[ALLEGRO_KEY_DOWN][0]) || (players[0].down)) mwEQ.proc_event_queue_menu();
+         while ((mI.key[ALLEGRO_KEY_DOWN][0]) || (mPlayer.syn[0].down)) mwEQ.proc_event_queue_menu();
          if (++grid_sel_row > grid_rows-1) grid_sel_row = grid_rows-1;
          // don't allow select of empty level
          if (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_row--;
          vl_redraw = 1;
       }
-      if ( (!(mI.key[ALLEGRO_KEY_DOWN][0])) && (!(players[0].down)) ) down_held = 0;
+      if ( (!(mI.key[ALLEGRO_KEY_DOWN][0])) && (!(mPlayer.syn[0].down)) ) down_held = 0;
 
       // these checks would normally never be needed, unless screen size changes
       if (grid_sel_col > grid_cols-1) grid_sel_col = 0;
@@ -758,9 +758,9 @@ int mwVisualLevel::visual_level_select(void)
       // update selected row
       selected_level = le[grid_sel_row * grid_cols + grid_sel_col];
 
-      if ( (mI.key[ALLEGRO_KEY_ENTER][3]) || (players[0].fire) || (players[0].jump) )
+      if ( (mI.key[ALLEGRO_KEY_ENTER][3]) || (mPlayer.syn[0].fire) || (mPlayer.syn[0].jump) )
       {
-         while ((players[0].jump) || (players[0].fire)) mwEQ.proc_event_queue_menu();
+         while ((mPlayer.syn[0].jump) || (mPlayer.syn[0].fire)) mwEQ.proc_event_queue_menu();
          mLevel.set_start_level(selected_level);
          quit = 1;
       }

@@ -3,7 +3,7 @@
 #include "pm.h"
 #include "mwMenu.h"
 #include "mwWindowManager.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwLogo.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
@@ -152,7 +152,7 @@ int mwMenu::zmenu(int menu_pos, int y)  // this menu function does not pass thro
       int c = 0;
       while (strcmp(menu_string[c],"end") != 0)
       {
-         int b = 15; // b = players[active_local_player].color;
+         int b = 15; // b = mPlayer.syn[mPlayer.active_local_player].color;
          if ((!mLevel.resume_allowed) && (c==4)) b+=80; // dimmer if can't resume
 
          if (c == highlight)
@@ -166,34 +166,34 @@ int mwMenu::zmenu(int menu_pos, int y)  // this menu function does not pass thro
       last_list_item = c-1;
 
 
-      if (((mI.key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) && (right_held == 0))
+      if (((mI.key[ALLEGRO_KEY_RIGHT][0]) || (mPlayer.syn[0].right)) && (right_held == 0))
       {
          right_held = 1;
          selection = highlight + 100;
       }
-      if ( (!(mI.key[ALLEGRO_KEY_RIGHT][0])) &&  (!(players[0].right)) )  right_held = 0;
-      if (((mI.key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) && (left_held == 0))
+      if ( (!(mI.key[ALLEGRO_KEY_RIGHT][0])) &&  (!(mPlayer.syn[0].right)) )  right_held = 0;
+      if (((mI.key[ALLEGRO_KEY_LEFT][0]) || (mPlayer.syn[0].left)) && (left_held == 0))
       {
          left_held = 1;
          selection = highlight + 200;
       }
-      if ( (!(mI.key[ALLEGRO_KEY_LEFT][0])) &&  (!(players[0].left)) )  left_held = 0;
-      if (((mI.key[ALLEGRO_KEY_DOWN][0]) || (players[0].down))  && (down_held == 0))
+      if ( (!(mI.key[ALLEGRO_KEY_LEFT][0])) &&  (!(mPlayer.syn[0].left)) )  left_held = 0;
+      if (((mI.key[ALLEGRO_KEY_DOWN][0]) || (mPlayer.syn[0].down))  && (down_held == 0))
       {
          if (++highlight > last_list_item) highlight = last_list_item;
          down_held = 1;
          mwDM.demo_mode_countdown_val = mwDM.demo_mode_countdown_reset;
          mwDM.demo_mode_enabled = 0;
       }
-      if ( (!(mI.key[ALLEGRO_KEY_DOWN][0])) && (!(players[0].down))) down_held = 0;
-      if (((mI.key[ALLEGRO_KEY_UP][0]) || (players[0].up)) && (up_held == 0))
+      if ( (!(mI.key[ALLEGRO_KEY_DOWN][0])) && (!(mPlayer.syn[0].down))) down_held = 0;
+      if (((mI.key[ALLEGRO_KEY_UP][0]) || (mPlayer.syn[0].up)) && (up_held == 0))
       {
          if (--highlight < 2) highlight = 2;
          up_held = 1;
          mwDM.demo_mode_countdown_val = mwDM.demo_mode_countdown_reset;
          mwDM.demo_mode_enabled = 0;
       }
-      if ( (!(mI.key[ALLEGRO_KEY_UP][0])) && (!(players[0].up))) up_held = 0;
+      if ( (!(mI.key[ALLEGRO_KEY_UP][0])) && (!(mPlayer.syn[0].up))) up_held = 0;
 
 
       // shortcut keys
@@ -230,7 +230,7 @@ int mwMenu::tmenu(int menu_pos, int x1, int y1)
 */
 
 {
-   int pc = players[active_local_player].color;
+   int pc = mPlayer.syn[mPlayer.active_local_player].color;
 
    int highlight = menu_pos;
    int selection = 999;

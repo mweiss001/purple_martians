@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwLevel.h"
-#include "z_config.h"
+#include "mwConfig.h"
 #include "mwLift.h"
 #include "mwItems.h"
 #include "mwEnemy.h"
@@ -73,7 +73,7 @@ void mwLevel::set_start_level(int s)
    play_level = start_level = s;
    load_level(s, 0, 0);
    resume_allowed = 0;
-   save_config();
+   mConfig.save();
 }
 
 int level_exists(int level)
@@ -154,25 +154,25 @@ int mwLevel::is_block_empty(int x, int y, int test_block, int test_item, int tes
 void pml_to_var(char * b) // for load level
 {
    int sz = 0, offset = 0;
-   sz = sizeof(mLevel.l);     memcpy(mLevel.l,     b+offset, sz); offset += sz;
-   sz = sizeof(mItem.item);   memcpy(mItem.item,   b+offset, sz); offset += sz;
-   sz = sizeof(mEnemy.Ei);           memcpy(mEnemy.Ei,           b+offset, sz); offset += sz;
-   sz = sizeof(mEnemy.Ef);           memcpy(mEnemy.Ef,           b+offset, sz); offset += sz;
-   sz = sizeof(Lift.cur);     memcpy(Lift.cur,     b+offset, sz); offset += sz;
-   sz = sizeof(Lift.stp);     memcpy(Lift.stp,     b+offset, sz); offset += sz;
-   sz = sizeof(mItem.pmsgtext);     memcpy(mItem.pmsgtext,     b+offset, sz); offset += sz;
+   sz = sizeof(mLevel.l);       memcpy(mLevel.l,       b+offset, sz); offset += sz;
+   sz = sizeof(mItem.item);     memcpy(mItem.item,     b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ei);      memcpy(mEnemy.Ei,      b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ef);      memcpy(mEnemy.Ef,      b+offset, sz); offset += sz;
+   sz = sizeof(mLift.cur);      memcpy(mLift.cur,      b+offset, sz); offset += sz;
+   sz = sizeof(mLift.stp);      memcpy(mLift.stp,      b+offset, sz); offset += sz;
+   sz = sizeof(mItem.pmsgtext); memcpy(mItem.pmsgtext, b+offset, sz); offset += sz;
 }
 
 void var_to_pml(char * b) // for save level
 {
    int sz = 0, offset = 0;
-   offset += sz; sz = sizeof(mLevel.l);     memcpy(b+offset, mLevel.l,     sz);
-   offset += sz; sz = sizeof(mItem.item);   memcpy(b+offset, mItem.item,   sz);
-   offset += sz; sz = sizeof(mEnemy.Ei);           memcpy(b+offset, mEnemy.Ei,           sz);
-   offset += sz; sz = sizeof(mEnemy.Ef);           memcpy(b+offset, mEnemy.Ef,           sz);
-   offset += sz; sz = sizeof(Lift.cur);     memcpy(b+offset, Lift.cur,     sz);
-   offset += sz; sz = sizeof(Lift.stp);     memcpy(b+offset, Lift.stp,     sz);
-   offset += sz; sz = sizeof(mItem.pmsgtext);     memcpy(b+offset, mItem.pmsgtext,     sz);
+   offset += sz; sz = sizeof(mLevel.l);       memcpy(b+offset, mLevel.l,       sz);
+   offset += sz; sz = sizeof(mItem.item);     memcpy(b+offset, mItem.item,     sz);
+   offset += sz; sz = sizeof(mEnemy.Ei);      memcpy(b+offset, mEnemy.Ei,      sz);
+   offset += sz; sz = sizeof(mEnemy.Ef);      memcpy(b+offset, mEnemy.Ef,      sz);
+   offset += sz; sz = sizeof(mLift.cur);      memcpy(b+offset, mLift.cur,      sz);
+   offset += sz; sz = sizeof(mLift.stp);      memcpy(b+offset, mLift.stp,      sz);
+   offset += sz; sz = sizeof(mItem.pmsgtext); memcpy(b+offset, mItem.pmsgtext, sz);
 }
 
 
@@ -214,7 +214,7 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
       if (!load_only)
       {
          mLevel.valid_level_loaded = 1;
-         Lift.lift_setup();
+         mLift.lift_setup();
          for (int x=0; x<500; x++)
             if (mItem.item[x][0]) // only if active set x y
             {
@@ -236,7 +236,7 @@ void mwLevel::save_level(int level_num)
 
    mItem.sort_item(1);
    mEnemy.sort_enemy();
-   Lift.lift_setup();
+   mLift.lift_setup();
 
    char lf[255];
    sprintf(lf, "levels/level%03d.pml", level_num);
@@ -310,7 +310,7 @@ int mwLevel::show_level_data(int x_pos, int y_pos, int type)
    int ey_pos = mEnemy.show_enemy_data(x_pos, y_pos);
    int iy_pos = mItem.item_data(x_pos+135, y_pos);
    ey_pos = ey_pos + 8;
-   al_draw_textf(mF.pr8, mC.pc[15], x_pos, ey_pos, 0,"%d Lifts  ", Lift.get_num_lifts());
+   al_draw_textf(mF.pr8, mC.pc[15], x_pos, ey_pos, 0,"%d Lifts  ", mLift.get_num_lifts());
    ey_pos += 8;
    al_draw_text(mF.pr8, mC.pc[15], x_pos, ey_pos, 0, "-------");
    ey_pos += 8;
@@ -355,9 +355,9 @@ void mwLevel::zero_level_data(void)
 
    for (int c=0; c<40; c++) // lifts
    {
-      Lift.clear_lift(c);
+      mLift.clear_lift(c);
       for (int x=0; x<40; x++)
-         Lift.clear_lift_step(c,x);
+         mLift.clear_lift_step(c,x);
    }
 }
 

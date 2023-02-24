@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwItems.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwProgramState.h"
@@ -11,7 +11,7 @@
 #include "z_screen_overlay.h"
 #include "z_solid.h"
 #include "mwFont.h"
-#include "z_sound.h"
+#include "mwSound.h"
 
 
 void mwItems::proc_bomb_collision(int p, int i)
@@ -43,7 +43,7 @@ void mwItems::proc_rocket_collision(int p, int i)
 
 void mwItems::proc_lit_rocket(int i)
 {
-   lit_item = 1;
+   mSound.lit_item = 1;
 
    int accel = mItem.item[i][9];
    int max_speed = mItem.item[i][8]*1000;
@@ -82,17 +82,17 @@ void mwItems::proc_lit_rocket(int i)
 
       // if any players are riding this rocket, make them drop it
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ( (players[p].active) && (!players[p].paused) && (players[p].carry_item) && (players[p].carry_item == i+1 )) players[p].carry_item = 0;
+         if ( (mPlayer.syn[p].active) && (!mPlayer.syn[p].paused) && (mPlayer.syn[p].carry_item) && (mPlayer.syn[p].carry_item == i+1 )) mPlayer.syn[p].carry_item = 0;
 
    }
    else
    {
       // if any players are riding this rocket, bind them to rocket's position
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ( (players[p].active) && (!players[p].paused) && (players[p].carry_item == i+1 ))
+         if ( (mPlayer.syn[p].active) && (!mPlayer.syn[p].paused) && (mPlayer.syn[p].carry_item == i+1 ))
          {
-            players[p].x = itemf[i][0];
-            players[p].y = itemf[i][1];
+            mPlayer.syn[p].x = itemf[i][0];
+            mPlayer.syn[p].y = itemf[i][1];
          }
    }
 }
@@ -279,9 +279,9 @@ void mwItems::bomb_players(int i, int t, int dr, float x, float y)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
    {
-      if ((players[p].active) && (!players[p].paused))
+      if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
       {
-         float dist = sqrt( pow( (players[p].x - x), 2) + pow( (players[p].y - y), 2)   );
+         float dist = sqrt( pow( (mPlayer.syn[p].x - x), 2) + pow( (mPlayer.syn[p].y - y), 2)   );
          if (dist < dr)
          {
             // calculate bomb damage based on blast size and player's distance
@@ -291,14 +291,14 @@ void mwItems::bomb_players(int i, int t, int dr, float x, float y)
             int dmg = damage;
             if (t == 1) // add potential bomb damage for display
             {
-               players1[p].potential_bomb_damage += dmg;
-               players1[p].health_display = 40;
-               players1[p].last_health_adjust = 0;
-               bomb_crosshairs(players[p].x + 10, players[p].y + 10);
+               mPlayer.loc[p].potential_bomb_damage += dmg;
+               mPlayer.loc[p].health_display = 40;
+               mPlayer.loc[p].last_health_adjust = 0;
+               bomb_crosshairs(mPlayer.syn[p].x + 10, mPlayer.syn[p].y + 10);
             }
             if ((t == 2) && (mItem.item[i][8] == 0)) // only do damage once at end of explosion seq
             {
-               players[p].health -= damage;
+               mPlayer.syn[p].health -= damage;
                int p2 = mItem.item[i][13]; // player that last touched bomb
                if (p == p2) game_event(53, 0, 0, p, 0, 0, dmg);
                else game_event(52, 0, 0, p, p2, 0, dmg);
@@ -314,7 +314,7 @@ void mwItems::proc_lit_bomb(int i)
 
    if (mItem.item[i][6] == 3) // remote detonator
    {
-      if (players[mItem.item[i][13]].down)
+      if (mPlayer.syn[mItem.item[i][13]].down)
       {
          mItem.item[i][6] = 2; // mode 2; explosion
          mItem.item[i][8] = mItem.item[i][9] = 20; // explosion timer
@@ -323,7 +323,7 @@ void mwItems::proc_lit_bomb(int i)
 
    if (mItem.item[i][6] == 1) // fuse burning
    {
-      lit_item = 1;
+      mSound.lit_item = 1;
       if (mItem.item[i][8] < 1) // fuse done
       {
          mItem.item[i][6] = 2; // mode 2; explosion
@@ -331,7 +331,7 @@ void mwItems::proc_lit_bomb(int i)
 
          // force player to drop item
          for (int p=0; p<NUM_PLAYERS; p++)
-            if ((players[p].active) && (players[p].carry_item-1 == i)) player_drop_item(p, i);
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].carry_item-1 == i)) player_drop_item(p, i);
 
          // check for other co-located bombs
          for (int ii=0; ii<500; ii++)
@@ -392,9 +392,9 @@ int mwItems::draw_lit_bomb(int i)
 
       // get detonator position relative to player
       int p = mItem.item[i][13];
-      int xo = players[p].left_right*28-14;
-      int px = players[p].x + xo;
-      int py = players[p].y + -1;
+      int xo = mPlayer.syn[p].left_right*28-14;
+      int px = mPlayer.syn[p].x + xo;
+      int py = mPlayer.syn[p].y + -1;
 
       // draw detonator
       al_draw_bitmap(mwB.tile[539], px, py, 0);

@@ -1,7 +1,7 @@
 // n_client.cpp
 #include "pm.h"
 #include "z_log.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "n_netgame.h"
 #include "n_packet.h"
 #include "mwRollingAverage.h"
@@ -16,7 +16,7 @@
 #include "mwEventQueue.h"
 #include "mwProgramState.h"
 #include "mwLevel.h"
-#include "z_config.h"
+#include "mwConfig.h"
 #include "z_loop.h"
 #include "z_screen.h"
 #include "mwShots.h"
@@ -200,8 +200,8 @@ int ClientReceive(void *data)
    else    	len = net_receive(ServerChannel, data, 1024, NULL);
    if (len > 0)
    {
-      players1[active_local_player].rx_current_bytes_for_this_frame+= len;
-      players1[active_local_player].rx_current_packets_for_this_frame++;
+      mPlayer.loc[mPlayer.active_local_player].rx_current_bytes_for_this_frame+= len;
+      mPlayer.loc[mPlayer.active_local_player].rx_current_packets_for_this_frame++;
    }
 	return len;
 }
@@ -209,8 +209,8 @@ void ClientSend(void *data, int len)
 {
    if (TCP) net_send_rdm(ServerConn, data, len);
    else     net_send(ServerChannel, data, len);
-   players1[active_local_player].tx_current_bytes_for_this_frame+= len;
-   players1[active_local_player].tx_current_packets_for_this_frame++;
+   mPlayer.loc[mPlayer.active_local_player].tx_current_bytes_for_this_frame+= len;
+   mPlayer.loc[mPlayer.active_local_player].tx_current_packets_for_this_frame++;
 }
 
 void client_flush(void)
@@ -259,13 +259,13 @@ int client_init(void)
 
    printf("sending cjon\n");
    Packet("cjon");
-   PacketPut1ByteInt(players[0].color); // requested color
+   PacketPut1ByteInt(mPlayer.syn[0].color); // requested color
    PacketAddString(mwPS.local_hostname);
    ClientSend(packetbuffer, packetsize);
 
    if (LOG_NET_join)
    {
-      sprintf(msg,"Client sent join request to server with player color:[%2d]", players[0].color);
+      sprintf(msg,"Client sent join request to server with player color:[%2d]", mPlayer.syn[0].color);
       add_log_entry_centered_text(11, 0, 76, "", "+", "-");
       add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
       add_log_entry_centered_text(11, 0, 76, "", "+", "-");
@@ -291,16 +291,16 @@ void client_process_sjon_packet(void)
    {
       sprintf(msg,"Server replied with 'SERVER FULL'\n");
       printf("%s", msg);
-      if (LOG_NET_join) add_log_entry2(11, active_local_player, msg);
+      if (LOG_NET_join) add_log_entry2(11, mPlayer.active_local_player, msg);
       mwPS.new_program_state = 25;
    }
    else // join allowed
    {
-      active_local_player = p;
-      players[p].control_method = 4;
-      players[p].color = color;
-      strncpy(players1[0].hostname, m_serveraddress, 16);
-      strncpy(players1[p].hostname, mwPS.local_hostname, 16);
+      mPlayer.active_local_player = p;
+      mPlayer.syn[p].control_method = 4;
+      mPlayer.syn[p].color = color;
+      strncpy(mPlayer.loc[0].hostname, m_serveraddress, 16);
+      strncpy(mPlayer.loc[p].hostname, mwPS.local_hostname, 16);
       ima_client = 1;
 
       mLevel.play_level = pl;
@@ -308,9 +308,9 @@ void client_process_sjon_packet(void)
 
 
 
-      mwS.deathmatch_shots = ds;
-      mwS.deathmatch_shot_damage = dd-1000;
-      mwS.suicide_shots = ss;
+      mShot.deathmatch_shots = ds;
+      mShot.deathmatch_shot_damage = dd-1000;
+      mShot.suicide_shots = ss;
 
       if (LOG_NET_join)
       {
@@ -324,11 +324,11 @@ void client_process_sjon_packet(void)
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Server Frame Num:[%d]", server_sjon_frame_num);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Deathmatch player shots:[%d]", mwS.deathmatch_shots);
+         sprintf(msg,"Deathmatch player shots:[%d]", mShot.deathmatch_shots);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Deathmatch player shot damage:[%d]", mwS.deathmatch_shot_damage);
+         sprintf(msg,"Deathmatch player shot damage:[%d]", mShot.deathmatch_shot_damage);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Suicide player shots:[%d]", mwS.suicide_shots);
+         sprintf(msg,"Suicide player shots:[%d]", mShot.suicide_shots);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          add_log_entry_centered_text(11, 0, 76, "", "+", "-");
       }
@@ -341,10 +341,10 @@ void client_exit(void)
    ClientExitNetwork();
    ima_client = 0;
    // reset player data
-   for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
-   players[0].active = 1; // local_control
-   active_local_player = 0;
-   load_config(); // to get color back
+   for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
+   mPlayer.syn[0].active = 1; // local_control
+   mPlayer.active_local_player = 0;
+   mConfig.load(); // to get color back
 }
 
 void client_send_ping(void)
@@ -360,20 +360,20 @@ void client_send_ping(void)
 
 void client_send_stak(void)
 {
-   int p = active_local_player;
+   int p = mPlayer.active_local_player;
    Packet("stak");
    PacketPut1ByteInt(p);
    PacketPut4ByteInt(client_state_base_frame_num);
    PacketPut4ByteInt(mwPS.frame_num);
-   PacketPutDouble(players1[p].client_chase_fps);
-   PacketPutDouble(players1[p].dsync_avg);
+   PacketPutDouble(mPlayer.loc[p].client_chase_fps);
+   PacketPutDouble(mPlayer.loc[p].dsync_avg);
    ClientSend(packetbuffer, packetsize);
 }
 
 void client_apply_dif(void)
 {
    char msg[1024];
-   int p = active_local_player;
+   int p = mPlayer.active_local_player;
    if ((client_state_dif_src == -1) || (client_state_dif_dst == -1)) // check if valid dif
    {
       sprintf(msg, "dif is not valid - src:%d dst:%d\n", client_state_dif_src, client_state_dif_dst);
@@ -400,7 +400,7 @@ void client_apply_dif(void)
                memset(client_state_base, 0, STATE_SIZE);
                client_state_base_frame_num = 0;
                if (LOG_NET_dif_not_applied) add_log_entry2(31, p, "Resetting client base state to zero\n");
-               players1[p].client_base_resets++;
+               mPlayer.loc[p].client_base_resets++;
             }
 
             if (client_state_base_frame_num != client_state_dif_src) // stored base state does NOT match dif source
@@ -411,7 +411,7 @@ void client_apply_dif(void)
             }
             else // we have a matching base to apply dif
             {
-               int ff = players1[p].client_rewind = mwPS.frame_num - client_state_dif_dst; // dst compared to current mwPS.frame_num
+               int ff = mPlayer.loc[p].client_rewind = mwPS.frame_num - client_state_dif_dst; // dst compared to current mwPS.frame_num
                char tmsg[64];
                if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", mwPS.frame_num);
                if (ff > 0)  sprintf(tmsg, "rewind [%d] frames\n", ff);
@@ -429,7 +429,7 @@ void client_apply_dif(void)
                   memcpy(old_l, mLevel.l, sizeof(mLevel.l));
 
                   // make a copy of players x pos
-                  float oldpx = players[p].x;
+                  float oldpx = mPlayer.syn[p].x;
 
                   // apply dif to base state
                   apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
@@ -439,17 +439,17 @@ void client_apply_dif(void)
 
 
                   // make a copy of players x pos
-                  float xcor = oldpx - players[p].x;
+                  float xcor = oldpx - mPlayer.syn[p].x;
 
 
-                  if (mwPS.frame_num > players1[p].xcor_reset_frame)
+                  if (mwPS.frame_num > mPlayer.loc[p].xcor_reset_frame)
                   {
-                     players1[p].xcor_reset_frame = mwPS.frame_num + 100;
-                     players1[p].xcor_max = 0;
+                     mPlayer.loc[p].xcor_reset_frame = mwPS.frame_num + 100;
+                     mPlayer.loc[p].xcor_max = 0;
 
                   }
 
-                  if (xcor > players1[p].xcor_max)  players1[p].xcor_max = xcor;
+                  if (xcor > mPlayer.loc[p].xcor_max)  mPlayer.loc[p].xcor_max = xcor;
 
 
 
@@ -470,20 +470,20 @@ void client_apply_dif(void)
 
 
                   // fix control methods
-                  players[0].control_method = 2; // on client, server is mode 2
-                  if (players[p].control_method == 2) players[p].control_method = 4;
-                  if (players[p].control_method == 8) mwPS.new_program_state = 1; // server quit
+                  mPlayer.syn[0].control_method = 2; // on client, server is mode 2
+                  if (mPlayer.syn[p].control_method == 2) mPlayer.syn[p].control_method = 4;
+                  if (mPlayer.syn[p].control_method == 8) mwPS.new_program_state = 1; // server quit
 
                   // update mwPS.frame_num and client base mwPS.frame_num
                   mwPS.frame_num = client_state_base_frame_num = client_state_dif_dst;
 
-                  players1[p].client_last_dif_applied = mwPS.frame_num;
+                  mPlayer.loc[p].client_last_dif_applied = mwPS.frame_num;
 
                   if (ff) loop_frame(ff); // if we rewound time, play it back
 
                   client_send_stak();
 
-                  if (client_state_dif_src) players1[p].client_move_lag = mwPS.frame_num - client_state_dif_src;
+                  if (client_state_dif_src) mPlayer.loc[p].client_move_lag = mwPS.frame_num - client_state_dif_src;
 
                   sprintf(msg, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
                   if (LOG_NET_dif_applied) add_log_entry2(30, p, msg);
@@ -501,11 +501,11 @@ void client_apply_dif(void)
 void client_timer_adjust(void)
 {
    char msg[1024];
-   int p = active_local_player;
+   int p = mPlayer.active_local_player;
 
-   float mva = players1[p].dsync_avg;            // measured value
-   float mv = players1[p].dsync;                 // measured value
-   float sp = players1[p].client_chase_offset;   // set point
+   float mva = mPlayer.loc[p].dsync_avg;            // measured value
+   float mv = mPlayer.loc[p].dsync;                 // measured value
+   float sp = mPlayer.loc[p].client_chase_offset;   // set point
    float err = sp - mva;                          // error = set point - measured value
 
    float p_adj = err * 80; // instantaneous error adjustment (proportional)
@@ -525,12 +525,12 @@ void client_timer_adjust(void)
    if (fps_chase < 10) fps_chase = 10; // never let this go negative
    if (fps_chase > 70) fps_chase = 70;
    al_set_timer_speed(mwEQ.fps_timer, ( 1 / fps_chase));
-   players1[p].client_chase_fps = fps_chase;
+   mPlayer.loc[p].client_chase_fps = fps_chase;
 
    sprintf(msg, "tmst mv:[%5.2f] ma:[%5.2f] sp:[%5.2f] er:[%6.2f] pa:[%6.2f] ia:[%6.2f] ta:[%6.2f]\n", mv*1000, mva*1000, sp*1000, err*1000, p_adj, i_adj, t_adj);
    if (LOG_TMR_client_timer_adj) if (mwPS.frame_num) add_log_entry2(44, 0, msg);
 
-   sprintf(msg, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.3f]\n", players1[p].dsync*1000, players1[p].client_chase_offset*1000, fps_chase);
+   sprintf(msg, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.3f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].client_chase_offset*1000, fps_chase);
    if (LOG_NET_client_timer_adj) add_log_entry2(36, p, msg);
 }
 
@@ -538,7 +538,7 @@ void client_timer_adjust(void)
 void client_process_stdf_packet(double timestamp)
 {
    char msg[1024];
-   int p = active_local_player;
+   int p = mPlayer.active_local_player;
 
    int src = PacketGet4ByteInt();
    int dst = PacketGet4ByteInt();
@@ -546,21 +546,21 @@ void client_process_stdf_packet(double timestamp)
    int max_seq = PacketGet1ByteInt();
    int sb = PacketGet4ByteInt();
    int sz = PacketGet4ByteInt();
-   players1[p].late_cdats_last_sec = PacketGet1ByteInt();
+   mPlayer.loc[p].late_cdats_last_sec = PacketGet1ByteInt();
 
    sprintf(msg, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d \n", seq+1, max_seq, src, dst, sb, sz);
    if (LOG_NET_stdf_all_packets) add_log_entry2(28, p, msg);
 
    int client_sync = dst - mwPS.frame_num;                             // crude integer sync based on frame numbers
 
-   if (players1[p].client_last_stdf_rx_frame_num != mwPS.frame_num)    // this is the first stdf received for this frame
+   if (mPlayer.loc[p].client_last_stdf_rx_frame_num != mwPS.frame_num)    // this is the first stdf received for this frame
    {
-      players1[p].client_last_stdf_rx_frame_num = mwPS.frame_num;      // client keeps track of last stdf rx'd and quits if too long
-      players1[p].dsync = al_get_time() - timestamp;              // time between when the packet was received into the packet buffer and now
-      players1[p].dsync += (double) client_sync * 0.025;          // combine with client_sync
+      mPlayer.loc[p].client_last_stdf_rx_frame_num = mwPS.frame_num;      // client keeps track of last stdf rx'd and quits if too long
+      mPlayer.loc[p].dsync = al_get_time() - timestamp;              // time between when the packet was received into the packet buffer and now
+      mPlayer.loc[p].dsync += (double) client_sync * 0.025;          // combine with client_sync
 
-      mwRA[2].add_data(players1[p].dsync); // send to rolling average
-      players1[p].dsync_avg = mwRA[2].avg;
+      mwRA[2].add_data(mPlayer.loc[p].dsync); // send to rolling average
+      mPlayer.loc[p].dsync_avg = mwRA[2].avg;
 
       client_timer_adjust();
    }
@@ -581,13 +581,13 @@ void client_process_stdf_packet(double timestamp)
 
       if (destLen == STATE_SIZE)
       {
-         sprintf(msg, "rx dif complete [%d to %d] dsync[%3.1fms] - uncompressed\n", src, dst, players1[p].dsync*1000);
+         sprintf(msg, "rx dif complete [%d to %d] dsync[%3.1fms] - uncompressed\n", src, dst, mPlayer.loc[p].dsync*1000);
          client_state_dif_src = src; // mark dif data with new src and dst
          client_state_dif_dst = dst;
       }
       else
       {
-         sprintf(msg, "rx dif complete [%d to %d] dsync[%3.1f] - bad uncompress\n", src, dst, players1[p].dsync*1000);
+         sprintf(msg, "rx dif complete [%d to %d] dsync[%3.1f] - bad uncompress\n", src, dst, mPlayer.loc[p].dsync*1000);
          client_state_dif_src = -1; // mark dif data as bad
          client_state_dif_dst = -1;
       }
@@ -599,78 +599,78 @@ void process_bandwidth_counters(int p)
 {
    char msg[1024];
    // get maximums per frame
-   if (players1[p].tx_current_packets_for_this_frame > players1[p].tx_max_packets_per_frame) players1[p].tx_max_packets_per_frame = players1[p].tx_current_packets_for_this_frame;
-   if (players1[p].tx_current_bytes_for_this_frame >   players1[p].tx_max_bytes_per_frame)   players1[p].tx_max_bytes_per_frame =   players1[p].tx_current_bytes_for_this_frame;
-   if (players1[p].rx_current_packets_for_this_frame > players1[p].rx_max_packets_per_frame) players1[p].rx_max_packets_per_frame = players1[p].rx_current_packets_for_this_frame;
-   if (players1[p].rx_current_bytes_for_this_frame >   players1[p].rx_max_bytes_per_frame)   players1[p].rx_max_bytes_per_frame =   players1[p].rx_current_bytes_for_this_frame;
+   if (mPlayer.loc[p].tx_current_packets_for_this_frame > mPlayer.loc[p].tx_max_packets_per_frame) mPlayer.loc[p].tx_max_packets_per_frame = mPlayer.loc[p].tx_current_packets_for_this_frame;
+   if (mPlayer.loc[p].tx_current_bytes_for_this_frame >   mPlayer.loc[p].tx_max_bytes_per_frame)   mPlayer.loc[p].tx_max_bytes_per_frame =   mPlayer.loc[p].tx_current_bytes_for_this_frame;
+   if (mPlayer.loc[p].rx_current_packets_for_this_frame > mPlayer.loc[p].rx_max_packets_per_frame) mPlayer.loc[p].rx_max_packets_per_frame = mPlayer.loc[p].rx_current_packets_for_this_frame;
+   if (mPlayer.loc[p].rx_current_bytes_for_this_frame >   mPlayer.loc[p].rx_max_bytes_per_frame)   mPlayer.loc[p].rx_max_bytes_per_frame =   mPlayer.loc[p].rx_current_bytes_for_this_frame;
 
    // get totals
-   players1[p].tx_total_bytes   += players1[p].tx_current_bytes_for_this_frame;
-   players1[p].tx_total_packets += players1[p].tx_current_packets_for_this_frame;
-   players1[p].rx_total_bytes   += players1[p].rx_current_bytes_for_this_frame;
-   players1[p].rx_total_packets += players1[p].rx_current_packets_for_this_frame;
+   mPlayer.loc[p].tx_total_bytes   += mPlayer.loc[p].tx_current_bytes_for_this_frame;
+   mPlayer.loc[p].tx_total_packets += mPlayer.loc[p].tx_current_packets_for_this_frame;
+   mPlayer.loc[p].rx_total_bytes   += mPlayer.loc[p].rx_current_bytes_for_this_frame;
+   mPlayer.loc[p].rx_total_packets += mPlayer.loc[p].rx_current_packets_for_this_frame;
 
    // add to tallies
-   players1[p].tx_bytes_tally   += players1[p].tx_current_bytes_for_this_frame;
-   players1[p].tx_packets_tally += players1[p].tx_current_packets_for_this_frame;
-   players1[p].rx_bytes_tally   += players1[p].rx_current_bytes_for_this_frame;
-   players1[p].rx_packets_tally += players1[p].rx_current_packets_for_this_frame;
+   mPlayer.loc[p].tx_bytes_tally   += mPlayer.loc[p].tx_current_bytes_for_this_frame;
+   mPlayer.loc[p].tx_packets_tally += mPlayer.loc[p].tx_current_packets_for_this_frame;
+   mPlayer.loc[p].rx_bytes_tally   += mPlayer.loc[p].rx_current_bytes_for_this_frame;
+   mPlayer.loc[p].rx_packets_tally += mPlayer.loc[p].rx_current_packets_for_this_frame;
 
    // reset counts for this frame
-   players1[p].tx_current_bytes_for_this_frame = 0;
-   players1[p].tx_current_packets_for_this_frame = 0;
-   players1[p].rx_current_bytes_for_this_frame = 0;
-   players1[p].rx_current_packets_for_this_frame = 0;
+   mPlayer.loc[p].tx_current_bytes_for_this_frame = 0;
+   mPlayer.loc[p].tx_current_packets_for_this_frame = 0;
+   mPlayer.loc[p].rx_current_bytes_for_this_frame = 0;
+   mPlayer.loc[p].rx_current_packets_for_this_frame = 0;
 
    if (mwPS.frame_num % 40 == 0) // tally freq = 40 frames = 1s
    {
       // get maximums per tally
-      if (players1[p].tx_bytes_per_tally >   players1[p].tx_max_bytes_per_tally)   players1[p].tx_max_bytes_per_tally =   players1[p].tx_bytes_per_tally;
-      if (players1[p].rx_bytes_per_tally >   players1[p].rx_max_bytes_per_tally)   players1[p].rx_max_bytes_per_tally =   players1[p].rx_bytes_per_tally;
-      if (players1[p].tx_packets_per_tally > players1[p].tx_max_packets_per_tally) players1[p].tx_max_packets_per_tally = players1[p].tx_packets_per_tally;
-      if (players1[p].rx_packets_per_tally > players1[p].rx_max_packets_per_tally) players1[p].rx_max_packets_per_tally = players1[p].rx_packets_per_tally;
+      if (mPlayer.loc[p].tx_bytes_per_tally >   mPlayer.loc[p].tx_max_bytes_per_tally)   mPlayer.loc[p].tx_max_bytes_per_tally =   mPlayer.loc[p].tx_bytes_per_tally;
+      if (mPlayer.loc[p].rx_bytes_per_tally >   mPlayer.loc[p].rx_max_bytes_per_tally)   mPlayer.loc[p].rx_max_bytes_per_tally =   mPlayer.loc[p].rx_bytes_per_tally;
+      if (mPlayer.loc[p].tx_packets_per_tally > mPlayer.loc[p].tx_max_packets_per_tally) mPlayer.loc[p].tx_max_packets_per_tally = mPlayer.loc[p].tx_packets_per_tally;
+      if (mPlayer.loc[p].rx_packets_per_tally > mPlayer.loc[p].rx_max_packets_per_tally) mPlayer.loc[p].rx_max_packets_per_tally = mPlayer.loc[p].rx_packets_per_tally;
 
       // stick in variables for display
-      players1[p].tx_bytes_per_tally   = players1[p].tx_bytes_tally;
-      players1[p].tx_packets_per_tally = players1[p].tx_packets_tally;
-      players1[p].rx_bytes_per_tally   = players1[p].rx_bytes_tally;
-      players1[p].rx_packets_per_tally = players1[p].rx_packets_tally;
+      mPlayer.loc[p].tx_bytes_per_tally   = mPlayer.loc[p].tx_bytes_tally;
+      mPlayer.loc[p].tx_packets_per_tally = mPlayer.loc[p].tx_packets_tally;
+      mPlayer.loc[p].rx_bytes_per_tally   = mPlayer.loc[p].rx_bytes_tally;
+      mPlayer.loc[p].rx_packets_per_tally = mPlayer.loc[p].rx_packets_tally;
 
       if (LOG_NET_bandwidth)
       {
          // log tallies
-         sprintf(msg, "bandwidth (B/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]\n", players1[p].tx_bytes_per_tally, players1[p].tx_max_bytes_per_tally, players1[p].rx_bytes_per_tally, players1[p].rx_max_bytes_per_tally);
+         sprintf(msg, "bandwidth (B/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]\n", mPlayer.loc[p].tx_bytes_per_tally, mPlayer.loc[p].tx_max_bytes_per_tally, mPlayer.loc[p].rx_bytes_per_tally, mPlayer.loc[p].rx_max_bytes_per_tally);
          add_log_entry2(23, p, msg);
-         sprintf(msg, "packets per s TX cur:[%3d] max:[%3d] RX cur:[%3d] max:[%3d]\n", players1[p].tx_packets_per_tally, players1[p].tx_max_packets_per_tally, players1[p].rx_packets_per_tally, players1[p].rx_max_packets_per_tally);
+         sprintf(msg, "packets per s TX cur:[%3d] max:[%3d] RX cur:[%3d] max:[%3d]\n", mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].tx_max_packets_per_tally, mPlayer.loc[p].rx_packets_per_tally, mPlayer.loc[p].rx_max_packets_per_tally);
          add_log_entry2(24, p, msg);
       }
 
       // reset tallies
-      players1[p].tx_bytes_tally = 0;
-      players1[p].tx_packets_tally = 0;
-      players1[p].rx_bytes_tally = 0;
-      players1[p].rx_packets_tally = 0;
+      mPlayer.loc[p].tx_bytes_tally = 0;
+      mPlayer.loc[p].tx_packets_tally = 0;
+      mPlayer.loc[p].rx_bytes_tally = 0;
+      mPlayer.loc[p].rx_packets_tally = 0;
    }
 }
 
 void client_proc_player_drop(void)
 {
    char msg[1024];
-   int p = active_local_player;
+   int p = mPlayer.active_local_player;
 
-   if (players[p].control_method == 8)
+   if (mPlayer.syn[p].control_method == 8)
    {
       sprintf(msg, "SERVER ENDED GAME!");
       float stretch = ( (float)mwD.SCREEN_W / (strlen(msg)*8)) - 1;
-      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, players[p].color, stretch, 1);
+      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, mPlayer.syn[p].color, stretch, 1);
       al_flip_display();
       mI.tsw();
-      players1[p].quit_reason = 92;
+      mPlayer.loc[p].quit_reason = 92;
       if (LOG_NET) log_ending_stats(p);
       mwPS.new_program_state = 1;
    }
 
-   int lsf = players1[p].client_last_stdf_rx_frame_num;
+   int lsf = mPlayer.loc[p].client_last_stdf_rx_frame_num;
    if ((mwPS.frame_num > 0) && (lsf > 0)) // check to see if server connection is lost
    {
       int ss = mwPS.frame_num - lsf;
@@ -688,10 +688,10 @@ void client_proc_player_drop(void)
 
          sprintf(msg, "LOST SERVER CONNECTION!");
          float stretch = ( (float)mwD.SCREEN_W / (strlen(msg)*8)) - 1;
-         rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, players[p].color, stretch, 1);
+         rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, mPlayer.syn[p].color, stretch, 1);
          al_flip_display();
          mI.tsw();
-         players1[p].quit_reason = 75;
+         mPlayer.loc[p].quit_reason = 75;
          if (LOG_NET) log_ending_stats(p);
          mwPS.new_program_state = 25;
       }
@@ -704,7 +704,7 @@ void client_proc_player_drop(void)
 void client_fast_packet_loop(void)
 {
    char msg[1024];
-   int p = active_local_player;
+   int p = mPlayer.active_local_player;
 
    while ((packetsize = ClientReceive(packetbuffer)))
    {
@@ -715,19 +715,19 @@ void client_fast_packet_loop(void)
          double t0 = PacketGetDouble();
          double t1 = PacketGetDouble();
          double t2 = al_get_time();
-         players1[p].ping = t2 - t0;
-         //printf("%d rx pong [%3.1f ms] - send pang\n", mwPS.frame_num, players1[p].ping * 1000);
+         mPlayer.loc[p].ping = t2 - t0;
+         //printf("%d rx pong [%3.1f ms] - send pang\n", mwPS.frame_num, mPlayer.loc[p].ping * 1000);
 
-         mwRA[1].add_data(players1[p].ping); // send to rolling average
-         players1[p].ping_avg = mwRA[1].avg;
+         mwRA[1].add_data(mPlayer.loc[p].ping); // send to rolling average
+         mPlayer.loc[p].ping_avg = mwRA[1].avg;
 
-         if (players1[p].client_chase_offset_mode) players1[p].client_chase_offset = - players1[p].ping_avg + players1[p].client_chase_offset_auto_offset;
+         if (mPlayer.loc[p].client_chase_offset_mode) mPlayer.loc[p].client_chase_offset = - mPlayer.loc[p].ping_avg + mPlayer.loc[p].client_chase_offset_auto_offset;
 
-         sprintf(msg, "ping [%3.2f] avg[%3.2f]\n", players1[p].ping*1000, players1[p].ping_avg*1000);
+         sprintf(msg, "ping [%3.2f] avg[%3.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
          //printf(msg);
          if (LOG_NET_client_ping) add_log_entry2(37, p, msg);
 
-         sprintf(msg, "tmst ping:[%5.2f] pavg:[%5.2f]\n", players1[p].ping*1000, players1[p].ping_avg*1000);
+         sprintf(msg, "tmst ping:[%5.2f] pavg:[%5.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
          if (LOG_TMR_client_ping) if (mwPS.frame_num) add_log_entry2(44, 0, msg);
 
          Packet("pang");
@@ -777,5 +777,5 @@ void client_control(void)
    client_read_packet_buffer();
    client_apply_dif();
    client_proc_player_drop();
-   process_bandwidth_counters(active_local_player);
+   process_bandwidth_counters(mPlayer.active_local_player);
 }

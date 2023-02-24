@@ -114,7 +114,7 @@ void cm_process_menu_bar(int d)
       int ret = mMenu.tmenu(1, x1, by1-1);
       if (ret == 1) mItem.show_all_items();
       if (ret == 2) mEnemy.show_all_enemies();
-      if (ret == 3) Lift.show_all_lifts();
+      if (ret == 3) mLift.show_all_lifts();
       if (ret == 4) mItem.show_all_pmsg();
       if (ret == 5) mwPME.show_all_events();
       if (ret == 6) mLevel.level_check();
@@ -505,7 +505,7 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, int have_fo
                      case 204: create_obj(3, 7, 0);  break; // pod
                      case 206: create_obj(2, 10,0);  break; // msg
                      case 207: create_obj(3, 9, 0);  break; // cloner
-                     case 208: Lift.create_lift(); break; // lift
+                     case 208: mLift.create_lift(); break; // lift
                      case 209: mItem.create_door(1);       break; // one way fixed exit door
                      case 210: mItem.create_door(2);       break; // one way linked exit door
                      case 211: mItem.create_door(3);       break; // two way door set

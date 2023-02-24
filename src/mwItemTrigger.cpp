@@ -4,7 +4,7 @@
 #include "mwItems.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwLift.h"
 #include "mwColor.h"
 #include "mwPMEvent.h"
@@ -51,10 +51,10 @@ int mwItems::proc_orb_shot_collision(int i)
    float x = itemf[i][0];
    float y = itemf[i][1];
    for (int b=0; b<50; b++)
-      if (mwS.p[b].active)
+      if (mShot.p[b].active)
       {
-         float bx = mwS.p[b].x;
-         float by = mwS.p[b].y;
+         float bx = mShot.p[b].x;
+         float by = mShot.p[b].y;
          if ((x > bx-s) && (x < bx+s) && (y > by-s) && (y < by+s)) return 1;
       }
    return 0;
@@ -174,8 +174,8 @@ int mwItems::draw_orb(int i, int x, int y)
 void mwItems::proc_orb_collision(int p, int i)
 {
    if (  (mItem.item[i][2] & PM_ITEM_ORB_TRIG_TOUCH) ||
-        ((mItem.item[i][2] & PM_ITEM_ORB_TRIG_UP)   && (players[p].up)) ||
-        ((mItem.item[i][2] & PM_ITEM_ORB_TRIG_DOWN) && (players[p].down)) )
+        ((mItem.item[i][2] & PM_ITEM_ORB_TRIG_UP)   && (mPlayer.syn[p].up)) ||
+        ((mItem.item[i][2] & PM_ITEM_ORB_TRIG_DOWN) && (mPlayer.syn[p].down)) )
            mItem.item[i][2] |= PM_ITEM_ORB_TRIG_CURR;
 }
 
@@ -269,11 +269,11 @@ void mwItems::proc_trigger(int i)
 void mwItems::set_item_trigger_location_from_lift(int i, int a20)
 {
    int d = mItem.item[i][10]; // lift number
-   if (Lift.cur[d].active) // only proceed if lift number is valid
+   if (mLift.cur[d].active) // only proceed if lift number is valid
    {
       // x axis
-      int lx1 = Lift.cur[d].x;
-      int lx2 = Lift.cur[d].x + Lift.cur[d].w;
+      int lx1 = mLift.cur[d].x;
+      int lx2 = mLift.cur[d].x + mLift.cur[d].w;
       int C = mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_XC;
       int F = mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_XF;
       int L = mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_XL;
@@ -290,8 +290,8 @@ void mwItems::set_item_trigger_location_from_lift(int i, int a20)
          if (( F) && ( L)) mItem.item[i][6] = lx2 - mItem.item[i][8]; // fx2 = lx2
       }
       // y axis
-      int ly1 = Lift.cur[d].y;
-      int ly2 = Lift.cur[d].y + Lift.cur[d].h;
+      int ly1 = mLift.cur[d].y;
+      int ly2 = mLift.cur[d].y + mLift.cur[d].h;
       C = mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_YC;
       F = mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_YF;
       L = mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_YL;
@@ -329,10 +329,10 @@ void mwItems::detect_trigger_collisions(int i)
 
    if (FLAGS & PM_ITEM_TRIGGER_PLAYER)
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((players[p].active) && (!players[p].paused))
+         if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
          {
-            int x = players[p].x;
-            int y = players[p].y;
+            int x = mPlayer.syn[p].x;
+            int y = mPlayer.syn[p].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mItem.item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
    if (FLAGS & PM_ITEM_TRIGGER_ENEMY)
@@ -353,18 +353,18 @@ void mwItems::detect_trigger_collisions(int i)
          }
    if (FLAGS & PM_ITEM_TRIGGER_PSHOT) // check player shots
       for (int b=0; b<50; b++)
-         if (mwS.p[b].active)
+         if (mShot.p[b].active)
          {
-            int x = mwS.p[b].x;
-            int y = mwS.p[b].y;
+            int x = mShot.p[b].x;
+            int y = mShot.p[b].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mItem.item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
    if (FLAGS & PM_ITEM_TRIGGER_ESHOT) // check enemy shots
       for (int b=0; b<50; b++)
-         if (mwS.e[b].active)
+         if (mShot.e[b].active)
          {
-            int x = mwS.e[b].x;
-            int y = mwS.e[b].y;
+            int x = mShot.e[b].x;
+            int y = mShot.e[b].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mItem.item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
 }
@@ -520,11 +520,11 @@ item[][15] = damage
 void mwItems::set_item_damage_location_from_lift(int i, int a20)
 {
    int d = mItem.item[i][10]; // lift number
-   if (Lift.cur[d].active) // only proceed if lift number is valid
+   if (mLift.cur[d].active) // only proceed if lift number is valid
    {
       // x axis
-      int lx1 = Lift.cur[d].x;
-      int lx2 = Lift.cur[d].x + Lift.cur[d].w;
+      int lx1 = mLift.cur[d].x;
+      int lx2 = mLift.cur[d].x + mLift.cur[d].w;
       int C = mItem.item[i][3] & PM_ITEM_DAMAGE_LIFT_XC;
       int F = mItem.item[i][3] & PM_ITEM_DAMAGE_LIFT_XF;
       int L = mItem.item[i][3] & PM_ITEM_DAMAGE_LIFT_XL;
@@ -541,8 +541,8 @@ void mwItems::set_item_damage_location_from_lift(int i, int a20)
          if (( F) && ( L)) mItem.item[i][6] = lx2 - mItem.item[i][8]; // fx2 = lx2
       }
       // y axis
-      int ly1 = Lift.cur[d].y;
-      int ly2 = Lift.cur[d].y + Lift.cur[d].h;
+      int ly1 = mLift.cur[d].y;
+      int ly2 = mLift.cur[d].y + mLift.cur[d].h;
       C = mItem.item[i][3] & PM_ITEM_DAMAGE_LIFT_YC;
       F = mItem.item[i][3] & PM_ITEM_DAMAGE_LIFT_YF;
       L = mItem.item[i][3] & PM_ITEM_DAMAGE_LIFT_YL;
@@ -585,30 +585,30 @@ void mwItems::proc_item_damage_collisions(int i)
 
    if (cdp)
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((players[p].active) && (!players[p].paused))
+         if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
          {
-            int x = players[p].x;
-            int y = players[p].y;
+            int x = mPlayer.syn[p].x;
+            int y = mPlayer.syn[p].y;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
                if (FLAGS & PM_ITEM_DAMAGE_INSTGIB)
                {
-                  players[p].health = 0;
+                  mPlayer.syn[p].health = 0;
                   //game_event(59, 0, 0, p, i, 0, 0);
                }
                else
                {
                   if (mItem.item[i][15] > 0) // lose health
                   {
-                     players[p].health -= mItem.item[i][15]/100;
+                     mPlayer.syn[p].health -= mItem.item[i][15]/100;
                      game_event(59, 0, 0, p, i, 0, 0); // only do damage noise when taking health..??
                   }
                   else // gain health
                   {
-                     if (players[p].health < 100)
+                     if (mPlayer.syn[p].health < 100)
                      {
-                        players[p].health -= mItem.item[i][15]/100;
-                        if (players[p].health > 100) players[p].health = 100;
+                        mPlayer.syn[p].health -= mItem.item[i][15]/100;
+                        if (mPlayer.syn[p].health > 100) mPlayer.syn[p].health = 100;
                      }
                   }
                }
@@ -647,19 +647,19 @@ void mwItems::proc_item_damage_collisions(int i)
          }
    if (cdpb) // check player shots
       for (int b=0; b<50; b++)
-         if (mwS.p[b].active)
+         if (mShot.p[b].active)
          {
-            int x = mwS.p[b].x;
-            int y = mwS.p[b].y;
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mwS.p[b].active = 0; // kill the shot
+            int x = mShot.p[b].x;
+            int y = mShot.p[b].y;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mShot.p[b].active = 0; // kill the shot
          }
    if (cdeb) // check enemy shots
       for (int b=0; b<50; b++)
-         if (mwS.e[b].active)
+         if (mShot.e[b].active)
          {
-            int x = mwS.e[b].x;
-            int y = mwS.e[b].y;
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mwS.e[b].active = 0; // kill the shot
+            int x = mShot.e[b].x;
+            int y = mShot.e[b].y;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mShot.e[b].active = 0; // kill the shot
          }
 }
 

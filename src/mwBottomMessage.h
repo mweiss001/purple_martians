@@ -1,5 +1,5 @@
 // mwBottomMessage.h
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "z_log.h"
 
 class mwBottomMessage

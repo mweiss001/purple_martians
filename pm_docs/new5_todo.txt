@@ -71,12 +71,19 @@ cannot reproduce...
 
 what is still left to remove globals?
 
-what about items and enemies?
+am I planning on making everything a class? most things...maybe all...
 
-I love how items looks...now...
+to do:
+log..
+glt..
+solid?? maybe could be made part of level??
 
-I plan to do the same for enemies...
+controls could be made part of game moves array
 
+
+big ones:
+all netgame files
+all editor files
 
 
 
@@ -86,7 +93,6 @@ I plan to do the same for enemies...
 here is a huge one:
 can level editor be brought under the program state unmbrella?
 I sort of duplicate level editor modes with program states
-
 
 
 

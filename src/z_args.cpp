@@ -9,7 +9,7 @@
 #include "mwProgramState.h"
 #include "mwLevel.h"
 #include "e_editor_main.h"
-#include "z_config.h"
+#include "mwConfig.h"
 #include "mwHelp.h"
 
 #include "z_main.h"
@@ -328,7 +328,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-c") == 0 )
       {
          sprintf(m_serveraddress, "%s", argument_array[2]);
-         save_config();
+         mConfig.save();
          mwL.show_splash_screen = 0;
          mwPS.new_program_state = 24;
          return;
@@ -1195,13 +1195,13 @@ void show_level_done(void);
          mwEQ.proc_event_queue();
          quit = 1;
       }
-      if (mI.key[ALLEGRO_KEY_1][3]) players[1].active = !players[1].active;
-      if (mI.key[ALLEGRO_KEY_2][3]) players[2].active = !players[2].active;
-      if (mI.key[ALLEGRO_KEY_3][3]) players[3].active = !players[3].active;
-      if (mI.key[ALLEGRO_KEY_4][3]) players[4].active = !players[4].active;
-      if (mI.key[ALLEGRO_KEY_5][3]) players[5].active = !players[5].active;
-      if (mI.key[ALLEGRO_KEY_6][3]) players[6].active = !players[6].active;
-      if (mI.key[ALLEGRO_KEY_7][3]) players[7].active = !players[7].active;
+      if (mI.key[ALLEGRO_KEY_1][3]) mPlayer.syn[1].active = !mPlayer.syn[1].active;
+      if (mI.key[ALLEGRO_KEY_2][3]) mPlayer.syn[2].active = !mPlayer.syn[2].active;
+      if (mI.key[ALLEGRO_KEY_3][3]) mPlayer.syn[3].active = !mPlayer.syn[3].active;
+      if (mI.key[ALLEGRO_KEY_4][3]) mPlayer.syn[4].active = !mPlayer.syn[4].active;
+      if (mI.key[ALLEGRO_KEY_5][3]) mPlayer.syn[5].active = !mPlayer.syn[5].active;
+      if (mI.key[ALLEGRO_KEY_6][3]) mPlayer.syn[6].active = !mPlayer.syn[6].active;
+      if (mI.key[ALLEGRO_KEY_7][3]) mPlayer.syn[7].active = !mPlayer.syn[7].active;
    }
 
 */

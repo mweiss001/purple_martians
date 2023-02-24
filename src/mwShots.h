@@ -48,7 +48,7 @@ class mwShots
    void fire_enemy_x_shot(int e, int p);
 
 };
-extern mwShots mwS;
+extern mwShots mShot;
 
 
 

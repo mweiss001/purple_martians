@@ -2,10 +2,10 @@
 #include "pm.h"
 #include "z_loop.h"
 #include "mwQuickGraph.h"
-#include "z_sound.h"
+#include "mwSound.h"
 #include "z_log.h"
-#include "z_settings.h"
-#include "z_player.h"
+#include "mwSettings.h"
+#include "mwPlayers.h"
 #include "n_netgame.h"
 #include "mwRollingAverage.h"
 #include "mwTally.h"
@@ -60,13 +60,13 @@ void move_frame(void)
    char msg[1024];
    double t1, t2, t3, t4, t5, t6;
    if ((LOG_TMR_move_tot) || (LOG_TMR_move_all)) t0 = al_get_time();
-   mwS.move_eshots();
+   mShot.move_eshots();
    if (LOG_TMR_move_all) t1 = al_get_time();
-   mwS.move_pshots();
+   mShot.move_pshots();
    if (LOG_TMR_move_all) t2 = al_get_time();
-   Lift.move_lifts(0);
+   mLift.move_lifts(0);
    if (LOG_TMR_move_all) t3 = al_get_time();
-   move_players();
+   mPlayer.move_players();
    if (LOG_TMR_move_all) t4 = al_get_time();
    mEnemy.move_enemies();
    if (LOG_TMR_move_all) t5 = al_get_time();
@@ -88,7 +88,7 @@ void loop_frame(int times) // used for fast forwarding after rewind
    for (int i=0; i<times; i++)
    {
       mwGMA.proc_game_moves_array();
-      if (players[0].level_done_mode) proc_level_done_mode();
+      if (mPlayer.syn[0].level_done_mode) proc_level_done_mode();
       else move_frame();
       mwPS.frame_num++;
    }
@@ -99,15 +99,15 @@ int have_all_players_acknowledged(void)
    int ret = 1; // yes by default
    for (int p=0; p<NUM_PLAYERS; p++)
    {
-      if (players[p].active)
+      if (mPlayer.syn[p].active)
       {
          if (mwGMA.has_player_acknowledged(p))
          {
-            players[p].level_done_ack = 1;
+            mPlayer.syn[p].level_done_ack = 1;
          }
          else
          {
-            players[p].level_done_ack = 0;
+            mPlayer.syn[p].level_done_ack = 0;
             ret = 0;
          }
       }
@@ -187,7 +187,7 @@ void proc_program_state(void)
             if (autosave_log_on_game_exit) save_log_file();
             if (autosave_game_on_game_exit) mwGMA.blind_save_game_moves(2);
 
-            stop_sound();
+            mSound.stop_sound();
             if (mwPS.program_state != 3) stamp();
 
             mwPS.program_state = mwPS.old_program_state; // go back to the state that called 0,1,2 or 3
@@ -198,7 +198,7 @@ void proc_program_state(void)
    if (mwPS.program_state == 0) mwPS.main_loop_exit = 1; // quit
    if (mwPS.program_state == 1) game_menu();  // game menu (this blocks)
    if (mwPS.program_state == 2) mwDM.demo_mode();  // demo mode
-   if (mwPS.program_state == 3) settings_pages(-1);  // this blocks
+   if (mwPS.program_state == 3) mSettings.settings_pages(-1);  // this blocks
 
    //---------------------------------------
    // 25 - client exit
@@ -227,8 +227,8 @@ void proc_program_state(void)
       mwQG[1].initialize(2);
       mwQG[2].initialize(2);
 
-      for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1); // full reset
-      players[0].active = 1;
+      for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
+      mPlayer.syn[0].active = 1;
 
       mwPS.new_program_state = 23;
    }
@@ -259,14 +259,14 @@ void proc_program_state(void)
 
 
       for (int p=0; p<NUM_PLAYERS; p++)
-         set_player_start_pos(p, 0);     // get starting position for all players, active or not
+         mPlayer.set_player_start_pos(p, 0);     // get starting position for all players, active or not
 
 
       mwGMA.initialize();
 
       mwPS.frame_num = 0;
       reset_states();
-      mwS.clear_shots();
+      mShot.clear_shots();
       mwBM.initialize();
       mI.initialize();
       mwPME.initialize();
@@ -278,7 +278,7 @@ void proc_program_state(void)
       }
 
       mwPS.show_player_join_quit_timer = 0;
-      start_music(0);
+      mSound.start_music(0);
       mwTS.init_timestamps();
       mwPS.new_program_state = 21;
    }
@@ -303,10 +303,10 @@ void proc_program_state(void)
       if (mwPS.frame_num > 0)
       {
          printf("got initial state for frame:%d\n", mwPS.frame_num);
-         int p = active_local_player;
+         int p = mPlayer.active_local_player;
 
          // set holdoff 200 frames in future so client won't try to drop while syncing
-         players1[p].client_last_stdf_rx_frame_num = mwPS.frame_num + 200;
+         mPlayer.loc[p].client_last_stdf_rx_frame_num = mwPS.frame_num + 200;
 
          if (LOG_NET_join) add_log_entry_header(11, p, "Game state updated - starting chase and lock", 1);
          mwPS.program_state = 11;
@@ -333,19 +333,19 @@ void proc_program_state(void)
       // reset players
       for (int p=0; p<NUM_PLAYERS; p++)
       {
-         init_player(p, 1);           // full reset (start modes 1, 2, 3, 9)
-         set_player_start_pos(p, 0);  // get starting position for all players, active or not
+         mPlayer.init_player(p, 1);           // full reset (start modes 1, 2, 3, 9)
+         mPlayer.set_player_start_pos(p, 0);  // get starting position for all players, active or not
       }
 
-      players[0].active = 1;
-      players[0].control_method = 3;
-      strncpy(players1[0].hostname, mwPS.local_hostname, 16);
+      mPlayer.syn[0].active = 1;
+      mPlayer.syn[0].control_method = 3;
+      strncpy(mPlayer.loc[0].hostname, mwPS.local_hostname, 16);
 
 
       mwGMA.initialize();
       mwPS.frame_num = 0;
       reset_states();
-      mwS.clear_shots();
+      mShot.clear_shots();
       mwBM.initialize();
       mI.initialize();
       mwPME.initialize();
@@ -362,7 +362,7 @@ void proc_program_state(void)
 
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (players[p].active) mwGMA.add_game_move(0, 1, p, players[p].color); // 1 - player_state and color
+         if (mPlayer.syn[p].active) mwGMA.add_game_move(0, 1, p, mPlayer.syn[p].color); // 1 - player_state and color
 
       if (LOG_NET)
       {
@@ -371,7 +371,7 @@ void proc_program_state(void)
       }
 
       mwPS.show_player_join_quit_timer = 0;
-      start_music(0); // rewind and start theme
+      mSound.start_music(0); // rewind and start theme
       mwTS.init_timestamps();
       mwPS.program_state = 11;
    }
@@ -395,14 +395,14 @@ void proc_program_state(void)
 
       for (int p=0; p<NUM_PLAYERS; p++)
       {
-         init_player(p, 1);            // full reset
-         set_player_start_pos(p, 0);   // get starting position for all players, active or not
+         mPlayer.init_player(p, 1);            // full reset
+         mPlayer.set_player_start_pos(p, 0);   // get starting position for all players, active or not
       }
-      players[0].active = 1;
+      mPlayer.syn[0].active = 1;
 
       mwGMA.initialize();
 
-      mwS.clear_shots();
+      mShot.clear_shots();
       mwBM.initialize();
       mI.initialize();
       mwPME.initialize();
@@ -410,7 +410,7 @@ void proc_program_state(void)
       stimp();
       mwPS.frame_num = 0;
       mwPS.show_player_join_quit_timer = 0;
-      start_music(0); // rewind and start theme
+      mSound.start_music(0); // rewind and start theme
 
       mwTS.init_timestamps();
       mwPS.program_state = 11;
@@ -428,20 +428,20 @@ void proc_program_state(void)
    //---------------------------------------
    if (mwPS.program_state == 12)
    {
-      stop_sound();
+      mSound.stop_sound();
 
-      players[0].level_done_mode = 0;
+      mPlayer.syn[0].level_done_mode = 0;
 
-      if (LOG_NET) { sprintf(msg,"NEXT LEVEL:%d", players[0].level_done_next_level); add_log_entry_header(10, 0, msg, 3); }
+      if (LOG_NET) { sprintf(msg,"NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level); add_log_entry_header(10, 0, msg, 3); }
 
-      if (players[active_local_player].control_method == 1) // run demo mode saved game file
+      if (mPlayer.syn[mPlayer.active_local_player].control_method == 1) // run demo mode saved game file
       {
          mwPS.new_program_state = 2;
          al_rest(1);
          return; // to exit immediately
       }
 
-      if ((LOG_NET) && (ima_client)) log_ending_stats(active_local_player);
+      if ((LOG_NET) && (ima_client)) log_ending_stats(mPlayer.active_local_player);
       if ((LOG_NET) && (ima_server)) log_ending_stats_server();
 
       if (ima_server) server_flush();
@@ -451,7 +451,7 @@ void proc_program_state(void)
 
       if (autosave_log_on_level_done) save_log_file();
 
-      mLevel.play_level = players[0].level_done_next_level;
+      mLevel.play_level = mPlayer.syn[0].level_done_next_level;
 
       if (0) // reset clients
       {
@@ -460,10 +460,10 @@ void proc_program_state(void)
             for (int p=0; p<NUM_PLAYERS; p++)
             {
                // free all the used clients, so they can be re-assigned on the next level
-               // if (players[p].control_method == 9) players[p].control_method = 0;
+               // if (mPlayer.syn[p].control_method == 9) mPlayer.syn[p].control_method = 0;
 
                // set all clients inactive on server and client, to force them to re-chase and lock on the new level
-               // if ((players[p].control_method == 2) || (players[p].control_method == 4)) players[p].active = 0;
+               // if ((mPlayer.syn[p].control_method == 2) || (mPlayer.syn[p].control_method == 4)) mPlayer.syn[p].active = 0;
 
             }
          }
@@ -481,24 +481,24 @@ void proc_program_state(void)
       // reset players
       for (int p=0; p<NUM_PLAYERS; p++)
       {
-         init_player(p, 2);            // next level reset
-         set_player_start_pos(p, 0);   // get starting position for all players, active or not
+         mPlayer.init_player(p, 2);            // next level reset
+         mPlayer.set_player_start_pos(p, 0);   // get starting position for all players, active or not
       }
-      players[0].active = 1;
+      mPlayer.syn[0].active = 1;
 
       mwGMA.initialize();
 
 
       mwPS.frame_num = 0;
       reset_states();
-      mwS.clear_shots();
+      mShot.clear_shots();
       mwBM.initialize();
       mI.initialize();
       mwPME.initialize();
 
       if (ima_server) // set server initial state (for both 2-new game and 5-level done when server)
       {
-         players[0].control_method = 3;
+         mPlayer.syn[0].control_method = 3;
 
          game_vars_to_state(srv_client_state[0][1]);
          srv_client_state_frame_num[0][1] = mwPS.frame_num;
@@ -515,7 +515,7 @@ void proc_program_state(void)
 
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (players[p].active) mwGMA.add_game_move(0, 1, p, players[p].color); // [01] player_state and color
+         if (mPlayer.syn[p].active) mwGMA.add_game_move(0, 1, p, mPlayer.syn[p].color); // [01] player_state and color
 
       if (LOG_NET)
       {
@@ -527,7 +527,7 @@ void proc_program_state(void)
       if ((!ima_client) && (!ima_server)) stimp();
 
       mwPS.show_player_join_quit_timer = 0;
-      start_music(0); // rewind and start theme
+      mSound.start_music(0); // rewind and start theme
       mwTS.init_timestamps();
       mwPS.program_state = 11;
    }
@@ -538,7 +538,7 @@ void proc_program_state(void)
    //---------------------------------------
    if (mwPS.program_state == 13)
    {
-      start_music(1); // resume theme
+      mSound.start_music(1); // resume theme
       stimp();
       mwPS.program_state = 11;
    }
@@ -558,21 +558,21 @@ void proc_program_state(void)
       // reset players
       for (int p=0; p<NUM_PLAYERS; p++)
       {
-         init_player(p, 1);           // full reset (start modes 1, 2, 3, 9)
-         set_player_start_pos(p, 0);  // get starting position for all players, active or not
+         mPlayer.init_player(p, 1);           // full reset (start modes 1, 2, 3, 9)
+         mPlayer.set_player_start_pos(p, 0);  // get starting position for all players, active or not
       }
 
-      players[0].active = 1;
-      players[0].control_method = 1; // rungame demo mode
+      mPlayer.syn[0].active = 1;
+      mPlayer.syn[0].control_method = 1; // rungame demo mode
 
       mwPS.frame_num = 0;
-      mwS.clear_shots();
+      mShot.clear_shots();
       mwBM.initialize();
       mI.initialize();
       mwPME.initialize();
 
       mwPS.show_player_join_quit_timer = 0;
-      start_music(0); // rewind and start theme
+      mSound.start_music(0); // rewind and start theme
       stimp();
       mwTS.init_timestamps();
       mwPS.program_state = 11;
@@ -582,64 +582,64 @@ void proc_program_state(void)
 
 void proc_level_done_mode(void)
 {
-   if (players[0].level_done_mode == 9) // pause players and set up exit xyincs
+   if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
    {
-      set_player_join_quit_display(players[0].level_done_player, 2, 60);
+      set_player_join_quit_display(mPlayer.syn[0].level_done_player, 2, 60);
 
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (players[p].active)
+         if (mPlayer.syn[p].active)
          {
-            players[p].paused = 5; // set player paused
+            mPlayer.syn[p].paused = 5; // set player paused
 
             // get distance between player and exit
-            float dx = players[0].level_done_x - players[p].x;
-            float dy = players[0].level_done_y - players[p].y;
+            float dx = mPlayer.syn[0].level_done_x - mPlayer.syn[p].x;
+            float dy = mPlayer.syn[0].level_done_y - mPlayer.syn[p].y;
 
             // get move
-            players[p].xinc = dx/60;
-            players[p].yinc = dy/60;
+            mPlayer.syn[p].xinc = dx/60;
+            mPlayer.syn[p].yinc = dy/60;
 
             // set left right direction
-            if (players[p].xinc > 0) players[p].left_right = 1;
-            if (players[p].xinc < 0) players[p].left_right = 0;
+            if (mPlayer.syn[p].xinc > 0) mPlayer.syn[p].left_right = 1;
+            if (mPlayer.syn[p].xinc < 0) mPlayer.syn[p].left_right = 0;
          }
    }
-   if (players[0].level_done_mode == 8) // players seek exit
+   if (mPlayer.syn[0].level_done_mode == 8) // players seek exit
    {
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (players[p].active)
+         if (mPlayer.syn[p].active)
          {
-            players[p].x += players[p].xinc;
-            players[p].y += players[p].yinc;
+            mPlayer.syn[p].x += mPlayer.syn[p].xinc;
+            mPlayer.syn[p].y += mPlayer.syn[p].yinc;
          }
    }
-   if (players[0].level_done_mode == 7) // shrink and rotate
+   if (mPlayer.syn[0].level_done_mode == 7) // shrink and rotate
    {
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (players[p].active)
+         if (mPlayer.syn[p].active)
          {
-            players[p].draw_scale -= 0.05;
-            players[p].draw_rot -= 8;
+            mPlayer.syn[p].draw_scale -= 0.05;
+            mPlayer.syn[p].draw_rot -= 8;
          }
    }
-   if (players[0].level_done_mode == 5) // skippable 15s timeout
+   if (mPlayer.syn[0].level_done_mode == 5) // skippable 15s timeout
    {
       if (!ima_client)
       {
-         if (have_all_players_acknowledged()) players[0].level_done_timer = 0; // skip
+         if (have_all_players_acknowledged()) mPlayer.syn[0].level_done_timer = 0; // skip
       }
    }
-   if (--players[0].level_done_timer <= 0) // time to change to next level_done_mode
+   if (--mPlayer.syn[0].level_done_timer <= 0) // time to change to next level_done_mode
    {
-      players[0].level_done_mode--;
-      if (players[0].level_done_mode == 8) players[0].level_done_timer = 60; // players seek exit
-      if (players[0].level_done_mode == 7) players[0].level_done_timer = 20; // players shrink and rotate into exit
-      if (players[0].level_done_mode == 6) players[0].level_done_timer = 0;
-      if (players[0].level_done_mode == 5) players[0].level_done_timer = 600; // skippable 15s delay;
-      if (players[0].level_done_mode == 4) players[0].level_done_timer = 0;
-      if (players[0].level_done_mode == 3) players[0].level_done_timer = 0;
-      if (players[0].level_done_mode == 2) players[0].level_done_timer = 10;  // delay to load next level
-      if (players[0].level_done_mode == 1) mwPS.program_state = 12;                // load new level
+      mPlayer.syn[0].level_done_mode--;
+      if (mPlayer.syn[0].level_done_mode == 8) mPlayer.syn[0].level_done_timer = 60; // players seek exit
+      if (mPlayer.syn[0].level_done_mode == 7) mPlayer.syn[0].level_done_timer = 20; // players shrink and rotate into exit
+      if (mPlayer.syn[0].level_done_mode == 6) mPlayer.syn[0].level_done_timer = 0;
+      if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600; // skippable 15s delay;
+      if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;
+      if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;
+      if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 10;  // delay to load next level
+      if (mPlayer.syn[0].level_done_mode == 1) mwPS.program_state = 12;                // load new level
    }
 }
 
@@ -697,7 +697,7 @@ void main_loop(void)
             proc_player_input();
             mwGMA.proc_game_moves_array();
 
-            if (players[0].level_done_mode) proc_level_done_mode();
+            if (mPlayer.syn[0].level_done_mode) proc_level_done_mode();
             else move_frame();
 
             if (LOG_TMR_sdif) t0 = al_get_time();
@@ -720,9 +720,9 @@ void main_loop(void)
 
 
       // send client ping at this time in the loop, if flag is set
-      if ((players1[active_local_player].client_ping_flag) && (ima_client))
+      if ((mPlayer.loc[mPlayer.active_local_player].client_ping_flag) && (ima_client))
       {
-         players1[active_local_player].client_ping_flag = 0;
+         mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 0;
          client_send_ping();
       }
 
@@ -736,20 +736,20 @@ void main_loop(void)
          {
             if (ima_server)
             {
-               if (players1[0].server_state_freq_mode == 1) // 0 = manual, 1 = auto
+               if (mPlayer.loc[0].server_state_freq_mode == 1) // 0 = manual, 1 = auto
                {
                   int mcp = mwT[4].get_max()*1000;
                   if (mcp > 100) mcp = 100;
-                  players1[0].server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
+                  mPlayer.loc[0].server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
 
 
 
                }
                for (int p=1; p<NUM_PLAYERS; p++)
-                  if (players[p].control_method == 2)
+                  if (mPlayer.syn[p].control_method == 2)
                   {
-                     players1[p].late_cdats_last_sec = mwT_late_cdats_last_sec[p].get_tally();
-                     players1[p].game_move_dsync_avg_last_sec = mwT_game_move_dsync_avg_last_sec[p].get_avg();
+                     mPlayer.loc[p].late_cdats_last_sec = mwT_late_cdats_last_sec[p].get_tally();
+                     mPlayer.loc[p].game_move_dsync_avg_last_sec = mwT_game_move_dsync_avg_last_sec[p].get_avg();
                   }
             }
          }

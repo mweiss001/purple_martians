@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwEnemy.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwBitmap.h"
 #include "mwShots.h"
 #include "z_solid.h"
@@ -56,21 +56,21 @@ void mwEnemy::move_archwagon(int e)
 
       if (Ei[e][2]) // attempt shoot right
          for (int p=0; p<NUM_PLAYERS; p++)
-            if ((players[p].active) && (!players[p].paused) )
-               if ((EXint > players[p].x - Ei[e][17]) && (EXint < players[p].x) )
-                  if ((EYint > players[p].y - swh) && (EYint < players[p].y + swl ))
+            if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused) )
+               if ((EXint > mPlayer.syn[p].x - Ei[e][17]) && (EXint < mPlayer.syn[p].x) )
+                  if ((EYint > mPlayer.syn[p].y - swh) && (EYint < mPlayer.syn[p].y + swl ))
                   {
-                     mwS.fire_enemy_x_shot(e, p);
+                     mShot.fire_enemy_x_shot(e, p);
                      Ei[e][16] = Ei[e][15]; // set new prox wait
                   }
 
       if (!Ei[e][2]) // attempt shoot left
          for (int p=0; p<NUM_PLAYERS; p++)
-            if ((players[p].active) && (!players[p].paused) )
-               if ((EXint > players[p].x ) && (EXint < players[p].x + Ei[e][17]))
-                  if ((EYint > players[p].y  - swh) && (EYint < players[p].y + swl ))
+            if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused) )
+               if ((EXint > mPlayer.syn[p].x ) && (EXint < mPlayer.syn[p].x + Ei[e][17]))
+                  if ((EYint > mPlayer.syn[p].y  - swh) && (EYint < mPlayer.syn[p].y + swl ))
                   {
-                     mwS.fire_enemy_x_shot(e, p);
+                     mShot.fire_enemy_x_shot(e, p);
                      Ei[e][16] = Ei[e][15]; // set new prox wait
                   }
    }
@@ -136,8 +136,8 @@ void mwEnemy::move_arch_block_common(int e)
    if ((is_left_solid(EXintL, EYint, 1, 2)) && (is_right_solid(EXintR, EYint, 1, 2))) // stuck
    {
       int p = find_closest_player(e);
-      if (EXint < players[p].x-5) Ei[e][2] = 1;
-      if (EXint > players[p].x+5) Ei[e][2] = 0;
+      if (EXint < mPlayer.syn[p].x-5) Ei[e][2] = 1;
+      if (EXint > mPlayer.syn[p].x+5) Ei[e][2] = 0;
    }
    else
    {
@@ -189,8 +189,8 @@ void mwEnemy::move_arch_block_common(int e)
       if (!Ei[e][8]) // follow mode
       {
          int p = find_closest_player(e);
-         if (EXint < players[p].x-5) Ei[e][2] = 1;
-         if (EXint > players[p].x+5) Ei[e][2] = 0;
+         if (EXint < mPlayer.syn[p].x-5) Ei[e][2] = 1;
+         if (EXint > mPlayer.syn[p].x+5) Ei[e][2] = 0;
       }
    }
 
@@ -247,7 +247,7 @@ void mwEnemy::move_arch_block_common(int e)
 
    if (on_lift)
    {
-      Ef[e][1] += Lift.cur[ret-32].yinc;  // move with lift
+      Ef[e][1] += mLift.cur[ret-32].yinc;  // move with lift
    }
 
 
@@ -259,9 +259,9 @@ void mwEnemy::move_arch_block_common(int e)
       // check for jump if player passes above
       if (Ei[e][7] > 0)
          for (int p=0; p<NUM_PLAYERS; p++)
-            if ((players[p].active) && (!players[p].paused) )
-               if ((EXint < players[p].x + Ei[e][7]) && (EXint > players[p].x - Ei[e][7]) &&
-                   (EYint > players[p].y)) Ei[e][5] = -160;
+            if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused) )
+               if ((EXint < mPlayer.syn[p].x + Ei[e][7]) && (EXint > mPlayer.syn[p].x - Ei[e][7]) &&
+                   (EYint > mPlayer.syn[p].y)) Ei[e][5] = -160;
    }
 
 }

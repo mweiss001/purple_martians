@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "z_main.h"
-#include "z_sound.h"
+#include "mwSound.h"
 #include "z_log.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
@@ -11,7 +11,7 @@
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "z_args.h"
-#include "z_config.h"
+#include "mwConfig.h"
 #include "mwItems.h"
 #include "mwEnemy.h"
 #include "z_loop.h"
@@ -23,7 +23,7 @@ void final_wrapup(void)
 {
    mwD.save_display_window_position();
 
-   al_destroy_audio_stream(pm_theme_stream);
+   al_destroy_audio_stream(mSound.pm_theme_stream);
 /*
    printf("al_uninstall_audio()\n");
    al_uninstall_audio();
@@ -87,10 +87,10 @@ void final_wrapup(void)
    al_uninstall_system();
 }
 
-#include "z_player.h"
+#include "mwPlayers.h"
 void fast_exit(int why)
 {
-   if (why != 0) players1[active_local_player].quit_reason = why; // don't overwrite if not zero
+   if (why != 0) mPlayer.loc[mPlayer.active_local_player].quit_reason = why; // don't overwrite if not zero
    if (autosave_log_on_program_exit) save_log_file();
    if (autosave_game_on_game_exit) mwGMA.blind_save_game_moves(3);
    final_wrapup();
@@ -177,7 +177,7 @@ int initial_setup(void)
    al_init();
    set_exe_path();
    set_and_get_versions();
-   load_config();
+   mConfig.load();
    show_system_id();
    get_desktop_resolution();
 
@@ -280,12 +280,12 @@ int initial_setup(void)
 
    mwEQ.create_timers();
 
-   load_sound();
+   mSound.load_sound();
 
    // init players
-   for (int p=1; p<NUM_PLAYERS; p++) players[p].color = 0; // all but player[0] which we got from config file
-   for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
-   players[0].active = 1;
+   for (int p=1; p<NUM_PLAYERS; p++) mPlayer.syn[p].color = 0; // all but player[0] which we got from config file
+   for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
+   mPlayer.syn[0].active = 1;
 
    mwDM.demo_mode_enabled = mwDM.demo_mode_config_enable; // set only at startup from cofing file
 

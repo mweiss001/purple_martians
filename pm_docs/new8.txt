@@ -13090,8 +13090,8 @@ ebullets[].active
 ebullets[].shape
 
 new:
-mwS.e[].active
-mwS.e[].shape
+e[].active
+mShot.e[].shape
 
 done...
 
@@ -15866,444 +15866,218 @@ Purple Martians Source Code Line Counts [2023-02-22  07:41:51]
 
 push....
 
+rename mwS
+
+class is mwShots
+instance should be mShot not mwS
 
 
 
 
+do something about this code...
+it looks weird
 
+void mwEnemy::proc_enemy_collision_with_pshot(int e)
+{
+   float ex = Ef[e][0];
+   float ey = Ef[e][1];
 
+   for (int c=0; c<50; c++)
+      if (mwS.p[c].active)
+      {
+         // shot collision box size adjusted with shot speed
+         float cx = fabs(mwS.p[c].xinc/2) + 8;
+         float cy = fabs(mwS.p[c].yinc/2) + 8;
 
+         // shot collision box size adjusted with enemies collision box size
+         cx += (float) Ei[e][29] - 10;
+         cy += (float) Ei[e][29] - 10;
 
+         float bx1 = mwS.p[c].x - cx;
+         float bx2 = mwS.p[c].x + cx;
+         float by1 = mwS.p[c].y - cy;
+         float by2 = mwS.p[c].y + cy;
 
+         // check for collision with player's shots
+         if ((ex > bx1) && (ex < bx2) && (ey > by1) && (ey < by2))
+         {
+            //printf("hit!\n");
+            int p = mwS.p[c].player;       // player number of shot
+            Ei[e][31] = 1;                 // flag that this enemy got shot
+            Ei[e][26] = p;                 // number of player that shot enemy
+            players[p].stat_enemy_hits++;  // add to number of hits the player has
+            mwS.p[c].active = 0;           // shot dies
+         }
+      }
+}
 
+players shot speed is always 12..
 
+so after these lines:
+float cx = fabs(mwS.p[c].xinc/2) + 8;
+float cy = fabs(mwS.p[c].yinc/2) + 8;
 
+one of cx or cy will be 8 and the other one will be 14
 
 
+Ei[e][29] is almost always 10
+then after these lines:
+cx += (float) Ei[e][29] - 10;
+cy += (float) Ei[e][29] - 10;
+no change..
 
+I want to make this test a point compare to a box.
 
+first set up the enemy box
 
+then test with the bullet point..
 
+void mwEnemy::proc_enemy_collision_with_pshot(int e)
+{
+   float cb = (float) Ei[e][29]; // enemy collision box size
+   float x1 = Ef[e][0] - cb;
+   float y1 = Ef[e][1] - cb;
+   float x2 = Ef[e][0] + cb;
+   float y2 = Ef[e][1] + cb;
 
+   for (int c=0; c<50; c++)
+      if (mwS.p[c].active)
+      {
+         // shot position
+         float x = mwS.p[c].x;
+         float y = mwS.p[c].y;
 
+         // adjust enemy collision box with shot speed
+         float cx = fabs(mwS.p[c].xinc/2);
+         float cy = fabs(mwS.p[c].yinc/2);
 
+         if ((x > x1-cx) && (x < x2+cx) && (y > y1-cy) && (y < y2+cy))
+         {
+            //printf("hit!\n");
+            int p = mwS.p[c].player;       // player number of shot
+            Ei[e][31] = 1;                 // flag that this enemy got shot
+            Ei[e][26] = p;                 // number of player that shot enemy
+            players[p].stat_enemy_hits++;  // add to number of hits the player has
+            mwS.p[c].active = 0;           // shot dies
+         }
+      }
+}
 
 
+this looks funny to me too...
+enemy keeps track of when they last gave damage to a player for holdoff reasons? OK...
 
+if collision happens when in holdoff, it is not cleared until holdoff is done and damage applied
 
+only the most recent collision can cause damage...
 
 
 
 
 
+void mwEnemy::enemy_player_hit_proc(int e)
+{
+   if (--Ei[e][23] < 0) // hit player retrigger
+   {
+      if (Ei[e][22]) // player hit!
+      {
+         int p = Ei[e][22]-1;
+         players[p].health -= Ef[e][4];
 
+         game_event(44, 0, 0, p, e, 0, Ef[e][4]);
+         Ei[e][22] = 0;  // clear hit
+         Ei[e][23] = 60; // set retrigger amount
+      }
+   }
+   else Ei[e][22] = 0;
+}
 
 
 
 
 
 
+it is time to make player a class
 
+mwPlayers mPlayer
 
+the two arrays: player and player1
 
+how about syn and loc
 
+mplayer.syn[0].
+mplayer.loc[0].
 
 
 
+what is the easiest way to do this?
 
+rename arrays later...
 
+first just make it into a class...done and compiles
 
+now remove old z_player.cpp and h...
 
 
+now do some search and replace
 
+players[  to mPlayer.players[  // 965 matches
+players1[  to mPlayer.players1[
+active_local_player to    mPlayer.active_local_player
 
 
+did all the functions...
 
+now it compiles and runs...
 
+now I want to change:
+players[]  to syn[]
+players1[] to loc[]
 
 
+first in mwPlayers.cpp and .h
 
+structure name:
+old player
+new psyn
+old player1
+new ploc
+that was easy, only 4 occ...done
 
+next struct instances in class:
+players[]  to syn[]
+players1[]  to loc[]
 
+then external refs
 
+mPlayer.players[]. to  mPlayer.syn[].
+mPlayer.players1[]. to  mPlayer.loc[].
 
 
+compare lengths:
+players[] 7
+mPlayer.players[].  15
+mPlayer.syn[].  11
 
+players1[]  8
+mPlayer.players1[]. 16
+mPlayer.loc[]. 11
 
 
 
+I am rethinking syn and loc...
 
+they look good outside the class
+mPlayer.syn[].
+mPlayer.loc[].
 
+but inside the class they don't make much sense...
+syn[].
+loc[].
 
+fuck it, I'll live with it..if I really want I can keep the long ones in the class also..
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+players is all done and compiles
 
 
 

@@ -1162,7 +1162,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    {
       int l = type;
       int s = obt;
-      int v = Lift.stp[l][s].val;
+      int v = mLift.stp[l][s].val;
 
       if (num == -1) sprintf(smsg, "Details");  // show row header
       if (num == 0)  sprintf(smsg, "blank");
@@ -1180,16 +1180,16 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    }
    if (bn == 504)
    {
-      sprintf(smsg, "Name:%s", Lift.cur[num].lift_name); // edit lift name
+      sprintf(smsg, "Name:%s", mLift.cur[num].lift_name); // edit lift name
       if (press) return 1;
    }
    if (bn == 505) // lift step end step mode
    {
       sprintf(smsg, "Undefined value");
-      if (Lift.stp[num][type].val == 0) sprintf(smsg, "Loop to Start");
-      if (Lift.stp[num][type].val == 1) sprintf(smsg, "Warp to Start");
-      if (Lift.stp[num][type].val == 2) sprintf(smsg, "Freeze Here  ");
-      if (press) if (++Lift.stp[num][type].val > 2) Lift.stp[num][type].val = 0; // lift step end step mode
+      if (mLift.stp[num][type].val == 0) sprintf(smsg, "Loop to Start");
+      if (mLift.stp[num][type].val == 1) sprintf(smsg, "Warp to Start");
+      if (mLift.stp[num][type].val == 2) sprintf(smsg, "Freeze Here  ");
+      if (press) if (++mLift.stp[num][type].val > 2) mLift.stp[num][type].val = 0; // lift step end step mode
    }
    if (bn == 506)
    {
@@ -1199,7 +1199,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 520)
    {
-      sprintf(smsg, "Set Event Trigger (%d)", Lift.stp[num][type].val);
+      sprintf(smsg, "Set Event Trigger (%d)", mLift.stp[num][type].val);
       if (press)
       {
          //printf("520 type:%d num:%d \n", type, num);
@@ -1207,7 +1207,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
          if (i > -1)
          {
             int ev = mwPME.get_unused_pm_event();
-            Lift.stp[num][type].val = ev;
+            mLift.stp[num][type].val = ev;
             set_trigger_event(i, 0, 0, ev, 0); // toggle ON trigger
          }
       }
@@ -1720,7 +1720,7 @@ void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
          fc = color;
          set_int_3216(mItem.item[num][13], tc, fc);
       }
-      if (bn == 4) Lift.cur[num].color = color; // lift color
+      if (bn == 4) mLift.cur[num].color = color; // lift color
       if (bn == 5)
       {
          mItem.item[num][6] = color;     // door color
@@ -1734,8 +1734,8 @@ void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
       {
         // printf("n:%d t:%d c:%d\n",num, type, color);
          int cf = color << 28; // shift 4 bits of color into place
-         Lift.stp[num][type].type &= 0b00001111111111111111111111111111; // clear old color
-         Lift.stp[num][type].type |= cf; // merge color with type
+         mLift.stp[num][type].type &= 0b00001111111111111111111111111111; // clear old color
+         mLift.stp[num][type].type |= cf; // merge color with type
       }
    }
    if (q6 == 1) y1+=bts;
