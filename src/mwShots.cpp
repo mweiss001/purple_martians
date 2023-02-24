@@ -7,88 +7,88 @@
 #include "mwLevel.h"
 #include "z_screen_overlay.h"
 #include "mwEnemy.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwLift.h"
 
 
-mwShots mwS;
+mwShots mShot;
 
 void mwShots::proc_pshot_collision(int p, int b)
 {
-   players[p].health -= deathmatch_shot_damage;
+   mPlayer.syn[p].health -= deathmatch_shot_damage;
 
-   float bxinc = mwS.p[b].xinc/3;
+   float bxinc = mShot.p[b].xinc/3;
 
-   if (bxinc > 0) players[p].right_xinc += bxinc;
-   if (bxinc < 0) players[p].left_xinc += bxinc;
+   if (bxinc > 0) mPlayer.syn[p].right_xinc += bxinc;
+   if (bxinc < 0) mPlayer.syn[p].left_xinc += bxinc;
 
-   if (players[p].right_xinc > 4) players[p].right_xinc = 4;
-   if (players[p].left_xinc < -4) players[p].left_xinc = -4;
+   if (mPlayer.syn[p].right_xinc > 4) mPlayer.syn[p].right_xinc = 4;
+   if (mPlayer.syn[p].left_xinc < -4) mPlayer.syn[p].left_xinc = -4;
 
-   players[p].yinc += mwS.p[b].yinc/2;
-   if (players[p].yinc >  5) players[p].yinc =  5;
-   if (players[p].yinc < -5) players[p].yinc = -5;
+   mPlayer.syn[p].yinc += mShot.p[b].yinc/2;
+   if (mPlayer.syn[p].yinc >  5) mPlayer.syn[p].yinc =  5;
+   if (mPlayer.syn[p].yinc < -5) mPlayer.syn[p].yinc = -5;
 
-   if (mwS.p[b].yinc < 0)  // player got shot from below
+   if (mShot.p[b].yinc < 0)  // player got shot from below
    {
-      players[p].player_ride = 0;
-      players[p].y += players[p].yinc;
+      mPlayer.syn[p].player_ride = 0;
+      mPlayer.syn[p].y += mPlayer.syn[p].yinc;
    }
-   mwS.p[b].active = 0;  // shot dies
+   mShot.p[b].active = 0;  // shot dies
 }
 
 void mwShots::proc_player_shoot(int p)
 {
-   float x = players[p].x;
-   float y = players[p].y;
-   float bs = (float) players[p].shot_speed;
+   float x = mPlayer.syn[p].x;
+   float y = mPlayer.syn[p].y;
+   float bs = (float) mPlayer.syn[p].shot_speed;
 
-   if (players[p].fire)
+   if (mPlayer.syn[p].fire)
    {
-      if (players[p].fire_held == 0) // fire button pressed, but not held
+      if (mPlayer.syn[p].fire_held == 0) // fire button pressed, but not held
       {
-         players[p].fire_held = 1;
-         if (players[p].shot_wait_counter < 1 )
+         mPlayer.syn[p].fire_held = 1;
+         if (mPlayer.syn[p].shot_wait_counter < 1 )
          {
-            players[p].stat_shots_fired++;
+            mPlayer.syn[p].stat_shots_fired++;
 
             for (int b=0; b<50; b++)     // search for empty shot
-               if (!mwS.p[b].active)
+               if (!mShot.p[b].active)
                {
-                  mwS.p[b].active = 1;
-                  mwS.p[b].player = p;
-                  mwS.p[b].x = x;
-                  mwS.p[b].y = y + 1;
-                  mwS.p[b].xinc = 0;
-                  mwS.p[b].yinc = 0;
+                  mShot.p[b].active = 1;
+                  mShot.p[b].player = p;
+                  mShot.p[b].x = x;
+                  mShot.p[b].y = y + 1;
+                  mShot.p[b].xinc = 0;
+                  mShot.p[b].yinc = 0;
 
-                  if (players[p].left_right) mwS.p[b].x = x+4;
-                  else mwS.p[b].x = x-3;
+                  if (mPlayer.syn[p].left_right) mShot.p[b].x = x+4;
+                  else mShot.p[b].x = x-3;
 
-                  if      (players[p].up)    mwS.p[b].yinc = -bs;
-                  else if (players[p].down)  mwS.p[b].yinc =  bs;
-                  else                       mwS.p[b].xinc = (players[p].left_right*bs*2) - bs;
+                  if      (mPlayer.syn[p].up)    mShot.p[b].yinc = -bs;
+                  else if (mPlayer.syn[p].down)  mShot.p[b].yinc =  bs;
+                  else                       mShot.p[b].xinc = (mPlayer.syn[p].left_right*bs*2) - bs;
 
 
                   // if this line is not here player cannot shoot breakable blocks
                   // when directly in front of them..
-                  if ((!players[p].up) && (!players[p].down) && (players[p].left_right))
-                      mwS.p[b].x -=1;
+                  if ((!mPlayer.syn[p].up) && (!mPlayer.syn[p].down) && (mPlayer.syn[p].left_right))
+                      mShot.p[b].x -=1;
 
 //                  // temp testing
-//                  mwS.p[b][2] = x + (players[p].left_right * (40*2) ) - 40;
-//                  mwS.p[b][3] = y + 1;
+//                  mShot.p[b][2] = x + (mPlayer.syn[p].left_right * (40*2) ) - 40;
+//                  mShot.p[b][3] = y + 1;
 
                      // move
-                     mwS.p[b].x += mwS.p[b].xinc;  // xinc
-                     mwS.p[b].y += mwS.p[b].yinc;  // yinc
+                     mShot.p[b].x += mShot.p[b].xinc;  // xinc
+                     mShot.p[b].y += mShot.p[b].yinc;  // yinc
 
 //                  // temp testing
-//                  mwS.p[b][4] = 0; // xinc
-//                  mwS.p[b][5] = 0; // yinc
+//                  mShot.p[b][4] = 0; // xinc
+//                  mShot.p[b][5] = 0; // yinc
 
-                  players[p].shot_wait_counter = players[p].shot_wait;
-                  players[p].fire_held = 1;
+                  mPlayer.syn[p].shot_wait_counter = mPlayer.syn[p].shot_wait;
+                  mPlayer.syn[p].fire_held = 1;
 
                   // extra data is player number, shot number
                   game_event(1, x, y, p, b, 0, 0);
@@ -98,8 +98,8 @@ void mwShots::proc_player_shoot(int p)
          }
       }
    }
-   else players[p].fire_held = 0;  // fire is not pressed
-   if (players[p].shot_wait_counter > 0) players[p].shot_wait_counter--;
+   else mPlayer.syn[p].fire_held = 0;  // fire is not pressed
+   if (mPlayer.syn[p].shot_wait_counter > 0) mPlayer.syn[p].shot_wait_counter--;
 }
 
 
@@ -107,22 +107,22 @@ void mwShots::move_pshots()
 {
    // move and process wall collisions
    for (int b=0; b<50; b++)
-      if (mwS.p[b].active)
+      if (mShot.p[b].active)
       {
          // move
-         mwS.p[b].x += mwS.p[b].xinc;
-         mwS.p[b].y += mwS.p[b].yinc;
+         mShot.p[b].x += mShot.p[b].xinc;
+         mShot.p[b].y += mShot.p[b].yinc;
 
          // bounds check
-         if ((mwS.p[b].x < 5) || (mwS.p[b].x > 1995) || (mwS.p[b].y<5) || (mwS.p[b].y > 1995) ) mwS.p[b].active = 0;
+         if ((mShot.p[b].x < 5) || (mShot.p[b].x > 1995) || (mShot.p[b].y<5) || (mShot.p[b].y > 1995) ) mShot.p[b].active = 0;
 
          // level block collision
-         int x = ((mwS.p[b].x+10) / 20);
-         int y = ((mwS.p[b].y+10) / 20);
+         int x = ((mShot.p[b].x+10) / 20);
+         int y = ((mShot.p[b].y+10) / 20);
          int d = mLevel.l[x][y];
          if ((d & PM_BTILE_SOLID_PBUL) || (d & PM_BTILE_BREAKABLE_PSHOT)) // shot hit solid or breakable wall
          {
-            mwS.p[b].active = 0;  // shot is done
+            mShot.p[b].active = 0;  // shot is done
             if (d & PM_BTILE_BREAKABLE_PSHOT) mLevel.change_block(x, y, 0);
          }
       }
@@ -131,14 +131,14 @@ void mwShots::move_pshots()
 void mwShots::draw_pshots()
 {
    for (int b=0; b<50; b++)
-      if (mwS.p[b].active) al_draw_bitmap(mwB.player_tile[players[mwS.p[b].player].color][18], mwS.p[b].x, mwS.p[b].y, 0);
+      if (mShot.p[b].active) al_draw_bitmap(mwB.player_tile[mPlayer.syn[mShot.p[b].player].color][18], mShot.p[b].x, mShot.p[b].y, 0);
 }
 
 void mwShots::proc_eshot_collision(int p, int b)
 {
    int damage = 0;
    int e_type = 0;
-   switch (mwS.e[b].shape)
+   switch (mShot.e[b].shape)
    {
       case 488:   e_type = 3;  damage = 5;  break; // arrow
       case 489:   e_type = 3;  damage = 5;  break; // arrow
@@ -147,48 +147,48 @@ void mwShots::proc_eshot_collision(int p, int b)
       case 1054:  e_type = 7;  damage = 10; break; // green ball
       case 1062:  e_type = 12; damage = 8;  break; // flapper thing
    }
-   players[p].health -= damage;
+   mPlayer.syn[p].health -= damage;
 
    game_event(43, 0, 0, p, e_type, 0, damage);
 
    // recoil !!
-   if (mwS.e[b].xinc > 0)
+   if (mShot.e[b].xinc > 0)
    {
-      players[p].right_xinc += mwS.e[b].xinc/2;
-      if (players[p].right_xinc > 4) players[p].right_xinc = 4;
+      mPlayer.syn[p].right_xinc += mShot.e[b].xinc/2;
+      if (mPlayer.syn[p].right_xinc > 4) mPlayer.syn[p].right_xinc = 4;
    }
-   if (mwS.e[b].xinc < 0)
+   if (mShot.e[b].xinc < 0)
    {
-      players[p].left_xinc += mwS.e[b].xinc/2;
-      if (players[p].left_xinc < -4) players[p].left_xinc = -4;
+      mPlayer.syn[p].left_xinc += mShot.e[b].xinc/2;
+      if (mPlayer.syn[p].left_xinc < -4) mPlayer.syn[p].left_xinc = -4;
    }
 
-   players[p].yinc += mwS.e[b].yinc/2;
+   mPlayer.syn[p].yinc += mShot.e[b].yinc/2;
 
-   if (players[p].yinc >  5) players[p].yinc =  5;
-   if (players[p].yinc < -8) players[p].yinc = -8;
+   if (mPlayer.syn[p].yinc >  5) mPlayer.syn[p].yinc =  5;
+   if (mPlayer.syn[p].yinc < -8) mPlayer.syn[p].yinc = -8;
 
-   mwS.e[b].active = 0; // shot dies
+   mShot.e[b].active = 0; // shot dies
 }
 
 void mwShots::move_eshots()
 {
    for (int b=0; b<50; b++)
-      if (mwS.e[b].active)
+      if (mShot.e[b].active)
       {
-         mwS.e[b].x += mwS.e[b].xinc;
-         mwS.e[b].y += mwS.e[b].yinc;
+         mShot.e[b].x += mShot.e[b].xinc;
+         mShot.e[b].y += mShot.e[b].yinc;
 
          // check if out of bounds
-         if ((mwS.e[b].x<0) || (mwS.e[b].x>2000) || (mwS.e[b].y<0) || (mwS.e[b].y>2000)) mwS.e[b].active = 0;
+         if ((mShot.e[b].x<0) || (mShot.e[b].x>2000) || (mShot.e[b].y<0) || (mShot.e[b].y>2000)) mShot.e[b].active = 0;
 
          // check if hit wall (or more accurately if co-located with a block)
-         int xi = (mwS.e[b].x+10)/20;
-         int yi = (mwS.e[b].y+10)/20;
+         int xi = (mShot.e[b].x+10)/20;
+         int yi = (mShot.e[b].y+10)/20;
          int d = mLevel.l[xi][yi];
          if (d & PM_BTILE_SOLID_EBUL)  // shot hit solid or breakable wall
          {
-            mwS.e[b].active = 0;                                   // shot dies
+            mShot.e[b].active = 0;                                   // shot dies
             if (d & PM_BTILE_BREAKABLE_ESHOT) mLevel.change_block(xi, yi, 0); // breakable wall
          }
       }
@@ -212,11 +212,11 @@ void mwShots::draw_eshots()
 */
 
    for (int b=0; b<50; b++)
-      if (mwS.e[b].active)
+      if (mShot.e[b].active)
       {
-         int t = mwS.e[b].shape;
-         if (t > 1000) t = mwB.zz[0][mwS.e[b].shape-1000];
-         al_draw_bitmap(mwB.tile[t], mwS.e[b].x, mwS.e[b].y, 0);
+         int t = mShot.e[b].shape;
+         if (t > 1000) t = mwB.zz[0][mShot.e[b].shape-1000];
+         al_draw_bitmap(mwB.tile[t], mShot.e[b].x, mShot.e[b].y, 0);
       }
 }
 
@@ -224,19 +224,19 @@ void mwShots::clear_shots(void)
 {
    for (int b=0; b<50; b++)
    {
-      mwS.e[b].active = 0;
-      mwS.e[b].shape  = 0;
-      mwS.e[b].xinc   = 0;
-      mwS.e[b].yinc   = 0;
-      mwS.e[b].y      = 0;
-      mwS.e[b].x      = 0;
+      mShot.e[b].active = 0;
+      mShot.e[b].shape  = 0;
+      mShot.e[b].xinc   = 0;
+      mShot.e[b].yinc   = 0;
+      mShot.e[b].y      = 0;
+      mShot.e[b].x      = 0;
 
-      mwS.p[b].active = 0;
-      mwS.p[b].player = 0;
-      mwS.p[b].xinc   = 0;
-      mwS.p[b].yinc   = 0;
-      mwS.p[b].y      = 0;
-      mwS.p[b].x      = 0;
+      mShot.p[b].active = 0;
+      mShot.p[b].player = 0;
+      mShot.p[b].xinc   = 0;
+      mShot.p[b].yinc   = 0;
+      mShot.p[b].y      = 0;
+      mShot.p[b].x      = 0;
 
    }
 }
@@ -253,14 +253,14 @@ void mwShots::fire_enemy_shotz(int e, int shot_ans, float px, float py)
    float yinc = ylen / scaler;        // calc yinc
 
    for (int b=0; b<50; b++)  // find empty e_shot
-      if (!mwS.e[b].active)
+      if (!mShot.e[b].active)
       {
-         mwS.e[b].active = 1;
-         mwS.e[b].shape = 1000 + shot_ans;
-         mwS.e[b].x = mEnemy.Ef[e][0];
-         mwS.e[b].y = mEnemy.Ef[e][1];
-         mwS.e[b].xinc = xinc;
-         mwS.e[b].yinc = yinc;
+         mShot.e[b].active = 1;
+         mShot.e[b].shape = 1000 + shot_ans;
+         mShot.e[b].x = mEnemy.Ef[e][0];
+         mShot.e[b].y = mEnemy.Ef[e][1];
+         mShot.e[b].xinc = xinc;
+         mShot.e[b].yinc = yinc;
          b=50;
       }
 }
@@ -270,18 +270,18 @@ void mwShots::fire_enemy_shota(int e, int shot_ans, int p)
    float by = mEnemy.Ef[e][1];
    float bv = mEnemy.Ef[e][7];
 
-   float px  = players[p].x;
-   float py  = players[p].y;
-   float pvx = players[p].xinc;
-   float pvy = players[p].yinc;
+   float px  = mPlayer.syn[p].x;
+   float py  = mPlayer.syn[p].y;
+   float pvx = mPlayer.syn[p].xinc;
+   float pvy = mPlayer.syn[p].yinc;
 
 
    // this is here so that motion due to riding lifts is also used for shot tracking
-   if (players[p].player_ride) // if player is riding lift
+   if (mPlayer.syn[p].player_ride) // if player is riding lift
    {
-      int d = players[p].player_ride - 32; // lift number
-      pvx += Lift.cur[d].xinc;
-      pvy += Lift.cur[d].yinc;
+      int d = mPlayer.syn[p].player_ride - 32; // lift number
+      pvx += mLift.cur[d].xinc;
+      pvy += mLift.cur[d].yinc;
    }
    // Edgar's method
    //float A = pow(pvx,2) + pow(pvy,2) - pow(bv,2);
@@ -321,22 +321,22 @@ void mwShots::fire_enemy_x_shot(int e, int p)
 {
    float x_shot_speed = mEnemy.Ef[e][7];
    for (int b=0; b<50; b++)  // find empty e_shot
-      if (!mwS.e[b].active)
+      if (!mShot.e[b].active)
       {
-         mwS.e[b].active = 1;
-         mwS.e[b].yinc = 0;
-         mwS.e[b].x = mEnemy.Ef[e][0];
-         mwS.e[b].y = mEnemy.Ef[e][1];
+         mShot.e[b].active = 1;
+         mShot.e[b].yinc = 0;
+         mShot.e[b].x = mEnemy.Ef[e][0];
+         mShot.e[b].y = mEnemy.Ef[e][1];
 
-         if (mEnemy.Ef[e][0] < players[p].x)
+         if (mEnemy.Ef[e][0] < mPlayer.syn[p].x)
          {
-            mwS.e[b].xinc = x_shot_speed;
-            mwS.e[b].shape = 488;
+            mShot.e[b].xinc = x_shot_speed;
+            mShot.e[b].shape = 488;
          }
-         if (mEnemy.Ef[e][0] >= players[p].x)
+         if (mEnemy.Ef[e][0] >= mPlayer.syn[p].x)
          {
-            mwS.e[b].xinc = -x_shot_speed;
-            mwS.e[b].shape = 489;
+            mShot.e[b].xinc = -x_shot_speed;
+            mShot.e[b].shape = 489;
          }
          b=50; // end loop
       }

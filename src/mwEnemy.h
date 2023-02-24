@@ -15,6 +15,8 @@ class mwEnemy
    int enemy_tile[20];
 
 
+
+
    void draw_enemy(int e, int custom, int cx, int cy);
    void draw_enemies(void);
 
@@ -25,6 +27,8 @@ class mwEnemy
 
    void enemy_player_hit_proc(int e);
    void proc_enemy_collision_with_pshot(int e);
+
+   // member functions in other files
 
    // mwEnemyArchwagon.cpp
    void move_archwagon(int e);
@@ -56,6 +60,17 @@ class mwEnemy
    void move_vinepod(int e);
    void draw_vinepod(int e, int x, int c, int custom);
 
+   // mwEnemyFnx.cpp
+   int is_player_in_enemy_trigger_box(int e);
+   void set_enemy_rot_from_incs(int e);
+   void set_enemy_rot_from_player(int e, int p);
+   void set_enemy_xyinc_from_player(int e, int p);
+   int find_closest_player(int e);
+   int find_closest_player_flapper(int e);
+   int find_closest_player_trakbot(int e);
+   int find_closest_player_cannon(int e);
+   float deg_to_rad(float deg);
+
    // mwEnemyEditorFnx.cpp
    void fill_strings(void);
    int show_enemy_data(int x_pos, int y_pos);
@@ -69,17 +84,6 @@ class mwEnemy
    int create_cloner(void);
    int create_pod(void);
    int create_vinepod(void);
-
-   // mwEnemyFnx.cpp
-   int is_player_in_enemy_trigger_box(int e);
-   void set_enemy_rot_from_incs(int e);
-   void set_enemy_rot_from_player(int e, int p);
-   void set_enemy_xyinc_from_player(int e, int p);
-   int find_closest_player(int e);
-   int find_closest_player_flapper(int e);
-   int find_closest_player_trakbot(int e);
-   int find_closest_player_cannon(int e);
-   float deg_to_rad(float deg);
 
 };
 extern mwEnemy mEnemy;

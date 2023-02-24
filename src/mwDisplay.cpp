@@ -6,10 +6,10 @@
 #include "mwWindowManager.h"
 #include "mwBitmap.h"
 #include "mwProgramState.h"
-#include "z_config.h"
+#include "mwConfig.h"
 #include "z_screen.h"
 #include "mwInput.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwLift.h"
 #include "mwGameMovesArray.h"
 #include "mwPMEvent.h"
@@ -50,7 +50,7 @@ void mwDisplay::set_scale_factor(float new_scale_factor, int instant)
       if (scale_factor < .2) scale_factor = .2;
       if (scale_factor > 40) scale_factor = 40;
       show_scale_factor = 80;
-      save_config();
+      mConfig.save();
       if (instant) scale_factor_current = scale_factor;
    }
 }
@@ -223,50 +223,50 @@ void mwDisplay::show_fullscreen_modes(void)
 
 void mwDisplay::show_var_sizes(void)
 {
-   printf("\nVariables used to save levels in pml format\n\n");
-   printf("mLevel.l    :%6d\n",  (int)sizeof(mLevel.l)     );
-   printf("mItem.item  :%6d\n",  (int)sizeof(mItem.item)   );
-   printf("mEnemy.Ef          :%6d\n",  (int)sizeof(mEnemy.Ef)           );
-   printf("mEnemy.Ei          :%6d\n",  (int)sizeof(mEnemy.Ei)           );
-   printf("Lift.cur    :%6d\n",  (int)sizeof(Lift.cur)     );
-   printf("Lift.stp    :%6d\n",  (int)sizeof(Lift.stp)     );
-   printf("mItem.pmsgtext  :%6d\n",  (int)sizeof(mItem.pmsgtext)     );
+   printf("\nVariables used to save levels in pml format\n\n"   );
+   printf("mLevel.l       :%6d\n",  (int)sizeof(mLevel.l)       );
+   printf("mItem.item     :%6d\n",  (int)sizeof(mItem.item)     );
+   printf("mEnemy.Ef      :%6d\n",  (int)sizeof(mEnemy.Ef)      );
+   printf("mEnemy.Ei      :%6d\n",  (int)sizeof(mEnemy.Ei)      );
+   printf("mLift.cur      :%6d\n",  (int)sizeof(mLift.cur)      );
+   printf("mLift.stp      :%6d\n",  (int)sizeof(mLift.stp)      );
+   printf("mItem.pmsgtext :%6d\n",  (int)sizeof(mItem.pmsgtext) );
 
    int sz = 0;
-   sz+= sizeof(mLevel.l)     ;
-   sz+= sizeof(mItem.item)         ;
-   sz+= sizeof(mEnemy.Ef)           ;
-   sz+= sizeof(mEnemy.Ei)           ;
-   sz+= sizeof(Lift.cur)     ;
-   sz+= sizeof(Lift.stp)     ;
-   sz+= sizeof(mItem.pmsgtext)     ;
+   sz+= sizeof(mLevel.l);
+   sz+= sizeof(mItem.item);
+   sz+= sizeof(mEnemy.Ef);
+   sz+= sizeof(mEnemy.Ei);
+   sz+= sizeof(mLift.cur);
+   sz+= sizeof(mLift.stp);
+   sz+= sizeof(mItem.pmsgtext);
    printf("------------:------\n");
    printf("total       :%6d\n",  sz );
 
    printf("\nVariables used for netgame state exchange\n\n");
 
-   printf("players  :%6d\n", (int)sizeof(players)      );
-   printf("mEnemy.Ei       :%6d\n", (int)sizeof(mEnemy.Ei)           );
-   printf("mEnemy.Ef       :%6d\n", (int)sizeof(mEnemy.Ef)           );
-   printf("mItem.item     :%6d\n", (int)sizeof(mItem.item)         );
-   printf("mItem.itemf    :%6d\n", (int)sizeof(mItem.itemf)        );
-   printf("Lift.cur :%6d\n", (int)sizeof(Lift.cur)     );
-   printf("mLevel.l :%6d\n", (int)sizeof(mLevel.l)     );
-   printf("mwS.p    :%6d\n", (int)sizeof(mwS.p)        );
-   printf("mwS.e    :%6d\n", (int)sizeof(mwS.e)        );
-   printf("pm_event :%6d\n", (int)sizeof(mwPME.event)  );
+   printf("mPlayer.syn :%6d\n", (int)sizeof(mPlayer.syn)  );
+   printf("mEnemy.Ei   :%6d\n", (int)sizeof(mEnemy.Ei)    );
+   printf("mEnemy.Ef   :%6d\n", (int)sizeof(mEnemy.Ef)    );
+   printf("mItem.item  :%6d\n", (int)sizeof(mItem.item)   );
+   printf("mItem.itemf :%6d\n", (int)sizeof(mItem.itemf)  );
+   printf("mLift.cur   :%6d\n", (int)sizeof(mLift.cur)    );
+   printf("mLevel.l    :%6d\n", (int)sizeof(mLevel.l)     );
+   printf("mShot.p     :%6d\n", (int)sizeof(mShot.p)      );
+   printf("mShot.e     :%6d\n", (int)sizeof(mShot.e)      );
+   printf("mwPME.event :%6d\n", (int)sizeof(mwPME.event)  );
 
    sz = 0;
-   sz+= sizeof(players)      ;
-   sz+= sizeof(mEnemy.Ei)           ;
-   sz+= sizeof(mEnemy.Ef)           ;
-   sz+= sizeof(mItem.item)         ;
-   sz+= sizeof(mItem.itemf)        ;
-   sz+= sizeof(Lift.cur)     ;
-   sz+= sizeof(mLevel.l)     ;
-   sz+= sizeof(mwS.p)        ;
-   sz+= sizeof(mwS.e)        ;
-   sz+= sizeof(mwPME.event)  ;
+   sz+= sizeof(mPlayer.syn);
+   sz+= sizeof(mEnemy.Ei);
+   sz+= sizeof(mEnemy.Ef);
+   sz+= sizeof(mItem.item);
+   sz+= sizeof(mItem.itemf);
+   sz+= sizeof(mLift.cur);
+   sz+= sizeof(mLevel.l);
+   sz+= sizeof(mShot.p);
+   sz+= sizeof(mShot.e);
+   sz+= sizeof(mwPME.event);
    printf("---------:------\n");
    printf("total    :%6d\n",  sz );
 
@@ -318,7 +318,7 @@ void mwDisplay::set_saved_display_transform(int sdt)
    float old_display_transform_double = display_transform_double;
 
    saved_display_transform_double = sdt;
-   save_config();
+   mConfig.save();
 
    set_display_transform();
 
@@ -340,7 +340,7 @@ void mwDisplay::cycle_display_transform(void)
    float old_display_transform_double = display_transform_double;
 
    if (++saved_display_transform_double>display_transform_double_max) saved_display_transform_double = 0;
-   save_config();
+   mConfig.save();
 
 
    set_display_transform();
@@ -497,7 +497,7 @@ int mwDisplay::init_display(void)
    if (disp_w_wind > disp_w_full) disp_w_wind = disp_w_full;
    if (disp_h_wind > disp_h_full) disp_h_wind = disp_h_full;
    //show_disp_values(0, 0, 1, 1, 1, "pc");
-   save_config();
+   mConfig.save();
 
 
    int flags = 0;
@@ -519,7 +519,7 @@ int mwDisplay::init_display(void)
 
    al_set_window_constraints(display, 320, 240, 0, 0);
    al_apply_window_constraints(display, 1);
-   save_config();
+   mConfig.save();
 
 
 
@@ -590,7 +590,7 @@ void mwDisplay::proc_display_change(void)
    }
    set_display_transform();
    mwB.rebuild_bitmaps();
-   save_config();
+   mConfig.save();
    //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
    set_window_title();
 
@@ -608,7 +608,7 @@ void mwDisplay::save_display_window_position(void)
       al_get_window_position(display, &disp_x_wind, &disp_y_wind);
       disp_w_wind = al_get_display_width(display);
       disp_h_wind = al_get_display_height(display);
-      save_config();
+      mConfig.save();
    }
 }
 

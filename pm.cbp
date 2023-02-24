@@ -111,6 +111,8 @@
 		<Unit filename="src/mwBottomMessage.h" />
 		<Unit filename="src/mwColor.cpp" />
 		<Unit filename="src/mwColor.h" />
+		<Unit filename="src/mwConfig.cpp" />
+		<Unit filename="src/mwConfig.h" />
 		<Unit filename="src/mwDemoMode.cpp" />
 		<Unit filename="src/mwDemoMode.h" />
 		<Unit filename="src/mwDisplay.cpp" />
@@ -161,14 +163,20 @@
 		<Unit filename="src/mwPDE.h" />
 		<Unit filename="src/mwPMEvent.cpp" />
 		<Unit filename="src/mwPMEvent.h" />
+		<Unit filename="src/mwPlayers.cpp" />
+		<Unit filename="src/mwPlayers.h" />
 		<Unit filename="src/mwProgramState.cpp" />
 		<Unit filename="src/mwProgramState.h" />
 		<Unit filename="src/mwQuickGraph.cpp" />
 		<Unit filename="src/mwQuickGraph.h" />
 		<Unit filename="src/mwRollingAverage.cpp" />
 		<Unit filename="src/mwRollingAverage.h" />
+		<Unit filename="src/mwSettings.cpp" />
+		<Unit filename="src/mwSettings.h" />
 		<Unit filename="src/mwShots.cpp" />
 		<Unit filename="src/mwShots.h" />
+		<Unit filename="src/mwSound.cpp" />
+		<Unit filename="src/mwSound.h" />
 		<Unit filename="src/mwTally.cpp" />
 		<Unit filename="src/mwTally.h" />
 		<Unit filename="src/mwTimeStamp.cpp" />
@@ -196,8 +204,6 @@
 		<Unit filename="src/pm.h" />
 		<Unit filename="src/z_args.cpp" />
 		<Unit filename="src/z_args.h" />
-		<Unit filename="src/z_config.cpp" />
-		<Unit filename="src/z_config.h" />
 		<Unit filename="src/z_control.cpp" />
 		<Unit filename="src/z_control.h" />
 		<Unit filename="src/z_log.cpp" />
@@ -206,18 +212,12 @@
 		<Unit filename="src/z_loop.h" />
 		<Unit filename="src/z_main.cpp" />
 		<Unit filename="src/z_main.h" />
-		<Unit filename="src/z_player.cpp" />
-		<Unit filename="src/z_player.h" />
 		<Unit filename="src/z_screen.cpp" />
 		<Unit filename="src/z_screen.h" />
 		<Unit filename="src/z_screen_overlay.cpp" />
 		<Unit filename="src/z_screen_overlay.h" />
-		<Unit filename="src/z_settings.cpp" />
-		<Unit filename="src/z_settings.h" />
 		<Unit filename="src/z_solid.cpp" />
 		<Unit filename="src/z_solid.h" />
-		<Unit filename="src/z_sound.cpp" />
-		<Unit filename="src/z_sound.h" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

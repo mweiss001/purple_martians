@@ -68,7 +68,7 @@ int create_obj(int obt, int type, int num)
       }
 
    }
-   if (obt == 4) Lift.create_lift();
+   if (obt == 4) mLift.create_lift();
    return num;  // return number of created obj or sent_num if bad create
 }
 void ov_get_size(void)
@@ -207,7 +207,7 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
    {
       mwWM.mW[7].num_legend_lines = 0;
       al_draw_rectangle(xc-94, yt, xc+94, yt+22, mC.pc[15], 1);
-      al_draw_textf(mF.pr8, mC.pc[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",num+1, Lift.get_num_lifts());
+      al_draw_textf(mF.pr8, mC.pc[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",num+1, mLift.get_num_lifts());
    }
    if (obt == 3)  // enemies
    {
@@ -473,11 +473,11 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    if (obt == 4) // lifts
    {
       int lift = n;
-      int step = Lift.cur[n].current_step;
+      int step = mLift.cur[n].current_step;
 
-      mdw_buttonp(       xa, ya, xb, bts, 500,0,0,0,    0,13,15,0,  1,0,1,d, Lift.cur[lift].mode); // MODE
-      if (Lift.cur[lift].mode)
-         mdw_slideri(xa, ya, xb, bts, 0,0,0,0,      0,13,15,15, 1,0,1,d, Lift.cur[lift].val2, 2000, 1, 1,  "Reset Timer:");
+      mdw_buttonp(       xa, ya, xb, bts, 500,0,0,0,    0,13,15,0,  1,0,1,d, mLift.cur[lift].mode); // MODE
+      if (mLift.cur[lift].mode)
+         mdw_slideri(xa, ya, xb, bts, 0,0,0,0,      0,13,15,15, 1,0,1,d, mLift.cur[lift].val2, 2000, 1, 1,  "Reset Timer:");
       if (mdw_button(    xa, ya, xb, bts, 504,lift,0,0, 0, 4,15,0,  1,0,1,d)) mwWM.mW[7].mb = 26; // lift name
       ya+=bts;
 
@@ -491,24 +491,24 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       {
          int step0_y_offset = ysb + 14 + bts;
          int mouse_step = (mI.mouse_y - step0_y_offset) / bts;               // calculate step that mouse is on
-         if ((mouse_step >= 0) && (mouse_step < Lift.cur[lift].num_steps))   // is this a valid step?
+         if ((mouse_step >= 0) && (mouse_step < mLift.cur[lift].num_steps))   // is this a valid step?
          {
             step_pointer = mouse_step;  // set step pointer to this step
             if (mI.mouse_b[1][0])
             {
                step = mouse_step; // set current step to this step
-               Lift.cur[lift].current_step = step; // set current step in lift
+               mLift.cur[lift].current_step = step; // set current step in lift
             }
-            if (mI.mouse_b[2][0]) Lift.step_popup_menu(lift, step_pointer); // step pop-up menu for this step
+            if (mI.mouse_b[2][0]) mLift.step_popup_menu(lift, step_pointer); // step pop-up menu for this step
          }
       }
 
       // draw the list of steps  - this has to go after, because it can eat the mouse clicks needed for previous section
-      int ycs = ysb + Lift.draw_steps(xa, xb, ysb, lift, step, step_pointer, d);
+      int ycs = ysb + mLift.draw_steps(xa, xb, ysb, lift, step, step_pointer, d);
       ycs +=bts;
 
       // draw buttons for the current step button and get y postion for next item (lift)
-      int yld = ycs + Lift.draw_current_step_buttons(xa, xb, ycs, lift, step, d);
+      int yld = ycs + mLift.draw_current_step_buttons(xa, xb, ycs, lift, step, d);
 
 
       mwWM.mW[7].h = yld - mwWM.mW[7].y1-1; // global variable for height of ovw when variable due to lift
@@ -524,23 +524,23 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          int s = step;
 
          // if step is not a move step, find prev that is
-         if ((Lift.stp[lift][s].type & 31) != 1) s = Lift.lift_find_previous_move_step(lift, s);
+         if ((mLift.stp[lift][s].type & 31) != 1) s = mLift.lift_find_previous_move_step(lift, s);
 
          // get w h from step
-         int w  = Lift.stp[lift][s].w;
-         int h  = Lift.stp[lift][s].h;
+         int w  = mLift.stp[lift][s].w;
+         int h  = mLift.stp[lift][s].h;
 
          // get x2 and y2 based on x1 y1 and w h
          int x2 = x1 + w;
          int y2 = y1 + h;
-         Lift.draw_lift(lift, x1, y1, x2, y2);
+         mLift.draw_lift(lift, x1, y1, x2, y2);
       }
 
       if (mwWM.mW[7].mb == 26)
       {
          char fst[80];
-         strcpy(fst, Lift.cur[lift].lift_name);
-         if (edit_lift_name(lift, yld, xa+10, fst)) strcpy(Lift.cur[lift].lift_name, fst);
+         strcpy(fst, mLift.cur[lift].lift_name);
+         if (edit_lift_name(lift, yld, xa+10, fst)) strcpy(mLift.cur[lift].lift_name, fst);
       }
    }
 
@@ -1011,13 +1011,13 @@ void ov_draw_overlays(int legend_highlight)
    if (obt == 4)  // lifts
    {
       int lift = num;
-      int step = Lift.cur[lift].current_step;
-      int color = (Lift.stp[lift][step].type >> 28) & 15;
+      int step = mLift.cur[lift].current_step;
+      int color = (mLift.stp[lift][step].type >> 28) & 15;
 
-      int x1 = Lift.stp[lift][step].x-1;
-      int y1 = Lift.stp[lift][step].y-1;
-      int x2 = x1 + Lift.stp[lift][step].w+2;
-      int y2 = y1 + Lift.stp[lift][step].h+2;
+      int x1 = mLift.stp[lift][step].x-1;
+      int y1 = mLift.stp[lift][step].y-1;
+      int x2 = x1 + mLift.stp[lift][step].w+2;
+      int y2 = y1 + mLift.stp[lift][step].h+2;
       int xc = (x1 + x2) / 2;
       int yc = (y1 + y2) / 2;
 
@@ -1345,7 +1345,7 @@ void ov_process_mouse(void)
    if (mwWM.mW[7].obt == 4)
    {
       lift = mwWM.mW[7].num;
-      step = Lift.cur[lift].current_step;
+      step = mLift.cur[lift].current_step;
    }
 
    int mouse_on_obj = 0;
@@ -1634,14 +1634,14 @@ void ov_process_mouse(void)
       if ((!mI.key[MAP_LOCK_KEY][0]) && (!mwWM.mW[7].viewer_lock)) // no lock...check all lifts and steps
       {
          for (int x=0; x<NUM_LIFTS; x++)  // cycle lifts
-            if (Lift.cur[x].active)
-               for (int y=0; y<Lift.cur[x].num_steps; y++)  // cycle steps
-                  if ((Lift.stp[x][y].type & 31) == 1) // look for move step
+            if (mLift.cur[x].active)
+               for (int y=0; y<mLift.cur[x].num_steps; y++)  // cycle steps
+                  if ((mLift.stp[x][y].type & 31) == 1) // look for move step
                   {
-                     int w =  Lift.stp[x][y].w / 2;
-                     int h =  Lift.stp[x][y].h / 2;
-                     int nx = Lift.stp[x][y].x + w;
-                     int ny = Lift.stp[x][y].y + h;
+                     int w =  mLift.stp[x][y].w / 2;
+                     int h =  mLift.stp[x][y].h / 2;
+                     int nx = mLift.stp[x][y].x + w;
+                     int ny = mLift.stp[x][y].y + h;
                      if ((mwWM.hx > nx - w)  && (mwWM.hx < nx + w) && (mwWM.hy > ny - h)  && (mwWM.hy < ny + h)) // is mouse on this step ?
                      {
                         mouse_on_lift = 1;
@@ -1649,7 +1649,7 @@ void ov_process_mouse(void)
                         mwWM.mW[7].num = x;
                         lift = x;
                         step = y;
-                        Lift.set_lift_to_step(lift, step);   // set current step in current lift
+                        mLift.set_lift_to_step(lift, step);   // set current step in current lift
                      }
                   }
       }
@@ -1657,18 +1657,18 @@ void ov_process_mouse(void)
       if (((mI.key[MAP_LOCK_KEY][0]) || (mwWM.mW[7].viewer_lock)) && (mwWM.mW[7].obt == 4)) // locked, but locked to current lift
       {
          int x = lift; // check only current lift
-         for (int y=0; y<Lift.cur[x].num_steps; y++)  // cycle steps
-            if ((Lift.stp[x][y].type & 31) == 1) // look for move step
+         for (int y=0; y<mLift.cur[x].num_steps; y++)  // cycle steps
+            if ((mLift.stp[x][y].type & 31) == 1) // look for move step
             {
-               int w =  Lift.stp[x][y].w / 2;
-               int h =  Lift.stp[x][y].h / 2;
-               int nx = Lift.stp[x][y].x + w;
-               int ny = Lift.stp[x][y].y + h;
+               int w =  mLift.stp[x][y].w / 2;
+               int h =  mLift.stp[x][y].h / 2;
+               int nx = mLift.stp[x][y].x + w;
+               int ny = mLift.stp[x][y].y + h;
                if ((mwWM.hx > nx - w)  && (mwWM.hx < nx + w) && (mwWM.hy > ny - h)  && (mwWM.hy < ny + h)) // is mouse on this step ?
                {
                   mouse_on_lift = 1;
                   step = y;
-                  Lift.set_lift_to_step(lift, step);   // set current step in current lift
+                  mLift.set_lift_to_step(lift, step);   // set current step in current lift
                }
             }
       }
@@ -1676,11 +1676,11 @@ void ov_process_mouse(void)
    if (mouse_on_lift)
    {
       mouse_on_obj = 1;
-      if (mI.mouse_b[2][0]) Lift.step_popup_menu(lift, step);
+      if (mI.mouse_b[2][0]) mLift.step_popup_menu(lift, step);
 
       // is mouse on lower right adjustable corner
-      int x2 = Lift.stp[lift][step].x + Lift.stp[lift][step].w;
-      int y2 = Lift.stp[lift][step].y + Lift.stp[lift][step].h;
+      int x2 = mLift.stp[lift][step].x + mLift.stp[lift][step].w;
+      int y2 = mLift.stp[lift][step].y + mLift.stp[lift][step].h;
       if ((mwWM.hx > x2-8) && (mwWM.hy > y2-8)) mouse_adj = 1;
       else mouse_move = 1;
    }
@@ -1701,9 +1701,9 @@ void ov_process_mouse(void)
       if (mouse_on_lift)
       {
          int l = mwWM.mW[7].num;
-         int s = Lift.cur[l].current_step;
-         lsox = (mwWM.gx - Lift.stp[l][s].x/20);
-         lsoy = (mwWM.gy - Lift.stp[l][s].y/20);
+         int s = mLift.cur[l].current_step;
+         lsox = (mwWM.gx - mLift.stp[l][s].x/20);
+         lsoy = (mwWM.gy - mLift.stp[l][s].y/20);
       }
 
 
@@ -1794,20 +1794,20 @@ void ov_process_mouse(void)
             {
                if (mouse_move)
                {
-                  Lift.stp[lift][step].x = (mwWM.gx-lsox)*20;
-                  Lift.stp[lift][step].y = (mwWM.gy-lsoy)*20;
-                  Lift.set_lift_to_step(lift, step);   // set current step in current lift
+                  mLift.stp[lift][step].x = (mwWM.gx-lsox)*20;
+                  mLift.stp[lift][step].y = (mwWM.gy-lsoy)*20;
+                  mLift.set_lift_to_step(lift, step);   // set current step in current lift
                }
                if (mouse_adj)
                {
                   // don't allow lr to be less than ul
-                  if (mwWM.gx < Lift.stp[lift][step].x/20+1) mwWM.gx = Lift.stp[lift][step].x/20+1;
-                  if (mwWM.gy < Lift.stp[lift][step].y/20+1) mwWM.gy = Lift.stp[lift][step].y/20+1;
+                  if (mwWM.gx < mLift.stp[lift][step].x/20+1) mwWM.gx = mLift.stp[lift][step].x/20+1;
+                  if (mwWM.gy < mLift.stp[lift][step].y/20+1) mwWM.gy = mLift.stp[lift][step].y/20+1;
 
                   // set new position
-                  Lift.stp[lift][step].w = mwWM.gx*20 - Lift.stp[lift][step].x;
-                  Lift.stp[lift][step].h = mwWM.gy*20 - Lift.stp[lift][step].y;
-                  Lift.set_lift_to_step(lift, step);   // set current step in current lift
+                  mLift.stp[lift][step].w = mwWM.gx*20 - mLift.stp[lift][step].x;
+                  mLift.stp[lift][step].h = mwWM.gy*20 - mLift.stp[lift][step].y;
+                  mLift.set_lift_to_step(lift, step);   // set current step in current lift
                }
             }
          }
@@ -1987,7 +1987,7 @@ void ov_check_if_valid(int type)
 
    if (mwWM.mW[7].obt==4)
    {
-      if (!Lift.cur[mwWM.mW[7].num].active) ov_set_to_0();
+      if (!mLift.cur[mwWM.mW[7].num].active) ov_set_to_0();
    }
 }
 
@@ -2001,9 +2001,9 @@ void ov_process_keypress(void)
    if (mwWM.mW[7].obt == 4)
    {
       lift = mwWM.mW[7].num;
-      step = Lift.cur[mwWM.mW[7].num].current_step;
-      Lift.set_lift_to_step(lift, step);   // set current step in current lift
-      Lift.cur[mwWM.mW[7].num].current_step = step;
+      step = mLift.cur[mwWM.mW[7].num].current_step;
+      mLift.set_lift_to_step(lift, step);   // set current step in current lift
+      mLift.cur[mwWM.mW[7].num].current_step = step;
    }
 
    while (mI.key[ALLEGRO_KEY_DELETE][0]) { mwEQ.proc_event_queue(); mb = 20; }
@@ -2030,14 +2030,14 @@ void ov_process_keypress(void)
             {
                if (mwWM.redraw_level_editor_background())
                {
-                  for (int t=0; t<2; t++) Lift.move_lifts(1);  // move lifts for 2 frames
+                  for (int t=0; t<2; t++) mLift.move_lifts(1);  // move lifts for 2 frames
                   ov_draw_overlays(0);
                   get_new_screen_buffer(3, 0, 0);
                   mwWM.cycle_windows(1); // draw only
                }
             }
             while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue(); // wait for release
-            Lift.lift_setup(); // reset all lifts to step 0
+            mLift.lift_setup(); // reset all lifts to step 0
          }
       }
       break;
@@ -2061,7 +2061,7 @@ void ov_process_keypress(void)
          }
          if (mwWM.mW[7].obt == 4)
          {
-            Lift.erase_lift(mwWM.mW[7].num);
+            mLift.erase_lift(mwWM.mW[7].num);
             if (--mwWM.mW[7].num < 0) mwWM.mW[7].num = 0;      // set to prev lift or zero
             ov_check_if_valid(0);
          }
@@ -2069,12 +2069,12 @@ void ov_process_keypress(void)
       case 21: // next
          if ((mwWM.mW[7].obt==2) && (++mwWM.mW[7].num >= mItem.item_first_num[type] + mItem.item_num_of_type[type])) mwWM.mW[7].num--;
          if ((mwWM.mW[7].obt==3) && (++mwWM.mW[7].num >= mEnemy.e_first_num[type] + mEnemy.e_num_of_type[type])) mwWM.mW[7].num--;
-         if (mwWM.mW[7].obt==4) mwWM.mW[7].num = Lift.get_next_lift(mwWM.mW[7].num);
+         if (mwWM.mW[7].obt==4) mwWM.mW[7].num = mLift.get_next_lift(mwWM.mW[7].num);
       break;
       case 22: // previous
          if ((mwWM.mW[7].obt==3) && (--mwWM.mW[7].num < mEnemy.e_first_num[type])) mwWM.mW[7].num++;
          if ((mwWM.mW[7].obt==2) && (--mwWM.mW[7].num < mItem.item_first_num[type])) mwWM.mW[7].num++;
-         if (mwWM.mW[7].obt==4) mwWM.mW[7].num = Lift.get_prev_lift(mwWM.mW[7].num);
+         if (mwWM.mW[7].obt==4) mwWM.mW[7].num = mLift.get_prev_lift(mwWM.mW[7].num);
       break;
    } // end of switch (mb)
 }

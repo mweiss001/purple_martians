@@ -253,7 +253,7 @@ int mwWindowManager::redraw_level_editor_background(void)
       mwD.proc_scale_factor_change();
 
       get_new_background(0);
-      Lift.draw_lifts();
+      mLift.draw_lifts();
       mItem.draw_items();
       mEnemy.draw_enemies();
 

@@ -15,7 +15,7 @@
 #include "mwItems.h"
 #include "mwEnemy.h"
 #include "z_screen.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "n_netgame.h"
 
 
@@ -563,8 +563,8 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
 
    if (obj_type == 4) // lift
    {
-      original_dx = Lift.stp[lift][step].x;
-      original_dy = Lift.stp[lift][step].y;
+      original_dx = mLift.stp[lift][step].x;
+      original_dy = mLift.stp[lift][step].y;
    }
 
    while(!quit)
@@ -645,9 +645,9 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          break;
          case 4: // show lift
          {
-            Lift.stp[lift][step].x = mwWM.gx*20;
-            Lift.stp[lift][step].y = mwWM.gy*20;
-            Lift.set_lift_to_step(lift, step);   // set current step in current lift
+            mLift.stp[lift][step].x = mwWM.gx*20;
+            mLift.stp[lift][step].y = mwWM.gy*20;
+            mLift.set_lift_to_step(lift, step);   // set current step in current lift
          }
          break;
          case 99: // move pod extended
@@ -769,8 +769,8 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       }
       if (obj_type == 4)
       {
-         Lift.stp[lift][step].x = original_dx;
-         Lift.stp[lift][step].y = original_dy;
+         mLift.stp[lift][step].x = original_dx;
+         mLift.stp[lift][step].y = original_dy;
       }
    }
    return retval;
@@ -812,9 +812,9 @@ int get_trigger_item(int obj_type, int sub_type, int num )
    }
    if (obj_type == 4)
    {
-      int pms = Lift.lift_find_previous_move_step(lift, step);
-      x2 = Lift.stp[lift][pms].x + Lift.stp[lift][pms].w / 2;
-      y2 = Lift.stp[lift][pms].y + Lift.stp[lift][pms].h / 2;
+      int pms = mLift.lift_find_previous_move_step(lift, step);
+      x2 = mLift.stp[lift][pms].x + mLift.stp[lift][pms].w / 2;
+      y2 = mLift.stp[lift][pms].y + mLift.stp[lift][pms].h / 2;
    }
 
    while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
@@ -1388,14 +1388,14 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
       al_rest(0.05);
 
 
-      int x2 = x1 + Lift.cur[lift].w -1;
-      int y2 = y1 + Lift.cur[lift].h -1;
+      int x2 = x1 + mLift.cur[lift].w -1;
+      int y2 = y1 + mLift.cur[lift].h -1;
       int tx = ((x1+x2)/2);
       int ty1 = ((y1+y2)/2) - 3;
 
       //int color = lifts[lift].color;
 
-      int color = (Lift.stp[lift][0].type >> 28) & 15;
+      int color = (mLift.stp[lift][0].type >> 28) & 15;
 
 
       // draw updated lift

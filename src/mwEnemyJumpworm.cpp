@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwEnemy.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwBitmap.h"
 #include "mwShots.h"
 #include "z_solid.h"
@@ -94,7 +94,7 @@ void mwEnemy::move_jumpworm(int e)
    if (ret >= 32) // on lift
    {
       on_lift = 1;
-      Ef[e][1] += Lift.cur[ret-32].yinc;  // move with lift
+      Ef[e][1] += mLift.cur[ret-32].yinc;  // move with lift
    }
 
    // x move when on ground (0-4 move) (5-9 retract)
@@ -215,9 +215,9 @@ void mwEnemy::move_jumpworm(int e)
       // check for jump if player passes above
       if (Ei[e][7] > 0)
          for (int p=0; p<NUM_PLAYERS; p++)
-            if ((players[p].active) && (!players[p].paused) )
-               if ((EXint < players[p].x + Ei[e][7]) && (EXint > players[p].x - Ei[e][7]) &&
-                   (EYint > players[p].y)) attempt_jump = 1;
+            if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused) )
+               if ((EXint < mPlayer.syn[p].x + Ei[e][7]) && (EXint > mPlayer.syn[p].x - Ei[e][7]) &&
+                   (EYint > mPlayer.syn[p].y)) attempt_jump = 1;
    }
 
    if (attempt_jump)

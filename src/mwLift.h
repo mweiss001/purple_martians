@@ -40,6 +40,11 @@ class mwLift
    mwLift(); // default constructor
    void initialize(void);
 
+
+
+
+
+
    struct lift       cur[NUM_LIFTS];
    struct lift_step  stp[NUM_LIFTS][40];
    char lift_step_type_name[10][10];
@@ -88,7 +93,7 @@ class mwLift
    int draw_steps(int x1, int x2, int y, int lift, int current_step, int highlight_step, int d);
 
 };
-extern mwLift Lift;
+extern mwLift mLift;
 
 
 

@@ -2,8 +2,8 @@
 
 #include "pm.h"
 #include "mwItems.h"
-#include "z_sound.h"
-#include "z_player.h"
+#include "mwSound.h"
+#include "mwPlayers.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwLift.h"
@@ -181,9 +181,9 @@ void mwItems::move_items()
             // check if being carried
             int pc = 0;
             for (int p=0; p<NUM_PLAYERS; p++)
-               if (players[p].active)
-                  if ((!players[p].paused) || (players[p].paused && players[p].paused_type == 2))
-                     if (i == (players[p].carry_item-1)) pc = 1;
+               if (mPlayer.syn[p].active)
+                  if ((!mPlayer.syn[p].paused) || (mPlayer.syn[p].paused && mPlayer.syn[p].paused_type == 2))
+                     if (i == (mPlayer.syn[p].carry_item-1)) pc = 1;
 
             if (!pc) // not being carried
             {
@@ -270,25 +270,25 @@ void mwItems::move_items()
                      {
                         int capture = 0;
 
-                        if (Lift.cur[a-32].yinc < 0) // lift is moving up
+                        if (mLift.cur[a-32].yinc < 0) // lift is moving up
                         {
-                           int offset = Lift.cur[a-32].y - y;   // to prevent lift from picking up early when lift going up
+                           int offset = mLift.cur[a-32].y - y;   // to prevent lift from picking up early when lift going up
                            if (offset < 21) capture = 1;
                         }
-                        if (Lift.cur[a-32].yinc >= 0) // lift is moving down or steady
+                        if (mLift.cur[a-32].yinc >= 0) // lift is moving down or steady
                         {
                            if (is_down_solid(x, y, 0, 3)) capture = 0; // to prevent lift attempting to take item down through solid block
                            else capture = 1;
-                           int offset = Lift.cur[a-32].y - y;   // to prevent lift from picking up early when item going down
+                           int offset = mLift.cur[a-32].y - y;   // to prevent lift from picking up early when item going down
                            if (offset > 21) capture = 0;
                         }
                         if (capture)
                         {
-                           float lxi = Lift.cur[a-32].xinc;
-                           float lyi = Lift.cur[a-32].yinc;
+                           float lxi = mLift.cur[a-32].xinc;
+                           float lyi = mLift.cur[a-32].yinc;
 
                            itemf[i][0] += lxi;                 // move x with lift's xinc
-                           itemf[i][1]  = Lift.cur[a-32].y - 20;  // align with lift's y
+                           itemf[i][1]  = mLift.cur[a-32].y - 20;  // align with lift's y
 
                            x = itemf[i][0];
                            y = itemf[i][1];
@@ -329,14 +329,14 @@ int mwItems::is_item_stuck_to_wall(int i)
 int mwItems::player_drop_item(int p, int i)
 {
    int wall_stuck = 0;
-   players[p].carry_item = 0;
+   mPlayer.syn[p].carry_item = 0;
    if (mItem.item[i][0] != 99) // not lit bomb
    {
       // check to see if the item is embedded in the wall
       int x = itemf[i][0];
       int y = itemf[i][1];
 
-      if (players[p].left_right) // right
+      if (mPlayer.syn[p].left_right) // right
       {
          // is item embedded in a wall to the right?
          while (is_right_solid(x, y, 1, 1))
@@ -347,7 +347,7 @@ int mwItems::player_drop_item(int p, int i)
          itemf[i][0] = x;
       }
 
-      if (!players[p].left_right) // left
+      if (!mPlayer.syn[p].left_right) // left
       {
          // is item embedded in a wall to the left?
          while (is_left_solid(x, y, 1, 1))
@@ -364,27 +364,27 @@ int mwItems::player_drop_item(int p, int i)
 
 void mwItems::proc_player_carry(int p)
 {
-   if ((players[p].active) && (players[p].carry_item))
-      if (!players[p].paused || (players[p].paused && players[p].paused_type == 2))// player is carrying item
+   if ((mPlayer.syn[p].active) && (mPlayer.syn[p].carry_item))
+      if (!mPlayer.syn[p].paused || (mPlayer.syn[p].paused && mPlayer.syn[p].paused_type == 2))// player is carrying item
       {
-         int i = players[p].carry_item-1;  // item number
+         int i = mPlayer.syn[p].carry_item-1;  // item number
 
-         if (!mItem.item[i][0]) players[p].carry_item = 0; // if player is carrying inactive item, drop item
+         if (!mItem.item[i][0]) mPlayer.syn[p].carry_item = 0; // if player is carrying inactive item, drop item
 
          if ((mItem.item[i][0] == 98) || (mItem.item[i][0] == 99)) mItem.item[i][13] = p; // mark player carrying lit bomb or rocket
 
          if (mItem.item[i][0] != 98)            // not lit rocket
          {
             // set item position relative to player that's carrying it
-            itemf[i][1] = players[p].y - 2;
-            if (!players[p].left_right) itemf[i][0] = players[p].x - 15;
-            if (players[p].left_right)  itemf[i][0] = players[p].x + 15;
+            itemf[i][1] = mPlayer.syn[p].y - 2;
+            if (!mPlayer.syn[p].left_right) itemf[i][0] = mPlayer.syn[p].x - 15;
+            if (mPlayer.syn[p].left_right)  itemf[i][0] = mPlayer.syn[p].x + 15;
          }
-         if (!players[p].fire) // drop
+         if (!mPlayer.syn[p].fire) // drop
          {
             int wall_stuck = player_drop_item(p, i);
 
-            if (players[p].paused && players[p].paused_type == 2) // dropped item while in door travel
+            if (mPlayer.syn[p].paused && mPlayer.syn[p].paused_type == 2) // dropped item while in door travel
             {
                itemf[i][2] = 0;
                itemf[i][3] = 0;
@@ -393,16 +393,16 @@ void mwItems::proc_player_carry(int p)
             {
                if (mItem.item[i][0] != 98)            // not lit rocket
                {
-                  itemf[i][2] = players[p].xinc;  // inherit the players momentum
-                  itemf[i][3] = players[p].yinc;
-                  if (players[p].up)    itemf[i][3] -= 6; // throw item upwards
-                  if (players[p].down)  itemf[i][3] =  3; // throw item downwards
-                  if (players[p].left)  itemf[i][2] -= 2; // throw item left
-                  if (players[p].right) itemf[i][2] += 2; // throw item right
+                  itemf[i][2] = mPlayer.syn[p].xinc;  // inherit the players momentum
+                  itemf[i][3] = mPlayer.syn[p].yinc;
+                  if (mPlayer.syn[p].up)    itemf[i][3] -= 6; // throw item upwards
+                  if (mPlayer.syn[p].down)  itemf[i][3] =  3; // throw item downwards
+                  if (mPlayer.syn[p].left)  itemf[i][2] -= 2; // throw item left
+                  if (mPlayer.syn[p].right) itemf[i][2] += 2; // throw item right
                }
 
                // prevent sticky bombs from sticking to the ground when throwing upwards
-               if ((mItem.item[i][0] == 99) && (mItem.item[i][11]) && (players[p].up)) itemf[i][1] -= 2;
+               if ((mItem.item[i][0] == 99) && (mItem.item[i][11]) && (mPlayer.syn[p].up)) itemf[i][1] -= 2;
 
             }
          }
@@ -416,27 +416,27 @@ void mwItems::proc_item_collision(int p, int i)
    // make it so any item other than bonus has higher priority
    // if carrying bonus, it will be dropped and new item will be carried
    int already_carrying = 0;
-   if (players[p].carry_item) // already carrying item
+   if (mPlayer.syn[p].carry_item) // already carrying item
    {
       already_carrying = 1;
-      if ((mItem.item[players[p].carry_item][0] == 2) && (mItem.item[i][0] != 2)) // carried item is bonus and new item is not bonus
+      if ((mItem.item[mPlayer.syn[p].carry_item][0] == 2) && (mItem.item[i][0] != 2)) // carried item is bonus and new item is not bonus
          already_carrying = 0;
    }
 
    // check if player can carry item
    if ( (!already_carrying) &&    // not carrying item already
          (mItem.item[i][3]<0) &&  // item is carryable
-         (players[p].fire) )      // fire pressed
+         (mPlayer.syn[p].fire) )      // fire pressed
    {
       // check to see if another player is already carrying this item
       int other_player_carrying = 0;
       for (int op=0; op<NUM_PLAYERS; op++)
-         if ((players[op].active) && (!players[op].paused) && (players[op].carry_item == i+1)) other_player_carrying = 1;
+         if ((mPlayer.syn[op].active) && (!mPlayer.syn[op].paused) && (mPlayer.syn[op].carry_item == i+1)) other_player_carrying = 1;
 
        // allow carry
        if ((other_player_carrying == 0) ||   // if no other player is carrying
           (mItem.item[i][0] == 98))          // allow multiple player carry for rocket
-          players[p].carry_item = i+1;
+          mPlayer.syn[p].carry_item = i+1;
    }
    switch (mItem.item[i][0]) // item type
    {
@@ -463,18 +463,18 @@ void mwItems::proc_bonus_collision(int p, int i)
    int bonus_type = mItem.item[i][6];
    if (bonus_type == 1) // health bonus
    {
-      if (players[p].health < 100)
+      if (mPlayer.syn[p].health < 100)
       {
          mItem.item[i][0] = 0;
-         players[p].health += mItem.item[i][7];
-         if (players[p].health > 100) players[p].health = 100;
+         mPlayer.syn[p].health += mItem.item[i][7];
+         if (mPlayer.syn[p].health > 100) mPlayer.syn[p].health = 100;
          game_event(72, 0, 0, p, i, mItem.item[i][1], mItem.item[i][7]);
       }
    }
    if (bonus_type == 3) // purple coin!!!
    {
       mItem.item[i][0] = 0;
-      players[p].stat_purple_coins++;
+      mPlayer.syn[p].stat_purple_coins++;
       game_event(71, 0, 0, p, i, 0, 0);
    }
 }
@@ -482,7 +482,7 @@ void mwItems::proc_bonus_collision(int p, int i)
 
 void mwItems::proc_mine_collision(int p, int i)
 {
-   players[p].health -= mItem.item[i][8] / 10;
+   mPlayer.syn[p].health -= mItem.item[i][8] / 10;
    game_event(50, 0, 0, p, i, 0, mItem.item[i][8]);
 }
 
@@ -490,18 +490,18 @@ void mwItems::proc_mine_collision(int p, int i)
 
 void mwItems::proc_sproingy_collision(int p, int i)
 {
-   float px = players[p].x;
-   float py = players[p].y;
+   float px = mPlayer.syn[p].x;
+   float py = mPlayer.syn[p].y;
    float x1 = itemf[i][0] - 10;
    float x2 = itemf[i][0] + 10;
    float y1 = itemf[i][1] - 16;
    float y2 = itemf[i][1] - 8;
 
    if ( (px > x1) && (px < x2) && (py > y1) && (py < y2) &&
-        (players[p].yinc > 0) && (players[p].jump) )  // falling and jump held
+        (mPlayer.syn[p].yinc > 0) && (mPlayer.syn[p].jump) )  // falling and jump held
    {
       game_event(31, 0, 0, p, i, 0, 0);
-      players[p].yinc = 0 - (float) mItem.item[i][7] / 7.1;
+      mPlayer.syn[p].yinc = 0 - (float) mItem.item[i][7] / 7.1;
    }
 }
 

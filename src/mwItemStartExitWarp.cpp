@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwItems.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwProgramState.h"
@@ -53,16 +53,16 @@ void mwItems::proc_start_collision(int p, int i)
    if (ns == 0)
    {
       printf("Error: no start found.\n");
-      players[p].x = 20;
-      players[p].y = 20;;
+      mPlayer.syn[p].x = 20;
+      mPlayer.syn[p].y = 20;;
    }
 
    if (ns == 1)
    {
-      players[p].spawn_point_index = 0;
-      int ps = s[players[p].spawn_point_index];
-      players[p].x = itemf[ps][0];
-      players[p].y = itemf[ps][1];
+      mPlayer.syn[p].spawn_point_index = 0;
+      int ps = s[mPlayer.syn[p].spawn_point_index];
+      mPlayer.syn[p].x = itemf[ps][0];
+      mPlayer.syn[p].y = itemf[ps][1];
    }
 */
 
@@ -73,7 +73,7 @@ void mwItems::proc_start_collision(int p, int i)
       if (mode == 2) // check point common
       {
          for (p=0; p<8; p++)
-            players[p].spawn_point_index = mItem.item[i][7]; // set new spawn point for all players
+            mPlayer.syn[p].spawn_point_index = mItem.item[i][7]; // set new spawn point for all players
 
          // mark this one as active and all others as not
          for (int ii=0; ii<500; ii++)
@@ -86,11 +86,11 @@ void mwItems::proc_start_collision(int p, int i)
 
       if (mode == 3) // check point individual
       {
-         players[p].spawn_point_index = mItem.item[i][7]; // set new spawn point for this player
+         mPlayer.syn[p].spawn_point_index = mItem.item[i][7]; // set new spawn point for this player
       }
 
    }
-//   players[p].spawn_point_index = mItem.item[i][7]; // set new spawn point
+//   mPlayer.syn[p].spawn_point_index = mItem.item[i][7]; // set new spawn point
 //   // mark this one as active and all others as not
 //   for (int ii=0; ii<500; ii++)
 //      if (mItem.item[ii][0] == 5)
@@ -105,14 +105,14 @@ void mwItems::proc_exit_collision(int p, int i)
    int exit_enemys_left = mEnemy.num_enemy - mItem.item[i][8];
    if (exit_enemys_left <= 0)
    {
-      if (players[0].level_done_mode == 0)
+      if (mPlayer.syn[0].level_done_mode == 0)
       {
-         players[0].level_done_mode = 9;
-         players[0].level_done_timer = 0;
-         players[0].level_done_x = itemf[i][0];
-         players[0].level_done_y = itemf[i][1];
-         players[0].level_done_player = p;
-         players[0].level_done_next_level = mLevel.play_level + 1;
+         mPlayer.syn[0].level_done_mode = 9;
+         mPlayer.syn[0].level_done_timer = 0;
+         mPlayer.syn[0].level_done_x = itemf[i][0];
+         mPlayer.syn[0].level_done_y = itemf[i][1];
+         mPlayer.syn[0].level_done_player = p;
+         mPlayer.syn[0].level_done_next_level = mLevel.play_level + 1;
          game_event(4, 0, 0, 0, 0, 0, 0);
       }
    }
@@ -121,18 +121,18 @@ void mwItems::proc_exit_collision(int p, int i)
 
 void mwItems::proc_warp_collision(int p, int i)
 {
-   if (players[0].level_done_mode == 0)
+   if (mPlayer.syn[0].level_done_mode == 0)
    {
       if (mLevel.play_level > 1) mLevel.warp_level_location = mLevel.play_level;
-//      players[0].level_done_mode = 3;
-//      players[0].level_done_timer = 0;
+//      mPlayer.syn[0].level_done_mode = 3;
+//      mPlayer.syn[0].level_done_timer = 0;
 
-      players[0].level_done_mode = 2;
-      players[0].level_done_timer = 0;
-      players[0].level_done_x = itemf[i][0];
-      players[0].level_done_y = itemf[i][1];
-      players[0].level_done_player = p;
-      players[0].level_done_next_level = mItem.item[i][8];
+      mPlayer.syn[0].level_done_mode = 2;
+      mPlayer.syn[0].level_done_timer = 0;
+      mPlayer.syn[0].level_done_x = itemf[i][0];
+      mPlayer.syn[0].level_done_y = itemf[i][1];
+      mPlayer.syn[0].level_done_player = p;
+      mPlayer.syn[0].level_done_next_level = mItem.item[i][8];
       game_event(4, 0, 0, p, i, 0, 0);
    }
 }

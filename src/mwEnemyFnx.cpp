@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwEnemy.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 
 
 
@@ -14,10 +14,10 @@ int mwEnemy::is_player_in_enemy_trigger_box(int e)
    int x2 = Ei[e][11] + Ei[e][13] + 10;
    int y2 = Ei[e][12] + Ei[e][14] + 10;
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((players[p].active) && (!players[p].paused))
+      if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
       {
-         int px = players[p].x;
-         int py = players[p].y;
+         int px = mPlayer.syn[p].x;
+         int py = mPlayer.syn[p].y;
          if ((px > x1) && (px < x2) && (py > y1) && (py < y2)) return 1;
       }
    return 0;
@@ -38,8 +38,8 @@ void mwEnemy::set_enemy_rot_from_incs(int e)
 // used in podzilla and vinepod
 void mwEnemy::set_enemy_rot_from_player(int e, int p)
 {
-   float xlen = players[p].x - Ef[e][0];
-   float ylen = players[p].y - Ef[e][1];
+   float xlen = mPlayer.syn[p].x - Ef[e][0];
+   float ylen = mPlayer.syn[p].y - Ef[e][1];
    Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI/2;
 }
 
@@ -47,8 +47,8 @@ void mwEnemy::set_enemy_rot_from_player(int e, int p)
 // used once in bouncer cannon common
 void mwEnemy::set_enemy_xyinc_from_player(int e, int p)
 {
-   float xlen = players[p].x - Ef[e][0];
-   float ylen = players[p].y - Ef[e][1];
+   float xlen = mPlayer.syn[p].x - Ef[e][0];
+   float ylen = mPlayer.syn[p].y - Ef[e][1];
    float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
    float speed = Ef[e][5];                              // speed
    float scaler = hy_dist / speed;     // get scaler
@@ -70,10 +70,10 @@ int mwEnemy::find_closest_player(int e)
    int closest_player = 0; // defaults to zero (will always return a valid player)
    float hd = 99999;
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((players[p].active) && (!players[p].paused))
+      if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
       {
-         float xlen = players[p].x - Ef[e][0];
-         float ylen = players[p].y - Ef[e][1];
+         float xlen = mPlayer.syn[p].x - Ef[e][0];
+         float ylen = mPlayer.syn[p].y - Ef[e][1];
          float h = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
          if (h < hd)
          {
@@ -95,10 +95,10 @@ int mwEnemy::find_closest_player_flapper(int e)
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       d[p] = -1;
-      if ((players[p].active) && (!players[p].paused))
+      if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
       {
-         float xlen = players[p].x - Ef[e][0];            // get x distance
-         float ylen = players[p].y - Ef[e][1];            // get y distance
+         float xlen = mPlayer.syn[p].x - Ef[e][0];            // get x distance
+         float ylen = mPlayer.syn[p].y - Ef[e][1];            // get y distance
          float dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
          float angle = atan2(ylen, xlen) + ALLEGRO_PI/2;  // get raw angle and add 90 deg in radians
          float da = (angle / (ALLEGRO_PI*2)) * 360;       // convert from radians to degrees
@@ -175,10 +175,10 @@ int mwEnemy::find_closest_player_trakbot(int e)
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       d[p] = -1;
-      if ((players[p].active) && (!players[p].paused))
+      if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
       {
-         float xlen = players[p].x - Ef[e][0];            // get x distance
-         float ylen = players[p].y - Ef[e][1];            // get y distance
+         float xlen = mPlayer.syn[p].x - Ef[e][0];            // get x distance
+         float ylen = mPlayer.syn[p].y - Ef[e][1];            // get y distance
          float dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
          float angle = atan2(ylen, xlen) + ALLEGRO_PI/2;  // get raw angle and add 90 deg in radians
          float da = (angle / (ALLEGRO_PI*2)) * 360;       // convert from radians to degrees
@@ -212,10 +212,10 @@ int mwEnemy::find_closest_player_cannon(int e)
    int closest_player = -1; // default if no player within distance
    float hd = 99999;
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((players[p].active) && (!players[p].paused))
+      if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
       {
-         float xlen = players[p].x - Ef[e][0];
-         float ylen = players[p].y - Ef[e][1];
+         float xlen = mPlayer.syn[p].x - Ef[e][0];
+         float ylen = mPlayer.syn[p].y - Ef[e][1];
          float h = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
          if (h < hd)
          {

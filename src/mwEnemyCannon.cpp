@@ -119,7 +119,7 @@ void mwEnemy::move_cannon(int e)
         if (p != -1)
          {
             Ei[e][16] = Ei[e][15]; // reset cannon shot wait
-            mwS.fire_enemy_shota(e, 55, p);
+            mShot.fire_enemy_shota(e, 55, p);
          }
       }
    move_bouncer_cannon_common(e);

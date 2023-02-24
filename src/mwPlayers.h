@@ -1,12 +1,11 @@
-// z_player.h
-#ifndef z_player_H
-#define z_player_H
+// mwPlayers.h
+#ifndef mwPlayers_H
+#define mwPlayers_H
 
 
-extern struct player players[NUM_PLAYERS];
-extern struct player1 players1[NUM_PLAYERS];
-extern int active_local_player;
-struct player // synced between server and client
+
+
+struct psyn // synced between server and client
 {
    int active;  // all routines that process player will skip inactive
    int control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
@@ -82,7 +81,7 @@ struct player // synced between server and client
 
 };
 
-struct player1 // not synced between server and client
+struct ploc // not synced between server and client
 {
    int health_display;
    int last_health_adjust;
@@ -189,29 +188,62 @@ struct player1 // not synced between server and client
 
 };
 
-void set_player_start_pos(int p, int cont);
-void proc_player_health(int p);
-void proc_player_xy_move_test(int p);
-void proc_player_xy_move(int p);
-void proc_player_paused(int p);
-void reset_player_scale_and_rot(int p);
-int is_player_riding_rocket(int p);
-void proc_player_stuck_in_blocks(int p);
-void proc_player_riding_rocket(int p);
-void proc_player_bounds_check(int p);
-void proc_player_collisions(int p);
-int is_player_within_ladder_reach(int p);
-int is_player_within_rope_reach(int p);
-void proc_player_rope_move(int p);
-void proc_player_ladder_move(int p);
-void proc_player_rope(int p);
-void proc_player_ladder(int p);
-void move_players(void);
-void draw_player(int p);
-void draw_players(void);
-void get_players_shape(int p);
-int is_player_color_used(int color);
-void init_player(int p, int t);
-void fill_player_tile(void);
 
-#endif // z_player_H
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class mwPlayers
+{
+   public:
+
+   mwPlayers(); // default constructor
+   void initialize(void);
+
+   struct psyn syn[NUM_PLAYERS];
+   struct ploc loc[NUM_PLAYERS];
+   int active_local_player = 0;
+
+
+   void set_player_start_pos(int p, int cont);
+   void proc_player_health(int p);
+   void proc_player_xy_move_test(int p);
+   void proc_player_xy_move(int p);
+   void proc_player_paused(int p);
+   void reset_player_scale_and_rot(int p);
+   int is_player_riding_rocket(int p);
+   void proc_player_stuck_in_blocks(int p);
+   void proc_player_riding_rocket(int p);
+   void proc_player_bounds_check(int p);
+   void proc_player_collisions(int p);
+   int is_player_within_ladder_reach(int p);
+   int is_player_within_rope_reach(int p);
+   void proc_player_rope_move(int p);
+   void proc_player_ladder_move(int p);
+   void proc_player_rope(int p);
+   void proc_player_ladder(int p);
+   void move_players(void);
+   void draw_player(int p);
+   void draw_players(void);
+   void get_players_shape(int p);
+   int is_player_color_used(int color);
+   void init_player(int p, int t);
+   void fill_player_tile(void);
+
+};
+extern mwPlayers mPlayer;
+
+#endif
+

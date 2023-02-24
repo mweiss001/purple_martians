@@ -65,18 +65,18 @@ int mwBottomMessage::draw_player(int p, int bmsg_length)
    int len = 0;
    if (0) // 'Player x'
    {
-      len += draw_text(msg, players[p].color, bmsg_length);
+      len += draw_text(msg, mPlayer.syn[p].color, bmsg_length);
    }
 
    if (1) // player tile
    {
-      al_draw_bitmap(mwB.player_tile[players[p].color][1], bmsg_length, 0, 0); // draw tile
+      al_draw_bitmap(mwB.player_tile[mPlayer.syn[p].color][1], bmsg_length, 0, 0); // draw tile
       len += 16;
    }
    if (0) // 'Player x' and tile
    {
-      len += draw_text(msg, players[p].color, bmsg_length) + 12;
-      al_draw_bitmap(mwB.player_tile[players[p].color][1], bmsg_length + len, 0, 0); // draw tile
+      len += draw_text(msg, mPlayer.syn[p].color, bmsg_length) + 12;
+      al_draw_bitmap(mwB.player_tile[mPlayer.syn[p].color][1], bmsg_length + len, 0, 0); // draw tile
       len += 20;
    }
    return len;
@@ -138,14 +138,14 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
       int p = z1;
       float damage = (float)mItem.item[z2][15] / 100; // damage from item 17 - block damage
 
-      if (players1[p].block_damage_holdoff < mwPS.frame_num) // triggered and not in holdoff
+      if (mPlayer.loc[p].block_damage_holdoff < mwPS.frame_num) // triggered and not in holdoff
       {
-         players1[p].block_damage_holdoff = mwPS.frame_num + 20; // set holdoff
-         players1[p].block_damage_tally = damage; // init tally with current damage
+         mPlayer.loc[p].block_damage_holdoff = mwPS.frame_num + 20; // set holdoff
+         mPlayer.loc[p].block_damage_tally = damage; // init tally with current damage
       }
-      if (players1[p].block_damage_holdoff > mwPS.frame_num) // triggered and in holdoff
+      if (mPlayer.loc[p].block_damage_holdoff > mwPS.frame_num) // triggered and in holdoff
       {
-         players1[p].block_damage_tally += damage; // inc tally with current damage
+         mPlayer.loc[p].block_damage_tally += damage; // inc tally with current damage
       }
      ev = 0; // this is handled by player health that emits event 58
    }
@@ -284,8 +284,8 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
       if (ev == 58) // player lost health from block damage
       {
          custom_drawn = 1;
-         int damage = (int) players1[z1].block_damage_tally;
-         int type = mItem.item[players1[z1].block_damage_item_number][2];
+         int damage = (int) mPlayer.loc[z1].block_damage_tally;
+         int type = mItem.item[mPlayer.loc[z1].block_damage_item_number][2];
          if (type == 2) bmsg_length += draw_text(" was hurt by spikey floor ", 15, bmsg_length);
          else           bmsg_length += draw_text(" was hurt by block damage ", 15, bmsg_length);
          bmsg_length += draw_health(-damage, bmsg_length);
@@ -385,7 +385,7 @@ void mwBottomMessage::draw()
 
          int nb = 8;  // number of bottom message lines to display (max 20)
 
-         int dfb = 2000 - players[active_local_player].y; // player distance from bottom of level
+         int dfb = 2000 - mPlayer.syn[mPlayer.active_local_player].y; // player distance from bottom of level
          if (dfb < 300)  nb = 4;
          if (dfb < 200)  nb = 2;
 

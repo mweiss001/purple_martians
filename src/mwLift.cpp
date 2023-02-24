@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwLift.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwWindow.h"
@@ -19,7 +19,7 @@
 #include "e_object_viewer.h"
 #include "z_screen.h"
 
-mwLift Lift;
+mwLift mLift;
 
 mwLift::mwLift()
 {
@@ -776,8 +776,8 @@ void mwLift::set_lift_to_step(int l, int s)
 int mwLift::is_player_riding_lift(int l)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((players[p].active) && (!players[p].paused))
-         if ((players[p].player_ride) && (l == players[p].player_ride - 32)) return p+1; // player is riding this lift
+      if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
+         if ((mPlayer.syn[p].player_ride) && (l == mPlayer.syn[p].player_ride - 32)) return p+1; // player is riding this lift
    return 0;
 }
 
@@ -886,7 +886,7 @@ void mwLift::draw_lifts()
             if (p)
             {
                p -=1; // player number
-               int pc = players[p].color;
+               int pc = mPlayer.syn[p].color;
                if (pc == color) pc = 127;
                al_draw_rounded_rectangle(x1, y1, x2, y2, 4, 4, mC.pc[pc], 2);
             }
@@ -972,8 +972,8 @@ int mwLift::lift_check_prox(int l, int pd)
    float by2 = cur[l].y + cur[l].h + pd - 10;
 
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((players[p].active) && (!players[p].paused))
-         if ((players[p].x > bx1) && (players[p].x < bx2) && (players[p].y > by1) && (players[p].y < by2)) return 1;
+      if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
+         if ((mPlayer.syn[p].x > bx1) && (mPlayer.syn[p].x < bx2) && (mPlayer.syn[p].y > by1) && (mPlayer.syn[p].y < by2)) return 1;
    return 0;
 }
 

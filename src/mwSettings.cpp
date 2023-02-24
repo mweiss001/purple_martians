@@ -1,9 +1,11 @@
-// z_settings.cpp
+// mwSettings.cpp
+
 #include "pm.h"
-#include "z_sound.h"
+#include "mwSettings.h"
+
+#include "mwSound.h"
 #include "z_log.h"
-#include "z_settings.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "n_netgame.h"
 #include "mwLogo.h"
 #include "mwBottomMessage.h"
@@ -19,17 +21,35 @@
 #include "mwProgramState.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
-#include "z_config.h"
+#include "mwConfig.h"
 #include "e_fnx.h"
 #include "z_screen.h"
 #include "mwShots.h"
 #include "mwGameMovesArray.h"
 
-int settings_current_page = 0;
-int overlay_grid[10][4] = {0};
-int number_of_debug_overlay_modes = 2;
 
-void set_all_logging(int v)
+
+mwSettings mSettings;
+
+mwSettings::mwSettings()
+{
+   initialize();
+}
+
+void mwSettings::initialize(void)
+{
+
+}
+
+
+
+
+
+
+
+
+
+void mwSettings::set_all_logging(int v)
 {
    LOG_NET=v;
    LOG_NET_join=v;
@@ -60,7 +80,7 @@ void set_all_logging(int v)
 }
 
 
-int redraw_all_controls(int x, int y, int bts, int tc, int show_buttons, int num)
+int mwSettings::redraw_all_controls(int x, int y, int bts, int tc, int show_buttons, int num)
 {
    int xa = x;
    int xb = xa + 32;  // 'new' button end
@@ -74,50 +94,50 @@ int redraw_all_controls(int x, int y, int bts, int tc, int show_buttons, int num
    al_draw_rectangle       (x-1, y-1, xc, ya + bts*7, mC.pc[15], 0);  // frame
 
    if (num == 0) al_draw_textf(mF.pr8, mC.pc[10], tx, ya+yo, 0, "Up ---- set new control");
-   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Up ---- %s", mI.key_names[players1[0].up_key]);
-   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].up_key = mI.my_readkey(x, y, tc, bts, 0);
+   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Up ---- %s", mI.key_names[mPlayer.loc[0].up_key]);
+   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].up_key = mI.my_readkey(x, y, tc, bts, 0);
    ya+=bts;
 
    if (num == 1) al_draw_textf(mF.pr8, mC.pc[10], tx, ya+yo, 0, "Down -- set new control");
-   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Down -- %s", mI.key_names[players1[0].down_key]);
-   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].down_key = mI.my_readkey(x, y, tc, bts, 1);
+   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Down -- %s", mI.key_names[mPlayer.loc[0].down_key]);
+   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].down_key = mI.my_readkey(x, y, tc, bts, 1);
    ya+=bts;
 
    if (num == 2) al_draw_textf(mF.pr8, mC.pc[10], tx, ya+yo, 0, "Left -- set new control");
-   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Left -- %s", mI.key_names[players1[0].left_key]);
-   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].left_key = mI.my_readkey(x, y, tc, bts, 2);
+   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Left -- %s", mI.key_names[mPlayer.loc[0].left_key]);
+   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].left_key = mI.my_readkey(x, y, tc, bts, 2);
    ya+=bts;
 
    if (num == 3) al_draw_textf(mF.pr8, mC.pc[10], tx, ya+yo, 0, "Right - set new control");
-   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Right - %s", mI.key_names[players1[0].right_key]);
-   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].right_key = mI.my_readkey(x, y, tc, bts, 3);
+   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Right - %s", mI.key_names[mPlayer.loc[0].right_key]);
+   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].right_key = mI.my_readkey(x, y, tc, bts, 3);
    ya+=bts;
 
    if (num == 4) al_draw_textf(mF.pr8, mC.pc[10], tx, ya+yo, 0, "Jump -- set new control");
-   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Jump -- %s", mI.key_names[players1[0].jump_key]);
-   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].jump_key = mI.my_readkey(x, y, tc, bts, 4);
+   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Jump -- %s", mI.key_names[mPlayer.loc[0].jump_key]);
+   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].jump_key = mI.my_readkey(x, y, tc, bts, 4);
    ya+=bts;
 
    if (num == 5) al_draw_textf(mF.pr8, mC.pc[10], tx, ya+yo, 0, "Fire -- set new control");
-   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Fire -- %s", mI.key_names[players1[0].fire_key]);
-   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].fire_key = mI.my_readkey(x, y, tc, bts, 5);
+   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Fire -- %s", mI.key_names[mPlayer.loc[0].fire_key]);
+   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].fire_key = mI.my_readkey(x, y, tc, bts, 5);
    ya+=bts;
 
    if (num == 6) al_draw_textf(mF.pr8, mC.pc[10], tx, ya+yo, 0, "Menu -- set new control");
-   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Menu -- %s", mI.key_names[players1[0].menu_key]);
-   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].menu_key = mI.my_readkey(x, y, tc, bts, 6);
+   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Menu -- %s", mI.key_names[mPlayer.loc[0].menu_key]);
+   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].menu_key = mI.my_readkey(x, y, tc, bts, 6);
    ya+=bts;
 
    return ya;
 }
 
-void cfp_draw_player(int pco, int x, int y)
+void mwSettings::cfp_draw_player(int pco, int x, int y)
 {
    al_draw_bitmap(mwB.player_tile[pco][1], x, y, 0 );
    al_draw_text(mF.pr8, mC.pc[pco], x+22, y+7, 0, mC.color_name[pco]);
 }
 
-int cfp_draw_line(int xa, int xb, int ya, int line_spacing, int col)
+int mwSettings::cfp_draw_line(int xa, int xb, int ya, int line_spacing, int col)
 {
    ya+=line_spacing;
    al_draw_line(xa, ya, xb, ya, mC.pc[col], 1);
@@ -125,26 +145,18 @@ int cfp_draw_line(int xa, int xb, int ya, int line_spacing, int col)
    return ya;
 }
 
-void cfp_4tog(int xa, int xb, int &ya, int bts, int tc, int fc, int line_spacing, int index, const char * name)
+void mwSettings::cfp_4tog(int xa, int xb, int &ya, int bts, int tc, int fc, int line_spacing, int index, const char * name)
 {
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
    ya -=7;
-   al_draw_text(mF.pr8, mC.pc[tc], xa,     ya, 0, name);
+   al_draw_text(mF.pr8, mC.pc[tc], xa, ya, 0, name);
    for (int i=0; i<4; i++)
       mdw_togglec(xb-86+(i*24), ya, xb-72+(i*24), bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[index][i],  "", tc, fc);
 }
 
 
-struct settings_tab
-{
-   char title[80];
-   float x1;
-   float y1;
-   float x2;
-   float y2;
-};
 
-void draw_tab(struct settings_tab st[], int p, int col, int text_color)
+void mwSettings::draw_tab(struct settings_tab st[], int p, int col, int text_color)
 {
    int s = 2; // slant
    float v[4][2] = {0};
@@ -158,7 +170,7 @@ void draw_tab(struct settings_tab st[], int p, int col, int text_color)
    al_draw_text(mF.pr8, mC.pc[text_color], st[p].x1+4, st[p].y1+3, 0, st[p].title);
 }
 
-void settings_pages(int set_page)
+void mwSettings::settings_pages(int set_page)
 {
    char msg[1024];
    if (set_page != -1)  settings_current_page = set_page;
@@ -215,7 +227,7 @@ void settings_pages(int set_page)
          }
       }
 
-      fc = players[0].color; // frame color
+      fc = mPlayer.syn[0].color; // frame color
 
       al_set_target_backbuffer(display);
       al_flip_display();
@@ -348,7 +360,7 @@ void settings_pages(int set_page)
 
          ya+=7;
          al_draw_text(mF.pr8, mC.pc[tc], xa,     ya, 0, "Current player color:");
-         cfp_draw_player(players[0].color,     xa+180, ya-7);
+         cfp_draw_player(mPlayer.syn[0].color,     xa+180, ya-7);
 
          ya+=13;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -362,7 +374,7 @@ void settings_pages(int set_page)
             if ( (mI.mouse_x > (xa + px1)) && (mI.mouse_x < (xa + px1 + spacing)) && (mI.mouse_y > (ya + py1)) && (mI.mouse_y < (ya + py1 +22)) && (mI.mouse_b[1][0]))
             {
                while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
-               players[0].color = i;
+               mPlayer.syn[0].color = i;
             }
             px1 += spacing;
             if (px1 > (spacing * 4))
@@ -382,28 +394,28 @@ void settings_pages(int set_page)
          // ---------------------------------------
          int x1a = cfp_x1 + 10;
          int x1b = x1a + 60;
-         int old_sound_on = sound_on;
-         mdw_togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, sound_on, "Sound", tc, tc);
-         if ((old_sound_on == 0) && (sound_on == 1)) load_sound();
+         int old_sound_on = mSound.sound_on;
+         mdw_togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mSound.sound_on, "Sound", tc, tc);
+         if ((old_sound_on == 0) && (mSound.sound_on == 1)) mSound.load_sound();
 
          int dim = 0;
-         if (!sound_on) dim = 128;
+         if (!mSound.sound_on) dim = 128;
 
-         int old_se_scaler = se_scaler;
+         int old_se_scaler = mSound.se_scaler;
          x1a = x1b + 12;
          x1b = x1a + 140;
-         mdw_slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,0,0, se_scaler, 9, 0, 1, "Sound Effects:");
+         mdw_slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,0,0, mSound.se_scaler, 9, 0, 1, "Sound Effects:");
 
-         if (old_se_scaler != se_scaler) set_se_scaler();
+         if (old_se_scaler != mSound.se_scaler) mSound.set_se_scaler();
 
 
          //if ((old_se_scaler != se_scaler) && (sound_on)) al_set_mixer_gain(se_mixer, (float)se_scaler / 9);
 
-         int old_st_scaler = st_scaler;
+         int old_st_scaler = mSound.st_scaler;
          x1a = x1b + 12;
          x1b = x1a + 140;
-         mdw_slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,1,0, st_scaler, 9, 0, 1, "Sound Track:");
-         if (old_st_scaler != st_scaler) set_st_scaler();
+         mdw_slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,1,0, mSound.st_scaler, 9, 0, 1, "Sound Track:");
+         if (old_st_scaler != mSound.st_scaler) mSound.set_st_scaler();
 //         if ((old_st_scaler != st_scaler) && (sound_on)) al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
 
          ya -=2;
@@ -502,20 +514,20 @@ void settings_pages(int set_page)
          ya+=10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mwS.deathmatch_shots, "Deathmatch player shots", fc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mShot.deathmatch_shots, "Deathmatch player shots", fc, fc);
          al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's shots affect other players?");
 
          ya+=10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mwS.suicide_shots, "Suicide player shots", fc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mShot.suicide_shots, "Suicide player shots", fc, fc);
          al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's shots affect themselves?");
 
          ya+=10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
          ya+=4;
 
-         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwS.deathmatch_shot_damage, 100, -10, 1, "Player shot damage:");
+         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mShot.deathmatch_shot_damage, 100, -10, 1, "Player shot damage:");
          ya+=4;
          al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The amount of damage player's shots");
          al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya+8, ALLEGRO_ALIGN_CENTER, "do to other players and themselves.");
@@ -648,7 +660,7 @@ void settings_pages(int set_page)
             mwPS.new_program_state = 14;
             mwPS.old_program_state = 3;
             al_hide_mouse_cursor(display);
-            save_config();
+            mConfig.save();
             return;
          }
          ya +=10;
@@ -657,7 +669,7 @@ void settings_pages(int set_page)
             mwPS.new_program_state = 2;
             mwPS.older_program_state = 3;
             al_hide_mouse_cursor(display);
-            save_config();
+            mConfig.save();
             return;
          }
          ya -=2;
@@ -671,7 +683,7 @@ void settings_pages(int set_page)
 
          float old_demo_mode_overlay_opacity = mwDM.demo_mode_overlay_opacity;
          mdw_sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwDM.demo_mode_overlay_opacity, 0.8, 0, .01, "Demo mode overlay opacity:");
-         if (old_demo_mode_overlay_opacity != mwDM.demo_mode_overlay_opacity) save_config();
+         if (old_demo_mode_overlay_opacity != mwDM.demo_mode_overlay_opacity) mConfig.save();
 
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, test_opacity, "Test demo mode overlay opacity", tc, fc);
          ya +=8;
@@ -724,7 +736,7 @@ void settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, players1[0].server_state_freq_mode, "State Frequency Auto Adjust", tc, 15);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mPlayer.loc[0].server_state_freq_mode, "State Frequency Auto Adjust", tc, 15);
 
 
 
@@ -918,7 +930,7 @@ void settings_pages(int set_page)
             mwPS.new_program_state = 10;
             mwPS.old_program_state = 3;
             al_hide_mouse_cursor(display);
-            save_config();
+            mConfig.save();
             return;
          }
 
@@ -929,7 +941,7 @@ void settings_pages(int set_page)
             mwPS.new_program_state = 20;
             mwPS.old_program_state = 3;
             al_hide_mouse_cursor(display);
-            save_config();
+            mConfig.save();
             return;
          }
          xa = xa+200;
@@ -939,7 +951,7 @@ void settings_pages(int set_page)
             mwPS.new_program_state = 24;
             mwPS.old_program_state = 3;
             al_hide_mouse_cursor(display);
-            save_config();
+            mConfig.save();
             return;
          }
       }
@@ -1006,7 +1018,7 @@ void settings_pages(int set_page)
             mwPS.new_program_state = 10;
             mwPS.old_program_state = 3;
             al_hide_mouse_cursor(display);
-            save_config();
+            mConfig.save();
             return;
          }
 
@@ -1017,7 +1029,7 @@ void settings_pages(int set_page)
             mwPS.new_program_state = 20;
             mwPS.old_program_state = 3;
             al_hide_mouse_cursor(display);
-            save_config();
+            mConfig.save();
             return;
          }
          xa = xa+200;
@@ -1027,7 +1039,7 @@ void settings_pages(int set_page)
             mwPS.new_program_state = 24;
             mwPS.old_program_state = 3;
             al_hide_mouse_cursor(display);
-            save_config();
+            mConfig.save();
             return;
          }
 
@@ -1112,8 +1124,14 @@ void settings_pages(int set_page)
       }
    }
    al_hide_mouse_cursor(display);
-   save_config();
+   mConfig.save();
    mwPS.new_program_state = 1;
    mwPS.old_program_state = 1;
 }
+
+
+
+
+
+
 

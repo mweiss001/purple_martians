@@ -4,7 +4,7 @@
 #include "z_screen.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwLogo.h"
 #include "mwBottomMessage.h"
 #include "mwDemoMode.h"
@@ -53,9 +53,9 @@ void stimp(void) // transition from menu to game
    if (SH > 2000) SH = 2000;
 
    // find where to grab the source screen from based on the players position
-   int alp = active_local_player;
-   int PX = players[alp].x + 10;
-   int PY = players[alp].y + 10;
+   int alp = mPlayer.active_local_player;
+   int PX = mPlayer.syn[alp].x + 10;
+   int PY = mPlayer.syn[alp].y + 10;
 
    // this method has a hysteresis rectangle in the middle of the screen where there is no scroll
    int x_size = SW / 18; // larger number is smaller window
@@ -72,8 +72,8 @@ void stimp(void) // transition from menu to game
    if (mwD.WY > (2000 - SH)) mwD.WY = 2000 - SH;
 
    // this is where the player will be when stimp is done and the level starts
-   PX = players[alp].x;
-   PY = players[alp].y;
+   PX = mPlayer.syn[alp].x;
+   PY = mPlayer.syn[alp].y;
 
    float px_final = (PX-mwD.WX) * mwD.scale_factor_current + bw;
    float py_final = (PY-mwD.WY) * mwD.scale_factor_current + bw;
@@ -165,9 +165,9 @@ void stamp(void) // transition from game to menu
    if (SH > 2000) SH = 2000;
 
    // find where to grab the source screen from based on the players position
-   int alp = active_local_player;
-   int PX = players[alp].x + 10;
-   int PY = players[alp].y + 10;
+   int alp = mPlayer.active_local_player;
+   int PX = mPlayer.syn[alp].x + 10;
+   int PY = mPlayer.syn[alp].y + 10;
 
    // this method has a hysteresis rectangle in the middle of the screem where there is no scroll
    int x_size = SW / 18; // larger number is smaller window
@@ -185,8 +185,8 @@ void stamp(void) // transition from game to menu
    if (mwD.WY > (2000 - SH)) mwD.WY = 2000 - SH;
 
    // this is where the player will be when stimp is done and the level starts
-   PX = players[alp].x;
-   PY = players[alp].y;
+   PX = mPlayer.syn[alp].x;
+   PY = mPlayer.syn[alp].y;
 
    float px_final = (PX-mwD.WX) * mwD.scale_factor_current + bw;
    float py_final = (PY-mwD.WY) * mwD.scale_factor_current + bw;
@@ -301,8 +301,8 @@ void draw_hyst_rect(void)
 
 void get_new_screen_buffer(int type, int x, int y)
 {
-   int p = active_local_player;
-   int c = players[p].color;
+   int p = mPlayer.active_local_player;
+   int c = mPlayer.syn[p].color;
 
 
    al_set_target_backbuffer(display);
@@ -355,8 +355,8 @@ void get_new_screen_buffer(int type, int x, int y)
    // find where to grab the source screen from based on the players position
    if (type == 0)
    {
-      PX = players[p].x + 10;
-      PY = players[p].y + 10;
+      PX = mPlayer.syn[p].x + 10;
+      PY = mPlayer.syn[p].y + 10;
    }
    if (type == 1)
    {
@@ -382,7 +382,7 @@ void get_new_screen_buffer(int type, int x, int y)
          {
             int look_shift_speed = 4;
 
-            if (players[p].left_right) mwD.WX_shift_speed+=.5;
+            if (mPlayer.syn[p].left_right) mwD.WX_shift_speed+=.5;
             else mwD.WX_shift_speed-=.5;
 
             if (mwD.WX_shift_speed > 2)  mwD.WX_shift_speed = 2;
@@ -390,8 +390,8 @@ void get_new_screen_buffer(int type, int x, int y)
 
             mwD.WX+=mwD.WX_shift_speed;
 
-            if (players[p].up) mwD.WY-=look_shift_speed;
-            if (players[p].down) mwD.WY+=look_shift_speed;
+            if (mPlayer.syn[p].up) mwD.WY-=look_shift_speed;
+            if (mPlayer.syn[p].down) mwD.WY+=look_shift_speed;
          }
          if (mwD.WX < PX - SW/2 - x_size) mwD.WX = PX - SW/2 - x_size; // hit right edge
          if (mwD.WX > PX - SW/2 + x_size) mwD.WX = PX - SW/2 + x_size; // hit left edge
@@ -579,14 +579,14 @@ void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int item
    if (blocks) get_new_background(1);
    if (mLevel.valid_level_loaded)
    {
-      if (lifts)   Lift.draw_lifts();
+      if (lifts)   mLift.draw_lifts();
       if (items)   mItem.draw_items();
       if (enemies) mEnemy.draw_enemies();
       if (mLevel.resume_allowed)
       {
-         if (players) draw_players();
-         mwS.draw_eshots();
-         mwS.draw_pshots();
+         if (players) mPlayer.draw_players();
+         mShot.draw_eshots();
+         mShot.draw_pshots();
       }
    }
    if (b == NULL) al_set_target_backbuffer(display);
@@ -644,8 +644,8 @@ int get_contrasting_color(int color)
 
 void frame_and_title(int show_players)
 {
-   int p = active_local_player;
-   int color = players[p].color;
+   int p = mPlayer.active_local_player;
+   int color = mPlayer.syn[p].color;
 
    // draw the border
    for (int x = 0; x < BORDER_WIDTH; x++)
@@ -665,7 +665,7 @@ void frame_and_title(int show_players)
    if (show_players)
    {
       // draw a line of players on each side of menu
-      color = players[p].color;               // initial color
+      color = mPlayer.syn[p].color;               // initial color
       int lim = 12;                           // number of players to draw
       float flsc = 5;                         // initial scale
       float y_pos = 20;                       // initial y position
@@ -686,7 +686,7 @@ void frame_and_title(int show_players)
          if (++color > 15) color = 1;        // cycle through players colors
       }
 
-      color = players[p].color;               // initial color
+      color = mPlayer.syn[p].color;               // initial color
       flsc = 5;                               // initial scale
       y_pos = 20;                             // initial y position
       y_step = 20 / lim;                      // inc to raise 20
@@ -778,7 +778,7 @@ void draw_large_text_overlay(int type, int color)
 
    if ((type == 2) && (mwB.large_text_overlay_state != 2))
    {
-      color = players[active_local_player].color;
+      color = mPlayer.syn[mPlayer.active_local_player].color;
       sprintf(m1, "LEVEL");
       sprintf(m2, "DONE");
       mwB.large_text_overlay_state = 2;

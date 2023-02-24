@@ -2,7 +2,7 @@
 #include "pm.h"
 #include "z_log.h"
 #include "mwGraph.h"
-#include "z_player.h"
+#include "mwPlayers.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwWidgets.h"
@@ -62,9 +62,6 @@ int LOG_TMR_rwnd = 0;
 int LOG_TMR_client_timer_adj = 0;
 int LOG_TMR_client_ping = 0;
 
-
-
-
 int autosave_log_on_program_exit = 0;
 int autosave_log_on_game_exit = 0;
 int autosave_log_on_level_done = 0;
@@ -102,53 +99,53 @@ int autosave_game_on_level_done = 0;
 void log_bandwidth_stats(int p)
 {
    char msg[1024];
-   sprintf(msg,"total tx bytes............[%d]", players1[p].tx_total_bytes);
+   sprintf(msg,"total tx bytes............[%d]", mPlayer.loc[p].tx_total_bytes);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"max tx bytes per frame....[%d]", players1[p].tx_max_bytes_per_frame);
+   sprintf(msg,"max tx bytes per frame....[%d]", mPlayer.loc[p].tx_max_bytes_per_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"avg tx bytes per frame....[%d]", players1[p].tx_total_bytes / mwPS.frame_num);
+   sprintf(msg,"avg tx bytes per frame....[%d]", mPlayer.loc[p].tx_total_bytes / mwPS.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"max rx bytes per second...[%d]", players1[p].tx_max_bytes_per_tally);
+   sprintf(msg,"max rx bytes per second...[%d]", mPlayer.loc[p].tx_max_bytes_per_tally);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"avg tx bytes per sec......[%d]", (players1[p].tx_total_bytes *40)/ mwPS.frame_num);
+   sprintf(msg,"avg tx bytes per sec......[%d]", (mPlayer.loc[p].tx_total_bytes *40)/ mwPS.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"total tx packets..........[%d]", players1[p].tx_total_packets);
+   sprintf(msg,"total tx packets..........[%d]", mPlayer.loc[p].tx_total_packets);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"max tx packets per frame..[%d]", players1[p].tx_max_packets_per_frame);
+   sprintf(msg,"max tx packets per frame..[%d]", mPlayer.loc[p].tx_max_packets_per_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"max tx packets per second.[%d]", players1[p].tx_max_packets_per_tally);
+   sprintf(msg,"max tx packets per second.[%d]", mPlayer.loc[p].tx_max_packets_per_tally);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
 
-   sprintf(msg,"total rx bytes............[%d]", players1[p].rx_total_bytes);
+   sprintf(msg,"total rx bytes............[%d]", mPlayer.loc[p].rx_total_bytes);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"max rx bytes per frame....[%d]", players1[p].rx_max_bytes_per_frame);
+   sprintf(msg,"max rx bytes per frame....[%d]", mPlayer.loc[p].rx_max_bytes_per_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"avg rx bytes per frame....[%d]", players1[p].rx_total_bytes / mwPS.frame_num);
+   sprintf(msg,"avg rx bytes per frame....[%d]", mPlayer.loc[p].rx_total_bytes / mwPS.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"max rx bytes per second...[%d]", players1[p].rx_max_bytes_per_tally);
+   sprintf(msg,"max rx bytes per second...[%d]", mPlayer.loc[p].rx_max_bytes_per_tally);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"avg rx bytes per sec......[%d]", (players1[p].rx_total_bytes *40)/ mwPS.frame_num);
+   sprintf(msg,"avg rx bytes per sec......[%d]", (mPlayer.loc[p].rx_total_bytes *40)/ mwPS.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"total rx packets..........[%d]", players1[p].rx_total_packets);
+   sprintf(msg,"total rx packets..........[%d]", mPlayer.loc[p].rx_total_packets);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"max rx packets per frame..[%d]", players1[p].rx_max_packets_per_frame);
+   sprintf(msg,"max rx packets per frame..[%d]", mPlayer.loc[p].rx_max_packets_per_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"max rx packets per second.[%d]", players1[p].rx_max_packets_per_tally);
+   sprintf(msg,"max rx packets per second.[%d]", mPlayer.loc[p].rx_max_packets_per_tally);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 }
 
@@ -157,7 +154,7 @@ void log_reason_for_player_quit(int p)
    char msg[1024];
    char tmsg[80];
    sprintf(tmsg,"unknown");
-   int r = players1[p].quit_reason;
+   int r = mPlayer.loc[p].quit_reason;
    if (r == 64) sprintf(tmsg,"player pressed ESC or menu key");
    if (r == 70) sprintf(tmsg,"server drop (server sync > 100)");
    if (r == 71) sprintf(tmsg,"server drop (no stak for 100 frames)");
@@ -219,24 +216,24 @@ void log_player_array(void)
       char ms[80];
       sprintf(ms, " ");
 
-      if ((players[p].active) && (players[p].control_method == 2))
+      if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == 2))
          sprintf(ms, " <-- active client");
 
-      if ((!players[p].active) && (players[p].control_method == 2))
+      if ((!mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == 2))
          sprintf(ms, " <-- syncing client");
 
-      if (players[p].control_method == 9) sprintf(ms, " <-- used client");
+      if (mPlayer.syn[p].control_method == 9) sprintf(ms, " <-- used client");
 
-      if (p == active_local_player) sprintf(ms, " <-- active local player (me!)");
+      if (p == mPlayer.active_local_player) sprintf(ms, " <-- active local player (me!)");
       if (p == 0) sprintf(ms, " <-- server");
 
       sprintf(msg, "[%d][%2d][%d][%2d][%d] - %s %s",
                                               p,
-                                              players1[p].who,
-                                              players[p].active,
-                                              players[p].color,
-                                              players[p].control_method,
-                                              players1[p].hostname,
+                                              mPlayer.loc[p].who,
+                                              mPlayer.syn[p].active,
+                                              mPlayer.syn[p].color,
+                                              mPlayer.syn[p].control_method,
+                                              mPlayer.loc[p].hostname,
                                               ms );
       add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
    }
@@ -250,9 +247,9 @@ void log_player_array2(void)
    add_log_entry_position_text(26, 0, 76, 10, msg, "|", " ");
    for (int p=0; p<NUM_PLAYERS; p++)
    {
-      float sy = players1[p].dsync;
+      float sy = mPlayer.loc[p].dsync;
       if (p == 0) sy = 0;
-      sprintf(msg, "[%d][%d][%d][%3.2f]",   p, players[p].active, players[p].control_method, sy );
+      sprintf(msg, "[%d][%d][%d][%3.2f]",   p, mPlayer.syn[p].active, mPlayer.syn[p].control_method, sy );
       add_log_entry_position_text(26, 0, 76, 10, msg, "|", " ");
    }
 }
@@ -261,27 +258,27 @@ void log_player_array2(void)
 void log_ending_stats(int p)
 {
    char msg[1024];
-   sprintf(msg,"Client %d (%s) ending stats", p, players1[p].hostname);
+   sprintf(msg,"Client %d (%s) ending stats", p, mPlayer.loc[p].hostname);
    add_log_entry_header(10, p, msg, 0);
 
    sprintf(msg,"total game frames.........[%d]", mwPS.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-   sprintf(msg,"frame when client joined..[%d]", players1[p].join_frame);
+   sprintf(msg,"frame when client joined..[%d]", mPlayer.loc[p].join_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   if (players1[p].quit_frame == 0) players1[p].quit_frame = mwPS.frame_num;
-   sprintf(msg,"frame when client quit....[%d]", players1[p].quit_frame);
+   if (mPlayer.loc[p].quit_frame == 0) mPlayer.loc[p].quit_frame = mwPS.frame_num;
+   sprintf(msg,"frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    log_reason_for_player_quit(p);
 
-   sprintf(msg,"frames client was active..[%d]", players1[p].quit_frame - players1[p].join_frame);
+   sprintf(msg,"frames client was active..[%d]", mPlayer.loc[p].quit_frame - mPlayer.loc[p].join_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"cdat packets total........[%d]", players1[p].client_cdat_packets_tx);
+   sprintf(msg,"cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"cdat packets late.........[%d]", players1[p].late_cdats);
+   sprintf(msg,"cdat packets late.........[%d]", mPlayer.loc[p].late_cdats);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    log_bandwidth_stats(p);
@@ -317,27 +314,27 @@ void log_ending_stats_server()
 
    for (int p=1; p<NUM_PLAYERS; p++)
    {
-      if ((players[p].control_method == 2) || (players[p].control_method == 8))
+      if ((mPlayer.syn[p].control_method == 2) || (mPlayer.syn[p].control_method == 8))
       {
-         sprintf(msg,"Player:%d (%s)", p, players1[p].hostname);
+         sprintf(msg,"Player:%d (%s)", p, mPlayer.loc[p].hostname);
          add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-         sprintf(msg,"frame when client joined..[%d]", players1[p].join_frame);
+         sprintf(msg,"frame when client joined..[%d]", mPlayer.loc[p].join_frame);
          add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-         if (players1[p].quit_frame == 0) players1[p].quit_frame = mwPS.frame_num;
-         sprintf(msg,"frame when client quit....[%d]", players1[p].quit_frame);
+         if (mPlayer.loc[p].quit_frame == 0) mPlayer.loc[p].quit_frame = mwPS.frame_num;
+         sprintf(msg,"frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
          add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
          log_reason_for_player_quit(p);
 
-         sprintf(msg,"frames client was active..[%d]", players1[p].quit_frame - players1[p].join_frame);
+         sprintf(msg,"frames client was active..[%d]", mPlayer.loc[p].quit_frame - mPlayer.loc[p].join_frame);
          add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-         sprintf(msg,"cdat packets total........[%d]", players1[p].client_cdat_packets_tx);
+         sprintf(msg,"cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
          add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-         sprintf(msg,"cdat packets late.........[%d]", players1[p].late_cdats);
+         sprintf(msg,"cdat packets late.........[%d]", mPlayer.loc[p].late_cdats);
          add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
          log_bandwidth_stats(p);
@@ -386,15 +383,15 @@ void save_log_file(void)
 
 //void add_log_entry_sdat_rx_and_game_move_entered(int type, int player)
 //{
-//   int st = players1[player].client_sdat_packets_rx;      // sdat total
-//   int ss = players1[player].client_sdat_packets_skipped; // sdat skipped
+//   int st = mPlayer.loc[player].client_sdat_packets_rx;      // sdat total
+//   int ss = mPlayer.loc[player].client_sdat_packets_skipped; // sdat skipped
 //   float sdpc = 0;                                        // % skipped
 //   if (st != 0) sdpc = (float)ss * 100 / (float)st;       // prevent divide by zero
 //   sprintf(msg,"sdat packets rx'd.........[%3d]  skipped:[%3d][%4.1f%%]", st, ss, sdpc);
 //   add_log_entry_position_text(type, player, 76, 10, msg, "|", " ");
 //
-//   int mt = players1[player].moves_entered + players1[player].moves_skipped; // moves total
-//   int ms = players1[player].moves_skipped;                                  // moves skipped
+//   int mt = mPlayer.loc[player].moves_entered + mPlayer.loc[player].moves_skipped; // moves total
+//   int ms = mPlayer.loc[player].moves_skipped;                                  // moves skipped
 //   float mspc = 0;                                                           // % skipped
 //   if (mt != 0) mspc = (float)ms * 100 / (float)mt;                          // prevent divide by zero
 //   sprintf(msg,"moves entered:............[%3d]  skipped:[%3d][%4.1f%%]", mt, ms, mspc);
@@ -733,7 +730,7 @@ int log_file_viewer(int type)
    // set players colors
    for (int i=0; i<8; i++)
       if (lp[i][1]) // we have moves for this player
-         players[i].color = 8+i;
+         mPlayer.syn[i].color = 8+i;
 
    while (!quit)
    {

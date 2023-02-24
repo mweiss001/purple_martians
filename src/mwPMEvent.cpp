@@ -74,9 +74,9 @@ void mwPMEvent::show_all_events(void)
    }
 
    for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
-      if (Lift.cur[l].active)
-         for (int s=0; s<Lift.cur[l].num_steps; s++) // iterate steps
-            if (((Lift.stp[l][s].type & 31) == 5) && (Lift.stp[l][s].val)) show_event_line(x, y, Lift.stp[l][s].val, 2, l, s);
+      if (mLift.cur[l].active)
+         for (int s=0; s<mLift.cur[l].num_steps; s++) // iterate steps
+            if (((mLift.stp[l][s].type & 31) == 5) && (mLift.stp[l][s].val)) show_event_line(x, y, mLift.stp[l][s].val, 2, l, s);
 
 
 
@@ -166,9 +166,9 @@ int mwPMEvent::is_pm_event_used(int ev)
    }
 
    for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
-      if (Lift.cur[l].active)
-         for (int s=0; s<Lift.cur[l].num_steps; s++) // iterate steps
-            if (((Lift.stp[l][s].type & 31) == 5) && (Lift.stp[l][s].val == ev)) return 1;
+      if (mLift.cur[l].active)
+         for (int s=0; s<mLift.cur[l].num_steps; s++) // iterate steps
+            if (((mLift.stp[l][s].type & 31) == 5) && (mLift.stp[l][s].val == ev)) return 1;
 
    return 0;
 }
@@ -227,14 +227,14 @@ void mwPMEvent::find_and_show_event_links(int type, int i, int num2)
                   al_draw_line(x1, y1, x2, y2, mC.pc[10], 2);
                }
             for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
-               if (Lift.cur[l].active)
-                  for (int s=0; s<Lift.cur[l].num_steps; s++) // iterate steps
-                     if (((Lift.stp[l][s].type & 31) == 5) && (Lift.stp[l][s].val == ev))
+               if (mLift.cur[l].active)
+                  for (int s=0; s<mLift.cur[l].num_steps; s++) // iterate steps
+                     if (((mLift.stp[l][s].type & 31) == 5) && (mLift.stp[l][s].val == ev))
                      {
                         //printf("found a match with a lift:%d step:%d ", l, s);
-                        int pms = Lift.lift_find_previous_move_step(l, s);
-                        int x2 = Lift.stp[l][pms].x + Lift.stp[l][pms].w / 2;
-                        int y2 = Lift.stp[l][pms].y + Lift.stp[l][pms].h / 2;
+                        int pms = mLift.lift_find_previous_move_step(l, s);
+                        int x2 = mLift.stp[l][pms].x + mLift.stp[l][pms].w / 2;
+                        int y2 = mLift.stp[l][pms].y + mLift.stp[l][pms].h / 2;
 
                         //printf("pms:%d x:%d y:%d\n", pms, x2, y2);
 
@@ -270,19 +270,19 @@ void mwPMEvent::find_and_show_event_links(int type, int i, int num2)
    {
       int lift = i;
       int step = num2;
-      int stype = Lift.stp[lift][step].type & 31;
+      int stype = mLift.stp[lift][step].type & 31;
 
       // get position from previous move step
-      int pms = Lift.lift_find_previous_move_step(lift, step);
-      int x1 = Lift.stp[lift][pms].x + Lift.stp[lift][pms].w / 2;
-      int y1 = Lift.stp[lift][pms].y + Lift.stp[lift][pms].h / 2;
+      int pms = mLift.lift_find_previous_move_step(lift, step);
+      int x1 = mLift.stp[lift][pms].x + mLift.stp[lift][pms].w / 2;
+      int y1 = mLift.stp[lift][pms].y + mLift.stp[lift][pms].h / 2;
 
 //      printf("current lift:%d step:%d stype:%d  ", i, step, stype );
 //      printf("pms:%d x:%d y:%d\n", pms, x1, y1);
 
       if (stype == 5) // only if this step is "wait for trig"
       {
-         int ev = Lift.stp[lift][step].val; // get event
+         int ev = mLift.stp[lift][step].val; // get event
          if (ev > 0) // don't do anything for link if zero
          {
             for (int i2=0; i2<500; i2++)

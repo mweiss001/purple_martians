@@ -12,7 +12,6 @@ class mwGameMovesArray
 
    int has_player_acknowledged(int p);
 
-
    int game_moves[GAME_MOVES_SIZE][4];
    int game_move_entry_pos = 0;
    int game_move_current_pos = 0; // for savegame running only
