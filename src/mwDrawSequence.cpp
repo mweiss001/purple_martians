@@ -1,7 +1,7 @@
 // mwDrawSequence.cpp
 
 #include "pm.h"
-#include "z_log.h"
+#include "mwLog.h"
 #include "mwPlayers.h"
 #include "mwDrawSequence.h"
 #include <limits>
@@ -132,14 +132,14 @@ void mwDrawSequence::draw(void)
    al_flip_display();
    t10 = al_get_time(); add(9, t10-t9); add(10, t10-t0);
 
-   if (LOG_TMR_draw_all)
+   if (mLog.LOG_TMR_draw_all)
    {
       sprintf(msg, "tmst d-bkgr:[%0.4f] d-lift:[%0.4f] d-item:[%0.4f] d-enem:[%0.4f] d-esht:[%0.4f] d-psht:[%0.4f] d-plyr:[%0.4f] d-buff:[%0.4f] d-ovrl:[%0.4f] d-flip:[%0.4f] d-totl:[%0.4f]\n",
       (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000, (t4-t3)*1000, (t5-t4)*1000, (t6-t5)*1000, (t7-t6)*1000, (t8-t7)*1000, (t9-t8)*1000, (t10-t9)*1000, (t10-t0)*1000);
       //printf("\n%s\n", msg);
-      add_log_entry2(44, 0, msg);
+      mLog.add_log_entry2(44, 0, msg);
    }
-   if (LOG_TMR_draw_tot) add_log_TMR(t10-t0, "draw", 0);
+   if (mLog.LOG_TMR_draw_tot) mLog.add_log_TMR(t10-t0, "draw", 0);
 }
 
 char * mwDrawSequence::get_line(int s, char* msg)

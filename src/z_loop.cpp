@@ -3,7 +3,7 @@
 #include "z_loop.h"
 #include "mwQuickGraph.h"
 #include "mwSound.h"
-#include "z_log.h"
+#include "mwLog.h"
 #include "mwSettings.h"
 #include "mwPlayers.h"
 #include "n_netgame.h"
@@ -59,27 +59,27 @@ void move_frame(void)
 {
    char msg[1024];
    double t1, t2, t3, t4, t5, t6;
-   if ((LOG_TMR_move_tot) || (LOG_TMR_move_all)) t0 = al_get_time();
+   if ((mLog.LOG_TMR_move_tot) || (mLog.LOG_TMR_move_all)) t0 = al_get_time();
    mShot.move_eshots();
-   if (LOG_TMR_move_all) t1 = al_get_time();
+   if (mLog.LOG_TMR_move_all) t1 = al_get_time();
    mShot.move_pshots();
-   if (LOG_TMR_move_all) t2 = al_get_time();
+   if (mLog.LOG_TMR_move_all) t2 = al_get_time();
    mLift.move_lifts(0);
-   if (LOG_TMR_move_all) t3 = al_get_time();
+   if (mLog.LOG_TMR_move_all) t3 = al_get_time();
    mPlayer.move_players();
-   if (LOG_TMR_move_all) t4 = al_get_time();
+   if (mLog.LOG_TMR_move_all) t4 = al_get_time();
    mEnemy.move_enemies();
-   if (LOG_TMR_move_all) t5 = al_get_time();
+   if (mLog.LOG_TMR_move_all) t5 = al_get_time();
    mItem.move_items();
-   if (LOG_TMR_move_all)
+   if (mLog.LOG_TMR_move_all)
    {
       t6 = al_get_time();
       sprintf(msg, "tmst m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
       (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000, (t4-t3)*1000, (t5-t4)*1000, (t6-t5)*1000, (t6-t0)*1000);
       //printf("\n%s\n", msg);
-      add_log_entry2(44, 0, msg);
+      mLog.add_log_entry2(44, 0, msg);
    }
-   if (LOG_TMR_move_tot) add_log_TMR(al_get_time() - t0, "move", 0);
+   if (mLog.LOG_TMR_move_tot) mLog.add_log_TMR(al_get_time() - t0, "move", 0);
 }
 
 
@@ -184,8 +184,8 @@ void proc_program_state(void)
             if (ima_server) server_exit();
             if (ima_client) client_exit();
 
-            if (autosave_log_on_game_exit) save_log_file();
-            if (autosave_game_on_game_exit) mwGMA.blind_save_game_moves(2);
+            if (mLog.autosave_log_on_game_exit) mLog.save_log_file();
+            if (mLog.autosave_game_on_game_exit) mwGMA.blind_save_game_moves(2);
 
             mSound.stop_sound();
             if (mwPS.program_state != 3) stamp();
@@ -271,10 +271,10 @@ void proc_program_state(void)
       mI.initialize();
       mwPME.initialize();
 
-      if (LOG_NET)
+      if (mLog.LOG_NET)
       {
          sprintf(msg,"LEVEL %d STARTED", mLevel.play_level);
-         add_log_entry_header(10, 0, msg, 3);
+         mLog.add_log_entry_header(10, 0, msg, 3);
       }
 
       mwPS.show_player_join_quit_timer = 0;
@@ -308,7 +308,7 @@ void proc_program_state(void)
          // set holdoff 200 frames in future so client won't try to drop while syncing
          mPlayer.loc[p].client_last_stdf_rx_frame_num = mwPS.frame_num + 200;
 
-         if (LOG_NET_join) add_log_entry_header(11, p, "Game state updated - starting chase and lock", 1);
+         if (mLog.LOG_NET_join) mLog.add_log_entry_header(11, p, "Game state updated - starting chase and lock", 1);
          mwPS.program_state = 11;
       }
    }
@@ -352,10 +352,10 @@ void proc_program_state(void)
 
       game_vars_to_state(srv_client_state[0][1]);
       srv_client_state_frame_num[0][1] = mwPS.frame_num;
-      if (LOG_NET_stdf)
+      if (mLog.LOG_NET_stdf)
       {
          sprintf(msg, "stdf saved server state[1]:%d\n", mwPS.frame_num);
-         add_log_entry2(27, 0, msg);
+         mLog.add_log_entry2(27, 0, msg);
       }
 
       mwGMA.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
@@ -364,10 +364,10 @@ void proc_program_state(void)
       for (int p=0; p<NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active) mwGMA.add_game_move(0, 1, p, mPlayer.syn[p].color); // 1 - player_state and color
 
-      if (LOG_NET)
+      if (mLog.LOG_NET)
       {
          sprintf(msg,"LEVEL %d STARTED", mLevel.play_level);
-         add_log_entry_header(10, 0, msg, 3);
+         mLog.add_log_entry_header(10, 0, msg, 3);
       }
 
       mwPS.show_player_join_quit_timer = 0;
@@ -432,7 +432,7 @@ void proc_program_state(void)
 
       mPlayer.syn[0].level_done_mode = 0;
 
-      if (LOG_NET) { sprintf(msg,"NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level); add_log_entry_header(10, 0, msg, 3); }
+      if (mLog.LOG_NET) { sprintf(msg,"NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level); mLog.add_log_entry_header(10, 0, msg, 3); }
 
       if (mPlayer.syn[mPlayer.active_local_player].control_method == 1) // run demo mode saved game file
       {
@@ -441,15 +441,15 @@ void proc_program_state(void)
          return; // to exit immediately
       }
 
-      if ((LOG_NET) && (ima_client)) log_ending_stats(mPlayer.active_local_player);
-      if ((LOG_NET) && (ima_server)) log_ending_stats_server();
+      if ((mLog.LOG_NET) && (ima_client)) mLog.log_ending_stats(mPlayer.active_local_player);
+      if ((mLog.LOG_NET) && (ima_server)) mLog.log_ending_stats_server();
 
       if (ima_server) server_flush();
       if (ima_client) client_flush();
 
       mwGMA.blind_save_game_moves(1);
 
-      if (autosave_log_on_level_done) save_log_file();
+      if (mLog.autosave_log_on_level_done) mLog.save_log_file();
 
       mLevel.play_level = mPlayer.syn[0].level_done_next_level;
 
@@ -503,11 +503,11 @@ void proc_program_state(void)
          game_vars_to_state(srv_client_state[0][1]);
          srv_client_state_frame_num[0][1] = mwPS.frame_num;
 
-         if (LOG_NET_stdf)
+         if (mLog.LOG_NET_stdf)
          {
             //   printf("saved server state[1]:%d\n\n", mwPS.frame_num);
             sprintf(msg, "stdf saved server state[1]:%d\n", mwPS.frame_num);
-            add_log_entry2(27, 0, msg);
+            mLog.add_log_entry2(27, 0, msg);
          }
       }
 
@@ -517,10 +517,10 @@ void proc_program_state(void)
       for (int p=0; p<NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active) mwGMA.add_game_move(0, 1, p, mPlayer.syn[p].color); // [01] player_state and color
 
-      if (LOG_NET)
+      if (mLog.LOG_NET)
       {
          sprintf(msg,"LEVEL %d STARTED", mLevel.play_level);
-         add_log_entry_header(10, 0, msg, 3);
+         mLog.add_log_entry_header(10, 0, msg, 3);
       }
 
       // only do fancy zoom into level if not in netgame  .. also warp if I can figure out how to do that here
@@ -700,14 +700,14 @@ void main_loop(void)
             if (mPlayer.syn[0].level_done_mode) proc_level_done_mode();
             else move_frame();
 
-            if (LOG_TMR_sdif) t0 = al_get_time();
+            if (mLog.LOG_TMR_sdif) t0 = al_get_time();
             server_create_new_state();
-            if (LOG_TMR_sdif) add_log_TMR(al_get_time() - t0, "sdif", 0);
+            if (mLog.LOG_TMR_sdif) mLog.add_log_TMR(al_get_time() - t0, "sdif", 0);
 
             draw_frame();
 
             double pt = al_get_time() - mwTS.timestamp_frame_start;
-            if (LOG_TMR_cpu) add_log_TMR(pt, "cpu", 0);
+            if (mLog.LOG_TMR_cpu) mLog.add_log_TMR(pt, "cpu", 0);
 
             mwRA[0].add_data((pt/0.025)*100);
             mwQG[0].add_data(0, mwRA[0].last_input);

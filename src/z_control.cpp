@@ -1,7 +1,7 @@
 // z_control.cpp
 #include "pm.h"
 #include "z_control.h"
-#include "z_log.h"
+#include "mwLog.h"
 #include "mwSettings.h"
 #include "mwPlayers.h"
 #include "n_netgame.h"
@@ -140,7 +140,7 @@ void proc_player_input(void)
                      if (mPlayer.syn[p].menu) mwPS.new_program_state = 25;
                      mPlayer.loc[p].client_cdat_packets_tx++;
                      sprintf(msg,"tx cdat - move:%d\n", mPlayer.loc[p].comp_move);
-                     if (LOG_NET_cdat) add_log_entry2(35, p, msg);
+                     if (mLog.LOG_NET_cdat) mLog.add_log_entry2(35, p, msg);
 
                   }
                }

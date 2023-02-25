@@ -1,7 +1,7 @@
 // z_args.cpp
 #include "pm.h"
 #include "z_args.h"
-#include "z_log.h"
+#include "mwLog.h"
 #include "n_netgame.h"
 #include "mwLogo.h"
 #include "mwColor.h"
@@ -249,13 +249,13 @@ void proc_command_line_args2(int argument_count, char **argument_array)
 
       if (strcmp(argument_array[1],"-l") == 0 )  // log file viewer
       {
-         log_file_viewer(1);
+         mLog.log_file_viewer(1);
          fast_exit(0);
       }
 
       if (strcmp(argument_array[1],"-lr") == 0 )  // log file viewer most recent
       {
-         log_file_viewer(2);
+         mLog.log_file_viewer(2);
          fast_exit(0);
       }
 

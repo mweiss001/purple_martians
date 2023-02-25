@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwPlayers.h"
-#include "z_log.h"
+#include "mwLog.h"
 #include "mwTally.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
@@ -226,7 +226,7 @@ void mwPlayers::proc_player_health(int p)
       syn[p].health = 0;
 
       sprintf(msg,"PLAYER:%d DIED!", p);
-      if (LOG_NET) add_log_entry_header(10, 0, msg, 1);
+      if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 1);
 
       game_event(90, 0, 0, p, 0, 0, 0);  // player death
 
