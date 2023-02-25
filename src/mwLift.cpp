@@ -10,14 +10,13 @@
 #include "mwDisplay.h"
 #include "mwWidgets.h"
 #include "mwColor.h"
-#include "mwPMEvent.h"
+#include "mwTriggerEvent.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwMenu.h"
-#include "mwProgramState.h"
-#include "e_fnx.h"
-#include "e_object_viewer.h"
-#include "z_screen.h"
+#include "mwLoop.h"
+#include "mwMiscFnx.h"
+#include "mwScreen.h"
 
 mwLift mLift;
 
@@ -195,7 +194,7 @@ void mwLift::show_all_lifts(void)
                sprintf(typemsg,"bad step");
                color = 14;
             }
-            printBits(4, &stp[l][s].type);
+            mMiscFnx.printBits(4, &stp[l][s].type);
             al_draw_textf(mF.pr8, mC.pc[color], 10, text_pos*8, 0, " step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s) col:%2d b:%s", s, x, y, w, h, val, type, typemsg, step_color, msg);
             text_pos++;
          }
@@ -309,7 +308,7 @@ int mwLift::create_lift(void)
       construct_lift_step(l, step, initial_type, 0, 0, initial_width, initial_height, initial_val);
       cur[l].num_steps++; // add one to steps
 
-      if (getxy("Lift Initial Position", 4, l, step) == 1)
+      if (mMiscFnx.getxy("Lift Initial Position", 4, l, step) == 1)
       {
          step++;
          initial_type = (4 | cf);  // make type 4 step type with same flags as initial
@@ -324,7 +323,7 @@ int mwLift::create_lift(void)
 
          insert_steps_until_quit(l, step);
 
-         object_viewer(4, l);
+         mwWM.mW[7].object_viewer(4, l);
          return 1;
       }
       else
@@ -342,7 +341,7 @@ int mwLift::create_lift(void)
 
 void mwLift::move_lift_step(int lift, int step)
 {
-   if ((stp[lift][step].type & 31) == 1) getxy("Step Position", 4,  lift, step); // only if type = move
+   if ((stp[lift][step].type & 31) == 1) mMiscFnx.getxy("Step Position", 4,  lift, step); // only if type = move
 }
 
 int mwLift::get_new_lift_step(int lift, int step)
@@ -391,7 +390,7 @@ int mwLift::get_new_lift_step(int lift, int step)
       {
          quit = construct_lift_step(lift, step, 1, 0, 0, 0, 0, 20);
          lift_step_set_size_from_previous_move_step(lift, step);
-         if (getxy("Step Position", 4, lift, step) != 1) quit = 99;
+         if (mMiscFnx.getxy("Step Position", 4, lift, step) != 1) quit = 99;
       }
       if (mdw_buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Time")) quit = construct_lift_step(lift, step, 2, 0, 0, 0, 0, 100);
       if (mdw_buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Prox")) quit = construct_lift_step(lift, step, 3, 0, 0, 0, 0, 80);
@@ -783,7 +782,7 @@ int mwLift::is_player_riding_lift(int l)
 
 void mwLift::draw_lift_line(int l)
 {
-   if ((!(cur[l].flags & PM_LIFT_NO_DRAW)) || (mwPS.level_editor_running))
+   if ((!(cur[l].flags & PM_LIFT_NO_DRAW)) || (mLoop.level_editor_running))
    {
       int col = 15;
       int sx = stp[l][0].x + stp[l][0].w / 2;  // start pos
@@ -806,7 +805,7 @@ void mwLift::draw_lift_line(int l)
                {
                   col = (stp[l][s].type >> 28) & 15;
                   al_draw_line( px, py, nx, ny, mC.pc[col], 1);
-                  if (mwPS.eco_draw)
+                  if (mLoop.eco_draw)
                   {
                      // al_draw_filled_circle(nx, ny, 2, mC.pc[col]);
                   }
@@ -835,9 +834,9 @@ void mwLift::draw_lift(int l, int x1, int y1, int x2, int y2)
 {
    int col = (cur[l].flags >> 28) & 15;
 
-   if ((cur[l].flags & PM_LIFT_NO_DRAW) && (mwPS.level_editor_running)) col = 0;
+   if ((cur[l].flags & PM_LIFT_NO_DRAW) && (mLoop.level_editor_running)) col = 0;
 
-   if (mwPS.eco_draw)
+   if (mLoop.eco_draw)
    {
       al_draw_filled_rectangle(x1, y1, x2, y2, mC.pc[col]);
       //al_draw_filled_rounded_rectangle(x1, y1, x2, y2, 4, 4, mC.pc[col] );
@@ -871,7 +870,7 @@ void mwLift::draw_lifts()
       {
          draw_lift_line(l);
 
-         if ((!(cur[l].flags & PM_LIFT_NO_DRAW)) || (mwPS.level_editor_running))
+         if ((!(cur[l].flags & PM_LIFT_NO_DRAW)) || (mLoop.level_editor_running))
          {
             int color = (cur[l].flags >> 28) & 15;
             int x1 = cur[l].x;
@@ -900,7 +899,7 @@ void mwLift::draw_lifts()
                   int lh = cur[l].h-10;
                   if (cur[l].val2 == 0) cur[l].val2 = 1; // to prevent divide by zero
                   int percent = (100 * cur[l].val1) / cur[l].val2;
-                  draw_percent_bar((x1+x2)/2, y1+4, lw, lh, percent);
+                  mScreen.draw_percent_bar((x1+x2)/2, y1+4, lw, lh, percent);
                }
             }
 
@@ -1056,7 +1055,7 @@ void mwLift::move_lifts(int ignore_prox)
                break;
 
                case 5: // trigger wait
-                  if (mwPME.event[cur[l].limit_counter]) next_step = 1;
+                  if (mTriggerEvent.event[cur[l].limit_counter]) next_step = 1;
                break;
             }
          }
@@ -1107,7 +1106,7 @@ void mwLift::move_lifts(int ignore_prox)
       // clear events referenced by this lift
       for (int s=0; s<cur[l].num_steps; s++)  // iterate steps
          if ((stp[l][s].type & 31) == 5)        // trigger mode
-            mwPME.event[stp[l][s].val] = 0; // clear trigger event
+            mTriggerEvent.event[stp[l][s].val] = 0; // clear trigger event
 
       } // end of lift iterate
 }

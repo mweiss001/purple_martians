@@ -8,8 +8,8 @@
 #include "mwWidgets.h"
 #include "mwColor.h"
 #include "mwDisplay.h"
-#include "mwProgramState.h"
-#include "e_fnx.h"
+#include "mwLoop.h"
+#include "mwMiscFnx.h"
 #include "mwWindowManager.h"
 #include "mwEventQueue.h"
 #include "mwInput.h"
@@ -17,9 +17,9 @@
 void mwItems::proc_pmsg_reset_timer(int i)
 {
    int timer_count=0, timer_val=0;
-   get_int_3216(mItem.item[i][12], timer_count, timer_val);
+   mMiscFnx.get_int_3216(mItem.item[i][12], timer_count, timer_val);
    timer_count = timer_val;
-   set_int_3216(mItem.item[i][12], timer_count, timer_val);
+   mMiscFnx.set_int_3216(mItem.item[i][12], timer_count, timer_val);
 }
 
 void mwItems::proc_pmsg(int i)
@@ -28,10 +28,10 @@ void mwItems::proc_pmsg(int i)
    if (!(mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
    {
       int timer_count=0, timer_val=0;
-      get_int_3216(mItem.item[i][12], timer_count, timer_val);
+      mMiscFnx.get_int_3216(mItem.item[i][12], timer_count, timer_val);
 
       if (timer_count > 0) timer_count--;
-      set_int_3216(mItem.item[i][12], timer_count, timer_val);
+      mMiscFnx.set_int_3216(mItem.item[i][12], timer_count, timer_val);
    }
 
    // check for player in trigger box
@@ -70,13 +70,13 @@ int mwItems::draw_message(int i, int custom)
    if (!custom) // pop up message
    {
       int timer_count=0, timer_val=0;
-      get_int_3216(mItem.item[i][12], timer_count, timer_val);
+      mMiscFnx.get_int_3216(mItem.item[i][12], timer_count, timer_val);
 
       // if timer running or always show, draw the message
       if ((timer_count) || (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) draw_pop_message(i, 0, 0, 0, 0, 0, msg);
 
       // if hide scroll and not running level editor flag scroll as being drawn already
-      if ((!(mItem.item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL)) && (!mwPS.level_editor_running)) return 1;
+      if ((!(mItem.item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL)) && (!mLoop.level_editor_running)) return 1;
    }
    return 0;
 }
@@ -101,9 +101,9 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
 
 
    int x1=0, y1=0, w=0, h=0, tc=0, fc = 0;
-   get_int_3216(mItem.item[i][10], x1, y1);       // get x and y
-   get_int_3216(mItem.item[i][11], w, h);         // get width and height
-   get_int_3216(mItem.item[i][13], tc, fc);       // get text and frame colors
+   mMiscFnx.get_int_3216(mItem.item[i][10], x1, y1);       // get x and y
+   mMiscFnx.get_int_3216(mItem.item[i][11], w, h);         // get width and height
+   mMiscFnx.get_int_3216(mItem.item[i][13], tc, fc);       // get text and frame colors
 
    if (custom) // get custom x and y
    {
@@ -120,12 +120,12 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
 
    if (frame_width == 0)
    {
-      if (mwPS.level_editor_running) al_draw_rectangle(x1, y1, x2, y2, mC.pc[15], 1);
+      if (mLoop.level_editor_running) al_draw_rectangle(x1, y1, x2, y2, mC.pc[15], 1);
    }
    else al_draw_filled_rectangle(x1, y1, x2, y2, mC.pc[fc+13*16]);  // background
 
 
-   if ((mwPS.eco_draw) && (frame_width > 1)) frame_width = 1;
+   if ((mLoop.eco_draw) && (frame_width > 1)) frame_width = 1;
 
    if (frame_width == 1)
    {

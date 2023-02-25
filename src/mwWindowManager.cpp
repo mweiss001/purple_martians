@@ -1,27 +1,21 @@
 // mwWindowManager.cpp
 #include "pm.h"
 #include "mwWindowManager.h"
+#include "mwWindow.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwLift.h"
-#include "e_tile_helper.h"
 #include "mwPDE.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwBitmap.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwItems.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
-#include "e_edit_selection.h"
-#include "e_editor_main.h"
-#include "e_fnx.h"
-#include "e_group_edit.h"
-#include "e_object_viewer.h"
-#include "z_screen.h"
-
-
+#include "mwMiscFnx.h"
+#include "mwScreen.h"
 
 mwWindowManager mwWM;
 
@@ -40,6 +34,8 @@ void mwWindowManager::initialize(int edit_level)
    by2=30;
 
 
+   for (int x=0; x<100; x++)
+      for (int y=0; y<100; y++) thl[x][y] = 0; // tile helper
 
 
    // set all filters on
@@ -53,17 +49,17 @@ void mwWindowManager::initialize(int edit_level)
    mPDE.load();
    mEnemy.sort_enemy();
    mItem.sort_item(1);
-   em_set_swbl();
+   mwWM.mW[1].em_set_swbl();
 
    mI.initialize();
 }
 
 void mwWindowManager::loop(int edit_level)
 {
-   mwPS.level_editor_running = 1;
+   mLoop.level_editor_running = 1;
    al_show_mouse_cursor(display);
    initialize(edit_level);
-   if (mwPS.autosave_level_editor_state) load_mW();
+   if (mLoop.autosave_level_editor_state) load_mW();
    active = 1;
 
 
@@ -74,8 +70,8 @@ void mwWindowManager::loop(int edit_level)
       process_keypress();
    }
 
-   if (mwPS.autosave_level_editor_state) save_mW();
-   mwPS.level_editor_running = 0;
+   if (mLoop.autosave_level_editor_state) save_mW();
+   mLoop.level_editor_running = 0;
    mLevel.resume_allowed = 0;
    al_hide_mouse_cursor(display);
 }
@@ -167,8 +163,8 @@ void mwWindowManager::process_scrolledge(void)
 // used by se, ge and em
 void mwWindowManager::show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text)
 {
-   if (x1 > x2) swap_int(&x1, &x2);
-   if (y1 > y2) swap_int(&y1, &y2);
+   if (x1 > x2) mMiscFnx.swap_int(&x1, &x2);
+   if (y1 > y2) mMiscFnx.swap_int(&y1, &y2);
    int dstx = x1*20;
    if (dstx == 0) dstx = 1;
    int dsty = y1*20;
@@ -189,24 +185,24 @@ void mwWindowManager::get_new_box(void)
       by2 = gy;
       redraw_level_editor_background(0);
       show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
-      get_new_screen_buffer(3, 0, 0);
+      mScreen.get_new_screen_buffer(3, 0, 0);
    }
-   if (bx1 > bx2) swap_int(&bx1, &bx2); // swap if wrong order
-   if (by1 > by2) swap_int(&by1, &by2);
+   if (bx1 > bx2) mMiscFnx.swap_int(&bx1, &bx2); // swap if wrong order
+   if (by1 > by2) mMiscFnx.swap_int(&by1, &by2);
 }
 
 void mwWindowManager::process_mouse(void)
 {
-   if (level_editor_mode == 1) em_process_mouse();
-   if (level_editor_mode == 2) es_process_mouse();
-   if (level_editor_mode == 3) ge_process_mouse();
-   if (level_editor_mode == 4) ov_process_mouse();
-   if (level_editor_mode == 9) th_process_mouse();
+   if (level_editor_mode == 1) mW[1].em_process_mouse();
+   if (level_editor_mode == 2) mW[4].es_process_mouse();
+   if (level_editor_mode == 3) mW[5].ge_process_mouse();
+   if (level_editor_mode == 4) mW[7].ov_process_mouse();
+   if (level_editor_mode == 9) mW[9].th_process_mouse();
 }
 
 void mwWindowManager::process_keypress(void)
 {
-   if (level_editor_mode == 4) ov_process_keypress();
+   if (level_editor_mode == 4) mW[7].ov_process_keypress();
 
    while (mI.key[ALLEGRO_KEY_ESCAPE][0])
    {
@@ -216,7 +212,7 @@ void mwWindowManager::process_keypress(void)
 
    if (active == 0)
    {
-      int ret = exit_level_editor_dialog();
+      int ret = mMiscFnx.exit_level_editor_dialog();
       if (ret == 0) mLevel.save_level(mLevel.last_level_loaded); // save and exit
       if (ret == 2) active = 1; // cancel
    }
@@ -252,7 +248,7 @@ int mwWindowManager::redraw_level_editor_background(void)
       process_scrolledge();
       mwD.proc_scale_factor_change();
 
-      get_new_background(0);
+      mScreen.get_new_background(0);
       mLift.draw_lifts();
       mItem.draw_items();
       mEnemy.draw_enemies();
@@ -260,7 +256,7 @@ int mwWindowManager::redraw_level_editor_background(void)
 
       if (level_editor_mode == 1) // edit menu
       {
-         if (!mouse_on_window) em_show_draw_item_cursor();
+         if (!mouse_on_window) mW[1].em_show_draw_item_cursor();
       }
 
       if (level_editor_mode == 2) // selection edit
@@ -271,7 +267,7 @@ int mwWindowManager::redraw_level_editor_background(void)
          // only show if mouse not on window
          if (!mouse_on_window)
          {
-            if (mW[4].brf_mode) crosshairs_full(gx*20+10, gy*20+10, 15, 1);
+            if (mW[4].brf_mode) mMiscFnx.crosshairs_full(gx*20+10, gy*20+10, 15, 1);
             if (mW[4].copy_mode)
             {
                if (ft_bmp)
@@ -289,7 +285,7 @@ int mwWindowManager::redraw_level_editor_background(void)
 
          // show selection frame
          if (mW[5].show_sel_frame) show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
-         else if (!mouse_on_window) crosshairs_full(gx*20+10, gy*20+10, 15, 1);
+         else if (!mouse_on_window) mMiscFnx.crosshairs_full(gx*20+10, gy*20+10, 15, 1);
 
          // mark objects on map that are capable of being added to list
          for (int i=0; i<500; i++)
@@ -375,7 +371,7 @@ int mwWindowManager::redraw_level_editor_background(void)
          if ((mI.mouse_x > mW[7].x1) && (mI.mouse_x < mW[7].x2) && (mI.mouse_y > y1_legend) && (mI.mouse_y < y2_legend)) // is mouse on legend
             mW[7].legend_line = ((mI.mouse_y - y1_legend) / 8) + 1; // which legend line are we on?
 
-         ov_draw_overlays(mW[7].legend_line);
+         mW[7].ov_draw_overlays(mW[7].legend_line);
 
       }
 
@@ -397,7 +393,7 @@ int mwWindowManager::redraw_level_editor_background(void)
                }
             }
       }
-      if (level_editor_mode) get_new_screen_buffer(3, 0, 0);
+      if (level_editor_mode) mScreen.get_new_screen_buffer(3, 0, 0);
    }
    return drawn;
 }
@@ -517,9 +513,9 @@ void mwWindowManager::set_windows(int mode)
       mW[4].active = 0; // selection edit
       mW[5].active = 1; // ge list
       mW[5].show_sel_frame = 1;
+      mW[5].ge_init_data();
       mW[6].active = 1; // ge controls
       mW[7].active = 0; // viewer
-      ge_init_data();
       mW[9].active = 0; // tile helper
    }
    if (level_editor_mode == 4) // object viewer

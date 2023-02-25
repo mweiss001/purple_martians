@@ -112,6 +112,27 @@ void mwColor::process_flash_color(void)
    Flash2 = pc[flash_color2];
 }
 
+int mwColor::get_contrasting_color(int color)
+{
+   if (color == 15) return 10;
+   if (color == 14) return 2;
+   if (color == 13) return 8;
+//   if (color == 12) return 15;
+//   if (color == 11) return 15;
+//   if (color == 10) return 15;
+//   if (color == 9) return 15;
+//   if (color == 8) return 15;
+//   if (color == 7) return 15;
+//   if (color == 6) return 15;
+//   if (color == 5) return 15;
+//   if (color == 4) return 15;
+//   if (color == 3) return 15;
+//   if (color == 2) return 15;
+//   if (color == 1) return 15;
+//   if (color == 0) return 15;
+   return 15;
+}
+
 
 void mwColor::make_palette(void)
 {

@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwHelp.h"
-#include "e_fnx.h"
+#include "mwMiscFnx.h"
 #include "mwLogo.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
@@ -10,8 +10,8 @@
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "mwProgramState.h"
-#include "z_screen.h"
+#include "mwLoop.h"
+#include "mwScreen.h"
 
 
 mwHelp mHelp;
@@ -60,7 +60,7 @@ int mwHelp::load_help(void)
 void mwHelp::help(const char *topic)
 {
    //if (mwD.SCREEN_H < 480) return;       // wont work with SCREEN_H < 480.. it will work, just won't look good..
-   mwPS.help_screens_running = 1;
+   mLoop.help_screens_running = 1;
    int num_of_lines = load_help();
    char section_names[60][80];
    int section_first_lines[60];
@@ -195,13 +195,13 @@ void mwHelp::help(const char *topic)
             {
                 //al_set_clipping_rectangle((dx+12)*mwD.display_transform_double, (12*mwD.display_transform_double), (639-12*2)*mwD.display_transform_double, (mwD.SCREEN_H-12*2)*mwD.display_transform_double);
                 mwD.mw_set_clipping_rect(dx+12, 12, 639-12*2, mwD.SCREEN_H-12*2);
-                draw_title(dx+sxc+10, sy, 360, 64, 8);
+                mScreen.draw_title(dx+sxc+10, sy, 360, 64, 8);
                 msg[0]= 0;
                 al_reset_clipping_rectangle();
            }
             if (strncmp(msg, "<section>", 9) == 0) // <section> "txt" - make a new section with "txt"
             {
-               chop_first_x_char(msg, 9);
+               mMiscFnx.chop_first_x_char(msg, 9);
                for (int x=0;x<16;x++)
                {
                   al_draw_line(dx+x, 28+(c*8)+x, dx+639-x, 28+(c*8)+x, mC.pc[sc+(x*16)], 1 );
@@ -271,7 +271,7 @@ void mwHelp::help(const char *topic)
                 int ans = mwB.zz[0][atoi(buff2)];
                 al_draw_bitmap(mwB.btile[ans], dx+sx, sy, 0 );
 
-                chop_first_x_char(msg, 6);
+                mMiscFnx.chop_first_x_char(msg, 6);
                 xindent +=24;
             }
             else if (strncmp(msg, "<a", 2) == 0) // <axx> show animation sequence (left just)
@@ -283,7 +283,7 @@ void mwHelp::help(const char *topic)
                 int ans = mwB.zz[0][atoi(buff2)];
                 al_draw_bitmap(mwB.tile[ans], dx+sx, sy, 0 );
 
-                chop_first_x_char(msg, 5);
+                mMiscFnx.chop_first_x_char(msg, 5);
                 xindent +=24;
             }
 
@@ -295,7 +295,7 @@ void mwHelp::help(const char *topic)
                 buff2[2] = msg[5];
                 buff2[3] = 0;
                 int health = atoi(buff2);
-                draw_percent_bar(dx+sxc+10, sy, 88, 10, health);
+                mScreen.draw_percent_bar(dx+sxc+10, sy, 88, 10, health);
                 al_draw_textf(mF.pr8, mC.pc[14], dx+sxc+10, sy+2, ALLEGRO_ALIGN_CENTER, "Health:%-2d", health);
                 msg[0]= 0;
             }
@@ -319,7 +319,7 @@ void mwHelp::help(const char *topic)
                 int pco = atoi(buff2);
                 int ans = mwB.zz[1][9];
                 al_draw_bitmap(mwB.player_tile[pco][ans], dx+sx, sy, 0 );
-                chop_first_x_char(msg, 5);
+                mMiscFnx.chop_first_x_char(msg, 5);
                 xindent +=24;
             }
             if (strncmp(msg, "<sb", 3) == 0) // <sxxx> show shape left just) // for block tiles instead of tiles
@@ -331,7 +331,7 @@ void mwHelp::help(const char *topic)
                buff2[3] = 0;
                int ans = atoi(buff2);
                al_draw_bitmap(mwB.btile[ans], dx+sx, sy, 0 );
-               chop_first_x_char(msg, 7);
+               mMiscFnx.chop_first_x_char(msg, 7);
                xindent +=24;
             }
             else if (strncmp(msg, "<s", 2) == 0)   // <sxxx> show shape left just)
@@ -343,7 +343,7 @@ void mwHelp::help(const char *topic)
                buff2[3] = 0;
                int ans = atoi(buff2);
                al_draw_bitmap(mwB.tile[ans], dx+sx, sy, 0 );
-               chop_first_x_char(msg, 6);
+               mMiscFnx.chop_first_x_char(msg, 6);
                xindent +=24;
             }
             if (strncmp(msg, "<ms", 2) == 0) // <msxxxxxxx....> show 20 shapes (left just)
@@ -367,7 +367,7 @@ void mwHelp::help(const char *topic)
                buff2[1] = msg[3];
                buff2[2] = 0;
                color = atoi(buff2);
-               chop_first_x_char(msg, 5);
+               mMiscFnx.chop_first_x_char(msg, 5);
             }
 
             if (strncmp(msg, "<h", 2) == 0) // <lxx> line color xx (left just) plus 4 for y align
@@ -377,7 +377,7 @@ void mwHelp::help(const char *topic)
                buff2[1] = msg[3];
                buff2[2] = 0;
                color = atoi(buff2);
-               chop_first_x_char(msg, 5);
+               mMiscFnx.chop_first_x_char(msg, 5);
                tay=3;
             }
 
@@ -390,7 +390,7 @@ void mwHelp::help(const char *topic)
                buff2[1] = msg[3];
                buff2[2] = 0;
                color = atoi(buff2);
-               chop_first_x_char(msg, 5);
+               mMiscFnx.chop_first_x_char(msg, 5);
                just = 1;
             }
 
@@ -400,7 +400,7 @@ void mwHelp::help(const char *topic)
                buff2[1] = msg[3];
                buff2[2] = 0;
                color = atoi(buff2);
-               chop_first_x_char(msg, 5);
+               mMiscFnx.chop_first_x_char(msg, 5);
                al_draw_line(dx+20, sy+16, dx+620, sy+16, mC.pc[color], 2);
                msg[0]= 0;
             }
@@ -432,7 +432,7 @@ void mwHelp::help(const char *topic)
             if (nexttag != -1)                    // another '<' was found
             {
                txt[nexttag] = 0;                  // terminate 'txt' with NULL to shorten string
-               chop_first_x_char(msg, nexttag);   // remove this from the beginning of 'msg'
+               mMiscFnx.chop_first_x_char(msg, nexttag);   // remove this from the beginning of 'msg'
             }
             if (just) al_draw_text(mF.pr8, mC.pc[color], dx+320,          24+(c*8), ALLEGRO_ALIGN_CENTER, txt );
             else      al_draw_text(mF.pr8, mC.pc[color], dx+20 + xindent, 24+(c*8)+tay, 0, txt );
@@ -477,7 +477,7 @@ void mwHelp::help(const char *topic)
       }
 
       al_flip_display();
-      mwPS.frame_num++;
+      mLoop.frame_num++;
       mwB.update_animation();
       al_rest(0.02);
       while ((mI.key[ALLEGRO_KEY_ESCAPE][0]) || (mI.mouse_b[2][0]))
@@ -489,5 +489,5 @@ void mwHelp::help(const char *topic)
    al_destroy_bitmap(status_window);
    al_destroy_bitmap(selection_window);
    al_destroy_bitmap(hlift);
-   mwPS.help_screens_running = 0;
+   mLoop.help_screens_running = 0;
 }

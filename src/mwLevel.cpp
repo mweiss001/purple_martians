@@ -6,12 +6,12 @@
 #include "mwLift.h"
 #include "mwItems.h"
 #include "mwEnemy.h"
-#include "z_screen.h"
+#include "mwScreen.h"
 #include "mwFont.h"
 #include "mwInput.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
-#include "e_fnx.h"
+#include "mwMiscFnx.h"
 
 
 mwLevel mLevel;
@@ -222,7 +222,7 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
                mItem.itemf[x][1] = mItem.item[x][5];
             }
          level_check();
-         init_level_background(0); // draw blocks on level_background
+         mScreen.init_level_background(0); // draw blocks on level_background
          //set_player_start_pos(0, 0);
       }
       return 1;
@@ -263,7 +263,7 @@ int mwLevel::load_level_prompt(void)
 {
    char lf[256];
    sprintf(lf,"levels\\");
-   if (mw_file_select("Load Selection", lf, ".pml", 0))
+   if (mMiscFnx.mw_file_select("Load Selection", lf, ".pml", 0))
    {
       int len = strlen(lf);
       char g[10];
@@ -287,7 +287,7 @@ int mwLevel::save_level_prompt(void)
 
    char lf[256];
    sprintf(lf,"levels\\level%03d.pml", num);
-   if (mw_file_select(title, lf, ".pml", 1))
+   if (mMiscFnx.mw_file_select(title, lf, ".pml", 1))
    {
       int len = strlen(lf);
       char g[10];

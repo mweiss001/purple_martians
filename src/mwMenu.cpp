@@ -12,7 +12,7 @@
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwLevel.h"
-#include "z_screen.h"
+#include "mwScreen.h"
 
 mwMenu mMenu;
 
@@ -126,14 +126,14 @@ int mwMenu::zmenu(int menu_pos, int y)  // this menu function does not pass thro
       mwEQ.menu_update = 0;
 
 
-      frame_and_title(1);
+      mScreen.frame_and_title(1);
       mwL.mdw_an(mwL.mdw_map_logo_x, mwL.mdw_map_logo_y, mwL.mdw_map_logo_scale);
 
 
 
       int mx = mwD.SCREEN_W/2;
 
-      draw_level();
+      mScreen.draw_level();
 
       if (mLevel.resume_allowed) mwDM.demo_mode_enabled = 0;
       if (mwDM.demo_mode_enabled)

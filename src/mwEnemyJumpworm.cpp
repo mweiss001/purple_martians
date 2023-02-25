@@ -5,9 +5,9 @@
 #include "mwPlayers.h"
 #include "mwBitmap.h"
 #include "mwShots.h"
-#include "z_solid.h"
+#include "mwSolid.h"
 #include "mwLift.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 
 
 
@@ -56,7 +56,7 @@ void mwEnemy::move_jumpworm(int e)
 
    int sd = Ei[e][4]; // ground speed divider
 
-   int c = mwPS.frame_num % (10*sd);
+   int c = mLoop.frame_num % (10*sd);
    int mf = 0; // move frame
    if (c % sd == 0) mf = 1;
 
@@ -88,7 +88,7 @@ void mwEnemy::move_jumpworm(int e)
    int on_solid = 0;
    int on_lift = 0;
 
-   int ret = is_down_solid(EXint, EYint, 1, 2);
+   int ret = mSolid.is_down_solid(EXint, EYint, 1, 2);
    if ((ret == 1) || (ret == 2)) on_solid = 1;
 
    if (ret >= 32) // on lift
@@ -108,13 +108,13 @@ void mwEnemy::move_jumpworm(int e)
          if ((on_solid) || (on_lift))
          {
             if (Ei[e][10]) // turn before hole
-              if (!is_right_solid(EXint+Ei[e][10]-6, EYint+20, 1, 2)) change_dir = 1;
+              if (!mSolid.is_right_solid(EXint+Ei[e][10]-6, EYint+20, 1, 2)) change_dir = 1;
             if (Ei[e][12]) // jump before wall
-              if (is_right_solid(EXint+Ei[e][12], EYint, 1, 2)) attempt_jump = 1;
+              if (mSolid.is_right_solid(EXint+Ei[e][12], EYint, 1, 2)) attempt_jump = 1;
             if (Ei[e][11]) // jump before hole
-               if (!is_right_solid(EXint+Ei[e][11]-18, EYint+20, 1, 2)) attempt_jump = 1;
+               if (!mSolid.is_right_solid(EXint+Ei[e][11]-18, EYint+20, 1, 2)) attempt_jump = 1;
          }
-         if ((is_right_solid(EXint, EYint, 1, 2)) || (change_dir))
+         if ((mSolid.is_right_solid(EXint, EYint, 1, 2)) || (change_dir))
          {
             Ei[e][13] = 1; // change direction on next cycle 0;
             if (cycle == 0) Ei[e][14] +=8;
@@ -131,13 +131,13 @@ void mwEnemy::move_jumpworm(int e)
          if ((on_solid) || (on_lift))
          {
             if (Ei[e][10]) // turn before hole
-              if (!is_left_solid(EXint-Ei[e][10]+6, EYint+20, 1, 2)) change_dir = 1;
+              if (!mSolid.is_left_solid(EXint-Ei[e][10]+6, EYint+20, 1, 2)) change_dir = 1;
             if (Ei[e][12]) // jump before wall
-               if (is_left_solid(EXint-Ei[e][12], EYint, 1, 2)) attempt_jump = 1;
+               if (mSolid.is_left_solid(EXint-Ei[e][12], EYint, 1, 2)) attempt_jump = 1;
             if (Ei[e][11]) // jump before hole
-               if (!is_left_solid(EXint-Ei[e][11]+18, EYint+20, 1, 2)) attempt_jump = 1;
+               if (!mSolid.is_left_solid(EXint-Ei[e][11]+18, EYint+20, 1, 2)) attempt_jump = 1;
          }
-         if ((is_left_solid(EXint-2, EYint, 1, 2)) || (change_dir))
+         if ((mSolid.is_left_solid(EXint-2, EYint, 1, 2)) || (change_dir))
          {
             Ei[e][13] = 1; // change direction on next cycle 0;
             if (cycle == 0) Ei[e][14] +=8;
@@ -179,7 +179,7 @@ void mwEnemy::move_jumpworm(int e)
       Ef[e][1] += ym1;
 
       EYint = Ef[e][1];
-      if (is_down_solid(EXint, EYint, 1, 2))
+      if (mSolid.is_down_solid(EXint, EYint, 1, 2))
       {
          on_solid = 1;
          Ef[e][1] -= (int) (Ef[e][1]) % 20;  // align with floor
@@ -198,7 +198,7 @@ void mwEnemy::move_jumpworm(int e)
       float ym1 = ym/100;
       Ef[e][1] += ym1;
       EYint = Ef[e][1];
-      if ((is_up_solid(EXint, EYint, 1, 2) == 1) || (is_up_solid(EXint, EYint, 1, 2) > 31) )
+      if ((mSolid.is_up_solid(EXint, EYint, 1, 2) == 1) || (mSolid.is_up_solid(EXint, EYint, 1, 2) > 31) )
       {
          Ei[e][5] = 1;     // stop rising
          Ef[e][1] -= ym1; // take back move
@@ -209,8 +209,8 @@ void mwEnemy::move_jumpworm(int e)
    // timed jump and jump when player passes above
    if ((on_solid) || (on_lift))
    {
-      // mwPS.frame_num jump
-      if ((Ei[e][6] > 0) && ((mwPS.frame_num % Ei[e][6]) == 1)) attempt_jump = 1;
+      // mLoop.frame_num jump
+      if ((Ei[e][6] > 0) && ((mLoop.frame_num % Ei[e][6]) == 1)) attempt_jump = 1;
 
       // check for jump if player passes above
       if (Ei[e][7] > 0)
@@ -224,7 +224,7 @@ void mwEnemy::move_jumpworm(int e)
    {
       EXint = Ef[e][0];
       EYint = Ef[e][1];
-      if ((is_up_solid(EXint, EYint, 1, 2) != 1) && (is_up_solid(EXint, EYint, 1, 2) < 32) ) Ei[e][5] = -160;
+      if ((mSolid.is_up_solid(EXint, EYint, 1, 2) != 1) && (mSolid.is_up_solid(EXint, EYint, 1, 2) < 32) ) Ei[e][5] = -160;
    }
 
    Ef[e][14] = 0; // default is no rotation
@@ -236,7 +236,7 @@ void mwEnemy::move_jumpworm(int e)
       float js = Ef[e][6]; // x speed for jump
       if (Ei[e][2] == 1)                              // move right
       {
-         if (is_right_solid(EXint+js, EYint, 1, 2))
+         if (mSolid.is_right_solid(EXint+js, EYint, 1, 2))
          {
             Ei[e][2] = 0;                             // change direction
             Ei[e][5] -= Ei[e][8];                     // wall jump boost
@@ -246,7 +246,7 @@ void mwEnemy::move_jumpworm(int e)
       }
       else if (Ei[e][2] == 0)                         // move left
       {
-         if (is_left_solid(EXint-js, EYint, 1, 2))
+         if (mSolid.is_left_solid(EXint-js, EYint, 1, 2))
          {
             Ei[e][2] = 1;                             // change direction
             Ei[e][5] -= Ei[e][8];                     // wall jump boost

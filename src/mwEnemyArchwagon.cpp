@@ -5,12 +5,13 @@
 #include "mwPlayers.h"
 #include "mwBitmap.h"
 #include "mwShots.h"
-#include "z_solid.h"
+#include "mwSolid.h"
 #include "mwLift.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwLevel.h"
 #include "mwColor.h"
-#include "z_screen_overlay.h"
+#include "mwGameEvent.h"
+
 
 
 //-------------------------------------------------------------------------------------------
@@ -123,7 +124,7 @@ void mwEnemy::move_arch_block_common(int e)
 
    int on_solid = 0;
    int on_lift = 0;
-   int ret = is_down_solid(EXint, EYint, 1, 2);
+   int ret = mSolid.is_down_solid(EXint, EYint, 1, 2);
    if ((ret == 1) || (ret == 2)) on_solid = 1;
    if (ret >= 32) on_lift = 1;
 
@@ -133,7 +134,7 @@ void mwEnemy::move_arch_block_common(int e)
    int EXintR = Ef[e][0] + Ef[e][6];
    int EXintL = Ef[e][0] - Ef[e][6];
 
-   if ((is_left_solid(EXintL, EYint, 1, 2)) && (is_right_solid(EXintR, EYint, 1, 2))) // stuck
+   if ((mSolid.is_left_solid(EXintL, EYint, 1, 2)) && (mSolid.is_right_solid(EXintR, EYint, 1, 2))) // stuck
    {
       int p = find_closest_player(e);
       if (EXint < mPlayer.syn[p].x-5) Ei[e][2] = 1;
@@ -150,13 +151,13 @@ void mwEnemy::move_arch_block_common(int e)
          if ((on_solid) || (on_lift))
          {
             if (Ei[e][10]) // turn before hole
-              if (!is_right_solid(EXint+Ei[e][10]-10, EYint+20, 1, 2)) change_dir = 1;
+              if (!mSolid.is_right_solid(EXint+Ei[e][10]-10, EYint+20, 1, 2)) change_dir = 1;
             if (Ei[e][12]) // jump before wall
-              if (is_right_solid(EXint+Ei[e][12], EYint, 1, 2)) Ei[e][5] = -160;
+              if (mSolid.is_right_solid(EXint+Ei[e][12], EYint, 1, 2)) Ei[e][5] = -160;
             if (Ei[e][11]) // jump before hole
-               if (!is_right_solid(EXint+Ei[e][11]-18, EYint+20, 1, 2)) Ei[e][5] = -160;
+               if (!mSolid.is_right_solid(EXint+Ei[e][11]-18, EYint+20, 1, 2)) Ei[e][5] = -160;
          }
-         if ((is_right_solid(EXint, EYint, 1, 2)) || (change_dir))
+         if ((mSolid.is_right_solid(EXint, EYint, 1, 2)) || (change_dir))
          {
             Ei[e][2] = 0; // change direction;
             Ef[e][0] -= Ef[e][2]; // take back last move
@@ -172,13 +173,13 @@ void mwEnemy::move_arch_block_common(int e)
          if ((on_solid) || (on_lift))
          {
             if (Ei[e][10]) // turn before hole
-              if (!is_left_solid(EXint-Ei[e][10]+10, EYint+20, 1, 2)) change_dir = 1;
+              if (!mSolid.is_left_solid(EXint-Ei[e][10]+10, EYint+20, 1, 2)) change_dir = 1;
             if (Ei[e][12]) // jump before wall
-               if (is_left_solid(EXint-Ei[e][12], EYint, 1, 2)) Ei[e][5] = -160;
+               if (mSolid.is_left_solid(EXint-Ei[e][12], EYint, 1, 2)) Ei[e][5] = -160;
             if (Ei[e][11]) // jump before hole
-               if (!is_left_solid(EXint-Ei[e][11]+18, EYint+20, 1, 2)) Ei[e][5] = -160;
+               if (!mSolid.is_left_solid(EXint-Ei[e][11]+18, EYint+20, 1, 2)) Ei[e][5] = -160;
          }
-         if ((is_left_solid(EXint, EYint, 1, 2)) || (change_dir))
+         if ((mSolid.is_left_solid(EXint, EYint, 1, 2)) || (change_dir))
          {
             Ef[e][0] -= Ef[e][2]; // take back last move
             Ei[e][2] = 1; // change direction;
@@ -216,7 +217,7 @@ void mwEnemy::move_arch_block_common(int e)
       Ef[e][1] += ym1;
 
       EYint = Ef[e][1];
-      if (is_down_solid(EXint, EYint, 1, 2))
+      if (mSolid.is_down_solid(EXint, EYint, 1, 2))
       {
          on_solid = 1;
          Ef[e][1] -= (int) (Ef[e][1]) % 20;  // align with floor
@@ -241,7 +242,7 @@ void mwEnemy::move_arch_block_common(int e)
       Ef[e][1] += ym1;
 
       EYint = Ef[e][1];
-      if ((is_up_solid(EXint, EYint, 1, 2) == 1) || (is_up_solid(EXint, EYint, 1, 2) > 31) )
+      if ((mSolid.is_up_solid(EXint, EYint, 1, 2) == 1) || (mSolid.is_up_solid(EXint, EYint, 1, 2) > 31) )
          Ei[e][5] = 0;  // stop rising
    }
 
@@ -254,7 +255,7 @@ void mwEnemy::move_arch_block_common(int e)
    if ((on_solid) || (on_lift))
    {
       // frame_num jump
-      if ((Ei[e][6] > 0) && ((mwPS.frame_num % Ei[e][6]) == 1)) Ei[e][5] = -160;
+      if ((Ei[e][6] > 0) && ((mLoop.frame_num % Ei[e][6]) == 1)) Ei[e][5] = -160;
 
       // check for jump if player passes above
       if (Ei[e][7] > 0)
@@ -296,7 +297,7 @@ void mwEnemy::move_block_walker(int e)
       al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, mC.pc[0]);
       al_draw_bitmap(mwB.btile[168], ex*20, ey*20, 0);
 
-      game_event(60, 0, 0, Ei[e][26], e, 0, 0);
+      mGameEvent.add(60, 0, 0, Ei[e][26], e, 0, 0);
 
       Ei[e][0] = 0;
       return; // to stop rest of execution

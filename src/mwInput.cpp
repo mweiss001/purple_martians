@@ -5,15 +5,15 @@
 #include "mwDisplay.h"
 #include "mwPlayers.h"
 #include "mwLog.h"
-#include "n_netgame.h"
+#include "mwNetgame.h"
 #include "mwSettings.h"
 #include "mwColor.h"
 #include "mwFont.h"
 #include "mwEventQueue.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwConfig.h"
-#include "z_main.h"
-#include "z_screen.h"
+#include "mwMain.h"
+#include "mwScreen.h"
 #include "mwGameMovesArray.h"
 
 
@@ -191,7 +191,7 @@ void mwInput::serial_key_check(int key)
    if (skc_index > tl-1)
    {
       if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-         mwPS.speed_testing = 1;
+         mLoop.speed_testing = 1;
    }
 
    sprintf(tst, "stoff");
@@ -199,7 +199,7 @@ void mwInput::serial_key_check(int key)
    if (skc_index > tl-1)
    {
       if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-         mwPS.speed_testing = 0;
+         mLoop.speed_testing = 0;
 
    }
 
@@ -222,7 +222,7 @@ void mwInput::serial_key_check(int key)
 
 void mwInput::function_key_check(void)
 {
-   if ((mwPS.level_editor_running) || (mwPS.program_state == 11))
+   if ((mLoop.level_editor_running) || (mLoop.program_state == 11))
    {
       if (mI.key[ALLEGRO_KEY_F1][3])
       {
@@ -231,7 +231,7 @@ void mwInput::function_key_check(void)
       }
 
 
-      if (mI.key[ALLEGRO_KEY_F2][3]) mwPS.eco_draw = !mwPS.eco_draw;
+      if (mI.key[ALLEGRO_KEY_F2][3]) mLoop.eco_draw = !mLoop.eco_draw;
 
 
 
@@ -247,32 +247,32 @@ void mwInput::function_key_check(void)
 
 
 
-      if (!mwPS.speed_control_lock)
+      if (!mLoop.speed_control_lock)
       {
-         if ((!ima_client) && (!ima_server)) // only adjust speed if not in netgame
+         if ((!mNetgame.ima_client) && (!mNetgame.ima_server)) // only adjust speed if not in netgame
          {
             if (mI.key[ALLEGRO_KEY_F7][2])
             {
-               if (mI.SHFT() && mI.CTRL()) mwPS.frame_speed -=1000;
-               else if (mI.SHFT())         mwPS.frame_speed -=100;
-               else if (mI.CTRL())         mwPS.frame_speed -=20;
-               else                        mwPS.frame_speed -=1;
-               if (mwPS.frame_speed < 5)        mwPS.frame_speed =5;
+               if (mI.SHFT() && mI.CTRL()) mLoop.frame_speed -=1000;
+               else if (mI.SHFT())         mLoop.frame_speed -=100;
+               else if (mI.CTRL())         mLoop.frame_speed -=20;
+               else                        mLoop.frame_speed -=1;
+               if (mLoop.frame_speed < 5)        mLoop.frame_speed =5;
                mwEQ.set_speed();
             }
             if (mI.key[ALLEGRO_KEY_F8][2])
             {
-               if (mI.SHFT() && mI.CTRL()) mwPS.frame_speed +=1000;
-               else if (mI.SHFT())         mwPS.frame_speed +=100;
-               else if (mI.CTRL())         mwPS.frame_speed +=20;
-               else                        mwPS.frame_speed += 1;
-               if (mwPS.frame_speed > 100000)  mwPS.frame_speed = 100000;
+               if (mI.SHFT() && mI.CTRL()) mLoop.frame_speed +=1000;
+               else if (mI.SHFT())         mLoop.frame_speed +=100;
+               else if (mI.CTRL())         mLoop.frame_speed +=20;
+               else                        mLoop.frame_speed += 1;
+               if (mLoop.frame_speed > 100000)  mLoop.frame_speed = 100000;
                mwEQ.set_speed();
             }
          }
          if ((mI.key[ALLEGRO_KEY_F7][0]) && (mI.key[ALLEGRO_KEY_F7][1]) && (mI.key[ALLEGRO_KEY_F8][0]) && (mI.key[ALLEGRO_KEY_F8][1]))
          {
-            mwPS.frame_speed = 40;
+            mLoop.frame_speed = 40;
             mwEQ.set_speed();
          }
       }
@@ -283,19 +283,19 @@ void mwInput::function_key_check(void)
 
       if (mI.key[ALLEGRO_KEY_F10][2])
       {
-         if (++mwPS.show_debug_overlay >= mSettings.number_of_debug_overlay_modes) mwPS.show_debug_overlay = 0;
+         if (++mLoop.show_debug_overlay >= mSettings.number_of_debug_overlay_modes) mLoop.show_debug_overlay = 0;
       }
    } // end of if not game exit
 
-   if (mI.key[ALLEGRO_KEY_F11][2] && mI.SHFT()) init_level_background(0);
+   if (mI.key[ALLEGRO_KEY_F11][2] && mI.SHFT()) mScreen.init_level_background(0);
 
 
 
 
-   if (mI.key[ALLEGRO_KEY_UP][   2]) mwPS.pct_y--;
-   if (mI.key[ALLEGRO_KEY_DOWN][ 2]) mwPS.pct_y++;
-   if (mI.key[ALLEGRO_KEY_LEFT][ 2]) mwPS.pct_x--;
-   if (mI.key[ALLEGRO_KEY_RIGHT][2]) mwPS.pct_x++;
+   if (mI.key[ALLEGRO_KEY_UP][   2]) mLoop.pct_y--;
+   if (mI.key[ALLEGRO_KEY_DOWN][ 2]) mLoop.pct_y++;
+   if (mI.key[ALLEGRO_KEY_LEFT][ 2]) mLoop.pct_x--;
+   if (mI.key[ALLEGRO_KEY_RIGHT][2]) mLoop.pct_x++;
 
    if (mI.key[ALLEGRO_KEY_F12][2])
    {
@@ -371,7 +371,7 @@ int mwInput::my_readkey(int x, int y, int tc, int bts, int num) // used only to 
          ALLEGRO_EVENT ev;
          if (al_get_next_event(mwEQ.event_queue, &ev))
          {
-             if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) fast_exit(0);
+             if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) mMain.fast_exit(0);
              if (ev.type == ALLEGRO_EVENT_KEY_UP)
              {
                 ret = ev.keyboard.keycode;
@@ -554,7 +554,7 @@ void mwInput::tsw(void)
          ALLEGRO_EVENT ev;
          if (al_get_next_event(mwEQ.event_queue, &ev))
          {
-             if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) fast_exit(0);
+             if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) mMain.fast_exit(0);
              if (ev.type == ALLEGRO_EVENT_KEY_DOWN) quit = 1;
          }
       }

@@ -2,10 +2,10 @@
 
 #include "pm.h"
 #include "mwShots.h"
-#include "n_netgame.h"
+#include "mwNetgame.h"
 #include "mwBitmap.h"
 #include "mwLevel.h"
-#include "z_screen_overlay.h"
+#include "mwGameEvent.h"
 #include "mwEnemy.h"
 #include "mwPlayers.h"
 #include "mwLift.h"
@@ -91,7 +91,7 @@ void mwShots::proc_player_shoot(int p)
                   mPlayer.syn[p].fire_held = 1;
 
                   // extra data is player number, shot number
-                  game_event(1, x, y, p, b, 0, 0);
+                  mGameEvent.add(1, x, y, p, b, 0, 0);
 
                   break; // to break out of for loop
                }
@@ -149,7 +149,7 @@ void mwShots::proc_eshot_collision(int p, int b)
    }
    mPlayer.syn[p].health -= damage;
 
-   game_event(43, 0, 0, p, e_type, 0, damage);
+   mGameEvent.add(43, 0, 0, p, e_type, 0, damage);
 
    // recoil !!
    if (mShot.e[b].xinc > 0)

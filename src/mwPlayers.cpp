@@ -10,14 +10,25 @@
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwDisplay.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwItems.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
-#include "z_screen.h"
-#include "z_screen_overlay.h"
+#include "mwScreen.h"
+#include "mwGameEvent.h"
 #include "mwShots.h"
-#include "z_solid.h"
+#include "mwSolid.h"
+#include "mwNetgame.h"
+#include "mwDemoMode.h"
+#include "mwGameMovesArray.h"
+#include "mwEventQueue.h"
+#include "mwConfig.h"
+
+
+
+
+
+
 
 
 mwPlayers mPlayer;
@@ -208,7 +219,7 @@ void mwPlayers::set_player_start_pos(int p, int cont)
 void mwPlayers::proc_player_health(int p)
 {
    char msg[1024];
-   if ((mwPS.frame_num) && (mwPS.frame_num == loc[p].block_damage_holdoff)) game_event(58, 0, 0, p, 0, 0, 0);
+   if ((mLoop.frame_num) && (mLoop.frame_num == loc[p].block_damage_holdoff)) mGameEvent.add(58, 0, 0, p, 0, 0, 0);
 
    if (syn[p].old_health != syn[p].health)
    {
@@ -228,11 +239,11 @@ void mwPlayers::proc_player_health(int p)
       sprintf(msg,"PLAYER:%d DIED!", p);
       if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 1);
 
-      game_event(90, 0, 0, p, 0, 0, 0);  // player death
+      mGameEvent.add(90, 0, 0, p, 0, 0, 0);  // player death
 
       syn[p].stat_respawns++;
 
-      set_player_join_quit_display(p, 3, 60);
+      mScreen.set_player_join_quit_display(p, 3, 60);
 
       loc[p].health_display = 200;
       syn[p].paused = 100;
@@ -314,8 +325,8 @@ void mwPlayers::proc_player_xy_move(int p)
    if (syn[p].left_xinc > 0 ) syn[p].left_xinc = 0;
    if (syn[p].left_xinc < -max_x_velocity) syn[p].left_xinc = -max_x_velocity;
 
-   if (is_right_solid(x, y, 0, 1)) syn[p].right_xinc = 0;
-   if (is_left_solid(x, y, 0, 1))  syn[p].left_xinc = 0;
+   if (mSolid.is_right_solid(x, y, 0, 1)) syn[p].right_xinc = 0;
+   if (mSolid.is_left_solid(x, y, 0, 1))  syn[p].left_xinc = 0;
 
    syn[p].xinc = syn[p].left_xinc + syn[p].right_xinc;  // calc xinc
    syn[p].x += syn[p].xinc;                                // apply xinc
@@ -326,15 +337,15 @@ void mwPlayers::proc_player_xy_move(int p)
    if (syn[p].player_ride) // if player is riding lift
    {
       int d = syn[p].player_ride - 32; // lift number
-      if ((mLift.cur[d].xinc > 0) && (!is_right_solid(x, y, 1, 1))) syn[p].x  += mLift.cur[d].xinc; // moving right
-      if ((mLift.cur[d].xinc < 0) && (!is_left_solid (x, y, 1, 1))) syn[p].x  += mLift.cur[d].xinc; // moving left
+      if ((mLift.cur[d].xinc > 0) && (!mSolid.is_right_solid(x, y, 1, 1))) syn[p].x  += mLift.cur[d].xinc; // moving right
+      if ((mLift.cur[d].xinc < 0) && (!mSolid.is_left_solid (x, y, 1, 1))) syn[p].x  += mLift.cur[d].xinc; // moving left
    }
 
-   if (int a = is_left_solid(x, y, 1, 1))
+   if (int a = mSolid.is_left_solid(x, y, 1, 1))
    {
       if (a > 31) // player being pushed right by lift
       {
-         if (!is_right_solid(x, y, 0, 1))
+         if (!mSolid.is_right_solid(x, y, 0, 1))
          {
             int l = a-32; // lift that is pushing
             syn[p].x = mLift.cur[l].x + mLift.cur[l].w + 1; // snap to lift pos + width
@@ -343,7 +354,7 @@ void mwPlayers::proc_player_xy_move(int p)
          else // player is getting squished
          {
             syn[p].health -= 1;
-            game_event(54, x, y, p, 0, 0, 0);
+            mGameEvent.add(54, x, y, p, 0, 0, 0);
          }
       }
       else  if (syn[p].xinc < 0) // moving left and block collision
@@ -354,11 +365,11 @@ void mwPlayers::proc_player_xy_move(int p)
    }
    x = syn[p].x;
    y = syn[p].y;
-   if (int a = is_right_solid(x, y, 1, 1))
+   if (int a = mSolid.is_right_solid(x, y, 1, 1))
    {
       if (a > 31)    // player being pushed left by lift
       {
-         if (!is_left_solid(x, y, 0, 1))
+         if (!mSolid.is_left_solid(x, y, 0, 1))
          {
             int l = a-32; // lift that is pushing
             syn[p].x = mLift.cur[l].x - 20;            // snap to lift pos - 20
@@ -367,7 +378,7 @@ void mwPlayers::proc_player_xy_move(int p)
          else // player is getting squished
          {
             syn[p].health -= 1;
-            game_event(54, x, y, p, 0, 0, 0);
+            mGameEvent.add(54, x, y, p, 0, 0, 0);
          }
       }
       else if (syn[p].xinc > 0) // moving right and block collision
@@ -382,13 +393,13 @@ void mwPlayers::proc_player_xy_move(int p)
    x = syn[p].x;
    y = syn[p].y;
 
-   int a = is_down_solid(x, y, 1, 1);        // check for lift below player
+   int a = mSolid.is_down_solid(x, y, 1, 1);        // check for lift below player
 
    if (a > 31)
    {
       if (mLift.cur[a-32].yinc > 0)              // is lift going down
       {
-         if (is_down_solid(x, y, 0, 1)) syn[p].player_ride = 0;  // check for block below ignoring lifts
+         if (mSolid.is_down_solid(x, y, 0, 1)) syn[p].player_ride = 0;  // check for block below ignoring lifts
          else syn[p].player_ride = a;
       }
       if (mLift.cur[a-32].yinc <= 0)             // is lift going up or steady
@@ -410,19 +421,19 @@ void mwPlayers::proc_player_xy_move(int p)
       int y = syn[p].y;
 
       // if moving up and solid block above
-      if ((mLift.cur[d].yinc < 0) && (is_up_solid(x, y, 0, 1) == 1))
+      if ((mLift.cur[d].yinc < 0) && (mSolid.is_up_solid(x, y, 0, 1) == 1))
       {
          syn[p].player_ride = 0;  // player knocked off lift due to collision above
          syn[p].health -= 1;      // take some damage
-         game_event(54, x, y, p, 0, 0, 0);
+         mGameEvent.add(54, x, y, p, 0, 0, 0);
       }
 
       // check for collision with lift above
-      if (is_up_solid(x, y+1, 1, 1) > 31)
+      if (mSolid.is_up_solid(x, y+1, 1, 1) > 31)
       {
          syn[p].player_ride = 0;   // player knocked off lift due to collision above
          syn[p].health -= 1;       // take some damage
-         game_event(54, x, y, p, 0, 0, 0);
+         mGameEvent.add(54, x, y, p, 0, 0, 0);
       }
 
       if (syn[p].player_ride)        // if still riding
@@ -431,7 +442,7 @@ void mwPlayers::proc_player_xy_move(int p)
       // moving down
       if (mLift.cur[d].yinc > 0)
       {
-         if (is_down_solid(x, y, 0, 1))             // no lift check
+         if (mSolid.is_down_solid(x, y, 0, 1))             // no lift check
          {
             syn[p].player_ride = 0;             // ride over
             syn[p].y = y - (y % 20);            // align with floor
@@ -445,11 +456,11 @@ void mwPlayers::proc_player_xy_move(int p)
          syn[p].player_ride = 0;                          // ride over
          x = syn[p].x;
          y = syn[p].y;
-         if (!is_up_solid(x, y, 1, 1))                        // only jump if nothing above
+         if (!mSolid.is_up_solid(x, y, 1, 1))                        // only jump if nothing above
          {
             syn[p].yinc = initial_jump_velocity;
             syn[p].y += syn[p].yinc;                 // apply yinc
-            game_event(15, x, y, 0, 0, 0, 0);
+            mGameEvent.add(15, x, y, 0, 0, 0, 0);
          }
       }
    }
@@ -464,7 +475,7 @@ void mwPlayers::proc_player_xy_move(int p)
          syn[p].y += syn[p].yinc;                    // apply yinc
          x = syn[p].x;
          y = syn[p].y;
-         if (is_up_solid(x, y+2, 1, 1))                       // look for collision above
+         if (mSolid.is_up_solid(x, y+2, 1, 1))                       // look for collision above
          {
             syn[p].y -= syn[p].yinc;                 // take back move
             syn[p].yinc = 0;                              // kill upwards motion
@@ -480,29 +491,29 @@ void mwPlayers::proc_player_xy_move(int p)
 
          x = syn[p].x;
          y = syn[p].y;
-         if (is_down_solid(x, y, 0, 1))                       // check for floor below (no lift)
+         if (mSolid.is_down_solid(x, y, 0, 1))                       // check for floor below (no lift)
          {
             syn[p].yinc = 0;                              // kill downwards motion
             syn[p].y = y - (y % 20);          // align with floor
 
             // check for collision with lift above if lift is moving down
-            int a = is_up_solid(x, y, 1, 1);
+            int a = mSolid.is_up_solid(x, y, 1, 1);
             if ((a > 31) && (mLift.cur[a-32].yinc > 0))
             {
                // take some damage
                syn[p].health -= 1;
-               game_event(54, x, y, p, 0, 0, 0);
+               mGameEvent.add(54, x, y, p, 0, 0, 0);
             }
 
             if (syn[p].jump)                              // if jump pressed
             {
                x = syn[p].x;
                y = syn[p].y;
-               int a = is_up_solid(x, y, 1, 1);
+               int a = mSolid.is_up_solid(x, y, 1, 1);
                if ((a == 0) || (a == 2))                      // only jump if nothing above
                {
                   syn[p].yinc = initial_jump_velocity;
-                  game_event(15, x, y, 0, 0, 0, 0);
+                  mGameEvent.add(15, x, y, 0, 0, 0, 0);
                }
             }
          }  // end of if floor below
@@ -555,7 +566,7 @@ void mwPlayers::proc_player_paused(int p)
          syn[p].xinc = 0;
          syn[p].yinc = 0;
          set_player_start_pos(p, 1); // get starting position from start block
-         draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
+         mScreen.draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
       }
    }
 }
@@ -577,14 +588,14 @@ void mwPlayers::proc_player_stuck_in_blocks(int p)
 {
    int x = syn[p].x;
    int y = syn[p].y;
-   int su =    is_up_solid(x, y, 0, 1);
-   int sd =  is_down_solid(x, y, 0, 1);
-   int sl =  is_left_solid(x, y, 0, 1);
-   int sr = is_right_solid(x, y, 0, 1);
+   int su =    mSolid.is_up_solid(x, y, 0, 1);
+   int sd =  mSolid.is_down_solid(x, y, 0, 1);
+   int sl =  mSolid.is_left_solid(x, y, 0, 1);
+   int sr = mSolid.is_right_solid(x, y, 0, 1);
    if ((su) && (sd) && (sl) && (sr))
    {
       syn[p].health -= 1;
-      game_event(56, x, y, p, 0, 0, 0);
+      mGameEvent.add(56, x, y, p, 0, 0, 0);
    }
 }
 
@@ -683,12 +694,12 @@ void mwPlayers::proc_player_collisions(int p)
             if ((mShot.deathmatch_shots) && (pb != p))
             {
                 mShot.proc_pshot_collision(p, b);
-                game_event(40, 0, 0, p, pb, 0, mShot.deathmatch_shot_damage);
+                mGameEvent.add(40, 0, 0, p, pb, 0, mShot.deathmatch_shot_damage);
             }
             if ((mShot.suicide_shots) && (pb == p))
             {
                 mShot.proc_pshot_collision(p, b);
-                game_event(41, 0, 0, p, pb, 0, mShot.deathmatch_shot_damage);
+                mGameEvent.add(41, 0, 0, p, pb, 0, mShot.deathmatch_shot_damage);
             }
          }
       }
@@ -804,12 +815,12 @@ void mwPlayers::proc_player_rope_move(int p)
    if (syn[p].left)
    {
       syn[p].left_right = 0;
-      syn[p].x -= is_left_solidf(syn[p].x, syn[p].y, 3, 0);
+      syn[p].x -= mSolid.is_left_solidf(syn[p].x, syn[p].y, 3, 0);
    }
    if (syn[p].right)
    {
       syn[p].left_right = 1;
-      syn[p].x += is_right_solidf(syn[p].x, syn[p].y, 3, 0);
+      syn[p].x += mSolid.is_right_solidf(syn[p].x, syn[p].y, 3, 0);
    }
    if (syn[p].down)
    {
@@ -841,19 +852,19 @@ void mwPlayers::proc_player_ladder_move(int p)
    }
    else
    {
-      if (syn[p].up)   syn[p].y -=   is_up_solidf(syn[p].x, syn[p].x, m, 0);
+      if (syn[p].up)   syn[p].y -=   mSolid.is_up_solidf(syn[p].x, syn[p].x, m, 0);
    }
 
-   if (syn[p].down) syn[p].y += is_down_solidf(syn[p].y, syn[p].y, m, 0);
+   if (syn[p].down) syn[p].y += mSolid.is_down_solidf(syn[p].y, syn[p].y, m, 0);
    if (syn[p].left)
    {
       syn[p].left_right = 0;
-      syn[p].x -= is_left_solidf(syn[p].x, syn[p].y, m, 0);
+      syn[p].x -= mSolid.is_left_solidf(syn[p].x, syn[p].y, m, 0);
    }
    if (syn[p].right)
    {
       syn[p].left_right = 1;
-      syn[p].x += is_right_solidf(syn[p].x, syn[p].y, m, 0);
+      syn[p].x += mSolid.is_right_solidf(syn[p].x, syn[p].y, m, 0);
    }
 
    // how much did we move this last frame?
@@ -877,10 +888,10 @@ void mwPlayers::proc_player_ladder_move(int p)
          {
             if (syn[p].up)
             {
-               float tm = is_up_solidf(tx, syn[p].y, m, 0);
+               float tm = mSolid.is_up_solidf(tx, syn[p].y, m, 0);
                if (tm > 0)
                {
-                  //printf("%d px:%d opx:%d tx:%d x+u\n", mwPS.frame_num, px, old_px, tx );
+                  //printf("%d px:%d opx:%d tx:%d x+u\n", mLoop.frame_num, px, old_px, tx );
                   syn[p].y = tx; // set x to passed by pos
                   syn[p].y -= m; // move in y
                   tx = px+1; // break out of loop
@@ -888,10 +899,10 @@ void mwPlayers::proc_player_ladder_move(int p)
             }
             else if (syn[p].down)
             {
-               float tm = is_down_solidf(tx, syn[p].y, m, 0);
+               float tm = mSolid.is_down_solidf(tx, syn[p].y, m, 0);
                if (tm > 0)
                {
-                  //printf("%d px:%d opx:%d tx:%d x+d\n", mwPS.frame_num, px, old_px, tx );
+                  //printf("%d px:%d opx:%d tx:%d x+d\n", mLoop.frame_num, px, old_px, tx );
                   syn[p].y = tx; // set x to passed by pos
                   syn[p].y += m; // move in y
                   tx = px+1; // break out of loop
@@ -905,10 +916,10 @@ void mwPlayers::proc_player_ladder_move(int p)
          {
             if (syn[p].up)
             {
-               float tm = is_up_solidf(tx, syn[p].y, m, 0);
+               float tm = mSolid.is_up_solidf(tx, syn[p].y, m, 0);
                if (tm > 0)
                {
-                  //printf("%d px:%d opx:%d tx:%d x-u\n", mwPS.frame_num, px, old_px, tx );
+                  //printf("%d px:%d opx:%d tx:%d x-u\n", mLoop.frame_num, px, old_px, tx );
                   syn[p].x = tx; // set x to passed by pos
                   syn[p].y -= m; // move in y
                   tx = old_px+1; // break out of loop
@@ -916,10 +927,10 @@ void mwPlayers::proc_player_ladder_move(int p)
             }
             else if (syn[p].down)
             {
-               float tm = is_down_solidf(tx, syn[p].y, m, 0);
+               float tm = mSolid.is_down_solidf(tx, syn[p].y, m, 0);
                if (tm > 0)
                {
-                  //printf("%d px:%d opx:%d tx:%d x-d\n", mwPS.frame_num, px, old_px, tx );
+                  //printf("%d px:%d opx:%d tx:%d x-d\n", mLoop.frame_num, px, old_px, tx );
                   syn[p].x = tx; // set x to passed by pos
                   syn[p].y += m; // move in y
                   tx = old_px+1; // break out of loop
@@ -939,10 +950,10 @@ void mwPlayers::proc_player_ladder_move(int p)
          {
             if (syn[p].right)
             {
-               float tm = is_right_solidf(syn[p].x, ty1, m, 0);
+               float tm = mSolid.is_right_solidf(syn[p].x, ty1, m, 0);
                if (tm > 0)
                {
-                  //printf("%d py:%d opy:%d ty1:%d y+r\n", mwPS.frame_num, py, old_py, ty1 );
+                  //printf("%d py:%d opy:%d ty1:%d y+r\n", mLoop.frame_num, py, old_py, ty1 );
                   syn[p].y = ty1; // set y to passed by pos
                   syn[p].x += m; // move in x
                   ty1 = py+1; // break out of loop
@@ -950,10 +961,10 @@ void mwPlayers::proc_player_ladder_move(int p)
             }
             else if (syn[p].left)
             {
-               float tm = is_left_solidf(syn[p].x, ty1,  m, 0);
+               float tm = mSolid.is_left_solidf(syn[p].x, ty1,  m, 0);
                if (tm > 0)
                {
-                  //printf("%d py:%d opy:%d ty1:%d y+l\n", mwPS.frame_num, py, old_py, ty1 );
+                  //printf("%d py:%d opy:%d ty1:%d y+l\n", mLoop.frame_num, py, old_py, ty1 );
                   syn[p].y = ty1; // set y to passed by pos
                   syn[p].x -= m; // move in x
                   ty1 = py+1; // break out of loop
@@ -967,10 +978,10 @@ void mwPlayers::proc_player_ladder_move(int p)
          {
             if (syn[p].right)
             {
-               float tm = is_right_solidf(syn[p].x, ty1, m, 0);
+               float tm = mSolid.is_right_solidf(syn[p].x, ty1, m, 0);
                if (tm > 0)
                {
-                  //printf("%d py:%d opy:%d ty1:%d y-r\n", mwPS.frame_num, py, old_py, ty1 );
+                  //printf("%d py:%d opy:%d ty1:%d y-r\n", mLoop.frame_num, py, old_py, ty1 );
                   syn[p].y = ty1; // set y to passed by pos
                   syn[p].x += m; // move in x
                   ty1 = old_py+1; // break out of loop
@@ -978,10 +989,10 @@ void mwPlayers::proc_player_ladder_move(int p)
             }
             else if (syn[p].left)
             {
-               float tm = is_left_solidf(syn[p].x, ty1,  m, 0);
+               float tm = mSolid.is_left_solidf(syn[p].x, ty1,  m, 0);
                if (tm > 0)
                {
-                  //printf("%d py:%d opy:%d ty1:%d y-l\n", mwPS.frame_num, py, old_py, ty1 );
+                  //printf("%d py:%d opy:%d ty1:%d y-l\n", mLoop.frame_num, py, old_py, ty1 );
                   syn[p].y = ty1; // set y to passed by pos
                   syn[p].x -= m; // move in x
                   ty1 = old_py+1; // break out of loop
@@ -1023,7 +1034,7 @@ void mwPlayers::proc_player_rope(int p)
          int done = 0;
          while (!done)
          {
-            float m = is_right_solidf(syn[p].x-1, syn[p].y, 1, 0);
+            float m = mSolid.is_right_solidf(syn[p].x-1, syn[p].y, 1, 0);
             if (m < 1) syn[p].x -= 1;
             else done = 1;
          }
@@ -1031,7 +1042,7 @@ void mwPlayers::proc_player_rope(int p)
          done = 0;
          while (!done)
          {
-            float m = is_left_solidf(syn[p].x+1, syn[p].y, 1, 0);
+            float m = mSolid.is_left_solidf(syn[p].x+1, syn[p].y, 1, 0);
             if (m < 1) syn[p].x += 1;
             else done = 1;
          }
@@ -1059,7 +1070,7 @@ void mwPlayers::proc_player_ladder(int p)
          int done = 0;
          while (!done)
          {
-            float m = is_right_solidf(syn[p].x-1, syn[p].y, 1, 0);
+            float m = mSolid.is_right_solidf(syn[p].x-1, syn[p].y, 1, 0);
             //printf("R %f %f\n", m, syn[p].x);
             if (m < 1) syn[p].x -= 1;
             else done = 1;
@@ -1069,7 +1080,7 @@ void mwPlayers::proc_player_ladder(int p)
          done = 0;
          while (!done)
          {
-            float m = is_left_solidf(syn[p].x-1, syn[p].y, 1, 0);
+            float m = mSolid.is_left_solidf(syn[p].x-1, syn[p].y, 1, 0);
             //printf("L %f %f\n", m, syn[p].x);
             if (m < 1) syn[p].x += 1;
             else done = 1;
@@ -1218,7 +1229,7 @@ void mwPlayers::draw_player(int p)
 
          // show current health bar
          int ch = syn[p].health; // current health
-         draw_percent_bar(AX + 10, AY - 6, 16, 3, ch);
+         mScreen.draw_percent_bar(AX + 10, AY - 6, 16, 3, ch);
 
          // show last health adjustment
          int h = loc[p].last_health_adjust; // last health adjust
@@ -1231,10 +1242,10 @@ void mwPlayers::draw_player(int p)
          {
             int nh = ch - dmg; // new health
             if (nh < 0) nh = 0;
-            if (mwPS.frame_num % 20 < 10)
+            if (mLoop.frame_num % 20 < 10)
             {
                // draw segment from new health to current health
-               draw_percent_bar_range(AX+10, AY-6, 16, 3, 10, nh, ch);
+               mScreen.draw_percent_bar_range(AX+10, AY-6, 16, 3, 10, nh, ch);
 
                // show damage amount
                al_draw_textf(mF.pixl, mC.pc[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", -dmg);
@@ -1293,7 +1304,7 @@ void mwPlayers::get_players_shape(int p)
       // 3 is rope move
       int pos = (x/3) % 2;
       syn[p].shape = 20 + pos;
-      /// printf("f:%d x:%d pos:%d, shape:%d\n", mwPS.frame_num, x, pos, shape );
+      /// printf("f:%d x:%d pos:%d, shape:%d\n", mLoop.frame_num, x, pos, shape );
    }
 
    if (syn[p].on_ladder)
@@ -1305,7 +1316,7 @@ void mwPlayers::get_players_shape(int p)
       // 3 is ladder move
       int pos = (y/3) % 2;
       syn[p].shape = 22 + pos;
-      //printf("f:%d y:%d pos:%d, shape:%d\n", mwPS.frame_num, y, pos, shape );
+      //printf("f:%d y:%d pos:%d, shape:%d\n", mLoop.frame_num, y, pos, shape );
    }
 }
 
@@ -1619,4 +1630,138 @@ void mwPlayers::fill_player_tile(void)
 }
 
 
+
+void mwPlayers::clear_controls(int p)
+{
+   syn[p].left  = 0;
+   syn[p].right = 0;
+   syn[p].up    = 0;
+   syn[p].down  = 0;
+   syn[p].jump  = 0;
+   syn[p].fire  = 0;
+   syn[p].menu  = 0;
+}
+
+void mwPlayers::set_controls_from_comp_move(int p, int comp_move)
+{
+   clear_controls(p);
+   if (comp_move & PM_COMPMOVE_LEFT)  syn[p].left  = 1;
+   if (comp_move & PM_COMPMOVE_RIGHT) syn[p].right = 1;
+   if (comp_move & PM_COMPMOVE_UP)    syn[p].up    = 1;
+   if (comp_move & PM_COMPMOVE_DOWN)  syn[p].down  = 1;
+   if (comp_move & PM_COMPMOVE_JUMP)  syn[p].jump  = 1;
+   if (comp_move & PM_COMPMOVE_FIRE)  syn[p].fire  = 1;
+   if (comp_move & PM_COMPMOVE_MENU)  syn[p].menu  = 1;
+}
+
+void mwPlayers::set_comp_move_from_player_key_check(int p) // doesn't set controls
+{
+   int cm = 0;
+   if (mI.key[loc[p].left_key][0])       cm |= PM_COMPMOVE_LEFT;
+   if (mI.key[loc[p].right_key][0])      cm |= PM_COMPMOVE_RIGHT;
+   if (mI.key[loc[p].up_key][0])         cm |= PM_COMPMOVE_UP;
+   if (mI.key[loc[p].down_key][0])       cm |= PM_COMPMOVE_DOWN;
+   if (mI.key[loc[p].jump_key][0])       cm |= PM_COMPMOVE_JUMP;
+   if (mI.key[loc[p].fire_key][0])       cm |= PM_COMPMOVE_FIRE;
+   if (mI.key[loc[p].menu_key][0])       cm |= PM_COMPMOVE_MENU;
+   if (mI.key[ALLEGRO_KEY_ESCAPE][0])    cm |= PM_COMPMOVE_MENU;
+   loc[p].comp_move = cm;
+}
+
+void mwPlayers::set_controls_from_player_key_check(int p) // used only in menu
+{
+   if (mI.key[loc[p].left_key][0])       syn[p].left  = 1;
+   if (mI.key[loc[p].right_key][0])      syn[p].right = 1;
+   if (mI.key[loc[p].up_key][0])         syn[p].up    = 1;
+   if (mI.key[loc[p].down_key][0])       syn[p].down  = 1;
+   if (mI.key[loc[p].jump_key][0])       syn[p].jump  = 1;
+   if (mI.key[loc[p].fire_key][0])       syn[p].fire  = 1;
+   if (mI.key[loc[p].menu_key][0])       syn[p].menu  = 1;
+   if (mI.key[ALLEGRO_KEY_ESCAPE][0])    syn[p].menu  = 1;
+}
+
+void mwPlayers::rungame_key_check(int p)
+{
+   if (mI.key[ALLEGRO_KEY_0][0]) active_local_player = 0;
+   if (mI.key[ALLEGRO_KEY_1][0]) active_local_player = 1;
+   if (mI.key[ALLEGRO_KEY_2][0]) active_local_player = 2;
+   if (mI.key[ALLEGRO_KEY_3][0]) active_local_player = 3;
+   if (mI.key[ALLEGRO_KEY_4][0]) active_local_player = 4;
+   if (mI.key[ALLEGRO_KEY_5][0]) active_local_player = 5;
+   if (mI.key[ALLEGRO_KEY_6][0]) active_local_player = 6;
+   if (mI.key[ALLEGRO_KEY_7][0]) active_local_player = 7;
+
+   // dont let alp be an inactive player
+   while (!syn[active_local_player].active) // if alp not active
+      if (++active_local_player > 7) active_local_player = 0;
+
+   // if games_moves doesn't end with level_done kill it after 4 seconds
+   if (mLoop.frame_num > mwDM.demo_mode_last_frame + 160) mLoop.new_program_state = 1;
+
+   if ((mI.key[ALLEGRO_KEY_ESCAPE][0]) || (mI.key[ALLEGRO_KEY_ENTER][0]) || (mI.key[ALLEGRO_KEY_SPACE][0]))
+   {
+      mwDM.demo_mode_on = 0;
+
+      // set all players inactive
+      for (int p=0; p<NUM_PLAYERS; p++) syn[p].active = 0;
+
+      // except for local player
+      syn[0].active = 1;
+      mConfig.load();
+
+      while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue();
+
+      mLoop.new_program_state = 1;
+      if (mLoop.old_program_state == 2) mLoop.old_program_state = mLoop.older_program_state; // don't send back to demo mode
+
+   }
+}
+
+void mwPlayers::proc_player_input(void)
+{
+   char msg[1024];
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (syn[p].active) // cycle all active players
+      {
+         int cm = syn[p].control_method;
+         if (cm == 1) rungame_key_check(p); // run game from file
+         if ((cm == 0) || (cm == 3) || (cm == 4)) // single player, server, client
+         {
+            if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
+            {
+               if (loc[p].fake_keypress_mode) loc[p].comp_move = rand() % 64;
+               else set_comp_move_from_player_key_check(p);
+               if (loc[p].old_comp_move != loc[p].comp_move)  // player's controls have changed
+               {
+                  loc[p].old_comp_move = loc[p].comp_move;
+
+                  // in single player, client and server mode, add to game moves array
+                  if ((cm == 0) || (cm == 3) || (cm == 4)) mwGMA.add_game_move(mLoop.frame_num, 5, p, loc[p].comp_move);
+
+                  // in client mode, send cdat packet, and apply move directly to controls
+                  if (cm == 4)
+                  {
+                     mNetgame.Packet("cdat");
+                     mNetgame.PacketPut1ByteInt(p);
+                     mNetgame.PacketPut4ByteInt(mLoop.frame_num);
+                     mNetgame.PacketPut1ByteInt(loc[p].comp_move);
+                     mNetgame.ClientSend(mNetgame.packetbuffer, mNetgame.packetsize);
+
+                     set_controls_from_comp_move(p, loc[p].comp_move);
+
+                     if (syn[p].menu) mLoop.new_program_state = 25;
+                     loc[p].client_cdat_packets_tx++;
+                     sprintf(msg,"tx cdat - move:%d\n", loc[p].comp_move);
+                     if (mLog.LOG_NET_cdat) mLog.add_log_entry2(35, p, msg);
+
+                  }
+               }
+            }
+         }
+      }
+      else if (syn[p].control_method == 4) // not active and control method 4 is a client waiting for server to make it active
+      {
+         if (mI.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.new_program_state = 25; // give them an escape option
+      }
+}
 

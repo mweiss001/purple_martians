@@ -11,8 +11,8 @@
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "e_fnx.h"
-#include "mwProgramState.h"
+#include "mwMiscFnx.h"
+#include "mwLoop.h"
 #include "mwLevel.h"
 #include "mwHelp.h"
 
@@ -29,13 +29,13 @@ void mwLog::log_bandwidth_stats(int p)
    sprintf(msg,"max tx bytes per frame....[%d]", mPlayer.loc[p].tx_max_bytes_per_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"avg tx bytes per frame....[%d]", mPlayer.loc[p].tx_total_bytes / mwPS.frame_num);
+   sprintf(msg,"avg tx bytes per frame....[%d]", mPlayer.loc[p].tx_total_bytes / mLoop.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max rx bytes per second...[%d]", mPlayer.loc[p].tx_max_bytes_per_tally);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"avg tx bytes per sec......[%d]", (mPlayer.loc[p].tx_total_bytes *40)/ mwPS.frame_num);
+   sprintf(msg,"avg tx bytes per sec......[%d]", (mPlayer.loc[p].tx_total_bytes *40)/ mLoop.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total tx packets..........[%d]", mPlayer.loc[p].tx_total_packets);
@@ -54,13 +54,13 @@ void mwLog::log_bandwidth_stats(int p)
    sprintf(msg,"max rx bytes per frame....[%d]", mPlayer.loc[p].rx_max_bytes_per_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"avg rx bytes per frame....[%d]", mPlayer.loc[p].rx_total_bytes / mwPS.frame_num);
+   sprintf(msg,"avg rx bytes per frame....[%d]", mPlayer.loc[p].rx_total_bytes / mLoop.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max rx bytes per second...[%d]", mPlayer.loc[p].rx_max_bytes_per_tally);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"avg rx bytes per sec......[%d]", (mPlayer.loc[p].rx_total_bytes *40)/ mwPS.frame_num);
+   sprintf(msg,"avg rx bytes per sec......[%d]", (mPlayer.loc[p].rx_total_bytes *40)/ mLoop.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total rx packets..........[%d]", mPlayer.loc[p].rx_total_packets);
@@ -123,9 +123,9 @@ void mwLog::log_versions(void)
 {
    char msg[1024];
    add_log_entry_centered_text(10, 0, 76, "", "+", "-");
-   sprintf(msg, "Purple Martians Version %s", mwPS.pm_version_string);
+   sprintf(msg, "Purple Martians Version %s", mLoop.pm_version_string);
    add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-   add_log_entry_position_text(10, 0, 76, 10, mwPS.al_version_string, "|", " ");
+   add_log_entry_position_text(10, 0, 76, 10, mLoop.al_version_string, "|", " ");
    log_time_date_stamp();
    add_log_entry_centered_text(10, 0, 76, "", "+", "-");
 }
@@ -185,12 +185,12 @@ void mwLog::log_ending_stats(int p)
    sprintf(msg,"Client %d (%s) ending stats", p, mPlayer.loc[p].hostname);
    add_log_entry_header(10, p, msg, 0);
 
-   sprintf(msg,"total game frames.........[%d]", mwPS.frame_num);
+   sprintf(msg,"total game frames.........[%d]", mLoop.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
    sprintf(msg,"frame when client joined..[%d]", mPlayer.loc[p].join_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   if (mPlayer.loc[p].quit_frame == 0) mPlayer.loc[p].quit_frame = mwPS.frame_num;
+   if (mPlayer.loc[p].quit_frame == 0) mPlayer.loc[p].quit_frame = mLoop.frame_num;
    sprintf(msg,"frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
@@ -212,7 +212,7 @@ void mwLog::log_ending_stats(int p)
 void mwLog::log_ending_stats_server()
 {
    char msg[1024];
-   sprintf(msg,"Server (%s) ending stats", mwPS.local_hostname);
+   sprintf(msg,"Server (%s) ending stats", mLoop.local_hostname);
    add_log_entry_header(10, 0, msg, 0);
 
    add_log_entry_centered_text(10, 0, 76, "", "+", "-");
@@ -220,16 +220,16 @@ void mwLog::log_ending_stats_server()
    sprintf(msg,"level.....................[%d]", mLevel.play_level);
    add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"total frames..............[%d]", mwPS.frame_num);
+   sprintf(msg,"total frames..............[%d]", mLoop.frame_num);
    add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total moves...............[%d]", mwGMA.game_move_entry_pos);
    add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"total time (seconds)......[%d]", mwPS.frame_num/40);
+   sprintf(msg,"total time (seconds)......[%d]", mLoop.frame_num/40);
    add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"total time (minutes)......[%d]", mwPS.frame_num/40/60);
+   sprintf(msg,"total time (minutes)......[%d]", mLoop.frame_num/40/60);
    add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
    log_bandwidth_stats(0);
@@ -246,7 +246,7 @@ void mwLog::log_ending_stats_server()
          sprintf(msg,"frame when client joined..[%d]", mPlayer.loc[p].join_frame);
          add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-         if (mPlayer.loc[p].quit_frame == 0) mPlayer.loc[p].quit_frame = mwPS.frame_num;
+         if (mPlayer.loc[p].quit_frame == 0) mPlayer.loc[p].quit_frame = mLoop.frame_num;
          sprintf(msg,"frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
          add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
@@ -287,7 +287,7 @@ void mwLog::save_log_file(void)
    strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S", timenow);
 
    char lh[16];
-   strncpy(lh, mwPS.local_hostname, 16); // to remove compiler error in case local_hostname is too long
+   strncpy(lh, mLoop.local_hostname, 16); // to remove compiler error in case local_hostname is too long
 
    char ph[80];
    sprintf(ph, "-[%d][%s].txt", mLevel.play_level, lh );
@@ -309,7 +309,7 @@ void mwLog::save_log_file(void)
 void mwLog::add_log_entry2(int type, int player, const char *txt)
 {
    char tmsg[200];
-   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mwPS.frame_num, txt);
+   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
    // strcat(log_msg, tmsg);
 
    if ((log_msg_pos + strlen(tmsg)) >= NUM_LOG_CHAR)
@@ -439,7 +439,7 @@ void mwLog::get_tag_text(char *str, char *res, int show)
           res[j] = str[j+p1+1];
        res[plen-1] = 0;
        if (show) printf("tag text [%s]\n", res);
-       chop_first_x_char(str, p2+1);
+       mMiscFnx.chop_first_x_char(str, p2+1);
    }
    if (show) printf("get tag final %s\n", str);
 }
@@ -473,7 +473,7 @@ int mwLog::get_tag_text2(char *str, char *res, char *res1, int show)
              res[j] = str[j+p1+1];
           res[plen-1] = 0;
           if (show) printf("First tag:'%s'\n", res);
-          chop_first_x_char(str, p2+1);
+          mMiscFnx.chop_first_x_char(str, p2+1);
       }
       if (show) printf("Final string after chop:'%s'\n", str);
    }
@@ -499,7 +499,7 @@ int mwLog::get_tag_text2(char *str, char *res, char *res1, int show)
              res1[j] = str[j+p1+1];
           res1[plen-1] = 0;
           if (show) printf("2nd tag:'%s'\n", res1);
-          chop_first_x_char(str, p2+1);
+          mMiscFnx.chop_first_x_char(str, p2+1);
       }
       if (show) printf("Final string after chop:'%s'\n", str);
    }
@@ -564,7 +564,7 @@ int mwLog::load_log_lines_array_from_static_file(const char* f)
       log_lines_int[i][0] = atoi(res);
       get_tag_text(log_lines[i], res, 0); // get second tag - player
       log_lines_int[i][1] = atoi(res);
-      get_tag_text(log_lines[i], res, 0); // get third tag - mwPS.frame_num
+      get_tag_text(log_lines[i], res, 0); // get third tag - mLoop.frame_num
       log_lines_int[i][2] = atoi(res);
    }
    return num_lines;
@@ -695,7 +695,7 @@ int mwLog::log_file_viewer(int type)
    for (int i=0; i<num_lines; i++)
       if (log_lines_int[i][2] > end_pc) end_pc = log_lines_int[i][2];
 
-   int first_line = 0; // the top mwPS.frame_num line on the screen
+   int first_line = 0; // the top mLoop.frame_num line on the screen
    int quit = 0;
 
    // find players in this file
@@ -1590,7 +1590,7 @@ int mwLog::load_profile_graph(int choose)
          int type = atoi(res);
          get_tag_text(buff, res, 0); // get second tag - player
          //int p = atoi(res);
-         get_tag_text(buff, res, 0); // get third tag - mwPS.frame_num
+         get_tag_text(buff, res, 0); // get third tag - mLoop.frame_num
          double fn = atof(res);
 
          if (type == 44) // tmst

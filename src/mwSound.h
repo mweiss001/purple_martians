@@ -4,9 +4,6 @@ class mwSound
 {
    public:
 
-   mwSound(); // default constructor
-   void initialize(void);
-
    ALLEGRO_VOICE *voice = NULL;
    ALLEGRO_MIXER *mn_mixer = NULL;
    ALLEGRO_MIXER *se_mixer = NULL;
@@ -21,21 +18,11 @@ class mwSound
    int lit_item;
    int sound_on = 1;
 
-
    void start_music(int resume);
    void stop_sound(void);
    void proc_sound(void);
    void load_sound(void);
    void set_se_scaler(void);
    void set_st_scaler(void);
-   void sound_toggle(void);
-
-
-
-
-
-
 };
 extern mwSound mSound;
-
-

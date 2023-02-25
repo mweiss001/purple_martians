@@ -9,10 +9,12 @@
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwItems.h"
-#include "z_screen_overlay.h"
 #include "mwShots.h"
+#include "mwGameEvent.h"
+
+
 
 mwEnemy mEnemy;
 
@@ -47,7 +49,7 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
    else al_draw_scaled_rotated_bitmap(mwB.tile[tn], 10, 10, x+10, y+10, sc, sc, rot, flags);
 
    // if enemy is expiring show how many seconds it has left
-   if ((!mwPS.level_editor_running) && (Ei[e][27])) al_draw_textf(mF.pixl, mC.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
+   if ((!mLoop.level_editor_running) && (Ei[e][27])) al_draw_textf(mF.pixl, mC.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
 
 
 
@@ -405,7 +407,7 @@ void mwEnemy::enemy_player_hit_proc(int e)
          int p = Ei[e][22]-1;
          mPlayer.syn[p].health -= Ef[e][4];
 
-         game_event(44, 0, 0, p, e, 0, Ef[e][4]);
+         mGameEvent.add(44, 0, 0, p, e, 0, Ef[e][4]);
          Ei[e][22] = 0;  // clear hit
          Ei[e][23] = 60; // set retrigger amount
       }
@@ -498,8 +500,8 @@ void mwEnemy::enemy_killed(int e)
    mwB.zz[2][na] = 0;                  // set counter
    mwB.zz[3][na] = dl / mwB.zz[4][na]; // set ans timer
 
-   if (hbm == 1) game_event(60, 0, 0, Ei[e][26], e, type, 0);
-   if (hbm == 2) game_event(62, 0, 0, Ei[e][26], e, type, 0);
+   if (hbm == 1) mGameEvent.add(60, 0, 0, Ei[e][26], e, type, 0);
+   if (hbm == 2) mGameEvent.add(62, 0, 0, Ei[e][26], e, type, 0);
 }
 
 

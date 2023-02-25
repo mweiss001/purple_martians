@@ -7,9 +7,12 @@
 #include "mwBitmap.h"
 #include "mwTimeStamp.h"
 #include "mwColor.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwItems.h"
 #include "mwEnemy.h"
+#include "mwSound.h"
+
+
 
 
 mwBottomMessage mwBM;
@@ -42,7 +45,7 @@ void mwBottomMessage::initialize(void)
 int mwBottomMessage::draw_text(const char *txt, int col, int bmsg_length)
 {
    al_draw_text(mF.pr16, mC.pc[col], bmsg_length, 2, ALLEGRO_ALIGN_INTEGER, txt);
-   //printf("%d %s\n",mwPS.frame_num, txt);
+   //printf("%d %s\n",mLoop.frame_num, txt);
    return (strlen(txt)*16);
 }
 
@@ -125,12 +128,12 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
    // event retrigger holdoff for these events that can repeat every frame
    if (ev == 3) // exit
    {
-      if (game_event_retrigger_holdoff[1] < mwPS.frame_num) game_event_retrigger_holdoff[1] = mwPS.frame_num + 60;
+      if (game_event_retrigger_holdoff[1] < mLoop.frame_num) game_event_retrigger_holdoff[1] = mLoop.frame_num + 60;
       else ev = 0;
    }
    if (ev == 50) // mine
    {
-      if (game_event_retrigger_holdoff[2] < mwPS.frame_num) game_event_retrigger_holdoff[2] = mwPS.frame_num + 20;
+      if (game_event_retrigger_holdoff[2] < mLoop.frame_num) game_event_retrigger_holdoff[2] = mLoop.frame_num + 20;
       else ev = 0;
    }
    if (ev == 59) // raw damage that needs to be tallied
@@ -138,12 +141,12 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
       int p = z1;
       float damage = (float)mItem.item[z2][15] / 100; // damage from item 17 - block damage
 
-      if (mPlayer.loc[p].block_damage_holdoff < mwPS.frame_num) // triggered and not in holdoff
+      if (mPlayer.loc[p].block_damage_holdoff < mLoop.frame_num) // triggered and not in holdoff
       {
-         mPlayer.loc[p].block_damage_holdoff = mwPS.frame_num + 20; // set holdoff
+         mPlayer.loc[p].block_damage_holdoff = mLoop.frame_num + 20; // set holdoff
          mPlayer.loc[p].block_damage_tally = damage; // init tally with current damage
       }
-      if (mPlayer.loc[p].block_damage_holdoff > mwPS.frame_num) // triggered and in holdoff
+      if (mPlayer.loc[p].block_damage_holdoff > mLoop.frame_num) // triggered and in holdoff
       {
          mPlayer.loc[p].block_damage_tally += damage; // inc tally with current damage
       }
@@ -428,7 +431,4 @@ void mwBottomMessage::draw()
    }
    if (mLog.LOG_TMR_bmsg_draw) mLog.add_log_TMR(al_get_time() - t0, "bmsg_draw", 0);
 }
-
-
-
 

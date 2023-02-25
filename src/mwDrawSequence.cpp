@@ -9,12 +9,10 @@
 #include "mwLift.h"
 #include "mwTimeStamp.h"
 #include "mwColor.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwItems.h"
 #include "mwEnemy.h"
-#include "z_screen.h"
-#include "z_screen_overlay.h"
-
+#include "mwScreen.h"
 #include "mwShots.h"
 
 
@@ -85,7 +83,7 @@ void mwDrawSequence::calc(void)
    seq[8][1] = 0;
 
    // set actual based on current frame num
-   int oe = mwPS.frame_num % 2; // odd/even  0 = even 1 = odd
+   int oe = mLoop.frame_num % 2; // odd/even  0 = even 1 = odd
 
    for (int i=0; i<10; i++)
    {
@@ -102,7 +100,7 @@ void mwDrawSequence::draw(void)
    double t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
    t0 = al_get_time();
 
-   if (seq[0][0]) get_new_background(1);
+   if (seq[0][0]) mScreen.get_new_background(1);
    t1 = al_get_time(); add(0, t1-t0);
 
    if (seq[1][0]) mLift.draw_lifts();
@@ -123,10 +121,10 @@ void mwDrawSequence::draw(void)
    if (seq[6][0]) mPlayer.draw_players();
    t7 = al_get_time(); add(6, t7-t6);
 
-   get_new_screen_buffer(0, 0, 0);
+   mScreen.get_new_screen_buffer(0, 0, 0);
    t8 = al_get_time(); add(7, t8-t7);
 
-   if (seq[8][0]) draw_screen_overlay();
+   if (seq[8][0]) mScreen.draw_screen_overlay();
    t9 = al_get_time(); add(8, t9-t8);
 
    al_flip_display();

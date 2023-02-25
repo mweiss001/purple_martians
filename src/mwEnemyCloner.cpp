@@ -5,12 +5,12 @@
 #include "mwPlayers.h"
 #include "mwBitmap.h"
 #include "mwShots.h"
-#include "z_solid.h"
+#include "mwSolid.h"
 #include "mwLift.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwItems.h"
 #include "mwLevel.h"
-#include "e_fnx.h"
+#include "mwMiscFnx.h"
 
 
 
@@ -268,11 +268,11 @@ void mwEnemy::draw_cloner(int e, int x, int c, int custom)
       // show box mode (0=none) (1=trig only) (2=src/dst only) (3=all)
       int q = Ei[e][4];
       if ((q == 1) || (q == 3))
-         rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64, 0); // trigger box
+         mMiscFnx.rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64, 0); // trigger box
       if ((q == 2) || (q == 3))
       {
-         rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64, 0); // source
-         rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
+         mMiscFnx.rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64, 0); // source
+         mMiscFnx.rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
       }
    }
 

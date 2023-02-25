@@ -39,6 +39,8 @@ class mwEnemy
    void move_bouncer_cannon_common(int e);
    void move_cannon(int e);
    void move_bouncer(int e);
+   void scale_bouncer_and_cannon_speed(int e);
+   void set_new_initial_direction(int e, int x2, int y2);
 
    // mwEnemyCloner.cpp
    void draw_cloner(int e, int x, int c, int custom);
@@ -59,6 +61,9 @@ class mwEnemy
    void move_podzilla(int e);
    void move_vinepod(int e);
    void draw_vinepod(int e, int x, int c, int custom);
+   void draw_vinepod_controls(int num, int legend_highlight);
+
+
 
    // mwEnemyFnx.cpp
    int is_player_in_enemy_trigger_box(int e);

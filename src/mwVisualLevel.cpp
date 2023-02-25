@@ -9,11 +9,11 @@
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwItems.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
-#include "z_screen.h"
+#include "mwScreen.h"
 
 
 mwVisualLevel mVisualLevel;
@@ -41,7 +41,7 @@ void mwVisualLevel::show_cur(void)
    if (mLevel.load_level(cur, 0, 1))
    {
       al_set_target_backbuffer(display);
-      draw_level2(NULL, 1002, 26, 276, 1, 1, 1, 1, 0);
+      mScreen.draw_level2(NULL, 1002, 26, 276, 1, 1, 1, 1, 0);
       al_set_target_backbuffer(display);
       mLevel.show_level_data(1010, 308, 0);
    }
@@ -65,7 +65,7 @@ void mwVisualLevel::show_msel(void)
    if (mLevel.load_level(sel, 0, 1))
    {
       al_set_target_backbuffer(display);
-      draw_level2(NULL, 1002, yo+26, 276, 1, 1, 1, 1, 0);
+      mScreen.draw_level2(NULL, 1002, yo+26, 276, 1, 1, 1, 1, 0);
       al_set_target_backbuffer(display);
       mLevel.show_level_data(1010, yo + 308, 0);
    }
@@ -224,7 +224,7 @@ void mwVisualLevel::compare_all(void)
 
          al_set_target_backbuffer(display);
          int pc = (x+1)*100 / num_levs;
-         draw_percent_bar(mwD.SCREEN_W/2, 10, mwD.SCREEN_W-200, 14, pc );
+         mScreen.draw_percent_bar(mwD.SCREEN_W/2, 10, mwD.SCREEN_W-200, 14, pc );
 
          sprintf(msg, "checking level:%d", le[x]);
          al_draw_text(mF.pr8, mC.pc[15], mwD.SCREEN_W/2, 14, ALLEGRO_ALIGN_CENTER, msg);
@@ -248,7 +248,7 @@ void mwVisualLevel::compare_all(void)
 
                al_set_target_backbuffer(display);
                int pc = (x1+1)*100 / num_levs;
-               draw_percent_bar(mwD.SCREEN_W/2, 30, mwD.SCREEN_W-200, 14, pc );
+               mScreen.draw_percent_bar(mwD.SCREEN_W/2, 30, mwD.SCREEN_W-200, 14, pc );
 
                sprintf(msg, "checking level:%d", le[x1]);
                al_draw_text(mF.pr8, mC.pc[15], mwD.SCREEN_W/2, 34, ALLEGRO_ALIGN_CENTER, msg);
@@ -311,14 +311,14 @@ void mwVisualLevel::lev_draw(int full)
             int col = 11;
             if (!mLevel.load_level(level, 0, 1)) col = 10;
             al_set_target_bitmap(le_temp);
-            if (mLevel.valid_level_loaded) draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0);
+            if (mLevel.valid_level_loaded) mScreen.draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0);
             al_draw_textf(mF.pr8, mC.pc[col], mx*ms +ms/2, my*ms+ms/2, ALLEGRO_ALIGN_CENTER, "%d", level);
 
             // show progress bar
             int pc = level*100 / 400;
             al_set_target_backbuffer(display);
             //al_clear_to_color(al_map_rgb(0,0,0));
-            draw_percent_bar(mwD.SCREEN_W/2, mwD.SCREEN_H/2, mwD.SCREEN_W-200, 20, pc );
+            mScreen.draw_percent_bar(mwD.SCREEN_W/2, mwD.SCREEN_H/2, mwD.SCREEN_W-200, 20, pc );
             al_draw_text(mF.pr8, mC.pc[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Levels");
             al_flip_display();
          }
@@ -395,7 +395,7 @@ void mwVisualLevel::level_viewer(void)
       if (mI.key[ALLEGRO_KEY_S][0])
       {
          while (mI.key[ALLEGRO_KEY_S][0]) mwEQ.proc_event_queue_menu();
-         if (mLevel.load_level(cur, 0, 1)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
+         if (mLevel.load_level(cur, 0, 1)) mScreen.draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
          al_flip_display();
          while (mI.key[ALLEGRO_KEY_S][0]) mwEQ.proc_event_queue_menu();
          redraw = 1;
@@ -413,7 +413,7 @@ void mwVisualLevel::level_viewer(void)
          if (mI.mouse_b[1][0]) // set new current level (and show full screen while mouse b1 pressed)
          {
             cur = sel;
-            if (mLevel.load_level(cur, 0, 1)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
+            if (mLevel.load_level(cur, 0, 1)) mScreen.draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
             al_flip_display();
             redraw = 1;
             while (mI.mouse_b[1][0]) mwEQ.proc_event_queue_menu();
@@ -464,7 +464,7 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
    al_draw_textf(mF.pr8, mC.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d", cur);
    if (mLevel.load_level(cur, 0, 1))
    {
-      draw_level2(NULL, x1+2, y1+26, size-3, 1, 1, 1, 1, 0);
+      mScreen.draw_level2(NULL, x1+2, y1+26, size-3, 1, 1, 1, 1, 0);
       int ty1 = mLevel.show_level_data(x1+2, y2+32+24, 0);
       for (int a=0; a<16; a++)
          al_draw_rectangle(x1+0-a, y2+55-a, x2-0+a, ty1+a, mC.pc[fc + (15-a)*16], 1 );
@@ -588,11 +588,11 @@ void mwVisualLevel::load_visual_level_select(void)
       if (mLevel.load_level(le[x], 0, 1))
       {
          al_set_target_bitmap(level_icon_bmp[x]);
-         draw_level2(level_icon_bmp[x], 0, 0, grid_size, 1, 1, 1, 1, 0);
+         mScreen.draw_level2(level_icon_bmp[x], 0, 0, grid_size, 1, 1, 1, 1, 0);
          int pc = x*100 / num_levs;
 
          al_set_target_backbuffer(display);
-         draw_percent_bar(mwD.SCREEN_W/2, mwD.SCREEN_H/2, mwD.SCREEN_W-200, 20, pc );
+         mScreen.draw_percent_bar(mwD.SCREEN_W/2, mwD.SCREEN_H/2, mwD.SCREEN_W-200, 20, pc );
          al_draw_text(mF.pr8, mC.pc[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating level icon grid");
          al_flip_display();
       }
@@ -622,7 +622,7 @@ void mwVisualLevel::load_visual_level_select(void)
 
 int mwVisualLevel::visual_level_select(void)
 {
-   mwPS.visual_level_select_running = 1;
+   mLoop.visual_level_select_running = 1;
 
    int p = mPlayer.active_local_player;
    int fc = mPlayer.syn[p].color; // frame color
@@ -770,7 +770,7 @@ int mwVisualLevel::visual_level_select(void)
          quit = 2;
       }
    }
-   mwPS.visual_level_select_running = 0;
+   mLoop.visual_level_select_running = 0;
    if (quit == 1) return 1;
    return 0;
 }

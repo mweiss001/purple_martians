@@ -3,10 +3,10 @@
 #include "mwItems.h"
 #include "mwPlayers.h"
 #include "mwLevel.h"
-#include "z_screen_overlay.h"
+#include "mwGameEvent.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwDisplay.h"
 
 
@@ -70,7 +70,7 @@ void mwItems::proc_key_collision(int p, int i)
       mItem.item[i][10] = atan2(yinc, xinc) * 1000;
       int num_steps = scaler;
       mItem.item[i][11] = num_steps + 10;                       // add 10 for final sequence
-      game_event(2, 0, 0, p, i, 0, 0);
+      mGameEvent.add(2, 0, 0, p, i, 0, 0);
    }
 }
 
@@ -120,7 +120,7 @@ void mwItems::proc_moving_key(int i)
 
 void mwItems::proc_switch_collision(int p, int i)
 {
-   if (mItem.item[i][11] < mwPS.frame_num) // if not lockout
+   if (mItem.item[i][11] < mLoop.frame_num) // if not lockout
    {
       float px = mPlayer.syn[p].x;
       float py = mPlayer.syn[p].y;
@@ -128,8 +128,8 @@ void mwItems::proc_switch_collision(int p, int i)
       float iy = itemf[i][1];
       if ( (px > ix-12) && (px < ix+12) && (py > iy-16) && (py < iy-8) && (mPlayer.syn[p].yinc > 0) )  // falling
       {
-         mItem.item[i][11] = mwPS.frame_num + 4; // switch lockout for next 4 frames
-         game_event(30, 0, 0, p, i, 0, 0);
+         mItem.item[i][11] = mLoop.frame_num + 4; // switch lockout for next 4 frames
+         mGameEvent.add(30, 0, 0, p, i, 0, 0);
 
          if (mItem.item[i][1] > 111) mItem.item[i][1] -= 16;
          else mItem.item[i][1] += 16;

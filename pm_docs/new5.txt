@@ -9085,7 +9085,7 @@ int is_item_stuck_to wall(int i)
    int x = al_fixtoi(itemf[i][0]);
    int y = al_fixtoi(itemf[i][1]);
 
-   if ((is_left_solid(x,y, 0) || (is_right_solid(x,y, 0) ||
+   if ((mSolid.is_left_solid(x,y, 0) || (is_right_solid(x,y, 0) ||
        (is_down_solid(x,y, 0) || (is_up_solid(x,y, 0) )
 
        return 1;

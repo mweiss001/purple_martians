@@ -9,22 +9,22 @@
 #include "mwLift.h"
 #include "mwColor.h"
 #include "mwDisplay.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 
 #include "mwEnemy.h"
 #include "mwLevel.h"
-#include "e_fnx.h"
-#include "z_screen_overlay.h"
-#include "z_solid.h"
+#include "mwMiscFnx.h"
+#include "mwGameEvent.h"
 
-#include "mwPMEvent.h"
+#include "mwSolid.h"
+
+#include "mwTriggerEvent.h"
 #include "mwWindowManager.h"
 #include "mwEventQueue.h"
 #include "mwInput.h"
 #include "mwWidgets.h"
 #include "mwShots.h"
-#include "z_screen.h"
-#include "e_object_viewer.h"
+#include "mwScreen.h"
 
 mwItems mItem;
 
@@ -118,7 +118,7 @@ void mwItems::draw_item(int i, int custom, int cx, int cy)
    if (!drawn) al_draw_bitmap(mwB.tile[shape], x, y, 0);
 
    // if item is expiring show how many seconds left it has
-   if (!mwPS.level_editor_running)
+   if (!mLoop.level_editor_running)
    {
       if ((mItem.item[i][14]>10) && (type != 9) && (type != 16) && (type != 17))
          al_draw_textf(mF.pixl, mC.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (mItem.item[i][14] - 10) / 40);
@@ -127,7 +127,7 @@ void mwItems::draw_item(int i, int custom, int cx, int cy)
 
 int mwItems::draw_bonus(int i, int x, int y, int shape)
 {
-   if ((mItem.item[i][6] == 3) && (!mwPS.level_editor_running)) // purple coin custom draw
+   if ((mItem.item[i][6] == 3) && (!mLoop.level_editor_running)) // purple coin custom draw
    {
       mwB.spin_shape(shape, x, y, 0, 0, 19, 19, 0.8, 0.5, 40);
       return 1;
@@ -220,14 +220,14 @@ void mwItems::move_items()
 
 
                   // moving right and hit wall
-                  if ((itemf[i][2] > 0) && (is_right_solid(x,y, 1, 3)))
+                  if ((itemf[i][2] > 0) && (mSolid.is_right_solid(x,y, 1, 3)))
                   {
                      if (!sticky) itemf[i][0] -= itemf[i][2];  // take back xinc
                      itemf[i][2] = 0;                           // stop
                   }
 
                   // moving left and hit wall
-                  if ((itemf[i][2] < 0) && (is_left_solid(x,y, 1, 3)))
+                  if ((itemf[i][2] < 0) && (mSolid.is_left_solid(x,y, 1, 3)))
                   {
                      if (!sticky) itemf[i][0] -= itemf[i][2];  // take back xinc
                      itemf[i][2] = 0;                           // stop
@@ -239,13 +239,13 @@ void mwItems::move_items()
                   // moving up
                   if (itemf[i][3] < 0)
                   {
-                     if (is_up_solid(x, y, 0, 3) == 1)    // only check for solid blocks
+                     if (mSolid.is_up_solid(x, y, 0, 3) == 1)    // only check for solid blocks
                         itemf[i][3] = 0;                 // if collision kill upwards yinc
                      else itemf[i][3] += .1;             // else de-accel
                   }
                   else // not moving up
                   {
-                     int a = is_down_solid(x, y, 1, 3);             // check for block below
+                     int a = mSolid.is_down_solid(x, y, 1, 3);             // check for block below
                      if (a==0)
                      {
 
@@ -277,7 +277,7 @@ void mwItems::move_items()
                         }
                         if (mLift.cur[a-32].yinc >= 0) // lift is moving down or steady
                         {
-                           if (is_down_solid(x, y, 0, 3)) capture = 0; // to prevent lift attempting to take item down through solid block
+                           if (mSolid.is_down_solid(x, y, 0, 3)) capture = 0; // to prevent lift attempting to take item down through solid block
                            else capture = 1;
                            int offset = mLift.cur[a-32].y - y;   // to prevent lift from picking up early when item going down
                            if (offset > 21) capture = 0;
@@ -294,19 +294,19 @@ void mwItems::move_items()
                            y = itemf[i][1];
 
                            if (lyi > 0) // down
-                              if (is_down_solid(x, y, 0, 3))       // no lift check
+                              if (mSolid.is_down_solid(x, y, 0, 3))       // no lift check
                                  itemf[i][1] = (y - (y % 20));    // item not on lift anymore, align with block
 
                            if (lyi < 0) // up
-                              if (is_up_solid(x, y, 0, 3) == 1)
+                              if (mSolid.is_up_solid(x, y, 0, 3) == 1)
                                  itemf[i][1] += 10;
 
                            if (lxi > 0) // right
-                              if (is_right_solid(x, y, 1, 3))
+                              if (mSolid.is_right_solid(x, y, 1, 3))
                                  itemf[i][0] -= lxi;
 
                            if (lxi < 0) // left
-                              if (is_left_solid(x, y, 1, 3))
+                              if (mSolid.is_left_solid(x, y, 1, 3))
                                  itemf[i][0] -= lxi;
                         }
                      } // end of riding lift
@@ -322,7 +322,7 @@ int mwItems::is_item_stuck_to_wall(int i)
 {
    int x = itemf[i][0];
    int y = itemf[i][1];
-   if ( (is_left_solid(x,y,0,3)) || (is_right_solid(x,y,0,3)) || (is_down_solid(x,y,0,3)) || (is_up_solid(x,y,0,3)) ) return 1;
+   if ( (mSolid.is_left_solid(x,y,0,3)) || (mSolid.is_right_solid(x,y,0,3)) || (mSolid.is_down_solid(x,y,0,3)) || (mSolid.is_up_solid(x,y,0,3)) ) return 1;
    return 0;
 }
 
@@ -339,7 +339,7 @@ int mwItems::player_drop_item(int p, int i)
       if (mPlayer.syn[p].left_right) // right
       {
          // is item embedded in a wall to the right?
-         while (is_right_solid(x, y, 1, 1))
+         while (mSolid.is_right_solid(x, y, 1, 1))
          {
             x--;
             wall_stuck++; // just how stuck was it?
@@ -350,7 +350,7 @@ int mwItems::player_drop_item(int p, int i)
       if (!mPlayer.syn[p].left_right) // left
       {
          // is item embedded in a wall to the left?
-         while (is_left_solid(x, y, 1, 1))
+         while (mSolid.is_left_solid(x, y, 1, 1))
          {
             x++;
             wall_stuck++; // just how stuck was it?
@@ -468,14 +468,14 @@ void mwItems::proc_bonus_collision(int p, int i)
          mItem.item[i][0] = 0;
          mPlayer.syn[p].health += mItem.item[i][7];
          if (mPlayer.syn[p].health > 100) mPlayer.syn[p].health = 100;
-         game_event(72, 0, 0, p, i, mItem.item[i][1], mItem.item[i][7]);
+         mGameEvent.add(72, 0, 0, p, i, mItem.item[i][1], mItem.item[i][7]);
       }
    }
    if (bonus_type == 3) // purple coin!!!
    {
       mItem.item[i][0] = 0;
       mPlayer.syn[p].stat_purple_coins++;
-      game_event(71, 0, 0, p, i, 0, 0);
+      mGameEvent.add(71, 0, 0, p, i, 0, 0);
    }
 }
 
@@ -483,7 +483,7 @@ void mwItems::proc_bonus_collision(int p, int i)
 void mwItems::proc_mine_collision(int p, int i)
 {
    mPlayer.syn[p].health -= mItem.item[i][8] / 10;
-   game_event(50, 0, 0, p, i, 0, mItem.item[i][8]);
+   mGameEvent.add(50, 0, 0, p, i, 0, mItem.item[i][8]);
 }
 
 
@@ -500,7 +500,7 @@ void mwItems::proc_sproingy_collision(int p, int i)
    if ( (px > x1) && (px < x2) && (py > y1) && (py < y2) &&
         (mPlayer.syn[p].yinc > 0) && (mPlayer.syn[p].jump) )  // falling and jump held
    {
-      game_event(31, 0, 0, p, i, 0, 0);
+      mGameEvent.add(31, 0, 0, p, i, 0, 0);
       mPlayer.syn[p].yinc = 0 - (float) mItem.item[i][7] / 7.1;
    }
 }

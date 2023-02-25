@@ -5,14 +5,14 @@
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 #include "mwBitmap.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwConfig.h"
-#include "z_screen.h"
+#include "mwScreen.h"
 #include "mwInput.h"
 #include "mwPlayers.h"
 #include "mwLift.h"
 #include "mwGameMovesArray.h"
-#include "mwPMEvent.h"
+#include "mwTriggerEvent.h"
 #include "mwItems.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
@@ -254,7 +254,7 @@ void mwDisplay::show_var_sizes(void)
    printf("mLevel.l    :%6d\n", (int)sizeof(mLevel.l)     );
    printf("mShot.p     :%6d\n", (int)sizeof(mShot.p)      );
    printf("mShot.e     :%6d\n", (int)sizeof(mShot.e)      );
-   printf("mwPME.event :%6d\n", (int)sizeof(mwPME.event)  );
+   printf("mTriggerEvent.event :%6d\n", (int)sizeof(mTriggerEvent.event)  );
 
    sz = 0;
    sz+= sizeof(mPlayer.syn);
@@ -266,7 +266,7 @@ void mwDisplay::show_var_sizes(void)
    sz+= sizeof(mLevel.l);
    sz+= sizeof(mShot.p);
    sz+= sizeof(mShot.e);
-   sz+= sizeof(mwPME.event);
+   sz+= sizeof(mTriggerEvent.event);
    printf("---------:------\n");
    printf("total    :%6d\n",  sz );
 
@@ -301,9 +301,9 @@ void mwDisplay::auto_set_display_transform_double(void)
    if (disp_w_curr < 1024) display_transform_double = 1;
    if (disp_h_curr < 700)  display_transform_double = 1;
 
-//   if (mwPS.level_editor_running) display_transform_double = 1;
+//   if (mLoop.level_editor_running) display_transform_double = 1;
 
-   if (mwPS.help_screens_running)
+   if (mLoop.help_screens_running)
    {
       if (disp_w_curr > 1279) display_transform_double = 2;
       if (disp_w_curr < 1280) display_transform_double = 1;
@@ -371,7 +371,7 @@ void mwDisplay::set_display_transform()
    al_identity_transform(&trans);
    al_orthographic_transform(&trans, 0, 0, -1.0, mwD.SCREEN_W, mwD.SCREEN_H, 1.0);
    al_use_projection_transform(&trans);
-   set_map_var();
+   mScreen.set_map_var();
 }
 
 void mwDisplay::show_disp_values(int fs, int disp, int curr, int wind, int full, char *head)
@@ -426,10 +426,10 @@ void mwDisplay::set_window_title(void)
 {
    char msg[1024];
 //   sprintf(msg, "Purple Martians");
-   sprintf(msg, "Purple Martians %s", mwPS.pm_version_string);
-//   sprintf(msg, "Purple Martians %s   [%d x %d]", mwPS.pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H);
+   sprintf(msg, "Purple Martians %s", mLoop.pm_version_string);
+//   sprintf(msg, "Purple Martians %s   [%d x %d]", mLoop.pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H);
 //   sprintf(msg, "%d x %d", mwD.SCREEN_W, mwD.SCREEN_H);
-//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", mwPS.pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H,  disp_w_curr, disp_h_curr, display_transform_double);
+//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", mLoop.pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H,  disp_w_curr, disp_h_curr, display_transform_double);
    al_set_window_title(display, msg);
 }
 
