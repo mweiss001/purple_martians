@@ -5,15 +5,15 @@
 #include "mwPlayers.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
-#include "z_screen_overlay.h"
+#include "mwGameEvent.h"
 #include "mwFont.h"
 
 int mwItems::draw_start(int i, int x, int y, int shape)
 {
-   if ((mLevel.number_of_starts > 1) && (mwPS.level_editor_running)) // put start seq number, but only in lev editor
+   if ((mLevel.number_of_starts > 1) && (mLoop.level_editor_running)) // put start seq number, but only in lev editor
    {
       al_draw_bitmap(mwB.tile[shape], x, y, 0);
       al_draw_textf(mF.pixl, mC.pc[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", mItem.item[i][7]);
@@ -25,14 +25,14 @@ int mwItems::draw_start(int i, int x, int y, int shape)
 int mwItems::draw_exit(int i, int x, int y, int shape)
 {
    al_draw_bitmap(mwB.tile[399], x, y, 0); // 'exit' text not shown
-   if (mwPS.frame_num % 60 > 30)
+   if (mLoop.frame_num % 60 > 30)
       al_draw_text(mF.pixl, mC.pc[10], x+11, y-2, ALLEGRO_ALIGN_CENTER, "EXIT");
 
    int exit_enemys_left = mEnemy.num_enemy - mItem.item[i][8];
    if (exit_enemys_left > 0) // locked
    {
       al_draw_bitmap(mwB.tile[366], x, y, 0); // show lock
-      if (mwPS.frame_num % 60 < 30)
+      if (mLoop.frame_num % 60 < 30)
          al_draw_textf(mF.pixl, mC.pc[14], x+11, y-2, ALLEGRO_ALIGN_CENTER, "%d", exit_enemys_left);
 
    }
@@ -113,10 +113,10 @@ void mwItems::proc_exit_collision(int p, int i)
          mPlayer.syn[0].level_done_y = itemf[i][1];
          mPlayer.syn[0].level_done_player = p;
          mPlayer.syn[0].level_done_next_level = mLevel.play_level + 1;
-         game_event(4, 0, 0, 0, 0, 0, 0);
+         mGameEvent.add(4, 0, 0, 0, 0, 0, 0);
       }
    }
-   else game_event(3, 0, 0, p, i, exit_enemys_left, 0); // not enough dead yet
+   else mGameEvent.add(3, 0, 0, p, i, exit_enemys_left, 0); // not enough dead yet
 }
 
 void mwItems::proc_warp_collision(int p, int i)
@@ -133,6 +133,6 @@ void mwItems::proc_warp_collision(int p, int i)
       mPlayer.syn[0].level_done_y = itemf[i][1];
       mPlayer.syn[0].level_done_player = p;
       mPlayer.syn[0].level_done_next_level = mItem.item[i][8];
-      game_event(4, 0, 0, p, i, 0, 0);
+      mGameEvent.add(4, 0, 0, p, i, 0, 0);
    }
 }

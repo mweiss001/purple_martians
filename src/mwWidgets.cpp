@@ -4,17 +4,17 @@
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 #include "mwDisplay.h"
-#include "e_bitmap_tools.h"
+#include "mwBitmapTools.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwLift.h"
 #include "mwColor.h"
-#include "mwPMEvent.h"
+#include "mwTriggerEvent.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwItems.h"
 #include "mwEnemy.h"
-#include "e_fnx.h"
+#include "mwMiscFnx.h"
 #include "mwHelp.h"
 
 
@@ -576,7 +576,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       {
          if (mItem.item[num][8] == 1) // Set Linked Item
          {
-             int i = get_item(2, 1, num );
+             int i = mMiscFnx.get_item(2, 1, num );
              if (i > -1) mItem.item[num][9] = i;
          }
       }
@@ -588,9 +588,9 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       if (press)
       {
          int x=0, y=0, w=0, h=0;
-         get_block_range("Message Area", &x, &y, &w, &h, 1);
-         set_int_3216(mItem.item[num][10], x, y);
-         set_int_3216(mItem.item[num][11], w, h);
+         mMiscFnx.get_block_range("Message Area", &x, &y, &w, &h, 1);
+         mMiscFnx.set_int_3216(mItem.item[num][10], x, y);
+         mMiscFnx.set_int_3216(mItem.item[num][11], w, h);
 
       }
    }
@@ -961,23 +961,23 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    {
       int tn = mItem.item[num][10]&1023; // block 1
       sprintf(smsg, "Block 1: %d", tn);
-      if (press) mItem.item[num][10] = select_bitmap(mItem.item[num][10]);
+      if (press) mItem.item[num][10] = mBitmapTools.select_bitmap(mItem.item[num][10]);
    }
    if (bn == 311) // block 2 select...
    {
       int tn = mItem.item[num][11]&1023; // block 2
       sprintf(smsg, "Block 2: %d", tn);
-      if (press) mItem.item[num][11] = select_bitmap(mItem.item[num][11]);
+      if (press) mItem.item[num][11] = mBitmapTools.select_bitmap(mItem.item[num][11]);
    }
    if (bn == 320)
    {
       sprintf(smsg, "Set Event Trigger (%d)", mItem.item[num][1]);
       if (press)
       {
-         int i = get_trigger_item(2, mItem.item[num][0], num );
+         int i = mMiscFnx.get_trigger_item(2, mItem.item[num][0], num );
          if (i > -1)
          {
-            int ev = mwPME.get_unused_pm_event();
+            int ev = mTriggerEvent.get_unused_pm_event();
             mItem.item[num][1] = ev;
 
             if (mItem.item[num][0] == 16) // block manip
@@ -1203,10 +1203,10 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       if (press)
       {
          //printf("520 type:%d num:%d \n", type, num);
-         int i = get_trigger_item(4, type, num );
+         int i = mMiscFnx.get_trigger_item(4, type, num );
          if (i > -1)
          {
-            int ev = mwPME.get_unused_pm_event();
+            int ev = mTriggerEvent.get_unused_pm_event();
             mLift.stp[num][type].val = ev;
             set_trigger_event(i, 0, 0, ev, 0); // toggle ON trigger
          }
@@ -1708,17 +1708,17 @@ void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
       if (bn == 2) // text color
       {
          int tc=0, fc = 0;
-         get_int_3216(mItem.item[num][13], tc, fc);
+         mMiscFnx.get_int_3216(mItem.item[num][13], tc, fc);
          tc = color;
-         set_int_3216(mItem.item[num][13], tc, fc);
+         mMiscFnx.set_int_3216(mItem.item[num][13], tc, fc);
       }
 
       if (bn == 3) // frame color
       {
          int tc=0, fc = 0;                  // text and frame colors
-         get_int_3216(mItem.item[num][13], tc, fc);
+         mMiscFnx.get_int_3216(mItem.item[num][13], tc, fc);
          fc = color;
-         set_int_3216(mItem.item[num][13], tc, fc);
+         mMiscFnx.set_int_3216(mItem.item[num][13], tc, fc);
       }
       if (bn == 4) mLift.cur[num].color = color; // lift color
       if (bn == 5)

@@ -6,12 +6,12 @@
 #include "mwSound.h"
 #include "mwSettings.h"
 #include "mwPlayers.h"
-#include "n_netgame.h"
+#include "mwNetgame.h"
 #include "mwLogo.h"
 #include "mwBottomMessage.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwLevel.h"
 #include "mwShots.h"
 #include "mwInput.h"
@@ -43,7 +43,7 @@ void mwConfig::save(void)
       asci(SCREEN, mwD.saved_display_transform_double)
       asci(SCREEN, mwD.display_transform_double_max)
 
-      asci(SCREEN, mwPS.eco_draw)
+      asci(SCREEN, mLoop.eco_draw)
 
       asci(GAME, mPlayer.syn[0].color)
       asci(GAME, mLevel.start_level)
@@ -52,7 +52,7 @@ void mwConfig::save(void)
       ascf(GAME, mwD.viewport_x_div)
       ascf(GAME, mwD.viewport_y_div)
       asci(GAME, mSettings.settings_current_page)
-      asci(GAME, mwPS.speed_control_lock)
+      asci(GAME, mLoop.speed_control_lock)
 
       asci(GAMECONTROLS, mPlayer.loc[0].up_key)
       asci(GAMECONTROLS, mPlayer.loc[0].down_key)
@@ -65,8 +65,8 @@ void mwConfig::save(void)
       asci(SOUND, mSound.se_scaler)
       asci(SOUND, mSound.st_scaler)
 
-      al_set_config_value(cfg, "NETWORK", "server_IP", m_serveraddress);
-      asci(NETWORK, TCP)
+      al_set_config_value(cfg, "NETWORK", "server_IP", mNetgame.m_serveraddress);
+      asci(NETWORK, mNetgame.TCP)
       asci(NETWORK, mShot.deathmatch_shots)
       asci(NETWORK, mShot.deathmatch_shot_damage)
       asci(NETWORK, mShot.suicide_shots)
@@ -178,7 +178,7 @@ void mwConfig::save(void)
 
       asci(OVERLAY, mSettings.number_of_debug_overlay_modes);
 
-      asci(LEVEL_EDITOR, mwPS.autosave_level_editor_state);
+      asci(LEVEL_EDITOR, mLoop.autosave_level_editor_state);
 
    }
    al_save_config_file("pm.cfg", cfg);
@@ -226,7 +226,7 @@ void mwConfig::load(void)
 
    agci(SCREEN, mwBM.bottom_msg_on, 1)
 
-   agci(SCREEN, mwPS.eco_draw, 0)
+   agci(SCREEN, mLoop.eco_draw, 0)
 
 
    agci(GAME, mLevel.start_level, 1)
@@ -238,7 +238,7 @@ void mwConfig::load(void)
    agcf(GAME, mwD.viewport_x_div, 0.33)
    agcf(GAME, mwD.viewport_y_div, 0.33)
    agci(GAME, mSettings.settings_current_page, 0)
-   agci(GAME, mwPS.speed_control_lock, 1)
+   agci(GAME, mLoop.speed_control_lock, 1)
 
    agci(GAMECONTROLS, mPlayer.loc[0].up_key,    ALLEGRO_KEY_UP)
    agci(GAMECONTROLS, mPlayer.loc[0].down_key,  ALLEGRO_KEY_DOWN)
@@ -253,10 +253,10 @@ void mwConfig::load(void)
    agci(SOUND, mSound.st_scaler, 2)
 
    val = al_get_config_value(cfg, "NETWORK", "server_IP");
-   if (!val) sprintf(m_serveraddress, "192.168.1.3");
-   else sprintf(m_serveraddress, "%s", val);
+   if (!val) sprintf(mNetgame.m_serveraddress, "192.168.1.3");
+   else sprintf(mNetgame.m_serveraddress, "%s", val);
 
-   agci(NETWORK, TCP, 0)
+   agci(NETWORK, mNetgame.TCP, 0)
    agci(NETWORK, mShot.deathmatch_shots, 0)
    agci(NETWORK, mShot.deathmatch_shot_damage, 5)
    agci(NETWORK, mShot.suicide_shots, 0)
@@ -370,7 +370,7 @@ void mwConfig::load(void)
 
    agci(OVERLAY, mSettings.number_of_debug_overlay_modes, 2);
 
-   agci(LEVEL_EDITOR, mwPS.autosave_level_editor_state, 0);
+   agci(LEVEL_EDITOR, mLoop.autosave_level_editor_state, 0);
 
    al_destroy_config(cfg);
    save(); // why do I save again, immed after load? to save defaults if not found?

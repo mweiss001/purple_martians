@@ -4,8 +4,8 @@
 #include "mwEnemy.h"
 #include "mwBitmap.h"
 #include "mwShots.h"
-#include "z_solid.h"
-#include "mwProgramState.h"
+#include "mwSolid.h"
+#include "mwLoop.h"
 
 
 
@@ -20,7 +20,7 @@ void mwEnemy::move_bouncer_cannon_common(int e)
    if ((Ef[e][2]) > 0)  // move right
    {
      Ef[e][0] += Ef[e][2];
-     if (is_right_solid(Ef[e][0], Ef[e][1], 1, 2)) // bounce
+     if (mSolid.is_right_solid(Ef[e][0], Ef[e][1], 1, 2)) // bounce
      {
         Ei[e][7]++; // inc bounce count
         Ef[e][2] =- Ef[e][2]; // reverse xinc
@@ -30,7 +30,7 @@ void mwEnemy::move_bouncer_cannon_common(int e)
    if ((Ef[e][2]) < 0)  // move left
    {
       Ef[e][0] += Ef[e][2];
-      if (is_left_solid(Ef[e][0], Ef[e][1], 1, 2)) // bounce
+      if (mSolid.is_left_solid(Ef[e][0], Ef[e][1], 1, 2)) // bounce
       {
          Ei[e][7]++;
          Ef[e][2] =- Ef[e][2]; // reverse xinc
@@ -40,7 +40,7 @@ void mwEnemy::move_bouncer_cannon_common(int e)
    if (Ef[e][3] > 0) // move down
    {
       Ef[e][1] += Ef[e][3];
-      if (is_down_solid(Ef[e][0], Ef[e][1], 1, 2))
+      if (mSolid.is_down_solid(Ef[e][0], Ef[e][1], 1, 2))
       {
          Ei[e][7]++;
          Ef[e][3] =- Ef[e][3]; // reverse yinc
@@ -50,7 +50,7 @@ void mwEnemy::move_bouncer_cannon_common(int e)
    if (Ef[e][3] < 0)  // move up
    {
       Ef[e][1] += Ef[e][3];
-      if (is_up_solid(Ef[e][0], Ef[e][1], 0, 2) == 1)
+      if (mSolid.is_up_solid(Ef[e][0], Ef[e][1], 0, 2) == 1)
       {
          Ei[e][7]++;
          Ef[e][3] =- Ef[e][3]; // reverse yinc
@@ -157,8 +157,8 @@ void mwEnemy::move_bouncer(int e)
    // total sequence length in frames
    int tsl = nf * ns;
 
-   // get mod of mwPS.frame_num
-   int pm = mwPS.frame_num % tsl;
+   // get mod of mLoop.frame_num
+   int pm = mLoop.frame_num % tsl;
 
    // get shape number from mod
    int ss = pm / nf;
@@ -166,6 +166,67 @@ void mwEnemy::move_bouncer(int e)
    // set shape in enemy array
    Ei[e][1] = mwB.zz[5+ss][ans];
 }
+
+
+
+// when speed is changed in level editor (mEnemy.Ef[][5]) scale the xinc, yinc to match
+void mwEnemy::scale_bouncer_and_cannon_speed(int e)
+{
+   // new v
+   float nv =  mEnemy.Ef[e][5];
+
+   // get the original x and y velocities
+   float oxv = mEnemy.Ef[e][2];
+   float oyv = mEnemy.Ef[e][3];
+
+   // get the combined original velocity
+   float ov = sqrt( pow(oxv, 2) + pow(oyv, 2) );
+
+   // if this was previously stationary, set direction to 100% up
+   if (ov == 0)
+   {
+      mEnemy.Ef[e][3] = -mEnemy.Ef[e][5];
+      mEnemy.set_enemy_rot_from_incs(e); // set rotation
+   }
+   else
+   {
+      if (nv>0)
+      {
+         // get the scaler
+         float sc = nv/ov;
+
+         // apply that to the old
+         oxv *= sc;
+         oyv *= sc;
+
+         mEnemy.Ef[e][2] = oxv;
+         mEnemy.Ef[e][3] = oyv;
+      }
+      else // if new speed not > 0, zero both x and y
+      {
+         mEnemy.Ef[e][2] = 0;
+         mEnemy.Ef[e][3] = 0;
+      }
+
+   }
+}
+
+
+// used only in sliders for button set new direction (cannon and podzilla)
+void mwEnemy::set_new_initial_direction(int e, int x2, int y2)
+{
+   float xlen = x2 - mEnemy.Ef[e][0];                 // get the x distance between enemy and x2
+   float ylen = y2 - mEnemy.Ef[e][1];                 // get the y distance between enemy and y2
+   float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2)); // hypotenuse distance
+   float speed = mEnemy.Ef[e][5];                     // speed
+   float scaler = hy_dist / speed;                    // get scaler
+   mEnemy.Ef[e][2] = xlen / scaler;                   // calc xinc
+   mEnemy.Ef[e][3] = ylen / scaler;                   // calc yinc
+   mEnemy.Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI / 2;
+}
+
+
+
 
 
 

@@ -8,7 +8,7 @@
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwMenu.h"
-#include "mw_multicolor_line.h"
+#include "mwMulticolorLine.h"
 
 
 
@@ -286,9 +286,9 @@ void mwGraph::draw_series_legend(void)
             float lx2 = x2-4;
             float ly1 = y1+bh/2+1.5;
             int lco = 0;
-            mw_draw_line2(        lx1, ly1, lx2, ly1, plot_line_size, 10, c1, 10, c2, lco);
-            al_draw_filled_circle(lx1, ly1,           plot_point_size, mC.pc[c1]);
-            al_draw_filled_circle(lx2, ly1,           plot_point_size, mC.pc[c1]);
+            mMulticolorLine.draw_line2(lx1, ly1, lx2, ly1, plot_line_size, 10, c1, 10, c2, lco);
+            al_draw_filled_circle(     lx1, ly1,           plot_point_size, mC.pc[c1]);
+            al_draw_filled_circle(     lx2, ly1,           plot_point_size, mC.pc[c1]);
             y1+=bh;
          }
       if ((mI.mouse_b[1][0]) && (mouse_sel != -1))
@@ -1025,7 +1025,7 @@ int mwGraph::calc_data_range(void)
    {
       printf("No Data.\n");
       mI.m_err("No Data.");
-      // fast_exit(0);
+      // mMain.fast_exit(0);
       return 0;
    }
 
@@ -1267,7 +1267,7 @@ void mwGraph::draw_plot_area(void)
                }
 
                if (series_legend_force_solid_lines) al_draw_line(ox, oy, x, y, mC.pc[series[s].color1], plot_line_size);
-               else segments_drawn += mw_draw_line2(ox, oy, x, y, plot_line_size, 10, series[s].color1, 10, series[s].color2, line_color_offset);
+               else segments_drawn += mMulticolorLine.draw_line2(ox, oy, x, y, plot_line_size, 10, series[s].color1, 10, series[s].color2, line_color_offset);
 
 
                lines_drawn++;

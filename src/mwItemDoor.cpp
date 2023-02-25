@@ -6,8 +6,9 @@
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
-#include "mwProgramState.h"
-#include "z_screen_overlay.h"
+#include "mwLoop.h"
+#include "mwGameEvent.h"
+
 
 void mwItems::change_linked_door_color_and_shape(int door)
 {
@@ -121,12 +122,12 @@ void mwItems::proc_door_collision(int p, int i)
                // to prevent immediate triggering when destination door, wait for release and re-press
 
                // if key held is old, ignore
-               if (mItem.item[i][10] && mItem.item[i][10] < mwPS.frame_num-1) mItem.item[i][10] = 0;
+               if (mItem.item[i][10] && mItem.item[i][10] < mLoop.frame_num-1) mItem.item[i][10] = 0;
 
                // up pressed and !pressed last frame
                if ((mPlayer.syn[p].up) && (!mItem.item[i][10])) do_entry = 1;
 
-               if (mPlayer.syn[p].up) mItem.item[i][10] = mwPS.frame_num;
+               if (mPlayer.syn[p].up) mItem.item[i][10] = mLoop.frame_num;
                else mItem.item[i][10] = 0;
 
             }
@@ -136,12 +137,12 @@ void mwItems::proc_door_collision(int p, int i)
                // to prevent immediate triggering when destination door, wait for release and re-press
 
                // if key held is old, ignore
-               if (mItem.item[i][10] && mItem.item[i][10] < mwPS.frame_num-1) mItem.item[i][10] = 0;
+               if (mItem.item[i][10] && mItem.item[i][10] < mLoop.frame_num-1) mItem.item[i][10] = 0;
 
                // down pressed and !pressed last frame
                if ((mPlayer.syn[p].down) && (!mItem.item[i][10])) do_entry = 1;
 
-               if (mPlayer.syn[p].down) mItem.item[i][10] = mwPS.frame_num;
+               if (mPlayer.syn[p].down) mItem.item[i][10] = mLoop.frame_num;
                else mItem.item[i][10] = 0;
             }
          }
@@ -182,7 +183,7 @@ void mwItems::proc_door_collision(int p, int i)
 
             if (!bad_exit)
             {
-               if (mItem.item[i][13]) game_event(5, 0, 0, p, i, 0, 0); // no event if door is invisible
+               if (mItem.item[i][13]) mGameEvent.add(5, 0, 0, p, i, 0, 0); // no event if door is invisible
 
                int instant_move = 0;
                if (mItem.item[i][7] == 0) // 0 = auto
@@ -206,7 +207,7 @@ void mwItems::proc_door_collision(int p, int i)
                      itemf[c][1] = mPlayer.syn[p].y;
                   }
 
-                  mItem.item[li][10] = mwPS.frame_num;
+                  mItem.item[li][10] = mLoop.frame_num;
                }
                else
                {
@@ -316,7 +317,7 @@ void mwItems::proc_player_door_move(int p)
             mPlayer.syn[p].x  = itemf[li][0];
             mPlayer.syn[p].y  = itemf[li][1];
             // set destination key held to prevent immediate retriggering
-            mItem.item[li][10] = mwPS.frame_num;
+            mItem.item[li][10] = mLoop.frame_num;
          }
        }
    } // end of mode 2
@@ -348,7 +349,7 @@ void mwItems::proc_player_door_move(int p)
             int li = mItem.item[x][9]; // linked item number
             if (mItem.item[li][13] == 448)
                mItem.item[li][1] = 448;   // restore door shape
-            mItem.item[li][10] = mwPS.frame_num;   // key hold off
+            mItem.item[li][10] = mLoop.frame_num;   // key hold off
 
          }
          mPlayer.syn[p].paused = 0;  // the entire thing is done

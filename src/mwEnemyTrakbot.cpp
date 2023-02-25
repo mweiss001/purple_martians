@@ -5,7 +5,7 @@
 #include "mwPlayers.h"
 #include "mwBitmap.h"
 #include "mwShots.h"
-#include "z_solid.h"
+#include "mwSolid.h"
 
 
 //--8--trakbot-------------------------------------------------------------------
@@ -80,7 +80,7 @@ void mwEnemy::move_trakbot(int e)
       Ei[e][4] += 5;                                             // add acceleration to fsll
       if (Ei[e][4] > 160)  Ei[e][4] = 160;                      // terminal velocity
       float fall_yinc = Ef[e][3] * Ei[e][4] / 100;              // (fix * int) / int
-      mv = is_down_solidf(Ef[e][0], Ef[e][1], fall_yinc, 0);   // will we hit floor during this move?
+      mv = mSolid.is_down_solidf(Ef[e][0], Ef[e][1], fall_yinc, 0);   // will we hit floor during this move?
       if (mv < fall_yinc) Ei[e][4] = 0;                          // end fall if allowed move less than requested move
       Ef[e][1] += mv;                                           // move the allowed amount
       if (Ef[e][1] > 1980) Ei[e][0]=0;                 // kill if falls past bottom of level
@@ -125,8 +125,8 @@ void mwEnemy::move_trakbot(int e)
          case 0:                                                  // floor right
             Ei[e][2] = 1;                                        // no h flip
             Ef[e][14] = deg_to_rad(0);
-            if (dp) { if (is_down_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 0 with solid floor\n"); else  printf(" - 0 with NOT solid floor\n"); }
-            mv = is_down_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 1);
+            if (dp) { if (mSolid.is_down_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 0 with solid floor\n"); else  printf(" - 0 with NOT solid floor\n"); }
+            mv = mSolid.is_down_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 1);
             if (mv < Ef[e][2]) // allowed move less than requested move
             {
                if (dp) printf("will lose floor during this move - mv%1.2f \n", mv);
@@ -136,7 +136,7 @@ void mwEnemy::move_trakbot(int e)
                Ef[e][1] += 1;                           // move down 1 to catch new wall
                break;
             }
-            mv = is_right_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 0);
+            mv = mSolid.is_right_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 0);
             if (mv < Ef[e][2]) // allowed move less than requested move
             {
                if (dp) printf("will hit wall during this move - mv%1.2f \n", mv);
@@ -150,8 +150,8 @@ void mwEnemy::move_trakbot(int e)
          case 1:                                                  // rwall up
             Ei[e][2] = 1;                                        // no h flip
             Ef[e][14] = deg_to_rad(270);
-            if (dp) { if (is_right_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 1 with solid r wall\n"); else  printf(" - 1 with NOT solid r wall\n"); }
-            mv = is_right_solidf(Ef[e][0], Ef[e][1], Ef[e][3], -1);
+            if (dp) { if (mSolid.is_right_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 1 with solid r wall\n"); else  printf(" - 1 with NOT solid r wall\n"); }
+            mv = mSolid.is_right_solidf(Ef[e][0], Ef[e][1], Ef[e][3], -1);
             if (mv < Ef[e][3]) // allowed move less than requested move
             {
                if (dp) printf("will lose rwall during this move - mv%1.2f \n", mv);
@@ -161,7 +161,7 @@ void mwEnemy::move_trakbot(int e)
                Ef[e][0] += 1;                           // move right 1 to catch new wall
                break;
             }
-            mv = is_up_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 0);
+            mv = mSolid.is_up_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 0);
             if (mv < Ef[e][3]) // allowed move less than requested move
             {
                if (dp) printf("will hit ceiling during this move - mv%1.2f \n", mv);
@@ -175,8 +175,8 @@ void mwEnemy::move_trakbot(int e)
          case 2:                                                  // ceil left
             Ei[e][2] = 1;                                        // no h flip
             Ef[e][14] = deg_to_rad(180);
-            if (dp) { if (is_up_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 2 with solid ceil\n"); else  printf(" - 2 with NOT solid ceil\n"); }
-            mv = is_up_solidf(Ef[e][0], Ef[e][1], Ef[e][2], -1);
+            if (dp) { if (mSolid.is_up_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 2 with solid ceil\n"); else  printf(" - 2 with NOT solid ceil\n"); }
+            mv = mSolid.is_up_solidf(Ef[e][0], Ef[e][1], Ef[e][2], -1);
             if (mv < Ef[e][2]) // allowed move less than requested move
             {
                if (dp) printf("will lose ceiling during this move - mv%1.2f \n", mv);
@@ -186,7 +186,7 @@ void mwEnemy::move_trakbot(int e)
                Ef[e][1] -= 1;                           // move up 1 to catch new wall
                break;
             }
-            mv = is_left_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 0);
+            mv = mSolid.is_left_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 0);
             if (mv < Ef[e][2]) // allowed move less than requested move
             {
                if (dp) printf("will hit lwall during this move - mv%1.2f \n", mv);
@@ -200,8 +200,8 @@ void mwEnemy::move_trakbot(int e)
          case 3:                                                  // lwall down
             Ei[e][2] = 1;                                        // no h flip
             Ef[e][14] = deg_to_rad(90);
-            if (dp) { if (is_left_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 3 with solid lwall\n"); else  printf(" - 3 with NOT solid lwall\n"); }
-            mv = is_left_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 1);
+            if (dp) { if (mSolid.is_left_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 3 with solid lwall\n"); else  printf(" - 3 with NOT solid lwall\n"); }
+            mv = mSolid.is_left_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 1);
             if (mv < Ef[e][3]) // allowed move less than requested move
             {
                if (dp) printf("will lose lwall during this move - mv%1.2f \n", mv);
@@ -211,7 +211,7 @@ void mwEnemy::move_trakbot(int e)
                Ef[e][0] -= 1;                           // move left 1 to catch new wall
                break;
             }
-            mv = is_down_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 0);
+            mv = mSolid.is_down_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 0);
             if (mv < Ef[e][3]) // allowed move less than requested move
             {
                if (dp) printf("will hit floor during this move - mv%1.2f \n", mv);
@@ -225,9 +225,9 @@ void mwEnemy::move_trakbot(int e)
          case 4:                                                  // floor left
             Ei[e][2] = 0;                                        // h flip
             Ef[e][14] = deg_to_rad(0);
-            if (dp) { if (is_down_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 4 with solid floor\n"); else  printf(" - 4 with NOT solid floor\n"); }
+            if (dp) { if (mSolid.is_down_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 4 with solid floor\n"); else  printf(" - 4 with NOT solid floor\n"); }
 
-            mv = is_down_solidf(Ef[e][0], Ef[e][1], Ef[e][2], -1);
+            mv = mSolid.is_down_solidf(Ef[e][0], Ef[e][1], Ef[e][2], -1);
             if (mv < Ef[e][2])                                  // allowed move less than requested move
             {
                Ef[e][0] -= mv;                                  // move the allowed amount
@@ -237,7 +237,7 @@ void mwEnemy::move_trakbot(int e)
                if (dp) printf("lost floor during this move - mv%1.2f \n", mv);
                break;
             }
-            mv = is_left_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 0);
+            mv = mSolid.is_left_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 0);
             if (mv < Ef[e][2])                                  // allowed move less than requested move
             {
                Ef[e][0] -= mv;                                  // move the allowed amount
@@ -251,8 +251,8 @@ void mwEnemy::move_trakbot(int e)
          case 5:                                                  // lwall up
             Ei[e][2] = 0;                                        // h flip
             Ef[e][14] = deg_to_rad(90);
-            if (dp) { if (is_left_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 5 with solid left\n"); else  printf(" - 5 with NOT solid left\n"); }
-            mv = is_left_solidf(Ef[e][0], Ef[e][1], Ef[e][3], -1);
+            if (dp) { if (mSolid.is_left_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 5 with solid left\n"); else  printf(" - 5 with NOT solid left\n"); }
+            mv = mSolid.is_left_solidf(Ef[e][0], Ef[e][1], Ef[e][3], -1);
             if (mv < Ef[e][3])                                  // allowed move less than requested move
             {
                Ef[e][1] -= mv;                                  // move the allowed amount
@@ -262,7 +262,7 @@ void mwEnemy::move_trakbot(int e)
                if (dp) printf("lost lwall during this move - mv%1.2f \n", mv);
                break;
             }
-            mv = is_up_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 0);
+            mv = mSolid.is_up_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 0);
             if (mv < Ef[e][3])                                  // allowed move less than requested move
             {
                Ef[e][1] -= mv;                                  // move the allowed amount
@@ -276,8 +276,8 @@ void mwEnemy::move_trakbot(int e)
          case 6:                                                  // ceil right
             Ei[e][2] = 0;                                        // h flip
             Ef [e][14] = deg_to_rad(180);
-            if (dp) { if (is_up_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 6 with solid ceil\n"); else  printf(" - 6 with NOT solid ceil\n"); }
-            mv = is_up_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 1);
+            if (dp) { if (mSolid.is_up_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 6 with solid ceil\n"); else  printf(" - 6 with NOT solid ceil\n"); }
+            mv = mSolid.is_up_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 1);
             if (mv < Ef[e][2])                                  // allowed move less than requested move
             {
                Ef[e][0] += mv;                                  // move the allowed amount
@@ -287,7 +287,7 @@ void mwEnemy::move_trakbot(int e)
                if (dp) printf("lost ceil during this move - mv%1.2f \n", mv);
                break;
             }
-            mv = is_right_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 0);
+            mv = mSolid.is_right_solidf(Ef[e][0], Ef[e][1], Ef[e][2], 0);
             if (mv < Ef[e][2])                                  // allowed move less than requested move
             {
                Ef[e][0] += mv;                                  // move the allowed amount
@@ -301,8 +301,8 @@ void mwEnemy::move_trakbot(int e)
          case 7:                                                  // rwall down
             Ei[e][2] = 0;                                        // h flip
             Ef[e][14] = deg_to_rad(270);
-            if (dp) { if (is_right_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 7 with solid rwall\n"); else  printf(" - 7 with NOT solid rwall\n"); }
-            mv = is_right_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 1);
+            if (dp) { if (mSolid.is_right_solidf(Ef[e][0], Ef[e][1], 1, 0) < 1) printf(" - 7 with solid rwall\n"); else  printf(" - 7 with NOT solid rwall\n"); }
+            mv = mSolid.is_right_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 1);
             if (mv < Ef[e][3])                                  // allowed move less than requested move
             {
                Ef[e][1] += mv;                                  // move the allowed amount
@@ -312,7 +312,7 @@ void mwEnemy::move_trakbot(int e)
                if (dp) printf("lost rwall during this move - mv%1.2f \n", mv);
                break;
             }
-            mv = is_down_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 0);
+            mv = mSolid.is_down_solidf(Ef[e][0], Ef[e][1], Ef[e][3], 0);
             if (mv < Ef[e][3])                                  // allowed move less than requested move
             {
                Ef[e][1] += mv;                                  // move the allowed amount

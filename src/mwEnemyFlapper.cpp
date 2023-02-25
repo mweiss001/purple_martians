@@ -5,7 +5,7 @@
 #include "mwPlayers.h"
 #include "mwBitmap.h"
 #include "mwShots.h"
-#include "z_solid.h"
+#include "mwSolid.h"
 
 
 //--12--flapper-----------------------------------------------------------------------------
@@ -69,7 +69,7 @@ void mwEnemy::move_flapper(int e)
       if (Ef[e][2] > Ef[e][5]) Ef[e][2] = Ef[e][5]; // max speed
       Ef[e][0] += Ef[e][2];                         // apply xinc
 
-      if (is_right_solid(Ef[e][0], Ef[e][1], 1, 2))
+      if (mSolid.is_right_solid(Ef[e][0], Ef[e][1], 1, 2))
       {
          Ef[e][0] -= Ef[e][2];    // take back last move
          Ef[e][2] = -Ef[e][5]/3;  // set accel to bounce back with 1/3 max accel
@@ -93,7 +93,7 @@ void mwEnemy::move_flapper(int e)
       if (Ef[e][2] < -Ef[e][5]) Ef[e][2] = -Ef[e][5]; // max speed
       Ef[e][0] += Ef[e][2];                           // apply xinc
 
-      if (is_left_solid(Ef[e][0], Ef[e][1], 1, 2))
+      if (mSolid.is_left_solid(Ef[e][0], Ef[e][1], 1, 2))
       {
          Ef[e][0] -= Ef[e][2];   // take back last move
          Ef[e][2] = Ef[e][5]/3;  // set accel to bounce back with 1/3 max accel
@@ -176,12 +176,12 @@ void mwEnemy::move_flapper(int e)
    // check for floor or ceiling collisions
    if (yinc < 0) // moving up
    {
-      yinc = is_up_solidf(Ef[e][0], Ef[e][1], -yinc, 0);
+      yinc = mSolid.is_up_solidf(Ef[e][0], Ef[e][1], -yinc, 0);
       Ef[e][1] -= yinc; // apply allowed move
    }
    else if (yinc > 0) // moving down
    {
-      yinc = is_down_solidf(Ef[e][0], Ef[e][1], yinc, 0);
+      yinc = mSolid.is_down_solidf(Ef[e][0], Ef[e][1], yinc, 0);
       Ef[e][1] += yinc; // apply allowed move
    }
 }

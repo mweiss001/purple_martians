@@ -5,7 +5,7 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwColor.h"
-#include "e_fnx.h"
+#include "mwMiscFnx.h"
 #include "mwInput.h"
 
 void mwEnemy::fill_strings(void)
@@ -280,14 +280,14 @@ int mwEnemy::create_cloner(void)
    Ei[e][29] = 10;  // default collision box
 
 
-   if (getxy("Cloner Location", 3, 9, e) == 1)
+   if (mMiscFnx.getxy("Cloner Location", 3, 9, e) == 1)
    {
 
-      if (get_block_range("Cloner Source Area", &Ei[e][15], &Ei[e][16], &Ei[e][19], &Ei[e][20], 1))
+      if (mMiscFnx.get_block_range("Cloner Source Area", &Ei[e][15], &Ei[e][16], &Ei[e][19], &Ei[e][20], 1))
       {
-         if (getxy("Cloner Destination Area", 98, 9, e ) == 1)
+         if (mMiscFnx.getxy("Cloner Destination Area", 98, 9, e ) == 1)
          {
-            if (!get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
+            if (!mMiscFnx.get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
          }
          else aborted_create = 1;
       }  // end of get source area
@@ -321,11 +321,11 @@ int mwEnemy::create_pod(void)
    Ei[e][29] = 10;  // default collision box
    Ef[e][4] = 2;   // damage
 
-   if (getxy("Podzilla", 3, 7, e) == 1)
+   if (mMiscFnx.getxy("Podzilla", 3, 7, e) == 1)
    {
-      if (getxy("Pod Extended Position", 99, 7, e) == 1)
+      if (mMiscFnx.getxy("Pod Extended Position", 99, 7, e) == 1)
       {
-         if (!get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
+         if (!mMiscFnx.get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
       }
       else aborted_create = 1;
    }
@@ -356,7 +356,7 @@ int mwEnemy::create_vinepod(void)
    Ei[e][29] = 10;             // default collision box
    Ef[e][4] = 2;   // damage
 
-   if (getxy("VinePod Initial Position", 3, 17, e) == 1)
+   if (mMiscFnx.getxy("VinePod Initial Position", 3, 17, e) == 1)
    {
       // enforce that 34 is 01
       Ei[e][3] = Ef[e][0];
@@ -368,9 +368,9 @@ int mwEnemy::create_vinepod(void)
       Ei[e][7] = Ei[e][3];
       Ei[e][8] = Ei[e][4];
 
-      if (getxy("VinePod Extended Position", 90, 17, e) == 1)
+      if (mMiscFnx.getxy("VinePod Extended Position", 90, 17, e) == 1)
       {
-         if (!get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
+         if (!mMiscFnx.get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
 
          // set control points away from initial position to make them easier to adjust l
          Ei[e][5] = Ei[e][3]+20;

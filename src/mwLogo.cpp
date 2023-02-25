@@ -7,7 +7,7 @@
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "z_screen.h"
+#include "mwScreen.h"
 
 
 mwLogo mwL;
@@ -483,12 +483,12 @@ int mwLogo::mdw_an2(void)
 void mwLogo::splash_screen(void)
 {
    mdw_an_seq = 0;
-   set_map_var();
+   mScreen.set_map_var();
    int quit = 0;
 
    mwEQ.proc_event_queue();
 
-   draw_large_text_overlay(1, 8);
+   mScreen.draw_large_text_overlay(1, 8);
 
    al_flip_display();
    al_clear_to_color(al_map_rgb(0, 0, 0));

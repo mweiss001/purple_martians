@@ -5,11 +5,11 @@
 #include "mwPlayers.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
-#include "z_screen_overlay.h"
-#include "z_solid.h"
+#include "mwGameEvent.h"
+#include "mwSolid.h"
 #include "mwFont.h"
 #include "mwSound.h"
 
@@ -22,12 +22,12 @@ void mwItems::proc_bomb_collision(int p, int i)
    {
       mItem.item[i][6] = 1;  // mode == lit
       mItem.item[i][8] = mItem.item[i][9]; // fuse wait count
-      game_event(24, 0, 0, p, mItem.item[i][7]/20, mItem.item[i][9]/40, 0);
+      mGameEvent.add(24, 0, 0, p, mItem.item[i][7]/20, mItem.item[i][9]/40, 0);
    }
    if (mItem.item[i][12] == 1) // remote detonator
    {
       mItem.item[i][6] = 3;
-      game_event(25, 0, 0, p, mItem.item[i][7]/20, 0, 0);
+      mGameEvent.add(25, 0, 0, p, mItem.item[i][7]/20, 0, 0);
    }
 }
 
@@ -38,7 +38,7 @@ void mwItems::proc_rocket_collision(int p, int i)
    mItem.item[i][1] = 1026; // new ans
    if ((mItem.item[i][3] == 0) || (mItem.item[i][3] == 1)) mItem.item[i][3] = -1;  // if stat or fall set to carryable
    itemf[i][3] = 0;   // stop if falling
-   game_event(26, 0, 0, p, i, 0, 0);
+   mGameEvent.add(26, 0, 0, p, i, 0, 0);
 }
 
 void mwItems::proc_lit_rocket(int i)
@@ -61,11 +61,11 @@ void mwItems::proc_lit_rocket(int i)
    // check for wall collisions
    int x = itemf[i][0];
    int y = itemf[i][1];
-   if ( ((itemf[i][3]<0)    && (is_up_solid(   x, y, 0, 3) == 1)) ||
-        ((itemf[i][3]>0)    && (is_down_solid( x, y, 0, 3) == 1)) ||
-        ((itemf[i][3]>0)    && (is_down_solid( x, y, 0, 3) == 2)) ||
-        ((itemf[i][2]<-1.1) && (is_left_solid( x, y, 0, 3) == 1)) ||
-        ((itemf[i][2]>1.1)  && (is_right_solid(x, y, 0, 3) == 1)) )
+   if ( ((itemf[i][3]<0)    && (mSolid.is_up_solid(   x, y, 0, 3) == 1)) ||
+        ((itemf[i][3]>0)    && (mSolid.is_down_solid( x, y, 0, 3) == 1)) ||
+        ((itemf[i][3]>0)    && (mSolid.is_down_solid( x, y, 0, 3) == 2)) ||
+        ((itemf[i][2]<-1.1) && (mSolid.is_left_solid( x, y, 0, 3) == 1)) ||
+        ((itemf[i][2]>1.1)  && (mSolid.is_right_solid(x, y, 0, 3) == 1)) )
    {
 
       // stop movement
@@ -100,7 +100,7 @@ void mwItems::proc_lit_rocket(int i)
 int mwItems::seq_color(int mod, int c1, int c2)
 {
    int col = c1; // initial color
-   if ( (mwPS.frame_num % mod) < mod/2) col = c2; // other color
+   if ( (mLoop.frame_num % mod) < mod/2) col = c2; // other color
    return col;
 }
 
@@ -153,7 +153,7 @@ int mwItems::seq_color2(void)
 
 
 
-   int mod = mwPS.frame_num % 40;
+   int mod = mLoop.frame_num % 40;
    return ca[mod];
 }
 
@@ -183,7 +183,7 @@ int mwItems::seq_color3(void)
    ca[ci] = b+160; ci++;
    ca[ci] = b+192; ci++;
 
-   int mod = mwPS.frame_num % 20;
+   int mod = mLoop.frame_num % 20;
    return ca[mod];
 }
 
@@ -239,7 +239,7 @@ void mwItems::bomb_crosshairs(float x, float y)
 //   // radius seq
 //   int ms = 8;  // min size
 //   int ns = 16; // seq length
-//   int sq = mwPS.frame_num % ns;
+//   int sq = mLoop.frame_num % ns;
 //   if (sq < ns/2) rad = ms+sq;
 //   else rad = ms+ns-sq;
 
@@ -300,8 +300,8 @@ void mwItems::bomb_players(int i, int t, int dr, float x, float y)
             {
                mPlayer.syn[p].health -= damage;
                int p2 = mItem.item[i][13]; // player that last touched bomb
-               if (p == p2) game_event(53, 0, 0, p, 0, 0, dmg);
-               else game_event(52, 0, 0, p, p2, 0, dmg);
+               if (p == p2) mGameEvent.add(53, 0, 0, p, 0, 0, dmg);
+               else mGameEvent.add(52, 0, 0, p, p2, 0, dmg);
             }
          }
       }
@@ -353,7 +353,7 @@ void mwItems::proc_lit_bomb(int i)
       bomb_enemies(i, 2, dr, itemf[i][0], itemf[i][1]);
       bomb_players(i, 2, dr, itemf[i][0], itemf[i][1]);
 
-      if (mItem.item[i][8] == 16) game_event(22,0,0,0,0,0,0); // explosion sound
+      if (mItem.item[i][8] == 16) mGameEvent.add(22,0,0,0,0,0,0); // explosion sound
 
       if (mItem.item[i][8] < 1) mItem.item[i][0] = 0; // explosion done, erase item
    }
@@ -494,11 +494,11 @@ void mwItems::draw_rocket_lines(int i)
       if ((x < 0) || (x > 2000) || (y < 0) || (y > 2000)) j = 1000; // level bounds check
 
       // check for wall collisions
-      if ( ((fyinc < 0)    && (is_up_solid(   x, y, 0, 3) == 1)) ||
-           ((fyinc > 0)    && (is_down_solid( x, y, 0, 3) == 1)) ||
-           ((fyinc > 0)    && (is_down_solid( x, y, 0, 3) == 2)) ||
-           ((fxinc < -1.1) && (is_left_solid( x, y, 0, 3) == 1)) ||
-           ((fxinc > 1.1)  && (is_right_solid(x, y, 0, 3) == 1)) )
+      if ( ((fyinc < 0)    && (mSolid.is_up_solid(   x, y, 0, 3) == 1)) ||
+           ((fyinc > 0)    && (mSolid.is_down_solid( x, y, 0, 3) == 1)) ||
+           ((fyinc > 0)    && (mSolid.is_down_solid( x, y, 0, 3) == 2)) ||
+           ((fxinc < -1.1) && (mSolid.is_left_solid( x, y, 0, 3) == 1)) ||
+           ((fxinc > 1.1)  && (mSolid.is_right_solid(x, y, 0, 3) == 1)) )
       {
 
          float fxf =  fx+10; // offset floats for display purposes

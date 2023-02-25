@@ -63,48 +63,18 @@ cannot reproduce...
 
 
 
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
 what is still left to remove globals?
 
-am I planning on making everything a class? most things...maybe all...
-
-to do:
-log..
-glt..
-solid?? maybe could be made part of level??
-
-controls could be made part of game moves array
-
-
-big ones:
-all netgame files
-all editor files
-
-
-
-
+make the naming consistant
 
 
 here is a huge one:
 can level editor be brought under the program state unmbrella?
 I sort of duplicate level editor modes with program states
-
-
-
-can visual level be made into a class?
-yes..it was easy..it only has 2 entry points..
-
-
-
-
-
-
-
 
 
 

@@ -7,10 +7,10 @@
 #include "mwDisplay.h"
 #include "mwVisualLevel.h"
 #include "mwLogo.h"
-#include "z_screen.h"
+#include "mwScreen.h"
 #include "mwInput.h"
 #include "mwLevel.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 
 
 
@@ -87,12 +87,12 @@ void mwBitmap::rebuild_bitmaps(void)
    mF.load_fonts();
 
 
-   init_level_background(0);
+   mScreen.init_level_background(0);
    mwD.set_display_transform();
    mwL.logo_text_bitmaps_create = 1;
    large_text_overlay_state = 0;
    text_title_bitmaps_create = 1;
-   set_map_var();
+   mScreen.set_map_var();
    mVisualLevel.load_visual_level_select_done = 0;
 }
 
@@ -119,7 +119,7 @@ void mwBitmap::update_animation(void)
    // 5 = shape 0
    // 19 = shape 14
 
-   // printf("update_animation :%d\n", mwPS.frame_num);
+   // printf("update_animation :%d\n", mLoop.frame_num);
 
    for (int y=0; y<NUM_ANS; y++)
       if (mwB.zz[4][y] != 0)
@@ -271,7 +271,7 @@ void mwBitmap::spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int t
    float ct3 = ct1*3;   // 60
    float ct4 = ct;      // 80
 
-   int tm = mwPS.frame_num % cti; // get a number from 0 to cti than increments every frame
+   int tm = mLoop.frame_num % cti; // get a number from 0 to cti than increments every frame
 
    float tmr = (int) tm;
 

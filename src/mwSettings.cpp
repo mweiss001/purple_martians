@@ -6,7 +6,7 @@
 #include "mwSound.h"
 #include "mwLog.h"
 #include "mwPlayers.h"
-#include "n_netgame.h"
+#include "mwNetgame.h"
 #include "mwLogo.h"
 #include "mwBottomMessage.h"
 #include "mwDemoMode.h"
@@ -18,12 +18,12 @@
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwMenu.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwConfig.h"
-#include "e_fnx.h"
-#include "z_screen.h"
+#include "mwMiscFnx.h"
+#include "mwScreen.h"
 #include "mwShots.h"
 #include "mwGameMovesArray.h"
 
@@ -232,7 +232,7 @@ void mwSettings::settings_pages(int set_page)
       al_set_target_backbuffer(display);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0, 0, 0));
-      frame_and_title(1);
+      mScreen.frame_and_title(1);
       mwL.mdw_an(mwL.mdw_map_logo_x, mwL.mdw_map_logo_y, mwL.mdw_map_logo_scale);
       for (int c=0; c<7; c++)       // show first 7 menu items
       {
@@ -499,8 +499,8 @@ void mwSettings::settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
 
-         sprintf(msg, "Server IP Address:%s", m_serveraddress);
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,-1,fc, 0,  1,0,1,0, msg))  edit_server_name(1, cfp_txc, ya);
+         sprintf(msg, "Server IP Address:%s", mNetgame.m_serveraddress);
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,-1,fc, 0,  1,0,1,0, msg))  mMiscFnx.edit_server_name(1, cfp_txc, ya);
          ya+=4;
          al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Clients need the server name");
          al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya+8, ALLEGRO_ALIGN_CENTER, "or IP address set here.");
@@ -508,7 +508,7 @@ void mwSettings::settings_pages(int set_page)
          ya+=18;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-         mdw_toggle( xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, TCP, "Packet type:UDP", "Packet type:TCP", fc, fc, -1, -1);
+         mdw_toggle( xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mNetgame.TCP, "Packet type:UDP", "Packet type:TCP", fc, fc, -1, -1);
          al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The type of packet used to communicate.");
 
          ya+=10;
@@ -657,8 +657,8 @@ void mwSettings::settings_pages(int set_page)
          if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Choose file and run saved game"))
          if (mwGMA.load_gm("-"))
          {
-            mwPS.new_program_state = 14;
-            mwPS.old_program_state = 3;
+            mLoop.new_program_state = 14;
+            mLoop.old_program_state = 3;
             al_hide_mouse_cursor(display);
             mConfig.save();
             return;
@@ -666,8 +666,8 @@ void mwSettings::settings_pages(int set_page)
          ya +=10;
          if (mdw_buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Play random demo game"))
          {
-            mwPS.new_program_state = 2;
-            mwPS.older_program_state = 3;
+            mLoop.new_program_state = 2;
+            mLoop.older_program_state = 3;
             al_hide_mouse_cursor(display);
             mConfig.save();
             return;
@@ -688,7 +688,7 @@ void mwSettings::settings_pages(int set_page)
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, test_opacity, "Test demo mode overlay opacity", tc, fc);
          ya +=8;
 
-         if (test_opacity) draw_large_text_overlay(3, 15);
+         if (test_opacity) mScreen.draw_large_text_overlay(3, 15);
 
 
       }
@@ -711,20 +711,20 @@ void mwSettings::settings_pages(int set_page)
 
          ya -=12;
 
-         int old_frame_speed = mwPS.frame_speed;
+         int old_frame_speed = mLoop.frame_speed;
 
-         if (mwPS.speed_control_lock)
+         if (mLoop.speed_control_lock)
          {
-            mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mwPS.speed_control_lock, "Speed Control Lock", tc, 10);
-            mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,d,d,d, 0,0,1,1, mwPS.frame_speed, 200, 4, 1, "Frame Speed:");
+            mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mLoop.speed_control_lock, "Speed Control Lock", tc, 10);
+            mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,d,d,d, 0,0,1,1, mLoop.frame_speed, 200, 4, 1, "Frame Speed:");
          }
          else
          {
-            mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mwPS.speed_control_lock, "Speed Control Lock", tc, 11);
-            mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,e,e,e, 0,0,1,0, mwPS.frame_speed, 200, 4, 1, "Frame Speed:");
+            mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mLoop.speed_control_lock, "Speed Control Lock", tc, 11);
+            mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,e,e,e, 0,0,1,0, mLoop.frame_speed, 200, 4, 1, "Frame Speed:");
          }
 
-         if (old_frame_speed != mwPS.frame_speed) mwEQ.set_speed();
+         if (old_frame_speed != mLoop.frame_speed) mwEQ.set_speed();
          ya -=6;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -766,7 +766,7 @@ void mwSettings::settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show vars")) mwD.show_var_sizes();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "hostname"))                          printf("Local hostname:%s\n", mwPS.local_hostname);
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "hostname"))                          printf("Local hostname:%s\n", mLoop.local_hostname);
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'mwB.tilemap'"))   mwD.show_bitmap_flags(al_get_bitmap_flags(mwB.tilemap));
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'mwB.M_tilemap'")) mwD.show_bitmap_flags(al_get_bitmap_flags(mwB.M_tilemap));
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'mwB.tilemap'"))   mwD.show_pixel_format(al_get_bitmap_format(mwB.tilemap));
@@ -851,7 +851,7 @@ void mwSettings::settings_pages(int set_page)
          al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The player is always in the center of the");
          ya+=12;
          al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "screen. (Except near the level boundaries).");
-         if (mwD.viewport_show_hyst) draw_hyst_rect();
+         if (mwD.viewport_show_hyst) mScreen.draw_hyst_rect();
 
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -927,8 +927,8 @@ void mwSettings::settings_pages(int set_page)
 
          if (mdw_buttont(xa+80, ya, xb-80, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
          {
-            mwPS.new_program_state = 10;
-            mwPS.old_program_state = 3;
+            mLoop.new_program_state = 10;
+            mLoop.old_program_state = 3;
             al_hide_mouse_cursor(display);
             mConfig.save();
             return;
@@ -938,8 +938,8 @@ void mwSettings::settings_pages(int set_page)
          xb = xa+180;
          if (mdw_buttont(xa+20, ya, xb, bts,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
          {
-            mwPS.new_program_state = 20;
-            mwPS.old_program_state = 3;
+            mLoop.new_program_state = 20;
+            mLoop.old_program_state = 3;
             al_hide_mouse_cursor(display);
             mConfig.save();
             return;
@@ -948,8 +948,8 @@ void mwSettings::settings_pages(int set_page)
          xb = cfp_x2 - 30;
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,8,15, 0,  1,0,1,0, "Join Network Game"))
          {
-            mwPS.new_program_state = 24;
-            mwPS.old_program_state = 3;
+            mLoop.new_program_state = 24;
+            mLoop.old_program_state = 3;
             al_hide_mouse_cursor(display);
             mConfig.save();
             return;
@@ -1015,8 +1015,8 @@ void mwSettings::settings_pages(int set_page)
 
          if (mdw_buttont(xa+80, ya, xb-80, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
          {
-            mwPS.new_program_state = 10;
-            mwPS.old_program_state = 3;
+            mLoop.new_program_state = 10;
+            mLoop.old_program_state = 3;
             al_hide_mouse_cursor(display);
             mConfig.save();
             return;
@@ -1026,8 +1026,8 @@ void mwSettings::settings_pages(int set_page)
          xb = xa+180;
          if (mdw_buttont(xa+20, ya, xb, bts,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
          {
-            mwPS.new_program_state = 20;
-            mwPS.old_program_state = 3;
+            mLoop.new_program_state = 20;
+            mLoop.old_program_state = 3;
             al_hide_mouse_cursor(display);
             mConfig.save();
             return;
@@ -1036,8 +1036,8 @@ void mwSettings::settings_pages(int set_page)
          xb = cfp_x2 - 30;
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,8,15, 0,  1,0,1,0, "Join Network Game"))
          {
-            mwPS.new_program_state = 24;
-            mwPS.old_program_state = 3;
+            mLoop.new_program_state = 24;
+            mLoop.old_program_state = 3;
             al_hide_mouse_cursor(display);
             mConfig.save();
             return;
@@ -1093,7 +1093,7 @@ void mwSettings::settings_pages(int set_page)
          int y4 = ya - line_spacing;
 
 
-         rectangle_with_diagonal_lines(x2+1, y3, x3, y4, 4, 10, 10+64, 1);
+         mMiscFnx.rectangle_with_diagonal_lines(x2+1, y3, x3, y4, 4, 10, 10+64, 1);
          al_draw_rectangle(x1, y3, x2, y4, mC.pc[11], 1);
 
 
@@ -1125,8 +1125,8 @@ void mwSettings::settings_pages(int set_page)
    }
    al_hide_mouse_cursor(display);
    mConfig.save();
-   mwPS.new_program_state = 1;
-   mwPS.old_program_state = 1;
+   mLoop.new_program_state = 1;
+   mLoop.old_program_state = 1;
 }
 
 

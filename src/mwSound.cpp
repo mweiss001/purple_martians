@@ -2,22 +2,12 @@
 
 #include "pm.h"
 #include "mwSound.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 #include "mwConfig.h"
 #include "mwInput.h"
 
 
 mwSound mSound;
-
-mwSound::mwSound()
-{
-   initialize();
-}
-
-void mwSound::initialize(void)
-{
-
-}
 
 
 void mwSound::load_sound() // load sound driver and samples
@@ -106,7 +96,7 @@ void mwSound::set_st_scaler(void)
 void mwSound::start_music(int resume)
 {
    // reset sound counters
-   for (int c=0; c<8; c++) sample_delay[c] = mwPS.frame_num;
+   for (int c=0; c<8; c++) sample_delay[c] = mLoop.frame_num;
    if (sound_on)
    {
       if (!resume) al_rewind_audio_stream(pm_theme_stream);
@@ -132,18 +122,3 @@ void mwSound::proc_sound()  // called once per frame
       lit_item = 0;
    }
 }
-
-void mwSound::sound_toggle(void)
-{
-   if (sound_on) sound_on = 0;
-   else
-   {
-      sound_on = 1;
-      load_sound();
-   }
-   mConfig.save();
-}
-
-
-
-

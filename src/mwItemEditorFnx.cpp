@@ -1,14 +1,18 @@
 // mwItemEditorFnx.cpp
 
 #include "pm.h"
+#include "mwWindowManager.h"
+#include "mwWindow.h"
 #include "mwItems.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwColor.h"
 #include "mwLevel.h"
-#include "e_fnx.h"
-#include "e_object_viewer.h"
+#include "mwMiscFnx.h"
 #include "mwInput.h"
+
+
+
 
 int mwItems::item_data(int x, int y)
 {
@@ -324,7 +328,7 @@ int mwItems::create_trigger(int i)
 {
    int bad = 0;
    // set the item location
-   if (getxy("Trigger", 2, 9, i) == 1)
+   if (mMiscFnx.getxy("Trigger", 2, 9, i) == 1)
    {
       mItem.item[i][0] = 9;  // type 9 - trigger
       mItem.item[i][2] = 14; // draw color
@@ -335,10 +339,10 @@ int mwItems::create_trigger(int i)
    // then set the block range
    if (!bad)
    {
-      if (!get_block_range("Trigger Rectangle", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
+      if (!mMiscFnx.get_block_range("Trigger Rectangle", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else object_viewer(2, i);
+   else mwWM.mW[7].object_viewer(2, i);
    return 1;
 }
 
@@ -348,7 +352,7 @@ int mwItems::create_block_manip(int i)
    int bad = 0;
 
    // set the item location
-   if (getxy("Block Manip Object", 2, 16, i) == 1)
+   if (mMiscFnx.getxy("Block Manip Object", 2, 16, i) == 1)
    {
       mItem.item[i][0] = 16; // type 16 - block manip
       mItem.item[i][2] = 1; // draw mode on
@@ -358,10 +362,10 @@ int mwItems::create_block_manip(int i)
    // then set the block range
    if (!bad)
    {
-      if (!get_block_range("Block Manip Rectangle", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
+      if (!mMiscFnx.get_block_range("Block Manip Rectangle", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else object_viewer(2, i);
+   else mwWM.mW[7].object_viewer(2, i);
    return 1;
 }
 
@@ -370,7 +374,7 @@ int mwItems::create_block_damage(int i)
    int bad = 0;
 
    // set the item location
-   if (getxy("Block Damage Object", 2, 17, i) == 1)
+   if (mMiscFnx.getxy("Block Damage Object", 2, 17, i) == 1)
    {
       mItem.item[i][0] = 17; // type 16 - block damage
       mItem.item[i][2] = 1;  // draw type
@@ -383,10 +387,10 @@ int mwItems::create_block_damage(int i)
    // then set the block range
    if (!bad)
    {
-      if (!get_block_range("Block Damage Rectangle", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
+      if (!mMiscFnx.get_block_range("Block Damage Rectangle", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else object_viewer(2, i);
+   else mwWM.mW[7].object_viewer(2, i);
    return 1;
 }
 
@@ -406,7 +410,7 @@ int mwItems::create_start_block(int c)
          if (mItem.item[x][7] > hesi) hesi = mItem.item[x][7];
    mItem.item[c][7] = hesi + 1;     // start index
 
-   if (getxy("Start", 2, 5, c) == 1) return 1;
+   if (mMiscFnx.getxy("Start", 2, 5, c) == 1) return 1;
    else return 0;
 }
 
@@ -420,7 +424,7 @@ int mwItems::create_exit(int c)
 
 
    mItem.item[c][8] = 100;          // num enemies left alive to activate this exit
-   if (getxy("Exit", 2, 3, c) == 1) // xorg, yorg
+   if (mMiscFnx.getxy("Exit", 2, 3, c) == 1) // xorg, yorg
    {
       mLevel.l[mItem.item[c][4]/20][mItem.item[c][5]/20] = 0; // make sure empty block in that pos
       return 1;
@@ -492,21 +496,21 @@ int mwItems::create_pmsg(int c)
    mItem.item[c][2] |= PM_ITEM_PMSG_FRAME12;
 
    mItem.item[c][12] = 120;  // default message time
-   set_int_3216(mItem.item[c][13], 15, 13); // default text color (white) and frame color (blue)
+   mMiscFnx.set_int_3216(mItem.item[c][13], 15, 13); // default text color (white) and frame color (blue)
 
    int bad=0;
 
-   if (getxy("Message Object", 2, 10, c) != 1) bad = 1;
+   if (mMiscFnx.getxy("Message Object", 2, 10, c) != 1) bad = 1;
 
    int x=0, y=0, w=0, h=0;
-   if (!bad) get_block_range("Message Area", &x, &y, &w, &h, 1);
-   set_int_3216(mItem.item[c][10], x, y);
-   set_int_3216(mItem.item[c][11], w, h);
+   if (!bad) mMiscFnx.get_block_range("Message Area", &x, &y, &w, &h, 1);
+   mMiscFnx.set_int_3216(mItem.item[c][10], x, y);
+   mMiscFnx.set_int_3216(mItem.item[c][11], w, h);
 
    if (!bad) if (!edit_pmsg_text(c, 1)) bad = 1; // get text of message
 
    if (bad) return 0;
-   else object_viewer(2, c);
+   else mwWM.mW[7].object_viewer(2, c);
    return 1;
 }
 
@@ -531,7 +535,7 @@ int mwItems::create_door(int type)
 
          if (found_empty_items)
          {
-            if (getxy("Door", 2, 1, c) == 1)
+            if (mMiscFnx.getxy("Door", 2, 1, c) == 1)
             {
 
                mItem.item[c][0] = 1;    // type 1
@@ -545,7 +549,7 @@ int mwItems::create_door(int type)
 
                mItem.item[c][11] = 1;    // trigger with up
                mItem.item[c][12] = 1;    // always draw line
-               if (getxy("Destination Door", 2, 1, d) == 1)
+               if (mMiscFnx.getxy("Destination Door", 2, 1, d) == 1)
                {
                   mItem.item[c][9] = d;    // linked exit
 
@@ -584,7 +588,7 @@ int mwItems::create_door(int type)
 
          if (found_empty_items)
          {
-            if (getxy("1st Door", 2, 1, c) == 1)
+            if (mMiscFnx.getxy("1st Door", 2, 1, c) == 1)
             {
 
                mItem.item[c][0] = 1;    // type 1
@@ -600,7 +604,7 @@ int mwItems::create_door(int type)
                mItem.item[c][11] = 1;    // trigger with up
                mItem.item[c][12] = 1;    // always draw line
 
-               if (getxy("2nd Door", 2, 1, d) == 1)
+               if (mMiscFnx.getxy("2nd Door", 2, 1, d) == 1)
                {
                   mItem.item[c][9] = d;    // linked exit
 

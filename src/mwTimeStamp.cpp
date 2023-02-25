@@ -1,7 +1,7 @@
 // mwTimeStamp.cpp
 #include "mwTimeStamp.h"
 #include "pm.h"
-#include "mwProgramState.h"
+#include "mwLoop.h"
 
 
 mwTimeStamp mwTS;
@@ -28,7 +28,7 @@ void mwTimeStamp::add_timestamp(int type, int f1, int f2, double t1, double t2)
 {
    if (timestamps_index < 9998)
    {
-      timestamps[timestamps_index].frame0 = mwPS.frame_num;
+      timestamps[timestamps_index].frame0 = mLoop.frame_num;
       timestamps[timestamps_index].frame1 = f1;
       timestamps[timestamps_index].frame2 = f2;
       timestamps[timestamps_index].type   = type;

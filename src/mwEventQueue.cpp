@@ -5,9 +5,8 @@
 #include "mwDisplay.h"
 #include "mwPlayers.h"
 #include "mwInput.h"
-#include "mwProgramState.h"
-#include "z_control.h"
-#include "z_main.h"
+#include "mwLoop.h"
+#include "mwMain.h"
 
 
 
@@ -26,7 +25,7 @@ void mwEventQueue::initialize(void)
 
 void mwEventQueue::set_speed(void)
 {
-   al_set_timer_speed(mwEQ.fps_timer, 1/(float)mwPS.frame_speed);
+   al_set_timer_speed(mwEQ.fps_timer, 1/(float)mLoop.frame_speed);
 }
 
 
@@ -36,7 +35,7 @@ void mwEventQueue::create_timers(void)
 {
    // --- timers ---------------------
    // create timers
-   fps_timer = al_create_timer(1 / (float) mwPS.frame_speed);
+   fps_timer = al_create_timer(1 / (float) mLoop.frame_speed);
    sec_timer = al_create_timer(1);    // 1s
    mnu_timer = al_create_timer(.008); // 125 fps
    png_timer = al_create_timer(.5);   // 2 fps
@@ -72,7 +71,7 @@ void mwEventQueue::create_timers(void)
 void mwEventQueue::proc_events(ALLEGRO_EVENT ev)
 {
    if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) mwD.proc_display_change();
-   if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) fast_exit(0);
+   if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) mMain.fast_exit(0);
    if (ev.type == ALLEGRO_EVENT_TIMER)
    {
       if (ev.timer.source == fps_timer) program_update = 1;
@@ -105,8 +104,8 @@ void mwEventQueue::proc_event_queue_menu(void)
    proc_event_queue();
 
    // this is done so that the game controls can be used to navigate menus and visual level select
-   clear_controls(mPlayer.active_local_player);
-   set_controls_from_player_key_check(mPlayer.active_local_player);
+   mPlayer.clear_controls(mPlayer.active_local_player);
+   mPlayer.set_controls_from_player_key_check(mPlayer.active_local_player);
 }
 
 

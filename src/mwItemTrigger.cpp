@@ -7,13 +7,13 @@
 #include "mwPlayers.h"
 #include "mwLift.h"
 #include "mwColor.h"
-#include "mwPMEvent.h"
-#include "mwProgramState.h"
+#include "mwTriggerEvent.h"
+#include "mwLoop.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
-#include "e_fnx.h"
-#include "z_screen.h"
-#include "z_screen_overlay.h"
+#include "mwMiscFnx.h"
+#include "mwScreen.h"
+#include "mwGameEvent.h"
 #include "mwShots.h"
 
 /*
@@ -130,15 +130,15 @@ void mwItems::proc_orb(int i)
    }
 
    // clear all events
-   mwPME.event[mItem.item[i][10]] = 0;
-   mwPME.event[mItem.item[i][11]] = 0;
-   mwPME.event[mItem.item[i][12]] = 0;
-   mwPME.event[mItem.item[i][13]] = 0;
+   mTriggerEvent.event[mItem.item[i][10]] = 0;
+   mTriggerEvent.event[mItem.item[i][11]] = 0;
+   mTriggerEvent.event[mItem.item[i][12]] = 0;
+   mTriggerEvent.event[mItem.item[i][13]] = 0;
    int FLAGS = mItem.item[i][2];
-   if   (FLAGS & PM_ITEM_ORB_STATE)  mwPME.event[mItem.item[i][10]] = 1;
-   if (!(FLAGS & PM_ITEM_ORB_STATE)) mwPME.event[mItem.item[i][11]] = 1;
-   if   (FLAGS & PM_ITEM_ORB_TGON)   mwPME.event[mItem.item[i][12]] = 1;
-   if   (FLAGS & PM_ITEM_ORB_TGOF)   mwPME.event[mItem.item[i][13]] = 1;
+   if   (FLAGS & PM_ITEM_ORB_STATE)  mTriggerEvent.event[mItem.item[i][10]] = 1;
+   if (!(FLAGS & PM_ITEM_ORB_STATE)) mTriggerEvent.event[mItem.item[i][11]] = 1;
+   if   (FLAGS & PM_ITEM_ORB_TGON)   mTriggerEvent.event[mItem.item[i][12]] = 1;
+   if   (FLAGS & PM_ITEM_ORB_TGOF)   mTriggerEvent.event[mItem.item[i][13]] = 1;
 }
 
 int mwItems::draw_orb(int i, int x, int y)
@@ -163,7 +163,7 @@ int mwItems::draw_orb(int i, int x, int y)
       int percent =  ((mItem.item[i][8]-1) * 100) / mItem.item[i][7];
       if (percent > 0)
       {
-         draw_percent_barc(x+xo, y+yo, 7, 7,  percent, c1, c2, -1);
+         mScreen.draw_percent_barc(x+xo, y+yo, 7, 7,  percent, c1, c2, -1);
          al_draw_rotated_bitmap(mwB.tile[417], 10, 10, x+10, y+10, a, 0);
          drawn = 1;
       }
@@ -249,21 +249,21 @@ void mwItems::proc_trigger(int i)
 
    FLAGS = mItem.item[i][3]; // update FLAGS
 
-/*   if (FLAGS & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", mwPS.frame_num);
-   if (FLAGS & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", mwPS.frame_num);
-   if (FLAGS & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", mwPS.frame_num);
-   if (FLAGS & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", mwPS.frame_num); */
+/*   if (FLAGS & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", mLoop.frame_num);
+   if (FLAGS & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", mLoop.frame_num);
+   if (FLAGS & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", mLoop.frame_num);
+   if (FLAGS & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", mLoop.frame_num); */
 
    // clear them all
-   mwPME.event[mItem.item[i][11]] = 0;
-   mwPME.event[mItem.item[i][12]] = 0;
-   mwPME.event[mItem.item[i][13]] = 0;
-   mwPME.event[mItem.item[i][14]] = 0;
+   mTriggerEvent.event[mItem.item[i][11]] = 0;
+   mTriggerEvent.event[mItem.item[i][12]] = 0;
+   mTriggerEvent.event[mItem.item[i][13]] = 0;
+   mTriggerEvent.event[mItem.item[i][14]] = 0;
 
-   if   (FLAGS & PM_ITEM_TRIGGER_CURR)  mwPME.event[mItem.item[i][11]] = 1;
-   if (!(FLAGS & PM_ITEM_TRIGGER_CURR)) mwPME.event[mItem.item[i][12]] = 1;
-   if   (FLAGS & PM_ITEM_TRIGGER_TGON)  mwPME.event[mItem.item[i][13]] = 1;
-   if   (FLAGS & PM_ITEM_TRIGGER_TGOF)  mwPME.event[mItem.item[i][14]] = 1;
+   if   (FLAGS & PM_ITEM_TRIGGER_CURR)  mTriggerEvent.event[mItem.item[i][11]] = 1;
+   if (!(FLAGS & PM_ITEM_TRIGGER_CURR)) mTriggerEvent.event[mItem.item[i][12]] = 1;
+   if   (FLAGS & PM_ITEM_TRIGGER_TGON)  mTriggerEvent.event[mItem.item[i][13]] = 1;
+   if   (FLAGS & PM_ITEM_TRIGGER_TGOF)  mTriggerEvent.event[mItem.item[i][14]] = 1;
 }
 
 void mwItems::set_item_trigger_location_from_lift(int i, int a20)
@@ -310,8 +310,8 @@ void mwItems::set_item_trigger_location_from_lift(int i, int a20)
       }
       if (a20) // align to 20 grid
       {
-         mItem.item[i][6] = round20(mItem.item[i][6]);
-         mItem.item[i][7] = round20(mItem.item[i][7]);
+         mItem.item[i][6] = mMiscFnx.round20(mItem.item[i][6]);
+         mItem.item[i][7] = mMiscFnx.round20(mItem.item[i][7]);
       }
    }
 }
@@ -375,7 +375,7 @@ void mwItems::detect_trigger_collisions(int i)
 
 int mwItems::draw_trigger(int i, int x, int y)
 {
-   if (mwPS.level_editor_running)
+   if (mLoop.level_editor_running)
    {
       al_draw_bitmap(mwB.tile[991], x, y, 0); // draw item shape in level editor, invisible when game running
       if (mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 1); // snap to lift here because main function wont be called while in level editor
@@ -388,7 +388,7 @@ int mwItems::draw_trigger(int i, int x, int y)
       float y1 = mItem.item[i][7];
       float x2 = x1 + mItem.item[i][8];
       float y2 = y1 + mItem.item[i][9];
-      rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
+      mMiscFnx.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
    }
    return 1;
 }
@@ -413,7 +413,7 @@ item[][12] = draw color
 void mwItems::proc_block_manip(int i)
 {
    int et = mItem.item[i][1]; // pm_event trigger we are looking for
-   if (mwPME.event[et])
+   if (mTriggerEvent.event[et])
    {
       al_set_target_bitmap(mwB.level_background);
       int x1 = mItem.item[i][6]/20;
@@ -466,7 +466,7 @@ void mwItems::proc_block_manip(int i)
 
 int mwItems::draw_block_manip(int i, int x, int y)
 {
-   if (mwPS.level_editor_running)
+   if (mLoop.level_editor_running)
    {
       al_draw_bitmap(mwB.tile[989], x, y, 0); // draw item shape in level editor, invisible when game running
    }
@@ -477,7 +477,7 @@ int mwItems::draw_block_manip(int i, int x, int y)
       float y1 = mItem.item[i][7];
       float x2 = x1 + mItem.item[i][8];
       float y2 = y1 + mItem.item[i][9];
-      rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
+      mMiscFnx.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
    }
    return 1;
 }
@@ -561,8 +561,8 @@ void mwItems::set_item_damage_location_from_lift(int i, int a20)
       }
       if (a20) // align to 20 grid
       {
-         mItem.item[i][6] = round20(mItem.item[i][6]);
-         mItem.item[i][7] = round20(mItem.item[i][7]);
+         mItem.item[i][6] = mMiscFnx.round20(mItem.item[i][6]);
+         mItem.item[i][7] = mMiscFnx.round20(mItem.item[i][7]);
       }
    }
 }
@@ -594,14 +594,14 @@ void mwItems::proc_item_damage_collisions(int i)
                if (FLAGS & PM_ITEM_DAMAGE_INSTGIB)
                {
                   mPlayer.syn[p].health = 0;
-                  //game_event(59, 0, 0, p, i, 0, 0);
+                  //mGameEvent.add(59, 0, 0, p, i, 0, 0);
                }
                else
                {
                   if (mItem.item[i][15] > 0) // lose health
                   {
                      mPlayer.syn[p].health -= mItem.item[i][15]/100;
-                     game_event(59, 0, 0, p, i, 0, 0); // only do damage noise when taking health..??
+                     mGameEvent.add(59, 0, 0, p, i, 0, 0); // only do damage noise when taking health..??
                   }
                   else // gain health
                   {
@@ -675,7 +675,7 @@ int mwItems::draw_block_damage(int i, int x, int y, int custom)
    float x2 = x1 + mItem.item[i][8];
    float y2 = y1 + mItem.item[i][9];
 
-   if (mwPS.level_editor_running)
+   if (mLoop.level_editor_running)
    {
       al_draw_bitmap(mwB.tile[988], x0, y0, 0); // draw item shape in level editor, invisible when game running
       if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i, 1); // set this here only when level editor is running
@@ -689,7 +689,7 @@ int mwItems::draw_block_damage(int i, int x, int y, int custom)
       {
          int col = 11;
          if (FLAGS & PM_ITEM_DAMAGE_CURR) col = 10;
-         rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
+         mMiscFnx.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
       }
 
       if (draw_mode == 2) // spikey floor
@@ -734,8 +734,8 @@ int mwItems::draw_block_damage(int i, int x, int y, int custom)
             if (mode == 2) percent =       ((mItem.item[i][13]) * 100) / mItem.item[i][12];
             if (mode == 3) percent = 100 - ((mItem.item[i][13]) * 100) / mItem.item[i][12];
          }
-         if (timer_draw_mode3) draw_percent_bar(x0+9, y0+5, 32, 8,  percent);
-         if (timer_draw_mode4) draw_percent_bar(x0+9, y0+1, 64, 16, percent);
+         if (timer_draw_mode3) mScreen.draw_percent_bar(x0+9, y0+5, 32, 8,  percent);
+         if (timer_draw_mode4) mScreen.draw_percent_bar(x0+9, y0+1, 64, 16, percent);
 
       }
    }
@@ -775,8 +775,8 @@ int mwItems::draw_block_damage(int i, int x, int y, int custom)
       }
       if (timer_draw_mode1) al_draw_textf(mF.pixl,   mC.pc[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
       if (timer_draw_mode2) al_draw_textf(mF.pr8, mC.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-      if (timer_draw_mode3) draw_percent_bar(x0+9, y0+5, 32, 8,  percent);
-      if (timer_draw_mode4) draw_percent_bar(x0+9, y0+1, 64, 16, percent);
+      if (timer_draw_mode3) mScreen.draw_percent_bar(x0+9, y0+5, 32, 8,  percent);
+      if (timer_draw_mode4) mScreen.draw_percent_bar(x0+9, y0+1, 64, 16, percent);
    }
    return 1;
 }
@@ -796,17 +796,17 @@ void mwItems::proc_block_damage(int i)
 
    if (mode == 1)
    {
-      if (mwPME.event[et]) mItem.item[i][3] ^= PM_ITEM_DAMAGE_CURR; // toggle current damage flag
+      if (mTriggerEvent.event[et]) mItem.item[i][3] ^= PM_ITEM_DAMAGE_CURR; // toggle current damage flag
    }
    if (mode == 2) // damage unless timer running  (no damage when triggered)
    {
-      if (mwPME.event[et]) mItem.item[i][13] = mItem.item[i][12];              // reset timer
+      if (mTriggerEvent.event[et]) mItem.item[i][13] = mItem.item[i][12];              // reset timer
       if (mItem.item[i][13] == 0) mItem.item[i][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
       else                  mItem.item[i][3] &= ~PM_ITEM_DAMAGE_CURR; // set damage off
    }
    if (mode == 3) // damage when timer is running (no damage until triggered)
    {
-      if (mwPME.event[et]) mItem.item[i][13] = mItem.item[i][12];             // reset timer
+      if (mTriggerEvent.event[et]) mItem.item[i][13] = mItem.item[i][12];             // reset timer
       if (mItem.item[i][13] > 0) mItem.item[i][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
       else                 mItem.item[i][3] &= ~PM_ITEM_DAMAGE_CURR; // set damage off
    }
