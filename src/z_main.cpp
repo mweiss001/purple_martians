@@ -3,7 +3,7 @@
 #include "pm.h"
 #include "z_main.h"
 #include "mwSound.h"
-#include "z_log.h"
+#include "mwLog.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
 #include "mwBitmap.h"
@@ -91,8 +91,8 @@ void final_wrapup(void)
 void fast_exit(int why)
 {
    if (why != 0) mPlayer.loc[mPlayer.active_local_player].quit_reason = why; // don't overwrite if not zero
-   if (autosave_log_on_program_exit) save_log_file();
-   if (autosave_game_on_game_exit) mwGMA.blind_save_game_moves(3);
+   if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
+   if (mLog.autosave_game_on_game_exit) mwGMA.blind_save_game_moves(3);
    final_wrapup();
    exit(0);
 }
@@ -305,7 +305,7 @@ int main(int argument_count, char **argument_array)
       mwPS.program_state = 1;
       main_loop();
    }
-   if (autosave_log_on_program_exit) save_log_file();
+   if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
    final_wrapup();
    exit(0);
 }

@@ -4,7 +4,7 @@
 #include "mwSettings.h"
 
 #include "mwSound.h"
-#include "z_log.h"
+#include "mwLog.h"
 #include "mwPlayers.h"
 #include "n_netgame.h"
 #include "mwLogo.h"
@@ -51,32 +51,32 @@ void mwSettings::initialize(void)
 
 void mwSettings::set_all_logging(int v)
 {
-   LOG_NET=v;
-   LOG_NET_join=v;
-   LOG_NET_player_array=v;
-   LOG_NET_bandwidth=v;
-   LOG_NET_cdat=v;
-   LOG_NET_stdf=v;
-   LOG_NET_stdf_all_packets=v;
-   LOG_NET_dif_applied=v;
-   LOG_NET_dif_not_applied=v;
-   LOG_NET_client_ping=v;
-   LOG_NET_client_timer_adj=v;
-   LOG_NET_server_rx_stak=v;
-   LOG_TMR_cpu=v;
-   LOG_TMR_move_tot=v;
-   LOG_TMR_move_all=v;
-   LOG_TMR_move_enem=v;
-   LOG_TMR_bmsg_add=v;
-   LOG_TMR_bmsg_draw=v;
-   LOG_TMR_scrn_overlay=v;
-   LOG_TMR_draw_tot=v;
-   LOG_TMR_draw_all=v;
-   LOG_TMR_sdif=v;
-   LOG_TMR_cdif=v;
-   LOG_TMR_rwnd=v;
-   LOG_TMR_client_timer_adj=v;
-   LOG_TMR_client_ping=v;
+   mLog.LOG_NET=v;
+   mLog.LOG_NET_join=v;
+   mLog.LOG_NET_player_array=v;
+   mLog.LOG_NET_bandwidth=v;
+   mLog.LOG_NET_cdat=v;
+   mLog.LOG_NET_stdf=v;
+   mLog.LOG_NET_stdf_all_packets=v;
+   mLog.LOG_NET_dif_applied=v;
+   mLog.LOG_NET_dif_not_applied=v;
+   mLog.LOG_NET_client_ping=v;
+   mLog.LOG_NET_client_timer_adj=v;
+   mLog.LOG_NET_server_rx_stak=v;
+   mLog.LOG_TMR_cpu=v;
+   mLog.LOG_TMR_move_tot=v;
+   mLog.LOG_TMR_move_all=v;
+   mLog.LOG_TMR_move_enem=v;
+   mLog.LOG_TMR_bmsg_add=v;
+   mLog.LOG_TMR_bmsg_draw=v;
+   mLog.LOG_TMR_scrn_overlay=v;
+   mLog.LOG_TMR_draw_tot=v;
+   mLog.LOG_TMR_draw_all=v;
+   mLog.LOG_TMR_sdif=v;
+   mLog.LOG_TMR_cdif=v;
+   mLog.LOG_TMR_rwnd=v;
+   mLog.LOG_TMR_client_timer_adj=v;
+   mLog.LOG_TMR_client_ping=v;
 }
 
 
@@ -648,8 +648,8 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_game_on_level_done, "Autosave on level done", tc, 14);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_game_on_game_exit,  "Autosave on game exit", tc, 14);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_game_on_level_done, "Autosave on level done", tc, 14);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_game_on_game_exit,  "Autosave on game exit", tc, 14);
          ya -=2;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -778,7 +778,7 @@ void mwSettings::settings_pages(int set_page)
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show refesh rate"))                  printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show fullscreen modes"))             mwD.show_fullscreen_modes();
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display adapters"))             mwD.show_display_adapters();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show code statistics"))              show_code_stats();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show code statistics"))              mLog.show_code_stats();
 
 //         ya -=2;
 //         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -879,20 +879,20 @@ void mwSettings::settings_pages(int set_page)
          int tc = 13;
          int fc = 15;
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_cpu,           "LOG_TMR_cpu", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_tot,      "LOG_TMR_move_tot", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_all,      "LOG_TMR_move_all", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_enem,     "LOG_TMR_move_enem", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_draw_tot,      "LOG_TMR_draw_tot", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_draw_all,      "LOG_TMR_draw_all", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_sdif,          "LOG_TMR_sdif", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_cdif,          "LOG_TMR_cdif", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_rwnd,          "LOG_TMR_rwnd", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_bmsg_add,      "LOG_TMR_bmsg_add", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_bmsg_draw,     "LOG_TMR_bmsg_draw", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_scrn_overlay,  "LOG_TMR_scrn_overlay", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_client_timer_adj, "LOG_TMR_client_timer_adj", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_client_ping,    "LOG_TMR_client_ping", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_cpu,           "mLog.LOG_TMR_cpu", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_move_tot,      "mLog.LOG_TMR_move_tot", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_move_all,      "mLog.LOG_TMR_move_all", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_move_enem,     "mLog.LOG_TMR_move_enem", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_draw_tot,      "mLog.LOG_TMR_draw_tot", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_draw_all,      "mLog.LOG_TMR_draw_all", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_sdif,          "mLog.LOG_TMR_sdif", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_cdif,          "mLog.LOG_TMR_cdif", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_rwnd,          "mLog.LOG_TMR_rwnd", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_bmsg_add,      "mLog.LOG_TMR_bmsg_add", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_bmsg_draw,     "mLog.LOG_TMR_bmsg_draw", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_scrn_overlay,  "mLog.LOG_TMR_scrn_overlay", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_client_timer_adj, "mLog.LOG_TMR_client_timer_adj", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_client_ping,    "mLog.LOG_TMR_client_ping", tc, fc);
 
 
          ya+=10;
@@ -910,18 +910,18 @@ void mwSettings::settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          bts = 10;
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_level_done,    "Autosave log on level done", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_game_exit,     "Autosave log on game exit", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_program_exit,  "Autosave log on program exit", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_level_done,    "Autosave log on level done", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_game_exit,     "Autosave log on game exit", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_program_exit,  "Autosave log on program exit", tc, fc);
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          bts = 16;
-         if (mdw_buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Profile Graph")) load_profile_graph(0);
+         if (mdw_buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Profile Graph")) mLog.run_profile_graph(0);
 
          ya += 8;
 
-         if (mdw_buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select and Open Profile Graph")) load_profile_graph(1);
+         if (mdw_buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select and Open Profile Graph")) mLog.run_profile_graph(1);
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -970,18 +970,18 @@ void mwSettings::settings_pages(int set_page)
          int bts = 10;
          int tc = 13;
          int fc = 15;
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET,                    "LOG_NET", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_join,               "LOG_NET_join", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_player_array,       "LOG_NET_player_array", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_bandwidth,          "LOG_NET_bandwidth", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_cdat,               "LOG_NET_cdat", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf,               "LOG_NET_stdf", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_all_packets,   "LOG_NET_stdf_all_packets", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_dif_applied,        "LOG_NET_dif_applied", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_dif_not_applied,    "LOG_NET_dif_not_applied", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_client_ping,        "LOG_NET_client_ping", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_client_timer_adj,   "LOG_NET_client_timer_adj", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_server_rx_stak,     "LOG_NET_server_rx_stak", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET,                    "mLog.LOG_NET", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_join,               "mLog.LOG_NET_join", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_player_array,       "mLog.LOG_NET_player_array", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_bandwidth,          "mLog.LOG_NET_bandwidth", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_cdat,               "mLog.LOG_NET_cdat", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_stdf,               "mLog.LOG_NET_stdf", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_stdf_all_packets,   "mLog.LOG_NET_stdf_all_packets", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_dif_applied,        "mLog.LOG_NET_dif_applied", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_dif_not_applied,    "mLog.LOG_NET_dif_not_applied", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_client_ping,        "mLog.LOG_NET_client_ping", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_client_timer_adj,   "mLog.LOG_NET_client_timer_adj", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_server_rx_stak,     "mLog.LOG_NET_server_rx_stak", tc, fc);
 
          ya+=10;
          bts = 14;
@@ -998,16 +998,16 @@ void mwSettings::settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          bts = 10;
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_level_done,    "Autosave log on level done", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_game_exit,     "Autosave log on game exit", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_program_exit,  "Autosave log on program exit", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_level_done,    "Autosave log on level done", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_game_exit,     "Autosave log on game exit", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_program_exit,  "Autosave log on program exit", tc, fc);
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          bts = 16;
-         if (mdw_buttont(xa+20, ya, xb-20, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Log In Log File Viewer")) log_file_viewer(2);
+         if (mdw_buttont(xa+20, ya, xb-20, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Log In Log File Viewer")) mLog.log_file_viewer(2);
          ya+=4;
-         if (mdw_buttont(xa+20, ya, xb-20, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select And Open Log In Log File Viewer")) log_file_viewer(1);
+         if (mdw_buttont(xa+20, ya, xb-20, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select And Open Log In Log File Viewer")) mLog.log_file_viewer(1);
 
 
 

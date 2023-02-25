@@ -155,10 +155,14 @@
 		<Unit filename="src/mwLevel.h" />
 		<Unit filename="src/mwLift.cpp" />
 		<Unit filename="src/mwLift.h" />
+		<Unit filename="src/mwLog.cpp" />
+		<Unit filename="src/mwLog.h" />
 		<Unit filename="src/mwLogo.cpp" />
 		<Unit filename="src/mwLogo.h" />
 		<Unit filename="src/mwMenu.cpp" />
 		<Unit filename="src/mwMenu.h" />
+		<Unit filename="src/mwNetgame.cpp" />
+		<Unit filename="src/mwNetgame.h" />
 		<Unit filename="src/mwPDE.cpp" />
 		<Unit filename="src/mwPDE.h" />
 		<Unit filename="src/mwPMEvent.cpp" />
@@ -206,8 +210,6 @@
 		<Unit filename="src/z_args.h" />
 		<Unit filename="src/z_control.cpp" />
 		<Unit filename="src/z_control.h" />
-		<Unit filename="src/z_log.cpp" />
-		<Unit filename="src/z_log.h" />
 		<Unit filename="src/z_loop.cpp" />
 		<Unit filename="src/z_loop.h" />
 		<Unit filename="src/z_main.cpp" />

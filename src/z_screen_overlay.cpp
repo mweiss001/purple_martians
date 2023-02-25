@@ -4,7 +4,7 @@
 #include "z_screen_overlay.h"
 #include "mwQuickGraph.h"
 #include "mwSound.h"
-#include "z_log.h"
+#include "mwLog.h"
 #include "mwPlayers.h"
 #include "n_netgame.h"
 #include "mwRollingAverage.h"
@@ -579,7 +579,7 @@ void cdg_show(int x, int y) // client debug grid
 void draw_common_debug_overlay(int p, int &cx, int &cy)
 {
    double tt = 0;
-   if (LOG_TMR_scrn_overlay) tt = al_get_time();
+   if (mLog.LOG_TMR_scrn_overlay) tt = al_get_time();
 
    if (mSettings.overlay_grid[1][mwPS.show_debug_overlay]) // display
    {
@@ -591,7 +591,7 @@ void draw_common_debug_overlay(int p, int &cx, int &cy)
       cy+=9;
       al_draw_textf(mF.pr8, mC.pc[15], cx+1, cy, 0, "scale_factor:%3.2f", mwD.scale_factor); cy+=9;
       al_draw_textf(mF.pr8, mC.pc[15], cx+1, cy, 0, "frames per second:%d", mwPS.frame_speed); cy+=9;
-      if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_dbgcom", 0);
+      if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - tt, "scov_dbgcom", 0);
       cy +=4;
    }
 
@@ -604,7 +604,7 @@ void draw_common_debug_overlay(int p, int &cx, int &cy)
 
 
 
-   if (LOG_TMR_scrn_overlay) tt = al_get_time();
+   if (mLog.LOG_TMR_scrn_overlay) tt = al_get_time();
 
    if (mSettings.overlay_grid[0][mwPS.show_debug_overlay]) // cpu graph
    {
@@ -631,7 +631,7 @@ void draw_common_debug_overlay(int p, int &cx, int &cy)
    }
 
 
-   if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_CPU", 0);
+   if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - tt, "scov_CPU", 0);
 }
 
 void draw_server_debug_overlay(int p, int &cx, int &cy)
@@ -641,13 +641,13 @@ void draw_server_debug_overlay(int p, int &cx, int &cy)
    // ------------------------------------
    // ---   server debug grid
    // ------------------------------------
-   if (LOG_TMR_scrn_overlay) lts = al_get_time();
+   if (mLog.LOG_TMR_scrn_overlay) lts = al_get_time();
    if (mSettings.overlay_grid[3][mwPS.show_debug_overlay])
    {
       sdg_show(cx, cy); // client debug grid
       cy +=77;
    }
-   if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_sgrid", 0);
+   if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - lts, "scov_sgrid", 0);
 
 
    if (mSettings.overlay_grid[6][mwPS.show_debug_overlay]) // state freq adjust buttons
@@ -657,7 +657,7 @@ void draw_server_debug_overlay(int p, int &cx, int &cy)
          // -----------------------------------------------------
          // server buttons to display and change s1 and s2
          // -----------------------------------------------------
-         if (LOG_TMR_scrn_overlay) lts = al_get_time();
+         if (mLog.LOG_TMR_scrn_overlay) lts = al_get_time();
 
          int csx1 = mwD.SCREEN_W-BORDER_WIDTH-96;
          int csw = 80;
@@ -722,7 +722,7 @@ void draw_server_debug_overlay(int p, int &cx, int &cy)
          al_draw_textf(mF.pr8, mC.pc[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "zc:%d", zlib_cmp);
       }
 
-      if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_sbutt", 0);
+      if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - lts, "scov_sbutt", 0);
 
    }
 
@@ -766,9 +766,9 @@ void draw_demo_debug_overlay(int p, int &cx, int &cy)
    char msg[1024];
    double tt;
 
-   if (LOG_TMR_scrn_overlay) tt = al_get_time();
+   if (mLog.LOG_TMR_scrn_overlay) tt = al_get_time();
    if (mwDM.demo_mode_on) draw_large_text_overlay(3, 15);
-   if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_demo_ov", 0);
+   if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - tt, "scov_demo_ov", 0);
 
    if (mSettings.overlay_grid[8][mwPS.show_debug_overlay]) // misc
    {
@@ -807,18 +807,18 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
       sprintf(msg, "[%2.1f]", abs(mPlayer.loc[p].client_chase_offset - mPlayer.loc[p].dsync)*1000);
       rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, color, 4, 1);
    }
-   if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_client", 0);
+   if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - tt, "scov_client", 0);
 
    // ------------------------------------
    // ---   client debug grid
    // ------------------------------------
-   if (LOG_TMR_scrn_overlay) tt = al_get_time();
+   if (mLog.LOG_TMR_scrn_overlay) tt = al_get_time();
    if (mSettings.overlay_grid[3][mwPS.show_debug_overlay])
    {
       cdg_show(cx, cy); // client debug grid
       cy +=78;
    }
-   if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_cgrid", 0);
+   if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - tt, "scov_cgrid", 0);
 
 
    if (mSettings.overlay_grid[4][mwPS.show_debug_overlay])
@@ -826,7 +826,7 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
       // ----------------------------------
       // ping and sync graph
       // ----------------------------------
-      if (LOG_TMR_scrn_overlay) tt = al_get_time();
+      if (mLog.LOG_TMR_scrn_overlay) tt = al_get_time();
 
       double ds = -mPlayer.loc[p].dsync    * 1000; // the current value of dsync for display
       double pa = mPlayer.loc[p].ping_avg * 1000;
@@ -846,7 +846,7 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
       mwQG[1].height = 40;
       mwQG[1].draw_graph(mwD.SCREEN_W-228, mwD.SCREEN_H-36-48-20);
 
-      if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_sync", 0);
+      if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - tt, "scov_sync", 0);
    }
 
    if (mSettings.overlay_grid[5][mwPS.show_debug_overlay])
@@ -854,7 +854,7 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
       // ----------------------------------
       // client sync display and adjustment buttons
       // ----------------------------------
-      if (LOG_TMR_scrn_overlay) tt = al_get_time();
+      if (mLog.LOG_TMR_scrn_overlay) tt = al_get_time();
       int csx1 = mwD.SCREEN_W - 160;
       int csw = 140;
       int csx2 = csx1 + csw;
@@ -953,7 +953,7 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
       else
          al_draw_textf(mF.pr8, mC.pc[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "offset:%+3.0fms", mPlayer.loc[p].client_chase_offset*1000);
 
-      if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_cbut", 0);
+      if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - tt, "scov_cbut", 0);
 
    }
 
@@ -996,7 +996,7 @@ void draw_top_frame(int p)
    // ----------------------------------
    // draw info on top frame
    // ----------------------------------
-   if (LOG_TMR_scrn_overlay) tt = al_get_time();
+   if (mLog.LOG_TMR_scrn_overlay) tt = al_get_time();
 
    if (mwD.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%d En:%d ",            mLevel.play_level, mwPS.frame_num/40, mEnemy.num_enemy); // special case for narrow screens
    else                sprintf(msg,"Level:%d | Time:%d | Enemies:%d  ", mLevel.play_level, mwPS.frame_num/40, mEnemy.num_enemy);
@@ -1027,7 +1027,7 @@ void draw_top_frame(int p)
       if (mwD.saved_display_transform_double) al_draw_textf(mF.pr8, mC.pc[tc],mwD.SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [f]", mwD.display_transform_double);
       else                                    al_draw_textf(mF.pr8, mC.pc[tc],mwD.SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [a]", mwD.display_transform_double);
    }
-   if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_top_frm", 0);
+   if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - tt, "scov_top_frm", 0);
 }
 
 void draw_bottom_frame(int p)
@@ -1132,7 +1132,7 @@ void draw_screen_overlay(void)
 
    al_set_target_backbuffer(display);
 
-   if (LOG_TMR_scrn_overlay) t0 = al_get_time();
+   if (mLog.LOG_TMR_scrn_overlay) t0 = al_get_time();
 
    show_level_done();
 
@@ -1153,7 +1153,7 @@ void draw_screen_overlay(void)
 
 
 
-   if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - t0, "scrn_overlay_all", 0);
+   if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - t0, "scrn_overlay_all", 0);
 }
 
 

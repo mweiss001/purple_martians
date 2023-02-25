@@ -1,6 +1,6 @@
 // n_server.cpp
 #include "pm.h"
-#include "z_log.h"
+#include "mwLog.h"
 #include "mwPlayers.h"
 #include "n_netgame.h"
 #include "n_packet.h"
@@ -11,9 +11,7 @@
 #include "n_server.h"
 #include "mwGameMovesArray.h"
 #include "mwProgramState.h"
-//#include "z_menu.h"
 #include "mwLevel.h"
-
 #include "z_loop.h"
 #include "mwShots.h"
 #include "mwInput.h"
@@ -38,7 +36,7 @@ int ServerInitNetwork() // Initialize the server
       sprintf(msg, "Error: failed to initialize network\n");
       printf("%s", msg);
       mI.m_err(msg);
-      if (LOG_NET) add_log_entry2(10, 0, msg);
+      if (mLog.LOG_NET) mLog.add_log_entry2(10, 0, msg);
       return -1;
    }
    if (TCP)
@@ -49,7 +47,7 @@ int ServerInitNetwork() // Initialize the server
          sprintf(msg, "Error: failed to open listening connection\n");
          printf("%s", msg);
          mI.m_err(msg);
-         if (LOG_NET) add_log_entry2(10, 0, msg);
+         if (mLog.LOG_NET) mLog.add_log_entry2(10, 0, msg);
          return -1;
       }
       if(net_listen(ListenConn))
@@ -57,7 +55,7 @@ int ServerInitNetwork() // Initialize the server
          sprintf(msg, "Error: cannot listen\n");
          printf("%s", msg);
          mI.m_err(msg);
-         if (LOG_NET) add_log_entry2(10, 0, msg);
+         if (mLog.LOG_NET) mLog.add_log_entry2(10, 0, msg);
          return -1;
       }
       sprintf(msg, "Network initialized - connection mode (TCP)");
@@ -70,7 +68,7 @@ int ServerInitNetwork() // Initialize the server
          sprintf(msg, "Error: failed to open listening channel\n");
          printf("%s", msg);
          mI.m_err(msg);
-         if (LOG_NET) add_log_entry2(10, 0, msg);
+         if (mLog.LOG_NET) mLog.add_log_entry2(10, 0, msg);
          return -1;
       }
       if (net_assigntarget(ListenChannel, ""))
@@ -78,7 +76,7 @@ int ServerInitNetwork() // Initialize the server
          sprintf(msg, "Error: failed to assign target to listening channel\n");
          printf("%s", msg);
          mI.m_err(msg);
-         if (LOG_NET) add_log_entry2(10, 0, msg);
+         if (mLog.LOG_NET) mLog.add_log_entry2(10, 0, msg);
          net_closechannel(ListenChannel);
          return -1;
       }
@@ -86,7 +84,7 @@ int ServerInitNetwork() // Initialize the server
       // printf("Local address of channel%s\n", net_getlocaladdress (ListenChannel));
    }
    printf("%s\n", msg);
-   if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+   if (mLog.LOG_NET) mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
    return 0;
 }
 
@@ -106,11 +104,11 @@ void ServerListen()
          sprintf(msg, "Connection received from %s", net_getpeer (newconn));
          printf("%s\n", msg);
 
-         if (LOG_NET)
+         if (mLog.LOG_NET)
          {
-            add_log_entry_centered_text(10, 0, 76, "", "+", "-");
-            add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-            add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+            mLog.add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+            mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+            mLog.add_log_entry_centered_text(10, 0, 76, "", "+", "-");
          }
       }
    }
@@ -130,24 +128,24 @@ void ServerListen()
             {
                sprintf(msg, "Error: failed to open channel for %s\n", address);
                printf("%s", msg);
-               if (LOG_NET) add_log_entry2(10, 0, msg);
+               if (mLog.LOG_NET) mLog.add_log_entry2(10, 0, msg);
                return;
             }
             if (net_assigntarget (ClientChannel[ClientNum], address))
             {
                sprintf(msg, "Error: couldn't assign target `%s' to channel\n", address);
                printf("%s", msg);
-               if (LOG_NET)  add_log_entry2(10, 0, msg);
+               if (mLog.LOG_NET) mLog.add_log_entry2(10, 0, msg);
                net_closechannel (ClientChannel[ClientNum]);
                return;
             }
             sprintf(msg, "Server opened channel for `%s' and sent reply", address);
             printf("%s\n", msg);
-            if (LOG_NET)
+            if (mLog.LOG_NET)
             {
-               add_log_entry_centered_text(10, 0, 76, "", "+", "-");
-               add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-               add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+               mLog.add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+               mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+               mLog.add_log_entry_centered_text(10, 0, 76, "", "+", "-");
             }
             Packet("5678");
             ServerSendTo(packetbuffer, packetsize, ClientNum, 0);
@@ -254,7 +252,7 @@ void ServerExitNetwork() // Shut the server down
    char msg[1024];
    sprintf(msg, "Shutting down the server");
    printf("%s\n", msg);
-   if (LOG_NET) add_log_entry_header(10, 0, msg, 1);
+   if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 1);
    if (TCP)
    {
       for(int n = 0; n < ClientNum; n++)
@@ -299,21 +297,21 @@ void ServerExitNetwork() // Shut the server down
 int server_init(void)
 {
    char msg[1024];
-   if (LOG_NET)
+   if (mLog.LOG_NET)
    {
-      log_versions();
-      add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+      mLog.log_versions();
+      mLog.add_log_entry_centered_text(10, 0, 76, "", "+", "-");
 
       sprintf(msg, "Server mode started");
-      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       printf("\n%s\n", msg);
 
       sprintf(msg, "Server hostname:    [%s]", mwPS.local_hostname);
-      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       printf("%s\n", msg);
 
       sprintf(msg, "Level:              [%d]", mLevel.play_level);
-      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       printf("%s\n", msg);
    }
 
@@ -322,16 +320,16 @@ int server_init(void)
       sprintf(msg, "Could not find internet driver!");
       printf("\n%s\n\n", msg);
       mI.m_err(msg);
-      if (LOG_NET) add_log_entry2(10, 0, msg);
+      if (mLog.LOG_NET) mLog.add_log_entry2(10, 0, msg);
       return 0;
    }
 
    sprintf(msg, "Server successfully initialized");
    printf("%s\n\n", msg);
-   if (LOG_NET)
+   if (mLog.LOG_NET)
    {
-      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-      add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+      mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      mLog.add_log_entry_centered_text(10, 0, 76, "", "+", "-");
    }
 
    // still needed or client dies at joining
@@ -367,21 +365,21 @@ void server_rewind(void)
 
       // rewind and fast forward from last state to apply late client input
 
-      if (LOG_NET_stdf)
+      if (mLog.LOG_NET_stdf)
       {
          sprintf(msg, "stdf rewind to:%d\n", srv_client_state_frame_num[0][1]);
          //printf(msg);
-         add_log_entry2(27, 0, msg);
+         mLog.add_log_entry2(27, 0, msg);
       }
 
-      if (LOG_TMR_rwnd) t0 = al_get_time();
+      if (mLog.LOG_TMR_rwnd) t0 = al_get_time();
 
       state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
       mwPS.frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
 
       loop_frame(ff);
 
-      if (LOG_TMR_rwnd) add_log_TMR(al_get_time() - t0, "rwnd", 0);
+      if (mLog.LOG_TMR_rwnd) mLog.add_log_TMR(al_get_time() - t0, "rwnd", 0);
 
       mPlayer.loc[0].server_send_dif = 1;
    }
@@ -398,11 +396,11 @@ void server_create_new_state(void)
       game_vars_to_state(srv_client_state[0][1]);
       srv_client_state_frame_num[0][1] = mwPS.frame_num+1;
 
-      if (LOG_NET_stdf)
+      if (mLog.LOG_NET_stdf)
       {
          sprintf(msg, "stdf saved server state[1]:%d\n", mwPS.frame_num);
          //printf(msg);
-         add_log_entry2(27, 0, msg);
+         mLog.add_log_entry2(27, 0, msg);
       }
 
       // send to all clients
@@ -441,12 +439,12 @@ void server_send_dif(int p) // send dif to a specific client
    mPlayer.loc[p].cmp_dif_size = cmp_size;
    mPlayer.loc[p].num_dif_packets = num_packets;
 
-   if (LOG_NET_stdf)
+   if (mLog.LOG_NET_stdf)
    {
       float cr = (float)cmp_size*100 / (float)STATE_SIZE; // compression ratio
       sprintf(msg, "tx stdf p:%d [src:%d dst:%d] cmp:%d ratio:%3.2f [%d packets needed]\n",
                             p, srv_client_state_frame_num[p][0], srv_client_state_frame_num[p][1], cmp_size, cr, num_packets);
-      add_log_entry2(27, p, msg);
+      mLog.add_log_entry2(27, p, msg);
    }
    int start_byte = 0;
    for (int packet_num=0; packet_num < num_packets; packet_num++)
@@ -454,11 +452,11 @@ void server_send_dif(int p) // send dif to a specific client
       int packet_data_size = 1000; // default size
       if (start_byte + packet_data_size > cmp_size) packet_data_size = cmp_size - start_byte; // last piece is smaller
 
-      if (LOG_NET_stdf_all_packets)
+      if (mLog.LOG_NET_stdf_all_packets)
       {
          sprintf(msg, "tx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n",
                        packet_num+1, num_packets, srv_client_state_frame_num[p][0], srv_client_state_frame_num[p][1], start_byte, packet_data_size);
-         add_log_entry2(28, p, msg);
+         mLog.add_log_entry2(28, p, msg);
       }
 
       Packet("stdf");
@@ -494,7 +492,7 @@ void server_proc_player_drop(void)
             mwGMA.add_game_move(mwPS.frame_num + 4, 2, p, 71); // make client inactive (reason no stak for 100 frames)
 
             sprintf(msg,"Server dropped player:%d (last stak rx > 100)", p);
-            if (LOG_NET) add_log_entry_header(10, p, msg, 1);
+            if (mLog.LOG_NET) mLog.add_log_entry_header(10, p, msg, 1);
          }
       }
 
@@ -502,7 +500,7 @@ void server_proc_player_drop(void)
    if (mwGMA.game_move_entry_pos > (GAME_MOVES_SIZE - 100))
    {
       sprintf(msg,"Server Approaching %d Game Moves! - Shutting Down", GAME_MOVES_SIZE);
-      if (LOG_NET) add_log_entry_header(10, 0, msg, 0);
+      if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 0);
 
       // insert state inactive special move
       mwGMA.add_game_move2(mwPS.frame_num + 8, 2, 0, 64); // type 2 - player inactive
@@ -540,7 +538,7 @@ void server_proc_cdat_packet(double timestamp)
       mwGMA.add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
       sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, mwGMA.game_move_entry_pos);
    }
-   if (LOG_NET_cdat) add_log_entry2(35, p, msg);
+   if (mLog.LOG_NET_cdat) mLog.add_log_entry2(35, p, msg);
 }
 
 void server_lock_client(int p)
@@ -557,7 +555,7 @@ void server_lock_client(int p)
       mPlayer.loc[p].sync_stabilization_holdoff = 0;
 
       sprintf(msg,"Player:%d has locked and will become active in 4 frames!", p);
-      if (LOG_NET_join) add_log_entry_header(11, 0, msg, 0);
+      if (mLog.LOG_NET_join) mLog.add_log_entry_header(11, 0, msg, 0);
    }
 }
 
@@ -606,7 +604,7 @@ void server_proc_stak_packet(double timestamp)
    }
 
    sprintf(msg, "%s %s\n", tmsg1, tmsg2);
-   if (LOG_NET_server_rx_stak) add_log_entry2(33, p, msg);
+   if (mLog.LOG_NET_server_rx_stak) mLog.add_log_entry2(33, p, msg);
 }
 
 
@@ -617,11 +615,11 @@ void server_proc_cjon_packet(int who)
    int color = PacketGet1ByteInt();
    PacketReadString(temp_name);
 
-   if (LOG_NET_join)
+   if (mLog.LOG_NET_join)
    {
       sprintf(msg,"Server received join request from %s requesting color:%d", temp_name, color);
-      add_log_entry_centered_text(11, 0, 76, "", "+", "-");
-      add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+      mLog.add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+      mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
    }
    // find empty player slot
    int cn = 99;
@@ -633,11 +631,11 @@ void server_proc_cjon_packet(int who)
       }
    if (cn == 99) // no empty player slots found
    {
-      if (LOG_NET_join)
+      if (mLog.LOG_NET_join)
       {
          sprintf(msg, "Reply sent: 'SERVER FULL'");
-         add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         mLog.add_log_entry_centered_text(11, 0, 76, "", "+", "-");
       }
 
       Packet("sjon");    // reply with sjon
@@ -674,25 +672,25 @@ void server_proc_cjon_packet(int who)
       PacketPut1ByteInt(mShot.suicide_shots);
       ServerSendTo(packetbuffer, packetsize, who, cn);
 
-      if (LOG_NET_join)
+      if (mLog.LOG_NET_join)
       {
          sprintf(msg,"Server replied with join invitation:");
-         add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Level:[%d]", mLevel.play_level);
-         add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Player Number:[%d]", cn);
-         add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Player Color:[%d]", color);
-         add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Server mwPS.frame_num:[%d]", mwPS.frame_num);
-         add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Deathmatch player shots:[%d]", mShot.deathmatch_shots);
-         add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Deathmatch player shot damage:[%d]", mShot.deathmatch_shot_damage);
-         add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Suicide player shots:[%d]", mShot.suicide_shots);
-         add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         mLog.add_log_entry_centered_text(11, 0, 76, "", "+", "-");
       }
    }
 }
@@ -789,6 +787,6 @@ void server_control()
    server_read_packet_buffer();
    server_rewind();              // to replay and apply late client input
    server_proc_player_drop();    // check to see if we need to drop clients
-   if (LOG_NET_player_array) log_player_array2();
+   if (mLog.LOG_NET_player_array) mLog.log_player_array2();
    for (int p=0; p<NUM_PLAYERS; p++) if (mPlayer.syn[p].active) process_bandwidth_counters(p);
 }

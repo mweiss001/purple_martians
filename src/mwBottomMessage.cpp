@@ -120,7 +120,7 @@ int mwBottomMessage::draw_health(int h, int bmsg_length)
 void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
    char msg[256];
-   if (LOG_TMR_bmsg_add) t0 = al_get_time();
+   if (mLog.LOG_TMR_bmsg_add) t0 = al_get_time();
 
    // event retrigger holdoff for these events that can repeat every frame
    if (ev == 3) // exit
@@ -370,12 +370,12 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
         // 1-shoot 4-exit 15-jump 22-explosion 31-sproingy
       }
    }
-   if (LOG_TMR_bmsg_add) add_log_TMR(al_get_time() - t0, "bmsg_add4", 0);
+   if (mLog.LOG_TMR_bmsg_add) mLog.add_log_TMR(al_get_time() - t0, "bmsg_add4", 0);
 }
 
 void mwBottomMessage::draw()
 {
-   if (LOG_TMR_bmsg_draw) t0 = al_get_time();
+   if (mLog.LOG_TMR_bmsg_draw) t0 = al_get_time();
    if (bottom_msg_on)
    {
 //      bottom_msg_timer = 100; // always draw
@@ -426,7 +426,7 @@ void mwBottomMessage::draw()
 
       }
    }
-   if (LOG_TMR_bmsg_draw) add_log_TMR(al_get_time() - t0, "bmsg_draw", 0);
+   if (mLog.LOG_TMR_bmsg_draw) mLog.add_log_TMR(al_get_time() - t0, "bmsg_draw", 0);
 }
 
 

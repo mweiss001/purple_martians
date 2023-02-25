@@ -17,7 +17,7 @@
 #include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwShots.h"
-#include "z_log.h"
+#include "mwLog.h"
 
 
 
@@ -275,13 +275,13 @@ void mwDisplay::show_var_sizes(void)
    sz = (int)sizeof(mwGMA.game_moves);
    printf("game_moves    :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
 
-   sz = (int)sizeof(log_msg);
+   sz = (int)sizeof(mLog.log_msg);
    printf("log_msg       :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
 
-   sz = (int)sizeof(log_lines);
+   sz = (int)sizeof(mLog.log_lines);
    printf("log_lines     :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
 
-   sz = (int)sizeof(log_lines_int);
+   sz = (int)sizeof(mLog.log_lines_int);
    printf("log_lines_int :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
 }
 

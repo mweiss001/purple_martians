@@ -4,9 +4,8 @@
 #include "mwGameMovesArray.h"
 #include "mwPlayers.h"
 #include "n_netgame.h"
-#include "z_log.h"
+#include "mwLog.h"
 #include "mwProgramState.h"
-//#include "z_menu.h"
 #include "mwLevel.h"
 #include "z_control.h"
 
@@ -218,10 +217,10 @@ void mwGameMovesArray::proc_player_active_game_move(int x)
 
       game_event(80, 0, 0, p, 0, 0, 0);
 
-      if (LOG_NET)
+      if (mLog.LOG_NET)
       {
          sprintf(msg,"PLAYER:%d became ACTIVE color:%d", p, mPlayer.syn[p].color);
-         add_log_entry_header(10, p, msg, 1);
+         mLog.add_log_entry_header(10, p, msg, 1);
       }
    }
 }
@@ -248,10 +247,10 @@ void mwGameMovesArray::proc_player_inactive_game_move(int x)
 
    if (mPlayer.syn[p].active)
    {
-      if (LOG_NET)
+      if (mLog.LOG_NET)
       {
          sprintf(msg,"PLAYER:%d became INACTIVE", p);
-         add_log_entry_header(10, p, msg, 1);
+         mLog.add_log_entry_header(10, p, msg, 1);
       }
 
       // ------------------------------------
@@ -279,7 +278,7 @@ void mwGameMovesArray::proc_player_inactive_game_move(int x)
          for (int pp=1; pp<NUM_PLAYERS; pp++)
             if ((mPlayer.syn[pp].active) && (mPlayer.syn[pp].control_method == 2))
                mPlayer.loc[pp].quit_reason = 91;
-         if (LOG_NET) log_ending_stats_server();
+         if (mLog.LOG_NET) mLog.log_ending_stats_server();
          mwPS.new_program_state = 1;
       }
 
@@ -300,7 +299,7 @@ void mwGameMovesArray::proc_player_inactive_game_move(int x)
       {
          // printf("Remote Player Quit :%d\n", mwPS.frame_num);
          mPlayer.loc[p].quit_reason = 93;
-         if (LOG_NET) log_ending_stats(p);
+         if (mLog.LOG_NET) mLog.log_ending_stats(p);
          mPlayer.init_player(p, 1);
 
          reset_client_state(p);
@@ -461,9 +460,9 @@ void mwGameMovesArray::save_gm()
 void mwGameMovesArray::blind_save_game_moves(int d)
 {
    int do_save = 0;
-   if ((d == 1) && (autosave_game_on_level_done))    do_save = 1;
-   if ((d == 2) && (autosave_game_on_game_exit))     do_save = 1;
-   if ((d == 3) && (autosave_game_on_game_exit))     do_save = 1;
+   if ((d == 1) && (mLog.autosave_game_on_level_done))    do_save = 1;
+   if ((d == 2) && (mLog.autosave_game_on_game_exit))     do_save = 1;
+   if ((d == 3) && (mLog.autosave_game_on_game_exit))     do_save = 1;
    if (do_save)
    {
       char lev[80];

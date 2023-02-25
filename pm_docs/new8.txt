@@ -16082,6 +16082,111 @@ players is all done and compiles
 
 
 
+20230225 5:00AM
+made log into a class..
+
+I want to straighten out the naming for the pairs of graph functions...
+for example:
+   void run_timestamp_graph(void);
+   void log_timestamp_graph(int num_lines);
+
+log_timestamp_graph loads the data then calls run to display it...
+
+how about:
+show_timestamp_graph
+calls load_time_stamp graph, or just does it internally..
+
+
+lets do it for profile first..done..
+
+void run_profile_graph(int choose);
+calls
+int load_profile_graph(int choose);
+
+
+next ping_graph...called only from log_file_viewer..done
+void run_ping_graph(int num_lines);
+calls
+int load_ping_graph(int num_lines);
+
+next
+void run_client_server_sync_graph(void);
+void log_client_server_sync_graph(int num_lines);
+done:
+
+next
+void run_bandwidth_graph(int both);
+void log_bandwidth_graph(int num_lines, int both);
+
+done for now...
+
+
+
+I want to do netgame...
+files:
+n_client.cpp
+n_server.cpp
+n_network.cpp
+n_netgame.cpp
+n_packet.cpp
+and h files for all..
+
+after:
+
+mwNetgame.cpp
+mwNetgameServer.cpp
+mwNetgameClient.cpp
+
+and one h file for all
+
+class mwNetgame
+instance mNetgame
+
+created the class..
+
+add all these:
+n_network.cpp
+n_packet.cpp
+n_netgame.cpp
+
+or should I add everything?
+
+do it...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

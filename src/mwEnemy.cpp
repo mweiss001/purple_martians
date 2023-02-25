@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwEnemy.h"
-#include "z_log.h"
+#include "mwLog.h"
 #include "mwPlayers.h"
 #include "mwDisplay.h"
 #include "mwTimeStamp.h"
@@ -285,12 +285,12 @@ void mwEnemy::proc_enemy_collision_with_pshot(int e)
 void mwEnemy::move_enemies()
 {
    char msg[1024];
-   if (LOG_TMR_move_enem) mwTS.init_timestamps();
+   if (mLog.LOG_TMR_move_enem) mwTS.init_timestamps();
    num_enemy = 0; // count enemies
    for (int e=0; e<100; e++)
       if (Ei[e][0])
       {
-         if (LOG_TMR_move_enem) t0 = al_get_time();
+         if (mLog.LOG_TMR_move_enem) t0 = al_get_time();
          num_enemy++; // enemy count
          if (Ei[e][0] < 50) proc_enemy_collision_with_pshot(e);
          // check for time to live
@@ -327,9 +327,9 @@ void mwEnemy::move_enemies()
             case 13: move_vinepod(e);  break;
             case 99: enemy_deathcount(e); break;
          }
-         if (LOG_TMR_move_enem) mwTS.add_timestamp(103, e, Ei[e][0], al_get_time()-t0, 0);
+         if (mLog.LOG_TMR_move_enem) mwTS.add_timestamp(103, e, Ei[e][0], al_get_time()-t0, 0);
       }
-   if (LOG_TMR_move_enem)
+   if (mLog.LOG_TMR_move_enem)
    {
       // tally up all the times for each enemy type
       double tmr_tally[100][3] = {0};
@@ -350,7 +350,7 @@ void mwEnemy::move_enemies()
          }
       sprintf(msg, "tmst %s\n", t);
       // printf("%s", msg);
-      add_log_entry2(44, 0, msg);
+      mLog.add_log_entry2(44, 0, msg);
    }
 }
 

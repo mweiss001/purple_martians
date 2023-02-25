@@ -4,7 +4,7 @@
 #include "mwInput.h"
 #include "mwDisplay.h"
 #include "mwPlayers.h"
-#include "z_log.h"
+#include "mwLog.h"
 #include "n_netgame.h"
 #include "mwSettings.h"
 #include "mwColor.h"
@@ -237,8 +237,8 @@ void mwInput::function_key_check(void)
 
       if (mI.key[ALLEGRO_KEY_F4][3])
       {
-         if (autosave_game_on_game_exit) mwGMA.blind_save_game_moves(3);
-         if (autosave_log_on_program_exit) save_log_file();
+         if (mLog.autosave_game_on_game_exit) mwGMA.blind_save_game_moves(3);
+         if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
       }
 
       if (mI.key[ALLEGRO_KEY_F5][0]) mwD.set_scale_factor(mwD.scale_factor * .90, 0);
