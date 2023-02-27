@@ -78,6 +78,10 @@ class mwItems
    void proc_pmsg_reset_timer(int i);
    int edit_pmsg_text(int c, int new_msg);
 
+   int get_frame_size(int num);
+   void set_frame_size(int num, int frame_size);
+
+
    // mwItemTrigger.cpp
    int draw_orb(int i, int x, int y);
    void proc_orb(int i);
@@ -97,6 +101,18 @@ class mwItems
    void set_item_damage_location_from_lift(int i, int a20);
    void proc_item_damage_collisions(int i);
 
+   void set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3);
+
+   int draw_timer(int i, int x, int y);
+   void proc_timer(int i);
+
+   void set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, int cnt);
+   void get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, int &cnt);
+
+
+
+
+
    // mwItemEditorFnx.cpp
    int item_data(int x, int y);
    void show_all_items(void);
@@ -107,6 +123,7 @@ class mwItems
    void test_items(void);
    void erase_item(int num);
    int create_trigger(int i);
+   int create_timer(int i);
    int create_block_manip(int i);
    int create_block_damage(int i);
    int create_start_block(int c);

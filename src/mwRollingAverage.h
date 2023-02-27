@@ -16,6 +16,6 @@ class mwRollingAverage
    double mn;
    double mx;
 };
-extern mwRollingAverage mwRA[4];
+extern mwRollingAverage mRollingAverage[4];
 
 #endif

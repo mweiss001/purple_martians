@@ -17,15 +17,6 @@ class mwWindow
    int color;
    char title[80];
 
-
-
-
-
-
-
-
-
-
    // mW[1] - status window only
    int draw_item_num;
    int draw_item_type;
@@ -150,9 +141,6 @@ class mwWindow
    int th_compare_tile(int rb, int cb, int group);
    void th_find_connected(int x, int y, int group);
    void th_process_mouse(void);
-
-
-
 
 
 

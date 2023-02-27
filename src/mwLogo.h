@@ -62,7 +62,7 @@ class mwLogo
 
 };
 
-extern mwLogo mwL;
+extern mwLogo mLogo;
 
 
 

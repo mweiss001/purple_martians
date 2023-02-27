@@ -30,14 +30,14 @@ void mwTriggerEvent::show_event_line(int x, int &y, int ev, int type, int v1, in
 {
    if (type == 1) // item
    {
-      if (mItem.item[v1][0] == 6)  al_draw_textf(mF.pr8, mC.pc[7],  x, y, 0, "ev:%2d - item:%3d [orb] ", ev, v1);
-      if (mItem.item[v1][0] == 9)  al_draw_textf(mF.pr8, mC.pc[14], x, y, 0, "ev:%2d - item:%3d [trg] ", ev, v1);
-      if (mItem.item[v1][0] == 16) al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "ev:%2d - item:%3d [bm]  ", ev, v1);
-      if (mItem.item[v1][0] == 17) al_draw_textf(mF.pr8, mC.pc[10], x, y, 0, "ev:%2d - item:%3d [bd]  ", ev, v1);
+      if (mItem.item[v1][0] == 6)  al_draw_textf(mFont.pr8, mColor.pc[7],  x, y, 0, "ev:%2d - item:%3d [orb] ", ev, v1);
+      if (mItem.item[v1][0] == 9)  al_draw_textf(mFont.pr8, mColor.pc[14], x, y, 0, "ev:%2d - item:%3d [trg] ", ev, v1);
+      if (mItem.item[v1][0] == 16) al_draw_textf(mFont.pr8, mColor.pc[13], x, y, 0, "ev:%2d - item:%3d [bm]  ", ev, v1);
+      if (mItem.item[v1][0] == 17) al_draw_textf(mFont.pr8, mColor.pc[10], x, y, 0, "ev:%2d - item:%3d [bd]  ", ev, v1);
    }
    if (type == 2) // lift
    {
-      al_draw_textf(mF.pr8, mC.pc[15], x, y, 0, "ev:%2d - lift:%3d step:%d", ev, v1, v2);
+      al_draw_textf(mFont.pr8, mColor.pc[15], x, y, 0, "ev:%2d - lift:%3d step:%d", ev, v1, v2);
    }
    y+=8;
 }
@@ -46,10 +46,10 @@ void mwTriggerEvent::show_event_line(int x, int &y, int ev, int type, int v1, in
 void mwTriggerEvent::show_all_events(void)
 {
    int x = 0, y = 20;
-   al_set_target_backbuffer(display);
+   al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgb(0,0,0));
 
-   al_draw_textf(mF.pr8, mC.pc[15], 0, 0, 0, "All non-zero event references");
+   al_draw_textf(mFont.pr8, mColor.pc[15], 0, 0, 0, "All non-zero event references");
 
    for (int i=0; i<500; i++)
    {
@@ -82,7 +82,7 @@ void mwTriggerEvent::show_all_events(void)
 
 
    al_flip_display();
-   mI.tsw(); // wait for keypress
+   mInput.tsw(); // wait for keypress
 }
 
 
@@ -224,7 +224,7 @@ void mwTriggerEvent::find_and_show_event_links(int type, int i, int num2)
                   // found a match with manip or damage
                   int x2 = mItem.item[i2][4]+10;
                   int y2 = mItem.item[i2][5]+10;
-                  al_draw_line(x1, y1, x2, y2, mC.pc[10], 2);
+                  al_draw_line(x1, y1, x2, y2, mColor.pc[10], 2);
                }
             for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
                if (mLift.cur[l].active)
@@ -238,7 +238,7 @@ void mwTriggerEvent::find_and_show_event_links(int type, int i, int num2)
 
                         //printf("pms:%d x:%d y:%d\n", pms, x2, y2);
 
-                        al_draw_line(x1, y1, x2, y2, mC.pc[10], 2);
+                        al_draw_line(x1, y1, x2, y2, mColor.pc[10], 2);
                      }
          }
       }
@@ -259,7 +259,7 @@ void mwTriggerEvent::find_and_show_event_links(int type, int i, int num2)
                // found a match with a trigger
                int x2 = mItem.item[i2][4]+10;
                int y2 = mItem.item[i2][5]+10;
-               al_draw_line(x1, y1, x2, y2, mC.pc[10], 2);
+               al_draw_line(x1, y1, x2, y2, mColor.pc[10], 2);
             }
          }
       }
@@ -296,7 +296,7 @@ void mwTriggerEvent::find_and_show_event_links(int type, int i, int num2)
 //                  printf("found event:%d match with trigger:%d x:%d y:%d\n", ev, i2, x2, y2);
 //                  printf("x1:%d y1:%d x2:%d y2:%d\n", x1, y1, x2, y2);
 
-                  al_draw_line(x1, y1, x2, y2, mC.pc[10], 2);
+                  al_draw_line(x1, y1, x2, y2, mColor.pc[10], 2);
                }
 
             }

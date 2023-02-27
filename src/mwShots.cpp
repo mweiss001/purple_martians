@@ -131,7 +131,7 @@ void mwShots::move_pshots()
 void mwShots::draw_pshots()
 {
    for (int b=0; b<50; b++)
-      if (mShot.p[b].active) al_draw_bitmap(mwB.player_tile[mPlayer.syn[mShot.p[b].player].color][18], mShot.p[b].x, mShot.p[b].y, 0);
+      if (mShot.p[b].active) al_draw_bitmap(mBitmap.player_tile[mPlayer.syn[mShot.p[b].player].color][18], mShot.p[b].x, mShot.p[b].y, 0);
 }
 
 void mwShots::proc_eshot_collision(int p, int b)
@@ -200,23 +200,23 @@ void mwShots::draw_eshots()
 
 /*
    // temp testing
-   al_draw_circle(tx1+10, ty1+10, 10, mC.pc[ttc1], 2 );
-   al_draw_textf(mF.pr8, mC.pc[ttc1], tx1, ty1-10, 0, "%.3f",ttfloat1);
+   al_draw_circle(tx1+10, ty1+10, 10, mColor.pc[ttc1], 2 );
+   al_draw_textf(mFont.pr8, mColor.pc[ttc1], tx1, ty1-10, 0, "%.3f",ttfloat1);
 
 
-   al_draw_circle(tx2+10, ty2+10, 10, mC.pc[ttc2], 2 );
-   al_draw_textf(mF.pr8, mC.pc[ttc2], tx2, ty2+30, 0, "%.3f",ttfloat2);
+   al_draw_circle(tx2+10, ty2+10, 10, mColor.pc[ttc2], 2 );
+   al_draw_textf(mFont.pr8, mColor.pc[ttc2], tx2, ty2+30, 0, "%.3f",ttfloat2);
 
    // temp testing
-   al_draw_rectangle(tx1, ty1, tx2, ty2, mC.pc[ttc1], 2 );
+   al_draw_rectangle(tx1, ty1, tx2, ty2, mColor.pc[ttc1], 2 );
 */
 
    for (int b=0; b<50; b++)
       if (mShot.e[b].active)
       {
          int t = mShot.e[b].shape;
-         if (t > 1000) t = mwB.zz[0][mShot.e[b].shape-1000];
-         al_draw_bitmap(mwB.tile[t], mShot.e[b].x, mShot.e[b].y, 0);
+         if (t > 1000) t = mBitmap.zz[0][mShot.e[b].shape-1000];
+         al_draw_bitmap(mBitmap.tile[t], mShot.e[b].x, mShot.e[b].y, 0);
       }
 }
 

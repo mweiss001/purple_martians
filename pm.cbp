@@ -84,7 +84,6 @@
 			<Option compilerVar="WINDRES" />
 			<Option target="windows_static" />
 		</Unit>
-		<Unit filename="pm_docs/new5.txt" />
 		<Unit filename="pm_docs/new5_todo.txt" />
 		<Unit filename="pm_docs/new8.txt" />
 		<Unit filename="src/libnet.h" />
@@ -95,6 +94,8 @@
 		<Unit filename="src/mwBitmapTools.h" />
 		<Unit filename="src/mwBottomMessage.cpp" />
 		<Unit filename="src/mwBottomMessage.h" />
+		<Unit filename="src/mwCodeStats.cpp" />
+		<Unit filename="src/mwCodeStats.h" />
 		<Unit filename="src/mwColor.cpp" />
 		<Unit filename="src/mwColor.h" />
 		<Unit filename="src/mwConfig.cpp" />
@@ -118,12 +119,14 @@
 		<Unit filename="src/mwEnemyVinePod.cpp" />
 		<Unit filename="src/mwEventQueue.cpp" />
 		<Unit filename="src/mwEventQueue.h" />
+		<Unit filename="src/mwFileIterator.cpp" />
+		<Unit filename="src/mwFileIterator.h" />
 		<Unit filename="src/mwFont.cpp" />
 		<Unit filename="src/mwFont.h" />
 		<Unit filename="src/mwGameEvent.cpp" />
 		<Unit filename="src/mwGameEvent.h" />
-		<Unit filename="src/mwGameMovesArray.cpp" />
-		<Unit filename="src/mwGameMovesArray.h" />
+		<Unit filename="src/mwGameMoves.cpp" />
+		<Unit filename="src/mwGameMoves.h" />
 		<Unit filename="src/mwGlobalLevelTool.cpp" />
 		<Unit filename="src/mwGlobalLevelTool.h" />
 		<Unit filename="src/mwGraph.cpp" />
@@ -147,6 +150,8 @@
 		<Unit filename="src/mwLift.h" />
 		<Unit filename="src/mwLog.cpp" />
 		<Unit filename="src/mwLog.h" />
+		<Unit filename="src/mwLogGraph.cpp" />
+		<Unit filename="src/mwLogViewer.cpp" />
 		<Unit filename="src/mwLogo.cpp" />
 		<Unit filename="src/mwLogo.h" />
 		<Unit filename="src/mwLoop.cpp" />

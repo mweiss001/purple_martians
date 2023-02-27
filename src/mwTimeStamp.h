@@ -31,6 +31,6 @@ class mwTimeStamp
    struct timestamp timestamps[10000];
 
 };
-extern mwTimeStamp mwTS;
-extern double t0;
+extern mwTimeStamp mTimeStamp;
+
 

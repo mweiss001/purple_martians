@@ -4,7 +4,6 @@
 
 
 
-
 struct psyn // synced between server and client
 {
    int active;  // all routines that process player will skip inactive
@@ -189,28 +188,9 @@ struct ploc // not synced between server and client
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class mwPlayers
 {
    public:
-
-   mwPlayers(); // default constructor
-   void initialize(void);
 
    struct psyn syn[NUM_PLAYERS];
    struct ploc loc[NUM_PLAYERS];

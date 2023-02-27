@@ -1,4 +1,5 @@
 // mwWidgets.cpp
+
 #include "pm.h"
 #include "mwWidgets.h"
 #include "mwWindow.h"
@@ -20,10 +21,9 @@
 
 
 
-char smsg[80];
-int bw = 3; // slider adjustment bar width
+mwWidget mWidget;
 
-
+#define SLIDER_BAR_WIDTH 3
 
 
 /*
@@ -54,6 +54,26 @@ colsel 6
 -------------
 327
 
+
+20230226
+82  slideri
+30  slider0
+40  sliderf
+0   sliderd 0
+35  button
+144 buttont
+9   buttont_nb
+7   buttonca
+9   buttontt
+33  buttonp
+45  toggle
+34  togglef
+44  togglecc
+8   colsel
+-------------
+520
+
+
 */
 
 
@@ -63,7 +83,7 @@ colsel 6
 // ------------------------------------------------------------------------------------
 
 
-void draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
+void mwWidget::draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
    if (q1 != -1)
    {
@@ -77,21 +97,21 @@ void draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, i
 
          int col = q1+a;
          while (col > 255) col -=16;
-         al_draw_rounded_rectangle(x1+c, y1+c, x2-c, y2-c, 1, 1, mC.pc[col], 1);
+         al_draw_rounded_rectangle(x1+c, y1+c, x2-c, y2-c, 1, 1, mColor.pc[col], 1);
       }
    }
 }
 
 
-void draw_slider_text(int x1, int y1, int x2, int y2, int q2, int q5)
+void mwWidget::draw_slider_text(int x1, int y1, int x2, int y2, int q2, int q5, const char* msg)
 {
    int xt = (x2+x1)/2;
    int yt = y1 + (y2-y1-8)/2;
-   if (q5) al_draw_text(mF.pr8, mC.pc[q2], x1+4, yt, 0, smsg);
-   else    al_draw_text(mF.pr8, mC.pc[q2], xt, yt, ALLEGRO_ALIGN_CENTER, smsg);
+   if (q5) al_draw_text(mFont.pr8, mColor.pc[q2], x1+4, yt, 0, msg);
+   else    al_draw_text(mFont.pr8, mColor.pc[q2], xt, yt, ALLEGRO_ALIGN_CENTER, msg);
 }
 
-float get_slider_position(float sdx, float sul, float sll, int x1, int y1, int x2, int y2)
+float mwWidget::get_slider_position(float sdx, float sul, float sll, int x1, int y1, int x2, int y2)
 {
    float a, b, c, d, e, f;
    // get slider position
@@ -105,7 +125,7 @@ float get_slider_position(float sdx, float sul, float sll, int x1, int y1, int x
 }
 
 
-float get_slider_position2(float sul, float sll, float sinc, int q4 ,int x1, int y1, int x2, int y2)
+float mwWidget::get_slider_position2(float sul, float sll, float sinc, int q4 ,int x1, int y1, int x2, int y2)
 {
    if (q4)
    {
@@ -114,13 +134,13 @@ float get_slider_position2(float sul, float sll, float sinc, int q4 ,int x1, int
    }
    else
    {
-      mwEQ.proc_event_queue();
+      mEventQueue.proc();
       al_flip_display();
    }
 
 
-   float my = mI.mouse_y;
-   float mx = mI.mouse_x;
+   float my = mInput.mouse_y;
+   float mx = mInput.mouse_x;
    float a, b, c, d, e, f ;
 
    // enforce limits
@@ -140,7 +160,7 @@ float get_slider_position2(float sul, float sll, float sinc, int q4 ,int x1, int
    return f;
 }
 
-float get_slider_position3(float f, float sul, float sll, float sinc, int q4, int x1, int y1, int x2, int y2)
+float mwWidget::get_slider_position3(float f, float sul, float sll, float sinc, int q4, int x1, int y1, int x2, int y2)
 {
    if (q4)
    {
@@ -149,13 +169,13 @@ float get_slider_position3(float f, float sul, float sll, float sinc, int q4, in
    }
    else
    {
-      mwEQ.proc_event_queue();
+      mEventQueue.proc();
       al_flip_display();
    }
-   if (mI.mouse_dz)
+   if (mInput.mouse_dz)
    {
-      int dif = mI.mouse_dz;
-      mI.mouse_dz = 0;
+      int dif = mInput.mouse_dz;
+      mInput.mouse_dz = 0;
 
       f += dif * sinc;                  // only allow increments of sinc
       if (f < sll) f = sll;             // limit check
@@ -170,88 +190,89 @@ float get_slider_position3(float f, float sul, float sll, float sinc, int q4, in
 
 
 
-float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, int y2, int dm, int col)
+float mwWidget::draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, int y2, int dm, int col)
 {
    float f = get_slider_position(sdx, sul, sll, x1, y1, x2, y2);
-   int sx1 = (int)f - bw;
-   int sx2 = (int)f + bw;
+   int sx1 = (int)f - SLIDER_BAR_WIDTH;
+   int sx2 = (int)f + SLIDER_BAR_WIDTH;
    // draw slider bar
-   for (int i=0; i<bw+1; i++)
-      al_draw_rectangle(sx1+i, y1+i, sx2-i, y2-i, mC.pc[col+192-(i*64)], 1);
+   for (int i=0; i<SLIDER_BAR_WIDTH+1; i++)
+      al_draw_rectangle(sx1+i, y1+i, sx2-i, y2-i, mColor.pc[col+192-(i*64)], 1);
 
    // draw rectangle around slider bar to show highlight
-   if (dm == 2) al_draw_rectangle(sx1-1, y1, sx2+1, y2, mC.pc[15], 1);
+   if (dm == 2) al_draw_rectangle(sx1-1, y1, sx2+1, y2, mColor.pc[15], 1);
    return f;
 }
 
 
-float draw_slider(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, float sdx, float sul, float sll, int order)
+float mwWidget::draw_slider(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, float sdx, float sul, float sll, int order, const char *msg)
 {
    float dsx = 0;
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
    if (order == 1)
    {
-      dsx = draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 1, q3);
-      draw_slider_text(x1, y1, x2, y2, q2, q5);
+      dsx = draw_slider_bar(sdx, sul, sll, x1+SLIDER_BAR_WIDTH+1, y1, x2-SLIDER_BAR_WIDTH-1, y2, 1, q3);
+      draw_slider_text(x1, y1, x2, y2, q2, q5, msg);
    }
    if (order == 2)
    {
-      draw_slider_text(x1, y1, x2, y2, q2, q5);
-      dsx = draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 1, q3);
+      draw_slider_text(x1, y1, x2, y2, q2, q5, msg);
+      dsx = draw_slider_bar(sdx, sul, sll, x1+SLIDER_BAR_WIDTH+1, y1, x2-SLIDER_BAR_WIDTH-1, y2, 1, q3);
    }
    return dsx;
 }
 
 
-void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+void mwWidget::slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  int &var, float sul, float sll, float sinc, const char *txt, const char *txt2)
 {
+   char msg[80];
    int y2 = y1+bts-2;
    float sdx = (float) var;
-   if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
-   else          sprintf(smsg, "%s%d", txt, var);
-   float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1);
+   if (var == 0) sprintf(msg, "%s%s", txt, txt2);
+   else          sprintf(msg, "%s%d", txt, var);
+   float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1, msg);
 
 
    if (!q7)
    {
       // is mouse on adjustment bar?
-      if ((mI.mouse_x > dsx-bw) && (mI.mouse_x < dsx+bw) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
+      if ((mInput.mouse_x > dsx-SLIDER_BAR_WIDTH) && (mInput.mouse_x < dsx+SLIDER_BAR_WIDTH) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
       {
-         draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-         al_draw_text(mF.pr8, mC.pc[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
+         draw_slider_bar(sdx, sul, sll, x1+SLIDER_BAR_WIDTH+1, y1, x2-SLIDER_BAR_WIDTH-1, y2, 2, q3); // draw highlighted bar
+         al_draw_text(mFont.pr8, mColor.pc[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, msg);
 
-         if (mI.mouse_b[3][0]) // only when initially clicked
+         if (mInput.mouse_b[3][0]) // only when initially clicked
          {
-            while (mI.mouse_b[3][0])
+            while (mInput.mouse_b[3][0])
             {
                var = (int)get_slider_position3((float) var, sul, sll, sinc, q4, x1, y1, x2, y2);
-               if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
-               else          sprintf(smsg, "%s%d", txt, var);
-               draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float)var, sul, sll, 2);
+               if (var == 0) sprintf(msg, "%s%s", txt, txt2);
+               else          sprintf(msg, "%s%d", txt, var);
+               draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float)var, sul, sll, 2, msg);
             }
          }
-         if (mI.mouse_b[1][0])
+         if (mInput.mouse_b[1][0])
          {
-            while (mI.mouse_b[1][0])
+            while (mInput.mouse_b[1][0])
             {
                var = (int) get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
-               if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
-               else          sprintf(smsg, "%s%d", txt, var);
-               draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float) var, sul, sll, 1);
+               if (var == 0) sprintf(msg, "%s%s", txt, txt2);
+               else          sprintf(msg, "%s%d", txt, var);
+               draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float) var, sul, sll, 1, msg);
             }
          }
       }
       else // if not on adjustment bar, is mouse pressed anywhere else on this button?
       {
-         if ((mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
+         if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
          {
-            while (mI.mouse_b[1][0])
+            while (mInput.mouse_b[1][0])
             {
                var = (int) get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
-               if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
-               else          sprintf(smsg, "%s%d", txt, var);
-               draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float) var, sul, sll, 1);
+               if (var == 0) sprintf(msg, "%s%s", txt, txt2);
+               else          sprintf(msg, "%s%d", txt, var);
+               draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float) var, sul, sll, 1, msg);
             }
          }
       }
@@ -261,36 +282,37 @@ void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
 }
 
 
-void mdw_slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+void mwWidget::slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  int &var, float sul, float sll, float sinc, const char *txt)
 {
+   char msg[80];
    int y2 = y1+bts-2;
    float sdx = (float) var;
 
-   sprintf(smsg, "%s%d", txt, var);
-   float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1);
+   sprintf(msg, "%s%d", txt, var);
+   float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1, msg);
 
    // is mouse on adjustment bar?
-   if ((!q7) && (mI.mouse_x > dsx-bw) && (mI.mouse_x < dsx+bw) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
+   if ((!q7) && (mInput.mouse_x > dsx-SLIDER_BAR_WIDTH) && (mInput.mouse_x < dsx+SLIDER_BAR_WIDTH) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-      draw_slider_text(x1, y1, x2, y2, q2, q5);
-      if (mI.mouse_b[3][0])
+      draw_slider_bar(sdx, sul, sll, x1+SLIDER_BAR_WIDTH+1, y1, x2-SLIDER_BAR_WIDTH-1, y2, 2, q3); // draw highlighted bar
+      draw_slider_text(x1, y1, x2, y2, q2, q5, msg);
+      if (mInput.mouse_b[3][0])
       {
-         while (mI.mouse_b[3][0])
+         while (mInput.mouse_b[3][0])
          {
             var = (int)get_slider_position3((float) var, sul, sll, sinc, q4, x1, y1, x2, y2);
-            sprintf(smsg, "%s%d", txt, var);
-            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float)var, sul, sll, 2);
+            sprintf(msg, "%s%d", txt, var);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float)var, sul, sll, 2, msg);
          }
       }
-      if (mI.mouse_b[1][0])
+      if (mInput.mouse_b[1][0])
       {
-         while (mI.mouse_b[1][0])
+         while (mInput.mouse_b[1][0])
          {
             var = (int) get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
-            sprintf(smsg, "%s%d", txt, var);
-            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float) var, sul, sll, 2);
+            sprintf(msg, "%s%d", txt, var);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float) var, sul, sll, 2, msg);
          }
       }
    }
@@ -298,39 +320,110 @@ void mdw_slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
 }
 
 // float version
-void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+void mwWidget::sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  float &var, float sul, float sll, float sinc, const char *txt)
 {
+   char msg[80];
    int y2 = y1+bts-2;
    float sdx = var;
 
-   sprintf(smsg, "%s%3.2f", txt, var);
-   float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1);
+   sprintf(msg, "%s%3.2f", txt, var);
+   float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1, msg);
 
    // is mouse on adjustment bar?
-   if ((!q7) && (mI.mouse_x > dsx-bw) && (mI.mouse_x < dsx+bw) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
+   if ((!q7) && (mInput.mouse_x > dsx-SLIDER_BAR_WIDTH) && (mInput.mouse_x < dsx+SLIDER_BAR_WIDTH) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-      al_draw_text(mF.pr8, mC.pc[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
+      draw_slider_bar(sdx, sul, sll, x1+SLIDER_BAR_WIDTH+1, y1, x2-SLIDER_BAR_WIDTH-1, y2, 2, q3); // draw highlighted bar
+      al_draw_text(mFont.pr8, mColor.pc[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, msg);
 
-      if (mI.mouse_b[3][0])
+      if (mInput.mouse_b[3][0])
       {
-         while (mI.mouse_b[3][0])
+         while (mInput.mouse_b[3][0])
          {
             var = get_slider_position3(var, sul, sll, sinc, q4, x1, y1, x2, y2);
-            sprintf(smsg, "%s%3.2f", txt, var);
-            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, var, sul, sll, 2);
-            if (bn == 1) mwD.scale_factor_current = mwD.scale_factor;
+            sprintf(msg, "%s%3.2f", txt, var);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, var, sul, sll, 2, msg);
+            if (bn == 1) mDisplay.scale_factor_current = mDisplay.scale_factor;
          }
       }
-      if (mI.mouse_b[1][0])
+      if (mInput.mouse_b[1][0])
       {
-         while (mI.mouse_b[1][0])
+         while (mInput.mouse_b[1][0])
          {
             var = get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
-            sprintf(smsg, "%s%3.2f", txt, var);
-            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, var, sul, sll, 1);
-            if (bn == 1) mwD.scale_factor_current = mwD.scale_factor;
+            sprintf(msg, "%s%3.2f", txt, var);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, var, sul, sll, 1, msg);
+            if (bn == 1) mDisplay.scale_factor_current = mDisplay.scale_factor;
+         }
+      }
+   }
+   if (q6 == 1) y1+=bts;
+}
+
+
+
+
+
+
+
+
+
+
+
+// non blocking versions...used only on opacity for now
+
+float mwWidget::get_slider_position2nb(float sul, float sll, float sinc, int q4 ,int x1, int y1, int x2, int y2)
+{
+
+   float my = mInput.mouse_y;
+   float mx = mInput.mouse_x;
+   float a, b, c, d, e, f ;
+
+   // enforce limits
+   if (my<y1) my = y1;
+   if (mx<x1) mx = x1;
+   if (my>y2) my = y2;
+   if (mx>x2) mx = x2;
+
+   // get slider position
+   a = mx-x1;                  // relative postion of slider bar in range
+   b = x2-x1;                  // range
+   c = a / b;                  // ratio = position / range
+   d = sul-sll;                // range from buttons
+   e = c * d;                  // ratio * range
+   f = e + sll;                // add to ll
+   f = round(f/sinc) * sinc;   // round to sinc
+   return f;
+}
+
+// float version
+void mwWidget::sliderfnb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+                 float &var, float sul, float sll, float sinc, const char *txt)
+{
+   char msg[80];
+   int y2 = y1+bts-2;
+   float sdx = var;
+
+   sprintf(msg, "%s%3.2f", txt, var);
+   draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1, msg);
+
+//   float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1, msg);
+//   // is mouse on adjustment bar?
+//   if ((!q7) && (mInput.mouse_x > dsx-SLIDER_BAR_WIDTH) && (mInput.mouse_x < dsx+SLIDER_BAR_WIDTH) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+
+   if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      draw_slider_bar(sdx, sul, sll, x1+SLIDER_BAR_WIDTH+1, y1, x2-SLIDER_BAR_WIDTH-1, y2, 2, q3); // draw highlighted bar
+      al_draw_text(mFont.pr8, mColor.pc[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, msg);
+
+      if (mInput.mouse_b[1][0])
+      {
+//         while (mInput.mouse_b[1][0])
+         {
+            var = get_slider_position2nb(sul, sll, sinc, q4, x1, y1, x2, y2);
+            sprintf(msg, "%s%3.2f", txt, var);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, var, sul, sll, 1, msg);
+            if (bn == 1) mDisplay.scale_factor_current = mDisplay.scale_factor;
          }
       }
    }
@@ -487,57 +580,6 @@ void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
 
 
 
-
-
-
-
-void set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3)
-{
-   if (mItem.item[i][0] == 6) // orb
-   {
-      mItem.item[i][10] = ev0;
-      mItem.item[i][11] = ev1;
-      mItem.item[i][12] = ev2;
-      mItem.item[i][13] = ev3;
-   }
-   if (mItem.item[i][0] == 9) // trigger
-   {
-      mItem.item[i][11] = ev0;
-      mItem.item[i][12] = ev1;
-      mItem.item[i][13] = ev2;
-      mItem.item[i][14] = ev3;
-   }
-}
-
-
-
-
-int get_frame_size(int num)
-{
-   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME0) return 0;
-   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME1) return 1;
-   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME2) return 2;
-   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME4) return 4;
-   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME12) return 12;
-   return 0;
-}
-
-
-void set_frame_size(int num, int frame_size)
-{
-   // clear all flags
-   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME0;
-   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME1;
-   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME2;
-   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME4;
-   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME12;
-
-   if (frame_size == 0)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME0;
-   if (frame_size == 1)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME1;
-   if (frame_size == 2)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME2;
-   if (frame_size == 4)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME4;
-   if (frame_size == 12) mItem.item[num][2] |= PM_ITEM_PMSG_FRAME12;
-}
 
 
 
@@ -550,19 +592,20 @@ void set_frame_size(int num, int frame_size)
 // --------------------------buttons---------------------------------------------------
 // ------------------------------------------------------------------------------------
 
-int mdw_button(int x1, int &y1, int x2, int bts,
+int mwWidget::button(int x1, int &y1, int x2, int bts,
                 int bn, int num, int type, int obt,
                  int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
+   char msg[80];
    int y2 = y1+bts-2;
 
    // is mouse pressed on this button?
    int press = 0;
    int retval = 0;
 
-   if ((!q7) && (mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
+   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
       press = 1;
    }
 
@@ -570,8 +613,8 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 4)
    {
-      if (mItem.item[num][8] == 0) sprintf(smsg, "disabled");
-      if (mItem.item[num][8] == 1) sprintf(smsg, "Set Desination Item (%d)", mItem.item[num][9]);
+      if (mItem.item[num][8] == 0) sprintf(msg, "disabled");
+      if (mItem.item[num][8] == 1) sprintf(msg, "Set Desination Item (%d)", mItem.item[num][9]);
       if (press)
       {
          if (mItem.item[num][8] == 1) // Set Linked Item
@@ -584,7 +627,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 6)
    {
-      sprintf(smsg, "Set Message Area");
+      sprintf(msg, "Set Message Area");
       if (press)
       {
          int x=0, y=0, w=0, h=0;
@@ -597,9 +640,9 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 7)
    {
-      int frame_size = get_frame_size(num);
+      int frame_size = mItem.get_frame_size(num);
 
-      sprintf(smsg, "Frame Size:%d", frame_size);
+      sprintf(msg, "Frame Size:%d", frame_size);
       if (press)
       {
               if (frame_size == 0)  frame_size = 1;
@@ -608,7 +651,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
          else if (frame_size == 4)  frame_size = 12;
          else if (frame_size == 12) frame_size = 0;
 
-         set_frame_size(num, frame_size);
+         mItem.set_frame_size(num, frame_size);
 
       }
    }
@@ -617,7 +660,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 11)
    {
-      sprintf(smsg, "Set Initial Direction");// trakbot direction
+      sprintf(msg, "Set Initial Direction");// trakbot direction
       if (press)
       {
          if (++mEnemy.Ei[num][5] > 7) mEnemy.Ei[num][5] = 0;
@@ -628,7 +671,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 13)
    {
-      sprintf(smsg, "Main Shape");
+      sprintf(msg, "Main Shape");
       if (press)
       {
          int main_ans = mEnemy.Ei[num][5];
@@ -640,12 +683,12 @@ int mdw_button(int x1, int &y1, int x2, int bts,
          }
          mEnemy.Ei[num][5] = main_ans;
          mEnemy.Ei[num][3] = main_ans;
-         mEnemy.Ei[num][1] = mwB.zz[5][main_ans];
+         mEnemy.Ei[num][1] = mBitmap.zz[5][main_ans];
       }
    }
    if (bn == 14)
    {
-      sprintf(smsg, "Seek Shape");
+      sprintf(msg, "Seek Shape");
       if (press)
       {
          int seek_ans = mEnemy.Ei[num][6];
@@ -672,14 +715,14 @@ int mdw_button(int x1, int &y1, int x2, int bts,
             mItem.item[num][11] = 1;   // trigger with up
          }
       }
-      if (mItem.item[num][8] == 0) sprintf(smsg, "Door Type:Exit Only");
-      if (mItem.item[num][8] == 1) sprintf(smsg, "Door Type:Normal   ");
+      if (mItem.item[num][8] == 0) sprintf(msg, "Door Type:Exit Only");
+      if (mItem.item[num][8] == 1) sprintf(msg, "Door Type:Normal   ");
    }
 
 
    if (bn == 52)
    {
-      sprintf(smsg, "Change Door Shape");
+      sprintf(msg, "Change Door Shape");
       if (press)
       {
          int shape = mItem.item[num][13];
@@ -703,19 +746,19 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       int o = mwWM.mW[7].obt;
       int n = mwWM.mW[7].num;
       int t = 0;
-      sprintf(smsg,"?? Help");
+      sprintf(msg,"?? Help");
 
       if (o == 2)
       {
          t = mItem.item[n][0];
-         sprintf(smsg,"%s Help", mItem.item_name[t]);
+         sprintf(msg,"%s Help", mItem.item_name[t]);
       }
       if (o == 3)
       {
          t = mEnemy.Ei[n][0];
-         sprintf(smsg,"%s Help", (const char *)mEnemy.enemy_name[t][0]);
+         sprintf(msg,"%s Help", (const char *)mEnemy.enemy_name[t][0]);
       }
-      if (o == 4) sprintf(smsg,"Lift Help");
+      if (o == 4) sprintf(msg,"Lift Help");
 
       if (press)
       {
@@ -760,8 +803,8 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 77)
    {
-      if (mItem.item[num][12] == 0) sprintf(smsg, "Type:Fuse Timer");
-      if (mItem.item[num][12] == 1) sprintf(smsg, "Type:Remote Detonator");
+      if (mItem.item[num][12] == 0) sprintf(msg, "Type:Fuse Timer");
+      if (mItem.item[num][12] == 1) sprintf(msg, "Type:Remote Detonator");
       if (press)
       {
          mItem.item[num][12] = !mItem.item[num][12];
@@ -801,12 +844,12 @@ int mdw_button(int x1, int &y1, int x2, int bts,
          }
       }
 
-      sprintf(smsg, "undef");
+      sprintf(msg, "undef");
 
-      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_TOUCH)  sprintf(smsg, "Trigger:Touch");
-      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_UP)     sprintf(smsg, "Trigger:Up");
-      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_DOWN)   sprintf(smsg, "Trigger:Down");
-      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_SHOT) sprintf(smsg, "Trigger:Bullet");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_TOUCH) sprintf(msg, "Trigger:Touch");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_UP)    sprintf(msg, "Trigger:Up");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_DOWN)  sprintf(msg, "Trigger:Down");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_SHOT)  sprintf(msg, "Trigger:Bullet");
    }
 
 
@@ -814,26 +857,26 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    {
       if (press) mItem.item[num][6]++;
       if ((mItem.item[num][6] < 0) || (mItem.item[num][6] > 4)) mItem.item[num][6] = 0;
-      sprintf(smsg, "undef");
-      if (mItem.item[num][6] == 0) sprintf(smsg, "Mode:Toggle");
+      sprintf(msg, "undef");
+      if (mItem.item[num][6] == 0) sprintf(msg, "Mode:Toggle");
       if (mItem.item[num][6] == 1)
       {
-         sprintf(smsg, "Mode:Stick ON");
+         sprintf(msg, "Mode:Stick ON");
          mItem.item[num][2] &= ~PM_ITEM_ORB_STATE;
       }
       if (mItem.item[num][6] == 2)
       {
-         sprintf(smsg, "Mode:Stick OFF");
+         sprintf(msg, "Mode:Stick OFF");
          mItem.item[num][2] |= PM_ITEM_ORB_STATE;
       }
       if (mItem.item[num][6] == 3)
       {
-         sprintf(smsg, "Mode:Timed ON");
+         sprintf(msg, "Mode:Timed ON");
          mItem.item[num][2] &= ~PM_ITEM_ORB_STATE;
       }
       if (mItem.item[num][6] == 4)
       {
-         sprintf(smsg, "Mode:Timed OFF");
+         sprintf(msg, "Mode:Timed OFF");
          mItem.item[num][2] |= PM_ITEM_ORB_STATE;
       }
    }
@@ -846,7 +889,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       if (press) rb++;
       if ((rb < 0) || (rb > 3)) rb = 0;
 
-      sprintf(smsg, "Change Rotation");
+      sprintf(msg, "Change Rotation");
 
       // set rb
       rb = rb << 14; // shift bits into place
@@ -862,13 +905,13 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       int C = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
       int F = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XF;
       int L = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_XL;
-      if (C) sprintf(smsg, "Lift X Align:Center");
+      if (C) sprintf(msg, "Lift X Align:Center");
       else
       {
-         if ((!F) && (!L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x1");
-         if ((!F) &&  (L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x2");
-         if ((F)  && (!L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x1");
-         if ((F)  &&  (L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x2");
+         if ((!F) && (!L)) sprintf(msg, "Lift X Align: Field x1 = Lift x1");
+         if ((!F) &&  (L)) sprintf(msg, "Lift X Align: Field x1 = Lift x2");
+         if ((F)  && (!L)) sprintf(msg, "Lift X Align: Field x2 = Lift x1");
+         if ((F)  &&  (L)) sprintf(msg, "Lift X Align: Field x2 = Lift x2");
       }
       if (press)
       {
@@ -910,13 +953,13 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       int C = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_YC;
       int F = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_YF;
       int L = mItem.item[num][3] & PM_ITEM_TRIGGER_LIFT_YL;
-      if (C) sprintf(smsg, "Lift Y Align:Center");
+      if (C) sprintf(msg, "Lift Y Align:Center");
       else
       {
-         if ((!F) && (!L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y1");
-         if ((!F) &&  (L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y2");
-         if ((F)  && (!L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y1");
-         if ((F)  &&  (L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y2");
+         if ((!F) && (!L)) sprintf(msg, "Lift Y Align: Field y1 = Lift y1");
+         if ((!F) &&  (L)) sprintf(msg, "Lift Y Align: Field y1 = Lift y2");
+         if ((F)  && (!L)) sprintf(msg, "Lift Y Align: Field y2 = Lift y1");
+         if ((F)  &&  (L)) sprintf(msg, "Lift Y Align: Field y2 = Lift y2");
       }
       if (press)
       {
@@ -960,18 +1003,18 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    if (bn == 310) // block 1 select...
    {
       int tn = mItem.item[num][10]&1023; // block 1
-      sprintf(smsg, "Block 1: %d", tn);
+      sprintf(msg, "Block 1: %d", tn);
       if (press) mItem.item[num][10] = mBitmapTools.select_bitmap(mItem.item[num][10]);
    }
    if (bn == 311) // block 2 select...
    {
       int tn = mItem.item[num][11]&1023; // block 2
-      sprintf(smsg, "Block 2: %d", tn);
+      sprintf(msg, "Block 2: %d", tn);
       if (press) mItem.item[num][11] = mBitmapTools.select_bitmap(mItem.item[num][11]);
    }
    if (bn == 320)
    {
-      sprintf(smsg, "Set Event Trigger (%d)", mItem.item[num][1]);
+      sprintf(msg, "Set Event Trigger (%d)", mItem.item[num][1]);
       if (press)
       {
          int i = mMiscFnx.get_trigger_item(2, mItem.item[num][0], num );
@@ -982,13 +1025,13 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
             if (mItem.item[num][0] == 16) // block manip
             {
-               if (mItem.item[num][3] == 3) set_trigger_event(i, 0, 0, ev, 0); // mode 3 - toggle blocks - needs a toggle ON trigger
-               else                   set_trigger_event(i, ev, 0, 0, 0); // needs a regular ON trigger
+               if (mItem.item[num][3] == 3) mItem.set_trigger_event(i, 0, 0, ev, 0); // mode 3 - toggle blocks - needs a toggle ON trigger
+               else                         mItem.set_trigger_event(i, ev, 0, 0, 0); // needs a regular ON trigger
             }
             if (mItem.item[num][0] == 17) // block damage
             {
-               if (mItem.item[num][11] == 1) set_trigger_event(i, 0, 0, ev, 0); // mode 1 - toggle damage - needs a toggle ON trigger
-               else                    set_trigger_event(i, ev, 0, 0, 0); // needs a regular ON trigger
+               if (mItem.item[num][11] == 1) mItem.set_trigger_event(i, 0, 0, ev, 0); // mode 1 - toggle damage - needs a toggle ON trigger
+               else                          mItem.set_trigger_event(i, ev, 0, 0, 0); // needs a regular ON trigger
             }
          }
       }
@@ -996,11 +1039,11 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 401) // timer draw mode
    {
-                                                 sprintf(smsg, "Timer Display: OFF          ");
-      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SN) sprintf(smsg, "Timer Display: Small Number ");
-      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BN) sprintf(smsg, "Timer Display: Large Number ");
-      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SP) sprintf(smsg, "Timer Display: Small Percent");
-      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BP) sprintf(smsg, "Timer Display: Large Percent");
+                                                       sprintf(msg, "Timer Display: OFF          ");
+      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SN) sprintf(msg, "Timer Display: Small Number ");
+      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BN) sprintf(msg, "Timer Display: Large Number ");
+      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SP) sprintf(msg, "Timer Display: Small Percent");
+      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BP) sprintf(msg, "Timer Display: Large Percent");
       if (press)
       {
          if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SN)
@@ -1045,13 +1088,13 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       int F = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_XF;
       int L = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_XL;
 
-      if (C) sprintf(smsg, "Lift X Align:Center");
+      if (C) sprintf(msg, "Lift X Align:Center");
       else
       {
-         if ((!F) && (!L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x1");
-         if ((!F) &&  (L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x2");
-         if ((F)  && (!L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x1");
-         if ((F)  &&  (L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x2");
+         if ((!F) && (!L)) sprintf(msg, "Lift X Align: Field x1 = Lift x1");
+         if ((!F) &&  (L)) sprintf(msg, "Lift X Align: Field x1 = Lift x2");
+         if ((F)  && (!L)) sprintf(msg, "Lift X Align: Field x2 = Lift x1");
+         if ((F)  &&  (L)) sprintf(msg, "Lift X Align: Field x2 = Lift x2");
       }
       if (press)
       {
@@ -1096,13 +1139,13 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       int F = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_YF;
       int L = mItem.item[num][3] & PM_ITEM_DAMAGE_LIFT_YL;
 
-      if (C) sprintf(smsg, "Lift Y Align:Center");
+      if (C) sprintf(msg, "Lift Y Align:Center");
       else
       {
-         if ((!F) && (!L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y1");
-         if ((!F) &&  (L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y2");
-         if ((F)  && (!L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y1");
-         if ((F)  &&  (L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y2");
+         if ((!F) && (!L)) sprintf(msg, "Lift Y Align: Field y1 = Lift y1");
+         if ((!F) &&  (L)) sprintf(msg, "Lift Y Align: Field y1 = Lift y2");
+         if ((F)  && (!L)) sprintf(msg, "Lift Y Align: Field y2 = Lift y1");
+         if ((F)  &&  (L)) sprintf(msg, "Lift Y Align: Field y2 = Lift y2");
       }
       if (press)
       {
@@ -1145,18 +1188,18 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 501)
    {
-      if (num == -1) sprintf(smsg, "#");       // show row header
-      else           sprintf(smsg, "%d", num); // show step num
+      if (num == -1) sprintf(msg, "#");       // show row header
+      else           sprintf(msg, "%d", num); // show step num
    }
    if (bn == 502)
    {
-      if (num == -1) sprintf(smsg, "Type");  // show row header
-      if (num == 0)  sprintf(smsg, "----");
-      if (num == 1)  sprintf(smsg, "Move");
-      if (num == 2)  sprintf(smsg, "Wait");
-      if (num == 3)  sprintf(smsg, "Wait");
-      if (num == 4)  sprintf(smsg, "End ");
-      if (num == 5)  sprintf(smsg, "Wait");
+      if (num == -1) sprintf(msg, "Type");  // show row header
+      if (num == 0)  sprintf(msg, "----");
+      if (num == 1)  sprintf(msg, "Move");
+      if (num == 2)  sprintf(msg, "Wait");
+      if (num == 3)  sprintf(msg, "Wait");
+      if (num == 4)  sprintf(msg, "End ");
+      if (num == 5)  sprintf(msg, "Wait");
    }
    if (bn == 503)
    {
@@ -1164,42 +1207,42 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       int s = obt;
       int v = mLift.stp[l][s].val;
 
-      if (num == -1) sprintf(smsg, "Details");  // show row header
-      if (num == 0)  sprintf(smsg, "blank");
-      if (num == 1)  sprintf(smsg, "and Resize [speed:%d]", v);
-      if (num == 2)  sprintf(smsg, "for Timer:%d", v);
-      if (num == 3)  sprintf(smsg, "for Player prox:%d", v);
-      if (num == 5)  sprintf(smsg, "for Trigger Event:%d", v);
+      if (num == -1) sprintf(msg, "Details");  // show row header
+      if (num == 0)  sprintf(msg, "blank");
+      if (num == 1)  sprintf(msg, "and Resize [speed:%d]", v);
+      if (num == 2)  sprintf(msg, "for Timer:%d", v);
+      if (num == 3)  sprintf(msg, "for Player prox:%d", v);
+      if (num == 5)  sprintf(msg, "for Trigger Event:%d", v);
       if (num == 4)
       {
-         sprintf(smsg, "Step - undefined val");
-         if (v == 0) sprintf(smsg, "Step - Loop to Start");
-         if (v == 1) sprintf(smsg, "Step - Warp to Start");
-         if (v == 2) sprintf(smsg, "Step - Freeze Here");
+                     sprintf(msg, "Step - undefined val");
+         if (v == 0) sprintf(msg, "Step - Loop to Start");
+         if (v == 1) sprintf(msg, "Step - Warp to Start");
+         if (v == 2) sprintf(msg, "Step - Freeze Here");
       }
    }
    if (bn == 504)
    {
-      sprintf(smsg, "Name:%s", mLift.cur[num].lift_name); // edit lift name
+      sprintf(msg, "Name:%s", mLift.cur[num].lift_name); // edit lift name
       if (press) return 1;
    }
    if (bn == 505) // lift step end step mode
    {
-      sprintf(smsg, "Undefined value");
-      if (mLift.stp[num][type].val == 0) sprintf(smsg, "Loop to Start");
-      if (mLift.stp[num][type].val == 1) sprintf(smsg, "Warp to Start");
-      if (mLift.stp[num][type].val == 2) sprintf(smsg, "Freeze Here  ");
+                                         sprintf(msg, "Undefined value");
+      if (mLift.stp[num][type].val == 0) sprintf(msg, "Loop to Start");
+      if (mLift.stp[num][type].val == 1) sprintf(msg, "Warp to Start");
+      if (mLift.stp[num][type].val == 2) sprintf(msg, "Freeze Here  ");
       if (press) if (++mLift.stp[num][type].val > 2) mLift.stp[num][type].val = 0; // lift step end step mode
    }
    if (bn == 506)
    {
-      if (num == -1) sprintf(smsg, "C");       // show row header
-      else           sprintf(smsg, "%d", num); // show num
+      if (num == -1) sprintf(msg, "C");       // show row header
+      else           sprintf(msg, "%d", num); // show num
    }
 
    if (bn == 520)
    {
-      sprintf(smsg, "Set Event Trigger (%d)", mLift.stp[num][type].val);
+      sprintf(msg, "Set Event Trigger (%d)", mLift.stp[num][type].val);
       if (press)
       {
          //printf("520 type:%d num:%d \n", type, num);
@@ -1208,24 +1251,24 @@ int mdw_button(int x1, int &y1, int x2, int bts,
          {
             int ev = mTriggerEvent.get_unused_pm_event();
             mLift.stp[num][type].val = ev;
-            set_trigger_event(i, 0, 0, ev, 0); // toggle ON trigger
+            mItem.set_trigger_event(i, 0, 0, ev, 0); // toggle ON trigger
          }
       }
    }
 
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5);
+   draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
 
    // special cases that need bitmaps draw on them
    if (bn == 13)
    {
       float rot = mEnemy.Ef[num][14];
-      al_draw_rotated_bitmap(mwB.tile[mwB.zz[0][mEnemy.Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
+      al_draw_rotated_bitmap(mBitmap.tile[mBitmap.zz[0][mEnemy.Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
    if (bn == 14)
    {
       float rot = mEnemy.Ef[num][14];
-      al_draw_rotated_bitmap(mwB.tile[mwB.zz[0][mEnemy.Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
+      al_draw_rotated_bitmap(mBitmap.tile[mBitmap.zz[0][mEnemy.Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
 
    if (bn == 310)
@@ -1234,8 +1277,8 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       int x = (x2+x1)/2+60;
       int y = (y2+y1)/2-10;
 
-      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mC.pc[0]);
-      al_draw_bitmap(mwB.btile[tn&1023], x, y, 0);
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.btile[tn&1023], x, y, 0);
    }
 
    if (bn == 311)
@@ -1244,8 +1287,8 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       int x = (x2+x1)/2+60;
       int y = (y2+y1)/2-10;
 
-      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mC.pc[0]);
-      al_draw_bitmap(mwB.btile[tn&1023], x, y, 0);
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.btile[tn&1023], x, y, 0);
    }
    if (q6) y1+=bts;
    return retval;
@@ -1255,18 +1298,17 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
 
 // displays a text string, and returns 1 if pressed
-int mdw_buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+int mwWidget::buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
    int y2 = y1+bts-2;
    int ret = 0;
-   sprintf(smsg, "%s", txt);
 
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5);
+   draw_slider_text(x1, y1,  x2, y2, q2, q5, txt);
 
-   if ((!q7) && (mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
+   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
@@ -1280,12 +1322,10 @@ int mdw_buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
 // auto width based on text length x1 is the center
 // highlight outline when moused over
 
-
-int mdw_buttontca(int xc, int &y1, int xd, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+int mwWidget::buttontca(int xc, int &y1, int xd, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
    int y2 = y1+bts-2;
    int ret = 0;
-   sprintf(smsg, "%s", txt);
 
    int tl = (strlen(txt)+1)*4;
 
@@ -1294,78 +1334,65 @@ int mdw_buttontca(int xc, int &y1, int xd, int bts, int bn, int num, int type, i
 
 
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5);
+   draw_slider_text(x1, y1,  x2, y2, q2, q5, txt);
 
-   if ((mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2)) // mouse on button
+   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) // mouse on button
    {
       // show highlight
-      al_draw_rounded_rectangle(x1, y1, x2, y2, 1, 1, mC.pc[q3], 1);
+      al_draw_rounded_rectangle(x1, y1, x2, y2, 1, 1, mColor.pc[q3], 1);
 
-      if ((!q7) && (mI.mouse_b[1][0]))
+      if ((!q7) && (mInput.mouse_b[1][0]))
       {
-         while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
          ret = 1;
       }
-
-
-
    }
 
-
-
-   if ((!q7) && (mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
+   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
    return ret;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// displays a text string, and returns 1 if pressed but doesnt block
-int mdw_buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+// no faded frame, just a simple frame that highlights when moused over
+// displays a text string, and returns 1 if pressed
+// auto width based on text length
+// highlight outline when moused over
+int mwWidget::buttontcb(int x1, int &y1, int xd, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
    int y2 = y1+bts-2;
    int ret = 0;
-   sprintf(smsg, "%s", txt);
 
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5);
+   int tl = (strlen(txt)+1)*8;
 
-   if ((!q7) && (mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
+   int x2 = x1+tl;
+
+   int fc = q1;
+   int tc = q2;
+
+
+   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) // mouse on button
    {
-//      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+      fc = q3;       // show highlight
+      tc = q3;       // show highlight
+
+      if ((!q7) && (mInput.mouse_b[1][0]))
+      {
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+         ret = 1;
+      }
+   }
+
+   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1);
+   draw_slider_text(x1, y1,  x2, y2, tc, q5, txt);
+
+
+   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
@@ -1376,6 +1403,48 @@ int mdw_buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int type, 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// displays a text string, and returns 1 if pressed but doesn't block
+int mwWidget::buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+{
+   int y2 = y1+bts-2;
+   int ret = 0;
+
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
+   draw_slider_text(x1, y1,  x2, y2, q2, q5, txt);
+
+   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+   {
+//      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+      ret = 1;
+   }
+   if (q6) y1+=bts;
+   return ret;
+}
 
 
 
@@ -1389,23 +1458,22 @@ int mdw_buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int type, 
 
 
 // displays a text string and tile, and returns 1 if pressed --- tile is bn
-int mdw_buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+int mwWidget::buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
    int y2 = y1+bts-2;
    int ret = 0;
-   sprintf(smsg, "%s", txt);
 
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5);
+   draw_slider_text(x1, y1,  x2, y2, q2, q5, txt);
 
    // draw tile
    int x = x1+14;
-   al_draw_filled_rectangle(x-1, y1+0, x+21, y1+22, mC.pc[0]);
-   al_draw_bitmap(mwB.btile[tn], x, y1+1, 0);
+   al_draw_filled_rectangle(x-1, y1+0, x+21, y1+22, mColor.pc[0]);
+   al_draw_bitmap(mBitmap.btile[tn], x, y1+1, 0);
 
-   if ((!q7) && (mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
+   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
@@ -1419,13 +1487,14 @@ int mdw_buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, in
 
 
 // increment passed pointer (int &var) and display different text for each value
-void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var)
+void mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var)
 {
+   char msg[80];
    int y2 = y1+bts-2;
    int press = 0;
-   if ((!q7) && (mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
+   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
       press = 1;
    }
 
@@ -1434,41 +1503,35 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    {
       if (press) var++;
       if ((var < 0) || (var > 2)) var = 0;
-      if (var == 0) sprintf(smsg,  "Hysteresis Mode:Static");
-      if (var == 1) sprintf(smsg,  "Hysteresis Mode:Instant");
-      if (var == 2) sprintf(smsg,  "Hysteresis Mode:Gradual");
+      if (var == 0) sprintf(msg,  "Hysteresis Mode:Static");
+      if (var == 1) sprintf(msg,  "Hysteresis Mode:Instant");
+      if (var == 2) sprintf(msg,  "Hysteresis Mode:Gradual");
    }
-
-
-
-
-
-
 
    if (bn == 21)
    {
       if (press) var++;
       if ((var < 0) || (var > 1)) var = 0;
-      if (var == 0) sprintf(smsg,  "Stationary");
-      if (var == 1) sprintf(smsg,  "Fall");
+      if (var == 0) sprintf(msg,  "Stationary");
+      if (var == 1) sprintf(msg,  "Fall");
    }
    if (bn == 22)
    {
       if (press) var++;
       if ((var < -2) || (var > 1)) var = -2;
-      if (var ==  1) sprintf(smsg, "Fall");
-      if (var ==  0) sprintf(smsg, "Stationary");
-      if (var == -1) sprintf(smsg, "Carry");
-      if (var == -2) sprintf(smsg, "Carry Through Door");
+      if (var ==  1) sprintf(msg, "Fall");
+      if (var ==  0) sprintf(msg, "Stationary");
+      if (var == -1) sprintf(msg, "Carry");
+      if (var == -2) sprintf(msg, "Carry Through Door");
    }
    if (bn == 23) // rocket only
    {
       if (press) var++;
       if ((var < -2) || (var > 1)) var = -2;
       if (var == -1) var = 0;
-      if (var ==  1) sprintf(smsg,  "Fall");
-      if (var ==  0) sprintf(smsg,  "Stationary");
-      if (var == -2) sprintf(smsg,  "Ride Through Door");
+      if (var ==  1) sprintf(msg,  "Fall");
+      if (var ==  0) sprintf(msg,  "Stationary");
+      if (var == -2) sprintf(msg,  "Ride Through Door");
    }
    if (bn == 27) // cloner trigger type
    {
@@ -1476,99 +1539,112 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if ((var < 0) || (var > 2)) var = 0;
       if (var == 0)
       {
-         sprintf(smsg, "Trigger Type:Timer Runs  ");
+         sprintf(msg, "Trigger Type:Timer Runs  ");
          mEnemy.Ei[num][7] = mEnemy.Ei[num][6]; // set counter
       }
 
       if (var == 1)
       {
-         sprintf(smsg, "Trigger Type:Timer Resets");
+         sprintf(msg, "Trigger Type:Timer Resets");
          mEnemy.Ei[num][7] = mEnemy.Ei[num][6]; // set counter
       }
-
-      if (var == 2) sprintf(smsg, "Trigger Type:Immediate   ");
+      if (var == 2) sprintf(msg, "Trigger Type:Immediate   ");
    }
    if (bn == 50) // door entry type
    {
       if (press) var++;
       if ((var < 0) || (var > 2)) var = 0;
-      if (var == 0) sprintf(smsg, "Enter Immediate  ");
-      if (var == 1) sprintf(smsg, "Enter with <up>  ");
-      if (var == 2) sprintf(smsg, "Enter with <down>");
+      if (var == 0) sprintf(msg, "Enter Immediate  ");
+      if (var == 1) sprintf(msg, "Enter with <up>  ");
+      if (var == 2) sprintf(msg, "Enter with <down>");
    }
    if (bn == 51) // door show dest line type
    {
       if (press) var++;
       if ((var < 0) || (var > 2)) var = 0;
-      if (var == 0) sprintf(smsg, "Exit link:never show  ");
-      if (var == 1) sprintf(smsg, "Exit link:alway show  ");
-      if (var == 2) sprintf(smsg, "Exit link:when touched");
+      if (var == 0) sprintf(msg, "Exit link:never show  ");
+      if (var == 1) sprintf(msg, "Exit link:alway show  ");
+      if (var == 2) sprintf(msg, "Exit link:when touched");
    }
    if (bn == 53) // door move type
    {
       if (press) var++;
       if ((var < 0) || (var > 2)) var = 0;
-      if (var == 0) sprintf(smsg, "Move Type:Automatic    ");
-      if (var == 1) sprintf(smsg, "Move Type:Force Instant");
-      if (var == 2) sprintf(smsg, "Move Type:Force Move   ");
+      if (var == 0) sprintf(msg, "Move Type:Automatic    ");
+      if (var == 1) sprintf(msg, "Move Type:Force Instant");
+      if (var == 2) sprintf(msg, "Move Type:Force Move   ");
    }
    if (bn == 78)
    {
       if (press) var++;
       if ((var < 0) || (var > 2)) var = 0;
-      if (var == 0) sprintf(smsg, "Start Mode:Default");
-      if (var == 1) sprintf(smsg, "Team Start");
-      if (var == 2) sprintf(smsg, "Checkpoint Common");
-      if (var == 3) sprintf(smsg, "Checkpoint Individual");
+      if (var == 0) sprintf(msg, "Start Mode:Default");
+      if (var == 1) sprintf(msg, "Team Start");
+      if (var == 2) sprintf(msg, "Checkpoint Common");
+      if (var == 3) sprintf(msg, "Checkpoint Individual");
    }
    if (bn == 79)
    {
       if (press) var++;
       if ((var < 0) || (var > 7)) var = 0;
-      sprintf(smsg, "Start Index:%d", var);
+      sprintf(msg, "Start Index:%d", var);
    }
    if (bn == 81)
    {
       if (press) var++;
       if ((var < 0) || (var > 3)) var = 0;
-      if (var == 0) sprintf(smsg, "Draw Boxes:off");
-      if (var == 1) sprintf(smsg, "Draw Boxes:trigger only");
-      if (var == 2) sprintf(smsg, "Draw Boxes:src/dst only");
-      if (var == 3) sprintf(smsg, "Draw Boxes:all");
+      if (var == 0) sprintf(msg, "Draw Boxes:off");
+      if (var == 1) sprintf(msg, "Draw Boxes:trigger only");
+      if (var == 2) sprintf(msg, "Draw Boxes:src/dst only");
+      if (var == 3) sprintf(msg, "Draw Boxes:all");
    }
    if (bn == 100)
    {
       if (press) var++;
       if ((var < 0) || (var > 2)) var = 0;
-      if (var == 0) sprintf(smsg, "Action:Randomize");
-      if (var == 1) sprintf(smsg, "Action:Step from Min to Max");
-      if (var == 2) sprintf(smsg, "Action:Set all to Min");
+      if (var == 0) sprintf(msg, "Action:Randomize");
+      if (var == 1) sprintf(msg, "Action:Step from Min to Max");
+      if (var == 2) sprintf(msg, "Action:Set all to Min");
    }
    if (bn == 101)
    {
       if (press) var++;
       if ((var < 1) || (var > 3)) var = 1;
-      if (var == 1) sprintf(smsg, "Type: Health Bonus");
-      if (var == 2) sprintf(smsg, "Type: Free Man");
-      if (var == 3) sprintf(smsg, "Type: Purple Coin");
+      if (var == 1) sprintf(msg, "Type: Health Bonus");
+      if (var == 2) sprintf(msg, "Type: Free Man");
+      if (var == 3) sprintf(msg, "Type: Purple Coin");
    }
    if (bn == 102)
    {
       if (press) var++;
       if ((var < 1039) || (var > 1042)) var = 1039;
-      if (var == 1039) { sprintf(smsg, "Color:Red");    q1 = 10; }
-      if (var == 1040) { sprintf(smsg, "Color:Green");  q1 = 11; }
-      if (var == 1041) { sprintf(smsg, "Color:Blue");   q1 = 13; }
-      if (var == 1042) { sprintf(smsg, "Color:Purple"); q1 = 8;  }
+      if (var == 1039) { sprintf(msg, "Color:Red");    q1 = 10; }
+      if (var == 1040) { sprintf(msg, "Color:Green");  q1 = 11; }
+      if (var == 1041) { sprintf(msg, "Color:Blue");   q1 = 13; }
+      if (var == 1042) { sprintf(msg, "Color:Purple"); q1 = 8;  }
    }
+
+
+
+   if (bn == 160) // timer 1 mode
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg, "Mode:Free Run");
+      if (var == 1) sprintf(msg, "Mode:Free Run After Trigger");
+      if (var == 2) sprintf(msg, "Mode:Run Only When Triggered");
+      if (var == 3) sprintf(msg, "Mode:Reset When Not Triggered");
+   }
+
+
    if (bn == 301) // block manip mode
    {
       if (press) var++;
       if ((var < 0) || (var > 3)) var = 0;
-      if (var == 0) sprintf(smsg, "MODE:OFF");
-      if (var == 1) sprintf(smsg, "MODE:Set All To Block 1");
-      if (var == 2) sprintf(smsg, "MODE:Set All Block 2 To Block 1");
-      if (var == 3) sprintf(smsg, "MODE:Toggle Block 2 To Block 1");
+      if (var == 0) sprintf(msg, "MODE:OFF");
+      if (var == 1) sprintf(msg, "MODE:Set All To Block 1");
+      if (var == 2) sprintf(msg, "MODE:Set All Block 2 To Block 1");
+      if (var == 3) sprintf(msg, "MODE:Toggle Block 2 To Block 1");
    }
    if (bn == 402) // damage mode
    {
@@ -1576,25 +1652,25 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if ((var < 0) || (var > 4)) var = 0;
       if (var == 0)
       {
-         sprintf(smsg, "MODE:Always ON");
+         sprintf(msg, "MODE:Always ON");
          mItem.item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
 
       }
 
-      if (var == 1) sprintf(smsg, "MODE:Toggle");
+      if (var == 1) sprintf(msg, "MODE:Toggle");
       if (var == 2)
       {
-         sprintf(smsg, "MODE:ON Until Triggered");
+         sprintf(msg, "MODE:ON Until Triggered");
          mItem.item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
       }
 
       if (var == 3)
       {
-         sprintf(smsg, "MODE:OFF Until Triggered");
+         sprintf(msg, "MODE:OFF Until Triggered");
          mItem.item[num][3] &=  ~PM_ITEM_DAMAGE_CURR; // set damage off
       }
 
-      if (var == 4) sprintf(smsg, "MODE:Timed ON And OFF");
+      if (var == 4) sprintf(msg, "MODE:Timed ON And OFF");
    }
 
 
@@ -1602,20 +1678,20 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    {
       if (press) var++;
       if ((var < 0) || (var > 2)) var = 0;
-      if (var == 0) sprintf(smsg, "Draw Type:none         ");
-      if (var == 1) sprintf(smsg, "Draw Type:Red Rectangle");
-      if (var == 2) sprintf(smsg, "Draw Type:Spikey Floor ");
+      if (var == 0) sprintf(msg, "Draw Type:none         ");
+      if (var == 1) sprintf(msg, "Draw Type:Red Rectangle");
+      if (var == 2) sprintf(msg, "Draw Type:Spikey Floor ");
    }
    if (bn == 500) // lift mode
    {
       if (press) var++;
       if ((var < 0) || (var > 2)) var = 0;
-      if (var == 0) sprintf(smsg, "Mode 0 - Normal");
-      if (var == 1) sprintf(smsg, "Mode 1 - Prox Run and Reset");
-      if (var == 2) sprintf(smsg, "Mode 2 - Prox Reset");
+      if (var == 0) sprintf(msg, "Mode 0 - Normal");
+      if (var == 1) sprintf(msg, "Mode 1 - Prox Run and Reset");
+      if (var == 2) sprintf(msg, "Mode 2 - Prox Reset");
    }
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5);
+   draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
    if (q6) y1+=bts;
 }
 
@@ -1673,37 +1749,38 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
 
 
 
-void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
+void mwWidget::colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
+   char msg[80];
    int y2 = y1+bts-2;
-   al_draw_filled_rectangle(x1, y1, x2, y2, mC.pc[0]); // erase
+   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]); // erase
 
    // draw colors (1-15)
    float a = x2-x1; // range
    float b = a/15;  // color swatch width
    if (b<2) b = 2;  // min width
    for (int c=0; c<15; c++)
-      al_draw_filled_rectangle((int)(x1+c*b), y1, (int)(b+x1+c*b), y2, mC.pc[(int)c+1]);
+      al_draw_filled_rectangle((int)(x1+c*b), y1, (int)(b+x1+c*b), y2, mColor.pc[(int)c+1]);
 
-   if (bn == 2) sprintf(smsg, "Select Text Color");
-   if (bn == 3) sprintf(smsg, "Select Frame Color");
-   if (bn == 4) sprintf(smsg, "Select Lift Color");
-   if (bn == 5) sprintf(smsg, "Select Door Color");
-   if (bn == 6) sprintf(smsg, "Select Trigger Field Color");
-   if (bn == 7) sprintf(smsg, "Select Block Manip Field Color");
-   if (bn == 8) sprintf(smsg, "Select Lift Step Color");
+   if (bn == 2) sprintf(msg, "Select Text Color");
+   if (bn == 3) sprintf(msg, "Select Frame Color");
+   if (bn == 4) sprintf(msg, "Select Lift Color");
+   if (bn == 5) sprintf(msg, "Select Door Color");
+   if (bn == 6) sprintf(msg, "Select Trigger Field Color");
+   if (bn == 7) sprintf(msg, "Select Block Manip Field Color");
+   if (bn == 8) sprintf(msg, "Select Lift Step Color");
 
 
-   draw_slider_text(x1, y1,  x2, y2, q2, q5);
+   draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
 
    // draw outline
-   al_draw_rectangle(x1, y1, x2, y2, mC.pc[15], 1);
+   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
 
    // is mouse pressed on button?
-   if ((!q7) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2) && (mI.mouse_b[1][0]))
+   if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (mInput.mouse_b[1][0]))
    {
-      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
-      int color = (int)(1+(mI.mouse_x-x1)/b);
+      while (mInput.mouse_b[1][0]) mEventQueue.proc();
+      int color = (int)(1+(mInput.mouse_x-x1)/b);
 
       if (bn == 2) // text color
       {
@@ -1743,33 +1820,34 @@ void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
 
 
 // toggles the int and displays text, text color, and frame color based on value
-int mdw_toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+int mwWidget::toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                int &var, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1)
 {
+   char msg[80];
    int y2 = y1+bts-2;
    int ret = 0;
    // is mouse pressed on this button?
-   if ((mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2) && (!q7))
+   if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
    {
-      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
       var = ! var;
    }
    if (var)
    {
        q1 = frame_col1;
        q2 = text_col1;
-       sprintf(smsg, "%s", t1);
+       sprintf(msg, "%s", t1);
        ret = 1;
    }
    else
    {
       q1 = frame_col0;
       q2 = text_col0;
-      sprintf(smsg, "%s", t0);
+      sprintf(msg, "%s", t0);
       ret = 0;
    }
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5);
+   draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
 
    if (q6 == 1) y1+=bts;
    return ret;
@@ -1783,21 +1861,21 @@ int mdw_toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type, int 
 
 
 // toggles the int and displays text, text color, and frame color based on value  -- check box style
-int mdw_togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+int mwWidget::togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                int &var, const char* t, int text_col, int frame_col)
 {
    int y2 = y1+bts-2;
    int ret = 0;
 
    // debug show mouse detection area
-//   if ((mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2) && (!q7))
-//      al_draw_rectangle(x1, y1, x2, y2, mC.pc[10], 1);
+//   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
+//      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
 
 
    // is mouse pressed on this button?
-   if ((mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2) && (!q7))
+   if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
    {
-      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
       var = ! var;
    }
 
@@ -1818,13 +1896,13 @@ int mdw_togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
    float mtx = rx2+6;
    float mty = myc-4;
 
-   if (q1>0) al_draw_rectangle(x1, y1, x2, y2, mC.pc[q1], 1);
+   if (q1>0) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[q1], 1);
 
 
-   if (var) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, mC.pc[frame_col]);
-   else     al_draw_rectangle(       rx1, ry1, rx2, ry2, mC.pc[frame_col], 1);
+   if (var) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, mColor.pc[frame_col]);
+   else     al_draw_rectangle(       rx1, ry1, rx2, ry2, mColor.pc[frame_col], 1);
 
-   al_draw_text(mF.pr8, mC.pc[text_col], mtx, mty, 0, t);
+   al_draw_text(mFont.pr8, mColor.pc[text_col], mtx, mty, 0, t);
 
    if (var) ret = 1;
    else ret = 0;
@@ -1867,34 +1945,36 @@ int mdw_togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
 
 // toggle the flag and displays the corresponding string
 // returns the value of the flag
-int mdw_togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+int mwWidget::togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                int &var, int flag, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1)
 {
+   char msg[80];
+
    int ret = 0;
    int y2 = y1+bts-2;
 
    // is mouse pressed on this button?
-   if ((!q7) && (mI.mouse_b[1][0]) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
+   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
       var ^= flag;
    }
    if (var & flag)
    {
        q1 = frame_col1;
        q2 = text_col1;
-       sprintf(smsg, "%s", t1);
+       sprintf(msg, "%s", t1);
        ret = 1;
    }
    else
    {
       q1 = frame_col0;
       q2 = text_col0;
-      sprintf(smsg, "%s", t0);
+      sprintf(msg, "%s", t0);
       ret = 0;
    }
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   draw_slider_text(x1, y1,  x2, y2, q2, q5);
+   draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
    if (q6 == 1) y1+=bts;
    return ret;
 }

@@ -85,11 +85,11 @@ void mwEnemy::move_podzilla(int e)
    }
 
    // set shape based on how far it has retracted
-   int ns = mwB.zz[4][15]; // number of shapes
+   int ns = mBitmap.zz[4][15]; // number of shapes
    float v = (float)Ei[e][6] / (float)Ei[e][7]; // ratio
    int s = v*ns;
    //printf("v:%f, 6:%f  7:%f  s:%d\n", v, (float)Ei[e][6], (float)Ei[e][7], s);
-   Ei[e][1] = mwB.zz[5+s][15];
+   Ei[e][1] = mBitmap.zz[5+s][15];
 
    // set rotation
    if (!Ei[e][5]) set_enemy_rot_from_incs(e);                            // rotate to face direction of movement
@@ -175,11 +175,11 @@ void mwEnemy::move_vinepod(int e)
    }
 
    // set shape based on how far it has extended
-   int ns = mwB.zz[4][15]; // number of shapes
+   int ns = mBitmap.zz[4][15]; // number of shapes
    float v = (float)Ei[e][16] / (float)Ei[e][17]; // ratio
    int s = v*ns;
    //printf("v:%f, 6:%f  7:%f  s:%d\n", v, (float)Ei[e][6], (float)Ei[e][7], s);
-   Ei[e][1] = mwB.zz[5+s][15];
+   Ei[e][1] = mBitmap.zz[5+s][15];
 
 
    // put variables in spline array
@@ -213,7 +213,7 @@ void mwEnemy::draw_vinepod(int e, int x, int c, int custom)
 {
    if (!custom)
    {
-      ALLEGRO_COLOR c2 = mC.pc[9+128];
+      ALLEGRO_COLOR c2 = mColor.pc[9+128];
 
       // put variables in spline array
       float pnts[8];
@@ -262,7 +262,7 @@ void mwEnemy::draw_vinepod(int e, int x, int c, int custom)
                lsa = !lsa;   // toggle leaf side
                float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
                if (lsa) ang+= ALLEGRO_PI;
-               al_draw_scaled_rotated_bitmap(mwB.tile[311], 10, 20, x1, y1, ls, ls, ang, 0);
+               al_draw_scaled_rotated_bitmap(mBitmap.tile[311], 10, 20, x1, y1, ls, ls, ang, 0);
             }
          }
 
@@ -291,7 +291,7 @@ void mwEnemy::draw_vinepod_controls(int num, int legend_highlight)
    float pnts[8];
    for (int i=0; i<8; i++) pnts[i] = mEnemy.Ei[num][i+3]+10;
 
-   al_draw_spline(pnts, mC.pc[10], 0);
+   al_draw_spline(pnts, mColor.pc[10], 0);
 
    // fill array of points from the spline
    float dest[200];
@@ -308,56 +308,56 @@ void mwEnemy::draw_vinepod_controls(int num, int legend_highlight)
 
    // extended position
    int color1 = 10;
-   if (legend_highlight == 2) color1 = mC.flash_color;
+   if (legend_highlight == 2) color1 = mColor.flash_color;
    int epx = mEnemy.Ei[num][9];
    int epy = mEnemy.Ei[num][10];
    mMiscFnx.crosshairs_full(epx+10, epy+10, color1, 1);
 
-   al_draw_textf(mF.pixl, mC.White, epx+22, epy+0, 0, "x:%d", epx-ipx);
-   al_draw_textf(mF.pixl, mC.White, epx+22, epy+8, 0, "y:%d", epy-ipy);
+   al_draw_textf(mFont.pixl, mColor.White, epx+22, epy+0, 0, "x:%d", epx-ipx);
+   al_draw_textf(mFont.pixl, mColor.White, epx+22, epy+8, 0, "y:%d", epy-ipy);
 
    // set extended rotation
    xlen = dest[198] - dest[194];            // get the x distance
    ylen = dest[199] - dest[193];            // get the y distance
    float ext_rot = atan2(ylen, xlen) - ALLEGRO_PI/2;  // rotation
 
-   // draw mwB.tile at extended pos
-   al_draw_scaled_rotated_bitmap(mwB.tile[mEnemy.Ei[num][1]], 10, 10, epx+10, epy+10, 1, 1, ext_rot, ALLEGRO_FLIP_HORIZONTAL);
+   // draw mBitmap.tile at extended pos
+   al_draw_scaled_rotated_bitmap(mBitmap.tile[mEnemy.Ei[num][1]], 10, 10, epx+10, epy+10, 1, 1, ext_rot, ALLEGRO_FLIP_HORIZONTAL);
 
    // control point 1
    color1 = 6;
-   if (legend_highlight == 3) color1 = mC.flash_color;
+   if (legend_highlight == 3) color1 = mColor.flash_color;
    int px = mEnemy.Ei[num][5];
    int py = mEnemy.Ei[num][6];
-   al_draw_line(ipx+10, ipy+10, px+10, py+10, mC.pc[color1], 0);
-   al_draw_line(epx+10, epy+10, px+10, py+10, mC.pc[color1], 0);
-   al_draw_filled_circle(px+10, py+10, 3, mC.pc[color1]);
-   al_draw_circle(px+10, py+10, 6, mC.pc[color1], 1);
-   al_draw_textf(mF.pixl, mC.White, px+20, py+0, 0, "x:%d", px-ipx);
-   al_draw_textf(mF.pixl, mC.White, px+20, py+8, 0, "y:%d", py-ipy);
+   al_draw_line(ipx+10, ipy+10, px+10, py+10, mColor.pc[color1], 0);
+   al_draw_line(epx+10, epy+10, px+10, py+10, mColor.pc[color1], 0);
+   al_draw_filled_circle(px+10, py+10, 3, mColor.pc[color1]);
+   al_draw_circle(px+10, py+10, 6, mColor.pc[color1], 1);
+   al_draw_textf(mFont.pixl, mColor.White, px+20, py+0, 0, "x:%d", px-ipx);
+   al_draw_textf(mFont.pixl, mColor.White, px+20, py+8, 0, "y:%d", py-ipy);
 
 
 
    // control point 2
    color1 = 7;
-   if (legend_highlight == 4) color1 = mC.flash_color;
+   if (legend_highlight == 4) color1 = mColor.flash_color;
    px = mEnemy.Ei[num][7];
    py = mEnemy.Ei[num][8];
-   al_draw_line(ipx+10, ipy+10, px+10, py+10, mC.pc[color1], 0);
-   al_draw_line(epx+10, epy+10, px+10, py+10, mC.pc[color1], 0);
-   al_draw_filled_circle(px+10, py+10, 3, mC.pc[color1]);
-   al_draw_circle(px+10, py+10, 6, mC.pc[color1], 1);
-   al_draw_textf(mF.pixl, mC.pc[15], px+20, py+0, 0, "x:%d", px-ipx);
-   al_draw_textf(mF.pixl, mC.pc[15], px+20, py+8, 0, "y:%d", py-ipy);
+   al_draw_line(ipx+10, ipy+10, px+10, py+10, mColor.pc[color1], 0);
+   al_draw_line(epx+10, epy+10, px+10, py+10, mColor.pc[color1], 0);
+   al_draw_filled_circle(px+10, py+10, 3, mColor.pc[color1]);
+   al_draw_circle(px+10, py+10, 6, mColor.pc[color1], 1);
+   al_draw_textf(mFont.pixl, mColor.pc[15], px+20, py+0, 0, "x:%d", px-ipx);
+   al_draw_textf(mFont.pixl, mColor.pc[15], px+20, py+8, 0, "y:%d", py-ipy);
 
    // trigger box
    int color = 14;
-   if (legend_highlight == 5) color = mC.flash_color;
+   if (legend_highlight == 5) color = mColor.flash_color;
    int tx1 = mEnemy.Ei[num][11];
    int ty1 = mEnemy.Ei[num][12];
    int tx2 = mEnemy.Ei[num][11]+mEnemy.Ei[num][13] + 20;
    int ty2 = mEnemy.Ei[num][12]+mEnemy.Ei[num][14] + 20;
-   al_draw_rectangle(tx1, ty1, tx2, ty2, mC.pc[color], 1);
+   al_draw_rectangle(tx1, ty1, tx2, ty2, mColor.pc[color], 1);
 
 
 }

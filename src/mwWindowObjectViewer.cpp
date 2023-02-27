@@ -30,7 +30,7 @@ int mwWindow::create_obj(int obt, int type, int num)
       int ret = mItem.create_item(type);
       if (ret > 500)
       {
-         al_show_native_message_box(display,
+         al_show_native_message_box(mDisplay.display,
                "Error", "No creator exists for the current item type",
                "Copy from an existing item of that type, or get one from the selection window",
                 NULL, ALLEGRO_MESSAGEBOX_ERROR);
@@ -168,7 +168,7 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
    if (obt == 2) type = mItem.item[num][0];
    if (obt == 3) type = mEnemy.Ei[num][0];
 
-//   al_draw_rectangle(x1-1, y1-1, x2+1, y2+1, mC.pc[10], 1);  // outline entire window
+//   al_draw_rectangle(x1-1, y1-1, x2+1, y2+1, mColor.pc[10], 1);  // outline entire window
 
    int xc = (x1+x2)/2;
    int yt = y1+14;
@@ -189,7 +189,7 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
    legend_color[4] = 0;   // unused
    legend_color[5] = 0;   // unused
 
-   legend_highlight == 1 ? legend_color[1] = mC.flash_color : legend_color[1] = 13;
+   legend_highlight == 1 ? legend_color[1] = mColor.flash_color : legend_color[1] = 13;
 
 
    // title bar
@@ -199,28 +199,28 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
    if (obt == 4) sprintf(msg, "Lift Viewer [%d]", num);
 
    for (int x=0; x<15; x++)
-      al_draw_line(x1, y1+x, x2, y1+x, mC.pc[13+(x*16)], 1);
-   al_draw_text(mF.pr8, mC.pc[15], xc, y1+2, ALLEGRO_ALIGN_CENTER,  msg);
+      al_draw_line(x1, y1+x, x2, y1+x, mColor.pc[13+(x*16)], 1);
+   al_draw_text(mFont.pr8, mColor.pc[15], xc, y1+2, ALLEGRO_ALIGN_CENTER,  msg);
 
 
    if (obt == 4)  // lifts
    {
       mwWM.mW[7].num_legend_lines = 0;
-      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mC.pc[15], 1);
-      al_draw_textf(mF.pr8, mC.pc[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",num+1, mLift.get_num_lifts());
+      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[15], 1);
+      al_draw_textf(mFont.pr8, mColor.pc[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",num+1, mLift.get_num_lifts());
    }
    if (obt == 3)  // enemies
    {
-      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mC.pc[15], 1);
+      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[15], 1);
       mEnemy.draw_enemy(num, 1, xc-92, yt+1);
       sprintf(msg,"%s %d of %d", (const char *)mEnemy.enemy_name[type][0],1+num - mEnemy.e_first_num[type],mEnemy.e_num_of_type[type]);
-      al_draw_text(mF.pr8, mC.pc[13], xc-69, yt+8, 0, msg);
+      al_draw_text(mFont.pr8, mColor.pc[13], xc-69, yt+8, 0, msg);
       switch (type)
       {
          case 3: // archwagon
             sprintf(lmsg[1],"ArchWagon Location");
             sprintf(lmsg[2],"Bullet Proximity");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 4:
             mwWM.mW[7].num_legend_lines = 2;
@@ -233,20 +233,20 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
          case 6: // cannon
             sprintf(lmsg[1],"Cannon Location");
             sprintf(lmsg[2],"Bullet Proximity");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 7: // podzilla
             mwWM.mW[7].num_legend_lines = 4;
             sprintf(lmsg[1],"Podzilla Location");
             sprintf(lmsg[2],"Extended Postion");
             sprintf(lmsg[3],"Trigger Box");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
-            legend_highlight == 3 ? legend_color[3] = mC.flash_color : legend_color[3] = 14;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
+            legend_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 14;
          break;
          case 8: // trakbot
             sprintf(lmsg[1],"TrakBot Location");
             sprintf(lmsg[2],"Bullet Proximity");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 9: // cloner
             mwWM.mW[7].num_legend_lines = 5;
@@ -254,9 +254,9 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             sprintf(lmsg[2],"Source Area");
             sprintf(lmsg[3],"Destination Area");
             sprintf(lmsg[4],"Trigger Box");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 11;
-            legend_highlight == 3 ? legend_color[3] = mC.flash_color : legend_color[3] = 10;
-            legend_highlight == 4 ? legend_color[4] = mC.flash_color : legend_color[4] = 14;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 11;
+            legend_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 10;
+            legend_highlight == 4 ? legend_color[4] = mColor.flash_color : legend_color[4] = 14;
          break;
          case 11:
             mwWM.mW[7].num_legend_lines = 2;
@@ -267,8 +267,8 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             sprintf(lmsg[1],"Flapper Location");
             sprintf(lmsg[2],"Bullet Proximity");
             sprintf(lmsg[3],"Height Above Player");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
-            legend_highlight == 3 ? legend_color[3] = mC.flash_color : legend_color[3] = 10;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
+            legend_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 10;
          break;
 
          case 13: // vinepod
@@ -278,10 +278,10 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             sprintf(lmsg[3],"Control Point 1");
             sprintf(lmsg[4],"Control Point 2");
             sprintf(lmsg[5],"Trigger Box");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
-            legend_highlight == 3 ? legend_color[3] = mC.flash_color : legend_color[3] = 6;
-            legend_highlight == 4 ? legend_color[4] = mC.flash_color : legend_color[4] = 7;
-            legend_highlight == 5 ? legend_color[5] = mC.flash_color : legend_color[5] = 14;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
+            legend_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 6;
+            legend_highlight == 4 ? legend_color[4] = mColor.flash_color : legend_color[4] = 7;
+            legend_highlight == 5 ? legend_color[5] = mColor.flash_color : legend_color[5] = 14;
          break;
 
 
@@ -290,15 +290,15 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
    }
    if (obt == 2)  // items
    {
-      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mC.pc[15], 1);
+      al_draw_rectangle(xc-94, yt, xc+94, yt+22, mColor.pc[15], 1);
       mItem.draw_item(num, 1, xc-94, yt+1);
       sprintf(msg,"%s %d of %d", mItem.item_name[type], 1+num - mItem.item_first_num[type], mItem.item_num_of_type[type]);
-      al_draw_text(mF.pr8, mC.pc[13], xc-69, yt+8, 0, msg);
+      al_draw_text(mFont.pr8, mColor.pc[13], xc-69, yt+8, 0, msg);
       switch (type)
       {
          case 1: // door
          {
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
             if (mItem.item[num][8] == 0)  // exit only, no destination
             {
                // find src door(s)
@@ -332,7 +332,7 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
          case 4: // key
             sprintf(lmsg[1],"Key Location");
             sprintf(lmsg[2],"Block Range");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
          case 5:
              mwWM.mW[7].num_legend_lines = 2;
@@ -349,68 +349,73 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
          case 8:
             sprintf(lmsg[1],"Bomb Location");
             sprintf(lmsg[2],"Damage Range");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 9: // trigger
             sprintf(lmsg[1],"Trigger Item Location");
             sprintf(lmsg[2],"Trigger Field");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 10:
             mwWM.mW[7].num_legend_lines = 3;
             sprintf(lmsg[1],"Scroll Location");
             sprintf(lmsg[2],"Message Area");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
             if (mItem.item[num][2] & PM_ITEM_PMSG_TRIGGER_BOX)
             {
                mwWM.mW[7].num_legend_lines = 4;
                sprintf(lmsg[3],"Trigger Area");
-               legend_highlight == 3 ? legend_color[3] = mC.flash_color : legend_color[3] = 14;
+               legend_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 14;
             }
          break;
          case 11:
             sprintf(lmsg[1],"Rocket Location");
             sprintf(lmsg[2],"Damage Range");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 12:
              mwWM.mW[7].num_legend_lines = 2;
              sprintf(lmsg[1],"Warp Location");
          break;
+         case 13:
+            sprintf(lmsg[1],"Timer Location");
+            sprintf(lmsg[2],"Display Area");
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
+         break;
          case 14: // switch
             sprintf(lmsg[1],"Switch Location");
             sprintf(lmsg[2],"Block Range");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
          case 15:
             sprintf(lmsg[1],"Sproingy Location");
             sprintf(lmsg[2],"Jump Height");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 14;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 16: // block manip
             sprintf(lmsg[1],"Block Manip Item Location");
             sprintf(lmsg[2],"Manip Field");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 12;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 12;
          break;
          case 17: // block damage
             sprintf(lmsg[1],"Item Location");
             sprintf(lmsg[2],"Damage Area");
-            legend_highlight == 2 ? legend_color[2] = mC.flash_color : legend_color[2] = 10;
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
       } // end of switch case
    }  // end of items
 
-   al_draw_rectangle(x1, y1, x2, y2, mC.pc[13], 1);  // outline entire window
+   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[13], 1);  // outline entire window
 
    if (mwWM.mW[7].num_legend_lines > 0)
    {
-      al_draw_text(mF.pr8, mC.pc[legend_color[0]], xc, y2-36+ (4-mwWM.mW[7].num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
-      al_draw_rectangle(xc-100, y2-38+ (4-mwWM.mW[7].num_legend_lines)*8, xc+100, y2-1, mC.pc[13], 1); // big frame
-      al_draw_rectangle(xc-100, y2-38+ (4-mwWM.mW[7].num_legend_lines)*8, xc+100, y2-28+ (4-mwWM.mW[7].num_legend_lines)*8, mC.pc[13], 1); // top frame
+      al_draw_text(mFont.pr8, mColor.pc[legend_color[0]], xc, y2-36+ (4-mwWM.mW[7].num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
+      al_draw_rectangle(xc-100, y2-38+ (4-mwWM.mW[7].num_legend_lines)*8, xc+100, y2-1, mColor.pc[13], 1); // big frame
+      al_draw_rectangle(xc-100, y2-38+ (4-mwWM.mW[7].num_legend_lines)*8, xc+100, y2-28+ (4-mwWM.mW[7].num_legend_lines)*8, mColor.pc[13], 1); // top frame
    }
 
    for (int x=1; x<mwWM.mW[7].num_legend_lines; x++)// draw text lines
-      al_draw_text(mF.pr8, mC.pc[legend_color[x]], xc, y2-26+(3-mwWM.mW[7].num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
+      al_draw_text(mFont.pr8, mColor.pc[legend_color[x]], xc, y2-26+(3-mwWM.mW[7].num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
 }
 void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 {
@@ -448,18 +453,18 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    int lc = 6; // lock_color;
    if (mwWM.mW[7].viewer_lock) lc = 7;
 
-   if (mdw_buttont(xa,  ya, x27-1, bts,                0,0,0,0,  0, 9,15,0, 1,0,0,d, "Prev")) mwWM.mW[7].mb = 22;
-       mdw_toggle( x27, ya, x57-1, bts,                0,0,0,0,  0,lc,15,0, 1,0,0,d, mwWM.mW[7].viewer_lock, "Unlocked", "Locked", 15, 15, 6, 7);
-   if (mdw_buttont(x57, ya, xb,    bts,                0,0,0,0,  0, 9,15,0, 1,0,1,d, "Next")) mwWM.mW[7].mb = 21;
+   if (mWidget.buttont(xa,  ya, x27-1, bts,                0,0,0,0,  0, 9,15,0, 1,0,0,d, "Prev")) mwWM.mW[7].mb = 22;
+       mWidget.toggle( x27, ya, x57-1, bts,                0,0,0,0,  0,lc,15,0, 1,0,0,d, mwWM.mW[7].viewer_lock, "Unlocked", "Locked", 15, 15, 6, 7);
+   if (mWidget.buttont(x57, ya, xb,    bts,                0,0,0,0,  0, 9,15,0, 1,0,1,d, "Next")) mwWM.mW[7].mb = 21;
 
-   if (obt == 4) { if (mdw_buttont(xa, ya, x13-1, bts, 0,0,0,0,  0,13,15,0, 1,0,0,d, "Run Lifts")) mwWM.mW[7].mb = 18; }
-   else          { if (mdw_buttont(xa, ya, x13-1, bts, 0,0,0,0,  0,13,15,0, 1,0,0,d, "Move"))      mwWM.mW[7].mb = 18; }
+   if (obt == 4) { if (mWidget.buttont(xa, ya, x13-1, bts, 0,0,0,0,  0,13,15,0, 1,0,0,d, "Run Lifts")) mwWM.mW[7].mb = 18; }
+   else          { if (mWidget.buttont(xa, ya, x13-1, bts, 0,0,0,0,  0,13,15,0, 1,0,0,d, "Move"))      mwWM.mW[7].mb = 18; }
 
-   if (mdw_buttont(x13, ya, x23-1, bts,                0,0,0,0,  0,14,15,0, 1,0,0,d, "Create")) mwWM.mW[7].mb = 19;
-   if (mdw_buttont(x23, ya, xb,    bts,                0,0,0,0,  0,10,15,0, 1,0,1,d, "Delete")) mwWM.mW[7].mb = 20;
+   if (mWidget.buttont(x13, ya, x23-1, bts,                0,0,0,0,  0,14,15,0, 1,0,0,d, "Create")) mwWM.mW[7].mb = 19;
+   if (mWidget.buttont(x23, ya, xb,    bts,                0,0,0,0,  0,10,15,0, 1,0,1,d, "Delete")) mwWM.mW[7].mb = 20;
 
-   if (mdw_buttont( xa, ya, x14-1, bts,                0,0,0,0,  0,1,15,0,  1,0,0,d, "Help")) mHelp.help("Viewer Basics");
-   mdw_button(     x14, ya, xb,    bts,               57,0,0,0,  0,1,15,0,  1,0,1,d);         // object specific help
+   if (mWidget.buttont( xa, ya, x14-1, bts,                0,0,0,0,  0,1,15,0,  1,0,0,d, "Help")) mHelp.help("Viewer Basics");
+   mWidget.button(     x14, ya, xb,    bts,               57,0,0,0,  0,1,15,0,  1,0,1,d);         // object specific help
 
    ya+=4; // space after common buttons
 
@@ -475,10 +480,10 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       int lift = n;
       int step = mLift.cur[n].current_step;
 
-      mdw_buttonp(       xa, ya, xb, bts, 500,0,0,0,    0,13,15,0,  1,0,1,d, mLift.cur[lift].mode); // MODE
+      mWidget.buttonp(       xa, ya, xb, bts, 500,0,0,0,    0,13,15,0,  1,0,1,d, mLift.cur[lift].mode); // MODE
       if (mLift.cur[lift].mode)
-         mdw_slideri(xa, ya, xb, bts, 0,0,0,0,      0,13,15,15, 1,0,1,d, mLift.cur[lift].val2, 2000, 1, 1,  "Reset Timer:");
-      if (mdw_button(    xa, ya, xb, bts, 504,lift,0,0, 0, 4,15,0,  1,0,1,d)) mwWM.mW[7].mb = 26; // lift name
+         mWidget.slideri(xa, ya, xb, bts, 0,0,0,0,      0,13,15,15, 1,0,1,d, mLift.cur[lift].val2, 2000, 1, 1,  "Reset Timer:");
+      if (mWidget.button(    xa, ya, xb, bts, 504,lift,0,0, 0, 4,15,0,  1,0,1,d)) mwWM.mW[7].mb = 26; // lift name
       ya+=bts;
 
       // list of step buttons
@@ -487,19 +492,19 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
       // process mouse on list of step buttons
       int step_pointer = -99;
-      if ((mI.mouse_x > xa + 10) && (mI.mouse_x < xb - 10)) // is mouse on step buttons?
+      if ((mInput.mouse_x > xa + 10) && (mInput.mouse_x < xb - 10)) // is mouse on step buttons?
       {
          int step0_y_offset = ysb + 14 + bts;
-         int mouse_step = (mI.mouse_y - step0_y_offset) / bts;               // calculate step that mouse is on
+         int mouse_step = (mInput.mouse_y - step0_y_offset) / bts;               // calculate step that mouse is on
          if ((mouse_step >= 0) && (mouse_step < mLift.cur[lift].num_steps))   // is this a valid step?
          {
             step_pointer = mouse_step;  // set step pointer to this step
-            if (mI.mouse_b[1][0])
+            if (mInput.mouse_b[1][0])
             {
                step = mouse_step; // set current step to this step
                mLift.cur[lift].current_step = step; // set current step in lift
             }
-            if (mI.mouse_b[2][0]) mLift.step_popup_menu(lift, step_pointer); // step pop-up menu for this step
+            if (mInput.mouse_b[2][0]) mLift.step_popup_menu(lift, step_pointer); // step pop-up menu for this step
          }
       }
 
@@ -553,178 +558,178 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       switch (type) // enemy subtypes
       {
          case 3:     // archwag
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  9,  0.7, 0.01, "X-Speed:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  16, 0.7, 0.01, "Y-Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  9,  0.7, 0.01, "X-Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  16, 0.7, 0.01, "Y-Speed:");
             ya+=4; // spacer
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
+            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
+            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
             ya+=4; // spacer
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
             ya+=4; // spacer
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
          case 4: // bouncer
-            mdw_sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][5],  12, 0, 0.01, "Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][5],  12, 0, 0.01, "Speed:");
             ya+=4; // spacer
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,d, "Set Initial Direction"))  mMiscFnx.getxy("Initial Direction", 96, 4, n);
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][8], 100, 0, 1,   "Seek Count:");
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,d, "Set Initial Direction"))  mMiscFnx.getxy("Initial Direction", 96, 4, n);
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][8], 100, 0, 1,   "Seek Count:");
             ya+=4; // spacer
-            mdw_button(     xa, ya, xb, bts,  13,n,0,0, 0, 8, 9, 0,  1,0,1,d); // main shape
+            mWidget.button(     xa, ya, xb, bts,  13,n,0,0, 0, 8, 9, 0,  1,0,1,d); // main shape
             ya+=4; // spacer
-            mdw_button(     xa, ya, xb, bts,  14,n,0,0, 0, 8, 9, 0,  1,0,1,d); // seek shape
+            mWidget.button(     xa, ya, xb, bts,  14,n,0,0, 0, 8, 9, 0,  1,0,1,d); // seek shape
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,    "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4] , 10, 0, 0.1,  "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,    "Health Bonus:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,    "Collision Box:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4] , 10, 0, 0.1,  "Health Decrement:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,    "Health Bonus:");
          break;
          case 5:     // jumpworm
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  12, 0.4, 0.01,"X-Speed (Jump):");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,11,15,15,  1,0,1,d, mEnemy.Ei[n][4],  12, 1, 1,     "X-Speed (Ground):1/");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  9, 0.4, 0.01, "Y-Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  12, 0.4, 0.01,"X-Speed (Jump):");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,11,15,15,  1,0,1,d, mEnemy.Ei[n][4],  12, 1, 1,     "X-Speed (Ground):1/");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  9, 0.4, 0.01, "Y-Speed:");
             ya+=4; // spacer
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
+            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
             ya+=4; // spacer
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][8],  160, 0, 1,    "Wall Jump Boost:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][8],  160, 0, 1,    "Wall Jump Boost:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
          case 6: // cannon
-            mdw_sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][5],  12, 0, 0.01, "Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][5],  12, 0, 0.01, "Speed:");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][8], 100, 0, 1,     "Seek Count:");
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,d, "Set Initial Direction"))  mMiscFnx.getxy("Initial Direction", 96, 4, n);
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][8], 100, 0, 1,     "Seek Count:");
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,d, "Set Initial Direction"))  mMiscFnx.getxy("Initial Direction", 96, 4, n);
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,8, 15,15,  1,0,1,d, mEnemy.Ei[n][9], 40, 0, 1,      "Extra Hits To Kill:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,8, 15,15,  1,0,1,d, mEnemy.Ei[n][9], 40, 0, 1,      "Extra Hits To Kill:");
             ya+=4; // spacer
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
          case 7: // podzilla
-            mdw_sliderf(    xa, ya, xb, bts,  29,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][9] , 30, 0.5, 0.5, "Speed:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][9], 240, 0, 1,      "Pause:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  29,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][9] , 30, 0.5, 0.5, "Speed:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][9], 240, 0, 1,      "Pause:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
             ya+=4; // spacer
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Move Extended Position")) mMiscFnx.getxy("Pod Extended Position", 99, 7, n);
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) mMiscFnx.get_block_range("Trigger Box", &mEnemy.Ei[n][11], &mEnemy.Ei[n][12], &mEnemy.Ei[n][13], &mEnemy.Ei[n][14], 2);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Move Extended Position")) mMiscFnx.getxy("Pod Extended Position", 99, 7, n);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) mMiscFnx.get_block_range("Trigger Box", &mEnemy.Ei[n][11], &mEnemy.Ei[n][12], &mEnemy.Ei[n][13], &mEnemy.Ei[n][14], 2);
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
          case 8: // trakbot
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][2],  10, .5, 0.1, "X-Speed:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  10, .5, 0.1, "Y-Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][2],  10, .5, 0.1, "X-Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  10, .5, 0.1, "Y-Speed:");
             ya+=4; // spacer
-            mdw_button(     xa, ya, xb, bts,  11,n,0,0, 0,12,15, 0,  1,0,1,d);  // initial direction
+            mWidget.button(     xa, ya, xb, bts,  11,n,0,0, 0,12,15, 0,  1,0,1,d);  // initial direction
             ya+=4; // spacer
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][7], "Drop Mode:Off", "Drop Mode:On ", 15, 15, 6+64, 6);
+            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][7], "Drop Mode:Off", "Drop Mode:On ", 15, 15, 6+64, 6);
             ya+=4; // spacer
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
          case 9: // cloner
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][30], "Not Invincible", "Invincible!", 15, 15, 12, 10);
+            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][30], "Not Invincible", "Invincible!", 15, 15, 12, 10);
             ya+=4; // spacer
-            mdw_buttonp(    xa, ya, xb, bts,  27,n,0,0, 0,12,15, 0,  1,0,1,d, mEnemy.Ei[n][8]); // trigger type
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][6], 1000, 20, 1, "Delay Timer:");
+            mWidget.buttonp(    xa, ya, xb, bts,  27,n,0,0, 0,12,15, 0,  1,0,1,d, mEnemy.Ei[n][8]); // trigger type
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][6], 1000, 20, 1, "Delay Timer:");
             ya+=4; // spacer
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, mEnemy.Ei[n][9], 4800, 0, 1,  "Created Time To Live:", "-");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, mEnemy.Ei[n][10], 600, 0, 1,  "Max Created Objects:", "-");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, mEnemy.Ei[n][9], 4800, 0, 1,  "Created Time To Live:", "-");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, mEnemy.Ei[n][10], 600, 0, 1,  "Max Created Objects:", "-");
             ya+=4; // spacer
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,d, "Set Source Area")) mMiscFnx.get_block_range("Cloner Source Area", &mEnemy.Ei[n][15], &mEnemy.Ei[n][16], &mEnemy.Ei[n][19], &mEnemy.Ei[n][20], 1);
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Set Destination")) mMiscFnx.getxy("Cloner Destination", 98, 9, n);
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) mMiscFnx.get_block_range("Trigger Box", &mEnemy.Ei[n][11], &mEnemy.Ei[n][12], &mEnemy.Ei[n][13], &mEnemy.Ei[n][14], 2);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,d, "Set Source Area")) mMiscFnx.get_block_range("Cloner Source Area", &mEnemy.Ei[n][15], &mEnemy.Ei[n][16], &mEnemy.Ei[n][19], &mEnemy.Ei[n][20], 1);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Set Destination")) mMiscFnx.getxy("Cloner Destination", 98, 9, n);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) mMiscFnx.get_block_range("Trigger Box", &mEnemy.Ei[n][11], &mEnemy.Ei[n][12], &mEnemy.Ei[n][13], &mEnemy.Ei[n][14], 2);
             ya+=4; // spacer
-            mdw_buttonp(    xa, ya, xb, bts,  81,0,0,0, 0,13,15, 0,  1,0,1,d, mEnemy.Ei[n][4]); // show boxes
+            mWidget.buttonp(    xa, ya, xb, bts,  81,0,0,0, 0,13,15, 0,  1,0,1,d, mEnemy.Ei[n][4]); // show boxes
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,   "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1, "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,   "Health Bonus:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,   "Collision Box:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1, "Health Decrement:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,   "Health Bonus:");
          break;
          case 11: // block walker
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  9, 0.7, 0.01, "X-Speed:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  9, 0.7, 0.01, "Y-Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  9, 0.7, 0.01, "X-Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  9, 0.7, 0.01, "Y-Speed:");
             ya+=4; // spacer
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
+            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
+            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
             ya+=4; // spacer
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
-            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
          case 12: // flapper
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][5],  8, .5, 0.1,  "X-Speed:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  1, 0.01, 0.01, "X-Accel:");
-            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 15, 15, 12, 12);
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][5],  8, .5, 0.1,  "X-Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  1, 0.01, 0.01, "X-Accel:");
+            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 15, 15, 12, 12);
             ya+=4; // spacer
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ef[n][3],  5, 0, 0.01,      "Y-Speed:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ef[n][10],  8, .5, 0.1,     "Flap Speed:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][21], 400, 0, 5,       "Flap Height:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][20], 1000, -1000, 10, "Height Above Player:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ef[n][3],  5, 0, 0.01,      "Y-Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ef[n][10],  8, .5, 0.1,     "Flap Speed:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][21], 400, 0, 5,       "Flap Height:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][20], 1000, -1000, 10, "Height Above Player:");
             ya+=4; // spacer
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
 
          case 13: // vinepod
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 400, 10, 10,  "Extend Time:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][19], 400,  0,  1,  "Pause:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 400, 10, 10,  "Extend Time:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][19], 400,  0,  1,  "Pause:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
             ya+=4; // spacer
 
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_SHOW_PATH, "Hide Path","Show Path", 15+dim, 15, 14+dim, 14);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_INIT, "Invincible At Rest:OFF", "Invincible At Rest:ON ", 15+dim, 15, 14+dim, 14);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_EXTN, "Invincible Extended:OFF", "Invincible Extended:ON ", 15+dim, 15, 14+dim, 14);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_MOVE, "Invincible Moving:OFF", "Invincible Moving:ON ", 15+dim, 15, 14+dim, 14);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_SHOW_PATH, "Hide Path","Show Path", 15+dim, 15, 14+dim, 14);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_INIT, "Invincible At Rest:OFF", "Invincible At Rest:ON ", 15+dim, 15, 14+dim, 14);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_EXTN, "Invincible Extended:OFF", "Invincible Extended:ON ", 15+dim, 15, 14+dim, 14);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_MOVE, "Invincible Moving:OFF", "Invincible Moving:ON ", 15+dim, 15, 14+dim, 14);
 
             ya+=4; // spacer
 
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Set Extended Position")) mMiscFnx.getxy("Vinepod Extended Position", 90, 13, n);
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0, 6,15, 0,  1,0,1,d, "Set Control Point 1")) mMiscFnx.getxy("Vinepod Control Point 1", 91, 13, n);
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0, 7,15, 0,  1,0,1,d, "Set Control Point 2")) mMiscFnx.getxy("Vinepod Control Point 2", 92, 13, n);
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) mMiscFnx.get_block_range("Trigger Box", &mEnemy.Ei[n][11], &mEnemy.Ei[n][12], &mEnemy.Ei[n][13], &mEnemy.Ei[n][14], 2);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Set Extended Position")) mMiscFnx.getxy("Vinepod Extended Position", 90, 13, n);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 6,15, 0,  1,0,1,d, "Set Control Point 1")) mMiscFnx.getxy("Vinepod Control Point 1", 91, 13, n);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 7,15, 0,  1,0,1,d, "Set Control Point 2")) mMiscFnx.getxy("Vinepod Control Point 2", 92, 13, n);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) mMiscFnx.get_block_range("Trigger Box", &mEnemy.Ei[n][11], &mEnemy.Ei[n][12], &mEnemy.Ei[n][13], &mEnemy.Ei[n][14], 2);
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
 
 
@@ -740,29 +745,29 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       switch (type) // item subtypes
       {
          case 1: // door
-            mdw_buttonp(   xa, ya, xb, bts, 22,0,0,0,  0,13,15,0, 1,0,1,d, mItem.item[n][3]); // stat | fall | carry
+            mWidget.buttonp(   xa, ya, xb, bts, 22,0,0,0,  0,13,15,0, 1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mdw_button(    xa, ya, xb, bts, 49,n,0,0,  0,12,15,0, 1,0,1,d); // door type
+            mWidget.button(    xa, ya, xb, bts, 49,n,0,0,  0,12,15,0, 1,0,1,d); // door type
             if (mItem.item[n][8]) // regular door (not exit only)
             {
                ya+=4; // spacer
-               mdw_button( xa, ya, xb, bts,  4,n,0,0,  0,11,15,0, 1,0,1,d); // set linked item
-               mdw_buttonp(xa, ya, xb, bts, 50,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][11]); // door entry type
-               mdw_buttonp(xa, ya, xb, bts, 53,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][7]); // move type
-               mdw_buttonp(xa, ya, xb, bts, 51,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][12]); // exit link show
+               mWidget.button( xa, ya, xb, bts,  4,n,0,0,  0,11,15,0, 1,0,1,d); // set linked item
+               mWidget.buttonp(xa, ya, xb, bts, 50,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][11]); // door entry type
+               mWidget.buttonp(xa, ya, xb, bts, 53,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][7]); // move type
+               mWidget.buttonp(xa, ya, xb, bts, 51,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][12]); // exit link show
             }
             ya+=4; // spacer
-            mdw_button(    xa, ya, xb, bts, 52,n,0,0,  0,13,15,0, 1,0,1,d); // get new shape
-            mdw_colsel(    xa, ya, xb, bts,  5,n,0,0,  0, 0, 0,0, 0,0,1,d); // change color
+            mWidget.button(    xa, ya, xb, bts, 52,n,0,0,  0,13,15,0, 1,0,1,d); // get new shape
+            mWidget.colsel(    xa, ya, xb, bts,  5,n,0,0,  0, 0, 0,0, 0,0,1,d); // change color
          break;
 
          case 2: // bonus
             if (mItem.item[n][6] == 1) // health bonus
             {
-               mdw_buttonp(xa, ya, xb, bts, 22,0,0,0,   0,13,15,0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
+               mWidget.buttonp(xa, ya, xb, bts, 22,0,0,0,   0,13,15,0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
                ya+=4; // spacer
-               mdw_buttonp(xa, ya, xb, bts, 101,0,0,0,  0,11,15,0,  1,0,1,d, mItem.item[n][6]); // bonus type
-               mdw_slideri(xa, ya, xb, bts, 0,0,0,0,    0,11,15,15, 1,0,1,d, mItem.item[n][7], 100, 2, 1, "Health Bonus:");
+               mWidget.buttonp(xa, ya, xb, bts, 101,0,0,0,  0,11,15,0,  1,0,1,d, mItem.item[n][6]); // bonus type
+               mWidget.slideri(xa, ya, xb, bts, 0,0,0,0,    0,11,15,15, 1,0,1,d, mItem.item[n][7], 100, 2, 1, "Health Bonus:");
                mItem.item[n][1] = 1035;
                mItem.item[n][2] = 1;
                if (mItem.item[n][7] == 10) mItem.item[n][1] = 1023;
@@ -770,93 +775,93 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             }
             else if (mItem.item[n][6] == 2) // free man
             {
-               mdw_buttonp(xa, ya, xb, bts, 21, 0,0,0,  0,13,15,0,  1,0,1,d, mItem.item[n][3]); // stat | fall
+               mWidget.buttonp(xa, ya, xb, bts, 21, 0,0,0,  0,13,15,0,  1,0,1,d, mItem.item[n][3]); // stat | fall
                ya+=4; // spacer
-               mdw_buttonp(xa, ya, xb, bts, 101,0,0,0,  0,10,15,0,  1,0,1,d, mItem.item[n][6]); // bonus type
+               mWidget.buttonp(xa, ya, xb, bts, 101,0,0,0,  0,10,15,0,  1,0,1,d, mItem.item[n][6]); // bonus type
                mItem.item[n][1] = 1038;
                mItem.item[n][2] = 1;
             }
             else if (mItem.item[n][6] == 3) // purple coin
             {
-               mdw_buttonp(xa, ya, xb, bts, 21, 0,0,0,  0,13,15,0, 1,0,1,d, mItem.item[n][3]); // stat | fall
+               mWidget.buttonp(xa, ya, xb, bts, 21, 0,0,0,  0,13,15,0, 1,0,1,d, mItem.item[n][3]); // stat | fall
                ya+=4; // spacer
-               mdw_buttonp(xa, ya, xb, bts, 101,0,0,0,  0, 8,15,0, 1,0,1,d, mItem.item[n][6]); // bonus type
+               mWidget.buttonp(xa, ya, xb, bts, 101,0,0,0,  0, 8,15,0, 1,0,1,d, mItem.item[n][6]); // bonus type
                mItem.item[n][1] = 197;
                mItem.item[n][2] = 0;
             }
          break;
          case 3: // exit
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
+            mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][8], 100, 0, 1,  "Enemy Count Lock:");
+            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][8], 100, 0, 1,  "Enemy Count Lock:");
          break;
          case 4: // key
-            mdw_buttonp(    xa, ya, xb, bts, 21,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall
+            mWidget.buttonp(    xa, ya, xb, bts, 21,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall
             ya+=4; // spacer
-            mdw_buttonp(    xa, ya, xb, bts, 102,0,0,0, 0, 8,15, 0,  1,0,1,d, mItem.item[n][1]); // color
+            mWidget.buttonp(    xa, ya, xb, bts, 102,0,0,0, 0, 8,15, 0,  1,0,1,d, mItem.item[n][1]); // color
             ya+=4; // spacer
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15, 0,  1,0,1,d, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15, 0,  1,0,1,d, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
-            mdw_toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][12], "Remove All Blocks", "Remove Only Matching", 15, 15, 7, 7);
+            mWidget.toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][12], "Remove All Blocks", "Remove Only Matching", 15, 15, 7, 7);
          break;
          case 5: // start
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, mItem.item[n][3]); // stat | fall | carry
+            mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mdw_buttonp(    xa, ya, xb, bts, 78,0,0,0,  0,11,15,0,   1,0,1,d, mItem.item[n][6]); // start mode
-            mdw_buttonp(    xa, ya, xb, bts, 79,0,0,0,  0,11,15,0,   1,0,1,d, mItem.item[n][7]); // start index
+            mWidget.buttonp(    xa, ya, xb, bts, 78,0,0,0,  0,11,15,0,   1,0,1,d, mItem.item[n][6]); // start mode
+            mWidget.buttonp(    xa, ya, xb, bts, 79,0,0,0,  0,11,15,0,   1,0,1,d, mItem.item[n][7]); // start index
          break;
          case 6: // orb
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, mItem.item[n][3]); // stat | fall | carry
+            mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mdw_button(     xa, ya, xb, bts, 94,n,0,0,  0, 7,15, 0,  1,0,1,d);             // rotation
+            mWidget.button(     xa, ya, xb, bts, 94,n,0,0,  0, 7,15, 0,  1,0,1,d);             // rotation
             ya+=4; // spacer
-            mdw_button(     xa, ya, xb, bts, 90,n,0,0,  0,12,15, 0,  1,0,1,d);             // orb trigger type
+            mWidget.button(     xa, ya, xb, bts, 90,n,0,0,  0,12,15, 0,  1,0,1,d);             // orb trigger type
             ya+=4; // spacer
-            mdw_button(     xa, ya, xb, bts, 92,n,0,0,  0, 8,15, 0,  1,0,1,d);             // mode
+            mWidget.button(     xa, ya, xb, bts, 92,n,0,0,  0, 8,15, 0,  1,0,1,d);             // mode
             if (mItem.item[n][6] == 0)                                                           // only show initial state for toggle mode
-               mdw_togglf(  xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 15, 15, 8, 8);
+               mWidget.togglf(  xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 15, 15, 8, 8);
             if ((mItem.item[n][6] == 3) || (mItem.item[n][6] == 4))                                    // only show timer for mode 3 and 4
-               mdw_slideri(xa, ya, xb, bts,     0,0,0,0,   0,8,15,15,  1,0,1,d, mItem.item[n][7], 400, 1, 1,  "Time:");
+               mWidget.slideri(xa, ya, xb, bts,     0,0,0,0,   0,8,15,15,  1,0,1,d, mItem.item[n][7], 400, 1, 1,  "Time:");
             ya+=4; // spacer
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][10], 99, 0, 1,    "Set Event Always While On   :", "OFF");
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][11], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1,    "Set Event When Switching On :", "OFF");
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1,    "Set Event When Switching Off:", "OFF");
+            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][10], 99, 0, 1,    "Set Event Always While On   :", "OFF");
+            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][11], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
+            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1,    "Set Event When Switching On :", "OFF");
+            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1,    "Set Event When Switching Off:", "OFF");
          break;
          case 7: // mine
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
+            mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][8], 20, 1, 1,  "Mine Damage:");
+            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][8], 20, 1, 1,  "Mine Damage:");
          break;
          case 8: // bomb
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
+            mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mdw_button(     xa, ya, xb, bts, 77,n,0,0,  0,12,15, 0,  1,0,1,d);          // fuse timer / remote detonator
+            mWidget.button(     xa, ya, xb, bts, 77,n,0,0,  0,12,15, 0,  1,0,1,d);          // fuse timer / remote detonator
             if (!mItem.item[n][12])
-               mdw_slideri( xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][9], 2000, 1,  1,  "Fuse Length:");
+               mWidget.slideri( xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][9], 2000, 1,  1,  "Fuse Length:");
             ya+=4; // spacer
-            mdw_toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][11], "Sticky:Off", "Sticky:On", 15, 15, 4, 4);
+            mWidget.toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][11], "Sticky:Off", "Sticky:On", 15, 15, 4, 4);
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,14,15,15,  1,0,1,d, mItem.item[n][7], 1200, 20, 1,  "Damage Range:");
+            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,14,15,15,  1,0,1,d, mItem.item[n][7], 1200, 20, 1,  "Damage Range:");
          break;
          case 10: // message
 
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON",  15+dim, 15, 9+dim, 9);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON",  15+dim, 15, 9+dim, 9);
             ya+=4; // spacer
-            mdw_button(xa, ya, xb, bts, 6,n,0,0,   0,10,15,0,   1,0,1,d); // Set Message Area
-            mdw_button(xa, ya, xb, bts, 7,n,0,0,   0,10,15,0,   1,0,1,d); // Set Message Frame
+            mWidget.button(xa, ya, xb, bts, 6,n,0,0,   0,10,15,0,   1,0,1,d); // Set Message Area
+            mWidget.button(xa, ya, xb, bts, 7,n,0,0,   0,10,15,0,   1,0,1,d); // Set Message Frame
             ya+=4; // spacer
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_PMSG_TRIGGER_BOX , "Trigger Box:OFF", "Trigger Box:ON",  15+dim, 15, 14+dim, 14);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_PMSG_TRIGGER_BOX , "Trigger Box:OFF", "Trigger Box:ON",  15+dim, 15, 14+dim, 14);
             if (mItem.item[n][2] & PM_ITEM_PMSG_TRIGGER_BOX)
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,14,15,0,  1,0,1,d, "Set Trigger Area")) mMiscFnx.get_block_range("Trigger Area", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,14,15,0,  1,0,1,d, "Set Trigger Area")) mMiscFnx.get_block_range("Trigger Area", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_PMSG_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON",  15+dim, 15, 12+dim, 12);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], PM_ITEM_PMSG_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON",  15+dim, 15, 12+dim, 12);
             if (!(mItem.item[n][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
-            mdw_slideri(xa, ya, xb, bts,     0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][12], 400, 0, 1,  "Message display time:");
+            mWidget.slideri(xa, ya, xb, bts,     0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][12], 400, 0, 1,  "Message display time:");
             ya+=4; // spacer
-            mdw_colsel(     xa, ya, xb, bts, 2,n,0,0,   0, 0, 0, 0,  0,0,1,d);  // frame color select
-            mdw_colsel(     xa, ya, xb, bts, 3,n,0,0,   0, 0, 0, 0,  0,0,1,d);  // text color select
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,15,13, 0,  1,0,1,d, "Edit Message")) mItem.edit_pmsg_text(n, 0);
+            mWidget.colsel(     xa, ya, xb, bts, 2,n,0,0,   0, 0, 0, 0,  0,0,1,d);  // frame color select
+            mWidget.colsel(     xa, ya, xb, bts, 3,n,0,0,   0, 0, 0, 0,  0,0,1,d);  // text color select
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,15,13, 0,  1,0,1,d, "Edit Message")) mItem.edit_pmsg_text(n, 0);
             ya+=bts*2; // leave space for OK and Cancel buttons
             // draw the current one last to ensure it is on top
             mwWM.mW[7].pop_msg_viewer_pos = ya+bts/2+2;
@@ -866,128 +871,160 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=bts*8;
          break;
          case 11: // rocket
-            mdw_buttonp(    xa, ya, xb, bts, 23,0,0,0,  0,13,15,0,  1,0,1,d, mItem.item[n][3]); // stat | fall | | ride through door
+            mWidget.buttonp(    xa, ya, xb, bts, 23,0,0,0,  0,13,15,0,  1,0,1,d, mItem.item[n][3]); // stat | fall | | ride through door
             ya+=4; // spacer
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Set Initial Direction")) mMiscFnx.getxy("Initial Direction", 97, 11, n);
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Set Initial Direction")) mMiscFnx.getxy("Initial Direction", 97, 11, n);
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, mItem.item[n][8], 20,  1, 1,  "Maximum Speed:");
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, mItem.item[n][9], 200, 1, 1,  "Acceleration:");
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, mItem.item[n][6], 100, 0, 1,  "Steerability:");
+            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, mItem.item[n][8], 20,  1, 1,  "Maximum Speed:");
+            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, mItem.item[n][9], 200, 1, 1,  "Acceleration:");
+            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, mItem.item[n][6], 100, 0, 1,  "Steerability:");
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,14,15,15, 1,0,1,d, mItem.item[n][7], 1200, 20, 1,  "Damage Range:");
+            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,14,15,15, 1,0,1,d, mItem.item[n][7], 1200, 20, 1,  "Damage Range:");
 
          break;
          case 14: // switch
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,14, 1,0,1,d, mItem.item[n][3]); // stat | fall | carry
+            mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,14, 1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Block Range")) mMiscFnx.get_block_range("Block Range", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b0001 , "Green:OFF", "Green:ON",  15+dim, 15, 9+dim, 9);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b0010 , "Red:OFF",   "Red:ON",    15+dim, 15, 10+dim, 10);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b0100 , "Blue:OFF",  "Blue:ON",   15+dim, 15, 12+dim, 12);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b1000 , "Purple:OFF","Purple:ON", 15+dim, 15, 8+dim, 8);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b0001 , "Green:OFF", "Green:ON",  15+dim, 15, 9+dim, 9);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b0010 , "Red:OFF",   "Red:ON",    15+dim, 15, 10+dim, 10);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b0100 , "Blue:OFF",  "Blue:ON",   15+dim, 15, 12+dim, 12);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][10], 0b1000 , "Purple:OFF","Purple:ON", 15+dim, 15, 8+dim, 8);
             set_switch_tile(n);
          break;
          case 15: // sproingy
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0, 1,0,1,d, mItem.item[n][3]); // stat | fall | carry
+            mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0, 1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, mItem.item[n][7], 200, 40, 1, "Sproinginess:" );
+            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, mItem.item[n][7], 200, 40, 1, "Sproinginess:" );
          break;
          case 12: // warp
-            mdw_buttonp(    xa, ya, xb, bts, 21,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall
+            mWidget.buttonp(    xa, ya, xb, bts, 21,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall
             ya+=4; // spacer
-            mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][8], 300, 1, 1, "Warp Level:" );
+            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][8], 300, 1, 1, "Warp Level:" );
+         break;
+
+
+         case 13: // timer
+         {
+            int state, t1_mode, t2_mode, time;
+            mItem.get_timer_flags(mItem.item[n][3], state, t1_mode, t2_mode, time);
+
+            ya+=4; // spacer
+            int p = 13;
+            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][10], 1000, 0, 1, "Timer 1:" );
+            mWidget.buttonp(    xa, ya, xb, bts, 160,0,0,0,  0,p,15, 0,  1,0,1,d, t1_mode); // mode
+            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1, "Input Event  :", "OFF");
+            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1, "Output Event :", "OFF");
+            ya+=4; // spacer
+            p = 14;
+            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][11], 1000, 0, 1, "Timer 2:" );
+            mWidget.buttonp(    xa, ya, xb, bts, 160,0,0,0,  0,p,15, 0,  1,0,1,d, t2_mode); // mode
+            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][14], 99, 0, 1, "Input Event  :", "OFF");
+            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][15], 99, 0, 1, "Output Event :", "OFF");
+
+            mItem.set_timer_flags(mItem.item[n][3], state, t1_mode, t2_mode, time);
+
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,0,   1,0,1,d, "Get New Display Area")) mMiscFnx.get_block_range("Display Area", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+
+
+         }
          break;
          case 9: // trigger
          {
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,0,   1,0,1,d, "Get New Trigger Field")) mMiscFnx.get_block_range("Trigger Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,0,   1,0,1,d, "Get New Trigger Field")) mMiscFnx.get_block_range("Trigger Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
             // draw trigger field on/off with optional color select if on
-            if (mdw_togglf( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, 15, 15+dim, mItem.item[n][2]))
-               mdw_colsel(  xa, ya, xb, bts, 6,n,0,0,    0,0,0,0,     0,0,1,d); // color select
+            if (mWidget.togglf( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, 15, 15+dim, mItem.item[n][2]))
+               mWidget.colsel(  xa, ya, xb, bts, 6,n,0,0,    0,0,0,0,     0,0,1,d); // color select
             ya+=4; // spacer
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF         ","Triggered by Players:ON          ", 15+dim, 15, 9+dim, 9);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF         ","Triggered by Enemies:ON          ", 15+dim, 15, 9+dim, 9);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF           ","Triggered by Items:ON            ", 15+dim, 15, 9+dim, 9);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_PSHOT,   "Triggered by Player's Bullets:OFF","Triggered by Player's Bullets:ON ", 15+dim, 15, 9+dim, 9);
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ESHOT,   "Triggered by Enemy's Bullets:OFF ","Triggered by Enemy's Bullets:ON  ", 15+dim, 15, 9+dim, 9);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF         ","Triggered by Players:ON          ", 15+dim, 15, 9+dim, 9);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF         ","Triggered by Enemies:ON          ", 15+dim, 15, 9+dim, 9);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF           ","Triggered by Items:ON            ", 15+dim, 15, 9+dim, 9);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_PSHOT,   "Triggered by Player's Bullets:OFF","Triggered by Player's Bullets:ON ", 15+dim, 15, 9+dim, 9);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ESHOT,   "Triggered by Enemy's Bullets:OFF ","Triggered by Enemy's Bullets:ON  ", 15+dim, 15, 9+dim, 9);
             ya+=4; // spacer
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][11], 99, 0, 1,    "Set Event Always While On   :", "OFF");
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1,    "Set Event When Switching On :", "OFF");
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][14], 99, 0, 1,    "Set Event When Switching Off:", "OFF");
+            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][11], 99, 0, 1,    "Set Event Always While On   :", "OFF");
+            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
+            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1,    "Set Event When Switching On :", "OFF");
+            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][14], 99, 0, 1,    "Set Event When Switching Off:", "OFF");
             ya+=4; // spacer
-            if (mdw_togglf( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_LIFT_ON, "Follows Lift:OFF","Follows Lift:ON ", 15+dim, 15, 6+dim, 6))
+            if (mWidget.togglf( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_LIFT_ON, "Follows Lift:OFF","Follows Lift:ON ", 15+dim, 15, 6+dim, 6))
             {
-               mdw_slideri( xa, ya, xb, bts, 0,0,0,0,    0,6,15,15,   1,0,1,d,mItem.item[n][10], 39, 0, 1, "Lift Number:" );  // Lift Number
-               mdw_button(  xa, ya, xb, bts, 211,n,0,0,  0,6,15,0,    1,0,1,d);  // X Alignment
-               mdw_button(  xa, ya, xb, bts, 212,n,0,0,  0,6,15,0,    1,0,1,d);  // Y Alignment
+               mWidget.slideri( xa, ya, xb, bts, 0,0,0,0,    0,6,15,15,   1,0,1,d,mItem.item[n][10], 39, 0, 1, "Lift Number:" );  // Lift Number
+               mWidget.button(  xa, ya, xb, bts, 211,n,0,0,  0,6,15,0,    1,0,1,d);  // X Alignment
+               mWidget.button(  xa, ya, xb, bts, 212,n,0,0,  0,6,15,0,    1,0,1,d);  // Y Alignment
             }
          }
          break;
+
+
+
+
+
          case 16: // block manip
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,14,  1,0,1,d, "Get New Block Manip Field")) mMiscFnx.get_block_range("Block Manip Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,14,  1,0,1,d, "Get New Block Manip Field")) mMiscFnx.get_block_range("Block Manip Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
-            if (mdw_toggle( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][2], "Draw Block Manip Field:OFF", "Draw Block Manip Field:ON ", 15, 15, 15+96, mItem.item[n][12]))
-               mdw_colsel(  xa, ya, xb, bts, 7,n,0,0,    0,0,0,0,     0,0,1,d);               // color select
+            if (mWidget.toggle( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][2], "Draw Block Manip Field:OFF", "Draw Block Manip Field:ON ", 15, 15, 15+96, mItem.item[n][12]))
+               mWidget.colsel(  xa, ya, xb, bts, 7,n,0,0,    0,0,0,0,     0,0,1,d);               // color select
             ya+=4; // spacer
-            mdw_buttonp(    xa, ya, xb, bts, 301,0,0,0,  0,14,15,0,   1,0,0,d, mItem.item[n][3]);   // mode
+            mWidget.buttonp(    xa, ya, xb, bts, 301,0,0,0,  0,14,15,0,   1,0,0,d, mItem.item[n][3]);   // mode
             ya+=22; // spacer
-            mdw_button(     xa, ya, xb, bts, 310,n,0,0,  0, 8,15,0,   1,0,0,d);               // block 1
+            mWidget.button(     xa, ya, xb, bts, 310,n,0,0,  0, 8,15,0,   1,0,0,d);               // block 1
             ya+=22; // spacer
-            mdw_button(     xa, ya, xb, bts, 311,n,0,0,  0, 8,15,0,   1,0,0,d);               // block 2
+            mWidget.button(     xa, ya, xb, bts, 311,n,0,0,  0, 8,15,0,   1,0,0,d);               // block 2
             ya+=22; // spacer
-            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][1], 99, 0, 1,    "Event Trigger:", "OFF");
-            mdw_button(     xa, ya, xb, bts, 320,n,0,0,  0,13,15,0,   1,0,1,d);               // set trigger
+            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][1], 99, 0, 1,    "Event Trigger:", "OFF");
+            mWidget.button(     xa, ya, xb, bts, 320,n,0,0,  0,13,15,0,   1,0,1,d);               // set trigger
          break;
          case 17: // block damage
          {
-            if (mdw_buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Block Damage Field")) mMiscFnx.get_block_range("Block Damage Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Block Damage Field")) mMiscFnx.get_block_range("Block Damage Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
-            mdw_buttonp(       xa, ya, xb, bts, 404,0,0,0, 0, 8,15,0,  1,0,1,d, mItem.item[n][2]); // damage draw mode
+            mWidget.buttonp(       xa, ya, xb, bts, 404,0,0,0, 0, 8,15,0,  1,0,1,d, mItem.item[n][2]); // damage draw mode
             ya+=4; // spacer
             int p=7; // mode color
-            mdw_buttonp(       xa, ya, xb, bts, 402,n,0,0, 0,p,15,0,   1,0,1,d, mItem.item[n][11]); // MODE
+            mWidget.buttonp(       xa, ya, xb, bts, 402,n,0,0, 0,p,15,0,   1,0,1,d, mItem.item[n][11]); // MODE
             int MODE = mItem.item[n][11];
 
             ya+=4; // spacer
             if (MODE == 1) // toggle
-               mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_CURR, "Initial State:OFF","Initial State:ON ", 15+dim, 15, p+dim, p);
+               mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_CURR, "Initial State:OFF","Initial State:ON ", 15+dim, 15, p+dim, p);
             if (MODE == 2) // ON until triggered
-               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "OFF Time:" );
+               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "OFF Time:" );
             if (MODE == 3) // OFF until triggered
-               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "ON Time:" );
+               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "ON Time:" );
             if (MODE == 4) // Timed on and off
             {
-               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "Total Time:" );
-               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][14], 1000, 0, 1, "Damage Time:" );
-               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][13], 1000, 0, 1, "Initial Time:" );
+               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "Total Time:" );
+               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][14], 1000, 0, 1, "Damage Time:" );
+               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][13], 1000, 0, 1, "Initial Time:" );
             }
             if ((MODE == 2) || (MODE == 3) || (MODE == 4))
             {
                ya+=4; // spacer
-               mdw_button(     xa, ya, xb, bts, 401,n,0,0, 0,12,15,15, 1,0,1,d); // timer draw mode
+               mWidget.button(     xa, ya, xb, bts, 401,n,0,0, 0,12,15,15, 1,0,1,d); // timer draw mode
             }
             if ((MODE == 1) || (MODE == 2) || (MODE == 3)) // Mode 1, 2, and 3
             {
                ya+=4; // spacer
-               mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,   0,13,15,15, 1,0,1,d, mItem.item[n][1], 99, 0, 1, "Event Trigger:", "OFF");
-               mdw_button(     xa, ya, xb, bts, 320,n,0,0, 0,13,15, 0, 1,0,1,d); // set trigger
+               mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,   0,13,15,15, 1,0,1,d, mItem.item[n][1], 99, 0, 1, "Event Trigger:", "OFF");
+               mWidget.button(     xa, ya, xb, bts, 320,n,0,0, 0,13,15, 0, 1,0,1,d); // set trigger
             }
             ya+=4; // spacer
-            if (mdw_togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PLAYER,  "Affects Players:OFF",          "Affects Players:ON",          15+dim, 15, 10+dim, 10))
-               if (!mdw_togglf(xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_INSTGIB, "Player Instant Death:OFF",     "Player Instant Death:ON",     15+dim, 15, 10+dim, 10))
-                  mdw_slideri( xa, ya, xb, bts, 0,0,0,0,   0,10,15,15, 1,0,1,d, mItem.item[n][15], 2000, -2000, 1,        "Player Damage:" );
-            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",          "Affects Enemies:ON",          15+dim, 15, 10+dim, 10);
-            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ITEM,    "Affects Items:OFF",            "Affects Items:ON",            15+dim, 15, 10+dim, 10);
-            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PSHOT,    "Affects Player's Bullets:OFF", "Affects Player's Bullets:ON", 15+dim, 15, 10+dim, 10);
-            mdw_togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ESHOT,    "Affects Enemy's Bullets:OFF",  "Affects Enemy's Bullets:ON",  15+dim, 15, 10+dim, 10);
+            if (mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PLAYER,  "Affects Players:OFF",          "Affects Players:ON",          15+dim, 15, 10+dim, 10))
+               if (!mWidget.togglf(xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_INSTGIB, "Player Instant Death:OFF",     "Player Instant Death:ON",     15+dim, 15, 10+dim, 10))
+                  mWidget.slideri( xa, ya, xb, bts, 0,0,0,0,   0,10,15,15, 1,0,1,d, mItem.item[n][15], 2000, -2000, 1,        "Player Damage:" );
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",          "Affects Enemies:ON",          15+dim, 15, 10+dim, 10);
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ITEM,    "Affects Items:OFF",            "Affects Items:ON",            15+dim, 15, 10+dim, 10);
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PSHOT,    "Affects Player's Bullets:OFF", "Affects Player's Bullets:ON", 15+dim, 15, 10+dim, 10);
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ESHOT,    "Affects Enemy's Bullets:OFF",  "Affects Enemy's Bullets:ON",  15+dim, 15, 10+dim, 10);
             ya+=4; // spacer
-            if (mdw_togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",             "Follows Lift:ON ",            15+dim, 15, 6+dim, 6))
+            if (mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",             "Follows Lift:ON ",            15+dim, 15, 6+dim, 6))
             {
-               mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,6,15,15,  1,0,1,d,mItem.item[n][10], 39, 0, 1, "Lift Number:" );
-               mdw_button(     xa, ya, xb, bts, 411,n,0,0, 0,6,15,0,   1,0,1,d);  // X Alignment
-               mdw_button(     xa, ya, xb, bts, 412,n,0,0, 0,6,15,0,   1,0,1,d);  // Y Alignment
+               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,6,15,15,  1,0,1,d,mItem.item[n][10], 39, 0, 1, "Lift Number:" );
+               mWidget.button(     xa, ya, xb, bts, 411,n,0,0, 0,6,15,0,   1,0,1,d);  // X Alignment
+               mWidget.button(     xa, ya, xb, bts, 412,n,0,0, 0,6,15,0,   1,0,1,d);  // Y Alignment
             }
          }
          break;
@@ -1006,7 +1043,7 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
    int obt = mwWM.mW[7].obt;
    int num = mwWM.mW[7].num;
 
-   al_set_target_bitmap(mwB.level_buffer);
+   al_set_target_bitmap(mBitmap.level_buffer);
 
    if (obt == 4)  // lifts
    {
@@ -1021,12 +1058,12 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
       int xc = (x1 + x2) / 2;
       int yc = (y1 + y2) / 2;
 
-      al_draw_rectangle(x1, y1, x2, y2, mC.pc[color], 1);
+      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[color], 1);
 
-      al_draw_line(xc, 0, xc, y1, mC.pc[color], 1);
-      al_draw_line(xc, y2, xc, 2000, mC.pc[color], 1);
-      al_draw_line(0, yc, x1, yc, mC.pc[color], 1);
-      al_draw_line(x2, yc, 2000, yc, mC.pc[color], 1);
+      al_draw_line(xc, 0, xc, y1, mColor.pc[color], 1);
+      al_draw_line(xc, y2, xc, 2000, mColor.pc[color], 1);
+      al_draw_line(0, yc, x1, yc, mColor.pc[color], 1);
+      al_draw_line(x2, yc, 2000, yc, mColor.pc[color], 1);
    }
    if (obt == 3)  // enemies
    {
@@ -1035,21 +1072,21 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
       int obj_y = mEnemy.Ef[num][1]+10;
 
       int color = 13;
-      if (legend_highlight == 1) color = mC.flash_color;
+      if (legend_highlight == 1) color = mColor.flash_color;
       mMiscFnx.crosshairs_full(obj_x, obj_y, color, 1);
 
       if ((type == 3) || (type == 6) || (type == 8) || (type == 12)) // archwagon, cannon, trakbot, flapper
       {
          // draw yellow shot prox circle
          int color = 14;
-         if (legend_highlight == 2) color = mC.flash_color;
-         al_draw_circle(obj_x, obj_y, mEnemy.Ei[num][17], mC.pc[color], 1);
+         if (legend_highlight == 2) color = mColor.flash_color;
+         al_draw_circle(obj_x, obj_y, mEnemy.Ei[num][17], mColor.pc[color], 1);
       }
       if (type == 7) // podzilla
       {
          // extended position
          int color1 = 10;
-         if (legend_highlight == 2) color1 = mC.flash_color;
+         if (legend_highlight == 2) color1 = mColor.flash_color;
 
          int px=0, py=0;
          mEnemy.get_pod_extended_position(num, &px, &py);
@@ -1057,19 +1094,19 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
 
          // draw tile at extended pos
          float rot = mEnemy.Ef[num][14];
-         al_draw_scaled_rotated_bitmap(mwB.tile[mEnemy.Ei[num][1]], 10, 10, px+10, py+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
+         al_draw_scaled_rotated_bitmap(mBitmap.tile[mEnemy.Ei[num][1]], 10, 10, px+10, py+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
 
          // draw connecting line
-         al_draw_line(obj_x, obj_y, px+10, py+10, mC.pc[10], 1);
+         al_draw_line(obj_x, obj_y, px+10, py+10, mColor.pc[10], 1);
 
          // trigger box
          int color = 14;
-         if (legend_highlight == 3) color = mC.flash_color;
+         if (legend_highlight == 3) color = mColor.flash_color;
          int tx1 = mEnemy.Ei[num][11];
          int ty1 = mEnemy.Ei[num][12];
          int tx2 = mEnemy.Ei[num][11]+mEnemy.Ei[num][13] + 20;
          int ty2 = mEnemy.Ei[num][12]+mEnemy.Ei[num][14] + 20;
-         al_draw_rectangle(tx1, ty1, tx2, ty2, mC.pc[color], 1);
+         al_draw_rectangle(tx1, ty1, tx2, ty2, mColor.pc[color], 1);
       }
 
       if (type == 13) // vinepod
@@ -1082,13 +1119,13 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
       if (type == 9) // cloner
       {
          int color2 = 11;
-         if (legend_highlight == 2) color2 = mC.flash_color;
+         if (legend_highlight == 2) color2 = mColor.flash_color;
 
          int color3 = 10;
-         if (legend_highlight == 3) color3 = mC.flash_color;
+         if (legend_highlight == 3) color3 = mColor.flash_color;
 
          int color4 = 14;
-         if (legend_highlight == 4) color4 = mC.flash_color;
+         if (legend_highlight == 4) color4 = mColor.flash_color;
 
          int cw = mEnemy.Ei[num][19];     // width
          int ch = mEnemy.Ei[num][20];     // height
@@ -1097,34 +1134,34 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          int cy1 = mEnemy.Ei[num][16];
          int cx2 = cx1 + cw;
          int cy2 = cy1 + ch;
-         al_draw_rectangle(cx1, cy1, cx2, cy2, mC.pc[color2], 1);
+         al_draw_rectangle(cx1, cy1, cx2, cy2, mColor.pc[color2], 1);
 
          int cx3 = mEnemy.Ei[num][17];    // destination
          int cy3 = mEnemy.Ei[num][18];
          int cx4 = cx3 + cw;
          int cy4 = cy3 + ch;
-         al_draw_rectangle(cx3, cy3, cx4, cy4, mC.pc[color3], 1);
+         al_draw_rectangle(cx3, cy3, cx4, cy4, mColor.pc[color3], 1);
 
          // draw trigger box
          int tx1 = mEnemy.Ei[num][11];
          int ty1 = mEnemy.Ei[num][12];
          int tx2 = mEnemy.Ei[num][11]+mEnemy.Ei[num][13] + 20;
          int ty2 = mEnemy.Ei[num][12]+mEnemy.Ei[num][14] + 20;
-         al_draw_rectangle(tx1, ty1, tx2, ty2, mC.pc[color4], 1);
+         al_draw_rectangle(tx1, ty1, tx2, ty2, mColor.pc[color4], 1);
       }
       if (type == 12) // flapper
       {
          int color = 10;
-         if (legend_highlight == 3) color = mC.flash_color;
+         if (legend_highlight == 3) color = mColor.flash_color;
 
          // draw red height above player line
          int hab = mEnemy.Ei[num][20];
-         al_draw_line(obj_x-40, obj_y+hab, obj_x+40, obj_y+hab, mC.pc[color], 3);
+         al_draw_line(obj_x-40, obj_y+hab, obj_x+40, obj_y+hab, mColor.pc[color], 3);
 
          // draw flap height
          int fh = mEnemy.Ei[num][21];
-         al_draw_line(obj_x-60, obj_y+fh, obj_x+60, obj_y+fh, mC.pc[12], 1);
-         al_draw_line(obj_x-60, obj_y-fh, obj_x+60, obj_y-fh, mC.pc[12], 1);
+         al_draw_line(obj_x-60, obj_y+fh, obj_x+60, obj_y+fh, mColor.pc[12], 1);
+         al_draw_line(obj_x-60, obj_y-fh, obj_x+60, obj_y-fh, mColor.pc[12], 1);
       }
    }
    if (obt == 2)  // items
@@ -1133,14 +1170,14 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
       int obj_x = mItem.item[num][4]+10;
       int obj_y = mItem.item[num][5]+10;
       int color = 13;
-      if (legend_highlight == 1) color = mC.flash_color;
+      if (legend_highlight == 1) color = mColor.flash_color;
       mMiscFnx.crosshairs_full(obj_x, obj_y, color, 1);
       switch (type)
       {
          case 1: // door
          {
             int color = 10;
-            if (legend_highlight == 2) color = mC.flash_color;
+            if (legend_highlight == 2) color = mColor.flash_color;
             if (mItem.item[num][8] == 0)  // exit only, no destination
             {
                // find src door(s)
@@ -1152,7 +1189,7 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
                      int x2 = mItem.item[i][4]+10;
                      int y2 = mItem.item[i][5]+10;
                      mMiscFnx.crosshairs_full(x2, y2, color, 1);
-                     al_draw_line(obj_x, obj_y, x2, y2, mC.pc[color], 1);
+                     al_draw_line(obj_x, obj_y, x2, y2, mColor.pc[color], 1);
                   }
             }
 
@@ -1163,14 +1200,14 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
                int x2 = mItem.item[di][4]+10;
                int y2 = mItem.item[di][5]+10;
                mMiscFnx.crosshairs_full(x2, y2, color, 1);
-               al_draw_line(obj_x, obj_y, x2, y2, mC.pc[color], 1);
+               al_draw_line(obj_x, obj_y, x2, y2, mColor.pc[color], 1);
             }
          }
          break;
          case 4: // key
          {
             int color = 10;
-            if (legend_highlight == 2) color = mC.flash_color;
+            if (legend_highlight == 2) color = mColor.flash_color;
             int x2 = mItem.item[num][6];
             int y2 = mItem.item[num][7];
             int x3 = x2 + mItem.item[num][8] - 1;
@@ -1182,9 +1219,9 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
             if (y2 == 0) y2 = 1;
 
             // draw range
-            al_draw_line(0, y4, 1999, y4, mC.pc[color], 1);
-            al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
+            al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
+            al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
 
             // show blocks that will be affected
             mItem.proc_key_block_range(num, 2);
@@ -1193,7 +1230,7 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          case 14: // switch
          {
             int color = 10;
-            if (legend_highlight == 2) color = mC.flash_color;
+            if (legend_highlight == 2) color = mColor.flash_color;
             int x2 = mItem.item[num][6];
             int y2 = mItem.item[num][7];
             int x3 = x2 + mItem.item[num][8] - 1;
@@ -1205,9 +1242,9 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
             if (y2 == 0) y2 = 1;
 
             // draw range
-            al_draw_line(0, y4, 1999, y4, mC.pc[color], 1);
-            al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
+            al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
+            al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
 
             // show blocks that will be affected
             mItem.proc_switch_block_range(num, 2);
@@ -1216,14 +1253,14 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          case 8: // bomb
          {
             int color = 14;
-            if (legend_highlight == 2) color = mC.flash_color;
-            al_draw_circle(obj_x, obj_y, mItem.item[num][7], mC.pc[color], 1); // draw yellow bomb damage
+            if (legend_highlight == 2) color = mColor.flash_color;
+            al_draw_circle(obj_x, obj_y, mItem.item[num][7], mColor.pc[color], 1); // draw yellow bomb damage
          }
          break;
          case 9: // trigger
          {
             int color = 14;
-            if (legend_highlight == 2) color = mC.flash_color;
+            if (legend_highlight == 2) color = mColor.flash_color;
 
             int x2 = mItem.item[num][6];
             int y2 = mItem.item[num][7];
@@ -1233,9 +1270,9 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
             int y4 = (y2+y3)/2;
 
             // draw range
-            al_draw_line(0, y4, 1999, y4, mC.pc[color], 1);
-            al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
+            al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
+            al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
 
             mTriggerEvent.find_and_show_event_links(1, num, 0);
          }
@@ -1243,7 +1280,7 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          case 10: // pmsg
          {
             int color = 10;
-            if (legend_highlight == 2) color = mC.flash_color;
+            if (legend_highlight == 2) color = mColor.flash_color;
 
             int mx=0, my=0, mw=0, mh=0;
             mMiscFnx.get_int_3216(mItem.item[num][10], mx, my);
@@ -1255,17 +1292,17 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
             int x4 = (x2+x3)/2;
             int y4 = (y2+y3)/2;
 
-            al_draw_textf(mF.pr8, mC.pc[15], x4, y2-10, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d", mx, my);
-            al_draw_textf(mF.pr8, mC.pc[15], x4, y3+2,  ALLEGRO_ALIGN_CENTRE, "w:%d h:%d", mw, mh);
+            al_draw_textf(mFont.pr8, mColor.pc[15], x4, y2-10, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d", mx, my);
+            al_draw_textf(mFont.pr8, mColor.pc[15], x4, y3+2,  ALLEGRO_ALIGN_CENTRE, "w:%d h:%d", mw, mh);
 
-            al_draw_line(0, y4, 1999, y4, mC.pc[color], 1);
-            al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
+            al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
+            al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
 
             if (mItem.item[num][2] & PM_ITEM_PMSG_TRIGGER_BOX)
             {
                int color = 14;
-               if (legend_highlight == 3) color = mC.flash_color;
+               if (legend_highlight == 3) color = mColor.flash_color;
 
                int x2 = mItem.item[num][6];
                int y2 = mItem.item[num][7];
@@ -1274,31 +1311,23 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
                int x4 = (x2+x3)/2;
                int y4 = (y2+y3)/2;
 
-               al_draw_line(0, y4, 1999, y4, mC.pc[color], 1);
-               al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
-               al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
+               al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
+               al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
+               al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
             }
          }
          break;
          case 11: // rocket
          {
             int color = 14;
-            if (legend_highlight == 2) color = mC.flash_color;
-            al_draw_circle(obj_x, obj_y, mItem.item[num][7], mC.pc[color], 1); // draw yellow bomb damage
+            if (legend_highlight == 2) color = mColor.flash_color;
+            al_draw_circle(obj_x, obj_y, mItem.item[num][7], mColor.pc[color], 1); // draw yellow bomb damage
          }
          break;
-         case 15: // sproingy
+         case 13: // timer
          {
-            int color = 14;
-            if (legend_highlight == 2) color = mC.flash_color;
-            int y = mMiscFnx.get_sproingy_jump_height(num);
-            mMiscFnx.crosshairs_full(obj_x, obj_y-y, color, 1);
-         }
-         break;
-         case 16: // block manip
-         {
-            int color = 12;
-            if (legend_highlight == 2) color = mC.flash_color;
+            int color = 11;
+            if (legend_highlight == 2) color = mColor.flash_color;
             int x2 = mItem.item[num][6];
             int y2 = mItem.item[num][7];
             int x3 = x2 + mItem.item[num][8]-1;
@@ -1307,9 +1336,38 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
             int y4 = (y2+y3)/2;
 
             // draw range
-            al_draw_line(0, y4, 1999, y4, mC.pc[color], 1);
-            al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
+            al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
+            al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
+
+            mTriggerEvent.find_and_show_event_links(2, num, 0);
+
+         }
+         break;
+
+         case 15: // sproingy
+         {
+            int color = 14;
+            if (legend_highlight == 2) color = mColor.flash_color;
+            int y = mMiscFnx.get_sproingy_jump_height(num);
+            mMiscFnx.crosshairs_full(obj_x, obj_y-y, color, 1);
+         }
+         break;
+         case 16: // block manip
+         {
+            int color = 12;
+            if (legend_highlight == 2) color = mColor.flash_color;
+            int x2 = mItem.item[num][6];
+            int y2 = mItem.item[num][7];
+            int x3 = x2 + mItem.item[num][8]-1;
+            int y3 = y2 + mItem.item[num][9]-1;;
+            int x4 = (x2+x3)/2;
+            int y4 = (y2+y3)/2;
+
+            // draw range
+            al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
+            al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
 
             mTriggerEvent.find_and_show_event_links(2, num, 0);
 
@@ -1318,7 +1376,7 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          case 17: // block damage
          {
             int color = 10;
-            if (legend_highlight == 2) color = mC.flash_color;
+            if (legend_highlight == 2) color = mColor.flash_color;
             int x2 = mItem.item[num][6];
             int y2 = mItem.item[num][7];
             int x3 = x2 + mItem.item[num][8]-1;
@@ -1327,9 +1385,9 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
             int y4 = (y2+y3)/2;
 
             // draw range
-            al_draw_line(0, y4, 1999, y4, mC.pc[color], 1);
-            al_draw_line(x4, 0, x4, 1999, mC.pc[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, mC.pc[color], 1);
+            al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
+            al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
 
             mTriggerEvent.find_and_show_event_links(2, num, 0);
          }
@@ -1395,7 +1453,7 @@ void mwWindow::ov_process_mouse(void)
          int type = mEnemy.Ei[b][0];
 
          // check to see if we can set this object to be the current object
-         if ((mwWM.hx>ex+msn) && (mwWM.hx<ex+msp) && (mwWM.hy>ey+msn) && (mwWM.hy<ey+msp) && (!mwWM.mW[7].viewer_lock) && (!mI.key[MAP_LOCK_KEY][0]) && (mwWM.obj_filter[3][type]))
+         if ((mwWM.hx>ex+msn) && (mwWM.hx<ex+msp) && (mwWM.hy>ey+msn) && (mwWM.hy<ey+msp) && (!mwWM.mW[7].viewer_lock) && (!mInput.key[MAP_LOCK_KEY][0]) && (mwWM.obj_filter[3][type]))
          {
             // set this enemy to current object
             mwWM.mW[7].obt = 3;
@@ -1529,7 +1587,7 @@ void mwWindow::ov_process_mouse(void)
          int iy = mItem.item[b][5];
          int type = mItem.item[b][0];
          // check to see if we can set this object to be the current object
-         if ((mwWM.hx>ix+msn) && (mwWM.hx<ix+msp) && (mwWM.hy>iy+msn) && (mwWM.hy<iy+msp) && (!mwWM.mW[7].viewer_lock) && (!mI.key[MAP_LOCK_KEY][0]) && (mwWM.obj_filter[2][type]))
+         if ((mwWM.hx>ix+msn) && (mwWM.hx<ix+msp) && (mwWM.hy>iy+msn) && (mwWM.hy<iy+msp) && (!mwWM.mW[7].viewer_lock) && (!mInput.key[MAP_LOCK_KEY][0]) && (mwWM.obj_filter[2][type]))
          {
             // set this item to current object
             mwWM.mW[7].obt = 2;
@@ -1631,7 +1689,7 @@ void mwWindow::ov_process_mouse(void)
    mouse_on_lift = 0;
    if (mwWM.obj_filter[4][1])
    {
-      if ((!mI.key[MAP_LOCK_KEY][0]) && (!mwWM.mW[7].viewer_lock)) // no lock...check all lifts and steps
+      if ((!mInput.key[MAP_LOCK_KEY][0]) && (!mwWM.mW[7].viewer_lock)) // no lock...check all lifts and steps
       {
          for (int x=0; x<NUM_LIFTS; x++)  // cycle lifts
             if (mLift.cur[x].active)
@@ -1654,7 +1712,7 @@ void mwWindow::ov_process_mouse(void)
                   }
       }
 
-      if (((mI.key[MAP_LOCK_KEY][0]) || (mwWM.mW[7].viewer_lock)) && (mwWM.mW[7].obt == 4)) // locked, but locked to current lift
+      if (((mInput.key[MAP_LOCK_KEY][0]) || (mwWM.mW[7].viewer_lock)) && (mwWM.mW[7].obt == 4)) // locked, but locked to current lift
       {
          int x = lift; // check only current lift
          for (int y=0; y<mLift.cur[x].num_steps; y++)  // cycle steps
@@ -1676,7 +1734,7 @@ void mwWindow::ov_process_mouse(void)
    if (mouse_on_lift)
    {
       mouse_on_obj = 1;
-      if (mI.mouse_b[2][0]) mLift.step_popup_menu(lift, step);
+      if (mInput.mouse_b[2][0]) mLift.step_popup_menu(lift, step);
 
       // is mouse on lower right adjustable corner
       int x2 = mLift.stp[lift][step].x + mLift.stp[lift][step].w;
@@ -1690,11 +1748,11 @@ void mwWindow::ov_process_mouse(void)
    // -----------------------------------------------------------
    // --  set mouse cursor
    // -----------------------------------------------------------
-   if (mouse_move) al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE);
-   else if (mouse_adj) al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE);
-   else al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+   if (mouse_move) al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE);
+   else if (mouse_adj) al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE);
+   else al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 
-   if (mI.mouse_b[1][0])
+   if (mInput.mouse_b[1][0])
    {
       // get offset from where mouse was clicked to lift step upper left origin
       int lsox=0, lsoy=0;
@@ -1707,7 +1765,7 @@ void mwWindow::ov_process_mouse(void)
       }
 
 
-      while (mI.mouse_b[1][0])
+      while (mInput.mouse_b[1][0])
       {
          if (mouse_on_obj)
          {
@@ -1726,7 +1784,7 @@ void mwWindow::ov_process_mouse(void)
                mItem.itemf[n][0] = mwWM.gx*20;
                mItem.itemf[n][1] = mwWM.gy*20;
 
-               if (mI.SHFT()) // move stuff also
+               if (mInput.SHFT()) // move stuff also
                {
                    if ((it == 4) || (it == 9) || (it == 10) || (it == 14) || (it == 16) || (it == 17)) // key, trigger, msg, switch, manip, damage
                    {
@@ -1753,7 +1811,7 @@ void mwWindow::ov_process_mouse(void)
                mEnemy.Ef[mwWM.mW[7].num][0] = mwWM.gx*20;
                mEnemy.Ef[mwWM.mW[7].num][1] = mwWM.gy*20;
 
-               if (mI.SHFT()) // move stuff also
+               if (mInput.SHFT()) // move stuff also
                {
                   // move podzilla's trigger box too
                   if (mEnemy.Ei[mwWM.mW[7].num][0] == 7)
@@ -1877,7 +1935,7 @@ void mwWindow::ov_process_mouse(void)
 
          if (mouse_on_sp) // adjust sproingy jump height
          {
-            //al_hide_mouse_cursor(display);
+            //al_hide_mouse_cursor(mDisplay.display);
             //mItem.item[mW[7].num][7] -= mouse_dy/2;
             //int get_sp(float jh); ????
             float y0 = (float) mItem.item[mwWM.mW[7].num][5]+10;
@@ -1949,12 +2007,12 @@ void mwWindow::ov_process_mouse(void)
             mEnemy.Ei[mwWM.mW[7].num][18] = mwWM.gy*20;
          }
          mwWM.redraw_level_editor_background();
-      } // end of while mI.mouse_b[1][0] pressed
-   } // end of if mI.mouse_b[1][0] pressed
+      } // end of while mInput.mouse_b[1][0] pressed
+   } // end of if mInput.mouse_b[1][0] pressed
 
-   if (mI.mouse_b[2][0])
+   if (mInput.mouse_b[2][0])
    {
-      while (mI.mouse_b[2][0]) mwEQ.proc_event_queue();
+      while (mInput.mouse_b[2][0]) mEventQueue.proc();
       mwWM.set_windows(1);
    }
 }
@@ -2006,9 +2064,9 @@ void mwWindow::ov_process_keypress(void)
       mLift.cur[mwWM.mW[7].num].current_step = step;
    }
 
-   while (mI.key[ALLEGRO_KEY_DELETE][0]) { mwEQ.proc_event_queue(); mb = 20; }
-   while (mI.key[ALLEGRO_KEY_RIGHT][0])  { mwEQ.proc_event_queue(); mb = 21; }
-   while (mI.key[ALLEGRO_KEY_LEFT][0])   { mwEQ.proc_event_queue(); mb = 22; }
+   while (mInput.key[ALLEGRO_KEY_DELETE][0]) { mEventQueue.proc(); mb = 20; }
+   while (mInput.key[ALLEGRO_KEY_RIGHT][0])  { mEventQueue.proc(); mb = 21; }
+   while (mInput.key[ALLEGRO_KEY_LEFT][0])   { mEventQueue.proc(); mb = 22; }
 
    switch(mb)
    {
@@ -2026,7 +2084,7 @@ void mwWindow::ov_process_keypress(void)
          }
          if (mwWM.mW[7].obt==4)
          {
-            while (!mI.key[ALLEGRO_KEY_ESCAPE][0])
+            while (!mInput.key[ALLEGRO_KEY_ESCAPE][0])
             {
                if (mwWM.redraw_level_editor_background())
                {
@@ -2036,7 +2094,7 @@ void mwWindow::ov_process_keypress(void)
                   mwWM.cycle_windows(1); // draw only
                }
             }
-            while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue(); // wait for release
+            while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(); // wait for release
             mLift.lift_setup(); // reset all lifts to step 0
          }
       }
@@ -2084,5 +2142,5 @@ void mwWindow::object_viewer(int obt, int num)
    mwWM.mW[7].obt = obt;
    mwWM.mW[7].num = num;
    mwWM.set_windows(4); // object viewer
-//   al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+//   al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 }

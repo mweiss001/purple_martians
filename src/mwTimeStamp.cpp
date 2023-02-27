@@ -1,12 +1,10 @@
 // mwTimeStamp.cpp
-#include "mwTimeStamp.h"
+
 #include "pm.h"
+#include "mwTimeStamp.h"
 #include "mwLoop.h"
 
-
-mwTimeStamp mwTS;
-
-double t0=0;
+mwTimeStamp mTimeStamp;
 
 void mwTimeStamp::init_timestamps(void)
 {

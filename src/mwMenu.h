@@ -6,10 +6,6 @@ class mwMenu
 
    char menu_string[25][80];
 
-
-   mwMenu(); // default constructor
-   void initialize(void);
-
    void init_zmenu(void);
    int zmenu(int menu_pos, int y);
 

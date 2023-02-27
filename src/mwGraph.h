@@ -20,10 +20,7 @@ class mwGraph
 
 
    int  title_draw_on;
-
    int  title_draw_style;
-
-
    int  title_draw_size;
    int  title_draw_y;
    char title_text[1024];
@@ -32,7 +29,6 @@ class mwGraph
    void draw_title(int set_size_only);
 
    void draw_series_legend(void);
-
 
    int series_legend_slave;
    int series_legend_type;
@@ -247,10 +243,4 @@ class mwGraph
    bool mouse_on_scrollbar;
 
 };
-extern mwGraph mwG[10];
-
-
-
-
-
-
+extern mwGraph mGraph[10];

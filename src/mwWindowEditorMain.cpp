@@ -29,7 +29,7 @@ void mwWindow::em_set_swbl(void)
    for (int c=0; c<NUM_SPRITES; c++)
    {
       mwWM.swbl[c][0] = mwWM.swbl[c][1] = 0;                    // erase
-      if (mwB.sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
+      if (mBitmap.sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
       {
          if ((c == 384) || (c == 416) || (c == 448) || (c == 480) || (c == 512) || (c == 576) || (c == 608) || (c == 640)|| (c == 672)|| (c == 704)) // start new line
          {
@@ -37,7 +37,7 @@ void mwWindow::em_set_swbl(void)
             if (off < 16) mwWM.mW[2].swbn += off;
          }
 
-         mwWM.swbl[mwWM.mW[2].swbn][0] = c | mwB.sa[c][0];                // add to list with default flags
+         mwWM.swbl[mwWM.mW[2].swbn][0] = c | mBitmap.sa[c][0];                // add to list with default flags
          mwWM.swbl[mwWM.mW[2].swbn][0] &= ~PM_BTILE_SHOW_SELECT_WIN;  // clear flag
          mwWM.mW[2].swbn++;
       }
@@ -479,7 +479,7 @@ void mwWindow::em_show_draw_item_cursor(void)
       {
          case 1: // block
             if (mwWM.mW[1].show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(num, x*20, y*20);
-            else al_draw_bitmap(mwB.btile[num&1023], x*20, y*20, 0);
+            else al_draw_bitmap(mBitmap.btile[num&1023], x*20, y*20, 0);
          break;
          case 2: // item
             mItem.draw_item(num, 1, x*20, y*20);
@@ -489,16 +489,16 @@ void mwWindow::em_show_draw_item_cursor(void)
          break;
          case 5: // PDE
             int a = mPDE.PDEi[num][1]; // bmp or ans
-            if (a > 999) a = mwB.zz[5][a-1000]; // ans
-            al_draw_bitmap(mwB.tile[a], x*20, y*20, 0);
+            if (a > 999) a = mBitmap.zz[5][a-1000]; // ans
+            al_draw_bitmap(mBitmap.tile[a], x*20, y*20, 0);
 
-            if ((mPDE.PDEi[num][0] == 108) && (mPDE.PDEi[num][11])) al_draw_bitmap(mwB.tile[440], x*20, y*20, 0); // bomb sticky spikes
+            if ((mPDE.PDEi[num][0] == 108) && (mPDE.PDEi[num][11])) al_draw_bitmap(mBitmap.tile[440], x*20, y*20, 0); // bomb sticky spikes
 
 
 
          break;
       }
-      al_draw_rectangle(x*20, y*20, x*20+21, y*20+21, mC.pc[15], 1);
+      al_draw_rectangle(x*20, y*20, x*20+21, y*20+21, mColor.pc[15], 1);
    }
 }
 
@@ -510,21 +510,21 @@ void mwWindow::em_show_item_info(int x, int y, int color, int type, int num)
    {
       case 1:
          if (mwWM.mW[1].show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(num, x, y);
-         else al_draw_bitmap(mwB.btile[num&1023], x, y, 0);
-         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+2, 0, "Block #%d",num&1023);
-         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+12, 0, "%s", em_get_text_description_of_block_based_on_flags(num, msg));
+         else al_draw_bitmap(mBitmap.btile[num&1023], x, y, 0);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+2, 0, "Block #%d",num&1023);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+12, 0, "%s", em_get_text_description_of_block_based_on_flags(num, msg));
       break;
       case 2:
          mItem.draw_item(num, 1, x, y);
          a = mItem.item[num][0]; // type
-         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+2, 0, "%s", mItem.item_name[a]);
-         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+12, 0, "%d of %d", 1+num - mItem.item_first_num[a], mItem.item_num_of_type[a]);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+2, 0, "%s", mItem.item_name[a]);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+12, 0, "%d of %d", 1+num - mItem.item_first_num[a], mItem.item_num_of_type[a]);
       break;
       case 3:
          mEnemy.draw_enemy(num, 1, x, y);
          a = mEnemy.Ei[num][0]; // type
-         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+2, 0, "%s", mEnemy.enemy_name[a][0]);
-         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+12, 0, "%d of %d", 1+num - mEnemy.e_first_num[a], mEnemy.e_num_of_type[a]);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+2, 0, "%s", mEnemy.enemy_name[a][0]);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+12, 0, "%d of %d", 1+num - mEnemy.e_first_num[a], mEnemy.e_num_of_type[a]);
       break;
       case 4:
       {
@@ -532,21 +532,21 @@ void mwWindow::em_show_item_info(int x, int y, int color, int type, int num)
          int width = mLift.cur[num].w;
          if (width > 140) width = 140;
          for (a=0; a<10; a++)
-            al_draw_rectangle(x+a, y+a, x+(width)-1-a, y+19-a, mC.pc[col+((9-a)*16)], 1 );
-         al_draw_text(mF.pr8, mC.pc[col+160], x+(width/2), y+6, ALLEGRO_ALIGN_CENTER, mLift.cur[num].lift_name);
+            al_draw_rectangle(x+a, y+a, x+(width)-1-a, y+19-a, mColor.pc[col+((9-a)*16)], 1 );
+         al_draw_text(mFont.pr8, mColor.pc[col+160], x+(width/2), y+6, ALLEGRO_ALIGN_CENTER, mLift.cur[num].lift_name);
       }
       break;
       case 5:
          a = mPDE.PDEi[num][1]; // bmp or ans
          if (a < NUM_SPRITES) b = a; // bmp
-         if (a > 999) b = mwB.zz[5][a-1000]; // ans
-         al_draw_bitmap(mwB.tile[b], x, y, 0);
+         if (a > 999) b = mBitmap.zz[5][a-1000]; // ans
+         al_draw_bitmap(mBitmap.tile[b], x, y, 0);
 
-         if ((mPDE.PDEi[num][0] == 108) && (mPDE.PDEi[num][11])) al_draw_bitmap(mwB.tile[440], x, y, 0); // bomb sticky spikes
+         if ((mPDE.PDEi[num][0] == 108) && (mPDE.PDEi[num][11])) al_draw_bitmap(mBitmap.tile[440], x, y, 0); // bomb sticky spikes
 
          a = mEnemy.Ei[num][0]; // type
-         al_draw_text(mF.pr8, mC.pc[color], x+22, y+2, 0, "Special Item");
-         al_draw_textf(mF.pr8, mC.pc[color], x+22, y+12, 0, "%s", mPDE.PDEt[num][1]);
+         al_draw_text(mFont.pr8, mColor.pc[color], x+22, y+2, 0, "Special Item");
+         al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+12, 0, "%s", mPDE.PDEt[num][1]);
       break;
    }
 }
@@ -601,27 +601,27 @@ void mwWindow::em_find_point_item(void)
              ob++;
          }
       }
-   //al_draw_textf(mF.pr8, mC.pc[15], 100, 100, 0, "mouse is on: %d objects", ob);
-   //for (int a=0; a<ob; a++) al_draw_textf(mF.pr8, mC.pc[15], 100, 108+a*8, 0, "%d %d ", mo[a][0], mo[a][1]);
+   //al_draw_textf(mFont.pr8, mColor.pc[15], 100, 100, 0, "mouse is on: %d objects", ob);
+   //for (int a=0; a<ob; a++) al_draw_textf(mFont.pr8, mColor.pc[15], 100, 108+a*8, 0, "%d %d ", mo[a][0], mo[a][1]);
 
    // which one is the winner?
    if (ob)
    {
-      int mm = mI.mouse_x % 20;         // mouse position relative to block boundary
+      int mm = mInput.mouse_x % 20;         // mouse position relative to block boundary
       int ss = 20/ob;                // step space
       int of = mm / ss;              // convert to offset into ob array
       mwWM.mW[1].point_item_type = mo[of][0];
       mwWM.mW[1].point_item_num  = mo[of][1];
-      //al_draw_textf(mF.pr8, mC.pc[11], 100, 92, 0, "mm:%2d ss:%2d of:%2d  ", mm, ss, of);
+      //al_draw_textf(mFont.pr8, mColor.pc[11], 100, 92, 0, "mm:%2d ss:%2d of:%2d  ", mm, ss, of);
    }
 }
 
 void mwWindow::em_process_mouse(void)
 {
-   if (mI.mouse_b[1][0])
+   if (mInput.mouse_b[1][0])
    {
       // don't allow drag draw selection unless draw type is block
-      if (mwWM.mW[1].draw_item_type != 1) while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
+      if (mwWM.mW[1].draw_item_type != 1) while (mInput.mouse_b[1][0]) mEventQueue.proc();
 
       int din = mwWM.mW[1].draw_item_num; // shorter variable name
       switch (mwWM.mW[1].draw_item_type)
@@ -690,14 +690,14 @@ void mwWindow::em_process_mouse(void)
 
             if (type == 7) // podzilla
             {
-               if (mI.SHFT()) // move stuff also
-               //if (al_show_native_message_box(display, "Move?", "Move podzilla's extended position too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+               if (mInput.SHFT()) // move stuff also
+               //if (al_show_native_message_box(mDisplay.display, "Move?", "Move podzilla's extended position too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
                {
                    mEnemy.Ef[c][5] = mEnemy.Ef[din][5] + ofx;
                    mEnemy.Ef[c][6] = mEnemy.Ef[din][6] + ofy;
                }
-               if (mI.SHFT()) // move stuff also
-               //if (al_show_native_message_box(display, "Move?", "Move podzilla's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+               if (mInput.SHFT()) // move stuff also
+               //if (al_show_native_message_box(mDisplay.display, "Move?", "Move podzilla's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
                {
                   mEnemy.Ei[c][11] = mEnemy.Ei[din][11] + ofx;
                   mEnemy.Ei[c][12] = mEnemy.Ei[din][12] + ofy;
@@ -706,16 +706,16 @@ void mwWindow::em_process_mouse(void)
             }
             if (type == 9) // cloner
             {
-               //if (al_show_native_message_box(display, "Move?", "Move cloner's source and destination boxes too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
-               if (mI.SHFT()) // move stuff also
+               //if (al_show_native_message_box(mDisplay.display, "Move?", "Move cloner's source and destination boxes too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+               if (mInput.SHFT()) // move stuff also
                {
                   mEnemy.Ei[c][15] = mEnemy.Ei[din][15] + ofx;
                   mEnemy.Ei[c][16] = mEnemy.Ei[din][16] + ofy;
                   mEnemy.Ei[c][17] = mEnemy.Ei[din][17] + ofx;
                   mEnemy.Ei[c][18] = mEnemy.Ei[din][18] + ofy;
                }
-               //if (al_show_native_message_box(display, "Move?", "Move cloner's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
-               if (mI.SHFT()) // move stuff also
+               //if (al_show_native_message_box(mDisplay.display, "Move?", "Move cloner's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+               if (mInput.SHFT()) // move stuff also
                {
                   mEnemy.Ei[c][11] = mEnemy.Ei[din][11] + ofx;
                   mEnemy.Ei[c][12] = mEnemy.Ei[din][12] + ofy;
@@ -755,8 +755,8 @@ void mwWindow::em_process_mouse(void)
          }
          break;
       } // end of switch case
-   } // end of mI.mouse_b[1][0]
-   if (mI.mouse_b[2][0])
+   } // end of mInput.mouse_b[1][0]
+   if (mInput.mouse_b[2][0])
    {
       switch (mwWM.mW[1].point_item_type)
       {
@@ -830,7 +830,7 @@ void mwWindow::em_process_mouse(void)
          case 9: mwWM.mW[1].active = 1; break; // status_window
          case 10: mwWM.mW[2].active = 1; break; // select_window
          case 12: // new level
-         if (al_show_native_message_box(display, "New Level", "Clicking OK will create a new blank level", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
+         if (al_show_native_message_box(mDisplay.display, "New Level", "Clicking OK will create a new blank level", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
          {
             mLevel.zero_level_data();
             mLevel.save_level_prompt();
@@ -847,7 +847,7 @@ void mwWindow::em_process_mouse(void)
          case 16: mHelp.help("Level Editor Basics"); break;// help
          case 17: mwWM.active = 0; break; // exit
       } // end of switch case
-   } // end of mI.mouse_b[2][0]
+   } // end of mInput.mouse_b[2][0]
 }
 
 

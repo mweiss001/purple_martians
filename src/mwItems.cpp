@@ -48,7 +48,7 @@ void mwItems::initialize(void)
    strcpy(item_name[10], "Message");
    strcpy(item_name[11], "Rocket");
    strcpy(item_name[12], "Warp");
-   strcpy(item_name[13], "undef");
+   strcpy(item_name[13], "Timer");
    strcpy(item_name[14], "Switch");
    strcpy(item_name[15], "Sproingy");
    strcpy(item_name[16], "Block Manip");
@@ -67,7 +67,7 @@ void mwItems::initialize(void)
    item_tile[10] = 256;
    item_tile[11] = 249;
    item_tile[12] = 825;
-   item_tile[13] = 0;
+   item_tile[13] = 987;
    item_tile[14] = 745;
    item_tile[15] = 237;
    item_tile[16] = 989;
@@ -79,7 +79,7 @@ void mwItems::initialize(void)
 
 void mwItems::draw_items(void)
 {
-   al_set_target_bitmap(mwB.level_buffer);
+   al_set_target_bitmap(mBitmap.level_buffer);
    for (int i=0; i<500; i++)
       if ((mItem.item[i][0]) && (mItem.item[i][0] != 10)) draw_item(i, 0, 0, 0);
    for (int i=0; i<500; i++) // draw msg last so they are on top
@@ -90,7 +90,7 @@ void mwItems::draw_item(int i, int custom, int cx, int cy)
 {
    int type = mItem.item[i][0];
    int shape = mItem.item[i][1];                     // get shape
-   if (shape > 999) shape = mwB.zz[0][shape-1000];   // ans
+   if (shape > 999) shape = mBitmap.zz[0][shape-1000];   // ans
    int x = itemf[i][0];
    int y = itemf[i][1];
    if (custom)
@@ -109,19 +109,20 @@ void mwItems::draw_item(int i, int custom, int cx, int cy)
    if (type == 9)  drawn = draw_trigger      (i, x, y);
    if (type == 10) drawn = draw_message      (i, custom);
    if (type == 11) drawn = draw_rocket       (i, x, y, shape);
+   if (type == 13) drawn = draw_timer        (i, x, y);
    if (type == 16) drawn = draw_block_manip  (i, x, y);
    if (type == 17) drawn = draw_block_damage (i, x, y, custom);
    if (type == 98) drawn = draw_rocket       (i, x, y, shape);
    if (type == 99) drawn = draw_lit_bomb     (i);
 
    // default draw if nothing else has drawn it up to now
-   if (!drawn) al_draw_bitmap(mwB.tile[shape], x, y, 0);
+   if (!drawn) al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
 
    // if item is expiring show how many seconds left it has
    if (!mLoop.level_editor_running)
    {
-      if ((mItem.item[i][14]>10) && (type != 9) && (type != 16) && (type != 17))
-         al_draw_textf(mF.pixl, mC.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (mItem.item[i][14] - 10) / 40);
+      if ((mItem.item[i][14]>10) && (type != 9) && (type != 13) && (type != 16) && (type != 17))
+         al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (mItem.item[i][14] - 10) / 40);
    }
 }
 
@@ -129,7 +130,7 @@ int mwItems::draw_bonus(int i, int x, int y, int shape)
 {
    if ((mItem.item[i][6] == 3) && (!mLoop.level_editor_running)) // purple coin custom draw
    {
-      mwB.spin_shape(shape, x, y, 0, 0, 19, 19, 0.8, 0.5, 40);
+      mBitmap.spin_shape(shape, x, y, 0, 0, 19, 19, 0.8, 0.5, 40);
       return 1;
    }
    return 0;
@@ -152,6 +153,7 @@ void mwItems::move_items()
          if (type == 6)  proc_orb(i);
          if (type == 9)  proc_trigger(i);
          if (type == 10) proc_pmsg(i);
+         if (type == 13) proc_timer(i);
          if (type == 16) proc_block_manip(i);
          if (type == 17) proc_block_damage(i);
          if (type == 99) proc_lit_bomb(i);
@@ -159,7 +161,7 @@ void mwItems::move_items()
 
 
          // check for time to live
-         if ((type != 9) && (type != 16) && (type != 17))
+         if ((type != 9) && (type != 13) && (type != 16) && (type != 17))
          {
             int ttl = mItem.item[i][14];
             if (ttl)
@@ -168,7 +170,7 @@ void mwItems::move_items()
                {
                   mItem.item[i][0] = 66; // change to different type to prevent use
                   int sq = 10-ttl;
-                  mItem.item[i][1] = mwB.zz[5+sq][74];
+                  mItem.item[i][1] = mBitmap.zz[5+sq][74];
                }
                if (ttl == 1) mItem.item[i][0] = 0; // kill instantly
                mItem.item[i][14]--;
@@ -176,7 +178,7 @@ void mwItems::move_items()
          }
 
          // not stationary and not lit rocket, trigger, bm, bd or moving key
-         if ((mItem.item[i][3]) && (type != 98) && (type != 9) && (type != 16) && (type != 17) && (! ((type == 4) && (mItem.item[i][11] > 0)))    )
+         if ((mItem.item[i][3]) && (type != 98) && (type != 9) && (type != 13) && (type != 16) && (type != 17) && (! ((type == 4) && (mItem.item[i][11] > 0)))    )
          {
             // check if being carried
             int pc = 0;
@@ -482,7 +484,7 @@ void mwItems::proc_bonus_collision(int p, int i)
 
 void mwItems::proc_mine_collision(int p, int i)
 {
-   mPlayer.syn[p].health -= mItem.item[i][8] / 10;
+   mPlayer.syn[p].health -= (float)mItem.item[i][8] / 10;
    mGameEvent.add(50, 0, 0, p, i, 0, mItem.item[i][8]);
 }
 
@@ -525,6 +527,7 @@ list of items
 [10] - pop-up msg
 [11] - rocket
 [12] - warp
+[13] - timer
 [14] - switch
 [15] - sproingy
 [16] - block manip

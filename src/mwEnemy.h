@@ -63,8 +63,6 @@ class mwEnemy
    void draw_vinepod(int e, int x, int c, int custom);
    void draw_vinepod_controls(int num, int legend_highlight);
 
-
-
    // mwEnemyFnx.cpp
    int is_player_in_enemy_trigger_box(int e);
    void set_enemy_rot_from_incs(int e);

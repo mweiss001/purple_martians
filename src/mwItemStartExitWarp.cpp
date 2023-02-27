@@ -15,8 +15,8 @@ int mwItems::draw_start(int i, int x, int y, int shape)
 {
    if ((mLevel.number_of_starts > 1) && (mLoop.level_editor_running)) // put start seq number, but only in lev editor
    {
-      al_draw_bitmap(mwB.tile[shape], x, y, 0);
-      al_draw_textf(mF.pixl, mC.pc[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", mItem.item[i][7]);
+      al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
+      al_draw_textf(mFont.pixl, mColor.pc[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", mItem.item[i][7]);
       return 1;
    }
    return 0;
@@ -24,16 +24,16 @@ int mwItems::draw_start(int i, int x, int y, int shape)
 
 int mwItems::draw_exit(int i, int x, int y, int shape)
 {
-   al_draw_bitmap(mwB.tile[399], x, y, 0); // 'exit' text not shown
+   al_draw_bitmap(mBitmap.tile[399], x, y, 0); // 'exit' text not shown
    if (mLoop.frame_num % 60 > 30)
-      al_draw_text(mF.pixl, mC.pc[10], x+11, y-2, ALLEGRO_ALIGN_CENTER, "EXIT");
+      al_draw_text(mFont.pixl, mColor.pc[10], x+11, y-2, ALLEGRO_ALIGN_CENTER, "EXIT");
 
    int exit_enemys_left = mEnemy.num_enemy - mItem.item[i][8];
    if (exit_enemys_left > 0) // locked
    {
-      al_draw_bitmap(mwB.tile[366], x, y, 0); // show lock
+      al_draw_bitmap(mBitmap.tile[366], x, y, 0); // show lock
       if (mLoop.frame_num % 60 < 30)
-         al_draw_textf(mF.pixl, mC.pc[14], x+11, y-2, ALLEGRO_ALIGN_CENTER, "%d", exit_enemys_left);
+         al_draw_textf(mFont.pixl, mColor.pc[14], x+11, y-2, ALLEGRO_ALIGN_CENTER, "%d", exit_enemys_left);
 
    }
    return 1;

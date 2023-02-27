@@ -19,12 +19,12 @@ int mwItems::draw_key(int i, int x, int y, int tile)
       {
          // moving key in final stage gets static shape not ans
          int tile = mItem.item[i][1];                   // get tile
-         if (tile > 999) tile = mwB.zz[5][tile-1000];   // get first tile in ans
+         if (tile > 999) tile = mBitmap.zz[5][tile-1000];   // get first tile in ans
 
          // stretch the key
          float sc = 1 + 5*((10 - (float)mItem.item[i][11]) / 10);
          float rot = (float) mItem.item[i][10] / 1000;
-         al_draw_scaled_rotated_bitmap(mwB.tile[tile],10, 10, x+10, y+10, sc, sc, rot, 0);
+         al_draw_scaled_rotated_bitmap(mBitmap.tile[tile],10, 10, x+10, y+10, sc, sc, rot, 0);
 
          // draw a collapsing rectangle
          int x1 = mItem.item[i][6];
@@ -40,12 +40,12 @@ int mwItems::draw_key(int i, int x, int y, int tile)
          float seq = 9 - mItem.item[i][11]; // starts at 0, goes to 8
          int xo = (int)(seq * xinc / 2);
          int yo = (int)(seq * yinc / 2);
-         al_draw_rectangle(x1+xo, y1+yo, x2-xo, y2-yo, mC.White, 1);
+         al_draw_rectangle(x1+xo, y1+yo, x2-xo, y2-yo, mColor.White, 1);
       }
       else
       {
          float rot = (float) mItem.item[i][10] / 1000;
-         al_draw_rotated_bitmap(mwB.tile[tile], 10, 10, x+10, y+10, rot, 0);
+         al_draw_rotated_bitmap(mBitmap.tile[tile], 10, 10, x+10, y+10, rot, 0);
       }
       return 1;
    }
@@ -134,7 +134,7 @@ void mwItems::proc_switch_collision(int p, int i)
          if (mItem.item[i][1] > 111) mItem.item[i][1] -= 16;
          else mItem.item[i][1] += 16;
 
-         al_set_target_bitmap(mwB.level_background);
+         al_set_target_bitmap(mBitmap.level_background);
          proc_switch_block_range(i, 1);
       }
    }
@@ -151,7 +151,7 @@ void mwItems::proc_switch_block_range(int i, int action)
 
    if (action == 1)
    {
-      al_set_target_bitmap(mwB.level_background);
+      al_set_target_bitmap(mBitmap.level_background);
       for (int x=x1; x<x2; x++)
          for (int y=y1; y<y2; y++)
          {
@@ -165,7 +165,7 @@ void mwItems::proc_switch_block_range(int i, int action)
             if ((mItem.item[i][10] & 0b0100) && (tn ==  9))  mLevel.change_block(x, y, (174 | PM_BTILE_ALL_SOLID)); // blue   empty to solid
             if ((mItem.item[i][10] & 0b1000) && (tn == 10))  mLevel.change_block(x, y, (175 | PM_BTILE_ALL_SOLID)); // purple empty to solid
          }
-      al_set_target_backbuffer(display);
+      al_set_target_backbuffer(mDisplay.display);
    }
 
    // this method sets block then calls init_level..

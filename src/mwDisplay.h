@@ -4,6 +4,8 @@ class mwDisplay
 {
    public:
 
+   ALLEGRO_DISPLAY *display = NULL;
+
    int desktop_width;
    int desktop_height;
 
@@ -55,12 +57,10 @@ class mwDisplay
    int show_scale_factor;
    int scale_factor_holdoff;
 
-
    void set_scale_factor(float new_scale_factor, int instant);
    void proc_scale_factor_change(void);
 
    void mw_set_clipping_rect(float x, float y, float w, float h);
-
 
    void show_bitmap_flags(int flags);
    void show_pixel_format(int df);
@@ -69,7 +69,6 @@ class mwDisplay
    void show_display_orienation(void);
    void show_fullscreen_modes(void);
    void show_var_sizes(void);
-
 
    void auto_set_display_transform_double(void);
    void set_saved_display_transform(int sdt);
@@ -84,13 +83,5 @@ class mwDisplay
    void proc_display_change_fromfs(void);
    void toggle_fullscreen(void);
 
-
-
-
-
-
 };
-extern mwDisplay mwD;
-extern ALLEGRO_DISPLAY *display;
-
-
+extern mwDisplay mDisplay;

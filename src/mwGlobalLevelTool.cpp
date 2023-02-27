@@ -19,21 +19,21 @@ void mwGlobalLevelTool::show_block_list(int blt[])
    int y = 0;
    int count_unique = 0;
 
-   al_draw_filled_rectangle(200, 0, mwD.SCREEN_W-1, mwD.SCREEN_H-1, mC.pc[0]);
+   al_draw_filled_rectangle(200, 0, mDisplay.SCREEN_W-1, mDisplay.SCREEN_H-1, mColor.pc[0]);
    for (int z=0; z<NUM_SPRITES; z++)
       if (blt[z])
       {
          count_unique++;
-         al_draw_bitmap(mwB.btile[z], 180, y, 0);
-         //al_draw_textf(mF.pr8, mC.pc[11], 200, y+6, 0, "sa%d   block# %d   count %d ",mwB.sa[z][0],  z, blt[z] );
-         al_draw_textf(mF.pr8, mC.pc[11], 200, y+6, 0, "block:%d count:%d ", z, blt[z] );
+         al_draw_bitmap(mBitmap.btile[z], 180, y, 0);
+         //al_draw_textf(mFont.pr8, mColor.pc[11], 200, y+6, 0, "sa%d   block# %d   count %d ",mBitmap.sa[z][0],  z, blt[z] );
+         al_draw_textf(mFont.pr8, mColor.pc[11], 200, y+6, 0, "block:%d count:%d ", z, blt[z] );
          printf("block:%d count:%d\n", z, blt[z] );
          y+=20;
-         if (y > mwD.SCREEN_H-20)
+         if (y > mDisplay.SCREEN_H-20)
          {
             al_flip_display();
             al_clear_to_color(al_map_rgb(0,0,0));
-            mI.tsw();
+            mInput.tsw();
             y = 0;
          }
       }
@@ -41,7 +41,7 @@ void mwGlobalLevelTool::show_block_list(int blt[])
    printf("\nunique blocks:%d\n", count_unique);
 
    al_flip_display();
-   mI.tsw();
+   mInput.tsw();
 
 }
 
@@ -52,7 +52,7 @@ void mwGlobalLevelTool::remove_unused_tiles(int blt[])
    {
       if (blt[z] == 0) // block is not used
       {
-         al_set_target_bitmap(mwB.btile[z]);
+         al_set_target_bitmap(mBitmap.btile[z]);
          al_clear_to_color(al_map_rgb(0,0,0));
       }
    }
@@ -61,7 +61,7 @@ void mwGlobalLevelTool::remove_unused_tiles(int blt[])
    al_set_target_bitmap(temp);
    for (int y = 0; y < 32; y++)
       for (int x = 0; x < 32; x++)
-         al_draw_bitmap(mwB.btile[y*32 + x], (x*20), (y*20), 0);
+         al_draw_bitmap(mBitmap.btile[y*32 + x], (x*20), (y*20), 0);
 
    al_save_bitmap("bitmaps/tempb_tiles.bmp", temp);
    al_destroy_bitmap(temp);
@@ -109,7 +109,7 @@ void mwGlobalLevelTool::execute(void)
    int max = 0;
    int min = 9990;
 
-   al_set_target_backbuffer(display);
+   al_set_target_backbuffer(mDisplay.display);
    al_flip_display();
    al_clear_to_color(al_map_rgb(0,0,0));
 
@@ -119,13 +119,13 @@ void mwGlobalLevelTool::execute(void)
    // iterate array of found levels
    for (int x=0; x<num_levs; x++)
    {
-      al_set_target_backbuffer(display);
+      al_set_target_backbuffer(mDisplay.display);
       al_flip_display();
 
       // progress bar
-      mScreen.draw_percent_bar(mwD.SCREEN_W/2, mwD.SCREEN_H/2, mwD.SCREEN_W-200, 20, (x+1)*100 / num_levs);
-      al_draw_text(mF.pr8, mC.pc[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2+7 , ALLEGRO_ALIGN_CENTER, "Doing glt...");
-      al_draw_textf(mF.pr8, mC.pc[11], 10, 10+x*8, 0, "lev:%d", le[x]);
+      mScreen.draw_percent_bar(mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mDisplay.SCREEN_W-200, 20, (x+1)*100 / num_levs);
+      al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+7 , ALLEGRO_ALIGN_CENTER, "Doing glt...");
+      al_draw_textf(mFont.pr8, mColor.pc[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       mLevel.load_level(le[x], 1, 1);
 
       for (int y=0; y<500; y++)
@@ -159,8 +159,8 @@ void mwGlobalLevelTool::execute(void)
       if (0)
       {
          mLevel.save_level(le[x]);
-         al_set_target_backbuffer(display);
-         al_draw_textf(mF.pr8, mC.pc[10], 110, 10+x*8, 0, "lev:%d", le[x]);
+         al_set_target_backbuffer(mDisplay.display);
+         al_draw_textf(mFont.pr8, mColor.pc[10], 110, 10+x*8, 0, "lev:%d", le[x]);
       }
    } // end of level iterate
 
@@ -173,7 +173,7 @@ void mwGlobalLevelTool::execute(void)
    printf("min:%d max:%d\n", min, max);
 
    //show_block_list(blt);
-   mI.tsw();
+   mInput.tsw();
    mLevel.set_start_level(old_start_level);
 }
 

@@ -30,8 +30,6 @@ class mwInput
    void tsw(void);
    void m_err(const char * err_msg);
 
-
-
    ALLEGRO_JOYSTICK *joy0 = NULL;
    ALLEGRO_JOYSTICK *joy1 = NULL;
 
@@ -48,8 +46,6 @@ class mwInput
    int mouse_dx;
    int mouse_dy;
    int mouse_dz;
-
-
 
    bool mouse_b[5][4];
 
@@ -133,5 +129,5 @@ class mwInput
 
 
 };
-extern mwInput mI;
+extern mwInput mInput;
 

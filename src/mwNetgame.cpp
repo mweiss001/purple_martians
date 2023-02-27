@@ -2,8 +2,6 @@
 
 #include "pm.h"
 #include "mwNetgame.h"
-
-// n_netgame.cpp
 #include "mwPlayers.h"
 #include "mwLift.h"
 #include "mwTriggerEvent.h"
@@ -13,7 +11,7 @@
 #include "mwShots.h"
 #include "mwLog.h"
 #include "mwTally.h"
-#include "mwGameMovesArray.h"
+#include "mwGameMoves.h"
 #include "mwLoop.h"
 #include "mwInput.h"
 #include "mwRollingAverage.h"

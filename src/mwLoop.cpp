@@ -19,7 +19,7 @@
 #include "mwFont.h"
 #include "mwLift.h"
 #include "mwVisualLevel.h"
-#include "mwGameMovesArray.h"
+#include "mwGameMoves.h"
 #include "mwTriggerEvent.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
@@ -57,7 +57,6 @@ void mwLoop::initialize(void)
    help_screens_running = 0;
    visual_level_select_running = 0;
 
-
    show_debug_overlay = 0;
 
    // temp testing variables
@@ -79,7 +78,7 @@ void mwLoop::initialize(void)
 
 void mwLoop::draw_frame(void)
 {
-   mwDS.draw();
+   mDrawSequence.draw();
 //   get_new_background(1);
 //   draw_lifts();
 //   draw_items();
@@ -95,7 +94,7 @@ void mwLoop::draw_frame(void)
 void mwLoop::move_frame(void)
 {
    char msg[1024];
-   double t1, t2, t3, t4, t5, t6;
+   double t0, t1, t2, t3, t4, t5, t6;
    if ((mLog.LOG_TMR_move_tot) || (mLog.LOG_TMR_move_all)) t0 = al_get_time();
    mShot.move_eshots();
    if (mLog.LOG_TMR_move_all) t1 = al_get_time();
@@ -124,7 +123,7 @@ void mwLoop::loop_frame(int times) // used for fast forwarding after rewind
 {
    for (int i=0; i<times; i++)
    {
-      mwGMA.proc_game_moves_array();
+      mGameMoves.proc();
       if (mPlayer.syn[0].level_done_mode) proc_level_done_mode();
       else move_frame();
       mLoop.frame_num++;
@@ -138,7 +137,7 @@ int mwLoop::have_all_players_acknowledged(void)
    {
       if (mPlayer.syn[p].active)
       {
-         if (mwGMA.has_player_acknowledged(p))
+         if (mGameMoves.has_player_acknowledged(p))
          {
             mPlayer.syn[p].level_done_ack = 1;
          }
@@ -155,7 +154,7 @@ int mwLoop::have_all_players_acknowledged(void)
 void mwLoop::game_menu(void)
 {
    mLoop.old_program_state = 1;
-   if (!mwL.splash_screen_done) { mwL.splash_screen(); mwL.splash_screen_done = 1; }
+   if (!mLogo.splash_screen_done) { mLogo.splash_screen(); mLogo.splash_screen_done = 1; }
    if (!mLevel.resume_allowed) mLevel.set_start_level();
    if (mLoop.top_menu_sel < 3) mLoop.top_menu_sel = 3;
    while (mLoop.top_menu_sel != 1)
@@ -222,7 +221,7 @@ void mwLoop::proc_program_state(void)
             if (mNetgame.ima_client) mNetgame.client_exit();
 
             if (mLog.autosave_log_on_game_exit) mLog.save_log_file();
-            if (mLog.autosave_game_on_game_exit) mwGMA.blind_save_game_moves(2);
+            if (mLog.autosave_game_on_game_exit) mGameMoves.blind_save_game_moves(2);
 
             mSound.stop_sound();
             if (mLoop.program_state != 3) mScreen.stamp();
@@ -234,7 +233,7 @@ void mwLoop::proc_program_state(void)
    }
    if (mLoop.program_state == 0) mLoop.main_loop_exit = 1; // quit
    if (mLoop.program_state == 1) game_menu();  // game menu (this blocks)
-   if (mLoop.program_state == 2) mwDM.demo_mode();  // demo mode
+   if (mLoop.program_state == 2) mDemoMode.run();  // demo mode
    if (mLoop.program_state == 3) mSettings.settings_pages(-1);  // this blocks
 
    //---------------------------------------
@@ -260,9 +259,9 @@ void mwLoop::proc_program_state(void)
 
       // set up mwQuickGraph here
       // set up mwQuickGraph here
-      mwQG[0].initialize(1);
-      mwQG[1].initialize(2);
-      mwQG[2].initialize(2);
+      mQuickGraph[0].initialize(1);
+      mQuickGraph[1].initialize(2);
+      mQuickGraph[2].initialize(2);
 
       for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
       mPlayer.syn[0].active = 1;
@@ -277,7 +276,7 @@ void mwLoop::proc_program_state(void)
    {
       mNetgame.client_fast_packet_loop();
       mNetgame.client_read_packet_buffer();
-      if (mI.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.new_program_state = 25; // give them an escape option
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.new_program_state = 25; // give them an escape option
    }
 
    //---------------------------------------
@@ -299,13 +298,13 @@ void mwLoop::proc_program_state(void)
          mPlayer.set_player_start_pos(p, 0);     // get starting position for all players, active or not
 
 
-      mwGMA.initialize();
+      mGameMoves.initialize();
 
       mLoop.frame_num = 0;
       mNetgame.reset_states();
       mShot.clear_shots();
-      mwBM.initialize();
-      mI.initialize();
+      mBottomMessage.initialize();
+      mInput.initialize();
       mTriggerEvent.initialize();
 
       if (mLog.LOG_NET)
@@ -316,7 +315,7 @@ void mwLoop::proc_program_state(void)
 
       mLoop.show_player_join_quit_timer = 0;
       mSound.start_music(0);
-      mwTS.init_timestamps();
+      mTimeStamp.init_timestamps();
       mLoop.new_program_state = 21;
    }
 
@@ -329,11 +328,11 @@ void mwLoop::proc_program_state(void)
       mNetgame.client_read_packet_buffer();
       mNetgame.client_apply_dif();
 
-      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) mLoop.program_state = 25;
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) mLoop.program_state = 25;
 
       sprintf(msg, "Waiting for game state from server");
-      float stretch = ( (float)mwD.SCREEN_W / ((strlen(msg)+2)*8));
-      mScreen.rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, 10, stretch, 1);
+      float stretch = ( (float)mDisplay.SCREEN_W / ((strlen(msg)+2)*8));
+      mScreen.rtextout_centre(mFont.bltn, NULL, msg, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, stretch, 1);
 
       al_flip_display();
 
@@ -379,12 +378,12 @@ void mwLoop::proc_program_state(void)
       strncpy(mPlayer.loc[0].hostname, mLoop.local_hostname, 16);
 
 
-      mwGMA.initialize();
+      mGameMoves.initialize();
       mLoop.frame_num = 0;
       mNetgame.reset_states();
       mShot.clear_shots();
-      mwBM.initialize();
-      mI.initialize();
+      mBottomMessage.initialize();
+      mInput.initialize();
       mTriggerEvent.initialize();
 
       mNetgame.game_vars_to_state(mNetgame.srv_client_state[0][1]);
@@ -395,11 +394,11 @@ void mwLoop::proc_program_state(void)
          mLog.add_log_entry2(27, 0, msg);
       }
 
-      mwGMA.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
+      mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
 
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active) mwGMA.add_game_move(0, 1, p, mPlayer.syn[p].color); // 1 - player_state and color
+         if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, 1, p, mPlayer.syn[p].color); // 1 - player_state and color
 
       if (mLog.LOG_NET)
       {
@@ -409,7 +408,7 @@ void mwLoop::proc_program_state(void)
 
       mLoop.show_player_join_quit_timer = 0;
       mSound.start_music(0); // rewind and start theme
-      mwTS.init_timestamps();
+      mTimeStamp.init_timestamps();
       mLoop.program_state = 11;
    }
 
@@ -437,11 +436,11 @@ void mwLoop::proc_program_state(void)
       }
       mPlayer.syn[0].active = 1;
 
-      mwGMA.initialize();
+      mGameMoves.initialize();
 
       mShot.clear_shots();
-      mwBM.initialize();
-      mI.initialize();
+      mBottomMessage.initialize();
+      mInput.initialize();
       mTriggerEvent.initialize();
 
       mScreen.stimp();
@@ -449,12 +448,12 @@ void mwLoop::proc_program_state(void)
       mLoop.show_player_join_quit_timer = 0;
       mSound.start_music(0); // rewind and start theme
 
-      mwTS.init_timestamps();
+      mTimeStamp.init_timestamps();
       mLoop.program_state = 11;
 
       // set up mwQuickGraph here
-      mwQG[0].initialize(1);
-      mwQG[1].initialize(2);
+      mQuickGraph[0].initialize(1);
+      mQuickGraph[1].initialize(2);
 
 
    }
@@ -484,7 +483,7 @@ void mwLoop::proc_program_state(void)
       if (mNetgame.ima_server) mNetgame.server_flush();
       if (mNetgame.ima_client) mNetgame.client_flush();
 
-      mwGMA.blind_save_game_moves(1);
+      mGameMoves.blind_save_game_moves(1);
 
       if (mLog.autosave_log_on_level_done) mLog.save_log_file();
 
@@ -523,14 +522,14 @@ void mwLoop::proc_program_state(void)
       }
       mPlayer.syn[0].active = 1;
 
-      mwGMA.initialize();
+      mGameMoves.initialize();
 
 
       mLoop.frame_num = 0;
       mNetgame.reset_states();
       mShot.clear_shots();
-      mwBM.initialize();
-      mI.initialize();
+      mBottomMessage.initialize();
+      mInput.initialize();
       mTriggerEvent.initialize();
 
       if (mNetgame.ima_server) // set server initial state (for both 2-new game and 5-level done when server)
@@ -548,11 +547,11 @@ void mwLoop::proc_program_state(void)
          }
       }
 
-      mwGMA.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
+      mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
 
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active) mwGMA.add_game_move(0, 1, p, mPlayer.syn[p].color); // [01] player_state and color
+         if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, 1, p, mPlayer.syn[p].color); // [01] player_state and color
 
       if (mLog.LOG_NET)
       {
@@ -565,7 +564,7 @@ void mwLoop::proc_program_state(void)
 
       mLoop.show_player_join_quit_timer = 0;
       mSound.start_music(0); // rewind and start theme
-      mwTS.init_timestamps();
+      mTimeStamp.init_timestamps();
       mLoop.program_state = 11;
    }
 
@@ -604,14 +603,14 @@ void mwLoop::proc_program_state(void)
 
       mLoop.frame_num = 0;
       mShot.clear_shots();
-      mwBM.initialize();
-      mI.initialize();
+      mBottomMessage.initialize();
+      mInput.initialize();
       mTriggerEvent.initialize();
 
       mLoop.show_player_join_quit_timer = 0;
       mSound.start_music(0); // rewind and start theme
       mScreen.stimp();
-      mwTS.init_timestamps();
+      mTimeStamp.init_timestamps();
       mLoop.program_state = 11;
    }
 }
@@ -695,7 +694,7 @@ void mwLoop::main_loop(void)
       // ----------------------------------------------------------
       // process event queue
       // ----------------------------------------------------------
-      mwEQ.proc_event_queue();
+      mEventQueue.proc();
 
 
       // ----------------------------------------------------------
@@ -708,42 +707,42 @@ void mwLoop::main_loop(void)
       // ----------------------------------------------------------
       // do things based on the 40 Hz fps_timer event
       // ----------------------------------------------------------
-      if (mwEQ.program_update)
+      if (mEventQueue.program_update)
       {
-         mwEQ.program_update = 0;
+         mEventQueue.program_update = 0;
 
          if (mLoop.program_state == 11) // game loop running
          {
             mLoop.frame_num++;
-            mwB.update_animation();
+            mBitmap.update_animation();
 
-            mwTS.timestamp_frame_start = al_get_time();
+            mTimeStamp.timestamp_frame_start = al_get_time();
 
-            mwD.proc_scale_factor_change();
+            mDisplay.proc_scale_factor_change();
 
             if (mNetgame.ima_server) mNetgame.server_control();
             if (mNetgame.ima_client) mNetgame.client_control();
 
             mPlayer.proc_player_input();
-            mwGMA.proc_game_moves_array();
+            mGameMoves.proc();
 
             if (mPlayer.syn[0].level_done_mode) proc_level_done_mode();
             else move_frame();
 
-            if (mLog.LOG_TMR_sdif) t0 = al_get_time();
+            double t0 = al_get_time();
             mNetgame.server_create_new_state();
             if (mLog.LOG_TMR_sdif) mLog.add_log_TMR(al_get_time() - t0, "sdif", 0);
 
             draw_frame();
 
-            double pt = al_get_time() - mwTS.timestamp_frame_start;
+            double pt = al_get_time() - mTimeStamp.timestamp_frame_start;
             if (mLog.LOG_TMR_cpu) mLog.add_log_TMR(pt, "cpu", 0);
 
-            mwRA[0].add_data((pt/0.025)*100);
-            mwQG[0].add_data(0, mwRA[0].last_input);
-            mwQG[0].add_data(1, mwRA[0].mn);
-            mwQG[0].add_data(2, mwRA[0].mx);
-            mwQG[0].add_data(3, mwRA[0].avg);
+            mRollingAverage[0].add_data((pt/0.025)*100);
+            mQuickGraph[0].add_data(0, mRollingAverage[0].last_input);
+            mQuickGraph[0].add_data(1, mRollingAverage[0].mn);
+            mQuickGraph[0].add_data(2, mRollingAverage[0].mx);
+            mQuickGraph[0].add_data(3, mRollingAverage[0].avg);
 
          }
       }
@@ -759,16 +758,16 @@ void mwLoop::main_loop(void)
       // ----------------------------------------------------------
       // do things based on the 1 Hz sec_timer event
       // ----------------------------------------------------------
-      if (mwEQ.program_update_1s)
+      if (mEventQueue.program_update_1s)
       {
-         mwEQ.program_update_1s = 0;
+         mEventQueue.program_update_1s = 0;
          if (mLoop.program_state == 11) // game loop running
          {
             if (mNetgame.ima_server)
             {
                if (mPlayer.loc[0].server_state_freq_mode == 1) // 0 = manual, 1 = auto
                {
-                  int mcp = mwT[4].get_max()*1000;
+                  int mcp = mTally[4].get_max()*1000;
                   if (mcp > 100) mcp = 100;
                   mPlayer.loc[0].server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
 
@@ -778,8 +777,8 @@ void mwLoop::main_loop(void)
                for (int p=1; p<NUM_PLAYERS; p++)
                   if (mPlayer.syn[p].control_method == 2)
                   {
-                     mPlayer.loc[p].late_cdats_last_sec = mwT_late_cdats_last_sec[p].get_tally();
-                     mPlayer.loc[p].game_move_dsync_avg_last_sec = mwT_game_move_dsync_avg_last_sec[p].get_avg();
+                     mPlayer.loc[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally();
+                     mPlayer.loc[p].game_move_dsync_avg_last_sec = mTally_game_move_dsync_avg_last_sec[p].get_avg();
                   }
             }
          }

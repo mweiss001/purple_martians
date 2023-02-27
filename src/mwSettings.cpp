@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwSettings.h"
-
 #include "mwSound.h"
 #include "mwLog.h"
 #include "mwPlayers.h"
@@ -25,29 +24,11 @@
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
 #include "mwShots.h"
-#include "mwGameMovesArray.h"
-
+#include "mwGameMoves.h"
+#include "mwCodeStats.h"
 
 
 mwSettings mSettings;
-
-mwSettings::mwSettings()
-{
-   initialize();
-}
-
-void mwSettings::initialize(void)
-{
-
-}
-
-
-
-
-
-
-
-
 
 void mwSettings::set_all_logging(int v)
 {
@@ -90,42 +71,42 @@ int mwSettings::redraw_all_controls(int x, int y, int bts, int tc, int show_butt
    int ya = y;
    float yo = (bts-8)/2; // text y offset so it is centered with the button
 
-   al_draw_filled_rectangle(x-1, y-1, xc, ya + bts*7, mC.pc[13+224]); // erase background
-   al_draw_rectangle       (x-1, y-1, xc, ya + bts*7, mC.pc[15], 0);  // frame
+   al_draw_filled_rectangle(x-1, y-1, xc, ya + bts*7, mColor.pc[13+224]); // erase background
+   al_draw_rectangle       (x-1, y-1, xc, ya + bts*7, mColor.pc[15], 0);  // frame
 
-   if (num == 0) al_draw_textf(mF.pr8, mC.pc[10], tx, ya+yo, 0, "Up ---- set new control");
-   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Up ---- %s", mI.key_names[mPlayer.loc[0].up_key]);
-   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].up_key = mI.my_readkey(x, y, tc, bts, 0);
+   if (num == 0) al_draw_textf(mFont.pr8, mColor.pc[10], tx, ya+yo, 0, "Up ---- set new control");
+   else          al_draw_textf(mFont.pr8, mColor.pc[tc], tx, ya+yo, 0, "Up ---- %s", mInput.key_names[mPlayer.loc[0].up_key]);
+   if ((show_buttons) && (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].up_key = mInput.my_readkey(x, y, tc, bts, 0);
    ya+=bts;
 
-   if (num == 1) al_draw_textf(mF.pr8, mC.pc[10], tx, ya+yo, 0, "Down -- set new control");
-   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Down -- %s", mI.key_names[mPlayer.loc[0].down_key]);
-   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].down_key = mI.my_readkey(x, y, tc, bts, 1);
+   if (num == 1) al_draw_textf(mFont.pr8, mColor.pc[10], tx, ya+yo, 0, "Down -- set new control");
+   else          al_draw_textf(mFont.pr8, mColor.pc[tc], tx, ya+yo, 0, "Down -- %s", mInput.key_names[mPlayer.loc[0].down_key]);
+   if ((show_buttons) && (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].down_key = mInput.my_readkey(x, y, tc, bts, 1);
    ya+=bts;
 
-   if (num == 2) al_draw_textf(mF.pr8, mC.pc[10], tx, ya+yo, 0, "Left -- set new control");
-   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Left -- %s", mI.key_names[mPlayer.loc[0].left_key]);
-   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].left_key = mI.my_readkey(x, y, tc, bts, 2);
+   if (num == 2) al_draw_textf(mFont.pr8, mColor.pc[10], tx, ya+yo, 0, "Left -- set new control");
+   else          al_draw_textf(mFont.pr8, mColor.pc[tc], tx, ya+yo, 0, "Left -- %s", mInput.key_names[mPlayer.loc[0].left_key]);
+   if ((show_buttons) && (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].left_key = mInput.my_readkey(x, y, tc, bts, 2);
    ya+=bts;
 
-   if (num == 3) al_draw_textf(mF.pr8, mC.pc[10], tx, ya+yo, 0, "Right - set new control");
-   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Right - %s", mI.key_names[mPlayer.loc[0].right_key]);
-   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].right_key = mI.my_readkey(x, y, tc, bts, 3);
+   if (num == 3) al_draw_textf(mFont.pr8, mColor.pc[10], tx, ya+yo, 0, "Right - set new control");
+   else          al_draw_textf(mFont.pr8, mColor.pc[tc], tx, ya+yo, 0, "Right - %s", mInput.key_names[mPlayer.loc[0].right_key]);
+   if ((show_buttons) && (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].right_key = mInput.my_readkey(x, y, tc, bts, 3);
    ya+=bts;
 
-   if (num == 4) al_draw_textf(mF.pr8, mC.pc[10], tx, ya+yo, 0, "Jump -- set new control");
-   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Jump -- %s", mI.key_names[mPlayer.loc[0].jump_key]);
-   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].jump_key = mI.my_readkey(x, y, tc, bts, 4);
+   if (num == 4) al_draw_textf(mFont.pr8, mColor.pc[10], tx, ya+yo, 0, "Jump -- set new control");
+   else          al_draw_textf(mFont.pr8, mColor.pc[tc], tx, ya+yo, 0, "Jump -- %s", mInput.key_names[mPlayer.loc[0].jump_key]);
+   if ((show_buttons) && (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].jump_key = mInput.my_readkey(x, y, tc, bts, 4);
    ya+=bts;
 
-   if (num == 5) al_draw_textf(mF.pr8, mC.pc[10], tx, ya+yo, 0, "Fire -- set new control");
-   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Fire -- %s", mI.key_names[mPlayer.loc[0].fire_key]);
-   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].fire_key = mI.my_readkey(x, y, tc, bts, 5);
+   if (num == 5) al_draw_textf(mFont.pr8, mColor.pc[10], tx, ya+yo, 0, "Fire -- set new control");
+   else          al_draw_textf(mFont.pr8, mColor.pc[tc], tx, ya+yo, 0, "Fire -- %s", mInput.key_names[mPlayer.loc[0].fire_key]);
+   if ((show_buttons) && (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].fire_key = mInput.my_readkey(x, y, tc, bts, 5);
    ya+=bts;
 
-   if (num == 6) al_draw_textf(mF.pr8, mC.pc[10], tx, ya+yo, 0, "Menu -- set new control");
-   else          al_draw_textf(mF.pr8, mC.pc[tc], tx, ya+yo, 0, "Menu -- %s", mI.key_names[mPlayer.loc[0].menu_key]);
-   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].menu_key = mI.my_readkey(x, y, tc, bts, 6);
+   if (num == 6) al_draw_textf(mFont.pr8, mColor.pc[10], tx, ya+yo, 0, "Menu -- set new control");
+   else          al_draw_textf(mFont.pr8, mColor.pc[tc], tx, ya+yo, 0, "Menu -- %s", mInput.key_names[mPlayer.loc[0].menu_key]);
+   if ((show_buttons) && (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    mPlayer.loc[0].menu_key = mInput.my_readkey(x, y, tc, bts, 6);
    ya+=bts;
 
    return ya;
@@ -133,14 +114,14 @@ int mwSettings::redraw_all_controls(int x, int y, int bts, int tc, int show_butt
 
 void mwSettings::cfp_draw_player(int pco, int x, int y)
 {
-   al_draw_bitmap(mwB.player_tile[pco][1], x, y, 0 );
-   al_draw_text(mF.pr8, mC.pc[pco], x+22, y+7, 0, mC.color_name[pco]);
+   al_draw_bitmap(mBitmap.player_tile[pco][1], x, y, 0 );
+   al_draw_text(mFont.pr8, mColor.pc[pco], x+22, y+7, 0, mColor.color_name[pco]);
 }
 
 int mwSettings::cfp_draw_line(int xa, int xb, int ya, int line_spacing, int col)
 {
    ya+=line_spacing;
-   al_draw_line(xa, ya, xb, ya, mC.pc[col], 1);
+   al_draw_line(xa, ya, xb, ya, mColor.pc[col], 1);
    ya+=line_spacing;
    return ya;
 }
@@ -149,9 +130,9 @@ void mwSettings::cfp_4tog(int xa, int xb, int &ya, int bts, int tc, int fc, int 
 {
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
    ya -=7;
-   al_draw_text(mF.pr8, mC.pc[tc], xa, ya, 0, name);
+   al_draw_text(mFont.pr8, mColor.pc[tc], xa, ya, 0, name);
    for (int i=0; i<4; i++)
-      mdw_togglec(xb-86+(i*24), ya, xb-72+(i*24), bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[index][i],  "", tc, fc);
+      mWidget.togglec(xb-86+(i*24), ya, xb-72+(i*24), bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[index][i],  "", tc, fc);
 }
 
 
@@ -165,9 +146,9 @@ void mwSettings::draw_tab(struct settings_tab st[], int p, int col, int text_col
    v[2][0] = st[p].x2;    v[2][1] = st[p].y2; // lr
    v[3][0] = st[p].x2-s;  v[3][1] = st[p].y1; // ur
    int bc = col+192; if (bc > 256) bc = 0; //  tab background color
-   al_draw_filled_polygon(*v, 4, mC.pc[bc]);
-   al_draw_polygon(*v, 4, ALLEGRO_LINE_JOIN_ROUND, mC.pc[col], 1.0, 0);
-   al_draw_text(mF.pr8, mC.pc[text_color], st[p].x1+4, st[p].y1+3, 0, st[p].title);
+   al_draw_filled_polygon(*v, 4, mColor.pc[bc]);
+   al_draw_polygon(*v, 4, ALLEGRO_LINE_JOIN_ROUND, mColor.pc[col], 1.0, 0);
+   al_draw_text(mFont.pr8, mColor.pc[text_color], st[p].x1+4, st[p].y1+3, 0, st[p].title);
 }
 
 void mwSettings::settings_pages(int set_page)
@@ -205,19 +186,19 @@ void mwSettings::settings_pages(int set_page)
    int quit = 0;
    while (!quit)
    {
-      al_show_mouse_cursor(display);
+      al_show_mouse_cursor(mDisplay.display);
       // entire area, including title, tabs, and page
       int cf_w = 400;
-      int cf_x1 = (mwD.SCREEN_W - cf_w)/2;
+      int cf_x1 = (mDisplay.SCREEN_W - cf_w)/2;
       int cf_x2 = cf_x1 + cf_w;
 
       int cf_h = 400;
-      int cf_y1 = mwL.menu_map_y - 61; // line up exactly with the menu item "Settings"
+      int cf_y1 = mLogo.menu_map_y - 61; // line up exactly with the menu item "Settings"
       int cf_y2 = cf_y1 + cf_h;
 
-      if (cf_y2 > mwD.SCREEN_H)     // if bottom is past bottom of screen
+      if (cf_y2 > mDisplay.SCREEN_H)     // if bottom is past bottom of screen
       {
-         cf_y2 = mwD.SCREEN_H;      // bottom is bottom of screen
+         cf_y2 = mDisplay.SCREEN_H;      // bottom is bottom of screen
          cf_y1 = cf_y2 - cf_h;
 
          if (cf_y1 < 0)         // if top is past top of screen
@@ -229,26 +210,26 @@ void mwSettings::settings_pages(int set_page)
 
       fc = mPlayer.syn[0].color; // frame color
 
-      al_set_target_backbuffer(display);
+      al_set_target_backbuffer(mDisplay.display);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0, 0, 0));
       mScreen.frame_and_title(1);
-      mwL.mdw_an(mwL.mdw_map_logo_x, mwL.mdw_map_logo_y, mwL.mdw_map_logo_scale);
+      mLogo.mdw_an(mLogo.mdw_map_logo_x, mLogo.mdw_map_logo_y, mLogo.mdw_map_logo_scale);
       for (int c=0; c<7; c++)       // show first 7 menu items
       {
          int b = 15;
          if ((!mLevel.resume_allowed) && (c==4)) b+=80; // dimmer if can't resume
-         al_draw_text(mF.pr8, mC.pc[b], mwD.SCREEN_W/2, 14+(c*10)+1, ALLEGRO_ALIGN_CENTRE, mMenu.menu_string[c]);
+         al_draw_text(mFont.pr8, mColor.pc[b], mDisplay.SCREEN_W/2, 14+(c*10)+1, ALLEGRO_ALIGN_CENTRE, mMenu.menu_string[c]);
       }
 
-      while (!mwEQ.menu_update) mwEQ.proc_event_queue();
-      mwEQ.menu_update = 0;
+      while (!mEventQueue.menu_update) mEventQueue.proc();
+      mEventQueue.menu_update = 0;
 
-      al_draw_filled_rectangle(cf_x1, cf_y1, cf_x2, cf_y2, mC.pc[fc+224]); // erase everything
+      al_draw_filled_rectangle(cf_x1, cf_y1, cf_x2, cf_y2, mColor.pc[fc+224]); // erase everything
 
       // figure out the title size
       int bx, by, bw, bh;
-      al_get_text_dimensions(mF.pr8, title, &bx, &by, &bw, &bh);
+      al_get_text_dimensions(mFont.pr8, title, &bx, &by, &bw, &bh);
       float title_w = bw + 12;
       float title_x1 = cf_x1 + (cf_w - title_w) / 2;
       float title_x2 = title_x1 + title_w;
@@ -270,7 +251,7 @@ void mwSettings::settings_pages(int set_page)
       for (int i=0; i<num_pages; i++)
       {
          int bx, by, bw, bh; // set size of tab based on text size
-         al_get_text_dimensions(mF.pr8, st[i].title, &bx, &by, &bw, &bh);
+         al_get_text_dimensions(mFont.pr8, st[i].title, &bx, &by, &bw, &bh);
          bh = 8 + 5; // force 8 because with descender, text height is sometimes different and things don't line up
          bw += 8;
 
@@ -295,16 +276,16 @@ void mwSettings::settings_pages(int set_page)
 
       // frame everything
       for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(cf_x1+a, cf_y1+a, cf_x2-a, cf_y2-a, 4, 4, mC.pc[fc+a*48], 1.5);
+         al_draw_rounded_rectangle(cf_x1+a, cf_y1+a, cf_x2-a, cf_y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
 
       // frame from top of page to to top of window, this is here to draw under the tabs
       for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(cf_x1+a, cf_y1+a, cf_x2-a, cfp_y1-a+3, 4, 4, mC.pc[fc+a*48], 1.5);
+         al_draw_rounded_rectangle(cf_x1+a, cf_y1+a, cf_x2-a, cfp_y1-a+3, 4, 4, mColor.pc[fc+a*48], 1.5);
 
       // frame and draw title, this needs to go on top of previous frame
       for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(title_x1+a, title_y1+a, title_x2-a, title_y2-a, 4, 4, mC.pc[fc+a*48], 1.5);
-      al_draw_text(mF.pr8, mC.pc[tc], title_xc, title_ty, ALLEGRO_ALIGN_CENTER, title);
+         al_draw_rounded_rectangle(title_x1+a, title_y1+a, title_x2-a, title_y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
+      al_draw_text(mFont.pr8, mColor.pc[tc], title_xc, title_ty, ALLEGRO_ALIGN_CENTER, title);
 
       // draw and process tabs
       int mouse_on_tab = -1;
@@ -312,7 +293,7 @@ void mwSettings::settings_pages(int set_page)
       {
          st[i].y1 += cfp_y1; // adjust y values to top of page
          st[i].y2 += cfp_y1;
-         if ((mI.mouse_x > st[i].x1) && (mI.mouse_x < st[i].x2) && (mI.mouse_y > st[i].y1) && (mI.mouse_y < st[i].y2)) mouse_on_tab = i;
+         if ((mInput.mouse_x > st[i].x1) && (mInput.mouse_x < st[i].x2) && (mInput.mouse_y > st[i].y1) && (mInput.mouse_y < st[i].y2)) mouse_on_tab = i;
          draw_tab(st, i, fc+128, tc+128); // draw the tab
       }
 
@@ -320,16 +301,16 @@ void mwSettings::settings_pages(int set_page)
       if (mouse_on_tab != -1)
       {
          draw_tab(st, mouse_on_tab, fc, tc); // draw the tab the mouse is on
-         if (mI.mouse_b[1][0])
+         if (mInput.mouse_b[1][0])
          {
-            while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
+            while (mInput.mouse_b[1][0]) mEventQueue.proc();
             settings_current_page = page = mouse_on_tab;
          }
       }
 
       // frame page
       for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(cf_x1+a, cfp_y1+a, cf_x2-a, cf_y2-a, 4, 4, mC.pc[fc+a*48], 1.5);
+         al_draw_rounded_rectangle(cf_x1+a, cfp_y1+a, cf_x2-a, cf_y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
 
 
 
@@ -359,7 +340,7 @@ void mwSettings::settings_pages(int set_page)
          // ---------------------------------------
 
          ya+=7;
-         al_draw_text(mF.pr8, mC.pc[tc], xa,     ya, 0, "Current player color:");
+         al_draw_text(mFont.pr8, mColor.pc[tc], xa,     ya, 0, "Current player color:");
          cfp_draw_player(mPlayer.syn[0].color,     xa+180, ya-7);
 
          ya+=13;
@@ -371,9 +352,9 @@ void mwSettings::settings_pages(int set_page)
          for (int i=1; i<16; i++)
          {
             cfp_draw_player(i, xa+px1, ya+py1);
-            if ( (mI.mouse_x > (xa + px1)) && (mI.mouse_x < (xa + px1 + spacing)) && (mI.mouse_y > (ya + py1)) && (mI.mouse_y < (ya + py1 +22)) && (mI.mouse_b[1][0]))
+            if ( (mInput.mouse_x > (xa + px1)) && (mInput.mouse_x < (xa + px1 + spacing)) && (mInput.mouse_y > (ya + py1)) && (mInput.mouse_y < (ya + py1 +22)) && (mInput.mouse_b[1][0]))
             {
-               while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
+               while (mInput.mouse_b[1][0]) mEventQueue.proc();
                mPlayer.syn[0].color = i;
             }
             px1 += spacing;
@@ -395,7 +376,7 @@ void mwSettings::settings_pages(int set_page)
          int x1a = cfp_x1 + 10;
          int x1b = x1a + 60;
          int old_sound_on = mSound.sound_on;
-         mdw_togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mSound.sound_on, "Sound", tc, tc);
+         mWidget.togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mSound.sound_on, "Sound", tc, tc);
          if ((old_sound_on == 0) && (mSound.sound_on == 1)) mSound.load_sound();
 
          int dim = 0;
@@ -404,7 +385,7 @@ void mwSettings::settings_pages(int set_page)
          int old_se_scaler = mSound.se_scaler;
          x1a = x1b + 12;
          x1b = x1a + 140;
-         mdw_slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,0,0, mSound.se_scaler, 9, 0, 1, "Sound Effects:");
+         mWidget.slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,0,0, mSound.se_scaler, 9, 0, 1, "Sound Effects:");
 
          if (old_se_scaler != mSound.se_scaler) mSound.set_se_scaler();
 
@@ -414,7 +395,7 @@ void mwSettings::settings_pages(int set_page)
          int old_st_scaler = mSound.st_scaler;
          x1a = x1b + 12;
          x1b = x1a + 140;
-         mdw_slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,1,0, mSound.st_scaler, 9, 0, 1, "Sound Track:");
+         mWidget.slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,1,0, mSound.st_scaler, 9, 0, 1, "Sound Track:");
          if (old_st_scaler != mSound.st_scaler) mSound.set_st_scaler();
 //         if ((old_st_scaler != st_scaler) && (sound_on)) al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
 
@@ -437,18 +418,18 @@ void mwSettings::settings_pages(int set_page)
          // ---------------------------------------
          x1a = cfp_x1 + 10;
          x1b = x1a + 250;
-         mdw_togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mwL.show_splash_screen, "Show splash screen on startup", tc, tc);
+         mWidget.togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mLogo.show_splash_screen, "Show splash screen on startup", tc, tc);
          x1a = x1b + 30;
          x1b = x1a + 74;
-         if (mdw_buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Show now"))
+         if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Show now"))
          {
-             mwL.splash_screen();
-             while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue();
+             mLogo.splash_screen();
+             while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
          }
          ya -=2;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mwBM.bottom_msg_on, "Show bottom message display", tc, 15);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mBottomMessage.bottom_msg_on, "Show bottom message display", tc, 15);
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -474,14 +455,14 @@ void mwSettings::settings_pages(int set_page)
          int xb = xa + bw;
 
          ya+=10;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Get all new controls"))  mI.get_all_keys(kx, ky, tc, 14);
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Get all new controls"))  mInput.get_all_keys(kx, ky, tc, 14);
          ya += 4;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Set all to joystick 1")) mI.set_controls_to_custom_sets(1);
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Set all to joystick 2")) mI.set_controls_to_custom_sets(2);
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Set all to arrow keys")) mI.set_controls_to_custom_sets(3);
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Set all to IJKL"))       mI.set_controls_to_custom_sets(4);
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Set all to joystick 1")) mInput.set_controls_to_custom_sets(1);
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Set all to joystick 2")) mInput.set_controls_to_custom_sets(2);
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Set all to arrow keys")) mInput.set_controls_to_custom_sets(3);
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Set all to IJKL"))       mInput.set_controls_to_custom_sets(4);
          ya += 4;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,0, "Test controls"))         mI.test_keys(cfp_x1 + (cfp_x2-cfp_x1) / 2, ya-bts*7);
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,0, "Test controls"))         mInput.test_keys(cfp_x1 + (cfp_x2-cfp_x1) / 2, ya-bts*7);
       }
 // ---------------------------------------------------------------
 //  2 - netgame
@@ -500,37 +481,37 @@ void mwSettings::settings_pages(int set_page)
 
 
          sprintf(msg, "Server IP Address:%s", mNetgame.m_serveraddress);
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,-1,fc, 0,  1,0,1,0, msg))  mMiscFnx.edit_server_name(1, cfp_txc, ya);
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,-1,fc, 0,  1,0,1,0, msg))  mMiscFnx.edit_server_name(1, cfp_txc, ya);
          ya+=4;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Clients need the server name");
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya+8, ALLEGRO_ALIGN_CENTER, "or IP address set here.");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Clients need the server name");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya+8, ALLEGRO_ALIGN_CENTER, "or IP address set here.");
 
          ya+=18;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-         mdw_toggle( xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mNetgame.TCP, "Packet type:UDP", "Packet type:TCP", fc, fc, -1, -1);
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The type of packet used to communicate.");
+         mWidget.toggle( xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mNetgame.TCP, "Packet type:UDP", "Packet type:TCP", fc, fc, -1, -1);
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The type of packet used to communicate.");
 
          ya+=10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mShot.deathmatch_shots, "Deathmatch player shots", fc, fc);
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's shots affect other players?");
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mShot.deathmatch_shots, "Deathmatch player shots", fc, fc);
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's shots affect other players?");
 
          ya+=10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mShot.suicide_shots, "Suicide player shots", fc, fc);
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's shots affect themselves?");
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mShot.suicide_shots, "Suicide player shots", fc, fc);
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's shots affect themselves?");
 
          ya+=10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
          ya+=4;
 
-         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mShot.deathmatch_shot_damage, 100, -10, 1, "Player shot damage:");
+         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mShot.deathmatch_shot_damage, 100, -10, 1, "Player shot damage:");
          ya+=4;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The amount of damage player's shots");
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya+8, ALLEGRO_ALIGN_CENTER, "do to other players and themselves.");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The amount of damage player's shots");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya+8, ALLEGRO_ALIGN_CENTER, "do to other players and themselves.");
 
          ya+=18;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
@@ -551,11 +532,11 @@ void mwSettings::settings_pages(int set_page)
          int e = 9;    // normal
 
          ya+=5+line_spacing;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Display Transform Double is a method to");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Display Transform Double is a method to");
          ya+=12;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "enlarge text. On high resolution displays");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "enlarge text. On high resolution displays");
          ya+=12;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "the text may become too small to read.");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "the text may become too small to read.");
          ya+=9;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -563,9 +544,9 @@ void mwSettings::settings_pages(int set_page)
          ya+=2;
 
 
-         if (mwD.saved_display_transform_double == 0) sprintf(msg, "Current Mode: %d [Auto]", mwD.display_transform_double);
-         else                                       sprintf(msg, "Current Mode: %d [Static]", mwD.display_transform_double);
-         mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,6,tc, 0,  1,0,1,0, msg);
+         if (mDisplay.saved_display_transform_double == 0) sprintf(msg, "Current Mode: %d [Auto]", mDisplay.display_transform_double);
+         else                                       sprintf(msg, "Current Mode: %d [Static]", mDisplay.display_transform_double);
+         mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,6,tc, 0,  1,0,1,0, msg);
 
 
 
@@ -573,38 +554,38 @@ void mwSettings::settings_pages(int set_page)
 
 
          ya+=2;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "In auto mode, a reasonable value is set");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "In auto mode, a reasonable value is set");
          ya+=12;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "automatically, depending on the current");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "automatically, depending on the current");
          ya+=12;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "screen resolution or window size.");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "screen resolution or window size.");
          ya+=12 + line_spacing;
 
-         if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Set to Auto Mode")) mwD.set_saved_display_transform(0);
+         if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Set to Auto Mode")) mDisplay.set_saved_display_transform(0);
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          ya+=2;
 
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "In static mode you can set a permanent");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "In static mode you can set a permanent");
          ya+=12;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "value as well as the maximum values when");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "value as well as the maximum values when");
          ya+=12;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "cycling through with CTRL-SHIFT-F12.");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "cycling through with CTRL-SHIFT-F12.");
          ya+=12;
 
-         mdw_slideri(xa+20, ya, xb-20, bts,  0,0,0,0,  0,7,15,15, 0,0,1,0, mwD.display_transform_double_max, 10, 2, 1, "Maximum Value:");
+         mWidget.slideri(xa+20, ya, xb-20, bts,  0,0,0,0,  0,7,15,15, 0,0,1,0, mDisplay.display_transform_double_max, 10, 2, 1, "Maximum Value:");
 
          ya +=4;
 
          xb = xa+180;
 
-         static int newval = mwD.display_transform_double;
-         mdw_slideri(xa+20, ya, xb, bts,  0,0,0,0,  0,e,15,15, 0,0,0,0, newval, mwD.display_transform_double_max, 1, 1, "New Value:");
+         static int newval = mDisplay.display_transform_double;
+         mWidget.slideri(xa+20, ya, xb, bts,  0,0,0,0,  0,e,15,15, 0,0,0,0, newval, mDisplay.display_transform_double_max, 1, 1, "New Value:");
 
          xa = xa+200;
          xb = cfp_x2 - 30;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,e,15, 0,  1,0,1,0, "Set New Value Now")) mwD.set_saved_display_transform(newval);
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,e,15, 0,  1,0,1,0, "Set New Value Now")) mDisplay.set_saved_display_transform(newval);
 
          xa = cfp_x1 + 10;
          xb = cfp_x2 - 10;
@@ -615,11 +596,11 @@ void mwSettings::settings_pages(int set_page)
          ya +=2;
 
 
-         if (mdw_buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Reset all to defaults"))
+         if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Reset all to defaults"))
          {
-            mwD.display_transform_double_max = 3;
-            mwD.set_saved_display_transform(0);
-            newval = mwD.display_transform_double;
+            mDisplay.display_transform_double_max = 3;
+            mDisplay.set_saved_display_transform(0);
+            newval = mDisplay.display_transform_double;
          }
 
 
@@ -643,32 +624,32 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,14,tc, 0,  1,0,1,0, "Save current game in progress")) mwGMA.save_gm();
+         if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,14,tc, 0,  1,0,1,0, "Save current game in progress")) mGameMoves.save_gm();
          ya -=2;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_game_on_level_done, "Autosave on level done", tc, 14);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_game_on_game_exit,  "Autosave on game exit", tc, 14);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_game_on_level_done, "Autosave on level done", tc, 14);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_game_on_game_exit,  "Autosave on game exit", tc, 14);
          ya -=2;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Choose file and run saved game"))
-         if (mwGMA.load_gm("-"))
+         if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Choose file and run saved game"))
+         if (mGameMoves.load_gm("-"))
          {
             mLoop.new_program_state = 14;
             mLoop.old_program_state = 3;
-            al_hide_mouse_cursor(display);
+            al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
          }
          ya +=10;
-         if (mdw_buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Play random demo game"))
+         if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Play random demo game"))
          {
             mLoop.new_program_state = 2;
             mLoop.older_program_state = 3;
-            al_hide_mouse_cursor(display);
+            al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
          }
@@ -676,19 +657,21 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mwDM.demo_mode_config_enable, "Autoplay random demo at program start", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_mode_config_enable, "Autoplay random demo at program start", tc, fc);
          ya -=2;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         float old_demo_mode_overlay_opacity = mwDM.demo_mode_overlay_opacity;
-         mdw_sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwDM.demo_mode_overlay_opacity, 0.8, 0, .01, "Demo mode overlay opacity:");
-         if (old_demo_mode_overlay_opacity != mwDM.demo_mode_overlay_opacity) mConfig.save();
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, test_opacity, "Test demo mode overlay opacity", tc, fc);
-         ya +=8;
+         float old_demo_mode_overlay_opacity = mDemoMode.demo_mode_overlay_opacity;
+         mWidget.sliderfnb(xa, ya, xb, bts,  2,0,0,0,  0,12,fc,fc,  0,0,1,0, mDemoMode.demo_mode_overlay_opacity, 0.4, 0, .01, "Demo mode overlay opacity:");
+         if (old_demo_mode_overlay_opacity != mDemoMode.demo_mode_overlay_opacity) mConfig.save();
 
          if (test_opacity) mScreen.draw_large_text_overlay(3, 15);
+
+         mWidget.togglec(xa, ya, xa+20, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, test_opacity, "Test demo mode overlay opacity", tc, fc);
+         ya +=8;
+
 
 
       }
@@ -715,28 +698,28 @@ void mwSettings::settings_pages(int set_page)
 
          if (mLoop.speed_control_lock)
          {
-            mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mLoop.speed_control_lock, "Speed Control Lock", tc, 10);
-            mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,d,d,d, 0,0,1,1, mLoop.frame_speed, 200, 4, 1, "Frame Speed:");
+            mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mLoop.speed_control_lock, "Speed Control Lock", tc, 10);
+            mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,d,d,d, 0,0,1,1, mLoop.frame_speed, 200, 4, 1, "Frame Speed:");
          }
          else
          {
-            mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mLoop.speed_control_lock, "Speed Control Lock", tc, 11);
-            mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,e,e,e, 0,0,1,0, mLoop.frame_speed, 200, 4, 1, "Frame Speed:");
+            mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mLoop.speed_control_lock, "Speed Control Lock", tc, 11);
+            mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,e,e,e, 0,0,1,0, mLoop.frame_speed, 200, 4, 1, "Frame Speed:");
          }
 
-         if (old_frame_speed != mLoop.frame_speed) mwEQ.set_speed();
+         if (old_frame_speed != mLoop.frame_speed) mEventQueue.set_speed();
          ya -=6;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
 
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline adjust")) mwL.spline_adjust();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline test")) mwL.spline_test();
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline adjust")) mLogo.spline_adjust();
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline test")) mLogo.spline_test();
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mPlayer.loc[0].server_state_freq_mode, "State Frequency Auto Adjust", tc, 15);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mPlayer.loc[0].server_state_freq_mode, "State Frequency Auto Adjust", tc, 15);
 
 
 
@@ -761,24 +744,24 @@ void mwSettings::settings_pages(int set_page)
          int ya = cfp_y1;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Sends info to the console");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Sends info to the console");
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show vars")) mwD.show_var_sizes();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "hostname"))                          printf("Local hostname:%s\n", mLoop.local_hostname);
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'mwB.tilemap'"))   mwD.show_bitmap_flags(al_get_bitmap_flags(mwB.tilemap));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'mwB.M_tilemap'")) mwD.show_bitmap_flags(al_get_bitmap_flags(mwB.M_tilemap));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'mwB.tilemap'"))   mwD.show_pixel_format(al_get_bitmap_format(mwB.tilemap));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'mwB.M_tilemap'")) mwD.show_pixel_format(al_get_bitmap_format(mwB.M_tilemap));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'display'"))       mwD.show_pixel_format(al_get_display_format(display));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display flags"))                mwD.show_display_flags(al_get_display_flags(display));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display options"))              mwD.show_display_options();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display orienation"))           mwD.show_display_orienation();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show refesh rate"))                  printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show fullscreen modes"))             mwD.show_fullscreen_modes();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display adapters"))             mwD.show_display_adapters();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show code statistics"))              mLog.show_code_stats();
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show vars")) mDisplay.show_var_sizes();
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "hostname"))                          printf("Local hostname:%s\n", mLoop.local_hostname);
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'tilemap'"))       mDisplay.show_bitmap_flags(al_get_bitmap_flags(mBitmap.tilemap));
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'M_tilemap'"))     mDisplay.show_bitmap_flags(al_get_bitmap_flags(mBitmap.M_tilemap));
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'tilemap'"))       mDisplay.show_pixel_format(al_get_bitmap_format(mBitmap.tilemap));
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'tilemap'"))       mDisplay.show_pixel_format(al_get_bitmap_format(mBitmap.M_tilemap));
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'display'"))       mDisplay.show_pixel_format(al_get_display_format(mDisplay.display));
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display flags"))                mDisplay.show_display_flags(al_get_display_flags(mDisplay.display));
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display options"))              mDisplay.show_display_options();
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display orienation"))           mDisplay.show_display_orienation();
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show refesh rate"))                  printf("refresh rate:%d\n", al_get_display_refresh_rate(mDisplay.display));
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show fullscreen modes"))             mDisplay.show_fullscreen_modes();
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display adapters"))             mDisplay.show_display_adapters();
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show code statistics"))              mwCodeStats::run();
 
 //         ya -=2;
 //         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -798,70 +781,70 @@ void mwSettings::settings_pages(int set_page)
          int ya = cfp_y1;
 
          ya+=4+line_spacing;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The viewport is the visible area of the level.");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The viewport is the visible area of the level.");
          ya+=16;
 
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The player is usually near the center");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The player is usually near the center");
          ya+=12;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "and the level scrolls to follow the player.");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "and the level scrolls to follow the player.");
 
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The hysteresis rectangle is an area in the");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The hysteresis rectangle is an area in the");
          ya+=12;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "center where the player can move without");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "center where the player can move without");
          ya+=12;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "causing the level to scroll");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "causing the level to scroll");
 
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          ya +=1;
-         mdw_sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwD.viewport_x_div, 1, 0.01, .01, "Hysteresis scale x:");
-         mdw_sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwD.viewport_y_div, 1, 0.01, .01, "Hysteresis scale y:");
+         mWidget.sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mDisplay.viewport_x_div, 1, 0.01, .01, "Hysteresis scale x:");
+         mWidget.sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mDisplay.viewport_y_div, 1, 0.01, .01, "Hysteresis scale y:");
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mwD.viewport_show_hyst, "Show Hysteresis Rectangle", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDisplay.viewport_show_hyst, "Show Hysteresis Rectangle", tc, fc);
 
          ya-=6;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Show it to help with adjustment, and leave");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Show it to help with adjustment, and leave");
          ya+=12;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "it on while playing to see how it works.");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "it on while playing to see how it works.");
 
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mdw_buttonp(xa+80, ya, xb-80, bts,  20,0,0,0,  0, 8, fc, 0,  1,0,1,0, mwD.viewport_mode);
+         mWidget.buttonp(xa+80, ya, xb-80, bts,  20,0,0,0,  0, 8, fc, 0,  1,0,1,0, mDisplay.viewport_mode);
 
          ya+=4;
 
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Instant mode moves the viewport instantly.");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Instant mode moves the viewport instantly.");
          ya+=20;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Gradual mode moves the viewport gradually.");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Gradual mode moves the viewport gradually.");
          ya+=12;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "It also moves the way you are facing.");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "It also moves the way you are facing.");
          ya+=12;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Including up and down.");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Including up and down.");
          ya+=20;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Static mode disables the hystersis rectangle.");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Static mode disables the hystersis rectangle.");
          ya+=12;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The player is always in the center of the");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The player is always in the center of the");
          ya+=12;
-         al_draw_text(mF.pr8, mC.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "screen. (Except near the level boundaries).");
-         if (mwD.viewport_show_hyst) mScreen.draw_hyst_rect();
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "screen. (Except near the level boundaries).");
+         if (mDisplay.viewport_show_hyst) mScreen.draw_hyst_rect();
 
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         if (mdw_buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Reset all to defaults"))
+         if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Reset all to defaults"))
          {
-            mwD.viewport_mode = 1;
-            mwD.viewport_show_hyst = 0;
-            mwD.viewport_x_div = 0.33;
-            mwD.viewport_y_div = 0.33;
+            mDisplay.viewport_mode = 1;
+            mDisplay.viewport_show_hyst = 0;
+            mDisplay.viewport_x_div = 0.33;
+            mDisplay.viewport_y_div = 0.33;
          }
 
       }
@@ -879,29 +862,29 @@ void mwSettings::settings_pages(int set_page)
          int tc = 13;
          int fc = 15;
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_cpu,           "mLog.LOG_TMR_cpu", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_move_tot,      "mLog.LOG_TMR_move_tot", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_move_all,      "mLog.LOG_TMR_move_all", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_move_enem,     "mLog.LOG_TMR_move_enem", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_draw_tot,      "mLog.LOG_TMR_draw_tot", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_draw_all,      "mLog.LOG_TMR_draw_all", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_sdif,          "mLog.LOG_TMR_sdif", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_cdif,          "mLog.LOG_TMR_cdif", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_rwnd,          "mLog.LOG_TMR_rwnd", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_bmsg_add,      "mLog.LOG_TMR_bmsg_add", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_bmsg_draw,     "mLog.LOG_TMR_bmsg_draw", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_scrn_overlay,  "mLog.LOG_TMR_scrn_overlay", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_client_timer_adj, "mLog.LOG_TMR_client_timer_adj", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_client_ping,    "mLog.LOG_TMR_client_ping", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_cpu,              "LOG_TMR_cpu", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_move_tot,         "LOG_TMR_move_tot", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_move_all,         "LOG_TMR_move_all", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_move_enem,        "LOG_TMR_move_enem", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_draw_tot,         "LOG_TMR_draw_tot", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_draw_all,         "LOG_TMR_draw_all", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_sdif,             "LOG_TMR_sdif", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_cdif,             "LOG_TMR_cdif", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_rwnd,             "LOG_TMR_rwnd", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_bmsg_add,         "LOG_TMR_bmsg_add", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_bmsg_draw,        "LOG_TMR_bmsg_draw", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_scrn_overlay,     "LOG_TMR_scrn_overlay", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_client_timer_adj, "LOG_TMR_client_timer_adj", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_TMR_client_ping,      "LOG_TMR_client_ping", tc, fc);
 
 
          ya+=10;
          bts = 14;
          xb = xa+60;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "All On")) set_all_logging(1);
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "All On")) set_all_logging(1);
          xa = xa+80;
          xb = xa+60;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,1,0, "All Off")) set_all_logging(0);
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,1,0, "All Off")) set_all_logging(0);
 
 
          xa = cfp_x1 + 10;
@@ -910,47 +893,47 @@ void mwSettings::settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          bts = 10;
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_level_done,    "Autosave log on level done", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_game_exit,     "Autosave log on game exit", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_program_exit,  "Autosave log on program exit", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_level_done,    "Autosave log on level done", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_game_exit,     "Autosave log on game exit", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_program_exit,  "Autosave log on program exit", tc, fc);
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          bts = 16;
-         if (mdw_buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Profile Graph")) mLog.run_profile_graph(0);
+         if (mWidget.buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Profile Graph")) mLog.run_profile_graph(0);
 
          ya += 8;
 
-         if (mdw_buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select and Open Profile Graph")) mLog.run_profile_graph(1);
+         if (mWidget.buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select and Open Profile Graph")) mLog.run_profile_graph(1);
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         if (mdw_buttont(xa+80, ya, xb-80, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
+         if (mWidget.buttont(xa+80, ya, xb-80, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
          {
             mLoop.new_program_state = 10;
             mLoop.old_program_state = 3;
-            al_hide_mouse_cursor(display);
+            al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
          }
 
          ya += 8;
          xb = xa+180;
-         if (mdw_buttont(xa+20, ya, xb, bts,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
+         if (mWidget.buttont(xa+20, ya, xb, bts,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
          {
             mLoop.new_program_state = 20;
             mLoop.old_program_state = 3;
-            al_hide_mouse_cursor(display);
+            al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
          }
          xa = xa+200;
          xb = cfp_x2 - 30;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,8,15, 0,  1,0,1,0, "Join Network Game"))
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,8,15, 0,  1,0,1,0, "Join Network Game"))
          {
             mLoop.new_program_state = 24;
             mLoop.old_program_state = 3;
-            al_hide_mouse_cursor(display);
+            al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
          }
@@ -970,26 +953,26 @@ void mwSettings::settings_pages(int set_page)
          int bts = 10;
          int tc = 13;
          int fc = 15;
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET,                    "mLog.LOG_NET", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_join,               "mLog.LOG_NET_join", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_player_array,       "mLog.LOG_NET_player_array", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_bandwidth,          "mLog.LOG_NET_bandwidth", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_cdat,               "mLog.LOG_NET_cdat", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_stdf,               "mLog.LOG_NET_stdf", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_stdf_all_packets,   "mLog.LOG_NET_stdf_all_packets", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_dif_applied,        "mLog.LOG_NET_dif_applied", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_dif_not_applied,    "mLog.LOG_NET_dif_not_applied", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_client_ping,        "mLog.LOG_NET_client_ping", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_client_timer_adj,   "mLog.LOG_NET_client_timer_adj", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_server_rx_stak,     "mLog.LOG_NET_server_rx_stak", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET,                    "LOG_NET", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_join,               "LOG_NET_join", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_player_array,       "LOG_NET_player_array", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_bandwidth,          "LOG_NET_bandwidth", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_cdat,               "LOG_NET_cdat", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_stdf,               "LOG_NET_stdf", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_stdf_all_packets,   "LOG_NET_stdf_all_packets", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_dif_applied,        "LOG_NET_dif_applied", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_dif_not_applied,    "LOG_NET_dif_not_applied", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_client_ping,        "LOG_NET_client_ping", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_client_timer_adj,   "LOG_NET_client_timer_adj", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_server_rx_stak,     "LOG_NET_server_rx_stak", tc, fc);
 
          ya+=10;
          bts = 14;
          xb = xa+60;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "All On")) set_all_logging(1);
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "All On")) set_all_logging(1);
          xa = xa+80;
          xb = xa+60;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,1,0, "All Off")) set_all_logging(0);
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,1,0, "All Off")) set_all_logging(0);
 
 
          xa = cfp_x1 + 10;
@@ -998,47 +981,47 @@ void mwSettings::settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          bts = 10;
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_level_done,    "Autosave log on level done", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_game_exit,     "Autosave log on game exit", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_program_exit,  "Autosave log on program exit", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_level_done,    "Autosave log on level done", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_game_exit,     "Autosave log on game exit", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_program_exit,  "Autosave log on program exit", tc, fc);
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          bts = 16;
-         if (mdw_buttont(xa+20, ya, xb-20, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Log In Log File Viewer")) mLog.log_file_viewer(2);
+         if (mWidget.buttont(xa+20, ya, xb-20, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Log In Log File Viewer")) mLog.log_file_viewer(2);
          ya+=4;
-         if (mdw_buttont(xa+20, ya, xb-20, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select And Open Log In Log File Viewer")) mLog.log_file_viewer(1);
+         if (mWidget.buttont(xa+20, ya, xb-20, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select And Open Log In Log File Viewer")) mLog.log_file_viewer(1);
 
 
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         if (mdw_buttont(xa+80, ya, xb-80, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
+         if (mWidget.buttont(xa+80, ya, xb-80, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
          {
             mLoop.new_program_state = 10;
             mLoop.old_program_state = 3;
-            al_hide_mouse_cursor(display);
+            al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
          }
 
          ya += 8;
          xb = xa+180;
-         if (mdw_buttont(xa+20, ya, xb, bts,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
+         if (mWidget.buttont(xa+20, ya, xb, bts,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
          {
             mLoop.new_program_state = 20;
             mLoop.old_program_state = 3;
-            al_hide_mouse_cursor(display);
+            al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
          }
          xa = xa+200;
          xb = cfp_x2 - 30;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,8,15, 0,  1,0,1,0, "Join Network Game"))
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,8,15, 0,  1,0,1,0, "Join Network Game"))
          {
             mLoop.new_program_state = 24;
             mLoop.old_program_state = 3;
-            al_hide_mouse_cursor(display);
+            al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
          }
@@ -1066,13 +1049,13 @@ void mwSettings::settings_pages(int set_page)
 
 
 
-         al_draw_text(mF.pr8, mC.pc[fc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Debug Overlay Modes");
+         al_draw_text(mFont.pr8, mColor.pc[fc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Debug Overlay Modes");
          ya +=4;
          int y3 = ya + line_spacing;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
          ya -=7;
 
-         al_draw_text(mF.pr8, mC.pc[tc], xb-130,     ya, 0, "Mode  0  1  2  3");
+         al_draw_text(mFont.pr8, mColor.pc[tc], xb-130,     ya, 0, "Mode  0  1  2  3");
          cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 0, "CPU graph");
          cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 1, "display info");
          cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 2, "drawing profile timers");
@@ -1094,12 +1077,12 @@ void mwSettings::settings_pages(int set_page)
 
 
          mMiscFnx.rectangle_with_diagonal_lines(x2+1, y3, x3, y4, 4, 10, 10+64, 1);
-         al_draw_rectangle(x1, y3, x2, y4, mC.pc[11], 1);
+         al_draw_rectangle(x1, y3, x2, y4, mColor.pc[11], 1);
 
 
          bts = 20;
-         mdw_slideri(xb-140, ya, xb, bts,  0,0,0,0,  0,11,15,15, 0,0,0,0, number_of_debug_overlay_modes, 4, 2, 1, "Active modes:");
-         if (mdw_buttont(xa+20, ya, xa+200, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Reset to Defaults"))
+         mWidget.slideri(xb-140, ya, xb, bts,  0,0,0,0,  0,11,15,15, 0,0,0,0, number_of_debug_overlay_modes, 4, 2, 1, "Active modes:");
+         if (mWidget.buttont(xa+20, ya, xa+200, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Reset to Defaults"))
          {
             for (int i=0; i<10; i++)
                for (int j=0; j<4; j++)
@@ -1117,13 +1100,13 @@ void mwSettings::settings_pages(int set_page)
 
 
 
-      if (mI.key[ALLEGRO_KEY_ESCAPE][0])
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue();
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
          quit = 1;
       }
    }
-   al_hide_mouse_cursor(display);
+   al_hide_mouse_cursor(mDisplay.display);
    mConfig.save();
    mLoop.new_program_state = 1;
    mLoop.old_program_state = 1;

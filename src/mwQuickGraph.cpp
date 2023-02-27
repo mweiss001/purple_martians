@@ -5,7 +5,7 @@
 #include "mwFont.h"
 #include "mwColor.h"
 
-mwQuickGraph mwQG[10];
+mwQuickGraph mQuickGraph[10];
 
 mwQuickGraph::mwQuickGraph()
 {
@@ -69,23 +69,23 @@ void mwQuickGraph::draw_graph(int x, int y)
    float gy2 = y+height;
    float gyc = (gy1 + gy2)/2;
 
-   al_draw_filled_rectangle(gx1, gy1, gx2, gy2, mC.pc[bc]);     // fill
-   al_draw_rectangle(       gx1, gy1, gx2, gy2, mC.pc[fc], 0);  // frame
-   al_draw_line(            gx1, gyc, gx2, gyc, mC.pc[fc], 0);  // center line
+   al_draw_filled_rectangle(gx1, gy1, gx2, gy2, mColor.pc[bc]);     // fill
+   al_draw_rectangle(       gx1, gy1, gx2, gy2, mColor.pc[fc], 0);  // frame
+   al_draw_line(            gx1, gyc, gx2, gyc, mColor.pc[fc], 0);  // center line
 
-   //if (type == 1) al_draw_textf(mF.pr8, mC.pc[series[0].color], gxc, gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", series[0].name, series[0].data[0]);
+   //if (type == 1) al_draw_textf(mFont.pr8, mColor.pc[series[0].color], gxc, gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", series[0].name, series[0].data[0]);
 
    if (type == 1)
    {
-      al_draw_textf(mF.pr8, mC.pc[series[1].color], gx16, gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", series[1].name, series[1].data[0]);
-      al_draw_textf(mF.pr8, mC.pc[series[2].color], gx56, gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", series[2].name, series[2].data[0]);
-      al_draw_textf(mF.pr8, mC.pc[series[3].color], gxc,  gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", series[3].name, series[3].data[0]);
+      al_draw_textf(mFont.pr8, mColor.pc[series[1].color], gx16, gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", series[1].name, series[1].data[0]);
+      al_draw_textf(mFont.pr8, mColor.pc[series[2].color], gx56, gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", series[2].name, series[2].data[0]);
+      al_draw_textf(mFont.pr8, mColor.pc[series[3].color], gxc,  gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", series[3].name, series[3].data[0]);
    }
 
    if (type == 2)
    {
-      al_draw_textf(mF.pr8, mC.pc[series[0].color], gx13, gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f", series[0].name, series[0].data[0]);
-      al_draw_textf(mF.pr8, mC.pc[series[1].color], gx23, gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f", series[1].name, series[1].data[0]);
+      al_draw_textf(mFont.pr8, mColor.pc[series[0].color], gx13, gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f", series[0].name, series[0].data[0]);
+      al_draw_textf(mFont.pr8, mColor.pc[series[1].color], gx23, gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f", series[1].name, series[1].data[0]);
    }
 
    // auto range
@@ -123,9 +123,9 @@ void mwQuickGraph::draw_graph(int x, int y)
       y_axis_rng = y_axis_max - y_axis_min;
    }
 
-   al_draw_textf(mF.pixl, mC.pc[lc], gx2+2, gy1-6, 0, "%2.0f", y_axis_max);
-   al_draw_textf(mF.pixl, mC.pc[lc], gx2+2, gyc-6, 0, "%2.0f", y_axis_min + y_axis_rng/2);
-   al_draw_textf(mF.pixl, mC.pc[lc], gx2+2, gy2-6, 0, "%0.0f", y_axis_min);
+   al_draw_textf(mFont.pixl, mColor.pc[lc], gx2+2, gy1-6, 0, "%2.0f", y_axis_max);
+   al_draw_textf(mFont.pixl, mColor.pc[lc], gx2+2, gyc-6, 0, "%2.0f", y_axis_min + y_axis_rng/2);
+   al_draw_textf(mFont.pixl, mColor.pc[lc], gx2+2, gy2-6, 0, "%0.0f", y_axis_min);
 
    for (int i=0; i<width-1; i++)
    {
@@ -144,7 +144,7 @@ void mwQuickGraph::draw_graph(int x, int y)
             double y1 = gy2 - ((d1 - y_axis_min) / y_axis_rng)*height;
             double y2 = gy2 - ((d2 - y_axis_min) / y_axis_rng)*height;
 
-            al_draw_line(x1, y1, x2, y2, mC.pc[series[s].color], ls);
+            al_draw_line(x1, y1, x2, y2, mColor.pc[series[s].color], ls);
          }
    }
 }

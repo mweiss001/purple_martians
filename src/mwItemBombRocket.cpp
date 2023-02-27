@@ -193,9 +193,9 @@ void mwItems::bomb_block_crosshairs(int e, int f)
    int col = seq_color2();
    if (col)
    {
-      al_draw_rectangle(e*20, f*20, e*20+20, f*20+20, mC.pc[col], 1);
-      al_draw_line(e*20, f*20, e*20+19, f*20+19, mC.pc[col], 1);
-      al_draw_line(e*20, f*20+19, e*20+19, f*20, mC.pc[col], 1);
+      al_draw_rectangle(e*20, f*20, e*20+20, f*20+20, mColor.pc[col], 1);
+      al_draw_line(e*20, f*20, e*20+19, f*20+19, mColor.pc[col], 1);
+      al_draw_line(e*20, f*20+19, e*20+19, f*20, mColor.pc[col], 1);
    }
 }
 
@@ -246,14 +246,14 @@ void mwItems::bomb_crosshairs(float x, float y)
    if (col)
    {
       // circle with a slash
-      al_draw_circle(x, y, rad, mC.pc[col], 1);
+      al_draw_circle(x, y, rad, mColor.pc[col], 1);
       float h = sqrt ((rad * rad) / 2) + 0;
-      al_draw_line(x-h, y-h, x+h, y+h, mC.pc[col], 1);
+      al_draw_line(x-h, y-h, x+h, y+h, mColor.pc[col], 1);
 //      // circle with crosshairs
-//      al_draw_circle(x, y, rad, mC.pc[col], 1);
+//      al_draw_circle(x, y, rad, mColor.pc[col], 1);
 //      float h = sqrt ((rad * rad) / 2) + 6;
-//      al_draw_line(x-h, y-h, x+h, y+h, mC.pc[col], 1);
-//      al_draw_line(x-h, y+h, x+h, y-h, mC.pc[col], 1);
+//      al_draw_line(x-h, y-h, x+h, y+h, mColor.pc[col], 1);
+//      al_draw_line(x-h, y+h, x+h, y-h, mColor.pc[col], 1);
    }
 }
 
@@ -363,10 +363,10 @@ void mwItems::proc_lit_bomb(int i)
 
 int mwItems::draw_bomb(int i, int x, int y, int shape)
 {
-   if (mItem.item[i][11]) al_draw_bitmap(mwB.tile[440], x, y, 0); // bomb sticky spikes
+   if (mItem.item[i][11]) al_draw_bitmap(mBitmap.tile[440], x, y, 0); // bomb sticky spikes
 
    // either draw here and mark as drawn
-   // al_draw_bitmap(mwB.tile[shape], x, y, 0);
+   // al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
    // return 1;
 
    // or don't mark it and let the regular draw catch it
@@ -387,8 +387,8 @@ int mwItems::draw_lit_bomb(int i)
    if (mItem.item[i][6] == 3) // remote detonator
    {
       // draw bomb
-      al_draw_bitmap(mwB.tile[538], x, y, 0);
-      if (mItem.item[i][11]) al_draw_bitmap(mwB.tile[440], x, y, 0);  // bomb sticky spikes
+      al_draw_bitmap(mBitmap.tile[538], x, y, 0);
+      if (mItem.item[i][11]) al_draw_bitmap(mBitmap.tile[440], x, y, 0);  // bomb sticky spikes
 
       // get detonator position relative to player
       int p = mItem.item[i][13];
@@ -397,59 +397,59 @@ int mwItems::draw_lit_bomb(int i)
       int py = mPlayer.syn[p].y + -1;
 
       // draw detonator
-      al_draw_bitmap(mwB.tile[539], px, py, 0);
+      al_draw_bitmap(mBitmap.tile[539], px, py, 0);
 
       // draw a line connecting detonator and bomb
-      al_draw_line(x+10, y+10, px+10, py+8, mC.pc[207], 0);
+      al_draw_line(x+10, y+10, px+10, py+8, mColor.pc[207], 0);
 
       // show damage range circle
       int col = seq_color2();
-      if (col) al_draw_circle(x+10, y+10, mItem.item[i][7], mC.pc[col], 2);
+      if (col) al_draw_circle(x+10, y+10, mItem.item[i][7], mColor.pc[col], 2);
 
    }
 
 
    if (mItem.item[i][6] == 1) // fuse burning
    {
-      int num_seq_shapes = mwB.zz[4][fuse_seq] + 1;   // number of shapes in seq
+      int num_seq_shapes = mBitmap.zz[4][fuse_seq] + 1;   // number of shapes in seq
       int si = (int)(r * (float)num_seq_shapes);  // ratio * number of shapes
-      int shape = mwB.zz[5+si][fuse_seq];             // get shape to draw
+      int shape = mBitmap.zz[5+si][fuse_seq];             // get shape to draw
       //printf("ratio:%f shape_index:%d\n", r, si);
 
       // draw bomb
-      al_draw_bitmap(mwB.tile[shape], x, y, 0);
-      if (mItem.item[i][11]) al_draw_bitmap(mwB.tile[440], x, y, 0);  // bomb sticky spikes
+      al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
+      if (mItem.item[i][11]) al_draw_bitmap(mBitmap.tile[440], x, y, 0);  // bomb sticky spikes
 
       // show countdown clock
       float cr = 6; // clock radius
       float pi = ALLEGRO_PI;
       float rd = pi*2*r - pi/2; // countdown position in radians
-      al_draw_circle(x+10, y+13, cr, mC.pc[15], 0);
-      al_draw_pieslice(x+10, y+13, cr, rd, 0, mC.pc[15], 0);
-      al_draw_arc(x+10, y+13, cr, -pi/2, pi*2*r, mC.pc[10], 0);
+      al_draw_circle(x+10, y+13, cr, mColor.pc[15], 0);
+      al_draw_pieslice(x+10, y+13, cr, rd, 0, mColor.pc[15], 0);
+      al_draw_arc(x+10, y+13, cr, -pi/2, pi*2*r, mColor.pc[10], 0);
 
       // show damage range circle
       int col = seq_color2();
-      if (col) al_draw_circle(x+10, y+10, mItem.item[i][7], mC.pc[col], 2);
+      if (col) al_draw_circle(x+10, y+10, mItem.item[i][7], mColor.pc[col], 2);
 
    }
 
    if (mItem.item[i][6] == 2) // explosion mode
    {
-      int num_seq_shapes = mwB.zz[4][expl_seq] + 1;   // number of shapes in seq
+      int num_seq_shapes = mBitmap.zz[4][expl_seq] + 1;   // number of shapes in seq
       int si = (int)(r * (float)num_seq_shapes);  // ratio * number of shapes
-      int shape = mwB.zz[5+si][expl_seq];             // get shape to draw
+      int shape = mBitmap.zz[5+si][expl_seq];             // get shape to draw
 
       // set size of explosion
       float max_scale = mItem.item[i][7] / 10;         // max scale = damage / 10
       float sc = .5 + (r) * max_scale;
       //printf("ratio:%f shape_index:%d scale:%f \n", r, si, sc);
-      al_draw_scaled_rotated_bitmap(mwB.tile[shape], 10, 10, x+10, y+10, sc, sc, 0, 0);
+      al_draw_scaled_rotated_bitmap(mBitmap.tile[shape], 10, 10, x+10, y+10, sc, sc, 0, 0);
 
       // show damage range circle
-      al_draw_circle(x+10, y+10, (float)mItem.item[i][7]*r-8, mC.pc[10], 1);
-      al_draw_circle(x+10, y+10, (float)mItem.item[i][7]*r, mC.pc[14], 2);
-      al_draw_circle(x+10, y+10, (float)mItem.item[i][7]*r+8, mC.pc[10], 1);
+      al_draw_circle(x+10, y+10, (float)mItem.item[i][7]*r-8, mColor.pc[10], 1);
+      al_draw_circle(x+10, y+10, (float)mItem.item[i][7]*r, mColor.pc[14], 2);
+      al_draw_circle(x+10, y+10, (float)mItem.item[i][7]*r+8, mColor.pc[10], 1);
    }
 
    bomb_blocks( i, 1, mItem.item[i][7], itemf[i][0], itemf[i][1]); // mark blocks that will be destroyed
@@ -457,7 +457,7 @@ int mwItems::draw_lit_bomb(int i)
    bomb_players(i, 1, mItem.item[i][7], itemf[i][0], itemf[i][1]); // mark players in damage range
 
    // debug show sequence numbers
-   //al_draw_textf(mF.pr8, mC.pc[15], x, y-20, 0, "%d / %d  %f ", mItem.item[i][8], mItem.item[i][9], (float)mItem.item[i][8]/(float)mItem.item[i][9]);
+   //al_draw_textf(mFont.pr8, mColor.pc[15], x, y-20, 0, "%d / %d  %f ", mItem.item[i][8], mItem.item[i][9], (float)mItem.item[i][8]/(float)mItem.item[i][9]);
 
    return 1;
 }
@@ -466,7 +466,7 @@ int mwItems::draw_lit_bomb(int i)
 int mwItems::draw_rocket(int i, int x, int y, int shape)
 {
    float rot = (float) mItem.item[i][10] / 1000;
-   al_draw_rotated_bitmap(mwB.tile[shape], 10, 10, x+10, y+10, rot, 0);
+   al_draw_rotated_bitmap(mBitmap.tile[shape], 10, 10, x+10, y+10, rot, 0);
    draw_rocket_lines(i);
    return 1;
 }
@@ -507,9 +507,9 @@ void mwItems::draw_rocket_lines(int i)
          float fyif = fyi+10;
 
          int col = seq_color2(); // color sequence
-         if (col) al_draw_circle(fxf, fyf, mItem.item[i][7], mC.pc[col], 2); // show damage range circle
-         al_draw_filled_circle(fxf, fyf, 5, mC.pc[col]); // show center
-         al_draw_line(fxif, fyif, fxf, fyf, mC.pc[10+80], 0); // draw connecting line
+         if (col) al_draw_circle(fxf, fyf, mItem.item[i][7], mColor.pc[col], 2); // show damage range circle
+         al_draw_filled_circle(fxf, fyf, 5, mColor.pc[col]); // show center
+         al_draw_line(fxif, fyif, fxf, fyf, mColor.pc[10+80], 0); // draw connecting line
 
          bomb_blocks( i, 1, mItem.item[i][7], x, y); // mark blocks that will be destroyed
          bomb_enemies(i, 1, mItem.item[i][7], x, y); // mark enemies that will be destroyed

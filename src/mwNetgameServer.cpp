@@ -6,7 +6,7 @@
 #include "mwPlayers.h"
 #include "mwTally.h"
 #include "mwTimeStamp.h"
-#include "mwGameMovesArray.h"
+#include "mwGameMoves.h"
 #include "mwLevel.h"
 #include "mwLoop.h"
 #include "mwShots.h"
@@ -20,7 +20,7 @@ int mwNetgame::ServerInitNetwork() // Initialize the server
    {
       sprintf(msg, "Error: failed to initialize network\n");
       printf("%s", msg);
-      mI.m_err(msg);
+      mInput.m_err(msg);
       if (mLog.LOG_NET) mLog.add_log_entry2(10, 0, msg);
       return -1;
    }
@@ -31,7 +31,7 @@ int mwNetgame::ServerInitNetwork() // Initialize the server
       {
          sprintf(msg, "Error: failed to open listening connection\n");
          printf("%s", msg);
-         mI.m_err(msg);
+         mInput.m_err(msg);
          if (mLog.LOG_NET) mLog.add_log_entry2(10, 0, msg);
          return -1;
       }
@@ -39,7 +39,7 @@ int mwNetgame::ServerInitNetwork() // Initialize the server
       {
          sprintf(msg, "Error: cannot listen\n");
          printf("%s", msg);
-         mI.m_err(msg);
+         mInput.m_err(msg);
          if (mLog.LOG_NET) mLog.add_log_entry2(10, 0, msg);
          return -1;
       }
@@ -52,7 +52,7 @@ int mwNetgame::ServerInitNetwork() // Initialize the server
       {
          sprintf(msg, "Error: failed to open listening channel\n");
          printf("%s", msg);
-         mI.m_err(msg);
+         mInput.m_err(msg);
          if (mLog.LOG_NET) mLog.add_log_entry2(10, 0, msg);
          return -1;
       }
@@ -60,7 +60,7 @@ int mwNetgame::ServerInitNetwork() // Initialize the server
       {
          sprintf(msg, "Error: failed to assign target to listening channel\n");
          printf("%s", msg);
-         mI.m_err(msg);
+         mInput.m_err(msg);
          if (mLog.LOG_NET) mLog.add_log_entry2(10, 0, msg);
          net_closechannel(ListenChannel);
          return -1;
@@ -304,7 +304,7 @@ int mwNetgame::server_init(void)
    {
       sprintf(msg, "Could not find internet driver!");
       printf("\n%s\n\n", msg);
-      mI.m_err(msg);
+      mInput.m_err(msg);
       if (mLog.LOG_NET) mLog.add_log_entry2(10, 0, msg);
       return 0;
    }
@@ -357,7 +357,7 @@ void mwNetgame::server_rewind(void)
          mLog.add_log_entry2(27, 0, msg);
       }
 
-      if (mLog.LOG_TMR_rwnd) t0 = al_get_time();
+      double t0 = al_get_time();
 
       state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
       mLoop.frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
@@ -474,7 +474,7 @@ void mwNetgame::server_proc_player_drop(void)
          if (mPlayer.loc[p].server_last_stak_rx_frame_num + 100 < mLoop.frame_num)
          {
             //printf("[%4d][%4d] drop p:%d \n", mLoop.frame_num, mPlayer.loc[p].server_last_stak_rx_frame_num, p);
-            mwGMA.add_game_move(mLoop.frame_num + 4, 2, p, 71); // make client inactive (reason no stak for 100 frames)
+            mGameMoves.add_game_move(mLoop.frame_num + 4, 2, p, 71); // make client inactive (reason no stak for 100 frames)
 
             sprintf(msg,"Server dropped player:%d (last stak rx > 100)", p);
             if (mLog.LOG_NET) mLog.add_log_entry_header(10, p, msg, 1);
@@ -482,13 +482,13 @@ void mwNetgame::server_proc_player_drop(void)
       }
 
    // check to see if we are approaching limit of game_moves array and do something if we are
-   if (mwGMA.game_move_entry_pos > (GAME_MOVES_SIZE - 100))
+   if (mGameMoves.entry_pos > (GAME_MOVES_SIZE - 100))
    {
       sprintf(msg,"Server Approaching %d Game Moves! - Shutting Down", GAME_MOVES_SIZE);
       if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 0);
 
       // insert state inactive special move
-      mwGMA.add_game_move2(mLoop.frame_num + 8, 2, 0, 64); // type 2 - player inactive
+      mGameMoves.add_game_move2(mLoop.frame_num + 8, 2, 0, 64); // type 2 - player inactive
    }
 }
 
@@ -506,22 +506,22 @@ void mwNetgame::server_proc_cdat_packet(double timestamp)
    mPlayer.loc[p].server_game_move_sync = cdat_frame_num - mLoop.frame_num;
 
    // calculate game_move_dsync
-   mPlayer.loc[p].game_move_dsync = ( (double) mPlayer.loc[p].server_game_move_sync * 0.025) + mwTS.timestamp_frame_start - timestamp;
+   mPlayer.loc[p].game_move_dsync = ( (double) mPlayer.loc[p].server_game_move_sync * 0.025) + mTimeStamp.timestamp_frame_start - timestamp;
 
-   mwT_game_move_dsync_avg_last_sec[p].add_data(mPlayer.loc[p].game_move_dsync); // add to average tally
+   mTally_game_move_dsync_avg_last_sec[p].add_data(mPlayer.loc[p].game_move_dsync); // add to average tally
 
 
    // check to see if earlier than the last stdf state
    if (cdat_frame_num < srv_client_state_frame_num[0][1])
    {
       mPlayer.loc[p].late_cdats++;
-      mwT_late_cdats_last_sec[p].add_data(1); // add to tally
+      mTally_late_cdats_last_sec[p].add_data(1); // add to tally
       sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] late - droppped\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync);
    }
    else
    {
-      mwGMA.add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
-      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, mwGMA.game_move_entry_pos);
+      mGameMoves.add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
+      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, mGameMoves.entry_pos);
    }
    if (mLog.LOG_NET_cdat) mLog.add_log_entry2(35, p, msg);
 }
@@ -536,7 +536,7 @@ void mwNetgame::server_lock_client(int p)
    }
    if (mPlayer.loc[p].sync_stabilization_holdoff > 20) // we have been stable for over 20 frames
    {
-      mwGMA.add_game_move(mLoop.frame_num + 4, 1, p, mPlayer.syn[p].color);
+      mGameMoves.add_game_move(mLoop.frame_num + 4, 1, p, mPlayer.syn[p].color);
       mPlayer.loc[p].sync_stabilization_holdoff = 0;
 
       sprintf(msg,"Player:%d has locked and will become active in 4 frames!", p);
@@ -561,7 +561,7 @@ void mwNetgame::server_proc_stak_packet(double timestamp)
    int stak_sync = mLoop.frame_num - srv_client_state_frame_num[0][1];
 
    // calculate stak_dsync
-   mPlayer.loc[p].stak_dsync = ( (double) stak_sync * 0.025) + mwTS.timestamp_frame_start - timestamp;
+   mPlayer.loc[p].stak_dsync = ( (double) stak_sync * 0.025) + mTimeStamp.timestamp_frame_start - timestamp;
 
    server_lock_client(p);
 
@@ -645,7 +645,7 @@ void mwNetgame::server_proc_cjon_packet(int who)
       mPlayer.loc[cn].server_last_stak_rx_frame_num = mLoop.frame_num + 200;
       sprintf(mPlayer.loc[cn].hostname, "%s", temp_name);
 
-      mwGMA.add_game_move(mLoop.frame_num, 3, cn, color); // add a game move type 3 to mark client started join
+      mGameMoves.add_game_move(mLoop.frame_num, 3, cn, color); // add a game move type 3 to mark client started join
 
       Packet("sjon"); // reply with sjon
       PacketPut2ByteInt(mLevel.play_level);
@@ -719,7 +719,7 @@ void mwNetgame::server_fast_packet_loop(void)
             double t1 = al_get_time();
             mPlayer.loc[p].ping = t1 - t0;
             //printf("rx pang from p:%d [%3.1f ms]\n", p, mPlayer.loc[p].ping*1000);
-            mwT[4].add_data(mPlayer.loc[p].ping); // add to max tally
+            mTally[4].add_data(mPlayer.loc[p].ping); // add to max tally
 //            if (mPlayer.loc[p].ping > mPlayer.loc[0].server_max_client_ping) mPlayer.loc[0].server_max_client_ping = mPlayer.loc[p].ping;
          }
       }

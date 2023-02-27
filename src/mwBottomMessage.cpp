@@ -15,16 +15,16 @@
 
 
 
-mwBottomMessage mwBM;
+mwBottomMessage mBottomMessage;
 
 void mwBottomMessage::create_bitmaps(void)
 {
    for (int x=0; x<20; x++)
    {
-      bmsg_bmp[x] = mwB.create_and_clear_bitmap(800, 20);
+      bmsg_bmp[x] = mBitmap.create_and_clear_bitmap(800, 20);
       bmsg_bmp2[x] = bmsg_bmp[x]; // pointers only
    }
-   bmsg_temp = mwB.create_and_clear_bitmap(800, 20); // temp bitmap for building new lines
+   bmsg_temp = mBitmap.create_and_clear_bitmap(800, 20); // temp bitmap for building new lines
 }
 
 void mwBottomMessage::initialize(void)
@@ -44,20 +44,20 @@ void mwBottomMessage::initialize(void)
 
 int mwBottomMessage::draw_text(const char *txt, int col, int bmsg_length)
 {
-   al_draw_text(mF.pr16, mC.pc[col], bmsg_length, 2, ALLEGRO_ALIGN_INTEGER, txt);
+   al_draw_text(mFont.pr16, mColor.pc[col], bmsg_length, 2, ALLEGRO_ALIGN_INTEGER, txt);
    //printf("%d %s\n",mLoop.frame_num, txt);
    return (strlen(txt)*16);
 }
 
 int mwBottomMessage::draw_tile(int tn, int bmsg_length)
 {
-   al_draw_bitmap(mwB.tile[tn], bmsg_length, 0, 0);
+   al_draw_bitmap(mBitmap.tile[tn], bmsg_length, 0, 0);
    return 20;
 }
 
 int mwBottomMessage::draw_tile2(int tn, int bmsg_length, int xo, int yo)
 {
-   al_draw_bitmap(mwB.tile[tn], bmsg_length+xo, +yo, 0);
+   al_draw_bitmap(mBitmap.tile[tn], bmsg_length+xo, +yo, 0);
    return 20;
 }
 
@@ -73,13 +73,13 @@ int mwBottomMessage::draw_player(int p, int bmsg_length)
 
    if (1) // player tile
    {
-      al_draw_bitmap(mwB.player_tile[mPlayer.syn[p].color][1], bmsg_length, 0, 0); // draw tile
+      al_draw_bitmap(mBitmap.player_tile[mPlayer.syn[p].color][1], bmsg_length, 0, 0); // draw tile
       len += 16;
    }
    if (0) // 'Player x' and tile
    {
       len += draw_text(msg, mPlayer.syn[p].color, bmsg_length) + 12;
-      al_draw_bitmap(mwB.player_tile[mPlayer.syn[p].color][1], bmsg_length + len, 0, 0); // draw tile
+      al_draw_bitmap(mBitmap.player_tile[mPlayer.syn[p].color][1], bmsg_length + len, 0, 0); // draw tile
       len += 20;
    }
    return len;
@@ -123,6 +123,7 @@ int mwBottomMessage::draw_health(int h, int bmsg_length)
 void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
    char msg[256];
+   double t0;
    if (mLog.LOG_TMR_bmsg_add) t0 = al_get_time();
 
    // event retrigger holdoff for these events that can repeat every frame
@@ -350,7 +351,7 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
          al_set_target_bitmap(bmsg_bmp[bmsg_index]);
          al_clear_to_color(al_map_rgba(0, 0, 0, 0));
          al_draw_bitmap(bmsg_temp, (400 - (bmsg_length/2)), 0, 0);
-         al_set_target_backbuffer(display);
+         al_set_target_backbuffer(mDisplay.display);
 
          // convert array to array2 to re-arrange order...this does not actually copy anything except pointers!
          int tc = 0;
@@ -378,10 +379,10 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
 
 void mwBottomMessage::draw()
 {
-   if (mLog.LOG_TMR_bmsg_draw) t0 = al_get_time();
+   double t0 = al_get_time();
    if (bottom_msg_on)
    {
-//      bottom_msg_timer = 100; // always draw
+      //bottom_msg_timer = 100; // always draw
       if (bottom_msg_timer > 0)
       {
          bottom_msg_timer--;
@@ -394,7 +395,7 @@ void mwBottomMessage::draw()
 
          int sw = 800; // string length in pixels
          int sh = 20;  // string height in pixels
-         float x = mwD.SCREEN_W/2 - 10;
+         float x = mDisplay.SCREEN_W/2 - 10;
 
          float io = 1.0; // initial opacity
          float fo = 0.1; // final opacity
@@ -405,11 +406,11 @@ void mwBottomMessage::draw()
          float fvs = 0.1; // final v size
          float vss = (ivs - fvs) / (float) nb;  // v size step
          float cvs = ivs; // current v size
-         float y = mwD.SCREEN_H - ivs*20 - 1;
+         float y = mDisplay.SCREEN_H - ivs*20 - 1;
 
          float ihs = 0.5; // initial h size
          float fhs = 0.1; // final h size
-         float hss = (ihs - fhs) / (float) nb;  // v size step
+         float hss = (ihs - fhs) / (float) nb;  // h size step
          float chs = ihs; // current v size
 
          for (int m=0; m<nb; m++)
@@ -424,8 +425,8 @@ void mwBottomMessage::draw()
             y -= dh;
          }
          // draw bounding box to show what size it is
-//         float tvs = (sw/2)*ivs;
-//         al_draw_rectangle(x-tvs, mwD.SCREEN_H,  x+tvs, y, mC.pc[15], 1);
+         float tvs = (sw/2)*ivs;
+         al_draw_rectangle(x-tvs, mDisplay.SCREEN_H,  x+tvs, y, mColor.pc[15], 1);
 
       }
    }

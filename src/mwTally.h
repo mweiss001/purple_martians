@@ -22,9 +22,9 @@ class mwTally
    double mn;
    double mx;
 };
-extern mwTally mwT[8];
-extern mwTally mwT_late_cdats_last_sec[8];
-extern mwTally mwT_game_move_dsync_avg_last_sec[8];
+extern mwTally mTally[8];
+extern mwTally mTally_late_cdats_last_sec[8];
+extern mwTally mTally_game_move_dsync_avg_last_sec[8];
 
 
 

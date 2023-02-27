@@ -25,32 +25,32 @@ void mwConfig::save(void)
    if(!cfg)
    {
       sprintf(msg, "error opening pm.cfg to save");
-      mI.m_err(msg);
+      mInput.m_err(msg);
       printf("%s\n", msg);
    }
    else
    {
-      asci(SCREEN, mwD.disp_x_wind)
-      asci(SCREEN, mwD.disp_h_wind)
-      asci(SCREEN, mwD.disp_w_wind)
-      asci(SCREEN, mwD.disp_h_wind)
-      ascf(SCREEN, mwD.scale_factor)
-      asci(SCREEN, mwD.fullscreen)
-      asci(SCREEN, mwD.display_adapter_num)
-      asci(SCREEN, mwL.show_splash_screen)
-      asci(SCREEN, mwBM.bottom_msg_on)
+      asci(SCREEN, mDisplay.disp_x_wind)
+      asci(SCREEN, mDisplay.disp_h_wind)
+      asci(SCREEN, mDisplay.disp_w_wind)
+      asci(SCREEN, mDisplay.disp_h_wind)
+      ascf(SCREEN, mDisplay.scale_factor)
+      asci(SCREEN, mDisplay.fullscreen)
+      asci(SCREEN, mDisplay.display_adapter_num)
+      asci(SCREEN, mLogo.show_splash_screen)
+      asci(SCREEN, mBottomMessage.bottom_msg_on)
 
-      asci(SCREEN, mwD.saved_display_transform_double)
-      asci(SCREEN, mwD.display_transform_double_max)
+      asci(SCREEN, mDisplay.saved_display_transform_double)
+      asci(SCREEN, mDisplay.display_transform_double_max)
 
       asci(SCREEN, mLoop.eco_draw)
 
       asci(GAME, mPlayer.syn[0].color)
       asci(GAME, mLevel.start_level)
-      asci(GAME, mwD.viewport_mode)
-      asci(GAME, mwD.viewport_show_hyst)
-      ascf(GAME, mwD.viewport_x_div)
-      ascf(GAME, mwD.viewport_y_div)
+      asci(GAME, mDisplay.viewport_mode)
+      asci(GAME, mDisplay.viewport_show_hyst)
+      ascf(GAME, mDisplay.viewport_x_div)
+      ascf(GAME, mDisplay.viewport_y_div)
       asci(GAME, mSettings.settings_current_page)
       asci(GAME, mLoop.speed_control_lock)
 
@@ -116,10 +116,10 @@ void mwConfig::save(void)
       asci(LOGGING, mLog.autosave_log_on_game_exit)
       asci(LOGGING, mLog.autosave_log_on_level_done)
 
-      asci(DEMO, mwDM.demo_mode_config_enable)
+      asci(DEMO, mDemoMode.demo_mode_config_enable)
       asci(DEMO, mLog.autosave_game_on_level_done)
       asci(DEMO, mLog.autosave_game_on_game_exit)
-      ascf(DEMO, mwDM.demo_mode_overlay_opacity)
+      ascf(DEMO, mDemoMode.demo_mode_overlay_opacity)
 
 
       // cpu
@@ -187,14 +187,10 @@ void mwConfig::save(void)
 
 void mwConfig::load(void)
 {
+   // this reads values and validates
+   // after that, it immediately calls save in case values were not found and defaults were used
+
    char msg[1024];
-
-
-
-
-   // this only reads the values and validates
-   // after that, it immediately calls save_config() to save and update menu text
-
    ALLEGRO_CONFIG * cfg = NULL;
    cfg = al_load_config_file("pm.cfg");
    if(!cfg)
@@ -207,24 +203,24 @@ void mwConfig::load(void)
 
    const char* val;
 
-   agci(SCREEN, mwD.disp_x_wind, 100)
-   agci(SCREEN, mwD.disp_y_wind, 100)
-   agci(SCREEN, mwD.disp_w_wind, 800)
-   agci(SCREEN, mwD.disp_h_wind, 600)
-   agci(SCREEN, mwD.fullscreen, 1)
-   agci(SCREEN, mwD.display_adapter_num, 0)
-   agci(SCREEN, mwL.show_splash_screen, 1)
-   agci(SCREEN, mwD.display_transform_double_max, 3)
-   agci(SCREEN, mwD.saved_display_transform_double, 0)
+   agci(SCREEN, mDisplay.disp_x_wind, 100)
+   agci(SCREEN, mDisplay.disp_y_wind, 100)
+   agci(SCREEN, mDisplay.disp_w_wind, 800)
+   agci(SCREEN, mDisplay.disp_h_wind, 600)
+   agci(SCREEN, mDisplay.fullscreen, 1)
+   agci(SCREEN, mDisplay.display_adapter_num, 0)
+   agci(SCREEN, mLogo.show_splash_screen, 1)
+   agci(SCREEN, mDisplay.display_transform_double_max, 3)
+   agci(SCREEN, mDisplay.saved_display_transform_double, 0)
 
-   agcf(SCREEN, mwD.scale_factor, 1.0)
-   //mwD.set_scale_factor(1.0, 1); // reset to 1.0 with every program start
-   mwD.set_scale_factor(mwD.scale_factor, 1);
+   agcf(SCREEN, mDisplay.scale_factor, 1.0)
+   //mDisplay.set_scale_factor(1.0, 1); // reset to 1.0 with every program start
+   mDisplay.set_scale_factor(mDisplay.scale_factor, 1);
 
-   agci(SCREEN, mwL.show_splash_screen, 1)
-   if (!mwL.show_splash_screen) mwL.splash_screen_done = 1;
+   agci(SCREEN, mLogo.show_splash_screen, 1)
+   if (!mLogo.show_splash_screen) mLogo.splash_screen_done = 1;
 
-   agci(SCREEN, mwBM.bottom_msg_on, 1)
+   agci(SCREEN, mBottomMessage.bottom_msg_on, 1)
 
    agci(SCREEN, mLoop.eco_draw, 0)
 
@@ -233,10 +229,10 @@ void mwConfig::load(void)
 
    agci(GAME, mPlayer.syn[0].color, 8)
 
-   agci(GAME, mwD.viewport_mode, 1)
-   agci(GAME, mwD.viewport_show_hyst, 0)
-   agcf(GAME, mwD.viewport_x_div, 0.33)
-   agcf(GAME, mwD.viewport_y_div, 0.33)
+   agci(GAME, mDisplay.viewport_mode, 1)
+   agci(GAME, mDisplay.viewport_show_hyst, 0)
+   agcf(GAME, mDisplay.viewport_x_div, 0.33)
+   agcf(GAME, mDisplay.viewport_y_div, 0.33)
    agci(GAME, mSettings.settings_current_page, 0)
    agci(GAME, mLoop.speed_control_lock, 1)
 
@@ -304,10 +300,10 @@ void mwConfig::load(void)
    agci(LOGGING, mLog.autosave_log_on_game_exit, 0)
    agci(LOGGING, mLog.autosave_log_on_level_done, 0)
 
-   agci(DEMO, mwDM.demo_mode_config_enable, 1)
+   agci(DEMO, mDemoMode.demo_mode_config_enable, 1)
    agci(DEMO, mLog.autosave_game_on_level_done, 0)
    agci(DEMO, mLog.autosave_game_on_game_exit, 0)
-   agcf(DEMO, mwDM.demo_mode_overlay_opacity, 0.1)
+   agcf(DEMO, mDemoMode.demo_mode_overlay_opacity, 0.1)
 
 
 
@@ -373,14 +369,5 @@ void mwConfig::load(void)
    agci(LEVEL_EDITOR, mLoop.autosave_level_editor_state, 0);
 
    al_destroy_config(cfg);
-   save(); // why do I save again, immed after load? to save defaults if not found?
+   save();
 }
-
-
-
-
-
-
-
-
-

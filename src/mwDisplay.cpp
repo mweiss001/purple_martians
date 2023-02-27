@@ -2,7 +2,6 @@
 
 #include "pm.h"
 #include "mwDisplay.h"
-#include "mwWindow.h"
 #include "mwWindowManager.h"
 #include "mwBitmap.h"
 #include "mwLoop.h"
@@ -11,7 +10,7 @@
 #include "mwInput.h"
 #include "mwPlayers.h"
 #include "mwLift.h"
-#include "mwGameMovesArray.h"
+#include "mwGameMoves.h"
 #include "mwTriggerEvent.h"
 #include "mwItems.h"
 #include "mwEnemy.h"
@@ -19,19 +18,7 @@
 #include "mwShots.h"
 #include "mwLog.h"
 
-
-
-
-
-
-ALLEGRO_DISPLAY *display = NULL;
-
-mwDisplay mwD;
-
-
-
-
-
+mwDisplay mDisplay;
 
 
 void mwDisplay::mw_set_clipping_rect(float x, float y, float w, float h)
@@ -245,15 +232,15 @@ void mwDisplay::show_var_sizes(void)
 
    printf("\nVariables used for netgame state exchange\n\n");
 
-   printf("mPlayer.syn :%6d\n", (int)sizeof(mPlayer.syn)  );
-   printf("mEnemy.Ei   :%6d\n", (int)sizeof(mEnemy.Ei)    );
-   printf("mEnemy.Ef   :%6d\n", (int)sizeof(mEnemy.Ef)    );
-   printf("mItem.item  :%6d\n", (int)sizeof(mItem.item)   );
-   printf("mItem.itemf :%6d\n", (int)sizeof(mItem.itemf)  );
-   printf("mLift.cur   :%6d\n", (int)sizeof(mLift.cur)    );
-   printf("mLevel.l    :%6d\n", (int)sizeof(mLevel.l)     );
-   printf("mShot.p     :%6d\n", (int)sizeof(mShot.p)      );
-   printf("mShot.e     :%6d\n", (int)sizeof(mShot.e)      );
+   printf("mPlayer.syn         :%6d\n", (int)sizeof(mPlayer.syn)          );
+   printf("mEnemy.Ei           :%6d\n", (int)sizeof(mEnemy.Ei)            );
+   printf("mEnemy.Ef           :%6d\n", (int)sizeof(mEnemy.Ef)            );
+   printf("mItem.item          :%6d\n", (int)sizeof(mItem.item)           );
+   printf("mItem.itemf         :%6d\n", (int)sizeof(mItem.itemf)          );
+   printf("mLift.cur           :%6d\n", (int)sizeof(mLift.cur)            );
+   printf("mLevel.l            :%6d\n", (int)sizeof(mLevel.l)             );
+   printf("mShot.p             :%6d\n", (int)sizeof(mShot.p)              );
+   printf("mShot.e             :%6d\n", (int)sizeof(mShot.e)              );
    printf("mTriggerEvent.event :%6d\n", (int)sizeof(mTriggerEvent.event)  );
 
    sz = 0;
@@ -272,7 +259,7 @@ void mwDisplay::show_var_sizes(void)
 
    printf("\nOther Large Variables\n\n");
 
-   sz = (int)sizeof(mwGMA.game_moves);
+   sz = (int)sizeof(mGameMoves.arr);
    printf("game_moves    :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
 
    sz = (int)sizeof(mLog.log_msg);
@@ -365,11 +352,11 @@ void mwDisplay::set_display_transform()
    show_dtd = 80;
 
    al_set_target_backbuffer(display);
-   mwD.SCREEN_W = disp_w_curr/display_transform_double;
-   mwD.SCREEN_H = disp_h_curr/display_transform_double;
+   SCREEN_W = disp_w_curr/display_transform_double;
+   SCREEN_H = disp_h_curr/display_transform_double;
    ALLEGRO_TRANSFORM trans;
    al_identity_transform(&trans);
-   al_orthographic_transform(&trans, 0, 0, -1.0, mwD.SCREEN_W, mwD.SCREEN_H, 1.0);
+   al_orthographic_transform(&trans, 0, 0, -1.0, SCREEN_W, SCREEN_H, 1.0);
    al_use_projection_transform(&trans);
    mScreen.set_map_var();
 }
@@ -535,7 +522,7 @@ int mwDisplay::init_display(void)
    if(!display)
    {
       sprintf(msg, "Error creating display\n");
-      mI.m_err(msg);
+      mInput.m_err(msg);
       exit(0);
    }
    if (!fullscreen) al_set_window_position(display, disp_x_wind, disp_y_wind);
@@ -560,7 +547,7 @@ int mwDisplay::init_display(void)
 //   printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
 
    //printf("init screen\n");
-   mwB.create_bitmaps();
+   mBitmap.create_bitmaps();
    return 1;
 }
 
@@ -589,7 +576,7 @@ void mwDisplay::proc_display_change(void)
       disp_h_wind = disp_h_curr;
    }
    set_display_transform();
-   mwB.rebuild_bitmaps();
+   mBitmap.rebuild_bitmaps();
    mConfig.save();
    //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
    set_window_title();
@@ -650,26 +637,3 @@ void mwDisplay::proc_display_change_fromfs(void)
    al_set_window_position(display, disp_x_wind, disp_y_wind);
    proc_display_change();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
