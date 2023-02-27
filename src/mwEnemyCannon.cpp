@@ -149,10 +149,10 @@ void mwEnemy::move_bouncer(int e)
    int ans = Ei[e][3]; // animation sequence number
 
    // number of shapes in animation sequence
-   int ns = mwB.zz[4][ans];
+   int ns = mBitmap.zz[4][ans];
 
    // number of frames for each shape
-   int nf = mwB.zz[3][ans]+1;
+   int nf = mBitmap.zz[3][ans]+1;
 
    // total sequence length in frames
    int tsl = nf * ns;
@@ -164,7 +164,7 @@ void mwEnemy::move_bouncer(int e)
    int ss = pm / nf;
 
    // set shape in enemy array
-   Ei[e][1] = mwB.zz[5+ss][ans];
+   Ei[e][1] = mBitmap.zz[5+ss][ans];
 }
 
 

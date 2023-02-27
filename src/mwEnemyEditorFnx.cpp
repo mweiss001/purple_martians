@@ -67,13 +67,13 @@ void mwEnemy::erase_enemy(int e)
 int mwEnemy::show_enemy_data(int x_pos, int y_pos)
 {
    sort_enemy();
-   al_draw_textf(mF.pr8, mC.pc[4], x_pos, y_pos, 0, "%-2d Enemies", num_enemy); y_pos += 8;
-   al_draw_text(mF.pr8, mC.pc[4], x_pos, y_pos,  0, "----------"); y_pos += 8;
+   al_draw_textf(mFont.pr8, mColor.pc[4], x_pos, y_pos, 0, "%-2d Enemies", num_enemy); y_pos += 8;
+   al_draw_text(mFont.pr8, mColor.pc[4], x_pos, y_pos,  0, "----------"); y_pos += 8;
    for (int c=1; c<16; c++)
    {
       if (e_num_of_type[c]) // not zero
       {
-         al_draw_textf(mF.pr8, mC.pc[10], x_pos, y_pos,   0, "%-2d %s", e_num_of_type[c], enemy_name[c][0]);
+         al_draw_textf(mFont.pr8, mColor.pc[10], x_pos, y_pos,   0, "%-2d %s", e_num_of_type[c], enemy_name[c][0]);
          y_pos += 8;
       }
    }
@@ -92,7 +92,7 @@ int mwEnemy::get_empty_enemy(void)
          en = d;
          break;
       }
-   if (en == -1) al_show_native_message_box(display, "Error", "Error creating enemy", "Enemy list full!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+   if (en == -1) al_show_native_message_box(mDisplay.display, "Error", "Error creating enemy", "Enemy list full!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
    else erase_enemy(en);
    return en;
 }
@@ -150,7 +150,7 @@ void mwEnemy::show_all_enemies(void)
    tmp = al_create_bitmap(20, 20);
 
    int text_pos = 0;
-   al_set_target_backbuffer(display);
+   al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgb(0,0,0));
 
    int rh = 16; // row height
@@ -162,18 +162,18 @@ void mwEnemy::show_all_enemies(void)
       al_set_target_bitmap(tmp);
       al_clear_to_color(al_map_rgb(0,0,0));
       draw_enemy(e, 1, 0, 0);
-      al_set_target_backbuffer(display);
+      al_set_target_backbuffer(mDisplay.display);
       al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, 0, text_pos, rh, rh, 0);
 
 
-      al_draw_line(0, text_pos, mwD.SCREEN_W, text_pos, mC.pc[15+128], 0);
+      al_draw_line(0, text_pos, mDisplay.SCREEN_W, text_pos, mColor.pc[15+128], 0);
 
 
       int tp1 = text_pos+(rh-16)/2;
       int tp2 = tp1+8;
       int tpc = (tp1+tp2)/2;
 
-      al_draw_textf(mF.pr8, mC.pc[14], rh+2, tpc, 0, "[%2d]",e);
+      al_draw_textf(mFont.pr8, mColor.pc[14], rh+2, tpc, 0, "[%2d]",e);
       strcpy(msg,"");
       for (int j=0; j<32; j++)
       {
@@ -181,7 +181,7 @@ void mwEnemy::show_all_enemies(void)
          sprintf(msg2,"[%d] ", Ei[e][j]);
          strcat(msg, msg2);
       }
-      al_draw_text(mF.pr8, mC.pc[13], 54, tp1, 0, msg);
+      al_draw_text(mFont.pr8, mColor.pc[13], 54, tp1, 0, msg);
       strcpy(msg,"");
       for (int j=0; j<16; j++)
       {
@@ -189,18 +189,18 @@ void mwEnemy::show_all_enemies(void)
          sprintf(msg2,"[%3.2f] ", Ef[e][j]);
          strcat(msg, msg2);
       }
-      al_draw_text(mF.pr8, mC.pc[9], 54, tp2, 0, msg);
+      al_draw_text(mFont.pr8, mColor.pc[9], 54, tp2, 0, msg);
       text_pos +=rh;
-      if (text_pos > mwD.SCREEN_H - 10)
+      if (text_pos > mDisplay.SCREEN_H - 10)
       {
          al_flip_display();
-         mI.tsw(); // wait for keypress
+         mInput.tsw(); // wait for keypress
          al_clear_to_color(al_map_rgb(0,0,0));
          text_pos = 0;
       }
    }
    al_flip_display();
-   mI.tsw(); // wait for keypress
+   mInput.tsw(); // wait for keypress
    al_destroy_bitmap(tmp);
 }
 

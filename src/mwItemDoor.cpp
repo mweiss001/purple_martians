@@ -41,13 +41,13 @@ int mwItems::draw_door(int i, int x, int y, int custom)
    {
       int shape = mItem.item[i][1];       // get shape
       int si = shape-448;           // convert to index to bitmap sequence
-      tmp = mwB.door_tile[1][col][si];
+      tmp = mBitmap.door_tile[1][col][si];
    }
    else if (mItem.item[i][13] == 1083) // new style doors
    {
-      int an = mwB.zz[1][83];             // cheat and use shape index from base door animation sequence
+      int an = mBitmap.zz[1][83];             // cheat and use shape index from base door animation sequence
       if (mItem.item[i][8] == 0) an = 7-an; // exit only, run the sequence backwards
-      tmp = mwB.door_tile[0][col][an];
+      tmp = mBitmap.door_tile[0][col][an];
    }
    else if (mItem.item[i][13] == 0) drawn = 1;
 
@@ -59,7 +59,7 @@ int mwItems::draw_door(int i, int x, int y, int custom)
       int line_color = mItem.item[mItem.item[i][9]][6];
 
       if (mItem.item[i][12] == 1) // if always draw lines (1)
-         al_draw_line(x+10, y+10, dx+10, dy+10, mC.pc[line_color], 1);  // draw a line connecting them
+         al_draw_line(x+10, y+10, dx+10, dy+10, mColor.pc[line_color], 1);  // draw a line connecting them
 
       if (!drawn)
       {
@@ -67,19 +67,19 @@ int mwItems::draw_door(int i, int x, int y, int custom)
             if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_door == i))
             {
                if (mItem.item[i][12] > 0)  // always draw or only draw when touching ( 1 or 2)
-                  al_draw_line(x+10, y+10, dx+10, dy+10, mC.pc[line_color], 1);  // draw a line connecting them
+                  al_draw_line(x+10, y+10, dx+10, dy+10, mColor.pc[line_color], 1);  // draw a line connecting them
 
                // bigger door when player touching it
                al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, x-5, y-6, 30, 26, 0 );
 
-               if (mItem.item[i][8] == 0) al_draw_scaled_bitmap(mwB.tile[1015], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // OUT
-               else al_draw_scaled_bitmap(mwB.tile[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
+               if (mItem.item[i][8] == 0) al_draw_scaled_bitmap(mBitmap.tile[1015], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // OUT
+               else al_draw_scaled_bitmap(mBitmap.tile[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
 
                if (mItem.item[i][11] == 1) // enter with <up>
-                  al_draw_text(mF.pr8, mC.pc[15],  x+3, y-14, 0, "up");
+                  al_draw_text(mFont.pr8, mColor.pc[15],  x+3, y-14, 0, "up");
 
                if (mItem.item[i][11] == 2) // enter with <down>
-                  al_draw_text(mF.pr8, mC.pc[15],  x-5, y-14, 0, "down");
+                  al_draw_text(mFont.pr8, mColor.pc[15],  x-5, y-14, 0, "down");
                drawn = 1;
             }
       }
@@ -88,8 +88,8 @@ int mwItems::draw_door(int i, int x, int y, int custom)
    {
       al_draw_bitmap(tmp, x, y, 0); // if not drawn yet
 
-      if (mItem.item[i][8] == 0) al_draw_bitmap(mwB.tile[1015], x, y, 0); // OUT
-      else al_draw_bitmap(mwB.tile[1014], x, y, 0); // IN
+      if (mItem.item[i][8] == 0) al_draw_bitmap(mBitmap.tile[1015], x, y, 0); // OUT
+      else al_draw_bitmap(mBitmap.tile[1014], x, y, 0); // IN
    }
    return 1;
 }

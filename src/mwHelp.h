@@ -8,7 +8,6 @@ class mwHelp
    private:
    int load_help(void);
    char help_string[5000][200];
-
 };
 extern mwHelp mHelp;
 

@@ -9,6 +9,11 @@ class mwMiscFnx
 
    void chop_first_x_char(char *str, int n);
 
+   void get_tag_text(char *str, char *res, int show);
+   int get_tag_text2(char *str, char *res, char *res1, int show);
+
+
+
    int round20(int val);
    int enforce_limit(int val, int ll, int ul);
    int check_limit(int val, int ll, int ul);

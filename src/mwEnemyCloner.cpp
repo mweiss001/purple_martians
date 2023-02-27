@@ -37,7 +37,7 @@
 void mwEnemy::move_cloner(int e)
 {
 
-   Ei[e][1] = mwB.zz[0][105]; // default shape
+   Ei[e][1] = mBitmap.zz[0][105]; // default shape
 
    if (Ei[e][31] && (Ei[e][30] == 0)) // hit and not invincible
    {
@@ -53,12 +53,12 @@ void mwEnemy::move_cloner(int e)
    Ei[e][2] = 0;  // flip mode
 
 //   int b = (Ei[e][7] * 7) / (Ei[e][6]+1);
-//   Ei[e][1] = mwB.zz[5+b][106];
+//   Ei[e][1] = mBitmap.zz[5+b][106];
 
    int b = (Ei[e][7] * 9) / (Ei[e][6]+1);
-   Ei[e][1] = mwB.zz[5+b][107];
+   Ei[e][1] = mBitmap.zz[5+b][107];
 
-   if (Ei[e][8] == 2) Ei[e][1] = mwB.zz[0][105]; // to make something happen for immed
+   if (Ei[e][8] == 2) Ei[e][1] = mBitmap.zz[0][105]; // to make something happen for immed
 
 //   printf("%d %d %d \n", b, Ei[e][7], Ei[e][6]);
 
@@ -261,8 +261,8 @@ void mwEnemy::draw_cloner(int e, int x, int c, int custom)
 
          // show vertical red green bar animation sequence
         // int b = (Ei[e][7] * 10) / (Ei[e][6]+1);
-        // int t = mwB.zz[5+b][53];
-        // al_draw_scaled_rotated_bitmap(mwB.tile[t], 10, 10, EXint+10, EYint+10, .5, .5, 0, ALLEGRO_FLIP_VERTICAL);
+        // int t = mBitmap.zz[5+b][53];
+        // al_draw_scaled_rotated_bitmap(mBitmap.tile[t], 10, 10, EXint+10, EYint+10, .5, .5, 0, ALLEGRO_FLIP_VERTICAL);
       }
 
       // show box mode (0=none) (1=trig only) (2=src/dst only) (3=all)

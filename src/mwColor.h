@@ -4,24 +4,19 @@ class mwColor
 {
    public:
    mwColor(); // constructor
-   void make_palette(void);
 
    void process_flash_color(void);
    void show_palette(void);
-
    int get_contrasting_color(int color);
 
    ALLEGRO_COLOR pc[256];
    int flash_color = 0;
    int flash_color2 = 0;
    int flash_counter = 0;
-
    char color_name[16][20];
-
 
    ALLEGRO_COLOR Flash1;
    ALLEGRO_COLOR Flash2;
-
    ALLEGRO_COLOR Black;
    ALLEGRO_COLOR Violet;
    ALLEGRO_COLOR Mauve;
@@ -40,6 +35,4 @@ class mwColor
    ALLEGRO_COLOR White;
 
 };
-extern mwColor mC;
-
-
+extern mwColor mColor;

@@ -407,39 +407,39 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    for (int a=0; a<100; a++)
       for (int b=0; b<100; b++)
         if (mwWM.thl[a][b]) marked_count++;
-   al_draw_textf(mF.pr8, mC.pc[15], (x3+x4)/2, yfb -34, ALLEGRO_ALIGN_CENTER, "Number of Tiles Marked: %d", marked_count);
+   al_draw_textf(mFont.pr8, mColor.pc[15], (x3+x4)/2, yfb -34, ALLEGRO_ALIGN_CENTER, "Number of Tiles Marked: %d", marked_count);
 
-   if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Clear All Marks"))
+   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Clear All Marks"))
    {
       for (int a=0; a<100; a++)
          for (int b=0; b<100; b++) mwWM.thl[a][b] = 0;
    }
 
-   if ((mwWM.mW[9].th_add_del == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Main Action: Add Marks to Tiles"))) mwWM.mW[9].th_add_del = 0;
-   if ((mwWM.mW[9].th_add_del == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Main Action: Remove Marks from Tiles"))) mwWM.mW[9].th_add_del = 1;
+   if ((mwWM.mW[9].th_add_del == 1) && (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Main Action: Add Marks to Tiles"))) mwWM.mW[9].th_add_del = 0;
+   if ((mwWM.mW[9].th_add_del == 0) && (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Main Action: Remove Marks from Tiles"))) mwWM.mW[9].th_add_del = 1;
 
    if (mwWM.mW[9].th_add_del == 1)
    {
-      if      ((mwWM.mW[9].th_match == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Add Single Tile"))) mwWM.mW[9].th_match = 1;
-      else if ((mwWM.mW[9].th_match == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Add All Matching Tiles"))) mwWM.mW[9].th_match = 2;
-      else if ((mwWM.mW[9].th_match == 2) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Add All Connected Matching Tiles"))) mwWM.mW[9].th_match = 0;
+      if      ((mwWM.mW[9].th_match == 0) && (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Add Single Tile"))) mwWM.mW[9].th_match = 1;
+      else if ((mwWM.mW[9].th_match == 1) && (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Add All Matching Tiles"))) mwWM.mW[9].th_match = 2;
+      else if ((mwWM.mW[9].th_match == 2) && (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Add All Connected Matching Tiles"))) mwWM.mW[9].th_match = 0;
    }
    else
    {
-      if      ((mwWM.mW[9].th_match == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Remove Single Tile"))) mwWM.mW[9].th_match = 1;
-      else if ((mwWM.mW[9].th_match == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Remove All Matching Tiles"))) mwWM.mW[9].th_match = 2;
-      else if ((mwWM.mW[9].th_match == 2) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Remove All Connected Matching Tiles"))) mwWM.mW[9].th_match = 0;
+      if      ((mwWM.mW[9].th_match == 0) && (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Remove Single Tile"))) mwWM.mW[9].th_match = 1;
+      else if ((mwWM.mW[9].th_match == 1) && (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Remove All Matching Tiles"))) mwWM.mW[9].th_match = 2;
+      else if ((mwWM.mW[9].th_match == 2) && (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Remove All Connected Matching Tiles"))) mwWM.mW[9].th_match = 0;
    }
 
    if (mwWM.mW[9].th_match)
    {
-      if      ((mwWM.mW[9].th_group == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Tile Filter: Specific Tile"))) mwWM.mW[9].th_group = 1;
-      else if ((mwWM.mW[9].th_group == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Tile Filter: Tile Group"))) mwWM.mW[9].th_group = 0;
+      if      ((mwWM.mW[9].th_group == 0) && (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Tile Filter: Specific Tile"))) mwWM.mW[9].th_group = 1;
+      else if ((mwWM.mW[9].th_group == 1) && (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Tile Filter: Tile Group"))) mwWM.mW[9].th_group = 0;
    }
 
    // draw a rectangle and title around this group of buttons
    mMiscFnx.titlex("Modify Which Tiles Are Marked", 15, 14, x3, x4, yfb_old-16);
-   al_draw_rectangle(x3, yfb_old-16, x4, yfb-1, mC.pc[14], 1);
+   al_draw_rectangle(x3, yfb_old-16, x4, yfb-1, mColor.pc[14], 1);
 
 
    yfb+=bts*2; // spacing between groups
@@ -447,17 +447,17 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    bts = 24;
    int c = 10 + 64;
    int choice = 0;
-   if (mdw_buttontt(x3, yfb, x4, bts, 576,0,0,0, 0,c,15,0, 1,1,1,d, "     Purple Pipes with Cross Center")) choice = 1;
-   if (mdw_buttontt(x3, yfb, x4, bts, 512,0,0,0, 0,c,15,0, 1,1,1,d, "     Purple Pipes with Solid Center")) choice = 4;
-   if (mdw_buttontt(x3, yfb, x4, bts, 608,0,0,0, 0,c,15,0, 1,1,1,d, "     Wires with Cross Center")) choice = 2;
-   if (mdw_buttontt(x3, yfb, x4, bts, 480,0,0,0, 0,c,15,0, 1,1,1,d, "     Grey Bricks")) choice = 3;
-   if (mdw_buttontt(x3, yfb, x4, bts, 448,0,0,0, 0,c,15,0, 1,1,1,d, "     Brown Bricks")) choice = 5;
-   if (mdw_buttontt(x3, yfb, x4, bts, 416,0,0,0, 0,c,15,0, 1,1,1,d, "     Brown and Yellow Thatch")) choice = 7;
-   if (mdw_buttontt(x3, yfb, x4, bts, 384,0,0,0, 0,c,15,0, 1,1,1,d, "     Brain")) choice = 8;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 576,0,0,0, 0,c,15,0, 1,1,1,d, "     Purple Pipes with Cross Center")) choice = 1;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 512,0,0,0, 0,c,15,0, 1,1,1,d, "     Purple Pipes with Solid Center")) choice = 4;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 608,0,0,0, 0,c,15,0, 1,1,1,d, "     Wires with Cross Center")) choice = 2;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 480,0,0,0, 0,c,15,0, 1,1,1,d, "     Grey Bricks")) choice = 3;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 448,0,0,0, 0,c,15,0, 1,1,1,d, "     Brown Bricks")) choice = 5;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 416,0,0,0, 0,c,15,0, 1,1,1,d, "     Brown and Yellow Thatch")) choice = 7;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 384,0,0,0, 0,c,15,0, 1,1,1,d, "     Brain")) choice = 8;
 
    // draw a rectangle and title around this group of buttons
    mMiscFnx.titlex("Change Marked Tiles", 15, 10, x3, x4, yfb_old-16);
-   al_draw_rectangle(x3, yfb_old-16, x4, yfb-1, mC.pc[10], 1);
+   al_draw_rectangle(x3, yfb_old-16, x4, yfb-1, mColor.pc[10], 1);
 
    if (choice) th_replace(choice);
    return yfb;
@@ -561,9 +561,9 @@ void mwWindow::th_find_connected(int x, int y, int group)
 
 void mwWindow::th_process_mouse(void)
 {
-   if (mI.mouse_b[1][0])
+   if (mInput.mouse_b[1][0])
    {
-      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
+      while (mInput.mouse_b[1][0]) mEventQueue.proc();
 
       // add or del single tile at the specific location
       if (mwWM.mW[9].th_match == 0) mwWM.thl[mwWM.gx][mwWM.gy] = mwWM.mW[9].th_add_del;
@@ -580,9 +580,9 @@ void mwWindow::th_process_mouse(void)
       }
    }
 
-   if (mI.mouse_b[2][0])
+   if (mInput.mouse_b[2][0])
    {
-      while (mI.mouse_b[2][0]) mwEQ.proc_event_queue();
+      while (mInput.mouse_b[2][0]) mEventQueue.proc();
       mwWM.set_windows(1);
    }
 }

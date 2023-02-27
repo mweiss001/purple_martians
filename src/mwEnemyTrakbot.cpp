@@ -358,25 +358,25 @@ void mwEnemy::move_trakbot(int e)
    {
       int ex = Ef[e][0];
       int s = ex % 6;
-      Ei[e][1] = mwB.zz[10-s][b];
+      Ei[e][1] = mBitmap.zz[10-s][b];
    }
    if ((mode == 1) || (mode == 5)) // y- rwall up and lwall up
    {
       int ey = Ef[e][1];
       int s = ey % 6;
-      Ei[e][1] = mwB.zz[5+s][b];
+      Ei[e][1] = mBitmap.zz[5+s][b];
    }
    if ((mode == 2) || (mode == 4)) // x- ceil left or floor left
    {
       int ex = Ef[e][0];
       int s = ex % 6;
-      Ei[e][1] = mwB.zz[5+s][b];
+      Ei[e][1] = mBitmap.zz[5+s][b];
    }
    if ((mode == 3) || (mode == 7)) // y+ lwall down or rwall down
    {
       int ey = Ef[e][1];
       int s = ey % 6;
-      Ei[e][1] = mwB.zz[10-s][b];
+      Ei[e][1] = mBitmap.zz[10-s][b];
    }
 }
 

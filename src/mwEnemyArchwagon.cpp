@@ -80,18 +80,18 @@ void mwEnemy::move_archwagon(int e)
 
    // set the bitmap and drawing mode
    int b = Ei[e][3]; // ans
-   int c = mwB.zz[4][b]; // num_of_shapes in seq
+   int c = mBitmap.zz[4][b]; // num_of_shapes in seq
 
    // animate with h move
    if (Ei[e][2] == 1) // right
    {
       int x = (EXint/3) % c;
-      Ei[e][1] = mwB.zz[x+5][b];
+      Ei[e][1] = mBitmap.zz[x+5][b];
    }
    if (Ei[e][2] == 0) // left
    {
       int x = (EXint/3) % c;
-      Ei[e][1] = mwB.zz[5+c-x][b];
+      Ei[e][1] = mBitmap.zz[5+c-x][b];
    }
 }
 
@@ -293,9 +293,9 @@ void mwEnemy::move_block_walker(int e)
 
       mLevel.l[ex][ey] |= PM_BTILE_BREAKABLE_PSHOT;
 
-      al_set_target_bitmap(mwB.level_background);
-      al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, mC.pc[0]);
-      al_draw_bitmap(mwB.btile[168], ex*20, ey*20, 0);
+      al_set_target_bitmap(mBitmap.level_background);
+      al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.btile[168], ex*20, ey*20, 0);
 
       mGameEvent.add(60, 0, 0, Ei[e][26], e, 0, 0);
 
@@ -308,9 +308,9 @@ void mwEnemy::move_block_walker(int e)
 
    // set the bitmap and drawing mode
    int b = Ei[e][3];     // ans
-   int c = mwB.zz[4][b];     // num_of_shapes in seq
+   int c = mBitmap.zz[4][b];     // num_of_shapes in seq
 
    // animate with h move
    int x = (EXint/2) % c;
-   Ei[e][1] = mwB.zz[x+5][b];
+   Ei[e][1] = mBitmap.zz[x+5][b];
 }

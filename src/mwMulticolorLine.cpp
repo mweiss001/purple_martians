@@ -40,7 +40,7 @@ int mwMulticolorLine::check_and_draw(double x1, double y1, double line_length, d
       double xb = x1 + zb * line_xinc;
       double yb = y1 + zb * line_yinc;
       if (debug_print) printf("%s   drawn at za:%3.0f zb:%3.0f\n", t, za, zb);
-      al_draw_line(xa, ya, xb, yb, mC.pc[col], thickness);
+      al_draw_line(xa, ya, xb, yb, mColor.pc[col], thickness);
       segments_drawn++;
    }
    return end_adj;
@@ -57,7 +57,7 @@ int mwMulticolorLine::draw_line3(double x1, double y1, double x2, double y2, flo
    int segments_drawn = 0;
 
    int color_span = c0_val + c1_val + c2_val;
-   if ((color_span < 1) || ((c1_col == 0) && (c2_col == 0))) al_draw_line(x1, y1, x2, y2, mC.pc[c0_col], thickness);
+   if ((color_span < 1) || ((c1_col == 0) && (c2_col == 0))) al_draw_line(x1, y1, x2, y2, mColor.pc[c0_col], thickness);
    else
    {
       if (debug_print) printf("lco:%d color_span:%d\n", line_color_offset, color_span); // line_color_offset is in pixels, from 0 to color_span
@@ -122,7 +122,7 @@ int mwMulticolorLine::draw_line2(double x1, double y1, double x2, double y2, flo
    int segments_drawn = 0;
 
    int color_span = c0_val + c1_val;
-   if ((color_span < 1) || (c1_col == 0)) al_draw_line(x1, y1, x2, y2, mC.pc[c0_col], thickness);
+   if ((color_span < 1) || (c1_col == 0)) al_draw_line(x1, y1, x2, y2, mColor.pc[c0_col], thickness);
    else
    {
       if (debug_print) printf("lco:%d color_span:%d\n", line_color_offset, color_span); // line_color_offset is in pixels, from 0 to color_span

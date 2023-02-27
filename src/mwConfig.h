@@ -1,6 +1,5 @@
 // mwConfig.h
 
-
 #define STRINGIFY_HELPER(x) #x
 #define STRINGIFY(x) STRINGIFY_HELPER(x)
 #define agci(section, var, def) val = al_get_config_value(cfg, STRINGIFY(section), STRINGIFY(var)); if (!val) var = def;  else var = atoi(val);

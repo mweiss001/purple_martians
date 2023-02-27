@@ -5,10 +5,10 @@
 #include <limits>
 
 
-mwTally mwT[8];
+mwTally mTally[8];
 
-mwTally mwT_late_cdats_last_sec[8];
-mwTally mwT_game_move_dsync_avg_last_sec[8];
+mwTally mTally_late_cdats_last_sec[8];
+mwTally mTally_game_move_dsync_avg_last_sec[8];
 
 mwTally::mwTally()
 {

@@ -18,19 +18,19 @@ int mwItems::item_data(int x, int y)
 {
    char msg[1024];
    int inum = sort_item(0);
-                               al_draw_textf(mF.pr8, mC.pc[12], x, y, 0, "%d Items",      inum);                 y+=8;
-                               al_draw_textf(mF.pr8, mC.pc[12], x, y, 0, "--------");                            y+=8;
-                               al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Starts",     item_num_of_type[5]);  y+=8;
-                               al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Exits",      item_num_of_type[3]);  y+=8;
-   if (item_num_of_type[12]) { al_draw_textf(mF.pr8, mC.pc[10], x, y, 0, "%d Warps",      item_num_of_type[12]); y+=8; }
-   if (item_num_of_type[1])  { al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Doors",      item_num_of_type[1]);  y+=8; }
-   if (item_num_of_type[4])  { al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Keys",       item_num_of_type[4]);  y+=8; }
-   if (item_num_of_type[14]) { al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Switches",   item_num_of_type[14]); y+=8; }
-   if (item_num_of_type[15]) { al_draw_textf(mF.pr8, mC.pc[13], x, y, 0, "%d Sproingies", item_num_of_type[15]); y+=8; }
-   if (item_num_of_type[8])  { al_draw_textf(mF.pr8, mC.pc[14], x, y, 0, "%d Bombs",      item_num_of_type[8]);  y+=8; }
-   if (item_num_of_type[11]) { al_draw_textf(mF.pr8, mC.pc[14], x, y, 0, "%d Rockets",    item_num_of_type[11]); y+=8; }
-   if (item_num_of_type[7])  { al_draw_textf(mF.pr8, mC.pc[14], x, y, 0, "%d Mines",      item_num_of_type[7]);  y+=8; }
-   if (item_num_of_type[6])  { al_draw_textf(mF.pr8, mC.pc[14], x, y, 0, "%d Orbs",       item_num_of_type[6]);  y+=8; }
+                               al_draw_textf(mFont.pr8, mColor.pc[12], x, y, 0, "%d Items",      inum);                 y+=8;
+                               al_draw_textf(mFont.pr8, mColor.pc[12], x, y, 0, "--------");                            y+=8;
+                               al_draw_textf(mFont.pr8, mColor.pc[13], x, y, 0, "%d Starts",     item_num_of_type[5]);  y+=8;
+                               al_draw_textf(mFont.pr8, mColor.pc[13], x, y, 0, "%d Exits",      item_num_of_type[3]);  y+=8;
+   if (item_num_of_type[12]) { al_draw_textf(mFont.pr8, mColor.pc[10], x, y, 0, "%d Warps",      item_num_of_type[12]); y+=8; }
+   if (item_num_of_type[1])  { al_draw_textf(mFont.pr8, mColor.pc[13], x, y, 0, "%d Doors",      item_num_of_type[1]);  y+=8; }
+   if (item_num_of_type[4])  { al_draw_textf(mFont.pr8, mColor.pc[13], x, y, 0, "%d Keys",       item_num_of_type[4]);  y+=8; }
+   if (item_num_of_type[14]) { al_draw_textf(mFont.pr8, mColor.pc[13], x, y, 0, "%d Switches",   item_num_of_type[14]); y+=8; }
+   if (item_num_of_type[15]) { al_draw_textf(mFont.pr8, mColor.pc[13], x, y, 0, "%d Sproingies", item_num_of_type[15]); y+=8; }
+   if (item_num_of_type[8])  { al_draw_textf(mFont.pr8, mColor.pc[14], x, y, 0, "%d Bombs",      item_num_of_type[8]);  y+=8; }
+   if (item_num_of_type[11]) { al_draw_textf(mFont.pr8, mColor.pc[14], x, y, 0, "%d Rockets",    item_num_of_type[11]); y+=8; }
+   if (item_num_of_type[7])  { al_draw_textf(mFont.pr8, mColor.pc[14], x, y, 0, "%d Mines",      item_num_of_type[7]);  y+=8; }
+   if (item_num_of_type[6])  { al_draw_textf(mFont.pr8, mColor.pc[14], x, y, 0, "%d Orbs",       item_num_of_type[6]);  y+=8; }
 
    for (int c=1; c<20; c++)
       if ((c!= 1) && (c !=3) && (c!= 4) && (c != 5) && (c != 6) && (c!= 7) && (c!= 8) && (c!= 9) && (c!= 11) && (c!= 12) && (c!= 14) && (c!= 15) && (c!= 16) && (c!= 17) )
@@ -40,7 +40,7 @@ int mwItems::item_data(int x, int y)
             if (c ==  0) sprintf(msg, "%d type 0      ", item_num_of_type[c]);
             if (c ==  2) sprintf(msg, "%d Bonus       ", item_num_of_type[c]);
             if (c == 10) sprintf(msg, "%d Messages    ", item_num_of_type[c]);
-            al_draw_text(mF.pr8, mC.pc[3], x, y, 0, msg);
+            al_draw_text(mFont.pr8, mColor.pc[3], x, y, 0, msg);
             y+=8;
          }
    return y;
@@ -53,7 +53,7 @@ void mwItems::show_all_items(void)
    tmp = al_create_bitmap(20, 20);
 
    sort_item(1);
-   al_set_target_backbuffer(display);
+   al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgb(0,0,0));
 
    test_items();
@@ -69,7 +69,7 @@ void mwItems::show_all_items(void)
       al_set_target_bitmap(tmp);
       al_clear_to_color(al_map_rgb(0,0,0));
       draw_item(i, 1, 0, 0);
-      al_set_target_backbuffer(display);
+      al_set_target_backbuffer(mDisplay.display);
       al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, 0, text_pos, rh, rh, 0);
 
       sprintf(msg,"item:[%2d] ",i );
@@ -85,18 +85,18 @@ void mwItems::show_all_items(void)
          if (j == 5) sprintf(msg2,"[%-4d] ", mItem.item[i][j]);
          strcat(msg, msg2);
       }
-      al_draw_text(mF.pr8, mC.pc[13], rh+2, text_pos+(rh-8)/2, 0, msg);
+      al_draw_text(mFont.pr8, mColor.pc[13], rh+2, text_pos+(rh-8)/2, 0, msg);
       text_pos +=rh;
-      if (text_pos > mwD.SCREEN_H - 10)
+      if (text_pos > mDisplay.SCREEN_H - 10)
       {
          al_flip_display();
-         mI.tsw(); // wait for keypress
+         mInput.tsw(); // wait for keypress
          al_clear_to_color(al_map_rgb(0,0,0));
          text_pos = 0;
       }
    }
    al_flip_display();
-   mI.tsw(); // wait for keypress
+   mInput.tsw(); // wait for keypress
    al_destroy_bitmap(tmp);
 }
 
@@ -216,7 +216,7 @@ int mwItems::get_empty_item(void) // just find me an empty
          mt = i;
          break;
       }
-   if (mt == -1) al_show_native_message_box(display, "Error", "Error creating item", "Item list full!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+   if (mt == -1) al_show_native_message_box(mDisplay.display, "Error", "Error creating item", "Item list full!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
    return mt;
 }
 
@@ -347,6 +347,27 @@ int mwItems::create_trigger(int i)
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int mwItems::create_block_manip(int i)
 {
    int bad = 0;
@@ -435,10 +456,10 @@ int mwItems::create_exit(int c)
 void mwItems::show_all_pmsg(void)
 {
    int text_pos = 0;
-   al_set_target_backbuffer(display);
+   al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgb(0,0,0));
 
-   al_draw_text(mF.pr8, mC.pc[15], 20, text_pos, 0, "List of pop messages:");
+   al_draw_text(mFont.pr8, mColor.pc[15], 20, text_pos, 0, "List of pop messages:");
    text_pos +=8;
 
    for (int i=0; i<500; i++)
@@ -462,19 +483,19 @@ void mwItems::show_all_pmsg(void)
          }
          if (lines == 1) mll = tlc;
 
-         al_draw_textf(mF.pr8, mC.pc[14], 20, text_pos+=8, 0, "Item:%-2d len:%-3d lines:%-2d max length:%-2d", i, len, lines, mll);
+         al_draw_textf(mFont.pr8, mColor.pc[14], 20, text_pos+=8, 0, "Item:%-2d len:%-3d lines:%-2d max length:%-2d", i, len, lines, mll);
 
          for (int j=0; j<len; j++)
          {
             int col = 15;
             if ((pmsgtext[i][j] < 32) || (pmsgtext[i][j] > 126)) col = 10; // bad char
             if (pmsgtext[i][j] == 10) col = 9; // LF
-            al_draw_textf(mF.pr8, mC.pc[col], 20, text_pos+=8, 0, "[%2d][%3d] - %c", j, pmsgtext[i][j], pmsgtext[i][j] );
+            al_draw_textf(mFont.pr8, mColor.pc[col], 20, text_pos+=8, 0, "[%2d][%3d] - %c", j, pmsgtext[i][j], pmsgtext[i][j] );
 
-            if (text_pos > mwD.SCREEN_H - 20)
+            if (text_pos > mDisplay.SCREEN_H - 20)
             {
                al_flip_display();
-               mI.tsw(); // wait for keypress
+               mInput.tsw(); // wait for keypress
                al_clear_to_color(al_map_rgb(0,0,0));
                text_pos = 0;
             }
@@ -483,7 +504,7 @@ void mwItems::show_all_pmsg(void)
       }
    }
    al_flip_display();
-   mI.tsw(); // wait for keypress
+   mInput.tsw(); // wait for keypress
 }
 
 int mwItems::create_pmsg(int c)
@@ -635,7 +656,7 @@ int mwItems::create_door(int type)
 int mwItems::create_item(int type)
 {
    // check for no creator
-   if ((type != 1) && (type != 3) /*&& (type != 4)*/ && (type != 5) && (type != 9) && (type != 10) && (type != 16) && (type != 17)) return 9999;
+   if ((type != 1) && (type != 3) && (type != 5) && (type != 9) && (type != 10) && (type != 13) && (type != 16) && (type != 17)) return 9999;
    int i = get_empty_item(type); // get a place to put it
    if (i > 499) return i; // no items
    switch (type)
@@ -644,10 +665,34 @@ int mwItems::create_item(int type)
       case 5:  if (!create_start_block(i))  erase_item(i); break;
       case 9:  if (!create_trigger(i))      erase_item(i); break;
       case 10: if (!create_pmsg(i))         erase_item(i); break;
+      case 13: if (!create_timer(i))        erase_item(i); break;
       case 16: if (!create_block_manip(i))  erase_item(i); break;
       case 17: if (!create_block_damage(i)) erase_item(i); break;
    }
    sort_item(1);
    i = item_first_num[type]+item_num_of_type[type]-1;
    return i;
+}
+
+
+
+
+
+
+
+
+
+int mwItems::create_timer(int i)
+{
+   int bad = 0;
+   // set the item location
+   if (mMiscFnx.getxy("Timer", 2, 13, i) == 1)
+   {
+      mItem.item[i][0] = 13;  // type 9 - trigger
+      mItem.item[i][2] = 0; // draw color
+   }
+   else bad = 1;
+   if (bad) return 0;
+   else mwWM.mW[7].object_viewer(2, i);
+   return 1;
 }

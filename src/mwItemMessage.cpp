@@ -86,8 +86,8 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
    char msg[1024];
 
    // set where we will draw
-   if (custom) al_set_target_backbuffer(display);
-   else al_set_target_bitmap(mwB.level_buffer);
+   if (custom) al_set_target_backbuffer(mDisplay.display);
+   else al_set_target_bitmap(mBitmap.level_buffer);
 
    // make a copy of the string
    char pt[500];
@@ -120,16 +120,16 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
 
    if (frame_width == 0)
    {
-      if (mLoop.level_editor_running) al_draw_rectangle(x1, y1, x2, y2, mC.pc[15], 1);
+      if (mLoop.level_editor_running) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
    }
-   else al_draw_filled_rectangle(x1, y1, x2, y2, mC.pc[fc+13*16]);  // background
+   else al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[fc+13*16]);  // background
 
 
    if ((mLoop.eco_draw) && (frame_width > 1)) frame_width = 1;
 
    if (frame_width == 1)
    {
-      al_draw_rectangle(x1, y1, x2, y2, mC.pc[fc], 1);
+      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1);
    }
 
 
@@ -138,22 +138,22 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
    if (frame_width == 2)
    {
       for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mC.pc[fc+a*128], 1.5);
+         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mColor.pc[fc+a*128], 1.5);
    }
    if (frame_width == 4)
    {
       for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mC.pc[fc+a*48], 1.5);
+         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
    }
    if (frame_width == 12)
    {
       for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 6, 6, mC.pc[fc+a*16], 1.5);
+         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 6, 6, mColor.pc[fc+a*16], 1.5);
    }
 
 
    // debug show inner frame
-//   al_draw_rounded_rectangle(x1+frame_width, y1+frame_width, x2-frame_width, y2-frame_width, 4, 4, mC.pc[15], 1);
+//   al_draw_rounded_rectangle(x1+frame_width, y1+frame_width, x2-frame_width, y2-frame_width, 4, 4, mColor.pc[15], 1);
 
 
 
@@ -166,12 +166,12 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
       if (pt[cursor_pos] == 10) sprintf(msg, "LF");
       if (pt[cursor_pos] == 32) sprintf(msg, "SPACE");
 
-      al_draw_textf(mF.pr8, mC.pc[15], xc+4, y2+2, ALLEGRO_ALIGN_CENTRE, "%d/%d/500 [%s] ", cursor_pos, (int) strlen(pt), msg);
+      al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+2, ALLEGRO_ALIGN_CENTRE, "%d/%d/500 [%s] ", cursor_pos, (int) strlen(pt), msg);
 
-//      al_draw_textf(mF.pr8, mC.pc[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "[%s] %d/%d/500", msg, cursor_pos, (int) strlen(pt));
+//      al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "[%s] %d/%d/500", msg, cursor_pos, (int) strlen(pt));
 
-//      al_draw_textf(mF.pr8, mC.pc[15], x2-60, y2-9, 0, "[%s]", msg);
-      //al_draw_textf(mF.pr8, mC.pc[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
+//      al_draw_textf(mFont.pr8, mColor.pc[15], x2-60, y2-9, 0, "[%s]", msg);
+      //al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
    }
 
 
@@ -189,7 +189,7 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
    // do_multiline callback to figure out number of lines that will be used
    DRAW_CUSTOM_LINE_EXTRA extra;
    extra.num_lines = 0;
-   al_do_multiline_text(mF.pr8, max_text_width, pt, draw_multiline_cb, (void *)&extra);
+   al_do_multiline_text(mFont.pr8, max_text_width, pt, draw_multiline_cb, (void *)&extra);
 
    float sp=0; // space between text_height and frame_height
    float text_height = 0;
@@ -203,8 +203,8 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
    } while ((sp > 2) && (line_height < 100));
 
 
-//   al_draw_textf(mF.pr8, mC.pc[15], xc+4, y2+20, ALLEGRO_ALIGN_CENTRE, "lh:%2.1f nl:%d th:%2.1f", line_height, extra.num_lines, text_height);
-//   al_draw_textf(mF.pr8, mC.pc[15], xc+4, y2+28, ALLEGRO_ALIGN_CENTRE, "fh:%d fh-fw:%d sp:%2.1f", h, h - frame_width*2, sp);
+//   al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+20, ALLEGRO_ALIGN_CENTRE, "lh:%2.1f nl:%d th:%2.1f", line_height, extra.num_lines, text_height);
+//   al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+28, ALLEGRO_ALIGN_CENTRE, "fh:%d fh-fw:%d sp:%2.1f", h, h - frame_width*2, sp);
 
 
    float y3 = y1+frame_width+line_height/2-3.5;
@@ -217,7 +217,7 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
 
    }
 
-   al_draw_multiline_text(mF.pr8, mC.pc[tc], xc, y3, max_text_width, line_height, ALLEGRO_ALIGN_CENTRE, pt);
+   al_draw_multiline_text(mFont.pr8, mColor.pc[tc], xc, y3, max_text_width, line_height, ALLEGRO_ALIGN_CENTRE, pt);
 
    if (cursor_blink)
    {
@@ -237,14 +237,14 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
       }
       else pt[cursor_pos] = 95;
 
-      al_draw_multiline_text(mF.pr8, mC.pc[10], xc+cursor_on_special*8, y3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
+      al_draw_multiline_text(mFont.pr8, mColor.pc[10], xc+cursor_on_special*8, y3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
    }
 
 //      // crosshairs for alignment
-//      al_draw_line(x1, y1, x2, y2, mC.pc[fc], 1);
-//      al_draw_line(x1, y2, x2, y1, mC.pc[fc], 1);
-//      al_draw_line(x1+w/2, y1,     x1+w/2, y2,     mC.pc[fc], 1);
-//      al_draw_line(x1,     y1+h/2, x2,       y1+h/2, mC.pc[fc], 1);
+//      al_draw_line(x1, y1, x2, y2, mColor.pc[fc], 1);
+//      al_draw_line(x1, y2, x2, y1, mColor.pc[fc], 1);
+//      al_draw_line(x1+w/2, y1,     x1+w/2, y2,     mColor.pc[fc], 1);
+//      al_draw_line(x1,     y1+h/2, x2,       y1+h/2, mColor.pc[fc], 1);
 
 }
 
@@ -297,7 +297,7 @@ int mwItems::edit_pmsg_text(int c, int new_msg)
 
    while (!quit)
    {
-      al_set_target_backbuffer(display);
+      al_set_target_backbuffer(mDisplay.display);
 
       if (++blink_counter > blink_count) blink_counter = 0;
       if (blink_counter > 4) draw_pop_message(c, 1, smx, smy, cursor_pos, 1, f); // show the message with cursor_pos
@@ -307,56 +307,56 @@ int mwItems::edit_pmsg_text(int c, int new_msg)
       int ey = by+-3*bts; // erase y1
       int by1 = ey;
 
-      mdw_buttont(    xa, by1, xb, bts, 0,0,0,0,  0,15,13,0, 1,0,1,1, "Edit Message"); // display text only
-      if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,11,15,0, 1,0,1,0, "OK"))     { quit = 1; bad = 0; }
-      if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,10,15,0, 1,0,1,0, "Cancel")) { quit = 1; bad = 1; }
+      mWidget.buttont(    xa, by1, xb, bts, 0,0,0,0,  0,15,13,0, 1,0,1,1, "Edit Message"); // display text only
+      if (mWidget.buttont(xa, by1, xb, bts, 0,0,0,0,  0,11,15,0, 1,0,1,0, "OK"))     { quit = 1; bad = 0; }
+      if (mWidget.buttont(xa, by1, xb, bts, 0,0,0,0,  0,10,15,0, 1,0,1,0, "Cancel")) { quit = 1; bad = 1; }
 
 
-//      al_draw_filled_rectangle(xa, by1-30, xb, by1-10, mC.pc[0]);
-//      al_draw_rectangle(xa, by1-30, xb, by1-10, mC.pc[15], 1);
-//      al_draw_textf(mF.pr8, mC.pc[15], xa, by1-20, 0, "%d/%d %d", cursor_pos, char_count, strlen(f));
+//      al_draw_filled_rectangle(xa, by1-30, xb, by1-10, mColor.pc[0]);
+//      al_draw_rectangle(xa, by1-30, xb, by1-10, mColor.pc[15], 1);
+//      al_draw_textf(mFont.pr8, mColor.pc[15], xa, by1-20, 0, "%d/%d %d", cursor_pos, char_count, strlen(f));
 
-      mwEQ.proc_event_queue();
+      mEventQueue.proc();
 
-      if (mI.key[ALLEGRO_KEY_HOME][0])  cursor_pos = 0;
-      if (mI.key[ALLEGRO_KEY_END][0])   cursor_pos = char_count;
-      if (mI.key[ALLEGRO_KEY_RIGHT][3])
+      if (mInput.key[ALLEGRO_KEY_HOME][0])  cursor_pos = 0;
+      if (mInput.key[ALLEGRO_KEY_END][0])   cursor_pos = char_count;
+      if (mInput.key[ALLEGRO_KEY_RIGHT][3])
       {
-         if (mI.SHFT() && mI.CTRL())
+         if (mInput.SHFT() && mInput.CTRL())
          {
             while ((++cursor_pos < char_count) && (f[cursor_pos] != 10));  // find next LF
          }
-         else if (mI.SHFT())
+         else if (mInput.SHFT())
          {
             while ((++cursor_pos < char_count) && (f[cursor_pos] != 32) && (f[cursor_pos] != 10));  // find next space or LF
          }
-         else if (mI.CTRL()) cursor_pos+=16;
+         else if (mInput.CTRL()) cursor_pos+=16;
 
          else cursor_pos++;
          if (cursor_pos > char_count) cursor_pos = char_count;             // make sure we are not past the end
       }
 
-      if (mI.key[ALLEGRO_KEY_LEFT][3])
+      if (mInput.key[ALLEGRO_KEY_LEFT][3])
       {
          //al_rest(0.02);
-         while (mI.key[ALLEGRO_KEY_LEFT][3]) mwEQ.proc_event_queue();               // wait for release
+         while (mInput.key[ALLEGRO_KEY_LEFT][3]) mEventQueue.proc();               // wait for release
 
-         if ((mI.SHFT()) && (mI.CTRL()))
+         if ((mInput.SHFT()) && (mInput.CTRL()))
          {
             while ((--cursor_pos > 0) && (f[cursor_pos] != 10));  // find next LF
          }
-         else if (mI.SHFT())
+         else if (mInput.SHFT())
          {
             while ((--cursor_pos > 0) && (f[cursor_pos] != 32) && (f[cursor_pos] != 10)); // find next space or LF
          }
-         else if (mI.CTRL()) cursor_pos-=16;
+         else if (mInput.CTRL()) cursor_pos-=16;
 
          else cursor_pos--;
          if (cursor_pos < 0) cursor_pos = 0;                             // make sure we are not before the start
       }
 
 
-      if (mI.key[ALLEGRO_KEY_UP][3])                                           // move up one line
+      if (mInput.key[ALLEGRO_KEY_UP][3])                                           // move up one line
       {
          int ocp = cursor_pos;                                           // get original position
          while ((--cursor_pos > 0) && (f[cursor_pos] != 10));           // find previous LF
@@ -365,7 +365,7 @@ int mwItems::edit_pmsg_text(int c, int new_msg)
          cursor_pos -= mv;                                               // subtract move
          if (cursor_pos < 0) cursor_pos = 0;                             // make sure we are not before the start
       }
-      if (mI.key[ALLEGRO_KEY_DOWN][3])                                         // move down one line
+      if (mInput.key[ALLEGRO_KEY_DOWN][3])                                         // move down one line
       {
          int ocp = cursor_pos;                                           // get original position
          while ((++cursor_pos < char_count) && (f[cursor_pos] != 10));  // find next LF
@@ -374,14 +374,14 @@ int mwItems::edit_pmsg_text(int c, int new_msg)
          cursor_pos -= mv;                                               // subtract move
          if (cursor_pos > char_count) cursor_pos = char_count;           // make sure we are not past the end
       }
-      if ((mI.key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
+      if ((mInput.key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
       {
          al_rest(0.02);
          for (int aa = cursor_pos; aa < char_count; aa++) f[aa]=f[aa+1];
          char_count--;
          f[char_count] = (char)NULL; // set last to NULL
       }
-      if ((mI.key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
+      if ((mInput.key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
       {
          al_rest(0.02);
          cursor_pos--;
@@ -389,10 +389,10 @@ int mwItems::edit_pmsg_text(int c, int new_msg)
          char_count--;
          f[char_count] = (char)NULL; // set last to NULL
       }
-      if (mI.key_pressed_ASCII)
+      if (mInput.key_pressed_ASCII)
       {
          al_rest(0.07);
-         int k = mI.key_pressed_ASCII;
+         int k = mInput.key_pressed_ASCII;
          if (k == 13) k = 10; // replace CR with LF
 
          if ( (k == 10) || ((k>31) && (k<127))) // if alphanumeric
@@ -404,13 +404,13 @@ int mwItems::edit_pmsg_text(int c, int new_msg)
             f[char_count] = (char)NULL; // set last to NULL
          }
       }
-      if (mI.key[ALLEGRO_KEY_ESCAPE][3])
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][3])
       {
          quit = 1;
          bad = 1;
       }
       al_flip_display();
-      al_draw_filled_rectangle(xa, ey, xb, ey+10*bts, mC.pc[0]);
+      al_draw_filled_rectangle(xa, ey, xb, ey+10*bts, mColor.pc[0]);
       al_rest(0.07);
 
    } // end of while (!quit)
@@ -422,3 +422,58 @@ int mwItems::edit_pmsg_text(int c, int new_msg)
       return 1;
    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+int mwItems::get_frame_size(int num)
+{
+   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME0) return 0;
+   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME1) return 1;
+   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME2) return 2;
+   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME4) return 4;
+   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME12) return 12;
+   return 0;
+}
+
+
+void mwItems::set_frame_size(int num, int frame_size)
+{
+   // clear all flags
+   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME0;
+   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME1;
+   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME2;
+   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME4;
+   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME12;
+
+   if (frame_size == 0)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME0;
+   if (frame_size == 1)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME1;
+   if (frame_size == 2)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME2;
+   if (frame_size == 4)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME4;
+   if (frame_size == 12) mItem.item[num][2] |= PM_ITEM_PMSG_FRAME12;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

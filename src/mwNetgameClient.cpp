@@ -24,7 +24,7 @@ int mwNetgame::ClientInitNetwork(const char *serveraddress)
 	if(NetworkInit())
    {
       sprintf(msg, "Error: failed to initialize network");
-      mI.m_err(msg);
+      mInput.m_err(msg);
       if (mLog.LOG_NET) mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       return 0;
    }
@@ -34,14 +34,14 @@ int mwNetgame::ClientInitNetwork(const char *serveraddress)
       if(!ServerConn)
       {
          sprintf(msg, "Error: Client failed to create netconnection (TCP)");
-         mI.m_err(msg);
+         mInput.m_err(msg);
          if (mLog.LOG_NET) mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
          return 0;
       }
       if(net_connect(ServerConn, serveraddress))
       {
          sprintf(msg, "Error: Client failed to set netconnection target: server[%s] (TCP)", serveraddress);
-         mI.m_err(msg);
+         mInput.m_err(msg);
          if (mLog.LOG_NET) mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
          net_closeconn(ServerConn);
    		return 0;
@@ -55,7 +55,7 @@ int mwNetgame::ClientInitNetwork(const char *serveraddress)
       {
          sprintf(msg, "Error: Client failed to create netchannel (UDP)");
          printf("%s\n", msg);
-         mI.m_err(msg);
+         mInput.m_err(msg);
          if (mLog.LOG_NET) mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
          return 0;
       }
@@ -63,7 +63,7 @@ int mwNetgame::ClientInitNetwork(const char *serveraddress)
       {
          sprintf(msg, "Error: Client failed to set netchannel target: server[%s] (UDP)", serveraddress);
          printf("%s\n", msg);
-         mI.m_err(msg);
+         mInput.m_err(msg);
          if (mLog.LOG_NET) mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          return 0;
       }
@@ -96,7 +96,7 @@ int mwNetgame::ClientInitNetwork(const char *serveraddress)
          if (++tries > 2)
          {
             sprintf(msg,"Did not get reply from server");
-            mI.m_err(msg);
+            mInput.m_err(msg);
             printf("%s\n", msg);
             if (mLog.LOG_NET)
             {
@@ -109,7 +109,7 @@ int mwNetgame::ClientInitNetwork(const char *serveraddress)
       if (ccr == -1)
       {
          sprintf(msg,"TCP response Error!");
-         mI.m_err(msg);
+         mInput.m_err(msg);
          printf("%s\n", msg);
          if (mLog.LOG_NET)
          {
@@ -121,7 +121,7 @@ int mwNetgame::ClientInitNetwork(const char *serveraddress)
       if (ccr == -2)
       {
          sprintf(msg,"Cancelled");
-         //mI.m_err(msg);
+         //mInput.m_err(msg);
          printf("%s\n", msg);
          if (mLog.LOG_NET)
          {
@@ -157,8 +157,8 @@ int mwNetgame::ClientCheckResponse(void) // check for a repsonse from the server
       int done = 10;
       while (done)
       {
-         mwEQ.proc_event_queue();
-         if (mI.key[ALLEGRO_KEY_ESCAPE][1]) return -2;
+         mEventQueue.proc();
+         if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) return -2;
 
          printf(".");
          packetsize = net_receive(ServerChannel, packetbuffer, 1024, address);
@@ -244,8 +244,8 @@ int mwNetgame::client_init(void)
     // initialize driver with server address
    if (!ClientInitNetwork(m_serveraddress)) return 0;
 
-   mwRA[1].initialize(); // ping rolling average
-   mwRA[2].initialize(); // dsync rolling average
+   mRollingAverage[1].initialize(); // ping rolling average
+   mRollingAverage[2].initialize(); // dsync rolling average
 
    printf("sending cjon\n");
    Packet("cjon");
@@ -443,17 +443,17 @@ void mwNetgame::client_apply_dif(void)
 
 
 
-                  t0 = al_get_time();
+                  double t0 = al_get_time();
 
                   // compare old_l to l and redraw changed tiles
-                  al_set_target_bitmap(mwB.level_background);
+                  al_set_target_bitmap(mBitmap.level_background);
                   for (int x=0; x<100; x++)
                      for (int y=0; y<100; y++)
                         if (mLevel.l[x][y] != old_l[x][y])
                         {
                            // printf("dif at x:%d y:%d\n", x, y);
-                           al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
-                           al_draw_bitmap(mwB.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
+                           al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
+                           al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
                         }
 
                   mLog.add_log_TMR(al_get_time() - t0, "oldl", 0);
@@ -511,7 +511,7 @@ void mwNetgame::client_timer_adjust(void)
 
    if (fps_chase < 10) fps_chase = 10; // never let this go negative
    if (fps_chase > 70) fps_chase = 70;
-   al_set_timer_speed(mwEQ.fps_timer, ( 1 / fps_chase));
+   al_set_timer_speed(mEventQueue.fps_timer, ( 1 / fps_chase));
    mPlayer.loc[p].client_chase_fps = fps_chase;
 
    sprintf(msg, "tmst mv:[%5.2f] ma:[%5.2f] sp:[%5.2f] er:[%6.2f] pa:[%6.2f] ia:[%6.2f] ta:[%6.2f]\n", mv*1000, mva*1000, sp*1000, err*1000, p_adj, i_adj, t_adj);
@@ -546,8 +546,8 @@ void mwNetgame::client_process_stdf_packet(double timestamp)
       mPlayer.loc[p].dsync = al_get_time() - timestamp;              // time between when the packet was received into the packet buffer and now
       mPlayer.loc[p].dsync += (double) client_sync * 0.025;          // combine with client_sync
 
-      mwRA[2].add_data(mPlayer.loc[p].dsync); // send to rolling average
-      mPlayer.loc[p].dsync_avg = mwRA[2].avg;
+      mRollingAverage[2].add_data(mPlayer.loc[p].dsync); // send to rolling average
+      mPlayer.loc[p].dsync_avg = mRollingAverage[2].avg;
 
       client_timer_adjust();
    }
@@ -648,10 +648,10 @@ void mwNetgame::client_proc_player_drop(void)
    if (mPlayer.syn[p].control_method == 8)
    {
       sprintf(msg, "SERVER ENDED GAME!");
-      float stretch = ( (float)mwD.SCREEN_W / (strlen(msg)*8)) - 1;
-      mScreen.rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, mPlayer.syn[p].color, stretch, 1);
+      float stretch = ( (float)mDisplay.SCREEN_W / (strlen(msg)*8)) - 1;
+      mScreen.rtextout_centre(mFont.bltn, NULL, msg, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mPlayer.syn[p].color, stretch, 1);
       al_flip_display();
-      mI.tsw();
+      mInput.tsw();
       mPlayer.loc[p].quit_reason = 92;
       if (mLog.LOG_NET) mLog.log_ending_stats(p);
       mLoop.new_program_state = 1;
@@ -674,10 +674,10 @@ void mwNetgame::client_proc_player_drop(void)
          }
 
          sprintf(msg, "LOST SERVER CONNECTION!");
-         float stretch = ( (float)mwD.SCREEN_W / (strlen(msg)*8)) - 1;
-         mScreen.rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, mPlayer.syn[p].color, stretch, 1);
+         float stretch = ( (float)mDisplay.SCREEN_W / (strlen(msg)*8)) - 1;
+         mScreen.rtextout_centre(mFont.bltn, NULL, msg, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mPlayer.syn[p].color, stretch, 1);
          al_flip_display();
-         mI.tsw();
+         mInput.tsw();
          mPlayer.loc[p].quit_reason = 75;
          if (mLog.LOG_NET) mLog.log_ending_stats(p);
          mLoop.new_program_state = 25;
@@ -705,8 +705,8 @@ void mwNetgame::client_fast_packet_loop(void)
          mPlayer.loc[p].ping = t2 - t0;
          //printf("%d rx pong [%3.1f ms] - send pang\n", mLoop.frame_num, mPlayer.loc[p].ping * 1000);
 
-         mwRA[1].add_data(mPlayer.loc[p].ping); // send to rolling average
-         mPlayer.loc[p].ping_avg = mwRA[1].avg;
+         mRollingAverage[1].add_data(mPlayer.loc[p].ping); // send to rolling average
+         mPlayer.loc[p].ping_avg = mRollingAverage[1].avg;
 
          if (mPlayer.loc[p].client_chase_offset_mode) mPlayer.loc[p].client_chase_offset = - mPlayer.loc[p].ping_avg + mPlayer.loc[p].client_chase_offset_auto_offset;
 

@@ -28,7 +28,7 @@ class mwQuickGraph
    data_series series[4] = {0};
 
 };
-extern mwQuickGraph mwQG[10];
+extern mwQuickGraph mQuickGraph[10];
 
 
 

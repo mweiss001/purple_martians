@@ -164,11 +164,11 @@ int mwItems::draw_orb(int i, int x, int y)
       if (percent > 0)
       {
          mScreen.draw_percent_barc(x+xo, y+yo, 7, 7,  percent, c1, c2, -1);
-         al_draw_rotated_bitmap(mwB.tile[417], 10, 10, x+10, y+10, a, 0);
+         al_draw_rotated_bitmap(mBitmap.tile[417], 10, 10, x+10, y+10, a, 0);
          drawn = 1;
       }
    }
-   if (!drawn) al_draw_rotated_bitmap(mwB.tile[mItem.item[i][1]], 10, 10, x+10, y+10, a, 0);
+   if (!drawn) al_draw_rotated_bitmap(mBitmap.tile[mItem.item[i][1]], 10, 10, x+10, y+10, a, 0);
    return 1;
 }
 void mwItems::proc_orb_collision(int p, int i)
@@ -377,7 +377,7 @@ int mwItems::draw_trigger(int i, int x, int y)
 {
    if (mLoop.level_editor_running)
    {
-      al_draw_bitmap(mwB.tile[991], x, y, 0); // draw item shape in level editor, invisible when game running
+      al_draw_bitmap(mBitmap.tile[991], x, y, 0); // draw item shape in level editor, invisible when game running
       if (mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 1); // snap to lift here because main function wont be called while in level editor
    }
 
@@ -415,7 +415,7 @@ void mwItems::proc_block_manip(int i)
    int et = mItem.item[i][1]; // pm_event trigger we are looking for
    if (mTriggerEvent.event[et])
    {
-      al_set_target_bitmap(mwB.level_background);
+      al_set_target_bitmap(mBitmap.level_background);
       int x1 = mItem.item[i][6]/20;
       int y1 = mItem.item[i][7]/20;
       int x2 = x1 + mItem.item[i][8]/20;
@@ -431,8 +431,8 @@ void mwItems::proc_block_manip(int i)
             if (mode == 1) // set all blocks to block 1
             {
                mLevel.l[x][y] = block1;
-               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
-               al_draw_bitmap(mwB.btile[block1&1023], x*20, y*20, 0 );
+               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
+               al_draw_bitmap(mBitmap.btile[block1&1023], x*20, y*20, 0 );
             }
 
             if (mode == 2) // set all block2 to block 1
@@ -440,8 +440,8 @@ void mwItems::proc_block_manip(int i)
                if (mLevel.l[x][y] == block2)
                {
                   mLevel.l[x][y] = block1;
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
-                  al_draw_bitmap(mwB.btile[block1&1023], x*20, y*20, 0 );
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
+                  al_draw_bitmap(mBitmap.btile[block1&1023], x*20, y*20, 0 );
                }
             }
 
@@ -450,14 +450,14 @@ void mwItems::proc_block_manip(int i)
                if (mLevel.l[x][y] == block1)
                {
                   mLevel.l[x][y] = block2;
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
-                  al_draw_bitmap(mwB.btile[block2&1023], x*20, y*20, 0 );
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
+                  al_draw_bitmap(mBitmap.btile[block2&1023], x*20, y*20, 0 );
                }
                else if (mLevel.l[x][y] == block2)
                {
                   mLevel.l[x][y] = block1;
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
-                  al_draw_bitmap(mwB.btile[block1&1023], x*20, y*20, 0 );
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
+                  al_draw_bitmap(mBitmap.btile[block1&1023], x*20, y*20, 0 );
                }
             }
          }
@@ -468,7 +468,7 @@ int mwItems::draw_block_manip(int i, int x, int y)
 {
    if (mLoop.level_editor_running)
    {
-      al_draw_bitmap(mwB.tile[989], x, y, 0); // draw item shape in level editor, invisible when game running
+      al_draw_bitmap(mBitmap.tile[989], x, y, 0); // draw item shape in level editor, invisible when game running
    }
    if (mItem.item[i][2]) // draw mode on
    {
@@ -677,7 +677,7 @@ int mwItems::draw_block_damage(int i, int x, int y, int custom)
 
    if (mLoop.level_editor_running)
    {
-      al_draw_bitmap(mwB.tile[988], x0, y0, 0); // draw item shape in level editor, invisible when game running
+      al_draw_bitmap(mBitmap.tile[988], x0, y0, 0); // draw item shape in level editor, invisible when game running
       if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i, 1); // set this here only when level editor is running
    }
 
@@ -697,7 +697,7 @@ int mwItems::draw_block_damage(int i, int x, int y, int custom)
          int tn = 808;
          if (FLAGS & PM_ITEM_DAMAGE_CURR) tn = 807;
          for (int hx = x1; hx<x2; hx+=20)
-            al_draw_bitmap(mwB.tile[tn], hx, y2-20, 0); // draw spikes only on bottom row
+            al_draw_bitmap(mBitmap.tile[tn], hx, y2-20, 0); // draw spikes only on bottom row
       }
    }
 
@@ -722,8 +722,8 @@ int mwItems::draw_block_damage(int i, int x, int y, int custom)
 
          if (mode == 2) col = 11;
          if (mode == 3) col = 10;
-         if (timer_draw_mode1) al_draw_textf(mF.pixl,   mC.pc[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
-         if (timer_draw_mode2) al_draw_textf(mF.pr8, mC.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode1) al_draw_textf(mFont.pixl,   mColor.pc[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
 
       }
       if ((timer_draw_mode3) || (timer_draw_mode4)) // percent bar
@@ -773,8 +773,8 @@ int mwItems::draw_block_damage(int i, int x, int y, int custom)
             col = 10;
          }
       }
-      if (timer_draw_mode1) al_draw_textf(mF.pixl,   mC.pc[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
-      if (timer_draw_mode2) al_draw_textf(mF.pr8, mC.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+      if (timer_draw_mode1) al_draw_textf(mFont.pixl,   mColor.pc[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
+      if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
       if (timer_draw_mode3) mScreen.draw_percent_bar(x0+9, y0+5, 32, 8,  percent);
       if (timer_draw_mode4) mScreen.draw_percent_bar(x0+9, y0+1, 64, 16, percent);
    }
@@ -819,3 +819,235 @@ void mwItems::proc_block_damage(int i)
    }
    if (--mItem.item[i][13] < 0) mItem.item[i][13] = 0; // always run timer
 }
+
+
+
+
+
+
+void mwItems::set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3)
+{
+   if (mItem.item[i][0] == 6) // orb
+   {
+      mItem.item[i][10] = ev0;
+      mItem.item[i][11] = ev1;
+      mItem.item[i][12] = ev2;
+      mItem.item[i][13] = ev3;
+   }
+   if (mItem.item[i][0] == 9) // trigger
+   {
+      mItem.item[i][11] = ev0;
+      mItem.item[i][12] = ev1;
+      mItem.item[i][13] = ev2;
+      mItem.item[i][14] = ev3;
+   }
+}
+
+
+
+
+
+
+/*
+item[][0]  = 13 - Time Trigger
+item[][1]  = count
+item[][2]  = state
+item[][3]  = flags
+
+item[][4]  = x pos   (2000)
+item[][5]  = y pos   (2000)
+
+item[][6]  = t1 reset val
+item[][7]  = t1 mode (0,1,2,3)
+item[][8]  = t1 i/p event
+item[][9]  = t1 o/p event
+
+item[][10]  = t2 reset val
+item[][11]  = t2 mode (0,1,2,3)
+item[][12]  = t2 i/p event
+item[][13]  = t2 o/p event
+
+item[][14] = x2  for display
+item[][15] = y2
+
+                                      00000000
+                                              00000000
+#define PM_ITEM_TIMER_T1_MODE       0b1100000000000000
+#define PM_ITEM_TIMER_T2_MODE       0b0011000000000000
+#define PM_ITEM_TIMER_STATE_CURR    0b0000000000000000
+#define PM_ITEM_TIMER_STATE_PREV    0b0000000000000000
+
+
+item[][10] = t1 reset val
+item[][11] = t2 reset val
+item[][12] = t1 i/p event
+item[][13] = t1 o/p event
+item[][14] = t2 i/p event
+item[][15] = t2 o/p event
+
+
+
+*/
+
+
+int mwItems::draw_timer(int i, int x, int y)
+{
+   int state = 0;
+   int t1_mode = 0;
+   int t2_mode = 0;
+   int time = 0;
+   get_timer_flags(item[i][3], state, t1_mode, t2_mode, time);
+
+
+
+   float x1 = item[i][6];
+   float y1 = item[i][7];
+   float w =  item[i][8];
+   float h =  item[i][9];
+   float x2 = x1 + w;
+   float y2 = y1 + h;
+
+   float xc = x1 + w/2;
+
+   if (mLoop.level_editor_running)
+   {
+      al_draw_bitmap(mBitmap.tile[987], x, y, 0); // draw item shape in level editor, invisible when game running
+   }
+   al_draw_textf(mFont.pr8, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "st:%d  [%d]", state, time/10);
+
+   int percent = 0;
+
+   if (state == 1)
+   {
+      int lt = item[i][10]; // total time
+      int dt = time;        // current time
+      if (lt > 0)  // prevent divide by zero
+      {
+//         tts = (dt / 4) + 1;
+         //percent = (dt * 100) / lt;
+         percent = 100 - (dt * 100) / lt;
+      }
+   }
+
+
+   if (state == 2)
+   {
+      int lt = item[i][11]; // total time
+      int dt = time;        // current time
+      if (lt > 0)  // prevent divide by zero
+      {
+//         tts = (dt / 4) + 1;
+         percent = (dt * 100) / lt;
+         //percent = 100 - (dt * 100) / lt;
+      }
+   }
+
+//   mScreen.draw_percent_bar(x+20, y+30, 64, 16, percent);
+//   mScreen.draw_percent_bar(xc, y1, w, h, percent);
+
+   mScreen.draw_percent_bar(xc, y1+5, w-20, h-10, percent);
+
+   return 1;
+}
+
+
+void mwItems::proc_timer(int i)
+{
+   int state = 0;
+   int t1_mode = 0;
+   int t2_mode = 0;
+   int cnt = 0;
+   get_timer_flags(item[i][3], state, t1_mode, t2_mode, cnt);
+
+   // clear output events
+   mTriggerEvent.event[item[i][13]] = 0;
+   mTriggerEvent.event[item[i][15]] = 0;
+
+   if (state == 1)
+   {
+      // check to see if we should run down the timer
+      switch (t1_mode)
+      {
+         case 0: // free run
+            cnt--;
+         break;
+         case 1: // free run after trigger
+            if (cnt < item[i][10]) cnt--;                      // already triggered
+            else if (mTriggerEvent.event[item[i][12]]) cnt--;  // look for event to start
+         break;
+         case 2: // run while trigger
+            if (mTriggerEvent.event[item[i][12]]) cnt--;
+         break;
+         case 3: // run while trigger, reset if not
+            if (mTriggerEvent.event[item[i][12]]) cnt--;
+            else cnt = item[i][10]; // reset timer
+         break;
+      }
+      if (cnt <= 0)
+      {
+         state = 2;                            // set state 2
+         cnt = item[i][11];                    // reset with timer 2
+         mTriggerEvent.event[item[i][13]] = 1; // emit timer 1 end event
+      }
+   }
+   if (state == 2)
+   {
+      // check to see if we should run down the timer
+      switch (t2_mode)
+      {
+         case 0: // free run
+            cnt--;
+         break;
+         case 1: // free run after trigger
+            if (cnt < item[i][11]) cnt--;               // already triggered
+            else if (mTriggerEvent.event[item[i][14]]) cnt--;  // look for event to start
+         break;
+         case 2: // run while trigger
+            if (mTriggerEvent.event[item[i][14]]) cnt--;
+         break;
+         case 3: // run while trigger, reset if not
+            if (mTriggerEvent.event[item[i][14]]) cnt--;
+            else cnt = item[i][11]; // reset timer
+         break;
+      }
+      if (cnt <= 0)
+      {
+         state = 1;                            // set state 1
+         cnt = item[i][10];                    // reset with timer 1
+         mTriggerEvent.event[item[i][15]] = 1; // emit timer 2 end event
+      }
+   }
+   set_timer_flags(item[i][3], state, t1_mode, t2_mode, cnt);
+}
+
+void mwItems::set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, int cnt)
+{
+   pack = state -1;
+   int H16 = cnt<<16; // shift to upper 16 bits
+   H16 &= 0b11111111111111110000000000000000; // clear other bits
+   pack += H16;
+   int t1m = t1_mode << 14; // shift to bits 14 and 15
+   t1m &= 0b00000000000000001100000000000000; // clear other bits
+   pack += t1m;
+   int t2m = t2_mode << 12; // shift to bits 12 and 13
+   t2m &= 0b00000000000000000011000000000000; // clear other bits
+   pack += t2m;
+}
+
+
+void mwItems::get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, int &cnt)
+{
+   cnt = pack>>16;
+   t1_mode = pack>>14;
+   t1_mode           &= 0b00000000000000000000000000000011;  // clear other bits
+   t2_mode = pack>>12;
+   t2_mode           &= 0b00000000000000000000000000000011;  // clear other bits
+   state = 1 + (pack &  0b00000000000000000000000000000001); // clear other bits
+}
+
+
+
+
+
+
+

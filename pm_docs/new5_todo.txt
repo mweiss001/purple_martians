@@ -57,26 +57,133 @@ I'm getting a stimp in single player
 
 
 
+
 cloner sometimes does not create (see level 97)
 could be detecting not empty destination?
 cannot reproduce...
 
+ov set to zero sometimes buggy
 
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+code stat to do optional alphabetoical sort also optional skip header files
+
+
+
+
+add a bunch of settings for bottom message:
+how many lines: 8 (max 20)
+float io = 1.0; // initial opacity
+float fo = 0.1; // final opacity
+float ivs = 0.5; // initial v size
+float fvs = 0.1; // final v size
+float ihs = 0.5; // initial h size
+float fhs = 0.1; // final h size
+
+which game events cause messages
+
+player tile, text or both
+enemy  tile, text or both
+item   tile, text or both
+
+how close the player has to be to reduce messages
+
+
+
 what is still left to remove globals?
 
 make the naming consistant
+mwWM has 750 occurances..leave for now
+
+ft_ is still global
+maybe make btl[100][100] global also
+just so they are not a part of mwWM class and get saved with it
+
+stimp code for warp
+
+
+
+---------------------
+--  major changes  --
+---------------------
+
+another trigger emitter, based soley on time
+cloner to take a trigger input
+damage field to use this new trigger item
+block manip also..
+
+trigger emitters:
+orb
+trigger
+-timer
+-lift
+
+trigger receivers:
+block damage
+block manip
+lift
+-cloner
+
+
+
+--------------------------------------------------------
+--  Things that need to be finished before a release  --
+--------------------------------------------------------
+stimp and warp level done stuff....
+
+viewport changes and settings
+
+bottom message settings
+
+when does eco draw get used?
+
+advanced settings tab
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 here is a huge one:
 can level editor be brought under the program state unmbrella?
 I sort of duplicate level editor modes with program states
-
-
 
 
 
@@ -89,16 +196,10 @@ it worked for bottom messages, the scaling looks ways better..
 
 
 
-
-
-
-
-
 I would be nice be be able to do tc and netem things from within my program..
 but I would need to figure out how to do that as non-root
 
 If I did I could even do cool things like run training sessions with different network settings...
-
 
 
 

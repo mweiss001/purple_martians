@@ -18,7 +18,7 @@ class mwFont
    ALLEGRO_FONT *acha; // a charming font
    ALLEGRO_FONT *pixl; // pixel gosub
 };
-extern mwFont mF;
+extern mwFont mFont;
 
 
 

@@ -13,58 +13,12 @@
 #include "mwColor.h"
 #include "mwMiscFnx.h"
 
-
 mwLevel mLevel;
-
-mwLevel::mwLevel()
-{
-   initialize();
-}
-
-void mwLevel::initialize(void)
-{
-
-
-
-
-
-}
-
-
-
-/*
-
-whenever I set start level, should I also set play level??
-what is the deal here?
-
-play level can get ahead of start level, but only when game is in progress, like when resume allowed
-i am pretty sure if I ever change start level, i should change play level also...
-also if I ever change start_level I should load the level...
-
-set_start_level(int s) // gets called when config is loaded, which is way to early to load a level..
-defer till end of initial_setup...done
-
-I have cleaned up start_level and play_level...
-now I want to bring load and save here...done...
-
-what is left?
-
-change block..done
-is block empty...
-
-
-
-
-*/
-
-
 
 void mwLevel::set_start_level(void)
 {
    set_start_level(start_level);
 }
-
-
 
 void mwLevel::set_start_level(int s)
 {
@@ -118,9 +72,9 @@ void mwLevel::prev_level(void)
 void mwLevel::change_block(int x, int y, int block)
 {
    l[x][y] = block;
-   al_set_target_bitmap(mwB.level_background);
-   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
-   al_draw_bitmap(mwB.btile[block & 1023], x*20, y*20, 0);
+   al_set_target_bitmap(mBitmap.level_background);
+   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
+   al_draw_bitmap(mBitmap.btile[block & 1023], x*20, y*20, 0);
 }
 
 int mwLevel::is_block_empty(int x, int y, int test_block, int test_item, int test_enemy)
@@ -193,7 +147,7 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
    if (!fp)
    {
       sprintf(msg, "Error opening %s", lf);
-      if (!fail_silently) mI.m_err(msg);
+      if (!fail_silently) mInput.m_err(msg);
       return 0;
    }
    else  // file open !
@@ -310,15 +264,15 @@ int mwLevel::show_level_data(int x_pos, int y_pos, int type)
    int ey_pos = mEnemy.show_enemy_data(x_pos, y_pos);
    int iy_pos = mItem.item_data(x_pos+135, y_pos);
    ey_pos = ey_pos + 8;
-   al_draw_textf(mF.pr8, mC.pc[15], x_pos, ey_pos, 0,"%d Lifts  ", mLift.get_num_lifts());
+   al_draw_textf(mFont.pr8, mColor.pc[15], x_pos, ey_pos, 0,"%d Lifts  ", mLift.get_num_lifts());
    ey_pos += 8;
-   al_draw_text(mF.pr8, mC.pc[15], x_pos, ey_pos, 0, "-------");
+   al_draw_text(mFont.pr8, mColor.pc[15], x_pos, ey_pos, 0, "-------");
    ey_pos += 8;
 
    if (type == 1)
    {
       al_flip_display();
-      mI.tsw();
+      mInput.tsw();
    }
 
    if (iy_pos > ey_pos) return iy_pos;
@@ -396,8 +350,8 @@ void mwLevel::level_check(void)
       if (mItem.item[i][0] == 5)
       {
          int x = mItem.item[i][7]; // start index
-         if (x < 0) mI.m_err("Level has a start index less than 0");
-         if (x > 7) mI.m_err("Level has a start index more than 7");
+         if (x < 0) mInput.m_err("Level has a start index less than 0");
+         if (x > 7) mInput.m_err("Level has a start index more than 7");
          if ((x >=0) && (x<8))
          {
             number_of_starts++;
@@ -407,20 +361,20 @@ void mwLevel::level_check(void)
 
    if (number_of_starts == 0)
    {
-      mI.m_err("Level has no start block");
+      mInput.m_err("Level has no start block");
       error = 1;
    }
 
    if (number_of_starts > 8 )
    {
-      mI.m_err("Level has more than 8 start blocks");
+      mInput.m_err("Level has more than 8 start blocks");
       error = 1;
    }
    for (int i=0; i<8; i++)
       if (s[i] > 1)
       {
          sprintf(msg, "Level has duplicate start blocks with index %d", i);
-         mI.m_err(msg);
+         mInput.m_err(msg);
          error = 1;
       }
 
@@ -429,7 +383,7 @@ void mwLevel::level_check(void)
          if (s[i] == 0)
          {
             sprintf(msg, "Level has %d starts but no start with index %d", number_of_starts, i);
-            mI.m_err(msg);
+            mInput.m_err(msg);
             error = 1;
          }
    if (error)

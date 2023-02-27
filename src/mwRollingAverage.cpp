@@ -4,7 +4,7 @@
 #include "mwRollingAverage.h"
 #include <limits>
 
-mwRollingAverage mwRA[4];
+mwRollingAverage mRollingAverage[4];
 
 mwRollingAverage::mwRollingAverage()
 {

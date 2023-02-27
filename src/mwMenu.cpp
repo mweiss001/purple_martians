@@ -16,19 +16,6 @@
 
 mwMenu mMenu;
 
-
-mwMenu::mwMenu()
-{
-   initialize();
-}
-
-void mwMenu::initialize(void)
-{
-
-}
-
-
-
 void mwMenu::init_zmenu(void)
 {
    strcpy (menu_string[0], ""); // main menu
@@ -51,9 +38,7 @@ void mwMenu::init_pmenu(int type)
    {
       strcpy (menu_string[0], "Level Editor Pop-Up Menu");
       strcpy (menu_string[1], "------------------------");
-//      strcpy (menu_string[2], "Copy ---");
-//      strcpy (menu_string[3], "View ---");
-//      strcpy (menu_string[4], "Delete ---");
+
       strcpy (menu_string[5], "------------------------");
       strcpy (menu_string[6], "Edit Selection");
       strcpy (menu_string[7], "Group Edit");
@@ -69,27 +54,14 @@ void mwMenu::init_pmenu(int type)
       strcpy (menu_string[17],"Quit Level Editor");
       strcpy (menu_string[18],"end");
    }
-//   if (type == 6)
-//   {
-//      sprintf(menu_string[0],"Lift:0 Step:0");
-//      sprintf(menu_string[1],"---------------");
-//      sprintf(menu_string[2],"Cancel");
-//      sprintf(menu_string[3],"Move Step 0");
-//      sprintf(menu_string[4],"Delete Step 0");
-//      sprintf(menu_string[5],"Insert Steps");
-//      sprintf(menu_string[6],"end");
-//   }
 }
 
 
-
-
-
-int mwMenu::zmenu(int menu_pos, int y)  // this menu function does not pass through, it waits for a selection and then exits
+int mwMenu::zmenu(int menu_pos, int y)
 /*
    used only for the main game menu
    blocks until a menu item is selected
-   naviagate with arrow keys, ENTER and ESC
+   navigate with arrow keys, ENTER and ESC
    can also navigate with game controls
 */
 {
@@ -98,7 +70,7 @@ int mwMenu::zmenu(int menu_pos, int y)  // this menu function does not pass thro
 
    y+=4;
 
-   mwDM.demo_mode_countdown_val = mwDM.demo_mode_countdown_reset;
+   mDemoMode.demo_mode_countdown_val = mDemoMode.demo_mode_countdown_reset;
 
    int highlight = menu_pos;
    int selection = 999;
@@ -109,7 +81,7 @@ int mwMenu::zmenu(int menu_pos, int y)  // this menu function does not pass thro
    int left_held = 0;
    int right_held = 0;
 
-   mI.initialize();
+   mInput.initialize();
 
    while (selection == 999)
    {
@@ -117,34 +89,34 @@ int mwMenu::zmenu(int menu_pos, int y)  // this menu function does not pass thro
 
 
 
-      al_set_target_backbuffer(display);
+      al_set_target_backbuffer(mDisplay.display);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
 
-      while (!mwEQ.menu_update) mwEQ.proc_event_queue_menu();
-      mwEQ.menu_update = 0;
+      while (!mEventQueue.menu_update) mEventQueue.proc_menu();
+      mEventQueue.menu_update = 0;
 
 
       mScreen.frame_and_title(1);
-      mwL.mdw_an(mwL.mdw_map_logo_x, mwL.mdw_map_logo_y, mwL.mdw_map_logo_scale);
+      mLogo.mdw_an(mLogo.mdw_map_logo_x, mLogo.mdw_map_logo_y, mLogo.mdw_map_logo_scale);
 
 
 
-      int mx = mwD.SCREEN_W/2;
+      int mx = mDisplay.SCREEN_W/2;
 
       mScreen.draw_level();
 
-      if (mLevel.resume_allowed) mwDM.demo_mode_enabled = 0;
-      if (mwDM.demo_mode_enabled)
+      if (mLevel.resume_allowed) mDemoMode.demo_mode_enabled = 0;
+      if (mDemoMode.demo_mode_enabled)
       {
-         if (--mwDM.demo_mode_countdown_val < 0)
+         if (--mDemoMode.demo_mode_countdown_val < 0)
          {
-            mwDM.demo_mode_countdown_val = mwDM.demo_mode_countdown_reset;
-            mwDM.demo_mode_enabled = 0;
+            mDemoMode.demo_mode_countdown_val = mDemoMode.demo_mode_countdown_reset;
+            mDemoMode.demo_mode_enabled = 0;
             return 9;
          }
-         sprintf(menu_string[9], "Demo Mode (%d)", mwDM.demo_mode_countdown_val / 100);
+         sprintf(menu_string[9], "Demo Mode (%d)", mDemoMode.demo_mode_countdown_val / 100);
       }
       else sprintf(menu_string[9], "Demo Mode");
 
@@ -158,52 +130,52 @@ int mwMenu::zmenu(int menu_pos, int y)  // this menu function does not pass thro
          if (c == highlight)
          {
             int sl = strlen(menu_string[c]) * 4;
-            al_draw_rectangle(mx-sl-2+0.5f, y+(c*10)-1+0.5f, mx+sl+0.5f, y+(c*10)+9+0.5f, mC.pc[b+80], 1);
+            al_draw_rectangle(mx-sl-2+0.5f, y+(c*10)-1+0.5f, mx+sl+0.5f, y+(c*10)+9+0.5f, mColor.pc[b+80], 1);
          }
-         al_draw_text(mF.pr8, mC.pc[b], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, menu_string[c]);
+         al_draw_text(mFont.pr8, mColor.pc[b], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, menu_string[c]);
          c++;
       }
       last_list_item = c-1;
 
 
-      if (((mI.key[ALLEGRO_KEY_RIGHT][0]) || (mPlayer.syn[0].right)) && (right_held == 0))
+      if (((mInput.key[ALLEGRO_KEY_RIGHT][0]) || (mPlayer.syn[0].right)) && (right_held == 0))
       {
          right_held = 1;
          selection = highlight + 100;
       }
-      if ( (!(mI.key[ALLEGRO_KEY_RIGHT][0])) &&  (!(mPlayer.syn[0].right)) )  right_held = 0;
-      if (((mI.key[ALLEGRO_KEY_LEFT][0]) || (mPlayer.syn[0].left)) && (left_held == 0))
+      if ( (!(mInput.key[ALLEGRO_KEY_RIGHT][0])) &&  (!(mPlayer.syn[0].right)) )  right_held = 0;
+      if (((mInput.key[ALLEGRO_KEY_LEFT][0]) || (mPlayer.syn[0].left)) && (left_held == 0))
       {
          left_held = 1;
          selection = highlight + 200;
       }
-      if ( (!(mI.key[ALLEGRO_KEY_LEFT][0])) &&  (!(mPlayer.syn[0].left)) )  left_held = 0;
-      if (((mI.key[ALLEGRO_KEY_DOWN][0]) || (mPlayer.syn[0].down))  && (down_held == 0))
+      if ( (!(mInput.key[ALLEGRO_KEY_LEFT][0])) &&  (!(mPlayer.syn[0].left)) )  left_held = 0;
+      if (((mInput.key[ALLEGRO_KEY_DOWN][0]) || (mPlayer.syn[0].down))  && (down_held == 0))
       {
          if (++highlight > last_list_item) highlight = last_list_item;
          down_held = 1;
-         mwDM.demo_mode_countdown_val = mwDM.demo_mode_countdown_reset;
-         mwDM.demo_mode_enabled = 0;
+         mDemoMode.demo_mode_countdown_val = mDemoMode.demo_mode_countdown_reset;
+         mDemoMode.demo_mode_enabled = 0;
       }
-      if ( (!(mI.key[ALLEGRO_KEY_DOWN][0])) && (!(mPlayer.syn[0].down))) down_held = 0;
-      if (((mI.key[ALLEGRO_KEY_UP][0]) || (mPlayer.syn[0].up)) && (up_held == 0))
+      if ( (!(mInput.key[ALLEGRO_KEY_DOWN][0])) && (!(mPlayer.syn[0].down))) down_held = 0;
+      if (((mInput.key[ALLEGRO_KEY_UP][0]) || (mPlayer.syn[0].up)) && (up_held == 0))
       {
          if (--highlight < 2) highlight = 2;
          up_held = 1;
-         mwDM.demo_mode_countdown_val = mwDM.demo_mode_countdown_reset;
-         mwDM.demo_mode_enabled = 0;
+         mDemoMode.demo_mode_countdown_val = mDemoMode.demo_mode_countdown_reset;
+         mDemoMode.demo_mode_enabled = 0;
       }
-      if ( (!(mI.key[ALLEGRO_KEY_UP][0])) && (!(mPlayer.syn[0].up))) up_held = 0;
+      if ( (!(mInput.key[ALLEGRO_KEY_UP][0])) && (!(mPlayer.syn[0].up))) up_held = 0;
 
 
       // shortcut keys
-      if (mI.key[ALLEGRO_KEY_L][0])                      return 8; // level editor
-      if (mI.key[ALLEGRO_KEY_O][0] && mI.SHFT() && mI.CTRL() ) return 7; // settings
+      if (mInput.key[ALLEGRO_KEY_L][0])                      return 8; // level editor
+      if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 7; // settings
 
-      if (mI.key[ALLEGRO_KEY_PGDN][0])   highlight = last_list_item;
-      if (mI.key[ALLEGRO_KEY_PGUP][0])   highlight = 2;
-      if (mI.key[ALLEGRO_KEY_ENTER][0])  selection = highlight;
-      if (mI.key[ALLEGRO_KEY_ESCAPE][0]) selection = 1;
+      if (mInput.key[ALLEGRO_KEY_PGDN][0])   highlight = last_list_item;
+      if (mInput.key[ALLEGRO_KEY_PGUP][0])   highlight = 2;
+      if (mInput.key[ALLEGRO_KEY_ENTER][0])  selection = highlight;
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][0]) selection = 1;
    }
    return selection;
 }
@@ -215,17 +187,9 @@ int mwMenu::zmenu(int menu_pos, int y)  // this menu function does not pass thro
 
 
 
-
-
-
-
-
-
-
 int mwMenu::tmenu(int menu_pos, int x1, int y1)
 /*
    used in the level editor as the main menu
-
 
 */
 
@@ -259,31 +223,31 @@ int mwMenu::tmenu(int menu_pos, int x1, int y1)
 
       // draw menu title
       int mt = strlen(menu_string[0])*8;
-      al_draw_filled_rectangle(x1-2, y1-2, x1+mt+2, y1+yh, mC.pc[pc+128]);
-      al_draw_rectangle(       x1-2, y1-2, x1+mt+2, y1+yh, mC.pc[15], 1);
-      al_draw_text(mF.pr8, mC.pc[15], x1, y1+1, 0, menu_string[0]);
+      al_draw_filled_rectangle(x1-2, y1-2, x1+mt+2, y1+yh, mColor.pc[pc+128]);
+      al_draw_rectangle(       x1-2, y1-2, x1+mt+2, y1+yh, mColor.pc[15], 1);
+      al_draw_text(mFont.pr8, mColor.pc[15], x1, y1+1, 0, menu_string[0]);
 
       // erase menu background
-      al_draw_filled_rectangle(x1-2, y1+12, x2, y2, mC.pc[pc+128+48]);
-      al_draw_rectangle(x1-2, y1+12, x2, y2, mC.pc[15], 1);
+      al_draw_filled_rectangle(x1-2, y1+12, x2, y2, mColor.pc[pc+128+48]);
+      al_draw_rectangle(x1-2, y1+12, x2, y2, mColor.pc[15], 1);
 
       // draw the menu items
       for (c=1; c<last_list_item; c++)
       {
          int b = 15+48; // default text color
          int h = 15;    // highlight text color
-         al_draw_text(mF.pr8, mC.pc[b], x1, y1+(c*12)+2, 0, menu_string[c]);
+         al_draw_text(mFont.pr8, mColor.pc[b], x1, y1+(c*12)+2, 0, menu_string[c]);
          if (c == highlight)
          {
-            al_draw_filled_rectangle(            x1-2, y1+(c*12), x2, y1+(c*12)+11, mC.pc[h+128]);
-            al_draw_text(mF.pr8, mC.pc[h], x1,   y1+(c*12)+2, 0, menu_string[c]);
-            al_draw_rectangle(                   x1-2, y1+(c*12), x2, y1+(c*12)+11, mC.pc[h], 1);
+            al_draw_filled_rectangle(            x1-2, y1+(c*12), x2, y1+(c*12)+11, mColor.pc[h+128]);
+            al_draw_text(mFont.pr8, mColor.pc[h], x1,   y1+(c*12)+2, 0, menu_string[c]);
+            al_draw_rectangle(                   x1-2, y1+(c*12), x2, y1+(c*12)+11, mColor.pc[h], 1);
          }
       }
 
-      if ( (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1 ) && (mI.mouse_y < y2) )
+      if ( (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1 ) && (mInput.mouse_y < y2) )
       {
-         highlight = (mI.mouse_y - y1)/yh;
+         highlight = (mInput.mouse_y - y1)/yh;
       }
       else highlight = 0;
 
@@ -291,21 +255,21 @@ int mwMenu::tmenu(int menu_pos, int x1, int y1)
       if (highlight > last_list_item-1) highlight = 0;
 
 
-      if (mI.mouse_b[1][0])
+      if (mInput.mouse_b[1][0])
       {
-         while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
+         while (mInput.mouse_b[1][0]) mEventQueue.proc();
          selection = highlight;
       }
 
-      if (mI.mouse_b[2][0])
+      if (mInput.mouse_b[2][0])
       {
-         while (mI.mouse_b[2][0]) mwEQ.proc_event_queue();
+         while (mInput.mouse_b[2][0]) mEventQueue.proc();
          selection = 0;
       }
 
-      if (mI.key[ALLEGRO_KEY_ESCAPE][0])
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue();
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
          selection = 0; // default position for back
       }
 
@@ -319,24 +283,23 @@ int mwMenu::tmenu(int menu_pos, int x1, int y1)
 int mwMenu::pmenu(int type, int bg_color)
 {
 
+
    init_pmenu(type);
-
-
 
    int highlight = 2;
    int selection = 999;
    int last_list_item;
    int c, b;
 
-   int kx = mI.mouse_x;
+   int kx = mInput.mouse_x;
    if (kx < 100) kx = 100;
-   if (kx > mwD.SCREEN_W-100) kx = mwD.SCREEN_W-100;
+   if (kx > mDisplay.SCREEN_W-100) kx = mDisplay.SCREEN_W-100;
 
    int up = 0;
-   int ky = mI.mouse_y-20;
-   if (type == 2) if (ky > mwD.SCREEN_H - 160) up=1; // main editor menu
-   if (type == 6) if (ky > mwD.SCREEN_H -  60) up=1; // lift step menu
-   if (type == 5) if (ky > mwD.SCREEN_H -  80) up=1; // generic menu
+   int ky = mInput.mouse_y-20;
+   if (type == 2) if (ky > mDisplay.SCREEN_H - 160) up=1; // main editor menu
+   if (type == 6) if (ky > mDisplay.SCREEN_H -  60) up=1; // lift step menu
+   if (type == 5) if (ky > mDisplay.SCREEN_H -  80) up=1; // generic menu
 
    if (!up) // normal version
    {
@@ -356,8 +319,8 @@ int mwMenu::pmenu(int type, int bg_color)
                c++;
             }
             w = max_strlen*4 + 2;
-            al_draw_filled_rectangle(kx-w, ky-2, kx+w, ky+c*8+1, mC.pc[bg_color+192]); // blank background
-            al_draw_rectangle       (kx-w, ky-2, kx+w, ky+c*8+1, mC.pc[bg_color], 1);     // frame entire menu
+            al_draw_filled_rectangle(kx-w, ky-2, kx+w, ky+c*8+1, mColor.pc[bg_color+192]); // blank background
+            al_draw_rectangle       (kx-w, ky-2, kx+w, ky+c*8+1, mColor.pc[bg_color], 1);  // frame entire menu
          }
          c = 0;
          while (strcmp(menu_string[c],"end") != 0)
@@ -370,28 +333,28 @@ int mwMenu::pmenu(int type, int bg_color)
             if (sl > max_strlen) max_strlen = sl;
             w = sl*4;
 
-            if (bg_color == 0) al_draw_filled_rectangle(kx-w, ky+(c*8), kx+w, ky+(c*8)+8, mC.pc[0]);
-            al_draw_text(mF.pr8, mC.pc[b], kx, ky+(c*8),  ALLEGRO_ALIGN_CENTER, menu_string[c]);
+            if (bg_color == 0) al_draw_filled_rectangle(kx-w, ky+(c*8), kx+w, ky+(c*8)+8, mColor.pc[0]);
+            al_draw_text(mFont.pr8, mColor.pc[b], kx, ky+(c*8),  ALLEGRO_ALIGN_CENTER, menu_string[c]);
             c++;
          }
          last_list_item = c-1;
          al_flip_display();
-         mwEQ.proc_event_queue();
+         mEventQueue.proc();
          highlight = 2;
-         if ( (mI.mouse_x > (kx - 100)) && (mI.mouse_x < (kx+100)) )
-            if ( (mI.mouse_y > ky ) && (mI.mouse_y < ky + ((last_list_item+1)*8)) )
-               highlight = (mI.mouse_y-ky) / 8;
-         if (!(mI.mouse_b[2][0])) selection = highlight; // mouse b2 released
+         if ( (mInput.mouse_x > (kx - 100)) && (mInput.mouse_x < (kx+100)) )
+            if ( (mInput.mouse_y > ky ) && (mInput.mouse_y < ky + ((last_list_item+1)*8)) )
+               highlight = (mInput.mouse_y-ky) / 8;
+         if (!(mInput.mouse_b[2][0])) selection = highlight; // mouse b2 released
 
       } while (selection == 999);
    }
    if (up)  // reverse version
    {
       if (type == 5) ky += 18; // generic menu
-      else ky = mI.mouse_y+12; // to put mouse on default button
+      else ky = mInput.mouse_y+12; // to put mouse on default button
 
 
-      if (ky > mwD.SCREEN_H) ky = mwD.SCREEN_H;
+      if (ky > mDisplay.SCREEN_H) ky = mDisplay.SCREEN_H;
       do   // until selection is made
       {
          al_rest(0.02);
@@ -408,8 +371,8 @@ int mwMenu::pmenu(int type, int bg_color)
                c++;
             }
             w = max_strlen*4 + 2;
-            al_draw_filled_rectangle(kx-w, ky+9, kx+w, ky-c*8+6, mC.pc[bg_color+192]); // blank background
-            al_draw_rectangle       (kx-w, ky+9, kx+w, ky-c*8+6, mC.pc[bg_color], 1);     // frame entire menu
+            al_draw_filled_rectangle(kx-w, ky+9, kx+w, ky-c*8+6, mColor.pc[bg_color+192]); // blank background
+            al_draw_rectangle       (kx-w, ky+9, kx+w, ky-c*8+6, mColor.pc[bg_color], 1);     // frame entire menu
          }
 
          c = 0;
@@ -419,29 +382,23 @@ int mwMenu::pmenu(int type, int bg_color)
             if (c == 0) b = 9;
             if (c == highlight) b=9;
             int w = strlen(menu_string[c])*4;
-            if (bg_color == 0) al_draw_filled_rectangle(kx-w, ky-(c*8), kx+w, ky-(c*8)+8, mC.pc[0]);
-            al_draw_text(mF.pr8, mC.pc[b], kx, ky-(c*8),  ALLEGRO_ALIGN_CENTER, menu_string[c]);
+            if (bg_color == 0) al_draw_filled_rectangle(kx-w, ky-(c*8), kx+w, ky-(c*8)+8, mColor.pc[0]);
+            al_draw_text(mFont.pr8, mColor.pc[b], kx, ky-(c*8),  ALLEGRO_ALIGN_CENTER, menu_string[c]);
             c++;
          }
          last_list_item = c-1;
 
          al_flip_display();
-         mwEQ.proc_event_queue();
+         mEventQueue.proc();
 
          //show_mouse(screen);
          highlight = 2;
-         if ( (mI.mouse_x > (kx - 100)) && (mI.mouse_x < (kx+100)) )
-            if ( (mI.mouse_y < ky ) && (mI.mouse_y > ky - ((last_list_item+1)*8) ) )
-               highlight = (ky-mI.mouse_y+8) / 8;
-         if (!(mI.mouse_b[2][0])) selection = highlight; // mouse b2 released
+         if ( (mInput.mouse_x > (kx - 100)) && (mInput.mouse_x < (kx+100)) )
+            if ( (mInput.mouse_y < ky ) && (mInput.mouse_y > ky - ((last_list_item+1)*8) ) )
+               highlight = (ky-mInput.mouse_y+8) / 8;
+         if (!(mInput.mouse_b[2][0])) selection = highlight; // mouse b2 released
 
       } while (selection == 999);
    }
-   //show_mouse(NULL);
    return selection;
 }
-
-
-
-
-

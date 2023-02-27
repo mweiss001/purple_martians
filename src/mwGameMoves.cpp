@@ -1,7 +1,7 @@
-// mwGameMovesArray.cpp
+// mwGameMoves.cpp
 
 #include "pm.h"
-#include "mwGameMovesArray.h"
+#include "mwGameMoves.h"
 #include "mwPlayers.h"
 #include "mwNetgame.h"
 #include "mwLog.h"
@@ -15,65 +15,61 @@
 #include "mwScreen.h"
 
 
-mwGameMovesArray mwGMA;
+mwGameMoves mGameMoves;
 
 
-mwGameMovesArray::mwGameMovesArray()
+mwGameMoves::mwGameMoves()
 {
    initialize();
 }
 
-void mwGameMovesArray::initialize(void)
+void mwGameMoves::initialize(void)
 {
    for (int x=0; x<GAME_MOVES_SIZE; x++)
       for (int y=0; y<4; y++)
-         game_moves[x][y] = 0;
-   game_move_entry_pos = 0;
-   game_move_current_pos = 0;
+         arr[x][y] = 0;
+   entry_pos = 0;
+   current_pos = 0;
 }
 
 
-int mwGameMovesArray::has_player_acknowledged(int p)
+int mwGameMoves::has_player_acknowledged(int p)
 {
-   int start_pos = game_move_entry_pos;
+   int start_pos = entry_pos;
    int end_pos = start_pos - 1000;
    if (end_pos < 0) end_pos = 0;
    for (int x=start_pos; x>end_pos; x--) // look back for ack
-      if ((game_moves[x][1] == 8) && (game_moves[x][2] == p)) return 1;
+      if ((arr[x][1] == 8) && (arr[x][2] == p)) return 1;
    return 0;
 }
 
 
-
-
-
-
 // this function processes all entries in the game_moves array that match current mLoop.frame_num
-void mwGameMovesArray::proc_game_moves_array(void)
+void mwGameMoves::proc(void)
 {
    // search entire range
-   int start_index = game_move_entry_pos-1;
+   int start_index = entry_pos-1;
    int end_index = 0;
 
    // reduce search range
-   start_index = game_move_current_pos + 100;
-   if (start_index > game_move_entry_pos-1) start_index = game_move_entry_pos-1;
+   start_index = current_pos + 100;
+   if (start_index > entry_pos-1) start_index = entry_pos-1;
 
-   end_index = game_move_current_pos - 100;
+   end_index = current_pos - 100;
    if (end_index < 0) end_index = 0;
 
    for (int x=start_index; x>=end_index; x--)  // search backwards from start_index to end_index
    {
-      if (game_moves[x][0] == mLoop.frame_num) // found frame number that matches current frame
+      if (arr[x][0] == mLoop.frame_num) // found frame number that matches current frame
       {
-         if (x > game_move_current_pos) game_move_current_pos = x; // index of last used gm - keep this at the most recent one, never go back
-         switch (game_moves[x][1])
+         if (x > current_pos) current_pos = x; // index of last used gm - keep this at the most recent one, never go back
+         switch (arr[x][1])
          {
             case 1: proc_player_active_game_move(x); break;
             case 2: proc_player_inactive_game_move(x); break;
             case 3: proc_player_client_join_game_move(x); break;
             case 4: proc_player_client_quit_game_move(x); break;
-            case 5: mPlayer.set_controls_from_comp_move(game_moves[x][2], game_moves[x][3]); break;
+            case 5: mPlayer.set_controls_from_comp_move(arr[x][2], arr[x][3]); break;
          }
       }
    }
@@ -82,16 +78,16 @@ void mwGameMovesArray::proc_game_moves_array(void)
 
 
 
-void mwGameMovesArray::add_game_move2(int frame, int type, int data1, int data2)
+void mwGameMoves::add_game_move2(int frame, int type, int data1, int data2)
 {
-   game_moves[game_move_entry_pos][0] = frame;
-   game_moves[game_move_entry_pos][1] = type;
-   game_moves[game_move_entry_pos][2] = data1;
-   game_moves[game_move_entry_pos][3] = data2;
-   game_move_entry_pos++;
+   arr[entry_pos][0] = frame;
+   arr[entry_pos][1] = type;
+   arr[entry_pos][2] = data1;
+   arr[entry_pos][3] = data2;
+   entry_pos++;
 }
 
-void mwGameMovesArray::add_game_move(int frame, int type, int data1, int data2)
+void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 {
    char msg[1024];
 
@@ -154,7 +150,7 @@ void mwGameMovesArray::add_game_move(int frame, int type, int data1, int data2)
       }
 
       sprintf(msg, "Error: menu key not handled...should never get here");
-      mI.m_err(msg);
+      mInput.m_err(msg);
 
       // ----------------------------------------------------------------------------------------
       // all other types of quitting
@@ -171,32 +167,32 @@ void mwGameMovesArray::add_game_move(int frame, int type, int data1, int data2)
 
 
 
-void mwGameMovesArray::proc_player_client_join_game_move(int x)
+void mwGameMoves::proc_player_client_join_game_move(int x)
 {
    if (mNetgame.ima_server)
    {
-      int p = game_moves[x][2];  // player number
-      int c = game_moves[x][3];  // color
+      int p = arr[x][2];  // player number
+      int c = arr[x][3];  // color
       mPlayer.syn[p].control_method = 2;
       mPlayer.syn[p].color = c;
    }
 }
 
-void mwGameMovesArray::proc_player_client_quit_game_move(int x)
+void mwGameMoves::proc_player_client_quit_game_move(int x)
 {
    if (mNetgame.ima_server)
    {
-      int p = game_moves[x][2];  // player number
+      int p = arr[x][2];  // player number
       mPlayer.syn[p].control_method = 8;
    }
 }
 
-void mwGameMovesArray::proc_player_active_game_move(int x)
+void mwGameMoves::proc_player_active_game_move(int x)
 {
    char msg[1024];
 
-   int p            = game_moves[x][2]; // player number
-   mPlayer.syn[p].color = game_moves[x][3]; // color
+   int p            = arr[x][2]; // player number
+   mPlayer.syn[p].color = arr[x][3]; // color
 
    // player was inactive before and just now changes to active
    if (mPlayer.syn[p].active == 0)
@@ -223,11 +219,11 @@ void mwGameMovesArray::proc_player_active_game_move(int x)
    }
 }
 
-void mwGameMovesArray::proc_player_inactive_game_move(int x)
+void mwGameMoves::proc_player_inactive_game_move(int x)
 {
    char msg[1024];
-   int p   = game_moves[x][2]; // player number
-   int val = game_moves[x][3]; // reason
+   int p   = arr[x][2]; // player number
+   int val = arr[x][3]; // reason
 
    mPlayer.loc[p].quit_frame = mLoop.frame_num;
 
@@ -312,54 +308,25 @@ void mwGameMovesArray::proc_player_inactive_game_move(int x)
 }
 
 
-
-
-
-
-
 char* cmtos(int cm, char* tmp)
 {
    sprintf(tmp, " ");
-   if (cm > 31) // fire
-   {
-      cm -= 32;
-      strcat(tmp, "[FIRE]");
-   }
-   else strcat(tmp, "[    ]");
-   if (cm > 15) // jump
-   {
-      cm -= 16;
-      strcat(tmp, "[JUMP]");
-   }
-   else strcat(tmp, "[    ]");
-   if (cm > 7) // down
-   {
-      cm -= 8;
-      strcat(tmp, "[DOWN]");
-   }
-   else strcat(tmp, "[    ]");
-   if (cm > 3) // up
-   {
-      cm -= 4;
-      strcat(tmp, "[UP]");
-   }
-   else strcat(tmp, "[  ]");
-   if (cm > 1) // right
-   {
-      cm -= 2;
-      strcat(tmp, "[RIGHT]");
-   }
-   else strcat(tmp, "[     ]");
-   if (cm > 0) // left
-   {
-      cm -= 1;
-      strcat(tmp, "[LEFT]");
-   }
-   else strcat(tmp, "[    ]");
+   if (cm > 31) { cm -= 32; strcat(tmp, "[FIRE]");  }
+   else                     strcat(tmp, "[    ]");
+   if (cm > 15) { cm -= 16; strcat(tmp, "[JUMP]");  }
+   else                     strcat(tmp, "[    ]");
+   if (cm > 7)  { cm -= 8;  strcat(tmp, "[DOWN]");  }
+   else                     strcat(tmp, "[    ]");
+   if (cm > 3)  { cm -= 4;  strcat(tmp, "[UP]");    }
+   else                     strcat(tmp, "[  ]");
+   if (cm > 1)  { cm -= 2;  strcat(tmp, "[RIGHT]"); }
+   else                     strcat(tmp, "[     ]");
+   if (cm > 0)  { cm -= 1;  strcat(tmp, "[LEFT]");  }
+   else                     strcat(tmp, "[    ]");
    return tmp;
 }
 
-void mwGameMovesArray::save_gm_txt(char *sfname)
+void mwGameMoves::save_gm_txt(char *sfname)
 {
    char tmp[100];
    FILE *filepntr;
@@ -373,19 +340,19 @@ void mwGameMovesArray::save_gm_txt(char *sfname)
 
    filepntr = fopen(fname,"w");
 
-   fprintf(filepntr,"number of entries %d\n", mwGMA.game_move_entry_pos);
+   fprintf(filepntr,"number of entries %d\n", entry_pos);
    fprintf(filepntr,"deathmatch_shots %d\n", mShot.deathmatch_shots);
    fprintf(filepntr,"deathmatch_shot_damage %d\n", mShot.deathmatch_shot_damage);
    fprintf(filepntr,"suicide_shots %d\n", mShot.suicide_shots);
 
    fprintf(filepntr,"[ gm][frame][t][p][cm]\n");
 
-   for (int x=0; x<mwGMA.game_move_entry_pos; x++)
+   for (int x=0; x<entry_pos; x++)
    {
-      int f = mwGMA.game_moves[x][0]; // frame
-      int t = mwGMA.game_moves[x][1]; // type
-      int p = mwGMA.game_moves[x][2]; // player
-      int v = mwGMA.game_moves[x][3]; // value
+      int f = arr[x][0]; // frame
+      int t = arr[x][1]; // type
+      int p = arr[x][2]; // player
+      int v = arr[x][3]; // value
 
       fprintf(filepntr,"[%3d][%5d][%d][%d][%2d]", x, f, t, p, v);
 
@@ -394,7 +361,7 @@ void mwGameMovesArray::save_gm_txt(char *sfname)
       if (t == 2) fprintf(filepntr,"-------------PLAYER %d INACTIVE------------", p);
       if (t == 3) fprintf(filepntr,"-------------CLIENT %d JOIN!-------------- ", p);
       if (t == 4) fprintf(filepntr,"-------------CLIENT %d QUIT!-------------- ", p);
-      if (t == 5) fprintf(filepntr,"%s", cmtos(mwGMA.game_moves[x][3], tmp));
+      if (t == 5) fprintf(filepntr,"%s", cmtos(arr[x][3], tmp));
       if (t == 8) fprintf(filepntr,"-------------PLAYER %d ACKNOWLEDGE---------", p);
 
 
@@ -403,27 +370,27 @@ void mwGameMovesArray::save_gm_txt(char *sfname)
    fclose(filepntr);
 }
 
-void mwGameMovesArray::save_gm_gm(char *sfname)
+void mwGameMoves::save_gm_gm(char *sfname)
 {
    FILE *filepntr;
    char fname[80];
    sprintf(fname, "savegame/%s.gm", sfname);
    filepntr = fopen(fname,"w");
 
-   fprintf(filepntr,"%d\n", mwGMA.game_move_entry_pos);  // num_entries
+   fprintf(filepntr,"%d\n", entry_pos);  // num_entries
 
    fprintf(filepntr,"%d\n", mShot.deathmatch_shots);
    fprintf(filepntr,"%d\n", mShot.deathmatch_shot_damage );
    fprintf(filepntr,"%d\n", mShot.suicide_shots);
 
-   for (int x=0; x<mwGMA.game_move_entry_pos; x++)
+   for (int x=0; x<entry_pos; x++)
       for (int y=0; y<4; y++)
-         fprintf(filepntr,"%d\n", mwGMA.game_moves[x][y]);
+         fprintf(filepntr,"%d\n", arr[x][y]);
    fclose(filepntr);
 }
 
 
-void mwGameMovesArray::save_gm()
+void mwGameMoves::save_gm()
 {
    char fname[1024];
    sprintf(fname, "savegame/");
@@ -434,7 +401,7 @@ void mwGameMovesArray::save_gm()
    //printf("FS_fname:%s\n", fname);
    ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Save Demo Filename", "*.gm", ALLEGRO_FILECHOOSER_SAVE);
 
-   if (al_show_native_file_dialog(display, afc))
+   if (al_show_native_file_dialog(mDisplay.display, afc))
    {
       if (al_get_native_file_dialog_count(afc) == 1)
       {
@@ -455,7 +422,7 @@ void mwGameMovesArray::save_gm()
 
 
 
-void mwGameMovesArray::blind_save_game_moves(int d)
+void mwGameMoves::blind_save_game_moves(int d)
 {
    int do_save = 0;
    if ((d == 1) && (mLog.autosave_game_on_level_done))    do_save = 1;
@@ -480,7 +447,7 @@ void mwGameMovesArray::blind_save_game_moves(int d)
    }
 }
 
-int mwGameMovesArray::load_gm(const char *sfname )
+int mwGameMoves::load_gm(const char *sfname )
 {
    FILE *filepntr;
    char fname[1024];
@@ -529,7 +496,7 @@ int mwGameMovesArray::load_gm(const char *sfname )
 
       ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Run Demo Filename", "*.gm", 0);
 
-      if (al_show_native_file_dialog(display, afc))
+      if (al_show_native_file_dialog(mDisplay.display, afc))
       {
          if (al_get_native_file_dialog_count(afc) == 1)
          {
@@ -579,7 +546,7 @@ int mwGameMovesArray::load_gm(const char *sfname )
    {
       //printf("processing file %s\n", fname);
 
-      mwGMA.initialize();
+      initialize();
 
       int loop, ch;
       char buff[2000];
@@ -595,7 +562,7 @@ int mwGameMovesArray::load_gm(const char *sfname )
             ch = fgetc(filepntr);
          }
          buff[loop] = 0;
-         mwGMA.game_move_entry_pos = atoi(buff);
+         entry_pos = atoi(buff);
 
          loop = 0;
          ch = fgetc(filepntr);
@@ -631,7 +598,7 @@ int mwGameMovesArray::load_gm(const char *sfname )
          mShot.suicide_shots = atoi(buff);
 
          // then get all the entries
-         for (int x=0; x<mwGMA.game_move_entry_pos; x++)
+         for (int x=0; x<entry_pos; x++)
             for (int y=0; y<4; y++)
             {
                loop = 0;
@@ -643,12 +610,12 @@ int mwGameMovesArray::load_gm(const char *sfname )
                   ch = fgetc(filepntr);
                }
                buff[loop] = 0;
-               mwGMA.game_moves[x][y] = atoi(buff);
+               arr[x][y] = atoi(buff);
             }
          fclose(filepntr);
-         mLevel.play_level = mwGMA.game_moves[0][3]; // set play level
-         mwDM.demo_mode_last_frame = mwGMA.game_moves[mwGMA.game_move_entry_pos-1][0];
-         //printf("dmlf:%d\n", mwDM.demo_mode_last_frame );
+         mLevel.play_level = arr[0][3]; // set play level
+         mDemoMode.demo_mode_last_frame = arr[entry_pos-1][0];
+         //printf("dmlf:%d\n", mDemoMode.demo_mode_last_frame );
          return 1;
       }
    }

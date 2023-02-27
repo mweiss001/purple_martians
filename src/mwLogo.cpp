@@ -10,7 +10,7 @@
 #include "mwScreen.h"
 
 
-mwLogo mwL;
+mwLogo mLogo;
 
 mwLogo::mwLogo()
 {
@@ -201,7 +201,7 @@ void mwLogo::mspline(float *par, ALLEGRO_COLOR col, int thickness)
 // my version of spline with thickness and fading
 void mwLogo::mfspline(float *par, int col, int thickness)
 {
-   ALLEGRO_COLOR c = mC.pc[col];
+   ALLEGRO_COLOR c = mColor.pc[col];
    float r, g, b;
    al_unmap_rgb_f(c, &r, &g, &b);
 
@@ -299,7 +299,7 @@ void mwLogo::idw(int txt, float x, float y, float x_scale, float y_scale)
    // used only by mdw logo animation
 
    int bbx1, bby1, bbw1, bbh1;
-   al_get_text_dimensions(mF.acha, "ichael", &bbx1, &bby1, &bbw1, &bbh1);
+   al_get_text_dimensions(mFont.acha, "ichael", &bbx1, &bby1, &bbw1, &bbh1);
 
    if (logo_text_bitmaps_create)
    {
@@ -309,24 +309,24 @@ void mwLogo::idw(int txt, float x, float y, float x_scale, float y_scale)
       logo_ichael = al_create_bitmap(bbw1,bbh1);
       al_set_target_bitmap(logo_ichael);
       al_clear_to_color(al_map_rgba(0,0,0,0));
-      al_draw_text(mF.acha, mC.pc[8], 0-bbx1, 0-bby1, 0, "ichael");
+      al_draw_text(mFont.acha, mColor.pc[8], 0-bbx1, 0-bby1, 0, "ichael");
 
       al_destroy_bitmap(logo_avid);
       logo_avid = al_create_bitmap(bbw1,bbh1);
       al_set_target_bitmap(logo_avid);
       al_clear_to_color(al_map_rgba(0,0,0,0));
-      al_draw_text(mF.acha, mC.pc[90], 0-bbx1, 0-bby1, 0, "avid");
+      al_draw_text(mFont.acha, mColor.pc[90], 0-bbx1, 0-bby1, 0, "avid");
 
       al_destroy_bitmap(logo_eiss);
       logo_eiss = al_create_bitmap(bbw1,bbh1);
       al_set_target_bitmap(logo_eiss);
       al_clear_to_color(al_map_rgba(0,0,0,0));
-      al_draw_text(mF.acha, mC.pc[8], 0-bbx1, 0-bby1, 0, "eiss");
+      al_draw_text(mFont.acha, mColor.pc[8], 0-bbx1, 0-bby1, 0, "eiss");
    }
 
    // scale the scale...
-   x_scale *=  72 / (float) al_get_font_line_height(mF.acha);
-   y_scale *=  24 / (float) al_get_font_line_height(mF.acha);
+   x_scale *=  72 / (float) al_get_font_line_height(mFont.acha);
+   y_scale *=  24 / (float) al_get_font_line_height(mFont.acha);
 
    int flags = 0;
    if (x_scale < 0) flags |= ALLEGRO_FLIP_HORIZONTAL;
@@ -338,7 +338,7 @@ void mwLogo::idw(int txt, float x, float y, float x_scale, float y_scale)
    // offset y pos if scale is negative
    if (y_scale < 0) y -= abs( (int) ((float)bbh1 * y_scale) );
 
-   al_set_target_backbuffer(display);
+   al_set_target_backbuffer(mDisplay.display);
 
    if (txt == 1) al_draw_scaled_rotated_bitmap(logo_ichael, 0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
    if (txt == 2) al_draw_scaled_rotated_bitmap(logo_avid,   0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
@@ -486,7 +486,7 @@ void mwLogo::splash_screen(void)
    mScreen.set_map_var();
    int quit = 0;
 
-   mwEQ.proc_event_queue();
+   mEventQueue.proc();
 
    mScreen.draw_large_text_overlay(1, 8);
 
@@ -496,10 +496,10 @@ void mwLogo::splash_screen(void)
    if (!quit)
       for (int i=0; i<220; i++)
       {
-         while (!mwEQ.menu_update) mwEQ.proc_event_queue();
-         mwEQ.menu_update = 0;
+         while (!mEventQueue.menu_update) mEventQueue.proc();
+         mEventQueue.menu_update = 0;
 
-         if (mI.key_pressed_ASCII)
+         if (mInput.key_pressed_ASCII)
          {
             quit = 1;
             i = 1000;
@@ -513,16 +513,16 @@ void mwLogo::splash_screen(void)
 
    if (!quit)
    {
-      mw_text(mF.sauc, 12, .80, "created by:");
+      mw_text(mFont.sauc, 12, .80, "created by:");
       al_flip_display();
    }
 
    if (!quit)
       for (int i=0; i<120; i++)
       {
-         while (!mwEQ.menu_update) mwEQ.proc_event_queue();
-         mwEQ.menu_update = 0;
-         if (mI.key_pressed_ASCII)
+         while (!mEventQueue.menu_update) mEventQueue.proc();
+         mEventQueue.menu_update = 0;
+         if (mInput.key_pressed_ASCII)
          {
             quit = 1;
             i = 1000;
@@ -539,9 +539,9 @@ void mwLogo::splash_screen(void)
       al_clear_to_color(al_map_rgb(0,0,0));
       quit = mdw_an2();
       al_flip_display();
-      while (!mwEQ.menu_update) mwEQ.proc_event_queue();
-      mwEQ.menu_update = 0;
-      if (mI.key_pressed_ASCII) quit = 1;
+      while (!mEventQueue.menu_update) mEventQueue.proc();
+      mEventQueue.menu_update = 0;
+      if (mInput.key_pressed_ASCII) quit = 1;
    }
 
    al_clear_to_color(al_map_rgb(0,0,0));
@@ -559,10 +559,10 @@ void mwLogo::mw_text(ALLEGRO_FONT *tf, int col, float x_pc, const char * txt)
    ALLEGRO_BITMAP *t1 = al_create_bitmap(bbw1, bbh1);
    al_set_target_bitmap(t1);
    al_clear_to_color(al_map_rgba(0,0,0,0));
-   al_draw_text(tf, mC.pc[col], 0-bbx1, 0-bby1, 0, txt);
-   float xs = ( (float)mwD.SCREEN_W * x_pc) / (float) bbw1 ; // x scale
-   al_set_target_backbuffer(display);
-   al_draw_scaled_rotated_bitmap(t1, bbw1/2, bbh1/2, mwD.SCREEN_W/2, mwD.SCREEN_H/2, xs, xs, 0, 0);
+   al_draw_text(tf, mColor.pc[col], 0-bbx1, 0-bby1, 0, txt);
+   float xs = ( (float)mDisplay.SCREEN_W * x_pc) / (float) bbw1 ; // x scale
+   al_set_target_backbuffer(mDisplay.display);
+   al_draw_scaled_rotated_bitmap(t1, bbw1/2, bbh1/2, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, xs, xs, 0, 0);
    al_destroy_bitmap(t1);
 }
 
@@ -596,34 +596,34 @@ void mwLogo::spline_test(void)
    while (!quit)
    {
 
-      if (mI.key[ALLEGRO_KEY_RIGHT][0])
+      if (mInput.key[ALLEGRO_KEY_RIGHT][0])
       {
          x_scale += x_scale_inc;
       }
-      if (mI.key[ALLEGRO_KEY_LEFT][0])
+      if (mInput.key[ALLEGRO_KEY_LEFT][0])
       {
          x_scale -= x_scale_inc;
 
       }
-      if (mI.key[ALLEGRO_KEY_UP][0])
+      if (mInput.key[ALLEGRO_KEY_UP][0])
       {
          y_scale += y_scale_inc;
       }
-      if (mI.key[ALLEGRO_KEY_DOWN][0])
+      if (mInput.key[ALLEGRO_KEY_DOWN][0])
       {
          y_scale -= y_scale_inc;
       }
 
-      draw_logo(mwD.SCREEN_W/2, mwD.SCREEN_H/2, x_scale, y_scale);
+      draw_logo(mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, x_scale, y_scale);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
 
-      while (!mwEQ.menu_update) mwEQ.proc_event_queue();
-      mwEQ.menu_update = 0;
+      while (!mEventQueue.menu_update) mEventQueue.proc();
+      mEventQueue.menu_update = 0;
 
-      if (mI.key[ALLEGRO_KEY_ESCAPE][0])
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue();
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
          quit = 1;
       }
 
@@ -636,18 +636,18 @@ void mwLogo::redraw_spline(int s)
 {
    fill_logo();
    draw_logo(200, 200, 1.0, 1.0);
-   al_draw_textf(mF.pr8, mC.pc[15], 100, 402, 0, "current spline:%d", s);
+   al_draw_textf(mFont.pr8, mColor.pc[15], 100, 402, 0, "current spline:%d", s);
 
    for (int i=0; i<8; i+=2)
    {
-      al_draw_circle(points[s][i]+200, points[s][i+1]+200, 4, mC.pc[11], 1);
-      al_draw_textf(mF.pr8, mC.pc[15], 100, 410+i*4, 0, "x:%-4.0f y:%-4.0f", points[s][i], points[s][i+1] );
+      al_draw_circle(points[s][i]+200, points[s][i+1]+200, 4, mColor.pc[11], 1);
+      al_draw_textf(mFont.pr8, mColor.pc[15], 100, 410+i*4, 0, "x:%-4.0f y:%-4.0f", points[s][i], points[s][i+1] );
    }
 }
 
 void mwLogo::spline_adjust(void)
 {
-   al_show_mouse_cursor(display);
+   al_show_mouse_cursor(mDisplay.display);
 
    int current_spline = 0;
 //   seed_mdw();
@@ -658,44 +658,44 @@ void mwLogo::spline_adjust(void)
       al_clear_to_color(al_map_rgb(0,0,0));
       redraw_spline(current_spline);
       al_flip_display();
-      mwEQ.proc_event_queue();
+      mEventQueue.proc();
 
-      int mx = mI.mouse_x-200;
-      int my = mI.mouse_y-200;
+      int mx = mInput.mouse_x-200;
+      int my = mInput.mouse_y-200;
       for (int i=0; i<8; i+=2)
       {
          int px = points[current_spline][i];
          int py = points[current_spline][i+1];
          if ((mx > px-4) && (mx < px+4) && (my > py-4) && (my < py+4))
          {
-            al_draw_circle(points[current_spline][i]+200, points[current_spline][i+1]+200, 6, mC.pc[10], 2);
-            while (mI.mouse_b[1][0])
+            al_draw_circle(points[current_spline][i]+200, points[current_spline][i+1]+200, 6, mColor.pc[10], 2);
+            while (mInput.mouse_b[1][0])
             {
                al_clear_to_color(al_map_rgb(0,0,0));
                redraw_spline(current_spline);
-               al_draw_circle(points[current_spline][i]+200, points[current_spline][i+1]+200, 6, mC.pc[10], 3);
+               al_draw_circle(points[current_spline][i]+200, points[current_spline][i+1]+200, 6, mColor.pc[10], 3);
                al_flip_display();
-               mwEQ.proc_event_queue();
+               mEventQueue.proc();
 
-               points[current_spline][i] = mI.mouse_x-200;
-               points[current_spline][i+1] = mI.mouse_y-200;
+               points[current_spline][i] = mInput.mouse_x-200;
+               points[current_spline][i+1] = mInput.mouse_y-200;
             }
          }
       }
 
-      if (mI.key[ALLEGRO_KEY_UP][3])
+      if (mInput.key[ALLEGRO_KEY_UP][3])
       {
          if (current_spline == 0) current_spline = 2;
          else if (current_spline == 2) current_spline = 8;
       }
-      if (mI.key[ALLEGRO_KEY_DOWN][3])
+      if (mInput.key[ALLEGRO_KEY_DOWN][3])
       {
          if (current_spline == 2) current_spline = 0;
          else if (current_spline == 8) current_spline = 2;
       }
-      while ((mI.key[ALLEGRO_KEY_ESCAPE][0]) || (mI.mouse_b[2][0]))
+      while ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.mouse_b[2][0]))
       {
-         mwEQ.proc_event_queue();
+         mEventQueue.proc();
          quit = 1;
       }
    }

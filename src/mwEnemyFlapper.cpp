@@ -148,7 +148,7 @@ void mwEnemy::move_flapper(int e)
 
    // shape offset
    int so = (int)(f/16.66); // 100/6 = 16.66
-   Ei[e][1] = mwB.zz[8+so][Ei[e][3]];
+   Ei[e][1] = mBitmap.zz[8+so][Ei[e][3]];
 
    //convert 0-100 to (0-2*PI) to get angle in rad
    float th = (f / 100) * ALLEGRO_PI*2;

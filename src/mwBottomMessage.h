@@ -35,7 +35,7 @@ class mwBottomMessage
    int draw_health(int h, int bmsg_length);
    int draw_enemy(int e_type, int bmsg_length);
 };
-extern mwBottomMessage mwBM;
+extern mwBottomMessage mBottomMessage;
 
 
 

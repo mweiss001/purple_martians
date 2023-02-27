@@ -44,19 +44,153 @@ void mwMiscFnx::chop_first_x_char(char *str, int n)
    strcpy(str, tmp);
 }
 
+
+
+void mwMiscFnx::get_tag_text(char *str, char *res, int show)
+{
+   if (show) printf("\nget tag initial %s\n", str);
+
+   // get first tag
+   char * pch1 = strchr(str, '[');
+   char * pch2 = strchr(str, ']');
+   int p1 = pch1-str;
+   int p2 = pch2-str;
+   int plen = p2-p1;
+
+   if (show) printf("p1:%d  p2:%d  plen:%d\n", p1, p2, plen);
+
+   if (plen < 10) // ???
+   {
+       for(int j=0; j<plen; j++)
+          res[j] = str[j+p1+1];
+       res[plen-1] = 0;
+       if (show) printf("tag text [%s]\n", res);
+       mMiscFnx.chop_first_x_char(str, p2+1);
+   }
+   if (show) printf("get tag final %s\n", str);
+}
+
+
+
+
+int mwMiscFnx::get_tag_text2(char *str, char *res, char *res1, int show)
+{
+   if (show) printf("Initial string:%s\n", str);
+
+   // get first tag - from space to :
+   char * pch1 = strchr(str, ' ');
+   char * pch2 = strchr(str, ':');
+   if ((pch1 == NULL) || (pch2 == NULL))
+   {
+      printf("Did not find 1st tag\n");
+      return 0;
+   }
+   else
+   {
+      int p1 = pch1-str;
+      int p2 = pch2-str;
+      int plen = p2-p1;
+
+      //if (show) printf("p1:%d  p2:%d  plen:%d\n", p1, p2, plen);
+
+      if (plen < 20) // ???
+      {
+          for(int j=0; j<plen; j++)
+             res[j] = str[j+p1+1];
+          res[plen-1] = 0;
+          if (show) printf("First tag:'%s'\n", res);
+          mMiscFnx.chop_first_x_char(str, p2+1);
+      }
+      if (show) printf("Final string after chop:'%s'\n", str);
+   }
+
+   // get 2nd tag - from [ to ]
+   pch1 = strchr(str, '[');
+   pch2 = strchr(str, ']');
+   if ((pch1 == NULL) || (pch2 == NULL))
+   {
+      printf("Did not find 2nd tag\n");
+      return 0;
+   }
+   else
+   {
+      int p1 = pch1-str;
+      int p2 = pch2-str;
+      int plen = p2-p1;
+
+      // if (show) printf("p1:%d  p2:%d  plen:%d\n", p1, p2, plen);
+      if (plen < 20) // ???
+      {
+          for(int j=0; j<plen; j++)
+             res1[j] = str[j+p1+1];
+          res1[plen-1] = 0;
+          if (show) printf("2nd tag:'%s'\n", res1);
+          mMiscFnx.chop_first_x_char(str, p2+1);
+      }
+      if (show) printf("Final string after chop:'%s'\n", str);
+   }
+   return 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int mwMiscFnx::exit_level_editor_dialog(void)
 {
-   while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue();
+   while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
 
-   al_set_target_backbuffer(display);
-   al_show_mouse_cursor(display);
+   al_set_target_backbuffer(mDisplay.display);
+   al_show_mouse_cursor(mDisplay.display);
 
    int quit = 0;
    int ret = 0;
 
    int w = 200, h = 100;
-   int x = (mwD.SCREEN_W - w) /2;
-   int y = (mwD.SCREEN_H - h) /2;
+   int x = (mDisplay.SCREEN_W - w) /2;
+   int y = (mDisplay.SCREEN_H - h) /2;
 
    int xc = x+w/2;
    int xa = xc-84;
@@ -65,11 +199,11 @@ int mwMiscFnx::exit_level_editor_dialog(void)
 
    while (!quit)
    {
-      al_draw_filled_rectangle(x, y, x+w, y+h, mC.pc[10+128+64]);
+      al_draw_filled_rectangle(x, y, x+w, y+h, mColor.pc[10+128+64]);
 
       for (int a=0; a<10; a++)
-         al_draw_rounded_rectangle(x+a, y+a, x+w-a, y+h-a, 1, 1, mC.pc[10+a*16], 1);
-      al_draw_text(mF.pr8, mC.pc[15], xc, y+14, ALLEGRO_ALIGN_CENTER, "Exit Level Editor?");
+         al_draw_rounded_rectangle(x+a, y+a, x+w-a, y+h-a, 1, 1, mColor.pc[10+a*16], 1);
+      al_draw_text(mFont.pr8, mColor.pc[15], xc, y+14, ALLEGRO_ALIGN_CENTER, "Exit Level Editor?");
 
       int bc = 15;
 
@@ -78,45 +212,45 @@ int mwMiscFnx::exit_level_editor_dialog(void)
       if (ret == 0) bc = 10;
       else bc = 15;
 
-      if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,bc,15,0, 1,0,1,0, "Save and Exit"))         { quit = 1; ret = 0; }
-      if (ret == 0) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mC.pc[10], 2);
+      if (mWidget.buttont(xa, by1, xb, bts, 0,0,0,0,  0,bc,15,0, 1,0,1,0, "Save and Exit"))         { quit = 1; ret = 0; }
+      if (ret == 0) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mColor.pc[10], 2);
 
       by1+=4;
 
       if (ret == 1) bc = 10;
       else bc = 15;
-      if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,bc,15,0, 1,0,1,0, "Exit Without Saving"))   { quit = 1; ret = 1; }
-      if (ret == 1) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mC.pc[10], 2);
+      if (mWidget.buttont(xa, by1, xb, bts, 0,0,0,0,  0,bc,15,0, 1,0,1,0, "Exit Without Saving"))   { quit = 1; ret = 1; }
+      if (ret == 1) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mColor.pc[10], 2);
 
       by1+=4;
 
       if (ret == 2) bc = 10;
       else bc = 15;
-      if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,bc,15,0, 1,0,1,0, "Cancel"))                { quit = 1; ret = 2; }
-      if (ret == 2) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mC.pc[10], 2);
+      if (mWidget.buttont(xa, by1, xb, bts, 0,0,0,0,  0,bc,15,0, 1,0,1,0, "Cancel"))                { quit = 1; ret = 2; }
+      if (ret == 2) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mColor.pc[10], 2);
 
-      mwEQ.proc_event_queue();
+      mEventQueue.proc();
       al_flip_display();
 
-      if (mI.key[ALLEGRO_KEY_DOWN][0])
+      if (mInput.key[ALLEGRO_KEY_DOWN][0])
       {
-         while (mI.key[ALLEGRO_KEY_DOWN][0]) mwEQ.proc_event_queue();
+         while (mInput.key[ALLEGRO_KEY_DOWN][0]) mEventQueue.proc();
          if (++ret > 2) ret = 2;
       }
 
-      if (mI.key[ALLEGRO_KEY_UP][0])
+      if (mInput.key[ALLEGRO_KEY_UP][0])
       {
-         while (mI.key[ALLEGRO_KEY_UP][0]) mwEQ.proc_event_queue();
+         while (mInput.key[ALLEGRO_KEY_UP][0]) mEventQueue.proc();
          if (--ret < 0) ret = 0;
       }
-      if (mI.key[ALLEGRO_KEY_ENTER][0])
+      if (mInput.key[ALLEGRO_KEY_ENTER][0])
       {
-         while (mI.key[ALLEGRO_KEY_ENTER][0]) mwEQ.proc_event_queue();
+         while (mInput.key[ALLEGRO_KEY_ENTER][0]) mEventQueue.proc();
          quit = 1;
       }
-      if (mI.key[ALLEGRO_KEY_ESCAPE][0])
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue();
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
          ret = 2; // cancel
          quit = 1;
       }
@@ -129,11 +263,11 @@ int mwMiscFnx::exit_level_editor_dialog(void)
 void mwMiscFnx::draw_block_non_default_flags(int tn, int x, int y)
 {
    int c = tn & 1023;
-   al_draw_bitmap(mwB.btile[c], x, y, 0);
-   if ((mwB.sa[c][0] & PM_BTILE_MOST_FLAGS) != (tn & PM_BTILE_MOST_FLAGS))
+   al_draw_bitmap(mBitmap.btile[c], x, y, 0);
+   if ((mBitmap.sa[c][0] & PM_BTILE_MOST_FLAGS) != (tn & PM_BTILE_MOST_FLAGS))
    {
-      al_draw_line(x, y, x+20, y+20, mC.pc[10], 1);
-      al_draw_line(x+20, y, x, y+20, mC.pc[10], 1);
+      al_draw_line(x, y, x+20, y+20, mColor.pc[10], 1);
+      al_draw_line(x+20, y, x, y+20, mColor.pc[10], 1);
    }
 }
 
@@ -297,7 +431,7 @@ int mwMiscFnx::get_sp(float jh)
 int mwMiscFnx::get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type)
 {
    mScreen.init_level_background(0);
-   int tx = mwD.SCREEN_W/2;
+   int tx = mDisplay.SCREEN_W/2;
    int quit = 0;
    int ret = 0;
    while (!quit)
@@ -306,19 +440,19 @@ int mwMiscFnx::get_block_range(const char *txt, int *x1, int *y1, int *x2, int *
       crosshairs_full(mwWM.gx*20+10, mwWM.gy*20+10, 15, 1);
       mScreen.get_new_screen_buffer(3, 0, 0);
 
-      al_draw_filled_rectangle(tx-90, 70, tx+90, 170, mC.pc[0]);
-      al_draw_rectangle(       tx-90, 70, tx+90, 170, mC.pc[15], 1);
+      al_draw_filled_rectangle(tx-90, 70, tx+90, 170, mColor.pc[0]);
+      al_draw_rectangle(       tx-90, 70, tx+90, 170, mColor.pc[15], 1);
 
-      al_draw_text(mF.pr8, mC.pc[9],   tx, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
-      al_draw_text(mF.pr8, mC.pc[10],  tx, 80,  ALLEGRO_ALIGN_CENTER, txt);
-      al_draw_text(mF.pr8, mC.pc[9],   tx, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
-      al_draw_text(mF.pr8, mC.pc[9],   tx, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
-      al_draw_text(mF.pr8, mC.pc[9],   tx, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
-      al_draw_text(mF.pr8, mC.pc[14],  tx, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
-      al_draw_text(mF.pr8, mC.pc[14],  tx, 138, ALLEGRO_ALIGN_CENTER, "or right mouse button");
-      al_draw_textf(mF.pr8, mC.pc[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", mwWM.gx, mwWM.gy);
+      al_draw_text(mFont.pr8, mColor.pc[9],   tx, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
+      al_draw_text(mFont.pr8, mColor.pc[10],  tx, 80,  ALLEGRO_ALIGN_CENTER, txt);
+      al_draw_text(mFont.pr8, mColor.pc[9],   tx, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
+      al_draw_text(mFont.pr8, mColor.pc[9],   tx, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
+      al_draw_text(mFont.pr8, mColor.pc[9],   tx, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
+      al_draw_text(mFont.pr8, mColor.pc[14],  tx, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
+      al_draw_text(mFont.pr8, mColor.pc[14],  tx, 138, ALLEGRO_ALIGN_CENTER, "or right mouse button");
+      al_draw_textf(mFont.pr8, mColor.pc[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", mwWM.gx, mwWM.gy);
 
-      if (mI.mouse_b[1][0])
+      if (mInput.mouse_b[1][0])
       {
          mwWM.get_new_box();
          *x1 = mwWM.bx1*20;
@@ -335,9 +469,9 @@ int mwMiscFnx::get_block_range(const char *txt, int *x1, int *y1, int *x2, int *
          quit = 1;
          ret = 1;
       }
-      while ((mI.mouse_b[2][0]) || (mI.key[ALLEGRO_KEY_ESCAPE][0]))
+      while ((mInput.mouse_b[2][0]) || (mInput.key[ALLEGRO_KEY_ESCAPE][0]))
       {
-         mwEQ.proc_event_queue(); // wait for release
+         mEventQueue.proc(); // wait for release
          quit = 1;
          ret = 0;
       }
@@ -395,7 +529,7 @@ int mwMiscFnx::get_block_range(const char *txt, int *x1, int *y1, int *x2, int *
 
 int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
 {
-   int tx = mwD.SCREEN_W/2;
+   int tx = mDisplay.SCREEN_W/2;
 
    // in case these are needed for lifts
    int lift = sub_type;
@@ -404,7 +538,7 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
    int retval=0;
    int quit=0;
 
-   while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+   while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
 
    // get original values in case we are cancelled and need to restore them
    int original_dx=0;
@@ -479,8 +613,8 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
          int px = mEnemy.Ef[num][5]+10;
          int py = mEnemy.Ef[num][6]+10;
          float rot = mEnemy.Ef[num][14];
-         al_draw_scaled_rotated_bitmap(mwB.tile[mEnemy.Ei[num][1]], 10, 10, px, py, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
-         al_draw_line(ex, ey, px, py, mC.pc[10], 1); // connect with line
+         al_draw_scaled_rotated_bitmap(mBitmap.tile[mEnemy.Ei[num][1]], 10, 10, px, py, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
+         al_draw_line(ex, ey, px, py, mColor.pc[10], 1); // connect with line
       }
 
       if ((obj_type == 90) || (obj_type == 91) || (obj_type == 92)) mEnemy.draw_vinepod_controls(num, -1); // move vinepod extended, cp1, cp2
@@ -503,9 +637,9 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
          int dy = mwWM.gy*20+10;
 
          float rot = (float)mItem.item[num][10] / 1000;
-         al_draw_rotated_bitmap(mwB.tile[mItem.item[num][1]], 10, 10, dx, dy, rot, 0);
+         al_draw_rotated_bitmap(mBitmap.tile[mItem.item[num][1]], 10, 10, dx, dy, rot, 0);
 
-         al_draw_line(ix, iy, dx, dy, mC.pc[10], 1);     // connect with line
+         al_draw_line(ix, iy, dx, dy, mColor.pc[10], 1);     // connect with line
       }
       if (obj_type == 96) // set cannon or bouncer direction
       {
@@ -514,20 +648,20 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
          int dx = mwWM.gx*20+10;
          int dy = mwWM.gy*20+10;
          float rot = mEnemy.Ef[num][14];
-         al_draw_scaled_rotated_bitmap(mwB.tile[mEnemy.Ei[num][1]], 10, 10, dx, dy, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile
-         al_draw_line(ex, ey, dx, dy, mC.pc[10], 1);   // connect with line
+         al_draw_scaled_rotated_bitmap(mBitmap.tile[mEnemy.Ei[num][1]], 10, 10, dx, dy, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile
+         al_draw_line(ex, ey, dx, dy, mColor.pc[10], 1);   // connect with line
       }
 
       mScreen.get_new_screen_buffer(3, 0, 0);
 
-      al_draw_filled_rectangle(tx-100, 70, tx+100, 128, mC.pc[0]);
-      al_draw_rectangle(       tx-100, 70, tx+100, 128, mC.pc[15], 1);
+      al_draw_filled_rectangle(tx-100, 70, tx+100, 128, mColor.pc[0]);
+      al_draw_rectangle(       tx-100, 70, tx+100, 128, mColor.pc[15], 1);
 
-      al_draw_text(mF.pr8,  mC.pc[9],   tx, 72,  ALLEGRO_ALIGN_CENTER, "Set new Location for:");
-      al_draw_text(mF.pr8,  mC.pc[10],  tx, 80,  ALLEGRO_ALIGN_CENTER, txt);
-      al_draw_text(mF.pr8,  mC.pc[9],   tx, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
-      al_draw_text(mF.pr8,  mC.pc[14],  tx, 110, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
-      al_draw_text(mF.pr8,  mC.pc[14],  tx, 118, ALLEGRO_ALIGN_CENTER, "or right mouse button");
+      al_draw_text(mFont.pr8,  mColor.pc[9],   tx, 72,  ALLEGRO_ALIGN_CENTER, "Set new Location for:");
+      al_draw_text(mFont.pr8,  mColor.pc[10],  tx, 80,  ALLEGRO_ALIGN_CENTER, txt);
+      al_draw_text(mFont.pr8,  mColor.pc[9],   tx, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
+      al_draw_text(mFont.pr8,  mColor.pc[14],  tx, 110, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
+      al_draw_text(mFont.pr8,  mColor.pc[14],  tx, 118, ALLEGRO_ALIGN_CENTER, "or right mouse button");
 
       al_flip_display();
 
@@ -596,21 +730,21 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
       }
 
 
-      while (mI.mouse_b[1][0])
+      while (mInput.mouse_b[1][0])
       {
-         mwEQ.proc_event_queue();
+         mEventQueue.proc();
          quit = 1;
          retval = 1;  // b1 xy
       }
-      while (mI.mouse_b[2][0])
+      while (mInput.mouse_b[2][0])
       {
-         mwEQ.proc_event_queue();
+         mEventQueue.proc();
          quit = 1;
          retval = 2;  // b2 xy
       }
-      while (mI.key[ALLEGRO_KEY_ESCAPE][0])
+      while (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
-         mwEQ.proc_event_queue();
+         mEventQueue.proc();
          quit = 1;
          retval = 0;  // ignore xy
       }
@@ -695,7 +829,7 @@ int mwMiscFnx::round20(int val) // pass it an int and it will round it to the ne
 int mwMiscFnx::get_trigger_item(int obj_type, int sub_type, int num )
 {
    mScreen.init_level_background(0);
-   int tx = mwD.SCREEN_W/2;
+   int tx = mDisplay.SCREEN_W/2;
 
    // in case these are needed for lifts
    int lift = num;
@@ -719,14 +853,14 @@ int mwMiscFnx::get_trigger_item(int obj_type, int sub_type, int num )
       y2 = mLift.stp[lift][pms].y + mLift.stp[lift][pms].h / 2;
    }
 
-   while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+   while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
 
    while(!quit)
    {
       mwWM.redraw_level_editor_background(0);
       crosshairs_full(mwWM.gx*20+10, mwWM.gy*20+10, 15, 1);
 
-      if (mouse_on_item) al_draw_line(x2, y2, itx+10, ity+10, mC.pc[10], 2);
+      if (mouse_on_item) al_draw_line(x2, y2, itx+10, ity+10, mColor.pc[10], 2);
       else
       {
          if (obj_type == 2) mTriggerEvent.find_and_show_event_links(2, num, 0);
@@ -734,16 +868,16 @@ int mwMiscFnx::get_trigger_item(int obj_type, int sub_type, int num )
       }
 
       mScreen.get_new_screen_buffer(3, 0, 0);
-      al_draw_filled_rectangle(tx-110, 78, tx+110, 146, mC.pc[0]);
-      al_draw_rectangle(       tx-110, 78, tx+110, 146, mC.pc[15], 1);
+      al_draw_filled_rectangle(tx-110, 78, tx+110, 146, mColor.pc[0]);
+      al_draw_rectangle(       tx-110, 78, tx+110, 146, mColor.pc[15], 1);
 
-      al_draw_text(mF.pr8,  mC.pc[9],  tx, 80,  ALLEGRO_ALIGN_CENTER, "Select a Trigger Object");
-      al_draw_text(mF.pr8,  mC.pc[9],  tx, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
-      al_draw_text(mF.pr8,  mC.pc[14], tx, 110, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
-      al_draw_text(mF.pr8,  mC.pc[14], tx, 118, ALLEGRO_ALIGN_CENTER, "or right mouse button");
+      al_draw_text(mFont.pr8,  mColor.pc[9],  tx, 80,  ALLEGRO_ALIGN_CENTER, "Select a Trigger Object");
+      al_draw_text(mFont.pr8,  mColor.pc[9],  tx, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
+      al_draw_text(mFont.pr8,  mColor.pc[14], tx, 110, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
+      al_draw_text(mFont.pr8,  mColor.pc[14], tx, 118, ALLEGRO_ALIGN_CENTER, "or right mouse button");
 
-      if (mouse_on_item) al_draw_textf(mF.pr8, mC.pc[15], tx, 136, ALLEGRO_ALIGN_CENTER, "Trigger Object:%d", ret_item);
-      else               al_draw_textf(mF.pr8, mC.pc[15], tx, 136, ALLEGRO_ALIGN_CENTER, "No Trigger Object Selected");
+      if (mouse_on_item) al_draw_textf(mFont.pr8, mColor.pc[15], tx, 136, ALLEGRO_ALIGN_CENTER, "Trigger Object:%d", ret_item);
+      else               al_draw_textf(mFont.pr8, mColor.pc[15], tx, 136, ALLEGRO_ALIGN_CENTER, "No Trigger Object Selected");
 
       mouse_on_item = 0;
       for (int x=0; x<500; x++)
@@ -761,14 +895,14 @@ int mwMiscFnx::get_trigger_item(int obj_type, int sub_type, int num )
       itx = mItem.item[ret_item][4];
       ity = mItem.item[ret_item][5];
 
-      while (mI.mouse_b[1][0])
+      while (mInput.mouse_b[1][0])
       {
-         mwEQ.proc_event_queue();
+         mEventQueue.proc();
          quit = 1;
       }
-      while ((mI.mouse_b[2][0]) || (mI.key[ALLEGRO_KEY_ESCAPE][0]))
+      while ((mInput.mouse_b[2][0]) || (mInput.key[ALLEGRO_KEY_ESCAPE][0]))
       {
-         mwEQ.proc_event_queue();
+         mEventQueue.proc();
          quit = 1;
          ret_item = - 1;
       }
@@ -782,7 +916,7 @@ int mwMiscFnx::get_trigger_item(int obj_type, int sub_type, int num )
 int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
 {
    mScreen.init_level_background(0);
-   int tx = mwD.SCREEN_W/2;
+   int tx = mDisplay.SCREEN_W/2;
 
    int ret_item=0;
    int quit=0;
@@ -793,27 +927,27 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
    int x2 = mItem.item[num][4]+10; // get the originating door's location
    int y2 = mItem.item[num][5]+10;
 
-   while (mI.mouse_b[1][0]) mwEQ.proc_event_queue(); // wait for release
+   while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
 
    while(!quit)
    {
       mwWM.redraw_level_editor_background(0);
       crosshairs_full(mwWM.gx*20+10, mwWM.gy*20+10, 15, 1);
 
-      if (mouse_on_item) al_draw_line(x2, y2, itx+10, ity+10, mC.pc[10], 2);
+      if (mouse_on_item) al_draw_line(x2, y2, itx+10, ity+10, mColor.pc[10], 2);
 
       mScreen.get_new_screen_buffer(3, 0, 0);
 
-      al_draw_filled_rectangle(tx-110, 78, tx+110, 146, mC.pc[0]);
-      al_draw_rectangle(       tx-110, 78, tx+110, 146, mC.pc[15], 1);
+      al_draw_filled_rectangle(tx-110, 78, tx+110, 146, mColor.pc[0]);
+      al_draw_rectangle(       tx-110, 78, tx+110, 146, mColor.pc[15], 1);
 
-      al_draw_text(mF.pr8,  mC.pc[9],  tx, 80,  ALLEGRO_ALIGN_CENTER, "Select a Door Object");
-      al_draw_text(mF.pr8,  mC.pc[9],  tx, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
-      al_draw_text(mF.pr8,  mC.pc[14], tx, 110, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
-      al_draw_text(mF.pr8,  mC.pc[14], tx, 118, ALLEGRO_ALIGN_CENTER, "or right mouse button");
+      al_draw_text(mFont.pr8,  mColor.pc[9],  tx, 80,  ALLEGRO_ALIGN_CENTER, "Select a Door Object");
+      al_draw_text(mFont.pr8,  mColor.pc[9],  tx, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
+      al_draw_text(mFont.pr8,  mColor.pc[14], tx, 110, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
+      al_draw_text(mFont.pr8,  mColor.pc[14], tx, 118, ALLEGRO_ALIGN_CENTER, "or right mouse button");
 
-      if (mouse_on_item) al_draw_textf(mF.pr8, mC.pc[15], tx, 136, ALLEGRO_ALIGN_CENTER, "Door Object:%d", ret_item);
-      else               al_draw_textf(mF.pr8, mC.pc[15], tx, 136, ALLEGRO_ALIGN_CENTER, "No Door Object Selected");
+      if (mouse_on_item) al_draw_textf(mFont.pr8, mColor.pc[15], tx, 136, ALLEGRO_ALIGN_CENTER, "Door Object:%d", ret_item);
+      else               al_draw_textf(mFont.pr8, mColor.pc[15], tx, 136, ALLEGRO_ALIGN_CENTER, "No Door Object Selected");
 
 
       mouse_on_item = 0;
@@ -832,14 +966,14 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
       itx = mItem.item[ret_item][4];
       ity = mItem.item[ret_item][5];
 
-      while (mI.mouse_b[1][0])
+      while (mInput.mouse_b[1][0])
       {
-         mwEQ.proc_event_queue();
+         mEventQueue.proc();
          quit = 1;
       }
-      while ((mI.mouse_b[2][0]) || (mI.key[ALLEGRO_KEY_ESCAPE][0]))
+      while ((mInput.mouse_b[2][0]) || (mInput.key[ALLEGRO_KEY_ESCAPE][0]))
       {
-         mwEQ.proc_event_queue();
+         mEventQueue.proc();
          quit = 1;
          ret_item = - 1;
       }
@@ -852,7 +986,7 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
 
 void mwMiscFnx::rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color, int clip_mode)
 {
-   int d = mwD.display_transform_double;
+   int d = mDisplay.display_transform_double;
    if (!clip_mode) d = 1;
 
    al_set_clipping_rectangle(x1*d, y1*d, (x2-x1)*d, (y2-y1)*d);
@@ -863,8 +997,8 @@ void mwMiscFnx::rectangle_with_diagonal_lines(float x1, float y1, float x2, floa
    float ld = xd;
    if (yd > ld) ld = yd;
    for (float k=-ld; k<ld; k+=spacing)
-      al_draw_line(x1+k, y1-k, x1+ld+k, y1+ld-k, mC.pc[line_color], 0);
-   al_draw_rectangle(x1+0.5, y1+0.5, x2-0.5, y2-0.5, mC.pc[frame_color], 1);
+      al_draw_line(x1+k, y1-k, x1+ld+k, y1+ld-k, mColor.pc[line_color], 0);
+   al_draw_rectangle(x1+0.5, y1+0.5, x2-0.5, y2-0.5, mColor.pc[frame_color], 1);
    al_reset_clipping_rectangle();
 }
 
@@ -880,17 +1014,17 @@ void mwMiscFnx::rectangle_with_diagonal_lines(float x1, float y1, float x2, floa
 
 void mwMiscFnx::crosshairs_full(int x, int y, int color, int line_width) // draws a square and crosshairs around a full 20x20 block on level buffer
 {
-   al_draw_rectangle(x-10, y-10, x+11, y+11, mC.pc[color], line_width);
-   al_draw_line(0,    y, x-10, y, mC.pc[color], line_width);
-   al_draw_line(x+11, y, 1999, y, mC.pc[color], line_width);
-   al_draw_line(x,    0, x, y-10, mC.pc[color], line_width);
-   al_draw_line(x, y+11, x, 1999, mC.pc[color], line_width);
+   al_draw_rectangle(x-10, y-10, x+11, y+11, mColor.pc[color], line_width);
+   al_draw_line(0,    y, x-10, y, mColor.pc[color], line_width);
+   al_draw_line(x+11, y, 1999, y, mColor.pc[color], line_width);
+   al_draw_line(x,    0, x, y-10, mColor.pc[color], line_width);
+   al_draw_line(x, y+11, x, 1999, mColor.pc[color], line_width);
 }
 void mwMiscFnx::titlex(const char *txt, int tc, int fc, int x1, int x2, int y)
 {
    for (int x=0; x<15; x++)
-      al_draw_line(x1, y+x, x2, y+x, mC.pc[fc+(x*16)], 1);
-   al_draw_text(mF.pr8, mC.pc[tc], (x1+x2)/2, y+2, ALLEGRO_ALIGN_CENTER,  txt);
+      al_draw_line(x1, y+x, x2, y+x, mColor.pc[fc+(x*16)], 1);
+   al_draw_text(mFont.pr8, mColor.pc[tc], (x1+x2)/2, y+2, ALLEGRO_ALIGN_CENTER,  txt);
 }
 
 
@@ -915,7 +1049,7 @@ int mwMiscFnx::mw_file_select(const char * title, char * fn, const char * ext, i
    ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fn, title, wext, mode);
    if (afc==NULL) printf("failed to create native filechooser dialog\n");
 
-   if (al_show_native_file_dialog(display, afc))
+   if (al_show_native_file_dialog(mDisplay.display, afc))
    {
       if (al_get_native_file_dialog_count(afc) == 1)
       {
@@ -1080,13 +1214,13 @@ void mwMiscFnx::show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int c
 
    if (restore) // black background, text color text
    {
-      al_draw_filled_rectangle(x, y, x+8, y+8, mC.pc[0]);
-      al_draw_text(mF.pr8, mC.pc[cursor_color], x, y, 0, msg);
+      al_draw_filled_rectangle(x, y, x+8, y+8, mColor.pc[0]);
+      al_draw_text(mFont.pr8, mColor.pc[cursor_color], x, y, 0, msg);
    }
    else // red background, black text
    {
-      al_draw_filled_rectangle(x, y, x+8, y+8, mC.pc[10]);
-      al_draw_text(mF.pr8, mC.pc[0], x, y, 0, msg);
+      al_draw_filled_rectangle(x, y, x+8, y+8, mColor.pc[10]);
+      al_draw_text(mFont.pr8, mColor.pc[0], x, y, 0, msg);
    }
 }
 
@@ -1101,12 +1235,12 @@ void mwMiscFnx::edit_server_name(int type, int x, int y)
    int old_cp=0;
    int blink_count = 3;
    int blink_counter = 0;
-   while (mI.key[ALLEGRO_KEY_ENTER][0]) mwEQ.proc_event_queue();
+   while (mInput.key[ALLEGRO_KEY_ENTER][0]) mEventQueue.proc();
    int quit = 0;
    while (!quit)
    {
-      int tx = mwD.SCREEN_W/2;
-      int ty1 = mwD.SCREEN_H/2;
+      int tx = mDisplay.SCREEN_W/2;
+      int ty1 = mDisplay.SCREEN_H/2;
       int w = (char_count+1)*4;
 
       if (type == 1)
@@ -1118,13 +1252,13 @@ void mwMiscFnx::edit_server_name(int type, int x, int y)
 
       al_flip_display();
       // clear text background
-      al_draw_filled_rectangle(tx-w-8, ty1-4-2, tx+w+18, ty1+4+3, mC.pc[0]);
+      al_draw_filled_rectangle(tx-w-8, ty1-4-2, tx+w+18, ty1+4+3, mColor.pc[0]);
 
-      al_draw_text(mF.pr8, mC.pc[15], tx, ty1-14, ALLEGRO_ALIGN_CENTER, "Set Server IP or Hostname");
+      al_draw_text(mFont.pr8, mColor.pc[15], tx, ty1-14, ALLEGRO_ALIGN_CENTER, "Set Server IP or Hostname");
       // frame text
-      al_draw_rectangle       (tx-w-1, ty1-4-1, tx+w+6, ty1+6, mC.pc[15], 1);
+      al_draw_rectangle       (tx-w-1, ty1-4-1, tx+w+6, ty1+6, mColor.pc[15], 1);
 
-      mScreen.rtextout_centre(mF.pr8, NULL, fst, tx, ty1+1, 15, 1, 1);
+      mScreen.rtextout_centre(mFont.pr8, NULL, fst, tx, ty1+1, 15, 1, 1);
 
       if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1-3, 15, 0);
       else show_cursor(fst, cursor_pos, tx, ty1-3, 15, 1);
@@ -1138,23 +1272,23 @@ void mwMiscFnx::edit_server_name(int type, int x, int y)
       }
 
       al_rest(.08);
-      mwEQ.proc_event_queue();
-      if (mI.key[ALLEGRO_KEY_RIGHT][0])
+      mEventQueue.proc();
+      if (mInput.key[ALLEGRO_KEY_RIGHT][0])
       {
          if (++cursor_pos > char_count) cursor_pos = char_count;
       }
-      if (mI.key[ALLEGRO_KEY_LEFT][0])
+      if (mInput.key[ALLEGRO_KEY_LEFT][0])
       {
          if (--cursor_pos < 0) cursor_pos = 0;
       }
-      if ((mI.key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
+      if ((mInput.key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
       {
          for (int a = cursor_pos; a < char_count; a++)
            fst[a]=fst[a+1];
          --char_count;
          fst[char_count] = (char)NULL; // set last to NULL
       }
-      if ((mI.key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
+      if ((mInput.key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
       {
          cursor_pos--;
          for (int a = cursor_pos; a < char_count; a++)
@@ -1163,7 +1297,7 @@ void mwMiscFnx::edit_server_name(int type, int x, int y)
          fst[char_count] = (char)NULL; // set last to NULL
       }
 
-      int k = mI.key_pressed_ASCII;
+      int k = mInput.key_pressed_ASCII;
       if ((k>31) && (k<127)) // insert if alphanumeric or return
       {
          // move over to make room
@@ -1179,13 +1313,13 @@ void mwMiscFnx::edit_server_name(int type, int x, int y)
 
          fst[char_count] = (char)NULL; // set last to NULL
       }
-      if (mI.key[ALLEGRO_KEY_ENTER][3])
+      if (mInput.key[ALLEGRO_KEY_ENTER][3])
       {
          strcpy(mNetgame.m_serveraddress, fst);
          quit = 1;
       }
 
-      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 
    }
 }
@@ -1217,9 +1351,9 @@ int mwMiscFnx::edit_lift_name(int lift, int y1, int x1, char *fst)
 
       // draw updated lift
       for (a=0; a<10; a++)
-        al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mC.pc[color + ((9 - a)*16)], 2 );
-      al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, mC.pc[color] );
-      al_draw_text(mF.pr8, mC.pc[color+160], tx, ty1, ALLEGRO_ALIGN_CENTRE, fst);
+        al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mColor.pc[color + ((9 - a)*16)], 2 );
+      al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, mColor.pc[color] );
+      al_draw_text(mFont.pr8, mColor.pc[color+160], tx, ty1, ALLEGRO_ALIGN_CENTRE, fst);
 
 
       if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1, 15, 0);
@@ -1233,16 +1367,16 @@ int mwMiscFnx::edit_lift_name(int lift, int y1, int x1, char *fst)
          blink_counter = 0;
       }
 
-      mwEQ.proc_event_queue();
-      if (mI.key[ALLEGRO_KEY_RIGHT][0])
+      mEventQueue.proc();
+      if (mInput.key[ALLEGRO_KEY_RIGHT][0])
       {
          if (++cursor_pos >= char_count) cursor_pos = char_count-1;
       }
-      if (mI.key[ALLEGRO_KEY_LEFT][0])
+      if (mInput.key[ALLEGRO_KEY_LEFT][0])
       {
          if (--cursor_pos < 0) cursor_pos = 0;
       }
-      if ((mI.key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
+      if ((mInput.key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
       {
          for (a = cursor_pos; a < char_count; a++)
            fst[a]=fst[a+1];
@@ -1250,7 +1384,7 @@ int mwMiscFnx::edit_lift_name(int lift, int y1, int x1, char *fst)
          // set last to NULL
          fst[char_count] = (char)NULL;
       }
-      if ((mI.key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
+      if ((mInput.key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
       {
          cursor_pos--;
          for (a = cursor_pos; a < char_count; a++)
@@ -1260,7 +1394,7 @@ int mwMiscFnx::edit_lift_name(int lift, int y1, int x1, char *fst)
          fst[char_count] = (char)NULL;
       }
 
-      int k = mI.key_pressed_ASCII;
+      int k = mInput.key_pressed_ASCII;
       if ((k>31) && (k<127)) // insert if alphanumeric or return
       {
          // move over to make room
@@ -1277,8 +1411,8 @@ int mwMiscFnx::edit_lift_name(int lift, int y1, int x1, char *fst)
          // set last to NULL
          fst[char_count] = (char)NULL;
       }
-      if (mI.key[ALLEGRO_KEY_ENTER][3]) return 1;
-      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) return 0;
+      if (mInput.key[ALLEGRO_KEY_ENTER][3]) return 1;
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) return 0;
    }
 }
 

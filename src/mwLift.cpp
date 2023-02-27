@@ -5,7 +5,6 @@
 #include "mwPlayers.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwWindow.h"
 #include "mwWindowManager.h"
 #include "mwDisplay.h"
 #include "mwWidgets.h"
@@ -17,6 +16,9 @@
 #include "mwLoop.h"
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
+
+
+
 
 mwLift mLift;
 
@@ -145,9 +147,9 @@ void mwLift::show_all_lifts(void)
 {
    char msg[1024];
    int text_pos = 0;
-   al_set_target_backbuffer(display);
+   al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgb(0,0,0));
-   al_draw_textf(mF.pr8, mC.pc[13], 10, text_pos*8, 0, "number of lifts:%d", get_num_lifts());
+   al_draw_textf(mFont.pr8, mColor.pc[13], 10, text_pos*8, 0, "number of lifts:%d", get_num_lifts());
    text_pos++;
    for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
       if (cur[l].active)
@@ -165,7 +167,7 @@ void mwLift::show_all_lifts(void)
 
          int col  = cur[l].color;
          sprintf(msg,"lift:%-2d  x:%-4d y:%-4d w:%-4d h:%-4d x2:%-4d y2:%-4d mode:%d v1:%d v2:%d col:%-2d ns:%-2d  name:%s  ", l, x1, y1, w, h, x2, y2, mode, v1, v2, col, cur[l].num_steps, cur[l].lift_name);
-         al_draw_text(mF.pr8, mC.pc[10], 10, text_pos*8, 0, msg);
+         al_draw_text(mFont.pr8, mColor.pc[10], 10, text_pos*8, 0, msg);
          text_pos++;
 
          for (int s=0; s<cur[l].num_steps; s++) // iterate steps
@@ -195,12 +197,12 @@ void mwLift::show_all_lifts(void)
                color = 14;
             }
             mMiscFnx.printBits(4, &stp[l][s].type);
-            al_draw_textf(mF.pr8, mC.pc[color], 10, text_pos*8, 0, " step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s) col:%2d b:%s", s, x, y, w, h, val, type, typemsg, step_color, msg);
+            al_draw_textf(mFont.pr8, mColor.pc[color], 10, text_pos*8, 0, " step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s) col:%2d b:%s", s, x, y, w, h, val, type, typemsg, step_color, msg);
             text_pos++;
          }
       }
    al_flip_display();
-   mI.tsw(); // wait for keypress
+   mInput.tsw(); // wait for keypress
 }
 
 
@@ -334,7 +336,7 @@ int mwLift::create_lift(void)
    }
    else
    {
-      al_show_native_message_box(display, "Error", "Error creating lift", "Lift list full!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+      al_show_native_message_box(mDisplay.display, "Error", "Error creating lift", "Lift list full!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
       return 0;
    }
 }
@@ -355,7 +357,7 @@ int mwLift::get_new_lift_step(int lift, int step)
 
    int sty = mwWM.mW[7].y1 + 44 + (step + 10) * bts;
 
-   if (sty > mwD.SCREEN_H-60) sty = mwD.SCREEN_H-60;
+   if (sty > mDisplay.SCREEN_H-60) sty = mDisplay.SCREEN_H-60;
 
    int num_of_step_types = 5;
    int sth = (num_of_step_types * 12) + 26;
@@ -366,36 +368,36 @@ int mwLift::get_new_lift_step(int lift, int step)
 
    int xc = (mwWM.mW[7].x1 + mwWM.mW[7].x2)/2;
 
-   al_draw_filled_rectangle(xc-98, sty-8, xc+96, sty2, mC.pc[fc+192]); // erase to background color
-   al_draw_rectangle       (xc-98, sty-8, xc+96, sty2, mC.pc[fc], 1); // frame
+   al_draw_filled_rectangle(xc-98, sty-8, xc+96, sty2, mColor.pc[fc+192]); // erase to background color
+   al_draw_rectangle       (xc-98, sty-8, xc+96, sty2, mColor.pc[fc], 1); // frame
 
-   al_set_mouse_xy(display, xc * mwD.display_transform_double, (sty+24) * mwD.display_transform_double); // position the mouse
+   al_set_mouse_xy(mDisplay.display, xc * mDisplay.display_transform_double, (sty+24) * mDisplay.display_transform_double); // position the mouse
 
    int quit = 0;
    while (!quit)
    {
       al_rest(0.02);
       al_flip_display();
-      mwEQ.proc_event_queue();
-      if ((mI.mouse_b[2][0]) || (mI.key[ALLEGRO_KEY_ESCAPE][0])) quit = 99;
-      al_draw_textf(mF.pr8, mC.pc[fc], xc, sty-6, ALLEGRO_ALIGN_CENTER, "Insert New Step %d", step);
-      al_draw_text(mF.pr8, mC.pc[tc], xc, sty+5, ALLEGRO_ALIGN_CENTER, "Select Step Type");
-      al_draw_rectangle(xc-98, sty+3, xc+96, sty+14, mC.pc[fc], 1); // frame
+      mEventQueue.proc();
+      if ((mInput.mouse_b[2][0]) || (mInput.key[ALLEGRO_KEY_ESCAPE][0])) quit = 99;
+      al_draw_textf(mFont.pr8, mColor.pc[fc], xc, sty-6, ALLEGRO_ALIGN_CENTER, "Insert New Step %d", step);
+      al_draw_text(mFont.pr8, mColor.pc[tc], xc, sty+5, ALLEGRO_ALIGN_CENTER, "Select Step Type");
+      al_draw_rectangle(xc-98, sty+3, xc+96, sty+14, mColor.pc[fc], 1); // frame
       int c1 = 14+64; // button color
       int c2 = 15; // text color
       int c3 = 15; // highlight color
       int bts = 14;
       int ya = sty+2+bts;
-      if (mdw_buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Move"))
+      if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Move"))
       {
          quit = construct_lift_step(lift, step, 1, 0, 0, 0, 0, 20);
          lift_step_set_size_from_previous_move_step(lift, step);
          if (mMiscFnx.getxy("Step Position", 4, lift, step) != 1) quit = 99;
       }
-      if (mdw_buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Time")) quit = construct_lift_step(lift, step, 2, 0, 0, 0, 0, 100);
-      if (mdw_buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Prox")) quit = construct_lift_step(lift, step, 3, 0, 0, 0, 0, 80);
-      if (mdw_buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Trig")) quit = construct_lift_step(lift, step, 5, 0, 0, 0, 0, 0);
-      if (mdw_buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Done"))          quit = 99;
+      if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Time")) quit = construct_lift_step(lift, step, 2, 0, 0, 0, 0, 100);
+      if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Prox")) quit = construct_lift_step(lift, step, 3, 0, 0, 0, 0, 80);
+      if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Trig")) quit = construct_lift_step(lift, step, 5, 0, 0, 0, 0, 0);
+      if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Done"))          quit = 99;
    } // end of while (!quit)
    return quit;
 }
@@ -411,7 +413,7 @@ int mwLift::insert_lift_step(int lift, int step) // inserts a step in 'lift' bef
    {
       cur[lift].num_steps--;
       ret = 0;
-      al_show_native_message_box(display, "Error", "Error creating lift step", "40 steps is the maximum", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+      al_show_native_message_box(mDisplay.display, "Error", "Error creating lift step", "40 steps is the maximum", NULL, ALLEGRO_MESSAGEBOX_ERROR);
    }
    else
    {
@@ -486,18 +488,18 @@ void mwLift::set_all_steps(int l, int s, int what)
 
 void mwLift::step_popup_menu(int lift, int step)
 {
-   int smx = mI.mouse_x;
-   int smy = mI.mouse_y;
+   int smx = mInput.mouse_x;
+   int smy = mInput.mouse_y;
 
-   if (smx > mwD.SCREEN_W-100) smx = mwD.SCREEN_W-100;
-   if (smy > mwD.SCREEN_H-100) smy = mwD.SCREEN_H-100;
+   if (smx > mDisplay.SCREEN_W-100) smx = mDisplay.SCREEN_W-100;
+   if (smy > mDisplay.SCREEN_H-100) smy = mDisplay.SCREEN_H-100;
    if (smx < 100) smx = 100;
    if (smy < 30) smy = 30;
 
-   al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
-   al_set_mouse_xy(display, smx * mwD.display_transform_double, smy * mwD.display_transform_double);
+   al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+   al_set_mouse_xy(mDisplay.display, smx * mDisplay.display_transform_double, smy * mDisplay.display_transform_double);
 
-   mwEQ.proc_event_queue(); // to deal with mouse warp
+   mEventQueue.proc(); // to deal with mouse warp
 
    // full menu
    sprintf(mMenu.menu_string[0],"Lift:%d Step:%d", lift+1, step);
@@ -591,63 +593,63 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
    {
       case 1: // move and resize
          sprintf(msg, "Step:%d - Move and Resize", s);
-         mdw_buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
+         mWidget.buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
       break;
       case 2: // wait time
          sprintf(msg, "Step:%d - Wait For Timer", s);
-         mdw_buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
+         mWidget.buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
       break;
       case 3: // wait prox
          sprintf(msg, "Step:%d - Wait For Player Proximity", s);
-         mdw_buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
+         mWidget.buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
       break;
       case 4: // end step
          sprintf(msg, "Step:%d - Ending Step", s);
-         mdw_buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
+         mWidget.buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
       break;
       case 5: // wait trigger
          sprintf(msg, "Step:%d - Wait For Trigger", s);
-         mdw_buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
+         mWidget.buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
       break;
    }
 
    // default buttons
    int col = (stp[l][s].type >> 28) & 15;
    sprintf(msg, "Step Color:%d", col);
-   mdw_buttont(xa, ya, xb, bts, 0,0,0,0,  0, col, 15, 0,   1,0,1,d, msg);
+   mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,  0, col, 15, 0,   1,0,1,d, msg);
 
-   mdw_colsel(xa, ya, xb, bts, 8,l,s,0,  0,15,13,14,   0,0,1,d); // lift step color
+   mWidget.colsel(xa, ya, xb, bts, 8,l,s,0,  0,15,13,14,   0,0,1,d); // lift step color
 
    int dim = 32;
    int c2 = 14;
    int c3 = 15;
 
-   mdw_togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_NO_DRAW,      "Draw Lift",            "Hide Lift",            c3, c3+dim, c2, c2+dim);
-   mdw_togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_PLAYER, "Solid for Player:OFF", "Solid for Player:ON ", c3+dim, c3, c2+dim, c2);
-   mdw_togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_ENEMY,  "Solid for Enemy:OFF ", "Solid for Enemy:ON  ", c3+dim, c3, c2+dim, c2);
-   mdw_togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_ITEM,   "Solid for Item:OFF  ", "Solid for Item:ON   ", c3+dim, c3, c2+dim, c2);
-   mdw_togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_HIDE_LINES,   "Draw Lift Lines",      "Hide Lift Lines",      c3, c3+dim, c2, c2+dim);
+   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_NO_DRAW,      "Draw Lift",            "Hide Lift",            c3, c3+dim, c2, c2+dim);
+   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_PLAYER, "Solid for Player:OFF", "Solid for Player:ON ", c3+dim, c3, c2+dim, c2);
+   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_ENEMY,  "Solid for Enemy:OFF ", "Solid for Enemy:ON  ", c3+dim, c3, c2+dim, c2);
+   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_ITEM,   "Solid for Item:OFF  ", "Solid for Item:ON   ", c3+dim, c3, c2+dim, c2);
+   mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_HIDE_LINES,   "Draw Lift Lines",      "Hide Lift Lines",      c3, c3+dim, c2, c2+dim);
 
    // specific buttons
    switch (stp[l][s].type & 31)
    {
       case 1: // move and resize
-         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 1000, 1, 1, "Speed:");
-         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].w,   1600, 20, 1, "Width:");
-         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].h,   1600, 20, 1, "Height:");
+         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 1000, 1, 1, "Speed:");
+         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].w,   1600, 20, 1, "Width:");
+         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].h,   1600, 20, 1, "Height:");
       break;
       case 2: // wait time
-         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 2000, 1, 1, "Timer:");
+         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 2000, 1, 1, "Timer:");
       break;
       case 3: // wait prox
-         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 200, 20, 10, "Distance:");
+         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 200, 20, 10, "Distance:");
       break;
       case 4: // end step
-         mdw_button( xa, ya, xb, bts,  505,l,s,0, 0,c1,15,0,  1,0,1,d); // lift step end step mode
+         mWidget.button( xa, ya, xb, bts,  505,l,s,0, 0,c1,15,0,  1,0,1,d); // lift step end step mode
       break;
       case 5: // wait trigger
-         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Trigger:");
-         mdw_button( xa, ya, xb, bts,  520,l,s,4, 0,c1,15,0,  1,0,1,d); ya+=bts; // lift step wait trigger get event
+         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Trigger:");
+         mWidget.button( xa, ya, xb, bts,  520,l,s,4, 0,c1,15,0,  1,0,1,d); ya+=bts; // lift step wait trigger get event
       break;
    }
 
@@ -655,8 +657,8 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
    int y1 = y;
    int y2 = ya-bts+(fs*2);
    for (int q=0; q<fs; q++)
-      al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, mC.pc[10+(q*16)], 1);
-   al_draw_text(mF.pr8, mC.pc[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "Current Step Details");
+      al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, mColor.pc[10+(q*16)], 1);
+   al_draw_text(mFont.pr8, mColor.pc[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "Current Step Details");
    return y2-y1+2; // return how much y space was used
 }
 
@@ -671,17 +673,17 @@ void mwLift::draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, in
    int x4 = x3 + 42; // third  column (type)   is fixed size
    if (s == -1) // show row headers
    {
-      mdw_button(x1, ty1, x2, ty2-ty1, 501, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // num
-      mdw_button(x2, ty1, x3, ty2-ty1, 506, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // 'C'
-      mdw_button(x3, ty1, x4, ty2-ty1, 502, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // type
-      mdw_button(x4, ty1, xb, ty2-ty1, 503, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // description
+      mWidget.button(x1, ty1, x2, ty2-ty1, 501, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // num
+      mWidget.button(x2, ty1, x3, ty2-ty1, 506, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // 'C'
+      mWidget.button(x3, ty1, x4, ty2-ty1, 502, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // type
+      mWidget.button(x4, ty1, xb, ty2-ty1, 503, -1, 0, 0,  0,rc,15,0,  1,0,0,d); // description
    }
    else
    {
-      mdw_button(x1, ty1, x2, ty2-ty1, 501, s, 0, 0,   0,rc,15,0,  1,0,0,d); // num
-      mdw_button(x2, ty1, x3, ty2-ty1, 506, c, 0, 0,   0, c,15,0,  1,0,0,d); // color
-      mdw_button(x3, ty1, x4, ty2-ty1, 502, t, 0, 0,   0,rc,15,0,  1,0,0,d); // type
-      mdw_button(x4, ty1, xb, ty2-ty1, 503, t, l, s,   0,rc,15,0,  1,1,0,d); // description
+      mWidget.button(x1, ty1, x2, ty2-ty1, 501, s, 0, 0,   0,rc,15,0,  1,0,0,d); // num
+      mWidget.button(x2, ty1, x3, ty2-ty1, 506, c, 0, 0,   0, c,15,0,  1,0,0,d); // color
+      mWidget.button(x3, ty1, x4, ty2-ty1, 502, t, 0, 0,   0,rc,15,0,  1,0,0,d); // type
+      mWidget.button(x4, ty1, xb, ty2-ty1, 503, t, l, s,   0,rc,15,0,  1,1,0,d); // description
    }
 }
 
@@ -707,14 +709,14 @@ int mwLift::draw_steps(int x1, int x2, int y, int lift, int current_step, int hi
 
    // show outline around highlighted step
    int hs = highlight_step+1;
-   if (hs > -1) al_draw_rectangle(xa, ya+hs*bts, xb, ya+(hs+1)*bts, mC.pc[14], 2);
+   if (hs > -1) al_draw_rectangle(xa, ya+hs*bts, xb, ya+(hs+1)*bts, mColor.pc[14], 2);
 
    int y1 = y;
    int y2 = y1+a*bts+fs*2;
    int ci = 16; //color inc
    for (int q=0; q<fs; q++)
-      al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, mC.pc[12+32+(q*ci)], 1);
-   al_draw_text(mF.pr8, mC.pc[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "List of Steps");
+      al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, mColor.pc[12+32+(q*ci)], 1);
+   al_draw_text(mFont.pr8, mColor.pc[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "List of Steps");
 
    return fs*2 + (cur[lift].num_steps + 1) * bts; // return how much y space was used
 }
@@ -804,15 +806,15 @@ void mwLift::draw_lift_line(int l)
                if (!(stp[l][s].type & PM_LIFT_HIDE_LINES))
                {
                   col = (stp[l][s].type >> 28) & 15;
-                  al_draw_line( px, py, nx, ny, mC.pc[col], 1);
+                  al_draw_line( px, py, nx, ny, mColor.pc[col], 1);
                   if (mLoop.eco_draw)
                   {
-                     // al_draw_filled_circle(nx, ny, 2, mC.pc[col]);
+                     // al_draw_filled_circle(nx, ny, 2, mColor.pc[col]);
                   }
                   else
                   {
                      for (int c=3; c>=0; c--)
-                        al_draw_filled_circle(nx, ny, c, mC.pc[(col - 96) + c*48]);
+                        al_draw_filled_circle(nx, ny, c, mColor.pc[(col - 96) + c*48]);
                   }
                }
 
@@ -823,7 +825,7 @@ void mwLift::draw_lift_line(int l)
          if (!(stp[l][0].type & PM_LIFT_HIDE_LINES))
          {
             col = (stp[l][0].type >> 28) & 15;
-            al_draw_line(sx, sy, nx, ny, mC.pc[col], 1); // draw line from last to first
+            al_draw_line(sx, sy, nx, ny, mColor.pc[col], 1); // draw line from last to first
          }
       }
    }
@@ -838,32 +840,32 @@ void mwLift::draw_lift(int l, int x1, int y1, int x2, int y2)
 
    if (mLoop.eco_draw)
    {
-      al_draw_filled_rectangle(x1, y1, x2, y2, mC.pc[col]);
-      //al_draw_filled_rounded_rectangle(x1, y1, x2, y2, 4, 4, mC.pc[col] );
-      al_draw_text(mF.bltn, mC.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name); // name
+      al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[col]);
+      //al_draw_filled_rounded_rectangle(x1, y1, x2, y2, 4, 4, mColor.pc[col] );
+      al_draw_text(mFont.bltn, mColor.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name); // name
    }
    else
    {
       int a;
       for (a=0; a<10; a++)
-        al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mC.pc[col + ((9 - a)*16)], 2 ); // faded outer shell
+        al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mColor.pc[col + ((9 - a)*16)], 2 ); // faded outer shell
 
-      al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, mC.pc[col] );                            // solid core
-      al_draw_text(mF.bltn, mC.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name); // name
+      al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, mColor.pc[col] );                            // solid core
+      al_draw_text(mFont.bltn, mColor.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name); // name
    }
 
 
   // printf("x1:%d y1:%d x2:%d y2:%d\n", x1, y1, x2, y2);
 
-//   al_draw_textf(mF.pr8, mC.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", cur[l].current_step, cur[l].val1);    // debug name
+//   al_draw_textf(mFont.pr8, mColor.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", cur[l].current_step, cur[l].val1);    // debug name
 
-//   al_draw_textf(mF.pr8, mC.pc[15], (x1+x2)/2, (y1+y2)/2 - 16, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", cur[l].current_step, cur[l].val1);    // debug name
+//   al_draw_textf(mFont.pr8, mColor.pc[15], (x1+x2)/2, (y1+y2)/2 - 16, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", cur[l].current_step, cur[l].val1);    // debug name
 
 }
 
 void mwLift::draw_lifts()
 {
-   al_set_target_bitmap(mwB.level_buffer);
+   al_set_target_bitmap(mBitmap.level_buffer);
 
    for (int l=0; l<NUM_LIFTS; l++)
       if (cur[l].active)
@@ -887,7 +889,7 @@ void mwLift::draw_lifts()
                p -=1; // player number
                int pc = mPlayer.syn[p].color;
                if (pc == color) pc = 127;
-               al_draw_rounded_rectangle(x1, y1, x2, y2, 4, 4, mC.pc[pc], 2);
+               al_draw_rounded_rectangle(x1, y1, x2, y2, 4, 4, mColor.pc[pc], 2);
             }
 
             if ((cur[l].mode) && (!is_player_riding_lift(l)))
@@ -910,7 +912,7 @@ void mwLift::draw_lifts()
                {
                   case 2: // timer wait
                      if (cur[l].limit_counter > 0)
-                        al_draw_textf(mF.pr8, mC.pc[color+64], (x1 + x2)/2 + 2, cur[l].y - 8, ALLEGRO_ALIGN_CENTRE, "%d", cur[l].limit_counter);
+                        al_draw_textf(mFont.pr8, mColor.pc[color+64], (x1 + x2)/2 + 2, cur[l].y - 8, ALLEGRO_ALIGN_CENTRE, "%d", cur[l].limit_counter);
                   break;
                   case 3: // prox wait
                   {
@@ -919,7 +921,7 @@ void mwLift::draw_lifts()
                      int by1 = y1 - pd;
                      int bx2 = x2 + pd;
                      int by2 = y2 + pd;
-                     al_draw_rectangle(bx1+10, by1+10, bx2-10, by2-10, mC.pc[color+128], 1);
+                     al_draw_rectangle(bx1+10, by1+10, bx2-10, by2-10, mColor.pc[color+128], 1);
                   }
                   break;
                }

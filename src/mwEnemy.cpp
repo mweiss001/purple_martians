@@ -15,7 +15,6 @@
 #include "mwGameEvent.h"
 
 
-
 mwEnemy mEnemy;
 
 
@@ -45,11 +44,11 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
    float sc =  Ef[e][12];
 
    if ((type == 13) && (Ei[e][15] != 0)) // different rotation point for vinepod
-      al_draw_scaled_rotated_bitmap(mwB.tile[tn], 10, 3, x+10, y+10, sc, sc, rot, flags);
-   else al_draw_scaled_rotated_bitmap(mwB.tile[tn], 10, 10, x+10, y+10, sc, sc, rot, flags);
+      al_draw_scaled_rotated_bitmap(mBitmap.tile[tn], 10, 3, x+10, y+10, sc, sc, rot, flags);
+   else al_draw_scaled_rotated_bitmap(mBitmap.tile[tn], 10, 10, x+10, y+10, sc, sc, rot, flags);
 
    // if enemy is expiring show how many seconds it has left
-   if ((!mLoop.level_editor_running) && (Ei[e][27])) al_draw_textf(mF.pixl, mC.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
+   if ((!mLoop.level_editor_running) && (Ei[e][27])) al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
 
 
 
@@ -61,7 +60,7 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
       int y1 = Ef[e][1];
       int x2 = x1 + 20;
       int y2 = y1 + 20;
-      al_draw_rectangle(x1, y1, x2, y2, mC.pc[14], 1);
+      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[14], 1);
    }
 */
 
@@ -96,7 +95,7 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
             // if player in collision box color = red
             if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) color = 10;
       }
-      al_draw_rectangle(x1-il, y1-il, x1+il, y1+il, mC.pc[color], 1);
+      al_draw_rectangle(x1-il, y1-il, x1+il, y1+il, mColor.pc[color], 1);
    }
    #endif
 
@@ -105,7 +104,7 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
 /*
    if (Ei[e][0] == 3) // archwagon
    {
-      al_draw_textf(mF.pr8, mC.pc[15], EXint+30, EYint+10, 0, "%d", Ei[e][5]);
+      al_draw_textf(mFont.pr8, mColor.pc[15], EXint+30, EYint+10, 0, "%d", Ei[e][5]);
    }
 */
 
@@ -128,12 +127,12 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
       int y1 = base - Ei[e][21];
       int y2 = base + Ei[e][21];
 
-      al_draw_line(EXint-140, base, EXint+140, base, mC.pc[11], 1);
-      al_draw_rectangle(EXint-40, y1, EXint+40, y2, mC.pc[11], 1);
+      al_draw_line(EXint-140, base, EXint+140, base, mColor.pc[11], 1);
+      al_draw_rectangle(EXint-40, y1, EXint+40, y2, mColor.pc[11], 1);
 
       // draw height above player
       int hab =  Ei[e][20];
-      al_draw_line(EXint-40, base+hab, EXint+40, base+hab, mC.pc[12], 1);
+      al_draw_line(EXint-40, base+hab, EXint+40, base+hab, mColor.pc[12], 1);
 
       int p = find_closest_player_flapper(e);
       if (p != -1)
@@ -141,8 +140,8 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
          color = 10;
          bomb_crosshairs(mPlayer.syn[p].x+10, mPlayer.syn[p].y+10); // mark targetted player
       }
-      if (Ef[e][2] > 0) al_draw_pieslice(ex, ey, prox, th1, thd, mC.pc[color], 1);
-      else              al_draw_pieslice(ex, ey, prox, th2, thd, mC.pc[color], 1);
+      if (Ef[e][2] > 0) al_draw_pieslice(ex, ey, prox, th1, thd, mColor.pc[color], 1);
+      else              al_draw_pieslice(ex, ey, prox, th2, thd, mColor.pc[color], 1);
    }
    #endif
 
@@ -171,10 +170,10 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
          case 2: case 7: quad = 3; break; // ceil left, rwall down
          case 3: case 6: quad = 4; break; // lwall down, ceil right
       }
-      if (quad == 1) al_draw_pieslice(ex, ey, prox, -pi/2, pi/2, mC.pc[color], 0);
-      if (quad == 4) al_draw_pieslice(ex, ey, prox, 0,     pi/2, mC.pc[color], 0);
-      if (quad == 3) al_draw_pieslice(ex, ey, prox, pi/2,  pi/2, mC.pc[color], 0);
-      if (quad == 2) al_draw_pieslice(ex, ey, prox, pi,    pi/2, mC.pc[color], 0);
+      if (quad == 1) al_draw_pieslice(ex, ey, prox, -pi/2, pi/2, mColor.pc[color], 0);
+      if (quad == 4) al_draw_pieslice(ex, ey, prox, 0,     pi/2, mColor.pc[color], 0);
+      if (quad == 3) al_draw_pieslice(ex, ey, prox, pi/2,  pi/2, mColor.pc[color], 0);
+      if (quad == 2) al_draw_pieslice(ex, ey, prox, pi,    pi/2, mColor.pc[color], 0);
    }
    #endif
 }
@@ -183,7 +182,7 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
 
 void mwEnemy::draw_enemies(void)
 {
-   al_set_target_bitmap(mwB.level_buffer);
+   al_set_target_bitmap(mBitmap.level_buffer);
    for (int e=0; e<100; e++)
       if (Ei[e][0])  // if enemy active
          draw_enemy(e, 0, 0, 0);
@@ -287,12 +286,12 @@ void mwEnemy::proc_enemy_collision_with_pshot(int e)
 void mwEnemy::move_enemies()
 {
    char msg[1024];
-   if (mLog.LOG_TMR_move_enem) mwTS.init_timestamps();
+   if (mLog.LOG_TMR_move_enem) mTimeStamp.init_timestamps();
    num_enemy = 0; // count enemies
    for (int e=0; e<100; e++)
       if (Ei[e][0])
       {
-         if (mLog.LOG_TMR_move_enem) t0 = al_get_time();
+         double t0 = al_get_time();
          num_enemy++; // enemy count
          if (Ei[e][0] < 50) proc_enemy_collision_with_pshot(e);
          // check for time to live
@@ -305,7 +304,7 @@ void mwEnemy::move_enemies()
                Ef[e][4] = 0;  // cant hurt anymore
                Ei[e][29] = 0;             // no collision box
                int sq = 10-ttl;
-               Ei[e][1] = mwB.zz[5+sq][74];
+               Ei[e][1] = mBitmap.zz[5+sq][74];
             }
             if (ttl == 1) Ei[e][0] = 0; // kill instantly
             Ei[e][27]--;
@@ -329,17 +328,17 @@ void mwEnemy::move_enemies()
             case 13: move_vinepod(e);  break;
             case 99: enemy_deathcount(e); break;
          }
-         if (mLog.LOG_TMR_move_enem) mwTS.add_timestamp(103, e, Ei[e][0], al_get_time()-t0, 0);
+         if (mLog.LOG_TMR_move_enem) mTimeStamp.add_timestamp(103, e, Ei[e][0], al_get_time()-t0, 0);
       }
    if (mLog.LOG_TMR_move_enem)
    {
       // tally up all the times for each enemy type
       double tmr_tally[100][3] = {0};
       for (int i=0; i<10000; i++)
-         if (mwTS.timestamps[i].type == 103)
+         if (mTimeStamp.timestamps[i].type == 103)
          {
-            tmr_tally[mwTS.timestamps[i].frame2][0] +=1;                 // add to number of this type tally
-            tmr_tally[mwTS.timestamps[i].frame2][1] += mwTS.timestamps[i].t1; // add to time tally
+            tmr_tally[mTimeStamp.timestamps[i].frame2][0] +=1;                 // add to number of this type tally
+            tmr_tally[mTimeStamp.timestamps[i].frame2][1] += mTimeStamp.timestamps[i].t1; // add to time tally
          }
       // build log entry
       char t[512] = {0};
@@ -368,7 +367,7 @@ void mwEnemy::enemy_deathcount(int e)
    Ef[e][0] += Ef[e][2]; // xinc
    Ef[e][1] += Ef[e][3]; // yinc
 
-   Ei[e][1] = mwB.zz[0][ Ei[e][3] ]; // draw current ans shape
+   Ei[e][1] = mBitmap.zz[0][ Ei[e][3] ]; // draw current ans shape
    // dec and check countdown timer
    if (--Ei[e][30] < 0) // create bonus
    {
@@ -495,10 +494,10 @@ void mwEnemy::enemy_killed(int e)
    int na = Ei[e][3];  // new ans
    int dl = Ei[e][30]; // death_loop_wait; set delay
 
-   mwB.zz[0][na] = mwB.zz[5][na];      // set shape
-   mwB.zz[1][na] = 0;                  // point to zero
-   mwB.zz[2][na] = 0;                  // set counter
-   mwB.zz[3][na] = dl / mwB.zz[4][na]; // set ans timer
+   mBitmap.zz[0][na] = mBitmap.zz[5][na];      // set shape
+   mBitmap.zz[1][na] = 0;                  // point to zero
+   mBitmap.zz[2][na] = 0;                  // set counter
+   mBitmap.zz[3][na] = dl / mBitmap.zz[4][na]; // set ans timer
 
    if (hbm == 1) mGameEvent.add(60, 0, 0, Ei[e][26], e, type, 0);
    if (hbm == 2) mGameEvent.add(62, 0, 0, Ei[e][26], e, type, 0);

@@ -13,14 +13,16 @@
 #define NUM_LOG_CHAR  100000000
 #define NUM_LOG_LINES 1000000
 
-
 class mwLog
 {
    private:
    int lp[8][2];
 
-
    public:
+
+   ALLEGRO_FS_ENTRY *filenames[1000];
+   int num_filenames;
+
    char log_msg[NUM_LOG_CHAR];
    int log_msg_pos = 0;
    char log_lines[NUM_LOG_LINES][100];  // for log file viewer
@@ -67,7 +69,12 @@ class mwLog
    int autosave_game_on_level_done = 0;
 
 
-
+   void erase_log(void);
+   void save_log_file(void);
+   void add_log_entry2(int type, int player, const char *txt);
+   void add_log_entry_position_text(int type, int player, int width, int pos, const char *txt, const char *border, const char *fill);
+   void add_log_entry_centered_text(int type, int player, int width, const char *txt, const char *border, const char *fill);
+   void add_log_entry_header(int type, int player, const char *txt, int blank_lines);
 
    void log_bandwidth_stats(int p);
    void log_reason_for_player_quit(int p);
@@ -78,19 +85,8 @@ class mwLog
    void log_player_array2(void);
    void log_ending_stats(int p);
    void log_ending_stats_server();
-   void erase_log(void);
-   void save_log_file(void);
-   void add_log_entry2(int type, int player, const char *txt);
-   void add_log_entry_position_text(int type, int player, int width, int pos, const char *txt, const char *border, const char *fill);
-   void add_log_entry_centered_text(int type, int player, int width, const char *txt, const char *border, const char *fill);
-   void add_log_entry_header(int type, int player, const char *txt, int blank_lines);
 
-   void get_tag_text(char *str, char *res, int show);
-   int get_tag_text2(char *str, char *res, char *res1, int show);
-
-   int load_log_lines_array_from_static_file(const char* f);
-   int log_file_viewer(int type);
-
+   // in mwLogGraph.cpp
    void run_profile_graph(int choose);
    int load_profile_graph(int choose);
 
@@ -103,16 +99,14 @@ class mwLog
    void run_bandwidth_graph(int num_lines, int both);
    int load_bandwidth_graph(int num_lines, int both);
 
-
    // not used
    void run_timestamp_graph(void);
    void log_timestamp_graph(int num_lines);
 
 
-
-   void mw_code_stat(struct code_stat &cs);
-   void show_code_stats(void);
-
+   // in mwLogViewer.cpp
+   int load_log_lines_array_from_static_file(const char* f);
+   int log_file_viewer(int type);
 
 
 };

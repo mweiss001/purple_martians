@@ -14,16 +14,13 @@
 #include "mwConfig.h"
 #include "mwLoop.h"
 #include "mwLevel.h"
-#include "mwGameMovesArray.h"
-
-
-
+#include "mwGameMoves.h"
 
 mwMain mMain;
 
 void mwMain::final_wrapup(void)
 {
-   mwD.save_display_window_position();
+   mDisplay.save_display_window_position();
 
    al_destroy_audio_stream(mSound.pm_theme_stream);
 /*
@@ -72,11 +69,11 @@ void mwMain::final_wrapup(void)
    printf("al_unregister_event_source(event_queue, al_get_timer_event_source(mnu_timer));\n");
    al_unregister_event_source(event_queue, al_get_timer_event_source(mnu_timer));
 
-   printf("al_unregister_event_source(event_queue, al_get_display_event_source(display))\n");
-   al_unregister_event_source(event_queue, al_get_display_event_source(display));
+   printf("al_unregister_event_source(event_queue, al_get_display_event_source(mDisplay.display))\n");
+   al_unregister_event_source(event_queue, al_get_display_event_source(mDisplay.display));
 
    printf("al_destroy_display()\n");
-   al_destroy_display(display);
+   al_destroy_display(mDisplay.display);
 
    printf("al_destroy_event_queue(event_queue)\n");
    al_destroy_event_queue(event_queue);
@@ -94,7 +91,7 @@ void mwMain::fast_exit(int why)
 {
    if (why != 0) mPlayer.loc[mPlayer.active_local_player].quit_reason = why; // don't overwrite if not zero
    if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
-   if (mLog.autosave_game_on_game_exit) mwGMA.blind_save_game_moves(3);
+   if (mLog.autosave_game_on_game_exit) mGameMoves.blind_save_game_moves(3);
    final_wrapup();
    exit(0);
 }
@@ -161,14 +158,14 @@ void mwMain::get_desktop_resolution()
 {
    ALLEGRO_MONITOR_INFO aminfo;
    al_get_monitor_info(0, &aminfo);
-   mwD.desktop_width  = aminfo.x2 - aminfo.x1;
-   mwD.desktop_height = aminfo.y2 - aminfo.y1;
-   printf("Desktop Resolution: %dx%d\n", mwD.desktop_width, mwD.desktop_height);
+   mDisplay.desktop_width  = aminfo.x2 - aminfo.x1;
+   mDisplay.desktop_height = aminfo.y2 - aminfo.y1;
+   printf("Desktop Resolution: %dx%d\n", mDisplay.desktop_width, mDisplay.desktop_height);
 
-   mwD.disp_x_full = 0; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
-   mwD.disp_y_full = 0;
-   mwD.disp_w_full = mwD.desktop_width;
-   mwD.disp_h_full = mwD.desktop_height;
+   mDisplay.disp_x_full = 0; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
+   mDisplay.disp_y_full = 0;
+   mDisplay.disp_w_full = mDisplay.desktop_width;
+   mDisplay.disp_h_full = mDisplay.desktop_height;
 }
 
 int mwMain::initial_setup(void)
@@ -185,79 +182,79 @@ int mwMain::initial_setup(void)
    srand(time(NULL));
 
    // --- event queue ----------------
-   mwEQ.event_queue = al_create_event_queue();
-   if(!mwEQ.event_queue)
+   mEventQueue.event_queue = al_create_event_queue();
+   if(!mEventQueue.event_queue)
    {
-      mI.m_err("Failed to create event queue.\n");
+      mInput.m_err("Failed to create event queue.\n");
       return 0;
    }
 
    // --- display --------------------
-   if (!mwD.init_display())
+   if (!mDisplay.init_display())
    {
-      mI.m_err("Failed to initialize display.\n");
+      mInput.m_err("Failed to initialize display.\n");
       return 0;
    }
 
-   al_register_event_source(mwEQ.event_queue, al_get_display_event_source(display));
+   al_register_event_source(mEventQueue.event_queue, al_get_display_event_source(mDisplay.display));
 
    // --- allegro add ons ------------
    if(!al_init_native_dialog_addon())
    {
-      mI.m_err("Failed to initialize native dialog addon.\n");
+      mInput.m_err("Failed to initialize native dialog addon.\n");
       return 0;
    }
 
    if(!al_init_primitives_addon())
    {
-      mI.m_err("Failed to initialize primitives addon.\n");
+      mInput.m_err("Failed to initialize primitives addon.\n");
       return 0;
    }
 
    if(!al_init_image_addon())
    {
-      mI.m_err("Failed to initialize image addon.\n");
+      mInput.m_err("Failed to initialize image addon.\n");
       return 0;
    }
 
    if(!al_init_font_addon())
    {
-      mI.m_err("Failed to initialize font addon.\n");
+      mInput.m_err("Failed to initialize font addon.\n");
       return 0;
    }
 
    if(!al_init_ttf_addon())
    {
-      mI.m_err("Failed to initialize ttf addon.\n");
+      mInput.m_err("Failed to initialize ttf addon.\n");
       return 0;
    }
-   mF.load_fonts();
+   mFont.load_fonts();
 
    // --- keyboard -------------------
    if (!al_install_keyboard())
    {
-      mI.m_err("Failed to install keyboard.\n");
+      mInput.m_err("Failed to install keyboard.\n");
       return 0;
    }
    //else printf("installed keyboard\n");
-   al_register_event_source(mwEQ.event_queue, al_get_keyboard_event_source());
+   al_register_event_source(mEventQueue.event_queue, al_get_keyboard_event_source());
 
 
    // --- mouse ----------------------
    if (!al_install_mouse())
    {
-      mI.m_err("Failed to install mouse.\n");
+      mInput.m_err("Failed to install mouse.\n");
       return 0;
    }
    //else printf("installed mouse\n");
-   al_register_event_source(mwEQ.event_queue, al_get_mouse_event_source());
-   al_hide_mouse_cursor(display);
+   al_register_event_source(mEventQueue.event_queue, al_get_mouse_event_source());
+   al_hide_mouse_cursor(mDisplay.display);
 
 
    // --- joystick -------------------
    if (!al_install_joystick())
    {
-      mI.m_err("Failed to install joystick.\n");
+      mInput.m_err("Failed to install joystick.\n");
       return 0;
    }
    //else printf("installed joystick\n");
@@ -265,21 +262,21 @@ int mwMain::initial_setup(void)
    //printf("found %d joystick(s)\n", nj);
    if (nj > 0)
    {
-      mI.joy0 = al_get_joystick(0);
+      mInput.joy0 = al_get_joystick(0);
       //printf("j0 - %s\n", al_get_joystick_name(joy0));
 
       if (nj > 1)
       {
-         mI.joy1 = al_get_joystick(1);
+         mInput.joy1 = al_get_joystick(1);
          //printf("j1 - %s\n", al_get_joystick_name(joy1));
       }
-      al_register_event_source(mwEQ.event_queue, al_get_joystick_event_source());
+      al_register_event_source(mEventQueue.event_queue, al_get_joystick_event_source());
    }
 
-   mwB.load_tiles();
-   al_set_display_icon(display, mwB.tile[401]);
+   mBitmap.load_tiles();
+   al_set_display_icon(mDisplay.display, mBitmap.tile[401]);
 
-   mwEQ.create_timers();
+   mEventQueue.create_timers();
 
    mSound.load_sound();
 
@@ -288,7 +285,7 @@ int mwMain::initial_setup(void)
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
    mPlayer.syn[0].active = 1;
 
-   mwDM.demo_mode_enabled = mwDM.demo_mode_config_enable; // set only at startup from cofing file
+   mDemoMode.demo_mode_enabled = mDemoMode.demo_mode_config_enable; // set only at startup from cofing file
 
    mLevel.set_start_level();
 

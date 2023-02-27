@@ -22,7 +22,6 @@ class mwWindowManager
    int obj_list[NUM_OBJ][3];
    int obj_filter[5][20];
 
-
    int thl[100][100]; // tile helper
 
 
@@ -55,11 +54,8 @@ class mwWindowManager
    int get_max_layer(void);
    int cycle_windows(int draw_only);
 
-
    void save_mW(void);
    void load_mW(void);
-
-
 
 };
 extern mwWindowManager mwWM;

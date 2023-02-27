@@ -20,33 +20,11 @@
 #include "mwSolid.h"
 #include "mwNetgame.h"
 #include "mwDemoMode.h"
-#include "mwGameMovesArray.h"
+#include "mwGameMoves.h"
 #include "mwEventQueue.h"
 #include "mwConfig.h"
 
-
-
-
-
-
-
-
 mwPlayers mPlayer;
-
-
-mwPlayers::mwPlayers()
-{
-   initialize();
-}
-
-void mwPlayers::initialize(void)
-{
-
-}
-
-
-
-
 
 
 void mwPlayers::set_player_start_pos(int p, int cont)
@@ -257,7 +235,7 @@ void mwPlayers::proc_player_xy_move_test(int p)
 {
    float m = 0.5;
 
-   if (mI.key[ALLEGRO_KEY_LCTRL][0]) m *= 4;
+   if (mInput.key[ALLEGRO_KEY_LCTRL][0]) m *= 4;
 
    if (syn[p].up) syn[p].y -= m;
    if (syn[p].down) syn[p].y += m;
@@ -777,7 +755,7 @@ int mwPlayers::is_player_within_rope_reach(int p)
    int by = AY / 20;
    am = AY % 20;
 
-   //al_draw_textf(mF.pr8, mC.pc[15], AX, AY-20, 0, "%d", am );
+   //al_draw_textf(mFont.pr8, mColor.pc[15], AX, AY-20, 0, "%d", am );
    int good_height = 0;
 
    if (am < 5) // this block only
@@ -1126,7 +1104,7 @@ void mwPlayers::draw_player(int p)
 {
    if (syn[p].active)
    {
-      al_set_target_bitmap(mwB.level_buffer);
+      al_set_target_bitmap(mBitmap.level_buffer);
       get_players_shape(p);
       int AX = syn[p].x;
       int AY = syn[p].y;
@@ -1137,7 +1115,7 @@ void mwPlayers::draw_player(int p)
 
    //   printf("color:%d shape:%d\n", syn[p].color, syn[p].shape );
 
-      al_draw_scaled_rotated_bitmap(mwB.player_tile[syn[p].color][syn[p].shape], 10, 10, AX+10, AY+10, scale, scale, rot, flags);
+      al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, AX+10, AY+10, scale, scale, rot, flags);
 
 
 
@@ -1152,14 +1130,14 @@ void mwPlayers::draw_player(int p)
       /*
 
 
-      al_draw_textf(mF.pr8, mC.pc[15], AX+10, AY-30, ALLEGRO_ALIGN_CENTER, "X:%d Y:%d", AX, AY);
+      al_draw_textf(mFont.pr8, mColor.pc[15], AX+10, AY-30, ALLEGRO_ALIGN_CENTER, "X:%d Y:%d", AX, AY);
 
 
       if (syn[p].on_ladder)
-         al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+19, 0.5+AY+19, mC.pc[11], 1);
+         al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+19, 0.5+AY+19, mColor.pc[11], 1);
 
       if (syn[p].on_rope)
-         al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+17, 0.5+AY+19, mC.pc[10], 1);
+         al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+17, 0.5+AY+19, mColor.pc[10], 1);
 
 
       // detect block that player is on...
@@ -1183,7 +1161,7 @@ void mwPlayers::draw_player(int p)
       int by = AY / 20;
       am = AY % 20;
 
-      al_draw_textf(mF.pr8, mC.pc[15], AX, AY-20, 0, "%d", am );
+      al_draw_textf(mFont.pr8, mColor.pc[15], AX, AY-20, 0, "%d", am );
 
       int good_height = 0;
 
@@ -1198,14 +1176,14 @@ void mwPlayers::draw_player(int p)
       }
 
       if (good_height)
-         if (timer_draw_mode2) al_draw_textf(mF.pr8, mC.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-         if (timer_draw_mode2) al_draw_textf(mF.pr8, mC.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-         if (timer_draw_mode2) al_draw_textf(mF.pr8, mC.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-           if (timer_draw_mode2) al_draw_textf(mF.pr8, mC.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+           if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
     for (int x=bx1; x<=bx2; x++)
       {
-         al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mC.pc[8], 1);
-         if (l[x][by] == 19) al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mC.pc[11], 1);
+         al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mColor.pc[8], 1);
+         if (l[x][by] == 19) al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mColor.pc[11], 1);
       }
 
 */
@@ -1219,7 +1197,7 @@ void mwPlayers::draw_player(int p)
          if ((pp < st) && (pp > st-sp*8))
          {
             int seq = (st-syn[p].paused) / sp;
-            al_draw_bitmap(mwB.tile[952+seq], AX, AY, flags);
+            al_draw_bitmap(mBitmap.tile[952+seq], AX, AY, flags);
          }
       }
 
@@ -1233,8 +1211,8 @@ void mwPlayers::draw_player(int p)
 
          // show last health adjustment
          int h = loc[p].last_health_adjust; // last health adjust
-         if (h > 0) al_draw_textf(mF.pixl, mC.pc[11], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
-         if (h < 0) al_draw_textf(mF.pixl, mC.pc[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
+         if (h > 0) al_draw_textf(mFont.pixl, mColor.pc[11], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
+         if (h < 0) al_draw_textf(mFont.pixl, mColor.pc[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
 
          // show potential bomb damage
          int dmg = loc[p].potential_bomb_damage; // potential bomb damage
@@ -1248,10 +1226,10 @@ void mwPlayers::draw_player(int p)
                mScreen.draw_percent_bar_range(AX+10, AY-6, 16, 3, 10, nh, ch);
 
                // show damage amount
-               al_draw_textf(mF.pixl, mC.pc[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", -dmg);
+               al_draw_textf(mFont.pixl, mColor.pc[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", -dmg);
 
                // draw a tiny bomb picture
-               al_draw_scaled_rotated_bitmap(mwB.tile[464], 10, 10,  AX+20, AY-12, .5, .5, 0, 0);
+               al_draw_scaled_rotated_bitmap(mBitmap.tile[464], 10, 10,  AX+20, AY-12, .5, .5, 0, 0);
             }
          }
       }
@@ -1424,7 +1402,7 @@ void mwPlayers::init_player(int p, int t)
       loc[p].client_cdat_packets_tx = 0;
 
       loc[p].late_cdats = 0;
-      mwT_late_cdats_last_sec[p].initialize(); // initialize tally
+      mTally_late_cdats_last_sec[p].initialize(); // initialize tally
 
       loc[p].client_chase_fps = 0;
       loc[p].server_game_move_sync = 0;
@@ -1453,11 +1431,11 @@ void mwPlayers::init_player(int p, int t)
 
       loc[p].ping = 0;
       loc[p].ping_avg = 0;
-      mwT[4].initialize(); // initialize max tally
+      mTally[4].initialize(); // initialize max tally
 
       loc[p].game_move_dsync = 0;
       loc[p].game_move_dsync_avg_last_sec = 0;
-      mwT_game_move_dsync_avg_last_sec[p].initialize(); // initialize tally
+      mTally_game_move_dsync_avg_last_sec[p].initialize(); // initialize tally
    }
 
    if (t == 23) // clear bandwidth counters
@@ -1503,20 +1481,20 @@ void mwPlayers::fill_player_tile(void)
 
    if (0) // load from disk
    {
-      mwB.ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
-      if (!mwB.ptilemap) mI.m_err((char*)"Can't load tiles from bitmaps/player_tiles.bmp");
+      mBitmap.ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
+      if (!mBitmap.ptilemap) mInput.m_err((char*)"Can't load tiles from bitmaps/player_tiles.bmp");
       else
       {
          //printf("load good\n");
-         al_convert_mask_to_alpha(mwB.ptilemap, al_map_rgb(0, 0, 0)) ;
+         al_convert_mask_to_alpha(mBitmap.ptilemap, al_map_rgb(0, 0, 0)) ;
 
-         al_set_target_bitmap(mwB.M_ptilemap);
-         al_draw_bitmap(mwB.ptilemap, 0, 0, 0);
+         al_set_target_bitmap(mBitmap.M_ptilemap);
+         al_draw_bitmap(mBitmap.ptilemap, 0, 0, 0);
 
          // create sub bitmaps
          for (a=0; a<16; a++)
             for (b=0; b<24; b++)
-               mwB.player_tile[a][b] = al_create_sub_bitmap(mwB.ptilemap, b*20, a*20, 20, 20);
+               mBitmap.player_tile[a][b] = al_create_sub_bitmap(mBitmap.ptilemap, b*20, a*20, 20, 20);
       }
    }
 
@@ -1525,41 +1503,41 @@ void mwPlayers::fill_player_tile(void)
    {
        for (a=0; a<16; a++)
           for (b=0; b<32; b++)
-             mwB.player_tile[a][b] = al_create_bitmap(20,20);
+             mBitmap.player_tile[a][b] = al_create_bitmap(20,20);
 
    // fill the player_tile array
       for (a=0; a<16; a++) // set all to default shapes
       {
-         al_set_target_bitmap(mwB.player_tile[a][0]); al_draw_bitmap(mwB.tile[400], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][1]); al_draw_bitmap(mwB.tile[401], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][2]); al_draw_bitmap(mwB.tile[402], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][3]); al_draw_bitmap(mwB.tile[403], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][4]); al_draw_bitmap(mwB.tile[404], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][5]); al_draw_bitmap(mwB.tile[405], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][0]); al_draw_bitmap(mBitmap.tile[400], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][1]); al_draw_bitmap(mBitmap.tile[401], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][2]); al_draw_bitmap(mBitmap.tile[402], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][3]); al_draw_bitmap(mBitmap.tile[403], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][4]); al_draw_bitmap(mBitmap.tile[404], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][5]); al_draw_bitmap(mBitmap.tile[405], 0, 0, 0);
 
-         al_set_target_bitmap(mwB.player_tile[a][6]); al_draw_bitmap(mwB.tile[368], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][7]); al_draw_bitmap(mwB.tile[369], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][8]); al_draw_bitmap(mwB.tile[370], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][9]); al_draw_bitmap(mwB.tile[371], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][10]); al_draw_bitmap(mwB.tile[372], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][11]); al_draw_bitmap(mwB.tile[373], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][6]); al_draw_bitmap(mBitmap.tile[368], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][7]); al_draw_bitmap(mBitmap.tile[369], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][8]); al_draw_bitmap(mBitmap.tile[370], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][9]); al_draw_bitmap(mBitmap.tile[371], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][10]); al_draw_bitmap(mBitmap.tile[372], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][11]); al_draw_bitmap(mBitmap.tile[373], 0, 0, 0);
 
-         al_set_target_bitmap(mwB.player_tile[a][12]); al_draw_bitmap(mwB.tile[432], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][13]); al_draw_bitmap(mwB.tile[433], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][14]); al_draw_bitmap(mwB.tile[434], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][15]); al_draw_bitmap(mwB.tile[435], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][16]); al_draw_bitmap(mwB.tile[436], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][17]); al_draw_bitmap(mwB.tile[437], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][12]); al_draw_bitmap(mBitmap.tile[432], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][13]); al_draw_bitmap(mBitmap.tile[433], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][14]); al_draw_bitmap(mBitmap.tile[434], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][15]); al_draw_bitmap(mBitmap.tile[435], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][16]); al_draw_bitmap(mBitmap.tile[436], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][17]); al_draw_bitmap(mBitmap.tile[437], 0, 0, 0);
 
-         al_set_target_bitmap(mwB.player_tile[a][18]); al_draw_bitmap(mwB.tile[755], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][18]); al_draw_bitmap(mBitmap.tile[755], 0, 0, 0);
 
-         al_set_target_bitmap(mwB.player_tile[a][19]); al_draw_bitmap(mwB.tile[438], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][19]); al_draw_bitmap(mBitmap.tile[438], 0, 0, 0);
 
-         al_set_target_bitmap(mwB.player_tile[a][20]); al_draw_bitmap(mwB.tile[606], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][21]); al_draw_bitmap(mwB.tile[607], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][20]); al_draw_bitmap(mBitmap.tile[606], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][21]); al_draw_bitmap(mBitmap.tile[607], 0, 0, 0);
 
-         al_set_target_bitmap(mwB.player_tile[a][22]); al_draw_bitmap(mwB.tile[638], 0, 0, 0);
-         al_set_target_bitmap(mwB.player_tile[a][23]); al_draw_bitmap(mwB.tile[639], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][22]); al_draw_bitmap(mBitmap.tile[638], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][23]); al_draw_bitmap(mBitmap.tile[639], 0, 0, 0);
 
       }
 
@@ -1569,28 +1547,28 @@ void mwPlayers::fill_player_tile(void)
          int cs = -8 + a; // color shift (-8 to get from base to 0, then add player num for color)
          for (b=0; b<24; b++) //cycle 19 bitmaps for one color
          {
-            al_set_target_bitmap(mwB.player_tile[a][b]);
-            al_lock_bitmap(mwB.player_tile[a][b],al_get_bitmap_format(mwB.player_tile[a][b]),ALLEGRO_LOCK_READWRITE);
+            al_set_target_bitmap(mBitmap.player_tile[a][b]);
+            al_lock_bitmap(mBitmap.player_tile[a][b],al_get_bitmap_format(mBitmap.player_tile[a][b]),ALLEGRO_LOCK_READWRITE);
 
             for (x=0; x<20; x++)
                for (y=0; y<20; y++)
                {
-                  ALLEGRO_COLOR p = al_get_pixel(mwB.player_tile[a][b], x, y);
+                  ALLEGRO_COLOR p = al_get_pixel(mBitmap.player_tile[a][b], x, y);
                     float D = 0.1;
-                    if (  (abs(p.r - mC.pc[8].r) < D) &&
-                          (abs(p.g - mC.pc[8].g) < D) &&
-                          (abs(p.b - mC.pc[8].b) < D) ) al_put_pixel(x, y, mC.pc[(8+cs)]);
+                    if (  (abs(p.r - mColor.pc[8].r) < D) &&
+                          (abs(p.g - mColor.pc[8].g) < D) &&
+                          (abs(p.b - mColor.pc[8].b) < D) ) al_put_pixel(x, y, mColor.pc[(8+cs)]);
 
-                    if (  (abs(p.r - mC.pc[56].r) < D) &&
-                          (abs(p.g - mC.pc[56].g) < D) &&
-                          (abs(p.b - mC.pc[56].b) < D) ) al_put_pixel(x, y, mC.pc[(56+cs)]);
+                    if (  (abs(p.r - mColor.pc[56].r) < D) &&
+                          (abs(p.g - mColor.pc[56].g) < D) &&
+                          (abs(p.b - mColor.pc[56].b) < D) ) al_put_pixel(x, y, mColor.pc[(56+cs)]);
 
-                    if (  (abs(p.r - mC.pc[136].r) < D) &&
-                          (abs(p.g - mC.pc[136].g) < D) &&
-                          (abs(p.b - mC.pc[136].b) < D) ) al_put_pixel(x, y, mC.pc[(136+cs)]);
+                    if (  (abs(p.r - mColor.pc[136].r) < D) &&
+                          (abs(p.g - mColor.pc[136].g) < D) &&
+                          (abs(p.b - mColor.pc[136].b) < D) ) al_put_pixel(x, y, mColor.pc[(136+cs)]);
                }
-           al_unlock_bitmap(mwB.player_tile[a][b]);
-           al_convert_mask_to_alpha(mwB.player_tile[a][b], al_map_rgb(0, 0, 0)) ;
+           al_unlock_bitmap(mBitmap.player_tile[a][b]);
+           al_convert_mask_to_alpha(mBitmap.player_tile[a][b], al_map_rgb(0, 0, 0)) ;
          }
       }
    }
@@ -1598,12 +1576,12 @@ void mwPlayers::fill_player_tile(void)
    if (1)
    {
        // show all new player shapes
-       al_set_target_backbuffer(display);
+       al_set_target_backbuffer(mDisplay.display);
        for (a=0; a<16; a++)
           for (b=0; b<24; b++)
-             al_draw_bitmap(mwB.player_tile[a][b], b*20, a*20, 0);
+             al_draw_bitmap(mBitmap.player_tile[a][b], b*20, a*20, 0);
        al_flip_display();
-       mI.tsw();
+       mInput.tsw();
 
        al_rest(10);
 
@@ -1613,19 +1591,19 @@ void mwPlayers::fill_player_tile(void)
    if (0)
    {
        // save to disk
-       al_set_target_bitmap(mwB.ptilemap);
+       al_set_target_bitmap(mBitmap.ptilemap);
        for (a=0; a<16; a++)
           for (b=0; b<24; b++)
-             al_draw_bitmap(mwB.player_tile[a][b], b*20, a*20, 0);
+             al_draw_bitmap(mBitmap.player_tile[a][b], b*20, a*20, 0);
 
-       al_set_target_backbuffer(display);
-       al_draw_bitmap(mwB.ptilemap, 0, 0, 0);
+       al_set_target_backbuffer(mDisplay.display);
+       al_draw_bitmap(mBitmap.ptilemap, 0, 0, 0);
 
        al_flip_display();
 
-       al_save_bitmap("bitmaps/player_tiles.bmp", mwB.ptilemap);
+       al_save_bitmap("bitmaps/player_tiles.bmp", mBitmap.ptilemap);
 
-       mI.tsw();
+       mInput.tsw();
    }
 }
 
@@ -1657,50 +1635,50 @@ void mwPlayers::set_controls_from_comp_move(int p, int comp_move)
 void mwPlayers::set_comp_move_from_player_key_check(int p) // doesn't set controls
 {
    int cm = 0;
-   if (mI.key[loc[p].left_key][0])       cm |= PM_COMPMOVE_LEFT;
-   if (mI.key[loc[p].right_key][0])      cm |= PM_COMPMOVE_RIGHT;
-   if (mI.key[loc[p].up_key][0])         cm |= PM_COMPMOVE_UP;
-   if (mI.key[loc[p].down_key][0])       cm |= PM_COMPMOVE_DOWN;
-   if (mI.key[loc[p].jump_key][0])       cm |= PM_COMPMOVE_JUMP;
-   if (mI.key[loc[p].fire_key][0])       cm |= PM_COMPMOVE_FIRE;
-   if (mI.key[loc[p].menu_key][0])       cm |= PM_COMPMOVE_MENU;
-   if (mI.key[ALLEGRO_KEY_ESCAPE][0])    cm |= PM_COMPMOVE_MENU;
+   if (mInput.key[loc[p].left_key][0])       cm |= PM_COMPMOVE_LEFT;
+   if (mInput.key[loc[p].right_key][0])      cm |= PM_COMPMOVE_RIGHT;
+   if (mInput.key[loc[p].up_key][0])         cm |= PM_COMPMOVE_UP;
+   if (mInput.key[loc[p].down_key][0])       cm |= PM_COMPMOVE_DOWN;
+   if (mInput.key[loc[p].jump_key][0])       cm |= PM_COMPMOVE_JUMP;
+   if (mInput.key[loc[p].fire_key][0])       cm |= PM_COMPMOVE_FIRE;
+   if (mInput.key[loc[p].menu_key][0])       cm |= PM_COMPMOVE_MENU;
+   if (mInput.key[ALLEGRO_KEY_ESCAPE][0])    cm |= PM_COMPMOVE_MENU;
    loc[p].comp_move = cm;
 }
 
 void mwPlayers::set_controls_from_player_key_check(int p) // used only in menu
 {
-   if (mI.key[loc[p].left_key][0])       syn[p].left  = 1;
-   if (mI.key[loc[p].right_key][0])      syn[p].right = 1;
-   if (mI.key[loc[p].up_key][0])         syn[p].up    = 1;
-   if (mI.key[loc[p].down_key][0])       syn[p].down  = 1;
-   if (mI.key[loc[p].jump_key][0])       syn[p].jump  = 1;
-   if (mI.key[loc[p].fire_key][0])       syn[p].fire  = 1;
-   if (mI.key[loc[p].menu_key][0])       syn[p].menu  = 1;
-   if (mI.key[ALLEGRO_KEY_ESCAPE][0])    syn[p].menu  = 1;
+   if (mInput.key[loc[p].left_key][0])       syn[p].left  = 1;
+   if (mInput.key[loc[p].right_key][0])      syn[p].right = 1;
+   if (mInput.key[loc[p].up_key][0])         syn[p].up    = 1;
+   if (mInput.key[loc[p].down_key][0])       syn[p].down  = 1;
+   if (mInput.key[loc[p].jump_key][0])       syn[p].jump  = 1;
+   if (mInput.key[loc[p].fire_key][0])       syn[p].fire  = 1;
+   if (mInput.key[loc[p].menu_key][0])       syn[p].menu  = 1;
+   if (mInput.key[ALLEGRO_KEY_ESCAPE][0])    syn[p].menu  = 1;
 }
 
 void mwPlayers::rungame_key_check(int p)
 {
-   if (mI.key[ALLEGRO_KEY_0][0]) active_local_player = 0;
-   if (mI.key[ALLEGRO_KEY_1][0]) active_local_player = 1;
-   if (mI.key[ALLEGRO_KEY_2][0]) active_local_player = 2;
-   if (mI.key[ALLEGRO_KEY_3][0]) active_local_player = 3;
-   if (mI.key[ALLEGRO_KEY_4][0]) active_local_player = 4;
-   if (mI.key[ALLEGRO_KEY_5][0]) active_local_player = 5;
-   if (mI.key[ALLEGRO_KEY_6][0]) active_local_player = 6;
-   if (mI.key[ALLEGRO_KEY_7][0]) active_local_player = 7;
+   if (mInput.key[ALLEGRO_KEY_0][0]) active_local_player = 0;
+   if (mInput.key[ALLEGRO_KEY_1][0]) active_local_player = 1;
+   if (mInput.key[ALLEGRO_KEY_2][0]) active_local_player = 2;
+   if (mInput.key[ALLEGRO_KEY_3][0]) active_local_player = 3;
+   if (mInput.key[ALLEGRO_KEY_4][0]) active_local_player = 4;
+   if (mInput.key[ALLEGRO_KEY_5][0]) active_local_player = 5;
+   if (mInput.key[ALLEGRO_KEY_6][0]) active_local_player = 6;
+   if (mInput.key[ALLEGRO_KEY_7][0]) active_local_player = 7;
 
    // dont let alp be an inactive player
    while (!syn[active_local_player].active) // if alp not active
       if (++active_local_player > 7) active_local_player = 0;
 
    // if games_moves doesn't end with level_done kill it after 4 seconds
-   if (mLoop.frame_num > mwDM.demo_mode_last_frame + 160) mLoop.new_program_state = 1;
+   if (mLoop.frame_num > mDemoMode.demo_mode_last_frame + 160) mLoop.new_program_state = 1;
 
-   if ((mI.key[ALLEGRO_KEY_ESCAPE][0]) || (mI.key[ALLEGRO_KEY_ENTER][0]) || (mI.key[ALLEGRO_KEY_SPACE][0]))
+   if ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.key[ALLEGRO_KEY_ENTER][0]) || (mInput.key[ALLEGRO_KEY_SPACE][0]))
    {
-      mwDM.demo_mode_on = 0;
+      mDemoMode.demo_mode_on = 0;
 
       // set all players inactive
       for (int p=0; p<NUM_PLAYERS; p++) syn[p].active = 0;
@@ -1709,7 +1687,7 @@ void mwPlayers::rungame_key_check(int p)
       syn[0].active = 1;
       mConfig.load();
 
-      while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue();
+      while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
 
       mLoop.new_program_state = 1;
       if (mLoop.old_program_state == 2) mLoop.old_program_state = mLoop.older_program_state; // don't send back to demo mode
@@ -1736,7 +1714,7 @@ void mwPlayers::proc_player_input(void)
                   loc[p].old_comp_move = loc[p].comp_move;
 
                   // in single player, client and server mode, add to game moves array
-                  if ((cm == 0) || (cm == 3) || (cm == 4)) mwGMA.add_game_move(mLoop.frame_num, 5, p, loc[p].comp_move);
+                  if ((cm == 0) || (cm == 3) || (cm == 4)) mGameMoves.add_game_move(mLoop.frame_num, 5, p, loc[p].comp_move);
 
                   // in client mode, send cdat packet, and apply move directly to controls
                   if (cm == 4)
@@ -1761,7 +1739,7 @@ void mwPlayers::proc_player_input(void)
       }
       else if (syn[p].control_method == 4) // not active and control method 4 is a client waiting for server to make it active
       {
-         if (mI.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.new_program_state = 25; // give them an escape option
+         if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.new_program_state = 25; // give them an escape option
       }
 }
 

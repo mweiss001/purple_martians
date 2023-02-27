@@ -4,9 +4,6 @@ class mwLevel
 {
    public:
 
-   mwLevel(); // default constructor
-   void initialize(void);
-
    int l[100][100];
    int warp_level_location;
    int start_level;
@@ -16,7 +13,6 @@ class mwLevel
    int resume_allowed;
    int number_of_starts;
    int number_of_purple_coins;
-
 
    void change_block(int x, int y, int block);
    int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy);
@@ -35,11 +31,8 @@ class mwLevel
 
    int show_level_data(int x_pos, int y_pos, int type);
 
-
-
    void zero_level_data(void);
    void level_check(void);
-
 };
 extern mwLevel mLevel;
 
