@@ -820,6 +820,24 @@ void mwScreen::draw_percent_bar(int cx, int y, int width, int height, int percen
    al_draw_rectangle(x+0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, mColor.pc[15], 1); //  white frame
 }
 
+
+void mwScreen::draw_percent_barf(float x1, float y1, float x2, float y2, float percent)
+{
+   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[10]); //  all red to start
+   if (percent > 0)
+   {
+      float width = x2-x1-2;
+      float x3 = x1 + 1 + (width * percent/100);
+      al_draw_filled_rectangle(x1+0.5, y1, x3, y2, mColor.pc[11]); //  green
+   }
+   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1); //  white frame
+}
+
+
+
+
+
+
 void draw_percent_bar_line(int cx, int y, int width, int height, int rise, int color, int percent )
 {
    int x = cx - width/2; // get x from center

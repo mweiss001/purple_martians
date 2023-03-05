@@ -95,6 +95,7 @@ void mwWindow::ov_get_size(void)
    if ((obt == 2) && (type == 10)) w = 220; // message
    if ((obt == 2) && (type == 11)) w = 220; // rocket
    if ((obt == 2) && (type == 12)) w = 220; // warp
+   if ((obt == 2) && (type == 13)) w = 260; // timer
    if ((obt == 2) && (type == 14)) w = 200; // switch
    if ((obt == 2) && (type == 15)) w = 240; // sproingy
    if ((obt == 2) && (type == 16)) w = 280; // bm
@@ -106,7 +107,7 @@ void mwWindow::ov_get_size(void)
    if ((obt == 3) && (type == 6 )) w = 220; // cannon
    if ((obt == 3) && (type == 7 )) w = 220; // podzilla
    if ((obt == 3) && (type == 8 )) w = 220; // trakbot
-   if ((obt == 3) && (type == 9 )) w = 220; // cloner
+   if ((obt == 3) && (type == 9 )) w = 240; // cloner
    if ((obt == 3) && (type == 11)) w = 220; // block walker
    if ((obt == 3) && (type == 12)) w = 220; // flapper
    if ((obt == 3) && (type == 13)) w = 220; // vinepod
@@ -249,14 +250,12 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
          break;
          case 9: // cloner
-            mwWM.mW[7].num_legend_lines = 5;
+            mwWM.mW[7].num_legend_lines = 4;
             sprintf(lmsg[1],"Cloner Location");
             sprintf(lmsg[2],"Source Area");
             sprintf(lmsg[3],"Destination Area");
-            sprintf(lmsg[4],"Trigger Box");
             legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 11;
             legend_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 10;
-            legend_highlight == 4 ? legend_color[4] = mColor.flash_color : legend_color[4] = 14;
          break;
          case 11:
             mwWM.mW[7].num_legend_lines = 2;
@@ -482,7 +481,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
       mWidget.buttonp(       xa, ya, xb, bts, 500,0,0,0,    0,13,15,0,  1,0,1,d, mLift.cur[lift].mode); // MODE
       if (mLift.cur[lift].mode)
-         mWidget.slideri(xa, ya, xb, bts, 0,0,0,0,      0,13,15,15, 1,0,1,d, mLift.cur[lift].val2, 2000, 1, 1,  "Reset Timer:");
+         mWidget.slideri    (xa, ya, xb, bts, 0,0,0,0,      0,13,15,15, 1,0,1,d, mLift.cur[lift].val2, 2000, 1, 1,  "Reset Timer:");
       if (mWidget.button(    xa, ya, xb, bts, 504,lift,0,0, 0, 4,15,0,  1,0,1,d)) mwWM.mW[7].mb = 26; // lift name
       ya+=bts;
 
@@ -529,7 +528,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          int s = step;
 
          // if step is not a move step, find prev that is
-         if ((mLift.stp[lift][s].type & 31) != 1) s = mLift.lift_find_previous_move_step(lift, s);
+         if ((mLift.stp[lift][s].type & 31) != 1) s = mLift.find_previous_move_step(lift, s);
 
          // get w h from step
          int w  = mLift.stp[lift][s].w;
@@ -657,17 +656,19 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case 9: // cloner
             mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][30], "Not Invincible", "Invincible!", 15, 15, 12, 10);
             ya+=4; // spacer
-            mWidget.buttonp(    xa, ya, xb, bts,  27,n,0,0, 0,12,15, 0,  1,0,1,d, mEnemy.Ei[n][8]); // trigger type
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][6], 1000, 20, 1, "Delay Timer:");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][8], 99, 0, 1,    "Event Trigger:", "OFF");
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,13,15,0,   1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(3, n, 0, 0);
             ya+=4; // spacer
             mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, mEnemy.Ei[n][9], 4800, 0, 1,  "Created Time To Live:", "-");
             mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, mEnemy.Ei[n][10], 600, 0, 1,  "Max Created Objects:", "-");
             ya+=4; // spacer
             if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,d, "Set Source Area")) mMiscFnx.get_block_range("Cloner Source Area", &mEnemy.Ei[n][15], &mEnemy.Ei[n][16], &mEnemy.Ei[n][19], &mEnemy.Ei[n][20], 1);
             if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Set Destination")) mMiscFnx.getxy("Cloner Destination", 98, 9, n);
-            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) mMiscFnx.get_block_range("Trigger Box", &mEnemy.Ei[n][11], &mEnemy.Ei[n][12], &mEnemy.Ei[n][13], &mEnemy.Ei[n][14], 2);
             ya+=4; // spacer
             mWidget.buttonp(    xa, ya, xb, bts,  81,0,0,0, 0,13,15, 0,  1,0,1,d, mEnemy.Ei[n][4]); // show boxes
+            mWidget.buttonp(    xa, ya, xb, bts,  82,0,0,0, 0,13,15, 0,  1,0,1,d, mEnemy.Ei[n][5]); // draw mode
+
+
             ya+=4; // spacer
             mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,   "Collision Box:");
             mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1, "Health Decrement:");
@@ -910,24 +911,30 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             int state, t1_mode, t2_mode, time;
             mItem.get_timer_flags(mItem.item[n][3], state, t1_mode, t2_mode, time);
 
-            ya+=4; // spacer
-            int p = 13;
-            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][10], 1000, 0, 1, "Timer 1:" );
-            mWidget.buttonp(    xa, ya, xb, bts, 160,0,0,0,  0,p,15, 0,  1,0,1,d, t1_mode); // mode
-            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1, "Input Event  :", "OFF");
-            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1, "Output Event :", "OFF");
-            ya+=4; // spacer
-            p = 14;
-            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][11], 1000, 0, 1, "Timer 2:" );
-            mWidget.buttonp(    xa, ya, xb, bts, 160,0,0,0,  0,p,15, 0,  1,0,1,d, t2_mode); // mode
-            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][14], 99, 0, 1, "Input Event  :", "OFF");
-            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][15], 99, 0, 1, "Output Event :", "OFF");
+            mWidget.buttonp(       xa, ya, xb, bts, 83,0,0,0,   0,11,15,0,  1,0,1,d, mItem.item[n][2]); // draw mode
+            if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,    0,11,15,0,  1,0,1,d, "Get New Display Area")) mMiscFnx.get_block_range("Display Area", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
 
+            ya+=4; int p = 13; // spacer
+            mWidget.slider0(       xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][10], 1000, 0, 1, "Timer 1:" , "OFF");
+            if (mItem.item[n][10])
+            {
+               mWidget.buttonp(    xa, ya, xb, bts, 160,0,0,0,  0,p,15, 0,  1,0,1,d, t1_mode); // mode
+               mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1, "Input Event:", "OFF");
+               if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,p,15,0,   1,0,1,d, "Set Input Event")) mTriggerEvent.find_event_sender_for_obj(2, n, 1, t1_mode);
+               mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1, "Output Event:", "OFF");
+            }
+            ya+=4; p = 14; // spacer
+            mWidget.slider0(       xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][11], 1000, 0, 1, "Timer 2:", "OFF");
+            if (mItem.item[n][11])
+            {
+               mWidget.buttonp(    xa, ya, xb, bts, 160,0,0,0,  0,p,15, 0,  1,0,1,d, t2_mode); // mode
+               mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][14], 99, 0, 1, "Input Event:", "OFF");
+               if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,p,15,0,   1,0,1,d, "Set Input Event")) mTriggerEvent.find_event_sender_for_obj(2, n, 2, t2_mode);
+               mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][15], 99, 0, 1, "Output Event :", "OFF");
+            }
+            state = 1;
+            time = mItem.item[n][10]; // always start with full t1_timer
             mItem.set_timer_flags(mItem.item[n][3], state, t1_mode, t2_mode, time);
-
-            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,0,   1,0,1,d, "Get New Display Area")) mMiscFnx.get_block_range("Display Area", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
-
-
          }
          break;
          case 9: // trigger
@@ -975,7 +982,8 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.button(     xa, ya, xb, bts, 311,n,0,0,  0, 8,15,0,   1,0,0,d);               // block 2
             ya+=22; // spacer
             mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][1], 99, 0, 1,    "Event Trigger:", "OFF");
-            mWidget.button(     xa, ya, xb, bts, 320,n,0,0,  0,13,15,0,   1,0,1,d);               // set trigger
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,  0,13,15,0,   1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
+
          break;
          case 17: // block damage
          {
@@ -1009,7 +1017,8 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             {
                ya+=4; // spacer
                mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,   0,13,15,15, 1,0,1,d, mItem.item[n][1], 99, 0, 1, "Event Trigger:", "OFF");
-               mWidget.button(     xa, ya, xb, bts, 320,n,0,0, 0,13,15, 0, 1,0,1,d); // set trigger
+               if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,  0,13,15,0,   1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
+
             }
             ya+=4; // spacer
             if (mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PLAYER,  "Affects Players:OFF",          "Affects Players:ON",          15+dim, 15, 10+dim, 10))
@@ -1049,6 +1058,9 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
    {
       int lift = num;
       int step = mLift.cur[lift].current_step;
+
+      if ((mLift.stp[lift][step].type & 31) != 1) step = mLift.find_previous_move_step(lift, step);
+
       int color = (mLift.stp[lift][step].type >> 28) & 15;
 
       int x1 = mLift.stp[lift][step].x-1;
@@ -1124,9 +1136,6 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          int color3 = 10;
          if (legend_highlight == 3) color3 = mColor.flash_color;
 
-         int color4 = 14;
-         if (legend_highlight == 4) color4 = mColor.flash_color;
-
          int cw = mEnemy.Ei[num][19];     // width
          int ch = mEnemy.Ei[num][20];     // height
 
@@ -1142,12 +1151,7 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          int cy4 = cy3 + ch;
          al_draw_rectangle(cx3, cy3, cx4, cy4, mColor.pc[color3], 1);
 
-         // draw trigger box
-         int tx1 = mEnemy.Ei[num][11];
-         int ty1 = mEnemy.Ei[num][12];
-         int tx2 = mEnemy.Ei[num][11]+mEnemy.Ei[num][13] + 20;
-         int ty2 = mEnemy.Ei[num][12]+mEnemy.Ei[num][14] + 20;
-         al_draw_rectangle(tx1, ty1, tx2, ty2, mColor.pc[color4], 1);
+         mTriggerEvent.find_and_show_event_links(obt, num, 0);
       }
       if (type == 12) // flapper
       {
@@ -1274,9 +1278,19 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
             al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
             al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
 
-            mTriggerEvent.find_and_show_event_links(1, num, 0);
+            mTriggerEvent.find_and_show_event_links(obt, num, 0);
          }
          break;
+
+         case 6: // orb
+         {
+            mTriggerEvent.find_and_show_event_links(obt, num, 0);
+         }
+         break;
+
+
+
+
          case 10: // pmsg
          {
             int color = 10;
@@ -1340,8 +1354,7 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
             al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
             al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
 
-            mTriggerEvent.find_and_show_event_links(2, num, 0);
-
+            mTriggerEvent.find_and_show_event_links(obt, num, 0);
          }
          break;
 
@@ -1369,7 +1382,7 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
             al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
             al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
 
-            mTriggerEvent.find_and_show_event_links(2, num, 0);
+            mTriggerEvent.find_and_show_event_links(obt, num, 0);
 
          }
          break;
@@ -1389,7 +1402,7 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
             al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
             al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
 
-            mTriggerEvent.find_and_show_event_links(2, num, 0);
+            mTriggerEvent.find_and_show_event_links(obt, num, 0);
          }
          break;
 
@@ -1417,9 +1430,6 @@ void mwWindow::ov_process_mouse(void)
    int mouse_on_csb_lr = 0;
    int mouse_on_cdb_ul = 0;
    int mouse_on_trk = 0;
-
-
-
 
 
    int mouse_on_sp = 0;
@@ -1663,7 +1673,7 @@ void mwWindow::ov_process_mouse(void)
             mouse_move = 1;
          }
       }
-      if ((type == 4) || (type == 9) || (type == 10) || (type == 14) || (type == 16) || (type == 17)) // key, switch, trigger, manip, damage, msg trigger
+      if ((type == 4) || (type == 9) || (type == 10) || (type == 13) || (type == 14) || (type == 16) || (type == 17)) // key, switch, trigger, manip, damage, msg trigger
       {
          int x1 = mItem.item[mwWM.mW[7].num][6];
          int y1 = mItem.item[mwWM.mW[7].num][7];
@@ -1978,8 +1988,8 @@ void mwWindow::ov_process_mouse(void)
             if (mwWM.gy < mItem.item[mwWM.mW[7].num][7]/20) mwWM.gy = mItem.item[mwWM.mW[7].num][7]/20;
 
             // set new position
-            mItem.item[mwWM.mW[7].num][8] = mwWM.gx*20 - mItem.item[mwWM.mW[7].num][6];
-            mItem.item[mwWM.mW[7].num][9] = mwWM.gy*20 - mItem.item[mwWM.mW[7].num][7];
+            mItem.item[mwWM.mW[7].num][8] = (mwWM.gx+1)*20 - mItem.item[mwWM.mW[7].num][6];
+            mItem.item[mwWM.mW[7].num][9] = (mwWM.gy+1)*20 - mItem.item[mwWM.mW[7].num][7];
          }
          if (mouse_on_csb_ul) // move cloner source box from ul
          {

@@ -1012,32 +1012,8 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
       sprintf(msg, "Block 2: %d", tn);
       if (press) mItem.item[num][11] = mBitmapTools.select_bitmap(mItem.item[num][11]);
    }
-   if (bn == 320)
-   {
-      sprintf(msg, "Set Event Trigger (%d)", mItem.item[num][1]);
-      if (press)
-      {
-         int i = mMiscFnx.get_trigger_item(2, mItem.item[num][0], num );
-         if (i > -1)
-         {
-            int ev = mTriggerEvent.get_unused_pm_event();
-            mItem.item[num][1] = ev;
 
-            if (mItem.item[num][0] == 16) // block manip
-            {
-               if (mItem.item[num][3] == 3) mItem.set_trigger_event(i, 0, 0, ev, 0); // mode 3 - toggle blocks - needs a toggle ON trigger
-               else                         mItem.set_trigger_event(i, ev, 0, 0, 0); // needs a regular ON trigger
-            }
-            if (mItem.item[num][0] == 17) // block damage
-            {
-               if (mItem.item[num][11] == 1) mItem.set_trigger_event(i, 0, 0, ev, 0); // mode 1 - toggle damage - needs a toggle ON trigger
-               else                          mItem.set_trigger_event(i, ev, 0, 0, 0); // needs a regular ON trigger
-            }
-         }
-      }
-   }
-
-   if (bn == 401) // timer draw mode
+   if (bn == 401) // bd timer draw mode
    {
                                                        sprintf(msg, "Timer Display: OFF          ");
       if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SN) sprintf(msg, "Timer Display: Small Number ");
@@ -1200,6 +1176,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
       if (num == 3)  sprintf(msg, "Wait");
       if (num == 4)  sprintf(msg, "End ");
       if (num == 5)  sprintf(msg, "Wait");
+      if (num == 6)  sprintf(msg, "Send");
    }
    if (bn == 503)
    {
@@ -1212,7 +1189,8 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
       if (num == 1)  sprintf(msg, "and Resize [speed:%d]", v);
       if (num == 2)  sprintf(msg, "for Timer:%d", v);
       if (num == 3)  sprintf(msg, "for Player prox:%d", v);
-      if (num == 5)  sprintf(msg, "for Trigger Event:%d", v);
+      if (num == 5)  sprintf(msg, "for Event:%d", v);
+      if (num == 6)  sprintf(msg, "Event:%d", v);
       if (num == 4)
       {
                      sprintf(msg, "Step - undefined val");
@@ -1246,12 +1224,17 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
       if (press)
       {
          //printf("520 type:%d num:%d \n", type, num);
-         int i = mMiscFnx.get_trigger_item(4, type, num );
-         if (i > -1)
+         int ti_obj_type, ti_sub_type, ti_num;
+         if (mTriggerEvent.get_trigger_item(4, num, type, ti_obj_type, ti_num, ti_sub_type))
          {
             int ev = mTriggerEvent.get_unused_pm_event();
             mLift.stp[num][type].val = ev;
-            mItem.set_trigger_event(i, 0, 0, ev, 0); // toggle ON trigger
+
+//            if (ti_obj_type == 2)
+
+
+
+            mItem.set_trigger_event(ti_num, 0, 0, ev, 0); // toggle ON trigger
          }
       }
    }
@@ -1536,7 +1519,7 @@ void mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int ty
    if (bn == 27) // cloner trigger type
    {
       if (press) var++;
-      if ((var < 0) || (var > 2)) var = 0;
+      if ((var < 0) || (var > 3)) var = 0;
       if (var == 0)
       {
          sprintf(msg, "Trigger Type:Timer Runs  ");
@@ -1549,6 +1532,7 @@ void mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int ty
          mEnemy.Ei[num][7] = mEnemy.Ei[num][6]; // set counter
       }
       if (var == 2) sprintf(msg, "Trigger Type:Immediate   ");
+      if (var == 3) sprintf(msg, "Trigger Type:Event");
    }
    if (bn == 50) // door entry type
    {
@@ -1593,11 +1577,33 @@ void mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int ty
    {
       if (press) var++;
       if ((var < 0) || (var > 3)) var = 0;
-      if (var == 0) sprintf(msg, "Draw Boxes:off");
-      if (var == 1) sprintf(msg, "Draw Boxes:trigger only");
-      if (var == 2) sprintf(msg, "Draw Boxes:src/dst only");
-      if (var == 3) sprintf(msg, "Draw Boxes:all");
+      if (var == 0) sprintf(msg, "Draw Boxes:None");
+      if (var == 1) sprintf(msg, "Draw Boxes:Source Only");
+      if (var == 2) sprintf(msg, "Draw Boxes:Destination Only");
+      if (var == 3) sprintf(msg, "Draw Boxes:Both");
    }
+
+   if (bn == 82)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg, "Draw Mode:Hidden");
+      if (var == 1) sprintf(msg, "Draw Mode:Static Shape");
+      if (var == 2) sprintf(msg, "Draw Mode:Static Animation");
+      if (var == 3) sprintf(msg, "Draw Mode:Follow Event Timer");
+   }
+
+   if (bn == 83)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 1)) var = 0;
+      if (var == 0) sprintf(msg, "Draw Mode:Hidden");
+      if (var == 1) sprintf(msg, "Draw Mode:Progress Bar");
+   }
+
+
+
+
    if (bn == 100)
    {
       if (press) var++;

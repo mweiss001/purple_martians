@@ -34,6 +34,8 @@ class mwScreen
    void draw_percent_bar_line(int cx, int y, int width, int height, int rise, int color, int percent);
    void draw_percent_bar_range(int cx, int y, int width, int height, int color, int start, int end);
 
+   void draw_percent_barf(float x1, float x2, float y1, float y2, float percent);
+
 
    // z_screen_overlay.h
    int dif_from_now_to_nl();

@@ -34,7 +34,8 @@ void mwLift::initialize(void)
    strcpy (lift_step_type_name[2], "Wait");
    strcpy (lift_step_type_name[3], "Prox");
    strcpy (lift_step_type_name[4], "End ");
-   strcpy (lift_step_type_name[5], "Trig");
+   strcpy (lift_step_type_name[5], "REvt");
+   strcpy (lift_step_type_name[6], "SEvt");
 }
 
 
@@ -79,7 +80,7 @@ int mwLift::construct_lift_step(int l, int s, int type, int x, int y, int w, int
       int ps = 0;
       if (type == 1) // find previous move step
       {
-          ps = lift_find_previous_move_step(l, s);
+          ps = find_previous_move_step(l, s);
           type = stp[l][ps].type;
           val  = 20;
           w    = stp[l][ps].w;
@@ -182,14 +183,15 @@ void mwLift::show_all_lifts(void)
 
             int color = 9;
             char typemsg[10];
-            if ((type >0) && (type < 6))
+            if ((type >0) && (type < 7))
             {
                sprintf(typemsg,"%s", lift_step_type_name[type] );
                if (type == 1) color = 9; // green for move
-               if (type == 2) color = 6; // tan for wait
-               if (type == 3) color = 6; // tan for prox
-               if (type == 4) color = 5; // green for loop
-               if (type == 5) color = 4; // dk red for event trigger
+               if (type == 2) color = 6; // tan for wait time
+               if (type == 3) color = 6; // tan for wait prox
+               if (type == 4) color = 5; // green for end step
+               if (type == 5) color = 4; // dk red for wait event
+               if (type == 6) color = 13; // lt blue for send event
             }
             else
             {
@@ -208,17 +210,9 @@ void mwLift::show_all_lifts(void)
 
 
 
-
-
-
-
-
-
-
-
-void mwLift::lift_step_set_size_from_previous_move_step(int lift, int step)
+void mwLift::set_size_from_previous_step(int lift, int step)
 {
-   int pms = lift_find_previous_move_step(lift, step); // searches back from passed step until a move step is found
+   int pms = find_previous_move_step(lift, step); // searches back from passed step until a move step is found
    if (pms != -1)
    {
       stp[lift][step].w = stp[lift][pms].w;
@@ -226,7 +220,7 @@ void mwLift::lift_step_set_size_from_previous_move_step(int lift, int step)
    }
 }
 
-int mwLift::lift_find_previous_move_step(int lift, int step) // searches back from passed step until a move step is found
+int mwLift::find_previous_move_step(int lift, int step) // searches back from passed step until a move step is found
 {
    if (step == 0) step = 40; // if started at step 0, start searching back from end to get last move step
    while (step)
@@ -353,13 +347,13 @@ int mwLift::get_new_lift_step(int lift, int step)
    // if we return 99 the step will be erased
 
    // position the menu on top of the step we are inserting before
-//   int sty = 53 + (step + 9) * bts;
+   // int sty = 53 + (step + 9) * bts;
 
    int sty = mwWM.mW[7].y1 + 44 + (step + 10) * bts;
 
    if (sty > mDisplay.SCREEN_H-60) sty = mDisplay.SCREEN_H-60;
 
-   int num_of_step_types = 5;
+   int num_of_step_types = 6;
    int sth = (num_of_step_types * 12) + 26;
    int sty2 = sty + sth;
 
@@ -391,12 +385,13 @@ int mwLift::get_new_lift_step(int lift, int step)
       if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Move"))
       {
          quit = construct_lift_step(lift, step, 1, 0, 0, 0, 0, 20);
-         lift_step_set_size_from_previous_move_step(lift, step);
+         set_size_from_previous_step(lift, step);
          if (mMiscFnx.getxy("Step Position", 4, lift, step) != 1) quit = 99;
       }
       if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Time")) quit = construct_lift_step(lift, step, 2, 0, 0, 0, 0, 100);
       if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Prox")) quit = construct_lift_step(lift, step, 3, 0, 0, 0, 0, 80);
-      if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Trig")) quit = construct_lift_step(lift, step, 5, 0, 0, 0, 0, 0);
+      if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Wait For Event")) quit = construct_lift_step(lift, step, 5, 0, 0, 0, 0, 0);
+      if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Send Event")) quit = construct_lift_step(lift, step, 6, 0, 0, 0, 0, 0);
       if (mWidget.buttontca(xc, ya, 0, bts,  0,0,0,0,  0,c1,c2,c3,  1,0,1,0, "Done"))          quit = 99;
    } // end of while (!quit)
    return quit;
@@ -468,7 +463,7 @@ void mwLift::set_all_steps(int l, int s, int what)
    if (what == 2) // color
    {
       int col = stp[l][s].type & PM_LIFT_COLOR_BITS; // mask off all except color
-      for (int si=0; si<cur[l].num_steps; si++)           // iterate steps
+      for (int si=0; si<cur[l].num_steps; si++)      // iterate steps
       {
          stp[l][si].type &= ~PM_LIFT_COLOR_BITS;     // clear color bits
          stp[l][si].type |= col;                     // merge
@@ -477,7 +472,7 @@ void mwLift::set_all_steps(int l, int s, int what)
    if (what == 3) // flags
    {
       int flags = stp[l][s].type & PM_LIFT_FLAG_BITS; // mask off all except flags
-      for (int si=0; si<cur[l].num_steps; si++)            // iterate steps
+      for (int si=0; si<cur[l].num_steps; si++)       // iterate steps
       {
          stp[l][si].type &= ~PM_LIFT_FLAG_BITS;       // clear flag bits
          stp[l][si].type |= flags;                    // merge
@@ -557,7 +552,7 @@ void mwLift::step_popup_menu(int lift, int step)
             case 3: move_lift_step(lift, step); break;
             case 4: delete_lift_step(lift, step); break;
             case 5: insert_steps_until_quit(lift, step); break;
-            case 6: lift_step_set_size_from_previous_move_step(lift, step); break;
+            case 6: set_size_from_previous_step(lift, step); break;
             case 7: set_all_steps(lift, step, 1); break;
             case 8: set_all_steps(lift, step, 2); break;
             case 9: set_all_steps(lift, step, 3); break;
@@ -607,8 +602,12 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
          sprintf(msg, "Step:%d - Ending Step", s);
          mWidget.buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
       break;
-      case 5: // wait trigger
-         sprintf(msg, "Step:%d - Wait For Trigger", s);
+      case 5: // wait event
+         sprintf(msg, "Step:%d - Wait For Event", s);
+         mWidget.buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
+      break;
+      case 6: // send event
+         sprintf(msg, "Step:%d - Send Event", s);
          mWidget.buttont(xa, ya, xb, bts,  0,0,0,0, 0,sd,15,0, 1,0,1,d, msg);
       break;
    }
@@ -648,8 +647,11 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
          mWidget.button( xa, ya, xb, bts,  505,l,s,0, 0,c1,15,0,  1,0,1,d); // lift step end step mode
       break;
       case 5: // wait trigger
-         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Trigger:");
+         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Event:");
          mWidget.button( xa, ya, xb, bts,  520,l,s,4, 0,c1,15,0,  1,0,1,d); ya+=bts; // lift step wait trigger get event
+      break;
+      case 6: // send trigger
+         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Event:");
       break;
    }
 
@@ -709,7 +711,7 @@ int mwLift::draw_steps(int x1, int x2, int y, int lift, int current_step, int hi
 
    // show outline around highlighted step
    int hs = highlight_step+1;
-   if (hs > -1) al_draw_rectangle(xa, ya+hs*bts, xb, ya+(hs+1)*bts, mColor.pc[14], 2);
+   if (hs > -1) al_draw_rounded_rectangle(xa, ya+hs*bts, xb, ya+(hs+1)*bts-3, 2, 2, mColor.pc[14], 2);
 
    int y1 = y;
    int y2 = y1+a*bts+fs*2;
@@ -747,24 +749,38 @@ int mwLift::draw_steps(int x1, int x2, int y, int lift, int current_step, int hi
 
 void mwLift::set_lift_to_step(int l, int s)
 {
-   // new behaviour
-   // if passed step is a move step, set that
-   // if not, then set to previous move step
+   // if passed step is a move step:
+   // - use that step to set lift xywh
+   // - set lift incs to all zero
+   // - set limit and limit counter to immediately advance to next step
 
-   if ((stp[l][s].type & 31) != 1) s = lift_find_previous_move_step(l, s);
+   // if passed step is not a move step:
+   // - find prev move step and use that to set lift xywh
+   // - set lift incs to all zero
+   // - set limit and limit counter from passed step
 
-   cur[l].current_step = s; // initial step
-   cur[l].limit_type = 2;      // type wait for time
-   cur[l].limit_counter = 0;   // 0 = no wait, immediate next mode
+   int step_type = stp[l][s].type & 31;
 
-   // get pos and size from step
-   cur[l].x     = stp[l][s].x;
-   cur[l].y     = stp[l][s].y;
-   cur[l].w     = stp[l][s].w;
-   cur[l].h     = stp[l][s].h;
+   if ((step_type) == 1) // passed step is move step
+   {
+      cur[l].current_step = s;
+      cur[l].limit_type    = 2;   // type 2 - wait for time
+      cur[l].limit_counter = 0;   // no wait, immediate next mode
+   }
+   else
+   {
+      s = find_previous_move_step(l, s);
+      cur[l].limit_type    = step_type;
+      cur[l].limit_counter = stp[l][s].val;
+   }
+
    cur[l].flags = stp[l][s].type; // get all the flags from the step type
 
- //  cur[l].color  = (stp[l][s].type >> 28) & 15; // not needed
+   // get pos and size from step
+   cur[l].x = stp[l][s].x;
+   cur[l].y = stp[l][s].y;
+   cur[l].w = stp[l][s].w;
+   cur[l].h = stp[l][s].h;
 
    // set incs to 0
    cur[l].xinc = 0;
@@ -960,6 +976,8 @@ void mwLift::set_lift_xyinc(int l, int step)
    cur[l].winc = wd / move_time;           // set winc
    cur[l].hinc = hd / move_time;           // set hinc
 
+   cur[l].current_step = step;
+
    cur[l].limit_counter = move_time;
    cur[l].limit_type = 1;
 }
@@ -979,15 +997,66 @@ int mwLift::lift_check_prox(int l, int pd)
 }
 
 
+void mwLift::next_step(int l)
+{
+   if (++cur[l].current_step > cur[l].num_steps - 1) cur[l].current_step = cur[l].num_steps -1; // increment step with bounds check
+   int s = cur[l].current_step;
+   cur[l].flags = stp[l][s].type; // set current lift flags from step type flags
+
+   int step_type = stp[l][s].type & 31; // step type
+   int step_val  = stp[l][s].val;       // step val
+
+   switch (step_type)
+   {
+      case 1: // move
+         set_lift_xyinc(l, s);
+      break;
+      case 2: // wait time
+         cur[l].limit_type = 2; // wait time
+         cur[l].limit_counter = step_val;
+      break;
+      case 3: // wait prox
+         cur[l].limit_type = 3; // wait prox
+         cur[l].limit_counter = step_val;
+      break;
+      case 5: // wait trig
+         cur[l].limit_type = 5; // wait trig
+         cur[l].limit_counter = step_val;
+      break;
+      case 6: // send trig
+         mTriggerEvent.event[step_val] = 1; // set event
+         next_step(l); // recurse
+
+         // if now in move step, do first move
+         if ((stp[l][cur[l].current_step].type & 31) == 1)
+         {
+            cur[l].x += cur[l].xinc;
+            cur[l].y += cur[l].yinc;
+            cur[l].w += cur[l].winc;
+            cur[l].h += cur[l].hinc;
+            --cur[l].limit_counter;
+         }
+
+      break;
+      case 4: // end step
+         if (step_val == 0) set_lift_xyinc(l, 0);   // move to step 0
+         if (step_val == 1) set_lift_to_step(l, 0); // warp to step 0
+         if (step_val == 2) cur[l].limit_type = 0;  // freeze here
+      break;
+   }
+}
 
 void mwLift::move_lifts(int ignore_prox)
 {
    for (int l=0; l<NUM_LIFTS; l++)
       if (cur[l].active)
       {
-         int next_step = 0;
-         int frozen = 0;
+         // find and clear all events this lift might send
+         for (int s=0; s<cur[l].num_steps; s++)
+            if ((stp[l][s].type & 31) == 6)  // only step type 6 - send trigger event
+               mTriggerEvent.event[stp[l][s].val] = 0;
 
+         int frozen = 0;
          if (cur[l].mode == 1) // prox run and reset mode
          {
             if (is_player_riding_lift(l)) cur[l].val1 = cur[l].val2; // reset timer
@@ -1001,7 +1070,6 @@ void mwLift::move_lifts(int ignore_prox)
                }
             }
          }
-
          if (cur[l].mode == 2) // prox reset mode
          {
             if (is_player_riding_lift(l)) cur[l].val1 = cur[l].val2; // reset timer
@@ -1015,8 +1083,6 @@ void mwLift::move_lifts(int ignore_prox)
             }
          }
 
-
-
          if (!frozen)
          {
             // limits ----------------------------------------------------------------------
@@ -1029,86 +1095,42 @@ void mwLift::move_lifts(int ignore_prox)
                   cur[l].w += cur[l].winc;
                   cur[l].h += cur[l].hinc;
 
-
-                  if (--cur[l].limit_counter < 0) // run down the counter
+                  if (--cur[l].limit_counter < 0) // run down and check counter
                   {
-                     next_step = 1;
+                     // make sure lift is at exact position at the end of the move
+                     int s = cur[l].current_step;
+                     cur[l].x = stp[l][s].x;
+                     cur[l].y = stp[l][s].y;
+                     cur[l].w = stp[l][s].w;
+                     cur[l].h = stp[l][s].h;
 
-                     //make sure lift is exactly where it should be at the end of the move...
-                     int step = cur[l].current_step;
-                     cur[l].x = stp[l][step].x;
-                     cur[l].y = stp[l][step].y;
-                     cur[l].w = stp[l][step].w;
-                     cur[l].h = stp[l][step].h;
-
-                     // zero incs when done
+                     // zero incs
                      cur[l].xinc = 0;
                      cur[l].yinc = 0;
                      cur[l].winc = 0;
                      cur[l].hinc = 0;
+
+                     next_step(l);
                   }
                break;
                case 2: // timer wait
-                  if (--cur[l].limit_counter < 0) next_step = 1;
+                  if (--cur[l].limit_counter < 0) next_step(l);
                break;
                case 3: // prox wait
-                  if (ignore_prox) next_step = 1;
-                  else if (lift_check_prox(l, cur[l].limit_counter)) next_step = 1;
+                  if (ignore_prox) next_step(l);
+                  else if (lift_check_prox(l, cur[l].limit_counter)) next_step(l);
+               break;
+               case 5: // trigger wait
+                  if (mTriggerEvent.event[cur[l].limit_counter]) next_step(l);
                break;
 
-               case 5: // trigger wait
-                  if (mTriggerEvent.event[cur[l].limit_counter]) next_step = 1;
-               break;
             }
          }
 
-
-         // changing steps ----------------------------------------------------------------------
-         if (next_step)
-         {
-            next_step = 0;
-            if (++cur[l].current_step > cur[l].num_steps - 1) cur[l].current_step = cur[l].num_steps -1; // increment step with bounds check
-            int step = cur[l].current_step;
-            cur[l].flags = stp[l][step].type; // get flags from the step type
-            switch (stp[l][step].type & 31)
-            {
-               case 1: // move
-                  set_lift_xyinc(l, step);
-               break;
-               case 2: // wait time
-                  cur[l].limit_type = 2; // wait time
-                  cur[l].limit_counter = stp[l][step].val;
-               break;
-               case 3: // wait prox
-                  cur[l].limit_type = 3; // wait prox
-                  cur[l].limit_counter = stp[l][step].val;
-               break;
-               case 5: // wait trig
-                  cur[l].limit_type = 5; // wait trig
-                  cur[l].limit_counter = stp[l][step].val;
-               break;
-               case 4: // end step
-                  if (stp[l][step].val == 0) // move to step 0
-                  {
-                     cur[l].current_step = 0;
-                     set_lift_xyinc(l, 0);
-                  }
-                  if (stp[l][step].val == 1) // warp to step 0
-                  {
-                     set_lift_to_step(l, 0);
-                  }
-                  if (stp[l][step].val == 2) // freeze here
-                  {
-                     cur[l].limit_type = 0;
-                  }
-               break;
-            }
-         } // end of next step
-
-      // clear events referenced by this lift
-      for (int s=0; s<cur[l].num_steps; s++)  // iterate steps
-         if ((stp[l][s].type & 31) == 5)        // trigger mode
-            mTriggerEvent.event[stp[l][s].val] = 0; // clear trigger event
+//      // clear events referenced by this lift
+//      for (int s=0; s<cur[l].num_steps; s++)  // iterate steps
+//         if ((stp[l][s].type & 31) == 5)        // trigger mode
+//            mTriggerEvent.event[stp[l][s].val] = 0; // clear trigger event
 
       } // end of lift iterate
 }
