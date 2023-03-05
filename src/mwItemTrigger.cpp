@@ -28,7 +28,7 @@ item[][7]  = timer val
 item[][8]  = time count
 item[][9]  =
 item[][10] = STATE ON  pm_event
-item[][11] = SATEE OFF pm_event
+item[][11] = STATE OFF pm_event
 item[][12] = TGON pm_event
 item[][13] = TGOF pm_event
 
@@ -247,18 +247,20 @@ void mwItems::proc_trigger(int i)
    if (!(mItem.item[i][3] &   PM_ITEM_TRIGGER_CURR))   // is current trigger flag not set?
          mItem.item[i][3] &= ~PM_ITEM_TRIGGER_PREV;    // clear previous trigger flag
 
+
+
+   // clear all events
+   mTriggerEvent.event[mItem.item[i][11]] = 0;
+   mTriggerEvent.event[mItem.item[i][12]] = 0;
+   mTriggerEvent.event[mItem.item[i][13]] = 0;
+   mTriggerEvent.event[mItem.item[i][14]] = 0;
+
    FLAGS = mItem.item[i][3]; // update FLAGS
 
 /*   if (FLAGS & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", mLoop.frame_num);
    if (FLAGS & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", mLoop.frame_num);
    if (FLAGS & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", mLoop.frame_num);
    if (FLAGS & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", mLoop.frame_num); */
-
-   // clear them all
-   mTriggerEvent.event[mItem.item[i][11]] = 0;
-   mTriggerEvent.event[mItem.item[i][12]] = 0;
-   mTriggerEvent.event[mItem.item[i][13]] = 0;
-   mTriggerEvent.event[mItem.item[i][14]] = 0;
 
    if   (FLAGS & PM_ITEM_TRIGGER_CURR)  mTriggerEvent.event[mItem.item[i][11]] = 1;
    if (!(FLAGS & PM_ITEM_TRIGGER_CURR)) mTriggerEvent.event[mItem.item[i][12]] = 1;
@@ -373,7 +375,7 @@ void mwItems::detect_trigger_collisions(int i)
 
 
 
-int mwItems::draw_trigger(int i, int x, int y)
+int mwItems::draw_trigger(int i, int x, int y, int custom)
 {
    if (mLoop.level_editor_running)
    {
@@ -381,7 +383,7 @@ int mwItems::draw_trigger(int i, int x, int y)
       if (mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 1); // snap to lift here because main function wont be called while in level editor
    }
 
-   if (mItem.item[i][3] & PM_ITEM_TRIGGER_DRAW_ON)
+   if ((mItem.item[i][3] & PM_ITEM_TRIGGER_DRAW_ON) && (!custom))
    {
       int col = mItem.item[i][2];
       float x1 = mItem.item[i][6];
@@ -823,8 +825,6 @@ void mwItems::proc_block_damage(int i)
 
 
 
-
-
 void mwItems::set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3)
 {
    if (mItem.item[i][0] == 6) // orb
@@ -841,42 +841,32 @@ void mwItems::set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3)
       mItem.item[i][13] = ev2;
       mItem.item[i][14] = ev3;
    }
+
+   if (mItem.item[i][0] == 13) // timer
+   {
+      mItem.item[i][13] = ev0;
+      mItem.item[i][15] = ev1;
+   }
+
+
+
+
+
 }
-
-
-
-
 
 
 /*
 item[][0]  = 13 - Time Trigger
-item[][1]  = count
-item[][2]  = state
+item[][1]  =
+item[][2]  = draw_mode 0 = Off 1 = progress bar
 item[][3]  = flags
+item[][4]  = x
+item[][5]  = y
 
-item[][4]  = x pos   (2000)
-item[][5]  = y pos   (2000)
-
-item[][6]  = t1 reset val
-item[][7]  = t1 mode (0,1,2,3)
-item[][8]  = t1 i/p event
-item[][9]  = t1 o/p event
-
-item[][10]  = t2 reset val
-item[][11]  = t2 mode (0,1,2,3)
-item[][12]  = t2 i/p event
-item[][13]  = t2 o/p event
-
-item[][14] = x2  for display
-item[][15] = y2
-
-                                      00000000
-                                              00000000
-#define PM_ITEM_TIMER_T1_MODE       0b1100000000000000
-#define PM_ITEM_TIMER_T2_MODE       0b0011000000000000
-#define PM_ITEM_TIMER_STATE_CURR    0b0000000000000000
-#define PM_ITEM_TIMER_STATE_PREV    0b0000000000000000
-
+item[][6]  = display x1
+item[][7]  = display y1
+item[][8]  = display x2
+item[][9]  = display y2
 
 item[][10] = t1 reset val
 item[][11] = t2 reset val
@@ -884,21 +874,20 @@ item[][12] = t1 i/p event
 item[][13] = t1 o/p event
 item[][14] = t2 i/p event
 item[][15] = t2 o/p event
-
-
+                                              00000000        00000000
+                                      00000000        00000000
+#define PM_ITEM_TIMER_COUNT         0b11111111111111110000000000000000
+#define PM_ITEM_TIMER_T1_MODE       0b00000000000000001100000000000000
+#define PM_ITEM_TIMER_T2_MODE       0b00000000000000000011000000000000
+#define PM_ITEM_TIMER_STATE_CURR    0b00000000000000000000000000000001
 
 */
 
 
-int mwItems::draw_timer(int i, int x, int y)
+int mwItems::draw_timer(int i, int x, int y, int custom)
 {
-   int state = 0;
-   int t1_mode = 0;
-   int t2_mode = 0;
-   int time = 0;
-   get_timer_flags(item[i][3], state, t1_mode, t2_mode, time);
-
-
+   int state, t1, t2, time;
+   get_timer_flags(item[i][3], state, t1, t2, time);
 
    float x1 = item[i][6];
    float y1 = item[i][7];
@@ -907,49 +896,38 @@ int mwItems::draw_timer(int i, int x, int y)
    float x2 = x1 + w;
    float y2 = y1 + h;
 
-   float xc = x1 + w/2;
-
    if (mLoop.level_editor_running)
    {
       al_draw_bitmap(mBitmap.tile[987], x, y, 0); // draw item shape in level editor, invisible when game running
    }
-   al_draw_textf(mFont.pr8, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "st:%d  [%d]", state, time/10);
-
-   int percent = 0;
-
-   if (state == 1)
+   if ((!custom) && (item[i][2]))
    {
-      int lt = item[i][10]; // total time
-      int dt = time;        // current time
-      if (lt > 0)  // prevent divide by zero
+      int percent = 0;
+      if (state == 1)
       {
-//         tts = (dt / 4) + 1;
-         //percent = (dt * 100) / lt;
-         percent = 100 - (dt * 100) / lt;
+         int lt = item[i][10]; // total time
+         int dt = time;        // current time
+         if (lt > 0)           // prevent divide by zero
+         {
+            percent = 100 - (dt * 100) / lt;
+         }
       }
-   }
-
-
-   if (state == 2)
-   {
-      int lt = item[i][11]; // total time
-      int dt = time;        // current time
-      if (lt > 0)  // prevent divide by zero
+      if (state == 2)
       {
-//         tts = (dt / 4) + 1;
-         percent = (dt * 100) / lt;
-         //percent = 100 - (dt * 100) / lt;
+         int lt = item[i][11]; // total time
+         int dt = time;        // current time
+         if (lt > 0)           // prevent divide by zero
+         {
+            percent = (dt * 100) / lt;
+         }
       }
+
+      int z = 2;
+      mScreen.draw_percent_barf(x1+z, y1+z, x2-z, y2-z, percent);
+      //al_draw_textf(mFont.pr8, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "st:%d  [%d]", state, time/10);
    }
-
-//   mScreen.draw_percent_bar(x+20, y+30, 64, 16, percent);
-//   mScreen.draw_percent_bar(xc, y1, w, h, percent);
-
-   mScreen.draw_percent_bar(xc, y1+5, w-20, h-10, percent);
-
    return 1;
 }
-
 
 void mwItems::proc_timer(int i)
 {
@@ -1023,31 +1001,44 @@ void mwItems::proc_timer(int i)
 void mwItems::set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, int cnt)
 {
    pack = state -1;
-   int H16 = cnt<<16; // shift to upper 16 bits
+   int H16 = cnt<<16;                         // shift to upper 16 bits
    H16 &= 0b11111111111111110000000000000000; // clear other bits
    pack += H16;
-   int t1m = t1_mode << 14; // shift to bits 14 and 15
+   int t1m = t1_mode << 14;                   // shift to bits 14 and 15
    t1m &= 0b00000000000000001100000000000000; // clear other bits
    pack += t1m;
-   int t2m = t2_mode << 12; // shift to bits 12 and 13
+   int t2m = t2_mode << 12;                   // shift to bits 12 and 13
    t2m &= 0b00000000000000000011000000000000; // clear other bits
    pack += t2m;
 }
 
-
 void mwItems::get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, int &cnt)
 {
    cnt = pack>>16;
-   t1_mode = pack>>14;
+   t1_mode = pack >> 14;
    t1_mode           &= 0b00000000000000000000000000000011;  // clear other bits
-   t2_mode = pack>>12;
+   t2_mode = pack >> 12;
    t2_mode           &= 0b00000000000000000000000000000011;  // clear other bits
    state = 1 + (pack &  0b00000000000000000000000000000001); // clear other bits
 }
 
-
-
-
-
-
-
+float mwItems::get_timer_ratio_for_event(int ev)
+{
+   int ti = -1;
+   for (int i=0; i<500; i++)
+      if (mItem.item[i][0] == 13) // timer
+      {
+         if (mItem.item[i][13] == ev) {ti = i; i=500; }
+         if (mItem.item[i][15] == ev) {ti = i; i=500; }
+      }
+   if (ti > -1)
+   {
+      int state, t1, t2, cnt;
+      get_timer_flags(item[ti][3], state, t1, t2, cnt);
+      float tot;
+      if (state == 1) tot = item[ti][10];
+      if (state == 2) tot = item[ti][11];
+      if (tot != 0) return (float)cnt / tot;
+   }
+   return 0;
+}

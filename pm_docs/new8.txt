@@ -17384,178 +17384,7 @@ test block manip
 add some draw modes for the timing indicator
 
 
-
 its been a long day..time for a push
-
-
-RollingAverage.cpp
-src\mwRollingAverage.h
-src\mwScreen.cpp
-src\mwScreen.h
-src\mwScreenOverlay.cpp
-src\mwSettings.cpp
-src\mwSettings.h
-src\mwShots.cpp
-src\mwShots.h
-src\mwSolid.cpp
-src\mwSolid.h
-src\mwSound.cpp
-src\mwSound.h
-src\mwTally.cpp
-src\mwTally.h
-src\mwTimeStamp.cpp
-src\mwTimeStamp.h
-src\mwTriggerEvent.cpp
-src\mwTriggerEvent.h
-src\mwVisualLevel.cpp
-src\mwVisualLevel.h
-src\mwWidgets.cpp
-src\mwWidgets.h
-src\mwWindow.cpp
-src\mwWindow.h
-src\mwWindowEditorMain.cpp
-src\mwWindowEditSelection.cpp
-src\mwWindowGroupEdit.cpp
-src\mwWindowManager.cpp
-src\mwWindowManager.h
-src\mwWindowObjectViewer.cpp
-src\mwWindowTileHelper.cpp
-src\pm.h
-      122 file(s) copied.
-
-C:\pm>pm -tu
-copy src\* \\scat\pm_client726\src
-src\libnet.h
-src\main.cpp
-src\mwBitmap.cpp
-src\mwBitmap.h
-src\mwBitmapTools.cpp
-src\mwBitmapTools.h
-src\mwBottomMessage.cpp
-src\mwBottomMessage.h
-src\mwCodeStats.cpp
-src\mwCodeStats.h
-src\mwColor.cpp
-src\mwColor.h
-src\mwConfig.cpp
-src\mwConfig.h
-src\mwDemoMode.cpp
-src\mwDemoMode.h
-src\mwDisplay.cpp
-src\mwDisplay.h
-src\mwDrawSequence.cpp
-src\mwDrawSequence.h
-src\mwEnemy.cpp
-src\mwEnemy.h
-src\mwEnemyArchwagon.cpp
-src\mwEnemyCannon.cpp
-src\mwEnemyCloner.cpp
-src\mwEnemyEditorFnx.cpp
-src\mwEnemyFlapper.cpp
-src\mwEnemyFnx.cpp
-src\mwEnemyJumpworm.cpp
-src\mwEnemyTrakbot.cpp
-src\mwEnemyVinePod.cpp
-src\mwEventQueue.cpp
-src\mwEventQueue.h
-src\mwFileIterator.cpp
-src\mwFileIterator.h
-src\mwFont.cpp
-src\mwFont.h
-src\mwGameEvent.cpp
-src\mwGameEvent.h
-src\mwGameMoves.cpp
-src\mwGameMoves.h
-src\mwGlobalLevelTool.cpp
-src\mwGlobalLevelTool.h
-src\mwGraph.cpp
-src\mwGraph.h
-src\mwHelp.cpp
-src\mwHelp.h
-src\mwInput.cpp
-src\mwInput.h
-src\mwItemBombRocket.cpp
-src\mwItemDoor.cpp
-src\mwItemEditorFnx.cpp
-src\mwItemKeySwitch.cpp
-src\mwItemMessage.cpp
-src\mwItems.cpp
-src\mwItems.h
-src\mwItemStartExitWarp.cpp
-src\mwItemTrigger.cpp
-src\mwLevel.cpp
-src\mwLevel.h
-src\mwLift.cpp
-src\mwLift.h
-src\mwLog.cpp
-src\mwLog.h
-src\mwLogGraph.cpp
-src\mwLogo.cpp
-src\mwLogo.h
-src\mwLogViewer.cpp
-src\mwLoop.cpp
-src\mwLoop.h
-src\mwMain.cpp
-src\mwMain.h
-src\mwMainArgs.cpp
-src\mwMenu.cpp
-src\mwMenu.h
-src\mwMiscFnx.cpp
-src\mwMiscFnx.h
-src\mwMulticolorLine.cpp
-src\mwMulticolorLine.h
-src\mwNetgame.cpp
-src\mwNetgame.h
-src\mwNetgameClient.cpp
-src\mwNetgameServer.cpp
-src\mwPDE.cpp
-src\mwPDE.h
-src\mwPlayers.cpp
-src\mwPlayers.h
-src\mwQuickGraph.cpp
-src\mwQuickGraph.h
-src\mwRollingAverage.cpp
-src\mwRollingAverage.h
-src\mwScreen.cpp
-src\mwScreen.h
-src\mwScreenOverlay.cpp
-src\mwSettings.cpp
-src\mwSettings.h
-src\mwShots.cpp
-src\mwShots.h
-src\mwSolid.cpp
-src\mwSolid.h
-src\mwSound.cpp
-src\mwSound.h
-src\mwTally.cpp
-src\mwTally.h
-src\mwTimeStamp.cpp
-src\mwTimeStamp.h
-src\mwTriggerEvent.cpp
-src\mwTriggerEvent.h
-src\mwVisualLevel.cpp
-src\mwVisualLevel.h
-src\mwWidgets.cpp
-src\mwWidgets.h
-src\mwWindow.cpp
-src\mwWindow.h
-src\mwWindowEditorMain.cpp
-src\mwWindowEditSelection.cpp
-src\mwWindowGroupEdit.cpp
-src\mwWindowManager.cpp
-src\mwWindowManager.h
-src\mwWindowObjectViewer.cpp
-src\mwWindowTileHelper.cpp
-src\pm.h
-      122 file(s) copied.
-
-C:\pm>pm
-
-Purple Martians Version 7.24.2
-Allegro Version: 5.2.7.1
-System ID: Windows
-Desktop Resolution: 3840x2160
-
 
 Purple Martians Source Code Line Counts [2023-02-26  22:38:24]
 
@@ -17685,6 +17514,671 @@ Purple Martians Source Code Line Counts [2023-02-26  22:38:24]
 [     8][     5][     5][     1][     1][     0][     2] - main.cpp
 -------------------------------------------------------- - totals
 [ 46533][ 34775][ 29712][  7931][  2868][  5063][  8890] - 122 files
+
+
+
+
+
+
+
+
+20230227
+fix percent bar to draw exactly where you would expect it to..done
+
+hook up the buttons that let you easily pick trigger input sources..
+seems to work
+
+
+
+the same for outputs
+add some draw modes for the timing indicator
+
+make sure timer always starts in mode 1, with cnt = t1_count..done
+
+add to creator choose display rect..done
+
+make header for each timer in ov
+
+separate display stuff in ov..done
+
+
+
+what happens when timer is set to zero?
+
+should this be an option for both, for only 2, for neither?
+
+
+
+some of my confusion is coming from the fact that timer is both event sender and reeiver
+
+show timer sender links also..
+
+
+
+when choosing event source and picking timer...it would be nice to know what timer is being used as a source...
+
+change some functions like:
+
+int get_trigger_item(int obj_type, int sub_type, int num);
+right now it only returns item num or -1 if bad
+
+change return val to be zero if bad or cancelled
+add extra params
+
+int get_trigger_item(int obj_type, int sub_type, int num, int &ti_type, &int ti_sub_type, &int ti_num );
+
+then it can be used for lifts and others in the future, and subtype can also be used for timer 1 or 2..
+
+
+now do the same for:
+
+int is_mouse_on_trigger_item(ti_obj_type, ti_num);
+
+i think i've got it...
+
+do some tests...
+
+
+block damage needs some tweaking
+
+I want a mode that is on only when triggered
+needs to be constantly triggered or it turns off
+
+and the same only reversed:
+
+off only when triggered
+needs to be constantly triggered or it turns on
+
+
+then I want a mode that toggles with trigger
+I have that already
+
+then I want a mode that turns on with one trigger and turns off with another..
+this would be tricky to implement, I would need 2 input triggers...
+can I do it with the new constant mode I am thinking of implementing?
+probably
+
+maybe I could make the timer outputs constant or only when switching
+
+what are they now?, only once when changing...
+
+options:
+- add 2 more more output events or
+- add a flag to each output event so it could be one or the other
+
+what should I do next?
+
+
+I want to add something to bm, a way of marking block that it will effect, like a flag..
+so that it can turn on and off blocks without having to use toggle
+
+add trigger sender to lift
+works!!
+
+fix new step menu length..done
+fix list of steps..done
+remove the button that searches for inputs..done
+add to list so it can be found as a sender
+
+I need to get my terminology consistant
+it will help a lot in my code..
+
+
+i use trigger, event, transmitter, receiver, sender...
+
+preferred:
+event sender
+event receiver
+
+to specify an object I will need three variables:
+obj_type
+obj_num
+obj_ext
+
+       obj_type obj_num obj_ext
+item      2       num    n/a
+orb       2       num    n/a
+trigger   2       num    n/a
+timer     2       num    timer number
+enemy     3       num    n/a
+lift      4       step   lift
+
+when choosing lift step 6 as trigger sender, switch lift to that step for display..done..
+
+this is coming along nicely
+
+
+void mwTriggerEvent::find_and_show_event_links(int type, int i, int num2)
+
+change to
+void mwTriggerEvent::find_and_show_event_links(int obj_type, int obj_num, int obj_ext)
+
+bug---can't see any prox line in level editor for prox lift step
+it shows up fine in game
+in level editor the function:
+void set_lift_to_step(int l, int s)
+{
+   // new behaviour
+   // if passed step is a move step, set that
+   // if not, then set to previous move step
+does not actually set lift's current step to steps that are not move steps
+
+what if I changed that to only set lifts main pos to prev lift step, not actual step...fixed....
+
+
+20230304 10:00AM
+
+still working on lifts and trigger events...
+I think lifts are done...
+
+what should I do next?
+
+add cloner to receivers
+
+I think I can use Ei[][21] for trigger input..
+
+I should also add a mode for that..
+
+will I blindly just clone when trigger is received?
+
+modes:
+force clone when trigger received, probably use a toggle on
+
+clone when trigger received, then use a cool done timer
+run timer while triggered then when timer is full clone..
+
+I think all of these case could be handled by the combination of timer and trigger items..
+
+
+trigger direct will do instant
+
+timer direct can do timed
+
+I think I sould add the event option and see if I can replace all other uses...
+
+make the option to have a timer run the cloner animation.
+
+for now make a new mode and the option to set an event receiver..done
+now I can control cloner with just event..
+
+see if I can replace uses...
+
+level 5
+cloner 2
+mode immed delay 90 with trigger box...
+make trigger item of same size with player input...done
+make the trigger item trigger a timer with t1 set to run whenever player is in trigger area
+
+this works...
+
+needs trigger item -> timer item -> cloner
+
+
+level 6
+cloner for rocket...
+immed delay 20
+
+trigger->timer->cloner
+
+this time I want immediate with a cool off...
+
+t1 time:1  run after trigger send event 2
+t2 time:20 free run
+
+
+I think those are the two most common use cases
+
+check with glt...
+
+
+the only types used are 0 and 2
+0 timer runs
+2 imdediate on trigger then timer runs
+
+0 will be easy to replace with a straight timer.
+2 can be replaced with a combo of trigger and timer..
+
+I can also do a straight trigger input..
+
+what I need to do is make a way that the timer can affect the cloner display
+
+cloner display:
+hidden or not
+static shape
+linked to timer (timer item num, timer 1 or 2)
+
+I will have more space once I get rid of the 4 ints used for cloner trigger
+
+all these can go:
+
+//      Ei[e][5] = player in box
+//      Ei[e][6] = create wait
+//      Ei[e][7] = create wait counter
+//      Ei[e][8] = trigger mode (0 = wait, 1=reset, 2=immed)
+//      Ei[e][11] = trigger box x1
+//      Ei[e][12] = trigger box y1
+//      Ei[e][13] = trigger box x2
+//      Ei[e][14] = trigger box y2
+
+
+how will I go about changing all this?
+
+Level:  1 - cloner:3 trigger type:0
+Level:  5 - cloner:1 trigger type:0
+Level:  5 - cloner:2 trigger type:3
+Level:  5 - cloner:3 trigger type:0
+Level:  6 - cloner:0 trigger type:3
+Level:  7 - cloner:0 trigger type:0
+Level:  8 - cloner:0 trigger type:2
+Level:  8 - cloner:1 trigger type:0
+Level:  8 - cloner:2 trigger type:0
+Level:  8 - cloner:3 trigger type:0
+Level:  8 - cloner:4 trigger type:2
+Level:  9 - cloner:0 trigger type:2
+Level:  9 - cloner:1 trigger type:2
+Level:  9 - cloner:2 trigger type:0
+Level:  9 - cloner:3 trigger type:2
+Level:  9 - cloner:4 trigger type:2
+Level: 10 - cloner:0 trigger type:0
+Level: 10 - cloner:1 trigger type:0
+Level: 10 - cloner:2 trigger type:0
+Level: 10 - cloner:3 trigger type:2
+Level: 11 - cloner:0 trigger type:2
+Level: 11 - cloner:1 trigger type:2
+Level: 11 - cloner:2 trigger type:2
+Level: 11 - cloner:3 trigger type:2
+Level: 11 - cloner:4 trigger type:2
+Level: 11 - cloner:5 trigger type:2
+Level: 11 - cloner:6 trigger type:0
+Level: 11 - cloner:7 trigger type:2
+Level: 11 - cloner:8 trigger type:2
+Level: 11 - cloner:9 trigger type:0
+Level: 11 - cloner:10 trigger type:0
+Level: 11 - cloner:11 trigger type:0
+Level: 11 - cloner:12 trigger type:0
+Level: 12 - cloner:0 trigger type:0
+Level: 12 - cloner:1 trigger type:2
+Level: 12 - cloner:2 trigger type:2
+Level: 12 - cloner:3 trigger type:0
+Level: 12 - cloner:4 trigger type:0
+Level: 12 - cloner:5 trigger type:0
+Level: 13 - cloner:0 trigger type:0
+Level: 13 - cloner:1 trigger type:0
+Level: 13 - cloner:2 trigger type:0
+Level: 13 - cloner:3 trigger type:2
+Level: 15 - cloner:0 trigger type:0
+Level: 16 - cloner:20 trigger type:2
+Level: 16 - cloner:21 trigger type:2
+Level: 16 - cloner:22 trigger type:0
+Level: 16 - cloner:23 trigger type:2
+Level: 16 - cloner:24 trigger type:0
+Level: 16 - cloner:25 trigger type:0
+Level: 16 - cloner:26 trigger type:0
+Level: 17 - cloner:21 trigger type:2
+Level: 17 - cloner:22 trigger type:0
+Level: 17 - cloner:23 trigger type:0
+Level: 17 - cloner:24 trigger type:0
+Level: 17 - cloner:25 trigger type:0
+Level: 17 - cloner:26 trigger type:0
+Level: 17 - cloner:27 trigger type:0
+Level: 18 - cloner:0 trigger type:0
+Level: 18 - cloner:1 trigger type:0
+Level: 19 - cloner:0 trigger type:2
+Level: 19 - cloner:1 trigger type:0
+Level: 19 - cloner:2 trigger type:0
+Level: 20 - cloner:9 trigger type:0
+Level: 20 - cloner:10 trigger type:0
+Level: 20 - cloner:11 trigger type:0
+Level: 21 - cloner:1 trigger type:0
+Level: 21 - cloner:2 trigger type:0
+Level: 21 - cloner:3 trigger type:0
+Level: 21 - cloner:4 trigger type:0
+Level: 21 - cloner:5 trigger type:0
+Level: 21 - cloner:6 trigger type:0
+Level: 21 - cloner:7 trigger type:0
+Level: 22 - cloner:8 trigger type:2
+Level: 22 - cloner:9 trigger type:0
+Level: 22 - cloner:10 trigger type:0
+Level: 22 - cloner:11 trigger type:0
+Level: 23 - cloner:0 trigger type:0
+Level: 23 - cloner:1 trigger type:0
+Level: 23 - cloner:2 trigger type:2
+Level: 23 - cloner:3 trigger type:2
+Level: 23 - cloner:4 trigger type:0
+Level: 26 - cloner:0 trigger type:2
+Level: 28 - cloner:0 trigger type:2
+Level: 29 - cloner:17 trigger type:0
+Level: 29 - cloner:18 trigger type:0
+Level: 29 - cloner:19 trigger type:0
+Level: 29 - cloner:20 trigger type:0
+Level: 30 - cloner:0 trigger type:0
+Level: 30 - cloner:1 trigger type:0
+Level: 30 - cloner:2 trigger type:0
+Level: 31 - cloner:4 trigger type:2
+Level: 31 - cloner:5 trigger type:0
+Level: 32 - cloner:2 trigger type:0
+Level: 32 - cloner:3 trigger type:0
+Level: 32 - cloner:4 trigger type:0
+Level: 32 - cloner:5 trigger type:0
+Level: 32 - cloner:6 trigger type:0
+Level: 33 - cloner:0 trigger type:0
+Level: 33 - cloner:1 trigger type:0
+Level: 33 - cloner:2 trigger type:0
+Level: 33 - cloner:3 trigger type:0
+Level: 35 - cloner:0 trigger type:2
+Level: 35 - cloner:1 trigger type:2
+Level: 35 - cloner:2 trigger type:2
+Level: 35 - cloner:3 trigger type:0
+Level: 35 - cloner:4 trigger type:0
+Level: 35 - cloner:5 trigger type:2
+Level: 36 - cloner:0 trigger type:2
+Level: 36 - cloner:1 trigger type:0
+Level: 49 - cloner:0 trigger type:0
+Level: 50 - cloner:0 trigger type:2
+Level: 51 - cloner:0 trigger type:3
+Level: 83 - cloner:0 trigger type:0
+Level: 83 - cloner:1 trigger type:0
+Level: 83 - cloner:2 trigger type:0
+Level: 83 - cloner:3 trigger type:0
+Level: 83 - cloner:4 trigger type:0
+Level: 84 - cloner:0 trigger type:0
+Level: 84 - cloner:1 trigger type:0
+Level: 84 - cloner:2 trigger type:2
+Level: 86 - cloner:0 trigger type:0
+Level: 88 - cloner:0 trigger type:0
+Level: 88 - cloner:1 trigger type:0
+Level: 88 - cloner:2 trigger type:0
+Level: 88 - cloner:3 trigger type:0
+Level: 88 - cloner:4 trigger type:0
+Level: 89 - cloner:0 trigger type:0
+Level: 93 - cloner:0 trigger type:0
+Level: 93 - cloner:1 trigger type:0
+Level: 93 - cloner:2 trigger type:0
+Level: 93 - cloner:3 trigger type:2
+Level: 93 - cloner:4 trigger type:0
+Level: 93 - cloner:5 trigger type:0
+Level: 95 - cloner:2 trigger type:0
+Level: 95 - cloner:3 trigger type:0
+Level: 97 - cloner:0 trigger type:0
+Level: 97 - cloner:1 trigger type:0
+Level: 97 - cloner:2 trigger type:0
+Level: 97 - cloner:3 trigger type:0
+Level: 98 - cloner:0 trigger type:0
+Level:101 - cloner:1 trigger type:0
+Level:101 - cloner:2 trigger type:0
+Level:101 - cloner:3 trigger type:2
+Level:102 - cloner:0 trigger type:0
+Level:105 - cloner:0 trigger type:2
+Level:105 - cloner:1 trigger type:2
+Level:105 - cloner:2 trigger type:2
+Level:106 - cloner:5 trigger type:0
+Level:106 - cloner:6 trigger type:0
+Level:106 - cloner:7 trigger type:0
+Level:106 - cloner:8 trigger type:0
+Level:106 - cloner:9 trigger type:2
+Level:106 - cloner:10 trigger type:2
+Level:106 - cloner:11 trigger type:2
+Level:107 - cloner:0 trigger type:0
+Level:113 - cloner:0 trigger type:0
+Level:117 - cloner:6 trigger type:0
+Level:153 - cloner:5 trigger type:2
+Level:155 - cloner:4 trigger type:0
+Level:155 - cloner:5 trigger type:0
+Level:155 - cloner:6 trigger type:0
+Level:155 - cloner:7 trigger type:0
+Level:155 - cloner:8 trigger type:0
+Level:155 - cloner:9 trigger type:2
+Level:160 - cloner:0 trigger type:2
+Level:160 - cloner:1 trigger type:2
+Level:303 - cloner:0 trigger type:0
+Level:303 - cloner:1 trigger type:2
+Level:303 - cloner:2 trigger type:0
+Level:303 - cloner:3 trigger type:0
+Level:303 - cloner:4 trigger type:0
+Level:303 - cloner:5 trigger type:0
+Level:303 - cloner:6 trigger type:0
+Level:313 - cloner:0 trigger type:2
+Level:320 - cloner:0 trigger type:2
+Level:320 - cloner:1 trigger type:2
+Level:320 - cloner:2 trigger type:2
+Level:321 - cloner:3 trigger type:0
+Level:321 - cloner:4 trigger type:2
+Level:322 - cloner:0 trigger type:2
+Level:322 - cloner:1 trigger type:2
+Level:322 - cloner:2 trigger type:2
+Level:322 - cloner:3 trigger type:2
+Level:322 - cloner:4 trigger type:2
+Level:322 - cloner:5 trigger type:2
+Level:324 - cloner:0 trigger type:2
+Level:332 - cloner:98 trigger type:2
+Level:333 - cloner:0 trigger type:2
+Level:360 - cloner:4 trigger type:2
+Level:360 - cloner:5 trigger type:0
+Level:360 - cloner:6 trigger type:0
+Level:360 - cloner:7 trigger type:0
+Level:360 - cloner:8 trigger type:0
+Level:360 - cloner:9 trigger type:0
+Level:361 - cloner:0 trigger type:0
+Level:361 - cloner:1 trigger type:2
+Level:363 - cloner:0 trigger type:0
+Level:364 - cloner:0 trigger type:1
+Level:365 - cloner:16 trigger type:2
+Level:365 - cloner:17 trigger type:0
+Level:365 - cloner:18 trigger type:0
+Level:368 - cloner:0 trigger type:0
+Level:368 - cloner:1 trigger type:0
+Level:369 - cloner:0 trigger type:2
+Level:369 - cloner:1 trigger type:2
+Level:370 - cloner:0 trigger type:0
+Level:370 - cloner:1 trigger type:2
+Level:371 - cloner:1 trigger type:2
+Level:371 - cloner:2 trigger type:0
+Level:371 - cloner:3 trigger type:2
+Level:371 - cloner:4 trigger type:2
+Level:372 - cloner:0 trigger type:0
+Level:373 - cloner:26 trigger type:0
+Level:373 - cloner:27 trigger type:0
+Level:373 - cloner:28 trigger type:0
+Level:373 - cloner:29 trigger type:0
+Level:373 - cloner:30 trigger type:0
+Level:373 - cloner:31 trigger type:0
+Level:373 - cloner:32 trigger type:0
+Level:373 - cloner:33 trigger type:0
+Level:373 - cloner:34 trigger type:0
+Level:373 - cloner:35 trigger type:0
+Level:373 - cloner:36 trigger type:0
+Level:373 - cloner:37 trigger type:0
+Level:373 - cloner:38 trigger type:0
+Level:373 - cloner:39 trigger type:0
+Level:374 - cloner:4 trigger type:2
+Level:374 - cloner:5 trigger type:2
+Level:374 - cloner:6 trigger type:0
+Level:374 - cloner:7 trigger type:0
+Level:375 - cloner:2 trigger type:0
+
+
+I think that 0 and 2 both run down the timer...
+
+
+I want to automate this change somewhat
+
+in glt for each cloner found:
+
+create a trigger item with the same area as the cloners trigger area
+create a timer item with the t1 the same time as the cloners time
+
+put the newly created items immed above or below cloner
+
+//      Ei[e][11] = trigger box x1
+//      Ei[e][12] = trigger box y1
+//      Ei[e][13] = trigger box x2
+//      Ei[e][14] = trigger box y2
+
+then gut cloner and re arrange variables
+
+
+I know this is more complicated to make a cloner, but it is also much more extendable..
+
+almost every cloner should have a timer driving it..
+
+the timer can be a free run, or only run if player in trigger box.
+
+what would it look like if the timer even that triggered that cloner was at the end of t2?
+
+
+free run:
+t1 0 free run
+t2 100 free run and send event
+
+free run when triggered:
+t1 0 free run
+t2 100 free run when triggered and send event
+
+immed when triggered then run timer while still triggered:
+t1 1 free run after triggered and send event
+t2 100 free run
+
+I think I am ready to pull the trigger on all the levels...
+
+backup first...done
+convert..done
+
+
+move variables around
+old:
+Ei[][4]  draw boxes (0 = none) (1 = trigger) (2 = source/dest) (3 = both)
+Ei[][5]  mode
+Ei[][6]  create wait
+Ei[][7]  create wait counter
+Ei[][8]  trigger mode (0=wait, 1=reset, 2=immed)
+Ei[][9]  time to live for created objects
+Ei[][10] max num of created objects
+Ei[][11] trigger box x1
+Ei[][12] trigger box y1
+Ei[][13] trigger box x2
+Ei[][14] trigger box y2
+Ei[][15] copy box x
+Ei[][16] copy box y
+Ei[][17] dest box x
+Ei[][18] dest box y
+Ei[][19] copy box width
+Ei[][20] copy box height
+Ei[][21] event
+
+new:
+Ei[][4]  draw boxes (0 = none) (1 = trigger) (2 = source/dest) (3 = both)
+
+Ei[][5]  draw mode
+Ei[][6]  draw linked timer item num
+Ei[][7]  draw linked timer num
+Ei[][8]  event
+
+Ei[][9]  time to live for created objects
+Ei[][10] max num of created objects
+
+Ei[][15] copy box x
+Ei[][16] copy box y
+Ei[][17] dest box x
+Ei[][18] dest box y
+Ei[][19] copy box width
+Ei[][20] copy box height
+
+
+
+
+add button to cloner to choose event and add stuff to make that work...
+mostly done..now I need lines in ov overaly...done...
+
+
+
+A very common mode (old 0)
+timer runs while triggered then clones
+
+could be implemented with either t1 or t2
+
+t1 0 free run (skips immed)
+t2 100 free run when triggered and send event
+
+or
+
+t1 100 free run when triggered and send event
+t2 0   free run (skips immed)
+
+make a function that returns a float based on the percent of the active timer
+done..
+
+add to cloner
+Ei[][6]  draw linked timer item num
+this could change..
+make a function to find float timer ration based on event num
+search item type 13 for event num match
+
+
+I actually think cloner is done..mostly
+creator...should I prompt for timer? and trigger..
+
+timer display options.. at least have a way to not display anything..done
+
+
+if timer value == 0 the timer is off
+
+
+
+
+
+
+Another very common mode (old 2)
+when triggered clone immediately then holdoff
+if continually triggered will clone every period
+if retriggered, nothing will happen until holdoff is done
+
+if continually triggered, acts just like first use case
+
+the difference here is when first triggered it clones right away
+
+could be implemented with either t1 or t2
+
+t1 1 free run when triggered and send event
+t2 100 free run (just for holdoff delay)
+
+or
+t1 100 free run (just for holdoff delay)
+t2 1 free run when triggered and send event
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

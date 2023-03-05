@@ -106,10 +106,10 @@ void mwItems::draw_item(int i, int custom, int cx, int cy)
    if (type == 5)  drawn = draw_start        (i, x, y, shape);
    if (type == 6)  drawn = draw_orb          (i, x, y);
    if (type == 8)  drawn = draw_bomb         (i, x, y, shape);
-   if (type == 9)  drawn = draw_trigger      (i, x, y);
+   if (type == 9)  drawn = draw_trigger      (i, x, y, custom);
    if (type == 10) drawn = draw_message      (i, custom);
    if (type == 11) drawn = draw_rocket       (i, x, y, shape);
-   if (type == 13) drawn = draw_timer        (i, x, y);
+   if (type == 13) drawn = draw_timer        (i, x, y, custom);
    if (type == 16) drawn = draw_block_manip  (i, x, y);
    if (type == 17) drawn = draw_block_damage (i, x, y, custom);
    if (type == 98) drawn = draw_rocket       (i, x, y, shape);

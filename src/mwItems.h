@@ -88,7 +88,7 @@ class mwItems
    int proc_orb_shot_collision(int i);
    void proc_orb_collision(int p, int i);
 
-   int draw_trigger(int i, int x, int y);
+   int draw_trigger(int i, int x, int y, int custom);
    void proc_trigger(int i);
    void set_item_trigger_location_from_lift(int i, int a20);
    void detect_trigger_collisions(int i);
@@ -103,12 +103,13 @@ class mwItems
 
    void set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3);
 
-   int draw_timer(int i, int x, int y);
+   int draw_timer(int i, int x, int y, int custom);
    void proc_timer(int i);
 
    void set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, int cnt);
    void get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, int &cnt);
 
+   float get_timer_ratio_for_event(int ev);
 
 
 

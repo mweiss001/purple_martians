@@ -46,6 +46,9 @@ class mwLift
 
    // these are used in the game
    void move_lifts(int ignore_prox);
+   void next_step(int l);
+
+
    void set_lift_to_step(int l, int s);
    int is_player_riding_lift(int l);
    int lift_check_prox(int l, int pd);
@@ -75,8 +78,8 @@ class mwLift
    int get_next_lift(int l);
    int get_prev_lift(int l);
 
-   void lift_step_set_size_from_previous_move_step(int l, int s);
-   int lift_find_previous_move_step(int l, int s);
+   void set_size_from_previous_step(int l, int s);
+   int find_previous_move_step(int l, int s);
    void move_lift_step(int l, int s);
    int get_new_lift_step(int l, int s);
    int insert_lift_step(int l, int s);

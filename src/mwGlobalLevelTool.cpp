@@ -128,12 +128,76 @@ void mwGlobalLevelTool::execute(void)
       al_draw_textf(mFont.pr8, mColor.pc[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       mLevel.load_level(le[x], 1, 1);
 
-      for (int y=0; y<500; y++)
-         if (mItem.item[y][0] == 11) // rocket
-         {
-             printf("Level:%3d st:%d\n", le[x], mItem.item[y][6]);
-           //  mItem.item[y][6] = (float)mItem.item[y][6] * 2.5;
-         }
+
+
+////      if (le[x] == 6)
+//      {
+//
+//
+//         for (int y=0; y<100; y++)
+//         {
+//            int type = mEnemy.Ei[y][0];
+//            if (type == 9)
+//            {
+//               int ex = mEnemy.Ef[y][0];
+//               int ey = mEnemy.Ef[y][1];
+//
+//               int yinc = -20;
+//               if (ey < 80) yinc = 20;
+//
+//
+//               printf("Level:%3d - cloner:%d trigger type:%d \n", le[x], y, mEnemy.Ei[y][8]);
+//
+//               int i = mItem.get_empty_item(9);
+//               if (i < 500)
+//               {
+//                  int ix = ex;
+//                  int iy = ey + yinc;
+//
+//                  mItem.item[i][4] = ix;
+//                  mItem.item[i][5] = iy;
+//
+//
+//                  mItem.item[i][0] = 9;  // type 9 - trigger
+//                  mItem.item[i][2] = 14; // draw color
+//                  mItem.item[i][3] |= PM_ITEM_TRIGGER_PLAYER;
+//                  mItem.item[i][3] |= PM_ITEM_TRIGGER_DRAW_ON;
+//
+//
+//                  mItem.item[i][6] = mEnemy.Ei[y][11];
+//                  mItem.item[i][7] = mEnemy.Ei[y][12];
+//                  mItem.item[i][8] = mEnemy.Ei[y][13]+20;
+//                  mItem.item[i][9] = mEnemy.Ei[y][14]+20;
+//               }
+//
+//               i = mItem.get_empty_item(13);
+//               if (i < 500)
+//               {
+//                  int ix = ex;
+//                  int iy = ey + yinc*2;
+//
+//                  mItem.item[i][4] = ix;
+//                  mItem.item[i][5] = iy;
+//
+//                  mItem.item[i][0] = 13;  // type 13 - timer
+//
+//                  mItem.item[i][10] = mEnemy.Ei[y][6];
+//
+//               }
+//
+//            }
+//         }
+//      }
+//
+//
+
+
+//      for (int y=0; y<500; y++)
+//         if (mItem.item[y][0] == 11) // rocket
+//         {
+//             printf("Level:%3d st:%d\n", le[x], mItem.item[y][6]);
+//           //  mItem.item[y][6] = (float)mItem.item[y][6] * 2.5;
+//         }
 
 //
 //      // block counter

@@ -678,21 +678,22 @@ int mwItems::create_item(int type)
 
 
 
-
-
-
-
 int mwItems::create_timer(int i)
 {
    int bad = 0;
    // set the item location
    if (mMiscFnx.getxy("Timer", 2, 13, i) == 1)
    {
-      mItem.item[i][0] = 13;  // type 9 - trigger
-      mItem.item[i][2] = 0; // draw color
+      mItem.item[i][0] = 13;  // type 13 - timer
+      //mItem.item[i][2] = 0; // draw color
    }
    else bad = 1;
+   if (!bad)
+   {
+      if (!mMiscFnx.get_block_range("Display Area", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
+   }
    if (bad) return 0;
    else mwWM.mW[7].object_viewer(2, i);
    return 1;
 }
+
