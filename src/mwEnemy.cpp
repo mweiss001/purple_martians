@@ -29,9 +29,9 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
       y = cy;
    }
 
-   if (type == 9) draw_cloner(e, x, y, custom);
-   if (type == 13) draw_vinepod(e, x, y, custom);
 
+   if (type == 9)  draw_cloner(e, x, y, custom);
+   if (type == 13) draw_vinepod(e, x, y, custom);
 
    int flags = 0;
    if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
@@ -46,6 +46,7 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
    if ((type == 13) && (Ei[e][15] != 0)) // different rotation point for vinepod
       al_draw_scaled_rotated_bitmap(mBitmap.tile[tn], 10, 3, x+10, y+10, sc, sc, rot, flags);
    else al_draw_scaled_rotated_bitmap(mBitmap.tile[tn], 10, 10, x+10, y+10, sc, sc, rot, flags);
+
 
    // if enemy is expiring show how many seconds it has left
    if ((!mLoop.level_editor_running) && (Ei[e][27])) al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);

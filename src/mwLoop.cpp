@@ -164,9 +164,15 @@ void mwLoop::game_menu(void)
       mLoop.top_menu_sel = mMenu.zmenu(mLoop.top_menu_sel, 10);
 
       if  (mLoop.top_menu_sel == 1)  { mLoop.program_state = 0;                                           return; } // exit
-      if  (mLoop.top_menu_sel == 2)  { if (mVisualLevel.visual_level_select()) mLoop.top_menu_sel = 3;                         } // visual level select
+
+      if  (mLoop.top_menu_sel == 2) // visual level select
+      {
+         int r = mVisualLevel.visual_level_select();
+         if (r == 1) mLoop.top_menu_sel = 3; // start new game
+         if (r == 3) mLoop.top_menu_sel = 8; // start level editor
+      }
       if ((mLoop.top_menu_sel == 4) && (mLevel.resume_allowed)) { mLoop.new_program_state = 13;           return; } // resume game
-      if  (mLoop.top_menu_sel == 3)  { mLoop.new_program_state = 10;  mLoop.top_menu_sel = 4;              return; } // start new game
+      if  (mLoop.top_menu_sel == 3)  { mLoop.new_program_state = 10;  mLoop.top_menu_sel = 4;             return; } // start new game
       if  (mLoop.top_menu_sel == 5)  { mLoop.new_program_state = 20;                                      return; } // host network game
       if  (mLoop.top_menu_sel == 6)  { mLoop.new_program_state = 24;                                      return; } // join network game
       if  (mLoop.top_menu_sel == 7)  { mLoop.new_program_state = 3;                                       return; } // settings

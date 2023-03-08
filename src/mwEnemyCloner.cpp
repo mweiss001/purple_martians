@@ -32,23 +32,6 @@
 
 void mwEnemy::move_cloner(int e)
 {
-   int draw_mode = Ei[e][5];
-
-   if (draw_mode == 0) Ei[e][1] = 0;                  // hidden
-   if (draw_mode == 1) Ei[e][1] = mBitmap.zz[7][105]; // static shape
-   if (draw_mode == 2) Ei[e][1] = mBitmap.zz[0][105]; // static animation sequence
-   if (draw_mode == 3)                                // follow timer event
-   {
-      if (Ei[e][8])
-      {
-         float rtio = 1 - mItem.get_timer_ratio_for_event(Ei[e][8]);
-         //printf("ratio:%f\n", rtio);
-         float ns = mBitmap.zz[4][107]; // number of shapes
-         float ni = ns * rtio;
-         Ei[e][1] = mBitmap.zz[5+(int)ni][107];
-      }
-      else Ei[e][1] = mBitmap.zz[6][105]; // static shape
-   }
    if (Ei[e][31] && (Ei[e][30] == 0)) // hit and not invincible
    {
       enemy_killed(e);
@@ -152,8 +135,36 @@ void mwEnemy::cloner_create(int e)
 
 void mwEnemy::draw_cloner(int e, int x, int c, int custom)
 {
-   if (!custom) // cloner
+   if ((custom) || (mLoop.level_editor_running))
    {
+      Ei[e][1] = mBitmap.zz[7][105]; // static shape
+   }
+   else
+   {
+
+      int draw_mode = Ei[e][5];
+
+      if (draw_mode == 0) Ei[e][1] = 0;                  // hidden
+      if (draw_mode == 1) Ei[e][1] = mBitmap.zz[7][105]; // static shape
+      if (draw_mode == 2) Ei[e][1] = mBitmap.zz[0][105]; // static animation sequence
+      if (draw_mode == 3)                                // follow timer event
+      {
+         if (Ei[e][8])
+         {
+            float rtio = 1 - mItem.get_timer_ratio_for_event(Ei[e][8]);
+            //printf("ratio:%f\n", rtio);
+            float ns = mBitmap.zz[4][107]; // number of shapes
+            float ni = ns * rtio;
+            Ei[e][1] = mBitmap.zz[5+(int)ni][107];
+         }
+         else Ei[e][1] = mBitmap.zz[6][105]; // static shape
+      }
+
+
+
+
+
+
       // source
       float sx1 = (float)Ei[e][15];
       float sy1 = (float)Ei[e][16];

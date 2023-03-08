@@ -260,8 +260,8 @@ void mwItems::bomb_crosshairs(float x, float y)
 void mwItems::bomb_enemies(int i, int t, int dr, float x, float y)
 {
    for (int e=0; e<100 ; e++) // enemies in damage window?
-      if (mEnemy.Ei[e][0])
-      {
+      if ((mEnemy.Ei[e][0]) && (! ((mEnemy.Ei[e][0] == 9) && mEnemy.Ei[e][30])) ) // active and  not(cloner and invincible)
+       {
          float dist = sqrt(pow(mEnemy.Ef[e][0]-x, 2) + pow(mEnemy.Ef[e][1]-y, 2));
          if (dist < dr)
          {

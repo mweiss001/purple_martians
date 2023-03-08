@@ -764,14 +764,27 @@ int mwVisualLevel::visual_level_select(void)
          mLevel.set_start_level(selected_level);
          quit = 1;
       }
+
+      if (mInput.key[ALLEGRO_KEY_END][3]) // start level editor
+      {
+         mLevel.set_start_level(selected_level);
+         quit = 3;
+      }
+
+
+
       if (mInput.key[ALLEGRO_KEY_ESCAPE][3])
       {
          mLevel.set_start_level(selected_level);
          quit = 2;
       }
+
+
+
    }
    mLoop.visual_level_select_running = 0;
    if (quit == 1) return 1;
+   if (quit == 3) return 3;
    return 0;
 }
 

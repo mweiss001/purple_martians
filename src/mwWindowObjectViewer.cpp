@@ -79,10 +79,6 @@ void mwWindow::ov_get_size(void)
    if (obt == 2) type = mItem.item[num][0];
    if (obt == 3) type = mEnemy.Ei[num][0];
 
-   ov_check_if_valid(type);
-
-
-
    if ((obt == 2) && (type == 1 )) w = 210; // door
    if ((obt == 2) && (type == 2 )) w = 200; // bonus
    if ((obt == 2) && (type == 3 )) w = 200; // exit
@@ -1047,6 +1043,23 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
       mwWM.mW[7].set_size(mwWM.mW[7].w, mwWM.mW[7].h);
    }
 }
+
+
+void mwWindow::ov_draw_overlay_rectangle_and_crosshairs(int x1, int y1, int w, int h, int color, int crosshairs)
+{
+   float thickness = 2.0;
+   int x2 = x1+w;
+   int y2 = y1+h;
+   al_draw_rectangle(x1+1, y1+1, x2-1, y2-1, mColor.pc[color], thickness);
+   if (crosshairs)
+   {
+      int xc = (x1+x2)/2;
+      int yc = (y1+y2)/2;
+      al_draw_line(0, yc, 1999, yc, mColor.pc[color], thickness);
+      al_draw_line(xc, 0, xc, 1999, mColor.pc[color], thickness);
+   }
+}
+
 void mwWindow::ov_draw_overlays(int legend_highlight)
 {
    int obt = mwWM.mW[7].obt;
@@ -1065,8 +1078,12 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
 
       int x1 = mLift.stp[lift][step].x-1;
       int y1 = mLift.stp[lift][step].y-1;
-      int x2 = x1 + mLift.stp[lift][step].w+2;
-      int y2 = y1 + mLift.stp[lift][step].h+2;
+
+      int w = mLift.stp[lift][step].w;
+      int h = mLift.stp[lift][step].h;
+
+      int x2 = x1 + w + 2;
+      int y2 = y1 + h + 2;
       int xc = (x1 + x2) / 2;
       int yc = (y1 + y2) / 2;
 
@@ -1124,33 +1141,17 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
       if (type == 13) // vinepod
       {
          mEnemy.draw_vinepod_controls(num, legend_highlight);
-
       }
-
 
       if (type == 9) // cloner
       {
          int color2 = 11;
          if (legend_highlight == 2) color2 = mColor.flash_color;
+         ov_draw_overlay_rectangle_and_crosshairs(mEnemy.Ei[num][15], mEnemy.Ei[num][16], mEnemy.Ei[num][19], mEnemy.Ei[num][20], color2, 1);
 
          int color3 = 10;
          if (legend_highlight == 3) color3 = mColor.flash_color;
-
-         int cw = mEnemy.Ei[num][19];     // width
-         int ch = mEnemy.Ei[num][20];     // height
-
-         int cx1 = mEnemy.Ei[num][15];    // source
-         int cy1 = mEnemy.Ei[num][16];
-         int cx2 = cx1 + cw;
-         int cy2 = cy1 + ch;
-         al_draw_rectangle(cx1, cy1, cx2, cy2, mColor.pc[color2], 1);
-
-         int cx3 = mEnemy.Ei[num][17];    // destination
-         int cy3 = mEnemy.Ei[num][18];
-         int cx4 = cx3 + cw;
-         int cy4 = cy3 + ch;
-         al_draw_rectangle(cx3, cy3, cx4, cy4, mColor.pc[color3], 1);
-
+         ov_draw_overlay_rectangle_and_crosshairs(mEnemy.Ei[num][17], mEnemy.Ei[num][18], mEnemy.Ei[num][19], mEnemy.Ei[num][20], color3, 1);
          mTriggerEvent.find_and_show_event_links(obt, num, 0);
       }
       if (type == 12) // flapper
@@ -1212,46 +1213,16 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          {
             int color = 10;
             if (legend_highlight == 2) color = mColor.flash_color;
-            int x2 = mItem.item[num][6];
-            int y2 = mItem.item[num][7];
-            int x3 = x2 + mItem.item[num][8] - 1;
-            int y3 = y2 + mItem.item[num][9] - 1;;
-            int x4 = (x2+x3)/2;
-            int y4 = (y2+y3)/2;
-
-            if (x2 == 0) x2 = 1; // to keep it visible
-            if (y2 == 0) y2 = 1;
-
-            // draw range
-            al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
-            al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
-
-            // show blocks that will be affected
-            mItem.proc_key_block_range(num, 2);
+            ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
+            mItem.proc_key_block_range(num, 2); // show blocks that will be affected
          }
          break;
          case 14: // switch
          {
             int color = 10;
             if (legend_highlight == 2) color = mColor.flash_color;
-            int x2 = mItem.item[num][6];
-            int y2 = mItem.item[num][7];
-            int x3 = x2 + mItem.item[num][8] - 1;
-            int y3 = y2 + mItem.item[num][9] - 1;;
-            int x4 = (x2+x3)/2;
-            int y4 = (y2+y3)/2;
-
-            if (x2 == 0) x2 = 1; // to keep it visible
-            if (y2 == 0) y2 = 1;
-
-            // draw range
-            al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
-            al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
-
-            // show blocks that will be affected
-            mItem.proc_switch_block_range(num, 2);
+            ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
+            mItem.proc_switch_block_range(num, 2); // show blocks that will be affected
          }
          break;
          case 8: // bomb
@@ -1265,23 +1236,10 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          {
             int color = 14;
             if (legend_highlight == 2) color = mColor.flash_color;
-
-            int x2 = mItem.item[num][6];
-            int y2 = mItem.item[num][7];
-            int x3 = x2 + mItem.item[num][8] - 1;
-            int y3 = y2 + mItem.item[num][9] - 1;;
-            int x4 = (x2+x3)/2;
-            int y4 = (y2+y3)/2;
-
-            // draw range
-            al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
-            al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
-
+            ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
          }
          break;
-
          case 6: // orb
          {
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
@@ -1299,35 +1257,16 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
             int mx=0, my=0, mw=0, mh=0;
             mMiscFnx.get_int_3216(mItem.item[num][10], mx, my);
             mMiscFnx.get_int_3216(mItem.item[num][11], mw, mh);
-            int x2 = mx;
-            int y2 = my;
-            int x3 = mx + mw;
-            int y3 = my + mh;
-            int x4 = (x2+x3)/2;
-            int y4 = (y2+y3)/2;
 
-            al_draw_textf(mFont.pr8, mColor.pc[15], x4, y2-10, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d", mx, my);
-            al_draw_textf(mFont.pr8, mColor.pc[15], x4, y3+2,  ALLEGRO_ALIGN_CENTRE, "w:%d h:%d", mw, mh);
-
-            al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
-            al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
+            ov_draw_overlay_rectangle_and_crosshairs(mx, my, mw, mh, color, 1);
+            al_draw_textf(mFont.pr8, mColor.pc[15], mx+mw/2, my-10,   ALLEGRO_ALIGN_CENTRE, "x:%d y:%d", mx, my);
+            al_draw_textf(mFont.pr8, mColor.pc[15], mx+mw/2, my+mh+2, ALLEGRO_ALIGN_CENTRE, "w:%d h:%d", mw, mh);
 
             if (mItem.item[num][2] & PM_ITEM_PMSG_TRIGGER_BOX)
             {
                int color = 14;
                if (legend_highlight == 3) color = mColor.flash_color;
-
-               int x2 = mItem.item[num][6];
-               int y2 = mItem.item[num][7];
-               int x3 = x2 + mItem.item[num][8] - 1;
-               int y3 = y2 + mItem.item[num][9] - 1;;
-               int x4 = (x2+x3)/2;
-               int y4 = (y2+y3)/2;
-
-               al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
-               al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
-               al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
+               ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
             }
          }
          break;
@@ -1342,18 +1281,7 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          {
             int color = 11;
             if (legend_highlight == 2) color = mColor.flash_color;
-            int x2 = mItem.item[num][6];
-            int y2 = mItem.item[num][7];
-            int x3 = x2 + mItem.item[num][8]-1;
-            int y3 = y2 + mItem.item[num][9]-1;;
-            int x4 = (x2+x3)/2;
-            int y4 = (y2+y3)/2;
-
-            // draw range
-            al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
-            al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
-
+            ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
          }
          break;
@@ -1370,38 +1298,15 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          {
             int color = 12;
             if (legend_highlight == 2) color = mColor.flash_color;
-            int x2 = mItem.item[num][6];
-            int y2 = mItem.item[num][7];
-            int x3 = x2 + mItem.item[num][8]-1;
-            int y3 = y2 + mItem.item[num][9]-1;;
-            int x4 = (x2+x3)/2;
-            int y4 = (y2+y3)/2;
-
-            // draw range
-            al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
-            al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
-
+            ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
-
          }
          break;
          case 17: // block damage
          {
             int color = 10;
             if (legend_highlight == 2) color = mColor.flash_color;
-            int x2 = mItem.item[num][6];
-            int y2 = mItem.item[num][7];
-            int x3 = x2 + mItem.item[num][8]-1;
-            int y3 = y2 + mItem.item[num][9]-1;;
-            int x4 = (x2+x3)/2;
-            int y4 = (y2+y3)/2;
-
-            // draw range
-            al_draw_line(0, y4, 1999, y4, mColor.pc[color], 1);
-            al_draw_line(x4, 0, x4, 1999, mColor.pc[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, mColor.pc[color], 1);
-
+            ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
          }
          break;
@@ -2028,35 +1933,15 @@ void mwWindow::ov_process_mouse(void)
 }
 
 
-void mwWindow::ov_set_to_0(void)
+void mwWindow::ov_check_if_valid(void)
 {
-   mwWM.mW[7].obt = 2;
-   mwWM.mW[7].num = 0;
-   if (mItem.item[mwWM.mW[7].num][0] == 0) mwWM.set_windows(1);
-}
-
-void mwWindow::ov_check_if_valid(int type)
-{
-   //printf("valid? obt:%d num:%d\n", mW[7].obt, mW[7].num);
-
-   if (mwWM.mW[7].obt==0) ov_set_to_0();
-
-   if (mwWM.mW[7].obt==2)
-   {
-      if (mItem.item_num_of_type[type] < 1) ov_set_to_0();
-      if (mItem.item[mwWM.mW[7].num][0] != type) ov_set_to_0();
-      if (mItem.item[mwWM.mW[7].num][0] == 0) ov_set_to_0();
-   }
-   if (mwWM.mW[7].obt==3)
-   {
-      if (mEnemy.e_num_of_type[type] < 1) ov_set_to_0();
-      if (mEnemy.Ei[mwWM.mW[7].num][0] != type) ov_set_to_0();
-   }
-
-   if (mwWM.mW[7].obt==4)
-   {
-      if (!mLift.cur[mwWM.mW[7].num].active) ov_set_to_0();
-   }
+   // check if the current object is valid
+   int obt = mwWM.mW[7].obt;
+   int num = mwWM.mW[7].num;
+   if (obt==0)                               mwWM.set_windows(1);
+   if ((obt==2) && (!mItem.item[num][0]))    mwWM.set_windows(1);
+   if ((obt==3) && (!mEnemy.Ei[num][0]))     mwWM.set_windows(1);
+   if ((obt==4) && (!mLift.cur[num].active)) mwWM.set_windows(1);
 }
 
 void mwWindow::ov_process_keypress(void)
@@ -2113,25 +1998,25 @@ void mwWindow::ov_process_keypress(void)
          mwWM.mW[7].num = create_obj(mwWM.mW[7].obt, type, mwWM.mW[7].num);
       break;
       case 20: // delete
-         if (mwWM.mW[7].obt== 2)
+         if (mwWM.mW[7].obt == 2)
          {
             mItem.erase_item(mwWM.mW[7].num);
             mItem.sort_item(1);
             if (mwWM.mW[7].num >= mItem.item_first_num[type]+ mItem.item_num_of_type[type]) mwWM.mW[7].num--;
-            ov_check_if_valid(type);
+            ov_check_if_valid();
          }
          if (mwWM.mW[7].obt == 3)
          {
             mEnemy.Ei[mwWM.mW[7].num][0] = 0;
             mEnemy.sort_enemy();
             if (mwWM.mW[7].num >= mEnemy.e_first_num[type]+mEnemy.e_num_of_type[type]) mwWM.mW[7].num--;
-            ov_check_if_valid(type);
+            ov_check_if_valid();
          }
          if (mwWM.mW[7].obt == 4)
          {
             mLift.erase_lift(mwWM.mW[7].num);
             if (--mwWM.mW[7].num < 0) mwWM.mW[7].num = 0;      // set to prev lift or zero
-            ov_check_if_valid(0);
+            ov_check_if_valid();
          }
       break;
       case 21: // next

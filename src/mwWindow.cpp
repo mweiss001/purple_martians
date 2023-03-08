@@ -343,6 +343,7 @@ void mwWindow::draw(int draw_only)
    }
    if (index == 7) // object viewer
    {
+      ov_check_if_valid();
       ov_get_size();
       ov_title(x1, x2, y1, y2, legend_line);
       ov_draw_buttons(x1, y1, x2, y2, d);

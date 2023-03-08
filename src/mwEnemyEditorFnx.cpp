@@ -7,6 +7,9 @@
 #include "mwColor.h"
 #include "mwMiscFnx.h"
 #include "mwInput.h"
+#include "mwBitmap.h"
+
+
 
 void mwEnemy::fill_strings(void)
 {
@@ -266,15 +269,10 @@ int mwEnemy::create_cloner(void)
    Ef[e][12] = 1;  // scale
    Ef[e][14] = 0;  // rotation
 
-   Ei[e][1] = 550;   // shape
-   Ei[e][2] = 0;     // draw type
+   Ei[e][1] = mBitmap.zz[7][105]; // static shape
+   Ei[e][5] = 1;                  // draw mode 1 - static shape
 
-   Ei[e][4] = 3;     // draw all boxes
-   Ei[e][5] = 0;     // mode
-   Ei[e][8] = 2;     // trigger type
-
-   Ei[e][6] = 400;  // default delay
-   Ei[e][7] = 0;  // default delay
+   Ei[e][4] = 0; // draw box mode - none
 
    Ei[e][25] = 25;  // health bonus
    Ei[e][29] = 10;  // default collision box
@@ -282,17 +280,12 @@ int mwEnemy::create_cloner(void)
 
    if (mMiscFnx.getxy("Cloner Location", 3, 9, e) == 1)
    {
-
       if (mMiscFnx.get_block_range("Cloner Source Area", &Ei[e][15], &Ei[e][16], &Ei[e][19], &Ei[e][20], 1))
       {
-         if (mMiscFnx.getxy("Cloner Destination Area", 98, 9, e ) == 1)
-         {
-            if (!mMiscFnx.get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
-         }
-         else aborted_create = 1;
-      }  // end of get source area
+         if (!mMiscFnx.getxy("Cloner Destination Area", 98, 9, e)) aborted_create = 1;
+      }
       else aborted_create = 1;
-   }  // end of set cloner location
+   }
    else aborted_create = 1;
 
    if (aborted_create)
