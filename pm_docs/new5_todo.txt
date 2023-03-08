@@ -8,16 +8,19 @@ bug when adjusting trigger field in ov can't get last x pos..fixed
 bug when drawing trigger field in overlay draws twice at wrong size
 when ever drawing trigger shape in ov or draw item, etc...fixed by adding custom to draw_trigger
 
+bug -- in level editor can't see trigger box edges on left or top if zero..fixed
+
+bug - block damage does not destroy items..fixed
+
+bug - when cloner is hidden, it shows till run for the first time..fixed
+fixed this in draw cloner
+
+bug - when cloner is invincible do not target with explosions..done
+
+bug - player not hurt by damage field...fixed
 
 
 
-
-
-
-
-
-
-bug -- in level editor can't see trigger box edges on left or top if zero
 
 
 
@@ -63,18 +66,24 @@ I can reduce the time, but what if it breaks things in network level done?
 I'm getting a stimp in single player
 
 
-
-
 cloner sometimes does not create (see level 97)
 could be detecting not empty destination?
 cannot reproduce...
 
-ov set to zero sometimes buggy
+
+ov set to zero sometimes buggy...i think i fixed it...
+
 
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+in visual level select, make hotkey 'L' to start level editor on selected level
+does not do as intended when L is a control...use END instead...done
+
+
+
 
 code stat to do optional alphabetoical sort also optional skip header files
 

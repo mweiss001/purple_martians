@@ -190,6 +190,28 @@ void mwGlobalLevelTool::execute(void)
 //      }
 //
 //
+//
+//      for (int y=0; y<500; y++)
+//      {
+//         int it = mItem.item[y][0];
+//
+//         if ((it == 4) || (it == 9) || (it == 14) || (it == 16) || (it == 17))
+//         {
+//            if (mItem.item[y][6] < 0)    { mItem.item[y][6] = 0;     printf("l:%d it:%d x<0 \n", le[x], it );  }
+//            if (mItem.item[y][7] < 0)    { mItem.item[y][7] = 0;     printf("l:%d it:%d y<0 \n", le[x], it );  }
+//            if (mItem.item[y][8] > 2000) { mItem.item[y][8] = 2000;  printf("l:%d it:%d w<2000 \n", le[x], it );  }
+//            if (mItem.item[y][9] > 2000) { mItem.item[y][9] = 2000;  printf("l:%d it:%d h<2000 \n", le[x], it );  }
+//
+//         }
+//      }
+
+//4 key
+//9 trigger
+//14 switch
+//16 bm
+//17 bd
+
+
 
 
 //      for (int y=0; y<500; y++)
@@ -210,9 +232,6 @@ void mwGlobalLevelTool::execute(void)
 //         {
 //         }
 //
-
-
-
 
 
 

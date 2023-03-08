@@ -18147,6 +18147,195 @@ t2 1 free run when triggered and send event
 
 
 
+what if I made the immediate ones trigger with trigger only?
+then it would be simpler..I would lose the auto retrigger stuff though
+I can control how many are made with cloner..
+
+going through levels and changing..
+up to 10
+
+
+make trigger boxes easier to see on overlay...
+
+some triggers are less than 0 and greater than 2000
+probably auto created...fix with glt...
+4 key
+9 trigger
+14 switch
+16 bm
+17 bd
+
+Running Global Level Test
+l:1 it:9 x<0
+l:1 it:9 y<0
+l:5 it:9 x<0
+l:5 it:9 w<2000
+l:13 it:9 x<0
+l:13 it:9 y<0
+l:13 it:9 w<2000
+l:13 it:9 h<2000
+l:13 it:9 x<0
+l:13 it:9 y<0
+l:13 it:9 w<2000
+l:13 it:9 h<2000
+l:23 it:9 x<0
+l:23 it:9 y<0
+l:23 it:9 w<2000
+l:23 it:9 h<2000
+Total count0:0
+Total count1:0
+Total count2:0
+Total count3:0
+min:9990 max:0
+
+fixed..
+
+
+
+
+
+
+
+I have redidi all the cloner in levels up to 100 so far..
+
+here are my notes:
+
+I can just about always use timer 1 only...
+
+if the old cloner had a trigger box the size of the entire level, the new one doesn't need one
+use timer only in this case
+
+
+if the old cloner waited for player to trigger to get an item, most of the time can do this with just trigger and cloned item limit
+
+to use a cloner to make sure there is always 1 item in an area:
+cloner -> timer -> trigger???
+
+
+
+
+
+thoughts for the creator:
+
+first lose the prompt for trigger...
+
+then make some templates
+
+cloner -> timer
+free running timer in t1 that triggers cloner
+
+cloner -> trigger
+toggle trigger
+
+cloner -> timer -> trigger
+when you want a timed clone only when something triggers
+
+
+
+
+
+ov set to zero sometimes buggy
+start a level in level editor with no enemies...
+
+
+
+ov_check_if_valid(type); is called from ov_get_size(void)
+
+lets call it one sooner...
+
+void mwWindow::draw(int draw_only)
+{
+   if (index == 7) // object viewer
+   {
+      ov_check_if_valid(type);
+      ov_get_size();
+      ov_title(x1, x2, y1, y2, legend_line);
+      ov_draw_buttons(x1, y1, x2, y2, d);
+   }
+
+lets not pass type to it, make it calculate that itself
+
+I think it is fixed...much simpler now:
+
+void mwWindow::ov_check_if_valid(void)
+{
+   // check if the current object is valid
+   int obt = mwWM.mW[7].obt;
+   int num = mwWM.mW[7].num;
+   if (obt==0)                               mwWM.set_windows(1);
+   if ((obt==2) && (!mItem.item[num][0]))    mwWM.set_windows(1);
+   if ((obt==3) && (!mEnemy.Ei[num][0]))     mwWM.set_windows(1);
+   if ((obt==4) && (!mLift.cur[num].active)) mwWM.set_windows(1);
+}
+
+
+
+
+now I have done up to level 200
+there are still some old type cloners in the 300's but I don't care, they are all junk levels anyway..
+
+
+
+
+now what was I doing with timer's and such?
+
+block damage has built in timers and quite a bit of display
+the numbers and progress bars are not as configurable as the the ones in timer..
+
+I could make some new modes...
+on always unless a continous off event is present
+off always unless a continous on event is present
+these events could be sent with timers
+
+that would take care of the three timed modes
+
+existing modes:
+always on
+toggle
+timed on
+timed off
+timed on and off
+
+
+
+the simplest would be
+toggle
+on unless trigger
+off unless triggered
+
+the second two could be attached to a timer or to a constant trigger
+
+trigger -> damage
+timer -> damage
+trigger -> timer -> damage
+
+
+bottom line, timer will not be needed in damage, i will use item timer...
+then what about display?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

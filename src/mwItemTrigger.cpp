@@ -602,14 +602,14 @@ void mwItems::proc_item_damage_collisions(int i)
                {
                   if (mItem.item[i][15] > 0) // lose health
                   {
-                     mPlayer.syn[p].health -= mItem.item[i][15]/100;
+                     mPlayer.syn[p].health -= (float)item[i][15]/100;
                      mGameEvent.add(59, 0, 0, p, i, 0, 0); // only do damage noise when taking health..??
                   }
                   else // gain health
                   {
                      if (mPlayer.syn[p].health < 100)
                      {
-                        mPlayer.syn[p].health -= mItem.item[i][15]/100;
+                        mPlayer.syn[p].health -= (float)item[i][15]/100;
                         if (mPlayer.syn[p].health > 100) mPlayer.syn[p].health = 100;
                      }
                   }
@@ -633,7 +633,7 @@ void mwItems::proc_item_damage_collisions(int i)
          if (mItem.item[i][0])
          {
             int x = itemf[i][0];
-            int y = itemf[i][0];
+            int y = itemf[i][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
                // orb, trig, bm, bd -- kill these immed
