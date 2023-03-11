@@ -106,8 +106,8 @@ class mwItems
    int draw_timer(int i, int x, int y, int custom);
    void proc_timer(int i);
 
-   void set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, int cnt);
-   void get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, int &cnt);
+   void set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, int t1_op_mode, int t2_op_mode, int cnt);
+   void get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, int &t1_op_mode, int &t2_op_mode, int &cnt);
 
    float get_timer_ratio_for_event(int ev);
 

@@ -233,11 +233,24 @@ void mwGlobalLevelTool::execute(void)
 //         }
 //
 
+      for (int y=0; y<500; y++)
+         if (mItem.item[y][0] == 17)
+         {
+            int mode = mItem.item[y][11];
+            printf("l:%d y:%d  mode:%d\n", le[x], y, mode );
+         }
 
 
-
-
-
+//      for (int y=0; y<500; y++)
+//         if (mItem.item[y][0] == 13)
+//         {
+//            int state, t1_mode, t2_mode, cnt;
+//            mItem.get_timer_flags(mItem.item[y][3], state, t1_mode, t2_mode, cnt);
+//            printf("l:%3d y:%3d  t1_mode:%d t2_mode:%d\n", le[x], y, t1_mode, t2_mode );
+//
+////            mItem.set_timer_flags(mItem.item[y][3], state, t1_mode, t2_mode, cnt);
+//
+//         }
 
       if (0)
       {

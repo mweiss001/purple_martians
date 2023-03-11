@@ -1005,12 +1005,42 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
       int tn = mItem.item[num][10]&1023; // block 1
       sprintf(msg, "Block 1: %d", tn);
       if (press) mItem.item[num][10] = mBitmapTools.select_bitmap(mItem.item[num][10]);
+
+      if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+      {
+         int mpow_jnk = 0;
+         mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][10], mpow_jnk, 0, 1, 1);
+         while (mInput.CTRL())
+         {
+            mEventQueue.proc();
+            al_flip_display();
+            mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][10], mpow_jnk, 0, 1, 1);
+         }
+      }
+
    }
    if (bn == 311) // block 2 select...
    {
       int tn = mItem.item[num][11]&1023; // block 2
       sprintf(msg, "Block 2: %d", tn);
       if (press) mItem.item[num][11] = mBitmapTools.select_bitmap(mItem.item[num][11]);
+
+      if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
+      {
+         int mpow_jnk = 0;
+         mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][11], mpow_jnk, 0, 1, 1);
+         while (mInput.CTRL())
+         {
+            mEventQueue.proc();
+            al_flip_display();
+            mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][11], mpow_jnk, 0, 1, 1);
+         }
+
+
+
+      }
+
+
    }
 
    if (bn == 401) // bd timer draw mode
@@ -1602,6 +1632,15 @@ void mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int ty
    }
 
 
+   if (bn == 85)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 1)) var = 0;
+      if (var == 0) sprintf(msg, "Output Mode:One Time");
+      if (var == 1) sprintf(msg, "Output Mode:Continous");
+   }
+
+
 
 
    if (bn == 100)
@@ -1632,14 +1671,15 @@ void mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int ty
 
 
 
-   if (bn == 160) // timer 1 mode
+   if (bn == 160) // timer mode
    {
       if (press) var++;
-      if ((var < 0) || (var > 3)) var = 0;
+      if ((var < 0) || (var > 4)) var = 0;
       if (var == 0) sprintf(msg, "Mode:Free Run");
       if (var == 1) sprintf(msg, "Mode:Free Run After Trigger");
       if (var == 2) sprintf(msg, "Mode:Run Only When Triggered");
       if (var == 3) sprintf(msg, "Mode:Reset When Not Triggered");
+      if (var == 4) sprintf(msg, "Mode:Reset When Triggered");
    }
 
 
@@ -1655,7 +1695,7 @@ void mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int ty
    if (bn == 402) // damage mode
    {
       if (press) var++;
-      if ((var < 0) || (var > 4)) var = 0;
+      if ((var < 0) || (var > 3)) var = 0;
       if (var == 0)
       {
          sprintf(msg, "MODE:Always ON");
@@ -1676,7 +1716,12 @@ void mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int ty
          mItem.item[num][3] &=  ~PM_ITEM_DAMAGE_CURR; // set damage off
       }
 
-      if (var == 4) sprintf(msg, "MODE:Timed ON And OFF");
+//      if (var == 4) sprintf(msg, "MODE:Timed ON And OFF");
+//
+//      if (var == 5) sprintf(msg, "MODE:Damage when Triggered");
+
+
+
    }
 
 

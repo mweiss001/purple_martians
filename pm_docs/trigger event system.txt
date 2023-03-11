@@ -46,6 +46,10 @@ Item Timer
 item[][13] = t1 o/p event
 item[][15] = t2 o/p event
 
+Lift Step type 6
+
+
+
 
 -----------------
 --  Receivers  --
@@ -60,7 +64,7 @@ Item Timer
 item[][12] = t1 i/p event
 item[][14] = t2 i/p event
 
-Lift Step
+Lift Step type 5
 
 
 to specify an object I will need three variables:
@@ -79,15 +83,13 @@ lift      4       step   lift
 
 
 
-
-
 I plan to add:
 receiver:
 cloner
 message
 
-sender:
-lift step
+
+
 
 
 

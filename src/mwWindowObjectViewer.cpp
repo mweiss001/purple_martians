@@ -18,6 +18,8 @@
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
 
+#include "mwBitmapTools.h"
+
 #define MAP_LOCK_KEY ALLEGRO_KEY_Z
 
 
@@ -904,8 +906,8 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
          case 13: // timer
          {
-            int state, t1_mode, t2_mode, time;
-            mItem.get_timer_flags(mItem.item[n][3], state, t1_mode, t2_mode, time);
+            int state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time;
+            mItem.get_timer_flags(mItem.item[n][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time);
 
             mWidget.buttonp(       xa, ya, xb, bts, 83,0,0,0,   0,11,15,0,  1,0,1,d, mItem.item[n][2]); // draw mode
             if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,    0,11,15,0,  1,0,1,d, "Get New Display Area")) mMiscFnx.get_block_range("Display Area", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
@@ -918,6 +920,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1, "Input Event:", "OFF");
                if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,p,15,0,   1,0,1,d, "Set Input Event")) mTriggerEvent.find_event_sender_for_obj(2, n, 1, t1_mode);
                mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][13], 99, 0, 1, "Output Event:", "OFF");
+               mWidget.buttonp(    xa, ya, xb, bts, 85,0,0,0,   0,p,15,0,   1,0,1,d, t1_op_mode); // output mode
             }
             ya+=4; p = 14; // spacer
             mWidget.slider0(       xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][11], 1000, 0, 1, "Timer 2:", "OFF");
@@ -927,10 +930,11 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][14], 99, 0, 1, "Input Event:", "OFF");
                if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,p,15,0,   1,0,1,d, "Set Input Event")) mTriggerEvent.find_event_sender_for_obj(2, n, 2, t2_mode);
                mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,p,15,15,  1,0,1,d, mItem.item[n][15], 99, 0, 1, "Output Event :", "OFF");
+               mWidget.buttonp(    xa, ya, xb, bts, 85,0,0,0,   0,p,15,0,   1,0,1,d, t2_op_mode); // output mode
             }
             state = 1;
             time = mItem.item[n][10]; // always start with full t1_timer
-            mItem.set_timer_flags(mItem.item[n][3], state, t1_mode, t2_mode, time);
+            mItem.set_timer_flags(mItem.item[n][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time);
          }
          break;
          case 9: // trigger
@@ -966,6 +970,8 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
 
          case 16: // block manip
+         {
+
             if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,14,  1,0,1,d, "Get New Block Manip Field")) mMiscFnx.get_block_range("Block Manip Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
             if (mWidget.toggle( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][2], "Draw Block Manip Field:OFF", "Draw Block Manip Field:ON ", 15, 15, 15+96, mItem.item[n][12]))
@@ -975,11 +981,14 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=22; // spacer
             mWidget.button(     xa, ya, xb, bts, 310,n,0,0,  0, 8,15,0,   1,0,0,d);               // block 1
             ya+=22; // spacer
+
             mWidget.button(     xa, ya, xb, bts, 311,n,0,0,  0, 8,15,0,   1,0,0,d);               // block 2
             ya+=22; // spacer
             mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][1], 99, 0, 1,    "Event Trigger:", "OFF");
             if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,  0,13,15,0,   1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
 
+
+         }
          break;
          case 17: // block damage
          {
@@ -988,27 +997,30 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.buttonp(       xa, ya, xb, bts, 404,0,0,0, 0, 8,15,0,  1,0,1,d, mItem.item[n][2]); // damage draw mode
             ya+=4; // spacer
             int p=7; // mode color
-            mWidget.buttonp(       xa, ya, xb, bts, 402,n,0,0, 0,p,15,0,   1,0,1,d, mItem.item[n][11]); // MODE
+            mWidget.buttonp(       xa, ya, xb, bts, 402,n,0,0, 0,p,15,0,   1,0,1,d, mItem.item[n][11]); // mode
             int MODE = mItem.item[n][11];
 
             ya+=4; // spacer
             if (MODE == 1) // toggle
                mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_CURR, "Initial State:OFF","Initial State:ON ", 15+dim, 15, p+dim, p);
-            if (MODE == 2) // ON until triggered
-               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "OFF Time:" );
-            if (MODE == 3) // OFF until triggered
-               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "ON Time:" );
-            if (MODE == 4) // Timed on and off
-            {
-               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "Total Time:" );
-               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][14], 1000, 0, 1, "Damage Time:" );
-               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][13], 1000, 0, 1, "Initial Time:" );
-            }
-            if ((MODE == 2) || (MODE == 3) || (MODE == 4))
-            {
-               ya+=4; // spacer
-               mWidget.button(     xa, ya, xb, bts, 401,n,0,0, 0,12,15,15, 1,0,1,d); // timer draw mode
-            }
+
+
+
+//            if (MODE == 2) // ON until triggered
+//               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "OFF Time:" );
+//            if (MODE == 3) // OFF until triggered
+//               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "ON Time:" );
+//            if (MODE == 4) // Timed on and off
+//            {
+//               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "Total Time:" );
+//               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][14], 1000, 0, 1, "Damage Time:" );
+//               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][13], 1000, 0, 1, "Initial Time:" );
+//            }
+//            if ((MODE == 2) || (MODE == 3) || (MODE == 4))
+//            {
+//               ya+=4; // spacer
+//               mWidget.button(     xa, ya, xb, bts, 401,n,0,0, 0,12,15,15, 1,0,1,d); // timer draw mode
+//            }
             if ((MODE == 1) || (MODE == 2) || (MODE == 3)) // Mode 1, 2, and 3
             {
                ya+=4; // spacer
