@@ -425,8 +425,8 @@ void mwBottomMessage::draw()
             y -= dh;
          }
          // draw bounding box to show what size it is
-         float tvs = (sw/2)*ivs;
-         al_draw_rectangle(x-tvs, mDisplay.SCREEN_H,  x+tvs, y, mColor.pc[15], 1);
+         //float tvs = (sw/2)*ivs;
+         //al_draw_rectangle(x-tvs, mDisplay.SCREEN_H,  x+tvs, y, mColor.pc[15], 1);
 
       }
    }

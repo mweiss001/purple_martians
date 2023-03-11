@@ -491,11 +491,7 @@ void mwWindow::em_show_draw_item_cursor(void)
             int a = mPDE.PDEi[num][1]; // bmp or ans
             if (a > 999) a = mBitmap.zz[5][a-1000]; // ans
             al_draw_bitmap(mBitmap.tile[a], x*20, y*20, 0);
-
             if ((mPDE.PDEi[num][0] == 108) && (mPDE.PDEi[num][11])) al_draw_bitmap(mBitmap.tile[440], x*20, y*20, 0); // bomb sticky spikes
-
-
-
          break;
       }
       al_draw_rectangle(x*20, y*20, x*20+21, y*20+21, mColor.pc[15], 1);

@@ -2,151 +2,14 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-
-bug when adjusting trigger field in ov can't get last x pos..fixed
-
-bug when drawing trigger field in overlay draws twice at wrong size
-when ever drawing trigger shape in ov or draw item, etc...fixed by adding custom to draw_trigger
-
-bug -- in level editor can't see trigger box edges on left or top if zero..fixed
-
-bug - block damage does not destroy items..fixed
-
-bug - when cloner is hidden, it shows till run for the first time..fixed
-fixed this in draw cloner
-
-bug - when cloner is invincible do not target with explosions..done
-
-bug - player not hurt by damage field...fixed
-
-
-
-
-
-
-I think my hotkey L is triggering level editor on client....disabled for now, test later
-// found and fixed one bug, re-enabled see if it happens again..
-it did, disabled again....
-
-
-
-warp does not return you to the right place anymore
-
-how was it supposed to work?
-
-when warping to a level and the level you are warping from is > 1
-save the level you are warping from in warp_level_location
-
-then, in the new level, when set_player_start_pos(int p, int cont) is called...
-it tries to match warp_level_location (if not zero)
-
-this all works great, the problem is that set_player_start_pos is called many times...
-
-start program
-p0
-
-single player start 9x
-p0
-p0-7
-
-its called when loading level only for player 0;
-then later for all players
-
-i'm afraid to remove it from load level, it might break things...
-
-compromise...
-don't do it for level done for player 0
-
-no...commented out in load_level...till it breaks stuff...
-
 level done shows briefly when using warp
-
 I can reduce the time, but what if it breaks things in network level done?
-
 I'm getting a stimp in single player
-
-
-cloner sometimes does not create (see level 97)
-could be detecting not empty destination?
-cannot reproduce...
-
-
-ov set to zero sometimes buggy...i think i fixed it...
-
 
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
-
-in visual level select, make hotkey 'L' to start level editor on selected level
-does not do as intended when L is a control...use END instead...done
-
-
-
-
-code stat to do optional alphabetoical sort also optional skip header files
-
-make level editor save the window position
-make a way to click and drag to move le window
-make a button to zoom le window to fullscreen y
-make a button to have le window show current item in center
-
-
-
-add a bunch of settings for bottom message:
-how many lines: 8 (max 20)
-float io = 1.0; // initial opacity
-float fo = 0.1; // final opacity
-float ivs = 0.5; // initial v size
-float fvs = 0.1; // final v size
-float ihs = 0.5; // initial h size
-float fhs = 0.1; // final h size
-
-which game events cause messages
-
-player tile, text or both
-enemy  tile, text or both
-item   tile, text or both
-
-how close the player has to be to reduce messages
-
-
-
-what is still left to remove globals?
-
-make the naming consistant
-mwWM has 750 occurances..leave for now
-
-ft_ is still global
-maybe make btl[100][100] global also
-just so they are not a part of mwWM class and get saved with it
-
-stimp code for warp
-
-
-
----------------------
---  major changes  --
----------------------
-
-another trigger emitter, based soley on time
-cloner to take a trigger input
-damage field to use this new trigger item
-block manip also..
-
-trigger emitters:
-orb
-trigger
--timer
--lift
-
-trigger receivers:
-block damage
-block manip
-lift
--cloner
-
 
 
 --------------------------------------------------------
@@ -158,46 +21,19 @@ viewport changes and settings
 
 bottom message settings
 
-when does eco draw get used?
+when does eco draw get used? make it an option in settings..
 
 advanced settings tab
 
 
 
 
+enemies that still use trigger box, pod, vine
+could I make them also optionally use trigger inputs
 
+what would it take to extend lifts to use splines?
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+I would also like to make splines have more control points, maybe I'll have to make my own..
 
 
 
@@ -213,8 +49,6 @@ but also when the background is scrolling
 
 the player and the rocket might benefit from drawing directly on the screen instead of the screen buffer
 it worked for bottom messages, the scaling looks ways better..
-
-
 
 I would be nice be be able to do tc and netem things from within my program..
 but I would need to figure out how to do that as non-root
@@ -232,16 +66,6 @@ make log in settings better:
 log like cpu, but with a multicolored bar...move, draw, other, all added up
 ...more
 
-
-put display stuff all in its own file with header
-screen and display and monitor
-
-
-in hyst gradual:
-if you are running in one direction, you will be pushed up against the hyst for that direction
-I want it be be ahead of you so you can see where you are going
-same with jumping and falling and rockets
-some way of using players speed....
 
 
 Things to add to settings:
@@ -288,18 +112,10 @@ There would be no menu stuff possible on the server though. I would need a diffe
 --------------------------------------------------------------------------------------------
 
 
-
-
-
-
-
 --------------------------------------------------------------------------------------------
 when client starts,
 don't show anything about level until initial state is received and client player's view is at the start
 --------------------------------------------------------------------------------------------
-
-
-
 
 add 8 char name
 it will be saved in config file
@@ -385,8 +201,6 @@ I have changed it to print error to console and merr message on failure
 ------------------------------------------------------------------
 
 
-
-
 ------------------------------------------------------------------
 8 character name for player...
 ------------------------------------------------------------------
@@ -410,16 +224,14 @@ if riding rocket then do the same....
 can I just use pxinc and pyinc??
 what I am doing is moving the camera...
 
+in hyst gradual:
+if you are running in one direction, you will be pushed up against the hyst for that direction
+I want it be be ahead of you so you can see where you are going
+same with jumping and falling and rockets
+some way of using players speed....
+
 ---------------------------------
 
-
-
-
-
-------------------------------------------
-remove fixed from code, it did not do what I wanted it to do...
-this could take a long time....do I want to waste the time?
--------------------------------------------------
 
 -------------------------------------------------
 in log file viewer, make a second array with only the lines that we are showing
@@ -429,10 +241,42 @@ moving up and down by one line (or 10 or 100) will actually do what we expect
 -------------------------------------------------
 
 
+
+code stat to do optional alphabetical sort also optional skip header files
+
+
+make level editor save the window position
+make a way to click and drag to move le window
+make a button to have le window show current item in center
+
+
+
+
+add a bunch of settings for bottom message:
+how many lines: 8 (max 20)
+float io = 1.0; // initial opacity
+float fo = 0.1; // final opacity
+float ivs = 0.5; // initial v size
+float fvs = 0.1; // final v size
+float ihs = 0.5; // initial h size
+float fhs = 0.1; // final h size
+
+which game events cause messages
+
+player tile, text or both
+enemy  tile, text or both
+item   tile, text or both
+
+how close the player has to be to reduce messages
+
+
+
+
+
+
 -------------------------------------------------
 Make an 'about' just like 'help'
 -------------------------------------------------
-
 
 --------------------------------------------------------------------------------------------
 Make it so that a client does not have to have the level a server is serving.
@@ -483,50 +327,6 @@ I can already send the state broken up into packets, why not the level??
 
 
 
-
-
-
-
--------------------------------------------------
-
-
-
-
-
--------------------------------------------------
-I want to make the packet exchange not run at the same time as the game.
--------------------------------------------------
-I want it to run wide open, sending and receiving packets as fast as it can
-not waiting for the next frame...
-maybe I can do this in its own thread??
-
-the goal is to reduce the latency between keypresses and controls taking effect...
-
-control_lead_frames = 3;
-3/40 == 75ms
-
-this is noticeable
-
-I could do a different thread or i could redo my game loop...
-
-sending of cdat will still occur in the main loop
-
-receiving of packets will occur in its own loop
-
-for client:
-send cdat when controls change (same as now)
-receive all packets and reply in faster loop
-
-for server
-receive cdats in faster loop
-
-client sending cdat in its own loop does not make sense, it should send when the control is pressed
-cient receiving stdf in its own loop also does not make sense, it will either be there when it is needed or not
-if I receive it in between frame, I still will not be able to make use of it unil the next frame
-
-
-
-
 -------------------------------------------------
 Implement a system of data about levels played and results
 -------------------------------------------------
@@ -567,20 +367,6 @@ What if I had an overlay screen for levels
 This all sounds very complex...
 -------------------------------------------------
 
-------------------------------------------------------------------------------------
-make cloner capable of having a trigger input
-think of the things you could do
-but is it that easy?
-trigger would take the place of player in trigger box
-would still need timer, immediate, etc...
-
-------------------------------------------------------------------------------------
-make a trigger source based on a timer
-I found when making levels, i really wished I had one of those
-I can make block_damage cycle with a timer, because it's built in
-but I can't do the same for the block_manip
-------------------------------------------------------------------------------------
-
 
 ------------------------------------------------------
 ------------------------ Level ideas -----------------
@@ -593,7 +379,6 @@ make a level that requires traveling on a lift while jumping on and off of switc
 level where you have to throw mines at the other player..
 
 How about a level where you have to clone switches??
-
 
 how about a level where you need to send rocket up through a minefield
 or arrow field that player would die in....
@@ -619,22 +404,13 @@ that could be useful for timed things and other stuff
 
 what if when a player is in a cloner src that fires, a free man is created?
 
-stationary cannon
-wait, there is more!
-uses prox to fire shot instead of timer
-
 
 ------------------------------------------------------
 ------------------------ item ideas ------------------
 ------------------------------------------------------
 
-
 make a green ball that you need to carry to its corresponding base to emit a trigger event
 
-make cloner capable of being triggered by an event
-
-
-new items that emit triggers
 
 make the type of key you need to take to a matching lock
 when you touch the lock it will show the blocks that get removed
@@ -654,19 +430,8 @@ what if you could carry around normal triggers and the field would follow?
 
 trigger field that has a count of enemies or items or players
 
-
-what if I made coins to collect in the level?
-it is super fun in mario!
-then I could have end of level stuff like how many coins you got, how many enemies you killed, etc...
-
-they would be items and at the start of the level how many there are would be counted
-then each player would have a tally of how many they got...
-
-
-
 how about making health bonus only take the amount of health needed to get to 100
 if any is left, just subtract and don't erase the item
-
 
 what if you had to press FIRE to grab a rocket, but then after that you did not need to hold FIRE?
 you could dismount with JUMP? ... that sounds cool
@@ -675,7 +440,6 @@ does remote trigger have a delay before the explosion?
 I want it immediate to help the player time exploding moving things
 
 make a field that manipulates the players controls, like gravity, etc...
-
 
 
 ---------------------------------------------------------

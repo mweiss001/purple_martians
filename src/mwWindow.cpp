@@ -437,27 +437,29 @@ void mwWindow::cm_process_menu_bar(int d)
       strcpy (mMenu.menu_string[2],"Zoom Out                 F5");
       strcpy (mMenu.menu_string[3],"Zoom In                  F6");
       strcpy (mMenu.menu_string[4],"Reset Zoom            F5+F6");
-      sprintf(mMenu.menu_string[5],"Text Double:Auto");
-      sprintf(mMenu.menu_string[6],"Text Double:1");
-      sprintf(mMenu.menu_string[7],"Text Double:2");
-      sprintf(mMenu.menu_string[8],"Text Double:3");
+      strcpy (mMenu.menu_string[5],"Zoom Fit Level Vertical   ");
+      sprintf(mMenu.menu_string[6],"Text Double:Auto");
+      sprintf(mMenu.menu_string[7],"Text Double:1");
+      sprintf(mMenu.menu_string[8],"Text Double:2");
+      sprintf(mMenu.menu_string[9],"Text Double:3");
 
-      if (mLoop.autosave_level_editor_state) sprintf(mMenu.menu_string[9],"Autosave State:ON ");
-      else                                  sprintf(mMenu.menu_string[9],"Autosave State:OFF");
-      sprintf(mMenu.menu_string[10],"Reset State");
+      if (mLoop.autosave_level_editor_state) sprintf(mMenu.menu_string[10],"Autosave State:ON ");
+      else                                  sprintf(mMenu.menu_string[10],"Autosave State:OFF");
+      sprintf(mMenu.menu_string[11],"Reset State");
 
-      strcpy (mMenu.menu_string[11],"end");
+      strcpy (mMenu.menu_string[12],"end");
       int ret = mMenu.tmenu(1, x1, by1-1);
       if (ret == 1) mDisplay.toggle_fullscreen();
       if (ret == 2) mDisplay.set_scale_factor(mDisplay.scale_factor * .90, 0);
       if (ret == 3) mDisplay.set_scale_factor(mDisplay.scale_factor * 1.1, 0);
-      if (ret == 4) mDisplay.set_scale_factor(1.0, 0);
-      if (ret == 5) mDisplay.set_saved_display_transform(0);
-      if (ret == 6) mDisplay.set_saved_display_transform(1);
-      if (ret == 7) mDisplay.set_saved_display_transform(2);
-      if (ret == 8) mDisplay.set_saved_display_transform(3);
-      if (ret == 9) mLoop.autosave_level_editor_state = ! mLoop.autosave_level_editor_state;
-      if (ret == 10) { mwWM.set_windows(0); mwWM.save_mW(); }
+      if (ret == 4) mDisplay.set_scale_factor(1.0, 1);
+      if (ret == 5) mDisplay.set_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/2000, 1);
+      if (ret == 6) mDisplay.set_saved_display_transform(0);
+      if (ret == 7) mDisplay.set_saved_display_transform(1);
+      if (ret == 8) mDisplay.set_saved_display_transform(2);
+      if (ret == 9) mDisplay.set_saved_display_transform(3);
+      if (ret == 10) mLoop.autosave_level_editor_state = ! mLoop.autosave_level_editor_state;
+      if (ret == 11) { mwWM.set_windows(0); mwWM.save_mW(); }
    }
    x1 += 44;
 
@@ -693,14 +695,14 @@ void mwWindow::cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int 
    al_draw_text(mFont.pr8, mColor.pc[14], x1 + 100, y1 + 13, 0, "mouse");
    al_draw_text(mFont.pr8, mColor.pc[14], x1 + 143, y1 + 13, 0, "b1");
    em_show_item_info(                    x1 + 2,   y1 + 20, 9, mwWM.mW[1].draw_item_type, mwWM.mW[1].draw_item_num);
-   if ((mwWM.mW[1].draw_item_type == 1) && (mwWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+4, y1+47, &mwWM.mW[1].draw_item_num, &mow, 0, 1, 0); // flags
+   if ((mwWM.mW[1].draw_item_type == 1) && (mwWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+4, y1+47, mwWM.mW[1].draw_item_num, mow, 0, 1, 0); // flags
 
    // view item area
    al_draw_text(mFont.pr8, mColor.pc[15], x1 + 184, y1 + 13, 0, "View Item ");
    al_draw_text(mFont.pr8, mColor.pc[14], x1 + 261, y1 + 13, 0, "mouse");
    al_draw_text(mFont.pr8, mColor.pc[14], x1 + 303, y1 + 13, 0, "b2");
    em_show_item_info(                    x1 + 162, y1 + 20, 9, mwWM.mW[1].point_item_type, mwWM.mW[1].point_item_num);
-   if ((mwWM.mW[1].point_item_type == 1) && (mwWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+164, y1+47, &mwWM.mW[1].point_item_num, &mow, 1, 0, 1); // flags
+   if ((mwWM.mW[1].point_item_type == 1) && (mwWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+164, y1+47, mwWM.mW[1].point_item_num, mow, 1, 0, 1); // flags
 }
 
 void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, int have_focus)
@@ -902,7 +904,7 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
          al_draw_text (mFont.pr8, mColor.pc[15], x1+2, syt+30, 0, "---------------------");
 
          int junk;
-         if (mwWM.mW[1].show_flag_details) mBitmapTools.draw_flags(x1+4, syt+38, &ret, &junk, 1, 0, 1);
+         if (mwWM.mW[1].show_flag_details) mBitmapTools.draw_flags(x1+4, syt+38, ret, junk, 1, 0, 1);
 
          if ((mInput.mouse_b[1][0]) || (mInput.mouse_b[2][0]))
          {

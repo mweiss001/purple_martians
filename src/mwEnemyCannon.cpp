@@ -69,7 +69,7 @@ void mwEnemy::move_cannon(int e)
    enemy_player_hit_proc(e);
    if (Ei[e][31]) // enemy hit
    {
-      if (Ei[e][31] == 2) // hit type == bomb
+      if ((Ei[e][31] == 2) || (Ei[e][31] == 3)) // hit type = bomb or damage field
       {
          //Ei[e][9] -= 3;      // three hits
          //if (Ei[e][9] < 0) Ei[e][9] = 0;

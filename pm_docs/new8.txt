@@ -18313,54 +18313,899 @@ trigger -> timer -> damage
 bottom line, timer will not be needed in damage, i will use item timer...
 then what about display?
 
+also for block manip i want a way to set blocks based on some flag
+some way that is invisible in the game
+
+made it so that I can view and edit block flags for blocks stored in block manip
+
+now I need a flag to use for block manip
+i am not using secret, how about that?
+
+#define PM_BTILE_ROPE_MOVE         0b00010000000000000000000000000000
+#define PM_BTILE_SECRET            0b00100000000000000000000000000000
+
+do I need to rename it? or just use it
+
+make a new mode in block manip
+
+set all secret to block 1
+set all secret to block 2
+toggle secret from block 1 to block 2
+(how does this differ from normal toggle)
+
+actually all these modes could be the same, I could just have a flag to only apply them to blocks marked secret
+and when applying them, do not change the secret flag..
+
+item[][13] = secret flag only
+
+
+looking at this now:
+set all to block 1
+set all secret to block 1
+set all block 2 to block 1
+toggle block 1 to block 2
+
+makes more sense
+
+set all block 2 to block 1 does not need to have secret flag added flag added
+if that is what I want then add the flag to block2
+
+the same with toggle 2 and 1..we already are looking for a specfic block..
+
+hell I could even do away with mode 1...just set use mode 2 and make the replacement block have special flags
+
+I think this was all I needed...get rid of 13 and tests..
+good...
+
+I think that block manip does everything I want it to..
+
+what about bd?
+
+I wanted to be able to control it with an external timer
+do I want to get rid of the internal timer? and the internal display stuff?
+
+bd modes:
+0 - Always ON
+1 - Toggle
+2 - ON Until Triggered
+3 - OFF Until Triggered
+4 - Timed ON And OFF
+
+item[][0]  = 17 - Block Damage
+item[][1]  = event trigger number
+item[][2]  = damage draw type
+item[][3]  = flags
+#define PM_ITEM_DAMAGE_PLAYER   0b00000000000000001
+#define PM_ITEM_DAMAGE_ENEMY    0b00000000000000010
+#define PM_ITEM_DAMAGE_ITEM     0b00000000000000100
+#define PM_ITEM_DAMAGE_PSHOT    0b00000000000001000
+#define PM_ITEM_DAMAGE_ESHOT    0b00000000000010000
+#define PM_ITEM_DAMAGE_CURR     0b00000000000100000
+#define PM_ITEM_DAMAGE_LIFT_ON  0b00000000001000000
+#define PM_ITEM_DAMAGE_LIFT_XC  0b00000000010000000
+#define PM_ITEM_DAMAGE_LIFT_XF  0b00000000100000000
+#define PM_ITEM_DAMAGE_LIFT_XL  0b00000001000000000
+#define PM_ITEM_DAMAGE_LIFT_YC  0b00000010000000000
+#define PM_ITEM_DAMAGE_LIFT_YF  0b00000100000000000
+#define PM_ITEM_DAMAGE_LIFT_YL  0b00001000000000000
+
+item[][4]  = x pos   (2000)
+item[][5]  = y pos   (2000)
+item[][6]  = field x (2000)
+item[][7]  = field y (2000)
+item[][8]  = field w (2000)
+item[][9]  = field h (2000)
+item[][10] = lift number
+item[][11] = mode
+item[][12] = t1 val
+item[][13] = count
+item[][14] = t2 val
+item[][15] = damage
+
+
+how many bd do I have out there?
+
+what do I want to do first?
+
+should I add a option to timer to always set trigger when in a timer mode?
+I would then use this to control whether or not damage field is on...
+
+my other options are:
+
+- use damage toggle mode and timer to do what I want
+(this is the simplest solution, but I worry I can't trust it to be in a specific state)
+
+- add two event inputs to damage, on and off..
+(this seems the safest but would require the most changing)
+
+
+I think I will try option 2:
+use damage toggle mode and timers...
+
+see if I can replace all occurances of using the internal timers
+mode 2, 3, 4..
+
+what about display??
+
+level 7
+on until triggered, off time 60..
+
+
+I have run into a snag of the first one:
+what I want is for the field to be always on, then off when triggered..
+the problem is that I want to not count down the off time while still triggered..
+
+while the timer is counting down, reset if triggered..
+
+add a mode to timer:
+reset if triggered..
+
+that should do it..
+
+I dont have enough bits for mode fix...
+
+then I will need to convert all the old timers...
+
+ARGH!!
+
+make a list to start with
+
+
+glt -> timers -> t1 and t2 mode...
+
+
+l:  5 y:  8  t1_mode:2 t2_mode:0
+l:  5 y:  9  t1_mode:2 t2_mode:0
+l:  5 y: 10  t1_mode:2 t2_mode:0
+l:  6 y:  0  t1_mode:0 t2_mode:1
+l:  7 y: 41  t1_mode:1 t2_mode:2
+l:  7 y: 42  t1_mode:1 t2_mode:3
+l:  8 y: 22  t1_mode:1 t2_mode:0
+l:  8 y: 23  t1_mode:2 t2_mode:0
+l:  8 y: 24  t1_mode:2 t2_mode:0
+l:  8 y: 25  t1_mode:2 t2_mode:0
+l:  8 y: 26  t1_mode:1 t2_mode:0
+l:  9 y:  3  t1_mode:1 t2_mode:0
+l:  9 y:  4  t1_mode:1 t2_mode:0
+l:  9 y:  5  t1_mode:2 t2_mode:0
+l:  9 y:  6  t1_mode:1 t2_mode:0
+l:  9 y:  7  t1_mode:1 t2_mode:0
+l: 10 y:  7  t1_mode:2 t2_mode:0
+l: 10 y:  8  t1_mode:2 t2_mode:0
+l: 10 y:  9  t1_mode:2 t2_mode:0
+l: 11 y: 22  t1_mode:2 t2_mode:0
+l: 11 y: 23  t1_mode:1 t2_mode:0
+l: 11 y: 24  t1_mode:2 t2_mode:0
+l: 11 y: 25  t1_mode:2 t2_mode:0
+l: 11 y: 26  t1_mode:2 t2_mode:0
+l: 12 y: 23  t1_mode:2 t2_mode:0
+l: 12 y: 24  t1_mode:2 t2_mode:0
+l: 12 y: 25  t1_mode:2 t2_mode:0
+l: 12 y: 26  t1_mode:2 t2_mode:0
+l: 13 y: 14  t1_mode:0 t2_mode:0
+l: 13 y: 15  t1_mode:0 t2_mode:0
+l: 13 y: 16  t1_mode:0 t2_mode:0
+l: 13 y: 17  t1_mode:2 t2_mode:0
+l: 15 y:  8  t1_mode:0 t2_mode:0
+l: 16 y: 15  t1_mode:2 t2_mode:0
+l: 16 y: 16  t1_mode:2 t2_mode:0
+l: 16 y: 17  t1_mode:0 t2_mode:0
+l: 16 y: 18  t1_mode:0 t2_mode:0
+l: 17 y: 29  t1_mode:0 t2_mode:0
+l: 17 y: 30  t1_mode:2 t2_mode:0
+l: 17 y: 31  t1_mode:0 t2_mode:0
+l: 17 y: 32  t1_mode:2 t2_mode:0
+l: 17 y: 33  t1_mode:0 t2_mode:0
+l: 17 y: 34  t1_mode:2 t2_mode:0
+l: 18 y:  7  t1_mode:0 t2_mode:0
+l: 18 y:  8  t1_mode:2 t2_mode:0
+l: 19 y:  5  t1_mode:2 t2_mode:0
+l: 19 y:  6  t1_mode:2 t2_mode:0
+l: 20 y: 33  t1_mode:2 t2_mode:0
+l: 20 y: 34  t1_mode:2 t2_mode:0
+l: 20 y: 35  t1_mode:2 t2_mode:0
+l: 21 y: 17  t1_mode:2 t2_mode:0
+l: 21 y: 18  t1_mode:2 t2_mode:0
+l: 21 y: 19  t1_mode:2 t2_mode:0
+l: 21 y: 20  t1_mode:2 t2_mode:0
+l: 21 y: 21  t1_mode:2 t2_mode:0
+l: 21 y: 22  t1_mode:2 t2_mode:0
+l: 21 y: 23  t1_mode:2 t2_mode:0
+l: 22 y:  9  t1_mode:0 t2_mode:0
+l: 22 y: 10  t1_mode:2 t2_mode:0
+l: 22 y: 11  t1_mode:0 t2_mode:0
+l: 23 y:  8  t1_mode:0 t2_mode:0
+l: 23 y:  9  t1_mode:2 t2_mode:0
+l: 23 y: 10  t1_mode:2 t2_mode:0
+l: 29 y:  8  t1_mode:2 t2_mode:0
+l: 29 y:  9  t1_mode:2 t2_mode:0
+l: 29 y: 10  t1_mode:2 t2_mode:0
+l: 29 y: 11  t1_mode:2 t2_mode:0
+l: 30 y:  6  t1_mode:2 t2_mode:0
+l: 30 y:  7  t1_mode:2 t2_mode:0
+l: 30 y:  8  t1_mode:2 t2_mode:0
+l: 31 y: 15  t1_mode:0 t2_mode:0
+l: 32 y: 12  t1_mode:2 t2_mode:0
+l: 32 y: 13  t1_mode:0 t2_mode:0
+l: 32 y: 14  t1_mode:2 t2_mode:0
+l: 32 y: 15  t1_mode:2 t2_mode:0
+l: 32 y: 16  t1_mode:2 t2_mode:0
+l: 33 y:  7  t1_mode:0 t2_mode:0
+l: 33 y:  8  t1_mode:0 t2_mode:0
+l: 33 y:  9  t1_mode:0 t2_mode:0
+l: 33 y: 10  t1_mode:0 t2_mode:0
+l: 35 y: 33  t1_mode:2 t2_mode:0
+l: 35 y: 34  t1_mode:2 t2_mode:0
+l: 36 y: 26  t1_mode:0 t2_mode:0
+l: 49 y:  6  t1_mode:3 t2_mode:1
+l: 49 y:  7  t1_mode:0 t2_mode:0
+l: 49 y:  8  t1_mode:1 t2_mode:2
+l: 49 y:  9  t1_mode:1 t2_mode:0
+l: 49 y: 10  t1_mode:2 t2_mode:0
+l: 51 y:  3  t1_mode:0 t2_mode:0
+l: 51 y:  4  t1_mode:0 t2_mode:0
+l: 51 y:  5  t1_mode:0 t2_mode:0
+l: 51 y:  6  t1_mode:0 t2_mode:0
+l: 84 y:  4  t1_mode:2 t2_mode:0
+l: 84 y:  5  t1_mode:2 t2_mode:0
+l: 84 y:  6  t1_mode:2 t2_mode:0
+l: 86 y: 13  t1_mode:2 t2_mode:0
+l: 88 y: 29  t1_mode:2 t2_mode:0
+l: 88 y: 30  t1_mode:2 t2_mode:0
+l: 88 y: 31  t1_mode:2 t2_mode:0
+l: 88 y: 32  t1_mode:2 t2_mode:0
+l: 88 y: 33  t1_mode:2 t2_mode:0
+l: 89 y: 10  t1_mode:2 t2_mode:0
+l: 93 y:  1  t1_mode:2 t2_mode:0
+l: 93 y:  2  t1_mode:2 t2_mode:0
+l: 93 y:  3  t1_mode:2 t2_mode:0
+l: 95 y:  2  t1_mode:2 t2_mode:0
+l: 95 y:  3  t1_mode:2 t2_mode:0
+l: 97 y:  0  t1_mode:0 t2_mode:0
+l: 97 y:  1  t1_mode:0 t2_mode:0
+l: 97 y:  2  t1_mode:0 t2_mode:0
+l: 97 y:  3  t1_mode:0 t2_mode:0
+l: 98 y:  3  t1_mode:2 t2_mode:0
+l:101 y:  3  t1_mode:2 t2_mode:0
+l:101 y:  4  t1_mode:2 t2_mode:0
+l:102 y:  0  t1_mode:2 t2_mode:0
+l:106 y:  6  t1_mode:2 t2_mode:0
+l:106 y:  7  t1_mode:2 t2_mode:0
+l:106 y:  8  t1_mode:2 t2_mode:0
+l:106 y:  9  t1_mode:2 t2_mode:0
+l:107 y:  3  t1_mode:2 t2_mode:0
+l:113 y:  2  t1_mode:2 t2_mode:0
+l:117 y:  1  t1_mode:2 t2_mode:0
+l:155 y:  3  t1_mode:2 t2_mode:0
+l:155 y:  4  t1_mode:2 t2_mode:0
+l:155 y:  5  t1_mode:2 t2_mode:0
+l:155 y:  6  t1_mode:2 t2_mode:0
+l:155 y:  7  t1_mode:2 t2_mode:0
+l:160 y:  5  t1_mode:1 t2_mode:0
+l:160 y:  6  t1_mode:1 t2_mode:0
+l:320 y:  7  t1_mode:0 t2_mode:0
+l:320 y:  8  t1_mode:0 t2_mode:0
+l:320 y:  9  t1_mode:0 t2_mode:0
+l:321 y:  4  t1_mode:0 t2_mode:0
+l:321 y:  5  t1_mode:0 t2_mode:0
+l:322 y:  4  t1_mode:0 t2_mode:0
+l:322 y:  5  t1_mode:0 t2_mode:0
+l:322 y:  6  t1_mode:0 t2_mode:0
+l:322 y:  7  t1_mode:0 t2_mode:0
+l:322 y:  8  t1_mode:0 t2_mode:0
+l:322 y:  9  t1_mode:0 t2_mode:0
+l:324 y:  0  t1_mode:0 t2_mode:0
+l:332 y:  0  t1_mode:0 t2_mode:0
+l:333 y:  0  t1_mode:0 t2_mode:0
+l:360 y:  7  t1_mode:0 t2_mode:0
+l:360 y:  8  t1_mode:0 t2_mode:0
+l:360 y:  9  t1_mode:0 t2_mode:0
+l:360 y: 10  t1_mode:0 t2_mode:0
+l:360 y: 11  t1_mode:0 t2_mode:0
+l:360 y: 12  t1_mode:0 t2_mode:0
+l:361 y:  7  t1_mode:0 t2_mode:0
+l:361 y:  8  t1_mode:0 t2_mode:0
+l:363 y:  5  t1_mode:0 t2_mode:0
+l:364 y: 48  t1_mode:0 t2_mode:0
+l:365 y: 30  t1_mode:0 t2_mode:0
+l:365 y: 31  t1_mode:0 t2_mode:0
+l:365 y: 32  t1_mode:0 t2_mode:0
+l:368 y:  0  t1_mode:0 t2_mode:0
+l:368 y:  1  t1_mode:0 t2_mode:0
+l:369 y:  5  t1_mode:0 t2_mode:0
+l:369 y:  6  t1_mode:0 t2_mode:0
+l:370 y:  7  t1_mode:0 t2_mode:0
+l:370 y:  8  t1_mode:0 t2_mode:0
+l:371 y:  3  t1_mode:0 t2_mode:0
+l:371 y:  4  t1_mode:0 t2_mode:0
+l:371 y:  5  t1_mode:0 t2_mode:0
+l:371 y:  6  t1_mode:0 t2_mode:0
+l:372 y:  0  t1_mode:0 t2_mode:0
+l:374 y: 18  t1_mode:0 t2_mode:0
+l:374 y: 19  t1_mode:0 t2_mode:0
+l:374 y: 20  t1_mode:0 t2_mode:0
+l:374 y: 21  t1_mode:0 t2_mode:0
+l:375 y:  7  t1_mode:0 t2_mode:0
 
 
 
 
 
+new set function:
+
+
+st
+l:  5 y:  8  t1_mode:2 t2_mode:0
+l:  5 y:  9  t1_mode:2 t2_mode:0
+l:  5 y: 10  t1_mode:2 t2_mode:0
+l:  6 y:  0  t1_mode:0 t2_mode:1
+l:  7 y: 41  t1_mode:1 t2_mode:2
+l:  7 y: 42  t1_mode:1 t2_mode:3
+l:  8 y: 22  t1_mode:1 t2_mode:0
+l:  8 y: 23  t1_mode:2 t2_mode:0
+l:  8 y: 24  t1_mode:2 t2_mode:0
+l:  8 y: 25  t1_mode:2 t2_mode:0
+l:  8 y: 26  t1_mode:1 t2_mode:0
+l:  9 y:  3  t1_mode:1 t2_mode:0
+l:  9 y:  4  t1_mode:1 t2_mode:0
+l:  9 y:  5  t1_mode:2 t2_mode:0
+l:  9 y:  6  t1_mode:1 t2_mode:0
+l:  9 y:  7  t1_mode:1 t2_mode:0
+l: 10 y:  7  t1_mode:2 t2_mode:0
+l: 10 y:  8  t1_mode:2 t2_mode:0
+l: 10 y:  9  t1_mode:2 t2_mode:0
+l: 11 y: 22  t1_mode:2 t2_mode:0
+l: 11 y: 23  t1_mode:1 t2_mode:0
+l: 11 y: 24  t1_mode:2 t2_mode:0
+l: 11 y: 25  t1_mode:2 t2_mode:0
+l: 11 y: 26  t1_mode:2 t2_mode:0
+l: 12 y: 23  t1_mode:2 t2_mode:0
+l: 12 y: 24  t1_mode:2 t2_mode:0
+l: 12 y: 25  t1_mode:2 t2_mode:0
+l: 12 y: 26  t1_mode:2 t2_mode:0
+l: 13 y: 14  t1_mode:0 t2_mode:0
+l: 13 y: 15  t1_mode:0 t2_mode:0
+l: 13 y: 16  t1_mode:0 t2_mode:0
+l: 13 y: 17  t1_mode:2 t2_mode:0
+l: 15 y:  8  t1_mode:0 t2_mode:0
+l: 16 y: 15  t1_mode:2 t2_mode:0
+l: 16 y: 16  t1_mode:2 t2_mode:0
+l: 16 y: 17  t1_mode:0 t2_mode:0
+l: 16 y: 18  t1_mode:0 t2_mode:0
+l: 17 y: 29  t1_mode:0 t2_mode:0
+l: 17 y: 30  t1_mode:2 t2_mode:0
+l: 17 y: 31  t1_mode:0 t2_mode:0
+l: 17 y: 32  t1_mode:2 t2_mode:0
+l: 17 y: 33  t1_mode:0 t2_mode:0
+l: 17 y: 34  t1_mode:2 t2_mode:0
+l: 18 y:  7  t1_mode:0 t2_mode:0
+l: 18 y:  8  t1_mode:2 t2_mode:0
+l: 19 y:  5  t1_mode:2 t2_mode:0
+l: 19 y:  6  t1_mode:2 t2_mode:0
+l: 20 y: 33  t1_mode:2 t2_mode:0
+l: 20 y: 34  t1_mode:2 t2_mode:0
+l: 20 y: 35  t1_mode:2 t2_mode:0
+l: 21 y: 17  t1_mode:2 t2_mode:0
+l: 21 y: 18  t1_mode:2 t2_mode:0
+l: 21 y: 19  t1_mode:2 t2_mode:0
+l: 21 y: 20  t1_mode:2 t2_mode:0
+l: 21 y: 21  t1_mode:2 t2_mode:0
+l: 21 y: 22  t1_mode:2 t2_mode:0
+l: 21 y: 23  t1_mode:2 t2_mode:0
+l: 22 y:  9  t1_mode:0 t2_mode:0
+l: 22 y: 10  t1_mode:2 t2_mode:0
+l: 22 y: 11  t1_mode:0 t2_mode:0
+l: 23 y:  8  t1_mode:0 t2_mode:0
+l: 23 y:  9  t1_mode:2 t2_mode:0
+l: 23 y: 10  t1_mode:2 t2_mode:0
+l: 29 y:  8  t1_mode:2 t2_mode:0
+l: 29 y:  9  t1_mode:2 t2_mode:0
+l: 29 y: 10  t1_mode:2 t2_mode:0
+l: 29 y: 11  t1_mode:2 t2_mode:0
+l: 30 y:  6  t1_mode:2 t2_mode:0
+l: 30 y:  7  t1_mode:2 t2_mode:0
+l: 30 y:  8  t1_mode:2 t2_mode:0
+l: 31 y: 15  t1_mode:0 t2_mode:0
+l: 32 y: 12  t1_mode:2 t2_mode:0
+l: 32 y: 13  t1_mode:0 t2_mode:0
+l: 32 y: 14  t1_mode:2 t2_mode:0
+l: 32 y: 15  t1_mode:2 t2_mode:0
+l: 32 y: 16  t1_mode:2 t2_mode:0
+l: 33 y:  7  t1_mode:0 t2_mode:0
+l: 33 y:  8  t1_mode:0 t2_mode:0
+l: 33 y:  9  t1_mode:0 t2_mode:0
+l: 33 y: 10  t1_mode:0 t2_mode:0
+l: 35 y: 33  t1_mode:2 t2_mode:0
+l: 35 y: 34  t1_mode:2 t2_mode:0
+l: 36 y: 26  t1_mode:0 t2_mode:0
+l: 49 y:  6  t1_mode:3 t2_mode:1
+l: 49 y:  7  t1_mode:0 t2_mode:0
+l: 49 y:  8  t1_mode:1 t2_mode:2
+l: 49 y:  9  t1_mode:1 t2_mode:0
+l: 49 y: 10  t1_mode:2 t2_mode:0
+l: 51 y:  3  t1_mode:0 t2_mode:0
+l: 51 y:  4  t1_mode:0 t2_mode:0
+l: 51 y:  5  t1_mode:0 t2_mode:0
+l: 51 y:  6  t1_mode:0 t2_mode:0
+l: 84 y:  4  t1_mode:2 t2_mode:0
+l: 84 y:  5  t1_mode:2 t2_mode:0
+l: 84 y:  6  t1_mode:2 t2_mode:0
+l: 86 y: 13  t1_mode:2 t2_mode:0
+l: 88 y: 29  t1_mode:2 t2_mode:0
+l: 88 y: 30  t1_mode:2 t2_mode:0
+l: 88 y: 31  t1_mode:2 t2_mode:0
+l: 88 y: 32  t1_mode:2 t2_mode:0
+l: 88 y: 33  t1_mode:2 t2_mode:0
+l: 89 y: 10  t1_mode:2 t2_mode:0
+l: 93 y:  1  t1_mode:2 t2_mode:0
+l: 93 y:  2  t1_mode:2 t2_mode:0
+l: 93 y:  3  t1_mode:2 t2_mode:0
+l: 95 y:  2  t1_mode:2 t2_mode:0
+l: 95 y:  3  t1_mode:2 t2_mode:0
+l: 97 y:  0  t1_mode:0 t2_mode:0
+l: 97 y:  1  t1_mode:0 t2_mode:0
+l: 97 y:  2  t1_mode:0 t2_mode:0
+l: 97 y:  3  t1_mode:0 t2_mode:0
+l: 98 y:  3  t1_mode:2 t2_mode:0
+l:101 y:  3  t1_mode:2 t2_mode:0
+l:101 y:  4  t1_mode:2 t2_mode:0
+l:102 y:  0  t1_mode:2 t2_mode:0
+l:106 y:  6  t1_mode:2 t2_mode:0
+l:106 y:  7  t1_mode:2 t2_mode:0
+l:106 y:  8  t1_mode:2 t2_mode:0
+l:106 y:  9  t1_mode:2 t2_mode:0
+l:107 y:  3  t1_mode:2 t2_mode:0
+l:113 y:  2  t1_mode:2 t2_mode:0
+l:117 y:  1  t1_mode:2 t2_mode:0
+l:155 y:  3  t1_mode:2 t2_mode:0
+l:155 y:  4  t1_mode:2 t2_mode:0
+l:155 y:  5  t1_mode:2 t2_mode:0
+l:155 y:  6  t1_mode:2 t2_mode:0
+l:155 y:  7  t1_mode:2 t2_mode:0
+l:160 y:  5  t1_mode:1 t2_mode:0
+l:160 y:  6  t1_mode:1 t2_mode:0
+l:320 y:  7  t1_mode:0 t2_mode:0
+l:320 y:  8  t1_mode:0 t2_mode:0
+l:320 y:  9  t1_mode:0 t2_mode:0
+l:321 y:  4  t1_mode:0 t2_mode:0
+l:321 y:  5  t1_mode:0 t2_mode:0
+l:322 y:  4  t1_mode:0 t2_mode:0
+l:322 y:  5  t1_mode:0 t2_mode:0
+l:322 y:  6  t1_mode:0 t2_mode:0
+l:322 y:  7  t1_mode:0 t2_mode:0
+l:322 y:  8  t1_mode:0 t2_mode:0
+l:322 y:  9  t1_mode:0 t2_mode:0
+l:324 y:  0  t1_mode:0 t2_mode:0
+l:332 y:  0  t1_mode:0 t2_mode:0
+l:333 y:  0  t1_mode:0 t2_mode:0
+l:360 y:  7  t1_mode:0 t2_mode:0
+l:360 y:  8  t1_mode:0 t2_mode:0
+l:360 y:  9  t1_mode:0 t2_mode:0
+l:360 y: 10  t1_mode:0 t2_mode:0
+l:360 y: 11  t1_mode:0 t2_mode:0
+l:360 y: 12  t1_mode:0 t2_mode:0
+l:361 y:  7  t1_mode:0 t2_mode:0
+l:361 y:  8  t1_mode:0 t2_mode:0
+l:363 y:  5  t1_mode:0 t2_mode:0
+l:364 y: 48  t1_mode:0 t2_mode:0
+l:365 y: 30  t1_mode:0 t2_mode:0
+l:365 y: 31  t1_mode:0 t2_mode:0
+l:365 y: 32  t1_mode:0 t2_mode:0
+l:368 y:  0  t1_mode:0 t2_mode:0
+l:368 y:  1  t1_mode:0 t2_mode:0
+l:369 y:  5  t1_mode:0 t2_mode:0
+l:369 y:  6  t1_mode:0 t2_mode:0
+l:370 y:  7  t1_mode:0 t2_mode:0
+l:370 y:  8  t1_mode:0 t2_mode:0
+l:371 y:  3  t1_mode:0 t2_mode:0
+l:371 y:  4  t1_mode:0 t2_mode:0
+l:371 y:  5  t1_mode:0 t2_mode:0
+l:371 y:  6  t1_mode:0 t2_mode:0
+l:372 y:  0  t1_mode:0 t2_mode:0
+l:374 y: 18  t1_mode:0 t2_mode:0
+l:374 y: 19  t1_mode:0 t2_mode:0
+l:374 y: 20  t1_mode:0 t2_mode:0
+l:374 y: 21  t1_mode:0 t2_mode:0
+l:375 y:  7  t1_mode:0 t2_mode:0
+Total count0:0
+Total count1:0
+Total count2:0
+Total count3:0
+min:9990 max:0
+
+
+I think they are all converted..moving on...
+
+now I can make block damage in level 7 do what I want it to do
+
+
+Running Global Level Test
+l:1 y:0  mode:0
+l:7 y:0  mode:1
+l:7 y:1  mode:0
+l:7 y:2  mode:0
+l:7 y:3  mode:0
+l:7 y:4  mode:0
+l:7 y:5  mode:0
+l:7 y:6  mode:0
+l:9 y:0  mode:3
+l:9 y:1  mode:3
+l:11 y:0  mode:0
+l:11 y:1  mode:3
+l:11 y:2  mode:3
+l:12 y:0  mode:0
+l:12 y:1  mode:0
+l:12 y:2  mode:0
+l:12 y:3  mode:0
+l:12 y:4  mode:0
+l:13 y:0  mode:0
+l:13 y:1  mode:3
+l:15 y:0  mode:0
+l:15 y:1  mode:0
+l:15 y:2  mode:0
+l:15 y:3  mode:0
+l:15 y:4  mode:0
+l:15 y:5  mode:0
+l:15 y:6  mode:0
+l:16 y:0  mode:3
+l:16 y:1  mode:0
+l:16 y:2  mode:3
+l:16 y:3  mode:3
+l:18 y:0  mode:0
+done up to here:
+
+l:20 y:1  mode:3
+l:20 y:2  mode:0
+l:20 y:3  mode:0
+l:20 y:4  mode:3
+l:20 y:5  mode:3
+l:20 y:6  mode:0
+l:20 y:7  mode:0
+l:20 y:8  mode:0
+l:20 y:9  mode:0
+l:20 y:10  mode:3
+l:20 y:11  mode:3
+l:20 y:12  mode:0
+l:20 y:13  mode:0
+l:20 y:14  mode:0
+l:21 y:0  mode:0
+l:22 y:0  mode:0
+l:22 y:1  mode:0
+l:22 y:2  mode:0
+l:22 y:3  mode:0
+l:22 y:4  mode:0
+l:22 y:5  mode:0
+l:24 y:0  mode:3
+l:26 y:0  mode:0
+l:26 y:1  mode:0
+l:28 y:0  mode:0
+l:28 y:1  mode:0
+l:31 y:0  mode:3
+l:32 y:0  mode:3
+l:32 y:1  mode:3
+l:34 y:0  mode:0
+l:34 y:1  mode:0
+l:34 y:2  mode:0
+l:34 y:3  mode:0
+l:35 y:0  mode:3
+l:35 y:1  mode:3
+l:35 y:2  mode:3
+l:35 y:3  mode:3
+l:35 y:4  mode:0
+l:35 y:5  mode:0
+l:36 y:0  mode:3
+l:36 y:1  mode:3
+l:49 y:0  mode:3
+l:49 y:1  mode:1
+l:81 y:0  mode:0
+l:82 y:0  mode:0
+
+
+
+what if I made a new mode for bd...one time on..
+
+when triggered, do the damage, don't toggle anything
+
+then I would not have to use dual timer and toggle for simple one time damage blasts...
+
+also how about on unless triggered..I know I already have that, but how about one without a timer
+
+try the one time first..
+
+mode 5 damage when triggered
+this could replace almost everything (except always on)
+
+new proposed modes:
+0 always on
+1 toggle
+2 on till triggered
+3 off till triggered
+
+then just make timer capable of constant output
+
+1 - make timer capable of constant event output
+normal mode: send event when timer complete
+constant: send trigger continoulsy when timer active
+added to flags and ov
+
+
+now do something with it..
+
+change bd mode 2 and 3
+
+these are now the only modes
+
+0 always on
+1 toggle
+2 on till triggered
+3 off till triggered
+
+
+
+Running Global Level Test
+l:1 y:0  mode:0
+l:7 y:0  mode:2 still needed timer
+l:7 y:1  mode:0
+l:7 y:2  mode:0
+l:7 y:3  mode:0
+l:7 y:4  mode:0
+l:7 y:5  mode:0
+l:7 y:6  mode:0
+l:9 y:0  mode:1 now mode 3 still no timer
+l:9 y:1  mode:1 now mode 3 still no timer
+l:11 y:0  mode:0
+l:11 y:1  mode:1
+l:11 y:2  mode:1
+l:12 y:0  mode:0
+l:12 y:1  mode:0
+l:12 y:2  mode:0
+l:12 y:3  mode:0
+l:12 y:4  mode:0
+l:13 y:0  mode:0
+l:13 y:1  mode:1
+l:15 y:0  mode:0
+l:15 y:1  mode:0
+l:15 y:2  mode:0
+l:15 y:3  mode:0
+l:15 y:4  mode:0
+l:15 y:5  mode:0
+l:15 y:6  mode:0
+l:16 y:0  mode:1
+l:16 y:1  mode:0
+l:16 y:2  mode:1
+l:16 y:3  mode:1
+l:18 y:0  mode:0
+l:20 y:0  mode:0
+l:20 y:1  mode:1
+l:20 y:2  mode:0
+l:20 y:3  mode:0
+l:20 y:4  mode:1
+l:20 y:5  mode:1
+l:20 y:6  mode:0
+l:20 y:7  mode:0
+l:20 y:8  mode:0
+l:20 y:9  mode:0
+l:20 y:10  mode:1
+l:20 y:11  mode:1
+l:20 y:12  mode:0
+l:20 y:13  mode:0
+l:20 y:14  mode:0
+
+done
+l:21 y:0  mode:0
+l:22 y:0  mode:0
+l:22 y:1  mode:0
+l:22 y:2  mode:0
+l:22 y:3  mode:0
+l:22 y:4  mode:0
+l:22 y:5  mode:0
+l:24 y:0  mode:1
+
+l:26 y:0  mode:0
+l:26 y:1  mode:0
+l:28 y:0  mode:0
+l:28 y:1  mode:0
+
+
+l:31 y:0  mode:3
+
+l:32 y:0  mode:3
+l:32 y:1  mode:3
+
+l:34 y:0  mode:0
+l:34 y:1  mode:0
+l:34 y:2  mode:0
+l:34 y:3  mode:0
+
+
+
+l:35 y:0  mode:3
+l:35 y:1  mode:3
+l:35 y:2  mode:3
+l:35 y:3  mode:3
+l:35 y:4  mode:0
+l:35 y:5  mode:0
+
+
+mode 2 and 3 do not need any changes..
 
 
 
 
+l:36 y:0  mode:3
+l:36 y:1  mode:3
+
+
+
+l:49 y:0  mode:3
+l:49 y:1  mode:1
+
+l:81 y:0  mode:0
+l:82 y:0  mode:0
+l:82 y:1  mode:0
+l:82 y:2  mode:0
+l:82 y:3  mode:0
+
+l:83 y:0  mode:3
+l:83 y:1  mode:0
+l:83 y:2  mode:0
+l:83 y:3  mode:0
+l:83 y:4  mode:0
+l:83 y:5  mode:3
+l:83 y:6  mode:3
+
+l:86 y:0  mode:3
+l:86 y:1  mode:3
+l:86 y:2  mode:2
+
+all done up to level 88 bd example
+
+fixed ov also..
+
+now do something about draw mode..
+
+red rect and spikey floor are good
+
+do they work without timer?
+yes, removed a bunch of stuff...
+
+
+If I want to show progress use the timer...
+
+
+
+l:95 y:0  mode:3
+l:98 y:0  mode:0
+l:98 y:1  mode:0
+l:108 y:0  mode:0
+l:110 y:0  mode:0
+l:153 y:0  mode:0
+l:155 y:0  mode:3
+l:157 y:0  mode:0
+l:157 y:1  mode:0
+l:157 y:2  mode:0
+l:157 y:3  mode:0
+l:157 y:4  mode:0
+l:157 y:5  mode:0
+l:157 y:6  mode:0
+l:157 y:7  mode:0
+l:157 y:8  mode:0
+l:157 y:9  mode:0
+l:157 y:10  mode:0
+l:157 y:11  mode:0
+l:157 y:12  mode:0
+l:157 y:13  mode:0
+l:157 y:14  mode:0
+l:157 y:15  mode:0
+l:157 y:16  mode:0
+l:157 y:17  mode:0
+l:157 y:18  mode:0
+l:157 y:19  mode:0
+l:157 y:20  mode:0
+l:157 y:21  mode:0
+l:157 y:22  mode:0
+l:157 y:23  mode:0
+l:157 y:24  mode:0
+l:157 y:25  mode:0
+l:157 y:26  mode:0
+l:157 y:27  mode:0
+l:157 y:28  mode:0
+l:157 y:29  mode:0
+l:157 y:30  mode:0
+l:157 y:31  mode:0
+l:157 y:32  mode:0
+l:157 y:33  mode:0
+l:157 y:34  mode:0
+l:157 y:35  mode:0
+l:157 y:36  mode:0
+l:157 y:37  mode:0
+l:157 y:38  mode:0
+l:157 y:39  mode:0
+l:157 y:40  mode:0
+l:157 y:41  mode:0
+l:157 y:42  mode:0
+l:157 y:43  mode:0
+l:157 y:44  mode:0
+l:157 y:45  mode:0
+l:157 y:46  mode:0
+l:157 y:47  mode:0
+l:157 y:48  mode:0
+l:157 y:49  mode:0
+l:160 y:0  mode:3
+l:160 y:1  mode:0
+l:160 y:2  mode:3
+l:313 y:0  mode:0
+l:322 y:0  mode:2
+l:322 y:1  mode:2
+l:374 y:0  mode:8
+l:374 y:1  mode:0
+l:374 y:2  mode:0
+l:374 y:3  mode:3
+l:374 y:4  mode:3
+l:375 y:0  mode:2
+l:375 y:1  mode:0
+l:375 y:2  mode:0
+Total count0:0
+Total count1:0
+Total count2:0
+Total count3:0
+min:9990 max:0
+
+
+
+all have been gone through....
+
+
+moving some things from to do to done...
+
+make level editor zoom mode that fits entire level vertically on screen..done
+
+make block manip show flags for its blocks..done
+
+in visual level select, make hotkey 'L' to start level editor on selected level
+does not do as intended when L is a control...use END instead...done
+
+
+ov set to zero sometimes buggy...i think i fixed it...
 
 
 
 
+bug when adjusting trigger field in ov can't get last x pos..fixed
+
+bug when drawing trigger field in overlay draws twice at wrong size
+when ever drawing trigger shape in ov or draw item, etc...fixed by adding custom to draw_trigger
+
+bug -- in level editor can't see trigger box edges on left or top if zero..fixed
+
+bug - block damage does not destroy items..fixed
+
+bug - when cloner is hidden, it shows till run for the first time..fixed
+fixed this in draw cloner
+
+bug - when cloner is invincible do not target with explosions..done
+
+bug - player not hurt by damage field...fixed
 
 
 
 
+another trigger emitter, based soley on time
+cloner to take a trigger input
+damage field to use this new trigger item
+block manip also..
 
+trigger emitters:
+orb
+trigger
+-timer
+-lift
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+trigger receivers:
+block damage
+block manip
+lift
+-cloner
 
 
 

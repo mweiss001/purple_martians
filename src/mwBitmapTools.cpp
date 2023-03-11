@@ -503,8 +503,8 @@ int mwBitmapTools::draw_flag_rects(int tn, int x, int y, int w, int h, int ys, i
    if (tn & PM_BTILE_SEMISOLID_ENEMY)  fa[6]  += 1; // tally set
    if (tn & PM_BTILE_SEMISOLID_ITEM)   fa[7]  += 1; // tally set
    if (tn & PM_BTILE_BOMBABLE)         fa[8]  += 1; // tally set
-   if (tn & PM_BTILE_BREAKABLE_PSHOT)   fa[9]  += 1; // tally set
-   if (tn & PM_BTILE_BREAKABLE_ESHOT)   fa[10] += 1; // tally set
+   if (tn & PM_BTILE_BREAKABLE_PSHOT)  fa[9]  += 1; // tally set
+   if (tn & PM_BTILE_BREAKABLE_ESHOT)  fa[10] += 1; // tally set
    if (tn & PM_BTILE_LADDER_MOVE)      fa[11] += 1; // tally set
    if (tn & PM_BTILE_ROPE_MOVE)        fa[12] += 1; // tally set
    if (tn & PM_BTILE_SECRET)           fa[13] += 1; // tally set
@@ -554,10 +554,11 @@ void mwBitmapTools::draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w,
 
 // this common one calls text and rect and allows changes if applicable
 // used by draw iten, point item and block selection description
-void mwBitmapTools::draw_flags(int x1, int y1, int* num, int *mpow, int view_only, int clear_background, int ignore_mpow)
+void mwBitmapTools::draw_flags(int x1, int y1, int& num, int& mpow, int view_only, int clear_background, int ignore_mpow)
 {
    int ys = 10; // y spacing
    int frw = 6; // flag rectangle width
+
    int frh = 6; // flag rectangle height
 
    if (clear_background)
@@ -565,8 +566,8 @@ void mwBitmapTools::draw_flags(int x1, int y1, int* num, int *mpow, int view_onl
       al_draw_filled_rectangle(x1-1, y1-1, x1+142, y1+(13*ys)+8, mColor.pc[0]);
       al_draw_rectangle(x1-2, y1-2, x1+142, y1+(13*ys)+9, mColor.pc[15], 1);
    }
-   if (!ignore_mpow) if ((mInput.mouse_x > x1-2) && (mInput.mouse_x < x1+155) && (mInput.mouse_y > y1-2) && (mInput.mouse_y < y1+(13*ys)+9)) *mpow = 1;
-   int highlight = draw_flag_rects(*num, x1, y1, frw, frh, ys, 14);
+   if (!ignore_mpow) if ((mInput.mouse_x > x1-2) && (mInput.mouse_x < x1+155) && (mInput.mouse_y > y1-2) && (mInput.mouse_y < y1+(13*ys)+9)) mpow = 1;
+   int highlight = draw_flag_rects(num, x1, y1, frw, frh, ys, 14);
    if (!view_only)
    {
       if (highlight > -1)
@@ -575,21 +576,21 @@ void mwBitmapTools::draw_flags(int x1, int y1, int* num, int *mpow, int view_onl
          if (mInput.mouse_b[1][0])
          {
             while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
-            if (highlight ==  0) (*num) ^= PM_BTILE_SOLID_PLAYER;
-            if (highlight ==  1) (*num) ^= PM_BTILE_SOLID_ENEMY;
-            if (highlight ==  2) (*num) ^= PM_BTILE_SOLID_ITEM;
-            if (highlight ==  3) (*num) ^= PM_BTILE_SOLID_PBUL;
-            if (highlight ==  4) (*num) ^= PM_BTILE_SOLID_EBUL;
-            if (highlight ==  5) (*num) ^= PM_BTILE_SEMISOLID_PLAYER;
-            if (highlight ==  6) (*num) ^= PM_BTILE_SEMISOLID_ENEMY;
-            if (highlight ==  7) (*num) ^= PM_BTILE_SEMISOLID_ITEM;
-            if (highlight ==  8) (*num) ^= PM_BTILE_BOMBABLE;
-            if (highlight ==  9) (*num) ^= PM_BTILE_BREAKABLE_PSHOT;
-            if (highlight == 10) (*num) ^= PM_BTILE_BREAKABLE_ESHOT;
-            if (highlight == 11) (*num) ^= PM_BTILE_LADDER_MOVE;
-            if (highlight == 12) (*num) ^= PM_BTILE_ROPE_MOVE;
-            if (highlight == 13) (*num) ^= PM_BTILE_SECRET;
-            if (highlight == 14) (*num) ^= PM_BTILE_SHOW_SELECT_WIN;
+            if (highlight ==  0) (num) ^= PM_BTILE_SOLID_PLAYER;
+            if (highlight ==  1) (num) ^= PM_BTILE_SOLID_ENEMY;
+            if (highlight ==  2) (num) ^= PM_BTILE_SOLID_ITEM;
+            if (highlight ==  3) (num) ^= PM_BTILE_SOLID_PBUL;
+            if (highlight ==  4) (num) ^= PM_BTILE_SOLID_EBUL;
+            if (highlight ==  5) (num) ^= PM_BTILE_SEMISOLID_PLAYER;
+            if (highlight ==  6) (num) ^= PM_BTILE_SEMISOLID_ENEMY;
+            if (highlight ==  7) (num) ^= PM_BTILE_SEMISOLID_ITEM;
+            if (highlight ==  8) (num) ^= PM_BTILE_BOMBABLE;
+            if (highlight ==  9) (num) ^= PM_BTILE_BREAKABLE_PSHOT;
+            if (highlight == 10) (num) ^= PM_BTILE_BREAKABLE_ESHOT;
+            if (highlight == 11) (num) ^= PM_BTILE_LADDER_MOVE;
+            if (highlight == 12) (num) ^= PM_BTILE_ROPE_MOVE;
+            if (highlight == 13) (num) ^= PM_BTILE_SECRET;
+            if (highlight == 14) (num) ^= PM_BTILE_SHOW_SELECT_WIN;
          }
       }
    }
