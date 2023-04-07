@@ -174,21 +174,21 @@ void mwShots::proc_eshot_collision(int p, int b)
 void mwShots::move_eshots()
 {
    for (int b=0; b<50; b++)
-      if (mShot.e[b].active)
+      if (e[b].active)
       {
-         mShot.e[b].x += mShot.e[b].xinc;
-         mShot.e[b].y += mShot.e[b].yinc;
+         e[b].x += e[b].xinc;
+         e[b].y += e[b].yinc;
 
          // check if out of bounds
-         if ((mShot.e[b].x<0) || (mShot.e[b].x>2000) || (mShot.e[b].y<0) || (mShot.e[b].y>2000)) mShot.e[b].active = 0;
+         if ((e[b].x<0) || (e[b].x>2000) || (e[b].y<0) || (e[b].y>2000)) e[b].active = 0;
 
          // check if hit wall (or more accurately if co-located with a block)
-         int xi = (mShot.e[b].x+10)/20;
-         int yi = (mShot.e[b].y+10)/20;
+         int xi = (e[b].x+10)/20;
+         int yi = (e[b].y+10)/20;
          int d = mLevel.l[xi][yi];
          if (d & PM_BTILE_SOLID_EBUL)  // shot hit solid or breakable wall
          {
-            mShot.e[b].active = 0;                                   // shot dies
+            e[b].active = 0;                                   // shot dies
             if (d & PM_BTILE_BREAKABLE_ESHOT) mLevel.change_block(xi, yi, 0); // breakable wall
          }
       }
@@ -212,11 +212,11 @@ void mwShots::draw_eshots()
 */
 
    for (int b=0; b<50; b++)
-      if (mShot.e[b].active)
+      if (e[b].active)
       {
-         int t = mShot.e[b].shape;
-         if (t > 1000) t = mBitmap.zz[0][mShot.e[b].shape-1000];
-         al_draw_bitmap(mBitmap.tile[t], mShot.e[b].x, mShot.e[b].y, 0);
+         int t = e[b].shape;
+         if (t > 1000) t = mBitmap.zz[0][e[b].shape-1000];
+         al_draw_bitmap(mBitmap.tile[t], e[b].x, e[b].y, 0);
       }
 }
 
@@ -331,12 +331,12 @@ void mwShots::fire_enemy_x_shot(int e, int p)
          if (mEnemy.Ef[e][0] < mPlayer.syn[p].x)
          {
             mShot.e[b].xinc = x_shot_speed;
-            mShot.e[b].shape = 488;
+            mShot.e[b].shape = 328; //488;
          }
          if (mEnemy.Ef[e][0] >= mPlayer.syn[p].x)
          {
             mShot.e[b].xinc = -x_shot_speed;
-            mShot.e[b].shape = 489;
+            mShot.e[b].shape = 329; //489;
          }
          b=50; // end loop
       }

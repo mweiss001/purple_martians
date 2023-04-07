@@ -33,7 +33,7 @@ int mwItems::item_data(int x, int y)
    if (item_num_of_type[6])  { al_draw_textf(mFont.pr8, mColor.pc[14], x, y, 0, "%d Orbs",       item_num_of_type[6]);  y+=8; }
 
    for (int c=1; c<20; c++)
-      if ((c!= 1) && (c !=3) && (c!= 4) && (c != 5) && (c != 6) && (c!= 7) && (c!= 8) && (c!= 9) && (c!= 11) && (c!= 12) && (c!= 14) && (c!= 15) && (c!= 16) && (c!= 17) )
+      if ((c!= 1) && (c !=3) && (c!= 4) && (c != 5) && (c != 6) && (c!= 7) && (c!= 8) && (c!= 9) && (c!= 11) && (c!= 12) && (c!= 13) && (c!= 14) && (c!= 15) && (c!= 16) && (c!= 17) )
          if (item_num_of_type[c]) // not zero
          {
                          sprintf(msg, "%d type %d???  ", item_num_of_type[c], c); // default unknown

@@ -14,7 +14,7 @@ class mwItems
    int item_first_num[30];
    char item_name[30][40];
    char pmsgtext[500][500];
-   int item_tile[20];
+   int item_tile[30];
 
    void draw_items(void);
    void draw_item(int i, int custom, int cx, int cy);
@@ -111,6 +111,13 @@ class mwItems
 
    float get_timer_ratio_for_event(int ev);
 
+
+   int draw_wrap_rect(int i, int x, int y, int custom);
+   void wrap_rect_helper(int i, float &x, float &y, float xi, float yi);
+   void proc_wrap_rect(int i);
+
+   void proc_wrap_line(int i);
+   int draw_wrap_line(int i, int x, int y, int custom);
 
 
 

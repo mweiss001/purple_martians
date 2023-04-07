@@ -19209,6 +19209,297 @@ lift
 
 
 
+20230312
+
+mostly done with new event stuff, no new major features planned, just bugs as they pop up
+
+fixed lift prox not showing in level editor again..
+
+
+make spikes have some intermediate steps...
+
+2 intermediate
+0 - off 808
+1 - 1/3
+2 = 2/3
+3 = on 807
+
+
+0/3 - 1/3 804
+1/3 - 2/3 805
+2/3 - 3/3 806
+3/3       807
+
+find out what item is triggering
+similar to how cloner does it..done and it looks good..
+I only have one use of this in all levels!
+
+
+
+
+I have a pretty big idea:
+
+
+Make some more items that control things about the level.
+
+Zones
+big rectangular areas of the level that can be hidden or shown
+maybe dependant on whether the player is in the zone or not
+
+Field that lights bombs and rockets...
+
+Springs that activate just by proximity...also have abritrary direction..like pinball bumpers
+
+
+
+
+Wrap lines
+horizontal or vertical line that instantly transport objects..
+
+make a new item type
+type 20 wrap
+
+rectangle with four points..
+
+
+for example lets just do a horizontal one.
+
+for this we need 2 horizontal lines of the same length
+x1, x2 and width
+
+y1 and y2
+
+do we need to specify which is the input and which is the output?
+
+maybe it would be easier to do a rectangle and assume that nothing exists outside it.
+all object exist inside and wrap when hitting an edge
+
+optional x and y
+
+optional for different types of objects??
+
+
+make new item 20 with rectangle..
+
+where do I start?
+draw a shape or pick one...
+544 for now
+
+made simple PDE item.
+make ov
+
+now lets try some functionality
+
+looking good!!
+
+bullets go on forever..
+make an option to not include them, or kill them at boundaries
+did not even try to make lifts work, they use absolute positions
+
+
+
+x and y only?  If I don't want them going off in one axis, either manually kill them or make a wall
+
+
+
+make an button for what is affected:
+
+Players
+items
+enemies
+pbul
+ebul
+
+item[][3]  = flags
+#define PM_ITEM_WRAP_PLAYER   0b000000000000000001
+#define PM_ITEM_WRAP_ENEMY    0b000000000000000010
+#define PM_ITEM_WRAP_ITEM     0b000000000000000100
+#define PM_ITEM_WRAP_PSHOT    0b000000000000001000
+#define PM_ITEM_WRAP_ESHOT    0b000000000000010000
+#define PM_ITEM_WRAP_XMN      0b000000000000100000
+#define PM_ITEM_WRAP_XPL      0b000000000001000000
+#define PM_ITEM_WRAP_YMN      0b000000000010000000
+#define PM_ITEM_WRAP_YPL      0b000000000100000000
+
+
+
+some times things escape from the warp, not sure why and how I can prevent it...
+
+I could have a mode where everything is forced to be within the rectangle, and if not jump it to there...
+this would ony work with one wrap
+
+
+how about check if object is within rectangle
+
+
+it always seems to move to the other side fine, but once there not so good.
+could I move to the other side and add inc??
+
+how about not using any offset +10 -10? only do that when drawing..nah
+
+
+I want to make this pixel perfect, I'm not sure what is going wrong...
+
+
+how about check if object is within rectangle, then only check if it leaves...
+
+I think this has to do with returning back to the same line we came from
+
+get some data...
+
+
+y1:310
+y2:430
+
+y 310 - good
+move up .5
+not caught in proc changed to 309.5
+
+I finally fixed it, by adding xi, yi to h and w at the end of the line
+
+if ((item[i][3] & PM_ITEM_WRAP_YPL) && (yi > 0) && (x >= x1) && (x <= x2) && (y <= y2) && (y+yi > y2)) y -= (h-yi); // moving down
+if ((item[i][3] & PM_ITEM_WRAP_YMN) && (yi < 0) && (x >= x1) && (x <= x2) && (y >= y1) && (y+yi < y1)) y += (h+yi); // moving up
+if ((item[i][3] & PM_ITEM_WRAP_XPL) && (xi > 0) && (y >= y1) && (y <= y2) && (x <= x2) && (x+xi > x2)) x -= (w-xi); // moving right
+if ((item[i][3] & PM_ITEM_WRAP_XMN) && (xi < 0) && (y >= y1) && (y <= y2) && (x >= x1) && (x+xi < x1)) x += (w+xi); // moving left
+
+I think I want to add something to bullets to kill them if they travel too far, or pass through too many wraps...
+
+ladder does not work with wrap, probably due to no yinc..fixed
+
+
+Now I would like to make something very similar but not aligned with a rectangle..
+they could even be at right angles to each other...
+It sounds like I am making portals!!
+
+input line x or y
+input direction + or -
+
+output line x or y
+ouptut direction + or -
+
+one way or 2 way
+
+
+rename old one wrap rect
+new one wrap line
+
+
+what am I going to do for variables:
+
+i/p
+x,y length
+
+o/p
+x,y
+
+#define PM_ITEM_WRAP_PLAYER   0b000000000000000001
+#define PM_ITEM_WRAP_ENEMY    0b000000000000000010
+#define PM_ITEM_WRAP_ITEM     0b000000000000000100
+#define PM_ITEM_WRAP_PSHOT    0b000000000000001000
+#define PM_ITEM_WRAP_ESHOT    0b000000000000010000
+#define PM_ITEM_WRAP_IPXY     0b000000000000100000
+#define PM_ITEM_WRAP_IPPM     0b000000000001000000
+#define PM_ITEM_WRAP_OPXY     0b000000000010000000
+#define PM_ITEM_WRAP_OPPM     0b000000000100000000
+
+I am going to skip this idea for now..
+
+
+Lets see if I can flesh out the zones idea.
+
+
+If there are no zones, act like normal.
+
+Zones can have types or modes..
+
+type 0 means do not draw
+
+type 1 means draw always
+
+type 2 means draw only when player is in zone
+
+do I need this? multiplayer will be confusing
+
+what about vertical launch pads
+
+
+
+
+20230401 I have been busy on another project for a while
+
+coming back, it looks like I am in the middle of WRAP, and still cant get it to work as good as I want
+
+then I have some other things to clean up..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
