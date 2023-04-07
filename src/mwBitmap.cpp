@@ -37,7 +37,8 @@ void mwBitmap::create_bitmaps(void)
    M_ptilemap = create_and_clear_bitmap(480, 320);
    M_dtilemap = create_and_clear_bitmap(160, 640);
 
-   // this bitmap format is used for every other bitmap created, it is never changed
+   // this bitmap format is used for tiles
+//   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP | ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR | ALLEGRO_MIPMAP);
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
 
    // create tilemap bitmaps
@@ -46,12 +47,14 @@ void mwBitmap::create_bitmaps(void)
    ptilemap = create_and_clear_bitmap(480, 320);
    dtilemap = create_and_clear_bitmap(160, 640);
 
+   // create bottom message bitmaps
+   mBottomMessage.create_bitmaps();
+
+//   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
+
    // create level_background and level_buffer bitmaps
    level_background  = create_and_clear_bitmap(2000, 2000);
    level_buffer      = create_and_clear_bitmap(2000, 2000);
-
-   // create bottom message bitmaps
-   mBottomMessage.create_bitmaps();
 }
 
 void mwBitmap::rebuild_bitmaps(void)

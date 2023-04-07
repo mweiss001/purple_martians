@@ -99,6 +99,8 @@ void mwWindow::ov_get_size(void)
    if ((obt == 2) && (type == 16)) w = 280; // bm
    if ((obt == 2) && (type == 17)) w = 290; // bd
 
+   if ((obt == 2) && (type == 20)) w = 200; // wrap
+
    if ((obt == 3) && (type == 3 )) w = 220; // archwagon
    if ((obt == 3) && (type == 4 )) w = 220; // bouncer
    if ((obt == 3) && (type == 5 )) w = 220; // jumpworm
@@ -399,6 +401,12 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             sprintf(lmsg[2],"Damage Area");
             legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
+         case 20: // wrap
+            sprintf(lmsg[1],"Item Location");
+            sprintf(lmsg[2],"Area");
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
+         break;
+
       } // end of switch case
    }  // end of items
 
@@ -985,8 +993,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.button(     xa, ya, xb, bts, 311,n,0,0,  0, 8,15,0,   1,0,0,d);               // block 2
             ya+=22; // spacer
             mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][1], 99, 0, 1,    "Event Trigger:", "OFF");
-            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,  0,13,15,0,   1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
-
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,13,15,0,   1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
 
          }
          break;
@@ -1003,39 +1010,20 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             if (MODE == 1) // toggle
                mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_CURR, "Initial State:OFF","Initial State:ON ", 15+dim, 15, p+dim, p);
-
-
-
-//            if (MODE == 2) // ON until triggered
-//               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "OFF Time:" );
-//            if (MODE == 3) // OFF until triggered
-//               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "ON Time:" );
-//            if (MODE == 4) // Timed on and off
-//            {
-//               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][12], 1000, 0, 1, "Total Time:" );
-//               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][14], 1000, 0, 1, "Damage Time:" );
-//               mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,p,15,15,  1,0,1,d,mItem.item[n][13], 1000, 0, 1, "Initial Time:" );
-//            }
-//            if ((MODE == 2) || (MODE == 3) || (MODE == 4))
-//            {
-//               ya+=4; // spacer
-//               mWidget.button(     xa, ya, xb, bts, 401,n,0,0, 0,12,15,15, 1,0,1,d); // timer draw mode
-//            }
             if ((MODE == 1) || (MODE == 2) || (MODE == 3)) // Mode 1, 2, and 3
             {
                ya+=4; // spacer
                mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,   0,13,15,15, 1,0,1,d, mItem.item[n][1], 99, 0, 1, "Event Trigger:", "OFF");
-               if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,  0,13,15,0,   1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
-
+               if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
             }
             ya+=4; // spacer
-            if (mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PLAYER,  "Affects Players:OFF",          "Affects Players:ON",          15+dim, 15, 10+dim, 10))
-               if (!mWidget.togglf(xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_INSTGIB, "Player Instant Death:OFF",     "Player Instant Death:ON",     15+dim, 15, 10+dim, 10))
+            if (mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PLAYER,  "Affects Players:OFF",        "Affects Players:ON",        15+dim, 15, 10+dim, 10))
+               if (!mWidget.togglf(xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_INSTGIB, "Player Instant Death:OFF",   "Player Instant Death:ON",   15+dim, 15, 10+dim, 10))
                   mWidget.slideri( xa, ya, xb, bts, 0,0,0,0,   0,10,15,15, 1,0,1,d, mItem.item[n][15], 2000, -2000, 1,        "Player Damage:" );
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",          "Affects Enemies:ON",          15+dim, 15, 10+dim, 10);
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ITEM,    "Affects Items:OFF",            "Affects Items:ON",            15+dim, 15, 10+dim, 10);
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PSHOT,    "Affects Player's Bullets:OFF", "Affects Player's Bullets:ON", 15+dim, 15, 10+dim, 10);
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ESHOT,    "Affects Enemy's Bullets:OFF",  "Affects Enemy's Bullets:ON",  15+dim, 15, 10+dim, 10);
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ENEMY,   "Affects Enemies:OFF",        "Affects Enemies:ON",        15+dim, 15, 10+dim, 10);
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ITEM,    "Affects Items:OFF",          "Affects Items:ON",          15+dim, 15, 10+dim, 10);
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PSHOT,   "Affects Player's Shots:OFF", "Affects Player's Shots:ON", 15+dim, 15, 10+dim, 10);
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ESHOT,   "Affects Enemy's Shots:OFF",  "Affects Enemy's Shots:ON",  15+dim, 15, 10+dim, 10);
             ya+=4; // spacer
             if (mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",             "Follows Lift:ON ",            15+dim, 15, 6+dim, 6))
             {
@@ -1045,7 +1033,41 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             }
          }
          break;
+         case 20: // wrap
+         {
+
+            mWidget.toggle(        xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][2], "Draw Rectangle:OFF", "Draw Rectangle:ON ", 15, 15, 15+96, 10);
+
+            ya+=4; // spacer
+
+            if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Rectangle")) mMiscFnx.get_block_range("Wrap Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            ya+=4; // spacer
+            int p = 12;
+
+
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_PLAYER,  "Wrap Players:OFF",        "Wrap Players:ON",        15+dim, 15, p+dim, p);
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_ENEMY,   "Wrap Enemies:OFF",        "Wrap Enemies:ON",        15+dim, 15, p+dim, p);
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_ITEM,    "Wrap Items:OFF",          "Wrap Items:ON",          15+dim, 15, p+dim, p);
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_PSHOT,   "Wrap Player's Shots:OFF", "Wrap Player's Shots:ON", 15+dim, 15, p+dim, p);
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_ESHOT,   "Wrap Enemy's Shots:OFF",  "Wrap Enemy's Shots:ON",  15+dim, 15, p+dim, p);
+
+            ya+=4; // spacer
+
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_FORCE,  "Force Wrap:OFF",        "Force Wrap:ON",        15+dim, 15, 13+dim, 13);
+
+            ya+=4; p = 11; // spacer
+
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_XMN,     "X-Axis Left:OFF ",        "X-Axis Left:ON  ",       15+dim, 15, p+dim, p);
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_XPL,     "X-Axis Right:OFF",        "X-Axis Right:ON ",       15+dim, 15, p+dim, p);
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_YMN,     "Y-Axis Up:OFF   ",        "Y-Axis Up:ON    ",       15+dim, 15, p+dim, p);
+            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_YPL,     "Y-Axis Down:OFF ",        "Y-Axis Down:ON  ",       15+dim, 15, p+dim, p);
+
+
+
+         }
+         break;
       }
+
    }
    // set height
    if (obt != 4)
@@ -1323,6 +1345,16 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          }
          break;
 
+         case 20: // wrap
+         {
+            int color = 10;
+            if (legend_highlight == 2) color = mColor.flash_color;
+            ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
+         }
+         break;
+
+
+
       } // end of switch case
    }
 }
@@ -1458,7 +1490,7 @@ void mwWindow::ov_process_mouse(void)
 
 
 
-      if ((type == 7) || (type == 13) || (type == 9)) // podzilla, vinepod and cloner trigger box
+      if ((type == 7) || (type == 13)) // podzilla and vinepod trigger box
       {
          int x1 = mEnemy.Ei[b][11];
          int y1 = mEnemy.Ei[b][12];
@@ -1590,7 +1622,7 @@ void mwWindow::ov_process_mouse(void)
             mouse_move = 1;
          }
       }
-      if ((type == 4) || (type == 9) || (type == 10) || (type == 13) || (type == 14) || (type == 16) || (type == 17)) // key, switch, trigger, manip, damage, msg trigger
+      if ((type == 4) || (type == 9) || (type == 10) || (type == 13) || (type == 14) || (type == 16) || (type == 17) || (type == 20)) // key, switch, trigger, manip, damage, msg trigger, wrap
       {
          int x1 = mItem.item[mwWM.mW[7].num][6];
          int y1 = mItem.item[mwWM.mW[7].num][7];

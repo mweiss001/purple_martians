@@ -31,7 +31,7 @@ void mwConfig::save(void)
    else
    {
       asci(SCREEN, mDisplay.disp_x_wind)
-      asci(SCREEN, mDisplay.disp_h_wind)
+      asci(SCREEN, mDisplay.disp_y_wind)
       asci(SCREEN, mDisplay.disp_w_wind)
       asci(SCREEN, mDisplay.disp_h_wind)
       ascf(SCREEN, mDisplay.scale_factor)

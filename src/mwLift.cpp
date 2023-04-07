@@ -724,69 +724,46 @@ int mwLift::draw_steps(int x1, int x2, int y, int lift, int current_step, int hi
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void mwLift::set_lift_to_step(int l, int s)
 {
+   // set current step to passed step
+   // set current flags from passed step
+   // set current incs to zero
+
    // if passed step is a move step:
    // - use that step to set lift xywh
-   // - set lift incs to all zero
    // - set limit and limit counter to immediately advance to next step
 
    // if passed step is not a move step:
    // - find prev move step and use that to set lift xywh
-   // - set lift incs to all zero
    // - set limit and limit counter from passed step
 
-   int step_type = stp[l][s].type & 31;
-
-   if ((step_type) == 1) // passed step is move step
-   {
-      cur[l].current_step = s;
-      cur[l].limit_type    = 2;   // type 2 - wait for time
-      cur[l].limit_counter = 0;   // no wait, immediate next mode
-   }
-   else
-   {
-      s = find_previous_move_step(l, s);
-      cur[l].limit_type    = step_type;
-      cur[l].limit_counter = stp[l][s].val;
-   }
-
+   cur[l].current_step = s;
    cur[l].flags = stp[l][s].type; // get all the flags from the step type
-
-   // get pos and size from step
-   cur[l].x = stp[l][s].x;
-   cur[l].y = stp[l][s].y;
-   cur[l].w = stp[l][s].w;
-   cur[l].h = stp[l][s].h;
 
    // set incs to 0
    cur[l].xinc = 0;
    cur[l].yinc = 0;
    cur[l].winc = 0;
    cur[l].hinc = 0;
+
+   int step_type = stp[l][s].type & 31;
+   if ((step_type) == 1)          // if step is a move step
+   {
+      cur[l].limit_type    = 2;   // type 2 - wait for time
+      cur[l].limit_counter = 0;   // no wait, immediate next mode
+   }
+   else
+   {
+      cur[l].limit_type    = step_type;
+      cur[l].limit_counter = stp[l][s].val;
+      s = find_previous_move_step(l, s);
+   }
+   // get pos and size from step
+   cur[l].x = stp[l][s].x;
+   cur[l].y = stp[l][s].y;
+   cur[l].w = stp[l][s].w;
+   cur[l].h = stp[l][s].h;
 }
 
 
@@ -865,18 +842,12 @@ void mwLift::draw_lift(int l, int x1, int y1, int x2, int y2)
       int a;
       for (a=0; a<10; a++)
         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mColor.pc[col + ((9 - a)*16)], 2 ); // faded outer shell
-
       al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, mColor.pc[col] );                            // solid core
       al_draw_text(mFont.bltn, mColor.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name); // name
    }
-
-
-  // printf("x1:%d y1:%d x2:%d y2:%d\n", x1, y1, x2, y2);
-
-//   al_draw_textf(mFont.pr8, mColor.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", cur[l].current_step, cur[l].val1);    // debug name
-
-//   al_draw_textf(mFont.pr8, mColor.pc[15], (x1+x2)/2, (y1+y2)/2 - 16, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", cur[l].current_step, cur[l].val1);    // debug name
-
+   //printf("x1:%d y1:%d x2:%d y2:%d\n", x1, y1, x2, y2);
+   //al_draw_textf(mFont.pr8, mColor.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", cur[l].current_step, cur[l].val1);    // debug name
+   //al_draw_textf(mFont.pr8, mColor.pc[15], (x1+x2)/2, (y1+y2)/2 - 16, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", cur[l].current_step, cur[l].val1);    // debug name
 }
 
 void mwLift::draw_lifts()
@@ -928,7 +899,7 @@ void mwLift::draw_lifts()
                {
                   case 2: // timer wait
                      if (cur[l].limit_counter > 0)
-                        al_draw_textf(mFont.pr8, mColor.pc[color+64], (x1 + x2)/2 + 2, cur[l].y - 8, ALLEGRO_ALIGN_CENTRE, "%d", cur[l].limit_counter);
+                        al_draw_textf(mFont.pr8, mColor.pc[color+64], (x1 + x2)/2, cur[l].y - 9, ALLEGRO_ALIGN_CENTRE, "%d", cur[l].limit_counter);
                   break;
                   case 3: // prox wait
                   {
@@ -1025,9 +996,9 @@ void mwLift::next_step(int l)
       break;
       case 6: // send trig
          mTriggerEvent.event[step_val] = 1; // set event
-         next_step(l); // recurse
+         next_step(l); // recurse to immediately jump to next step
 
-         // if now in move step, do first move
+         // if now in move step, do initial move
          if ((stp[l][cur[l].current_step].type & 31) == 1)
          {
             cur[l].x += cur[l].xinc;
@@ -1126,13 +1097,7 @@ void mwLift::move_lifts(int ignore_prox)
 
             }
          }
-
-//      // clear events referenced by this lift
-//      for (int s=0; s<cur[l].num_steps; s++)  // iterate steps
-//         if ((stp[l][s].type & 31) == 5)        // trigger mode
-//            mTriggerEvent.event[stp[l][s].val] = 0; // clear trigger event
-
-      } // end of lift iterate
+      }
 }
 
 

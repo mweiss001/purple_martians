@@ -6,6 +6,34 @@ level done shows briefly when using warp
 I can reduce the time, but what if it breaks things in network level done?
 I'm getting a stimp in single player
 
+prox in lifts is not right, uses prev step speed..fixed
+
+drawing arrows has tracers..it makes no sense to me
+it is an artifact from the shape beside it.
+tile 488 is a right facing bullet
+tile 487 is archwagon
+they are both with the boundaries in gimp
+none of these flags are used ALLEGRO_MIN_LINEAR ALLEGRO_MAG_LINEAR ALLEGRO_MIPMAP
+it only happens at certain bullet speeds:
+9.0 no
+9.1 yes
+9.2 no
+9.3 yes
+9.4 no
+9.5 yes
+I don't see it happpening for any other shape
+the draw routine for e shots is very straight forward
+al_draw_bitmap(mBitmap.tile[t], e[b].x, e[b].y, 0);
+
+I will try to fix it with a hack, but it is very worrying to me
+it should not do this..
+use tile 328 and 329 instead on 488 and 489..fixed...
+
+
+
+
+
+
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
@@ -27,9 +55,29 @@ advanced settings tab
 
 
 
+why did I remove skip frame draw?
+because 99% of the time, the thing was taking too much time was draw frame itself
+netgame expects that the move frames happen exactly when they are supposed to
+if I draw then I will screw up the timimg of netgame
+I tried a staggered draw but the flashing was too much...
+what I did not try was:
+frame 1 get new back ground and draw
+
+
+wait a tick here!
+I have discovered that drawing from bitmap to bitmap does not scale well.
+but drawing from bitmap to screen does...
+I was thinking of drawing as much as I can directly to the screen
+right now I draw at full scale from tiles to level_background and level_buffer
+then only scale those when drawing to the screen.
+so that would not affect the quality there, but maybe the rotation
+also maybe the speed
+
+
 
 enemies that still use trigger box, pod, vine
 could I make them also optionally use trigger inputs
+then they could move out of the way of bullets!
 
 what would it take to extend lifts to use splines?
 

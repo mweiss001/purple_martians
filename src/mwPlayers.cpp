@@ -235,19 +235,33 @@ void mwPlayers::proc_player_xy_move_test(int p)
 {
    float m = 0.5;
 
+   syn[p].xinc = 0;
+   syn[p].yinc = 0;
+
+
    if (mInput.key[ALLEGRO_KEY_LCTRL][0]) m *= 4;
 
-   if (syn[p].up) syn[p].y -= m;
-   if (syn[p].down) syn[p].y += m;
+   if (syn[p].up)
+   {
+      syn[p].y -= m;
+      syn[p].yinc = -m;
+   }
+   if (syn[p].down)
+   {
+      syn[p].y += m;
+      syn[p].yinc = m;
+   }
    if (syn[p].left)
    {
       syn[p].left_right = 0;
       syn[p].x -= m;
+      syn[p].xinc = -m;
    }
    if (syn[p].right)
    {
       syn[p].left_right = 1;
       syn[p].x += m;
+      syn[p].xinc = m;
    }
 }
 
@@ -830,10 +844,9 @@ void mwPlayers::proc_player_ladder_move(int p)
    }
    else
    {
-      if (syn[p].up)   syn[p].y -=   mSolid.is_up_solidf(syn[p].x, syn[p].x, m, 0);
+      if (syn[p].up) syn[p].y -= mSolid.is_up_solidf(syn[p].x, syn[p].y, m, 0);
    }
-
-   if (syn[p].down) syn[p].y += mSolid.is_down_solidf(syn[p].y, syn[p].y, m, 0);
+   if (syn[p].down) syn[p].y += mSolid.is_down_solidf(syn[p].x, syn[p].y, m, 0);
    if (syn[p].left)
    {
       syn[p].left_right = 0;
@@ -850,6 +863,10 @@ void mwPlayers::proc_player_ladder_move(int p)
    int py = syn[p].y;
    int xd = px - old_px;
    int yd = py - old_py;
+
+   syn[p].xinc = xd;
+   syn[p].yinc = yd;
+
 
    // did we try to move up past top of ladder?
    if (yd < 0) if (!is_player_within_ladder_reach(p)) syn[p].y += m;
@@ -1084,7 +1101,7 @@ void mwPlayers::move_players(void)
                proc_player_rope(p);
                proc_player_ladder(p);
                if (!syn[p].on_ladder && !syn[p].on_rope) // not on ladder or rope
-                //  proc_player_xy_move_test(p);
+                  //proc_player_xy_move_test(p);
                   proc_player_xy_move(p);
             }
 
