@@ -597,18 +597,16 @@ void mwItems::proc_item_damage_collisions(int i)
                }
                else
                {
-                  if (mItem.item[i][15] > 0) // lose health
+                  float ha = (float)item[i][15]/100; // health adjust
+                  mPlayer.syn[p].health -= ha;
+
+                  if (ha > 0) // lose health
                   {
-                     mPlayer.syn[p].health -= (float)item[i][15]/100;
-                     mGameEvent.add(59, 0, 0, p, i, 0, 0); // only do damage noise when taking health..??
+                     mGameEvent.add(59, 0, 0, p, item[i][2], 0, item[i][15]); // only do damage noise when taking health..??
                   }
                   else // gain health
                   {
-                     if (mPlayer.syn[p].health < 100)
-                     {
-                        mPlayer.syn[p].health -= (float)item[i][15]/100;
-                        if (mPlayer.syn[p].health > 100) mPlayer.syn[p].health = 100;
-                     }
+                     if (mPlayer.syn[p].health > 100) mPlayer.syn[p].health = 100;
                   }
                }
             }

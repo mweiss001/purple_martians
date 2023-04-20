@@ -70,7 +70,7 @@ void mwItems::proc_key_collision(int p, int i)
       item[i][10] = atan2(yinc, xinc) * 1000;
       int num_steps = scaler;
       item[i][11] = num_steps + 10;                       // add 10 for final sequence
-      mGameEvent.add(2, 0, 0, p, i, 0, 0);
+      mGameEvent.add(2, 0, 0, p, item[i][1], 0, 0);
    }
 }
 
@@ -129,7 +129,7 @@ void mwItems::proc_switch_collision(int p, int i)
       if ( (px > ix-12) && (px < ix+12) && (py > iy-16) && (py < iy-8) && (mPlayer.syn[p].yinc > 0) )  // falling
       {
          item[i][11] = mLoop.frame_num + 4; // switch lockout for next 4 frames
-         mGameEvent.add(30, 0, 0, p, i, 0, 0);
+         mGameEvent.add(30, 0, 0, p, item[i][1], 0, 0);
 
          if (item[i][1] > 111) item[i][1] -= 16;
          else item[i][1] += 16;

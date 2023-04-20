@@ -88,7 +88,7 @@ struct ploc // not synced between server and client
 
    float block_damage_tally;
    int block_damage_holdoff;
-   int block_damage_item_number;
+   int block_damage_type;
 
    int up_key, down_key, left_key, right_key, jump_key, fire_key, menu_key;
    int comp_move, old_comp_move;

@@ -17,7 +17,7 @@
 #include "mwEnemy.h"
 #include "mwMiscFnx.h"
 #include "mwHelp.h"
-
+#include "mwBottomMessage.h"
 
 
 
@@ -365,13 +365,7 @@ void mwWidget::sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int ty
 
 
 
-
-
-
-
-
-// non blocking versions...used only on opacity for now
-
+// non blocking version...used only for demo mode opacity, and bmsg settings
 float mwWidget::get_slider_position2nb(float sul, float sll, float sinc, int q4 ,int x1, int y1, int x2, int y2)
 {
 
@@ -396,7 +390,6 @@ float mwWidget::get_slider_position2nb(float sul, float sll, float sinc, int q4 
    return f;
 }
 
-// float version
 void mwWidget::sliderfnb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  float &var, float sul, float sll, float sinc, const char *txt)
 {
@@ -407,10 +400,6 @@ void mwWidget::sliderfnb(int x1, int &y1, int x2, int bts, int bn, int num, int 
    sprintf(msg, "%s%3.2f", txt, var);
    draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1, msg);
 
-//   float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1, msg);
-//   // is mouse on adjustment bar?
-//   if ((!q7) && (mInput.mouse_x > dsx-SLIDER_BAR_WIDTH) && (mInput.mouse_x < dsx+SLIDER_BAR_WIDTH) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
-
    if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+SLIDER_BAR_WIDTH+1, y1, x2-SLIDER_BAR_WIDTH-1, y2, 2, q3); // draw highlighted bar
@@ -418,23 +407,15 @@ void mwWidget::sliderfnb(int x1, int &y1, int x2, int bts, int bn, int num, int 
 
       if (mInput.mouse_b[1][0])
       {
-//         while (mInput.mouse_b[1][0])
          {
             var = get_slider_position2nb(sul, sll, sinc, q4, x1, y1, x2, y2);
             sprintf(msg, "%s%3.2f", txt, var);
             draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, var, sul, sll, 1, msg);
-            if (bn == 1) mDisplay.scale_factor_current = mDisplay.scale_factor;
          }
       }
    }
    if (q6 == 1) y1+=bts;
 }
-
-
-
-
-
-
 
 
 
@@ -1510,6 +1491,37 @@ void mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int ty
       while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
       press = 1;
    }
+
+   if (bn == 10)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg,  "Player Display: Icon Only");
+      if (var == 1) sprintf(msg,  "Player Display: Text Only");
+      if (var == 2) sprintf(msg,  "Player Display: Icon + Text");
+      if (var == 3) sprintf(msg,  "Player Display: Text + Icon");
+   }
+
+   if (bn == 11)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg,  "Enemy Display: Icon Only");
+      if (var == 1) sprintf(msg,  "Enemy Display: Text Only");
+      if (var == 2) sprintf(msg,  "Enemy Display: Icon + Text");
+      if (var == 3) sprintf(msg,  "Enemy Display: Text + Icon");
+   }
+
+   if (bn == 12)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg,  "Item Display: Icon Only");
+      if (var == 1) sprintf(msg,  "Item Display: Text Only");
+      if (var == 2) sprintf(msg,  "Item Display: Icon + Text");
+      if (var == 3) sprintf(msg,  "Item Display: Text + Icon");
+   }
+
 
 
    if (bn == 20)
