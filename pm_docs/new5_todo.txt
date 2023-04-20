@@ -2,37 +2,6 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-level done shows briefly when using warp
-I can reduce the time, but what if it breaks things in network level done?
-I'm getting a stimp in single player
-
-prox in lifts is not right, uses prev step speed..fixed
-
-drawing arrows has tracers..it makes no sense to me
-it is an artifact from the shape beside it.
-tile 488 is a right facing bullet
-tile 487 is archwagon
-they are both with the boundaries in gimp
-none of these flags are used ALLEGRO_MIN_LINEAR ALLEGRO_MAG_LINEAR ALLEGRO_MIPMAP
-it only happens at certain bullet speeds:
-9.0 no
-9.1 yes
-9.2 no
-9.3 yes
-9.4 no
-9.5 yes
-I don't see it happpening for any other shape
-the draw routine for e shots is very straight forward
-al_draw_bitmap(mBitmap.tile[t], e[b].x, e[b].y, 0);
-
-I will try to fix it with a hack, but it is very worrying to me
-it should not do this..
-use tile 328 and 329 instead on 488 and 489..fixed...
-
-
-
-
-
 
 
 ---------------------------------------------------------
@@ -40,18 +9,72 @@ use tile 328 and 329 instead on 488 and 489..fixed...
 ---------------------------------------------------------
 
 
+make advanced section of settings
+- how to toggle?
+- what pages are advanced?
+
+
+
+
+add bottom message settings page
+in this page I want to show demo bmsg and have live changes
+
+- what variables?
+
+- save variables in cfg
+
+
+
+add a bunch of settings for bottom message:
+how many lines: 8 (max 20)
+float io = 1.0; // initial opacity
+float fo = 0.1; // final opacity
+float ivs = 0.5; // initial v size
+float fvs = 0.1; // final v size
+float ihs = 0.5; // initial h size
+float fhs = 0.1; // final h size
+
+which game events cause messages
+
+player tile, text or both
+enemy  tile, text or both
+item   tile, text or both
+
+how close the player has to be to reduce messages
+
+
+
+
+
+
+
+
+
+make sure stimp and warp work perfectly with netgame
+
+
+
+
+
+
+
+
+
 --------------------------------------------------------
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
 stimp and warp level done stuff....
+level done shows briefly when using warp
+I can reduce the time, but what if it breaks things in network level done?
+I'm getting a stimp in single player
 
-viewport changes and settings
 
 bottom message settings
 
 when does eco draw get used? make it an option in settings..
 
 advanced settings tab
+
 
 
 
@@ -296,8 +319,6 @@ code stat to do optional alphabetical sort also optional skip header files
 make level editor save the window position
 make a way to click and drag to move le window
 make a button to have le window show current item in center
-
-
 
 
 add a bunch of settings for bottom message:
@@ -602,15 +623,9 @@ It can be adjusted just like when the game is running
 
 
 
-
-
-
-
 ---------------------------------------------------------
 ---------------------- Wish List ------------------------
 ---------------------------------------------------------
-
-
 
 
 end of level stats:
@@ -657,39 +672,12 @@ make the main game loop called from the event loop
 instead of calling the event loop from game loop
 see if this improves performance
 
-
 fix hysteresis window move when zooming
 
-
 make other kind of mines, like spikes, lava, flames...etc
-
 
 make player wall collisions pixel perfect like when on ladder???
 make single block navigation like ladder move...
 this will make jumping up into single block opening very hard...
 this sound like a major re-write..
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

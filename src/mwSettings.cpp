@@ -170,11 +170,11 @@ void mwSettings::settings_pages(int set_page)
    sprintf(st[8].title,  "Profiling");
    sprintf(st[9].title,  "Logging");
    sprintf(st[10].title, "Overlay");
-   sprintf(st[11].title, "Test 6");
+   sprintf(st[11].title, "Message");
    sprintf(st[12].title, "Test 7");
    sprintf(st[13].title, "Test 8");
    sprintf(st[14].title, "Test 9");
-   int num_pages = 11;
+   int num_pages = 12;
 
    char title[80] = {0};
    sprintf(title, "Settings");
@@ -718,15 +718,13 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-
          mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mPlayer.loc[0].server_state_freq_mode, "State Frequency Auto Adjust", tc, 15);
 
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mLoop.eco_draw, "Eco Draw", tc, 15);
 
-
-
-
-
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
 
       }
@@ -1093,6 +1091,83 @@ void mwSettings::settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
       }
 
+
+
+
+// ---------------------------------------------------------------
+//  11 - bottom message settings
+// ---------------------------------------------------------------
+      if (page == 11)
+      {
+         int line_spacing = 14;
+         int xa = cfp_x1 + 10;
+         int xb = cfp_x2 - 10;
+         int ya = cfp_y1 + 10;
+         int bts = 16;
+         int tc = 13;
+         int fc = 15;
+
+
+         // make a test list of types of bmsg
+         if (!mBottomMessage.test_mode_list_created) mBottomMessage.create_test_mode_list();
+
+
+
+         // redraw bottom frame to remove version that we will draw over
+         int color = mPlayer.syn[mPlayer.active_local_player].color;
+         for (int x = 0; x < BORDER_WIDTH; x++)
+            al_draw_line(BORDER_WIDTH+10, (mDisplay.SCREEN_H-1-x)+0.5f, mDisplay.SCREEN_W-(BORDER_WIDTH+10), (mDisplay.SCREEN_H-1-x)+0.5f,  mColor.pc[color + (x * 16)], 1);
+
+
+         mBottomMessage.bottom_msg_timer = 10;
+         mBottomMessage.draw();
+
+
+
+
+         al_draw_text(mFont.pr8, mColor.pc[fc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Bottom Message Settings");
+         ya +=4;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mBottomMessage.bottom_msg_on, "Show bottom message display", tc, 15);
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         float nl = mBottomMessage.num_lines;
+         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,12,15,15, 0,0,1,0, nl, BMSG_MAX_LINES, 1, 1, "Number of lines:");
+         mBottomMessage.num_lines = (int) nl;
+
+         //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,15,15, 0,0,1,0, mBottomMessage.num_lines, 20, 1, 1, "Number of lines:");
+
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,11,15,15, 0,0,1,0, mBottomMessage.io, 1, .1, .1, "Initial Opacity:");
+         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,11,15,15, 0,0,1,0, mBottomMessage.fo, 1, .1, .1, "Final Opacity:");
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,9,15,15, 0,0,1,0, mBottomMessage.ivs, 1, .1, .1, "Initial Scale:");
+         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,9,15,15, 0,0,1,0, mBottomMessage.fvs, 1, .1, .1, "Final Scale:");
+         mBottomMessage.ihs = mBottomMessage.ivs;
+         mBottomMessage.fhs = mBottomMessage.fvs;
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+         int old_dp = mBottomMessage.disp_player;
+         mWidget.buttonp(xa, ya, xb, bts,  10,0,0,0,  0,4,15,15, 0,0,1,0, mBottomMessage.disp_player);
+         if (old_dp != mBottomMessage.disp_player) mBottomMessage.test_mode_list_created = 0; // force reload
+
+         int old_de = mBottomMessage.disp_enemy;
+         mWidget.buttonp(xa, ya, xb, bts,  11,0,0,0,  0,4,15,15, 0,0,1,0, mBottomMessage.disp_enemy);
+         if (old_de != mBottomMessage.disp_enemy) mBottomMessage.test_mode_list_created = 0; // force reload
+
+         int old_di = mBottomMessage.disp_item;
+         mWidget.buttonp(xa, ya, xb, bts,  12,0,0,0,  0,4,15,15, 0,0,1,0, mBottomMessage.disp_item);
+         if (old_di != mBottomMessage.disp_item) mBottomMessage.test_mode_list_created = 0; // force reload
+
+      }
 
 
 

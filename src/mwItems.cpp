@@ -478,14 +478,14 @@ void mwItems::proc_bonus_collision(int p, int i)
          mItem.item[i][0] = 0;
          mPlayer.syn[p].health += mItem.item[i][7];
          if (mPlayer.syn[p].health > 100) mPlayer.syn[p].health = 100;
-         mGameEvent.add(72, 0, 0, p, i, mItem.item[i][1], mItem.item[i][7]);
+         mGameEvent.add(72, 0, 0, p, 0, mItem.item[i][1], mItem.item[i][7]);
       }
    }
    if (bonus_type == 3) // purple coin!!!
    {
       mItem.item[i][0] = 0;
       mPlayer.syn[p].stat_purple_coins++;
-      mGameEvent.add(71, 0, 0, p, i, 0, 0);
+      mGameEvent.add(71, 0, 0, p, 0, 0, 0);
    }
 }
 

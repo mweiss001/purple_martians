@@ -19431,6 +19431,223 @@ coming back, it looks like I am in the middle of WRAP, and still cant get it to 
 
 then I have some other things to clean up..
 
+20230416
+
+my other project is done for now...
+
+having this break from pm hopefully has reset my obsession...
+now that I am back I want to halt all new features and just complete and release the thing...
+
+specifically:
+roll back warp
+remove warp line and warp rect
+remove all instances in levels and remove from PDE...
+
+removed this from bugs as it has been fixed:
+
+prox in lifts is not right, uses prev step speed..fixed
+drawing arrows has tracers..it makes no sense to me
+it is an artifact from the shape beside it.
+tile 488 is a right facing bullet
+tile 487 is archwagon
+they are both with the boundaries in gimp
+none of these flags are used ALLEGRO_MIN_LINEAR ALLEGRO_MAG_LINEAR ALLEGRO_MIPMAP
+it only happens at certain bullet speeds:
+9.0 no
+9.1 yes
+9.2 no
+9.3 yes
+9.4 no
+9.5 yes
+I don't see it happpening for any other shape
+the draw routine for e shots is very straight forward
+al_draw_bitmap(mBitmap.tile[t], e[b].x, e[b].y, 0);
+I will try to fix it with a hack, but it is very worrying to me
+it should not do this..
+use tile 328 and 329 instead on 488 and 489..fixed...
+
+
+20230417
+
+what is hotkey for settings? CTRL SHFT O
+
+make eco_draw an option in settings ..done
+remove F2 hot key to toggle eco_draw..done
+only show eco draw in bottom frame when on..done
+
+
+
+
+
+
+----------------------------------
+add bottom message settings page
+----------------------------------
+
+in this page I want to show demo bmsg and have live changes
+
+
+
+- what variables?
+
+- save variables in cfg
+
+
+
+add a bunch of settings for bottom message:
+how many lines: 8 (max 20)
+float io = 1.0; // initial opacity
+float fo = 0.1; // final opacity
+float ivs = 0.5; // initial v size
+float fvs = 0.1; // final v size
+float ihs = 0.5; // initial h size
+float fhs = 0.1; // final h size
+
+which game events cause messages
+
+player tile, text or both
+enemy  tile, text or both
+item   tile, text or both
+
+how close the player has to be to reduce messages
+
+
+
+change event 2 to not need a specific item..
+
+old:
+mGameEvent.add(2, 0, 0, p, i, 0, 0);
+if (ev == 2) // key
+{
+   custom_drawn = 1;
+   bmsg_length += draw_text(" got a ", 15, bmsg_length);
+
+   int c1 =0;  // color
+   int tn = 0; // tile_numer
+   int k = mItem.item[z2][1] - 1039;
+   char tmsg[20] = {0};
+
+
+new:
+mGameEvent.add(2, 0, 0, p, mItem.item[i][1], 0, 0);
+if (ev == 2) // key
+{
+   custom_drawn = 1;
+   bmsg_length += draw_text(" got a ", 15, bmsg_length);
+
+   int c1 =0;  // color
+   int tn = 0; // tile_numer
+   int k = z2 - 1039;
+   char tmsg[20] = {0};
+
+
+it has never come up before, but I do not have colors set for any player except 0
+i only set those when needed in netgame
+choose unued color?? only looks at active players
+I don't think it could hurt to set those colors, will only be used by bmsg settings...
+do it in initial setup..done
+
+
+change:
+mPlayer.loc[4].block_damage_item_number
+
+to:
+mPlayer.loc[4].block_damage_type
+
+mGameEvent.add(59, 0, 0, p, i, 0, 0); // only do damage noise when taking health..??
+does not set in player struct...
+fixed all this to senf type item[i][2] in z2 and damage item[i][15] in z4
+59 sets mPlayer.loc[4].block_damage_type
+58 prints it..
+
+
+72 health bonus
+I want it to show the tile for flowers also...done...
+
+
+now I am at the point that I want to start adjusting variables..
+
+I might need to make them externally accessible and save them in config
+
+how many lines: 8 (max 20)
+float io = 1.0; // initial opacity
+float fo = 0.1; // final opacity
+float ivs = 0.5; // initial v size
+float fvs = 0.1; // final v size
+float ihs = 0.5; // initial h size
+float fhs = 0.1; // final h size
+
+this works great so far..
+
+increase the max number of lines..done
+make live adjustments..done
+
+save in config
+make button for defaults
+
+
+
+void get_door_tile(int i, int &col, int &type)
+{
+   col = mItem.item[i][6];
+
+   if (mItem.item[i][13] == 1083) type = 0;
+   if (mItem.item[i][13] == 448) type = 1;
+   if (mItem.item[i][13] == 0) type = -1;
+
+}
+
+pass these with event...
+
+
+
+
+
+--------------
+
+20230419
+
+clean up the bitmap drawing routines in bmsg
+
+they should all call one with passed bmp and offset
+
+20230420
+items are all on the new plan except I want to do nicer for bonus
+
+928 - banana
+929 - apple
+930 - white flower
+931 - pink flower
+932 - blue cherries
+933 - carrot
+934 - red flower
+935 - rainbow
+
+960 - yellow
+961 - red
+962 - white
+963 - pink
+964 - blue
+965 - orange
+966 - green
+967 - lt blue
+
+now all of the items are done.
+
+cleaned up the draw bmp and text routines..now there are only two...
+
+next is the health drawing....
+
+commit...its been a long time...
+
+
+
+
+
+
+
+
+
 
 
 

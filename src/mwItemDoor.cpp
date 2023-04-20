@@ -40,7 +40,7 @@ int mwItems::draw_door(int i, int x, int y, int custom)
    if (mItem.item[i][13] == 448) // old style door shape
    {
       int shape = mItem.item[i][1];       // get shape
-      int si = shape-448;           // convert to index to bitmap sequence
+      int si = shape-448;            // convert to index to bitmap sequence
       tmp = mBitmap.door_tile[1][col][si];
    }
    else if (mItem.item[i][13] == 1083) // new style doors
@@ -50,6 +50,8 @@ int mwItems::draw_door(int i, int x, int y, int custom)
       tmp = mBitmap.door_tile[0][col][an];
    }
    else if (mItem.item[i][13] == 0) drawn = 1;
+
+
 
    if ((mItem.item[i][8] == 1) && (!custom)) // linked item destination
    {
@@ -183,7 +185,11 @@ void mwItems::proc_door_collision(int p, int i)
 
             if (!bad_exit)
             {
-               if (mItem.item[i][13]) mGameEvent.add(5, 0, 0, p, i, 0, 0); // no event if door is invisible
+               int col = item[i][6];
+               int type = 1;
+               if (item[i][13] == 1083) type = 0;
+
+               if (mItem.item[i][13]) mGameEvent.add(5, 0, 0, p, i, col, type); // no event if door is invisible
 
                int instant_move = 0;
                if (mItem.item[i][7] == 0) // 0 = auto

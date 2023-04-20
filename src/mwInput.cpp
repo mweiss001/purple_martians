@@ -228,11 +228,6 @@ void mwInput::function_key_check(void)
          printf("fake keypress mode:%d\n", mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode);
       }
 
-
-      if (key[ALLEGRO_KEY_F2][3]) mLoop.eco_draw = !mLoop.eco_draw;
-
-
-
       if (key[ALLEGRO_KEY_F4][3])
       {
          if (mLog.autosave_game_on_game_exit) mGameMoves.blind_save_game_moves(3);

@@ -121,6 +121,20 @@ void mwConfig::save(void)
       asci(DEMO, mLog.autosave_game_on_game_exit)
       ascf(DEMO, mDemoMode.demo_mode_overlay_opacity)
 
+      asci(BMSG, mBottomMessage.num_lines)
+
+      ascf(BMSG, mBottomMessage.io)
+      ascf(BMSG, mBottomMessage.fo)
+      ascf(BMSG, mBottomMessage.ihs)
+      ascf(BMSG, mBottomMessage.ivs)
+      ascf(BMSG, mBottomMessage.fhs)
+      ascf(BMSG, mBottomMessage.fvs)
+
+      asci(BMSG, mBottomMessage.disp_player)
+      asci(BMSG, mBottomMessage.disp_enemy)
+      asci(BMSG, mBottomMessage.disp_item)
+      asci(BMSG, mBottomMessage.disp_health)
+
 
       // cpu
       asci(OVERLAY, mSettings.overlay_grid[0][0]);
@@ -305,6 +319,20 @@ void mwConfig::load(void)
    agci(DEMO, mLog.autosave_game_on_game_exit, 0)
    agcf(DEMO, mDemoMode.demo_mode_overlay_opacity, 0.1)
 
+
+   agci(BMSG, mBottomMessage.num_lines, 8)
+
+   agcf(BMSG, mBottomMessage.io, 1.0)
+   agcf(BMSG, mBottomMessage.fo, 0.1)
+   agcf(BMSG, mBottomMessage.ihs, 0.5)
+   agcf(BMSG, mBottomMessage.ivs, 0.5)
+   agcf(BMSG, mBottomMessage.fhs, 0.1)
+   agcf(BMSG, mBottomMessage.fvs, 0.1)
+
+   agci(BMSG, mBottomMessage.disp_player, 0)
+   agci(BMSG, mBottomMessage.disp_enemy, 0)
+   agci(BMSG, mBottomMessage.disp_item, 0)
+   agci(BMSG, mBottomMessage.disp_health, 0)
 
 
 

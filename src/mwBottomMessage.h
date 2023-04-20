@@ -2,11 +2,32 @@
 #include "mwPlayers.h"
 #include "mwLog.h"
 
+#define BMSG_MAX_LINES 30
+
 class mwBottomMessage
 {
    public:
 
+
+   int num_lines;
+   float io; // initial opacity
+   float fo; // final opacity
+   float ivs; // initial v size
+   float fvs; // final v size
+   float ihs; // initial h size
+   float fhs; // final h size
+
+   int disp_player;
+   int disp_enemy;
+   int disp_item;
+   int disp_health;
+
    int bottom_msg_on;
+   int bottom_msg_timer;
+
+   int test_mode_list_created;
+
+   void create_test_mode_list(void);
 
    void create_bitmaps(void);
    void initialize(void);
@@ -18,22 +39,23 @@ class mwBottomMessage
 
    private:
 
-   ALLEGRO_BITMAP *bmsg_bmp[20];
-   ALLEGRO_BITMAP *bmsg_bmp2[20];
+   ALLEGRO_BITMAP *bmsg_bmp[BMSG_MAX_LINES];
+   ALLEGRO_BITMAP *bmsg_bmp2[BMSG_MAX_LINES];
    ALLEGRO_BITMAP *bmsg_temp;
 
-   int bottom_msg_timer;
    int bmsg_index;
    int game_event_retrigger_holdoff[10];
    float game_event_retrigger_holdoff_tally[10];
 
+   void draw_text(const char *txt, int col, int &xpos);
+   void draw_bmp(ALLEGRO_BITMAP *tmp, int &xpos, int xo, int yo);
 
-   int draw_text(const char *txt, int col, int bmsg_length);
-   int draw_tile(int tn, int bmsg_length);
-   int draw_tile2(int tn, int bmsg_length, int xo, int yo);
-   int draw_player(int p, int bmsg_length);
-   int draw_health(int h, int bmsg_length);
-   int draw_enemy(int e_type, int bmsg_length);
+   void draw_player(int p, int &xpos);
+   void draw_enemy(int e_type, int &xpos);
+   void draw_item(ALLEGRO_BITMAP *tmp, const char *txt, int col, int &xpos, int xo, int yo);
+   void draw_health(int h, int &xpos);
+
+
 };
 extern mwBottomMessage mBottomMessage;
 

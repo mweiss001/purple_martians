@@ -1047,10 +1047,12 @@ void mwScreen::draw_bottom_frame(int p)
    bdx2 -= strlen(msg)*8;
    al_draw_text(mFont.pr8, mColor.pc[tc], bdx2, bdy, 0, msg);
 
-   sprintf(msg, " eco:%d ", mLoop.eco_draw);
-   bdx2 -= strlen(msg)*8;
-   al_draw_text(mFont.pr8, mColor.pc[tc], bdx2, bdy, 0, msg);
-
+   if (mLoop.eco_draw)
+   {
+      sprintf(msg, " eco ");
+      bdx2 -= strlen(msg)*8;
+      al_draw_text(mFont.pr8, mColor.pc[tc], bdx2, bdy, 0, msg);
+   }
 
    if (mNetgame.ima_server)
    {
