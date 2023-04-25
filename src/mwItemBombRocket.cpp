@@ -16,19 +16,18 @@
 
 void mwItems::proc_bomb_collision(int p, int i)
 {
-   mItem.item[i][0] = 99; // change to lit bomb
-   mItem.item[i][13] = p; // mark player that lit bomb
-   if (mItem.item[i][12] == 0) // fuse timer
+   item[i][0] = 99; // change to lit bomb
+   item[i][13] = p; // mark player that lit bomb
+   if (item[i][12] == 0) // fuse timer
    {
-      mItem.item[i][6] = 1;  // mode == lit
-      mItem.item[i][8] = mItem.item[i][9]; // fuse wait count
-      mGameEvent.add(24, 0, 0, p, mItem.item[i][7]/20, mItem.item[i][9]/40, 0);
+      item[i][6] = 1;  // mode == lit
+      item[i][8] = item[i][9]; // fuse wait count
    }
-   if (mItem.item[i][12] == 1) // remote detonator
+   if (item[i][12] == 1) // remote detonator
    {
-      mItem.item[i][6] = 3;
-      mGameEvent.add(25, 0, 0, p, mItem.item[i][7]/20, 0, 0);
+      item[i][6] = 3;
    }
+   mGameEvent.add(25, 0, 0, p, item[i][7]/20, item[i][9]/40, item[i][12]);
 }
 
 void mwItems::proc_rocket_collision(int p, int i)
@@ -300,8 +299,7 @@ void mwItems::bomb_players(int i, int t, int dr, float x, float y)
             {
                mPlayer.syn[p].health -= damage;
                int p2 = mItem.item[i][13]; // player that last touched bomb
-               if (p == p2) mGameEvent.add(53, 0, 0, p, 0, 0, dmg);
-               else mGameEvent.add(52, 0, 0, p, p2, 0, dmg);
+               mGameEvent.add(40, 0, 0, p, p2, 2, dmg);
             }
          }
       }
@@ -353,7 +351,7 @@ void mwItems::proc_lit_bomb(int i)
       bomb_enemies(i, 2, dr, itemf[i][0], itemf[i][1]);
       bomb_players(i, 2, dr, itemf[i][0], itemf[i][1]);
 
-      if (mItem.item[i][8] == 16) mGameEvent.add(22,0,0,0,0,0,0); // explosion sound
+      if (mItem.item[i][8] == 16) mGameEvent.add(2,0,0,0,0,0,0); // explosion sound
 
       if (mItem.item[i][8] < 1) mItem.item[i][0] = 0; // explosion done, erase item
    }

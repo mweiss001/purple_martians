@@ -1481,7 +1481,7 @@ int mwWidget::buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int ty
 
 
 // increment passed pointer (int &var) and display different text for each value
-void mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var)
+int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var)
 {
    char msg[80];
    int y2 = y1+bts-2;
@@ -1521,6 +1521,25 @@ void mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int ty
       if (var == 2) sprintf(msg,  "Item Display: Icon + Text");
       if (var == 3) sprintf(msg,  "Item Display: Text + Icon");
    }
+
+   if (bn == 13)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(msg,  "Health Display: Long Text");
+      if (var == 1) sprintf(msg,  "Health Display: Short Text");
+      if (var == 2) sprintf(msg,  "Health Display: Value Only");
+      if (var == 3) sprintf(msg,  "Health Display: Percent Bar");
+   }
+
+   if (bn == 14)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 1)) var = 0;
+      if (var == 0) sprintf(msg,  "Player Display: Short Text");
+      if (var == 1) sprintf(msg,  "Player Display: Long Text");
+   }
+
 
 
 
@@ -1756,6 +1775,8 @@ void mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int ty
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
    draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
    if (q6) y1+=bts;
+
+   return press;
 }
 
 
@@ -1928,7 +1949,7 @@ int mwWidget::togglec(int x1, int &y1, int x2, int bts, int bn, int num, int typ
                int &var, const char* t, int text_col, int frame_col)
 {
    int y2 = y1+bts-2;
-   int ret = 0;
+   int press = 0;
 
    // debug show mouse detection area
 //   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
@@ -1940,6 +1961,7 @@ int mwWidget::togglec(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    {
       while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
       var = ! var;
+      press = 1;
    }
 
 
@@ -1967,11 +1989,8 @@ int mwWidget::togglec(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 
    al_draw_text(mFont.pr8, mColor.pc[text_col], mtx, mty, 0, t);
 
-   if (var) ret = 1;
-   else ret = 0;
-
    if (q6 == 1) y1+=bts;
-   return ret;
+   return press;
 }
 
 

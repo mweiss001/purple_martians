@@ -470,30 +470,29 @@ void mwItems::proc_item_collision(int p, int i)
 
 void mwItems::proc_bonus_collision(int p, int i)
 {
-   int bonus_type = mItem.item[i][6];
+   int bonus_type = item[i][6];
    if (bonus_type == 1) // health bonus
    {
       if (mPlayer.syn[p].health < 100)
       {
-         mItem.item[i][0] = 0;
-         mPlayer.syn[p].health += mItem.item[i][7];
+         item[i][0] = 0;
+         mPlayer.syn[p].health += item[i][7];
          if (mPlayer.syn[p].health > 100) mPlayer.syn[p].health = 100;
-         mGameEvent.add(72, 0, 0, p, 0, mItem.item[i][1], mItem.item[i][7]);
+         mGameEvent.add(28, 0, 0, p, 0, item[i][1], item[i][7]);
       }
    }
    if (bonus_type == 3) // purple coin!!!
    {
-      mItem.item[i][0] = 0;
+      item[i][0] = 0;
       mPlayer.syn[p].stat_purple_coins++;
-      mGameEvent.add(71, 0, 0, p, 0, 0, 0);
+      mGameEvent.add(27, 0, 0, p, 0, 0, 0);
    }
 }
 
-
 void mwItems::proc_mine_collision(int p, int i)
 {
-   mPlayer.syn[p].health -= (float)mItem.item[i][8] / 10;
-   mGameEvent.add(50, 0, 0, p, i, 0, mItem.item[i][8]);
+   mPlayer.syn[p].health -= (float)mItem.item[i][8] / 100;
+   mGameEvent.add(11, 0, 0, p, 5, 0, mItem.item[i][8]);
 }
 
 
@@ -510,7 +509,7 @@ void mwItems::proc_sproingy_collision(int p, int i)
    if ( (px > x1) && (px < x2) && (py > y1) && (py < y2) &&
         (mPlayer.syn[p].yinc > 0) && (mPlayer.syn[p].jump) )  // falling and jump held
    {
-      mGameEvent.add(31, 0, 0, p, i, 0, 0);
+      mGameEvent.add(24, 0, 0, p, i, 0, 0);
       mPlayer.syn[p].yinc = 0 - (float) mItem.item[i][7] / 7.1;
    }
 }

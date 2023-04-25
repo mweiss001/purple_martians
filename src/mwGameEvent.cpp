@@ -31,45 +31,91 @@ void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
             //al_play_sample(snd[0], 0.71, 0, .8, ALLEGRO_PLAYMODE_ONCE, NULL);
             al_play_sample(mSound.snd[0], 0.81, 0, .7, ALLEGRO_PLAYMODE_ONCE, NULL);
          break;
-         case  2: case  4: case  5: // la dee dah (key, exit, door)
+
+         case 2: // explosion
+            al_play_sample(mSound.snd[5], .78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+         break;
+
+         case 20: case 22: case 4: // la dee dah (key, door, unlocked exit)
             if (mSound.sample_delay[4]+30 < mLoop.frame_num)
             {
                mSound.sample_delay[4] = mLoop.frame_num;
                al_play_sample(mSound.snd[4], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
             }
          break;
-         case 70: case 71: // free man and purple coin
+
+         case 24: // sproingy
+            al_play_sample(mSound.snd[9], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+         break;
+
+         case 27: // purple coin
            if (mSound.sample_delay[2]+30 < mLoop.frame_num)
             {
                mSound.sample_delay[2] = mLoop.frame_num;
                al_play_sample(mSound.snd[2], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
             }
          break;
-         case 40: case 41: case 43:// player got shot
+
+         case 40: case 41: case 43:// player got shot or exploded
             al_play_sample(mSound.snd[6], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
          break;
-         case 44: case 50: case 52: case 54: case 56: case 57: case 59: // player got hit (bomb, mine, enemy collision, squished, stuck)
+
+         case 12: case 44: // player took damage (tally, enemy collision)
             if (mSound.sample_delay[7]+14 < mLoop.frame_num)
             {
                mSound.sample_delay[7] = mLoop.frame_num;
                al_play_sample(mSound.snd[7], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
             }
          break;
-         case 60: case 62: // enemy killed
+         case 42: // enemy killed
             al_play_sample(mSound.snd[8], 0.5, 0, 1.2, ALLEGRO_PLAYMODE_ONCE, NULL);
          break;
-         case 90: // d'Oh (player died)
+         case 8: // d'Oh (player died)
             al_play_sample(mSound.snd[1], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
          break;
-         case 22: // explosion
-            al_play_sample(mSound.snd[5], .78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-         break;
 
-         case 31: // sproingy
-            al_play_sample(mSound.snd[9], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-         break;
       }
    }
 }
+/*
 
+
+master list of events
+
+num snd msg description
+ 1   0   -  player shot (same)
+ 2   5   -  explosion
+ 4   4   -  unlocked exit
+ 5   -   -  jump
+
+ 6   -  yes player joined
+ 7   -  yes player quit
+ 8   1  yes player died
+
+11   -   -  tally raw damage
+12   7  yes show damage
+
+20   4  yes key
+21   -  yes switch
+22   4  yes door
+23   -  yes locked exit
+24   9  yes spring
+25   -  yes bomb
+26   -  yes rocket
+27   2  yes coin
+28   -  yes bonus
+
+40   6  yes player hurt player
+42   8  yes player killed enemy
+43   6  yes player got shot by enemy
+44   7  yes player got hit by enemy
+
+
+combine 40 and 41 to player hurt player
+
+use z3 1=shot 2=explosion
+
+.add(40
+
+*/
 

@@ -593,7 +593,6 @@ void mwItems::proc_item_damage_collisions(int i)
                if (FLAGS & PM_ITEM_DAMAGE_INSTGIB)
                {
                   mPlayer.syn[p].health = 0;
-                  //mGameEvent.add(59, 0, 0, p, i, 0, 0);
                }
                else
                {
@@ -602,7 +601,9 @@ void mwItems::proc_item_damage_collisions(int i)
 
                   if (ha > 0) // lose health
                   {
-                     mGameEvent.add(59, 0, 0, p, item[i][2], 0, item[i][15]); // only do damage noise when taking health..??
+                     int damage_type = 1; // default
+                     if (item[i][2] == 2) damage_type = 2;
+                     mGameEvent.add(11, 0, 0, p, damage_type, 0, item[i][15]); // only do damage event when taking health
                   }
                   else // gain health
                   {

@@ -209,7 +209,7 @@ void mwGameMoves::proc_player_active_game_move(int x)
 
       mScreen.set_player_join_quit_display(p, 1, 60);
 
-      mGameEvent.add(80, 0, 0, p, 0, 0, 0);
+      mGameEvent.add(6, 0, 0, p, 0, 0, 0);
 
       if (mLog.LOG_NET)
       {
@@ -303,7 +303,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
 //         mPlayer.loc[p].who = 99;
       }
       mScreen.set_player_join_quit_display(p, 0, 60);
-      mGameEvent.add(81, 0, 0, p, 0, 0, 0);
+      mGameEvent.add(7, 0, 0, p, 0, 0, 0);
    }
 }
 

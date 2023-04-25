@@ -722,6 +722,8 @@ void mwLoop::main_loop(void)
             mLoop.frame_num++;
             mBitmap.update_animation();
 
+            mSound.proc_sound();
+
             mTimeStamp.timestamp_frame_start = al_get_time();
 
             mDisplay.proc_scale_factor_change();

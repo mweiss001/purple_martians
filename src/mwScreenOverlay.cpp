@@ -1129,7 +1129,7 @@ void mwScreen::draw_screen_overlay(void)
 
    show_level_done();
 
-   mBottomMessage.draw();
+   mBottomMessage.draw(0);
 
    show_player_join_quit();
 
