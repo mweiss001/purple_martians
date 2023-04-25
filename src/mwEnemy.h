@@ -10,7 +10,7 @@ class mwEnemy
    float Ef[100][16];      // enemy floats
    int e_num_of_type[50];
    int e_first_num[50];
-   char enemy_name[100][2][40] = {0};
+   char enemy_name[100][3][40] = {0};
    int num_enemy;
    int enemy_tile[20];
 

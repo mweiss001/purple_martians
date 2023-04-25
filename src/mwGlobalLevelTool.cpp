@@ -234,14 +234,12 @@ void mwGlobalLevelTool::execute(void)
 //
 
       for (int y=0; y<500; y++)
-         if (mItem.item[y][0] == 17)
+         if (mItem.item[y][0] == 7)
          {
-            int draw_mode = mItem.item[y][2];
-            int mode = mItem.item[y][11];
+            int damage = mItem.item[y][8];
+            printf("l:%d y:%d  daamge:%d\n", le[x], y, damage);
 
-//            if ((draw_mode == 2) && ((mode == 2) || (mode == 3)))
-            if (draw_mode == 2)
-               printf("l:%d y:%d  mode:%d\n", le[x], y, mode );
+           // mItem.item[y][8] = damage * 10;
          }
 
 
@@ -255,7 +253,6 @@ void mwGlobalLevelTool::execute(void)
 ////            mItem.set_timer_flags(mItem.item[y][3], state, t1_mode, t2_mode, cnt);
 //
 //         }
-
       if (0)
       {
          mLevel.save_level(le[x]);

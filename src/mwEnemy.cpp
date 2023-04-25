@@ -437,8 +437,12 @@ void mwEnemy::enemy_killed(int e)
    mBitmap.zz[2][na] = 0;                  // set counter
    mBitmap.zz[3][na] = dl / mBitmap.zz[4][na]; // set ans timer
 
-   if (hbm == 1) mGameEvent.add(60, 0, 0, Ei[e][26], e, type, 0);
-   if (hbm == 2) mGameEvent.add(62, 0, 0, Ei[e][26], e, type, 0);
+   mGameEvent.add(42, 0, 0, Ei[e][26], e, type, hbm);
+
+//   if (hbm == 1) mGameEvent.add(46, 0, 0, Ei[e][26], e, type, 0);
+//   if (hbm == 2) mGameEvent.add(47, 0, 0, Ei[e][26], e, type, 0);
+
+
 }
 
 

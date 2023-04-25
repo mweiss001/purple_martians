@@ -116,7 +116,7 @@ void mwItems::proc_exit_collision(int p, int i)
          mGameEvent.add(4, 0, 0, 0, 0, 0, 0);
       }
    }
-   else mGameEvent.add(3, 0, 0, p, i, exit_enemys_left, 0); // not enough dead yet
+   else mGameEvent.add(23, 0, 0, p, i, exit_enemys_left, 0); // not enough dead yet
 }
 
 void mwItems::proc_warp_collision(int p, int i)

@@ -19640,6 +19640,323 @@ next is the health drawing....
 
 commit...its been a long time...
 
+health drawing is done..
+
+now toggles for each type..
+this will be a lot...
+
+use event numbers?
+
+
+remember when I had msgs that showed up on screen where the stuff happened?
+20030619 no
+20061025 no
+20091210 no
+20100314 yes
+
+
+
+20230422
+
+player text long/short ...done
+change buttonp to return 1 if pressed...currently void...done
+
+make toggles for types
+how many and where will I show them all?
+
+
+23 unique
+
+
+2  key
+3  exit
+5  door
+30 switch
+24 bomb
+26 rocket
+
+50 player hit a mine
+
+59 raw damage
+58 player lost health from block damage
+
+71 player got a purple coin
+72 player got a health bonus
+
+
+
+43 player got shot by enemy
+44 player got hit by enemy
+40 player got shot by another player
+52 exploded another player
+
+60 player killed enemy with a shot
+62 player killed enemy with explosion
+
+
+
+54 player got squished
+56 player got stuck
+
+
+80 player joined
+81 player quit
+90 player died
+
+
+int filter_event[100];
+
+
+
+what about widget toggle? can I make it return 1 if pressed?
+right now it returns value
+
+it looks like the return value is never used for togglec...
+test by making it void...compiles fine..
+
+now change it to return 1 if pressed...done
+maybe do the other toggles later...
+
+
+combine both bombs into one
+24 and 25 done...
+
+combine 40 and 41...also 52 and 53
+
+40 player got shot by another player
+41 player shot themself
+52 exploded another player
+53 player exploded themself
+
+
+add these to damage
+54 player got squished
+56 player got stuck
+
+
+mGameEvent.add(54, x, y, p, 0, 0, 0); 5 calls
+mGameEvent.add(56, x, y, p, 0, 0, 0); 1 call
+
+
+if ((mLoop.frame_num) && (mLoop.frame_num == loc[p].block_damage_holdoff)) mGameEvent.add(58, 0, 0, p, 0, 0, 0);
+
+
+
+does stuck and squished trigger every frame? looks like it..
+
+I do custom holdoff for mine and block damage, but not for squished and stuck...
+change to handle all the same....
+
+also locked exit can trigger every frame
+
+
+
+make stuck (56) send 59 instead, but make z2 type something else...
+
+
+         if (type == 2) draw_text(" was hurt by spikey floor ", 15, xpos);
+         else           draw_text(" was hurt by block damage ", 15, xpos);
+
+
+
+mGameEvent.add(59, 0, 0, p, item[i][2], 0, item[i][15]); // only do damage noise when taking health..??
+
+what specific types are used? 2 and ??
+
+      if (var == 0) sprintf(msg, "Draw Type:none         ");
+      if (var == 1) sprintf(msg, "Draw Type:Red Rectangle");
+      if (var == 2) sprintf(msg, "Draw Type:Spikey Floor ");
+
+
+if (ha > 0) // lose health
+{
+   int damage_type = 1; // default
+   if (item[i][2] == 2) damage_type = 2;
+   mGameEvent.add(59, 0, 0, p, damage_type, 0, item[i][15]); // only do damage noise when taking health..??
+
+
+
+
+now can I add mine to that?
+
+make it type 5
+is damage the same scale? an int divided by 100?
+
+mGameEvent.add(59, 0, 0, p, 5, 0, item[i][15]);
+
+
+this is damage item
+float ha = (float)item[i][15]/100; // health adjust
+
+this is mine
+mPlayer.syn[p].health -= (float)mItem.item[i][8] / 10;
+
+change mine to use same scale
+
+
+look in glt for all mines and get range...
+
+looks like 5 10 12 20.....
+
+multiply all by 10....done
+
+adjust slider in ov..done
+make default in PDE 50 from 5..done..
+
+fix collision
+
+void mwItems::proc_mine_collision(int p, int i)
+{
+   mPlayer.syn[p].health -= (float)mItem.item[i][8] / 100;
+//   mGameEvent.add(50, 0, 0, p, i, 0, mItem.item[i][8]);
+   mGameEvent.add(59, 0, 0, p, 5, 0, mItem.item[i][8]);
+}
+
+patch into bmsg..
+
+      if (ev == 58) // player took damage (lost health from block damage, mine, stuck...
+      {
+         custom_drawn = 1;
+         draw_text(" was hurt by ", 15, xpos);
+         int damage = (int) mPlayer.loc[z1].block_damage_tally;
+         int type = mPlayer.loc[z1].block_damage_type;
+         if (type == 1) draw_text(" block damage ", 15, xpos);
+         if (type == 2) draw_text(" spikey floor ", 15, xpos);
+         if (type == 5) draw_item(mBitmap.tile[456], "mine", 15, xpos, 0, 0);
+         draw_health(z1, -damage, xpos);
+      }
+
+
+remove mine holdoff stuff...done
+remove 50 from config..done
+rename three var in lo player sruct to remove 'block_'...done
+when player health sends 58 send type as z2...done...
+
+add stuck...make it type 7
+
+void mwPlayers::proc_player_stuck_in_blocks(int p)
+{
+//      mGameEvent.add(56, x, y, p, 0, 0, 0);
+      mGameEvent.add(59, x, y, p, 7, 0, 100);
+   }
+}
+
+works
+add squished ..make it type 9,,done
+
+pass damage as z4 when player health sends 58
+
+
+now i only have 18 unique types
+
+      asci(BMSG, mBottomMessage.filter_event[2])
+      asci(BMSG, mBottomMessage.filter_event[3])
+      asci(BMSG, mBottomMessage.filter_event[5])
+      asci(BMSG, mBottomMessage.filter_event[30])
+      asci(BMSG, mBottomMessage.filter_event[24])
+      asci(BMSG, mBottomMessage.filter_event[26])
+
+      asci(BMSG, mBottomMessage.filter_event[71])
+      asci(BMSG, mBottomMessage.filter_event[72])
+
+      asci(BMSG, mBottomMessage.filter_event[40])
+      asci(BMSG, mBottomMessage.filter_event[43])
+      asci(BMSG, mBottomMessage.filter_event[44])
+
+      asci(BMSG, mBottomMessage.filter_event[60])
+      asci(BMSG, mBottomMessage.filter_event[62])
+      asci(BMSG, mBottomMessage.filter_event[52])
+
+      asci(BMSG, mBottomMessage.filter_event[80])
+      asci(BMSG, mBottomMessage.filter_event[81])
+      asci(BMSG, mBottomMessage.filter_event[90])
+
+
+      asci(BMSG, mBottomMessage.filter_event[58])
+
+
+2  key
+3  exit
+5  door
+30 switch
+24 bomb
+26 rocket
+
+71 player got a purple coin
+72 player got a health bonus
+
+
+
+40 player got shot by another player
+43 player got shot by enemy
+44 player got hit by enemy
+
+60 player killed enemy with a shot
+62 player killed enemy with explosion
+52 exploded another player
+
+80 player joined
+81 player quit
+90 player died
+
+59 raw damage
+58 player lost health from block damage
+
+do some renaming
+
+I want a master list of all my events...
+some play sounds, some trigger bmsg
+
+
+rearrange done..now fix bugs...
+
+fuse hiss gone...fixed
+for some reason proc_sound was not being called once per frame...
+
+add all message controls then test...
+
+test player hurt player in single player mode...
+will need to do multiplayer for that
+
+
+test enemy hit player..good
+test enemy shot player..good
+
+player shot enemy..good
+player exploded enemy..good
+
+player enemy collision..good
+
+damage tally, mine, block damage, stuck, squished..good..
+make default setting button
+
+
+
+20230425
+I think I finally have the settings page for bottom message done..
+everything is lined up nice and looks good..
+
+I still need to test the muliplayer messages...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -838,7 +838,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          case 7: // mine
             mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][8], 20, 1, 1,  "Mine Damage:");
+            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][8], 200, 1, 1,  "Mine Damage:");
          break;
          case 8: // bomb
             mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall | carry

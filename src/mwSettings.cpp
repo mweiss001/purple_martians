@@ -1099,7 +1099,8 @@ void mwSettings::settings_pages(int set_page)
 // ---------------------------------------------------------------
       if (page == 11)
       {
-         int line_spacing = 14;
+         int line_spacing = 7;
+         //line_spacing +=  mLoop.pct_y;
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
          int ya = cfp_y1 + 10;
@@ -1107,11 +1108,12 @@ void mwSettings::settings_pages(int set_page)
          int tc = 13;
          int fc = 15;
 
+         bts = 14;
+
+         int sbs = 8; // space between sections
 
          // make a test list of types of bmsg
          if (!mBottomMessage.test_mode_list_created) mBottomMessage.create_test_mode_list();
-
-
 
          // redraw bottom frame to remove version that we will draw over
          int color = mPlayer.syn[mPlayer.active_local_player].color;
@@ -1120,59 +1122,385 @@ void mwSettings::settings_pages(int set_page)
 
 
          mBottomMessage.bottom_msg_timer = 10;
-         mBottomMessage.draw();
+         mBottomMessage.draw(1);
 
+         int reload = 0;
 
-
-
+         ya += line_spacing - 6;
          al_draw_text(mFont.pr8, mColor.pc[fc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Bottom Message Settings");
-         ya +=4;
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mBottomMessage.bottom_msg_on, "Show bottom message display", tc, 15);
+         int bmsf_y1 = ya+8;
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya+8, line_spacing, tc);
 
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya -= 4;
+         xb = cfp_x2 - 10;
+         xa = xb - 180;
 
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,8+96,15, 0,  1,0,0,0, "Reset All To Defaults"))
+         {
+            for (int i=0; i<100; i++)
+               mBottomMessage.filter_event[i] = 1;
+
+            mBottomMessage.num_lines = 16;
+            mBottomMessage.io = 1.0;
+            mBottomMessage.fo = 0.1;
+            mBottomMessage.ihs = 0.5;
+            mBottomMessage.ivs = 0.5;
+            mBottomMessage.fhs = 0.1;
+            mBottomMessage.fvs = 0.1;
+            mBottomMessage.disp_player = 2;
+            mBottomMessage.disp_enemy = 3;
+            mBottomMessage.disp_item = 3;
+            mBottomMessage.disp_health = 3;
+            mBottomMessage.disp_player_text_long = 1;
+            reload = 1;
+         }
+
+         xa = cfp_x1 + 10;
+         xb = xa + 200;
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mBottomMessage.bottom_msg_on, "Show bottom messages", tc, 15);
+
+         ya -= 6;
+         al_draw_line(cfp_x1+4, bmsf_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[tc], 1 ); // draw the sides of the frame first
+         al_draw_line(cfp_x2-4, bmsf_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[tc], 1 );
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
+
+         // -------------------------
+         // line config section
+         // -------------------------
+
+
+
+
+         // give some space and do our own line
+         int lc = 10;
+         int lcw = lc+96;
+         ya-=line_spacing*2;
+         ya+=sbs;
+
+         int lcf_y1 = ya; // save this for later when we draw frame
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, lc);
+
+
+         al_draw_text(mFont.pr8, mColor.pc[lc], cfp_txc, ya-2, ALLEGRO_ALIGN_CENTER, "Line Configuration");
+
+
+         ya -=4;
+         xb = cfp_x2-10;
+         xa = xb - 80;
+
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15, 0,  1,0,0,0, "Defaults"))
+         {
+            mBottomMessage.num_lines = 16;
+            mBottomMessage.io = 1.0;
+            mBottomMessage.fo = 0.1;
+            mBottomMessage.ihs = 0.5;
+            mBottomMessage.ivs = 0.5;
+            mBottomMessage.fhs = 0.1;
+            mBottomMessage.fvs = 0.1;
+            reload = 1;
+         }
+
+
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya+8, line_spacing, lc);
+
+
+         ya-=4;
+
+         xa = cfp_x1 + 10;
+         xb = cfp_x2 - 10;
          float nl = mBottomMessage.num_lines;
-         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,12,15,15, 0,0,1,0, nl, BMSG_MAX_LINES, 1, 1, "Number of lines:");
+         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15,15, 0,0,1,0, nl, BMSG_MAX_LINES, 1, 1, "Number of lines:");
          mBottomMessage.num_lines = (int) nl;
 
          //mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,15,15, 0,0,1,0, mBottomMessage.num_lines, 20, 1, 1, "Number of lines:");
 
 
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,11,15,15, 0,0,1,0, mBottomMessage.io, 1, .1, .1, "Initial Opacity:");
-         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,11,15,15, 0,0,1,0, mBottomMessage.fo, 1, .1, .1, "Final Opacity:");
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya-6, line_spacing, lc);
 
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,9,15,15, 0,0,1,0, mBottomMessage.ivs, 1, .1, .1, "Initial Scale:");
-         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,9,15,15, 0,0,1,0, mBottomMessage.fvs, 1, .1, .1, "Final Scale:");
+
+
+
+         ya -=4;
+
+         xa = cfp_x1+10;
+         xb = xa + 68;
+
+
+
+         xa = cfp_x1 + 10;
+         xb = cfp_x2 - 10;
+         int xw4 = (xb - xa)/2;
+
+         xb = xa+xw4-10;
+         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15,15, 0,0,1,0, mBottomMessage.io, 1, 0, .05, "Initial Opacity:");
+         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15,15, 0,0,1,0, mBottomMessage.fo, 1, 0, .05, "Final Opacity:");
+
+         ya-=bts*2;
+
+         xa += xw4; xb = xa+xw4-10;
+         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15,15, 0,0,1,0, mBottomMessage.ivs, 1, 0, .05, "Initial Scale:");
+         mWidget.sliderfnb(xa, ya, xb, bts,  0,0,0,0,  0,lcw,15,15, 0,0,1,0, mBottomMessage.fvs, 1, 0, .05, "Final Scale:");
+
+         // force horizontal and vertical scales to be the same
          mBottomMessage.ihs = mBottomMessage.ivs;
          mBottomMessage.fhs = mBottomMessage.fvs;
 
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya -= 6;
+         al_draw_line(cfp_x1+4, lcf_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[lc], 1 ); // draw the sides of the frame first
+         al_draw_line(cfp_x2-4, lcf_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[lc], 1 );
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, lc);
 
 
-         int old_dp = mBottomMessage.disp_player;
-         mWidget.buttonp(xa, ya, xb, bts,  10,0,0,0,  0,4,15,15, 0,0,1,0, mBottomMessage.disp_player);
-         if (old_dp != mBottomMessage.disp_player) mBottomMessage.test_mode_list_created = 0; // force reload
 
-         int old_de = mBottomMessage.disp_enemy;
-         mWidget.buttonp(xa, ya, xb, bts,  11,0,0,0,  0,4,15,15, 0,0,1,0, mBottomMessage.disp_enemy);
-         if (old_de != mBottomMessage.disp_enemy) mBottomMessage.test_mode_list_created = 0; // force reload
 
-         int old_di = mBottomMessage.disp_item;
-         mWidget.buttonp(xa, ya, xb, bts,  12,0,0,0,  0,4,15,15, 0,0,1,0, mBottomMessage.disp_item);
-         if (old_di != mBottomMessage.disp_item) mBottomMessage.test_mode_list_created = 0; // force reload
+
+
+         // ------------------------------
+         // text / icon config section
+         // ------------------------------
+
+         // give some space and do our own line
+         int tic = 11;
+         int ticw = tic+96;
+
+
+         ya-=line_spacing*2;
+         ya+=sbs;
+
+
+
+
+         int ticf_y1 = ya; // save this for later when we draw frame
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tic);
+
+
+
+         al_draw_text(mFont.pr8, mColor.pc[tic], cfp_txc, ya-2, ALLEGRO_ALIGN_CENTER, "Text / Icon Configuration");
+
+         ya -=4;
+
+         xa = cfp_x1+10;
+         xb = xa + 40;
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ticw,15, 0,  1,0,0,0, "Min"))
+         {
+            mBottomMessage.disp_player = 0;
+            mBottomMessage.disp_enemy = 0;
+            mBottomMessage.disp_item = 0;
+            mBottomMessage.disp_health = 3;
+            mBottomMessage.disp_player_text_long = 0;
+            reload = 1;
+         }
+         xb = cfp_x2-10;
+         xa = xb - 40;
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ticw,15, 0,  1,0,0,0, "Max"))
+         {
+            mBottomMessage.disp_player = 2;
+            mBottomMessage.disp_enemy = 3;
+            mBottomMessage.disp_item = 3;
+            mBottomMessage.disp_health = 0;
+            mBottomMessage.disp_player_text_long = 1;
+            reload = 1;
+         }
+
+
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya+8, line_spacing, tic);
+
+
+         ya-=4;
+         int yto = (bts-11) / 2;
+         xa = cfp_x1 + 20;
+         xb = xa + 230;
+         ALLEGRO_BITMAP *etmp = al_create_bitmap(200, 20);
+         int xd = 0;
+
+         // player display line
+         if (mWidget.buttonp(xa, ya, xb, bts,  10,0,0,0,  0,ticw,15,15, 0,0,0,0, mBottomMessage.disp_player)) reload = 1;
+         al_set_target_bitmap(etmp);
+         al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+         xd = 0;
+         mBottomMessage.draw_player(0, xd, 0);
+         al_set_target_backbuffer(mDisplay.display);
+         al_draw_scaled_bitmap(etmp, 0, 0, 200, 20, xb+4, ya+yto, 100, 10, 0);
+         ya+=bts;
+
+
+         if (mBottomMessage.disp_player) // any mode that has text
+         {
+            if (mWidget.buttonp(xa, ya, xb, bts,  14,0,0,0,  0,ticw,15,15, 0,0,1,0, mBottomMessage.disp_player_text_long)) reload = 1;
+         }
+
+         // enemy display line
+         if (mWidget.buttonp(xa, ya, xb, bts,  11,0,0,0,  0,ticw,15,15, 0,0,0,0, mBottomMessage.disp_enemy)) reload = 1;
+         al_set_target_bitmap(etmp);
+         al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+         xd = 0;
+         mBottomMessage.draw_enemy(6, xd, 0);
+         al_set_target_backbuffer(mDisplay.display);
+         al_draw_scaled_bitmap(etmp, 0, 0, 200, 20, xb+4, ya+yto, 100, 10, 0);
+         ya+=bts;
+
+         // item display line
+         if (mWidget.buttonp(xa, ya, xb, bts,  12,0,0,0,  0,ticw,15,15, 0,0,0,0, mBottomMessage.disp_item)) reload = 1;
+         al_set_target_bitmap(etmp);
+         al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+         xd = 0;
+         mBottomMessage.draw_item(mBitmap.tile[99], "switch", 15, xd, 0, 0, 0);
+         al_set_target_backbuffer(mDisplay.display);
+         al_draw_scaled_bitmap(etmp, 0, 0, 200, 20, xb+4, ya+yto, 100, 10, 0);
+         ya+=bts;
+
+
+
+         // health display line
+         if (mWidget.buttonp(xa, ya, xb, bts,  13,0,0,0,  0,ticw,15,15, 0,0,0,0, mBottomMessage.disp_health)) reload = 1;
+         al_set_target_bitmap(etmp);
+         al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+         xd = 0;
+         mBottomMessage.draw_health(0, -23, xd, 0, 0, 0);
+         al_set_target_backbuffer(mDisplay.display);
+         al_draw_scaled_bitmap(etmp, 0, 0, 200, 20, xb+4, ya+yto, 100, 10, 0);
+         ya+=bts;
+
+         al_destroy_bitmap(etmp);
+
+
+         ya -= 6;
+         al_draw_line(cfp_x1+4, ticf_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[tic], 1 ); // draw the sides of the frame first
+         al_draw_line(cfp_x2-4, ticf_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[tic], 1 );
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tic);
+
+
+
+
+
+
+
+
+
+
+
+
+
+         // --------------------------------------
+         // event selection section
+         // --------------------------------------
+
+
+         // give some space and do our own line
+         int ec = 14;
+         int ecw = ec+96;
+         ya-=line_spacing*2;
+         ya+=sbs;
+
+         int esf_y1 = ya; // save this for later when we draw frame
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, ec);
+
+
+         al_draw_text(mFont.pr8, mColor.pc[ec], cfp_txc, ya-2, ALLEGRO_ALIGN_CENTER, "Event Selection");
+
+         ya -=4;
+
+         xa = cfp_x1+10;
+         xb = xa + 68;
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ecw,15, 0,  1,0,0,0, "All Off"))
+         {
+            for (int i=0; i<100; i++)
+               mBottomMessage.filter_event[i] = 0;
+            reload = 1;
+         }
+
+
+         xb = cfp_x2-10;
+         xa = xb - 60;
+         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,ecw,15, 0,  1,0,0,0, "All On"))
+         {
+            for (int i=0; i<100; i++)
+               mBottomMessage.filter_event[i] = 1;
+            reload = 1;
+         }
+
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya+8, line_spacing, ec);
+
+         ya-=4;
+         bts = 16;
+         xa = cfp_x1 + 10;
+         xw4 = (xb - xa)/5;
+
+         xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[20], "Key",    tc, 15)) reload = 1;
+         xa += xw4; xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[22], "Door",   tc, 15)) reload = 1;
+         xa += xw4; xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[23], "Exit",   tc, 15)) reload = 1;
+         xa += xw4; xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[25], "Bomb",   tc, 15)) reload = 1;
+         xa += xw4; xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[27], "Coin",   tc, 15)) reload = 1;
+         xa += xw4; xb = xa+xw4-10;
+
+         ya += line_spacing+8;
+         xa = cfp_x1 + 10;
+         xb = cfp_x2 - 10;
+         xw4 = (xb - xa)/5;
+
+         xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[26], "Rocket", tc, 15)) reload = 1;
+         xa += xw4; xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[21], "Switch", tc, 15)) reload = 1;
+         xa += xw4; xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[12], "Damage", tc, 15)) reload = 1;
+         xa += xw4; xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[28], "Health Bonus",  tc, 15)) reload = 1;
+
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya+10, line_spacing, ec);
+
+         ya -= 4;
+         xa = cfp_x1 + 10;
+         xb = cfp_x2 - 10;
+         xw4 = (xb - xa)/3;
+         xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[8], "Player Died", tc, 15)) reload = 1;
+         xa += xw4; xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[7], "Player Quit", tc, 15)) reload = 1;
+         xa += xw4; xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[6], "Player Joined", tc, 15)) reload = 1;
+
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya+10, line_spacing, ec);
+
+
+         ya -= 4;
+         xa = cfp_x1 + 10;
+         xb = cfp_x2 - 10;
+         xw4 = (xb - xa)/2;
+         xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[43], "Player Shot by Enemy", tc, 15)) reload = 1;
+         xa += xw4; xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[44], "Player Hit by Enemy", tc, 15)) reload = 1;
+
+
+         ya += line_spacing+8;
+         xa = cfp_x1 + 10;
+         xb = cfp_x2 - 10;
+         xw4 = (xb - xa)/2;
+         xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[40], "Player Hurt Player", tc, 15)) reload = 1;
+         xa += xw4; xb = xa+xw4-10;
+         if (mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.filter_event[42], "Enemy Killed", tc, 15)) reload = 1;
+
+
+         ya += 10;
+         al_draw_line(cfp_x1+4, esf_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[ec], 1 ); // draw the sides of the frame first
+         al_draw_line(cfp_x2-4, esf_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[ec], 1 );
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, ec);
+
+
+
+         if (reload)  mBottomMessage.test_mode_list_created = 0; // force reload
 
       }
-
-
-
-
-
 
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])

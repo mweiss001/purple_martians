@@ -135,6 +135,27 @@ void mwConfig::save(void)
       asci(BMSG, mBottomMessage.disp_item)
       asci(BMSG, mBottomMessage.disp_health)
 
+      asci(BMSG, mBottomMessage.disp_player_text_long)
+
+      asci(BMSG, mBottomMessage.filter_event[6])  // player join
+      asci(BMSG, mBottomMessage.filter_event[7])  // player quit
+      asci(BMSG, mBottomMessage.filter_event[8])  // player died
+      asci(BMSG, mBottomMessage.filter_event[12]) // show damage
+
+      asci(BMSG, mBottomMessage.filter_event[20]) // key
+      asci(BMSG, mBottomMessage.filter_event[21]) // switch
+      asci(BMSG, mBottomMessage.filter_event[22]) // door
+      asci(BMSG, mBottomMessage.filter_event[23]) // exit
+      asci(BMSG, mBottomMessage.filter_event[24]) // spring
+      asci(BMSG, mBottomMessage.filter_event[25]) // bomb
+      asci(BMSG, mBottomMessage.filter_event[26]) // rocket
+      asci(BMSG, mBottomMessage.filter_event[27]) // coin
+      asci(BMSG, mBottomMessage.filter_event[28]) // bonus
+
+      asci(BMSG, mBottomMessage.filter_event[40]) // player hurt player
+      asci(BMSG, mBottomMessage.filter_event[42]) // player killed enemy
+      asci(BMSG, mBottomMessage.filter_event[43]) // player shot by enemy
+      asci(BMSG, mBottomMessage.filter_event[44]) // player hit by enemy
 
       // cpu
       asci(OVERLAY, mSettings.overlay_grid[0][0]);
@@ -334,9 +355,27 @@ void mwConfig::load(void)
    agci(BMSG, mBottomMessage.disp_item, 0)
    agci(BMSG, mBottomMessage.disp_health, 0)
 
+   agci(BMSG, mBottomMessage.disp_player_text_long, 1)
 
+   agci(BMSG, mBottomMessage.filter_event[6],  1) // player join
+   agci(BMSG, mBottomMessage.filter_event[7],  1) // player quit
+   agci(BMSG, mBottomMessage.filter_event[8],  1) // player died
+   agci(BMSG, mBottomMessage.filter_event[12], 1) // show damage
 
+   agci(BMSG, mBottomMessage.filter_event[20], 1) // key
+   agci(BMSG, mBottomMessage.filter_event[21], 1) // switch
+   agci(BMSG, mBottomMessage.filter_event[22], 1) // door
+   agci(BMSG, mBottomMessage.filter_event[23], 1) // exit
+   agci(BMSG, mBottomMessage.filter_event[24], 1) // spring
+   agci(BMSG, mBottomMessage.filter_event[25], 1) // bomb
+   agci(BMSG, mBottomMessage.filter_event[26], 1) // rocket
+   agci(BMSG, mBottomMessage.filter_event[27], 1) // coin
+   agci(BMSG, mBottomMessage.filter_event[28], 1) // bonus
 
+   agci(BMSG, mBottomMessage.filter_event[40], 1) // player hurt player
+   agci(BMSG, mBottomMessage.filter_event[42], 1) // player killed enemy
+   agci(BMSG, mBottomMessage.filter_event[43], 1) // player shot by enemy
+   agci(BMSG, mBottomMessage.filter_event[44], 1) // player hit by enemy
 
    // cpu
    agci(OVERLAY, mSettings.overlay_grid[0][0], 0);

@@ -45,6 +45,42 @@ void mwEnemy::fill_strings(void)
    strcpy (enemy_name[66][1], "dth2");
    strcpy (enemy_name[99][1], "dth1");
 
+
+
+   strcpy (enemy_name[0][2],  "empty");
+   strcpy (enemy_name[1][2],  "undef");
+   strcpy (enemy_name[2][2],  "undef");
+   strcpy (enemy_name[3][2],  "archwagon");
+   strcpy (enemy_name[4][2],  "bouncer");
+   strcpy (enemy_name[5][2],  "jumpworm");
+   strcpy (enemy_name[6][2],  "cannon");
+   strcpy (enemy_name[7][2],  "podzilla");
+   strcpy (enemy_name[8][2],  "trakbot");
+   strcpy (enemy_name[9][2],  "cloner");
+   strcpy (enemy_name[10][2], "undef");
+   strcpy (enemy_name[11][2], "block walker");
+   strcpy (enemy_name[12][2], "flapper");
+   strcpy (enemy_name[13][2], "vinepod");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    enemy_tile[3]  = 496;
    enemy_tile[4]  = 508;
    enemy_tile[5]  = 706;

@@ -189,7 +189,7 @@ void mwItems::proc_door_collision(int p, int i)
                int type = 1;
                if (item[i][13] == 1083) type = 0;
 
-               if (mItem.item[i][13]) mGameEvent.add(5, 0, 0, p, i, col, type); // no event if door is invisible
+               if (mItem.item[i][13]) mGameEvent.add(22, 0, 0, p, i, col, type); // no event if door is invisible
 
                int instant_move = 0;
                if (mItem.item[i][7] == 0) // 0 = auto

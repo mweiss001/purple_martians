@@ -297,7 +297,7 @@ void mwEnemy::move_block_walker(int e)
       al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, mColor.pc[0]);
       al_draw_bitmap(mBitmap.btile[168], ex*20, ey*20, 0);
 
-      mGameEvent.add(60, 0, 0, Ei[e][26], e, 0, 0);
+      mGameEvent.add(42, 0, 0, Ei[e][26], e, 0, 1);
 
       Ei[e][0] = 0;
       return; // to stop rest of execution

@@ -76,6 +76,13 @@ when does eco draw get used? make it an option in settings..
 advanced settings tab
 
 
+change name of global level thingy
+
+
+
+
+
+
 
 
 why did I remove skip frame draw?

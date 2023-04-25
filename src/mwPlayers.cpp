@@ -197,8 +197,8 @@ void mwPlayers::set_player_start_pos(int p, int cont)
 void mwPlayers::proc_player_health(int p)
 {
    char msg[1024];
-   if ((mLoop.frame_num) && (mLoop.frame_num == loc[p].block_damage_holdoff)) mGameEvent.add(58, 0, 0, p, 0, 0, 0);
 
+   if ((mLoop.frame_num) && (mLoop.frame_num == loc[p].damage_holdoff)) mGameEvent.add(12, 0, 0, p, loc[p].damage_type, 0, loc[p].damage_tally);
 
 
    if (syn[p].old_health != syn[p].health)
@@ -219,7 +219,7 @@ void mwPlayers::proc_player_health(int p)
       sprintf(msg,"PLAYER:%d DIED!", p);
       if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 1);
 
-      mGameEvent.add(90, 0, 0, p, 0, 0, 0);  // player death
+      mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
 
       syn[p].stat_respawns++;
 
@@ -348,7 +348,7 @@ void mwPlayers::proc_player_xy_move(int p)
          else // player is getting squished
          {
             syn[p].health -= 1;
-            mGameEvent.add(54, x, y, p, 0, 0, 0);
+            mGameEvent.add(11, x, y, p, 9, 0, 100);
          }
       }
       else  if (syn[p].xinc < 0) // moving left and block collision
@@ -372,7 +372,7 @@ void mwPlayers::proc_player_xy_move(int p)
          else // player is getting squished
          {
             syn[p].health -= 1;
-            mGameEvent.add(54, x, y, p, 0, 0, 0);
+            mGameEvent.add(11, x, y, p, 9, 0, 100);
          }
       }
       else if (syn[p].xinc > 0) // moving right and block collision
@@ -419,7 +419,7 @@ void mwPlayers::proc_player_xy_move(int p)
       {
          syn[p].player_ride = 0;  // player knocked off lift due to collision above
          syn[p].health -= 1;      // take some damage
-         mGameEvent.add(54, x, y, p, 0, 0, 0);
+         mGameEvent.add(11, x, y, p, 9, 0, 100);
       }
 
       // check for collision with lift above
@@ -427,7 +427,7 @@ void mwPlayers::proc_player_xy_move(int p)
       {
          syn[p].player_ride = 0;   // player knocked off lift due to collision above
          syn[p].health -= 1;       // take some damage
-         mGameEvent.add(54, x, y, p, 0, 0, 0);
+         mGameEvent.add(11, x, y, p, 9, 0, 100);
       }
 
       if (syn[p].player_ride)        // if still riding
@@ -450,11 +450,11 @@ void mwPlayers::proc_player_xy_move(int p)
          syn[p].player_ride = 0;                          // ride over
          x = syn[p].x;
          y = syn[p].y;
-         if (!mSolid.is_up_solid(x, y, 1, 1))                        // only jump if nothing above
+         if (!mSolid.is_up_solid(x, y, 1, 1))            // only jump if nothing above
          {
             syn[p].yinc = initial_jump_velocity;
-            syn[p].y += syn[p].yinc;                 // apply yinc
-            mGameEvent.add(15, x, y, 0, 0, 0, 0);
+            syn[p].y += syn[p].yinc;                     // apply yinc
+            mGameEvent.add(5, x, y, 0, 0, 0, 0);
          }
       }
    }
@@ -496,7 +496,7 @@ void mwPlayers::proc_player_xy_move(int p)
             {
                // take some damage
                syn[p].health -= 1;
-               mGameEvent.add(54, x, y, p, 0, 0, 0);
+               mGameEvent.add(11, x, y, p, 9, 0, 100);
             }
 
             if (syn[p].jump)                              // if jump pressed
@@ -507,7 +507,7 @@ void mwPlayers::proc_player_xy_move(int p)
                if ((a == 0) || (a == 2))                      // only jump if nothing above
                {
                   syn[p].yinc = initial_jump_velocity;
-                  mGameEvent.add(15, x, y, 0, 0, 0, 0);
+                  mGameEvent.add(5, x, y, 0, 0, 0, 0);
                }
             }
          }  // end of if floor below
@@ -589,7 +589,7 @@ void mwPlayers::proc_player_stuck_in_blocks(int p)
    if ((su) && (sd) && (sl) && (sr))
    {
       syn[p].health -= 1;
-      mGameEvent.add(56, x, y, p, 0, 0, 0);
+      mGameEvent.add(11, x, y, p, 7, 0, 100);
    }
 }
 
@@ -688,12 +688,12 @@ void mwPlayers::proc_player_collisions(int p)
             if ((mShot.deathmatch_shots) && (pb != p))
             {
                 mShot.proc_pshot_collision(p, b);
-                mGameEvent.add(40, 0, 0, p, pb, 0, mShot.deathmatch_shot_damage);
+                mGameEvent.add(40, 0, 0, p, pb, 1, mShot.deathmatch_shot_damage);
             }
             if ((mShot.suicide_shots) && (pb == p))
             {
                 mShot.proc_pshot_collision(p, b);
-                mGameEvent.add(41, 0, 0, p, pb, 0, mShot.deathmatch_shot_damage);
+                mGameEvent.add(40, 0, 0, p, pb, 1, mShot.deathmatch_shot_damage);
             }
          }
       }
