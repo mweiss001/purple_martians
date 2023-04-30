@@ -426,7 +426,7 @@ memcpy(&out,arr2,sizeof(out));
 
 
 
-//
+
 //void draw_text_in_box(const char* txt, ALLEGRO_FONT *f, int x, int y, int color, int type)
 //{
 //   int bx, by, bw, bh;
@@ -452,7 +452,7 @@ memcpy(&out,arr2,sizeof(out));
 //   }
 //
 //}
-
+//
 
 
 
@@ -460,46 +460,65 @@ memcpy(&out,arr2,sizeof(out));
 void mwMain::temp_test(void)
 {
 
-   al_set_target_backbuffer(mDisplay.display);
-   al_clear_to_color(mColor.pc[0]);
-   int quit = 0;
-   float x = mDisplay.SCREEN_W/2;
-   float y = mDisplay.SCREEN_H/2;
-   while (!quit)
-   {
-      float pi = ALLEGRO_PI;
-
-      float mx = mInput.mouse_x;
-      float my = mInput.mouse_y;
-      float xlen = mx-x;
-      float ylen = my-y;
-      float hy = sqrt(pow(xlen, 2) + pow(ylen, 2));
-      float ra = atan2(ylen, xlen) + pi/2;;
-
-      float a = ra;
-      if (ra < 0) a = ra + pi*2;
-      float a2 = 360 * (a/(pi*2));
-
-      int aa = a*1000;
-
-
-      al_draw_textf(mFont.pr8, mColor.pc[15], 100, 100, 0, "xlen:%f ylen:%f hy:%f", xlen, ylen, hy);
-      al_draw_textf(mFont.pr8, mColor.pc[15], 100, 110, 0, "ra:%f", ra);
-      al_draw_textf(mFont.pr8, mColor.pc[15], 100, 120, 0, "a+:%f", a);
-      al_draw_textf(mFont.pr8, mColor.pc[15], 100, 130, 0, "a2:%f", a2);
 
 
 
-      al_draw_line(x, y, mx, my, mColor.pc[15], 1);
-      al_draw_rotated_bitmap(mBitmap.tile[248], 10, 10, x, y, (float)aa/1000, 0);
-      al_flip_display();
-      al_clear_to_color(mColor.pc[0]);
-      mEventQueue.proc();
-      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
-   }
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+//
+//
+//   al_set_target_backbuffer(mDisplay.display);
+//   al_clear_to_color(mColor.pc[0]);
+//   int quit = 0;
+//   float x = mDisplay.SCREEN_W/2;
+//   float y = mDisplay.SCREEN_H/2;
+//   while (!quit)
+//   {
+//      float pi = ALLEGRO_PI;
+//
+//      float mx = mInput.mouse_x;
+//      float my = mInput.mouse_y;
+//      float xlen = mx-x;
+//      float ylen = my-y;
+//      float hy = sqrt(pow(xlen, 2) + pow(ylen, 2));
+//      float ra = atan2(ylen, xlen) + pi/2;;
+//
+//      float a = ra;
+//      if (ra < 0) a = ra + pi*2;
+//      float a2 = 360 * (a/(pi*2));
+//
+//      int aa = a*1000;
+//
+//
+//      al_draw_textf(mFont.pr8, mColor.pc[15], 100, 100, 0, "xlen:%f ylen:%f hy:%f", xlen, ylen, hy);
+//      al_draw_textf(mFont.pr8, mColor.pc[15], 100, 110, 0, "ra:%f", ra);
+//      al_draw_textf(mFont.pr8, mColor.pc[15], 100, 120, 0, "a+:%f", a);
+//      al_draw_textf(mFont.pr8, mColor.pc[15], 100, 130, 0, "a2:%f", a2);
+//
+//
+//
+//      al_draw_line(x, y, mx, my, mColor.pc[15], 1);
+//      al_draw_rotated_bitmap(mBitmap.tile[248], 10, 10, x, y, (float)aa/1000, 0);
+//      al_flip_display();
+//      al_clear_to_color(mColor.pc[0]);
+//      mEventQueue.proc();
+//      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+//   }
+//
+//
+//
 
 
 
@@ -865,18 +884,29 @@ void mwMain::temp_test(void)
 
 
 
-
-
-
-
-
-
-
-
 //
 //   void convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bmp_filename, int char_size);
 //   convert_ttf_to_bitmap_font("Pristine.ttf", "Pristine_8.bmp", 8);
 //   convert_ttf_to_bitmap_font("Pristine.ttf", "Pristine_16.bmp", 16);
+
+
+
+// show char set of fonts
+//   al_set_target_backbuffer(mDisplay.display);
+//   al_clear_to_color(al_map_rgb(0, 0, 0));
+//
+//   for (int i=32; i<80; i++)
+//      al_draw_textf(mFont.pr8, mColor.White, 10, (i-32)*8, 0, "%d '%c'     %d '%c'", i, i, i+48, i+48);
+//
+//   al_flip_display();
+//   mInput.tsw();
+
+
+
+
+
+
+
 
 
 

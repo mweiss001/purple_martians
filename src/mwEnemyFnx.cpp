@@ -6,7 +6,7 @@
 
 
 
-// used by cloner, podzilla and vinepod
+// used by podzilla and vinepod
 int mwEnemy::is_player_in_enemy_trigger_box(int e)
 {
    int x1 = Ei[e][11] - 10; // trigger box

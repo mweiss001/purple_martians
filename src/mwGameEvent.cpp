@@ -56,11 +56,11 @@ void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
             }
          break;
 
-         case 40: case 41: case 43:// player got shot or exploded
+         case 40: case 41: // player got hurt
             al_play_sample(mSound.snd[6], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
          break;
 
-         case 12: case 44: // player took damage (tally, enemy collision)
+         case 12: // player took damage
             if (mSound.sample_delay[7]+14 < mLoop.frame_num)
             {
                mSound.sample_delay[7] = mLoop.frame_num;
@@ -79,11 +79,10 @@ void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
 }
 /*
 
-
 master list of events
 
 num snd msg description
- 1   0   -  player shot (same)
+ 1   0   -  player fires shot
  2   5   -  explosion
  4   4   -  unlocked exit
  5   -   -  jump
@@ -105,17 +104,9 @@ num snd msg description
 27   2  yes coin
 28   -  yes bonus
 
-40   6  yes player hurt player
+40   6  yes player hurt by player
+41   6  yes player hurt by enemy
 42   8  yes player killed enemy
-43   6  yes player got shot by enemy
-44   7  yes player got hit by enemy
-
-
-combine 40 and 41 to player hurt player
-
-use z3 1=shot 2=explosion
-
-.add(40
 
 */
 

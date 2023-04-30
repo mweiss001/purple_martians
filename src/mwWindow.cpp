@@ -491,7 +491,7 @@ void mwWindow::cm_process_menu_bar(int d)
    {
       strcpy (mMenu.menu_string[0],"Advanced");
       strcpy (mMenu.menu_string[1],"Predefined Enemy Editor");
-      strcpy (mMenu.menu_string[2],"Global Level Thingy!!");
+      strcpy (mMenu.menu_string[2],"Global Level Tool");
       strcpy (mMenu.menu_string[3],"Level Viewer!");
       strcpy (mMenu.menu_string[4],"Animation Sequence Editor");
       strcpy (mMenu.menu_string[5],"Copy Tiles");

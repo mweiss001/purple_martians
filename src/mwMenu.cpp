@@ -86,9 +86,6 @@ int mwMenu::zmenu(int menu_pos, int y)
    while (selection == 999)
    {
 
-
-
-
       al_set_target_backbuffer(mDisplay.display);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -100,8 +97,6 @@ int mwMenu::zmenu(int menu_pos, int y)
 
       mScreen.frame_and_title(1);
       mLogo.mdw_an(mLogo.mdw_map_logo_x, mLogo.mdw_map_logo_y, mLogo.mdw_map_logo_scale);
-
-
 
       int mx = mDisplay.SCREEN_W/2;
 
@@ -124,14 +119,27 @@ int mwMenu::zmenu(int menu_pos, int y)
       int c = 0;
       while (strcmp(menu_string[c],"end") != 0)
       {
+         int sl = strlen(menu_string[c]) * 4;
          int b = 15; // b = mPlayer.syn[mPlayer.active_local_player].color;
          if ((!mLevel.resume_allowed) && (c==4)) b+=80; // dimmer if can't resume
 
-         if (c == highlight)
+         // is mouse on menu item
+         float mix1 = mx-sl-2;
+         float miy1 = y+(c*10)-1;
+         float mix2 = mx+sl;
+         float miy2 = y+(c*10)+9;
+
+         if ((mInput.mouse_x > mix1) && (mInput.mouse_x < mix2) && (mInput.mouse_y > miy1) && (mInput.mouse_y < miy2))
          {
-            int sl = strlen(menu_string[c]) * 4;
-            al_draw_rectangle(mx-sl-2+0.5f, y+(c*10)-1+0.5f, mx+sl+0.5f, y+(c*10)+9+0.5f, mColor.pc[b+80], 1);
+            highlight = c;
+            if (mInput.mouse_b[1][0])
+            {
+               while (mInput.mouse_b[1][0]) mEventQueue.proc();
+               selection = highlight;
+            }
          }
+
+         if (c == highlight) al_draw_rectangle(mix1+0.5f, miy1+0.5f, mix2+0.5f, miy2+0.5f, mColor.pc[b+80], 1);
          al_draw_text(mFont.pr8, mColor.pc[b], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, menu_string[c]);
          c++;
       }

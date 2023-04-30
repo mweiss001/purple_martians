@@ -19938,41 +19938,140 @@ everything is lined up nice and looks good..
 
 I still need to test the muliplayer messages...
 
+what else do I need to finish?
+
+
+wrap rect 20
+wrap line 21
+remove wrap PDE..done
+remove wrap from levels..done
+remove wrap from ov..commented out
+
+change name of global level thingy..done
+
+move test levels from 50 to higher...done...
+
+go through levels and fix additions..
+
+edit text for pmsg shows red ^ for most text...why?
+in draw pop msg, when I draw the cursor, I count on char 30 being a blank space that does not count as a space
+how can I fix this?
+changed to char 96..its a good blank char in font pr8
+
+visual level select to wrap when moving left and right and up and down...done
+
+spelling mistakes premanment..fixed
+
+edit text in trigger demo level..done
+
+make mouse b2 exit settings..done
+make mouse able to click on game menu..done
+make mouse able to click on visual level select..done
 
 
 
+make advanced section of settings
+- how to toggle?
+- what pages are advanced?
+
+
+basic
+
+   sprintf(st[0].title,  "Basics");
+   sprintf(st[1].title,  "Controls");
+   sprintf(st[2].title,  "Netgame");
 
 
 
+advanced:
+   sprintf(st[3].title,  "Double");
+   sprintf(st[4].title,  "Demo");
+   sprintf(st[5].title,  "Advanced");
+   sprintf(st[7].title,  "Viewport");
+   sprintf(st[10].title, "Overlay");
+   sprintf(st[11].title, "Message");
 
 
+debug:
+   sprintf(st[6].title,  "Info");
+   sprintf(st[8].title,  "Profiling");
+   sprintf(st[9].title,  "Logging");
+
+make a way to re-arrange without having to renumber
+
+add to st struct what actual page each one is
+
+another way would be to allow blanks in the list and just not draw them
+
+then they could still keep their numbers
+
+I would just turn on and off ones I don't want to show
+
+yes, this sounds a lot simpler
 
 
+make the 3 basic pages
+Basics
+Controls
+Netgame
+
+on basic pages
+
+show advanced settings
+show debug settings
+
+these will show extra pages and also show more options on single pages
+
+move stdf freq and udp/tcp to advanced on netgame..done
+
+make a button to reset all config values to default (erase config file and reload)
+
+do it on basic page for now, but later maybe have an advanced tab that has
+this reset button and the advanced and debug toggles
+also make it erase the level editor config mW.pm ..done
+make server name look better:
+frame it on its own line
+edit text...done
 
 
+make advanced tab part of basic stuff...
+also demo
+
+done...
+add reset config and advanced and debug toggles..done
+
+move spline test and eco draw somewhere else
+
+add help buttons to settings..done
+
+make message part of default
+swap with double
 
 
+make it so that I can configure system keys like F12, etc...
 
 
+where can I move eco draw? speed controls, spline test?
+I need more tabs in settings...
+but another row would mess with height...
+
+do it any way...
+
+make another row, then see how things line up...done
+moved crap to misc
 
 
+newly created podzillas don't work...
+also copied ones
+why?
+existing ones work...
+there was a stupid al_fix_div with floats
 
+copied podzilla have wrong size...
+why?
+fixed bug when savind sel, saved floats as ints...
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+make mouse wheel scroll in help..done
 
 
 

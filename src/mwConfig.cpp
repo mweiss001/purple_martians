@@ -51,7 +51,7 @@ void mwConfig::save(void)
       asci(GAME, mDisplay.viewport_show_hyst)
       ascf(GAME, mDisplay.viewport_x_div)
       ascf(GAME, mDisplay.viewport_y_div)
-      asci(GAME, mSettings.settings_current_page)
+
       asci(GAME, mLoop.speed_control_lock)
 
       asci(GAMECONTROLS, mPlayer.loc[0].up_key)
@@ -153,9 +153,15 @@ void mwConfig::save(void)
       asci(BMSG, mBottomMessage.filter_event[28]) // bonus
 
       asci(BMSG, mBottomMessage.filter_event[40]) // player hurt player
+      asci(BMSG, mBottomMessage.filter_event[41]) // player hurt by enemy
       asci(BMSG, mBottomMessage.filter_event[42]) // player killed enemy
-      asci(BMSG, mBottomMessage.filter_event[43]) // player shot by enemy
-      asci(BMSG, mBottomMessage.filter_event[44]) // player hit by enemy
+
+
+      asci(SETTINGS, mSettings.current_page)
+      asci(SETTINGS, mSettings.show_advanced)
+      asci(SETTINGS, mSettings.show_debug)
+
+
 
       // cpu
       asci(OVERLAY, mSettings.overlay_grid[0][0]);
@@ -268,7 +274,6 @@ void mwConfig::load(void)
    agci(GAME, mDisplay.viewport_show_hyst, 0)
    agcf(GAME, mDisplay.viewport_x_div, 0.33)
    agcf(GAME, mDisplay.viewport_y_div, 0.33)
-   agci(GAME, mSettings.settings_current_page, 0)
    agci(GAME, mLoop.speed_control_lock, 1)
 
    agci(GAMECONTROLS, mPlayer.loc[0].up_key,    ALLEGRO_KEY_UP)
@@ -373,9 +378,16 @@ void mwConfig::load(void)
    agci(BMSG, mBottomMessage.filter_event[28], 1) // bonus
 
    agci(BMSG, mBottomMessage.filter_event[40], 1) // player hurt player
+   agci(BMSG, mBottomMessage.filter_event[41], 1) // player hurt by enemy
    agci(BMSG, mBottomMessage.filter_event[42], 1) // player killed enemy
-   agci(BMSG, mBottomMessage.filter_event[43], 1) // player shot by enemy
-   agci(BMSG, mBottomMessage.filter_event[44], 1) // player hit by enemy
+
+
+
+   agci(SETTINGS, mSettings.current_page, 0)
+   agci(SETTINGS, mSettings.show_advanced, 0)
+   agci(SETTINGS, mSettings.show_debug, 0)
+
+
 
    // cpu
    agci(OVERLAY, mSettings.overlay_grid[0][0], 0);

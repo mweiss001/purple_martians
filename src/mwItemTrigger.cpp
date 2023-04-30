@@ -992,6 +992,7 @@ float mwItems::get_timer_ratio_for_event(int ev)
 }
 
 
+
 /*
 
 item[][0]  = 20 - Wrap Rect
@@ -1020,138 +1021,138 @@ item[][9]  = y2
 
 */
 
-
-int mwItems::draw_wrap_rect(int i, int x, int y, int custom)
-{
-   float x1 = item[i][6];
-   float y1 = item[i][7];
-   float w =  item[i][8];
-   float h =  item[i][9];
-   float x2 = x1 + w;
-   float y2 = y1 + h;
-
-
-   if (mLoop.level_editor_running)
-   {
-      al_draw_bitmap(mBitmap.tile[544], x, y, 0); // draw item shape in level editor, invisible when game running
-   }
-   if (!custom)
-   {
-//      mMiscFnx.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col+96, col+96+96, 0);
-
-      if (item[i][2]) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
-
-//      float x = mPlayer.syn[0].x;
-//      float y = mPlayer.syn[0].y;
-//      float xi = mPlayer.syn[0].xinc;
-//      float yi = mPlayer.syn[0].yinc;
 //
-//      int xg=0, yg=0;
+//int mwItems::draw_wrap_rect(int i, int x, int y, int custom)
+//{
+//   float x1 = item[i][6];
+//   float y1 = item[i][7];
+//   float w =  item[i][8];
+//   float h =  item[i][9];
+//   float x2 = x1 + w;
+//   float y2 = y1 + h;
 //
-//      if ((x >= x1-10) && (x <= x2-10))
-//      {
-//         xg=1;
-//         al_draw_line(x1, y1, x1, y2, mColor.pc[14], 1);
-//         al_draw_line(x2, y1, x2, y2, mColor.pc[14], 1);
-//      }
-//      if ((y >= y1-10) && (y <= y2-10))
-//      {
-//         yg=1;
-//         al_draw_line(x1, y1, x2, y1, mColor.pc[14], 1);
-//         al_draw_line(x1, y2, x2, y2, mColor.pc[14], 1);
-//      }
 //
-//      printf("d1 x1:%3.0f y1:%3.0f x2:%3.0f y2:%3.0f x:%f y:%f xi:%f yi:%f  xg:%d yg:%d\n", x1, y1, x2, y2, x, y, xi, yi, xg, yg);
-
-
-
-   }
-   return 1;
-}
-
-
-void mwItems::wrap_rect_helper(int i, float &x, float &y, float xi, float yi)
-{
-   float x1 = item[i][6]-10;
-   float y1 = item[i][7]-10;
-   float w =  item[i][8];
-   float h =  item[i][9];
-   float x2 = x1 + w;
-   float y2 = y1 + h;
-
-   if (item[i][3] & PM_ITEM_WRAP_FORCE)
-   {
-      if (y > y2) y -= h; // below
-      if (y < y1) y += h; // above
-      if (x > x2) x -= w; // right
-      if (x < x1) x += w; // left
-   }
-   else
-   {
-
-//   float d = 8;
-//   if ((item[i][3] & PM_ITEM_WRAP_YPL) && (yi > 0) && (x >= x1) && (x <= x2) && (y <= y2) && (y+yi > y2)) y -= (h-(d*yi)); // moving down
-//   if ((item[i][3] & PM_ITEM_WRAP_YMN) && (yi < 0) && (x >= x1) && (x <= x2) && (y >= y1) && (y+yi < y1)) y += (h+(d*yi)); // moving up
-//   if ((item[i][3] & PM_ITEM_WRAP_XPL) && (xi > 0) && (y >= y1) && (y <= y2) && (x <= x2) && (x+xi > x2)) x -= (w-(d*xi)); // moving right
-//   if ((item[i][3] & PM_ITEM_WRAP_XMN) && (xi < 0) && (y >= y1) && (y <= y2) && (x >= x1) && (x+xi < x1)) x += (w+(d*xi)); // moving left
-
-      float d = 8;
-      if ((item[i][3] & PM_ITEM_WRAP_YPL) && (yi > 0) && (x >= x1) && (x <= x2) && (y <= y2) && (y+yi > y2)) y -= (h-d); // moving down
-      if ((item[i][3] & PM_ITEM_WRAP_YMN) && (yi < 0) && (x >= x1) && (x <= x2) && (y >= y1) && (y+yi < y1)) y += (h-d); // moving up
-      if ((item[i][3] & PM_ITEM_WRAP_XPL) && (xi > 0) && (y >= y1) && (y <= y2) && (x <= x2) && (x+xi > x2)) x -= (w-d); // moving right
-      if ((item[i][3] & PM_ITEM_WRAP_XMN) && (xi < 0) && (y >= y1) && (y <= y2) && (x >= x1) && (x+xi < x1)) x += (w-d); // moving left
-
-   }
-
-//   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
-
-
-
-}
-
-
-void mwItems::proc_wrap_rect(int i)
-{
-   int FLAGS = item[i][3];
-   if (FLAGS & PM_ITEM_WRAP_PLAYER)
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
-            wrap_rect_helper(i, mPlayer.syn[p].x, mPlayer.syn[p].y, mPlayer.syn[p].xinc, mPlayer.syn[p].yinc);
-   if (FLAGS & PM_ITEM_WRAP_ENEMY)
-      for (int e=0; e<100; e++)
-         if (mEnemy.Ei[e][0])
-            wrap_rect_helper(i, mEnemy.Ef[e][0], mEnemy.Ef[e][1], mEnemy.Ef[e][2], mEnemy.Ef[e][3]);
-   if (FLAGS & PM_ITEM_WRAP_ITEM)
-      for (int c=0; c<500; c++)
-         if (item[c][0])
-            wrap_rect_helper(i, itemf[c][0], itemf[c][1], itemf[c][2], itemf[c][3]);
-   if (FLAGS & PM_ITEM_WRAP_PSHOT)
-      for (int b=0; b<50; b++)
-         if (mShot.p[b].active)
-            wrap_rect_helper(i, mShot.p[b].x, mShot.p[b].y, mShot.p[b].xinc, mShot.p[b].yinc);
-   if (FLAGS & PM_ITEM_WRAP_ESHOT)
-      for (int b=0; b<50; b++)
-         if (mShot.e[b].active)
-            wrap_rect_helper(i, mShot.e[b].x, mShot.e[b].y, mShot.e[b].xinc, mShot.e[b].yinc);
-}
-
-
-
-void mwItems::proc_wrap_line(int i)
-{
-
-}
-
-int mwItems::draw_wrap_line(int i, int x, int y, int custom)
-{
-
-   return 0;
-
-}
-
-
-
-
+//   if (mLoop.level_editor_running)
+//   {
+//      al_draw_bitmap(mBitmap.tile[544], x, y, 0); // draw item shape in level editor, invisible when game running
+//   }
+//   if (!custom)
+//   {
+////      mMiscFnx.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col+96, col+96+96, 0);
+//
+//      if (item[i][2]) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
+//
+////      float x = mPlayer.syn[0].x;
+////      float y = mPlayer.syn[0].y;
+////      float xi = mPlayer.syn[0].xinc;
+////      float yi = mPlayer.syn[0].yinc;
+////
+////      int xg=0, yg=0;
+////
+////      if ((x >= x1-10) && (x <= x2-10))
+////      {
+////         xg=1;
+////         al_draw_line(x1, y1, x1, y2, mColor.pc[14], 1);
+////         al_draw_line(x2, y1, x2, y2, mColor.pc[14], 1);
+////      }
+////      if ((y >= y1-10) && (y <= y2-10))
+////      {
+////         yg=1;
+////         al_draw_line(x1, y1, x2, y1, mColor.pc[14], 1);
+////         al_draw_line(x1, y2, x2, y2, mColor.pc[14], 1);
+////      }
+////
+////      printf("d1 x1:%3.0f y1:%3.0f x2:%3.0f y2:%3.0f x:%f y:%f xi:%f yi:%f  xg:%d yg:%d\n", x1, y1, x2, y2, x, y, xi, yi, xg, yg);
+//
+//
+//
+//   }
+//   return 1;
+//}
+//
+//
+//void mwItems::wrap_rect_helper(int i, float &x, float &y, float xi, float yi)
+//{
+//   float x1 = item[i][6]-10;
+//   float y1 = item[i][7]-10;
+//   float w =  item[i][8];
+//   float h =  item[i][9];
+//   float x2 = x1 + w;
+//   float y2 = y1 + h;
+//
+//   if (item[i][3] & PM_ITEM_WRAP_FORCE)
+//   {
+//      if (y > y2) y -= h; // below
+//      if (y < y1) y += h; // above
+//      if (x > x2) x -= w; // right
+//      if (x < x1) x += w; // left
+//   }
+//   else
+//   {
+//
+////   float d = 8;
+////   if ((item[i][3] & PM_ITEM_WRAP_YPL) && (yi > 0) && (x >= x1) && (x <= x2) && (y <= y2) && (y+yi > y2)) y -= (h-(d*yi)); // moving down
+////   if ((item[i][3] & PM_ITEM_WRAP_YMN) && (yi < 0) && (x >= x1) && (x <= x2) && (y >= y1) && (y+yi < y1)) y += (h+(d*yi)); // moving up
+////   if ((item[i][3] & PM_ITEM_WRAP_XPL) && (xi > 0) && (y >= y1) && (y <= y2) && (x <= x2) && (x+xi > x2)) x -= (w-(d*xi)); // moving right
+////   if ((item[i][3] & PM_ITEM_WRAP_XMN) && (xi < 0) && (y >= y1) && (y <= y2) && (x >= x1) && (x+xi < x1)) x += (w+(d*xi)); // moving left
+//
+//      float d = 8;
+//      if ((item[i][3] & PM_ITEM_WRAP_YPL) && (yi > 0) && (x >= x1) && (x <= x2) && (y <= y2) && (y+yi > y2)) y -= (h-d); // moving down
+//      if ((item[i][3] & PM_ITEM_WRAP_YMN) && (yi < 0) && (x >= x1) && (x <= x2) && (y >= y1) && (y+yi < y1)) y += (h-d); // moving up
+//      if ((item[i][3] & PM_ITEM_WRAP_XPL) && (xi > 0) && (y >= y1) && (y <= y2) && (x <= x2) && (x+xi > x2)) x -= (w-d); // moving right
+//      if ((item[i][3] & PM_ITEM_WRAP_XMN) && (xi < 0) && (y >= y1) && (y <= y2) && (x >= x1) && (x+xi < x1)) x += (w-d); // moving left
+//
+//   }
+//
+////   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
+//
+//
+//
+//}
+//
+//
+//void mwItems::proc_wrap_rect(int i)
+//{
+//   int FLAGS = item[i][3];
+//   if (FLAGS & PM_ITEM_WRAP_PLAYER)
+//      for (int p=0; p<NUM_PLAYERS; p++)
+//         if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
+//            wrap_rect_helper(i, mPlayer.syn[p].x, mPlayer.syn[p].y, mPlayer.syn[p].xinc, mPlayer.syn[p].yinc);
+//   if (FLAGS & PM_ITEM_WRAP_ENEMY)
+//      for (int e=0; e<100; e++)
+//         if (mEnemy.Ei[e][0])
+//            wrap_rect_helper(i, mEnemy.Ef[e][0], mEnemy.Ef[e][1], mEnemy.Ef[e][2], mEnemy.Ef[e][3]);
+//   if (FLAGS & PM_ITEM_WRAP_ITEM)
+//      for (int c=0; c<500; c++)
+//         if (item[c][0])
+//            wrap_rect_helper(i, itemf[c][0], itemf[c][1], itemf[c][2], itemf[c][3]);
+//   if (FLAGS & PM_ITEM_WRAP_PSHOT)
+//      for (int b=0; b<50; b++)
+//         if (mShot.p[b].active)
+//            wrap_rect_helper(i, mShot.p[b].x, mShot.p[b].y, mShot.p[b].xinc, mShot.p[b].yinc);
+//   if (FLAGS & PM_ITEM_WRAP_ESHOT)
+//      for (int b=0; b<50; b++)
+//         if (mShot.e[b].active)
+//            wrap_rect_helper(i, mShot.e[b].x, mShot.e[b].y, mShot.e[b].xinc, mShot.e[b].yinc);
+//}
+//
+//
+//
+//void mwItems::proc_wrap_line(int i)
+//{
+//
+//}
+//
+//int mwItems::draw_wrap_line(int i, int x, int y, int custom)
+//{
+//
+//   return 0;
+//
+//}
+//
+//
+//
+//
 
 
 

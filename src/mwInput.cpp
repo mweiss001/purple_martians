@@ -432,10 +432,10 @@ void mwInput::test_keys(int x, int sy)
    {
       int y = sy;
 
-      al_draw_filled_rectangle(x-190, y, x+190, y+170, mColor.pc[0]); // erase background
+      al_draw_filled_rectangle(x-170, y, x+170, y+154, mColor.pc[0]); // erase background
 
       al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------" );
-      al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Test your controller setup here.");
+      al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Test controller setup.");
       al_draw_text(mFont.pr8, c3, x, y+=8, ALLEGRO_ALIGN_CENTRE, "(F11 to quit)");
       al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------");
       al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Test how pressing multiple");
@@ -444,7 +444,7 @@ void mwInput::test_keys(int x, int sy)
       al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Keyboards widely differ in the number");
       al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "keys that can be detected at one time.");
       al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------" );
-      y +=24;
+      y +=16;
       if (mPlayer.syn[0].up) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "UP" );
       y +=8;
       if (mPlayer.syn[0].down) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "DOWN" );
@@ -508,6 +508,19 @@ void mwInput::set_controls_to_custom_sets(int s)
       mPlayer.loc[0].fire_key = 3;
       mPlayer.loc[0].menu_key = 59;
    }
+
+   if (s == 5) // set all to WASD
+   {
+      mPlayer.loc[0].up_key = 23;
+      mPlayer.loc[0].down_key = 19;
+      mPlayer.loc[0].left_key = 1;
+      mPlayer.loc[0].right_key = 4;
+      mPlayer.loc[0].jump_key = 75;
+      mPlayer.loc[0].fire_key = 3;
+      mPlayer.loc[0].menu_key = 59;
+   }
+
+
 }
 
 int mwInput::SHFT(void)

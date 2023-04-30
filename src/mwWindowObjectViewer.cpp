@@ -1033,39 +1033,39 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             }
          }
          break;
-         case 20: // wrap
-         {
-
-            mWidget.toggle(        xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][2], "Draw Rectangle:OFF", "Draw Rectangle:ON ", 15, 15, 15+96, 10);
-
-            ya+=4; // spacer
-
-            if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Rectangle")) mMiscFnx.get_block_range("Wrap Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
-            ya+=4; // spacer
-            int p = 12;
-
-
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_PLAYER,  "Wrap Players:OFF",        "Wrap Players:ON",        15+dim, 15, p+dim, p);
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_ENEMY,   "Wrap Enemies:OFF",        "Wrap Enemies:ON",        15+dim, 15, p+dim, p);
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_ITEM,    "Wrap Items:OFF",          "Wrap Items:ON",          15+dim, 15, p+dim, p);
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_PSHOT,   "Wrap Player's Shots:OFF", "Wrap Player's Shots:ON", 15+dim, 15, p+dim, p);
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_ESHOT,   "Wrap Enemy's Shots:OFF",  "Wrap Enemy's Shots:ON",  15+dim, 15, p+dim, p);
-
-            ya+=4; // spacer
-
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_FORCE,  "Force Wrap:OFF",        "Force Wrap:ON",        15+dim, 15, 13+dim, 13);
-
-            ya+=4; p = 11; // spacer
-
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_XMN,     "X-Axis Left:OFF ",        "X-Axis Left:ON  ",       15+dim, 15, p+dim, p);
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_XPL,     "X-Axis Right:OFF",        "X-Axis Right:ON ",       15+dim, 15, p+dim, p);
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_YMN,     "Y-Axis Up:OFF   ",        "Y-Axis Up:ON    ",       15+dim, 15, p+dim, p);
-            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_YPL,     "Y-Axis Down:OFF ",        "Y-Axis Down:ON  ",       15+dim, 15, p+dim, p);
-
-
-
-         }
-         break;
+//         case 20: // wrap
+//         {
+//
+//            mWidget.toggle(        xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][2], "Draw Rectangle:OFF", "Draw Rectangle:ON ", 15, 15, 15+96, 10);
+//
+//            ya+=4; // spacer
+//
+//            if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Rectangle")) mMiscFnx.get_block_range("Wrap Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+//            ya+=4; // spacer
+//            int p = 12;
+//
+//
+//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_PLAYER,  "Wrap Players:OFF",        "Wrap Players:ON",        15+dim, 15, p+dim, p);
+//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_ENEMY,   "Wrap Enemies:OFF",        "Wrap Enemies:ON",        15+dim, 15, p+dim, p);
+//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_ITEM,    "Wrap Items:OFF",          "Wrap Items:ON",          15+dim, 15, p+dim, p);
+//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_PSHOT,   "Wrap Player's Shots:OFF", "Wrap Player's Shots:ON", 15+dim, 15, p+dim, p);
+//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_ESHOT,   "Wrap Enemy's Shots:OFF",  "Wrap Enemy's Shots:ON",  15+dim, 15, p+dim, p);
+//
+//            ya+=4; // spacer
+//
+//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_FORCE,  "Force Wrap:OFF",        "Force Wrap:ON",        15+dim, 15, 13+dim, 13);
+//
+//            ya+=4; p = 11; // spacer
+//
+//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_XMN,     "X-Axis Left:OFF ",        "X-Axis Left:ON  ",       15+dim, 15, p+dim, p);
+//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_XPL,     "X-Axis Right:OFF",        "X-Axis Right:ON ",       15+dim, 15, p+dim, p);
+//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_YMN,     "Y-Axis Up:OFF   ",        "Y-Axis Up:ON    ",       15+dim, 15, p+dim, p);
+//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_YPL,     "Y-Axis Down:OFF ",        "Y-Axis Down:ON  ",       15+dim, 15, p+dim, p);
+//
+//
+//
+//         }
+//         break;
       }
 
    }

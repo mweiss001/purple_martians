@@ -3,6 +3,7 @@
 struct settings_tab
 {
    char title[80];
+   int show;
    float x1;
    float y1;
    float x2;
@@ -14,9 +15,15 @@ class mwSettings
    public:
    void settings_pages(int set_page);
 
-   int settings_current_page = 0;
+   int current_page = 0;
+   int show_advanced;
+   int show_debug;
+
    int overlay_grid[10][4] = {0};
    int number_of_debug_overlay_modes = 2;
+
+
+   void redraw_one_control(int x, int y, int &ya, int bts, int tc, int show_buttons, int num, int i, int &key, const char* nam);
    int redraw_all_controls(int x, int y, int bts, int tc, int show_buttons, int num);
 
    private:

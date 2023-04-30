@@ -1357,7 +1357,7 @@ int mwWidget::buttontca(int xc, int &y1, int xd, int bts, int bn, int num, int t
 // highlight outline when moused over
 int mwWidget::buttontcb(int x1, int &y1, int xd, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
-   int y2 = y1+bts-2;
+   int y2 = (y1+bts)-2;
    int ret = 0;
 
    int tl = (strlen(txt)+1)*8;
@@ -1381,7 +1381,7 @@ int mwWidget::buttontcb(int x1, int &y1, int xd, int bts, int bn, int num, int t
    }
 
    al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1);
-   draw_slider_text(x1, y1,  x2, y2, tc, q5, txt);
+   draw_slider_text(x1, y1+1, x2, y2, tc, q5, txt);
 
 
    if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
@@ -1539,6 +1539,18 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       if (var == 0) sprintf(msg,  "Player Display: Short Text");
       if (var == 1) sprintf(msg,  "Player Display: Long Text");
    }
+
+
+
+   if (bn == 18)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(msg,  "Settings Pages: Basic");
+      if (var == 1) sprintf(msg,  "Settings Pages: Advanced");
+      if (var == 2) sprintf(msg,  "Settings Pages: Debug");
+   }
+
 
 
 

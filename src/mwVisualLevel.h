@@ -2,7 +2,7 @@
 
 #define NUM_LEV 400
 
-#define VISUAL_LEVEL_SELECT_MAX_LEVEL 200
+#define VISUAL_LEVEL_SELECT_MAX_LEVEL 400
 
 class mwVisualLevel
 {
