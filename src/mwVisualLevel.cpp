@@ -704,22 +704,56 @@ int mwVisualLevel::visual_level_select(void)
 
 
 
+      if (al_get_timer_count(mEventQueue.mou_timer) == 0) // if mouse is not hidden (asleep)
+         if ((mInput.mouse_x > 16) && (mInput.mouse_x < 16 + grid_width) && (mInput.mouse_y > 16) && (mInput.mouse_y < 16 + grid_height)) // if mouse is on grid
+         {
+            int mpc = (mInput.mouse_x-16) / grid_size;
+            int mpr = (mInput.mouse_y-16) / grid_size;
+            if (le[(mpr * grid_cols) + mpc]) // if valid level
+            {
+               grid_sel_row = mpr;
+               grid_sel_col = mpc;
+               selected_level = le[grid_sel_row * grid_cols + grid_sel_col];
+               vl_redraw = 1;
+
+               if (mInput.mouse_b[1][0])
+               {
+                  while (mInput.mouse_b[1][0]) mEventQueue.proc();
+                  mLevel.set_start_level(selected_level);
+                  quit = 1;
+               }
+            }
+         }
+
+
+
+
       mEventQueue.proc_menu();
 
       if (((mInput.key[ALLEGRO_KEY_LEFT][0]) || (mPlayer.syn[0].left)) && (left_held == 0))
       {
          left_held = 1;
          while ((mInput.key[ALLEGRO_KEY_LEFT][0]) || (mPlayer.syn[0].left)) mEventQueue.proc_menu();
-         if (--grid_sel_col < 0) grid_sel_col = 0;
+         if (--grid_sel_col < 0)
+         {
+            grid_sel_col = grid_cols -1; // wrap at border
+            if (--grid_sel_row < 0) grid_sel_row = grid_rows-1; // next row up
+            while (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
+         }
          vl_redraw = 1;
       }
       if ( (!(mInput.key[ALLEGRO_KEY_LEFT][0])) &&  (!(mPlayer.syn[0].left)) )  left_held = 0;
+
 
       if (((mInput.key[ALLEGRO_KEY_UP][0]) || (mPlayer.syn[0].up)) && (up_held == 0))
       {
          up_held = 1;
          while ((mInput.key[ALLEGRO_KEY_UP][0]) || (mPlayer.syn[0].up)) mEventQueue.proc_menu();
-         if (--grid_sel_row < 0) grid_sel_row = 0;
+         if (--grid_sel_row < 0)
+         {
+            grid_sel_row = grid_rows-1; // wrap at border
+            while (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
+         }
          vl_redraw = 1;
       }
       if ( (!(mInput.key[ALLEGRO_KEY_UP][0])) && (!(mPlayer.syn[0].up)) ) up_held = 0;
@@ -728,9 +762,12 @@ int mwVisualLevel::visual_level_select(void)
       {
          right_held = 1;
          while ((mInput.key[ALLEGRO_KEY_RIGHT][0]) || (mPlayer.syn[0].right)) mEventQueue.proc_menu();
-         if (++grid_sel_col > grid_cols-1) grid_sel_col = grid_cols-1;
-         // don't allow select of empty level
-         if (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--;
+         if (++grid_sel_col > grid_cols-1)
+         {
+            grid_sel_col = 0; // wrap at border
+            if (++grid_sel_row > grid_rows-1) grid_sel_row = 0; // next row down
+            while (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
+         }
          vl_redraw = 1;
       }
       if ( (!(mInput.key[ALLEGRO_KEY_RIGHT][0])) &&  (!(mPlayer.syn[0].right)) )  right_held = 0;
@@ -739,12 +776,12 @@ int mwVisualLevel::visual_level_select(void)
       {
          down_held = 1;
          while ((mInput.key[ALLEGRO_KEY_DOWN][0]) || (mPlayer.syn[0].down)) mEventQueue.proc_menu();
-         if (++grid_sel_row > grid_rows-1) grid_sel_row = grid_rows-1;
-         // don't allow select of empty level
-         if (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_row--;
+         if (++grid_sel_row > grid_rows-1) grid_sel_row = 0; // wrap at border
+         while (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--; // if selected level does not exist move left until level is found
          vl_redraw = 1;
       }
       if ( (!(mInput.key[ALLEGRO_KEY_DOWN][0])) && (!(mPlayer.syn[0].down)) ) down_held = 0;
+
 
       // these checks would normally never be needed, unless screen size changes
       if (grid_sel_col > grid_cols-1) grid_sel_col = 0;
@@ -770,6 +807,14 @@ int mwVisualLevel::visual_level_select(void)
          mLevel.set_start_level(selected_level);
          quit = 3;
       }
+
+
+      if (mInput.mouse_b[2][0])
+      {
+         while (mInput.mouse_b[2][0]) mEventQueue.proc();
+         quit = 2;
+      }
+
 
 
 

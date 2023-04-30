@@ -62,25 +62,6 @@ void mwEnemy::fill_strings(void)
    strcpy (enemy_name[12][2], "flapper");
    strcpy (enemy_name[13][2], "vinepod");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
    enemy_tile[3]  = 496;
    enemy_tile[4]  = 508;
    enemy_tile[5]  = 706;
@@ -161,13 +142,12 @@ void mwEnemy::recalc_pod(int e)
    float ylen = Ef[e][6] - Ef[e][1];           // get the y distance
    float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));    // hypotenuse distance
    float speed = Ef[e][9];                      // speed
-   float scaler = al_fixdiv(hy_dist, speed);     // get scaler
+   float scaler = hy_dist / speed;     // get scaler
    Ef[e][2] = xlen / scaler;         // calc xinc
    Ef[e][3] = ylen / scaler;         // calc yinc
    Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI/2;  // rotation
    Ei[e][7] = scaler; // num steps
 }
-
 
 void mwEnemy::get_pod_extended_position(int e, int *x, int *y)
 {
@@ -204,9 +184,7 @@ void mwEnemy::show_all_enemies(void)
       al_set_target_backbuffer(mDisplay.display);
       al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, 0, text_pos, rh, rh, 0);
 
-
       al_draw_line(0, text_pos, mDisplay.SCREEN_W, text_pos, mColor.pc[15+128], 0);
-
 
       int tp1 = text_pos+(rh-16)/2;
       int tp2 = tp1+8;

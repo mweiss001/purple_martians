@@ -8,7 +8,6 @@ class mwBottomMessage
 {
    public:
 
-
    int num_lines;
    float io; // initial opacity
    float fo; // final opacity
@@ -41,14 +40,10 @@ class mwBottomMessage
    void add(int ev, int x, int y, int z1, int z2, int z3, int z4);
    void draw(int outline);
 
-
-   void draw_health(int p, int h, int &xpos, int ypos, int xo, int yo);
-   void draw_text(const char *txt, int col, int &xpos, int ypos);
-   void draw_bmp(ALLEGRO_BITMAP *tmp, int &xpos, int ypos, int xo, int yo);
-   void draw_player(int p, int &xpos, int ypos);
-   void draw_enemy(int e_type, int &xpos, int ypos);
-   void draw_item(ALLEGRO_BITMAP *tmp, const char *txt, int col, int &xpos, int ypos, int xo, int yo);
-
+   void draw_player(int p, int &xpos);
+   void draw_enemy(int e_type, int &xpos);
+   void draw_item(ALLEGRO_BITMAP *tmp, const char *txt, int col, int &xpos, int xo, int yo);
+   void draw_health(int p, int h, int &xpos, int xo, int yo);
 
    private:
 
@@ -58,9 +53,9 @@ class mwBottomMessage
 
    int bmsg_index;
    int game_event_retrigger_holdoff[10];
-   //float game_event_retrigger_holdoff_tally[10];
 
-
+   void draw_text(const char *txt, int col, int &xpos);
+   void draw_bmp(ALLEGRO_BITMAP *tmp, int &xpos, int xo, int yo);
 
 };
 extern mwBottomMessage mBottomMessage;

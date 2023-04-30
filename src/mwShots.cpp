@@ -148,7 +148,7 @@ void mwShots::proc_eshot_collision(int p, int b)
       case 1062:  e_type = 12; damage = 8;  break; // flapper thing
    }
    mPlayer.syn[p].health -= damage;
-   mGameEvent.add(43, 0, 0, p, e_type, 0, damage);
+   mGameEvent.add(41, 0, 0, p, e_type, 2, damage);
 
    // recoil !!
    if (mShot.e[b].xinc > 0)

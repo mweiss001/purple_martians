@@ -487,13 +487,17 @@ Bombs and rockets will destroy these blocks.
 <section>Netgame
 
 
-<c13>LAN Network Multiplayer Game Mode
+<c13>Network Multiplayer Game Mode
 <c15>_________________________________
 
 
-<c15>To run a Netgame, the computers must be in the
+<c15>Netgame allows up to 8 players to simultaneously play together.
 
-<c15>same subnet and be able to ping each other.
+<c15>Each player is on a different computer and they all communicate.
+
+<c15>This works even if some computers are running Windows and
+
+<c15>some are running Linux.
 
 <c15>_________________________________
 
@@ -505,19 +509,33 @@ Bombs and rockets will destroy these blocks.
 <c15>_________________________________
 
 
-<c15>Each Client needs to have the Server's IP or hostname set in:
+<c15>Clients require the Server's IP or hostname to be set in:
 
-<c15>"Options Menu" -> "Netgame Options"
+<c15>"Settings" -> "Netgame"
 
 <c15>_________________________________
 
 
-<c15>Clients will use what the Server tells them for:
+<c15>For a LAN is is pretty easy to set up.
 
-<c15>Player Color,  Level,  FPS (frames per second)
+<c15>If the computers can ping each other, (and firewall rules are set)
 
-<c15>Deathmatch Player Bullets, Suicide Player Bullets
+<c15>that is all that is needed.
 
+<c15>_________________________________
+
+
+<c15>To make it work over the internet is non-trivial.
+
+<c15>With port forwarding, DMZ's and other tricks and hacks, it can be done.
+
+<c15>This is an issue that has nothing to do with this game and everything
+
+<c15>to do with Peer-to-Peer Communication Across Network Address Translators.
+
+<c15>The method I used was to have the server in a DMZ, or directly
+
+<c15>connected to the internet (no router).
 
 <b15>
 

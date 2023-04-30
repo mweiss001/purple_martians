@@ -440,7 +440,13 @@ void mwHelp::help(const char *topic)
       } // end of cycle lines
 
 
+
+
       mEventQueue.proc();
+
+      line -= mInput.mouse_dz * 4;
+      mInput.mouse_dz = 0;
+
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])  quit = 1;
       if (mInput.key[ALLEGRO_KEY_UP][0])   line --;
       if (mInput.key[ALLEGRO_KEY_DOWN][0]) line ++;

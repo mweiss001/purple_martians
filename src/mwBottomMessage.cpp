@@ -43,8 +43,8 @@ void mwBottomMessage::create_test_mode_list(void)
    add(25, 0, 0, 1, 0, 10, 0);    // p1 lit bomb with 10 sec fuse
    add(25, 0, 0, 2, 0, 0,  1);    // p2 armed bomb with remote detonator
    add(26, 0, 0, 3, 0, 0,  0);    // p3 lit rocket
+
    add(27, 0, 0, 1, 0, 0, 0);     // p1 got a purple coin
-   add(28, 0, 0, 2, 0, 1023, 26); // p2 got a health bonus
 
 //   for (int a=0; a<8; a++)
 //     add(28, 0, 0, 2, 0, 928+a, 26);  // p2 got a health bonus
@@ -52,15 +52,13 @@ void mwBottomMessage::create_test_mode_list(void)
 //   for (int a=0; a<8; a++)
 //     add(28, 0, 0, 2, 0, 960+a, 26);  // p2 got a health bonus
 //
-//   add(28, 0, 0, 2, 0, 1023, 26);  // p2 got a health bonus
-//   add(28, 0, 0, 2, 0, 1027, 26);  // p2 got a health bonus
-//   add(28, 0, 0, 2, 0, 1035, 26);  // p2 got a health bonus
+   add(28, 0, 0, 2, 0, 1023, 10);  // p2 got a health bonus
+   add(28, 0, 0, 3, 0, 1027, 50);  // p3 got a health bonus
+   add(28, 0, 0, 4, 0, 1035, 75);  // p4 got a health bonus
 
-//   add(28, 0, 0, 2, 0, 1023, 26);  // p2 got a health bonus
-//   add(28, 0, 0, 2, 0, 930,  6);  // p2 got a health bonus
-//   add(28, 0, 0, 2, 0, 961,  27);  // p2 got a health bonus
-
-
+   add(28, 0, 0, 6, 0, 930,  56);  // p6 got a health bonus
+   add(28, 0, 0, 7, 0, 961,  77);  // p7 got a health bonus
+   add(28, 0, 0, 7, 0, 963,  87);  // p7 got a health bonus
 
    add(40,  0, 0, 4, 2, 1, 25);   // p4 got shot by another player p2
    add(40,  0, 0, 4, 4, 1, 25);   // p4 shot themself
@@ -68,12 +66,25 @@ void mwBottomMessage::create_test_mode_list(void)
    add(40, 0, 0, 2, 1, 2, 33);    // p2 exploded p1
    add(40, 0, 0, 3, 3, 2, 54);    // p3 exploded self
 
-   add(43,  0, 0, 5, 4, 0, 25);   // p5 player got shot by enemy (bouncer)
-   add(44,  0, 0, 5, 6, 0, 15);   // p6 player got shot by enemy (cannon)
 
-   add(46, 0, 0, 6, 0, 4, 0);  // p6  killed enemy with a shot
-   add(47, 0, 0, 5, 0, 7, 0);  // p5  killed enemy with a explosion
+//   add(43,  0, 0, 5, 4, 0, 25);   // p5 player got shot by enemy (bouncer)
+//   add(44,  0, 0, 5, 6, 0, 15);   // p6 player got shot by enemy (cannon)
 
+   add(41,  0, 0, 5, 4, 1, 25);   // p5 player got hit by enemy (bouncer)
+   add(41,  0, 0, 6, 6, 2, 15);   // p6 player got shot by enemy (cannon)
+
+
+
+   add(42, 0, 0, 6, 0, 4, 1);  // p6  killed enemy with a shot
+   add(42, 0, 0, 5, 0, 7, 2);  // p5  killed enemy with a explosion
+
+//   for (int a=3; a<14; a++)
+//      if (a != 10)
+//         add(42, 0, 0, 5, 0, a, 2);  // p5  killed enemy with a explosion
+//
+//   for (int a=3; a<14; a++)
+//      if (a != 10)
+//         add(42, 0, 0, 6, 0, a, 1);  // p6  killed enemy with a shot
 
 
    add(6, 0, 0, 3, 0, 0, 0);  // p3 joined
@@ -136,20 +147,20 @@ void mwBottomMessage::initialize(void)
 
 
 
-void mwBottomMessage::draw_text(const char *txt, int col, int &xpos, int ypos)
+void mwBottomMessage::draw_text(const char *txt, int col, int &xpos)
 {
-   al_draw_text(mFont.pr16, mColor.pc[col], xpos, ypos+2, ALLEGRO_ALIGN_INTEGER, txt);
+   al_draw_text(mFont.pr16, mColor.pc[col], xpos, 2, ALLEGRO_ALIGN_INTEGER, txt);
    xpos += (strlen(txt)*16);
 }
 
-void mwBottomMessage::draw_bmp(ALLEGRO_BITMAP *tmp, int &xpos, int ypos, int xo, int yo)
+void mwBottomMessage::draw_bmp(ALLEGRO_BITMAP *tmp, int &xpos, int xo, int yo)
 {
-   al_draw_bitmap(tmp, xpos+xo, ypos+yo, 0);
+   al_draw_bitmap(tmp, xpos+xo, yo, 0);
    xpos += 20;
 }
 
 
-void mwBottomMessage::draw_player(int p, int &xpos, int ypos)
+void mwBottomMessage::draw_player(int p, int &xpos)
 {
    ALLEGRO_BITMAP *tmp = mBitmap.player_tile[mPlayer.syn[p].color][1];
 
@@ -160,64 +171,64 @@ void mwBottomMessage::draw_player(int p, int &xpos, int ypos)
 
    //sprintf(msg, "Player %d", p);
    int dp = disp_player;
-   if (dp == 0) draw_bmp(tmp, xpos, ypos, 0, 0); // tile only
-   if (dp == 1) draw_text(msg, mPlayer.syn[p].color, xpos, ypos); // text only
+   if (dp == 0) draw_bmp(tmp, xpos, 0, 0); // tile only
+   if (dp == 1) draw_text(msg, mPlayer.syn[p].color, xpos); // text only
    if (dp == 2) // tile + text
    {
-      draw_bmp(tmp, xpos, ypos, 0, 0);
+      draw_bmp(tmp, xpos, 0, 0);
       xpos += 6;
-      draw_text(msg, mPlayer.syn[p].color, xpos, ypos);
+      draw_text(msg, mPlayer.syn[p].color, xpos);
    }
    if (dp == 3) // text + tile
    {
-      draw_text(msg, mPlayer.syn[p].color, xpos, ypos);
+      draw_text(msg, mPlayer.syn[p].color, xpos);
       xpos += 4;
-      draw_bmp(tmp, xpos, ypos, 0, 0);
+      draw_bmp(tmp, xpos, 0, 0);
    }
 }
 
-void mwBottomMessage::draw_enemy(int e_type, int &xpos, int ypos)
+void mwBottomMessage::draw_enemy(int e_type, int &xpos)
 {
    int de = disp_enemy;
 
    ALLEGRO_BITMAP *tmp = mBitmap.tile[mEnemy.enemy_tile[e_type]];
 
-   if (de == 0) draw_bmp(tmp, xpos, ypos, 0, 0); // tile only
-   if (de == 1) draw_text(mEnemy.enemy_name[e_type][2], 15, xpos, ypos); // text only
+   if (de == 0) draw_bmp(tmp, xpos, 0, 0); // tile only
+   if (de == 1) draw_text(mEnemy.enemy_name[e_type][2], 15, xpos); // text only
    if (de == 2) // tile + text
    {
-      draw_bmp(tmp, xpos, ypos, 0, 0);
+      draw_bmp(tmp, xpos, 0, 0);
       xpos += 16;
-      draw_text(mEnemy.enemy_name[e_type][2], 15, xpos, ypos);
+      draw_text(mEnemy.enemy_name[e_type][2], 15, xpos);
    }
    if (de == 3) // text + tile
    {
-      draw_text(mEnemy.enemy_name[e_type][2], 15, xpos, ypos);
+      draw_text(mEnemy.enemy_name[e_type][2], 15, xpos);
       xpos += 16;
-      draw_bmp(tmp, xpos, ypos, 0, 0);
+      draw_bmp(tmp, xpos, 0, 0);
    }
 }
 
-void mwBottomMessage::draw_item(ALLEGRO_BITMAP *tmp, const char *txt, int col, int &xpos, int ypos, int xo, int yo)
+void mwBottomMessage::draw_item(ALLEGRO_BITMAP *tmp, const char *txt, int col, int &xpos, int xo, int yo)
 {
    int di = disp_item;
-   if (di == 0) draw_bmp(tmp, xpos, ypos, xo, yo); // tile only
-   if (di == 1) draw_text(txt, col, xpos, ypos);   // text only
+   if (di == 0) draw_bmp(tmp, xpos, xo, yo); // tile only
+   if (di == 1) draw_text(txt, col, xpos);   // text only
    if (di == 2) // tile + text
    {
-      draw_bmp(tmp, xpos, ypos, xo, yo);
+      draw_bmp(tmp, xpos, xo, yo);
       xpos += 16;
-      draw_text(txt, col, xpos, ypos);
+      draw_text(txt, col, xpos);
    }
    if (di == 3) // text + tile
    {
-      draw_text(txt, col, xpos, ypos);
+      draw_text(txt, col, xpos);
       xpos += 16;
-      draw_bmp(tmp, xpos, ypos, xo, yo);
+      draw_bmp(tmp, xpos, xo, yo);
    }
 }
 
-void mwBottomMessage::draw_health(int p, int h, int &xpos, int ypos, int xo, int yo)
+void mwBottomMessage::draw_health(int p, int h, int &xpos, int xo, int yo)
 {
    xpos += xo;
 
@@ -231,26 +242,26 @@ void mwBottomMessage::draw_health(int p, int h, int &xpos, int ypos, int xo, int
    if (dh == 0)
    {
       sprintf(msg, "Health %+d", h);
-      draw_text(msg, col, xpos, ypos);
+      draw_text(msg, col, xpos);
    }
    if (dh == 1)
    {
       sprintf(msg, "H%+d", h);
-      draw_text(msg, col, xpos, ypos);
+      draw_text(msg, col, xpos);
    }
    if (dh == 2)
    {
       sprintf(msg, "%+d", h);
-      draw_text(msg, col, xpos, ypos);
+      draw_text(msg, col, xpos);
    }
    if (dh == 3)
    {
       int hbw = 24;
       int hbx = xpos + 2 + hbw/2;
       int hbh = 6;
-      int hby = ypos + 4 + (20 - hbh)/2;
+      int hby = 4 + (20 - hbh)/2;
       mScreen.draw_percent_barc(hbx, hby, hbw, hbh, abs(h), 0, col, 15);
-      al_draw_textf(mFont.pr8, mColor.pc[col], hbx, ypos+3, ALLEGRO_ALIGN_CENTER, "%+d", h);
+      al_draw_textf(mFont.pr8, mColor.pc[col], hbx, 3, ALLEGRO_ALIGN_CENTER, "%+d", h);
    }
 }
 
@@ -295,13 +306,13 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
       al_set_target_bitmap(bmsg_temp);
       al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 
-      draw_player(z1, xpos, 0); // all bmsg start with player
+      draw_player(z1, xpos); // all bmsg start with player
 
 
       if (ev == 20) // key
       {
          custom_drawn = 1;
-         draw_text(" got a ", 15, xpos, 0);
+         draw_text(" got a ", 15, xpos);
          int c1 = 0;  // color
          int tn = 0;  // tile_numer
          int k = z2 - 1039;
@@ -309,24 +320,24 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
          if (k == 1) { c1 = 11; tn = 279; } // green
          if (k == 2) { c1 = 13; tn = 288; } // blue
          if (k == 3) { c1 = 8;  tn = 295; } // purple
-         draw_item(mBitmap.tile[tn], "key", c1, xpos, 0, 0, 0);
+         draw_item(mBitmap.tile[tn], "key", c1, xpos, 0, 0);
       }
       if (ev == 21) // switch
       {
          custom_drawn = 1;
-         draw_text(" flipped a ", 15, xpos, 0);
-         draw_item(mBitmap.tile[z2], "switch", 15, xpos, 0, 0, 0);
+         draw_text(" flipped a ", 15, xpos);
+         draw_item(mBitmap.tile[z2], "switch", 15, xpos, 0, 0);
       }
       if (ev == 22) // door
       {
          custom_drawn = 1;
-         draw_text(" went through a ", 15, xpos, 0);
-         draw_item(mBitmap.door_tile[z4][z3][0], "door", 15, xpos, 0, 0, 0);
+         draw_text(" went through a ", 15, xpos);
+         draw_item(mBitmap.door_tile[z4][z3][0], "door", 15, xpos, 0, 0);
       }
       if (ev == 23) // locked exit
       {
          custom_drawn = 1;
-         draw_text(" found ", 15, xpos, 0);
+         draw_text(" found ", 15, xpos);
 
          // construct the exit bitmap
          ALLEGRO_BITMAP *etmp = al_create_bitmap(20, 20);
@@ -338,7 +349,7 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
          al_draw_textf(mFont.pixl, mColor.pc[14], 11, -2, ALLEGRO_ALIGN_CENTER, "%d", z3);
 
          al_set_target_bitmap(bmsg_temp);
-         draw_item(etmp, "locked exit", 15, xpos, 0, 0, 0);
+         draw_item(etmp, "locked exit", 15, xpos, 0, 0);
          al_destroy_bitmap(etmp);
       }
       if (ev == 25) // bomb
@@ -346,35 +357,35 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
          custom_drawn = 1;
          if (z4)
          {
-            draw_text(" got a ", 15, xpos, 0);
-            draw_item(mBitmap.tile[539], "detonator", 15, xpos, 0, 0, 4);
-            draw_text(" for ", 15, xpos, 0);
-            draw_item(mBitmap.tile[538], "bomb", 15, xpos, 0, 0, -4);
+            draw_text(" got a ", 15, xpos);
+            draw_item(mBitmap.tile[539], "detonator", 15, xpos, 0, 4);
+            draw_text(" for ", 15, xpos);
+            draw_item(mBitmap.tile[538], "bomb", 15, xpos, 0, -4);
          }
          else
          {
-            draw_text(" lit a ", 15, xpos, 0);
-            draw_item(mBitmap.tile[465], "bomb", 15, xpos, 0, 0, 0);
+            draw_text(" lit a ", 15, xpos);
+            draw_item(mBitmap.tile[465], "bomb", 15, xpos, 0, 0);
             sprintf(msg, " with %d sec fuse",  z3);
-            draw_text(msg, 15, xpos, 0);
+            draw_text(msg, 15, xpos);
          }
       }
       if (ev == 26) // rocket
       {
          custom_drawn = 1;
-         draw_text(" lit a ", 15, xpos, 0);
-         draw_item(mBitmap.tile[249], "rocket", 15, xpos, 0, 0, 0);
+         draw_text(" lit a ", 15, xpos);
+         draw_item(mBitmap.tile[249], "rocket", 15, xpos, 0, 0);
       }
       if (ev == 27) // coin
       {
          custom_drawn = 1;
-         draw_text(" got a ", 15, xpos, 0);
-         draw_item(mBitmap.tile[197], "coin", 15, xpos, 0, 0, 0);
+         draw_text(" got a ", 15, xpos);
+         draw_item(mBitmap.tile[197], "coin", 15, xpos, 0, 0);
       }
       if (ev == 28) // bonus
       {
          custom_drawn = 1;
-         draw_text(" got a ", 15, xpos, 0);
+         draw_text(" got a ", 15, xpos);
 
          char tmsg[80] = {0};
          sprintf(tmsg, "potion");
@@ -392,8 +403,8 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
          if (z3 == 1023) bt = 304;
          if (z3 == 1027) bt = 240;
          if (z3 == 1035) bt = 320;
-         draw_item(mBitmap.tile[bt], tmsg, 15, xpos, 0, 0, yo);
-         draw_health(z1, z4, xpos, 0, 16, 0);
+         draw_item(mBitmap.tile[bt], tmsg, 15, xpos, 0, yo);
+         draw_health(z1, z4, xpos, 16, 0);
       }
 
 
@@ -401,72 +412,97 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
       {
          custom_drawn = 1;
 
-         if (z3 == 1) draw_text(" shot ", 15, xpos, 0);
-         if (z3 == 2) draw_text(" exploded ", 15, xpos, 0);
-         if (z1 != z2) draw_player(z2, xpos, 0);
-         else draw_text("themself!", 15, xpos, 0);
-         draw_health(z1, -z4, xpos, 0, 16, 0);
+         if (z3 == 1) draw_text(" shot ", 15, xpos);
+         if (z3 == 2) draw_text(" exploded ", 15, xpos);
+         draw_player(z2, xpos);
+//         if (z1 != z2) draw_player(z2, xpos);
+//         else draw_text("themself!", 15, xpos);
+
+         draw_health(z1, -z4, xpos, 16, 0);
       }
       if (ev == 42) // player killed enemy
       {
          custom_drawn = 1;
-         draw_text(" killed ", 15, xpos, 0);
-         draw_enemy(z3, xpos, 0);
-         if (z4 == 1) draw_text(" with a shot.", 15, xpos, 0);
-         if (z4 == 2) draw_text(" with explosion!", 15, xpos, 0);
+
+//         draw_text(" killed ", 15, xpos);
+//         draw_enemy(z3, xpos);
+//         if (z4 == 1) draw_text(" with a shot.", 15, xpos);
+//         if (z4 == 2) draw_text(" with explosion!", 15, xpos);
+
+
+         if (z4 == 1) draw_text(" shot ", 15, xpos);
+         if (z4 == 2) draw_text(" exploded ", 15, xpos);
+         draw_enemy(z3, xpos);
+
+
       }
-      if (ev == 43) // player got shot by enemy
+
+      if (ev == 41) // player hurt by enemy
       {
          custom_drawn = 1;
-         draw_text(" got shot by ", 15, xpos, 0);
-         draw_enemy(z2, xpos, 0);
-         draw_health(z1, -z4, xpos, 0, 16, 0);
+         if (z3 == 1) draw_text(" got hit by ", 15, xpos);
+         if (z3 == 2) draw_text(" got shot by ", 15, xpos);
+         draw_enemy(z2, xpos);
+         draw_health(z1, -z4, xpos, 16, 0);
       }
-      if (ev == 44) // player got hit by enemy
-      {
-         custom_drawn = 1;
-         draw_text(" got hit by ", 15, xpos, 0);
-         draw_enemy(z2, xpos, 0);
-         draw_health(z1, -z4, xpos, 0, 16, 0);
-      }
+
+//      if (ev == 43) // player got shot by enemy
+//      {
+//         custom_drawn = 1;
+//         draw_text(" got shot by ", 15, xpos);
+//         draw_enemy(z2, xpos);
+//         draw_health(z1, -z4, xpos, 16, 0);
+//      }
+//      if (ev == 44) // player got hit by enemy
+//      {
+//         custom_drawn = 1;
+//         draw_text(" got hit by ", 15, xpos);
+//         draw_enemy(z2, xpos);
+//         draw_health(z1, -z4, xpos, 16, 0);
+//      }
+//
+
+//.add(43
+
+
       if (ev == 6) // player joined
       {
          custom_drawn = 1;
-         draw_text(" joined!", 15, xpos, 0);
+         draw_text(" joined!", 15, xpos);
       }
       if (ev == 7) // player quit
       {
          custom_drawn = 1;
-         draw_text(" quit!", 15, xpos, 0);
+         draw_text(" quit!", 15, xpos);
       }
       if (ev == 8) // player died
       {
          custom_drawn = 1;
-         draw_text(" died!", 15, xpos, 0);
+         draw_text(" died!", 15, xpos);
       }
 
 
       if (ev == 12) // player took damage (lost health from block damage, mine, stuck...
       {
          custom_drawn = 1;
-//         draw_text(" was hurt by ", 15, xpos, 0);
-         if (z2 == 1) draw_text(" was hurt by damage field", 15, xpos, 0);
-         if (z2 == 2) draw_text(" was hurt by spikey floor", 15, xpos, 0);
+//         draw_text(" was hurt by ", 15, xpos);
+         if (z2 == 1) draw_text(" was hurt by damage field", 15, xpos);
+         if (z2 == 2) draw_text(" was hurt by spikey floor", 15, xpos);
 
          if (z2 == 5)
          {
-            draw_text(" was hurt by ", 15, xpos, 0);
-            draw_item(mBitmap.tile[456], "mine", 15, xpos, 0, 0, 0);
+            draw_text(" was hurt by ", 15, xpos);
+            draw_item(mBitmap.tile[456], "mine", 15, xpos, 0, 0);
          }
 
 
-         if (z2 == 7) draw_text(" got stuck in blocks", 15, xpos, 0);
-         if (z2 == 9) draw_text(" got squished by lift", 15, xpos, 0);
+         if (z2 == 7) draw_text(" got stuck in blocks", 15, xpos);
+         if (z2 == 9) draw_text(" got squished by lift", 15, xpos);
 
-//         if (z2 == 7) draw_text("getting stuck in blocks", 15, xpos, 0);
-//         if (z2 == 9) draw_text("getting squished by lift", 15, xpos, 0);
+//         if (z2 == 7) draw_text("getting stuck in blocks", 15, xpos);
+//         if (z2 == 9) draw_text("getting squished by lift", 15, xpos);
 
-         draw_health(z1, -z4, xpos, 0, 16, 0);
+         draw_health(z1, -z4, xpos, 16, 0);
       }
 
 
@@ -511,7 +547,7 @@ void mwBottomMessage::draw(int outline)
    double t0 = al_get_time();
    if (bottom_msg_on)
    {
-      //bottom_msg_timer = 100; // always draw
+      bottom_msg_timer = 100; // always draw
       if (bottom_msg_timer > 0)
       {
          bottom_msg_timer--;

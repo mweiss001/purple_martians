@@ -206,9 +206,7 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
 //   al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+20, ALLEGRO_ALIGN_CENTRE, "lh:%2.1f nl:%d th:%2.1f", line_height, extra.num_lines, text_height);
 //   al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+28, ALLEGRO_ALIGN_CENTRE, "fh:%d fh-fw:%d sp:%2.1f", h, h - frame_width*2, sp);
 
-
    float y3 = y1+frame_width+line_height/2-3.5;
-
 
    if (sp < 1)
    {
@@ -224,7 +222,7 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
 
       // convert all printable char to blank non-printable spaces (can't use space because multiline text will break in new places)
       for (int a=0; a<(int)strlen(pt); a++)
-         if ((pt[a] > 32) && (pt[a] < 126)) pt[a] = 30; // alternate space
+         if ((pt[a] > 32) && (pt[a] < 126)) pt[a] = 96; // alternate space
 
       // check if cursor is on special char
       int cursor_on_special = 0;
@@ -240,7 +238,7 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
       al_draw_multiline_text(mFont.pr8, mColor.pc[10], xc+cursor_on_special*8, y3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
    }
 
-//      // crosshairs for alignment
+      // crosshairs for alignment
 //      al_draw_line(x1, y1, x2, y2, mColor.pc[fc], 1);
 //      al_draw_line(x1, y2, x2, y1, mColor.pc[fc], 1);
 //      al_draw_line(x1+w/2, y1,     x1+w/2, y2,     mColor.pc[fc], 1);

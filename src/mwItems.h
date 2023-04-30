@@ -112,12 +112,12 @@ class mwItems
    float get_timer_ratio_for_event(int ev);
 
 
-   int draw_wrap_rect(int i, int x, int y, int custom);
-   void wrap_rect_helper(int i, float &x, float &y, float xi, float yi);
-   void proc_wrap_rect(int i);
-
-   void proc_wrap_line(int i);
-   int draw_wrap_line(int i, int x, int y, int custom);
+//   int draw_wrap_rect(int i, int x, int y, int custom);
+//   void wrap_rect_helper(int i, float &x, float &y, float xi, float yi);
+//   void proc_wrap_rect(int i);
+//
+//   void proc_wrap_line(int i);
+//   int draw_wrap_line(int i, int x, int y, int custom);
 
 
 

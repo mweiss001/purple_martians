@@ -520,7 +520,7 @@ void mwWindow::es_save_selection(int save)
          for (c=0; c < ft_level_header[4]; c++) // enemy int and float
          {
             for (x=0; x<32; x++) fprintf(filepntr,"%d\n",ft_Ei[c][x]);
-            for (x=0; x<16; x++) fprintf(filepntr,"%d\n",ft_Ei[c][x]);
+            for (x=0; x<16; x++) fprintf(filepntr,"%f\n",ft_Ef[c][x]);
          }
          for (c=0; c < ft_level_header[5]; c++) // lifts
          {

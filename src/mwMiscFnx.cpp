@@ -1140,8 +1140,10 @@ void mwMiscFnx::show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int c
 
 
 
-void mwMiscFnx::edit_server_name(int type, int x, int y)
+void mwMiscFnx::edit_server_name(int x, int y)
 {
+   int tc = 10;
+
    char fst[80];
    strcpy(fst, mNetgame.m_serveraddress);
    int char_count = strlen(fst);
@@ -1157,30 +1159,28 @@ void mwMiscFnx::edit_server_name(int type, int x, int y)
       int ty1 = mDisplay.SCREEN_H/2;
       int w = (char_count+1)*4;
 
-      if (type == 1)
-      {
-         tx = x;
-         ty1 = y+20;
+      tx = x;
+      ty1 = y+20;
 
-      }
+
 
       al_flip_display();
       // clear text background
       al_draw_filled_rectangle(tx-w-8, ty1-4-2, tx+w+18, ty1+4+3, mColor.pc[0]);
 
-      al_draw_text(mFont.pr8, mColor.pc[15], tx, ty1-14, ALLEGRO_ALIGN_CENTER, "Set Server IP or Hostname");
+//      al_draw_text(mFont.pr8, mColor.pc[15], tx, ty1-14, ALLEGRO_ALIGN_CENTER, "Set Server IP or Hostname");
       // frame text
-      al_draw_rectangle       (tx-w-1, ty1-4-1, tx+w+6, ty1+6, mColor.pc[15], 1);
+      al_draw_rectangle       (tx-w-1, ty1-4-1, tx+w+6, ty1+6, mColor.pc[tc], 1);
 
-      mScreen.rtextout_centre(mFont.pr8, NULL, fst, tx, ty1+1, 15, 1, 1);
+      mScreen.rtextout_centre(mFont.pr8, NULL, fst, tx, ty1+1, tc, 1, 1);
 
-      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1-3, 15, 0);
-      else show_cursor(fst, cursor_pos, tx, ty1-3, 15, 1);
+      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1-3, tc, 0);
+      else show_cursor(fst, cursor_pos, tx, ty1-3, tc, 1);
       if (blink_counter> blink_count*2) blink_counter = 0;
 
       if (cursor_pos != old_cp)
       {
-         show_cursor(fst, old_cp, tx, ty1-3, 15, 1); // erase old blinking cursor if moved
+         show_cursor(fst, old_cp, tx, ty1-3, tc, 1); // erase old blinking cursor if moved
          old_cp = cursor_pos;
          blink_counter = 0;
       }

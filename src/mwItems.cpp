@@ -53,8 +53,8 @@ void mwItems::initialize(void)
    strcpy(item_name[15], "Sproingy");
    strcpy(item_name[16], "Block Manip");
    strcpy(item_name[17], "Block Damage");
-   strcpy(item_name[20], "Wrap Rect");
-   strcpy(item_name[21], "Wrap Line");
+//   strcpy(item_name[20], "Wrap Rect");
+//   strcpy(item_name[21], "Wrap Line");
 
    item_tile[0]  = 0;
    item_tile[1]  = 448;
@@ -76,8 +76,8 @@ void mwItems::initialize(void)
    item_tile[17] = 988;
    item_tile[18] = 0;
    item_tile[19] = 0;
-   item_tile[20] = 544;
-   item_tile[21] = 544;
+//   item_tile[20] = 544;
+//   item_tile[21] = 544;
 
 }
 
@@ -118,8 +118,8 @@ void mwItems::draw_item(int i, int custom, int cx, int cy)
    if (type == 17) drawn = draw_block_damage (i, x, y, custom);
    if (type == 98) drawn = draw_rocket       (i, x, y, shape);
    if (type == 99) drawn = draw_lit_bomb     (i);
-   if (type == 20) drawn = draw_wrap_rect    (i, x, y, custom);
-   if (type == 21) drawn = draw_wrap_line    (i, x, y, custom);
+//   if (type == 20) drawn = draw_wrap_rect    (i, x, y, custom);
+//   if (type == 21) drawn = draw_wrap_line    (i, x, y, custom);
 
    // default draw if nothing else has drawn it up to now
    if (!drawn) al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
@@ -162,8 +162,8 @@ void mwItems::move_items()
          if (type == 13) proc_timer(i);
          if (type == 16) proc_block_manip(i);
          if (type == 17) proc_block_damage(i);
-         if (type == 20) proc_wrap_rect(i);
-         if (type == 21) proc_wrap_line(i);
+//         if (type == 20) proc_wrap_rect(i);
+//         if (type == 21) proc_wrap_line(i);
          if (type == 99) proc_lit_bomb(i);
          if (type == 98) proc_lit_rocket(i);
 

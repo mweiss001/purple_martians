@@ -3,61 +3,9 @@
 ---------------------------------------------------------
 
 
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
-
-
-make advanced section of settings
-- how to toggle?
-- what pages are advanced?
-
-
-
-
-add bottom message settings page
-in this page I want to show demo bmsg and have live changes
-
-- what variables?
-
-- save variables in cfg
-
-
-
-add a bunch of settings for bottom message:
-how many lines: 8 (max 20)
-float io = 1.0; // initial opacity
-float fo = 0.1; // final opacity
-float ivs = 0.5; // initial v size
-float fvs = 0.1; // final v size
-float ihs = 0.5; // initial h size
-float fhs = 0.1; // final h size
-
-which game events cause messages
-
-player tile, text or both
-enemy  tile, text or both
-item   tile, text or both
-
-how close the player has to be to reduce messages
-
-
-
-
-
-
-
-
-
-make sure stimp and warp work perfectly with netgame
-
-
-
-
-
-
-
 
 
 --------------------------------------------------------
@@ -68,22 +16,99 @@ level done shows briefly when using warp
 I can reduce the time, but what if it breaks things in network level done?
 I'm getting a stimp in single player
 
-
-bottom message settings
-
-when does eco draw get used? make it an option in settings..
-
-advanced settings tab
-
-
-change name of global level thingy
+music plays after level done
 
 
 
+add timer to advanced level demo and help
+
+
+
+alt levels...the ones not good enough for the main sequence
+
+
+---------------------------------------------------------
+------------------------ Tests --------------------------
+---------------------------------------------------------
+
+
+test all multiplayer bmsg's
 
 
 
 
+
+
+
+
+test all enemies collision with player..good
+ArchWagon-
+Bouncer-
+JumpWorm-
+Cannon-
+PodZilla-
+TrakBot-
+Cloner-
+Block Walker-
+Flapper-
+VinePod-
+always same shape for bouncer
+
+player shot enemy
+ArchWagon-
+Bouncer-
+JumpWorm-
+Cannon-
+PodZilla-
+TrakBot-
+Cloner-
+Block Walker-
+Flapper-
+VinePod-
+cannon with muliple shots, does not show unless killed
+
+player exploded enemy
+ArchWagon
+Bouncer
+JumpWorm
+Cannon
+PodZilla
+TrakBot
+Cloner
+Block Walker
+Flapper
+VinePod
+all good
+
+player got shot by:
+ArchWagon-
+Bouncer-
+Cannon-
+PodZilla-
+TrakBot-
+Flapper-
+VinePod - says podzilla
+
+
+
+ArchWagon
+Bouncer
+JumpWorm
+Cannon
+PodZilla
+TrakBot
+Cloner
+Block Walker
+Flapper
+VinePod
+
+
+
+
+
+-------------------------------
+-- Random thoughts and ideas --
+-------------------------------
 
 why did I remove skip frame draw?
 because 99% of the time, the thing was taking too much time was draw frame itself
@@ -114,9 +139,8 @@ what would it take to extend lifts to use splines?
 I would also like to make splines have more control points, maybe I'll have to make my own..
 
 
-
 here is a huge one:
-can level editor be brought under the program state unmbrella?
+can level editor be brought under the program state umbrella?
 I sort of duplicate level editor modes with program states
 
 
@@ -344,6 +368,21 @@ enemy  tile, text or both
 item   tile, text or both
 
 how close the player has to be to reduce messages
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -234,12 +234,9 @@ void mwGlobalLevelTool::execute(void)
 //
 
       for (int y=0; y<500; y++)
-         if (mItem.item[y][0] == 7)
+         if (mItem.item[y][0] == 21)
          {
-            int damage = mItem.item[y][8];
-            printf("l:%d y:%d  daamge:%d\n", le[x], y, damage);
-
-           // mItem.item[y][8] = damage * 10;
+            printf("l:%d y:%d \n", le[x], y);
          }
 
 

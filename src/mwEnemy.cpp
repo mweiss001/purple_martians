@@ -344,7 +344,7 @@ void mwEnemy::enemy_player_hit_proc(int e)
          int p = Ei[e][22]-1;
          mPlayer.syn[p].health -= Ef[e][4];
 
-         mGameEvent.add(44, 0, 0, p, Ei[e][0], 0, Ef[e][4]);
+         mGameEvent.add(41, 0, 0, p, Ei[e][0], 1, Ef[e][4]);
          Ei[e][22] = 0;  // clear hit
          Ei[e][23] = 60; // set retrigger amount
       }

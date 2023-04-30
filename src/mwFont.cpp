@@ -76,7 +76,7 @@ void mwFont::convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bm
 {
    char msg[1024];
    char fn[256];
-   // converts ttf fonts to bitmap mF.pr8 to draw faster and have consistant size
+   // converts ttf fonts to bitmap font to draw faster and have consistant size
    sprintf(fn, "bitmaps/%s", ttf_filename);
    ALLEGRO_FONT *cf = al_load_ttf_font(fn, char_size, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
    if (!cf)
