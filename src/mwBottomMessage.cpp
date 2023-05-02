@@ -265,6 +265,7 @@ void mwBottomMessage::draw_health(int p, int h, int &xpos, int xo, int yo)
    }
 }
 
+
 void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
    if (ev == 11) // tally raw damage
@@ -406,35 +407,21 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
          draw_item(mBitmap.tile[bt], tmsg, 15, xpos, 0, yo);
          draw_health(z1, z4, xpos, 16, 0);
       }
-
-
       if (ev == 40) // player hurt player
       {
          custom_drawn = 1;
-
          if (z3 == 1) draw_text(" shot ", 15, xpos);
          if (z3 == 2) draw_text(" exploded ", 15, xpos);
+         //if (z1 == z2) draw_text("themself!", 15, xpos); //else
          draw_player(z2, xpos);
-//         if (z1 != z2) draw_player(z2, xpos);
-//         else draw_text("themself!", 15, xpos);
-
          draw_health(z1, -z4, xpos, 16, 0);
       }
       if (ev == 42) // player killed enemy
       {
          custom_drawn = 1;
-
-//         draw_text(" killed ", 15, xpos);
-//         draw_enemy(z3, xpos);
-//         if (z4 == 1) draw_text(" with a shot.", 15, xpos);
-//         if (z4 == 2) draw_text(" with explosion!", 15, xpos);
-
-
          if (z4 == 1) draw_text(" shot ", 15, xpos);
          if (z4 == 2) draw_text(" exploded ", 15, xpos);
          draw_enemy(z3, xpos);
-
-
       }
 
       if (ev == 41) // player hurt by enemy
@@ -445,26 +432,6 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
          draw_enemy(z2, xpos);
          draw_health(z1, -z4, xpos, 16, 0);
       }
-
-//      if (ev == 43) // player got shot by enemy
-//      {
-//         custom_drawn = 1;
-//         draw_text(" got shot by ", 15, xpos);
-//         draw_enemy(z2, xpos);
-//         draw_health(z1, -z4, xpos, 16, 0);
-//      }
-//      if (ev == 44) // player got hit by enemy
-//      {
-//         custom_drawn = 1;
-//         draw_text(" got hit by ", 15, xpos);
-//         draw_enemy(z2, xpos);
-//         draw_health(z1, -z4, xpos, 16, 0);
-//      }
-//
-
-//.add(43
-
-
       if (ev == 6) // player joined
       {
          custom_drawn = 1;
@@ -481,38 +448,26 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
          draw_text(" died!", 15, xpos);
       }
 
-
       if (ev == 12) // player took damage (lost health from block damage, mine, stuck...
       {
          custom_drawn = 1;
-//         draw_text(" was hurt by ", 15, xpos);
          if (z2 == 1) draw_text(" was hurt by damage field", 15, xpos);
          if (z2 == 2) draw_text(" was hurt by spikey floor", 15, xpos);
-
          if (z2 == 5)
          {
             draw_text(" was hurt by ", 15, xpos);
             draw_item(mBitmap.tile[456], "mine", 15, xpos, 0, 0);
          }
-
-
          if (z2 == 7) draw_text(" got stuck in blocks", 15, xpos);
          if (z2 == 9) draw_text(" got squished by lift", 15, xpos);
-
-//         if (z2 == 7) draw_text("getting stuck in blocks", 15, xpos);
-//         if (z2 == 9) draw_text("getting squished by lift", 15, xpos);
-
          draw_health(z1, -z4, xpos, 16, 0);
       }
 
-
-
-
-      if (custom_drawn) // caught by one of the handlers here
+      if (!custom_drawn) printf(" no bmsg handler for event:%d\n",ev); // not caught by one of the handlers here
+      else // add to bmsg bitmap array
       {
          bottom_msg_timer = 100; // start the timer
          if (++bmsg_index > BMSG_MAX_LINES-1) bmsg_index = 0;
-
          al_set_target_bitmap(bmsg_bmp[bmsg_index]);
          al_clear_to_color(al_map_rgba(0, 0, 0, 0));
          al_draw_bitmap(bmsg_temp, (400 - (xpos/2)), 0, 0);
@@ -533,11 +488,6 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
             tc++;
          }
       }
-      else
-      {
-         printf(" no bmsg handler for event:%d\n",ev);
-        // 1-shoot 4-exit 15-jump 22-explosion 31-sproingy
-      }
    }
    if (mLog.LOG_TMR_bmsg_add) mLog.add_log_TMR(al_get_time() - t0, "bmsg_add4", 0);
 }
@@ -547,7 +497,7 @@ void mwBottomMessage::draw(int outline)
    double t0 = al_get_time();
    if (bottom_msg_on)
    {
-      bottom_msg_timer = 100; // always draw
+      //bottom_msg_timer = 100; // always draw
       if (bottom_msg_timer > 0)
       {
          bottom_msg_timer--;

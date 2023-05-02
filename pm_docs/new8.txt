@@ -20073,12 +20073,225 @@ fixed bug when savind sel, saved floats as ints...
 
 make mouse wheel scroll in help..done
 
+20230430 6:00 AM
+Mom's bday
+
+
+look at the level done stuff for netgame
+
+single player music plays after level done
+right now stop_sound is called in:
+   if (mLoop.program_state == 12)
+   {
+      mSound.stop_sound();
+
+but this is too late
+
+move that call to
+
+void mwLoop::proc_level_done_mode(void)
+{
+   if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
+   {
+      mSound.stop_sound();
+that sounds kind of abrupt
+can I gradually fade out?
+   if (mPlayer.syn[0].level_done_mode == 8) // players seek exit
+   {
+//      float fade = (float) mPlayer.syn[0].level_done_timer / 60; // 1 to 0 in 60 frames
+//      float fade = 0.5 + (float) mPlayer.syn[0].level_done_timer / 120; // 1 to .5 in 60 frames
+      float fade = 0.3 + (float) mPlayer.syn[0].level_done_timer / 85; // 1 to .3 in 60 frames
+      if (mSound.sound_on) al_set_mixer_gain(mSound.st_mixer, ((float)mSound.st_scaler / 9) * fade);
+
+when players seek exit and it takes 60 frames fade from 1.0 to 0.3
+restore mixer levels in start sound..
+done...
+
+stimp and warp level done stuff....
+level done shows briefly when using warp
+I can reduce the time, but what if it breaks things in network level done?
+I'm getting a stimp in single player
+
+tested multiplayer LAN 3P 150-153 has warp at end.. all good
+
+temp made stimp and stamp 140frame from 40 for testing
+
+is stamp only used when going back to menu?
+right now level done does not stamp, but stimps
+
+
+stamp is called only once, when changing program state to 1
+
+
+stimp is called:
+
+single player new game
+level done
+resume game
+run demo
+
+
+just looking at this, I would think I could remove the level done stimp...
+or in level done do both stamp and stimp...
+this sounds much more complex...
+I think I've got it fixed by removing stimp in level done...
+what if I added something the the level done..no
+
+in screen overlay don't show large LEVEL DONE for level done modes < 4
+that fixes the bried large LEVEL DONE in warp mode..
+
+I think this is all fixed
+
+fix stimp and stamp times, now 60..done
+
+fix bmsg always on..fixed
+
+
+look at command line switches in help..done
+
+controls in help...
+add help button to control page in settings
+done
+remove serial key..done
+config file..done
+title stretched??..fixed..
+naviagation..done..
 
 
 
 
+I want to make the system function keys configureable...
 
 
+first make a list
+
+
+[F1] fake key
+
+<l14>         [F5] - Zoom Out (decrease scale factor)
+<l14>         [F6] - Zoom In (increase scale factor)
+<l14>    [F5]+[F6] - Reset Zoom (set scale factor to 1.0)
+
+<l09>         [F7] - Speed Decrease (by 1 frame per second)
+<l57>  [SHIFT][F7] - Speed Decrease (by 20 frames per second)
+<l89>[CONTROL][F7] - Speed Decrease (by 100 frames per second)
+
+<l09>    [F7]+[F8] - Reset Speed (set frames per second to 40)
+
+<l09>         [F8] - Speed Increase (by 1 frame per second)
+<l57>  [SHIFT][F8] - Speed Increase (by 20 frames per second)
+<l89>[CONTROL][F8] - Speed Increase (by 100 frames per second)
+
+
+
+
+<l15>        [F10] - Toggle the debug overlay
+
+<l05>[PRINTSCREEN] - Saves a screen shot in the screenshot folder
+
+<l13>        [F12] - Toggle Full Screen Mode
+
+
+variables for config
+I need a good name:
+I have game controls, what do I call the others?
+other controls
+
+OTHER_CONTROLS_FULLSCREEN
+
+other_control_fullscreen_toggle
+
+
+function_key_fullscreen
+function_key_text_double
+function_key_debug_overlay
+function_key_fakekey
+function_key_printscreen
+function_key_zoom_in
+function_key_zoom_out
+
+check for all these in function check
+if any are set to 0 they are considered disabled
+
+
+save them in config
+
+edit them in settings...
+
+F12 fullscreen
+F11 double
+F10 debug overlay
+
+it works, but now I have to make it look good in settings...better
+
+make a way to disable a control...
+if press esc then set to zero
+done
+
+
+add names for missing things...
+like ~
+
+detect duplicate keys
+done
+
+set to defaults..done
+
+center the top thing..done
+
+make size dynamic..done
+can adjust num lines and higher ones will not be shown
+
+add more keys
+speed
+force_save
+force_init_background
+
+this is all done..
+
+now I kind of want to make this more accessible
+
+show tab with advanced
+
+show last three with debug...
+done
+
+rename to "Function Keys"
+show always
+
+rename to "Controls 2"
+title "Function Keys"
+
+done...
+
+make a new tab for speed control
+
+add some framing to netgame tab..looks great now...
+
+how about advanced toggle in title?..done
+
+am I done with settings?
+
+what else could I possibly add?
+
+optional resolution in window title
+- I can already show it with debug overlay
+
+optional text in bottom frame
+
+main menu level editor shortcut key
+
+level editor ov lock key
+
+change settings page for double...configrable key and default..done
+
+max level num to show in visual level select..done
+
+
+
+20230502 done with settings...
+
+moving on...
 
 
 

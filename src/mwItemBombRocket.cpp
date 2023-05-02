@@ -299,7 +299,7 @@ void mwItems::bomb_players(int i, int t, int dr, float x, float y)
             {
                mPlayer.syn[p].health -= damage;
                int p2 = mItem.item[i][13]; // player that last touched bomb
-               mGameEvent.add(40, 0, 0, p, p2, 2, dmg);
+               mGameEvent.add(40, 0, 0, p2, p, 2, dmg);
             }
          }
       }

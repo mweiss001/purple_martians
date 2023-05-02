@@ -23,6 +23,10 @@ class mwSettings
    int number_of_debug_overlay_modes = 2;
 
 
+   void redraw_one_fcontrol(int x, int y, int &ya, int bts, int tc, int show_buttons, int num, int num_lines, int i, int &key, const char* nam);
+   int redraw_all_fcontrols(int x, int y, int bts, int tc, int show_buttons, int num, int num_lines);
+
+
    void redraw_one_control(int x, int y, int &ya, int bts, int tc, int show_buttons, int num, int i, int &key, const char* nam);
    int redraw_all_controls(int x, int y, int bts, int tc, int show_buttons, int num);
 

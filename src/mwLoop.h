@@ -46,6 +46,8 @@ class mwLoop
    char al_version_string[80];
 
 
+   int ff_state;
+
 
    void draw_frame(void);
    void move_frame(void);

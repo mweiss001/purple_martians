@@ -14,7 +14,7 @@
 <c08>________________________________
 
 
-<l15>                  Move up and down with <l09>[UP]<l15> and <l09>[DOWN].
+<l15>               Scroll with <l09>[UP]<l15> and <l09>[DOWN]<l15> or <l09>[mouse wheel].
 
 
 <l15>              Move by sections with <l09>[PAGE UP]<l15> and <l09>[PAGE DOWN].
@@ -26,7 +26,7 @@
 <l15>           Jump to a section by typing the 2 digit section number.
 
 
-<l15>                             Use <l09>[ESC]<l15> to quit.
+<l15>                       Use <l09>[ESC]<l15> or <l09>[mouse_b2] <l15>to quit.
 
 
 <section>Table of Contents
@@ -203,7 +203,7 @@
 <l09>              [DOWN]
 
 
-<c15>You can customize the controls with "Controller Setup" on the options menu.
+<c15>You can customize the controls in "Settings" -> "Controls"
 
 
 
@@ -585,14 +585,9 @@ Bombs and rockets will destroy these blocks.
 <l09>_________________________________
 
 
-<l14>pm <int>
+<l14>pm [lev]
 
- - start the game and run level <int>
-
-
-<l14>pm -p <int>
-
- - start the game and run level <int>
+ - starts the game and run level number [lev]
 
 
 
@@ -602,12 +597,12 @@ Bombs and rockets will destroy these blocks.
 
 <l14>pm -e
 
-- start the level editor
+- starts the level editor
 
 
-<l14>pm -e <int>
+<l14>pm -e [lev]
 
-- start the level editor with level <int>
+- starts the level editor with level number [lev]
 
 
 
@@ -615,9 +610,14 @@ Bombs and rockets will destroy these blocks.
 <l09>____________________________________________________
 
 
-<l14>pm -f <file>
+<l14>pm -f
 
-- runs saved game <file>
+- starts the game and prompts to run a demo saved game
+
+
+<l14>pm [file.gm]
+
+- start the game a runs a demo saved game [file.gm]
 
 
 
@@ -625,14 +625,14 @@ Bombs and rockets will destroy these blocks.
 <l09>__________________________________
 
 
-<l14>pm -c <IP or hostname>
+<l14>pm -c [IP or hostname]
 
-- starts a Client Netgame and tries to connect to <IP or hostname>
+- starts a Client Netgame and tries to connect to [IP or hostname]
 
 
 <l14>pm -c
 
-- starts a Client Netgame and uses the saved value for <IP or hostname>
+- starts a Client Netgame and uses the saved value for [IP or hostname]
 
 
 
@@ -640,9 +640,9 @@ Bombs and rockets will destroy these blocks.
 <l09>__________________________________
 
 
-<l14>pm -s <int>
+<l14>pm -s [lev]
 
-- starts a Server Netgame on level <int>
+- starts a Server Netgame on level number [lev]
 
 
 <l14>pm -s
@@ -658,6 +658,16 @@ Bombs and rockets will destroy these blocks.
 <l14>pm -h
 
 - displays the help screens
+
+
+
+<l15>Display command line help
+<l09>_________________________
+
+
+<l14>pm -?
+
+- shows command line help on the console
 
 
 
@@ -730,84 +740,15 @@ Bombs and rockets will destroy these blocks.
 <section>Config File
 
 
-
-<l13>The game uses the config file "pm.cfg" to store persistant data
-
-<l13>If the file is deleted, it will be re-created with defaults
+<c15>The game uses the config file "pm.cfg" to store persistant data.
 
 
-"pm.cfg"
-
-[SCREEN]
-disp_w_wind=800
-disp_h_wind=600
-disp_x_wind=10
-disp_y_wind=10
-fullscreen=0
-scale_factor = 1.00
-show_splash_screen = 1
-
-[GAME]
-color = 8
-start_level = 1
-speed = 40
-
-[SOUND]
-sound_on = 1
-se_scaler = 5 <l09>[sound effect volume 0-10]
-st_scaler = 5 <l09>[sound track volume 0-10]
-
-[GAMECONTROLS]
-p1_up_key = 84
-p1_down_key = 85
-p1_right_key = 83
-p1_left_key = 82
-p1_jump_key = 75
-p1_fire_key = 3
-p1_menu_key = 59
-
-[NETWORK]
-server_IP = 192.168.1.1
-deathmatch_pbullets = 0
-suicide_pbullets = 0
-control_lead_frames = 3
-server_lead_frames = 1
-chdf_freq = 40
-zlib_cmp = 7
-
-[LOGGING]
-auto_save_game_on_level_done = 0
-auto_save_game_on_exit = 0
-LOGGING = 0
-LOGGING_NETPLAY = 0
-LOGGING_NETPLAY_JOIN = 0
-LOGGING_NETPLAY_bandwidth = 0
-LOGGING_NETPLAY_client_timer_adjust = 0
-LOGGING_NETPLAY_cdat = 0
-LOGGING_NETPLAY_game_move = 0
-LOGGING_NETPLAY_sdat = 0
-LOGGING_NETPLAY_sdak = 0
-LOGGING_NETPLAY_chdf = 0
-LOGGING_NETPLAY_chdf_all_packets = 0
-LOGGING_NETPLAY_chdf_when_to_apply = 0
-LOGGING_NETPLAY_show_dif1 = 0
-LOGGING_NETPLAY_show_dif2 = 0
+<c15>You can manually edit the file, but the best way to change
+<c15>settings is to use the "Settings" pages in the game.
 
 
-<section>Serial Key Shortcuts
+<c15>If the file "pm.cfg" is deleted, it will be re-created with defaults.
 
-
-bmsgon - bottom messages on
-
-bmsgoff - bottom messages off
-
-ston - speed test on
-
-stoff - speed test off
-
-mdwa - spline adjust
-
-mdwt - spline test
 
 
 <section>Level Editor Basics

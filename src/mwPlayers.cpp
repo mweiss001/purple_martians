@@ -688,12 +688,12 @@ void mwPlayers::proc_player_collisions(int p)
             if ((mShot.deathmatch_shots) && (pb != p))
             {
                 mShot.proc_pshot_collision(p, b);
-                mGameEvent.add(40, 0, 0, p, pb, 1, mShot.deathmatch_shot_damage);
+                mGameEvent.add(40, 0, 0, pb, p, 1, mShot.deathmatch_shot_damage);
             }
             if ((mShot.suicide_shots) && (pb == p))
             {
                 mShot.proc_pshot_collision(p, b);
-                mGameEvent.add(40, 0, 0, p, pb, 1, mShot.deathmatch_shot_damage);
+                mGameEvent.add(40, 0, 0, pb, p, 1, mShot.deathmatch_shot_damage);
             }
          }
       }

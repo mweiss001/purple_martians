@@ -43,6 +43,9 @@ int mwGameMoves::has_player_acknowledged(int p)
    return 0;
 }
 
+// mGameMoves.proc
+
+
 
 // this function processes all entries in the game_moves array that match current mLoop.frame_num
 void mwGameMoves::proc(void)
@@ -191,7 +194,7 @@ void mwGameMoves::proc_player_active_game_move(int x)
 {
    char msg[1024];
 
-   int p            = arr[x][2]; // player number
+   int p                = arr[x][2]; // player number
    mPlayer.syn[p].color = arr[x][3]; // color
 
    // player was inactive before and just now changes to active
@@ -428,6 +431,7 @@ void mwGameMoves::blind_save_game_moves(int d)
    if ((d == 1) && (mLog.autosave_game_on_level_done))    do_save = 1;
    if ((d == 2) && (mLog.autosave_game_on_game_exit))     do_save = 1;
    if ((d == 3) && (mLog.autosave_game_on_game_exit))     do_save = 1;
+   if (d == 4) do_save = 1;
    if (do_save)
    {
       char lev[80];
@@ -439,6 +443,7 @@ void mwGameMoves::blind_save_game_moves(int d)
       if (d == 1) strftime(filename, sizeof(filename), "level_done_%Y%m%d-%H%M%S", timenow);
       if (d == 2) strftime(filename, sizeof(filename), "game_exit_%Y%m%d-%H%M%S",  timenow);
       if (d == 3) strftime(filename, sizeof(filename), "bad_exit_%Y%m%d-%H%M%S",   timenow);
+      if (d == 4) strftime(filename, sizeof(filename), "force_save_%Y%m%d-%H%M%S", timenow);
       strcat(filename, lev);
 
 

@@ -480,7 +480,7 @@ void mwVisualLevel::load_visual_level_select(void)
 
    // level range to look for
    int lll = 1;   // lower level limit
-   int ull = VISUAL_LEVEL_SELECT_MAX_LEVEL; // upper level limit
+   int ull = max_level_num; // upper level limit
 
    // look for levels that exist and put them in array
    for (int x=lll; x<ull; x++)

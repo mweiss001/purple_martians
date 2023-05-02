@@ -8,21 +8,16 @@
 ---------------------------------------------------------
 
 
+
+
+
 --------------------------------------------------------
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
-stimp and warp level done stuff....
-level done shows briefly when using warp
-I can reduce the time, but what if it breaks things in network level done?
-I'm getting a stimp in single player
-
-music plays after level done
 
 
 
 add timer to advanced level demo and help
-
-
 
 alt levels...the ones not good enough for the main sequence
 
@@ -33,11 +28,17 @@ alt levels...the ones not good enough for the main sequence
 
 
 test all multiplayer bmsg's
+some messages show up twice
+it is because of rewind
+how am I going to fix it?
+set a global flag when rewinding....
+don't send game events when flag set...
+done...
 
-
-
-
-
+player join
+player shot player is reversed
+switched 3 calls to event 40 player hurt player
+..fixed
 
 
 
@@ -171,18 +172,18 @@ log like cpu, but with a multicolored bar...move, draw, other, all added up
 
 
 Things to add to settings:
-Speed testing abilites.
-bottom message settings
-Special function keys and what they do
-F12
-F10
-PRINTSCREEN
-etc
-I could make these all configurable, just like the other menu keys
+
+optional resolution in window title
+- I can already show it with debug overlay
+
+optional text in bottom frame
+
+main menu level editor shortcut key
+
+level editor ov lock key
 
 options to do the send stuff to clients? including which clients to send to, and text entry to add new ones????
 then maybe I could retrieve log from client after netgame???...whoa...that's just crazy
-
 
 what are the next things I can profile?
 how long does it take client to decompress, run a dif, rewind?

@@ -121,6 +121,7 @@ void mwLoop::move_frame(void)
 
 void mwLoop::loop_frame(int times) // used for fast forwarding after rewind
 {
+   ff_state = 1;
    for (int i=0; i<times; i++)
    {
       mGameMoves.proc();
@@ -128,6 +129,7 @@ void mwLoop::loop_frame(int times) // used for fast forwarding after rewind
       else move_frame();
       mLoop.frame_num++;
    }
+   ff_state = 0;
 }
 
 int mwLoop::have_all_players_acknowledged(void)
@@ -452,6 +454,7 @@ void mwLoop::proc_program_state(void)
       mScreen.stimp();
       mLoop.frame_num = 0;
       mLoop.show_player_join_quit_timer = 0;
+
       mSound.start_music(0); // rewind and start theme
 
       mTimeStamp.init_timestamps();
@@ -466,7 +469,7 @@ void mwLoop::proc_program_state(void)
 
 
    //---------------------------------------
-   // 12 - level done
+   // 12 - level done (more accurately load next level)
    //---------------------------------------
    if (mLoop.program_state == 12)
    {
@@ -495,23 +498,14 @@ void mwLoop::proc_program_state(void)
 
       mLevel.play_level = mPlayer.syn[0].level_done_next_level;
 
-      if (0) // reset clients
-      {
-         if ((mNetgame.ima_client) || (mNetgame.ima_server))
-         {
-            for (int p=0; p<NUM_PLAYERS; p++)
-            {
-               // free all the used clients, so they can be re-assigned on the next level
-               // if (mPlayer.syn[p].control_method == 9) mPlayer.syn[p].control_method = 0;
-
-               // set all clients inactive on server and client, to force them to re-chase and lock on the new level
-               // if ((mPlayer.syn[p].control_method == 2) || (mPlayer.syn[p].control_method == 4)) mPlayer.syn[p].active = 0;
-
-            }
-         }
-      }
-
-
+//      if ((mNetgame.ima_client) || (mNetgame.ima_server))
+//         for (int p=0; p<NUM_PLAYERS; p++)
+//         {
+//            // free all the used clients, so they can be re-assigned on the next level
+//            // if (mPlayer.syn[p].control_method == 9) mPlayer.syn[p].control_method = 0;
+//            // set all clients inactive on server and client, to force them to re-chase and lock on the new level
+//            // if ((mPlayer.syn[p].control_method == 2) || (mPlayer.syn[p].control_method == 4)) mPlayer.syn[p].active = 0;
+//         }
 
       // every mode after this should require load level so why don't I do it here at the top
       if (!mLevel.load_level(mLevel.play_level, 0, 0))
@@ -529,7 +523,6 @@ void mwLoop::proc_program_state(void)
       mPlayer.syn[0].active = 1;
 
       mGameMoves.initialize();
-
 
       mLoop.frame_num = 0;
       mNetgame.reset_states();
@@ -565,9 +558,6 @@ void mwLoop::proc_program_state(void)
          mLog.add_log_entry_header(10, 0, msg, 3);
       }
 
-      // only do fancy zoom into level if not in netgame  .. also warp if I can figure out how to do that here
-      if ((!mNetgame.ima_client) && (!mNetgame.ima_server)) mScreen.stimp();
-
       mLoop.show_player_join_quit_timer = 0;
       mSound.start_music(0); // rewind and start theme
       mTimeStamp.init_timestamps();
@@ -584,7 +574,6 @@ void mwLoop::proc_program_state(void)
       mScreen.stimp();
       mLoop.program_state = 11;
    }
-
 
    //---------------------------------------
    // run demo
@@ -621,7 +610,6 @@ void mwLoop::proc_program_state(void)
    }
 }
 
-
 void mwLoop::proc_level_done_mode(void)
 {
    if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
@@ -648,6 +636,8 @@ void mwLoop::proc_level_done_mode(void)
    }
    if (mPlayer.syn[0].level_done_mode == 8) // players seek exit
    {
+      float fade = 0.3 + (float) mPlayer.syn[0].level_done_timer / 85; // 1 to .3 in 60 frames
+      if (mSound.sound_on) al_set_mixer_gain(mSound.st_mixer, ((float)mSound.st_scaler / 9) * fade);
       for (int p=0; p<NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active)
          {
@@ -681,7 +671,7 @@ void mwLoop::proc_level_done_mode(void)
       if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;
       if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;
       if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 10;  // delay to load next level
-      if (mPlayer.syn[0].level_done_mode == 1) mLoop.program_state = 12;                // load new level
+      if (mPlayer.syn[0].level_done_mode == 1) mLoop.program_state = 12;              // load new level
    }
 }
 
@@ -773,15 +763,14 @@ void mwLoop::main_loop(void)
          {
             if (mNetgame.ima_server)
             {
+               // auto adjust server state frequency
                if (mPlayer.loc[0].server_state_freq_mode == 1) // 0 = manual, 1 = auto
                {
                   int mcp = mTally[4].get_max()*1000;
                   if (mcp > 100) mcp = 100;
                   mPlayer.loc[0].server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
-
-
-
                }
+               // tally late cdats and game move dsync
                for (int p=1; p<NUM_PLAYERS; p++)
                   if (mPlayer.syn[p].control_method == 2)
                   {
@@ -793,6 +782,3 @@ void mwLoop::main_loop(void)
       }
    }
 }
-
-
-
