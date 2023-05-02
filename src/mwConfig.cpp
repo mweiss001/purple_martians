@@ -15,6 +15,8 @@
 #include "mwLevel.h"
 #include "mwShots.h"
 #include "mwInput.h"
+#include "mwVisualLevel.h"
+
 
 mwConfig mConfig;
 
@@ -51,8 +53,8 @@ void mwConfig::save(void)
       asci(GAME, mDisplay.viewport_show_hyst)
       ascf(GAME, mDisplay.viewport_x_div)
       ascf(GAME, mDisplay.viewport_y_div)
-
       asci(GAME, mLoop.speed_control_lock)
+      asci(GAME, mVisualLevel.max_level_num)
 
       asci(GAMECONTROLS, mPlayer.loc[0].up_key)
       asci(GAMECONTROLS, mPlayer.loc[0].down_key)
@@ -61,6 +63,19 @@ void mwConfig::save(void)
       asci(GAMECONTROLS, mPlayer.loc[0].jump_key)
       asci(GAMECONTROLS, mPlayer.loc[0].fire_key)
       asci(GAMECONTROLS, mPlayer.loc[0].menu_key)
+
+      asci(FUNCTIONKEYS, mInput.function_key_fullscreen)
+      asci(FUNCTIONKEYS, mInput.function_key_text_double)
+      asci(FUNCTIONKEYS, mInput.function_key_debug_overlay)
+      asci(FUNCTIONKEYS, mInput.function_key_zoom_in)
+      asci(FUNCTIONKEYS, mInput.function_key_zoom_out)
+      asci(FUNCTIONKEYS, mInput.function_key_printscreen)
+      asci(FUNCTIONKEYS, mInput.function_key_fakekey)
+      asci(FUNCTIONKEYS, mInput.function_key_force_save)
+      asci(FUNCTIONKEYS, mInput.function_key_init_background)
+      asci(FUNCTIONKEYS, mInput.function_key_speed_dec)
+      asci(FUNCTIONKEYS, mInput.function_key_speed_inc)
+
       asci(SOUND, mSound.sound_on)
       asci(SOUND, mSound.se_scaler)
       asci(SOUND, mSound.st_scaler)
@@ -276,6 +291,9 @@ void mwConfig::load(void)
    agcf(GAME, mDisplay.viewport_y_div, 0.33)
    agci(GAME, mLoop.speed_control_lock, 1)
 
+   agci(GAME, mVisualLevel.max_level_num, 100)
+
+
    agci(GAMECONTROLS, mPlayer.loc[0].up_key,    ALLEGRO_KEY_UP)
    agci(GAMECONTROLS, mPlayer.loc[0].down_key,  ALLEGRO_KEY_DOWN)
    agci(GAMECONTROLS, mPlayer.loc[0].left_key,  ALLEGRO_KEY_LEFT)
@@ -283,6 +301,18 @@ void mwConfig::load(void)
    agci(GAMECONTROLS, mPlayer.loc[0].jump_key,  ALLEGRO_KEY_SPACE)
    agci(GAMECONTROLS, mPlayer.loc[0].fire_key,  ALLEGRO_KEY_ALT)
    agci(GAMECONTROLS, mPlayer.loc[0].menu_key,  ALLEGRO_KEY_ESCAPE)
+
+   agci(FUNCTIONKEYS, mInput.function_key_zoom_out,        ALLEGRO_KEY_F5)
+   agci(FUNCTIONKEYS, mInput.function_key_zoom_in,         ALLEGRO_KEY_F6)
+   agci(FUNCTIONKEYS, mInput.function_key_debug_overlay,   ALLEGRO_KEY_F10)
+   agci(FUNCTIONKEYS, mInput.function_key_text_double,     ALLEGRO_KEY_F11)
+   agci(FUNCTIONKEYS, mInput.function_key_fullscreen,      ALLEGRO_KEY_F12)
+   agci(FUNCTIONKEYS, mInput.function_key_printscreen,     ALLEGRO_KEY_PRINTSCREEN)
+   agci(FUNCTIONKEYS, mInput.function_key_fakekey,         0)
+   agci(FUNCTIONKEYS, mInput.function_key_force_save,      0)
+   agci(FUNCTIONKEYS, mInput.function_key_init_background, 0)
+   agci(FUNCTIONKEYS, mInput.function_key_speed_dec,       ALLEGRO_KEY_F7)
+   agci(FUNCTIONKEYS, mInput.function_key_speed_inc,       ALLEGRO_KEY_F8)
 
    agci(SOUND, mSound.sound_on, 1)
    agci(SOUND, mSound.se_scaler, 5)

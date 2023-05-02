@@ -17,13 +17,9 @@ class mwScreen
    void init_level_background(int);
    void init_level_background2(int s, int e);
 
-
-
    void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players);
    void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, float scale_factor);
    void draw_level(void);
-
-//   int get_contrasting_color(int color);
 
    void frame_and_title(int show_players);
    void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, float op);
@@ -33,9 +29,7 @@ class mwScreen
    void draw_percent_bar(int cx, int y, int width, int height, int percent);
    void draw_percent_bar_line(int cx, int y, int width, int height, int rise, int color, int percent);
    void draw_percent_bar_range(int cx, int y, int width, int height, int color, int start, int end);
-
    void draw_percent_barf(float x1, float x2, float y1, float y2, float percent);
-
 
    // z_screen_overlay.h
    int dif_from_now_to_nl();

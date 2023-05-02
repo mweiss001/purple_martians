@@ -2,7 +2,7 @@
 
 #define NUM_LEV 400
 
-#define VISUAL_LEVEL_SELECT_MAX_LEVEL 400
+//#define VISUAL_LEVEL_SELECT_MAX_LEVEL 400
 
 class mwVisualLevel
 {
@@ -11,6 +11,9 @@ class mwVisualLevel
 
    int visual_level_select(void);
    void level_viewer(void);
+
+   int max_level_num;
+
 
    private:
    ALLEGRO_BITMAP * grid_bmp = NULL;

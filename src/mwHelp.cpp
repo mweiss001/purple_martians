@@ -142,7 +142,6 @@ void mwHelp::help(const char *topic)
    int quit = 0;
    while (!quit)
    {
-
       if (redraw)
       {
          redraw = 0;
@@ -158,7 +157,6 @@ void mwHelp::help(const char *topic)
       al_clear_to_color(al_map_rgb(0,0,0));
 
       int dx = mDisplay.SCREEN_W/2 - 320;
-      //int xo  = (mDisplay.SCREEN_W - 640) / 2;   // x offset (distance from left screen edge to start of help screen)
       int lpp = (mDisplay.SCREEN_H - 40)  / 8;   // lines per page
 
       last_pos = num_of_lines - lpp - 2;
@@ -166,17 +164,17 @@ void mwHelp::help(const char *topic)
       for (int x=0; x<16; x++)
          al_draw_rectangle(dx+x, x, dx+639-x, mDisplay.SCREEN_H-1-x, mColor.pc[fc+(x*16)], 1);
 
-      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+320,                    2, ALLEGRO_ALIGN_CENTRE, "Purple Martians Help");
-      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+16,                     2, 0, "<UP><DOWN>");
-      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+640-(11*8)-16,          2, 0, "<ESC>-quits");
-      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+16,            mDisplay.SCREEN_H-9, 0, "<PAGEUP><PAGEDOWN>");
-      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+640-(11*8)-16, mDisplay.SCREEN_H-9, 0, "<HOME><END>");
+      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+320,                             2, ALLEGRO_ALIGN_CENTRE, "Purple Martians Help");
+      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+16,                              2, 0,                    "<UP><DOWN>");
+      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+640-(11*8)-16,                   2, 0,                    "<ESC>-quits");
+      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+16,            mDisplay.SCREEN_H-9, 0,                    "<PAGEUP><PAGEDOWN>");
+      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+640-(11*8)-16, mDisplay.SCREEN_H-9, 0,                    "<HOME><END>");
 
       for (int c=0; c<lpp; c++) // cycle lines
       {
-         int xindent = 0;                   // start at xindent = 0
-         int just = 0;                      // default just = left
-         int color = 15;                    // default regular color unless changed
+         int xindent = 0;                         // start at xindent = 0
+         int just = 0;                            // default just = left
+         int color = 15;                          // default regular color unless changed
          sprintf(msg, "%s", help_string[line+c]); // put line to process in msg
 
          int processed_tag_this_time_through;
@@ -193,12 +191,9 @@ void mwHelp::help(const char *topic)
 
             if (strncmp(msg, "<title>", 7) == 0) // show title
             {
-                //al_set_clipping_rectangle((dx+12)*mDisplay.display_transform_double, (12*mDisplay.display_transform_double), (639-12*2)*mDisplay.display_transform_double, (mDisplay.SCREEN_H-12*2)*mDisplay.display_transform_double);
-                mDisplay.mw_set_clipping_rect(dx+12, 12, 639-12*2, mDisplay.SCREEN_H-12*2);
-                mScreen.draw_title(dx+sxc+10, sy, 360, 64, 8);
+                mScreen.draw_title(dx+sxc+10, sy+8, 360, 48, 8);
                 msg[0]= 0;
-                al_reset_clipping_rectangle();
-           }
+            }
             if (strncmp(msg, "<section>", 9) == 0) // <section> "txt" - make a new section with "txt"
             {
                mMiscFnx.chop_first_x_char(msg, 9);
@@ -238,14 +233,11 @@ void mwHelp::help(const char *topic)
             }
             if (strncmp(msg, "<mdw1>", 6) == 0) // show mdw logo
             {
-               mDisplay.mw_set_clipping_rect(dx+12, 12, 639-12*2, mDisplay.SCREEN_H-12*2);
-               //al_set_clipping_rectangle((dx+12)*mDisplay.display_transform_double, (12*mDisplay.display_transform_double), (639-12*2)*mDisplay.display_transform_double, (mDisplay.SCREEN_H-12*2)*mDisplay.display_transform_double);
                float sc = .25;
                int xo = (int)(200 * sc)+16;
                mLogo.mdw_an(dx+320 + sxc-xo, sy+50, sc);
                mLogo.mdw_an(dx+320 - sxc+xo, sy+50, sc);
                msg[0]= 0;
-               al_reset_clipping_rectangle();
             }
             if (strncmp(msg, "<ac", 3) == 0) // <acxxx> show animation sequence (centered)
             {
@@ -258,19 +250,15 @@ void mwHelp::help(const char *topic)
                 msg[0]= 0;
             }
 
-
             if (strncmp(msg, "<ab", 3) == 0) // <axx> show animation sequence (left just) // for block tiles instead of tiles
             {
                 processed_tag_this_time_through = 1;
                 buff2[0] = msg[3];
                 buff2[1] = msg[4];
                 buff2[2] = 0;
-
                 //printf("s:'%s' i:%d\n", buff2, atoi(buff2));
-
                 int ans = mBitmap.zz[0][atoi(buff2)];
                 al_draw_bitmap(mBitmap.btile[ans], dx+sx, sy, 0 );
-
                 mMiscFnx.chop_first_x_char(msg, 6);
                 xindent +=24;
             }
@@ -286,8 +274,6 @@ void mwHelp::help(const char *topic)
                 mMiscFnx.chop_first_x_char(msg, 5);
                 xindent +=24;
             }
-
-
             if (strncmp(msg, "<hb", 3) == 0) // <hb> show centered health bar
             {
                 buff2[0] = msg[3];
@@ -369,7 +355,6 @@ void mwHelp::help(const char *topic)
                color = atoi(buff2);
                mMiscFnx.chop_first_x_char(msg, 5);
             }
-
             if (strncmp(msg, "<h", 2) == 0) // <lxx> line color xx (left just) plus 4 for y align
             {
                processed_tag_this_time_through = 1;
@@ -380,9 +365,6 @@ void mwHelp::help(const char *topic)
                mMiscFnx.chop_first_x_char(msg, 5);
                tay=3;
             }
-
-
-
             if (strncmp(msg, "<c", 2) == 0) // <cxx> line color xx (centered)
             {
                processed_tag_this_time_through = 1;
@@ -393,7 +375,6 @@ void mwHelp::help(const char *topic)
                mMiscFnx.chop_first_x_char(msg, 5);
                just = 1;
             }
-
             if (strncmp(msg, "<b", 2) == 0) // <bxx> draw a line in color xx
             {
                buff2[0] = msg[2];
@@ -416,7 +397,6 @@ void mwHelp::help(const char *topic)
             strcpy(txt, msg);                     // by default txt will have all of msg
             nexttag = -1;                         // default if no next tag found
 
-
             if ((!processed_tag_this_time_through) && (msg[0] == '<')) // bad tag
                msg[0] = '*';
 
@@ -434,12 +414,10 @@ void mwHelp::help(const char *topic)
                mMiscFnx.chop_first_x_char(msg, nexttag);   // remove this from the beginning of 'msg'
             }
             if (just) al_draw_text(mFont.pr8, mColor.pc[color], dx+320,          24+(c*8), ALLEGRO_ALIGN_CENTER, txt );
-            else      al_draw_text(mFont.pr8, mColor.pc[color], dx+20 + xindent, 24+(c*8)+tay, 0, txt );
+            else      al_draw_text(mFont.pr8, mColor.pc[color], dx+20 + xindent, 24+(c*8)+tay,                0, txt );
             xindent += strlen(txt) * 8;
          } // end of while nexttag != -1
       } // end of cycle lines
-
-
 
 
       mEventQueue.proc();

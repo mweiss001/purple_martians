@@ -124,10 +124,7 @@ void mwItems::proc_warp_collision(int p, int i)
    if (mPlayer.syn[0].level_done_mode == 0)
    {
       if (mLevel.play_level > 1) mLevel.warp_level_location = mLevel.play_level;
-//      mPlayer.syn[0].level_done_mode = 3;
-//      mPlayer.syn[0].level_done_timer = 0;
-
-      mPlayer.syn[0].level_done_mode = 2;
+      mPlayer.syn[0].level_done_mode = 3;
       mPlayer.syn[0].level_done_timer = 0;
       mPlayer.syn[0].level_done_x = itemf[i][0];
       mPlayer.syn[0].level_done_y = itemf[i][1];

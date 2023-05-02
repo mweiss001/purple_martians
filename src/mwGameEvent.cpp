@@ -11,69 +11,73 @@ mwGameEvent mGameEvent;
 
 void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
-   if (mBottomMessage.bottom_msg_on) mBottomMessage.add(ev, x, y, z1, z2, z3, z4); // send event to bmsg add
-   if (mSound.sound_on)
+   if (!mLoop.ff_state)
    {
-         /*  sample numbers
-         0 - player shoots
-         1 - d'OH
-         2 - bonus
-         3 - hiss
-         4 - la dee dah  door, key, exit
-         5 - explosion
-         6 - grunt 1 shot
-         7 - grunt 2 hit
-         8 - enemy killed  */
-      switch (ev)
+
+      if (mBottomMessage.bottom_msg_on) mBottomMessage.add(ev, x, y, z1, z2, z3, z4); // send event to bmsg add
+      if (mSound.sound_on)
       {
-         // al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, ALLEGRO_PLAYMODE loop, ALLEGRO_SAMPLE_ID *ret_id)
-         case  1: // player shoots
-            //al_play_sample(snd[0], 0.71, 0, .8, ALLEGRO_PLAYMODE_ONCE, NULL);
-            al_play_sample(mSound.snd[0], 0.81, 0, .7, ALLEGRO_PLAYMODE_ONCE, NULL);
-         break;
+            /*  sample numbers
+            0 - player shoots
+            1 - d'OH
+            2 - bonus
+            3 - hiss
+            4 - la dee dah  door, key, exit
+            5 - explosion
+            6 - grunt 1 shot
+            7 - grunt 2 hit
+            8 - enemy killed  */
+         switch (ev)
+         {
+            // al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, ALLEGRO_PLAYMODE loop, ALLEGRO_SAMPLE_ID *ret_id)
+            case  1: // player shoots
+               //al_play_sample(snd[0], 0.71, 0, .8, ALLEGRO_PLAYMODE_ONCE, NULL);
+               al_play_sample(mSound.snd[0], 0.81, 0, .7, ALLEGRO_PLAYMODE_ONCE, NULL);
+            break;
 
-         case 2: // explosion
-            al_play_sample(mSound.snd[5], .78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-         break;
+            case 2: // explosion
+               al_play_sample(mSound.snd[5], .78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+            break;
 
-         case 20: case 22: case 4: // la dee dah (key, door, unlocked exit)
-            if (mSound.sample_delay[4]+30 < mLoop.frame_num)
-            {
-               mSound.sample_delay[4] = mLoop.frame_num;
-               al_play_sample(mSound.snd[4], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-            }
-         break;
+            case 20: case 22: case 4: // la dee dah (key, door, unlocked exit, warp)
+               if (mSound.sample_delay[4]+30 < mLoop.frame_num)
+               {
+                  mSound.sample_delay[4] = mLoop.frame_num;
+                  al_play_sample(mSound.snd[4], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+               }
+            break;
 
-         case 24: // sproingy
-            al_play_sample(mSound.snd[9], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-         break;
+            case 24: // sproingy
+               al_play_sample(mSound.snd[9], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+            break;
 
-         case 27: // purple coin
-           if (mSound.sample_delay[2]+30 < mLoop.frame_num)
-            {
-               mSound.sample_delay[2] = mLoop.frame_num;
-               al_play_sample(mSound.snd[2], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-            }
-         break;
+            case 27: // purple coin
+              if (mSound.sample_delay[2]+30 < mLoop.frame_num)
+               {
+                  mSound.sample_delay[2] = mLoop.frame_num;
+                  al_play_sample(mSound.snd[2], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+               }
+            break;
 
-         case 40: case 41: // player got hurt
-            al_play_sample(mSound.snd[6], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-         break;
+            case 40: case 41: // player got hurt
+               al_play_sample(mSound.snd[6], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+            break;
 
-         case 12: // player took damage
-            if (mSound.sample_delay[7]+14 < mLoop.frame_num)
-            {
-               mSound.sample_delay[7] = mLoop.frame_num;
-               al_play_sample(mSound.snd[7], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-            }
-         break;
-         case 42: // enemy killed
-            al_play_sample(mSound.snd[8], 0.5, 0, 1.2, ALLEGRO_PLAYMODE_ONCE, NULL);
-         break;
-         case 8: // d'Oh (player died)
-            al_play_sample(mSound.snd[1], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-         break;
+            case 12: // player took damage
+               if (mSound.sample_delay[7]+14 < mLoop.frame_num)
+               {
+                  mSound.sample_delay[7] = mLoop.frame_num;
+                  al_play_sample(mSound.snd[7], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+               }
+            break;
+            case 42: // enemy killed
+               al_play_sample(mSound.snd[8], 0.5, 0, 1.2, ALLEGRO_PLAYMODE_ONCE, NULL);
+            break;
+            case 8: // d'Oh (player died)
+               al_play_sample(mSound.snd[1], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+            break;
 
+         }
       }
    }
 }

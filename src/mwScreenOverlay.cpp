@@ -64,7 +64,7 @@ void mwScreen::show_player_stat_box(int tx, int y, int p)
 
 void mwScreen::show_level_done(void)
 {
-   if ((mPlayer.syn[0].level_done_mode) && (mPlayer.syn[0].level_done_mode < 8))
+   if ((mPlayer.syn[0].level_done_mode > 3) && (mPlayer.syn[0].level_done_mode < 8))
    {
       draw_large_text_overlay(2, 0);
       mColor.process_flash_color();
@@ -1043,9 +1043,12 @@ void mwScreen::draw_bottom_frame(int p)
    bdx2 -= strlen(msg)*8;
    al_draw_text(mFont.pr8, mColor.pc[tc], bdx2, bdy, 0, msg);
 
-   sprintf(msg, " dbg:%d ", mLoop.show_debug_overlay);
-   bdx2 -= strlen(msg)*8;
-   al_draw_text(mFont.pr8, mColor.pc[tc], bdx2, bdy, 0, msg);
+   if (mLoop.show_debug_overlay)
+   {
+      sprintf(msg, " dbg:%d ", mLoop.show_debug_overlay);
+      bdx2 -= strlen(msg)*8;
+      al_draw_text(mFont.pr8, mColor.pc[tc], bdx2, bdy, 0, msg);
+   }
 
    if (mLoop.eco_draw)
    {

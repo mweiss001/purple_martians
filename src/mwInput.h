@@ -18,10 +18,29 @@ class mwInput
    int getJoystickNum(ALLEGRO_JOYSTICK* joy);
    int get_scan_code_from_joystick(int joy, int button, int num);
 
-   int my_readkey(int x, int y, int tc, int bts, int num);
+   int is_key_used(int k);
+
+   int my_readkey(void);
+   void my_readkey3(int x, int y, int tc, int bts, int num, int num_lines);
+   void my_readkey2(int x, int y, int tc, int bts, int num);
+
+
    void get_all_keys(int x, int y, int tc, int bts);
    void test_keys(int x, int sy);
    void set_controls_to_custom_sets(int s);
+
+
+   int function_key_fullscreen;
+   int function_key_text_double;
+   int function_key_debug_overlay;
+   int function_key_fakekey;
+   int function_key_printscreen;
+   int function_key_zoom_in;
+   int function_key_zoom_out;
+   int function_key_force_save;
+   int function_key_init_background;
+   int function_key_speed_inc;
+   int function_key_speed_dec;
 
 
    int SHFT(void);
