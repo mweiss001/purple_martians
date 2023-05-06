@@ -20294,6 +20294,17 @@ max level num to show in visual level select..done
 moving on...
 
 
+alt levels...the ones not good enough for the main sequence
+move the best ones to 50 and up
+move others to > 200
+done
+
+when changing max_num_levels, force reload of vls..done
+
+
+level 7 archwag can get pressed down through floor by lift
+making level impossible to complete...
+added damage field to block, that should fix it..
 
 
 
@@ -20301,11 +20312,396 @@ moving on...
 
 
 
+how do I make the spikes show progress?
+
+instant mode is when bd is set to toggle
+timer has t1 and t2 and both are set to one time output
+
+bd on until triggered
+timer mode continuous
+
+
+there are 2 frames at the end of timer when ratio is very low but timer has not switched yet...
+this makes the spike drawing not work nicely
+
+how to fix?
+
+fixed...
+
+
+spikes only show progress when in modes:
+2 on until triggered
+3 off until triggered
+
+spikes only show progress when:
+curr damage is off and
+a timer is counting down to turn them on..
+
+
+I want to change pristine font to use better looking straight single and double quotes
+did for p8 only...looks good...
+
+
+add timer page to help..done
+
+
+when sorting items, sort starts by start index...done
+will make setting them up so much easier
+
+
+
+block damage demo level
+display stuff - bd no long has its own display stuff
+fix modes - bd no longer has any timer modes
+done..
+
+when moving timer with es, display area should move also..done
 
 
 
 
 
+
+SHIFT move timer in ov to move display box also
+
+make swicth box move also like key
+list of items that all should do that:
+4 key
+9 trigger
+10 msg
+13 timer
+14 switch
+16 manip
+17 damage
+
+// does the item type have a secondary position at 6,7?
+int mwItems::item_secondary67(int type)
+{
+   if (type == 4)  return 1; // key
+   if (type == 9)  return 1; // trigger
+   if (type == 10) return 1; // message
+   if (type == 13) return 1; // timer display
+   if (type == 14) return 1; // switch
+   if (type == 16) return 1; // block manip
+   if (type == 17) return 1; // block damage
+   return 0;
+}
+
+//if ((mItem.item[b][0] == 4) || (mItem.item[b][0] == 9) || (mItem.item[b][0] == 10) || (mItem.item[b][0] == 13) || (mItem.item[b][0] == 16) || (mItem.item[b][0] == 17)) // key, trigger, msg, timer, manip, damage
+if (mItem.item_secondary67(mItem.item[b][0]))
+
+
+is pop msg an exception? yes...
+
+6 and 7 are used for timers shit...
+
+
+it would be much better if they did not...
+
+
+
+
+verify this:
+[10] - pop-up msg
+mItem.item[][6]  timer counter
+mItem.item[][7]  timer value
+mItem.item[][8]  text color
+mItem.item[][9]  frame color
+mItem.item[][10] msg x pos (100)
+mItem.item[][11] msg y pos (100)
+
+this from draw code does not agree:
+
+   mMiscFnx.get_int_3216(mItem.item[i][10], x1, y1);       // get x and y
+   mMiscFnx.get_int_3216(mItem.item[i][11], w, h);         // get width and height
+   mMiscFnx.get_int_3216(mItem.item[i][13], tc, fc);       // get text and frame colors
+
+the problem is that pmsg uses 6,7,8,9 for its own trigger box
+
+how hard would it be to make it use the event system?
+
+fix the variable description first
+
+mItem.item[][6]  trigger x
+mItem.item[][7]  trigger y
+mItem.item[][8]  trigger w
+mItem.item[][9]  trigger h
+mItem.item[][10] msg x and y (packed)
+mItem.item[][11] msg w and h (packed)
+mItem.item[][12] timer count and val  (packed)
+mItem.item[][13] text and frame color (packed)
+
+
+now where to start?
+
+end result:
+
+mItem.item[][6]  msg x
+mItem.item[][7]  msg y
+mItem.item[][8]  msg w
+mItem.item[][9]  msg h
+mItem.item[][10] event trigger
+mItem.item[][11]
+mItem.item[][12]
+mItem.item[][13] text and frame color (packed)
+
+
+use glt to find how many pmsg use trigger box..
+
+
+for levels < 100
+296 show always
+119 use trigger box
+
+
+for each one that uses a trigger box
+- make a trigger item with same area
+- make timer item with same time
+- link them all together with pmsg
+
+
+how do I get from here to there?
+
+start with the glt...
+
+make trigger item
+
+
+wait a tick here...
+
+msg can use trigger box or basic shape....
+count that...
+
+lev < 100
+415 total
+296 show always
+71  trigger box
+48 no trigger box
+
+revise the plans
+
+mode draw always
+do not need trigger or timer
+
+mode draw with trigger
+only need trigger event number
+
+mode draw with scroll
+need internal timer
+
+I think I will keep the internal timer...I can always set it to zero
+
+It will make some things easier and I can alway override if needed...
+
+
+basically:
+always on
+turn on with scroll
+turn on with event
+delay to turn off (0 to disable)
+
+this way I do not ever need to attach a timer to it
+
+the only ones I will need to modify will be the ones that actually have a trigger box defined
+and in those cases, just create a trigger item...
+
+
+new:
+mItem.item[][1] event trigger
+mItem.item[][6]  msg x
+mItem.item[][7]  msg y
+mItem.item[][8]  msg w
+mItem.item[][9]  msg h
+mItem.item[][10]
+mItem.item[][11]
+mItem.item[][12] timer count and val  (packed)
+mItem.item[][13] text and frame color (packed)
+
+
+in order to change things I need a temp variable
+
+does every message have the same int in 1? yes 1036
+415 < 100
+596 < 400
+
+permanently make 1 into event trigger
+hard code 1036...
+
+done...
+
+now I can use 1 as trigger event, just like bd and bm
+
+next step...
+
+set up a mode in timer to allow reading of trigger event....
+
+add buttons to ov..done
+
+add code to proc psmg..done
+
+now when event is not zero if set it starts the msg timer...
+
+next would be to create triggers in glt...
+
+back up levels first...
+
+
+it works as a proof on concept
+
+before I replace 71 trigger things lets think this through...
+- none of them should be visible
+
+set all 596 messages to have 1 = 0..done
+
+after setting, change flag
+
+
+I think I am ready to do it...
+
+make a running list of levels and messages that have been changed
+
+
+Running Global Level Test
+level:  6 y:  2
+level:  6 y:  3
+good
+
+
+level:  7 y: 45
+level:  7 y: 46
+level:  7 y: 47
+level:  7 y: 49
+good
+
+
+level:  9 y:  8
+level:  9 y:  9
+level:  9 y: 10
+level:  9 y: 11
+level:  9 y: 12
+
+
+level: 10 y: 10
+level: 11 y: 36
+level: 11 y: 37
+level: 12 y: 30
+level: 13 y: 22
+level: 13 y: 23
+level: 13 y: 24
+level: 18 y: 10
+level: 20 y: 36
+level: 20 y: 37
+level: 20 y: 38
+level: 20 y: 39
+level: 20 y: 40
+level: 20 y: 41
+level: 20 y: 42
+level: 20 y: 43
+level: 20 y: 44
+level: 20 y: 45
+level: 26 y: 15
+level: 26 y: 16
+level: 26 y: 18
+level: 28 y:  9
+level: 28 y: 10
+level: 29 y: 13
+level: 32 y: 18
+level: 34 y:  9
+level: 36 y: 27
+level: 36 y: 28
+level: 39 y:  4
+level: 44 y:  3
+level: 47 y:  3
+level: 47 y:  4
+level: 55 y:  5
+level: 80 y: 10
+level: 80 y: 11
+level: 80 y: 12
+level: 80 y: 13
+level: 82 y: 22
+level: 82 y: 23
+level: 82 y: 33
+level: 82 y: 38
+level: 83 y: 20
+level: 83 y: 21
+level: 83 y: 22
+level: 83 y: 23
+level: 83 y: 27
+level: 84 y:  9
+level: 84 y: 10
+level: 84 y: 11
+level: 85 y: 15
+level: 85 y: 16
+level: 85 y: 17
+level: 85 y: 24
+level: 85 y: 25
+level: 85 y: 26
+level: 91 y:  4
+level: 91 y:  6
+level: 91 y:  7
+level: 91 y: 10
+level: 97 y: 11
+Total count0:0
+Total count1:0
+Total count2:0
+Total count3:0
+min:9990 max:0
+
+without checking them all I am going to assume everything is good...
+
+what is next?
+
+there should be no need for the flag trigger rect... or the fucntions to draw or adjust it....
+
+removed buttons from ov
+now that 6, 7, 8, 9 are not needed for trigger anymore, move the message xywh to there
+
+done
+
+now fixed almost all stuff like that...
+
+what else did you want to rearrange in popmsg?
+
+fixed the checks for moving secondaries in edit selection
+in save and fcopy
+
+and in ov map move
+
+make the docs for msg correct...done
+
+also pacth secondary move into ov shift move item...done
+
+A few finishing touches to ov message viewer
+
+
+If show always, grey out a lot of stuff...
+- dont show scroll
+- dont show event stuff
+- dont shopw timer
+
+right under show always show the timer
+
+
+show scroll implies that the scroll will trigger the message
+if scroll is hidden, do not let it trigger message...
+done
+
+if (show always) do not show scroll..done
+
+
+can I do custom height for item ov??
+
+
+cursor in edit pmsg text is not very visible
+make it blink faster and made custom char 127 that has double underline
+
+done
+
+no sound when taking damage
+fixed
+
+
+20230506 push
 
 
 

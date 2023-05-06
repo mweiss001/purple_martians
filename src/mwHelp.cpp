@@ -156,19 +156,25 @@ void mwHelp::help(const char *topic)
       al_set_target_backbuffer(mDisplay.display);
       al_clear_to_color(al_map_rgb(0,0,0));
 
+
+      int line_height = 8;
+
       int dx = mDisplay.SCREEN_W/2 - 320;
-      int lpp = (mDisplay.SCREEN_H - 40)  / 8;   // lines per page
+      int lpp = (mDisplay.SCREEN_H - 40) / line_height;   // lines per page
 
       last_pos = num_of_lines - lpp - 2;
 
       for (int x=0; x<16; x++)
          al_draw_rectangle(dx+x, x, dx+639-x, mDisplay.SCREEN_H-1-x, mColor.pc[fc+(x*16)], 1);
 
-      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+320,                             2, ALLEGRO_ALIGN_CENTRE, "Purple Martians Help");
-      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+16,                              2, 0,                    "<UP><DOWN>");
-      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+640-(11*8)-16,                   2, 0,                    "<ESC>-quits");
-      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+16,            mDisplay.SCREEN_H-9, 0,                    "<PAGEUP><PAGEDOWN>");
-      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+640-(11*8)-16, mDisplay.SCREEN_H-9, 0,                    "<HOME><END>");
+      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+320,                                       2, ALLEGRO_ALIGN_CENTRE, "Purple Martians Help");
+      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+16,                                        2, 0,                    "<UP><DOWN>");
+      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+640-(11*line_height)-16,                   2, 0,                    "<ESC>-quits");
+      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+16,                      mDisplay.SCREEN_H-9, 0,                    "<PAGEUP><PAGEDOWN>");
+      al_draw_text(mFont.pr8, mColor.pc[ftc], dx+640-(11*line_height)-16, mDisplay.SCREEN_H-9, 0,                    "<HOME><END>");
+
+
+      int sy = 12-line_height; // running ypos initial val
 
       for (int c=0; c<lpp; c++) // cycle lines
       {
@@ -185,7 +191,9 @@ void mwHelp::help(const char *topic)
 
             int tay = 0; // text align for lining up with bitmaps
 
-            int sy = 12 + (c*8);    // shape draw y position
+            sy += line_height; // running ypos
+
+            int sy = 12 + (c*line_height);    // shape draw y position
             int sx = 20 + xindent;  // shape draw x pos left just
             int sxc = (640/2) - 10; // shape draw x pos centered
 
@@ -197,22 +205,22 @@ void mwHelp::help(const char *topic)
             if (strncmp(msg, "<section>", 9) == 0) // <section> "txt" - make a new section with "txt"
             {
                mMiscFnx.chop_first_x_char(msg, 9);
-               for (int x=0;x<16;x++)
+               for (int i=0; i<16; i++)
                {
-                  al_draw_line(dx+x, 28+(c*8)+x, dx+639-x, 28+(c*8)+x, mColor.pc[sc+(x*16)], 1 );
-                  al_draw_line(dx+x, 28+(c*8)-x, dx+639-x, 28+(c*8)-x, mColor.pc[sc+(x*16)], 1 );
+                  al_draw_line(dx+i, sy+16+i, dx+639-i, sy+16+i, mColor.pc[sc+(i*16)], 1 );
+                  al_draw_line(dx+i, sy+16-i, dx+639-i, sy+16-i, mColor.pc[sc+(i*16)], 1 );
                }
-               al_draw_text(mFont.pr8, mColor.pc[stc], dx+320, 24+(c*8),  ALLEGRO_ALIGN_CENTER, msg);
+               al_draw_text(mFont.pr8, mColor.pc[stc], dx+320, 12+sy,  ALLEGRO_ALIGN_CENTER, msg);
                msg[0]= 0;
             }
             if (strncmp(msg, "<end of file>", 13) == 0)
             {
-               for (int x=0;x<16;x++)
-               {
-                  al_draw_line(dx+x, 28+(c*8)+x, dx+639-x, 28+(c*8)+x, mColor.pc[sc+(x*16)], 1 );
-                  al_draw_line(dx+x, 28+(c*8)-x, dx+639-x, 28+(c*8)-x, mColor.pc[sc+(x*16)], 1 );
-               }
-               al_draw_text(mFont.pr8, mColor.pc[stc], dx+320, 24+(c*8),  ALLEGRO_ALIGN_CENTER, msg);
+//               for (int i=0; i<16; i++)
+//               {
+//                  al_draw_line(dx+i, sy+16+i, dx+639-i, sy+16+i, mColor.pc[sc+(i*16)], 1 );
+//                  al_draw_line(dx+i, sy+16-i, dx+639-i, sy+16-i, mColor.pc[sc+(i*16)], 1 );
+//               }
+//               al_draw_text(mFont.pr8, mColor.pc[stc], dx+320, 12+sy,  ALLEGRO_ALIGN_CENTER, msg);
                c = lpp;   // end the cycle lines loop to prevent drawing unitialized lines
                msg[0]= 0;
             }
@@ -413,8 +421,9 @@ void mwHelp::help(const char *topic)
                txt[nexttag] = 0;                  // terminate 'txt' with NULL to shorten string
                mMiscFnx.chop_first_x_char(msg, nexttag);   // remove this from the beginning of 'msg'
             }
-            if (just) al_draw_text(mFont.pr8, mColor.pc[color], dx+320,          24+(c*8), ALLEGRO_ALIGN_CENTER, txt );
-            else      al_draw_text(mFont.pr8, mColor.pc[color], dx+20 + xindent, 24+(c*8)+tay,                0, txt );
+            if (just) al_draw_text(mFont.pr8, mColor.pc[color], dx+320,          12+sy,     ALLEGRO_ALIGN_CENTER, txt );
+            else      al_draw_text(mFont.pr8, mColor.pc[color], dx+20 + xindent, 12+sy+tay,                    0, txt );
+
             xindent += strlen(txt) * 8;
          } // end of while nexttag != -1
       } // end of cycle lines

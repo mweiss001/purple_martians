@@ -1,4 +1,4 @@
-// e_edit_selection.cpp
+// mwWindowEditSelection.cpp
 
 #include "pm.h"
 
@@ -380,19 +380,16 @@ void mwWindow::es_save_selection(int save)
              ft_item[c][y] = mItem.item[b][y];
 
          // set new x, y (now relative to the selection window ul corner)
-         ft_item[c][4] = mItem.item[b][4] - x1;
-         ft_item[c][5] = mItem.item[b][5] - y1;
+         ft_item[c][4] -= x1;
+         ft_item[c][5] -= y1;
 
-         if ((mItem.item[b][0] == 4) || (mItem.item[b][0] == 9) || (mItem.item[b][0] == 10) || (mItem.item[b][0] == 16) || (mItem.item[b][0] == 17)) // key, trigger, manip, damage
-         {   // set new destination
-            ft_item[c][6] = mItem.item[b][6] - mwWM.bx1*20;
-            ft_item[c][7] = mItem.item[b][7] - mwWM.by1*20;
+         if (mItem.item_secondary67(mItem.item[b][0]))
+         {
+            ft_item[c][6] -= x1;
+            ft_item[c][7] -= y1;
          }
          if (mItem.item[b][0] == 10) // message
          {
-            int x=0, y=0;
-            mMiscFnx.get_int_3216(mItem.item[b][10], x, y);                        // get x and y
-            mMiscFnx.set_int_3216(ft_item[c][10], x - mwWM.bx1*20, y - mwWM.by1*20);   // add offset and set x and y
             strcpy(ft_pmsgtext[c], mItem.pmsgtext[b]);
          }
       }
@@ -731,22 +728,22 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
                      mItem.item[c][var_index] = ev2;
                   }
 
-               if ((mItem.item[c][0] == 4) || (mItem.item[c][0] == 9)|| (mItem.item[c][0] == 10) || (mItem.item[c][0] == 16) || (mItem.item[c][0] == 17)) // key, trigger, manip, damage
+               // also adjust secondary loctaions
+               if (mItem.item_secondary67(mItem.item[b][0]))
                {
-                  mItem.item[c][6] += qx1*20;
-                  mItem.item[c][7] += qy1*20;
+                  mItem.item[c][6] += x3;
+                  mItem.item[c][7] += y3;
                }
                if (mItem.item[c][0] == 5) // start
                {
                   // do something here to prevent exact duplicates
+
                }
                if (mItem.item[c][0] == 10) // message
                {
-                  int x=0, y=0;
-                  mMiscFnx.get_int_3216(mItem.item[c][10], x, y);                     // get x y
-                  mMiscFnx.set_int_3216(mItem.item[c][10], x + qx1*20, y + qy1*20);   // add offset and set x y
                   strcpy(mItem.pmsgtext[c], ft_pmsgtext[b]);
                }
+
                // limits exceeded; erase
                if (lim)
                {

@@ -120,12 +120,16 @@ int mwItems::sort_item(int set_pos)
             itemf[c][1] = mItem.item[c][5];
          }
 
+         if (mItem.item[c][0] < mItem.item[c+1][0]) iswap = 1; // sort by first value 'type'
 
-         if (mItem.item[c][0] < mItem.item[c+1][0]) // sort by first value 'type'
-            iswap = 1;
-//         else if (mItem.item[c][0] == mItem.item[c+1][0]) // if type is the same
-//            if (mItem.item[c][1] < mItem.item[c+1][1]) // sort by 2nd value 'ans'
-//               iswap =1;
+         else if (mItem.item[c][0] == mItem.item[c+1][0]) // if type is the same, do secondary sort within same item type
+         {
+            if (mItem.item[c][0] == 5) // start
+            {
+               if (mItem.item[c][7] > mItem.item[c+1][7]) iswap = 1; // sort by 2nd value 'start_index'
+            }
+         }
+
 
          if (iswap)
          {
@@ -510,23 +514,21 @@ void mwItems::show_all_pmsg(void)
 int mwItems::create_pmsg(int c)
 {
    mItem.item[c][0] = 10 ;  // type 10 - msg
-   mItem.item[c][1] = 1036; // animation seq
+   mItem.item[c][1] = 0;    // trigger event
    mItem.item[c][3] = 0;    // stationary
    mItem.item[c][2] = 0;    // flags
    mItem.item[c][2] |= PM_ITEM_PMSG_SHOW_SCROLL;
    mItem.item[c][2] |= PM_ITEM_PMSG_FRAME12;
 
    mItem.item[c][12] = 120;  // default message time
+
    mMiscFnx.set_int_3216(mItem.item[c][13], 15, 13); // default text color (white) and frame color (blue)
 
    int bad=0;
 
    if (mMiscFnx.getxy("Message Object", 2, 10, c) != 1) bad = 1;
 
-   int x=0, y=0, w=0, h=0;
-   if (!bad) mMiscFnx.get_block_range("Message Area", &x, &y, &w, &h, 1);
-   mMiscFnx.set_int_3216(mItem.item[c][10], x, y);
-   mMiscFnx.set_int_3216(mItem.item[c][11], w, h);
+   if (!bad) mMiscFnx.get_block_range("Message Area", &mItem.item[c][6], &mItem.item[c][7], &mItem.item[c][8], &mItem.item[c][9], 1);
 
    if (!bad) if (!edit_pmsg_text(c, 1)) bad = 1; // get text of message
 

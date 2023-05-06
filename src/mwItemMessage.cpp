@@ -13,6 +13,17 @@
 #include "mwWindowManager.h"
 #include "mwEventQueue.h"
 #include "mwInput.h"
+#include "mwTriggerEvent.h"
+
+
+void mwItems::proc_pmsg_collision(int i)
+{
+   if (item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL) proc_pmsg_reset_timer(i);
+}
+
+
+
+
 
 void mwItems::proc_pmsg_reset_timer(int i)
 {
@@ -24,31 +35,16 @@ void mwItems::proc_pmsg_reset_timer(int i)
 
 void mwItems::proc_pmsg(int i)
 {
-   // count down the timer
-   if (!(mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
+   if (!(mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) // only if not show always
    {
+      // count down the timer
       int timer_count=0, timer_val=0;
       mMiscFnx.get_int_3216(mItem.item[i][12], timer_count, timer_val);
-
       if (timer_count > 0) timer_count--;
       mMiscFnx.set_int_3216(mItem.item[i][12], timer_count, timer_val);
-   }
 
-   // check for player in trigger box
-   if (mItem.item[i][2] & PM_ITEM_PMSG_TRIGGER_BOX)
-   {
-      int tfx1 = mItem.item[i][6]-10;
-      int tfy1 = mItem.item[i][7]-10;
-      int tfx2 = tfx1 + mItem.item[i][8];
-      int tfy2 = tfy1 + mItem.item[i][9];
-
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
-         {
-            int x = mPlayer.syn[p].x;
-            int y = mPlayer.syn[p].y;
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) proc_pmsg_reset_timer(i);
-         }
+      // check for event trigger
+      if ((item[i][1]) && (mTriggerEvent.event[item[i][1]])) proc_pmsg_reset_timer(i);
    }
 }
 
@@ -64,21 +60,27 @@ static bool draw_multiline_cb(int line_num, const char *line, int size, void *ex
    return 1;
 }
 
-int mwItems::draw_message(int i, int custom)
+int mwItems::draw_message(int i, int x, int y, int custom)
 {
    char msg[1024];
    if (!custom) // pop up message
    {
       int timer_count=0, timer_val=0;
-      mMiscFnx.get_int_3216(mItem.item[i][12], timer_count, timer_val);
-
+      mMiscFnx.get_int_3216(item[i][12], timer_count, timer_val);
       // if timer running or always show, draw the message
-      if ((timer_count) || (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) draw_pop_message(i, 0, 0, 0, 0, 0, msg);
-
-      // if hide scroll and not running level editor flag scroll as being drawn already
-      if ((!(mItem.item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL)) && (!mLoop.level_editor_running)) return 1;
+      if ((timer_count) || (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) draw_pop_message(i, 0, 0, 0, 0, 0, msg);
    }
-   return 0;
+
+
+   // if show scroll or level editor running draw scroll
+   int show_scroll = 0;
+
+   if (item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL) show_scroll = 1;
+   if (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS) show_scroll = 0;
+   if (mLoop.level_editor_running) show_scroll = 1;
+   if (show_scroll) al_draw_bitmap(mBitmap.tile[mBitmap.zz[0][36]], x, y, 0);
+
+   return 1;
 }
 
 void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
@@ -99,11 +101,13 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
    }
    else strcpy(pt, pmsgtext[i]); // get text from pmsg
 
+   int tc=0, fc=0;
+   mMiscFnx.get_int_3216(item[i][13], tc, fc); // get text and frame colors
 
-   int x1=0, y1=0, w=0, h=0, tc=0, fc = 0;
-   mMiscFnx.get_int_3216(mItem.item[i][10], x1, y1);       // get x and y
-   mMiscFnx.get_int_3216(mItem.item[i][11], w, h);         // get width and height
-   mMiscFnx.get_int_3216(mItem.item[i][13], tc, fc);       // get text and frame colors
+   int x1 = item[i][6];
+   int y1 = item[i][7];
+   int w  = item[i][8];
+   int h  = item[i][9];
 
    if (custom) // get custom x and y
    {
@@ -133,8 +137,6 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
    }
 
 
-
-
    if (frame_width == 2)
    {
       for (int a=0; a<frame_width; a++)
@@ -151,11 +153,7 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
          al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 6, 6, mColor.pc[fc+a*16], 1.5);
    }
 
-
-   // debug show inner frame
-//   al_draw_rounded_rectangle(x1+frame_width, y1+frame_width, x2-frame_width, y2-frame_width, 4, 4, mColor.pc[15], 1);
-
-
+   //al_draw_rounded_rectangle(x1+frame_width, y1+frame_width, x2-frame_width, y2-frame_width, 4, 4, mColor.pc[15], 1); // debug show inner frame
 
    if (custom)
    {
@@ -167,18 +165,10 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
       if (pt[cursor_pos] == 32) sprintf(msg, "SPACE");
 
       al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+2, ALLEGRO_ALIGN_CENTRE, "%d/%d/500 [%s] ", cursor_pos, (int) strlen(pt), msg);
-
 //      al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "[%s] %d/%d/500", msg, cursor_pos, (int) strlen(pt));
-
 //      al_draw_textf(mFont.pr8, mColor.pc[15], x2-60, y2-9, 0, "[%s]", msg);
       //al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
    }
-
-
-
-
-
-
 
 
    // figure out what line height to use so that text is justified vertically
@@ -202,7 +192,6 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
 
    } while ((sp > 2) && (line_height < 100));
 
-
 //   al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+20, ALLEGRO_ALIGN_CENTRE, "lh:%2.1f nl:%d th:%2.1f", line_height, extra.num_lines, text_height);
 //   al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+28, ALLEGRO_ALIGN_CENTRE, "fh:%d fh-fw:%d sp:%2.1f", h, h - frame_width*2, sp);
 
@@ -219,6 +208,7 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
 
    if (cursor_blink)
    {
+      int cursor_char = 127;
 
       // convert all printable char to blank non-printable spaces (can't use space because multiline text will break in new places)
       for (int a=0; a<(int)strlen(pt); a++)
@@ -231,9 +221,9 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
          int dcp = cursor_pos;
          cursor_on_special = 1;
          while ( (dcp > 0) &&  ((pt[dcp] == 10) || (pt[dcp] == 32)) ) dcp--; // find previous non special char
-         pt[dcp] = 95;
+         pt[dcp] = cursor_char;
       }
-      else pt[cursor_pos] = 95;
+      else pt[cursor_pos] = cursor_char;
 
       al_draw_multiline_text(mFont.pr8, mColor.pc[10], xc+cursor_on_special*8, y3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
    }
@@ -267,7 +257,7 @@ int mwItems::edit_pmsg_text(int c, int new_msg)
    int bts = 16;
    int char_count;
    int cursor_pos=0;
-   int blink_count = 8;
+   int blink_count = 6;
    int blink_counter = 0;
    char f[1800];
    int quit = 0;
@@ -298,8 +288,8 @@ int mwItems::edit_pmsg_text(int c, int new_msg)
       al_set_target_backbuffer(mDisplay.display);
 
       if (++blink_counter > blink_count) blink_counter = 0;
-      if (blink_counter > 4) draw_pop_message(c, 1, smx, smy, cursor_pos, 1, f); // show the message with cursor_pos
-      else                   draw_pop_message(c, 1, smx, smy, cursor_pos, 0, f); // show the message without
+      if (blink_counter > (blink_count/2)) draw_pop_message(c, 1, smx, smy, cursor_pos, 1, f); // show the message with cursor_pos
+      else                                 draw_pop_message(c, 1, smx, smy, cursor_pos, 0, f); // show the message without
 
       int by = smy-bts/2-2;
       int ey = by+-3*bts; // erase y1
@@ -425,20 +415,14 @@ int mwItems::edit_pmsg_text(int c, int new_msg)
 
 
 
-
-
-
-
-
-
-
 int mwItems::get_frame_size(int num)
 {
-   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME0) return 0;
-   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME1) return 1;
-   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME2) return 2;
-   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME4) return 4;
-   if (mItem.item[num][2] & PM_ITEM_PMSG_FRAME12) return 12;
+   int f = item[num][2];
+   if (f & PM_ITEM_PMSG_FRAME0)  return 0;
+   if (f & PM_ITEM_PMSG_FRAME1)  return 1;
+   if (f & PM_ITEM_PMSG_FRAME2)  return 2;
+   if (f & PM_ITEM_PMSG_FRAME4)  return 4;
+   if (f & PM_ITEM_PMSG_FRAME12) return 12;
    return 0;
 }
 
@@ -446,31 +430,18 @@ int mwItems::get_frame_size(int num)
 void mwItems::set_frame_size(int num, int frame_size)
 {
    // clear all flags
-   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME0;
-   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME1;
-   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME2;
-   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME4;
-   mItem.item[num][2] &= ~PM_ITEM_PMSG_FRAME12;
+   item[num][2] &= ~PM_ITEM_PMSG_FRAME0;
+   item[num][2] &= ~PM_ITEM_PMSG_FRAME1;
+   item[num][2] &= ~PM_ITEM_PMSG_FRAME2;
+   item[num][2] &= ~PM_ITEM_PMSG_FRAME4;
+   item[num][2] &= ~PM_ITEM_PMSG_FRAME12;
 
-   if (frame_size == 0)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME0;
-   if (frame_size == 1)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME1;
-   if (frame_size == 2)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME2;
-   if (frame_size == 4)  mItem.item[num][2] |= PM_ITEM_PMSG_FRAME4;
-   if (frame_size == 12) mItem.item[num][2] |= PM_ITEM_PMSG_FRAME12;
+   if (frame_size == 0)  item[num][2] |= PM_ITEM_PMSG_FRAME0;
+   if (frame_size == 1)  item[num][2] |= PM_ITEM_PMSG_FRAME1;
+   if (frame_size == 2)  item[num][2] |= PM_ITEM_PMSG_FRAME2;
+   if (frame_size == 4)  item[num][2] |= PM_ITEM_PMSG_FRAME4;
+   if (frame_size == 12) item[num][2] |= PM_ITEM_PMSG_FRAME12;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

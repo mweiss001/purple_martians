@@ -16,6 +16,10 @@ class mwItems
    char pmsgtext[500][500];
    int item_tile[30];
 
+
+   int item_secondary67(int type);
+
+
    void draw_items(void);
    void draw_item(int i, int custom, int cx, int cy);
    int draw_bonus(int i, int x, int y, int shape);
@@ -72,9 +76,11 @@ class mwItems
    void proc_switch_block_range(int i, int action);
 
    // mwItemMessage.cpp
-   int draw_message(int i, int custom);
+   int draw_message(int i, int x, int y, int custom);
    void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f);
    void proc_pmsg(int i);
+
+   void proc_pmsg_collision(int i);
    void proc_pmsg_reset_timer(int i);
    int edit_pmsg_text(int c, int new_msg);
 

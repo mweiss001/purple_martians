@@ -1841,28 +1841,12 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-
-
-
-//         int old_frame_speed = mLoop.frame_speed;
+         int old_mln = mVisualLevel.max_level_num;
          mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mVisualLevel.max_level_num, 400, 4, 1, "Max Level Number for Visual Level Select:");
-  //       if (old_frame_speed != mLoop.frame_speed) mEventQueue.set_speed();
+         if (old_mln != mVisualLevel.max_level_num) mVisualLevel.load_visual_level_select_done = 0;
          ya -=2;
 
-
-
          ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
-
-
-
-
-
-
-
-
-
-
-
 
       }
 

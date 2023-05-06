@@ -403,10 +403,10 @@ item[][2] = draw on
 item[][3] = mode
 item[][4] = x pos (2000)
 item[][5] = y pos (2000)
-item[][6]  = trigger field x (2000)
-item[][7]  = trigger field y (2000)
-item[][8]  = trigger field w (2000)
-item[][9]  = trigger field x (2000)
+item[][6] = trigger field x (2000)
+item[][7] = trigger field y (2000)
+item[][8] = trigger field w (2000)
+item[][9] = trigger field x (2000)
 item[][10] block 1
 item[][11] block 2
 item[][12] = draw color
@@ -509,9 +509,7 @@ item[][8]  = field w (2000)
 item[][9]  = field h (2000)
 item[][10] = lift number
 item[][11] = mode
-item[][12] = t1 val
-item[][13] = count
-item[][14] = t2 val
+
 item[][15] = damage
 
 */
@@ -692,13 +690,31 @@ int mwItems::draw_block_damage(int i, int x, int y, int custom)
          int tn = 804; // off by default
          if (item[i][11] == 2) // mode on unless triggered
          {
-            float rtio = 1 - get_timer_ratio_for_event(item[i][1]);
-            //printf("ratio:%f\n", rtio);
-            if ((rtio > 0.00) && (rtio < 0.33)) tn = 804;
-            if ((rtio > 0.33) && (rtio < 0.66)) tn = 805;
-            if ((rtio > 0.66) && (rtio < 1.00)) tn = 806;
+            tn = 806; // 2/3 on by default
+            if (mTriggerEvent.event[item[i][1]]) // event currently triggered (damage off)
+            {
+               float rtio = get_timer_ratio_for_event(item[i][1]);
+               if ((rtio >= 0.0) && (rtio < 0.33)) tn = 804;
+               if ((rtio > 0.33) && (rtio < 0.66)) tn = 805;
+               if ((rtio > 0.66) && (rtio < 1.00)) tn = 806;
+            }
          }
+         if (item[i][11] == 3) // mode off unless triggered
+         {
+            tn = 806; // 2/3 on by default
+            if (!mTriggerEvent.event[item[i][1]]) // event currently not triggered (damage off)
+            {
+               float rtio = get_timer_ratio_for_event(item[i][1]);
+               if ((rtio >= 0.0) && (rtio < 0.33)) tn = 804;
+               if ((rtio > 0.33) && (rtio < 0.66)) tn = 805;
+               if ((rtio > 0.66) && (rtio < 1.00)) tn = 806;
+            }
+         }
+
          if (FLAGS & PM_ITEM_DAMAGE_CURR) tn = 807;
+
+         //printf("f:%d rtio:%f tn:%d\n", mLoop.frame_num, rtio, tn);
+
          for (int hx=x1; hx<x2; hx+=20)
             al_draw_bitmap(mBitmap.tile[tn], hx, y2-20, 0); // draw spikes only on bottom row
       }
@@ -712,13 +728,17 @@ void mwItems::proc_block_damage(int i)
    int trig = mTriggerEvent.event[et]; // is the trigger event set?
    if (et == 0) trig = 0;              // if event is zero, ignore
 
+
    if (item[i][3] & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i, 0); // follow lift location
 
    proc_item_damage_collisions(i);
 
    int mode = item[i][11];
+
    if (mode == 0) item[i][3] |= PM_ITEM_DAMAGE_CURR; // in mode 0, always set damage flag
+
    if ((mode == 1) && (trig)) item[i][3] ^= PM_ITEM_DAMAGE_CURR; // toggle current damage flag
+
    if (mode == 2) // damage on unless triggered
    {
       if (trig) item[i][3] &= ~PM_ITEM_DAMAGE_CURR; // damage off
@@ -860,8 +880,6 @@ void mwItems::proc_timer(int i)
    if (state == 1)
    {
       if (t1_op_mode) mTriggerEvent.event[item[i][13]] = 1; // emit timer 1 event continuosly
-
-
       // check to see if we should run down the timer
       switch (t1_mode)
       {
@@ -883,8 +901,6 @@ void mwItems::proc_timer(int i)
             if (mTriggerEvent.event[item[i][12]]) cnt = item[i][10];
             else cnt--;
          break;
-
-
       }
       if (cnt <= 0)
       {
@@ -986,11 +1002,10 @@ float mwItems::get_timer_ratio_for_event(int ev)
       float tot;
       if (state == 1) tot = item[ti][10];
       if (state == 2) tot = item[ti][11];
-      if (tot != 0) return (float)cnt / tot;
+      if (tot != 0) return 1 - (float)cnt / tot;
    }
    return 0;
 }
-
 
 
 /*
