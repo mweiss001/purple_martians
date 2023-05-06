@@ -197,10 +197,7 @@ void mwPlayers::set_player_start_pos(int p, int cont)
 void mwPlayers::proc_player_health(int p)
 {
    char msg[1024];
-
    if ((mLoop.frame_num) && (mLoop.frame_num == loc[p].damage_holdoff)) mGameEvent.add(12, 0, 0, p, loc[p].damage_type, 0, loc[p].damage_tally);
-
-
    if (syn[p].old_health != syn[p].health)
    {
       loc[p].last_health_adjust = (syn[p].health - syn[p].old_health);

@@ -11,6 +11,9 @@
 #include "mwScreen.h"
 #include "mwEnemy.h"
 #include "mwInput.h"
+#include "mwMiscFnx.h"
+#include "mwTriggerEvent.h"
+
 
 mwGlobalLevelTool mGlobalLevelTool;
 
@@ -129,7 +132,6 @@ void mwGlobalLevelTool::execute(void)
       mLevel.load_level(le[x], 1, 1);
 
 
-
 ////      if (le[x] == 6)
 //      {
 //
@@ -233,11 +235,88 @@ void mwGlobalLevelTool::execute(void)
 //         }
 //
 
-      for (int y=0; y<500; y++)
-         if (mItem.item[y][0] == 21)
-         {
-            printf("l:%d y:%d \n", le[x], y);
-         }
+
+//      if (le[x] < 100)
+//      for (int y=0; y<500; y++)
+//         if (mItem.item[y][0] == 10)
+//         {
+//            count0++; // all
+//            if ((mItem.item[y][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) count1++;
+//            else if (mItem.item[y][2] & PM_ITEM_PMSG_TRIGGER_BOX) count2++;
+//            else count3++;
+//         }
+
+//      for (int y=0; y<500; y++)
+//         if (mItem.item[y][0] == 10)
+//         {
+//            count0++; // all
+//            if ((mItem.item[y][1] == 1036)) count1++;
+//         }
+
+
+//      for (int y=0; y<500; y++)
+//         if (mItem.item[y][0] == 10)
+//         {
+//            if (mItem.item[y][2] & PM_ITEM_PMSG_TRIGGER_BOX)
+//               printf("level:%3d y:%3d\n", le[x], y);
+//         }
+
+
+
+//      if (le[x] == 104)
+//      for (int y=0; y<500; y++)
+//         if (mItem.item[y][0] == 10)
+//         {
+//            if (!(mItem.item[y][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
+//               if (mItem.item[y][2] & PM_ITEM_PMSG_TRIGGER_BOX)
+//               {
+//                  printf("level:%3d y:%3d\n", le[x], y);
+//
+//                  // create a trigger item based on the trigger stuff in pmsg
+//                  int i = mItem.get_empty_item(9);
+//                  if (i < 500)
+//                  {
+//                     mItem.item[i][4] = mItem.item[y][4];
+//                     mItem.item[i][5] = mItem.item[y][5]-20;
+//                     if (mItem.item[i][5] < 0) mItem.item[1][5] = 20;
+//
+//                     mItem.item[i][0] = 9;  // type 9 - trigger
+//                     mItem.item[i][3] |= PM_ITEM_TRIGGER_PLAYER;
+//
+//                     mItem.item[i][6] = mItem.item[y][6];
+//                     mItem.item[i][7] = mItem.item[y][7];
+//                     mItem.item[i][8] = mItem.item[y][8];
+//                     mItem.item[i][9] = mItem.item[y][9];
+//
+//
+//                     int ev = mTriggerEvent.get_unused_pm_event();
+//
+//                     mItem.item[i][11] = ev; // send always when on
+//
+//                     mItem.item[y][1] = ev;
+//
+//                     mItem.item[y][2] &= ~PM_ITEM_PMSG_TRIGGER_BOX; // clear flag
+//
+//                  }
+//
+//            }
+//         }
+//
+
+
+//
+//      for (int y=0; y<500; y++)
+//         if (mItem.item[y][0] == 10)
+//         {
+//            int x1=0, y1=0, w=0, h=0;
+//            mMiscFnx.get_int_3216(mItem.item[y][10], x1, y1);       // get x and y
+//            mMiscFnx.get_int_3216(mItem.item[y][11], w, h);         // get width and height
+//
+//            mItem.item[y][6] = x1;
+//            mItem.item[y][7] = y1;
+//            mItem.item[y][8] = w;
+//            mItem.item[y][9] = h;
+//         }
 
 
 //      for (int y=0; y<500; y++)

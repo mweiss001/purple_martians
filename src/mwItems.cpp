@@ -81,6 +81,20 @@ void mwItems::initialize(void)
 
 }
 
+
+// does the item type have a secondary position at 6,7?
+int mwItems::item_secondary67(int type)
+{
+   if (type == 4)  return 1; // key
+   if (type == 9)  return 1; // trigger
+   if (type == 10) return 1; // message
+   if (type == 13) return 1; // timer display
+   if (type == 14) return 1; // switch
+   if (type == 16) return 1; // block manip
+   if (type == 17) return 1; // block damage
+   return 0;
+}
+
 void mwItems::draw_items(void)
 {
    al_set_target_bitmap(mBitmap.level_buffer);
@@ -93,7 +107,7 @@ void mwItems::draw_items(void)
 void mwItems::draw_item(int i, int custom, int cx, int cy)
 {
    int type = mItem.item[i][0];
-   int shape = mItem.item[i][1];                     // get shape
+   int shape = mItem.item[i][1];                         // get shape
    if (shape > 999) shape = mBitmap.zz[0][shape-1000];   // ans
    int x = itemf[i][0];
    int y = itemf[i][1];
@@ -111,7 +125,7 @@ void mwItems::draw_item(int i, int custom, int cx, int cy)
    if (type == 6)  drawn = draw_orb          (i, x, y);
    if (type == 8)  drawn = draw_bomb         (i, x, y, shape);
    if (type == 9)  drawn = draw_trigger      (i, x, y, custom);
-   if (type == 10) drawn = draw_message      (i, custom);
+   if (type == 10) drawn = draw_message      (i, x, y, custom);
    if (type == 11) drawn = draw_rocket       (i, x, y, shape);
    if (type == 13) drawn = draw_timer        (i, x, y, custom);
    if (type == 16) drawn = draw_block_manip  (i, x, y);
@@ -458,7 +472,7 @@ void mwItems::proc_item_collision(int p, int i)
       case 6:  proc_orb_collision(p, i);      break;
       case 7:  proc_mine_collision(p, i);     break;
       case 8:  proc_bomb_collision(p, i);     break;
-      case 10: proc_pmsg_reset_timer(i);      break;
+      case 10: proc_pmsg_collision(i);        break;
       case 11: proc_rocket_collision(p, i);   break;
       case 12: proc_warp_collision(p, i);     break;
       case 14: proc_switch_collision(p, i);   break;
@@ -616,12 +630,15 @@ mItem.item[][13] = TGON pm_event #
 mItem.item[][14] = TGOF pm_event #
 
 [10] - pop-up msg
-mItem.item[][6]  timer counter
-mItem.item[][7]  timer value
-mItem.item[][8]  text color
-mItem.item[][9]  frame color
-mItem.item[][10] msg x pos (100)
-mItem.item[][11] msg y pos (100)
+mItem.item[][1] event trigger
+mItem.item[][6]  msg x
+mItem.item[][7]  msg y
+mItem.item[][8]  msg w
+mItem.item[][9]  msg h
+mItem.item[][10]
+mItem.item[][11]
+mItem.item[][12] timer count and val  (packed)
+mItem.item[][13] text and frame color (packed)
 
 [11] - rocket
 mItem.item[][6]  steerabaility

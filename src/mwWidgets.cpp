@@ -606,19 +606,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
       }
    }
 
-   if (bn == 6)
-   {
-      sprintf(msg, "Set Message Area");
-      if (press)
-      {
-         int x=0, y=0, w=0, h=0;
-         mMiscFnx.get_block_range("Message Area", &x, &y, &w, &h, 1);
-         mMiscFnx.set_int_3216(mItem.item[num][10], x, y);
-         mMiscFnx.set_int_3216(mItem.item[num][11], w, h);
-
-      }
-   }
-
    if (bn == 7)
    {
       int frame_size = mItem.get_frame_size(num);
@@ -710,14 +697,9 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
          if (shape == 448) shape = 1083;
          else if (shape == 1083) shape = 0;
          else if (shape == 0) shape = 448;
-
          if ((shape != 448)  && (shape != 1083) && (shape != 0)) shape = 1083;
-//         if ((shape != 448) && (shape != 1083)) shape = 1083;
-
          mItem.item[num][13] = shape;
          mItem.item[num][1] = shape;
-
-//         if (shape != -1) change_linked_door_color_and_shape(num);
       }
    }
 
@@ -743,19 +725,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
 
       if (press)
       {
-         if (o==3)
-         {
-            if (t == 3)  mHelp.help("Archwagon Viewer");
-            if (t == 4)  mHelp.help("Bouncer Viewer");
-            if (t == 5)  mHelp.help("Jumpworm Viewer");
-            if (t == 6)  mHelp.help("Cannon Viewer");
-            if (t == 7)  mHelp.help("Podzilla Viewer");
-            if (t == 8)  mHelp.help("Trakbot Viewer");
-            if (t == 9)  mHelp.help("Cloner Viewer");
-            if (t == 10) mHelp.help("Field Viewer");
-            if (t == 11) mHelp.help("Block Walker Viewer");
-            if (t == 12) mHelp.help("Flapper Viewer");
-         }
          if (o==2)
          {
             if (t == 1)  mHelp.help("Door Viewer");
@@ -770,10 +739,24 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
             if (t == 10) mHelp.help("Message Viewer");
             if (t == 11) mHelp.help("Rocket Viewer");
             if (t == 12) mHelp.help("Warp Viewer");
+            if (t == 13) mHelp.help("Timer Viewer");
             if (t == 14) mHelp.help("Switch Viewer");
             if (t == 15) mHelp.help("Sproingy Viewer");
             if (t == 16) mHelp.help("Block Manip Viewer");
             if (t == 17) mHelp.help("Block Damage Viewer");
+         }
+         if (o==3)
+         {
+            if (t == 3)  mHelp.help("Archwagon Viewer");
+            if (t == 4)  mHelp.help("Bouncer Viewer");
+            if (t == 5)  mHelp.help("Jumpworm Viewer");
+            if (t == 6)  mHelp.help("Cannon Viewer");
+            if (t == 7)  mHelp.help("Podzilla Viewer");
+            if (t == 8)  mHelp.help("Trakbot Viewer");
+            if (t == 9)  mHelp.help("Cloner Viewer");
+            if (t == 10) mHelp.help("Field Viewer");
+            if (t == 11) mHelp.help("Block Walker Viewer");
+            if (t == 12) mHelp.help("Flapper Viewer");
          }
          if (o==4)
          {

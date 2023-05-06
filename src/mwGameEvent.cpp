@@ -13,6 +13,22 @@ void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
    if (!mLoop.ff_state)
    {
+      if (ev == 11) // tally raw damage
+      {
+         int p = z1;
+         float damage = (float)z4 / 100; // damage
+         mPlayer.loc[p].damage_type = z2;
+         if (mPlayer.loc[p].damage_holdoff > mLoop.frame_num+20) mPlayer.loc[p].damage_holdoff = mLoop.frame_num + 20; // if holdoff is too far in future (this is where it is reset)
+         if (mPlayer.loc[p].damage_holdoff < mLoop.frame_num) // triggered and not in holdoff
+         {
+            mPlayer.loc[p].damage_holdoff = mLoop.frame_num + 20; // set holdoff
+            mPlayer.loc[p].damage_tally = damage; // init tally with current damage
+         }
+         if (mPlayer.loc[p].damage_holdoff > mLoop.frame_num) // triggered and in holdoff
+         {
+            mPlayer.loc[p].damage_tally += damage; // inc tally with current damage
+         }
+      }
 
       if (mBottomMessage.bottom_msg_on) mBottomMessage.add(ev, x, y, z1, z2, z3, z4); // send event to bmsg add
       if (mSound.sound_on)

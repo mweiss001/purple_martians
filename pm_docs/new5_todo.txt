@@ -3,23 +3,39 @@
 ---------------------------------------------------------
 
 
+Desktop Resolution: 3840x2160
+ne 0 1 3 2
+et 1 11 3 2
+shows when copying events with edit selection
+
+when copying timer link with es does not update...
+
+make copying of events perfect
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+change help, configurable function keys
 
-
+make timer demo level (add to trigger)
 
 
 --------------------------------------------------------
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
 
+change allegro project page to show source code available
 
+add to history
 
-add timer to advanced level demo and help
+Redid entire project to use objects
+removed all global variable
+refactored almost every line of code
 
-alt levels...the ones not good enough for the main sequence
+made major changes to netgame,
+now works over internet as well as LAN
 
 
 ---------------------------------------------------------
@@ -110,6 +126,9 @@ VinePod
 -------------------------------
 -- Random thoughts and ideas --
 -------------------------------
+
+
+
 
 why did I remove skip frame draw?
 because 99% of the time, the thing was taking too much time was draw frame itself

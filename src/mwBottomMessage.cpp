@@ -268,23 +268,6 @@ void mwBottomMessage::draw_health(int p, int h, int &xpos, int xo, int yo)
 
 void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
-   if (ev == 11) // tally raw damage
-   {
-      int p = z1;
-      float damage = (float)z4 / 100; // damage
-      mPlayer.loc[p].damage_type = z2;
-      if (mPlayer.loc[p].damage_holdoff > mLoop.frame_num+20) mPlayer.loc[p].damage_holdoff = mLoop.frame_num + 20; // if holdoff is too far in future (this is where it is reset)
-      if (mPlayer.loc[p].damage_holdoff < mLoop.frame_num) // triggered and not in holdoff
-      {
-         mPlayer.loc[p].damage_holdoff = mLoop.frame_num + 20; // set holdoff
-         mPlayer.loc[p].damage_tally = damage; // init tally with current damage
-      }
-      if (mPlayer.loc[p].damage_holdoff > mLoop.frame_num) // triggered and in holdoff
-      {
-         mPlayer.loc[p].damage_tally += damage; // inc tally with current damage
-      }
-     return; // this even only tallies damage...player health emits event 12 to show damage
-   }
 
    char msg[256];
    double t0;
@@ -299,7 +282,7 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
       else ev = 0;
    }
 
-   if ((ev != 0) && (ev != 1) && (ev != 2) && (ev != 4) && (ev != 5) && (ev != 24) ) // events that don't have bmsg handler (1-shot 2-explosion, 4-unlocked exit, 5-jump, 24-spring
+   if ((ev != 0) && (ev != 1) && (ev != 2) && (ev != 4) && (ev != 5) && (ev != 11) && (ev != 24) ) // events that don't have bmsg handler (1-shot 2-explosion, 4-unlocked exit, 5-jump, 24-spring
    {
       int xpos = 0;
       int custom_drawn = 0;

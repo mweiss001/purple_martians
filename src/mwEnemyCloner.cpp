@@ -18,7 +18,7 @@
 //   Ei[][4]  draw boxes (0 = none) (1 = source) (2 = dest) (3 = both)
 //   Ei[][5]  draw mode (0 = hidden, 1 = static shape, 2 = static ans, 3 = follow event timer
 
-//   Ei[][8]  event
+//   Ei[][8]  trigger event
 
 //   Ei[][9]  time to live for created objects
 //   Ei[][10] max num of created objects
@@ -85,7 +85,7 @@ void mwEnemy::cloner_create(int e)
                         Ef[c][0] = new_x_pos;
                         Ef[c][1] = new_y_pos;
                         Ei[c][27] = Ei[e][9]; // set time to live
-                        Ei[c][28] = 1000+e;   // tag with cloner item id
+                        Ei[c][28] = 1000+e;   // tag with cloner id
                         c = 100; // end loop
                         no++;    // one more object created
                      }
@@ -119,7 +119,7 @@ void mwEnemy::cloner_create(int e)
                         // are we copying something that already has an expiry date?? if so leave it
                         if (mItem.item[b][14] == 0) mItem.item[c][14] = Ei[e][9]; // otherwise set time to live from cloner
                         if (mItem.item[c][0] == 10) strcpy(mItem.pmsgtext[c], mItem.pmsgtext[b]); // message
-                        mItem.item[c][15] = 1000+e;   // tag with cloner item id
+                        mItem.item[c][15] = 1000+e;   // tag with cloner id
                         c = 500; // end loop
                         no++;    // one more object created
                      }
@@ -135,13 +135,13 @@ void mwEnemy::cloner_create(int e)
 
 void mwEnemy::draw_cloner(int e, int x, int c, int custom)
 {
+   // draw main shape
    if ((custom) || (mLoop.level_editor_running))
    {
       Ei[e][1] = mBitmap.zz[7][105]; // static shape
    }
    else
    {
-
       int draw_mode = Ei[e][5];
 
       if (draw_mode == 0) Ei[e][1] = 0;                  // hidden
@@ -151,7 +151,7 @@ void mwEnemy::draw_cloner(int e, int x, int c, int custom)
       {
          if (Ei[e][8])
          {
-            float rtio = 1 - mItem.get_timer_ratio_for_event(Ei[e][8]);
+            float rtio = mItem.get_timer_ratio_for_event(Ei[e][8]);
             //printf("ratio:%f\n", rtio);
             float ns = mBitmap.zz[4][107]; // number of shapes
             float ni = ns * rtio;
@@ -159,53 +159,14 @@ void mwEnemy::draw_cloner(int e, int x, int c, int custom)
          }
          else Ei[e][1] = mBitmap.zz[6][105]; // static shape
       }
+   }
 
-
-
-
-
-
-      // source
-      float sx1 = (float)Ei[e][15];
-      float sy1 = (float)Ei[e][16];
-      float sx2 = sx1 + (float)Ei[e][19];
-      float sy2 = sy1 + (float)Ei[e][20];
-      int sc1 = 11 + 128; // source box color
-
-      // destination
-      float dx1 = (float)Ei[e][17];
-      float dy1 = (float)Ei[e][18];
-      float dx2 = dx1 + (float)Ei[e][19];
-      float dy2 = dy1 + (float)Ei[e][20];
-      int dc1 = 10 + 128; // destination box color
-
-
-//      int m = Ei[e][5]; // 2 - 9  total seq (8)
-//
-//      if ((m > 1) && (m < 6)) // first half (2 - 5) // flash source box green
-//      {
-//         int co = 0, d = m-2; // 0 to 3
-//         if (d == 0) co = 64;
-//         if (d == 1) co = 0;
-//         if (d == 2) co = 0;
-//         if (d == 3) co = 64;
-//         sc1 = 11 + co; // source box color
-//      }
-//      if ((m > 5) && (m < 10)) // second half (6 - 9) // flash destination box red
-//      {
-//         int co = 0, d =  m-6; // 0 to 3
-//         if (d == 0) co = 64;
-//         if (d == 1) co = 0;
-//         if (d == 2) co = 0;
-//         if (d == 3) co = 64;
-//         dc1 = 10 + co; // destination box color
-//      }
-
-      // show box mode (0=none) (1 = src only) (2 = dst only) (3 = both)
-      int q = Ei[e][4];
-      if ((q == 1) || (q == 3)) mMiscFnx.rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64, 0); // source
-      if ((q == 2) || (q == 3)) mMiscFnx.rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
-
+   // draw boxes
+   if (!custom)
+   {
+      int q = Ei[e][4]; // show box mode (0=none) (1 = src only) (2 = dst only) (3 = both)
+      if ((q == 1) || (q == 3)) mMiscFnx.rectangle_with_diagonal_lines(Ei[e][15], Ei[e][16], Ei[e][15] + Ei[e][19], Ei[e][16] + Ei[e][20], 8, 11+128, 11+192, 0); // source
+      if ((q == 2) || (q == 3)) mMiscFnx.rectangle_with_diagonal_lines(Ei[e][17], Ei[e][18], Ei[e][17] + Ei[e][19], Ei[e][18] + Ei[e][20], 8, 10+128, 10+192, 0); // destination
    }
 }
 
