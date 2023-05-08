@@ -20703,6 +20703,193 @@ fixed
 
 20230506 push
 
+is there any reason I could not also set timer display to values not snapped to 20?
+do it!!!   done...it was easy
+what else could be high res adjust?
+trigger
+damage
+
+what should never be high res?...things that deal with blocks...
+key
+switch
+block damage
+
+hi-res:
+trigger
+message
+timer display
+block damage
+
+made a function in items for these
+made it so that you can still snap to blocks when adjusting by holding shift
+
+make a way to align messages with each other...
+actually it could be any item that has a secondary 67 position
+I was thinking of using group edit
+select some items and edit them as a group
+this works perfectly with all hires secondary items
+x,y,w,h,xc,y2
+test it out...
+add clear obj list to right click..done...
+
+
+find a way to add timer to first level...done...
+
+
+Timer is not in filter list..fixed
+
+
+
+it is only used in es when pasting a selection from ft_xxx to regular
+
+Events in the copied section will probably collide with existing event links
+this would take some time and effort to sort out after a paste so I want to do it automatically
+
+hi level algorithm
+
+before paste, iterate objects in ft_xx
+
+look for any event recievers or senders
+
+add to link translation table
+include
+
+ft_index
+original event
+new event
+index of variable
+
+at each insert, check to see if there is already a link entry from the old to the new event
+if yes, use that
+if not make a new mapping
+
+then when adding objects check that index of each obj for an entry in the clt table
+
+if there is one, substitute the new event number
+
+the only thing I need to do is extend this table to work with enemies (cloner) and lifts also
+
+add obt_type to table
+
+new table
+
+obt_type
+obt_sub_type (for lifts, step num)
+obt_num
+
+old_ev
+new_ev
+var_num
+
+obt (2 = item, 3 = enemy, 4=lift)
+num (object_index)
+ext (var type, or lift step num)
+old_ev
+new_ev
+
+
+item: mItem.item[num][ext]
+obt = 2
+num = item index
+ext = var_num
+
+enemy: mEnemy.Ei[num][ext]
+obt = 3
+num = enemy index
+ext = var_num
+
+lift: mLift.stp[num][ext].val
+obt = 4
+num = lift index
+ext = step index
+
+
+
+this was the original that only did items
+
+   // this section is to make any copied pm_event links have new unique pm_events and still linked properly
+   int clt[500][4] = { 0 };
+   int clt_last = 0; // index
+
+   for (b=0; b<500; b++)       // iterate items in selection
+   {
+      if ((ft_item[b][0] == 10) || (ft_item[b][0] == 16) || (ft_item[b][0] == 17)) // message, bm or bd
+      {
+         clt_last += mTriggerEvent.add_item_link_translation(b, 1, ft_item[b][1], clt, clt_last);
+      }
+      if (ft_item[b][0] == 9) // trigger
+      {
+         clt_last += mTriggerEvent.add_item_link_translation(b, 11, ft_item[b][11], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(b, 12, ft_item[b][12], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(b, 13, ft_item[b][13], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(b, 14, ft_item[b][14], clt, clt_last);
+      }
+      if (ft_item[b][0] == 13) // timer
+      {
+         clt_last += mTriggerEvent.add_item_link_translation(b, 12, ft_item[b][12], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(b, 13, ft_item[b][13], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(b, 14, ft_item[b][14], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(b, 15, ft_item[b][15], clt, clt_last);
+      }
+   }
+
+
+   // items
+   for (b=0; b<500; b++)
+      if ((ft_item[b][0]) && (mwWM.obj_filter[2][ft_item[b][0]]))
+      {
+         //int copied = 0;
+         for (c=0; c<500; c++) // search for empty place to copy to
+         {
+            if (mItem.item[c][0] == 0) // found empty
+            {
+               //copied = 1000+c;
+               int lim = 0;
+               // copy all 16 variables
+               for (y=0; y<16; y++)
+                     mItem.item[c][y] = ft_item[b][y];
+
+               // apply offsets
+               mItem.item[c][4] += x3;
+               mItem.item[c][5] += y3;
+
+               if (erase_out_of_bounds_main)
+               {
+                  if (mMiscFnx.check_limit(mItem.item[c][4], 0, 1980)) lim = 1;
+                  if (mMiscFnx.check_limit(mItem.item[c][5], 0, 1980)) lim = 1;
+               }
+               else // adjust if out of bounds
+               {
+                  mItem.item[c][4] = mMiscFnx.enforce_limit(mItem.item[c][4], 0, 1980);
+                  mItem.item[c][5] = mMiscFnx.enforce_limit(mItem.item[c][5], 0, 1980);
+               }
+
+
+               // does this copy item have an entry in the clt table?
+               for (int i=0; i<clt_last; i++)
+                  if (clt[i][0] == b) // found index of source item table
+                  {
+                     int var_index = clt[i][1]; // var #
+                     int ev2 = clt[i][3];       // new ev
+
+                     mItem.item[c][var_index] = ev2;
+                  }
+
+
+
+new:
+
+
+int clt[100][5] = { 0 };
+int clt_last = 0; // index
+
+do this before lifts, enemies and items paste
+
+clt[0] = obt
+clt[1] = num
+clt[2] = ext
+clt[3] = src_ev
+clt[4] = dst_ev
 
 
 
@@ -20710,6 +20897,64 @@ fixed
 
 
 
+   // this section is to make any copied pm_event links have new unique pm_events and still linked properly
+   int clt[100][5] = { 0 };
+   int clt_last = 0; // index
+
+//   clt[0] = obt (2=item, 3=enem, 4=lift)
+//   clt[1] = num
+//   clt[2] = ext (2,3 int var num  4=lift step index
+//   clt[3] = src_ev
+//   clt[4] = dst_ev
+
+   for (b=0; b<500; b++) // iterate items in ft
+   {
+      if (ft_item[b][0] == 6) // orb
+      {
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 10, ft_item[b][10], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 11, ft_item[b][11], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
+      }
+      if (ft_item[b][0] == 9) // trigger
+      {
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 11, ft_item[b][11], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 14, ft_item[b][14], clt, clt_last);
+      }
+      if (ft_item[b][0] == 13) // timer
+      {
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 14, ft_item[b][14], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 15, ft_item[b][15], clt, clt_last);
+      }
+      if ((ft_item[b][0] == 10) || (ft_item[b][0] == 16) || (ft_item[b][0] == 17)) // message, bm or bd
+      {
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 1, ft_item[b][1], clt, clt_last);
+      }
+   }
+   for (b=0; b<100; b++) // iterate enemies in ft
+      if (ft_Ei[b][0] == 9) // cloner
+         clt_last += mTriggerEvent.add_item_link_translation(3, b, 8, ft_Ei[b][8], clt, clt_last);
+
+
+   for (b=0; b<ft_level_header[5]; b++) // iterate lifts in ft
+      for (y=0; y<ft_lift[b][3]; y++) // iterate lift steps in ft
+      {
+         int step_type = ft_ls[b][y][5] % 31);
+         int step_val = ft_ls[b][y][4];
+         if ((step_type == 5) || (step_type == 6)) clt_last += mTriggerEvent.add_item_link_translation(4, b, y, step_val, clt, clt_last);
+      }
+
+
+
+20230508
+
+timer demo level complete
+
+look at when putting items from draw item...done
 
 
 

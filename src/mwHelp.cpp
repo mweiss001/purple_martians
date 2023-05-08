@@ -390,7 +390,7 @@ void mwHelp::help(const char *topic)
                buff2[2] = 0;
                color = atoi(buff2);
                mMiscFnx.chop_first_x_char(msg, 5);
-               al_draw_line(dx+20, sy+16, dx+620, sy+16, mColor.pc[color], 2);
+               al_draw_line(dx+20, sy+16, dx+620, sy+16, mColor.pc[color], 1);
                msg[0]= 0;
             }
 

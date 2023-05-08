@@ -2,15 +2,16 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+timers do not show in ft paste
+also msg
 
-Desktop Resolution: 3840x2160
-ne 0 1 3 2
-et 1 11 3 2
-shows when copying events with edit selection
+working on making the ft_sel look better
 
-when copying timer link with es does not update...
+all the info I need is in the ft_
+the secondaries already have the right offset but the drawing routine can only get it from the real item data structs
 
-make copying of events perfect
+I hate re invent or duplicate the drawing routines, can I just extend the exiting ones to pass explicit secondary, like I pass explicit x and y for cutom drawing?
+
 
 
 ---------------------------------------------------------
@@ -19,7 +20,23 @@ make copying of events perfect
 
 change help, configurable function keys
 
-make timer demo level (add to trigger)
+go through every page of help
+player colors
+got to pop up menu
+
+got to edit selection
+
+
+
+
+
+
+
+
+function key defaults
+debug overlay no key to start
+
+
 
 
 --------------------------------------------------------
@@ -127,7 +144,7 @@ VinePod
 -- Random thoughts and ideas --
 -------------------------------
 
-
+make stimp and stamp time part of advanced config
 
 
 why did I remove skip frame draw?

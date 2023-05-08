@@ -63,104 +63,104 @@ int mwItems::proc_orb_shot_collision(int i)
 
 void mwItems::proc_orb(int i)
 {
-   int MODE = mItem.item[i][6];
+   int MODE = item[i][6];
 
    // timer mode stuff
    if (MODE == 3) // timed ON
    {
-      if (--mItem.item[i][8] <= 0)
+      if (--item[i][8] <= 0)
       {
-         mItem.item[i][8] = 0;
-         mItem.item[i][2] &= ~PM_ITEM_ORB_STATE;  // OFF
+         item[i][8] = 0;
+         item[i][2] &= ~PM_ITEM_ORB_STATE;  // OFF
       }
-      else mItem.item[i][2] |= PM_ITEM_ORB_STATE; // ON
+      else item[i][2] |= PM_ITEM_ORB_STATE; // ON
    }
    if (MODE == 4) // timed OFF
    {
-      if (--mItem.item[i][8] <= 0)
+      if (--item[i][8] <= 0)
       {
-         mItem.item[i][8] = 0;
-         mItem.item[i][2] |= PM_ITEM_ORB_STATE;    // ON
+         item[i][8] = 0;
+         item[i][2] |= PM_ITEM_ORB_STATE;    // ON
       }
-      else mItem.item[i][2] &= ~PM_ITEM_ORB_STATE; // OFF
+      else item[i][2] &= ~PM_ITEM_ORB_STATE; // OFF
    }
 
 
-   if ((mItem.item[i][2] & PM_ITEM_ORB_TRIG_SHOT) && (proc_orb_shot_collision(i))) mItem.item[i][2] |= PM_ITEM_ORB_TRIG_CURR; // set CURR flag
+   if ((item[i][2] & PM_ITEM_ORB_TRIG_SHOT) && (proc_orb_shot_collision(i))) item[i][2] |= PM_ITEM_ORB_TRIG_CURR; // set CURR flag
 
 
 
    // trigger stuff
-   if (mItem.item[i][2] & PM_ITEM_ORB_TRIG_CURR)                     // currently triggered
+   if (item[i][2] & PM_ITEM_ORB_TRIG_CURR)                     // currently triggered
    {
-      if ((MODE == 3) || (MODE == 4)) mItem.item[i][8] = mItem.item[i][7]+1; // reset counter
-      if (!(mItem.item[i][2] & PM_ITEM_ORB_TRIG_PREV))                 // not triggered last time
+      if ((MODE == 3) || (MODE == 4)) item[i][8] = item[i][7]+1; // reset counter
+      if (!(item[i][2] & PM_ITEM_ORB_TRIG_PREV))                 // not triggered last time
       {
-         mItem.item[i][2] |= PM_ITEM_ORB_TRIG_PREV;                  // set PREV flag
-         if (MODE == 0) mItem.item[i][2] ^= PM_ITEM_ORB_STATE;       // toggle state
-         if (MODE == 1) mItem.item[i][2] |= PM_ITEM_ORB_STATE;       // stick ON
-         if (MODE == 2) mItem.item[i][2] &= ~PM_ITEM_ORB_STATE;      // stick OFF
+         item[i][2] |= PM_ITEM_ORB_TRIG_PREV;                  // set PREV flag
+         if (MODE == 0) item[i][2] ^= PM_ITEM_ORB_STATE;       // toggle state
+         if (MODE == 1) item[i][2] |= PM_ITEM_ORB_STATE;       // stick ON
+         if (MODE == 2) item[i][2] &= ~PM_ITEM_ORB_STATE;      // stick OFF
       }
    }
-   else mItem.item[i][2] &= ~PM_ITEM_ORB_TRIG_PREV;                  // clear PREV flag
-   mItem.item[i][2] &= ~PM_ITEM_ORB_TRIG_CURR;                       // clear CURR flag
+   else item[i][2] &= ~PM_ITEM_ORB_TRIG_PREV;                  // clear PREV flag
+   item[i][2] &= ~PM_ITEM_ORB_TRIG_CURR;                       // clear CURR flag
 
 
 
    // STATE stuff
-   mItem.item[i][2] &= ~PM_ITEM_ORB_TGON;               // clear TGON flag
-   mItem.item[i][2] &= ~PM_ITEM_ORB_TGOF;               // clear TGOF flag
-   if (mItem.item[i][2] & PM_ITEM_ORB_STATE)            // orb state ON
+   item[i][2] &= ~PM_ITEM_ORB_TGON;               // clear TGON flag
+   item[i][2] &= ~PM_ITEM_ORB_TGOF;               // clear TGOF flag
+   if (item[i][2] & PM_ITEM_ORB_STATE)            // orb state ON
    {
-      mItem.item[i][1] = 419;                           // red orb
-      if (!(mItem.item[i][2] & PM_ITEM_ORB_PREV_STATE)) // prev OFF
+      item[i][1] = 419;                           // red orb
+      if (!(item[i][2] & PM_ITEM_ORB_PREV_STATE)) // prev OFF
       {
-         mItem.item[i][2] |= PM_ITEM_ORB_TGON;          // set TGON flag
-         mItem.item[i][2] |= PM_ITEM_ORB_PREV_STATE;    // set PREV flag
+         item[i][2] |= PM_ITEM_ORB_TGON;          // set TGON flag
+         item[i][2] |= PM_ITEM_ORB_PREV_STATE;    // set PREV flag
       }
    }
    else                                           // orb state OFF
    {
-      mItem.item[i][1] = 418;                           // green orb
-      if ((mItem.item[i][2] & PM_ITEM_ORB_PREV_STATE))  // prev ON
+      item[i][1] = 418;                           // green orb
+      if ((item[i][2] & PM_ITEM_ORB_PREV_STATE))  // prev ON
       {
-         mItem.item[i][2] |=  PM_ITEM_ORB_TGOF;         // set TGOF flag
-         mItem.item[i][2] &= ~PM_ITEM_ORB_PREV_STATE;   // clear PREV flag
+         item[i][2] |=  PM_ITEM_ORB_TGOF;         // set TGOF flag
+         item[i][2] &= ~PM_ITEM_ORB_PREV_STATE;   // clear PREV flag
       }
    }
 
    // clear all events
-   mTriggerEvent.event[mItem.item[i][10]] = 0;
-   mTriggerEvent.event[mItem.item[i][11]] = 0;
-   mTriggerEvent.event[mItem.item[i][12]] = 0;
-   mTriggerEvent.event[mItem.item[i][13]] = 0;
-   int FLAGS = mItem.item[i][2];
-   if   (FLAGS & PM_ITEM_ORB_STATE)  mTriggerEvent.event[mItem.item[i][10]] = 1;
-   if (!(FLAGS & PM_ITEM_ORB_STATE)) mTriggerEvent.event[mItem.item[i][11]] = 1;
-   if   (FLAGS & PM_ITEM_ORB_TGON)   mTriggerEvent.event[mItem.item[i][12]] = 1;
-   if   (FLAGS & PM_ITEM_ORB_TGOF)   mTriggerEvent.event[mItem.item[i][13]] = 1;
+   mTriggerEvent.event[item[i][10]] = 0;
+   mTriggerEvent.event[item[i][11]] = 0;
+   mTriggerEvent.event[item[i][12]] = 0;
+   mTriggerEvent.event[item[i][13]] = 0;
+   int FLAGS = item[i][2];
+   if   (FLAGS & PM_ITEM_ORB_STATE)  mTriggerEvent.event[item[i][10]] = 1;
+   if (!(FLAGS & PM_ITEM_ORB_STATE)) mTriggerEvent.event[item[i][11]] = 1;
+   if   (FLAGS & PM_ITEM_ORB_TGON)   mTriggerEvent.event[item[i][12]] = 1;
+   if   (FLAGS & PM_ITEM_ORB_TGOF)   mTriggerEvent.event[item[i][13]] = 1;
 }
 
 int mwItems::draw_orb(int i, int x, int y)
 {
-   mItem.item[i][1] = 418;                                          // green orb
-   if (mItem.item[i][2] & PM_ITEM_ORB_STATE) mItem.item[i][1] = 419;      // red orb
+   item[i][1] = 418;                                            // green orb
+   if (item[i][2] & PM_ITEM_ORB_STATE) item[i][1] = 419;  // red orb
 
    // rotation
-   int rb = (mItem.item[i][2] & PM_ITEM_ORB_ROTB) >> 14;
+   int rb = (item[i][2] & PM_ITEM_ORB_ROTB) >> 14;
    float a=0, xo=0, yo=0; // angle, x and y offsets
    if (rb == 0) { a = 0;             xo = 10, yo = 9; } // floor
    if (rb == 1) { a = ALLEGRO_PI/2;  xo = 7,  yo = 7; } // wall left
    if (rb == 2) { a = ALLEGRO_PI;    xo = 9,  yo = 4; } // ceiling
    if (rb == 3) { a = -ALLEGRO_PI/2; xo = 12, yo = 6; } // wall right
 
-   int MODE = mItem.item[i][6];
+   int MODE = item[i][6];
    int drawn = 0;
    if ((MODE == 3) || (MODE == 4))
    {
       int c1=11, c2=10;
       if (MODE == 4) {c1=10; c2=11;}
-      int percent =  ((mItem.item[i][8]-1) * 100) / mItem.item[i][7];
+      int percent =  ((item[i][8]-1) * 100) / item[i][7];
       if (percent > 0)
       {
          mScreen.draw_percent_barc(x+xo, y+yo, 7, 7,  percent, c1, c2, -1);
@@ -168,15 +168,15 @@ int mwItems::draw_orb(int i, int x, int y)
          drawn = 1;
       }
    }
-   if (!drawn) al_draw_rotated_bitmap(mBitmap.tile[mItem.item[i][1]], 10, 10, x+10, y+10, a, 0);
+   if (!drawn) al_draw_rotated_bitmap(mBitmap.tile[item[i][1]], 10, 10, x+10, y+10, a, 0);
    return 1;
 }
 void mwItems::proc_orb_collision(int p, int i)
 {
-   if (  (mItem.item[i][2] & PM_ITEM_ORB_TRIG_TOUCH) ||
-        ((mItem.item[i][2] & PM_ITEM_ORB_TRIG_UP)   && (mPlayer.syn[p].up)) ||
-        ((mItem.item[i][2] & PM_ITEM_ORB_TRIG_DOWN) && (mPlayer.syn[p].down)) )
-           mItem.item[i][2] |= PM_ITEM_ORB_TRIG_CURR;
+   if (  (item[i][2] & PM_ITEM_ORB_TRIG_TOUCH) ||
+        ((item[i][2] & PM_ITEM_ORB_TRIG_UP)   && (mPlayer.syn[p].up)) ||
+        ((item[i][2] & PM_ITEM_ORB_TRIG_DOWN) && (mPlayer.syn[p].down)) )
+          item[i][2] |= PM_ITEM_ORB_TRIG_CURR;
 }
 
 
@@ -222,98 +222,98 @@ item[][14] = TGOF pm_event #
 
 void mwItems::proc_trigger(int i)
 {
-   int FLAGS = mItem.item[i][3];
+   int FLAGS = item[i][3];
    if (FLAGS & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 0);
 
-   mItem.item[i][3] &= ~PM_ITEM_TRIGGER_TGON;  // clear Toggle ON  trigger flag
-   mItem.item[i][3] &= ~PM_ITEM_TRIGGER_TGOF;  // clear Toggle OFF trigger flag
-   mItem.item[i][3] &= ~PM_ITEM_TRIGGER_CURR;  // clear current    trigger flag
+   item[i][3] &= ~PM_ITEM_TRIGGER_TGON;  // clear Toggle ON  trigger flag
+   item[i][3] &= ~PM_ITEM_TRIGGER_TGOF;  // clear Toggle OFF trigger flag
+   item[i][3] &= ~PM_ITEM_TRIGGER_CURR;  // clear current    trigger flag
 
    detect_trigger_collisions(i);
 
-   if ( (mItem.item[i][3] &  PM_ITEM_TRIGGER_CURR)    // is current trigger flag set?
-   && (!(mItem.item[i][3] &  PM_ITEM_TRIGGER_PREV)))  // and previous trigger flag not set?
-         mItem.item[i][3] |= PM_ITEM_TRIGGER_TGON;    // set trigger ON toggle
+   if ( (item[i][3] &  PM_ITEM_TRIGGER_CURR)    // is current trigger flag set?
+   && (!(item[i][3] &  PM_ITEM_TRIGGER_PREV)))  // and previous trigger flag not set?
+         item[i][3] |= PM_ITEM_TRIGGER_TGON;    // set trigger ON toggle
 
 
-   if (!(mItem.item[i][3] &  PM_ITEM_TRIGGER_CURR)    // is current trigger flag not set?
-   && ( (mItem.item[i][3] &  PM_ITEM_TRIGGER_PREV)))  // and previous trigger flag set?
-         mItem.item[i][3] |= PM_ITEM_TRIGGER_TGOF;    // set trigger OFF toggle
+   if (!(item[i][3] &  PM_ITEM_TRIGGER_CURR)    // is current trigger flag not set?
+   && ( (item[i][3] &  PM_ITEM_TRIGGER_PREV)))  // and previous trigger flag set?
+         item[i][3] |= PM_ITEM_TRIGGER_TGOF;    // set trigger OFF toggle
 
 
-   if   (mItem.item[i][3] &   PM_ITEM_TRIGGER_CURR)    // is current trigger flag set?
-         mItem.item[i][3] |=  PM_ITEM_TRIGGER_PREV;    // set previous trigger flag
+   if   (item[i][3] &   PM_ITEM_TRIGGER_CURR)    // is current trigger flag set?
+         item[i][3] |=  PM_ITEM_TRIGGER_PREV;    // set previous trigger flag
 
-   if (!(mItem.item[i][3] &   PM_ITEM_TRIGGER_CURR))   // is current trigger flag not set?
-         mItem.item[i][3] &= ~PM_ITEM_TRIGGER_PREV;    // clear previous trigger flag
+   if (!(item[i][3] &   PM_ITEM_TRIGGER_CURR))   // is current trigger flag not set?
+         item[i][3] &= ~PM_ITEM_TRIGGER_PREV;    // clear previous trigger flag
 
 
 
    // clear all events
-   mTriggerEvent.event[mItem.item[i][11]] = 0;
-   mTriggerEvent.event[mItem.item[i][12]] = 0;
-   mTriggerEvent.event[mItem.item[i][13]] = 0;
-   mTriggerEvent.event[mItem.item[i][14]] = 0;
+   mTriggerEvent.event[item[i][11]] = 0;
+   mTriggerEvent.event[item[i][12]] = 0;
+   mTriggerEvent.event[item[i][13]] = 0;
+   mTriggerEvent.event[item[i][14]] = 0;
 
-   FLAGS = mItem.item[i][3]; // update FLAGS
+   FLAGS = item[i][3]; // update FLAGS
 
 /*   if (FLAGS & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", mLoop.frame_num);
    if (FLAGS & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", mLoop.frame_num);
    if (FLAGS & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", mLoop.frame_num);
    if (FLAGS & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", mLoop.frame_num); */
 
-   if   (FLAGS & PM_ITEM_TRIGGER_CURR)  mTriggerEvent.event[mItem.item[i][11]] = 1;
-   if (!(FLAGS & PM_ITEM_TRIGGER_CURR)) mTriggerEvent.event[mItem.item[i][12]] = 1;
-   if   (FLAGS & PM_ITEM_TRIGGER_TGON)  mTriggerEvent.event[mItem.item[i][13]] = 1;
-   if   (FLAGS & PM_ITEM_TRIGGER_TGOF)  mTriggerEvent.event[mItem.item[i][14]] = 1;
+   if   (FLAGS & PM_ITEM_TRIGGER_CURR)  mTriggerEvent.event[item[i][11]] = 1;
+   if (!(FLAGS & PM_ITEM_TRIGGER_CURR)) mTriggerEvent.event[item[i][12]] = 1;
+   if   (FLAGS & PM_ITEM_TRIGGER_TGON)  mTriggerEvent.event[item[i][13]] = 1;
+   if   (FLAGS & PM_ITEM_TRIGGER_TGOF)  mTriggerEvent.event[item[i][14]] = 1;
 }
 
 void mwItems::set_item_trigger_location_from_lift(int i, int a20)
 {
-   int d = mItem.item[i][10]; // lift number
+   int d = item[i][10]; // lift number
    if (mLift.cur[d].active) // only proceed if lift number is valid
    {
       // x axis
       int lx1 = mLift.cur[d].x;
       int lx2 = mLift.cur[d].x + mLift.cur[d].w;
-      int C = mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_XC;
-      int F = mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_XF;
-      int L = mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_XL;
+      int C = item[i][3] & PM_ITEM_TRIGGER_LIFT_XC;
+      int F = item[i][3] & PM_ITEM_TRIGGER_LIFT_XF;
+      int L = item[i][3] & PM_ITEM_TRIGGER_LIFT_XL;
       if (C)
       {
          int lxc = lx1 + (lx2-lx1)/2; // get center of lift
-         mItem.item[i][6] = lxc - mItem.item[i][8]/2;
+         item[i][6] = lxc - item[i][8]/2;
       }
       else
       {
-         if ((!F) && (!L)) mItem.item[i][6] = lx1;             // fx1 = lx1
-         if ((!F) && ( L)) mItem.item[i][6] = lx2;             // fx1 = lx2
-         if (( F) && (!L)) mItem.item[i][6] = lx1 - mItem.item[i][8]; // fx2 = lx1
-         if (( F) && ( L)) mItem.item[i][6] = lx2 - mItem.item[i][8]; // fx2 = lx2
+         if ((!F) && (!L)) item[i][6] = lx1;             // fx1 = lx1
+         if ((!F) && ( L)) item[i][6] = lx2;             // fx1 = lx2
+         if (( F) && (!L)) item[i][6] = lx1 - item[i][8]; // fx2 = lx1
+         if (( F) && ( L)) item[i][6] = lx2 - item[i][8]; // fx2 = lx2
       }
       // y axis
       int ly1 = mLift.cur[d].y;
       int ly2 = mLift.cur[d].y + mLift.cur[d].h;
-      C = mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_YC;
-      F = mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_YF;
-      L = mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_YL;
+      C = item[i][3] & PM_ITEM_TRIGGER_LIFT_YC;
+      F = item[i][3] & PM_ITEM_TRIGGER_LIFT_YF;
+      L = item[i][3] & PM_ITEM_TRIGGER_LIFT_YL;
 
       if (C)
       {
          int lyc = ly1 + (ly2-ly1)/2; // get center of lift
-         mItem.item[i][7] = lyc - mItem.item[i][9]/2;
+         item[i][7] = lyc - item[i][9]/2;
       }
       else
       {
-         if ((!F) && (!L)) mItem.item[i][7] = ly1;             // fy1 = ly1
-         if ((!F) && ( L)) mItem.item[i][7] = ly2;             // fy1 = ly2
-         if (( F) && (!L)) mItem.item[i][7] = ly1 - mItem.item[i][9]; // fy2 = ly1
-         if (( F) && ( L)) mItem.item[i][7] = ly2 - mItem.item[i][9]; // fy2 = ly2
+         if ((!F) && (!L)) item[i][7] = ly1;             // fy1 = ly1
+         if ((!F) && ( L)) item[i][7] = ly2;             // fy1 = ly2
+         if (( F) && (!L)) item[i][7] = ly1 - item[i][9]; // fy2 = ly1
+         if (( F) && ( L)) item[i][7] = ly2 - item[i][9]; // fy2 = ly2
       }
       if (a20) // align to 20 grid
       {
-         mItem.item[i][6] = mMiscFnx.round20(mItem.item[i][6]);
-         mItem.item[i][7] = mMiscFnx.round20(mItem.item[i][7]);
+         item[i][6] = mMiscFnx.round20(item[i][6]);
+         item[i][7] = mMiscFnx.round20(item[i][7]);
       }
    }
 }
@@ -321,13 +321,13 @@ void mwItems::set_item_trigger_location_from_lift(int i, int a20)
 
 void mwItems::detect_trigger_collisions(int i)
 {
-   int FLAGS = mItem.item[i][3];
+   int FLAGS = item[i][3];
 
    // trigger field
-   int tfx1 = mItem.item[i][6]-10;
-   int tfy1 = mItem.item[i][7]-10;
-   int tfx2 = tfx1 + mItem.item[i][8];
-   int tfy2 = tfy1 + mItem.item[i][9];
+   int tfx1 = item[i][6]-10;
+   int tfy1 = item[i][7]-10;
+   int tfx2 = tfx1 + item[i][8];
+   int tfy2 = tfy1 + item[i][9];
 
    if (FLAGS & PM_ITEM_TRIGGER_PLAYER)
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -335,7 +335,7 @@ void mwItems::detect_trigger_collisions(int i)
          {
             int x = mPlayer.syn[p].x;
             int y = mPlayer.syn[p].y;
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mItem.item[i][3] |= PM_ITEM_TRIGGER_CURR;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
    if (FLAGS & PM_ITEM_TRIGGER_ENEMY)
       for (int e2=0; e2<100; e2++)
@@ -343,15 +343,15 @@ void mwItems::detect_trigger_collisions(int i)
          {
             int x = mEnemy.Ef[e2][0];
             int y = mEnemy.Ef[e2][1];
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mItem.item[i][3] |= PM_ITEM_TRIGGER_CURR;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
    if (FLAGS & PM_ITEM_TRIGGER_ITEM)
       for (int c=0; c<500; c++)
-         if (mItem.item[c][0])
+         if (item[c][0])
          {
             int x = itemf[c][0];
             int y = itemf[c][1];
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mItem.item[i][3] |= PM_ITEM_TRIGGER_CURR;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
    if (FLAGS & PM_ITEM_TRIGGER_PSHOT) // check player shots
       for (int b=0; b<50; b++)
@@ -359,7 +359,7 @@ void mwItems::detect_trigger_collisions(int i)
          {
             int x = mShot.p[b].x;
             int y = mShot.p[b].y;
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mItem.item[i][3] |= PM_ITEM_TRIGGER_CURR;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
    if (FLAGS & PM_ITEM_TRIGGER_ESHOT) // check enemy shots
       for (int b=0; b<50; b++)
@@ -367,7 +367,7 @@ void mwItems::detect_trigger_collisions(int i)
          {
             int x = mShot.e[b].x;
             int y = mShot.e[b].y;
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) mItem.item[i][3] |= PM_ITEM_TRIGGER_CURR;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
 }
 
@@ -380,16 +380,16 @@ int mwItems::draw_trigger(int i, int x, int y, int custom)
    if (mLoop.level_editor_running)
    {
       al_draw_bitmap(mBitmap.tile[991], x, y, 0); // draw item shape in level editor, invisible when game running
-      if (mItem.item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 1); // snap to lift here because main function wont be called while in level editor
+      if (item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 1); // snap to lift here because main function wont be called while in level editor
    }
 
-   if ((mItem.item[i][3] & PM_ITEM_TRIGGER_DRAW_ON) && (!custom))
+   if ((item[i][3] & PM_ITEM_TRIGGER_DRAW_ON) && (!custom))
    {
-      int col = mItem.item[i][2];
-      float x1 = mItem.item[i][6];
-      float y1 = mItem.item[i][7];
-      float x2 = x1 + mItem.item[i][8];
-      float y2 = y1 + mItem.item[i][9];
+      int col = item[i][2];
+      float x1 = item[i][6];
+      float y1 = item[i][7];
+      float x2 = x1 + item[i][8];
+      float y2 = y1 + item[i][9];
       mMiscFnx.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
    }
    return 1;
@@ -414,7 +414,7 @@ item[][12] = draw color
 */
 void mwItems::proc_block_manip(int i)
 {
-   int et = mItem.item[i][1]; // pm_event trigger we are looking for
+   int et = item[i][1]; // pm_event trigger we are looking for
    if (mTriggerEvent.event[et])
    {
       al_set_target_bitmap(mBitmap.level_background);
@@ -469,7 +469,7 @@ int mwItems::draw_block_manip(int i, int x, int y)
    {
       al_draw_bitmap(mBitmap.tile[989], x, y, 0); // draw item shape in level editor, invisible when game running
    }
-   if (mItem.item[i][2]) // draw mode on
+   if (item[i][2]) // draw mode on
    {
       int col = item[i][12];
       float x1 = item[i][6];
@@ -528,7 +528,7 @@ void mwItems::set_item_damage_location_from_lift(int i, int a20)
       if (C)
       {
          int lxc = lx1 + (lx2-lx1)/2; // get center of lift
-         item[i][6] = lxc - mItem.item[i][8]/2;
+         item[i][6] = lxc - item[i][8]/2;
       }
       else
       {
@@ -635,7 +635,7 @@ void mwItems::proc_item_damage_collisions(int i)
 
                if ((item[i][0] != 66) && (item[i][0] != 5)) // never kill start
                {
-                  //mItem.item[i][0] = 66;
+                  //item[i][0] = 66;
                   item[i][14] = 10;
                }
             }
@@ -751,51 +751,42 @@ void mwItems::proc_block_damage(int i)
    }
 }
 
-
-
-
 void mwItems::set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3)
 {
-   if (mItem.item[i][0] == 6) // orb
+   if (item[i][0] == 6) // orb
    {
-      mItem.item[i][10] = ev0;
-      mItem.item[i][11] = ev1;
-      mItem.item[i][12] = ev2;
-      mItem.item[i][13] = ev3;
+      item[i][10] = ev0;
+      item[i][11] = ev1;
+      item[i][12] = ev2;
+      item[i][13] = ev3;
    }
-   if (mItem.item[i][0] == 9) // trigger
+   if (item[i][0] == 9) // trigger
    {
-      mItem.item[i][11] = ev0;
-      mItem.item[i][12] = ev1;
-      mItem.item[i][13] = ev2;
-      mItem.item[i][14] = ev3;
+      item[i][11] = ev0;
+      item[i][12] = ev1;
+      item[i][13] = ev2;
+      item[i][14] = ev3;
    }
-
-   if (mItem.item[i][0] == 13) // timer
+   if (item[i][0] == 13) // timer
    {
-      mItem.item[i][13] = ev0;
-      mItem.item[i][15] = ev1;
+      item[i][13] = ev0;
+      item[i][15] = ev1;
    }
-
-
-
-
-
 }
 
 
 /*
-item[][0]  = 13 - Time Trigger
+item[][0]  = 13 - Timer
 item[][1]  =
 item[][2]  = draw_mode 0 = Off 1 = progress bar
 item[][3]  = flags
 item[][4]  = x
 item[][5]  = y
 
-item[][6]  = display x1
-item[][7]  = display y1
-item[][8]  = display x2
-item[][9]  = display y2
+item[][6]  = display x
+item[][7]  = display y
+item[][8]  = display w
+item[][9]  = display h
 
 item[][10] = t1 reset val
 item[][11] = t2 reset val
@@ -990,10 +981,10 @@ float mwItems::get_timer_ratio_for_event(int ev)
 {
    int ti = -1;
    for (int i=0; i<500; i++)
-      if (mItem.item[i][0] == 13) // timer
+      if (item[i][0] == 13) // timer
       {
-         if (mItem.item[i][13] == ev) {ti = i; i=500; }
-         if (mItem.item[i][15] == ev) {ti = i; i=500; }
+         if (item[i][13] == ev) {ti = i; i=500; }
+         if (item[i][15] == ev) {ti = i; i=500; }
       }
    if (ti > -1)
    {

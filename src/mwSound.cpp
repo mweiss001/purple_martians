@@ -95,15 +95,18 @@ void mwSound::set_st_scaler(void)
 
 void mwSound::start_music(int resume)
 {
-   al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
-   al_set_mixer_gain(se_mixer, (float)se_scaler / 9);
-
-   // reset sound counters
-   for (int c=0; c<8; c++) sample_delay[c] = mLoop.frame_num;
    if (sound_on)
    {
-      if (!resume) al_rewind_audio_stream(pm_theme_stream);
-      al_set_audio_stream_playing(pm_theme_stream, 1);
+      al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
+      al_set_mixer_gain(se_mixer, (float)se_scaler / 9);
+
+      // reset sound counters
+      for (int c=0; c<8; c++) sample_delay[c] = mLoop.frame_num;
+      if (sound_on)
+      {
+         if (!resume) al_rewind_audio_stream(pm_theme_stream);
+         al_set_audio_stream_playing(pm_theme_stream, 1);
+      }
    }
 }
 

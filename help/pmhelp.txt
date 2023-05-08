@@ -121,9 +121,7 @@
 
 
 
-<c13> You can choose the color of your player from the options menu.
-
-<c13> Move to "Change Color" then use [LEFT] and [RIGHT]
+<c15> You can change the color of your player in 'Settings' -> 'Basic'
 
 
 
@@ -203,7 +201,7 @@
 <l09>              [DOWN]
 
 
-<c15>You can customize the controls in "Settings" -> "Controls"
+<c15>You can customize the controls in 'Settings' -> 'Controls'
 
 
 
@@ -265,26 +263,19 @@
 <l15>___________________________________________________________________________
 
 
+<l13>        [F12] - Toggle Full Screen Mode
+
 <l14>         [F5] - Zoom Out (decrease scale factor)
 <l14>         [F6] - Zoom In (increase scale factor)
 <l14>    [F5]+[F6] - Reset Zoom (set scale factor to 1.0)
 
-<l09>         [F7] - Speed Decrease (by 1 frame per second)
-<l57>  [SHIFT][F7] - Speed Decrease (by 20 frames per second)
-<l89>[CONTROL][F7] - Speed Decrease (by 100 frames per second)
-
-<l09>    [F7]+[F8] - Reset Speed (set frames per second to 40)
-
-<l09>         [F8] - Speed Increase (by 1 frame per second)
-<l57>  [SHIFT][F8] - Speed Increase (by 20 frames per second)
-<l89>[CONTROL][F8] - Speed Increase (by 100 frames per second)
-
 <l15>        [F10] - Toggle the debug overlay
 
-<l05>[PRINTSCREEN] - Saves a screen shot in the screenshot folder
+<l05>[PRINTSCREEN] - Saves a screen shot
 
-<l13>        [F12] - Toggle Full Screen Mode
+<b15>
 
+<c15>You can customize these controls in 'Settings' -> 'Controls 2'
 
 
 <section>Enemies
@@ -754,65 +745,64 @@ Bombs and rockets will destroy these blocks.
 <section>Level Editor Basics
 
 
-<c07>Mouse Controls
-<c15>____________________________________________________
 
-<c09>Left click and release
+<c10>The Most Important Thing!
+<b10>
+<c14>To use the Pop Up Menu, press and HOLD the right mouse button.
 
-<c15>Inserts the current Draw Item at the mouse position
+<c14>Then move the mouse up and down to make your selection.
 
-
-<c09>Left click and hold, then drag to draw a box
-
-<c15>Fills the box with the Draw Item. (block only)
+<c14>Release the right mouse button to complete your choice.
+<b10>
 
 
-<c09>Right Click and Release
+<c07> Mouse Controls
+<b07>
+<l09>Right click and release
 
-<c15>Copies current View Item to Draw Item
-
-
-<c09>Right Click and Hold
-
-<c15>Displays the Pop Up Menu
+<l15> - Copies the current 'View Item' to 'Draw Item'
 
 
-<c09>Mouse Pointer on Edge of Screen
+<l09>Left click and release
 
-<c15>Scrolls the level in the direction of the edge
-
-
-
-<c07>Using the Pop Up Menu
-<c15>_________________________________________________________________
-
-<c15>Press and hold the right mouse button to display the Pop Up Menu.
-
-<c15>Move the selection by moving the mouse up or down.
-
-<c15>Release the right mouse button to choose the current selection.
+<l15> - Inserts the current 'Draw Item' into the level at the mouse position
 
 
+<l09>Left click and hold, then drag to draw a rectangle
 
-<c07>For Example
-<c15>_________________________________________________________________
+<l15> - Fills the rectangle with the 'Draw Item'. (Blocks only)
 
-<l15>  To quit the Level Editor:
 
-<l15>    1) Press and hold the right mouse button.
+<l09>Right click and cold
 
-<l15>    2) Scroll down with the mouse until 'Quit Level Editor' is selected.
+<l15> - Displays the Pop-Up-Menu
 
-<l15>    3) Release the right mouse button.
+
+<l09>Mouse pointer on edge of screen
+
+<l15> - Scrolls the level in the direction of the edge
+<b07>
+
+
+<c15> Function Keys
+<b15>
+<l13>         [F5] - Zoom Out (decrease scale factor)
+<l13>         [F6] - Zoom In (increase scale factor)
+<l13>    [F5]+[F6] - Reset Zoom (set scale factor to 1.0)
+
+<l13>        [F12] - Toggle Full Screen Mode
+<b15>
 
 
 <section>Pop Up Menu
 
+<c15>______________________________________________________
 
+<c10>The Most Important Thing!
 
-<c14>To use the Pop Up Menu, press and hold the right mouse button.
+<c14>To use the Pop Up Menu, press and HOLD the right mouse button.
 
-<c14>Then scroll up and down to make your selection.
+<c14>Then move the mouse up and down to make your selection.
 
 <c14>Release the right mouse button to complete your choice.
 
@@ -841,9 +831,19 @@ Bombs and rockets will destroy these blocks.
 <c15>Removes [item].
 
 
-<c09>Zoom Full Screen
+<c09>Edit Selection
 
-<c15>Switches to the Zoom Full Screen display
+<c15>Switches to the Edit Selection Mode
+
+
+<c09>Group Edit
+
+<c15>Switches to the Group Edit Mode
+
+
+<c09>Tile Helper
+
+<c15>Switches to the Tile Helper Mode
 
 
 <c09>Show Status Window
@@ -854,6 +854,11 @@ Bombs and rockets will destroy these blocks.
 <c09>Show Selection Window
 
 <c15>If the Selection Window has been turned off, this will display it again.
+
+
+<c09>New Level
+
+<c15>Prompts to enter a filename and create a new level.
 
 
 <c09>Load Level
@@ -3474,7 +3479,6 @@ Added some new items, enemies, redid levels...
 <c15>The MinGW-w64 project is a complete runtime environment for gcc to
 <c15>support binaries native to Windows 64-bit and 32-bit operating systems.
 <c08>_______________________________________________________________________
-
 <c11>Code Blocks 20.03
 <c15>The open source, cross-platform IDE
 <c08>_______________________________________________________________________

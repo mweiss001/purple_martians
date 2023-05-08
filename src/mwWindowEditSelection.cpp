@@ -267,7 +267,7 @@ int mwWindow::es_load_selection(void)
             strcpy(ft_pmsgtext[c], buff);
          }
       }
-      for (c=0; c < ft_level_header[4]; c++)  // enemy ints and fixeds
+      for (c=0; c < ft_level_header[4]; c++)  // enemy ints and floats
       {
          for (x=0; x<32; x++)  // first 32 ints
          {
@@ -375,9 +375,9 @@ void mwWindow::es_save_selection(int save)
       if ((mItem.item[b][0]) && (mwWM.obj_filter[2][mItem.item[b][0]]) && (mItem.item[b][4] >= x1) && (mItem.item[b][4] < x2) && (mItem.item[b][5] >= y1) && (mItem.item[b][5] < y2))
       {
          c = iib++;
+
          // copy all 16 variables
-         for (y=0; y<16; y++)
-             ft_item[c][y] = mItem.item[b][y];
+         for (y=0; y<16; y++) ft_item[c][y] = mItem.item[b][y];
 
          // set new x, y (now relative to the selection window ul corner)
          ft_item[c][4] -= x1;
@@ -400,10 +400,8 @@ void mwWindow::es_save_selection(int save)
       {
          //printf("copying enemy:%d to ft\n", b);
          c = eib++;
-         for (y=0; y<32; y++)
-            ft_Ei[c][y] = mEnemy.Ei[b][y];
-         for (y=0; y<16; y++)
-            ft_Ef[c][y] = mEnemy.Ef[b][y];
+         for (y=0; y<32; y++) ft_Ei[c][y] = mEnemy.Ei[b][y];
+         for (y=0; y<16; y++) ft_Ef[c][y] = mEnemy.Ef[b][y];
 
          ft_Ef[c][0]-= x1;
          ft_Ef[c][1]-= y1;
@@ -423,8 +421,6 @@ void mwWindow::es_save_selection(int save)
          }
          if (ft_Ei[c][0] == 9 ) // cloner
          {
-            ft_Ei[c][11]-= x1;
-            ft_Ei[c][12]-= y1;
             ft_Ei[c][15]-= x1;
             ft_Ei[c][16]-= y1;
             ft_Ei[c][17]-= x1;
@@ -467,7 +463,6 @@ void mwWindow::es_save_selection(int save)
             }
          }
 
-
    ft_level_header[3] = iib; // num_of_items
 
   // printf("num of items:%d",iib);
@@ -479,7 +474,6 @@ void mwWindow::es_save_selection(int save)
    mwWM.mW[4].sh = ft_level_header[9] =  mwWM.by2-mwWM.by1+1; // height
 
    //printf("finished copying to ft - i:%d e:%d l:%d\n", iib, eib, lib);
-
 
    if (save)
    {
@@ -547,6 +541,58 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
          if ((qx1+x >= 0) && (qx1+x < 100) && (qy1+y >= 0) && (qy1+y < 100))
             set_block_with_flag_filters(qx1+x, qy1+y, ft_l[x][y]);
 
+
+   // this section is to make any copied pm_event links have new unique pm_events and still linked properly
+   int clt[100][5] = { 0 };
+   int clt_last = 0; // index
+
+//   clt[0] = obt (2=item, 3=enem, 4=lift)
+//   clt[1] = num
+//   clt[2] = ext (2,3 int var num  4=lift step index
+//   clt[3] = src_ev
+//   clt[4] = dst_ev
+
+   for (b=0; b<500; b++) // iterate items in ft
+   {
+      if (ft_item[b][0] == 6) // orb
+      {
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 10, ft_item[b][10], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 11, ft_item[b][11], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
+      }
+      if (ft_item[b][0] == 9) // trigger
+      {
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 11, ft_item[b][11], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 14, ft_item[b][14], clt, clt_last);
+      }
+      if (ft_item[b][0] == 13) // timer
+      {
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 14, ft_item[b][14], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 15, ft_item[b][15], clt, clt_last);
+      }
+      if ((ft_item[b][0] == 10) || (ft_item[b][0] == 16) || (ft_item[b][0] == 17)) // message, bm or bd
+      {
+         clt_last += mTriggerEvent.add_item_link_translation(2, b, 1, ft_item[b][1], clt, clt_last);
+      }
+   }
+   for (b=0; b<100; b++) // iterate enemies in ft
+      if (ft_Ei[b][0] == 9) // cloner
+         clt_last += mTriggerEvent.add_item_link_translation(3, b, 8, ft_Ei[b][8], clt, clt_last);
+
+
+   for (b=0; b<ft_level_header[5]; b++) // iterate lifts in ft
+      for (y=0; y<ft_lift[b][3]; y++) // iterate lift steps in ft
+      {
+         int step_type = ft_ls[b][y][5] & 31;
+         int step_val = ft_ls[b][y][4];
+         if ((step_type == 5) || (step_type == 6)) clt_last += mTriggerEvent.add_item_link_translation(4, b, y, step_val, clt, clt_last);
+      }
+
    // lifts
    if (mwWM.obj_filter[4][1])
    {
@@ -591,6 +637,12 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
                   }
                }
 
+               // does this lift step have an entry in the clt table?
+               for (int i=0; i<clt_last; i++)
+                  if ((clt[i][0] == 4) && (clt[i][1] == b) && (clt[i][2] == y)) // found match
+                     val = clt[i][4];  // new event
+
+
                //printf("contructing step:%d\n", y);
                mLift.construct_lift_step(l, y, type, vx, vy, vw, vh, val);
             }
@@ -612,16 +664,20 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
          {
             if (mEnemy.Ei[c][0] == 0) // found empty
             {
-               //copied = 1000+c;
                int lim = 0;
-               for (y=0; y<32; y++)        // copy 32 ints
-                  mEnemy.Ei[c][y] = ft_Ei[b][y];
-               for (y=0; y<16; y++)        // copy 16 floats
-                  mEnemy.Ef[c][y] = ft_Ef[b][y];
+               for (y=0; y<32; y++) mEnemy.Ei[c][y] = ft_Ei[b][y]; // copy 32 ints
+               for (y=0; y<16; y++) mEnemy.Ef[c][y] = ft_Ef[b][y]; // copy 16 floats
 
                // apply offsets
                mEnemy.Ef[c][0] += x3;
                mEnemy.Ef[c][1] += y3;
+
+
+               // does this enemy have an entry in the clt table?
+               for (int i=0; i<clt_last; i++)
+                  if ((clt[i][0] == 3) && (clt[i][1] == b)) // found index
+                     mEnemy.Ei[c][clt[i][2]] = clt[i][4];  // new event
+
 
                if (erase_out_of_bounds_main)
                {
@@ -650,8 +706,6 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
                }
                if (mEnemy.Ei[c][0] == 9) // cloner
                {
-                  mEnemy.Ei[c][11]+= x3;
-                  mEnemy.Ei[c][12]+= y3;
                   mEnemy.Ei[c][15]+= x3;
                   mEnemy.Ei[c][16]+= y3;
                   mEnemy.Ei[c][17]+= x3;
@@ -669,25 +723,6 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
       } // end of attempt copy
 
 
-   // this section is to make any copied pm_event links have new unique pm_events and still linked properly
-   int clt[500][4] = { 0 };
-   int clt_last = 0; // index
-
-   for (b=0; b<500; b++)       // iterate items in selection
-   {
-      if ((ft_item[b][0] == 16) || (ft_item[b][0] == 17)) // manip or block
-      {
-         clt_last += mTriggerEvent.add_item_link_translation(b, 1, ft_item[b][1], clt, clt_last);
-      }
-
-      if (ft_item[b][0] == 9) // trigger
-      {
-         clt_last += mTriggerEvent.add_item_link_translation(b, 11, ft_item[b][11], clt, clt_last);
-         clt_last += mTriggerEvent.add_item_link_translation(b, 12, ft_item[b][12], clt, clt_last);
-         clt_last += mTriggerEvent.add_item_link_translation(b, 13, ft_item[b][13], clt, clt_last);
-         clt_last += mTriggerEvent.add_item_link_translation(b, 14, ft_item[b][14], clt, clt_last);
-      }
-   }
    // items
    for (b=0; b<500; b++)
       if ((ft_item[b][0]) && (mwWM.obj_filter[2][ft_item[b][0]]))
@@ -720,16 +755,11 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
 
                // does this copy item have an entry in the clt table?
                for (int i=0; i<clt_last; i++)
-                  if (clt[i][0] == b) // found index of source item table
-                  {
-                     int var_index = clt[i][1]; // var #
-                     int ev2 = clt[i][3];       // new ev
-
-                     mItem.item[c][var_index] = ev2;
-                  }
+                  if ((clt[i][0] == 2) && (clt[i][1] == b)) // found index of source item table
+                     mItem.item[c][clt[i][2]] = clt[i][4];  // new event
 
                // also adjust secondary loctaions
-               if (mItem.item_secondary67(mItem.item[b][0]))
+               if (mItem.item_secondary67(mItem.item[c][0]))
                {
                   mItem.item[c][6] += x3;
                   mItem.item[c][7] += y3;
@@ -737,7 +767,6 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
                if (mItem.item[c][0] == 5) // start
                {
                   // do something here to prevent exact duplicates
-
                }
                if (mItem.item[c][0] == 10) // message
                {
@@ -894,38 +923,118 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
 
 void mwWindow::es_draw_item_ft(int i)
 {
+
+   int type = ft_item[i][0];
+   int shape = ft_item[i][1];                            // get shape
+   if (shape > 999) shape = mBitmap.zz[0][shape-1000];   // ans
+
    int x = ft_item[i][4];
    int y = ft_item[i][5];
-   int type = ft_item[i][0];
+   int custom = 1;
 
-   int shape = ft_item[i][1];                    // get shape
-   if (shape > 999) shape = mBitmap.zz[5][shape-1000];   // ans
    int drawn = 0;
-
-   if ((type == 2) && (ft_item[i][6] == 3)) shape = 197; // purple coin
-
-   if (type == 9)   shape = 991; // trig
-   if (type == 16)  shape = 989; // bm
-   if (type == 17)  shape = 988; // bd
-
-   if (type == 6)
-   {
-      int rb = (ft_item[i][2] & PM_ITEM_ORB_ROTB) >> 14;
-      float a=rb*(ALLEGRO_PI/2);
-      al_draw_rotated_bitmap(mBitmap.tile[ft_item[i][1]], 10, 10, x+10, y+10, a, 0);
-      drawn = 1;
-   }
-   if ((type == 8) && (ft_item[i][11])) al_draw_bitmap(mBitmap.tile[440], x, y, 0); // bomb sticky spikes
-
-   if (type == 11) // rockets
-   {
-      float rot = (float) mItem.item[i][10] / 1000;
-      al_draw_rotated_bitmap(mBitmap.tile[shape], 10, 10, x+10, y+10, rot, 0);
-      drawn = 1;
-   }
+   if (type == 1)  drawn = mItem.draw_door         (i, x, y, custom);
+   if (type == 2)  drawn = mItem.draw_bonus        (i, x, y, shape);
+   if (type == 3)  drawn = mItem.draw_exit         (i, x, y, shape);
+   if (type == 4)  drawn = mItem.draw_key          (i, x, y, shape);
+   if (type == 5)  drawn = mItem.draw_start        (i, x, y, shape);
+   if (type == 6)  drawn = mItem.draw_orb          (i, x, y);
+   if (type == 8)  drawn = mItem.draw_bomb         (i, x, y, shape);
+   if (type == 9)  drawn = mItem.draw_trigger      (i, x, y, custom);
+   if (type == 10) drawn = mItem.draw_message      (i, x, y, custom);
+   if (type == 11) drawn = mItem.draw_rocket       (i, x, y, shape);
+   if (type == 13) drawn = mItem.draw_timer        (i, x, y, custom);
+   if (type == 16) drawn = mItem.draw_block_manip  (i, x, y);
+   if (type == 17) drawn = mItem.draw_block_damage (i, x, y, custom);
+   if (type == 98) drawn = mItem.draw_rocket       (i, x, y, shape);
+   if (type == 99) drawn = mItem.draw_lit_bomb     (i);
 
    // default draw if nothing else has drawn it up to now
    if (!drawn) al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
+
+
+
+   if (type == 10)
+   {
+
+
+
+
+      // find the offset between real x and y and ft_x and Y
+      // it is already stored in the ft_stuff
+
+
+
+   }
+
+
+//
+//
+//   if (type == 10) drawn = mItem.draw_message      (i, x, y, custom);
+//
+//
+//   void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
+//{
+//   char msg[1024];
+//
+//   // set where we will draw
+//   if (custom) al_set_target_backbuffer(mDisplay.display);
+//   else al_set_target_bitmap(mBitmap.level_buffer);
+//
+//   // make a copy of the string
+//   char pt[500];
+//
+//   if (custom) // get text from f
+//   {
+//      if (strlen(f) > 0) strcpy(pt, f);
+//      else sprintf(pt, "<empty>");
+//   }
+//   else strcpy(pt, pmsgtext[i]); // get text from pmsg
+//
+//   int tc=0, fc=0;
+//   mMiscFnx.get_int_3216(item[i][13], tc, fc); // get text and frame colors
+//
+//   int x1 = item[i][6];
+//   int y1 = item[i][7];
+//   int w  = item[i][8];
+//   int h  = item[i][9];
+//
+
+
+
+
+//   int x = ft_item[i][4];
+//   int y = ft_item[i][5];
+//   int type = ft_item[i][0];
+//
+//   int shape = ft_item[i][1];                            // get shape
+//   if (shape > 999) shape = mBitmap.zz[5][shape-1000];   // ans
+//   int drawn = 0;
+//
+//   if ((type == 2) && (ft_item[i][6] == 3)) shape = 197; // purple coin
+//
+//   if (type == 9)   shape = 991; // trig
+//   if (type == 16)  shape = 989; // bm
+//   if (type == 17)  shape = 988; // bd
+//
+//   if (type == 6)
+//   {
+//      int rb = (ft_item[i][2] & PM_ITEM_ORB_ROTB) >> 14;
+//      float a=rb*(ALLEGRO_PI/2);
+//      al_draw_rotated_bitmap(mBitmap.tile[ft_item[i][1]], 10, 10, x+10, y+10, a, 0);
+//      drawn = 1;
+//   }
+//   if ((type == 8) && (ft_item[i][11])) al_draw_bitmap(mBitmap.tile[440], x, y, 0); // bomb sticky spikes
+//
+//   if (type == 11) // rockets
+//   {
+//      float rot = (float) mItem.item[i][10] / 1000;
+//      al_draw_rotated_bitmap(mBitmap.tile[shape], 10, 10, x+10, y+10, rot, 0);
+//      drawn = 1;
+//   }
+//
+//   // default draw if nothing else has drawn it up to now
+//   if (!drawn) al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
 }
 
 

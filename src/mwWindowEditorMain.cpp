@@ -637,25 +637,19 @@ void mwWindow::em_process_mouse(void)
             int ofx = mwWM.gx*20 - mItem.item[din][4]; // get offset of move in 2000 format
             int ofy = mwWM.gy*20 - mItem.item[din][5];
             int c = mItem.get_empty_item(); // get a place to put it
-
-            printf("din:%d c:%d\n", din, c);
-
+            //printf("din:%d c:%d\n", din, c);
             if (c == -1)  break;
             for (int b=0; b<16; b++) mItem.item[c][b] = mItem.item[din][b]; // copy from draw item
+
             mItem.item[c][4] += ofx; // adjust with offsets
             mItem.item[c][5] += ofy;
-            if ((type == 4) || (type == 9) || (type == 10) || (type == 16) || (type == 17)) // move range for key, trig, msg, manip, damage
+
+            if (mItem.item_secondary67(type))
             {
                mItem.item[c][6] += ofx; // adjust with offsets
                mItem.item[c][7] += ofy;
             }
-            if (type == 10)
-            {
-               int x=0, y=0;
-               mMiscFnx.get_int_3216(mItem.item[c][10], x, y); // get x and y of upper left corner
-               mMiscFnx.set_int_3216(mItem.item[c][10], x+ofx, y+ofy);
-               strcpy(mItem.pmsgtext[c], mItem.pmsgtext[din]); // msg
-            }
+            if (type == 10) strcpy(mItem.pmsgtext[c], mItem.pmsgtext[din]); // message
             mItem.sort_item(1);
          }
          break;
@@ -682,8 +676,6 @@ void mwWindow::em_process_mouse(void)
                   mEnemy.Ei[c][i+1] = mEnemy.Ei[din][i+1] + ofy;
                }
             }
-
-
             if (type == 7) // podzilla
             {
                if (mInput.SHFT()) // move stuff also
@@ -709,12 +701,6 @@ void mwWindow::em_process_mouse(void)
                   mEnemy.Ei[c][16] = mEnemy.Ei[din][16] + ofy;
                   mEnemy.Ei[c][17] = mEnemy.Ei[din][17] + ofx;
                   mEnemy.Ei[c][18] = mEnemy.Ei[din][18] + ofy;
-               }
-               //if (al_show_native_message_box(mDisplay.display, "Move?", "Move cloner's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
-               if (mInput.SHFT()) // move stuff also
-               {
-                  mEnemy.Ei[c][11] = mEnemy.Ei[din][11] + ofx;
-                  mEnemy.Ei[c][12] = mEnemy.Ei[din][12] + ofy;
                }
             }
             mEnemy.sort_enemy();

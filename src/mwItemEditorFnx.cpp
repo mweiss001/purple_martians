@@ -351,27 +351,6 @@ int mwItems::create_trigger(int i)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 int mwItems::create_block_manip(int i)
 {
    int bad = 0;

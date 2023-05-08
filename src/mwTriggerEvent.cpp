@@ -31,8 +31,6 @@ void mwTriggerEvent::initialize(void)
 }
 
 
-
-
 void mwTriggerEvent::show_event_line(int x, int &y, int ev, int type, int v1, int v2)
 {
    if (type == 2) // item
@@ -86,8 +84,6 @@ void mwTriggerEvent::show_all_events(void)
          if (mItem.item[i][13]) show_event_line(x, y, mItem.item[i][13], 2, i, 0);
          if (mItem.item[i][14]) show_event_line(x, y, mItem.item[i][14], 2, i, 0);
       }
-
-
       if (mItem.item[i][0] == 13) // timer
       {
          if (mItem.item[i][12]) show_event_line(x, y, mItem.item[i][12], 2, i, 1); // t1 i/p
@@ -96,78 +92,57 @@ void mwTriggerEvent::show_all_events(void)
          if (mItem.item[i][15]) show_event_line(x, y, mItem.item[i][15], 2, i, 4); // t2 o/p
 
       }
-
-      if ((mItem.item[i][0] == 16) && (mItem.item[i][1])) show_event_line(x, y, mItem.item[i][1], 2, i, 0);
-      if ((mItem.item[i][0] == 17) && (mItem.item[i][1])) show_event_line(x, y, mItem.item[i][1], 2, i, 0);
+      if ((mItem.item[i][0] == 10) && (mItem.item[i][1])) show_event_line(x, y, mItem.item[i][1], 2, i, 0); // message
+      if ((mItem.item[i][0] == 16) && (mItem.item[i][1])) show_event_line(x, y, mItem.item[i][1], 2, i, 0); // block manip
+      if ((mItem.item[i][0] == 17) && (mItem.item[i][1])) show_event_line(x, y, mItem.item[i][1], 2, i, 0); // block damage
    }
 
-   for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
+   for (int l=0; l<NUM_LIFTS; l++) // lifts
       if (mLift.cur[l].active)
-         for (int s=0; s<mLift.cur[l].num_steps; s++) // iterate steps
+         for (int s=0; s<mLift.cur[l].num_steps; s++) // steps
             if ((((mLift.stp[l][s].type & 31) == 5) || ((mLift.stp[l][s].type & 31) == 6)) && (mLift.stp[l][s].val)) show_event_line(x, y, mLift.stp[l][s].val, 4, l, s);
 
 
-
-   for (int e=0; e<100; e++)
+   for (int e=0; e<100; e++) // enemies
       if (mEnemy.Ei[e][0] == 9) // cloner
          if (mEnemy.Ei[e][8]) show_event_line(x, y, mEnemy.Ei[e][8], 3, e, 0);
-
-
 
    al_flip_display();
    mInput.tsw(); // wait for keypress
 }
 
 
-int mwTriggerEvent::add_item_link_translation(int sel_item_num, int sel_item_var, int sel_item_ev, int clt[][4], int clt_last)
-{
-   if (sel_item_ev)
-   {
-      // check if this event already has a translation and get it if it does
-      int ev2 = check_clt_for_event(sel_item_ev, clt, clt_last);
-
-      if (ev2) // existing translation found
-      {
-         clt[clt_last][0] = sel_item_num;   // item # in selection
-         clt[clt_last][1] = sel_item_var;   // item var #
-         clt[clt_last][2] = sel_item_ev;    // original link
-         clt[clt_last][3] = ev2; // new link
-
-         printf("et %d %d %d %d\n", clt[clt_last][0], clt[clt_last][1], clt[clt_last][2], clt[clt_last][3]);
-
-      }
-      else // no existing translation found
-      {
-         ev2 = get_unused_pm_event_extended(clt, clt_last);
-         clt[clt_last][0] = sel_item_num;   // item # in selection
-         clt[clt_last][1] = sel_item_var;   // item var #
-         clt[clt_last][2] = sel_item_ev;    // original link
-         clt[clt_last][3] = ev2; // new link
-         printf("ne %d %d %d %d\n", clt[clt_last][0], clt[clt_last][1], clt[clt_last][2], clt[clt_last][3]);
-      }
-   }
-   else return 0; // nothing added
-   return 1; // added
-}
-
-
-
-
-// check the clt list for an existing pm_event
-// return the translation used or 0 if none found
-int mwTriggerEvent::check_clt_for_event(int ev, int clt[][4], int clt_last)
+// check the clt list for an existing translation from a source event
+// return the destination translation used or 0 if no translation
+int mwTriggerEvent::check_clt_for_source_event(int ev, int clt[][5], int clt_last)
 {
    for (int i=0; i<clt_last; i++)
-   {
-      if (clt[i][2] == ev) return clt[i][3];
-   }
+      if (clt[i][3] == ev) return clt[i][4];
    return 0;
 }
 
+int mwTriggerEvent::add_item_link_translation(int obt, int num, int ext, int src_ev, int clt[][5], int clt_last)
+{
+   if (src_ev) // do nothing for event zero
+   {
+      // check if this event already has a translation and get it if it does
+      int dst_ev = check_clt_for_source_event(src_ev, clt, clt_last);
+      if (!dst_ev) dst_ev = get_unused_pm_event_extended(clt, clt_last); // no existing translation found
+      clt[clt_last][0] = obt;    // object type
+      clt[clt_last][1] = num;    // item # in selection
+      clt[clt_last][2] = ext;    // item var #
+      clt[clt_last][3] = src_ev;
+      clt[clt_last][4] = dst_ev;
+      return 1;
+   }
+   return 0; // nothing added
+}
 
+
+// checks all objects for a reference to the passed event number
 int mwTriggerEvent::is_pm_event_used(int ev)
 {
-   for (int i=0; i<500; i++)
+   for (int i=0; i<500; i++) // iterate items
    {
       if (mItem.item[i][0] == 6) // orb
       {
@@ -183,7 +158,6 @@ int mwTriggerEvent::is_pm_event_used(int ev)
          if (mItem.item[i][13] == ev) return 1;
          if (mItem.item[i][14] == ev) return 1;
       }
-
       if (mItem.item[i][0] == 13) // timer
       {
          if (mItem.item[i][12] == ev) return 1;
@@ -192,9 +166,9 @@ int mwTriggerEvent::is_pm_event_used(int ev)
          if (mItem.item[i][15] == ev) return 1;
       }
 
-
-      if ((mItem.item[i][0] == 16) && (mItem.item[i][1] == ev)) return 1;
-      if ((mItem.item[i][0] == 17) && (mItem.item[i][1] == ev)) return 1;
+      if ((mItem.item[i][0] == 10) && (mItem.item[i][1] == ev)) return 1; // message
+      if ((mItem.item[i][0] == 16) && (mItem.item[i][1] == ev)) return 1; // bm
+      if ((mItem.item[i][0] == 17) && (mItem.item[i][1] == ev)) return 1; // bd
    }
 
    for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
@@ -202,10 +176,15 @@ int mwTriggerEvent::is_pm_event_used(int ev)
          for (int s=0; s<mLift.cur[l].num_steps; s++) // iterate steps
             if (((((mLift.stp[l][s].type & 31) == 5) || (mLift.stp[l][s].type & 31) == 6)) && (mLift.stp[l][s].val == ev)) return 1;
 
+   for (int e=0; e<100; e++) // iterate enemies
+      if (mEnemy.Ei[e][0] == 9) // cloner
+         if (mEnemy.Ei[e][8] == ev) return 1;
+
    return 0;
 }
 
-int mwTriggerEvent::get_unused_pm_event_extended(int clt[][4], int clt_last)
+// checks objects and translation table
+int mwTriggerEvent::get_unused_pm_event_extended(int clt[][5], int clt_last)
 {
    int ev = 1; // starting event to test (don't ever use event 0)
    int done = 0;
@@ -216,7 +195,8 @@ int mwTriggerEvent::get_unused_pm_event_extended(int clt[][4], int clt_last)
 
       if (is_pm_event_used(ev)) used = 1; // first check all object that use events
 
-      for (int i=0; i<clt_last; i++) if (clt[i][3] == ev) used = 1; // then also check the translation table
+      for (int i=0; i<clt_last; i++) // then also check the translation table
+         if ((clt[i][3] == ev) || (clt[i][4] == ev)) used = 1;
 
       if (used == 0) return ev; // found one!
       else if (++ev > 999) done = 1;
@@ -226,6 +206,7 @@ int mwTriggerEvent::get_unused_pm_event_extended(int clt[][4], int clt_last)
 
 
 
+// only checks objects
 int mwTriggerEvent::get_unused_pm_event(void)
 {
    int ev = 1; // don't ever use event 0
@@ -237,6 +218,9 @@ int mwTriggerEvent::get_unused_pm_event(void)
    }
    return 0; // only if no unused can be found
 }
+
+
+
 
 
 
@@ -300,8 +284,8 @@ void mwTriggerEvent::find_event_rxrs_for_event(int ev, int &evan, int eva[][2])
    for (int i=0; i<500; i++)
    {
 
-      // manip or damage
-      if (((mItem.item[i][0] == 16) || (mItem.item[i][0] == 17)) && (mItem.item[i][1] == ev))
+      // message, manip or damage
+      if (((mItem.item[i][0] == 10) || (mItem.item[i][0] == 16) || (mItem.item[i][0] == 17)) && (mItem.item[i][1] == ev))
       {
          eva[evan][0] = mItem.item[i][4]+10;
          eva[evan][1] = mItem.item[i][5]+10;
@@ -367,7 +351,7 @@ void mwTriggerEvent::find_and_show_event_links(int obj_type, int obj_num, int ob
          for (int i2=0; i2<evan; i2++)
             al_draw_line(x1, y1, eva[i2][0], eva[i2][1], mColor.pc[10], 2);
       }
-      if ((itype == 16) || (itype == 17))  // block manip or block damage
+      if ((itype == 10) || (itype == 16) || (itype == 17))  // message, block manip or block damage
       {
          ev = mItem.item[i][1];
          if (ev > 0) find_event_txrs_for_event(ev, evan, eva);
@@ -435,9 +419,6 @@ void mwTriggerEvent::find_and_show_event_links(int obj_type, int obj_num, int ob
       }
    }
 }
-
-
-
 
 
 

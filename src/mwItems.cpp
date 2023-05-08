@@ -62,7 +62,7 @@ void mwItems::initialize(void)
    item_tile[3]  = 398;
    item_tile[4]  = 272;
    item_tile[5]  = 383;
-   item_tile[6]  = 0;
+   item_tile[6]  = 418;
    item_tile[7]  = 456;
    item_tile[8]  = 538;
    item_tile[9]  = 991;
@@ -81,7 +81,6 @@ void mwItems::initialize(void)
 
 }
 
-
 // does the item type have a secondary position at 6,7?
 int mwItems::item_secondary67(int type)
 {
@@ -94,6 +93,19 @@ int mwItems::item_secondary67(int type)
    if (type == 17) return 1; // block damage
    return 0;
 }
+
+
+int mwItems::item_secondary67_hires(int type)
+{
+   if (type == 9)  return 1; // trigger
+   if (type == 10) return 1; // message
+   if (type == 13) return 1; // timer display
+   if (type == 16) return 1; // block manip
+   return 0;
+}
+
+
+
 
 void mwItems::draw_items(void)
 {
@@ -155,7 +167,6 @@ int mwItems::draw_bonus(int i, int x, int y, int shape)
    }
    return 0;
 }
-
 
 
 void mwItems::move_items()
