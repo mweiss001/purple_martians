@@ -218,25 +218,34 @@ void mwWindow::process_mouse(void)
             sprintf(mMenu.menu_string[0],"Group Edit Object List");
             sprintf(mMenu.menu_string[1],"----------------------");
 
+
+
             if (mwWM.mW[5].show_sel_frame)
             {
-                sprintf(mMenu.menu_string[2],"Hide Selection");
-                sprintf(mMenu.menu_string[3],"Add Filtered Selection To List");
-                sprintf(mMenu.menu_string[4],"Add Selection To List And Set Filters");
-                sprintf(mMenu.menu_string[5],"end");
+               sprintf(mMenu.menu_string[2],"Clear Object List");
+               sprintf(mMenu.menu_string[3],"Hide Selection");
+               sprintf(mMenu.menu_string[4],"Add Filtered Selection To List");
+               sprintf(mMenu.menu_string[5],"Add Selection To List And Set Filters");
+               sprintf(mMenu.menu_string[6],"end");
 
-                  switch (mMenu.pmenu(6, 13))
-                  {
-                      case 2: mwWM.mW[5].show_sel_frame = 0; break;
-                      case 3: ge_add_selection_to_list(0); break;
-                      case 4: ge_add_selection_to_list(1); break;
-                  }
+               switch (mMenu.pmenu(6, 13))
+               {
+                  case 2: ge_clear_obj_list(); break;
+                  case 3: mwWM.mW[5].show_sel_frame = 0; break;
+                  case 4: ge_add_selection_to_list(0); break;
+                  case 5: ge_add_selection_to_list(1); break;
+               }
             }
             else
             {
-               sprintf(mMenu.menu_string[2],"Show Selection");
-               sprintf(mMenu.menu_string[3],"end");
-               if (mMenu.pmenu(6, 13) == 2) mwWM.mW[5].show_sel_frame = 1;
+               sprintf(mMenu.menu_string[2],"Clear Object List");
+               sprintf(mMenu.menu_string[3],"Show Selection");
+               sprintf(mMenu.menu_string[4],"end");
+               switch (mMenu.pmenu(6, 13))
+               {
+                  case 2: ge_clear_obj_list(); break;
+                  case 3: mwWM.mW[5].show_sel_frame = 1; break;
+               }
             }
          }
       }
@@ -580,9 +589,9 @@ int mwWindow::cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int d)
    int fc2 = 4;     // frame color 2
 
    int tl=0; // text_lines
-   if (mode == 1) tl = 26*bts-bts/2;
-   if (mode == 2) tl = 28*bts-bts;
-   if (mode == 3) tl = 30*bts-bts;
+   if (mode == 1) tl = 27*bts-bts/2;
+   if (mode == 2) tl = 29*bts-bts;
+   if (mode == 3) tl = 31*bts-bts;
 
    if (mwWM.mW[3].collapsed) tl = -bts+2;
 
@@ -639,6 +648,7 @@ int mwWindow::cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int d)
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[2][10], "Messge", "Messge", tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[2][11], "Rocket", "Rocket", tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[2][12], "Warp",   "Warp",   tc1, tc2, fc1, fc2);
+      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[2][13], "Timer",  "Timer",  tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[2][14], "Switch", "Switch", tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[2][15], "Spring", "Spring", tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[2][16], "Blk Mn", "Blk Mn", tc1, tc2, fc1, fc2);

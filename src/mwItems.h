@@ -18,7 +18,7 @@ class mwItems
 
 
    int item_secondary67(int type);
-
+   int item_secondary67_hires(int type);
 
    void draw_items(void);
    void draw_item(int i, int custom, int cx, int cy);

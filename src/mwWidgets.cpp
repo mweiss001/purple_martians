@@ -1672,10 +1672,12 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    if (bn == 100)
    {
       if (press) var++;
-      if ((var < 0) || (var > 2)) var = 0;
+      if ((var < 0) || (var > 3)) var = 0;
       if (var == 0) sprintf(msg, "Action:Randomize");
       if (var == 1) sprintf(msg, "Action:Step from Min to Max");
       if (var == 2) sprintf(msg, "Action:Set all to Min");
+      if (var == 3) sprintf(msg, "Action:Set all from 1st obj");
+
    }
    if (bn == 101)
    {

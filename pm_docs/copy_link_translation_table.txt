@@ -1,0 +1,106 @@
+Copy link translation table
+
+Only used in Edit Selection when pasting a selection from ft_
+
+Events in the copied section will probably collide with existing event links
+This would take some time and effort to sort out after a paste so I do it automatically
+
+High Level Algorithm
+
+Before paste, iterate objects in ft_
+Look for any event references (receivers or senders) and add to link translation table
+
+clt[0] = obt (2=item, 3=enem, 4=lift)
+clt[1] = num
+clt[2] = ext (2,3 int var num  4=lift step index
+clt[3] = src_ev
+clt[4] = dst_ev
+
+
+
+int clt[100][5] = { 0 };
+int clt_last = 0; // index
+for (b=0; b<500; b++) // iterate items in ft
+{
+  if (ft_item[b][0] == 6) // orb
+  {
+	 clt_last += mTriggerEvent.add_item_link_translation(2, b, 10, ft_item[b][10], clt, clt_last);
+	 clt_last += mTriggerEvent.add_item_link_translation(2, b, 11, ft_item[b][11], clt, clt_last);
+	 clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
+	 clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
+  }
+  if (ft_item[b][0] == 9) // trigger
+  {
+	 clt_last += mTriggerEvent.add_item_link_translation(2, b, 11, ft_item[b][11], clt, clt_last);
+	 clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
+	 clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
+	 clt_last += mTriggerEvent.add_item_link_translation(2, b, 14, ft_item[b][14], clt, clt_last);
+  }
+  if (ft_item[b][0] == 13) // timer
+  {
+	 clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
+	 clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
+	 clt_last += mTriggerEvent.add_item_link_translation(2, b, 14, ft_item[b][14], clt, clt_last);
+	 clt_last += mTriggerEvent.add_item_link_translation(2, b, 15, ft_item[b][15], clt, clt_last);
+  }
+  if ((ft_item[b][0] == 10) || (ft_item[b][0] == 16) || (ft_item[b][0] == 17)) // message, bm or bd
+  {
+	 clt_last += mTriggerEvent.add_item_link_translation(2, b, 1, ft_item[b][1], clt, clt_last);
+  }
+}
+for (b=0; b<100; b++) // iterate enemies in ft
+  if (ft_Ei[b][0] == 9) // cloner
+	 clt_last += mTriggerEvent.add_item_link_translation(3, b, 8, ft_Ei[b][8], clt, clt_last);
+
+for (b=0; b<ft_level_header[5]; b++) // iterate lifts in ft
+  for (y=0; y<ft_lift[b][3]; y++) // iterate lift steps in ft
+  {
+	 int step_type = ft_ls[b][y][5] & 31;
+	 int step_val = ft_ls[b][y][4];
+	 if ((step_type == 5) || (step_type == 6)) clt_last += mTriggerEvent.add_item_link_translation(4, b, y, step_val, clt, clt_last);
+  }
+
+
+when inserting, check to see if a translation has already been entered 
+if it has, use the existing translation 
+if not find a new unused event
+
+int mwTriggerEvent::add_item_link_translation(int obt, int num, int ext, int src_ev, int clt[][5], int clt_last)
+{
+   if (src_ev) // do nothing for event zero
+   {
+      // check if this event already has a translation and get it if it does
+      int dst_ev = check_clt_for_source_event(src_ev, clt, clt_last);
+      if (!dst_ev) dst_ev = get_unused_pm_event_extended(clt, clt_last); // no existing translation found
+      clt[clt_last][0] = obt;    // object type
+      clt[clt_last][1] = num;    // item # in selection
+      clt[clt_last][2] = ext;    // item var #
+      clt[clt_last][3] = src_ev;
+      clt[clt_last][4] = dst_ev;
+      return 1;
+   }
+   return 0; // nothing added
+}
+
+then when pasting ft_ check for match with clt table:
+
+// does this lift step have an entry in the clt table?
+for (int i=0; i<clt_last; i++)
+  if ((clt[i][0] == 4) && (clt[i][1] == b) && (clt[i][2] == y)) // found match
+	 val = clt[i][4];  // new event
+
+
+// does this enemy have an entry in the clt table?
+for (int i=0; i<clt_last; i++)
+  if ((clt[i][0] == 3) && (clt[i][1] == b)) // found index
+	 mEnemy.Ei[c][clt[i][2]] = clt[i][4];  // new event
+
+
+// does this copy item have an entry in the clt table?
+for (int i=0; i<clt_last; i++)
+  if ((clt[i][0] == 2) && (clt[i][1] == b)) // found index of source item table
+	 mItem.item[c][clt[i][2]] = clt[i][4];  // new event
+
+
+this works perfectly as far as I have been able to test it...
+

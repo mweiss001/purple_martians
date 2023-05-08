@@ -202,6 +202,7 @@ void mwLoop::game_menu(void)
 
 void mwLoop::proc_program_state(void)
 {
+   //printf("proc ps ps:%d nps:%d \n", program_state, new_program_state);
    char msg[1024];
    // ----------------------------------------------------------
    // handle all the changes from one state to another
@@ -292,7 +293,7 @@ void mwLoop::proc_program_state(void)
    //---------------------------------------
    if (mLoop.program_state == 22)
    {
-      printf("client set up level\n");
+      //printf("client set up level\n");
 
 
       if (!mLevel.load_level(mLevel.play_level, 0, 0))
@@ -686,7 +687,6 @@ void mwLoop::main_loop(void)
       // ----------------------------------------------------------
       proc_program_state();
 
-
       // ----------------------------------------------------------
       // process event queue
       // ----------------------------------------------------------
@@ -698,7 +698,6 @@ void mwLoop::main_loop(void)
       // ----------------------------------------------------------
       if (mNetgame.ima_server) mNetgame.server_fast_packet_loop();
       if (mNetgame.ima_client) mNetgame.client_fast_packet_loop();
-
 
       // ----------------------------------------------------------
       // do things based on the 40 Hz fps_timer event
@@ -731,6 +730,8 @@ void mwLoop::main_loop(void)
             mNetgame.server_create_new_state();
             if (mLog.LOG_TMR_sdif) mLog.add_log_TMR(al_get_time() - t0, "sdif", 0);
 
+
+
             draw_frame();
 
             double pt = al_get_time() - mTimeStamp.timestamp_frame_start;
@@ -758,6 +759,7 @@ void mwLoop::main_loop(void)
       // ----------------------------------------------------------
       if (mEventQueue.program_update_1s)
       {
+
          mEventQueue.program_update_1s = 0;
          if (mLoop.program_state == 11) // game loop running
          {

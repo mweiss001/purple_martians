@@ -62,6 +62,8 @@ void mwWindowManager::loop(int edit_level)
    if (mLoop.autosave_level_editor_state) load_mW();
    active = 1;
 
+   mW[5].ge_init_data();
+
 
    while (active)
    {

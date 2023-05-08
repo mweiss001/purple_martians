@@ -1281,6 +1281,8 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
             ov_draw_overlay_rectangle_and_crosshairs(mx, my, mw, mh, color, 1);
             al_draw_textf(mFont.pr8, mColor.pc[15], mx+mw/2, my-10,   ALLEGRO_ALIGN_CENTRE, "x:%d y:%d", mx, my);
             al_draw_textf(mFont.pr8, mColor.pc[15], mx+mw/2, my+mh+2, ALLEGRO_ALIGN_CENTRE, "w:%d h:%d", mw, mh);
+            mTriggerEvent.find_and_show_event_links(obt, num, 0);
+
          }
          break;
          case 11: // rocket
@@ -1359,16 +1361,14 @@ void mwWindow::ov_process_mouse(void)
    int mouse_on_cdb_ul = 0;
    int mouse_on_trk = 0;
 
+   int mouse_on_tb_ul = 0;
+   int mouse_on_tb_lr = 0;
 
    int mouse_on_sp = 0;
    int mouse_on_bmb = 0;
-   int mouse_on_msg_ul = 0;
-   int mouse_on_msg_lr = 0;
 
-   int mouse_on_kbr_ul = 0;
-   int mouse_on_kbr_lr = 0;
-   int mouse_on_tb_ul = 0;
-   int mouse_on_tb_lr = 0;
+   int mouse_on_item_sec_ul = 0;
+   int mouse_on_item_sec_lr = 0;
 
    int mouse_on_lift = 0;
 
@@ -1448,7 +1448,6 @@ void mwWindow::ov_process_mouse(void)
             mouse_move = 1;
             mouse_on_vpodx = 1;
          }
-
          px = mEnemy.Ei[b][5];
          py = mEnemy.Ei[b][6];
          if ((mwWM.hx>px+msn) && (mwWM.hx<px+msp) && (mwWM.hy>py+msn) && (mwWM.hy<py+msp))
@@ -1456,7 +1455,6 @@ void mwWindow::ov_process_mouse(void)
             mouse_move = 1;
             mouse_on_vpod1 = 1;
          }
-
          px = mEnemy.Ei[b][7];
          py = mEnemy.Ei[b][8];
          if ((mwWM.hx>px+msn) && (mwWM.hx<px+msp) && (mwWM.hy>py+msn) && (mwWM.hy<py+msp))
@@ -1464,10 +1462,7 @@ void mwWindow::ov_process_mouse(void)
             mouse_move = 1;
             mouse_on_vpod2 = 1;
          }
-
       }
-
-
 
       if ((type == 7) || (type == 13)) // podzilla and vinepod trigger box
       {
@@ -1580,14 +1575,12 @@ void mwWindow::ov_process_mouse(void)
          int y2 = y1 + mItem.item[num][9];
          if ((mwWM.hx>x1-mst) && (mwWM.hx<x1+mst) && (mwWM.hy>y1-mst) && (mwWM.hy<y1+mst)) // upper left corner (move)
          {
-            if (type == 10) mouse_on_msg_ul = 1; // special case for msg...not bound to 20 pixel step
-            else            mouse_on_kbr_ul = 1;
+            mouse_on_item_sec_ul = 1;
             mouse_move = 1;
          }
          if ((mwWM.hx>x2-mst) && (mwWM.hx<x2+mst) && (mwWM.hy>y2-mst) && (mwWM.hy<y2+mst)) // lower right corner (resize)
          {
-            if (type == 10) mouse_on_msg_lr = 1; // special case for msg...not bound to 20 pixel step
-            else mouse_on_kbr_lr = 1;
+            mouse_on_item_sec_lr = 1;
             mouse_adj = 1;
          }
       }
@@ -1800,22 +1793,43 @@ void mwWindow::ov_process_mouse(void)
             mEnemy.Ei[num][13] = mwWM.gx*20 - mEnemy.Ei[num][11];
             mEnemy.Ei[num][14] = mwWM.gy*20 - mEnemy.Ei[num][12];
          }
-         if (mouse_on_msg_ul) // move msg
-         {
-            mItem.item[num][6] = mwWM.hx;
-            mItem.item[num][7] = mwWM.hy;
-         }
-         if (mouse_on_msg_lr) // resize msg
-         {
-            // don't allow lr to be less than ul
-            if (mwWM.hx < mItem.item[num][6]+8) mwWM.hx = mItem.item[num][6]+8;
-            if (mwWM.hy < mItem.item[num][7]+8) mwWM.hy = mItem.item[num][7]+8;
 
-            // set new size
-            mItem.item[num][8] = mwWM.hx - mItem.item[num][6];
-            mItem.item[num][9] = mwWM.hy - mItem.item[num][7];
+         if (mouse_on_item_sec_ul) // move item secondary
+         {
+            if ((mItem.item_secondary67_hires(mItem.item[num][0])) && (!mInput.SHFT()) )  // hi-res adjust
+            {
+               mItem.item[num][6] = mwWM.hx;
+               mItem.item[num][7] = mwWM.hy;
+            }
+            else
+            {
+               mItem.item[num][6] = mwWM.gx*20;
+               mItem.item[num][7] = mwWM.gy*20;
+            }
          }
+         if (mouse_on_item_sec_lr) // resize item secondary
+         {
+            if ((mItem.item_secondary67_hires(mItem.item[num][0])) && (!mInput.SHFT()) )  // hi-res adjust
+            {
+               // don't allow lr to be less than ul
+               if (mwWM.hx < mItem.item[num][6]+8) mwWM.hx = mItem.item[num][6]+8;
+               if (mwWM.hy < mItem.item[num][7]+8) mwWM.hy = mItem.item[num][7]+8;
 
+               // set new size
+               mItem.item[num][8] = mwWM.hx - mItem.item[num][6];
+               mItem.item[num][9] = mwWM.hy - mItem.item[num][7];
+            }
+            else
+            {
+               // don't allow lr to be less than ul
+               if (mwWM.gx < mItem.item[num][6]/20) mwWM.gx = mItem.item[num][6]/20;
+               if (mwWM.gy < mItem.item[num][7]/20) mwWM.gy = mItem.item[num][7]/20;
+
+               // set new position
+               mItem.item[num][8] = (mwWM.gx+1)*20 - mItem.item[num][6];
+               mItem.item[num][9] = (mwWM.gy+1)*20 - mItem.item[num][7];
+            }
+         }
          if (mouse_on_sp) // adjust sproingy jump height
          {
             float y0 = (float) mItem.item[num][5]+10;
@@ -1843,23 +1857,6 @@ void mwWindow::ov_process_mouse(void)
             float fy = (float) mwWM.hy;
             float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse
             mEnemy.Ei[num][17] = (int) dst;
-         }
-         // ranges for key, trigger, manip and damage
-         if (mouse_on_kbr_ul) // move block range from ul
-         {
-            // set new position
-            mItem.item[num][6] = mwWM.gx*20;
-            mItem.item[num][7] = mwWM.gy*20;
-         }
-         if (mouse_on_kbr_lr) // adjust block range from lr
-         {
-            // don't allow lr to be less than ul
-            if (mwWM.gx < mItem.item[num][6]/20) mwWM.gx = mItem.item[num][6]/20;
-            if (mwWM.gy < mItem.item[num][7]/20) mwWM.gy = mItem.item[num][7]/20;
-
-            // set new position
-            mItem.item[num][8] = (mwWM.gx+1)*20 - mItem.item[num][6];
-            mItem.item[num][9] = (mwWM.gy+1)*20 - mItem.item[num][7];
          }
          if (mouse_on_csb_ul) // move cloner source box from ul
          {
