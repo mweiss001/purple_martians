@@ -447,13 +447,13 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    bts = 24;
    int c = 10 + 64;
    int choice = 0;
-   if (mWidget.buttontt(x3, yfb, x4, bts, 576,0,0,0, 0,c,15,0, 1,1,1,d, "     Purple Pipes with Cross Center")) choice = 1;
-   if (mWidget.buttontt(x3, yfb, x4, bts, 512,0,0,0, 0,c,15,0, 1,1,1,d, "     Purple Pipes with Solid Center")) choice = 4;
-   if (mWidget.buttontt(x3, yfb, x4, bts, 608,0,0,0, 0,c,15,0, 1,1,1,d, "     Wires with Cross Center")) choice = 2;
-   if (mWidget.buttontt(x3, yfb, x4, bts, 480,0,0,0, 0,c,15,0, 1,1,1,d, "     Grey Bricks")) choice = 3;
-   if (mWidget.buttontt(x3, yfb, x4, bts, 448,0,0,0, 0,c,15,0, 1,1,1,d, "     Brown Bricks")) choice = 5;
-   if (mWidget.buttontt(x3, yfb, x4, bts, 416,0,0,0, 0,c,15,0, 1,1,1,d, "     Brown and Yellow Thatch")) choice = 7;
-   if (mWidget.buttontt(x3, yfb, x4, bts, 384,0,0,0, 0,c,15,0, 1,1,1,d, "     Brain")) choice = 8;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 576,14,0,0, 0,c,15,0, 1,1,1,d, "     Purple Pipes with Cross Center")) choice = 1;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 512,14,0,0, 0,c,15,0, 1,1,1,d, "     Purple Pipes with Solid Center")) choice = 4;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 608,14,0,0, 0,c,15,0, 1,1,1,d, "     Wires with Cross Center")) choice = 2;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 480,14,0,0, 0,c,15,0, 1,1,1,d, "     Grey Bricks")) choice = 3;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 448,14,0,0, 0,c,15,0, 1,1,1,d, "     Brown Bricks")) choice = 5;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 416,14,0,0, 0,c,15,0, 1,1,1,d, "     Brown and Yellow Thatch")) choice = 7;
+   if (mWidget.buttontt(x3, yfb, x4, bts, 384,14,0,0, 0,c,15,0, 1,1,1,d, "     Brain")) choice = 8;
 
    // draw a rectangle and title around this group of buttons
    mMiscFnx.titlex("Change Marked Tiles", 15, 10, x3, x4, yfb_old-16);

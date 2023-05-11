@@ -1444,10 +1444,10 @@ int mwWidget::buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int ty
    draw_slider_text(x1, y1,  x2, y2, q2, q5, txt);
 
    // draw tile
-   int x = x1+14;
+   int x = x1+num;
+
    al_draw_filled_rectangle(x-1, y1+0, x+21, y1+22, mColor.pc[0]);
    al_draw_bitmap(mBitmap.btile[tn], x, y1+1, 0);
-
    if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
       while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release

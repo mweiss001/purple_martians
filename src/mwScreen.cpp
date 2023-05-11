@@ -42,7 +42,7 @@ void mwScreen::stimp(void) // transition from menu to game
    draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
    al_set_target_backbuffer(mDisplay.display);
 
-   int num_steps = 60;
+   int num_steps = 30;
    float delay = .01;
 
    // find the size of the source screen from actual screen size and scaler
@@ -155,7 +155,7 @@ void mwScreen::stamp(void) // transition from game to menu
 {
    draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
 
-   int num_steps = 60;
+   int num_steps = 30;
    float delay = .01;
 
    // find the size of the source screen from actual screen size and scaler

@@ -37,17 +37,6 @@ ALLEGRO_BITMAP *ft_bmp = NULL;  //  file temp paste bmp
 
 void mwWindow::es_pointer_text(int x1, int x2, int y, int mouse_on_window)
 {
-   int xc = (x1+x2)/2;
-
-   al_draw_text( mFont.pr8, mColor.pc[15], xc, y+2,  ALLEGRO_ALIGN_CENTER, "Pointer");
-
-   if (!mouse_on_window) al_draw_textf(mFont.pr8, mColor.pc[15], xc, y+11, ALLEGRO_ALIGN_CENTER, "  x:%d    y:%d ", mwWM.gx, mwWM.gy);
-   else                  al_draw_text( mFont.pr8, mColor.pc[15], xc, y+11, ALLEGRO_ALIGN_CENTER, "  x:--    y:-- ");
-
-   al_draw_rectangle(x1, y+0, x2, y+20, mColor.pc[15], 1);
-
-
-
    int rx1 = mwWM.bx1*20;    // source x
    int ry1 = mwWM.by1*20;    // source y
    int rx2 = mwWM.bx2*20+20;
@@ -79,22 +68,22 @@ void mwWindow::es_pointer_text(int x1, int x2, int y, int mouse_on_window)
       for (int d=0; d<NUM_LIFTS; d++)
          if ((mLift.cur[d].active) && (mLift.cur[d].x >= rx1) && (mLift.cur[d].x < rx2) && (mLift.cur[d].y >= ry1) && (mLift.cur[d].y < ry2)) lib++;
 
+   int xc = (x1+x2)/2;
+   int fc = 13;
+   int tc = 15;
 
-   y+=24;
+   al_draw_text( mFont.pr8, mColor.pc[tc], xc, y+1,  ALLEGRO_ALIGN_CENTER, "Selection");
+   al_draw_rectangle(x1, y, x2, y+10, mColor.pc[fc], 1);
+   y+=10;
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+1, ALLEGRO_ALIGN_CENTER, "  x:%-2d    y:%-2d  ", mwWM.bx1, mwWM.by1);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+9, ALLEGRO_ALIGN_CENTER, "  w:%-2d    h:%-2d  ", mwWM.bx2-mwWM.bx1+1, mwWM.by2-mwWM.by1+1);
+   al_draw_rectangle(x1, y, x2, y+18, mColor.pc[fc], 1);
 
-   al_draw_rectangle(x1, y, x2, y+10, mColor.pc[14], 1);
-   al_draw_rectangle(x1, y, x2, y+36, mColor.pc[14], 1);
-   al_draw_rectangle(x1, y, x2, y+62, mColor.pc[14], 1);
-
-
-   al_draw_text( mFont.pr8, mColor.pc[6], xc, y+1,  ALLEGRO_ALIGN_CENTER, "Selection");
-   al_draw_textf(mFont.pr8, mColor.pc[6], xc, y+11, ALLEGRO_ALIGN_CENTER, " x:%2d  y:%2d ", mwWM.bx1, mwWM.by1);
-   al_draw_textf(mFont.pr8, mColor.pc[6], xc, y+19, ALLEGRO_ALIGN_CENTER, " width:%d ",  mwWM.bx2-mwWM.bx1+1);
-   al_draw_textf(mFont.pr8, mColor.pc[6], xc, y+27, ALLEGRO_ALIGN_CENTER, " height:%d ", mwWM.by2-mwWM.by1+1);
-
-   al_draw_textf(mFont.pr8, mColor.pc[7], xc, y+37, ALLEGRO_ALIGN_CENTER, " %d Enemies ", eib);
-   al_draw_textf(mFont.pr8, mColor.pc[7], xc, y+45, ALLEGRO_ALIGN_CENTER, " %d Items ", iib);
-   al_draw_textf(mFont.pr8, mColor.pc[7], xc, y+53, ALLEGRO_ALIGN_CENTER, " %d Lifts ", lib);
+   y+=18;
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+1, ALLEGRO_ALIGN_CENTER, " %d Enemies ", eib);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+9, ALLEGRO_ALIGN_CENTER, " %d Items ", iib);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+17, ALLEGRO_ALIGN_CENTER, " %d Lifts ", lib);
+   al_draw_rectangle(x1, y, x2, y+26, mColor.pc[fc], 1);
 }
 
 void mwWindow::es_do_brf(int x, int y, int flood_block)
@@ -848,11 +837,32 @@ void mwWindow::set_block_with_flag_filters(int x, int y, int tn)
 int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
 {
    int bts = 16;
-   int col=0;
+   int col = 9;
+   char msg[20] = "Copy Selction";
+
+//   mwWM.mW[4].copy_mode ? col=10 : col=9;
+//   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, "Copy Selection"))
+
+   if (mwWM.mW[4].copy_mode)
+   {
+      col = 10;
+      sprintf(msg, "Paste Selection");
+   }
+
+   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, msg))
+   {
+      if (mwWM.mW[4].copy_mode) mwWM.mW[4].copy_mode = 0;
+      else
+      {
+         mwWM.mW[4].copy_mode = 1;
+         es_save_selection(0); // puts selection in ft_
+         es_draw_fsel();
+      }
+   }
    if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Move Selection"))
    {
       mwWM.mW[4].copy_mode = 1;
-      es_save_selection(0); // just puts in ft_
+      es_save_selection(0); // puts selection in ft_
       es_draw_fsel();
       es_do_clear();
       al_set_target_backbuffer(mDisplay.display);
@@ -863,22 +873,11 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
       al_set_target_backbuffer(mDisplay.display);
    }
 
-   mwWM.mW[4].copy_mode ? col=10 : col=9;
-   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, "Paste Selection"))
-   {
-      if (mwWM.mW[4].copy_mode) mwWM.mW[4].copy_mode = 0;
-      else
-      {
-         mwWM.mW[4].copy_mode = 1;
-         es_save_selection(0); // puts selection in ft_ only
-         es_draw_fsel();
-      }
-   }
 
    yfb+=bts/2; // spacing between groups
 
-   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Save To Disk")) es_save_selection(1); // puts in ft_ and saves to disk
-   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Load From Disk"))
+   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,6,15,0, 1,0,1,d, "Save To Disk")) es_save_selection(1); // puts in ft_ and saves to disk
+   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,6,15,0, 1,0,1,d, "Load From Disk"))
    {
       if (es_load_selection())
       {
@@ -891,7 +890,9 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
    if (mwWM.mW[1].draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
    {
       yfb+=bts/2; // spacing between groups
-      if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Block Fill"))
+      int tn = mwWM.mW[1].draw_item_num & 1023;
+      bts = 24;
+      if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,7,15,0, 1,1,1,d, "     Fill"))
       {
          for (int x=mwWM.bx1; x<mwWM.bx2+1; x++)
             for (int y=mwWM.by1; y<mwWM.by2+1; y++)
@@ -899,7 +900,7 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
          mScreen.init_level_background(0);
          al_set_target_backbuffer(mDisplay.display);
       }
-      if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Block Frame"))
+      if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,7,15,0, 1,1,1,d, "     Frame"))
       {
          for (int x=mwWM.bx1; x<mwWM.bx2+1; x++)
          {
@@ -914,8 +915,9 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
          mScreen.init_level_background(0);
          al_set_target_backbuffer(mDisplay.display);
       }
-      mwWM.mW[4].brf_mode ? col=10 : col=9;
-      if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, "Block Floodfill")) mwWM.mW[4].brf_mode = !mwWM.mW[4].brf_mode;
+      mwWM.mW[4].brf_mode ? col=10 : col=7;
+      if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,col,15,0, 1,1,1,d, "     Floodfill")) mwWM.mW[4].brf_mode = !mwWM.mW[4].brf_mode;
+//      if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, "Block Floodfill")) mwWM.mW[4].brf_mode = !mwWM.mW[4].brf_mode;
    }
    return yfb;
 }
@@ -923,7 +925,6 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
 
 void mwWindow::es_draw_item_ft(int i)
 {
-
    int type = ft_item[i][0];
    int shape = ft_item[i][1];                            // get shape
    if (shape > 999) shape = mBitmap.zz[0][shape-1000];   // ans
@@ -951,90 +952,6 @@ void mwWindow::es_draw_item_ft(int i)
 
    // default draw if nothing else has drawn it up to now
    if (!drawn) al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
-
-
-
-   if (type == 10)
-   {
-
-
-
-
-      // find the offset between real x and y and ft_x and Y
-      // it is already stored in the ft_stuff
-
-
-
-   }
-
-
-//
-//
-//   if (type == 10) drawn = mItem.draw_message      (i, x, y, custom);
-//
-//
-//   void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
-//{
-//   char msg[1024];
-//
-//   // set where we will draw
-//   if (custom) al_set_target_backbuffer(mDisplay.display);
-//   else al_set_target_bitmap(mBitmap.level_buffer);
-//
-//   // make a copy of the string
-//   char pt[500];
-//
-//   if (custom) // get text from f
-//   {
-//      if (strlen(f) > 0) strcpy(pt, f);
-//      else sprintf(pt, "<empty>");
-//   }
-//   else strcpy(pt, pmsgtext[i]); // get text from pmsg
-//
-//   int tc=0, fc=0;
-//   mMiscFnx.get_int_3216(item[i][13], tc, fc); // get text and frame colors
-//
-//   int x1 = item[i][6];
-//   int y1 = item[i][7];
-//   int w  = item[i][8];
-//   int h  = item[i][9];
-//
-
-
-
-
-//   int x = ft_item[i][4];
-//   int y = ft_item[i][5];
-//   int type = ft_item[i][0];
-//
-//   int shape = ft_item[i][1];                            // get shape
-//   if (shape > 999) shape = mBitmap.zz[5][shape-1000];   // ans
-//   int drawn = 0;
-//
-//   if ((type == 2) && (ft_item[i][6] == 3)) shape = 197; // purple coin
-//
-//   if (type == 9)   shape = 991; // trig
-//   if (type == 16)  shape = 989; // bm
-//   if (type == 17)  shape = 988; // bd
-//
-//   if (type == 6)
-//   {
-//      int rb = (ft_item[i][2] & PM_ITEM_ORB_ROTB) >> 14;
-//      float a=rb*(ALLEGRO_PI/2);
-//      al_draw_rotated_bitmap(mBitmap.tile[ft_item[i][1]], 10, 10, x+10, y+10, a, 0);
-//      drawn = 1;
-//   }
-//   if ((type == 8) && (ft_item[i][11])) al_draw_bitmap(mBitmap.tile[440], x, y, 0); // bomb sticky spikes
-//
-//   if (type == 11) // rockets
-//   {
-//      float rot = (float) mItem.item[i][10] / 1000;
-//      al_draw_rotated_bitmap(mBitmap.tile[shape], 10, 10, x+10, y+10, rot, 0);
-//      drawn = 1;
-//   }
-//
-//   // default draw if nothing else has drawn it up to now
-//   if (!drawn) al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
 }
 
 

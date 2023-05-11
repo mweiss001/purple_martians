@@ -329,7 +329,6 @@ void mwConfig::load(void)
 
    agci(NETWORK, mPlayer.loc[0].server_state_freq_mode, 1)
 
-
    agci(LOGGING, mLog.LOG_NET, 0)
    agci(LOGGING, mLog.LOG_NET_player_array, 0)
    agci(LOGGING, mLog.LOG_NET_join, 0)

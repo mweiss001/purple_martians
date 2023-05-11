@@ -1070,105 +1070,232 @@ Bombs and rockets will destroy these blocks.
 <section>Edit Selection
 
 
-<l15> Lets you perform tasks on rectangular selections of the level.
-
+<c15> Performs operations on rectangular selections of a level.
+<b15>
 
 <l09>Changing the Selection
 
 <l15> - Click and drag on the map to set a new selection.
 
 
-<l09>Selection Display
+<l09>Selection information is displayed in a box above the buttons
 
-<l15>Selection data is displayed in a yellow box above the buttons
+<l15>   x: y:        (position of the selection)
 
-<l15>   x: y:           (position of the selection)
+<l15>   w: h:        (size of the selection)
 
-<l15>   height: width:  (size of the selection)
+<l15>   Enemies:     (number of enemies in the selection)
 
-<l15>   Enemies:        (number of enemies in selection)
+<l15>   Items:       (number of items in the selection)
 
-<l15>   Items:          (number of items in selection)
+<l15>   Lifts:       (number of lifts in the selection)
 
-<l15>   Lifts:          (number of items in selection)
-
+<b15>
 
 <l09>Filters
 
-<l15>The four filter buttons (blocks, items, enemies, lifts) work with the
+<l15>The 'Filters' window allows you to choose what types of objects
 
-<l15>Paste, Copy, Save, and Clear functions as a filter.  If the filter is
+<l15>are affected by the Copy, Paste, Save, and Clear functions.
 
-<l15>off for a group, the functions will not be applied to that group.
+<b15>
 
-<l15> - Press a filter button to toggle it on and off.
+<l09>Copying and Pasting the Selection
 
-
-<l09>Moving the Selection (see Filters)
-
-<l15> - Press the 'Move Selection' button to select it.
-
-<l15> - Position the 'paste selection window' with the mouse.
-
-<l15> - Press the left mouse button to paste.
-
-<l15> - Press the 'Paste Selection' button to de-select it.
-
-
-<l09>Pasting the Selection (see Filters)
-
-<l15> - Press the 'Paste Selection' button to select it.
-
-<l15> - Position the 'paste selection window' with the mouse.
-
-<l15> - Press the left mouse button to paste.
-
-<l15> - Press the 'Paste Selection' button to de-select it.
-
-
-<l09>Copying the Selection to Disk (see Filters)
+<l15> - First, select an area by clicking and dragging.
 
 <l15> - Press the 'Copy Selection' button.
 
-<l15> - Choose a filename and click OK.
-
-
-<l09>Pasting a Selection from Disk (see Filters)
-
-<l15> - Press the 'Paste From Disk' button to select it.
-
-<l15> - Choose a filename and click OK.
-
-<l15> - Position the selection with the mouse.
+<l15> - Position the 'paste' window with the mouse.
 
 <l15> - Press the left mouse button to paste.
 
-<l15> - Press the 'Paste from Disk' button to de-select it.
+<l15> - Press the 'Paste Selection' button to de-select it.
 
 
-<l09>Clearing a Selection (see Filters)
+<l09>Moving the Selection
+
+<l15> - Identical to 'CopyPaste Selection' except the original selection is cleared first.
+
+<l15> - First, select an area by clicking and dragging.
+
+<l15> - Press the 'Move Selection' button.
+
+<l15> - The original selection is cleared.
+
+<l15> - Position the 'paste' window with the mouse.
+
+<l15> - Press the left mouse button to paste.
+
+<l15> - Press the 'Paste Selection' button to de-select it.
+
+
+<l09>Clearing a Selection
 
 <l15> - Press the 'Clear Selection' button.
 
 
-<l09>Block Fill
+<l09>Saving the Selection to disk
 
-<l15> - Fills the selection with the current Draw Item.
+<l15> - Press the 'Save to Disk' button.
 
-
-<l09>Block Frame
-
-<l15> - Frames the selection with the current Draw Item.
+<l15> - Choose a filename and click OK.
 
 
-<l09>Block Floodfill
+<l09>Loading a Selection from disk
 
-<l15> - Replaces all adjacent similar blocks with the current Draw Item.
+<l15> - Press the 'Load From Disk' button.
+
+<l15> - Choose a filename and click OK.
+
+<l15> - Position the 'paste' window with the mouse.
+
+<l15> - Press the left mouse button to paste.
+
+<l15> - Press the 'Paste Selection' button to de-select it.
 
 
-<l09>Exiting Edit Selection
+<b15>
+<c15>Block Tools
+<b15>
+<c09>These buttons are only shown if the current Draw Item is a block.
+<b15>
 
-<l15>Press the right mouse button or ESC to exit.
+<l09>Fill<l15> - Fills the selection with the Draw Item.
+
+
+<l09>Frame<l15> - Frames the selection with the Draw Item.
+
+
+<l09>Floodfill<l15> - Replaces all adjacent similar blocks with the Draw Item.
+
+
+<section>Group Edit
+
+
+<c15> Performs operations on groups of objects (enemies and items only)
+<b15>
+
+
+<l13>How to use
+<b15>
+
+- Add objects to the Group Edit Object List.
+
+- Choose an action from the Group Edit Control window and apply it.
+
+- Only actions that apply to all objects in the list are shown.
+
+
+<l13>The filters window
+<b15>
+
+Select the filters for the object types you want to work with.
+
+Objects that can be added to the list have a blue outline.
+
+Objects that have already been added to the list have a red outline.
+
+
+<l13>Adding objects to the list:
+<b15>
+
+<l06>To add a single object:
+
+Right-click on the object list and choose <l09>'Hide Selection'
+
+Click on any blue outlined object to add it too the list.
+
+
+<l06>To add multiple objects:
+
+Right-click on the object list and choose <l09>'Show Selection'
+
+Use the mouse to draw a box around the objects you want to add.
+
+Right-click and choose: <l09>'Add Filtered Selection To List'
+This will add any object in the selection that has its filters on.
+
+or:
+
+Right-click and choose: <l09>'Add Selection To List And Set Filters'
+This will add all objects in the selection and turn on their filters.
+
+or:
+
+Hold SHIFT while drawing a box with the mouse
+This will add all objects in the selection and turn on their filters.
+
+
+<l13>To remove objects from the list:
+<b15>
+
+SHIFT-click an object in the list to remove it.
+
+Turn off the filter for an object type to remove all of that type.
+
+To remove all objects, right-click and choose <l09>'Clear Object List'.
+
+
+<l13>Using the 'Group Edit Object List'
+<b15>
+
+Once added to the list, the object will be outlined in red on the map.
+
+Mouse over an object in the list and it will flash on the map.
+
+Click and drag a list item up or down to reorder the list.
+
+
+<l13>Using the 'Group Edit Controls' window
+<b15>
+
+Depending on the objects in the list, different controls will be listed.
+
+Only controls that apply to all objects in the list are shown.
+
+Each control starts with the name of the control or parameter,
+Then the current min, max, and average of all objects in the list.
+Then 2 sliders for min and max.
+Then an action button:
+
+The action buttons toggle through these settings:
+
+<l04>Randomize
+Sets all to a random value from Min to Max.
+
+<l04>Step from Min to Max
+Starts at Min for the first object in the list and increments to Max
+for the last object in the list.
+
+<l04>Set all to Min
+Sets all to Min.
+
+<l04>Set all from 1st obj
+Sets all to the value of the first object in the list.
+
+
+Once you have chosen the action and the Min and Max values,
+Press the <l10>'Do It! <l15> button to apply the action.
+
+
+<l13>Special Controls
+<b15>
+
+<l06>Initial Position
+This is common to most enemies and items.
+You can click<l10> 'Randomize Position Within Selection'
+and all objects will move to a random location while still staying
+within the selection rectangle.
+
+<l06>Initial Direction
+Bouncers and Cannons only.
+Can choose a random direction or make them aim at the 'Start' block.
+
+
+
+<section>Tile Helper
+
 
 
 <section>Viewer Basics, Common Buttons, and Viewer Map
@@ -2294,7 +2421,7 @@ The Block Damage Field can be hidden or shown in various ways.
 <l04>    Buttons:
 
 <l09> [Stationary:Fall:Carry]
-7
+
 <l15>  - Does the item fall, or is it stationary, or carryable?
 
 
@@ -2734,13 +2861,13 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>    Description:
 
-<l15> Flies in the X axis and bounces when it hits something solid.
+<l15> Flaps vertically and flies horizontally. Bounces when it hits something solid.
 
 <l15> If a player is in the trigger box and in front of the flapper:
 <l15>  - the flapper will attempt to seek in the y direction at Y Speed
 <l15>  - the flapper will fire a bullet at the player
 
-<l15> The flapper attempt to keeps its Y distance from the player
+<l15> The flapper attempts to keep its Y distance from the player
 <l15> at the value set by "Height Above Player"
 
 <b15>
