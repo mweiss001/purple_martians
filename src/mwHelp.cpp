@@ -16,24 +16,27 @@
 
 mwHelp mHelp;
 
-int mwHelp::load_help(void)
+void mwHelp::load_help(void)
 {
    char msg[1024];
+   char buff[200];
+   num_lines = 0;
+
+   // --------------------------------------------------------
+   // open file and read all lines into: help_string[line]
+   // --------------------------------------------------------
    char filename[100] = "help/pmhelp.txt";
    FILE *filepntr;
-   char buff[200];
-   int line=0;
-   int ch=0;
-
    if ((al_filename_exists(filename)) == 0)
    {
       sprintf(msg, "Failed to load help file from %s\n", filename);
       mInput.m_err(msg);
-      return 0;
+      return;
    }
    else
    {
       filepntr=fopen(filename,"r");
+      int ch=0;
       while(ch != EOF)
       {
          int loop = 0;
@@ -48,88 +51,69 @@ int mwHelp::load_help(void)
             ch = fgetc(filepntr);
          }
          buff[loop] = 0;
-         strcpy (help_string[line], buff);
-         line++;
+         strcpy(help_string[num_lines], buff);
+         num_lines++;
       }
       fclose(filepntr);
    }
-   // printf("%d\n",line);
-   return line;
+
+   // --------------------------------------------------------
+   // fill section_name[60][80], section_first_lines[60] and num_sections
+   // --------------------------------------------------------
+   num_sections = 0;
+   for (int l=0; l<num_lines; l++)
+      if (strncmp(help_string[l], "<section>", 9) == 0)
+      {
+         mMiscFnx.chop_first_x_char(help_string[l], 9);        // chop first 9 char to get only section name
+         strcpy(section_names[num_sections], help_string[l]);  // add name to section_name[][]
+         section_first_lines[num_sections] = l;                // add line number to section_first_lines[60]
+         sprintf(help_string[l], "<section>%02d - %s",  num_sections, section_names[num_sections]); // put section name back, but now with section number
+         num_sections++;
+      }
+
+   // ----------------------------------------------------------
+   // add table of contents with section headings to help_string
+   // ----------------------------------------------------------
+   int toc_size = num_sections * 2;  // size of toc to insert
+   num_lines += toc_size;
+
+   int sl = 41;                      // line position to insert toc at
+
+   // slide all down
+   for(int x=num_lines; x > (sl-1+toc_size); x--)
+      strcpy(help_string[x], help_string[x-toc_size]);
+
+   for (int c=0; c<num_sections; c++)
+   {
+      if (c > 1) section_first_lines[c] += toc_size;  // offset section first line numbers for section after toc
+      sprintf(help_string[sl+c*2], "<l15>              %02d ---- %s",  c, section_names[c]);
+      strcpy(help_string[sl+c*2+1], ""); // blank line in between
+   }
+
+
 }
 
 void mwHelp::help(const char *topic)
 {
-   //if (mDisplay.SCREEN_H < 480) return;       // wont work with SCREEN_H < 480.. it will work, just won't look good..
    mLoop.help_screens_running = 1;
-   int num_of_lines = load_help();
-   char section_names[60][80];
-   int section_first_lines[60];
-   int num_sections;
+
+   load_help();
+
+   int line = 0;
+
    char buff2[200];
    char msg[200];
 
    int redraw = 1;
+
    ALLEGRO_BITMAP * hlift = NULL;
    ALLEGRO_BITMAP * status_window = NULL;
    ALLEGRO_BITMAP * selection_window = NULL;
 
    int fc =    8;   // frame color
    int ftc =   15;  // frame text color
-   //int ftdm = -1;   // frame text draw mode
-
    int sc =   fc;    // section divider color
    int stc =  ftc;   // section divider text color
-   //int stdm = ftdm;  // section text draw mode
-
-   // fill help_string[5000][200], section_name[60][80], section_first_lines[60] and set last_pos
-   num_sections = 0;
-   int line = 0;
-   int last_pos;
-   while (line < num_of_lines)
-   {
-      if (strncmp(help_string[line], "<section>", 9) != 0)
-         line++;
-      else
-      {
-         strcpy(msg, help_string[line]);
-         for(int x=9; x < (signed int)strlen(msg)+1; x++)
-            buff2[x-9] = msg[x]; // chop first 9
-         strcpy(section_names[num_sections], buff2);
-         section_first_lines[num_sections] = line;
-
-         if (num_sections < 10)
-            sprintf(help_string[line], "<section>0%-1d - %s",  num_sections, section_names[num_sections]);
-         else
-            sprintf(help_string[line], "<section>%-2d - %s",  num_sections, section_names[num_sections]);
-
-         line++;
-         num_sections++;
-      }
-      last_pos = section_first_lines[num_sections-1];
-   }
-   line=0;
-
-
-   // add section headings to help_string
-   int sl = 41;                      // line position to insert toc at
-   int toc_size = num_sections * 2;  // size of toc to insert
-
-   // slide all down
-   for(int x=num_of_lines + toc_size; x > (sl-1+toc_size); x--)
-      strcpy(help_string[x], help_string[x-toc_size]);
-
-   for (int c=0; c<num_sections; c++)
-   {
-      if (c > 1) section_first_lines[c] += toc_size;  // slide section first line numbers
-      if (c < 10) sprintf(msg, "<l15>              0%-1d ---- %s", c, section_names[c] );
-      else        sprintf(msg, "<l15>              %-2d ---- %s",  c, section_names[c] );
-      strcpy(help_string[sl+c*2], msg);
-      strcpy(help_string[sl+c*2+1], ""); // blank line in between
-   }
-
-   // increase because of inserted section name list (toc)
-   last_pos     += toc_size;
-   num_of_lines += toc_size;
 
    // set section from parameter 'topic'
    if (strlen(topic) > 1)
@@ -140,6 +124,9 @@ void mwHelp::help(const char *topic)
 
    int got_num =0;
    int quit = 0;
+   int last_pos;
+
+
    while (!quit)
    {
       if (redraw)
@@ -162,7 +149,7 @@ void mwHelp::help(const char *topic)
       int dx = mDisplay.SCREEN_W/2 - 320;
       int lpp = (mDisplay.SCREEN_H - 40) / line_height;   // lines per page
 
-      last_pos = num_of_lines - lpp - 2;
+      last_pos = num_lines - lpp - 2;
 
       for (int x=0; x<16; x++)
          al_draw_rectangle(dx+x, x, dx+639-x, mDisplay.SCREEN_H-1-x, mColor.pc[fc+(x*16)], 1);
@@ -439,13 +426,17 @@ void mwHelp::help(const char *topic)
       if (mInput.key[ALLEGRO_KEY_DOWN][0]) line ++;
       if (mInput.key[ALLEGRO_KEY_HOME][0]) line = 0;
       if (mInput.key[ALLEGRO_KEY_END][0])  line = last_pos;
+
+      if (mInput.key[ALLEGRO_KEY_S][0]) load_help();
+
+
       if (mInput.key[ALLEGRO_KEY_PGUP][3])
       {
          while ((strncmp(help_string[--line], "<section>", 9) != 0) && (line > 0));
       }
       if (mInput.key[ALLEGRO_KEY_PGDN][3])
       {
-         while ((strncmp(help_string[++line], "<section>", 9) != 0) && (line < num_of_lines - lpp));
+         while ((strncmp(help_string[++line], "<section>", 9) != 0) && (line < num_lines - lpp));
       }
 
       // limits
@@ -467,6 +458,10 @@ void mwHelp::help(const char *topic)
           }
           else got_num = 0; // keypressed but not num
       }
+
+
+      if (mLoop.frame_num % 40 == 0)  load_help();
+
 
       al_flip_display();
       mLoop.frame_num++;

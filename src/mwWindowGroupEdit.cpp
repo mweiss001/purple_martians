@@ -16,7 +16,7 @@
 
 
 
-// predefined things that can be group editted
+// structure for predefined control things that can be group edited
 struct ge_datum
 {
    char name[40];
@@ -33,15 +33,17 @@ struct ge_datum
 };
 struct ge_datum ge_data[40];
 
+// mapping table of controls to objects and types
+int cot[40][4][20] = {0}; // control, object_type, type,  mapping table
+
 void mwWindow::ge_init_data(void)
 {
-   int i;
-   for (i=0; i<40; i++)
+   for (int i=0; i<40; i++)
    {
       ge_data[i].vartyp = 0;
       ge_data[i].varnum = 0;
       ge_data[i].valid = 0;
-      ge_data[i].collapsed = 0;
+      ge_data[i].collapsed = 1;
       ge_data[i].adj_mode = 0;
       ge_data[i].adj_min = 0;
       ge_data[i].adj_max = 0;
@@ -50,214 +52,8 @@ void mwWindow::ge_init_data(void)
       sprintf(ge_data[i].name, " ");
       sprintf(ge_data[i].snam, " ");
    }
+   int i = 0;
 
-   i = 0;
-   sprintf(ge_data[i].name, "X speed (arch)");
-   sprintf(ge_data[i].snam, "xspd");
-   ge_data[i].vartyp = 4;
-   ge_data[i].varnum = 6;
-   ge_data[i].adj_min = 3;
-   ge_data[i].adj_max = 5;
-   ge_data[i].min_allowed = .5;
-   ge_data[i].max_allowed = 30;
-   i = 1;
-   sprintf(ge_data[i].name, "X speed (trak)");
-   sprintf(ge_data[i].snam, "xspd");
-   ge_data[i].vartyp = 4;
-   ge_data[i].varnum = 2;
-   ge_data[i].adj_min = 3;
-   ge_data[i].adj_max = 5;
-   ge_data[i].min_allowed = .5;
-   ge_data[i].max_allowed = 30;
-   i = 2;
-   sprintf(ge_data[i].name, "X Speed");
-   sprintf(ge_data[i].snam, "xspd");
-   ge_data[i].vartyp = 4;
-   ge_data[i].varnum = 5;
-   ge_data[i].adj_min = 2;
-   ge_data[i].adj_max = 4;
-   ge_data[i].min_allowed = 1;
-   ge_data[i].max_allowed = 20;
-   i = 3;
-   sprintf(ge_data[i].name, "X Acceleration");
-   sprintf(ge_data[i].snam, "xacl");
-   ge_data[i].vartyp = 4;
-   ge_data[i].varnum = 6;
-   ge_data[i].adj_min = .1;
-   ge_data[i].adj_max = 3;
-   ge_data[i].min_allowed = .01;
-   ge_data[i].max_allowed = 5;
-   i = 4;
-   sprintf(ge_data[i].name, "Initial Direction");
-   sprintf(ge_data[i].snam, "idir");
-   ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 2;
-   ge_data[i].adj_min = 0;
-   ge_data[i].adj_max = 2;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 2;
-   i = 5;
-   sprintf(ge_data[i].name, "Y speed");
-   sprintf(ge_data[i].snam, "yspd");
-   ge_data[i].vartyp = 4;
-   ge_data[i].varnum = 3;
-   ge_data[i].adj_min = 3;
-   ge_data[i].adj_max = 5;
-   ge_data[i].min_allowed = .5;
-   ge_data[i].max_allowed = 30;
-   i = 6;
-   sprintf(ge_data[i].name, "Initial Direction");
-   sprintf(ge_data[i].snam, "idir");
-   ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 5;
-   ge_data[i].adj_min = 0;
-   ge_data[i].adj_max = 8;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 8;
-
-   i = 8;
-   sprintf(ge_data[i].name, "Jump Before Hole");
-   sprintf(ge_data[i].snam, "jb4h");
-   ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 11;
-   ge_data[i].adj_min = 0;
-   ge_data[i].adj_max = 10;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 180;
-   i = 9;
-   sprintf(ge_data[i].name, "Jump Before Wall");
-   sprintf(ge_data[i].snam, "jb4w");
-   ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 12;
-   ge_data[i].adj_min = 30;
-   ge_data[i].adj_max = 60;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 120;
-
-   i = 11;
-   sprintf(ge_data[i].name, "Drop Mode");
-   sprintf(ge_data[i].snam, "drpm");
-   ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 7;
-   ge_data[i].adj_min = 0;
-   ge_data[i].adj_max = 2;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 2;
-   i = 12;
-   sprintf(ge_data[i].name, "Height Above Player");
-   sprintf(ge_data[i].snam, "hapl");
-   ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 10;
-   ge_data[i].adj_min = 0;
-   ge_data[i].adj_max = 80;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 200;
-   i = 13;
-   sprintf(ge_data[i].name, "Flap Height");
-   sprintf(ge_data[i].snam, "flph");
-   ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 21;
-   ge_data[i].adj_min = 10;
-   ge_data[i].adj_max = 40;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 200;
-   i = 14;
-   sprintf(ge_data[i].name, "Flap Speed");
-   sprintf(ge_data[i].snam, "flps");
-   ge_data[i].vartyp = 4;
-   ge_data[i].varnum = 10;
-   ge_data[i].adj_min = 1.5;
-   ge_data[i].adj_max = 4;
-   ge_data[i].min_allowed = .5;
-   ge_data[i].max_allowed = 20;
-
-   i = 19;
-   sprintf(ge_data[i].name, "Extend Speed");
-   sprintf(ge_data[i].snam, "exts");
-   ge_data[i].vartyp = 4;
-   ge_data[i].varnum = 9;
-   ge_data[i].adj_min = 3;
-   ge_data[i].adj_max = 8;
-   ge_data[i].min_allowed = .1;
-   ge_data[i].max_allowed = 30;
-   i = 20;
-   sprintf(ge_data[i].name, "Pause Time");
-   sprintf(ge_data[i].snam, "pstm");
-   ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 9;
-   ge_data[i].adj_min = 5;
-   ge_data[i].adj_max = 20;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 200;
-   i = 21;
-   sprintf(ge_data[i].name, "Seek Count");
-   sprintf(ge_data[i].snam, "skct");
-   ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 8;
-   ge_data[i].adj_min = 2;
-   ge_data[i].adj_max = 5;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 100;
-   i = 22;
-   sprintf(ge_data[i].name, "Seek Speed");
-   sprintf(ge_data[i].snam, "sksp");
-   ge_data[i].vartyp = 4;
-   ge_data[i].varnum = 5;
-   ge_data[i].adj_min = 2;
-   ge_data[i].adj_max = 5;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 40;
-   i = 23;
-   sprintf(ge_data[i].name, "Extra Hits To Kill");
-   sprintf(ge_data[i].snam, "xhtk");
-   ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 9;
-   ge_data[i].adj_min = 0;
-   ge_data[i].adj_max = 3;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 20;
-   i = 24;
-   sprintf(ge_data[i].name, "Shot Speed");
-   sprintf(ge_data[i].snam, "shsp");
-   ge_data[i].vartyp = 4;
-   ge_data[i].varnum = 7;
-   ge_data[i].adj_min = 2;
-   ge_data[i].adj_max = 5;
-   ge_data[i].min_allowed = .1;
-   ge_data[i].max_allowed = 80;
-   i = 25;
-   sprintf(ge_data[i].name, "Shot Retrigger");
-   sprintf(ge_data[i].snam, "shrt");
-   ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 15;
-   ge_data[i].adj_min = 80;
-   ge_data[i].adj_max = 200;
-   ge_data[i].min_allowed = 2;
-   ge_data[i].max_allowed = 1000;
-   i = 26;
-   sprintf(ge_data[i].name, "Shot Proximity");
-   sprintf(ge_data[i].snam, "shpr");
-   ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 17;
-   ge_data[i].adj_min = 80;
-   ge_data[i].adj_max = 200;
-   ge_data[i].min_allowed = 2;
-   ge_data[i].max_allowed = 2000;
-
-
-   i = 30;
-   sprintf(ge_data[i].name, "Initial Direction");
-   sprintf(ge_data[i].snam, "idir");
-   ge_data[i].vartyp = 5;
-   ge_data[i].varnum = 0;
-   ge_data[i].adj_min = 0;
-   ge_data[i].adj_max = 0;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 0;
-
-
-
-   i = 31;
    sprintf(ge_data[i].name, "Initial Position");
    sprintf(ge_data[i].snam, "ipos");
    ge_data[i].vartyp = 6;
@@ -267,8 +63,379 @@ void mwWindow::ge_init_data(void)
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 0;
 
-   i = 33;
-   sprintf(ge_data[i].name, "Item sec x1");
+   cot[i][3][3]  = 1; // archwagon
+   cot[i][3][4]  = 1; // bouncer
+   cot[i][3][5]  = 1; // jumpworm
+   cot[i][3][6]  = 1; // cannon
+   cot[i][3][7]  = 1; // podzilla
+   cot[i][3][8]  = 1; // trakbot
+   cot[i][3][9]  = 1; // cloner
+   cot[i][3][11] = 1; // block walker
+   cot[i][3][12] = 1; // flapper
+   cot[i][3][13] = 1; // vinepod
+
+
+   cot[i][2][1]  = 1; // door
+   cot[i][2][2]  = 1; // bonus
+   cot[i][2][3]  = 1; // exit
+   cot[i][2][4]  = 1; // key
+   cot[i][2][5]  = 1; // start
+   cot[i][2][6]  = 1; // orb
+   cot[i][2][7]  = 1; // mine
+   cot[i][2][8]  = 1; // bomb
+   cot[i][2][9]  = 1; // trigger
+   cot[i][2][10] = 1; // message
+   cot[i][2][11] = 1; // rocket
+   cot[i][2][12] = 1; // warp
+   cot[i][2][13] = 1; // timer
+   cot[i][2][14] = 1; // switch
+   cot[i][2][15] = 1; // sproingy
+   cot[i][2][16] = 1; // block manip
+   cot[i][2][17] = 1; // block damage
+
+
+   i++;
+   sprintf(ge_data[i].name, "Initial Direction");
+   sprintf(ge_data[i].snam, "idir");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 2;
+   ge_data[i].adj_min = 0;
+   ge_data[i].adj_max = 2;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 2;
+   cot[i][3][3]  = 1; // archwagon
+   cot[i][3][5]  = 1; // jumpworm
+   cot[i][3][11] = 1; // block walker
+   cot[i][3][12] = 1; // flapper
+
+   i++;
+   sprintf(ge_data[i].name, "Initial Direction");
+   sprintf(ge_data[i].snam, "idir");
+   ge_data[i].vartyp = 5;
+   ge_data[i].varnum = 0;
+   ge_data[i].adj_min = 0;
+   ge_data[i].adj_max = 0;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 0;
+   cot[i][3][4] = 1; // bouncer
+   cot[i][3][6] = 1; // cannon
+
+   i++;
+   sprintf(ge_data[i].name, "Initial Direction");
+   sprintf(ge_data[i].snam, "idir");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 5;
+   ge_data[i].adj_min = 0;
+   ge_data[i].adj_max = 8;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 8;
+   cot[i][3][8]  = 1; // trakbot
+
+   i++;
+   sprintf(ge_data[i].name, "X speed");
+   sprintf(ge_data[i].snam, "xspd");
+   ge_data[i].vartyp = 4;
+   ge_data[i].varnum = 6;
+   ge_data[i].adj_min = 3;
+   ge_data[i].adj_max = 5;
+   ge_data[i].min_allowed = .5;
+   ge_data[i].max_allowed = 30;
+   cot[i][3][3]  = 1; // archwagon
+   cot[i][3][11] = 1; // block walker
+
+   i++;
+   sprintf(ge_data[i].name, "X speed");
+   sprintf(ge_data[i].snam, "xspd");
+   ge_data[i].vartyp = 4;
+   ge_data[i].varnum = 2;
+   ge_data[i].adj_min = 3;
+   ge_data[i].adj_max = 5;
+   ge_data[i].min_allowed = .5;
+   ge_data[i].max_allowed = 30;
+   cot[i][3][8]  = 1; // trakbot
+
+   i++;
+   sprintf(ge_data[i].name, "X Speed");
+   sprintf(ge_data[i].snam, "xspd");
+   ge_data[i].vartyp = 4;
+   ge_data[i].varnum = 5;
+   ge_data[i].adj_min = 2;
+   ge_data[i].adj_max = 4;
+   ge_data[i].min_allowed = 1;
+   ge_data[i].max_allowed = 20;
+   cot[i][3][12] = 1; // flapper
+
+   i++;
+   sprintf(ge_data[i].name, "X Acceleration");
+   sprintf(ge_data[i].snam, "xacl");
+   ge_data[i].vartyp = 4;
+   ge_data[i].varnum = 6;
+   ge_data[i].adj_min = .1;
+   ge_data[i].adj_max = 3;
+   ge_data[i].min_allowed = .01;
+   ge_data[i].max_allowed = 5;
+   cot[i][3][12] = 1; // flspper
+
+   i++;
+   sprintf(ge_data[i].name, "X ground speed (1/x)");
+   sprintf(ge_data[i].snam, "xspd");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 4;
+   ge_data[i].adj_min = 1;
+   ge_data[i].adj_max = 12;
+   ge_data[i].min_allowed = 1;
+   ge_data[i].max_allowed = 12;
+   cot[i][3][5] = 1; // jumpworm
+
+   i++;
+   sprintf(ge_data[i].name, "X jump speed");
+   sprintf(ge_data[i].snam, "xspd");
+   ge_data[i].vartyp = 4;
+   ge_data[i].varnum = 6;
+   ge_data[i].adj_min = 3;
+   ge_data[i].adj_max = 5;
+   ge_data[i].min_allowed = .5;
+   ge_data[i].max_allowed = 30;
+   cot[i][3][5]  = 1; // jumpworm
+
+   i++;
+   sprintf(ge_data[i].name, "Y speed");
+   sprintf(ge_data[i].snam, "yspd");
+   ge_data[i].vartyp = 4;
+   ge_data[i].varnum = 3;
+   ge_data[i].adj_min = 3;
+   ge_data[i].adj_max = 5;
+   ge_data[i].min_allowed = .5;
+   ge_data[i].max_allowed = 30;
+   cot[i][3][3]  = 1; // archwagon
+   cot[i][3][5]  = 1; // jumpworm
+   cot[i][3][8]  = 1; // trakbot
+   cot[i][3][11] = 1; // block walker
+   cot[i][3][12] = 1; // flapper
+
+   i++;
+   sprintf(ge_data[i].name, "Wall Jump Boost");
+   sprintf(ge_data[i].snam, "wljb");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 8;
+   ge_data[i].adj_min = 0;
+   ge_data[i].adj_max = 2;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 2;
+   cot[i][3][5] = 1; // jumpworm
+
+   i++;
+   sprintf(ge_data[i].name, "Drop Mode");
+   sprintf(ge_data[i].snam, "drpm");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 7;
+   ge_data[i].adj_min = 0;
+   ge_data[i].adj_max = 2;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 2;
+   cot[i][3][8]  = 1; // trakbot
+
+   i++;
+   sprintf(ge_data[i].name, "Turn Before Hole");
+   sprintf(ge_data[i].snam, "tb4h");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 10;
+   ge_data[i].adj_min = 0;
+   ge_data[i].adj_max = 10;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 180;
+   cot[i][3][3]  = 1; // archwagon
+   cot[i][3][5]  = 1; // jumpworm
+   cot[i][3][11] = 1; // block walker
+
+   i++;
+   sprintf(ge_data[i].name, "Jump Before Hole");
+   sprintf(ge_data[i].snam, "jb4h");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 11;
+   ge_data[i].adj_min = 0;
+   ge_data[i].adj_max = 10;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 180;
+   cot[i][3][3]  = 1; // archwagon
+   cot[i][3][5]  = 1; // jumpworm
+   cot[i][3][11] = 1; // block walker
+
+   i++;
+   sprintf(ge_data[i].name, "Jump Before Wall");
+   sprintf(ge_data[i].snam, "jb4w");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 12;
+   ge_data[i].adj_min = 30;
+   ge_data[i].adj_max = 60;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 120;
+   cot[i][3][3]  = 1; // archwagon
+   cot[i][3][5]  = 1; // jumpworm
+   cot[i][3][11] = 1; // block walker
+
+   i++;
+   sprintf(ge_data[i].name, "Jump Under Width");
+   sprintf(ge_data[i].snam, "juwd");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 7;
+   ge_data[i].adj_min = 30;
+   ge_data[i].adj_max = 60;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 500;
+   cot[i][3][3]  = 1; // archwagon
+   cot[i][3][5]  = 1; // jumpworm
+   cot[i][3][11] = 1; // block walker
+
+   i++;
+   sprintf(ge_data[i].name, "Jump Wait");
+   sprintf(ge_data[i].snam, "juwt");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 6;
+   ge_data[i].adj_min = 30;
+   ge_data[i].adj_max = 60;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 500;
+   cot[i][3][3]  = 1; // archwagon
+   cot[i][3][5]  = 1; // jumpworm
+   cot[i][3][11] = 1; // block walker
+
+   i++;
+   sprintf(ge_data[i].name, "Flap Height");
+   sprintf(ge_data[i].snam, "flph");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 21;
+   ge_data[i].adj_min = 10;
+   ge_data[i].adj_max = 40;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 200;
+   cot[i][3][12] = 1; // flapper
+
+   i++;
+   sprintf(ge_data[i].name, "Flap Speed");
+   sprintf(ge_data[i].snam, "flps");
+   ge_data[i].vartyp = 4;
+   ge_data[i].varnum = 10;
+   ge_data[i].adj_min = 1.5;
+   ge_data[i].adj_max = 4;
+   ge_data[i].min_allowed = .5;
+   ge_data[i].max_allowed = 20;
+   cot[i][3][12] = 1; // flapper
+
+   i++;
+   sprintf(ge_data[i].name, "Height Above Player");
+   sprintf(ge_data[i].snam, "hapl");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 10;
+   ge_data[i].adj_min = 0;
+   ge_data[i].adj_max = 80;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 200;
+   cot[i][3][12] = 1; // flapper
+
+   i++;
+   sprintf(ge_data[i].name, "Extend Speed");
+   sprintf(ge_data[i].snam, "exts");
+   ge_data[i].vartyp = 4;
+   ge_data[i].varnum = 9;
+   ge_data[i].adj_min = 3;
+   ge_data[i].adj_max = 8;
+   ge_data[i].min_allowed = .1;
+   ge_data[i].max_allowed = 30;
+   cot[i][3][7] = 1; // podzilla
+
+   i++;
+   sprintf(ge_data[i].name, "Pause Time");
+   sprintf(ge_data[i].snam, "pstm");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 9;
+   ge_data[i].adj_min = 5;
+   ge_data[i].adj_max = 20;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 200;
+   cot[i][3][7] = 1; // podzilla
+
+   i++;
+   sprintf(ge_data[i].name, "Seek Count");
+   sprintf(ge_data[i].snam, "skct");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 8;
+   ge_data[i].adj_min = 2;
+   ge_data[i].adj_max = 5;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 100;
+   cot[i][3][4] = 1; // bouncer
+   cot[i][3][6] = 1; // cannon
+
+   i++;
+   sprintf(ge_data[i].name, "Seek Speed");
+   sprintf(ge_data[i].snam, "sksp");
+   ge_data[i].vartyp = 4;
+   ge_data[i].varnum = 5;
+   ge_data[i].adj_min = 2;
+   ge_data[i].adj_max = 5;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 40;
+   cot[i][3][4] = 1; // bouncer
+   cot[i][3][6] = 1; // cannon
+
+   i++;
+   sprintf(ge_data[i].name, "Extra Hits To Kill");
+   sprintf(ge_data[i].snam, "xhtk");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 9;
+   ge_data[i].adj_min = 0;
+   ge_data[i].adj_max = 3;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 20;
+   cot[i][3][6] = 1; // cannon
+
+   i++;
+   sprintf(ge_data[i].name, "Shot Speed");
+   sprintf(ge_data[i].snam, "shsp");
+   ge_data[i].vartyp = 4;
+   ge_data[i].varnum = 7;
+   ge_data[i].adj_min = 2;
+   ge_data[i].adj_max = 5;
+   ge_data[i].min_allowed = .1;
+   ge_data[i].max_allowed = 80;
+   cot[i][3][3]  = 1; // archwagon
+   cot[i][3][6]  = 1; // cannon
+   cot[i][3][8]  = 1; // trakbot
+   cot[i][3][12] = 1; // flapper
+   cot[i][3][7]  = 1; // podzilla
+
+   i++;
+   sprintf(ge_data[i].name, "Shot Retrigger");
+   sprintf(ge_data[i].snam, "shrt");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 15;
+   ge_data[i].adj_min = 80;
+   ge_data[i].adj_max = 200;
+   ge_data[i].min_allowed = 2;
+   ge_data[i].max_allowed = 1000;
+   cot[i][3][3]  = 1; // archwagon
+   cot[i][3][6]  = 1; // cannon
+   cot[i][3][8]  = 1; // trakbot
+   cot[i][3][12] = 1; // flapper
+
+   i++;
+   sprintf(ge_data[i].name, "Shot Proximity");
+   sprintf(ge_data[i].snam, "shpr");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 17;
+   ge_data[i].adj_min = 80;
+   ge_data[i].adj_max = 200;
+   ge_data[i].min_allowed = 2;
+   ge_data[i].max_allowed = 2000;
+   cot[i][3][3]  = 1; // archwagon
+   cot[i][3][6]  = 1; // cannon
+   cot[i][3][8]  = 1; // trakbot
+   cot[i][3][12] = 1; // flapper
+
+
+   i++;
+   sprintf(ge_data[i].name, "Item Secondary x1");
    sprintf(ge_data[i].snam, "scx1");
    ge_data[i].vartyp = 2;
    ge_data[i].varnum = 6;
@@ -276,10 +443,14 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 2000;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 2000;
+   cot[i][2][9]  = 1; // trigger
+   cot[i][2][10] = 1; // message
+   cot[i][2][13] = 1; // timer
+   cot[i][2][17] = 1; // block damage
 
 
-   i = 34;
-   sprintf(ge_data[i].name, "Item sec y1");
+   i++;
+   sprintf(ge_data[i].name, "Item Secondary y1");
    sprintf(ge_data[i].snam, "scy1");
    ge_data[i].vartyp = 2;
    ge_data[i].varnum = 7;
@@ -287,9 +458,13 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 2000;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 2000;
+   cot[i][2][9]  = 1; // trigger
+   cot[i][2][10] = 1; // message
+   cot[i][2][13] = 1; // timer
+   cot[i][2][17] = 1; // block damage
 
-   i = 35;
-   sprintf(ge_data[i].name, "Item sec w");
+   i++;
+   sprintf(ge_data[i].name, "Item Secondary w");
    sprintf(ge_data[i].snam, "scwi");
    ge_data[i].vartyp = 2;
    ge_data[i].varnum = 8;
@@ -297,9 +472,13 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 1000;
    ge_data[i].min_allowed = 8;
    ge_data[i].max_allowed = 1000;
+   cot[i][2][9]  = 1; // trigger
+   cot[i][2][10] = 1; // message
+   cot[i][2][13] = 1; // timer
+   cot[i][2][17] = 1; // block damage
 
-   i = 36;
-   sprintf(ge_data[i].name, "Item sec h");
+   i++;
+   sprintf(ge_data[i].name, "Item Secondary h");
    sprintf(ge_data[i].snam, "sche");
    ge_data[i].vartyp = 2;
    ge_data[i].varnum = 9;
@@ -307,10 +486,14 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 1000;
    ge_data[i].min_allowed = 8;
    ge_data[i].max_allowed = 1000;
+   cot[i][2][9]  = 1; // trigger
+   cot[i][2][10] = 1; // message
+   cot[i][2][13] = 1; // timer
+   cot[i][2][17] = 1; // block damage
 
 
-   i = 37;
-   sprintf(ge_data[i].name, "Item sec xc");
+   i++;
+   sprintf(ge_data[i].name, "Item Secondary xc");
    sprintf(ge_data[i].snam, "scxc");
    ge_data[i].vartyp = 8;
    ge_data[i].varnum = 0;
@@ -318,10 +501,14 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 1980;
    ge_data[i].min_allowed = 20;
    ge_data[i].max_allowed = 1980;
+   cot[i][2][9]  = 1; // trigger
+   cot[i][2][10] = 1; // message
+   cot[i][2][13] = 1; // timer
+   cot[i][2][17] = 1; // block damage
 
 
-   i = 38;
-   sprintf(ge_data[i].name, "Item sec y2");
+   i++;
+   sprintf(ge_data[i].name, "Item Secondary y2");
    sprintf(ge_data[i].snam, "scy2");
    ge_data[i].vartyp = 9;
    ge_data[i].varnum = 0;
@@ -329,81 +516,31 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 1980;
    ge_data[i].min_allowed = 20;
    ge_data[i].max_allowed = 1980;
+   cot[i][2][9]  = 1; // trigger
+   cot[i][2][10] = 1; // message
+   cot[i][2][13] = 1; // timer
+   cot[i][2][17] = 1; // block damage
 
-
+   //printf("i:%d\n", i);
 }
 
 // iterate the object list to find out what controls are valid
 void mwWindow::ge_set_valid_controls(void)
 {
-
    // set all controls valid by default
    for (int i=0; i<40; i++) if (ge_data[i].vartyp) ge_data[i].valid = 1;
 
    // remove controls as soon as they don't apply to all objects in list
    for (int i=0; i<NUM_OBJ; i++)
-      if (mwWM.obj_list[i][0])
+      if (mwWM.obj_list[i][0]) // iterate all objects in list
       {
-         int typ = mwWM.obj_list[i][0];
-         int num = mwWM.obj_list[i][1];
-
-         if (typ == 2) // item
-         {
-            for (int a=0; a<31; a++) ge_data[a].valid = 0;          // set all below 31 not valid
-            if (!mItem.item_secondary67_hires(mItem.item[num][0]))  // set invalid if any items do not have secondary hires positions
-            {
-               ge_data[33].valid = 0; // item sec x1
-               ge_data[34].valid = 0; // item sec y1
-               ge_data[35].valid = 0; // item sec w
-               ge_data[36].valid = 0; // item sec h
-               ge_data[37].valid = 0; // item sec xc
-               ge_data[38].valid = 0; // item sec y2
-            }
-            else ge_data[31].valid = 0; // set initial position invaild if any items have hires secondary items
-         }
-
-         if (typ == 3) // enemy
-         {
-
-            for (int a=33; a<40; a++) ge_data[a].valid = 0; // set all from 33 to 40 not valid
-
-            int etyp = mEnemy.Ei[num][0];
-
-            if ((etyp != 3) && (etyp != 11))                 ge_data[0].valid = 0; // x speed (archwagon, block walker)
-            if (etyp != 8)                                   ge_data[1].valid = 0; // x speed (trakbot)
-
-            if ((etyp != 3) && (etyp != 11) && (etyp != 12)) ge_data[4].valid = 0; // initial direction (archwagon, block walker and flapper)
-            if ((etyp != 3) && (etyp != 8) && (etyp != 12))  ge_data[5].valid = 0; // y speed (archwagon, trakbot, flapper)
-            if (etyp != 8)                                   ge_data[6].valid = 0; // initial direction (trakbot)
-
-            if ((etyp != 3)  && (etyp != 11))                ge_data[8].valid = 0; // jump before hole (archwagon)
-            if ((etyp != 3)  && (etyp != 11))                ge_data[9].valid = 0; // jump before wall (archwagon)
-            if (etyp != 8)                                   ge_data[11].valid = 0; // drop mode (trakbot)
-
-
-            if ((etyp != 4) && (etyp != 6))                                               ge_data[21].valid = 0; // seek count (bouncer and cannon)
-            if ((etyp != 4) && (etyp != 6))                                               ge_data[22].valid = 0; // seek speed (bouncer and cannon)
-            if (etyp != 6)                                                                ge_data[23].valid = 0; // extra hits to kill (cannon)
-
-            if ((etyp != 3) && (etyp != 6) && (etyp != 7) && (etyp != 8) && (etyp != 12)) ge_data[24].valid = 0; // shot speed (archwagon, cannon, podzilla, trakbot, flapper)
-            if ((etyp != 3) && (etyp != 6) && (etyp != 8) && (etyp != 12))                ge_data[25].valid = 0; // shot retrigger (archwagon, cannon, trakbot, flapper)
-            if ((etyp != 3) && (etyp != 6) && (etyp != 8) && (etyp != 12))                ge_data[26].valid = 0; // shot proximity (archwagon, cannon, trakbot, flapper)
-
-            if (etyp != 12) // flapper specific
-            {
-               ge_data[2].valid = 0; // x speed
-               ge_data[3].valid = 0; // x accel
-               ge_data[12].valid = 0;
-               ge_data[13].valid = 0;
-               ge_data[14].valid = 0;
-            }
-            if (etyp != 7) // podzilla specific
-            {
-               ge_data[19].valid = 0;
-               ge_data[20].valid = 0;
-            }
-            if ((etyp != 4) && (etyp != 6))  ge_data[30].valid = 0; // initial direction (bouncer and cannon)
-         }
+         int obt = mwWM.obj_list[i][0]; // object type
+         int num = mwWM.obj_list[i][1]; // object num
+         int typ = 0;
+         if (obt == 2) typ = mItem.item[num][0];
+         if (obt == 3) typ = mEnemy.Ei[num][0];
+         for (int i=0; i<40; i++) // iterate control mapping table
+            if (cot[i][obt][typ] == 0) ge_data[i].valid = 0; // remove controls that do not match object
       }
 }
 
@@ -450,7 +587,7 @@ void mwWindow::ge_remove_obj_list_filtered_items(void)
          int type = mwWM.obj_list[i][0];
          int num = mwWM.obj_list[i][1];
          if ((type == 2) && (mwWM.obj_filter[type][mItem.item[num][0]] == 0)) ge_remove_obj_list_item(i);
-         if ((type == 3) && (mwWM.obj_filter[type][  mEnemy.Ei[num][0]] == 0)) ge_remove_obj_list_item(i);
+         if ((type == 3) && (mwWM.obj_filter[type][ mEnemy.Ei[num][0]] == 0)) ge_remove_obj_list_item(i);
       }
 }
 
@@ -469,7 +606,7 @@ void mwWindow::ge_swap_obj_list_items(int i1, int i2)
    mwWM.obj_list[i2][2] = t2;
 }
 
-void mwWindow::ge_enemy_initial_position_random(int e, int csw)
+void mwWindow::ge_object_initial_position_random(int typ, int num)
 {
    int x, y, empt = 0, lb = 0;
    while ((!empt) && (lb < 10000))
@@ -477,49 +614,25 @@ void mwWindow::ge_enemy_initial_position_random(int e, int csw)
       lb++;
       x = rand() % 100;
       y = rand() % 100;
-
       empt = 1;
-      if (csw) // confine to selection window
-      {
-         if ((x < mwWM.bx1) || (x >= mwWM.bx2+1)) empt = 0;
-         if ((y < mwWM.by1) || (y >= mwWM.by2+1)) empt = 0;
-      }
+      if ((x < mwWM.bx1) || (x >= mwWM.bx2+1)) empt = 0;
+      if ((y < mwWM.by1) || (y >= mwWM.by2+1)) empt = 0;
       if (!mLevel.is_block_empty(x, y, 1, 1, 1)) empt = 0;
    }
    if (empt)
    {
-      mEnemy.Ef[e][0] = x*20;
-      mEnemy.Ef[e][1] = y*20;
-   }
-   else printf("could not find empty block space for enemy\n");
-}
-
-void mwWindow::ge_item_initial_position_random(int i, int csw)
-{
-   int x, y, empt = 0, lb = 0;
-   while ((!empt) && (lb < 10000))
-   {
-      lb++;
-      x = rand() % 100;
-      y = rand() % 100;
-
-      empt = 1;
-      if (1) // confine to selection window
+      if (typ == 2)
       {
-         if ((x < mwWM.bx1) || (x >= mwWM.bx2+1)) empt = 0;
-         if ((y < mwWM.by1) || (y >= mwWM.by2+1)) empt = 0;
+         mItem.itemf[num][0] = mItem.item[num][4] = x*20;
+         mItem.itemf[num][1] = mItem.item[num][5] = y*20;
       }
-
-      if (!mLevel.is_block_empty(x, y, 1, 1, 1)) empt = 0;
+      if (typ == 3)
+      {
+         mEnemy.Ef[num][0] = x*20;
+         mEnemy.Ef[num][1] = y*20;
+      }
    }
-   if (empt)
-   {
-      mItem.item[i][4] = x*20;
-      mItem.item[i][5] = y*20;
-      mItem.itemf[i][0] = mItem.item[i][4];
-      mItem.itemf[i][1] = mItem.item[i][5];
-   }
-   else printf("could not find empty block space for item\n");
+   else printf("could not find empty space for object\n");
 }
 
 int mwWindow::ge_draw_list_items(int x1, int y1, int ni)
@@ -587,7 +700,6 @@ int mwWindow::ge_draw_list_items(int x1, int y1, int ni)
 
 void mwWindow::ge_show_obj_list(int x, int y, int *ew, int *eh, int d)
 {
-
    // find number of items in list
    int ni = 0;
    for (int i=0; i<NUM_OBJ; i++)
@@ -597,22 +709,23 @@ void mwWindow::ge_show_obj_list(int x, int y, int *ew, int *eh, int d)
    int y1 = y + fs;
 
    int x1 = x+fs;
-   int x2 = x1+100; // minimum size, will be expanded if needed
 
    int yf1 = y;
    int yf2 = y + (ni+1)*8 + fs*2;
-
-   x2 = ge_draw_list_items(x1, y1, ni);
+   int x2 = ge_draw_list_items(x1, y1, ni);
+   if (x2 < x1+180) x2=x1+180; // minimum size
 
    *ew = (x2+fs) - x ; // actual width
    *eh = yf2 - y;      // actual height
+
+
 
    // draw frame around list
    int ci = 16; //color inc
    for (int q=0; q<fs; q++)
       al_draw_rectangle(x1-fs+q, yf1+q, x2+fs-q, yf2-q, mColor.pc[12+32+(q*ci)], 1);
-   al_draw_textf(mFont.pr8, mColor.pc[15], (x1+x2)/2, yf1+2, ALLEGRO_ALIGN_CENTER, "%d Objects", ni);
-
+   al_draw_text(mFont.pr8, mColor.pc[15], (x1+x2)/2, yf1+2, ALLEGRO_ALIGN_CENTER, "Group Edit Object List");
+//   al_draw_textf(mFont.pr8, mColor.pc[15], x2-24, yf1+2,                    0, "%2d", ni);
    if ((!d) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > yf1) && (mInput.mouse_y < yf2)) // detect if mouse is on list
    {
       for (int o=0; o<NUM_OBJ; o++) mwWM.obj_list[o][2] = 0; // clear all highlights
@@ -649,6 +762,41 @@ void mwWindow::ge_show_obj_list(int x, int y, int *ew, int *eh, int d)
    } // mouse on obj list
 }
 
+
+
+
+
+
+
+
+
+void mwWindow::ge_set_var(int gvt, int gvn, int num, float val)
+{
+   if (gvt == 2) mItem.item[num][gvn] = val;
+   if (gvt == 3) mEnemy.Ei[num][gvn]  = val;
+   if (gvt == 4)
+   {
+      mEnemy.Ef[num][gvn] = val;
+      if (gvn == 9) mEnemy.recalc_pod(num);
+      if ((gvn == 5) && ((mEnemy.Ei[num][0] == 4) || (mEnemy.Ei[num][0] == 6))) mEnemy.scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
+   }
+   if (gvt == 8) mItem.item[num][6] = val - mItem.item[num][8]/2; // given xc, set x1 (w is different for every obj) // x1 = center - 1/2 width
+   if (gvt == 9) mItem.item[num][7] = val - mItem.item[num][9];   // given y2, set y1 (h is different for every obj) // y1 = y2 - height
+}
+
+float mwWindow::ge_get_var(int gvt, int gvn, int num)
+{
+   float val = 0;
+   if (gvt == 2) val = mItem.item[num][gvn];
+   if (gvt == 3) val = mEnemy.Ei[num][gvn];
+   if (gvt == 4) val = mEnemy.Ef[num][gvn] = val;
+   if (gvt == 8) val = mItem.item[num][6] + mItem.item[num][8]/2; // xc = x + w/2
+   if (gvt == 9) val = mItem.item[num][7] + mItem.item[num][9];   // y2 = y1 + h
+   return val;
+}
+
+
+
 int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d)
 {
    char msg[1024];
@@ -681,8 +829,20 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
             int x3 = x2 - 60;
             int x4 = x1 + 160;
 
-            sprintf(msg, "Group Edit - %s", ge_data[ge_num].name);
-            mWidget.toggle(x1, by, x2, bts, 0,0,0,0, 0,0,0,0, 1,1,1,d, ge_data[ge_num].collapsed, msg, msg,  15, 15, 12, 15+64);
+            int fy1 = by; // for frame drawing at end
+
+            //sprintf(msg, "Group Edit - %s", ge_data[ge_num].name);
+            sprintf(msg, "%s", ge_data[ge_num].name);
+
+            int sl = (strlen(msg)+2)*4;
+
+            int tx1 = x4 - sl + 3;
+            int tx2 = x4 + sl - 1;
+
+
+//            mWidget.toggle(x1+3+40, by, x2-1-40, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, ge_data[ge_num].collapsed, msg, msg,  15, 15, 12, 15+64);
+
+            mWidget.toggle(tx1, by, tx2, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, ge_data[ge_num].collapsed, msg, msg,  15, 15, 12, 15+64);
 
             if (!ge_data[ge_num].collapsed)
             {
@@ -696,35 +856,27 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
                   for (int i=0; i<NUM_OBJ; i++)
                      if (mwWM.obj_list[i][0])
                      {
-                        int num = mwWM.obj_list[i][1];
-
-                        float val = 0;
-                        if (gvt == 2) val = (float) mItem.item[num][gvn];
-                        if (gvt == 3) val = (float) mEnemy.Ei[num][gvn];
-                        if (gvt == 4) val =         mEnemy.Ef[num][gvn];
-
-
-                        if (gvt == 8) val =         mItem.item[num][6] + mItem.item[num][8]/2; // sec x center
-                        if (gvt == 9) val =         mItem.item[num][7] + mItem.item[num][9];   // sec y2
-
-
+                        float val = ge_get_var(gvt, gvn, mwWM.obj_list[i][1]);
                         if (val < mins) mins = val;
                         if (val > maxs) maxs = val;
                         tally += val;
                      }
                   float avg = tally / (float) ni;
 
-                  sprintf(msg, "Current - min:%2.1f max:%2.1f avg:%2.1f", mins, maxs, avg);
-                  mWidget.buttont(x1+8, by, x2, bts, 0,0,0,0,  0,13,15,0,1,0,1,d, msg);
+                  //sprintf(msg, "Current - min:%2.1f max:%2.1f avg:%2.1f", mins, maxs, avg);
+                  sprintf(msg, "min:%2.1f max:%2.1f avg:%2.1f", mins, maxs, avg);
+                  mWidget.buttont(x1+6, by, x2-4, bts, 0,0,0,0,  0,13,15,0,1,0,1,d, msg);
 
                   float mna = ge_data[ge_num].min_allowed;
                   float mxa = ge_data[ge_num].max_allowed;
 
-                  mWidget.sliderf(x1+8, by, x4, bts, 0,0,0,0, 0,3,15,0,1,0,0,d, ge_data[ge_num].adj_min, mxa, mna, .1, "Min:");
-                  mWidget.sliderf(x4,   by, x2, bts, 0,0,0,0, 0,3,15,0,1,0,1,d, ge_data[ge_num].adj_max, mxa, mna, .1, "Max:");
+                  mWidget.sliderf(x1+6,     by, x4-1,   bts,   0,0,0,0,  0,3,15,0,1,0,0,d, ge_data[ge_num].adj_min, mxa, mna, .1, "Min:");
+                  mWidget.sliderf(x4+1,       by, x2-4, bts,   0,0,0,0,  0,3,15,0,1,0,1,d, ge_data[ge_num].adj_max, mxa, mna, .1, "Max:");
 
-                  mWidget.buttonp(    x1+8, by, x3, bts,   100,0,0,0,  0, 4,15,0,1,1,0,d, ge_data[ge_num].adj_mode); // Action type
-                  if (mWidget.buttont(x3,  by, x2, bts,      0,0,0,0,  0,10,15,0,1,0,1,d, "Do It!"))
+                  mWidget.buttonp(    x1+6, by, x3-1, bts, 100,0,0,0,  0, 4,15,0,1,1,0,d, ge_data[ge_num].adj_mode); // Action type
+
+
+                  if (mWidget.buttont(x3+1,   by, x2-4, bts,   0,0,0,0,  0,10,15,0,1,0,1,d, "Do It!"))
                   {
                      float mn = ge_data[ge_num].adj_min;
                      float mx = ge_data[ge_num].adj_max;
@@ -732,16 +884,7 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
                      {
                         for (int i=0; i<NUM_OBJ; i++)
                            if (mwWM.obj_list[i][0])
-                           {
-                              int num = mwWM.obj_list[i][1];
-                              float val = mMiscFnx.mdw_rnd(mn, mx);
-
-                              if (gvt == 2) mItem.item[num][gvn] = (float) val;
-                              if (gvt == 3) mEnemy.Ei[num][gvn]   = (float) val;
-                              if (gvt == 4) mEnemy.Ef[num][gvn]   = (float) val;
-                              if ((gvt == 4) && (gvn == 9)) mEnemy.recalc_pod(num);
-                              if ((gvt == 4) && (gvn == 5) && ((mEnemy.Ei[num][0] == 4) || (mEnemy.Ei[num][0] == 6))) mEnemy.scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
-                           }
+                              ge_set_var(gvt, gvn, mwWM.obj_list[i][1], mMiscFnx.mdw_rnd(mn, mx));
                      }
                      if (ge_data[ge_num].adj_mode == 1) // increment
                      {
@@ -750,61 +893,30 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
                         for (int i=0; i<NUM_OBJ; i++)
                            if (mwWM.obj_list[i][0])
                            {
-                              int num = mwWM.obj_list[i][1];
-                              if (gvt == 2) mItem.item[num][gvn] = (float) val;
-                              if (gvt == 3) mEnemy.Ei[num][gvn]   = (float) val;
-                              if (gvt == 4) mEnemy.Ef[num][gvn]   = (float) val;
-                              if ((gvt == 4) && (gvn == 9)) mEnemy.recalc_pod(num);
-                              if ((gvt == 4) && (gvn == 5) && ((mEnemy.Ei[num][0] == 4) || (mEnemy.Ei[num][0] == 6))) mEnemy.scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
+                              ge_set_var(gvt, gvn, mwWM.obj_list[i][1], val);
                               val += inc;
                            }
                      }
                      if (ge_data[ge_num].adj_mode == 2) // set all to min
                      {
-                        float val = mn;
                         for (int i=0; i<NUM_OBJ; i++)
                            if (mwWM.obj_list[i][0])
-                           {
-                              int num = mwWM.obj_list[i][1];
-                              if (gvt == 2) mItem.item[num][gvn] = (float) val;
-                              if (gvt == 3) mEnemy.Ei[num][gvn]   = (float) val;
-                              if (gvt == 4) mEnemy.Ef[num][gvn]   = (float) val;
-                              if ((gvt == 4) && (gvn == 9)) mEnemy.recalc_pod(num);
-                              if ((gvt == 4) && (gvn == 5) && ((mEnemy.Ei[num][0] == 4) || (mEnemy.Ei[num][0] == 6))) mEnemy.scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
-                              if (gvt == 8) mItem.item[num][6] = val - mItem.item[num][8]/2; // given center, set x1 (w is different for every obj)// x1 = center - 1/2 width
-                              if (gvt == 9) mItem.item[num][7] = val - mItem.item[num][9];   // given y2, set y1 (h is different for every obj)// y1 = y2 - height
-                           }
+                              ge_set_var(gvt, gvn, mwWM.obj_list[i][1], mn);
                      }
-
-                     if (ge_data[ge_num].adj_mode == 3) // set all to 1st obj
+                     if (ge_data[ge_num].adj_mode == 3) // set all to first obj in list
                      {
-                        float val = 0;
-                        if (gvt == 2) val = mItem.item[mwWM.obj_list[0][1]][gvn];
-                        if (gvt == 3) val = mEnemy.Ei[ mwWM.obj_list[0][1]][gvn];
-                        if (gvt == 4) val = mEnemy.Ef[ mwWM.obj_list[0][1]][gvn];
-                        if (gvt == 8) val = mItem.item[mwWM.obj_list[0][1]][6] + mItem.item[mwWM.obj_list[0][1]][8]/2;
-                        if (gvt == 9) val = mItem.item[mwWM.obj_list[0][1]][7] + mItem.item[mwWM.obj_list[0][1]][9];
-
+                        float val = ge_get_var(gvt, gvn, mwWM.obj_list[0][1]);
                         for (int i=0; i<NUM_OBJ; i++)
                            if (mwWM.obj_list[i][0])
-                           {
-                              int num = mwWM.obj_list[i][1];
-                              if (gvt == 2) mItem.item[num][gvn] = (float) val;
-                              if (gvt == 3) mEnemy.Ei[num][gvn]   = (float) val;
-                              if (gvt == 4) mEnemy.Ef[num][gvn]   = (float) val;
-                              if ((gvt == 4) && (gvn == 9)) mEnemy.recalc_pod(num);
-                              if ((gvt == 4) && (gvn == 5) && ((mEnemy.Ei[num][0] == 4) || (mEnemy.Ei[num][0] == 6))) mEnemy.scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
-                              if (gvt == 8) mItem.item[num][6] = val - mItem.item[num][8]/2; // given center, set x1 (w is different for every obj)// x1 = center - 1/2 width
-                              if (gvt == 9) mItem.item[num][7] = val - mItem.item[num][9];   // given y2, set y1 (h is different for every obj)// y1 = y2 - height
-                           }
+                              ge_set_var(gvt, gvn, mwWM.obj_list[i][1], val);
                      }
 
 
                   } // end of Do It!
                } // end of types 2, 3, 4
-               else if (gvt == 5)
+               else if (gvt == 5) // initial direction
                {
-                  if (mWidget.buttont(x1+10, by, x4, bts, 0,0,0,0,  0,10,15,0,1,0,1,d, "Random"))
+                  if (mWidget.buttont(x1+10, by, x4-30, bts, 0,0,0,0,  0,10,15,0,1,0,0,d, "Random"))
                   {
                      for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
                         if (mwWM.obj_list[i][0])
@@ -813,7 +925,7 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
                            mEnemy.set_new_initial_direction(num, rand() % 2000, rand() % 2000); // random
                         }
                   }
-                  if (mWidget.buttont(x4, by, x2, bts, 0,0,0,0,  0,10,15,0,1,0,1,d, "Aim at Start Block"))
+                  if (mWidget.buttont(x4-28, by, x2, bts, 0,0,0,0,  0,10,15,0,1,0,1,d, "Aim at Start Block"))
                   {
                      int sbx = 0, sby = 0; // start block x and y
                      for (int c=0; c<500; c++)
@@ -830,7 +942,7 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
                         }
                   } // end of aim at start block
                } // end of type 5
-               else if (gvt == 6)
+               else if (gvt == 6) // initial position
                {
                   if (mWidget.buttont(x1+10, by, x2, bts, 0,0,0,0,  0,10,15,0,1,0,1,d, "Randomize Position Within Selection"))
                   {
@@ -839,13 +951,25 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
                         {
                            int typ = mwWM.obj_list[i][0];
                            int num = mwWM.obj_list[i][1];
-                           if (typ == 2) ge_item_initial_position_random(num, 1);
-                           if (typ == 3) ge_enemy_initial_position_random(num, 1);
+                           ge_object_initial_position_random(typ, num);
                         }
                   }
                }
             } // end of not collapsed
-            by+=y_spacing;
+
+
+            // frame control section
+            int fx1 = x1+1;
+            int fx2 = x2+1;
+            fy1 -=2;
+            int fy2 = by;
+            int fcol = 13;
+            if ((mInput.mouse_x > fx1) && (mInput.mouse_x < fx2) && (mInput.mouse_y > fy1) && (mInput.mouse_y < fy2)) fcol = 10;
+            al_draw_rectangle(fx1, fy1, fx2, fy2, mColor.pc[fcol], 2);
+
+
+
+            by+=y_spacing+1;
          } // end of valid ge_num
    } // end of more than 0 items in list
 
@@ -901,9 +1025,7 @@ void mwWindow::ge_process_mouse(void)
             int type = mItem.item[i][0];
             if ((type) && (mwWM.obj_filter[2][type])) // filter for this type of item
             {
-               int sox = mItem.item[i][4]/20;
-               int soy = mItem.item[i][5]/20;
-               if ((mwWM.gx == sox) && (mwWM.gy == soy)) ge_add_to_obj_list(2, i);
+               if ((mwWM.gx == mItem.item[i][4]/20) && (mwWM.gy == mItem.item[i][5]/20)) ge_add_to_obj_list(2, i);
             }
          }
          // is mouse on enemy

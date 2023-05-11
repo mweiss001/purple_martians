@@ -20956,6 +20956,64 @@ timer demo level complete
 
 look at when putting items from draw item...done
 
+add a reload help key for editting help..done
+lower ? and X for status window...done
+add help ? to edit selection..done
+add help ? for ge, th and ov..done
+make ge controls always show..done
+
+
+20230510
+
+add jumpworm stuff to ge..done
+
+same as arch
+
+Ei
+2 initial dir
+10 turn before hole
+11 jump before hole
+12 jump before wall
+7  jump under width
+6  jump wait
+done these 6
+
+Ef
+3 y speed same
+6 x speed jump is same as arch x speed
+
+new:
+Ei
+4 x speed ground (1/)
+8 jump wall boost
+
+
+there are some missing controls already
+10 turn before hole
+11 jump before hole
+12 jump before wall
+7  jump under width
+6  jump wait
+added all these
+
+
+Is there an easier way to map what controls apply to what objects?
+3 dimensional array?
+control, obt, type
+bool cot[40][2][20] = {0};
+done
+
+
+what if I gave the ge list a better title
+Group Edit Object List
+
+do I still want to show how many objects are listed?
+what if I have some huge number and it scrolls off the bottom of the screen?
+who cares? why would knowing how many objects there are make any difference?
+I could make if hidden when it has nothing in the list...??
+I tried it and don't like, it, need the right click menu
+
+
 
 
 

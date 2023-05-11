@@ -97,10 +97,15 @@ class mwWindow
    void ge_remove_obj_list_item(int o);
    void ge_remove_obj_list_filtered_items(void);
    void ge_swap_obj_list_items(int i1, int i2);
-   void ge_enemy_initial_position_random(int e, int csw);
-   void ge_item_initial_position_random(int i, int csw);
+
+   void ge_object_initial_position_random(int typ, int num);
+
    int ge_draw_list_items(int x1, int y1, int ni);
    void ge_show_obj_list(int x, int y, int *ew, int *eh, int draw_only);
+
+   void ge_set_var(int gvt, int gvn, int num, float val);
+   float ge_get_var(int gvt, int gvn, int num);
+
    int ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int draw_only);
    void ge_add_selection_to_list(int set_filters);
    void ge_process_mouse(void);

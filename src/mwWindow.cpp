@@ -319,15 +319,20 @@ void mwWindow::draw(int draw_only)
    if (index == 4) // edit selection
    {
       mMiscFnx.titlex("Edit Selection", 15, 13, x1, x2, y1+1);
+
+      int by1 = y1+3;
+      if (mWidget.buttont(x2-12, by1, x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Edit Selection");
+
       int mow = mwWM.is_mouse_on_any_window();
       es_pointer_text(x1+1, x2-1, y1+20, mow);
 
-      int sy2 = es_draw_buttons(x1+1, x2-1, y1+110, d);
+      int sy2 = es_draw_buttons(x1+1, x2-1, y1+80, d);
       set_size(w, sy2-y1-1);
 
       int fc = 13;
       if (have_focus) fc = 10;
       al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1); // frame entire window
+
    }
    if (index == 5) // ge list
    {
@@ -338,13 +343,20 @@ void mwWindow::draw(int draw_only)
    }
    if (index == 6) // ge controls
    {
-      int ew, eh, nc = ge_show_controls(x1, y1+20, &ew, &eh, hidden, d);
+      //int ew, eh, nc = ge_show_controls(x1, y1+20, &ew, &eh, hidden, d);
+      //set_size(ew, eh+20);
+      //if (!nc) hidden = 1;
+      //else hidden = 0;
+
+      hidden = 0; // always show
+      int ew, eh;
+      ge_show_controls(x1, y1+20, &ew, &eh, hidden, d);
       set_size(ew, eh+20);
-      if (!nc) hidden = 1;
-      else hidden = 0;
       if (!hidden)
       {
          mMiscFnx.titlex("Group Edit Controls", 15, 13, x1, x2, y1+1);
+         int by1 = y1+3;
+         if (mWidget.buttont(x2-12, by1, x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Group Edit");
          int fc = 13;
          if (have_focus) fc = 10;
          al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1); // frame entire window
@@ -355,6 +367,8 @@ void mwWindow::draw(int draw_only)
       ov_check_if_valid();
       ov_get_size();
       ov_title(x1, x2, y1, y2, legend_line);
+      int by1 = y1+2;
+      if (mWidget.buttont(x2-12, by1, x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Viewer Basics");
       ov_draw_buttons(x1, y1, x2, y2, d);
    }
    if (index == 8) // top menu
@@ -364,6 +378,8 @@ void mwWindow::draw(int draw_only)
    if (index == 9) // tile helper
    {
       mMiscFnx.titlex("Tile Helper", 15, 13, x1, x2, y1+1);
+      int by1 = y1+3;
+      if (mWidget.buttont(x2-12, by1, x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Tile Helper");
       int fc = 13+64;
       if (have_focus) fc = 13;
       al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1); // frame entire window
@@ -695,7 +711,7 @@ void mwWindow::cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int 
    al_draw_text( mFont.pr8, mColor.pc[9],  x1+222, y1+2, 0, "x:");
    al_draw_text( mFont.pr8, mColor.pc[9],  x1+262, y1+2, 0, "y:");
 
-   int by1 = y1+1;
+   int by1 = y1+2;
    if (mWidget.buttont(x2-10, by1, x2-2,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mwWM.mW[1].active = 0;
    if (mWidget.buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"?")) mHelp.help("Status Window");
 

@@ -1024,41 +1024,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             }
          }
          break;
-//         case 20: // wrap
-//         {
-//
-//            mWidget.toggle(        xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][2], "Draw Rectangle:OFF", "Draw Rectangle:ON ", 15, 15, 15+96, 10);
-//
-//            ya+=4; // spacer
-//
-//            if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Rectangle")) mMiscFnx.get_block_range("Wrap Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
-//            ya+=4; // spacer
-//            int p = 12;
-//
-//
-//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_PLAYER,  "Wrap Players:OFF",        "Wrap Players:ON",        15+dim, 15, p+dim, p);
-//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_ENEMY,   "Wrap Enemies:OFF",        "Wrap Enemies:ON",        15+dim, 15, p+dim, p);
-//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_ITEM,    "Wrap Items:OFF",          "Wrap Items:ON",          15+dim, 15, p+dim, p);
-//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_PSHOT,   "Wrap Player's Shots:OFF", "Wrap Player's Shots:ON", 15+dim, 15, p+dim, p);
-//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_ESHOT,   "Wrap Enemy's Shots:OFF",  "Wrap Enemy's Shots:ON",  15+dim, 15, p+dim, p);
-//
-//            ya+=4; // spacer
-//
-//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_FORCE,  "Force Wrap:OFF",        "Force Wrap:ON",        15+dim, 15, 13+dim, 13);
-//
-//            ya+=4; p = 11; // spacer
-//
-//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_XMN,     "X-Axis Left:OFF ",        "X-Axis Left:ON  ",       15+dim, 15, p+dim, p);
-//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_XPL,     "X-Axis Right:OFF",        "X-Axis Right:ON ",       15+dim, 15, p+dim, p);
-//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_YMN,     "Y-Axis Up:OFF   ",        "Y-Axis Up:ON    ",       15+dim, 15, p+dim, p);
-//            mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_WRAP_YPL,     "Y-Axis Down:OFF ",        "Y-Axis Down:ON  ",       15+dim, 15, p+dim, p);
-//
-//
-//
-//         }
-//         break;
       }
-
    }
    // set height
    if (obt != 4)
@@ -1129,11 +1095,9 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
       if (legend_highlight == 1) color = mColor.flash_color;
       mMiscFnx.crosshairs_full(obj_x, obj_y, color, 1);
 
-      if ((type == 3) || (type == 6) || (type == 8) || (type == 12)) // archwagon, cannon, trakbot, flapper
+      if ((type == 3) || (type == 6) || (type == 8) || (type == 12)) // // draw yellow shot prox circle for archwagon, cannon, trakbot, flapper
       {
-         // draw yellow shot prox circle
-         int color = 14;
-         if (legend_highlight == 2) color = mColor.flash_color;
+         (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
          al_draw_circle(obj_x, obj_y, mEnemy.Ei[num][17], mColor.pc[color], 1);
       }
       if (type == 7) // podzilla
@@ -1181,8 +1145,7 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
       }
       if (type == 12) // flapper
       {
-         int color = 10;
-         if (legend_highlight == 3) color = mColor.flash_color;
+         (legend_highlight == 3) ? color = mColor.flash_color : color = 10;
 
          // draw red height above player line
          int hab = mEnemy.Ei[num][20];
@@ -1206,8 +1169,7 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
       {
          case 1: // door
          {
-            int color = 10;
-            if (legend_highlight == 2) color = mColor.flash_color;
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
             if (mItem.item[num][8] == 0)  // exit only, no destination
             {
                // find src door(s)
@@ -1222,7 +1184,6 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
                      al_draw_line(obj_x, obj_y, x2, y2, mColor.pc[color], 1);
                   }
             }
-
             if (mItem.item[num][8] == 1)  // draw destination
             {
                // dest item
@@ -1235,45 +1196,30 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          }
          break;
          case 4: // key
-         {
-            int color = 10;
-            if (legend_highlight == 2) color = mColor.flash_color;
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
             ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
             mItem.proc_key_block_range(num, 2); // show blocks that will be affected
-         }
          break;
          case 14: // switch
-         {
-            int color = 10;
-            if (legend_highlight == 2) color = mColor.flash_color;
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
             ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
             mItem.proc_switch_block_range(num, 2); // show blocks that will be affected
-         }
          break;
          case 8: // bomb
-         {
-            int color = 14;
-            if (legend_highlight == 2) color = mColor.flash_color;
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
             al_draw_circle(obj_x, obj_y, mItem.item[num][7], mColor.pc[color], 1); // draw yellow bomb damage
-         }
          break;
          case 9: // trigger
-         {
-            int color = 14;
-            if (legend_highlight == 2) color = mColor.flash_color;
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
             ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
-         }
          break;
          case 6: // orb
-         {
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
-         }
          break;
          case 10: // pmsg
          {
-            int color = 10;
-            if (legend_highlight == 2) color = mColor.flash_color;
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
             int mx = mItem.item[num][6];
             int my = mItem.item[num][7];
             int mw = mItem.item[num][8];
@@ -1282,59 +1228,34 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
             al_draw_textf(mFont.pr8, mColor.pc[15], mx+mw/2, my-10,   ALLEGRO_ALIGN_CENTRE, "x:%d y:%d", mx, my);
             al_draw_textf(mFont.pr8, mColor.pc[15], mx+mw/2, my+mh+2, ALLEGRO_ALIGN_CENTRE, "w:%d h:%d", mw, mh);
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
-
          }
          break;
          case 11: // rocket
-         {
-            int color = 14;
-            if (legend_highlight == 2) color = mColor.flash_color;
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
             al_draw_circle(obj_x, obj_y, mItem.item[num][7], mColor.pc[color], 1); // draw yellow bomb damage
-         }
          break;
          case 13: // timer
-         {
-            int color = 11;
-            if (legend_highlight == 2) color = mColor.flash_color;
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 11;
             ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
-         }
          break;
-
          case 15: // sproingy
          {
-            int color = 14;
-            if (legend_highlight == 2) color = mColor.flash_color;
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
             int y = mMiscFnx.get_sproingy_jump_height(num);
             mMiscFnx.crosshairs_full(obj_x, obj_y-y, color, 1);
          }
          break;
          case 16: // block manip
-         {
-            int color = 12;
-            if (legend_highlight == 2) color = mColor.flash_color;
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 12;
             ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
-         }
          break;
          case 17: // block damage
-         {
-            int color = 10;
-            if (legend_highlight == 2) color = mColor.flash_color;
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
             ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
-         }
          break;
-
-         case 20: // wrap
-         {
-            int color = 10;
-            if (legend_highlight == 2) color = mColor.flash_color;
-            ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
-         }
-         break;
-
-
 
       } // end of switch case
    }

@@ -2,39 +2,37 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-timers do not show in ft paste
-also msg
-
-working on making the ft_sel look better
-
-all the info I need is in the ft_
-the secondaries already have the right offset but the drawing routine can only get it from the real item data structs
-
-I hate re invent or duplicate the drawing routines, can I just extend the exiting ones to pass explicit secondary, like I pass explicit x and y for cutom drawing?
-
-
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-change help, configurable function keys
+make all ge controls collapsed by default?
+make + and - buttons to collapse/expand all...??
+make tinted backgrounds for controls...???
+
+
+
+
+add help entries for ge and th
+
+ge is pretty much done
+
+
+
 
 go through every page of help
 player colors
 got to pop up menu
-
 got to edit selection
 
 
 
 
 
-
-
-
 function key defaults
-debug overlay no key to start
+debug overlay no key to start..do at release
+
 
 
 
@@ -138,13 +136,17 @@ VinePod
 
 
 
-
-
 -------------------------------
 -- Random thoughts and ideas --
 -------------------------------
 
 make stimp and stamp time part of advanced config
+
+
+working on making the ft_sel look better
+all the info I need is in the ft_
+the secondaries already have the right offset but the drawing routine can only get it from the real item data structs
+I hate re invent or duplicate the drawing routines, can I just extend the exiting ones to pass explicit secondary, like I pass explicit x and y for cutom drawing?
 
 
 why did I remove skip frame draw?
