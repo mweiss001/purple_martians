@@ -380,6 +380,9 @@ int mwWindowManager::redraw_level_editor_background(void)
 
       if (level_editor_mode == 9) // th
       {
+
+         if (!mouse_on_window) mW[1].em_show_draw_item_cursor();
+
          // show marked blocks
          for (int x=0; x<100; x++)
             for (int y=0; y<100; y++)
@@ -474,9 +477,9 @@ void mwWindowManager::set_windows(int mode)
       mW[9].set_pos(100, 300);
       mW[9].set_size(320, 328);
       mW[9].set_title("Tile Helper");
-      mW[9].th_add_del = 0;
-      mW[9].th_match = 0;
-      mW[9].th_group = 0;
+      mW[9].th_add_del = 1;
+      mW[9].th_match = 1;
+      mW[9].th_group = 1;
       mW[9].th_sel = 0;
    }
 

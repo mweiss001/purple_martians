@@ -395,18 +395,13 @@ void mwWindow::es_save_selection(int save)
          ft_Ef[c][0]-= x1;
          ft_Ef[c][1]-= y1;
 
-         if (ft_Ei[c][0] == 13) // vinepod
+         if (ft_Ei[c][0] == 7) // vinepod
          {
-            for (int i=3; i<12; i+=2)
+            for (int i=3; i<13; i+=2)
             {
                ft_Ei[c][i+0]-= x1;
                ft_Ei[c][i+1]-= y1;
             }
-         }
-         if (ft_Ei[c][0] == 7 ) // podzilla
-         {
-            ft_Ei[c][11]-= x1;
-            ft_Ei[c][12]-= y1;
          }
          if (ft_Ei[c][0] == 9 ) // cloner
          {
@@ -570,9 +565,17 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
       }
    }
    for (b=0; b<100; b++) // iterate enemies in ft
+   {
       if (ft_Ei[b][0] == 9) // cloner
+      {
          clt_last += mTriggerEvent.add_item_link_translation(3, b, 8, ft_Ei[b][8], clt, clt_last);
-
+      }
+      if (ft_Ei[b][0] == 7) // vinepod
+      {
+         clt_last += mTriggerEvent.add_item_link_translation(3, b, 18, ft_Ei[b][18], clt, clt_last);
+         clt_last += mTriggerEvent.add_item_link_translation(3, b, 19, ft_Ei[b][19], clt, clt_last);
+      }
+   }
 
    for (b=0; b<ft_level_header[5]; b++) // iterate lifts in ft
       for (y=0; y<ft_lift[b][3]; y++) // iterate lift steps in ft
@@ -679,19 +682,13 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
                   mEnemy.Ef[c][1] = mMiscFnx.enforce_limit(mEnemy.Ef[c][1], 0, 1980);
                }
 
-               if (mEnemy.Ei[c][0] == 13) // vinepod
+               if (mEnemy.Ei[c][0] == 7) // vinepod
                {
-                  for (int i=3; i<12; i+=2)
+                  for (int i=3; i<13; i+=2)
                   {
                      mEnemy.Ei[c][i+0]+= x3;
                      mEnemy.Ei[c][i+1]+= y3;
                   }
-               }
-
-               if (mEnemy.Ei[c][0] == 7) // podzilla trigger box
-               {
-                  mEnemy.Ei[c][11]+= x3;
-                  mEnemy.Ei[c][12]+= y3;
                }
                if (mEnemy.Ei[c][0] == 9) // cloner
                {
@@ -973,36 +970,24 @@ void mwWindow::es_draw_enemy_ft(int e)
 
    if (type == 9) // cloner
    {
-      // trigger box
-      float tx1 = (float)ft_Ei[e][11];
-      float ty1 = (float)ft_Ei[e][12];
-      float tx2 = (float)(ft_Ei[e][11]+ft_Ei[e][13]+20);
-      float ty2 = (float)(ft_Ei[e][12]+ft_Ei[e][14]+20);
-      int tc1 = 14 + 128; // trigger box color
-
       // source
-      float sx1 = (float)ft_Ei[e][15];
-      float sy1 = (float)ft_Ei[e][16];
-      float sx2 = sx1 + (float)ft_Ei[e][19];
-      float sy2 = sy1 + (float)ft_Ei[e][20];
+      float sx1 = ft_Ei[e][15];
+      float sy1 = ft_Ei[e][16];
+      float sx2 = sx1 + ft_Ei[e][19];
+      float sy2 = sy1 + ft_Ei[e][20];
       int sc1 = 11 + 128; // source box color
 
       // destination
-      float dx1 = (float)ft_Ei[e][17];
-      float dy1 = (float)ft_Ei[e][18];
-      float dx2 = dx1 + (float)ft_Ei[e][19];
-      float dy2 = dy1 + (float)ft_Ei[e][20];
+      float dx1 = ft_Ei[e][17];
+      float dy1 = ft_Ei[e][18];
+      float dx2 = dx1 + ft_Ei[e][19];
+      float dy2 = dy1 + ft_Ei[e][20];
       int dc1 = 10 + 128; // destination box color
 
-      // show box mode (0=none) (1=trig only) (2=src/dst only) (3=all)
-      int q = ft_Ei[e][4];
-      if ((q == 1) || (q == 3))
-         mMiscFnx.rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64, 0); // trigger box
-      if ((q == 2) || (q == 3))
-      {
-         mMiscFnx.rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64, 0); // source
-         mMiscFnx.rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
-      }
+      int q = ft_Ei[e][4]; // show box mode (0=none) (1 = src only) (2 = dst only) (3 = both)
+      if ((q == 1) || (q == 3)) mMiscFnx.rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64, 0); // source
+      if ((q == 2) || (q == 3)) mMiscFnx.rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
+
    }
 }
 

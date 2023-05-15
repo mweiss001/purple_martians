@@ -43,8 +43,8 @@ int mwWindow::create_obj(int obt, int type, int num)
    {
       if (type == 7)
       {
-         int e = mEnemy.create_pod();
-         if ((e>=0) && (e<99) && (mEnemy.Ei[e][0] == 7))
+         int e = mEnemy.create_vinepod();
+         if ((e>=0) && (e<99) && (mEnemy.Ei[e][0] == 13))
          {
             object_viewer(3, e);
             num = e;
@@ -59,16 +59,6 @@ int mwWindow::create_obj(int obt, int type, int num)
             num = e;
          }
       }
-      if (type == 13)
-      {
-         int e = mEnemy.create_vinepod();
-         if ((e>=0) && (e<99) && (mEnemy.Ei[e][0] == 13))
-         {
-            object_viewer(3, e);
-            num = e;
-         }
-      }
-
    }
    if (obt == 4) mLift.create_lift();
    return num;  // return number of created obj or sent_num if bad create
@@ -99,18 +89,15 @@ void mwWindow::ov_get_size(void)
    if ((obt == 2) && (type == 16)) w = 280; // bm
    if ((obt == 2) && (type == 17)) w = 290; // bd
 
-   if ((obt == 2) && (type == 20)) w = 200; // wrap
-
+   if ((obt == 3) && (type == 1 )) w = 220; // bouncer
+   if ((obt == 3) && (type == 2 )) w = 220; // cannon
    if ((obt == 3) && (type == 3 )) w = 220; // archwagon
-   if ((obt == 3) && (type == 4 )) w = 220; // bouncer
+   if ((obt == 3) && (type == 4 )) w = 220; // blokwalk
    if ((obt == 3) && (type == 5 )) w = 220; // jumpworm
-   if ((obt == 3) && (type == 6 )) w = 220; // cannon
-   if ((obt == 3) && (type == 7 )) w = 220; // podzilla
+   if ((obt == 3) && (type == 6 )) w = 220; // flapper
+   if ((obt == 3) && (type == 7 )) w = 220; // vinepod
    if ((obt == 3) && (type == 8 )) w = 220; // trakbot
    if ((obt == 3) && (type == 9 )) w = 240; // cloner
-   if ((obt == 3) && (type == 11)) w = 220; // block walker
-   if ((obt == 3) && (type == 12)) w = 220; // flapper
-   if ((obt == 3) && (type == 13)) w = 220; // vinepod
 
    if (obt == 4)                   w = 300; // lift
 
@@ -218,6 +205,15 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
       al_draw_text(mFont.pr8, mColor.pc[13], xc-69, yt+8, 0, msg);
       switch (type)
       {
+         case 1:
+            mwWM.mW[7].num_legend_lines = 2;
+            sprintf(lmsg[1],"Bouncer Location");
+         break;
+         case 2: // cannon
+            sprintf(lmsg[1],"Cannon Location");
+            sprintf(lmsg[2],"Bullet Proximity");
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
+         break;
          case 3: // archwagon
             sprintf(lmsg[1],"ArchWagon Location");
             sprintf(lmsg[2],"Bullet Proximity");
@@ -225,24 +221,43 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
          break;
          case 4:
             mwWM.mW[7].num_legend_lines = 2;
-            sprintf(lmsg[1],"Bouncer Location");
+            sprintf(lmsg[1],"Block Walker Location");
          break;
          case 5:
             mwWM.mW[7].num_legend_lines = 2;
             sprintf(lmsg[1],"JumpWorm Location");
          break;
-         case 6: // cannon
-            sprintf(lmsg[1],"Cannon Location");
-            sprintf(lmsg[2],"Bullet Proximity");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
-         break;
-         case 7: // podzilla
+         case 6: // flapper
             mwWM.mW[7].num_legend_lines = 4;
-            sprintf(lmsg[1],"Podzilla Location");
-            sprintf(lmsg[2],"Extended Postion");
-            sprintf(lmsg[3],"Trigger Box");
+            sprintf(lmsg[1],"Flapper Location");
+            sprintf(lmsg[2],"Bullet Proximity");
+            sprintf(lmsg[3],"Height Above Player");
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
+            legend_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 10;
+         break;
+         case 7: // vinepod
+         {
+            sprintf(lmsg[1],"Vinepod Location");
+            sprintf(lmsg[2],"Extended Position");
             legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
-            legend_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 14;
+            int legend_count = 3;
+            if (mEnemy.Ei[num][20] & PM_ENEMY_VINEPOD_USE_TRIGGER)
+            {
+               sprintf(lmsg[legend_count],"Trigger Box");
+               legend_highlight == legend_count ? legend_color[legend_count] = mColor.flash_color : legend_color[legend_count] = 14;
+               legend_count++;
+            }
+            if (mEnemy.Ei[num][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
+            {
+               sprintf(lmsg[legend_count],"Control Point 1");
+               legend_highlight == legend_count ? legend_color[legend_count] = mColor.flash_color : legend_color[legend_count] = 6;
+               legend_count++;
+               sprintf(lmsg[legend_count],"Control Point 2");
+               legend_highlight == legend_count ? legend_color[legend_count] = mColor.flash_color : legend_color[legend_count] = 7;
+               legend_count++;
+            }
+            mwWM.mW[7].num_legend_lines = legend_count;
+         }
          break;
          case 8: // trakbot
             sprintf(lmsg[1],"TrakBot Location");
@@ -257,34 +272,6 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 11;
             legend_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 10;
          break;
-         case 11:
-            mwWM.mW[7].num_legend_lines = 2;
-            sprintf(lmsg[1],"Block Walker Location");
-         break;
-         case 12: // flapper
-            mwWM.mW[7].num_legend_lines = 4;
-            sprintf(lmsg[1],"Flapper Location");
-            sprintf(lmsg[2],"Bullet Proximity");
-            sprintf(lmsg[3],"Height Above Player");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
-            legend_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 10;
-         break;
-
-         case 13: // vinepod
-            mwWM.mW[7].num_legend_lines = 6;
-            sprintf(lmsg[1],"Vinepod Location");
-            sprintf(lmsg[2],"Extended Position");
-            sprintf(lmsg[3],"Control Point 1");
-            sprintf(lmsg[4],"Control Point 2");
-            sprintf(lmsg[5],"Trigger Box");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
-            legend_highlight == 3 ? legend_color[3] = mColor.flash_color : legend_color[3] = 6;
-            legend_highlight == 4 ? legend_color[4] = mColor.flash_color : legend_color[4] = 7;
-            legend_highlight == 5 ? legend_color[5] = mColor.flash_color : legend_color[5] = 14;
-         break;
-
-
-
       }
    }
    if (obt == 2)  // items
@@ -395,12 +382,6 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             sprintf(lmsg[2],"Damage Area");
             legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
-         case 20: // wrap
-            sprintf(lmsg[1],"Item Location");
-            sprintf(lmsg[2],"Area");
-            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
-         break;
-
       } // end of switch case
    }  // end of items
 
@@ -554,7 +535,37 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
    {
       switch (type) // enemy subtypes
       {
-         case 3:     // archwag
+         case 1: // bouncer
+            mWidget.sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][5],  12, 0, 0.01, "Speed:");
+            ya+=4; // spacer
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,d, "Set Initial Direction"))  mMiscFnx.getxy("Initial Direction", 96, 4, n);
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][8], 100, 0, 1,   "Seek Count:");
+            ya+=4; // spacer
+            mWidget.button(     xa, ya, xb, bts,  13,n,0,0, 0, 8, 9, 0,  1,0,1,d); // main shape
+            ya+=4; // spacer
+            mWidget.button(     xa, ya, xb, bts,  14,n,0,0, 0, 8, 9, 0,  1,0,1,d); // seek shape
+            ya+=4; // spacer
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,    "Collision Box:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4] , 10, 0, 0.1,  "Health Decrement:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,    "Health Bonus:");
+         break;
+         case 2: // cannon
+            mWidget.sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][5],  12, 0, 0.01, "Speed:");
+            ya+=4; // spacer
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][8], 100, 0, 1,     "Seek Count:");
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,d, "Set Initial Direction"))  mMiscFnx.getxy("Initial Direction", 96, 4, n);
+            ya+=4; // spacer
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,8, 15,15,  1,0,1,d, mEnemy.Ei[n][9], 40, 0, 1,      "Extra Hits To Kill:");
+            ya+=4; // spacer
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
+            ya+=4; // spacer
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+         break;
+         case 3: // archwag
             mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  9,  0.7, 0.01, "X-Speed:");
             mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  16, 0.7, 0.01, "Y-Speed:");
             ya+=4; // spacer
@@ -575,21 +586,24 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
             mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
-         case 4: // bouncer
-            mWidget.sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][5],  12, 0, 0.01, "Speed:");
+         case 4: // block walker
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  9, 0.7, 0.01, "X-Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  9, 0.7, 0.01, "Y-Speed:");
             ya+=4; // spacer
-            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,d, "Set Initial Direction"))  mMiscFnx.getxy("Initial Direction", 96, 4, n);
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][8], 100, 0, 1,   "Seek Count:");
+            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
+            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
             ya+=4; // spacer
-            mWidget.button(     xa, ya, xb, bts,  13,n,0,0, 0, 8, 9, 0,  1,0,1,d); // main shape
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
             ya+=4; // spacer
-            mWidget.button(     xa, ya, xb, bts,  14,n,0,0, 0, 8, 9, 0,  1,0,1,d); // seek shape
-            ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,    "Collision Box:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4] , 10, 0, 0.1,  "Health Decrement:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,    "Health Bonus:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
-         case 5:     // jumpworm
+         case 5: // jumpworm
             mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  12, 0.4, 0.01,"X-Speed (Jump):");
             mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,11,15,15,  1,0,1,d, mEnemy.Ei[n][4],  12, 1, 1,     "X-Speed (Ground):1/");
             mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  9, 0.4, 0.01, "Y-Speed:");
@@ -607,29 +621,74 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
             mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
-         case 6: // cannon
-            mWidget.sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][5],  12, 0, 0.01, "Speed:");
+         case 6: // flapper
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][5],  8, .5, 0.1,  "X-Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  1, 0.01, 0.01, "X-Accel:");
+            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 15, 15, 12, 12);
             ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ei[n][8], 100, 0, 1,     "Seek Count:");
-            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,d, "Set Initial Direction"))  mMiscFnx.getxy("Initial Direction", 96, 4, n);
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ef[n][3],  5, 0, 0.01,      "Y-Speed:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ef[n][10],  8, .5, 0.1,     "Flap Speed:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][21], 400, 0, 5,       "Flap Height:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][20], 1000, -1000, 10, "Height Above Player:");
             ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,8, 15,15,  1,0,1,d, mEnemy.Ei[n][9], 40, 0, 1,      "Extra Hits To Kill:");
-            ya+=4; // spacer
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,9, 15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
-            ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,4, 15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
-         break;
-         case 7: // podzilla
-            mWidget.sliderf(    xa, ya, xb, bts,  29,n,0,0, 0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][9] , 30, 0.5, 0.5, "Speed:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][9], 240, 0, 1,      "Pause:");
             mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
             ya+=4; // spacer
-            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Move Extended Position")) mMiscFnx.getxy("Pod Extended Position", 99, 7, n);
-            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) mMiscFnx.get_block_range("Trigger Box", &mEnemy.Ei[n][11], &mEnemy.Ei[n][12], &mEnemy.Ei[n][13], &mEnemy.Ei[n][14], 2);
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
+         break;
+         case 7: // vinepod
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Set Extended Position")) mMiscFnx.getxy("Vinepod Extended Position", 90, 13, n);
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][17], 400, 10, 10,  "Extend Time:");
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][9],  400,  0,  1,  "Pause:");
+
+            ya+=4; // spacer
+
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,     1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_FIRE_SHOT, "Fire Shot:OFF", "Fire Shot:ON ", 15+dim, 15, 11+dim, 11);
+            if (mEnemy.Ei[n][20] & PM_ENEMY_VINEPOD_FIRE_SHOT)
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,11,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
+
+            ya+=4; // spacer
+
+            mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,2,15,15,  1,0,1,d, mEnemy.Ei[n][19], 99, 0, 1, "Output Event:", "OFF");
+
+            ya+=4; // spacer
+
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_SHOW_PATH, "Hide Path","Show Path", 15+dim, 15, 14+dim, 14);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_INIT, "Invincible At Rest:OFF", "Invincible At Rest:ON ", 15+dim, 15, 14+dim, 14);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_EXTN, "Invincible Extended:OFF", "Invincible Extended:ON ", 15+dim, 15, 14+dim, 14);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_MOVE, "Invincible Moving:OFF", "Invincible Moving:ON ", 15+dim, 15, 14+dim, 14);
+
+            ya+=4; // spacer
+
+            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][18], 99, 0, 1,    "Event Trigger:", "OFF");
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,13,15,0,   1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(3, n, 0, 0);
+
+            ya+=4; // spacer
+
+            mWidget.togglf(     xa, ya, xb, bts,  0,0,0,0,  0,0,0,0,     1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_USE_TRIGGER, "Use Internal Trigger:OFF", "Use Internal Trigger:ON ", 15+dim, 15, 14+dim, 14);
+            if (mEnemy.Ei[n][20] & PM_ENEMY_VINEPOD_USE_TRIGGER)
+            {
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Internal Trigger Box")) mMiscFnx.get_block_range("Trigger Box", &mEnemy.Ei[n][11], &mEnemy.Ei[n][12], &mEnemy.Ei[n][13], &mEnemy.Ei[n][14], 2);
+            }
+
+            ya+=4; // spacer
+
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,     1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_USE_SPLINE, "Use Spline:OFF", "Use Spline:ON ", 15+dim, 15, 3+dim, 3);
+            if (mEnemy.Ei[n][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
+            {
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 3,15,15,  1,0,1,d, mEnemy.Ef[n][6],  8,  1,  0.1,  "Control Point Scale:");
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 6,15, 0,  1,0,1,d, "Set Control Point 1")) mMiscFnx.getxy("Vinepod Control Point 1", 91, 13, n);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 7,15, 0,  1,0,1,d, "Set Control Point 2")) mMiscFnx.getxy("Vinepod Control Point 2", 92, 13, n);
+            //if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 3,15, 0,  1,0,1,d, "Set Thirds")) mEnemy.vinepod_set_cp_thirds(n);
+//            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 3,15, 0,  1,0,1,d, "rot 90")) mEnemy.vinepod_rotate_90(n);
+            }
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 3,15, 0,  1,0,1,d, "rot 90")) mEnemy.vinepod_rotate_90(n);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 3,15, 0,  1,0,1,d, "mir x")) mEnemy.vinepod_mirror_x(n);
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 3,15, 0,  1,0,1,d, "mir y")) mEnemy.vinepod_mirror_y(n);
+
             ya+=4; // spacer
             mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
             mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
@@ -670,64 +729,6 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,   "Collision Box:");
             mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1, "Health Decrement:");
             mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,   "Health Bonus:");
-         break;
-         case 11: // block walker
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  9, 0.7, 0.01, "X-Speed:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][3],  9, 0.7, 0.01, "Y-Speed:");
-            ya+=4; // spacer
-            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
-            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
-            ya+=4; // spacer
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
-            mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
-            ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
-         break;
-         case 12: // flapper
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][5],  8, .5, 0.1,  "X-Speed:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, mEnemy.Ef[n][6],  1, 0.01, 0.01, "X-Accel:");
-            mWidget.toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, mEnemy.Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 15, 15, 12, 12);
-            ya+=4; // spacer
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ef[n][3],  5, 0, 0.01,      "Y-Speed:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ef[n][10],  8, .5, 0.1,     "Flap Speed:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][21], 400, 0, 5,       "Flap Height:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ei[n][20], 1000, -1000, 10, "Height Above Player:");
-            ya+=4; // spacer
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 2000, 20, 1,  "Bullet Proximity:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][15], 200, 1, 1,    "Bullet Retrigger Time:");
-            ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
-         break;
-
-         case 13: // vinepod
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][17], 400, 10, 10,  "Extend Time:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ei[n][19], 400,  0,  1,  "Pause:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, mEnemy.Ef[n][7],  20, 0.8, 0.1, "Bullet Speed:");
-            ya+=4; // spacer
-
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_SHOW_PATH, "Hide Path","Show Path", 15+dim, 15, 14+dim, 14);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_INIT, "Invincible At Rest:OFF", "Invincible At Rest:ON ", 15+dim, 15, 14+dim, 14);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_EXTN, "Invincible Extended:OFF", "Invincible Extended:ON ", 15+dim, 15, 14+dim, 14);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mEnemy.Ei[n][20], PM_ENEMY_VINEPOD_INV_MOVE, "Invincible Moving:OFF", "Invincible Moving:ON ", 15+dim, 15, 14+dim, 14);
-
-            ya+=4; // spacer
-
-            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Set Extended Position")) mMiscFnx.getxy("Vinepod Extended Position", 90, 13, n);
-            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 6,15, 0,  1,0,1,d, "Set Control Point 1")) mMiscFnx.getxy("Vinepod Control Point 1", 91, 13, n);
-            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 7,15, 0,  1,0,1,d, "Set Control Point 2")) mMiscFnx.getxy("Vinepod Control Point 2", 92, 13, n);
-            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) mMiscFnx.get_block_range("Trigger Box", &mEnemy.Ei[n][11], &mEnemy.Ei[n][12], &mEnemy.Ei[n][13], &mEnemy.Ei[n][14], 2);
-            ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
-            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
 
 
@@ -944,11 +945,11 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             if (mWidget.togglf( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF","Draw Trigger Field:ON", 15+dim, 15, 15+dim, mItem.item[n][2]))
                mWidget.colsel(  xa, ya, xb, bts, 6,n,0,0,    0,0,0,0,     0,0,1,d); // color select
             ya+=4; // spacer
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF         ","Triggered by Players:ON          ", 15+dim, 15, 9+dim, 9);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF         ","Triggered by Enemies:ON          ", 15+dim, 15, 9+dim, 9);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF           ","Triggered by Items:ON            ", 15+dim, 15, 9+dim, 9);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_PSHOT,   "Triggered by Player's Bullets:OFF","Triggered by Player's Bullets:ON ", 15+dim, 15, 9+dim, 9);
-            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ESHOT,   "Triggered by Enemy's Bullets:OFF ","Triggered by Enemy's Bullets:ON  ", 15+dim, 15, 9+dim, 9);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF       ", "Triggered by Players:ON        ", 15+dim, 15, 9+dim, 9);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF       ", "Triggered by Enemies:ON        ", 15+dim, 15, 9+dim, 9);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF         ", "Triggered by Items:ON          ", 15+dim, 15, 9+dim, 9);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_PSHOT,  "Triggered by Player's Shots:OFF", "Triggered by Player's Shots:ON ", 15+dim, 15, 9+dim, 9);
+            mWidget.togglf(     xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][3], PM_ITEM_TRIGGER_ESHOT,  "Triggered by Enemy's Shots:OFF ", "Triggered by Enemy's Shots:ON  ", 15+dim, 15, 9+dim, 9);
             ya+=4; // spacer
             mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][11], 99, 0, 1,    "Set Event Always While On   :", "OFF");
             mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][12], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
@@ -1016,7 +1017,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_PSHOT,   "Affects Player's Shots:OFF", "Affects Player's Shots:ON", 15+dim, 15, 10+dim, 10);
             mWidget.togglf(        xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_ESHOT,   "Affects Enemy's Shots:OFF",  "Affects Enemy's Shots:ON",  15+dim, 15, 10+dim, 10);
             ya+=4; // spacer
-            if (mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",             "Follows Lift:ON ",            15+dim, 15, 6+dim, 6))
+            if (mWidget.togglf(    xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][3], PM_ITEM_DAMAGE_LIFT_ON, "Follows Lift:OFF",           "Follows Lift:ON ",          15+dim, 15, 6+dim, 6))
             {
                mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,6,15,15,  1,0,1,d,mItem.item[n][10], 39, 0, 1, "Lift Number:" );
                mWidget.button(     xa, ya, xb, bts, 411,n,0,0, 0,6,15,0,   1,0,1,d);  // X Alignment
@@ -1095,55 +1096,12 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
       if (legend_highlight == 1) color = mColor.flash_color;
       mMiscFnx.crosshairs_full(obj_x, obj_y, color, 1);
 
-      if ((type == 3) || (type == 6) || (type == 8) || (type == 12)) // // draw yellow shot prox circle for archwagon, cannon, trakbot, flapper
+      if ((type == 2) || (type == 3) || (type == 6) || (type == 8)) // // draw yellow shot prox circle for cannon, archwagon, flapper, trakbot
       {
          (legend_highlight == 2) ? color = mColor.flash_color : color = 14;
          al_draw_circle(obj_x, obj_y, mEnemy.Ei[num][17], mColor.pc[color], 1);
       }
-      if (type == 7) // podzilla
-      {
-         // extended position
-         int color1 = 10;
-         if (legend_highlight == 2) color1 = mColor.flash_color;
-
-         int px=0, py=0;
-         mEnemy.get_pod_extended_position(num, &px, &py);
-         mMiscFnx.crosshairs_full(px+10, py+10, color1, 1);
-
-         // draw tile at extended pos
-         float rot = mEnemy.Ef[num][14];
-         al_draw_scaled_rotated_bitmap(mBitmap.tile[mEnemy.Ei[num][1]], 10, 10, px+10, py+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
-
-         // draw connecting line
-         al_draw_line(obj_x, obj_y, px+10, py+10, mColor.pc[10], 1);
-
-         // trigger box
-         int color = 14;
-         if (legend_highlight == 3) color = mColor.flash_color;
-         int tx1 = mEnemy.Ei[num][11];
-         int ty1 = mEnemy.Ei[num][12];
-         int tx2 = mEnemy.Ei[num][11]+mEnemy.Ei[num][13] + 20;
-         int ty2 = mEnemy.Ei[num][12]+mEnemy.Ei[num][14] + 20;
-         al_draw_rectangle(tx1, ty1, tx2, ty2, mColor.pc[color], 1);
-      }
-
-      if (type == 13) // vinepod
-      {
-         mEnemy.draw_vinepod_controls(num, legend_highlight);
-      }
-
-      if (type == 9) // cloner
-      {
-         int color2 = 11;
-         if (legend_highlight == 2) color2 = mColor.flash_color;
-         ov_draw_overlay_rectangle_and_crosshairs(mEnemy.Ei[num][15], mEnemy.Ei[num][16], mEnemy.Ei[num][19], mEnemy.Ei[num][20], color2, 1);
-
-         int color3 = 10;
-         if (legend_highlight == 3) color3 = mColor.flash_color;
-         ov_draw_overlay_rectangle_and_crosshairs(mEnemy.Ei[num][17], mEnemy.Ei[num][18], mEnemy.Ei[num][19], mEnemy.Ei[num][20], color3, 1);
-         mTriggerEvent.find_and_show_event_links(obt, num, 0);
-      }
-      if (type == 12) // flapper
+      if (type == 6) // flapper
       {
          (legend_highlight == 3) ? color = mColor.flash_color : color = 10;
 
@@ -1155,6 +1113,22 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          int fh = mEnemy.Ei[num][21];
          al_draw_line(obj_x-60, obj_y+fh, obj_x+60, obj_y+fh, mColor.pc[12], 1);
          al_draw_line(obj_x-60, obj_y-fh, obj_x+60, obj_y-fh, mColor.pc[12], 1);
+      }
+      if (type == 7)
+      {
+         mEnemy.draw_vinepod_controls(num, legend_highlight);
+         mTriggerEvent.find_and_show_event_links(obt, num, 0);
+      }
+      if (type == 9) // cloner
+      {
+         int color2 = 11;
+         if (legend_highlight == 2) color2 = mColor.flash_color;
+         ov_draw_overlay_rectangle_and_crosshairs(mEnemy.Ei[num][15], mEnemy.Ei[num][16], mEnemy.Ei[num][19], mEnemy.Ei[num][20], color2, 1);
+
+         int color3 = 10;
+         if (legend_highlight == 3) color3 = mColor.flash_color;
+         ov_draw_overlay_rectangle_and_crosshairs(mEnemy.Ei[num][17], mEnemy.Ei[num][18], mEnemy.Ei[num][19], mEnemy.Ei[num][20], color3, 1);
+         mTriggerEvent.find_and_show_event_links(obt, num, 0);
       }
    }
    if (obt == 2)  // items
@@ -1271,11 +1245,11 @@ void mwWindow::ov_process_mouse(void)
    }
 
    int mouse_on_obj = 0;
-   int mouse_on_podx = 0;
 
    int mouse_on_vpodx = 0;
    int mouse_on_vpod1 = 0;
    int mouse_on_vpod2 = 0;
+
 
    int mouse_on_csb_ul = 0;
    int mouse_on_csb_lr = 0;
@@ -1334,7 +1308,7 @@ void mwWindow::ov_process_mouse(void)
    {
       int b = mwWM.mW[7].num;
       int type = mEnemy.Ei[b][0];
-      if ((type == 3) || (type == 6) || (type == 8) || (type == 12)) // archwagon, cannon, trakbot and flapper shot prox
+      if ((type == 2) || (type == 3) || (type == 6) || (type == 6)) // cannon, archwagon, cannon, flapper and trakbot shot prox
       {
          float x0 = mEnemy.Ef[b][0]+10; // get center of enemy
          float y0 = mEnemy.Ef[b][1]+10;
@@ -1349,44 +1323,10 @@ void mwWindow::ov_process_mouse(void)
             mouse_move = 1;
          }
       }
-      if (type == 7) // podzilla extended position
-      {
-         int px=0, py=0;
-         mEnemy.get_pod_extended_position(b, &px, &py);
-         if ((mwWM.hx>px+msn) && (mwWM.hx<px+msp) && (mwWM.hy>py+msn) && (mwWM.hy<py+msp))
-         {
-            mouse_move = 1;
-            mouse_on_podx = 1;
-         }
-      }
 
-      if (type == 13) // vinepod extended position
+      if (type == 7) // vinepod
       {
-         int px = mEnemy.Ei[b][9];
-         int py = mEnemy.Ei[b][10];
-         if ((mwWM.hx>px+msn) && (mwWM.hx<px+msp) && (mwWM.hy>py+msn) && (mwWM.hy<py+msp))
-         {
-            mouse_move = 1;
-            mouse_on_vpodx = 1;
-         }
-         px = mEnemy.Ei[b][5];
-         py = mEnemy.Ei[b][6];
-         if ((mwWM.hx>px+msn) && (mwWM.hx<px+msp) && (mwWM.hy>py+msn) && (mwWM.hy<py+msp))
-         {
-            mouse_move = 1;
-            mouse_on_vpod1 = 1;
-         }
-         px = mEnemy.Ei[b][7];
-         py = mEnemy.Ei[b][8];
-         if ((mwWM.hx>px+msn) && (mwWM.hx<px+msp) && (mwWM.hy>py+msn) && (mwWM.hy<py+msp))
-         {
-            mouse_move = 1;
-            mouse_on_vpod2 = 1;
-         }
-      }
-
-      if ((type == 7) || (type == 13)) // podzilla and vinepod trigger box
-      {
+         // vinepod trigger box
          int x1 = mEnemy.Ei[b][11];
          int y1 = mEnemy.Ei[b][12];
          int x2 = mEnemy.Ei[b][11]+mEnemy.Ei[b][13]+20;
@@ -1401,7 +1341,39 @@ void mwWindow::ov_process_mouse(void)
             mouse_on_tb_lr = 1;
             mouse_adj = 1;
          }
+
+         // vinepod extended position
+         int px = mEnemy.Ei[b][9];
+         int py = mEnemy.Ei[b][10];
+         if ((mwWM.hx>px+msn) && (mwWM.hx<px+msp) && (mwWM.hy>py+msn) && (mwWM.hy<py+msp))
+         {
+            mouse_move = 1;
+            mouse_on_vpodx = 1;
+         }
+
+         if (mEnemy.Ei[b][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
+         {
+            // vinepod control point 1
+            px = mEnemy.Ei[b][5];
+            py = mEnemy.Ei[b][6];
+            if ((mwWM.hx>px+msn) && (mwWM.hx<px+msp) && (mwWM.hy>py+msn) && (mwWM.hy<py+msp))
+            {
+               mouse_move = 1;
+               mouse_on_vpod1 = 1;
+            }
+
+            // vinepod control point 2
+            px = mEnemy.Ei[b][7];
+            py = mEnemy.Ei[b][8];
+            if ((mwWM.hx>px+msn) && (mwWM.hx<px+msp) && (mwWM.hy>py+msn) && (mwWM.hy<py+msp))
+            {
+               mouse_move = 1;
+               mouse_on_vpod2 = 1;
+            }
+         }
       }
+
+
       if (type == 9) // cloner source and destination boxes
       {
          int w = mEnemy.Ei[mwWM.mW[7].num][19];     // width
@@ -1429,7 +1401,6 @@ void mwWindow::ov_process_mouse(void)
          }
       }
    }
-
 
    // -----------------------------------------------------------
    // --  detect if mouse pointer is on item
@@ -1620,15 +1591,8 @@ void mwWindow::ov_process_mouse(void)
 
                if (mInput.SHFT()) // move stuff also
                {
-                  // move podzilla's trigger box too
-                  if (mEnemy.Ei[num][0] == 7)
-                  {
-                     mEnemy.Ei[num][11] += x_off*20;
-                     mEnemy.Ei[num][12] += y_off*20;
-                  }
-
                   // move vinepod's stuff also
-                  if (mEnemy.Ei[num][0] == 13)
+                  if (mEnemy.Ei[num][0] == 7)
                   {
                      // control point and extended pos
                      mEnemy.Ei[num][5]  += x_off*20;
@@ -1676,28 +1640,21 @@ void mwWindow::ov_process_mouse(void)
                }
             }
          }
-         if (mouse_on_podx)
-         {
-            mEnemy.Ef[num][5] = mwWM.gx * 20;
-            mEnemy.Ef[num][6] = mwWM.gy * 20;
-            mEnemy.recalc_pod(num);
-         }
          if (mouse_on_vpodx)
          {
-            mEnemy.Ei[num][9]  = mwWM.gx * 20;
-            mEnemy.Ei[num][10] = mwWM.gy * 20;
+            mEnemy.Ei[num][9]  = mwWM.hx-10;
+            mEnemy.Ei[num][10] = mwWM.hy-10;
          }
          if (mouse_on_vpod1)
          {
-            mEnemy.Ei[num][5] = mwWM.gx * 20;
-            mEnemy.Ei[num][6] = mwWM.gy * 20;
+            mEnemy.Ei[num][5] = mwWM.hx-10;
+            mEnemy.Ei[num][6] = mwWM.hy-10;
          }
          if (mouse_on_vpod2)
          {
-            mEnemy.Ei[num][7] = mwWM.gx * 20;
-            mEnemy.Ei[num][8] = mwWM.gy * 20;
+            mEnemy.Ei[num][7] = mwWM.hx-10;
+            mEnemy.Ei[num][8] = mwWM.hy-10;
          }
-
 
          if (mouse_on_tb_ul) // move trigger box from ul
          {

@@ -50,6 +50,8 @@ void mwTriggerEvent::show_event_line(int x, int &y, int ev, int type, int v1, in
    if (type == 3) // enemy
    {
       if (mEnemy.Ei[v1][0] == 9)  al_draw_textf(mFont.pr8, mColor.pc[7],  x, y, 0, "ev:%2d - enem:%3d [clonr] ", ev, v1);
+      if ((mEnemy.Ei[v1][0] == 7) && (v2 == 0)) al_draw_textf(mFont.pr8, mColor.pc[7],  x, y, 0, "ev:%2d - enem:%3d [vp i/p] ", ev, v1);
+      if ((mEnemy.Ei[v1][0] == 7) && (v2 == 1)) al_draw_textf(mFont.pr8, mColor.pc[7],  x, y, 0, "ev:%2d - enem:%3d [vp o/p] ", ev, v1);
    }
 
    if (type == 4) // lift
@@ -102,11 +104,17 @@ void mwTriggerEvent::show_all_events(void)
          for (int s=0; s<mLift.cur[l].num_steps; s++) // steps
             if ((((mLift.stp[l][s].type & 31) == 5) || ((mLift.stp[l][s].type & 31) == 6)) && (mLift.stp[l][s].val)) show_event_line(x, y, mLift.stp[l][s].val, 4, l, s);
 
-
    for (int e=0; e<100; e++) // enemies
+   {
       if (mEnemy.Ei[e][0] == 9) // cloner
          if (mEnemy.Ei[e][8]) show_event_line(x, y, mEnemy.Ei[e][8], 3, e, 0);
 
+      if (mEnemy.Ei[e][0] == 7) // vinepod
+      {
+         if (mEnemy.Ei[e][18]) show_event_line(x, y, mEnemy.Ei[e][18], 3, e, 0);
+         if (mEnemy.Ei[e][19]) show_event_line(x, y, mEnemy.Ei[e][19], 3, e, 1);
+      }
+   }
    al_flip_display();
    mInput.tsw(); // wait for keypress
 }
@@ -177,9 +185,13 @@ int mwTriggerEvent::is_pm_event_used(int ev)
             if (((((mLift.stp[l][s].type & 31) == 5) || (mLift.stp[l][s].type & 31) == 6)) && (mLift.stp[l][s].val == ev)) return 1;
 
    for (int e=0; e<100; e++) // iterate enemies
+   {
       if (mEnemy.Ei[e][0] == 9) // cloner
          if (mEnemy.Ei[e][8] == ev) return 1;
 
+      if (mEnemy.Ei[e][0] == 7) // vinepod
+         if ((mEnemy.Ei[e][18] == ev) || (mEnemy.Ei[e][19] == ev)) return 1;
+   }
    return 0;
 }
 
@@ -204,8 +216,6 @@ int mwTriggerEvent::get_unused_pm_event_extended(int clt[][5], int clt_last)
    return 0; // only if no unused can be found
 }
 
-
-
 // only checks objects
 int mwTriggerEvent::get_unused_pm_event(void)
 {
@@ -218,9 +228,6 @@ int mwTriggerEvent::get_unused_pm_event(void)
    }
    return 0; // only if no unused can be found
 }
-
-
-
 
 
 
@@ -257,6 +264,14 @@ void mwTriggerEvent::find_event_txrs_for_event(int ev, int &evan, int eva[][2])
       }
    }
 
+   for (int e=0; e<100; e++) // iterate enemies
+      if ((mEnemy.Ei[e][0] == 7) && (mEnemy.Ei[e][19] == ev)) // vinepod
+      {
+         eva[evan][0] = mEnemy.Ei[e][9] +10;
+         eva[evan][1] = mEnemy.Ei[e][10]+10;
+         evan++;
+      }
+
    for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
       if (mLift.cur[l].active)
          for (int s=0; s<mLift.cur[l].num_steps; s++) // iterate steps
@@ -283,7 +298,6 @@ void mwTriggerEvent::find_event_rxrs_for_event(int ev, int &evan, int eva[][2])
 {
    for (int i=0; i<500; i++)
    {
-
       // message, manip or damage
       if (((mItem.item[i][0] == 10) || (mItem.item[i][0] == 16) || (mItem.item[i][0] == 17)) && (mItem.item[i][1] == ev))
       {
@@ -303,7 +317,13 @@ void mwTriggerEvent::find_event_rxrs_for_event(int ev, int &evan, int eva[][2])
 
    for (int e=0; e<100; e++)
    {
-      if ((mEnemy.Ei[e][0] == 9) && (mEnemy.Ei[e][8] == ev))
+      if ((mEnemy.Ei[e][0] == 9) && (mEnemy.Ei[e][8] == ev)) // cloner
+      {
+         eva[evan][0] = mEnemy.Ef[e][0]+10;
+         eva[evan][1] = mEnemy.Ef[e][1]+10;
+         evan++;
+      }
+      if ((mEnemy.Ei[e][0] == 7) && (mEnemy.Ei[e][18] == ev)) // vinepod
       {
          eva[evan][0] = mEnemy.Ef[e][0]+10;
          eva[evan][1] = mEnemy.Ef[e][1]+10;
@@ -393,10 +413,28 @@ void mwTriggerEvent::find_and_show_event_links(int obj_type, int obj_num, int ob
       {
          ev = mEnemy.Ei[e][8];
          if (ev > 0) find_event_txrs_for_event(ev, evan, eva);
-
          for (int i2=0; i2<evan; i2++)
             al_draw_line(x1, y1, eva[i2][0], eva[i2][1], mColor.pc[10], 2);
       }
+
+      if (etype == 7) // vinepod input
+      {
+         ev = mEnemy.Ei[e][18];
+         if (ev > 0) find_event_txrs_for_event(ev, evan, eva);
+         for (int i2=0; i2<evan; i2++)
+            al_draw_line(x1, y1, eva[i2][0], eva[i2][1], mColor.pc[10], 2);
+      }
+
+
+      if (etype == 7) // vinepod output
+      {
+         ev = mEnemy.Ei[e][19];
+         if (ev > 0) find_event_rxrs_for_event(ev, evan, eva);
+         for (int i2=0; i2<evan; i2++)
+            al_draw_line(x1, y1, eva[i2][0], eva[i2][1], mColor.pc[10], 2);
+      }
+
+
    }
    if (obj_type == 4)  // lift step
    {
@@ -424,8 +462,10 @@ void mwTriggerEvent::find_and_show_event_links(int obj_type, int obj_num, int ob
 
 int mwTriggerEvent::is_mouse_on_trigger_item(int &obj_type, int &obj_num, int &obj_ext)
 /*
+// things that emit events
 
 works for items (trigger, orb, timer) and lift step type 6
+and vinepod now
 
 */
 {
@@ -445,6 +485,17 @@ works for items (trigger, orb, timer) and lift step type 6
                if (my < 10) obj_ext = 1;
                else obj_ext = 2;
             }
+         }
+      }
+
+   for (int e=0; e<100; e++)
+      if (mEnemy.Ei[e][0] == 7) // vinepod (extended pos)
+      {
+         if ((mwWM.gx == mEnemy.Ei[e][9]/20) && (mwWM.gy == mEnemy.Ei[e][10]/20))
+         {
+            mouse_on_item = 1;
+            obj_type = 3;
+            obj_num = e;
          }
       }
 
@@ -479,10 +530,10 @@ works for items (trigger, orb, timer) and lift step type 6
 
 int mwTriggerEvent::get_trigger_item(int obj_type, int obj_num, int obj_ext, int& ti_obj_type, int& ti_obj_num, int& ti_obj_ext)
 /*
-   prompts to select an object that has a trigger sender
+   prompts to select an object that has an event sender
 
    passed the object that we want to link to (the receiver) int obj_type, int obj_num, int obj_ext
-   currently works for items (orb, trigger, timer) and lift step type 5
+   currently works for items (orb, trigger, timer) enemies (cloner and vinepod) and lift step type 5
 
    currently only looks for items (orb, trigger, timer 1 and 2)
 
@@ -553,6 +604,16 @@ int mwTriggerEvent::get_trigger_item(int obj_type, int obj_num, int obj_ext, int
                }
             }
          }
+         if (ti_obj_type == 3) // enemy
+         {
+            if (mEnemy.Ei[ti_obj_num][0] == 7) // vinepod
+             {
+               itx = mEnemy.Ei[ti_obj_num][9];
+               ity = mEnemy.Ei[ti_obj_num][10];
+               al_draw_line(x2, y2, itx+10, ity+10, mColor.pc[10], 2);
+             }
+         }
+
          if (ti_obj_type == 4) // lift
          {
             int l = ti_obj_ext;
@@ -639,6 +700,12 @@ void mwTriggerEvent::set_event_num_in_sender(int obj_type, int obj_num, int obj_
       }
    }
 
+   if (obj_type == 3) // enemy
+   {
+      int type = mEnemy.Ei[obj_num][0];
+      if (type == 7) mEnemy.Ei[obj_num][19] = ev; // vinepod
+   }
+
    if (obj_type == 4) // lift step
    {
       int l = obj_ext;
@@ -650,8 +717,11 @@ void mwTriggerEvent::set_event_num_in_sender(int obj_type, int obj_num, int obj_
 
 void mwTriggerEvent::find_event_sender_for_obj(int obj_type, int obj_num, int obj_ext, int obj_ext2)
 /*
-   called from an item that needs a trigger event sender set
-   currently only works for timer, bd, bm
+   called from an object that needs a trigger event sender set
+   works for timer, bd, bm
+   also cloner
+   and soon to be vinepod
+
    prompts for a trigger sender
    finds unused event number
    sets that in both sender and receiver
@@ -696,6 +766,8 @@ void mwTriggerEvent::find_event_sender_for_obj(int obj_type, int obj_num, int ob
 
    if (obj_type == 3) // enemy
    {
+      // enemy type of receiver
+      int rx_type = mEnemy.Ei[obj_num][0];
 
       // prompt to choose sender obj
       int ti_obj_type, ti_obj_ext, ti_num;
@@ -704,8 +776,9 @@ void mwTriggerEvent::find_event_sender_for_obj(int obj_type, int obj_num, int ob
          // get unused event
          int ev = get_unused_pm_event();
 
-         // set event num in receiver (cloner)
-         mEnemy.Ei[obj_num][8] = ev;
+         // set event num in receiver
+         if (rx_type == 7) mEnemy.Ei[obj_num][18] = ev; // vinepod
+         if (rx_type == 9) mEnemy.Ei[obj_num][8] = ev; // cloner
 
          // set event num in sender
          set_event_num_in_sender(ti_obj_type, ti_num, ti_obj_ext, 1, ev);
@@ -713,4 +786,3 @@ void mwTriggerEvent::find_event_sender_for_obj(int obj_type, int obj_num, int ob
       }
    }
 }
-

@@ -321,17 +321,16 @@ int mwItems::edit_pmsg_text(int c, int new_msg)
          else if (mInput.CTRL()) cursor_pos+=16;
 
          else cursor_pos++;
-         if (cursor_pos > char_count) cursor_pos = char_count;             // make sure we are not past the end
+         if (cursor_pos > char_count) cursor_pos = char_count;          // make sure we are not past the end
       }
 
       if (mInput.key[ALLEGRO_KEY_LEFT][3])
       {
-         //al_rest(0.02);
-         while (mInput.key[ALLEGRO_KEY_LEFT][3]) mEventQueue.proc();               // wait for release
+         while (mInput.key[ALLEGRO_KEY_LEFT][3]) mEventQueue.proc();    // wait for release
 
          if ((mInput.SHFT()) && (mInput.CTRL()))
          {
-            while ((--cursor_pos > 0) && (f[cursor_pos] != 10));  // find next LF
+            while ((--cursor_pos > 0) && (f[cursor_pos] != 10));        // find next LF
          }
          else if (mInput.SHFT())
          {
@@ -340,27 +339,27 @@ int mwItems::edit_pmsg_text(int c, int new_msg)
          else if (mInput.CTRL()) cursor_pos-=16;
 
          else cursor_pos--;
-         if (cursor_pos < 0) cursor_pos = 0;                             // make sure we are not before the start
+         if (cursor_pos < 0) cursor_pos = 0;                            // make sure we are not before the start
       }
 
 
-      if (mInput.key[ALLEGRO_KEY_UP][3])                                           // move up one line
+      if (mInput.key[ALLEGRO_KEY_UP][3])                                // move up one line
       {
-         int ocp = cursor_pos;                                           // get original position
+         int ocp = cursor_pos;                                          // get original position
          while ((--cursor_pos > 0) && (f[cursor_pos] != 10));           // find previous LF
-         int mv = cursor_pos - ocp;                                      // how far did we move?
+         int mv = cursor_pos - ocp;                                     // how far did we move?
          while ((--cursor_pos > 0) && (f[cursor_pos] != 10));           // find previous LF
-         cursor_pos -= mv;                                               // subtract move
-         if (cursor_pos < 0) cursor_pos = 0;                             // make sure we are not before the start
+         cursor_pos -= mv;                                              // subtract move
+         if (cursor_pos < 0) cursor_pos = 0;                            // make sure we are not before the start
       }
-      if (mInput.key[ALLEGRO_KEY_DOWN][3])                                         // move down one line
+      if (mInput.key[ALLEGRO_KEY_DOWN][3])                              // move down one line
       {
-         int ocp = cursor_pos;                                           // get original position
+         int ocp = cursor_pos;                                          // get original position
          while ((++cursor_pos < char_count) && (f[cursor_pos] != 10));  // find next LF
-         int mv = cursor_pos - ocp;                                      // how far did we move?
+         int mv = cursor_pos - ocp;                                     // how far did we move?
          while ((++cursor_pos < char_count) && (f[cursor_pos] != 10));  // find next LF
-         cursor_pos -= mv;                                               // subtract move
-         if (cursor_pos > char_count) cursor_pos = char_count;           // make sure we are not past the end
+         cursor_pos -= mv;                                              // subtract move
+         if (cursor_pos > char_count) cursor_pos = char_count;          // make sure we are not past the end
       }
       if ((mInput.key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
       {

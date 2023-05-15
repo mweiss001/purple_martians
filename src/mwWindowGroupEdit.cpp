@@ -43,7 +43,7 @@ void mwWindow::ge_init_data(void)
       ge_data[i].vartyp = 0;
       ge_data[i].varnum = 0;
       ge_data[i].valid = 0;
-      ge_data[i].collapsed = 1;
+      ge_data[i].collapsed = 0;
       ge_data[i].adj_mode = 0;
       ge_data[i].adj_min = 0;
       ge_data[i].adj_max = 0;
@@ -63,17 +63,16 @@ void mwWindow::ge_init_data(void)
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 0;
 
-   cot[i][3][3]  = 1; // archwagon
-   cot[i][3][4]  = 1; // bouncer
-   cot[i][3][5]  = 1; // jumpworm
-   cot[i][3][6]  = 1; // cannon
-   cot[i][3][7]  = 1; // podzilla
-   cot[i][3][8]  = 1; // trakbot
-   cot[i][3][9]  = 1; // cloner
-   cot[i][3][11] = 1; // block walker
-   cot[i][3][12] = 1; // flapper
-   cot[i][3][13] = 1; // vinepod
 
+   cot[i][3][1] = 1; // bouncer
+   cot[i][3][2] = 1; // cannon
+   cot[i][3][3] = 1; // archwagon
+   cot[i][3][4] = 1; // blokwalk
+   cot[i][3][5] = 1; // jumpworm
+   cot[i][3][6] = 1; // flapper
+   cot[i][3][7] = 1; // vinepod
+   cot[i][3][8] = 1; // trakbot
+   cot[i][3][9] = 1; // cloner
 
    cot[i][2][1]  = 1; // door
    cot[i][2][2]  = 1; // bonus
@@ -103,10 +102,10 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 2;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 2;
-   cot[i][3][3]  = 1; // archwagon
-   cot[i][3][5]  = 1; // jumpworm
-   cot[i][3][11] = 1; // block walker
-   cot[i][3][12] = 1; // flapper
+   cot[i][3][3] = 1; // archwagon
+   cot[i][3][4] = 1; // block walker
+   cot[i][3][5] = 1; // jumpworm
+   cot[i][3][6] = 1; // flapper
 
    i++;
    sprintf(ge_data[i].name, "Initial Direction");
@@ -117,8 +116,8 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 0;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 0;
-   cot[i][3][4] = 1; // bouncer
-   cot[i][3][6] = 1; // cannon
+   cot[i][3][1] = 1; // bouncer
+   cot[i][3][2] = 1; // cannon
 
    i++;
    sprintf(ge_data[i].name, "Initial Direction");
@@ -140,8 +139,8 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 5;
    ge_data[i].min_allowed = .5;
    ge_data[i].max_allowed = 30;
-   cot[i][3][3]  = 1; // archwagon
-   cot[i][3][11] = 1; // block walker
+   cot[i][3][3] = 1; // archwagon
+   cot[i][3][4] = 1; // blokwalk
 
    i++;
    sprintf(ge_data[i].name, "X speed");
@@ -163,7 +162,7 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 4;
    ge_data[i].min_allowed = 1;
    ge_data[i].max_allowed = 20;
-   cot[i][3][12] = 1; // flapper
+   cot[i][3][6] = 1; // flapper
 
    i++;
    sprintf(ge_data[i].name, "X Acceleration");
@@ -174,7 +173,7 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 3;
    ge_data[i].min_allowed = .01;
    ge_data[i].max_allowed = 5;
-   cot[i][3][12] = 1; // flspper
+   cot[i][3][6] = 1; // flapper
 
    i++;
    sprintf(ge_data[i].name, "X ground speed (1/x)");
@@ -207,11 +206,11 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 5;
    ge_data[i].min_allowed = .5;
    ge_data[i].max_allowed = 30;
-   cot[i][3][3]  = 1; // archwagon
-   cot[i][3][5]  = 1; // jumpworm
-   cot[i][3][8]  = 1; // trakbot
-   cot[i][3][11] = 1; // block walker
-   cot[i][3][12] = 1; // flapper
+   cot[i][3][3] = 1; // archwagon
+   cot[i][3][4] = 1; // blokwalk
+   cot[i][3][5] = 1; // jumpworm
+   cot[i][3][6] = 1; // flapper
+   cot[i][3][8] = 1; // trakbot
 
    i++;
    sprintf(ge_data[i].name, "Wall Jump Boost");
@@ -233,7 +232,7 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 2;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 2;
-   cot[i][3][8]  = 1; // trakbot
+   cot[i][3][8] = 1; // trakbot
 
    i++;
    sprintf(ge_data[i].name, "Turn Before Hole");
@@ -244,9 +243,9 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 10;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 180;
-   cot[i][3][3]  = 1; // archwagon
-   cot[i][3][5]  = 1; // jumpworm
-   cot[i][3][11] = 1; // block walker
+   cot[i][3][3] = 1; // archwagon
+   cot[i][3][4] = 1; // blokwalk
+   cot[i][3][5] = 1; // jumpworm
 
    i++;
    sprintf(ge_data[i].name, "Jump Before Hole");
@@ -257,9 +256,9 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 10;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 180;
-   cot[i][3][3]  = 1; // archwagon
-   cot[i][3][5]  = 1; // jumpworm
-   cot[i][3][11] = 1; // block walker
+   cot[i][3][3] = 1; // archwagon
+   cot[i][3][4] = 1; // blokwalk
+   cot[i][3][5] = 1; // jumpworm
 
    i++;
    sprintf(ge_data[i].name, "Jump Before Wall");
@@ -270,9 +269,9 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 60;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 120;
-   cot[i][3][3]  = 1; // archwagon
-   cot[i][3][5]  = 1; // jumpworm
-   cot[i][3][11] = 1; // block walker
+   cot[i][3][3] = 1; // archwagon
+   cot[i][3][4] = 1; // blokwalk
+   cot[i][3][5] = 1; // jumpworm
 
    i++;
    sprintf(ge_data[i].name, "Jump Under Width");
@@ -283,9 +282,9 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 60;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 500;
-   cot[i][3][3]  = 1; // archwagon
-   cot[i][3][5]  = 1; // jumpworm
-   cot[i][3][11] = 1; // block walker
+   cot[i][3][3] = 1; // archwagon
+   cot[i][3][4] = 1; // blokwalk
+   cot[i][3][5] = 1; // jumpworm
 
    i++;
    sprintf(ge_data[i].name, "Jump Wait");
@@ -296,9 +295,9 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 60;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 500;
-   cot[i][3][3]  = 1; // archwagon
-   cot[i][3][5]  = 1; // jumpworm
-   cot[i][3][11] = 1; // block walker
+   cot[i][3][3] = 1; // archwagon
+   cot[i][3][4] = 1; // blokwalk
+   cot[i][3][5] = 1; // jumpworm
 
    i++;
    sprintf(ge_data[i].name, "Flap Height");
@@ -309,7 +308,7 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 40;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 200;
-   cot[i][3][12] = 1; // flapper
+   cot[i][3][6] = 1; // flapper
 
    i++;
    sprintf(ge_data[i].name, "Flap Speed");
@@ -320,7 +319,7 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 4;
    ge_data[i].min_allowed = .5;
    ge_data[i].max_allowed = 20;
-   cot[i][3][12] = 1; // flapper
+   cot[i][3][6] = 1; // flapper
 
    i++;
    sprintf(ge_data[i].name, "Height Above Player");
@@ -331,29 +330,31 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 80;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 200;
-   cot[i][3][12] = 1; // flapper
+   cot[i][3][6] = 1; // flapper
 
-   i++;
-   sprintf(ge_data[i].name, "Extend Speed");
-   sprintf(ge_data[i].snam, "exts");
-   ge_data[i].vartyp = 4;
-   ge_data[i].varnum = 9;
-   ge_data[i].adj_min = 3;
-   ge_data[i].adj_max = 8;
-   ge_data[i].min_allowed = .1;
-   ge_data[i].max_allowed = 30;
-   cot[i][3][7] = 1; // podzilla
 
-   i++;
-   sprintf(ge_data[i].name, "Pause Time");
-   sprintf(ge_data[i].snam, "pstm");
-   ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 9;
-   ge_data[i].adj_min = 5;
-   ge_data[i].adj_max = 20;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 200;
-   cot[i][3][7] = 1; // podzilla
+
+//   i++;
+//   sprintf(ge_data[i].name, "Extend Speed");
+//   sprintf(ge_data[i].snam, "exts");
+//   ge_data[i].vartyp = 4;
+//   ge_data[i].varnum = 9;
+//   ge_data[i].adj_min = 3;
+//   ge_data[i].adj_max = 8;
+//   ge_data[i].min_allowed = .1;
+//   ge_data[i].max_allowed = 30;
+//   cot[i][3][7] = 1; // podzilla
+//
+//   i++;
+//   sprintf(ge_data[i].name, "Pause Time");
+//   sprintf(ge_data[i].snam, "pstm");
+//   ge_data[i].vartyp = 3;
+//   ge_data[i].varnum = 9;
+//   ge_data[i].adj_min = 5;
+//   ge_data[i].adj_max = 20;
+//   ge_data[i].min_allowed = 0;
+//   ge_data[i].max_allowed = 200;
+//   cot[i][3][7] = 1; // podzilla
 
    i++;
    sprintf(ge_data[i].name, "Seek Count");
@@ -364,8 +365,8 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 5;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 100;
-   cot[i][3][4] = 1; // bouncer
-   cot[i][3][6] = 1; // cannon
+   cot[i][3][1] = 1; // bouncer
+   cot[i][3][2] = 1; // cannon
 
    i++;
    sprintf(ge_data[i].name, "Seek Speed");
@@ -376,8 +377,8 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 5;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 40;
-   cot[i][3][4] = 1; // bouncer
-   cot[i][3][6] = 1; // cannon
+   cot[i][3][1] = 1; // bouncer
+   cot[i][3][2] = 1; // cannon
 
    i++;
    sprintf(ge_data[i].name, "Extra Hits To Kill");
@@ -388,7 +389,7 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 3;
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 20;
-   cot[i][3][6] = 1; // cannon
+   cot[i][3][2] = 1; // cannon
 
    i++;
    sprintf(ge_data[i].name, "Shot Speed");
@@ -399,11 +400,11 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 5;
    ge_data[i].min_allowed = .1;
    ge_data[i].max_allowed = 80;
-   cot[i][3][3]  = 1; // archwagon
-   cot[i][3][6]  = 1; // cannon
-   cot[i][3][8]  = 1; // trakbot
-   cot[i][3][12] = 1; // flapper
-   cot[i][3][7]  = 1; // podzilla
+   cot[i][3][2] = 1; // cannon
+   cot[i][3][3] = 1; // archwagon
+   cot[i][3][6] = 1; // flapper
+   cot[i][3][7] = 1; // vinepod
+   cot[i][3][8] = 1; // trakbot
 
    i++;
    sprintf(ge_data[i].name, "Shot Retrigger");
@@ -414,10 +415,10 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 200;
    ge_data[i].min_allowed = 2;
    ge_data[i].max_allowed = 1000;
-   cot[i][3][3]  = 1; // archwagon
-   cot[i][3][6]  = 1; // cannon
-   cot[i][3][8]  = 1; // trakbot
-   cot[i][3][12] = 1; // flapper
+   cot[i][3][2] = 1; // cannon
+   cot[i][3][3] = 1; // archwagon
+   cot[i][3][6] = 1; // flapper
+   cot[i][3][8] = 1; // trakbot
 
    i++;
    sprintf(ge_data[i].name, "Shot Proximity");
@@ -428,10 +429,11 @@ void mwWindow::ge_init_data(void)
    ge_data[i].adj_max = 200;
    ge_data[i].min_allowed = 2;
    ge_data[i].max_allowed = 2000;
-   cot[i][3][3]  = 1; // archwagon
-   cot[i][3][6]  = 1; // cannon
-   cot[i][3][8]  = 1; // trakbot
-   cot[i][3][12] = 1; // flapper
+   cot[i][3][2] = 1; // cannon
+   cot[i][3][3] = 1; // archwagon
+   cot[i][3][6] = 1; // flapper
+   cot[i][3][8] = 1; // trakbot
+
 
 
    i++;
@@ -521,6 +523,31 @@ void mwWindow::ge_init_data(void)
    cot[i][2][13] = 1; // timer
    cot[i][2][17] = 1; // block damage
 
+   i++;
+   sprintf(ge_data[i].name, "Pause Time");
+   sprintf(ge_data[i].snam, "paus");
+   ge_data[i].vartyp = 4;
+   ge_data[i].varnum = 9;
+   ge_data[i].adj_min = 10;
+   ge_data[i].adj_max = 100;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 800;
+   cot[i][3][7]  = 1; // vinepod
+
+   i++;
+   sprintf(ge_data[i].name, "Extend Time");
+   sprintf(ge_data[i].snam, "extm");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 17;
+   ge_data[i].adj_min = 10;
+   ge_data[i].adj_max = 100;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 800;
+   cot[i][3][7]  = 1; // vinepod
+
+
+
+
    //printf("i:%d\n", i);
 }
 
@@ -549,6 +576,18 @@ void mwWindow::ge_clear_obj_list(void)
 {
    for (int o=0; o<NUM_OBJ; o++) mwWM.obj_list[o][0] = 0;
 }
+
+void mwWindow::ge_collapse_all_controls(void)
+{
+   for (int i=0; i<40; i++) if (ge_data[i].vartyp) ge_data[i].collapsed = 1;
+}
+
+void mwWindow::ge_expand_all_controls(void)
+{
+   for (int i=0; i<40; i++) if (ge_data[i].vartyp) ge_data[i].collapsed = 0;
+}
+
+
 
 void mwWindow::ge_add_to_obj_list(int t, int i)
 {
@@ -679,20 +718,20 @@ int mwWindow::ge_draw_list_items(int x1, int y1, int ni)
 
             // valid variables
             for (int ge_num=0; ge_num<40; ge_num++)
-            if ((ge_data[ge_num].valid) && (!ge_data[ge_num].collapsed) && (ge_data[ge_num].vartyp != 5) && (ge_data[ge_num].vartyp != 6))
-               {
-                  int vt = ge_data[ge_num].vartyp;
-                  int vn = ge_data[ge_num].varnum;
+               if ((ge_data[ge_num].valid) && (!ge_data[ge_num].collapsed) && (ge_data[ge_num].vartyp != 5) && (ge_data[ge_num].vartyp != 6))
+                  {
+                     int vt = ge_data[ge_num].vartyp;
+                     int vn = ge_data[ge_num].varnum;
 
-                  if (vt == 2) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][vn]);
-                  if (vt == 3) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mEnemy.Ei[num][vn]);
-                  if (vt == 4) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2.1f", mEnemy.Ef[num][vn]);
-                  if (vt == 5) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mEnemy.Ei[num][2]);
-                  if (vt == 8) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][6] + mItem.item[num][8]/2); // secondary x center
-                  if (vt == 9) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][7] + mItem.item[num][9]);   // secondary y2
+                     if (vt == 2) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][vn]);
+                     if (vt == 3) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mEnemy.Ei[num][vn]);
+                     if (vt == 4) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2.1f", mEnemy.Ef[num][vn]);
+                     //if (vt == 5) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mEnemy.Ei[num][2]);
+                     if (vt == 8) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][6] + mItem.item[num][8]/2); // secondary x center
+                     if (vt == 9) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][7] + mItem.item[num][9]);   // secondary y2
 
-                  xt+=40;
-               }
+                     xt+=40;
+                  }
          }
    }
    return xt;
@@ -777,7 +816,7 @@ void mwWindow::ge_set_var(int gvt, int gvn, int num, float val)
    if (gvt == 4)
    {
       mEnemy.Ef[num][gvn] = val;
-      if (gvn == 9) mEnemy.recalc_pod(num);
+      //if (gvn == 9) mEnemy.recalc_pod(num);
       if ((gvn == 5) && ((mEnemy.Ei[num][0] == 4) || (mEnemy.Ei[num][0] == 6))) mEnemy.scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
    }
    if (gvt == 8) mItem.item[num][6] = val - mItem.item[num][8]/2; // given xc, set x1 (w is different for every obj) // x1 = center - 1/2 width
@@ -789,7 +828,7 @@ float mwWindow::ge_get_var(int gvt, int gvn, int num)
    float val = 0;
    if (gvt == 2) val = mItem.item[num][gvn];
    if (gvt == 3) val = mEnemy.Ei[num][gvn];
-   if (gvt == 4) val = mEnemy.Ef[num][gvn] = val;
+   if (gvt == 4) val = mEnemy.Ef[num][gvn];
    if (gvt == 8) val = mItem.item[num][6] + mItem.item[num][8]/2; // xc = x + w/2
    if (gvt == 9) val = mItem.item[num][7] + mItem.item[num][9];   // y2 = y1 + h
    return val;
@@ -801,11 +840,9 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
 {
    char msg[1024];
    int nc = 0; // number of valid controls
-
-
    int by = y;
    int bts = 16;
-   int y_spacing = 6; // spacing between groups
+   int y_spacing = 2; // spacing between groups
 
    // find number of items in list
    int ni = 0;
@@ -829,20 +866,33 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
             int x3 = x2 - 60;
             int x4 = x1 + 160;
 
-            int fy1 = by; // for frame drawing at end
+            int fy1 = by-2; // for frame drawing
+            int fy2 = by + bts; // for frame drawing
 
-            //sprintf(msg, "Group Edit - %s", ge_data[ge_num].name);
+            // get frame size
+            if (!ge_data[ge_num].collapsed)
+            {
+               if ((gvt == 2) || (gvt == 3) || (gvt == 4) || (gvt == 8) || (gvt == 9)) fy2 += bts * 3;
+               else fy2 += bts;
+            }
+
+
+            // frame control section
+            int fx1 = x1+1;
+            int fx2 = x2+1;
+            int fcol = 13;
+            if ((mInput.mouse_x > fx1) && (mInput.mouse_x < fx2) && (mInput.mouse_y > fy1) && (mInput.mouse_y < fy2)) fcol = 10;
+
+            al_draw_filled_rectangle(fx1, fy1, fx2, fy2, mColor.pc[fcol+208]);
+            al_draw_rectangle(fx1, fy1, fx2, fy2, mColor.pc[fcol], 1);
+
             sprintf(msg, "%s", ge_data[ge_num].name);
-
+            //adjust button size to text
             int sl = (strlen(msg)+2)*4;
-
             int tx1 = x4 - sl + 3;
             int tx2 = x4 + sl - 1;
-
-
-//            mWidget.toggle(x1+3+40, by, x2-1-40, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, ge_data[ge_num].collapsed, msg, msg,  15, 15, 12, 15+64);
-
-            mWidget.toggle(tx1, by, tx2, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, ge_data[ge_num].collapsed, msg, msg,  15, 15, 12, 15+64);
+            mWidget.toggle(tx1, by, tx2, bts, 0,0,0,0, 0,0,0,0, 1,0,0,d, ge_data[ge_num].collapsed, msg, msg,  15, 15, 12, 12);
+            mWidget.toggle(x2-12, by, x2-4, bts, 0,0,0,0, 0,-1,0,0, 1,0,1,d, ge_data[ge_num].collapsed, "-", "+",  15, 15, -1, -1);
 
             if (!ge_data[ge_num].collapsed)
             {
@@ -956,19 +1006,6 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
                   }
                }
             } // end of not collapsed
-
-
-            // frame control section
-            int fx1 = x1+1;
-            int fx2 = x2+1;
-            fy1 -=2;
-            int fy2 = by;
-            int fcol = 13;
-            if ((mInput.mouse_x > fx1) && (mInput.mouse_x < fx2) && (mInput.mouse_y > fy1) && (mInput.mouse_y < fy2)) fcol = 10;
-            al_draw_rectangle(fx1, fy1, fx2, fy2, mColor.pc[fcol], 2);
-
-
-
             by+=y_spacing+1;
          } // end of valid ge_num
    } // end of more than 0 items in list
@@ -1001,7 +1038,7 @@ void mwWindow::ge_add_selection_to_list(int set_filters)
          int typ = mwWM.obj_list[i][0];
          int num = mwWM.obj_list[i][1];
          if (typ == 2) mwWM.obj_filter[typ][mItem.item[num][0]] = 1;
-         if (typ == 3) mwWM.obj_filter[typ][  mEnemy.Ei[num][0]] = 1;
+         if (typ == 3) mwWM.obj_filter[typ][ mEnemy.Ei[num][0]] = 1;
       }
    }
 }

@@ -747,16 +747,15 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
          }
          if (o==3)
          {
-            if (t == 3)  mHelp.help("Archwagon Viewer");
-            if (t == 4)  mHelp.help("Bouncer Viewer");
-            if (t == 5)  mHelp.help("Jumpworm Viewer");
-            if (t == 6)  mHelp.help("Cannon Viewer");
-            if (t == 7)  mHelp.help("Podzilla Viewer");
-            if (t == 8)  mHelp.help("Trakbot Viewer");
-            if (t == 9)  mHelp.help("Cloner Viewer");
-            if (t == 10) mHelp.help("Field Viewer");
-            if (t == 11) mHelp.help("Block Walker Viewer");
-            if (t == 12) mHelp.help("Flapper Viewer");
+            if (t == 1) mHelp.help("Bouncer Viewer");
+            if (t == 2) mHelp.help("Cannon Viewer");
+            if (t == 3) mHelp.help("Archwagon Viewer");
+            if (t == 4) mHelp.help("BlokWalk Viewer");
+            if (t == 5) mHelp.help("Jumpworm Viewer");
+            if (t == 6) mHelp.help("Flapper Viewer");
+            if (t == 7) mHelp.help("Vinepod Viewer");
+            if (t == 8) mHelp.help("Trakbot Viewer");
+            if (t == 9) mHelp.help("Cloner Viewer");
          }
          if (o==4)
          {
@@ -813,7 +812,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
       if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_TOUCH) sprintf(msg, "Trigger:Touch");
       if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_UP)    sprintf(msg, "Trigger:Up");
       if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_DOWN)  sprintf(msg, "Trigger:Down");
-      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_SHOT)  sprintf(msg, "Trigger:Bullet");
+      if (mItem.item[num][2] & PM_ITEM_ORB_TRIG_SHOT)  sprintf(msg, "Trigger:Shot");
    }
 
 
