@@ -558,11 +558,6 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
       original_dx = mEnemy.Ef[num][0];
       original_dy = mEnemy.Ef[num][1];
    }
-   if (obj_type == 99) // pod extended
-   {
-      original_dx = mEnemy.Ef[num][5];
-      original_dy = mEnemy.Ef[num][6];
-   }
    if (obj_type == 98) // cloner destination
    {
       original_dx = mEnemy.Ei[num][17];
@@ -606,19 +601,7 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
 
       crosshairs_full(mwWM.gx*20+10, mwWM.gy*20+10, 15, 1);
 
-      if (obj_type == 99) // move pod extended
-      {
-         int ex = mEnemy.Ef[num][0]+10;
-         int ey = mEnemy.Ef[num][1]+10;
-         int px = mEnemy.Ef[num][5]+10;
-         int py = mEnemy.Ef[num][6]+10;
-         float rot = mEnemy.Ef[num][14];
-         al_draw_scaled_rotated_bitmap(mBitmap.tile[mEnemy.Ei[num][1]], 10, 10, px, py, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
-         al_draw_line(ex, ey, px, py, mColor.pc[10], 1); // connect with line
-      }
-
       if ((obj_type == 90) || (obj_type == 91) || (obj_type == 92)) mEnemy.draw_vinepod_controls(num, -1); // move vinepod extended, cp1, cp2
-
 
       if (obj_type == 98) // move cloner destination
       {
@@ -683,13 +666,6 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
             mLift.set_lift_to_step(lift, step);   // set current step in current lift
          }
          break;
-         case 99: // move pod extended
-         {
-            mEnemy.Ef[num][5] = mwWM.gx*20;
-            mEnemy.Ef[num][6] = mwWM.gy*20;
-            mEnemy.recalc_pod(num);
-         }
-         break;
          case 98: // cloner destination
          {
             mEnemy.Ei[num][17] = mwWM.gx*20;
@@ -750,7 +726,6 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
       }
    } // end of while(!quit);
 
-
    if (mwWM.gx > 99) mwWM.gx = 99;
    if (mwWM.gy > 99) mwWM.gy = 99;
 
@@ -783,15 +758,10 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
           mEnemy.Ei[num][7] = original_dx;
           mEnemy.Ei[num][8] = original_dy;
       }
-      if (obj_type == 99)
+      if (obj_type == 98) // cloner destination
       {
-          mEnemy.Ef[num][5] = original_dx;
-          mEnemy.Ef[num][6] = original_dy;
-      }
-      if (obj_type == 98)
-      {
-          mEnemy.Ef[num][5] = original_dx;
-          mEnemy.Ef[num][6] = original_dy;
+          mEnemy.Ei[num][17] = original_dx;
+          mEnemy.Ei[num][18] = original_dy;
       }
       if (obj_type == 97) // restore rocket direction
       {

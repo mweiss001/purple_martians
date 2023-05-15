@@ -6,7 +6,7 @@
 
 
 
-// used by podzilla and vinepod
+// used by vinepod
 int mwEnemy::is_player_in_enemy_trigger_box(int e)
 {
    int x1 = Ei[e][11] - 10; // trigger box
@@ -25,7 +25,7 @@ int mwEnemy::is_player_in_enemy_trigger_box(int e)
 
 
 
-// used in pod when moving
+// used in vinepod when moving
 // used in bouncer always
 // used in cannon when player not in prox range
 // used in level editor scale_bouncer_and_cannon_speed(int e)
@@ -35,7 +35,7 @@ void mwEnemy::set_enemy_rot_from_incs(int e)
 }
 
 // used in cannon when player in prox range
-// used in podzilla and vinepod
+// used in vinepod
 void mwEnemy::set_enemy_rot_from_player(int e, int p)
 {
    float xlen = mPlayer.syn[p].x - Ef[e][0];
@@ -58,8 +58,6 @@ void mwEnemy::set_enemy_xyinc_from_player(int e, int p)
 
 // used by flapper y seek
 // used by trakbot falling seek
-// used by podzilla shoot
-// used by podzilla to set rot when extended
 // used by vinepod shoot
 // used by vinepod to set rot when extended
 // used by walker_archwagon_common in follow mode

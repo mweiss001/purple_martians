@@ -668,29 +668,13 @@ void mwWindow::em_process_mouse(void)
             mEnemy.Ef[c][0] += ofx;  // apply offsets
             mEnemy.Ef[c][1] += ofy;
 
-            if (type == 13) // vinepod
+            if (type == 7) // vinepod
             {
-               for (int i=3; i<12; i+=2)
+               for (int i=3; i<13; i+=2) // all spline and trigger x y also
                {
                   mEnemy.Ei[c][i+0] = mEnemy.Ei[din][i+0] + ofx;
                   mEnemy.Ei[c][i+1] = mEnemy.Ei[din][i+1] + ofy;
                }
-            }
-            if (type == 7) // podzilla
-            {
-               if (mInput.SHFT()) // move stuff also
-               //if (al_show_native_message_box(mDisplay.display, "Move?", "Move podzilla's extended position too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
-               {
-                   mEnemy.Ef[c][5] = mEnemy.Ef[din][5] + ofx;
-                   mEnemy.Ef[c][6] = mEnemy.Ef[din][6] + ofy;
-               }
-               if (mInput.SHFT()) // move stuff also
-               //if (al_show_native_message_box(mDisplay.display, "Move?", "Move podzilla's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
-               {
-                  mEnemy.Ei[c][11] = mEnemy.Ei[din][11] + ofx;
-                  mEnemy.Ei[c][12] = mEnemy.Ei[din][12] + ofy;
-               }
-               mEnemy.recalc_pod(c);
             }
             if (type == 9) // cloner
             {

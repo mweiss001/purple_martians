@@ -14,65 +14,49 @@
 void mwEnemy::fill_strings(void)
 {
    strcpy (enemy_name[0][0],  "empty");
-   strcpy (enemy_name[1][0],  "undef");
-   strcpy (enemy_name[2][0],  "undef");
+   strcpy (enemy_name[1][0],  "Bouncer");
+   strcpy (enemy_name[2][0],  "Cannon");
    strcpy (enemy_name[3][0],  "ArchWagon");
-   strcpy (enemy_name[4][0],  "Bouncer");
+   strcpy (enemy_name[4][0],  "BlokWalk");
    strcpy (enemy_name[5][0],  "JumpWorm");
-   strcpy (enemy_name[6][0],  "Cannon");
-   strcpy (enemy_name[7][0],  "PodZilla");
+   strcpy (enemy_name[6][0],  "Flapper");
+   strcpy (enemy_name[7][0],  "VinePod");
    strcpy (enemy_name[8][0],  "TrakBot");
    strcpy (enemy_name[9][0],  "Cloner");
-   strcpy (enemy_name[10][0], "undef");
-   strcpy (enemy_name[11][0], "Block Walker");
-   strcpy (enemy_name[12][0], "Flapper");
-   strcpy (enemy_name[13][0], "VinePod");
 
    strcpy (enemy_name[0][1],  "mpty");
-   strcpy (enemy_name[1][1],  "undf");
-   strcpy (enemy_name[2][1],  "undf");
+   strcpy (enemy_name[1][1],  "boun");
+   strcpy (enemy_name[2][1],  "cann");
    strcpy (enemy_name[3][1],  "arch");
-   strcpy (enemy_name[4][1],  "boun");
+   strcpy (enemy_name[4][1],  "bkwk");
    strcpy (enemy_name[5][1],  "jump");
-   strcpy (enemy_name[6][1],  "cann");
-   strcpy (enemy_name[7][1],  "podz");
+   strcpy (enemy_name[6][1],  "flap");
+   strcpy (enemy_name[7][1],  "vine");
    strcpy (enemy_name[8][1],  "trak");
    strcpy (enemy_name[9][1],  "clon");
-   strcpy (enemy_name[10][1], "undf");
-   strcpy (enemy_name[11][1], "blkw");
-   strcpy (enemy_name[12][1], "flap");
-   strcpy (enemy_name[13][1], "vine");
    strcpy (enemy_name[66][1], "dth2");
    strcpy (enemy_name[99][1], "dth1");
 
-
-
    strcpy (enemy_name[0][2],  "empty");
-   strcpy (enemy_name[1][2],  "undef");
-   strcpy (enemy_name[2][2],  "undef");
+   strcpy (enemy_name[1][2],  "bouncer");
+   strcpy (enemy_name[2][2],  "cannon");
    strcpy (enemy_name[3][2],  "archwagon");
-   strcpy (enemy_name[4][2],  "bouncer");
+   strcpy (enemy_name[4][2],  "blokwalk");
    strcpy (enemy_name[5][2],  "jumpworm");
-   strcpy (enemy_name[6][2],  "cannon");
-   strcpy (enemy_name[7][2],  "podzilla");
+   strcpy (enemy_name[6][2],  "flapper");
+   strcpy (enemy_name[7][2],  "vinepod");
    strcpy (enemy_name[8][2],  "trakbot");
    strcpy (enemy_name[9][2],  "cloner");
-   strcpy (enemy_name[10][2], "undef");
-   strcpy (enemy_name[11][2], "block walker");
-   strcpy (enemy_name[12][2], "flapper");
-   strcpy (enemy_name[13][2], "vinepod");
 
+   enemy_tile[1]  = 508;
+   enemy_tile[2]  = 415;
    enemy_tile[3]  = 496;
-   enemy_tile[4]  = 508;
+   enemy_tile[4] = 866;
    enemy_tile[5]  = 706;
-   enemy_tile[6]  = 415;
+   enemy_tile[6]  = 159;
    enemy_tile[7]  = 374;
    enemy_tile[8]  = 384;
    enemy_tile[9]  = 550;
-   enemy_tile[10] = 550;
-   enemy_tile[11] = 866;
-   enemy_tile[12] = 159;
-   enemy_tile[13] = 374;
 }
 
 
@@ -80,16 +64,14 @@ void mwEnemy::erase_enemy(int e)
 {
    for (int a=0; a<32; a++) Ei[e][a] = 0;
    for (int a=0; a<16; a++) Ef[e][a] = 0;
-
 }
-
 
 int mwEnemy::show_enemy_data(int x_pos, int y_pos)
 {
    sort_enemy();
    al_draw_textf(mFont.pr8, mColor.pc[4], x_pos, y_pos, 0, "%-2d Enemies", num_enemy); y_pos += 8;
    al_draw_text(mFont.pr8, mColor.pc[4], x_pos, y_pos,  0, "----------"); y_pos += 8;
-   for (int c=1; c<16; c++)
+   for (int c=1; c<10; c++)
    {
       if (e_num_of_type[c]) // not zero
       {
@@ -136,31 +118,6 @@ int mwEnemy::get_empty_enemy(int type)
    }
 }
 
-void mwEnemy::recalc_pod(int e)
-{
-   float xlen = Ef[e][5] - Ef[e][0];           // get the x distance
-   float ylen = Ef[e][6] - Ef[e][1];           // get the y distance
-   float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));    // hypotenuse distance
-   float speed = Ef[e][9];                      // speed
-   float scaler = hy_dist / speed;     // get scaler
-   Ef[e][2] = xlen / scaler;         // calc xinc
-   Ef[e][3] = ylen / scaler;         // calc yinc
-   Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI/2;  // rotation
-   Ei[e][7] = scaler; // num steps
-}
-
-void mwEnemy::get_pod_extended_position(int e, int *x, int *y)
-{
-   float ex = Ef[e][0];
-   float ey = Ef[e][1];
-   for (int j=0; j<Ei[e][7]; j++)
-   {
-      ex += Ef[e][2];
-      ey += Ef[e][3];
-   }
-   *x = ex;
-   *y = ey;
-}
 
 void mwEnemy::show_all_enemies(void)
 {
@@ -247,8 +204,8 @@ void mwEnemy::sort_enemy(void)
          }
    }
 
-   // get data about first 50 enem types and make sub lists of enem types using these variables
-   for (int x=0; x<50; x++) // zero the type counters
+   // get data about first 20 enem types and make sub lists of enem types using these variables
+   for (int x=0; x<20; x++) // zero the type counters
    {
       e_num_of_type[x] = 0;
       e_first_num[x] = 0;
@@ -260,7 +217,7 @@ void mwEnemy::sort_enemy(void)
       if (Ei[e][0]) num_enemy++;   // inc total num
    }
 
-   for (int x=0; x<50; x++)  // get first nums
+   for (int x=0; x<20; x++)  // get first nums
       if (e_num_of_type[x] > 0)  // are there any of this type?
          for (int y=0; y<100; y++)
             if (Ei[y][0] == x)
@@ -292,6 +249,7 @@ int mwEnemy::create_cloner(void)
    Ei[e][29] = 10;  // default collision box
 
 
+
    if (mMiscFnx.getxy("Cloner Location", 3, 9, e) == 1)
    {
       if (mMiscFnx.get_block_range("Cloner Source Area", &Ei[e][15], &Ei[e][16], &Ei[e][19], &Ei[e][20], 1))
@@ -311,85 +269,43 @@ int mwEnemy::create_cloner(void)
    else return e;
 }
 
-int mwEnemy::create_pod(void)
-{
-   int aborted_create = 0;
-   int e = get_empty_enemy(7); // type 7 - pod
-
-   Ei[e][1] = 374;   // shape
-   Ei[e][2] = 0;     // draw type
-   Ef[e][12] = 1;  // scale
-   Ef[e][14] = 0;  // rotation
-   Ef[e][7] = 6;     // shot speed
-   Ef[e][9] = 10;    // default speed
-   Ei[e][7] = 20;    // default seq delay
-   Ei[e][9] = 20;    // default delay
-   Ei[e][25] = 12;  // health bonus
-   Ei[e][29] = 10;  // default collision box
-   Ef[e][4] = 2;   // damage
-
-   if (mMiscFnx.getxy("Podzilla", 3, 7, e) == 1)
-   {
-      if (mMiscFnx.getxy("Pod Extended Position", 99, 7, e) == 1)
-      {
-         if (!mMiscFnx.get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
-      }
-      else aborted_create = 1;
-   }
-   else aborted_create = 1;
-
-   if (aborted_create)
-   {
-      Ei[e][0] = 0;
-      sort_enemy();
-      return -1;
-   }
-   else return e;
-}
-
 int mwEnemy::create_vinepod(void)
 {
    int aborted_create = 0;
-   int e = get_empty_enemy(13);
+   int e = get_empty_enemy(7);
 
-   Ei[e][1] = 374;             // shape
-   Ei[e][2] = 0;               // draw type
-   Ef[e][12] = 1;  // scale
-   Ef[e][14] = 0;  // rotation
-   Ef[e][7] = 6;   // shot speed
-   Ei[e][17] = 120;            // extend time
-   Ei[e][19] = 20;             // pause
-   Ei[e][25] = 13;             // health bonus
-   Ei[e][29] = 10;             // default collision box
-   Ef[e][4] = 2;   // damage
+   Ei[e][1] = 374;   // shape
+   Ei[e][2] = 0;     // draw type
+   Ei[e][17] = 120;  // extend time
+
+   Ei[e][25] = 13;   // health bonus
+   Ei[e][29] = 10;   // default collision box
+
+   Ef[e][4] = 2;     // damage
+   Ef[e][6] = 1;     // control point multipier
+   Ef[e][7] = 6;     // shot speed
+   Ef[e][9] = 20;    // pause
+   Ef[e][12] = 1;    // scale
+   Ef[e][14] = 0;    // rotation
+
+   Ei[e][20] = 0;
+   Ei[e][20] |= PM_ENEMY_VINEPOD_FIRE_SHOT;
+   Ei[e][20] |= PM_ENEMY_VINEPOD_USE_TRIGGER;
 
    if (mMiscFnx.getxy("VinePod Initial Position", 3, 17, e) == 1)
    {
-      // enforce that 34 is 01
+      // also set initial position in 3,4
       Ei[e][3] = Ef[e][0];
       Ei[e][4] = Ef[e][1];
 
-      // temporarily set control points to the same as initial position
-      Ei[e][5] = Ei[e][3];
-      Ei[e][6] = Ei[e][4];
-      Ei[e][7] = Ei[e][3];
-      Ei[e][8] = Ei[e][4];
-
       if (mMiscFnx.getxy("VinePod Extended Position", 90, 17, e) == 1)
       {
+         mEnemy.vinepod_set_cp_thirds(e);
          if (!mMiscFnx.get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
-
-         // set control points away from initial position to make them easier to adjust l
-         Ei[e][5] = Ei[e][3]+20;
-         Ei[e][6] = Ei[e][4]-20;
-         Ei[e][7] = Ei[e][3]-20;
-         Ei[e][8] = Ei[e][4]-20;
-
       }
       else aborted_create = 1;
    }
    else aborted_create = 1;
-
    if (aborted_create)
    {
       Ei[e][0] = 0;

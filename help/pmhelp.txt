@@ -1204,7 +1204,7 @@ Objects that have already been added to the list have a red outline.
 
 Right-click on the object list and choose <l09>'Hide Selection'
 
-Click on any blue outlined object to add it too the list.
+Click on any blue outlined object to add it to the list.
 
 
 <l06>To add multiple objects:
@@ -1295,6 +1295,60 @@ Can choose a random direction or make them aim at the 'Start' block.
 
 
 <section>Tile Helper
+
+
+<c15>Tile Helper assists with applying tilesets.
+
+<c15>It automatically selects the proper tile for edges, corners, ends, etc.
+<b15>
+
+
+<l13>How to use.
+<b15>
+- Add marks to tiles you want to work with.
+
+- Choose a tileset to apply to the marked tiles.
+
+
+<l13>Modify Which Tiles Are Marked.
+<b15>
+Tiles that are marked have a flashing outline and 'X'.
+
+The number of marked tiles is shown in purple.
+
+<l15>Click <l14>'Clear All'<l15> to remove all marks.
+<b15>
+
+Toggle 'Action' between <l09>'Add Marks' <l15>and <l09>'Remove Marks'
+
+<b15>
+
+Toggle 'Filter' between:
+
+<l07>Single Tile
+Adds / Removes only the single tile pointed at by the mouse.
+
+<l07>All Matching Tiles
+Adds / Removes all tiles that match the tile pointed at by the mouse.
+
+<l07>Connected Matching Tiles
+Adds / Removes all tiles that match the tile pointed at by the mouse
+and are directly adjacent to the tile.
+
+<b15>
+
+If 'Filter' is set to a match type, the following option is available:
+
+Toggle 'Match' between: <l07>'Specific Tile Only' <l15>and <l07>'All Tiles In Set'
+
+
+<l13>Apply a new tileset.
+<b15>
+Once you have all the tiles you want marked, choose a tileset to 
+transform the marked tiles to a new tileset.
+
+
+(You might want to save your work first, just in case!)
 
 
 
@@ -1428,18 +1482,22 @@ Can choose a random direction or make them aim at the 'Start' block.
 <l15>You can move an object by clicking and dragging it on the map.
 
 
-<l15>You can also adjust some other properties on the map, like:
+<l15>You can also adjust other properties on the map, like:
 
-<l15> - cloner and podzilla trigger box
+
+<l15> - podzilla and vinepod trigger box
+
+<l15> - enemy shot proximity
 
 <l15> - cloner source and destination boxes
 
-<l15> - keys locked block range
+<l15> - key and switch block range
 
 <l15> - message display position
 
 <l15> - sproingy jump height
 
+<l15> - bomb and rocket blast radius
 
 
 <l15>If the mouse on the map touches another object, the viewer
@@ -1594,20 +1652,17 @@ Can choose a random direction or make them aim at the 'Start' block.
 
 <l04>    Description:
 
-<l15> When the player touches the scroll, a message is shown.
+<l15> Displays a message in the level.
+
+<l15> Can be always on, or triggered by event, or by touching the scroll.
 
 <b15>
 
 <l04>    Buttons:
 
-<l09> [Stationary:Fall:Carry]
+<l09> Show Always:[ON|OFF]
 
-<l15>  - Does the item fall, or is it stationary, or carryable?
-
-
-<l09> Set Message Position
-
-<l15>  - Prompts you to set a new place on the level to display the message.
+<l15>  - If 'ON' the message is always displayed.
 
 
 <l09> Message Display Time
@@ -1615,35 +1670,66 @@ Can choose a random direction or make them aim at the 'Start' block.
 <l15>  - How long the message displays after being triggered.
 
 
+<l09> Show Scroll:[ON|OFF]
+
+<l15>  - If 'ON' the scroll is shown, and touching it triggers the message.
+
+
+<l09> The 'Event Trigger' slider lets you specify an event trigger.
+
+<l15>  - If set, the message will be triggered when the event is received.
+
+<l15>  - The better way to set it is by clicking <l09>'Set Event Trigger'
+<l15>    which will prompt you to choose a trigger item, then automatically
+<l15>    find an unused event and set it for both objects.
+
+
+<l09> Get New Message Area
+
+<l15>  - Prompts you to draw a new message display area on the level.
+
+
+<l09> Frame Size:
+
+<l15>  - Click to cycle through the different frame sizes.
+
+
 <l09> Select Text Color:
 
-<l15> - Sets the color of the text.
+<l15>  - Sets the color of the text.
 
 
 <l09> Select Frame Color:
 
-<l15> - Sets the color of the frame.
+<l15>  - Sets the color of the frame.
 
 
 <l09> Edit Message:
 
-<l15> - Starts the text editor immediately below the button.
+<l15>  - Starts the text editor in the message below the button.
 
-<l15> - Edit the text in place, in the message below.
+<l15>  - You can use [LEFT], [RIGHT], [BACKSPACE], [DELETE]
 
-<l15> - You can use [LEFT], [RIGHT], [BACKSPACE], [DELETE]
+<l15>  - [HOME], [END], [ENTER] makes a new line, [ESC] aborts
 
-<l15> - [ENTER] makes a new line, [ESCAPE] aborts
+<l15>  - [SHIFT] + [LEFT] or [RIGHT] moves one word at a time.
 
-<l15> - When done click (Ok) or (Cancel) above the message
+<l15>  - When done click <l11>(OK)<l15> or <l10>(Cancel)<l15> above the message
 
 <b15>
 
 <l04>   Map Controls:
 
-<l15> - Set new message display position by dragging the message on the map.
+<l15>  - Move the scroll by dragging to a new position on the level.
 
-<l15> - Hold SHIFT to move the message item and the displayed message together.
+<l15>  - Hold SHIFT to move the scroll and the displayed message together.
+
+
+<l15>  - Move the message position by dragging the upper left corner.
+
+<l15>  - Resize the message by dragging the lower right corner.
+
+<l15>  - Hold SHIFT to constrain the message size and position to blocks.
 
 
 <section>Door Viewer
@@ -1797,7 +1883,7 @@ Can choose a random direction or make them aim at the 'Start' block.
 <l15> - Player collision
 <l15> - Player collision and [UP] pressed
 <l15> - Player collision and [DOWN] pressed
-<l15> - Player's bullet collision
+<l15> - Player's shot collision
 
 <b15>
 
@@ -1849,7 +1935,7 @@ Can choose a random direction or make them aim at the 'Start' block.
 <l15>  - Cycles through the four rotations
 
 
-<l09> Trigger:[Touch|Up|Down|Bullet]
+<l09> Trigger:[Touch|Up|Down|Shot]
 
 <l15>  - Cycles through the different trigger types
 
@@ -1874,8 +1960,8 @@ Can choose a random direction or make them aim at the 'Start' block.
 <l15> - Players
 <l15> - Enemies
 <l15> - Items
-<l15> - Player's Bullets
-<l15> - Enemy's Bullets
+<l15> - Player's Shots
+<l15> - Enemy's Shots
 
 <b15>
 
@@ -1910,7 +1996,7 @@ The rectangular trigger area can be hidden or shown in various colors.
 <l15>  - Shows or hides the Trigger Field and lets you select the color. 
 
 
-<l09> [Players, Enemies, Items, Player's Bullets, Enemy's Bullets]
+<l09> [Players, Enemies, Items, Player's Shots, Enemy's Shots]
 <l15>  - Toggles triggering for each object individually.
 
 
@@ -2107,8 +2193,8 @@ The Block Manip Field can be hidden or shown in various colors.
 <l15> - Players
 <l15> - Enemies
 <l15> - Items
-<l15> - Player's Bullets
-<l15> - Enemy's Bullets
+<l15> - Player's Shots
+<l15> - Enemy's Shots
 
 <b15>
 
@@ -2207,8 +2293,7 @@ The Block Damage Field can be hidden or shown in various ways.
 <section>Bonus Viewer
 
 
-<l15> There are 3 types of Bonus:
-
+<c15>There are 2 types of Bonus, Health Bonus and Purple Coin
 <b15>
 
 <h14>    Health Bonus (10)
@@ -2338,13 +2423,13 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>    Description:
 
-<l15> When touched by a player, the rocket accelerates until it hits something.
+<l15> When touched by a player, the rocket ignites and starts accelerating.
 
-<l15> Then it explodes just like a bomb. (See bombs)
+<l15> When it collides with a solid block, it explodes just like a bomb.
 
-<l15> Players can ride rockets by holding the [FIRE] button and
+<l15> Players hold on and ride can ride rockets by holding the [FIRE] button
 
-<l15> using [LEFT] and [RIGHT] to steer.
+<l15> and can steer the rocket with [LEFT] and [RIGHT].
 
 <b15>
 
@@ -2926,24 +3011,25 @@ The Block Damage Field can be hidden or shown in various ways.
 
 
 
-<section>Podzilla Viewer
+<section>Vinepod Viewer
 
 
-<h14>    Podzilla
+<h14>    Vinepod
 <a15>
 <b15>
 
 <l04>    Description:
 
-<l15> When the player enters the trigger box, the Podzilla
-<l15> pops up and shoots a green bullet at the player.
+ When triggered, the Vinepod grows and extends, shoots a green seed at
 
+ the closest player, then retracts.
+ 
 <b15>
 
 <l04>    Buttons:
 
 <l09> Speed:[1-30]
-<l15>  - The speed of the Podzilla when it moves.
+<l15>  - The speed of the Vinepod when extending and retracting.
 
 <l09> Wait Time:[0-500]
 <l15>  - The delay before shooting and retreating.

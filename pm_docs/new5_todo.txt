@@ -3,21 +3,13 @@
 ---------------------------------------------------------
 
 
+I have been having some problems with using the mouse scroll wheel to adjust sliders
+
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
-
-make all ge controls collapsed by default?
-make + and - buttons to collapse/expand all...??
-make tinted backgrounds for controls...???
-
-
-
-
-add help entries for ge and th
-
-ge is pretty much done
-
 
 
 
@@ -25,8 +17,32 @@ go through every page of help
 player colors
 got to pop up menu
 got to edit selection
+got to message
 
 
+got to podzilla...
+
+need to add vinepod
+
+need to modify block walker
+can a make it an arbitrary block it turns into?
+
+
+lifts do not mention that you can resize and recolor for each step
+and also make solid or not for various types of objects
+
+20230514
+
+where am I at?
+
+vinepod is just about done
+
+integrate the rotation and shift buttons
+maybe even try a non 90 degree rotation
+
+see if I can make flag toggles work in group edit
+
+Redo vinepod demo level
 
 
 
@@ -139,6 +155,377 @@ VinePod
 -------------------------------
 -- Random thoughts and ideas --
 -------------------------------
+
+
+podzilla and vinepod are very similar
+
+I wonder if I could make vinepod do everything that podzilla does?
+
+
+If I put cp1 and cp2 at 1/3 and 2/3 position in between initial and extended
+that works...
+
+
+as for speed:
+podzilla speed is pixels/frame
+vinepod speed is num of frames to get to extended
+
+
+to convert podzilla speed to vinepod
+get podzilla hypot distance
+divide by podzilla speed
+get time, that can be plugged into vinepod
+v=d/t
+d=vt
+t=d/v
+
+can i make a vinepod have a simple option? ignore cp?
+
+
+how about the first step is to make them have the same speed
+
+I have this function called re-calc pod that could possibly go away too
+
+
+pod will just store main and extended pos and time
+when time is running
+
+
+vinepod actually stores extended pos in 9,10
+
+can podzilla do the same?
+
+podzilla could move 5-9 to 15-19 and be just like vinepod
+
+I am really thinking about just doing it....
+convert all podzilla to vinepod
+then after that I can make some simple if I want
+
+do both do the timer count thing the same?
+
+
+is speed stored anywhwere in podzilla?
+
+vinepod
+//     Ei[e][15] = mode
+//     Ei[e][16] = sequence counter
+//     Ei[e][17] = sequence limit
+//     Ei[e][18] = wait count
+//     Ei[e][19] = wait limit
+set 17 and 19 direct
+
+podzilla
+//     Ei[e][5] = mode
+//     Ei[e][6] = sequence counter
+//     Ei[e][7] = sequence limit
+//     Ei[e][8] = wait count
+//     Ei[e][9] = wait limit
+set 9 direct
+set speed Ef[e][9] direct then calculate Ei[e][7]..time
+
+
+convert podzillas to use 15-19 instead of 5-9
+then add main and extended pos to
+Ei[e][3]  = x initial position
+Ei[e][4]  = y initial position
+Ei[e][9]  = x extended position
+Ei[e][10] = y extended position
+
+
+backup levels
+use glt to copy all 5 6 7 8 9 to 15-19
+for type 7
+done
+change podzilla move..done
+still working
+
+put main and extended pos in place
+main copy from 0, 1
+ext run function
+done...
+backup levels again..done
+
+now what?
+
+change method of running timer....
+
+when leaving mode 0, do the calcs there for xinc, yinc
+but first, do I already have the proper time in 17? I should...
+
+this all seems to work...
+
+
+now what?
+
+am I ready to convert them all to vinepods?
+not yet...
+
+what then??
+
+add to vinepod to make it simple...
+then test...done
+
+looks great
+
+so to convert to vinepods:
+change from 7 to 13
+change to simple
+change to not show
+
+backup levels again..done
+
+looks like its working great..
+
+I now have no podzilla left at all....
+
+
+I am thinking of re-arranging the numbers:
+
+   strcpy (enemy_name[0][0],  "empty");
+   strcpy (enemy_name[1][0],  "undef");
+   strcpy (enemy_name[2][0],  "undef");
+   strcpy (enemy_name[3][0],  "ArchWagon");
+   strcpy (enemy_name[4][0],  "Bouncer");
+   strcpy (enemy_name[5][0],  "JumpWorm");
+   strcpy (enemy_name[6][0],  "Cannon");
+   strcpy (enemy_name[7][0],  "PodZilla");
+   strcpy (enemy_name[8][0],  "TrakBot");
+   strcpy (enemy_name[9][0],  "Cloner");
+   strcpy (enemy_name[10][0], "undef");
+   strcpy (enemy_name[11][0], "Block Walker");
+   strcpy (enemy_name[12][0], "Flapper");
+   strcpy (enemy_name[13][0], "VinePod");
+
+
+   strcpy (enemy_name[0][0],  "empty");
+c  strcpy (enemy_name[1][0],  "Bouncer");
+c  strcpy (enemy_name[2][0],  "Cannon");
+   strcpy (enemy_name[3][0],  "ArchWagon");
+c  strcpy (enemy_name[4][0],  "BlokWalk");
+   strcpy (enemy_name[5][0],  "JumpWorm");
+   strcpy (enemy_name[6][0],  "Flapper");
+c  strcpy (enemy_name[7][0],  "VinePod");
+   strcpy (enemy_name[8][0],  "TrakBot");
+   strcpy (enemy_name[9][0],  "Cloner");
+
+do it!
+
+it is a huge change....
+
+
+used glt to make all 13-7
+
+4-1 and 6-2..done
+
+11-4 and 12-6
+
+
+now go through the files one at a time and fix:
+
+mwEnemy.cpp..done
+mwEnemyArchwagon.cpp..done
+mwEnemyCannon.cpp..done
+mwEnemyCloner.cpp..done
+mwEnemyEditorFnx.cpp..done
+mwEnemyFlapper.cpp..done
+mwEnemyFnx.cpp..done
+mwEnemyJumpworm.cpp..done
+mwEnemyTrakbot.cpp..done
+mwEnemyVinePod.cpp..done
+
+
+mwWindowObjectViewer.cpp...done
+mwWindow.cpp..done
+creator
+delete 04 vinepd 216
+leave 05 podzilla 204 but rename to vinepod
+make simple by default
+set cp with thirds
+done..
+
+make ov overlays show cp only in !simple done
+
+make ov hide stuff in simple
+
+rearrange things in ov to make it look better
+
+try the doubling of cp's...must be relative to initial?
+
+add trigger input and output to vinepod
+where will I find variables for that?
+I supposed I could move some of the counters to floats
+it would be easiest to move just counters
+
+18 and 19 to 8 and 9
+
+done...
+
+now I should have 18, 19 and 21 free
+
+
+18 input trigger
+19 output trigger
+
+add some flags to help with this bullshit
+int trigger box enabled or not
+output bullet or not
+
+I think I have everything modified that I need to in: mwTriggerEvent.cpp
+
+vp can be triggered by event now!
+make a flag to disable int trigger box..done
+
+vp can now send event!
+the only option is at the same time as bullet is fired
+I think that shoue be enough
+
+make a flag to disable bullet firing..done
+
+
+I want to make a common function that gets put the points into an array:
+
+3 places:
+
+move:
+      // put variables in spline array
+      float pnts[8];
+      for (int i=0; i<8; i++) pnts[i] = Ei[e][i+3];
+
+      // fill array of points from the spline
+      int np = Ei[e][17]+1; // number of points
+      float dest[np*2];
+      al_calculate_spline(dest, 8, pnts, 0, np);
+
+
+draw:
+
+         // put variables in spline array
+         float pnts[8];
+         for (int i=0; i<8; i++) pnts[i] = Ei[e][i+3]+10;
+//      // experimental scaling of control points
+//         float d = 1;
+//         pnts[2] = pnts[0] + (pnts[2] - pnts[0]) * d;
+//         pnts[3] = pnts[1] + (pnts[3] - pnts[1]) * d;
+//         pnts[4] = pnts[0] + (pnts[4] - pnts[0]) * d;
+//         pnts[5] = pnts[1] + (pnts[5] - pnts[1]) * d;
+
+         // draw spline path outline
+         if (Ei[e][20] & PM_ENEMY_VINEPOD_SHOW_PATH) al_draw_spline(pnts, c2, 0);
+
+         // if anything other than mode 0
+         if (Ei[e][15])
+         {
+            // fill array of points from the spline
+            int np = Ei[e][17]+1; // number of points
+            float dest[np*2];
+            al_calculate_spline(dest, 8, pnts, 0, np);
+
+draw controls
+
+      // put variables in spline array
+      float pnts[8];
+      for (int i=0; i<8; i++) pnts[i] = mEnemy.Ei[num][i+3]+10;
+
+//      // experimental scaling of control points
+//      float d = 1;
+//      pnts[2] = pnts[0] + (pnts[2] - pnts[0]) * d;
+//      pnts[3] = pnts[1] + (pnts[3] - pnts[1]) * d;
+//      pnts[4] = pnts[0] + (pnts[4] - pnts[0]) * d;
+//      pnts[5] = pnts[1] + (pnts[5] - pnts[1]) * d;
+
+      al_draw_spline(pnts, mColor.pc[10], 0);
+
+      // fill array of points from the spline
+      float dest[200];
+      al_calculate_spline(dest, 8, pnts, 0, 100);
+
+
+
+I don't need to keep pnts anywhere
+
+I just need to declare float dest[??]
+
+then pass that to my fucntion..
+
+int np = Ei[e][17]+1; // number of points
+float dest[np*2];
+
+vinepod_fill_points_array(int e, int np, float &dest[])
+{
+   // put variables in spline array
+   float pnts[8];
+   for (int i=0; i<8; i++) pnts[i] = mEnemy.Ei[num][i+3]+10;
+
+
+//      // experimental scaling of control points
+//      float d = 1;
+//      pnts[2] = pnts[0] + (pnts[2] - pnts[0]) * d;
+//      pnts[3] = pnts[1] + (pnts[3] - pnts[1]) * d;
+//      pnts[4] = pnts[0] + (pnts[4] - pnts[0]) * d;
+//      pnts[5] = pnts[1] + (pnts[5] - pnts[1]) * d;
+
+
+   al_calculate_spline(dest, 8, pnts, 0, np);
+
+}
+
+do I want to add 10 when I create??
+
+yes..
+
+this works, its not much simpler, but at least it is all in one place
+
+now implement control point multiplier
+
+use a float...
+Ef[][6] = 1
+
+in glt make all vinepods:
+#define PM_ENEMY_VINEPOD_USE_TRIGGER 0b00000000000100000
+#define PM_ENEMY_VINEPOD_FIRE_SHOT   0b00000000001000000
+Ef[][6] = 1
+
+make creator also use these defaults
+
+done...
+
+now check how existing vinepods work...they seem to work fine
+
+now finish the help screen for vinepod
+
+trigger string...
+
+help()
+
+
+make a test example of:
+
+vinepod triggering another vinepod in a chain
+
+vinepod triggering a group of vinepods in a star
+
+vinepod getting out of the way of a shot aimed at it
+
+test invincible with non spline
+
+looks good
+
+
+I want some helpers to draw symmetrical splines
+
+rotate spline 90 deg
+
+init is the anchor
+all other positions are relative
+
+
+what about bullet speed for vinepod?
+should be ef[][7]
+
+fixed a bug....
+
+
+
 
 make stimp and stamp time part of advanced config
 

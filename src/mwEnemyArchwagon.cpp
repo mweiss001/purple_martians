@@ -24,7 +24,6 @@ Ei[][3]   ans (2=wagon with arrow, 3=empty wagon)
 Ei[][15]  shot retrigger value
 Ei[][16]  shot retrigger count
 Ei[][17]  shot prox
-
 Ef[][7]  shot speed
 
 */
@@ -195,7 +194,6 @@ void mwEnemy::move_arch_block_common(int e)
       }
    }
 
-
    if ((on_solid) && (Ei[e][5] >= 0)) // solid and not jumping (falling or steady)
    {
       Ef[e][1] -= (int)(Ef[e][1]) % 20;    // align with floor
@@ -269,20 +267,17 @@ void mwEnemy::move_arch_block_common(int e)
 
 
 //-------------------------------------------------------------------------------------------
-//--11--block walker ------------------------------------------------------------------------
+//--4--blokwalk ------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 // see walker_archwagon_common
 
-
-void mwEnemy::move_block_walker(int e)
+void mwEnemy::move_blokwalk(int e)
 {
    int EXint = Ef[e][0];
    int EYint = Ef[e][1];
 
    enemy_player_hit_proc(e);
-
-
 
    if (Ei[e][31]) // hit
    {
@@ -302,7 +297,6 @@ void mwEnemy::move_block_walker(int e)
       Ei[e][0] = 0;
       return; // to stop rest of execution
    }
-
 
    move_arch_block_common(e);
 

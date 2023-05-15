@@ -132,6 +132,65 @@ void mwGlobalLevelTool::execute(void)
       mLevel.load_level(le[x], 1, 1);
 
 
+      for (int y=0; y<100; y++)
+      {
+         int type = mEnemy.Ei[y][0];
+         if (type == 7)
+         {
+            mEnemy.Ef[y][6] = 1;
+            mEnemy.Ei[y][20] = 0;
+            mEnemy.Ei[y][20] |= PM_ENEMY_VINEPOD_FIRE_SHOT;
+            mEnemy.Ei[y][20] |= PM_ENEMY_VINEPOD_USE_TRIGGER;
+
+         }
+
+
+
+//            mEnemy.Ei[y][20] = 16;
+
+
+//            for (int i=3; i<10; i++)
+               //mEnemy.Ei[y][i+10] = mEnemy.Ei[y][i];
+
+//               mEnemy.Ei[y][i] = 0;
+
+//            mEnemy.Ei[y][3] = mEnemy.Ef[y][0];
+//            mEnemy.Ei[y][4] = mEnemy.Ef[y][1];
+
+//            mEnemy.get_pod_extended_position(y, mEnemy.Ei[y][9], mEnemy.Ei[y][10]);
+
+//            printf("Level:%3d - vinepod:%d\n", le[x], y);
+
+
+         }
+//         if (type == 13)
+//         {
+//            count1++;
+//            printf("Level:%3d - vinepod:%d\n", le[x], y);
+//         }
+//      }
+
+//            {
+//               int ex = mEnemy.Ef[y][0];
+//               int ey = mEnemy.Ef[y][1];
+//
+//               int yinc = -20;
+//               if (ey < 80) yinc = 20;
+//
+//
+//               printf("Level:%3d - cloner:%d trigger type:%d \n", le[x], y, mEnemy.Ei[y][8]);
+//
+//               int i = mItem.get_empty_item(9);
+//               if (i < 500)
+//               {
+//                  int ix = ex;
+//                  int iy = ey + yinc;
+//
+//                  mItem.item[i][4] = ix;
+
+
+
+
 ////      if (le[x] == 6)
 //      {
 //

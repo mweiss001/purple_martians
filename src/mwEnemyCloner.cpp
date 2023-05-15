@@ -17,12 +17,9 @@
 //--9--cloner-----------------------------------------------------------------------------
 //   Ei[][4]  draw boxes (0 = none) (1 = source) (2 = dest) (3 = both)
 //   Ei[][5]  draw mode (0 = hidden, 1 = static shape, 2 = static ans, 3 = follow event timer
-
 //   Ei[][8]  trigger event
-
 //   Ei[][9]  time to live for created objects
 //   Ei[][10] max num of created objects
-
 //   Ei[e][15] = copy box x
 //   Ei[e][16] = copy box y
 //   Ei[e][17] = dest box x

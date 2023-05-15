@@ -33,7 +33,7 @@ class mwEnemy
    // mwEnemyArchwagon.cpp
    void move_archwagon(int e);
    void move_arch_block_common(int e);
-   void move_block_walker(int e);
+   void move_blokwalk(int e);
 
    // mwEnemyCannon.cpp
    void move_bouncer_cannon_common(int e);
@@ -62,6 +62,15 @@ class mwEnemy
    void move_vinepod(int e);
    void draw_vinepod(int e, int x, int c, int custom);
    void draw_vinepod_controls(int num, int legend_highlight);
+   void vinepod_fill_points_array(int e, int np, float pnts[], float dest[]);
+   void vinepod_set_cp_thirds(int e);
+   void calc_simple_vinepod(int e);
+
+   void vinepod_rotate_90(int e);
+   void vinepod_mirror_x(int e);
+   void vinepod_mirror_y(int e);
+
+
 
    // mwEnemyFnx.cpp
    int is_player_in_enemy_trigger_box(int e);
@@ -82,10 +91,7 @@ class mwEnemy
    void erase_enemy(int e);
    int get_empty_enemy(void);
    int get_empty_enemy(int type);
-   void recalc_pod(int e);
-   void get_pod_extended_position(int e, int *x, int *y);
    int create_cloner(void);
-   int create_pod(void);
    int create_vinepod(void);
 
 };

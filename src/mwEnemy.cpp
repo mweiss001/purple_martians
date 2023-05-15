@@ -21,36 +21,30 @@ mwEnemy mEnemy;
 void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
 {
    int type = Ei[e][0];
-   int x = Ef[e][0];
-   int y = Ef[e][1];
+   float x = Ef[e][0];
+   float y = Ef[e][1];
    if (custom)
    {
       x = cx;
       y = cy;
    }
 
-
-   if (type == 9)  draw_cloner(e, x, y, custom);
-   if (type == 13) draw_vinepod(e, x, y, custom);
+   if (type == 7) draw_vinepod(e, x, y, custom);
+   if (type == 9) draw_cloner(e, x, y, custom);
 
    int flags = 0;
    if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
    if (Ei[e][2] == 1) flags = 0;
    if (Ei[e][2] == 2) flags = ALLEGRO_FLIP_VERTICAL;
    if (Ei[e][2] == 3) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-   int tn = Ei[e][1];
 
+   int tn = Ei[e][1];
    float rot = Ef[e][14];
    float sc =  Ef[e][12];
-
-   if ((type == 13) && (Ei[e][15] != 0)) // different rotation point for vinepod
-      al_draw_scaled_rotated_bitmap(mBitmap.tile[tn], 10, 3, x+10, y+10, sc, sc, rot, flags);
-   else al_draw_scaled_rotated_bitmap(mBitmap.tile[tn], 10, 10, x+10, y+10, sc, sc, rot, flags);
-
+   al_draw_scaled_rotated_bitmap(mBitmap.tile[tn], 10, 10, x+10, y+10, sc, sc, rot, flags);
 
    // if enemy is expiring show how many seconds it has left
    if ((!mLoop.level_editor_running) && (Ei[e][27])) al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
-
 
 
 /*
@@ -67,7 +61,7 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
 
 
    #ifdef SHOW_CANNON_COLLISION_BOX
-   if (Ei[e][0] == 6) // cannon
+   if (Ei[e][0] == 2) // cannon
    {
       // draw some test rects here
       int cbs = Ei[e][29]; // collision box size
@@ -100,8 +94,6 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
    }
    #endif
 
-
-
 /*
    if (Ei[e][0] == 3) // archwagon
    {
@@ -111,7 +103,7 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
 
 
    #ifdef SHOW_FLAPPER_DEBUG
-   if (Ei[e][0] == 12) // flapper
+   if (Ei[e][0] == 6) // flapper
    {
       int prox = Ei[e][17];
       int color = 14;        // default color
@@ -254,16 +246,15 @@ void mwEnemy::move_enemies()
 
          switch (Ei[e][0])
          {
-            case 3:  move_archwagon(e);  break;
-            case 4:  move_bouncer(e);  break;
+            case 1:  move_bouncer(e);   break;
+            case 2:  move_cannon(e);    break;
+            case 3:  move_archwagon(e); break;
+            case 4:  move_blokwalk(e);  break;
             case 5:  move_jumpworm(e);  break;
-            case 6:  move_cannon(e);  break;
-            case 7:  move_podzilla(e);  break;
+            case 6:  move_flapper(e);   break;
+            case 7:  move_vinepod(e);  break;
             case 8:  move_trakbot(e);  break;
             case 9:  move_cloner(e);  break;
-            case 11: move_block_walker(e);  break;
-            case 12: move_flapper(e);  break;
-            case 13: move_vinepod(e);  break;
             case 99: enemy_deathcount(e); break;
          }
          if (mLog.LOG_TMR_move_enem) mTimeStamp.add_timestamp(103, e, Ei[e][0], al_get_time()-t0, 0);
@@ -360,14 +351,7 @@ void mwEnemy::enemy_killed(int e)
    int type = Ei[e][0];
    switch (type)
    {
-      case 3: // archwagon
-         Ei[e][3]  = 34;    // new ans
-         Ei[e][30] = 20;    // death_loop_wait; set delay
-         Ei[e][24] = 929;   // health bonus tile
-         Ef[e][11] = 1.08;  // scale multiplier
-         Ef[e][13] = 0;     // rot inc
-      break;
-      case 4: // bouncer
+      case 1: // bouncer
          if (Ei[e][3] == 29) Ei[e][3] = 46;  // new ans
          if (Ei[e][3] == 14) Ei[e][3] = 13;
          Ei[e][30] = 20;    // death_loop_wait;  set delay
@@ -375,7 +359,21 @@ void mwEnemy::enemy_killed(int e)
          Ef[e][11] = 1.03;  // scale multiplier
          Ef[e][13] = 0.05;  // rot inc
       break;
-      case 5: //jumpworm
+      case 2: // cannon
+         Ei[e][3]  = 37;    // new ans
+         Ei[e][30] = 20;    // death_loop_wait; set delay
+         Ei[e][24] = 930;   // health bonus tile
+         Ef[e][11] = 1.08;  // scale multiplier
+         Ef[e][13] = 0.024; // rot inc
+      break;
+      case 3: // archwagon
+         Ei[e][3]  = 34;    // new ans
+         Ei[e][30] = 20;    // death_loop_wait; set delay
+         Ei[e][24] = 929;   // health bonus tile
+         Ef[e][11] = 1.08;  // scale multiplier
+         Ef[e][13] = 0;     // rot inc
+      break;
+      case 5: // jumpworm
          Ei[e][3]  = 79;    // new ans
          Ei[e][30] = 20;    // death_loop_wait; set delay
          Ei[e][24] = 935;   // health bonus tile
@@ -383,14 +381,14 @@ void mwEnemy::enemy_killed(int e)
          Ef[e][13] = 0.5;   // rot inc
          Ef[e][3] = -2;     // yinc
       break;
-      case 6: // cannon
-         Ei[e][3]  = 37;    // new ans
+      case 6: // flapper
+         Ei[e][3]  = 63;    // new ans
          Ei[e][30] = 20;    // death_loop_wait; set delay
-         Ei[e][24] = 930;   // health bonus tile
-         Ef[e][11] = 1.08;  // scale multiplier
-         Ef[e][13] = 0.024; // rot inc
+         Ei[e][24] = 933;   // health bonus tile
+         Ef[e][11] = 1.04;  // scale multiplier
+         Ef[e][13] = 0;     // rot inc
       break;
-      case 7: case 13: // podzilla, vinepod
+      case 7: // vinepod
          Ei[e][3]  = 45;    // new ans
          Ei[e][30] = 40;    // death_loop_wait; set delay
          Ei[e][24] = 932;   // health bonus tile
@@ -412,14 +410,6 @@ void mwEnemy::enemy_killed(int e)
          Ef[e][11] = 0.98;  // scale multiplier
          Ef[e][13] = 0.2;   // rot inc
       break;
-      case 12: // flapper
-         Ei[e][3]  = 63;    // new ans
-         Ei[e][30] = 20;    // death_loop_wait; set delay
-         Ei[e][24] = 933;   // health bonus tile
-         Ef[e][11] = 1.04;  // scale multiplier
-         Ef[e][13] = 0;     // rot inc
-      break;
-
    }
 
    int hbm = 1;                 // default health bonus multiplier x1
@@ -551,7 +541,6 @@ Ef[][2] =  xinc
 Ef[][3] =  yinc
 Ef[][4] =  LIFE decrement
 
-
 Ef[][11] = scale multiplier
 Ef[][12] = scale;
 Ef[][13] = rot inc
@@ -561,63 +550,35 @@ Ef[][14] = rot
 
 // enemy types
 ----------------------------------
-3  - Archwagon
-4  - Bouncer
-5  - Jumpworm
-6  - Cannon
-7  - Podzilla
-8  - Trakbot
-9  - Cloner
-11 - Block Walker
-12 - Flapper
-13 - Vinepod
-
-
+1 - Bouncer
+2 - Cannon
+3 - Archwagon
+4 - BlokWalk
+5 - Jumpworm
+6 - Flapper
+7 - Vinepod
+8 - Trakbot
+9 - Cloner
 
 similar types
+1 - Bouncer
+2 - Cannon
+
 3  - Archwagon
-11 - Block Walker
-
-4 - Bouncer
-6 - Cannon
-
-7  - Podzilla
-13 - Vinepod
+4 - Block Walker
 
 
 
 
 
-
-[3] - Archwagon -----------------------------------------------------------------------------
-Ei[][3]   ans (2=wagon with arrow, 3=empty wagon)
-Ei[][15]  shot retrigger value
-Ei[][16]  shot retrigger count
-Ei[][17]  shot prox
-
-Ef[][2]  y speed speed
-Ef[][6]  x speed speed
-Ef[][7]  shot speed
-
-walker_archwagon_common(int e)
-Ei[][5]   jump/fall -160 max jump, 160 max fall
-Ei[][6]   jump wait (0=none)
-Ei[][7]   jump when player above
-Ei[][8]   follow(0) or bounce(1)
-Ei[][11]  jump before hole
-Ei[][12]  jump before wall
-
-
-
-
-[4]--bouncer-----------------------------------------------------------------------------
+[1]--bouncer-----------------------------------------------------------------------------
 Ei[][5]  main ans
 Ei[][6]  seek ans
 Ei[][7]  seek counter
 Ei[][8]  seek count
 Ef[][5] seek speed
 
-[6]--cannon-----------------------------------------------------------------------------
+[2]--cannon-----------------------------------------------------------------------------
 Ei[][7]   seek counter
 Ei[][8]   seek count
 Ei[][9]   extra hits to kill
@@ -630,63 +591,51 @@ Ef[][7]  shot speed
 Ef[][12] scale
 Ef[][14] rot
 
-[7]--podzilla-----------------------------------------------------------------------------
-Ei[][5] = mode
-Ei[][6] = sequence counter
-Ei[][7] = sequence limit
-Ei[][8] = wait count
-Ei[][9] = wait limit
-Ei[][11] = trigger box x1
-Ei[][12] = trigger box x1
-Ei[][13] = trigger box x2
-Ei[][14] = trigger box y2
 
-[8]--trakbot-----------------------------------------------------------------------------
-Ei[][3]  base animation seq (17=trakbot with shot, 18=trakbot without shot)
-Ei[][4]  fall 160 max fall
-Ei[][5]  mode
-Ei[][7]  drop mode(0=no, 1=yes)
-Ei[][8]  twirling counter
-Ei[][15] shoot holdoff value
-Ei[][16] shoot holdoff counter
-Ei[][17] shot prox
-Ei[][20] rot
-Ef[][7] shot speed
+[3] - Archwagon -----------------------------------------------------------------------------
+Ei[][3]   ans (2=wagon with arrow, 3=empty wagon)
+Ei[][15]  shot retrigger value
+Ei[][16]  shot retrigger count
+Ei[][17]  shot prox
+Ef[][7]  shot speed
 
-[9]--cloner-----------------------------------------------------------------------------
-
-Ei[][4]  draw boxes (0 = none) (1 = trigger) (2 = source/dest) (3 = both)
-Ei[][5]  mode
-Ei[][6]  create wait
-Ei[][7]  create wait counter
-Ei[][8]  trigger mode (0=wait, 1=reset, 2=immed)
-Ei[][9]  time to live for created objects
-Ei[][10] max num of created objects
-Ei[][11] trigger box x1
-Ei[][12] trigger box y1
-Ei[][13] trigger box x2
-Ei[][14] trigger box y2
-Ei[][15] copy box x
-Ei[][16] copy box y
-Ei[][17] dest box x
-Ei[][18] dest box y
-Ei[][19] copy box width
-Ei[][20] copy box height
+[4]--BlokWalk-----------------------------------------------------------------------------
 
 
-
-
-[11]--block walker-----------------------------------------------------------------------------
-walker_archwagon_common(int e)
+[3][4]--Archwagon BlokWalk Common --------------------------------------------------------
+Ei[][2]   direction (0=left, 1=right)
 Ei[][5]   jump/fall -160 max jump, 160 max fall
 Ei[][6]   jump wait (0=none)
 Ei[][7]   jump when player above
 Ei[][8]   follow(0) or bounce(1)
+Ei[][10]  turn before hole
+Ei[][11]  jump before hole
+Ei[][12]  jump before wall
+Ef[][2]  y speed
+Ef[][6]  x speed
+
+
+[5]--jumpworm-----------------------------------------------------------------------------
+Ei[][1]   tile to draw
+Ei[][2]   direction (0=left, 1=right)
+Ei[][4]   ground speed divider
+
+Ei[][5]   jump/fall -160 max jump, 160 max fall
+Ei[][6]   jump wait (0=none)
+Ei[][7]   jump when player above
+Ei[][8]   wall jump boost (0=none, 160=max)
+Ei[][10]  turn before hole
 Ei[][11]  jump before hole
 Ei[][12]  jump before wall
 
+Ei[][13]  change dir on next cycle 0
+Ei[][14]  cycle offset
 
-[12]--flapper-----------------------------------------------------------------------------
+Ef[][2]  y speed
+Ef[][6]  x speed when jumping
+
+
+[6]--flapper-----------------------------------------------------------------------------
 Ei[][14] base yo for debug drawing
 Ei[][15] shot retrigger time
 Ei[][16] shot retrigger counter
@@ -705,5 +654,59 @@ Ef[][7] shot speed
 Ef[][8] flap offset for next loop
 Ef[][9] flap speed counter
 Ef[][10] flap speed inc
+
+[7]--vinepod-----------------------------------------------------------------------------
+
+
+
+Ei[][3]  = x initial position
+Ei[][4]  = y initial position
+Ei[][5]  = x control point 1
+Ei[][6]  = y control point 1
+Ei[][7]  = x control point 2
+Ei[][8]  = y control point 2
+Ei[][9]  = x extended position
+Ei[][10] = y extended position
+
+Ei[][11] = trigger box x1
+Ei[][12] = trigger box y1
+Ei[][13] = trigger box x2
+Ei[][14] = trigger box y2
+
+Ei[][15] = mode
+Ei[][16] = sequence counter
+Ei[][17] = sequence limit
+Ei[][18] = wait count
+Ei[][19] = wait limit
+
+Ei[][20] = flags
+Ei[][21] = unused
+
+[8]--trakbot-----------------------------------------------------------------------------
+Ei[][3]  base animation seq (17=trakbot with shot, 18=trakbot without shot)
+Ei[][4]  fall 160 max fall
+Ei[][5]  mode
+Ei[][7]  drop mode(0=no, 1=yes)
+Ei[][8]  twirling counter
+Ei[][15] shoot holdoff value
+Ei[][16] shoot holdoff counter
+Ei[][17] shot prox
+Ei[][20] rot
+Ef[][7] shot speed
+
+[9]--cloner-----------------------------------------------------------------------------
+Ei[][4]  draw boxes (0 = none) (1 = source) (2 = dest) (3 = both)
+Ei[][5]  draw mode (0 = hidden, 1 = static shape, 2 = static ans, 3 = follow event timer
+Ei[][8]  trigger event
+Ei[][9]  time to live for created objects
+Ei[][10] max num of created objects
+Ei[e][15] = copy box x
+Ei[e][16] = copy box y
+Ei[e][17] = dest box x
+Ei[e][18] = dest box y
+Ei[e][19] = copy box width
+Ei[e][20] = copy box height
+
+
 
 */

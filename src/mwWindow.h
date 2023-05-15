@@ -60,9 +60,7 @@ class mwWindow
    int sw;
    int sh;
 
-
    // e_edit_selection.h
-
    void es_pointer_text(int x1, int x2, int y, int mouse_on_window);
    void es_do_brf(int x, int y, int flood_block);
    void es_clear_ft(void);
@@ -79,12 +77,6 @@ class mwWindow
    void es_process_mouse(void);
 
 
-
-
-
-
-
-
    // mW[5] - group edit list only
    int show_sel_frame;
 
@@ -92,7 +84,11 @@ class mwWindow
 
    void ge_init_data(void);
    void ge_set_valid_controls(void);
+
+   void ge_collapse_all_controls(void);
+   void ge_expand_all_controls(void);
    void ge_clear_obj_list(void);
+
    void ge_add_to_obj_list(int t, int i);
    void ge_remove_obj_list_item(int o);
    void ge_remove_obj_list_filtered_items(void);
@@ -149,8 +145,6 @@ class mwWindow
    int th_compare_tile(int rb, int cb, int group);
    void th_find_connected(int x, int y, int group);
    void th_process_mouse(void);
-
-
 
 
 

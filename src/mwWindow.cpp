@@ -356,10 +356,20 @@ void mwWindow::draw(int draw_only)
       {
          mMiscFnx.titlex("Group Edit Controls", 15, 13, x1, x2, y1+1);
          int by1 = y1+3;
-         if (mWidget.buttont(x2-12, by1, x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Group Edit");
+
+         int bxp = x2-12;
+
+         if (mWidget.buttont(bxp, by1, bxp+8, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Group Edit");
          int fc = 13;
-         if (have_focus) fc = 10;
+         //if (have_focus) fc = 10;
          al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1); // frame entire window
+
+         bxp -= 16;
+         if (mWidget.buttont(bxp, by1, bxp+8, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"+"))  ge_expand_all_controls();
+
+         bxp -= 16;
+         if (mWidget.buttont(bxp, by1, bxp+8, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"-")) ge_collapse_all_controls();
+
       }
    }
    if (index == 7) // object viewer
@@ -382,8 +392,9 @@ void mwWindow::draw(int draw_only)
       if (mWidget.buttont(x2-12, by1, x2-4, 9, 0,0,0,0, 0,-1,15,0, 0,0,0,d,"?")) mHelp.help("Tile Helper");
       int fc = 13+64;
       if (have_focus) fc = 13;
+      int ys = th_draw_buttons(x1+1, x2-1, y1+20, d);
+      set_size(w, ys-y1+4);
       al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1); // frame entire window
-      th_draw_buttons(x1+1, x2-1, y1+60, d);
    }
 }
 
@@ -642,15 +653,16 @@ int mwWindow::cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int d)
          y+=bts/2;
       }
 
+      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[3][1],  "Bouncr", "Bouncr", tc1, tc2, fc1, fc2);
+      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[3][2],  "Cannon", "Cannon", tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[3][3],  "Arcwgn", "Arcwgn", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[3][4],  "Bouncr", "Bouncr", tc1, tc2, fc1, fc2);
+      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[3][4],  "BlkWlk", "BlkWlk", tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[3][5],  "Jmpwrm", "Jmpwrm", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[3][6],  "Cannon", "Cannon", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[3][7],  "Podzil", "Podzil", tc1, tc2, fc1, fc2);
+      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[3][6],  "Flappr", "Flappr", tc1, tc2, fc1, fc2);
+      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[3][7],  "VinPod", "VinPod", tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[3][8],  "Trakbt", "Trakbt", tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[3][9],  "Cloner", "Cloner", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[3][11], "Blk Wk", "Blk Wk", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[3][12], "Flappr", "Flappr", tc1, tc2, fc1, fc2);
+
       y+=bts/2;
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[2][1],  "Door",   "Door",   tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mwWM.obj_filter[2][2],  "Bonus",  "Bonus",  tc1, tc2, fc1, fc2);
@@ -891,17 +903,16 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
                      case 200: create_obj(2, 1, 0);  break; // door
                      case 201: create_obj(2, 5, 0);  break; // start
                      case 202: create_obj(2, 3, 0);  break; // exit
-                     case 204: create_obj(3, 7, 0);  break; // pod
+                     case 204: create_obj(3, 7, 0);  break; // vinepod
                      case 206: create_obj(2, 10,0);  break; // msg
                      case 207: create_obj(3, 9, 0);  break; // cloner
-                     case 208: mLift.create_lift(); break; // lift
-                     case 209: mItem.create_door(1);       break; // one way fixed exit door
-                     case 210: mItem.create_door(2);       break; // one way linked exit door
-                     case 211: mItem.create_door(3);       break; // two way door set
+                     case 208: mLift.create_lift();  break; // lift
+                     case 209: mItem.create_door(1); break; // one way fixed exit door
+                     case 210: mItem.create_door(2); break; // one way linked exit door
+                     case 211: mItem.create_door(3); break; // two way door set
                      case 213: create_obj(2, 9, 0);  break; // trigger
                      case 214: create_obj(2, 16, 0); break; // block manip
                      case 215: create_obj(2, 17, 0); break; // block damage
-                     case 216: create_obj(3, 13, 0); break; // vinepod
                      case 217: create_obj(2, 13, 0); break; // timer
                   }
                }
