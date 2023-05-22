@@ -6,7 +6,7 @@
 #include "mwColor.h"
 #include "mwLift.h"
 #include "mwDisplay.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
@@ -474,14 +474,14 @@ and vinepod now
    for (int x=0; x<500; x++)
       if ((mItem.item[x][0] == 9) || (mItem.item[x][0] == 6) || (mItem.item[x][0] == 13))  // trigger, orb or timer
       {
-         if ((mwWM.gx == mItem.item[x][4]/20) && (mwWM.gy == mItem.item[x][5]/20))
+         if ((mWM.gx == mItem.item[x][4]/20) && (mWM.gy == mItem.item[x][5]/20))
          {
             mouse_on_item = 1;
             obj_type = 2;
             obj_num = x;
             if (mItem.item[x][0] == 13)  // for timer, determine timer num based on mouse y position
             {
-               int my = mwWM.hy % 20;
+               int my = mWM.hy % 20;
                if (my < 10) obj_ext = 1;
                else obj_ext = 2;
             }
@@ -491,7 +491,7 @@ and vinepod now
    for (int e=0; e<100; e++)
       if (mEnemy.Ei[e][0] == 7) // vinepod (extended pos)
       {
-         if ((mwWM.gx == mEnemy.Ei[e][9]/20) && (mwWM.gy == mEnemy.Ei[e][10]/20))
+         if ((mWM.gx == mEnemy.Ei[e][9]/20) && (mWM.gy == mEnemy.Ei[e][10]/20))
          {
             mouse_on_item = 1;
             obj_type = 3;
@@ -512,7 +512,7 @@ and vinepod now
                int y1 = mLift.stp[l][pms].y;
                int x2 = mLift.stp[l][pms].w + x1;
                int y2 = mLift.stp[l][pms].h + y1;
-               if ((mwWM.hx > x1)  && (mwWM.hx < x2) && (mwWM.hy > y1)  && (mwWM.hy < y2))
+               if ((mWM.hx > x1)  && (mWM.hx < x2) && (mWM.hy > y1)  && (mWM.hy < y2))
                {
 
                   mLift.set_lift_to_step(l, s);
@@ -577,8 +577,8 @@ int mwTriggerEvent::get_trigger_item(int obj_type, int obj_num, int obj_ext, int
 
    while(!quit)
    {
-      mwWM.redraw_level_editor_background(0);
-      mMiscFnx.crosshairs_full(mwWM.gx*20+10, mwWM.gy*20+10, 15, 1);
+      mWM.redraw_level_editor_background(0);
+      mMiscFnx.crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
 
       mouse_on_item = is_mouse_on_trigger_item(ti_obj_type, ti_obj_num, ti_obj_ext);
 

@@ -1,4 +1,4 @@
-// mwPlayers.h
+// mwPlayer.h
 #ifndef mwPlayers_H
 #define mwPlayers_H
 
@@ -188,7 +188,7 @@ struct ploc // not synced between server and client
 };
 
 
-class mwPlayers
+class mwPlayer
 {
    public:
 
@@ -268,7 +268,7 @@ class mwPlayers
 
 
 };
-extern mwPlayers mPlayer;
+extern mwPlayer mPlayer;
 
 #endif
 

@@ -4,11 +4,11 @@
 #include "mwWindowManager.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwWidgets.h"
+#include "mwWidget.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
@@ -31,14 +31,40 @@ struct ge_datum
    float min_allowed;
    float max_allowed;
 };
-struct ge_datum ge_data[40];
+struct ge_datum ge_data[100];
+
+/*
+
+vartype 2
+int item[][varnum]
+
+vartype 3
+int Ei[][varnum]
+
+vartype 4
+float Ef[][varnum]
+
+vartype 5 - initial direction
+vartype 6 - initial position
+
+vartype 8 - sec xc
+vartype 9 - sec y2
+
+
+vartype 7 - vinepod flags
+varnum = flag bits
+
+
+
+*/
+
 
 // mapping table of controls to objects and types
-int cot[40][4][20] = {0}; // control, object_type, type,  mapping table
+int cot[100][4][20] = {0}; // control, object_type, type,  mapping table
 
 void mwWindow::ge_init_data(void)
 {
-   for (int i=0; i<40; i++)
+   for (int i=0; i<100; i++)
    {
       ge_data[i].vartyp = 0;
       ge_data[i].varnum = 0;
@@ -73,6 +99,7 @@ void mwWindow::ge_init_data(void)
    cot[i][3][7] = 1; // vinepod
    cot[i][3][8] = 1; // trakbot
    cot[i][3][9] = 1; // cloner
+   cot[i][3][19] = 1; // crew
 
    cot[i][2][1]  = 1; // door
    cot[i][2][2]  = 1; // bonus
@@ -106,6 +133,7 @@ void mwWindow::ge_init_data(void)
    cot[i][3][4] = 1; // block walker
    cot[i][3][5] = 1; // jumpworm
    cot[i][3][6] = 1; // flapper
+   cot[i][3][19] = 1; // crew
 
    i++;
    sprintf(ge_data[i].name, "Initial Direction");
@@ -141,6 +169,7 @@ void mwWindow::ge_init_data(void)
    ge_data[i].max_allowed = 30;
    cot[i][3][3] = 1; // archwagon
    cot[i][3][4] = 1; // blokwalk
+   cot[i][3][19] = 1; // crew
 
    i++;
    sprintf(ge_data[i].name, "X speed");
@@ -211,6 +240,7 @@ void mwWindow::ge_init_data(void)
    cot[i][3][5] = 1; // jumpworm
    cot[i][3][6] = 1; // flapper
    cot[i][3][8] = 1; // trakbot
+   cot[i][3][19] = 1; // crew
 
    i++;
    sprintf(ge_data[i].name, "Wall Jump Boost");
@@ -246,6 +276,7 @@ void mwWindow::ge_init_data(void)
    cot[i][3][3] = 1; // archwagon
    cot[i][3][4] = 1; // blokwalk
    cot[i][3][5] = 1; // jumpworm
+   cot[i][3][19] = 1; // crew
 
    i++;
    sprintf(ge_data[i].name, "Jump Before Hole");
@@ -259,6 +290,7 @@ void mwWindow::ge_init_data(void)
    cot[i][3][3] = 1; // archwagon
    cot[i][3][4] = 1; // blokwalk
    cot[i][3][5] = 1; // jumpworm
+   cot[i][3][19] = 1; // crew
 
    i++;
    sprintf(ge_data[i].name, "Jump Before Wall");
@@ -272,6 +304,7 @@ void mwWindow::ge_init_data(void)
    cot[i][3][3] = 1; // archwagon
    cot[i][3][4] = 1; // blokwalk
    cot[i][3][5] = 1; // jumpworm
+   cot[i][3][19] = 1; // crew
 
    i++;
    sprintf(ge_data[i].name, "Jump Under Width");
@@ -285,6 +318,7 @@ void mwWindow::ge_init_data(void)
    cot[i][3][3] = 1; // archwagon
    cot[i][3][4] = 1; // blokwalk
    cot[i][3][5] = 1; // jumpworm
+   cot[i][3][19] = 1; // crew
 
    i++;
    sprintf(ge_data[i].name, "Jump Wait");
@@ -298,6 +332,7 @@ void mwWindow::ge_init_data(void)
    cot[i][3][3] = 1; // archwagon
    cot[i][3][4] = 1; // blokwalk
    cot[i][3][5] = 1; // jumpworm
+   cot[i][3][19] = 1; // crew
 
    i++;
    sprintf(ge_data[i].name, "Flap Height");
@@ -331,30 +366,6 @@ void mwWindow::ge_init_data(void)
    ge_data[i].min_allowed = 0;
    ge_data[i].max_allowed = 200;
    cot[i][3][6] = 1; // flapper
-
-
-
-//   i++;
-//   sprintf(ge_data[i].name, "Extend Speed");
-//   sprintf(ge_data[i].snam, "exts");
-//   ge_data[i].vartyp = 4;
-//   ge_data[i].varnum = 9;
-//   ge_data[i].adj_min = 3;
-//   ge_data[i].adj_max = 8;
-//   ge_data[i].min_allowed = .1;
-//   ge_data[i].max_allowed = 30;
-//   cot[i][3][7] = 1; // podzilla
-//
-//   i++;
-//   sprintf(ge_data[i].name, "Pause Time");
-//   sprintf(ge_data[i].snam, "pstm");
-//   ge_data[i].vartyp = 3;
-//   ge_data[i].varnum = 9;
-//   ge_data[i].adj_min = 5;
-//   ge_data[i].adj_max = 20;
-//   ge_data[i].min_allowed = 0;
-//   ge_data[i].max_allowed = 200;
-//   cot[i][3][7] = 1; // podzilla
 
    i++;
    sprintf(ge_data[i].name, "Seek Count");
@@ -524,6 +535,17 @@ void mwWindow::ge_init_data(void)
    cot[i][2][17] = 1; // block damage
 
    i++;
+   sprintf(ge_data[i].name, "Extend Time");
+   sprintf(ge_data[i].snam, "extm");
+   ge_data[i].vartyp = 3;
+   ge_data[i].varnum = 17;
+   ge_data[i].adj_min = 10;
+   ge_data[i].adj_max = 100;
+   ge_data[i].min_allowed = 0;
+   ge_data[i].max_allowed = 800;
+   cot[i][3][7]  = 1; // vinepod
+
+   i++;
    sprintf(ge_data[i].name, "Pause Time");
    sprintf(ge_data[i].snam, "paus");
    ge_data[i].vartyp = 4;
@@ -535,38 +557,90 @@ void mwWindow::ge_init_data(void)
    cot[i][3][7]  = 1; // vinepod
 
    i++;
-   sprintf(ge_data[i].name, "Extend Time");
-   sprintf(ge_data[i].snam, "extm");
-   ge_data[i].vartyp = 3;
-   ge_data[i].varnum = 17;
-   ge_data[i].adj_min = 10;
-   ge_data[i].adj_max = 100;
-   ge_data[i].min_allowed = 0;
-   ge_data[i].max_allowed = 800;
+   sprintf(ge_data[i].name, "Control Point Multiplier");
+   sprintf(ge_data[i].snam, "ctpm");
+   ge_data[i].vartyp = 4;
+   ge_data[i].varnum = 6;
+   ge_data[i].adj_min = 1;
+   ge_data[i].adj_max = 4;
+   ge_data[i].min_allowed = .5;
+   ge_data[i].max_allowed = 8;
+   cot[i][3][7]  = 1; // vinepod
+
+
+
+   i++;
+   sprintf(ge_data[i].name, "Show Path");
+   sprintf(ge_data[i].snam, "shpt");
+   ge_data[i].vartyp = 7;
+   ge_data[i].varnum = PM_ENEMY_VINEPOD_SHOW_PATH;
+   cot[i][3][7]  = 1; // vinepod
+
+   i++;
+   sprintf(ge_data[i].name, "Invincible Initial Position");
+   sprintf(ge_data[i].snam, "invi");
+   ge_data[i].vartyp = 7;
+   ge_data[i].varnum = PM_ENEMY_VINEPOD_INV_INIT;
+   cot[i][3][7]  = 1; // vinepod
+
+   i++;
+   sprintf(ge_data[i].name, "Invincible Extended Position");
+   sprintf(ge_data[i].snam, "inve");
+   ge_data[i].vartyp = 7;
+   ge_data[i].varnum = PM_ENEMY_VINEPOD_INV_EXTN;
+   cot[i][3][7]  = 1; // vinepod
+
+   i++;
+   sprintf(ge_data[i].name, "Invincible While Moving");
+   sprintf(ge_data[i].snam, "invm");
+   ge_data[i].vartyp = 7;
+   ge_data[i].varnum = PM_ENEMY_VINEPOD_INV_MOVE;
+   cot[i][3][7]  = 1; // vinepod
+
+
+   i++;
+   sprintf(ge_data[i].name, "Use Spline");
+   sprintf(ge_data[i].snam, "ussp");
+   ge_data[i].vartyp = 7;
+   ge_data[i].varnum = PM_ENEMY_VINEPOD_USE_SPLINE;
+   cot[i][3][7]  = 1; // vinepod
+
+   i++;
+   sprintf(ge_data[i].name, "Use Trigger");
+   sprintf(ge_data[i].snam, "ustr");
+   ge_data[i].vartyp = 7;
+   ge_data[i].varnum = PM_ENEMY_VINEPOD_USE_TRIGGER;
+   cot[i][3][7]  = 1; // vinepod
+
+   i++;
+   sprintf(ge_data[i].name, "Fire Shot");
+   sprintf(ge_data[i].snam, "frsh");
+   ge_data[i].vartyp = 7;
+   ge_data[i].varnum = PM_ENEMY_VINEPOD_FIRE_SHOT;
    cot[i][3][7]  = 1; // vinepod
 
 
 
 
-   //printf("i:%d\n", i);
+   printf("i:%d\n", i);
 }
 
 // iterate the object list to find out what controls are valid
 void mwWindow::ge_set_valid_controls(void)
 {
    // set all controls valid by default
-   for (int i=0; i<40; i++) if (ge_data[i].vartyp) ge_data[i].valid = 1;
+   for (int i=0; i<100; i++) if (ge_data[i].vartyp) ge_data[i].valid = 1;
 
    // remove controls as soon as they don't apply to all objects in list
    for (int i=0; i<NUM_OBJ; i++)
-      if (mwWM.obj_list[i][0]) // iterate all objects in list
+      if (mWM.obj_list[i][0]) // iterate all objects in list
       {
-         int obt = mwWM.obj_list[i][0]; // object type
-         int num = mwWM.obj_list[i][1]; // object num
+         int obt = mWM.obj_list[i][0]; // object type
+         int num = mWM.obj_list[i][1]; // object num
          int typ = 0;
          if (obt == 2) typ = mItem.item[num][0];
          if (obt == 3) typ = mEnemy.Ei[num][0];
-         for (int i=0; i<40; i++) // iterate control mapping table
+         for (int i=0; i<100; i++) // iterate control mapping table
             if (cot[i][obt][typ] == 0) ge_data[i].valid = 0; // remove controls that do not match object
       }
 }
@@ -574,75 +648,75 @@ void mwWindow::ge_set_valid_controls(void)
 
 void mwWindow::ge_clear_obj_list(void)
 {
-   for (int o=0; o<NUM_OBJ; o++) mwWM.obj_list[o][0] = 0;
+   for (int o=0; o<NUM_OBJ; o++) mWM.obj_list[o][0] = 0;
 }
 
 void mwWindow::ge_collapse_all_controls(void)
 {
-   for (int i=0; i<40; i++) if (ge_data[i].vartyp) ge_data[i].collapsed = 1;
+   for (int i=0; i<100; i++) if (ge_data[i].vartyp) ge_data[i].collapsed = 1;
 }
 
 void mwWindow::ge_expand_all_controls(void)
 {
-   for (int i=0; i<40; i++) if (ge_data[i].vartyp) ge_data[i].collapsed = 0;
+   for (int i=0; i<100; i++) if (ge_data[i].vartyp) ge_data[i].collapsed = 0;
 }
 
 
 
-void mwWindow::ge_add_to_obj_list(int t, int i)
+void mwWindow::ge_add_to_obj_list(int t, int a)
 {
    // check if already in list
    int duplicate = 0;
-   for (int o=0; o<NUM_OBJ; o++)
-      if ((mwWM.obj_list[o][0] == t) && (mwWM.obj_list[o][1] == i)) duplicate = 1;
+   for (int i=0; i<NUM_OBJ; i++)
+      if ((mWM.obj_list[i][0] == t) && (mWM.obj_list[i][1] == a)) duplicate = 1;
    if (!duplicate)
    {
-      for (int o=0; o<NUM_OBJ; o++)
-         if (mwWM.obj_list[o][0] == 0)
+      for (int i=0; i<NUM_OBJ; i++)
+         if (mWM.obj_list[i][0] == 0)
          {
-            mwWM.obj_list[o][0] = t;
-            mwWM.obj_list[o][1] = i;
-            o = NUM_OBJ;
+            mWM.obj_list[i][0] = t;
+            mWM.obj_list[i][1] = a;
+            i = NUM_OBJ;
          }
    }
 }
 
-void mwWindow::ge_remove_obj_list_item(int o)
+void mwWindow::ge_remove_obj_list_item(int a)
 {
    // slide down to close hole
-   for (int i=o; i<NUM_OBJ-1; i++)
+   for (int i=a; i<NUM_OBJ-1; i++)
    {
-      mwWM.obj_list[i][0] = mwWM.obj_list[i+1][0];
-      mwWM.obj_list[i][1] = mwWM.obj_list[i+1][1];
-      mwWM.obj_list[i][2] = mwWM.obj_list[i+1][2];
+      mWM.obj_list[i][0] = mWM.obj_list[i+1][0];
+      mWM.obj_list[i][1] = mWM.obj_list[i+1][1];
+      mWM.obj_list[i][2] = mWM.obj_list[i+1][2];
    }
 }
 
 void mwWindow::ge_remove_obj_list_filtered_items(void)
 {
    for (int i=0; i<NUM_OBJ; i++)
-      if (mwWM.obj_list[i][0])
+      if (mWM.obj_list[i][0])
       {
-         int type = mwWM.obj_list[i][0];
-         int num = mwWM.obj_list[i][1];
-         if ((type == 2) && (mwWM.obj_filter[type][mItem.item[num][0]] == 0)) ge_remove_obj_list_item(i);
-         if ((type == 3) && (mwWM.obj_filter[type][ mEnemy.Ei[num][0]] == 0)) ge_remove_obj_list_item(i);
+         int type = mWM.obj_list[i][0];
+         int num = mWM.obj_list[i][1];
+         if ((type == 2) && (mWM.obj_filter[type][mItem.item[num][0]] == 0)) ge_remove_obj_list_item(i);
+         if ((type == 3) && (mWM.obj_filter[type][ mEnemy.Ei[num][0]] == 0)) ge_remove_obj_list_item(i);
       }
 }
 
 void mwWindow::ge_swap_obj_list_items(int i1, int i2)
 {
-   int t0 = mwWM.obj_list[i1][0];
-   int t1 = mwWM.obj_list[i1][1];
-   int t2 = mwWM.obj_list[i1][2];
+   int t0 = mWM.obj_list[i1][0];
+   int t1 = mWM.obj_list[i1][1];
+   int t2 = mWM.obj_list[i1][2];
 
-   mwWM.obj_list[i1][0] = mwWM.obj_list[i2][0];
-   mwWM.obj_list[i1][1] = mwWM.obj_list[i2][1];
-   mwWM.obj_list[i1][2] = mwWM.obj_list[i2][2];
+   mWM.obj_list[i1][0] = mWM.obj_list[i2][0];
+   mWM.obj_list[i1][1] = mWM.obj_list[i2][1];
+   mWM.obj_list[i1][2] = mWM.obj_list[i2][2];
 
-   mwWM.obj_list[i2][0] = t0;
-   mwWM.obj_list[i2][1] = t1;
-   mwWM.obj_list[i2][2] = t2;
+   mWM.obj_list[i2][0] = t0;
+   mWM.obj_list[i2][1] = t1;
+   mWM.obj_list[i2][2] = t2;
 }
 
 void mwWindow::ge_object_initial_position_random(int typ, int num)
@@ -654,8 +728,8 @@ void mwWindow::ge_object_initial_position_random(int typ, int num)
       x = rand() % 100;
       y = rand() % 100;
       empt = 1;
-      if ((x < mwWM.bx1) || (x >= mwWM.bx2+1)) empt = 0;
-      if ((y < mwWM.by1) || (y >= mwWM.by2+1)) empt = 0;
+      if ((x < mWM.bx1) || (x >= mWM.bx2+1)) empt = 0;
+      if ((y < mWM.by1) || (y >= mWM.by2+1)) empt = 0;
       if (!mLevel.is_block_empty(x, y, 1, 1, 1)) empt = 0;
    }
    if (empt)
@@ -688,7 +762,7 @@ int mwWindow::ge_draw_list_items(int x1, int y1, int ni)
       al_draw_text(mFont.pr8, mColor.pc[15], xt, y1, 0, " #");  xt+=24;
       al_draw_text(mFont.pr8, mColor.pc[15], xt, y1, 0, "S");   xt+=16;
       al_draw_text(mFont.pr8, mColor.pc[15], xt, y1, 0, "num"); xt+=32;
-      for (int ge_num=0; ge_num<40; ge_num++)
+      for (int ge_num=0; ge_num<100; ge_num++)
          if ((ge_data[ge_num].valid) && (!ge_data[ge_num].collapsed) && (ge_data[ge_num].vartyp != 5) && (ge_data[ge_num].vartyp != 6))
          {
             al_draw_textf(mFont.pr8, mColor.pc[15], xt, y1, 0, "%.4s", ge_data[ge_num].snam);
@@ -697,13 +771,13 @@ int mwWindow::ge_draw_list_items(int x1, int y1, int ni)
 
       // rows
       for (int i=0; i<NUM_OBJ; i++)
-         if (mwWM.obj_list[i][0])
+         if (mWM.obj_list[i][0])
          {
             y1+=8;
-            int type = mwWM.obj_list[i][0];
-            int num = mwWM.obj_list[i][1];
+            int type = mWM.obj_list[i][0];
+            int num = mWM.obj_list[i][1];
             int col = 15;
-            if (mwWM.obj_list[i][2]) col = mColor.flash_color;
+            if (mWM.obj_list[i][2]) col = mColor.flash_color;
 
             xt = x1; // to keep track of pos as we expand in the x axis
 
@@ -717,7 +791,7 @@ int mwWindow::ge_draw_list_items(int x1, int y1, int ni)
             al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%3d", num); xt+=32; // object number
 
             // valid variables
-            for (int ge_num=0; ge_num<40; ge_num++)
+            for (int ge_num=0; ge_num<100; ge_num++)
                if ((ge_data[ge_num].valid) && (!ge_data[ge_num].collapsed) && (ge_data[ge_num].vartyp != 5) && (ge_data[ge_num].vartyp != 6))
                   {
                      int vt = ge_data[ge_num].vartyp;
@@ -727,6 +801,13 @@ int mwWindow::ge_draw_list_items(int x1, int y1, int ni)
                      if (vt == 3) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mEnemy.Ei[num][vn]);
                      if (vt == 4) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2.1f", mEnemy.Ef[num][vn]);
                      //if (vt == 5) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mEnemy.Ei[num][2]);
+
+                     if (vt == 7)  // vinepod flag
+                     {
+                        if (mEnemy.Ei[num][20] & vn) al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "on");
+                        else                         al_draw_text(mFont.pr8, mColor.pc[col], xt, y1, 0, "off");
+                     }
+
                      if (vt == 8) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][6] + mItem.item[num][8]/2); // secondary x center
                      if (vt == 9) al_draw_textf(mFont.pr8, mColor.pc[col], xt, y1, 0, "%2d",   mItem.item[num][7] + mItem.item[num][9]);   // secondary y2
 
@@ -742,7 +823,7 @@ void mwWindow::ge_show_obj_list(int x, int y, int *ew, int *eh, int d)
    // find number of items in list
    int ni = 0;
    for (int i=0; i<NUM_OBJ; i++)
-      if (mwWM.obj_list[i][0]) ni++;
+      if (mWM.obj_list[i][0]) ni++;
 
    int fs = 12;
    int y1 = y + fs;
@@ -757,8 +838,6 @@ void mwWindow::ge_show_obj_list(int x, int y, int *ew, int *eh, int d)
    *ew = (x2+fs) - x ; // actual width
    *eh = yf2 - y;      // actual height
 
-
-
    // draw frame around list
    int ci = 16; //color inc
    for (int q=0; q<fs; q++)
@@ -767,12 +846,12 @@ void mwWindow::ge_show_obj_list(int x, int y, int *ew, int *eh, int d)
 //   al_draw_textf(mFont.pr8, mColor.pc[15], x2-24, yf1+2,                    0, "%2d", ni);
    if ((!d) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > yf1) && (mInput.mouse_y < yf2)) // detect if mouse is on list
    {
-      for (int o=0; o<NUM_OBJ; o++) mwWM.obj_list[o][2] = 0; // clear all highlights
+      for (int o=0; o<NUM_OBJ; o++) mWM.obj_list[o][2] = 0; // clear all highlights
       int mpl = ((mInput.mouse_y - yf1 + fs)/8)-4;             // get raw list item
       if ((mpl < -1) || (mpl > ni-1)) mpl = -1;         // ensure valid list item
       if (mpl != -1)                                    // mouse is on valid list item
       {
-         mwWM.obj_list[mpl][2] = 1;                          // mark this item as highlighted
+         mWM.obj_list[mpl][2] = 1;                          // mark this item as highlighted
          al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, mColor.pc[10], 1); // draw rectangle around list item
          if (mInput.mouse_b[1][0])
          {
@@ -786,9 +865,9 @@ void mwWindow::ge_show_obj_list(int x, int y, int *ew, int *eh, int d)
                int old_mpl = mpl;
                while (mInput.mouse_b[1][0])
                {
-                  mwWM.redraw_level_editor_background();
+                  mWM.redraw_level_editor_background();
                   mScreen.get_new_screen_buffer(3, 0, 0);
-                  mwWM.cycle_windows(1); // draw only
+                  mWM.cycle_windows(1); // draw only
 
                   mpl = ((mInput.mouse_y - yf1 + fs)/8)-4;             // get raw list item
                   if ((mpl < -1) || (mpl > ni-1)) mpl = -1;     // ensure valid list item
@@ -800,10 +879,6 @@ void mwWindow::ge_show_obj_list(int x, int y, int *ew, int *eh, int d)
       } // mouse on valid list item
    } // mouse on obj list
 }
-
-
-
-
 
 
 
@@ -847,13 +922,13 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
    // find number of items in list
    int ni = 0;
    for (int i=0; i<NUM_OBJ; i++)
-      if (mwWM.obj_list[i][0]) ni++;
+      if (mWM.obj_list[i][0]) ni++;
 
    if (ni)
    {
       ge_set_valid_controls();
 
-      for (int ge_num=0; ge_num<40; ge_num++)
+      for (int ge_num=0; ge_num<100; ge_num++)
          if (ge_data[ge_num].valid)
          {
             nc++;
@@ -904,9 +979,9 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
                   float tally = 0;
 
                   for (int i=0; i<NUM_OBJ; i++)
-                     if (mwWM.obj_list[i][0])
+                     if (mWM.obj_list[i][0])
                      {
-                        float val = ge_get_var(gvt, gvn, mwWM.obj_list[i][1]);
+                        float val = ge_get_var(gvt, gvn, mWM.obj_list[i][1]);
                         if (val < mins) mins = val;
                         if (val > maxs) maxs = val;
                         tally += val;
@@ -933,32 +1008,32 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
                      if (ge_data[ge_num].adj_mode == 0) // randomize
                      {
                         for (int i=0; i<NUM_OBJ; i++)
-                           if (mwWM.obj_list[i][0])
-                              ge_set_var(gvt, gvn, mwWM.obj_list[i][1], mMiscFnx.mdw_rnd(mn, mx));
+                           if (mWM.obj_list[i][0])
+                              ge_set_var(gvt, gvn, mWM.obj_list[i][1], mMiscFnx.mdw_rnd(mn, mx));
                      }
                      if (ge_data[ge_num].adj_mode == 1) // increment
                      {
                         float inc = (mx-mn)/ni;
                         float val = mn;
                         for (int i=0; i<NUM_OBJ; i++)
-                           if (mwWM.obj_list[i][0])
+                           if (mWM.obj_list[i][0])
                            {
-                              ge_set_var(gvt, gvn, mwWM.obj_list[i][1], val);
+                              ge_set_var(gvt, gvn, mWM.obj_list[i][1], val);
                               val += inc;
                            }
                      }
                      if (ge_data[ge_num].adj_mode == 2) // set all to min
                      {
                         for (int i=0; i<NUM_OBJ; i++)
-                           if (mwWM.obj_list[i][0])
-                              ge_set_var(gvt, gvn, mwWM.obj_list[i][1], mn);
+                           if (mWM.obj_list[i][0])
+                              ge_set_var(gvt, gvn, mWM.obj_list[i][1], mn);
                      }
                      if (ge_data[ge_num].adj_mode == 3) // set all to first obj in list
                      {
-                        float val = ge_get_var(gvt, gvn, mwWM.obj_list[0][1]);
+                        float val = ge_get_var(gvt, gvn, mWM.obj_list[0][1]);
                         for (int i=0; i<NUM_OBJ; i++)
-                           if (mwWM.obj_list[i][0])
-                              ge_set_var(gvt, gvn, mwWM.obj_list[i][1], val);
+                           if (mWM.obj_list[i][0])
+                              ge_set_var(gvt, gvn, mWM.obj_list[i][1], val);
                      }
 
 
@@ -969,9 +1044,9 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
                   if (mWidget.buttont(x1+10, by, x4-30, bts, 0,0,0,0,  0,10,15,0,1,0,0,d, "Random"))
                   {
                      for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (mwWM.obj_list[i][0])
+                        if (mWM.obj_list[i][0])
                         {
-                           int num = mwWM.obj_list[i][1];
+                           int num = mWM.obj_list[i][1];
                            mEnemy.set_new_initial_direction(num, rand() % 2000, rand() % 2000); // random
                         }
                   }
@@ -985,9 +1060,9 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
                            sby = mItem.item[c][5];
                         }
                      for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (mwWM.obj_list[i][0])
+                        if (mWM.obj_list[i][0])
                         {
-                           int num = mwWM.obj_list[i][1];
+                           int num = mWM.obj_list[i][1];
                            mEnemy.set_new_initial_direction(num, sbx, sby); // point at start block
                         }
                   } // end of aim at start block
@@ -997,14 +1072,35 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
                   if (mWidget.buttont(x1+10, by, x2, bts, 0,0,0,0,  0,10,15,0,1,0,1,d, "Randomize Position Within Selection"))
                   {
                      for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
-                        if (mwWM.obj_list[i][0])
+                        if (mWM.obj_list[i][0])
                         {
-                           int typ = mwWM.obj_list[i][0];
-                           int num = mwWM.obj_list[i][1];
+                           int typ = mWM.obj_list[i][0];
+                           int num = mWM.obj_list[i][1];
                            ge_object_initial_position_random(typ, num);
                         }
                   }
                }
+               else if (gvt == 7) // vinepod flags
+               {
+                  int fx3 = x1 + 100;
+                  int fx4 = x1 + 200;
+                  if (mWidget.buttont(x1+6, by, fx3-4, bts, 0,0,0,0,  0,10,15,0,1,0,0,d, "all off"))
+                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                        if (mWM.obj_list[i][0]) mEnemy.Ei[mWM.obj_list[i][1]][20] &= ~ gvn;
+                  if (mWidget.buttont(fx3+4, by, fx4-4, bts, 0,0,0,0,  0,10,15,0,1,0,0,d, "all on"))
+                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                        if (mWM.obj_list[i][0]) mEnemy.Ei[mWM.obj_list[i][1]][20] |= gvn;
+                  if (mWidget.buttont(fx4+4, by, x2-4, bts, 0,0,0,0,  0,10,15,0,1,0,1,d, "random"))
+                     for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
+                     {
+                        if (mMiscFnx.mdw_rnd(0, 10) > 5) mEnemy.Ei[mWM.obj_list[i][1]][20] |= gvn;
+                        else                             mEnemy.Ei[mWM.obj_list[i][1]][20] &= ~ gvn;
+                     }
+               }
+
+
+
+
             } // end of not collapsed
             by+=y_spacing+1;
          } // end of valid ge_num
@@ -1018,10 +1114,10 @@ int mwWindow::ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d
 void mwWindow::ge_add_selection_to_list(int set_filters)
 {
    // add everything in selection to list...
-   int rx1 = mwWM.bx1*20;
-   int ry1 = mwWM.by1*20;
-   int rx2 = mwWM.bx2*20+20;
-   int ry2 = mwWM.by2*20+20;
+   int rx1 = mWM.bx1*20;
+   int ry1 = mWM.by1*20;
+   int rx2 = mWM.bx2*20+20;
+   int ry2 = mWM.by2*20+20;
 
    for (int b=0; b<100; b++) // add enemies in selection
       if ((mEnemy.Ei[b][0]) && (mEnemy.Ef[b][0] >= rx1) && (mEnemy.Ef[b][0] < rx2) && (mEnemy.Ef[b][1] >= ry1) && (mEnemy.Ef[b][1] < ry2)) ge_add_to_obj_list(3, b);
@@ -1033,12 +1129,12 @@ void mwWindow::ge_add_selection_to_list(int set_filters)
    if (set_filters)
    {
       for (int i=0; i<NUM_OBJ; i++)
-      if (mwWM.obj_list[i][0])
+      if (mWM.obj_list[i][0])
       {
-         int typ = mwWM.obj_list[i][0];
-         int num = mwWM.obj_list[i][1];
-         if (typ == 2) mwWM.obj_filter[typ][mItem.item[num][0]] = 1;
-         if (typ == 3) mwWM.obj_filter[typ][ mEnemy.Ei[num][0]] = 1;
+         int typ = mWM.obj_list[i][0];
+         int num = mWM.obj_list[i][1];
+         if (typ == 2) mWM.obj_filter[typ][mItem.item[num][0]] = 1;
+         if (typ == 3) mWM.obj_filter[typ][ mEnemy.Ei[num][0]] = 1;
       }
    }
 }
@@ -1047,9 +1143,9 @@ void mwWindow::ge_process_mouse(void)
 {
    if (mInput.mouse_b[1][0])
    {
-      if (mwWM.mW[5].show_sel_frame) // get new selection rectangle
+      if (mWM.mW[5].show_sel_frame) // get new selection rectangle
       {
-         mwWM.get_new_box();
+         mWM.get_new_box();
          if (mInput.SHFT()) ge_add_selection_to_list(1); // add everything in selection to list and set filters...
       }
       else
@@ -1060,18 +1156,18 @@ void mwWindow::ge_process_mouse(void)
          for (int i=0; i<500; i++)
          {
             int type = mItem.item[i][0];
-            if ((type) && (mwWM.obj_filter[2][type])) // filter for this type of item
+            if ((type) && (mWM.obj_filter[2][type])) // filter for this type of item
             {
-               if ((mwWM.gx == mItem.item[i][4]/20) && (mwWM.gy == mItem.item[i][5]/20)) ge_add_to_obj_list(2, i);
+               if ((mWM.gx == mItem.item[i][4]/20) && (mWM.gy == mItem.item[i][5]/20)) ge_add_to_obj_list(2, i);
             }
          }
          // is mouse on enemy
          for (int e=0; e<100; e++)
          {
             int type = mEnemy.Ei[e][0];
-            if ((type) && (mwWM.obj_filter[3][type])) // filter for this type of enemy
+            if ((type) && (mWM.obj_filter[3][type])) // filter for this type of enemy
             {
-               if ((mwWM.gx == mEnemy.Ef[e][0]/20) && (mwWM.gy == mEnemy.Ef[e][1]/20)) ge_add_to_obj_list(3, e);
+               if ((mWM.gx == mEnemy.Ef[e][0]/20) && (mWM.gy == mEnemy.Ef[e][1]/20)) ge_add_to_obj_list(3, e);
             }
          }
       }
@@ -1079,6 +1175,6 @@ void mwWindow::ge_process_mouse(void)
    if (mInput.mouse_b[2][0])
    {
       while (mInput.mouse_b[2][0]) mEventQueue.proc();
-      mwWM.set_windows(1);
+      mWM.set_windows(1);
    }
 }

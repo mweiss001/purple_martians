@@ -1,8 +1,8 @@
 // mw_ItemBombRocket.cpp
 
 #include "pm.h"
-#include "mwItems.h"
-#include "mwPlayers.h"
+#include "mwItem.h"
+#include "mwPlayer.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwLoop.h"
@@ -14,7 +14,7 @@
 #include "mwSound.h"
 
 
-void mwItems::proc_bomb_collision(int p, int i)
+void mwItem::proc_bomb_collision(int p, int i)
 {
    item[i][0] = 99; // change to lit bomb
    item[i][13] = p; // mark player that lit bomb
@@ -30,7 +30,7 @@ void mwItems::proc_bomb_collision(int p, int i)
    mGameEvent.add(25, 0, 0, p, item[i][7]/20, item[i][9]/40, item[i][12]);
 }
 
-void mwItems::proc_rocket_collision(int p, int i)
+void mwItem::proc_rocket_collision(int p, int i)
 {
    mItem.item[i][0] = 98;   // new type - lit rocket
    mItem.item[i][13] = p;   // mark player that lit rocket
@@ -40,7 +40,7 @@ void mwItems::proc_rocket_collision(int p, int i)
    mGameEvent.add(26, 0, 0, p, i, 0, 0);
 }
 
-void mwItems::proc_lit_rocket(int i)
+void mwItem::proc_lit_rocket(int i)
 {
    mSound.lit_item = 1;
 
@@ -96,14 +96,14 @@ void mwItems::proc_lit_rocket(int i)
    }
 }
 
-int mwItems::seq_color(int mod, int c1, int c2)
+int mwItem::seq_color(int mod, int c1, int c2)
 {
    int col = c1; // initial color
    if ( (mLoop.frame_num % mod) < mod/2) col = c2; // other color
    return col;
 }
 
-int mwItems::seq_color2(void)
+int mwItem::seq_color2(void)
 {
    int ca[40];
    int ci = 0;
@@ -156,7 +156,7 @@ int mwItems::seq_color2(void)
    return ca[mod];
 }
 
-int mwItems::seq_color3(void)
+int mwItem::seq_color3(void)
 {
    int ca[20];
    int ci = 0;
@@ -186,7 +186,7 @@ int mwItems::seq_color3(void)
    return ca[mod];
 }
 
-void mwItems::bomb_block_crosshairs(int e, int f)
+void mwItem::bomb_block_crosshairs(int e, int f)
 {
    //int col = seq_color(16, 14, 10);
    int col = seq_color2();
@@ -198,7 +198,7 @@ void mwItems::bomb_block_crosshairs(int e, int f)
    }
 }
 
-void mwItems::bomb_blocks(int i, int t, int dr, float x, float y)
+void mwItem::bomb_blocks(int i, int t, int dr, float x, float y)
 {
    x+=10;
    y+=10;
@@ -229,7 +229,7 @@ void mwItems::bomb_blocks(int i, int t, int dr, float x, float y)
       }
 }
 
-void mwItems::bomb_crosshairs(float x, float y)
+void mwItem::bomb_crosshairs(float x, float y)
 {
    int col = seq_color3();
    float rad = 12;   // circle radius
@@ -256,7 +256,7 @@ void mwItems::bomb_crosshairs(float x, float y)
    }
 }
 
-void mwItems::bomb_enemies(int i, int t, int dr, float x, float y)
+void mwItem::bomb_enemies(int i, int t, int dr, float x, float y)
 {
    for (int e=0; e<100 ; e++) // enemies in damage window?
       if ((mEnemy.Ei[e][0]) && (! ((mEnemy.Ei[e][0] == 9) && mEnemy.Ei[e][30])) ) // active and  not(cloner and invincible)
@@ -274,7 +274,7 @@ void mwItems::bomb_enemies(int i, int t, int dr, float x, float y)
       }
 }
 
-void mwItems::bomb_players(int i, int t, int dr, float x, float y)
+void mwItem::bomb_players(int i, int t, int dr, float x, float y)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
    {
@@ -306,7 +306,7 @@ void mwItems::bomb_players(int i, int t, int dr, float x, float y)
    }
 }
 
-void mwItems::proc_lit_bomb(int i)
+void mwItem::proc_lit_bomb(int i)
 {
    mItem.item[i][8]--; // timer dec
 
@@ -359,7 +359,7 @@ void mwItems::proc_lit_bomb(int i)
 
 
 
-int mwItems::draw_bomb(int i, int x, int y, int shape)
+int mwItem::draw_bomb(int i, int x, int y, int shape)
 {
    if (mItem.item[i][11]) al_draw_bitmap(mBitmap.tile[440], x, y, 0); // bomb sticky spikes
 
@@ -374,7 +374,7 @@ int mwItems::draw_bomb(int i, int x, int y, int shape)
 
 
 
-int mwItems::draw_lit_bomb(int i)
+int mwItem::draw_lit_bomb(int i)
 {
    int x = itemf[i][0];
    int y = itemf[i][1];
@@ -461,7 +461,7 @@ int mwItems::draw_lit_bomb(int i)
 }
 
 
-int mwItems::draw_rocket(int i, int x, int y, int shape)
+int mwItem::draw_rocket(int i, int x, int y, int shape)
 {
    float rot = (float) mItem.item[i][10] / 1000;
    al_draw_rotated_bitmap(mBitmap.tile[shape], 10, 10, x+10, y+10, rot, 0);
@@ -469,7 +469,7 @@ int mwItems::draw_rocket(int i, int x, int y, int shape)
    return 1;
 }
 
-void mwItems::draw_rocket_lines(int i)
+void mwItem::draw_rocket_lines(int i)
 {
    float fxi = itemf[i][0]; // initial position
    float fyi = itemf[i][1];

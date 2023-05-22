@@ -1,7 +1,7 @@
 // mwItemKeySwitch.cpp
 #include "pm.h"
-#include "mwItems.h"
-#include "mwPlayers.h"
+#include "mwItem.h"
+#include "mwPlayer.h"
 #include "mwLevel.h"
 #include "mwGameEvent.h"
 #include "mwBitmap.h"
@@ -10,7 +10,7 @@
 #include "mwDisplay.h"
 
 
-int mwItems::draw_key(int i, int x, int y, int tile)
+int mwItem::draw_key(int i, int x, int y, int tile)
 {
    int el = item[i][11];
    if (el > 0) // moving key
@@ -52,7 +52,7 @@ int mwItems::draw_key(int i, int x, int y, int tile)
    return 0;
 }
 
-void mwItems::proc_key_collision(int p, int i)
+void mwItem::proc_key_collision(int p, int i)
 {
    if (item[i][11] == 0) // only collide if not already moving
    {
@@ -74,7 +74,7 @@ void mwItems::proc_key_collision(int p, int i)
    }
 }
 
-void mwItems::proc_key_block_range(int i, int action)
+void mwItem::proc_key_block_range(int i, int action)
 {
    int x1 = item[i][6] / 20;
    int y1 = item[i][7] / 20;
@@ -101,7 +101,7 @@ void mwItems::proc_key_block_range(int i, int action)
       }
 }
 
-void mwItems::proc_moving_key(int i)
+void mwItem::proc_moving_key(int i)
 {
    // do the incs until the last 10 frames, which are for final sequence
    if (item[i][11] > 10)
@@ -118,7 +118,7 @@ void mwItems::proc_moving_key(int i)
 }
 
 
-void mwItems::proc_switch_collision(int p, int i)
+void mwItem::proc_switch_collision(int p, int i)
 {
    if (item[i][11] < mLoop.frame_num) // if not lockout
    {
@@ -141,7 +141,7 @@ void mwItems::proc_switch_collision(int p, int i)
 }
 
 
-void mwItems::proc_switch_block_range(int i, int action)
+void mwItem::proc_switch_block_range(int i, int action)
 {
    int x1 = item[i][6] / 20;
    int y1 = item[i][7] / 20;

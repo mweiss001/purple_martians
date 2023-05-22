@@ -3,7 +3,7 @@
 class mwBitmapTools
 {
    public:
-   int select_bitmap(int tn);
+   void select_bitmap(int& tn);
    void animation_sequence_editor(void);
    void draw_flags(int x1, int y1, int& num, int& mpow, int view_only, int clear_background, int ignore_mpow);
    void edit_btile_attributes(void);

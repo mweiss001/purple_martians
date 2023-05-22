@@ -4,7 +4,7 @@
 #include "mwPDE.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwWidgets.h"
+#include "mwWidget.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"

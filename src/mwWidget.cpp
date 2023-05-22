@@ -1,7 +1,7 @@
-// mwWidgets.cpp
+// mwWidget.cpp
 
 #include "pm.h"
-#include "mwWidgets.h"
+#include "mwWidget.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 #include "mwDisplay.h"
@@ -13,7 +13,7 @@
 #include "mwTriggerEvent.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwMiscFnx.h"
 #include "mwHelp.h"
@@ -129,15 +129,14 @@ float mwWidget::get_slider_position2(float sul, float sll, float sinc, int q4 ,i
 {
    if (q4)
    {
-      mwWM.redraw_level_editor_background();
-      mwWM.cycle_windows(1);
+      mWM.redraw_level_editor_background();
+      mWM.cycle_windows(1);
    }
    else
    {
       mEventQueue.proc();
       al_flip_display();
    }
-
 
    float my = mInput.mouse_y;
    float mx = mInput.mouse_x;
@@ -164,19 +163,33 @@ float mwWidget::get_slider_position3(float f, float sul, float sll, float sinc, 
 {
    if (q4)
    {
-      mwWM.redraw_level_editor_background();
-      mwWM.cycle_windows(1);
+      mWM.redraw_level_editor_background();
+      mWM.cycle_windows(1);
    }
    else
    {
       mEventQueue.proc();
       al_flip_display();
    }
-   if (mInput.mouse_dz)
+   if (mInput.key[ALLEGRO_KEY_RIGHT][2])
+   {
+      f += sinc;                  // only allow increments of sinc
+      if (f < sll) f = sll;             // limit check
+      if (f > sul) f = sul;
+      f = round(f/sinc) * sinc;         // round to sinc
+   }
+   if (mInput.key[ALLEGRO_KEY_LEFT][2])
+   {
+      f -= sinc;                  // only allow increments of sinc
+      if (f < sll) f = sll;             // limit check
+      if (f > sul) f = sul;
+      f = round(f/sinc) * sinc;         // round to sinc
+   }
+
+   if (mInput.mouse_dz) // this used to work just fine...????
    {
       int dif = mInput.mouse_dz;
       mInput.mouse_dz = 0;
-
       f += dif * sinc;                  // only allow increments of sinc
       if (f < sll) f = sll;             // limit check
       if (f > sul) f = sul;
@@ -706,8 +719,8 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
 
    if (bn == 57)
    {
-      int o = mwWM.mW[7].obt;
-      int n = mwWM.mW[7].num;
+      int o = mWM.mW[7].obt;
+      int n = mWM.mW[7].num;
       int t = 0;
       sprintf(msg,"?? Help");
 
@@ -960,14 +973,11 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
          }
       }
    }
-
-
-
    if (bn == 310) // block 1 select...
    {
       int tn = mItem.item[num][10]&1023; // block 1
       sprintf(msg, "Block 1: %d", tn);
-      if (press) mItem.item[num][10] = mBitmapTools.select_bitmap(mItem.item[num][10]);
+      if (press) mBitmapTools.select_bitmap(mItem.item[num][10]);
 
       if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
       {
@@ -980,13 +990,12 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
             mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][10], mpow_jnk, 0, 1, 1);
          }
       }
-
    }
    if (bn == 311) // block 2 select...
    {
       int tn = mItem.item[num][11]&1023; // block 2
       sprintf(msg, "Block 2: %d", tn);
-      if (press) mItem.item[num][11] = mBitmapTools.select_bitmap(mItem.item[num][11]);
+      if (press) mBitmapTools.select_bitmap(mItem.item[num][11]);
 
       if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
       {
@@ -998,54 +1007,52 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
             al_flip_display();
             mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][11], mpow_jnk, 0, 1, 1);
          }
-
-
-
       }
-
-
    }
 
-   if (bn == 401) // bd timer draw mode
+
+
+
+
+   if (bn == 312) // block walker select...
    {
-                                                       sprintf(msg, "Timer Display: OFF          ");
-      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SN) sprintf(msg, "Timer Display: Small Number ");
-      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BN) sprintf(msg, "Timer Display: Large Number ");
-      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SP) sprintf(msg, "Timer Display: Small Percent");
-      if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BP) sprintf(msg, "Timer Display: Large Percent");
-      if (press)
+      int tn = mEnemy.Ei[num][13]&1023; // block
+      sprintf(msg, "Block:%d", tn);
+      if (press) mBitmapTools.select_bitmap(mEnemy.Ei[num][13]);
+
+      if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
       {
-         if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SN)
+         int mpow_jnk = 0;
+         mBitmapTools.draw_flags(x2+6, y1, mEnemy.Ei[num][13], mpow_jnk, 0, 1, 1);
+         while (mInput.CTRL())
          {
-            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SN; // clear
-            mItem.item[num][3] |=  PM_ITEM_DAMAGE_TIMR_BN; // set
+            mEventQueue.proc();
+            al_flip_display();
+            mBitmapTools.draw_flags(x2+6, y1, mEnemy.Ei[num][13], mpow_jnk, 0, 1, 1);
          }
-         else if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BN)
-         {
-            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_BN; // clear
-            mItem.item[num][3] |=  PM_ITEM_DAMAGE_TIMR_SP; // set
-         }
-         else if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SP)
-         {
-            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SP; // clear
-            mItem.item[num][3] |=  PM_ITEM_DAMAGE_TIMR_BP; // set
-         }
-         else if (mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BP)
-         {
-            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SN; // clear all
-            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_BN; // clear all
-            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SP; // clear all
-            mItem.item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_BP; // clear all
-         }
-         else if ( (!(mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SN))
-                && (!(mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BN))
-                && (!(mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_SP))
-                && (!(mItem.item[num][3] & PM_ITEM_DAMAGE_TIMR_BP)) ) // all clear
-         {
-            mItem.item[num][3] |=  PM_ITEM_DAMAGE_TIMR_SN; // set
-         }
+
+
+
       }
+
+
    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1260,6 +1267,15 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
    if (bn == 311)
    {
       int tn = mItem.item[num][11];
+      int x = (x2+x1)/2+60;
+      int y = (y2+y1)/2-10;
+
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.btile[tn&1023], x, y, 0);
+   }
+   if (bn == 312)
+   {
+      int tn = mEnemy.Ei[num][13];
       int x = (x2+x1)/2+60;
       int y = (y2+y1)/2-10;
 
@@ -1713,11 +1729,12 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    if (bn == 301) // block manip mode
    {
       if (press) var++;
-      if ((var < 0) || (var > 3)) var = 0;
+      if ((var < 0) || (var > 4)) var = 0;
       if (var == 0) sprintf(msg, "MODE:OFF");
       if (var == 1) sprintf(msg, "MODE:Set All To Block 1");
       if (var == 2) sprintf(msg, "MODE:Set All Block 2 To Block 1");
       if (var == 3) sprintf(msg, "MODE:Toggle Block 2 To Block 1");
+      if (var == 4) sprintf(msg, "MODE:Copy Area");
    }
    if (bn == 402) // damage mode
    {
@@ -1850,6 +1867,7 @@ void mwWidget::colsel(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    if (bn == 7) sprintf(msg, "Select Block Manip Field Color");
    if (bn == 8) sprintf(msg, "Select Lift Step Color");
 
+   if (bn == 9) sprintf(msg, "Select Crew Player Color");
 
    draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
 
@@ -1894,6 +1912,10 @@ void mwWidget::colsel(int x1, int &y1, int x2, int bts, int bn, int num, int typ
          mLift.stp[num][type].type &= 0b00001111111111111111111111111111; // clear old color
          mLift.stp[num][type].type |= cf; // merge color with type
       }
+
+      if (bn == 9) mEnemy.Ei[num][3] = color;    // crew player color
+
+
    }
    if (q6 == 1) y1+=bts;
 }

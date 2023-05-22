@@ -1,7 +1,7 @@
-// mwPlayers.cpp
+// mwPlayer.cpp
 
 #include "pm.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwLog.h"
 #include "mwTally.h"
 #include "mwFont.h"
@@ -11,12 +11,12 @@
 #include "mwInput.h"
 #include "mwDisplay.h"
 #include "mwLoop.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwScreen.h"
 #include "mwGameEvent.h"
-#include "mwShots.h"
+#include "mwShot.h"
 #include "mwSolid.h"
 #include "mwNetgame.h"
 #include "mwDemoMode.h"
@@ -24,10 +24,10 @@
 #include "mwEventQueue.h"
 #include "mwConfig.h"
 
-mwPlayers mPlayer;
+mwPlayer mPlayer;
 
 
-void mwPlayers::set_player_start_pos(int p, int cont)
+void mwPlayer::set_player_start_pos(int p, int cont)
 {
    //printf("set player:%d start pos\n", p);
    int found = 0;
@@ -194,7 +194,7 @@ void mwPlayers::set_player_start_pos(int p, int cont)
 
 }
 
-void mwPlayers::proc_player_health(int p)
+void mwPlayer::proc_player_health(int p)
 {
    char msg[1024];
    if ((mLoop.frame_num) && (mLoop.frame_num == loc[p].damage_holdoff)) mGameEvent.add(12, 0, 0, p, loc[p].damage_type, 0, loc[p].damage_tally);
@@ -230,7 +230,7 @@ void mwPlayers::proc_player_health(int p)
 }
 
 
-void mwPlayers::proc_player_xy_move_test(int p)
+void mwPlayer::proc_player_xy_move_test(int p)
 {
    float m = 0.5;
 
@@ -264,7 +264,7 @@ void mwPlayers::proc_player_xy_move_test(int p)
    }
 }
 
-void mwPlayers::proc_player_xy_move(int p)
+void mwPlayer::proc_player_xy_move(int p)
 {
    float gravity = 0.6;
    float slow_gravity = 0.2; // used when jump is held
@@ -516,7 +516,7 @@ void mwPlayers::proc_player_xy_move(int p)
 
 
 
-void mwPlayers::proc_player_paused(int p)
+void mwPlayer::proc_player_paused(int p)
 {
    syn[p].player_ride = 0;
    if (syn[p].paused_type == 2) mItem.proc_player_door_move(p);
@@ -562,20 +562,20 @@ void mwPlayers::proc_player_paused(int p)
    }
 }
 
-void mwPlayers::reset_player_scale_and_rot(int p)
+void mwPlayer::reset_player_scale_and_rot(int p)
 {
    syn[p].draw_scale = 1;
    syn[p].draw_rot = 0;
 }
 
 
-int mwPlayers::is_player_riding_rocket(int p)
+int mwPlayer::is_player_riding_rocket(int p)
 {
    if ((syn[p].carry_item) && (mItem.item[syn[p].carry_item-1][0] == 98)) return 1;
    return 0;
 }
 
-void mwPlayers::proc_player_stuck_in_blocks(int p)
+void mwPlayer::proc_player_stuck_in_blocks(int p)
 {
    int x = syn[p].x;
    int y = syn[p].y;
@@ -590,7 +590,7 @@ void mwPlayers::proc_player_stuck_in_blocks(int p)
    }
 }
 
-void mwPlayers::proc_player_riding_rocket(int p)
+void mwPlayer::proc_player_riding_rocket(int p)
 {
    int c = syn[p].carry_item-1;
    float rot_inc = mItem.item[c][6];
@@ -607,7 +607,7 @@ void mwPlayers::proc_player_riding_rocket(int p)
    syn[p].draw_scale = 0.5;
 }
 
-void mwPlayers::proc_player_bounds_check(int p)
+void mwPlayer::proc_player_bounds_check(int p)
 {
    // absolute level bounds check
    if (syn[p].x < 0)    syn[p].x = 0;
@@ -617,7 +617,7 @@ void mwPlayers::proc_player_bounds_check(int p)
 }
 
 
-void mwPlayers::proc_player_collisions(int p)
+void mwPlayer::proc_player_collisions(int p)
 {
    float px = syn[p].x;
    float py = syn[p].y;
@@ -697,7 +697,7 @@ void mwPlayers::proc_player_collisions(int p)
 }
 
 
-int mwPlayers::is_player_within_ladder_reach(int p)
+int mwPlayer::is_player_within_ladder_reach(int p)
 {
    // detect if player is on ladder block
    int AX = syn[p].x;
@@ -742,7 +742,7 @@ int mwPlayers::is_player_within_ladder_reach(int p)
    return 0;
 }
 
-int mwPlayers::is_player_within_rope_reach(int p)
+int mwPlayer::is_player_within_rope_reach(int p)
 {
    // detect if player is on rope block
    int AX = syn[p].x;
@@ -795,7 +795,7 @@ int mwPlayers::is_player_within_rope_reach(int p)
 
 
 
-void mwPlayers::proc_player_rope_move(int p)
+void mwPlayer::proc_player_rope_move(int p)
 {
     // reset all regular incs
    syn[p].xinc = 0;
@@ -821,7 +821,7 @@ void mwPlayers::proc_player_rope_move(int p)
 }
 
 
-void mwPlayers::proc_player_ladder_move(int p)
+void mwPlayer::proc_player_ladder_move(int p)
 {
    float m = 3;
 
@@ -997,7 +997,7 @@ void mwPlayers::proc_player_ladder_move(int p)
    }
 }
 
-void mwPlayers::proc_player_rope(int p)
+void mwPlayer::proc_player_rope(int p)
 {
    if (syn[p].on_rope)                 // if player is currently on rope
    {
@@ -1045,7 +1045,7 @@ void mwPlayers::proc_player_rope(int p)
    if (syn[p].on_rope) proc_player_rope_move(p);
 }
 
-void mwPlayers::proc_player_ladder(int p)
+void mwPlayer::proc_player_ladder(int p)
 {
    if (syn[p].on_ladder) // already on ladder (grabbing ladder)
    {
@@ -1084,7 +1084,7 @@ void mwPlayers::proc_player_ladder(int p)
    if (syn[p].on_ladder) proc_player_ladder_move(p);
 }
 
-void mwPlayers::move_players(void)
+void mwPlayer::move_players(void)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
       if (syn[p].active)
@@ -1116,7 +1116,7 @@ void mwPlayers::move_players(void)
 }
 
 
-void mwPlayers::draw_player(int p)
+void mwPlayer::draw_player(int p)
 {
    if (syn[p].active)
    {
@@ -1252,7 +1252,7 @@ void mwPlayers::draw_player(int p)
    }
 }
 
-void mwPlayers::draw_players(void)
+void mwPlayer::draw_players(void)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
       draw_player(p);
@@ -1261,7 +1261,7 @@ void mwPlayers::draw_players(void)
    draw_player(active_local_player);
 }
 
-void mwPlayers::get_players_shape(int p)
+void mwPlayer::get_players_shape(int p)
 {
    int index = 0;
    if (syn[p].up) index = 6;
@@ -1315,7 +1315,7 @@ void mwPlayers::get_players_shape(int p)
 }
 
 
-int mwPlayers::is_player_color_used(int color)
+int mwPlayer::is_player_color_used(int color)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
       if ((syn[p].active) || (syn[p].control_method == 9) || (syn[p].control_method == 2))
@@ -1323,7 +1323,7 @@ int mwPlayers::is_player_color_used(int color)
    return 0;
 }
 
-void mwPlayers::init_player(int p, int t)
+void mwPlayer::init_player(int p, int t)
 {
    if (t == 1) // new game
    {
@@ -1490,7 +1490,7 @@ void mwPlayers::init_player(int p, int t)
    }
 }
 
-void mwPlayers::fill_player_tile(void)
+void mwPlayer::fill_player_tile(void)
 {
    //printf("fill player bitmap\n");
    int a, b, x, y;
@@ -1625,7 +1625,7 @@ void mwPlayers::fill_player_tile(void)
 
 
 
-void mwPlayers::clear_controls(int p)
+void mwPlayer::clear_controls(int p)
 {
    syn[p].left  = 0;
    syn[p].right = 0;
@@ -1636,7 +1636,7 @@ void mwPlayers::clear_controls(int p)
    syn[p].menu  = 0;
 }
 
-void mwPlayers::set_controls_from_comp_move(int p, int comp_move)
+void mwPlayer::set_controls_from_comp_move(int p, int comp_move)
 {
    clear_controls(p);
    if (comp_move & PM_COMPMOVE_LEFT)  syn[p].left  = 1;
@@ -1648,7 +1648,7 @@ void mwPlayers::set_controls_from_comp_move(int p, int comp_move)
    if (comp_move & PM_COMPMOVE_MENU)  syn[p].menu  = 1;
 }
 
-void mwPlayers::set_comp_move_from_player_key_check(int p) // doesn't set controls
+void mwPlayer::set_comp_move_from_player_key_check(int p) // doesn't set controls
 {
    int cm = 0;
    if (mInput.key[loc[p].left_key][0])       cm |= PM_COMPMOVE_LEFT;
@@ -1662,7 +1662,7 @@ void mwPlayers::set_comp_move_from_player_key_check(int p) // doesn't set contro
    loc[p].comp_move = cm;
 }
 
-void mwPlayers::set_controls_from_player_key_check(int p) // used only in menu
+void mwPlayer::set_controls_from_player_key_check(int p) // used only in menu
 {
    if (mInput.key[loc[p].left_key][0])       syn[p].left  = 1;
    if (mInput.key[loc[p].right_key][0])      syn[p].right = 1;
@@ -1674,7 +1674,7 @@ void mwPlayers::set_controls_from_player_key_check(int p) // used only in menu
    if (mInput.key[ALLEGRO_KEY_ESCAPE][0])    syn[p].menu  = 1;
 }
 
-void mwPlayers::rungame_key_check(int p)
+void mwPlayer::rungame_key_check(int p)
 {
    if (mInput.key[ALLEGRO_KEY_0][0]) active_local_player = 0;
    if (mInput.key[ALLEGRO_KEY_1][0]) active_local_player = 1;
@@ -1711,7 +1711,7 @@ void mwPlayers::rungame_key_check(int p)
    }
 }
 
-void mwPlayers::proc_player_input(void)
+void mwPlayer::proc_player_input(void)
 {
    char msg[1024];
    for (int p=0; p<NUM_PLAYERS; p++)

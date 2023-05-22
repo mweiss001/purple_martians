@@ -1,4 +1,4 @@
-// mwShots.h
+// mwShot.h
 
 struct eshot
 {
@@ -20,7 +20,7 @@ struct pshot
    float yinc;
 };
 
-class mwShots
+class mwShot
 {
    public:
 
@@ -48,7 +48,7 @@ class mwShots
    void fire_enemy_x_shot(int e, int p);
 
 };
-extern mwShots mShot;
+extern mwShot mShot;
 
 
 

@@ -15,6 +15,9 @@ class mwMiscFnx
 
 
    int round20(int val);
+
+   void mw_round(int& val, int rnd);
+
    int enforce_limit(int val, int ll, int ul);
    int check_limit(int val, int ll, int ul);
    void swap_int(int *i1, int* i2);

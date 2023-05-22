@@ -2,9 +2,9 @@
 
 #include "pm.h"
 #include "mwEnemy.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwBitmap.h"
-#include "mwShots.h"
+#include "mwShot.h"
 #include "mwSolid.h"
 #include "mwLift.h"
 #include "mwLoop.h"
@@ -13,36 +13,51 @@
 #include "mwMiscFnx.h"
 #include "mwTriggerEvent.h"
 
-//--7--vinepod-----------------------------------------------------------------------------
+/*
+-----------------------------------------------
+---  7 - Vinepod  -----------------------------
+-----------------------------------------------
 
-//     Ei[e][3]  = x initial position
-//     Ei[e][4]  = y initial position
-//     Ei[e][5]  = x control point 1
-//     Ei[e][6]  = y control point 1
-//     Ei[e][7]  = x control point 2
-//     Ei[e][8]  = y control point 2
-//     Ei[e][9]  = x extended position
-//     Ei[e][10] = y extended position
+Ei[e][3]  = x initial position
+Ei[e][4]  = y initial position
+Ei[e][5]  = x control point 1
+Ei[e][6]  = y control point 1
+Ei[e][7]  = x control point 2
+Ei[e][8]  = y control point 2
+Ei[e][9]  = x extended position
+Ei[e][10] = y extended position
 
-//     Ei[e][11] = trigger box x
-//     Ei[e][12] = trigger box y
-//     Ei[e][13] = trigger box w
-//     Ei[e][14] = trigger box h
-//     Ei[e][15] = mode
-//     Ei[e][16] = sequence counter
-//     Ei[e][17] = sequence limit
+Ei[e][11] = trigger box x
+Ei[e][12] = trigger box y
+Ei[e][13] = trigger box w
+Ei[e][14] = trigger box h
 
-//     Ei[e][18] = input event
-//     Ei[e][19] = output event
+Ei[e][15] = mode
+Ei[e][16] = sequence counter
+Ei[e][17] = sequence limit
 
-//     Ei[e][20] = flags
-//     Ei[e][21] = unused
+Ei[e][18] = input event
+Ei[e][19] = output event
+
+Ei[e][20] = flags
+Ei[e][21] = unused
+
+Ef[e][6] = control point multiplier
+Ef[e][7] = bullet speed
+Ef[e][8] = wait count
+Ef[e][9] = wait limit
+
+#define PM_ENEMY_VINEPOD_SHOW_PATH   0b00000000000000001
+#define PM_ENEMY_VINEPOD_INV_INIT    0b00000000000000010
+#define PM_ENEMY_VINEPOD_INV_EXTN    0b00000000000000100
+#define PM_ENEMY_VINEPOD_INV_MOVE    0b00000000000001000
+#define PM_ENEMY_VINEPOD_USE_SPLINE  0b00000000000010000
+#define PM_ENEMY_VINEPOD_USE_TRIGGER 0b00000000000100000
+#define PM_ENEMY_VINEPOD_FIRE_SHOT   0b00000000001000000
 
 
-//     Ef[e][6] = control point multiplier
-//     Ef[e][7] = bullet speed
-//     Ef[e][8] = wait count
-//     Ef[e][9] = wait limit
+*/
+
 
 
 
@@ -176,50 +191,88 @@ void mwEnemy::vinepod_set_cp_thirds(int e)
    Ei[e][8] = Ei[e][4] + yd*2;
 }
 
-
-void mwEnemy::vinepod_rotate_90(int e)
+void mwEnemy::vinepod_rotate_cw_90(int e)
 {
-   float xd = (float)(Ei[e][9]  - Ei[e][3]);
-   float yd = (float)(Ei[e][10] - Ei[e][4]);
-   Ei[e][9]  = Ei[e][3] - yd;
-   Ei[e][10] = Ei[e][4] + xd;
+   int xa = Ei[e][3];
+   int ya = Ei[e][4];
 
-
-   xd = (float)(Ei[e][5] - Ei[e][3]);
-   yd = (float)(Ei[e][6] - Ei[e][4]);
-   Ei[e][5] = Ei[e][3] - yd;
-   Ei[e][6] = Ei[e][4] + xd;
-
-   xd = (float)(Ei[e][7] - Ei[e][3]);
-   yd = (float)(Ei[e][8] - Ei[e][4]);
-   Ei[e][7] = Ei[e][3] - yd;
-   Ei[e][8] = Ei[e][4] + xd;
+   for (int i=5; i<10; i+=2)
+   {
+      int xd = Ei[e][i+0] - xa;
+      int yd = Ei[e][i+1] - ya;
+      Ei[e][i+0] = xa - yd;
+      Ei[e][i+1] = ya + xd;
+   }
 }
+
+void mwEnemy::vinepod_rotate_ccw_90(int e)
+{
+   int xa = Ei[e][3];
+   int ya = Ei[e][4];
+
+   for (int i=5; i<10; i+=2)
+   {
+      int xd = Ei[e][i+0] - xa;
+      int yd = Ei[e][i+1] - ya;
+      Ei[e][i+0] = xa + yd;
+      Ei[e][i+1] = ya - xd;
+   }
+}
+
+void mwEnemy::vinepod_rotate(int e, float a)
+{
+   int xa = Ei[e][3]; // origin
+   int ya = Ei[e][4];
+
+   for (int i=5; i<10; i+=2)
+   {
+      float xd = (float)(Ei[e][i+0] - xa);       // x distance
+      float yd = (float)(Ei[e][i+1] - ya);       // y distance
+      float oa = atan2(yd, xd);                  // original angle
+      float hd = sqrt(pow(xd, 2) + pow(yd, 2));  // hypotenuse distance
+      oa+=a;                                     // change angle
+      Ei[e][i+0] = xa + cos(oa) * hd;            // get new x
+      Ei[e][i+1] = ya + sin(oa) * hd;            // get new y
+   }
+}
+
+
+void mwEnemy::vinepod_scale(int e, float s)
+{
+   int xa = Ei[e][3]; // origin
+   int ya = Ei[e][4];
+
+   for (int i=5; i<10; i+=2)
+   {
+      float xd = (float)(Ei[e][i+0] - xa);       // x distance
+      float yd = (float)(Ei[e][i+1] - ya);       // y distance
+      float oa = atan2(yd, xd);                  // original angle
+      float hd = sqrt(pow(xd, 2) + pow(yd, 2));  // hypotenuse distance
+
+      hd *= s;                                     // change h dis
+
+      Ei[e][i+0] = xa + cos(oa) * hd;            // get new x
+      Ei[e][i+1] = ya + sin(oa) * hd;            // get new y
+   }
+}
+
+
+
+
+
 
 void mwEnemy::vinepod_mirror_x(int e)
 {
-   float xd = (float)(Ei[e][9]  - Ei[e][3]);
-   Ei[e][9]  = Ei[e][3] - xd;
-
-   xd = (float)(Ei[e][7] - Ei[e][3]);
-   Ei[e][7] = Ei[e][3] - xd;
-
-   xd = (float)(Ei[e][5] - Ei[e][3]);
-   Ei[e][5] = Ei[e][3] - xd;
-
+   int xa = Ei[e][3];
+   for (int i=5; i<10; i+=2)
+      Ei[e][i] = xa - (Ei[e][i] - xa);
 }
 
 void mwEnemy::vinepod_mirror_y(int e)
 {
-   float yd = (float)(Ei[e][10]  - Ei[e][4]);
-   Ei[e][10] = Ei[e][4] - yd;
-
-   yd = (float)(Ei[e][8] - Ei[e][4]);
-   Ei[e][8] = Ei[e][4] - yd;
-
-   yd = (float)(Ei[e][6] - Ei[e][4]);
-   Ei[e][6] = Ei[e][4] - yd;
-
+   int ya = Ei[e][4];
+   for (int i=6; i<11; i+=2)
+      Ei[e][i] = ya - (Ei[e][i] - ya);
 }
 
 

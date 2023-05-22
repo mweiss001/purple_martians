@@ -11,7 +11,7 @@
 #include "mwDisplay.h"
 #include "mwEventQueue.h"
 #include "mwHelp.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
@@ -25,32 +25,32 @@
 
 void mwWindow::em_set_swbl(void)
 {
-   mwWM.mW[2].swbn = 0;
+   mWM.mW[2].swbn = 0;
    for (int c=0; c<NUM_SPRITES; c++)
    {
-      mwWM.swbl[c][0] = mwWM.swbl[c][1] = 0;                    // erase
+      mWM.swbl[c][0] = mWM.swbl[c][1] = 0;                    // erase
       if (mBitmap.sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
       {
          if ((c == 384) || (c == 416) || (c == 448) || (c == 480) || (c == 512) || (c == 576) || (c == 608) || (c == 640)|| (c == 672)|| (c == 704)) // start new line
          {
-            int off = (16 - (mwWM.mW[2].swbn % 16));
-            if (off < 16) mwWM.mW[2].swbn += off;
+            int off = (16 - (mWM.mW[2].swbn % 16));
+            if (off < 16) mWM.mW[2].swbn += off;
          }
 
-         mwWM.swbl[mwWM.mW[2].swbn][0] = c | mBitmap.sa[c][0];                // add to list with default flags
-         mwWM.swbl[mwWM.mW[2].swbn][0] &= ~PM_BTILE_SHOW_SELECT_WIN;  // clear flag
-         mwWM.mW[2].swbn++;
+         mWM.swbl[mWM.mW[2].swbn][0] = c | mBitmap.sa[c][0];                // add to list with default flags
+         mWM.swbl[mWM.mW[2].swbn][0] &= ~PM_BTILE_SHOW_SELECT_WIN;  // clear flag
+         mWM.mW[2].swbn++;
       }
    }
-   mwWM.mW[2].swnbl = (mwWM.mW[2].swbn / 16) + 1;
-   if (mwWM.mW[2].swnbl_cur == 0) mwWM.mW[2].swnbl_cur = mwWM.mW[2].swnbl; // initial only
+   mWM.mW[2].swnbl = (mWM.mW[2].swbn / 16) + 1;
+   if (mWM.mW[2].swnbl_cur == 0) mWM.mW[2].swnbl_cur = mWM.mW[2].swnbl; // initial only
 }
 
 
 
 void mwWindow::em_set_block_range(void)
 {
-   int draw_item_flags = mwWM.mW[1].draw_item_num & PM_BTILE_MOST_FLAGS;
+   int draw_item_flags = mWM.mW[1].draw_item_num & PM_BTILE_MOST_FLAGS;
 
 
    int b = 0, f = 0;
@@ -377,77 +377,77 @@ void mwWindow::em_set_block_range(void)
          fsy[i][j] |= draw_item_flags;
 
 
-   if ((mwWM.bx2==mwWM.bx1) && (mwWM.by2==mwWM.by1)) mLevel.l[mwWM.bx1][mwWM.by1] = mwWM.mW[1].draw_item_num; // single block 1 x 1
+   if ((mWM.bx2==mWM.bx1) && (mWM.by2==mWM.by1)) mLevel.l[mWM.bx1][mWM.by1] = mWM.mW[1].draw_item_num; // single block 1 x 1
 
-   if ((mwWM.bx2==mwWM.bx1) && (mwWM.by2-mwWM.by1>0)) // vertical line 1 x >1
+   if ((mWM.bx2==mWM.bx1) && (mWM.by2-mWM.by1>0)) // vertical line 1 x >1
    {
-      int a = mwWM.bx1;
-      for (int b=mwWM.by1; b<mwWM.by2+1; b++) // cycle the range
+      int a = mWM.bx1;
+      for (int b=mWM.by1; b<mWM.by2+1; b++) // cycle the range
       {
-         mLevel.l[a][b] = mwWM.mW[1].draw_item_num; // set draw item as default
+         mLevel.l[a][b] = mWM.mW[1].draw_item_num; // set draw item as default
          for (int x=0; x<20; x++)
             if (fsy[x][0]&1023)
             {
-               if (((mwWM.mW[1].draw_item_num&1023) >= (fsy[x][0]&1023)) && ((mwWM.mW[1].draw_item_num&1023) <= (fsy[x][1]&1023)))
+               if (((mWM.mW[1].draw_item_num&1023) >= (fsy[x][0]&1023)) && ((mWM.mW[1].draw_item_num&1023) <= (fsy[x][1]&1023)))
                {
                                      mLevel.l[a][b] = fsy[x][2]; // default
-                  if (b == mwWM.by1) mLevel.l[a][b] = fsy[x][3]; // left end cap
-                  if (b == mwWM.by2) mLevel.l[a][b] = fsy[x][4]; // right end cap
+                  if (b == mWM.by1) mLevel.l[a][b] = fsy[x][3]; // left end cap
+                  if (b == mWM.by2) mLevel.l[a][b] = fsy[x][4]; // right end cap
                }
             }
       }
    }
-   if ((mwWM.bx2-mwWM.bx1>0) && (mwWM.by2==mwWM.by1)) // horizontal line >1 x 1
+   if ((mWM.bx2-mWM.bx1>0) && (mWM.by2==mWM.by1)) // horizontal line >1 x 1
    {
-      int b = mwWM.by1;
-      for (int a=mwWM.bx1; a<mwWM.bx2+1; a++) // cycle the range
+      int b = mWM.by1;
+      for (int a=mWM.bx1; a<mWM.bx2+1; a++) // cycle the range
       {
-         mLevel.l[a][b] = mwWM.mW[1].draw_item_num; // set draw item as default
+         mLevel.l[a][b] = mWM.mW[1].draw_item_num; // set draw item as default
          for (int x=0; x<20; x++)
          {
             if (fsx[x][0]&1023)
             {
-               if (((mwWM.mW[1].draw_item_num&1023) >= (fsx[x][0]&1023)) && ((mwWM.mW[1].draw_item_num&1023) <= (fsx[x][1]&1023)))
+               if (((mWM.mW[1].draw_item_num&1023) >= (fsx[x][0]&1023)) && ((mWM.mW[1].draw_item_num&1023) <= (fsx[x][1]&1023)))
                {
                                      mLevel.l[a][b] = fsx[x][2]; // default
-                  if (a == mwWM.bx1) mLevel.l[a][b] = fsx[x][3]; // left end cap
-                  if (a == mwWM.bx2) mLevel.l[a][b] = fsx[x][4]; // right end cap
+                  if (a == mWM.bx1) mLevel.l[a][b] = fsx[x][3]; // left end cap
+                  if (a == mWM.bx2) mLevel.l[a][b] = fsx[x][4]; // right end cap
                }
             }
          }
       }
    }
-   if ((mwWM.bx2-mwWM.bx1>0) && (mwWM.by2-mwWM.by1>0)) // box shape with corners >1 x >1
+   if ((mWM.bx2-mWM.bx1>0) && (mWM.by2-mWM.by1>0)) // box shape with corners >1 x >1
    {
       int special_handler = 0;
-      for (int a=mwWM.bx1; a<mwWM.bx2+1; a++)       // cycle the range
-         for (int b=mwWM.by1; b<mwWM.by2+1; b++)
+      for (int a=mWM.bx1; a<mWM.bx2+1; a++)       // cycle the range
+         for (int b=mWM.by1; b<mWM.by2+1; b++)
             for (int x=0; x<20; x++)
                if (fsd[x][0]&1023)
                {
-                  if (((mwWM.mW[1].draw_item_num&1023) >= (fsd[x][0]&1023)) && ((mwWM.mW[1].draw_item_num&1023) <= (fsd[x][1]&1023)))
+                  if (((mWM.mW[1].draw_item_num&1023) >= (fsd[x][0]&1023)) && ((mWM.mW[1].draw_item_num&1023) <= (fsd[x][1]&1023)))
                   {
                      special_handler = 1;
 
                      if (fsd[x][9] != -1) mLevel.l[a][b] = fsd[x][9];   // default block
-                     if (b == mwWM.by1)   mLevel.l[a][b] = fsd[x][16];  // upper horizontal through
-                     if (b == mwWM.by2)   mLevel.l[a][b] = fsd[x][17];  // lower horizontal through
+                     if (b == mWM.by1)   mLevel.l[a][b] = fsd[x][16];  // upper horizontal through
+                     if (b == mWM.by2)   mLevel.l[a][b] = fsd[x][17];  // lower horizontal through
 
 
-                     if (a == mwWM.bx1)
+                     if (a == mWM.bx1)
                      {
-                        if (b == mwWM.by1)      mLevel.l[a][b] = fsd[x][10];  // upper-right corner
-                        else if (b == mwWM.by2) mLevel.l[a][b] = fsd[x][12];  // lower-right corner
+                        if (b == mWM.by1)      mLevel.l[a][b] = fsd[x][10];  // upper-right corner
+                        else if (b == mWM.by2) mLevel.l[a][b] = fsd[x][12];  // lower-right corner
                         else                    mLevel.l[a][b] = fsd[x][14];  // right vertical through
                      }
-                     if (a == mwWM.bx2)
+                     if (a == mWM.bx2)
                      {
-                        if (b == mwWM.by1)      mLevel.l[a][b] = fsd[x][11];  // upper-left corner
-                        else if (b == mwWM.by2) mLevel.l[a][b] = fsd[x][13];  // lower-left corner
+                        if (b == mWM.by1)      mLevel.l[a][b] = fsd[x][11];  // upper-left corner
+                        else if (b == mWM.by2) mLevel.l[a][b] = fsd[x][13];  // lower-left corner
                         else                    mLevel.l[a][b] = fsd[x][15];  // left vertical through
                      }
                   }
-                  if (!special_handler)         mLevel.l[a][b] = mwWM.mW[1].draw_item_num;
+                  if (!special_handler)         mLevel.l[a][b] = mWM.mW[1].draw_item_num;
 
              } // end of cycle block range
    } // end of box shape with corners
@@ -469,16 +469,16 @@ char* mwWindow::em_get_text_description_of_block_based_on_flags(int flags, char 
 
 void mwWindow::em_show_draw_item_cursor(void)
 {
-   int x = mwWM.gx;
-   int y = mwWM.gy;
-   if (mwWM.mW[1].point_item_type > -1) // if mouse pointer on window, do not show draw item
+   int x = mWM.gx;
+   int y = mWM.gy;
+   if (mWM.mW[1].point_item_type > -1) // if mouse pointer on window, do not show draw item
    {
-      int type = mwWM.mW[1].draw_item_type;
-      int num  = mwWM.mW[1].draw_item_num;
+      int type = mWM.mW[1].draw_item_type;
+      int num  = mWM.mW[1].draw_item_num;
       switch (type)
       {
          case 1: // block
-            if (mwWM.mW[1].show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(num, x*20, y*20);
+            if (mWM.mW[1].show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(num, x*20, y*20);
             else al_draw_bitmap(mBitmap.btile[num&1023], x*20, y*20, 0);
          break;
          case 2: // item
@@ -505,7 +505,7 @@ void mwWindow::em_show_item_info(int x, int y, int color, int type, int num)
    switch (type)
    {
       case 1:
-         if (mwWM.mW[1].show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(num, x, y);
+         if (mWM.mW[1].show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(num, x, y);
          else al_draw_bitmap(mBitmap.btile[num&1023], x, y, 0);
          al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+2, 0, "Block #%d",num&1023);
          al_draw_textf(mFont.pr8, mColor.pc[color], x+22, y+12, 0, "%s", em_get_text_description_of_block_based_on_flags(num, msg));
@@ -550,8 +550,8 @@ void mwWindow::em_show_item_info(int x, int y, int color, int type, int num)
 void mwWindow::em_find_point_item(void)
 {
    // find point item
-   mwWM.mW[1].point_item_type = 1; // block by default
-   mwWM.mW[1].point_item_num = mLevel.l[mwWM.gx][mwWM.gy];
+   mWM.mW[1].point_item_type = 1; // block by default
+   mWM.mW[1].point_item_num = mLevel.l[mWM.gx][mWM.gy];
 
    int max_ob = 20;                  // max objects to find
    int ob = 0;                       // objects found
@@ -566,7 +566,7 @@ void mwWindow::em_find_point_item(void)
       {
          int x = mItem.item[i][4];
          int y = mItem.item[i][5];
-         if ( (mwWM.hx >= x) && (mwWM.hx <= x+19) && (mwWM.hy > y) && (mwWM.hy < y+19) && (ob < max_ob))
+         if ( (mWM.hx >= x) && (mWM.hx <= x+19) && (mWM.hy > y) && (mWM.hy < y+19) && (ob < max_ob))
          {
              mo[ob][0] = 2;
              mo[ob][1] = i;
@@ -578,7 +578,7 @@ void mwWindow::em_find_point_item(void)
       {
          int x = mEnemy.Ef[e][0];
          int y = mEnemy.Ef[e][1];
-         if ( (mwWM.hx >= x) && (mwWM.hx <= x+19) && (mwWM.hy > y) && (mwWM.hy < y+19) && (ob < max_ob))
+         if ( (mWM.hx >= x) && (mWM.hx <= x+19) && (mWM.hy > y) && (mWM.hy < y+19) && (ob < max_ob))
          {
              mo[ob][0] = 3;
              mo[ob][1] = e;
@@ -590,7 +590,7 @@ void mwWindow::em_find_point_item(void)
       {
          int x = mLift.cur[l].x;
          int y = mLift.cur[l].y;
-         if ( (mwWM.hx >= x) && (mwWM.hx <= x+19) && (mwWM.hy > y) && (mwWM.hy < y+19) && (ob < max_ob))
+         if ( (mWM.hx >= x) && (mWM.hx <= x+19) && (mWM.hy > y) && (mWM.hy < y+19) && (ob < max_ob))
          {
              mo[ob][0] = 4;
              mo[ob][1] = l;
@@ -606,8 +606,8 @@ void mwWindow::em_find_point_item(void)
       int mm = mInput.mouse_x % 20;         // mouse position relative to block boundary
       int ss = 20/ob;                // step space
       int of = mm / ss;              // convert to offset into ob array
-      mwWM.mW[1].point_item_type = mo[of][0];
-      mwWM.mW[1].point_item_num  = mo[of][1];
+      mWM.mW[1].point_item_type = mo[of][0];
+      mWM.mW[1].point_item_num  = mo[of][1];
       //al_draw_textf(mFont.pr8, mColor.pc[11], 100, 92, 0, "mm:%2d ss:%2d of:%2d  ", mm, ss, of);
    }
 }
@@ -617,16 +617,16 @@ void mwWindow::em_process_mouse(void)
    if (mInput.mouse_b[1][0])
    {
       // don't allow drag draw selection unless draw type is block
-      if (mwWM.mW[1].draw_item_type != 1) while (mInput.mouse_b[1][0]) mEventQueue.proc();
+      if (mWM.mW[1].draw_item_type != 1) while (mInput.mouse_b[1][0]) mEventQueue.proc();
 
-      int din = mwWM.mW[1].draw_item_num; // shorter variable name
-      switch (mwWM.mW[1].draw_item_type)
+      int din = mWM.mW[1].draw_item_num; // shorter variable name
+      switch (mWM.mW[1].draw_item_type)
       {
          case 1:  // block
          {
-            mwWM.bx1 = mwWM.gx;
-            mwWM.by1 = mwWM.gy;
-            mwWM.get_new_box();
+            mWM.bx1 = mWM.gx;
+            mWM.by1 = mWM.gy;
+            mWM.get_new_box();
             em_set_block_range();
             mScreen.init_level_background(0);
          }
@@ -634,8 +634,8 @@ void mwWindow::em_process_mouse(void)
          case 2:  // item
          {
             int type = mItem.item[din][0];
-            int ofx = mwWM.gx*20 - mItem.item[din][4]; // get offset of move in 2000 format
-            int ofy = mwWM.gy*20 - mItem.item[din][5];
+            int ofx = mWM.gx*20 - mItem.item[din][4]; // get offset of move in 2000 format
+            int ofy = mWM.gy*20 - mItem.item[din][5];
             int c = mItem.get_empty_item(); // get a place to put it
             //printf("din:%d c:%d\n", din, c);
             if (c == -1)  break;
@@ -657,8 +657,8 @@ void mwWindow::em_process_mouse(void)
          {
             int type = mEnemy.Ei[din][0];
 
-            int ofx = mwWM.gx*20 - mEnemy.Ef[din][0]; // get offset of move in 2000 format
-            int ofy = mwWM.gy*20 - mEnemy.Ef[din][1];
+            int ofx = mWM.gx*20 - mEnemy.Ef[din][0]; // get offset of move in 2000 format
+            int ofy = mWM.gy*20 - mEnemy.Ef[din][1];
 
             int c = mEnemy.get_empty_enemy(type); // get a place to put it
             if (c == -1)  break;
@@ -699,8 +699,8 @@ void mwWindow::em_process_mouse(void)
             for (int x=0; x<16; x++) // item
                mItem.item[d][x] = mPDE.PDEi[din][x];
             mItem.item[d][0] -= 100;
-            mItem.item[d][4] = mwWM.gx*20;
-            mItem.item[d][5] = mwWM.gy*20;
+            mItem.item[d][4] = mWM.gx*20;
+            mItem.item[d][5] = mWM.gy*20;
             if (mItem.item[d][0] == 4)
             {
                mItem.itemf[d][0] = mItem.item[d][4];
@@ -715,8 +715,8 @@ void mwWindow::em_process_mouse(void)
             if (d == -1)  break;
             for (int x=0; x<32; x++) mEnemy.Ei[d][x] = mPDE.PDEi[din][x];
             for (int x=0; x<16; x++) mEnemy.Ef[d][x] = mPDE.PDEf[din][x];
-            mEnemy.Ef[d][0] = mwWM.gx*20;  // set new x,y
-            mEnemy.Ef[d][1] = mwWM.gy*20;
+            mEnemy.Ef[d][0] = mWM.gx*20;  // set new x,y
+            mEnemy.Ef[d][1] = mWM.gy*20;
             mEnemy.sort_enemy();
          }
          break;
@@ -724,7 +724,7 @@ void mwWindow::em_process_mouse(void)
    } // end of mInput.mouse_b[1][0]
    if (mInput.mouse_b[2][0])
    {
-      switch (mwWM.mW[1].point_item_type)
+      switch (mWM.mW[1].point_item_type)
       {
          case 1:
             sprintf(mMenu.menu_string[2], "Copy Block    ");
@@ -732,69 +732,69 @@ void mwWindow::em_process_mouse(void)
             sprintf(mMenu.menu_string[4], "                ");
          break;
          case 2:
-            sprintf(mMenu.menu_string[2], "Copy %s  ",  mItem.item_name[mItem.item[mwWM.mW[1].point_item_num][0]]);
-            sprintf(mMenu.menu_string[3], "View %s  ",  mItem.item_name[mItem.item[mwWM.mW[1].point_item_num][0]]);
-            sprintf(mMenu.menu_string[4], "Delete %s ", mItem.item_name[mItem.item[mwWM.mW[1].point_item_num][0]]);
+            sprintf(mMenu.menu_string[2], "Copy %s  ",  mItem.item_name[mItem.item[mWM.mW[1].point_item_num][0]]);
+            sprintf(mMenu.menu_string[3], "View %s  ",  mItem.item_name[mItem.item[mWM.mW[1].point_item_num][0]]);
+            sprintf(mMenu.menu_string[4], "Delete %s ", mItem.item_name[mItem.item[mWM.mW[1].point_item_num][0]]);
          break;
          case 3:
-            sprintf(mMenu.menu_string[2], "Copy %s  ",  (const char *)mEnemy.enemy_name[mEnemy.Ei[mwWM.mW[1].point_item_num][0]][0]);
-            sprintf(mMenu.menu_string[3], "View %s  ",  (const char *)mEnemy.enemy_name[mEnemy.Ei[mwWM.mW[1].point_item_num][0]][0]);
-            sprintf(mMenu.menu_string[4], "Delete %s ", (const char *)mEnemy.enemy_name[mEnemy.Ei[mwWM.mW[1].point_item_num][0]][0]);
+            sprintf(mMenu.menu_string[2], "Copy %s  ",  (const char *)mEnemy.enemy_name[mEnemy.Ei[mWM.mW[1].point_item_num][0]][0]);
+            sprintf(mMenu.menu_string[3], "View %s  ",  (const char *)mEnemy.enemy_name[mEnemy.Ei[mWM.mW[1].point_item_num][0]][0]);
+            sprintf(mMenu.menu_string[4], "Delete %s ", (const char *)mEnemy.enemy_name[mEnemy.Ei[mWM.mW[1].point_item_num][0]][0]);
          break;
          case 4:
             sprintf(mMenu.menu_string[2], "              ");
-            sprintf(mMenu.menu_string[3], "View Lift '%s'",   mLift.cur[mwWM.mW[1].point_item_num].lift_name);
-            sprintf(mMenu.menu_string[4], "Delete Lift '%s'", mLift.cur[mwWM.mW[1].point_item_num].lift_name);
+            sprintf(mMenu.menu_string[3], "View Lift '%s'",   mLift.cur[mWM.mW[1].point_item_num].lift_name);
+            sprintf(mMenu.menu_string[4], "Delete Lift '%s'", mLift.cur[mWM.mW[1].point_item_num].lift_name);
          break;
       }
 
       switch (mMenu.pmenu(2, 0))
       {
          case 2:  // copy
-            if (mwWM.mW[1].point_item_type < 4)
+            if (mWM.mW[1].point_item_type < 4)
             {
-               mwWM.mW[1].draw_item_type = mwWM.mW[1].point_item_type;
-               mwWM.mW[1].draw_item_num  = mwWM.mW[1].point_item_num;
+               mWM.mW[1].draw_item_type = mWM.mW[1].point_item_type;
+               mWM.mW[1].draw_item_num  = mWM.mW[1].point_item_num;
             }
          break;
          case 3:  // view
-            if (mwWM.mW[1].point_item_type > 1) mwWM.mW[7].object_viewer(mwWM.mW[1].point_item_type, mwWM.mW[1].point_item_num);
+            if (mWM.mW[1].point_item_type > 1) mWM.mW[7].object_viewer(mWM.mW[1].point_item_type, mWM.mW[1].point_item_num);
          break;
          case 4:  // delete
-            switch (mwWM.mW[1].point_item_type)
+            switch (mWM.mW[1].point_item_type)
             {
                case 1: // delete block
-                    mLevel.l[mwWM.gx][mwWM.gy] = 0;
+                    mLevel.l[mWM.gx][mWM.gy] = 0;
                break;
                case 2: // delete item
-                  if ((mwWM.mW[1].draw_item_type == 2) && (mwWM.mW[1].draw_item_num == mwWM.mW[1].point_item_num)) // are you deleting the draw item?
+                  if ((mWM.mW[1].draw_item_type == 2) && (mWM.mW[1].draw_item_num == mWM.mW[1].point_item_num)) // are you deleting the draw item?
                   {
-                     mwWM.mW[1].draw_item_type = 1;
-                     mwWM.mW[1].draw_item_num = 0;
+                     mWM.mW[1].draw_item_type = 1;
+                     mWM.mW[1].draw_item_num = 0;
                   }
-                  mItem.erase_item(mwWM.mW[1].point_item_num);
+                  mItem.erase_item(mWM.mW[1].point_item_num);
                   mItem.sort_item(1);
                break;
                case 3: // delete enemy
-                  if ((mwWM.mW[1].draw_item_type == 3) && (mwWM.mW[1].draw_item_num == mwWM.mW[1].point_item_num)) // are you deleting the draw item?
+                  if ((mWM.mW[1].draw_item_type == 3) && (mWM.mW[1].draw_item_num == mWM.mW[1].point_item_num)) // are you deleting the draw item?
                   {
-                     mwWM.mW[1].draw_item_type = 1;
-                     mwWM.mW[1].draw_item_num = 0;
+                     mWM.mW[1].draw_item_type = 1;
+                     mWM.mW[1].draw_item_num = 0;
                   }
-                  mEnemy.erase_enemy(mwWM.mW[1].point_item_num);
+                  mEnemy.erase_enemy(mWM.mW[1].point_item_num);
                   mEnemy.sort_enemy();
                break;
                case 4: // delete lift
-                  mLift.erase_lift(mwWM.mW[1].point_item_num);
+                  mLift.erase_lift(mWM.mW[1].point_item_num);
                break;
             }
          break;
          case 5: break; // menu divider
-         case 6: mwWM.set_windows(2); break;   // edit selection
-         case 7: mwWM.set_windows(3); break;   // group edit
-         case 8: mwWM.set_windows(9); break;   // tile helper
-         case 9: mwWM.mW[1].active = 1; break; // status_window
-         case 10: mwWM.mW[2].active = 1; break; // select_window
+         case 6: mWM.set_windows(2); break;   // edit selection
+         case 7: mWM.set_windows(3); break;   // group edit
+         case 8: mWM.set_windows(9); break;   // tile helper
+         case 9: mWM.mW[1].active = 1; break; // status_window
+         case 10: mWM.mW[2].active = 1; break; // select_window
          case 12: // new level
          if (al_show_native_message_box(mDisplay.display, "New Level", "Clicking OK will create a new blank level", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
          {
@@ -809,9 +809,9 @@ void mwWindow::em_process_mouse(void)
             mItem.sort_item(1);
          break;
          case 14: mLevel.save_level(mLevel.last_level_loaded); break; // save level
-         case 15: mwWM.active = 0; break; // save and exit
+         case 15: mWM.active = 0; break; // save and exit
          case 16: mHelp.help("Level Editor Basics"); break;// help
-         case 17: mwWM.active = 0; break; // exit
+         case 17: mWM.active = 0; break; // exit
       } // end of switch case
    } // end of mInput.mouse_b[2][0]
 }
@@ -819,6 +819,6 @@ void mwWindow::em_process_mouse(void)
 
 int mwWindow::edit_menu(int edit_level)
 {
-   mwWM.loop(edit_level);
+   mWM.loop(edit_level);
    return mLevel.last_level_loaded;
 }

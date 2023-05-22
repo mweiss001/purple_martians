@@ -1,19 +1,19 @@
-// mwShots.cpp
+// mwShot.cpp
 
 #include "pm.h"
-#include "mwShots.h"
+#include "mwShot.h"
 #include "mwNetgame.h"
 #include "mwBitmap.h"
 #include "mwLevel.h"
 #include "mwGameEvent.h"
 #include "mwEnemy.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwLift.h"
 
 
-mwShots mShot;
+mwShot mShot;
 
-void mwShots::proc_pshot_collision(int p, int b)
+void mwShot::proc_pshot_collision(int p, int b)
 {
    mPlayer.syn[p].health -= deathmatch_shot_damage;
 
@@ -37,7 +37,7 @@ void mwShots::proc_pshot_collision(int p, int b)
    mShot.p[b].active = 0;  // shot dies
 }
 
-void mwShots::proc_player_shoot(int p)
+void mwShot::proc_player_shoot(int p)
 {
    float x = mPlayer.syn[p].x;
    float y = mPlayer.syn[p].y;
@@ -103,7 +103,7 @@ void mwShots::proc_player_shoot(int p)
 }
 
 
-void mwShots::move_pshots()
+void mwShot::move_pshots()
 {
    // move and process wall collisions
    for (int b=0; b<50; b++)
@@ -128,13 +128,13 @@ void mwShots::move_pshots()
       }
 }
 
-void mwShots::draw_pshots()
+void mwShot::draw_pshots()
 {
    for (int b=0; b<50; b++)
       if (mShot.p[b].active) al_draw_bitmap(mBitmap.player_tile[mPlayer.syn[mShot.p[b].player].color][18], mShot.p[b].x, mShot.p[b].y, 0);
 }
 
-void mwShots::proc_eshot_collision(int p, int b)
+void mwShot::proc_eshot_collision(int p, int b)
 {
    int damage = 0;
    int e_type = 0;
@@ -170,7 +170,7 @@ void mwShots::proc_eshot_collision(int p, int b)
    mShot.e[b].active = 0; // shot dies
 }
 
-void mwShots::move_eshots()
+void mwShot::move_eshots()
 {
    for (int b=0; b<50; b++)
       if (e[b].active)
@@ -194,7 +194,7 @@ void mwShots::move_eshots()
 }
 
 
-void mwShots::draw_eshots()
+void mwShot::draw_eshots()
 {
 
 /*
@@ -215,11 +215,11 @@ void mwShots::draw_eshots()
       {
          int t = e[b].shape;
          if (t > 1000) t = mBitmap.zz[0][e[b].shape-1000];
-         al_draw_bitmap(mBitmap.tile[t], e[b].x, e[b].y, 0);
+         al_draw_bitmap(mBitmap.tile[t], (int)e[b].x, (int)e[b].y, 0);
       }
 }
 
-void mwShots::clear_shots(void)
+void mwShot::clear_shots(void)
 {
    for (int b=0; b<50; b++)
    {
@@ -241,7 +241,7 @@ void mwShots::clear_shots(void)
 }
 
 
-void mwShots::fire_enemy_shotz(int e, int shot_ans, float px, float py)
+void mwShot::fire_enemy_shotz(int e, int shot_ans, float px, float py)
 {
    float xlen = px - mEnemy.Ef[e][0];   // get the x distance between enemy and player
    float ylen = py - mEnemy.Ef[e][1];   // get the y distance between enemy and player
@@ -263,7 +263,7 @@ void mwShots::fire_enemy_shotz(int e, int shot_ans, float px, float py)
          b=50;
       }
 }
-void mwShots::fire_enemy_shota(int e, int shot_ans, int p)
+void mwShot::fire_enemy_shota(int e, int shot_ans, int p)
 {
    float bx = mEnemy.Ef[e][0];
    float by = mEnemy.Ef[e][1];
@@ -297,15 +297,15 @@ void mwShots::fire_enemy_shota(int e, int shot_ans, int p)
 // Egdar: You will have to check your code for division by A=0 and for a negative B^2 - 4AC discriminant.
 
 // Quadratic Formula: The roots of a quadratic equation ax2 + bx + c = 0 are given by x = [-b +/- sqrt(b^2 - 4ac)] / 2a.
-// The discriminant of the quadratic equation is D = b2 - 4ac
+// The discriminant of the quadratic equation is D = b^2 - 4ac
 // For D > 0 the roots are real and distinct.
 // For D = 0 the roots are real and equal.
 // For D < 0 the roots do not exist, or the roots are imaginary.
 
    float D = pow(B,2) - 4*(A*C); // discriminant
 
-   //if ((A != 0) && (D >= 0)) // this complains about comparing a float to zero
-   if ( ((A > 0) || (A < 0)) && (D >= 0))
+   if ((A != 0) && (D >= 0)) // this complains about comparing a float to zero (not anymore?? why)
+   //if ( ((A > 0) || (A < 0)) && (D >= 0))
    {
       float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
       float px1 = px + pvx * t; // get player target position based on t
@@ -316,7 +316,7 @@ void mwShots::fire_enemy_shota(int e, int shot_ans, int p)
 
 }
 
-void mwShots::fire_enemy_x_shot(int e, int p)
+void mwShot::fire_enemy_x_shot(int e, int p)
 {
    float x_shot_speed = mEnemy.Ef[e][7];
    for (int b=0; b<50; b++)  // find empty e_shot
@@ -330,12 +330,12 @@ void mwShots::fire_enemy_x_shot(int e, int p)
          if (mEnemy.Ef[e][0] < mPlayer.syn[p].x)
          {
             mShot.e[b].xinc = x_shot_speed;
-            mShot.e[b].shape = 328; //488;
+            mShot.e[b].shape = 488;
          }
          if (mEnemy.Ef[e][0] >= mPlayer.syn[p].x)
          {
             mShot.e[b].xinc = -x_shot_speed;
-            mShot.e[b].shape = 329; //489;
+            mShot.e[b].shape = 489;
          }
          b=50; // end loop
       }

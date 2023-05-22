@@ -1,9 +1,9 @@
-// mwItems.cpp
+// mwItem.cpp
 
 #include "pm.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwSound.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwLift.h"
@@ -22,18 +22,18 @@
 #include "mwWindowManager.h"
 #include "mwEventQueue.h"
 #include "mwInput.h"
-#include "mwWidgets.h"
-#include "mwShots.h"
+#include "mwWidget.h"
+#include "mwShot.h"
 #include "mwScreen.h"
 
-mwItems mItem;
+mwItem mItem;
 
-mwItems::mwItems()
+mwItem::mwItem()
 {
    initialize();
 }
 
-void mwItems::initialize(void)
+void mwItem::initialize(void)
 {
    strcpy(item_name[0],  "item_empty");
    strcpy(item_name[1],  "Door");
@@ -53,8 +53,6 @@ void mwItems::initialize(void)
    strcpy(item_name[15], "Sproingy");
    strcpy(item_name[16], "Block Manip");
    strcpy(item_name[17], "Block Damage");
-//   strcpy(item_name[20], "Wrap Rect");
-//   strcpy(item_name[21], "Wrap Line");
 
    item_tile[0]  = 0;
    item_tile[1]  = 448;
@@ -76,13 +74,11 @@ void mwItems::initialize(void)
    item_tile[17] = 988;
    item_tile[18] = 0;
    item_tile[19] = 0;
-//   item_tile[20] = 544;
-//   item_tile[21] = 544;
 
 }
 
 // does the item type have a secondary position at 6,7?
-int mwItems::item_secondary67(int type)
+int mwItem::item_secondary67(int type)
 {
    if (type == 4)  return 1; // key
    if (type == 9)  return 1; // trigger
@@ -95,19 +91,19 @@ int mwItems::item_secondary67(int type)
 }
 
 
-int mwItems::item_secondary67_hires(int type)
+int mwItem::item_secondary67_hires(int type)
 {
    if (type == 9)  return 1; // trigger
    if (type == 10) return 1; // message
    if (type == 13) return 1; // timer display
-   if (type == 16) return 1; // block manip
+   if (type == 17) return 1; // block damage
    return 0;
 }
 
 
 
 
-void mwItems::draw_items(void)
+void mwItem::draw_items(void)
 {
    al_set_target_bitmap(mBitmap.level_buffer);
    for (int i=0; i<500; i++)
@@ -116,7 +112,7 @@ void mwItems::draw_items(void)
       if (mItem.item[i][0] == 10) draw_item(i, 0, 0, 0);
 }
 
-void mwItems::draw_item(int i, int custom, int cx, int cy)
+void mwItem::draw_item(int i, int custom, int cx, int cy)
 {
    int type = mItem.item[i][0];
    int shape = mItem.item[i][1];                         // get shape
@@ -144,8 +140,6 @@ void mwItems::draw_item(int i, int custom, int cx, int cy)
    if (type == 17) drawn = draw_block_damage (i, x, y, custom);
    if (type == 98) drawn = draw_rocket       (i, x, y, shape);
    if (type == 99) drawn = draw_lit_bomb     (i);
-//   if (type == 20) drawn = draw_wrap_rect    (i, x, y, custom);
-//   if (type == 21) drawn = draw_wrap_line    (i, x, y, custom);
 
    // default draw if nothing else has drawn it up to now
    if (!drawn) al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
@@ -158,7 +152,7 @@ void mwItems::draw_item(int i, int custom, int cx, int cy)
    }
 }
 
-int mwItems::draw_bonus(int i, int x, int y, int shape)
+int mwItem::draw_bonus(int i, int x, int y, int shape)
 {
    if ((mItem.item[i][6] == 3) && (!mLoop.level_editor_running)) // purple coin custom draw
    {
@@ -169,7 +163,7 @@ int mwItems::draw_bonus(int i, int x, int y, int shape)
 }
 
 
-void mwItems::move_items()
+void mwItem::move_items()
 {
    for (int i=0; i<500; i++)
       if (mItem.item[i][0])
@@ -353,7 +347,7 @@ void mwItems::move_items()
 }
 
 
-int mwItems::is_item_stuck_to_wall(int i)
+int mwItem::is_item_stuck_to_wall(int i)
 {
    int x = itemf[i][0];
    int y = itemf[i][1];
@@ -361,7 +355,7 @@ int mwItems::is_item_stuck_to_wall(int i)
    return 0;
 }
 
-int mwItems::player_drop_item(int p, int i)
+int mwItem::player_drop_item(int p, int i)
 {
    int wall_stuck = 0;
    mPlayer.syn[p].carry_item = 0;
@@ -397,7 +391,7 @@ int mwItems::player_drop_item(int p, int i)
    return wall_stuck;
 }
 
-void mwItems::proc_player_carry(int p)
+void mwItem::proc_player_carry(int p)
 {
    if ((mPlayer.syn[p].active) && (mPlayer.syn[p].carry_item))
       if (!mPlayer.syn[p].paused || (mPlayer.syn[p].paused && mPlayer.syn[p].paused_type == 2))// player is carrying item
@@ -446,7 +440,7 @@ void mwItems::proc_player_carry(int p)
 
 
 
-void mwItems::proc_item_collision(int p, int i)
+void mwItem::proc_item_collision(int p, int i)
 {
    // make it so any item other than bonus has higher priority
    // if carrying bonus, it will be dropped and new item will be carried
@@ -493,7 +487,7 @@ void mwItems::proc_item_collision(int p, int i)
 
 
 
-void mwItems::proc_bonus_collision(int p, int i)
+void mwItem::proc_bonus_collision(int p, int i)
 {
    int bonus_type = item[i][6];
    if (bonus_type == 1) // health bonus
@@ -514,7 +508,7 @@ void mwItems::proc_bonus_collision(int p, int i)
    }
 }
 
-void mwItems::proc_mine_collision(int p, int i)
+void mwItem::proc_mine_collision(int p, int i)
 {
    mPlayer.syn[p].health -= (float)mItem.item[i][8] / 100;
    mGameEvent.add(11, 0, 0, p, 5, 0, mItem.item[i][8]);
@@ -522,7 +516,7 @@ void mwItems::proc_mine_collision(int p, int i)
 
 
 
-void mwItems::proc_sproingy_collision(int p, int i)
+void mwItem::proc_sproingy_collision(int p, int i)
 {
    float px = mPlayer.syn[p].x;
    float py = mPlayer.syn[p].y;

@@ -2,12 +2,12 @@
 
 #include "pm.h"
 #include "mwLift.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwWindowManager.h"
 #include "mwDisplay.h"
-#include "mwWidgets.h"
+#include "mwWidget.h"
 #include "mwColor.h"
 #include "mwTriggerEvent.h"
 #include "mwInput.h"
@@ -313,13 +313,13 @@ int mwLift::create_lift(void)
 
          set_lift_to_step(l, 0); // set step 0 for lift
 
-         mwWM.redraw_level_editor_background();  // do this twice to get proper window height
-         mwWM.redraw_level_editor_background();
+         mWM.redraw_level_editor_background();  // do this twice to get proper window height
+         mWM.redraw_level_editor_background();
 
 
          insert_steps_until_quit(l, step);
 
-         mwWM.mW[7].object_viewer(4, l);
+         mWM.mW[7].object_viewer(4, l);
          return 1;
       }
       else
@@ -349,7 +349,7 @@ int mwLift::get_new_lift_step(int lift, int step)
    // position the menu on top of the step we are inserting before
    // int sty = 53 + (step + 9) * bts;
 
-   int sty = mwWM.mW[7].y1 + 44 + (step + 10) * bts;
+   int sty = mWM.mW[7].y1 + 44 + (step + 10) * bts;
 
    if (sty > mDisplay.SCREEN_H-60) sty = mDisplay.SCREEN_H-60;
 
@@ -360,7 +360,7 @@ int mwLift::get_new_lift_step(int lift, int step)
    int fc = 14; // frame color
    int tc = 15; // text color
 
-   int xc = (mwWM.mW[7].x1 + mwWM.mW[7].x2)/2;
+   int xc = (mWM.mW[7].x1 + mWM.mW[7].x2)/2;
 
    al_draw_filled_rectangle(xc-98, sty-8, xc+96, sty2, mColor.pc[fc+192]); // erase to background color
    al_draw_rectangle       (xc-98, sty-8, xc+96, sty2, mColor.pc[fc], 1); // frame
@@ -423,16 +423,16 @@ int mwLift::insert_lift_step(int lift, int step) // inserts a step in 'lift' bef
          stp[lift][x+1].type = stp[lift][x].type;
       }
       clear_lift_step(lift, step);
-      int step_ty = mwWM.mW[7].y1+ 38 + 7 * bts;
-      draw_steps(mwWM.mW[7].x1+1, mwWM.mW[7].x2-1, step_ty, lift, step, step, 1);     // show lift steps
+      int step_ty = mWM.mW[7].y1+ 38 + 7 * bts;
+      draw_steps(mWM.mW[7].x1+1, mWM.mW[7].x2-1, step_ty, lift, step, step, 1);     // show lift steps
       if (get_new_lift_step(lift, step) == 99) // cancelled
       {
          delete_lift_step(lift, step);
          ret = 0;
       }
       else ret = 1;
-      mwWM.redraw_level_editor_background();  // do this twice to get proper window height
-      mwWM.redraw_level_editor_background();
+      mWM.redraw_level_editor_background();  // do this twice to get proper window height
+      mWM.redraw_level_editor_background();
 
    }
    return ret;
@@ -839,12 +839,35 @@ void mwLift::draw_lift(int l, int x1, int y1, int x2, int y2)
    }
    else
    {
+      int xs = x2-x1;
+      int ys = y2-y1;
+      int ms = xs;
+      if (ys < xs) ms = ys;
+
+      int fb = 10;
+
+      if (ms < 20) fb = ms/2;
+
       int a;
-      for (a=0; a<10; a++)
+      for (a=0; a<fb; a++)
         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mColor.pc[col + ((9 - a)*16)], 2 ); // faded outer shell
       al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, mColor.pc[col] );                            // solid core
-      al_draw_text(mFont.bltn, mColor.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name); // name
+
+      //int tc = mColor.get_contrasting_color(col);
+      int tc = col+160;
+
+      al_draw_text(mFont.pr8, mColor.pc[tc], (x1+x2)/2, (y1+y2)/2 - 4, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name); // name
+
    }
+
+   if (mLoop.level_editor_running)
+   {
+      al_draw_textf(mFont.pixl, mColor.pc[15], (x1+x2)/2, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%-4.0f y:%-4.0f", cur[l].x, cur[l].y);
+      al_draw_textf(mFont.pixl, mColor.pc[15], (x1+x2)/2, y1-12, ALLEGRO_ALIGN_CENTRE, "w:%-4.0f h:%-4.0f", cur[l].w, cur[l].h);
+   }
+
+
+
    //printf("x1:%d y1:%d x2:%d y2:%d\n", x1, y1, x2, y2);
    //al_draw_textf(mFont.pr8, mColor.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", cur[l].current_step, cur[l].val1);    // debug name
    //al_draw_textf(mFont.pr8, mColor.pc[15], (x1+x2)/2, (y1+y2)/2 - 16, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", cur[l].current_step, cur[l].val1);    // debug name

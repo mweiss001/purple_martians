@@ -1,10 +1,10 @@
-// mwItems.h
+// mwItem.h
 
-class mwItems
+class mwItem
 {
    public:
 
-   mwItems(); // default constructor
+   mwItem(); // default constructor
    void initialize(void);
 
    int item[500][16];    // item ints
@@ -148,4 +148,4 @@ class mwItems
    int create_item(int type);
 
 };
-extern mwItems mItem;
+extern mwItem mItem;

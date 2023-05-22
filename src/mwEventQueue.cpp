@@ -3,7 +3,7 @@
 #include "pm.h"
 #include "mwEventQueue.h"
 #include "mwDisplay.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwInput.h"
 #include "mwLoop.h"
 #include "mwMain.h"
@@ -24,7 +24,7 @@ void mwEventQueue::create_timers(void)
    sec_timer = al_create_timer(1);    // 1s
    mnu_timer = al_create_timer(.008); // 125 fps
    png_timer = al_create_timer(.5);   // 2 fps
-   mou_timer = al_create_timer(5);    // 5s
+   mou_timer = al_create_timer(1);    // 1s
 
    // register timer event source
    al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
@@ -49,9 +49,13 @@ void mwEventQueue::proc_events(ALLEGRO_EVENT ev)
    {
       if (ev.timer.source == fps_timer) program_update = 1;
       if (ev.timer.source == sec_timer) program_update_1s = 1;
-      if (ev.timer.source == png_timer) mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 1;
-      if (ev.timer.source == mou_timer) al_hide_mouse_cursor(mDisplay.display);
       if (ev.timer.source == mnu_timer) menu_update = 1;
+      if (ev.timer.source == png_timer) mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 1;
+      if (ev.timer.source == mou_timer)
+      {
+         if (mLoop.level_editor_running) al_set_timer_count(mEventQueue.mou_timer, 0);
+         if (al_get_timer_count(mEventQueue.mou_timer) > 2) al_hide_mouse_cursor(mDisplay.display);
+      }
    }
    mInput.proc_input_events(ev);  // send all other events to input handler
 }
@@ -69,6 +73,7 @@ void mwEventQueue::proc(void)
    }
    mInput.proc_keys_held();
    mInput.function_key_check();
+//   printf("f:%d mt:%d\n", mLoop.frame_num, al_get_timer_count(mEventQueue.mou_timer));
 }
 
 void mwEventQueue::proc_menu(void)

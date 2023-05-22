@@ -3,7 +3,7 @@
 #include "pm.h"
 #include "mwNetgame.h"
 #include "mwLog.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwRollingAverage.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
@@ -16,7 +16,7 @@
 #include "mwConfig.h"
 #include "mwLoop.h"
 #include "mwScreen.h"
-#include "mwShots.h"
+#include "mwShot.h"
 
 int mwNetgame::ClientInitNetwork(const char *serveraddress)
 {

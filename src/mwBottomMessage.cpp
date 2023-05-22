@@ -8,11 +8,11 @@
 #include "mwTimeStamp.h"
 #include "mwColor.h"
 #include "mwLoop.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwSound.h"
 #include "mwScreen.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 
 mwBottomMessage mBottomMessage;
 

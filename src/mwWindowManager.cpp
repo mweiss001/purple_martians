@@ -11,13 +11,13 @@
 #include "mwEventQueue.h"
 #include "mwBitmap.h"
 #include "mwLoop.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
 
-mwWindowManager mwWM;
+mwWindowManager mWM;
 
 extern ALLEGRO_BITMAP *ft_bmp;  //  file temp paste bmp
 
@@ -49,7 +49,7 @@ void mwWindowManager::initialize(int edit_level)
    mPDE.load();
    mEnemy.sort_enemy();
    mItem.sort_item(1);
-   mwWM.mW[1].em_set_swbl();
+   mWM.mW[1].em_set_swbl();
 
    mInput.initialize();
 }
@@ -136,6 +136,10 @@ void mwWindowManager::process_scrolledge(void)
    int swb = mDisplay.SCREEN_W-bw;
    int shb = mDisplay.SCREEN_H-bw;
 
+//   printf("ps1 WX:%d WY:%d\n", mDisplay.WX, mDisplay.WY);
+
+//   printf("mx:%d my:%d\n", mInput.mouse_x, mInput.mouse_y);
+
    if (mInput.mouse_y > shb) mDisplay.WY+=(mInput.mouse_y - shb)*2; // scroll down
    if (mInput.mouse_x > swb) mDisplay.WX+=(mInput.mouse_x - swb)*2; // scroll right
    if (mInput.mouse_x < bw)  mDisplay.WX-=(bw - mInput.mouse_x)*2;  // scroll left
@@ -148,10 +152,12 @@ void mwWindowManager::process_scrolledge(void)
    if (SH > 2000) SH = 2000;
 
    // correct for edges
-   if (mDisplay.WX < 0) mDisplay.WX = 0;
-   if (mDisplay.WY < 0) mDisplay.WY = 0;
-   if (mDisplay.WX > (2000 - SW)) mDisplay.WX = 2000 - SW;
-   if (mDisplay.WY > (2000 - SH)) mDisplay.WY = 2000 - SH;
+   if (mDisplay.WX < 0)         mDisplay.WX = 0;
+   if (mDisplay.WY < 0)         mDisplay.WY = 0;
+   if (mDisplay.WX > (2000-SW)) mDisplay.WX = 2000-SW;
+   if (mDisplay.WY > (2000-SH)) mDisplay.WY = 2000-SH;
+
+//   printf("ps2 WX:%d WY:%d\n", mDisplay.WX, mDisplay.WY);
 
    // used by get_new_background to only get what is needed
    mDisplay.level_display_region_x = mDisplay.WX;
@@ -264,7 +270,7 @@ int mwWindowManager::redraw_level_editor_background(void)
       if (level_editor_mode == 2) // selection edit
       {
          // show selection
-         if (!mW[4].copy_mode) show_level_buffer_block_rect(mwWM.bx1, by1, bx2, by2, 14, "selection");
+         if (!mW[4].copy_mode) show_level_buffer_block_rect(mWM.bx1, by1, bx2, by2, 14, "selection");
 
          // only show if mouse not on window
          if (!mouse_on_window)
@@ -315,11 +321,11 @@ int mwWindowManager::redraw_level_editor_background(void)
          if (!mouse_on_window)
             for (int i=0; i<NUM_OBJ; i++)
             {
-               mwWM.obj_list[i][2] = 0; // turn off highlight by default
-               if (mwWM.obj_list[i][0])
+               obj_list[i][2] = 0; // turn off highlight by default
+               if (obj_list[i][0])
                {
-                  int typ = mwWM.obj_list[i][0];
-                  int num = mwWM.obj_list[i][1];
+                  int typ = obj_list[i][0];
+                  int num = obj_list[i][1];
                   if (typ == 2) // item
                   {
                      x = mItem.item[num][4]/20;
@@ -330,17 +336,17 @@ int mwWindowManager::redraw_level_editor_background(void)
                      x = mEnemy.Ef[num][0]/20;
                      y = mEnemy.Ef[num][1]/20;
                   }
-                  if ((gx == x) && (gy == y)) mwWM.obj_list[i][2] = 1; // turn on highlight for this list item
+                  if ((gx == x) && (gy == y)) obj_list[i][2] = 1; // turn on highlight for this list item
                }
             }
 
          // mark objects on map that have already been added to list
          for (int i=0; i<NUM_OBJ; i++)
          {
-            if (mwWM.obj_list[i][0])
+            if (obj_list[i][0])
             {
-               int typ = mwWM.obj_list[i][0];
-               int num = mwWM.obj_list[i][1];
+               int typ = obj_list[i][0];
+               int num = obj_list[i][1];
                if (typ == 2)
                {
                   x = mItem.item[num][4];
@@ -351,7 +357,7 @@ int mwWindowManager::redraw_level_editor_background(void)
                   x = mEnemy.Ef[num][0];
                   y = mEnemy.Ef[num][1];
                }
-               if (mwWM.obj_list[i][2]) al_draw_rectangle(x-2, y-2, x+20+2, y+20+2, mColor.Flash1, 1); // highlight
+               if (obj_list[i][2]) al_draw_rectangle(x-2, y-2, x+20+2, y+20+2, mColor.Flash1, 1); // highlight
                else                al_draw_rectangle(x,   y,   x+20,   y+20,   mColor.pc[10], 1);
             }
          }
@@ -572,25 +578,25 @@ int mwWindowManager::is_mouse_on_any_window(void)
 
 void mwWindowManager::set_focus(int n)
 {
-   mwWM.mW[n].have_focus = 1;
+   mW[n].have_focus = 1;
 
    // detect if this window is not top window
-   if (mwWM.mW[n].layer !=0)
+   if (mW[n].layer !=0)
    {
       // get old layer number of window we are promoting
-      int on = mwWM.mW[n].layer;
+      int on = mW[n].layer;
 
       // slide everything down one layer (add 1 to all layers)
       for (int a=0; a<NUM_MW; a++)
-         if (mwWM.mW[a].active) mwWM.mW[a].layer++;
+         if (mW[a].active) mW[a].layer++;
 
       // set new top layer
-      mwWM.mW[n].layer = 0;
+      mW[n].layer = 0;
 
       // remove gaps in layers
       for (int b=on+2; b<NUM_MW+10; b++) // cycle from old promoted layer down
          for (int a=0; a<NUM_MW; a++)    // cycle all windows
-            if ((mwWM.mW[a].active) && (mwWM.mW[a].layer == b)) mwWM.mW[a].layer--; // move layer up
+            if ((mW[a].active) && (mW[a].layer == b)) mW[a].layer--; // move layer up
    }
 }
 
@@ -652,7 +658,7 @@ void mwWindowManager::save_mW(void)
    FILE *fp = fopen("bitmaps/mW.pm", "wb");
    if (fp)
    {
-      fwrite(&mwWM, sizeof(mwWM), 1, fp);
+      fwrite(&mWM, sizeof(mWM), 1, fp);
       fclose(fp);
    }
    else printf("error saving mW.pm\n");
@@ -663,7 +669,7 @@ void mwWindowManager::load_mW(void)
    FILE *fp = fopen("bitmaps/mW.pm", "rb");
    if (fp)
    {
-      fread(&mwWM, sizeof(mwWM), 1, fp);
+      fread(&mWM, sizeof(mWM), 1, fp);
       fclose(fp);
    }
    else

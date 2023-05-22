@@ -3,13 +3,13 @@
 #include "pm.h"
 #include "mwNetgame.h"
 #include "mwLog.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwTally.h"
 #include "mwTimeStamp.h"
 #include "mwGameMoves.h"
 #include "mwLevel.h"
 #include "mwLoop.h"
-#include "mwShots.h"
+#include "mwShot.h"
 #include "mwInput.h"
 
 int mwNetgame::ServerInitNetwork() // Initialize the server

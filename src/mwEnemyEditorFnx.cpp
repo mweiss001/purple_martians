@@ -24,6 +24,10 @@ void mwEnemy::fill_strings(void)
    strcpy (enemy_name[8][0],  "TrakBot");
    strcpy (enemy_name[9][0],  "Cloner");
 
+
+   strcpy (enemy_name[19][0],  "Crew");
+
+
    strcpy (enemy_name[0][1],  "mpty");
    strcpy (enemy_name[1][1],  "boun");
    strcpy (enemy_name[2][1],  "cann");
@@ -34,6 +38,10 @@ void mwEnemy::fill_strings(void)
    strcpy (enemy_name[7][1],  "vine");
    strcpy (enemy_name[8][1],  "trak");
    strcpy (enemy_name[9][1],  "clon");
+
+   strcpy (enemy_name[19][1],  "crew");
+
+
    strcpy (enemy_name[66][1], "dth2");
    strcpy (enemy_name[99][1], "dth1");
 
@@ -48,6 +56,9 @@ void mwEnemy::fill_strings(void)
    strcpy (enemy_name[8][2],  "trakbot");
    strcpy (enemy_name[9][2],  "cloner");
 
+   strcpy (enemy_name[19][2],  "crew");
+
+
    enemy_tile[1]  = 508;
    enemy_tile[2]  = 415;
    enemy_tile[3]  = 496;
@@ -57,6 +68,10 @@ void mwEnemy::fill_strings(void)
    enemy_tile[7]  = 374;
    enemy_tile[8]  = 384;
    enemy_tile[9]  = 550;
+
+   enemy_tile[19]  = 401;
+
+
 }
 
 

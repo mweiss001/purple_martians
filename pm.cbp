@@ -135,6 +135,8 @@
 		<Unit filename="src/mwHelp.h" />
 		<Unit filename="src/mwInput.cpp" />
 		<Unit filename="src/mwInput.h" />
+		<Unit filename="src/mwItem.cpp" />
+		<Unit filename="src/mwItem.h" />
 		<Unit filename="src/mwItemBombRocket.cpp" />
 		<Unit filename="src/mwItemDoor.cpp" />
 		<Unit filename="src/mwItemEditorFnx.cpp" />
@@ -142,8 +144,6 @@
 		<Unit filename="src/mwItemMessage.cpp" />
 		<Unit filename="src/mwItemStartExitWarp.cpp" />
 		<Unit filename="src/mwItemTrigger.cpp" />
-		<Unit filename="src/mwItems.cpp" />
-		<Unit filename="src/mwItems.h" />
 		<Unit filename="src/mwLevel.cpp" />
 		<Unit filename="src/mwLevel.h" />
 		<Unit filename="src/mwLift.cpp" />
@@ -171,8 +171,8 @@
 		<Unit filename="src/mwNetgameServer.cpp" />
 		<Unit filename="src/mwPDE.cpp" />
 		<Unit filename="src/mwPDE.h" />
-		<Unit filename="src/mwPlayers.cpp" />
-		<Unit filename="src/mwPlayers.h" />
+		<Unit filename="src/mwPlayer.cpp" />
+		<Unit filename="src/mwPlayer.h" />
 		<Unit filename="src/mwQuickGraph.cpp" />
 		<Unit filename="src/mwQuickGraph.h" />
 		<Unit filename="src/mwRollingAverage.cpp" />
@@ -182,8 +182,8 @@
 		<Unit filename="src/mwScreenOverlay.cpp" />
 		<Unit filename="src/mwSettings.cpp" />
 		<Unit filename="src/mwSettings.h" />
-		<Unit filename="src/mwShots.cpp" />
-		<Unit filename="src/mwShots.h" />
+		<Unit filename="src/mwShot.cpp" />
+		<Unit filename="src/mwShot.h" />
 		<Unit filename="src/mwSolid.cpp" />
 		<Unit filename="src/mwSolid.h" />
 		<Unit filename="src/mwSound.cpp" />
@@ -196,8 +196,8 @@
 		<Unit filename="src/mwTriggerEvent.h" />
 		<Unit filename="src/mwVisualLevel.cpp" />
 		<Unit filename="src/mwVisualLevel.h" />
-		<Unit filename="src/mwWidgets.cpp" />
-		<Unit filename="src/mwWidgets.h" />
+		<Unit filename="src/mwWidget.cpp" />
+		<Unit filename="src/mwWidget.h" />
 		<Unit filename="src/mwWindow.cpp" />
 		<Unit filename="src/mwWindow.h" />
 		<Unit filename="src/mwWindowEditSelection.cpp" />

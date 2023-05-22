@@ -1,8 +1,8 @@
 // mw_ItemStartExitWarp.cpp
 
 #include "pm.h"
-#include "mwItems.h"
-#include "mwPlayers.h"
+#include "mwItem.h"
+#include "mwPlayer.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwLoop.h"
@@ -11,7 +11,7 @@
 #include "mwGameEvent.h"
 #include "mwFont.h"
 
-int mwItems::draw_start(int i, int x, int y, int shape)
+int mwItem::draw_start(int i, int x, int y, int shape)
 {
    if ((mLevel.number_of_starts > 1) && (mLoop.level_editor_running)) // put start seq number, but only in lev editor
    {
@@ -22,7 +22,7 @@ int mwItems::draw_start(int i, int x, int y, int shape)
    return 0;
 }
 
-int mwItems::draw_exit(int i, int x, int y, int shape)
+int mwItem::draw_exit(int i, int x, int y, int shape)
 {
    al_draw_bitmap(mBitmap.tile[399], x, y, 0); // 'exit' text not shown
    if (mLoop.frame_num % 60 > 30)
@@ -39,7 +39,7 @@ int mwItems::draw_exit(int i, int x, int y, int shape)
    return 1;
 }
 
-void mwItems::proc_start_collision(int p, int i)
+void mwItem::proc_start_collision(int p, int i)
 {
    int ns = 0; // count number of starts
    int s[8] = {0};
@@ -100,7 +100,7 @@ void mwItems::proc_start_collision(int p, int i)
 //      }
 }
 
-void mwItems::proc_exit_collision(int p, int i)
+void mwItem::proc_exit_collision(int p, int i)
 {
    int exit_enemys_left = mEnemy.num_enemy - mItem.item[i][8];
    if (exit_enemys_left <= 0)
@@ -119,7 +119,7 @@ void mwItems::proc_exit_collision(int p, int i)
    else mGameEvent.add(23, 0, 0, p, i, exit_enemys_left, 0); // not enough dead yet
 }
 
-void mwItems::proc_warp_collision(int p, int i)
+void mwItem::proc_warp_collision(int p, int i)
 {
    if (mPlayer.syn[0].level_done_mode == 0)
    {

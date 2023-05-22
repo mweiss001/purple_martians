@@ -2,10 +2,10 @@
 
 #include "pm.h"
 #include "mwLog.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
-#include "mwWidgets.h"
+#include "mwWidget.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"

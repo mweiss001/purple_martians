@@ -7,12 +7,12 @@
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwLift.h"
-#include "mwWidgets.h"
+#include "mwWidget.h"
 #include "mwColor.h"
 #include "mwTriggerEvent.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwScreen.h"
 #include "mwNetgame.h"
@@ -436,8 +436,8 @@ int mwMiscFnx::get_block_range(const char *txt, int *x1, int *y1, int *x2, int *
    int ret = 0;
    while (!quit)
    {
-      mwWM.redraw_level_editor_background(0);
-      crosshairs_full(mwWM.gx*20+10, mwWM.gy*20+10, 15, 1);
+      mWM.redraw_level_editor_background(0);
+      crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
       mScreen.get_new_screen_buffer(3, 0, 0);
 
       al_draw_filled_rectangle(tx-90, 70, tx+90, 170, mColor.pc[0]);
@@ -450,20 +450,20 @@ int mwMiscFnx::get_block_range(const char *txt, int *x1, int *y1, int *x2, int *
       al_draw_text(mFont.pr8, mColor.pc[9],   tx, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
       al_draw_text(mFont.pr8, mColor.pc[14],  tx, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
       al_draw_text(mFont.pr8, mColor.pc[14],  tx, 138, ALLEGRO_ALIGN_CENTER, "or right mouse button");
-      al_draw_textf(mFont.pr8, mColor.pc[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", mwWM.gx, mwWM.gy);
+      al_draw_textf(mFont.pr8, mColor.pc[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", mWM.gx, mWM.gy);
 
       if (mInput.mouse_b[1][0])
       {
-         mwWM.get_new_box();
-         *x1 = mwWM.bx1*20;
-         *y1 = mwWM.by1*20;
-         *x2 = (mwWM.bx2-mwWM.bx1)*20+20;
-         *y2 = (mwWM.by2-mwWM.by1)*20+20;
+         mWM.get_new_box();
+         *x1 = mWM.bx1*20;
+         *y1 = mWM.by1*20;
+         *x2 = (mWM.bx2-mWM.bx1)*20+20;
+         *y2 = (mWM.by2-mWM.by1)*20+20;
 
          if (type == 2)
          {
-            *x2 = (mwWM.bx2-mwWM.bx1)*20;
-            *y2 = (mwWM.by2-mwWM.by1)*20;
+            *x2 = (mWM.bx2-mWM.bx1)*20;
+            *y2 = (mWM.by2-mWM.by1)*20;
          }
 
          quit = 1;
@@ -567,6 +567,14 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
    {
       original_rot = mItem.item[num][10];
    }
+
+
+   if (obj_type == 95) // block manip source area
+   {
+      original_dx = mItem.item[num][13];
+      original_dy = mItem.item[num][14];
+   }
+
    if (obj_type == 96) // cannon or bouncer initial direction
    {
       original_rot  = mEnemy.Ef[num][14];
@@ -597,9 +605,9 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
 
    while(!quit)
    {
-      mwWM.redraw_level_editor_background(0);
+      mWM.redraw_level_editor_background(0);
 
-      crosshairs_full(mwWM.gx*20+10, mwWM.gy*20+10, 15, 1);
+      crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
 
       if ((obj_type == 90) || (obj_type == 91) || (obj_type == 92)) mEnemy.draw_vinepod_controls(num, -1); // move vinepod extended, cp1, cp2
 
@@ -612,12 +620,24 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
          int dc1 = 10 + 128; // destination box color
          rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
       }
+
+
+      if (obj_type == 95) // block manip source area
+      {
+         float dx1 = mItem.item[num][13];
+         float dy1 = mItem.item[num][14];
+         float dx2 = dx1 + mItem.item[num][8];
+         float dy2 = dy1 + mItem.item[num][9];
+         int dc1 = 10 + 128; // color
+         rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
+      }
+
       if (obj_type == 97) // set new rocket direction
       {
          int ix = mItem.item[num][4]+10;
          int iy = mItem.item[num][5]+10;
-         int dx = mwWM.gx*20+10;
-         int dy = mwWM.gy*20+10;
+         int dx = mWM.gx*20+10;
+         int dy = mWM.gy*20+10;
 
          float rot = (float)mItem.item[num][10] / 1000;
          al_draw_rotated_bitmap(mBitmap.tile[mItem.item[num][1]], 10, 10, dx, dy, rot, 0);
@@ -628,8 +648,8 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
       {
          int ex = mEnemy.Ef[num][0]+10;
          int ey = mEnemy.Ef[num][1]+10;
-         int dx = mwWM.gx*20+10;
-         int dy = mwWM.gy*20+10;
+         int dx = mWM.gx*20+10;
+         int dy = mWM.gy*20+10;
          float rot = mEnemy.Ef[num][14];
          al_draw_scaled_rotated_bitmap(mBitmap.tile[mEnemy.Ei[num][1]], 10, 10, dx, dy, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile
          al_draw_line(ex, ey, dx, dy, mColor.pc[10], 1);   // connect with line
@@ -652,57 +672,64 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
       switch (obj_type)
       {
          case 2: // items
-            mItem.itemf[num][0] = mItem.item[num][4] = mwWM.gx*20;
-            mItem.itemf[num][1] = mItem.item[num][5] = mwWM.gy*20;
+            mItem.itemf[num][0] = mItem.item[num][4] = mWM.gx*20;
+            mItem.itemf[num][1] = mItem.item[num][5] = mWM.gy*20;
          break;
          case 3: // show enem
-            mEnemy.Ef[num][0] = mwWM.gx*20;
-            mEnemy.Ef[num][1] = mwWM.gy*20;
+            mEnemy.Ef[num][0] = mWM.gx*20;
+            mEnemy.Ef[num][1] = mWM.gy*20;
          break;
          case 4: // show lift
          {
-            mLift.stp[lift][step].x = mwWM.gx*20;
-            mLift.stp[lift][step].y = mwWM.gy*20;
+            mLift.stp[lift][step].x = mWM.gx*20;
+            mLift.stp[lift][step].y = mWM.gy*20;
             mLift.set_lift_to_step(lift, step);   // set current step in current lift
          }
          break;
          case 98: // cloner destination
          {
-            mEnemy.Ei[num][17] = mwWM.gx*20;
-            mEnemy.Ei[num][18] = mwWM.gy*20;
+            mEnemy.Ei[num][17] = mWM.gx*20;
+            mEnemy.Ei[num][18] = mWM.gy*20;
          }
          break;
          case 97: // set new rocket direction
          {
-            float xlen = mwWM.gx*20 - mItem.item[num][4];      // get the x distance between item and x2
-            float ylen = mwWM.gy*20 - mItem.item[num][5];      // get the y distance between item and y2
+            float xlen = mWM.gx*20 - mItem.item[num][4];      // get the x distance between item and x2
+            float ylen = mWM.gy*20 - mItem.item[num][5];      // get the y distance between item and y2
             float a = atan2(ylen, xlen) + ALLEGRO_PI/2;
             mItem.item[num][10] = a * 1000;
          }
          break;
          case 96: // set cannon or bouncer direction
          {
-            mEnemy.set_new_initial_direction(num, mwWM.gx*20, mwWM.gy*20);
+            mEnemy.set_new_initial_direction(num, mWM.gx*20, mWM.gy*20);
          }
          break;
          case 90: // vinepod extended
          {
-            mEnemy.Ei[num][9] = mwWM.gx*20;
-            mEnemy.Ei[num][10] = mwWM.gy*20;
+            mEnemy.Ei[num][9] = mWM.gx*20;
+            mEnemy.Ei[num][10] = mWM.gy*20;
          }
          break;
          case 91: // vinepod cp1
          {
-            mEnemy.Ei[num][5] = mwWM.gx*20;
-            mEnemy.Ei[num][6] = mwWM.gy*20;
+            mEnemy.Ei[num][5] = mWM.gx*20;
+            mEnemy.Ei[num][6] = mWM.gy*20;
          }
          break;
          case 92: // vinepod cp2
          {
-            mEnemy.Ei[num][7] = mwWM.gx*20;
-            mEnemy.Ei[num][8] = mwWM.gy*20;
+            mEnemy.Ei[num][7] = mWM.gx*20;
+            mEnemy.Ei[num][8] = mWM.gy*20;
          }
          break;
+
+         case 95: // manip source area
+         {
+            mItem.item[num][13] = mWM.gx*20;
+            mItem.item[num][14] = mWM.gy*20;
+         }
+
       }
 
 
@@ -726,8 +753,8 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
       }
    } // end of while(!quit);
 
-   if (mwWM.gx > 99) mwWM.gx = 99;
-   if (mwWM.gy > 99) mwWM.gy = 99;
+   if (mWM.gx > 99) mWM.gx = 99;
+   if (mWM.gy > 99) mWM.gy = 99;
 
    if (retval != 1) // restore old positions if cancelled
    {
@@ -740,29 +767,36 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
       }
       if (obj_type == 3)
       {
-          mEnemy.Ef[num][0] = original_dx;
-          mEnemy.Ef[num][1] = original_dy;
+         mEnemy.Ef[num][0] = original_dx;
+         mEnemy.Ef[num][1] = original_dy;
       }
       if (obj_type == 90)
       {
-          mEnemy.Ei[num][9] = original_dx;
-          mEnemy.Ei[num][10] = original_dy;
+         mEnemy.Ei[num][9] = original_dx;
+         mEnemy.Ei[num][10] = original_dy;
       }
       if (obj_type == 91)
       {
-          mEnemy.Ei[num][5] = original_dx;
-          mEnemy.Ei[num][6] = original_dy;
+         mEnemy.Ei[num][5] = original_dx;
+         mEnemy.Ei[num][6] = original_dy;
       }
       if (obj_type == 92)
       {
-          mEnemy.Ei[num][7] = original_dx;
-          mEnemy.Ei[num][8] = original_dy;
+         mEnemy.Ei[num][7] = original_dx;
+         mEnemy.Ei[num][8] = original_dy;
       }
       if (obj_type == 98) // cloner destination
       {
-          mEnemy.Ei[num][17] = original_dx;
-          mEnemy.Ei[num][18] = original_dy;
+         mEnemy.Ei[num][17] = original_dx;
+         mEnemy.Ei[num][18] = original_dy;
       }
+
+      if (obj_type == 95) // manip source area
+      {
+         mItem.item[num][13] = original_dx;
+         mItem.item[num][14] = original_dy;
+      }
+
       if (obj_type == 97) // restore rocket direction
       {
          mItem.item[num][10] = original_rot;
@@ -792,6 +826,34 @@ int mwMiscFnx::round20(int val) // pass it an int and it will round it to the ne
 }
 
 
+void mwMiscFnx::mw_round(int& val, int rnd) // pass it an int and it will round it to the nearest rnd
+{
+//   int v2 = 0;
+//
+//   int h = rnd/2; // half
+//   int m = val%rnd;
+//   if (m < h) v2 = val - m; // round down
+//   else v2 = val + (rnd - m); // round up
+//
+//
+//   printf("val:%d rnd:%d h:%d m:%d v2:%d\n", val, rnd, h, m, v2);
+//
+//   val = v2;
+//
+
+   int h = rnd/2; // half
+   int m = val%rnd;
+   if (m < h) val -= m; // round down
+   else val += (rnd - m); // round up
+
+
+
+
+
+}
+
+
+
 
 
 
@@ -815,8 +877,8 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
 
    while(!quit)
    {
-      mwWM.redraw_level_editor_background(0);
-      crosshairs_full(mwWM.gx*20+10, mwWM.gy*20+10, 15, 1);
+      mWM.redraw_level_editor_background(0);
+      crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
 
       if (mouse_on_item) al_draw_line(x2, y2, itx+10, ity+10, mColor.pc[10], 2);
 
@@ -840,7 +902,7 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
          {
             itx = mItem.item[x][4]/20;
             ity = mItem.item[x][5]/20;
-            if ((mwWM.gx == itx) && (mwWM.gy == ity))
+            if ((mWM.gx == itx) && (mWM.gy == ity))
             {
                mouse_on_item = 1;
                ret_item = x;

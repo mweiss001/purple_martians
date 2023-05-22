@@ -5,7 +5,7 @@
 #include "mwLog.h"
 #include "mwSound.h"
 #include "mwSettings.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwNetgame.h"
 #include "mwLogo.h"
 #include "mwBottomMessage.h"
@@ -13,7 +13,7 @@
 #include "mwDisplay.h"
 #include "mwLoop.h"
 #include "mwLevel.h"
-#include "mwShots.h"
+#include "mwShot.h"
 #include "mwInput.h"
 #include "mwVisualLevel.h"
 

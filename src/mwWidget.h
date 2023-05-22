@@ -1,4 +1,4 @@
-// mwWidgets.h
+// mwWidget.h
 
 class mwWidget
 {
