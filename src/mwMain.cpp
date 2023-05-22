@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwMain.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwSound.h"
 #include "mwLog.h"
 #include "mwDemoMode.h"

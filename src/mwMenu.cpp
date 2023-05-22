@@ -3,7 +3,7 @@
 #include "pm.h"
 #include "mwMenu.h"
 #include "mwWindowManager.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwLogo.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
@@ -226,8 +226,8 @@ int mwMenu::tmenu(int menu_pos, int x1, int y1)
 
    while (selection == 999)
    {
-      mwWM.redraw_level_editor_background();
-      mwWM.cycle_windows(1);
+      mWM.redraw_level_editor_background();
+      mWM.cycle_windows(1);
 
       // draw menu title
       int mt = strlen(menu_string[0])*8;

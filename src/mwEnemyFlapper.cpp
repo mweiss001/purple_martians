@@ -2,9 +2,9 @@
 
 #include "pm.h"
 #include "mwEnemy.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwBitmap.h"
-#include "mwShots.h"
+#include "mwShot.h"
 #include "mwSolid.h"
 
 //--6--flapper-----------------------------------------------------------------------------

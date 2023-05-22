@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwVisualLevel.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwLift.h"
@@ -10,7 +10,7 @@
 #include "mwInput.h"
 #include "mwEventQueue.h"
 #include "mwLoop.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwScreen.h"

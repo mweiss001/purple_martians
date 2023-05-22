@@ -3,7 +3,7 @@
 #include "pm.h"
 #include "mwWindowManager.h"
 #include "mwWindow.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwColor.h"
@@ -14,7 +14,7 @@
 
 
 
-int mwItems::item_data(int x, int y)
+int mwItem::item_data(int x, int y)
 {
    char msg[1024];
    int inum = sort_item(0);
@@ -46,7 +46,7 @@ int mwItems::item_data(int x, int y)
    return y;
 }
 
-void mwItems::show_all_items(void)
+void mwItem::show_all_items(void)
 {
    char msg[1024];
    ALLEGRO_BITMAP *tmp;
@@ -100,7 +100,7 @@ void mwItems::show_all_items(void)
    al_destroy_bitmap(tmp);
 }
 
-int mwItems::sort_item(int set_pos)
+int mwItem::sort_item(int set_pos)
 {
    char msg[1024];
    // to not break linked items
@@ -211,7 +211,7 @@ int mwItems::sort_item(int set_pos)
    return inum;
 }
 
-int mwItems::get_empty_item(void) // just find me an empty
+int mwItem::get_empty_item(void) // just find me an empty
 {
    int mt = -1;
    for (int i=0; i<500; i++)
@@ -224,7 +224,7 @@ int mwItems::get_empty_item(void) // just find me an empty
    return mt;
 }
 
-int mwItems::get_empty_item(int type) // finds, sets type, sorts, refinds
+int mwItem::get_empty_item(int type) // finds, sets type, sorts, refinds
 {
    int mt = get_empty_item();
    if (mt == -1) return 500;
@@ -242,7 +242,7 @@ int mwItems::get_empty_item(int type) // finds, sets type, sorts, refinds
 }
 
 // not used!!!!! too much hassle....
-void mwItems::check_item(int i, int ct)
+void mwItem::check_item(int i, int ct)
 {
 
    // range check for key, trig, manip, damage
@@ -281,7 +281,7 @@ void mwItems::check_item(int i, int ct)
 
 
 
-void mwItems::test_items(void)
+void mwItem::test_items(void)
 {
    for (int c=0; c<500; c++)
       if (mItem.item[c][0])
@@ -322,13 +322,13 @@ void mwItems::test_items(void)
       }
 }
 
-void mwItems::erase_item(int num)
+void mwItem::erase_item(int num)
 {
    if (mItem.item[num][0] == 10) pmsgtext[num][0] = 0;
    for (int x=0; x<16; x++) mItem.item[num][x] = 0;
 }
 
-int mwItems::create_trigger(int i)
+int mwItem::create_trigger(int i)
 {
    int bad = 0;
    // set the item location
@@ -346,12 +346,12 @@ int mwItems::create_trigger(int i)
       if (!mMiscFnx.get_block_range("Trigger Rectangle", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else mwWM.mW[7].object_viewer(2, i);
+   else mWM.mW[7].object_viewer(2, i);
    return 1;
 }
 
 
-int mwItems::create_block_manip(int i)
+int mwItem::create_block_manip(int i)
 {
    int bad = 0;
 
@@ -369,11 +369,11 @@ int mwItems::create_block_manip(int i)
       if (!mMiscFnx.get_block_range("Block Manip Rectangle", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else mwWM.mW[7].object_viewer(2, i);
+   else mWM.mW[7].object_viewer(2, i);
    return 1;
 }
 
-int mwItems::create_block_damage(int i)
+int mwItem::create_block_damage(int i)
 {
    int bad = 0;
 
@@ -394,12 +394,12 @@ int mwItems::create_block_damage(int i)
       if (!mMiscFnx.get_block_range("Block Damage Rectangle", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else mwWM.mW[7].object_viewer(2, i);
+   else mWM.mW[7].object_viewer(2, i);
    return 1;
 }
 
 
-int mwItems::create_start_block(int c)
+int mwItem::create_start_block(int c)
 {
    mItem.item[c][0] = 5 ;           // type 5 - start
    mItem.item[c][1] = 1021;         // default animation seq
@@ -418,7 +418,7 @@ int mwItems::create_start_block(int c)
    else return 0;
 }
 
-int mwItems::create_exit(int c)
+int mwItem::create_exit(int c)
 {
    mItem.item[c][0] = 3 ;           // type 3 - exit
    mItem.item[c][1] = 1022;         // default animation seq
@@ -436,7 +436,7 @@ int mwItems::create_exit(int c)
    else return 0;
 }
 
-void mwItems::show_all_pmsg(void)
+void mwItem::show_all_pmsg(void)
 {
    int text_pos = 0;
    al_set_target_backbuffer(mDisplay.display);
@@ -490,7 +490,7 @@ void mwItems::show_all_pmsg(void)
    mInput.tsw(); // wait for keypress
 }
 
-int mwItems::create_pmsg(int c)
+int mwItem::create_pmsg(int c)
 {
    mItem.item[c][0] = 10 ;  // type 10 - msg
    mItem.item[c][1] = 0;    // trigger event
@@ -512,11 +512,11 @@ int mwItems::create_pmsg(int c)
    if (!bad) if (!edit_pmsg_text(c, 1)) bad = 1; // get text of message
 
    if (bad) return 0;
-   else mwWM.mW[7].object_viewer(2, c);
+   else mWM.mW[7].object_viewer(2, c);
    return 1;
 }
 
-int mwItems::create_door(int type)
+int mwItem::create_door(int type)
 {
    switch (type)
    {
@@ -634,7 +634,7 @@ int mwItems::create_door(int type)
    return sort_item(1);
 }
 
-int mwItems::create_item(int type)
+int mwItem::create_item(int type)
 {
    // check for no creator
    if ((type != 1) && (type != 3) && (type != 5) && (type != 9) && (type != 10) && (type != 13) && (type != 16) && (type != 17)) return 9999;
@@ -659,7 +659,7 @@ int mwItems::create_item(int type)
 
 
 
-int mwItems::create_timer(int i)
+int mwItem::create_timer(int i)
 {
    int bad = 0;
    // set the item location
@@ -674,7 +674,7 @@ int mwItems::create_timer(int i)
       if (!mMiscFnx.get_block_range("Display Area", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else mwWM.mW[7].object_viewer(2, i);
+   else mWM.mW[7].object_viewer(2, i);
    return 1;
 }
 

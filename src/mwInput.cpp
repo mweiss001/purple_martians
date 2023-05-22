@@ -3,7 +3,7 @@
 #include "pm.h"
 #include "mwInput.h"
 #include "mwDisplay.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwLog.h"
 #include "mwNetgame.h"
 #include "mwSettings.h"
@@ -17,11 +17,12 @@
 #include "mwGameMoves.h"
 
 
+
 mwInput mInput;
 
 mwInput::mwInput()
 {
-   initialize();
+   //initialize();
 }
 
 void mwInput::initialize(void)
@@ -37,16 +38,17 @@ void mwInput::initialize(void)
       for (int i=0; i<4; i++)
          mouse_b[k][i] = false;
 
-
    key_pressed_ASCII = 0;
 
-   mouse_x = 0;
-   mouse_y = 0;
-   mouse_z = 0;
+   ALLEGRO_MOUSE_STATE state;
+   al_get_mouse_state(&state);
+   mouse_x = state.x;
+   mouse_y = state.y;
+   mouse_z = state.z;
+
    mouse_dx = 0;
    mouse_dy = 0;
    mouse_dz = 0;
-
 }
 
 
@@ -65,18 +67,18 @@ void mwInput::proc_input_events(ALLEGRO_EVENT ev)
       mouse_dx = ev.mouse.dx;
       mouse_dy = ev.mouse.dy;
       mouse_dz = ev.mouse.dz;
-
-      al_set_timer_count(mEventQueue.mou_timer, 0);
       al_show_mouse_cursor(mDisplay.display);
-
-
+      al_set_timer_count(mEventQueue.mou_timer, 0);
    }
+
    if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
    {
       if (ev.mouse.button == 1) mouse_b[1][0] = true;
       if (ev.mouse.button == 2) mouse_b[2][0] = true;
       if (ev.mouse.button == 3) mouse_b[3][0] = true;
       if (ev.mouse.button == 4) mouse_b[4][0] = true;
+      al_show_mouse_cursor(mDisplay.display);
+      al_set_timer_count(mEventQueue.mou_timer, 0);
    }
    if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
    {

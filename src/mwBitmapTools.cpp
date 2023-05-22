@@ -6,7 +6,7 @@
 #include "mwColor.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwWidgets.h"
+#include "mwWidget.h"
 #include "mwInput.h"
 #include "mwDisplay.h"
 #include "mwEventQueue.h"
@@ -226,19 +226,20 @@ void mwBitmapTools::combine_tile(void)
 
 
 
-// used by sliders only for item block manip
+// used by sliders only for item block manip and blokwalk block
 // gets block with flags from level
-int mwBitmapTools::select_bitmap(int tn)
+
+void mwBitmapTools::select_bitmap(int &tn)
 {
    int quit = 0;
    while (!quit)
    {
-      mwWM.redraw_level_editor_background(0);
-      mMiscFnx.crosshairs_full(mwWM.gx*20+10, mwWM.gy*20+10, 15, 1);
+      mWM.redraw_level_editor_background(0);
+      mMiscFnx.crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
       mScreen.get_new_screen_buffer(3, 0, 0);
 
       int local_point_item_type = 1;
-      int local_point_item_num = mLevel.l[mwWM.gx][mwWM.gy];
+      int local_point_item_num = mLevel.l[mWM.gx][mWM.gy];
 
       int swx1 = 200;
       int swy1 = 200;
@@ -254,7 +255,7 @@ int mwBitmapTools::select_bitmap(int tn)
       // view item area
       al_draw_rectangle(                    swx1,    swy1,    swx2, swy2, mColor.pc[9], 1);
       al_draw_text(mFont.pr8, mColor.pc[15], swx1+24, swy1+2, 0, "Choose Block");
-      mwWM.mW[1].em_show_item_info(                    swx1+2,  swy1+9, 9, local_point_item_type, local_point_item_num);
+      mWM.mW[1].em_show_item_info(                    swx1+2,  swy1+9, 9, local_point_item_type, local_point_item_num);
 
       // flags section
       int ftx = swx1+11;
@@ -271,7 +272,8 @@ int mwBitmapTools::select_bitmap(int tn)
       if (mInput.mouse_b[1][0])
       {
          while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
-         return local_point_item_num;
+         tn = local_point_item_num;
+         quit = 1;
       }
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
@@ -279,7 +281,6 @@ int mwBitmapTools::select_bitmap(int tn)
          quit = 1;
       }
    }
-   return tn;
 }
 
 // this is used by animation_sequence_editor() only to choose new bitmaps for sequences
@@ -949,7 +950,7 @@ void mwBitmapTools::edit_btile_attributes(void)
       }
 
    }
-   mwWM.mW[1].em_set_swbl();
+   mWM.mW[1].em_set_swbl();
 }
 
 

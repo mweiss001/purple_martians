@@ -6,7 +6,7 @@
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwLevel.h"
 #include "mwScreen.h"
 #include "mwEnemy.h"

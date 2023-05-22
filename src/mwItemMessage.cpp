@@ -1,11 +1,11 @@
 // mwItemMessage.cpp
 
 #include "pm.h"
-#include "mwItems.h"
-#include "mwPlayers.h"
+#include "mwItem.h"
+#include "mwPlayer.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwWidgets.h"
+#include "mwWidget.h"
 #include "mwColor.h"
 #include "mwDisplay.h"
 #include "mwLoop.h"
@@ -16,7 +16,7 @@
 #include "mwTriggerEvent.h"
 
 
-void mwItems::proc_pmsg_collision(int i)
+void mwItem::proc_pmsg_collision(int i)
 {
    if (item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL) proc_pmsg_reset_timer(i);
 }
@@ -25,7 +25,7 @@ void mwItems::proc_pmsg_collision(int i)
 
 
 
-void mwItems::proc_pmsg_reset_timer(int i)
+void mwItem::proc_pmsg_reset_timer(int i)
 {
    int timer_count=0, timer_val=0;
    mMiscFnx.get_int_3216(mItem.item[i][12], timer_count, timer_val);
@@ -33,7 +33,7 @@ void mwItems::proc_pmsg_reset_timer(int i)
    mMiscFnx.set_int_3216(mItem.item[i][12], timer_count, timer_val);
 }
 
-void mwItems::proc_pmsg(int i)
+void mwItem::proc_pmsg(int i)
 {
    if (!(mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) // only if not show always
    {
@@ -60,7 +60,7 @@ static bool draw_multiline_cb(int line_num, const char *line, int size, void *ex
    return 1;
 }
 
-int mwItems::draw_message(int i, int x, int y, int custom)
+int mwItem::draw_message(int i, int x, int y, int custom)
 {
    char msg[1024];
    if (!custom) // pop up message
@@ -83,7 +83,7 @@ int mwItems::draw_message(int i, int x, int y, int custom)
    return 1;
 }
 
-void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
+void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
 {
    char msg[1024];
 
@@ -252,7 +252,7 @@ void mwItems::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curs
 
 
 
-int mwItems::edit_pmsg_text(int c, int new_msg)
+int mwItem::edit_pmsg_text(int c, int new_msg)
 {
    int bts = 16;
    int char_count;
@@ -262,11 +262,11 @@ int mwItems::edit_pmsg_text(int c, int new_msg)
    char f[1800];
    int quit = 0;
 
-   int xa = mwWM.mW[7].x1;
-   int xb = mwWM.mW[7].x2;
+   int xa = mWM.mW[7].x1;
+   int xb = mWM.mW[7].x2;
 
    int smx = (xa+xb)/2;  // x center
-   int smy = mwWM.mW[7].pop_msg_viewer_pos;
+   int smy = mWM.mW[7].pop_msg_viewer_pos;
 
    int bad=0;
 
@@ -414,7 +414,7 @@ int mwItems::edit_pmsg_text(int c, int new_msg)
 
 
 
-int mwItems::get_frame_size(int num)
+int mwItem::get_frame_size(int num)
 {
    int f = item[num][2];
    if (f & PM_ITEM_PMSG_FRAME0)  return 0;
@@ -426,7 +426,7 @@ int mwItems::get_frame_size(int num)
 }
 
 
-void mwItems::set_frame_size(int num, int frame_size)
+void mwItem::set_frame_size(int num, int frame_size)
 {
    // clear all flags
    item[num][2] &= ~PM_ITEM_PMSG_FRAME0;

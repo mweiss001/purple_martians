@@ -58,7 +58,7 @@ class mwWindowManager
    void load_mW(void);
 
 };
-extern mwWindowManager mwWM;
+extern mwWindowManager mWM;
 #endif
 
 

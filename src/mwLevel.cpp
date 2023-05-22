@@ -4,7 +4,7 @@
 #include "mwLevel.h"
 #include "mwConfig.h"
 #include "mwLift.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwScreen.h"
 #include "mwFont.h"

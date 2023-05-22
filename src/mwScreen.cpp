@@ -3,7 +3,7 @@
 #include "pm.h"
 #include "mwScreen.h"
 #include "mwWindowManager.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwLogo.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
@@ -12,10 +12,10 @@
 #include "mwLift.h"
 #include "mwColor.h"
 #include "mwLoop.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
-#include "mwShots.h"
+#include "mwShot.h"
 #include "mwInput.h"
 
 
@@ -491,7 +491,7 @@ void mwScreen::init_level_background2(int s, int e)
       for (int y=0; y<100; y++)
       {
          al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
-         if ((mLoop.level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
+         if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
       }
 }
 
@@ -506,7 +506,7 @@ void mwScreen::init_level_background(int type) // fill level_background with blo
          for (int y=0; y<100; y++)
          {
             al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
-            if ((mLoop.level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
+            if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
          }
 
    }
@@ -521,7 +521,7 @@ void mwScreen::init_level_background(int type) // fill level_background with blo
             for (int y=0; y<100; y++)
             {
                al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
-               if ((mLoop.level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
+               if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
             }
       }
    }

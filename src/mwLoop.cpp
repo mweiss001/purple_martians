@@ -7,7 +7,7 @@
 #include "mwSound.h"
 #include "mwLog.h"
 #include "mwSettings.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwNetgame.h"
 #include "mwTally.h"
 #include "mwDrawSequence.h"
@@ -26,12 +26,12 @@
 #include "mwBitmap.h"
 #include "mwMenu.h"
 #include "mwHelp.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
 
 #include "mwScreen.h"
-#include "mwShots.h"
+#include "mwShot.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 
@@ -178,7 +178,7 @@ void mwLoop::game_menu(void)
       if  (mLoop.top_menu_sel == 5)  { mLoop.new_program_state = 20;                                      return; } // host network game
       if  (mLoop.top_menu_sel == 6)  { mLoop.new_program_state = 24;                                      return; } // join network game
       if  (mLoop.top_menu_sel == 7)  { mLoop.new_program_state = 3;                                       return; } // settings
-      if  (mLoop.top_menu_sel == 8)  { mLevel.set_start_level(mwWM.mW[1].edit_menu(mLevel.start_level)); mLoop.new_program_state = 10; return; } // level editor
+      if  (mLoop.top_menu_sel == 8)  { mLevel.set_start_level(mWM.mW[1].edit_menu(mLevel.start_level)); mLoop.new_program_state = 10; return; } // level editor
       if  (mLoop.top_menu_sel == 9)  { mLoop.new_program_state = 2;  mLoop.older_program_state = 1;        return; } // demo mode
       if  (mLoop.top_menu_sel == 10)                                                                     mHelp.help(""); // help
       if ((mLoop.top_menu_sel > 100) && (mLoop.top_menu_sel < 200)) // right pressed on menu item
@@ -223,6 +223,11 @@ void mwLoop::proc_program_state(void)
          if (mLoop.new_program_state == 23) mLoop.program_state = 23; // client wait for sjon
          if (mLoop.new_program_state == 24) mLoop.program_state = 24; // client init network and send cjon
          if (mLoop.new_program_state == 25) mLoop.program_state = 25; // client exit and clean up network
+
+
+
+
+
 
          if (mLoop.new_program_state == 1) // game menu or fast exit
          {
@@ -429,6 +434,19 @@ void mwLoop::proc_program_state(void)
       mNetgame.server_exit();
       mLoop.new_program_state = 1;
    }
+
+
+   //---------------------------------------
+   // 30 - end cutscene
+   //---------------------------------------
+   if (mLoop.program_state == 30)
+   {
+
+
+
+      mLoop.new_program_state = 1;
+   }
+
 
    //---------------------------------------
    // 10 - single player new game
@@ -742,6 +760,21 @@ void mwLoop::main_loop(void)
             mQuickGraph[0].add_data(1, mRollingAverage[0].mn);
             mQuickGraph[0].add_data(2, mRollingAverage[0].mx);
             mQuickGraph[0].add_data(3, mRollingAverage[0].avg);
+
+
+
+            // special end cutscene
+            if ((mLevel.play_level == 100) && (mTriggerEvent.event[99]))
+            {
+               program_state = 30;
+
+            }
+
+
+
+
+
+
 
          }
       }

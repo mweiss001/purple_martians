@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwLog.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwGameMoves.h"
 #include "mwLoop.h"
 #include "mwLevel.h"

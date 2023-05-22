@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwLog.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwDrawSequence.h"
 #include <limits>
 #include "mwFont.h"
@@ -10,10 +10,10 @@
 #include "mwTimeStamp.h"
 #include "mwColor.h"
 #include "mwLoop.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwScreen.h"
-#include "mwShots.h"
+#include "mwShot.h"
 
 
 

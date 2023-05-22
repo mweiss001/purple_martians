@@ -1,8 +1,8 @@
 // mwItemDoor.cpp
 
 #include "pm.h"
-#include "mwItems.h"
-#include "mwPlayers.h"
+#include "mwItem.h"
+#include "mwPlayer.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
@@ -10,7 +10,7 @@
 #include "mwGameEvent.h"
 
 
-void mwItems::change_linked_door_color_and_shape(int door)
+void mwItem::change_linked_door_color_and_shape(int door)
 {
    // changes all linked doors to match door color and shape
    // first do the linked door if there is one...
@@ -32,7 +32,7 @@ void mwItems::change_linked_door_color_and_shape(int door)
       }
 }
 
-int mwItems::draw_door(int i, int x, int y, int custom)
+int mwItem::draw_door(int i, int x, int y, int custom)
 {
    ALLEGRO_BITMAP *tmp = NULL;
    int col = mItem.item[i][6];
@@ -96,7 +96,7 @@ int mwItems::draw_door(int i, int x, int y, int custom)
    return 1;
 }
 
-void mwItems::proc_door_collision(int p, int i)
+void mwItem::proc_door_collision(int p, int i)
 {
 
    if ((mPlayer.syn[p].marked_door == -1)  // player has no marked door yet
@@ -258,7 +258,7 @@ void mwItems::proc_door_collision(int p, int i)
 }
 
 
-void mwItems::proc_player_door_move(int p)
+void mwItem::proc_player_door_move(int p)
 {
    int x = mPlayer.syn[p].door_item;
    int ddrns = mPlayer.syn[p].door_draw_rot_num_steps;

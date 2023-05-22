@@ -2,9 +2,9 @@
 
 #include "pm.h"
 #include "mwEnemy.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwBitmap.h"
-#include "mwShots.h"
+#include "mwShot.h"
 #include "mwSolid.h"
 #include "mwLift.h"
 #include "mwLoop.h"
@@ -114,6 +114,7 @@ Ef[][2]  y speed
 Ef[][6]  x speed
 
 */
+
 
 
 void mwEnemy::move_arch_block_common(int e)
@@ -272,6 +273,9 @@ void mwEnemy::move_arch_block_common(int e)
 //-------------------------------------------------------------------------------------------
 // see walker_archwagon_common
 
+// Ei[][13]  block
+
+
 void mwEnemy::move_blokwalk(int e)
 {
    int EXint = Ef[e][0];
@@ -283,14 +287,17 @@ void mwEnemy::move_blokwalk(int e)
    {
       int ex = EXint/20;
       int ey = EYint/20;
+//      int block = 168 | PM_BTILE_ALL_SOLID | PM_BTILE_BREAKABLE_PSHOT;
 
-      mLevel.l[ex][ey] = 168 | PM_BTILE_ALL_SOLID;
 
-      mLevel.l[ex][ey] |= PM_BTILE_BREAKABLE_PSHOT;
+      int block = Ei[e][13];
+
+
+      mLevel.l[ex][ey] = block;
 
       al_set_target_bitmap(mBitmap.level_background);
       al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.btile[168], ex*20, ey*20, 0);
+      al_draw_bitmap(mBitmap.btile[block & 1023], ex*20, ey*20, 0);
 
       mGameEvent.add(42, 0, 0, Ei[e][26], e, 11, Ei[e][31]);
 
@@ -301,10 +308,67 @@ void mwEnemy::move_blokwalk(int e)
    move_arch_block_common(e);
 
    // set the bitmap and drawing mode
-   int b = Ei[e][3];     // ans
-   int c = mBitmap.zz[4][b];     // num_of_shapes in seq
+   int b = Ei[e][3];          // ans
+   int c = mBitmap.zz[4][b];  // num_of_shapes in seq
 
    // animate with h move
    int x = (EXint/2) % c;
    Ei[e][1] = mBitmap.zz[x+5][b];
 }
+
+
+
+
+
+
+
+//-------------------------------------------------------------------------------------------
+//--19--crew --------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+// see walker_archwagon_common
+/*
+Ei[][3]   color
+
+*/
+void mwEnemy::move_crew(int e)
+{
+   move_arch_block_common(e);
+}
+
+
+void mwEnemy::draw_crew(int e, int cx, int cy, int custom)
+{
+   int x = Ef[e][0];
+   int y = Ef[e][1];
+   if (custom)
+   {
+      x = cx;
+      y = cy;
+   }
+
+   int flags = 0;
+   if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
+
+   int pos = ((int) Ef[e][0] / 6) % 6;  // 6 shapes in sequence
+   int col = Ei[e][3];
+
+   al_draw_bitmap(mBitmap.player_tile[col][pos], x, y, flags);
+
+//
+   al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, x+10, y+10, 1, 1, 0, flags);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+

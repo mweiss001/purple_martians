@@ -8,14 +8,14 @@
 #include "mwConfig.h"
 #include "mwScreen.h"
 #include "mwInput.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwLift.h"
 #include "mwGameMoves.h"
 #include "mwTriggerEvent.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
-#include "mwShots.h"
+#include "mwShot.h"
 #include "mwLog.h"
 
 mwDisplay mDisplay;
@@ -316,7 +316,7 @@ void mwDisplay::set_saved_display_transform(int sdt)
 
    // adjust window positions
    for (int a=0; a<NUM_MW; a++)
-      mwWM.mW[a].set_pos(mwWM.mW[a].x1/sfa, mwWM.mW[a].y1/sfa);
+      mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
 
 
 }
@@ -340,7 +340,7 @@ void mwDisplay::cycle_display_transform(void)
 
    // adjust window positions
    for (int a=0; a<NUM_MW; a++)
-      mwWM.mW[a].set_pos(mwWM.mW[a].x1/sfa, mwWM.mW[a].y1/sfa);
+      mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
 
 }
 

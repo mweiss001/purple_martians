@@ -1,10 +1,10 @@
 // mwItemTrigger.cpp
 
 #include "pm.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwLift.h"
 #include "mwColor.h"
 #include "mwTriggerEvent.h"
@@ -14,7 +14,7 @@
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
 #include "mwGameEvent.h"
-#include "mwShots.h"
+#include "mwShot.h"
 
 /*
 item[][0] = 6 - orb
@@ -45,7 +45,7 @@ item[][13] = TGOF pm_event
 
 */
 
-int mwItems::proc_orb_shot_collision(int i)
+int mwItem::proc_orb_shot_collision(int i)
 {
    int s = 8; // collison box size
    float x = itemf[i][0];
@@ -61,7 +61,7 @@ int mwItems::proc_orb_shot_collision(int i)
 }
 
 
-void mwItems::proc_orb(int i)
+void mwItem::proc_orb(int i)
 {
    int MODE = item[i][6];
 
@@ -141,7 +141,7 @@ void mwItems::proc_orb(int i)
    if   (FLAGS & PM_ITEM_ORB_TGOF)   mTriggerEvent.event[item[i][13]] = 1;
 }
 
-int mwItems::draw_orb(int i, int x, int y)
+int mwItem::draw_orb(int i, int x, int y)
 {
    item[i][1] = 418;                                            // green orb
    if (item[i][2] & PM_ITEM_ORB_STATE) item[i][1] = 419;  // red orb
@@ -171,7 +171,7 @@ int mwItems::draw_orb(int i, int x, int y)
    if (!drawn) al_draw_rotated_bitmap(mBitmap.tile[item[i][1]], 10, 10, x+10, y+10, a, 0);
    return 1;
 }
-void mwItems::proc_orb_collision(int p, int i)
+void mwItem::proc_orb_collision(int p, int i)
 {
    if (  (item[i][2] & PM_ITEM_ORB_TRIG_TOUCH) ||
         ((item[i][2] & PM_ITEM_ORB_TRIG_UP)   && (mPlayer.syn[p].up)) ||
@@ -220,7 +220,7 @@ item[][14] = TGOF pm_event #
 
 */
 
-void mwItems::proc_trigger(int i)
+void mwItem::proc_trigger(int i)
 {
    int FLAGS = item[i][3];
    if (FLAGS & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 0);
@@ -268,7 +268,7 @@ void mwItems::proc_trigger(int i)
    if   (FLAGS & PM_ITEM_TRIGGER_TGOF)  mTriggerEvent.event[item[i][14]] = 1;
 }
 
-void mwItems::set_item_trigger_location_from_lift(int i, int a20)
+void mwItem::set_item_trigger_location_from_lift(int i, int a20)
 {
    int d = item[i][10]; // lift number
    if (mLift.cur[d].active) // only proceed if lift number is valid
@@ -319,7 +319,7 @@ void mwItems::set_item_trigger_location_from_lift(int i, int a20)
 }
 
 
-void mwItems::detect_trigger_collisions(int i)
+void mwItem::detect_trigger_collisions(int i)
 {
    int FLAGS = item[i][3];
 
@@ -375,7 +375,7 @@ void mwItems::detect_trigger_collisions(int i)
 
 
 
-int mwItems::draw_trigger(int i, int x, int y, int custom)
+int mwItem::draw_trigger(int i, int x, int y, int custom)
 {
    if (mLoop.level_editor_running)
    {
@@ -411,8 +411,14 @@ item[][10] block 1
 item[][11] block 2
 item[][12] = draw color
 
+item[][13] = copy x
+item[][14] = copy y
+
+
+
+
 */
-void mwItems::proc_block_manip(int i)
+void mwItem::proc_block_manip(int i)
 {
    int et = item[i][1]; // pm_event trigger we are looking for
    if (mTriggerEvent.event[et])
@@ -422,6 +428,14 @@ void mwItems::proc_block_manip(int i)
       int y1 = item[i][7]/20;
       int x2 = x1 + item[i][8]/20;
       int y2 = y1 + item[i][9]/20;
+
+      // copt rect pos
+      int x3 = item[i][13]/20;
+      int y3 = item[i][14]/20;
+
+      // copt rect offset
+      int x4 = x3-x1;
+      int y4 = y3-y1;
 
       for (int x=x1; x<x2; x++)
          for (int y=y1; y<y2; y++)
@@ -459,11 +473,19 @@ void mwItems::proc_block_manip(int i)
                   al_draw_bitmap(mBitmap.btile[block1&1023], x*20, y*20, 0 );
                }
             }
+            if (mode == 4) // copy rect area
+            {
+               block1 = mLevel.l[x+x4][y+y4];
+               mLevel.l[x][y] = block1;
+               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
+               al_draw_bitmap(mBitmap.btile[block1&1023], x*20, y*20, 0 );
+
+            }
          }
    }
 }
 
-int mwItems::draw_block_manip(int i, int x, int y)
+int mwItem::draw_block_manip(int i, int x, int y)
 {
    if (mLoop.level_editor_running)
    {
@@ -477,6 +499,17 @@ int mwItems::draw_block_manip(int i, int x, int y)
       float x2 = x1 + item[i][8];
       float y2 = y1 + item[i][9];
       mMiscFnx.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
+
+      if (mItem.item[i][3] == 4)
+      {
+         col = item[i][12];
+         x1 = item[i][13];
+         y1 = item[i][14];
+         x2 = x1 + item[i][8];
+         y2 = y1 + item[i][9];
+         mMiscFnx.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
+      }
+
    }
    return 1;
 }
@@ -514,7 +547,7 @@ item[][15] = damage
 
 */
 
-void mwItems::set_item_damage_location_from_lift(int i, int a20)
+void mwItem::set_item_damage_location_from_lift(int i, int a20)
 {
    int d = item[i][10]; // lift number
    if (mLift.cur[d].active) // only proceed if lift number is valid
@@ -564,7 +597,7 @@ void mwItems::set_item_damage_location_from_lift(int i, int a20)
    }
 }
 
-void mwItems::proc_item_damage_collisions(int i)
+void mwItem::proc_item_damage_collisions(int i)
 {
    int FLAGS = item[i][3];
    int cd = FLAGS & PM_ITEM_DAMAGE_CURR;                 // damage active
@@ -619,7 +652,6 @@ void mwItems::proc_item_damage_collisions(int i)
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
                mEnemy.Ei[e2][31] = 3;           // flag that this enemy got shot
-               //mEnemy.Ei[e2][26] = x;           // number of player's shot that hit enemy
             }
          }
    if (cdi)
@@ -658,7 +690,7 @@ void mwItems::proc_item_damage_collisions(int i)
          }
 }
 
-int mwItems::draw_block_damage(int i, int x, int y, int custom)
+int mwItem::draw_block_damage(int i, int x, int y, int custom)
 {
    int draw_mode = item[i][2];
    int FLAGS = item[i][3];
@@ -722,7 +754,7 @@ int mwItems::draw_block_damage(int i, int x, int y, int custom)
    return 1;
 }
 
-void mwItems::proc_block_damage(int i)
+void mwItem::proc_block_damage(int i)
 {
    int et = item[i][1];                // number of pm_event trigger we are looking for
    int trig = mTriggerEvent.event[et]; // is the trigger event set?
@@ -751,7 +783,7 @@ void mwItems::proc_block_damage(int i)
    }
 }
 
-void mwItems::set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3)
+void mwItem::set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3)
 {
    if (item[i][0] == 6) // orb
    {
@@ -809,7 +841,7 @@ item[][15] = t2 o/p event
 */
 
 
-int mwItems::draw_timer(int i, int x, int y, int custom)
+int mwItem::draw_timer(int i, int x, int y, int custom)
 {
    int state, t1, t2, t1om, t2om, time;
    get_timer_flags(item[i][3], state, t1, t2, t1om, t2om, time);
@@ -854,7 +886,7 @@ int mwItems::draw_timer(int i, int x, int y, int custom)
    return 1;
 }
 
-void mwItems::proc_timer(int i)
+void mwItem::proc_timer(int i)
 {
    int state = 0;
    int t1_mode = 0;
@@ -935,7 +967,7 @@ void mwItems::proc_timer(int i)
    set_timer_flags(item[i][3], state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, cnt);
 }
 
-void mwItems::set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, int t1_op_mode, int t2_op_mode, int cnt)
+void mwItem::set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, int t1_op_mode, int t2_op_mode, int cnt)
 {
    pack = state -1;
    int H16 = cnt << 16;                       // shift to upper 16 bits
@@ -958,7 +990,7 @@ void mwItems::set_timer_flags(int &pack, int state, int t1_mode, int t2_mode, in
 
 }
 
-void mwItems::get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, int &t1_op_mode, int &t2_op_mode, int &cnt)
+void mwItem::get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, int &t1_op_mode, int &t2_op_mode, int &cnt)
 {
    cnt = pack >> 16;
    t1_mode = pack >> 13;
@@ -977,7 +1009,7 @@ void mwItems::get_timer_flags(int pack, int &state, int &t1_mode, int &t2_mode, 
    state = 1 + (pack &  0b00000000000000000000000000000001); // clear other bits
 }
 
-float mwItems::get_timer_ratio_for_event(int ev)
+float mwItem::get_timer_ratio_for_event(int ev)
 {
    int ti = -1;
    for (int i=0; i<500; i++)
@@ -1028,7 +1060,7 @@ item[][9]  = y2
 */
 
 //
-//int mwItems::draw_wrap_rect(int i, int x, int y, int custom)
+//int mwItem::draw_wrap_rect(int i, int x, int y, int custom)
 //{
 //   float x1 = item[i][6];
 //   float y1 = item[i][7];
@@ -1077,7 +1109,7 @@ item[][9]  = y2
 //}
 //
 //
-//void mwItems::wrap_rect_helper(int i, float &x, float &y, float xi, float yi)
+//void mwItem::wrap_rect_helper(int i, float &x, float &y, float xi, float yi)
 //{
 //   float x1 = item[i][6]-10;
 //   float y1 = item[i][7]-10;
@@ -1117,7 +1149,7 @@ item[][9]  = y2
 //}
 //
 //
-//void mwItems::proc_wrap_rect(int i)
+//void mwItem::proc_wrap_rect(int i)
 //{
 //   int FLAGS = item[i][3];
 //   if (FLAGS & PM_ITEM_WRAP_PLAYER)
@@ -1144,12 +1176,12 @@ item[][9]  = y2
 //
 //
 //
-//void mwItems::proc_wrap_line(int i)
+//void mwItem::proc_wrap_line(int i)
 //{
 //
 //}
 //
-//int mwItems::draw_wrap_line(int i, int x, int y, int custom)
+//int mwItem::draw_wrap_line(int i, int x, int y, int custom)
 //{
 //
 //   return 0;

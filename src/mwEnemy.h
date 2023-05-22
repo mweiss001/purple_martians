@@ -12,9 +12,7 @@ class mwEnemy
    int e_first_num[50];
    char enemy_name[100][3][40] = {0};
    int num_enemy;
-   int enemy_tile[20];
-
-
+   int enemy_tile[50];
 
 
    void draw_enemy(int e, int custom, int cx, int cy);
@@ -35,6 +33,9 @@ class mwEnemy
    void move_arch_block_common(int e);
    void move_blokwalk(int e);
 
+   void move_crew(int e);
+   void draw_crew(int e, int x, int y, int custom);
+
    // mwEnemyCannon.cpp
    void move_bouncer_cannon_common(int e);
    void move_cannon(int e);
@@ -46,6 +47,8 @@ class mwEnemy
    void draw_cloner(int e, int x, int c, int custom);
    void cloner_create(int e);
    void move_cloner(int e);
+
+
 
    // mwEnemyFlapper.cpp
    void move_flapper(int e);
@@ -66,7 +69,13 @@ class mwEnemy
    void vinepod_set_cp_thirds(int e);
    void calc_simple_vinepod(int e);
 
-   void vinepod_rotate_90(int e);
+   void vinepod_rotate(int e, float a);
+
+   void vinepod_scale(int e, float s);
+
+
+   void vinepod_rotate_cw_90(int e);
+   void vinepod_rotate_ccw_90(int e);
    void vinepod_mirror_x(int e);
    void vinepod_mirror_y(int e);
 

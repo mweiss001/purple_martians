@@ -6,7 +6,7 @@
 
 
 #include "mwFont.h"
-#include "mwWidgets.h"
+#include "mwWidget.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
@@ -19,45 +19,45 @@ void mwWindow::th_replace(int type)
 {
    for (int a=0; a<100; a++)
       for (int b=0; b<100; b++)
-         if (mwWM.thl[a][b])
+         if (mWM.thl[a][b])
          {
             // choose which block to use
 
             // find block to left
             int bl_l = 0;
             int la = a-1;
-            if (la > -1) bl_l = mwWM.thl[la][b];
+            if (la > -1) bl_l = mWM.thl[la][b];
 
             // find block to right
             int bl_r = 0;
             int ra = a+1;
-            if (ra < 100) bl_r = mwWM.thl[ra][b];
+            if (ra < 100) bl_r = mWM.thl[ra][b];
 
             // find block above
             int bl_u = 0;
             int ab = b-1;
-            if (ab > -1) bl_u = mwWM.thl[a][ab];
+            if (ab > -1) bl_u = mWM.thl[a][ab];
 
             // find block below
             int bl_d = 0;
             int bb = b+1;
-            if (bb < 100) bl_d = mwWM.thl[a][bb];
+            if (bb < 100) bl_d = mWM.thl[a][bb];
 
             // find block to upper left
             int bl_ul = 0;
-            if ((la > -1) && (ab > -1)) bl_ul = mwWM.thl[la][ab];
+            if ((la > -1) && (ab > -1)) bl_ul = mWM.thl[la][ab];
 
             // find block to upper right
             int bl_ur = 0;
-            if ((ra < 100) && (ab > -1)) bl_ur = mwWM.thl[ra][ab];
+            if ((ra < 100) && (ab > -1)) bl_ur = mWM.thl[ra][ab];
 
             // find block to lower left
             int bl_dl = 0;
-            if ((la > -1) && (bb < 100)) bl_dl = mwWM.thl[la][bb];
+            if ((la > -1) && (bb < 100)) bl_dl = mWM.thl[la][bb];
 
             // find block to lower right
             int bl_dr = 0;
-            if ((ra < 100) && (bb < 100)) bl_dr = mwWM.thl[ra][bb];
+            if ((ra < 100) && (bb < 100)) bl_dr = mWM.thl[ra][bb];
 
 
             int t=0;
@@ -405,7 +405,7 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    // background, title and frame for this group of buttons
    int c1 = 12; // frame color
    int y2f = yfb + bts*5 + 12; // get y2
-   if (mwWM.mW[9].th_match == 0) y2f -= (bts+4);
+   if (mWM.mW[9].th_match == 0) y2f -= (bts+4);
    al_draw_filled_rectangle(x3-1, yfb, x4+1, y2f-1, mColor.pc[c1+208]); // background
    mMiscFnx.titlex("Modify Which Tiles Are Marked", 15, c1, x3-1, x4+1, yfb); // title
    al_draw_rectangle(x3-1, yfb, x4+1, y2f-1, mColor.pc[c1], 1); // frame
@@ -414,7 +414,7 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    int marked_count = 0;
    for (int a=0; a<100; a++)
       for (int b=0; b<100; b++)
-        if (mwWM.thl[a][b]) marked_count++;
+        if (mWM.thl[a][b]) marked_count++;
 
    int xc = x3 + (x4-x3)/2 + 40; // split between buttons
    char msg[80];
@@ -424,7 +424,7 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    if (mWidget.buttont(xc+2, yfb, x4-2, bts, 0,0,0,0, 0,14,15,0, 1,0,1,d, "Clear All"))
    {
       for (int a=0; a<100; a++)
-         for (int b=0; b<100; b++) mwWM.thl[a][b] = 0;
+         for (int b=0; b<100; b++) mWM.thl[a][b] = 0;
    }
 
    yfb+=4;
@@ -434,24 +434,24 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
    al_draw_text(mFont.pr8, mColor.pc[color], tx1, yfb+5, 0, msg);
    int tx2 = tx1 + strlen(msg)*8; // x pos past text
    sprintf(msg, "Remove Marks");
-   if (mwWM.mW[9].th_add_del) sprintf(msg, "Add Marks");
+   if (mWM.mW[9].th_add_del) sprintf(msg, "Add Marks");
    int bf = (strlen(msg)+2)*8; // size button based on text length
-   if (mWidget.buttont(tx2, yfb, tx2+bf, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, msg)) mwWM.mW[9].th_add_del = !mwWM.mW[9].th_add_del;
+   if (mWidget.buttont(tx2, yfb, tx2+bf, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, msg)) mWM.mW[9].th_add_del = !mWM.mW[9].th_add_del;
 
    yfb+=4;
 
    sprintf(msg, "Filter: ");
    al_draw_text(mFont.pr8, mColor.pc[color], tx1, yfb+5, 0, msg);
    tx2 = tx1 + strlen(msg)*8; // x pos past text
-   if (mwWM.mW[9].th_match == 0) sprintf(msg, "Single Tile");
-   if (mwWM.mW[9].th_match == 1) sprintf(msg, "All Matching Tiles");
-   if (mwWM.mW[9].th_match == 2) sprintf(msg, "Connected Matching Tiles");
+   if (mWM.mW[9].th_match == 0) sprintf(msg, "Single Tile");
+   if (mWM.mW[9].th_match == 1) sprintf(msg, "All Matching Tiles");
+   if (mWM.mW[9].th_match == 2) sprintf(msg, "Connected Matching Tiles");
    bf = (strlen(msg)+2)*8; // size button based on text length
-   if (mWidget.buttont(tx2, yfb, tx2+bf, bts, 0,0,0,0, 0,7,15,0, 1,0,1,d, msg)) mwWM.mW[9].th_match++;
-   if (mwWM.mW[9].th_match > 2) mwWM.mW[9].th_match = 0;
+   if (mWidget.buttont(tx2, yfb, tx2+bf, bts, 0,0,0,0, 0,7,15,0, 1,0,1,d, msg)) mWM.mW[9].th_match++;
+   if (mWM.mW[9].th_match > 2) mWM.mW[9].th_match = 0;
 
 
-   if (mwWM.mW[9].th_match)
+   if (mWM.mW[9].th_match)
    {
       yfb+=4;
       sprintf(msg, "Match: ");
@@ -459,9 +459,9 @@ int mwWindow::th_draw_buttons(int x3, int x4, int yfb, int d)
       tx2 = tx1 + strlen(msg)*8; // x pos past text
 
       sprintf(msg, "Specific Tile Only");
-      if (mwWM.mW[9].th_group) sprintf(msg, "All Tiles In Set");
+      if (mWM.mW[9].th_group) sprintf(msg, "All Tiles In Set");
       bf = (strlen(msg)+2)*8; // size button based on text length
-      if (mWidget.buttont(tx2, yfb, tx2+bf, bts, 0,0,0,0, 0,7,15,0, 1,0,1,d, msg)) mwWM.mW[9].th_group = !mwWM.mW[9].th_group;
+      if (mWidget.buttont(tx2, yfb, tx2+bf, bts, 0,0,0,0, 0,7,15,0, 1,0,1,d, msg)) mWM.mW[9].th_group = !mWM.mW[9].th_group;
    }
 
    yfb+=bts/2; // spacing between groups
@@ -556,7 +556,7 @@ int mwWindow::th_compare_tile(int rb, int cb, int group)
 void mwWindow::th_find_connected(int x, int y, int group)
 {
    int rb = mLevel.l[x][y];  // block num to match
-   mwWM.thl[x][y] = -1;    // mark initial block pos in array
+   mWM.thl[x][y] = -1;    // mark initial block pos in array
 
    int times=0, found=0;
    do
@@ -565,27 +565,27 @@ void mwWindow::th_find_connected(int x, int y, int group)
       found = 0;
       for (int a=0; a<100; a++)
          for (int b=0; b<100; b++)
-            if (mwWM.thl[a][b] == -1) // iterate already marked
+            if (mWM.thl[a][b] == -1) // iterate already marked
             {
                if ((a > 0) && (th_compare_tile(rb, mLevel.l[a-1][b], group))) // look left
                {
-                  if (mwWM.thl[a-1][b] != -1) found++; // found unmarked
-                  mwWM.thl[a-1][b] = -1; // mark it
+                  if (mWM.thl[a-1][b] != -1) found++; // found unmarked
+                  mWM.thl[a-1][b] = -1; // mark it
                }
                if ((b > 0) && (th_compare_tile(rb, mLevel.l[a][b-1], group))) // look up
                {
-                  if (mwWM.thl[a][b-1] != -1) found++; // found unmarked
-                  mwWM.thl[a][b-1] = -1; // mark it
+                  if (mWM.thl[a][b-1] != -1) found++; // found unmarked
+                  mWM.thl[a][b-1] = -1; // mark it
                }
                if ((a < 99) && (th_compare_tile(rb, mLevel.l[a+1][b], group))) // look right
                {
-                  if (mwWM.thl[a+1][b] != -1) found++; // found unmarked
-                  mwWM.thl[a+1][b] = -1; // mark it
+                  if (mWM.thl[a+1][b] != -1) found++; // found unmarked
+                  mWM.thl[a+1][b] = -1; // mark it
                }
                if ((b < 99) && (th_compare_tile(rb, mLevel.l[a][b+1], group))) // look down
                {
-                  if (mwWM.thl[a][b+1] != -1) found++; // found unmarked
-                  mwWM.thl[a][b+1] = -1; // mark it
+                  if (mWM.thl[a][b+1] != -1) found++; // found unmarked
+                  mWM.thl[a][b+1] = -1; // mark it
                }
             }
    } while (found);
@@ -593,7 +593,7 @@ void mwWindow::th_find_connected(int x, int y, int group)
    // change all marked from -1 to add_del
    for (int a=0; a<100; a++)
       for (int b=0; b<100; b++)
-         if (mwWM.thl[a][b] == -1) mwWM.thl[a][b] = mwWM.mW[9].th_add_del;
+         if (mWM.thl[a][b] == -1) mWM.thl[a][b] = mWM.mW[9].th_add_del;
 }
 
 
@@ -604,23 +604,23 @@ void mwWindow::th_process_mouse(void)
       while (mInput.mouse_b[1][0]) mEventQueue.proc();
 
       // add or del single tile at the specific location
-      if (mwWM.mW[9].th_match == 0) mwWM.thl[mwWM.gx][mwWM.gy] = mwWM.mW[9].th_add_del;
+      if (mWM.mW[9].th_match == 0) mWM.thl[mWM.gx][mWM.gy] = mWM.mW[9].th_add_del;
 
       // add or del only connected tiles that match
-      if (mwWM.mW[9].th_match == 2) th_find_connected(mwWM.gx, mwWM.gy, mwWM.mW[9].th_group);
+      if (mWM.mW[9].th_match == 2) th_find_connected(mWM.gx, mWM.gy, mWM.mW[9].th_group);
 
       // add or del all tiles that match
-      if (mwWM.mW[9].th_match == 1)
+      if (mWM.mW[9].th_match == 1)
       {
          for (int x=0; x<100; x++)
             for (int y=0; y<100; y++)
-               if (th_compare_tile(mLevel.l[mwWM.gx][mwWM.gy], mLevel.l[x][y], mwWM.mW[9].th_group)) mwWM.thl[x][y] = mwWM.mW[9].th_add_del;
+               if (th_compare_tile(mLevel.l[mWM.gx][mWM.gy], mLevel.l[x][y], mWM.mW[9].th_group)) mWM.thl[x][y] = mWM.mW[9].th_add_del;
       }
    }
 
    if (mInput.mouse_b[2][0])
    {
       while (mInput.mouse_b[2][0]) mEventQueue.proc();
-      mwWM.set_windows(1);
+      mWM.set_windows(1);
    }
 }

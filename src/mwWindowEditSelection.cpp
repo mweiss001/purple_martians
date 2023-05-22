@@ -7,13 +7,13 @@
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwLift.h"
-#include "mwWidgets.h"
+#include "mwWidget.h"
 #include "mwColor.h"
 #include "mwTriggerEvent.h"
 #include "mwInput.h"
 #include "mwDisplay.h"
 #include "mwEventQueue.h"
-#include "mwItems.h"
+#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwMiscFnx.h"
@@ -37,17 +37,17 @@ ALLEGRO_BITMAP *ft_bmp = NULL;  //  file temp paste bmp
 
 void mwWindow::es_pointer_text(int x1, int x2, int y, int mouse_on_window)
 {
-   int rx1 = mwWM.bx1*20;    // source x
-   int ry1 = mwWM.by1*20;    // source y
-   int rx2 = mwWM.bx2*20+20;
-   int ry2 = mwWM.by2*20+20;
+   int rx1 = mWM.bx1*20;    // source x
+   int ry1 = mWM.by1*20;    // source y
+   int rx2 = mWM.bx2*20+20;
+   int ry2 = mWM.by2*20+20;
    int eib=0;
    int iib=0;
    int lib=0;
 
    // count items in box
    for (int b=0; b<500; b++)
-      if ((mItem.item[b][0]) && (mwWM.obj_filter[2][mItem.item[b][0]]))
+      if ((mItem.item[b][0]) && (mWM.obj_filter[2][mItem.item[b][0]]))
          if (mItem.item[b][4] >= rx1)
             if (mItem.item[b][4] < rx2)
                if (mItem.item[b][5] >= ry1)
@@ -56,7 +56,7 @@ void mwWindow::es_pointer_text(int x1, int x2, int y, int mouse_on_window)
 
    // count enemies in box
    for (int b=0; b<100; b++)
-      if ((mEnemy.Ei[b][0]) && (mwWM.obj_filter[3][mEnemy.Ei[b][0]]))
+      if ((mEnemy.Ei[b][0]) && (mWM.obj_filter[3][mEnemy.Ei[b][0]]))
          if (mEnemy.Ef[b][0] >= rx1)
             if (mEnemy.Ef[b][0] < rx2)
                if (mEnemy.Ef[b][1] >= ry1)
@@ -64,7 +64,7 @@ void mwWindow::es_pointer_text(int x1, int x2, int y, int mouse_on_window)
                      eib++;
 
    // count lifts in box
-   if (mwWM.obj_filter[4][1])
+   if (mWM.obj_filter[4][1])
       for (int d=0; d<NUM_LIFTS; d++)
          if ((mLift.cur[d].active) && (mLift.cur[d].x >= rx1) && (mLift.cur[d].x < rx2) && (mLift.cur[d].y >= ry1) && (mLift.cur[d].y < ry2)) lib++;
 
@@ -75,8 +75,8 @@ void mwWindow::es_pointer_text(int x1, int x2, int y, int mouse_on_window)
    al_draw_text( mFont.pr8, mColor.pc[tc], xc, y+1,  ALLEGRO_ALIGN_CENTER, "Selection");
    al_draw_rectangle(x1, y, x2, y+10, mColor.pc[fc], 1);
    y+=10;
-   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+1, ALLEGRO_ALIGN_CENTER, "  x:%-2d    y:%-2d  ", mwWM.bx1, mwWM.by1);
-   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+9, ALLEGRO_ALIGN_CENTER, "  w:%-2d    h:%-2d  ", mwWM.bx2-mwWM.bx1+1, mwWM.by2-mwWM.by1+1);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+1, ALLEGRO_ALIGN_CENTER, "  x:%-2d    y:%-2d  ", mWM.bx1, mWM.by1);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y+9, ALLEGRO_ALIGN_CENTER, "  w:%-2d    h:%-2d  ", mWM.bx2-mWM.bx1+1, mWM.by2-mWM.by1+1);
    al_draw_rectangle(x1, y, x2, y+18, mColor.pc[fc], 1);
 
    y+=18;
@@ -341,27 +341,27 @@ void mwWindow::es_save_selection(int save)
    int eib=0;
    int iib=0;
    int lib=0;
-   int x1 = mwWM.bx1*20;
-   int y1 = mwWM.by1*20;
-   int x2 = mwWM.bx2*20+20;
-   int y2 = mwWM.by2*20+20;
+   int x1 = mWM.bx1*20;
+   int y1 = mWM.by1*20;
+   int x2 = mWM.bx2*20+20;
+   int y2 = mWM.by2*20+20;
 
 
    es_clear_ft();
 
    // blocks
-   for (x=0; x<(mwWM.bx2-mwWM.bx1+1); x++)
-      for (y=0; y<(mwWM.by2-mwWM.by1+1); y++)
-         if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (mwWM.bx1+x >= 0) && (mwWM.bx1+x < 100) && (mwWM.by1+y >= 0) && (mwWM.by1+y < 100) )
+   for (x=0; x<(mWM.bx2-mWM.bx1+1); x++)
+      for (y=0; y<(mWM.by2-mWM.by1+1); y++)
+         if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (mWM.bx1+x >= 0) && (mWM.bx1+x < 100) && (mWM.by1+y >= 0) && (mWM.by1+y < 100) )
          {
-            if (mwWM.obj_filter[1][1])                               ft_l[x][y] = mLevel.l[mwWM.bx1+x][mwWM.by1+y];                       // get block and flags
-            if ((!mwWM.obj_filter[1][1]) && (mwWM.obj_filter[1][2])) ft_l[x][y] = mLevel.l[mwWM.bx1+x][mwWM.by1+y] & PM_BTILE_MOST_FLAGS; // get flags only
+            if (mWM.obj_filter[1][1])                               ft_l[x][y] = mLevel.l[mWM.bx1+x][mWM.by1+y];                       // get block and flags
+            if ((!mWM.obj_filter[1][1]) && (mWM.obj_filter[1][2])) ft_l[x][y] = mLevel.l[mWM.bx1+x][mWM.by1+y] & PM_BTILE_MOST_FLAGS; // get flags only
          }
 
 
    // items
    for (b=0; b<500; b++)
-      if ((mItem.item[b][0]) && (mwWM.obj_filter[2][mItem.item[b][0]]) && (mItem.item[b][4] >= x1) && (mItem.item[b][4] < x2) && (mItem.item[b][5] >= y1) && (mItem.item[b][5] < y2))
+      if ((mItem.item[b][0]) && (mWM.obj_filter[2][mItem.item[b][0]]) && (mItem.item[b][4] >= x1) && (mItem.item[b][4] < x2) && (mItem.item[b][5] >= y1) && (mItem.item[b][5] < y2))
       {
          c = iib++;
 
@@ -385,7 +385,7 @@ void mwWindow::es_save_selection(int save)
 
    // enemies
    for (b=0; b<100; b++) // check for enemies in box
-      if ((mEnemy.Ei[b][0]) && (mwWM.obj_filter[3][mEnemy.Ei[b][0]]) && (mEnemy.Ef[b][0] >= x1) && (mEnemy.Ef[b][0] < x2) && (mEnemy.Ef[b][1] >= y1) && (mEnemy.Ef[b][1] < y2))
+      if ((mEnemy.Ei[b][0]) && (mWM.obj_filter[3][mEnemy.Ei[b][0]]) && (mEnemy.Ef[b][0] >= x1) && (mEnemy.Ef[b][0] < x2) && (mEnemy.Ef[b][1] >= y1) && (mEnemy.Ef[b][1] < y2))
       {
          //printf("copying enemy:%d to ft\n", b);
          c = eib++;
@@ -413,7 +413,7 @@ void mwWindow::es_save_selection(int save)
       }
 
    // lifts
-   if (mwWM.obj_filter[4][1])
+   if (mWM.obj_filter[4][1])
       for (b=0; b<NUM_LIFTS; b++) // source, if in selection
          if ((mLift.cur[b].active) && (mLift.cur[b].x >= x1) && (mLift.cur[b].x < x2) && (mLift.cur[b].y >= y1) && (mLift.cur[b].y < y2))
          {
@@ -454,8 +454,8 @@ void mwWindow::es_save_selection(int save)
    ft_level_header[4] = eib; // num_of_enemies
    ft_level_header[5] = lib; // num_of_lifts
 
-   mwWM.mW[4].sw = ft_level_header[8] =  mwWM.bx2-mwWM.bx1+1; // width
-   mwWM.mW[4].sh = ft_level_header[9] =  mwWM.by2-mwWM.by1+1; // height
+   mWM.mW[4].sw = ft_level_header[8] =  mWM.bx2-mWM.bx1+1; // width
+   mWM.mW[4].sh = ft_level_header[9] =  mWM.by2-mWM.by1+1; // height
 
    //printf("finished copying to ft - i:%d e:%d l:%d\n", iib, eib, lib);
 
@@ -471,8 +471,8 @@ void mwWindow::es_save_selection(int save)
          FILE * filepntr = fopen(sel_filename,"w");
          for (x=0; x<20; x++)
             fprintf(filepntr,"%d\n",ft_level_header[x]);
-         for (c=0; c<(mwWM.bx2-mwWM.bx1+1); c++)  // selection of blocks
-            for (x=0; x<(mwWM.by2-mwWM.by1+1); x++)
+         for (c=0; c<(mWM.bx2-mWM.bx1+1); c++)  // selection of blocks
+            for (x=0; x<(mWM.by2-mWM.by1+1); x++)
                fprintf(filepntr,"%d\n",ft_l[c][x]);
 
          for (c=0; c < ft_level_header[3]; c++) // items
@@ -520,8 +520,8 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
    int erase_out_of_bounds_main = 0;  // 0 = adjust
 
    // blocks
-   for (x=0; x<mwWM.mW[4].sw; x++)
-      for (y=0; y<mwWM.mW[4].sh; y++)
+   for (x=0; x<mWM.mW[4].sw; x++)
+      for (y=0; y<mWM.mW[4].sh; y++)
          if ((qx1+x >= 0) && (qx1+x < 100) && (qy1+y >= 0) && (qy1+y < 100))
             set_block_with_flag_filters(qx1+x, qy1+y, ft_l[x][y]);
 
@@ -586,7 +586,7 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
       }
 
    // lifts
-   if (mwWM.obj_filter[4][1])
+   if (mWM.obj_filter[4][1])
    {
       for (b=0; b<ft_level_header[5]; b++)
       {
@@ -649,7 +649,7 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
 
    // enemies
    for (b=0; b<100; b++) // iterate enemies in ft
-      if ((ft_Ei[b][0]) && (mwWM.obj_filter[3][ft_Ei[b][0]])) // if active attempt to copy this enemy
+      if ((ft_Ei[b][0]) && (mWM.obj_filter[3][ft_Ei[b][0]])) // if active attempt to copy this enemy
       {
          //int copied = 0;
          for (c=0; c<100; c++)
@@ -711,7 +711,7 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
 
    // items
    for (b=0; b<500; b++)
-      if ((ft_item[b][0]) && (mwWM.obj_filter[2][ft_item[b][0]]))
+      if ((ft_item[b][0]) && (mWM.obj_filter[2][ft_item[b][0]]))
       {
          //int copied = 0;
          for (c=0; c<500; c++) // search for empty place to copy to
@@ -777,24 +777,24 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
 
 void mwWindow::es_do_clear(void)
 {
-   int x1 = mwWM.bx1*20;
-   int y1 = mwWM.by1*20;
-   int x2 = mwWM.bx2*20+20;
-   int y2 = mwWM.by2*20+20;
+   int x1 = mWM.bx1*20;
+   int y1 = mWM.by1*20;
+   int x2 = mWM.bx2*20+20;
+   int y2 = mWM.by2*20+20;
 
    // blocks
-   if (mwWM.obj_filter[1][1])
-      for (int x=mwWM.bx1; x<mwWM.bx2+1; x++)
-         for (int y=mwWM.by1; y<mwWM.by2+1; y++) mLevel.l[x][y]=0;
+   if (mWM.obj_filter[1][1])
+      for (int x=mWM.bx1; x<mWM.bx2+1; x++)
+         for (int y=mWM.by1; y<mWM.by2+1; y++) mLevel.l[x][y]=0;
 
    // items
    for (int i=0; i<500; i++)
-      if ((mItem.item[i][0]) && (mwWM.obj_filter[2][mItem.item[i][0]]))
+      if ((mItem.item[i][0]) && (mWM.obj_filter[2][mItem.item[i][0]]))
          if ((mItem.item[i][4] >= x1) && (mItem.item[i][4] < x2) && (mItem.item[i][5] >= y1) && (mItem.item[i][5] < y2)) mItem.erase_item(i);
 
    // enemies
    for (int e=0; e<100; e++)
-      if ((mEnemy.Ei[e][0]) && (mwWM.obj_filter[3][mEnemy.Ei[e][0]]))
+      if ((mEnemy.Ei[e][0]) && (mWM.obj_filter[3][mEnemy.Ei[e][0]]))
          if ((mEnemy.Ef[e][0] >= x1) && (mEnemy.Ef[e][0] < x2) && (mEnemy.Ef[e][1] >= y1) && (mEnemy.Ef[e][1] < y2))
          {
             for (int y=0; y<32; y++) mEnemy.Ei[e][y] = 0;
@@ -802,7 +802,7 @@ void mwWindow::es_do_clear(void)
          }
 
    // lifts
-   if (mwWM.obj_filter[4][1])
+   if (mWM.obj_filter[4][1])
       for (int l=NUM_LIFTS-1; l>=0; l--) // have to iterate backward beacuse erase_lift changes list order
          if (mLift.cur[l].active)
             if ((mLift.cur[l].x >= x1) && (mLift.cur[l].x < x2) && (mLift.cur[l].y >= y1) && (mLift.cur[l].y < y2)) mLift.erase_lift(l);
@@ -817,17 +817,17 @@ void mwWindow::set_block_with_flag_filters(int x, int y, int tn)
    if ((x>=0) && (x<100) && (y>=0) && (y<100))
    {
       // blocks and flags
-      if ((mwWM.obj_filter[1][1]) && (mwWM.obj_filter[1][2])) mLevel.l[x][y] = tn;
+      if ((mWM.obj_filter[1][1]) && (mWM.obj_filter[1][2])) mLevel.l[x][y] = tn;
 
       // flags only
-      if ((!mwWM.obj_filter[1][1]) && (mwWM.obj_filter[1][2]))
+      if ((!mWM.obj_filter[1][1]) && (mWM.obj_filter[1][2]))
       {
          int flags = tn & PM_BTILE_MOST_FLAGS; // get only flags from draw item
          mLevel.l[x][y] &= ~PM_BTILE_MOST_FLAGS;                       // clear flags in destination
          mLevel.l[x][y] |= flags;                                      // merge
       }
       // blocks only (same as block and flags?)
-      if ((mwWM.obj_filter[1][1]) && (!mwWM.obj_filter[1][2])) mLevel.l[x][y] = tn;
+      if ((mWM.obj_filter[1][1]) && (!mWM.obj_filter[1][2])) mLevel.l[x][y] = tn;
    }
 }
 
@@ -837,10 +837,10 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
    int col = 9;
    char msg[20] = "Copy Selction";
 
-//   mwWM.mW[4].copy_mode ? col=10 : col=9;
+//   mWM.mW[4].copy_mode ? col=10 : col=9;
 //   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, "Copy Selection"))
 
-   if (mwWM.mW[4].copy_mode)
+   if (mWM.mW[4].copy_mode)
    {
       col = 10;
       sprintf(msg, "Paste Selection");
@@ -848,17 +848,17 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
 
    if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, msg))
    {
-      if (mwWM.mW[4].copy_mode) mwWM.mW[4].copy_mode = 0;
+      if (mWM.mW[4].copy_mode) mWM.mW[4].copy_mode = 0;
       else
       {
-         mwWM.mW[4].copy_mode = 1;
+         mWM.mW[4].copy_mode = 1;
          es_save_selection(0); // puts selection in ft_
          es_draw_fsel();
       }
    }
    if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Move Selection"))
    {
-      mwWM.mW[4].copy_mode = 1;
+      mWM.mW[4].copy_mode = 1;
       es_save_selection(0); // puts selection in ft_
       es_draw_fsel();
       es_do_clear();
@@ -878,43 +878,43 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
    {
       if (es_load_selection())
       {
-         mwWM.mW[4].copy_mode = 1;
-         mwWM.mW[4].sw = ft_level_header[8];
-         mwWM.mW[4].sh = ft_level_header[9];
+         mWM.mW[4].copy_mode = 1;
+         mWM.mW[4].sw = ft_level_header[8];
+         mWM.mW[4].sh = ft_level_header[9];
          es_draw_fsel();
       }
    }
-   if (mwWM.mW[1].draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
+   if (mWM.mW[1].draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
    {
       yfb+=bts/2; // spacing between groups
-      int tn = mwWM.mW[1].draw_item_num & 1023;
+      int tn = mWM.mW[1].draw_item_num & 1023;
       bts = 24;
       if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,7,15,0, 1,1,1,d, "     Fill"))
       {
-         for (int x=mwWM.bx1; x<mwWM.bx2+1; x++)
-            for (int y=mwWM.by1; y<mwWM.by2+1; y++)
-               set_block_with_flag_filters(x, y, mwWM.mW[1].draw_item_num);
+         for (int x=mWM.bx1; x<mWM.bx2+1; x++)
+            for (int y=mWM.by1; y<mWM.by2+1; y++)
+               set_block_with_flag_filters(x, y, mWM.mW[1].draw_item_num);
          mScreen.init_level_background(0);
          al_set_target_backbuffer(mDisplay.display);
       }
       if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,7,15,0, 1,1,1,d, "     Frame"))
       {
-         for (int x=mwWM.bx1; x<mwWM.bx2+1; x++)
+         for (int x=mWM.bx1; x<mWM.bx2+1; x++)
          {
-            set_block_with_flag_filters(x, mwWM.by1, mwWM.mW[1].draw_item_num);
-            set_block_with_flag_filters(x, mwWM.by2, mwWM.mW[1].draw_item_num);
+            set_block_with_flag_filters(x, mWM.by1, mWM.mW[1].draw_item_num);
+            set_block_with_flag_filters(x, mWM.by2, mWM.mW[1].draw_item_num);
          }
-         for (int y=mwWM.by1; y<mwWM.by2+1; y++)
+         for (int y=mWM.by1; y<mWM.by2+1; y++)
          {
-            set_block_with_flag_filters(mwWM.bx1, y, mwWM.mW[1].draw_item_num);
-            set_block_with_flag_filters(mwWM.bx2, y, mwWM.mW[1].draw_item_num);
+            set_block_with_flag_filters(mWM.bx1, y, mWM.mW[1].draw_item_num);
+            set_block_with_flag_filters(mWM.bx2, y, mWM.mW[1].draw_item_num);
          }
          mScreen.init_level_background(0);
          al_set_target_backbuffer(mDisplay.display);
       }
-      mwWM.mW[4].brf_mode ? col=10 : col=7;
-      if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,col,15,0, 1,1,1,d, "     Floodfill")) mwWM.mW[4].brf_mode = !mwWM.mW[4].brf_mode;
-//      if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, "Block Floodfill")) mwWM.mW[4].brf_mode = !mwWM.mW[4].brf_mode;
+      mWM.mW[4].brf_mode ? col=10 : col=7;
+      if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,col,15,0, 1,1,1,d, "     Floodfill")) mWM.mW[4].brf_mode = !mWM.mW[4].brf_mode;
+//      if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, "Block Floodfill")) mWM.mW[4].brf_mode = !mWM.mW[4].brf_mode;
    }
    return yfb;
 }
@@ -1017,28 +1017,28 @@ void mwWindow::es_draw_lifts_ft()
 void mwWindow::es_draw_fsel(void)
 {
    al_destroy_bitmap(ft_bmp);
-   ft_bmp = al_create_bitmap(mwWM.mW[4].sw*20, mwWM.mW[4].sh*20);
+   ft_bmp = al_create_bitmap(mWM.mW[4].sw*20, mWM.mW[4].sh*20);
    al_set_target_bitmap(ft_bmp);
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
    // draw blocks
-   if (mwWM.obj_filter[1][1])
+   if (mWM.obj_filter[1][1])
    {
-      for (int x=0; x<mwWM.mW[4].sw; x++)
-         for (int y=0; y<mwWM.mW[4].sh; y++)
-            if (mwWM.mW[1].show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(ft_l[x][y], x*20, y*20);
+      for (int x=0; x<mWM.mW[4].sw; x++)
+         for (int y=0; y<mWM.mW[4].sh; y++)
+            if (mWM.mW[1].show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(ft_l[x][y], x*20, y*20);
    }
 
    // draw items
    for (int i=0; i<500; i++)
-      if ((ft_item[i][0]) && (mwWM.obj_filter[2][ft_item[i][0]])) es_draw_item_ft(i);
+      if ((ft_item[i][0]) && (mWM.obj_filter[2][ft_item[i][0]])) es_draw_item_ft(i);
 
    // draw enemies
    for (int e=0; e<100; e++)
-      if ((ft_Ei[e][0]) && (mwWM.obj_filter[3][ft_Ei[e][0]])) es_draw_enemy_ft(e);
+      if ((ft_Ei[e][0]) && (mWM.obj_filter[3][ft_Ei[e][0]])) es_draw_enemy_ft(e);
 
    // draw lifts
-   if (mwWM.obj_filter[4][1]) es_draw_lifts_ft();
+   if (mWM.obj_filter[4][1]) es_draw_lifts_ft();
 
 }
 
@@ -1046,22 +1046,22 @@ void mwWindow::es_process_mouse(void)
 {
    if (mInput.mouse_b[1][0])
    {
-      if (mwWM.mW[4].copy_mode)
+      if (mWM.mW[4].copy_mode)
       {
          while (mInput.mouse_b[1][0]) mEventQueue.proc();
-         es_do_fcopy(mwWM.gx, mwWM.gy);
+         es_do_fcopy(mWM.gx, mWM.gy);
       }
-      if (mwWM.mW[4].brf_mode)
+      if (mWM.mW[4].brf_mode)
       {
          while (mInput.mouse_b[1][0])mEventQueue.proc();
-         es_do_brf(mwWM.gx, mwWM.gy, mwWM.mW[1].draw_item_num);
+         es_do_brf(mWM.gx, mWM.gy, mWM.mW[1].draw_item_num);
       }
-      if ((!mwWM.mW[4].copy_mode) && (!mwWM.mW[4].brf_mode)) mwWM.get_new_box(); // get new selection
+      if ((!mWM.mW[4].copy_mode) && (!mWM.mW[4].brf_mode)) mWM.get_new_box(); // get new selection
    }
 
    if (mInput.mouse_b[2][0])
    {
       while (mInput.mouse_b[2][0]) mEventQueue.proc();
-      mwWM.set_windows(1);
+      mWM.set_windows(1);
    }
 }

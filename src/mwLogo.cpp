@@ -24,23 +24,6 @@ void mwLogo::initialize(void)
    fill_logo();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void mwLogo::seed_logo(void)
 {
    // outer arms start and end pos are all fixed
@@ -566,25 +549,8 @@ void mwLogo::mw_text(ALLEGRO_FONT *tf, int col, float x_pc, const char * txt)
    al_destroy_bitmap(t1);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void mwLogo::spline_test(void)
 {
-   seed_logo();
-   fill_logo();
-
    float x_scale = 1.0;
    float y_scale = 1.0;
 
@@ -636,12 +602,12 @@ void mwLogo::redraw_spline(int s)
 {
    fill_logo();
    draw_logo(200, 200, 1.0, 1.0);
-   al_draw_textf(mFont.pr8, mColor.pc[15], 100, 402, 0, "current spline:%d", s);
+   al_draw_textf(mFont.pr8, mColor.pc[15], 100, 412, 0, "current spline:%d -- Change with [UP] and [DOWN]", s);
 
    for (int i=0; i<8; i+=2)
    {
       al_draw_circle(points[s][i]+200, points[s][i+1]+200, 4, mColor.pc[11], 1);
-      al_draw_textf(mFont.pr8, mColor.pc[15], 100, 410+i*4, 0, "x:%-4.0f y:%-4.0f", points[s][i], points[s][i+1] );
+      al_draw_textf(mFont.pr8, mColor.pc[15], 100, 420+i*4, 0, "x:%-4.0f y:%-4.0f", points[s][i], points[s][i+1] );
    }
 }
 

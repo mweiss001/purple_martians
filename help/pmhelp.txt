@@ -2993,15 +2993,15 @@ The Block Damage Field can be hidden or shown in various ways.
 <b15>
 
 <l09> Collision Box:<l13>[8 - 18]
-<l15>  - An area around the Cloner that takes Health from the
-<l15>    player, when the player is in it. (see Health Decrement)
+<l15>  - An area around the Enemy that takes Health from the
+<l15>    player when the player is in it. (see Health Decrement)
 
 <l09> Health Decrement:<l13>[0.1 - 2.0]
 <l15>  - The amount to subtract from players Health
 <l15>    when player is in the Collision Box.
 
-<l09> Health Bonus:<l13>[0 -50]
-<l15>  - The amount of health in the post-death flower.
+<l09> Health Bonus:<l13>[0 - 50]
+<l15>  - The amount of Health in the post-death flower.
 
 <b15>
 
@@ -3072,10 +3072,10 @@ The Block Damage Field can be hidden or shown in various ways.
 
 
 
-<section>Block Walker Viewer
+<section>BlokWalk Viewer
 
 
-<h14>    Block Walker
+<h14>    BlokWalk
 <a56>
 <b15>
 

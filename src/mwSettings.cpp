@@ -4,7 +4,7 @@
 #include "mwSettings.h"
 #include "mwSound.h"
 #include "mwLog.h"
-#include "mwPlayers.h"
+#include "mwPlayer.h"
 #include "mwNetgame.h"
 #include "mwLogo.h"
 #include "mwBottomMessage.h"
@@ -12,7 +12,7 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwWidgets.h"
+#include "mwWidget.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
@@ -23,7 +23,7 @@
 #include "mwConfig.h"
 #include "mwMiscFnx.h"
 #include "mwScreen.h"
-#include "mwShots.h"
+#include "mwShot.h"
 #include "mwGameMoves.h"
 #include "mwCodeStats.h"
 #include "mwHelp.h"
@@ -1817,7 +1817,7 @@ void mwSettings::settings_pages(int set_page)
       }
 
 // ---------------------------------------------------------------
-//  18 - debug
+//  18 - misc
 // ---------------------------------------------------------------
       if (page == 18)
       {
@@ -1832,8 +1832,10 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline adjust")) mLogo.spline_adjust();
-         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline test")) mLogo.spline_test();
+
+         if (mWidget.buttont(xa, ya, xa+120, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Spline adjust")) mLogo.spline_adjust();
+         if (mWidget.buttont(xa+130, ya, xa+250, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Spline reset")) mLogo.initialize();
+         if (mWidget.buttont(xa+260, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Spline test")) mLogo.spline_test();
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
