@@ -604,11 +604,10 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
             mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
             mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
-
             ya+=4; // spacer
-
-            mWidget.button(     xa, ya, xb, bts, 313,n,0,0,  0, 8,15,0,   1,0,1,d); // block
-
+            mWidget.button(     xa, ya, xb, bts, 312,n,0,0, 0, 8,15,0,   1,0,1,d); // block select
+            ya+=4; // spacer
+            if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0, 8,15,0,   1,0,1,d, "Default 'H' Block")) mEnemy.Ei[n][13] = 168 | PM_BTILE_ALL_SOLID | PM_BTILE_BREAKABLE_PSHOT;
             ya+=4; // spacer
             mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][29], 20, 0, 1,     "Collision Box:");
             mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][4],  10, 0, 0.1,   "Health Decrement:");
@@ -1038,12 +1037,8 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          break;
 
 
-
-
-
          case 16: // block manip
          {
-
             if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,14,15,14,  1,0,1,d, "Get New Block Manip Field")) mMiscFnx.get_block_range("Block Manip Rectangle", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
             ya+=4; // spacer
             if (mWidget.toggle( xa, ya, xb, bts, 0,0,0,0,    0,0,0,0,     1,0,1,d, mItem.item[n][2], "Draw Block Manip Field:OFF", "Draw Block Manip Field:ON ", 15, 15, 15+96, mItem.item[n][12]))
@@ -1054,7 +1049,6 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             if (mItem.item[n][3]) // all modes except 0
             {
                ya+=2; // spacer
-
                if (mItem.item[n][3] == 4)
                {
                   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,d, "Set Copy Source")) mMiscFnx.getxy("Copy Source", 95, 0, n);
@@ -1072,13 +1066,8 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                      ya+=22; // spacer
                   }
                }
-
-
                mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, mItem.item[n][1], 99, 0, 1,    "Event Trigger:", "OFF");
                if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,    0,13,15,0,   1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
-
-
-
             }
          }
          break;

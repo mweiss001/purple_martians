@@ -3,14 +3,16 @@
 ---------------------------------------------------------
 
 
+re do level_done.html with exact code
+
+
+
+
+
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
-
-
-
-
 
 
 go through every page of help
@@ -20,9 +22,6 @@ got to edit selection
 got to message
 
 got to vinepod
-
-need to modify block walker
-can I make it an arbitrary block it turns into?
 
 
 lifts do not mention that you can resize and recolor for each step
@@ -36,8 +35,6 @@ vinepod is just about done
 
 now finish the help screen for vinepod
 
-help()
-
 make a test example of:
 
 vinepod triggering another vinepod in a chain
@@ -45,11 +42,6 @@ vinepod triggering another vinepod in a chain
 vinepod triggering a group of vinepods in a star
 
 vinepod getting out of the way of a shot aimed at it
-
-
-
-
-
 
 Make some examples of vinepods to show off in levels
 
@@ -187,26 +179,6 @@ I would want to make a special item to enter new levels
 when touching it info pops up, but you dont actually enter it util you press a key.
 
 
-
-
-I want to make the final rocket blastoff scene that I have always wanted to
-where do I start?
-make a special NPC to show locked up buddies
-use enemy data struct, but make new type
-this will look like a player but move like arch and jump over gaps
-when triggered they will walk to rocket and find their places
-how do I make them find nice places and not crowd each other?
-new enemy type
-what var for color?
-
-
-now where do I put the custom cutscene?
-how do I hook it in?
-
-how about a new program state?
-
-state 30 - cutscene
-can get to this state from state 11
 
 
 

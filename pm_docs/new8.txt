@@ -21538,7 +21538,7 @@ change it in top border...done
 now use it...
 
 
-I am not sue I am getting how this should work..
+I am not sure I am getting how this should work..
 click on enemy
 get mouse_offset
 apply to pos
@@ -21592,6 +21592,159 @@ cannot reproduce on test level
 erase door and try again
 
 make mouse not disappear in level editor, ever...done
+
+orb does not show lines to events it is linked to..fixed
+
+modify block walker to make it an arbitrary block it turns into
+35586216 - default H Block
+done
+
+I want to make the final rocket blastoff scene that I have always wanted to
+where do I start?
+make a special NPC to show locked up buddies
+use enemy data struct, but make new type
+this will look like a player but move like arch and jump over gaps
+when triggered they will walk to rocket and find their places
+how do I make them find nice places and not crowd each other?
+new enemy type
+what var for color?
+
+
+now where do I put the custom cutscene?
+how do I hook it in?
+
+how about a new program state?
+
+state 30 - cutscene
+can get to this state from state 11
+
+
+
+step 1 - zoom in on the level until the rocket is as wide as the screen
+at this time show the message 'Preparing for take off!'
+
+step 2 - erase everything else on the level
+
+step 3
+
+
+or
+show message prepaing for takeoff
+
+zoom until entire rocket is on screen
+
+show the rocket moving upwards relative to the rest of the level
+or the rest of the level moving down with the rocket stationary
+
+when it is gone, switch to another view
+
+just the rocket moving through space, getting smaller
+
+then show level done
+
+to make a bitmap of the rocket...13 x 94 or 260 x 1880
+
+first, determine the zoom size that would have all of the level visible vertically
+
+OK done state 31, zoom to fulscreen height..
+
+state 32:
+make large bitmap of rocket
+
+
+state 33:
+show level
+erase where rocket is
+draw new rocket
+
+state 34:
+destroy bitmap
+level done
+
+
+
+
+I am dithering between keeping background or rocket...
+
+at the end I still want to use the rocket on the level for level done
+
+
+how about:
+bring all other players to the rocket
+make a bitmap of the entire level
+erase the rocket from the bitmap
+actually erase everything on the level
+draw the background bitmap as a layer, shifting downwards to make it look like the rocket is taking off
+
+
+next..
+
+after rocket has left level, zoom back in on cockpit..done
+
+now make other players in multiplayer gather in rocket.
+
+do this while first zooming in...
+
+
+make a special place for them on a platform just below the cockpit
+
+find out who is the captain...
+
+the only way to do this is to detect in orb..
+then set the player that triggered...done..ugly but done
+
+x13 y6
+
+make the time of the first seek and zoom
+zoom and time both have to complete
+if time completes first, stop doing xincs
+set time to 100
+
+make the second zoom smaller
+
+then after that zoom back to original...done
+
+test this muliplayer
+
+
+20230522 12:12
+push and relocate to garage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
