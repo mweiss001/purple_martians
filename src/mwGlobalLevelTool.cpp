@@ -135,16 +135,12 @@ void mwGlobalLevelTool::execute(void)
       for (int y=0; y<100; y++)
       {
          int type = mEnemy.Ei[y][0];
-         if (type == 7)
+         if (type == 4)
          {
-            mEnemy.Ef[y][6] = 1;
-            mEnemy.Ei[y][20] = 0;
-            mEnemy.Ei[y][20] |= PM_ENEMY_VINEPOD_FIRE_SHOT;
-            mEnemy.Ei[y][20] |= PM_ENEMY_VINEPOD_USE_TRIGGER;
-
+            printf("Level:%3d - blkwlk\n", le[x]);
          }
 
-
+      }
 
 //            mEnemy.Ei[y][20] = 16;
 
@@ -162,7 +158,7 @@ void mwGlobalLevelTool::execute(void)
 //            printf("Level:%3d - vinepod:%d\n", le[x], y);
 
 
-         }
+
 //         if (type == 13)
 //         {
 //            count1++;

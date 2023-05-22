@@ -361,6 +361,20 @@ void mwTriggerEvent::find_and_show_event_links(int obj_type, int obj_num, int ob
       int x1 = mItem.item[i][4]+10;
       int y1 = mItem.item[i][5]+10;
 
+
+      if (itype == 6) // orbr
+      {
+         for (int en=10; en<14; en++) // iterate all 4 trigger events
+         {
+            ev = mItem.item[obj_num][en];
+            if (ev > 0) find_event_rxrs_for_event(ev, evan, eva);
+         }
+         for (int i2=0; i2<evan; i2++)
+            al_draw_line(x1, y1, eva[i2][0], eva[i2][1], mColor.pc[10], 2);
+      }
+
+
+
       if (itype == 9) // trigger
       {
          for (int en=11; en<15; en++) // iterate all 4 trigger events

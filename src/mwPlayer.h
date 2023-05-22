@@ -22,8 +22,8 @@ struct psyn // synced between server and client
    int level_done_player;
    int level_done_next_level;
 
-   float x, y;       // players position
-   float xinc, yinc;   // players momentum
+   float x, y;        // players position
+   float xinc, yinc;  // players speed
    float right_xinc, left_xinc;
 
    float health;

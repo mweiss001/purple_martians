@@ -255,6 +255,9 @@ void mwPDE::edit_text(int e)
                PDEt[e][ty1][x] = PDEt[e][ty1][x+1];
          }
       }
+
+
+
       if (mInput.key[ALLEGRO_KEY_RIGHT][0])
       {
          while (mInput.key[ALLEGRO_KEY_RIGHT][0]) mEventQueue.proc();
@@ -394,6 +397,12 @@ void mwPDE::run(void)
             if (e > 99) e = 99;
             redraw =1;
          }
+
+//         if (mInput.key[ALLEGRO_KEY_B][0])
+//         {
+//            while (mInput.key[ALLEGRO_KEY_B][0]) mEventQueue.proc();
+//            PDEi[e][13] = 35586216;
+//         }
 
          if (mInput.key[ALLEGRO_KEY_LEFT][0])
          {

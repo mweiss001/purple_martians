@@ -139,11 +139,18 @@ void mwItem::proc_orb(int i)
    if (!(FLAGS & PM_ITEM_ORB_STATE)) mTriggerEvent.event[item[i][11]] = 1;
    if   (FLAGS & PM_ITEM_ORB_TGON)   mTriggerEvent.event[item[i][12]] = 1;
    if   (FLAGS & PM_ITEM_ORB_TGOF)   mTriggerEvent.event[item[i][13]] = 1;
+
+
+
+
+
+
+
 }
 
 int mwItem::draw_orb(int i, int x, int y)
 {
-   item[i][1] = 418;                                            // green orb
+   item[i][1] = 418;                                      // green orb
    if (item[i][2] & PM_ITEM_ORB_STATE) item[i][1] = 419;  // red orb
 
    // rotation
@@ -176,7 +183,10 @@ void mwItem::proc_orb_collision(int p, int i)
    if (  (item[i][2] & PM_ITEM_ORB_TRIG_TOUCH) ||
         ((item[i][2] & PM_ITEM_ORB_TRIG_UP)   && (mPlayer.syn[p].up)) ||
         ((item[i][2] & PM_ITEM_ORB_TRIG_DOWN) && (mPlayer.syn[p].down)) )
-          item[i][2] |= PM_ITEM_ORB_TRIG_CURR;
+   {
+      item[i][2] |= PM_ITEM_ORB_TRIG_CURR;
+      if (item[i][12] == 99) mLoop.cutscene_captain = p;
+   }
 }
 
 

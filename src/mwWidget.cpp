@@ -1010,13 +1010,9 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
       }
    }
 
-
-
-
-
-   if (bn == 312) // block walker select...
+   if (bn == 312) // blokwalk block select...
    {
-      int tn = mEnemy.Ei[num][13]&1023; // block
+      int tn = mEnemy.Ei[num][13]&1023;
       sprintf(msg, "Block:%d", tn);
       if (press) mBitmapTools.select_bitmap(mEnemy.Ei[num][13]);
 
@@ -1030,20 +1026,8 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
             al_flip_display();
             mBitmapTools.draw_flags(x2+6, y1, mEnemy.Ei[num][13], mpow_jnk, 0, 1, 1);
          }
-
-
-
       }
-
-
    }
-
-
-
-
-
-
-
 
 
 
