@@ -21710,6 +21710,278 @@ test this muliplayer
 20230522 12:12
 push and relocate to garage
 
+It does not work...
+
+program state is not synced across...
+
+its like it does not get triggered at all on clients
+
+
+why is this so hard?
+
+level done and bullshit like that are so hard for me...
+
+they shouldn't be...
+
+just get it working good on server then send to client...
+
+
+I think my server rewind could be the cuplrit...I can't even get it to work in a server only netgame....
+
+what did I do to fix it with level done?
+
+
+I suppose I could make this procedure part of the level done code...not sure what I will gain...
+
+
+
+first of all, fix the html docs for the existing level done procedure....
+just update them mostly...done
+
+
+then make some new modes, copying from the states I aleady have
+
+
+ps 30
+
+ldm 30 - start
+
+
+
+
+
+
+
+   //---------------------------------------
+   // 30 - end cutscene new 30
+   //---------------------------------------
+   if (program_state == 30)
+   {
+      cutscene_original_zoom = mDisplay.scale_factor_current;
+      mDisplay.set_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/2000, 0);
+
+
+      // bring other netgame players home
+
+      // each one has its own place
+
+      int xh = 120;
+      int yh = 260;
+      for (int p=0; p< NUM_PLAYERS; p++)
+         if (mPlayer.syn[p].active)
+         {
+            float dx = xh - mPlayer.syn[p].x;
+            float dy = yh - mPlayer.syn[p].y;
+
+            mPlayer.syn[p].xinc = dx / 100;
+            mPlayer.syn[p].yinc = dy / 100;
+
+           // set left right direction
+           if (mPlayer.syn[p].xinc > 0) mPlayer.syn[p].left_right = 1;
+           if (mPlayer.syn[p].xinc < 0) mPlayer.syn[p].left_right = 0;
+
+           xh += 20;
+
+         }
+
+      cutscene_timer = 100;
+      mTriggerEvent.event[99] = 0; // clear trigger event
+      program_state++;    // next state
+   }
+
+
+   31 - 29
+
+
+
+   if (program_state == 32) 28
+   {
+      // create bitmap of the background
+      cutscene_background = al_create_bitmap(2000, 2000);
+      al_set_target_bitmap(cutscene_background);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+      al_draw_bitmap(mBitmap.level_buffer, 0, 0, 0);
+
+      // erase the rocket area
+      al_draw_filled_rectangle(20, 0, 380, 1980, mColor.Black);
+      al_convert_mask_to_alpha(cutscene_background, mColor.Black);
+
+
+      // actually erase everything else from level
+      for (int i=0; i<100; i++) if (mEnemy.Ei[i][0] != 19) mEnemy.Ei[i][0] = 0; // enemies (except crew)
+      for (int i=0; i<500; i++) mItem.item[i][0] = 0; // items
+      mShot.clear_shots();
+
+      // blocks
+      for (int x=16; x<100; x++)
+         for (int y=0; y<100; y++)
+            mLevel.l[x][y] = 0;
+      for (int x=0; x<3; x++)
+         for (int y=0; y<100; y++)
+            mLevel.l[x][y] = 0;
+      for (int x=0; x<100; x++) mLevel.l[x][0] = 0; // top line
+      for (int x=0; x<100; x++) mLevel.l[x][99] = 0; // bottom line
+      mScreen.init_level_background(0);
+
+      cutscene_timer = 200;
+      cutscene_accel = 1.0;
+      cutscene_bg_x =  0.0;
+      program_state++;
+   }
+
+
+   if (program_state == 34)
+   {
+      mDisplay.set_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/320, 0);
+      program_state++;
+   }
+
+   if (program_state == 36)
+   {
+      al_destroy_bitmap(cutscene_background);
+
+      mPlayer.syn[0].level_done_mode = 6;
+      mPlayer.syn[0].level_done_timer = 0;
+      mPlayer.syn[0].level_done_x = mPlayer.syn[0].x;
+      mPlayer.syn[0].level_done_y = mPlayer.syn[0].y;
+      mPlayer.syn[0].level_done_next_level = 1;
+
+      mDisplay.set_scale_factor(cutscene_original_zoom, 0);
+
+      program_state = 11;
+   }
+
+
+
+
+         if (program_state == 31) // cutscene zoom adjust
+         {
+            mDisplay.proc_scale_factor_change();
+
+            if (--cutscene_timer < 0) cutscene_timer = 0;
+
+            if (cutscene_timer)
+               for (int p=0; p< NUM_PLAYERS; p++)
+                  if (mPlayer.syn[p].active)
+                  {
+                     mPlayer.syn[p].x += mPlayer.syn[p].xinc;
+                     mPlayer.syn[p].y += mPlayer.syn[p].yinc;
+                  }
+
+            mLoop.frame_num++;
+            if (mNetgame.ima_server) mNetgame.server_control();
+            if (mNetgame.ima_client) mNetgame.client_control();
+            mNetgame.server_create_new_state();
+
+            draw_frame();
+            al_flip_display();
+            if ((abs(mDisplay.scale_factor_current - mDisplay.scale_factor) < .001) && (cutscene_timer == 0)) program_state++;
+         }
+
+         if (program_state == 33) // cutscene rocket move
+         {
+
+            mLoop.frame_num++;
+            if (mNetgame.ima_server) mNetgame.server_control();
+            if (mNetgame.ima_client) mNetgame.client_control();
+            mNetgame.server_create_new_state();
+
+
+            mScreen.get_new_background(1);
+
+            cutscene_bg_x += cutscene_accel;
+            cutscene_accel += 0.1;
+            al_draw_bitmap(cutscene_background, 0, cutscene_bg_x, 0);
+
+            mEnemy.draw_enemies();
+            mPlayer.draw_players();
+
+            mScreen.get_new_screen_buffer(0, 0, 0);
+            mScreen.draw_screen_overlay();
+            al_flip_display();
+
+            if (--cutscene_timer < 1) program_state++;
+
+
+         }
+
+         if (program_state == 35) // cutscene zoom adjust
+         {
+
+            mLoop.frame_num++;
+            if (mNetgame.ima_server) mNetgame.server_control();
+            if (mNetgame.ima_client) mNetgame.client_control();
+            mNetgame.server_create_new_state();
+
+            mDisplay.proc_scale_factor_change();
+            draw_frame();
+            al_flip_display();
+            if (abs(mDisplay.scale_factor_current - mDisplay.scale_factor) < .001) program_state++;
+         }
+
+      }
+
+converted from program_state level_done_mode and it works in netgame...
+some bugs to iron out
+make a way for scale factor change to take an exact number of frames to get to the target
+done..
+
+made it so that the captain player stays on top...
+
+sometimes I get a double free error and everything crashes
+when
+after the rocket travel...
+it happens when a client completes the game
+it happens on all machines
+
+put in some debug printfs now I can't reproduce it
+
+
+
+had a different crash
+server did 45 but not 6
+that is set custom scale factor
+
+made it crash finally...all three machines..double free error on ubuntu
+between 4 and 5
+
+       printf("test4\n");
+       if (cutscene_background) al_destroy_bitmap(cutscene_background);
+       printf("test5\n");
+
+al_destroy_bitmap
+void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
+
+Destroys the given bitmap, freeing all resources used by it. This function does nothing if the bitmap argument is NULL.
+
+As a convenience, if the calling thread is currently targeting the bitmap then the bitmap will be untargeted first. The new target bitmap is unspecified. (since: 5.0.10, 5.1.6)
+
+Otherwise, it is an error to destroy a bitmap while it (or a sub-bitmap) is the target bitmap of any thread.
+
+changed it so that I dont actually destroy it when I am done
+I do this when creating it now:
+if (!cutscene_background) cutscene_background = al_create_bitmap(2000, 2000);
+seems to be working
+
+need to set players x and yinc to zero in mode 30..done
+
+still sometimes getting stuck in endless loop in custom scale routine...
+made some adjustments to that...
+
+I think that the rocket scene is done!!
+
+just fixed the scale changing functions and they are looking very good...
+
+
+20230523 6:00AM push
+
+
+
+
+
+
+
+
 
 
 

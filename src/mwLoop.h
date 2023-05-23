@@ -44,16 +44,12 @@ class mwLoop
    char pm_version_string[80];
    char al_version_string[80];
 
-
    int ff_state; // if fast forwarding, do not resend game events
 
-   int cutscene_timer;
    ALLEGRO_BITMAP * cutscene_background;
    float cutscene_original_zoom;
    float cutscene_accel;
    float cutscene_bg_x;
-
-   int cutscene_captain;
 
 
    void draw_frame(void);

@@ -102,7 +102,7 @@ void mwItem::proc_start_collision(int p, int i)
 
 void mwItem::proc_exit_collision(int p, int i)
 {
-   int exit_enemys_left = mEnemy.num_enemy - mItem.item[i][8];
+   int exit_enemys_left = mEnemy.num_enemy - item[i][8];
    if (exit_enemys_left <= 0)
    {
       if (mPlayer.syn[0].level_done_mode == 0)
@@ -129,7 +129,9 @@ void mwItem::proc_warp_collision(int p, int i)
       mPlayer.syn[0].level_done_x = itemf[i][0];
       mPlayer.syn[0].level_done_y = itemf[i][1];
       mPlayer.syn[0].level_done_player = p;
-      mPlayer.syn[0].level_done_next_level = mItem.item[i][8];
+      mPlayer.syn[0].level_done_next_level = item[i][8];
       mGameEvent.add(4, 0, 0, p, i, 0, 0);
    }
 }
+
+

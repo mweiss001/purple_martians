@@ -53,12 +53,19 @@ class mwDisplay
 
    float scale_factor;
    float scale_factor_current;
-   float scale_factor_inc;
+
+   float scale_factor_mlt;
+
    int show_scale_factor;
    int scale_factor_holdoff;
 
    void set_scale_factor(float new_scale_factor, int instant);
    void proc_scale_factor_change(void);
+
+   float custom_scale_factor_mlt;
+   void proc_custom_scale_factor_change(void);
+   void set_custom_scale_factor(float new_scale_factor, int time);
+
 
    void mw_set_clipping_rect(float x, float y, float w, float h);
 
