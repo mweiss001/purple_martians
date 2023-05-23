@@ -14,13 +14,13 @@ struct psyn // synced between server and client
    int paused_mode_count;
 
    int level_done_mode;
-
    int level_done_timer;
    int level_done_ack;
    int level_done_x;
    int level_done_y;
    int level_done_player;
    int level_done_next_level;
+
 
    float x, y;        // players position
    float xinc, yinc;  // players speed

@@ -43,7 +43,7 @@ int mwGameMoves::has_player_acknowledged(int p)
    return 0;
 }
 
-// mGameMoves.proc
+
 
 
 

@@ -46,21 +46,57 @@ void mwDisplay::proc_scale_factor_change(void)
 {
    if (show_scale_factor    > 0) show_scale_factor--;
    if (scale_factor_holdoff > 0) scale_factor_holdoff--;
+
    if (scale_factor_current < scale_factor)
    {
-       // try to scale the inc, larger as scale_factor gets larger
-       float inc = scale_factor_inc * scale_factor_current / 3;
-       scale_factor_current += inc;
-       // if we overshoot set to exact to prevent oscillation
-       if (scale_factor_current > scale_factor) scale_factor_current = scale_factor;
+       scale_factor_current *= (1.0 + scale_factor_mlt);
+       if (scale_factor_current > scale_factor) scale_factor_current = scale_factor; // if we overshoot set to exact to prevent oscillation
    }
    if (scale_factor_current > scale_factor)
    {
-       // try to scale the inc, larger as scale_factor gets larger
-       float inc = scale_factor_inc * scale_factor_current / 3;
-       scale_factor_current -= inc;
-       // if we overshoot set to exact to prevent oscillation
-       if (scale_factor_current < scale_factor) scale_factor_current = scale_factor;
+       scale_factor_current *= (1.0 - scale_factor_mlt);
+       if (scale_factor_current < scale_factor) scale_factor_current = scale_factor; // if we overshoot set to exact to prevent oscillation
+   }
+}
+
+
+/*
+
+these custom change scale functions have one purpose
+in the rocket cutscene at the end I need to do a scale change
+that takes an exact number of frames to get from start to finish
+and I don't want to do the linear adding to scale
+
+A = P(1+r)^t
+A = P(1+r/n)^nt
+solve for mlt
+r = n( \nt/ A/P -1)
+in my case n = 1;
+A = P(1+r)^t
+r = (A/P)^(1/t)-1
+*/
+
+
+void mwDisplay::set_custom_scale_factor(float new_scale_factor, int time)
+{
+   // set custom_scale_factor_inc so that it will get to the target in time frames
+   scale_factor = new_scale_factor;
+   if (scale_factor < .2) scale_factor = .2;
+   if (scale_factor > 40) scale_factor = 40;
+   custom_scale_factor_mlt = pow((scale_factor/scale_factor_current), (1.0/(float)time) ) - 1;
+}
+
+void mwDisplay::proc_custom_scale_factor_change(void)
+{
+   if (scale_factor_current < scale_factor)
+   {
+       scale_factor_current *= (1.0 + custom_scale_factor_mlt);
+       if (scale_factor_current > scale_factor) scale_factor_current = scale_factor; // if we overshoot set to exact to prevent oscillation
+   }
+   if (scale_factor_current > scale_factor)
+   {
+       scale_factor_current *= (1.0 - custom_scale_factor_mlt);
+       if (scale_factor_current < scale_factor) scale_factor_current = scale_factor; // if we overshoot set to exact to prevent oscillation
    }
 }
 
@@ -426,7 +462,7 @@ void mwDisplay::set_window_title(void)
 int mwDisplay::init_display(void)
 {
    char msg[1024];
-   scale_factor_inc = 0.03;
+   scale_factor_mlt = 0.01;
 
    int num_adapters = al_get_num_video_adapters();
    // printf("%d adapters found...\n", num_adapters);

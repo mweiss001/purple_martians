@@ -2,11 +2,11 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+the door bug is back
 
-re do level_done.html with exact code
+item 12
 
-
-
+I moved a door
 
 
 
@@ -48,22 +48,12 @@ Make some examples of vinepods to show off in levels
 and also some custom size lifts...
 
 
-
-
-
-
-
-
-
-
 --------------------------------------------------------
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
 
 function key defaults
 debug overlay no key to start..do at release
-
-
 
 change allegro project page to show source code available
 
@@ -176,11 +166,29 @@ to make some paths accessible or not.
 
 I would want to make a special item to enter new levels
 
-when touching it info pops up, but you dont actually enter it util you press a key.
+when touching it info pops up, but you dont actually enter it until you press a key.
 
 
 
+I am going to do the overworld map thing.
 
+I need a way to store persistant data..
+I do not want to use a database, that would be overkill..
+
+what do I want to store?
+
+whether or not a level has been completed
+
+multiple exits for levels also
+
+data on how many times a level has been completed
+min time
+max time
+min deaths
+max coins
+
+I could think of it as a list of accomplishments
+some are required before certain things are unlocked
 
 
 

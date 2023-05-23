@@ -494,103 +494,11 @@ void mwLoop::proc_program_state(void)
 
 
 
-   //---------------------------------------
-   // 30 - end cutscene
-   //---------------------------------------
-   if (program_state == 30)
-   {
-      cutscene_original_zoom = mDisplay.scale_factor_current;
-      mDisplay.set_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/2000, 0);
 
 
 
 
-      // bring other netgame players home
 
-      // each one has its own place
-
-      int xh = 120;
-      int yh = 260;
-      for (int p=0; p< NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active)
-         {
-            float dx = xh - mPlayer.syn[p].x;
-            float dy = yh - mPlayer.syn[p].y;
-
-            mPlayer.syn[p].xinc = dx / 100;
-            mPlayer.syn[p].yinc = dy / 100;
-
-           // set left right direction
-           if (mPlayer.syn[p].xinc > 0) mPlayer.syn[p].left_right = 1;
-           if (mPlayer.syn[p].xinc < 0) mPlayer.syn[p].left_right = 0;
-
-           xh += 20;
-
-         }
-
-
-      cutscene_timer = 100;
-      mTriggerEvent.event[99] = 0; // clear trigger event
-      program_state++;    // next state
-   }
-
-
-   if (program_state == 32)
-   {
-      // create bitmap of the background
-      cutscene_background = al_create_bitmap(2000, 2000);
-      al_set_target_bitmap(cutscene_background);
-      al_clear_to_color(al_map_rgba(0,0,0,0));
-      al_draw_bitmap(mBitmap.level_buffer, 0, 0, 0);
-
-      // erase the rocket area
-      al_draw_filled_rectangle(20, 0, 380, 1980, mColor.Black);
-      al_convert_mask_to_alpha(cutscene_background, mColor.Black);
-
-
-      // actually erase everything else from level
-      for (int i=0; i<100; i++) if (mEnemy.Ei[i][0] != 19) mEnemy.Ei[i][0] = 0; // enemies (except crew)
-      for (int i=0; i<500; i++) mItem.item[i][0] = 0; // items
-      mShot.clear_shots();
-
-      // blocks
-      for (int x=16; x<100; x++)
-         for (int y=0; y<100; y++)
-            mLevel.l[x][y] = 0;
-      for (int x=0; x<3; x++)
-         for (int y=0; y<100; y++)
-            mLevel.l[x][y] = 0;
-      for (int x=0; x<100; x++) mLevel.l[x][0] = 0; // top line
-      for (int x=0; x<100; x++) mLevel.l[x][99] = 0; // bottom line
-      mScreen.init_level_background(0);
-
-      cutscene_timer = 200;
-      cutscene_accel = 1.0;
-      cutscene_bg_x =  0.0;
-      program_state++;
-   }
-
-
-   if (program_state == 34)
-   {
-      mDisplay.set_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/320, 0);
-      program_state++;
-   }
-
-   if (program_state == 36)
-   {
-      al_destroy_bitmap(cutscene_background);
-
-      mPlayer.syn[0].level_done_mode = 6;
-      mPlayer.syn[0].level_done_timer = 0;
-      mPlayer.syn[0].level_done_x = mPlayer.syn[0].x;
-      mPlayer.syn[0].level_done_y = mPlayer.syn[0].y;
-      mPlayer.syn[0].level_done_next_level = 1;
-
-      mDisplay.set_scale_factor(cutscene_original_zoom, 0);
-
-      program_state = 11;
-   }
 
 
 
@@ -779,6 +687,121 @@ void mwLoop::proc_program_state(void)
 
 void mwLoop::proc_level_done_mode(void)
 {
+   //-------------------------------------
+   // start of final level rocket cutscene
+   //-------------------------------------
+   if (mPlayer.syn[0].level_done_mode == 30) // setup for players seek and zoom out
+
+   {
+      mPlayer.syn[0].level_done_timer = 0; // immediate next mode
+      cutscene_original_zoom = mDisplay.scale_factor_current;
+
+      mDisplay.set_custom_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/2000, 100);
+
+      // bring other netgame players home
+      int c = mPlayer.syn[0].level_done_player; // captain of the ship!
+      mPlayer.syn[c].xinc = 0;
+      mPlayer.syn[c].yinc = 0;
+
+      // each player has its own home place on the ship
+      int xh = 120;
+      int yh = 260;
+      for (int p=0; p< NUM_PLAYERS; p++)
+         if ((mPlayer.syn[p].active) && (p != c)) // all active players except captain
+         {
+            // distance to home position
+            float dx = xh - mPlayer.syn[p].x;
+            float dy = yh - mPlayer.syn[p].y;
+
+            // break into 100 steps
+            mPlayer.syn[p].xinc = dx / 100;
+            mPlayer.syn[p].yinc = dy / 100;
+
+           // set left right direction
+           if (mPlayer.syn[p].xinc > 0) mPlayer.syn[p].left_right = 1;
+           if (mPlayer.syn[p].xinc < 0) mPlayer.syn[p].left_right = 0;
+
+           xh += 20; // next home position
+         }
+   }
+
+   if (mPlayer.syn[0].level_done_mode == 29) // players seek and zoom out
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (mPlayer.syn[p].active)
+         {
+            mPlayer.syn[p].x += mPlayer.syn[p].xinc;
+            mPlayer.syn[p].y += mPlayer.syn[p].yinc;
+         }
+   }
+
+   if (mPlayer.syn[0].level_done_mode == 28) // set up for rocket move
+   {
+      // create bitmap of the background
+      if (!cutscene_background) cutscene_background = al_create_bitmap(2000, 2000);
+      al_set_target_bitmap(cutscene_background);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+      al_draw_bitmap(mBitmap.level_buffer, 0, 0, 0);
+
+      // erase the rocket area
+      al_draw_filled_rectangle(20, 0, 380, 1980, mColor.Black);
+      al_convert_mask_to_alpha(cutscene_background, mColor.Black);
+
+      // actually erase everything else from level
+      for (int i=0; i<100; i++) if (mEnemy.Ei[i][0] != 19) mEnemy.Ei[i][0] = 0; // enemies (except crew)
+      for (int i=0; i<500; i++) mItem.item[i][0] = 0; // items
+      mShot.clear_shots();
+
+      // blocks
+      for (int x=16; x<100; x++)
+         for (int y=0; y<100; y++)
+            mLevel.l[x][y] = 0;
+      for (int x=0; x<3; x++)
+         for (int y=0; y<100; y++)
+            mLevel.l[x][y] = 0;
+      for (int x=0; x<100; x++) mLevel.l[x][0] = 0; // top line
+      for (int x=0; x<100; x++) mLevel.l[x][99] = 0; // bottom line
+      mScreen.init_level_background(0);
+
+      cutscene_accel = 1.0;
+      cutscene_bg_x =  0.0;
+
+
+
+
+   }
+
+   if (mPlayer.syn[0].level_done_mode == 27) // rocket move
+   {
+      mScreen.get_new_background(1);
+
+      cutscene_bg_x += cutscene_accel;
+      cutscene_accel += 0.07;
+      al_draw_bitmap(cutscene_background, 0, cutscene_bg_x, 0);
+
+      mEnemy.draw_enemies();
+      mPlayer.draw_players();
+
+      mScreen.get_new_screen_buffer(0, 0, 0);
+      mScreen.draw_screen_overlay();
+
+      al_flip_display();
+
+
+//      if (mPlayer.syn[0].level_done_timer == 100) mDisplay.set_custom_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/3000, 100);
+
+
+
+
+   }
+   if (mPlayer.syn[0].level_done_mode == 26) mDisplay.set_custom_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/320, 100); // set up for zoom in
+   if (mPlayer.syn[0].level_done_mode == 25) {} // zoom in
+   if (mPlayer.syn[0].level_done_mode == 24) // jump to level done
+   {
+      mPlayer.syn[0].level_done_mode = 6;
+      mPlayer.syn[0].level_done_timer = 0;
+   }
+
    if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
    {
       mScreen.set_player_join_quit_display(mPlayer.syn[0].level_done_player, 2, 60);
@@ -831,6 +854,16 @@ void mwLoop::proc_level_done_mode(void)
    if (--mPlayer.syn[0].level_done_timer <= 0) // time to change to next level_done_mode
    {
       mPlayer.syn[0].level_done_mode--;
+
+      if (mPlayer.syn[0].level_done_mode == 30) mPlayer.syn[0].level_done_timer = 0;   // set up for player move and zoom out
+      if (mPlayer.syn[0].level_done_mode == 29) mPlayer.syn[0].level_done_timer = 100; // player move and zoom out
+      if (mPlayer.syn[0].level_done_mode == 28) mPlayer.syn[0].level_done_timer = 0;   // set up for rocket move
+      if (mPlayer.syn[0].level_done_mode == 27) mPlayer.syn[0].level_done_timer = 240; // rocket move
+      if (mPlayer.syn[0].level_done_mode == 26) mPlayer.syn[0].level_done_timer = 0;   // set up for zoom in
+      if (mPlayer.syn[0].level_done_mode == 25) mPlayer.syn[0].level_done_timer = 100; // zoom in
+      if (mPlayer.syn[0].level_done_mode == 24) mPlayer.syn[0].level_done_timer = 0;   // jump to mode 6
+
+
       if (mPlayer.syn[0].level_done_mode == 8) mPlayer.syn[0].level_done_timer = 60; // players seek exit
       if (mPlayer.syn[0].level_done_mode == 7) mPlayer.syn[0].level_done_timer = 20; // players shrink and rotate into exit
       if (mPlayer.syn[0].level_done_mode == 6) mPlayer.syn[0].level_done_timer = 0;
@@ -881,7 +914,10 @@ void mwLoop::main_loop(void)
 
             mTimeStamp.timestamp_frame_start = al_get_time();
 
-            mDisplay.proc_scale_factor_change();
+            int ldm = mPlayer.syn[0].level_done_mode;
+
+            if ((ldm == 30) || (ldm == 25)) mDisplay.proc_custom_scale_factor_change();
+            else                            mDisplay.proc_scale_factor_change();
 
             if (mNetgame.ima_server) mNetgame.server_control();
             if (mNetgame.ima_client) mNetgame.client_control();
@@ -889,16 +925,14 @@ void mwLoop::main_loop(void)
             mPlayer.proc_player_input();
             mGameMoves.proc();
 
-            if (mPlayer.syn[0].level_done_mode) proc_level_done_mode();
+            if (ldm) proc_level_done_mode();
             else move_frame();
 
             double t0 = al_get_time();
             mNetgame.server_create_new_state();
             if (mLog.LOG_TMR_sdif) mLog.add_log_TMR(al_get_time() - t0, "sdif", 0);
 
-
-
-            draw_frame();
+            if (ldm != 27) draw_frame();
 
             double pt = al_get_time() - mTimeStamp.timestamp_frame_start;
             if (mLog.LOG_TMR_cpu) mLog.add_log_TMR(pt, "cpu", 0);
@@ -909,63 +943,7 @@ void mwLoop::main_loop(void)
             mQuickGraph[0].add_data(2, mRollingAverage[0].mx);
             mQuickGraph[0].add_data(3, mRollingAverage[0].avg);
 
-
-
-            // special end cutscene
-            if ((mLevel.play_level == 100) && (mTriggerEvent.event[99]))
-            {
-               program_state = 30;
-
-            }
          }
-
-         if (program_state == 31) // cutscene zoom adjust
-         {
-            mDisplay.proc_scale_factor_change();
-
-            if (--cutscene_timer < 0) cutscene_timer = 0;
-
-            if (cutscene_timer)
-               for (int p=0; p< NUM_PLAYERS; p++)
-                  if (mPlayer.syn[p].active)
-                  {
-                     mPlayer.syn[p].x += mPlayer.syn[p].xinc;
-                     mPlayer.syn[p].y += mPlayer.syn[p].yinc;
-                  }
-
-            draw_frame();
-            al_flip_display();
-            if ((abs(mDisplay.scale_factor_current - mDisplay.scale_factor) < .001) && (cutscene_timer == 0)) program_state++;
-         }
-
-         if (program_state == 33) // cutscene rocket move
-         {
-            mScreen.get_new_background(1);
-
-            cutscene_bg_x += cutscene_accel;
-            cutscene_accel += 0.1;
-            al_draw_bitmap(cutscene_background, 0, cutscene_bg_x, 0);
-
-            mEnemy.draw_enemies();
-            mPlayer.draw_players();
-
-            mScreen.get_new_screen_buffer(0, 0, 0);
-            mScreen.draw_screen_overlay();
-            al_flip_display();
-
-            if (--cutscene_timer < 1) program_state++;
-
-
-         }
-
-         if (program_state == 35) // cutscene zoom adjust
-         {
-            mDisplay.proc_scale_factor_change();
-            draw_frame();
-            al_flip_display();
-            if (abs(mDisplay.scale_factor_current - mDisplay.scale_factor) < .001) program_state++;
-         }
-
       }
 
 
