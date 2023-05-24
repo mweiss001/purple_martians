@@ -101,7 +101,6 @@ void mwGlobalLevelTool::execute(void)
       if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
    }
 
-
    int count0 = 0;
    int count1 = 0;
    int count2 = 0;
@@ -132,15 +131,15 @@ void mwGlobalLevelTool::execute(void)
       mLevel.load_level(le[x], 1, 1);
 
 
-      for (int y=0; y<100; y++)
-      {
-         int type = mEnemy.Ei[y][0];
-         if (type == 4)
-         {
-            printf("Level:%3d - blkwlk\n", le[x]);
-         }
-
-      }
+//      for (int y=0; y<100; y++)
+//      {
+//         int type = mEnemy.Ei[y][0];
+//         if (type == 4)
+//         {
+//            printf("Level:%3d - blkwlk\n", le[x]);
+//         }
+//
+//      }
 
 //            mEnemy.Ei[y][20] = 16;
 
@@ -269,12 +268,34 @@ void mwGlobalLevelTool::execute(void)
 //17 bd
 
 
+      for (int y=0; y<500; y++)
+         if (mItem.item[y][0] == 1) // door
+         {
+//            if (mItem.item[y][13] == 448)  mItem.item[y][1] = 1;
+//            if (mItem.item[y][13] == 1083) mItem.item[y][1] = 2;
+//            if (mItem.item[y][13] == 448)  mItem.item[y][13] = 1;
+//            if (mItem.item[y][13] == 1083) mItem.item[y][13] = 2;
+
+            mItem.item[y][13] = 0;
+
+         }
+
+//            mItem.item[y][1] = 0;
 
 
 //      for (int y=0; y<500; y++)
-//         if (mItem.item[y][0] == 11) // rocket
+//         if (mItem.item[y][0] == 1) // door
 //         {
-//             printf("Level:%3d st:%d\n", le[x], mItem.item[y][6]);
+//            count0++;
+//            if (mItem.item[y][13] == 448) count1++;
+//            if (mItem.item[y][13] == 1083) count2++;
+//            if (mItem.item[y][13] == 0) count3++;
+//
+//
+//
+//            if ( (mItem.item[y][13] != 448) && (mItem.item[y][13] != 1083))// && (mItem.item[y][13] != 0) )
+//                printf("Level:%3d 13:%d\n", le[x], mItem.item[y][13]);
+//
 //           //  mItem.item[y][6] = (float)mItem.item[y][6] * 2.5;
 //         }
 

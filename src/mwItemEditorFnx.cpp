@@ -541,29 +541,22 @@ int mwItem::create_door(int type)
             {
 
                mItem.item[c][0] = 1;    // type 1
-               mItem.item[c][13] = 1083;    // base draw shape or ans
-               mItem.item[c][6] = 13;      // default color = lt blue
-               mItem.item[c][1] = 1083;     // current shape
-
-               mItem.item[c][2] = 1;    // draw mode normal
+               mItem.item[c][1] = 2;    // draw type
                mItem.item[c][3] = 0;    // stationary
+               mItem.item[c][6] = 13;   // default color = lt blue
                mItem.item[c][8] = 1;    // type: linked exit
+               mItem.item[c][11] = 0;   // enter immed
+               mItem.item[c][12] = 1;   // always draw line
 
-               mItem.item[c][11] = 1;    // trigger with up
-               mItem.item[c][12] = 1;    // always draw line
                if (mMiscFnx.getxy("Destination Door", 2, 1, d) == 1)
                {
-                  mItem.item[c][9] = d;    // linked exit
+                  mItem.item[c][9] = d;  // linked exit
+                  mItem.item[d][0] = 1;  // type 1
+                  mItem.item[d][1] = 2;  // draw type
+                  mItem.item[d][3] = 0;  // stationary
+                  mItem.item[d][6] = 13; // default color = lt blue
+                  mItem.item[d][8] = 0;  // type: exit only
 
-                  mItem.item[d][0] = 1;    // type 1
-
-                  mItem.item[d][13] = 1083;    // base draw shape or ans
-                  mItem.item[d][1] = 1083;     // current shape
-                  mItem.item[d][6] = 6;      // default color = tan
-
-                  mItem.item[d][2] = 1;    // draw mode normal
-                  mItem.item[d][3] = 0;    // stationary
-                  mItem.item[d][8] = 0;    // type: exit only
                } // end of get destination without cancel
                else mItem.item[c][0] = 0;
 
@@ -587,41 +580,31 @@ int mwItem::create_door(int type)
             else mItem.item[c][0] = 0;
          }
 
-
          if (found_empty_items)
          {
             if (mMiscFnx.getxy("1st Door", 2, 1, c) == 1)
             {
-
                mItem.item[c][0] = 1;    // type 1
-
-               mItem.item[c][13] = 1083;    // base draw shape or ans
-               mItem.item[c][1] = 1083;     // current shape
-               mItem.item[c][6] = 13;      // default color = lt blue
-
-               mItem.item[c][2] = 1;    // draw mode normal
+               mItem.item[d][1] = 2;    // draw type
                mItem.item[c][3] = 0;    // stationary
+               mItem.item[d][6] = 13;   // default color = lt blue
                mItem.item[c][8] = 1;    // type: linked exit
-
-               mItem.item[c][11] = 1;    // trigger with up
-               mItem.item[c][12] = 1;    // always draw line
+               mItem.item[c][11] = 1;   // trigger with up
+               mItem.item[c][12] = 1;   // always draw line
 
                if (mMiscFnx.getxy("2nd Door", 2, 1, d) == 1)
                {
                   mItem.item[c][9] = d;    // linked exit
-
-                  mItem.item[d][0] = 1;    // type 1
-                  mItem.item[d][2] = 1;    // draw mode normal
-                  mItem.item[d][3] = 0;    // stationary
-                  mItem.item[d][8] = 1;    // type: linked exit
                   mItem.item[d][9] = c;    // linked exit
 
-                  mItem.item[d][11] = 1;    // trigger with up
-                  mItem.item[d][12] = 1;    // always draw line
+                  mItem.item[d][0] = 1;    // type 1
+                  mItem.item[d][1] = 2;    // draw type
+                  mItem.item[d][3] = 0;    // stationary
+                  mItem.item[d][6] = 13;   // default color = lt blue
+                  mItem.item[d][8] = 1;    // type: linked exit
+                  mItem.item[d][11] = 1;   // trigger with up
+                  mItem.item[d][12] = 1;   // always draw line
 
-                  mItem.item[d][13] = 1083;    // base draw shape or ans
-                  mItem.item[d][1] = 1083;     // current shape
-                  mItem.item[d][6] = 13;      // default color = lt blue
 
                } // end of get destination without cancel
                else erase_item(c);

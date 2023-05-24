@@ -21977,9 +21977,103 @@ just fixed the scale changing functions and they are looking very good...
 
 
 
+the door bug is back
+item 12
+I moved a door
+
+mItem.item[][6]  color
+mItem.item[][7]  move type (0=auto, 1=force instant, 2=force move)
+mItem.item[][8]  type (0=exit only, 1=linked dest)
+mItem.item[][9]  linked destination item
+mItem.item[][10] key held flag
+mItem.item[][11] door entry type (0=immed, 1=up, 2=down)
+mItem.item[][12] draw lines always, never, only when touched
+mItem.item[][13] base animation shape
 
 
+why do I have base animation shape at 13 and also at 1
 
+
+448 = static
+1083 = in
+1084 = out
+
+
+look at what we have with glt.
+
+item[][1]
+
+I also have 972 and -1
+972 is the first shape in the animation sequence
+
+this is all so overly complex
+
+I really want to make it simpler
+
+do everything in draw_door
+
+ditched the old ans bullshit, now use frame nums direct, only works when frame_num incrementing
+what if I use timer count? done
+
+now I would like to do away with either 1 or 13
+
+
+lets kill 1 and see what happens
+
+should not be used...
+
+I only have 3 values for 13:
+0
+448
+1083
+
+My plan is to move these to 1 and change the values
+
+0 same
+1 448 old static
+2 1083 new ans
+
+I think I have it all done...
+lets hope the door bug does not return
+
+
+I think the bug was color!!
+
+if the color is too big the animation seq will be off
+what could make the color too big?
+
+
+bad!
+      // snap these item secondaries to 20
+      if ((mouse_on_obj) && (obt == 2) && (!mItem.item_secondary67_hires(mItem.item[num][0])))
+      {
+         mMiscFnx.mw_round(mItem.item[num][6], 20);
+         mMiscFnx.mw_round(mItem.item[num][7], 20);
+      }
+
+good?
+      if ((mouse_on_obj) && (obt == 2) && (mItem.item_secondary67(mItem.item[num][0])) && (!mItem.item_secondary67_hires(mItem.item[num][0]))) )
+
+
+I think doors are done...
+
+
+20230524
+
+Make new level entry item
+type 18 - gate
+touching it shows simple data
+up enters
+down more data
+
+what do I do when entering?
+same as warp?
+
+yes...
+
+what next?
+
+show something when touching...
 
 
 

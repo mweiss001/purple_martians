@@ -88,6 +88,7 @@ void mwWindow::ov_get_size(void)
    if ((obt == 2) && (type == 15)) w = 240; // sproingy
    if ((obt == 2) && (type == 16)) w = 280; // bm
    if ((obt == 2) && (type == 17)) w = 290; // bd
+   if ((obt == 2) && (type == 18)) w = 220; // bd
 
    if ((obt == 3) && (type == 1 )) w = 220; // bouncer
    if ((obt == 3) && (type == 2 )) w = 220; // cannon
@@ -388,6 +389,12 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             sprintf(lmsg[2],"Damage Area");
             legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
+         case 18:
+             mWM.mW[7].num_legend_lines = 2;
+             sprintf(lmsg[1],"Gate Location");
+         break;
+
+
       } // end of switch case
    }  // end of items
 
@@ -823,12 +830,17 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                ya+=4; // spacer
                mWidget.button( xa, ya, xb, bts,  4,n,0,0,  0,11,15,0, 1,0,1,d); // set linked item
                mWidget.buttonp(xa, ya, xb, bts, 50,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][11]); // door entry type
-               mWidget.buttonp(xa, ya, xb, bts, 53,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][7]); // move type
+               mWidget.buttonp(xa, ya, xb, bts, 53,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][7]);  // move type
                mWidget.buttonp(xa, ya, xb, bts, 51,n,0,0,  0,11,15,0, 1,0,1,d, mItem.item[n][12]); // exit link show
+
+
             }
             ya+=4; // spacer
-            mWidget.button(    xa, ya, xb, bts, 52,n,0,0,  0,13,15,0, 1,0,1,d); // get new shape
-            mWidget.colsel(    xa, ya, xb, bts,  5,n,0,0,  0, 0, 0,0, 0,0,1,d); // change color
+            mWidget.buttonp(   xa, ya, xb, bts, 52,n,0,0,  0,13,15,0, 1,0,1,d, mItem.item[n][1]); // get new shape
+            mWidget.colsel(    xa, ya, xb, bts,  5,n,0,0,  0, 0, 0,0, 0,0,1,d);                   // change color
+
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Change Linked to Match")) mItem.change_linked_door_color_and_shape(n);
+
          break;
 
          case 2: // bonus
@@ -1107,6 +1119,13 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             }
          }
          break;
+
+         case 18: // gate
+            mWidget.slideri( xa, ya, xb, bts, 0,0,0,0,   0,10,15,15, 1,0,1,d, mItem.item[n][6], 200, 1, 1,        "Level Number:" );
+         break;
+
+
+
       }
    }
    // set height
@@ -1305,15 +1324,11 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
          case 16: // block manip
             (legend_highlight == 2) ? color = mColor.flash_color : color = 12;
             ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
-
             if (mItem.item[num][3] == 4)
             {
                (legend_highlight == 3) ? color = mColor.flash_color : color = 11;
                ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][13], mItem.item[num][14], mItem.item[num][8], mItem.item[num][9], color, 1);
             }
-
-
-
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
          break;
          case 17: // block damage
@@ -1893,8 +1908,8 @@ void mwWindow::ov_process_mouse(void)
          mWM.redraw_level_editor_background();
       } // end of while mInput.mouse_b[1][0] pressed
 
-      // snap these item secondaries to 20
-      if ((mouse_on_obj) && (obt == 2) && (!mItem.item_secondary67_hires(mItem.item[num][0])))
+      // snap non hires item secondaries to 20
+      if ((mouse_on_obj) && (obt == 2) && (mItem.item_secondary67(mItem.item[num][0])) && (!mItem.item_secondary67_hires(mItem.item[num][0])) )
       {
          mMiscFnx.mw_round(mItem.item[num][6], 20);
          mMiscFnx.mw_round(mItem.item[num][7], 20);

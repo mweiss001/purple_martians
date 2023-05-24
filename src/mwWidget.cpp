@@ -701,21 +701,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
    }
 
 
-   if (bn == 52)
-   {
-      sprintf(msg, "Change Door Shape");
-      if (press)
-      {
-         int shape = mItem.item[num][13];
-         if (shape == 448) shape = 1083;
-         else if (shape == 1083) shape = 0;
-         else if (shape == 0) shape = 448;
-         if ((shape != 448)  && (shape != 1083) && (shape != 0)) shape = 1083;
-         mItem.item[num][13] = shape;
-         mItem.item[num][1] = shape;
-      }
-   }
-
 
    if (bn == 57)
    {
@@ -1605,6 +1590,15 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       if (var == 1) sprintf(msg, "Exit link:alway show  ");
       if (var == 2) sprintf(msg, "Exit link:when touched");
    }
+
+   if (bn == 52)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(msg, "Draw Type:Hidden");
+      if (var == 1) sprintf(msg, "Draw Type:Static Door");
+      if (var == 2) sprintf(msg, "Draw Type:Animated Warp");
+   }
    if (bn == 53) // door move type
    {
       if (press) var++;
@@ -1850,7 +1844,6 @@ void mwWidget::colsel(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    if (bn == 6) sprintf(msg, "Select Trigger Field Color");
    if (bn == 7) sprintf(msg, "Select Block Manip Field Color");
    if (bn == 8) sprintf(msg, "Select Lift Step Color");
-
    if (bn == 9) sprintf(msg, "Select Crew Player Color");
 
    draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
@@ -1866,28 +1859,23 @@ void mwWidget::colsel(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 
       if (bn == 2) // text color
       {
-         int tc=0, fc = 0;
+         int tc=0, fc=0;
          mMiscFnx.get_int_3216(mItem.item[num][13], tc, fc);
          tc = color;
          mMiscFnx.set_int_3216(mItem.item[num][13], tc, fc);
       }
-
       if (bn == 3) // frame color
       {
-         int tc=0, fc = 0;                  // text and frame colors
+         int tc=0, fc=0; // text and frame colors
          mMiscFnx.get_int_3216(mItem.item[num][13], tc, fc);
          fc = color;
          mMiscFnx.set_int_3216(mItem.item[num][13], tc, fc);
       }
-      if (bn == 4) mLift.cur[num].color = color; // lift color
-      if (bn == 5)
-      {
-         mItem.item[num][6] = color;     // door color
-         mItem.change_linked_door_color_and_shape(num);
-      }
+      if (bn == 4) mLift.cur[num].color = color;   // lift color
+      if (bn == 5) mItem.item[num][6] = color;     // door color
       if (bn == 6) mItem.item[num][2] = color;     // trigger color
       if (bn == 7) mItem.item[num][12] = color;    // block manip color
-
+      if (bn == 9) mEnemy.Ei[num][3] = color;      // crew player color
 
       if (bn == 8) // lift step color
       {
@@ -1896,10 +1884,6 @@ void mwWidget::colsel(int x1, int &y1, int x2, int bts, int bn, int num, int typ
          mLift.stp[num][type].type &= 0b00001111111111111111111111111111; // clear old color
          mLift.stp[num][type].type |= cf; // merge color with type
       }
-
-      if (bn == 9) mEnemy.Ei[num][3] = color;    // crew player color
-
-
    }
    if (q6 == 1) y1+=bts;
 }

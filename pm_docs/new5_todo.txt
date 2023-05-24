@@ -2,12 +2,6 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-the door bug is back
-
-item 12
-
-I moved a door
-
 
 
 ---------------------------------------------------------
@@ -161,7 +155,7 @@ It could be just like a normal level, like level 1
 
 with a bunch of links to other levels
 
-I would need some persitant info about what levels have been completed
+I would need some persistant info about what levels have been completed
 to make some paths accessible or not.
 
 I would want to make a special item to enter new levels
@@ -189,6 +183,50 @@ max coins
 
 I could think of it as a list of accomplishments
 some are required before certain things are unlocked
+
+If I am going this far I will need different profiles
+
+I will need to have names for all my levels...
+
+I could make the name part of the Filename..no..needs to be portable in linux
+Could be if I didnt use spaces...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -135,3 +135,48 @@ void mwItem::proc_warp_collision(int p, int i)
 }
 
 
+void mwItem::proc_gate_collision(int p, int i)
+{
+   if (mPlayer.syn[p].up)
+   {
+      mPlayer.syn[0].level_done_mode = 3;
+      mPlayer.syn[0].level_done_timer = 0;
+      mPlayer.syn[0].level_done_next_level = item[i][6];
+   }
+}
+
+
+int mwItem::draw_gate(int i, int x, int y, int custom)
+{
+   al_draw_bitmap(mBitmap.tile[940], x, y, 0);
+   al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y+4, ALLEGRO_ALIGN_CENTER, "%d", item[i][6]);
+   return 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

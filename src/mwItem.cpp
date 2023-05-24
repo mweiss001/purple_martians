@@ -53,6 +53,7 @@ void mwItem::initialize(void)
    strcpy(item_name[15], "Sproingy");
    strcpy(item_name[16], "Block Manip");
    strcpy(item_name[17], "Block Damage");
+   strcpy(item_name[18], "Gate");
 
    item_tile[0]  = 0;
    item_tile[1]  = 448;
@@ -72,7 +73,7 @@ void mwItem::initialize(void)
    item_tile[15] = 237;
    item_tile[16] = 989;
    item_tile[17] = 988;
-   item_tile[18] = 0;
+   item_tile[18] = 940;
    item_tile[19] = 0;
 
 }
@@ -107,15 +108,15 @@ void mwItem::draw_items(void)
 {
    al_set_target_bitmap(mBitmap.level_buffer);
    for (int i=0; i<500; i++)
-      if ((mItem.item[i][0]) && (mItem.item[i][0] != 10)) draw_item(i, 0, 0, 0);
+      if ((item[i][0]) && (item[i][0] != 10)) draw_item(i, 0, 0, 0);
    for (int i=0; i<500; i++) // draw msg last so they are on top
-      if (mItem.item[i][0] == 10) draw_item(i, 0, 0, 0);
+      if (item[i][0] == 10) draw_item(i, 0, 0, 0);
 }
 
 void mwItem::draw_item(int i, int custom, int cx, int cy)
 {
-   int type = mItem.item[i][0];
-   int shape = mItem.item[i][1];                         // get shape
+   int type = item[i][0];
+   int shape = item[i][1];                               // get shape
    if (shape > 999) shape = mBitmap.zz[0][shape-1000];   // ans
    int x = itemf[i][0];
    int y = itemf[i][1];
@@ -138,6 +139,8 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
    if (type == 13) drawn = draw_timer        (i, x, y, custom);
    if (type == 16) drawn = draw_block_manip  (i, x, y);
    if (type == 17) drawn = draw_block_damage (i, x, y, custom);
+   if (type == 18) drawn = draw_gate         (i, x, y, shape);
+
    if (type == 98) drawn = draw_rocket       (i, x, y, shape);
    if (type == 99) drawn = draw_lit_bomb     (i);
 
@@ -147,14 +150,14 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
    // if item is expiring show how many seconds left it has
    if (!mLoop.level_editor_running)
    {
-      if ((mItem.item[i][14]>10) && (type != 9) && (type != 13) && (type != 16) && (type != 17))
-         al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (mItem.item[i][14] - 10) / 40);
+      if ((item[i][14]>10) && (type != 9) && (type != 13) && (type != 16) && (type != 17))
+         al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
    }
 }
 
 int mwItem::draw_bonus(int i, int x, int y, int shape)
 {
-   if ((mItem.item[i][6] == 3) && (!mLoop.level_editor_running)) // purple coin custom draw
+   if ((item[i][6] == 3) && (!mLoop.level_editor_running)) // purple coin custom draw
    {
       mBitmap.spin_shape(shape, x, y, 0, 0, 19, 19, 0.8, 0.5, 40);
       return 1;
@@ -166,23 +169,21 @@ int mwItem::draw_bonus(int i, int x, int y, int shape)
 void mwItem::move_items()
 {
    for (int i=0; i<500; i++)
-      if (mItem.item[i][0])
+      if (item[i][0])
       {
          int x = itemf[i][0];
          int y = itemf[i][1];
 
-         if ((x<0) || (x>1980) || (y<0) || (y>1980)) mItem.item[i][0] = 0; // remove if out of bounds
+         if ((x<0) || (x>1980) || (y<0) || (y>1980)) item[i][0] = 0; // remove if out of bounds
 
-         int type = mItem.item[i][0];
-         if ((type == 4) && (mItem.item[i][11] > 0)) proc_moving_key(i);
+         int type = item[i][0];
+         if ((type == 4) && (item[i][11] > 0)) proc_moving_key(i);
          if (type == 6)  proc_orb(i);
          if (type == 9)  proc_trigger(i);
          if (type == 10) proc_pmsg(i);
          if (type == 13) proc_timer(i);
          if (type == 16) proc_block_manip(i);
          if (type == 17) proc_block_damage(i);
-//         if (type == 20) proc_wrap_rect(i);
-//         if (type == 21) proc_wrap_line(i);
          if (type == 99) proc_lit_bomb(i);
          if (type == 98) proc_lit_rocket(i);
 
@@ -190,22 +191,22 @@ void mwItem::move_items()
          // check for time to live
          if ((type != 9) && (type != 13) && (type != 16) && (type != 17) && (type != 20))
          {
-            int ttl = mItem.item[i][14];
+            int ttl = item[i][14];
             if (ttl)
             {
                if (ttl < 11)       // start ans seq
                {
-                  mItem.item[i][0] = 66; // change to different type to prevent use
+                  item[i][0] = 66; // change to different type to prevent use
                   int sq = 10-ttl;
-                  mItem.item[i][1] = mBitmap.zz[5+sq][74];
+                  item[i][1] = mBitmap.zz[5+sq][74];
                }
-               if (ttl == 1) mItem.item[i][0] = 0; // kill instantly
-               mItem.item[i][14]--;
+               if (ttl == 1) item[i][0] = 0; // kill instantly
+               item[i][14]--;
             }
          }
 
          // not stationary and not lit rocket, trigger, bm, bd or moving key
-         if ((mItem.item[i][3]) && (type != 98) && (type != 9) && (type != 13) && (type != 16) && (type != 17) && (type != 20) && (! ((type == 4) && (mItem.item[i][11] > 0)))    )
+         if ((item[i][3]) && (type != 98) && (type != 9) && (type != 13) && (type != 16) && (type != 17) && (type != 20) && (! ((type == 4) && (item[i][11] > 0)))    )
          {
             // check if being carried
             int pc = 0;
@@ -218,7 +219,7 @@ void mwItem::move_items()
             {
                // check for sticky bomb stuck to wall
                int sticky = 0;
-               if ((type == 99) && (mItem.item[i][11])) sticky = 1;
+               if ((type == 99) && (item[i][11])) sticky = 1;
                if ((sticky) && (is_item_stuck_to_wall(i)) )
                {
                   itemf[i][2] = 0;  // xinc
@@ -278,7 +279,7 @@ void mwItem::move_items()
                      if (a==0)
                      {
 
-                        if (! ((type == 99) && (mItem.item[i][6] == 2))) // no gravity for exploding bomb
+                        if (! ((type == 99) && (item[i][6] == 2))) // no gravity for exploding bomb
                            itemf[i][3] += .1;                     // apply gravity to yinc
 
                         if (itemf[i][3] > 3) itemf[i][3] = 3;  // max gravity
@@ -359,7 +360,7 @@ int mwItem::player_drop_item(int p, int i)
 {
    int wall_stuck = 0;
    mPlayer.syn[p].carry_item = 0;
-   if (mItem.item[i][0] != 99) // not lit bomb
+   if (item[i][0] != 99) // not lit bomb
    {
       // check to see if the item is embedded in the wall
       int x = itemf[i][0];
@@ -398,11 +399,11 @@ void mwItem::proc_player_carry(int p)
       {
          int i = mPlayer.syn[p].carry_item-1;  // item number
 
-         if (!mItem.item[i][0]) mPlayer.syn[p].carry_item = 0; // if player is carrying inactive item, drop item
+         if (!item[i][0]) mPlayer.syn[p].carry_item = 0; // if player is carrying inactive item, drop item
 
-         if ((mItem.item[i][0] == 98) || (mItem.item[i][0] == 99)) mItem.item[i][13] = p; // mark player carrying lit bomb or rocket
+         if ((item[i][0] == 98) || (item[i][0] == 99)) item[i][13] = p; // mark player carrying lit bomb or rocket
 
-         if (mItem.item[i][0] != 98)            // not lit rocket
+         if (item[i][0] != 98)            // not lit rocket
          {
             // set item position relative to player that's carrying it
             itemf[i][1] = mPlayer.syn[p].y - 2;
@@ -420,7 +421,7 @@ void mwItem::proc_player_carry(int p)
             }
             else if (wall_stuck < 6)
             {
-               if (mItem.item[i][0] != 98)            // not lit rocket
+               if (item[i][0] != 98)            // not lit rocket
                {
                   itemf[i][2] = mPlayer.syn[p].xinc;  // inherit the players momentum
                   itemf[i][3] = mPlayer.syn[p].yinc;
@@ -431,7 +432,7 @@ void mwItem::proc_player_carry(int p)
                }
 
                // prevent sticky bombs from sticking to the ground when throwing upwards
-               if ((mItem.item[i][0] == 99) && (mItem.item[i][11]) && (mPlayer.syn[p].up)) itemf[i][1] -= 2;
+               if ((item[i][0] == 99) && (item[i][11]) && (mPlayer.syn[p].up)) itemf[i][1] -= 2;
 
             }
          }
@@ -448,13 +449,13 @@ void mwItem::proc_item_collision(int p, int i)
    if (mPlayer.syn[p].carry_item) // already carrying item
    {
       already_carrying = 1;
-      if ((mItem.item[mPlayer.syn[p].carry_item][0] == 2) && (mItem.item[i][0] != 2)) // carried item is bonus and new item is not bonus
+      if ((item[mPlayer.syn[p].carry_item][0] == 2) && (item[i][0] != 2)) // carried item is bonus and new item is not bonus
          already_carrying = 0;
    }
 
    // check if player can carry item
    if ( (!already_carrying) &&    // not carrying item already
-         (mItem.item[i][3]<0) &&  // item is carryable
+         (item[i][3]<0) &&  // item is carryable
          (mPlayer.syn[p].fire) )      // fire pressed
    {
       // check to see if another player is already carrying this item
@@ -464,10 +465,10 @@ void mwItem::proc_item_collision(int p, int i)
 
        // allow carry
        if ((other_player_carrying == 0) ||   // if no other player is carrying
-          (mItem.item[i][0] == 98))          // allow multiple player carry for rocket
+          (item[i][0] == 98))          // allow multiple player carry for rocket
           mPlayer.syn[p].carry_item = i+1;
    }
-   switch (mItem.item[i][0]) // item type
+   switch (item[i][0]) // item type
    {
       case 1:  proc_door_collision(p, i);     break;
       case 2:  proc_bonus_collision(p, i);    break;
@@ -482,6 +483,7 @@ void mwItem::proc_item_collision(int p, int i)
       case 12: proc_warp_collision(p, i);     break;
       case 14: proc_switch_collision(p, i);   break;
       case 15: proc_sproingy_collision(p, i); break;
+      case 18: proc_gate_collision(p, i);     break;
    }
 }
 
@@ -510,8 +512,8 @@ void mwItem::proc_bonus_collision(int p, int i)
 
 void mwItem::proc_mine_collision(int p, int i)
 {
-   mPlayer.syn[p].health -= (float)mItem.item[i][8] / 100;
-   mGameEvent.add(11, 0, 0, p, 5, 0, mItem.item[i][8]);
+   mPlayer.syn[p].health -= (float)item[i][8] / 100;
+   mGameEvent.add(11, 0, 0, p, 5, 0, item[i][8]);
 }
 
 
@@ -529,7 +531,7 @@ void mwItem::proc_sproingy_collision(int p, int i)
         (mPlayer.syn[p].yinc > 0) && (mPlayer.syn[p].jump) )  // falling and jump held
    {
       mGameEvent.add(24, 0, 0, p, i, 0, 0);
-      mPlayer.syn[p].yinc = 0 - (float) mItem.item[i][7] / 7.1;
+      mPlayer.syn[p].yinc = 0 - (float) item[i][7] / 7.1;
    }
 }
 
@@ -558,151 +560,165 @@ list of items
 [15] - sproingy
 [16] - block manip
 [17] - block damage
+[18] - gate
 
 [98] - lit rocket
 [99] - lit bomb
 
 // common
-mItem.item[][0] = active and type
-mItem.item[][1] = bitmap or ans
-mItem.item[][2] = draw type (not used)
-mItem.item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door)
-mItem.item[][4] = x pos
-mItem.item[][5] = y pos
-mItem.item[][14] = time to live
-mItem.item[][15] = tag with cloner item id
+item[][0] = active and type
+item[][1] = bitmap or ans
+item[][2] = draw type (not used)
+item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door)
+item[][4] = x pos
+item[][5] = y pos
+item[][14] = time to live
+item[][15] = tag with cloner item id
 
 // type specific
 
 [1] - door
-mItem.item[][6]  color
-mItem.item[][7]  move type (0=auto, 1=force instant, 2=force move)
-mItem.item[][8]  type (0=exit only, 1=linked dest)
-mItem.item[][9]  linked destination item
-mItem.item[][10] key held flag
-mItem.item[][11] door entry type (0=immed, 1=up, 2=down)
-mItem.item[][12] draw lines always, never, only when touched
-mItem.item[][13] base animation shape
+item[][1]  draw type (0=hidden, 1=static door, 2=animated warp)
+item[][6]  color
+item[][7]  move type (0=auto, 1=force instant, 2=force move)
+item[][8]  type (0=exit only, 1=linked dest)
+item[][9]  linked destination item
+item[][10] key held flag
+item[][11] door entry type (0=immed, 1=up, 2=down)
+item[][12] draw lines always, never, only when touched
+
+[18] - gate
+item[][6] level num
+item[][7]
+item[][8]
+item[][9]
+item[][10]
+item[][11]
+item[][12]
+
+
+
+
 
 [2] - bonus
-mItem.item[][6] bonus type
+item[][6] bonus type
 1 - Health
 2 - Free Man
 3 - Purple Coin
-mItem.item[][7] health bonus
+item[][7] health bonus
 
 [3] - exit
-mItem.item[][8] exit with x enemies left
+item[][8] exit with x enemies left
 
 [4] - key
-mItem.item[][6]  block range x
-mItem.item[][7]  block range y
-mItem.item[][8]  block range w
-mItem.item[][9]  block range h
-mItem.item[][10] rotation for key move
-mItem.item[][11] counter for key move
-mItem.item[][12] matching keyed blocks only
+item[][6]  block range x
+item[][7]  block range y
+item[][8]  block range w
+item[][9]  block range h
+item[][10] rotation for key move
+item[][11] counter for key move
+item[][12] matching keyed blocks only
 
 [5] - start
-mItem.item[][6] mode
-mItem.item[][7] start index
+item[][6] mode
+item[][7] start index
 
 [6] - orb
 
 
 [7] - mine
-mItem.item[][8] mine damage
+item[][8] mine damage
 
 [8] - bomb
-mItem.item[][6]  mode (2=explosion)
-mItem.item[][7]  blast size
-mItem.item[][8]  fuse length counter
-mItem.item[][9]  fuse length value
-mItem.item[][11]  sticky
-mItem.item[][12]  timer / remote
+item[][6]  mode (2=explosion)
+item[][7]  blast size
+item[][8]  fuse length counter
+item[][9]  fuse length value
+item[][11]  sticky
+item[][12]  timer / remote
 
 [9]  - Trigger
-mItem.item[][2] = draw_type (color)
-mItem.item[][3] = flags
-mItem.item[][6]  = trigger field x (2000)
-mItem.item[][7]  = trigger field y (2000)
-mItem.item[][8]  = trigger field w (2000)
-mItem.item[][9]  = trigger field x (2000)
-mItem.item[][10] = trigger field lift number
-mItem.item[][11] = CURR ON  pm_event
-mItem.item[][12] = CURR OFF pm_event
-mItem.item[][13] = TGON pm_event #
-mItem.item[][14] = TGOF pm_event #
+item[][2] = draw_type (color)
+item[][3] = flags
+item[][6]  = trigger field x (2000)
+item[][7]  = trigger field y (2000)
+item[][8]  = trigger field w (2000)
+item[][9]  = trigger field x (2000)
+item[][10] = trigger field lift number
+item[][11] = CURR ON  pm_event
+item[][12] = CURR OFF pm_event
+item[][13] = TGON pm_event #
+item[][14] = TGOF pm_event #
 
 [10] - pop-up msg
-mItem.item[][1] event trigger
-mItem.item[][6]  msg x
-mItem.item[][7]  msg y
-mItem.item[][8]  msg w
-mItem.item[][9]  msg h
-mItem.item[][10]
-mItem.item[][11]
-mItem.item[][12] timer count and val  (packed)
-mItem.item[][13] text and frame color (packed)
+item[][1] event trigger
+item[][6]  msg x
+item[][7]  msg y
+item[][8]  msg w
+item[][9]  msg h
+item[][10]
+item[][11]
+item[][12] timer count and val  (packed)
+item[][13] text and frame color (packed)
 
 [11] - rocket
-mItem.item[][6]  steerabaility
-mItem.item[][7]  blast size
-mItem.item[][8]  max speed
-mItem.item[][9]  accel
-mItem.item[][10] rocket rotation (scaled by 10)
+item[][6]  steerabaility
+item[][7]  blast size
+item[][8]  max speed
+item[][9]  accel
+item[][10] rocket rotation (scaled by 10)
 
 [12]  - warp
-mItem.item[][8] warp level
+item[][8] warp level
 
 [14]  - switch
-mItem.item[][6]  block range x
-mItem.item[][7]  block range y
-mItem.item[][8]  block range w
-mItem.item[][9]  block range h
-mItem.item[][10] color flags
-mItem.item[][11]  lockout
+item[][6]  block range x
+item[][7]  block range y
+item[][8]  block range w
+item[][9]  block range h
+item[][10] color flags
+item[][11]  lockout
 
 [15] - sproingy
-mItem.item[][6] jump length (only used in level editor)
-mItem.item[][7] sproinginess
+item[][6] jump length (only used in level editor)
+item[][7] sproinginess
 
 [16] - Block Manip
-mItem.item[][1] = pm_event_trigger
-mItem.item[][2] = draw on
-mItem.item[][3] = mode
-mItem.item[][6]  = trigger field x (2000)
-mItem.item[][7]  = trigger field y (2000)
-mItem.item[][8]  = trigger field w (2000)
-mItem.item[][9]  = trigger field x (2000)
-mItem.item[][10] block 1
-mItem.item[][11] block 2
-mItem.item[][12] = draw color
+item[][1] = pm_event_trigger
+item[][2] = draw on
+item[][3] = mode
+item[][6]  = trigger field x (2000)
+item[][7]  = trigger field y (2000)
+item[][8]  = trigger field w (2000)
+item[][9]  = trigger field x (2000)
+item[][10] block 1
+item[][11] block 2
+item[][12] = draw color
 
 [17] - Block Damage
-mItem.item[][6]  = field x (2000)
-mItem.item[][7]  = field y (2000)
-mItem.item[][8]  = field w (2000)
-mItem.item[][9]  = field h (2000)
-mItem.item[][10] = lift number
-mItem.item[][11] = mode
-mItem.item[][12] = t1 val
-mItem.item[][13] = count
-mItem.item[][14] = t2 val
-mItem.item[][15] = damage
+item[][6]  = field x (2000)
+item[][7]  = field y (2000)
+item[][8]  = field w (2000)
+item[][9]  = field h (2000)
+item[][10] = lift number
+item[][11] = mode
+item[][12] = t1 val
+item[][13] = count
+item[][14] = t2 val
+item[][15] = damage
 
 
 [98] - lit rocket
 
 [99] - lit bomb
-mItem.item[][6]  mode (1=lit, 2=explosion, 3=remote detonator)
-mItem.item[][7]  blast size
-mItem.item[][8]  fuse length counter
-mItem.item[][9]  fuse length value
+item[][6]  mode (1=lit, 2=explosion, 3=remote detonator)
+item[][7]  blast size
+item[][8]  fuse length counter
+item[][9]  fuse length value
 
-mItem.item[][11] sticky
-mItem.item[][12] timer | remote
-mItem.item[][13] last player to touch
+item[][11] sticky
+item[][12] timer | remote
+item[][13] last player to touch
 
 */
 
