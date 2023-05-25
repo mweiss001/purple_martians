@@ -45,7 +45,7 @@ class mwItem
    void proc_gate_collision(int p, int i);
    int draw_gate(int i, int x, int y, int shape);
 
-
+   void proc_gate(int i);
 
    // mwItemBombRocket.cpp
    int draw_bomb(int i, int x, int y, int shape);

@@ -101,7 +101,6 @@ int mwItem::draw_door(int i, int x, int y, int custom)
 
 void mwItem::proc_door_collision(int p, int i)
 {
-
    if ((mPlayer.syn[p].marked_door == -1)  // player has no marked door yet
      && (mPlayer.syn[p].carry_item != i+1)) // player is not carrying this door
    {

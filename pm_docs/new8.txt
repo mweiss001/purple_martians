@@ -22075,6 +22075,135 @@ what next?
 
 show something when touching...
 
+do I want a permanently loaded icon for each level?
+each level up to 100
+what size?
+
+how about dynamically loaded
+
+what is my persitant data storage going to look like?
+
+achievements struct
+
+char name[200]
+char desc[2000]
+int level
+float complete
+
+
+level meta struct
+int level num
+int level name
+int par time
+int unlocked
+
+int completed
+int best time
+int fewest deaths
+int fewest enemies left alive
+
+
+add level meta
+
+define struct
+
+done
+
+
+do the dynamic level showing
+make temp
+
+without a bunch of duplicated code:
+save player x,y
+load level and make bitmap
+reload original level
+
+try that..
+
+where will I store the bitmap?
+
+2000x2000 in level
+
+I think all this will not play nicely with netgame
+
+preload icons...
+
+100x100
+
+i need a way to tell if any player is touching the gate
+
+what order do these get called in?
+proc
+draw
+touch
+
+
+added int marked_gate to player struct and removed one spare int
+
+clear it here just like door
+void mwPlayer::proc_player_collisions(int p)
+{
+   float px = syn[p].x;
+   float py = syn[p].y;
+
+   // items
+   loc[p].potential_bomb_damage = 0;
+   syn[p].marked_door = -1; // so player can touch only one door
+   syn[p].marked_gate = -1; // so player can touch only one gate
+
+
+added set to -1 in init player..
+
+
+seems to be working good now...
+
+
+20230525
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

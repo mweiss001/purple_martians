@@ -300,6 +300,9 @@ int mwMain::initial_setup(void)
 
    mLevel.set_start_level();
 
+   mLevel.clear_data();
+
+
    return 1;
 }
 
