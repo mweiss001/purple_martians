@@ -140,7 +140,6 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
    if (type == 16) drawn = draw_block_manip  (i, x, y);
    if (type == 17) drawn = draw_block_damage (i, x, y, custom);
    if (type == 18) drawn = draw_gate         (i, x, y, shape);
-
    if (type == 98) drawn = draw_rocket       (i, x, y, shape);
    if (type == 99) drawn = draw_lit_bomb     (i);
 
@@ -184,6 +183,7 @@ void mwItem::move_items()
          if (type == 13) proc_timer(i);
          if (type == 16) proc_block_manip(i);
          if (type == 17) proc_block_damage(i);
+         if (type == 18) proc_gate(i);
          if (type == 99) proc_lit_bomb(i);
          if (type == 98) proc_lit_rocket(i);
 
@@ -587,16 +587,6 @@ item[][10] key held flag
 item[][11] door entry type (0=immed, 1=up, 2=down)
 item[][12] draw lines always, never, only when touched
 
-[18] - gate
-item[][6] level num
-item[][7]
-item[][8]
-item[][9]
-item[][10]
-item[][11]
-item[][12]
-
-
 
 
 
@@ -706,6 +696,20 @@ item[][12] = t1 val
 item[][13] = count
 item[][14] = t2 val
 item[][15] = damage
+
+[18] - gate
+item[][6] level num
+item[][7] player touching
+item[][8]
+item[][9]
+item[][10]
+item[][11]
+item[][12]
+
+
+
+
+
 
 
 [98] - lit rocket

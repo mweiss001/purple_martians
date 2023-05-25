@@ -1,8 +1,43 @@
 // mwLevel.h
 
+
+
+
+
+
+
+
+
+
+
+struct level_data
+{
+   char level_name[200];
+   int par_time;
+   int unlocked;
+   int completed;
+   int best_time;
+   int min_deaths;
+};
+
+
+
+
 class mwLevel
 {
    public:
+
+   struct level_data data[100];
+
+   void clear_data(void);
+   void load_data(void);
+   void save_data(void);
+
+
+   ALLEGRO_BITMAP * level_icon[100];
+//   int level_icon_loaded_num = 0;
+
+   void load_level_icons();
 
    int l[100][100];
    int warp_level_location;
@@ -11,8 +46,13 @@ class mwLevel
    int valid_level_loaded;
    int last_level_loaded;
    int resume_allowed;
+
+
+
    int number_of_starts;
    int number_of_purple_coins;
+
+
 
    void change_block(int x, int y, int block);
    int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy);

@@ -625,6 +625,9 @@ void mwPlayer::proc_player_collisions(int p)
    // items
    loc[p].potential_bomb_damage = 0;
    syn[p].marked_door = -1; // so player can touch only one door
+   syn[p].marked_gate = -1; // so player can touch only one gate
+
+
    for (int x=0; x<500; x++)
    {
       if ((mItem.item[x][0]) && (mItem.item[x][0] != 9) && (mItem.item[x][0] != 16) && (mItem.item[x][0] != 17))
@@ -1408,6 +1411,8 @@ void mwPlayer::init_player(int p, int t)
       syn[p].level_done_x = 0;
       syn[p].level_done_y = 0;
       syn[p].level_done_player = 0;
+
+      syn[p].marked_gate = -1;
 
 
 

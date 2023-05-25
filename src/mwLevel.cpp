@@ -399,6 +399,71 @@ void mwLevel::level_check(void)
 
 
 
+void mwLevel::clear_data(void)
+{
+   for(int i=0; i<100; i++)
+   {
+      strcpy(data[i].level_name, "");
+      data[i].par_time = 0;
+      data[i].unlocked = 0;
+      data[i].completed = 0;
+      data[i].best_time = 0;
+      data[i].min_deaths = 0;
+   }
+
+   int i = 31;
+   strcpy(data[i].level_name, "testy");
+   data[i].par_time = 500;
+   data[i].unlocked = 1;
+   data[i].completed = 0;
+   data[i].best_time = 0;
+   data[i].min_deaths = 0;
+
+
+
+   load_level_icons();
+
+}
+
+
+
+void mwLevel::load_data(void)
+{
+
+
+}
+
+void mwLevel::save_data(void)
+{
+
+
+
+}
+
+
+void mwLevel::load_level_icons(void)
+{
+   int sz = 40;
+   for (int i=0; i<40; i++)
+      if (mLevel.load_level(i, 0, 1))
+      {
+         if (!mLevel.level_icon[i]) mLevel.level_icon[i] = al_create_bitmap(sz, sz);
+         al_set_target_bitmap(mLevel.level_icon[i]);
+         al_clear_to_color(al_map_rgba(0,0,0,0));
+         if (mLevel.valid_level_loaded) mScreen.draw_level2(mLevel.level_icon[i], 0, 0, sz, 1, 1, 1, 1, 0);
+      }
+
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

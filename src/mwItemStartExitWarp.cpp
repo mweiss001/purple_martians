@@ -135,8 +135,25 @@ void mwItem::proc_warp_collision(int p, int i)
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwItem::proc_gate_collision(int p, int i)
 {
+   mPlayer.syn[p].marked_gate = i;
+
    if (mPlayer.syn[p].up)
    {
       mPlayer.syn[0].level_done_mode = 3;
@@ -148,13 +165,67 @@ void mwItem::proc_gate_collision(int p, int i)
 
 int mwItem::draw_gate(int i, int x, int y, int custom)
 {
+//   printf("draw\n");
    al_draw_bitmap(mBitmap.tile[940], x, y, 0);
-   al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y+4, ALLEGRO_ALIGN_CENTER, "%d", item[i][6]);
+
+   int lev = item[i][6];
+
+//   printf("lev:%d\n", lev);
+
+   al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y+4, ALLEGRO_ALIGN_CENTER, "%d", lev);
+
+
+   int touch = 0;
+
+   for (int p=0; p<NUM_PLAYERS; p++) // is any player touching gate
+      if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate == i)) touch = 1;
+
+
+   if (touch)
+
+   {
+
+      al_draw_bitmap(mLevel.level_icon[lev], x-20, y-100, 0);
+
+//      al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "touch");
+
+      int yp = y-40;
+      int yi = 10;
+
+      al_draw_textf(mFont.pr8, mColor.pc[15], x+10, yp, ALLEGRO_ALIGN_CENTER, "%s", mLevel.data[lev].level_name); yp+=yi;
+      al_draw_textf(mFont.pr8, mColor.pc[15], x+10, yp, ALLEGRO_ALIGN_CENTER, "Par:%d", mLevel.data[lev].par_time); yp+=yi;
+
+      if (mLevel.data[lev].unlocked) al_draw_textf(mFont.pr8, mColor.pc[15], x+10, yp, ALLEGRO_ALIGN_CENTER, "Unlocked");
+      else                           al_draw_textf(mFont.pr8, mColor.pc[15], x+10, yp, ALLEGRO_ALIGN_CENTER, "Locked");
+      yp+=yi;
+
+      if (!mLevel.data[lev].completed)
+      {
+         al_draw_textf(mFont.pr8, mColor.pc[15], x+10, yp, ALLEGRO_ALIGN_CENTER, "Not Completed");
+         yp+=yi;
+      }
+      else
+      {
+         al_draw_textf(mFont.pr8, mColor.pc[15], x+10, yp, ALLEGRO_ALIGN_CENTER, "Completed"); yp+=yi;
+         al_draw_textf(mFont.pr8, mColor.pc[15], x+10, yp, ALLEGRO_ALIGN_CENTER, "Best Time:%d", mLevel.data[lev].best_time); yp+=yi;
+         al_draw_textf(mFont.pr8, mColor.pc[15], x+10, yp, ALLEGRO_ALIGN_CENTER, "Min Deaths:%d", mLevel.data[lev].min_deaths); yp+=yi;
+      }
+
+
+
+   }
+
    return 1;
 }
 
 
 
+void mwItem::proc_gate(int i)
+{
+   //printf("proc\n");
+
+
+}
 
 
 
