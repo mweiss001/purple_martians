@@ -12,6 +12,10 @@
 #include "mwBitmap.h"
 #include "mwColor.h"
 #include "mwMiscFnx.h"
+#include "mwDisplay.h"
+#include "mwLoop.h"
+#include "mwPlayer.h"
+
 
 mwLevel mLevel;
 
@@ -176,6 +180,7 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
                mItem.itemf[x][1] = mItem.item[x][5];
             }
          level_check();
+         level_start_data();
          mScreen.init_level_background(0); // draw blocks on level_background
          //set_player_start_pos(0, 0);
       }
@@ -279,13 +284,6 @@ int mwLevel::show_level_data(int x_pos, int y_pos, int type)
    else return ey_pos;
 }
 
-
-
-
-
-
-
-
 void mwLevel::zero_level_data(void)
 {
    for (int c=0; c<100; c++)    // blocks
@@ -315,27 +313,26 @@ void mwLevel::zero_level_data(void)
    }
 }
 
-
-
-
-
-
-
-
-
 void mwLevel::level_check(void)
 {
-   // set number of purple coins and starts
-   number_of_purple_coins = 0;
+   int lev = last_level_loaded;
+
+   // set number of starts - used for drawing, calculating spawn points, etc
    number_of_starts = 0;
+
+   // number of purple coins
+   data[lev].tot_purple_coins = 0;
+
+   // min val for exit enemy lock
+   data[lev].min_enemies_left_par = 100;
+
 
    for (int i=0; i<500; i++)
    {
-      if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 3)) number_of_purple_coins++;
       if (mItem.item[i][0] == 5) number_of_starts++;
+      if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 3)) data[lev].tot_purple_coins++;
+      if ((mItem.item[i][0] == 3) && (mItem.item[i][8] < data[lev].min_enemies_left_par)) data[lev].min_enemies_left_par = mItem.item[i][8];
    }
-
-
 
 
 /*
@@ -398,6 +395,98 @@ void mwLevel::level_check(void)
 }
 
 
+void mwLevel::reset_level_data(void)
+{
+   clear_data();
+   create_level_icons();
+   save_data();
+}
+
+
+void mwLevel::setup_data(void)
+{
+//   reset_level_data();
+   load_data();
+   load_level_icons();
+}
+
+void mwLevel::level_start_data(void)
+{
+//   printf("level_start_data() play_level:%d\n", play_level);
+
+   if (play_level > 1) overworld_level = play_level;
+
+
+   level_data_purple_coins_collected = 0;
+   level_data_player_respawns = 0;
+   level_data_enemies_killed = 0;
+}
+
+void mwLevel::level_complete_data(void)
+{
+   if (mPlayer.syn[mPlayer.active_local_player].control_method != 1) // don't count anything done in demo mode
+   {
+
+
+      int lev = play_level;
+
+   //   printf("level_complete_data() play_level:%d\n", play_level);
+
+      // add entry to play_data[] array
+      int i = play_data_num;
+      play_data[i].level = lev;
+      play_data[i].timer = mLoop.frame_num;
+      play_data[i].completed = 1;
+      play_data[i].player_respawns = level_data_player_respawns;
+      play_data[i].enemies_killed = level_data_enemies_killed;
+      play_data[i].purple_coins_collected = level_data_purple_coins_collected;
+      play_data[i].enemies_left_alive_at_exit = mEnemy.num_enemy;
+      play_data_num++;
+
+
+      // was the level just completed for the first time
+      if (!data[lev].completed)
+      {
+         data[lev].completed = 1;
+         data[lev].best_time                  = mLoop.frame_num;
+         data[lev].min_respawns               = level_data_player_respawns;
+         data[lev].max_enemies_killed         = level_data_enemies_killed;
+         data[lev].max_purple_coins_collected = level_data_purple_coins_collected;
+         data[lev].min_enemies_left           = mEnemy.num_enemy;
+      }
+
+      // check for new best values
+      if (mLoop.frame_num                   < data[lev].best_time)                  data[lev].best_time                  = mLoop.frame_num;
+      if (level_data_player_respawns        < data[lev].min_respawns)               data[lev].min_respawns               = level_data_player_respawns;
+      if (level_data_enemies_killed         > data[lev].max_enemies_killed)         data[lev].max_enemies_killed         = level_data_enemies_killed;
+      if (level_data_purple_coins_collected > data[lev].max_purple_coins_collected) data[lev].max_purple_coins_collected = level_data_purple_coins_collected;
+      if (mEnemy.num_enemy                  < data[lev].min_enemies_left)           data[lev].min_enemies_left           = mEnemy.num_enemy;
+
+      // calculate achievements
+
+      // check for levels to unlock
+
+   //   if (data[2].completed) data[3].unlocked = 1;
+   //   if (data[2].completed) data[3].unlocked = 1;
+
+      for (i=2; i<100; i++)
+      {
+         if (data[i].completed) data[i+1].unlocked = 1;
+      }
+
+
+      // check for other things to alter on the ovrworld level
+
+
+      save_data();
+
+   }
+
+
+
+}
+
+
 
 void mwLevel::clear_data(void)
 {
@@ -408,66 +497,169 @@ void mwLevel::clear_data(void)
       data[i].unlocked = 0;
       data[i].completed = 0;
       data[i].best_time = 0;
-      data[i].min_deaths = 0;
+      data[i].min_respawns = 0;
+      data[i].max_purple_coins_collected = 0;
+      data[i].max_enemies_killed = 0;
+      data[i].tot_purple_coins = 0;
+      data[i].min_enemies_left = 0;
+      data[i].min_enemies_left_par = 0;
    }
 
-   int i = 31;
+   int i = 2;
+   strcpy(data[i].level_name, "Switch Nest");
+   data[i].par_time = 4000;
+   data[i].unlocked = 1;
+
+   i = 3;
+   strcpy(data[i].level_name, "Blue Key Fall");
+   data[i].par_time = 1600;
+
+   i = 4;
+   strcpy(data[i].level_name, "Switch Puzzle");
+   data[i].par_time = 500;
+
+   i = 5;
+   strcpy(data[i].level_name, "Kill Kill Kill");
+   data[i].par_time = 500;
+
+   i = 10;
+   strcpy(data[i].level_name, "The Dead Zone");
+   data[i].par_time = 500;
+
+   i = 31;
    strcpy(data[i].level_name, "testy");
    data[i].par_time = 500;
+
+
+   i = 70;
+   strcpy(data[i].level_name, "Test Level 1");
+   data[i].par_time = 200;
    data[i].unlocked = 1;
-   data[i].completed = 0;
-   data[i].best_time = 0;
-   data[i].min_deaths = 0;
+
+   i = 71;
+   strcpy(data[i].level_name, "Test Level 2");
+   data[i].par_time = 240;
 
 
 
-   load_level_icons();
+   i = 80;
+   strcpy(data[i].level_name, "Training Level 1");
+   data[i].par_time = 500;
+
+
+   for(int i=0; i<10000; i++)
+   {
+      play_data[i].level = 0;
+      play_data[i].start_timestamp=0;
+      play_data[i].timer=0;
+      play_data[i].completed = 0;
+      play_data[i].enemies_killed = 0;
+      play_data[i].enemies_left_alive_at_exit = 0;
+      play_data[i].player_respawns = 0;
+      play_data[i].purple_coins_collected = 0;
+   }
+   play_data_num = 0;
 
 }
-
 
 
 void mwLevel::load_data(void)
 {
-
-
+   FILE *fp =fopen("bitmaps/level_data.pm","rb");
+   if (fp)
+   {
+      fread(data,           sizeof(data),          1, fp);
+      fread(play_data,      sizeof(play_data),     1, fp);
+      fread(&play_data_num, sizeof(play_data_num), 1, fp);
+      fclose(fp);
+      return;
+   }
+   mInput.m_err("Error loading level_date.pm");
 }
 
 void mwLevel::save_data(void)
 {
-
-
-
+   FILE *fp =fopen("bitmaps/level_data.pm","wb");
+   if (fp)
+   {
+      fwrite(data,           sizeof(data),          1, fp);
+      fwrite(play_data,      sizeof(play_data),     1, fp);
+      fwrite(&play_data_num, sizeof(play_data_num), 1, fp);
+      fclose(fp);
+      return;
+   }
+   mInput.m_err("Error saving level_data.pm");
 }
 
+
+void mwLevel::create_level_icons(void)
+{
+   int sz = 200;
+   ALLEGRO_BITMAP *tmp = al_create_bitmap(sz*10, sz*10);
+   al_set_target_bitmap(tmp);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+
+   int x=0;
+   int y=0;
+   for (int i=0; i<100; i++)
+   {
+      al_set_target_bitmap(tmp);
+      if (mLevel.load_level(i, 0, 1)) mScreen.draw_level2(tmp, x*sz, y*sz, sz, 1, 1, 1, 1, 0);
+
+      // show progress bar
+      int pc = i*100 / 100;
+      al_set_target_backbuffer(mDisplay.display);
+      //al_clear_to_color(al_map_rgb(0,0,0));
+      mScreen.draw_percent_bar(mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mDisplay.SCREEN_W-200, 20, pc );
+      al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating Level Icons");
+      al_flip_display();
+
+      if (++x > 9)
+      {
+         x = 0;
+         y++;
+      }
+   }
+
+//   al_set_target_backbuffer(mDisplay.display);
+//   al_draw_bitmap(tmp, 0,0,0);
+//   al_flip_display();
+//   mInput.tsw();
+
+   al_save_bitmap("bitmaps\\level_icons.bmp", tmp);
+
+   al_destroy_bitmap(tmp);
+}
 
 void mwLevel::load_level_icons(void)
 {
-   int sz = 40;
-   for (int i=0; i<40; i++)
-      if (mLevel.load_level(i, 0, 1))
+   int sz = 200;
+   //double llt0 = al_get_time();
+   ALLEGRO_BITMAP *tmp = al_load_bitmap("bitmaps\\level_icons.bmp");
+   if (!tmp) mInput.m_err("Error loading tiles from:level_icons.bmp");
+   else
+   {
+      int x=0;
+      int y=0;
+      for (int i=0; i<100; i++)
       {
          if (!mLevel.level_icon[i]) mLevel.level_icon[i] = al_create_bitmap(sz, sz);
+
          al_set_target_bitmap(mLevel.level_icon[i]);
          al_clear_to_color(al_map_rgba(0,0,0,0));
-         if (mLevel.valid_level_loaded) mScreen.draw_level2(mLevel.level_icon[i], 0, 0, sz, 1, 1, 1, 1, 0);
-      }
 
+         al_draw_bitmap_region(tmp, x*sz, y*sz, sz, sz, 0, 0, 0);
+         if (++x > 9)
+         {
+            x = 0;
+            y++;
+         }
+     }
+     //double llt1 = al_get_time() - llt0;
+     //printf("Load level icons time:%f\n", llt1*1000);
+     al_destroy_bitmap(tmp);
+   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -58,7 +58,7 @@ void mwScreen::show_player_stat_box(int tx, int y, int p)
    al_draw_textf(mFont.pr8, mColor.pc[15], tx+24, y, 0, "Deaths:%d", mPlayer.syn[p].stat_respawns); y+=8;
    al_draw_textf(mFont.pr8, mColor.pc[15], tx+24, y, 0, "Shots:%d", mPlayer.syn[p].stat_shots_fired); y+=8;
    al_draw_textf(mFont.pr8, mColor.pc[15], tx+24, y, 0, "Enemy Hits:%d", mPlayer.syn[p].stat_enemy_hits); y+=8;
-   al_draw_textf(mFont.pr8, mColor.pc[15], tx+24, y, 0, "Purple Coins:%d/%d", mPlayer.syn[p].stat_purple_coins, mLevel.number_of_purple_coins); y+=8;
+   al_draw_textf(mFont.pr8, mColor.pc[15], tx+24, y, 0, "Purple Coins:%d/%d", mPlayer.syn[p].stat_purple_coins, mLevel.data[mLevel.play_level].tot_purple_coins); y+=8;
 
 }
 
@@ -1003,7 +1003,7 @@ void mwScreen::draw_top_frame(int p)
    // draw purple coins
    al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
    // spin_shape(197, tdx+5, tdy-3, 0, 0, 19, 19, 0.6, 0.5, 60);
-   al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", mPlayer.syn[mPlayer.active_local_player].stat_purple_coins, mLevel.number_of_purple_coins);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", mPlayer.syn[mPlayer.active_local_player].stat_purple_coins, mLevel.data[mLevel.play_level].tot_purple_coins);
 
 
 

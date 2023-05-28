@@ -505,7 +505,11 @@ void mwItem::proc_bonus_collision(int p, int i)
    if (bonus_type == 3) // purple coin!!!
    {
       item[i][0] = 0;
-      mPlayer.syn[p].stat_purple_coins++;
+      if (!mLoop.ff_state)
+      {
+         mPlayer.syn[p].stat_purple_coins++;
+         mLevel.level_data_purple_coins_collected++;
+      }
       mGameEvent.add(27, 0, 0, p, 0, 0, 0);
    }
 }
@@ -640,7 +644,7 @@ item[][12] = CURR OFF pm_event
 item[][13] = TGON pm_event #
 item[][14] = TGOF pm_event #
 
-[10] - pop-up msg
+[10] - msg
 item[][1] event trigger
 item[][6]  msg x
 item[][7]  msg y
@@ -700,7 +704,7 @@ item[][15] = damage
 [18] - gate
 item[][6] level num
 item[][7] player touching
-item[][8]
+item[][8] player down key holdoff
 item[][9]
 item[][10]
 item[][11]

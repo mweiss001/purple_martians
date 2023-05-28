@@ -299,6 +299,7 @@ void mwVisualLevel::compare_all(void)
 
 void mwVisualLevel::lev_draw(int full)
 {
+
    int ms = 50; // map size
    if (full) // load all the levels again
    {

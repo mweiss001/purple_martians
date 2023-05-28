@@ -33,7 +33,6 @@ class mwLoop
 
 
    // frame_speed, frames per second, frame_num stuff
-   int speed_testing = 0;
    int frame_speed = 40;
    int frame_num;
    int speed_control_lock = 1;

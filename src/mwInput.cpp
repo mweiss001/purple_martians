@@ -15,7 +15,7 @@
 #include "mwMain.h"
 #include "mwScreen.h"
 #include "mwGameMoves.h"
-
+#include "mwLevel.h"
 
 
 mwInput mInput;
@@ -176,6 +176,8 @@ void mwInput::serial_key_check(int key)
    char tst[16];
    int tl = 0;
 
+
+
    sprintf(tst, "test");
    tl = strlen(tst);
    if (skc_index > tl-1)
@@ -185,23 +187,15 @@ void mwInput::serial_key_check(int key)
 
    }
 
-
-   sprintf(tst, "ston");
+   sprintf(tst, "demo");
    tl = strlen(tst);
    if (skc_index > tl-1)
    {
       if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-         mLoop.speed_testing = 1;
+      mLevel.skc_trigger_demo = 1;
    }
 
-   sprintf(tst, "stoff");
-   tl = strlen(tst);
-   if (skc_index > tl-1)
-   {
-      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-         mLoop.speed_testing = 0;
 
-   }
 
    sprintf(tst, "fakekey");
    tl = strlen(tst);

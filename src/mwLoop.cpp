@@ -66,7 +66,6 @@ void mwLoop::initialize(void)
    pct_y = 0;
 
    // frame_speed, frames per second, mwPS.frame_num stuff
-   speed_testing = 0;
    frame_speed = 40;
    frame_num = 0;
    speed_control_lock = 1;
@@ -225,11 +224,6 @@ void mwLoop::proc_program_state(void)
          if (mLoop.new_program_state == 23) mLoop.program_state = 23; // client wait for sjon
          if (mLoop.new_program_state == 24) mLoop.program_state = 24; // client init network and send cjon
          if (mLoop.new_program_state == 25) mLoop.program_state = 25; // client exit and clean up network
-
-
-
-
-
 
          if (mLoop.new_program_state == 1) // game menu or fast exit
          {
@@ -554,12 +548,27 @@ void mwLoop::proc_program_state(void)
 
       if (mLog.LOG_NET) { sprintf(msg,"NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level); mLog.add_log_entry_header(10, 0, msg, 3); }
 
+
       if (mPlayer.syn[mPlayer.active_local_player].control_method == 1) // run demo mode saved game file
       {
-         mLoop.new_program_state = 2;
-         al_rest(1);
-         return; // to exit immediately
+         if (mLoop.old_program_state == 2)
+         {
+            mLoop.new_program_state = 2;
+            al_rest(1);
+            return; // to exit immediately
+         }
+         else
+         {
+            // end demo mode and go back to overworld level
+            mPlayer.syn[mPlayer.active_local_player].control_method = 0;
+         }
+
+
       }
+
+
+
+
 
       if ((mLog.LOG_NET) && (mNetgame.ima_client)) mLog.log_ending_stats(mPlayer.active_local_player);
       if ((mLog.LOG_NET) && (mNetgame.ima_server)) mLog.log_ending_stats_server();
@@ -572,6 +581,8 @@ void mwLoop::proc_program_state(void)
       if (mLog.autosave_log_on_level_done) mLog.save_log_file();
 
       mLevel.play_level = mPlayer.syn[0].level_done_next_level;
+
+
 
 //      if ((mNetgame.ima_client) || (mNetgame.ima_server))
 //         for (int p=0; p<NUM_PLAYERS; p++)
@@ -766,9 +777,6 @@ void mwLoop::proc_level_done_mode(void)
       cutscene_accel = 1.0;
       cutscene_bg_x =  0.0;
 
-
-
-
    }
 
    if (mPlayer.syn[0].level_done_mode == 27) // rocket move
@@ -787,10 +795,7 @@ void mwLoop::proc_level_done_mode(void)
 
       al_flip_display();
 
-
 //      if (mPlayer.syn[0].level_done_timer == 100) mDisplay.set_custom_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/3000, 100);
-
-
 
 
    }

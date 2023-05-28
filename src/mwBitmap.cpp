@@ -88,6 +88,10 @@ void mwBitmap::rebuild_bitmaps(void)
    text_title_bitmaps_create = 1;
    mScreen.set_map_var();
    mVisualLevel.load_visual_level_select_done = 0;
+
+   mLevel.load_level_icons();
+
+
 }
 
 void mwBitmap::reset_animation_sequences(void)

@@ -296,15 +296,15 @@ int mwMain::initial_setup(void)
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
    mPlayer.syn[0].active = 1;
 
-   mDemoMode.demo_mode_enabled = mDemoMode.demo_mode_config_enable; // set only at startup from cofing file
+   mDemoMode.demo_mode_enabled = mDemoMode.demo_mode_config_enable; // set only at startup from config file
 
    mLevel.set_start_level();
 
-   mLevel.clear_data();
-
+   mLevel.setup_data();
 
    return 1;
 }
+
 
 
 int mwMain::pm_main(int argument_count, char **argument_array)
@@ -317,6 +317,7 @@ int mwMain::pm_main(int argument_count, char **argument_array)
       mLoop.main_loop();
    }
    if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
+   mConfig.save();
    final_wrapup();
    exit(0);
 }

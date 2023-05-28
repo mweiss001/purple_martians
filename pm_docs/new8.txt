@@ -22058,6 +22058,84 @@ good?
 I think doors are done...
 
 
+
+
+lift step type 5 wait for trigger
+calls bn 520
+that calls:
+if (mTriggerEvent.get_trigger_item(4, num, type, ti_obj_type, ti_num, ti_sub_type))
+
+then calls:
+
+mItem.set_trigger_event(ti_num, 0, 0, ev, 0); // toggle ON trigger
+but i think this is a one off that should use the more generic method
+this is the only time this function is called
+
+
+this is what should be called for both:
+
+void mwTriggerEvent::find_event_sender_for_obj(int obj_type, int obj_num, int obj_ext, int obj_ext2)
+
+
+bn = 520
+num = l
+type = s
+obt = 4
+
+mWidget.button( xa, ya, xb, bts,  520,l,s,4, 0,c1,15,0,  1,0,1,d); ya+=bts; // lift step wait trigger get event
+
+
+
+
+
+this is the button in lift:
+
+if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,c1,15,0,  1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(4, l, s, 0);
+
+am I sending the right args?
+
+void mwTriggerEvent::find_event_sender_for_obj(int obj_type, int obj_num, int obj_ext, int obj_ext2)
+
+this is wrong:
+mLift.stp[ti_num][ti_obj_ext].val = ev; // set event number in receiver
+should be:
+mLift.stp[obj_num][obj_ext].val = ev; // set event number in receiver
+
+I think I've got it...
+
+
+remove button 520..done
+remove:done
+//void mwItem::set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3)
+//{
+//   if (item[i][0] == 6) // orb
+//   {
+//      item[i][10] = ev0;
+//      item[i][11] = ev1;
+//      item[i][12] = ev2;
+//      item[i][13] = ev3;
+//   }
+//   if (item[i][0] == 9) // trigger
+//   {
+//      item[i][11] = ev0;
+//      item[i][12] = ev1;
+//      item[i][13] = ev2;
+//      item[i][14] = ev3;
+//   }
+//   if (item[i][0] == 13) // timer
+//   {
+//      item[i][13] = ev0;
+//      item[i][15] = ev1;
+//   }
+//}
+
+
+cleaned up and made more trigger event stuff look good
+
+
+
+
+
 20230524
 
 Make new level entry item
@@ -22154,11 +22232,542 @@ void mwPlayer::proc_player_collisions(int p)
 
 added set to -1 in init player..
 
-
 seems to be working good now...
 
-
 20230525
+
+need to return to overworld map when level done
+what about menu? return to overworld?
+
+I need to figure out how these states link together...
+
+overworld
+
+play level
+
+finish level
+
+overworld
+
+how about we are always in overworld
+
+
+when in menu mode if resume is allowed, also return to overworld is allowed too
+
+
+I think I am going to have to redo the entire menu thing..
+
+menu-overworld-level
+
+menu can be on top of overworld or specific level
+
+
+I think I have the whole overworld to level and back thing ok in my mind
+
+but where does the main menu apply to all this
+
+when running a level (not overworld)
+esc will pause the level and bring up a menu
+one of the options will be to quit the current level and go back to the overworld
+
+
+I want to have both methods coexisting, at least for the start
+
+
+what I can do to start for now is have all exits take you back to the overworld
+
+then in the overworld you will be at the gate for the level you just completed
+
+added  int gate_level; to mwLevel
+set it when entering gate...
+in player set start pos if level 1 look for matching gate...
+
+I am thinking of replacing all warps with gates...only ever used on level 1 anyway
+
+
+I want to save the level icons bitmaps to disk
+why?
+to speed up the process of loading them
+how long does it take now?
+
+m36   sz:200 lev:100 0.8s
+e6430 sz:200 lev:100 2.7s
+
+what is the max size of bitmap I can create
+
+how much do I need?
+200x200x100 = 4,000,000
+2000x2000 = 4,000,000
+not that much apparantly
+
+I am only looking at levels 1-99
+right now I am using approx 80 levels of 1-99
+should I go to 200?
+
+make a bitmap sz*10, sz*10
+add icons in a 10x10 grid and dont care about missing ones
+
+new times:
+m36   sz:200 lev:100 0.044s
+e6430 sz:200 lev:100 0.114s
+
+make level icon size and last level configurable
+no..stick with 200 and 100
+
+
+what is next?
+
+enforce locked..done
+show either: locked, unlocked, or completed
+
+
+do something at level completed
+
+mark level completed
+record best times, etc..
+
+where to detect this:
+in exit collision
+
+where to put code for this:
+mLevel
+
+
+
+
+OK I am at a crossroads here:
+I want to save data everytime a level is completed
+
+how am I going to do this?
+
+a file everytime?
+a row in a data structure?
+
+
+int level
+double start_timestamp
+int completed;
+int timer;
+int number_players
+int enemies_killed
+int enemies_left_alive_at_exit
+int player_respawns
+int purple_coins_collected
+
+
+in my new plan is there any need for new game, vs next level?
+
+I will always be in the overworld, level 1, or in another level...
+
+when the game starts, level 1 starts and player is put at current level
+
+esc brings up the menu and pauses the game
+
+without breaking too much implement the level_play_data stuff
+
+when do I enter the first stuff?
+
+I could just do it when a level is completed for now...
+
+
+make 2 functions:
+
+one when level is started and one when level is complete
+add variables to level class to track things happening while level is running
+
+when do I run the start function?
+
+I could do it when level is loaded...done
+
+now patch in code to updated variables as game runs...
+
+
+   level_data_purple_coins_collected = 0;
+   level_data_player_respawns = 0;
+   level_data_enemies_killed = 0;
+
+
+   if (bonus_type == 3) // purple coin!!!
+   {
+      item[i][0] = 0;
+      mPlayer.syn[p].stat_purple_coins++;
+      mLevel.level_data_purple_coins_collected++;
+      mGameEvent.add(27, 0, 0, p, 0, 0, 0);
+   }
+
+      mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
+      syn[p].stat_respawns++;
+      mLevel.level_data_player_respawns++;
+
+   mGameEvent.add(42, 0, 0, Ei[e][26], e, type, hbm);
+   mLevel.level_data_enemies_killed++;
+
+
+these three were easy to patch in
+I think I will have to do something to account for rewind...
+otherwise these will be counted on rewind also...
+add this test...
+if (!mLoop.ff_state)
+OK done...
+
+make some test levels
+
+show time with a decimal..done
+purple coins as a fraction of max..done
+
+wow, i think the frame work is coming along nicely
+
+do more with play data.. i do nothing yet...
+
+count number of times level has been completed
+average time
+total time
+
+now should I make it look nicer?
+
+level name
+par time
+number of purple coins
+
+frame level?
+
+locked, completed indicators?
+
+more info, cycle pages by pressing down?
+
+I think I want the level icon to be displayed below the gate
+title, frame, icon
+
+the max char fot title that can fit in the frame with icon size 200 is 24 char
+
+
+auto set number of purple coins requires each level to be loaded
+do it when creating icons
+
+1 - clear data
+2 - create icons (and set tot_purple)
+3 - save
+done:
+
+
+could I show more icons?
+
+one for completed
+one for time
+one for all purple coins
+
+401 dude
+197 pc
+445 time
+
+I want to do min enemy also
+
+how to find that?
+
+for each level, iterate all exits and find least
+100 means 0 so do 100-num and find least
+
+done..now what?
+
+pressing down to cycle pages
+
+make a holdoff...done
+
+make more pages
+
+what else can I show?
+
+do something about the locked, complete stuff
+
+draw gates bigger, double size?
+
+overlay small text
+
+I could make the map just one of the screens
+yes, that looks great!
+
+
+number of info screens will change based on whether the level has been completed or not
+0 will always be map
+in ready mode
+
+add page to locked to tell what has to be done to unlock
+
+add page to run demo mode
+
+make sure demo mode does not save any achivements
+
+
+I need a function that starts demo mode when only passed integer level num
+
+it wil need to look in savegame/demo and all files there need to be named:
+levxxx.gm
+
+like lev002.gm
+
+there are so many transitions between states
+it will take a while to sort them out
+
+if I enter demo mode from a gate
+I want to go back to the same gate when done...
+
+
+I am trying to trace where it goes when level done in demo mode
+
+demo mode is just mode 14 then mode 11
+
+level_done mode is the only way out
+
+at the end, ldm forces mode 12 load new level
+
+I missed something...
+
+how does it get back to settings if called from there
+
+mode 12 set new state 2
+
+      if (mPlayer.syn[mPlayer.active_local_player].control_method == 1) // run demo mode saved game file
+      {
+         mLoop.new_program_state = 2;
+         al_rest(1);
+         return; // to exit immediately
+      }
+
+
+it doesnt! it continues demo mode
+
+do I need a mode to reset all this?
+
+mode xx
+reload overworld level
+
+
+when getting player start for level 1, force it to be play level
+maybe I should have another variable to keep track of the current level in the overworld
+did that and it seems to work good
+
+now I need to make it so that demo's don't actually get achievements..done
+
+what next?
+
+this is huge:
+
+make it so that I am in the overworld by default and the menu is called from there
+
+make a new menu..don't kill the old one
+
+I want some nice transitions from overworld to level and back
+
+I will always have a level loaded, tbis will stay the same
+menu will pause level and do menu stuff
+this sounds so simple
+
+the menu will be different
+
+new game and start level won't make sense
+
+
+start server
+start client
+settings
+run demo
+help
+quit
+
+when playing non overworld level
+quit to overworld
+
+when in netgame, bringing up the menu will end netgame (same as before)
+I could make it so that the menu does not pause the game
+then give the client a smaller list of things they can do..
+
+change controls, color, bmsg, viewport
+
+I would like to have a secondary way to store a level in memory
+I could really use it for some cool transitions between overworld and levels
+I could have a small running level in the overworld
+I could use it to dynamically show levels when I touch the gates
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
