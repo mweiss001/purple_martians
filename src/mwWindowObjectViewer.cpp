@@ -1165,6 +1165,10 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
       int lift = num;
       int step = mLift.cur[lift].current_step;
 
+      for (int s=0; s<mLift.cur[lift].num_steps; s++) // iterate steps
+         mTriggerEvent.find_and_show_event_links(4, lift, s);
+
+
       if ((mLift.stp[lift][step].type & 31) != 1) step = mLift.find_previous_move_step(lift, step);
 
       int color = (mLift.stp[lift][step].type >> 28) & 15;
@@ -1186,6 +1190,7 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
       al_draw_line(xc, y2, xc, 2000, mColor.pc[color], 1);
       al_draw_line(0, yc, x1, yc, mColor.pc[color], 1);
       al_draw_line(x2, yc, 2000, yc, mColor.pc[color], 1);
+
    }
    if (obt == 3)  // enemies
    {

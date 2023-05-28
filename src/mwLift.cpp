@@ -582,6 +582,9 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
    int ya = y+fs;
    int c1 = 9;
 
+
+
+
    // step details text header button
    int sd = 10; // color
    switch (stp[l][s].type & 31)
@@ -629,6 +632,9 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
    mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_SOLID_ITEM,   "Solid for Item:OFF  ", "Solid for Item:ON   ", c3+dim, c3, c2+dim, c2);
    mWidget.togglf(xa, ya, xb, bts, 0,0,0,0, 0,0,0,0, 1,0,1,d, stp[l][s].type, PM_LIFT_HIDE_LINES,   "Draw Lift Lines",      "Hide Lift Lines",      c3, c3+dim, c2, c2+dim);
 
+
+
+
    // specific buttons
    switch (stp[l][s].type & 31)
    {
@@ -648,7 +654,7 @@ int mwLift::draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d
       break;
       case 5: // wait trigger
          mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Event:");
-         mWidget.button( xa, ya, xb, bts,  520,l,s,4, 0,c1,15,0,  1,0,1,d); ya+=bts; // lift step wait trigger get event
+     if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,0,  1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(4, l, s, 0);
       break;
       case 6: // send trigger
          mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,d, stp[l][s].val, 99, 0, 1, "Event:");
@@ -698,6 +704,8 @@ int mwLift::draw_steps(int x1, int x2, int y, int lift, int current_step, int hi
    int xb = x2-fs;
    int ya = y+fs;
 
+
+
    // draw title step
    draw_step_button(xa, xb, ya+(a)*bts, ya+(a+1)*bts-1, lift, -1, 13, d); a++;
 
@@ -707,6 +715,8 @@ int mwLift::draw_steps(int x1, int x2, int y, int lift, int current_step, int hi
       int color = 13;
       if (step == current_step) color = 10;
       draw_step_button(xa, xb, ya+(a)*bts, ya+(a+1)*bts-1, lift, step, color, d); a++;
+
+
    }
 
    // show outline around highlighted step
@@ -790,6 +800,9 @@ void mwLift::draw_lift_line(int l)
       {
          for (int s=0; s<cur[l].num_steps; s++) // cycle steps
          {
+
+
+
             if ((stp[l][s].type & 31) == 1) // filter for move steps
             {
                nx = stp[l][s].x + stp[l][s].w / 2;
@@ -864,6 +877,8 @@ void mwLift::draw_lift(int l, int x1, int y1, int x2, int y2)
    {
       al_draw_textf(mFont.pixl, mColor.pc[15], (x1+x2)/2, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%-4.0f y:%-4.0f", cur[l].x, cur[l].y);
       al_draw_textf(mFont.pixl, mColor.pc[15], (x1+x2)/2, y1-12, ALLEGRO_ALIGN_CENTRE, "w:%-4.0f h:%-4.0f", cur[l].w, cur[l].h);
+
+
    }
 
 

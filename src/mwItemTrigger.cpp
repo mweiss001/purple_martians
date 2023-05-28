@@ -237,32 +237,29 @@ item[][14] = TGOF pm_event #
 
 void mwItem::proc_trigger(int i)
 {
-   int FLAGS = item[i][3];
-   if (FLAGS & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 0);
+   int& flags = item[i][3];
 
-   item[i][3] &= ~PM_ITEM_TRIGGER_TGON;  // clear Toggle ON  trigger flag
-   item[i][3] &= ~PM_ITEM_TRIGGER_TGOF;  // clear Toggle OFF trigger flag
-   item[i][3] &= ~PM_ITEM_TRIGGER_CURR;  // clear current    trigger flag
+   if (flags & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 0);
+
+   flags &= ~PM_ITEM_TRIGGER_TGON;  // clear toggle ON  trigger flag
+   flags &= ~PM_ITEM_TRIGGER_TGOF;  // clear toggle OFF trigger flag
+   flags &= ~PM_ITEM_TRIGGER_CURR;  // clear current    trigger flag
 
    detect_trigger_collisions(i);
 
-   if ( (item[i][3] &  PM_ITEM_TRIGGER_CURR)    // is current trigger flag set?
-   && (!(item[i][3] &  PM_ITEM_TRIGGER_PREV)))  // and previous trigger flag not set?
-         item[i][3] |= PM_ITEM_TRIGGER_TGON;    // set trigger ON toggle
+   if ( (flags &  PM_ITEM_TRIGGER_CURR)    // is current trigger flag set?
+   && (!(flags &  PM_ITEM_TRIGGER_PREV)))  // and previous trigger flag not set?
+         flags |= PM_ITEM_TRIGGER_TGON;    // set trigger ON toggle
 
+   if (!(flags &  PM_ITEM_TRIGGER_CURR)    // is current trigger flag not set?
+   && ( (flags &  PM_ITEM_TRIGGER_PREV)))  // and previous trigger flag set?
+         flags |= PM_ITEM_TRIGGER_TGOF;    // set trigger OFF toggle
 
-   if (!(item[i][3] &  PM_ITEM_TRIGGER_CURR)    // is current trigger flag not set?
-   && ( (item[i][3] &  PM_ITEM_TRIGGER_PREV)))  // and previous trigger flag set?
-         item[i][3] |= PM_ITEM_TRIGGER_TGOF;    // set trigger OFF toggle
+   if   (flags &   PM_ITEM_TRIGGER_CURR)    // is current trigger flag set?
+         flags |=  PM_ITEM_TRIGGER_PREV;    // set previous trigger flag
 
-
-   if   (item[i][3] &   PM_ITEM_TRIGGER_CURR)    // is current trigger flag set?
-         item[i][3] |=  PM_ITEM_TRIGGER_PREV;    // set previous trigger flag
-
-   if (!(item[i][3] &   PM_ITEM_TRIGGER_CURR))   // is current trigger flag not set?
-         item[i][3] &= ~PM_ITEM_TRIGGER_PREV;    // clear previous trigger flag
-
-
+   if (!(flags &   PM_ITEM_TRIGGER_CURR))   // is current trigger flag not set?
+         flags &= ~PM_ITEM_TRIGGER_PREV;    // clear previous trigger flag
 
    // clear all events
    mTriggerEvent.event[item[i][11]] = 0;
@@ -270,17 +267,10 @@ void mwItem::proc_trigger(int i)
    mTriggerEvent.event[item[i][13]] = 0;
    mTriggerEvent.event[item[i][14]] = 0;
 
-   FLAGS = item[i][3]; // update FLAGS
-
-/*   if (FLAGS & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", mLoop.frame_num);
-   if (FLAGS & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", mLoop.frame_num);
-   if (FLAGS & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", mLoop.frame_num);
-   if (FLAGS & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", mLoop.frame_num); */
-
-   if   (FLAGS & PM_ITEM_TRIGGER_CURR)  mTriggerEvent.event[item[i][11]] = 1;
-   if (!(FLAGS & PM_ITEM_TRIGGER_CURR)) mTriggerEvent.event[item[i][12]] = 1;
-   if   (FLAGS & PM_ITEM_TRIGGER_TGON)  mTriggerEvent.event[item[i][13]] = 1;
-   if   (FLAGS & PM_ITEM_TRIGGER_TGOF)  mTriggerEvent.event[item[i][14]] = 1;
+   if   (flags & PM_ITEM_TRIGGER_CURR)  mTriggerEvent.event[item[i][11]] = 1;
+   if (!(flags & PM_ITEM_TRIGGER_CURR)) mTriggerEvent.event[item[i][12]] = 1;
+   if   (flags & PM_ITEM_TRIGGER_TGON)  mTriggerEvent.event[item[i][13]] = 1;
+   if   (flags & PM_ITEM_TRIGGER_TGOF)  mTriggerEvent.event[item[i][14]] = 1;
 }
 
 void mwItem::set_item_trigger_location_from_lift(int i, int a20)
@@ -336,7 +326,7 @@ void mwItem::set_item_trigger_location_from_lift(int i, int a20)
 
 void mwItem::detect_trigger_collisions(int i)
 {
-   int FLAGS = item[i][3];
+   int& flags = item[i][3];
 
    // trigger field
    int tfx1 = item[i][6]-10;
@@ -344,50 +334,47 @@ void mwItem::detect_trigger_collisions(int i)
    int tfx2 = tfx1 + item[i][8];
    int tfy2 = tfy1 + item[i][9];
 
-   if (FLAGS & PM_ITEM_TRIGGER_PLAYER)
+   if (flags & PM_ITEM_TRIGGER_PLAYER)
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
          {
             int x = mPlayer.syn[p].x;
             int y = mPlayer.syn[p].y;
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) flags |= PM_ITEM_TRIGGER_CURR;
          }
-   if (FLAGS & PM_ITEM_TRIGGER_ENEMY)
-      for (int e2=0; e2<100; e2++)
-         if (mEnemy.Ei[e2][0])
+   if (flags & PM_ITEM_TRIGGER_ENEMY)
+      for (int e=0; e<100; e++)
+         if (mEnemy.Ei[e][0])
          {
-            int x = mEnemy.Ef[e2][0];
-            int y = mEnemy.Ef[e2][1];
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
+            int x = mEnemy.Ef[e][0];
+            int y = mEnemy.Ef[e][1];
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) flags |= PM_ITEM_TRIGGER_CURR;
          }
-   if (FLAGS & PM_ITEM_TRIGGER_ITEM)
+   if (flags & PM_ITEM_TRIGGER_ITEM)
       for (int c=0; c<500; c++)
          if (item[c][0])
          {
             int x = itemf[c][0];
             int y = itemf[c][1];
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) flags |= PM_ITEM_TRIGGER_CURR;
          }
-   if (FLAGS & PM_ITEM_TRIGGER_PSHOT) // check player shots
+   if (flags & PM_ITEM_TRIGGER_PSHOT) // check player shots
       for (int b=0; b<50; b++)
          if (mShot.p[b].active)
          {
             int x = mShot.p[b].x;
             int y = mShot.p[b].y;
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) flags |= PM_ITEM_TRIGGER_CURR;
          }
-   if (FLAGS & PM_ITEM_TRIGGER_ESHOT) // check enemy shots
+   if (flags & PM_ITEM_TRIGGER_ESHOT) // check enemy shots
       for (int b=0; b<50; b++)
          if (mShot.e[b].active)
          {
             int x = mShot.e[b].x;
             int y = mShot.e[b].y;
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) flags |= PM_ITEM_TRIGGER_CURR;
          }
 }
-
-
-
 
 
 int mwItem::draw_trigger(int i, int x, int y, int custom)
@@ -425,7 +412,6 @@ item[][9] = trigger field x (2000)
 item[][10] block 1
 item[][11] block 2
 item[][12] = draw color
-
 item[][13] = copy x
 item[][14] = copy y
 
@@ -549,15 +535,14 @@ item[][3]  = flags
 #define PM_ITEM_DAMAGE_LIFT_YF  0b00000100000000000
 #define PM_ITEM_DAMAGE_LIFT_YL  0b00001000000000000
 
-item[][4]  = x pos   (2000)
-item[][5]  = y pos   (2000)
-item[][6]  = field x (2000)
-item[][7]  = field y (2000)
-item[][8]  = field w (2000)
-item[][9]  = field h (2000)
+item[][4]  = x pos
+item[][5]  = y pos
+item[][6]  = field x
+item[][7]  = field y
+item[][8]  = field w
+item[][9]  = field h
 item[][10] = lift number
 item[][11] = mode
-
 item[][15] = damage
 
 */
@@ -615,12 +600,12 @@ void mwItem::set_item_damage_location_from_lift(int i, int a20)
 void mwItem::proc_item_damage_collisions(int i)
 {
    int FLAGS = item[i][3];
-   int cd = FLAGS & PM_ITEM_DAMAGE_CURR;                 // damage active
+   int cd  =            FLAGS & PM_ITEM_DAMAGE_CURR;     // damage active
    int cdp =  ((cd) && (FLAGS & PM_ITEM_DAMAGE_PLAYER)); // damage active and player flag
    int cde =  ((cd) && (FLAGS & PM_ITEM_DAMAGE_ENEMY));  // damage active and enemy flag
    int cdi =  ((cd) && (FLAGS & PM_ITEM_DAMAGE_ITEM));   // damage active and item flag
-   int cdpb = ((cd) && (FLAGS & PM_ITEM_DAMAGE_PSHOT));   // damage active and player shot flag
-   int cdeb = ((cd) && (FLAGS & PM_ITEM_DAMAGE_ESHOT));   // damage active and enemy shot flag
+   int cdpb = ((cd) && (FLAGS & PM_ITEM_DAMAGE_PSHOT));  // damage active and player shot flag
+   int cdeb = ((cd) && (FLAGS & PM_ITEM_DAMAGE_ESHOT));  // damage active and enemy shot flag
 
    // damage field
    int tfx1 = item[i][6]-10;
@@ -771,53 +756,32 @@ int mwItem::draw_block_damage(int i, int x, int y, int custom)
 
 void mwItem::proc_block_damage(int i)
 {
-   int et = item[i][1];                // number of pm_event trigger we are looking for
-   int trig = mTriggerEvent.event[et]; // is the trigger event set?
-   if (et == 0) trig = 0;              // if event is zero, ignore
+   int& flags = item[i][3];
+
+   int et = item[i][1];                 // number of pm_event trigger we are looking for
+   int trig = mTriggerEvent.event[et];  // is the trigger event set?
+   if (et == 0) trig = 0;               // if event is zero, ignore
 
 
-   if (item[i][3] & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i, 0); // follow lift location
+   if (flags & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i, 0); // follow lift location
 
    proc_item_damage_collisions(i);
 
    int mode = item[i][11];
 
-   if (mode == 0) item[i][3] |= PM_ITEM_DAMAGE_CURR; // in mode 0, always set damage flag
+   if (mode == 0) flags |= PM_ITEM_DAMAGE_CURR;             // current damage always set
 
-   if ((mode == 1) && (trig)) item[i][3] ^= PM_ITEM_DAMAGE_CURR; // toggle current damage flag
+   if ((mode == 1) && (trig)) flags ^= PM_ITEM_DAMAGE_CURR; // toggle current damage flag
 
    if (mode == 2) // damage on unless triggered
    {
-      if (trig) item[i][3] &= ~PM_ITEM_DAMAGE_CURR; // damage off
-      else      item[i][3] |=  PM_ITEM_DAMAGE_CURR; // damage on
+      if (trig) flags &= ~PM_ITEM_DAMAGE_CURR; // damage off
+      else      flags |=  PM_ITEM_DAMAGE_CURR; // damage on
    }
    if (mode == 3) // damage off unless triggered
    {
-      if (trig) item[i][3] |=  PM_ITEM_DAMAGE_CURR; // damage on
-      else      item[i][3] &= ~PM_ITEM_DAMAGE_CURR; // damage off
-   }
-}
-
-void mwItem::set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3)
-{
-   if (item[i][0] == 6) // orb
-   {
-      item[i][10] = ev0;
-      item[i][11] = ev1;
-      item[i][12] = ev2;
-      item[i][13] = ev3;
-   }
-   if (item[i][0] == 9) // trigger
-   {
-      item[i][11] = ev0;
-      item[i][12] = ev1;
-      item[i][13] = ev2;
-      item[i][14] = ev3;
-   }
-   if (item[i][0] == 13) // timer
-   {
-      item[i][13] = ev0;
-      item[i][15] = ev1;
+      if (trig) flags |=  PM_ITEM_DAMAGE_CURR; // damage on
+      else      flags &= ~PM_ITEM_DAMAGE_CURR; // damage off
    }
 }
 
@@ -849,9 +813,6 @@ item[][15] = t2 o/p event
 #define PM_ITEM_TIMER_T1_OP_MODE    0b00000000000000000000001000000000
 #define PM_ITEM_TIMER_T2_OP_MODE    0b00000000000000000000000100000000
 #define PM_ITEM_TIMER_STATE_CURR    0b00000000000000000000000000000001
-
-
-
 
 */
 
@@ -1044,183 +1005,3 @@ float mwItem::get_timer_ratio_for_event(int ev)
    }
    return 0;
 }
-
-
-/*
-
-item[][0]  = 20 - Wrap Rect
-item[][1]  =
-item[][2]  = draw_mode 0 = Off 1 = red rectangle
-
-item[][3]  = flags
-#define PM_ITEM_WRAP_PLAYER   0b000000000000000001
-#define PM_ITEM_WRAP_ENEMY    0b000000000000000010
-#define PM_ITEM_WRAP_ITEM     0b000000000000000100
-#define PM_ITEM_WRAP_PSHOT    0b000000000000001000
-#define PM_ITEM_WRAP_ESHOT    0b000000000000010000
-#define PM_ITEM_WRAP_XMN      0b000000000000100000
-#define PM_ITEM_WRAP_XPL      0b000000000001000000
-#define PM_ITEM_WRAP_YMN      0b000000000010000000
-#define PM_ITEM_WRAP_YPL      0b000000000100000000
-#define PM_ITEM_WRAP_FORCE    0b000000001000000000
-
-item[][4]  = x
-item[][5]  = y
-item[][6]  = x1
-item[][7]  = y1
-item[][8]  = x2
-item[][9]  = y2
-
-
-*/
-
-//
-//int mwItem::draw_wrap_rect(int i, int x, int y, int custom)
-//{
-//   float x1 = item[i][6];
-//   float y1 = item[i][7];
-//   float w =  item[i][8];
-//   float h =  item[i][9];
-//   float x2 = x1 + w;
-//   float y2 = y1 + h;
-//
-//
-//   if (mLoop.level_editor_running)
-//   {
-//      al_draw_bitmap(mBitmap.tile[544], x, y, 0); // draw item shape in level editor, invisible when game running
-//   }
-//   if (!custom)
-//   {
-////      mMiscFnx.rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col+96, col+96+96, 0);
-//
-//      if (item[i][2]) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
-//
-////      float x = mPlayer.syn[0].x;
-////      float y = mPlayer.syn[0].y;
-////      float xi = mPlayer.syn[0].xinc;
-////      float yi = mPlayer.syn[0].yinc;
-////
-////      int xg=0, yg=0;
-////
-////      if ((x >= x1-10) && (x <= x2-10))
-////      {
-////         xg=1;
-////         al_draw_line(x1, y1, x1, y2, mColor.pc[14], 1);
-////         al_draw_line(x2, y1, x2, y2, mColor.pc[14], 1);
-////      }
-////      if ((y >= y1-10) && (y <= y2-10))
-////      {
-////         yg=1;
-////         al_draw_line(x1, y1, x2, y1, mColor.pc[14], 1);
-////         al_draw_line(x1, y2, x2, y2, mColor.pc[14], 1);
-////      }
-////
-////      printf("d1 x1:%3.0f y1:%3.0f x2:%3.0f y2:%3.0f x:%f y:%f xi:%f yi:%f  xg:%d yg:%d\n", x1, y1, x2, y2, x, y, xi, yi, xg, yg);
-//
-//
-//
-//   }
-//   return 1;
-//}
-//
-//
-//void mwItem::wrap_rect_helper(int i, float &x, float &y, float xi, float yi)
-//{
-//   float x1 = item[i][6]-10;
-//   float y1 = item[i][7]-10;
-//   float w =  item[i][8];
-//   float h =  item[i][9];
-//   float x2 = x1 + w;
-//   float y2 = y1 + h;
-//
-//   if (item[i][3] & PM_ITEM_WRAP_FORCE)
-//   {
-//      if (y > y2) y -= h; // below
-//      if (y < y1) y += h; // above
-//      if (x > x2) x -= w; // right
-//      if (x < x1) x += w; // left
-//   }
-//   else
-//   {
-//
-////   float d = 8;
-////   if ((item[i][3] & PM_ITEM_WRAP_YPL) && (yi > 0) && (x >= x1) && (x <= x2) && (y <= y2) && (y+yi > y2)) y -= (h-(d*yi)); // moving down
-////   if ((item[i][3] & PM_ITEM_WRAP_YMN) && (yi < 0) && (x >= x1) && (x <= x2) && (y >= y1) && (y+yi < y1)) y += (h+(d*yi)); // moving up
-////   if ((item[i][3] & PM_ITEM_WRAP_XPL) && (xi > 0) && (y >= y1) && (y <= y2) && (x <= x2) && (x+xi > x2)) x -= (w-(d*xi)); // moving right
-////   if ((item[i][3] & PM_ITEM_WRAP_XMN) && (xi < 0) && (y >= y1) && (y <= y2) && (x >= x1) && (x+xi < x1)) x += (w+(d*xi)); // moving left
-//
-//      float d = 8;
-//      if ((item[i][3] & PM_ITEM_WRAP_YPL) && (yi > 0) && (x >= x1) && (x <= x2) && (y <= y2) && (y+yi > y2)) y -= (h-d); // moving down
-//      if ((item[i][3] & PM_ITEM_WRAP_YMN) && (yi < 0) && (x >= x1) && (x <= x2) && (y >= y1) && (y+yi < y1)) y += (h-d); // moving up
-//      if ((item[i][3] & PM_ITEM_WRAP_XPL) && (xi > 0) && (y >= y1) && (y <= y2) && (x <= x2) && (x+xi > x2)) x -= (w-d); // moving right
-//      if ((item[i][3] & PM_ITEM_WRAP_XMN) && (xi < 0) && (y >= y1) && (y <= y2) && (x >= x1) && (x+xi < x1)) x += (w-d); // moving left
-//
-//   }
-//
-////   al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
-//
-//
-//
-//}
-//
-//
-//void mwItem::proc_wrap_rect(int i)
-//{
-//   int FLAGS = item[i][3];
-//   if (FLAGS & PM_ITEM_WRAP_PLAYER)
-//      for (int p=0; p<NUM_PLAYERS; p++)
-//         if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
-//            wrap_rect_helper(i, mPlayer.syn[p].x, mPlayer.syn[p].y, mPlayer.syn[p].xinc, mPlayer.syn[p].yinc);
-//   if (FLAGS & PM_ITEM_WRAP_ENEMY)
-//      for (int e=0; e<100; e++)
-//         if (mEnemy.Ei[e][0])
-//            wrap_rect_helper(i, mEnemy.Ef[e][0], mEnemy.Ef[e][1], mEnemy.Ef[e][2], mEnemy.Ef[e][3]);
-//   if (FLAGS & PM_ITEM_WRAP_ITEM)
-//      for (int c=0; c<500; c++)
-//         if (item[c][0])
-//            wrap_rect_helper(i, itemf[c][0], itemf[c][1], itemf[c][2], itemf[c][3]);
-//   if (FLAGS & PM_ITEM_WRAP_PSHOT)
-//      for (int b=0; b<50; b++)
-//         if (mShot.p[b].active)
-//            wrap_rect_helper(i, mShot.p[b].x, mShot.p[b].y, mShot.p[b].xinc, mShot.p[b].yinc);
-//   if (FLAGS & PM_ITEM_WRAP_ESHOT)
-//      for (int b=0; b<50; b++)
-//         if (mShot.e[b].active)
-//            wrap_rect_helper(i, mShot.e[b].x, mShot.e[b].y, mShot.e[b].xinc, mShot.e[b].yinc);
-//}
-//
-//
-//
-//void mwItem::proc_wrap_line(int i)
-//{
-//
-//}
-//
-//int mwItem::draw_wrap_line(int i, int x, int y, int custom)
-//{
-//
-//   return 0;
-//
-//}
-//
-//
-//
-//
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

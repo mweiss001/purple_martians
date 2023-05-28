@@ -611,49 +611,49 @@ void mwBitmapTools::draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2,
          int tn = cx + (cy*32);
 
          if (mBitmap.sa[tn][0] & PM_BTILE_SOLID_PLAYER)     fa[0][1] += 1; // tally set
-         else                                       fa[0][0] += 1; // tally clear
+         else                                               fa[0][0] += 1; // tally clear
 
          if (mBitmap.sa[tn][0] & PM_BTILE_SOLID_ENEMY)      fa[1][1] += 1; // tally set
-         else                                       fa[1][0] += 1; // tally clear
+         else                                               fa[1][0] += 1; // tally clear
 
          if (mBitmap.sa[tn][0] & PM_BTILE_SOLID_ITEM)       fa[2][1] += 1; // tally set
-         else                                       fa[2][0] += 1; // tally clear
+         else                                               fa[2][0] += 1; // tally clear
 
          if (mBitmap.sa[tn][0] & PM_BTILE_SOLID_PBUL)       fa[3][1] += 1; // tally set
-         else                                       fa[3][0] += 1; // tally clear
+         else                                               fa[3][0] += 1; // tally clear
 
          if (mBitmap.sa[tn][0] & PM_BTILE_SOLID_EBUL)       fa[4][1] += 1; // tally set
-         else                                       fa[4][0] += 1; // tally clear
+         else                                               fa[4][0] += 1; // tally clear
 
          if (mBitmap.sa[tn][0] & PM_BTILE_SEMISOLID_PLAYER) fa[5][1] += 1; // tally set
-         else                                       fa[5][0] += 1; // tally clear
+         else                                               fa[5][0] += 1; // tally clear
 
          if (mBitmap.sa[tn][0] & PM_BTILE_SEMISOLID_ENEMY)  fa[6][1] += 1; // tally set
-         else                                       fa[6][0] += 1; // tally clear
+         else                                               fa[6][0] += 1; // tally clear
 
          if (mBitmap.sa[tn][0] & PM_BTILE_SEMISOLID_ITEM)   fa[7][1] += 1; // tally set
-         else                                       fa[7][0] += 1; // tally clear
+         else                                               fa[7][0] += 1; // tally clear
 
          if (mBitmap.sa[tn][0] & PM_BTILE_BOMBABLE)         fa[8][1] += 1; // tally set
-         else                                       fa[8][0] += 1; // tally clear
+         else                                               fa[8][0] += 1; // tally clear
 
-         if (mBitmap.sa[tn][0] & PM_BTILE_BREAKABLE_PSHOT)   fa[9][1] += 1; // tally set
-         else                                       fa[9][0] += 1; // tally clear
+         if (mBitmap.sa[tn][0] & PM_BTILE_BREAKABLE_PSHOT)  fa[9][1] += 1; // tally set
+         else                                               fa[9][0] += 1; // tally clear
 
-         if (mBitmap.sa[tn][0] & PM_BTILE_BREAKABLE_ESHOT)   fa[10][1] += 1; // tally set
-         else                                       fa[10][0] += 1; // tally clear
+         if (mBitmap.sa[tn][0] & PM_BTILE_BREAKABLE_ESHOT)  fa[10][1] += 1; // tally set
+         else                                               fa[10][0] += 1; // tally clear
 
          if (mBitmap.sa[tn][0] & PM_BTILE_LADDER_MOVE)      fa[11][1] += 1; // tally set
-         else                                       fa[11][0] += 1; // tally clear
+         else                                               fa[11][0] += 1; // tally clear
 
          if (mBitmap.sa[tn][0] & PM_BTILE_ROPE_MOVE)        fa[12][1] += 1; // tally set
-         else                                       fa[12][0] += 1; // tally clear
+         else                                               fa[12][0] += 1; // tally clear
 
          if (mBitmap.sa[tn][0] & PM_BTILE_SECRET)           fa[13][1] += 1; // tally set
-         else                                       fa[13][0] += 1; // tally clear
+         else                                               fa[13][0] += 1; // tally clear
 
          if (mBitmap.sa[tn][0] & PM_BTILE_SHOW_SELECT_WIN)  fa[14][1] += 1; // tally set
-         else                                       fa[14][0] += 1; // tally clear
+         else                                               fa[14][0] += 1; // tally clear
       }
 
    for (int i=0; i<15; i++)
@@ -1218,9 +1218,9 @@ void mwBitmapTools::copy_tiles(void)
             my1 = my*20;
             mx2 = mx1+20;
             my2 = my1+20;
-            al_set_target_bitmap(b1);                                       // point at bitamp 1
+            al_set_target_bitmap(b1);                                   // point at bitamp 1
             al_draw_filled_rectangle(mx1, my1, mx2, my2, mColor.pc[0]); // erase
-            al_draw_bitmap(qtmp, mx1, my1, 0);                              // draw new tile
+            al_draw_bitmap(qtmp, mx1, my1, 0);                          // draw new tile
             al_set_target_backbuffer(mDisplay.display);
          }
 

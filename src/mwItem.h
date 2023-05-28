@@ -47,6 +47,10 @@ class mwItem
 
    void proc_gate(int i);
 
+   void draw_line(int x1, int x2, int y, const char * txt1, const char * txt2, int col);
+   void show_page(int page, int xc, int bs, int by, int lev, int col);
+
+
    // mwItemBombRocket.cpp
    int draw_bomb(int i, int x, int y, int shape);
    int draw_lit_bomb(int i);
@@ -112,8 +116,6 @@ class mwItem
    void proc_block_damage(int i);
    void set_item_damage_location_from_lift(int i, int a20);
    void proc_item_damage_collisions(int i);
-
-   void set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3);
 
    int draw_timer(int i, int x, int y, int custom);
    void proc_timer(int i);

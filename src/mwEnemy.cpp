@@ -13,7 +13,7 @@
 #include "mwItem.h"
 #include "mwShot.h"
 #include "mwGameEvent.h"
-
+#include "mwLevel.h"
 
 mwEnemy mEnemy;
 
@@ -439,10 +439,7 @@ void mwEnemy::enemy_killed(int e)
    mBitmap.zz[3][na] = dl / mBitmap.zz[4][na]; // set ans timer
 
    mGameEvent.add(42, 0, 0, Ei[e][26], e, type, hbm);
-
-//   if (hbm == 1) mGameEvent.add(46, 0, 0, Ei[e][26], e, type, 0);
-//   if (hbm == 2) mGameEvent.add(47, 0, 0, Ei[e][26], e, type, 0);
-
+   if (!mLoop.ff_state) mLevel.level_data_enemies_killed++;
 
 }
 

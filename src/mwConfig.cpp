@@ -49,6 +49,7 @@ void mwConfig::save(void)
 
       asci(GAME, mPlayer.syn[0].color)
       asci(GAME, mLevel.start_level)
+      asci(GAME, mLevel.overworld_level)
       asci(GAME, mDisplay.viewport_mode)
       asci(GAME, mDisplay.viewport_show_hyst)
       ascf(GAME, mDisplay.viewport_x_div)
@@ -282,6 +283,11 @@ void mwConfig::load(void)
 
 
    agci(GAME, mLevel.start_level, 1)
+
+   agci(GAME, mLevel.overworld_level, 2)
+
+
+
 
    agci(GAME, mPlayer.syn[0].color, 8)
 

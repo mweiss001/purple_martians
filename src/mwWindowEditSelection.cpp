@@ -569,12 +569,12 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
       if (ft_Ei[b][0] == 9) // cloner
       {
          clt_last += mTriggerEvent.add_item_link_translation(3, b, 8, ft_Ei[b][8], clt, clt_last);
-      }
-      if (ft_Ei[b][0] == 7) // vinepod
+      }      if (ft_Ei[b][0] == 7) // vinepod
       {
          clt_last += mTriggerEvent.add_item_link_translation(3, b, 18, ft_Ei[b][18], clt, clt_last);
          clt_last += mTriggerEvent.add_item_link_translation(3, b, 19, ft_Ei[b][19], clt, clt_last);
       }
+
    }
 
    for (b=0; b<ft_level_header[5]; b++) // iterate lifts in ft

@@ -1187,27 +1187,6 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
       else           sprintf(msg, "%d", num); // show num
    }
 
-   if (bn == 520)
-   {
-      sprintf(msg, "Set Event Trigger (%d)", mLift.stp[num][type].val);
-      if (press)
-      {
-         //printf("520 type:%d num:%d \n", type, num);
-         int ti_obj_type, ti_sub_type, ti_num;
-         if (mTriggerEvent.get_trigger_item(4, num, type, ti_obj_type, ti_num, ti_sub_type))
-         {
-            int ev = mTriggerEvent.get_unused_pm_event();
-            mLift.stp[num][type].val = ev;
-
-//            if (ti_obj_type == 2)
-
-
-
-            mItem.set_trigger_event(ti_num, 0, 0, ev, 0); // toggle ON trigger
-         }
-      }
-   }
-
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
    draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
 

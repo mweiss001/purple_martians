@@ -2,8 +2,6 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
@@ -184,12 +182,8 @@ max coins
 I could think of it as a list of accomplishments
 some are required before certain things are unlocked
 
-If I am going this far I will need different profiles
+If I am going this far I might need different profiles....
 
-I will need to have names for all my levels...
-
-I could make the name part of the Filename..no..needs to be portable in linux
-Could be if I didnt use spaces...
 
 
 

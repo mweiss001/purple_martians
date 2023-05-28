@@ -457,13 +457,13 @@ int mwGameMoves::load_gm(const char *sfname )
    FILE *filepntr;
    char fname[1024];
    sprintf(fname, "%s", sfname);
-   //printf("fname:%s\n", fname);
+   printf("fname:%s\n", fname);
 
    // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
    ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
    sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
 
-   //printf("FS_fname:%s\n", fname);
+   printf("FS_fname:%s\n", fname);
 
    int bad_filename = 0;
    int user_cancelled = 0;
@@ -472,7 +472,7 @@ int mwGameMoves::load_gm(const char *sfname )
    // check if the passed filename exists
    if (!al_fs_entry_exists(FS_fname))
    {
-      //printf("%s does not exist\n", al_get_fs_entry_name(FS_fname));
+      printf("%s does not exist\n", al_get_fs_entry_name(FS_fname));
       bad_filename = 1;
    }
 

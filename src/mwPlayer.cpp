@@ -31,21 +31,43 @@ void mwPlayer::set_player_start_pos(int p, int cont)
 {
    //printf("set player:%d start pos\n", p);
    int found = 0;
-   if (mLevel.warp_level_location)
+
+
+   if (mLevel.play_level == 1) // hub level
    {
       for (int i=0; i<500; i++)
-         if (mItem.item[i][0] == 12)
+         if (mItem.item[i][0] == 18)
          {
-            if (mItem.item[i][8] == mLevel.warp_level_location)
+//            if (mItem.item[i][6] == mLevel.gate_level)
+            if (mItem.item[i][6] == mLevel.overworld_level)
             {
                found = 1;
-               //printf("Found warp level location %d\n", warp_level_location);
+               //printf("Found gate level location %d\n", mLevel.gate_level);
                syn[p].x = mItem.itemf[i][0];
-               syn[p].y = mItem.itemf[i][1] + 20;
+               syn[p].y = mItem.itemf[i][1];
             }
          }
-      mLevel.warp_level_location = 0;
    }
+   else
+   {
+      if (mLevel.warp_level_location)
+      {
+         for (int i=0; i<500; i++)
+            if (mItem.item[i][0] == 12)
+            {
+               if (mItem.item[i][8] == mLevel.warp_level_location)
+               {
+                  found = 1;
+                  //printf("Found warp level location %d\n", warp_level_location);
+                  syn[p].x = mItem.itemf[i][0];
+                  syn[p].y = mItem.itemf[i][1] + 20;
+               }
+            }
+         mLevel.warp_level_location = 0;
+      }
+   }
+
+
 
    if (found == 0)
    {
@@ -217,8 +239,8 @@ void mwPlayer::proc_player_health(int p)
       if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 1);
 
       mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
-
       syn[p].stat_respawns++;
+      if (!mLoop.ff_state) mLevel.level_data_player_respawns++;
 
       mScreen.set_player_join_quit_display(p, 3, 60);
 
