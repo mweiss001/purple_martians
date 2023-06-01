@@ -195,6 +195,16 @@ void mwInput::serial_key_check(int key)
       mLevel.skc_trigger_demo = 1;
    }
 
+   sprintf(tst, "cheat");
+   tl = strlen(tst);
+   if (skc_index > tl-1)
+   {
+      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+      {
+         mLevel.skc_trigger_demo = 1;
+         mLevel.skc_trigger_demo_cheat = 1;
+      }
+   }
 
 
    sprintf(tst, "fakekey");

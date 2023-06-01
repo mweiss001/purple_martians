@@ -17,6 +17,7 @@
 #include "mwLevel.h"
 #include "mwShot.h"
 #include "mwInput.h"
+#include "mwMain.h"
 
 
 mwScreen mScreen;
@@ -576,16 +577,33 @@ void mwScreen::draw_level(void) // draws the map on the menu screen
    int blocks = 0;
    if (mLevel.valid_level_loaded) blocks = 1;
 
+   int lev = mLevel.last_level_loaded;
+
    draw_level2(NULL, mLogo.menu_map_x, mLogo.menu_map_y, mLogo.menu_map_size, blocks, 1, 1, 1, 1);
+
 
    int text_x = mDisplay.SCREEN_W / 2;
    int text_y = mLogo.menu_map_y - 16;
-   al_draw_textf(mFont.pr8, mColor.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", mLevel.start_level );
-   text_y += 8;
 
-   if (mLevel.resume_allowed) al_draw_text(mFont.pr8, mColor.pc[14], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  (paused)  ");
-   else if (mLevel.valid_level_loaded) al_draw_text(mFont.pr8, mColor.pc[9], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  start level  ");
-   else al_draw_text(mFont.pr8, mColor.pc[10], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  not found !  ");
+   if (mMain.classic_mode)
+   {
+      al_draw_textf(mFont.pr8, mColor.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", lev );
+      text_y += 8;
+
+      if (mLevel.resume_allowed) al_draw_text(mFont.pr8, mColor.pc[14], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  (paused)  ");
+      else if (mLevel.valid_level_loaded) al_draw_text(mFont.pr8, mColor.pc[9], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  start level  ");
+      else al_draw_text(mFont.pr8, mColor.pc[10], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  not found !  ");
+   }
+   else // story mode
+   {
+      if (lev == 1) al_draw_text(mFont.pr8, mColor.pc[15], text_x, text_y+8, ALLEGRO_ALIGN_CENTRE, "Overworld");
+      else
+      {
+         al_draw_textf(mFont.pr8, mColor.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", lev ); text_y += 8;
+         al_draw_textf(mFont.pr8, mColor.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " %s ", mLevel.data[lev].level_name );
+      }
+   }
+
 }
 
 

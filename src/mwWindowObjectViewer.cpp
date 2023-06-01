@@ -82,7 +82,6 @@ void mwWindow::ov_get_size(void)
    if ((obt == 2) && (type == 9 )) w = 280; // trigger
    if ((obt == 2) && (type == 10)) w = 220; // message
    if ((obt == 2) && (type == 11)) w = 220; // rocket
-   if ((obt == 2) && (type == 12)) w = 220; // warp
    if ((obt == 2) && (type == 13)) w = 260; // timer
    if ((obt == 2) && (type == 14)) w = 200; // switch
    if ((obt == 2) && (type == 15)) w = 240; // sproingy
@@ -352,10 +351,6 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             sprintf(lmsg[1],"Rocket Location");
             sprintf(lmsg[2],"Damage Range");
             legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 14;
-         break;
-         case 12:
-             mWM.mW[7].num_legend_lines = 2;
-             sprintf(lmsg[1],"Warp Location");
          break;
          case 13:
             sprintf(lmsg[1],"Timer Location");
@@ -980,13 +975,6 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15, 1,0,1,d, mItem.item[n][7], 200, 40, 1, "Sproinginess:" );
          break;
-         case 12: // warp
-            mWidget.buttonp(    xa, ya, xb, bts, 21,0,0,0,  0,13,15, 0,  1,0,1,d, mItem.item[n][3]); // stat | fall
-            ya+=4; // spacer
-            mWidget.slideri(    xa, ya, xb, bts, 0,0,0,0,   0,12,15,15,  1,0,1,d, mItem.item[n][8], 300, 1, 1, "Warp Level:" );
-         break;
-
-
          case 13: // timer
          {
             int state, t1_mode, t2_mode, t1_op_mode, t2_op_mode, time;

@@ -28,6 +28,8 @@
 #include "mwCodeStats.h"
 #include "mwHelp.h"
 #include "mwVisualLevel.h"
+#include "mwMain.h"
+
 
 
 mwSettings mSettings;
@@ -295,7 +297,10 @@ void mwSettings::settings_pages(int set_page)
       int cf_x2 = cf_x1 + cf_w;
 
       int cf_h = 400;
-      int cf_y1 = mLogo.menu_map_y - 61; // line up exactly with the menu item "Settings"
+//      int cf_y1 = mLogo.menu_map_y - 61; // line up exactly with the menu item "Settings"
+//      if (!mMain.classic_mode) cf_y1 -= 20; // line up exactly with the menu item "Settings"
+      int cf_y1 = 32;  // or just line up under Main Title
+
       int cf_y2 = cf_y1 + cf_h;
 
       if (cf_y2 > mDisplay.SCREEN_H)     // if bottom is past bottom of screen
@@ -840,18 +845,20 @@ void mwSettings::settings_pages(int set_page)
 
          if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Play random demo game"))
          {
-            mLoop.new_program_state = 2;
-            mLoop.older_program_state = 3;
+            mLoop.new_program_state = 30;
+            mDemoMode.restore_mode = 3;
+            mDemoMode.restore_level = mLevel.last_level_loaded;
             al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
          }
          ya +=10;
          if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Choose file and run saved game"))
-         if (mGameMoves.load_gm("-"))
+         if (mGameMoves.load_gm(""))
          {
-            mLoop.new_program_state = 14;
-            mLoop.old_program_state = 3;
+            mLoop.new_program_state = 31;
+            mDemoMode.restore_mode = 3;
+            mDemoMode.restore_level = mLevel.last_level_loaded;
             al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
@@ -1850,7 +1857,16 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
+         mWidget.toggle(cfp_x1+100, ya, cfp_x2-100, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mMain.classic_mode, "Story Mode", "Classic Mode", 15, 15, 12, 12);
+
+         ya +=4;
+
+         if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Reset all level data")) mLevel.reset_level_data();
+
+         if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
+
       }
+
 
 
 

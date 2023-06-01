@@ -16,7 +16,7 @@
 #include "mwShot.h"
 #include "mwInput.h"
 #include "mwVisualLevel.h"
-
+#include "mwMain.h"
 
 mwConfig mConfig;
 
@@ -50,12 +50,19 @@ void mwConfig::save(void)
       asci(GAME, mPlayer.syn[0].color)
       asci(GAME, mLevel.start_level)
       asci(GAME, mLevel.overworld_level)
+
+      asci(GAME, mMain.classic_mode)
+
+
       asci(GAME, mDisplay.viewport_mode)
       asci(GAME, mDisplay.viewport_show_hyst)
       ascf(GAME, mDisplay.viewport_x_div)
       ascf(GAME, mDisplay.viewport_y_div)
       asci(GAME, mLoop.speed_control_lock)
       asci(GAME, mVisualLevel.max_level_num)
+
+
+
 
       asci(GAMECONTROLS, mPlayer.loc[0].up_key)
       asci(GAMECONTROLS, mPlayer.loc[0].down_key)
@@ -286,8 +293,7 @@ void mwConfig::load(void)
 
    agci(GAME, mLevel.overworld_level, 2)
 
-
-
+   agci(GAME, mMain.classic_mode, 1)
 
    agci(GAME, mPlayer.syn[0].color, 8)
 

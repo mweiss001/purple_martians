@@ -25,7 +25,11 @@ class mwGameMoves
    void save_gm_gm(char *sfname);
    void save_gm();
    void blind_save_game_moves(int d);
+
+   int load_gm(int lev);
    int load_gm(const char *sfname);
+
+
 };
 extern mwGameMoves mGameMoves;
 

@@ -34,16 +34,19 @@ class mwItem
    void proc_mine_collision(int p, int i);
    void proc_sproingy_collision(int p, int i);
 
-   // mwItemStartExitWarp
+   // mwItemStartExitGate
    int draw_start(int i, int x, int y, int shape);
    int draw_exit(int i, int x, int y, int shape);
    void proc_start_collision(int p, int i);
    void proc_exit_collision(int p, int i);
 
-   void proc_warp_collision(int p, int i);
 
    void proc_gate_collision(int p, int i);
    int draw_gate(int i, int x, int y, int shape);
+
+
+   void draw_gate_info(int i);
+
 
    void proc_gate(int i);
 

@@ -57,6 +57,24 @@ void mwLevel::next_level(void)
    set_start_level(start_level);
 }
 
+int mwLevel::get_next_level(int lev)
+{
+   int done = 0;
+   while (!done)
+   {
+      if (level_exists(++lev)) done = 1;
+      if (lev > 199)
+      {
+         lev = 1;
+         done = 1;
+      }
+   }
+   return lev;
+}
+
+
+
+
 void mwLevel::prev_level(void)
 {
    int done = 0;
@@ -402,21 +420,22 @@ void mwLevel::reset_level_data(void)
    save_data();
 }
 
+void mwLevel::unlock_all_levels(void)
+{
+   for(int i=0; i<100; i++) data[i].unlocked = 1;
+   save_data();
+}
 
 void mwLevel::setup_data(void)
 {
-//   reset_level_data();
    load_data();
    load_level_icons();
 }
 
+
 void mwLevel::level_start_data(void)
 {
 //   printf("level_start_data() play_level:%d\n", play_level);
-
-   if (play_level > 1) overworld_level = play_level;
-
-
    level_data_purple_coins_collected = 0;
    level_data_player_respawns = 0;
    level_data_enemies_killed = 0;
@@ -424,9 +443,9 @@ void mwLevel::level_start_data(void)
 
 void mwLevel::level_complete_data(void)
 {
-   if (mPlayer.syn[mPlayer.active_local_player].control_method != 1) // don't count anything done in demo mode
+   if ((mPlayer.syn[mPlayer.active_local_player].control_method != 1) || (mLevel.skc_trigger_demo_cheat))// don't count anything done in demo mode, unless cheat!
    {
-
+      mLevel.skc_trigger_demo_cheat = 0;
 
       int lev = play_level;
 
@@ -474,9 +493,7 @@ void mwLevel::level_complete_data(void)
          if (data[i].completed) data[i+1].unlocked = 1;
       }
 
-
       // check for other things to alter on the ovrworld level
-
 
       save_data();
 
@@ -512,19 +529,52 @@ void mwLevel::clear_data(void)
 
    i = 3;
    strcpy(data[i].level_name, "Blue Key Fall");
-   data[i].par_time = 1600;
+   data[i].par_time = 1400;
 
    i = 4;
    strcpy(data[i].level_name, "Switch Puzzle");
-   data[i].par_time = 500;
+   data[i].par_time = 8400;
 
    i = 5;
    strcpy(data[i].level_name, "Kill Kill Kill");
-   data[i].par_time = 500;
+   data[i].par_time = 6400;
+
+   i = 6;
+   strcpy(data[i].level_name, "Breakable");
+   data[i].par_time = 9600;
+
+   i = 7;
+   strcpy(data[i].level_name, "Ranger Bob");
+   data[i].par_time = 2000;
+
+   i = 8;
+   strcpy(data[i].level_name, "Switch Pit");
+   data[i].par_time = 8800;
+
+   i = 9;
+   strcpy(data[i].level_name, "Bomb Intro");
+   data[i].par_time = 6400;
 
    i = 10;
    strcpy(data[i].level_name, "The Dead Zone");
-   data[i].par_time = 500;
+   data[i].par_time = 11600;
+
+   i = 11;
+   strcpy(data[i].level_name, "Good and Evil");
+   data[i].par_time = 24000;
+
+   i = 12;
+   strcpy(data[i].level_name, "Bucket of Bad");
+   data[i].par_time = 17200;
+
+   i = 13;
+   strcpy(data[i].level_name, "Falling Arrows");
+   data[i].par_time = 12000;
+
+   i = 14;
+   strcpy(data[i].level_name, "Block Puzzle");
+   data[i].par_time = 440;
+
 
    i = 31;
    strcpy(data[i].level_name, "testy");
