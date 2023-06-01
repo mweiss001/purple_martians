@@ -142,7 +142,7 @@
 		<Unit filename="src/mwItemEditorFnx.cpp" />
 		<Unit filename="src/mwItemKeySwitch.cpp" />
 		<Unit filename="src/mwItemMessage.cpp" />
-		<Unit filename="src/mwItemStartExitWarp.cpp" />
+		<Unit filename="src/mwItemStartExitGate.cpp" />
 		<Unit filename="src/mwItemTrigger.cpp" />
 		<Unit filename="src/mwLevel.cpp" />
 		<Unit filename="src/mwLevel.h" />

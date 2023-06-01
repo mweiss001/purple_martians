@@ -1,6 +1,6 @@
 PDE or Pre Defined Enemy has been around since the very earliest iterations of the game
 
-In Level Editor the thing that show up in the Selection Window -> Special Items all come from that..
+In Level Editor the things that show up in the Selection Window -> Special Items all come from that..
 
 Some are enemies, some items, some run special creators needed to set up stuff.
 
@@ -8,7 +8,7 @@ For the simple ones, an enemy or item is copied to the draw item
 
 The entire lot is saved to pde.pm in the bitmap directory
 
-To edit it there is a level editor menu item called Predefined Enemy Editor (or PEE for short!)
+To edit it there is a level editor menu item called Predefined Enemy Editor (or PDE for short!)
 
 
 100 entries, each with 
@@ -19,7 +19,7 @@ To edit it there is a level editor menu item called Predefined Enemy Editor (or 
 
 
 the first int determines what type of PDE entry it is
-
+0        blank, unused
 1-99     enemy type number
 101-199  item type number (+100)
 >199
@@ -42,11 +42,9 @@ case 9: if (create_lift()) object_viewer(4, num_lifts-1); break; // type 208 - l
 case 10: create_door(1); break; // type 209 - 1 way al_fixed exit door
 case 11: create_door(2); break; // type 210 - 1 way linked exit door
 case 12: create_door(3); break; // type 211 - 2 way door set
-case 13: create_field(); break; // type 212 - field
 
 case 14: create_trigger(); break; // type 213 - trigger
 case 15: create_block_manip(); break; // type 214 - block manip
-
 
 
 drawing PDE in int process_select_window()

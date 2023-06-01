@@ -266,19 +266,42 @@ void mwGlobalLevelTool::execute(void)
 //14 switch
 //16 bm
 //17 bd
+//
+//
+////      if (le[x] < 100)
+//         for (int y=0; y<500; y++)
+//            if (mItem.item[y][0] == 12) // warp
+//            {
+//                printf("Level:%3d warp lev:%d  3:%d\n", le[x], mItem.item[y][8], mItem.item[y][3]);
+//
+//                mItem.item[y][0] = 0; // change to exit
+////                mItem.item[y][1] = 1022; // change tile
+////                mItem.item[y][2] = 1;
+////                mItem.item[y][3] = 0;
+////                mItem.item[y][8] = 100;
+//
+//
+////
+////                mItem.item[y][5] += 40; // move down 2 blocks
+////
+////                mItem.item[y][6] = mItem.item[y][8]; // change where lev is
+////
+//
+//            }
+//
 
 
-      for (int y=0; y<500; y++)
-         if (mItem.item[y][0] == 1) // door
-         {
-//            if (mItem.item[y][13] == 448)  mItem.item[y][1] = 1;
-//            if (mItem.item[y][13] == 1083) mItem.item[y][1] = 2;
-//            if (mItem.item[y][13] == 448)  mItem.item[y][13] = 1;
-//            if (mItem.item[y][13] == 1083) mItem.item[y][13] = 2;
-
-            mItem.item[y][13] = 0;
-
-         }
+//      for (int y=0; y<500; y++)
+//         if (mItem.item[y][0] == 1) // door
+//         {
+////            if (mItem.item[y][13] == 448)  mItem.item[y][1] = 1;
+////            if (mItem.item[y][13] == 1083) mItem.item[y][1] = 2;
+////            if (mItem.item[y][13] == 448)  mItem.item[y][13] = 1;
+////            if (mItem.item[y][13] == 1083) mItem.item[y][13] = 2;
+//
+//            mItem.item[y][13] = 0;
+//
+//         }
 
 //            mItem.item[y][1] = 0;
 

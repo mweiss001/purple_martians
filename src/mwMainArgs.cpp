@@ -9,6 +9,7 @@
 #include "mwDisplay.h"
 #include "mwLoop.h"
 #include "mwLevel.h"
+#include "mwDemoMode.h"
 
 #include "mwConfig.h"
 #include "mwHelp.h"
@@ -305,11 +306,12 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-f") == 0 )
       {
          mLogo.show_splash_screen = 0;
-         if (mGameMoves.load_gm("-"))
+         if (mGameMoves.load_gm(""))
          {
-            mLoop.new_program_state = 14;
-            return;
+            mLoop.new_program_state = 31;
+            mDemoMode.restore_mode = 0;
          }
+         return;
       }
 
       // keep this last so if no other single flag matches try to run like it an int level...
@@ -330,8 +332,9 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          // let's see if it is a valid gm file
          if (mGameMoves.load_gm(argument_array[1]))
          {
-            mLogo.show_splash_screen = 0;
-            mLoop.new_program_state = 14;
+            //mLogo.show_splash_screen = 0;
+            mLoop.new_program_state = 31;
+            mDemoMode.restore_mode = 0;
             return;
          }
       }

@@ -22589,6 +22589,484 @@ I could have a small running level in the overworld
 I could use it to dynamically show levels when I touch the gates
 
 
+just like messages, draw the overworld level icon last
+
+
+make a new menu
+
+make a global option old_menu
+
+
+
+I want to have a program state that lets me know when I am in overworld
+state 11 and level 1
+
+
+classic mode
+choose any level all are unlocked
+automatically load next level on completion
+
+story mode
+start levels from overworld only
+levels are locked by default
+automatically go to overworld on level complete
+
+
+add classic_mode to main
+
+save in config
+add settings page
+also add reset all data there
+also add unlock all levels there
+done
+
+
+now make the menu different if !classic mode
+
+in story_mode make start level 1
+where? initial setup.
+also there setup the level and make it ready to resume
+
+
+this is actually working pretty good!
+overworld and regular menus do the state thing nicely
+remove the text at the top of the level map for overworld
+done
+
+add more things to story menu's
+made demo work
+
+remove all warps...
+
+they are only for hub world anyway
+
+
+can I automate it?
+
+in hub, move down 40 y+=40;
+
+old warp level item[i][8] 12
+
+new gate item[i][6] 18
+
+new shape?
+
+now get rid of all others
+
+they all have level 1 as the dest?
+
+
+change them all to exit
+
+do they need to be stationary?
+all warps are staionary
+3 = 0;
+
+
+same when exit..
+
+old 12
+
+new 3
+new 8 = enemies left, set to 100
+3 1022 1 0
+
+I think it is all done...
+now more warps...
+should i just kill all the rest?
+why not? just erase...
+they are all gone
+now remove in code
+done
+
+
+next?
+
+make sure gate info is on top of everything
+how?
+I don't want to mess with draw order
+
+I could do it in draw player
+
+don't I already store something there?
+marked gate...
+moved draw gate info to its own function
+now called from draw_player
+works good...
+
+
+
+next?
+
+now in story mode, when starting game you are in the menu and overworld is loaded in the background
+this is how it should be
+
+make settings shortcut for story also
+make seeting line up under main title
+done
+
+
+next..
+
+what else can I add to menu 3?
+settings??
+
+what is the purpose of menu 3?
+to avoid immediately going to overworld when esc is pressed...
+A way of pausing...
+
+the only thing different is the option to quit to overworld
+what if I wanted to save the level before quitting to overworld?
+
+I think I should have more options there
+not demo
+not netgame
+add settings and help..done
+
+test in netgame
+
+It works amazingly well!
+Either player can start a level with gate
+Neither can exit to menu or the netgame ends, but that is how it was before also..
+
+level 100, my final level causes a crash
+should I make max levels 100?
+moved to level 64
+still seems to work
+
+also should I only show gate info for active local player?...soft no...
+
+in classic mode, when I exit, go to the next level
+done
+
+bug when playing a level then switching to story mode, you get stuck on that level..fixed
+
+OK lets do some more levels
+
+9...
+something is missing in the levels that
+
+the first game move entry is missing...
+
+0 0 0 lev
+
+add cheat demo..done
+
+
+WTF is going on!
+
+I have a bug in ladder climbing
+
+when the player gets stuck climbing and breaks free he warps a lot...
+
+wrong:
+syn[p].y = tx; // set x to passed by pos
+syn[p].y -= m; // move in y
+
+fixed
+syn[p].x = tx; // set x to passed by pos
+syn[p].y -= m; // move in y
+
+
+9 bomb intro same (has ack 8)
+10 dead zone demo does not exit nicely (has ack at end)
+
+the level done stuff runs at the end
+but times out when it gets to 10s
+
+11 good and evil works, but times out at 13s (has ack)
+12 bucket of bad works, times out right away
+
+
+
+
+
+what happens when you interrupt a demo called from gate?
+you can resume, but control is still with file
+
+
+this control path is confusing and i would like to make it more clear
+
+
+demo mode is an int that is set when automatically running random levels
+
+it is not set when only running one demo
+
+
+
+when a level ends that is played from file, what happens?
+
+how do we detect that the file level has ended
+in rungame key check if a cancel key is pressed
+in rungame keycheck if 4 sec past last game move
+or the level done thing can proceed..
+
+I want a state dedicated to cleaning up after demo mode
+move rungame keycheck to demo and rename..done
+
+
+make a function to clean up after demo mode is done
+
+
+
+test all possible changes
+
+make a small collection of simple levels to test with..
+
+
+run single demo level from gate
+-------------------------------
+start from state 11
+
+if (mGameMoves.load_gm(msg))
+{
+   mLoop.new_program_state = 14;
+   //old_program state = 3
+
+in mGameMoves.load_gm(msg)
+
+mLevel.play_level = arr[0][3]; // set play level
+mDemoMode.demo_mode_last_frame = arr[entry_pos-1][0];
+
+
+
+
+
+
+demo mode called from menu story mode
+runs and loops good, cancel with key not good
+
+
+
+demo mode called from menu classic mode
+
+
+
+I want to look at what gets save at the end of a gm file
+and if it makes any difference if you let the timer run out or not
+I get an acknowledge if I press a key
+
+which levels do that
+
+maybe I could add a game move just to mark when the exit was touched
+
+
+I am not sure how setting new_program_state 1 works
+
+this is done when leaving ??
+
+this checks to see where it came from
+from settings, from demo, from command line
+
+i need to figure this out better
+
+
+20230601 what am I doing?
+
+am I done with demo mode
+
+do the docs
+
+looking at transitions
+make a generic from any to any
+
+
+start level variables
+
+what about the variables:
+start level
+play level
+overworld level
+demo_restore_level
+last_level_loaded
+
+
+where are they all used? and can it be made simpler?
+
+-------------------
+mLevel.start_level
+-------------------
+saved in config
+
+in classic mode:
+it is the level shown on the menu
+it is the level used when new_game is run
+
+-------------------
+mLevel.play_level
+-------------------
+in classic and story, it is the level currently being played
+
+in mode 12 next level, it is set to the next level to load and play
+
+demo mode uses if for the currently playing demo level
+load_gm set it from gm files loaded
+
+----------------------
+mLevel.overworld_level
+----------------------
+saved in config
+- set when active local player touches a gate
+- used to set player position when starting overworld level
+
+------------------------
+mLevel.last_level_loaded
+------------------------
+used to keep track of the last level loaded (or saved)
+
+-----------------------
+mDemoMode.restore_level
+-----------------------
+used to save original level when running demo so original level can be restored after demo is done
+
+
+20230601 7:00 AM
+
+I think that demo mode is done...put all demo files back and push
+
+next is to work on transitions
+
+
+and making
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

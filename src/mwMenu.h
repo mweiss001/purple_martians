@@ -6,8 +6,8 @@ class mwMenu
 
    char menu_string[25][80];
 
-   void init_zmenu(void);
-   int zmenu(int menu_pos, int y);
+   void init_zmenu(int menu_num);
+   int zmenu(int menu_num, int menu_pos, int y);
 
    int tmenu(int menu_pos, int x1, int y1);
 

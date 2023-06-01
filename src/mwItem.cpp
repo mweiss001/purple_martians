@@ -47,7 +47,7 @@ void mwItem::initialize(void)
    strcpy(item_name[9],  "Trigger");
    strcpy(item_name[10], "Message");
    strcpy(item_name[11], "Rocket");
-   strcpy(item_name[12], "Warp");
+   strcpy(item_name[12], "undef");
    strcpy(item_name[13], "Timer");
    strcpy(item_name[14], "Switch");
    strcpy(item_name[15], "Sproingy");
@@ -480,7 +480,6 @@ void mwItem::proc_item_collision(int p, int i)
       case 8:  proc_bomb_collision(p, i);     break;
       case 10: proc_pmsg_collision(i);        break;
       case 11: proc_rocket_collision(p, i);   break;
-      case 12: proc_warp_collision(p, i);     break;
       case 14: proc_switch_collision(p, i);   break;
       case 15: proc_sproingy_collision(p, i); break;
       case 18: proc_gate_collision(p, i);     break;
@@ -558,7 +557,6 @@ list of items
 [9]  - trigger
 [10] - pop-up msg
 [11] - rocket
-[12] - warp
 [13] - timer
 [14] - switch
 [15] - sproingy
@@ -661,9 +659,6 @@ item[][7]  blast size
 item[][8]  max speed
 item[][9]  accel
 item[][10] rocket rotation (scaled by 10)
-
-[12]  - warp
-item[][8] warp level
 
 [14]  - switch
 item[][6]  block range x

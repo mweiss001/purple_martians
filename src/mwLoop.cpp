@@ -36,6 +36,9 @@
 #include "mwWindowManager.h"
 
 #include "mwColor.h"
+#include "mwMain.h"
+
+#include "mwConfig.h"
 
 
 mwLoop mLoop;
@@ -52,7 +55,7 @@ void mwLoop::initialize(void)
    old_program_state = 0;
    older_program_state = 0;
 
-   top_menu_sel = 3;
+   top_menu_sel = 0;
    main_loop_exit = 0;
 
    level_editor_running = 0;
@@ -71,10 +74,6 @@ void mwLoop::initialize(void)
    speed_control_lock = 1;
    eco_draw = 0;
 }
-
-
-
-
 
 
 void mwLoop::draw_frame(void)
@@ -128,7 +127,7 @@ void mwLoop::loop_frame(int times) // used for fast forwarding after rewind
       mGameMoves.proc();
       if (mPlayer.syn[0].level_done_mode) proc_level_done_mode();
       else move_frame();
-      mLoop.frame_num++;
+      frame_num++;
    }
    ff_state = 0;
 }
@@ -156,46 +155,81 @@ int mwLoop::have_all_players_acknowledged(void)
 
 void mwLoop::game_menu(void)
 {
-   mLoop.old_program_state = 1;
-   if (!mLogo.splash_screen_done) { mLogo.splash_screen(); mLogo.splash_screen_done = 1; }
-   if (!mLevel.resume_allowed) mLevel.set_start_level();
-   if (mLoop.top_menu_sel < 3) mLoop.top_menu_sel = 3;
-   while (mLoop.top_menu_sel != 1)
+   old_program_state = 1;
+   if (mMain.classic_mode)
    {
-//      mLoop.top_menu_sel = zmenu(7, mLoop.top_menu_sel, 10);
-
-      mLoop.top_menu_sel = mMenu.zmenu(mLoop.top_menu_sel, 10);
-
-      if  (mLoop.top_menu_sel == 1)  { mLoop.program_state = 0;                                           return; } // exit
-
-      if  (mLoop.top_menu_sel == 2) // visual level select
+      if (!mLogo.splash_screen_done) { mLogo.splash_screen(); mLogo.splash_screen_done = 1; }
+      if (!mLevel.resume_allowed) mLevel.set_start_level();
+      if (top_menu_sel < 3) top_menu_sel = 3;
+      while (top_menu_sel != 1)
       {
-         int r = mVisualLevel.visual_level_select();
-         if (r == 1) mLoop.top_menu_sel = 3; // start new game
-         if (r == 3) mLoop.top_menu_sel = 8; // start level editor
-      }
-      if ((mLoop.top_menu_sel == 4) && (mLevel.resume_allowed)) { mLoop.new_program_state = 13;           return; } // resume game
-      if  (mLoop.top_menu_sel == 3)  { mLoop.new_program_state = 10;  mLoop.top_menu_sel = 4;             return; } // start new game
-      if  (mLoop.top_menu_sel == 5)  { mLoop.new_program_state = 20;                                      return; } // host network game
-      if  (mLoop.top_menu_sel == 6)  { mLoop.new_program_state = 24;                                      return; } // join network game
-      if  (mLoop.top_menu_sel == 7)  { mLoop.new_program_state = 3;                                       return; } // settings
-      if  (mLoop.top_menu_sel == 8)  { mLevel.set_start_level(mWM.mW[1].edit_menu(mLevel.start_level)); mLoop.new_program_state = 10; return; } // level editor
-      if  (mLoop.top_menu_sel == 9)  { mLoop.new_program_state = 2;  mLoop.older_program_state = 1;        return; } // demo mode
-      if  (mLoop.top_menu_sel == 10)                                                                     mHelp.help(""); // help
-      if ((mLoop.top_menu_sel > 100) && (mLoop.top_menu_sel < 200)) // right pressed on menu item
-      {
-         mLoop.top_menu_sel -= 100;
-         if (mLoop.top_menu_sel == 2) // next level
+         top_menu_sel = mMenu.zmenu(1, top_menu_sel, 10);
+
+         if  (top_menu_sel == 1)  { program_state = 0;                                           return; } // exit
+
+         if  (top_menu_sel == 2) // visual level select
          {
-            mLevel.next_level();
+            int r = mVisualLevel.visual_level_select();
+            if (r == 1) top_menu_sel = 3; // start new game
+            if (r == 3) top_menu_sel = 8; // start level editor
+         }
+         if ((top_menu_sel == 4) && (mLevel.resume_allowed)) { new_program_state = 13;                                       return; } // resume game
+         if  (top_menu_sel == 3)  { new_program_state = 10;  top_menu_sel = 4;                                               return; } // start new game
+         if  (top_menu_sel == 5)  { new_program_state = 20;                                                                  return; } // host network game
+         if  (top_menu_sel == 6)  { new_program_state = 24;                                                                  return; } // join network game
+         if  (top_menu_sel == 7)  { new_program_state = 3;                                                                   return; } // settings
+         if  (top_menu_sel == 8)  { mLevel.set_start_level(mWM.mW[1].edit_menu(mLevel.start_level)); new_program_state = 10; return; } // level editor
+         if  (top_menu_sel == 9)  { new_program_state = 30; mDemoMode.restore_mode = 1; mDemoMode.restore_level = mLevel.start_level;   return; } // demo mode
+         if  (top_menu_sel == 10)                                                                                      mHelp.help(""); // help
+         if ((top_menu_sel > 100) && (top_menu_sel < 200)) // right pressed on menu item
+         {
+            top_menu_sel -= 100;
+            if (top_menu_sel == 2) mLevel.next_level(); // next level
+         }
+         if ((top_menu_sel > 200) && (top_menu_sel < 300)) // left pressed on menu item
+         {
+            top_menu_sel -= 200;
+            if (top_menu_sel == 2) mLevel.prev_level(); // prev level
          }
       }
-      if ((mLoop.top_menu_sel > 200) && (mLoop.top_menu_sel < 300)) // left pressed on menu item
+   }
+   else // story mode
+   {
+      // are we in the overworld or an actual level?
+      if (mLevel.last_level_loaded == 1) // overworld
       {
-         mLoop.top_menu_sel -= 200;
-         if (mLoop.top_menu_sel == 2) // prev level
+         //top_menu_sel = 2;
+         if (top_menu_sel < 2) top_menu_sel = 2;
+         if (top_menu_sel > 7 ) top_menu_sel = 7;
+
+         while (top_menu_sel != 1)
          {
-            mLevel.prev_level();
+            top_menu_sel = mMenu.zmenu(2, top_menu_sel, 10);
+
+            if  (top_menu_sel == 1)  { program_state = 0;                                return; } // exit
+            if  (top_menu_sel == 2)  { new_program_state = 10;                           return; } // start new game
+            if  (top_menu_sel == 3)  { new_program_state = 20;                           return; } // host network game
+            if  (top_menu_sel == 4)  { new_program_state = 24;                           return; } // join network game
+            if  (top_menu_sel == 5)  { new_program_state = 3;                            return; } // settings
+            if  (top_menu_sel == 6)  { new_program_state = 30;  mDemoMode.restore_mode = 1; mDemoMode.restore_level = 1; return; } // demo mode
+            if  (top_menu_sel == 7)                                                mHelp.help(""); // help
+
+            while (top_menu_sel > 100) top_menu_sel-=100; // to account for left and right which are not used
+
+         }
+      }
+      else // regular level
+      {
+         //top_menu_sel = 2;
+         if (top_menu_sel < 2) top_menu_sel = 2;
+         while (top_menu_sel != 1)
+         {
+            top_menu_sel = mMenu.zmenu(3, top_menu_sel, 10);
+            if  (top_menu_sel == 1)  { program_state = 0;                               return; } // exit
+            if  (top_menu_sel == 2)  { new_program_state = 13;                          return; } // resume
+            if  (top_menu_sel == 3)  { mLevel.start_level = 1; new_program_state = 10;  return; } // back to overworld
+            if  (top_menu_sel == 4)  { new_program_state = 3;                           return; } // settings
+            if  (top_menu_sel == 5)                                                mHelp.help(""); // help
          }
       }
    }
@@ -208,24 +242,29 @@ void mwLoop::proc_program_state(void)
    // ----------------------------------------------------------
    // handle all the changes from one state to another
    // ----------------------------------------------------------
-   if (mLoop.new_program_state)
+   if (new_program_state)
    {
-      if (mLoop.new_program_state != mLoop.program_state)
+      if (new_program_state != program_state)
       {
-         if (mLoop.new_program_state ==  2) mLoop.program_state =  2; // demo_mode
-         if (mLoop.new_program_state ==  3) mLoop.program_state =  3; // config
-         if (mLoop.new_program_state == 10) mLoop.program_state = 10; // start new game
-         if (mLoop.new_program_state == 12) mLoop.program_state = 12; // level_done
-         if (mLoop.new_program_state == 13) mLoop.program_state = 13; // resume
-         if (mLoop.new_program_state == 14) mLoop.program_state = 14; // run demo
-         if (mLoop.new_program_state == 20) mLoop.program_state = 20; // start server game
-         if (mLoop.new_program_state == 21) mLoop.program_state = 21; // client wait for initial state
-         if (mLoop.new_program_state == 22) mLoop.program_state = 22; // client load level and set up
-         if (mLoop.new_program_state == 23) mLoop.program_state = 23; // client wait for sjon
-         if (mLoop.new_program_state == 24) mLoop.program_state = 24; // client init network and send cjon
-         if (mLoop.new_program_state == 25) mLoop.program_state = 25; // client exit and clean up network
+         if (new_program_state ==  3) program_state =  3; // config
+         if (new_program_state == 10) program_state = 10; // start new game
+         if (new_program_state == 12) program_state = 12; // level_done
+         if (new_program_state == 13) program_state = 13; // resume
 
-         if (mLoop.new_program_state == 1) // game menu or fast exit
+         if (new_program_state == 19) program_state = 19; // server exit
+         if (new_program_state == 20) program_state = 20; // start server game
+         if (new_program_state == 21) program_state = 21; // client wait for initial state
+         if (new_program_state == 22) program_state = 22; // client load level and set up
+         if (new_program_state == 23) program_state = 23; // client wait for sjon
+         if (new_program_state == 24) program_state = 24; // client init network and send cjon
+         if (new_program_state == 25) program_state = 25; // client exit and clean up network
+
+         if (new_program_state == 30) program_state = 30; // start demo mode           (leads to 12)
+         if (new_program_state == 31) program_state = 31; // setup and run demo level  (from 12 or manual load gm)
+         if (new_program_state == 32) program_state = 32; // quit demo with keypress
+
+
+         if (new_program_state == 1) // game menu or fast exit
          {
             if (mNetgame.ima_server) mNetgame.server_exit();
             if (mNetgame.ima_client) mNetgame.client_exit();
@@ -234,36 +273,43 @@ void mwLoop::proc_program_state(void)
             if (mLog.autosave_game_on_game_exit) mGameMoves.blind_save_game_moves(2);
 
             mSound.stop_sound();
-            if (mLoop.program_state != 3) mScreen.stamp();
 
-            mLoop.program_state = mLoop.old_program_state; // go back to the state that called 0,1,2 or 3
+            // if (program_state != 3) mScreen.stamp();
+
+            program_state = old_program_state; // go back to the state that called 0,1,2 or 3
+
+
+//            if (program_state == 1) mScreen.stamp(); // back to menu
+
+
+
+
          }
       }
-      mLoop.new_program_state = 0;
+      new_program_state = 0;
    }
-   if (mLoop.program_state == 0) mLoop.main_loop_exit = 1; // quit
-   if (mLoop.program_state == 1) game_menu();  // game menu (this blocks)
-   if (mLoop.program_state == 2) mDemoMode.run();  // demo mode
-   if (mLoop.program_state == 3) mSettings.settings_pages(-1);  // this blocks
+   if (program_state == 0) main_loop_exit = 1; // quit
+   if (program_state == 1) game_menu();  // game menu (this blocks)
+   if (program_state == 3) mSettings.settings_pages(-1);  // this blocks
 
    //---------------------------------------
    // 25 - client exit
    //---------------------------------------
-   if (mLoop.program_state == 25) // client exit
+   if (program_state == 25) // client exit
    {
       mNetgame.client_exit();
-      mLoop.new_program_state = 1;
+      new_program_state = 1;
    }
 
 
    //---------------------------------------
    // 24 - client new game
    //---------------------------------------
-   if (mLoop.program_state == 24)
+   if (program_state == 24)
    {
       if (!mNetgame.client_init())
       {
-         mLoop.new_program_state = 25;
+         new_program_state = 25;
          return;
       }
 
@@ -276,30 +322,29 @@ void mwLoop::proc_program_state(void)
       for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
       mPlayer.syn[0].active = 1;
 
-      mLoop.new_program_state = 23;
+      new_program_state = 23;
    }
 
    //---------------------------------------
    // 23 - client wait for join
    //---------------------------------------
-   if (mLoop.program_state == 23)
+   if (program_state == 23)
    {
       mNetgame.client_fast_packet_loop();
       mNetgame.client_read_packet_buffer();
-      if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.new_program_state = 25; // give them an escape option
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) new_program_state = 25; // give them an escape option
    }
 
    //---------------------------------------
    // 22 - client level setup
    //---------------------------------------
-   if (mLoop.program_state == 22)
+   if (program_state == 22)
    {
       //printf("client set up level\n");
 
-
       if (!mLevel.load_level(mLevel.play_level, 0, 0))
       {
-         mLoop.new_program_state = 25;
+         new_program_state = 25;
          return;
       }
 
@@ -310,7 +355,7 @@ void mwLoop::proc_program_state(void)
 
       mGameMoves.initialize();
 
-      mLoop.frame_num = 0;
+      frame_num = 0;
       mNetgame.reset_states();
       mShot.clear_shots();
       mBottomMessage.initialize();
@@ -323,22 +368,22 @@ void mwLoop::proc_program_state(void)
          mLog.add_log_entry_header(10, 0, msg, 3);
       }
 
-      mLoop.show_player_join_quit_timer = 0;
+      show_player_join_quit_timer = 0;
       mSound.start_music(0);
       mTimeStamp.init_timestamps();
-      mLoop.new_program_state = 21;
+      new_program_state = 21;
    }
 
    //---------------------------------------
    // 21 - client wait for intial state
    //---------------------------------------
-   if (mLoop.program_state == 21)
+   if (program_state == 21)
    {
       mNetgame.client_fast_packet_loop();
       mNetgame.client_read_packet_buffer();
       mNetgame.client_apply_dif();
 
-      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) mLoop.program_state = 25;
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) program_state = 25;
 
       sprintf(msg, "Waiting for game state from server");
       float stretch = ( (float)mDisplay.SCREEN_W / ((strlen(msg)+2)*8));
@@ -346,31 +391,28 @@ void mwLoop::proc_program_state(void)
 
       al_flip_display();
 
-      if (mLoop.frame_num > 0)
+      if (frame_num > 0)
       {
-         printf("got initial state for frame:%d\n", mLoop.frame_num);
+         printf("got initial state for frame:%d\n", frame_num);
          int p = mPlayer.active_local_player;
 
          // set holdoff 200 frames in future so client won't try to drop while syncing
-         mPlayer.loc[p].client_last_stdf_rx_frame_num = mLoop.frame_num + 200;
+         mPlayer.loc[p].client_last_stdf_rx_frame_num = frame_num + 200;
 
          if (mLog.LOG_NET_join) mLog.add_log_entry_header(11, p, "Game state updated - starting chase and lock", 1);
-         mLoop.program_state = 11;
+         program_state = 11;
       }
    }
-
-
-
 
    //---------------------------------------
    // 20 - server new game
    //---------------------------------------
-   if (mLoop.program_state == 20)
+   if (program_state == 20)
    {
       if (!mNetgame.server_init())
       {
          mNetgame.server_exit();
-         mLoop.new_program_state = 19;
+         new_program_state = 19;
          return;
       }
 
@@ -385,11 +427,11 @@ void mwLoop::proc_program_state(void)
 
       mPlayer.syn[0].active = 1;
       mPlayer.syn[0].control_method = 3;
-      strncpy(mPlayer.loc[0].hostname, mLoop.local_hostname, 16);
+      strncpy(mPlayer.loc[0].hostname, local_hostname, 16);
 
 
       mGameMoves.initialize();
-      mLoop.frame_num = 0;
+      frame_num = 0;
       mNetgame.reset_states();
       mShot.clear_shots();
       mBottomMessage.initialize();
@@ -397,10 +439,10 @@ void mwLoop::proc_program_state(void)
       mTriggerEvent.initialize();
 
       mNetgame.game_vars_to_state(mNetgame.srv_client_state[0][1]);
-      mNetgame.srv_client_state_frame_num[0][1] = mLoop.frame_num;
+      mNetgame.srv_client_state_frame_num[0][1] = frame_num;
       if (mLog.LOG_NET_stdf)
       {
-         sprintf(msg, "stdf saved server state[1]:%d\n", mLoop.frame_num);
+         sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
          mLog.add_log_entry2(27, 0, msg);
       }
 
@@ -416,22 +458,20 @@ void mwLoop::proc_program_state(void)
          mLog.add_log_entry_header(10, 0, msg, 3);
       }
 
-      mLoop.show_player_join_quit_timer = 0;
+      show_player_join_quit_timer = 0;
       mSound.start_music(0); // rewind and start theme
       mTimeStamp.init_timestamps();
-      mLoop.program_state = 11;
+      program_state = 11;
    }
 
    //---------------------------------------
    // 19 - server exit
    //---------------------------------------
-   if (mLoop.program_state == 19) // server exit
+   if (program_state == 19) // server exit
    {
       mNetgame.server_exit();
-      mLoop.new_program_state = 1;
+      new_program_state = 1;
    }
-
-
 
 
 
@@ -501,9 +541,8 @@ void mwLoop::proc_program_state(void)
    //---------------------------------------
    // 10 - single player new game
    //---------------------------------------
-   if (mLoop.program_state == 10)
+   if (program_state == 10)
    {
-
       mLevel.set_start_level();
 
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -515,19 +554,25 @@ void mwLoop::proc_program_state(void)
 
       mGameMoves.initialize();
 
+      mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
+
       mShot.clear_shots();
       mBottomMessage.initialize();
       mInput.initialize();
       mTriggerEvent.initialize();
 
-      mScreen.stimp();
-      mLoop.frame_num = 0;
-      mLoop.show_player_join_quit_timer = 0;
+
+      //mScreen.stimp();
+
+
+
+      frame_num = 0;
+      show_player_join_quit_timer = 0;
 
       mSound.start_music(0); // rewind and start theme
 
       mTimeStamp.init_timestamps();
-      mLoop.program_state = 11;
+      program_state = 11;
 
       // set up mwQuickGraph here
       mQuickGraph[0].initialize(1);
@@ -540,7 +585,7 @@ void mwLoop::proc_program_state(void)
    //---------------------------------------
    // 12 - level done (more accurately load next level)
    //---------------------------------------
-   if (mLoop.program_state == 12)
+   if (program_state == 12)
    {
       mSound.stop_sound();
 
@@ -548,25 +593,24 @@ void mwLoop::proc_program_state(void)
 
       if (mLog.LOG_NET) { sprintf(msg,"NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level); mLog.add_log_entry_header(10, 0, msg, 3); }
 
-
-      if (mPlayer.syn[mPlayer.active_local_player].control_method == 1) // run demo mode saved game file
+      // if we get here in demo mode, either initially or after level done
+      // use demo mode to get next level ready
+      if (mDemoMode.demo_mode_on)
       {
-         if (mLoop.old_program_state == 2)
-         {
-            mLoop.new_program_state = 2;
-            al_rest(1);
-            return; // to exit immediately
-         }
-         else
-         {
-            // end demo mode and go back to overworld level
-            mPlayer.syn[mPlayer.active_local_player].control_method = 0;
-         }
-
-
+         mDemoMode.load_random_demo();
+         return; // to exit immediately
       }
 
+      // if we get here in file play control method, but not demo mode
+      // this is the end and we need to return to where we were before
+      if (mPlayer.syn[mPlayer.active_local_player].control_method == 1) // control method run from file (demo mode)
+      {
+         new_program_state = 32; // demo mode cleanup and exit
 
+         // do I return here or let the rest of 12 continue ?
+         return; // to exit immediately
+
+      }
 
 
 
@@ -583,7 +627,6 @@ void mwLoop::proc_program_state(void)
       mLevel.play_level = mPlayer.syn[0].level_done_next_level;
 
 
-
 //      if ((mNetgame.ima_client) || (mNetgame.ima_server))
 //         for (int p=0; p<NUM_PLAYERS; p++)
 //         {
@@ -596,7 +639,7 @@ void mwLoop::proc_program_state(void)
       // every mode after this should require load level so why don't I do it here at the top
       if (!mLevel.load_level(mLevel.play_level, 0, 0))
       {
-         mLoop.new_program_state = 1;
+         new_program_state = 1;
          return;
       }
 
@@ -609,8 +652,9 @@ void mwLoop::proc_program_state(void)
       mPlayer.syn[0].active = 1;
 
       mGameMoves.initialize();
+      mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
 
-      mLoop.frame_num = 0;
+      frame_num = 0;
       mNetgame.reset_states();
       mShot.clear_shots();
       mBottomMessage.initialize();
@@ -622,17 +666,16 @@ void mwLoop::proc_program_state(void)
          mPlayer.syn[0].control_method = 3;
 
          mNetgame.game_vars_to_state(mNetgame.srv_client_state[0][1]);
-         mNetgame.srv_client_state_frame_num[0][1] = mLoop.frame_num;
+         mNetgame.srv_client_state_frame_num[0][1] = frame_num;
 
          if (mLog.LOG_NET_stdf)
          {
-            //   printf("saved server state[1]:%d\n\n", mLoop.frame_num);
-            sprintf(msg, "stdf saved server state[1]:%d\n", mLoop.frame_num);
+            //   printf("saved server state[1]:%d\n\n", frame_num);
+            sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
             mLog.add_log_entry2(27, 0, msg);
          }
       }
 
-      mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
 
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -644,31 +687,41 @@ void mwLoop::proc_program_state(void)
          mLog.add_log_entry_header(10, 0, msg, 3);
       }
 
-      mLoop.show_player_join_quit_timer = 0;
+      show_player_join_quit_timer = 0;
       mSound.start_music(0); // rewind and start theme
       mTimeStamp.init_timestamps();
-      mLoop.program_state = 11;
+      program_state = 11;
    }
 
-
    //---------------------------------------
-   // resume game
+   // 13 - resume game
    //---------------------------------------
-   if (mLoop.program_state == 13)
+   if (program_state == 13)
    {
       mSound.start_music(1); // resume theme
-      mScreen.stimp();
-      mLoop.program_state = 11;
+      //mScreen.stimp();
+      program_state = 11;
    }
 
+
    //---------------------------------------
-   // run demo
+   // 30 - start demo mode
    //---------------------------------------
-   if (mLoop.program_state == 14)
+   if (program_state == 30)
+   {
+       mDemoMode.demo_mode_on = 1;
+       new_program_state = 12;
+   }
+
+
+   //---------------------------------------
+   // 31 - setup and play demo level
+   //---------------------------------------
+   if (program_state == 31)
    {
       if (!mLevel.load_level(mLevel.play_level, 0, 0))
       {
-         mLoop.new_program_state = 1;
+         new_program_state = 1;
          return;
       }
 
@@ -682,19 +735,71 @@ void mwLoop::proc_program_state(void)
       mPlayer.syn[0].active = 1;
       mPlayer.syn[0].control_method = 1; // rungame demo mode
 
-      mLoop.frame_num = 0;
+      frame_num = 0;
       mShot.clear_shots();
       mBottomMessage.initialize();
       mInput.initialize();
       mTriggerEvent.initialize();
 
-      mLoop.show_player_join_quit_timer = 0;
+      show_player_join_quit_timer = 0;
       mSound.start_music(0); // rewind and start theme
-      mScreen.stimp();
+      //mScreen.stimp();
       mTimeStamp.init_timestamps();
-      mLoop.program_state = 11;
+      program_state = 11;
+   }
+
+
+   //-------------------------------------------------------
+   // 32 - demo level cleanup and exit to where we came from
+   //-------------------------------------------------------
+   if (program_state == 32)
+   {
+      // set demo mode off, even if not set
+      mDemoMode.demo_mode_on = 0;
+
+      // set all players inactive
+      for (int p=0; p<NUM_PLAYERS; p++) mPlayer.syn[p].active = 0;
+
+      // make player 0 active
+      mPlayer.syn[0].active = 1;
+
+      // reset to local control
+      mPlayer.syn[0].control_method = 0;
+
+      // restore player color
+      mConfig.load();
+
+      int rm = mDemoMode.restore_mode;
+      printf("demo restore_mode:%d \n", rm);
+      if (rm == 0) // started from command line, exit
+      {
+         new_program_state = 1;
+         old_program_state = 0;
+         return;
+      }
+      if (rm == 1) // started from menu
+      {
+         mLevel.load_level(mDemoMode.restore_level, 0, 0);
+         new_program_state = 1;
+         old_program_state = 1;
+         return;
+      }
+
+      if (rm == 2) // started from gate, send to new game on overworld level
+      {
+         new_program_state = 10;
+         return;
+      }
+
+      if (rm == 3) // started from settings, restore old level, then back to settings
+      {
+         mLevel.load_level(mDemoMode.restore_level, 0, 0);
+         new_program_state = 3;
+         return;
+      }
    }
 }
+
 
 void mwLoop::proc_level_done_mode(void)
 {
@@ -876,7 +981,7 @@ void mwLoop::proc_level_done_mode(void)
       if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;
       if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;
       if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 10;  // delay to load next level
-      if (mPlayer.syn[0].level_done_mode == 1) mLoop.program_state = 12;              // load new level
+      if (mPlayer.syn[0].level_done_mode == 1) program_state = 12;              // load new level
    }
 }
 
@@ -884,7 +989,7 @@ void mwLoop::proc_level_done_mode(void)
 
 void mwLoop::main_loop(void)
 {
-   while (!mLoop.main_loop_exit)
+   while (!main_loop_exit)
    {
       // ----------------------------------------------------------
       // process state and state changes
@@ -912,7 +1017,7 @@ void mwLoop::main_loop(void)
 
          if (program_state == 11) // game loop running
          {
-            mLoop.frame_num++;
+            frame_num++;
             mBitmap.update_animation();
 
             mSound.proc_sound();
@@ -966,7 +1071,7 @@ void mwLoop::main_loop(void)
       {
 
          mEventQueue.program_update_1s = 0;
-         if (mLoop.program_state == 11) // game loop running
+         if (program_state == 11) // game loop running
          {
             if (mNetgame.ima_server)
             {

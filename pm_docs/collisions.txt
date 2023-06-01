@@ -74,6 +74,9 @@ checks for player, enemy, item, pshot, eshot
 
 
 
+there is one more case:
+vinepod trigger box
+which check for players
 
 
 

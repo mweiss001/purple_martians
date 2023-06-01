@@ -298,9 +298,14 @@ int mwMain::initial_setup(void)
 
    mDemoMode.demo_mode_enabled = mDemoMode.demo_mode_config_enable; // set only at startup from config file
 
-   mLevel.set_start_level();
+
+   if (classic_mode) mLevel.set_start_level();
+   else mLevel.set_start_level(1);
+
 
    mLevel.setup_data();
+
+
 
    return 1;
 }

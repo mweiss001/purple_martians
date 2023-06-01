@@ -60,10 +60,6 @@ class mwLevel
    int l[100][100];
 
 
-   int warp_level_location;
-   int gate_level;
-
-
    int start_level;
    int play_level;
 
@@ -84,6 +80,9 @@ class mwLevel
 
    void next_level(void);
    void prev_level(void);
+
+   int get_next_level(int lev);
+
 
    int load_level(int level_to_load, int load_only, int fail_silently);
    void save_level(int level_to_save);
@@ -107,6 +106,7 @@ class mwLevel
 
 
    void reset_level_data(void);
+   void unlock_all_levels(void);
 
    void clear_data(void);
    void load_data(void);
@@ -130,7 +130,7 @@ class mwLevel
    int display_page;
 
    int skc_trigger_demo;
-
+   int skc_trigger_demo_cheat;
 
 
 };

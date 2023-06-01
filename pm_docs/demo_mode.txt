@@ -1,0 +1,313 @@
+Here I will try to document how demo mode works.
+
+There are many names for this:
+run game
+save game
+demo mode
+file play
+
+At the heart of it is a level playing back game moves..
+
+
+The *.gm file format is as follows:
+just a bunch of integers separated by CR in a text file:
+
+the first 4 are:
+
+fprintf(filepntr,"number of entries %d\n", entry_pos);
+fprintf(filepntr,"deathmatch_shots %d\n", mShot.deathmatch_shots);
+fprintf(filepntr,"deathmatch_shot_damage %d\n", mShot.deathmatch_shot_damage);
+fprintf(filepntr,"suicide_shots %d\n", mShot.suicide_shots);
+
+Then next are all the game moves.
+
+Each of them is 4 integers:
+
+game_moves[x][0]; // frame_num
+game_moves[x][1]; // game move type
+game_moves[x][2]; // player number
+game_moves[x][3]; // comp_move
+
+It is expected that the first game move will be a special move
+
+type 0 - level start
+
+it should be on frame 0
+
+it looks like
+0
+0
+0
+12
+
+and indicates the level that the file applies to:
+
+there is no indication of the end other than the frame number of the last game move
+
+if the level exit is found the level done routine will start
+and possibly a special ack move type 8 will be the last entry
+
+
+----------------
+- Loading file -
+----------------
+
+When we want to load a gm this function is called:
+
+int mwGameMoves::load_gm(const char *sfname )
+
+You pass it the filename to load and it will attempt to load it into the game moves array mGameMoves.arr[][].
+
+If the file is not found, it will open the filechooser to manually select a file.
+
+
+There is also a helper function to load a demo file by level number:
+
+int mwGameMoves::load_gm(int lev)
+{
+   char msg[256];
+   sprintf(msg, "savegame/demo/lev%03d.gm", lev);
+   return load_gm(msg);
+}
+
+
+After a valid a filename is found, it is opened and loaded into the game moeves.
+
+These variables are also set:
+
+mLevel.play_level = arr[0][3]; // set play level (this is used when loading level)
+
+mDemoMode.demo_mode_last_frame = arr[entry_pos-1][0]; (this is used when checking if playback is done)
+
+
+--------------------------
+- After the file is loaded
+--------------------------
+These are all the times load_gm() is called:
+
+from gate:
+mLoop.new_program_state = 31;
+mDemoMode.restore_mode = 2;
+mDemoMode.restore_level = lev;
+
+from settings:
+mLoop.new_program_state = 31;
+mDemoMode.restore_mode = 3;
+mDemoMode.restore_level = mLevel.last_level_loaded;
+
+from void mwDemoMode::load_random_demo()
+mLoop.new_program_state = 31;
+
+from args: 2 times
+mLoop.new_program_state = 31;
+mDemoMode.restore_mode = 0;
+
+
+This is how demo mode is started
+--------------------------
+- Program State 30
+--------------------------
+   if (program_state == 30)
+   {
+       mDemoMode.demo_mode_on = 1;
+       new_program_state = 12; // next level
+   }
+
+--------------------------
+- Program State 12 
+--------------------------
+   if (program_state == 12)
+   {
+      if (mDemoMode.demo_mode_on)
+      {
+         mDemoMode.load_random_demo();
+         return; // to exit immediately
+      }
+
+      // if we get here in file play control method, but not demo mode
+      // this is the end and we need to return to where we were before
+      if (mPlayer.syn[mPlayer.active_local_player].control_method == 1) // control method run from file (demo mode)
+      {
+         new_program_state = 32; // demo mode cleanup and exit
+         return; // to exit immediately
+      }
+
+
+--------------------------
+- mDemoMode.load_random_demo();
+--------------------------
+void mwDemoMode::load_random_demo(void)
+{
+   ...select random gm file...
+
+   if (mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[lev])))
+   {
+      mLoop.new_program_state = 31;
+   }
+   else
+   {
+      demo_mode_on = 0;
+      mLoop.new_program_state = 1;
+      mLoop.old_program_state = 1;
+   }
+}
+
+--------------------------
+- Program State 31
+--------------------------
+   if (program_state == 31)
+   {
+      if (!mLevel.load_level(mLevel.play_level, 0, 0))
+      {
+         new_program_state = 1;
+         return;
+      }
+
+      // reset players
+      for (int p=0; p<NUM_PLAYERS; p++)
+      {
+         mPlayer.init_player(p, 1);           // full reset (start modes 1, 2, 3, 9)
+         mPlayer.set_player_start_pos(p, 0);  // get starting position for all players, active or not
+      }
+
+      mPlayer.syn[0].active = 1;
+      mPlayer.syn[0].control_method = 1; // rungame demo mode
+
+      frame_num = 0;
+      mShot.clear_shots();
+      mBottomMessage.initialize();
+      mInput.initialize();
+      mTriggerEvent.initialize();
+
+      show_player_join_quit_timer = 0;
+      mSound.start_music(0); // rewind and start theme
+      mScreen.stimp();
+      mTimeStamp.init_timestamps();
+      program_state = 11;
+   }
+
+
+-----------------------------------------
+How does it get out of program state 11?
+------------------------------------------
+There are four ways:
+
+1 - level done routine which eventually sets new_program_state 12
+-----------------------------------------------------------------
+
+2 - mDemoMode.key_check() - time out
+------------------------------------
+   // if the level does not end with level_done kill it 4 seconds after last game move
+   if (mLoop.frame_num > demo_mode_last_frame + 160) mLoop.new_program_state = 12; 
+
+
+3 - mDemoMode.key_check() - key press cancel
+--------------------------------------------
+   if ((mInput.key[ALLEGRO_KEY_N][0]) && (demo_mode_on))
+      mLoop.new_program_state = 12; // skip to next demo mode level
+
+
+4 - mDemoMode.key_check() - key press cancel
+--------------------------------------------
+   if ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.key[ALLEGRO_KEY_ENTER][0]) || (mInput.key[ALLEGRO_KEY_SPACE][0]))
+   {
+      mInput.key[ALLEGRO_KEY_ESCAPE][0] = 0;
+      mLoop.new_program_state = 32; // demo level cleanup and exit
+   }
+
+
+-------------
+Tests
+-------------
+
+
+Story mode gate demo
+--------------------
+level done returns to overworld in proper place
+keypress cancel
+
+
+
+
+Story mode settings choose level  
+--------------------------------
+level with no end
+level with end
+cancel with keypress
+all good, returns to settings with overworld level underneath
+
+Story mode settings demo mode
+--------------------------------
+level with no end
+level with end
+cancel with keypress
+all good, returns to settings with overworld level underneath
+
+
+Story mode menu demo mode
+--------------------------------
+level with no end
+level with end
+cancel with keypress
+all good, returns to settings with overworld level underneath
+
+
+
+Classic mode settings choose level
+----------------------------------
+level with no end
+level with end
+cancel with keypress
+all good
+
+
+Classic mode settings demo mode
+-------------------------------
+level with no end
+level with end
+cancel with keypress
+N key
+all good
+
+only does stimp when chang
+
+
+Classic mode menu demo mode
+-------------------------------
+
+
+Command line start
+-----------------------
+level with no end
+level with end
+cancel with keypress
+all good
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Notes:
+
+31 is always called right after load gm
+
+do they need to be seperate?
+
+
+
+
+
+
+
+

@@ -23,118 +23,134 @@
 #include "mwGameMoves.h"
 #include "mwEventQueue.h"
 #include "mwConfig.h"
+#include "mwMain.h"
 
 mwPlayer mPlayer;
 
 
-void mwPlayer::set_player_start_pos(int p, int cont)
-{
-   //printf("set player:%d start pos\n", p);
-   int found = 0;
+
+// do not erase this until new function is fully tested
 
 
-   if (mLevel.play_level == 1) // hub level
-   {
-      for (int i=0; i<500; i++)
-         if (mItem.item[i][0] == 18)
-         {
-//            if (mItem.item[i][6] == mLevel.gate_level)
-            if (mItem.item[i][6] == mLevel.overworld_level)
-            {
-               found = 1;
-               //printf("Found gate level location %d\n", mLevel.gate_level);
-               syn[p].x = mItem.itemf[i][0];
-               syn[p].y = mItem.itemf[i][1];
-            }
-         }
-   }
-   else
-   {
-      if (mLevel.warp_level_location)
-      {
-         for (int i=0; i<500; i++)
-            if (mItem.item[i][0] == 12)
-            {
-               if (mItem.item[i][8] == mLevel.warp_level_location)
-               {
-                  found = 1;
-                  //printf("Found warp level location %d\n", warp_level_location);
-                  syn[p].x = mItem.itemf[i][0];
-                  syn[p].y = mItem.itemf[i][1] + 20;
-               }
-            }
-         mLevel.warp_level_location = 0;
-      }
-   }
+//void mwPlayer::set_player_start_pos(int p, int cont)
+//{
+//   //printf("set player:%d start pos\n", p);
+//
+//   int item_to_get_start_from = -1;
+//
+//   if (mLevel.play_level == 1) // hub level
+//   {
+//      for (int i=0; i<500; i++)
+//         if ((mItem.item[i][0] == 18) && (mItem.item[i][6] == mLevel.overworld_level)) item_to_get_start_from = i;
+//   }
+//   else
+//   {
+//      int new_spawn_point_index = 0;
+//
+//      int ns = 0; // count number of starts
+//      int s[8] = {0};
+//      for (int i=0; i<500; i++)
+//         if (mItem.item[i][0] == 5)
+//         {
+//            ns++;
+//            s[mItem.item[i][7]] = i; // save index of this start
+//         }
+//
+//      if (ns == 0)
+//      {
+//         printf("Error: no start found.\n");
+//         syn[p].x = 100;
+//         syn[p].y = 100;
+//         return;
+//      }
+//      if (ns == 1)
+//      {
+////         syn[p].spawn_point_index = 0;
+////         int ps = s[syn[p].spawn_point_index];
+////         syn[p].x = mItem.itemf[ps][0];
+////         syn[p].y = mItem.itemf[ps][1];
+//
+////         syn[p].spawn_point_index = 0;
+////         item_to_get_start_from = s[syn[p].spawn_point_index];
+//
+//
+//         syn[p].spawn_point_index = 0;
+//
+//
+//      }
+//
+//
+//      if (ns > 1)
+//      {
+//         int mode = mItem.item[s[0]][6];
+//
+//         if (mode == 0)
+//         {
+//            printf("Error: in start mode:0 there should be only one start.. all other starts are ignored.\n");
+//            syn[p].spawn_point_index = 0;
+////            item_to_get_start_from = s[syn[p].spawn_point_index];
+//
+//
+////            syn[p].x = mItem.itemf[s[0]][0];
+////            syn[p].y = mItem.itemf[s[0]][1];
+//
+//         }
+//
+//         if (mode == 1) // team start
+//         {
+////            if (p % 2) // odd
+////            {
+////               syn[p].spawn_point_index = 1;
+////               item_to_get_start_from = s[syn[p].spawn_point_index];
+////
+////               syn[p].x = mItem.itemf[s[1]][0];
+////               syn[p].y = mItem.itemf[s[1]][1];
+////            }
+////            else
+////            {
+////               syn[p].spawn_point_index = 0;
+////               syn[p].x = mItem.itemf[s[0]][0];
+////               syn[p].y = mItem.itemf[s[0]][1];
+////            }
+////
+//
+//
+//            if (p % 2) syn[p].spawn_point_index = 1; // odd
+//            else       syn[p].spawn_point_index = 0; // even
+//
+//
+//         }
+//
+//         if ((mode == 2) || (mode == 3)) // check point common and individual
+//         {
+//            if (!cont) syn[p].spawn_point_index = 0; // initial
+//
+////            if (!cont) syn[p].spawn_point_index = 0; // initial
+////            int ps = s[syn[p].spawn_point_index];
+////            syn[p].x = mItem.itemf[ps][0];
+////            syn[p].y = mItem.itemf[ps][1];
+//         }
+//         item_to_get_start_from = s[syn[p].spawn_point_index];
+//      }
+//
+//
+//
+//   }
+//   if (item_to_get_start_from == -1)
+//   {
+//      syn[p].x = 100;
+//      syn[p].y = 100;
+//   }
+//   else
+//   {
+//      syn[p].x = mItem.itemf[item_to_get_start_from][0];
+//      syn[p].y = mItem.itemf[item_to_get_start_from][1];
+//   }
+//
+//
+//
 
 
-
-   if (found == 0)
-   {
-
-      int ns = 0; // count number of starts
-      int s[8] = {0};
-      for (int i=0; i<500; i++)
-         if (mItem.item[i][0] == 5)
-         {
-            ns++;
-            s[mItem.item[i][7]] = i; // save index of this start
-         }
-      if (ns == 0)
-      {
-         printf("Error: no start found.\n");
-         syn[p].x = 20;
-         syn[p].y = 20;
-      }
-      if (ns == 1)
-      {
-         syn[p].spawn_point_index = 0;
-         int ps = s[syn[p].spawn_point_index];
-         syn[p].x = mItem.itemf[ps][0];
-         syn[p].y = mItem.itemf[ps][1];
-      }
-
-
-      if (ns > 1)
-      {
-         int mode = mItem.item[s[0]][6];
-
-         if (mode == 0)
-         {
-            printf("Error: in start mode:0 there should be only one start.. all other starts are ignored.\n");
-            syn[p].spawn_point_index = 0;
-            syn[p].x = mItem.itemf[s[0]][0];
-            syn[p].y = mItem.itemf[s[0]][1];
-
-         }
-
-         if (mode == 1) // team start
-         {
-            if (p % 2) // odd
-            {
-               syn[p].spawn_point_index = 1;
-               syn[p].x = mItem.itemf[s[1]][0];
-               syn[p].y = mItem.itemf[s[1]][1];
-            }
-            else
-            {
-               syn[p].spawn_point_index = 0;
-               syn[p].x = mItem.itemf[s[0]][0];
-               syn[p].y = mItem.itemf[s[0]][1];
-            }
-         }
-
-         if ((mode == 2) || (mode == 3)) // check point common and individual
-         {
-            if (!cont) syn[p].spawn_point_index = 0; // initial
-            int ps = s[syn[p].spawn_point_index];
-            syn[p].x = mItem.itemf[ps][0];
-            syn[p].y = mItem.itemf[ps][1];
-         }
-
-      }
-
-   }
 
    /*
 
@@ -214,7 +230,83 @@ void mwPlayer::set_player_start_pos(int p, int cont)
    */
 
 
+
+
+
+
+
+
+
+void mwPlayer::set_player_start_pos(int p, int cont)
+{
+   //printf("set player:%d start pos\n", p);
+
+   int item_to_get_start_from = -1;
+
+   if (mLevel.play_level == 1) // hub level
+   {
+      for (int i=0; i<500; i++)
+         if ((mItem.item[i][0] == 18) && (mItem.item[i][6] == mLevel.overworld_level)) item_to_get_start_from = i;
+   }
+   else
+   {
+      int ns = 0; // count number of starts
+      int s[8] = {0};
+      for (int i=0; i<500; i++)
+         if (mItem.item[i][0] == 5)
+         {
+            ns++;
+            s[mItem.item[i][7]] = i; // save index of this start
+         }
+
+      if (ns == 0) printf("Error: no start found.\n");
+      else
+      {
+         if (ns == 1) syn[p].spawn_point_index = 0;
+         if (ns > 1)
+         {
+            int mode = mItem.item[s[0]][6];
+
+            if (mode == 0)
+            {
+               printf("Lev:%d - Error: in start mode:0 there should be only one start.. all other starts are ignored.\n", mLevel.play_level);
+               syn[p].spawn_point_index = 0;
+            }
+
+            if (mode == 1) // team start
+            {
+               if (p % 2) syn[p].spawn_point_index = 1; // odd
+               else       syn[p].spawn_point_index = 0; // even
+            }
+
+            if ((mode == 2) || (mode == 3)) // check point common and individual
+            {
+               if (!cont) syn[p].spawn_point_index = 0; // initial
+            }
+         }
+         item_to_get_start_from = s[syn[p].spawn_point_index];
+      }
+   }
+   if (item_to_get_start_from == -1)
+   {
+      syn[p].x = 100;
+      syn[p].y = 100;
+   }
+   else
+   {
+      syn[p].x = mItem.itemf[item_to_get_start_from][0];
+      syn[p].y = mItem.itemf[item_to_get_start_from][1];
+   }
 }
+
+
+
+
+
+
+
+
+
 
 void mwPlayer::proc_player_health(int p)
 {
@@ -815,11 +907,6 @@ int mwPlayer::is_player_within_rope_reach(int p)
 }
 
 
-
-
-
-
-
 void mwPlayer::proc_player_rope_move(int p)
 {
     // reset all regular incs
@@ -846,6 +933,7 @@ void mwPlayer::proc_player_rope_move(int p)
 }
 
 
+
 void mwPlayer::proc_player_ladder_move(int p)
 {
    float m = 3;
@@ -862,7 +950,7 @@ void mwPlayer::proc_player_ladder_move(int p)
    if (syn[p].jump)
    {
       syn[p].on_ladder = 0;
-      syn[p].yinc = -6.6; // initial_jump_velocity;
+      syn[p].yinc = -6.6;       // initial_jump_velocity;
       syn[p].y += syn[p].yinc;  // make the first move here
       return;
    }
@@ -882,6 +970,7 @@ void mwPlayer::proc_player_ladder_move(int p)
       syn[p].x += mSolid.is_right_solidf(syn[p].x, syn[p].y, m, 0);
    }
 
+
    // how much did we move this last frame?
    int px = syn[p].x;
    int py = syn[p].y;
@@ -891,9 +980,12 @@ void mwPlayer::proc_player_ladder_move(int p)
    syn[p].xinc = xd;
    syn[p].yinc = yd;
 
+//   printf("1 - %d yd:%d\n", mLoop.frame_num, yd);
 
    // did we try to move up past top of ladder?
    if (yd < 0) if (!is_player_within_ladder_reach(p)) syn[p].y += m;
+
+
 
 
    // did we pass by any single block openings??
@@ -911,7 +1003,7 @@ void mwPlayer::proc_player_ladder_move(int p)
                if (tm > 0)
                {
                   //printf("%d px:%d opx:%d tx:%d x+u\n", mLoop.frame_num, px, old_px, tx );
-                  syn[p].y = tx; // set x to passed by pos
+                  syn[p].x = tx; // set x to passed by pos
                   syn[p].y -= m; // move in y
                   tx = px+1; // break out of loop
                }
@@ -922,7 +1014,7 @@ void mwPlayer::proc_player_ladder_move(int p)
                if (tm > 0)
                {
                   //printf("%d px:%d opx:%d tx:%d x+d\n", mLoop.frame_num, px, old_px, tx );
-                  syn[p].y = tx; // set x to passed by pos
+                  syn[p].x = tx; // set x to passed by pos
                   syn[p].y += m; // move in y
                   tx = px+1; // break out of loop
                }
@@ -958,6 +1050,8 @@ void mwPlayer::proc_player_ladder_move(int p)
          }
       }
    }
+
+
 
 
    // if only y move
@@ -1020,6 +1114,14 @@ void mwPlayer::proc_player_ladder_move(int p)
          }
       }
    }
+
+
+//   yd = syn[p].y - old_py;
+//   printf("2 - %d yd:%d\n", mLoop.frame_num, yd);
+
+
+
+
 }
 
 void mwPlayer::proc_player_rope(int p)
@@ -1159,9 +1261,8 @@ void mwPlayer::draw_player(int p)
       al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, AX+10, AY+10, scale, scale, rot, flags);
 
 
-
-
-
+      // draw the level gate info here so it is on top
+      if (syn[p].marked_gate != -1) mItem.draw_gate_info(syn[p].marked_gate);
 
 
 
@@ -1701,43 +1802,6 @@ void mwPlayer::set_controls_from_player_key_check(int p) // used only in menu
    if (mInput.key[ALLEGRO_KEY_ESCAPE][0])    syn[p].menu  = 1;
 }
 
-void mwPlayer::rungame_key_check(int p)
-{
-   if (mInput.key[ALLEGRO_KEY_0][0]) active_local_player = 0;
-   if (mInput.key[ALLEGRO_KEY_1][0]) active_local_player = 1;
-   if (mInput.key[ALLEGRO_KEY_2][0]) active_local_player = 2;
-   if (mInput.key[ALLEGRO_KEY_3][0]) active_local_player = 3;
-   if (mInput.key[ALLEGRO_KEY_4][0]) active_local_player = 4;
-   if (mInput.key[ALLEGRO_KEY_5][0]) active_local_player = 5;
-   if (mInput.key[ALLEGRO_KEY_6][0]) active_local_player = 6;
-   if (mInput.key[ALLEGRO_KEY_7][0]) active_local_player = 7;
-
-   // dont let alp be an inactive player
-   while (!syn[active_local_player].active) // if alp not active
-      if (++active_local_player > 7) active_local_player = 0;
-
-   // if games_moves doesn't end with level_done kill it after 4 seconds
-   if (mLoop.frame_num > mDemoMode.demo_mode_last_frame + 160) mLoop.new_program_state = 1;
-
-   if ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.key[ALLEGRO_KEY_ENTER][0]) || (mInput.key[ALLEGRO_KEY_SPACE][0]))
-   {
-      mDemoMode.demo_mode_on = 0;
-
-      // set all players inactive
-      for (int p=0; p<NUM_PLAYERS; p++) syn[p].active = 0;
-
-      // except for local player
-      syn[0].active = 1;
-      mConfig.load();
-
-      while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
-
-      mLoop.new_program_state = 1;
-      if (mLoop.old_program_state == 2) mLoop.old_program_state = mLoop.older_program_state; // don't send back to demo mode
-
-   }
-}
-
 void mwPlayer::proc_player_input(void)
 {
    char msg[1024];
@@ -1745,7 +1809,7 @@ void mwPlayer::proc_player_input(void)
       if (syn[p].active) // cycle all active players
       {
          int cm = syn[p].control_method;
-         if (cm == 1) rungame_key_check(p); // run game from file
+         if (cm == 1) mDemoMode.key_check(p); // run game from file
          if ((cm == 0) || (cm == 3) || (cm == 4)) // single player, server, client
          {
             if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
