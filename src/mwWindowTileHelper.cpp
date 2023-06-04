@@ -392,7 +392,7 @@ void mwWindow::th_replace(int type)
                mLevel.l[a][b] |= fb; // merge tile number
             }
          }
-   mScreen.init_level_background(0);
+   mScreen.init_level_background();
 
 }
 

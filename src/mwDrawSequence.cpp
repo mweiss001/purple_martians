@@ -121,7 +121,7 @@ void mwDrawSequence::draw(void)
    if (seq[6][0]) mPlayer.draw_players();
    t7 = al_get_time(); add(6, t7-t6);
 
-   mScreen.get_new_screen_buffer(0, 0, 0);
+   mScreen.get_new_screen_buffer(0);
    t8 = al_get_time(); add(7, t8-t7);
 
    if (seq[8][0]) mScreen.draw_screen_overlay();

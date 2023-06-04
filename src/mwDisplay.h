@@ -26,12 +26,29 @@ class mwDisplay
 
    int SCREEN_W;
    int SCREEN_H;
-   int WX;
-   int WY;
+
+// int WX;
+// int WY;
+
+   float WX_shift_speed = 0;
+
+
+   // used to only redraw a region of background to increase fps
+   int level_display_region_x;
+   int level_display_region_y;
+   int level_display_region_w;
+   int level_display_region_h;
+
+   int screen_display_x;
+   int screen_display_y;
+   int screen_display_w;
+   int screen_display_h;
+
+
+
 
    int fullscreen = 1;
    int display_adapter_num = 0;
-   float WX_shift_speed = 0;
 
    void set_window_title(void);
 
@@ -41,10 +58,10 @@ class mwDisplay
    float viewport_y_div;
 
    // used to only redraw a region of background to increase fps
-   int level_display_region_x;
-   int level_display_region_y;
-   int level_display_region_w;
-   int level_display_region_h;
+//   int level_display_region_x;
+//   int level_display_region_y;
+//   int level_display_region_w;
+//   int level_display_region_h;
 
    int display_transform_double;
    int display_transform_double_max;

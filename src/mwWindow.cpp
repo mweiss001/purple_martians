@@ -118,7 +118,7 @@ void mwWindow::process_mouse(void)
             {
                set_pos(mInput.mouse_x-mxo, mInput.mouse_y-myo);
                mWM.redraw_level_editor_background(0);
-               mScreen.get_new_screen_buffer(3, 0, 0);
+               mScreen.get_new_screen_buffer(3);
                mWM.cycle_windows(1); // draw only
             }
             moving = 0;
@@ -136,7 +136,7 @@ void mwWindow::process_mouse(void)
                w = x2 - x1;
                h = y2 - y1;
                mWM.redraw_level_editor_background(0);
-               mScreen.get_new_screen_buffer(3, 0, 0);
+               mScreen.get_new_screen_buffer(3);
                mWM.cycle_windows(1); // draw only
             }
          }
@@ -209,7 +209,7 @@ void mwWindow::process_mouse(void)
             switch (mMenu.pmenu(6, 13))
             {
                 case 2: mWM.mW[1].show_flag_details =! mWM.mW[1].show_flag_details; break;
-                case 3: mWM.mW[1].show_non_default_blocks =! mWM.mW[1].show_non_default_blocks; mScreen.init_level_background(0); break;
+                case 3: mWM.mW[1].show_non_default_blocks =! mWM.mW[1].show_non_default_blocks; mScreen.init_level_background(); break;
             }
          }
          if (index == 5) // ge list

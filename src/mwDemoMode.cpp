@@ -105,7 +105,6 @@ void mwDemoMode::load_random_demo(void)
             if (debug_print) printf("  -  just previously played\n");
             lev = -1;
          }
-//         if (debug_print) printf("\n");
          timeout++;
          if (timeout > 100) lev = 0;
       }
@@ -119,6 +118,7 @@ void mwDemoMode::load_random_demo(void)
    if (mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[lev])))
    {
       if (debug_print) printf("pass:%d - playing demo level:%d\n", pass, mLevel.play_level);
+      printf("pass:%d - playing demo level:%d\n", pass, mLevel.play_level);
       mLoop.new_program_state = 31;
    }
    else

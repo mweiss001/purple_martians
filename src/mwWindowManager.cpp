@@ -89,9 +89,15 @@ void mwWindowManager::get_block_position_on_map(void)
    float mx2 = mx1 / (mDisplay.scale_factor_current * 20);
    float my2 = my1 / (mDisplay.scale_factor_current * 20);
    // get block position of WX
-   float mx3 = (float)mDisplay.WX / 20;
-   float my3 = (float)mDisplay.WY / 20;
+   float mx3 = (float)mDisplay.level_display_region_x / 20;
+   float my3 = (float)mDisplay.level_display_region_y / 20;
 
+   /*
+   mDisplay.level_display_region_x
+
+   mDisplay.level_display_region_y
+
+   */
    // add
    float mx4 = mx3 + mx2;
    float my4 = my3 + my2;
@@ -114,8 +120,8 @@ void mwWindowManager::get_block_position_on_map(void)
    my2 = my1 / mDisplay.scale_factor_current;
 
    // get position of WX
-   mx3 = (float)mDisplay.WX;
-   my3 = (float)mDisplay.WY;
+   mx3 = (float)mDisplay.level_display_region_x;
+   my3 = (float)mDisplay.level_display_region_y;
 
    // add
    mx4 = mx3 + mx2;
@@ -136,14 +142,14 @@ void mwWindowManager::process_scrolledge(void)
    int swb = mDisplay.SCREEN_W-bw;
    int shb = mDisplay.SCREEN_H-bw;
 
-//   printf("ps1 WX:%d WY:%d\n", mDisplay.WX, mDisplay.WY);
+//   printf("ps1 WX:%d WY:%d\n", mDisplay.level_display_region_x, mDisplay.level_display_region_y);
 
 //   printf("mx:%d my:%d\n", mInput.mouse_x, mInput.mouse_y);
 
-   if (mInput.mouse_y > shb) mDisplay.WY+=(mInput.mouse_y - shb)*2; // scroll down
-   if (mInput.mouse_x > swb) mDisplay.WX+=(mInput.mouse_x - swb)*2; // scroll right
-   if (mInput.mouse_x < bw)  mDisplay.WX-=(bw - mInput.mouse_x)*2;  // scroll left
-   if (mInput.mouse_y < 4)   mDisplay.WY-=(4  - mInput.mouse_y)*7;  // scroll up (is different because of menu)
+   if (mInput.mouse_y > shb) mDisplay.level_display_region_y+=(mInput.mouse_y - shb)*2; // scroll down
+   if (mInput.mouse_x > swb) mDisplay.level_display_region_x+=(mInput.mouse_x - swb)*2; // scroll right
+   if (mInput.mouse_x < bw)  mDisplay.level_display_region_x-=(bw - mInput.mouse_x)*2;  // scroll left
+   if (mInput.mouse_y < 4)   mDisplay.level_display_region_y-=(4  - mInput.mouse_y)*7;  // scroll up (is different because of menu)
 
    // find the size of the source screen from actual screen size and scaler
    int SW = (int)( (float)(mDisplay.SCREEN_W - bw *2) / mDisplay.scale_factor_current);
@@ -152,16 +158,16 @@ void mwWindowManager::process_scrolledge(void)
    if (SH > 2000) SH = 2000;
 
    // correct for edges
-   if (mDisplay.WX < 0)         mDisplay.WX = 0;
-   if (mDisplay.WY < 0)         mDisplay.WY = 0;
-   if (mDisplay.WX > (2000-SW)) mDisplay.WX = 2000-SW;
-   if (mDisplay.WY > (2000-SH)) mDisplay.WY = 2000-SH;
+   if (mDisplay.level_display_region_x < 0)         mDisplay.level_display_region_x = 0;
+   if (mDisplay.level_display_region_y < 0)         mDisplay.level_display_region_y = 0;
+   if (mDisplay.level_display_region_x > (2000-SW)) mDisplay.level_display_region_x = 2000-SW;
+   if (mDisplay.level_display_region_y > (2000-SH)) mDisplay.level_display_region_y = 2000-SH;
 
-//   printf("ps2 WX:%d WY:%d\n", mDisplay.WX, mDisplay.WY);
+//   printf("ps2 WX:%d WY:%d\n", mDisplay.level_display_region_x, mDisplay.level_display_region_y);
 
    // used by get_new_background to only get what is needed
-   mDisplay.level_display_region_x = mDisplay.WX;
-   mDisplay.level_display_region_y = mDisplay.WY;
+   mDisplay.level_display_region_x = mDisplay.level_display_region_x;
+   mDisplay.level_display_region_y = mDisplay.level_display_region_y;
    mDisplay.level_display_region_w = SW;
    mDisplay.level_display_region_h = SH;
 }
@@ -193,7 +199,7 @@ void mwWindowManager::get_new_box(void)
       by2 = gy;
       redraw_level_editor_background(0);
       show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
-      mScreen.get_new_screen_buffer(3, 0, 0);
+      mScreen.get_new_screen_buffer(3);
    }
    if (bx1 > bx2) mMiscFnx.swap_int(&bx1, &bx2); // swap if wrong order
    if (by1 > by2) mMiscFnx.swap_int(&by1, &by2);
@@ -404,7 +410,7 @@ int mwWindowManager::redraw_level_editor_background(void)
                }
             }
       }
-      if (level_editor_mode) mScreen.get_new_screen_buffer(3, 0, 0);
+      if (level_editor_mode) mScreen.get_new_screen_buffer(3);
    }
    return drawn;
 }

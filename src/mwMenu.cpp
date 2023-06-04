@@ -32,10 +32,7 @@ void mwMenu::init_zmenu(int menu_num)
       strcpy (menu_string[9], "Demo Mode");
       strcpy (menu_string[10], "Help Screens");
       strcpy (menu_string[11], "end");
-      strcpy (menu_string[12], "");
-
    }
-
    if (menu_num == 2)  // story mode main menu
    {
       strcpy (menu_string[0], "");
@@ -47,12 +44,7 @@ void mwMenu::init_zmenu(int menu_num)
       strcpy (menu_string[6], "Demo Mode");
       strcpy (menu_string[7], "Help Screens");
       strcpy (menu_string[8], "end");
-      strcpy (menu_string[9], "");
-      strcpy (menu_string[10], "");
-      strcpy (menu_string[11], "");
-      strcpy (menu_string[12], "");
    }
-
    if (menu_num == 3)  // story mode in-level menu
    {
       strcpy (menu_string[0], "");
@@ -62,14 +54,7 @@ void mwMenu::init_zmenu(int menu_num)
       strcpy (menu_string[4], "Settings");
       strcpy (menu_string[5], "Help Screens");
       strcpy (menu_string[6], "end");
-      strcpy (menu_string[7], "");
-      strcpy (menu_string[8], "");
-      strcpy (menu_string[9], "");
-      strcpy (menu_string[10], "");
-      strcpy (menu_string[11], "");
-      strcpy (menu_string[12], "");
    }
-
 }
 
 void mwMenu::init_pmenu(int type)
@@ -123,7 +108,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
 
    int highlight = menu_pos;
 
-   printf("highlight:%d\n", highlight);
+   //printf("highlight:%d\n", highlight);
 
 
 
@@ -252,8 +237,6 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
          // shortcut keys
          if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 4; // settings
       }
-
-
       if (mInput.key[ALLEGRO_KEY_PGDN][0])   highlight = last_list_item;
       if (mInput.key[ALLEGRO_KEY_PGUP][0])   highlight = 2;
       if (mInput.key[ALLEGRO_KEY_ENTER][0])  selection = highlight;

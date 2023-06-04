@@ -257,7 +257,7 @@ void mwInput::function_key_check(void)
       if (++mLoop.show_debug_overlay >= mSettings.number_of_debug_overlay_modes) mLoop.show_debug_overlay = 0;
 
    // force init level background
-   if (key[function_key_init_background][2]) mScreen.init_level_background(0);
+   if (key[function_key_init_background][2]) mScreen.init_level_background();
 
    // force instant game save and log save
    if (key[function_key_force_save][3])

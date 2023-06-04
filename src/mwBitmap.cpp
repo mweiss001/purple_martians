@@ -81,7 +81,7 @@ void mwBitmap::rebuild_bitmaps(void)
 
    mFont.load_fonts();
 
-   mScreen.init_level_background(0);
+   mScreen.init_level_background();
    mDisplay.set_display_transform();
    mLogo.logo_text_bitmaps_create = 1;
    large_text_overlay_state = 0;

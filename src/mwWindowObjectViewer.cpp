@@ -2026,7 +2026,7 @@ void mwWindow::ov_process_keypress(void)
                {
                   for (int t=0; t<2; t++) mLift.move_lifts(1);  // move lifts for 2 frames
                   ov_draw_overlays(0);
-                  mScreen.get_new_screen_buffer(3, 0, 0);
+                  mScreen.get_new_screen_buffer(3);
                   mWM.cycle_windows(1); // draw only
                }
             }
