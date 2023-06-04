@@ -185,7 +185,7 @@ void mwItem::proc_switch_block_range(int i, int action)
 //            if ((item[i][10] & 0b0100) && (tn ==  9))  l[x][y] = (174 | PM_BTILE_ALL_SOLID); // blue   empty to solid
 //            if ((item[i][10] & 0b1000) && (tn == 10))  l[x][y] = (175 | PM_BTILE_ALL_SOLID); // purple empty to solid
 //         }
-//      if (action == 1) init_level_background(0);
+//      if (action == 1) init_level_background();
 //   }
 
 

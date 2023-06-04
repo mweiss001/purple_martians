@@ -19,9 +19,7 @@
 #include "mwInput.h"
 #include "mwMain.h"
 
-
 mwScreen mScreen;
-
 
 void mwScreen::get_new_background(int full)
 {
@@ -38,226 +36,271 @@ void mwScreen::get_new_background(int full)
    }
 }
 
-void mwScreen::stimp(void) // transition from menu to game
+void mwScreen::transition_cutscene(int i, int f, int num_steps, float delay)
 {
+
+//0 - nothing
+//1 - game
+//2 - map
+//3 - gate icon
+
+
+   float fmxi=0;
+   float fmyi=0;
+   float fmsi=1;
+
+   float fmxf=0;
+   float fmyf=0;
+   float fmsf=1;
+
+   set_screen_display_variables();
+   set_level_display_region_xy();
+   set_map_var();
+
+   // player's position in level
+   float px = mPlayer.syn[mPlayer.active_local_player].x+10;
+   float py = mPlayer.syn[mPlayer.active_local_player].y+10;
+
+
+   if (i == 0) // nothing
+   {
+      fmxi = mDisplay.SCREEN_W/2;
+      fmyi = mDisplay.SCREEN_H/2;
+      fmsi = 0.01;
+   }
+   if (i == 1) // game
+   {
+      fmsi = mDisplay.scale_factor_current;
+      // get player's screen position currently in the game
+      fmxi = mDisplay.screen_display_x + (px - mDisplay.level_display_region_x) * fmsi;
+      fmyi = mDisplay.screen_display_y + (py - mDisplay.level_display_region_y) * fmsi;
+   }
+   if (i == 2) // menu
+   {
+      fmsi = (float)mLogo.menu_map_size / 2000;
+      fmxi = mLogo.menu_map_x + px * fmsi;
+      fmyi = mLogo.menu_map_y + py * fmsi;
+   }
+   if (i == 3) // gate
+   {
+      fmsi = 200.0 / 2000.0; // level icon size = 200;
+      fmxi = gate_transition_x + px * fmsi;
+      fmyi = gate_transition_y + py * fmsi;
+   }
+
+   if (f == 0) // nothing
+   {
+      fmxf = mDisplay.SCREEN_W/2;
+      fmyf = mDisplay.SCREEN_H/2;
+      fmsf = 0.01;
+   }
+   if (f == 1) // game
+   {
+      fmsf = mDisplay.scale_factor_current;
+      // get player's screen position currently in the game
+      fmxf = mDisplay.screen_display_x + (px - mDisplay.level_display_region_x) * fmsf;
+      fmyf = mDisplay.screen_display_y + (py - mDisplay.level_display_region_y) * fmsf;
+   }
+   if (f == 2) // menu
+   {
+      fmsf = (float)mLogo.menu_map_size / 2000;
+      fmxf = mLogo.menu_map_x + px * fmsf;
+      fmyf = mLogo.menu_map_y + py * fmsf;
+   }
+   if (f == 3) // gate
+   {
+      fmsf = 200.0 / 2000.0; // level icon size = 200;
+      fmxf = gate_transition_x + px * fmsf;
+      fmyf = gate_transition_y + py * fmsf;
+   }
+
+   do_transition(fmxi, fmyi, fmxf, fmyf, fmsi, fmsf, num_steps, delay);
+}
+
+
+void mwScreen::do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, int num_steps, float delay)
+{
+   int c = mPlayer.syn[mPlayer.active_local_player].color;
+
    draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
    al_set_target_backbuffer(mDisplay.display);
 
-   int num_steps = 30;
-   float delay = .01;
+   // get scale multiplier using compound interest formula
+   float per = 1.0 + pow((scf/sci), (1.0/(float)num_steps) ) - 1;
 
-   // find the size of the source screen from actual screen size and scaler
-   int bw = BORDER_WIDTH;
-   int SW = (int)( (float)(mDisplay.SCREEN_W - bw *2) / mDisplay.scale_factor_current);
-   int SH = (int)( (float)(mDisplay.SCREEN_H - bw *2) / mDisplay.scale_factor_current);
+   float fmxinc = (fmxf - fmxi) / num_steps;
+   float fmyinc = (fmyf - fmyi) / num_steps;
 
-   if (SW > 2000) SW = 2000;
-   if (SH > 2000) SH = 2000;
-
-   // find where to grab the source screen from based on the players position
-   int alp = mPlayer.active_local_player;
-   int PX = mPlayer.syn[alp].x + 10;
-   int PY = mPlayer.syn[alp].y + 10;
-
-   // this method has a hysteresis rectangle in the middle of the screen where there is no scroll
-   int x_size = SW / 18; // larger number is smaller window
-   int y_size = SH / 18;
-   if (mDisplay.WX < PX - SW/2 - x_size) mDisplay.WX = PX - SW/2 - x_size;
-   if (mDisplay.WX > PX - SW/2 + x_size) mDisplay.WX = PX - SW/2 + x_size;
-   if (mDisplay.WY < PY - SH/2 - y_size) mDisplay.WY = PY - SH/2 - y_size;
-   if (mDisplay.WY > PY - SH/2 + y_size) mDisplay.WY = PY - SH/2 + y_size;
-
-   // correct for edges
-   if (mDisplay.WX < 0) mDisplay.WX = 0;
-   if (mDisplay.WY < 0) mDisplay.WY = 0;
-   if (mDisplay.WX > (2000 - SW)) mDisplay.WX = 2000 - SW;
-   if (mDisplay.WY > (2000 - SH)) mDisplay.WY = 2000 - SH;
-
-   // this is where the player will be when stimp is done and the level starts
-   PX = mPlayer.syn[alp].x;
-   PY = mPlayer.syn[alp].y;
-
-   float px_final = (PX-mDisplay.WX) * mDisplay.scale_factor_current + bw;
-   float py_final = (PY-mDisplay.WY) * mDisplay.scale_factor_current + bw;
-
-
-   // offset if entire level is smaller than screen
-   int sbw = mDisplay.SCREEN_W-bw*2;
-   int sbh = mDisplay.SCREEN_H-bw*2;
-
-   // how big is the entire level after scale factor is applied?
-   int sls = (int) ((float)2000 * mDisplay.scale_factor_current); // sls = scaled level size
-
-   // is the entire level smaller than the screen buffer width?
-   if (sls < sbw)
-   {
-      int a = sbw - sls; // how much smaller?
-      px_final += a/2;
-
-   }
-   // is the entire level smaller than the screen buffer height?
-   if (sls < sbh)
-   {
-      int a = sbh - sls; // how much smaller?
-      py_final += a/2;
-   }
-
-
-
-   // this is the menu map's position and size
-   y_size = mDisplay.SCREEN_H-160;
-   x_size = mDisplay.SCREEN_W-260;
-   int size;
-   if (y_size < x_size) size = y_size;
-   else size = x_size;
-   if (size < 10) size = 10;
-   int mx = mDisplay.SCREEN_W/2-(size/2);
-   int my = 140;
-
-   // get the players position on the menu map
-   int map_px = mx + PX * size / 2000;
-   int map_py = my + PY * size / 2000;
-
-
-   float sc = (float)size / 2000;
-   float scf = mDisplay.scale_factor_current;
-   // do the scale increment as a percent change so that the zoom speed is constant
-   // use the compound interest formula to find the percent change per step I need
-   float a, per = 1.000;
-   do
-   {
-       per += .0001;
-       a = sc * pow(per, num_steps);
-   }
-   while (a < scf);
-
-   float fmx = (float)map_px;
-   float fmxf = px_final;
-   float fmxinc = (fmxf - fmx) / num_steps;
-
-   float fmy = (float)map_py;
-   float fmyf = py_final;
-   float fmyinc = (fmyf - fmy) / num_steps;
-
-   for (int steps = 0; steps<num_steps; steps++)
+   for (int s=0; s<num_steps; s++)
    {
       al_clear_to_color(al_map_rgb(0,0,0));
-      draw_level_centered((int)fmx, (int)fmy, PX, PY,  sc);
+
+      draw_level_centered_on_player_pos(fmxi, fmyi, sci);
+
+      // draw frame in local player's color
+      for (int x=0; x<BORDER_WIDTH; x++)
+         al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f,  mColor.pc[c + (x * 16)], 1);
+
       al_flip_display();
-      sc *= per;
-      fmx += fmxinc;
-      fmy += fmyinc;
       al_rest(delay);
+      sci *= per;
+      fmxi += fmxinc;
+      fmyi += fmyinc;
    }
 }
 
 
-void mwScreen::stamp(void) // transition from game to menu
+void mwScreen::set_screen_display_variables(void)
 {
-   draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
+// ----------------------------------------------------------------------
+// step 1 - determine x, y, width and height to draw on the screen
+// if width or height is bigger than scaled level, clamp to that size
+// also shift x and y to center, but only if not in level editor
+// ----------------------------------------------------------------------
 
-   int num_steps = 30;
-   float delay = .01;
-
-   // find the size of the source screen from actual screen size and scaler
+   // default place and size to draw on screen
    int bw = BORDER_WIDTH;
-   int SW = (int)( (float)(mDisplay.SCREEN_W - bw *2) / mDisplay.scale_factor_current);
-   int SH = (int)( (float)(mDisplay.SCREEN_H - bw *2) / mDisplay.scale_factor_current);
-   if (SW > 2000) SW = 2000;
-   if (SH > 2000) SH = 2000;
+   mDisplay.screen_display_x = bw;
+   mDisplay.screen_display_y = bw;
+   mDisplay.screen_display_w = mDisplay.SCREEN_W-bw*2;
+   mDisplay.screen_display_h = mDisplay.SCREEN_H-bw*2;
 
-   // find where to grab the source screen from based on the players position
-   int alp = mPlayer.active_local_player;
-   int PX = mPlayer.syn[alp].x + 10;
-   int PY = mPlayer.syn[alp].y + 10;
+   float sls = mDisplay.scale_factor_current * 2000;                      // get the scaled size of the entire level
 
-   // this method has a hysteresis rectangle in the middle of the screem where there is no scroll
-   int x_size = SW / 18; // larger number is smaller window
-   int y_size = SH / 18;
-
-   if (mDisplay.WX < PX - SW/2 - x_size) mDisplay.WX = PX - SW/2 - x_size;
-   if (mDisplay.WX > PX - SW/2 + x_size) mDisplay.WX = PX - SW/2 + x_size;
-   if (mDisplay.WY < PY - SH/2 - y_size) mDisplay.WY = PY - SH/2 - y_size;
-   if (mDisplay.WY > PY - SH/2 + y_size) mDisplay.WY = PY - SH/2 + y_size;
-
-   // correct for edges
-   if (mDisplay.WX < 0) mDisplay.WX = 0;
-   if (mDisplay.WY < 0) mDisplay.WY = 0;
-   if (mDisplay.WX > (2000 - SW)) mDisplay.WX = 2000 - SW;
-   if (mDisplay.WY > (2000 - SH)) mDisplay.WY = 2000 - SH;
-
-   // this is where the player will be when stimp is done and the level starts
-   PX = mPlayer.syn[alp].x;
-   PY = mPlayer.syn[alp].y;
-
-   float px_final = (PX-mDisplay.WX) * mDisplay.scale_factor_current + bw;
-   float py_final = (PY-mDisplay.WY) * mDisplay.scale_factor_current + bw;
-
-   // offset if entire level is smaller than screen
-   int sbw = mDisplay.SCREEN_W-bw*2;
-   int sbh = mDisplay.SCREEN_H-bw*2;
-
-   // how big is the entire level after scale factor is applied?
-   int sls = (int) ((float)2000 * mDisplay.scale_factor_current); // sls = scaled level size
-
-   // is the entire level smaller than the screen buffer width?
-   if (sls < sbw)
+   if (mDisplay.screen_display_w > sls) // is screen_display_w greater than entire level width?
    {
-      int a = sbw - sls; // how much smaller?
-      px_final += a/2;
-
-   }
-   // is the entire level smaller than the screen buffer height?
-   if (sls < sbh)
-   {
-      int a = sbh - sls; // how much smaller?
-      py_final += a/2;
+      float a = mDisplay.screen_display_w - sls;                          // how much greater?
+      mDisplay.screen_display_w = sls;                                    // new screen_display_w = sls
+      if (!mLoop.level_editor_running) mDisplay.screen_display_x += a/2;  // new screen_display_x draw xpos
    }
 
-   // this is the menu map's position and size
-   y_size = mDisplay.SCREEN_H-160;
-   x_size = mDisplay.SCREEN_W-260;
-   int size;
-   if (y_size < x_size) size = y_size;
-   else size = x_size;
-   if (size < 10) size = 10;
-   int mx = mDisplay.SCREEN_W/2-(size/2);
-   int my = 140;
-
-   // get the players position on the menu map
-   int map_px = mx + PX * size / 2000;
-   int map_py = my + PY * size / 2000;
-
-   float sc = mDisplay.scale_factor_current;
-   float scf = (float)size / 2000;
-
-   // do the scale increment as a percent change so that the zoom speed is constant
-   // use the compound interest formula to find the percent change per step I need
-   float a, per = 1.000;
-   do
+   if (mDisplay.screen_display_h > sls) // is screen_display_h greater than entire level height?
    {
-       per -= .0001;
-       a = sc * pow(per, num_steps);
+      float a = mDisplay.screen_display_h - sls;                          // how much greater?
+      mDisplay.screen_display_h = sls;                                    // new screen_display_h = sls
+      if (!mLoop.level_editor_running) mDisplay.screen_display_y += a/2;  // new screen_display_y draw ypos
    }
-   while (a > scf);
 
-   float fmx = px_final;
-   float fmxf = (float)map_px;
-   float fmxinc = (fmxf - fmx) / num_steps;
+// ----------------------------------------------------------------------
+// step 2 - now that we know the screen buffer width and height
+// scale that to find out the size of the region to grab from level buffer
+// clamp to not grab more than entire level
+// ----------------------------------------------------------------------
+   mDisplay.level_display_region_w = (float) mDisplay.screen_display_w / mDisplay.scale_factor_current;
+   mDisplay.level_display_region_h = (float) mDisplay.screen_display_h / mDisplay.scale_factor_current;
+   if (mDisplay.level_display_region_w > 2000) mDisplay.level_display_region_w = 2000;
+   if (mDisplay.level_display_region_h > 2000) mDisplay.level_display_region_h = 2000;
+}
 
-   float fmy = py_final;
-   float fmyf = (float)map_py;
-   float fmyinc = (fmyf - fmy) / num_steps;
 
-   for (int steps = 0; steps<num_steps; steps++)
+void mwScreen::set_level_display_region_xy(void)
+{
+// ----------------------------------------------------------------------
+// use active local player to find where to grab the region from level buffer
+// sets mDisplay.level_display_region_x, mDisplay.level_display_region_y
+// ----------------------------------------------------------------------
+
+   int p = mPlayer.active_local_player;
+   int px = mPlayer.syn[p].x + 10;
+   int py = mPlayer.syn[p].y + 10;
+
+   int w = mDisplay.level_display_region_w;
+   int h = mDisplay.level_display_region_h;
+
+   if (mDisplay.viewport_mode == 0) // this method always has the player in the middle of the screen
    {
-      al_clear_to_color(al_map_rgb(0,0,0));
-      draw_level_centered((int)fmx, (int)fmy, PX, PY,  sc);
-      al_flip_display();
-      sc *= per;
-      fmx += fmxinc;
-      fmy += fmyinc;
-      al_rest(delay);
+      mDisplay.level_display_region_x = px - w/2 - 10; // set window from PX, PY
+      mDisplay.level_display_region_y = py - h/2 - 10;
+   }
+   else // scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
+   {
+      if (mDisplay.viewport_mode == 2) // like mode 1 but gradual move
+      {
+         int look_shift_speed = 4;
+
+         if (mPlayer.syn[p].left_right) mDisplay.WX_shift_speed+=.5;
+         else mDisplay.WX_shift_speed-=.5;
+
+         if (mDisplay.WX_shift_speed > 2)  mDisplay.WX_shift_speed = 2;
+         if (mDisplay.WX_shift_speed < -2) mDisplay.WX_shift_speed = -2;
+
+         mDisplay.level_display_region_x+=mDisplay.WX_shift_speed;
+
+         if (mPlayer.syn[p].up)   mDisplay.level_display_region_y-=look_shift_speed;
+         if (mPlayer.syn[p].down) mDisplay.level_display_region_y+=look_shift_speed;
+      }
+
+      int x_size = w * mDisplay.viewport_x_div/2;
+      int y_size = h * mDisplay.viewport_y_div/2;
+
+      if (mDisplay.level_display_region_x < px - w/2 - x_size) mDisplay.level_display_region_x = px - w/2 - x_size; // hit right edge
+      if (mDisplay.level_display_region_x > px - w/2 + x_size) mDisplay.level_display_region_x = px - w/2 + x_size; // hit left edge
+      if (mDisplay.level_display_region_y < py - h/2 - y_size) mDisplay.level_display_region_y = py - h/2 - y_size; // hit bottom edge
+      if (mDisplay.level_display_region_y > py - h/2 + y_size) mDisplay.level_display_region_y = py - h/2 + y_size; // hit top edge
+
+      // clamp to edges
+      if (mDisplay.level_display_region_x < 0)                                        mDisplay.level_display_region_x = 0;
+      if (mDisplay.level_display_region_y < 0)                                        mDisplay.level_display_region_y = 0;
+      if (mDisplay.level_display_region_x > (2000 - mDisplay.level_display_region_w)) mDisplay.level_display_region_x = 2000 - mDisplay.level_display_region_w;
+      if (mDisplay.level_display_region_y > (2000 - mDisplay.level_display_region_h)) mDisplay.level_display_region_y = 2000 - mDisplay.level_display_region_h;
+   }
+}
+
+
+void mwScreen::get_new_screen_buffer(int type)
+{
+   set_screen_display_variables();
+   if (type != 3) set_level_display_region_xy();
+
+   al_set_target_backbuffer(mDisplay.display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   // draw frame in local player's color
+   int c = mPlayer.syn[mPlayer.active_local_player].color;
+   for (int x = 0; x < BORDER_WIDTH; x++)
+      al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f,  mColor.pc[c + (x * 16)], 1);
+
+   // draw the level region from level buffer to display
+   al_draw_scaled_bitmap(mBitmap.level_buffer, mDisplay.level_display_region_x, mDisplay.level_display_region_y, mDisplay.level_display_region_w, mDisplay.level_display_region_h,
+                                               mDisplay.screen_display_x,       mDisplay.screen_display_y,       mDisplay.screen_display_w,       mDisplay.screen_display_h, 0);
+
+   if ((mDisplay.viewport_show_hyst) && (mDisplay.viewport_mode != 0))
+   {
+      int x_size = mDisplay.level_display_region_w * mDisplay.viewport_x_div/2;
+      int y_size = mDisplay.level_display_region_h * mDisplay.viewport_y_div/2;
+      float hx1 = mDisplay.SCREEN_W/2 - x_size * mDisplay.scale_factor_current;
+      float hx2 = mDisplay.SCREEN_W/2 + x_size * mDisplay.scale_factor_current;
+      float hy1 = mDisplay.SCREEN_H/2 - y_size * mDisplay.scale_factor_current;
+      float hy2 = mDisplay.SCREEN_H/2 + y_size * mDisplay.scale_factor_current;
+      al_draw_rectangle(hx1, hy1, hx2, hy2, mColor.pc[10], 0);
+   }
+
+   // in level editor mode, if the level is smaller than the screen edges, draw a thin line to show where it ends...
+   if (type == 3)
+   {
+      int bw = BORDER_WIDTH;
+      int sbx = mDisplay.screen_display_x;
+      int sby = mDisplay.screen_display_y;
+      int sbw = mDisplay.SCREEN_W-bw*2; // recalc because these have been modified
+      int sbh = mDisplay.SCREEN_H-bw*2;
+      int xdraw = 0;
+      int ydraw = 0;
+      int xl=mDisplay.SCREEN_W-bw; // default screen edge positions
+      int yl=mDisplay.SCREEN_H-bw;
+      float sls = mDisplay.scale_factor_current * 2000; // sls = scaled level size
+      if (sls < sbw)
+      {
+         xl = sbx+sls;
+         xdraw = 1;
+      }
+      if (sls < sbh)
+      {
+         yl = sby+sls;
+         ydraw = 1;
+      }
+      if (xdraw) al_draw_line(xl, bw, xl, yl, mColor.pc[c], 0);
+      if (ydraw) al_draw_line(bw, yl, xl, yl, mColor.pc[c], 0);
+      //al_draw_rectangle(sbx, sby, sbx+sbw, sby+sbh, mColor.pc[c], 0);
    }
 }
 
@@ -274,167 +317,9 @@ void mwScreen::draw_hyst_rect(void)
    al_draw_rectangle(hx1, hy1, hx2, hy2, mColor.pc[10], 0);
 }
 
-void mwScreen::get_new_screen_buffer(int type, int x, int y)
-{
-   int p = mPlayer.active_local_player;
-   int c = mPlayer.syn[p].color;
-
-   al_set_target_backbuffer(mDisplay.display);
-   al_clear_to_color(al_map_rgb(0,0,0));
-
-   // draw frame in local player's color
-   for (int x = 0; x < BORDER_WIDTH; x++)
-      al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f,  mColor.pc[c + (x * 16)], 1);
-
-   // default place and size to draw on screen_buffer
-   int bw = BORDER_WIDTH;
-   int sbx = bw;
-   int sby = bw;
-   int sbw = mDisplay.SCREEN_W-bw*2;
-   int sbh = mDisplay.SCREEN_H-bw*2;
-
-   // how big is the entire level after scale factor is applied?
-   int sls = (int) ((float)2000 * mDisplay.scale_factor_current); // sls = scaled level size
-
-
-   // is the entire level smaller than the screen buffer width?
-   if (sls < sbw)
-   {
-      int a = sbw - sls; // how much smaller?
-      sbw = sls;         // new screen_buffer blit width = sls
-      if (!mLoop.level_editor_running) sbx += a/2;        // new screen_buffer blit xpos
-   }
-
-   // is the entire level smaller than the screen buffer height?
-   if (sls < sbh)
-   {
-      int a = sbh - sls; // how much smaller?
-      sbh = sls;         // new screen_buffer blit height = sls
-      if (!mLoop.level_editor_running) sby += a/2;        // new screen_buffer blit ypos
-   }
-
-   // find the size of the source screen from actual screen size and scaler
-   int SW = (int)( (float)(mDisplay.SCREEN_W - bw *2) / mDisplay.scale_factor_current);
-   int SH = (int)( (float)(mDisplay.SCREEN_H - bw *2) / mDisplay.scale_factor_current);
-   if (SW > 2000) SW = 2000;
-   if (SH > 2000) SH = 2000;
-
-
-   int PX = 0;
-   int PY = 0;
-
-
-   // find where to grab the source screen from based on the players position
-   if (type == 0)
-   {
-      PX = mPlayer.syn[p].x + 10;
-      PY = mPlayer.syn[p].y + 10;
-   }
-   if (type == 1)
-   {
-      PX = x;
-      PY = y;
-   }
-
-   int x_size = 0, y_size = 0;
-
-   if (type != 3)
-   {
-      if (mDisplay.viewport_mode == 0) // this method always has the player in the middle of the screen
-      {
-         mDisplay.WX = PX - SW/2 -10; // set window from PX, PY
-         mDisplay.WY = PY - SH/2 -10;
-      }
-      else // scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
-      {
-         x_size = SW * mDisplay.viewport_x_div/2;
-         y_size = SH * mDisplay.viewport_y_div/2;
-
-         if (mDisplay.viewport_mode == 2) // like mode 1 but gradual move
-         {
-            int look_shift_speed = 4;
-
-            if (mPlayer.syn[p].left_right) mDisplay.WX_shift_speed+=.5;
-            else mDisplay.WX_shift_speed-=.5;
-
-            if (mDisplay.WX_shift_speed > 2)  mDisplay.WX_shift_speed = 2;
-            if (mDisplay.WX_shift_speed < -2) mDisplay.WX_shift_speed = -2;
-
-            mDisplay.WX+=mDisplay.WX_shift_speed;
-
-            if (mPlayer.syn[p].up) mDisplay.WY-=look_shift_speed;
-            if (mPlayer.syn[p].down) mDisplay.WY+=look_shift_speed;
-         }
-         if (mDisplay.WX < PX - SW/2 - x_size) mDisplay.WX = PX - SW/2 - x_size; // hit right edge
-         if (mDisplay.WX > PX - SW/2 + x_size) mDisplay.WX = PX - SW/2 + x_size; // hit left edge
-         if (mDisplay.WY < PY - SH/2 - y_size) mDisplay.WY = PY - SH/2 - y_size; // hit bottom edge
-         if (mDisplay.WY > PY - SH/2 + y_size) mDisplay.WY = PY - SH/2 + y_size; // hit top edge
-
-      }
-   }
-
-   // correct for edges
-   int clamp_x0 = 0;
-   int clamp_x1 = 0;
-   int clamp_y0 = 0;
-   int clamp_y1 = 0;
-   if (mDisplay.WX < 0)           { mDisplay.WX = 0;         clamp_x0 = 1; }
-   if (mDisplay.WY < 0)           { mDisplay.WY = 0;         clamp_y0 = 1; }
-   if (mDisplay.WX > (2000 - SW)) { mDisplay.WX = 2000 - SW; clamp_x1 = 1; }
-   if (mDisplay.WY > (2000 - SH)) { mDisplay.WY = 2000 - SH; clamp_y1 = 1; }
-
-   // used by get_new_background to only get what is needed
-   mDisplay.level_display_region_x = mDisplay.WX;
-   mDisplay.level_display_region_y = mDisplay.WY;
-   mDisplay.level_display_region_w = SW;
-   mDisplay.level_display_region_h = SH;
-
-   // this is what all the previous calculations have been building up to:
-   al_draw_scaled_bitmap(mBitmap.level_buffer, mDisplay.WX, mDisplay.WY, SW, SH, sbx, sby, sbw, sbh, 0);
-
-  //printf("WX:%d, WY:%d, SW:%d, SH:%d, sbx:%d, sby:%d, sbw:%d, sbh:%d\n", WX, WY, SW, SH, sbx, sby, sbw, sbh);
 
 
 
-   if (mDisplay.viewport_show_hyst)
-   {
-      float hx1 = mDisplay.SCREEN_W/2 - x_size * mDisplay.scale_factor_current;
-      float hx2 = mDisplay.SCREEN_W/2 + x_size * mDisplay.scale_factor_current;
-      float hy1 = mDisplay.SCREEN_H/2 - y_size * mDisplay.scale_factor_current;
-      float hy2 = mDisplay.SCREEN_H/2 + y_size * mDisplay.scale_factor_current;
-      if (mDisplay.viewport_mode == 0) {hx2+=20* mDisplay.scale_factor_current; hy2+=20* mDisplay.scale_factor_current;}
-      if (clamp_x0) hx1 = 0;
-      if (clamp_y0) hy1 = 0;
-      if (clamp_x1) hx2 = mDisplay.SCREEN_W;
-      if (clamp_y1) hy2 = mDisplay.SCREEN_H;
-      al_draw_rectangle(hx1, hy1, hx2, hy2, mColor.pc[10], 0);
-   }
-
-   // in level editor mode, if the level is smaller than the screen edges, draw a thin line to show where it ends...
-   if (type == 3)
-   {
-      sbw = mDisplay.SCREEN_W-bw*2; // recalc these beacuse they have been modified
-      sbh = mDisplay.SCREEN_H-bw*2;
-      int xdraw = 0;
-      int ydraw = 0;
-      int xl=mDisplay.SCREEN_W-bw; // default screen edge positions
-      int yl=mDisplay.SCREEN_H-bw;
-      if (sls < sbw)
-      {
-         xl = sbx+sls;
-         xdraw = 1;
-      }
-      if (sls < sbh)
-      {
-         yl = sby+sls;
-         ydraw = 1;
-      }
-      if (xdraw) al_draw_line(xl, bw, xl, yl, mColor.pc[c], 0);
-      if (ydraw) al_draw_line(bw, yl, xl, yl, mColor.pc[c], 0);
-      //al_draw_rectangle(sbx, sby, sbx+sbw, sby+sbh, mColor.pc[c], 0);
-   }
-
-}
 
 void mwScreen::set_map_var(void)
 {
@@ -496,50 +381,17 @@ void mwScreen::init_level_background2(int s, int e)
       }
 }
 
-void mwScreen::init_level_background(int type) // fill level_background with block tiles
+void mwScreen::init_level_background(void) // fill level_background with block tiles
 {
    //printf("init_level_background\n");
-   if (type == 0)
-   {
-      al_set_target_bitmap(mBitmap.level_background);
-      al_clear_to_color(al_map_rgb(0,0,0));
-      for (int x=0; x<100; x++)
-         for (int y=0; y<100; y++)
-         {
-            al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
-            if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
-         }
-
-   }
-
-   if (type == 1)
-   {
-      if (mLoop.frame_num % 40 == 0)
+   al_set_target_bitmap(mBitmap.level_background);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   for (int x=0; x<100; x++)
+      for (int y=0; y<100; y++)
       {
-         al_set_target_bitmap(mBitmap.level_background);
-         al_clear_to_color(al_map_rgb(0,0,0));
-         for (int x=0; x<100; x++)
-            for (int y=0; y<100; y++)
-            {
-               al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
-               if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
-            }
+         al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
+         if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
       }
-   }
-   if (type == 2)
-   {
-      int sq = mLoop.frame_num % 40;
-      if (sq == 0)  init_level_background2(0,  10);
-      if (sq == 4)  init_level_background2(10, 20);
-      if (sq == 8)  init_level_background2(20, 30);
-      if (sq == 12) init_level_background2(30, 40);
-      if (sq == 16) init_level_background2(40, 50);
-      if (sq == 20) init_level_background2(50, 60);
-      if (sq == 24) init_level_background2(60, 70);
-      if (sq == 28) init_level_background2(70, 80);
-      if (sq == 32) init_level_background2(80, 90);
-      if (sq == 36) init_level_background2(90, 100);
-   }
 }
 
 
@@ -563,13 +415,20 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
    al_draw_scaled_bitmap(mBitmap.level_buffer, 0, 0, 2000, 2000, mx, my, ms, ms, 0);
 }
 
-void mwScreen::draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, float scale_factor)
+void mwScreen::draw_level_centered_on_player_pos(int screen_x, int screen_y, float scale_factor)
 {
    // use scale factor to determine scaled size of level
-   int size = (int)(scale_factor * 2000);
-   int mgx = screen_x - (int) (level_x * scale_factor);  // start x pos on level
-   int mgy = screen_y - (int) (level_y * scale_factor);  // start y pos on level
-   al_draw_scaled_bitmap(mBitmap.level_buffer, 0, 0, 2000, 2000, mgx, mgy, size, size, 0);
+   int sz = scale_factor * 2000;
+
+   // find where to grab the source screen from based on the players position
+   int px = mPlayer.syn[mPlayer.active_local_player].x;
+   int py = mPlayer.syn[mPlayer.active_local_player].y;
+
+   int mgx = screen_x - (px * scale_factor);  // start x pos on level
+   int mgy = screen_y - (py * scale_factor);  // start y pos on level
+
+
+   al_draw_scaled_bitmap(mBitmap.level_buffer, 0, 0, 2000, 2000, mgx, mgy, sz, sz, 0);
 }
 
 void mwScreen::draw_level(void) // draws the map on the menu screen

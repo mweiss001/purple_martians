@@ -7,18 +7,36 @@ class mwScreen
 
    // z_screen.h
    void get_new_background(int full);
-   void stimp(void);
-   void stamp(void);
+
+   void transition_cutscene(int i, int f, int num_steps, float delay);
+
+   void do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, int num_steps, float delay);
+
+
+   int gate_transition_x;
+   int gate_transition_y;
+
+
    void draw_hyst_rect(void);
-   void get_new_screen_buffer(int type, int x, int y);
+
+
+   void set_screen_display_variables(void);
+
+   void set_level_display_region_xy(void);
+
+
+
+   void get_new_screen_buffer(int type);
    void set_map_var(void);
    void mark_non_default_block(int x, int y);
 
-   void init_level_background(int);
+   void init_level_background(void);
    void init_level_background2(int s, int e);
 
    void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players);
-   void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, float scale_factor);
+
+   void draw_level_centered_on_player_pos(int screen_x, int screen_y, float scale_factor);
+
    void draw_level(void);
 
    void frame_and_title(int show_players);

@@ -2,26 +2,17 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-level 35 has start mode error
+leaving settings does a transition
+
+
+
+
 
 
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
-
-see if I can do better with transitions:
-
-stimp is called:
--10 single player new game
--13 resume game
--31 setup and play demo level
-but not 12 - next level??
-
-stamp is called
-new program state 1
-
-
 
 
 
@@ -30,7 +21,6 @@ player colors
 got to pop up menu
 got to edit selection
 got to message
-
 got to vinepod
 
 

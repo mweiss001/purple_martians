@@ -1862,15 +1862,8 @@ void mwSettings::settings_pages(int set_page)
          ya +=4;
 
          if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Reset all level data")) mLevel.reset_level_data();
-
          if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
-
       }
-
-
-
-
-
 
 
 

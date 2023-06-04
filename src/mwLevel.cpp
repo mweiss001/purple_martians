@@ -199,7 +199,7 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
             }
          level_check();
          level_start_data();
-         mScreen.init_level_background(0); // draw blocks on level_background
+         mScreen.init_level_background(); // draw blocks on level_background
          //set_player_start_pos(0, 0);
       }
       return 1;

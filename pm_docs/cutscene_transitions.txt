@@ -1,0 +1,190 @@
+Cutscene transistions
+
+
+One thing that make the game look great are the transitions bewteen levels...
+
+Menu to game, level done, etc. All of these have a smooth transition instead a jarring jump.
+
+The heart of this are the 2 functions:
+
+void mwScreen::transition_cutscene(int i, int f, int num_steps, float delay)
+{
+
+//0 - nothing
+//1 - game
+//2 - map
+//3 - gate icon
+
+
+   float fmxi=0;
+   float fmyi=0;
+   float fmsi=1;
+
+   float fmxf=0;
+   float fmyf=0;
+   float fmsf=1;
+
+   set_screen_display_variables();
+   set_level_display_region_xy();
+   set_map_var();
+
+   // player's position in level
+   float px = mPlayer.syn[mPlayer.active_local_player].x+10;
+   float py = mPlayer.syn[mPlayer.active_local_player].y+10;
+
+
+   if (i == 0) // nothing
+   {
+      fmxi = mDisplay.SCREEN_W/2;
+      fmyi = mDisplay.SCREEN_H/2;
+      fmsi = 0.01;
+   }
+   if (i == 1) // game
+   {
+      fmsi = mDisplay.scale_factor_current;
+      // get player's screen position currently in the game
+      fmxi = mDisplay.screen_display_x + (px - mDisplay.level_display_region_x) * fmsi;
+      fmyi = mDisplay.screen_display_y + (py - mDisplay.level_display_region_y) * fmsi;
+   }
+   if (i == 2) // menu
+   {
+      fmsi = (float)mLogo.menu_map_size / 2000;
+      fmxi = mLogo.menu_map_x + px * fmsi;
+      fmyi = mLogo.menu_map_y + py * fmsi;
+   }
+   if (i == 3) // gate
+   {
+      fmsi = 200.0 / 2000.0; // level icon size = 200;
+      fmxi = gate_transition_x + px * fmsi;
+      fmyi = gate_transition_y + py * fmsi;
+   }
+
+   if (f == 0) // nothing
+   {
+      fmxf = mDisplay.SCREEN_W/2;
+      fmyf = mDisplay.SCREEN_H/2;
+      fmsf = 0.01;
+   }
+   if (f == 1) // game
+   {
+      fmsf = mDisplay.scale_factor_current;
+      // get player's screen position currently in the game
+      fmxf = mDisplay.screen_display_x + (px - mDisplay.level_display_region_x) * fmsf;
+      fmyf = mDisplay.screen_display_y + (py - mDisplay.level_display_region_y) * fmsf;
+   }
+   if (f == 2) // menu
+   {
+      fmsf = (float)mLogo.menu_map_size / 2000;
+      fmxf = mLogo.menu_map_x + px * fmsf;
+      fmyf = mLogo.menu_map_y + py * fmsf;
+   }
+   if (f == 3) // gate
+   {
+      fmsf = 200.0 / 2000.0; // level icon size = 200;
+      fmxf = gate_transition_x + px * fmsf;
+      fmyf = gate_transition_y + py * fmsf;
+   }
+
+   do_transition(fmxi, fmyi, fmxf, fmyf, fmsi, fmsf, num_steps, delay);
+}
+
+
+void mwScreen::do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, int num_steps, float delay)
+{
+   int c = mPlayer.syn[mPlayer.active_local_player].color;
+
+   draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
+   al_set_target_backbuffer(mDisplay.display);
+
+   // get scale multiplier using compound interest formula
+   float per = 1.0 + pow((scf/sci), (1.0/(float)num_steps) ) - 1;
+
+   float fmxinc = (fmxf - fmxi) / num_steps;
+   float fmyinc = (fmyf - fmyi) / num_steps;
+
+   for (int s=0; s<num_steps; s++)
+   {
+      al_clear_to_color(al_map_rgb(0,0,0));
+
+      draw_level_centered_on_player_pos(fmxi, fmyi, sci);
+
+      // draw frame in local player's color
+      for (int x=0; x<BORDER_WIDTH; x++)
+         al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f,  mColor.pc[c + (x * 16)], 1);
+
+      al_flip_display();
+      al_rest(delay);
+      sci *= per;
+      fmxi += fmxinc;
+      fmyi += fmyinc;
+   }
+}
+
+
+------------------------------------------------------------------------------------------
+Where mScreen.transition_cutscene(int i, int f, int num_steps, float delay) is called:
+------------------------------------------------------------------------------------------
+
+mScreen.transition_cutscene(1, 2, 60, 0.02); // game to menu
+- when changing back to menu from game:
+
+mScreen.transition_cutscene(2, 1, 60, 0.02); // menu to game
+- 10 start new game
+- 13 resume game
+
+
+mScreen.transition_cutscene(1, 0, 90, 0.01); // game to nothing
+- 12 next level (classic mode, before load new level
+
+mScreen.transition_cutscene(0, 1, 90, 0.01); // nothing to game
+- 12 next level (classic mode, after load new level
+
+
+
+mScreen.transition_cutscene(1, 3, 90, 0.01); // game to gate
+- 12 next level (story mode,  before load, going back to overworld)
+
+mScreen.transition_cutscene(3, 1, 90, 0.01); // gate to game
+- 12 next level (story mode,  after load, starting level from gate
+
+
+mScreen.transition_cutscene(0, 1, 90, 0.01); // nothing to game
+- 31 demo mode load and setup
+
+
+
+---------------------------------------------------------------------------------
+A tricky bit of code is used when a gate is used to start a level:
+
+When the gate is triggered, the level icon actual screen location is determined and saved: 
+
+      // gate item locatiom
+      int x = itemf[i][0];
+      int y = itemf[i][1];
+
+      // offset from gate item to level icon
+      x += (10 - 100);
+      y += (12 + 35);
+
+      // convert to actual screen pos
+      mScreen.gate_transition_x = (x - mDisplay.level_display_region_x) * mDisplay.scale_factor_current + mDisplay.screen_display_x;
+      mScreen.gate_transition_y = (y - mDisplay.level_display_region_y) * mDisplay.scale_factor_current + mDisplay.screen_display_y;
+
+
+then after then next level is loaded, the cutscene uses the saved position and players position:
+
+      fmsf = 200.0 / 2000.0; // level icon size = 200;
+      fmxf = gate_transition_x + px * fmsf;
+      fmyf = gate_transition_y + py * fmsf;
+
+
+
+
+
+
+
+
+
+
+
+

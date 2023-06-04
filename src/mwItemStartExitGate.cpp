@@ -14,6 +14,9 @@
 #include "mwMain.h"
 #include "mwConfig.h"
 #include "mwDemoMode.h"
+#include "mwScreen.h"
+#include "mwDisplay.h"
+
 
 
 int mwItem::draw_start(int i, int x, int y, int shape)
@@ -151,6 +154,18 @@ void mwItem::proc_gate_collision(int p, int i)
       mPlayer.syn[0].level_done_mode = 3;
       mPlayer.syn[0].level_done_timer = 0;
       mPlayer.syn[0].level_done_next_level = item[i][6];
+
+      // gate item locatiom
+      int x = itemf[i][0];
+      int y = itemf[i][1];
+
+      // offset from gate item to level icon
+      x += (10 - 100);
+      y += (12 + 35);
+
+      // convert to actual screen pos
+      mScreen.gate_transition_x = (x - mDisplay.level_display_region_x) * mDisplay.scale_factor_current + mDisplay.screen_display_x;
+      mScreen.gate_transition_y = (y - mDisplay.level_display_region_y) * mDisplay.scale_factor_current + mDisplay.screen_display_y;
    }
 
    if (mPlayer.syn[p].down)

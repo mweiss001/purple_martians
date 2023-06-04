@@ -132,9 +132,9 @@ void mwWindow::es_do_brf(int x, int y, int flood_block)
             for (int b1=0; b1<100; b1++)
                if (f[a1][b1]) set_block_with_flag_filters(a1, b1, flood_block);
 
-         mScreen.init_level_background(0);
+         mScreen.init_level_background();
          mScreen.get_new_background(0);
-         mScreen.get_new_screen_buffer(3, 0, 0);
+         mScreen.get_new_screen_buffer(3);
          al_flip_display();
          al_rest(.04);
       }
@@ -145,7 +145,7 @@ void mwWindow::es_do_brf(int x, int y, int flood_block)
       for (int a=0; a<100; a++)
          for (int b=0; b<100; b++)
             if (f[a][b]) set_block_with_flag_filters(a, b, flood_block);
-      mScreen.init_level_background(0);
+      mScreen.init_level_background();
    }
 }
 
@@ -772,7 +772,7 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
       } // end of attempt copy
    mEnemy.sort_enemy();
    mItem.sort_item(1);
-   mScreen.init_level_background(0);
+   mScreen.init_level_background();
 }
 
 void mwWindow::es_do_clear(void)
@@ -809,7 +809,7 @@ void mwWindow::es_do_clear(void)
 
    mEnemy.sort_enemy();
    mItem.sort_item(1);
-   mScreen.init_level_background(0);
+   mScreen.init_level_background();
 }
 
 void mwWindow::set_block_with_flag_filters(int x, int y, int tn)
@@ -894,7 +894,7 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
          for (int x=mWM.bx1; x<mWM.bx2+1; x++)
             for (int y=mWM.by1; y<mWM.by2+1; y++)
                set_block_with_flag_filters(x, y, mWM.mW[1].draw_item_num);
-         mScreen.init_level_background(0);
+         mScreen.init_level_background();
          al_set_target_backbuffer(mDisplay.display);
       }
       if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,7,15,0, 1,1,1,d, "     Frame"))
@@ -909,7 +909,7 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
             set_block_with_flag_filters(mWM.bx1, y, mWM.mW[1].draw_item_num);
             set_block_with_flag_filters(mWM.bx2, y, mWM.mW[1].draw_item_num);
          }
-         mScreen.init_level_background(0);
+         mScreen.init_level_background();
          al_set_target_backbuffer(mDisplay.display);
       }
       mWM.mW[4].brf_mode ? col=10 : col=7;

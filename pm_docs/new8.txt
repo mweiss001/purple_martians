@@ -22926,8 +22926,420 @@ I think that demo mode is done...put all demo files back and push
 
 next is to work on transitions
 
+and making overworld look better
 
-and making
+should I rename stimp and stamp?
+
+what do I want them to do?
+
+
+zoom in from an icon to the level playing
+and the reverse
+
+void transition_from_map_to_game(int ix, int iy, int iw, int ih);
+
+
+
+void transition_from_game_to_map(int ix, int iy, int iw, int ih);
+
+
+
+
+
+
+in level editor mode
+
+void mwScreen::get_new_screen_buffer(int type)
+is always called with type 3
+
+this means that WX and WY are set by level editor...
+
+
+
+change variable names to these in mDisplay
+
+   int level_display_region_x;
+   int level_display_region_y;
+   int level_display_region_w;
+   int level_display_region_h;
+
+   int screen_display_x;
+   int screen_display_y;
+   int screen_display_w;
+   int screen_display_h;
+
+
+remove old uses of these:
+   int level_display_region_x;
+   int level_display_region_y;
+   int level_display_region_w;
+   int level_display_region_h;
+
+they are actually the same...
+
+   mDisplay.level_display_region_x = mDisplay.level_display_region_x;
+   mDisplay.level_display_region_y = mDisplay.level_display_region_y;
+   mDisplay.level_display_region_w = SW;
+   mDisplay.level_display_region_h = SH;
+
+
+   maybe what I want to do is remove WX, WY
+
+done..
+
+now I have these variables in mDisplay:
+
+mDisplay.level_display_region_x;
+mDisplay.level_display_region_y;
+mDisplay.level_display_region_w;
+mDisplay.level_display_region_h;
+
+mDisplay.screen_display_x;
+mDisplay.screen_display_y;
+mDisplay.screen_display_w;
+mDisplay.screen_display_h;
+
+they are a bit long...
+
+I have a function:
+mDisplay.set_screen_display_variables(void);
+
+that sets:
+mDisplay.level_display_region_w;
+mDisplay.level_display_region_h;
+
+mDisplay.screen_display_x;
+mDisplay.screen_display_y;
+mDisplay.screen_display_w;
+mDisplay.screen_display_h;
+
+and another function:
+mDisplay.set_level_display_reqion_xy();
+that sets:
+mDisplay.level_display_region_x;
+mDisplay.level_display_region_y;
+
+replace other calls to this in stimp and stamp:
+done:
+
+
+void mwScreen::set_map_var(void)
+{
+   // determine menu_map_size and position
+   int y_size = mDisplay.SCREEN_H-160;
+   int x_size = mDisplay.SCREEN_W-260;
+   if (y_size < x_size) mLogo.menu_map_size = y_size;
+   else mLogo.menu_map_size = x_size;
+   if (mLogo.menu_map_size < 10) mLogo.menu_map_size = 10;
+   mLogo.menu_map_x = mDisplay.SCREEN_W/2-(mLogo.menu_map_size/2);
+   mLogo.menu_map_y = 140;
+
+
+
+I think I have stimp and stamp working and cleaned up nicely...
+
+now where are they all patched in?
+
+stimp
+new game
+resume
+31 demo start
+
+
+stamp
+back to menu
+level done demo
+level done default
+
+stamp is called when starting demo mode, and it looks bad
+that is beacause starting demo mode calls next level to get the first demo level
+
+how to fix..
+
+starting demo mode or starting level play needs to tak into account where it came from
+
+all these transitions need to do that..
+
+
+so far I have:
+menu to game (stimp)
+game to menu (stamp)
+
+level done should do something different
+not level done, next level...
+
+it is not going back to the menu..
+right now I do stamp and stimp
+
+I want it to do a zoom out to nothing in the center then back with the new level
+
+new functions:
+
+void transition_from_menu_to_game();
+void transition_from_game_to_menu();
+void transition_from_nothing_to_game();
+void transition_from_game_to_nothing();
+
+where used:
+
+void transition_from_menu_to_game();
+- 10 new game
+- 13 resume game
+
+void transition_from_game_to_menu();
+- back to menu
+
+void transition_from_menu_to_game();
+- 10 new game
+- 13 resume game
+
+void transition_from_game_to_nothing();
+- 12 next level demo and normal (before new level is loaded)
+
+
+
+when cancelling demo, it zooms back in on last loaded level, but that is sometimes off screen??
+in mode 32 I am reloaded old level but did not set player positions
+
+how should I handle this?
+demo mode cancel and back to menu
+game to nothing
+restore level
+nothing to menu (does not exist)
+
+I already have 4 transition functions, and I am planning on more...
+could I make them more generic?
+
+what are my states?
+0 - nothing
+1 - game
+2 - map
+3 - gate icon
+
+void transition_cutscene(int initial, int final)
+{
+
+}
+done...
+
+now I have:
+
+void mwScreen::transition_cutscene(int i, int f, int num_steps, float delay)
+where used:
+
+if (program_state == 1) mScreen.transition_cutscene(1, 2, 60, 0.02); // game to menu
+- back to menu
+
+mScreen.transition_cutscene(2, 1, 60, 0.02); // menu to game
+- 10 new game
+- 13 resume game
+
+mScreen.transition_cutscene(1, 0, 90, 0.01); // game to nothing
+- 12 common before load
+
+
+mScreen.transition_cutscene(0, 1, 90, 0.01); // nothing to game
+- 12 normal end after load
+- 31 demo setup after load
+
+
+
+
+now make a transition from gate icon to game
+
+mScreen.transition_cutscene(3, 1, 90, 0.01); // gate to game
+
+it has to be in next level...
+
+I will be in the overworld level
+classic mode = 0;
+
+at next level do nothing at start, but after load do
+
+mScreen.transition_cutscene(3, 1, 90, 0.01); // gate to game
+
+where is the starting player position on the screen
+need the x and y
+should I save them when exiting?
+
+
+I have it figured out:
+
+when using gate to start level...
+
+// gate item locatiom
+int x = itemf[i][0];
+int y = itemf[i][1];
+
+// offset from gate item to level icon
+x += (10 - 100);
+y += (12 + 35);
+
+// convert to actual screen pos
+mScreen.gate_transition_x = (x - mDisplay.level_display_region_x) * mDisplay.scale_factor_current + mDisplay.screen_display_x;
+mScreen.gate_transition_y = (y - mDisplay.level_display_region_y) * mDisplay.scale_factor_current + mDisplay.screen_display_y;
+
+
+when setting up the transition cutscene after new level is loaded
+if (i == 3) // gate
+{
+   fmsi = 200.0 / 2000.0; // level icon size = 200;
+   fmxi = gate_transition_x + px * fmsi;
+   fmyi = gate_transition_y + py * fmsi;
+
+do i really need the menu when the level is paused?
+that is how it is in classic mode...
+
+but in story mode, I can't go back to the overworld without actually leaving the level
+
+how about the menu in ov-lev is just paused, no other changes
+
+disable it for now...optionally to come back
+
+
+when leaving level in story mode, go right back to overworld instantly
+
+where does this hook in?
+
+
+
+I have so much working good now...
+
+I think I will open a new file and document it
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
