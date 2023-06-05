@@ -95,6 +95,11 @@ void mwDemoMode::load_random_demo(void)
          lev = rand() % num_demo_filenames;      // get random index
          if (debug_print) printf("New random level:%d", lev);
 
+         if (lev == 1) // overworld
+         {
+            if (debug_print) printf("  -  no demo for overworld\n");
+            lev = -1;
+         }
          if (demo_played[lev] >= pass) // already been played this pass
          {
             if (debug_print) printf("  -  already been played this pass\n");
@@ -119,13 +124,12 @@ void mwDemoMode::load_random_demo(void)
    {
       if (debug_print) printf("pass:%d - playing demo level:%d\n", pass, mLevel.play_level);
       printf("pass:%d - playing demo level:%d\n", pass, mLevel.play_level);
-      mLoop.new_program_state = 31;
+      mLoop.state[0] = 31;
    }
    else
    {
       demo_mode_on = 0;
-      mLoop.new_program_state = 1;
-      mLoop.old_program_state = 1;
+      mLoop.state[0] = 1;
    }
 }
 
@@ -145,12 +149,12 @@ void mwDemoMode::key_check(int p)
       if (++mPlayer.active_local_player > 7) mPlayer.active_local_player = 0;
 
    if ((mInput.key[ALLEGRO_KEY_N][0]) && (demo_mode_on))
-      mLoop.new_program_state = 12; // skip to next demo mode level
+      mLoop.state[0] = 12; // skip to next demo mode level
 
    if ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.key[ALLEGRO_KEY_ENTER][0]) || (mInput.key[ALLEGRO_KEY_SPACE][0]))
    {
       mInput.key[ALLEGRO_KEY_ESCAPE][0] = 0;
-      mLoop.new_program_state = 32; // demo level cleanup and exit
+      mLoop.state[0] = 32; // demo level cleanup and exit
    }
 
 // if I also want to use escape here, I need to wait for release or esc will be passed to next state
@@ -158,7 +162,7 @@ void mwDemoMode::key_check(int p)
 
    // if games_moves doesn't end with level_done kill it after 4 seconds
    if (mLoop.frame_num > demo_mode_last_frame + 160)
-      mLoop.new_program_state = 12; // demo level timeout
+      mLoop.state[0] = 12; // demo level timeout
 
 }
 

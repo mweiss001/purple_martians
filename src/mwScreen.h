@@ -10,15 +10,16 @@ class mwScreen
 
    void transition_cutscene(int i, int f, int num_steps, float delay);
 
-   void do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, int num_steps, float delay);
-
+   void do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, float num_steps, float delay);
 
    int gate_transition_x;
    int gate_transition_y;
+   int gate_transition_wx;
+   int gate_transition_wy;
+   float gate_transition_scale;
 
 
    void draw_hyst_rect(void);
-
 
    void set_screen_display_variables(void);
 
@@ -26,7 +27,7 @@ class mwScreen
 
 
 
-   void get_new_screen_buffer(int type);
+   void draw_scaled_level_region_to_display(int type);
    void set_map_var(void);
    void mark_non_default_block(int x, int y);
 
@@ -38,6 +39,10 @@ class mwScreen
    void draw_level_centered_on_player_pos(int screen_x, int screen_y, float scale_factor);
 
    void draw_level(void);
+
+
+   void draw_screen_frame(void);
+
 
    void frame_and_title(int show_players);
    void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, float op);

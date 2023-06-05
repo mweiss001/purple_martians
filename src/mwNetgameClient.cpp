@@ -282,7 +282,7 @@ void mwNetgame::client_process_sjon_packet(void)
       sprintf(msg,"Server replied with 'SERVER FULL'\n");
       printf("%s", msg);
       if (mLog.LOG_NET_join) mLog.add_log_entry2(11, mPlayer.active_local_player, msg);
-      mLoop.new_program_state = 25;
+      mLoop.state[0] = 25;
    }
    else // join allowed
    {
@@ -322,7 +322,7 @@ void mwNetgame::client_process_sjon_packet(void)
          mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          mLog.add_log_entry_centered_text(11, 0, 76, "", "+", "-");
       }
-      mLoop.new_program_state = 22;
+      mLoop.state[0] = 22;
    }
 }
 
@@ -462,7 +462,7 @@ void mwNetgame::client_apply_dif(void)
                   // fix control methods
                   mPlayer.syn[0].control_method = 2; // on client, server is mode 2
                   if (mPlayer.syn[p].control_method == 2) mPlayer.syn[p].control_method = 4;
-                  if (mPlayer.syn[p].control_method == 8) mLoop.new_program_state = 1; // server quit
+                  if (mPlayer.syn[p].control_method == 8) mLoop.state[0] = 1; // server quit
 
                   // update mLoop.frame_num and client base mLoop.frame_num
                   mLoop.frame_num = client_state_base_frame_num = client_state_dif_dst;
@@ -654,7 +654,7 @@ void mwNetgame::client_proc_player_drop(void)
       mInput.tsw();
       mPlayer.loc[p].quit_reason = 92;
       if (mLog.LOG_NET) mLog.log_ending_stats(p);
-      mLoop.new_program_state = 1;
+      mLoop.state[0] = 1;
    }
 
    int lsf = mPlayer.loc[p].client_last_stdf_rx_frame_num;
@@ -680,7 +680,7 @@ void mwNetgame::client_proc_player_drop(void)
          mInput.tsw();
          mPlayer.loc[p].quit_reason = 75;
          if (mLog.LOG_NET) mLog.log_ending_stats(p);
-         mLoop.new_program_state = 25;
+         mLoop.state[0] = 25;
       }
    }
 }

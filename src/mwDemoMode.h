@@ -19,6 +19,8 @@ class mwDemoMode
    int demo_mode_loaded;
    int demo_mode_on;
 
+
+
    int pass;
    int prev_lev;
 

@@ -272,7 +272,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          copy_files_to_clients(1); // pm.exe and levels only
          mLogo.show_splash_screen = 0;
-         mLoop.new_program_state = 20;
+         mLoop.state[0] = 20;
          return;
       }
 
@@ -292,14 +292,14 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-c") == 0 )
       {
          mLogo.show_splash_screen = 0;
-         mLoop.new_program_state = 24;
+         mLoop.state[0] = 24;
          return;
       }
       // host netgame - use start level from config file
       if (strcmp(argument_array[1],"-s") == 0 )
       {
          mLogo.show_splash_screen = 0;
-         mLoop.new_program_state = 20;
+         mLoop.state[0] = 20;
          return;
       }
 
@@ -308,7 +308,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          mLogo.show_splash_screen = 0;
          if (mGameMoves.load_gm(""))
          {
-            mLoop.new_program_state = 31;
+            mLoop.state[0] = 31;
             mDemoMode.restore_mode = 0;
          }
          return;
@@ -322,7 +322,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          mLogo.show_splash_screen = 0;
          mLevel.set_start_level(pl);
          printf("started game on level:%d\n", pl);
-         mLoop.new_program_state = 10;
+         mLoop.state[0] = 10;
       }
       else
       {
@@ -333,7 +333,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          if (mGameMoves.load_gm(argument_array[1]))
          {
             //mLogo.show_splash_screen = 0;
-            mLoop.new_program_state = 31;
+            mLoop.state[0] = 31;
             mDemoMode.restore_mode = 0;
             return;
          }
@@ -361,7 +361,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          sprintf(mNetgame.m_serveraddress, "%s", argument_array[2]);
          mConfig.save();
          mLogo.show_splash_screen = 0;
-         mLoop.new_program_state = 24;
+         mLoop.state[0] = 24;
          return;
       }
       if (strcmp(argument_array[1],"-s") == 0 )
@@ -371,7 +371,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          {
             mLevel.set_start_level(pl);
             mLogo.show_splash_screen = 0;
-            mLoop.new_program_state = 20;
+            mLoop.state[0] = 20;
             return;
          }
          else printf("%s could not be parsed to an integer level number\n", argument_array[2]);

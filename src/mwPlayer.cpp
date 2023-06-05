@@ -1834,7 +1834,7 @@ void mwPlayer::proc_player_input(void)
 
                      set_controls_from_comp_move(p, loc[p].comp_move);
 
-                     if (syn[p].menu) mLoop.new_program_state = 25;
+                     if (syn[p].menu) mLoop.state[0] = 25;
                      loc[p].client_cdat_packets_tx++;
                      sprintf(msg,"tx cdat - move:%d\n", loc[p].comp_move);
                      if (mLog.LOG_NET_cdat) mLog.add_log_entry2(35, p, msg);
@@ -1846,7 +1846,7 @@ void mwPlayer::proc_player_input(void)
       }
       else if (syn[p].control_method == 4) // not active and control method 4 is a client waiting for server to make it active
       {
-         if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.new_program_state = 25; // give them an escape option
+         if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.state[0] = 25; // give them an escape option
       }
 }
 

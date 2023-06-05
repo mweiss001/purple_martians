@@ -845,7 +845,7 @@ void mwSettings::settings_pages(int set_page)
 
          if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Play random demo game"))
          {
-            mLoop.new_program_state = 30;
+            mLoop.state[0] = 30;
             mDemoMode.restore_mode = 3;
             mDemoMode.restore_level = mLevel.last_level_loaded;
             al_hide_mouse_cursor(mDisplay.display);
@@ -856,7 +856,7 @@ void mwSettings::settings_pages(int set_page)
          if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Choose file and run saved game"))
          if (mGameMoves.load_gm(""))
          {
-            mLoop.new_program_state = 31;
+            mLoop.state[0] = 31;
             mDemoMode.restore_mode = 3;
             mDemoMode.restore_level = mLevel.last_level_loaded;
             al_hide_mouse_cursor(mDisplay.display);
@@ -1710,8 +1710,7 @@ void mwSettings::settings_pages(int set_page)
 
          if (mWidget.buttont(xa+80, ya, xb-80, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
          {
-            mLoop.new_program_state = 10;
-            mLoop.old_program_state = 3;
+            mLoop.state[0] = 10;
             al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
@@ -1721,8 +1720,7 @@ void mwSettings::settings_pages(int set_page)
          xb = xa+180;
          if (mWidget.buttont(xa+20, ya, xb, bts,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
          {
-            mLoop.new_program_state = 20;
-            mLoop.old_program_state = 3;
+            mLoop.state[0] = 20;
             al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
@@ -1731,8 +1729,7 @@ void mwSettings::settings_pages(int set_page)
          xb = cfp_x2 - 30;
          if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,8,15, 0,  1,0,1,0, "Join Network Game"))
          {
-            mLoop.new_program_state = 24;
-            mLoop.old_program_state = 3;
+            mLoop.state[0] = 24;
             al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
@@ -1794,8 +1791,7 @@ void mwSettings::settings_pages(int set_page)
 
          if (mWidget.buttont(xa+80, ya, xb-80, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
          {
-            mLoop.new_program_state = 10;
-            mLoop.old_program_state = 3;
+            mLoop.state[0] = 10;
             al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
@@ -1805,8 +1801,7 @@ void mwSettings::settings_pages(int set_page)
          xb = xa+180;
          if (mWidget.buttont(xa+20, ya, xb, bts,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
          {
-            mLoop.new_program_state = 20;
-            mLoop.old_program_state = 3;
+            mLoop.state[0] = 20;
             al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
@@ -1815,8 +1810,7 @@ void mwSettings::settings_pages(int set_page)
          xb = cfp_x2 - 30;
          if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,8,15, 0,  1,0,1,0, "Join Network Game"))
          {
-            mLoop.new_program_state = 24;
-            mLoop.old_program_state = 3;
+            mLoop.state[0] = 24;
             al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
@@ -1857,7 +1851,26 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
+
+
+         int old_mcm = mMain.classic_mode;
+
          mWidget.toggle(cfp_x1+100, ya, cfp_x2-100, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mMain.classic_mode, "Story Mode", "Classic Mode", 15, 15, 12, 12);
+
+         if (old_mcm != mMain.classic_mode)
+         {
+            if (mMain.classic_mode == 0) // just changed to story mode
+            {
+               mLevel.set_start_level(1); // make sure we are on overworld
+
+
+            }
+
+         }
+
+
+
+
 
          ya +=4;
 
@@ -1885,8 +1898,7 @@ void mwSettings::settings_pages(int set_page)
    }
    al_hide_mouse_cursor(mDisplay.display);
    mConfig.save();
-   mLoop.new_program_state = 1;
-   mLoop.old_program_state = 1;
+   mLoop.state[0] = 1;
 }
 
 

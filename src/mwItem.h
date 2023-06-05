@@ -45,8 +45,9 @@ class mwItem
    int draw_gate(int i, int x, int y, int shape);
 
 
-   void draw_gate_info(int i);
+   void set_gate_level_icon_position(int i);
 
+   void draw_gate_info(int i);
 
    void proc_gate(int i);
 
