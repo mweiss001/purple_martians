@@ -7,11 +7,7 @@ class mwLoop
    mwLoop(); // default constructor
    void initialize(void);
 
-
-   int program_state = 0;
-   int new_program_state = 0;
-   int old_program_state = 0;
-   int older_program_state = 0;
+   int state[8] = {0};
 
    int top_menu_sel = 3;
    int main_loop_exit = 0;
@@ -49,6 +45,10 @@ class mwLoop
    float cutscene_original_zoom;
    float cutscene_accel;
    float cutscene_bg_x;
+
+
+   void setup_players_after_level_load(int type);
+   void setup_common_after_level_load(void);
 
 
    void draw_frame(void);

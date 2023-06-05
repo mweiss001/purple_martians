@@ -45,7 +45,7 @@ void mwDrawSequence::initialize(void)
    sprintf(name_long[4], "draw_eshots");
    sprintf(name_long[5], "draw_pshots");
    sprintf(name_long[6], "draw_players");
-   sprintf(name_long[7], "get_new_screen_buffer");
+   sprintf(name_long[7], "draw_scaled_level_region_to_display");
    sprintf(name_long[8], "draw_screen_overlay");
    sprintf(name_long[9], "al_flip_display");
    sprintf(name_long[10], "total draw time");
@@ -121,7 +121,7 @@ void mwDrawSequence::draw(void)
    if (seq[6][0]) mPlayer.draw_players();
    t7 = al_get_time(); add(6, t7-t6);
 
-   mScreen.get_new_screen_buffer(0);
+   mScreen.draw_scaled_level_region_to_display(0);
    t8 = al_get_time(); add(7, t8-t7);
 
    if (seq[8][0]) mScreen.draw_screen_overlay();

@@ -107,7 +107,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       if ((mPlayer.active_local_player == 0) && (mPlayer.syn[0].control_method == 0))
       {
          // do not enter game move, just exit to menu
-         mLoop.new_program_state = 1;
+         mLoop.state[0] = 1;
          mLevel.resume_allowed = 1;
          return;
       }
@@ -252,7 +252,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
          int still_active = 0;
          for (int p=0; p<NUM_PLAYERS; p++)
             if (mPlayer.syn[p].active) still_active = 1;
-         if (!still_active) mLoop.new_program_state = 1;
+         if (!still_active) mLoop.state[0] = 1;
       }
 
       // ------------------------------------
@@ -268,7 +268,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
             if ((mPlayer.syn[pp].active) && (mPlayer.syn[pp].control_method == 2))
                mPlayer.loc[pp].quit_reason = 91;
          if (mLog.LOG_NET) mLog.log_ending_stats_server();
-         mLoop.new_program_state = 1;
+         mLoop.state[0] = 1;
       }
 
       // ------------------------------------
@@ -278,7 +278,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
       {
          // printf("Remote Server Quit :%d\n", mLoop.frame_num);
          if (val == 64) mPlayer.loc[mPlayer.active_local_player].quit_reason = 92;
-         mLoop.new_program_state = 1;
+         mLoop.state[0] = 1;
       }
 
       // ------------------------------------

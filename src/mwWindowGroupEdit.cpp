@@ -866,7 +866,7 @@ void mwWindow::ge_show_obj_list(int x, int y, int *ew, int *eh, int d)
                while (mInput.mouse_b[1][0])
                {
                   mWM.redraw_level_editor_background();
-                  mScreen.get_new_screen_buffer(3);
+                  mScreen.draw_scaled_level_region_to_display(3);
                   mWM.cycle_windows(1); // draw only
 
                   mpl = ((mInput.mouse_y - yf1 + fs)/8)-4;             // get raw list item

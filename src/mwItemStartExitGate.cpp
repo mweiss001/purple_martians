@@ -133,12 +133,31 @@ void mwItem::proc_exit_collision(int p, int i)
 }
 
 
+void mwItem::set_gate_level_icon_position(int i)
+{
+   // gate item locatiom
+   int x = itemf[i][0];
+   int y = itemf[i][1];
+
+   // offset from gate item to level icon
+   x += (10 - 100);
+   y += (12 + 35);
+
+   // convert to actual screen pos
+   mScreen.gate_transition_x = (x - mDisplay.level_display_region_x) * mDisplay.scale_factor_current + mDisplay.screen_display_x;
+   mScreen.gate_transition_y = (y - mDisplay.level_display_region_y) * mDisplay.scale_factor_current + mDisplay.screen_display_y;
+   mScreen.gate_transition_wx = mDisplay.level_display_region_x;
+   mScreen.gate_transition_wy = mDisplay.level_display_region_y;
+   mScreen.gate_transition_scale = mDisplay.scale_factor_current;
+}
+
 void mwItem::proc_gate_collision(int p, int i)
 {
    mPlayer.syn[p].marked_gate = i;
-
+   set_gate_level_icon_position(i);
    int lev = item[i][6];
 
+   // set current overworld level for active local player
    if (p == mPlayer.active_local_player)
    {
       if (mLevel.overworld_level != lev)
@@ -149,25 +168,15 @@ void mwItem::proc_gate_collision(int p, int i)
    }
 
 
+   // immediate next level to gate level
    if ((mPlayer.syn[p].up) && (mLevel.data[item[i][6]].unlocked))
    {
       mPlayer.syn[0].level_done_mode = 3;
       mPlayer.syn[0].level_done_timer = 0;
       mPlayer.syn[0].level_done_next_level = item[i][6];
-
-      // gate item locatiom
-      int x = itemf[i][0];
-      int y = itemf[i][1];
-
-      // offset from gate item to level icon
-      x += (10 - 100);
-      y += (12 + 35);
-
-      // convert to actual screen pos
-      mScreen.gate_transition_x = (x - mDisplay.level_display_region_x) * mDisplay.scale_factor_current + mDisplay.screen_display_x;
-      mScreen.gate_transition_y = (y - mDisplay.level_display_region_y) * mDisplay.scale_factor_current + mDisplay.screen_display_y;
    }
 
+   // cycle display pages
    if (mPlayer.syn[p].down)
    {
       if (!item[i][8])   // if down not held
@@ -183,6 +192,7 @@ void mwItem::proc_gate_collision(int p, int i)
 }
 
 
+// puts left justified txt1, right justified txt2, and ... in between
 void mwItem::draw_line(int x1, int x2, int y, const char * txt1, const char * txt2, int col)
 {
    al_draw_text(mFont.pr8, mColor.pc[15], x1+1, y, 0, txt1);
@@ -191,6 +201,7 @@ void mwItem::draw_line(int x1, int x2, int y, const char * txt1, const char * tx
    al_draw_textf(mFont.pr8, mColor.pc[15], x2-tl-1, y, 0, txt2);
 }
 
+// format time from frames to seconds or minutes
 char * chrms(int time, char* ft)
 {
    if (time < 2400) sprintf(ft, "%0.1fs", (float)time/40);
@@ -360,12 +371,27 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
          mLevel.skc_trigger_demo = 0;
          if (mGameMoves.load_gm(lev))
          {
-            mLoop.new_program_state = 31;
+            mLoop.state[0] = 31;
             mDemoMode.restore_mode = 2;
             mDemoMode.restore_level = lev;
          }
       }
    }
+
+   // trigger on any page
+   if (mLevel.skc_trigger_demo)
+   {
+      mLevel.skc_trigger_demo = 0;
+      if (mGameMoves.load_gm(lev))
+      {
+         mLoop.state[0] = 31;
+         mDemoMode.restore_mode = 2;
+         mDemoMode.restore_level = lev;
+      }
+   }
+
+
+
 }
 
 
@@ -382,7 +408,6 @@ void mwItem::draw_gate_info(int i)
       if (!mLevel.data[lev].completed) col = 14; // yellow for not completed
       else col = 11; // green for completed
    }
-
 
    int xc = x + 10; // center of tile
    int bs = al_get_bitmap_width(mLevel.level_icon[lev]); // level icon size

@@ -36,14 +36,12 @@ void mwScreen::get_new_background(int full)
    }
 }
 
+
+
 void mwScreen::transition_cutscene(int i, int f, int num_steps, float delay)
 {
-
-//0 - nothing
-//1 - game
-//2 - map
-//3 - gate icon
-
+   const char* tcn[5] = {"nothing", "game", "menu", "gate"};
+   printf("transition from %s to %s\n", tcn[i], tcn[f]);
 
    float fmxi=0;
    float fmyi=0;
@@ -58,22 +56,32 @@ void mwScreen::transition_cutscene(int i, int f, int num_steps, float delay)
    set_map_var();
 
    // player's position in level
-   float px = mPlayer.syn[mPlayer.active_local_player].x+10;
-   float py = mPlayer.syn[mPlayer.active_local_player].y+10;
-
+   float px = mPlayer.syn[mPlayer.active_local_player].x;
+   float py = mPlayer.syn[mPlayer.active_local_player].y;
 
    if (i == 0) // nothing
    {
       fmxi = mDisplay.SCREEN_W/2;
       fmyi = mDisplay.SCREEN_H/2;
-      fmsi = 0.01;
+      fmsi = 0.005;
+   }
+   if (f == 0) // nothing
+   {
+      fmxf = mDisplay.SCREEN_W/2;
+      fmyf = mDisplay.SCREEN_H/2;
+      fmsf = 0.005;
    }
    if (i == 1) // game
    {
       fmsi = mDisplay.scale_factor_current;
-      // get player's screen position currently in the game
       fmxi = mDisplay.screen_display_x + (px - mDisplay.level_display_region_x) * fmsi;
       fmyi = mDisplay.screen_display_y + (py - mDisplay.level_display_region_y) * fmsi;
+   }
+   if (f == 1) // game
+   {
+      fmsf = mDisplay.scale_factor_current;
+      fmxf = mDisplay.screen_display_x + (px - mDisplay.level_display_region_x) * fmsf;
+      fmyf = mDisplay.screen_display_y + (py - mDisplay.level_display_region_y) * fmsf;
    }
    if (i == 2) // menu
    {
@@ -81,71 +89,64 @@ void mwScreen::transition_cutscene(int i, int f, int num_steps, float delay)
       fmxi = mLogo.menu_map_x + px * fmsi;
       fmyi = mLogo.menu_map_y + py * fmsi;
    }
-   if (i == 3) // gate
-   {
-      fmsi = 200.0 / 2000.0; // level icon size = 200;
-      fmxi = gate_transition_x + px * fmsi;
-      fmyi = gate_transition_y + py * fmsi;
-   }
-
-   if (f == 0) // nothing
-   {
-      fmxf = mDisplay.SCREEN_W/2;
-      fmyf = mDisplay.SCREEN_H/2;
-      fmsf = 0.01;
-   }
-   if (f == 1) // game
-   {
-      fmsf = mDisplay.scale_factor_current;
-      // get player's screen position currently in the game
-      fmxf = mDisplay.screen_display_x + (px - mDisplay.level_display_region_x) * fmsf;
-      fmyf = mDisplay.screen_display_y + (py - mDisplay.level_display_region_y) * fmsf;
-   }
    if (f == 2) // menu
    {
       fmsf = (float)mLogo.menu_map_size / 2000;
       fmxf = mLogo.menu_map_x + px * fmsf;
       fmyf = mLogo.menu_map_y + py * fmsf;
    }
-   if (f == 3) // gate
+   if (i == 3) // gate
    {
-      fmsf = 200.0 / 2000.0; // level icon size = 200;
+      fmsi = mDisplay.scale_factor_current * (200.0 / 2000.0); // level icon size = 200;
+      fmxi = gate_transition_x + px * fmsi;
+      fmyi = gate_transition_y + py * fmsi;
+   }
+   if (f == 3) // gate  l!nxie
+   {
+      fmsf = mDisplay.scale_factor_current * (200.0 / 2000.0); // level icon size = 200;
       fmxf = gate_transition_x + px * fmsf;
       fmyf = gate_transition_y + py * fmsf;
    }
-
    do_transition(fmxi, fmyi, fmxf, fmyf, fmsi, fmsf, num_steps, delay);
 }
 
-
-void mwScreen::do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, int num_steps, float delay)
+void mwScreen::draw_screen_frame(void)
 {
    int c = mPlayer.syn[mPlayer.active_local_player].color;
+   for (int x=0; x<BORDER_WIDTH; x++)
+      al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f,  mColor.pc[c + (x * 16)], 1);
+}
+
+void mwScreen::do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, float num_steps, float delay)
+{
 
    draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
    al_set_target_backbuffer(mDisplay.display);
 
    // get scale multiplier using compound interest formula
-   float per = 1.0 + pow((scf/sci), (1.0/(float)num_steps) ) - 1;
+   float per = 1.0 + pow((scf/sci), (1.0/num_steps) ) - 1;
 
    float fmxinc = (fmxf - fmxi) / num_steps;
    float fmyinc = (fmyf - fmyi) / num_steps;
 
+//   // debug draw initial
+//   al_clear_to_color(al_map_rgb(0,0,0));
+//   draw_screen_frame();
+//   draw_level_centered_on_player_pos(fmxi, fmyi, sci);
+//   al_draw_text(mFont.pr16, mColor.White, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, ALLEGRO_ALIGN_CENTER, "INITIAL" );
+//   al_flip_display();
+//   mInput.tsw();
+
    for (int s=0; s<num_steps; s++)
    {
-      al_clear_to_color(al_map_rgb(0,0,0));
-
-      draw_level_centered_on_player_pos(fmxi, fmyi, sci);
-
-      // draw frame in local player's color
-      for (int x=0; x<BORDER_WIDTH; x++)
-         al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f,  mColor.pc[c + (x * 16)], 1);
-
-      al_flip_display();
-      al_rest(delay);
       sci *= per;
       fmxi += fmxinc;
       fmyi += fmyinc;
+      al_clear_to_color(al_map_rgb(0,0,0));
+      draw_screen_frame();
+      draw_level_centered_on_player_pos(fmxi, fmyi, sci);
+      al_flip_display();
+      al_rest(delay);
    }
 }
 
@@ -197,19 +198,21 @@ void mwScreen::set_level_display_region_xy(void)
 {
 // ----------------------------------------------------------------------
 // use active local player to find where to grab the region from level buffer
-// sets mDisplay.level_display_region_x, mDisplay.level_display_region_y
+// sets:
+// mDisplay.level_display_region_x
+// mDisplay.level_display_region_y
 // ----------------------------------------------------------------------
 
+   // shorter variable names
    int p = mPlayer.active_local_player;
    int px = mPlayer.syn[p].x + 10;
    int py = mPlayer.syn[p].y + 10;
-
    int w = mDisplay.level_display_region_w;
    int h = mDisplay.level_display_region_h;
 
    if (mDisplay.viewport_mode == 0) // this method always has the player in the middle of the screen
    {
-      mDisplay.level_display_region_x = px - w/2 - 10; // set window from PX, PY
+      mDisplay.level_display_region_x = px - w/2 - 10;
       mDisplay.level_display_region_y = py - h/2 - 10;
    }
    else // scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
@@ -246,24 +249,21 @@ void mwScreen::set_level_display_region_xy(void)
    }
 }
 
-
-void mwScreen::get_new_screen_buffer(int type)
+void mwScreen::draw_scaled_level_region_to_display(int type)
 {
    set_screen_display_variables();
    if (type != 3) set_level_display_region_xy();
 
    al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgb(0,0,0));
-
-   // draw frame in local player's color
-   int c = mPlayer.syn[mPlayer.active_local_player].color;
-   for (int x = 0; x < BORDER_WIDTH; x++)
-      al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f,  mColor.pc[c + (x * 16)], 1);
+   draw_screen_frame();
 
    // draw the level region from level buffer to display
    al_draw_scaled_bitmap(mBitmap.level_buffer, mDisplay.level_display_region_x, mDisplay.level_display_region_y, mDisplay.level_display_region_w, mDisplay.level_display_region_h,
-                                               mDisplay.screen_display_x,       mDisplay.screen_display_y,       mDisplay.screen_display_w,       mDisplay.screen_display_h, 0);
+   mDisplay.screen_display_x,       mDisplay.screen_display_y,       mDisplay.screen_display_w,       mDisplay.screen_display_h, 0);
 
+
+   // show viewport hysteresis rectangle
    if ((mDisplay.viewport_show_hyst) && (mDisplay.viewport_mode != 0))
    {
       int x_size = mDisplay.level_display_region_w * mDisplay.viewport_x_div/2;
@@ -278,6 +278,7 @@ void mwScreen::get_new_screen_buffer(int type)
    // in level editor mode, if the level is smaller than the screen edges, draw a thin line to show where it ends...
    if (type == 3)
    {
+      int c = mPlayer.syn[mPlayer.active_local_player].color;
       int bw = BORDER_WIDTH;
       int sbx = mDisplay.screen_display_x;
       int sby = mDisplay.screen_display_y;
@@ -468,20 +469,13 @@ void mwScreen::draw_level(void) // draws the map on the menu screen
 
 void mwScreen::frame_and_title(int show_players)
 {
-   int p = mPlayer.active_local_player;
-   int color = mPlayer.syn[p].color;
+   int co = mPlayer.syn[mPlayer.active_local_player].color;
+   int tc = mColor.get_contrasting_color(co);
 
-   // draw the border
-   for (int x = 0; x < BORDER_WIDTH; x++)
-      al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f,  mColor.pc[color + (x * 16)], 1);
+   draw_screen_frame();
 
    // draw the title on top on the border
-   draw_title(mDisplay.SCREEN_W/2, 2, 322, 32, color);
-
-
-
-   int tc = mColor.get_contrasting_color(color);
-
+   draw_title(mDisplay.SCREEN_W/2, 2, 322, 32, co);
 
    // draw the version text centered on the bottom of the border
    al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H-10, ALLEGRO_ALIGN_CENTRE, "Version %s", mLoop.pm_version_string);
@@ -489,46 +483,46 @@ void mwScreen::frame_and_title(int show_players)
    if (show_players)
    {
       // draw a line of players on each side of menu
-      color = mPlayer.syn[p].color;               // initial color
-      int lim = 12;                           // number of players to draw
-      float flsc = 5;                         // initial scale
-      float y_pos = 20;                       // initial y position
-      float y_step = 20 / lim;                // inc to raise 20
-      float x_pos = mDisplay.SCREEN_W/2 - 180;         // initial x position
-      int dist = (int)x_pos - BORDER_WIDTH;   // how much space do I have?
+      int c = co;                              // initial color
+      int lim = 12;                            // number of players to draw
+      float flsc = 5;                          // initial scale
+      float y_pos = 20;                        // initial y position
+      float y_step = 20 / lim;                 // inc to raise 20
+      float x_pos = mDisplay.SCREEN_W/2 - 180; // initial x position
+      int dist = (int)x_pos - BORDER_WIDTH;    // how much space do I have?
       // how much space will it take based on how many to draw ???
       float x_sp = (dist - 240) / (lim-1);     // spacing to stretch row to screen edge
       for (float a=0; a<lim; a++)
       {
-         int y = BORDER_WIDTH + (int)y_pos;  // y position
-         y_pos -= y_step;                    // move up
-         int x = (int)x_pos;                 // x position
-         x_pos -= 11*flsc;                   // spacing based on scale
-         x_pos -= x_sp;                      // extra spacing stretch row to edge of screen
-         flsc *= .78;                        // reduce scale by 78%
-         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[color][1], 0, 0, x+10, y+10, flsc, flsc, 0, 0);
-         if (++color > 15) color = 1;        // cycle through players colors
+         int y = BORDER_WIDTH + (int)y_pos;    // y position
+         y_pos -= y_step;                      // move up
+         int x = (int)x_pos;                   // x position
+         x_pos -= 11*flsc;                     // spacing based on scale
+         x_pos -= x_sp;                        // extra spacing stretch row to edge of screen
+         flsc *= .78;                          // reduce scale by 78%
+         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[c][1], 0, 0, x+10, y+10, flsc, flsc, 0, 0);
+         if (++c > 15) c = 1;                  // cycle through players colors
       }
 
-      color = mPlayer.syn[p].color;               // initial color
-      flsc = 5;                               // initial scale
-      y_pos = 20;                             // initial y position
-      y_step = 20 / lim;                      // inc to raise 20
-      x_pos = mDisplay.SCREEN_W/2 + 80;                // initial x position
+      c = co;                                  // initial color
+      flsc = 5;                                // initial scale
+      y_pos = 20;                              // initial y position
+      y_step = 20 / lim;                       // inc to raise 20
+      x_pos = mDisplay.SCREEN_W/2 + 80;        // initial x position
       dist = (mDisplay.SCREEN_W - BORDER_WIDTH) - (int)x_pos;   // how much space do I have?
       // how much space will it take based on how many to draw ???
-      x_sp = (dist - 360) / (lim-1);          // spacing to stretch row to screen edge
+      x_sp = (dist - 360) / (lim-1);           // spacing to stretch row to screen edge
       for (float a=0; a<lim; a++)
       {
-         int y = BORDER_WIDTH + (int)y_pos;   // y position
-         y_pos -= y_step;                     // move up
-         int x = (int)x_pos;                  // x position
-         x_pos += 15.1*flsc;                  // spacing based on scale
-         x_pos += x_sp;                       // extra spacing stretch row to edge of screen
-         flsc *= .78;                         // reduce scale by 78%
-         x_sp += .5;                          // hack to make things line up on right hand side of screen
-         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[color][1], 0, 0, x+10, y+10, flsc, flsc, 0, ALLEGRO_FLIP_HORIZONTAL);
-         if (++color > 15) color = 1;        // cycle through players colors
+         int y = BORDER_WIDTH + (int)y_pos;    // y position
+         y_pos -= y_step;                      // move up
+         int x = (int)x_pos;                   // x position
+         x_pos += 15.1*flsc;                   // spacing based on scale
+         x_pos += x_sp;                        // extra spacing stretch row to edge of screen
+         flsc *= .78;                          // reduce scale by 78%
+         x_sp += .5;                           // hack to make things line up on right hand side of screen
+         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[c][1], 0, 0, x+10, y+10, flsc, flsc, 0, ALLEGRO_FLIP_HORIZONTAL);
+         if (++c > 15) c = 1;                  // cycle through players colors
       }
    }
 }
@@ -611,7 +605,6 @@ void mwScreen::draw_large_text_overlay(int type, int color)
 
    if (rebuild)
    {
-
       int bbx1, bby1, bbw1, bbh1;
       int bbx2, bby2, bbw2, bbh2;
       al_get_text_dimensions(mFont.sauc, m1, &bbx1, &bby1, &bbw1, &bbh1);
@@ -623,7 +616,6 @@ void mwScreen::draw_large_text_overlay(int type, int color)
    //   printf("m1:%s  m2:%s \n",m1, m2);
    //   printf("bbx1:%4d bby1:%4d bbw1:%4d bbh1:%4d\n",bbx1, bby1, bbw1, bbh1);
    //   printf("bbx2:%4d bby2:%4d bbw2:%4d bbh2:%4d\n",bbx2, bby2, bbw2, bbh2);
-
 
       ALLEGRO_BITMAP *t1 = al_create_bitmap(bbw3, bbh3);
       al_set_target_bitmap(t1);
@@ -653,19 +645,15 @@ void mwScreen::draw_large_text_overlay(int type, int color)
       al_set_target_bitmap(mBitmap.large_text_overlay_bitmap);
       al_clear_to_color(al_map_rgb(0,0,0));
 
-
       al_draw_scaled_bitmap(t1, 0, 0, bbw3, bbh3, x1, yu1, x2, yu2, 0);
       al_draw_scaled_bitmap(t2, 0, 0, bbw3, bbh3, x1, yl1, x2, yl2, 0);
 
       al_destroy_bitmap(t1);
       al_destroy_bitmap(t2);
    }
-
-
    float opa = 1.0;
    if (type == 2) opa = 0.5;
    if (type == 3) opa = mDemoMode.demo_mode_overlay_opacity;
-//   if (type == 3) opa = 0.05;
    ALLEGRO_COLOR fc = al_map_rgba_f(opa, opa, opa, opa);
    al_set_target_backbuffer(mDisplay.display);
    al_draw_tinted_bitmap(mBitmap.large_text_overlay_bitmap, fc, 0, 0, 0);
@@ -680,9 +668,7 @@ void mwScreen::draw_percent_barc(int cx, int y, int width, int height, int perce
       int w2 = (int) (width * ((float)percent/100)); // how much green
       al_draw_filled_rectangle(x+0.5f, y+0.5f, x + w2+0.5f, y + height+0.5f, mColor.pc[c2]); //  then c2
    }
-
    if (fc) al_draw_rectangle(x-0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, mColor.pc[fc], 1); //  frame
-
 }
 
 void mwScreen::draw_percent_bar(int cx, int y, int width, int height, int percent)
@@ -697,7 +683,6 @@ void mwScreen::draw_percent_bar(int cx, int y, int width, int height, int percen
    al_draw_rectangle(x+0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, mColor.pc[15], 1); //  white frame
 }
 
-
 void mwScreen::draw_percent_barf(float x1, float y1, float x2, float y2, float percent)
 {
    al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[10]); //  all red to start
@@ -709,11 +694,6 @@ void mwScreen::draw_percent_barf(float x1, float y1, float x2, float y2, float p
    }
    al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1); //  white frame
 }
-
-
-
-
-
 
 void draw_percent_bar_line(int cx, int y, int width, int height, int rise, int color, int percent )
 {

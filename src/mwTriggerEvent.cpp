@@ -644,7 +644,7 @@ int mwTriggerEvent::get_trigger_item(int obj_type, int obj_num, int obj_ext, int
          mTriggerEvent.find_and_show_event_links(obj_type, obj_num, obj_ext);
       }
 
-      mScreen.get_new_screen_buffer(3);
+      mScreen.draw_scaled_level_region_to_display(3);
       al_draw_filled_rectangle(tx-110, 78, tx+110, 146, mColor.pc[0]);
       al_draw_rectangle(       tx-110, 78, tx+110, 146, mColor.pc[15], 1);
 

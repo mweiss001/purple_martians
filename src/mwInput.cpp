@@ -266,7 +266,7 @@ void mwInput::function_key_check(void)
       mLog.save_log_file();
    }
 
-   if ((mLoop.level_editor_running) || (mLoop.program_state == 11)) // only do these when game is running or in level editor
+   if ((mLoop.level_editor_running) || (mLoop.state[1] == 11)) // only do these when game is running or in level editor
    {
       // zoom controls
       if (key[function_key_zoom_out][0]) mDisplay.set_scale_factor(mDisplay.scale_factor * .90, 0);
