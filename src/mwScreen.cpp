@@ -101,8 +101,13 @@ void mwScreen::transition_cutscene(int i, int f, int num_steps, float delay)
       fmxi = gate_transition_x + px * fmsi;
       fmyi = gate_transition_y + py * fmsi;
    }
-   if (f == 3) // gate  l!nxie
+   if (f == 3) // gate
    {
+      // restore viewport so transition lines up
+      mDisplay.level_display_region_x = mScreen.gate_transition_wx;
+      mDisplay.level_display_region_y = mScreen.gate_transition_wy;
+      mDisplay.set_scale_factor(mScreen.gate_transition_scale, 1);
+
       fmsf = mDisplay.scale_factor_current * (200.0 / 2000.0); // level icon size = 200;
       fmxf = gate_transition_x + px * fmsf;
       fmyf = gate_transition_y + py * fmsf;
@@ -653,7 +658,7 @@ void mwScreen::draw_large_text_overlay(int type, int color)
    }
    float opa = 1.0;
    if (type == 2) opa = 0.5;
-   if (type == 3) opa = mDemoMode.demo_mode_overlay_opacity;
+   if (type == 3) opa = mDemoMode.overlay_opacity;
    ALLEGRO_COLOR fc = al_map_rgba_f(opa, opa, opa, opa);
    al_set_target_backbuffer(mDisplay.display);
    al_draw_tinted_bitmap(mBitmap.large_text_overlay_bitmap, fc, 0, 0, 0);

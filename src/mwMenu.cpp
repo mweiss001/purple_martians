@@ -99,7 +99,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
 
    y+=4;
 
-   mDemoMode.demo_mode_countdown_val = mDemoMode.demo_mode_countdown_reset;
+   mDemoMode.countdown_val = mDemoMode.countdown_reset;
 
    int demo_mode_menu_item_num = 0; // off by default
    if (menu_num == 1) demo_mode_menu_item_num = 9;
@@ -141,16 +141,16 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
 
       if (demo_mode_menu_item_num)
       {
-         if (mLevel.resume_allowed) mDemoMode.demo_mode_enabled = 0;
-         if (mDemoMode.demo_mode_enabled)
+         if (mLevel.resume_allowed) mDemoMode.autoplay_enabled = 0;
+         if (mDemoMode.autoplay_enabled)
          {
-            if (--mDemoMode.demo_mode_countdown_val < 0)
+            if (--mDemoMode.countdown_val < 0)
             {
-               mDemoMode.demo_mode_countdown_val = mDemoMode.demo_mode_countdown_reset;
-               mDemoMode.demo_mode_enabled = 0;
+               mDemoMode.countdown_val = mDemoMode.countdown_reset;
+               mDemoMode.autoplay_enabled = 0;
                return demo_mode_menu_item_num;
             }
-            sprintf(menu_string[demo_mode_menu_item_num], "Demo Mode (%d)", mDemoMode.demo_mode_countdown_val / 100);
+            sprintf(menu_string[demo_mode_menu_item_num], "Demo Mode (%d)", mDemoMode.countdown_val / 100);
          }
          else sprintf(menu_string[demo_mode_menu_item_num], "Demo Mode");
       }
@@ -171,7 +171,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
          float mix2 = mx+sl;
          float miy2 = y+(c*10)+9;
 
-         if ((mInput.mouse_x > mix1) && (mInput.mouse_x < mix2) && (mInput.mouse_y > miy1) && (mInput.mouse_y < miy2))
+         if ((mInput.mouse_x > mix1) && (mInput.mouse_x < mix2) && (mInput.mouse_y > miy1) && (mInput.mouse_y < miy2) && (!al_get_timer_count(mEventQueue.mou_timer)))
          {
             highlight = c;
             if (mInput.mouse_b[1][0])
@@ -180,6 +180,8 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
                selection = highlight;
             }
          }
+
+
 
          if (c == highlight) al_draw_rectangle(mix1+0.5f, miy1+0.5f, mix2+0.5f, miy2+0.5f, mColor.pc[b+80], 1);
          al_draw_text(mFont.pr8, mColor.pc[b], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, menu_string[c]);
@@ -207,8 +209,8 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
       {
          if (++highlight > last_list_item) highlight = last_list_item;
          down_held = 1;
-         mDemoMode.demo_mode_countdown_val = mDemoMode.demo_mode_countdown_reset;
-         mDemoMode.demo_mode_enabled = 0;
+         mDemoMode.countdown_val = mDemoMode.countdown_reset;
+         mDemoMode.autoplay_enabled = 0;
       }
       if ( (!(mInput.key[ALLEGRO_KEY_DOWN][0])) && (!(mPlayer.syn[0].down))) down_held = 0;
 
@@ -216,8 +218,8 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
       {
          if (--highlight < 2) highlight = 2;
          up_held = 1;
-         mDemoMode.demo_mode_countdown_val = mDemoMode.demo_mode_countdown_reset;
-         mDemoMode.demo_mode_enabled = 0;
+         mDemoMode.countdown_val = mDemoMode.countdown_reset;
+         mDemoMode.autoplay_enabled = 0;
       }
       if ( (!(mInput.key[ALLEGRO_KEY_UP][0])) && (!(mPlayer.syn[0].up))) up_held = 0;
 

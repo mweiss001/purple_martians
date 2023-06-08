@@ -167,13 +167,18 @@ void mwItem::proc_gate_collision(int p, int i)
       }
    }
 
-
    // immediate next level to gate level
    if ((mPlayer.syn[p].up) && (mLevel.data[item[i][6]].unlocked))
    {
       mPlayer.syn[0].level_done_mode = 3;
       mPlayer.syn[0].level_done_timer = 0;
       mPlayer.syn[0].level_done_next_level = item[i][6];
+
+      mLoop.quit_action = 2;
+      mLoop.done_action = 2;
+
+
+
    }
 
    // cycle display pages
@@ -366,16 +371,19 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
       al_draw_textf(mFont.pr8, mColor.pc[15], xc, yp, ALLEGRO_ALIGN_CENTER, "type 'demo' to run demo"); yp+=yi;
       al_draw_textf(mFont.pr8, mColor.pc[15], xc, yp, ALLEGRO_ALIGN_CENTER, "%s ", mLevel.data[lev].level_name); yp+=yi;
 
-      if (mLevel.skc_trigger_demo)
-      {
-         mLevel.skc_trigger_demo = 0;
-         if (mGameMoves.load_gm(lev))
-         {
-            mLoop.state[0] = 31;
-            mDemoMode.restore_mode = 2;
-            mDemoMode.restore_level = lev;
-         }
-      }
+//      if (mLevel.skc_trigger_demo)
+//      {
+//         mLevel.skc_trigger_demo = 0;
+//         if (mGameMoves.load_gm(lev))
+//         {
+//            mDemoMode.mode = 1;
+//            mDemoMode.restore_mode = 42;
+//            mDemoMode.restore_level = lev;
+//            mLoop.state[0] = 31;
+//         }
+//      }
+//
+
    }
 
    // trigger on any page
@@ -384,9 +392,14 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
       mLevel.skc_trigger_demo = 0;
       if (mGameMoves.load_gm(lev))
       {
-         mLoop.state[0] = 31;
-         mDemoMode.restore_mode = 2;
+         mDemoMode.mode = 1;
+         mDemoMode.restore_mode = 42;
          mDemoMode.restore_level = lev;
+         mLoop.state[0] = 31;
+         mLoop.quit_action = 2;
+         mLoop.done_action = 2;
+
+
       }
    }
 

@@ -139,10 +139,10 @@ void mwConfig::save(void)
       asci(LOGGING, mLog.autosave_log_on_game_exit)
       asci(LOGGING, mLog.autosave_log_on_level_done)
 
-      asci(DEMO, mDemoMode.demo_mode_config_enable)
+      asci(DEMO, mDemoMode. config_autoplay_enabled)
       asci(DEMO, mLog.autosave_game_on_level_done)
       asci(DEMO, mLog.autosave_game_on_game_exit)
-      ascf(DEMO, mDemoMode.demo_mode_overlay_opacity)
+      ascf(DEMO, mDemoMode.overlay_opacity)
 
       asci(BMSG, mBottomMessage.num_lines)
 
@@ -381,10 +381,10 @@ void mwConfig::load(void)
    agci(LOGGING, mLog.autosave_log_on_game_exit, 0)
    agci(LOGGING, mLog.autosave_log_on_level_done, 0)
 
-   agci(DEMO, mDemoMode.demo_mode_config_enable, 1)
+   agci(DEMO, mDemoMode. config_autoplay_enabled, 1)
    agci(DEMO, mLog.autosave_game_on_level_done, 0)
    agci(DEMO, mLog.autosave_game_on_game_exit, 0)
-   agcf(DEMO, mDemoMode.demo_mode_overlay_opacity, 0.1)
+   agcf(DEMO, mDemoMode.overlay_opacity, 0.1)
 
 
    agci(BMSG, mBottomMessage.num_lines, 8)

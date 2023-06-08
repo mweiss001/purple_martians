@@ -631,8 +631,8 @@ int mwGameMoves::load_gm(const char *sfname )
          fclose(filepntr);
 
          mLevel.play_level = arr[0][3]; // set play level
-         mDemoMode.demo_mode_last_frame = arr[entry_pos-1][0];
-         if (debug_print) printf("dmlf:%d\n", mDemoMode.demo_mode_last_frame );
+         mDemoMode.last_frame = arr[entry_pos-1][0];
+         if (debug_print) printf("dmlf:%d\n", mDemoMode.last_frame );
          return 1;
       }
    }

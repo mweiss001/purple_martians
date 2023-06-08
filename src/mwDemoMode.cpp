@@ -18,9 +18,10 @@ mwDemoMode::mwDemoMode()
 
 void mwDemoMode::initialize(void)
 {
-   demo_mode_countdown_reset = 2400;
+   countdown_reset = 2400;
    pass = 0;
    prev_lev = -1;
+   mode = 0;
    restore_mode = 0;
    restore_level = 1;
 }
@@ -34,13 +35,12 @@ int fill_demo_array(ALLEGRO_FS_ENTRY *fs, void * extra)
    mDemoMode.num_demo_filenames++;
    return ALLEGRO_FOR_EACH_FS_ENTRY_OK;
 }
-
-void mwDemoMode::load_random_demo(void)
+int mwDemoMode::load_random_demo(void)
 {
    int debug_print = 0;
-   if (!demo_mode_loaded)
+   if (!files_for_random_loaded)
    {
-      demo_mode_countdown_reset = 2400;
+      countdown_reset = 2400;
       num_demo_filenames = 0;
       char fname[1024];
       sprintf(fname, "savegame/demo");
@@ -58,12 +58,13 @@ void mwDemoMode::load_random_demo(void)
       //for (int i=0; i< num_demo_filenames; i++)
          //printf("%s\n", al_get_fs_entry_name(demo_FS_filenames[i]));
 
-      demo_mode_loaded = 1;
+      files_for_random_loaded = 1;
    }
    if (num_demo_filenames == 0)
    {
       printf("No demo files found.\n");
-      demo_mode_on = 0;
+      mode = 0;
+      return 0;
    }
 
    int lev;
@@ -123,13 +124,12 @@ void mwDemoMode::load_random_demo(void)
    if (mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[lev])))
    {
       if (debug_print) printf("pass:%d - playing demo level:%d\n", pass, mLevel.play_level);
-      printf("pass:%d - playing demo level:%d\n", pass, mLevel.play_level);
-      mLoop.state[0] = 31;
+      return 1;
    }
    else
    {
-      demo_mode_on = 0;
-      mLoop.state[0] = 1;
+      mode = 0;
+      return 0;
    }
 }
 
@@ -148,8 +148,6 @@ void mwDemoMode::key_check(int p)
    while (!mPlayer.syn[mPlayer.active_local_player].active) // if alp not active
       if (++mPlayer.active_local_player > 7) mPlayer.active_local_player = 0;
 
-   if ((mInput.key[ALLEGRO_KEY_N][0]) && (demo_mode_on))
-      mLoop.state[0] = 12; // skip to next demo mode level
 
    if ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.key[ALLEGRO_KEY_ENTER][0]) || (mInput.key[ALLEGRO_KEY_SPACE][0]))
    {
@@ -157,12 +155,9 @@ void mwDemoMode::key_check(int p)
       mLoop.state[0] = 32; // demo level cleanup and exit
    }
 
-// if I also want to use escape here, I need to wait for release or esc will be passed to next state
+   if ((mInput.key[ALLEGRO_KEY_N][0]) && (mode == 2)) mLoop.state[0] = 12; // skip to next random level
 
-
-   // if games_moves doesn't end with level_done kill it after 4 seconds
-   if (mLoop.frame_num > demo_mode_last_frame + 160)
-      mLoop.state[0] = 12; // demo level timeout
+   if (mLoop.frame_num > last_frame + 160) mLoop.state[0] = 12; // if games_moves doesn't end with level_done kill it after 4 seconds
 
 }
 
