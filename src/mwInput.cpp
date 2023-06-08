@@ -42,9 +42,9 @@ void mwInput::initialize(void)
 
    ALLEGRO_MOUSE_STATE state;
    al_get_mouse_state(&state);
-   mouse_x = state.x;
-   mouse_y = state.y;
-   mouse_z = state.z;
+   mouse_x = state.x / mDisplay.display_transform_double;
+   mouse_y = state.y / mDisplay.display_transform_double;
+   mouse_z = state.z / mDisplay.display_transform_double;
 
    mouse_dx = 0;
    mouse_dy = 0;
@@ -155,6 +155,8 @@ void mwInput::proc_keys_held(void)
    }
    for (int m=1; m<5; m++)
    {
+      //printf("proc held\n");
+
       if ((mouse_b[m][0] == true) && (mouse_b[m][1] == false)) mouse_b[m][2] = true; // just pressed
       else mouse_b[m][2] = false;
       if ((mouse_b[m][0] == false) && (mouse_b[m][1] == true)) mouse_b[m][3] = true; // just released

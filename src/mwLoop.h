@@ -9,6 +9,9 @@ class mwLoop
 
    int state[8] = {0};
 
+   int quit_action = 0;
+   int done_action = 0;
+
    int top_menu_sel = 3;
    int main_loop_exit = 0;
 
@@ -47,6 +50,8 @@ class mwLoop
    float cutscene_bg_x;
 
 
+   int load_and_setup_level_load(int level);
+   void setup_level_after_load();
    void setup_players_after_level_load(int type);
    void setup_common_after_level_load(void);
 

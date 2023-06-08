@@ -758,7 +758,7 @@ void mwScreen::draw_demo_debug_overlay(int p, int &cx, int &cy)
    double tt;
 
    if (mLog.LOG_TMR_scrn_overlay) tt = al_get_time();
-   if (mDemoMode.demo_mode_on) draw_large_text_overlay(3, 15);
+   if (mDemoMode.mode) draw_large_text_overlay(3, 15);
    if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - tt, "scov_demo_ov", 0);
 
    if (mSettings.overlay_grid[8][mLoop.show_debug_overlay]) // misc
@@ -769,7 +769,7 @@ void mwScreen::draw_demo_debug_overlay(int p, int &cx, int &cy)
       al_draw_filled_rectangle(cx, cy, cx+150, cy+32+nap*9, mColor.pc[0]);
 
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy+1, 0, "Running Saved Game "); cy+=9;
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy+1, 0, "Time:[%d%%] ", mLoop.frame_num*100/mDemoMode.demo_mode_last_frame); cy+=9;
+      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy+1, 0, "Time:[%d%%] ", mLoop.frame_num*100/mDemoMode.last_frame); cy+=9;
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy+1, 0, "Moves:[%d%%] ", (mGameMoves.current_pos * 100) / mGameMoves.entry_pos); cy+=9;
       cy+=4;
       for (int ap=0; ap<NUM_PLAYERS; ap++)
@@ -1114,7 +1114,7 @@ void mwScreen::draw_bottom_frame(int p)
       al_draw_text(mFont.pr8, mColor.pc[tc], bdx, bdy, 0, msg);
       ts += strlen(msg)*8;
 
-      sprintf(msg, "[%d%%] ", mLoop.frame_num*100/mDemoMode.demo_mode_last_frame);
+      sprintf(msg, "[%d%%] ", mLoop.frame_num*100/mDemoMode.last_frame);
       al_draw_text(mFont.pr8, mColor.pc[tc], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
    }

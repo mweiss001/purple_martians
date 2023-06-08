@@ -236,6 +236,10 @@ void mwSettings::draw_tab(struct settings_tab st[], int p, int col, int text_col
 
 void mwSettings::settings_pages(int set_page)
 {
+   // if esc is pressed on entry, wait for release
+   while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+
+
    char msg[1024];
    if (set_page != -1)  current_page = set_page;
    int page = current_page;
@@ -262,7 +266,6 @@ void mwSettings::settings_pages(int set_page)
 
 
    int num_pages = 20;
-
 
    const char *title = "Settings";
 
@@ -570,7 +573,7 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_mode_config_enable, "Autoplay random demo at program start", tc, 15);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode. config_autoplay_enabled, "Autoplay random demo at program start", tc, 15);
          ya -=2;
 
          al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
@@ -845,9 +848,12 @@ void mwSettings::settings_pages(int set_page)
 
          if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Play random demo game"))
          {
-            mLoop.state[0] = 30;
-            mDemoMode.restore_mode = 3;
+            mDemoMode.mode = 2;
+            mDemoMode.restore_mode = 32;
             mDemoMode.restore_level = mLevel.last_level_loaded;
+            mLoop.state[0] = 12;
+            mLoop.quit_action = 3; // settings
+            mLoop.done_action = 5; // next rand level
             al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
@@ -856,9 +862,12 @@ void mwSettings::settings_pages(int set_page)
          if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Choose file and run saved game"))
          if (mGameMoves.load_gm(""))
          {
-            mLoop.state[0] = 31;
-            mDemoMode.restore_mode = 3;
+            mDemoMode.mode = 1;
+            mDemoMode.restore_mode = 32;
             mDemoMode.restore_level = mLevel.last_level_loaded;
+            mLoop.state[0] = 31;
+            mLoop.quit_action = 3; // settings
+            mLoop.done_action = 3; // settings
             al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
@@ -866,8 +875,7 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_mode_config_enable, "Autoplay random demo at program start", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode. config_autoplay_enabled, "Autoplay random demo at program start", tc, fc);
 
          ya -=4;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -885,10 +893,10 @@ void mwSettings::settings_pages(int set_page)
          al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "'DEMO MODE' overlay opacity");
 
          ya +=16;
-         float old_demo_mode_overlay_opacity = mDemoMode.demo_mode_overlay_opacity;
+         float old_overlay_opacity = mDemoMode.overlay_opacity;
          if ((mInput.mouse_x > xa) && (mInput.mouse_x < xb) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts)) mScreen.draw_large_text_overlay(3, 15);
-         mWidget.sliderfnb(xa, ya, xb, bts,  2,0,0,0,  0,12,15,15,  0,0,1,0, mDemoMode.demo_mode_overlay_opacity, 0.4, 0, .01, "");
-         if (old_demo_mode_overlay_opacity != mDemoMode.demo_mode_overlay_opacity) mConfig.save();
+         mWidget.sliderfnb(xa, ya, xb, bts,  2,0,0,0,  0,12,15,15,  0,0,1,0, mDemoMode.overlay_opacity, 0.4, 0, .01, "");
+         if (old_overlay_opacity != mDemoMode.overlay_opacity) mConfig.save();
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
       }
@@ -1711,11 +1719,12 @@ void mwSettings::settings_pages(int set_page)
          if (mWidget.buttont(xa+80, ya, xb-80, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
          {
             mLoop.state[0] = 10;
+            mLoop.quit_action = 3; // settings
+            mLoop.done_action = 3; // settings
             al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;
          }
-
          ya += 8;
          xb = xa+180;
          if (mWidget.buttont(xa+20, ya, xb, bts,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
@@ -1748,18 +1757,18 @@ void mwSettings::settings_pages(int set_page)
          int bts = 10;
          int tc = 13;
          int fc = 15;
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET,                    "LOG_NET", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_join,               "LOG_NET_join", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_player_array,       "LOG_NET_player_array", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_bandwidth,          "LOG_NET_bandwidth", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_cdat,               "LOG_NET_cdat", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_stdf,               "LOG_NET_stdf", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_stdf_all_packets,   "LOG_NET_stdf_all_packets", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_dif_applied,        "LOG_NET_dif_applied", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_dif_not_applied,    "LOG_NET_dif_not_applied", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_client_ping,        "LOG_NET_client_ping", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_client_timer_adj,   "LOG_NET_client_timer_adj", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.LOG_NET_server_rx_stak,     "LOG_NET_server_rx_stak", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET,                    "LOG_NET", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_join,               "LOG_NET_join", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_player_array,       "LOG_NET_player_array", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_bandwidth,          "LOG_NET_bandwidth", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_cdat,               "LOG_NET_cdat", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_stdf,               "LOG_NET_stdf", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_stdf_all_packets,   "LOG_NET_stdf_all_packets", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_dif_applied,        "LOG_NET_dif_applied", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_dif_not_applied,    "LOG_NET_dif_not_applied", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_client_ping,        "LOG_NET_client_ping", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_client_timer_adj,   "LOG_NET_client_timer_adj", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_server_rx_stak,     "LOG_NET_server_rx_stak", tc, fc);
 
          ya+=10;
          bts = 14;
@@ -1792,6 +1801,8 @@ void mwSettings::settings_pages(int set_page)
          if (mWidget.buttont(xa+80, ya, xb-80, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
          {
             mLoop.state[0] = 10;
+            mLoop.quit_action = 3; // settings
+            mLoop.done_action = 3; // settings
             al_hide_mouse_cursor(mDisplay.display);
             mConfig.save();
             return;

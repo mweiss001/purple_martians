@@ -308,8 +308,11 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          mLogo.show_splash_screen = 0;
          if (mGameMoves.load_gm(""))
          {
+            mDemoMode.mode = 1;
+            mDemoMode.restore_mode = 10;
             mLoop.state[0] = 31;
-            mDemoMode.restore_mode = 0;
+            mLoop.quit_action = 0;
+            mLoop.done_action = 0;
          }
          return;
       }
@@ -323,6 +326,8 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          mLevel.set_start_level(pl);
          printf("started game on level:%d\n", pl);
          mLoop.state[0] = 10;
+         mLoop.quit_action = 0;
+         mLoop.done_action = 0;
       }
       else
       {
@@ -333,8 +338,11 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          if (mGameMoves.load_gm(argument_array[1]))
          {
             //mLogo.show_splash_screen = 0;
+            mDemoMode.mode = 1;
+            mDemoMode.restore_mode = 10;
             mLoop.state[0] = 31;
-            mDemoMode.restore_mode = 0;
+            mLoop.quit_action = 0;
+            mLoop.done_action = 0;
             return;
          }
       }

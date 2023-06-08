@@ -24289,7 +24289,943 @@ still need to straighten out next level transitions....
 they are very ugly....
 
 
-20230605 12:15 AM
+20230605 12:15 AM push
+
+
+
+
+
+
+
+bug - story gate demo end transition does not line up
+story gate level start transitions work good
+actually they both work, but not the first time..fixed
+
+
+
+
+bug - story menu demo mode ends with overworld instead of menu
+
+---------  State change from  1 to 30  --------  30  1  0  0  0  0  0  0  --------  [   0]
+[State 30 - Start Demo Mode]  [drm:1]
+---------  State change from 30 to 12  --------  12 30  1  0  0  0  0  0  --------  [   0]
+[State 12 - Next Level]   [play lev:1]  [next lev:0]
+12 12 30  1  0  0  0  0
+pre-load transition
+pass:1 - playing demo level:86
+---------  State change from 12 to 31  --------  31 12 30  1  0  0  0  0  --------  [   0]
+[State 31 - Setup Demo Level]  [lev:86]  [drm:1]
+transition from nothing to game
+---------  State change from 31 to 11  --------  11 31 12 30  1  0  0  0  --------  [   0]
+---------  State change from 11 to 32  --------  32 11 31 12 30  1  0  0  --------  [  60]
+[State 32 - Quit and Cleanup Demo Dode]  [drm:1]
+transition from game to nothing
+---------  State change from 32 to  1  --------   1 32 11 31 12 30  1  0  --------  [  60]
+[State 1 - Game Menu]
+[State 12 - Next Level]   [play lev:86]  [next lev:1]
+12 12 32 11 31 12 30  1
+pre-load transition
+post-load transition
+---------  State change from 12 to 11  --------  11 12 32 11 31 12 30  1  --------  [   0]
+---------  State change from 11 to  1  --------   1 11 12 32 11 31 12 30  --------  [ 110]
+[State 1 - Game Menu]
+transition from game to menu
+---------  State change from  1 to  0  --------   0  1 11 12 32 11 31 12  --------  [ 110]
+
+
+
+when going to game menu I need a way to know where I came from
+
+
+in 32 what my drm is 1
+
+
+I think I need more drm
+
+current:
+0 called from args
+1 random
+2 gate
+3 setting
+
+new
+
+10 called from args single
+21 menu random
+31 settings single
+32 settings random
+42 gate single
+
+
+
+
+
+also demo_mode
+current
+0 off
+1 on
+
+new
+0 off
+1 single
+2 random
+
+implement this
+
+do all the drm
+
+both args:
+mDemoMode.mode = 1;
+mDemoMode.restore_mode = 10;
+mLoop.state[0] = 31;
+
+both menu calls:
+mDemoMode.mode = 2;
+mDemoMode.restore_mode = 21;
+mDemoMode.restore_level = mLevel.start_level;
+state[0] = 12;
+
+settings single:
+mDemoMode.mode = 1;
+mDemoMode.restore_mode = 31;
+mDemoMode.restore_level = mLevel.last_level_loaded;
+mLoop.state[0] = 31;
+
+settings random:
+mDemoMode.mode = 2;
+mDemoMode.restore_mode = 32;
+mDemoMode.restore_level = mLevel.last_level_loaded;
+mLoop.state[0] = 12;
+
+gate single:
+mDemoMode.mode = 1;
+mDemoMode.restore_mode = 42;
+mDemoMode.restore_level = lev;
+mLoop.state[0] = 31;
+
+
+those are all done...
+
+now look at all mode refs
+removed this line:
+
+do I even need mode 30, all it does is go directly to 12
+
+   //---------------------------------------
+   // 30 - start demo mode
+   //---------------------------------------
+   if (state[1] == 30)
+   {
+      if (debug_print_state_names) printf("[State 30 - Start Demo Mode]  [drm:%d]\n", mDemoMode.restore_mode);
+      //mDemoMode.mode = 1;
+      state[0] = 12;
+   }
+
+removed it and modified all calls to 30 to now go to 12
+
+
+looked at all mode refs
+
+
+now look at all drm refs
+
+
+
+
+
+
+// maybe it would be better to list all the places we could jump to from here
+// no change - menu
+// settings
+// overworld
+// exit immed
+
+// then list conditions for each
+
+/*
+
+in state 11 there are 2 ways out:
+esc
+level done
+are there any other ways?
+
+
+could I setup variables to register what happens then?
+
+before starting 11 set:
+quit_action
+done_action
+
+quit_action
+0 quit program
+1 menu
+2 overworld
+3 settings
+
+
+done_action
+0 quit program
+1 menu
+2 overworld
+3 settings
+4 next inc level
+5 next rand level
+
+
+I could be on to something here.....
+
+where would I store these variables
+mLoop.quit_action
+mLoop.done_action
+
+
+where are all the places I would set these?
+
+command line
+
+2 x
+mLoop.state[0] = 31;
+mLoop.quit_action = 0;
+mLoop.done_action = 0;
+
+1 x
+mLoop.state[0] = 10;
+mLoop.quit_action = 0;
+mLoop.done_action = 0;
+
+
+classic menu
+
+if (top_menu_sel == 3) // start new game
+{
+   state[0] = 10;
+   mLoop.quit_action = 1; // menu
+   mLoop.done_action = 4; // next inc level
+   top_menu_sel = 4;
+   return;
+}
+
+if (top_menu_sel == 9) // demo mode
+{
+   mDemoMode.mode = 2;
+   mDemoMode.restore_mode = 21;
+   mDemoMode.restore_level = mLevel.start_level;
+   state[0] = 12;
+   mLoop.quit_action = 1; // menu
+   mLoop.done_action = 5; // next rand level
+   return;
+}
+
+
+story menu
+
+if (top_menu_sel == 2) // start new game
+{
+   state[0] = 10;
+   mLoop.quit_action = 1; // menu
+   mLoop.done_action = 2; // overworld
+   return;
+}
+
+if (top_menu_sel == 6) // demo mode
+{
+   mDemoMode.mode = 2;
+   mDemoMode.restore_mode = 21;
+   mDemoMode.restore_level = mLevel.start_level;
+   state[0] = 12;
+   mLoop.quit_action = 1; // menu
+   mLoop.done_action = 5; // next rand level
+   return;
+}
+
+
+do some testing....
+
+some stuff is working great
+
+ov to game and back
+
+
+
+
+20230607
+
+---------------------
+command line demo
+---------------------
+quit works perfectly
+done works perfectly
+
+---------  State change from  0 to 31  --------  31  0  0  0  0  0  0  0  --------  [   0]
+[State 31 - Setup Demo Level]  [lev:14]  [drm:10]
+transition from nothing to game
+---------  State change from 31 to 11  --------  11 31  0  0  0  0  0  0  --------  [   0]
+---------  State change from 11 to 32  --------  32 11 31  0  0  0  0  0  --------  [  48]
+[State 32 - Quit and Cleanup Demo Mode]  [drm:10]  [m:1]
+transition from game to nothing
+---------  State change from 32 to  0  --------   0 32 11 31  0  0  0  0  --------  [  48]
+
+
+---------  State change from  0 to 31  --------  31  0  0  0  0  0  0  0  --------  [   0]
+[State 31 - Setup Demo Level]  [lev:14]  [drm:10]
+transition from nothing to game
+---------  State change from 31 to 11  --------  11 31  0  0  0  0  0  0  --------  [   0]
+---------  State change from 11 to 12  --------  12 11 31  0  0  0  0  0  --------  [ 427]
+[State 12 - Next Level]   [play lev:14]  [next lev:1]
+12 12 11 31  0  0  0  0
+command line exit
+transition from game to nothing
+---------  State change from 12 to  0  --------   0 12 11 31  0  0  0  0  --------  [ 427]
+
+
+
+----------------------
+command line lev start
+----------------------
+first transition good
+quit works perfectly
+done works perfectly
+
+
+---------  State change from  0 to 10  --------  10  0  0  0  0  0  0  0  --------  [   0]
+[State 10 - New Game]  [lev:70]
+transition from nothing to game
+---------  State change from 10 to 11  --------  11 10  0  0  0  0  0  0  --------  [   0]
+---------  State change from 11 to  1  --------   1 11 10  0  0  0  0  0  --------  [  45]
+[State 1 - Game Menu] - done_action:0
+transition from game to nothing
+
+---------  State change from  0 to 10  --------  10  0  0  0  0  0  0  0  --------  [   0]
+[State 10 - New Game]  [lev:70]
+transition from nothing to game
+---------  State change from 10 to 11  --------  11 10  0  0  0  0  0  0  --------  [   0]
+---------  State change from 11 to 12  --------  12 11 10  0  0  0  0  0  --------  [ 242]
+[State 12 - Next Level]   [play lev:70]  [next lev:1]
+12 12 11 10  0  0  0  0
+command line exit
+transition from game to nothing
+---------  State change from 12 to  0  --------   0 12 11 10  0  0  0  0  --------  [ 242]
+
+
+
+
+----------------------
+story mode start new game
+start level with gate
+quit to overworld
+quit to menu
+quit program
+----------------------
+works good
+
+---------  State change from  1 to 10  --------  10  1  0  0  0  0  0  0  --------  [   0]
+[State 10 - New Game]  [lev:1]
+transition from menu to game
+---------  State change from 10 to 11  --------  11 10  1  0  0  0  0  0  --------  [   0]
+---------  State change from 11 to 12  --------  12 11 10  1  0  0  0  0  --------  [ 146]
+[State 12 - Next Level]   [play lev:1]  [next lev:5]
+12 12 11 10  1  0  0  0
+pre-load transition
+post-load transition
+transition from gate to game
+---------  State change from 12 to 11  --------  11 12 11 10  1  0  0  0  --------  [   0]
+---------  State change from 11 to  1  --------   1 11 12 11 10  1  0  0  --------  [  83]
+[State 1 - Game Menu] - done_action:2
+instead of menu, go to overworld
+---------  State change from  1 to 12  --------  12  1 11 12 11 10  1  0  --------  [  83]
+[State 12 - Next Level]   [play lev:5]  [next lev:1]
+12 12  1 11 12 11 10  1
+pre-load transition
+transition from game to gate
+2game to gate set
+post-load transition
+---------  State change from 12 to 11  --------  11 12  1 11 12 11 10  1  --------  [   0]
+---------  State change from 11 to  1  --------   1 11 12  1 11 12 11 10  --------  [  40]
+[State 1 - Game Menu] - done_action:1
+transition from game to menu
+---------  State change from  1 to  0  --------   0  1 11 12  1 11 12 11  --------  [  40]
+
+
+
+----------------------
+story mode start new game
+start level with gate
+next level to overworld
+----------------------
+works good
+
+----------------------
+story mode demo from menu
+----------------------
+works good
+
+
+
+quitting demo mode to menu
+first 32 goes from nothing to menu
+then 1 goes from game to menu
+
+stop 1 from doing that...
+set quit_action to 99 in 32
+
+
+bug, after demo mode starting single player in story starts last loaded level then freezes...
+fixed by forcing
+if (!mMain.classic_mode) mLevel.start_level = mLevel.play_level = 1;
+in 10 new game
+
+
+
+
+----------------------
+story mode demo from gate
+----------------------
+end transition not right
+
+goes back to gate twice?
+
+
+System ID: Windows
+Desktop Resolution: 3840x2160
+---------  State change from  1 to 10  --------  10  1  0  0  0  0  0  0  --------  [   0]
+[State 10 - New Game]  [lev:1]
+transition from menu to game
+---------  State change from 10 to 11  --------  11 10  1  0  0  0  0  0  --------  [   0]
+---------  State change from 11 to 31  --------  31 11 10  1  0  0  0  0  --------  [  94]
+[State 31 - Setup Demo Level]  [lev:3]  [drm:42]
+transition from gate to game
+---------  State change from 31 to 11  --------  11 31 11 10  1  0  0  0  --------  [   0]
+---------  State change from 11 to 32  --------  32 11 31 11 10  1  0  0  --------  [  68]
+[State 32 - Quit and Cleanup Demo Mode]  [drm:42]  [m:1]
+transition from game to gate
+---------  State change from 32 to 12  --------  12 32 11 31 11 10  1  0  --------  [  68]
+[State 12 - Next Level]   [play lev:3]  [next lev:1]
+12 12 32 11 31 11 10  1
+pre-load transition
+game to gate for next level to overworld
+transition from game to gate
+post-load transition
+---------  State change from 12 to 11  --------  11 12 32 11 31 11 10  1  --------  [   0]
+---------  State change from 11 to  1  --------   1 11 12 32 11 31 11 10  --------  [  42]
+[State 1 - Game Menu] - done_action:2
+instead of menu, go to overworld
+---------  State change from  1 to 12  --------  12  1 11 12 32 11 31 11  --------  [  42]
+[State 12 - Next Level]   [play lev:1]  [next lev:1]
+12 12  1 11 12 32 11 31
+pre-load transition
+game to gate for next level to overworld
+transition from game to gate
+post-load transition
+---------  State change from 12 to 11  --------  11 12  1 11 12 32 11 31  --------  [   0]
+---------  State change from 11 to  1  --------   1 11 12  1 11 12 32 11  --------  [  39]
+[State 1 - Game Menu] - done_action:1
+transition from game to menu
+---------  State change from  1 to  0  --------   0  1 11 12  1 11 12 32  --------  [  39]
+
+C:\pm>
+
+added extra text to next level preload transition:
+
+      if ((!gate_to_game) && (!classic_next_level) && (!mMain.classic_mode) && (!mDemoMode.mode) && (state[2] != 32))
+
+
+
+when going back:
+it goes back to overworld twice
+
+
+System ID: Windows
+Desktop Resolution: 3840x2160
+---------  State change from  1 to 10  --------  10  1  0  0  0  0  0  0  --------  [   0]
+[State 10 - New Game]  [lev:1]
+transition from menu to game
+---------  State change from 10 to 11  --------  11 10  1  0  0  0  0  0  --------  [   0]
+---------  State change from 11 to 31  --------  31 11 10  1  0  0  0  0  --------  [  45]
+[State 31 - Setup Demo Level]  [lev:4]  [drm:42]
+transition from gate to game
+---------  State change from 31 to 11  --------  11 31 11 10  1  0  0  0  --------  [   0]
+---------  State change from 11 to 32  --------  32 11 31 11 10  1  0  0  --------  [  30]
+[State 32 - Quit and Cleanup Demo Mode]  [drm:42]  [m:1]
+transition from game to gate
+---------  State change from 32 to 12  --------  12 32 11 31 11 10  1  0  --------  [  30]
+[State 12 - Next Level]   [play lev:4]  [next lev:1]
+12 12 32 11 31 11 10  1
+pre-load transition
+post-load transition
+---------  State change from 12 to 11  --------  11 12 32 11 31 11 10  1  --------  [   0]
+---------  State change from 11 to  1  --------   1 11 12 32 11 31 11 10  --------  [  42]
+[State 1 - Game Menu] - done_action:2
+instead of menu, go to overworld
+---------  State change from  1 to 12  --------  12  1 11 12 32 11 31 11  --------  [  42]
+[State 12 - Next Level]   [play lev:1]  [next lev:1]
+12 12  1 11 12 32 11 31
+pre-load transition
+game to gate for next level to overworld
+transition from game to gate
+post-load transition
+---------  State change from 12 to 11  --------  11 12  1 11 12 32 11 31  --------  [   0]
+---------  State change from 11 to  1  --------   1 11 12  1 11 12 32 11  --------  [  45]
+[State 1 - Game Menu] - done_action:1
+transition from game to menu
+---------  State change from  1 to  0  --------   0  1 11 12  1 11 12 32  --------  [  45]
+
+C:\pm>
+
+
+32 dr2 42
+
+42 means return to overworld
+
+set a done action there
+
+done_action 2 = overworld
+
+then in 12...
+
+it starts overworld...good so far
+
+
+---------------
+
+- I am in overworld
+- start demo level
+
+         mDemoMode.mode = 1;
+         mDemoMode.restore_mode = 42;
+         mDemoMode.restore_level = lev;
+         mLoop.state[0] = 31;
+         mLoop.quit_action = 2;
+         mLoop.done_action = 2;
+31
+quit demo level
+32
+transition from game to gate
+12
+no transitions
+load level 1 (overworld)
+11 start level 1
+
+11 quit to 1
+
+[State 1 - Game Menu] - done_action:2
+instead of menu, go to overworld
+
+
+in the first 12 change quit_action to 1
+
+
+      if (quit_action == 2) // overworld
+      {
+         quit_action = 1;
+         if (debug_print_more) printf("change quit_action from 2 to 1\n");
+      }
+
+
+this is working, but is getting very complex...
+
+I am not making much use of done_action...
+
+next bug...after gate demo..play the level..then exit freezes...
+
+it is because level is not being set back to overworld
+
+the last bit of code to fix the last bug broke this...
+
+
+I have again run out of time...
+
+what to fix next?
+
+
+moved it to here and now both cases work...
+
+      if (rm == 42) // started from gate, send to overworld with next level and level 1
+      {
+         mScreen.transition_cutscene(1, 3, 120, 0.02); // game to gate
+         mPlayer.syn[0].level_done_next_level = 1;
+         state[0] = 12;
+
+         quit_action = 1;
+         if (debug_print_more) printf("changed quit_action to 1\n");
+      }
+
+it looks like most things in story mode work
+
+
+story mode setting exit exits program...fixed
+
+
+
+demo mode from settings works
+
+demo single from settings esc quit stuck in 32 drm31 m0
+
+change drm from 31 to 32 in setting start single demo...
+
+now seems to work...
+
+
+so does all stuff in settings work?
+story mode demo setting all seems to work
+
+what about starting single, server, and client games from settings??
+
+lets look at single
+what do we want it to do?
+come back to settings after level done or exit
+
+
+
+---------  State change from  1 to  3  --------   3  1  0  0  0  0  0  0  --------  [   0]
+---------  State change from  3 to 10  --------  10  3  1  0  0  0  0  0  --------  [   0]
+[State 10 - New Game]  [lev:1]
+---------  State change from 10 to 11  --------  11 10  3  1  0  0  0  0  --------  [   0]
+---------  State change from 11 to  1  --------   1 11 10  3  1  0  0  0  --------  [  91]
+[State 1 - Game Menu] - quit_action:3
+instead of menu, go to settings
+---------  State change from  1 to  3  --------   3  1 11 10  3  1  0  0  --------  [  91]
+---------  State change from  3 to  1  --------   1  3  1 11 10  3  1  0  --------  [  91]
+[State 1 - Game Menu] - quit_action:3
+instead of menu, go to settings
+---------  State change from  1 to  3  --------   3  1  3  1 11 10  3  1  --------  [  91]
+---------  State change from  3 to  1  --------   1  3  1  3  1 11 10  3  --------  [  91]
+[State 1 - Game Menu] - quit_action:3
+instead of menu, go to settings
+---------  State change from  1 to  3  --------   3  1  3  1  3  1 11 10  --------  [  91]
+---------  State change from  3 to  1  --------   1  3  1  3  1  3  1 11  --------  [  91]
+[State 1 - Game Menu] - quit_action:3
+instead of menu, go to settings
+---------  State change from  1 to  3  --------   3  1  3  1  3  1  3  1  --------  [  91]
+
+
+
+lets look at classic mode
+
+first fix the classic mode menu
+
+
+start new game good
+resume good
+quitting from resume quits program..fixed
+
+demo mode menu start
+next level
+exit with keypress
+exit with level done
+all good
+
+
+
+settings demo mode
+12 pre load transition
+
+
+
+
+bug - in all mouse button click on widgets things
+click on button
+dont move move
+cant click again on button unless mouse if moved
+
+for example:
+
+settings
+press play demo level button
+quit with esc
+can't press again unless mouse is moved slightly
+
+I still get the events mouse down and up
+
+
+what is happening is the mouse x and y are getting changed
+it all works fine in text_double 1 but not anything else..
+
+
+in mInput.initialize
+
+I get the initial mouse positions, but don't scale them...fixed
+
+   ALLEGRO_MOUSE_STATE state;
+   al_get_mouse_state(&state);
+   mouse_x = state.x / mDisplay.display_transform_double;
+   mouse_y = state.y / mDisplay.display_transform_double;
+   mouse_z = state.z / mDisplay.display_transform_double;
+
+
+
+settings demo single
+no transition
+
+show dif from demo rnd start to demo single start
+
+demo single start:
+31 - 11 - 32
+
+demo rnd start
+12 - 31 - 11 - 12 - 11 - 32
+
+
+for demo rnd I am doing the transition in 12
+
+for single it never passes through 12
+
+they both pass through 31...
+
+but after the load...so that doesnt help
+
+or does it?
+I am trying to do the post load transition
+
+
+back to settings demo single preload transition...
+
+
+I could hook into it in 31...
+
+do I even care?
+
+rand does a zoom from nothing, I want to do the same
+
+it was already there for demo_mode ==2, I just hijacked it to do 1 also
+
+hope this doesn't affect single demo called from gate....
+
+test..it does...
+add a test so it doesn't
+
+actually simplified that a lot, now only 2 choices:
+
+      if (mDemoMode.restore_mode == 42) mScreen.transition_cutscene(3, 1, 120, 0.02); // gate (gate to game)
+      else                              mScreen.transition_cutscene(0, 1, 90, 0.01);  // all other (nothing to game)
+
+
+back to testing...
+
+demo mode from settings:
+good in both classic and story
+
+args still work?
+yes for demo
+yes for single level
+
+story mode:
+good:
+
+classic mode:
+good
+
+
+
+advanced:
+overworld in classic mode
+starting level from gate works
+when quitting level goes back to overworld
+when completing level, goes to next level, not overworld
+when exiting from that level goes back to overworld
+
+classic mode with any level other than overworld
+start level and exit to menu with resume
+finish level take you to next level
+nothing changes start level, except manually changing it
+
+demo from overworld has extra transitions at end
+
+
+---------  State change from  1 to 10  --------  10  1  0  0  0  0  0  0  --------  [   0]  --------   [qa:1] [da:1]
+[State 10 - New Game]  [lev:1]  [qa:1] [da:1]
+transition from menu to game
+---------  State change from 10 to 11  --------  11 10  1  0  0  0  0  0  --------  [   0]  --------   [qa:1] [da:1]
+---------  State change from 11 to 31  --------  31 11 10  1  0  0  0  0  --------  [ 269]  --------   [qa:2] [da:2]
+[State 31 - Setup Demo Level]  [lev:70]  [drm:42]
+transition from gate to game
+---------  State change from 31 to 11  --------  11 31 11 10  1  0  0  0  --------  [   0]  --------   [qa:2] [da:2]
+---------  State change from 11 to 32  --------  32 11 31 11 10  1  0  0  --------  [  36]  --------   [qa:2] [da:2]
+[State 32 - Quit and Cleanup Demo Mode]  [drm:42]  [m:1]
+transition from game to gate
+changed quit_action to 1
+
+---------  State change from 32 to 12  --------  12 32 11 31 11 10  1  0  --------  [  36]  --------   [qa:1] [da:2]
+[State 12 - Next Level]  [play lev:70]  [next lev:1] [qa:1] [da:2]
+12 12 32 11 31 11 10  1
+pre-load transition
+game to nothing for classic next level
+transition from game to nothing
+post-load transition
+---------  State change from 12 to 11  --------  11 12 32 11 31 11 10  1  --------  [   0]  --------   [qa:1] [da:2]
+---------  State change from 11 to  1  --------   1 11 12 32 11 31 11 10  --------  [ 390]  --------   [qa:1] [da:2]
+[State 1 - Game Menu] - quit_action:1
+transition from game to menu
+---------  State change from  1 to  0  --------   0  1 11 12 32 11 31 11  --------  [ 390]  --------   [qa:0] [da
+
+
+
+added another exception
+
+// -----------------------------------------------------------------------------------------------------
+// classic mode and not gate_to_game and not in demo mode
+// zoom to nothing before loading next level
+// make an exception to not do this if returning to 1 (like when demo ends)
+// (mPlayer.syn[0].level_done_next_level != 1))
+
+// -----------------------------------------------------------------------------------------------------
+      int classic_next_level = 0;
+      if ((!gate_to_game) && (mMain.classic_mode) && (!mDemoMode.mode) && (mPlayer.syn[0].level_done_next_level != 1))
+      {
+         if (debug_print_more) printf("game to nothing for classic next level\n");
+         classic_next_level = 1;
+         mScreen.transition_cutscene(1, 0, 90, 0.01); // game to nothing
+      }
+
+now it looks good
+
+what else is there to test?
+
+
+game start from settings?
+cannot exit after...
+
+
+---------  State change from  1 to  3  --------   3  1  0  0  0  0  0  0  --------  [   0]  --------   [qa:1] [da:0]
+---------  State change from  3 to 10  --------  10  3  1  0  0  0  0  0  --------  [   0]  --------   [qa:3] [da:3]
+[State 10 - New Game]  [lev:70]  [qa:3] [da:3]
+---------  State change from 10 to 11  --------  11 10  3  1  0  0  0  0  --------  [   0]  --------   [qa:3] [da:3]
+---------  State change from 11 to  1  --------   1 11 10  3  1  0  0  0  --------  [ 102]  --------   [qa:3] [da:3]
+[State 1 - Game Menu] - quit_action:3
+instead of menu, go to settings
+---------  State change from  1 to  3  --------   3  1 11 10  3  1  0  0  --------  [ 102]  --------   [qa:3] [da:3]
+---------  State change from  3 to  1  --------   1  3  1 11 10  3  1  0  --------  [ 102]  --------   [qa:3] [da:3]
+[State 1 - Game Menu] - quit_action:3
+instead of menu, go to settings
+---------  State change from  1 to  3  --------   3  1  3  1 11 10  3  1  --------  [ 102]  --------   [qa:3] [da:3]
+---------  State change from  3 to  1  --------   1  3  1  3  1 11 10  3  --------  [ 102]  --------   [qa:3] [da:3]
+[State 1 - Game Menu] - quit_action:3
+instead of menu, go to settings
+---------  State change from  1 to  3  --------   3  1  3  1  3  1 11 10  --------  [ 102]  --------   [qa:3] [da:3]
+---------  State change from  3 to  1  --------   1  3  1  3  1  3  1 11  --------  [ 102]  --------   [qa:3] [da:3]
+[State 1 - Game Menu] - quit_action:3
+instead of menu, go to settings
+---------  State change from  1 to  3  --------   3  1  3  1  3  1  3  1  --------  [ 102]  --------   [qa:3] [da:3]
+---------  State change from  3 to  1  --------   1  3  1  3  1  3  1  3  --------  [ 102]  --------   [qa:3] [da:3]
+[State 1 - Game Menu] - quit_action:3
+instead of menu, go to settings
+---------  State change from  1 to  3  --------   3  1  3  1  3  1  3  1  --------  [ 102]  --------   [qa:3] [da:3]
+---------  State change from  3 to  1  --------   1  3  1  3  1  3  1  3  --------  [ 102]  --------   [qa:3] [da:3]
+[State 1 - Game Menu] - quit_action:3
+instead of menu, go to settings
+---------  State change from  1 to  3  --------   3  1  3  1  3  1  3  1  --------  [ 102]  --------   [qa:3] [da:3]
+---------  State change from  3 to  1  --------   1  3  1  3  1  3  1  3  --------  [ 102]  --------   [qa:3] [da:3]
+[State 1 - Game Menu] - quit_action:3
+
+
+added test to settings for esc pressed on entry to wait for release
+
+single player start from setting works
+in classic mode, uses start level, same with story only start level is always 1 in story mode...
+
+
+I think I have all the transitions working...
+
+
+netgame has not been tested...
+for netgame, we never leave a running game...always in mode 11 or 12...
+
+I want to make the timing something I can change in settings
+
+
+
+bug - in menu mouse, when mouse is on menu, keys do not work
+even if mouse times out...
+
+added this and now works like it should
+
+if ((mInput.mouse_x > mix1) && (mInput.mouse_x < mix2) && (mInput.mouse_y > miy1) && (mInput.mouse_y < miy2) && (!al_get_timer_count(mEventQueue.mou_timer)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

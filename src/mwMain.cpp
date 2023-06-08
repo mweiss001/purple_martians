@@ -296,7 +296,7 @@ int mwMain::initial_setup(void)
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
    mPlayer.syn[0].active = 1;
 
-   mDemoMode.demo_mode_enabled = mDemoMode.demo_mode_config_enable; // set only at startup from config file
+   mDemoMode.autoplay_enabled = mDemoMode. config_autoplay_enabled; // set only at startup from config file
 
 
    if (classic_mode) mLevel.set_start_level();
