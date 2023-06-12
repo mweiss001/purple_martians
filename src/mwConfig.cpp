@@ -17,6 +17,7 @@
 #include "mwInput.h"
 #include "mwVisualLevel.h"
 #include "mwMain.h"
+#include "mwScreen.h"
 
 mwConfig mConfig;
 
@@ -52,6 +53,11 @@ void mwConfig::save(void)
       asci(GAME, mLevel.overworld_level)
 
       asci(GAME, mMain.classic_mode)
+
+      asci(GAME, mScreen.transition_num_steps)
+      asci(GAME, mScreen.transition_delay)
+
+
 
 
       asci(GAME, mDisplay.viewport_mode)
@@ -294,6 +300,9 @@ void mwConfig::load(void)
    agci(GAME, mLevel.overworld_level, 2)
 
    agci(GAME, mMain.classic_mode, 1)
+
+   agci(GAME, mScreen.transition_num_steps, 60)
+   agci(GAME, mScreen.transition_delay, 25)
 
    agci(GAME, mPlayer.syn[0].color, 8)
 

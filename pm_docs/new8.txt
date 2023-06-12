@@ -25142,6 +25142,589 @@ if ((mInput.mouse_x > mix1) && (mInput.mouse_x < mix2) && (mInput.mouse_y > miy1
 
 
 
+I have a bad transition return to level 1 in classic mode
+
+classic mode
+when on lev 1 can start levels just like in story mode
+when exiting go back to level 1
+
+when completing go to next level
+
+but do not change start level unless changed on menu
+
+
+Purple Martians Version 7.24.2
+Allegro Version: 5.2.7.1
+System ID: Windows
+Desktop Resolution: 3840x2160
+---------  State change from  1 to 10  --------  10  1  0  0  0  0  0  0  --------  [   0]  --------   [qa:1] [da:1]
+[State 10 - New Game]  [lev:1]  [qa:1] [da:1]
+transition from menu to game
+---------  State change from 10 to 11  --------  11 10  1  0  0  0  0  0  --------  [   0]  --------   [qa:1] [da:1]
+---------  State change from 11 to 12  --------  12 11 10  1  0  0  0  0  --------  [ 205]  --------   [qa:2] [da:2]
+[State 12 - Next Level]  [play lev:1]  [next lev:3] [qa:2] [da:2]
+12 12 11 10  1  0  0  0
+pre-load transition
+set gate_to_game for post transition
+post-load transition
+transition from gate to game
+---------  State change from 12 to 11  --------  11 12 11 10  1  0  0  0  --------  [   0]  --------   [qa:2] [da:2]
+---------  State change from 11 to  1  --------   1 11 12 11 10  1  0  0  --------  [ 198]  --------   [qa:2] [da:2]
+[State 1 - Game Menu] - quit_action:2
+instead of menu, go to overworld
+---------  State change from  1 to 12  --------  12  1 11 12 11 10  1  0  --------  [ 198]  --------   [qa:1] [da:2]
+[State 12 - Next Level]  [play lev:3]  [next lev:1] [qa:1] [da:2]
+12 12  1 11 12 11 10  1
+pre-load transition
+post-load transition
+not state[2]=32 and classic
+transition from nothing to game
+---------  State change from 12 to 11  --------  11 12  1 11 12 11 10  1  --------  [   0]  --------   [qa:1] [da:2]
+
+
+
+this is what it should be (story mode)
+
+
+1  3  1  0  0  0  0  0  --------  [   0]  --------   [qa:1] [da:0]
+[State 1 - Game Menu] - quit_action:1
+---------  State change from  1 to 10  --------  10  1  3  1  0  0  0  0  --------  [   0]  --------   [qa:1] [da:2]
+[State 10 - New Game]  [lev:1]  [qa:1] [da:2]
+transition from menu to game
+---------  State change from 10 to 11  --------  11 10  1  3  1  0  0  0  --------  [   0]  --------   [qa:1] [da:2]
+---------  State change from 11 to 12  --------  12 11 10  1  3  1  0  0  --------  [  84]  --------   [qa:2] [da:2]
+[State 12 - Next Level]  [play lev:1]  [next lev:3] [qa:2] [da:2]
+12 12 11 10  1  3  1  0
+pre-load transition
+set gate_to_game for post transition
+post-load transition
+transition from gate to game
+---------  State change from 12 to 11  --------  11 12 11 10  1  3  1  0  --------  [   0]  --------   [qa:2] [da:2]
+---------  State change from 11 to  1  --------   1 11 12 11 10  1  3  1  --------  [  39]  --------   [qa:2] [da:2]
+[State 1 - Game Menu] - quit_action:2
+instead of menu, go to overworld
+---------  State change from  1 to 12  --------  12  1 11 12 11 10  1  3  --------  [  39]  --------   [qa:1] [da:2]
+[State 12 - Next Level]  [play lev:3]  [next lev:1] [qa:1] [da:2]
+12 12  1 11 12 11 10  1
+pre-load transition
+game to gate for next level to overworld
+transition from game to gate
+post-load transition
+---------  State change from 12 to 11  --------  11 12  1 11 12 11 10  1  --------  [   0]  --------   [qa:1] [da:2]
+
+
+
+
+
+
+
+
+
+
+
+
+fix the next level cases:
+
+how many cases are there?
+
+- classic mode gate demo end
+- story mode gate demo end
+
+these should be the same
+
+pre: game to gate
+post: none
+
+also story mode level done that returns to overworld
+also classic mode level done that returns to overworld
+
+all these cases come from a level to overworld
+
+
+what other cases are not like this?
+
+demo random next level
+classic next inc level
+
+these should both be:
+pre: game to nothing
+post: nothing to game
+
+
+
+I think I have simplified that a lot...now test:
+
+start new game in classic mode, force play level to be start level..done
+
+
+demo mode from menu...
+
+
+---------  State change from  1 to 12  --------  12  1  0  0  0  0  0  0  --------  [   0]  --------   [qa:1] [da:5]
+[State 12 - Next Level]  [play lev:71]  [next lev:0] [qa:1] [da:5]
+12 12  1  0  0  0  0  0
+Level to level (no overworld)
+
+pre-load transition:game to nothing
+post-load transition:nothing to game
+
+transition from game to nothing
+---------  State change from 12 to 31  --------  31 12  1  0  0  0  0  0  --------  [   0]  --------   [qa:1] [da:5]
+[State 31 - Setup Demo Level]  [lev:70]  [drm:21]
+transition from nothing to game
+---------  State change from 31 to 11  --------  11 31 12  1  0  0  0  0  --------  [   0]  --------   [qa:1] [da:5]
+---------  State change from 11 to 32  --------  32 11 31 12  1  0  0  0  --------  [  43]  --------   [qa:1] [da:5]
+[State 32 - Quit and Cleanup Demo Mode]  [drm:21]  [m:2]
+transition from game to nothing
+transition from nothing to menu
+---------  State change from 32 to  1  --------   1 32 11 31 12  1  0  0  --------  [  43]  --------   [qa:99] [da:5]
+[State 1 - Game Menu] - quit_action:99
+---------  State change from  1 to  0  --------   0  1
+
+found a new case for 12...menu to demo
+menu to nothing then nothing to game
+
+test more...
+
+make a common place for transition speed and length...
+
+it needs to be saved in config...
+
+done...now change all call to transtion...done
+
+
+
+
+test thoroughly....
+
+args..
+
+bug? if in story mode, starting lev from command line starts overworld...
+I think I will just leave it like this
+
+
+args story mode demo good
+
+classic mode start lev from commnad line sets start level...
+
+
+
+bug classic mode start level from gate
+return transition wrong
+
+
+---------  State change from  1 to 10  --------  10  1  0  0  0  0  0  0  --------  [   0]  --------   [qa:1] [da:1]
+[State 10 - New Game]  [lev:1]  [qa:1] [da:1]
+transition from menu to game
+---------  State change from 10 to 11  --------  11 10  1  0  0  0  0  0  --------  [   0]  --------   [qa:1] [da:1]
+---------  State change from 11 to 12  --------  12 11 10  1  0  0  0  0  --------  [ 101]  --------   [qa:2] [da:2]
+[State 12 - Next Level]  [play lev:1]  [next lev:2] [qa:2] [da:2]
+12 12 11 10  1  0  0  0
+Next level from overworld
+
+pre-load transition:none
+post-load transition:gate to game
+
+transition from gate to game
+---------  State change from 12 to 11  --------  11 12 11 10  1  0  0  0  --------  [   0]  --------   [qa:2] [da:2]
+---------  State change from 11 to  1  --------   1 11 12 11 10  1  0  0  --------  [  44]  --------   [qa:2] [da:2]
+[State 1 - Game Menu] - quit_action:2
+instead of menu, go to overworld
+---------  State change from  1 to 12  --------  12  1 11 12 11 10  1  0  --------  [  44]  --------   [qa:1] [da:2]
+[State 12 - Next Level]  [play lev:2]  [next lev:1] [qa:1] [da:2]
+12 12  1 11 12 11 10  1
+Next level to overworld
+Demo mode started from menu
+
+pre-load transition:menu to nothing
+post-load transition:none
+
+transition from menu to nothing
+---------  State change from 12 to 11  --------  11 12  1 11 12 11 10  1  --------  [   0]  --------   [qa:1] [da:2]
+---------  State change from 11 to  1  --------   1 11 12  1 11 12 11 10  --------  [  61]  --------   [qa:1] [da:2]
+[State 1 - Game Menu] - quit_action:1
+transition from game to menu
+---------  State change from  1 to  0  --------   0  1 11 12  1 11 12 11  --------  [  61]  --------   [qa:0] [da:2]
+
+
+
+the problem is, 2 things matched in 12:
+Next level to overworld
+Demo mode started from menu
+
+only the first should have matched
+
+quiting back to over world from level passes through menu (1) so it thinks its demo mode started from menu
+
+added test and fixed
+
+// -----------------------------------------------------------------------------------------------------
+// previous state == 1, called here from menu
+// the only time this happens is when starting demo mode from menu
+// -----------------------------------------------------------------------------------------------------
+      if ((state[2] == 1) && (mDemoMode.mode == 2))
+
+just a quick check but I think all classic and story is working
+
+
+
+
+20230610
+
+make it so that I can continue on from a demo
+press a key and now I am playing
+erase all game moves after current, change control method..
+
+
+it works!
+
+use it to fix lev 12
+cut in about 390s
+get last coin
+
+done demos for up to level 35
+
+
+
+
+when ! is in lift name it shows up as = and !, nowhere else...
+
+font is pr8
+
+I use that everywhere
+there is actually something wrong with that font
+
+rebuilt it with //   mFont.convert_ttf_to_bitmap_font("Pristine.ttf", "Pristine_8.bmp", 8);
+and now it is good
+
+bug - level editor, then play game instantly, then exit...program quits..fixed
+
+make the time in the upper frame do m:ss when > 60s..done
+
+
+
+can I make all my gates show the number, name, and small icon
+
+
+
+
+
+
+I am thinking about removing the enemies left achievemnet and the level done icon
+
+then I would only have the purple coin and time achivements
+
+I can show if completed some other way..
+
+
+
+if a level becomes complete by cheating, unlock it..done
+
+
+make a group of the first 8 levels on a platform...
+
+
+unlock all training levels by default
+
+
+make some more level icons
+I want a way to load and draw a level with interrupting the level in progress
+
+duplicate the data structures?
+
+make the draw routine use either?
+
+what do I really need?
+
+blocks
+items
+enemies
+lifts
+i can fake players if I need to..
+
+this will also make ft easier...maybe
+
+because they are a class, could I just add another instance
+or another array to the exiting instance
+
+start with level
+
+
+
+or I could store the full 2000x2000 for each level to make scaled drawing nicer....
+this would not work, as I only draw to the level background not screen
+
+just make some different sized icons
+
+
+advanced enemy info levels:
+90-95
+center levels...done
+titles..done
+purple coins..done
+
+
+
+bug - spelling error in selection buttons..fixed
+
+bug - crash when move top row in overworld
+find out what is causing it
+it is in draw_items
+fixed for door, now do custon in es_draw_item
+
+bug - edit text for msg can not see cursor
+it is because I manually edited 127 in the font bitmap
+fixed..open in gimp and draw a line at the bottom of 127...
+
+
+bug - archwagon arrows do no damage
+dammnit I will have to redo lots of demo's!!!
+fixed
+
+remove free man from PDE..done
+
+bug - 2 way door creator has one door invisible..fixed
+
+bug - lone door creator causes crash..fixed
+
+
+15 smash demo is broken falls through lift
+level 15 'could not find move step'
+fixed
+
+index = 0;
+
+demo mode does not do pass 2
+fixed a bug I introduced when trying to nor choose overworld level as demo
+confused index with level, renamed to avoid future confusion
+
+
+101
+972
+1
+
+11-1
+12-1
+
+
+
+
+               mItem.item[c][0] = 1;    // type 1
+               mItem.item[c][1] = 2;    // draw type
+               mItem.item[c][3] = 0;    // stationary
+               mItem.item[c][6] = 13;   // default color = lt blue
+               mItem.item[c][8] = 1;    // type: linked exit
+               mItem.item[c][11] = 0;   // enter immed
+               mItem.item[c][12] = 1;   // always draw line
+
+               if (mMiscFnx.getxy("Destination Door", 2, 1, d) == 1)
+               {
+                  mItem.item[c][9] = d;  // linked exit
+
+                  mItem.item[d][0] = 1;  // type 1
+                  mItem.item[d][1] = 2;  // draw type
+                  mItem.item[d][3] = 0;  // stationary
+                  mItem.item[d][6] = 13; // default color = lt blue
+                  mItem.item[d][8] = 0;  // type: exit only
+
+
+PDE uses 1 to show tile...
+could use creator for this too...
+
+
+do it...
+
+210
+211
+
+209 single door item
+
+
+add the rest of the levels
+
+37-61
+
+
+
+center
+purple coins
+done
+
+entry in level data
+gate in overworld
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -841,6 +841,10 @@ void mwLift::draw_lift_line(int l)
 void mwLift::draw_lift(int l, int x1, int y1, int x2, int y2)
 {
    int col = (cur[l].flags >> 28) & 15;
+   int tc = col + 160;
+   //int tc = mColor.get_contrasting_color(col);
+   ALLEGRO_FONT * f = mFont.pr8;
+
 
    if ((cur[l].flags & PM_LIFT_NO_DRAW) && (mLoop.level_editor_running)) col = 0;
 
@@ -848,40 +852,29 @@ void mwLift::draw_lift(int l, int x1, int y1, int x2, int y2)
    {
       al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[col]);
       //al_draw_filled_rounded_rectangle(x1, y1, x2, y2, 4, 4, mColor.pc[col] );
-      al_draw_text(mFont.bltn, mColor.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name); // name
+      al_draw_text(f, mColor.pc[tc], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name); // name
    }
    else
    {
-      int xs = x2-x1;
-      int ys = y2-y1;
-      int ms = xs;
+      int xs = x2-x1; // x size
+      int ys = y2-y1; // y size
+      int ms = xs;    // min size
       if (ys < xs) ms = ys;
-
-      int fb = 10;
-
+      int fb = 10;    // fade amount
       if (ms < 20) fb = ms/2;
 
-      int a;
-      for (a=0; a<fb; a++)
+      al_draw_filled_rectangle(x1+fb, y1+fb, x2-fb, y2-fb, mColor.pc[col] );                         // solid core
+      for (int a=0; a<fb; a++)
         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mColor.pc[col + ((9 - a)*16)], 2 ); // faded outer shell
-      al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, mColor.pc[col] );                            // solid core
 
-      //int tc = mColor.get_contrasting_color(col);
-      int tc = col+160;
-
-      al_draw_text(mFont.pr8, mColor.pc[tc], (x1+x2)/2, (y1+y2)/2 - 4, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name); // name
-
+      al_draw_text(f, mColor.pc[tc], (x1+x2)/2, (y1+y2)/2 - 4, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name); // name
    }
 
    if (mLoop.level_editor_running)
    {
       al_draw_textf(mFont.pixl, mColor.pc[15], (x1+x2)/2, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%-4.0f y:%-4.0f", cur[l].x, cur[l].y);
       al_draw_textf(mFont.pixl, mColor.pc[15], (x1+x2)/2, y1-12, ALLEGRO_ALIGN_CENTRE, "w:%-4.0f h:%-4.0f", cur[l].w, cur[l].h);
-
-
    }
-
-
 
    //printf("x1:%d y1:%d x2:%d y2:%d\n", x1, y1, x2, y2);
    //al_draw_textf(mFont.pr8, mColor.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", cur[l].current_step, cur[l].val1);    // debug name

@@ -15,15 +15,12 @@ class mwDemoMode
    int demo_played[100];
    int files_for_random_loaded;
    int pass;
-   int prev_lev;
+   int prev_index;
    int last_frame;
-
 
    int mode;
    int restore_mode;
    int restore_level;
-
-
 
    int countdown; // countdown
    int countdown_val;

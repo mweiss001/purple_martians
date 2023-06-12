@@ -20,7 +20,7 @@ void mwDemoMode::initialize(void)
 {
    countdown_reset = 2400;
    pass = 0;
-   prev_lev = -1;
+   prev_index = -1;
    mode = 0;
    restore_mode = 0;
    restore_level = 1;
@@ -67,10 +67,10 @@ int mwDemoMode::load_random_demo(void)
       return 0;
    }
 
-   int lev;
+   int index;
 
    if (debug_print) printf("\n----------------------------------\n");
-   if (debug_print) printf("------Pass:%d--Prev Lev:%d--------\n", pass, prev_lev);
+   if (debug_print) printf("------Pass:%d--Prev Lev:%d--------\n", pass, prev_index);
 
    if (num_demo_filenames > 1)
    {
@@ -90,40 +90,40 @@ int mwDemoMode::load_random_demo(void)
 
       int timeout = 0;
 
-      lev = -1;
-      while (lev < 0)
+      index = -1;
+      while (index < 0)
       {
-         lev = rand() % num_demo_filenames;      // get random index
-         if (debug_print) printf("New random level:%d", lev);
+         index = rand() % num_demo_filenames;      // get random index
+         if (debug_print) printf("New random level index:%d", index);
 
-         if (lev == 1) // overworld
-         {
-            if (debug_print) printf("  -  no demo for overworld\n");
-            lev = -1;
-         }
-         if (demo_played[lev] >= pass) // already been played this pass
+         if (demo_played[index] >= pass) // already been played this pass
          {
             if (debug_print) printf("  -  already been played this pass\n");
-            lev = -1;
+            index = -1;
          }
-         if (prev_lev == lev)         // just previously played
+         if (prev_index == index)         // just previously played
          {
             if (debug_print) printf("  -  just previously played\n");
-            lev = -1;
+            index = -1;
          }
          timeout++;
-         if (timeout > 100) lev = 0;
+         if (timeout > 100)
+         {
+            if (debug_print) printf("\nCould not find not played level after 1000 random iterations, choosing first index and moving on\n");
+            index = 0;
+         }
       }
-      demo_played[lev] = pass;
-      prev_lev = lev;
+      demo_played[index] = pass;
+      prev_index = index;
    }
-   else lev = 0;
+   else index = 0;
 
    if (debug_print) printf("  ----------------  selected!\n");
 
-   if (mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[lev])))
+   if (mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[index])))
    {
-      if (debug_print) printf("pass:%d - playing demo level:%d\n", pass, mLevel.play_level);
+      if (debug_print) printf("Demo Mode random file chooser - pass:%d index:%d level:%d\n", pass, index, mLevel.play_level);
+      printf("demo rnd - pass:%d index:%d level:%d\n", pass, index, mLevel.play_level);
       return 1;
    }
    else
@@ -158,6 +158,53 @@ void mwDemoMode::key_check(int p)
    if ((mInput.key[ALLEGRO_KEY_N][0]) && (mode == 2)) mLoop.state[0] = 12; // skip to next random level
 
    if (mLoop.frame_num > last_frame + 160) mLoop.state[0] = 12; // if games_moves doesn't end with level_done kill it after 4 seconds
+
+
+
+   if ((mInput.key[ALLEGRO_KEY_C][0]) && (mode == 1))
+   {
+      // change to single player mode
+
+      // erase all game moves after this point...
+      for (int x=0; x<GAME_MOVES_SIZE; x++)
+      {
+         if (mGameMoves.arr[x][0] >= mLoop.frame_num)
+            for (int y=0; y<4; y++)
+               mGameMoves.arr[x][y] = 0;
+      }
+
+
+      // set new entry pos
+
+      // find index of max frame
+      int max_f = 0;
+      int max_i = 0;
+      for (int x=0; x<GAME_MOVES_SIZE; x++)
+      {
+         if (mGameMoves.arr[x][0] > max_f)
+         {
+            max_f = mGameMoves.arr[x][0];
+            max_i = x;
+         }
+      }
+      mGameMoves.entry_pos = max_i + 1;
+
+      mode = 0;
+
+      mPlayer.syn[0].control_method = 0;
+
+
+
+
+
+
+   }
+
+
+
+
+
+
 
 }
 

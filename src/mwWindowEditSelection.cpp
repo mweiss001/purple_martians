@@ -835,7 +835,7 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
 {
    int bts = 16;
    int col = 9;
-   char msg[20] = "Copy Selction";
+   char msg[20] = "Copy Selection";
 
 //   mWM.mW[4].copy_mode ? col=10 : col=9;
 //   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, "Copy Selection"))
@@ -931,7 +931,16 @@ void mwWindow::es_draw_item_ft(int i)
    int custom = 1;
 
    int drawn = 0;
-   if (type == 1)  drawn = mItem.draw_door         (i, x, y, custom);
+
+   if (type == 1) // door
+   {
+      int col = ft_item[i][6];
+      if (ft_item[i][1] == 1) al_draw_bitmap(mBitmap.door_tile[1][col][0], x, y, 0); // old style door static shape
+      if (ft_item[i][1] == 2) al_draw_bitmap(mBitmap.door_tile[0][col][0], x, y, 0); // new style door animation sequence
+      drawn = 1;
+   }
+
+
    if (type == 2)  drawn = mItem.draw_bonus        (i, x, y, shape);
    if (type == 3)  drawn = mItem.draw_exit         (i, x, y, shape);
    if (type == 4)  drawn = mItem.draw_key          (i, x, y, shape);
@@ -1016,6 +1025,8 @@ void mwWindow::es_draw_lifts_ft()
 
 void mwWindow::es_draw_fsel(void)
 {
+
+
    al_destroy_bitmap(ft_bmp);
    ft_bmp = al_create_bitmap(mWM.mW[4].sw*20, mWM.mW[4].sh*20);
    al_set_target_bitmap(ft_bmp);
@@ -1029,16 +1040,23 @@ void mwWindow::es_draw_fsel(void)
             if (mWM.mW[1].show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(ft_l[x][y], x*20, y*20);
    }
 
+
+
    // draw items
    for (int i=0; i<500; i++)
       if ((ft_item[i][0]) && (mWM.obj_filter[2][ft_item[i][0]])) es_draw_item_ft(i);
+
+
 
    // draw enemies
    for (int e=0; e<100; e++)
       if ((ft_Ei[e][0]) && (mWM.obj_filter[3][ft_Ei[e][0]])) es_draw_enemy_ft(e);
 
+
+
    // draw lifts
    if (mWM.obj_filter[4][1]) es_draw_lifts_ft();
+
 
 }
 
