@@ -21,6 +21,8 @@
 #include "mwLoop.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
+#include "mwItem.h"
+
 
 void mwScreen::show_player_stat_box(int tx, int y, int p)
 {
@@ -978,6 +980,10 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
 void mwScreen::draw_top_frame(int p)
 {
    char msg[1024];
+
+   char m2[80];
+
+
    int tdx = BORDER_WIDTH;
    int tdy = 0;
    int tc = mColor.get_contrasting_color(mPlayer.syn[p].color);
@@ -989,8 +995,13 @@ void mwScreen::draw_top_frame(int p)
    // ----------------------------------
    if (mLog.LOG_TMR_scrn_overlay) tt = al_get_time();
 
-   if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%d En:%d ",            mLevel.play_level, mLoop.frame_num/40, mEnemy.num_enemy); // special case for narrow screens
-   else                sprintf(msg,"Level:%d | Time:%d | Enemies:%d  ", mLevel.play_level, mLoop.frame_num/40, mEnemy.num_enemy);
+   if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%d En:%d ",            mLevel.play_level, mItem.chrms(mLoop.frame_num, m2), mEnemy.num_enemy); // special case for narrow screens
+   else                sprintf(msg,"Level:%d | Time:%s | Enemies:%d  ", mLevel.play_level, mItem.chrms(mLoop.frame_num, m2), mEnemy.num_enemy);
+
+
+
+//   if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%d En:%d ",            mLevel.play_level, mLoop.frame_num/40, mEnemy.num_enemy); // special case for narrow screens
+//   else                sprintf(msg,"Level:%d | Time:%d | Enemies:%d  ", mLevel.play_level, mLoop.frame_num/40, mEnemy.num_enemy);
    al_draw_text(mFont.pr8, mColor.pc[tc], tdx, tdy+2,  0, msg);
    tdx += strlen(msg)*8;
 
@@ -1000,13 +1011,13 @@ void mwScreen::draw_top_frame(int p)
    tdx += 88;
 
 
-   // draw purple coins
-   al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
-   // spin_shape(197, tdx+5, tdy-3, 0, 0, 19, 19, 0.6, 0.5, 60);
-   al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", mPlayer.syn[mPlayer.active_local_player].stat_purple_coins, mLevel.data[mLevel.play_level].tot_purple_coins);
-
-
-
+   // draw purple coins if the level has any
+   if (mLevel.data[mLevel.play_level].tot_purple_coins)
+   {
+      al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
+      // spin_shape(197, tdx+5, tdy-3, 0, 0, 19, 19, 0.6, 0.5, 60);
+      al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", mPlayer.syn[mPlayer.active_local_player].stat_purple_coins, mLevel.data[mLevel.play_level].tot_purple_coins);
+   }
 
    if (mDisplay.show_scale_factor > 0)
    {

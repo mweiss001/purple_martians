@@ -820,5 +820,7 @@ void mwWindow::em_process_mouse(void)
 int mwWindow::edit_menu(int edit_level)
 {
    mWM.loop(edit_level);
+
+
    return mLevel.last_level_loaded;
 }

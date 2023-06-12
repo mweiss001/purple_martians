@@ -38,10 +38,13 @@ void mwScreen::get_new_background(int full)
 
 
 
-void mwScreen::transition_cutscene(int i, int f, int num_steps, float delay)
+void mwScreen::transition_cutscene(int i, int f)
 {
    const char* tcn[5] = {"nothing", "game", "menu", "gate"};
-   printf("transition from %s to %s\n", tcn[i], tcn[f]);
+   //printf("transition from %s to %s\n", tcn[i], tcn[f]);
+
+   int num_steps = transition_num_steps;
+   float delay = (float)transition_delay/1000;
 
    float fmxi=0;
    float fmyi=0;

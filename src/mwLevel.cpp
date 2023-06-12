@@ -443,11 +443,16 @@ void mwLevel::level_start_data(void)
 
 void mwLevel::level_complete_data(void)
 {
-   if ((mPlayer.syn[mPlayer.active_local_player].control_method != 1) || (mLevel.skc_trigger_demo_cheat))// don't count anything done in demo mode, unless cheat!
+
+
+
+//   if ((mPlayer.syn[mPlayer.active_local_player].control_method != 1) || (mLevel.skc_trigger_demo_cheat))// don't count anything done in demo mode, unless cheat!
    {
       mLevel.skc_trigger_demo_cheat = 0;
 
       int lev = play_level;
+
+      data[lev].unlocked = 1; // if for some reason it isn't already
 
    //   printf("level_complete_data() play_level:%d\n", play_level);
 
@@ -524,61 +529,272 @@ void mwLevel::clear_data(void)
 
    int i = 2;
    strcpy(data[i].level_name, "Switch Nest");
-   data[i].par_time = 4000;
+   data[i].par_time = 4000; // 1:40 demo is 1:24
    data[i].unlocked = 1;
 
    i = 3;
    strcpy(data[i].level_name, "Blue Key Fall");
-   data[i].par_time = 1400;
+   data[i].par_time = 1400; // 35s demo is 33.1
 
    i = 4;
    strcpy(data[i].level_name, "Switch Puzzle");
-   data[i].par_time = 8400;
+   data[i].par_time = 8400; // 3:30 demo is 3:22
 
    i = 5;
    strcpy(data[i].level_name, "Kill Kill Kill");
-   data[i].par_time = 6400;
+   data[i].par_time = 6400; // 2:40 demo is 2:30
 
    i = 6;
    strcpy(data[i].level_name, "Breakable");
-   data[i].par_time = 9600;
+   data[i].par_time = 9600; // 4:00 demo is 3:41
 
    i = 7;
    strcpy(data[i].level_name, "Ranger Bob");
-   data[i].par_time = 2000;
+   data[i].par_time = 2000; // 50s demo is 46.6
 
    i = 8;
    strcpy(data[i].level_name, "Switch Pit");
-   data[i].par_time = 8800;
+   data[i].par_time = 8800; // 3:40 demo is 3:31
 
    i = 9;
    strcpy(data[i].level_name, "Bomb Intro");
-   data[i].par_time = 6400;
+   data[i].par_time = 6400; // 2:40 demo is 2:37
 
    i = 10;
    strcpy(data[i].level_name, "The Dead Zone");
-   data[i].par_time = 11600;
+   data[i].par_time = 11600; // 4:50 demo is 4:45
 
    i = 11;
    strcpy(data[i].level_name, "Good and Evil");
-   data[i].par_time = 24000;
+   data[i].par_time = 24400; // 10:10 demo is 10:02
 
    i = 12;
    strcpy(data[i].level_name, "Bucket of Bad");
-   data[i].par_time = 17200;
+   data[i].par_time = 17200; // 7:10 demo is 7:03
 
    i = 13;
    strcpy(data[i].level_name, "Falling Arrows");
-   data[i].par_time = 12000;
+   data[i].par_time = 12400; // 5:10 demo is 5:02
 
    i = 14;
    strcpy(data[i].level_name, "Block Puzzle");
-   data[i].par_time = 440;
+   data[i].par_time = 400; // 10s demo is 8.6
 
+   i = 15;
+   strcpy(data[i].level_name, "Smash");
+   data[i].par_time = 1600; // 40s demo is 33.8
+
+   i = 16;
+   strcpy(data[i].level_name, "Big Apple");
+   data[i].par_time = 24000; // 10:00 demo 9:15
+
+   i = 17;
+   strcpy(data[i].level_name, "Little Rocket");
+   data[i].par_time = 19200; // 8:00 demo 7:28
+
+   i = 18;
+   strcpy(data[i].level_name, "Incinerator");
+   data[i].par_time = 16800; // 7:00 demo 6:41
+
+   i = 19;
+   strcpy(data[i].level_name, "Crazy Fox");
+   data[i].par_time = 19200; // 8:00 demo 7:47
+
+   i = 20;
+   strcpy(data[i].level_name, "Strange Things");
+   data[i].par_time = 7200; // 3:00 demo 2:24
+
+   i = 21;
+   strcpy(data[i].level_name, "Long One");
+   data[i].par_time = 3600; // 1:30 demo 1:28
+
+   i = 22;
+   strcpy(data[i].level_name, "Rocket Stew");
+   data[i].par_time = 4800; // 2:00 demo 1:58
+
+   i = 23;
+   strcpy(data[i].level_name, "Amazing");
+   data[i].par_time = 21600; // 9:00 demo 8:27
+
+   i = 24;
+   strcpy(data[i].level_name, "Wendy");
+   data[i].par_time = 6600; // 2:45 demo 2:30
+
+   i = 25;
+   strcpy(data[i].level_name, "One Cannon");
+   data[i].par_time = 1000; // 25s demo 19.7s
+
+   i = 26;
+   strcpy(data[i].level_name, "Long Fall");
+   data[i].par_time = 4800; // 2:00 demo 1:05
+
+   i = 27;
+   strcpy(data[i].level_name, "Gauntlet");
+   data[i].par_time = 3600; // 1:30 demo 1:27
+
+   i = 28;
+   strcpy(data[i].level_name, "Nowhere to Stand");
+   data[i].par_time = 3600; // 1:30 demo 1:08
+
+   i = 29;
+   strcpy(data[i].level_name, "Brain Trust");
+   data[i].par_time = 13200; // 5:30 demo 5:03
+
+   i = 30;
+   strcpy(data[i].level_name, "Coral Cave");
+   data[i].par_time = 7200; // 3:00 demo 2:55
 
    i = 31;
-   strcpy(data[i].level_name, "testy");
-   data[i].par_time = 500;
+   strcpy(data[i].level_name, "Beginnings");
+   data[i].par_time = 12000; // 5:00 demo 4:51
+
+   i = 32;
+   strcpy(data[i].level_name, "Yellow Cake");
+   data[i].par_time = 9600; // 4:00 demo 3:39
+
+   i = 33;
+   strcpy(data[i].level_name, "Kate's Gate");
+   data[i].par_time = 6000; // 2:30 demo 2:08
+
+   i = 34;
+   strcpy(data[i].level_name, "Crush");
+   data[i].par_time = 3600; // 1:30 demo 1:12
+
+   i = 35;
+   strcpy(data[i].level_name, "Bomb Toss");
+   data[i].par_time = 13200; // 5:30 demo 5:29
+
+
+   i = 64;
+   strcpy(data[i].level_name, "Escape Rocket!");
+   data[i].par_time = 13200; // 5:30 demo 5:29
+
+
+
+
+   i = 37;
+   strcpy(data[i].level_name, "Sacrifice");
+   data[i].par_time = 800; // :20 demo 19.0
+
+   i = 38;
+   strcpy(data[i].level_name, "Come Over");
+   data[i].par_time = 3200; // 1:20 demo 1:07
+
+   i = 39;
+   strcpy(data[i].level_name, "Bomb Run");
+   data[i].par_time = 2400; // 1:00 demo 0:55.8
+
+   i = 40;
+   strcpy(data[i].level_name, "Edward");
+   data[i].par_time = 4200; // 1:45 demo 1:36
+
+   i = 41;
+   strcpy(data[i].level_name, "Ender");
+   data[i].par_time = 12000; // 5:00 demo 4:10
+
+   i = 42;
+   strcpy(data[i].level_name, "Cloner Chain");
+   data[i].par_time = 16800; // 7:00 demo 6:55
+
+   i = 43;
+   strcpy(data[i].level_name, "Cathedral");
+   data[i].par_time = 4800; // 2:00 demo 1:50
+
+   i = 44;
+   strcpy(data[i].level_name, "Too Many Lifts");
+   data[i].par_time = 12000; // 5:00 demo 4:58
+
+   i = 45;
+   strcpy(data[i].level_name, "Chimney of Death");
+   data[i].par_time = 1800; // :45 demo :37.9
+
+   i = 46;
+   strcpy(data[i].level_name, "Bucket List");
+   data[i].par_time = 2400; // 1:00 demo 0:43.6
+
+   i = 47;
+   strcpy(data[i].level_name, "Begin Again");
+   data[i].par_time = 2400; // 1:00 demo 27.8s
+
+   i = 48;
+   strcpy(data[i].level_name, "Mayhem");
+   data[i].par_time = 2400; // 1:00 demo :43.7
+
+   i = 49;
+   strcpy(data[i].level_name, "Rocket Square");
+   data[i].par_time = 9600; // 4:00 demo 3:55
+
+   i = 50;
+   strcpy(data[i].level_name, "Welcome");
+   data[i].par_time = 1600; // :40 demo :33.5
+
+   i = 51;
+   strcpy(data[i].level_name, "Cannon Bees");
+   data[i].par_time = 6000; // 2:30 demo 2:19
+
+   i = 52;
+   strcpy(data[i].level_name, "Boules");
+   data[i].par_time = 3600; // 1:30 demo 1:15
+
+   i = 53;
+   strcpy(data[i].level_name, "Lifts With Names");
+   data[i].par_time = 8400; // 3:30 demo 3:12
+
+   i = 54;
+   strcpy(data[i].level_name, "Old Training Level");
+   data[i].par_time = 2400; // 1:00 demo :44.6
+
+   i = 55;
+   strcpy(data[i].level_name, "Ancient Ruins");
+   data[i].par_time = 14400; // 6:00 demo 5:15
+
+   i = 56;
+   strcpy(data[i].level_name, "Zaiden");
+   data[i].par_time = 12000; // 5:00 demo 4:40
+
+   i = 57;
+   strcpy(data[i].level_name, "Valentine");
+   data[i].par_time = 12000; // 5:00 demo 4:27
+
+   i = 60;
+   strcpy(data[i].level_name, "Bomb Toss");
+   data[i].par_time = 2400; // 2:00 demo
+
+   i = 61;
+   strcpy(data[i].level_name, "Bomb Toss 2");
+   data[i].par_time = 2400; // 2:00 demo
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
    i = 70;
@@ -591,10 +807,125 @@ void mwLevel::clear_data(void)
    data[i].par_time = 240;
 
 
-
    i = 80;
    strcpy(data[i].level_name, "Training Level 1");
-   data[i].par_time = 500;
+   data[i].par_time = 1200; // 30s demo 25
+   data[i].unlocked = 1;
+
+   i = 81;
+   strcpy(data[i].level_name, "Training Level 2");
+   data[i].par_time = 4800; // 2:00 demo 1:30
+   data[i].unlocked = 1;
+
+   i = 82;
+   strcpy(data[i].level_name, "Training Level 3");
+   data[i].par_time = 8400; // 3:30 demo 3:10
+   data[i].unlocked = 1;
+
+   i = 83;
+   strcpy(data[i].level_name, "Training Level 4");
+   data[i].par_time = 6000; // 2:30 demo 2:22
+   data[i].unlocked = 1;
+
+   i = 84;
+   strcpy(data[i].level_name, "Training Level 5");
+   data[i].par_time = 4800; // 2:00 demo 1:24
+   data[i].unlocked = 1;
+
+
+
+   i = 85;
+   strcpy(data[i].level_name, "Doors");
+   data[i].par_time = 4800; // 2:00 demo
+   data[i].unlocked = 1;
+
+   i = 86;
+   strcpy(data[i].level_name, "Triggers and Timers");
+   data[i].par_time = 4800; // 2:00 demo
+   data[i].unlocked = 1;
+
+   i = 87;
+   strcpy(data[i].level_name, "Block Manip");
+   data[i].par_time = 4800; // 2:00 demo
+   data[i].unlocked = 1;
+
+   i = 88;
+   strcpy(data[i].level_name, "Block Damage");
+   data[i].par_time = 4800; // 2:00 demo
+   data[i].unlocked = 1;
+
+   i = 89;
+   strcpy(data[i].level_name, "Orbs");
+   data[i].par_time = 4800; // 2:00 demo
+   data[i].unlocked = 1;
+
+
+   i = 90;
+   strcpy(data[i].level_name, "Archwagons");
+   data[i].par_time = 4800; // 2:00 demo
+   data[i].unlocked = 1;
+
+   i = 91;
+   strcpy(data[i].level_name, "Trakbots");
+   data[i].par_time = 4800; // 2:00 demo
+   data[i].unlocked = 1;
+
+   i = 92;
+   strcpy(data[i].level_name, "Bouncers and Cannons");
+   data[i].par_time = 4800; // 2:00 demo
+   data[i].unlocked = 1;
+
+   i = 93;
+   strcpy(data[i].level_name, "Cloners");
+   data[i].par_time = 4800; // 2:00 demo
+   data[i].unlocked = 1;
+
+   i = 94;
+   strcpy(data[i].level_name, "Vinepods");
+   data[i].par_time = 4800; // 2:00 demo
+   data[i].unlocked = 1;
+
+   i = 95;
+   strcpy(data[i].level_name, "Blokwalks");
+   data[i].par_time = 4800; // 2:00 demo
+   data[i].unlocked = 1;
+
+   i = 96;
+   strcpy(data[i].level_name, "Flappers");
+   data[i].par_time = 4800; // 2:00 demo
+   data[i].unlocked = 1;
+
+   i = 97;
+   strcpy(data[i].level_name, "Jumpworms");
+   data[i].par_time = 4800; // 2:00 demo
+   data[i].unlocked = 1;
+
+   i = 98;
+   strcpy(data[i].level_name, "Lifts");
+   data[i].par_time = 4800; // 2:00 demo
+   data[i].unlocked = 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
    for(int i=0; i<10000; i++)
@@ -649,12 +980,28 @@ void mwLevel::create_level_icons(void)
    al_set_target_bitmap(tmp);
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
+   int sz2 = level_icon2_size;
+   ALLEGRO_BITMAP *tmp2 = al_create_bitmap(sz2*10, sz2*10);
+   al_set_target_bitmap(tmp2);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+
+
    int x=0;
    int y=0;
    for (int i=0; i<100; i++)
    {
-      al_set_target_bitmap(tmp);
-      if (mLevel.load_level(i, 0, 1)) mScreen.draw_level2(tmp, x*sz, y*sz, sz, 1, 1, 1, 1, 0);
+
+      if (mLevel.load_level(i, 0, 1))
+      {
+         al_set_target_bitmap(tmp);
+         mScreen.draw_level2(tmp, x*sz, y*sz, sz, 1, 1, 1, 1, 0);
+
+         al_set_target_bitmap(tmp2);
+         mScreen.draw_level2(tmp2, x*sz2, y*sz2, sz2, 1, 1, 1, 1, 0);
+
+
+      }
+
 
       // show progress bar
       int pc = i*100 / 100;
@@ -671,12 +1018,19 @@ void mwLevel::create_level_icons(void)
       }
    }
 
+
+
+
+
+
+
 //   al_set_target_backbuffer(mDisplay.display);
 //   al_draw_bitmap(tmp, 0,0,0);
 //   al_flip_display();
 //   mInput.tsw();
 
    al_save_bitmap("bitmaps\\level_icons.bmp", tmp);
+   al_save_bitmap("bitmaps\\level_icons2.bmp", tmp2);
 
    al_destroy_bitmap(tmp);
 }
@@ -708,6 +1062,37 @@ void mwLevel::load_level_icons(void)
      //double llt1 = al_get_time() - llt0;
      //printf("Load level icons time:%f\n", llt1*1000);
      al_destroy_bitmap(tmp);
+   }
+
+   sz = level_icon2_size;
+   //double llt0 = al_get_time();
+   tmp = al_load_bitmap("bitmaps\\level_icons2.bmp");
+   if (!tmp) mInput.m_err("Error loading tiles from:level_icons2.bmp");
+   else
+   {
+      int x=0;
+      int y=0;
+      for (int i=0; i<100; i++)
+      {
+         if (!mLevel.level_icon2[i]) mLevel.level_icon2[i] = al_create_bitmap(sz, sz);
+
+         al_set_target_bitmap(mLevel.level_icon2[i]);
+         al_clear_to_color(al_map_rgba(0,0,0,0));
+
+         al_draw_bitmap_region(tmp, x*sz, y*sz, sz, sz, 0, 0, 0);
+         if (++x > 9)
+         {
+            x = 0;
+            y++;
+         }
+     }
+     //double llt1 = al_get_time() - llt0;
+     //printf("Load level icons time:%f\n", llt1*1000);
+     al_destroy_bitmap(tmp);
+
+
+
+
    }
 }
 

@@ -1874,20 +1874,44 @@ void mwSettings::settings_pages(int set_page)
             {
                mLevel.set_start_level(1); // make sure we are on overworld
 
-
             }
-
          }
+         ya +=4;
 
-
-
+         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_num_steps, 400, 4, 1, "Transistion num steps:");
+         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_delay, 100, 1, 1, "Transistion delay:");
 
 
          ya +=4;
 
          if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Reset all level data")) mLevel.reset_level_data();
          if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
+
+
+//         if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Show Font"))
+//         {
+//
+////   mFont.convert_ttf_to_bitmap_font("Pristine.ttf", "Pristine_8.bmp", 8);
+//
+//               // show char set of fonts
+//            al_set_target_backbuffer(mDisplay.display);
+//            al_clear_to_color(al_map_rgb(255, 0, 0));
+//
+//            for (int i=32; i<80; i++)
+//               al_draw_textf(mFont.pr8, mColor.White, 10, (i-32)*8, 0, "%d '%c'     %d '%c'", i, i, i+48, i+48);
+//
+//            al_flip_display();
+//            mInput.tsw();
+//
+//         }
+
+
+
       }
+
+
+
+
 
 
 

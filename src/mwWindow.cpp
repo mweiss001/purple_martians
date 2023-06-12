@@ -914,9 +914,12 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
                      case 206: create_obj(2, 10,0);  break; // msg
                      case 207: create_obj(3, 9, 0);  break; // cloner
                      case 208: mLift.create_lift();  break; // lift
-                     case 209: mItem.create_door(1); break; // one way fixed exit door
+
+                     case 209: mItem.create_door(1); break; // single door item
                      case 210: mItem.create_door(2); break; // one way linked exit door
                      case 211: mItem.create_door(3); break; // two way door set
+
+
                      case 213: create_obj(2, 9, 0);  break; // trigger
                      case 214: create_obj(2, 16, 0); break; // block manip
                      case 215: create_obj(2, 17, 0); break; // block damage

@@ -8,7 +8,7 @@ class mwScreen
    // z_screen.h
    void get_new_background(int full);
 
-   void transition_cutscene(int i, int f, int num_steps, float delay);
+   void transition_cutscene(int i, int f);
 
    void do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, float num_steps, float delay);
 
@@ -17,6 +17,10 @@ class mwScreen
    int gate_transition_wx;
    int gate_transition_wy;
    float gate_transition_scale;
+
+
+   int transition_num_steps;
+   int transition_delay;
 
 
    void draw_hyst_rect(void);

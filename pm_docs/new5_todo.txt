@@ -2,23 +2,39 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+doors demo level needs fixing
 
+bug - in level editor when dragging window over block checkboxes
 
+bug - enemy counts like cloner 6 of 0..only sometimes??
 
+bug jumpworm tile sometimes leaves artifacts, make sure to draw tile with int not float
 
+sometimes explosion bitmap does the same
 
+test all levels with archwagon
 
-
-
-
-
-
+these need to be redone:
+11
+12
+20
+21
+64 still needs to be done
+84-98
 
 
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+
+
+
+
+
+
 
 
 

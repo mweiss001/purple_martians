@@ -426,7 +426,6 @@ int mwItem::create_exit(int c)
    mItem.item[c][3] = 0;            // stationary
 
 
-
    mItem.item[c][8] = 100;          // num enemies left alive to activate this exit
    if (mMiscFnx.getxy("Exit", 2, 3, c) == 1) // xorg, yorg
    {
@@ -521,7 +520,26 @@ int mwItem::create_door(int type)
    switch (type)
    {
 
-    case 2: // one way door with linked item exit
+      case 1: // single door item
+      {
+         // first get an empty item
+         int c = get_empty_item(); // get 1st item
+         if (c != -1)
+         {
+            if (mMiscFnx.getxy("Door", 2, 1, c) == 1)
+            {
+               mItem.item[c][0] = 1;    // type 1
+               mItem.item[c][1] = 2;    // draw type
+               mItem.item[c][3] = 0;    // stationary
+               mItem.item[c][6] = 13;   // default color = lt blue
+               mItem.item[c][8] = 0;    // type: exit only
+               mItem.item[c][11] = 0;   // enter immed
+               mItem.item[c][12] = 1;   // always draw line
+            }
+         }
+      }
+      break;
+      case 2: // one way door with linked item exit
       {
          // first check to see if we can find 2 empty items
          int found_empty_items = 0;
@@ -585,9 +603,9 @@ int mwItem::create_door(int type)
             if (mMiscFnx.getxy("1st Door", 2, 1, c) == 1)
             {
                mItem.item[c][0] = 1;    // type 1
-               mItem.item[d][1] = 2;    // draw type
+               mItem.item[c][1] = 2;    // draw type
                mItem.item[c][3] = 0;    // stationary
-               mItem.item[d][6] = 13;   // default color = lt blue
+               mItem.item[c][6] = 13;   // default color = lt blue
                mItem.item[c][8] = 1;    // type: linked exit
                mItem.item[c][11] = 1;   // trigger with up
                mItem.item[c][12] = 1;   // always draw line

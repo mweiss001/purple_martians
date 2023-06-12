@@ -183,7 +183,6 @@ void mwItem::move_items()
          if (type == 13) proc_timer(i);
          if (type == 16) proc_block_manip(i);
          if (type == 17) proc_block_damage(i);
-         if (type == 18) proc_gate(i);
          if (type == 99) proc_lit_bomb(i);
          if (type == 98) proc_lit_rocket(i);
 

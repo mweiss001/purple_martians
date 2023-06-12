@@ -56,9 +56,7 @@ class mwLevel
 {
    public:
 
-
    int l[100][100];
-
 
    int start_level;
    int play_level;
@@ -118,6 +116,10 @@ class mwLevel
 
 
    ALLEGRO_BITMAP * level_icon[100];
+   ALLEGRO_BITMAP * level_icon2[100];
+   int level_icon2_size = 100;
+
+
 
    void load_level_icons(void);
    void create_level_icons(void);

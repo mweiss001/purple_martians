@@ -140,8 +140,8 @@ void mwShot::proc_eshot_collision(int p, int b)
    int e_type = 0;
    switch (mShot.e[b].shape)
    {
-      case 328:   e_type = 3;  damage = 5;  break; // arrow
-      case 329:   e_type = 3;  damage = 5;  break; // arrow
+      case 488:   e_type = 3;  damage = 5;  break; // arrow
+      case 489:   e_type = 3;  damage = 5;  break; // arrow
       case 1055:  e_type = 6;  damage = 7;  break; // cannon ball
       case 1020:  e_type = 8;  damage = 9;  break; // yellow things
       case 1054:  e_type = 7;  damage = 10; break; // green ball

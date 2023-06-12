@@ -287,6 +287,8 @@ int mwItem::edit_pmsg_text(int c, int new_msg)
    {
       al_set_target_backbuffer(mDisplay.display);
 
+   //   printf("bc:%d\n", blink_counter);
+
       if (++blink_counter > blink_count) blink_counter = 0;
       if (blink_counter > (blink_count/2)) draw_pop_message(c, 1, smx, smy, cursor_pos, 1, f); // show the message with cursor_pos
       else                                 draw_pop_message(c, 1, smx, smy, cursor_pos, 0, f); // show the message without

@@ -163,9 +163,6 @@ void mwLoop::game_menu(void)
       {
          top_menu_sel = mMenu.zmenu(1, top_menu_sel, 10);
 
-
-
-
          if (top_menu_sel == 1)  // exit
          {
             state[0] = 0;
@@ -178,19 +175,19 @@ void mwLoop::game_menu(void)
             if (r == 1) top_menu_sel = 3; // start new game
             if (r == 3) top_menu_sel = 8; // start level editor
          }
-
-         if ((top_menu_sel == 4) && (mLevel.resume_allowed))  // resume game
-         {
-            state[0] = 13;
-            mLoop.quit_action = 1;
-            return;
-         }
          if (top_menu_sel == 3) // start new game
          {
+            mLevel.play_level = mLevel.start_level;
             state[0] = 10;
             mLoop.quit_action = 1;
             mLoop.done_action = 1;
             top_menu_sel = 4;
+            return;
+         }
+         if ((top_menu_sel == 4) && (mLevel.resume_allowed))  // resume game
+         {
+            state[0] = 13;
+            mLoop.quit_action = 1;
             return;
          }
          if (top_menu_sel == 5)  // host network game
@@ -212,6 +209,7 @@ void mwLoop::game_menu(void)
          if (top_menu_sel == 8)  // level editor
          {
             mLevel.set_start_level(mWM.mW[1].edit_menu(mLevel.start_level));
+            mLoop.quit_action = 1; // menu
             state[0] = 10;
             return;
          }
@@ -333,9 +331,9 @@ void mwLoop::proc_program_state(void)
   // printf("proc ps ps:%d nps:%d \n", state[1], state[0]);
    char msg[1024];
 
-   int debug_print_state_names = 1;
-   int debug_print_state_changes = 1;
-   int debug_print_more = 1;
+   int debug_print_state_names = 0;
+   int debug_print_state_changes = 0;
+   int debug_print_more = 0;
 
    // ----------------------------------------------------------
    // handle all the changes from one state to another
@@ -368,7 +366,7 @@ void mwLoop::proc_program_state(void)
 
          if (quit_action == 0)
          {
-            mScreen.transition_cutscene(1, 0, 90, 0.01); // game to nothing
+            mScreen.transition_cutscene(1, 0); // game to nothing
             state[0] = 0; // exit program
             return;
          }
@@ -376,7 +374,7 @@ void mwLoop::proc_program_state(void)
          if (quit_action == 1) // menu (already set)
          {
             // only do this if not returning from settings
-            if (state[2] != 3) mScreen.transition_cutscene(1, 2, 90, 0.01); // game to menu
+            if (state[2] != 3) mScreen.transition_cutscene(1, 2); // game to menu
          }
          if (quit_action == 2)  // overworld
          {
@@ -662,8 +660,8 @@ void mwLoop::proc_program_state(void)
       else state[0] = 1;
 
 
-      if (quit_action == 0) mScreen.transition_cutscene(0, 1, 60, 0.02); // nothing to game
-      if (quit_action == 1) mScreen.transition_cutscene(2, 1, 60, 0.02); // menu to game
+      if (quit_action == 0) mScreen.transition_cutscene(0, 1); // nothing to game
+      if (quit_action == 1) mScreen.transition_cutscene(2, 1); // menu to game
 
    }
 
@@ -709,7 +707,7 @@ void mwLoop::proc_program_state(void)
       {
          if (debug_print_more) printf("command line exit\n");
          state[0] = 0; // exit to dos
-         mScreen.transition_cutscene(1, 0, 90, 0.01); // game to nothing
+         mScreen.transition_cutscene(1, 0); // game to nothing
          return; // to exit immediately
       }
 
@@ -724,66 +722,78 @@ void mwLoop::proc_program_state(void)
          return;
       }
 
+// ----------------------------------------------------------
+// determine what transitions to use
+// ----------------------------------------------------------
+
+      // none by default
+      int pre_load_transistion = 0;
+      int post_load_transistion = 0;
+
+// ----------------------------------------------------------
+// if destination is overworld
+// ----------------------------------------------------------
+      if (mPlayer.syn[0].level_done_next_level == 1)
+      {
+         if (debug_print_more) printf("Next level to overworld\n");
+         pre_load_transistion = 13;
+      }
+
+// -----------------------------------------------------------------------------------------------------
+// if going from overworld to any other level, assume gate is used...no transition until after load
+// also test that we are not in demo mode
+// -----------------------------------------------------------------------------------------------------
+      if ((mLevel.play_level == 1) && (mPlayer.syn[0].level_done_next_level != 1) && (!mDemoMode.mode))
+      {
+         if (debug_print_more) printf("Next level from overworld\n");
+         post_load_transistion = 31; // gate to game
+      }
+
+// -----------------------------------------------------------------------------------------------------
+// if going from any level to any level (except overworld)
+// also test that previous state == 11  to not trigger when started from menu or settings
+// -----------------------------------------------------------------------------------------------------
+      if ((mLevel.play_level != 1) && (mPlayer.syn[0].level_done_next_level != 1) && (state[2] == 11))
+      {
+         if (debug_print_more) printf("Level to level (no overworld)\n");
+         pre_load_transistion = 10;
+         post_load_transistion = 1;
+      }
+
+// -----------------------------------------------------------------------------------------------------
+// previous state == 1, called here from menu
+// the only time this happens is when starting demo mode from menu
+// -----------------------------------------------------------------------------------------------------
+      if ((state[2] == 1) && (mDemoMode.mode == 2))
+      {
+         if (debug_print_more) printf("Demo mode started from menu\n");
+         pre_load_transistion = 20; // menu to nothing
+      }
+
+      if (debug_print_more)
+      {
+         printf("\n");
+         printf("pre-load transition:");
+         if (pre_load_transistion == 0)  printf("none\n");
+         if (pre_load_transistion == 10) printf("game to nothing\n");
+         if (pre_load_transistion == 20) printf("menu to nothing\n");
+         if (pre_load_transistion == 13) printf("game to gate\n");
+
+         printf("post-load transition:");
+         if (post_load_transistion == 0)  printf("none\n");
+         if (post_load_transistion == 1)  printf("nothing to game\n");
+         if (post_load_transistion == 31) printf("gate to game\n");
+         printf("\n");
+      }
+
+
+
 // ------------------------------------------------------------------------------------------------------------------------------------
 // ---   pre load transitions
 // ------------------------------------------------------------------------------------------------------------------------------------
-
-      if (debug_print_more) printf("pre-load transition\n");
-
-
-// -----------------------------------------------------------------------------------------------------
-// if going to any other level from overworld, assume gate is used...no transition until after load
-// also test that we are not in demo mode
-// -----------------------------------------------------------------------------------------------------
-      int gate_to_game = 0;
-      if ((mLevel.play_level == 1) && (mPlayer.syn[0].level_done_next_level != 1) && (!mDemoMode.mode))
-      {
-         if (debug_print_more) printf("set gate_to_game for post transition\n");
-         gate_to_game = 1;
-      }
-
-
-
-
-// --------------------------------------------------------------------------
-// demo level just completed
-// zoom to nothing before loading next random demo
-// also test if just sent here from settings and skip transition if that is the case
-// --------------------------------------------------------------------------
-      if ((mDemoMode.mode == 2) && (state[2] != 3))
-      {
-         if (debug_print_more) printf("zoom to nothing before next random demo level\n");
-         mScreen.transition_cutscene(1, 0, 90, 0.01); // game to nothing
-      }
-
-
-// -----------------------------------------------------------------------------------------------------
-// classic mode and not gate_to_game and not in demo mode
-// zoom to nothing before loading next level
-// make an exception to not do this if returning to 1 (like when demo ends)
-// (mPlayer.syn[0].level_done_next_level != 1))
-// -----------------------------------------------------------------------------------------------------
-      if ((!gate_to_game) && (mMain.classic_mode) && (!mDemoMode.mode) && (mPlayer.syn[0].level_done_next_level != 1))
-      {
-         if (debug_print_more) printf("zoom to nothing for classic next level\n");
-         mScreen.transition_cutscene(1, 0, 90, 0.01); // game to nothing
-      }
-
-
-// -----------------------------------------------------------------------------------------------------
-//
-// game to gate
-//
-// if story mode and not gate_to_game and not in demo mode
-// also check that demo mode did not just end (state[2] != 32)
-// assume we are going from game to gate
-// -----------------------------------------------------------------------------------------------------
-      if ((!gate_to_game) && (!mMain.classic_mode) && (!mDemoMode.mode) && (state[2] != 32))
-      {
-         if (debug_print_more) printf("game to gate for next level to overworld\n");
-         mScreen.transition_cutscene(1, 3, 90, 0.01); // game to gate
-      }
-
+      if (pre_load_transistion == 10) mScreen.transition_cutscene(1, 0); // game to nothing
+      if (pre_load_transistion == 20) mScreen.transition_cutscene(2, 0); // menu to nothing
+      if (pre_load_transistion == 13) mScreen.transition_cutscene(1, 3); // game to gate
 
 
 // ---------------------------------------------------
@@ -804,29 +814,13 @@ void mwLoop::proc_program_state(void)
       if (load_and_setup_level_load(mLevel.play_level)) state[0] = 11;
       else state[0] = 1;
 
-
-
 // ----------------------------------------
-// post-load transitions
+// post-load transition
 // ----------------------------------------
-      if (debug_print_more) printf("post-load transition\n");
-
-
-      if (gate_to_game) mScreen.transition_cutscene(3, 1, 90, 0.01); // gate to game
-
-// ----------------------------------------
-// nothing to game
-// if not gate to game and classic mode
-// and not demo mode just ended (when overworld demo ends in classic mode)
-// ----------------------------------------
-      if ((!gate_to_game) && (mMain.classic_mode) && (state[2] != 32))
-      {
-         if (debug_print_more) printf("not state[2]=32 and classic\n");
-         mScreen.transition_cutscene(0, 1, 90, 0.01); // nothing to game
-      }
-
-
+      if (post_load_transistion == 31) mScreen.transition_cutscene(3, 1); // gate to game
+      if (post_load_transistion == 1 ) mScreen.transition_cutscene(0, 1); // nothing to game
    }
+
 
    //---------------------------------------
    // 13 - resume game
@@ -834,7 +828,7 @@ void mwLoop::proc_program_state(void)
    if (state[1] == 13)
    {
       mSound.start_music(1); // resume theme
-      mScreen.transition_cutscene(2, 1, 60, 0.02); // menu to game
+      mScreen.transition_cutscene(2, 1); // menu to game
       state[0] = 11;
    }
 
@@ -845,12 +839,13 @@ void mwLoop::proc_program_state(void)
    {
       if (debug_print_state_names) printf("[State 31 - Setup Demo Level]  [lev:%d]  [drm:%d]\n", mLevel.play_level, mDemoMode.restore_mode);
 
-      if (load_and_setup_level_load(mLevel.play_level)) state[0] = 11;
+      if (load_and_setup_level_load(mLevel.play_level))
+      {
+         state[0] = 11;
+         if (mDemoMode.restore_mode == 42) mScreen.transition_cutscene(3, 1); // gate to game
+         else                              mScreen.transition_cutscene(0, 1); // all other (nothing to game)
+      }
       else state[0] = 1;
-
-      if (mDemoMode.restore_mode == 42) mScreen.transition_cutscene(3, 1, 120, 0.02); // gate (gate to game)
-      else                              mScreen.transition_cutscene(0, 1, 90, 0.01);  // all other (nothing to game)
-
    }
 
 
@@ -874,25 +869,24 @@ void mwLoop::proc_program_state(void)
 
       if (rm == 10) // started from command line, exit
       {
-         mScreen.transition_cutscene(1, 0, 90, 0.01); // game to nothing
+         mScreen.transition_cutscene(1, 0); // game to nothing
          state[0] = 0;
       }
       if (rm == 21) // started from menu
       {
-         mScreen.transition_cutscene(1, 0, 90, 0.01);       // game to nothing
+         mScreen.transition_cutscene(1, 0);       // game to nothing
          mLevel.load_level(mDemoMode.restore_level, 0, 0);  // restore old level
          for (int p=0; p<NUM_PLAYERS; p++)
          {
             mPlayer.init_player(p, 1);            // full reset
             mPlayer.set_player_start_pos(p, 0);   // get starting position for all players, active or not
          }
-         mScreen.transition_cutscene(0, 2, 90, 0.01); // nothing to menu
+         mScreen.transition_cutscene(0, 2); // nothing to menu
          quit_action = 99;  // to prevent transition in state 1
          state[0] = 1;
       }
       if (rm == 42) // started from gate, send to overworld with 12 - next level
       {
-         mScreen.transition_cutscene(1, 3, 120, 0.02); // game to gate
          mPlayer.syn[0].level_done_next_level = 1; // set to overworld level
          state[0] = 12; // next level
          quit_action = 1;
@@ -901,7 +895,7 @@ void mwLoop::proc_program_state(void)
 
       if (rm == 32) // started from settings, restore old level, then back to settings
       {
-         mScreen.transition_cutscene(1, 0, 90, 0.01); // settings (game to nothing)
+         mScreen.transition_cutscene(1, 0); // settings (game to nothing)
          mLevel.load_level(mDemoMode.restore_level, 0, 0); // restore old level
          state[0] = 3;
          quit_action = 1;    // menu
