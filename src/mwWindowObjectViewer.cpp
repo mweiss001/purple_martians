@@ -790,6 +790,12 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             mWidget.slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, mEnemy.Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
             ya+=4; // spacer
             mWidget.colsel(    xa, ya, xb, bts,  9,n,0,0,  0, 0, 0,0, 0,0,1,d); // change color
+            ya+=4; // spacer
+            mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, mEnemy.Ef[n][8],  1, 0.2, 0.05, "Scale:");
+
+
+
+
          break;
 
 

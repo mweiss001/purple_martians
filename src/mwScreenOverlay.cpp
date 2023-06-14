@@ -1000,6 +1000,47 @@ void mwScreen::draw_top_frame(int p)
 
 
 
+
+   // draw npc directly on the screen, so they scale nicely
+
+   for (int e=0; e<100; e++)
+      if (mEnemy.Ei[e][0] == 19) // npc
+      {
+
+         float sc = mDisplay.scale_factor_current; // scale
+
+         float ex = mEnemy.Ef[e][0] + 10;
+         float ey = mEnemy.Ef[e][1] + 10;
+
+         float ldx = mDisplay.level_display_region_x;
+         float ldy = mDisplay.level_display_region_y;
+
+         // how far away from ul corner
+         float ex1 = mDisplay.screen_display_x + (ex-ldx) * sc;
+         float ey1 = mDisplay.screen_display_y + (ey-ldy) * sc;
+
+
+
+         float psm = mEnemy.Ef[e][8];  // player scale muliplier
+         float ps = sc * psm;          // player scale
+         float sd = 20 * (1-psm);      // size difference
+         float yo = (sd/2)*sc;         // half size difference, scaled
+
+         int flags = 0;
+         if (mEnemy.Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
+
+         int pos = ((int) mEnemy.Ef[e][0] / 6) % 6;  // 6 shapes in sequence
+         int col = mEnemy.Ei[e][3];
+
+         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, ex1, ey1+yo, ps, ps, 0, flags);
+
+      }
+
+
+
+
+
+
 //   if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%d En:%d ",            mLevel.play_level, mLoop.frame_num/40, mEnemy.num_enemy); // special case for narrow screens
 //   else                sprintf(msg,"Level:%d | Time:%d | Enemies:%d  ", mLevel.play_level, mLoop.frame_num/40, mEnemy.num_enemy);
    al_draw_text(mFont.pr8, mColor.pc[tc], tdx, tdy+2,  0, msg);
