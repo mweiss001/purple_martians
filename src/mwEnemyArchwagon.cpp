@@ -11,7 +11,7 @@
 #include "mwLevel.h"
 #include "mwColor.h"
 #include "mwGameEvent.h"
-
+#include "mwDisplay.h"
 
 
 //-------------------------------------------------------------------------------------------
@@ -339,27 +339,27 @@ void mwEnemy::move_crew(int e)
 
 void mwEnemy::draw_crew(int e, int cx, int cy, int custom)
 {
-   int x = Ef[e][0];
-   int y = Ef[e][1];
-   if (custom)
+   if (mLoop.state[0] != 11) // don't draw when game is running, custom draw direct to screen in screen overlay so scaling looks nice
    {
-      x = cx;
-      y = cy;
+      int x = Ef[e][0];
+      int y = Ef[e][1];
+      if (custom)
+      {
+         x = cx;
+         y = cy;
+      }
+
+      int flags = 0;
+      if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
+
+      int pos = ((int) Ef[e][0] / 6) % 6;  // 6 shapes in sequence
+      int col = Ei[e][3];
+
+      float ps = mEnemy.Ef[e][8];  // player scale
+      float yo = 10 * (1-ps);      // adjust y offset
+
+      al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, x+10, y+10+yo, ps, ps, 0, flags);
    }
-
-   int flags = 0;
-   if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
-
-   int pos = ((int) Ef[e][0] / 6) % 6;  // 6 shapes in sequence
-   int col = Ei[e][3];
-
-   al_draw_bitmap(mBitmap.player_tile[col][pos], x, y, flags);
-
-//
-   al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, x+10, y+10, 1, 1, 0, flags);
-
-
-
 }
 
 

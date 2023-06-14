@@ -47,26 +47,15 @@ void mwWindow::es_pointer_text(int x1, int x2, int y, int mouse_on_window)
 
    // count items in box
    for (int b=0; b<500; b++)
-      if ((mItem.item[b][0]) && (mWM.obj_filter[2][mItem.item[b][0]]))
-         if (mItem.item[b][4] >= rx1)
-            if (mItem.item[b][4] < rx2)
-               if (mItem.item[b][5] >= ry1)
-                  if (mItem.item[b][5] < ry2)
-                     iib++;
+      if ((mItem.item[b][0]) && (mWM.obj_filter[2][mItem.item[b][0]]) && (mItem.item[b][4] >= rx1) && (mItem.item[b][4] < rx2) && (mItem.item[b][5] >= ry1) && (mItem.item[b][5] < ry2)) iib++;
 
    // count enemies in box
    for (int b=0; b<100; b++)
-      if ((mEnemy.Ei[b][0]) && (mWM.obj_filter[3][mEnemy.Ei[b][0]]))
-         if (mEnemy.Ef[b][0] >= rx1)
-            if (mEnemy.Ef[b][0] < rx2)
-               if (mEnemy.Ef[b][1] >= ry1)
-                  if (mEnemy.Ef[b][1] < ry2)
-                     eib++;
+      if ((mEnemy.Ei[b][0]) && (mWM.obj_filter[3][mEnemy.Ei[b][0]]) && (mEnemy.Ef[b][0] >= rx1) && (mEnemy.Ef[b][0] < rx2) && (mEnemy.Ef[b][1] >= ry1) && (mEnemy.Ef[b][1] < ry2)) eib++;
 
    // count lifts in box
-   if (mWM.obj_filter[4][1])
-      for (int d=0; d<NUM_LIFTS; d++)
-         if ((mLift.cur[d].active) && (mLift.cur[d].x >= rx1) && (mLift.cur[d].x < rx2) && (mLift.cur[d].y >= ry1) && (mLift.cur[d].y < ry2)) lib++;
+   for (int d=0; d<NUM_LIFTS; d++)
+      if ((mLift.cur[d].active) && (mWM.obj_filter[4][1]) && (mLift.cur[d].x >= rx1) && (mLift.cur[d].x < rx2) && (mLift.cur[d].y >= ry1) && (mLift.cur[d].y < ry2)) lib++;
 
    int xc = (x1+x2)/2;
    int fc = 13;
@@ -795,15 +784,11 @@ void mwWindow::es_do_clear(void)
    // enemies
    for (int e=0; e<100; e++)
       if ((mEnemy.Ei[e][0]) && (mWM.obj_filter[3][mEnemy.Ei[e][0]]))
-         if ((mEnemy.Ef[e][0] >= x1) && (mEnemy.Ef[e][0] < x2) && (mEnemy.Ef[e][1] >= y1) && (mEnemy.Ef[e][1] < y2))
-         {
-            for (int y=0; y<32; y++) mEnemy.Ei[e][y] = 0;
-            for (int y=0; y<16; y++) mEnemy.Ef[e][y] = 0;
-         }
+         if ((mEnemy.Ef[e][0] >= x1) && (mEnemy.Ef[e][0] < x2) && (mEnemy.Ef[e][1] >= y1) && (mEnemy.Ef[e][1] < y2)) mEnemy.erase_enemy(e);
 
    // lifts
    if (mWM.obj_filter[4][1])
-      for (int l=NUM_LIFTS-1; l>=0; l--) // have to iterate backward beacuse erase_lift changes list order
+      for (int l=NUM_LIFTS-1; l>=0; l--) // have to iterate backward because erase_lift changes list order
          if (mLift.cur[l].active)
             if ((mLift.cur[l].x >= x1) && (mLift.cur[l].x < x2) && (mLift.cur[l].y >= y1) && (mLift.cur[l].y < y2)) mLift.erase_lift(l);
 
@@ -914,7 +899,6 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
       }
       mWM.mW[4].brf_mode ? col=10 : col=7;
       if (mWidget.buttontt(x3, yfb, x4, bts, tn,12,0,0, 0,col,15,0, 1,1,1,d, "     Floodfill")) mWM.mW[4].brf_mode = !mWM.mW[4].brf_mode;
-//      if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, "Block Floodfill")) mWM.mW[4].brf_mode = !mWM.mW[4].brf_mode;
    }
    return yfb;
 }
@@ -1000,7 +984,6 @@ void mwWindow::es_draw_enemy_ft(int e)
    }
 }
 
-
 void mwWindow::es_draw_lifts_ft()
 {
    for (int l=0; l<ft_level_header[5]; l++)
@@ -1011,22 +994,17 @@ void mwWindow::es_draw_lifts_ft()
       int y1 = ft_ls[l][0][1];
       int x2 = x1 + ft_ls[l][0][2];
       int y2 = y1 + ft_ls[l][0][3];
-
-
       int a;
       for (a=0; a<10; a++)
         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mColor.pc[col + ((9 - a)*16)], 2 ); // faded outer shell
       al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, mColor.pc[col] );                            // solid core
       al_draw_text(mFont.pr8, mColor.pc[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, ft_ln[l]); // name
-
    }
 }
 
 
 void mwWindow::es_draw_fsel(void)
 {
-
-
    al_destroy_bitmap(ft_bmp);
    ft_bmp = al_create_bitmap(mWM.mW[4].sw*20, mWM.mW[4].sh*20);
    al_set_target_bitmap(ft_bmp);
@@ -1039,25 +1017,14 @@ void mwWindow::es_draw_fsel(void)
          for (int y=0; y<mWM.mW[4].sh; y++)
             if (mWM.mW[1].show_non_default_blocks) mMiscFnx.draw_block_non_default_flags(ft_l[x][y], x*20, y*20);
    }
-
-
-
    // draw items
    for (int i=0; i<500; i++)
       if ((ft_item[i][0]) && (mWM.obj_filter[2][ft_item[i][0]])) es_draw_item_ft(i);
-
-
-
    // draw enemies
    for (int e=0; e<100; e++)
       if ((ft_Ei[e][0]) && (mWM.obj_filter[3][ft_Ei[e][0]])) es_draw_enemy_ft(e);
-
-
-
    // draw lifts
    if (mWM.obj_filter[4][1]) es_draw_lifts_ft();
-
-
 }
 
 void mwWindow::es_process_mouse(void)

@@ -378,17 +378,6 @@ void mwScreen::mark_non_default_block(int x, int y)
    }
 }
 
-void mwScreen::init_level_background2(int s, int e)
-{
-   al_set_target_bitmap(mBitmap.level_background);
-   al_draw_filled_rectangle(s*20, 0, e*20, 2000, al_map_rgb(0,0,0));
-   for (int x=s; x<e; x++)
-      for (int y=0; y<100; y++)
-      {
-         al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
-         if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
-      }
-}
 
 void mwScreen::init_level_background(void) // fill level_background with block tiles
 {

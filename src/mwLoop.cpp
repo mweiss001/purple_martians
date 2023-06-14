@@ -1104,6 +1104,13 @@ void mwLoop::proc_level_done_mode(void)
    {
       mPlayer.syn[0].level_done_mode = 6;
       mPlayer.syn[0].level_done_timer = 0;
+
+      if (mMain.classic_mode) mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level);
+      else                    mPlayer.syn[0].level_done_next_level = 1;
+
+      mLevel.level_complete_data();
+
+
    }
 
    if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs

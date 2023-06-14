@@ -25539,19 +25539,53 @@ do it...
 
 209 single door item
 
+bug level editor someimes draws status and selection windows on level buffer instead of screen
+I think when drawing blocks in that mode it calls init_level_background and this changes the target bitmap
+I explicitly set it back to the backbuffer after and it seems fixed
+
 
 add the rest of the levels
 
-37-61
+I have all levels done except 64
+
+it needs some work..
+
+make the rocket npc platforms match npc color
+
+
+can I make npc crew smaller and call them children?
+
+I can but the scaling looks bad..
+I wish I could draw them directly on the screen
+
+I have it working!!
+
+make scale adjust Ef[][8]
+
+I have the npc scale looking great
+
+now I can call them children!!
+
+nice!!
+
+level 64 is done and I have demo for it..
+what happens after final cutscene?
+level done called??
+
+all good...
+
+
+now what?
+
+test with multiplayer
+
+set up locked zones and groups
+
+
+20230614 push
 
 
 
-center
-purple coins
-done
-
-entry in level data
-gate in overworld
 
 
 

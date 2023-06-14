@@ -629,6 +629,7 @@ void mwWindow::em_process_mouse(void)
             mWM.get_new_box();
             em_set_block_range();
             mScreen.init_level_background();
+            al_set_target_backbuffer(mDisplay.display);
          }
          break;
          case 2:  // item

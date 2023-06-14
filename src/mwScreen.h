@@ -36,7 +36,6 @@ class mwScreen
    void mark_non_default_block(int x, int y);
 
    void init_level_background(void);
-   void init_level_background2(int s, int e);
 
    void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players);
 
