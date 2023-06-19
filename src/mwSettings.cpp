@@ -30,7 +30,7 @@
 #include "mwVisualLevel.h"
 #include "mwMain.h"
 
-
+#include "mwBitmapTools.h"
 
 mwSettings mSettings;
 
@@ -1882,10 +1882,31 @@ void mwSettings::settings_pages(int set_page)
          mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_delay, 100, 1, 1, "Transistion delay:");
 
 
-         ya +=4;
+         ya +=8;
 
          if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Reset all level data")) mLevel.reset_level_data();
+
+         ya +=4;
          if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
+
+
+         if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Set Training Complete")) mLevel.set_training_complete();
+
+
+
+//         if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "color tile"))
+//         {
+//            for (int i=0; i<16; i++)
+//            {
+//               al_set_target_bitmap(mBitmap.tile[128+i]);
+//               al_draw_bitmap(mBitmap.tile[939], 0, 0, 0);
+//
+//               mBitmapTools.color_shift(mBitmap.tile[128+i], 12, i-11);
+//            }
+//            al_save_bitmap("bitmaps/tiles.bmp", mBitmap.tilemap);
+//         }
+
+
 
 
 //         if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Show Font"))

@@ -86,7 +86,7 @@ void mwBitmapTools::color_shift2(ALLEGRO_BITMAP *b, int sc, int cs1, int cs2)
 void mwBitmapTools::color_shift(ALLEGRO_BITMAP *b, int sc, int cs)
 {
    al_set_target_bitmap(b);
-   al_draw_bitmap(mBitmap.tile[200], 0, 0, 0);
+//   al_draw_bitmap(mBitmap.tile[200], 0, 0, 0);
    al_lock_bitmap(b, al_get_bitmap_format(b), ALLEGRO_LOCK_READWRITE);
    for (int x=0; x<20; x++)
       for (int y=0; y<20; y++)
@@ -158,7 +158,6 @@ void mwBitmapTools::colorize_tile(void)
    al_flip_display(); mInput.tsw(); // wait for keypress
 
 
-
    // draw on the tilemap
    al_set_target_bitmap(mBitmap.tilemap);
    // erase
@@ -177,8 +176,6 @@ void mwBitmapTools::colorize_tile(void)
    for (int d=0; d<32; d++) al_draw_bitmap(switch_tiles[d], d*20, 60, 0);
 
    al_convert_mask_to_alpha(mBitmap.tilemap, al_map_rgb(0, 0, 0)) ;
-
-
 
    al_save_bitmap("bitmaps/tiles.bmp", mBitmap.tilemap);
 

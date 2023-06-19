@@ -25584,6 +25584,647 @@ set up locked zones and groups
 
 20230614 push
 
+now that I have all the levels and demos done, you know what that means?
+No more changing levels!
+
+Now I work on overworld...
+
+
+
+what mechanism will I use to lock off areas in the overworld?
+
+
+use completed levels to set something
+when overworld is running emit triggers...
+
+or...
+
+have a master copy of level 1
+manually remove blocks and save level
+
+or manually add them when reseting
+
+test that...
+x=60
+y=26 to 35
+
+
+how to unlock?
+test everytime a level is completed?
+then load and resave
+
+keep a local array of locked and unlocked area
+
+force set with every level done
+
+
+keep a saved array of locked areas
+int area_locks[16];
+when reset set them all locked (1)
+
+make a function to set clear them all
+
+
+I think I have the framework in place
+
+int area_locks[16];
+
+void mwLevel::clear_data(void)
+{
+   for(int i=0; i<16; i++) area_locks[i] = 1;
+   set_overworld_barriers();
+
+void mwLevel::set_overworld_barriers(void)
+{
+   load_level(1, 1, 0); // load level
+
+   int block = 141 | PM_BTILE_ALL_SOLID;
+
+   for(int i=26; i<36; i++)
+   {
+      if (area_locks[0] == 1) mLevel.l[60][i] = block;
+      else                    mLevel.l[60][i] = 0;
+   }
+
+   save_level(1); // save level
+
+}
+
+
+
+      // check for other things to alter on the ovrworld level
+
+      // unlock area 0
+
+      if (data[4].completed)
+      {
+         if (area_locks[0] == 1)
+         {
+            area_locks[0] = 0;
+            set_overworld_barriers();
+         }
+      }
+
+
+   }
+
+
+
+
+
+now make the triggers more sophisticated
+
+
+5 levels in area 0
+if all complete...
+if > threshold complete..
+
+
+coming along nicely...
+
+make gates show info upward if ypos > blah  done
+
+
+
+
+start with only training level 1 unlocked
+
+when that is complete,
+unlock training level 2 then 3
+
+
+- unlock all other training levels
+- open gate to next lower level
+
+- open gate to area 1
+
+I really think I want an item that hides a rectangular section of the level.
+
+
+
+19 - hider
+all it does is hide selected area
+it is still drawn, just has an extra step of erasing
+
+where should it live?
+not in items, has to be at the end of draw order
+
+just before or in draw_scaled_level_region_to_display(0);
+
+
+
+store rect pos in secondary
+active or not
+change with trigger
+item number 19, tile 476
+special creator
+
+
+got the basic framework working...
+now add active or not
+
+and add a way to change that like with a trigger
+
+item[][2] active or not
+item[][3] mode
+
+mode:
+0 always show
+1 always hide
+2 show till triggered
+3 hide till triggered
+4 toggle when triggered
+5 show only when triggered
+
+
+
+
+buttons
+
+mode:
+initial show/hide if in mode 4
+trigger if in modes 2 3 4
+
+
+can I use trigger item for 1? i do it with others
+
+used it on level 7 to hide cloner...
+
+
+
+
+I think hider is working well
+
+fix the ov for it...done
+
+remove warp, add gate and hider to filters..done
+
+add hider event receiever to events..done
+
+
+I was planning on adding hider to overworld to hide unopened areas...
+
+gate shows info downwards and gets cut off...
+
+
+solutions:
+- draw gate info upwards
+- draw gate info at screen overlay stage
+
+I have broken something...level done shows overworld while waiting
+
+need to find out where...
+
+is it something to do with hider? no
+commented out void mwItem::erase_hider_areas(void) and still happens
+
+breakpoint at level done mode 9 and happens before that...
+
+it draws overworld level at the same size at the level just ended
+where does it get it from?, does it load level 1?
+
+yes it does...where and why?
+
+set_overworld_barriers...duh...
+where should I do that then?
+
+I suppose I could do it in load level for level 1 only...???
+
+after successfull load of overworld level,
+call set_overworld_barriers
+edit set_overworld_barriers to just modify and save
+reduce greatly the calls to set_overworld_barriers
+now only in load_level
+clear level data now loads level 1 to set_overworld_barriers
+that bug has been fixed
+
+try drawing gate info upwards, always
+
+
+I am thinking of getting rid of the 200x200 level icons..
+the smaller ones work just fine
+
+
+
+I have injected draw gate info into the draw sequence....
+
+draw everything else
+erase hiders
+draw gate info
+draw level region to screen
+this seems to work...
+
+
+now make it look nicer..
+
+custom add hider(s) to overworld level
+
+start with one that hides everything below 240
+
+customize it based on area_locks
+
+can I assume that all area lock will be removed in sequence?
+
+when area lock 0 is complete
+
+if (area_lock[0] == 1) // full hider from 240 down
+if (area_lock[0] == 0) // hider from 460 down
+if (area_lock[2] == 0) // hider from 680 down
+
+
+then after all that ...
+
+erase all hiders and create a new one
+
+
+20230618 what am I working on today?
+more overworld
+
+I want a custom area message
+about what you need to do to enter the area
+then after that, stats about the area:
+percent complete, etc
+
+I think I want to get rid of the labels above traing level and reduce the height of rows...
+
+now my overworld rows are 8 blocks high, 9 counting the 1 block spacer...
+
+top row, training has bottom block of 9
+next row area 1 and 2 bottom block 18..
+
+
+do they all have the same width of the blocking block?
+
+for testing make it o the pressing C on gate completes level..
+
+
+now do the dynamic area messsages
+
+Area 1
+locked
+complete 3 training levels to unlock
+
+or
+
+0/5 complete
+
+
+
+how do I make this nice?
+
+recreate everytime
+
+area 2
+erase
+create
+adjust size and color based on text
+
+this is coming nicely, but I can probably make it even more generic
+
+
+
+coming along great!!
+
+I want to make the gate tile different colors.. I have 12 blue, but I also want 10 red, 13, lt blue, 11 green,
+
+what colors?
+
+locked - red (or gray?)
+
+ready - lt blue
+
+complete
+
+complete with coins and time purple
+
+
+locked:
+red icon, white text locked
+
+
+complete and perfect...
+
+make a helper function to show framed text...do I already have one? i do now??
+
+remove the what is locking page, it should be obvious...
+
+cleaning up pages...
+
+count how many purple coins in each area and how many collected..done
+
+now do the same for time...
+
+it looks like time is not being recorded properly
+
+it is always zero
+
+not sure if its because of my cheating way of doing levels
+
+timer works good
+
+the overworld is looking very good
+
+
+line up message on right side
+
+show
+
+
+20230618 push
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

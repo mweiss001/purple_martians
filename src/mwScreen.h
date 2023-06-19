@@ -41,7 +41,7 @@ class mwScreen
 
    void draw_level_centered_on_player_pos(int screen_x, int screen_y, float scale_factor);
 
-   void draw_level(void);
+   void draw_level_map_under_menu(void);
 
 
    void draw_screen_frame(void);

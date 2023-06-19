@@ -324,7 +324,8 @@ int mwWindow::es_load_selection(void)
 
 }
 
-void mwWindow::es_save_selection(int save)
+
+void mwWindow::es_selection_to_ft(int save_to_disk)
 {
    int b, c, x, y;
    int eib=0;
@@ -448,7 +449,7 @@ void mwWindow::es_save_selection(int save)
 
    //printf("finished copying to ft - i:%d e:%d l:%d\n", iib, eib, lib);
 
-   if (save)
+   if (save_to_disk)
    {
       char sel_filename[500];
       al_make_directory("sel"); // create if not already created
@@ -515,64 +516,77 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
             set_block_with_flag_filters(qx1+x, qy1+y, ft_l[x][y]);
 
 
+
    // this section is to make any copied pm_event links have new unique pm_events and still linked properly
    int clt[100][5] = { 0 };
    int clt_last = 0; // index
-
-//   clt[0] = obt (2=item, 3=enem, 4=lift)
-//   clt[1] = num
-//   clt[2] = ext (2,3 int var num  4=lift step index
-//   clt[3] = src_ev
-//   clt[4] = dst_ev
-
-   for (b=0; b<500; b++) // iterate items in ft
+   if (copy_mode != 2) // do not do any link translation for move, only for copy
    {
-      if (ft_item[b][0] == 6) // orb
+
+      //   clt[0] = obt (2=item, 3=enem, 4=lift)
+      //   clt[1] = num
+      //   clt[2] = ext (2,3 int var num  4=lift step index
+      //   clt[3] = src_ev
+      //   clt[4] = dst_ev
+
+      for (b=0; b<500; b++) // iterate items in ft
       {
-         clt_last += mTriggerEvent.add_item_link_translation(2, b, 10, ft_item[b][10], clt, clt_last);
-         clt_last += mTriggerEvent.add_item_link_translation(2, b, 11, ft_item[b][11], clt, clt_last);
-         clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
-         clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
+         if (ft_item[b][0] == 6) // orb
+         {
+            clt_last += mTriggerEvent.add_item_link_translation(2, b, 10, ft_item[b][10], clt, clt_last);
+            clt_last += mTriggerEvent.add_item_link_translation(2, b, 11, ft_item[b][11], clt, clt_last);
+            clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
+            clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
+         }
+         if (ft_item[b][0] == 9) // trigger
+         {
+            clt_last += mTriggerEvent.add_item_link_translation(2, b, 11, ft_item[b][11], clt, clt_last);
+            clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
+            clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
+            clt_last += mTriggerEvent.add_item_link_translation(2, b, 14, ft_item[b][14], clt, clt_last);
+         }
+         if (ft_item[b][0] == 13) // timer
+         {
+            clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
+            clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
+            clt_last += mTriggerEvent.add_item_link_translation(2, b, 14, ft_item[b][14], clt, clt_last);
+            clt_last += mTriggerEvent.add_item_link_translation(2, b, 15, ft_item[b][15], clt, clt_last);
+         }
+         if ((ft_item[b][0] == 10) || (ft_item[b][0] == 16) || (ft_item[b][0] == 17)) // message, bm or bd
+         {
+            clt_last += mTriggerEvent.add_item_link_translation(2, b, 1, ft_item[b][1], clt, clt_last);
+         }
       }
-      if (ft_item[b][0] == 9) // trigger
+      for (b=0; b<100; b++) // iterate enemies in ft
       {
-         clt_last += mTriggerEvent.add_item_link_translation(2, b, 11, ft_item[b][11], clt, clt_last);
-         clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
-         clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
-         clt_last += mTriggerEvent.add_item_link_translation(2, b, 14, ft_item[b][14], clt, clt_last);
-      }
-      if (ft_item[b][0] == 13) // timer
-      {
-         clt_last += mTriggerEvent.add_item_link_translation(2, b, 12, ft_item[b][12], clt, clt_last);
-         clt_last += mTriggerEvent.add_item_link_translation(2, b, 13, ft_item[b][13], clt, clt_last);
-         clt_last += mTriggerEvent.add_item_link_translation(2, b, 14, ft_item[b][14], clt, clt_last);
-         clt_last += mTriggerEvent.add_item_link_translation(2, b, 15, ft_item[b][15], clt, clt_last);
-      }
-      if ((ft_item[b][0] == 10) || (ft_item[b][0] == 16) || (ft_item[b][0] == 17)) // message, bm or bd
-      {
-         clt_last += mTriggerEvent.add_item_link_translation(2, b, 1, ft_item[b][1], clt, clt_last);
-      }
-   }
-   for (b=0; b<100; b++) // iterate enemies in ft
-   {
-      if (ft_Ei[b][0] == 9) // cloner
-      {
-         clt_last += mTriggerEvent.add_item_link_translation(3, b, 8, ft_Ei[b][8], clt, clt_last);
-      }      if (ft_Ei[b][0] == 7) // vinepod
-      {
-         clt_last += mTriggerEvent.add_item_link_translation(3, b, 18, ft_Ei[b][18], clt, clt_last);
-         clt_last += mTriggerEvent.add_item_link_translation(3, b, 19, ft_Ei[b][19], clt, clt_last);
+         if (ft_Ei[b][0] == 9) // cloner
+         {
+            clt_last += mTriggerEvent.add_item_link_translation(3, b, 8, ft_Ei[b][8], clt, clt_last);
+         }
+         if (ft_Ei[b][0] == 7) // vinepod
+         {
+            clt_last += mTriggerEvent.add_item_link_translation(3, b, 18, ft_Ei[b][18], clt, clt_last);
+            clt_last += mTriggerEvent.add_item_link_translation(3, b, 19, ft_Ei[b][19], clt, clt_last);
+         }
+
       }
 
+      for (b=0; b<ft_level_header[5]; b++) // iterate lifts in ft
+         for (y=0; y<ft_lift[b][3]; y++) // iterate lift steps in ft
+         {
+            int step_type = ft_ls[b][y][5] & 31;
+            int step_val = ft_ls[b][y][4];
+            if ((step_type == 5) || (step_type == 6)) clt_last += mTriggerEvent.add_item_link_translation(4, b, y, step_val, clt, clt_last);
+         }
    }
 
-   for (b=0; b<ft_level_header[5]; b++) // iterate lifts in ft
-      for (y=0; y<ft_lift[b][3]; y++) // iterate lift steps in ft
-      {
-         int step_type = ft_ls[b][y][5] & 31;
-         int step_val = ft_ls[b][y][4];
-         if ((step_type == 5) || (step_type == 6)) clt_last += mTriggerEvent.add_item_link_translation(4, b, y, step_val, clt, clt_last);
-      }
+
+
+
+
+
+
+
 
    // lifts
    if (mWM.obj_filter[4][1])
@@ -618,10 +632,10 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
                   }
                }
 
-               // does this lift step have an entry in the clt table?
-               for (int i=0; i<clt_last; i++)
-                  if ((clt[i][0] == 4) && (clt[i][1] == b) && (clt[i][2] == y)) // found match
-                     val = clt[i][4];  // new event
+               if (copy_mode != 2) // do not do any link translation for move, only for copy
+                  for (int i=0; i<clt_last; i++) // does this lift step have an entry in the clt table?
+                     if ((clt[i][0] == 4) && (clt[i][1] == b) && (clt[i][2] == y)) // found match
+                        val = clt[i][4];  // new event
 
 
                //printf("contructing step:%d\n", y);
@@ -654,10 +668,10 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
                mEnemy.Ef[c][1] += y3;
 
 
-               // does this enemy have an entry in the clt table?
-               for (int i=0; i<clt_last; i++)
-                  if ((clt[i][0] == 3) && (clt[i][1] == b)) // found index
-                     mEnemy.Ei[c][clt[i][2]] = clt[i][4];  // new event
+               if (copy_mode != 2) // do not do any link translation for move, only for copy
+                  for (int i=0; i<clt_last; i++) // does this enemy have an entry in the clt table?
+                     if ((clt[i][0] == 3) && (clt[i][1] == b)) // found index
+                        mEnemy.Ei[c][clt[i][2]] = clt[i][4];  // new event
 
 
                if (erase_out_of_bounds_main)
@@ -728,10 +742,15 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
                   mItem.item[c][5] = mMiscFnx.enforce_limit(mItem.item[c][5], 0, 1980);
                }
 
-               // does this copy item have an entry in the clt table?
-               for (int i=0; i<clt_last; i++)
-                  if ((clt[i][0] == 2) && (clt[i][1] == b)) // found index of source item table
-                     mItem.item[c][clt[i][2]] = clt[i][4];  // new event
+               if (copy_mode != 2) // do not do any link translation for move, only for copy
+                  for (int i=0; i<clt_last; i++)                   // does this copy item have an entry in the clt table?
+                     if ((clt[i][0] == 2) && (clt[i][1] == b)) // found index of source item table
+                        {
+                           mItem.item[c][clt[i][2]] = clt[i][4];  // new event
+
+                           printf("new item event!!\n");
+
+                        }
 
                // also adjust secondary loctaions
                if (mItem.item_secondary67(mItem.item[c][0]))
@@ -762,6 +781,9 @@ void mwWindow::es_do_fcopy(int qx1, int qy1)
    mEnemy.sort_enemy();
    mItem.sort_item(1);
    mScreen.init_level_background();
+
+   if (copy_mode == 2) copy_mode = 1; // if move (copy_mode == 2), change to copy (copy_mode == 1)
+
 }
 
 void mwWindow::es_do_clear(void)
@@ -837,14 +859,14 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
       else
       {
          mWM.mW[4].copy_mode = 1;
-         es_save_selection(0); // puts selection in ft_
+         es_selection_to_ft(0);
          es_draw_fsel();
       }
    }
    if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Move Selection"))
    {
-      mWM.mW[4].copy_mode = 1;
-      es_save_selection(0); // puts selection in ft_
+      mWM.mW[4].copy_mode = 2;
+      es_selection_to_ft(0);
       es_draw_fsel();
       es_do_clear();
       al_set_target_backbuffer(mDisplay.display);
@@ -858,7 +880,7 @@ int mwWindow::es_draw_buttons(int x3, int x4, int yfb, int d)
 
    yfb+=bts/2; // spacing between groups
 
-   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,6,15,0, 1,0,1,d, "Save To Disk")) es_save_selection(1); // puts in ft_ and saves to disk
+   if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,6,15,0, 1,0,1,d, "Save To Disk")) es_selection_to_ft(1);
    if (mWidget.buttont(x3, yfb, x4, bts, 0,0,0,0, 0,6,15,0, 1,0,1,d, "Load From Disk"))
    {
       if (es_load_selection())

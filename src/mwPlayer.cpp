@@ -248,7 +248,7 @@ void mwPlayer::set_player_start_pos(int p, int cont)
       for (int i=0; i<500; i++)
          if ((mItem.item[i][0] == 18) && (mItem.item[i][6] == mLevel.overworld_level)) item_to_get_start_from = i;
    }
-   else
+   if (item_to_get_start_from == -1)
    {
       int ns = 0; // count number of starts
       int s[8] = {0};

@@ -40,7 +40,7 @@ void mwScreen::get_new_background(int full)
 
 void mwScreen::transition_cutscene(int i, int f)
 {
-   const char* tcn[5] = {"nothing", "game", "menu", "gate"};
+   //const char* tcn[5] = {"nothing", "game", "menu", "gate"};
    //printf("transition from %s to %s\n", tcn[i], tcn[f]);
 
    int num_steps = transition_num_steps;
@@ -218,6 +218,7 @@ void mwScreen::set_level_display_region_xy(void)
    int w = mDisplay.level_display_region_w;
    int h = mDisplay.level_display_region_h;
 
+
    if (mDisplay.viewport_mode == 0) // this method always has the player in the middle of the screen
    {
       mDisplay.level_display_region_x = px - w/2 - 10;
@@ -249,16 +250,22 @@ void mwScreen::set_level_display_region_xy(void)
       if (mDisplay.level_display_region_y < py - h/2 - y_size) mDisplay.level_display_region_y = py - h/2 - y_size; // hit bottom edge
       if (mDisplay.level_display_region_y > py - h/2 + y_size) mDisplay.level_display_region_y = py - h/2 + y_size; // hit top edge
 
+
       // clamp to edges
-      if (mDisplay.level_display_region_x < 0)                                        mDisplay.level_display_region_x = 0;
-      if (mDisplay.level_display_region_y < 0)                                        mDisplay.level_display_region_y = 0;
-      if (mDisplay.level_display_region_x > (2000 - mDisplay.level_display_region_w)) mDisplay.level_display_region_x = 2000 - mDisplay.level_display_region_w;
-      if (mDisplay.level_display_region_y > (2000 - mDisplay.level_display_region_h)) mDisplay.level_display_region_y = 2000 - mDisplay.level_display_region_h;
+      if (mDisplay.level_display_region_x < 0)          mDisplay.level_display_region_x = 0;
+      if (mDisplay.level_display_region_y < 0)          mDisplay.level_display_region_y = 0;
+      if (mDisplay.level_display_region_x > (2000 - w)) mDisplay.level_display_region_x = 2000 - w;
+      if (mDisplay.level_display_region_y > (2000 - h)) mDisplay.level_display_region_y = 2000 - h;
    }
 }
 
 void mwScreen::draw_scaled_level_region_to_display(int type)
 {
+   // first erase hidden regions (only in not in level editor)
+//   if (!mLoop.level_editor_running) mItem.erase_hider_areas();
+
+
+
    set_screen_display_variables();
    if (type != 3) set_level_display_region_xy();
 
@@ -268,7 +275,7 @@ void mwScreen::draw_scaled_level_region_to_display(int type)
 
    // draw the level region from level buffer to display
    al_draw_scaled_bitmap(mBitmap.level_buffer, mDisplay.level_display_region_x, mDisplay.level_display_region_y, mDisplay.level_display_region_w, mDisplay.level_display_region_h,
-   mDisplay.screen_display_x,       mDisplay.screen_display_y,       mDisplay.screen_display_w,       mDisplay.screen_display_h, 0);
+                                               mDisplay.screen_display_x,       mDisplay.screen_display_y,       mDisplay.screen_display_w,       mDisplay.screen_display_h,        0);
 
 
    // show viewport hysteresis rectangle
@@ -408,11 +415,18 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
          mShot.draw_pshots();
       }
    }
+
+   // first erase hidden regions (only in not in level editor)
+   if (!mLoop.level_editor_running) mItem.erase_hider_areas();
+
+
    if (b == NULL) al_set_target_backbuffer(mDisplay.display);
    else al_set_target_bitmap(b);
    al_draw_scaled_bitmap(mBitmap.level_buffer, 0, 0, 2000, 2000, mx, my, ms, ms, 0);
 }
 
+
+// used only in transitions
 void mwScreen::draw_level_centered_on_player_pos(int screen_x, int screen_y, float scale_factor)
 {
    // use scale factor to determine scaled size of level
@@ -429,7 +443,7 @@ void mwScreen::draw_level_centered_on_player_pos(int screen_x, int screen_y, flo
    al_draw_scaled_bitmap(mBitmap.level_buffer, 0, 0, 2000, 2000, mgx, mgy, sz, sz, 0);
 }
 
-void mwScreen::draw_level(void) // draws the map on the menu screen
+void mwScreen::draw_level_map_under_menu(void) // used only in menu
 {
    int blocks = 0;
    if (mLevel.valid_level_loaded) blocks = 1;

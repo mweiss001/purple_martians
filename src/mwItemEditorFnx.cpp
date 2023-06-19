@@ -638,7 +638,7 @@ int mwItem::create_door(int type)
 int mwItem::create_item(int type)
 {
    // check for no creator
-   if ((type != 1) && (type != 3) && (type != 5) && (type != 9) && (type != 10) && (type != 13) && (type != 16) && (type != 17)) return 9999;
+   if ((type != 1) && (type != 3) && (type != 5) && (type != 9) && (type != 10) && (type != 13) && (type != 16) && (type != 17) && (type != 19)) return 9999;
    int i = get_empty_item(type); // get a place to put it
    if (i > 499) return i; // no items
    switch (type)
@@ -650,6 +650,8 @@ int mwItem::create_item(int type)
       case 13: if (!create_timer(i))        erase_item(i); break;
       case 16: if (!create_block_manip(i))  erase_item(i); break;
       case 17: if (!create_block_damage(i)) erase_item(i); break;
+      case 19: if (!create_hider(i))        erase_item(i); break;
+
    }
    sort_item(1);
    i = item_first_num[type]+item_num_of_type[type]-1;
@@ -678,4 +680,26 @@ int mwItem::create_timer(int i)
    else mWM.mW[7].object_viewer(2, i);
    return 1;
 }
+
+int mwItem::create_hider(int i)
+{
+   int bad = 0;
+   // set the item location
+   if (mMiscFnx.getxy("Hider", 2, 19, i) == 1)
+   {
+      mItem.item[i][0] = 19; // type 13 - timer
+      mItem.item[i][1] = 0;  // tile not needed, use custom draw, use 1 for trigger
+      mItem.item[i][2] = 1;  // initial action: hide
+      mItem.item[i][3] = 1;  // mode:1 (always hide)
+   }
+   else bad = 1;
+   if (!bad)
+   {
+      if (!mMiscFnx.get_block_range("Hidden Area", &mItem.item[i][6], &mItem.item[i][7], &mItem.item[i][8], &mItem.item[i][9], 1)) bad = 1;
+   }
+   if (bad) return 0;
+   else mWM.mW[7].object_viewer(2, i);
+   return 1;
+}
+
 

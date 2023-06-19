@@ -121,6 +121,22 @@ void mwDrawSequence::draw(void)
    if (seq[6][0]) mPlayer.draw_players();
    t7 = al_get_time(); add(6, t7-t6);
 
+
+
+   // first erase hidden regions (only in not in level editor)
+   if (!mLoop.level_editor_running) mItem.erase_hider_areas();
+
+
+   // draw gate info
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
+      {
+         mItem.draw_gate_info(mPlayer.syn[p].marked_gate);
+      }
+
+
+
+
    mScreen.draw_scaled_level_region_to_display(0);
    t8 = al_get_time(); add(7, t8-t7);
 

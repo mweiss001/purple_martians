@@ -65,7 +65,7 @@ class mwWindow
    void es_do_brf(int x, int y, int flood_block);
    void es_clear_ft(void);
    int es_load_selection(void);
-   void es_save_selection(int save);
+   void es_selection_to_ft(int save_to_disk);
    void es_do_fcopy(int qx1, int qy1);
    void es_do_clear(void);
    void set_block_with_flag_filters(int x, int y, int tn);
