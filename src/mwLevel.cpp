@@ -187,6 +187,8 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
       // copy to game variables
       pml_to_var(pml);
 
+      if (level_num == 1) set_overworld_barriers();
+
       if (!load_only)
       {
          mLevel.valid_level_loaded = 1;
@@ -202,6 +204,7 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
          mScreen.init_level_background(); // draw blocks on level_background
          //set_player_start_pos(0, 0);
       }
+
       return 1;
    }
 }
@@ -423,8 +426,37 @@ void mwLevel::reset_level_data(void)
 void mwLevel::unlock_all_levels(void)
 {
    for(int i=0; i<100; i++) data[i].unlocked = 1;
+
+   check_achievments();
    save_data();
+
 }
+
+
+void  mwLevel::set_training_complete(void)
+{
+
+
+   data[80].unlocked = 1;
+   data[80].completed = 1;
+
+   data[81].unlocked = 1;
+   data[81].completed = 1;
+
+   data[82].unlocked = 1;
+   data[82].completed = 1;
+
+   data[83].unlocked = 1;
+   data[83].completed = 1;
+
+   check_achievments();
+
+   load_level(1, 1, 0); // load overworld level (also sets overworld barriers)
+
+
+}
+
+
 
 void mwLevel::setup_data(void)
 {
@@ -441,9 +473,130 @@ void mwLevel::level_start_data(void)
    level_data_enemies_killed = 0;
 }
 
+
+void mwLevel::check_achievments(void)
+{
+   // ------------------
+   // training levels
+   // ------------------
+   if (data[80].completed) data[81].unlocked = 1;
+   if (data[81].completed) data[82].unlocked = 1;
+   if (data[82].completed)
+   {
+      data[83].unlocked = 1; // unlock training level 4
+      area_locks[0] = 0;     // open barrier to next lower row
+      area_locks[1] = 0;     // open barrier to area 1
+      data[2].unlocked = 1;  // unlock first level in area 1
+   }
+
+   if (data[83].completed) data[84].unlocked = 1;
+   if (data[84].completed) data[ 9].unlocked = 1;
+   if (data[ 9].completed) data[25].unlocked = 1;
+   if (data[25].completed) data[37].unlocked = 1;
+
+   // ------------------
+   // area 1
+   // ------------------
+   if (data[ 2].completed) data[ 3].unlocked = 1;
+   if (data[ 3].completed) data[14].unlocked = 1;
+   if (data[14].completed) data[ 7].unlocked = 1;
+   if (data[ 7].completed) data[ 5].unlocked = 1;
+   if (data[ 5].completed)
+   {
+      area_locks[2] = 0;      // open barrier to area 2
+      data[21].unlocked = 1;  // unlock first level in area 2
+   }
+
+   // ------------------
+   // area 2
+   // ------------------
+   if (data[21].completed) data[39].unlocked = 1;
+   if (data[39].completed) data[15].unlocked = 1;
+   if (data[15].completed) data[ 4].unlocked = 1;
+   if (data[ 4].completed) data[34].unlocked = 1;
+   if (data[34].completed)
+   {
+      area_locks[3] = 0;     // open barrier to area 3
+      data[8].unlocked = 1;  // unlock first level in area 3
+   }
+
+   // ------------------
+   // area 3
+   // ------------------
+   if (data[ 8].completed) data[28].unlocked = 1;
+   if (data[28].completed) data[ 6].unlocked = 1;
+   if (data[ 6].completed) data[18].unlocked = 1;
+   if (data[18].completed) data[26].unlocked = 1;
+   if (data[26].completed)
+   {
+      area_locks[4] = 0;      // open barrier to area 4
+      data[38].unlocked = 1;  // unlock first level in area 4
+   }
+
+   // ------------------
+   // area 4
+   // ------------------
+   if (data[38].completed) data[20].unlocked = 1;
+   if (data[20].completed) data[30].unlocked = 1;
+   if (data[30].completed) data[22].unlocked = 1;
+   if (data[22].completed) data[13].unlocked = 1;
+   if (data[13].completed)
+   {
+      area_locks[5] = 0;      // open barrier to area 5
+      data[33].unlocked = 1;  // unlock first level in area 5
+   }
+
+   // ------------------
+   // area 5
+   // ------------------
+   if (data[33].completed) data[19].unlocked = 1;
+   if (data[19].completed) data[23].unlocked = 1;
+   if (data[23].completed) data[51].unlocked = 1;
+   if (data[51].completed) data[24].unlocked = 1;
+   if (data[24].completed)
+   {
+      area_locks[6] = 0;      // open barrier to area 6
+      data[29].unlocked = 1;  // unlock first level in area 6
+   }
+
+   // ------------------
+   // area 6
+   // ------------------
+   if (data[29].completed) data[31].unlocked = 1;
+   if (data[31].completed) data[32].unlocked = 1;
+   if (data[32].completed) data[10].unlocked = 1;
+   if (data[10].completed) data[35].unlocked = 1;
+   if (data[35].completed)
+   {
+      area_locks[7] = 0;      // open barrier to area 7
+      data[16].unlocked = 1;  // unlock first level in area 7
+   }
+
+   // ------------------
+   // area 7
+   // ------------------
+   if (data[16].completed) data[11].unlocked = 1;
+   if (data[11].completed) data[12].unlocked = 1;
+   if (data[12].completed) data[17].unlocked = 1;
+   if (data[17].completed) data[64].unlocked = 1;
+   if (data[64].completed)
+   {
+      area_locks[8] = 0;      // open barrier to area 8
+      data[99].unlocked = 1;  // unlock first level in area 8
+   }
+
+
+
+
+
+   save_data();
+}
+
+
+
+
 void mwLevel::level_complete_data(void)
 {
-
 
 
 //   if ((mPlayer.syn[mPlayer.active_local_player].control_method != 1) || (mLevel.skc_trigger_demo_cheat))// don't count anything done in demo mode, unless cheat!
@@ -453,13 +606,14 @@ void mwLevel::level_complete_data(void)
       int lev = play_level;
 
       data[lev].unlocked = 1; // if for some reason it isn't already
-
-   //   printf("level_complete_data() play_level:%d\n", play_level);
+      //   printf("level_complete_data() play_level:%d\n", play_level);
+      int ct = mLoop.frame_num;
+      printf("1 level_complete_data() mLoop.frame_num:%d\n", ct);
 
       // add entry to play_data[] array
       int i = play_data_num;
       play_data[i].level = lev;
-      play_data[i].timer = mLoop.frame_num;
+      play_data[i].timer = ct;
       play_data[i].completed = 1;
       play_data[i].player_respawns = level_data_player_respawns;
       play_data[i].enemies_killed = level_data_enemies_killed;
@@ -471,8 +625,9 @@ void mwLevel::level_complete_data(void)
       // was the level just completed for the first time
       if (!data[lev].completed)
       {
+         printf("first time:%d\n", ct);
          data[lev].completed = 1;
-         data[lev].best_time                  = mLoop.frame_num;
+         data[lev].best_time                  = ct;
          data[lev].min_respawns               = level_data_player_respawns;
          data[lev].max_enemies_killed         = level_data_enemies_killed;
          data[lev].max_purple_coins_collected = level_data_purple_coins_collected;
@@ -480,38 +635,263 @@ void mwLevel::level_complete_data(void)
       }
 
       // check for new best values
-      if (mLoop.frame_num                   < data[lev].best_time)                  data[lev].best_time                  = mLoop.frame_num;
+      if (ct                                < data[lev].best_time)                  data[lev].best_time                  = ct;
       if (level_data_player_respawns        < data[lev].min_respawns)               data[lev].min_respawns               = level_data_player_respawns;
       if (level_data_enemies_killed         > data[lev].max_enemies_killed)         data[lev].max_enemies_killed         = level_data_enemies_killed;
       if (level_data_purple_coins_collected > data[lev].max_purple_coins_collected) data[lev].max_purple_coins_collected = level_data_purple_coins_collected;
       if (mEnemy.num_enemy                  < data[lev].min_enemies_left)           data[lev].min_enemies_left           = mEnemy.num_enemy;
 
-      // calculate achievements
+      check_achievments();
+   }
+}
 
-      // check for levels to unlock
 
-   //   if (data[2].completed) data[3].unlocked = 1;
-   //   if (data[2].completed) data[3].unlocked = 1;
 
-      for (i=2; i<100; i++)
+
+
+void mwLevel::sob_hline(int x1, int x2, int y, int a)
+{
+   for(int x=x1; x<x2+1; x++)
+   {
+      int block = 0;
+      if (a)
       {
-         if (data[i].completed) data[i+1].unlocked = 1;
+                      block = 582 | PM_BTILE_ALL_SOLID; // thru
+         if (x == x1) block = 590 | PM_BTILE_ALL_SOLID;
+         if (x == x2) block = 588 | PM_BTILE_ALL_SOLID;
+      }
+      mLevel.l[x][y] = block;
+   }
+}
+
+void mwLevel::sob_vline(int x, int y1, int y2, int a)
+{
+   for(int y=y1; y<y2+1; y++)
+   {
+      int block = 0;
+      if (a)
+      {
+                      block = 580 | PM_BTILE_ALL_SOLID; // thru
+         if (y == y1) block = 591 | PM_BTILE_ALL_SOLID;
+         if (y == y2) block = 589 | PM_BTILE_ALL_SOLID;
+      }
+      mLevel.l[x][y] = block;
+   }
+}
+
+void mwLevel::sob_create_msg(const char* txt, int col, int x, int y, int w, int h)
+{
+   // check and delete any existing message with first 6 char matching txt 'Area x'
+   char msg[80];
+   sprintf(msg, "%.6s", txt);
+
+   int msg_id = find_msg(msg);
+   if (msg_id != -1) mItem.erase_item(msg_id); // erase msg if it exists
+
+   // create new message
+   int i = mItem.get_empty_item(10);
+   mItem.item[i][0] = 10;
+   mItem.item[i][2] = 65;
+   mItem.item[i][4] = x-10;
+   mItem.item[i][5] = y-10;
+   mItem.item[i][6] = x;
+   mItem.item[i][7] = y;
+   mItem.item[i][8] = w;
+   mItem.item[i][9] = h;
+   mMiscFnx.set_int_3216(mItem.item[i][13], 15, col); // set text and frame colors
+   sprintf(mItem.pmsgtext[i], txt);
+}
+
+
+void mwLevel::sob_area_msg(int area, int x, int y, int g1, int g2, int g3, int g4, int g5)
+{
+   char msg1[20];
+   char msg2[20];
+   char msg3[20];
+   char msg4[20];
+
+   sprintf(msg1, "Area %d", area);
+
+   int col = 10;
+   if (area_locks[area]) // locked
+   {
+      sprintf(msg2, "Locked");
+      col = 10;
+   }
+   else
+   {
+
+      int cmp = 0; // count how many levels in this area are complete
+      int pct = 0; // count total purple coins in this area
+      int pcc = 0; // count max purple coins clooected in this area
+      int tmr = 0; // count how many levels in this area have below par time
+
+
+      cmp += data[g1].completed;
+      pct += data[g1].tot_purple_coins;
+      pcc += data[g1].max_purple_coins_collected;
+      if ((data[g1].best_time > 0) && (data[g1].best_time < data[g1].par_time) && (data[g1].completed)) tmr++;
+
+      cmp += data[g2].completed;
+      pct += data[g2].tot_purple_coins;
+      pcc += data[g2].max_purple_coins_collected;
+      if ((data[g2].best_time > 0) && (data[g2].best_time < data[g2].par_time) && (data[g2].completed)) tmr++;
+
+      cmp += data[g3].completed;
+      pct += data[g3].tot_purple_coins;
+      pcc += data[g3].max_purple_coins_collected;
+      if ((data[g3].best_time > 0) && (data[g3].best_time < data[g3].par_time) && (data[g3].completed)) tmr++;
+
+      cmp += data[g4].completed;
+      pct += data[g4].tot_purple_coins;
+      pcc += data[g4].max_purple_coins_collected;
+      if ((data[g4].best_time > 0) && (data[g4].best_time < data[g4].par_time) && (data[g4].completed)) tmr++;
+
+      cmp += data[g5].completed;
+      pct += data[g5].tot_purple_coins;
+      pcc += data[g5].max_purple_coins_collected;
+      if ((data[g5].best_time > 0) && (data[g5].best_time < data[g5].par_time) && (data[g5].completed)) tmr++;
+
+
+
+      sprintf(msg2, "Done:%d/5", cmp);
+      col = 13;
+
+      if (cmp == 5)
+      {
+         sprintf(msg2, "Complete");
+         col = 12;
       }
 
-      // check for other things to alter on the ovrworld level
+      sprintf(msg3, "Coin:%d/%d", pcc, pct);
 
-      save_data();
+      sprintf(msg4, "Time:%d/5", tmr);
+
+
+      if ((pcc == pct) && (tmr == 5))
+      {
+         sprintf(msg2, "Perfect!");
+         col = 8;
+      }
+
+
+
+
+
 
    }
+   char msg[256];
+   sprintf(msg, "%s\n%s\n%s\n%s", msg1, msg2, msg3, msg4);
+   sob_create_msg(msg, col, x, y, 85, 57);
+}
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+int mwLevel::find_msg(const char* str)
+{
+   int msg_id = -1;
+   for(int i=0; i<500; i++)
+      if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], str, strlen(str)))) msg_id = i;
+   return msg_id;
+}
+
+
+
+
+// only ever called from load level after loading level 1
+void mwLevel::set_overworld_barriers(void)
+{
+
+   // --------------------------------
+   // area 0
+   // --------------------------------
+   int msg_id = find_msg("Complete three");
+   if (area_locks[0])   // locked between training levels and area 1,2
+   {
+      if (msg_id == -1) // create msg if it does not exist
+      {
+         int i = mItem.get_empty_item(10);
+         mItem.item[i][0] = 10;
+         mItem.item[i][2] = 11;
+         mItem.item[i][4] = 980;
+         mItem.item[i][5] = 160;
+         mItem.item[i][6] = 867;
+         mItem.item[i][7] = 183;
+         mItem.item[i][8] = 266;
+         mItem.item[i][9] = 15;
+         mItem.item[i][13] = 851980;
+         sprintf(mItem.pmsgtext[i], "Complete three training levels.");
+      }
+   }
+   else if (msg_id != -1) mItem.erase_item(msg_id); // erase msg if it exists
+
+   // area messages
+   sob_area_msg(1, 730,  210, 2,   3, 14,  7, 5 );
+   sob_area_msg(2, 1180, 210, 21, 39, 15,  4, 34);
+   sob_area_msg(3, 730,  390, 8,  28,  6, 18, 26);
+   sob_area_msg(4, 1180, 390, 38, 20, 30, 22, 13);
+   sob_area_msg(5, 730,  570, 33, 19, 23, 51, 24);
+   sob_area_msg(6, 1180, 570, 29, 31, 32, 10, 35);
+   sob_area_msg(7, 730,  750, 16, 11, 12, 17, 64);
+
+   // blocking lines of blocks
+   sob_hline(41, 58, 9,  area_locks[0]);   // blocking between training levels and area 1, 2
+   sob_vline(61, 10, 17, area_locks[2]);   // blocking area 2
+   sob_hline(43, 56, 18, area_locks[3]);   // blocking between area 1,2 and area 3,4
+   sob_vline(61, 19, 26, area_locks[4]);   // blocking area 4
+   sob_hline(45, 54, 27, area_locks[5]);   // blocking between area 3,4 and area 5,6
+   sob_vline(61, 28, 35, area_locks[6]);   // blocking area 6
+   sob_hline(47, 52, 36, area_locks[7]);   // blocking between area 5,6 and area 7
+
+
+   // how much of overworld level to hide
+   int lowest_visible_y = 200; // default only top training row visible
+   if (!area_locks[1]) lowest_visible_y = 380; // area 1 and 2 visible
+   if (!area_locks[3]) lowest_visible_y = 560; // area 3 and 4 visible
+   if (!area_locks[5]) lowest_visible_y = 740; // area 5 and 6 visible
+   if (!area_locks[7]) lowest_visible_y = 920; // area 7 visible
+
+   // remove all hiders
+   for(int i=0; i<500; i++)
+      if (mItem.item[i][0] == 19) mItem.item[i][0] = 0;
+
+   // create hider
+   int i = mItem.get_empty_item(19);
+   mItem.item[i][0] = 19;
+   mItem.item[i][1] = 0;
+   mItem.item[i][2] = 1;
+   mItem.item[i][3] = 1;
+   mItem.item[i][4] = 40;
+   mItem.item[i][5] = 40;
+   mItem.item[i][7] = lowest_visible_y;
+   mItem.item[i][8] = 2000;
+   mItem.item[i][9] = 2000 - lowest_visible_y;
+
+   save_level(1); // save overworld level
 }
 
 
 
 void mwLevel::clear_data(void)
 {
+   for(int i=0; i<16; i++) area_locks[i] = 1;
+
+   load_level(1, 1, 0); // load overworld level (also sets overworld barriers)
+
+   overworld_level = 0; // no gate will be found and player will start from start block
+
    for(int i=0; i<100; i++)
    {
       strcpy(data[i].level_name, "");
@@ -530,7 +910,6 @@ void mwLevel::clear_data(void)
    int i = 2;
    strcpy(data[i].level_name, "Switch Nest");
    data[i].par_time = 4000; // 1:40 demo 1:24
-   data[i].unlocked = 1;
 
    i = 3;
    strcpy(data[i].level_name, "Blue Key Fall");
@@ -555,10 +934,6 @@ void mwLevel::clear_data(void)
    i = 8;
    strcpy(data[i].level_name, "Switch Pit");
    data[i].par_time = 8800; // 3:40 demo 3:31
-
-   i = 9;
-   strcpy(data[i].level_name, "Bomb Intro");
-   data[i].par_time = 6400; // 2:40 demo 2:37
 
    i = 10;
    strcpy(data[i].level_name, "The Dead Zone");
@@ -620,9 +995,6 @@ void mwLevel::clear_data(void)
    strcpy(data[i].level_name, "Wendy");
    data[i].par_time = 6600; // 2:45 demo 2:30
 
-   i = 25;
-   strcpy(data[i].level_name, "One Cannon");
-   data[i].par_time = 1000; // 25s demo 19.7s
 
    i = 26;
    strcpy(data[i].level_name, "Long Fall");
@@ -663,15 +1035,6 @@ void mwLevel::clear_data(void)
    i = 35;
    strcpy(data[i].level_name, "Bomb Toss");
    data[i].par_time = 13200; // 5:30 demo 5:29
-
-   i = 64;
-   strcpy(data[i].level_name, "Escape Rocket!");
-   data[i].par_time = 16800; // 7:00 demo 7:01
-
-
-   i = 37;
-   strcpy(data[i].level_name, "Sacrifice");
-   data[i].par_time = 800; // :20 demo 19.0
 
    i = 38;
    strcpy(data[i].level_name, "Come Over");
@@ -762,7 +1125,15 @@ void mwLevel::clear_data(void)
    data[i].par_time = 2400; // 2:00 demo
 
 
+   i = 64;
+   strcpy(data[i].level_name, "Escape Rocket!");
+   data[i].par_time = 16880; // 7:02 demo 7:01
 
+
+
+   // ---------------------------------------
+   // Test Levels
+   // ---------------------------------------
 
    i = 70;
    strcpy(data[i].level_name, "Test Level 1");
@@ -774,6 +1145,11 @@ void mwLevel::clear_data(void)
    data[i].par_time = 240;
 
 
+
+   // ---------------------------------------
+   // Training Levels
+   // ---------------------------------------
+
    i = 80;
    strcpy(data[i].level_name, "Training Level 1");
    data[i].par_time = 1200; // 30s demo 25
@@ -782,99 +1158,90 @@ void mwLevel::clear_data(void)
    i = 81;
    strcpy(data[i].level_name, "Training Level 2");
    data[i].par_time = 4800; // 2:00 demo 1:30
-   data[i].unlocked = 1;
 
    i = 82;
    strcpy(data[i].level_name, "Training Level 3");
    data[i].par_time = 8400; // 3:30 demo 3:10
-   data[i].unlocked = 1;
 
    i = 83;
    strcpy(data[i].level_name, "Training Level 4");
    data[i].par_time = 6000; // 2:30 demo 2:22
-   data[i].unlocked = 1;
 
    i = 84;
    strcpy(data[i].level_name, "Training Level 5");
    data[i].par_time = 4800; // 2:00 demo 1:24
-   data[i].unlocked = 1;
+
+   i = 9;
+   strcpy(data[i].level_name, "Bomb Intro");
+   data[i].par_time = 6400; // 2:40 demo 2:37
+
+   i = 25;
+   strcpy(data[i].level_name, "One Cannon");
+   data[i].par_time = 1000; // 25s demo 19.7s
+
+   i = 37;
+   strcpy(data[i].level_name, "Sacrifice");
+   data[i].par_time = 800; // :20 demo 19.0
 
 
-
+   // ---------------------------------------
+   // Advanced Information Levels
+   // ---------------------------------------
    i = 85;
    strcpy(data[i].level_name, "Doors");
    data[i].par_time = 4800; // 2:00 demo 1:58
-   data[i].unlocked = 1;
 
    i = 86;
    strcpy(data[i].level_name, "Triggers and Timers");
    data[i].par_time = 7200; // 3:00 demo 2:26
-   data[i].unlocked = 1;
 
    i = 87;
    strcpy(data[i].level_name, "Block Manip");
    data[i].par_time = 2400; // 1:00 demo 0:57
-   data[i].unlocked = 1;
 
    i = 88;
    strcpy(data[i].level_name, "Block Damage");
    data[i].par_time = 6000; // 2:30 demo 2:10
-   data[i].unlocked = 1;
 
    i = 89;
    strcpy(data[i].level_name, "Orbs");
    data[i].par_time = 4800; // 2:00 demo 1:44
-   data[i].unlocked = 1;
 
    i = 90;
    strcpy(data[i].level_name, "Archwagons");
    data[i].par_time = 4800; // 2:00 demo 1:50
-   data[i].unlocked = 1;
 
    i = 91;
    strcpy(data[i].level_name, "Trakbots");
    data[i].par_time = 2400; // 1:00 demo 0:41.2
-   data[i].unlocked = 1;
 
    i = 92;
    strcpy(data[i].level_name, "Bouncers and Cannons");
    data[i].par_time = 4800; // 2:00 demo 1:29
-   data[i].unlocked = 1;
 
    i = 93;
    strcpy(data[i].level_name, "Cloners");
    data[i].par_time = 4800; // 2:00 demo 1:26
-   data[i].unlocked = 1;
 
    i = 94;
    strcpy(data[i].level_name, "Vinepods");
    data[i].par_time = 4800; // 2:00 demo 1:23
-   data[i].unlocked = 1;
 
    i = 95;
    strcpy(data[i].level_name, "Blokwalks");
    data[i].par_time = 4800; // 2:00 demo 1:05
-   data[i].unlocked = 1;
 
    i = 96;
    strcpy(data[i].level_name, "Flappers");
    data[i].par_time = 2400; // 1:00 demo 0:46.9
-   data[i].unlocked = 1;
 
    i = 97;
    strcpy(data[i].level_name, "Jumpworms");
    data[i].par_time = 4800; // 2:00 demo 1:18
-   data[i].unlocked = 1;
 
    i = 98;
    strcpy(data[i].level_name, "Lifts");
    data[i].par_time = 7200; // 3:00 demo 2:25
-   data[i].unlocked = 1;
-
-
-
-
-
 
    for(int i=0; i<10000; i++)
    {
@@ -898,12 +1265,13 @@ void mwLevel::load_data(void)
    if (fp)
    {
       fread(data,           sizeof(data),          1, fp);
+      fread(area_locks,     sizeof(area_locks),    1, fp);
       fread(play_data,      sizeof(play_data),     1, fp);
       fread(&play_data_num, sizeof(play_data_num), 1, fp);
       fclose(fp);
       return;
    }
-   mInput.m_err("Error loading level_date.pm");
+   mInput.m_err("Error loading level_data.pm");
 }
 
 void mwLevel::save_data(void)
@@ -912,6 +1280,7 @@ void mwLevel::save_data(void)
    if (fp)
    {
       fwrite(data,           sizeof(data),          1, fp);
+      fwrite(area_locks,     sizeof(area_locks),    1, fp);
       fwrite(play_data,      sizeof(play_data),     1, fp);
       fwrite(&play_data_num, sizeof(play_data_num), 1, fp);
       fclose(fp);

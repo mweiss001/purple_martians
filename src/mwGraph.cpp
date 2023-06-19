@@ -1206,7 +1206,7 @@ void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALL
    if (bw > max_width) max_width = bw;
    height += bh+2;
 
-   // where to postion around the mouse, so we don't draw off screen or block mouse
+   // where to position around the mouse, so we don't draw off screen or block mouse
    y -= (9 + height); // upper (default)
    if (y < plot_y1)
    {

@@ -87,7 +87,8 @@ void mwWindow::ov_get_size(void)
    if ((obt == 2) && (type == 15)) w = 240; // sproingy
    if ((obt == 2) && (type == 16)) w = 280; // bm
    if ((obt == 2) && (type == 17)) w = 290; // bd
-   if ((obt == 2) && (type == 18)) w = 220; // bd
+   if ((obt == 2) && (type == 18)) w = 220; // gate
+   if ((obt == 2) && (type == 19)) w = 240; // hider
 
    if ((obt == 3) && (type == 1 )) w = 220; // bouncer
    if ((obt == 3) && (type == 2 )) w = 220; // cannon
@@ -387,6 +388,11 @@ void mwWindow::ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
          case 18:
              mWM.mW[7].num_legend_lines = 2;
              sprintf(lmsg[1],"Gate Location");
+         break;
+         case 19: // hider
+            sprintf(lmsg[1],"Item Location");
+            sprintf(lmsg[2],"Hidden Area");
+            legend_highlight == 2 ? legend_color[2] = mColor.flash_color : legend_color[2] = 10;
          break;
 
 
@@ -1120,6 +1126,51 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
 
 
+
+         case 19: // hider
+         {
+            if (mWidget.buttont(   xa, ya, xb, bts, 0,0,0,0,   0,10,15,0,  1,0,1,d, "Get New Hidden Area")) mMiscFnx.get_block_range("Hidden Area", &mItem.item[n][6], &mItem.item[n][7], &mItem.item[n][8], &mItem.item[n][9], 1);
+            ya+=4; // spacer
+
+            int p=7; // mode color
+
+            mWidget.buttonp(       xa, ya, xb, bts, 403,n,0,0, 0,p,15,0,   1,0,1,d, mItem.item[n][3]); // mode
+            int MODE = mItem.item[n][3];
+            if ((MODE == 4) || (MODE == 5))
+            {
+               ya+=4; // spacer
+               mWidget.toggle(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, mItem.item[n][2], "Initial State:Show","Initial State:Hide ", 15, 15, p, p);
+            }
+
+            if ((MODE == 2) || (MODE == 3) || (MODE == 4) || (MODE == 5))
+            {
+               ya+=4; // spacer
+               mWidget.slider0(    xa, ya, xb, bts, 0,0,0,0,   0,13,15,15, 1,0,1,d, mItem.item[n][1], 99, 0, 1, "Event Trigger:", "OFF");
+               if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(2, n, 0, 0);
+            }
+
+         }
+         break;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       }
    }
    // set height
@@ -1334,6 +1385,10 @@ void mwWindow::ov_draw_overlays(int legend_highlight)
             (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
             ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
             mTriggerEvent.find_and_show_event_links(obt, num, 0);
+         break;
+         case 19: // hider
+            (legend_highlight == 2) ? color = mColor.flash_color : color = 10;
+            ov_draw_overlay_rectangle_and_crosshairs(mItem.item[num][6], mItem.item[num][7], mItem.item[num][8], mItem.item[num][9], color, 1);
          break;
 
       } // end of switch case

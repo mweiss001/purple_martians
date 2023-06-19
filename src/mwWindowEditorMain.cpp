@@ -622,7 +622,7 @@ void mwWindow::em_process_mouse(void)
       int din = mWM.mW[1].draw_item_num; // shorter variable name
       switch (mWM.mW[1].draw_item_type)
       {
-         case 1:  // block
+         case 1: // block
          {
             mWM.bx1 = mWM.gx;
             mWM.by1 = mWM.gy;
@@ -632,7 +632,7 @@ void mwWindow::em_process_mouse(void)
             al_set_target_backbuffer(mDisplay.display);
          }
          break;
-         case 2:  // item
+         case 2: // item
          {
             int type = mItem.item[din][0];
             int ofx = mWM.gx*20 - mItem.item[din][4]; // get offset of move in 2000 format
@@ -654,7 +654,7 @@ void mwWindow::em_process_mouse(void)
             mItem.sort_item(1);
          }
          break;
-         case 3:    // enemy
+         case 3: // enemy
          {
             int type = mEnemy.Ei[din][0];
 
@@ -691,35 +691,35 @@ void mwWindow::em_process_mouse(void)
             mEnemy.sort_enemy();
          }
          break;
-         case 5: // Special
-         if ((mPDE.PDEi[din][0] > 99) && (mPDE.PDEi[din][0] < 200)) // PDE item
-         {
-            int d = mItem.get_empty_item(); // get a place to put it
-            if (d == -1)  break;
-            // copy from pde
-            for (int x=0; x<16; x++) // item
-               mItem.item[d][x] = mPDE.PDEi[din][x];
-            mItem.item[d][0] -= 100;
-            mItem.item[d][4] = mWM.gx*20;
-            mItem.item[d][5] = mWM.gy*20;
-            if (mItem.item[d][0] == 4)
+         case 5: // PDE
+            if ((mPDE.PDEi[din][0] > 99) && (mPDE.PDEi[din][0] < 200)) // PDE item
             {
-               mItem.itemf[d][0] = mItem.item[d][4];
-               mItem.itemf[d][1] = mItem.item[d][5];
-               mMiscFnx.get_block_range("Block Range", &mItem.item[d][6], &mItem.item[d][7], &mItem.item[d][8], &mItem.item[d][9], 1);
+               int d = mItem.get_empty_item(); // get a place to put it
+               if (d == -1)  break;
+               // copy from pde
+               for (int x=0; x<16; x++) // item
+                  mItem.item[d][x] = mPDE.PDEi[din][x];
+               mItem.item[d][0] -= 100;
+               mItem.item[d][4] = mWM.gx*20;
+               mItem.item[d][5] = mWM.gy*20;
+               if (mItem.item[d][0] == 4)
+               {
+                  mItem.itemf[d][0] = mItem.item[d][4];
+                  mItem.itemf[d][1] = mItem.item[d][5];
+                  mMiscFnx.get_block_range("Block Range", &mItem.item[d][6], &mItem.item[d][7], &mItem.item[d][8], &mItem.item[d][9], 1);
+               }
+               mItem.sort_item(1);
             }
-            mItem.sort_item(1);
-         }
-         if (mPDE.PDEi[din][0] < 99) // PDE enemy
-         {
-            int d = mEnemy.get_empty_enemy(); // get a place to put it
-            if (d == -1)  break;
-            for (int x=0; x<32; x++) mEnemy.Ei[d][x] = mPDE.PDEi[din][x];
-            for (int x=0; x<16; x++) mEnemy.Ef[d][x] = mPDE.PDEf[din][x];
-            mEnemy.Ef[d][0] = mWM.gx*20;  // set new x,y
-            mEnemy.Ef[d][1] = mWM.gy*20;
-            mEnemy.sort_enemy();
-         }
+            if (mPDE.PDEi[din][0] < 99) // PDE enemy
+            {
+               int d = mEnemy.get_empty_enemy(); // get a place to put it
+               if (d == -1)  break;
+               for (int x=0; x<32; x++) mEnemy.Ei[d][x] = mPDE.PDEi[din][x];
+               for (int x=0; x<16; x++) mEnemy.Ef[d][x] = mPDE.PDEf[din][x];
+               mEnemy.Ef[d][0] = mWM.gx*20;  // set new x,y
+               mEnemy.Ef[d][1] = mWM.gy*20;
+               mEnemy.sort_enemy();
+            }
          break;
       } // end of switch case
    } // end of mInput.mouse_b[1][0]

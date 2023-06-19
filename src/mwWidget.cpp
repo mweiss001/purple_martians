@@ -1693,6 +1693,15 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       if (var == 3) sprintf(msg, "MODE:Toggle Block 2 To Block 1");
       if (var == 4) sprintf(msg, "MODE:Copy Area");
    }
+
+
+
+
+
+
+
+
+
    if (bn == 402) // damage mode
    {
       if (press) var++;
@@ -1721,6 +1730,45 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 //
 //      if (var == 5) sprintf(msg, "MODE:Damage when Triggered");
 
+
+
+   }
+
+
+
+   if (bn == 403) // hider mode
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 5)) var = 0;
+      if (var == 0)
+      {
+         sprintf(msg, "MODE:Always Show");
+         mItem.item[num][2] = 0;
+      }
+      if (var == 1)
+      {
+         sprintf(msg, "MODE:Always Hide");
+         mItem.item[num][2] = 1;
+      }
+      if (var == 2)
+      {
+         sprintf(msg, "MODE:Show Until Triggered");
+         mItem.item[num][2] = 0;
+      }
+      if (var == 3)
+      {
+         sprintf(msg, "MODE:Hide Until Triggered");
+         mItem.item[num][2] = 1;
+      }
+      if (var == 4)
+      {
+         sprintf(msg, "MODE:Toggle When Triggered");
+      }
+
+      if (var == 5)
+      {
+         sprintf(msg, "MODE:Show Only When Triggered");
+      }
 
 
    }

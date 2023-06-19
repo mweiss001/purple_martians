@@ -98,18 +98,35 @@ class mwLevel
 
 
    struct level_data data[100];
-
    struct level_play_data play_data[10000];
    int play_data_num;
+
+   int area_locks[16];
 
 
    void reset_level_data(void);
    void unlock_all_levels(void);
 
+   void set_training_complete(void);
+
+   void sob_hline(int x1, int x2, int y, int a);
+   void sob_vline(int x, int y1, int y2, int a);
+
+
+   void sob_create_msg(const char* txt, int col, int x, int y, int w, int h);
+
+   void sob_area_msg(int area, int x, int y, int g1, int g2, int g3, int g4, int g5);
+
+   void set_overworld_barriers(void);
+
+   int find_msg(const char* str);
+
    void clear_data(void);
    void load_data(void);
    void save_data(void);
    void setup_data(void);
+
+   void check_achievments(void);
 
    void level_start_data(void);
    void level_complete_data(void);

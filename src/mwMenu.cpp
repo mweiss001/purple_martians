@@ -137,7 +137,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
 
       int mx = mDisplay.SCREEN_W/2;
 
-      mScreen.draw_level();
+      mScreen.draw_level_map_under_menu();
 
       if (demo_mode_menu_item_num)
       {

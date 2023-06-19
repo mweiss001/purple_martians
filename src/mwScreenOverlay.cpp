@@ -995,8 +995,8 @@ void mwScreen::draw_top_frame(int p)
    // ----------------------------------
    if (mLog.LOG_TMR_scrn_overlay) tt = al_get_time();
 
-   if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%d En:%d ",            mLevel.play_level, mItem.chrms(mLoop.frame_num, m2), mEnemy.num_enemy); // special case for narrow screens
-   else                sprintf(msg,"Level:%d | Time:%s | Enemies:%d  ", mLevel.play_level, mItem.chrms(mLoop.frame_num, m2), mEnemy.num_enemy);
+   if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%s En:%d ",                mLevel.play_level, mItem.chrms(mLoop.frame_num, m2), mEnemy.num_enemy); // special case for narrow screens
+   else                         sprintf(msg,"Level:%d | Time:%s | Enemies:%d  ", mLevel.play_level, mItem.chrms(mLoop.frame_num, m2), mEnemy.num_enemy);
 
 
 
@@ -1035,6 +1035,15 @@ void mwScreen::draw_top_frame(int p)
          al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, ex1, ey1+yo, ps, ps, 0, flags);
 
       }
+
+
+//   // draw gate info directly on the screen
+//
+//   for (int p=0; p<NUM_PLAYERS; p++)
+//      if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
+//      {
+//         mItem.draw_gate_info(mPlayer.syn[p].marked_gate);
+//      }
 
 
 

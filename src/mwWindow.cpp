@@ -190,7 +190,7 @@ void mwWindow::process_mouse(void)
 
             if ((mWM.mW[3].filter_mode == 3) && (mWM.mW[4].copy_mode))
             {
-              es_save_selection(0);
+              es_selection_to_ft(0);
               es_draw_fsel();
             }
          }
@@ -623,9 +623,9 @@ int mwWindow::cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int d)
    int fc2 = 4;     // frame color 2
 
    int tl=0; // text_lines
-   if (mode == 1) tl = 27*bts-bts/2;
-   if (mode == 2) tl = 29*bts-bts;
-   if (mode == 3) tl = 31*bts-bts;
+   if (mode == 1) tl = 28*bts-bts/2;
+   if (mode == 2) tl = 30*bts-bts;
+   if (mode == 3) tl = 32*bts-bts;
 
    if (mWM.mW[3].collapsed) tl = -bts+2;
 
@@ -682,12 +682,13 @@ int mwWindow::cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int d)
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][9],  "Triggr", "Triggr", tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][10], "Messge", "Messge", tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][11], "Rocket", "Rocket", tc1, tc2, fc1, fc2);
-      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][12], "Warp",   "Warp",   tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][13], "Timer",  "Timer",  tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][14], "Switch", "Switch", tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][15], "Spring", "Spring", tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][16], "Blk Mn", "Blk Mn", tc1, tc2, fc1, fc2);
       mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][17], "Blk Dm", "Blk Dm", tc1, tc2, fc1, fc2);
+      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][18], "Gate",   "Gate",   tc1, tc2, fc1, fc2);
+      mWidget.toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, mWM.obj_filter[2][19], "Hider",  "Hider",  tc1, tc2, fc1, fc2);
    }
    if (refresh_selection) es_draw_fsel();
    return y2;
@@ -924,6 +925,7 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
                      case 214: create_obj(2, 16, 0); break; // block manip
                      case 215: create_obj(2, 17, 0); break; // block damage
                      case 217: create_obj(2, 13, 0); break; // timer
+                     case 219: create_obj(2, 19, 0); break; // hider
                   }
                }
             }

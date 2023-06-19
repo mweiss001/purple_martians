@@ -8,6 +8,49 @@
 #include "mwColor.h"
 #include "mwLoop.h"
 #include "mwDisplay.h"
+#include "mwTriggerEvent.h"
+
+
+
+int mwItem::draw_hider(int i, int x, int y, int tile)
+{
+   if (mLoop.level_editor_running) al_draw_bitmap(mBitmap.tile[476], x, y, 0); // draw item shape in level editor, invisible when game running
+   return 1;
+}
+
+void mwItem::proc_hider(int i)
+{
+   int et = item[i][1];                 // number of pm_event trigger we are looking for
+   int trig = mTriggerEvent.event[et];  // is the trigger event set?
+   if (et == 0) trig = 0;               // if event is zero, ignore
+   if (trig)
+   {
+      if (item[i][3] == 2) item[i][2] = 0;
+      if (item[i][3] == 3) item[i][2] = 1;
+      if (item[i][3] == 4) item[i][2] = !item[i][2];
+      if (item[i][3] == 5) item[i][2] = 0;
+   }
+   else if (item[i][3] == 5) item[i][2] = 1;
+}
+
+
+
+
+void mwItem::erase_hider_areas(void)
+{
+   al_set_target_bitmap(mBitmap.level_buffer);
+   for (int i=0; i<500; i++)
+      if ((item[i][0] == 19) && (item[i][2]))
+      {
+         int x1 = item[i][6];
+         int y1 = item[i][7];
+         int x2 = x1 + item[i][8];
+         int y2 = y1 + item[i][9];
+         al_draw_filled_rectangle(x1, y1, x2, y2, mColor.Black);
+      }
+}
+
+
 
 
 int mwItem::draw_key(int i, int x, int y, int tile)
@@ -202,3 +245,36 @@ void mwItem::proc_switch_block_range(int i, int action)
          }
    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

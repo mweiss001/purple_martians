@@ -91,6 +91,17 @@ class mwItem
    void proc_switch_collision(int p, int i);
    void proc_switch_block_range(int i, int action);
 
+
+
+
+   void proc_hider(int i);
+   int draw_hider(int i, int x, int y, int tile);
+   void erase_hider_areas(void);
+
+
+
+
+
    // mwItemMessage.cpp
    int draw_message(int i, int x, int y, int custom);
    void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f);
@@ -160,6 +171,9 @@ class mwItem
    int create_pmsg(int c);
    int create_door(int type);
    int create_item(int type);
+
+   int create_hider(int i);
+
 
 };
 extern mwItem mItem;

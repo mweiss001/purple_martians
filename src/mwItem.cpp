@@ -54,6 +54,7 @@ void mwItem::initialize(void)
    strcpy(item_name[16], "Block Manip");
    strcpy(item_name[17], "Block Damage");
    strcpy(item_name[18], "Gate");
+   strcpy(item_name[19], "Hider");
 
    item_tile[0]  = 0;
    item_tile[1]  = 448;
@@ -74,7 +75,7 @@ void mwItem::initialize(void)
    item_tile[16] = 989;
    item_tile[17] = 988;
    item_tile[18] = 940;
-   item_tile[19] = 0;
+   item_tile[19] = 476;
 
 }
 
@@ -88,6 +89,7 @@ int mwItem::item_secondary67(int type)
    if (type == 14) return 1; // switch
    if (type == 16) return 1; // block manip
    if (type == 17) return 1; // block damage
+   if (type == 19) return 1; // hider
    return 0;
 }
 
@@ -98,6 +100,7 @@ int mwItem::item_secondary67_hires(int type)
    if (type == 10) return 1; // message
    if (type == 13) return 1; // timer display
    if (type == 17) return 1; // block damage
+   if (type == 19) return 1; // hider
    return 0;
 }
 
@@ -140,6 +143,8 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
    if (type == 16) drawn = draw_block_manip  (i, x, y);
    if (type == 17) drawn = draw_block_damage (i, x, y, custom);
    if (type == 18) drawn = draw_gate         (i, x, y, shape);
+   if (type == 19) drawn = draw_hider        (i, x, y, shape);
+
    if (type == 98) drawn = draw_rocket       (i, x, y, shape);
    if (type == 99) drawn = draw_lit_bomb     (i);
 
@@ -183,6 +188,7 @@ void mwItem::move_items()
          if (type == 13) proc_timer(i);
          if (type == 16) proc_block_manip(i);
          if (type == 17) proc_block_damage(i);
+         if (type == 19) proc_hider(i);
          if (type == 99) proc_lit_bomb(i);
          if (type == 98) proc_lit_rocket(i);
 
@@ -205,7 +211,7 @@ void mwItem::move_items()
          }
 
          // not stationary and not lit rocket, trigger, bm, bd or moving key
-         if ((item[i][3]) && (type != 98) && (type != 9) && (type != 13) && (type != 16) && (type != 17) && (type != 20) && (! ((type == 4) && (item[i][11] > 0)))    )
+         if ((item[i][3]) && (type != 98) && (type != 9) && (type != 13) && (type != 16) && (type != 17) && (type != 19) && (! ((type == 4) && (item[i][11] > 0)))    )
          {
             // check if being carried
             int pc = 0;
@@ -643,6 +649,7 @@ item[][14] = TGOF pm_event #
 
 [10] - msg
 item[][1] event trigger
+item[][2] draw flags
 item[][6]  msg x
 item[][7]  msg y
 item[][8]  msg w

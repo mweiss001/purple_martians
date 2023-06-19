@@ -3,10 +3,52 @@
 ---------------------------------------------------------
 
 
+huge bug going from level editor to game...level gets set to some huge number...
+no, its when changing speed
+start game
+no its random...
+what have I changed recently
+- added item type 19
+this bug is hard to reproduce...
+
 
 bug - in level editor when dragging window over block checkboxes
 
 bug - enemy counts like cloner 6 of 0..only sometimes??
+
+
+
+
+bug - in level editor, moving cloner with edit selection broke link from timer to cloner
+cloner was in selection, timer was not...
+i think the clt made a new event for cloner, even though it did not need to as it was only one event, not a pair
+also because it was just a move, not a copy, it did not need to do any clt...
+
+need a way in edit selection to not do clt if move..
+
+nothing happens for clt in putting stuff into ft, only when pasting it out...
+can I use copy_mode to track what mode I am in?
+
+it looks like copy mode is always 0 or 1
+
+can I set it to 2 when initiating move?
+then from 2 to 1 after first move?
+
+I think I have this working, but need to test more....
+
+bug - in es copy and move doors
+doors destinations are screwed up....
+moving doors gives them different item numbers, and that is what is used to link doors....
+
+I see no way to fix this, it was always a fragile setup...
+Unless I make the links between doors use a different method, independant of item numbers
+
+
+
+
+
+
+
 
 21 bomb has damage range of 1640...why? all i did was move it
 it should be 100
@@ -24,6 +66,9 @@ sometimes explosion bitmap does the same
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+lev008 new changed and new demo made
 
 
 
