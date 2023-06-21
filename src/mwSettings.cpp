@@ -1890,8 +1890,6 @@ void mwSettings::settings_pages(int set_page)
          if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
 
 
-         if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Set Training Complete")) mLevel.set_training_complete();
-
 
 
 //         if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "color tile"))

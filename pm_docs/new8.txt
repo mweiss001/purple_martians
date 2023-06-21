@@ -25926,11 +25926,83 @@ the overworld is looking very good
 
 
 line up message on right side
-
-show
-
+show actual total coins in messages even if area locked
 
 20230618 push
+
+
+I am thinking of rearranging the levels again...
+I need 6 more levels
+then I can fill out area 8 and have 64 past that...
+
+
+I want to make a dynamic method of putting levels in areas
+
+make an array with all levels in screen order?
+
+area_array[][0] level number
+area_array[][0] area
+area 0 == training
+
+
+this is coming nicely
+auto fill area array done
+use area array for level and area unlock done
+
+next use area array for message stuff
+
+make sob_area_msg(int area, int x, int y, int g1, int g2, int g3, int g4, int g5)
+
+figure out what levels are in the area instead of passing them..done...
+
+added area 8
+
+I want to make a way of umlcoking everything
+
+how about reset is the only things adds all barriers, i think that is the way it is now...
+
+
+add area msg for extra and advanced
+
+make total only count main areas
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

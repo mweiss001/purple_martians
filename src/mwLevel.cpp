@@ -426,36 +426,9 @@ void mwLevel::reset_level_data(void)
 void mwLevel::unlock_all_levels(void)
 {
    for(int i=0; i<100; i++) data[i].unlocked = 1;
-
-   check_achievments();
+   for(int i=0; i<16; i++) area_locks[i] = 0;
    save_data();
-
 }
-
-
-void  mwLevel::set_training_complete(void)
-{
-
-
-   data[80].unlocked = 1;
-   data[80].completed = 1;
-
-   data[81].unlocked = 1;
-   data[81].completed = 1;
-
-   data[82].unlocked = 1;
-   data[82].completed = 1;
-
-   data[83].unlocked = 1;
-   data[83].completed = 1;
-
-   check_achievments();
-
-   load_level(1, 1, 0); // load overworld level (also sets overworld barriers)
-
-
-}
-
 
 
 void mwLevel::setup_data(void)
@@ -463,7 +436,6 @@ void mwLevel::setup_data(void)
    load_data();
    load_level_icons();
 }
-
 
 void mwLevel::level_start_data(void)
 {
@@ -476,128 +448,35 @@ void mwLevel::level_start_data(void)
 
 void mwLevel::check_achievments(void)
 {
-   // ------------------
-   // training levels
-   // ------------------
-   if (data[80].completed) data[81].unlocked = 1;
-   if (data[81].completed) data[82].unlocked = 1;
-   if (data[82].completed)
+   // do the level unlocks by iterating levels with area_array, thay all should be in order
+   for(int i=0; i<99; i++)
+      if (data[area_array[i][0]].completed) data[area_array[i+1][0]].unlocked = 1;
+
+   // do the area unlocks
+   for(int a=1; a<10; a++) // iterate areas
    {
-      data[83].unlocked = 1; // unlock training level 4
-      area_locks[0] = 0;     // open barrier to next lower row
-      area_locks[1] = 0;     // open barrier to area 1
-      data[2].unlocked = 1;  // unlock first level in area 1
+      int complete = 1; // area complete by default
+      for(int j=0; j<100; j++)
+         if ((area_array[j][1] == a) && (data[area_array[j][0]].completed == 0)) complete = 0;
+      if (complete) area_locks[a+1] = 0; // open barrier next area
    }
 
-   if (data[83].completed) data[84].unlocked = 1;
-   if (data[84].completed) data[ 9].unlocked = 1;
-   if (data[ 9].completed) data[25].unlocked = 1;
-   if (data[25].completed) data[37].unlocked = 1;
-
-   // ------------------
-   // area 1
-   // ------------------
-   if (data[ 2].completed) data[ 3].unlocked = 1;
-   if (data[ 3].completed) data[14].unlocked = 1;
-   if (data[14].completed) data[ 7].unlocked = 1;
-   if (data[ 7].completed) data[ 5].unlocked = 1;
-   if (data[ 5].completed)
+   // special case for basic training levels
+   if (data[83].completed)
    {
-      area_locks[2] = 0;      // open barrier to area 2
-      data[21].unlocked = 1;  // unlock first level in area 2
+      area_locks[1] = 0;    // open barrier to next lower row
+      data[2].unlocked = 1; // open first level in area 1
+
+
+      area_locks[14] = 0;   // open barrier to area 14, advanced training
+      unlock_all_level_in_area(14);
    }
-
-   // ------------------
-   // area 2
-   // ------------------
-   if (data[21].completed) data[39].unlocked = 1;
-   if (data[39].completed) data[15].unlocked = 1;
-   if (data[15].completed) data[ 4].unlocked = 1;
-   if (data[ 4].completed) data[34].unlocked = 1;
-   if (data[34].completed)
-   {
-      area_locks[3] = 0;     // open barrier to area 3
-      data[8].unlocked = 1;  // unlock first level in area 3
-   }
-
-   // ------------------
-   // area 3
-   // ------------------
-   if (data[ 8].completed) data[28].unlocked = 1;
-   if (data[28].completed) data[ 6].unlocked = 1;
-   if (data[ 6].completed) data[18].unlocked = 1;
-   if (data[18].completed) data[26].unlocked = 1;
-   if (data[26].completed)
-   {
-      area_locks[4] = 0;      // open barrier to area 4
-      data[38].unlocked = 1;  // unlock first level in area 4
-   }
-
-   // ------------------
-   // area 4
-   // ------------------
-   if (data[38].completed) data[20].unlocked = 1;
-   if (data[20].completed) data[30].unlocked = 1;
-   if (data[30].completed) data[22].unlocked = 1;
-   if (data[22].completed) data[13].unlocked = 1;
-   if (data[13].completed)
-   {
-      area_locks[5] = 0;      // open barrier to area 5
-      data[33].unlocked = 1;  // unlock first level in area 5
-   }
-
-   // ------------------
-   // area 5
-   // ------------------
-   if (data[33].completed) data[19].unlocked = 1;
-   if (data[19].completed) data[23].unlocked = 1;
-   if (data[23].completed) data[51].unlocked = 1;
-   if (data[51].completed) data[24].unlocked = 1;
-   if (data[24].completed)
-   {
-      area_locks[6] = 0;      // open barrier to area 6
-      data[29].unlocked = 1;  // unlock first level in area 6
-   }
-
-   // ------------------
-   // area 6
-   // ------------------
-   if (data[29].completed) data[31].unlocked = 1;
-   if (data[31].completed) data[32].unlocked = 1;
-   if (data[32].completed) data[10].unlocked = 1;
-   if (data[10].completed) data[35].unlocked = 1;
-   if (data[35].completed)
-   {
-      area_locks[7] = 0;      // open barrier to area 7
-      data[16].unlocked = 1;  // unlock first level in area 7
-   }
-
-   // ------------------
-   // area 7
-   // ------------------
-   if (data[16].completed) data[11].unlocked = 1;
-   if (data[11].completed) data[12].unlocked = 1;
-   if (data[12].completed) data[17].unlocked = 1;
-   if (data[17].completed) data[64].unlocked = 1;
-   if (data[64].completed)
-   {
-      area_locks[8] = 0;      // open barrier to area 8
-      data[99].unlocked = 1;  // unlock first level in area 8
-   }
-
-
-
-
-
    save_data();
 }
 
 
-
-
 void mwLevel::level_complete_data(void)
 {
-
 
 //   if ((mPlayer.syn[mPlayer.active_local_player].control_method != 1) || (mLevel.skc_trigger_demo_cheat))// don't count anything done in demo mode, unless cheat!
    {
@@ -681,9 +560,9 @@ void mwLevel::sob_vline(int x, int y1, int y2, int a)
 
 void mwLevel::sob_create_msg(const char* txt, int col, int x, int y, int w, int h)
 {
-   // check and delete any existing message with first 6 char matching txt 'Area x'
+   // check and delete any existing message with first 7 char matching txt 'Area xx'
    char msg[80];
-   sprintf(msg, "%.6s", txt);
+   sprintf(msg, "%.7s", txt);
 
    int msg_id = find_msg(msg);
    if (msg_id != -1) mItem.erase_item(msg_id); // erase msg if it exists
@@ -703,8 +582,12 @@ void mwLevel::sob_create_msg(const char* txt, int col, int x, int y, int w, int 
 }
 
 
-void mwLevel::sob_area_msg(int area, int x, int y, int g1, int g2, int g3, int g4, int g5)
+void mwLevel::sob_area_msg(int area, int x, int y)
 {
+   int w = 95;
+   int h = 57;
+
+
    char msg1[20];
    char msg2[20];
    char msg3[20];
@@ -712,77 +595,62 @@ void mwLevel::sob_area_msg(int area, int x, int y, int g1, int g2, int g3, int g
 
    sprintf(msg1, "Area %d", area);
 
+   if (area == 13) { sprintf(msg1, "Basic Training"); w = 130; }
+   if (area == 14) { sprintf(msg1, "More Training");  w = 130; }
+   if (area == 9)  { sprintf(msg1, "Final Area");     w = 110; }
+   if (area == 16) { sprintf(msg1, "All Levels");     w = 110; }
+   if (area == 17) { sprintf(msg1, "Game Levels");    w = 110; }
+   if (area == 10) { sprintf(msg1, "Extra Levels");   w = 120; }
+   if (area == 12) { sprintf(msg1, "Demo Levels");    w = 120; }
+
+
+   int cmp = 0; // count how many levels in this area are complete
+   int pct = 0; // count total purple coins in this area
+   int pcc = 0; // count max purple coins clooected in this area
+   int tmr = 0; // count how many levels in this area have below par time
+
+   int nl = 0;
+   for (int i=0; i<100; i++)
+      if ((area_array[i][1] == area) || ((area == 16) && (area_array[i][1]) && (area_array[i][1] != 11)) || ((area == 17) && (area_array[i][1] > 0) && (area_array[i][1] < 10)  ))
+      {
+         nl++;
+         int l = area_array[i][0];
+         cmp += data[l].completed;
+         pct += data[l].tot_purple_coins;
+         pcc += data[l].max_purple_coins_collected;
+         if ((data[l].best_time > 0) && (data[l].best_time < data[l].par_time) && (data[l].completed)) tmr++;
+      }
+
    int col = 10;
-   if (area_locks[area]) // locked
+   if ((area_locks[area]) && (area != 16) && (area != 17)) // locked
    {
-      sprintf(msg2, "Locked");
+      sprintf(msg2, "(Locked)");
       col = 10;
    }
    else
    {
-
-      int cmp = 0; // count how many levels in this area are complete
-      int pct = 0; // count total purple coins in this area
-      int pcc = 0; // count max purple coins clooected in this area
-      int tmr = 0; // count how many levels in this area have below par time
-
-
-      cmp += data[g1].completed;
-      pct += data[g1].tot_purple_coins;
-      pcc += data[g1].max_purple_coins_collected;
-      if ((data[g1].best_time > 0) && (data[g1].best_time < data[g1].par_time) && (data[g1].completed)) tmr++;
-
-      cmp += data[g2].completed;
-      pct += data[g2].tot_purple_coins;
-      pcc += data[g2].max_purple_coins_collected;
-      if ((data[g2].best_time > 0) && (data[g2].best_time < data[g2].par_time) && (data[g2].completed)) tmr++;
-
-      cmp += data[g3].completed;
-      pct += data[g3].tot_purple_coins;
-      pcc += data[g3].max_purple_coins_collected;
-      if ((data[g3].best_time > 0) && (data[g3].best_time < data[g3].par_time) && (data[g3].completed)) tmr++;
-
-      cmp += data[g4].completed;
-      pct += data[g4].tot_purple_coins;
-      pcc += data[g4].max_purple_coins_collected;
-      if ((data[g4].best_time > 0) && (data[g4].best_time < data[g4].par_time) && (data[g4].completed)) tmr++;
-
-      cmp += data[g5].completed;
-      pct += data[g5].tot_purple_coins;
-      pcc += data[g5].max_purple_coins_collected;
-      if ((data[g5].best_time > 0) && (data[g5].best_time < data[g5].par_time) && (data[g5].completed)) tmr++;
-
-
-
-      sprintf(msg2, "Done:%d/5", cmp);
+      sprintf(msg2, "Done:%d/%d", cmp, nl);
       col = 13;
 
-      if (cmp == 5)
+      if (cmp == nl)
       {
          sprintf(msg2, "Complete");
          col = 12;
       }
-
-      sprintf(msg3, "Coin:%d/%d", pcc, pct);
-
-      sprintf(msg4, "Time:%d/5", tmr);
-
-
-      if ((pcc == pct) && (tmr == 5))
+      if ((pcc == pct) && (tmr == nl))
       {
          sprintf(msg2, "Perfect!");
          col = 8;
       }
-
-
-
-
-
-
    }
+
+   sprintf(msg3, "Coin:%d/%d", pcc, pct);
+   //sprintf(msg3, "Coin:15/15");
+   sprintf(msg4, "Time:%d/%d", tmr, nl);
+
    char msg[256];
    sprintf(msg, "%s\n%s\n%s\n%s", msg1, msg2, msg3, msg4);
-   sob_create_msg(msg, col, x, y, 85, 57);
+   sob_create_msg(msg, col, x, y, w, h);
 }
 
 
@@ -810,6 +678,9 @@ int mwLevel::find_msg(const char* str)
 
 
 
+
+
+
 // only ever called from load level after loading level 1
 void mwLevel::set_overworld_barriers(void)
 {
@@ -817,8 +688,8 @@ void mwLevel::set_overworld_barriers(void)
    // --------------------------------
    // area 0
    // --------------------------------
-   int msg_id = find_msg("Complete three");
-   if (area_locks[0])   // locked between training levels and area 1,2
+   int msg_id = find_msg("Complete Basic");
+   if (area_locks[1])   // locked between training levels and area 1,2
    {
       if (msg_id == -1) // create msg if it does not exist
       {
@@ -832,28 +703,56 @@ void mwLevel::set_overworld_barriers(void)
          mItem.item[i][8] = 266;
          mItem.item[i][9] = 15;
          mItem.item[i][13] = 851980;
-         sprintf(mItem.pmsgtext[i], "Complete three training levels.");
+         sprintf(mItem.pmsgtext[i], "Complete Basic Training");
       }
    }
    else if (msg_id != -1) mItem.erase_item(msg_id); // erase msg if it exists
 
+
    // area messages
-   sob_area_msg(1, 730,  210, 2,   3, 14,  7, 5 );
-   sob_area_msg(2, 1180, 210, 21, 39, 15,  4, 34);
-   sob_area_msg(3, 730,  390, 8,  28,  6, 18, 26);
-   sob_area_msg(4, 1180, 390, 38, 20, 30, 22, 13);
-   sob_area_msg(5, 730,  570, 33, 19, 23, 51, 24);
-   sob_area_msg(6, 1180, 570, 29, 31, 32, 10, 35);
-   sob_area_msg(7, 730,  750, 16, 11, 12, 17, 64);
+   sob_area_msg(13, 640,  40);
+   sob_area_msg(14, 1250,  40);
+
+   sob_area_msg(1, 745,  220);
+   sob_area_msg(2, 1161, 220);
+   sob_area_msg(3, 745,  400);
+   sob_area_msg(4, 1161, 400);
+   sob_area_msg(5, 745,  580);
+   sob_area_msg(6, 1161, 580);
+   sob_area_msg(7, 745,  760);
+   sob_area_msg(8, 1161, 760);
+
+   sob_area_msg(9, 725, 940);   // final area
+   sob_area_msg(17, 1161, 940); // main area levels
+
+   sob_area_msg(16, 1161, 1010); // all levels
+
+
+
+   sob_area_msg(10, 745, 1410); // extra levels
+
+   sob_area_msg(12, 940, 1750); // demo levels
+
 
    // blocking lines of blocks
-   sob_hline(41, 58, 9,  area_locks[0]);   // blocking between training levels and area 1, 2
-   sob_vline(61, 10, 17, area_locks[2]);   // blocking area 2
-   sob_hline(43, 56, 18, area_locks[3]);   // blocking between area 1,2 and area 3,4
-   sob_vline(61, 19, 26, area_locks[4]);   // blocking area 4
+   sob_vline(60, 1,  8,  area_locks[14]);  // blocking area 14 (advanced training)
+
+   sob_vline(56, 10, 17, area_locks[2]);   // blocking area 2
+   sob_vline(56, 19, 26, area_locks[4]);   // blocking area 4
+   sob_vline(56, 28, 35, area_locks[6]);   // blocking area 6
+   sob_vline(56, 37, 44, area_locks[8]);   // blocking area 8
+
+   sob_hline(45, 54, 9,  area_locks[1]);   // blocking between training levels and area 1, 2
+   sob_hline(45, 54, 18, area_locks[3]);   // blocking between area 1,2 and area 3,4
    sob_hline(45, 54, 27, area_locks[5]);   // blocking between area 3,4 and area 5,6
-   sob_vline(61, 28, 35, area_locks[6]);   // blocking area 6
-   sob_hline(47, 52, 36, area_locks[7]);   // blocking between area 5,6 and area 7
+   sob_hline(45, 54, 36, area_locks[7]);   // blocking between area 5,6 and area 7,8
+   sob_hline(45, 54, 45, area_locks[9]);   // blocking between area 7,8 and area 9
+
+   sob_vline(43, 46, 53, area_locks[10]);   // blocking between area 9 and the rest
+   sob_vline(56, 46, 53, area_locks[10]);   // blocking between area 9 and the rest
+
+   sob_vline(0,  46, 57, !area_locks[10]);   // edge pieces that I want invisible until 10 done
+   sob_vline(99, 46, 84, !area_locks[10]);   // edge pieces that I want invisible until 10 done
 
 
    // how much of overworld level to hide
@@ -862,10 +761,11 @@ void mwLevel::set_overworld_barriers(void)
    if (!area_locks[3]) lowest_visible_y = 560; // area 3 and 4 visible
    if (!area_locks[5]) lowest_visible_y = 740; // area 5 and 6 visible
    if (!area_locks[7]) lowest_visible_y = 920; // area 7 visible
+   if (!area_locks[9]) lowest_visible_y = 1100; // area 9 visible
+   if (!area_locks[10]) lowest_visible_y = 2000; // area 9 visible
 
    // remove all hiders
-   for(int i=0; i<500; i++)
-      if (mItem.item[i][0] == 19) mItem.item[i][0] = 0;
+   for(int i=0; i<500; i++) if (mItem.item[i][0] == 19) mItem.item[i][0] = 0;
 
    // create hider
    int i = mItem.get_empty_item(19);
@@ -884,9 +784,113 @@ void mwLevel::set_overworld_barriers(void)
 
 
 
+void mwLevel::faa_helper(int x1, int x2, int y1, int y2, int xasc, int &aai, int area)
+{
+   int res[50][3] = { 0 }; // results array
+   int resi = 0;
+
+   // find all gates in the area
+   for(int i=0; i<100; i++)
+      if ((mItem.item[i][0] == 18) && (mItem.item[i][4] >= x1) && (mItem.item[i][4] <= x2) && (mItem.item[i][5] >= y1) && (mItem.item[i][5] <= y2))
+      {
+         res[resi][0] = mItem.item[i][6]; // level num
+         res[resi][1] = mItem.item[i][4]; // x
+         res[resi][2] = mItem.item[i][5]; // y
+         resi++;
+      }
+
+   // sort results by x position
+   int swap_flag = 1;
+   while (swap_flag)
+   {
+      swap_flag = 0;
+
+      // sort by x
+      for(int i=0; i<resi-1; i++)
+      {
+         if ( ((xasc == 1) && (res[i][1] > res[i+1][1])) || ((xasc == 0) && (res[i][1] < res[i+1][1])) )
+         {
+            swap_flag = 1;
+
+            res[49][0] = res[i][0]; // temp
+            res[49][1] = res[i][1];
+            res[49][2] = res[i][2];
+
+            res[i][0] = res[i+1][0];
+            res[i][1] = res[i+1][1];
+            res[i][2] = res[i+1][2];
+
+            res[i+1][0] = res[49][0];
+            res[i+1][1] = res[49][1];
+            res[i+1][2] = res[49][2];
+
+         }
+      }
+   }
+
+   // add to area array
+   for (int i=0; i<resi; i++)
+   {
+      area_array[aai][0] = res[i][0];
+      area_array[aai][1] = area;
+      aai++;
+   }
+}
+
+
+void mwLevel::fill_area_array(void)
+{
+   // clear area array and index
+   for (int i=0; i<100; i++)
+   {
+      area_array[i][0] = 0;
+      area_array[i][1] = 0;
+   }
+   int aai = 0;
+
+   faa_helper(0,    1000, 0,   180, 0, aai, 13); // basic training levels
+   faa_helper(1000, 2000, 0,   180, 1, aai, 14); // advanced training levels
+
+
+   faa_helper(0,    1000, 200, 360, 0, aai, 1); // area 1
+   faa_helper(1000, 2000, 200, 360, 1, aai, 2); // area 2
+   faa_helper(0,    1000, 380, 540, 0, aai, 3); // area 3
+   faa_helper(1000, 2000, 380, 540, 1, aai, 4); // area 4
+   faa_helper(0,    1000, 560, 720, 0, aai, 5); // area 5
+   faa_helper(1000, 2000, 560, 720, 1, aai, 6); // area 6
+   faa_helper(0,    1000, 740, 900, 0, aai, 7); // area 7
+   faa_helper(1000, 2000, 740, 900, 1, aai, 8); // area 8
+
+
+   faa_helper(900,  1100,  920, 1080, 1, aai, 9); // area 9 (final boss)
+
+   faa_helper(0,    1000, 1160, 1700, 1, aai, 10); // area 10 (extra levels)
+
+   faa_helper(1000, 2000, 1160, 1700, 1, aai, 11); // area 11 (muliplayer bomb toss levels)
+
+   faa_helper(0,    2000,  1840, 2000, 1, aai, 12); // area 12 (advanced info levels)
+
+   for(int i=0; i<aai; i++)
+      printf("area:%d level:%d\n", area_array[i][1], area_array[i][0]);
+
+}
+
+
+void mwLevel::unlock_all_level_in_area(int area)
+{
+   for(int i=0; i<100; i++)
+      if (area_array[i][1] == area) data[area_array[i][0]].unlocked = 1;
+}
+
+
+
 void mwLevel::clear_data(void)
 {
+
    for(int i=0; i<16; i++) area_locks[i] = 1;
+
+   area_locks[13] = 0; // basic training area unlocked
+
 
    load_level(1, 1, 0); // load overworld level (also sets overworld barriers)
 
@@ -1256,11 +1260,16 @@ void mwLevel::clear_data(void)
    }
    play_data_num = 0;
 
+   unlock_all_level_in_area(10);
+   unlock_all_level_in_area(11);
+   unlock_all_level_in_area(12);
+
 }
 
 
 void mwLevel::load_data(void)
 {
+   fill_area_array();
    FILE *fp =fopen("bitmaps/level_data.pm","rb");
    if (fp)
    {

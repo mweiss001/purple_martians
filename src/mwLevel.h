@@ -96,18 +96,25 @@ class mwLevel
    void level_check(void);
 
 
+   void faa_helper(int x1, int x2, int y1, int y2, int xasc, int &aai, int area);
+
+   void fill_area_array(void);
+
 
    struct level_data data[100];
    struct level_play_data play_data[10000];
    int play_data_num;
 
+
    int area_locks[16];
 
+   int area_array[100][2];
+
+   void unlock_all_level_in_area(int area);
 
    void reset_level_data(void);
    void unlock_all_levels(void);
 
-   void set_training_complete(void);
 
    void sob_hline(int x1, int x2, int y, int a);
    void sob_vline(int x, int y1, int y2, int a);
@@ -115,7 +122,7 @@ class mwLevel
 
    void sob_create_msg(const char* txt, int col, int x, int y, int w, int h);
 
-   void sob_area_msg(int area, int x, int y, int g1, int g2, int g3, int g4, int g5);
+   void sob_area_msg(int area, int x, int y);
 
    void set_overworld_barriers(void);
 
