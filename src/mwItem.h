@@ -42,7 +42,7 @@ class mwItem
 
 
    void proc_gate_collision(int p, int i);
-   int draw_gate(int i, int x, int y, int shape);
+   int draw_gate(int i, int x, int y, int custom);
 
 
    void set_gate_level_icon_position(int i);

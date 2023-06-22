@@ -526,6 +526,41 @@ void mwLevel::level_complete_data(void)
 
 
 
+void mwLevel::show_level_stats(int x, int y)
+{
+   al_draw_textf(mFont.pr8, mColor.White, x, y, 0, "%-10s num name", "Area");
+   y+=10;
+
+
+   for(int i=0; i<100; i++)
+      if (area_array[i][1])
+      {
+         int lev = area_array[i][0];
+         int area = area_array[i][1];
+
+         char area_name[80];
+         sprintf(area_name, "Area:%d", area);
+         if ((area == 13) || (area == 14)) sprintf(area_name, "Training");
+         if (area == 10) sprintf(area_name, "Extra");
+         if (area == 12) sprintf(area_name, "Demo");
+
+         char lev_name[80];
+         sprintf(lev_name, data[lev].level_name);
+
+
+//         al_draw_text(mFont.pr8, mColor.Red, x, y, 0, "TEST!!!");
+
+         al_draw_textf(mFont.pr8, mColor.White, x, y, 0, "%-10s %-3d %s", area_name, lev, lev_name);
+
+         y+=8;
+
+
+        // printf("%s lev:%d name:%s\n", area_name, lev, lev_name);
+
+      }
+}
+
+
 
 
 void mwLevel::sob_hline(int x1, int x2, int y, int a)
@@ -848,51 +883,40 @@ void mwLevel::fill_area_array(void)
    }
    int aai = 0;
 
-   faa_helper(0,    1000, 0,   180, 0, aai, 13); // basic training levels
-   faa_helper(1000, 2000, 0,   180, 1, aai, 14); // advanced training levels
-
-
-   faa_helper(0,    1000, 200, 360, 0, aai, 1); // area 1
-   faa_helper(1000, 2000, 200, 360, 1, aai, 2); // area 2
-   faa_helper(0,    1000, 380, 540, 0, aai, 3); // area 3
-   faa_helper(1000, 2000, 380, 540, 1, aai, 4); // area 4
-   faa_helper(0,    1000, 560, 720, 0, aai, 5); // area 5
-   faa_helper(1000, 2000, 560, 720, 1, aai, 6); // area 6
-   faa_helper(0,    1000, 740, 900, 0, aai, 7); // area 7
-   faa_helper(1000, 2000, 740, 900, 1, aai, 8); // area 8
-
-
-   faa_helper(900,  1100,  920, 1080, 1, aai, 9); // area 9 (final boss)
-
+   faa_helper(0,    700,  0,    180,  0, aai, 13); // basic training levels
+   faa_helper(1000, 2000, 0,    180,  1, aai, 14); // advanced training levels
+   faa_helper(0,    1000, 200,  360,  0, aai, 1);  // area 1
+   faa_helper(1000, 2000, 200,  360,  1, aai, 2);  // area 2
+   faa_helper(0,    1000, 380,  540,  0, aai, 3);  // area 3
+   faa_helper(1000, 2000, 380,  540,  1, aai, 4);  // area 4
+   faa_helper(0,    1000, 560,  720,  0, aai, 5);  // area 5
+   faa_helper(1000, 2000, 560,  720,  1, aai, 6);  // area 6
+   faa_helper(0,    1000, 740,  900,  0, aai, 7);  // area 7
+   faa_helper(1000, 2000, 740,  900,  1, aai, 8);  // area 8
+   faa_helper(900,  1100, 920,  1080, 1, aai, 9);  // area 9 (final boss)
    faa_helper(0,    1000, 1160, 1700, 1, aai, 10); // area 10 (extra levels)
-
    faa_helper(1000, 2000, 1160, 1700, 1, aai, 11); // area 11 (muliplayer bomb toss levels)
-
-   faa_helper(0,    2000,  1840, 2000, 1, aai, 12); // area 12 (advanced info levels)
-
-   for(int i=0; i<aai; i++)
-      printf("area:%d level:%d\n", area_array[i][1], area_array[i][0]);
-
+   faa_helper(0,    2000, 1840, 2000, 1, aai, 12); // area 12 (advanced info levels)
+//   for(int i=0; i<aai; i++) printf("area:%d level:%d\n", area_array[i][1], area_array[i][0]);
 }
 
 
 void mwLevel::unlock_all_level_in_area(int area)
 {
-   for(int i=0; i<100; i++)
-      if (area_array[i][1] == area) data[area_array[i][0]].unlocked = 1;
+   for(int i=0; i<100; i++) if (area_array[i][1] == area) data[area_array[i][0]].unlocked = 1;
 }
 
 
 
 void mwLevel::clear_data(void)
 {
-
    for(int i=0; i<16; i++) area_locks[i] = 1;
 
    area_locks[13] = 0; // basic training area unlocked
 
-
    load_level(1, 1, 0); // load overworld level (also sets overworld barriers)
+
+   fill_area_array();
 
    overworld_level = 0; // no gate will be found and player will start from start block
 
@@ -965,7 +989,7 @@ void mwLevel::clear_data(void)
 
    i = 16;
    strcpy(data[i].level_name, "Big Apple");
-   data[i].par_time = 24000; // 10:00 demo 9:15
+   data[i].par_time = 14400; // 6:00 demo 5:30
 
    i = 17;
    strcpy(data[i].level_name, "Little Rocket");
@@ -1269,12 +1293,12 @@ void mwLevel::clear_data(void)
 
 void mwLevel::load_data(void)
 {
-   fill_area_array();
    FILE *fp =fopen("bitmaps/level_data.pm","rb");
    if (fp)
    {
       fread(data,           sizeof(data),          1, fp);
       fread(area_locks,     sizeof(area_locks),    1, fp);
+      fread(area_array,     sizeof(area_array),    1, fp);
       fread(play_data,      sizeof(play_data),     1, fp);
       fread(&play_data_num, sizeof(play_data_num), 1, fp);
       fclose(fp);
@@ -1290,6 +1314,7 @@ void mwLevel::save_data(void)
    {
       fwrite(data,           sizeof(data),          1, fp);
       fwrite(area_locks,     sizeof(area_locks),    1, fp);
+      fwrite(area_array,     sizeof(area_array),    1, fp);
       fwrite(play_data,      sizeof(play_data),     1, fp);
       fwrite(&play_data_num, sizeof(play_data_num), 1, fp);
       fclose(fp);

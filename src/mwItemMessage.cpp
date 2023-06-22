@@ -14,7 +14,7 @@
 #include "mwEventQueue.h"
 #include "mwInput.h"
 #include "mwTriggerEvent.h"
-
+#include "mwLevel.h"
 
 void mwItem::proc_pmsg_collision(int i)
 {
@@ -63,7 +63,7 @@ static bool draw_multiline_cb(int line_num, const char *line, int size, void *ex
 int mwItem::draw_message(int i, int x, int y, int custom)
 {
    char msg[1024];
-   if (!custom) // pop up message
+   if (!custom)
    {
       int timer_count=0, timer_val=0;
       mMiscFnx.get_int_3216(item[i][12], timer_count, timer_val);
@@ -153,87 +153,96 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
          al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 6, 6, mColor.pc[fc+a*16], 1.5);
    }
 
-   //al_draw_rounded_rectangle(x1+frame_width, y1+frame_width, x2-frame_width, y2-frame_width, 4, 4, mColor.pc[15], 1); // debug show inner frame
-
-   if (custom)
+   if ((mLevel.last_level_loaded == 99) && (!custom)) // hijack for special stats message
    {
 
-      // show cursor char
-      sprintf(msg, "%c", pt[cursor_pos]);
-      if (pt[cursor_pos] == 0)  sprintf(msg, "NULL");
-      if (pt[cursor_pos] == 10) sprintf(msg, "LF");
-      if (pt[cursor_pos] == 32) sprintf(msg, "SPACE");
-
-      al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+2, ALLEGRO_ALIGN_CENTRE, "%d/%d/500 [%s] ", cursor_pos, (int) strlen(pt), msg);
-//      al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "[%s] %d/%d/500", msg, cursor_pos, (int) strlen(pt));
-//      al_draw_textf(mFont.pr8, mColor.pc[15], x2-60, y2-9, 0, "[%s]", msg);
-      //al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
-   }
-
-
-   // figure out what line height to use so that text is justified vertically
-   float line_height = 7.9; // initial line height
-
-   int max_text_width = w - 16;
-
-   // do_multiline callback to figure out number of lines that will be used
-   DRAW_CUSTOM_LINE_EXTRA extra;
-   extra.num_lines = 0;
-   al_do_multiline_text(mFont.pr8, max_text_width, pt, draw_multiline_cb, (void *)&extra);
-
-   float sp=0; // space between text_height and frame_height
-   float text_height = 0;
-
-   do
-   {
-      line_height+=0.1;
-      text_height = extra.num_lines * line_height;
-      sp = h - frame_width*2 - text_height;
-
-   } while ((sp > 2) && (line_height < 100));
-
-//   al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+20, ALLEGRO_ALIGN_CENTRE, "lh:%2.1f nl:%d th:%2.1f", line_height, extra.num_lines, text_height);
-//   al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+28, ALLEGRO_ALIGN_CENTRE, "fh:%d fh-fw:%d sp:%2.1f", h, h - frame_width*2, sp);
-
-   float y3 = y1+frame_width+line_height/2-3.5;
-
-   if (sp < 1)
-   {
-      sp = h - text_height;
-      y3 = y1+sp/2;
+      mLevel.show_level_stats(x1+frame_width, y1+frame_width);
 
    }
-
-   al_draw_multiline_text(mFont.pr8, mColor.pc[tc], xc, y3, max_text_width, line_height, ALLEGRO_ALIGN_CENTRE, pt);
-
-   if (cursor_blink)
+   else
    {
-      int cursor_char = 127;
 
-      // convert all printable char to blank non-printable spaces (can't use space because multiline text will break in new places)
-      for (int a=0; a<(int)strlen(pt); a++)
-         if ((pt[a] > 32) && (pt[a] < 126)) pt[a] = 96; // alternate space
+      //al_draw_rounded_rectangle(x1+frame_width, y1+frame_width, x2-frame_width, y2-frame_width, 4, 4, mColor.pc[15], 1); // debug show inner frame
 
-      // check if cursor is on special char
-      int cursor_on_special = 0;
-      if ((pt[cursor_pos] == 10) || (pt[cursor_pos] == 32))
+      if (custom)
       {
-         int dcp = cursor_pos;
-         cursor_on_special = 1;
-         while ( (dcp > 0) &&  ((pt[dcp] == 10) || (pt[dcp] == 32)) ) dcp--; // find previous non special char
-         pt[dcp] = cursor_char;
-      }
-      else pt[cursor_pos] = cursor_char;
 
-      al_draw_multiline_text(mFont.pr8, mColor.pc[10], xc+cursor_on_special*8, y3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
-   }
+         // show cursor char
+         sprintf(msg, "%c", pt[cursor_pos]);
+         if (pt[cursor_pos] == 0)  sprintf(msg, "NULL");
+         if (pt[cursor_pos] == 10) sprintf(msg, "LF");
+         if (pt[cursor_pos] == 32) sprintf(msg, "SPACE");
+
+         al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+2, ALLEGRO_ALIGN_CENTRE, "%d/%d/500 [%s] ", cursor_pos, (int) strlen(pt), msg);
+   //      al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "[%s] %d/%d/500", msg, cursor_pos, (int) strlen(pt));
+   //      al_draw_textf(mFont.pr8, mColor.pc[15], x2-60, y2-9, 0, "[%s]", msg);
+         //al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
+      }
+
+
+      // figure out what line height to use so that text is justified vertically
+      float line_height = 7.9; // initial line height
+
+      int max_text_width = w - 16;
+
+      // do_multiline callback to figure out number of lines that will be used
+      DRAW_CUSTOM_LINE_EXTRA extra;
+      extra.num_lines = 0;
+      al_do_multiline_text(mFont.pr8, max_text_width, pt, draw_multiline_cb, (void *)&extra);
+
+      float sp=0; // space between text_height and frame_height
+      float text_height = 0;
+
+      do
+      {
+         line_height+=0.1;
+         text_height = extra.num_lines * line_height;
+         sp = h - frame_width*2 - text_height;
+
+      } while ((sp > 2) && (line_height < 100));
+
+   //   al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+20, ALLEGRO_ALIGN_CENTRE, "lh:%2.1f nl:%d th:%2.1f", line_height, extra.num_lines, text_height);
+   //   al_draw_textf(mFont.pr8, mColor.pc[15], xc+4, y2+28, ALLEGRO_ALIGN_CENTRE, "fh:%d fh-fw:%d sp:%2.1f", h, h - frame_width*2, sp);
+
+      float y3 = y1+frame_width+line_height/2-3.5;
+
+      if (sp < 1)
+      {
+         sp = h - text_height;
+         y3 = y1+sp/2;
+
+      }
+
+      al_draw_multiline_text(mFont.pr8, mColor.pc[tc], xc, y3, max_text_width, line_height, ALLEGRO_ALIGN_CENTRE, pt);
+
+      if (cursor_blink)
+      {
+         int cursor_char = 127;
+
+         // convert all printable char to blank non-printable spaces (can't use space because multiline text will break in new places)
+         for (int a=0; a<(int)strlen(pt); a++)
+            if ((pt[a] > 32) && (pt[a] < 126)) pt[a] = 96; // alternate space
+
+         // check if cursor is on special char
+         int cursor_on_special = 0;
+         if ((pt[cursor_pos] == 10) || (pt[cursor_pos] == 32))
+         {
+            int dcp = cursor_pos;
+            cursor_on_special = 1;
+            while ( (dcp > 0) &&  ((pt[dcp] == 10) || (pt[dcp] == 32)) ) dcp--; // find previous non special char
+            pt[dcp] = cursor_char;
+         }
+         else pt[cursor_pos] = cursor_char;
+
+         al_draw_multiline_text(mFont.pr8, mColor.pc[10], xc+cursor_on_special*8, y3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
+      }
 
       // crosshairs for alignment
 //      al_draw_line(x1, y1, x2, y2, mColor.pc[fc], 1);
 //      al_draw_line(x1, y2, x2, y1, mColor.pc[fc], 1);
 //      al_draw_line(x1+w/2, y1,     x1+w/2, y2,     mColor.pc[fc], 1);
 //      al_draw_line(x1,     y1+h/2, x2,       y1+h/2, mColor.pc[fc], 1);
-
+   }
 }
 
 

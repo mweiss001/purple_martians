@@ -142,7 +142,7 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
    if (type == 13) drawn = draw_timer        (i, x, y, custom);
    if (type == 16) drawn = draw_block_manip  (i, x, y);
    if (type == 17) drawn = draw_block_damage (i, x, y, custom);
-   if (type == 18) drawn = draw_gate         (i, x, y, shape);
+   if (type == 18) drawn = draw_gate         (i, x, y, custom);
    if (type == 19) drawn = draw_hider        (i, x, y, shape);
 
    if (type == 98) drawn = draw_rocket       (i, x, y, shape);
