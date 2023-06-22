@@ -116,14 +116,13 @@ class mwLevel
    void unlock_all_levels(void);
 
 
+   void show_level_stats(int x, int y);
+
+
    void sob_hline(int x1, int x2, int y, int a);
    void sob_vline(int x, int y1, int y2, int a);
-
-
    void sob_create_msg(const char* txt, int col, int x, int y, int w, int h);
-
    void sob_area_msg(int area, int x, int y);
-
    void set_overworld_barriers(void);
 
    int find_msg(const char* str);

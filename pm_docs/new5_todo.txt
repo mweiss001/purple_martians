@@ -3,6 +3,22 @@
 ---------------------------------------------------------
 
 
+
+bug? - in classic mode when completing a level from overworld, next chron level starts
+should be back to overworld...???
+only do next chron level if not started from overworld
+
+
+
+
+bug - gate crashes if level is points to does not exist..
+
+
+
+
+
+
+
 huge bug going from level editor to game...level gets set to some huge number...
 no, its when changing speed
 start game

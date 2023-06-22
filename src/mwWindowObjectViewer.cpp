@@ -1121,7 +1121,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
          break;
 
          case 18: // gate
-            mWidget.slideri( xa, ya, xb, bts, 0,0,0,0,   0,10,15,15, 1,0,1,d, mItem.item[n][6], 200, 1, 1,        "Level Number:" );
+            mWidget.slideri( xa, ya, xb, bts, 0,0,0,0,   0,10,15,15, 1,0,1,d, mItem.item[n][6], 99, 1, 1,        "Level Number:" );
          break;
 
 

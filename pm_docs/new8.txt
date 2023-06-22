@@ -25968,6 +25968,122 @@ make total only count main areas
 
 
 
+20230622
+
+overworld is coming along great, I have all the areas working just like I want
+
+now I want to make huge list of all levels and the status, complete, etc...
+
+I might want some way of recording when I am playing a level and abandon it without completing
+
+I also want a way to save the gm files for levels that beat the par time...nice!!
+
+
+huge list of levels
+
+
+try text to console to start...
+
+maybe I could have a dedicated level just for that, it would also help with my time out issue...
+
+make level 99 stats level
+
+now show somethinge there..how? where do I hook it in?
+
+special msg?
+
+sure why not? unless I later think of a better way to do it...
+
+it looks like the area_array is not getting filled...why?
+
+main calls  mLevel.setup_data(); in initial setup
+
+void mwLevel::setup_data(void)
+{
+   load_data();
+   load_level_icons();
+}
+
+
+void mwLevel::load_data(void)
+{
+   fill_area_array();
+
+
+I got it!!
+
+fill area array only works if level 1 is loaded!!!
+
+to fix...
+save area array like the rest of the data
+re-create it only when resetting data...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
