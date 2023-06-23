@@ -155,9 +155,10 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
 
    if ((mLevel.last_level_loaded == 99) && (!custom)) // hijack for special stats message
    {
-
-      mLevel.show_level_stats(x1+frame_width, y1+frame_width);
-
+      int w, h;
+      mLevel.show_level_stats(x1+frame_width, y1+frame_width, x2-frame_width, w, h);
+      item[i][8] = w + frame_width*2;
+      item[i][9] = h + frame_width*2;
    }
    else
    {
