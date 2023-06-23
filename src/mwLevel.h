@@ -108,6 +108,30 @@ class mwLevel
 
    int area_locks[16];
 
+   const char* area_names[20] =
+   {
+      "",
+      "Area 1",
+      "Area 2",
+      "Area 3",
+      "Area 4",
+      "Area 5",
+      "Area 6",
+      "Area 7",
+      "Area 8",
+      "Area 9",
+      "Extra",
+      "2P",
+      "Demo",
+      "Intro",
+      "Intro",
+      "15"
+
+   };
+
+//const char *options[2] = { "1", "2" };
+
+
    int area_array[100][2];
 
    void unlock_all_level_in_area(int area);
@@ -116,8 +140,9 @@ class mwLevel
    void unlock_all_levels(void);
 
 
-   void show_level_stats(int x, int y);
+   void show_level_stats(int x, int y1, int x2, int &w, int &h);
 
+   void get_level_status(int lev, int& status, int& col, char txt[]);
 
    void sob_hline(int x1, int x2, int y, int a);
    void sob_vline(int x, int y1, int y2, int a);

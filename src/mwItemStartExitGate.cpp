@@ -404,6 +404,9 @@ void draw_framed_text(int xc, int y, ALLEGRO_FONT *f, int col, const char* txt)
 
 
 
+
+
+
 void mwItem::draw_gate_info(int i)
 {
    int x = item[i][4];
@@ -411,17 +414,9 @@ void mwItem::draw_gate_info(int i)
    int xc = x + 10; // center of tile
    int lev = item[i][6];
 
-   int col = 10;   // default red for locked
+   int col, status;
    char stxt[80];
-   int status = 0; // 0=locked, 1=ready, 2=complete, 3=perfect
-   if (mLevel.data[lev].unlocked)  status = 1; // ready
-   if (mLevel.data[lev].completed) status = 2; // completed
-   if ((mLevel.data[lev].max_purple_coins_collected == mLevel.data[lev].tot_purple_coins) && ((mLevel.data[lev].best_time < mLevel.data[lev].par_time) && (mLevel.data[lev].completed))) status = 3; // perfect
-
-   if (status == 0) { sprintf(stxt, "Locked");   col = 10; } // red
-   if (status == 1) { sprintf(stxt, "Ready");    col = 13; } // lt blue
-   if (status == 2) { sprintf(stxt, "Complete"); col = 12; } // dk blue
-   if (status == 3) { sprintf(stxt, "Perfect!"); col = 8;  } // purple
+   mLevel.get_level_status(lev, status, col, stxt);
 
    int bs = al_get_bitmap_width(mLevel.level_icon[lev]); // level icon size
    int by = y+35; // info y start pos
@@ -468,17 +463,10 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
    {
       int xc = x+10; // center of tile
       int lev = item[i][6];
-      int col = 10;   // default red for locked
-      char stxt[80];
-      int status = 0; // 0=locked, 1=ready, 2=complete, 3=perfect
-      if (mLevel.data[lev].unlocked)  status = 1; // ready
-      if (mLevel.data[lev].completed) status = 2; // completed
-      if ((mLevel.data[lev].max_purple_coins_collected == mLevel.data[lev].tot_purple_coins) && ((mLevel.data[lev].best_time < mLevel.data[lev].par_time) && (mLevel.data[lev].completed))) status = 3; // perfect
 
-      if (status == 0) { sprintf(stxt, "Locked");   col = 10; } // red
-      if (status == 1) { sprintf(stxt, "Ready");    col = 13; } // lt blue
-      if (status == 2) { sprintf(stxt, "Complete"); col = 12; } // dk blue
-      if (status == 3) { sprintf(stxt, "Perfect!"); col = 8;  } // purple
+      int col, status;
+      char stxt[80];
+      mLevel.get_level_status(lev, status, col, stxt);
 
       al_draw_scaled_bitmap(mBitmap.tile[127+col], 0, 0, 20, 20, x-10, y-20, 40, 40, 0); // draw the gate tile
 

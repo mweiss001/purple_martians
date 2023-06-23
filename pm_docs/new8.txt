@@ -26019,6 +26019,8 @@ save area array like the rest of the data
 re-create it only when resetting data...
 
 
+20230623 push
+
 
 
 
