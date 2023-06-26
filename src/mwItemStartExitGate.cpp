@@ -122,7 +122,7 @@ void mwItem::proc_exit_collision(int p, int i)
          mPlayer.syn[0].level_done_player = p;
 
          if (mMain.classic_mode) mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level);
-         else                     mPlayer.syn[0].level_done_next_level = 1;
+         else                    mPlayer.syn[0].level_done_next_level = 1;
 
          mLevel.level_complete_data();
 
@@ -215,19 +215,49 @@ void mwItem::draw_line(int x1, int x2, int y, const char * txt1, const char * tx
    al_draw_textf(mFont.pr8, mColor.pc[15], x2-tl-1, y, 0, txt2);
 }
 
+//// format time from frames to seconds or minutes
+//char * mwItem::chrms(int time, char* ft)
+//{
+//   if (time < 2400) sprintf(ft, "%0.1fs", (float)time/40);
+//   else
+//   {
+//      int m = time / 2400; // minutes
+//      int rt = time - m*2400; // remaining portion that is less than 1 minute
+//      //sprintf(ft, "%d:%04.1fs", m, (float)rt/40); // show 1 decimal on seconds
+//      sprintf(ft, "%d:%02d", m, rt/40); // round to nearest second
+//   }
+//   return ft;
+//}
+
 // format time from frames to seconds or minutes
+
 char * mwItem::chrms(int time, char* ft)
 {
+   // less than 1 minute
    if (time < 2400) sprintf(ft, "%0.1fs", (float)time/40);
+
+   // less than 1 hour
+   else if (time < 144000)
+   {
+      int m = time / 2400;    // minutes
+      int rt = time - m*2400; // remaining portion that is less than 1 minute
+      sprintf(ft, "%d:%02d", m, rt/40);
+   }
    else
    {
-      int m = time / 2400; // minutes
-      int rt = time - m*2400; // remaining portion that is less than 1 minute
-      //sprintf(ft, "%d:%04.1fs", m, (float)rt/40); // show 1 decimal on seconds
-      sprintf(ft, "%d:%02d", m, rt/40); // round to nearest second
+      int h = time / 144000;    // hours
+      int rt = time - h*144000; // remaining portion that is less than 1 hour
+      int m = rt / 2400;        // minutes
+      rt -= m*2400;             // remaining portion that is less than 1 minute
+      sprintf(ft, "%d:%02d:%02d", h, m, rt/40);
    }
    return ft;
 }
+
+
+
+
+
 
 char * chrd(int v, char* ft)
 {

@@ -26021,6 +26021,144 @@ re-create it only when resetting data...
 
 20230623 push
 
+20230624 now what?
+
+make it so that the calc size happens without drawing the wrong size first..done
+
+customize to only show certain areas..done
+
+totals?
+
+make time display also show hours...
+only if min>59
+
+% done
+% perfect
+
+do a super fast play mode for demo level completion..done
+
+custom area display variable...or...
+
+Main Game
+totals
+
+Training Levels
+totals
+
+Extra Levels
+totals
+
+Demo Levels
+totals
+
+grand totals
+
+
+I did the area and grand totals and it looks great..
+
+Now I would like to change with up and down
+
+
+do i have any extra variables in msg?
+
+always have 99 unlocked
+
+now how to link it...
+
+regular message with special text?
+
+
+now how to adjust show stats based on unlocked areas
+
+if only training, show only training
+
+
+when I am show the stats message on overworld, it can get cut off by hiders
+should I investigate how to make it draw on top of hiders?
+...gate draws below...just saying....
+I can do it in draw sequence...
+that was actually quite easy..
+
+
+can I make main game only show open areas?
+
+
+when calling
+
+Level Statistics Full (forced all)
+Level Statistics Game Only (game only)
+Level Statistics Overworld (as much as is completed)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

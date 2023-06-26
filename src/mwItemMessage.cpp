@@ -104,6 +104,17 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
    int tc=0, fc=0;
    mMiscFnx.get_int_3216(item[i][13], tc, fc); // get text and frame colors
 
+
+   int frame_width = get_frame_size(i);
+
+   // hijack for special stats messages
+   int show_stats_msg = 0;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Full", 21)) && (!custom)) show_stats_msg = 1;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Game", 21)) && (!custom)) show_stats_msg = 2;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Over", 21)) && (!custom)) show_stats_msg = 3;
+   if (show_stats_msg) mLevel.show_level_stats(0, 0, 0, frame_width, item[i][8], item[i][9], 0, show_stats_msg); // only set w and h
+
+
    int x1 = item[i][6];
    int y1 = item[i][7];
    int w  = item[i][8];
@@ -120,7 +131,6 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
    int xc = x1 + w / 2;
    int y2 = y1 + h;
 
-   int frame_width = get_frame_size(i);
 
    if (frame_width == 0)
    {
@@ -153,13 +163,8 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
          al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 6, 6, mColor.pc[fc+a*16], 1.5);
    }
 
-   if ((mLevel.last_level_loaded == 99) && (!custom)) // hijack for special stats message
-   {
-      int w, h;
-      mLevel.show_level_stats(x1+frame_width, y1+frame_width, x2-frame_width, w, h);
-      item[i][8] = w + frame_width*2;
-      item[i][9] = h + frame_width*2;
-   }
+
+   if (show_stats_msg) mLevel.show_level_stats(x1, y1, x2, frame_width, item[i][8], item[i][9], 1, show_stats_msg);
    else
    {
 

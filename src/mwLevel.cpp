@@ -487,7 +487,7 @@ void mwLevel::level_complete_data(void)
       data[lev].unlocked = 1; // if for some reason it isn't already
       //   printf("level_complete_data() play_level:%d\n", play_level);
       int ct = mLoop.frame_num;
-      printf("1 level_complete_data() mLoop.frame_num:%d\n", ct);
+      //printf("1 level_complete_data() mLoop.frame_num:%d\n", ct);
 
       // add entry to play_data[] array
       int i = play_data_num;
@@ -504,7 +504,7 @@ void mwLevel::level_complete_data(void)
       // was the level just completed for the first time
       if (!data[lev].completed)
       {
-         printf("first time:%d\n", ct);
+         //printf("first time:%d\n", ct);
          data[lev].completed = 1;
          data[lev].best_time                  = ct;
          data[lev].min_respawns               = level_data_player_respawns;
@@ -525,269 +525,535 @@ void mwLevel::level_complete_data(void)
 }
 
 
-
-void mwLevel::show_level_stats(int x1, int y1, int x2, int &w, int &h)
+void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, int &y, int vline[], int &vli, int tally[][16], int cl)
 {
-   int y = y1;
+   char msg[80];
+
    int x = x1;
+   vli = 0;
+
+   int lev = 0;
+   int header = 0;
+   int total = 0;
+
+   if (i == -1) // header
+   {
+      header = 1;
+      lev = -1;
+   }
+
+   if (i == 100) // totals
+   {
+      total = 1;
+      lev = -1;
+   }
+
+   vline[vli++] = x; // first vline
+   x += 8; // first text spacer
+
+
+   // set level and area
+   if ((i > -1) && (i < 100))
+      if (area_array[i][1]) lev = area_array[i][0];
+
+
+   // level name
+   int width = 20*8;
+   if (draw)
+   {
+      if (header)     al_draw_text( mFont.pr8, mColor.pc[15], x, y+4, 0, "Level");
+      else if (total) al_draw_text( mFont.pr8, mColor.pc[15], x, y,   0, "Totals");
+      else if (lev>0) al_draw_textf(mFont.pr8, mColor.pc[15], x, y,   0, "%s", data[lev].level_name);
+   }
+   x += width + 8;
+   vline[vli++] = x-4;
+
+
+   // get level status
+   int col = 15, status;
+   char stxt[80];
+
+   int tc = 0; // number of times completed
+   int tt = 0; // total time spent playing
+   int wt = 0; // worst time
+   int mt = 0; // average time
+
+
+   if (lev != -1)
+   {
+
+      tally[0][0]++; // num levels
+
+      get_level_status(lev, status, col, stxt);
+
+      if ((status == 2) || (status == 3)) tally[0][1]++; // complete
+      if (status == 3) tally[0][2]++; // perfect
+
+      for (int i=0; i<play_data_num; i++)
+         if (play_data[i].level == lev)
+         {
+            tc++;
+            tt += play_data[i].timer;
+            if (play_data[i].timer > wt) wt = play_data[i].timer;
+         }
+      if (tc) mt = tt/tc; // average time
+
+      tally[0][3] += tc; // plays
+
+      tally[0][6] += data[lev].min_respawns;
+      tally[0][7] += data[lev].max_enemies_killed;
+
+      tally[0][4] += data[lev].tot_purple_coins;
+      tally[0][5] += data[lev].max_purple_coins_collected;
+
+      tally[0][8] += data[lev].par_time;
+      tally[0][9] += data[lev].best_time;
+      tally[0][10] += tt; // total play time
+   }
+
+
+   // level status
+   width = 9*8;
+   if (draw)
+   {
+      if (header)      al_draw_text( mFont.pr8, mColor.pc[ 15], x+width/2, y+4, ALLEGRO_ALIGN_CENTER, "Status");
+      else if (!total) al_draw_textf(mFont.pr8, mColor.pc[col], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "%s", stxt);
+   }
+   x += width + 8;
+   vline[vli++] = x-4;
+
+   // purple coins
+   width = 7*8;
+   if (draw)
+   {
+      if (header)
+      {
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Purple");
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Coins");
+      }
+      else if (total)
+      {
+         al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%d/%d", tally[0][5], tally[0][4]);
+      }
+      else
+      {
+         int pc_col = 15;
+         if (status == 3) pc_col = 8;
+         al_draw_textf(mFont.pr8, mColor.pc[pc_col], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%d/%d", data[lev].max_purple_coins_collected, data[lev].tot_purple_coins);
+      }
+   }
+   x += width + 8;
+   vline[vli++] = x-4;
+
+
+   // best time
+   width = 7 * 8;
+   if (draw)
+   {
+      if (header)
+      {
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Best");
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
+      }
+      else if (total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(tally[0][9], msg));
+      else
+      {
+         if ((data[lev].best_time == 0) || (data[lev].completed == 0))
+         {
+            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, "n/a");
+         }
+         else
+         {
+            int tc = 15;
+            if (data[lev].best_time < data[lev].par_time) tc = 8;
+            al_draw_text(mFont.pr8, mColor.pc[tc], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(data[lev].best_time, msg));
+         }
+      }
+   }
+   x += width + 8;
+   vline[vli++] = x-4;
+
+
+
+   // par time
+   width = 7 * 8;
+   if (draw)
+   {
+      if (header)
+      {
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Par");
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
+      }
+      else if (total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(tally[0][8], msg));
+      else            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(data[lev].par_time, msg));
+   }
+   x += width + 8;
+   vline[vli++] = x-4;
+
+
+   // min deaths
+   width = 6 * 8;
+   if (draw)
+   {
+      if (header)
+      {
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Min");
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Deaths");
+      }
+      else if (total) al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%d", tally[0][6]);
+      else            al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%d", data[lev].min_respawns);
+   }
+   x += width + 8;
+   vline[vli++] = x-4;
+
+   // max kills
+   width = 7 * 8;
+   if (draw)
+   {
+      if (header)
+      {
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Max");
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Kills");
+      }
+      else if (total) al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%d", tally[0][7]);
+      else            al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%d", data[lev].max_enemies_killed);
+   }
+   x += width+8;
+   vline[vli++] = x-4;
+
+   // times played
+   width = 5 * 8;
+   if (draw)
+   {
+      if (header)
+      {
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Total");
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Plays");
+      }
+      else if (total) al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "%d", tally[0][3]);
+      else            al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "%d", tc);
+   }
+   x += width+8;
+   vline[vli++] = x-4;
+
+   // time played
+   width = 9 * 8;
+   if (draw)
+   {
+      if (header)
+      {
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Total");
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
+      }
+      else if (total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(tally[0][10], msg));
+      else al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(tt, msg));
+   }
+   x += width+8;
+   vline[vli++] = x-4;
+
+
+   // worst time
+   width = 6 * 8;
+   if (draw)
+   {
+      if (header)
+      {
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Worst");
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
+      }
+      else if (!total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(wt, msg));
+   }
+   x += width+8;
+   vline[vli++] = x-4;
+
+   // average time
+   width = 7 * 8;
+   if (draw)
+   {
+      if (header)
+      {
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Average");
+         al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
+      }
+      else if (!total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(mt, msg));
+   }
+   x += width+8;
+   vline[vli++] = x-4;
+
+   if (x > max_x) max_x = x; // max line length
+
+   y+=8; // next line
+   if (i == -1) y+=8; // extra line for column header
+
+}
+
+void mwLevel::show_level_stats_title_and_header(int x1, int x2, int& gy, int& ty, int& max_x, int& y, int draw, int vline[], int &vli, int tally[][16], int col, const char* title)
+{
+   int ys = 16;
+   ty = y + (ys-8) / 2; // save text y pos so we can add more text here later
+
+   if (draw) al_draw_filled_rectangle(x1, y, x2, y+ys, mColor.pc[col+192+16]); // background
+   if (draw) al_draw_rectangle(x1, y, x2, y+ys, mColor.pc[col], 1);
+   if (draw) al_draw_text(mFont.pr8, mColor.pc[15], x1+8, ty, 0, title);
+   gy = y += ys;
+
+   // column header
+   if (draw) al_draw_line(x1, y, x2, y, mColor.pc[col], 1);
+   y+=2;
+   show_level_stats_row(-1, x1, x2, draw, max_x, y, vline, vli, tally, col);
+   y+=2;
+}
+
+
+void mwLevel::show_level_stats_totals(int x1, int x2, int gy, int ty, int& max_x, int& y, int draw, int vline[], int &vli, int tally[][16], int col)
+{
+   show_level_stats_row(100, x1, x2, draw, max_x, y, vline, vli, tally, col);
+   y+=4;
+   if (draw) al_draw_line(x1, y, x2, y, mColor.pc[col], 1);
+
+   if (draw)
+   {
+      float lc = 100*(float)tally[0][1]/(float)tally[0][0];
+      float lp = 100*(float)tally[0][2]/(float)tally[0][0];
+      al_draw_textf(mFont.pr8, mColor.pc[12],  x1+180, ty,   0, "Complete:%2.1f%%", lc);
+      al_draw_textf(mFont.pr8, mColor.pc[ 8],  x1+320, ty,   0, "Perfect:%2.1f%%", lp);
+   }
+
+   // draw vlines
+   if (draw)
+      for (int i=0; i<20; i++)
+         if (vline[i]) al_draw_line(vline[i], gy, vline[i], y, mColor.pc[col], 1);
+   y+=8;
+
+   for (int i=0; i<16; i++)
+   {
+      tally[1][i] += tally[0][i];
+      tally[0][i] = 0;
+   }
+}
+
+void mwLevel::show_level_stats_outline_with_thicker_lines(int x1, int x2, int gy, int y, int draw, ALLEGRO_COLOR c)
+{
+   if (draw)
+   {
+      al_draw_rounded_rectangle(x1, gy-16, x2, y-8, 1, 1, c, 3);
+      al_draw_line(x1, gy, x2, gy, c, 2);
+      al_draw_line(x1, gy+20, x2, gy+20, c, 2);
+      al_draw_line(x1, y-24, x2, y-24, c, 2);
+   }
+}
+
+
+
+void mwLevel::show_level_stats(int x1, int y1, int x2, int frame_width, int &w, int &h, int draw, int msg_type)
+{
+   x1 += frame_width;
+   y1 += frame_width;
+   x2 -= frame_width;
+
+   int y = y1;
+
+   int ty = 0;
+
+   int gy = y;
+
 
    int vline[20] = { 0 };
    int vli = 0;
 
-   char msg[256];
-
    int max_x = 0;
 
-   int old_area = 0; //area_array[0][1];
+   int tally[2][16] = { 0 };
 
-   for(int i=-1; i<100; i++)
+
+
+//0 grp
+//1 tot
+//0  tot_lev
+//1  tot_lev_complete
+//2  tot_lev_perfect
+//3  tot_plays
+//4  tot_pc
+//5  tot_pcc
+//6  tot_min_deaths
+//7  tot_max_kills
+//8  tot_par_time
+//9  tot_best_time
+//10 tot_play_time
+
+
+
+
+
+   int show_training = 1;
+   int show_main = 1;
+   int show_extra = 1;
+   int show_demo = 1;
+   int show_grand_totals = 1;
+
+
+   if (msg_type == 1)
    {
-      x = x1;
-      vli = 0;
-      int lev = 0;
-      int area = 0;
-
-
-      if (i == -1)
-      {
-         lev = -1;
-         area = -1;
-      }
-
-      if ((i > -1) && (area_array[i][1]))
-      {
-         lev = area_array[i][0];
-         area = area_array[i][1];
-      }
-
-      if (area != 0)
-      {
-         // treat area 13 and 14 the same for this display
-         if ((area == 14) && (old_area == 13)) old_area = 14;
-
-
-         // horizontal lines between different areas
-         if (area != old_area)
-         {
-            old_area = area;
-            if (i != -1) y+=4;
-            al_draw_line(x, y, x2, y, mColor.White, 1);
-            y+=4;
-         }
-
-
-
-         vline[vli++] = x; // first vline
-         x += 4; // first text spacer
-
-
-         // area name
-         int width = 6*8;
-         if (area == -1) al_draw_text( mFont.pr8, mColor.pc[15], x, y+4, 0, "Area");
-         else            al_draw_textf(mFont.pr8, mColor.pc[15], x, y, 0, "%s", area_names[area]);
-         x += width + 8;
-         vline[vli++] = x-4;
-
-
-         // level name
-         width = 20*8;
-         if (lev == -1) al_draw_text( mFont.pr8, mColor.pc[15], x, y+4, 0, "Level");
-         else           al_draw_textf(mFont.pr8, mColor.pc[15], x, y, 0, "%s", data[lev].level_name);
-         x += width + 8;
-         vline[vli++] = x-4;
-
-
-         // get level status
-         int col = 15, status;
-         char stxt[80];
-
-         int tc = 0; // number of times completed
-         int tt = 0; // total time spent playing
-         int wt = 0; // worst time
-         int mt = 0; // average time
-
-         if (lev != -1)
-         {
-            get_level_status(lev, status, col, stxt);
-
-            for (int i=0; i<play_data_num; i++)
-               if (play_data[i].level == lev)
-               {
-                  tc++;
-                  tt += play_data[i].timer;
-                  if (play_data[i].timer > wt) wt = play_data[i].timer;
-               }
-            if (tc) mt = tt/tc; // average time
-         }
-
-
-
-
-
-         // level status
-         width = 8*8;
-         if (lev == -1) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+4, ALLEGRO_ALIGN_CENTER, "Status");
-         else           al_draw_textf(mFont.pr8, mColor.pc[col], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%s", stxt);
-         x += width + 8;
-         vline[vli++] = x-4;
-
-         // times played
-         width = 5 * 8;
-         if (lev == -1)
-         {
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+4, ALLEGRO_ALIGN_CENTER, "Plays");
-         }
-         else al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%d", tc);
-         x += width+8;
-         vline[vli++] = x-4;
-
-
-
-
-         // purple coins
-         width = 6*8;
-         if (lev == -1)
-         {
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Purple");
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Coins");
-         }
-         else
-         {
-            int pcc = 15;
-            if (status == 3) pcc = 8;
-            al_draw_textf(mFont.pr8, mColor.pc[pcc], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%d/%d", data[lev].max_purple_coins_collected, data[lev].tot_purple_coins);
-         }
-         x += width + 8;
-         vline[vli++] = x-4;
-
-
-         // best time
-         width = 5 * 8;
-         if (lev == -1)
-         {
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Best");
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
-         }
-         else
-         {
-            if ((data[lev].best_time == 0) || (data[lev].completed == 0))
-            {
-               al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, "n/a");
-            }
-            else
-            {
-               int tc = 15;
-               if (data[lev].best_time < data[lev].par_time) tc = 8;
-               al_draw_text(mFont.pr8, mColor.pc[tc], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(data[lev].best_time, msg));
-            }
-         }
-         x += width + 8;
-         vline[vli++] = x-4;
-
-
-
-         // par time
-         width = 5 * 8;
-         if (lev == -1)
-         {
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Par");
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
-         }
-         else al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(data[lev].par_time, msg));
-         x += width + 8;
-         vline[vli++] = x-4;
-
-
-
-
-         // min deaths
-         width = 6 * 8;
-         if (lev == -1)
-         {
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Min");
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Deaths");
-         }
-         else al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%d", data[lev].min_respawns);
-         x += width + 8;
-         vline[vli++] = x-4;
-
-
-         // max kills
-         width = 5 * 8;
-         if (lev == -1)
-         {
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Max");
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Kills");
-         }
-         else al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, "%d", data[lev].max_enemies_killed);
-         x += width+8;
-         vline[vli++] = x-4;
-
-
-
-         // time played
-         width = 6 * 8;
-         if (lev == -1)
-         {
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Total");
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
-         }
-         else al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(tt, msg));
-         x += width+8;
-         vline[vli++] = x-4;
-
-
-         // worst time
-         width = 6 * 8;
-         if (lev == -1)
-         {
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Worst");
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
-         }
-         else al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(wt, msg));
-         x += width+8;
-         vline[vli++] = x-4;
-
-         // average time
-         width = 7 * 8;
-         if (lev == -1)
-         {
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Average");
-            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
-         }
-         else al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(mt, msg));
-         x += width+8;
-         vline[vli++] = x-4;
-
-
-
-
-         if (x > max_x) max_x = x;
-
-
-         y+=8; // next line
-         if (i == -1) y+=8; // next line
-
-      }
+      show_training = 1;
+      show_main = 1;
+      show_extra = 1;
+      show_demo = 1;
+      show_grand_totals = 1;
    }
 
-   // draw last hline
-   y+=4;
-   al_draw_line(x, y, x2, y, mColor.White, 1);
+   if (msg_type == 2)
+   {
+      show_training = 0;
+      show_main = 1;
+      show_extra = 0;
+      show_demo = 0;
+      show_grand_totals = 0;
+   }
+
+   if (msg_type == 3)
+   {
+      // by default show only training
+      show_training = 1;
+      show_main = 0;
+      show_extra = 0;
+      show_demo = 0;
+      show_grand_totals = 0;
+
+      if (!area_locks[1]) // unlocked between training levels and area 1,2
+      {
+         show_main = 1;
+         show_grand_totals = 1;
+      }
+
+      if (!area_locks[10]) // unlocked past main game
+      {
+         show_extra = 1;
+         show_demo = 1;
+      }
+
+   }
 
 
-   // draw vlines
-   for (int i=0; i<20; i++)
-      if (vline[i]) al_draw_line(vline[i], y1, vline[i], y, mColor.White, 1);
 
 
 
 
 
+   // --------------------------------------
+   // training levels
+   // --------------------------------------
+   if (show_training)
+   {
+      int ac = 11; // area color
+      show_level_stats_title_and_header(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac, "Training Levels");
 
-   h = y - y1;
-   w = max_x - x1 - 4;
+      // training levels (13 and 14)
+      if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
+      y+=4;
+      for(int i=0; i<100; i++)
+         if ((area_array[i][1] == 13) || (area_array[i][1] == 14))
+            show_level_stats_row(i, x1, x2, draw, max_x, y, vline, vli, tally, ac);
 
+      y+=4;
+      if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
+      y+=4;
+      show_level_stats_totals(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac);
+      show_level_stats_outline_with_thicker_lines(x1, x2, gy, y, draw, mColor.pc[ac]);
+   }
+
+
+
+
+   // --------------------------------------
+   // main game
+   // --------------------------------------
+   if (show_main)
+   {
+      int ac = 4; // area color
+      show_level_stats_title_and_header(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac, "Main Game");
+
+      // levels
+      if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
+      y+=4;
+      for(int a=1; a<10; a++)
+         if (!area_locks[a])
+         {
+            for(int i=0; i<100; i++)
+               if (area_array[i][1] == a)
+                  show_level_stats_row(i, x1, x2, draw, max_x, y, vline, vli, tally, ac);
+            y+=2;
+            if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
+            y+=2;
+         }
+      y+=2;
+      show_level_stats_totals(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac);
+      show_level_stats_outline_with_thicker_lines(x1, x2, gy, y, draw, mColor.pc[ac]);
+   }
+
+   // --------------------------------------
+   // extra levels
+   // --------------------------------------
+   if (show_extra)
+   {
+      int ac = 14; // area color
+      show_level_stats_title_and_header(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac, "Extra Levels");
+
+      // extra levels (10)
+      if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
+      y+=4;
+      for(int i=0; i<100; i++)
+         if (area_array[i][1] == 10)
+            show_level_stats_row(i, x1, x2, draw, max_x, y, vline, vli, tally, ac);
+
+      y+=4;
+      if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
+      y+=4;
+
+      show_level_stats_totals(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac);
+      show_level_stats_outline_with_thicker_lines(x1, x2, gy, y, draw, mColor.pc[ac]);
+   }
+
+   // --------------------------------------
+   // demo levels
+   // --------------------------------------
+   if (show_demo)
+   {
+      int ac = 13; // area color
+      show_level_stats_title_and_header(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac, "Demo Levels");
+
+      if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
+      y+=4;
+      for(int i=0; i<100; i++)
+         if (area_array[i][1] == 12)
+            show_level_stats_row(i, x1, x2, draw, max_x, y, vline, vli, tally, ac);
+
+      y+=4;
+      if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
+      y+=4;
+
+      show_level_stats_totals(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac);
+      show_level_stats_outline_with_thicker_lines(x1, x2, gy, y, draw, mColor.pc[ac]);
+   }
+
+   // --------------------------------------
+   // grand totals
+   // --------------------------------------
+   if (show_grand_totals)
+   {
+      for (int i=0; i<16; i++) tally[0][i] = tally[1][i]; // copy totals to group so I can show them
+      int ac = 3; // area color
+      show_level_stats_title_and_header(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac, "Grand Totals");
+      if (draw) al_draw_line(x1, y, x2, y, mColor.pc[ac], 1);
+      y +=4;
+      show_level_stats_totals(x1, x2, gy, ty, max_x, y, draw, vline, vli, tally, ac);
+      show_level_stats_outline_with_thicker_lines(x1, x2, gy, y, draw, mColor.pc[ac]);
+   }
+
+
+   y-=8;
+   // set actual w and h
+   w = max_x - x1 - 4 + frame_width*2;
+   h = y - y1 + frame_width*2;
 }
 
 
@@ -808,7 +1074,6 @@ void mwLevel::get_level_status(int lev, int& status, int& col, char txt[])
    if (status == 1) { sprintf(txt, "Ready");    col = 13; } // lt blue
    if (status == 2) { sprintf(txt, "Complete"); col = 12; } // dk blue
    if (status == 3) { sprintf(txt, "Perfect!"); col = 8;  } // purple
-
 }
 
 
@@ -888,8 +1153,6 @@ void mwLevel::sob_area_msg(int area, int x, int y)
    if (area == 17) { sprintf(msg1, "Game Levels");    w = 110; }
    if (area == 10) { sprintf(msg1, "Extra Levels");   w = 120; }
    if (area == 12) { sprintf(msg1, "Demo Levels");    w = 120; }
-
-
 
 
    int cmp = 0; // count how many levels in this area are complete
@@ -997,29 +1260,26 @@ void mwLevel::set_overworld_barriers(void)
    else if (msg_id != -1) mItem.erase_item(msg_id); // erase msg if it exists
 
 
-   // area messages
-   sob_area_msg(13, 640,  40);
-   sob_area_msg(14, 1250,  40);
+   sob_area_msg(13, 640,  40); // basic training levels
+   sob_area_msg(14, 1250, 40); // advanced training levels
 
-   sob_area_msg(1, 745,  220);
-   sob_area_msg(2, 1161, 220);
-   sob_area_msg(3, 745,  400);
-   sob_area_msg(4, 1161, 400);
-   sob_area_msg(5, 745,  580);
-   sob_area_msg(6, 1161, 580);
-   sob_area_msg(7, 745,  760);
-   sob_area_msg(8, 1161, 760);
+   sob_area_msg(1,  745,  220);
+   sob_area_msg(2,  1161, 220);
+   sob_area_msg(3,  745,  400);
+   sob_area_msg(4,  1161, 400);
+   sob_area_msg(5,  745,  580);
+   sob_area_msg(6,  1161, 580);
+   sob_area_msg(7,  745,  760);
+   sob_area_msg(8,  1161, 760);
 
-   sob_area_msg(9, 725, 940);   // final area
-   sob_area_msg(17, 1161, 940); // main area levels
+   sob_area_msg(9,  725,  940);  // final area
 
+
+   sob_area_msg(17, 1161, 940);  // main area levels
    sob_area_msg(16, 1161, 1010); // all levels
 
-
-
-   sob_area_msg(10, 745, 1410); // extra levels
-
-   sob_area_msg(12, 940, 1750); // demo levels
+   sob_area_msg(10, 745,  1410); // extra levels
+   sob_area_msg(12, 940,  1750); // demo levels
 
 
    // blocking lines of blocks
@@ -1524,7 +1784,7 @@ void mwLevel::clear_data(void)
    strcpy(data[i].level_name, "Lifts");
    data[i].par_time = 7200; // 3:00 demo 2:25
 
-   for(int i=0; i<10000; i++)
+   for(int i=0; i<100000; i++)
    {
       play_data[i].level = 0;
       play_data[i].start_timestamp=0;
@@ -1540,6 +1800,9 @@ void mwLevel::clear_data(void)
    unlock_all_level_in_area(10);
    unlock_all_level_in_area(11);
    unlock_all_level_in_area(12);
+
+   data[99].unlocked = 1;
+
 
 }
 

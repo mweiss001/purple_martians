@@ -34,8 +34,12 @@ class mwLoop
    // frame_speed, frames per second, frame_num stuff
    int frame_speed = 40;
    int frame_num;
-   int speed_control_lock = 1;
+   int speed_control_lock = 0;
    int eco_draw = 0;
+
+   int super_fast_mode = 0;
+
+
 
    // some global strings
    char local_hostname[80];

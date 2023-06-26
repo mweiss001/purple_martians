@@ -50,8 +50,8 @@ class mwItem
    void draw_gate_info(int i);
 
 
+   char* chrms(int time, char* ft);
 
-   char * chrms(int time, char* ft);
 
    void draw_line(int x1, int x2, int y, const char * txt1, const char * txt2, int col);
    void show_page(int page, int xc, int bs, int by, int lev, int col);
