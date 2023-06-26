@@ -997,6 +997,16 @@ void mwLoop::setup_common_after_level_load(void)
 
 void mwLoop::proc_level_done_mode(void)
 {
+//   printf("level_done_mode:%d\n", mPlayer.syn[0].level_done_mode);
+
+   if (super_fast_mode)
+   {
+      mPlayer.syn[0].level_done_mode = 1;
+      state[0] = 12;
+      return;
+   }
+
+
    //-------------------------------------
    // start of final level rocket cutscene
    //-------------------------------------
@@ -1162,6 +1172,8 @@ void mwLoop::proc_level_done_mode(void)
          if (have_all_players_acknowledged()) mPlayer.syn[0].level_done_timer = 0; // skip
       }
    }
+
+
    if (--mPlayer.syn[0].level_done_timer <= 0) // time to change to next level_done_mode
    {
       mPlayer.syn[0].level_done_mode--;
@@ -1212,12 +1224,18 @@ void mwLoop::main_loop(void)
       // ----------------------------------------------------------
       // do things based on the 40 Hz fps_timer event
       // ----------------------------------------------------------
+
+
+
+      if (super_fast_mode) mEventQueue.program_update = 1; // temp testing as fast as it can go
+
       if (mEventQueue.program_update)
       {
          mEventQueue.program_update = 0;
 
          if (state[1] == 11) // game loop running
          {
+
             frame_num++;
             mBitmap.update_animation();
 
@@ -1243,7 +1261,7 @@ void mwLoop::main_loop(void)
             mNetgame.server_create_new_state();
             if (mLog.LOG_TMR_sdif) mLog.add_log_TMR(al_get_time() - t0, "sdif", 0);
 
-            if (ldm != 27) draw_frame();
+            if ((ldm != 27) && (!super_fast_mode)) draw_frame();
 
             double pt = al_get_time() - mTimeStamp.timestamp_frame_start;
             if (mLog.LOG_TMR_cpu) mLog.add_log_TMR(pt, "cpu", 0);

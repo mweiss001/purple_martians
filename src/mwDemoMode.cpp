@@ -123,7 +123,7 @@ int mwDemoMode::load_random_demo(void)
    if (mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[index])))
    {
       if (debug_print) printf("Demo Mode random file chooser - pass:%d index:%d level:%d\n", pass, index, mLevel.play_level);
-      printf("demo rnd - pass:%d index:%d level:%d\n", pass, index, mLevel.play_level);
+      printf("demo rnd - pass:%d index:%d level:%d  lf:%d\n", pass, index, mLevel.play_level, mDemoMode.last_frame);
       return 1;
    }
    else

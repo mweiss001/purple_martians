@@ -134,6 +134,8 @@ void mwDrawSequence::draw(void)
          mItem.draw_gate_info(mPlayer.syn[p].marked_gate);
       }
 
+   for (int i=0; i<500; i++)
+      if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16))) mItem.draw_message(i, 0, 0, 0);
 
 
 

@@ -9,9 +9,36 @@ should be back to overworld...???
 only do next chron level if not started from overworld
 
 
-
-
 bug - gate crashes if level is points to does not exist..
+
+bug - why does blue key fall have a huge enemy killed stat
+does not happen when running demo from gate
+always this number: 2031971
+is it in level_data or level_play_data?
+now it is hard to reproduce
+
+
+
+total percents wrong..fixed
+
+
+move level_data to its own folder
+
+
+autosize column widths
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

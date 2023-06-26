@@ -46,6 +46,12 @@ void mwScreen::transition_cutscene(int i, int f)
    int num_steps = transition_num_steps;
    float delay = (float)transition_delay/1000;
 
+   if (mLoop.super_fast_mode)
+   {
+      num_steps = 1;
+      delay = 0;
+   }
+
    float fmxi=0;
    float fmyi=0;
    float fmsi=1;
@@ -57,6 +63,7 @@ void mwScreen::transition_cutscene(int i, int f)
    set_screen_display_variables();
    set_level_display_region_xy();
    set_map_var();
+
 
    // player's position in level
    float px = mPlayer.syn[mPlayer.active_local_player].x;

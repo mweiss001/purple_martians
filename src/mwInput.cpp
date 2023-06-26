@@ -268,6 +268,14 @@ void mwInput::function_key_check(void)
       mLog.save_log_file();
    }
 
+
+   if (key[ALLEGRO_KEY_F2][3])
+   {
+      mLoop.super_fast_mode = 1;
+   }
+
+
+
    if ((mLoop.level_editor_running) || (mLoop.state[1] == 11)) // only do these when game is running or in level editor
    {
       // zoom controls

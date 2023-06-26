@@ -89,7 +89,14 @@ class mwLevel
    int save_level_prompt();
 
 
+   void show_level_stats_outline_with_thicker_lines(int x1, int x2, int gy, int y, int draw, ALLEGRO_COLOR c);
 
+
+   void show_level_stats_totals(int x1, int x2, int gy, int ty, int& max_x, int& y, int draw, int vline[], int &vli, int tally[][16], int col);
+
+   void show_level_stats_title_and_header(int x1, int x2, int& gy, int& ty, int& max_x, int& y, int draw, int vline[], int &vli, int tally[][16], int col, const char* title);
+
+   void show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, int &y, int vline[], int &vli, int tally[][16], int col);
 
    int show_level_data(int x_pos, int y_pos, int type);
    void zero_level_data(void);
@@ -100,11 +107,9 @@ class mwLevel
 
    void fill_area_array(void);
 
-
    struct level_data data[100];
-   struct level_play_data play_data[10000];
+   struct level_play_data play_data[100000];
    int play_data_num;
-
 
    int area_locks[16];
 
@@ -123,13 +128,10 @@ class mwLevel
       "Extra",
       "2P",
       "Demo",
-      "Intro",
-      "Intro",
-      "15"
-
+      "Training",
+      "Training"
    };
 
-//const char *options[2] = { "1", "2" };
 
 
    int area_array[100][2];
@@ -140,7 +142,7 @@ class mwLevel
    void unlock_all_levels(void);
 
 
-   void show_level_stats(int x, int y1, int x2, int &w, int &h);
+   void show_level_stats(int x, int y1, int x2, int frame_width, int &w, int &h, int draw, int msg_type );
 
    void get_level_status(int lev, int& status, int& col, char txt[]);
 
