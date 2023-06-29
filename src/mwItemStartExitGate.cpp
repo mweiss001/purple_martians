@@ -121,10 +121,24 @@ void mwItem::proc_exit_collision(int p, int i)
          mPlayer.syn[0].level_done_y = itemf[i][1];
          mPlayer.syn[0].level_done_player = p;
 
-         if (mMain.classic_mode) mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level);
-         else                    mPlayer.syn[0].level_done_next_level = 1;
 
-         mLevel.level_complete_data();
+        if (mLevel.prev_level_loaded == 1) mPlayer.syn[0].level_done_next_level = 1;           // if started from overworld, return there
+        else mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level);  // otherwise do next chron level
+
+
+//
+//         // in story mode exit always goes to overworld
+//         if (!mMain.classic_mode) mPlayer.syn[0].level_done_next_level = 1;
+//
+//         if (mMain.classic_mode)
+//         {
+//            // in classic mode if level started from overworld, return to overworld
+//            if (mLevel.prev_level_loaded == 1) mPlayer.syn[0].level_done_next_level = 1;
+//            // other wise do next level
+//            else mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level);
+//         }
+
+         mLevel.level_complete_data(0, mLevel.play_level);
 
          mGameEvent.add(4, 0, 0, 0, 0, 0, 0);
       }
@@ -169,13 +183,19 @@ void mwItem::proc_gate_collision(int p, int i)
       }
    }
 
-
    // set level complete for testing
    if (mPlayer.syn[p].fire)
    {
+      int lev = item[i][6];
+      int i = mLevel.play_data_num-1;
 
-      mLevel.data[item[i][6]].completed = 1;
-      mLevel.level_complete_data();
+//      mLevel.data[lev].completed = 1;
+      mLevel.level_complete_data(1, lev);
+
+//      mLevel.play_data[i].timer = ct;
+
+
+
       mLevel.load_level(1,0,1);
    }
 

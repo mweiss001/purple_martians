@@ -2,14 +2,6 @@
 
 
 
-
-
-
-
-
-
-
-
 struct level_data
 {
    char level_name[200];
@@ -18,19 +10,11 @@ struct level_data
    int completed;
    int best_time;
    int min_respawns;
-
    int max_purple_coins_collected;
    int tot_purple_coins;
-
    int min_enemies_left;
    int min_enemies_left_par;
-
-
-
    int max_enemies_killed;
-
-
-
 };
 
 
@@ -39,17 +23,13 @@ struct level_play_data
    int level;
    double start_timestamp;
    int timer;
-
    int completed;
-
    int number_players;
    int enemies_killed;
    int enemies_left_alive_at_exit;
    int player_respawns;
    int purple_coins_collected;
-
 };
-
 
 
 class mwLevel
@@ -64,6 +44,7 @@ class mwLevel
    int overworld_level;
 
    int valid_level_loaded;
+   int prev_level_loaded;
    int last_level_loaded;
    int resume_allowed;
 
@@ -92,11 +73,11 @@ class mwLevel
    void show_level_stats_outline_with_thicker_lines(int x1, int x2, int gy, int y, int draw, ALLEGRO_COLOR c);
 
 
-   void show_level_stats_totals(int x1, int x2, int gy, int ty, int& max_x, int& y, int draw, int vline[], int &vli, int tally[][16], int col);
+   void show_level_stats_totals(int x1, int x2, int gy, int ty, int& max_x, int& y, int draw, int vline[], int &vli, int tally[][16], int col, int msg_type);
 
-   void show_level_stats_title_and_header(int x1, int x2, int& gy, int& ty, int& max_x, int& y, int draw, int vline[], int &vli, int tally[][16], int col, const char* title);
+   void show_level_stats_title_and_header(int x1, int x2, int& gy, int& ty, int& max_x, int& y, int draw, int vline[], int &vli, int tally[][16], int col, const char* title, int msg_type);
 
-   void show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, int &y, int vline[], int &vli, int tally[][16], int col);
+   void show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, int &y, int vline[], int &vli, int tally[][16], int msg_type);
 
    int show_level_data(int x_pos, int y_pos, int type);
    void zero_level_data(void);
@@ -162,7 +143,7 @@ class mwLevel
    void check_achievments(void);
 
    void level_start_data(void);
-   void level_complete_data(void);
+   void level_complete_data(int type, int lev);
 
 
    ALLEGRO_BITMAP * level_icon[100];

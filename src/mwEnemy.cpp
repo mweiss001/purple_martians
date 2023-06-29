@@ -21,8 +21,8 @@ mwEnemy mEnemy;
 void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
 {
    int type = Ei[e][0];
-   float x = Ef[e][0];
-   float y = Ef[e][1];
+   int x = Ef[e][0];
+   int y = Ef[e][1];
    if (custom)
    {
       x = cx;

@@ -37,7 +37,6 @@ Ef[][6]  x speed when jumping
  */
 
 
-
 void mwEnemy::move_jumpworm(int e)
 {
    int EXint = Ef[e][0];

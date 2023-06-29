@@ -26082,12 +26082,210 @@ that was actually quite easy..
 
 can I make main game only show open areas?
 
-
 when calling
 
 Level Statistics Full (forced all)
 Level Statistics Game Only (game only)
 Level Statistics Overworld (as much as is completed)
+
+pass msg_type to rows to do custom columns..done
+
+make
+
+training only overworld
+
+add 2 vlines to title..done
+
+add status to totals (only complete or perfect)..done
+
+bug - gate crashes if level it points to does not exist..fixed
+bug - total percents wrong..fixed
+bug - different draw routine when drawing level for map..fixed
+
+20230627
+
+I want a gate to level 99 somewhere in overworld
+- show detailed info
+- relief level for when timer gets too high
+
+or how about when timer gets too high, just do timeout and reload overworld, or whatever world you are in
+
+It would have to be a very large timeout so not to mess with player games...
+
+I could put the detailed stats in settings...
+
+lets do that...done
+
+
+I am spending a lot of time looking at the starting part of overworld, trying to figure out how to
+make it look better and do what I want it to do..
+
+now that I have level stats in settings, I don't need level 99....that will make things simpler
+
+do some clean up of that..
+
+now there is only one call from message and one from settings...
+settings does full (1)
+message does overworld all (3)
+
+grand totals could use some cleanup...
+never show 'level'
+
+when doing full, show all areas, even if locked..done
+
+in overworld all, do not show grand totals until main is done..done
+
+in settings, have options to show all or partial, also move buttons to that page..
+
+
+bug - why does blue key fall have a huge enemy killed stat
+does not happen when running demo from gate
+always this number: 2031971
+is it in level_data or level_play_data?
+now it is hard to reproduce
+
+bug - going from level editor to game...level gets set to some huge number...
+no, its when changing speed
+start game
+no its random...
+what have I changed recently...added item type 19
+this bug is hard to reproduce...has not occurred for a long time now
+
+
+bug - in level editor, moving cloner with edit selection broke link from timer to cloner
+cloner was in selection, timer was not...
+i think the clt made a new event for cloner, even though it did not need to as it was only one event, not a pair
+also because it was just a move, not a copy, it did not need to do any clt...
+need a way in edit selection to not do clt if move..
+nothing happens for clt in putting stuff into ft, only when pasting it out...
+can I use copy_mode to track what mode I am in?
+it looks like copy mode is always 0 or 1
+can I set it to 2 when initiating move?
+then from 2 to 1 after first move?
+I think I have this working, but need to test more....
+
+bug - in es copy and move doors
+doors destinations are screwed up....
+moving doors gives them different item numbers, and that is what is used to link doors....
+I see no way to fix this, it was always a fragile setup...
+Unless I make the links between doors use a different method, independant of item numbers
+
+bug jumpworm tile sometimes leaves artifacts, make sure to draw tile with int not float
+sometimes explosion bitmap does the same
+changed all enemies to int int now...
+see how that looks
+
+void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
+{
+   int type = Ei[e][0];
+   int x = Ef[e][0];
+   int y = Ef[e][1];
+
+
+
+
+bug - in classic mode when completing a level from overworld, next chron level starts
+should be back to overworld...???
+only do next chron level if not started from overworld
+show be fixed..
+added pre_lev_loaded
+
+int valid_level_loaded;
+int prev_level_loaded;
+int last_level_loaded;
+int resume_allowed;
+
+int mwLevel::load_level(int level_num, int load_only, int fail_silently)
+{
+   char msg[1024];
+   zero_level_data();
+
+   prev_level_loaded = last_level_loaded;
+   last_level_loaded = level_num;
+   valid_level_loaded = 0;
+   resume_allowed = 0;
+
+void mwItem::proc_exit_collision(int p, int i)
+{
+
+         // in story mode exit always goes to overworld
+         if (!mMain.classic_mode) mPlayer.syn[0].level_done_next_level = 1;
+
+         if (mMain.classic_mode)
+         {
+            // in classic mode if level started from overworld, return to overworld
+            if (mLevel.prev_level_loaded == 1) mPlayer.syn[0].level_done_next_level = 1;
+            // other wise do next level
+            else mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level);
+         }
+
+I might be able to simplify this...try:
+
+
+        if (mLevel.prev_level_loaded == 1) mPlayer.syn[0].level_done_next_level = 1;           // if started from overworld, return there
+        else mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level);  // otherwise do next chron level
+
+
+
+
+
+
+
+
+
+
+bug - when player is on a gate and data is shown, then go back to menu and use arrows to change start level
+that info shows on other loaded levels and is wrong and sometimes crashes..
+reset that value somewhere
+
+void mwItem::proc_gate_collision(int p, int i)
+{
+   mPlayer.syn[p].marked_gate = i;
+
+fixed by calling mPlayer.init_player(0, 2); in load level
+
+
+
+
+
+
+
+
+
+mLevel is 2000 lines long...could I split it into mLevel and mLevelData
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

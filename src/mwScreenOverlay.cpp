@@ -1037,19 +1037,6 @@ void mwScreen::draw_top_frame(int p)
       }
 
 
-//   // draw gate info directly on the screen
-//
-//   for (int p=0; p<NUM_PLAYERS; p++)
-//      if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
-//      {
-//         mItem.draw_gate_info(mPlayer.syn[p].marked_gate);
-//      }
-
-
-
-
-
-
 //   if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%d En:%d ",            mLevel.play_level, mLoop.frame_num/40, mEnemy.num_enemy); // special case for narrow screens
 //   else                sprintf(msg,"Level:%d | Time:%d | Enemies:%d  ", mLevel.play_level, mLoop.frame_num/40, mEnemy.num_enemy);
    al_draw_text(mFont.pr8, mColor.pc[tc], tdx, tdy+2,  0, msg);
