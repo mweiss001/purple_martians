@@ -109,9 +109,11 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
 
    // hijack for special stats messages
    int show_stats_msg = 0;
-   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Full", 21)) && (!custom)) show_stats_msg = 1;
-   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Game", 21)) && (!custom)) show_stats_msg = 2;
-   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Over", 21)) && (!custom)) show_stats_msg = 3;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Full",            21)) && (!custom)) show_stats_msg = 1;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Game",            21)) && (!custom)) show_stats_msg = 2;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld All",   30)) && (!custom)) show_stats_msg = 3;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld Train", 30)) && (!custom)) show_stats_msg = 4;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld Main",  30)) && (!custom)) show_stats_msg = 5;
    if (show_stats_msg) mLevel.show_level_stats(0, 0, 0, frame_width, item[i][8], item[i][9], 0, show_stats_msg); // only set w and h
 
 
@@ -119,6 +121,9 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
    int y1 = item[i][7];
    int w  = item[i][8];
    int h  = item[i][9];
+
+
+
 
    if (custom) // get custom x and y
    {
@@ -132,9 +137,14 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
    int y2 = y1 + h;
 
 
+
    if (frame_width == 0)
    {
       if (mLoop.level_editor_running) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
+
+      if (show_stats_msg) al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[fc+13*16]);  // background
+
+
    }
    else al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[fc+13*16]);  // background
 

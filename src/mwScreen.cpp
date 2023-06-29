@@ -427,6 +427,19 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
    if (!mLoop.level_editor_running) mItem.erase_hider_areas();
 
 
+      // draw gate info
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
+      {
+         mItem.draw_gate_info(mPlayer.syn[p].marked_gate);
+      }
+
+   for (int i=0; i<500; i++)
+      if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16))) mItem.draw_message(i, 0, 0, 0);
+
+
+
+
    if (b == NULL) al_set_target_backbuffer(mDisplay.display);
    else al_set_target_bitmap(b);
    al_draw_scaled_bitmap(mBitmap.level_buffer, 0, 0, 2000, 2000, mx, my, ms, ms, 0);

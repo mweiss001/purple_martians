@@ -259,10 +259,15 @@ void mwSettings::settings_pages(int set_page)
    sprintf(st[10].title, "Double");
    sprintf(st[11].title, "Speed");
 
+
+
+
    sprintf(st[15].title,  "Info");
    sprintf(st[16].title,  "Profiling");
    sprintf(st[17].title,  "Logging");
    sprintf(st[18].title,  "misc");
+
+   sprintf(st[19].title,  "Stats");
 
 
    int num_pages = 20;
@@ -282,6 +287,9 @@ void mwSettings::settings_pages(int set_page)
       for (int i=0; i<20; i++) st[i].show = 0; // all off
 
       for (int i=0; i<6; i++) st[i].show = 1; // always on
+
+      st[19].show = 1; // temp show stats
+
 
       if (show_advanced)
       {
@@ -1930,6 +1938,22 @@ void mwSettings::settings_pages(int set_page)
 
 
 
+      if (page == 19) // level stats
+      {
+         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, cfp_y1+10, ALLEGRO_ALIGN_CENTER, "Level Statistics");
+
+         int w=0, h = 0;
+         mLevel.show_level_stats(0,0,0,0, w, h, 0, 1); // just get size
+
+         int x1 = cfp_txc - w/2;
+         int x2 = cfp_txc + w/2;
+         int y1 = cfp_y1 + 26;
+         int y2 = y1 + h;
+
+         al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]); // erase background
+
+         mLevel.show_level_stats(x1, y1, x2, 0, w, h, 1, 1);
+      }
 
 
 

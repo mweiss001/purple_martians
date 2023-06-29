@@ -2,106 +2,9 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-
-
-bug? - in classic mode when completing a level from overworld, next chron level starts
-should be back to overworld...???
-only do next chron level if not started from overworld
-
-
-bug - gate crashes if level is points to does not exist..
-
-bug - why does blue key fall have a huge enemy killed stat
-does not happen when running demo from gate
-always this number: 2031971
-is it in level_data or level_play_data?
-now it is hard to reproduce
-
-
-
-total percents wrong..fixed
-
-
-move level_data to its own folder
-
-
-autosize column widths
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-huge bug going from level editor to game...level gets set to some huge number...
-no, its when changing speed
-start game
-no its random...
-what have I changed recently
-- added item type 19
-this bug is hard to reproduce...
-
-
-bug - in level editor when dragging window over block checkboxes
+bug - level editor dragging window over block check boxes, mouse detects check boxes
 
 bug - enemy counts like cloner 6 of 0..only sometimes??
-
-
-
-
-bug - in level editor, moving cloner with edit selection broke link from timer to cloner
-cloner was in selection, timer was not...
-i think the clt made a new event for cloner, even though it did not need to as it was only one event, not a pair
-also because it was just a move, not a copy, it did not need to do any clt...
-
-need a way in edit selection to not do clt if move..
-
-nothing happens for clt in putting stuff into ft, only when pasting it out...
-can I use copy_mode to track what mode I am in?
-
-it looks like copy mode is always 0 or 1
-
-can I set it to 2 when initiating move?
-then from 2 to 1 after first move?
-
-I think I have this working, but need to test more....
-
-bug - in es copy and move doors
-doors destinations are screwed up....
-moving doors gives them different item numbers, and that is what is used to link doors....
-
-I see no way to fix this, it was always a fragile setup...
-Unless I make the links between doors use a different method, independant of item numbers
-
-
-
-
-
-
-
-
-21 bomb has damage range of 1640...why? all i did was move it
-it should be 100
-looked all through mwWindowEditSelection.cpp and could not see anything wrong
-
-
-bug jumpworm tile sometimes leaves artifacts, make sure to draw tile with int not float
-
-sometimes explosion bitmap does the same
-
 
 
 
@@ -110,8 +13,14 @@ sometimes explosion bitmap does the same
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+fix settings page for level stats
+figure out where everything is going to go
 
-lev008 new changed and new demo made
+
+
+
+move level_data to its own folder
+
 
 
 
