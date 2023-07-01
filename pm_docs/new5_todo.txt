@@ -13,9 +13,6 @@ bug - enemy counts like cloner 6 of 0..only sometimes??
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-fix settings page for level stats
-figure out where everything is going to go
-
 
 
 

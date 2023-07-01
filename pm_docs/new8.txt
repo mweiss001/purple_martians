@@ -26244,15 +26244,154 @@ void mwItem::proc_gate_collision(int p, int i)
 
 fixed by calling mPlayer.init_player(0, 2); in load level
 
-
-
-
-
-
-
-
-
 mLevel is 2000 lines long...could I split it into mLevel and mLevelData
+
+what about tracking levels started but not completed?
+how could I do that?
+
+
+struct level_play_data
+{
+   int level;
+   double start_timestamp;
+   int timer;
+   int completed;
+   int number_players;
+   int enemies_killed;
+   int enemies_left_alive_at_exit;
+   int player_respawns;
+   int purple_coins_collected;
+};
+
+just have a record that is not completed..
+
+set it when exiting to overworld or menu
+maybe not menu, because resume is possible
+if on menu and resume is possible and a new start level is chosen...
+that could work
+
+how many entries do I have set aside space for:
+100,000
+
+I don't show anywhere how many I have used.
+If the limit is exceeded do I just exceed the array bounds and bad stuff happens?
+
+
+
+
+use a function similar to:
+void mwLevel::level_complete_data(int type, int lev)
+
+level_abort_data
+
+
+what am I going to use this for?
+
+show on advanced
+
+also use elapsed time to add to total, (but not average completed time)
+
+
+made the function, where to patch it in?
+
+when exiting to overworld...
+
+
+         if (quit_action == 2)  // overworld
+         {
+            if (debug_print_more) printf("instead of menu, go to overworld\n");
+            mPlayer.syn[0].level_done_next_level = 1;
+            state[0] = 12;      // next level
+            quit_action = 1;    // menu
+            done_action = 2;    // overworld (should never trigger level done from overworld, no exits)
+
+
+            printf("save abort level data\n");
+
+            mLevel.level_abort_data(mLevel.play_level);
+
+            return;
+         }
+
+when level changed with arrow keys in menu and resume true
+
+         if ((top_menu_sel > 100) && (top_menu_sel < 200)) // right pressed on menu item
+         {
+            top_menu_sel -= 100;
+            if (top_menu_sel == 2)
+            {
+               if ((mLevel.resume_allowed) && (mLevel.play_level != 1)) mLevel.level_abort_data(mLevel.play_level);
+               mLevel.next_level(); // next level
+            }
+         }
+         if ((top_menu_sel > 200) && (top_menu_sel < 300)) // left pressed on menu item
+         {
+            top_menu_sel -= 200;
+            if (top_menu_sel == 2)
+            {
+               if ((mLevel.resume_allowed) && (mLevel.play_level != 1)) mLevel.level_abort_data(mLevel.play_level);
+               mLevel.prev_level(); // prev level
+            }
+         }
+
+
+when visual level select is called and resume true
+
+int mwVisualLevel::visual_level_select(void)
+{
+
+   if ((mLevel.resume_allowed) && (mLevel.play_level != 1)) mLevel.level_abort_data(mLevel.play_level);
+
+
+change the test for lev != 1 to the function   ..done
+
+
+now what? I am collecting the info, what do I do with it?
+show in detailed stats..done
+
+
+if lev has been started > 5 times but not completed, offer the option to complete it with demo mode
+I need a way to mark if this is the case...
+
+settings...
+
+stats add the buttons for reset and unlock
+maybe show number of level data
+
+
+can I make stats tab show up earlier in tab list? yes..done
+
+
+where am I going to put classic / story button?
+
+for now, the misc tab is the bext option
+
+I think I need to test all this overworld stuff in multiplayer...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

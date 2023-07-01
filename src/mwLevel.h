@@ -72,7 +72,6 @@ class mwLevel
 
    void show_level_stats_outline_with_thicker_lines(int x1, int x2, int gy, int y, int draw, ALLEGRO_COLOR c);
 
-
    void show_level_stats_totals(int x1, int x2, int gy, int ty, int& max_x, int& y, int draw, int vline[], int &vli, int tally[][16], int col, int msg_type);
 
    void show_level_stats_title_and_header(int x1, int x2, int& gy, int& ty, int& max_x, int& y, int draw, int vline[], int &vli, int tally[][16], int col, const char* title, int msg_type);
@@ -144,6 +143,7 @@ class mwLevel
 
    void level_start_data(void);
    void level_complete_data(int type, int lev);
+   void level_abort_data(int lev);
 
 
    ALLEGRO_BITMAP * level_icon[100];

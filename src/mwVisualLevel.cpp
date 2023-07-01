@@ -623,6 +623,10 @@ void mwVisualLevel::load_visual_level_select(void)
 
 int mwVisualLevel::visual_level_select(void)
 {
+
+   if (mLevel.resume_allowed) mLevel.level_abort_data(mLevel.play_level);
+
+
    mLoop.visual_level_select_running = 1;
 
    int p = mPlayer.active_local_player;

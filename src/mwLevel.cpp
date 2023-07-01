@@ -480,6 +480,31 @@ void mwLevel::check_achievments(void)
 }
 
 
+void mwLevel::level_abort_data(int lev)
+{
+   if (lev != 1)
+   {
+      int i = play_data_num;
+      printf("save level_abort_data(%d) %d\n", lev, i);
+
+      // add entry to play_data[] array
+      play_data[i].level = lev;
+      play_data[i].timer = mLoop.frame_num;
+      play_data[i].player_respawns = level_data_player_respawns;
+      play_data[i].enemies_killed = level_data_enemies_killed;
+      play_data[i].purple_coins_collected = level_data_purple_coins_collected;
+      play_data[i].enemies_left_alive_at_exit = mEnemy.num_enemy;
+      play_data_num++;
+
+      // only these can be updated by an incomplete level
+      if (level_data_enemies_killed         > data[lev].max_enemies_killed)         data[lev].max_enemies_killed         = level_data_enemies_killed;
+      if (level_data_purple_coins_collected > data[lev].max_purple_coins_collected) data[lev].max_purple_coins_collected = level_data_purple_coins_collected;
+   }
+   save_data();
+}
+
+
+
 void mwLevel::level_complete_data(int type, int lev)
 {
 
@@ -487,21 +512,15 @@ void mwLevel::level_complete_data(int type, int lev)
    {
       mLevel.skc_trigger_demo_cheat = 0;
 
-//      int lev = play_level;
-
-
-
       data[lev].unlocked = 1; // if for some reason it isn't already
-      //   printf("level_complete_data() play_level:%d\n", play_level);
-      int ct = mLoop.frame_num;
-      //printf("1 level_complete_data() mLoop.frame_num:%d\n", ct);
 
-
-      if (type == 1) ct = data[lev].par_time+400;
+      int ct = mLoop.frame_num; // completion time
+      if (type == 1) ct = data[lev].par_time+400; // fake time (par time + 10s)
 
 
       // add entry to play_data[] array
       int i = play_data_num;
+      printf("save level_complete_data(%d) %d\n", lev, i);
       play_data[i].level = lev;
       play_data[i].timer = ct;
       play_data[i].completed = 1;
@@ -512,7 +531,7 @@ void mwLevel::level_complete_data(int type, int lev)
       play_data_num++;
 
 
-      // was the level just completed for the first time
+      // completed for the first time?
       if (!data[lev].completed)
       {
          //printf("first time:%d\n", ct);
@@ -552,6 +571,11 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
    int show_time_played = 1;
    int show_worst_time = 1;
    int show_average_time = 1;
+
+   int show_times_beat = 1;
+   int show_times_quit = 1;
+
+
 
    if (msg_type > 2) // overworld
    {
@@ -605,6 +629,9 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
    char stxt[80];
 
    int tc = 0; // number of times completed
+   int tb = 0; // number of times beat
+   int tq = 0; // number of times quit
+
    int tt = 0; // total time spent playing
    int wt = 0; // worst time
    int mt = 0; // average time
@@ -626,10 +653,18 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
             tc++;
             tt += play_data[i].timer;
             if (play_data[i].timer > wt) wt = play_data[i].timer;
+
+            if (play_data[i].completed) tb++;
+            else tq++;
          }
+
+
       if (tc) mt = tt/tc; // average time
 
       tally[0][3] += tc; // plays
+
+      tally[0][11] += tb; // beat
+      tally[0][12] += tq; // quit
 
       tally[0][6] += data[lev].min_respawns;
       tally[0][7] += data[lev].max_enemies_killed;
@@ -640,6 +675,8 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
       tally[0][8] += data[lev].par_time;
       tally[0][9] += data[lev].best_time;
       tally[0][10] += tt; // total play time
+
+
    }
 
 
@@ -796,6 +833,48 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
       vline[vli++] = x-4;
    }
 
+
+
+   if (show_times_beat)
+   {
+      width = 5 * 8;
+      if (draw)
+      {
+         if (header)
+         {
+            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Total");
+            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Beat");
+         }
+         else if (total) al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "%d", tally[0][11]);
+         else            al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "%d", tb);
+      }
+      x += width+8;
+      vline[vli++] = x-4;
+   }
+
+   if (show_times_quit)
+   {
+      width = 5 * 8;
+      if (draw)
+      {
+         if (header)
+         {
+            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Total");
+            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Quit");
+         }
+         else if (total) al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "%d", tally[0][12]);
+         else            al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "%d", tq);
+      }
+      x += width+8;
+      vline[vli++] = x-4;
+   }
+
+
+
+
+
+
+
    if (show_time_played)
    {
       width = 9 * 8;
@@ -941,7 +1020,6 @@ void mwLevel::show_level_stats(int x1, int y1, int x2, int frame_width, int &w, 
    int tally[2][16] = { 0 };
 
 
-
 //0 grp
 //1 tot
 //0  tot_lev
@@ -956,8 +1034,8 @@ void mwLevel::show_level_stats(int x1, int y1, int x2, int frame_width, int &w, 
 //9  tot_best_time
 //10 tot_play_time
 
-
-
+//11 tot_plays_beat
+//12 tot_plays_quit
 
 
    int show_training = 1;

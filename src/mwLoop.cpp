@@ -228,18 +228,23 @@ void mwLoop::game_menu(void)
          if (top_menu_sel == 10) mHelp.help("");
 
 
-
-
-
          if ((top_menu_sel > 100) && (top_menu_sel < 200)) // right pressed on menu item
          {
             top_menu_sel -= 100;
-            if (top_menu_sel == 2) mLevel.next_level(); // next level
+            if (top_menu_sel == 2)
+            {
+               if (mLevel.resume_allowed) mLevel.level_abort_data(mLevel.play_level);
+               mLevel.next_level(); // next level
+            }
          }
          if ((top_menu_sel > 200) && (top_menu_sel < 300)) // left pressed on menu item
          {
             top_menu_sel -= 200;
-            if (top_menu_sel == 2) mLevel.prev_level(); // prev level
+            if (top_menu_sel == 2)
+            {
+               if (mLevel.resume_allowed) mLevel.level_abort_data(mLevel.play_level);
+               mLevel.prev_level(); // prev level
+            }
          }
       }
    }
@@ -378,17 +383,20 @@ void mwLoop::proc_program_state(void)
          }
          if (quit_action == 2)  // overworld
          {
-            printf("instead of menu, go to overworld\n");
+            if (debug_print_more) printf("instead of menu, go to overworld\n");
             mPlayer.syn[0].level_done_next_level = 1;
             state[0] = 12;      // next level
             quit_action = 1;    // menu
             done_action = 2;    // overworld (should never trigger level done from overworld, no exits)
+
+            mLevel.level_abort_data(mLevel.play_level);
+
             return;
          }
 
          if (quit_action == 3)  // settings
          {
-            printf("instead of menu, go to settings\n");
+            if (debug_print_more) printf("instead of menu, go to settings\n");
             state[0] = 3;
 
             quit_action = 1; // set new quit action to menu
