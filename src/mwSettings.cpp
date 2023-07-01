@@ -254,6 +254,8 @@ void mwSettings::settings_pages(int set_page)
    sprintf(st[4].title,  "Demo");
    sprintf(st[5].title,  "Message");
 
+   sprintf(st[6].title,  "Stats");
+
    sprintf(st[8].title,  "Viewport");
    sprintf(st[9].title,  "Overlay");
    sprintf(st[10].title, "Double");
@@ -266,9 +268,6 @@ void mwSettings::settings_pages(int set_page)
    sprintf(st[16].title,  "Profiling");
    sprintf(st[17].title,  "Logging");
    sprintf(st[18].title,  "misc");
-
-   sprintf(st[19].title,  "Stats");
-
 
    int num_pages = 20;
 
@@ -286,9 +285,7 @@ void mwSettings::settings_pages(int set_page)
 
       for (int i=0; i<20; i++) st[i].show = 0; // all off
 
-      for (int i=0; i<6; i++) st[i].show = 1; // always on
-
-      st[19].show = 1; // temp show stats
+      for (int i=0; i<7; i++) st[i].show = 1; // always on
 
 
       if (show_advanced)
@@ -1291,6 +1288,92 @@ void mwSettings::settings_pages(int set_page)
       }
 
 
+
+
+
+
+
+      if (page == 6) // level stats
+      {
+
+         int line_spacing = 12;
+         //line_spacing +=  mLoop.pct_y;
+         int xa = cfp_x1 + 10;
+         int xb = cfp_x2 - 10;
+         int ya = cfp_y1 + 10;
+         int bts = 16;
+
+
+
+         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Level Statistics");
+
+
+
+         ya += 16;
+
+
+         xa = cfp_x1 + 110;
+         xb = cfp_x2 - 110;
+
+         mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Show All Level Data");
+
+         if ((mInput.mouse_x > xa) && (mInput.mouse_x < xb) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts))
+         {
+            int w=0, h = 0;
+            mLevel.show_level_stats(0,0,0,0, w, h, 0, 1); // just get size
+
+            int x1 = cfp_txc - w/2;
+            int x2 = cfp_txc + w/2;
+            int y1 = ya + 26;
+            int y2 = y1 + h;
+
+            al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]); // erase background
+
+            mLevel.show_level_stats(x1, y1, x2, 0, w, h, 1, 1);
+
+         }
+         else if (show_advanced)
+         {
+            xa = cfp_x1 + 10;
+            xb = cfp_x2 - 10;
+            ya +=bts;
+
+            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+            if (mWidget.buttont(xa+100, ya, xb-100, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
+            ya +=8;
+            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All areas and levels will be unlocked."); ya +=8;
+            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+            if (mWidget.buttont(xa+80, ya, xb-80, bts, 0,0,0,0,  0, 10,15, 0,  1,0,1,0, "Reset all level data")) mLevel.reset_level_data();
+            ya +=8;
+
+            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Warning! This will reset everything!"); ya +=16;
+            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All achievements will be reset.");      ya +=16;
+            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All areas and levels will be locked."); ya +=8;
+
+            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+
+
+//            if (show_debug)
+//            {
+//               al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Number of level play records:%d", mLevel.play_data_num-1);
+//               ya +=8;
+//               ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+//            }
+
+
+         }
+      }
+
+
+
+
+
 // ---------------------------------------------------------------
 //  8 - viewport
 // ---------------------------------------------------------------
@@ -1871,7 +1954,6 @@ void mwSettings::settings_pages(int set_page)
          ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
 
-
          int old_mcm = mMain.classic_mode;
 
          mWidget.toggle(cfp_x1+100, ya, cfp_x2-100, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mMain.classic_mode, "Story Mode", "Classic Mode", 15, 15, 12, 12);
@@ -1889,72 +1971,7 @@ void mwSettings::settings_pages(int set_page)
          mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_num_steps, 400, 4, 1, "Transistion num steps:");
          mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_delay, 100, 1, 1, "Transistion delay:");
 
-
-         ya +=8;
-
-         if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Reset all level data")) mLevel.reset_level_data();
-
-         ya +=4;
-         if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
-
-
-
-
-//         if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "color tile"))
-//         {
-//            for (int i=0; i<16; i++)
-//            {
-//               al_set_target_bitmap(mBitmap.tile[128+i]);
-//               al_draw_bitmap(mBitmap.tile[939], 0, 0, 0);
-//
-//               mBitmapTools.color_shift(mBitmap.tile[128+i], 12, i-11);
-//            }
-//            al_save_bitmap("bitmaps/tiles.bmp", mBitmap.tilemap);
-//         }
-
-
-
-
-//         if (mWidget.buttont(xa, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Show Font"))
-//         {
-//
-////   mFont.convert_ttf_to_bitmap_font("Pristine.ttf", "Pristine_8.bmp", 8);
-//
-//               // show char set of fonts
-//            al_set_target_backbuffer(mDisplay.display);
-//            al_clear_to_color(al_map_rgb(255, 0, 0));
-//
-//            for (int i=32; i<80; i++)
-//               al_draw_textf(mFont.pr8, mColor.White, 10, (i-32)*8, 0, "%d '%c'     %d '%c'", i, i, i+48, i+48);
-//
-//            al_flip_display();
-//            mInput.tsw();
-//
-//         }
-
-
-
       }
-
-
-
-      if (page == 19) // level stats
-      {
-         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, cfp_y1+10, ALLEGRO_ALIGN_CENTER, "Level Statistics");
-
-         int w=0, h = 0;
-         mLevel.show_level_stats(0,0,0,0, w, h, 0, 1); // just get size
-
-         int x1 = cfp_txc - w/2;
-         int x2 = cfp_txc + w/2;
-         int y1 = cfp_y1 + 26;
-         int y2 = y1 + h;
-
-         al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]); // erase background
-
-         mLevel.show_level_stats(x1, y1, x2, 0, w, h, 1, 1);
-      }
-
 
 
 
@@ -1969,19 +1986,8 @@ void mwSettings::settings_pages(int set_page)
          while (mInput.mouse_b[2][0]) mEventQueue.proc();
          quit = 1;
       }
-
-
-
-
    }
    al_hide_mouse_cursor(mDisplay.display);
    mConfig.save();
    mLoop.state[0] = 1;
 }
-
-
-
-
-
-
-
