@@ -995,14 +995,42 @@ void mwScreen::draw_top_frame(int p)
    // ----------------------------------
    if (mLog.LOG_TMR_scrn_overlay) tt = al_get_time();
 
-   if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%s En:%d ",                mLevel.play_level, mItem.chrms(mLoop.frame_num, m2), mEnemy.num_enemy); // special case for narrow screens
-   else                         sprintf(msg,"Level:%d | Time:%s | Enemies:%d  ", mLevel.play_level, mItem.chrms(mLoop.frame_num, m2), mEnemy.num_enemy);
 
+   if (mLevel.play_level != 1) // don't show for overworld
+   {
+      if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%s En:%d ",                mLevel.play_level, mItem.chrms(mLoop.frame_num, m2), mEnemy.num_enemy); // special case for narrow screens
+      else                         sprintf(msg,"Level:%d | Time:%s | Enemies:%d  ", mLevel.play_level, mItem.chrms(mLoop.frame_num, m2), mEnemy.num_enemy);
+      al_draw_text(mFont.pr8, mColor.pc[tc], tdx, tdy+2,  0, msg);
+      tdx += strlen(msg)*8;
 
+      // draw health bar
+      draw_percent_bar(tdx+44, tdy, 88, 10, (int)mPlayer.syn[p].health);
+      al_draw_textf(mFont.pr8, mColor.pc[16], tdx+44, tdy+2, ALLEGRO_ALIGN_CENTRE,"Health:%-2d", (int) mPlayer.syn[p].health );
+      tdx += 88;
 
+      // draw purple coins if the level has any
+      int tpc = mLevel.data[mLevel.play_level].tot_purple_coins;
+      if (tpc)
+      {
+         al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
+         // spin_shape(197, tdx+5, tdy-3, 0, 0, 19, 19, 0.6, 0.5, 60);
+         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
+      }
+   }
+
+   if (mDisplay.show_scale_factor > 0)
+   {
+      al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W*2/3, 2, ALLEGRO_ALIGN_CENTER, "Scale:%-3.2f", mDisplay.scale_factor);
+   }
+   if (mDisplay.show_dtd > 0)
+   {
+      mDisplay.show_dtd --;
+      int dtd = mDisplay.display_transform_double;
+      if (dtd) al_draw_textf(mFont.pr8, mColor.pc[tc],mDisplay.SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [f]", dtd);
+      else     al_draw_textf(mFont.pr8, mColor.pc[tc],mDisplay.SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [a]", dtd);
+   }
 
    // draw npc directly on the screen, so they scale nicely
-
    for (int e=0; e<100; e++)
       if (mEnemy.Ei[e][0] == 19) // npc
       {
@@ -1019,8 +1047,6 @@ void mwScreen::draw_top_frame(int p)
          float ex1 = mDisplay.screen_display_x + (ex-ldx) * sc;
          float ey1 = mDisplay.screen_display_y + (ey-ldy) * sc;
 
-
-
          float psm = mEnemy.Ef[e][8];  // player scale muliplier
          float ps = sc * psm;          // player scale
          float sd = 20 * (1-psm);      // size difference
@@ -1033,39 +1059,8 @@ void mwScreen::draw_top_frame(int p)
          int col = mEnemy.Ei[e][3];
 
          al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, ex1, ey1+yo, ps, ps, 0, flags);
-
       }
 
-
-//   if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%d En:%d ",            mLevel.play_level, mLoop.frame_num/40, mEnemy.num_enemy); // special case for narrow screens
-//   else                sprintf(msg,"Level:%d | Time:%d | Enemies:%d  ", mLevel.play_level, mLoop.frame_num/40, mEnemy.num_enemy);
-   al_draw_text(mFont.pr8, mColor.pc[tc], tdx, tdy+2,  0, msg);
-   tdx += strlen(msg)*8;
-
-   // draw health bar
-   draw_percent_bar(tdx+44, tdy, 88, 10, (int)mPlayer.syn[p].health);
-   al_draw_textf(mFont.pr8, mColor.pc[16], tdx+44, tdy+2, ALLEGRO_ALIGN_CENTRE,"Health:%-2d", (int) mPlayer.syn[p].health );
-   tdx += 88;
-
-
-   // draw purple coins if the level has any
-   if (mLevel.data[mLevel.play_level].tot_purple_coins)
-   {
-      al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
-      // spin_shape(197, tdx+5, tdy-3, 0, 0, 19, 19, 0.6, 0.5, 60);
-      al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", mPlayer.syn[mPlayer.active_local_player].stat_purple_coins, mLevel.data[mLevel.play_level].tot_purple_coins);
-   }
-
-   if (mDisplay.show_scale_factor > 0)
-   {
-      al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W*2/3, 2, ALLEGRO_ALIGN_CENTER, "Scale:%-3.2f", mDisplay.scale_factor);
-   }
-   if (mDisplay.show_dtd > 0)
-   {
-      mDisplay.show_dtd --;
-      if (mDisplay.saved_display_transform_double) al_draw_textf(mFont.pr8, mColor.pc[tc],mDisplay.SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [f]", mDisplay.display_transform_double);
-      else                                    al_draw_textf(mFont.pr8, mColor.pc[tc],mDisplay.SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [a]", mDisplay.display_transform_double);
-   }
    if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - tt, "scov_top_frm", 0);
 }
 
@@ -1077,8 +1072,6 @@ void mwScreen::draw_bottom_frame(int p)
    int ts = 0;  // text spacing
 
    int tc = mColor.get_contrasting_color(mPlayer.syn[p].color);
-
-
 
 
    // ----------------------------------

@@ -58,16 +58,13 @@ void mwConfig::save(void)
       asci(GAME, mScreen.transition_delay)
 
 
-
-
       asci(GAME, mDisplay.viewport_mode)
       asci(GAME, mDisplay.viewport_show_hyst)
       ascf(GAME, mDisplay.viewport_x_div)
       ascf(GAME, mDisplay.viewport_y_div)
       asci(GAME, mLoop.speed_control_lock)
       asci(GAME, mVisualLevel.max_level_num)
-
-
+      asci(GAME, mVisualLevel.level_icon_size)
 
 
       asci(GAMECONTROLS, mPlayer.loc[0].up_key)
@@ -313,6 +310,8 @@ void mwConfig::load(void)
    agci(GAME, mLoop.speed_control_lock, 1)
 
    agci(GAME, mVisualLevel.max_level_num, 100)
+
+   agci(GAME, mVisualLevel.level_icon_size, 40)
 
 
    agci(GAMECONTROLS, mPlayer.loc[0].up_key,    ALLEGRO_KEY_UP)

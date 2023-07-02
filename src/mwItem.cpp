@@ -509,11 +509,8 @@ void mwItem::proc_bonus_collision(int p, int i)
    if (bonus_type == 3) // purple coin!!!
    {
       item[i][0] = 0;
-      if (!mLoop.ff_state)
-      {
-         mPlayer.syn[p].stat_purple_coins++;
-         mLevel.level_data_purple_coins_collected++;
-      }
+      if (!mLoop.ff_state) mLevel.level_data_purple_coins_collected++;
+      mPlayer.syn[p].stat_purple_coins++;
       mGameEvent.add(27, 0, 0, p, 0, 0, 0);
    }
 }

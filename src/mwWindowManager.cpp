@@ -665,7 +665,7 @@ int mwWindowManager::cycle_windows(int draw_only)
 
 void mwWindowManager::save_mW(void)
 {
-   FILE *fp = fopen("bitmaps/mW.pm", "wb");
+   FILE *fp = fopen("data/mW.pm", "wb");
    if (fp)
    {
       fwrite(&mWM, sizeof(mWM), 1, fp);
@@ -676,7 +676,7 @@ void mwWindowManager::save_mW(void)
 
 void mwWindowManager::load_mW(void)
 {
-   FILE *fp = fopen("bitmaps/mW.pm", "rb");
+   FILE *fp = fopen("data/mW.pm", "rb");
    if (fp)
    {
       fread(&mWM, sizeof(mWM), 1, fp);
@@ -690,7 +690,7 @@ void mwWindowManager::load_mW(void)
    // delete it...
 
    char sys_cmd[500];
-   sprintf(sys_cmd, "del bitmaps\\mW.pm");
+   sprintf(sys_cmd, "del data\\mW.pm");
    //printf("%s\n",sys_cmd);
    system(sys_cmd);
 }

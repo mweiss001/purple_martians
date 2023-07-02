@@ -311,7 +311,6 @@ void mwVisualLevel::lev_draw(int full)
             int level = my*20 + mx;
             int col = 11;
             if (!mLevel.load_level(level, 0, 1)) col = 10;
-            al_set_target_bitmap(le_temp);
             if (mLevel.valid_level_loaded) mScreen.draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0);
             al_draw_textf(mFont.pr8, mColor.pc[col], mx*ms +ms/2, my*ms+ms/2, ALLEGRO_ALIGN_CENTER, "%d", level);
 
@@ -473,6 +472,9 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
    else al_draw_text(mFont.pr8, mColor.pc[10], xc, y1+30, ALLEGRO_ALIGN_CENTER, "not found" );
 }
 
+
+
+
 void mwVisualLevel::load_visual_level_select(void)
 {
    num_levs = 0;
@@ -528,7 +530,6 @@ void mwVisualLevel::load_visual_level_select(void)
    grid_height = grid_rows * grid_size;
 
 
-
    // check if the intended grid is off the bottom of the screen
    while (grid_height >= mDisplay.SCREEN_H)
    {
@@ -537,10 +538,8 @@ void mwVisualLevel::load_visual_level_select(void)
       if (grid_size < 20)
       {
          grid_size = 10;
-//         printf("gs:%d\n", grid_size);
          break;
       }
-
 
       // how many icon will fit vertically
       grid_cols = x_space / grid_size;
@@ -550,8 +549,6 @@ void mwVisualLevel::load_visual_level_select(void)
       grid_rows = (num_levs-1) / grid_cols+1;
       grid_height = grid_rows * grid_size;
    }
-
-
 
 
    // how many icon will fit vertically
@@ -567,36 +564,11 @@ void mwVisualLevel::load_visual_level_select(void)
    sel_x = mDisplay.SCREEN_W - sel_size - 16;  // -16 for frame
 
 
-
-   // create icon bitmaps
-   for (int x=0; x<num_levs; x++)
+   if (grid_size != level_icon_size)
    {
-      level_icon_bmp[x] = al_create_bitmap(grid_size, grid_size);
-
-      al_set_target_bitmap(level_icon_bmp[x]);
-      al_clear_to_color(al_map_rgb(0,0,0));
+      level_icon_size = grid_size;
+      mLevel.create_level_icons(1);
    }
-
-
-
-//   show_pixel_format(al_get_bitmap_format(level_icon_bmp[0]));
-//   show_bitmap_flags(al_get_bitmap_flags(level_icon_bmp[0]));
-
-
-
-   // load every level and get icon bitmaps
-   for (int x=0; x<num_levs; x++)
-      if (mLevel.load_level(le[x], 0, 1))
-      {
-         al_set_target_bitmap(level_icon_bmp[x]);
-         mScreen.draw_level2(level_icon_bmp[x], 0, 0, grid_size, 1, 1, 1, 1, 0);
-         int pc = x*100 / num_levs;
-
-         al_set_target_backbuffer(mDisplay.display);
-         mScreen.draw_percent_bar(mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mDisplay.SCREEN_W-200, 20, pc );
-         al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating level icon grid");
-         al_flip_display();
-      }
 
    // create the icon grid bitmap
    al_destroy_bitmap(grid_bmp);
@@ -614,11 +586,10 @@ void mwVisualLevel::load_visual_level_select(void)
          int by1 = row * grid_size;
          if (lev)
          {
-            al_draw_bitmap(level_icon_bmp[grid_pos], bx1, by1, 0);
+            al_draw_bitmap(mLevel.level_icon_vls[lev], bx1, by1, 0);
             al_draw_textf(mFont.pr8, mColor.pc[15], bx1 + grid_size/2-8, by1 + grid_size/2-4, 0, "%d", lev);
          }
-      } // end of grid iterate
-   for (int x=0; x<num_levs; x++)  al_destroy_bitmap(level_icon_bmp[x]);
+      }
 }
 
 int mwVisualLevel::visual_level_select(void)

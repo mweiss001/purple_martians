@@ -481,15 +481,51 @@ void mwNetgame::server_proc_player_drop(void)
          }
       }
 
-   // check to see if we are approaching limit of game_moves array and do something if we are
-   if (mGameMoves.entry_pos > (GAME_MOVES_SIZE - 100))
-   {
-      sprintf(msg,"Server Approaching %d Game Moves! - Shutting Down", GAME_MOVES_SIZE);
-      if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 0);
+//   // check to see if we are approaching limit of game_moves array and do something if we are
+//   if (mGameMoves.entry_pos > (GAME_MOVES_SIZE - 100))
+//   {
+//      sprintf(msg,"Server Approaching %d Game Moves! - Shutting Down", GAME_MOVES_SIZE);
+//      if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 0);
+//
+//      // insert state inactive special move
+//      mGameMoves.add_game_move2(mLoop.frame_num + 8, 2, 0, 64); // type 2 - player inactive
+//   }
 
-      // insert state inactive special move
-      mGameMoves.add_game_move2(mLoop.frame_num + 8, 2, 0, 64); // type 2 - player inactive
+
+   int reload = 0;
+   int gm_limit = GAME_MOVES_SIZE - 100;
+   int tm_limit = 60 * 60 * 40; // 1H
+
+//   int gm_limit = 20;
+//   int tm_limit = 30 * 40;
+
+   if (mGameMoves.entry_pos > gm_limit)
+   {
+      sprintf(msg,"Server Approaching %d Game Moves! - Reload", GAME_MOVES_SIZE);
+      if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 0);
+      reload = 1;
    }
+
+
+   if (mLoop.frame_num > tm_limit)
+   {
+      sprintf(msg,"Server Approaching %d frames! - Reload", tm_limit);
+      if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 0);
+      reload = 1;
+   }
+
+   if (reload)
+   {
+      if (mPlayer.syn[0].level_done_mode == 0)
+      {
+         mPlayer.syn[0].level_done_mode = 3;
+         mPlayer.syn[0].level_done_timer = 0;
+         mPlayer.syn[0].level_done_next_level = 1;
+         mLoop.quit_action = 1;
+         mLoop.done_action = 1;
+      }
+   }
+
 }
 
 

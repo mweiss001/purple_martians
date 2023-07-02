@@ -8,7 +8,7 @@ class mwScreen
    // z_screen.h
    void get_new_background(int full);
 
-   void transition_cutscene(int i, int f);
+   void transition_cutscene(int i, int f, int debug_print);
 
    void do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, float num_steps, float delay);
 
@@ -49,6 +49,9 @@ class mwScreen
 
    void frame_and_title(int show_players);
    void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, float op);
+
+   void draw_framed_text(int xc, int y, ALLEGRO_FONT *f, int col, const char* txt);
+
    void draw_title(int tx, int ty, int ttw, int tth, int color);
    void draw_large_text_overlay(int type, int color);
    void draw_percent_barc(int cx, int y, int width, int height, int percent, int c1, int c2, int fc);
