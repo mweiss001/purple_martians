@@ -18,6 +18,8 @@
 #include "mwShot.h"
 #include "mwInput.h"
 #include "mwMain.h"
+#include "mwNetgame.h"
+
 
 mwScreen mScreen;
 
@@ -37,92 +39,98 @@ void mwScreen::get_new_background(int full)
 }
 
 
-
-void mwScreen::transition_cutscene(int i, int f)
+void mwScreen::transition_cutscene(int i, int f, int debug_print)
 {
-   //const char* tcn[5] = {"nothing", "game", "menu", "gate"};
-   //printf("transition from %s to %s\n", tcn[i], tcn[f]);
-
-   int num_steps = transition_num_steps;
-   float delay = (float)transition_delay/1000;
-
-   if (mLoop.super_fast_mode)
+   if ((!mNetgame.ima_server) && (!mNetgame.ima_client))
    {
-      num_steps = 1;
-      delay = 0;
-   }
-
-   float fmxi=0;
-   float fmyi=0;
-   float fmsi=1;
-
-   float fmxf=0;
-   float fmyf=0;
-   float fmsf=1;
-
-   set_screen_display_variables();
-   set_level_display_region_xy();
-   set_map_var();
+      if (debug_print)
+      {
+         const char* tcn[5] = {"nothing", "game", "menu", "gate"};
+         printf("transition from %s to %s\n", tcn[i], tcn[f]);
+      }
 
 
-   // player's position in level
-   float px = mPlayer.syn[mPlayer.active_local_player].x;
-   float py = mPlayer.syn[mPlayer.active_local_player].y;
+      int num_steps = transition_num_steps;
+      float delay = (float)transition_delay/1000;
 
-   if (i == 0) // nothing
-   {
-      fmxi = mDisplay.SCREEN_W/2;
-      fmyi = mDisplay.SCREEN_H/2;
-      fmsi = 0.005;
-   }
-   if (f == 0) // nothing
-   {
-      fmxf = mDisplay.SCREEN_W/2;
-      fmyf = mDisplay.SCREEN_H/2;
-      fmsf = 0.005;
-   }
-   if (i == 1) // game
-   {
-      fmsi = mDisplay.scale_factor_current;
-      fmxi = mDisplay.screen_display_x + (px - mDisplay.level_display_region_x) * fmsi;
-      fmyi = mDisplay.screen_display_y + (py - mDisplay.level_display_region_y) * fmsi;
-   }
-   if (f == 1) // game
-   {
-      fmsf = mDisplay.scale_factor_current;
-      fmxf = mDisplay.screen_display_x + (px - mDisplay.level_display_region_x) * fmsf;
-      fmyf = mDisplay.screen_display_y + (py - mDisplay.level_display_region_y) * fmsf;
-   }
-   if (i == 2) // menu
-   {
-      fmsi = (float)mLogo.menu_map_size / 2000;
-      fmxi = mLogo.menu_map_x + px * fmsi;
-      fmyi = mLogo.menu_map_y + py * fmsi;
-   }
-   if (f == 2) // menu
-   {
-      fmsf = (float)mLogo.menu_map_size / 2000;
-      fmxf = mLogo.menu_map_x + px * fmsf;
-      fmyf = mLogo.menu_map_y + py * fmsf;
-   }
-   if (i == 3) // gate
-   {
-      fmsi = mDisplay.scale_factor_current * (200.0 / 2000.0); // level icon size = 200;
-      fmxi = gate_transition_x + px * fmsi;
-      fmyi = gate_transition_y + py * fmsi;
-   }
-   if (f == 3) // gate
-   {
-      // restore viewport so transition lines up
-      mDisplay.level_display_region_x = mScreen.gate_transition_wx;
-      mDisplay.level_display_region_y = mScreen.gate_transition_wy;
-      mDisplay.set_scale_factor(mScreen.gate_transition_scale, 1);
+      if (mLoop.super_fast_mode)
+      {
+         num_steps = 1;
+         delay = 0;
+      }
 
-      fmsf = mDisplay.scale_factor_current * (200.0 / 2000.0); // level icon size = 200;
-      fmxf = gate_transition_x + px * fmsf;
-      fmyf = gate_transition_y + py * fmsf;
+      float fmxi=0;
+      float fmyi=0;
+      float fmsi=1;
+
+      float fmxf=0;
+      float fmyf=0;
+      float fmsf=1;
+
+      set_screen_display_variables();
+      set_level_display_region_xy();
+      set_map_var();
+
+
+      // player's position in level
+      float px = mPlayer.syn[mPlayer.active_local_player].x;
+      float py = mPlayer.syn[mPlayer.active_local_player].y;
+
+      if (i == 0) // nothing
+      {
+         fmxi = mDisplay.SCREEN_W/2;
+         fmyi = mDisplay.SCREEN_H/2;
+         fmsi = 0.005;
+      }
+      if (f == 0) // nothing
+      {
+         fmxf = mDisplay.SCREEN_W/2;
+         fmyf = mDisplay.SCREEN_H/2;
+         fmsf = 0.005;
+      }
+      if (i == 1) // game
+      {
+         fmsi = mDisplay.scale_factor_current;
+         fmxi = mDisplay.screen_display_x + (px - mDisplay.level_display_region_x) * fmsi;
+         fmyi = mDisplay.screen_display_y + (py - mDisplay.level_display_region_y) * fmsi;
+      }
+      if (f == 1) // game
+      {
+         fmsf = mDisplay.scale_factor_current;
+         fmxf = mDisplay.screen_display_x + (px - mDisplay.level_display_region_x) * fmsf;
+         fmyf = mDisplay.screen_display_y + (py - mDisplay.level_display_region_y) * fmsf;
+      }
+      if (i == 2) // menu
+      {
+         fmsi = (float)mLogo.menu_map_size / 2000;
+         fmxi = mLogo.menu_map_x + px * fmsi;
+         fmyi = mLogo.menu_map_y + py * fmsi;
+      }
+      if (f == 2) // menu
+      {
+         fmsf = (float)mLogo.menu_map_size / 2000;
+         fmxf = mLogo.menu_map_x + px * fmsf;
+         fmyf = mLogo.menu_map_y + py * fmsf;
+      }
+      if (i == 3) // gate
+      {
+         fmsi = mDisplay.scale_factor_current * (200.0 / 2000.0); // level icon size = 200;
+         fmxi = gate_transition_x + px * fmsi;
+         fmyi = gate_transition_y + py * fmsi;
+      }
+      if (f == 3) // gate
+      {
+         // restore viewport so transition lines up
+         mDisplay.level_display_region_x = mScreen.gate_transition_wx;
+         mDisplay.level_display_region_y = mScreen.gate_transition_wy;
+         mDisplay.set_scale_factor(mScreen.gate_transition_scale, 1);
+
+         fmsf = mDisplay.scale_factor_current * (200.0 / 2000.0); // level icon size = 200;
+         fmxf = gate_transition_x + px * fmsf;
+         fmyf = gate_transition_y + py * fmsf;
+      }
+      do_transition(fmxi, fmyi, fmxf, fmyf, fmsi, fmsf, num_steps, delay);
    }
-   do_transition(fmxi, fmyi, fmxf, fmyf, fmsi, fmsf, num_steps, delay);
 }
 
 void mwScreen::draw_screen_frame(void)
@@ -426,8 +434,7 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
    // first erase hidden regions (only in not in level editor)
    if (!mLoop.level_editor_running) mItem.erase_hider_areas();
 
-
-      // draw gate info
+   // draw gate info
    for (int p=0; p<NUM_PLAYERS; p++)
       if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
       {
@@ -575,6 +582,34 @@ void mwScreen::rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char
    al_draw_tinted_scaled_rotated_bitmap(temp, al_map_rgba_f(op, op, op, op), sw/2, 4, x, y, scale, scale, 0, 0);
    al_destroy_bitmap(temp);
 }
+
+
+
+void mwScreen::draw_framed_text(int xc, int y, ALLEGRO_FONT *f, int col, const char* txt)
+{
+   // get text dimensions
+   int bx, by, bw, bh;
+   mFont.mw_get_text_dimensions(f, txt, bx, by, bw, bh);
+
+   int xs = bw/2 + 2;
+   int x1 = xc-xs;
+   int x2 = xc+xs;
+
+   float tfy = y-by+2;
+   float fy1 = y+0.5;
+   float fy2 = y+bh+3.5;
+
+   // draw
+   al_draw_filled_rectangle(       x1, fy1, x2, fy2, mColor.pc[0]);      // clear background
+   al_draw_rectangle(              x1, fy1, x2, fy2, mColor.pc[col], 1); // frame
+   al_draw_textf(f, mColor.pc[15], xc, tfy, ALLEGRO_ALIGN_CENTER, "%s", txt);
+}
+
+
+
+
+
+
 
 void mwScreen::draw_title(int x, int y, int w, int h, int color)
 {

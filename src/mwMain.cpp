@@ -298,12 +298,10 @@ int mwMain::initial_setup(void)
 
    mDemoMode.autoplay_enabled = mDemoMode. config_autoplay_enabled; // set only at startup from config file
 
+   mLevel.setup_data();
 
    if (classic_mode) mLevel.set_start_level();
    else mLevel.set_start_level(1);
-
-
-   mLevel.setup_data();
 
 
 

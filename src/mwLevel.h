@@ -145,16 +145,13 @@ class mwLevel
    void level_complete_data(int type, int lev);
    void level_abort_data(int lev);
 
-
-   ALLEGRO_BITMAP * level_icon[100];
-   ALLEGRO_BITMAP * level_icon2[100];
-   int level_icon2_size = 100;
-
+   ALLEGRO_BITMAP * level_icon_100[100];
+   ALLEGRO_BITMAP * level_icon_200[100];
+   ALLEGRO_BITMAP * level_icon_vls[100];
 
 
    void load_level_icons(void);
-   void create_level_icons(void);
-
+   void create_level_icons(int vls_only);
 
    int level_data_purple_coins_collected;
    int level_data_player_respawns;

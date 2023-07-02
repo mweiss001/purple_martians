@@ -179,25 +179,29 @@ void mwLoop::game_menu(void)
          {
             mLevel.play_level = mLevel.start_level;
             state[0] = 10;
-            mLoop.quit_action = 1;
-            mLoop.done_action = 1;
+            quit_action = 1;
+            done_action = 1;
             top_menu_sel = 4;
             return;
          }
          if ((top_menu_sel == 4) && (mLevel.resume_allowed))  // resume game
          {
             state[0] = 13;
-            mLoop.quit_action = 1;
+            quit_action = 1;
             return;
          }
          if (top_menu_sel == 5)  // host network game
          {
             state[0] = 20;
+            quit_action = 1;
+            done_action = 1;
             return;
          }
          if (top_menu_sel == 6) // join network game
          {
             state[0] = 24;
+            quit_action = 1;
+            done_action = 1;
             return;
          }
          if (top_menu_sel == 7) // settings
@@ -209,7 +213,7 @@ void mwLoop::game_menu(void)
          if (top_menu_sel == 8)  // level editor
          {
             mLevel.set_start_level(mWM.mW[1].edit_menu(mLevel.start_level));
-            mLoop.quit_action = 1; // menu
+            quit_action = 1; // menu
             state[0] = 10;
             return;
          }
@@ -220,8 +224,8 @@ void mwLoop::game_menu(void)
             mDemoMode.restore_mode = 21;
             mDemoMode.restore_level = mLevel.start_level;
             state[0] = 12;
-            mLoop.quit_action = 1; // menu
-            mLoop.done_action = 5; // next rand level
+            quit_action = 1; // menu
+            done_action = 5; // next rand level
             return;
          }
 
@@ -265,18 +269,22 @@ void mwLoop::game_menu(void)
          if (top_menu_sel == 2) // start new game
          {
             state[0] = 10;
-            mLoop.quit_action = 1; // menu
-            mLoop.done_action = 2; // overworld
+            quit_action = 1; // menu
+            done_action = 2; // overworld
             return;
          }
          if (top_menu_sel == 3)  // host network game
          {
             state[0] = 20;
+            quit_action = 1;
+            done_action = 1;
             return;
          }
          if (top_menu_sel == 4) // join network game
          {
             state[0] = 24;
+            quit_action = 1;
+            done_action = 1;
             return;
          }
          if (top_menu_sel == 5) // settings
@@ -298,14 +306,11 @@ void mwLoop::game_menu(void)
 
          if (top_menu_sel == 7) mHelp.help(""); // help
 
-
-
          while (top_menu_sel > 100) top_menu_sel-=100; // to account for left and right which are not used
       }
    }
 }
 
-// state[1]
 
 /*
 
@@ -317,6 +322,7 @@ state = 10; // start new game
 state = 11; // main game loop
 state = 12; // level_done
 state = 13; // resume
+
 
 state = 19; // server exit
 state = 20; // start server game
@@ -371,7 +377,7 @@ void mwLoop::proc_program_state(void)
 
          if (quit_action == 0)
          {
-            mScreen.transition_cutscene(1, 0); // game to nothing
+            mScreen.transition_cutscene(1, 0, debug_print_more); // game to nothing
             state[0] = 0; // exit program
             return;
          }
@@ -379,7 +385,7 @@ void mwLoop::proc_program_state(void)
          if (quit_action == 1) // menu (already set)
          {
             // only do this if not returning from settings
-            if (state[2] != 3) mScreen.transition_cutscene(1, 2); // game to menu
+            if (state[2] != 3) mScreen.transition_cutscene(1, 2, debug_print_more); // game to menu
          }
          if (quit_action == 2)  // overworld
          {
@@ -668,8 +674,8 @@ void mwLoop::proc_program_state(void)
       else state[0] = 1;
 
 
-      if (quit_action == 0) mScreen.transition_cutscene(0, 1); // nothing to game
-      if (quit_action == 1) mScreen.transition_cutscene(2, 1); // menu to game
+      if (quit_action == 0) mScreen.transition_cutscene(0, 1, debug_print_more); // nothing to game
+      if (quit_action == 1) mScreen.transition_cutscene(2, 1, debug_print_more); // menu to game
 
    }
 
@@ -706,7 +712,6 @@ void mwLoop::proc_program_state(void)
       mGameMoves.blind_save_game_moves(1);
 
 
-
 // --------------------------------------------------------
 // instant program quit
 // started from command line and next level called
@@ -715,7 +720,7 @@ void mwLoop::proc_program_state(void)
       {
          if (debug_print_more) printf("command line exit\n");
          state[0] = 0; // exit to dos
-         mScreen.transition_cutscene(1, 0); // game to nothing
+         mScreen.transition_cutscene(1, 0, debug_print_more); // game to nothing
          return; // to exit immediately
       }
 
@@ -799,9 +804,9 @@ void mwLoop::proc_program_state(void)
 // ------------------------------------------------------------------------------------------------------------------------------------
 // ---   pre load transitions
 // ------------------------------------------------------------------------------------------------------------------------------------
-      if (pre_load_transistion == 10) mScreen.transition_cutscene(1, 0); // game to nothing
-      if (pre_load_transistion == 20) mScreen.transition_cutscene(2, 0); // menu to nothing
-      if (pre_load_transistion == 13) mScreen.transition_cutscene(1, 3); // game to gate
+      if (pre_load_transistion == 10) mScreen.transition_cutscene(1, 0, debug_print_more); // game to nothing
+      if (pre_load_transistion == 20) mScreen.transition_cutscene(2, 0, debug_print_more); // menu to nothing
+      if (pre_load_transistion == 13) mScreen.transition_cutscene(1, 3, debug_print_more); // game to gate
 
 
 // ---------------------------------------------------
@@ -825,8 +830,8 @@ void mwLoop::proc_program_state(void)
 // ----------------------------------------
 // post-load transition
 // ----------------------------------------
-      if (post_load_transistion == 31) mScreen.transition_cutscene(3, 1); // gate to game
-      if (post_load_transistion == 1 ) mScreen.transition_cutscene(0, 1); // nothing to game
+      if (post_load_transistion == 31) mScreen.transition_cutscene(3, 1, debug_print_more); // gate to game
+      if (post_load_transistion == 1 ) mScreen.transition_cutscene(0, 1, debug_print_more); // nothing to game
    }
 
 
@@ -836,7 +841,7 @@ void mwLoop::proc_program_state(void)
    if (state[1] == 13)
    {
       mSound.start_music(1); // resume theme
-      mScreen.transition_cutscene(2, 1); // menu to game
+      mScreen.transition_cutscene(2, 1, debug_print_more); // menu to game
       state[0] = 11;
    }
 
@@ -850,8 +855,8 @@ void mwLoop::proc_program_state(void)
       if (load_and_setup_level_load(mLevel.play_level))
       {
          state[0] = 11;
-         if (mDemoMode.restore_mode == 42) mScreen.transition_cutscene(3, 1); // gate to game
-         else                              mScreen.transition_cutscene(0, 1); // all other (nothing to game)
+         if (mDemoMode.restore_mode == 42) mScreen.transition_cutscene(3, 1, debug_print_more); // gate to game
+         else                              mScreen.transition_cutscene(0, 1, debug_print_more); // all other (nothing to game)
       }
       else state[0] = 1;
    }
@@ -877,19 +882,19 @@ void mwLoop::proc_program_state(void)
 
       if (rm == 10) // started from command line, exit
       {
-         mScreen.transition_cutscene(1, 0); // game to nothing
+         mScreen.transition_cutscene(1, 0, debug_print_more); // game to nothing
          state[0] = 0;
       }
       if (rm == 21) // started from menu
       {
-         mScreen.transition_cutscene(1, 0);       // game to nothing
+         mScreen.transition_cutscene(1, 0, debug_print_more);       // game to nothing
          mLevel.load_level(mDemoMode.restore_level, 0, 0);  // restore old level
          for (int p=0; p<NUM_PLAYERS; p++)
          {
             mPlayer.init_player(p, 1);            // full reset
             mPlayer.set_player_start_pos(p, 0);   // get starting position for all players, active or not
          }
-         mScreen.transition_cutscene(0, 2); // nothing to menu
+         mScreen.transition_cutscene(0, 2, debug_print_more); // nothing to menu
          quit_action = 99;  // to prevent transition in state 1
          state[0] = 1;
       }
@@ -903,7 +908,7 @@ void mwLoop::proc_program_state(void)
 
       if (rm == 32) // started from settings, restore old level, then back to settings
       {
-         mScreen.transition_cutscene(1, 0); // settings (game to nothing)
+         mScreen.transition_cutscene(1, 0, debug_print_more); // settings (game to nothing)
          mLevel.load_level(mDemoMode.restore_level, 0, 0); // restore old level
          state[0] = 3;
          quit_action = 1;    // menu
@@ -1111,9 +1116,6 @@ void mwLoop::proc_level_done_mode(void)
       mScreen.draw_screen_overlay();
 
       al_flip_display();
-
-//      if (mPlayer.syn[0].level_done_timer == 100) mDisplay.set_custom_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/3000, 100);
-
 
    }
    if (mPlayer.syn[0].level_done_mode == 26) mDisplay.set_custom_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/320, 100); // set up for zoom in

@@ -189,6 +189,9 @@ void mwInput::serial_key_check(int key)
 
    }
 
+   mLevel.skc_trigger_demo = 0;
+   mLevel.skc_trigger_demo_cheat = 0;
+
    sprintf(tst, "demo");
    tl = strlen(tst);
    if (skc_index > tl-1)
@@ -269,11 +272,10 @@ void mwInput::function_key_check(void)
    }
 
 
-   if (key[ALLEGRO_KEY_F2][3])
-   {
-      mLoop.super_fast_mode = 1;
-   }
-
+//   if (key[ALLEGRO_KEY_F2][3])
+//   {
+//      mLoop.super_fast_mode = 1;
+//   }
 
 
    if ((mLoop.level_editor_running) || (mLoop.state[1] == 11)) // only do these when game is running or in level editor

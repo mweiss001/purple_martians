@@ -56,11 +56,15 @@
 
 <c10>Mission
 
-<c15>Your mission is to escape from the dungeons of a strange planet
+<c15>You are trapped on an alien world where your ship crashed.
 
-<c15>where your ship crashed.  Armed only with your plasma pistol,
 
-<c15>you must fight enemies who want to kill you and find the exit.
+<c15>You must fight your way through the maze of dungeons,
+
+<c15>rescue your imprisoned children, and find a rocket to escape.
+
+
+<c15>There are many alien enemies trying to kill you.
 
 
 
@@ -115,6 +119,28 @@
             <a23>   <s928>   <s929>   <s930>   <s931>   <s932>   <s933>   <s934>   <s935>
 
             <a27>   <s960>   <s961>   <s962>   <s963>   <s964>   <s965>   <s966>   <s967>
+
+
+
+<section>Game Mode
+
+
+In 'Settings' -> 'Mode' you can choose between 2 different Game Modes:
+
+
+<l13>Story Mode:
+
+- levels are started from the overworld hub
+- levels are locked until the previous level is completed
+- when a level is completed, you return to the overworld hub
+
+
+<l12>Classic Mode:
+
+- any level can be started from the game menu, locked or not
+- when a level is completed, the next level is started automatically
+
+
 
 
 <section>Player Colors
@@ -502,7 +528,7 @@ Bombs and rockets will destroy these blocks.
 
 <c15>Clients require the Server's IP or hostname to be set in:
 
-<c15>"Settings" -> "Netgame"
+<c15>'Settings' -> 'Netgame'
 
 <c15>_________________________________
 
@@ -731,14 +757,14 @@ Bombs and rockets will destroy these blocks.
 <section>Config File
 
 
-<c15>The game uses the config file "pm.cfg" to store persistent data.
+<c15>The game uses the config file 'pm.cfg' to store persistent data.
 
 
 <c15>You can manually edit the file, but the best way to change
-<c15>settings is to use the "Settings" pages in the game.
+<c15>settings is to use the 'Settings' pages in the game.
 
 
-<c15>If the file "pm.cfg" is deleted, it will be re-created with defaults.
+<c15>If the file 'pm.cfg' is deleted, it will be re-created with defaults.
 
 
 
@@ -951,7 +977,7 @@ Bombs and rockets will destroy these blocks.
 
 <l15> - Press and release the left mouse button
 
-<l15> - To show it again select "Show Status Window" from the Pop Up Menu
+<l15> - To show it again select 'Show Status Window' from the Pop Up Menu
 
 
 <section>Selection Window
@@ -1016,11 +1042,11 @@ Bombs and rockets will destroy these blocks.
 
 <l09> The Title Bar
 
-<l15> - In the middle are two words "Blocks" and "Special" which toggle the
+<l15> - In the middle are two words 'Blocks' and 'Special' which toggle the
 
 <l15> - block and special sub-windows.
 
-<l15> - On the extreme right is an "X" which will hide the Selection Window.
+<l15> - On the extreme right is an 'X' which will hide the Selection Window.
 
 <l09> The Block Selection sub-window
 
@@ -1052,7 +1078,7 @@ Bombs and rockets will destroy these blocks.
 
 <l09>Hiding and Showing the sub-windows
 
-<l15> - Position the mouse on the word "Blocks" or "Special" in the Title Bar
+<l15> - Position the mouse on the word 'Blocks' or 'Special' in the Title Bar
 
 <l15> - The word should change to yellow.
 
@@ -1060,7 +1086,7 @@ Bombs and rockets will destroy these blocks.
 
 <l09>Resizing the sub-windows
 
-<l15> - Click the "+" and "-" symbols on the Title Bar of the sub-window.
+<l15> - Click the '+' and '-' symbols on the Title Bar of the sub-window.
 
 <l15> - If the sub-window is shrunk below one line it will automatically hide
 
@@ -1115,7 +1141,7 @@ Bombs and rockets will destroy these blocks.
 
 <l09>Moving the Selection
 
-<l15> - Identical to 'CopyPaste Selection' except the original selection is cleared first.
+<l15> - Same as Copy and Paste except the original selection is cleared first.
 
 <l15> - First, select an area by clicking and dragging.
 
@@ -1743,7 +1769,7 @@ transform the marked tiles to a new tileset.
 
 <l15> Takes the player to a new location in the current level.
 
-<l15> A door is always linked to another door unless it's an "Exit Only".
+<l15> A door is always linked to another door unless it's an 'Exit Only'.
 
 <l15> A pair of doors can be linked to each other creating a two way door.
 
@@ -1760,53 +1786,53 @@ transform the marked tiles to a new tileset.
 
 <l09> Set Destination Item
 
-<l15>  - Prompts to set the item used in "Linked Destination" mode.
+<l15>  - Prompts to set the item used in 'Linked Destination' mode.
 
 
 <l09> [Linked Destination (x) | Exit Only]
 
-<l15>  - Changes between "Linked Destination" mode and "Exit Only" mode.
+<l15>  - Changes between 'Linked Destination' mode and 'Exit Only' mode.
 
-<l15>  - In "Linked Destination" mode the number of the linked item is shown.
+<l15>  - In 'Linked Destination' mode the number of the linked item is shown.
 
-<l15>  - In "Exit Only" mode most other buttons are disabled.
+<l15>  - In 'Exit Only' mode most other buttons are disabled.
 
 
 <l09> Entry Type: [[UP] to enter | [DOWN] to enter | Enter Immediately]
 
 <l15>  - Sets the conditions required to enter the door.
 
-<l15>  - "[UP] to enter" requires [UP] to be pressed.
+<l15>  - '[UP] to enter' requires [UP] to be pressed.
 
-<l15>  - "[DOWN] to enter" requires [DOWN] to be pressed.
+<l15>  - '[DOWN] to enter' requires [DOWN] to be pressed.
 
-<l15>  - "Enter Immediately" enters as soon as the player touches the door.
+<l15>  - 'Enter Immediately' enters as soon as the player touches the door.
 
 
 <l09> Move type: [Automatic | Force Instant | Force Move]
 
 <l15>  - The journey to the next door can either be:
 
-<l15>    - "Instant" - Immediately teleport to the destination.
+<l15>    - 'Instant' - Immediately teleport to the destination.
 
-<l15>    - "Move"    - travel in real time, with a nice visual.
+<l15>    - 'Move'    - travel in real time, with a nice visual.
 
-<l15>  - In "Automatic" mode, if the destination door is not
+<l15>  - In 'Automatic' mode, if the destination door is not
 
-<l15>  - stationary, the move type is set to "Instant".
+<l15>  - stationary, the move type is set to 'Instant'.
 
 <l15>  - (This prevents the destination door from moving
 
 <l15>  - while the player is traveling to it.)
 
-<l15>  - Otherwise "Automatic" will set "Move" mode.
+<l15>  - Otherwise 'Automatic' will set 'Move' mode.
 
-<l15>  - This behavior can be overridden with "Force Instant" and "Force Move"
+<l15>  - This behavior can be overridden with 'Force Instant' and 'Force Move'
 
 
 <l09> Exit Link: [never show | always show | when player touches]
 
-<l15>  - Draw a line to the "Linked Destination"
+<l15>  - Draw a line to the 'Linked Destination'
 
 <l15>  - always, never, or only when the player is touching on the door
 
@@ -1940,7 +1966,7 @@ transform the marked tiles to a new tileset.
 <l15>  - Cycles through the different trigger types
 
 
-<l09> The 4 "Set Event..." sliders let you specify the event number.
+<l09> The 4 'Set Event...' sliders let you specify the event number.
 <l15>  - The better way to set them is by automatically linking from
 <l15>    an object that takes an event trigger input.
 
@@ -2000,7 +2026,7 @@ The rectangular trigger area can be hidden or shown in various colors.
 <l15>  - Toggles triggering for each object individually.
 
 
-<l09> The 4 "Set Event..." sliders let you specify the event number.
+<l09> The 4 'Set Event...' sliders let you specify the event number.
 <l15>  - The better way to set them is by automatically linking from
 <l15>    an object that takes an event trigger input.
 
@@ -2158,8 +2184,8 @@ The Block Manip Field can be hidden or shown in various colors.
 <l15>  - Prompts you to set the block for Block 1 or Block 2
 
 
-<l09> The "Event Trigger:" slider lets you specify the event number.
-<l15>  - The better way to set it is by clicking the button "Set Event Trigger"
+<l09> The 'Event Trigger:' slider lets you specify the event number.
+<l15>  - The better way to set it is by clicking the button 'Set Event Trigger'
 <l15>    which will prompt you to choose a trigger item, then automatically
 <l15>    find an unused event and set it for both objects.
 
@@ -2245,8 +2271,8 @@ The Block Damage Field can be hidden or shown in various ways.
 <l15>  - Cycles through the draw types.
 
 
-<l09> The "Event Trigger:" slider lets you specify the event number.
-<l15>  - The better way to set it is by clicking the button "Set Event Trigger"
+<l09> The 'Event Trigger:' slider lets you specify the event number.
+<l15>  - The better way to set it is by clicking the button 'Set Event Trigger'
 <l15>    which will prompt you to choose a trigger item, then automatically
 <l15>    find an unused event and set it for both objects.
 
@@ -2412,6 +2438,7 @@ The Block Damage Field can be hidden or shown in various ways.
 <l04>   Map Controls:
 
 <l15> - Change the size of the damage range by dragging the yellow circle.
+
 
 
 <section>Rocket Viewer
@@ -2867,9 +2894,9 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>    Description:
 
-<l15> When triggered, the Cloner copies all enemies and items
+<l15> When triggered, the Cloner copies all enemies and items in the source
 
-<l15> in the source area to the destination area.
+<l15> area to the destination area.
 
 <b15>
 
@@ -2878,8 +2905,8 @@ The Block Damage Field can be hidden or shown in various ways.
 <l09> Invincible: Not Invincible
 <l15>  - If invincible the cloner cannot be destroyed.
 
-<l09> The "Event Trigger:" slider lets you specify the event number.
-<l15>  - The better way to set it is by clicking the button "Set Event Trigger"
+<l09> The 'Event Trigger:' slider lets you specify the event number.
+<l15>  - The better way to set it is by clicking the button 'Set Event Trigger'
 <l15>    which will prompt you to choose a trigger item, then automatically
 <l15>    find an unused event and set it for both objects.
 
@@ -2953,7 +2980,7 @@ The Block Damage Field can be hidden or shown in various ways.
 <l15>  - the flapper will fire a bullet at the player
 
 <l15> The flapper attempts to keep its Y distance from the player
-<l15> at the value set by "Height Above Player"
+<l15> at the value set by 'Height Above Player'
 
 <b15>
 
@@ -3209,7 +3236,7 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l15> You can also set the Current Lift and Step by with the map.
 
-<l15> To lock the viewer to the Current Lift, click the <l07>"Locked" <l15>button.
+<l15> To lock the viewer to the Current Lift, click the <l07>'Locked' <l15>button.
 
 <l15> Click and hold the right mouse button on a step to show the step menu.
 
@@ -3219,7 +3246,7 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>    Current Step Details
 
-<l15> Under the "List of Steps" are the "Current Step Details"
+<l15> Under the 'List of Steps' are the 'Current Step Details'
 <l15> Here you can change many things about the Current Step
 <l15> - Color
 <l15> - [Draw|Hide]
@@ -3246,7 +3273,7 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>    Inserting Steps
 <l15> Position the mouse on the step to want to insert new steps before.
-<l15> Press and hold the right mouse button and then select "Insert Step".
+<l15> Press and hold the right mouse button and then select 'Insert Step'.
 <l15> Choose the type of step you wish to add from the list.
 <l15>  (You are prompted to keep adding more steps until you press 'Cancel')
 
@@ -3376,7 +3403,7 @@ the player number.
 
 <b15>
 
-<l15>First enable "LOGGING_NETPLAY_bandwidth" in logging options.
+<l15>First enable 'LOGGING_NETPLAY_bandwidth' in logging options.
 <l15>(Options Menu -> Logging Options)
 
 <l15>Then play a multiplayer netgame and exit to save the log.
@@ -3411,7 +3438,7 @@ the player number.
 
 <b15>
 
-<l15>First enable "LOGGING_NETPLAY_sdak" in logging options.
+<l15>First enable 'LOGGING_NETPLAY_sdak' in logging options.
 <l15>(Options Menu -> Logging Options)
 
 <l15>Then play a multiplayer netgame and exit to save the log.
@@ -3716,7 +3743,7 @@ Added some new items, enemies, redid levels...
 <c15> 8x8 system font used for most text
 
 <c11>Achafont.ttf
-<c15> "A Charming Font" by Gem Fonts
+<c15> 'A Charming Font' by Gem Fonts
 <c15> license: free
 <c15> Font used for small letters on author's name
 

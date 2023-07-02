@@ -248,13 +248,20 @@ void mwSettings::settings_pages(int set_page)
    struct settings_tab st[20] = {0};
 
    sprintf(st[0].title,  "Main");
-   sprintf(st[1].title,  "Controls");
-   sprintf(st[2].title,  "Controls 2");
-   sprintf(st[3].title,  "Netgame");
-   sprintf(st[4].title,  "Demo");
-   sprintf(st[5].title,  "Message");
 
-   sprintf(st[6].title,  "Stats");
+   sprintf(st[1].title,  "Mode");
+
+   sprintf(st[2].title,  "Controls");
+   sprintf(st[3].title,  "Controls 2");
+
+   sprintf(st[4].title,  "Netgame");
+   sprintf(st[5].title,  "Demo");
+   sprintf(st[6].title,  "Message");
+
+   sprintf(st[7].title,  "Stats");
+
+
+
 
    sprintf(st[8].title,  "Viewport");
    sprintf(st[9].title,  "Overlay");
@@ -285,7 +292,7 @@ void mwSettings::settings_pages(int set_page)
 
       for (int i=0; i<20; i++) st[i].show = 0; // all off
 
-      for (int i=0; i<7; i++) st[i].show = 1; // always on
+      for (int i=0; i<8; i++) st[i].show = 1; // always on
 
 
       if (show_advanced)
@@ -596,45 +603,115 @@ void mwSettings::settings_pages(int set_page)
             if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,10,14, 0,  1,0,1,0, "Reset All Settings to Defaults!"))
             {
                char sys_cmd[500];
-               sprintf(sys_cmd, "del pm.cfg");                         printf("%s\n",sys_cmd);   system(sys_cmd);
-               sprintf(sys_cmd, "del bitmaps\\mW.pm ");                printf("%s\n",sys_cmd);   system(sys_cmd);
+               sprintf(sys_cmd, "del pm.cfg");                      printf("%s\n",sys_cmd);   system(sys_cmd);
+               sprintf(sys_cmd, "del data\\mW.pm ");                printf("%s\n",sys_cmd);   system(sys_cmd);
                mConfig.load();
 
             }
          }
 
-//         fc = 10;
-//         frame_y1 = ya;
-//         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
-//
-//         x1a = cfp_x1 + 10;
-//         x1b = x1a + 250;
-//         mWidget.togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, show_advanced, "Show Advanced Settings", tc, tc);
-//         mWidget.togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, show_debug,    "Show Debug Settings",    tc, tc);
-//
-//         ya -=2;
-//         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
-//
-//         x1a = cfp_x1 + 60;
-//         x1b = cfp_x2 - 60;
-//         if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,10,14, 0,  1,0,1,0, "Reset All Settings to Defaults!"))
-//         {
-//            char sys_cmd[500];
-//            sprintf(sys_cmd, "del pm.cfg");                         printf("%s\n",sys_cmd);   system(sys_cmd);
-//            sprintf(sys_cmd, "del bitmaps\\mW.pm ");                printf("%s\n",sys_cmd);   system(sys_cmd);
-//            mConfig.load();
-//
-//         }
-//
-//         ya -= 2;
-//         al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
-//         al_draw_line(cfp_x2-4, frame_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[fc], 1 );
-//         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
       }
+
+
+
 // ---------------------------------------------------------------
-//  1 - controls
+//  1 - game mode
 // ---------------------------------------------------------------
-      if (page == 1)
+      if (page == 1) // game mode
+      {
+
+         int line_spacing = 12;
+         //line_spacing +=  mLoop.pct_y;
+         int xa = cfp_x1 + 10;
+         int xb = cfp_x2 - 10;
+         int ya = cfp_y1 + 10;
+         int bts = 20;
+
+         //bts +=  mLoop.pct_y;
+
+
+         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Game Mode");
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+
+         xa = cfp_x1 + 40;
+         xb = cfp_x2 - 40;
+
+
+         int old_mcm = mMain.classic_mode;
+
+         mWidget.toggle(xa, ya, xa + 220, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mMain.classic_mode, "Game Mode: Story Mode", "Game Mode: Classic Mode", 15, 15, 13, 9);
+         if (mWidget.buttont(xb -60, ya, xb, bts,  0,0,0,0,  0,3,15, 0,  1,0,1,0, "Help")) mHelp.help("Game Mode");
+
+
+         if (old_mcm != mMain.classic_mode)
+         {
+            if (mMain.classic_mode == 0) // just changed to story mode
+            {
+               mLevel.set_start_level(1); // make sure we are on overworld
+            }
+         }
+
+
+
+         xa = cfp_x1 + 10;
+         xb = cfp_x2 - 10;
+
+
+
+         ya +=12;
+         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "This changes the entire behaviour of the game."); ya +=20;
+
+
+
+         al_draw_text(mFont.pr8, mColor.pc[13], xa, ya, 0, "Story Mode:"); ya +=12;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- levels are started from the overworld hub"); ya +=8;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- when a level is completed, you are returned"); ya +=8;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "  to the overworld hub"); ya +=8;
+
+         ya +=8;
+
+         al_draw_text(mFont.pr8, mColor.pc[9],  xa, ya, 0, "Classic Mode:"); ya +=12;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- any level can be started from the menu"); ya +=8;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- when a level is completed, the next level"); ya +=8;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "  is started automatically"); ya +=8;
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+
+         xa = cfp_x1 + 10;
+         xb = cfp_x2 - 10;
+
+
+         if (mWidget.buttont(xa+100, ya, xb-100, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
+
+         al_set_target_backbuffer(mDisplay.display);
+
+         ya +=8;
+         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All areas and levels will be unlocked."); ya +=8;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         if (show_advanced)
+         {
+
+            if (mWidget.buttont(xa+80, ya, xb-80, bts, 0,0,0,0,  0, 10,15, 0,  1,0,1,0, "Reset all level data")) mLevel.reset_level_data();
+            ya +=8;
+
+            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Warning! This will reset everything!"); ya +=16;
+            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All achievements will be reset.");      ya +=16;
+            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All areas and levels will be locked."); ya +=8;
+
+
+         }
+      }
+
+
+// ---------------------------------------------------------------
+//  2 - controls
+// ---------------------------------------------------------------
+      if (page == 2)
       {
          int tc = 15;  // text color
          int bts = 18; // button spacing
@@ -693,9 +770,9 @@ void mwSettings::settings_pages(int set_page)
 
 
 // ---------------------------------------------------------------
-//  2 - Controls 2 (Function Keys)
+//  3 - Controls 2 (Function Keys)
 // ---------------------------------------------------------------
-      if (page == 2)
+      if (page == 3)
       {
          int line_spacing = 12;
          //line_spacing +=  mLoop.pct_y;
@@ -733,9 +810,9 @@ void mwSettings::settings_pages(int set_page)
 
 
 // ---------------------------------------------------------------
-//  3 - netgame
+//  4 - netgame
 // ---------------------------------------------------------------
-      if (page == 3)
+      if (page == 4)
       {
          int line_spacing = 10;
          if (show_advanced) line_spacing = 5;
@@ -833,9 +910,9 @@ void mwSettings::settings_pages(int set_page)
 
 
 // ---------------------------------------------------------------
-//  4 - demo
+//  5 - demo
 // ---------------------------------------------------------------
-      if (page == 4) // demo
+      if (page == 5) // demo
       {
          int line_spacing = 12;
 
@@ -910,9 +987,9 @@ void mwSettings::settings_pages(int set_page)
 
 
 // ---------------------------------------------------------------
-//  5 - bottom message settings
+//  6 - bottom message settings
 // ---------------------------------------------------------------
-      if (page == 5)
+      if (page == 6)
       {
          int line_spacing = 8;
          if (show_advanced) line_spacing = 7;
@@ -1291,9 +1368,10 @@ void mwSettings::settings_pages(int set_page)
 
 
 
-
-
-      if (page == 6) // level stats
+// ---------------------------------------------------------------
+//  7 - level stats
+// ---------------------------------------------------------------
+      if (page == 7) // level stats
       {
 
          int line_spacing = 12;
@@ -1303,75 +1381,40 @@ void mwSettings::settings_pages(int set_page)
          int ya = cfp_y1 + 10;
          int bts = 16;
 
-
-
          al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Level Statistics");
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, 15);
 
+         mWidget.buttont(xa+100, ya, xb-100, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Show All Level Data");
 
-
-         ya += 16;
-
-
-         xa = cfp_x1 + 110;
-         xb = cfp_x2 - 110;
-
-         mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Show All Level Data");
-
-         if ((mInput.mouse_x > xa) && (mInput.mouse_x < xb) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts))
+         if ((mInput.mouse_x > xa+100) && (mInput.mouse_x < xb-100) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts))
          {
             int w=0, h = 0;
             mLevel.show_level_stats(0,0,0,0, w, h, 0, 1); // just get size
-
             int x1 = cfp_txc - w/2;
             int x2 = cfp_txc + w/2;
             int y1 = ya + 26;
             int y2 = y1 + h;
-
             al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]); // erase background
-
             mLevel.show_level_stats(x1, y1, x2, 0, w, h, 1, 1);
-
          }
-         else if (show_advanced)
+         else
          {
-            xa = cfp_x1 + 10;
-            xb = cfp_x2 - 10;
             ya +=bts;
-
             ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
-
-            if (mWidget.buttont(xa+100, ya, xb-100, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
+            al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Number of level play records:%d", mLevel.play_data_num-1);
             ya +=8;
-            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All areas and levels will be unlocked."); ya +=8;
             ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
-
-            if (mWidget.buttont(xa+80, ya, xb-80, bts, 0,0,0,0,  0, 10,15, 0,  1,0,1,0, "Reset all level data")) mLevel.reset_level_data();
-            ya +=8;
-
-            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Warning! This will reset everything!"); ya +=16;
-            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All achievements will be reset.");      ya +=16;
-            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All areas and levels will be locked."); ya +=8;
-
-            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
-
-
-
-//            if (show_debug)
-//            {
-//               al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Number of level play records:%d", mLevel.play_data_num-1);
-//               ya +=8;
-//               ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-//            }
-
-
+            if (show_advanced)
+            {
+               if (mWidget.buttont(xa+80, ya, xb-80, bts, 0,0,0,0,  0, 10,15, 0,  1,0,1,0, "Reset all level data")) mLevel.reset_level_data();
+               ya +=8;
+               al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Warning! This will reset everything!"); ya +=16;
+               al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All achievements will be reset.");      ya +=16;
+               al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All areas and levels will be locked."); ya +=8;
+               ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+            }
          }
       }
-
-
-
 
 
 // ---------------------------------------------------------------
@@ -1947,33 +1990,18 @@ void mwSettings::settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          int old_mln = mVisualLevel.max_level_num;
-         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mVisualLevel.max_level_num, 400, 4, 1, "Max Level Number for Visual Level Select:");
+         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mVisualLevel.max_level_num, 100, 4, 1, "Max Level Number for Visual Level Select:");
          if (old_mln != mVisualLevel.max_level_num) mVisualLevel.load_visual_level_select_done = 0;
          ya -=2;
 
          ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
-
-         int old_mcm = mMain.classic_mode;
-
-         mWidget.toggle(cfp_x1+100, ya, cfp_x2-100, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mMain.classic_mode, "Story Mode", "Classic Mode", 15, 15, 12, 12);
-
-         if (old_mcm != mMain.classic_mode)
-         {
-            if (mMain.classic_mode == 0) // just changed to story mode
-            {
-               mLevel.set_start_level(1); // make sure we are on overworld
-
-            }
-         }
          ya +=4;
 
          mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_num_steps, 400, 4, 1, "Transistion num steps:");
          mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_delay, 100, 1, 1, "Transistion delay:");
 
       }
-
-
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {

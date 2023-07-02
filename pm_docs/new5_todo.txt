@@ -7,55 +7,23 @@ bug - level editor dragging window over block check boxes, mouse detects check b
 bug - enemy counts like cloner 6 of 0..only sometimes??
 
 
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
 
-
-
-move level_data to its own folder
-
-
-
-
-go through every page of help
-player colors
-got to pop up menu
-got to edit selection
-got to message
-got to vinepod
-
-
-lifts do not mention that you can resize and recolor for each step
-and also make solid or not for various types of objects
-
-20230514
-
-where am I at?
-
-vinepod is just about done
-
-now finish the help screen for vinepod
-
-make a test example of:
-
-vinepod triggering another vinepod in a chain
-
-vinepod triggering a group of vinepods in a star
-
-vinepod getting out of the way of a shot aimed at it
-
-Make some examples of vinepods to show off in levels
-
-and also some custom size lifts...
-
-
 --------------------------------------------------------
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
+
+remove level numbers from gates
+remove c shortcut to complete level
+make so demo and cheat can only be detected from gate page
+make it so that level complete does not do achivemnets for demo unless cheat
+F2 key superfast mode
+
+
+
 
 function key defaults
 debug overlay no key to start..do at release
@@ -70,6 +38,36 @@ refactored almost every line of code
 
 made major changes to netgame,
 now works over internet as well as LAN
+
+
+
+
+--------------------------------------------------------
+--  Help Screens To Do  --
+--------------------------------------------------------
+
+
+
+block manip has new mode: copy area
+
+blokwok can set block it changes to
+
+
+podzillas are now all vinepods...
+and have some cool adjustment options
+
+event system list can be expanded
+
+lifts do not mention that you can resize and recolor for each step
+and also make solid or not for various types of objects
+
+
+hiders
+
+npc
+
+
+
 
 
 ---------------------------------------------------------
@@ -160,80 +158,28 @@ VinePod
 -------------------------------
 
 
-New idea for overworld map
-
-It could be just like a normal level, like level 1
-
-with a bunch of links to other levels
-
-I would need some persistant info about what levels have been completed
-to make some paths accessible or not.
-
-I would want to make a special item to enter new levels
-
-when touching it info pops up, but you dont actually enter it until you press a key.
-
-
-
-I am going to do the overworld map thing.
-
-I need a way to store persistant data..
-I do not want to use a database, that would be overkill..
-
-what do I want to store?
-
-whether or not a level has been completed
-
-multiple exits for levels also
-
-data on how many times a level has been completed
-min time
-max time
-min deaths
-max coins
-
-I could think of it as a list of accomplishments
-some are required before certain things are unlocked
-
-If I am going this far I might need different profiles....
+Make some examples of vinepods to show off in levels
+vinepod triggering another vinepod in a chain
+vinepod triggering a group of vinepods in a star
+vinepod getting out of the way of a shot aimed at it
 
 
 
 
 
 
+when a level is completed and sets a new time record < par and all purple coins collected
+auto save that level in a special folder
 
+here are the rules:
+- level completed
+- all coins
+- time less than max so far
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+this makes me think I might need 2 speed records
+one for all coins and one for not..
+maybe I could just not count a speed record if all coins are not collected
+too much work, just leave it...
 
 
 
@@ -252,8 +198,6 @@ zoom level with mouse wheel
 
 
 
-
-make stimp and stamp time part of advanced config
 
 
 working on making the ft_sel look better

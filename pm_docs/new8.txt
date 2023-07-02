@@ -26373,6 +26373,437 @@ I think I need to test all this overworld stuff in multiplayer...
 
 
 
+bug - when starting game in story mode, level is loaded and drawn on screen before level data, so hiders are not working...
+only in story mode...
+changed the order here and now it looks good.
+   mLevel.setup_data();
+   if (classic_mode) mLevel.set_start_level();
+   else mLevel.set_start_level(1);
+
+bug - when I run reset all level data, I end up on level 99
+only in story mode, and only the menu level map is set wrong
+fixed, by reloading play level after...
+
+
+bug - when going to a level from overworld, client soon quits after....why??
+loses server connection
+
+how do I even start to troubleshoot this?
+
+logs
+
+
+i think it has something to do with next level....
+
+i think it has something to do with previous state that gets returned to...
+
+on client done_action is set to 0 so client quits at next_level
+where does this get set? in menu..
+
+ok back to client loses server connection
+
+it was the goddamn transitions!!!!
+
+works good now that they are set very low...
+I will need to do something about that, but for now lets see what else works...or doesn't
+
+overworld works
+
+
+server and client should not both have to be classic or story...
+what the server is determines what next level is called
+
+what if the server has locked areas that the client does not?
+the server will overide client
+
+this works well, but levels locked on the server and unlocked on clients, are still unlocked on clients
+what if a made a flag in gate that the server could propogate to the client??? or just do nothing...
+
+
+what happens when client presses ESC? quit the netgame
+same for server
+
+what if I made it so that server could return to overworld instead of just quitting..sounds complicated
+don't do it for now
+
+
+so unless I change something, server or client pressing ESC quits the netgame
+that should be OK
+
+How hard would it be to do something else?
+
+what if ESC in netgame pauses the player (invul?) and brings up a specific menu...
+
+quit netgame
+back to overworld
+settings
+back to game
+
+
+I would need some global settings:
+pause in netgame
+client can return to overworld
+invul when paused
+everything freezes when paused
+
+see, it gets complicated...
+
+I think I should just leave it as it is
+
+I want to be able to leave my server runnning indefinitley
+so I want some sort of reload of level after a long time on one level..
+
+how much time? 1 hour on a single level?
+how many game moves? 1 million (999,990)
+
+what do I do? return to overworld
+
+where do I hook this in?
+server
+done
+
+
+
+move level_data to its own folder
+
+mW.pm
+level_data
+
+or just get it out of bitmaps
+
+how about data?
+also put mW.pm there
+
+data folder created
+
+level_data.pm now lives there
+if missing it is recreated
+
+now what about mW.pm ..done
+
+now what about level_icons?
+
+move them there too?
+
+also create ones for visual_level_select?
+and only recreate if size changes?
+
+100
+200
+x
+
+
+
+
+I am having problems recreating level icons
+
+am i trying to do it too early?
+
+
+it is a goddamn chicken and egg thing
+draw level tries to draw icons that are not there yet...
+
+in draw gate added this test:
+
+if (mLevel.level_icon_200[lev]) al_draw_bitmap(mLevel.level_icon_200[lev], lx, ly, 0);
+
+this is working good, but now I want to add vls...
+
+in vls save gridsize in config
+
+when running vls, if grid size does not match saved then recreate icons
+
+vls has been added...
+
+now vls can never do more than 100 levels, because that is all the icons I create
+
+
+I want to move them to data as well, so they are recreated with release
+
+
+
+so now with release...
+
+do I create a data folder??
+
+after all that bullshit...what if I just saved them all full size and drew them scaled...
+
+
+
+made a data folder for release and cleaned up both win and lin release scripts
+test win...seems to work well
+
+remove beat and quit from simple overworld stats..done
+add them to gate pages..done
+
+
+test_lin .. seems to work...
+
+linux seems to be off by one pixel in the level icon frames..fixed
+
+
+bug - when player that is not player 0 collects purple coins they do not show on top frame
+only on level 128?
+works good in single player...redid that level to make rocket's explosion bigger, will need to do new demo
+still consistanlty happens...
+no coins show collected on frame or on end credits, but show in stats
+
+sometimes they show..some of them do anyway
+
+could it be they are getting collected during a rewind?
+
+
+i think the error is here:
+
+
+void mwItem::proc_bonus_collision(int p, int i)
+{
+   if (bonus_type == 3) // purple coin!!!
+   {
+      item[i][0] = 0;
+      if (!mLoop.ff_state)
+      {
+         mPlayer.syn[p].stat_purple_coins++;
+         mLevel.level_data_purple_coins_collected++;
+      }
+      mGameEvent.add(27, 0, 0, p, 0, 0, 0);
+   }
+}
+
+should be:
+
+
+void mwItem::proc_bonus_collision(int p, int i)
+{
+   if (bonus_type == 3) // purple coin!!!
+   {
+      item[i][0] = 0;
+      if (!mLoop.ff_state)
+      {
+         mLevel.level_data_purple_coins_collected++;
+      }
+      mPlayer.syn[p].stat_purple_coins++;
+      mGameEvent.add(27, 0, 0, p, 0, 0, 0);
+   }
+}
+that seems to have fixed it...
+
+
+add the demo and cheat thing back...
+
+demo can always be called from gate
+after 3 plays and no complete, cheat can be called which is just demo, but saves results
+
+// clear them here so they cannot be saved up
+mLevel.skc_trigger_demo = 0;
+mLevel.skc_trigger_demo_cheat = 0;
+
+where?
+in serial key check..done
+
+
+where will I put classic/demo mode in settings
+how about on stats page, only when advanced
+done and looks good...
+
+20230702
+
+it feels like I am getting close...
+
+test more netgame stuff...
+
+what if I start server from command line? does that work? yes
+
+
+I think the game is working well...
+
+do I have any docs left to do?
+
+how is help?
+
+
+
+bug - did I not, at one point edit the pristine font to make quotes and doubel quotes look better?
+I think I lost that...fixed
+
+make a new settings tab:
+
+game mode
+
+now game mode and stats look great in settings...
+
+finish help section for mode...done
+
+
+
+its getting better....
+
+
+do a push
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

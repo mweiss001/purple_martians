@@ -18,6 +18,9 @@
 #include "mwShot.h"
 #include "mwLog.h"
 
+#include "mwVisualLevel.h"
+
+
 mwDisplay mDisplay;
 
 
@@ -377,6 +380,10 @@ void mwDisplay::cycle_display_transform(void)
    // adjust window positions
    for (int a=0; a<NUM_MW; a++)
       mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
+
+
+   mVisualLevel.load_visual_level_select_done = 0;
+
 
 }
 

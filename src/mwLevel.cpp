@@ -15,6 +15,8 @@
 #include "mwDisplay.h"
 #include "mwLoop.h"
 #include "mwPlayer.h"
+#include "mwVisualLevel.h"
+
 
 
 mwLevel mLevel;
@@ -424,8 +426,9 @@ void mwLevel::level_check(void)
 void mwLevel::reset_level_data(void)
 {
    clear_data();
-   create_level_icons();
+   create_level_icons(0);
    save_data();
+   load_level(mLevel.play_level, 0, 0); // reload play level
 }
 
 void mwLevel::unlock_all_levels(void)
@@ -433,6 +436,7 @@ void mwLevel::unlock_all_levels(void)
    for(int i=0; i<100; i++) data[i].unlocked = 1;
    for(int i=0; i<16; i++) area_locks[i] = 0;
    save_data();
+   load_level(mLevel.play_level, 0, 0); // reload play level
 }
 
 
@@ -508,7 +512,7 @@ void mwLevel::level_abort_data(int lev)
 void mwLevel::level_complete_data(int type, int lev)
 {
 
-//   if ((mPlayer.syn[mPlayer.active_local_player].control_method != 1) || (mLevel.skc_trigger_demo_cheat))// don't count anything done in demo mode, unless cheat!
+   if ((mPlayer.syn[mPlayer.active_local_player].control_method != 1) || (mLevel.skc_trigger_demo_cheat))// don't count anything done in demo mode, unless cheat!
    {
       mLevel.skc_trigger_demo_cheat = 0;
 
@@ -571,7 +575,6 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
    int show_time_played = 1;
    int show_worst_time = 1;
    int show_average_time = 1;
-
    int show_times_beat = 1;
    int show_times_quit = 1;
 
@@ -585,6 +588,9 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
       show_time_played = 0;
       show_worst_time = 0;
       show_average_time = 0;
+      show_times_beat = 0;
+      show_times_quit = 0;
+
    }
 
    int lev = 0;
@@ -688,15 +694,15 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
    width = 9*8;
    if (draw)
    {
-      if (header)                        al_draw_text( mFont.pr8, mColor.pc[ 15], x+width/2, y+4, ALLEGRO_ALIGN_CENTER, "Status");
+      if (header) al_draw_text( mFont.pr8, mColor.pc[ 15], x+width/2, y+4, ALLEGRO_ALIGN_CENTER, "Status");
       else if (total)
       {
          sprintf(stxt, "-"); col = 15;
          if (tally[0][1] == tally[0][0]) { sprintf(stxt, "Complete"); col = 12; }
          if (tally[0][2] == tally[0][0]) { sprintf(stxt, "Perfect"); col = 8; }
-         al_draw_textf(mFont.pr8, mColor.pc[col],  x+width/2, y,   ALLEGRO_ALIGN_CENTER, stxt);
+         al_draw_text(mFont.pr8, mColor.pc[col],  x+width/2, y,   ALLEGRO_ALIGN_CENTER, stxt);
       }
-      else                               al_draw_textf(mFont.pr8, mColor.pc[col], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "%s", stxt);
+      else al_draw_text(mFont.pr8, mColor.pc[col], x+width/2, y,   ALLEGRO_ALIGN_CENTER, stxt);
    }
    x += width + 8;
    vline[vli++] = x-4;
@@ -1300,7 +1306,7 @@ void mwLevel::sob_create_msg(const char* txt, int col, int x, int y, int w, int 
    mItem.item[i][8] = w;
    mItem.item[i][9] = h;
    mMiscFnx.set_int_3216(mItem.item[i][13], 15, col); // set text and frame colors
-   sprintf(mItem.pmsgtext[i], txt);
+   strcpy(mItem.pmsgtext[i], txt);
 }
 
 
@@ -1309,13 +1315,11 @@ void mwLevel::sob_area_msg(int area, int x, int y)
    int w = 95;
    int h = 57;
 
-
    char msg1[20];
    char msg2[20];
    char msg3[20];
    char msg4[20];
 
-//   sprintf(msg, "%-10s ", area_names[area]);
 
    sprintf(msg1, "Area %d", area);
 
@@ -1720,7 +1724,7 @@ void mwLevel::clear_data(void)
 
    i = 28;
    strcpy(data[i].level_name, "Nowhere to Stand");
-   data[i].par_time = 3600; // 1:30 demo 1:08
+   data[i].par_time = 3600; // 1:30 demo 0:50.9
 
    i = 29;
    strcpy(data[i].level_name, "Brain Trust");
@@ -1974,15 +1978,12 @@ void mwLevel::clear_data(void)
    unlock_all_level_in_area(11);
    unlock_all_level_in_area(12);
 
-   data[99].unlocked = 1;
-
-
 }
 
 
 void mwLevel::load_data(void)
 {
-   FILE *fp =fopen("bitmaps/level_data.pm","rb");
+   FILE *fp =fopen("data/level_data.pm","rb");
    if (fp)
    {
       fread(data,           sizeof(data),          1, fp);
@@ -1993,12 +1994,17 @@ void mwLevel::load_data(void)
       fclose(fp);
       return;
    }
-   mInput.m_err("Error loading level_data.pm");
+   else
+   {
+      printf("Error loading data/level_data.pm, recreating....\n");
+      clear_data();
+      save_data();
+   }
 }
 
 void mwLevel::save_data(void)
 {
-   FILE *fp =fopen("bitmaps/level_data.pm","wb");
+   FILE *fp =fopen("data/level_data.pm","wb");
    if (fp)
    {
       fwrite(data,           sizeof(data),          1, fp);
@@ -2012,17 +2018,29 @@ void mwLevel::save_data(void)
    mInput.m_err("Error saving level_data.pm");
 }
 
-
-void mwLevel::create_level_icons(void)
+void mwLevel::create_level_icons(int vls_only)
 {
-   int sz = 200;
-   ALLEGRO_BITMAP *tmp = al_create_bitmap(sz*10, sz*10);
-   al_set_target_bitmap(tmp);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
+   ALLEGRO_BITMAP *tmp_100 = NULL;
+   ALLEGRO_BITMAP *tmp_200 = NULL;
 
-   int sz2 = level_icon2_size;
-   ALLEGRO_BITMAP *tmp2 = al_create_bitmap(sz2*10, sz2*10);
-   al_set_target_bitmap(tmp2);
+   int sz1 = 100;
+   int sz2 = 200;
+
+
+   if (!vls_only)
+   {
+      tmp_100 = al_create_bitmap(sz1*10, sz1*10);
+      al_set_target_bitmap(tmp_100);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+
+      tmp_200 = al_create_bitmap(sz2*10, sz2*10);
+      al_set_target_bitmap(tmp_200);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+   }
+
+   int sz3 = mVisualLevel.level_icon_size;
+   ALLEGRO_BITMAP *tmp_vls = al_create_bitmap(sz3*10, sz3*10);
+   al_set_target_bitmap(tmp_vls);
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
 
@@ -2033,15 +2051,13 @@ void mwLevel::create_level_icons(void)
 
       if (mLevel.load_level(i, 0, 1))
       {
-         al_set_target_bitmap(tmp);
-         mScreen.draw_level2(tmp, x*sz, y*sz, sz, 1, 1, 1, 1, 0);
-
-         al_set_target_bitmap(tmp2);
-         mScreen.draw_level2(tmp2, x*sz2, y*sz2, sz2, 1, 1, 1, 1, 0);
-
-
+         if (!vls_only)
+         {
+            mScreen.draw_level2(tmp_100, x*sz1, y*sz1, sz1, 1, 1, 1, 1, 0);
+            mScreen.draw_level2(tmp_200, x*sz2, y*sz2, sz2, 1, 1, 1, 1, 0);
+         }
+         mScreen.draw_level2(tmp_vls, x*sz3, y*sz3, sz3, 1, 1, 1, 1, 0);
       }
-
 
       // show progress bar
       int pc = i*100 / 100;
@@ -2058,38 +2074,40 @@ void mwLevel::create_level_icons(void)
       }
    }
 
+   if (!vls_only)
+   {
+      al_save_bitmap("data\\level_icons_100.bmp", tmp_100);
+      al_save_bitmap("data\\level_icons_200.bmp", tmp_200);
+      al_destroy_bitmap(tmp_100);
+      al_destroy_bitmap(tmp_200);
+   }
+   al_save_bitmap("data\\level_icons_vls.bmp", tmp_vls);
+   al_destroy_bitmap(tmp_vls);
 
+   load_level_icons();
 
-
-
-
-
-//   al_set_target_backbuffer(mDisplay.display);
-//   al_draw_bitmap(tmp, 0,0,0);
-//   al_flip_display();
-//   mInput.tsw();
-
-   al_save_bitmap("bitmaps\\level_icons.bmp", tmp);
-   al_save_bitmap("bitmaps\\level_icons2.bmp", tmp2);
-
-   al_destroy_bitmap(tmp);
 }
 
 void mwLevel::load_level_icons(void)
 {
-   int sz = 200;
+   int sz = 100;
    //double llt0 = al_get_time();
-   ALLEGRO_BITMAP *tmp = al_load_bitmap("bitmaps\\level_icons.bmp");
-   if (!tmp) mInput.m_err("Error loading tiles from:level_icons.bmp");
+   ALLEGRO_BITMAP *tmp = al_load_bitmap("data\\level_icons_100.bmp");
+
+   if (!tmp)
+   {
+      printf("Error loading tiles from: level_icons_100.bmp - recreating\n");
+      create_level_icons(0);
+   }
    else
    {
       int x=0;
       int y=0;
       for (int i=0; i<100; i++)
       {
-         if (!mLevel.level_icon[i]) mLevel.level_icon[i] = al_create_bitmap(sz, sz);
+         if (!level_icon_100[i]) level_icon_100[i] = al_create_bitmap(sz, sz);
 
-         al_set_target_bitmap(mLevel.level_icon[i]);
+         al_set_target_bitmap(level_icon_100[i]);
          al_clear_to_color(al_map_rgba(0,0,0,0));
 
          al_draw_bitmap_region(tmp, x*sz, y*sz, sz, sz, 0, 0, 0);
@@ -2104,19 +2122,23 @@ void mwLevel::load_level_icons(void)
      al_destroy_bitmap(tmp);
    }
 
-   sz = level_icon2_size;
-   //double llt0 = al_get_time();
-   tmp = al_load_bitmap("bitmaps\\level_icons2.bmp");
-   if (!tmp) mInput.m_err("Error loading tiles from:level_icons2.bmp");
+
+   sz = 200;
+   tmp = al_load_bitmap("data\\level_icons_200.bmp");
+   if (!tmp)
+   {
+      printf("Error loading tiles from:level_icons_200.bmp - recreating\n");
+      create_level_icons(0);
+   }
    else
    {
       int x=0;
       int y=0;
       for (int i=0; i<100; i++)
       {
-         if (!mLevel.level_icon2[i]) mLevel.level_icon2[i] = al_create_bitmap(sz, sz);
+         if (!level_icon_200[i]) level_icon_200[i] = al_create_bitmap(sz, sz);
 
-         al_set_target_bitmap(mLevel.level_icon2[i]);
+         al_set_target_bitmap(level_icon_200[i]);
          al_clear_to_color(al_map_rgba(0,0,0,0));
 
          al_draw_bitmap_region(tmp, x*sz, y*sz, sz, sz, 0, 0, 0);
@@ -2129,11 +2151,37 @@ void mwLevel::load_level_icons(void)
      //double llt1 = al_get_time() - llt0;
      //printf("Load level icons time:%f\n", llt1*1000);
      al_destroy_bitmap(tmp);
-
-
-
-
    }
+
+   sz = mVisualLevel.level_icon_size;
+   tmp = al_load_bitmap("data\\level_icons_vls.bmp");
+   if (!tmp)
+   {
+      printf("Error loading tiles from:level_icons_vls.bmp - recreating\n");
+      create_level_icons(0);
+   }
+   else
+   {
+      int x=0;
+      int y=0;
+      for (int i=0; i<100; i++)
+      {
+         al_destroy_bitmap(level_icon_vls[i]);
+         level_icon_vls[i] = al_create_bitmap(sz, sz);
+         al_set_target_bitmap(level_icon_vls[i]);
+         al_clear_to_color(al_map_rgba(0,0,0,0));
+         al_draw_bitmap_region(tmp, x*sz, y*sz, sz, sz, 0, 0, 0);
+         if (++x > 9)
+         {
+            x = 0;
+            y++;
+         }
+     }
+     //double llt1 = al_get_time() - llt0;
+     //printf("Load level icons time:%f\n", llt1*1000);
+     al_destroy_bitmap(tmp);
+   }
+
 }
 
 

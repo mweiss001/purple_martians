@@ -23,7 +23,6 @@
 
 
 
-
 void mwMain::pm_copy_src(const char* filepath)
 {
    char sys_cmd[500];
@@ -67,7 +66,16 @@ void mwMain::pm_copy_misc(const char* filepath)
 
    sprintf(sys_cmd, "mkdir %s\\bitmaps ", filepath);                              printf("%s\n",sys_cmd);   system(sys_cmd);
    sprintf(sys_cmd, "copy bitmaps\\* %s\\bitmaps ", filepath);                    printf("%s\n",sys_cmd);   system(sys_cmd);
-   sprintf(sys_cmd, "del %s\\bitmaps\\mW.pm ", filepath);                         printf("%s\n",sys_cmd);   system(sys_cmd);
+
+
+   sprintf(sys_cmd, "mkdir %s\\data ", filepath);                                 printf("%s\n",sys_cmd);   system(sys_cmd);
+
+
+
+//   sprintf(sys_cmd, "del %s\\data\\mW.pm ", filepath);                            printf("%s\n",sys_cmd);   system(sys_cmd);
+
+
+
 
    sprintf(sys_cmd, "mkdir %s\\help ", filepath);                                 printf("%s\n",sys_cmd);   system(sys_cmd);
    sprintf(sys_cmd, "copy help\\* %s\\help ", filepath);                          printf("%s\n",sys_cmd);   system(sys_cmd);
