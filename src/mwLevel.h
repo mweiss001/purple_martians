@@ -122,7 +122,10 @@ class mwLevel
    void unlock_all_levels(void);
 
 
-   void show_level_stats(int x, int y1, int x2, int frame_width, int &w, int &h, int draw, int msg_type );
+
+   void draw_level_stats(int x1, int y1, int msg_type);
+
+   void show_level_stats(int &w, int &h, int draw, int msg_type );
 
    void get_level_status(int lev, int& status, int& col, char txt[]);
 
@@ -148,6 +151,13 @@ class mwLevel
    ALLEGRO_BITMAP * level_icon_100[100];
    ALLEGRO_BITMAP * level_icon_200[100];
    ALLEGRO_BITMAP * level_icon_vls[100];
+
+
+   ALLEGRO_BITMAP * level_stats_bitmap = NULL;
+   int level_stats_bmp_msg_type = 0;
+   int level_stats_bmp_w;
+   int level_stats_bmp_h;
+
 
 
    void load_level_icons(void);

@@ -193,10 +193,10 @@ int mwItem::sort_item(int set_pos)
    for (int c=0; c < 500; c++)
       if ((mItem.item[c][0] == 1) && (mItem.item[c][8] == 1))           // if door && exit mode == link
       {
-         int link = mItem.item[c][9];                             // look for doors with that link in 15
+         int link = mItem.item[c][9];                                   // look for doors with that link in 15
          for (int d=0; d < 500; d++)
             if ((mItem.item[d][0] == 1) && (mItem.item[d][15] == link)) // found a door with link in 15
-               mItem.item[c][9] = d;                              // update to new link number
+               mItem.item[c][9] = d;                                    // update to new link number
       }
 
    // erase what we put in 15
@@ -532,6 +532,7 @@ int mwItem::create_door(int type)
                mItem.item[c][1] = 2;    // draw type
                mItem.item[c][3] = 0;    // stationary
                mItem.item[c][6] = 13;   // default color = lt blue
+               mItem.item[c][7] = 2;    // move type: move
                mItem.item[c][8] = 0;    // type: exit only
                mItem.item[c][11] = 0;   // enter immed
                mItem.item[c][12] = 1;   // always draw line
@@ -562,6 +563,7 @@ int mwItem::create_door(int type)
                mItem.item[c][1] = 2;    // draw type
                mItem.item[c][3] = 0;    // stationary
                mItem.item[c][6] = 13;   // default color = lt blue
+               mItem.item[c][7] = 2;    // move type: move
                mItem.item[c][8] = 1;    // type: linked exit
                mItem.item[c][11] = 0;   // enter immed
                mItem.item[c][12] = 1;   // always draw line
@@ -573,6 +575,7 @@ int mwItem::create_door(int type)
                   mItem.item[d][1] = 2;  // draw type
                   mItem.item[d][3] = 0;  // stationary
                   mItem.item[d][6] = 13; // default color = lt blue
+                  mItem.item[d][7] = 2;  // move type: move
                   mItem.item[d][8] = 0;  // type: exit only
 
                } // end of get destination without cancel
@@ -606,6 +609,7 @@ int mwItem::create_door(int type)
                mItem.item[c][1] = 2;    // draw type
                mItem.item[c][3] = 0;    // stationary
                mItem.item[c][6] = 13;   // default color = lt blue
+               mItem.item[c][7] = 2;    // move type: move
                mItem.item[c][8] = 1;    // type: linked exit
                mItem.item[c][11] = 1;   // trigger with up
                mItem.item[c][12] = 1;   // always draw line
@@ -619,6 +623,7 @@ int mwItem::create_door(int type)
                   mItem.item[d][1] = 2;    // draw type
                   mItem.item[d][3] = 0;    // stationary
                   mItem.item[d][6] = 13;   // default color = lt blue
+                  mItem.item[d][7] = 2;    // move type: move
                   mItem.item[d][8] = 1;    // type: linked exit
                   mItem.item[d][11] = 1;   // trigger with up
                   mItem.item[d][12] = 1;   // always draw line

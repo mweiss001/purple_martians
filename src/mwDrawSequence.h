@@ -8,22 +8,19 @@ class mwDrawSequence
 
    mwDrawSequence(); // default constructor
    void initialize(void);
-
-   void draw(void);
-   void add(int s, double v);
+   void draw(int setup_only);
+   void add(int& i);
    void show_text(int x, int y);
+
+   void add_names(int& i, const char* n0, const char* n1);
 
    private:
 
-   void calc(void);
-   int seq[20][2];
-   char name_long[20][40];
-   char name_short[20][10];
-   double time_cur[20];
-   double time_avg[20];
-   double time_min[20];
-   double time_max[20];
+   int ns;
+
+   char name[2][20][40];
    mwRollingAverage RA[20];
+   double ts[20];
    char* get_line(int s, char*);
 };
 extern mwDrawSequence mDrawSequence;

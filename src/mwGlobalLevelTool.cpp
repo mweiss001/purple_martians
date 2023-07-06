@@ -428,6 +428,48 @@ void mwGlobalLevelTool::execute(void)
 ////            mItem.set_timer_flags(mItem.item[y][3], state, t1_mode, t2_mode, cnt);
 //
 //         }
+
+
+
+//
+//      for (int y=0; y<500; y++)
+//         if (mItem.item[y][0] == 1) // door
+//         {
+//            int mt = mItem.item[y][7];  // move type
+//            int dt = mItem.item[y][8];  // door type
+//            int li = mItem.item[y][9];  // linked door item num
+//
+////            if (dt) count0++;
+////            else count1++;
+//
+////            if ((dt) && (!mt)) count0++;
+////
+////
+////            printf("l:%3d y:%3d  dt:%d mt:%d\n", le[x], y, dt, mt);
+//
+//            if ((dt) && (!mt)) // door type normal and auto move
+//            {
+//               printf("l:%3d y:%3d  li:%d\n", le[x], y, li);
+//
+//               if ((li<0) || (li > 499)) printf("error! - linked item (%d) out of range\n", li);
+//               else if (mItem.item[li][0] != 1) printf("error! - linked item is not door (actual type:%d\n", mItem.item[li][0]);
+//               else
+//               {
+//                  // is linked item stationary?
+//
+//                  if (mItem.item[li][3] == 0) mItem.item[y][7] = 2;  // force move
+//                  else                        mItem.item[y][7] = 1;  // force instant
+//
+//               }
+//            }
+//         }
+//
+//
+//
+
+
+
+
       if (0)
       {
          mLevel.save_level(le[x]);

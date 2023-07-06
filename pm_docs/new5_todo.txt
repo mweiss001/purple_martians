@@ -2,14 +2,44 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-bug - level editor dragging window over block check boxes, mouse detects check boxes
 
-bug - enemy counts like cloner 6 of 0..only sometimes??
+
+
+
+
+
 
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+draw player on screen overlay also
+shrink and rotate for door move
+shrink and rotate for rocket riding
+
+move screen overlay drawing out of top frame, go higher
+
+
+
+
+
+
+
+
+
+
+add some debug options:
+
+C on gate to complete level
+F2 for super fast mode
+demo mode alway saves level data
+C to switch from demo playback to recording
+
+
+
+
 
 
 --------------------------------------------------------
@@ -21,14 +51,20 @@ remove c shortcut to complete level
 make so demo and cheat can only be detected from gate page
 make it so that level complete does not do achivemnets for demo unless cheat
 F2 key superfast mode
-
-
-
+remove c to to break in and start recording demo
 
 function key defaults
 debug overlay no key to start..do at release
 
-change allegro project page to show source code available
+
+
+
+--------------------------------------------------------
+--  Help Screens To Do  --
+--------------------------------------------------------
+
+
+make much simpler history page for help screens
 
 add to history
 
@@ -40,32 +76,11 @@ made major changes to netgame,
 now works over internet as well as LAN
 
 
-
-
---------------------------------------------------------
---  Help Screens To Do  --
---------------------------------------------------------
-
-
-
-block manip has new mode: copy area
-
-blokwok can set block it changes to
-
-
-podzillas are now all vinepods...
-and have some cool adjustment options
-
-event system list can be expanded
-
-lifts do not mention that you can resize and recolor for each step
-and also make solid or not for various types of objects
-
+somehow describe snap...
 
 hiders
 
 npc
-
 
 
 

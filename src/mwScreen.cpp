@@ -412,6 +412,22 @@ void mwScreen::init_level_background(void) // fill level_background with block t
          al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
          if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
       }
+
+
+   // if level 1 draw all the gates
+   if (mLevel.play_level == 1)
+   {
+      for (int i=0; i<500; i++)
+         if (mItem.item[i][0] == 18) mItem.draw_gate(i, mItem.item[i][4], mItem.item[i][5], 0);
+   }
+
+   char msg[256];
+   // draw all messages that are always on
+   for (int i=0; i<500; i++)
+      if ((mItem.item[i][0] == 10) && (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
+         mItem.draw_pop_message(i, 2, 0, 0, 0, 0, msg);
+
+
 }
 
 
@@ -443,9 +459,6 @@ void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks
 
    for (int i=0; i<500; i++)
       if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16))) mItem.draw_message(i, 0, 0, 0);
-
-
-
 
    if (b == NULL) al_set_target_backbuffer(mDisplay.display);
    else al_set_target_bitmap(b);

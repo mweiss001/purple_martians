@@ -347,39 +347,39 @@ In 'Settings' -> 'Mode' you can choose between 2 different Game Modes:
 
 
 <l13>    Start
-<a21> Where the player begins a level.
+<a21> Where players start a level and respawn after dying.
 
 
 <l13>    Exit
-<a22> Find this to finish a level.
+<a22> Completes the level.
 
 
-<l13>    Door
-<a05> Takes you somewhere in the current level.
+<l13>        Doors
+<a83> <a05> Take you somewhere in the current level.
 
 
 <l13>    Sproingy
-<a52> Hold [JUMP] to jump extra high.
+<a52> Hold [JUMP] while falling onto Sproingies to jump extra high.
 
 
 <l13>    Health Bonus (10)
-<a23> Gives you more health (1/10 of full health)
+<a23> 1/10 of full health
 
 
 <l13>    Health Bonus (50)
-<a27> Gives you more health (1/2 of full health)
+<a27> 1/2 of full health
 
 
 <l13>    Purple Coin
-<s197> Gives you a purple coin.
+<s197> A collectible purple coin.
 
 
 <l13>    Mine
-<a24> Lose health by touching.
+<a24> Takes health when touched.
 
 
 <l13>    Message
-<a36> Displays a helpful message.
+<a36> Touch to display a message.
 
 
 
@@ -771,19 +771,32 @@ Bombs and rockets will destroy these blocks.
 <section>Level Editor Basics
 
 
+<c10>______________________________________________________
 
 <c10>The Most Important Thing!
-<b10>
+
 <c14>To use the Pop Up Menu, press and HOLD the right mouse button.
 
 <c14>Then move the mouse up and down to make your selection.
 
 <c14>Release the right mouse button to complete your choice.
-<b10>
+<c10>______________________________________________________
+
 
 
 <c07> Mouse Controls
 <b07>
+
+<l09>Mouse pointer on edge of screen
+
+<l15> - Scrolls the level in the direction of the edge
+
+
+<l09>Right click and hold
+
+<l15> - Displays the Pop-Up-Menu
+
+
 <l09>Right click and release
 
 <l15> - Copies the current 'View Item' to 'Draw Item'
@@ -798,19 +811,11 @@ Bombs and rockets will destroy these blocks.
 
 <l15> - Fills the rectangle with the 'Draw Item'. (Blocks only)
 
-
-<l09>Right click and cold
-
-<l15> - Displays the Pop-Up-Menu
-
-
-<l09>Mouse pointer on edge of screen
-
-<l15> - Scrolls the level in the direction of the edge
 <b07>
 
 
-<c15> Function Keys
+
+<c15> Function Keys (same as game)
 <b15>
 <l13>         [F5] - Zoom Out (decrease scale factor)
 <l13>         [F6] - Zoom In (increase scale factor)
@@ -822,7 +827,7 @@ Bombs and rockets will destroy these blocks.
 
 <section>Pop Up Menu
 
-<c15>______________________________________________________
+<c10>______________________________________________________
 
 <c10>The Most Important Thing!
 
@@ -832,7 +837,7 @@ Bombs and rockets will destroy these blocks.
 
 <c14>Release the right mouse button to complete your choice.
 
-<c15>______________________________________________________
+<c10>______________________________________________________
 
 
 <c13(Note: For the first three menu choices, [item] is
@@ -1593,46 +1598,57 @@ transform the marked tiles to a new tileset.
 
 <l15>  - The start with index 0 also sets the start mode for the level
 
+<b15>
 
 <l09> Start Mode:[Default:Team Start:Checkpoint Common:Checkpoint Individual]
 
-<l15> Mode:Default
 
-<l15> - there is only one start with start index 0
+<l09> Default
+
+<l15> - Exactly one Start Block and it must have index 0
 
 <l15> - all players use this start
 
 
-<l15> Team Start
+<l09> Team Start
 
-<l15> - 2 start blocks with index's 0 and 1
+<l15> - Exactly 2 Start Blocks and they must have indexes 0 and 1
 
-<l15> - even numbered players use start 0
+<l15> - even numbered players use index 0
 
-<l15> - odd numbered players use start 1
+<l15> - odd numbered players use index 1
 
 
-<l15> Checkpoint Common
+<l09> Checkpoint Common
 
-<l15> - 2 or more starts with indexes 0,1,2 etc...
+<l15> - 2 or more Start Blocks with indexes 0,1,2 etc...(no duplicates)
 
-<l15> - all players initially start at start 0
+<l15> - all players initially start at index 0
 
 <l15> - when any start is touched by any player...
 
 <l15> - that start becomes the new spawn point for all players
 
 
-<l15> Checkpoint Individual
+<l09> Checkpoint Individual
 
-<l15> - 2 or more starts with indexes 0,1,2 etc...
+<l15> - 2 or more Start Blocks with indexes 0,1,2 etc...(no duplicates)
 
-<l15> - all players initially start at start 0
+<l15> - all players initially start at index 0
 
 <l15> - when a start is touched by a player...
 
 <l15> - that start becomes the new spawn point for only that player
 
+<b15>
+
+<l09> Increase Index Only:[ON:OFF]
+
+<l15>  - For checkpoint modes only.
+
+<l15>  - If ON, the current spawn point index can only increase.
+
+<l15>  - There is no going back to earlier spawn point indexes.
 
 
 
@@ -1750,12 +1766,9 @@ transform the marked tiles to a new tileset.
 
 <l15>  - Hold SHIFT to move the scroll and the displayed message together.
 
-
-<l15>  - Move the message position by dragging the upper left corner.
+<l15>  - Move the message by dragging the upper left corner.
 
 <l15>  - Resize the message by dragging the lower right corner.
-
-<l15>  - Hold SHIFT to constrain the message size and position to blocks.
 
 
 <section>Door Viewer
@@ -1784,67 +1797,62 @@ transform the marked tiles to a new tileset.
 <l15>  - Does the item fall, or is it stationary, or carryable?
 
 
+<l09> Door Type:[Normal:Exit Only]
+
+<l15>  - If Exit Only, the door is only a destination for another door.
+
+<l15>  - In Exit Only mode most other buttons are disabled.
+
+
 <l09> Set Destination Item
 
-<l15>  - Prompts to set the item used in 'Linked Destination' mode.
+<l15>  - Prompts to set the destination door item used in Normal mode.
 
 
-<l09> [Linked Destination (x) | Exit Only]
-
-<l15>  - Changes between 'Linked Destination' mode and 'Exit Only' mode.
-
-<l15>  - In 'Linked Destination' mode the number of the linked item is shown.
-
-<l15>  - In 'Exit Only' mode most other buttons are disabled.
-
-
-<l09> Entry Type: [[UP] to enter | [DOWN] to enter | Enter Immediately]
+<l09> Entry Type: [Enter with UP | Enter with DOWN | Enter Immediate]
 
 <l15>  - Sets the conditions required to enter the door.
 
-<l15>  - '[UP] to enter' requires [UP] to be pressed.
+<l15>  - 'Enter with UP' requires [UP] to be pressed.
 
-<l15>  - '[DOWN] to enter' requires [DOWN] to be pressed.
+<l15>  - 'Enter with DOWN' requires [DOWN] to be pressed.
 
 <l15>  - 'Enter Immediately' enters as soon as the player touches the door.
 
 
-<l09> Move type: [Automatic | Force Instant | Force Move]
+<l09> Move type: [Instant | Travel]
 
 <l15>  - The journey to the next door can either be:
 
 <l15>    - 'Instant' - Immediately teleport to the destination.
 
-<l15>    - 'Move'    - travel in real time, with a nice visual.
+<l15>    - 'Travel'  - Travel in real time, with a nice visual.
 
-<l15>  - In 'Automatic' mode, if the destination door is not
+<l15>  - Instant should be used when the destination door is not stationary.
 
-<l15>  - stationary, the move type is set to 'Instant'.
-
-<l15>  - (This prevents the destination door from moving
-
-<l15>  - while the player is traveling to it.)
-
-<l15>  - Otherwise 'Automatic' will set 'Move' mode.
-
-<l15>  - This behavior can be overridden with 'Force Instant' and 'Force Move'
+<l15>  - Otherwise the destination might move before the player gets there.
 
 
 <l09> Exit Link: [never show | always show | when player touches]
 
-<l15>  - Draw a line to the 'Linked Destination'
+<l15>  - Draws a line to the 'Linked Destination'
 
 <l15>  - always, never, or only when the player is touching on the door
 
 
-<l09> Door Shape
+<l09> Draw Type: [Animated Warp | Static Door | Hidden]
 
-<l15>  - Toggles the door's display shape
+<l15>  - Toggles the door's display shape.
 
 
 <l09> Select Door Color
 
-<l15>  - Choose a new color for the door
+<l15>  - Choose a new color for the door.
+
+
+<l09> Change Linked to Match
+
+<l15>  - Changes the color and draw type of all linked doors to match.
 
 
 
@@ -1869,6 +1877,11 @@ transform the marked tiles to a new tileset.
 <l15>  - Does the item obey gravity or is it stationary?
 
 
+<l09> Color:
+
+<l15>  - Changes the color of the key.
+
+
 <l09> Get New Block Range
 
 <l15>  - Sets a new Block Range area that will be affected by the key.
@@ -1876,7 +1889,7 @@ transform the marked tiles to a new tileset.
 <l10>    (shown on the map as a red rectangle)
 
 
-<l09> [Erase only matching blocks | Erase all blocks in range]
+<l09> [Remove All Blocks | Remove Only Matching]
 
 <l15>  - If only matching is chosen, only blocks with a matching
 
@@ -1903,26 +1916,37 @@ transform the marked tiles to a new tileset.
 
 <l04>    Description:
 
-<l15> An item that can generate events.
+<l15> An item that generates events when players interact with it.
+
+<b15>
 
 <l15> Can be triggered by:
+
 <l15> - Player collision
+
 <l15> - Player collision and [UP] pressed
+
 <l15> - Player collision and [DOWN] pressed
+
 <l15> - Player's shot collision
 
 <b15>
 
 <l15> Can emit up to four different events:
+
 <l15> - Set Event Always While On
+
 <l15> - Set Event Always While Off
+
 <l15> - Set Event When Switching On
+
 <l15> - Set Event When Switching Off
 
 <b15>
 
-<l15> Other objects can use events as inputs to trigger some action.
-<l15> Some examples are: Lifts, Block Damage, Block Manip
+<l15> Other objects can use these events as inputs to trigger some action.
+
+<l15> Some examples are: Lifts, Block Damage, Block Manip...
 
 <b15>
 
@@ -1969,6 +1993,7 @@ transform the marked tiles to a new tileset.
 <l09> The 4 'Set Event...' sliders let you specify the event number.
 <l15>  - The better way to set them is by automatically linking from
 <l15>    an object that takes an event trigger input.
+
 
 
 <section>Trigger Viewer
@@ -2159,6 +2184,7 @@ The actual shape <s987> is only visible in the level editor.
 <l15> - Mode: Set all to block 1.
 <l15> - Mode: Set all block 2 to block 1
 <l15> - Mode: Toggle block 2 to block 1
+<l15> - Mode: Copy Area
 
 <b15>
 
@@ -2184,6 +2210,10 @@ The Block Manip Field can be hidden or shown in various colors.
 <l15>  - Prompts you to set the block for Block 1 or Block 2
 
 
+<l09> Set Copy Source
+<l15>  - Prompts you to select the position of the copy source
+
+
 <l09> The 'Event Trigger:' slider lets you specify the event number.
 <l15>  - The better way to set it is by clicking the button 'Set Event Trigger'
 <l15>    which will prompt you to choose a trigger item, then automatically
@@ -2207,15 +2237,19 @@ The Block Manip Field can be hidden or shown in various colors.
 
 <l04>    Description:
 
-<l15> Specifies a rectangular area for Block Damage.
+<l15> Specifies a rectangular area called a Damage Field that destroys or
 
-<l15> Can be triggered by another object that emits trigger events.
-<l15> Some examples are Trigger and Orb.
+<l15> causes damage to certain specified types of objects.
+
+
+<l15> Can always on, or triggered by another object that emits trigger events,
+
+<l15> like Timers, Triggers, Orbs....
 
 <b15>
 
-<l15> When ON, the Damage Field causes damage to objects in the field.
-<l15> Each object type can be toggled on or off.
+<l15> These object types can be individually toggled on or off.
+
 <l15> - Players
 <l15> - Enemies
 <l15> - Items
@@ -2224,22 +2258,22 @@ The Block Manip Field can be hidden or shown in various colors.
 
 <b15>
 
-<l15> If ON the object will be destroyed.
+<l15> For Items, Enemies and Shots, the object will be destroyed.
 
-<l15> For players, the player can either be killed instantly,
-<l15> or lose (or gain!) a specified amount of health.
+<l15> For Players, the Player can either be killed instantly, or
+<l15> lose (or gain!) a specified amount of health.
 
 <b15>
 
-<l15> The Damage Field has a few different modes:
+<l09> Block Damage Modes:
 
-<l09> Mode: Always ON
+<l09> - Always ON
 <l15>   The Damage Field is always active.
 
 <l09> - Mode: Toggle
 <l15>   When triggered the Damage Field toggles ON and OFF.
 <l15>   In this mode the only trigger type that makes sense is a toggle.
-<l15>   If you chose a constant trigger, the field will toggle every frame.
+<l15>   If you choose a constant trigger, the field will toggle every frame.
 <l15>   (Which is probably not what you want)
 
 <l09> - Mode: ON until triggered
@@ -2286,9 +2320,9 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>   Map Controls:
 
-<l15> - Move the Field by dragging from the upper left corner on the map.
+<l15> - Move the field by dragging from the upper left corner on the map.
 
-<l15> - Re-size the Field by dragging from the lower right corner on the map.
+<l15> - Re-size the field by dragging from the lower right corner on the map.
 
 
 <section>Mine Viewer
@@ -2311,7 +2345,7 @@ The Block Damage Field can be hidden or shown in various ways.
 <l15>  - Does the item fall, or is it stationary, or carryable?
 
 
-<l09> Damage Rate:
+<l09> Mine Damage:
 
 <l15>  - Sets amount of Health that is lost while touching it.
 
@@ -2608,65 +2642,65 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>    Buttons:
 
-<l09> X - Speed:[0.7-5.0]
+<l09> X - Speed:[0.7-9]
 <l15>  - horizontal speed
 
-<l09> Y - Speed:[0.7-5.0]
+<l09> Y - Speed:[0.7-16]
 <l15>  - vertical speed (for jump and fall)
 
 <l09> Direction:[Right:Left]
 <l15>  - The direction of the Archwagon.
 
-<l09> [Bounce Mode-Follow Mode]
+<l09> [Bounce Mode:Follow Mode]
 <l15>  - bounce off walls, or blindly follow player
 
 <b15>
 
-<l09> Turn Before Hole:[0-100](0 = Off)
+<l07> Turn Before Hole:[0-100](0 = Off)
 <l15>  - Turns around at the specified distance before falling in a hole.
 
-<l09> Jump Before Hole:[0-100](0 = Off)
+<l07> Jump Before Hole:[0-100](0 = Off)
 <l15>  - Attempts to jump at the specified distance before falling in a hole.
 
-<l09> Jump Before Wall:[0-100](0 = Off)
+<l07> Jump Before Wall:[0-100](0 = Off)
 <l15>  - Attempts to jump at the specified distance before an hitting a wall.
 
-<l09> Jump Under Width:[0-600](0 = Off)
+<l07> Jump Under Width:[0-600](0 = Off)
 <l15>  - When the Archwagon is under a player (+/- width) a jump is attempted.
 
-<l09> Jump Wait:[0-500](0 = Off)
+<l07> Jump Timer Wait:[0-500](0 = Off)
 <l15>  - waits for the specified number of frames, then attempts to jump
 
 <b15>
 
-<l09> Bullet Proximity:
-<l15>  - Players within the Bullet Proximity circle will be fired on.
-<l14>    (shown on the map as a yellow circle)
-
-<l09> Bullet Speed:[0.3 - 20.0]
+<l09> Shot Speed:[0.8 - 20.0]
 <l15>  - The speed of the arrows.
 
-<l09> Bullet Retrigger Time:[0-300]
+<l09> Shot Proximity:[20-2000]
+<l15>  - Players within the Shot Proximity circle will be fired on.
+<l14>    (shown on the map as a yellow circle)
+
+<l09> Shot Retrigger Time:[1-200]
 <l15>  - The delay between firing successive arrows.
 
 <b15>
 
-<l09> Collision Box:[8-18]
-<l15>  - An area around the Archwagon that takes Health from the
-<l15>    player, when the player is in it. (see Health Decrement)
+<l04> Collision Box:[0-20] (default:10)
+<l15>  - An area around the Archwagon that takes Health from the player,
+<l15>    when the player is in it. (see Health Decrement)
 
-<l09> Health Decrement:[0.1-2.0]
-<l15>  - The amount to subtract from players Health
+<l04> Health Decrement:[0-10] (default:2.5)
+<l15>  - The amount to subtract from player's Health
 <l15>    when player is in the Collision Box.
 
-<l09> Health Bonus:
+<l04> Health Bonus:[0-50] (default:5)
 <l15>  - The amount of health in the post-death flower.
 
 <b15>
 
 <l04>   Map Controls:
 
-<l15> - Change the Bullet Proximity by dragging the yellow circle.
+<l15> - Change the Shot Proximity by dragging the yellow circle.
 
 
 <section>Trakbot Viewer
@@ -2678,56 +2712,56 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>    Description:
 
-<l15> Trakbots cling to walls and ceilings.  Trakbots will drop
+<l15> Trakbots cling to floors, walls and ceilings, but completely ignore lifts.
 
-<l15> from ceiling when above player, if drop mode is on.
+<l15> Will drop from ceiling when player is below, if drop mode is on.
 
 <b15>
 
 <l04>    Buttons:
 
-<l09> X - Speed:[0.5-4.0]
+<l09> X - Speed:[0.5-10]
 <l15>  - horizontal speed
 
-<l09> Y - Speed:[0.5-4.0]
+<l09> Y - Speed:[0.5-10]
 <l15>  - vertical speed
 
-<l09> Direction:[Right-Left]
-<l15>  - Initial floor direction.
+<l09> Set Initial Direction
+<l15>  - Toggles initial direction.
 
-<l09> Drop Mode:[On-Off]
+<l09> Drop Mode:[On:Off]
 <l15>  - when the Trakbot is on a ceiling, drop on players below.
 
 <b15>
 
-<l09> Bullet Proximity:
-<l15>  - Players within the Bullet Proximity circle will be fired on.
+<l09> Shot Speed:[0.8-20]
+<l15>  - The speed of the shot.
+
+<l09> Shot Proximity:[20-2000]
+<l15>  - Players within Shot Proximity will be fired on.
 <l14>    (shown on the map as a yellow circle)
 
-<l09> Bullet Speed:
-<l15>  - The speed of the bullets.
-
-<l09> Bullet Retrigger Time:[0-300]
-<l15>  - The delay between firing successive bullets.
+<l09> Shot Retrigger Time:[1-200]
+<l15>  - The delay between firing successive shots.
 
 <b15>
 
-<l09> Collision Box:[8-18]
-<l15>  - An area around the Trakbot that takes Health from the
-<l15>    player, when the player is in it. (see Health Decrement)
+<l04> Collision Box:[0-20] (default:10)
+<l15>  - An area around the Trakbot that takes Health from the player,
+<l15>    when the player is in it. (see Health Decrement)
 
-<l09> Health Decrement:[0.1-2.0]
-<l15>  - The amount to subtract from players Health
+<l04> Health Decrement:[0-10] (default:2.5)
+<l15>  - The amount to subtract from player's Health
 <l15>    when player is in the Collision Box.
 
-<l09> Health Bonus:
+<l04> Health Bonus:[0-50] (default:7)
 <l15>  - The amount of health in the post-death flower.
 
 <b15>
 
 <l04>   Map Controls:
 
-<l15> - Change the Bullet Proximity by dragging the yellow circle.
+<l15> - Change Shot Proximity by dragging the yellow circle.
 
 
 <section>Jumpworm Viewer
@@ -2751,40 +2785,43 @@ The Block Damage Field can be hidden or shown in various ways.
 <l09> X-Speed (Ground):[1/1 to 1/12]
 <l15>  - ground speed (1/1 is the fastest, 1/2 is half...etc.)
 
-<l09> Y - Speed:[0.7-9.0]
+<l09> Y - Speed:[0.4-9.0]
 <l15>  - vertical speed
 
-<l09> Initial Direction:[Right-Left]
+<l09> Initial Direction:[Right:Left]
 <l15>  - Initial direction.
 
 <b15>
 
-<l09> Turn Before Hole:[0-100](0 = Off)
+<l07> Turn Before Hole:[0-100](0 = Off)
 <l15>  - Turns around at the specified distance before falling in a hole.
 
-<l09> Jump Before Hole:[0-100](0 = Off)
+<l07> Jump Before Hole:[0-100](0 = Off)
 <l15>  - Attempts to jump at the specified distance before falling in a hole.
 
-<l09> Jump Before Wall:[0-100](0 = Off)
+<l07> Jump Before Wall:[0-100](0 = Off)
 <l15>  - Attempts to jump at the specified distance before an hitting a wall.
 
-<l09> Jump Under Width:[0-600](0 = Off)
+<l07> Wall Jump Boost:[0-150](0 = Off)
+<l15>  - A boost given when colliding with a wall while jumping.
+
+<l07> Jump Under Width:[0-600](0 = Off)
 <l15>  - When the Jumpworm is under a player (+/- width) a jump is attempted.
 
-<l09> Jump Wait:[0-500](0 = Off)
+<l07> Jump Wait:[0-500](0 = Off)
 <l15>  - waits for the specified number of frames, then attempts to jump
 
 <b15>
 
-<l09> Collision Box:[8-18]
-<l15>  - An area around the Jumpworm that takes Health from the
-<l15>    player, when the player is in it. (see Health Decrement)
+<l04> Collision Box:[0-20] (default:10)
+<l15>  - An area around the Jumpworm that takes Health from the player,
+<l15>    when the player is in it. (see Health Decrement)
 
-<l09> Health Decrement:[0.1-2.0]
-<l15>  - The amount to subtract from players Health
+<l04> Health Decrement:[0-10] (default:3.0)
+<l15>  - The amount to subtract from player's Health
 <l15>    when player is in the Collision Box.
 
-<l09> Health Bonus:
+<l04> Health Bonus:[0-50] (default:20)
 <l15>  - The amount of health in the post-death flower.
 
 
@@ -2805,14 +2842,14 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>    Buttons:
 
-<l09> Set New Direction
-<l15>  - prompts you to set the new direction.  The spot you pick on
-<l15>    the screen is where the bouncer will aim for initially.
+<l09> Set Initial Direction
+<l15>  - prompts you to set a new initial direction.  The spot you pick on
+<l15>    the screen is where the Bouncer will aim for initially.
 
-<l09> Speed:[1.0-8.0]
+<l09> Speed:[0-12]
 <l15>  - speed of the Bouncer.
 
-<l09> Seek Count:[0-500]
+<l09> Seek Count:[0-100]
 <l15>  - number of bounces before seek.
 
 <l09> Main Shape:[click to toggle shape]
@@ -2823,15 +2860,15 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <b15>
 
-<l09> Collision Box:[8-18]
-<l15>  - An area around the Bouncer that takes Health from the
-<l15>    player, when the player is in it. (see Health Decrement)
+<l04> Collision Box:[0-20] (default:10)
+<l15>  - An area around the Bouncer that takes Health from the player,
+<l15>    when the player is in it. (see Health Decrement)
 
-<l09> Health Decrement:[0.1-2.0]
-<l15>  - The amount to subtract from players Health
+<l04> Health Decrement:[0-10] (default:1.6)
+<l15>  - The amount to subtract from player's Health
 <l15>    when player is in the Collision Box.
 
-<l09> Health Bonus:
+<l04> Health Bonus:[0-50] (default:3)
 <l15>  - The amount of health in the post-death flower.
 
 
@@ -2846,43 +2883,59 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l15> Bounces and shoots cannonballs at the player.
 
+<l15> Can be set to take extra hits to kill.
+
+<l15> Each hit makes it larger and faster.
+
 <b15>
 
 <l04>    Buttons:
 
-<l09> Set New Direction
+<l09> Set Initial Direction
 <l15>  - prompts you to set the new direction.  The spot you pick on
-<l15>    the screen is where the bouncer will aim for initially.
+<l15>    the screen is where the Cannon will aim for initially.
 
-<l09> Speed:[1.0-8.0]
-<l15>  - The speed of the Bouncing Cannon.
+<l09> Speed:[0-12]
+<l15>  - The speed of the Cannon.
 
-<l09> Seek Count:[0-500]
+<l09> Seek Count:[0-100]
 <l15>  - Number of bounces before seek.
 
 <b15>
 
-<l09> Bullet Speed:[1.0-8.0]
-<l15>  - The speed of the cannonball.
-
-<l09> Bullet Retrigger Time:[0-200]
-<l15>  - The delay between firing successive cannonballs.
+<l08> Extra Hits To Kill:[0-40]
+<l15>  - The number of times the Cannon needs to be shot to kill it.
 
 <b15>
 
-<l09> Collision Box:[8-18]
-<l15>  - An area around the Cannon that takes Health from the
-<l15>    player, when the player is in it. (see Health Decrement)
+<l09> Shot Speed:[0.8-20]
+<l15>  - The speed of the cannonball.
 
-<l09> Health Decrement:[0.1-2.0]
-<l15>  - The amount to subtract from players Health
+<l09> Shot Proximity:[20-2000]
+<l15>  - Players within Shot Proximity will be fired on.
+<l14>    (shown on the map as a yellow circle)
+
+<l09> Shot Retrigger Time:[1-200]
+<l15>  - The delay between firing successive shots.
+
+<b15>
+
+<l04> Collision Box:[0-20] (default:10)
+<l15>  - An area around the Cannon that takes Health from the player,
+<l15>    when the player is in it. (see Health Decrement)
+
+<l04> Health Decrement:[0-10] (default:2.5)
+<l15>  - The amount to subtract from player's Health
 <l15>    when player is in the Collision Box.
 
-<l09> Extra Hits To Kill:
-<l15>  - The number of time cannon must be shot to kill it.
-
-<l09> Health Bonus:
+<l04> Health Bonus:[0-50] (default:9)
 <l15>  - The amount of health in the post-death flower.
+
+<b15>
+
+<l04>   Map Controls:
+
+<l15> - Change the Shot Proximity by dragging the yellow circle.
 
 
 <section>Cloner Viewer
@@ -2903,17 +2956,24 @@ The Block Damage Field can be hidden or shown in various ways.
 <l04>    Buttons:
 
 <l09> Invincible: Not Invincible
-<l15>  - If invincible the cloner cannot be destroyed.
+<l15>  - If invincible the Cloner cannot be destroyed.
 
-<l09> The 'Event Trigger:' slider lets you specify the event number.
-<l15>  - The better way to set it is by clicking the button 'Set Event Trigger'
-<l15>    which will prompt you to choose a trigger item, then automatically
-<l15>    find an unused event and set it for both objects.
+<b15>
 
-<l09> Created Time To Live: [0=OFF]
+<l13> Event Trigger:
+
+<l15> Lets you specify the event number that triggers the Cloner.
+
+<l15> The better way to set it is by clicking the button 'Set Event Trigger'
+<l15> which will prompt you to choose a trigger item, then automatically
+<l15> find an unused event and set it for both objects.
+
+<b15>
+
+<l14> Created Time To Live:[0-4800] (0=off)
 <l15>  - Gives all created objects a time to live.
 
-<l09> Max Created Objects: [0=OFF]
+<l14> Max Created Objects:[0-600] (0=off)
 <l15>  - Sets a limit to the number of active created objects.
 
 <b15>
@@ -2926,29 +2986,29 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <b15>
 
-<l09> Draw Boxes
+<l13> Draw Boxes
 <l15>  - Show or hide the source and destination boxes.
 
-<l09> Draw Mode:[Hidden | Static Shape | Static Animation | Follow Timer]
+<l13> Draw Mode:[Hidden | Static Shape | Static Animation | Follow Timer]
 <l15>  - Controls the drawing of the main cloner shape.
 
-<l09>    Draw Mode:Hidden<l15>           - not shown
-<l09>    Draw Mode:Static Shape<l15>     - draw static shape
-<l09>    Draw Mode:Static Animation<l15> - draw static animation sequence
-<l09>    Draw Mode:Follow Timer<l15>     - if the Event Trigger is a timer, draw
+<l13>    Draw Mode:Hidden<l15>           - not shown
+<l13>    Draw Mode:Static Shape<l15>     - draw static shape
+<l13>    Draw Mode:Static Animation<l15> - draw static animation sequence
+<l13>    Draw Mode:Follow Timer<l15>     - if the Event Trigger is a timer, draw
 <l15>                                 animation sequence that follows timer.            
 
 <b15>
 
-<l09> Collision Box:[8 - 18]
-<l15>  - An area around the Cloner that takes Health from the
-<l15>    player, when the player is in it. (see Health Decrement)
+<l04> Collision Box:[0-20] (default:10)
+<l15>  - An area around the Cloner that takes Health from the player,
+<l15>    when the player is in it. (see Health Decrement)
 
-<l09> Health Decrement:[0.1 - 2.0]
-<l15>  - The amount to subtract from players Health
+<l04> Health Decrement:[0-10] (default:0)
+<l15>  - The amount to subtract from player's Health
 <l15>    when player is in the Collision Box.
 
-<l09> Health Bonus:
+<l04> Health Bonus:[0-50] (default:25)
 <l15>  - The amount of health in the post-death flower.
 
 <b15>
@@ -2973,7 +3033,9 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>    Description:
 
-<l15> Flaps vertically and flies horizontally. Bounces when it hits something solid.
+<l15> Flaps vertically and flies horizontally.
+
+<l15> Changes horizontal direction when it hits something solid.
 
 <l15> If a player is in the trigger box and in front of the flapper:
 <l15>  - the flapper will attempt to seek in the y direction at Y Speed
@@ -3007,34 +3069,34 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <b15>
 
-<l09> Bullet Proximity:
-<l15>  - Players within the Bullet Proximity circle will be fired on.
+<l09> Shot Speed:[0.8-20]
+<l15>  - The speed of the shot.
+
+<l09> Shot Proximity:[20-2000]
+<l15>  - Players within Shot Proximity will be fired on.
 <l14>    (shown on the map as a yellow circle)
 
-<l09> Bullet Speed:<l13>[0.8 - 20.0]
-<l15>  - The speed of the bullet.
-
-<l09> Bullet Retrigger Time:[0-300]
-<l15>  - The delay between firing successive bullets.
+<l09> Shot Retrigger Time:[1-200]
+<l15>  - The delay between firing successive shots.
 
 <b15>
 
-<l09> Collision Box:<l13>[8 - 18]
-<l15>  - An area around the Enemy that takes Health from the
-<l15>    player when the player is in it. (see Health Decrement)
+<l04> Collision Box:[0-20] (default:10)
+<l15>  - An area around the Flapper that takes Health from the player,
+<l15>    when the player is in it. (see Health Decrement)
 
-<l09> Health Decrement:<l13>[0.1 - 2.0]
-<l15>  - The amount to subtract from players Health
+<l04> Health Decrement:[0-10] (default:3)
+<l15>  - The amount to subtract from player's Health
 <l15>    when player is in the Collision Box.
 
-<l09> Health Bonus:<l13>[0 - 50]
-<l15>  - The amount of Health in the post-death flower.
+<l04> Health Bonus:[0-50] (default:10)
+<l15>  - The amount of health in the post-death flower.
 
 <b15>
 
 <l04>   Map Controls:
 
-<l15> - Change the Bullet Proximity by dragging the yellow circle.
+<l15> - Change the Shot Proximity by dragging the yellow circle.
 
 
 
@@ -3055,34 +3117,102 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>    Buttons:
 
-<l09> Speed:[1-30]
-<l15>  - The speed of the Vinepod when extending and retracting.
+<b15>
 
-<l09> Wait Time:[0-500]
-<l15>  - The delay before shooting and retreating.
+<l10> Set Extended Position
+<l15>  - Prompts you to set a new extended position.
+
+<l04> Extend Time:[10-400]
+<l15>  - The time it takes for the Vinepod to extend and retract.
+
+<l04> Pause:[10-400]
+<l15>  - The delay before and after shooting.
 
 <b15>
 
-<l09> Bullet Speed:[1.0-8.0]
-<l15>  - The speed of the Podzilla's green balls.
+<l11> Fire Shot:[ON:OFF]
+<l15>  - Enable or disable seed shots.
 
-<l10> Move Extended Position
-<l10>  - Prompts you to set a new extended position.
-
-<l14> Move Trigger Box
-<l14>  - Prompts you to draw a new trigger box.
+<l11> Shot Speed:[0.8-20]
+<l15>  - The speed of the Podzilla's seed shots.
 
 <b15>
 
-<l09> Collision Box:[8-18]
-<l15>  - An area around the Podzilla that takes Health from the
-<l15>    player, when the player is in it. (see Health Decrement)
+<l02> Output Event:
+<l15>  - An event generated when the vinepod is extended.
+<l15>  - You can set the output event with the 'Output Event' slider.
+<l15>  - The better way to set it is by automatically linking from
+<l15>    an object that takes an event trigger input.
 
-<l09> Health Decrement:[0.1-2.0]
-<l15>  - The amount to subtract from players Health
+<b15>
+
+<l14> [Hide:Show] Path
+<l15>  - Hides or shows the path the Vinepod will take when extending.
+
+<l14> Invincible At Rest:[ON:OFF]
+<l15>  - Sets if the Vinepod is invincible at rest.
+
+<l14> Invincible Extended:[ON:OFF]
+<l15>  - Sets if the Vinepod is invincible when extended.
+
+<l14> Invincible Moving:[ON:OFF]
+<l15>  - Sets if the Vinepod is invincible when moving.
+
+<b15>
+
+<l13> Event Trigger:
+<l15>  - Lets you specify an event that will trigger the vinepod.
+<l15>  - The slider lets you specify an event, or OFF to disable,
+<l15>  - The better way to set it is by clicking the button 'Set Event Trigger'
+<l15>    which will prompt you to choose a trigger item, then automatically
+<l15>    find an unused event and set it for both objects.
+
+<b15>
+
+<l14> Use Internal Trigger[ON:OFF]
+<l15>  - Enables/Disables the internal trigger box.
+
+<l14> Set Internal Trigger Box
+<l15>  - Prompts you to draw a new trigger box.
+
+<b15>
+
+<l03> Use Spline:[ON:OFF]
+
+<l15> If splines are not used the path is a straight line.
+
+<l15> When splines are used the path curves based on two control points.
+
+<l06> Set Control Point 1
+<l07> Set Control Point 2
+
+<l15> You can set new control point positions with the buttons,
+<l15> or move them with the mouse controls.
+
+<l03> Control Point Scale[1-8]
+<l15>  - Controls how much effect the control points have on the path.
+
+<b15>
+
+<l06> Transform Tools
+
+<l15> These tools change the destination and control points.
+<l15> You can scale, rotate, or flip x and y axis.
+
+<l15> This is very useful for creating copies of Vinepods with similar,
+<l15> but transformed paths.
+
+<b15>
+
+<l04> Collision Box:[0-20] (default:10)
+<l15>  - An area around the Vinepod that takes Health from the player,
+<l15>    when the player is in it. (see Health Decrement)
+
+<l04> Health Decrement:[0-10] (default:2)
+<l15>  - The amount to subtract from player's Health
 <l15>    when player is in the Collision Box.
 
-<l09> Health Bonus:
+<l04> Health Bonus:[0-50] (default:13)
 <l15>  - The amount of health in the post-death flower.
 
 <b15>
@@ -3093,9 +3223,9 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l15> - Re-size trigger box by dragging from the lower right corner on the map.
 
-<l15> - Move the extended position by clicking and dragging on it.
+<l15> - Move extended position and controls point by clicking and dragging.
 
-<l15> - Hold SHIFT when dragging main shape to move trigger box also.
+<l15> - Hold SHIFT when moving main shape to move everything else with it.
 
 
 
@@ -3108,49 +3238,60 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>    Description:
 
-<l15> When shot by the player, a Block Walker changes to a solid block.
+<l15> When shot by the player, a BlokWalk changes to a solid block.
 
 <b15>
 
 <l04>    Buttons:
 
-<l09> X - Speed:[0.7-5.0]
+<l09> X - Speed:[0.7-9]
 <l15>  - horizontal speed
 
-<l09> Y - Speed:[0.7-5.0]
+<l09> Y - Speed:[0.7-9]
 <l15>  - vertical speed (for jump and fall)
 
-<l09> Direction:[Right:Left]
-<l15>  - The direction of the Block Walker.
+<l09> Initial Direction:[Right:Left]
+<l15>  - The initial direction of the BlokWalk.
 
-<l09> [Bounce Mode-Follow Mode]
+<l09> [Bounce Mode:Follow Mode]
 <l15>  - bounce off walls, or blindly follow player
 
 <b15>
 
-<l09> Turn Before Hole:[0-100](0 = Off)
+<l07> Turn Before Hole:[0-100](0 = Off)
 <l15>  - Turns around at the specified distance before falling in a hole.
 
-<l09> Jump Before Hole:[0-100](0 = Off)
+<l07> Jump Before Hole:[0-100](0 = Off)
 <l15>  - Attempts to jump at the specified distance before falling in a hole.
 
-<l09> Jump Before Wall:[0-100](0 = Off)
+<l07> Jump Before Wall:[0-100](0 = Off)
 <l15>  - Attempts to jump at the specified distance before an hitting a wall.
 
-<l09> Jump Under Width:[0-600](0 = Off)
-<l15>  - When the ArchWagon is under a player (+/- width) a jump is attempted.
+<l07> Jump Under Width:[0-600](0 = Off)
+<l15>  - When the BlokWalk is under a player (+/- width) a jump is attempted.
 
-<l09> Jump Wait:[0-500](0 = Off)
+<l07> Jump Wait:[0-500](0 = Off)
 <l15>  - waits for the specified number of frames, then attempts to jump
 
 <b15>
 
-<l09> Collision Box:[8-18]
-<l15>  - An area around the Enemy that takes Health from the
-<l15>    player, when the player is in it. (see Health Decrement)
+<l09> Block:
+<l15>  - The block that the BlokWalk turns into when shot.
+<l15>  - Click to be prompted to select a new block from the level.
+<l15>  - The block flags for the currently selected block are shown also.
+<l15>  - Hold [CTRL] to freeze the block flags so they can be toggled.
 
-<l09> Health Decrement:[0.1-2.0]
-<l15>  - The amount to subtract from players Health
+<l09> Default 'H' Block
+<l15>  - Click to set the default block for BlokWalk (breakable H block)
+
+<b15>
+
+<l04> Collision Box:[0-20] (default:10)
+<l15>  - An area around the BlokWalk that takes Health from the player,
+<l15>    when the player is in it. (see Health Decrement)
+
+<l04> Health Decrement:[0-10] (default:2.5)
+<l15>  - The amount to subtract from player's Health
 <l15>    when player is in the Collision Box.
 
 
@@ -3247,23 +3388,36 @@ The Block Damage Field can be hidden or shown in various ways.
 <l04>    Current Step Details
 
 <l15> Under the 'List of Steps' are the 'Current Step Details'
+
 <l15> Here you can change many things about the Current Step
-<l15> - Color
-<l15> - [Draw|Hide]
+
+<l15> - Color Selector
+<l15> - [Draw|Hide] Lift
+<l15> - [Draw|Hide] Lift Lines
 <l15> - Solid for Player
 <l15> - Solid for Enemy
 <l15> - Solid for Item
-<l15> - and other setting specific to the type of lift step
+
+<l15> - and other settings specific to the type of lift step
+
+<l15> - Move Steps (Speed, Width, Height)
+<l15> - Wait for Timer (Timer Value)
+<l15> - Wait for Player (Proximity Distance)
+<l15> - Wait for Event (Event Number)
+<l15> - Send Event (Event Number)
+<l15> - End Step (Ending Action: Loop, Warp, or Freeze)
 
 <b15>
 
 <l04>    Moving Steps
-<l15> The easiest way to move a step is to drag it to a new location on the map.
+
+<l15> The easiest way to move a step is by dragging it on the map.
 <l15> You can also choose 'Move' from the Pop-Up Menu.
 
 <b15>
 
 <l04>    Step Pop-Up Menu
+
 <l15> To access the Step Pop-Up Menu, right click and hold on either
 <l15> a step in the list of steps, or the step itself on the map.
 <l15> While holding the right mouse button, move the mouse up and down
@@ -3272,11 +3426,11 @@ The Block Damage Field can be hidden or shown in various ways.
 <b15>
 
 <l04>    Inserting Steps
+
 <l15> Position the mouse on the step to want to insert new steps before.
 <l15> Press and hold the right mouse button and then select 'Insert Step'.
 <l15> Choose the type of step you wish to add from the list.
 <l15>  (You are prompted to keep adding more steps until you press 'Cancel')
-
 
 
 
@@ -3299,7 +3453,8 @@ A Cloner is configured to initiate a clone when it detects event 5.
 
 <b15>
 
-<c09>Objects that can listen for events:
+<l09>Objects that listen for events (receivers)
+
 
 Cloner       - Listens for event then initiates clone action.
 
@@ -3311,19 +3466,24 @@ Lift         - Waits at lift step for event before continuing.
 
 Timer        - Waits for event before continuing timing sequence.
 
+Vinepod      - Extends when triggered.
+
+Message      - Displays message when triggered.
+
 <b15>
 
-<c09>Objects that can emit events:
+<l09>Objects that emit events (transmitters)
 
-Trigger - Monitors a rectangular area for the presence or absence of
-          object, then emits events based on that.
 
-Orb     - Emits events when touched or shot by player, or when player 
-          presses up or down while touching it.
+Trigger - Monitors an area for certain objects, then emits events.
+
+Orb     - Emits events when player interacts with it.
 
 Lift    - Emits events when current lift step is a send event type.
 
 Timer   - Emits events based on timers.
+
+Vinepod - Emits event when extended.
 
 <b15>
 

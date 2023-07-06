@@ -64,6 +64,9 @@ class mwScreen
    int dif_from_now_to_nl();
    void show_player_stat_box(int tx, int y, int p);
    void show_level_done(void);
+
+   void draw_level_objects_on_screen_overlay(void);
+
    void draw_screen_overlay(void);
    void set_player_join_quit_display(int p, int type, int time);
    void show_player_join_quit(void);

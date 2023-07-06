@@ -291,15 +291,14 @@ void mwConfig::load(void)
 
    agci(SCREEN, mLoop.eco_draw, 0)
 
-
    agci(GAME, mLevel.start_level, 1)
 
    agci(GAME, mLevel.overworld_level, 2)
 
-   agci(GAME, mMain.classic_mode, 1)
+   agci(GAME, mMain.classic_mode, 0)
 
    agci(GAME, mScreen.transition_num_steps, 60)
-   agci(GAME, mScreen.transition_delay, 25)
+   agci(GAME, mScreen.transition_delay, 15)
 
    agci(GAME, mPlayer.syn[0].color, 8)
 

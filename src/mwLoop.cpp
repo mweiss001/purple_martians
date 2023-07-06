@@ -76,7 +76,7 @@ void mwLoop::initialize(void)
 
 void mwLoop::draw_frame(void)
 {
-   mDrawSequence.draw();
+   mDrawSequence.draw(0);
 //   get_new_background(1);
 //   draw_lifts();
 //   draw_items();
@@ -1014,6 +1014,7 @@ void mwLoop::proc_level_done_mode(void)
 
    if (super_fast_mode)
    {
+      if (mPlayer.syn[0].level_done_mode == 30) mLevel.level_complete_data(0, mLevel.play_level);
       mPlayer.syn[0].level_done_mode = 1;
       state[0] = 12;
       return;
@@ -1125,8 +1126,10 @@ void mwLoop::proc_level_done_mode(void)
       mPlayer.syn[0].level_done_mode = 6;
       mPlayer.syn[0].level_done_timer = 0;
 
-      if (mMain.classic_mode) mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level);
-      else                    mPlayer.syn[0].level_done_next_level = 1;
+      //if (mMain.classic_mode) mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level);
+      //else                    mPlayer.syn[0].level_done_next_level = 1;
+
+      mPlayer.syn[0].level_done_next_level = 1; // always go to overworld after beating the game
 
       mLevel.level_complete_data(0, mLevel.play_level);
 

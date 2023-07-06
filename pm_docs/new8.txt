@@ -26635,821 +26635,563 @@ now game mode and stats look great in settings...
 finish help section for mode...done
 
 
-
 its getting better....
-
 
 do a push
 
 
+make start spawn point individual only spin for correct player....done
 
+make a new mode...no backsies
+spawn points can only increase..done
 
+test it out with level 21
 
+what if a player needs to die to spawn at a newer one?
 
 
+test demo for 21...still works
 
 
 
 
+I am thinking of removing auto door move type
 
 
+it is just uneccesarily complicated
 
 
+the door that it is linking to will never change stationary or not
 
+just set it once and forget it...
 
 
+how many doors and what modes do they have?
 
 
+item[i][7] = move mode
+0-auto
+1-force instant
+2-force move
 
+item[i][8] = door type
+0 - exit only
+1 - normal
 
+move type applies to the door you are moving to, right?
+yes, but that means that it is set in the door you enter
 
 
+this means that move type does not means anything in exit only doors, right?
+I think so...
 
 
+595 normal
+390 exit only
 
+first of all ignore all exit only
 
+how many normal with auto?
+285
 
 
+all normal with auto...
+get destination door and find out if it is stationary
 
+item[][3] == 0 stationary
 
 
+I think I have converted all doors to not use auto move...
 
 
+now do stuff when creating...
 
+fixed widget to only allow 1 and 2..done
 
 
+now in door creator...
+make them all 2 move..done
 
 
+now in door code...remove code:
 
+               int instant_move = 0;
 
 
+//               if (item[i][7] == 0) // 0 = auto
+//                  if (item[li][3]) // if dest is not stat
+//                     instant_move = 1;
 
+               if (item[i][7] == 1) instant_move = 1; // 1 = force instant
+               if (item[i][7] == 2) instant_move = 0; // 2 = force move
 
+               if (mPlayer.is_player_riding_rocket(p)) instant_move = 1; // 1 = force instant if riding rocket
 
+done....
 
 
+now if this still all works...
+test all levels in demo mode....all demo mode levels still complete successfully....
 
+OK back to help screens..done
+also fix DOORS levels..done
 
+you can still change bonus to free man...fixed...
 
 
 
 
+bug - enemy counts like cloner 6 of 0..only sometimes??
+it is when the saved current item stuff does not match when a new level is loaded
+items and enemies are fixed when creating a new one
 
+it seems like sort is not being called when level is loaded
+it should if level editor is running...where can I patch this in?
 
 
+so why does it not happen on a new load?
 
+how about just patch it in in load level, if level_editor running....
 
+         if (mLoop.level_editor_running)
+         {
+            mItem.sort_item(1);
+            mEnemy.sort_enemy();
+         }
 
+this seems to fix it....
 
 
 
 
+bug - level editor dragging window over block check boxes, mouse detects check boxes
 
+I think it is only for draw item block flags
 
 
 
+void mwBitmapTools::draw_flags(int x1, int y1, int& num, int& mpow, int view_only, int clear_background, int ignore_mpow)
 
 
+   if ((mWM.mW[1].draw_item_type == 1)  && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+4,   y1+47, mWM.mW[1].draw_item_num,  mow, 0, 1, 0); // flags
+   if ((mWM.mW[1].point_item_type == 1) && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+164, y1+47, mWM.mW[1].point_item_num, mow, 1, 0, 1); // flags
 
 
 
+I have d that is passed to:
+cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int have_focus)
 
+d is draw only
 
+so I will pass this to
+draw_flags(int x1, int y1, int& num, int& mpow, int view_only, int clear_background, int ignore_mpow)
 
+view_only should be the same as draw_only..same with ignore_mpow...
 
+pass d in both case
 
 
+used by draw item, point item and block selection description
+also used 6 times in widgets
+void mwBitmapTools::draw_flags(int x1, int y1, int& num, int& mpow, int view_only, int clear_background, int ignore_mpow)
 
 
+all 6 widget cases use    0, 1, 1
+point item and select use 1, 0, 1
 
+draw item uses            0, 1, 0
 
+draw item use does not seem to matter if I use 1 or 0 for last arg
 
 
+I don't want to mess with this function
 
 
+lets look at d passed to it
 
+cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int have_focus)
+is called only by
+void mwWindow::draw(int draw_only)
 
+and is d is always 1, no matter what
+what about have focus
 
+actually d is not 1 when mouse is on status window
 
+do I need to make it its own window? ,cause that is too much
 
 
 
+how about if any window is moving? or specificaly slection window?
+that is an ugly hack, but it might work.
 
 
+this is what fixed it:
 
+   // this ugly hack is to prevent the draw item block flag toggles from capturing the mouse when moving selection windows over them
+   if (mWM.mW[2].moving) d = 1;
+   else d = 0;
 
+   // draw item area
+   al_draw_text(mFont.pr8, mColor.pc[15], x1 + 24,  y1 + 13, 0, "Draw Item   ");
+   al_draw_text(mFont.pr8, mColor.pc[14], x1 + 100, y1 + 13, 0, "mouse");
+   al_draw_text(mFont.pr8, mColor.pc[14], x1 + 143, y1 + 13, 0, "b1");
+   em_show_item_info(                    x1 + 2,   y1 + 20, 9, mWM.mW[1].draw_item_type, mWM.mW[1].draw_item_num);
+   if ((mWM.mW[1].draw_item_type == 1) && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+4, y1+47, mWM.mW[1].draw_item_num, mow, d, 1, 0); // flags
 
 
+old:
+   if ((mWM.mW[1].draw_item_type == 1)  && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+4,   y1+47, mWM.mW[1].draw_item_num,  mow, 0, 1, 0); // flags
 
 
 
 
 
+what is a nice sensible value for transitions for release
 
+right now I use:
+   agci(GAME, mScreen.transition_num_steps, 60)
+   agci(GAME, mScreen.transition_delay, 25)
 
+60*25=1500
+60*15=900
+I like 60, 15
 
+start in story mode...done
 
 
 
 
+I just tried running the game on an old acer travelmate and found some bottlenecks
 
+creating level icons takes 17s
 
+drawing gate items in overworld make that level very slow
 
+the profile said it take 33ms
 
+screen_overlay takes 8ms with cpu graph running 1ms without
 
+flip display takes 4ms
 
+          m36   e6430 4230
+ov gates  2ms   7ms   33ms
+scr ovrl  0.4   1.0   8ms
+flip      0.1   0.5   4ms
 
+could I draw all of the overlay on a huge buffer?
+wait a minute?, I already do that with level buffer!!
 
 
+I draw the gates on level background and now instead of 33ms I get 8ms, much better
 
+what about messages?
 
+how much time do they take?
 
+I would need to run a profile log
 
+I do not have a way of determining how long messages and gates take to draw...
 
+I want to know though...
 
+how can I add more measuring?
 
 
+only things that get called in draw sequence
+make an array of times for draw seq...
 
 
+draw sequence is looking so good!
 
+I have profiles for all I need and the code is much cleaner and extendable...
 
+now test...
 
+original
+-------------------------
+       m36  e6430 4230
+gate   1.3  5.0   24.0
+mssg   0.5  1.7    7.7
+ovrl   0.4  1.1    8.0
+flip   0.1  0.8    4.4
+totl   2.5  9.3   48.0
 
 
+draw gates moved to background
+------------------------------
+       m36  e6430 4230
+gate   0.0  0.0    0.0
+mssg   0.5  1.7    7.7
+ovrl   0.4  1.1    8.0
+flip   0.1  0.8    6.0
+totl   1.2  4.3   25.6
 
 
+static messages on background also
+------------------------------
+       m36  e6430 4230
+gate   0.0  0.0    0.0
+mssg   0.0  0.0    0.0
+ovrl   0.4  1.0    8.0
+flip   0.1  0.8    1.0
+totl   0.6  2.3   12.3
 
+this is great...
+with overlay off I get 20% cpu on slowest(4230)
 
 
 
+now test on slowest and see if it is playable...
 
+yes, it looks good
 
+lifts still take a bit of time
+on "Too Many Lifts" the lift drawing takes 25ms on 4230, but drops to 5 with eco draw
 
+does eco draw do anything besides lifts?
+also frame_width on messages
 
+can I turn eco draw on automatically if lifts draw time > 5?
+am I always checking profile times? yes
+I think I could do that
 
 
 
+How about some automated tests?
 
+run demo for all levels and check results...
+this can be run superfast
+- erase all level_data
+- run demos for all levels
+- check level_data
 
 
+run demo for all levels and check cpu usage
+this has to be run at 40fps
+I am very interested in this one
+it needs to be automated
+at full speed it will take over 3 hours
 
 
+first of all, make a method to run through all the demo levels in order, exactly once
 
+make a new function in demomode
 
+I could just do regular demo mode and collect logs
 
 
+then I could parse the logs and get some data...
 
 
+----------
+profile stats display
+added all things in draw sequence
 
+test how that works on slower
 
 
 
+level stats, all levels reset and unlocked
+------------------------------
+       m36  e6430 4230
+lstat  1.3  4.0   16.0
 
 
+not good...
 
+what can I do?
 
+draw it once
 
+draw it directly on screen like it overlay??
 
+made the purple coins draw directly on the screen, they look better that way...done...
 
+how about when player stretches or shrinks, like in door travel
+that would look a lot better drawn in screen oeverlay also
 
 
+to do tomorrow:
 
+level stats on its own bitmap
 
+define a level_stats_bitmap
 
 
+player shrunk on its own bitmap also
 
+what about lifts?
 
 
 
 
+reload gate icons when screen changes
 
 
 
 
 
+now when blocks are removed, it could mess up messages drawn on the background
+i will just have to adjust...done...
 
+now the levels that I adjusted will probably have to have the demos redone....all done
 
 
 
+now that always on messages are drawn on the background
 
+in some levels, they used to hide items behind them.
+this can be fixed by making the messages not always on, so they are drawn after other items
 
+also scroll is not shown in level editor
 
 
+where are messages drawn?
 
+background draws meassages that are always on
 
+draw sequence draws messages that are not always on
 
+what about level editor?
+why does the scroll not show in level editor?
 
 
+this is a confusing mess...
 
+draw background draws all msg that are always on for both level editor and normal
 
+msg that are not always on are drawn in draw sequence
 
 
+draw_items has been fixed to cycle through everything, not exclude msg
+draw item just calls draw msg like all other items
+this is the most simple and straight forward way of doing things here
 
 
+draw sequence
+calls draw items, which now draw msgs also
+then calls draw msg for all 10 that are not always on
+this seems to work..
 
 
+I think this is fixed...
+how it works now:
 
+- always on messages are drawn on level background with blocks
 
+- in draw_items, no exception is made for messages
+- in draw_item, no exception is made either, everything is passed to draw_message
+- in draw_message, always on are not drawn
 
 
+- in draw_sequence, messages are drawn with all other items, this calls draw_items, so always on are naturally skipped
 
 
+- later in draw sequence, only messages are drawn, to make them on top..
+this is done by calling draw_message only for item 10, this also skips always on
 
+- this has the effect of drawing some messages more than once, and I would like to avoid that
 
+I could do the first one in draw sequnce to draw all items, except for items
 
+what if I just don't care about drawing messages last of all items?
 
+try that...
 
+It's just crazy enough to work
 
+New Description:
 
+- always on messages are drawn on level background with blocks
 
+- in draw_items, no exception is made for messages
+- in draw_item, no exception is made either, everything is passed to draw_message
+- in draw_message, always on are not drawn
 
+- in draw_sequence, messages are drawn with all other items, this calls draw_items, so always on are naturally skipped
 
+the only thing I want to do now is skip drawing level stats till later in the draw sequence...done...
 
 
+define a level_stats_bitmap
 
 
+void mwLevel::show_level_stats(int x1, int y1, int x2, int frame_width, int &w, int &h, int draw, int msg_type)
 
 
 
+   ALLEGRO_BITMAP * level_stats_bitmap;
+   int level_stats_bmp_valid;
+   int level_stats_bmp_w;
+   int level_stats_bmp_h;
 
 
+whenever check stats is called set not valid
 
 
+whenever show_level_stats is called, if not valid, create the bitmap
 
 
+comment out settings one for now and just deal with message...
 
 
+actually I think the settings one might be easier
 
+            int w=0, h = 0;
+            mLevel.show_level_stats(0,0,0,0, w, h, 0, 1); // just get size
+            int x1 = cfp_txc - w/2;
+            int x2 = cfp_txc + w/2;
+            int y1 = ya + 26;
+            int y2 = y1 + h;
+            al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]); // erase background
+            mLevel.show_level_stats(x1, y1, x2, 0, w, h, 1, 1);
 
 
 
 
 
 
+call show_level_stats
+- if not valid bitmap loaded, get size and create it
 
+- draw bitmap
 
+do I need to make it recursive?
 
+I think so...
 
 
+first call is with draw = 1
 
+if not valid bmp
+- recursive call to get w, h
+- create bitmap with w h
+- the rest of the draw shit happens on this bitmap
+- bitmap is valid
 
+then draw bitmap
 
+if valid bitmap, then just draw it
 
+instead of running to get size, what if I just drew it on a larger bitmap, then after it is drawn and I know the size, just take the actual used portion of the bitmap...
 
+bmp not valid, make new one
 
+bmp valid, draw
 
+holy crap I think I have that working and looking nice...
 
+now invalidate when completing level, or rebuilding bitmaps..done
 
+need to redraw level background on level 1 when screen changes (menu only?)
+probably need to reload level icon bitmaps
+no, what was needed in rebuild bitmaps, was to:
+mLevel.load_level_icons();
+before:
+mScreen.init_level_background();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+20230705 much is working good, the level data stuff draws on its own custom bitmap now
 
 
 

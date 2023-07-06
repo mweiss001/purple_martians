@@ -288,10 +288,6 @@ int mwWindowManager::redraw_level_editor_background(void)
                {
                   al_draw_bitmap(ft_bmp, gx*20, gy*20, 0);
                   show_level_buffer_block_rect(gx, gy, gx+mW[4].sw-1, gy+mW[4].sh-1, 10, "paste");
-
-//                  if (mW[4].copy_mode == 1) show_level_buffer_block_rect(gx, gy, gx+mW[4].sw-1, gy+mW[4].sh-1, 10, "paste mode 1");
-//                  if (mW[4].copy_mode == 2) show_level_buffer_block_rect(gx, gy, gx+mW[4].sw-1, gy+mW[4].sh-1, 10, "paste mode 2");
-
                }
                else mW[4].copy_mode = 0;
             }

@@ -38,7 +38,7 @@ af:'00001000 00000000 00000000 00000000 '
 
 void mwMiscFnx::chop_first_x_char(char *str, int n)
 {
-   char tmp[200];
+   char tmp[500];
    for(int x=n; x < (signed int)strlen(str)+1; x++)
       tmp[x-n] = str[x]; // chop first n
    strcpy(str, tmp);

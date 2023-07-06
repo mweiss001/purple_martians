@@ -551,14 +551,15 @@ void mwBitmapTools::draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w,
 
 
 // this common one calls text and rect and allows changes if applicable
-// used by draw iten, point item and block selection description
+
+
+
+// used by draw item, point item and block selection description
 void mwBitmapTools::draw_flags(int x1, int y1, int& num, int& mpow, int view_only, int clear_background, int ignore_mpow)
 {
    int ys = 10; // y spacing
    int frw = 6; // flag rectangle width
-
    int frh = 6; // flag rectangle height
-
    if (clear_background)
    {
       al_draw_filled_rectangle(x1-1, y1-1, x1+142, y1+(13*ys)+8, mColor.pc[0]);

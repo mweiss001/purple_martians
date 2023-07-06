@@ -33,6 +33,20 @@ class mwDemoMode
 
    float overlay_opacity;
 
+
+
+
+   void level_tests();
+
+
+
+
+
+
+
+
+
+
 };
 extern mwDemoMode mDemoMode;
 
