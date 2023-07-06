@@ -1581,15 +1581,14 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    if (bn == 53) // door move type
    {
       if (press) var++;
-      if ((var < 0) || (var > 2)) var = 0;
-      if (var == 0) sprintf(msg, "Move Type:Automatic    ");
-      if (var == 1) sprintf(msg, "Move Type:Force Instant");
-      if (var == 2) sprintf(msg, "Move Type:Force Move   ");
+      if ((var < 1) || (var > 2)) var = 1;
+      if (var == 1) sprintf(msg, "Move Type:Instant");
+      if (var == 2) sprintf(msg, "Move Type:Travel ");
    }
    if (bn == 78)
    {
       if (press) var++;
-      if ((var < 0) || (var > 2)) var = 0;
+      if ((var < 0) || (var > 3)) var = 0;
       if (var == 0) sprintf(msg, "Start Mode:Default");
       if (var == 1) sprintf(msg, "Team Start");
       if (var == 2) sprintf(msg, "Checkpoint Common");
@@ -1638,9 +1637,6 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       if (var == 1) sprintf(msg, "Output Mode:Continous");
    }
 
-
-
-
    if (bn == 100)
    {
       if (press) var++;
@@ -1655,8 +1651,8 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    {
       if (press) var++;
       if ((var < 1) || (var > 3)) var = 1;
+      if (var == 2) var = 3; // no free man anymore, skip to the next
       if (var == 1) sprintf(msg, "Type: Health Bonus");
-      if (var == 2) sprintf(msg, "Type: Free Man");
       if (var == 3) sprintf(msg, "Type: Purple Coin");
    }
    if (bn == 102)

@@ -67,19 +67,17 @@ int mwItem::draw_message(int i, int x, int y, int custom)
    {
       int timer_count=0, timer_val=0;
       mMiscFnx.get_int_3216(item[i][12], timer_count, timer_val);
-      // if timer running or always show, draw the message
-      if ((timer_count) || (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) draw_pop_message(i, 0, 0, 0, 0, 0, msg);
+      // if timer running and not always show, draw the message
+      // if always show, it has already been drawn on background
+      if ((timer_count) && (!(item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))) draw_pop_message(i, 0, 0, 0, 0, 0, msg);
    }
-
 
    // if show scroll or level editor running draw scroll
    int show_scroll = 0;
-
    if (item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL) show_scroll = 1;
    if (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS) show_scroll = 0;
    if (mLoop.level_editor_running) show_scroll = 1;
    if (show_scroll) al_draw_bitmap(mBitmap.tile[mBitmap.zz[0][36]], x, y, 0);
-
    return 1;
 }
 
@@ -88,13 +86,15 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
    char msg[1024];
 
    // set where we will draw
-   if (custom) al_set_target_backbuffer(mDisplay.display);
-   else al_set_target_bitmap(mBitmap.level_buffer);
+   if (custom == 1) al_set_target_backbuffer(mDisplay.display);
+   else if (custom == 0) al_set_target_bitmap(mBitmap.level_buffer);
+
+   // if custom == 2 do not change target
 
    // make a copy of the string
    char pt[500];
 
-   if (custom) // get text from f
+   if (custom == 1) // get text from f
    {
       if (strlen(f) > 0) strcpy(pt, f);
       else sprintf(pt, "<empty>");
@@ -107,15 +107,6 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
 
    int frame_width = get_frame_size(i);
 
-   // hijack for special stats messages
-   int show_stats_msg = 0;
-   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Full",            21)) && (!custom)) show_stats_msg = 1;
-   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Game",            21)) && (!custom)) show_stats_msg = 2;
-   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld All",   30)) && (!custom)) show_stats_msg = 3;
-   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld Train", 30)) && (!custom)) show_stats_msg = 4;
-   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld Main",  30)) && (!custom)) show_stats_msg = 5;
-   if (show_stats_msg) mLevel.show_level_stats(0, 0, 0, frame_width, item[i][8], item[i][9], 0, show_stats_msg); // only set w and h
-
 
    int x1 = item[i][6];
    int y1 = item[i][7];
@@ -123,9 +114,7 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
    int h  = item[i][9];
 
 
-
-
-   if (custom) // get custom x and y
+   if (custom == 1) // get custom x and y
    {
       x1 = xpos_c - w/2 - 8;
       y1 = ypos - 10;
@@ -141,10 +130,6 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
    if (frame_width == 0)
    {
       if (mLoop.level_editor_running) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
-
-      if (show_stats_msg) al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[fc+13*16]);  // background
-
-
    }
    else al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[fc+13*16]);  // background
 
@@ -174,13 +159,18 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
    }
 
 
-   if (show_stats_msg) mLevel.show_level_stats(x1, y1, x2, frame_width, item[i][8], item[i][9], 1, show_stats_msg);
+   // hijack for special stats messages
+   int show_stats_msg = 0;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Full",            21)) && (!custom)) show_stats_msg = 1;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Game",            21)) && (!custom)) show_stats_msg = 2;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld All",   30)) && (!custom)) show_stats_msg = 3;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld Train", 30)) && (!custom)) show_stats_msg = 4;
+   if ((!strncmp(mItem.pmsgtext[i], "Level Statistics Overworld Main",  30)) && (!custom)) show_stats_msg = 5;
+   if (show_stats_msg) mLevel.draw_level_stats(x1+w/2, y1, show_stats_msg);
    else
    {
-
       //al_draw_rounded_rectangle(x1+frame_width, y1+frame_width, x2-frame_width, y2-frame_width, 4, 4, mColor.pc[15], 1); // debug show inner frame
-
-      if (custom)
+      if (custom == 1)
       {
 
          // show cursor char

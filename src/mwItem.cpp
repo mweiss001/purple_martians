@@ -106,15 +106,16 @@ int mwItem::item_secondary67_hires(int type)
 
 
 
-
 void mwItem::draw_items(void)
 {
    al_set_target_bitmap(mBitmap.level_buffer);
    for (int i=0; i<500; i++)
-      if ((item[i][0]) && (item[i][0] != 10)) draw_item(i, 0, 0, 0);
-   for (int i=0; i<500; i++) // draw msg last so they are on top
-      if (item[i][0] == 10) draw_item(i, 0, 0, 0);
+      if ((item[i][0]) && (!((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16))))) // skip drawing level stats message here, do it later
+         draw_item(i, 0, 0, 0);
+
 }
+
+
 
 void mwItem::draw_item(int i, int custom, int cx, int cy)
 {
@@ -142,7 +143,11 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
    if (type == 13) drawn = draw_timer        (i, x, y, custom);
    if (type == 16) drawn = draw_block_manip  (i, x, y);
    if (type == 17) drawn = draw_block_damage (i, x, y, custom);
-   if (type == 18) drawn = draw_gate         (i, x, y, custom);
+
+//   if (type == 18) drawn = draw_gate         (i, x, y, custom);
+
+   if (type == 18) drawn = 1;
+
    if (type == 19) drawn = draw_hider        (i, x, y, shape);
 
    if (type == 98) drawn = draw_rocket       (i, x, y, shape);
@@ -163,7 +168,8 @@ int mwItem::draw_bonus(int i, int x, int y, int shape)
 {
    if ((item[i][6] == 3) && (!mLoop.level_editor_running)) // purple coin custom draw
    {
-      mBitmap.spin_shape(shape, x, y, 0, 0, 19, 19, 0.8, 0.5, 40);
+      // now drawn on screen overlay
+      //mBitmap.spin_shape(shape, x, y, 0, 0, 19, 19, 0.8, 0.5, 40);
       return 1;
    }
    return 0;
@@ -616,6 +622,9 @@ item[][12] matching keyed blocks only
 [5] - start
 item[][6] mode
 item[][7] start index
+item[][8] no backsies
+
+
 
 [6] - orb
 
@@ -707,9 +716,6 @@ item[][9]
 item[][10]
 item[][11]
 item[][12]
-
-
-
 
 
 

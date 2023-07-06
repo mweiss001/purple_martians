@@ -81,6 +81,8 @@ void mwBitmap::rebuild_bitmaps(void)
 
    mFont.load_fonts();
 
+   mLevel.load_level_icons();
+
    mScreen.init_level_background();
    mDisplay.set_display_transform();
    mLogo.logo_text_bitmaps_create = 1;
@@ -89,7 +91,8 @@ void mwBitmap::rebuild_bitmaps(void)
    mScreen.set_map_var();
    mVisualLevel.load_visual_level_select_done = 0;
 
-   mLevel.load_level_icons();
+   mLevel.level_stats_bmp_msg_type = 0;
+
 
 
 }
@@ -287,17 +290,89 @@ void mwBitmap::spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int t
 
    float ys=tsh; // y scale is the same as the source height of the tile
 
-
    // optionally scale the entire thing
    xs *= scale;
    ys *= scale;
 
    // get draw offsets based on scale of final tile
-   int xo = 10 - (xs/2); // x offset
-   int yo = 10 - (ys/2); // x offset
+   float xo = 10 - (xs/2); // x offset
+   float yo = 10 - (ys/2); // x offset
+
 
    ALLEGRO_COLOR c2 = al_map_rgba_f(dim, dim, dim, 1.0); // show dimmer on back side
 
    if (flags == 0) al_draw_scaled_bitmap(       tile[tn],     tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
    else            al_draw_tinted_scaled_bitmap(tile[tn], c2, tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
 }
+
+
+
+
+
+// this version draws directly on the screen, but also needs to match withe level background
+// x and y are the center
+// uses scale factor current to match level background size
+
+void mwBitmap::spin_shape2(int tn, float x, float y, float tile_scale, float dim, int ct)
+{
+   float ct0 = ct;
+   float ct1 = ct0/4;    // 20
+   float ct2 = ct1*2;    // 40
+   float ct3 = ct1*3;    // 60
+   float ct4 = ct1*4;    // 80
+   int tmr = mLoop.frame_num % ct; // get a number from 0 to ct that increments every frame
+
+   // 80-60 = narrow to wide xs = 0 to 20 regular draw
+   // 60-40 = wide to narrow xs = 20 to 0 regular draw
+   // 40    = narrowest      xs = 0       flip draw from regular to reverse
+   // 40-20 = narrow to wide xs = 0 to 20 reverse draw
+   // 20-0  = wide to narrow xs = 20 to 0 reverse draw
+   // 0     = narrowest      xs = 0       flip draw from reverse to regular
+
+
+   int flags = 0;
+   float xs = 0;
+   float fx = -0.5;
+   if (tmr > ct2)
+   {
+      if (tmr>ct3) xs = ct4-tmr;  // 80-60 ---> 0-20
+      else         xs = tmr-ct2;  // 60-40 ---> 20-0
+   }
+   else
+   {
+      if (tmr>ct1) xs = ct2-tmr;    // 40-20 ---> 0-20
+      else xs = tmr;                // 20-0  ---> 20-0
+      flags |= ALLEGRO_FLIP_HORIZONTAL;
+      fx = 0.5;
+   }
+
+   xs /= (ct/4);          // convert from 0-20 to 0-1
+   xs *= tile_scale;      // scale that with passed coin scale
+   float ys = tile_scale; // y scale is always the full height
+
+   // scale the entire thing
+   xs *= mDisplay.scale_factor_current;
+   ys *= mDisplay.scale_factor_current;
+
+
+   ALLEGRO_COLOR c2 = al_map_rgba_f(dim, dim, dim, 1.0); // show dimmer on back side
+
+   if (flags == 0) al_draw_scaled_rotated_bitmap(       tile[tn],     10+fx, 9.5, x, y, xs, ys, 0, flags);
+   else            al_draw_tinted_scaled_rotated_bitmap(tile[tn], c2, 10+fx, 9.5, x, y, xs, ys, 0, flags);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

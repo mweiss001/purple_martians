@@ -946,8 +946,6 @@ void mwWindow::es_draw_item_ft(int i)
       drawn = 1;
    }
 
-
-   if (type == 2)  drawn = mItem.draw_bonus        (i, x, y, shape);
    if (type == 3)  drawn = mItem.draw_exit         (i, x, y, shape);
    if (type == 4)  drawn = mItem.draw_key          (i, x, y, shape);
    if (type == 5)  drawn = mItem.draw_start        (i, x, y, shape);

@@ -1012,9 +1012,10 @@ void mwScreen::draw_top_frame(int p)
       int tpc = mLevel.data[mLevel.play_level].tot_purple_coins;
       if (tpc)
       {
-         al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
-         // spin_shape(197, tdx+5, tdy-3, 0, 0, 19, 19, 0.6, 0.5, 60);
-         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
+         //al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
+         //al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
+         mBitmap.spin_shape(197, tdx+5, tdy-4, 0, 0, 19, 19, 0.6, 0.5, 60);
+         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
       }
    }
 
@@ -1030,36 +1031,7 @@ void mwScreen::draw_top_frame(int p)
       else     al_draw_textf(mFont.pr8, mColor.pc[tc],mDisplay.SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [a]", dtd);
    }
 
-   // draw npc directly on the screen, so they scale nicely
-   for (int e=0; e<100; e++)
-      if (mEnemy.Ei[e][0] == 19) // npc
-      {
 
-         float sc = mDisplay.scale_factor_current; // scale
-
-         float ex = mEnemy.Ef[e][0] + 10;
-         float ey = mEnemy.Ef[e][1] + 10;
-
-         float ldx = mDisplay.level_display_region_x;
-         float ldy = mDisplay.level_display_region_y;
-
-         // how far away from ul corner
-         float ex1 = mDisplay.screen_display_x + (ex-ldx) * sc;
-         float ey1 = mDisplay.screen_display_y + (ey-ldy) * sc;
-
-         float psm = mEnemy.Ef[e][8];  // player scale muliplier
-         float ps = sc * psm;          // player scale
-         float sd = 20 * (1-psm);      // size difference
-         float yo = (sd/2)*sc;         // half size difference, scaled
-
-         int flags = 0;
-         if (mEnemy.Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
-
-         int pos = ((int) mEnemy.Ef[e][0] / 6) % 6;  // 6 shapes in sequence
-         int col = mEnemy.Ei[e][3];
-
-         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, ex1, ey1+yo, ps, ps, 0, flags);
-      }
 
    if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - tt, "scov_top_frm", 0);
 }
@@ -1161,6 +1133,95 @@ void mwScreen::draw_bottom_frame(int p)
    }
 }
 
+
+void mwScreen::draw_level_objects_on_screen_overlay(void)
+{
+   // common
+   float sc = mDisplay.scale_factor_current;
+   float ldx = mDisplay.level_display_region_x;
+   float ldy = mDisplay.level_display_region_y;
+
+
+
+   // draw purple coins directly on the screen, so they scale nicely
+   for (int c=0; c<500; c++)
+      if ((mItem.item[c][0] == 2) && (mItem.item[c][6] == 3))
+      {
+         float ex = mItem.itemf[c][0]+10;
+         float ey = mItem.itemf[c][1]+10;
+
+         // how far away from ul corner
+         float ex1 = mDisplay.screen_display_x + (ex-ldx) * sc;
+         float ey1 = mDisplay.screen_display_y + (ey-ldy) * sc;
+
+         // these crosshairs line up exact where I think they should, in the center of where we draw
+         //al_draw_line(ex1, ey1-40, ex1, ey1+40, mColor.pc[10], 1);
+         //al_draw_line(ex1-40, ey1, ex1+40, ey1, mColor.pc[10], 1);
+         // this draws in exactly the center of the crosshairs
+         //al_draw_scaled_rotated_bitmap(mBitmap.tile[197], 10, 10, ex1, ey1, sc, sc, 0, 0);
+
+         int shape = mItem.item[c][1];
+         mBitmap.spin_shape2(shape, ex1, ey1, 0.8, 0.5, 40);
+      }
+
+   // draw npc directly on the screen, so they scale nicely
+   for (int e=0; e<100; e++)
+      if (mEnemy.Ei[e][0] == 19) // npc
+      {
+         float ex = mEnemy.Ef[e][0] + 10;
+         float ey = mEnemy.Ef[e][1] + 10;
+
+         // how far away from ul corner
+         float ex1 = mDisplay.screen_display_x + (ex-ldx) * sc;
+         float ey1 = mDisplay.screen_display_y + (ey-ldy) * sc;
+
+         float psm = mEnemy.Ef[e][8];  // player scale muliplier
+         float ps = sc * psm;          // player scale
+         float sd = 20 * (1-psm);      // size difference
+         float yo = (sd/2)*sc;         // half size difference, scaled
+
+         int flags = 0;
+         if (mEnemy.Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
+
+         int pos = ((int) mEnemy.Ef[e][0] / 6) % 6;  // 6 shapes in sequence
+         int col = mEnemy.Ei[e][3];
+
+         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, ex1, ey1+yo, ps, ps, 0, flags);
+      }
+
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].active)
+      {
+         float ex = mPlayer.syn[p].x +10;
+         float ey = mPlayer.syn[p].y +10;
+
+         // how far away from ul corner
+         float ex1 = mDisplay.screen_display_x + (ex-ldx) * sc;
+         float ey1 = mDisplay.screen_display_y + (ey-ldy) * sc;
+
+
+         mPlayer.get_players_shape(p);
+         float scale = mPlayer.syn[p].draw_scale * sc;
+         float rot = mPlayer.syn[p].draw_rot;
+         int flags = ALLEGRO_FLIP_HORIZONTAL;
+         if (mPlayer.syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+
+         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[mPlayer.syn[p].color][mPlayer.syn[p].shape], 10, 10, ex1, ey1, scale, scale, rot, flags);
+
+
+   }
+
+
+
+
+
+
+
+}
+
+
+
 void mwScreen::draw_screen_overlay(void)
 {
    int p = mPlayer.active_local_player;
@@ -1176,6 +1237,9 @@ void mwScreen::draw_screen_overlay(void)
    mBottomMessage.draw(0);
 
    show_player_join_quit();
+
+
+   draw_level_objects_on_screen_overlay();
 
    draw_top_frame(p);
    draw_bottom_frame(p);

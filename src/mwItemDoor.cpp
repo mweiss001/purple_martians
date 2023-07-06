@@ -19,7 +19,7 @@
 // item[x][11] door entry type (0 0-immed, 1 = up 2 = down)
 // item[x][12] draw lines always, never
 
-void mwItem::change_linked_door_color_and_shape(int door)
+void mwItem::change_linked_door_color_and_draw_type(int door)
 {
    // changes all linked doors to match door color and shape
    // first do the linked door if there is one...
@@ -186,9 +186,6 @@ void mwItem::proc_door_collision(int p, int i)
                if (item[i][13]) mGameEvent.add(22, 0, 0, p, i, col, type); // no event if door is invisible
 
                int instant_move = 0;
-               if (item[i][7] == 0) // 0 = auto
-                  if (item[li][3]) // if dest is not stat
-                     instant_move = 1;
 
                if (item[i][7] == 1) instant_move = 1; // 1 = force instant
                if (item[i][7] == 2) instant_move = 0; // 2 = force move
@@ -219,13 +216,13 @@ void mwItem::proc_door_collision(int p, int i)
                   mPlayer.syn[p].left_xinc  = 0;
 
                   // set player's xinc and yinc
-                  float xlen = mPlayer.syn[p].x - dx;     // get the x distance between player and exit
-                  float ylen = mPlayer.syn[p].y - dy;     // get the y distance between player and exit
+                  float xlen = mPlayer.syn[p].x - dx;                 // get the x distance between player and exit
+                  float ylen = mPlayer.syn[p].y - dy;                 // get the y distance between player and exit
                   float hy_dist = sqrt(pow(xlen, 2) + pow(ylen, 2));  // hypotenuse distance
-                  float speed = 15;                        // speed
-                  float scaler = hy_dist / speed;          // get scaler
-                  mPlayer.syn[p].door_xinc = xlen / scaler;    // calc xinc
-                  mPlayer.syn[p].door_yinc = ylen / scaler;    // calc yinc
+                  float speed = 15;                                   // speed
+                  float scaler = hy_dist / speed;                     // get scaler (time)
+                  mPlayer.syn[p].door_xinc = xlen / scaler;           // calc xinc
+                  mPlayer.syn[p].door_yinc = ylen / scaler;           // calc yinc
 
                   // set players rotation from xinc, yinc
                   mPlayer.syn[p].door_draw_rot = atan2(mPlayer.syn[p].door_yinc, mPlayer.syn[p].door_xinc) - ALLEGRO_PI/2;

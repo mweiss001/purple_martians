@@ -26,47 +26,48 @@
 
 int mwItem::draw_start(int i, int x, int y, int shape)
 {
-   if ((mLevel.number_of_starts > 1) && (mLoop.level_editor_running)) // put start seq number, but only in lev editor
-   {
-      al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
-      al_draw_textf(mFont.pixl, mColor.pc[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", mItem.item[i][7]);
-      return 1;
-   }
-   return 0;
+   // is this start the spawn point for the active local player?
+   if (item[i][7] == mPlayer.syn[mPlayer.active_local_player].spawn_point_index) shape = mBitmap.zz[0][21]; // show spinning
+   else                                                                          shape = mBitmap.zz[0][11]; // show static
+   al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
+   if (mLoop.level_editor_running) al_draw_textf(mFont.pixl, mColor.pc[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", item[i][7]); // put start seq number but only in lev editor
+   return 1;
 }
+
 
 void mwItem::proc_start_collision(int p, int i)
 {
-   // count number of starts and put in array
+   int cpi = mPlayer.syn[p].spawn_point_index;  // current index for player
+   int npi = item[i][7];                        // new spawn point index
+
+
+   // count number of starts and put in array indexed by start index
    int ns = 0;
    int s[8] = {0};
    for (int i=0; i<500; i++)
-      if (mItem.item[i][0] == 5)
+      if (item[i][0] == 5)
       {
          ns++;
-         s[mItem.item[i][7]] = i; // save index of this start
+         s[item[i][7]] = i; // save index of this start
       }
-
 
    if (ns > 1)
    {
-      int mode = mItem.item[s[0]][6];
-      if (mode == 2) // check point common
-      {
-         for (p=0; p<8; p++)
-            mPlayer.syn[p].spawn_point_index = mItem.item[i][7]; // set new spawn point for all players
+      // get these from start with index 0
+      int mode = item[s[0]][6];
+      int iio  = item[s[0]][8]; // increase index only
 
-         // mark this one as active and all others as not
-         for (int ii=0; ii<500; ii++)
-            if (mItem.item[ii][0] == 5)
-            {
-               if (mItem.item[ii][7] == mItem.item[i][7]) mItem.item[ii][1] = 1021;
-               else mItem.item[ii][1] = 1011;
-            }
-      }
-      if (mode == 3) // check point individual
+      if ((!iio) || ((iio) && (npi > cpi))) // if not iio, or iio and higher index
       {
-         mPlayer.syn[p].spawn_point_index = mItem.item[i][7]; // set new spawn point for this player
+         if (mode == 2) // check point common
+         {
+            for (p=0; p<8; p++)
+               mPlayer.syn[p].spawn_point_index = item[i][7]; // set new spawn point for all players
+         }
+         if (mode == 3) // check point individual
+         {
+            mPlayer.syn[p].spawn_point_index = item[i][7]; // set new spawn point for this player
+         }
       }
    }
 }
@@ -159,9 +160,16 @@ void mwItem::proc_gate_collision(int p, int i)
       }
    }
 
-
    // set level complete for testing
-//   if (mPlayer.syn[p].fire) mLevel.level_complete_data(1, lev);
+   if (mPlayer.syn[p].fire)
+   {
+      mLevel.level_complete_data(1, lev);
+      mLevel.load_level(1, 0, 0);
+
+   }
+
+
+
 
 
    // immediate next level to gate level
@@ -186,7 +194,6 @@ void mwItem::proc_gate_collision(int p, int i)
    }
    else item[i][8] = 0;  // set down not held
 }
-
 
 
 int mwItem::draw_gate(int i, int x, int y, int custom)
@@ -525,20 +532,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
          }
 
       }
-
-
-
-
    }
-
-   // clear them here so they cannot be saved up
-
-// this is not the right place to do this
-   mLevel.skc_trigger_demo = 0;
-   mLevel.skc_trigger_demo_cheat = 0;
-
-
-
 
 //   // trigger on any page
 //   if (mLevel.skc_trigger_demo)

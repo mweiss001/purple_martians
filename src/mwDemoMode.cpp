@@ -160,53 +160,76 @@ void mwDemoMode::key_check(int p)
    if (mLoop.frame_num > last_frame + 160) mLoop.state[0] = 12; // if games_moves doesn't end with level_done kill it after 4 seconds
 
 
+//   // in single demo mode, 'C' key will allow player to take over and start playing level from current position
+//   if ((mode == 1) && (mInput.key[ALLEGRO_KEY_C][0]))
+//   {
+//      mode = 0;
+//      mPlayer.syn[0].control_method = 0; // change to single player mode
+//
+//      // erase all game moves that have a higher frame number than current
+//      for (int x=0; x<GAME_MOVES_SIZE; x++)
+//      {
+//         if (mGameMoves.arr[x][0] >= mLoop.frame_num)
+//            for (int y=0; y<4; y++)
+//               mGameMoves.arr[x][y] = 0;
+//      }
+//
+//      // set new entry pos by finding index of max frame
+//      int max_i = 0, max_f = 0;
+//      for (int x=0; x<GAME_MOVES_SIZE; x++)
+//         if (mGameMoves.arr[x][0] > max_f)
+//         {
+//            max_f = mGameMoves.arr[x][0];
+//            max_i = x;
+//         }
+//      mGameMoves.entry_pos = max_i + 1;
+//   }
+//
 
-   if ((mInput.key[ALLEGRO_KEY_C][0]) && (mode == 1))
+
+}
+
+
+
+
+
+void mwDemoMode::level_tests(void)
+{
+
+
+   int lev = 2;
+
+   if (mGameMoves.load_gm(lev))
    {
-      // change to single player mode
-
-      // erase all game moves after this point...
-      for (int x=0; x<GAME_MOVES_SIZE; x++)
-      {
-         if (mGameMoves.arr[x][0] >= mLoop.frame_num)
-            for (int y=0; y<4; y++)
-               mGameMoves.arr[x][y] = 0;
-      }
-
-
-      // set new entry pos
-
-      // find index of max frame
-      int max_f = 0;
-      int max_i = 0;
-      for (int x=0; x<GAME_MOVES_SIZE; x++)
-      {
-         if (mGameMoves.arr[x][0] > max_f)
-         {
-            max_f = mGameMoves.arr[x][0];
-            max_i = x;
-         }
-      }
-      mGameMoves.entry_pos = max_i + 1;
-
-      mode = 0;
-
-      mPlayer.syn[0].control_method = 0;
-
-
-
-
-
-
+      mDemoMode.mode = 1;
+      mLoop.state[0] = 31;
    }
 
 
 
 
-
-
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

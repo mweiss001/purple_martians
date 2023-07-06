@@ -300,7 +300,6 @@ void mwWindow::draw(int draw_only)
       }
    }
 
-
    int d = 1;
    if (have_focus) d = 0;
    if (moving) d = 1;
@@ -735,13 +734,16 @@ void mwWindow::cm_draw_status_window(int x1, int x2, int y1, int y2, int d, int 
    if (mWidget.buttont(x2-10, by1, x2-2,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mWM.mW[1].active = 0;
    if (mWidget.buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"?")) mHelp.help("Status Window");
 
+   // this ugly hack is to prevent the draw item block flag toggles from capturing the mouse when moving selection windows over them
+   if (mWM.mW[2].moving) d = 1;
+   else d = 0;
 
    // draw item area
    al_draw_text(mFont.pr8, mColor.pc[15], x1 + 24,  y1 + 13, 0, "Draw Item   ");
    al_draw_text(mFont.pr8, mColor.pc[14], x1 + 100, y1 + 13, 0, "mouse");
    al_draw_text(mFont.pr8, mColor.pc[14], x1 + 143, y1 + 13, 0, "b1");
    em_show_item_info(                    x1 + 2,   y1 + 20, 9, mWM.mW[1].draw_item_type, mWM.mW[1].draw_item_num);
-   if ((mWM.mW[1].draw_item_type == 1) && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+4, y1+47, mWM.mW[1].draw_item_num, mow, 0, 1, 0); // flags
+   if ((mWM.mW[1].draw_item_type == 1) && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+4, y1+47, mWM.mW[1].draw_item_num, mow, d, 1, 0); // flags
 
    // view item area
    al_draw_text(mFont.pr8, mColor.pc[15], x1 + 184, y1 + 13, 0, "View Item ");

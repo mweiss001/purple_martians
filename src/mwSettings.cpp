@@ -1388,14 +1388,7 @@ void mwSettings::settings_pages(int set_page)
 
          if ((mInput.mouse_x > xa+100) && (mInput.mouse_x < xb-100) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts))
          {
-            int w=0, h = 0;
-            mLevel.show_level_stats(0,0,0,0, w, h, 0, 1); // just get size
-            int x1 = cfp_txc - w/2;
-            int x2 = cfp_txc + w/2;
-            int y1 = ya + 26;
-            int y2 = y1 + h;
-            al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]); // erase background
-            mLevel.show_level_stats(x1, y1, x2, 0, w, h, 1, 1);
+            mLevel.draw_level_stats(cfp_txc, ya+26, 1);
          }
          else
          {
@@ -2000,6 +1993,29 @@ void mwSettings::settings_pages(int set_page)
 
          mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_num_steps, 400, 4, 1, "Transistion num steps:");
          mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_delay, 100, 1, 1, "Transistion delay:");
+
+
+         ya +=4;
+
+
+         if (mWidget.buttont(xa, ya, xa+120, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Level Tests"))
+         {
+
+
+            mLoop.quit_action = 3; // settings
+            mLoop.done_action = 3; // settings
+
+            mDemoMode.level_tests();
+
+
+//            return;
+
+         }
+
+
+
+
+
 
       }
 

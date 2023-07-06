@@ -843,10 +843,10 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
             }
             ya+=4; // spacer
-            mWidget.buttonp(   xa, ya, xb, bts, 52,n,0,0,  0,13,15,0, 1,0,1,d, mItem.item[n][1]); // get new shape
+            mWidget.buttonp(   xa, ya, xb, bts, 52,n,0,0,  0,13,15,0, 1,0,1,d, mItem.item[n][1]); // cycle draw type
             mWidget.colsel(    xa, ya, xb, bts,  5,n,0,0,  0, 0, 0,0, 0,0,1,d);                   // change color
 
-            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Change Linked to Match")) mItem.change_linked_door_color_and_shape(n);
+            if (mWidget.buttont(xa, ya, xb, bts, 0,0,0,0,   0,13,15,0,  1,0,1,d, "Change Linked to Match")) mItem.change_linked_door_color_and_draw_type(n);
 
          break;
 
@@ -861,14 +861,6 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
                mItem.item[n][2] = 1;
                if (mItem.item[n][7] == 10) mItem.item[n][1] = 1023;
                if (mItem.item[n][7] == 50) mItem.item[n][1] = 1027;
-            }
-            else if (mItem.item[n][6] == 2) // free man
-            {
-               mWidget.buttonp(xa, ya, xb, bts, 21, 0,0,0,  0,13,15,0,  1,0,1,d, mItem.item[n][3]); // stat | fall
-               ya+=4; // spacer
-               mWidget.buttonp(xa, ya, xb, bts, 101,0,0,0,  0,10,15,0,  1,0,1,d, mItem.item[n][6]); // bonus type
-               mItem.item[n][1] = 1038;
-               mItem.item[n][2] = 1;
             }
             else if (mItem.item[n][6] == 3) // purple coin
             {
@@ -898,6 +890,8 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
             ya+=4; // spacer
             mWidget.buttonp(    xa, ya, xb, bts, 78,0,0,0,  0,11,15,0,   1,0,1,d, mItem.item[n][6]); // start mode
             mWidget.buttonp(    xa, ya, xb, bts, 79,0,0,0,  0,11,15,0,   1,0,1,d, mItem.item[n][7]); // start index
+            mWidget.toggle(     xa, ya, xb, bts, 0,0,0,0,   0, 0, 0, 0,  1,0,1,d, mItem.item[n][8], "Increase Index Only:OFF", "Increase Index Only:ON", 15, 15, 11, 11);
+
          break;
          case 6: // orb
             mWidget.buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, mItem.item[n][3]); // stat | fall | carry

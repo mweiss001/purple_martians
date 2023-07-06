@@ -44,14 +44,11 @@ class mwItem
    void proc_gate_collision(int p, int i);
    int draw_gate(int i, int x, int y, int custom);
 
-
    void set_gate_level_icon_position(int i);
 
    void draw_gate_info(int i);
 
-
    char* chrms(int time, char* ft);
-
 
    void draw_line(int x1, int x2, int y, const char * txt1, const char * txt2, int col);
    void show_page(int page, int xc, int bs, int by, int lev, int col);
@@ -81,7 +78,7 @@ class mwItem
    int draw_door(int i, int x, int y, int custom);
    void proc_door_collision(int p, int i);
    void proc_player_door_move(int p);
-   void change_linked_door_color_and_shape(int door);
+   void change_linked_door_color_and_draw_type(int door);
 
    // mwItemKeySwitch.cpp
    int draw_key(int i, int x, int y, int tile);
