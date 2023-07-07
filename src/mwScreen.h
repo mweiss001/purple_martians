@@ -65,6 +65,8 @@ class mwScreen
    void show_player_stat_box(int tx, int y, int p);
    void show_level_done(void);
 
+   void calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1);
+
    void draw_level_objects_on_screen_overlay(void);
 
    void draw_screen_overlay(void);

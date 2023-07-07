@@ -41,7 +41,7 @@ class mwBottomMessage
    void draw(int outline);
 
    void draw_player(int p, int &xpos);
-   void draw_enemy(int e_type, int &xpos);
+   void bm_draw_enemy(int e_type, int &xpos);
    void draw_item(ALLEGRO_BITMAP *tmp, const char *txt, int col, int &xpos, int xo, int yo);
    void draw_health(int p, int h, int &xpos, int xo, int yo);
 

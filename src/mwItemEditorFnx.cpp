@@ -22,7 +22,6 @@ int mwItem::item_data(int x, int y)
                                al_draw_textf(mFont.pr8, mColor.pc[12], x, y, 0, "--------");                            y+=8;
                                al_draw_textf(mFont.pr8, mColor.pc[13], x, y, 0, "%d Starts",     item_num_of_type[5]);  y+=8;
                                al_draw_textf(mFont.pr8, mColor.pc[13], x, y, 0, "%d Exits",      item_num_of_type[3]);  y+=8;
-   if (item_num_of_type[12]) { al_draw_textf(mFont.pr8, mColor.pc[10], x, y, 0, "%d Warps",      item_num_of_type[12]); y+=8; }
    if (item_num_of_type[1])  { al_draw_textf(mFont.pr8, mColor.pc[13], x, y, 0, "%d Doors",      item_num_of_type[1]);  y+=8; }
    if (item_num_of_type[4])  { al_draw_textf(mFont.pr8, mColor.pc[13], x, y, 0, "%d Keys",       item_num_of_type[4]);  y+=8; }
    if (item_num_of_type[14]) { al_draw_textf(mFont.pr8, mColor.pc[13], x, y, 0, "%d Switches",   item_num_of_type[14]); y+=8; }
@@ -31,9 +30,13 @@ int mwItem::item_data(int x, int y)
    if (item_num_of_type[11]) { al_draw_textf(mFont.pr8, mColor.pc[14], x, y, 0, "%d Rockets",    item_num_of_type[11]); y+=8; }
    if (item_num_of_type[7])  { al_draw_textf(mFont.pr8, mColor.pc[14], x, y, 0, "%d Mines",      item_num_of_type[7]);  y+=8; }
    if (item_num_of_type[6])  { al_draw_textf(mFont.pr8, mColor.pc[14], x, y, 0, "%d Orbs",       item_num_of_type[6]);  y+=8; }
+   if (item_num_of_type[18]) { al_draw_textf(mFont.pr8, mColor.pc[14], x, y, 0, "%d Gates",      item_num_of_type[18]); y+=8; }
+   if (item_num_of_type[19]) { al_draw_textf(mFont.pr8, mColor.pc[14], x, y, 0, "%d Hiders",     item_num_of_type[19]); y+=8; }
+
+
 
    for (int c=1; c<20; c++)
-      if ((c!= 1) && (c !=3) && (c!= 4) && (c != 5) && (c != 6) && (c!= 7) && (c!= 8) && (c!= 9) && (c!= 11) && (c!= 12) && (c!= 13) && (c!= 14) && (c!= 15) && (c!= 16) && (c!= 17) )
+      if ((c!= 1) && (c !=3) && (c!= 4) && (c != 5) && (c != 6) && (c!= 7) && (c!= 8) && (c!= 9) && (c!= 11) && (c!= 13) && (c!= 14) && (c!= 15) && (c!= 16) && (c!= 17) && (c!= 18) && (c!= 19))
          if (item_num_of_type[c]) // not zero
          {
                          sprintf(msg, "%d type %d???  ", item_num_of_type[c], c); // default unknown

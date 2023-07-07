@@ -60,7 +60,6 @@ class mwLoop
    void setup_common_after_level_load(void);
 
 
-   void draw_frame(void);
    void move_frame(void);
    void loop_frame(int);
    int have_all_players_acknowledged(void);

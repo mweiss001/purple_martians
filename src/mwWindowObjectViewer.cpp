@@ -667,7 +667,7 @@ void mwWindow::ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 
 
             if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Set Extended Position")) mMiscFnx.getxy("Vinepod Extended Position", 90, 13, n);
-            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][17], 400, 10, 10,  "Extend Time:");
+            mWidget.slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ei[n][17], 400,  2,  2,  "Extend Time:");
             mWidget.sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, mEnemy.Ef[n][9],  400,  0,  1,  "Pause:");
 
             ya+=4; // spacer

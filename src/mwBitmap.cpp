@@ -94,7 +94,6 @@ void mwBitmap::rebuild_bitmaps(void)
    mLevel.level_stats_bmp_msg_type = 0;
 
 
-
 }
 
 void mwBitmap::reset_animation_sequences(void)

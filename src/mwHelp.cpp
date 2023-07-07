@@ -77,7 +77,7 @@ void mwHelp::load_help(void)
    int toc_size = num_sections * 2;  // size of toc to insert
    num_lines += toc_size;
 
-   int sl = 41;                      // line position to insert toc at
+   int sl = 42;                      // line position to insert toc at
 
    // slide all down
    for(int x=num_lines; x > (sl-1+toc_size); x--)

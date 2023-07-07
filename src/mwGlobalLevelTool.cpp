@@ -470,7 +470,86 @@ void mwGlobalLevelTool::execute(void)
 
 
 
-      if (0)
+
+
+
+//
+//
+//
+//      for (int y=0; y<100; y++)
+//      {
+//         int type = mEnemy.Ei[y][0];
+//
+//         if (type == 7)
+//         {
+//
+//
+//
+//            if (mEnemy.Ei[y][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
+//            {
+//
+//               count1++;
+//               printf("Level:%3d - Spline Vinepod:%d\n", le[x], y);
+//
+//
+//            }
+//            else
+//            {
+//               count0++;
+//               printf("Level:%3d - Normal Vinepod:%d\n", le[x], y);
+//
+//
+//
+//            }
+//
+//
+//
+//
+//
+//
+//         }
+//
+//      }
+//
+
+//
+//            mEnemy.Ei[y][20] = 16;
+//
+//
+//            for (int i=3; i<10; i++)
+//               mEnemy.Ei[y][i+10] = mEnemy.Ei[y][i];
+//
+//               mEnemy.Ei[y][i] = 0;
+//
+//            mEnemy.Ei[y][3] = mEnemy.Ef[y][0];
+//            mEnemy.Ei[y][4] = mEnemy.Ef[y][1];
+//
+//            mEnemy.get_pod_extended_position(y, mEnemy.Ei[y][9], mEnemy.Ei[y][10]);
+//
+//            printf("Level:%3d - vinepod:%d\n", le[x], y);
+//
+//
+//
+//         if (type == 13)
+//         {
+//            count1++;
+//            printf("Level:%3d - vinepod:%d\n", le[x], y);
+//         }
+//      }
+//
+//
+//
+
+
+
+
+
+
+
+
+
+
+      if (1)
       {
          mLevel.save_level(le[x]);
          al_set_target_backbuffer(mDisplay.display);

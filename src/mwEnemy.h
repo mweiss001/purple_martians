@@ -63,7 +63,10 @@ class mwEnemy
    // mwEnemyVinepod.cpp
    void move_podzilla(int e);
    void move_vinepod(int e);
-   void draw_vinepod(int e, int x, int c, int custom);
+
+   void draw_vinepod_screen_direct(int e);
+
+   void draw_vinepod(int e);
    void draw_vinepod_controls(int num, int legend_highlight);
    void vinepod_fill_points_array(int e, int np, float pnts[], float dest[]);
    void vinepod_set_cp_thirds(int e);

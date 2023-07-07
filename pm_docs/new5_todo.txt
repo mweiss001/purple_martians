@@ -2,6 +2,22 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+settings tab for transitions with some defaults
+also show total time
+
+
+cant set vineopd trigger to another vinepod automatically
+newly created vinepods have a big time 120...
+
+
+changed vinepods to emit event when extend is done, not when firing bullet
+maybe I could make that configurable
+
+
+
+
+
+
 
 
 
@@ -15,27 +31,20 @@
 ---------------------------------------------------------
 
 
-draw player on screen overlay also
-shrink and rotate for door move
-shrink and rotate for rocket riding
-
-move screen overlay drawing out of top frame, go higher
 
 
 
 
+add some cool spline vinepods
+did some on level 4
+
+level 31 do something about vinepod at start
+
+vinepod flower on good and evil
+
+also on incinerator??
 
 
-
-
-
-
-add some debug options:
-
-C on gate to complete level
-F2 for super fast mode
-demo mode alway saves level data
-C to switch from demo playback to recording
 
 
 
@@ -46,15 +55,14 @@ C to switch from demo playback to recording
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
 
-remove level numbers from gates
-remove c shortcut to complete level
-make so demo and cheat can only be detected from gate page
-make it so that level complete does not do achivemnets for demo unless cheat
-F2 key superfast mode
-remove c to to break in and start recording demo
 
 function key defaults
-debug overlay no key to start..do at release
+debug overlay no key to start..do at release, why not just leave cpu graph?
+
+
+remove extra levels, just 70 and 71, along with their demo's
+
+
 
 
 
@@ -179,7 +187,7 @@ vinepod triggering a group of vinepods in a star
 vinepod getting out of the way of a shot aimed at it
 
 
-
+I could also do an eco draw for vinepods....
 
 
 

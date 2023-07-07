@@ -33,16 +33,10 @@ class mwDemoMode
 
    float overlay_opacity;
 
-
-
-
-   void level_tests();
-
-
-
-
-
-
+   int demo_debug_complete_level_on_gate_with_fire;
+   int demo_debug_running_demo_saves_level_data;
+   int demo_debug_convert_playback_to_record_with_fire;
+   int demo_debug_super_fast_mode_F2;
 
 
 

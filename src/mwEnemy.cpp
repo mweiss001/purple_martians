@@ -29,7 +29,8 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
       y = cy;
    }
 
-   if (type == 7) draw_vinepod(e, x, y, custom);
+//   if (type == 7) draw_vinepod(e);
+
    if (type == 9) draw_cloner(e, x, y, custom);
 
    if (type == 19) draw_crew(e, x, y, custom);
@@ -664,7 +665,6 @@ Ef[][9] flap speed counter
 Ef[][10] flap speed inc
 
 [7]--vinepod-----------------------------------------------------------------------------
-
 
 
 Ei[][3]  = x initial position

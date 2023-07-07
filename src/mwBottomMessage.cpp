@@ -187,7 +187,7 @@ void mwBottomMessage::draw_player(int p, int &xpos)
    }
 }
 
-void mwBottomMessage::draw_enemy(int e_type, int &xpos)
+void mwBottomMessage::bm_draw_enemy(int e_type, int &xpos)
 {
    int de = disp_enemy;
 
@@ -404,7 +404,7 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
          custom_drawn = 1;
          if (z4 == 1) draw_text(" shot ", 15, xpos);
          if (z4 == 2) draw_text(" exploded ", 15, xpos);
-         draw_enemy(z3, xpos);
+         bm_draw_enemy(z3, xpos);
       }
 
       if (ev == 41) // player hurt by enemy
@@ -412,7 +412,7 @@ void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
          custom_drawn = 1;
          if (z3 == 1) draw_text(" got hit by ", 15, xpos);
          if (z3 == 2) draw_text(" got shot by ", 15, xpos);
-         draw_enemy(z2, xpos);
+         bm_draw_enemy(z2, xpos);
          draw_health(z1, -z4, xpos, 16, 0);
       }
       if (ev == 6) // player joined
