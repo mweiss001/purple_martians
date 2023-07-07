@@ -291,7 +291,7 @@ int mwEnemy::create_vinepod(void)
 
    Ei[e][1] = 374;   // shape
    Ei[e][2] = 0;     // draw type
-   Ei[e][17] = 120;  // extend time
+   Ei[e][17] = 60;   // extend time
 
    Ei[e][25] = 13;   // health bonus
    Ei[e][29] = 10;   // default collision box

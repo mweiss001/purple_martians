@@ -67,23 +67,16 @@ void mwMain::pm_copy_misc(const char* filepath)
    sprintf(sys_cmd, "mkdir %s\\bitmaps ", filepath);                              printf("%s\n",sys_cmd);   system(sys_cmd);
    sprintf(sys_cmd, "copy bitmaps\\* %s\\bitmaps ", filepath);                    printf("%s\n",sys_cmd);   system(sys_cmd);
 
-
    sprintf(sys_cmd, "mkdir %s\\data ", filepath);                                 printf("%s\n",sys_cmd);   system(sys_cmd);
-
-
-
-//   sprintf(sys_cmd, "del %s\\data\\mW.pm ", filepath);                            printf("%s\n",sys_cmd);   system(sys_cmd);
-
-
-
+   sprintf(sys_cmd, "copy data\\level_icons_100.bmp %s\\data ", filepath);        printf("%s\n",sys_cmd);   system(sys_cmd);
+   sprintf(sys_cmd, "copy data\\level_icons_200.bmp %s\\data ", filepath);        printf("%s\n",sys_cmd);   system(sys_cmd);
 
    sprintf(sys_cmd, "mkdir %s\\help ", filepath);                                 printf("%s\n",sys_cmd);   system(sys_cmd);
    sprintf(sys_cmd, "copy help\\* %s\\help ", filepath);                          printf("%s\n",sys_cmd);   system(sys_cmd);
 
    sprintf(sys_cmd, "mkdir %s\\snd ", filepath);                                  printf("%s\n",sys_cmd);   system(sys_cmd);
    sprintf(sys_cmd, "copy snd\\* %s\\snd ", filepath);                            printf("%s\n",sys_cmd);   system(sys_cmd);
-   sprintf(sys_cmd, "mkdir %s\\sel ", filepath);                                  printf("%s\n",sys_cmd);   system(sys_cmd);
-   sprintf(sys_cmd, "copy sel\\* %s\\sel ", filepath);                            printf("%s\n",sys_cmd);   system(sys_cmd);
+
 }
 
 
@@ -142,7 +135,7 @@ void mwMain::copy_files_to_clients(int type)
          pm_copy_misc(client[c]);
          pm_copy_exe(client[c]);
       }
-      if (type == 4) // del all and copy absolutely everything0
+      if (type == 4) // del all and copy absolutely everything
       {
          pm_delete_all(client[c]);
          sprintf(sys_cmd, "xcopy *.* %s /E /Y", client[c]);

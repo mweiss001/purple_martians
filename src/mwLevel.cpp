@@ -210,16 +210,13 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
             mEnemy.sort_enemy();
          }
 
-
-
-
-
          level_check();
          level_start_data();
          mScreen.init_level_background(); // draw blocks on level_background
          //set_player_start_pos(0, 0);
          mPlayer.init_player(0, 2);
 
+         mLoop.eco_draw = 0;
 
       }
 

@@ -46,8 +46,6 @@ void mwConfig::save(void)
       asci(SCREEN, mDisplay.saved_display_transform_double)
       asci(SCREEN, mDisplay.display_transform_double_max)
 
-      asci(SCREEN, mLoop.eco_draw)
-
       asci(GAME, mPlayer.syn[0].color)
       asci(GAME, mLevel.start_level)
       asci(GAME, mLevel.overworld_level)
@@ -142,10 +140,18 @@ void mwConfig::save(void)
       asci(LOGGING, mLog.autosave_log_on_game_exit)
       asci(LOGGING, mLog.autosave_log_on_level_done)
 
-      asci(DEMO, mDemoMode. config_autoplay_enabled)
+      asci(DEMO, mDemoMode.config_autoplay_enabled)
       asci(DEMO, mLog.autosave_game_on_level_done)
       asci(DEMO, mLog.autosave_game_on_game_exit)
       ascf(DEMO, mDemoMode.overlay_opacity)
+
+
+      asci(DEMO, mDemoMode.demo_debug_complete_level_on_gate_with_fire)
+      asci(DEMO, mDemoMode.demo_debug_running_demo_saves_level_data)
+      asci(DEMO, mDemoMode.demo_debug_convert_playback_to_record_with_fire)
+      asci(DEMO, mDemoMode.demo_debug_super_fast_mode_F2);
+
+
 
       asci(BMSG, mBottomMessage.num_lines)
 
@@ -270,10 +276,10 @@ void mwConfig::load(void)
 
    const char* val;
 
-   agci(SCREEN, mDisplay.disp_x_wind, 100)
-   agci(SCREEN, mDisplay.disp_y_wind, 100)
-   agci(SCREEN, mDisplay.disp_w_wind, 800)
-   agci(SCREEN, mDisplay.disp_h_wind, 600)
+   agci(SCREEN, mDisplay.disp_x_wind, 200)
+   agci(SCREEN, mDisplay.disp_y_wind, 40)
+   agci(SCREEN, mDisplay.disp_w_wind, 1280)
+   agci(SCREEN, mDisplay.disp_h_wind, 1024)
    agci(SCREEN, mDisplay.fullscreen, 1)
    agci(SCREEN, mDisplay.display_adapter_num, 0)
    agci(SCREEN, mLogo.show_splash_screen, 1)
@@ -288,8 +294,6 @@ void mwConfig::load(void)
    if (!mLogo.show_splash_screen) mLogo.splash_screen_done = 1;
 
    agci(SCREEN, mBottomMessage.bottom_msg_on, 1)
-
-   agci(SCREEN, mLoop.eco_draw, 0)
 
    agci(GAME, mLevel.start_level, 1)
 
@@ -309,7 +313,6 @@ void mwConfig::load(void)
    agci(GAME, mLoop.speed_control_lock, 1)
 
    agci(GAME, mVisualLevel.max_level_num, 100)
-
    agci(GAME, mVisualLevel.level_icon_size, 40)
 
 
@@ -334,8 +337,8 @@ void mwConfig::load(void)
    agci(FUNCTIONKEYS, mInput.function_key_speed_inc,       ALLEGRO_KEY_F8)
 
    agci(SOUND, mSound.sound_on, 1)
-   agci(SOUND, mSound.se_scaler, 5)
-   agci(SOUND, mSound.st_scaler, 2)
+   agci(SOUND, mSound.se_scaler, 3)
+   agci(SOUND, mSound.st_scaler, 1)
 
    val = al_get_config_value(cfg, "NETWORK", "server_IP");
    if (!val) sprintf(mNetgame.m_serveraddress, "192.168.1.3");
@@ -391,7 +394,14 @@ void mwConfig::load(void)
    agci(DEMO, mDemoMode. config_autoplay_enabled, 1)
    agci(DEMO, mLog.autosave_game_on_level_done, 0)
    agci(DEMO, mLog.autosave_game_on_game_exit, 0)
-   agcf(DEMO, mDemoMode.overlay_opacity, 0.1)
+   agcf(DEMO, mDemoMode.overlay_opacity, 0)
+
+
+   agci(DEMO, mDemoMode.demo_debug_complete_level_on_gate_with_fire, 0)
+   agci(DEMO, mDemoMode.demo_debug_running_demo_saves_level_data, 0)
+   agci(DEMO, mDemoMode.demo_debug_convert_playback_to_record_with_fire, 0)
+   agci(DEMO, mDemoMode.demo_debug_super_fast_mode_F2, 0);
+
 
 
    agci(BMSG, mBottomMessage.num_lines, 8)

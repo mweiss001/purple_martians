@@ -150,7 +150,6 @@ class mwLevel
 
    ALLEGRO_BITMAP * level_icon_100[100];
    ALLEGRO_BITMAP * level_icon_200[100];
-   ALLEGRO_BITMAP * level_icon_vls[100];
 
 
    ALLEGRO_BITMAP * level_stats_bitmap = NULL;
@@ -161,7 +160,14 @@ class mwLevel
 
 
    void load_level_icons(void);
-   void create_level_icons(int vls_only);
+   void create_level_icons(void);
+
+
+
+
+
+
+
 
    int level_data_purple_coins_collected;
    int level_data_player_respawns;

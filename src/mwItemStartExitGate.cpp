@@ -160,13 +160,15 @@ void mwItem::proc_gate_collision(int p, int i)
       }
    }
 
-   // set level complete for testing
-   if (mPlayer.syn[p].fire)
+
+    // debug set level complete
+   if ((mPlayer.syn[p].fire) && (mDemoMode.demo_debug_complete_level_on_gate_with_fire) && (!mLevel.data[lev].completed))
    {
       mLevel.level_complete_data(1, lev);
       mLevel.load_level(1, 0, 0);
-
    }
+
+
 
 
 
@@ -390,25 +392,37 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
    int tb = 0; // number of times completed (beat)
    int tq = 0; // number of times quit
 
-   int tt = 0; // total time spent playing
+   int tta = 0; // total time spent playing
+   int ttb = 0; // total time spent playing (completed only)
+
    int wt = 0; // worst time
    int bt = mLevel.data[lev].best_time; // best time
    int pt = mLevel.data[lev].par_time;  // par time
+
+
+
+
+
+
 
    // run through all level data and calc total plays, quit, beat, total time, worst time
    for (int i=0; i<mLevel.play_data_num; i++)
       if (mLevel.play_data[i].level == lev)
       {
          tc++;
-         tt += mLevel.play_data[i].timer;
+         tta += mLevel.play_data[i].timer;
          if (mLevel.play_data[i].timer > wt) wt = mLevel.play_data[i].timer;
 
-         if (mLevel.play_data[i].completed) tb++;
+         if (mLevel.play_data[i].completed)
+         {
+            tb++;
+            ttb += mLevel.play_data[i].timer;
+         }
          else tq++;
       }
 
    int mt = 0;
-   if (tc) mt = tt/tc; // average time
+   if (tb) mt = ttb/tb; // average time (only count completed)
 
    if (page == 0) // level icon map
    {
@@ -442,14 +456,14 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
       al_draw_textf(mFont.pr8, mColor.pc[15], bx+24, (int)yp+8, 0, "Time to Complete");
       al_draw_line(bx, yp+23, bx2+1, yp+23, mColor.pc[col], 1);
       yp+=25;
-      draw_line(bx, bx2, (int)yp, "Par Time.................", chrms(pt, msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Best Time................", chrms(bt, msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Worst Time...............", chrms(wt, msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Average Time.............", chrms(mt, msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Total Play Time..........", chrms(tt, msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Times Played.............", chrd(tc, msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Times Completed..........", chrd(tb, msg), 15); yp+=yi;
-      draw_line(bx, bx2, (int)yp, "Times Quit...............", chrd(tq, msg), 15); yp+=yi;
+      draw_line(bx, bx2, (int)yp, "Par Time.................", chrms(pt,  msg), 15); yp+=yi;
+      draw_line(bx, bx2, (int)yp, "Best Time................", chrms(bt,  msg), 15); yp+=yi;
+      draw_line(bx, bx2, (int)yp, "Worst Time...............", chrms(wt,  msg), 15); yp+=yi;
+      draw_line(bx, bx2, (int)yp, "Average Time.............", chrms(mt,  msg), 15); yp+=yi;
+      draw_line(bx, bx2, (int)yp, "Total Play Time..........", chrms(tta, msg), 15); yp+=yi;
+      draw_line(bx, bx2, (int)yp, "Times Played.............", chrd(tc,   msg), 15); yp+=yi;
+      draw_line(bx, bx2, (int)yp, "Times Completed..........", chrd(tb,   msg), 15); yp+=yi;
+      draw_line(bx, bx2, (int)yp, "Times Quit...............", chrd(tq,   msg), 15); yp+=yi;
    }
 
    if (page == 3) // purple coins

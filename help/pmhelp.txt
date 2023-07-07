@@ -29,7 +29,9 @@
 <l15>                       Use <l09>[ESC]<l15> or <l09>[mouse_b2] <l15>to quit.
 
 
+
 <section>Table of Contents
+
 
 
 <c15> Type the 2 digit section number to jump to that section
@@ -125,21 +127,24 @@
 <section>Game Mode
 
 
+
 In 'Settings' -> 'Mode' you can choose between 2 different Game Modes:
 
 
 <l13>Story Mode:
 
 - levels are started from the overworld hub
+
 - levels are locked until the previous level is completed
+
 - when a level is completed, you return to the overworld hub
 
 
 <l12>Classic Mode:
 
 - any level can be started from the game menu, locked or not
-- when a level is completed, the next level is started automatically
 
+- when a level is completed, the next level is started automatically
 
 
 
@@ -285,6 +290,7 @@ In 'Settings' -> 'Mode' you can choose between 2 different Game Modes:
 <section>In Game Function Keys
 
 
+
 <c15>While the game is running, these Function Keys are active:
 <l15>___________________________________________________________________________
 
@@ -302,6 +308,7 @@ In 'Settings' -> 'Mode' you can choose between 2 different Game Modes:
 <b15>
 
 <c15>You can customize these controls in 'Settings' -> 'Controls 2'
+
 
 
 <section>Enemies
@@ -728,7 +735,7 @@ Bombs and rockets will destroy these blocks.
 
 <c15>_____________________________________________________________________
 
-<c15>Here is list of systems the game has been tested on:
+<c15>Here is a recnt list of systems the game has been tested on:
 
 <c15>Windows 7
 <c15>Windows 10
@@ -738,7 +745,6 @@ Bombs and rockets will destroy these blocks.
 <c15>Manjaro 21.2.4
 <c15>MX-21
 <c15>Fedora 35
-
 <c15>_____________________________________________________________________
 
 
@@ -1516,19 +1522,17 @@ transform the marked tiles to a new tileset.
 <l15>You can also adjust other properties on the map, like:
 
 
-<l15> - podzilla and vinepod trigger box
+<l15> - sproingy jump height
 
 <l15> - enemy shot proximity
 
-<l15> - cloner source and destination boxes
+<l15> - bomb and rocket blast radius
 
 <l15> - key and switch block range
 
+<l15> - cloner source and destination boxes
+
 <l15> - message display position
-
-<l15> - sproingy jump height
-
-<l15> - bomb and rocket blast radius
 
 
 <l15>If the mouse on the map touches another object, the viewer

@@ -327,8 +327,6 @@ void mwDisplay::auto_set_display_transform_double(void)
    if (disp_w_curr < 1024) display_transform_double = 1;
    if (disp_h_curr < 700)  display_transform_double = 1;
 
-//   if (mLoop.level_editor_running) display_transform_double = 1;
-
    if (mLoop.help_screens_running)
    {
       if (disp_w_curr > 1279) display_transform_double = 2;
@@ -382,13 +380,14 @@ void mwDisplay::cycle_display_transform(void)
       mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
 
 
-   mVisualLevel.load_visual_level_select_done = 0;
 
 
 }
 
 void mwDisplay::set_display_transform()
 {
+   mVisualLevel.load_visual_level_select_done = 0;
+
    if (!saved_display_transform_double) auto_set_display_transform_double();
    else display_transform_double = saved_display_transform_double;
 
@@ -455,11 +454,20 @@ void mwDisplay::show_display_adapters(void)
 void mwDisplay::set_window_title(void)
 {
    char msg[1024];
+
+//   int sw = SCREEN_W;
+//   int sh = SCREEN_H;
+
+   int sw = disp_w_curr;
+   int sh = disp_h_curr;
+
+
 //   sprintf(msg, "Purple Martians");
-   sprintf(msg, "Purple Martians %s", mLoop.pm_version_string);
-//   sprintf(msg, "Purple Martians %s   [%d x %d]", mLoop.pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H);
-//   sprintf(msg, "%d x %d", mwD.SCREEN_W, mwD.SCREEN_H);
-//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", mLoop.pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H,  disp_w_curr, disp_h_curr, display_transform_double);
+//   sprintf(msg, "Purple Martians %s", mLoop.pm_version_string);
+//   sprintf(msg, "Purple Martians %s   [%d x %d]", mLoop.pm_version_string, sw, sh);
+   sprintf(msg, "Purple Martians [%d x %d]", sw, sh);
+//   sprintf(msg, "%d x %d", mDisplay.SCREEN_W, mDisplay.SCREEN_H);
+//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", mLoop.pm_version_string, mDisplay.SCREEN_W, mDisplay.SCREEN_H,  disp_w_curr, disp_h_curr, display_transform_double);
    al_set_window_title(display, msg);
 }
 

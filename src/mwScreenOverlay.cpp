@@ -1134,51 +1134,54 @@ void mwScreen::draw_bottom_frame(int p)
 }
 
 
-void mwScreen::draw_level_objects_on_screen_overlay(void)
+
+
+// converts ex, ey (0-2000) position with the level
+// to actual screen coordinates
+// so we can draw directly on the screen
+// pass it the center of the object's postion, it will return the center also
+
+
+void mwScreen::calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1)
 {
-   // common
    float sc = mDisplay.scale_factor_current;
    float ldx = mDisplay.level_display_region_x;
    float ldy = mDisplay.level_display_region_y;
 
+   // how far away from ul corner
+   ex1 = mDisplay.screen_display_x + (ex-ldx) * sc;
+   ey1 = mDisplay.screen_display_y + (ey-ldy) * sc;
+
+}
+
+
+
+void mwScreen::draw_level_objects_on_screen_overlay(void)
+{
+   float sc = mDisplay.scale_factor_current;
+   float ex1=0, ey1=0;
 
 
    // draw purple coins directly on the screen, so they scale nicely
    for (int c=0; c<500; c++)
       if ((mItem.item[c][0] == 2) && (mItem.item[c][6] == 3))
       {
-         float ex = mItem.itemf[c][0]+10;
-         float ey = mItem.itemf[c][1]+10;
-
-         // how far away from ul corner
-         float ex1 = mDisplay.screen_display_x + (ex-ldx) * sc;
-         float ey1 = mDisplay.screen_display_y + (ey-ldy) * sc;
-
-         // these crosshairs line up exact where I think they should, in the center of where we draw
-         //al_draw_line(ex1, ey1-40, ex1, ey1+40, mColor.pc[10], 1);
-         //al_draw_line(ex1-40, ey1, ex1+40, ey1, mColor.pc[10], 1);
-         // this draws in exactly the center of the crosshairs
-         //al_draw_scaled_rotated_bitmap(mBitmap.tile[197], 10, 10, ex1, ey1, sc, sc, 0, 0);
-
-         int shape = mItem.item[c][1];
-         mBitmap.spin_shape2(shape, ex1, ey1, 0.8, 0.5, 40);
+         calc_actual_screen_position(mItem.itemf[c][0]+10, mItem.itemf[c][1]+10, ex1, ey1);
+         mBitmap.spin_shape2(mItem.item[c][1], ex1, ey1, 0.8, 0.5, 40);
       }
+
 
    // draw npc directly on the screen, so they scale nicely
    for (int e=0; e<100; e++)
       if (mEnemy.Ei[e][0] == 19) // npc
       {
-         float ex = mEnemy.Ef[e][0] + 10;
-         float ey = mEnemy.Ef[e][1] + 10;
+         calc_actual_screen_position(mEnemy.Ef[e][0]+10, mEnemy.Ef[e][1]+10, ex1, ey1);
 
-         // how far away from ul corner
-         float ex1 = mDisplay.screen_display_x + (ex-ldx) * sc;
-         float ey1 = mDisplay.screen_display_y + (ey-ldy) * sc;
+         float ps = mEnemy.Ef[e][8];  // player scale
+         float scale = sc * ps;       // final draw scale
 
-         float psm = mEnemy.Ef[e][8];  // player scale muliplier
-         float ps = sc * psm;          // player scale
-         float sd = 20 * (1-psm);      // size difference
-         float yo = (sd/2)*sc;         // half size difference, scaled
+         float sd = 20 * (1-ps);      // size difference
+         float yo = (sd/2)*sc;        // half size difference, scaled
 
          int flags = 0;
          if (mEnemy.Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
@@ -1186,37 +1189,8 @@ void mwScreen::draw_level_objects_on_screen_overlay(void)
          int pos = ((int) mEnemy.Ef[e][0] / 6) % 6;  // 6 shapes in sequence
          int col = mEnemy.Ei[e][3];
 
-         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, ex1, ey1+yo, ps, ps, 0, flags);
+         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, ex1, ey1+yo, scale, scale, 0, flags);
       }
-
-
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if (mPlayer.syn[p].active)
-      {
-         float ex = mPlayer.syn[p].x +10;
-         float ey = mPlayer.syn[p].y +10;
-
-         // how far away from ul corner
-         float ex1 = mDisplay.screen_display_x + (ex-ldx) * sc;
-         float ey1 = mDisplay.screen_display_y + (ey-ldy) * sc;
-
-
-         mPlayer.get_players_shape(p);
-         float scale = mPlayer.syn[p].draw_scale * sc;
-         float rot = mPlayer.syn[p].draw_rot;
-         int flags = ALLEGRO_FLIP_HORIZONTAL;
-         if (mPlayer.syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-
-         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[mPlayer.syn[p].color][mPlayer.syn[p].shape], 10, 10, ex1, ey1, scale, scale, rot, flags);
-
-
-   }
-
-
-
-
-
-
 
 }
 

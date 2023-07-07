@@ -67,6 +67,10 @@ void mwDrawSequence::draw(int setup_only)
    if (setup_only) add_names(i, "d-lift", "draw_lifts");
    else { mLift.draw_lifts();  add(i); }
 
+   if (RA[i-1].avg*1000 > 5) mLoop.eco_draw = 1;
+
+
+
    if (setup_only) add_names(i, "d-item", "draw_items");
    else { mItem.draw_items(); add(i); }
 
@@ -147,6 +151,29 @@ void mwDrawSequence::draw(int setup_only)
 
    if (setup_only) add_names(i, "d-buff", "scale_buff_to_display");
    else { mScreen.draw_scaled_level_region_to_display(0); add(i); }
+
+
+   if (setup_only) add_names(i, "d-buff", "vinepods direct to screen");
+   else
+   {
+      for (int e=0; e<100; e++)
+         if (mEnemy.Ei[e][0] == 7) mEnemy.draw_vinepod_screen_direct(e); // vinepod
+      add(i);
+   }
+
+
+   if (setup_only) add_names(i, "d-buff", "players direct to screen");
+   else
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (mPlayer.syn[p].active) mPlayer.draw_player_direct_to_screen(p);
+
+      // do this so that that local player is always drawn on top
+      mPlayer.draw_player_direct_to_screen(mPlayer.active_local_player);
+      add(i);
+   }
+
+
 
    if (setup_only) add_names(i, "d-ovrl", "draw_screen_overlay");
    else { mScreen.draw_screen_overlay(); add(i); }

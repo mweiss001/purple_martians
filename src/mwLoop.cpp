@@ -74,20 +74,9 @@ void mwLoop::initialize(void)
 }
 
 
-void mwLoop::draw_frame(void)
-{
-   mDrawSequence.draw(0);
-//   get_new_background(1);
-//   draw_lifts();
-//   draw_items();
-//   draw_enemies();
-//   draw_eshots();
-//   draw_pshots();
-//   draw_players();
-//   draw_scaled_level_region_to_display(0);
-//   draw_screen_overlay();
-//   al_flip_display();
-}
+
+
+
 
 void mwLoop::move_frame(void)
 {
@@ -153,10 +142,10 @@ int mwLoop::have_all_players_acknowledged(void)
 
 void mwLoop::game_menu(void)
 {
+   if (!mLogo.splash_screen_done) { mLogo.splash_screen(); mLogo.splash_screen_done = 1; }
    quit_action = 0;
    if (mMain.classic_mode)
    {
-      if (!mLogo.splash_screen_done) { mLogo.splash_screen(); mLogo.splash_screen_done = 1; }
       if (!mLevel.resume_allowed) mLevel.set_start_level();
       if (top_menu_sel < 3) top_menu_sel = 3;
       while (top_menu_sel != 1)
@@ -254,6 +243,7 @@ void mwLoop::game_menu(void)
    }
    else // story mode
    {
+      mLevel.set_start_level();
       if (top_menu_sel < 2) top_menu_sel = 2;
       if (top_menu_sel > 7 ) top_menu_sel = 7;
 
@@ -870,6 +860,10 @@ void mwLoop::proc_program_state(void)
       int rm = mDemoMode.restore_mode;
       int m = mDemoMode.mode;
 
+      mSound.stop_sound();
+
+
+
       if (debug_print_state_names) printf("[State 32 - Quit and Cleanup Demo Mode]  [drm:%d]  [m:%d]\n", rm,  m);
 
       mDemoMode.mode = 0;
@@ -887,8 +881,13 @@ void mwLoop::proc_program_state(void)
       }
       if (rm == 21) // started from menu
       {
-         mScreen.transition_cutscene(1, 0, debug_print_more);       // game to nothing
-         mLevel.load_level(mDemoMode.restore_level, 0, 0);  // restore old level
+         mScreen.transition_cutscene(1, 0, debug_print_more);   // game to nothing
+
+         if (debug_print_state_names) printf("[State 32 - Restore Level:%d\n", mDemoMode.restore_level);
+
+         mLevel.load_level(mDemoMode.restore_level, 0, 0);      // restore old level
+
+
          for (int p=0; p<NUM_PLAYERS; p++)
          {
             mPlayer.init_player(p, 1);            // full reset
@@ -1274,7 +1273,7 @@ void mwLoop::main_loop(void)
             mNetgame.server_create_new_state();
             if (mLog.LOG_TMR_sdif) mLog.add_log_TMR(al_get_time() - t0, "sdif", 0);
 
-            if ((ldm != 27) && (!super_fast_mode)) draw_frame();
+            if ((ldm != 27) && (!super_fast_mode)) mDrawSequence.draw(0);
 
             double pt = al_get_time() - mTimeStamp.timestamp_frame_start;
             if (mLog.LOG_TMR_cpu) mLog.add_log_TMR(pt, "cpu", 0);

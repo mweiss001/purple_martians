@@ -848,6 +848,7 @@ void mwLift::draw_lift(int l, int x1, int y1, int x2, int y2)
 
    if ((cur[l].flags & PM_LIFT_NO_DRAW) && (mLoop.level_editor_running)) col = 0;
 
+
    if (mLoop.eco_draw)
    {
       al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[col]);

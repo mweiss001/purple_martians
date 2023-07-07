@@ -12,8 +12,10 @@ class mwVisualLevel
 
    int max_level_num;
 
+   ALLEGRO_BITMAP * level_icon_vls[100];
    int level_icon_size;
-
+   void create_level_icons_vls(void);
+   void load_level_icons_vls(void);
 
    private:
    ALLEGRO_BITMAP * grid_bmp = NULL;

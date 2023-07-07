@@ -12,6 +12,10 @@
 #include "mwFont.h"
 #include "mwMiscFnx.h"
 #include "mwTriggerEvent.h"
+#include "mwScreen.h"
+#include "mwDisplay.h"
+
+
 
 /*
 -----------------------------------------------
@@ -93,6 +97,7 @@ void mwEnemy::move_vinepod(int e)
    {
       if (++Ei[e][16] >= Ei[e][17]) // extend done
       {
+         if (Ei[e][19]) mTriggerEvent.event[Ei[e][19]] = 1;  // set output event
          Ei[e][15] = 2;       // set next mode
          Ef[e][8] = Ef[e][9]; // init timer
       }
@@ -102,7 +107,7 @@ void mwEnemy::move_vinepod(int e)
       Ef[e][8] -=1;
       if (Ef[e][8] <= 0)
       {
-         if (Ei[e][19]) mTriggerEvent.event[Ei[e][19]] = 1;  // set output event
+         //if (Ei[e][19]) mTriggerEvent.event[Ei[e][19]] = 1;  // set output event
          if (Ei[e][20] & PM_ENEMY_VINEPOD_FIRE_SHOT) mShot.fire_enemy_shota(e, 54, find_closest_player(e)); // shoot
          Ei[e][15] = 3;       // set next mode
          Ef[e][8] = Ef[e][9]; // init timer
@@ -162,7 +167,7 @@ void mwEnemy::vinepod_fill_points_array(int e, int np, float pnts[], float dest[
    // put variables in spline array
    for (int i=0; i<8; i++) pnts[i] = mEnemy.Ei[e][i+3]+10;
 
-   // experimental scaling of control points
+   // scaling of control points
    float d = Ef[e][6];
    pnts[2] = pnts[0] + (pnts[2] - pnts[0]) * d;
    pnts[3] = pnts[1] + (pnts[3] - pnts[1]) * d;
@@ -171,6 +176,10 @@ void mwEnemy::vinepod_fill_points_array(int e, int np, float pnts[], float dest[
 
    al_calculate_spline(dest, 8, pnts, 0, np);
 }
+
+
+
+
 
 void mwEnemy::calc_simple_vinepod(int e)
 {
@@ -277,125 +286,261 @@ void mwEnemy::vinepod_mirror_y(int e)
 
 
 
-void mwEnemy::draw_vinepod(int e, int x, int c, int custom)
+void mwEnemy::draw_vinepod_screen_direct(int e)
 {
-   if (!custom)
+   float sc = mDisplay.scale_factor_current;
+
+   // screen scale all the points
+   float sx0=0, sy0=0, sx1=0, sy1=0, sx2=0, sy2=0, sx3=0, sy3=0;
+   mScreen.calc_actual_screen_position(Ei[e][3]+10, Ei[e][ 4]+10, sx0, sy0);
+   mScreen.calc_actual_screen_position(Ei[e][5]+10, Ei[e][ 6]+10, sx1, sy1);
+   mScreen.calc_actual_screen_position(Ei[e][7]+10, Ei[e][ 8]+10, sx2, sy2);
+   mScreen.calc_actual_screen_position(Ei[e][9]+10, Ei[e][10]+10, sx3, sy3);
+
+   float ld = 17;      // distance between leaves
+   float ls = 0.7*sc;  // leaf size
+
+   ALLEGRO_COLOR c2 = mColor.pc[9+128];
+
+   if (Ei[e][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
    {
-      ALLEGRO_COLOR c2 = mColor.pc[9+128];
+      // create and fill the spline array
+      int np = Ei[e][17]+1; // number of points
+      float dest[np*2] = {0};
+      float pnts[8] = {0};
 
-      if (Ei[e][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
+      // put variables in spline array
+      pnts[0] = sx0;
+      pnts[1] = sy0;
+      pnts[2] = sx1;
+      pnts[3] = sy1;
+      pnts[4] = sx2;
+      pnts[5] = sy2;
+      pnts[6] = sx3;
+      pnts[7] = sy3;
+
+      // scaling of control points
+      float d = Ef[e][6];
+      pnts[2] = pnts[0] + (pnts[2] - pnts[0]) * d;
+      pnts[3] = pnts[1] + (pnts[3] - pnts[1]) * d;
+      pnts[4] = pnts[0] + (pnts[4] - pnts[0]) * d;
+      pnts[5] = pnts[1] + (pnts[5] - pnts[1]) * d;
+
+      al_calculate_spline(dest, 8, pnts, 0, np);
+
+
+      // draw spline path outline
+      if (Ei[e][20] & PM_ENEMY_VINEPOD_SHOW_PATH) al_draw_spline(pnts, c2, 0.7*sc);
+
+      // if anything other than mode 0
+      if (Ei[e][15])
       {
-         // create and fill the spline array
-         int np = Ei[e][17]+1; // number of points
-         float dest[np*2] = {0};
-         float pnts[8] = {0};
-         vinepod_fill_points_array(e, np, pnts, dest);
+         // drawing leaves
+         float dist = 0;  // extended distance tally
+         float tl = ld;   // next leaf distance tally
+         int lsa = 0;     // leaf side alternate
 
-         // draw spline path outline
-         if (Ei[e][20] & PM_ENEMY_VINEPOD_SHOW_PATH) al_draw_spline(pnts, c2, 0);
-
-         // if anything other than mode 0
-         if (Ei[e][15])
+         // cycle points as far as vine has extended
+         for (int i=2; i<=(Ei[e][16]-0)*2; i+=2)
          {
-            // drawing leaves
-            float dist = 0;  // extended distance tally
-            float ld = 15;   // distance between leaves
-            float tl = ld;   // next leaf distance tally
-            int lsa = 0;     // leaf side alternate
-            float ls = 0.7;  // leaf size
+            int x1 = dest[i-2];
+            int y1 = dest[i-1];
+            int x2 = dest[i+0];
+            int y2 = dest[i+1];
 
-            // cycle points as far as vine has extended
-            for (int i=2; i<=(Ei[e][16]-0)*2; i+=2)
+            // draw vine up to extended point
+            al_draw_line(x1, y1, x2, y2, c2, 1.5*sc);
+
+            // get distance of this step
+            float xlen = x1-x2;
+            float ylen = y1-y2;
+            float ds = sqrt(pow(xlen, 2) + pow(ylen, 2)) / sc;
+
+            dist += ds; // add to total distance
+
+            if (dist > tl)   // time for a leaf
             {
-               int x1 = dest[i-2];
-               int y1 = dest[i-1];
-               int x2 = dest[i+0];
-               int y2 = dest[i+1];
-
-               // draw vine up to extended point
-               al_draw_line(x1, y1, x2, y2, c2, 1.5);
-
-               // get distance of this step
-               float xlen = x1-x2;
-               float ylen = y1-y2;
-               float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
-
-               dist += ds; // add to total distance
-
-               if (dist > tl)   // time for a leaf
-               {
-                  tl += ld;     // next leaf point
-                  lsa = !lsa;   // toggle leaf side
-                  float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
-                  if (lsa) ang+= ALLEGRO_PI;
-                  al_draw_scaled_rotated_bitmap(mBitmap.tile[311], 10, 20, x1, y1, ls, ls, ang, 0);
-               }
-            }
-
-            // draw circle at initial position
-            al_draw_filled_circle(dest[0], dest[1], 2, c2);
-
-            // draw circle at end if fully extended
-            if ((Ei[e][15] == 2) || (Ei[e][15] == 3))
-            {
-               int x1 = dest[Ei[e][17]*2-2];
-               int y1 = dest[Ei[e][17]*2-1];
-               al_draw_filled_circle(x1, y1, 2, c2);
+               tl += ld;     // next leaf point
+               lsa = !lsa;   // toggle leaf side
+               float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
+               if (lsa) ang+= ALLEGRO_PI;
+               al_draw_scaled_rotated_bitmap(mBitmap.tile[311], 10, 20, x1, y1, ls, ls, ang, 0);
             }
          }
       }
-      else
+   }
+   else // non spline
+   {
+      if (Ei[e][20] & PM_ENEMY_VINEPOD_SHOW_PATH) al_draw_line(sx0, sy0, sx3, sy3, c2, 0.7*sc);
+
+      if (Ei[e][15])
       {
-         if (Ei[e][20] & PM_ENEMY_VINEPOD_SHOW_PATH)
-            al_draw_line(Ei[e][3]+10, Ei[e][4]+10, Ei[e][9]+10, Ei[e][10]+10, c2, 0);
+         float x1 = Ei[e][3];
+         float y1 = Ei[e][4];
+         float sx01, sy01, sx02, sy02;
 
-         if (Ei[e][15])
+         // drawing leaves
+         float dist = 0;  // extended distance tally
+         float tl = ld;   // next leaf distance tally
+         int lsa = 0;     // leaf side alternate
+
+         for (int i=0; i<Ei[e][16]; i++)
          {
-            float x1 = Ei[e][3];
-            float y1 = Ei[e][4];
+            float x2 = x1 + Ef[e][2];
+            float y2 = y1 + Ef[e][3];
 
-            // drawing leaves
-            float dist = 0;  // extended distance tally
-            float ld = 15;   // distance between leaves
-            float tl = ld;   // next leaf distance tally
-            int lsa = 0;     // leaf side alternate
-            float ls = 0.7;  // leaf size
+            mScreen.calc_actual_screen_position(x1+10, y1+10, sx01, sy01);
+            mScreen.calc_actual_screen_position(x2+10, y2+10, sx02, sy02);
 
-            for (int i=0; i<Ei[e][16]; i++)
+            al_draw_line(sx01, sy01, sx02, sy02, c2, 1.5*sc);
+
+            // get distance of this step
+            float xlen = x1-x2;
+            float ylen = y1-y2;
+            float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
+
+            dist += ds; // add to total distance
+
+            if (dist > tl)   // time for a leaf
             {
-               float x2 = x1 + Ef[e][2];
-               float y2 = y1 + Ef[e][3];
-
-               al_draw_line(x1+10, y1+10, x2+10, y2+10, c2, 1.5);
-
-               // get distance of this step
-               float xlen = x1-x2;
-               float ylen = y1-y2;
-               float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
-
-               dist += ds; // add to total distance
-
-               if (dist > tl)   // time for a leaf
-               {
-                  tl += ld;     // next leaf point
-                  lsa = !lsa;   // toggle leaf side
-                  float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
-                  if (lsa) ang+= ALLEGRO_PI;
-                  al_draw_scaled_rotated_bitmap(mBitmap.tile[311], 10, 20, x1+10, y1+10, ls, ls, ang, 0);
-               }
-               x1 = x2;
-               y1 = y2;
+               tl += ld;     // next leaf point
+               lsa = !lsa;   // toggle leaf side
+               float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
+               if (lsa) ang+= ALLEGRO_PI;
+               al_draw_scaled_rotated_bitmap(mBitmap.tile[311], 10, 20, sx01, sy01, ls, ls, ang, 0);
             }
-            // draw circle at initial position
-            al_draw_filled_circle(Ei[e][3]+10, Ei[e][4]+10, 2, c2);
+            x1 = x2;
+            y1 = y2;
+         }
+      }
+   }
 
-            // draw circle at end if fully extended
-            if ((Ei[e][15] == 2) || (Ei[e][15] == 3))
+    // draw circle at initial position in every mode except at rest
+   if (Ei[e][15]) al_draw_filled_circle(sx0, sy0, 2*sc, c2);
+
+   // draw circle at end if fully extended
+   if ((Ei[e][15] == 2) || (Ei[e][15] == 3)) al_draw_filled_circle(sx3, sy3, 2*sc, c2);
+
+}
+
+
+
+void mwEnemy::draw_vinepod(int e)
+{
+   float ld = 15;   // distance between leaves
+
+   ALLEGRO_COLOR c2 = mColor.pc[9+128];
+
+   if (Ei[e][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
+   {
+      // create and fill the spline array
+      int np = Ei[e][17]+1; // number of points
+      float dest[np*2] = {0};
+      float pnts[8] = {0};
+      vinepod_fill_points_array(e, np, pnts, dest);
+
+      // draw spline path outline
+      if (Ei[e][20] & PM_ENEMY_VINEPOD_SHOW_PATH) al_draw_spline(pnts, c2, 0);
+
+      // if anything other than mode 0
+      if (Ei[e][15])
+      {
+         // drawing leaves
+         float dist = 0;  // extended distance tally
+         float tl = ld;   // next leaf distance tally
+         int lsa = 0;     // leaf side alternate
+         float ls = 0.7;  // leaf size
+
+         // cycle points as far as vine has extended
+         for (int i=2; i<=(Ei[e][16]-0)*2; i+=2)
+         {
+            int x1 = dest[i-2];
+            int y1 = dest[i-1];
+            int x2 = dest[i+0];
+            int y2 = dest[i+1];
+
+            // draw vine up to extended point
+            al_draw_line(x1, y1, x2, y2, c2, 1.5);
+
+            // get distance of this step
+            float xlen = x1-x2;
+            float ylen = y1-y2;
+            float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
+
+            dist += ds; // add to total distance
+
+            if (dist > tl)   // time for a leaf
             {
-               int x1 = Ei[e][9];
-               int y1 = Ei[e][10];
-               al_draw_filled_circle(x1+10, y1+10, 2, c2);
+               tl += ld;     // next leaf point
+               lsa = !lsa;   // toggle leaf side
+               float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
+               if (lsa) ang+= ALLEGRO_PI;
+               al_draw_scaled_rotated_bitmap(mBitmap.tile[311], 10, 20, x1, y1, ls, ls, ang, 0);
             }
+         }
+
+         // draw circle at initial position
+         al_draw_filled_circle(dest[0], dest[1], 2, c2);
+
+         // draw circle at end if fully extended
+         if ((Ei[e][15] == 2) || (Ei[e][15] == 3))
+         {
+            int x1 = dest[Ei[e][17]*2-2];
+            int y1 = dest[Ei[e][17]*2-1];
+            al_draw_filled_circle(x1, y1, 2, c2);
+         }
+      }
+   }
+   else
+   {
+      if (Ei[e][20] & PM_ENEMY_VINEPOD_SHOW_PATH)
+         al_draw_line(Ei[e][3]+10, Ei[e][4]+10, Ei[e][9]+10, Ei[e][10]+10, c2, 0);
+
+      if (Ei[e][15])
+      {
+         float x1 = Ei[e][3];
+         float y1 = Ei[e][4];
+
+         // drawing leaves
+         float dist = 0;  // extended distance tally
+         float tl = ld;   // next leaf distance tally
+         int lsa = 0;     // leaf side alternate
+         float ls = 0.7;  // leaf size
+
+         for (int i=0; i<Ei[e][16]; i++)
+         {
+            float x2 = x1 + Ef[e][2];
+            float y2 = y1 + Ef[e][3];
+
+            al_draw_line(x1+10, y1+10, x2+10, y2+10, c2, 1.5);
+
+            // get distance of this step
+            float xlen = x1-x2;
+            float ylen = y1-y2;
+            float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
+
+            dist += ds; // add to total distance
+
+            if (dist > tl)   // time for a leaf
+            {
+               tl += ld;     // next leaf point
+               lsa = !lsa;   // toggle leaf side
+               float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
+               if (lsa) ang+= ALLEGRO_PI;
+               al_draw_scaled_rotated_bitmap(mBitmap.tile[311], 10, 20, x1+10, y1+10, ls, ls, ang, 0);
+            }
+            x1 = x2;
+            y1 = y2;
+         }
+         // draw circle at initial position
+         al_draw_filled_circle(Ei[e][3]+10, Ei[e][4]+10, 2, c2);
+
+         // draw circle at end if fully extended
+         if ((Ei[e][15] == 2) || (Ei[e][15] == 3))
+         {
+            int x1 = Ei[e][9];
+            int y1 = Ei[e][10];
+            al_draw_filled_circle(x1+10, y1+10, 2, c2);
          }
       }
    }

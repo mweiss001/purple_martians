@@ -1211,7 +1211,7 @@ void mwSettings::settings_pages(int set_page)
          al_set_target_bitmap(etmp);
          al_clear_to_color(al_map_rgba(0, 0, 0, 0));
          xd = 0;
-         mBottomMessage.draw_enemy(6, xd);
+         mBottomMessage.bm_draw_enemy(6, xd);
          al_set_target_backbuffer(mDisplay.display);
          al_draw_scaled_bitmap(etmp, 0, 0, 200, 20, xb+4, ya+yto, 100, 10, 0);
          ya+=bts;
@@ -1394,7 +1394,7 @@ void mwSettings::settings_pages(int set_page)
          {
             ya +=bts;
             ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-            al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Number of level play records:%d", mLevel.play_data_num-1);
+            al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Number of level play records:%d", mLevel.play_data_num);
             ya +=8;
             ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
             if (show_advanced)
@@ -1976,9 +1976,6 @@ void mwSettings::settings_pages(int set_page)
          if (mWidget.buttont(xa+130, ya, xa+250, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Spline reset")) mLogo.initialize();
          if (mWidget.buttont(xa+260, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Spline test")) mLogo.spline_test();
 
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mLoop.eco_draw, "Eco Draw", tc, 15);
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -1992,31 +1989,16 @@ void mwSettings::settings_pages(int set_page)
          ya +=4;
 
          mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_num_steps, 400, 4, 1, "Transistion num steps:");
-         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_delay, 100, 1, 1, "Transistion delay:");
-
+         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_delay,     100, 1, 1, "Transistion delay:");
 
          ya +=4;
 
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
-         if (mWidget.buttont(xa, ya, xa+120, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Level Tests"))
-         {
-
-
-            mLoop.quit_action = 3; // settings
-            mLoop.done_action = 3; // settings
-
-            mDemoMode.level_tests();
-
-
-//            return;
-
-         }
-
-
-
-
-
-
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_complete_level_on_gate_with_fire,     "Pressing fire on gate marks level complete", 15, 15);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_running_demo_saves_level_data,        "Running demo always saves level data", 15, 15);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_convert_playback_to_record_with_fire, "Press C in demo playback to record", 15, 15);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_super_fast_mode_F2,                   "Toggle super fast mode with F2", 15, 15);
       }
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])

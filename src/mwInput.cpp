@@ -16,6 +16,7 @@
 #include "mwScreen.h"
 #include "mwGameMoves.h"
 #include "mwLevel.h"
+#include "mwDemoMode.h"
 
 
 mwInput mInput;
@@ -201,6 +202,15 @@ void mwInput::serial_key_check(int key)
       mLevel.skc_trigger_demo = 1;
    }
 
+   sprintf(tst, "ijkl c");
+   tl = strlen(tst);
+   if (skc_index > tl-1)
+   {
+      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+      set_controls_to_custom_sets(4);
+   }
+
+
    sprintf(tst, "cheat");
    tl = strlen(tst);
    if (skc_index > tl-1)
@@ -273,7 +283,12 @@ void mwInput::function_key_check(void)
    }
 
 
-   if (key[ALLEGRO_KEY_F2][3]) mLoop.super_fast_mode = 1;
+
+   if (mDemoMode.demo_debug_super_fast_mode_F2)
+   {
+      if (key[ALLEGRO_KEY_F2][3]) mLoop.super_fast_mode = !mLoop.super_fast_mode;
+   }
+
 
 
 

@@ -27194,48 +27194,115 @@ mScreen.init_level_background();
 20230705 much is working good, the level data stuff draws on its own custom bitmap now
 
 
+20230706
 
+time for some tests
 
 
 
 
+level stats on its own bitmap, all levels reset and unlocked
+------------------------------
+       m36  e6430 4230  scat
+drawe  .12   0.4   3.1  .28
+lstat  .001 .012  .015  .007
+ovrly  .38  .36   1.1   8.2
 
 
+I now notice that enemies take non-trivial ammount when drawing vinepods
+I can actually see it go up and down as they retract
+what levels have many vinepods?
+do glt and find out
 
+I use 3 spine in level 1 and 6 in level 94
+wow! all that work that went into them and I dont use them at all!
 
+level 103 has one vinepod that triggers 12 others
+profile that
+------------------------------
+       m36  e6430 4230  scat
+12 vp  1.0   5.0   29   1.7
 
 
+next question:
+what if they were all non-spline? profile that
+------------------------------
+m36  e6430 4230  scat
+0.8  3.6   22
 
+I don't think the spline is why is takes so long, it's probably drawing all the leaves
 
 
+with that in mind test a level that has lots like incen
 
+I think the length and speed have a huge effect
 
+on lev 70
+made a non-spine vine pod that travels the entire width of the screen
+time:120 0.27
+time:60  0.15
 
+the faster one draws fewer leaves and takes less time
 
+so now what? am I going to try drawing vinepods in overlay mode also?
 
+how hard could it be?
 
 
+OK I have it working, lets test the speed..
 
+it is added to screen overlay but does it need to be?
 
+i dont think I need the old draw vinepod at all..
 
+bad news...it does not seem to save any time drawing directly to the screen
+the leaves look nicer though...
+make it so that it is easy to re-enable if needed
+done..
 
 
+now what??
 
+is it my manually drawing all those line segments each frame? probably
+approx half for the line segments and half for the leaves
 
+it would be too much work, just move on, but first make it look nice
 
+line size of always show
 
+end circle alignment
 
+all done...
 
 
 
+remove eco draw from msgs..done...
+auto turn on eco mode when lift draw time > 5
+where? in draw lifts? sure why not...
+no do it in draw_sequence...done
+find a way to not permantntly keep it on
+remove from config should do it
+reset on new level load also
 
 
 
+make draw sequence do it all...done
 
 
+add some debug options..done
 
+C on gate to complete level
+F2 for super fast mode
+demo mode alway saves level data
+C to switch from demo playback to recording
 
+I think I can make all these part of mwDemoMode
 
+   int demo_debug_complete_level_on_gate_with_fire;
+   int demo_debug_running_demo_saves_level_data;
+   int demo_debug_convert_playback_to_record_with_fire;
+   int demo_debug_super_fast_mode_F2;
+all done
 
 
 
@@ -27244,56 +27311,97 @@ mScreen.init_level_background();
 
 
 
+make the reload icons faster, if possible
+what if I just included fullsize bitmaps for every level with the release
 
+how much would that take?
 
+more importantly, would it make anything faster?
+ezpecially on slow machines
 
 
+separate all icons from the ones needed for vls and see if that is any faster
 
+I think that is already done
 
 
 
 
+I just made a bitmap 20,000 x 20,000 pixels big!
+I had to make it a memory bitmap...
+saved as a bmp it is 1.17G
+actual size disk 1,200,000,054 bytes
 
 
 
 
 
 
+It has 100 levels in full resolution
 
 
+400,000,000 pixels
 
 
+12/4 = 3 bytes per pixel
 
 
 
 
 
+I am going to try changing the compression ratio of levels
 
+right now I am using -1 (auto)
 
+I have 142 files with a total size of 406,922
 
 
 
+level 1 should be the fastest
+size 715,218
 
+level 0 is none
+size 54,155,675
 
 
+did level viewer compare all on m36 with cmp level 1...36s
+went back to the default -1 and tested, still 36 seconds
+i don't think that is the bottleneck, at least not on m36
 
+loading level icons is vey slow on 4230
 
+it is not slow once they are loaded though
+also they are only needed for classic mode!!
 
+I could just ignore them unless they are needed, like when vls is run
 
+or i could use the 100 or 200 icons
 
+those also take a while to generate, I could include them
+12M and 3M
 
+how about this?
+include the 100 and 200
 
+add a button to regnerate them in settings, also if they are missing, regen them
 
+do not include vls icons, only generate if vls is called
 
 
+it would be so nice to have more than one slot where a loaded level could reside
 
 
+I could use one for displaying a level, like while on a gate
 
+I could use one for the paused game in progress
 
+I could use one for the overworld
 
 
+what kind of sizes are we talking about here?
 
 
+less than 500K each
 
 
 
@@ -27309,42 +27417,93 @@ mScreen.init_level_background();
 
 
 
+right now....
 
 
+make vls only load on demand
+new release, choose classic, then start vls
 
 
+show vls tile size
 
 
 
+I separated vls from the other ones
 
+now regular ones are loaded when?
 
 
 
+This is the final simple way that level icons are handled:
+----------------------------------------------------------
+mwLevel::load_level_icons()
 
+called when:
 
+- mwLevel::setup_data(void)...called from initial setup
+- when bitmaps are rebuilt
+- at the end of create_level_icons
 
 
+mwLevel::create_level_icons()
+- called in load_level_icons() when the files are not found
 
+If you want them rebuilt, just delete them.
+I could easily include these 2 files with a release to speed things up, they are only 12M and 3M
 
 
 
+Now what about vls?
 
+put all the data and functions back in vls
 
+ALLEGRO_BITMAP * level_icon_vls[100];
+int level_icon_size;
+void create_level_icons_vls(void);
+void load_level_icons_vls(void);
 
+level_icon_size is saved in config
 
+void create_level_icons_vls(void);
+- is called:
 
 
 
 
 
+This is the way that vls level icons are handled:
+-------------------------------------------------
 
+vls called:
+int mwVisualLevel::visual_level_select(void)
 
+first checks if vls_loaded:
+if (!load_visual_level_select_done) load_visual_level_select();
 
+things that reset 'load_visual_level_select_done'
+- rebuild bitmaps
+- cycle display transform
+- change max level in settings
 
 
+void mwVisualLevel::load_visual_level_select(void)
+{
+   load_visual_level_select_done = 1;
 
+   if (grid_size != level_icon_size)
+   {
+      level_icon_size = grid_size;
+      create_level_icons_vls();
+   }
+   load_level_icons_vls();
 
+void mwVisualLevel::create_level_icons_vls();
+- called from load_visual_level_select(void)
+- called is not found when running load
 
+void mwVisualLevel::load_level_icons_vls(void)
+- called from load_visual_level_select(void)
+- called at the end of create_level_icons_vls();
 
 
 
@@ -27353,93 +27512,253 @@ mScreen.init_level_background();
 
 
 
+release has no splash screen??
+not till you switch to classic mode..weird
+made it common in menu....
 
 
 
+make default window size on release a fraction of the full screen size, if possible
+when I am doing that, I don';t think I have access to that yet...
 
+this is what I do now:
 
+   agci(SCREEN, mDisplay.disp_x_wind, 100)
+   agci(SCREEN, mDisplay.disp_y_wind, 100)
+   agci(SCREEN, mDisplay.disp_w_wind, 800)
+   agci(SCREEN, mDisplay.disp_h_wind, 600)
 
+I am thinking of going with 768 as the min h
 
+lets try 1024x768
+this does dtd 2 on auto and the settings are too short
 
+actually a minimum of 400x400 is needed to see the entire settings pages
 
+what happens if you put a huge value for window size?
 
+this is how I left it
 
+   agci(SCREEN, mDisplay.disp_x_wind, 200)
+   agci(SCREEN, mDisplay.disp_y_wind, 40)
+   agci(SCREEN, mDisplay.disp_w_wind, 1280)
+   agci(SCREEN, mDisplay.disp_h_wind, 1024)
 
 
 
 
+edit the release scripts to leave level_icon_bmp_100 and 200..done
 
 
 
 
+release demo plays then back to menu with overworld map, but level icons are blank
+gates are not drawn, but why?
 
+when I do the exact same thing in classic mode they are...
 
+classic
 
+transition from menu to nothing
+demo rnd - pass:1 index:5 level:7  lf:1948
+---------  State change from 12 to 31  --------  31 12  1  0  0  0  0  0  --------  [   0]  --------   [qa:1] [da:5]
+[State 31 - Setup Demo Level]  [lev:7]  [drm:21]
+transition from nothing to game
+---------  State change from 31 to 11  --------  11 31 12  1  0  0  0  0  --------  [   0]  --------   [qa:1] [da:5]
+---------  State change from 11 to 32  --------  32 11 31 12  1  0  0  0  --------  [  34]  --------   [qa:1] [da:5]
+[State 32 - Quit and Cleanup Demo Mode]  [drm:21]  [m:2]
+transition from game to nothing
+transition from nothing to menu
+---------  State change from 32 to  1  --------   1 32 11 31 12  1  0  0  --------  [  34]  --------   [qa:99] [da:5]
+[State 1 - Game Menu] - quit_action:99
 
 
+Demo mode started from menu
 
+pre-load transition:menu to nothing
+post-load transition:none
 
+transition from menu to nothing
+demo rnd - pass:1 index:68 level:90  lf:4508
+---------  State change from 12 to 31  --------  31 12  1  3  1 32 11 31  --------  [  34]  --------   [qa:1] [da:5]
+[State 31 - Setup Demo Level]  [lev:90]  [drm:21]
+transition from nothing to game
+---------  State change from 31 to 11  --------  11 31 12  1  3  1 32 11  --------  [   0]  --------   [qa:1] [da:5]
+---------  State change from 11 to 32  --------  32 11 31 12  1  3  1 32  --------  [  52]  --------   [qa:1] [da:5]
+[State 32 - Quit and Cleanup Demo Mode]  [drm:21]  [m:2]
+transition from game to nothing
+transition from nothing to menu
+---------  State change from 32 to  1  --------   1 32 11 31 12  1  3  1  --------  [  52]  --------   [qa:99] [da:5]
+[State 1 - Game Menu] - quit_action:99
+---------  State change from  1 to  0  --------   0  1 32 11 31 12  1  3  --------  [  52]  --------   [qa:0] [da:5]
 
 
 
+from menu to nothing
+demo rnd - pass:1 index:25 level:27  lf:3602
+---------  State change from 12 to 31  --------  31 12  1  0  0  0  0  0  --------  [   0]  --------   [qa:1] [da:5]
+[State 31 - Setup Demo Level]  [lev:27]  [drm:21]
+transition from nothing to game
+---------  State change from 31 to 11  --------  11 31 12  1  0  0  0  0  --------  [   0]  --------   [qa:1] [da:5]
+---------  State change from 11 to 32  --------  32 11 31 12  1  0  0  0  --------  [  61]  --------   [qa:1] [da:5]
+[State 32 - Quit and Cleanup Demo Mode]  [drm:21]  [m:2]
+transition from game to nothing
+[State 32 - Restore Level:1
+transition from nothing to menu
+---------  State change from 32 to  1  --------   1 32 11 31 12  1  0  0  --------  [  61]  --------   [qa:99] [da:5]
+[State 1 - Game Menu] - quit_action:99
 
 
 
+needed to call mLevel.set_start_level();
+at the start of story menu, just like I do at the start of classic menu
 
 
+do I even need to show the overworld map menu on story mode menu?
+remove the title 'Overworld', but keep the map, looks empty without it
 
 
 
 
+make sound stop at start of transitions
+like when?
 
 
 
+demo mode cancel..done
 
 
 
+I also see that cpu graph is expensive
+it draws directly on the screen, good
+but it completely redraw its self every frame
+I am thinking of using a temporary bitmap..
+every frame just slide it all down 1 pixel and draw the new column
+autorange would be affected
 
 
 
+20230707 friday
 
+getting very close to finishing now..
 
+the level_icon bitmap thing works good at start
 
+just humor me and test 4230 with levels set to cmp 1
+right now it take 17s to create_level_icon_vls
+no diff...
 
+the linux version release seems to be working well
 
 
+training level 5 start behind alwys on msg msg..fixed
+check for others, iwent through them all
 
+reduce par times
 
 
 
+linux version is not saving level data in proper folder..fixed directory seperators..done
 
 
+bug - why do all levels show purple coin completed after reset all level data
 
+because the purple coin count happened with creating level icons, do it somehwere else
 
+all I have to do is load each level and the data will be stored automatically
 
+I need to do this at release, or include a copy of level_data.pm
 
+if level_data.pm does not exist recreate it....
 
+copy all with release
 
 
+make sure before doing a release you do a reset...
+also that vls icons are something, lets go with 20 and save 20 in config
 
 
+when doing reset on 4230 if still takes 17s
 
+that is just the amount of time it takes to open 100 level files
 
 
+could it be that the way I load does lots of other things, like init_level_background?
 
+try doing custom, that made a dramatic difference, only a second to do all on 4230
 
 
+try that with creating the icons
+does not get better
 
+I think 4230 is just slow at init_level_background
 
 
+m36    - 8ms
+scat   - 18ms
+e6320  - 25ms
+4230   - 181ms
+yes, very slow...
 
+can I do anything about it?
 
+what if I skip drawing blank tiles?
 
+try it...
 
+it definitely made an improvement
 
 
+create_level_icons_time:
+m36   0.559549
+scat  0.939
+e6420 2.40
+4230  6.1
 
+do the old just to compare:
+m36   1.14
+scat  2.12
+e6420 3.54
+4230  18.85
 
 
+what does it look like without the progress bar?
 
+create_level_icons_time:
+m36   0.54
+scat  0.877
+e6420 2.02
+4230  6.08
+
+just slightly better, not enugh that I want to keep it that way, I want the progress bar...
+
+average time in level data should only be average of times the level was beat..done
+
+
+
+
+
+what about the default size for vls level icons
+
+on some smaller screens they seem way too small
+
+
+it seems to be only multiples of 20, with 20 as the smallest
+
+
+it might have something to do with the screen double...
+
+I think it looks better now, test on 4230
+
+looks good
+
+what is my default in config? 40
+but if the file does not exist, it will be recreated, right?? yes its all good
+
+
+20230707 push
+
+much is finished
 
 
 

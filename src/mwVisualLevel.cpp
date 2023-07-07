@@ -477,6 +477,10 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
 
 void mwVisualLevel::load_visual_level_select(void)
 {
+   int mod_size = 10;
+   int min_size = 10;
+
+
    num_levs = 0;
    load_visual_level_select_done = 1;
    for (int x=0; x<NUM_LEV; x++) le[x] = 0;
@@ -515,9 +519,9 @@ void mwVisualLevel::load_visual_level_select(void)
    // get the size from this
    grid_size = (int) sqrt((float)ia);
 //   printf("gs:%d\n", grid_size);
-   grid_size -= grid_size% 20; // mod 20
+   grid_size -= grid_size % mod_size; // mod 20
 //   printf("gs:%d\n", grid_size);
-   if (grid_size < 20) grid_size = 10;
+   if (grid_size < mod_size) grid_size = min_size;
 //   printf("gs:%d\n", grid_size);
 
    // how many icon will fit vertically?
@@ -533,11 +537,11 @@ void mwVisualLevel::load_visual_level_select(void)
    // check if the intended grid is off the bottom of the screen
    while (grid_height >= mDisplay.SCREEN_H)
    {
-      grid_size -= 20;
+      grid_size -= mod_size;
 
-      if (grid_size < 20)
+      if (grid_size < mod_size)
       {
-         grid_size = 10;
+         grid_size = min_size;
          break;
       }
 
@@ -567,8 +571,13 @@ void mwVisualLevel::load_visual_level_select(void)
    if (grid_size != level_icon_size)
    {
       level_icon_size = grid_size;
-      mLevel.create_level_icons(1);
+      create_level_icons_vls();
    }
+   load_level_icons_vls();
+
+
+
+
 
    // create the icon grid bitmap
    al_destroy_bitmap(grid_bmp);
@@ -586,7 +595,7 @@ void mwVisualLevel::load_visual_level_select(void)
          int by1 = row * grid_size;
          if (lev)
          {
-            al_draw_bitmap(mLevel.level_icon_vls[lev], bx1, by1, 0);
+            al_draw_bitmap(level_icon_vls[lev], bx1, by1, 0);
             al_draw_textf(mFont.pr8, mColor.pc[15], bx1 + grid_size/2-8, by1 + grid_size/2-4, 0, "%d", lev);
          }
       }
@@ -674,6 +683,9 @@ int mwVisualLevel::visual_level_select(void)
          al_draw_text(mFont.pr8, mColor.pc[14], tx, ty1+=16, ALLEGRO_ALIGN_CENTER, "Choose a level with <ENTER>");
          al_draw_text(mFont.pr8, mColor.pc[11], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Arrow keys change selection" );
          al_draw_text(mFont.pr8, mColor.pc[10], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "<ESC> to abort");
+
+         al_draw_textf(mFont.pr8, mColor.pc[15], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Icon size:%d", grid_size);
+
 
          al_flip_display();
       } // end of redraw
@@ -817,4 +829,70 @@ int mwVisualLevel::visual_level_select(void)
 
 
 
+void mwVisualLevel::create_level_icons_vls(void)
+{
+   int sz = level_icon_size;
+   ALLEGRO_BITMAP *tmp = al_create_bitmap(sz*10, sz*10);
+   al_set_target_bitmap(tmp);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+
+
+   int x=0;
+   int y=0;
+   for (int i=0; i<100; i++)
+   {
+
+      if (mLevel.load_level(i, 0, 1)) mScreen.draw_level2(tmp, x*sz, y*sz, sz, 1, 1, 1, 1, 0);
+
+      // show progress bar
+      int pc = i*100 / 100;
+      al_set_target_backbuffer(mDisplay.display);
+      //al_clear_to_color(al_map_rgb(0,0,0));
+      mScreen.draw_percent_bar(mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mDisplay.SCREEN_W-200, 20, pc );
+      al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating Level Icons");
+      al_flip_display();
+
+      if (++x > 9)
+      {
+         x = 0;
+         y++;
+      }
+   }
+   al_save_bitmap("data/level_icons_vls.bmp", tmp);
+   al_destroy_bitmap(tmp);
+   load_level_icons_vls();
+}
+
+
+void mwVisualLevel::load_level_icons_vls(void)
+{
+   int sz = level_icon_size;
+   ALLEGRO_BITMAP *tmp = al_load_bitmap("data/level_icons_vls.bmp");
+   if (!tmp)
+   {
+      printf("Error loading tiles from:level_icons_vls.bmp - recreating\n");
+      create_level_icons_vls();
+   }
+   else
+   {
+      int x=0;
+      int y=0;
+      for (int i=0; i<100; i++)
+      {
+         al_destroy_bitmap(level_icon_vls[i]);
+         level_icon_vls[i] = al_create_bitmap(sz, sz);
+         al_set_target_bitmap(level_icon_vls[i]);
+         al_clear_to_color(al_map_rgba(0,0,0,0));
+         al_draw_bitmap_region(tmp, x*sz, y*sz, sz, sz, 0, 0, 0);
+         if (++x > 9)
+         {
+            x = 0;
+            y++;
+         }
+     }
+     //double llt1 = al_get_time() - llt0;
+     //printf("Load level icons time:%f\n", llt1*1000);
+     al_destroy_bitmap(tmp);
+   }
+}
 

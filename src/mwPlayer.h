@@ -216,9 +216,12 @@ class mwPlayer
    void proc_player_rope(int p);
    void proc_player_ladder(int p);
    void move_players(void);
+
+   void draw_player_direct_to_screen(int p);
+
    void draw_player(int p);
    void draw_players(void);
-   void get_players_shape(int p);
+   void set_players_shape(int p);
    int is_player_color_used(int color);
    void init_player(int p, int t);
    void fill_player_tile(void);

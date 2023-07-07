@@ -16,12 +16,17 @@ mkdir purple_martians__linux/screenshots
 mkdir purple_martians__linux/sel
 mkdir purple_martians__linux/snd
 
+
+
 cp bitmaps/*       purple_martians__linux/bitmaps
 cp help/*          purple_martians__linux/help
 cp snd/*           purple_martians__linux/snd
 cp levels/level0*  purple_martians__linux/levels
 cp linux_libs/*    purple_martians__linux/linux_libs
 cp savegame/demo/* purple_martians__linux/savegame/demo
+
+cp data/level_icons_100.bmp purple_martians__linux/data
+cp data/level_icons_200.bmp purple_martians__linux/data
 
 cp pm purple_martians__linux/
 cp readme_linux purple_martians__linux/

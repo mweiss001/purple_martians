@@ -403,16 +403,17 @@ void mwScreen::mark_non_default_block(int x, int y)
 
 void mwScreen::init_level_background(void) // fill level_background with block tiles
 {
+   //double t0 = al_get_time();
    //printf("init_level_background\n");
    al_set_target_bitmap(mBitmap.level_background);
    al_clear_to_color(al_map_rgb(0,0,0));
    for (int x=0; x<100; x++)
       for (int y=0; y<100; y++)
       {
-         al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
+         int tile = mLevel.l[x][y] & 1023;
+         if (tile) al_draw_bitmap(mBitmap.btile[tile], x*20, y*20, 0);
          if ((mLoop.level_editor_running) && (mWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
       }
-
 
    // if level 1 draw all the gates
    if (mLevel.play_level == 1)
@@ -420,14 +421,13 @@ void mwScreen::init_level_background(void) // fill level_background with block t
       for (int i=0; i<500; i++)
          if (mItem.item[i][0] == 18) mItem.draw_gate(i, mItem.item[i][4], mItem.item[i][5], 0);
    }
-
    char msg[256];
    // draw all messages that are always on
    for (int i=0; i<500; i++)
       if ((mItem.item[i][0] == 10) && (mItem.item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
          mItem.draw_pop_message(i, 2, 0, 0, 0, 0, msg);
 
-
+   // printf("init_level_background time:%f\n", al_get_time() - t0);
 }
 
 
@@ -507,12 +507,12 @@ void mwScreen::draw_level_map_under_menu(void) // used only in menu
    }
    else // story mode
    {
-      if (lev == 1) al_draw_text(mFont.pr8, mColor.pc[15], text_x, text_y+8, ALLEGRO_ALIGN_CENTRE, "Overworld");
-      else
-      {
-         al_draw_textf(mFont.pr8, mColor.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", lev ); text_y += 8;
-         al_draw_textf(mFont.pr8, mColor.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " %s ", mLevel.data[lev].level_name );
-      }
+//      if (lev == 1) al_draw_text(mFont.pr8, mColor.pc[15], text_x, text_y+8, ALLEGRO_ALIGN_CENTRE, "Overworld");
+//      else
+//      {
+//         al_draw_textf(mFont.pr8, mColor.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", lev ); text_y += 8;
+//         al_draw_textf(mFont.pr8, mColor.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " %s ", mLevel.data[lev].level_name );
+//      }
    }
 
 }
