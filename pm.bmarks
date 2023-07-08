@@ -1,379 +1,378 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <BrowseTracker_layout_file>
 	<ActiveTarget name="windows_static" />
-	<File name="src\mwTimeStamp.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="1279" topLine="0" />
+	<File name="pm_docs\new8.txt" open="1" top="0" tabpos="1">
+		<Cursor position="761080" topLine="27753" />
+		<BrowseMarks positions="717010,724593,724831,734570,746528,750261,750293,750454,750458,753440,762502" />
 	</File>
-	<File name="src\mwBottomMessage.h" open="0" top="0" tabpos="6">
-		<Cursor position="905" topLine="0" />
+	<File name="src\mwSettings.cpp" open="0" top="0" tabpos="5">
+		<Cursor position="24495" topLine="481" />
+		<BrowseMarks positions="" />
 	</File>
-	<File name="src\mwLogo.h" open="0" top="0" tabpos="0">
-		<Cursor position="1410" topLine="0" />
-	</File>
-	<File name="src\mwHelp.cpp" open="0" top="0" tabpos="12">
-		<Cursor position="1144" topLine="21" />
-	</File>
-	<File name="src\mwMiscFnx.h" open="0" top="0" tabpos="9">
-		<Cursor position="417" topLine="0" />
-	</File>
-	<File name="src\mwWindow.cpp" open="0" top="0" tabpos="9">
-		<Cursor position="9693" topLine="288" />
-	</File>
-	<File name="src\mwLogGraph.cpp" open="0" top="0" tabpos="17">
-		<Cursor position="22100" topLine="546" />
-	</File>
-	<File name="src\mwGameMoves.cpp" open="0" top="0" tabpos="15">
-		<Cursor position="19975" topLine="561" />
-	</File>
-	<File name="src\mwWindowManager.cpp" open="0" top="0" tabpos="11">
-		<Cursor position="8024" topLine="231" />
-		<BrowseMarks positions="10101" />
-	</File>
-	<File name="src\mwLevel.h" open="0" top="0" tabpos="5">
-		<Cursor position="3808" topLine="98" />
+	<File name="src\mwItemTrigger.cpp" open="0" top="0" tabpos="4">
+		<Cursor position="22804" topLine="631" />
+		<BrowseMarks positions="" />
 	</File>
 	<File name="src\mwEventQueue.cpp" open="0" top="0" tabpos="8">
 		<Cursor position="19" topLine="0" />
 	</File>
-	<File name="src\mwShot.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="4725" topLine="125" />
-	</File>
-	<File name="src\mwSolid.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="1785" topLine="0" />
-	</File>
-	<File name="src\mwColor.cpp" open="0" top="0" tabpos="14">
-		<Cursor position="2314" topLine="18" />
-	</File>
-	<File name="src\mwItemTrigger.cpp" open="0" top="0" tabpos="4">
-		<Cursor position="23705" topLine="649" />
-	</File>
-	<File name="src\mwRollingAverage.h" open="0" top="0" tabpos="0">
-		<Cursor position="395" topLine="0" />
-	</File>
-	<File name="src\mwTimeStamp.h" open="0" top="0" tabpos="0">
-		<Cursor position="59" topLine="0" />
-	</File>
-	<File name="src\mwEnemy.h" open="0" top="0" tabpos="7">
-		<Cursor position="1572" topLine="0" />
-	</File>
-	<File name="pm_docs\new5_todo.txt" open="1" top="0" tabpos="2">
-		<Cursor position="179" topLine="0" />
-		<BrowseMarks positions="" />
-	</File>
-	<File name="src\mwMainArgs.cpp" open="0" top="0" tabpos="7">
-		<Cursor position="456" topLine="14" />
-		<BrowseMarks positions="" />
-	</File>
-	<File name="src\mwFont.h" open="0" top="0" tabpos="11">
-		<Cursor position="149" topLine="0" />
-	</File>
-	<File name="src\mwSettings.h" open="0" top="0" tabpos="0">
-		<Cursor position="476" topLine="0" />
-	</File>
-	<File name="src\mwDrawSequence.h" open="0" top="0" tabpos="9">
-		<Cursor position="505" topLine="0" />
-	</File>
-	<File name="src\mwLogViewer.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="6510" topLine="69" />
-	</File>
-	<File name="src\mwSettings.cpp" open="0" top="0" tabpos="5">
-		<Cursor position="63861" topLine="1529" />
-		<BrowseMarks positions="" />
+	<File name="src\mwWindowObjectViewer.cpp" open="0" top="0" tabpos="3">
+		<Cursor position="67439" topLine="1099" />
+		<BrowseMarks positions="38128" />
 	</File>
 	<File name="src\mwTriggerEvent.h" open="0" top="0" tabpos="7">
 		<Cursor position="370" topLine="0" />
 	</File>
-	<File name="src\mwLevelData.cpp" open="1" top="0" tabpos="6">
-		<Cursor position="42059" topLine="1356" />
+	<File name="src\mwItem.cpp" open="0" top="0" tabpos="4">
+		<Cursor position="5795" topLine="156" />
 		<BrowseMarks positions="" />
-	</File>
-	<File name="src\mwQuickGraph.h" open="0" top="0" tabpos="0">
-		<Cursor position="514" topLine="0" />
-	</File>
-	<File name="src\mwWindowGroupEdit.cpp" open="0" top="0" tabpos="5">
-		<Cursor position="23838" topLine="797" />
-	</File>
-	<File name="src\mwDisplay.h" open="0" top="0" tabpos="8">
-		<Cursor position="890" topLine="27" />
-	</File>
-	<File name="src\mwMenu.cpp" open="0" top="0" tabpos="4">
-		<Cursor position="3967" topLine="113" />
-		<BrowseMarks positions="" />
-	</File>
-	<File name="src\mwMulticolorLine.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="17" topLine="0" />
-	</File>
-	<File name="src\mwFileIterator.cpp" open="0" top="0" tabpos="9">
-		<Cursor position="885" topLine="0" />
-	</File>
-	<File name="src\mwConfig.cpp" open="0" top="0" tabpos="6">
-		<Cursor position="10909" topLine="287" />
-		<BrowseMarks positions="10325" />
-	</File>
-	<File name="src\mwGameMoves.h" open="0" top="0" tabpos="13">
-		<Cursor position="51" topLine="0" />
-	</File>
-	<File name="src\mwWindow.h" open="0" top="0" tabpos="7">
-		<Cursor position="216" topLine="0" />
-	</File>
-	<File name="src\mwDemoMode.cpp" open="0" top="0" tabpos="8">
-		<Cursor position="4944" topLine="130" />
-		<BrowseMarks positions="2742" />
-	</File>
-	<File name="src\mwHelp.h" open="0" top="0" tabpos="8">
-		<Cursor position="238" topLine="0" />
-	</File>
-	<File name="src\mwBitmap.cpp" open="0" top="0" tabpos="9">
-		<Cursor position="1590" topLine="18" />
-		<BrowseMarks positions="" />
-	</File>
-	<File name="src\mwQuickGraph.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="1008" topLine="39" />
-	</File>
-	<File name="src\mwTriggerEvent.cpp" open="0" top="0" tabpos="6">
-		<Cursor position="26478" topLine="731" />
-	</File>
-	<File name="src\mwBottomMessage.cpp" open="0" top="0" tabpos="7">
-		<Cursor position="12333" topLine="334" />
-	</File>
-	<File name="src\mwMain.cpp" open="0" top="0" tabpos="12">
-		<Cursor position="4402" topLine="131" />
-	</File>
-	<File name="src\mwGlobalLevelTool.cpp" open="0" top="0" tabpos="6">
-		<Cursor position="14829" topLine="467" />
-		<BrowseMarks positions="" />
-	</File>
-	<File name="src\mwMiscFnx.cpp" open="0" top="0" tabpos="8">
-		<Cursor position="880" topLine="36" />
-	</File>
-	<File name="src\mwWidget.h" open="0" top="0" tabpos="0">
-		<Cursor position="11" topLine="0" />
 	</File>
 	<File name="src\mwEnemyFlapper.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="82" topLine="0" />
 	</File>
-	<File name="src\mwLog.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="71" topLine="0" />
+	<File name="src\mwBitmapTools.h" open="0" top="0" tabpos="13">
+		<Cursor position="595" topLine="0" />
 	</File>
-	<File name="src\mwFileIterator.h" open="0" top="0" tabpos="10">
-		<Cursor position="389" topLine="0" />
+	<File name="src\mwWindow.h" open="0" top="0" tabpos="7">
+		<Cursor position="216" topLine="0" />
 	</File>
-	<File name="src\mwScreenOverlay.cpp" open="0" top="0" tabpos="3">
-		<Cursor position="45627" topLine="1144" />
+	<File name="src\mwLevelData.cpp" open="1" top="0" tabpos="3">
+		<Cursor position="834" topLine="19" />
 		<BrowseMarks positions="" />
-	</File>
-	<File name="src\mwWindowObjectViewer.cpp" open="1" top="0" tabpos="3">
-		<Cursor position="31420" topLine="607" />
-		<BrowseMarks positions="38128" />
-	</File>
-	<File name="src\mwEnemyCloner.cpp" open="0" top="0" tabpos="8">
-		<Cursor position="210" topLine="0" />
-	</File>
-	<File name="src\mwLoop.cpp" open="0" top="0" tabpos="3">
-		<Cursor position="7419" topLine="269" />
-		<BrowseMarks positions="" />
-	</File>
-	<File name="src\mwItem.h" open="0" top="0" tabpos="17">
-		<Cursor position="548" topLine="22" />
-	</File>
-	<File name="src\mwNetgameServer.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="15946" topLine="473" />
-	</File>
-	<File name="src\mwVisualLevel.cpp" open="0" top="0" tabpos="11">
-		<Cursor position="16227" topLine="461" />
-		<BrowseMarks positions="21060" />
-	</File>
-	<File name="src\mwConfig.h" open="0" top="0" tabpos="0">
-		<Cursor position="1341" topLine="0" />
-	</File>
-	<File name="src\mwItemKeySwitch.cpp" open="0" top="0" tabpos="5">
-		<Cursor position="953" topLine="0" />
-	</File>
-	<File name="src\mwInput.h" open="0" top="0" tabpos="4">
-		<Cursor position="1087" topLine="0" />
-	</File>
-	<File name="src\mwShot.h" open="0" top="0" tabpos="0">
-		<Cursor position="200" topLine="0" />
-	</File>
-	<File name="src\mwWindowEditSelection.cpp" open="0" top="0" tabpos="18">
-		<Cursor position="33044" topLine="893" />
-	</File>
-	<File name="src\mwBitmap.h" open="0" top="0" tabpos="16">
-		<Cursor position="313" topLine="0" />
-	</File>
-	<File name="src\mwLogo.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="13256" topLine="397" />
-	</File>
-	<File name="src\mwEventQueue.h" open="0" top="0" tabpos="0">
-		<Cursor position="654" topLine="0" />
-	</File>
-	<File name="src\mwScreen.h" open="0" top="0" tabpos="7">
-		<Cursor position="2193" topLine="0" />
-	</File>
-	<File name="src\mwWindowManager.h" open="0" top="0" tabpos="5">
-		<Cursor position="388" topLine="0" />
-	</File>
-	<File name="src\main.cpp" open="0" top="0" tabpos="7">
-		<Cursor position="144" topLine="0" />
-	</File>
-	<File name="src\mwLog.h" open="0" top="0" tabpos="0">
-		<Cursor position="300" topLine="0" />
-	</File>
-	<File name="src\mwGameEvent.h" open="0" top="0" tabpos="0">
-		<Cursor position="160" topLine="0" />
-	</File>
-	<File name="src\mwNetgame.h" open="0" top="0" tabpos="0">
-		<Cursor position="23" topLine="0" />
-	</File>
-	<File name="src\mwVisualLevel.h" open="0" top="0" tabpos="13">
-		<Cursor position="190" topLine="0" />
-	</File>
-	<File name="src\mwEnemyCannon.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="102" topLine="3" />
-	</File>
-	<File name="src\mwItemMessage.cpp" open="0" top="0" tabpos="7">
-		<Cursor position="3662" topLine="103" />
-		<BrowseMarks positions="2023" />
-	</File>
-	<File name="src\mwInput.cpp" open="0" top="0" tabpos="7">
-		<Cursor position="5214" topLine="167" />
-		<BrowseMarks positions="1290,13516" />
-	</File>
-	<File name="src\mwScreen.cpp" open="0" top="0" tabpos="5">
-		<Cursor position="9197" topLine="241" />
-		<BrowseMarks positions="5480" />
-	</File>
-	<File name="src\mwSound.cpp" open="0" top="0" tabpos="12">
-		<Cursor position="0" topLine="0" />
-	</File>
-	<File name="src\mwEnemyArchwagon.cpp" open="0" top="0" tabpos="6">
-		<Cursor position="8871" topLine="265" />
-	</File>
-	<File name="pm_docs\new8.txt" open="1" top="1" tabpos="1">
-		<Cursor position="760850" topLine="27693" />
-		<BrowseMarks positions="717010,724593,724831,734570,746528,750261,750293,750454,750458,753440,760902" />
-	</File>
-	<File name="src\mwItemBombRocket.cpp" open="0" top="0" tabpos="6">
-		<Cursor position="630" topLine="2" />
-	</File>
-	<File name="src\mwGlobalLevelTool.h" open="0" top="0" tabpos="0">
-		<Cursor position="90" topLine="0" />
 	</File>
 	<File name="src\mwNetgameClient.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="27324" topLine="611" />
 	</File>
-	<File name="src\mwEnemy.cpp" open="0" top="0" tabpos="12">
-		<Cursor position="581" topLine="0" />
-	</File>
-	<File name="src\mwLevel.cpp" open="0" top="0" tabpos="4">
-		<Cursor position="4189" topLine="124" />
-		<BrowseMarks positions="10924" />
-	</File>
-	<File name="src\mwEnemyFnx.cpp" open="0" top="0" tabpos="6">
-		<Cursor position="1980" topLine="0" />
-	</File>
-	<File name="src\mwPDE.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="1638" topLine="30" />
-	</File>
-	<File name="src\pm.h" open="0" top="0" tabpos="12">
-		<Cursor position="0" topLine="0" />
-	</File>
-	<File name="src\mwDrawSequence.cpp" open="1" top="0" tabpos="5">
-		<Cursor position="3987" topLine="127" />
-		<BrowseMarks positions="" />
-	</File>
-	<File name="src\mwLift.h" open="0" top="0" tabpos="13">
-		<Cursor position="249" topLine="0" />
-	</File>
-	<File name="src\mwPlayer.cpp" open="0" top="0" tabpos="4">
-		<Cursor position="35131" topLine="1112" />
-	</File>
-	<File name="src\mwWindowTileHelper.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="21636" topLine="392" />
-	</File>
-	<File name="src\mwBitmapTools.h" open="0" top="0" tabpos="13">
-		<Cursor position="595" topLine="0" />
-	</File>
-	<File name="src\mwItemStartExitGate.cpp" open="1" top="0" tabpos="7">
-		<Cursor position="4784" topLine="133" />
-		<BrowseMarks positions="" />
-	</File>
-	<File name="src\mwEnemyTrakbot.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="82" topLine="0" />
-	</File>
-	<File name="src\mwDisplay.cpp" open="0" top="0" tabpos="17">
-		<Cursor position="15311" topLine="305" />
-		<BrowseMarks positions="19938" />
-	</File>
-	<File name="src\mwItemDoor.cpp" open="0" top="0" tabpos="7">
-		<Cursor position="1308" topLine="12" />
-	</File>
-	<File name="src\mwEnemyVinePod.cpp" open="1" top="0" tabpos="4">
-		<Cursor position="3038" topLine="56" />
-		<BrowseMarks positions="" />
-	</File>
-	<File name="src\mwBitmapTools.cpp" open="0" top="0" tabpos="12">
-		<Cursor position="21634" topLine="547" />
-	</File>
-	<File name="src\mwFont.cpp" open="0" top="0" tabpos="10">
-		<Cursor position="2906" topLine="59" />
-	</File>
-	<File name="src\mwWidget.cpp" open="0" top="0" tabpos="14">
-		<Cursor position="49497" topLine="1589" />
-	</File>
-	<File name="src\mwColor.h" open="0" top="0" tabpos="0">
-		<Cursor position="804" topLine="0" />
+	<File name="src\mwScreenOverlay.cpp" open="0" top="0" tabpos="3">
+		<Cursor position="45627" topLine="1144" />
 	</File>
 	<File name="src\mwGraph.cpp" open="0" top="0" tabpos="18">
 		<Cursor position="41032" topLine="1164" />
 	</File>
+	<File name="src\mwFileIterator.h" open="0" top="0" tabpos="10">
+		<Cursor position="389" topLine="0" />
+	</File>
+	<File name="src\mwNetgame.h" open="0" top="0" tabpos="0">
+		<Cursor position="23" topLine="0" />
+	</File>
+	<File name="src\mwWindowManager.h" open="0" top="0" tabpos="5">
+		<Cursor position="388" topLine="0" />
+	</File>
+	<File name="src\mwSound.cpp" open="0" top="0" tabpos="12">
+		<Cursor position="0" topLine="0" />
+	</File>
+	<File name="src\mwItem.h" open="0" top="0" tabpos="17">
+		<Cursor position="548" topLine="22" />
+	</File>
+	<File name="src\mwEnemyCloner.cpp" open="0" top="0" tabpos="8">
+		<Cursor position="210" topLine="0" />
+	</File>
+	<File name="src\mwMiscFnx.h" open="0" top="0" tabpos="9">
+		<Cursor position="417" topLine="0" />
+	</File>
+	<File name="src\mwWindowManager.cpp" open="0" top="0" tabpos="11">
+		<Cursor position="20555" topLine="608" />
+		<BrowseMarks positions="10101" />
+	</File>
+	<File name="src\mwQuickGraph.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="1008" topLine="39" />
+	</File>
+	<File name="src\mwItemMessage.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="4944" topLine="100" />
+		<BrowseMarks positions="2023" />
+	</File>
+	<File name="src\mwEventQueue.h" open="0" top="0" tabpos="0">
+		<Cursor position="654" topLine="0" />
+	</File>
+	<File name="src\mwLog.h" open="0" top="0" tabpos="0">
+		<Cursor position="300" topLine="0" />
+	</File>
+	<File name="src\mwWindowGroupEdit.cpp" open="0" top="0" tabpos="5">
+		<Cursor position="23838" topLine="797" />
+	</File>
+	<File name="src\mwSolid.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="1785" topLine="0" />
+	</File>
+	<File name="src\mwConfig.h" open="0" top="0" tabpos="0">
+		<Cursor position="1341" topLine="0" />
+	</File>
+	<File name="src\mwMulticolorLine.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="17" topLine="0" />
+	</File>
+	<File name="src\mwEnemyArchwagon.cpp" open="0" top="0" tabpos="6">
+		<Cursor position="8871" topLine="265" />
+	</File>
+	<File name="src\mwMainArgs.cpp" open="0" top="0" tabpos="7">
+		<Cursor position="6308" topLine="79" />
+		<BrowseMarks positions="" />
+	</File>
+	<File name="src\mwBottomMessage.h" open="0" top="0" tabpos="6">
+		<Cursor position="905" topLine="0" />
+	</File>
+	<File name="src\mwShot.h" open="0" top="0" tabpos="0">
+		<Cursor position="200" topLine="0" />
+	</File>
+	<File name="src\mwGameEvent.h" open="0" top="0" tabpos="0">
+		<Cursor position="160" topLine="0" />
+	</File>
+	<File name="src\mwEnemyCannon.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="102" topLine="3" />
+	</File>
 	<File name="src\mwNetgame.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="150" topLine="0" />
 	</File>
-	<File name="src\mwTally.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="14" topLine="0" />
+	<File name="src\mwBitmap.cpp" open="0" top="0" tabpos="9">
+		<Cursor position="1590" topLine="18" />
 	</File>
-	<File name="src\mwCodeStats.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="5279" topLine="3" />
+	<File name="src\pm.h" open="1" top="1" tabpos="6">
+		<Cursor position="38" topLine="0" />
+		<BrowseMarks positions="" />
 	</File>
-	<File name="src\mwLoop.h" open="0" top="0" tabpos="12">
-		<Cursor position="1288" topLine="0" />
+	<File name="src\mwScreen.h" open="0" top="0" tabpos="7">
+		<Cursor position="2193" topLine="0" />
 	</File>
 	<File name="src\mwGameEvent.cpp" open="0" top="0" tabpos="3">
 		<Cursor position="272" topLine="0" />
 		<BrowseMarks positions="4310" />
 	</File>
-	<File name="src\mwPlayer.h" open="0" top="0" tabpos="15">
-		<Cursor position="5400" topLine="141" />
+	<File name="src\mwEnemyJumpworm.cpp" open="0" top="0" tabpos="11">
+		<Cursor position="1436" topLine="0" />
 	</File>
-	<File name="src\mwEnemyEditorFnx.cpp" open="0" top="0" tabpos="7">
-		<Cursor position="7758" topLine="240" />
+	<File name="src\mwLogGraph.cpp" open="0" top="0" tabpos="17">
+		<Cursor position="22100" topLine="546" />
+	</File>
+	<File name="src\mwWidget.cpp" open="0" top="0" tabpos="14">
+		<Cursor position="52065" topLine="1688" />
 		<BrowseMarks positions="" />
+	</File>
+	<File name="src\mwShot.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="4725" topLine="125" />
+	</File>
+	<File name="src\mwItemDoor.cpp" open="0" top="0" tabpos="7">
+		<Cursor position="1308" topLine="12" />
+	</File>
+	<File name="src\mwDrawSequence.h" open="0" top="0" tabpos="9">
+		<Cursor position="505" topLine="0" />
+	</File>
+	<File name="src\mwLoop.h" open="0" top="0" tabpos="12">
+		<Cursor position="1288" topLine="0" />
+	</File>
+	<File name="src\mwWidget.h" open="0" top="0" tabpos="0">
+		<Cursor position="11" topLine="0" />
+	</File>
+	<File name="src\mwGlobalLevelTool.h" open="0" top="0" tabpos="0">
+		<Cursor position="90" topLine="0" />
+	</File>
+	<File name="src\mwEnemy.h" open="0" top="0" tabpos="7">
+		<Cursor position="1572" topLine="0" />
+	</File>
+	<File name="src\mwMenu.h" open="0" top="0" tabpos="0">
+		<Cursor position="188" topLine="0" />
+	</File>
+	<File name="src\mwConfig.cpp" open="0" top="0" tabpos="6">
+		<Cursor position="10539" topLine="287" />
+		<BrowseMarks positions="10325" />
+	</File>
+	<File name="src\mwScreen.cpp" open="0" top="0" tabpos="5">
+		<Cursor position="9197" topLine="241" />
+		<BrowseMarks positions="5480" />
+	</File>
+	<File name="src\mwLevel.cpp" open="0" top="0" tabpos="4">
+		<Cursor position="4189" topLine="124" />
+		<BrowseMarks positions="10924" />
+	</File>
+	<File name="src\mwFont.h" open="0" top="0" tabpos="11">
+		<Cursor position="149" topLine="0" />
+	</File>
+	<File name="src\mwMenu.cpp" open="0" top="0" tabpos="4">
+		<Cursor position="3967" topLine="113" />
+	</File>
+	<File name="src\mwColor.cpp" open="0" top="0" tabpos="14">
+		<Cursor position="2314" topLine="18" />
+	</File>
+	<File name="src\mwPlayer.cpp" open="0" top="0" tabpos="4">
+		<Cursor position="35131" topLine="1112" />
+	</File>
+	<File name="src\mwGlobalLevelTool.cpp" open="0" top="0" tabpos="6">
+		<Cursor position="14829" topLine="467" />
+	</File>
+	<File name="src\mwDisplay.cpp" open="0" top="0" tabpos="17">
+		<Cursor position="23999" topLine="532" />
+		<BrowseMarks positions="19938" />
+	</File>
+	<File name="src\mwLog.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="560" topLine="0" />
+		<BrowseMarks positions="" />
+	</File>
+	<File name="src\mwBottomMessage.cpp" open="0" top="0" tabpos="7">
+		<Cursor position="12333" topLine="334" />
+	</File>
+	<File name="src\mwGameMoves.cpp" open="0" top="0" tabpos="15">
+		<Cursor position="19975" topLine="561" />
+	</File>
+	<File name="src\mwDisplay.h" open="0" top="0" tabpos="8">
+		<Cursor position="890" topLine="27" />
+	</File>
+	<File name="src\main.cpp" open="0" top="0" tabpos="7">
+		<Cursor position="144" topLine="0" />
+	</File>
+	<File name="src\mwWindowEditSelection.cpp" open="0" top="0" tabpos="18">
+		<Cursor position="33044" topLine="893" />
+	</File>
+	<File name="src\mwTimeStamp.h" open="0" top="0" tabpos="0">
+		<Cursor position="59" topLine="0" />
+	</File>
+	<File name="src\mwInput.cpp" open="0" top="0" tabpos="7">
+		<Cursor position="5214" topLine="167" />
+		<BrowseMarks positions="1290,13516" />
 	</File>
 	<File name="src\mwLift.cpp" open="0" top="0" tabpos="10">
 		<Cursor position="28407" topLine="793" />
 	</File>
-	<File name="src\mwEnemyJumpworm.cpp" open="0" top="0" tabpos="11">
-		<Cursor position="1436" topLine="0" />
+	<File name="src\mwRollingAverage.h" open="0" top="0" tabpos="0">
+		<Cursor position="395" topLine="0" />
 	</File>
-	<File name="src\mwRollingAverage.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="198" topLine="0" />
+	<File name="src\mwLevel.h" open="0" top="0" tabpos="5">
+		<Cursor position="3808" topLine="98" />
+	</File>
+	<File name="src\mwLift.h" open="0" top="0" tabpos="13">
+		<Cursor position="249" topLine="0" />
+	</File>
+	<File name="src\mwTally.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="14" topLine="0" />
+	</File>
+	<File name="src\mwItemStartExitGate.cpp" open="0" top="0" tabpos="7">
+		<Cursor position="4784" topLine="133" />
+		<BrowseMarks positions="" />
+	</File>
+	<File name="src\mwFileIterator.cpp" open="0" top="0" tabpos="9">
+		<Cursor position="885" topLine="0" />
+	</File>
+	<File name="src\mwLoop.cpp" open="0" top="0" tabpos="3">
+		<Cursor position="7419" topLine="269" />
+	</File>
+	<File name="pm_docs\new5_todo.txt" open="1" top="0" tabpos="2">
+		<Cursor position="2195" topLine="0" />
+		<BrowseMarks positions="" />
 	</File>
 	<File name="src\mwWindowEditorMain.cpp" open="0" top="0" tabpos="10">
 		<Cursor position="16880" topLine="445" />
 	</File>
+	<File name="src\mwPlayer.h" open="0" top="0" tabpos="15">
+		<Cursor position="5400" topLine="141" />
+	</File>
+	<File name="src\mwHelp.h" open="0" top="0" tabpos="8">
+		<Cursor position="238" topLine="0" />
+	</File>
+	<File name="src\mwEnemyTrakbot.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="82" topLine="0" />
+	</File>
+	<File name="src\mwVisualLevel.h" open="0" top="0" tabpos="13">
+		<Cursor position="190" topLine="0" />
+	</File>
+	<File name="src\mwTimeStamp.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="1279" topLine="0" />
+	</File>
+	<File name="src\mwItemKeySwitch.cpp" open="0" top="0" tabpos="5">
+		<Cursor position="953" topLine="0" />
+		<BrowseMarks positions="" />
+	</File>
+	<File name="src\mwDemoMode.cpp" open="0" top="0" tabpos="8">
+		<Cursor position="4944" topLine="130" />
+		<BrowseMarks positions="2742" />
+	</File>
+	<File name="src\mwPDE.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="1638" topLine="30" />
+	</File>
+	<File name="src\mwWindowTileHelper.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="21636" topLine="392" />
+	</File>
+	<File name="src\mwDrawSequence.cpp" open="1" top="0" tabpos="4">
+		<Cursor position="3614" topLine="107" />
+		<BrowseMarks positions="" />
+	</File>
+	<File name="src\mwNetgameServer.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="15946" topLine="473" />
+	</File>
+	<File name="src\mwInput.h" open="0" top="0" tabpos="4">
+		<Cursor position="1087" topLine="0" />
+	</File>
+	<File name="src\mwEnemyVinePod.cpp" open="0" top="0" tabpos="4">
+		<Cursor position="3038" topLine="56" />
+		<BrowseMarks positions="" />
+	</File>
+	<File name="src\mwLogo.h" open="0" top="0" tabpos="0">
+		<Cursor position="1410" topLine="0" />
+	</File>
+	<File name="src\mwBitmap.h" open="0" top="0" tabpos="16">
+		<Cursor position="313" topLine="0" />
+	</File>
+	<File name="src\mwQuickGraph.h" open="0" top="0" tabpos="0">
+		<Cursor position="514" topLine="0" />
+	</File>
+	<File name="src\mwHelp.cpp" open="0" top="0" tabpos="12">
+		<Cursor position="1144" topLine="21" />
+	</File>
 	<File name="src\mwDemoMode.h" open="0" top="0" tabpos="12">
 		<Cursor position="791" topLine="0" />
 	</File>
+	<File name="src\mwLogo.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="13256" topLine="397" />
+	</File>
+	<File name="src\mwBitmapTools.cpp" open="0" top="0" tabpos="12">
+		<Cursor position="21634" topLine="547" />
+	</File>
+	<File name="src\mwTriggerEvent.cpp" open="0" top="0" tabpos="6">
+		<Cursor position="26478" topLine="731" />
+	</File>
+	<File name="src\mwGameMoves.h" open="0" top="0" tabpos="13">
+		<Cursor position="51" topLine="0" />
+	</File>
+	<File name="src\mwEnemyFnx.cpp" open="0" top="0" tabpos="6">
+		<Cursor position="1980" topLine="0" />
+	</File>
+	<File name="src\mwLogViewer.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="6510" topLine="69" />
+	</File>
+	<File name="src\mwWindow.cpp" open="0" top="0" tabpos="9">
+		<Cursor position="9693" topLine="288" />
+	</File>
+	<File name="src\mwSettings.h" open="0" top="0" tabpos="0">
+		<Cursor position="476" topLine="0" />
+	</File>
 	<File name="src\mwItemEditorFnx.cpp" open="0" top="0" tabpos="7">
 		<Cursor position="3165" topLine="21" />
+	</File>
+	<File name="src\mwEnemyEditorFnx.cpp" open="0" top="0" tabpos="7">
+		<Cursor position="7758" topLine="240" />
+	</File>
+	<File name="src\mwMain.cpp" open="0" top="0" tabpos="12">
+		<Cursor position="2517" topLine="78" />
 		<BrowseMarks positions="" />
 	</File>
-	<File name="src\mwItem.cpp" open="0" top="0" tabpos="4">
-		<Cursor position="1683" topLine="0" />
-		<BrowseMarks positions="" />
+	<File name="src\mwCodeStats.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="5279" topLine="3" />
 	</File>
-	<File name="src\mwMenu.h" open="0" top="0" tabpos="0">
-		<Cursor position="188" topLine="0" />
+	<File name="src\mwVisualLevel.cpp" open="0" top="0" tabpos="11">
+		<Cursor position="16227" topLine="461" />
+		<BrowseMarks positions="21060" />
+	</File>
+	<File name="src\mwEnemy.cpp" open="0" top="0" tabpos="12">
+		<Cursor position="581" topLine="0" />
+	</File>
+	<File name="src\mwMiscFnx.cpp" open="0" top="0" tabpos="8">
+		<Cursor position="880" topLine="36" />
+	</File>
+	<File name="src\mwColor.h" open="0" top="0" tabpos="0">
+		<Cursor position="804" topLine="0" />
+	</File>
+	<File name="src\mwRollingAverage.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="198" topLine="0" />
+	</File>
+	<File name="src\mwItemBombRocket.cpp" open="0" top="0" tabpos="6">
+		<Cursor position="630" topLine="2" />
+	</File>
+	<File name="src\mwFont.cpp" open="0" top="0" tabpos="10">
+		<Cursor position="2906" topLine="59" />
 	</File>
 </BrowseTracker_layout_file>

@@ -2,20 +2,6 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-settings tab for transitions with some defaults
-also show total time
-
-
-cant set vineopd trigger to another vinepod automatically
-newly created vinepods have a big time 120...
-
-
-changed vinepods to emit event when extend is done, not when firing bullet
-maybe I could make that configurable
-
-
-
-
 
 
 
@@ -31,37 +17,9 @@ maybe I could make that configurable
 ---------------------------------------------------------
 
 
-
-
-
-
-add some cool spline vinepods
-did some on level 4
-
-level 31 do something about vinepod at start
-
-vinepod flower on good and evil
-
-also on incinerator??
-
-
-
-
-
-
-
-
 --------------------------------------------------------
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
-
-
-function key defaults
-debug overlay no key to start..do at release, why not just leave cpu graph?
-
-
-remove extra levels, just 70 and 71, along with their demo's
-
 
 
 
@@ -84,11 +42,63 @@ made major changes to netgame,
 now works over internet as well as LAN
 
 
+
+
+Purple Martians was started in the winter of 1997 in a cold, dark, one bedroom basement apartment in Victoria, BC.
+
+I was on a seasonal layoff from a menial labor construction job, waiting on unemployment benefits, amd I had some time on my hands.
+
+This was 1997 so the high end PC's were pentium 120 with 16M of RAM. I had an old Compaq 486 laptop.
+
+1997 was the year I first connected the internet. I had a dial-up account with Pacific Coast Net.
+
+It's amazing when I think of the time before the internet. What did we do without it?
+
+
+I was unusual in that I had access to computers at a much earlier age than almost anyone I knew.
+
+In 1980, when I was 12, my dad brought home a Commodore PET from the college where he taught electronics.
+
+We spent a lot of time figuring out how it worked. That was my first exposure to programming.
+
+BASIC. It seems so simplistic and crude now. But the joy of typing in commands and seeing the result...
+
+It was something I fell in love with.
+
+A few years later the Commodore PET was replaced with an Apple II.
+
+Kind of similar, but the one huge difference was the graphics.
+
+Color. 280x192 hi res graphics. Functions in BASIC to draw pixel and lines.
+
+
+
+
+
+
+
+
+remove log file viewer and graphs??
+
+
+
+
+
+
+
+
+
+
+
+
+
 somehow describe snap...
 
 hiders
 
 npc
+
+
 
 
 
@@ -185,6 +195,9 @@ Make some examples of vinepods to show off in levels
 vinepod triggering another vinepod in a chain
 vinepod triggering a group of vinepods in a star
 vinepod getting out of the way of a shot aimed at it
+
+vinepod flower on good and evil?
+also on incinerator??
 
 
 I could also do an eco draw for vinepods....

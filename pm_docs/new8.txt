@@ -27764,6 +27764,79 @@ much is finished
 
 
 
+cant set vineopd trigger to another vinepod automatically
+newly created vinepods have a big time 120...
+
+
+changed vinepods to emit event when extend is done, not when firing bullet
+maybe I could make that configurable
+
+
+reset all to defaults does not work in linux
+i am trying to run 'del' from the shell...duh
+fixed by using bool al_remove_filename(const char *path)
+
+settings tab for transitions with some defaults
+also show total time
+
+done
+and it works fine on slowest machine
+
+trying to run a profile graph and get a hard crash...line too long?
+
+tmst d-bkgr:[0.0091] d-lift:[0.0690] d-item:[0.7741] d-enem:[0.0822] d-esht:[0.0202] d-psht:[0.0003] d-plyr:[0.0012] d-erhd:[0.0010] d-gnfo:[0.0001] d-lsta:[0.0006] d-buff:[0.0124] d-buff:[0.0118] d-buff:[0.0030] d-ovrl:[0.0873] d-flip:[0.1037] d-totl:[1.1761]
+261 char long
+
+tested vinepod profile on slowest and it was good
+
+level viewer is broken?? reset everythings and now it works, not sure why
+
+moved extra levels 70-73 and 101-105 to 300+ along with demo's...done
+
+level 9 needs cosmetic work..done
+
+
+
+
+
+
+20230707 9:00PM
+
+
+I am so ready for a release, all I can think that I need to finish is some minor documenation
+
+like do a better version of history for the help files... that is all..
+
+wow!!
+
+that is all!!!
+
+After I release I will need to redo so much of the videos....
+
+re-arranged the stats message thing on overworld level
+
+
+
+what version should I call it?
+
+stick with 7.24 and just increment the number after that?
+
+yes, I think so...
+
+7.24.237
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
