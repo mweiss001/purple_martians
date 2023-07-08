@@ -2,7 +2,7 @@
 This project is licensed under the zlib license.
 
 -----------------------------------------------------------------------------
-Copyright (c) <1997-2022> <Michael David Weiss>
+Copyright (c) <1997-2023> <Michael David Weiss>
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any damages

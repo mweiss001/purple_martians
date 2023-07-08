@@ -682,13 +682,9 @@ void mwWindowManager::load_mW(void)
    {
       printf("error loading mW.pm -- using defaults\n");
    }
+   // why do I delete it after I load it?
+   al_remove_filename("data/mW.pm");
 
-   // delete it...
-
-   char sys_cmd[500];
-   sprintf(sys_cmd, "del data\\mW.pm");
-   //printf("%s\n",sys_cmd);
-   system(sys_cmd);
 }
 
 

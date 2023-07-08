@@ -47,7 +47,7 @@ void mwLog::save_log_file(void)
 
 void mwLog::add_log_entry2(int type, int player, const char *txt)
 {
-   char tmsg[200];
+   char tmsg[500];
    sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
    // strcat(log_msg, tmsg);
 

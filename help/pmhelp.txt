@@ -146,6 +146,8 @@ In 'Settings' -> 'Mode' you can choose between 2 different Game Modes:
 
 - when a level is completed, the next level is started automatically
 
+- the level editor is available on the menu
+
 
 
 <section>Player Colors

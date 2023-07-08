@@ -23,6 +23,7 @@ void mwLevel::reset_level_data(void)
 {
    clear_data();
    save_data();
+   level_stats_bmp_msg_type = 0;        // to force recreation
    load_level(mLevel.play_level, 0, 0); // reload play level
 }
 
@@ -31,6 +32,7 @@ void mwLevel::unlock_all_levels(void)
    for(int i=0; i<100; i++) data[i].unlocked = 1;
    for(int i=0; i<16; i++) area_locks[i] = 0;
    save_data();
+   level_stats_bmp_msg_type = 0;        // to force recreation
    load_level(mLevel.play_level, 0, 0); // reload play level
 }
 
@@ -1568,7 +1570,7 @@ void mwLevel::clear_data(void)
 
    i = 9;
    strcpy(data[i].level_name, "Bomb Intro");
-   data[i].par_time = 6400; // 2:40 demo 2:37
+   data[i].par_time = 6000; // 2:30 demo 1:37
 
    i = 25;
    strcpy(data[i].level_name, "One Cannon");

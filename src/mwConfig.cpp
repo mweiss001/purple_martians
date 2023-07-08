@@ -301,8 +301,8 @@ void mwConfig::load(void)
 
    agci(GAME, mMain.classic_mode, 0)
 
-   agci(GAME, mScreen.transition_num_steps, 60)
-   agci(GAME, mScreen.transition_delay, 15)
+   agci(GAME, mScreen.transition_num_steps, 80)
+   agci(GAME, mScreen.transition_delay, 8)
 
    agci(GAME, mPlayer.syn[0].color, 8)
 

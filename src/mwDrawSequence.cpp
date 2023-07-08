@@ -153,7 +153,7 @@ void mwDrawSequence::draw(int setup_only)
    else { mScreen.draw_scaled_level_region_to_display(0); add(i); }
 
 
-   if (setup_only) add_names(i, "d-buff", "vinepods direct to screen");
+   if (setup_only) add_names(i, "vpod", "vinepods direct to screen");
    else
    {
       for (int e=0; e<100; e++)
@@ -162,7 +162,7 @@ void mwDrawSequence::draw(int setup_only)
    }
 
 
-   if (setup_only) add_names(i, "d-buff", "players direct to screen");
+   if (setup_only) add_names(i, "plyr", "players direct to screen");
    else
    {
       for (int p=0; p<NUM_PLAYERS; p++)

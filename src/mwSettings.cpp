@@ -248,27 +248,28 @@ void mwSettings::settings_pages(int set_page)
    struct settings_tab st[20] = {0};
 
    sprintf(st[0].title,  "Main");
-
    sprintf(st[1].title,  "Mode");
-
    sprintf(st[2].title,  "Controls");
    sprintf(st[3].title,  "Controls 2");
-
    sprintf(st[4].title,  "Netgame");
    sprintf(st[5].title,  "Demo");
    sprintf(st[6].title,  "Message");
-
    sprintf(st[7].title,  "Stats");
+   sprintf(st[8].title,  "Transitions");
 
 
 
+   sprintf(st[10].title,  "Viewport");
+   sprintf(st[11].title,  "Overlay");
+   sprintf(st[12].title, "Double");
+   sprintf(st[13].title, "Speed");
 
-   sprintf(st[8].title,  "Viewport");
-   sprintf(st[9].title,  "Overlay");
-   sprintf(st[10].title, "Double");
-   sprintf(st[11].title, "Speed");
 
-
+   // 8-11 to 10-13
+   // 8-10
+   // 9-11
+   //10-12
+   //11-13
 
 
    sprintf(st[15].title,  "Info");
@@ -292,12 +293,12 @@ void mwSettings::settings_pages(int set_page)
 
       for (int i=0; i<20; i++) st[i].show = 0; // all off
 
-      for (int i=0; i<8; i++) st[i].show = 1; // always on
+      for (int i=0; i<9; i++) st[i].show = 1; // always on
 
 
       if (show_advanced)
       {
-         for (int i=8; i<12; i++) st[i].show = 1;
+         for (int i=10; i<14; i++) st[i].show = 1;
          if (show_debug)
             for (int i=15; i<19; i++) st[i].show = 1;
       }
@@ -602,14 +603,11 @@ void mwSettings::settings_pages(int set_page)
             x1b = cfp_x2 - 60;
             if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,10,14, 0,  1,0,1,0, "Reset All Settings to Defaults!"))
             {
-               char sys_cmd[500];
-               sprintf(sys_cmd, "del pm.cfg");                      printf("%s\n",sys_cmd);   system(sys_cmd);
-               sprintf(sys_cmd, "del data\\mW.pm ");                printf("%s\n",sys_cmd);   system(sys_cmd);
+               al_remove_filename("pm.cfg");
+               al_remove_filename("data/mW.pm");
                mConfig.load();
-
             }
          }
-
       }
 
 
@@ -654,56 +652,40 @@ void mwSettings::settings_pages(int set_page)
          }
 
 
-
          xa = cfp_x1 + 10;
          xb = cfp_x2 - 10;
-
 
 
          ya +=12;
          al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "This changes the entire behaviour of the game."); ya +=20;
 
-
-
-         al_draw_text(mFont.pr8, mColor.pc[13], xa, ya, 0, "Story Mode:"); ya +=12;
-         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- levels are started from the overworld hub"); ya +=8;
-         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- when a level is completed, you are returned"); ya +=8;
-         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "  to the overworld hub"); ya +=8;
+         al_draw_text(mFont.pr8, mColor.pc[13], xa, ya, 0, "Story Mode:"); ya +=16;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- levels are started from the overworld hub"); ya +=16;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- when a level is completed, you are returned"); ya +=12;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "  to the overworld hub"); ya +=16;
 
          ya +=8;
 
-         al_draw_text(mFont.pr8, mColor.pc[9],  xa, ya, 0, "Classic Mode:"); ya +=12;
-         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- any level can be started from the menu"); ya +=8;
-         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- when a level is completed, the next level"); ya +=8;
-         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "  is started automatically"); ya +=8;
+         al_draw_text(mFont.pr8, mColor.pc[9],  xa, ya, 0, "Classic Mode:"); ya +=16;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- any level can be started from the menu"); ya +=16;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- when a level is completed, the next level"); ya +=12;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "  is started automatically"); ya +=16;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- the level editor is available on the menu"); ya +=12;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
 
 
-         xa = cfp_x1 + 10;
-         xb = cfp_x2 - 10;
-
-
-         if (mWidget.buttont(xa+100, ya, xb-100, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
-
-         al_set_target_backbuffer(mDisplay.display);
-
-         ya +=8;
-         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All areas and levels will be unlocked."); ya +=8;
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
-         if (show_advanced)
+         if ((show_advanced) && (!mMain.classic_mode))
          {
-
-            if (mWidget.buttont(xa+80, ya, xb-80, bts, 0,0,0,0,  0, 10,15, 0,  1,0,1,0, "Reset all level data")) mLevel.reset_level_data();
+            if (mWidget.buttont(xa+100, ya, xb-100, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
+            al_set_target_backbuffer(mDisplay.display);
             ya +=8;
+            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All areas and levels will be unlocked."); ya +=8;
+            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Warning! This will reset everything!"); ya +=16;
-            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All achievements will be reset.");      ya +=16;
-            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All areas and levels will be locked."); ya +=8;
-
-
+            al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "See 'Stats' tab for more..."); ya +=8;
+            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
          }
       }
 
@@ -1397,8 +1379,19 @@ void mwSettings::settings_pages(int set_page)
             al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Number of level play records:%d", mLevel.play_data_num);
             ya +=8;
             ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
             if (show_advanced)
             {
+               if (mWidget.buttont(xa+100, ya, xb-100, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Unlock all levels")) mLevel.unlock_all_levels();
+
+               al_set_target_backbuffer(mDisplay.display);
+
+               ya +=8;
+               al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "All areas and levels will be unlocked."); ya +=8;
+               ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
                if (mWidget.buttont(xa+80, ya, xb-80, bts, 0,0,0,0,  0, 10,15, 0,  1,0,1,0, "Reset all level data")) mLevel.reset_level_data();
                ya +=8;
                al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Warning! This will reset everything!"); ya +=16;
@@ -1410,10 +1403,61 @@ void mwSettings::settings_pages(int set_page)
       }
 
 
+
 // ---------------------------------------------------------------
-//  8 - viewport
+//  8 - transitions
 // ---------------------------------------------------------------
-      if (page == 8)
+      if (page == 8) // transitions
+      {
+
+         int line_spacing = 12;
+         //line_spacing +=  mLoop.pct_y;
+         int xa = cfp_x1 + 10;
+         int xb = cfp_x2 - 10;
+         int ya = cfp_y1 + 10;
+         int bts = 16;
+         int tc = 13;
+
+
+         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Transitions");
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, 15);
+
+         ya +=8;
+
+         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Smooth zoom transitions when changing levels."); ya +=16;
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         mWidget.slideri(xa+80, ya, xb-80, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_num_steps, 400, 4, 1, "Number of steps:");
+         ya +=8;
+         mWidget.slideri(xa+80, ya, xb-80, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_delay,     100, 1, 1, "Step delay:");
+
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Transition Time:%1.2fs", (float)(mScreen.transition_num_steps * mScreen.transition_delay)/1000);
+         ya +=8;
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
+
+
+         int ds = 140;
+         int os = 8;
+
+         if (mWidget.buttont(xa+ds, ya, xb-ds, bts, 0,0,0,0,  0, 10,15, 0,  1,0,1,0, "Fastest"))    { mScreen.transition_num_steps = 1;   mScreen.transition_delay = 1;  }    ya +=os;
+         if (mWidget.buttont(xa+ds, ya, xb-ds, bts, 0,0,0,0,  0,  4,15, 0,  1,0,1,0, "Hasty"))      { mScreen.transition_num_steps = 60;  mScreen.transition_delay = 4;  }    ya +=os;
+         if (mWidget.buttont(xa+ds, ya, xb-ds, bts, 0,0,0,0,  0,  8,15, 0,  1,0,1,0, "Default"))    { mScreen.transition_num_steps = 80;  mScreen.transition_delay = 8;  }    ya +=os;
+         if (mWidget.buttont(xa+ds, ya, xb-ds, bts, 0,0,0,0,  0, 13,15, 0,  1,0,1,0, "Relaxed"))    { mScreen.transition_num_steps = 120; mScreen.transition_delay = 12; }    ya +=os;
+         if (mWidget.buttont(xa+ds, ya, xb-ds, bts, 0,0,0,0,  0, 11,15, 0,  1,0,1,0, "Lazy"))       { mScreen.transition_num_steps = 160; mScreen.transition_delay = 16; }
+
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
+
+
+      }
+
+
+// ---------------------------------------------------------------
+//  10 - viewport
+// ---------------------------------------------------------------
+      if (page == 10)
       {
          int line_spacing = 5;
          int tc = 15;  // text color
@@ -1502,9 +1546,9 @@ void mwSettings::settings_pages(int set_page)
 
 
 // ---------------------------------------------------------------
-//  9 - overlay
+//  11 - overlay
 // ---------------------------------------------------------------
-      if (page == 9)
+      if (page == 11)
       {
          int line_spacing = 14;
          int xa = cfp_x1 + 10;
@@ -1561,9 +1605,9 @@ void mwSettings::settings_pages(int set_page)
       }
 
 // ---------------------------------------------------------------
-//  10 - double
+//  12 - double
 // ---------------------------------------------------------------
-      if (page == 10)
+      if (page == 12)
       {
          int line_spacing = 10;
          //line_spacing +=  mLoop.pct_y;
@@ -1658,9 +1702,9 @@ void mwSettings::settings_pages(int set_page)
 
 
 // ---------------------------------------------------------------
-//  11 - speed
+//  13 - speed
 // ---------------------------------------------------------------
-      if (page == 11)
+      if (page == 13)
       {
          int line_spacing = 8;
          //line_spacing +=  mLoop.pct_y;
@@ -1986,19 +2030,20 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
-         ya +=4;
-
-         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_num_steps, 400, 4, 1, "Transistion num steps:");
-         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,8,15,15, 0,0,1,0, mScreen.transition_delay,     100, 1, 1, "Transistion delay:");
 
          ya +=4;
 
-         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
          mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_complete_level_on_gate_with_fire,     "Pressing fire on gate marks level complete", 15, 15);
          mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_running_demo_saves_level_data,        "Running demo always saves level data", 15, 15);
          mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_convert_playback_to_record_with_fire, "Press C in demo playback to record", 15, 15);
          mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_super_fast_mode_F2,                   "Toggle super fast mode with F2", 15, 15);
+
+
+         ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
+
+
+
       }
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
