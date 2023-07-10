@@ -27826,6 +27826,27 @@ yes, I think so...
 7.24.237
 
 
+20230710 6:00AM
+
+moved purple coins and npc draw screen direct out of overaly and into draw seq
+
+on training level 2 I notice the hiders are not working nicely..
+If I die in area 1, it dissapears until i respawn
+If I skip the purple coins in area 1 it is the only thing that shows when I move to area 2
+I think I need to remove hiders...done...
+what other levels do hiders look stupid?
+removed on level 83
+7 good
+8 good
+9 good
+11 good
+12 good
+21 good
+22 good
+83 good
+84 good
+
+
 
 
 

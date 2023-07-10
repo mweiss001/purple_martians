@@ -176,6 +176,18 @@ int mwItem::draw_bonus(int i, int x, int y, int shape)
 }
 
 
+void mwItem::draw_purple_coin_screen_direct(int i)
+{
+   float ex1=0, ey1=0;
+   mScreen.calc_actual_screen_position(itemf[i][0]+10, itemf[i][1]+10, ex1, ey1);
+   mBitmap.spin_shape2(item[i][1], ex1, ey1, 0.8, 0.5, 40);
+}
+
+
+
+
+
+
 void mwItem::move_items()
 {
    for (int i=0; i<500; i++)

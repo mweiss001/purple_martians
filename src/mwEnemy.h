@@ -35,6 +35,9 @@ class mwEnemy
 
    void move_crew(int e);
    void draw_crew(int e, int x, int y, int custom);
+   void draw_crew_screen_direct(int e);
+
+
 
    // mwEnemyCannon.cpp
    void move_bouncer_cannon_common(int e);

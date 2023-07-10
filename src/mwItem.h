@@ -23,6 +23,7 @@ class mwItem
    void draw_items(void);
    void draw_item(int i, int custom, int cx, int cy);
    int draw_bonus(int i, int x, int y, int shape);
+   void draw_purple_coin_screen_direct(int i);
 
    void move_items();
    int is_item_stuck_to_wall(int i);
