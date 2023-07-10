@@ -3,13 +3,7 @@
 ---------------------------------------------------------
 
 
-
-
-
-
-
-
-
+level editor vinepod triggers are not on the list of things that can auto set
 
 
 ---------------------------------------------------------
@@ -20,8 +14,6 @@
 --------------------------------------------------------
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
-
-
 
 
 
@@ -40,8 +32,6 @@ refactored almost every line of code
 
 made major changes to netgame,
 now works over internet as well as LAN
-
-
 
 
 Purple Martians was started in the winter of 1997 in a cold, dark, one bedroom basement apartment in Victoria, BC.
@@ -74,19 +64,7 @@ Color. 280x192 hi res graphics. Functions in BASIC to draw pixel and lines.
 
 
 
-
-
-
-
-remove log file viewer and graphs??
-
-
-
-
-
-
-
-
+remove log file viewer and graphs?? why?
 
 
 

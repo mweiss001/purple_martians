@@ -542,6 +542,9 @@ void mwGlobalLevelTool::execute(void)
 
 
 
+      for (int y=0; y<500; y++)
+         if (mItem.item[y][0] == 19)
+            printf("l:%3d y:%3d  hider\n", le[x], y);
 
 
 
@@ -549,7 +552,11 @@ void mwGlobalLevelTool::execute(void)
 
 
 
-      if (1)
+
+
+
+
+      if (0)
       {
          mLevel.save_level(le[x]);
          al_set_target_backbuffer(mDisplay.display);

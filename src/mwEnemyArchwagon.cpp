@@ -12,6 +12,8 @@
 #include "mwColor.h"
 #include "mwGameEvent.h"
 #include "mwDisplay.h"
+#include "mwScreen.h"
+
 
 
 //-------------------------------------------------------------------------------------------
@@ -364,7 +366,27 @@ void mwEnemy::draw_crew(int e, int cx, int cy, int custom)
 
 
 
+void mwEnemy::draw_crew_screen_direct(int e)
+{
+   float sc = mDisplay.scale_factor_current;
 
+   float ex1=0, ey1=0;
+   mScreen.calc_actual_screen_position(Ef[e][0]+10, Ef[e][1]+10, ex1, ey1);
+
+   float ps = Ef[e][8];  // player scale
+   float scale = sc * ps;       // final draw scale
+
+   float sd = 20 * (1-ps);      // size difference
+   float yo = (sd/2)*sc;        // half size difference, scaled
+
+   int flags = 0;
+   if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
+
+   int pos = ((int) Ef[e][0] / 6) % 6;  // 6 shapes in sequence
+   int col = Ei[e][3];
+
+   al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, ex1, ey1+yo, scale, scale, 0, flags);
+}
 
 
 

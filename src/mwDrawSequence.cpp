@@ -17,7 +17,6 @@
 #include "mwMiscFnx.h"
 
 
-
 mwDrawSequence mDrawSequence;
 
 mwDrawSequence::mwDrawSequence()
@@ -76,6 +75,10 @@ void mwDrawSequence::draw(int setup_only)
 
 
 
+
+
+
+
 //   if (setup_only) add_names(i, "d-gate", "draw_gates");
 //   else
 //   {
@@ -123,6 +126,10 @@ void mwDrawSequence::draw(int setup_only)
    else { mPlayer.draw_players(); add(i); }
 
 
+
+
+
+
    if (setup_only) add_names(i, "d-erhd", "erase hidden");
    else
    {
@@ -153,6 +160,12 @@ void mwDrawSequence::draw(int setup_only)
    else { mScreen.draw_scaled_level_region_to_display(0); add(i); }
 
 
+   // draw purple coins directly on the screen, so they scale nicely
+   for (int c=0; c<500; c++)
+      if ((mItem.item[c][0] == 2) && (mItem.item[c][6] == 3)) mItem.draw_purple_coin_screen_direct(c);
+
+
+
    if (setup_only) add_names(i, "vpod", "vinepods direct to screen");
    else
    {
@@ -172,6 +185,25 @@ void mwDrawSequence::draw(int setup_only)
       mPlayer.draw_player_direct_to_screen(mPlayer.active_local_player);
       add(i);
    }
+
+   // draw npc directly on the screen, so they scale nicely
+   for (int e=0; e<100; e++)
+      if (mEnemy.Ei[e][0] == 19) mEnemy.draw_crew_screen_direct(e);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

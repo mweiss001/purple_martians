@@ -67,8 +67,6 @@ class mwScreen
 
    void calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1);
 
-   void draw_level_objects_on_screen_overlay(void);
-
    void draw_screen_overlay(void);
    void set_player_join_quit_display(int p, int type, int time);
    void show_player_join_quit(void);

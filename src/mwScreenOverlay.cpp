@@ -24,6 +24,7 @@
 #include "mwItem.h"
 
 
+
 void mwScreen::show_player_stat_box(int tx, int y, int p)
 {
 
@@ -1134,66 +1135,13 @@ void mwScreen::draw_bottom_frame(int p)
 }
 
 
-
-
-// converts ex, ey (0-2000) position with the level
-// to actual screen coordinates
-// so we can draw directly on the screen
+// converts ex, ey (0-2000) position within the level, to actual screen coordinates so we can draw directly on the screen
 // pass it the center of the object's postion, it will return the center also
-
-
 void mwScreen::calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1)
 {
-   float sc = mDisplay.scale_factor_current;
-   float ldx = mDisplay.level_display_region_x;
-   float ldy = mDisplay.level_display_region_y;
-
-   // how far away from ul corner
-   ex1 = mDisplay.screen_display_x + (ex-ldx) * sc;
-   ey1 = mDisplay.screen_display_y + (ey-ldy) * sc;
-
+   ex1 = mDisplay.screen_display_x + (ex - mDisplay.level_display_region_x) * mDisplay.scale_factor_current;
+   ey1 = mDisplay.screen_display_y + (ey - mDisplay.level_display_region_y) * mDisplay.scale_factor_current;
 }
-
-
-
-void mwScreen::draw_level_objects_on_screen_overlay(void)
-{
-   float sc = mDisplay.scale_factor_current;
-   float ex1=0, ey1=0;
-
-
-   // draw purple coins directly on the screen, so they scale nicely
-   for (int c=0; c<500; c++)
-      if ((mItem.item[c][0] == 2) && (mItem.item[c][6] == 3))
-      {
-         calc_actual_screen_position(mItem.itemf[c][0]+10, mItem.itemf[c][1]+10, ex1, ey1);
-         mBitmap.spin_shape2(mItem.item[c][1], ex1, ey1, 0.8, 0.5, 40);
-      }
-
-
-   // draw npc directly on the screen, so they scale nicely
-   for (int e=0; e<100; e++)
-      if (mEnemy.Ei[e][0] == 19) // npc
-      {
-         calc_actual_screen_position(mEnemy.Ef[e][0]+10, mEnemy.Ef[e][1]+10, ex1, ey1);
-
-         float ps = mEnemy.Ef[e][8];  // player scale
-         float scale = sc * ps;       // final draw scale
-
-         float sd = 20 * (1-ps);      // size difference
-         float yo = (sd/2)*sc;        // half size difference, scaled
-
-         int flags = 0;
-         if (mEnemy.Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
-
-         int pos = ((int) mEnemy.Ef[e][0] / 6) % 6;  // 6 shapes in sequence
-         int col = mEnemy.Ei[e][3];
-
-         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[col][pos], 10, 10, ex1, ey1+yo, scale, scale, 0, flags);
-      }
-
-}
-
 
 
 void mwScreen::draw_screen_overlay(void)
@@ -1212,12 +1160,8 @@ void mwScreen::draw_screen_overlay(void)
 
    show_player_join_quit();
 
-
-   draw_level_objects_on_screen_overlay();
-
    draw_top_frame(p);
    draw_bottom_frame(p);
-
 
    if (mNetgame.ima_server)                     draw_server_debug_overlay(p, cx, cy);
    if (mNetgame.ima_client)                     draw_client_debug_overlay(p, cx, cy);
