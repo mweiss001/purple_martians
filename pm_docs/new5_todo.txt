@@ -11,6 +11,22 @@ level editor vinepod triggers are not on the list of things that can auto set
 ---------------------------------------------------------
 
 
+viewport
+
+make the up and down auto scroll optional and set amount
+make the left and right auto scroll optional and set amount
+
+make a scroll option for riding rocket that scrolls in the direction you are moving..
+that seems to work..
+
+make all three of these individually customizable
+
+
+
+
+
+
+
 --------------------------------------------------------
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
