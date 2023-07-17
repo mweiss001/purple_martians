@@ -226,6 +226,13 @@ void mwScreen::set_level_display_region_xy(void)
 // mDisplay.level_display_region_y
 // ----------------------------------------------------------------------
 
+
+   int look_shift_speed = 4;
+
+   int auto_up_down_with_controls = 1;
+   int auto_left_right_with_controls = 1;
+   int auto_rocket_direction = 1;
+
    // shorter variable names
    int p = mPlayer.active_local_player;
    int px = mPlayer.syn[p].x + 10;
@@ -241,21 +248,35 @@ void mwScreen::set_level_display_region_xy(void)
    }
    else // scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
    {
-      if (mDisplay.viewport_mode == 2) // like mode 1 but gradual move
+
+      // if local player is riding rocket
+      if ((mPlayer.is_player_riding_rocket(p)) && (auto_rocket_direction))
       {
-         int look_shift_speed = 4;
-
-         if (mPlayer.syn[p].left_right) mDisplay.WX_shift_speed+=.5;
-         else mDisplay.WX_shift_speed-=.5;
-
-         if (mDisplay.WX_shift_speed > 2)  mDisplay.WX_shift_speed = 2;
-         if (mDisplay.WX_shift_speed < -2) mDisplay.WX_shift_speed = -2;
-
-         mDisplay.level_display_region_x+=mDisplay.WX_shift_speed;
-
-         if (mPlayer.syn[p].up)   mDisplay.level_display_region_y-=look_shift_speed;
-         if (mPlayer.syn[p].down) mDisplay.level_display_region_y+=look_shift_speed;
+         mDisplay.level_display_region_x += mPlayer.syn[p].xinc * 2;
+         mDisplay.level_display_region_y += mPlayer.syn[p].yinc * 2;
       }
+      else
+      {
+          if (mDisplay.viewport_mode == 2) // like mode 1 but gradual move
+          {
+
+             if (mPlayer.syn[p].left_right) mDisplay.WX_shift_speed+=.5;
+             else mDisplay.WX_shift_speed-=.5;
+
+             if (mDisplay.WX_shift_speed > 2)  mDisplay.WX_shift_speed = 2;
+             if (mDisplay.WX_shift_speed < -2) mDisplay.WX_shift_speed = -2;
+
+             mDisplay.level_display_region_x+=mDisplay.WX_shift_speed;
+
+             if (mPlayer.syn[p].up)   mDisplay.level_display_region_y-=look_shift_speed;
+             if (mPlayer.syn[p].down) mDisplay.level_display_region_y+=look_shift_speed;
+          }
+
+          if (mPlayer.syn[p].up)   mDisplay.level_display_region_y-=look_shift_speed;
+          if (mPlayer.syn[p].down) mDisplay.level_display_region_y+=look_shift_speed;
+      }
+
+
 
       int x_size = w * mDisplay.viewport_x_div/2;
       int y_size = h * mDisplay.viewport_y_div/2;
