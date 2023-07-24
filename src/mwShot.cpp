@@ -274,14 +274,6 @@ void mwShot::fire_enemy_shota(int e, int shot_ans, int p)
    float pvx = mPlayer.syn[p].xinc;
    float pvy = mPlayer.syn[p].yinc;
 
-
-   // this is here so that motion due to riding lifts is also used for shot tracking
-   if (mPlayer.syn[p].player_ride) // if player is riding lift
-   {
-      int d = mPlayer.syn[p].player_ride - 32; // lift number
-      pvx += mLift.cur[d].xinc;
-      pvy += mLift.cur[d].yinc;
-   }
    // Edgar's method
    //float A = pow(pvx,2) + pow(pvy,2) - pow(bv,2);
    //float B = 2*(px*pvx) + 2*(py*pvy) -2*(bx*pvx) -2*(by*pvy);

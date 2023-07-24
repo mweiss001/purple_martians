@@ -27849,6 +27849,780 @@ removed on level 83
 
 
 
+settings page for messages goes off bottom when not advanced..fixed
+
+
+I would like to make settings pages all have the same height, then they would look nicer
+
+what do I have now? 355 full 342 with advanced
+
+I want to make a guaranteed height of each page, then make the entire thing bigger if the tab section gets bigger
+
+
+
+
+I think I have too many poorly named and defined variables,
+
+I want to make:
+page_x1
+page_x2
+page_w
+page_y1
+page_y2
+page_h
+
+these will be used for all pages drawing
+
+then there will be the section above the pages
+tab_x1
+tab_x2
+tab_w
+tab_y1
+tab_y2
+tab_h
+
+these actually have all the x1, x2 and w in common
+and they never change, so I should calculate them once at the start
+they are already named:
+
+      // set width and x positions
+      int cf_w = 400;
+      int cf_x1 = (mDisplay.SCREEN_W - cf_w)/2;
+      int cf_x2 = cf_x1 + cf_w;
+
+      // set page x size, this has to go before the tab size
+      int cfp_x1 = cf_x1 + frame_width;
+      int cfp_x2 = cf_x2 - frame_width;
+      int cfp_txc = cfp_x1 + (cfp_x2 - cfp_x1) / 2;
+
+
+OK now I just need to work on the y's and h's
+
+
+
+I will make the page h fixed: 360
+page_h = 360
+
+
+then I need to calculate the h for the tab section
+
+
+
+this is done...the pages all have a fixed height.
+
+
+
+20230721 add game mode to main page and remove that tab entirely...done
+
+add buttons to jump to message and demo page...done
+
+
+now on to viewport
+
+
+viewport
+
+make the up and down auto scroll optional and set amount
+make the left and right auto scroll optional and set amount
+
+make a scroll option for riding rocket that scrolls in the direction you are moving..
+that seems to work..
+
+make all three of these individually customizable
+
+
+do I still need viewport mode?
+0 = force center always (except edges)
+
+1 = not zero
+2 gradual, not used anymore
+
+
+what about when falling?, jumping
+
+
+these are the variable I have now:
+
+            mDisplay.viewport_mode = 1;
+            mDisplay.viewport_show_hyst = 0;
+            mDisplay.viewport_x_div = 0.33;
+            mDisplay.viewport_y_div = 0.33;
+
+I will keep mode I guess, but it only is bool
+0 forces center only
+
+
+these are new variables
+
+
+   int auto_up_down_with_controls = 1;
+   int auto_left_right_with_controls = 1;
+   int auto_rocket_direction = 1;
+
+
+mDisplay.viewport_up_down_with_controls
+mDisplay.viewport_left_right_with_controls
+mDisplay.viewport_rocket_direction
+
+they can be on or off
+or should I do an amount?
+
+the left right...controls or just facing that direction?
+
+seperated facing driection to its own
+
+experimented with controls for left and right but just adding did not look right.
+using the same method I used for rocket seems to work nicely
+         if (auto_left_right_with_controls)
+         {
+            mDisplay.level_display_region_x += mPlayer.syn[p].xinc * 2;
+
+
+I wonder if this could just be a generic solution for any player motion...
+
+
+make a test level...
+
+
+
+it looks like it is working good exepct that when I am rifing a lift the players xinc and yinc are not set...
+I though I did that for bullet stuff...
+
+i guess i didn't:
+
+   // this is here so that motion due to riding lifts is also used for shot tracking
+   if (mPlayer.syn[p].player_ride) // if player is riding lift
+   {
+      int d = mPlayer.syn[p].player_ride - 32; // lift number
+      pvx += mLift.cur[d].xinc;
+      pvy += mLift.cur[d].yinc;
+   }
+
+
+took that into account....
+
+
+what wouod happen if I just applied that, like I do with rockets?
+
+what is the move order?
+
+   mShot.move_eshots();
+   mShot.move_pshots();
+   mLift.move_lifts(0);
+   mPlayer.move_players();
+   mEnemy.move_enemies();
+   mItem.move_items();
+
+
+lifts move, then players align to lifts
+
+
+
+I am trying to figure out why lifts seem to jump around when player is riding them
+I print to console in draw player the y positions of lift and player and they are always 20.00 apart
+
+actually it looks the same with the rockets and items that the player is carrying
+
+I also looks the same when I use the old original draw method for player
+
+what is going on?, it would look so nice if this was not the case...
+I might have to do with drawing on the level buffer and that is only exact pixels....
+how hard would it be to draw lifts direct like all the other objects?
+do you think that would solve it?
+lifts are different in that they draw with primitives
+
+I do not want to fix this...
+I do not have the time
+
+
+I broke almost all of my demo levels...damn!
+what did I gain?..
+striaghtened out the player xy move code..but still the lifts shake...
+
+when lift has any h movement player walk animation is static..fixed
+
+am I ready to button all of this up?
+
+
+should I make a test level...
+
+advance lift test level for all lines of code....
+
+as soon as you are caputered by a lift set y inc to zero
+
+
+what is my maximum lift speed if I plan to ride the lift? 30?
+
+
+sometimes I fall through with 30
+
+
+
+i:42
+
+Running Global Level Test
+l:  2 s: 29
+l:  2 s: 29
+l:  4 s: 29
+l:  4 s: 29
+l:  4 s: 29
+l: 10 s: 29
+l: 10 s: 29
+l: 10 s: 29
+l: 10 s: 29
+l: 10 s: 29
+l: 10 s: 29
+l: 15 s: 50
+l: 15 s:300
+l: 15 s: 50
+l: 15 s:120
+l: 15 s: 72
+l: 15 s: 40
+l: 15 s: 40
+l: 15 s: 80
+l: 16 s: 29
+l: 16 s: 29
+l: 16 s: 29
+l: 16 s: 29
+l: 17 s: 26
+l: 17 s: 26
+l: 17 s: 26
+l: 17 s: 26
+l: 17 s: 26
+l: 17 s: 26
+l: 17 s: 26
+l: 17 s: 26
+l: 19 s: 29
+l: 19 s: 29
+l: 19 s: 29
+l: 19 s: 29
+l: 19 s: 29
+l: 19 s: 29
+l: 20 s: 29
+l: 20 s: 40
+l: 21 s: 22
+l: 21 s: 22
+l: 21 s: 24
+l: 21 s: 24
+l: 21 s: 26
+l: 21 s: 26
+l: 23 s: 29
+l: 23 s: 29
+l: 23 s: 29
+l: 23 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 24 s: 29
+l: 33 s: 29
+l: 33 s: 29
+l: 33 s: 29
+l: 33 s: 29
+l: 33 s: 26
+l: 34 s: 30
+l: 34 s: 32
+l: 35 s: 29
+l: 35 s: 29
+l: 41 s: 29
+l: 41 s: 29
+l: 41 s: 29
+l: 44 s: 29
+l: 44 s: 29
+l: 44 s: 29
+l: 44 s: 29
+l: 45 s: 29
+l: 49 s: 29
+l: 49 s: 29
+l: 49 s: 29
+l: 49 s: 29
+l: 49 s: 29
+l: 49 s: 29
+l: 49 s: 26
+l: 49 s: 26
+l: 51 s: 29
+l: 51 s: 25
+l: 51 s: 29
+l: 51 s: 29
+l: 53 s: 29
+l: 53 s: 29
+l: 53 s: 28
+l: 53 s: 29
+l: 55 s: 29
+l: 55 s: 29
+l: 55 s: 29
+l: 70 s: 30
+l: 70 s: 30
+l: 70 s: 30
+l: 70 s: 30
+l: 70 s: 40
+l: 70 s: 40
+l: 70 s: 40
+l: 70 s: 40
+l: 98 s: 30
+l: 98 s: 30
+l: 98 s: 40
+l: 98 s: 40
+
+
+I think I can say that 29 is the max and don't try to exceed that, if you want to ride...
+
+when jumping and hitting lift from below, sometimes pushed through floor...fixed
+
+
+made a test level and lifts and players seem to play nicely now...
+
+is there anything else I can test?
+
+
+now back to why things look dumb when lifts are moving..
+
+you know, it is never straight vertical or horizontal, only diagonal looks choppy...test that...
+
+when riding diagonal only..
+
+what about weird speeds? yes that does it on stright ones also...
+
+up and down are perfectly smooth? yes, it is only right and left...
+
+now we might be getting somewhere...
+
+
+the way y works is it is always clamped to -20 from lift y
+
+x does not work that way, it just syncs the xincs...
+
+
+what if I saved the x offset relative to the lift?
+
+save it in the player struct, only change when left and right change it
+
+that is just crazy enough to work
+
+but wait, it is aleady excatly the same as lift and the drawing is bad....
+
+try it anyway..
+
+added float player_ride_x_offset;
+and removed one spare int
+
+
+now when player_ride is set, set the offset also
+
+did this and guess what, it still is bad....
+
+
+now what? give up finally and move on...
+
+wait a tick!
+
+could it be that I am setting the viewport based on the players position then drawing the players?
+looked at that and dont think it applies
+
+could it have something to do with the viewport scroll?
+if there is no scroll does it still happen?
+
+how to test?
+
+made the viewport .9 .9 and zoomed in when riding lift, still seems jumpy
+
+MOVE ON!!
+put it all back together
+was anything changed in lifts?..done
+
+
+I think it is all put back...
+
+now make viewport settings work
+
+the auto scrolling seems rather abrupt, it almost makes me queasy
+try to do some gradual accelerated scrolling
+
+
+I need some variables
+
+
+after all that I still do not like the automatic scrolling
+
+it is disorienting and makes me dizzy
+
+
+too bad...
+
+can I make it better?
+
+
+I hate it less now...
+
+make all these things customizable
+
+
+I like the left and right things
+
+my max left and right while while running is 4 pix
+
+left and right is soley based on pvx
+
+
+acceleration with pvx
+float im = 0.02;
+mDisplay.level_display_region_xinc += pvx * im;
+
+decay with no pvx
+if (pvx == 0) mDisplay.level_display_region_xinc *= 0.8; // decay when not moving
+
+// max viewport speed
+float mxi = 5;
+if (mDisplay.level_display_region_xinc > mxi) mDisplay.level_display_region_xinc = mxi;
+if (mDisplay.level_display_region_xinc < -mxi) mDisplay.level_display_region_xinc = -mxi;
+
+
+
+
+after all of that, I played in static mode and liked it
+
+
+how am I going to present all of these options in settings...
+
+toggle static...
+
+what should I call it?
+
+centered,
+static,
+viewport disabled?
+
+what variable should I use:
+
+bool viewport_hyst_enabled;
+
+
+I also want to move all of the viewport variables to mScreen from mDisplay
+
+done...
+
+
+
+why dont I just leave viewport mode?
+
+0 static
+1 everything else...
+
+
+ok that is done but not pretty in settings..
+
+now if I am in hyst mode what is optional?
+
+if nothing else is selected the hyst will move when player hits edges
+this is not optional, this must always happen
+
+
+viewport_look_up_down
+if enabled the keys up and down move the viewport
+
+viewport_look_player_facing_left_right
+if enabled the viewport scrolls in the driection the player is facing (left or right)
+
+viewport_look_player_motion
+
+viewport_look_rocket
+
+
+I think I have the viewport stuff figured out...
+
+
+now I need to fix all my demo's!!!!
+
+
+damn!
+
+why the fuck did I do that?
+how do I want to do this?
+
+2 done
+3
+6 done
+
+
+
+I just found a bug in the player code...
+
+
+when jumping up and hitting block, but trying to get into single opening beside it....it is hard..fixed
+
+i had to redo demos again!!! DAMN
+
+2-12 done and 14
+
+
+
+I just found out I cannot let go of rope by pressing down...wtf
+added 1 to y when pressing down to drop rope..fixed
+
+
+now I have 2-14 done
+test that they are not screwed up
+looks good
+
+do training levels
+80-84 9, 25, 37 done
+
+area 1 done
+
+time for a push
+
+lots of levels still left to go...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

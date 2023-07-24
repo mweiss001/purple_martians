@@ -163,6 +163,9 @@ void mwPlayer::proc_player_xy_move_test(int p)
 
 void mwPlayer::proc_player_xy_move(int p)
 {
+   int debug_print = 0;
+   if (debug_print) printf("\nPlayer xy move\n");
+
    float gravity = 0.6;
    float slow_gravity = 0.2; // used when jump is held
    float initial_jump_velocity = -6.6;
@@ -172,12 +175,11 @@ void mwPlayer::proc_player_xy_move(int p)
    float max_x_velocity = 4;
    float initial_x_velocity = 1.15;
 
-   int x = syn[p].x;
-   int y = syn[p].y;
+
+
 
 
 // -----------   x move  ---------------------
-
    if ((syn[p].left) && (!syn[p].right)) // left only
    {
       syn[p].left_right = 0;
@@ -213,51 +215,44 @@ void mwPlayer::proc_player_xy_move(int p)
    if (syn[p].left_xinc > 0 ) syn[p].left_xinc = 0;
    if (syn[p].left_xinc < -max_x_velocity) syn[p].left_xinc = -max_x_velocity;
 
-   if (mSolid.is_right_solid(x, y, 0, 1)) syn[p].right_xinc = 0;
-   if (mSolid.is_left_solid(x, y, 0, 1))  syn[p].left_xinc = 0;
+   if (mSolid.is_right_solid(syn[p].x, syn[p].y, 0, 1)) syn[p].right_xinc = 0;
+   if (mSolid.is_left_solid( syn[p].x, syn[p].y, 0, 1)) syn[p].left_xinc = 0;
 
    syn[p].xinc = syn[p].left_xinc + syn[p].right_xinc;  // calc xinc
-   syn[p].x += syn[p].xinc;                                // apply xinc
+
+   if (syn[p].player_ride) syn[p].xinc += mLift.cur[syn[p].player_ride-32].xinc; // if player is riding lift add lift xinc
+
+   syn[p].x += syn[p].xinc; // apply xinc to players x
 
 
-   x = syn[p].x;
-   y = syn[p].y;
-   if (syn[p].player_ride) // if player is riding lift
-   {
-      int d = syn[p].player_ride - 32; // lift number
-      if ((mLift.cur[d].xinc > 0) && (!mSolid.is_right_solid(x, y, 1, 1))) syn[p].x  += mLift.cur[d].xinc; // moving right
-      if ((mLift.cur[d].xinc < 0) && (!mSolid.is_left_solid (x, y, 1, 1))) syn[p].x  += mLift.cur[d].xinc; // moving left
-   }
-
-   if (int a = mSolid.is_left_solid(x, y, 1, 1))
+   if (int a = mSolid.is_left_solid(syn[p].x, syn[p].y, 1, 1))
    {
       if (a > 31) // player being pushed right by lift
       {
-         if (!mSolid.is_right_solid(x, y, 0, 1))
+         if (!mSolid.is_right_solid(syn[p].x, syn[p].y, 0, 1))
          {
             int l = a-32; // lift that is pushing
             syn[p].x = mLift.cur[l].x + mLift.cur[l].w + 1; // snap to lift pos + width
-            syn[p].right_xinc = mLift.cur[l].xinc;     // set players xinc from lift
+            syn[p].right_xinc = mLift.cur[l].xinc;          // set players xinc from lift
          }
          else // player is getting squished
          {
             syn[p].health -= 1;
-            mGameEvent.add(11, x, y, p, 9, 0, 100);
+            mGameEvent.add(11, 0, 0, p, 9, 0, 100);
          }
       }
       else  if (syn[p].xinc < 0) // moving left and block collision
       {
          syn[p].left_xinc = 0;
+         int x = syn[p].x;
          syn[p].x = (((x/20)+1) * 20) - 3;  // align with wall
       }
    }
-   x = syn[p].x;
-   y = syn[p].y;
-   if (int a = mSolid.is_right_solid(x, y, 1, 1))
+   if (int a = mSolid.is_right_solid(syn[p].x, syn[p].y, 1, 1))
    {
       if (a > 31)    // player being pushed left by lift
       {
-         if (!mSolid.is_left_solid(x, y, 0, 1))
+         if (!mSolid.is_left_solid(syn[p].x, syn[p].y, 0, 1))
          {
             int l = a-32; // lift that is pushing
             syn[p].x = mLift.cur[l].x - 20;            // snap to lift pos - 20
@@ -266,148 +261,167 @@ void mwPlayer::proc_player_xy_move(int p)
          else // player is getting squished
          {
             syn[p].health -= 1;
-            mGameEvent.add(11, x, y, p, 9, 0, 100);
+            mGameEvent.add(11, 0, 0, p, 9, 0, 100);
          }
       }
       else if (syn[p].xinc > 0) // moving right and block collision
       {
          syn[p].right_xinc = 0;
+         int x = syn[p].x;
          syn[p].x = ((x/20) * 20) + 2; // align with wall
       }
    }
 
 
 // ---------------   check to see if player riding lift starts or ends --------------------------
-   x = syn[p].x;
-   y = syn[p].y;
 
-   int a = mSolid.is_down_solid(x, y, 1, 1);        // check for lift below player
 
-   if (a > 31)
+   // check for lift below player
+   // this is not ideal, there could be more than one lift and only the first one will detect
+   int a = mSolid.is_down_solid(syn[p].x, syn[p].y, 1, 1);
+
+   if (debug_print)
    {
-      if (mLift.cur[a-32].yinc > 0)              // is lift going down
+      if (a == 0) printf("detect nothing solid below\n");
+      if (a == 1) printf("detect solid block below\n");
+      if ((a > 31) && (a == syn[p].player_ride)) printf("detect same lift below\n");
+   }
+   if (a < 32) syn[p].player_ride = 0; // no lift detected below player
+   else if (syn[p].player_ride != a)   // lift detected below player, and player is not currently riding that lift
+   {
+      if (debug_print) printf("detect new lift below:%d\n", a );
+      if (mLift.cur[a-32].yinc > 0)          // is lift going down
       {
-         if (mSolid.is_down_solid(x, y, 0, 1)) syn[p].player_ride = 0;  // check for block below ignoring lifts
-         else syn[p].player_ride = a;
+         syn[p].player_ride = a;             // now we are riding this lift
+         syn[p].y = mLift.cur[a-32].y - 20;  // align with lift
+         syn[p].yinc = mLift.cur[a-32].yinc; // same speed as lift
       }
-      if (mLift.cur[a-32].yinc <= 0)             // is lift going up or steady
+      if (mLift.cur[a-32].yinc <= 0)         // is lift going up or steady
       {
-          int offset = mLift.cur[a-32].y - y;   // to prevent lift from picking up early
-          if (offset < 21) syn[p].player_ride = a;
+         int y = syn[p].y;
+         int offset = mLift.cur[a-32].y - y;   // to prevent lift from picking up early
+         if (debug_print) printf("offset from rising lift:%d\n", offset );
+         if (offset < 21)
+         {
+            syn[p].player_ride = a;             // now we are riding this lift
+            syn[p].y = mLift.cur[a-32].y - 20;  // align with lift
+            syn[p].yinc = mLift.cur[a-32].yinc; // same speed as lift
+         }
       }
    }
-   else syn[p].player_ride = 0;
 
 
 // -----------   y move  ---------------------
-
    if (syn[p].player_ride) // if player is riding lift
    {
-      syn[p].yinc = 0;
-      int d = syn[p].player_ride - 32; // lift number
-      int x = syn[p].x;
-      int y = syn[p].y;
 
-      // if moving up and solid block above
-      if ((mLift.cur[d].yinc < 0) && (mSolid.is_up_solid(x, y, 0, 1) == 1))
-      {
-         syn[p].player_ride = 0;  // player knocked off lift due to collision above
-         syn[p].health -= 1;      // take some damage
-         mGameEvent.add(11, x, y, p, 9, 0, 100);
-      }
+      if (debug_print) printf("player riding lift\n");
+      int d = syn[p].player_ride - 32; // lift number
+
+      syn[p].yinc = mLift.cur[d].yinc;
+
 
       // check for collision with lift above
-      if (mSolid.is_up_solid(x, y+1, 1, 1) > 31)
+      if (mSolid.is_up_solid(syn[p].x, syn[p].y+1, 1, 1) > 31)
       {
+         if (debug_print) printf("collison with lift above\n");
          syn[p].player_ride = 0;   // player knocked off lift due to collision above
          syn[p].health -= 1;       // take some damage
-         mGameEvent.add(11, x, y, p, 9, 0, 100);
+         mGameEvent.add(11, 0, 0, p, 9, 0, 100);
       }
 
-      if (syn[p].player_ride)        // if still riding
-         syn[p].y = mLift.cur[d].y - 20; // align with fy
-
-      // moving down
-      if (mLift.cur[d].yinc > 0)
+      // if moving up and solid block above
+      if ((mLift.cur[d].yinc < 0) && (mSolid.is_up_solid(syn[p].x, syn[p].y, 0, 1) == 1))
       {
-         if (mSolid.is_down_solid(x, y, 0, 1))             // no lift check
-         {
-            syn[p].player_ride = 0;             // ride over
-            syn[p].y = y - (y % 20);            // align with floor
-         }
-         else syn[p].y = mLift.cur[d].y - 20;       // align with fy
+         if (debug_print) printf("moving up and solid block above\n");
+         syn[p].player_ride = 0;  // player knocked off lift
+         syn[p].health -= 1;      // take some damage
+
+         syn[p].y += 10;  // drop to make sure player falls off
+
+         mGameEvent.add(11, 0, 0, p, 9, 0, 100);
       }
 
-
-      if (syn[p].jump)                                    // if jump pressed
+      // if moving down and solid block below
+      if ((mLift.cur[d].yinc > 0) && (mSolid.is_down_solid(syn[p].x, syn[p].y, 0, 1))) // no lift check
       {
-         syn[p].player_ride = 0;                          // ride over
-         x = syn[p].x;
-         y = syn[p].y;
-         if (!mSolid.is_up_solid(x, y, 1, 1))            // only jump if nothing above
-         {
-            syn[p].yinc = initial_jump_velocity;
-            syn[p].y += syn[p].yinc;                     // apply yinc
-            mGameEvent.add(5, x, y, 0, 0, 0, 0);
-         }
+         if (debug_print) printf("moving down and solid block below\n");
+         syn[p].player_ride = 0;
+         int y = syn[p].y;
+         syn[p].y = y - (y % 20);            // align with floor
       }
+
+      if (syn[p].jump)
+      {
+         if (debug_print) printf("jump while riding lift\n");
+
+         syn[p].player_ride = 0;
+         syn[p].yinc = initial_jump_velocity + mLift.cur[d].yinc;
+
+         syn[p].y += syn[p].yinc; // apply yinc
+         mGameEvent.add(5, 0, 0, 0, 0, 0, 0);
+      }
+
+      if (syn[p].player_ride)
+      {
+         if (debug_print) printf("still riding\n");
+         syn[p].y = mLift.cur[d].y - 20;  // if still riding, align with fy
+      }
+
    }
-   else // not player ride
-   {
-      if ((syn[p].yinc < 0) && syn[p].jump)           // if rising and jump pressed
-         syn[p].yinc += slow_gravity;                     // apply slow gravity
-      else syn[p].yinc += gravity;                        // apply regular gravity
 
-      if (syn[p].yinc < 0)                                // if still rising
+
+   if (!syn[p].player_ride) // if player is not riding lift
+   {
+      if (debug_print) printf("player not riding lift\n");
+      if ((syn[p].yinc < 0) && (syn[p].jump)) syn[p].yinc += slow_gravity; // if rising and jump pressed use slow gravity
+      else syn[p].yinc += gravity;                                         // use regular gravity
+
+      if (syn[p].yinc > terminal_velocity) syn[p].yinc = terminal_velocity; // check for terminal velocity
+      syn[p].y += syn[p].yinc;             // apply yinc
+
+
+      if (syn[p].yinc < 0) // if moving upwards
       {
-         syn[p].y += syn[p].yinc;                    // apply yinc
-         x = syn[p].x;
-         y = syn[p].y;
-         if (mSolid.is_up_solid(x, y+2, 1, 1))                       // look for collision above
+         if (mSolid.is_up_solid(syn[p].x, syn[p].y+3, 1, 1))  // look for collision above
          {
-            syn[p].y -= syn[p].yinc;                 // take back move
-            syn[p].yinc = 0;                              // kill upwards motion
-            syn[p].y = ((y/20) + 1) * 20;        // align with ceiling
+            if (debug_print) printf("player moving up and collision\n");
+            syn[p].y -= syn[p].yinc;        // take back move
+            syn[p].yinc = 0;                // kill upwards motion
          }
       }
-      if (syn[p].yinc >= 0)                               // falling or steady
-      {
-         syn[p].yinc += gravity;                          // apply gravity to yinc
-         if (syn[p].yinc > terminal_velocity)             // check for terminal velocity
-            syn[p].yinc = terminal_velocity;
-         syn[p].y += syn[p].yinc;                    // apply yinc
 
-         x = syn[p].x;
-         y = syn[p].y;
-         if (mSolid.is_down_solid(x, y, 0, 1))                       // check for floor below (no lift)
+      if (syn[p].yinc >= 0) // if moving downwards or steady
+      {
+         if (mSolid.is_down_solid(syn[p].x, syn[p].y, 0, 1))  // check for floor below (no lift)
          {
-            syn[p].yinc = 0;                              // kill downwards motion
+            if (debug_print) printf("player moving down and collison\n");
+            int y = syn[p].y;
+            syn[p].yinc = 0;                  // kill downwards motion
             syn[p].y = y - (y % 20);          // align with floor
 
             // check for collision with lift above if lift is moving down
-            int a = mSolid.is_up_solid(x, y, 1, 1);
+            int a = mSolid.is_up_solid(syn[p].x, syn[p].y, 1, 1);
             if ((a > 31) && (mLift.cur[a-32].yinc > 0))
             {
-               // take some damage
-               syn[p].health -= 1;
-               mGameEvent.add(11, x, y, p, 9, 0, 100);
+               if (debug_print) printf("player moving down or steady and collison with lift moving down\n");
+               syn[p].health -= 1; // take some damage
+               mGameEvent.add(11, 0, 0, p, 9, 0, 100);
             }
 
-            if (syn[p].jump)                              // if jump pressed
+            if (syn[p].jump)       // jump pressed
             {
-               x = syn[p].x;
-               y = syn[p].y;
-               int a = mSolid.is_up_solid(x, y, 1, 1);
-               if ((a == 0) || (a == 2))                      // only jump if nothing above
+               if (debug_print) printf("jump pressed\n");
+               int a = mSolid.is_up_solid(syn[p].x, syn[p].y, 1, 1);
+               if ((a == 0) || (a == 2))  // only jump if nothing above
                {
                   syn[p].yinc = initial_jump_velocity;
-                  mGameEvent.add(5, x, y, 0, 0, 0, 0);
+                  mGameEvent.add(5, 0, 0, 0, 0, 0, 0);
                }
             }
          }  // end of if floor below
       } // end of if falling or steady
    } // end of not player ride
-
 }
 
 
@@ -711,7 +725,7 @@ void mwPlayer::proc_player_rope_move(int p)
    if (syn[p].down)
    {
       syn[p].on_rope = 0;
-      syn[p].y += 4;
+      syn[p].y += 5;
    }
 }
 
@@ -1029,20 +1043,18 @@ void mwPlayer::move_players(void)
 void mwPlayer::draw_player(int p)
 {
    al_set_target_bitmap(mBitmap.level_buffer);
-
    int px = syn[p].x;
    int py = syn[p].y;
    set_players_shape(p);
-
 
 
 //      float scale = syn[p].draw_scale;
 //      float rot = syn[p].draw_rot;
 //      int flags = ALLEGRO_FLIP_HORIZONTAL;
 //      if (syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-
-   //   printf("color:%d shape:%d\n", syn[p].color, syn[p].shape );
-
+//
+////      printf("color:%d shape:%d\n", syn[p].color, syn[p].shape );
+//
 //      al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, px+10, py+10, scale, scale, rot, flags);
 
 
@@ -1109,6 +1121,9 @@ void mwPlayer::draw_player(int p)
 
 
 
+
+
+
    // death sequence star overlay
    if ((syn[p].paused) && (syn[p].paused_type == 1))
    {
@@ -1161,16 +1176,13 @@ void mwPlayer::draw_players(void)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
       if (syn[p].active) draw_player(p);
-
-   // do this so that that local player is always drawn on top
-   draw_player(active_local_player);
+   draw_player(active_local_player); // do this so that that local player is always drawn on top
 }
-
 
 void mwPlayer::draw_player_direct_to_screen(int p)
 {
    float px, py;
-   mScreen.calc_actual_screen_position(mPlayer.syn[p].x+10, mPlayer.syn[p].y+10, px, py);
+   mScreen.calc_actual_screen_position(syn[p].x+10, syn[p].y+10, px, py);
    float scale = mPlayer.syn[p].draw_scale * mDisplay.scale_factor_current;
    int flags = ALLEGRO_FLIP_HORIZONTAL;
    if (mPlayer.syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
@@ -1222,7 +1234,10 @@ void mwPlayer::set_players_shape(int p)
    // if player riding lift animate with player's xpos relative to lift
    if (syn[p].player_ride)
    {
-      int rx = 20 + (int) syn[p].x - mLift.cur[syn[p].player_ride-32].x;
+      int rx = 20 + (int) (syn[p].x - mLift.cur[syn[p].player_ride-32].x);
+//      printf("rx:%d\n", rx);
+
+
       pos = (rx / 4) % 5;  // try 5 for now
    }
 
@@ -1231,9 +1246,8 @@ void mwPlayer::set_players_shape(int p)
    if (syn[p].paused) syn[p].shape = 0;
    else syn[p].shape = index + pos;
 
-
-   // if jump or fall use static shape
-   if (syn[p].yinc != 0) syn[p].shape = 19;
+   // if jump or fall and not riding lift use static shape
+   if ((syn[p].yinc != 0) && (!syn[p].player_ride)) syn[p].shape = 19;
 
 
    // if riding rocket use static shape
@@ -1249,7 +1263,7 @@ void mwPlayer::set_players_shape(int p)
       // 3 is rope move
       int pos = (x/3) % 2;
       syn[p].shape = 20 + pos;
-      /// printf("f:%d x:%d pos:%d, shape:%d\n", mLoop.frame_num, x, pos, shape );
+      // printf("f:%d x:%d pos:%d, shape:%d\n", mLoop.frame_num, x, pos, shape );
    }
 
    if (syn[p].on_ladder)

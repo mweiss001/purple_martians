@@ -32,6 +32,7 @@ struct psyn // synced between server and client
    int on_ladder;
    int on_rope;
    int player_ride;
+
    int carry_item;
 
    int shape; // index to player_tile

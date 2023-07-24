@@ -248,7 +248,7 @@ void mwSettings::settings_pages(int set_page)
    struct settings_tab st[20] = {0};
 
    sprintf(st[0].title,  "Main");
-   sprintf(st[1].title,  "Mode");
+//   sprintf(st[1].title,  "Mode");
    sprintf(st[2].title,  "Controls");
    sprintf(st[3].title,  "Controls 2");
    sprintf(st[4].title,  "Netgame");
@@ -295,6 +295,9 @@ void mwSettings::settings_pages(int set_page)
 
       for (int i=0; i<9; i++) st[i].show = 1; // always on
 
+      st[1].show = 0; // mode off
+
+
 
       if (show_advanced)
       {
@@ -306,61 +309,13 @@ void mwSettings::settings_pages(int set_page)
       // if current page is not shown, change to page 0
       if (!st[page].show) current_page = page = 0;
 
-      al_show_mouse_cursor(mDisplay.display);
-      // entire area, including title, tabs, and page
+
+
+
+      // set width and x positions
       int cf_w = 400;
       int cf_x1 = (mDisplay.SCREEN_W - cf_w)/2;
       int cf_x2 = cf_x1 + cf_w;
-
-      int cf_h = 400;
-//      int cf_y1 = mLogo.menu_map_y - 61; // line up exactly with the menu item "Settings"
-//      if (!mMain.classic_mode) cf_y1 -= 20; // line up exactly with the menu item "Settings"
-      int cf_y1 = 32;  // or just line up under Main Title
-
-      int cf_y2 = cf_y1 + cf_h;
-
-      if (cf_y2 > mDisplay.SCREEN_H)     // if bottom is past bottom of screen
-      {
-         cf_y2 = mDisplay.SCREEN_H;      // bottom is bottom of screen
-         cf_y1 = cf_y2 - cf_h;
-
-         if (cf_y1 < 0)         // if top is past top of screen
-         {
-            cf_y1 = 0;          // top is top of screen
-            cf_y2 = cf_y1 + cf_h;
-         }
-      }
-
-      fc = mPlayer.syn[0].color; // frame color
-
-      al_set_target_backbuffer(mDisplay.display);
-      al_flip_display();
-      al_clear_to_color(al_map_rgb(0, 0, 0));
-      mScreen.frame_and_title(1);
-      mLogo.mdw_an(mLogo.mdw_map_logo_x, mLogo.mdw_map_logo_y, mLogo.mdw_map_logo_scale);
-      for (int c=0; c<7; c++)       // show first 7 menu items
-      {
-         int b = 15;
-         if ((!mLevel.resume_allowed) && (c==4)) b+=80; // dimmer if can't resume
-         al_draw_text(mFont.pr8, mColor.pc[b], mDisplay.SCREEN_W/2, 14+(c*10)+1, ALLEGRO_ALIGN_CENTRE, mMenu.menu_string[c]);
-      }
-
-      while (!mEventQueue.menu_update) mEventQueue.proc();
-      mEventQueue.menu_update = 0;
-
-      al_draw_filled_rectangle(cf_x1, cf_y1, cf_x2, cf_y2, mColor.pc[fc+224]); // erase everything
-
-      // figure out the title size
-      int bx, by, bw, bh;
-      al_get_text_dimensions(mFont.pr8, title, &bx, &by, &bw, &bh);
-      float title_w = bw + 12;
-      float title_x1 = cf_x1 + (cf_w - title_w) / 2;
-      float title_x2 = title_x1 + title_w;
-      float title_xc = title_x1 + title_w / 2;
-      float title_h = bh + 8;
-      float title_y1 = cf_y1 + frame_width/2-1;
-      float title_y2 = title_y1 + title_h;
-      float title_ty = 0.5 + title_y1 + (title_h - bh) / 2;
 
       // set page x size, this has to go before the tab size
       int cfp_x1 = cf_x1 + frame_width;
@@ -368,7 +323,18 @@ void mwSettings::settings_pages(int set_page)
       int cfp_txc = cfp_x1 + (cfp_x2 - cfp_x1) / 2;
 
 
-      // iterate through all the tab, determine width and position
+
+
+
+      // figure out the title height
+      int bx, by, bw, bh;
+      al_get_text_dimensions(mFont.pr8, title, &bx, &by, &bw, &bh);
+      float title_h = bh + 8;
+
+
+      // figure out the tabs height
+
+      // iterate through all the tabs, determine width and position
       int next_x1 = cfp_x1+1; // start at page x1;
       int next_y2 = 0;        // we don't know where are going to start yet, so do them at offset 0
       for (int i=0; i<num_pages; i++)
@@ -399,11 +365,87 @@ void mwSettings::settings_pages(int set_page)
          }
       }
 
-      int tabs_height = 8 - (next_y2-bh); // find the height of the last tab
+      int tabs_h = 8 - (next_y2-bh); // find the height of the last tab
 
-      // now we can set the top of the page, where the tabs will start
-      int cfp_y1 = cf_y1 + tabs_height + title_h;
+      int page_h = 360;  // fixed page height
+
+      int cf_h = page_h + tabs_h + title_h + frame_width*2;
+
+
+
+
+//      int cf_h = 400;
+//      int cf_y1 = mLogo.menu_map_y - 61; // line up exactly with the menu item "Settings"
+//      if (!mMain.classic_mode) cf_y1 -= 20; // line up exactly with the menu item "Settings"
+
+
+      int cf_y1 = 32;  // or just line up under Main Title
+
+      int cf_y2 = cf_y1 + cf_h;
+
+      if (cf_y2 > mDisplay.SCREEN_H)     // if bottom is past bottom of screen
+      {
+         cf_y2 = mDisplay.SCREEN_H;      // bottom is bottom of screen
+         cf_y1 = cf_y2 - cf_h;
+
+         if (cf_y1 < 0)         // if top is past top of screen
+         {
+            cf_y1 = 0;          // top is top of screen
+            cf_y2 = cf_y1 + cf_h;
+         }
+      }
+
+
+      fc = mPlayer.syn[0].color; // frame color
+
+      al_show_mouse_cursor(mDisplay.display);
+      al_set_target_backbuffer(mDisplay.display);
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0, 0, 0));
+      mScreen.frame_and_title(1);
+      mLogo.mdw_an(mLogo.mdw_map_logo_x, mLogo.mdw_map_logo_y, mLogo.mdw_map_logo_scale);
+
+
+//      for (int c=0; c<7; c++)       // show first 7 menu items
+//      {
+//         int b = 15;
+//         if ((!mLevel.resume_allowed) && (c==4)) b+=80; // dimmer if can't resume
+//         al_draw_text(mFont.pr8, mColor.pc[b], mDisplay.SCREEN_W/2, 14+(c*10)+1, ALLEGRO_ALIGN_CENTRE, mMenu.menu_string[c]);
+//      }
+
+
+
+
+      while (!mEventQueue.menu_update) mEventQueue.proc();
+      mEventQueue.menu_update = 0;
+
+
+
+
+
+
+      // figure out the title size
+      al_get_text_dimensions(mFont.pr8, title, &bx, &by, &bw, &bh);
+      float title_w = bw + 12;
+      float title_x1 = cf_x1 + (cf_w - title_w) / 2;
+      float title_x2 = title_x1 + title_w;
+      float title_xc = title_x1 + title_w / 2;
+
+      float title_y1 = cf_y1 + frame_width/2-1;
+      float title_y2 = title_y1 + title_h;
+      float title_ty = 0.5 + title_y1 + (title_h - bh) / 2;
+
+      // set the bottom of the tab area, where the tabs will start and extend upwards
+      int cfp_y1 = cf_y1 + tabs_h + title_h;
       //int cfp_y2 = cf_y2 - frame_width;
+
+      // set the top of the page area, where the pages will start and extend downwards
+      int page_y1 = cfp_y1 + frame_width;
+      int page_y2 = page_y1 + page_h;
+
+
+      al_draw_filled_rectangle(cf_x1, cf_y1, cf_x2, cf_y2, mColor.pc[fc+224]); // erase everything
+
 
       // frame everything
       for (int a=0; a<frame_width; a++)
@@ -457,7 +499,9 @@ void mwSettings::settings_pages(int set_page)
          al_draw_rounded_rectangle(cf_x1+a, cfp_y1+a, cf_x2-a, cf_y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
 
 
-
+      al_draw_textf(mFont.pr8, mColor.pc[15], cf_x2+20, cfp_y1,    0, "full height:%d", cf_y2 - cf_y1);
+      al_draw_textf(mFont.pr8, mColor.pc[15], cf_x2+20, cfp_y1+10, 0, "tab height:%d", tabs_h);
+      al_draw_textf(mFont.pr8, mColor.pc[15], cf_x2+20, cfp_y1+20, 0, "page height:%d", page_y2 - page_y1);
 
 
 
@@ -468,33 +512,61 @@ void mwSettings::settings_pages(int set_page)
 // ---------------------------------------------------------------
       if (page == 0)
       {
-         int line_spacing = 11;
+         int line_spacing = 8;
          //line_spacing += mLoop.pct_y;
-         if (show_advanced) line_spacing = 8;
          int tc = 15;  // text color
          int fc = 13;  // frame color
-         int xa = cfp_x1 + 10;
-         int xb = cfp_x2 - 10;
+         int xa = cfp_x1 + 40;
+         int xb = cfp_x2 - 40;
          int bts = 20; // button spacing
          //bts += mLoop.pct_y;
-         int ya = cfp_y1;
+
+         int ya = cfp_y1+10+line_spacing;
+
+//         char* pname = "Main Settings";
+//         int tl = strlen(pname)*4+2;
+//         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, pname);
+//         ya = cfp_draw_line(cfp_txc-tl, cfp_txc+tl, ya+4, 8, tc);
+
+
+         int old_mcm = mMain.classic_mode;
+         mWidget.toggle(xa, ya, xa + 220, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mMain.classic_mode, "Game Mode: Story Mode", "Game Mode: Classic Mode", 15, 15, 13, 9);
+         if (mWidget.buttont(xb -60, ya, xb, bts,  0,0,0,0,  0,3,15, 0,  1,0,1,0, "Help")) mHelp.help("Game Mode");
+
+         if (old_mcm != mMain.classic_mode)
+         {
+            if (mMain.classic_mode == 0) // just changed to story mode
+            {
+               mLevel.set_start_level(1); // make sure we are on overworld
+            }
+         }
+
+
+         ya += line_spacing;
+
+         xa = cfp_x1 + 10;
+         xb = cfp_x2 - 10;
+
+
+
+
+
+//         al_draw_rectangle(cfp_x1, page_y1, cfp_x2, page_y2, mColor.pc[15], 1 ); // test frame
+
 
 
 
          // ---------------------------------------
          // player color
          // ---------------------------------------
-         ya+= line_spacing;
-
 
          fc = mPlayer.syn[0].color;
          int frame_y1 = ya;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-
          ya+=7;
          al_draw_text(mFont.pr8, mColor.pc[tc], xa,     ya, 0, "Current player color:");
-         cfp_draw_player(mPlayer.syn[0].color,     xa+180, ya-7);
+         cfp_draw_player(mPlayer.syn[0].color,  xa+180, ya-7);
 
          ya+=13;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
@@ -572,7 +644,7 @@ void mwSettings::settings_pages(int set_page)
          x1a = cfp_x1 + 10;
          x1b = x1a + 250;
          mWidget.togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mLogo.show_splash_screen, "Show splash screen on startup", tc, tc);
-         x1a = x1b + 24;
+         x1a = x1b + 24+8;
          x1b = x1a + 80;
          if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,8,tc, 0,  1,0,1,0, "Show now"))
          {
@@ -582,26 +654,30 @@ void mwSettings::settings_pages(int set_page)
          ya -=2;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mBottomMessage.bottom_msg_on, "Show bottom message display", tc, 15);
+         mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mBottomMessage.bottom_msg_on, "Show bottom message display", tc, 15);
+
+         if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,3,15, 0,  1,0,1,0, "Settings")) page = 6;
+
+
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode. config_autoplay_enabled, "Autoplay random demo at program start", tc, 15);
+         mWidget.togglec(xa, ya, xa+40, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mDemoMode.config_autoplay_enabled, "Autoplay demo when idle", tc, 15);
+         if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,3,15, 0,  1,0,1,0, "Settings")) page = 5;
          ya -=2;
 
          al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
          al_draw_line(cfp_x2-4, frame_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[fc], 1 );
          ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
 
-
          if (show_advanced)
          {
-            ya+= line_spacing;
+            ya+= line_spacing-4;
 
 
             x1a = cfp_x1 + 60;
             x1b = cfp_x2 - 60;
-            if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,10,14, 0,  1,0,1,0, "Reset All Settings to Defaults!"))
+            if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Reset All Settings to Defaults!"))
             {
                al_remove_filename("pm.cfg");
                al_remove_filename("data/mW.pm");
@@ -610,7 +686,7 @@ void mwSettings::settings_pages(int set_page)
          }
       }
 
-
+/*
 
 // ---------------------------------------------------------------
 //  1 - game mode
@@ -618,7 +694,7 @@ void mwSettings::settings_pages(int set_page)
       if (page == 1) // game mode
       {
 
-         int line_spacing = 12;
+         int line_spacing = 18;
          //line_spacing +=  mLoop.pct_y;
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
@@ -628,8 +704,18 @@ void mwSettings::settings_pages(int set_page)
          //bts +=  mLoop.pct_y;
 
 
-         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Game Mode");
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         const char* pname = "Game Mode";
+         int tl = strlen(pname)*4+2;
+         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, pname);
+         ya = cfp_draw_line(cfp_txc-tl, cfp_txc+tl, ya+4, 8, tc);
+
+
+         ya+=line_spacing;
+
+
+//         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Game Mode");
+//         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
 
 
@@ -638,10 +724,8 @@ void mwSettings::settings_pages(int set_page)
 
 
          int old_mcm = mMain.classic_mode;
-
          mWidget.toggle(xa, ya, xa + 220, bts,  0,0,0,0,  0,0,0,0, 1,0,0,0, mMain.classic_mode, "Game Mode: Story Mode", "Game Mode: Classic Mode", 15, 15, 13, 9);
          if (mWidget.buttont(xb -60, ya, xb, bts,  0,0,0,0,  0,3,15, 0,  1,0,1,0, "Help")) mHelp.help("Game Mode");
-
 
          if (old_mcm != mMain.classic_mode)
          {
@@ -652,25 +736,40 @@ void mwSettings::settings_pages(int set_page)
          }
 
 
+
+
          xa = cfp_x1 + 10;
          xb = cfp_x2 - 10;
 
 
-         ya +=12;
-         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "This changes the entire behaviour of the game."); ya +=20;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+//         ya +=12;
+         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "This changes the entire behaviour of the game.");
+
+         ya +=8;
+
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
 
          al_draw_text(mFont.pr8, mColor.pc[13], xa, ya, 0, "Story Mode:"); ya +=16;
          al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- levels are started from the overworld hub"); ya +=16;
          al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- when a level is completed, you are returned"); ya +=12;
-         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "  to the overworld hub"); ya +=16;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "  to the overworld hub"); ya +=8;
 
-         ya +=8;
+ //        ya +=8;
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
 
          al_draw_text(mFont.pr8, mColor.pc[9],  xa, ya, 0, "Classic Mode:"); ya +=16;
          al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- any level can be started from the menu"); ya +=16;
          al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- when a level is completed, the next level"); ya +=12;
          al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "  is started automatically"); ya +=16;
-         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- the level editor is available on the menu"); ya +=12;
+         al_draw_text(mFont.pr8, mColor.pc[15], xa, ya, 0, "- the level editor is available on the menu"); ya +=8;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -688,7 +787,7 @@ void mwSettings::settings_pages(int set_page)
             ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
          }
       }
-
+*/
 
 // ---------------------------------------------------------------
 //  2 - controls
@@ -696,16 +795,16 @@ void mwSettings::settings_pages(int set_page)
       if (page == 2)
       {
          int tc = 15;  // text color
-         int bts = 18; // button spacing
+         int bts = 20; // button spacing
          //bts += mLoop.pct_y;
-         int line_spacing = 12;
+         //int line_spacing = 18;
          //line_spacing +=  mLoop.pct_y;
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
          int ya = cfp_y1 + 10;
 
          al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Game Controls");
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, 15);
+         ya = cfp_draw_line(xa-6, xb+6, ya, 12, 15);
 
          int kw = 240; // width of the key display
          int kx = cfp_x1 + ((cfp_x2-cfp_x1) - kw) / 2; // x pos of key display so its is centered on page
@@ -757,12 +856,12 @@ void mwSettings::settings_pages(int set_page)
       if (page == 3)
       {
          int line_spacing = 12;
-         //line_spacing +=  mLoop.pct_y;
+         line_spacing +=  mLoop.pct_y;
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
          int ya = cfp_y1 + 10;
-         int bts = 20;
-         //bts += mLoop.pct_y;
+         int bts = 24;
+         // bts += mLoop.pct_y;
          int tc = 13;
 
          int last_control = 8;
@@ -896,7 +995,7 @@ void mwSettings::settings_pages(int set_page)
 // ---------------------------------------------------------------
       if (page == 5) // demo
       {
-         int line_spacing = 12;
+         int line_spacing = 20;
 
          //line_spacing +=  mLoop.pct_y;
 
@@ -939,7 +1038,7 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode. config_autoplay_enabled, "Autoplay random demo at program start", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.config_autoplay_enabled, "Autoplay random demo at program start", tc, fc);
 
          ya -=4;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -974,8 +1073,8 @@ void mwSettings::settings_pages(int set_page)
       if (page == 6)
       {
          int line_spacing = 8;
-         if (show_advanced) line_spacing = 7;
-         //line_spacing +=  mLoop.pct_y;
+//         if (show_advanced) line_spacing = 7;
+//         line_spacing +=  mLoop.pct_y;
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
          int ya = cfp_y1 + 10;
@@ -1459,7 +1558,8 @@ void mwSettings::settings_pages(int set_page)
 // ---------------------------------------------------------------
       if (page == 10)
       {
-         int line_spacing = 5;
+         int line_spacing = 6;
+         //line_spacing +=  mLoop.pct_y;
          int tc = 15;  // text color
          int fc = 13;  // frame color
          int xa = cfp_x1 + 10;
@@ -1478,70 +1578,91 @@ void mwSettings::settings_pages(int set_page)
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The hysteresis rectangle is an area in the");
+
+
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "In Centered Mode, the player is always in");
          ya+=12;
-         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "center where the player can move without");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "exact center of the screen and the level");
          ya+=12;
-         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "causing the level to scroll");
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "scrolls with every move.");
 
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "In Hysteresis Mode, there is an area in the");
+         ya+=12;
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "center of the screen where the player can");
+         ya+=12;
+         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "move without causing the level to scroll.");
+
+
+         ya +=8;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
          ya -= 2;
 
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDisplay.viewport_show_hyst, "Show Hysteresis Rectangle", tc, fc);
+         ya += line_spacing;
 
-         xa = cfp_x1 + 10;
-         xb = cfp_x2 - 10;
-         int xw4 = (xb - xa)/2;
-         xb = xa+xw4-10;
-         mWidget.sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,15,  0,0,0,0, mDisplay.viewport_x_div, 1, 0.01, .01, "X scale:");
 
-         xa += xw4; xb = xa+xw4-10;
-         mWidget.sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,15,  0,0,1,0, mDisplay.viewport_y_div, 1, 0.01, .01, "Y scale:");
-
-         xa = cfp_x1 + 10;
-         xb = cfp_x2 - 10;
+         mWidget.buttonp(xa+80, ya, xb-80, bts,  20,0,0,0,  0, 8, fc, 0,  1,0,1,0, mScreen.viewport_mode);
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya -= 2;
 
-         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Show it to help with adjustment, and leave");
-         ya+=12;
-         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "it on while playing to see how it works.");
 
-         ya +=8;
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
-         mWidget.buttonp(xa+80, ya, xb-80, bts,  20,0,0,0,  0, 8, fc, 0,  1,0,1,0, mDisplay.viewport_mode);
-
-         ya+=4;
-
-         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Instant mode moves the viewport instantly.");
-         ya+=20;
-         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Gradual mode moves the viewport gradually.");
-         ya+=12;
-         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "It also moves the way you are facing.");
-         ya+=12;
-         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Including up and down.");
-         ya+=20;
-         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Static mode disables the hystersis rectangle.");
-         ya+=12;
-         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The player is always in the center of the");
-         ya+=12;
-         al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "screen. (Except near the level boundaries).");
-         if (mDisplay.viewport_show_hyst) mScreen.draw_hyst_rect();
-
-         ya +=8;
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
-         if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Reset all to defaults"))
+         if (mScreen.viewport_mode)
          {
-            mDisplay.viewport_mode = 1;
-            mDisplay.viewport_show_hyst = 0;
-            mDisplay.viewport_x_div = 0.33;
-            mDisplay.viewport_y_div = 0.33;
-         }
+            mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mScreen.viewport_look_up_down,                  "Move when looking up and down", tc, fc);
+            mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mScreen.viewport_look_rocket,                   "Look ahead when riding rocket", tc, fc);
+            mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mScreen.viewport_look_player_motion,            "Move with player motion", tc, fc);
+            mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mScreen.viewport_look_player_facing_left_right, "Move with direction player is facing", tc, fc);
 
+            ya -= 4;
+            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+            al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Adjust Hysteresis Area");
+            ya-=4;
+            mWidget.togglec(xb-60, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mScreen.viewport_show_hyst, "Show", tc, fc);
+
+            ya +=16;
+
+            xa = cfp_x1 + 10;
+            xb = cfp_x2 - 10;
+            int xw4 = (xb - xa)/2;
+            xb = xa+xw4-10;
+            mWidget.sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,15,  0,0,0,0, mScreen.viewport_x_div, 1, 0.01, .01, "X scale:");
+
+            xa += xw4; xb = xa+xw4-10;
+            mWidget.sliderf(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,15,  0,0,1,0, mScreen.viewport_y_div, 1, 0.01, .01, "Y scale:");
+
+            xa = cfp_x1 + 10;
+            xb = cfp_x2 - 10;
+
+            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+            al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Show it to help with adjustment, and leave");
+            ya+=12;
+            al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "it on while playing to see how it works.");
+            ya+=8;
+
+
+            if (mScreen.viewport_show_hyst) mScreen.draw_hyst_rect();
+
+
+            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+            ya+=4;
+
+            if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Reset all to defaults"))
+            {
+               mScreen.viewport_mode = 1;
+               mScreen.viewport_show_hyst = 0;
+               mScreen.viewport_x_div = 0.33;
+               mScreen.viewport_y_div = 0.33;
+               mScreen.viewport_look_player_motion = 0;
+               mScreen.viewport_look_up_down = 1;
+               mScreen.viewport_look_player_facing_left_right = 0;
+               mScreen.viewport_look_rocket = 1;
+            }
+         }
       }
 
 

@@ -800,9 +800,6 @@ void mwLift::draw_lift_line(int l)
       {
          for (int s=0; s<cur[l].num_steps; s++) // cycle steps
          {
-
-
-
             if ((stp[l][s].type & 31) == 1) // filter for move steps
             {
                nx = stp[l][s].x + stp[l][s].w / 2;
@@ -845,9 +842,7 @@ void mwLift::draw_lift(int l, int x1, int y1, int x2, int y2)
    //int tc = mColor.get_contrasting_color(col);
    ALLEGRO_FONT * f = mFont.pr8;
 
-
    if ((cur[l].flags & PM_LIFT_NO_DRAW) && (mLoop.level_editor_running)) col = 0;
-
 
    if (mLoop.eco_draw)
    {
@@ -863,14 +858,12 @@ void mwLift::draw_lift(int l, int x1, int y1, int x2, int y2)
       if (ys < xs) ms = ys;
       int fb = 10;    // fade amount
       if (ms < 20) fb = ms/2;
-
-      al_draw_filled_rectangle(x1+fb, y1+fb, x2-fb, y2-fb, mColor.pc[col] );                         // solid core
+      al_draw_filled_rectangle(x1+fb, y1+fb, x2-fb, y2-fb, mColor.pc[col] );                              // solid core
       for (int a=0; a<fb; a++)
-        al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mColor.pc[col + ((9 - a)*16)], 2 ); // faded outer shell
+        al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mColor.pc[col + ((9 - a)*16)], 2 );       // faded outer shell
 
-      al_draw_text(f, mColor.pc[tc], (x1+x2)/2, (y1+y2)/2 - 4, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name); // name
+      al_draw_text(f, mColor.pc[tc], (x1+x2)/2, (y1+y2)/2 - 4, ALLEGRO_ALIGN_CENTRE, cur[l].lift_name);   // name
    }
-
    if (mLoop.level_editor_running)
    {
       al_draw_textf(mFont.pixl, mColor.pc[15], (x1+x2)/2, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%-4.0f y:%-4.0f", cur[l].x, cur[l].y);

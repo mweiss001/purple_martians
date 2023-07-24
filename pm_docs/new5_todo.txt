@@ -6,20 +6,69 @@
 level editor vinepod triggers are not on the list of things that can auto set
 
 
+bug turning off demo mode auto does not save??..fixed weird space...
+
+
+
+can I make cannons show the rotation where the bullet will be fired?
+right now they just aim at the player...
+
+
+
+bug - sometimes getting purple coin and exit at the same time show coin at end of level but not on stats...
+moved level done stats to mode 9 and now key is counted
+
+but now demo is not counted....
+
+need to look into this later...revert for now
+
+
+
+
+
+show official time at end of level press any thing
+
+
+bug - demo for blue key fall has huge # of killed enemies
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-
-viewport
-
-make the up and down auto scroll optional and set amount
-make the left and right auto scroll optional and set amount
-
-make a scroll option for riding rocket that scrolls in the direction you are moving..
-that seems to work..
-
-make all three of these individually customizable
 
 
 
@@ -67,7 +116,8 @@ In 1980, when I was 12, my dad brought home a Commodore PET from the college whe
 
 We spent a lot of time figuring out how it worked. That was my first exposure to programming.
 
-BASIC. It seems so simplistic and crude now. But the joy of typing in commands and seeing the result...
+BASIC. It seems so simplistic and crude now. But the joy of typing in commands and seeing the results...
+
 
 It was something I fell in love with.
 
@@ -75,7 +125,18 @@ A few years later the Commodore PET was replaced with an Apple II.
 
 Kind of similar, but the one huge difference was the graphics.
 
-Color. 280x192 hi res graphics. Functions in BASIC to draw pixel and lines.
+Color. 280x192 hi res graphics. Commands in BASIC to draw pixels and lines.
+
+
+
+
+
+
+
+
+
+
+
 
 
 

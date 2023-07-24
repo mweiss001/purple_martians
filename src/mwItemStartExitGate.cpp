@@ -311,10 +311,10 @@ void mwItem::set_gate_level_icon_position(int i)
    y += (12 + 35);
 
    // convert to actual screen pos
-   mScreen.gate_transition_x = (x - mDisplay.level_display_region_x) * mDisplay.scale_factor_current + mDisplay.screen_display_x;
-   mScreen.gate_transition_y = (y - mDisplay.level_display_region_y) * mDisplay.scale_factor_current + mDisplay.screen_display_y;
-   mScreen.gate_transition_wx = mDisplay.level_display_region_x;
-   mScreen.gate_transition_wy = mDisplay.level_display_region_y;
+   mScreen.gate_transition_x = (x - mScreen.level_display_region_x) * mDisplay.scale_factor_current + mScreen.screen_display_x;
+   mScreen.gate_transition_y = (y - mScreen.level_display_region_y) * mDisplay.scale_factor_current + mScreen.screen_display_y;
+   mScreen.gate_transition_wx = mScreen.level_display_region_x;
+   mScreen.gate_transition_wy = mScreen.level_display_region_y;
    mScreen.gate_transition_scale = mDisplay.scale_factor_current;
 }
 
