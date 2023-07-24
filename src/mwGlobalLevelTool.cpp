@@ -13,6 +13,9 @@
 #include "mwInput.h"
 #include "mwMiscFnx.h"
 #include "mwTriggerEvent.h"
+#include "mwLift.h"
+
+
 
 
 mwGlobalLevelTool mGlobalLevelTool;
@@ -542,9 +545,9 @@ void mwGlobalLevelTool::execute(void)
 
 
 
-      for (int y=0; y<500; y++)
-         if (mItem.item[y][0] == 19)
-            printf("l:%3d y:%3d  hider\n", le[x], y);
+//      for (int y=0; y<500; y++)
+//         if (mItem.item[y][0] == 19)
+//            printf("l:%3d y:%3d  hider\n", le[x], y);
 
 
 
@@ -552,6 +555,22 @@ void mwGlobalLevelTool::execute(void)
 
 
 
+//
+//      for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
+//         if (mLift.cur[l].active)
+//            for (int s=0; s<mLift.cur[l].num_steps; s++) // iterate steps
+//            {
+//
+//               int step_type = mLift.stp[l][s].type & 31; // step type
+//               int step_val  = mLift.stp[l][s].val;       // step val
+//
+//               if ((step_type == 1) && (step_val > 20))
+//                  printf("l:%3d s:%3d  \n", le[x], step_val);
+//
+//
+//
+//            }
+//
 
 
 

@@ -570,6 +570,92 @@ void mwScreen::cdg_show(int x, int y) // client debug grid
    sdg_show_column(19, x, y); // name and description (client version)
 }
 
+
+void mwScreen::draw_viewport_debug_overlay(int p, int &cx, int &cy)
+{
+   al_draw_filled_rectangle(cx, cy, cx+168, cy+80, mColor.pc[0]); cy+=2;
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "viewport debug"); cy+=9;
+
+   int x1 = level_display_region_x;
+   int y1 = level_display_region_y;
+   int w = level_display_region_w;
+   int h = level_display_region_h;
+   int x2 = x1 + w;
+   int y2 = y1 + h;
+
+   int px = mPlayer.syn[p].x;
+   int py = mPlayer.syn[p].y;
+
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "ldr: x1:%d y1:%d", x1, y1); cy+=9;
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "ldr: x2:%d y2:%d", x2, y2); cy+=9;
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "ldr_xmnh:%d ldr_xmxh:%d", ldr_xmn_h, ldr_xmx_h); cy+=9;
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "ldr_xmna:%d ldr_xmxa:%d", ldr_xmn_a, ldr_xmx_a); cy+=9;
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "ldr_ymnh:%d ldr_ymxh:%d", ldr_ymn_h, ldr_ymx_h); cy+=9;
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "ldr_ymna:%d ldr_ymxa:%d", ldr_ymn_a, ldr_ymx_a); cy+=9;
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "ldrxi:%3.2f ldryi:%3.2f", level_display_region_xinc, level_display_region_yinc); cy+=9;
+
+
+
+   // position on screen
+   int rx = 200;
+   int ry = 20;
+   int rs = 100;          // size
+   float sr = 2000 / rs;  // scale divider
+
+
+   // erase background
+   al_draw_filled_rectangle(rx, ry, rx+rs, ry+rs, mColor.pc[0]);
+
+   // outline entire level area
+   al_draw_rectangle(rx, ry, rx+rs, ry+rs, mColor.pc[15], 1 );
+
+   float vx1 = rx+x1/sr;
+   float vy1 = ry+y1/sr;
+   float vx2 = rx+x2/sr;
+   float vy2 = ry+y2/sr;
+
+
+   // outline viewport area
+   al_draw_rectangle(vx1, vy1, vx2, vy2, mColor.pc[15], 1 );
+
+   // if clamped by entire region show lines in red
+   if (ldr_xmn_a) al_draw_line(vx1, vy1, vx1, vy2, mColor.pc[10], 1 );
+   if (ldr_xmx_a) al_draw_line(vx2, vy1, vx2, vy2, mColor.pc[10], 1 );
+   if (ldr_ymn_a) al_draw_line(vx1, vy1, vx2, vy1, mColor.pc[10], 1 );
+   if (ldr_ymx_a) al_draw_line(vx1, vy2, vx2, vy2, mColor.pc[10], 1 );
+
+
+   // draw purple circle for player
+   al_draw_circle(rx+px/sr, ry+py/sr, 1, mColor.pc[8], .75 );
+
+
+   // get hyst variables
+   float x_size = w * viewport_x_div/2;
+   float y_size = h * viewport_y_div/2;
+   int xc = x1 + w/2;
+   int yc = y1 + h/2;
+
+   // draw hyst region
+
+   float hx1 = rx+(xc-x_size)/sr;
+   float hy1 = ry+(yc-y_size)/sr;
+   float hx2 = rx+(xc+x_size)/sr;
+   float hy2 = ry+(yc+y_size)/sr;
+
+   al_draw_rectangle(hx1, hy1, hx2, hy2, mColor.pc[15], 1 );
+
+   // if clamped by hyst region show lines in red
+   if (ldr_xmn_h) al_draw_line(hx1, hy1, hx1, hy2, mColor.pc[10], 1 );
+   if (ldr_xmx_h) al_draw_line(hx2, hy1, hx2, hy2, mColor.pc[10], 1 );
+   if (ldr_ymn_h) al_draw_line(hx1, hy1, hx2, hy1, mColor.pc[10], 1 );
+   if (ldr_ymx_h) al_draw_line(hx1, hy2, hx2, hy2, mColor.pc[10], 1 );
+
+}
+
 void mwScreen::draw_common_debug_overlay(int p, int &cx, int &cy)
 {
    double tt = 0;
@@ -1139,8 +1225,8 @@ void mwScreen::draw_bottom_frame(int p)
 // pass it the center of the object's postion, it will return the center also
 void mwScreen::calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1)
 {
-   ex1 = mDisplay.screen_display_x + (ex - mDisplay.level_display_region_x) * mDisplay.scale_factor_current;
-   ey1 = mDisplay.screen_display_y + (ey - mDisplay.level_display_region_y) * mDisplay.scale_factor_current;
+   ex1 = screen_display_x + (ex - level_display_region_x) * mDisplay.scale_factor_current;
+   ey1 = screen_display_y + (ey - level_display_region_y) * mDisplay.scale_factor_current;
 }
 
 
@@ -1162,6 +1248,10 @@ void mwScreen::draw_screen_overlay(void)
 
    draw_top_frame(p);
    draw_bottom_frame(p);
+
+
+   //draw_viewport_debug_overlay(p, cx, cy);
+
 
    if (mNetgame.ima_server)                     draw_server_debug_overlay(p, cx, cy);
    if (mNetgame.ima_client)                     draw_client_debug_overlay(p, cx, cy);

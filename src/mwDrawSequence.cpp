@@ -69,13 +69,8 @@ void mwDrawSequence::draw(int setup_only)
    if (RA[i-1].avg*1000 > 5) mLoop.eco_draw = 1;
 
 
-
    if (setup_only) add_names(i, "d-item", "draw_items");
    else { mItem.draw_items(); add(i); }
-
-
-
-
 
 
 
@@ -108,7 +103,6 @@ void mwDrawSequence::draw(int setup_only)
 //      add(i);
 //   }
 //
-
 
 
 

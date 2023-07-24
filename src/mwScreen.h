@@ -5,7 +5,45 @@ class mwScreen
    public:
 
 
-   // z_screen.h
+   // the viewport region of the level
+   float level_display_region_x;
+   float level_display_region_y;
+   float level_display_region_xinc;
+   float level_display_region_yinc;
+   int level_display_region_w;
+   int level_display_region_h;
+
+   int ldr_xmx_h;
+   int ldr_xmn_h;
+   int ldr_ymx_h;
+   int ldr_ymn_h;
+
+   int ldr_xmx_a;
+   int ldr_xmn_a;
+   int ldr_ymx_a;
+   int ldr_ymn_a;
+
+   int screen_display_x;
+   int screen_display_y;
+   int screen_display_w;
+   int screen_display_h;
+
+
+
+   int viewport_mode;
+   int viewport_show_hyst;
+   float viewport_x_div;
+   float viewport_y_div;
+
+   int viewport_look_up_down;
+   int viewport_look_player_facing_left_right;
+
+   int viewport_look_player_motion;
+   int viewport_look_rocket;
+
+
+
+
    void get_new_background(int full);
 
    void transition_cutscene(int i, int f, int debug_print);
@@ -76,6 +114,10 @@ class mwScreen
    void draw_top_frame(int p);
    void draw_bottom_frame(int p);
    void draw_common_debug_overlay(int p, int &cx, int &cy);
+
+   void draw_viewport_debug_overlay(int p, int &cx, int &cy);
+
+
    void draw_server_debug_overlay(int p, int &cx, int &cy);
    void draw_client_debug_overlay(int p, int &cx, int &cy);
    void draw_demo_debug_overlay(int p, int &cx, int &cy);

@@ -128,7 +128,7 @@
 
 
 
-In 'Settings' -> 'Mode' you can choose between 2 different Game Modes:
+In 'Settings' -> 'Main' you can choose between 2 different Game Modes:
 
 
 <l13>Story Mode:
@@ -148,13 +148,15 @@ In 'Settings' -> 'Mode' you can choose between 2 different Game Modes:
 
 - the level editor is available on the menu
 
+- when you exit a level to the menu, you can resume the level
+
 
 
 <section>Player Colors
 
 
 
-<c15> You can change the color of your player in 'Settings' -> 'Basic'
+<c15> You can change the color of your player in 'Settings' -> 'Main'
 
 
 

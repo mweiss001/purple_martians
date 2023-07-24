@@ -81,28 +81,38 @@ void mwLoop::initialize(void)
 void mwLoop::move_frame(void)
 {
    char msg[1024];
-   double t0, t1, t2, t3, t4, t5, t6;
-   if ((mLog.LOG_TMR_move_tot) || (mLog.LOG_TMR_move_all)) t0 = al_get_time();
-   mShot.move_eshots();
-   if (mLog.LOG_TMR_move_all) t1 = al_get_time();
-   mShot.move_pshots();
-   if (mLog.LOG_TMR_move_all) t2 = al_get_time();
-   mLift.move_lifts(0);
-   if (mLog.LOG_TMR_move_all) t3 = al_get_time();
-   mPlayer.move_players();
-   if (mLog.LOG_TMR_move_all) t4 = al_get_time();
-   mEnemy.move_enemies();
-   if (mLog.LOG_TMR_move_all) t5 = al_get_time();
-   mItem.move_items();
+
+   double t[8] = { 0 };
+
+   if ((mLog.LOG_TMR_move_tot) || (mLog.LOG_TMR_move_all)) t[0] = al_get_time();
+
+   mShot.move_eshots();      if (mLog.LOG_TMR_move_all) t[1] = al_get_time();
+   mShot.move_pshots();      if (mLog.LOG_TMR_move_all) t[2] = al_get_time();
+   mLift.move_lifts(0);      if (mLog.LOG_TMR_move_all) t[3] = al_get_time();
+   mPlayer.move_players();   if (mLog.LOG_TMR_move_all) t[4] = al_get_time();
+   mEnemy.move_enemies();    if (mLog.LOG_TMR_move_all) t[5] = al_get_time();
+   mItem.move_items();       if (mLog.LOG_TMR_move_all) t[6] = al_get_time();
+
+
+//   int p = mPlayer.active_local_player;
+//   if (mPlayer.syn[p].player_ride) // if player is riding lift
+//   {
+//      int d = mPlayer.syn[p].player_ride - 32; // lift number
+//      float lx = mLift.cur[d].x;
+//      float ly = mLift.cur[d].y;
+//      printf("move frame end - px:%4.2f lx:%4.2f dif:%4.2f\n", mPlayer.syn[p].x, lx, mPlayer.syn[p].x-lx);
+//   }
+
+
+
    if (mLog.LOG_TMR_move_all)
    {
-      t6 = al_get_time();
       sprintf(msg, "tmst m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
-      (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000, (t4-t3)*1000, (t5-t4)*1000, (t6-t5)*1000, (t6-t0)*1000);
+      (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[6]-t[5])*1000, (t[6]-t[0])*1000);
       //printf("\n%s\n", msg);
       mLog.add_log_entry2(44, 0, msg);
    }
-   if (mLog.LOG_TMR_move_tot) mLog.add_log_TMR(al_get_time() - t0, "move", 0);
+   if (mLog.LOG_TMR_move_tot) mLog.add_log_TMR(al_get_time() - t[0], "move", 0);
 }
 
 
@@ -1138,6 +1148,8 @@ void mwLoop::proc_level_done_mode(void)
    if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
    {
       mScreen.set_player_join_quit_display(mPlayer.syn[0].level_done_player, 2, 60);
+
+      //mLevel.level_complete_data(0, mLevel.play_level);
 
       for (int p=0; p<NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active)

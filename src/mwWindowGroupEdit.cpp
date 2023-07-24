@@ -619,10 +619,9 @@ void mwWindow::ge_init_data(void)
    ge_data[i].varnum = PM_ENEMY_VINEPOD_FIRE_SHOT;
    cot[i][3][7]  = 1; // vinepod
 
+   //printf("i:%d\n", i);
 
 
-
-   printf("i:%d\n", i);
 }
 
 // iterate the object list to find out what controls are valid

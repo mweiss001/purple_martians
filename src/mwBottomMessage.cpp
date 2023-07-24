@@ -266,7 +266,7 @@ void mwBottomMessage::draw_health(int p, int h, int &xpos, int xo, int yo)
 }
 
 
-void mwBottomMessage::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
+void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4)
 {
 
    char msg[256];

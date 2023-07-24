@@ -56,10 +56,18 @@ void mwConfig::save(void)
       asci(GAME, mScreen.transition_delay)
 
 
-      asci(GAME, mDisplay.viewport_mode)
-      asci(GAME, mDisplay.viewport_show_hyst)
-      ascf(GAME, mDisplay.viewport_x_div)
-      ascf(GAME, mDisplay.viewport_y_div)
+      asci(GAME, mScreen.viewport_mode)
+      asci(GAME, mScreen.viewport_show_hyst)
+      ascf(GAME, mScreen.viewport_x_div)
+      ascf(GAME, mScreen.viewport_y_div)
+
+      asci(GAME, mScreen.viewport_look_player_motion)
+      asci(GAME, mScreen.viewport_look_up_down)
+      asci(GAME, mScreen.viewport_look_player_facing_left_right)
+      asci(GAME, mScreen.viewport_look_rocket)
+
+
+
       asci(GAME, mLoop.speed_control_lock)
       asci(GAME, mVisualLevel.max_level_num)
       asci(GAME, mVisualLevel.level_icon_size)
@@ -306,10 +314,16 @@ void mwConfig::load(void)
 
    agci(GAME, mPlayer.syn[0].color, 8)
 
-   agci(GAME, mDisplay.viewport_mode, 1)
-   agci(GAME, mDisplay.viewport_show_hyst, 0)
-   agcf(GAME, mDisplay.viewport_x_div, 0.33)
-   agcf(GAME, mDisplay.viewport_y_div, 0.33)
+   agci(GAME, mScreen.viewport_mode, 1)
+   agci(GAME, mScreen.viewport_show_hyst, 0)
+   agcf(GAME, mScreen.viewport_x_div, 0.33)
+   agcf(GAME, mScreen.viewport_y_div, 0.33)
+
+   agci(GAME, mScreen.viewport_look_player_motion, 0)
+   agci(GAME, mScreen.viewport_look_up_down, 1)
+   agci(GAME, mScreen.viewport_look_player_facing_left_right, 0)
+   agci(GAME, mScreen.viewport_look_rocket, 1)
+
    agci(GAME, mLoop.speed_control_lock, 1)
 
    agci(GAME, mVisualLevel.max_level_num, 100)
@@ -391,7 +405,7 @@ void mwConfig::load(void)
    agci(LOGGING, mLog.autosave_log_on_game_exit, 0)
    agci(LOGGING, mLog.autosave_log_on_level_done, 0)
 
-   agci(DEMO, mDemoMode. config_autoplay_enabled, 1)
+   agci(DEMO, mDemoMode.config_autoplay_enabled, 1)
    agci(DEMO, mLog.autosave_game_on_level_done, 0)
    agci(DEMO, mLog.autosave_game_on_game_exit, 0)
    agcf(DEMO, mDemoMode.overlay_opacity, 0)

@@ -1497,18 +1497,14 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
       if (var == 2) sprintf(msg,  "Settings Pages: Debug");
    }
 
-
-
-
-
    if (bn == 20)
    {
       if (press) var++;
-      if ((var < 0) || (var > 2)) var = 0;
-      if (var == 0) sprintf(msg,  "Hysteresis Mode:Static");
-      if (var == 1) sprintf(msg,  "Hysteresis Mode:Instant");
-      if (var == 2) sprintf(msg,  "Hysteresis Mode:Gradual");
+      if ((var < 0) || (var > 1)) var = 0;
+      if (var == 0) sprintf(msg,  "Centered Mode");
+      if (var == 1) sprintf(msg,  "Hysteresis Mode");
    }
+
 
    if (bn == 21)
    {

@@ -169,6 +169,7 @@ void mwDemoMode::key_check(int p)
 
 
 
+
    if (demo_debug_convert_playback_to_record_with_fire)
    {
       // in single demo mode, 'C' key will allow player to take over and start playing level from current position
@@ -197,18 +198,4 @@ void mwDemoMode::key_check(int p)
       }
    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
