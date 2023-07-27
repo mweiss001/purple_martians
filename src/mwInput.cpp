@@ -316,7 +316,8 @@ void mwInput::function_key_check(void)
             else if (SHFT())            mLoop.frame_speed -=100;
             else if (CTRL())            mLoop.frame_speed -=20;
             else                        mLoop.frame_speed -=1;
-            if (mLoop.frame_speed < 5)  mLoop.frame_speed =5;
+//            if (mLoop.frame_speed < 5)  mLoop.frame_speed =5;
+            if (mLoop.frame_speed < 10)  mLoop.frame_speed =10;
             mEventQueue.set_speed();
          }
          if (key[function_key_speed_inc][2]) // increase

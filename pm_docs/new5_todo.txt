@@ -29,45 +29,23 @@ need to look into this later...revert for now
 show official time at end of level press any thing
 
 
-bug - demo for blue key fall has huge # of killed enemies
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+bug - demo for blue key fall has huge # of killed enemies / only sometimes
+probably an array out if bounds
 
 
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+I want something like gate info, but in classic mode for start level
+
+
+can I add level name to the filename
+
+
+
+
 
 
 
