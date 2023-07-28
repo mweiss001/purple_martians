@@ -257,20 +257,10 @@ void mwSettings::settings_pages(int set_page)
    sprintf(st[7].title,  "Stats");
    sprintf(st[8].title,  "Transitions");
 
-
-
    sprintf(st[10].title,  "Viewport");
    sprintf(st[11].title,  "Overlay");
-   sprintf(st[12].title, "Double");
-   sprintf(st[13].title, "Speed");
-
-
-   // 8-11 to 10-13
-   // 8-10
-   // 9-11
-   //10-12
-   //11-13
-
+   sprintf(st[12].title,  "Double");
+   sprintf(st[13].title,  "Speed");
 
    sprintf(st[15].title,  "Info");
    sprintf(st[16].title,  "Profiling");
@@ -290,13 +280,10 @@ void mwSettings::settings_pages(int set_page)
    int quit = 0;
    while (!quit)
    {
-
       for (int i=0; i<20; i++) st[i].show = 0; // all off
-
-      for (int i=0; i<9; i++) st[i].show = 1; // always on
+      for (int i=0; i<9; i++ ) st[i].show = 1; // always on
 
       st[1].show = 0; // mode off
-
 
 
       if (show_advanced)
@@ -310,8 +297,6 @@ void mwSettings::settings_pages(int set_page)
       if (!st[page].show) current_page = page = 0;
 
 
-
-
       // set width and x positions
       int cf_w = 400;
       int cf_x1 = (mDisplay.SCREEN_W - cf_w)/2;
@@ -321,8 +306,6 @@ void mwSettings::settings_pages(int set_page)
       int cfp_x1 = cf_x1 + frame_width;
       int cfp_x2 = cf_x2 - frame_width;
       int cfp_txc = cfp_x1 + (cfp_x2 - cfp_x1) / 2;
-
-
 
 
 
@@ -370,9 +353,6 @@ void mwSettings::settings_pages(int set_page)
       int page_h = 360;  // fixed page height
 
       int cf_h = page_h + tabs_h + title_h + frame_width*2;
-
-
-
 
 //      int cf_h = 400;
 //      int cf_y1 = mLogo.menu_map_y - 61; // line up exactly with the menu item "Settings"
@@ -499,9 +479,9 @@ void mwSettings::settings_pages(int set_page)
          al_draw_rounded_rectangle(cf_x1+a, cfp_y1+a, cf_x2-a, cf_y2-a, 4, 4, mColor.pc[fc+a*48], 1.5);
 
 
-      al_draw_textf(mFont.pr8, mColor.pc[15], cf_x2+20, cfp_y1,    0, "full height:%d", cf_y2 - cf_y1);
-      al_draw_textf(mFont.pr8, mColor.pc[15], cf_x2+20, cfp_y1+10, 0, "tab height:%d", tabs_h);
-      al_draw_textf(mFont.pr8, mColor.pc[15], cf_x2+20, cfp_y1+20, 0, "page height:%d", page_y2 - page_y1);
+//      al_draw_textf(mFont.pr8, mColor.pc[15], cf_x2+20, cfp_y1,    0, "full height:%d", cf_y2 - cf_y1);
+//      al_draw_textf(mFont.pr8, mColor.pc[15], cf_x2+20, cfp_y1+10, 0, "tab height:%d", tabs_h);
+//      al_draw_textf(mFont.pr8, mColor.pc[15], cf_x2+20, cfp_y1+20, 0, "page height:%d", page_y2 - page_y1);
 
 
 
