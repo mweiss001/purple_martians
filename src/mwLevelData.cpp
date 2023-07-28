@@ -1401,7 +1401,7 @@ void mwLevel::clear_data(void)
 
    i = 27;
    strcpy(data[i].level_name, "Gauntlet");
-   data[i].par_time = 3600; // 1:30 demo 1:27 not done
+   data[i].par_time = 3600; // 1:30 demo 1:23
 
    i = 28;
    strcpy(data[i].level_name, "Nowhere to Stand");
@@ -1453,7 +1453,7 @@ void mwLevel::clear_data(void)
 
    i = 42;
    strcpy(data[i].level_name, "Cloner Chain");
-   data[i].par_time = 16800; // 7:00 demo 6:55 not done
+   data[i].par_time = 16800; // 7:00 demo 6:14
 
    i = 43;
    strcpy(data[i].level_name, "Cathedral");
@@ -1465,7 +1465,7 @@ void mwLevel::clear_data(void)
 
    i = 45;
    strcpy(data[i].level_name, "Chimney of Death");
-   data[i].par_time = 1800; // :45 demo 0:37.9 not done
+   data[i].par_time = 1800; // :45 demo 28.6
 
    i = 46;
    strcpy(data[i].level_name, "Bucket List");
@@ -1477,7 +1477,7 @@ void mwLevel::clear_data(void)
 
    i = 48;
    strcpy(data[i].level_name, "Mayhem");
-   data[i].par_time = 2400; // 1:00 demo :43.7 not done
+   data[i].par_time = 2400; // 1:00 demo 41.8
 
    i = 49;
    strcpy(data[i].level_name, "Rocket Square");
@@ -1497,15 +1497,15 @@ void mwLevel::clear_data(void)
 
    i = 53;
    strcpy(data[i].level_name, "Lifts With Names");
-   data[i].par_time = 8400; // 3:30 demo 3:12 not done
+   data[i].par_time = 8400; // 3:30 demo 2:59
 
    i = 54;
    strcpy(data[i].level_name, "Old Training Level");
-   data[i].par_time = 2400; // 1:00 demo :44.6 not done
+   data[i].par_time = 2400; // 1:00 demo 31.9
 
    i = 55;
    strcpy(data[i].level_name, "Ancient Ruins");
-   data[i].par_time = 14400; // 6:00 demo 5:15 not done
+   data[i].par_time = 14400; // 6:00 demo 2:33
 
    i = 56;
    strcpy(data[i].level_name, "Zaiden");
@@ -1515,6 +1515,7 @@ void mwLevel::clear_data(void)
    strcpy(data[i].level_name, "Valentine");
    data[i].par_time = 12000; // 5:00 demo 2:43
 
+
    i = 60;
    strcpy(data[i].level_name, "Bomb Toss"); // same name as level 35...
    data[i].par_time = 2400; // 2:00 demo // not done
@@ -1522,6 +1523,8 @@ void mwLevel::clear_data(void)
    i = 61;
    strcpy(data[i].level_name, "Bomb Toss 2");
    data[i].par_time = 2400; // 2:00 demo
+
+
 
    i = 64;
    strcpy(data[i].level_name, "Escape Rocket!");

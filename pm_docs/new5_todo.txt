@@ -6,12 +6,10 @@
 level editor vinepod triggers are not on the list of things that can auto set
 
 
-bug turning off demo mode auto does not save??..fixed weird space...
-
-
 
 can I make cannons show the rotation where the bullet will be fired?
 right now they just aim at the player...
+
 
 
 
@@ -40,13 +38,34 @@ probably an array out if bounds
 
 I want something like gate info, but in classic mode for start level
 
+Move my spinning name logo to the right side and have level data on the the left
+
+
+
 
 can I add level name to the filename
+How would that look?
+
+level002.pml
+
+level002_Switch_Nest.pml
+
+Can I add the level name to vls
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+remove debug text for settings..done
 
 
 
