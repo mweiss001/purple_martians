@@ -334,7 +334,7 @@ void mwNetgame::client_exit(void)
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
    mPlayer.syn[0].active = 1; // local_control
    mPlayer.active_local_player = 0;
-   mConfig.load(); // to get color back
+   mConfig.load(); // to restore color and other settings
 }
 
 void mwNetgame::client_send_ping(void)
@@ -558,7 +558,7 @@ void mwNetgame::client_process_stdf_packet(double timestamp)
 
    int complete = 1;                                          // did we just get the last packet? (yes by default)
    for (int i=0; i< max_seq; i++)
-      if (client_state_buffer_pieces[i] != dst) complete = 0; // no, if any piece not at latest mLoop.frame_num
+      if (client_state_buffer_pieces[i] != dst) complete = 0; // no, if any piece not at latest frame_num
 
    if (complete)
    {

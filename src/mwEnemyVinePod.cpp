@@ -158,7 +158,8 @@ void mwEnemy::move_vinepod(int e)
       Ef[e][1] = Ei[e][4] + Ef[e][3] * Ei[e][16];
    }
 
-   if ((Ei[e][15] == 2) || (Ei[e][15] == 3)) set_enemy_rot_from_player(e, find_closest_player(e)); // rotate to face player in wait modes
+   if ((Ei[e][15] == 2) || (Ei[e][15] == 3)) set_enemy_rot_from_players_position(e, find_closest_player(e), 1); // rotate to face player in wait modes
+
 }
 
 
@@ -285,7 +286,7 @@ void mwEnemy::vinepod_mirror_y(int e)
 }
 
 
-
+/*
 void mwEnemy::draw_vinepod_screen_direct(int e)
 {
    float sc = mDisplay.scale_factor_current;
@@ -423,127 +424,136 @@ void mwEnemy::draw_vinepod_screen_direct(int e)
 
 }
 
+*/
 
-
-void mwEnemy::draw_vinepod(int e)
+void mwEnemy::draw_vinepod(int e, int x, int y, int custom)
 {
    float ld = 15;   // distance between leaves
 
    ALLEGRO_COLOR c2 = mColor.pc[9+128];
 
-   if (Ei[e][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
+   if (!custom)
    {
-      // create and fill the spline array
-      int np = Ei[e][17]+1; // number of points
-      float dest[np*2] = {0};
-      float pnts[8] = {0};
-      vinepod_fill_points_array(e, np, pnts, dest);
 
-      // draw spline path outline
-      if (Ei[e][20] & PM_ENEMY_VINEPOD_SHOW_PATH) al_draw_spline(pnts, c2, 0);
+      al_set_target_bitmap(mBitmap.level_buffer);
 
-      // if anything other than mode 0
-      if (Ei[e][15])
+      if (Ei[e][20] & PM_ENEMY_VINEPOD_USE_SPLINE)
       {
-         // drawing leaves
-         float dist = 0;  // extended distance tally
-         float tl = ld;   // next leaf distance tally
-         int lsa = 0;     // leaf side alternate
-         float ls = 0.7;  // leaf size
+         // create and fill the spline array
+         int np = Ei[e][17]+1; // number of points
+         float dest[np*2] = {0};
+         float pnts[8] = {0};
+         vinepod_fill_points_array(e, np, pnts, dest);
 
-         // cycle points as far as vine has extended
-         for (int i=2; i<=(Ei[e][16]-0)*2; i+=2)
+         // draw spline path outline
+         if ((Ei[e][20] & PM_ENEMY_VINEPOD_SHOW_PATH) || (mLoop.level_editor_running)) al_draw_spline(pnts, c2, 0);
+
+         // if anything other than mode 0
+         if (Ei[e][15])
          {
-            int x1 = dest[i-2];
-            int y1 = dest[i-1];
-            int x2 = dest[i+0];
-            int y2 = dest[i+1];
+            // drawing leaves
+            float dist = 0;  // extended distance tally
+            float tl = ld;   // next leaf distance tally
+            int lsa = 0;     // leaf side alternate
+            float ls = 0.7;  // leaf size
 
-            // draw vine up to extended point
-            al_draw_line(x1, y1, x2, y2, c2, 1.5);
-
-            // get distance of this step
-            float xlen = x1-x2;
-            float ylen = y1-y2;
-            float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
-
-            dist += ds; // add to total distance
-
-            if (dist > tl)   // time for a leaf
+            // cycle points as far as vine has extended
+            for (int i=2; i<=(Ei[e][16]-0)*2; i+=2)
             {
-               tl += ld;     // next leaf point
-               lsa = !lsa;   // toggle leaf side
-               float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
-               if (lsa) ang+= ALLEGRO_PI;
-               al_draw_scaled_rotated_bitmap(mBitmap.tile[311], 10, 20, x1, y1, ls, ls, ang, 0);
+               int x1 = dest[i-2];
+               int y1 = dest[i-1];
+               int x2 = dest[i+0];
+               int y2 = dest[i+1];
+
+               // draw vine up to extended point
+               al_draw_line(x1, y1, x2, y2, c2, 1.5);
+
+               // get distance of this step
+               float xlen = x1-x2;
+               float ylen = y1-y2;
+               float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
+
+               dist += ds; // add to total distance
+
+               if (dist > tl)   // time for a leaf
+               {
+                  tl += ld;     // next leaf point
+                  lsa = !lsa;   // toggle leaf side
+                  float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
+                  if (lsa) ang+= ALLEGRO_PI;
+                  al_draw_scaled_rotated_bitmap(mBitmap.tile[311], 10, 20, x1, y1, ls, ls, ang, 0);
+               }
+            }
+
+            // draw circle at initial position
+            al_draw_filled_circle(dest[0], dest[1], 2, c2);
+
+            // draw circle at end if fully extended
+            if ((Ei[e][15] == 2) || (Ei[e][15] == 3))
+            {
+               int x1 = dest[Ei[e][17]*2-2];
+               int y1 = dest[Ei[e][17]*2-1];
+               al_draw_filled_circle(x1, y1, 2, c2);
             }
          }
-
-         // draw circle at initial position
-         al_draw_filled_circle(dest[0], dest[1], 2, c2);
-
-         // draw circle at end if fully extended
-         if ((Ei[e][15] == 2) || (Ei[e][15] == 3))
-         {
-            int x1 = dest[Ei[e][17]*2-2];
-            int y1 = dest[Ei[e][17]*2-1];
-            al_draw_filled_circle(x1, y1, 2, c2);
-         }
       }
-   }
-   else
-   {
-      if (Ei[e][20] & PM_ENEMY_VINEPOD_SHOW_PATH)
-         al_draw_line(Ei[e][3]+10, Ei[e][4]+10, Ei[e][9]+10, Ei[e][10]+10, c2, 0);
-
-      if (Ei[e][15])
+      else
       {
-         float x1 = Ei[e][3];
-         float y1 = Ei[e][4];
+         if ((Ei[e][20] & PM_ENEMY_VINEPOD_SHOW_PATH) || (mLoop.level_editor_running))
+            al_draw_line(Ei[e][3]+10, Ei[e][4]+10, Ei[e][9]+10, Ei[e][10]+10, c2, 0);
 
-         // drawing leaves
-         float dist = 0;  // extended distance tally
-         float tl = ld;   // next leaf distance tally
-         int lsa = 0;     // leaf side alternate
-         float ls = 0.7;  // leaf size
 
-         for (int i=0; i<Ei[e][16]; i++)
+         if (Ei[e][15])
          {
-            float x2 = x1 + Ef[e][2];
-            float y2 = y1 + Ef[e][3];
+            float x1 = Ei[e][3];
+            float y1 = Ei[e][4];
 
-            al_draw_line(x1+10, y1+10, x2+10, y2+10, c2, 1.5);
+            // drawing leaves
+            float dist = 0;  // extended distance tally0
+            float tl = ld;   // next leaf distance tally
+            int lsa = 0;     // leaf side alternate
+            float ls = 0.7;  // leaf size
 
-            // get distance of this step
-            float xlen = x1-x2;
-            float ylen = y1-y2;
-            float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
-
-            dist += ds; // add to total distance
-
-            if (dist > tl)   // time for a leaf
+            for (int i=0; i<Ei[e][16]; i++)
             {
-               tl += ld;     // next leaf point
-               lsa = !lsa;   // toggle leaf side
-               float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
-               if (lsa) ang+= ALLEGRO_PI;
-               al_draw_scaled_rotated_bitmap(mBitmap.tile[311], 10, 20, x1+10, y1+10, ls, ls, ang, 0);
-            }
-            x1 = x2;
-            y1 = y2;
-         }
-         // draw circle at initial position
-         al_draw_filled_circle(Ei[e][3]+10, Ei[e][4]+10, 2, c2);
+               float x2 = x1 + Ef[e][2];
+               float y2 = y1 + Ef[e][3];
 
-         // draw circle at end if fully extended
-         if ((Ei[e][15] == 2) || (Ei[e][15] == 3))
-         {
-            int x1 = Ei[e][9];
-            int y1 = Ei[e][10];
-            al_draw_filled_circle(x1+10, y1+10, 2, c2);
+               al_draw_line(x1+10, y1+10, x2+10, y2+10, c2, 1.5);
+
+               // get distance of this step
+               float xlen = x1-x2;
+               float ylen = y1-y2;
+               float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
+
+               dist += ds; // add to total distance
+
+               if (dist > tl)   // time for a leaf
+               {
+                  tl += ld;     // next leaf point
+                  lsa = !lsa;   // toggle leaf side
+                  float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
+                  if (lsa) ang+= ALLEGRO_PI;
+                  al_draw_scaled_rotated_bitmap(mBitmap.tile[311], 10, 20, x1+10, y1+10, ls, ls, ang, 0);
+               }
+               x1 = x2;
+               y1 = y2;
+            }
+            // draw circle at initial position
+            al_draw_filled_circle(Ei[e][3]+10, Ei[e][4]+10, 2, c2);
+
+            // draw circle at end if fully extended
+            if ((Ei[e][15] == 2) || (Ei[e][15] == 3))
+            {
+               int x1 = Ei[e][9];
+               int y1 = Ei[e][10];
+               al_draw_filled_circle(x1+10, y1+10, 2, c2);
+            }
          }
       }
+
    }
+
 }
 
 

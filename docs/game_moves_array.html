@@ -37,21 +37,22 @@
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
 <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
-<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
 
-<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
-<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
             
@@ -99,9 +100,15 @@ So, in the interests of keeping things consistant, it is also the method used fo
 
 <br><a name="Variables"></a>
 <mh7>Variables</mh7>
-<pre><code class="language-cpp">extern int game_moves[1000000][4];</code></pre>
-
-<mh3>The game_moves array can hold 1 million game moves.
+<pre><code class="language-cpp">#define GAME_MOVES_SIZE 1000000
+class mwGameMoves
+{
+   ...
+   int arr[GAME_MOVES_SIZE][4];
+   int entry_pos = 0;
+   int current_pos = 0; // for savegame running only
+</code></pre>
+<mh3>The game moves array can hold 1 million game moves.
 
 1 million might seem excessive but with 8 players at 40fps, you could theoretically get 320 game moves per second.
 (In reality a human player can't press the controls fast enough to make 40 moves per second!)
@@ -109,13 +116,13 @@ But at the worst case, that's 19200 game_moves per minute or 1,152,000 game_move
 
 </mh3>
 
-<pre><code class="language-cpp">extern int game_move_entry_pos;</code></pre>
+<pre><code class="language-cpp">entry_pos;</code></pre>
 <mh3>The current entry position of the array.
 When a new move is added, it is added at this position, and then this position is incremented.
 
 </mh3>
 
-<pre><code class="language-cpp">extern int game_move_current_pos;</code></pre>
+<pre><code class="language-cpp">current_pos;</code></pre>
 <mh3>The current read position of the array.
 Used only for demo game playing to keep track of the current read position of the array.
 </mh3>
@@ -126,10 +133,10 @@ Used only for demo game playing to keep track of the current read position of th
 Each game move entry has 4 elements:
 </mh3>
 
-<pre><code class="language-cpp">game_moves[x][0]; // frame_num
-game_moves[x][1]; // game move type
-game_moves[x][2]; // player number
-game_moves[x][3]; // comp_move
+<pre><code class="language-cpp">mGameMoves.arr[x][0]; // frame_num
+mGameMoves.arr[x][1]; // game move type
+mGameMoves.arr[x][2]; // player number
+mGameMoves.arr[x][3]; // comp_move
 </code></pre>
 <mh3>
 A player's controls are encoded into a bitfield called 'comp_move' with these values:
@@ -149,40 +156,40 @@ A player's controls are encoded into a bitfield called 'comp_move' with these va
 <mh3>   
 Type 5 - Regular game move 
 </mh3>
-<pre><code class="language-cpp">game_moves[x][0]; // frame_num
-game_moves[x][1]; // game_move type = 5 (regular game move)
-game_moves[x][2]; // player number
-game_moves[x][3]; // comp_move
+<pre><code class="language-cpp">mGameMoves.arr[x][0]; // frame_num
+mGameMoves.arr[x][1]; // game_move type = 5 (regular game move)
+mGameMoves.arr[x][2]; // player number
+mGameMoves.arr[x][3]; // comp_move
 </code></pre>
 
 <mh3>   
 Type 6 - Level done
 </mh3>
-<pre><code class="language-cpp">game_moves[x][0]; // frame_num
-game_moves[x][1]; // game_move type = 6 (level done)
-game_moves[x][2]; // not used
-game_moves[x][3]; // not used
+<pre><code class="language-cpp">mGameMoves.arr[x][0]; // frame_num
+mGameMoves.arr[x][1]; // game_move type = 6 (level done)
+mGameMoves.arr[x][2]; // not used
+mGameMoves.arr[x][3]; // not used
 </code></pre>
 
 
 <mh3>   
 Type 1 - Player state change
 </mh3>
-<pre><code class="language-cpp">game_moves[x][0]; // frame_num
-game_moves[x][1]; // game_move type = 1 (player state)
-game_moves[x][2]; // player number
-game_moves[x][3]; // val
+<pre><code class="language-cpp">mGameMoves.arr[x][0]; // frame_num
+mGameMoves.arr[x][1]; // game_move type = 1 (player state)
+mGameMoves.arr[x][2]; // player number
+mGameMoves.arr[x][3]; // val
 
 if ((val > 0) && (val < 16)) // make player active and set color
 {
-   players[p].active = 1;
-   players[p].color = val;
+   mPlayer.syn[p].active = 1;
+   mPlayer.syn[p].color = val;
 }
 
 if (val > 63) // make player inactive and log reason
 {
-   players1[p].active = 0;
-   players1[p].quit_reason = val;
+   mPlayer.syn[p].active = 0;
+   mPlayer.syn[p].quit_reason = val;
 }</code></pre>
 
 
@@ -191,35 +198,35 @@ if (val > 63) // make player inactive and log reason
 <br><a name="How game_move entries are added in single player mode"></a>
 <mh7>How game_move entries are added in single player mode</mh7>
 
-<pre><code class="language-cpp">void set_comp_move_from_player_key_check(int p)
+<pre><code class="language-cpp">void mwPlayer::set_comp_move_from_player_key_check(int p) // doesn't set controls
 {
    int cm = 0;
-   if (key[players1[p].left_key])  cm += 1;
-   if (key[players1[p].right_key]) cm += 2;
-   if (key[players1[p].up_key])    cm += 4;
-   if (key[players1[p].down_key])  cm += 8;
-   if (key[players1[p].jump_key])  cm += 16;
-   if (key[players1[p].fire_key])  cm += 32;
-   // if menu key ignore everything else and set to 127
-   if (key[players1[p].menu_key])  cm = 127;
-   if (key[ALLEGRO_KEY_ESCAPE])    cm = 127;
-   players1[p].comp_move = cm;
+   if (mInput.key[loc[p].left_key][0])       cm |= PM_COMPMOVE_LEFT;
+   if (mInput.key[loc[p].right_key][0])      cm |= PM_COMPMOVE_RIGHT;
+   if (mInput.key[loc[p].up_key][0])         cm |= PM_COMPMOVE_UP;
+   if (mInput.key[loc[p].down_key][0])       cm |= PM_COMPMOVE_DOWN;
+   if (mInput.key[loc[p].jump_key][0])       cm |= PM_COMPMOVE_JUMP;
+   if (mInput.key[loc[p].fire_key][0])       cm |= PM_COMPMOVE_FIRE;
+   if (mInput.key[loc[p].menu_key][0])       cm |= PM_COMPMOVE_MENU;
+   if (mInput.key[ALLEGRO_KEY_ESCAPE][0])    cm |= PM_COMPMOVE_MENU;
+   loc[p].comp_move = cm;
 }
 
-if (players1[p].comp_move != players1[p].old_comp_move)
+if (loc[p].old_comp_move != loc[p].comp_move)  // player's controls have changed
 {
-   players1[p].old_comp_move = players1[p].comp_move;
-   add_game_move(frame_num, 5, p, players1[p].comp_move);
-}
+   loc[p].old_comp_move = loc[p].comp_move;
+   mGameMoves.add_game_move(mLoop.frame_num, 5, p, loc[p].comp_move);
+   ...
 
-void add_game_move(int pc, int type, int data1, int data2)
+void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 {
-   game_moves[game_move_entry_pos][0] = pc;
-   game_moves[game_move_entry_pos][1] = type;
-   game_moves[game_move_entry_pos][2] = data1;
-   game_moves[game_move_entry_pos][3] = data2;
-   game_move_entry_pos++;
-}</code></pre>
+   arr[entry_pos][0] = frame;
+   arr[entry_pos][1] = type;
+   arr[entry_pos][2] = data1;
+   arr[entry_pos][3] = data2;
+   entry_pos++;
+}
+</code></pre>
 
 
 
@@ -232,19 +239,15 @@ void add_game_move(int pc, int type, int data1, int data2)
 <mh3>
 In netgame, things are done differently.
 
-In client mode, when a control changes happens, it's NOT put in the client's local game moves array, instead it's sent to the server:
+In client mode, when a control change happens, it is also sent to the server:
 </mh3>
 
-<pre><code class="language-cpp">set_comp_move_from_player_key_check(p);
-if (players1[p].old_comp_move != players1[p].comp_move)  // players controls have changed
-{
-   players1[p].old_comp_move = players1[p].comp_move;
-   Packet("cdat");
-   PacketPut1ByteInt(p);
-   PacketPut4ByteInt(frame_num + control_lead_frames); // add control_lead_frames to frame_num
-   PacketPut1ByteInt(players1[p].comp_move);
-   ClientSend(packetbuffer, packetsize);
-}</code></pre>
+<pre><code class="language-cpp">
+mNetgame.Packet("cdat");
+mNetgame.PacketPut1ByteInt(p);
+mNetgame.PacketPut4ByteInt(mLoop.frame_num);
+mNetgame.PacketPut1ByteInt(loc[p].comp_move);
+mNetgame.ClientSend(mNetgame.packetbuffer, mNetgame.packetsize);</code></pre>
 
 <mh3>
 When the server receives the packet, the client's game move is puts in the server's master game moves array.
@@ -258,19 +261,6 @@ When the server receives the packet, the client's game move is puts in the serve
    add_game_move(fn, 5, p, cm); // add to game_move array
 }</code></pre>
 
-<mh3>
-The server synchronizes its master game moves array back to all the clients.
-
-When a client gets the data back from the server, it adds it to its local game_moves array.
-
-From there it is applied the same as any other entry in the game move array.
-
-For more details, see: <a href="netgame_main.html#Game Move Sync" target="_top">Netgame: Game Move Sync</a>
-</mh3>
-
-
-
-
 
 <br><a name="How controls are set from game move array"></a>
 <mh7>How controls are set from game move array</mh7>
@@ -279,36 +269,47 @@ This is common to all modes (single player, run demo game, netgame).
 
 Player's controls are set by reading game moves from the array.
 </mh3>
-<pre><code class="language-cpp">void set_controls_from_game_move(int p)
+<pre><code class="language-cpp">// this function processes all entries in the game_moves array that match current frame_num
+void mwGameMoves::proc(void)
 {
-   // this will search back from entry position until it finds the first 'move' type
-   // entry that matches the player and is not in the future
+   // search entire range
+   int start_index = entry_pos-1;
+   int end_index = 0;
 
-   int found = 0;
-   for (int g=game_move_entry_pos; g>0; g--)  // look back from entry pos
-      if ((game_moves[g][1] == 5) && (game_moves[g][2] == p)) // find first that matches type and p
-         if (game_moves[g][0] <= frame_num) // check to make sure its not in the future
+   // reduce search range
+   start_index = current_pos + 100;
+   if (start_index > entry_pos-1) start_index = entry_pos-1;
+
+   end_index = current_pos - 100;
+   if (end_index < 0) end_index = 0;
+
+   for (int x=start_index; x>=end_index; x--)  // search backwards from start_index to end_index
+   {
+      if (arr[x][0] == mLoop.frame_num) // found frame number that matches current frame
+      {
+         if (x > current_pos) current_pos = x; // index of last used gm - keep this at the most recent one, never go back
+         switch (arr[x][1])
          {
-            set_controls_from_comp_move(g);
-            game_move_current_pos = g; // for savegame running only
-            g = 0; // break out of loop
-            found = 1;
+            case 1: proc_player_active_game_move(x); break;
+            case 2: proc_player_inactive_game_move(x); break;
+            case 3: proc_player_client_join_game_move(x); break;
+            case 4: proc_player_client_quit_game_move(x); break;
+            case 5: mPlayer.set_controls_from_comp_move(arr[x][2], arr[x][3]); break;
          }
-   if (!found) clear_controls(p); // if no match found (no move entry for player in entire game move array)
+      }
+   }
 }
 
-void set_controls_from_comp_move(int g)
+void mwPlayer::set_controls_from_comp_move(int p, int comp_move)
 {
-   int p = game_moves[g][2];
-   int t = game_moves[g][3];
    clear_controls(p);
-   if (t == 127) { t -= 127; players[p].menu = 1;  }
-   if (t > 31)   { t -= 32;  players[p].fire = 1;  }
-   if (t > 15)   { t -= 16;  players[p].jump = 1;  }
-   if (t > 7)    { t -= 8;   players[p].down = 1;  }
-   if (t > 3)    { t -= 4;   players[p].up = 1;    }
-   if (t > 1)    { t -= 2;   players[p].right = 1; }
-   if (t > 0)    { t -= 1;   players[p].left = 1;  }
+   if (comp_move & PM_COMPMOVE_LEFT)  syn[p].left  = 1;
+   if (comp_move & PM_COMPMOVE_RIGHT) syn[p].right = 1;
+   if (comp_move & PM_COMPMOVE_UP)    syn[p].up    = 1;
+   if (comp_move & PM_COMPMOVE_DOWN)  syn[p].down  = 1;
+   if (comp_move & PM_COMPMOVE_JUMP)  syn[p].jump  = 1;
+   if (comp_move & PM_COMPMOVE_FIRE)  syn[p].fire  = 1;
+   if (comp_move & PM_COMPMOVE_MENU)  syn[p].menu  = 1;
 }</code></pre>
 
 <br><a name="Run demo game mode"></a>

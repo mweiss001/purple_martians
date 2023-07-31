@@ -7,8 +7,8 @@ class mwEventQueue
 
    ALLEGRO_TIMER * fps_timer;  // used to control the speed of the game
    ALLEGRO_TIMER * mnu_timer;  // used to control the speed of the menu
-   ALLEGRO_TIMER * sec_timer;  // used to count the actual frames per second
-   ALLEGRO_TIMER * png_timer;  // used to control the speed client pings
+   ALLEGRO_TIMER * sec_timer;  // used to do theing on a 1 Hz schedule
+   ALLEGRO_TIMER * png_timer;  // used to set the frequency of client pings
    ALLEGRO_TIMER * mou_timer;  // used to control hiding the mouse cursor
 
    void create_timers(void);

@@ -104,12 +104,10 @@ void mwItem::proc_exit_collision(int p, int i)
          mPlayer.syn[0].level_done_x = itemf[i][0];
          mPlayer.syn[0].level_done_y = itemf[i][1];
          mPlayer.syn[0].level_done_player = p;
+         mPlayer.syn[0].level_done_frame = mLoop.frame_num;
 
          if (mLevel.prev_level_loaded == 1) mPlayer.syn[0].level_done_next_level = 1;           // if started from overworld, return there
          else mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level);  // otherwise do next chron level
-
-         mLevel.level_complete_data(0, mLevel.play_level);
-
          mGameEvent.add(4, 0, 0, 0, 0, 0, 0);
       }
    }

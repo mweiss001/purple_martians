@@ -538,7 +538,6 @@ void mwPlayer::proc_player_collisions(int p)
    syn[p].marked_door = -1; // so player can touch only one door
    syn[p].marked_gate = -1; // so player can touch only one gate
 
-
    for (int x=0; x<500; x++)
    {
       if ((mItem.item[x][0]) && (mItem.item[x][0] != 9) && (mItem.item[x][0] != 16) && (mItem.item[x][0] != 17))
@@ -550,6 +549,7 @@ void mwPlayer::proc_player_collisions(int p)
          if ((px > ix1) && (px < ix2) && (py > iy1) && (py < iy2) && (!syn[p].paused) ) mItem.proc_item_collision(p, x);
       }
    }
+
    // enemies
    for (int e=0; e<100; e++)
    {
@@ -563,6 +563,9 @@ void mwPlayer::proc_player_collisions(int p)
          if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) mEnemy.Ei[e][22] = p+1;
       }
    }
+
+
+
 
    // eshots
    for (int b=0; b<50; b++)
@@ -583,6 +586,9 @@ void mwPlayer::proc_player_collisions(int p)
 
          if ((px > bx1) && (px < bx2) && (py > by1) && (py < by2)) mShot.proc_eshot_collision(p, b);
       }
+
+
+
 
    // pshots
    for (int b=0; b<50; b++)
@@ -608,6 +614,9 @@ void mwPlayer::proc_player_collisions(int p)
             }
          }
       }
+
+
+
 }
 
 
@@ -716,11 +725,13 @@ void mwPlayer::proc_player_rope_move(int p)
    {
       syn[p].left_right = 0;
       syn[p].x -= mSolid.is_left_solidf(syn[p].x, syn[p].y, 3, 0);
+//      syn[p].xinc = -3;
    }
    if (syn[p].right)
    {
       syn[p].left_right = 1;
       syn[p].x += mSolid.is_right_solidf(syn[p].x, syn[p].y, 3, 0);
+//      syn[p].xinc = 3;
    }
    if (syn[p].down)
    {
@@ -1018,6 +1029,7 @@ void mwPlayer::move_players(void)
          {
             reset_player_scale_and_rot(p);
 
+
             if (is_player_riding_rocket(p)) proc_player_riding_rocket(p);
             else // not riding rocket
             {
@@ -1047,19 +1059,18 @@ void mwPlayer::draw_player(int p)
    int py = syn[p].y;
    set_players_shape(p);
 
+   // old draw method if game not running
 
-//      float scale = syn[p].draw_scale;
-//      float rot = syn[p].draw_rot;
-//      int flags = ALLEGRO_FLIP_HORIZONTAL;
-//      if (syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-//
-////      printf("color:%d shape:%d\n", syn[p].color, syn[p].shape );
-//
-//      al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, px+10, py+10, scale, scale, rot, flags);
-
+   if ((mLoop.state[0] != 11) || (syn[0].level_done_mode == 27))
+   {
+      float scale = syn[p].draw_scale;
+      float rot = syn[p].draw_rot;
+      int flags = ALLEGRO_FLIP_HORIZONTAL;
+      if (syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+//      printf("color:%d shape:%d\n", syn[p].color, syn[p].shape );
+      al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, px+10, py+10, scale, scale, rot, flags);
 
       /*
-
 
       al_draw_textf(mFont.pr8, mColor.pc[15], AX+10, AY-30, ALLEGRO_ALIGN_CENTER, "X:%d Y:%d", AX, AY);
 
@@ -1071,7 +1082,7 @@ void mwPlayer::draw_player(int p)
          al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+17, 0.5+AY+19, mColor.pc[10], 1);
 
 
-      // detect block that player is on...
+       detect block that player is on...
 
       int bx2, bx1 = AX / 20;
       int am = AX % 20;
@@ -1116,9 +1127,9 @@ void mwPlayer::draw_player(int p)
          al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mColor.pc[8], 1);
          if (l[x][by] == 19) al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mColor.pc[11], 1);
       }
-
 */
 
+   }
 
 
 

@@ -160,13 +160,13 @@ void mwDrawSequence::draw(int setup_only)
 
 
 
-   if (setup_only) add_names(i, "vpod", "vinepods direct to screen");
-   else
-   {
-      for (int e=0; e<100; e++)
-         if (mEnemy.Ei[e][0] == 7) mEnemy.draw_vinepod_screen_direct(e); // vinepod
-      add(i);
-   }
+//   if (setup_only) add_names(i, "vpod", "vinepods direct to screen");
+//   else
+//   {
+//      for (int e=0; e<100; e++)
+//         if (mEnemy.Ei[e][0] == 7) mEnemy.draw_vinepod_screen_direct(e); // vinepod
+//      add(i);
+//   }
 
 
    if (setup_only) add_names(i, "plyr", "players direct to screen");

@@ -54,6 +54,8 @@ class mwLoop
    float cutscene_bg_x;
 
 
+
+
    int load_and_setup_level_load(int level);
    void setup_level_after_load();
    void setup_players_after_level_load(int type);

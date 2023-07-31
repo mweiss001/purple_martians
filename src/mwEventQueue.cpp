@@ -18,25 +18,24 @@ void mwEventQueue::set_speed(void)
 
 void mwEventQueue::create_timers(void)
 {
-   // --- timers ---------------------
    // create timers
    fps_timer = al_create_timer(1 / (float) mLoop.frame_speed);
-   sec_timer = al_create_timer(1);    // 1s
    mnu_timer = al_create_timer(.008); // 125 fps
+   sec_timer = al_create_timer(1);    // 1s
    png_timer = al_create_timer(.5);   // 2 fps
    mou_timer = al_create_timer(1);    // 1s
 
    // register timer event source
-   al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
+   al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(sec_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(png_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(mou_timer));
 
    // start timers
    al_start_timer(fps_timer);
-   al_start_timer(sec_timer);
    al_start_timer(mnu_timer);
+   al_start_timer(sec_timer);
    al_start_timer(png_timer);
    al_start_timer(mou_timer);
 }
@@ -79,7 +78,6 @@ void mwEventQueue::proc(void)
 void mwEventQueue::proc_menu(void)
 {
    proc();
-
    // this is done so that the game controls can be used to navigate menus and visual level select
    mPlayer.clear_controls(mPlayer.active_local_player);
    mPlayer.set_controls_from_player_key_check(mPlayer.active_local_player);

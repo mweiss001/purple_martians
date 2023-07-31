@@ -37,21 +37,22 @@
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
 <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
-<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
 
-<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
-<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
             
@@ -84,11 +85,11 @@
 <br><a name="Overview"></a>
 <mh7>Overview</mh7>
 <mh3>    
-A level is completed when any player touches an unlocked exit or a warp spiral.
+A level is completed when any player touches an unlocked exit.
 
 The level is frozen and the end of level stats are shown.
 
-Then after a timeout, or after all players acknowledge, the next level is loaded and started.
+Then after a timeout, or after all players acknowledge, the next level is loaded and started
 
 The server controls the process using the following variables, which are synced to the clients with the rest of the game data.
 </mh3>
@@ -97,13 +98,14 @@ The server controls the process using the following variables, which are synced 
 <mh3>
 These are the variables used in the process:
 </mh3>
-<pre><code class="language-cpp"> mPlayer.syn[0].level_done_mode
- mPlayer.syn[0].level_done_timer
- mPlayer.syn[0].level_done_ack
- mPlayer.syn[0].level_done_x
- mPlayer.syn[0].level_done_y
- mPlayer.syn[0].level_done_player
- mPlayer.syn[0].level_done_next_level
+<pre><code class="language-cpp">mPlayer.syn[0].level_done_mode
+mPlayer.syn[0].level_done_timer
+mPlayer.syn[0].level_done_ack
+mPlayer.syn[0].level_done_x
+mPlayer.syn[0].level_done_y
+mPlayer.syn[0].level_done_player
+mPlayer.syn[0].level_done_frame;
+mPlayer.syn[0].level_done_next_level
 </code></pre>
 <mh3>'mode' is the current mode
 
@@ -114,6 +116,8 @@ These are the variables used in the process:
 'x' and 'y' keep track of the exit position on the level
 
 'player' keeps track of which player touched the exit
+
+'frame' keeps track of the exact frame the level was completed
 
 'next_level' is the next level to load after 'Level Done' is complete
 </mh3>
@@ -139,13 +143,10 @@ level_done_mode = 0; // normal game play
 <br><a name="How The Procedure Is Initiated"></a>
 <mh7>How The Procedure Is Initiated</mh7>
 <mh3>    
-The procedure is initiated by setting 'level_done_mode'.
+The procedure is initiated by setting 'level_done_mode', when an unlocked exit is touched by any player.
 
-It can only be started from mode 0, to prevent re-triggering.
+This can only be initiated from mode 0, to prevent re-triggering.
 
-'Exits' start on mode 9.
-
-'Warps' start on mode 3 to skip the delays and instantly load the next level.
 </mh3>
 <pre><code class="language-cpp">void mwItem::proc_exit_collision(int p, int i)
 {
@@ -159,25 +160,15 @@ It can only be started from mode 0, to prevent re-triggering.
          mPlayer.syn[0].level_done_x = itemf[i][0];
          mPlayer.syn[0].level_done_y = itemf[i][1];
          mPlayer.syn[0].level_done_player = p;
-         mPlayer.syn[0].level_done_next_level = mLevel.play_level + 1;
+         mPlayer.syn[0].level_done_frame = mLoop.frame_num;
+
+         if (mLevel.prev_level_loaded == 1) mPlayer.syn[0].level_done_next_level = 1;           // if started from overworld, return there
+         else mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level);  // otherwise do next chron level
+         mGameEvent.add(4, 0, 0, 0, 0, 0, 0);
       }
    }
-}
-
-void mwItem::proc_warp_collision(int p, int i)
-{
-   if (mPlayer.syn[0].level_done_mode == 0)
-   {
-      if (mLevel.play_level > 1) mLevel.warp_level_location = mLevel.play_level;
-      mPlayer.syn[0].level_done_mode = 3;
-      mPlayer.syn[0].level_done_timer = 0;
-      mPlayer.syn[0].level_done_x = itemf[i][0];
-      mPlayer.syn[0].level_done_y = itemf[i][1];
-      mPlayer.syn[0].level_done_player = p;
-      mPlayer.syn[0].level_done_next_level = item[i][8];
-   }
-}
-</code></pre>
+   else mGameEvent.add(23, 0, 0, p, i, exit_enemys_left, 0); // not enough dead yet
+}</code></pre>
 
 
 <br><a name="How The Procedure Progresses"></a>

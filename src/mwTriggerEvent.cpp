@@ -583,13 +583,13 @@ int mwTriggerEvent::get_trigger_item(int obj_type, int obj_num, int obj_ext, int
 
    if (obj_type == 4) // lift
    {
-      int l = obj_ext;
-      int s = obj_num;
+      int l = obj_num;
+      int s = obj_ext;
       x2 = mLift.stp[l][s].x + mLift.stp[l][s].w / 2;
       y2 = mLift.stp[l][s].y + mLift.stp[l][s].h / 2;
-//      int pms = mLift.find_previous_move_step(l, s);
-//      x2 = mLift.stp[l][pms].x + mLift.stp[l][pms].w / 2;
-//      y2 = mLift.stp[l][pms].y + mLift.stp[l][pms].h / 2;
+      int pms = mLift.find_previous_move_step(l, s);
+      x2 = mLift.stp[l][pms].x + mLift.stp[l][pms].w / 2;
+      y2 = mLift.stp[l][pms].y + mLift.stp[l][pms].h / 2;
    }
 
 
@@ -808,7 +808,7 @@ void mwTriggerEvent::find_event_sender_for_obj(int obj_type, int obj_num, int ob
    if (obj_type == 4) // lift
    {
       int ti_obj_type, ti_obj_ext, ti_num;
-      if (mTriggerEvent.get_trigger_item(4, obj_num, 0, ti_obj_type, ti_num, ti_obj_ext))
+      if (mTriggerEvent.get_trigger_item(4, obj_num, obj_ext, ti_obj_type, ti_num, ti_obj_ext))
       {
          int ev = mTriggerEvent.get_unused_pm_event();
 

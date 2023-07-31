@@ -311,12 +311,6 @@ void mwDisplay::show_var_sizes(void)
    printf("log_lines_int :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
 }
 
-
-
-
-
-
-
 void mwDisplay::auto_set_display_transform_double(void)
 {
    display_transform_double = 1;
@@ -333,9 +327,6 @@ void mwDisplay::auto_set_display_transform_double(void)
       if (disp_w_curr < 1280) display_transform_double = 1;
    }
 }
-
-
-
 
 void mwDisplay::set_saved_display_transform(int sdt)
 {
@@ -355,7 +346,6 @@ void mwDisplay::set_saved_display_transform(int sdt)
    for (int a=0; a<NUM_MW; a++)
       mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
 
-
 }
 
 
@@ -366,7 +356,6 @@ void mwDisplay::cycle_display_transform(void)
    if (++saved_display_transform_double>display_transform_double_max) saved_display_transform_double = 0;
    mConfig.save();
 
-
    set_display_transform();
 
    float new_display_transform_double = display_transform_double;
@@ -374,14 +363,8 @@ void mwDisplay::cycle_display_transform(void)
    scale_factor /= sfa;
    scale_factor_current = scale_factor;
 
-
    // adjust window positions
-   for (int a=0; a<NUM_MW; a++)
-      mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
-
-
-
-
+   for (int a=0; a<NUM_MW; a++) mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
 }
 
 void mwDisplay::set_display_transform()
@@ -637,9 +620,8 @@ void mwDisplay::proc_display_change(void)
 
 void mwDisplay::save_display_window_position(void)
 {
-   // this is automatically done when display is resized or switched to fullscreen
-   // but not when the window is just moved
-   // so I call this when exiting
+// This is automatically done when the display is resized or switched to fullscreen, but not when the window is simply moved
+// So I also call this when exiting to save window position.
 
    if (!fullscreen)
    {

@@ -19,6 +19,7 @@ struct psyn // synced between server and client
    int level_done_x;
    int level_done_y;
    int level_done_player;
+   int level_done_frame;
    int level_done_next_level;
 
 
@@ -50,13 +51,10 @@ struct psyn // synced between server and client
 
    int marked_door;
    int door_item;
-
    int door_num_steps;
 
    int marked_gate;
-
    int spawn_point_index;
-
    int left_right; // determines the direction the player is facing
 
 
@@ -78,7 +76,6 @@ struct psyn // synced between server and client
 
    int spare_int1;
    int spare_int2;
-   int spare_int3;
 
 };
 

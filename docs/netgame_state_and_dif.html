@@ -37,21 +37,22 @@
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
 <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
-<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
 
-<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
-<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
 
@@ -98,13 +99,13 @@ The server's game state is periodically sent to clients to keep them in sync.
 <pre><code class="language-cpp">// Variables used for netgame state exchange
 players  :  2048 - player structs
 Ei       : 12800 - enemy ints
-Efi      :  6400 - enemy fixeds
+Ef       :  6400 - enemy floats
 item     : 32000 - item ints
-itemf    :  8000 - item fixeds
+itemf    :  8000 - item floats
 lifts    :  5280 - lift structs
-l        : 40000 - 100 x 100 tile level
-pbullet  :  1200 - player's bullets
-ebullets :  1200 - enemy's bullets
+mLevel.l : 40000 - 100 x 100 tile level
+mShot.p  :  1200 - player's shots
+mShot.e  :  1200 - enemy's shots
 pm_event :  4000 - events
 ---------:------
 total    :112928
@@ -132,34 +133,34 @@ char state[STATE_SIZE];
 game_vars_to_state(state) // put game variables into 'state'
 state_to_game_vars(state) // get game variables from 'state'
 
-void game_vars_to_state(char * b)
+void mwNetgame::game_vars_to_state(char * b)
 {
    int sz = 0, offset = 0;
-   offset += sz; sz = sizeof(players);  memcpy(b+offset, players,  sz);
-   offset += sz; sz = sizeof(Ei);       memcpy(b+offset, Ei,       sz);
-   offset += sz; sz = sizeof(Efi);      memcpy(b+offset, Efi,      sz);
-   offset += sz; sz = sizeof(item);     memcpy(b+offset, item,     sz);
-   offset += sz; sz = sizeof(itemf);    memcpy(b+offset, itemf,    sz);
-   offset += sz; sz = sizeof(lifts);    memcpy(b+offset, lifts,    sz);
-   offset += sz; sz = sizeof(l);        memcpy(b+offset, l,        sz);
-   offset += sz; sz = sizeof(pbullet);  memcpy(b+offset, pbullet,  sz);
-   offset += sz; sz = sizeof(ebullets); memcpy(b+offset, ebullets, sz);
-   offset += sz; sz = sizeof(pm_event); memcpy(b+offset, pm_event, sz);
+   offset += sz; sz = sizeof(mPlayer.syn);         memcpy(b+offset, mPlayer.syn,         sz);
+   offset += sz; sz = sizeof(mEnemy.Ei);           memcpy(b+offset, mEnemy.Ei,           sz);
+   offset += sz; sz = sizeof(mEnemy.Ef);           memcpy(b+offset, mEnemy.Ef,           sz);
+   offset += sz; sz = sizeof(mItem.item);          memcpy(b+offset, mItem.item,          sz);
+   offset += sz; sz = sizeof(mItem.itemf);         memcpy(b+offset, mItem.itemf,         sz);
+   offset += sz; sz = sizeof(mLift.cur);           memcpy(b+offset, mLift.cur,           sz);
+   offset += sz; sz = sizeof(mLevel.l);            memcpy(b+offset, mLevel.l,            sz);
+   offset += sz; sz = sizeof(mShot.p);             memcpy(b+offset, mShot.p,             sz);
+   offset += sz; sz = sizeof(mShot.e);             memcpy(b+offset, mShot.e,             sz);
+   offset += sz; sz = sizeof(mTriggerEvent.event); memcpy(b+offset, mTriggerEvent.event, sz);
 }
 
-void state_to_game_vars(char * b)
+void mwNetgame::state_to_game_vars(char * b)
 {
    int sz = 0, offset = 0;
-   sz = sizeof(players);  memcpy(players,  b+offset, sz); offset += sz;
-   sz = sizeof(Ei);       memcpy(Ei,       b+offset, sz); offset += sz;
-   sz = sizeof(Efi);      memcpy(Efi,      b+offset, sz); offset += sz;
-   sz = sizeof(item);     memcpy(item,     b+offset, sz); offset += sz;
-   sz = sizeof(itemf);    memcpy(itemf,    b+offset, sz); offset += sz;
-   sz = sizeof(lifts);    memcpy(lifts,    b+offset, sz); offset += sz;
-   sz = sizeof(l);        memcpy(l,        b+offset, sz); offset += sz;
-   sz = sizeof(pbullet);  memcpy(pbullet,  b+offset, sz); offset += sz;
-   sz = sizeof(ebullets); memcpy(ebullets, b+offset, sz); offset += sz;
-   sz = sizeof(pm_event); memcpy(pm_event, b+offset, sz); offset += sz;
+   sz = sizeof(mPlayer.syn);         memcpy(mPlayer.syn,         b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ei);           memcpy(mEnemy.Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ef);           memcpy(mEnemy.Ef,           b+offset, sz); offset += sz;
+   sz = sizeof(mItem.item);          memcpy(mItem.item,          b+offset, sz); offset += sz;
+   sz = sizeof(mItem.itemf);         memcpy(mItem.itemf,         b+offset, sz); offset += sz;
+   sz = sizeof(mLift.cur);           memcpy(mLift.cur,           b+offset, sz); offset += sz;
+   sz = sizeof(mLevel.l);            memcpy(mLevel.l,            b+offset, sz); offset += sz;
+   sz = sizeof(mShot.p);             memcpy(mShot.p,             b+offset, sz); offset += sz;
+   sz = sizeof(mShot.e);             memcpy(mShot.e,             b+offset, sz); offset += sz;
+   sz = sizeof(mTriggerEvent.event); memcpy(mTriggerEvent.event, b+offset, sz); offset += sz;
 }
 </code></pre>
 
@@ -173,17 +174,17 @@ Clients use 3 'state's and the server uses 16 (2 for each client).
 <pre><code class="language-cpp">#define STATE_SIZE 112928
 
 // server's copies of client states
-extern char srv_client_state[8][2][STATE_SIZE];
-extern int srv_client_state_frame_num[8][2];
+char srv_client_state[8][2][STATE_SIZE];
+int srv_client_state_frame_num[8][2];
 
 // local client's states
-extern char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
-extern int  client_state_buffer_pieces[16];   // to mark packet pieces as received
-extern char client_state_base[STATE_SIZE];    // last ack state
-extern int  client_state_base_frame_num;      // last ack state frame_num
-extern char client_state_dif[STATE_SIZE];     // uncompressed dif
-extern int  client_state_dif_src;             // uncompressed dif src frame_num
-extern int  client_state_dif_dst;             // uncompressed dif dst frame_num
+char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
+int  client_state_buffer_pieces[16];   // to mark packet pieces as received
+char client_state_base[STATE_SIZE];    // last ack state
+int  client_state_base_frame_num;      // last ack state frame_num
+char client_state_dif[STATE_SIZE];     // uncompressed dif
+int  client_state_dif_src;             // uncompressed dif src frame_num
+int  client_state_dif_dst;             // uncompressed dif dst frame_num
 </code></pre>
 
 <br><a name="State compression methods"></a>
@@ -198,8 +199,7 @@ I use the amazing compression library 'zlib' for this.
 
 zlib is: (from their own documentation at zlib.net)
 
-A Massively Spiffy Yet Delicately Unobtrusive Compression Library
-(Also Free, Not to Mention Unencumbered by Patents)
+A Massively Spiffy Yet Delicately Unobtrusive Compression Library (Also Free, Not to Mention Unencumbered by Patents)
 
 zlib alone will compress the 100K to approximately 6-8K.
 
@@ -219,16 +219,14 @@ Most of the time, the dif is less than 1K and can be sent in a single packet.
 
 This method requires that both the server and the client keep a common previous state that the dif can be applied to.
 </mh3>
-<pre><code class="language-cpp">void get_state_dif(char *a, char *b, char *c, int size)
+<pre><code class="language-cpp">void mwNetgame::get_state_dif(char *a, char *b, char *c, int size)
 {
-   for (int i=0; i < size; i++)
-      c[i] = a[i] - b[i];
+   for (int i=0; i < size; i++) c[i] = a[i] - b[i];
 }
 
-void apply_state_dif(char *a, char *c, int size)
+void mwNetgame::apply_state_dif(char *a, char *c, int size)
 {
-   for (int i=0; i < size; i++)
-      a[i] -= c[i];
+   for (int i=0; i < size; i++) a[i] -= c[i];
 }
 </code></pre>
 

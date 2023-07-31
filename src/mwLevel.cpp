@@ -95,35 +95,33 @@ void mwLevel::prev_level(void)
 
 void mwLevel::change_block(int x, int y, int block)
 {
-   l[x][y] = block;
-   al_set_target_bitmap(mBitmap.level_background);
-   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
-   al_draw_bitmap(mBitmap.btile[block & 1023], x*20, y*20, 0);
+   if ((x > -1) && (x < 100) & (y > -1) && (y < 100))
+   {
+      l[x][y] = block;
+      al_set_target_bitmap(mBitmap.level_background);
+      al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
+      al_draw_bitmap(mBitmap.btile[block & 1023], x*20, y*20, 0);
+   }
 }
 
 int mwLevel::is_block_empty(int x, int y, int test_block, int test_item, int test_enemy)
 {
-   int mpty = 1; // default is empty
-
-   if (test_block) if (mLevel.l[x][y] > 31) mpty = 0;
-
-   if (test_enemy)
-      for (int c=0; c<100; c++)
-         if (mEnemy.Ei[c][0])
-            if ((mEnemy.Ef[c][0] == x*20) && (mEnemy.Ef[c][1] == y*20)) mpty = 0;
-
-   if (test_item)
-      for (int c=0; c<500; c++)
-         if (mItem.item[c][0])
-            if ((mItem.item[c][4] == (x*20)) && (mItem.item[c][5] == (y*20))) mpty = 0;
-
+   int mpty = 0; // default is not empty (because if x and y not valid, I don't want to use it)
+   if ((x > -1) && (x < 100) & (y > -1) && (y < 100)) // if valid x and y
+   {
+      mpty = 1; // default is empty
+      if (test_block) if (mLevel.l[x][y] & PM_BTILE_ALL_SOLID) mpty = 0; // if any of the solids match, it is not empty
+      if (test_enemy)
+         for (int c=0; c<100; c++)
+            if (mEnemy.Ei[c][0])
+               if ((mEnemy.Ef[c][0] == x*20) && (mEnemy.Ef[c][1] == y*20)) mpty = 0;
+      if (test_item)
+         for (int c=0; c<500; c++)
+            if (mItem.item[c][0])
+               if ((mItem.item[c][4] == (x*20)) && (mItem.item[c][5] == (y*20))) mpty = 0;
+   }
    return mpty;
 }
-
-
-
-
-
 
 
 
@@ -368,12 +366,6 @@ void mwLevel::level_check(void)
       if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 3)) data[lev].tot_purple_coins++;
       if ((mItem.item[i][0] == 3) && (mItem.item[i][8] < data[lev].min_enemies_left_par)) data[lev].min_enemies_left_par = mItem.item[i][8];
    }
-
-
-
-
-
-
 
    char msg[256];
    int error = 0;

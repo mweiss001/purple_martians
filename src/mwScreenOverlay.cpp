@@ -39,6 +39,8 @@ void mwScreen::show_player_stat_box(int tx, int y, int p)
    if ((mNetgame.ima_server) || (mNetgame.ima_client))
       al_draw_textf(mFont.pr8, mColor.pc[c], tx+2, y, 0, "Player:%d [%s]", p, mPlayer.loc[p].hostname);
    else al_draw_textf(mFont.pr8, mColor.pc[c], tx+2, y, 0, "Player:%d", p);
+
+
    if (mPlayer.syn[0].level_done_mode == 5)
    {
       if (!mPlayer.syn[p].level_done_ack)
@@ -1068,9 +1070,6 @@ void mwScreen::draw_top_frame(int p)
 {
    char msg[1024];
 
-   char m2[80];
-
-
    int tdx = BORDER_WIDTH;
    int tdy = 0;
    int tc = mColor.get_contrasting_color(mPlayer.syn[p].color);
@@ -1085,8 +1084,14 @@ void mwScreen::draw_top_frame(int p)
 
    if (mLevel.play_level != 1) // don't show for overworld
    {
-      if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%s En:%d ",                mLevel.play_level, mItem.chrms(mLoop.frame_num, m2), mEnemy.num_enemy); // special case for narrow screens
-      else                         sprintf(msg,"Level:%d | Time:%s | Enemies:%d  ", mLevel.play_level, mItem.chrms(mLoop.frame_num, m2), mEnemy.num_enemy);
+
+      char tmr[80];
+      if (mPlayer.syn[0].level_done_mode) mItem.chrms(mPlayer.syn[0].level_done_frame, tmr);
+      else  mItem.chrms(mLoop.frame_num, tmr);
+
+
+      if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%s En:%d ",                mLevel.play_level, tmr, mEnemy.num_enemy); // special case for narrow screens
+      else                         sprintf(msg,"Level:%d | Time:%s | Enemies:%d  ", mLevel.play_level, tmr, mEnemy.num_enemy);
       al_draw_text(mFont.pr8, mColor.pc[tc], tdx, tdy+2,  0, msg);
       tdx += strlen(msg)*8;
 

@@ -30,23 +30,24 @@ class mwDisplay
    int fullscreen = 1;
    int display_adapter_num = 0;
 
-   void set_window_title(void);
-
-
-
+   int show_scale_factor;
+   int scale_factor_holdoff;
 
    int display_transform_double;
    int display_transform_double_max;
    int saved_display_transform_double;
    int show_dtd;
 
+
+
+
+   void set_window_title(void);
+
    float scale_factor;
    float scale_factor_current;
 
    float scale_factor_mlt;
 
-   int show_scale_factor;
-   int scale_factor_holdoff;
 
    void set_scale_factor(float new_scale_factor, int instant);
    void proc_scale_factor_change(void);

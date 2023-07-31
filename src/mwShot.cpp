@@ -265,6 +265,13 @@ void mwShot::fire_enemy_shotz(int e, int shot_ans, float px, float py)
 }
 void mwShot::fire_enemy_shota(int e, int shot_ans, int p)
 {
+   float rx, ry;
+   calc_where_player_will_be(e, p, rx, ry);
+   fire_enemy_shotz(e, shot_ans, rx, ry);
+}
+
+void mwShot::calc_where_player_will_be(int e, int p, float& rx, float& ry)
+{
    float bx = mEnemy.Ef[e][0];
    float by = mEnemy.Ef[e][1];
    float bv = mEnemy.Ef[e][7];
@@ -302,10 +309,15 @@ void mwShot::fire_enemy_shota(int e, int shot_ans, int p)
       float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
       float px1 = px + pvx * t; // get player target position based on t
       float py1 = py + pvy * t;
-      fire_enemy_shotz(e, shot_ans, px1, py1);
-   }
-   else fire_enemy_shotz(e, shot_ans, px, py);
 
+      rx = px1;
+      ry = py1;
+   }
+   else // if the discriminant test fails, return the current player's position
+   {
+      rx = px;
+      ry = py;
+   }
 }
 
 void mwShot::fire_enemy_x_shot(int e, int p)

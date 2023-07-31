@@ -29,7 +29,7 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
       y = cy;
    }
 
-//   if (type == 7) draw_vinepod(e);
+   if (type == 7) draw_vinepod(e, x, y, custom);
 
    if (type == 9) draw_cloner(e, x, y, custom);
 
@@ -63,6 +63,33 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
          al_draw_rectangle(x1, y1, x2, y2, mColor.pc[14], 1);
       }
    */
+
+
+//      if (Ei[e][0] == 2) // cannon
+//      {
+//         if (Ei[e][10] > -1)
+//         {
+//
+//             enemy position
+//            int ex = Ef[e][0] + 10;
+//            int ey = Ef[e][1] + 10;
+//
+//             targetted player's position
+//            int p = Ei[e][10];
+//            float px = mPlayer.syn[p].x + 10;
+//            float py = mPlayer.syn[p].y + 10;
+//
+//             projected players position
+//            float px1, py1;
+//            mShot.calc_where_player_will_be(e, p, px1, py1);
+//
+//            al_draw_line(ex, ey, px, py, mColor.pc[15], 0);
+//            al_draw_line(ex, ey, px1+10, py1+10, mColor.pc[10], 0);
+//
+//
+//         }
+//
+//      }
 
 
       #ifdef SHOW_CANNON_COLLISION_BOX
@@ -591,6 +618,10 @@ Ef[][5] seek speed
 Ei[][7]   seek counter
 Ei[][8]   seek count
 Ei[][9]   extra hits to kill
+Ei[][10]  targetted player (-1) if none
+
+
+
 Ei[][15]  shot retrigger value
 Ei[][16]  shot retrigger counter
 Ei[][17]  shot prox

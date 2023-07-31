@@ -166,12 +166,7 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
 
 int mwItem::draw_bonus(int i, int x, int y, int shape)
 {
-   if ((item[i][6] == 3) && (!mLoop.level_editor_running)) // purple coin custom draw
-   {
-      // now drawn on screen overlay
-      //mBitmap.spin_shape(shape, x, y, 0, 0, 19, 19, 0.8, 0.5, 40);
-      return 1;
-   }
+   if ((item[i][6] == 3) && (mLoop.state[0] == 11) && (mLoop.frame_num > 0)  ) return 1; // purple coin custom draw only when game running
    return 0;
 }
 
@@ -485,28 +480,28 @@ void mwItem::proc_item_collision(int p, int i)
       int other_player_carrying = 0;
       for (int op=0; op<NUM_PLAYERS; op++)
          if ((mPlayer.syn[op].active) && (!mPlayer.syn[op].paused) && (mPlayer.syn[op].carry_item == i+1)) other_player_carrying = 1;
-
        // allow carry
        if ((other_player_carrying == 0) ||   // if no other player is carrying
           (item[i][0] == 98))          // allow multiple player carry for rocket
           mPlayer.syn[p].carry_item = i+1;
    }
-   switch (item[i][0]) // item type
-   {
-      case 1:  proc_door_collision(p, i);     break;
-      case 2:  proc_bonus_collision(p, i);    break;
-      case 3:  proc_exit_collision(p, i);     break;
-      case 4:  proc_key_collision(p, i);      break;
-      case 5:  proc_start_collision(p, i);    break;
-      case 6:  proc_orb_collision(p, i);      break;
-      case 7:  proc_mine_collision(p, i);     break;
-      case 8:  proc_bomb_collision(p, i);     break;
-      case 10: proc_pmsg_collision(i);        break;
-      case 11: proc_rocket_collision(p, i);   break;
-      case 14: proc_switch_collision(p, i);   break;
-      case 15: proc_sproingy_collision(p, i); break;
-      case 18: proc_gate_collision(p, i);     break;
-   }
+
+   int t = item[i][0];
+   if (t == 1)   proc_door_collision(p, i);
+   if (t == 2)   proc_bonus_collision(p, i);
+   if (t == 3)   proc_exit_collision(p, i);
+   if (t == 4)   proc_key_collision(p, i);
+   if (t == 5)   proc_start_collision(p, i);
+   if (t == 6)   proc_orb_collision(p, i);
+   if (t == 7)   proc_mine_collision(p, i);
+   if (t == 8)   proc_bomb_collision(p, i);
+   if (t == 10)  proc_pmsg_collision(i);
+   if (t == 11)  proc_rocket_collision(p, i);
+   if (t == 14)  proc_switch_collision(p, i);
+   if (t == 15)  proc_sproingy_collision(p, i);
+   if (t == 18)  proc_gate_collision(p, i);
+
+
 }
 
 
@@ -731,9 +726,7 @@ item[][12]
 
 
 
-
 [98] - lit rocket
-
 [99] - lit bomb
 item[][6]  mode (1=lit, 2=explosion, 3=remote detonator)
 item[][7]  blast size

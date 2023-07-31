@@ -47,6 +47,10 @@ class mwShot
    void fire_enemy_shota(int e, int shot_ans, int p);
    void fire_enemy_x_shot(int e, int p);
 
+
+   void calc_where_player_will_be(int e, int p, float& px, float& py);
+
+
 };
 extern mwShot mShot;
 

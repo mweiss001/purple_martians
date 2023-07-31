@@ -37,21 +37,22 @@
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
 <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
-<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
 
-<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
-<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
             
@@ -78,11 +79,12 @@
 There are a number of variables in the file 'pm.cfg' used to setup and control netgame.
 </mh3>
 <pre><code class="language-cpp">[NETWORK]
-server_IP=192.168.1.3
-TCP=0
-deathmatch_pbullets=0
-deathmatch_pbullets_damage=5
-suicide_pbullets=0
+server_IP = 192.168.1.3
+mNetgame.TCP=0
+mPlayer.loc[0].server_state_freq_mode=1
+mShot.deathmatch_shots=0
+mShot.deathmatch_shot_damage=5
+mShot.suicide_shots=0
 </code></pre>
 
 <a name="Settings you can change"></a>
@@ -99,54 +101,54 @@ server_IP=myhostname</code></pre>
 
 
 
-<mh5><hr>deathmatch_pbullets</mh5>
-<mh3>Used to set Deathmatch Mode. Controls whether player's bullets affect other players.
+<mh5><hr>mShot.deathmatch_shots</mh5>
+<mh3>Used to set Deathmatch Mode. Controls whether player's shots affect other players.
 </mh3>
 <pre><code class="language-cpp">valid entries: 
-deathmatch_pbullets=0 // Deathmatch Mode Off
-deathmatch_pbullets=1 // Deathmatch Mode On
+mShot.deathmatch_shots=0 // Deathmatch Mode Off
+mShot.deathmatch_shots=1 // Deathmatch Mode On
 
 default: 
-deathmatch_pbullets=0 // Deathmatch Mode Off
+mShot.deathmatch_shots=0 // Deathmatch Mode Off
 </code></pre>
 
 
 
-<mh5><hr>deathmatch_pbullets_damage</mh5>
-<mh3>Used to set the amount of damage player's bullets do in Deathmatch Mode.
+<mh5><hr>mShot.deathmatch_shot_damage</mh5>
+<mh3>Used to set the amount of damage player's shots do in Deathmatch Mode.
 Has no effect if Deathmatch Mode is off.
 
-The value is the amount of health lost when hit with a bullet.
+The value is the amount of health lost when shot by another player.
 100 will instantly kill. 50 will take 50 health...etc.
 
-Note: If set to zero, bullets will not take any health, but will still cause the player to recoil.
+Note: If set to zero, shots will not take any health, but will still cause the player to recoil.
 
-Note: If set to a negative value, bullets will actually give health!
+Note: If set to a negative value, shots will actually give health!
 </mh3>
 <pre><code class="language-cpp">valid entries: 
-deathmatch_pbullets=100
-deathmatch_pbullets=50
-deathmatch_pbullets=10
-deathmatch_pbullets=0
-deathmatch_pbullets=-10
+mShot.deathmatch_shot_damage=100
+mShot.deathmatch_shot_damage=50
+mShot.deathmatch_shot_damage=10
+mShot.deathmatch_shot_damage=0
+mShot.deathmatch_shot_damage=-10
 
 default: 
-deathmatch_pbullets=5
+mShot.deathmatch_shot_damage=5
 </code></pre>
 
 
-<mh5><hr>suicide_pbullets</mh5>
-<mh3>Controls whether player's bullets affect the same player that shot them.
+<mh5><hr>mShot.suicide_shots</mh5>
+<mh3>Controls whether player's shots affect the same player that shot them.
 
-This can happen if a player shoots a bullet, then immediately takes a door to where the bullet is heading.
-It can also happen if a bullet is shot upwards, then a player jumps on a spring.
+This can happen if a player shoots, then immediately takes a door to where the shot is headed.
+It can also happen when shooting upwards, then jumping on a spring.
 </mh3>
 <pre><code class="language-cpp">valid entries: 
-suicide_pbullets=0 // suicide bullets off
-suicide_pbullets=1 // suicide bullets on
+mShot.suicide_shots=0 // suicide shots off
+mShot.suicide_shots=1 // suicide shpts on
 
 default: 
-suicide_pbullets=0 // suicide bullets off
+mShot.suicide_shots=0 // suicide shots off
 </code></pre>
 
 <br><a name="Settings you probably shouldn't change!"></a>
@@ -155,17 +157,33 @@ suicide_pbullets=0 // suicide bullets off
 For the variables below, it is not recommended to change them from their default values.
 </mh3>
 
-<mh5><hr>TCP</mh5>
+<mh5><hr>mNetgame.TCP</mh5>
 <mh3>Used to set the packet type.  Must be the same on client and server.
-Both seem to work about the same.  (Probably because netgame only works in a LAN)
+Both seem to work about the same.  (Your mileage may vary....)
 </mh3>
 <pre><code class="language-cpp">valid entries: 
-TCP=0 // use UDP packet type
-TCP=1 // use TCP packet type
+mNetgame.TCP=0 // use UDP packet type
+mNetgame.TCP=1 // use TCP packet type
 
 default: 
-TCP=0 // use UDP packet type
+mNetgame.TCP=0 // use UDP packet type
 </code></pre>
+
+
+<mh5><hr>mPlayer.loc[0].server_state_freq_mode</mh5>
+<mh3>Lets the server automatically adjust how often to send states to clients.
+</mh3>
+<pre><code class="language-cpp">valid entries: 
+mPlayer.loc[0].server_state_freq_mode=0 // manual
+mPlayer.loc[0].server_state_freq_mode=1 // auto
+
+default: 
+mPlayer.loc[0].server_state_freq_mode=1 // auto
+</code></pre>
+
+
+
+
 
 
 <br>

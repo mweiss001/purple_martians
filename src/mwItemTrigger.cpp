@@ -189,6 +189,7 @@ void mwItem::proc_orb_collision(int p, int i)
       {
          mPlayer.syn[0].level_done_mode = 30;
          mPlayer.syn[0].level_done_player = p;
+         mPlayer.syn[0].level_done_frame = mLoop.frame_num;
          mPlayer.syn[0].level_done_next_level = 1;
       }
    }
@@ -429,6 +430,11 @@ void mwItem::proc_block_manip(int i)
       int y1 = item[i][7]/20;
       int x2 = x1 + item[i][8]/20;
       int y2 = y1 + item[i][9]/20;
+
+      if (x1 < 0) x1 = 0;
+      if (x2 > 100) x2 = 100;
+      if (y1 < 0) y1 = 0;
+      if (y2 > 100) y2 = 100;
 
       // copt rect pos
       int x3 = item[i][13]/20;

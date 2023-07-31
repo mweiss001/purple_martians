@@ -61,10 +61,10 @@ class mwNetgame
    char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
    int  client_state_buffer_pieces[16];   // to mark packet pieces as received
    char client_state_base[STATE_SIZE];    // last ack state
-   int  client_state_base_frame_num;      // last ack state mwPS.frame_num
+   int  client_state_base_frame_num;      // last ack state frame_num
    char client_state_dif[STATE_SIZE];     // uncompressed dif
-   int  client_state_dif_src;             // uncompressed dif src mwPS.frame_num
-   int  client_state_dif_dst;             // uncompressed dif dst mwPS.frame_num
+   int  client_state_dif_src;             // uncompressed dif src frame_num
+   int  client_state_dif_dst;             // uncompressed dif dst frame_num
 
 
    void game_vars_to_state(char * b);

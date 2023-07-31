@@ -29,8 +29,9 @@
 #include "mwHelp.h"
 #include "mwVisualLevel.h"
 #include "mwMain.h"
-
 #include "mwBitmapTools.h"
+
+
 
 mwSettings mSettings;
 
@@ -420,8 +421,8 @@ void mwSettings::settings_pages(int set_page)
       //int cfp_y2 = cf_y2 - frame_width;
 
       // set the top of the page area, where the pages will start and extend downwards
-      int page_y1 = cfp_y1 + frame_width;
-      int page_y2 = page_y1 + page_h;
+      // int page_y1 = cfp_y1 + frame_width;
+      //int page_y2 = page_y1 + page_h;
 
 
       al_draw_filled_rectangle(cf_x1, cf_y1, cf_x2, cf_y2, mColor.pc[fc+224]); // erase everything
@@ -1442,18 +1443,22 @@ void mwSettings::settings_pages(int set_page)
          int ya = cfp_y1 + 10;
          int bts = 16;
 
-         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Level Statistics");
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, 15);
+//         al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Level Statistics");
+//         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, 15);
 
-         mWidget.buttont(xa+100, ya, xb-100, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Show All Level Data");
+         //ya-=6;
+
+         mWidget.buttont(xa+100, ya, xb-100, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Show All Stats");
+
 
          if ((mInput.mouse_x > xa+100) && (mInput.mouse_x < xb-100) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts))
          {
-            mLevel.draw_level_stats(cfp_txc, ya+26, 1);
+            ya+=line_spacing+8;
+            mLevel.draw_level_stats(cfp_txc, ya, 1);
          }
          else
          {
-            ya +=bts;
+            ya +=8;
             ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
             al_draw_textf(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Number of level play records:%d", mLevel.play_data_num);
             ya +=8;
@@ -2142,6 +2147,10 @@ void mwSettings::settings_pages(int set_page)
 
 
          ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
+
+
+
+         if (mWidget.buttont(xa+260, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Dump Level Data")) mLevel.dump_level_data();
 
 
 

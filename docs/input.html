@@ -37,21 +37,22 @@
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
 <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
-<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
 
-<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
-<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
             
@@ -101,7 +102,7 @@ I recreated most of these, or similar equivalents, and update them when I proces
 <mh7>Keyboard input</mh7>
 
 <mh3>
-In Allegro 4, there is an array of keys that is updated asynchronously:</mh3>    
+In Allegro 4, there is an array of key flags that are updated asynchronously:</mh3>    
 <pre><code class="language-cpp">extern volatile char key[KEY_MAX];</code></pre>   
 <mh3>
 You could do stuff like:
@@ -113,23 +114,75 @@ You could do stuff like:
 }</code></pre>
     
 <mh3>
-So in Allegro 5, I made my own key array and set it with keyboard events like this:
+I wanted to do something similar in Allegro 5, I made my own key array and set it with keyboard events like this:
 </mh3>    
     
-<pre><code class="language-cpp">extern bool key[ALLEGRO_KEY_MAX]; // global variable
-if (ev.type == ALLEGRO_EVENT_KEY_DOWN) key[ev.keyboard.keycode] = true;
-if (ev.type == ALLEGRO_EVENT_KEY_UP)   key[ev.keyboard.keycode] = false;</code></pre>
+<pre><code class="language-cpp">bool mInput.key[ALLEGRO_KEY_MAX][4];
+
+void mwInput::proc_input_events(ALLEGRO_EVENT ev)
+{
+   if (ev.type == ALLEGRO_EVENT_KEY_DOWN) key[ev.keyboard.keycode][0] = true;
+   if (ev.type == ALLEGRO_EVENT_KEY_UP)   key[ev.keyboard.keycode][0] = false;
+...</code></pre>
+
+
+
+<br><a name="Keys held array"></a>
+<mh7>Keys held array</mh7>
+
+<mh3>
+For each key (and mouse button), I detect not only if the key is pressed, but also if it has been just pressed, or just released.
+</mh3>    
+<pre><code class="language-cpp">// mInput.key[][0] current value 
+// mInput.key[][1] previous value 
+// mInput.key[][2] just pressed
+// mInput.key[][3] just released
+
+void mwInput::proc_keys_held(void)
+{
+   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++)
+   {
+      if ((key[k][0] == true) && (key[k][1] == false)) key[k][2] = true; // just pressed
+      else key[k][2] = false;
+      if ((key[k][0] == false) && (key[k][1] == true)) key[k][3] = true; // just released
+      else key[k][3] = false;
+      key[k][1] = key[k][0]; // previous for next time
+   }
+   for (int m=1; m<5; m++)
+   {
+      if ((mouse_b[m][0] == true) && (mouse_b[m][1] == false)) mouse_b[m][2] = true; // just pressed
+      else mouse_b[m][2] = false;
+      if ((mouse_b[m][0] == false) && (mouse_b[m][1] == true)) mouse_b[m][3] = true; // just released
+      else mouse_b[m][3] = false;
+      mouse_b[m][1] = mouse_b[m][0]; // previous for next time
+   }
+}</code></pre>   
 
 <mh3>
 Now in Allegro 5, I can do something similar to what I used to do in Allegro 4:
 </mh3>    
 
-<pre><code class="language-cpp">proc_controllers();
-if (key[ALLEGRO_KEY_I])
+<pre><code class="language-cpp">mEvent.proc();
+
+if (mInput.key[ALLEGRO_KEY_I][0])
 {
-   while (key[ALLEGRO_KEY_I]) proc_controllers(); // wait for key to be released
+   while (mInput.key[ALLEGRO_KEY_I][0]) mEvent.proc(); // wait for key to be released
    // do something
 }</code></pre>
+
+
+<mh3>
+And if I use the key held functionality, it can make it even simpler:
+</mh3>    
+
+<pre><code class="language-cpp">mEvent.proc();
+
+if (mInput.key[ALLEGRO_KEY_I][3]) // key has just been released
+{
+   // do something
+}</code></pre>
+
+
 
             
 <br><a name="Hack to make PRINTSCREEN work"></a>
@@ -137,28 +190,23 @@ if (key[ALLEGRO_KEY_I])
 
 <mh3>
 There is a known bug with the PRINTSCREEN key in windows.
-It does not generate ALLEGRO_EVENT_KEY_DOWN events, only ALLEGRO_EVENT_KEY_UP.
+It does not generate ALLEGRO_EVENT_KEY_DOWN events, only ALLEGRO_EVENT_KEY_UP events.
 I made the following work around so I could use PRINTSCREEN for my screenshot function.
 
 At the start of my event processing I clear the key like this:
 </mh3>
 
-<pre><code class="language-cpp">key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN work
+<pre><code class="language-cpp">   mInput.key[ALLEGRO_KEY_PRINTSCREEN][0] = 0; // hack to make PRINTSCREEN key work properly
 </code></pre>           
 <mh3>
 Then I add an exception to my key up section like this:
 </mh3>
 
-<pre><code class="language-cpp">if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
+<pre><code class="language-cpp">if (ev.type == ALLEGRO_EVENT_KEY_UP)
 {
    int k = ev.keyboard.keycode;
-   key[k] = true;
-}
-if (ev.type == ALLEGRO_EVENT_KEY_UP)
-{
-   int k = ev.keyboard.keycode;
-   key[k] = false;
-   if (k == ALLEGRO_KEY_PRINTSCREEN) key[k] = true; // hack to make PRINTSCREEN work
+   mInput.key[k] = false;
+   if (k == ALLEGRO_KEY_PRINTSCREEN) mInput.key[k] = true; // hack to make PRINTSCREEN work
 }
 </code></pre>           
 
@@ -175,46 +223,52 @@ In Allegro 5, I re-implement them and set them with mouse events:
 </mh3>    
         
             
-<pre><code class="language-cpp">// global variables
-int mouse_x = 0;
-int mouse_y = 0;
-int mouse_z = 0;
-int mouse_dx = 0;
-int mouse_dy = 0;
-int mouse_dz = 0;
-int mouse_b1 = 0;
-int mouse_b2 = 0;
-int mouse_b3 = 0;
-int mouse_b4 = 0;
+<pre><code class="language-cpp">int mInput.mouse_x
+int mInput.mouse_y
+int mInput.mouse_z
+int mInput.mouse_dx
+int mInput.mouse_dy
+int mInput.mouse_dz
+bool mInput.mouse_b[5][4]
 
-if (ev.type == ALLEGRO_EVENT_MOUSE_WARPED)
+void mwInput::proc_input_events(ALLEGRO_EVENT ev)
 {
-   mouse_x = ev.mouse.x;
-   mouse_y = ev.mouse.y;
-}
-if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
-{
-   mouse_x = ev.mouse.x;
-   mouse_y = ev.mouse.y;
-   mouse_z = ev.mouse.z;
-   mouse_dx = ev.mouse.dx;
-   mouse_dy = ev.mouse.dy;
-   mouse_dz = ev.mouse.dz;
-}
-if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
-{
-   if (ev.mouse.button == 1) mouse_b1 = 1;
-   if (ev.mouse.button == 2) mouse_b2 = 1;
-   if (ev.mouse.button == 3) mouse_b3 = 1;
-   if (ev.mouse.button == 4) mouse_b4 = 1;
-}
-if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
-{
-   if (ev.mouse.button == 1) mouse_b1 = 0;
-   if (ev.mouse.button == 2) mouse_b2 = 0;
-   if (ev.mouse.button == 3) mouse_b3 = 0;
-   if (ev.mouse.button == 4) mouse_b4 = 0;
+   if (ev.type == ALLEGRO_EVENT_MOUSE_WARPED)
+   {
+      mouse_x = ev.mouse.x / mDisplay.display_transform_double;
+      mouse_y = ev.mouse.y / mDisplay.display_transform_double;
+   }
+   if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
+   {
+      mouse_x = ev.mouse.x / mDisplay.display_transform_double;
+      mouse_y = ev.mouse.y / mDisplay.display_transform_double;
+      mouse_z = ev.mouse.z / mDisplay.display_transform_double;
+      mouse_dx = ev.mouse.dx;
+      mouse_dy = ev.mouse.dy;
+      mouse_dz = ev.mouse.dz;
+   }
+   if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+   {
+      if (ev.mouse.button == 1) mouse_b[1][0] = true;
+      if (ev.mouse.button == 2) mouse_b[2][0] = true;
+      if (ev.mouse.button == 3) mouse_b[3][0] = true;
+      if (ev.mouse.button == 4) mouse_b[4][0] = true;
+   }
+   if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+   {
+      if (ev.mouse.button == 1) mouse_b[1][0] = false;
+      if (ev.mouse.button == 2) mouse_b[2][0] = false;
+      if (ev.mouse.button == 3) mouse_b[3][0] = false;
+      if (ev.mouse.button == 4) mouse_b[4][0] = false;
+   }
 }</code></pre>
+
+<mh3>Note that the mouse positions are divided by mDisplay.display_transform_double.
+
+This is to account for an orthographic screen tranformation. (see <a href="display.html#Display transform double" target="_top"> Display Transform Double</a>)
+</mh3>    
+
+
 
 <br><a name="Joystick input"></a>
 <mh7>Joystick input</mh7>
@@ -383,11 +437,23 @@ int get_scan_code_from_joystick(int joy, int button, int num)
 There is a clear distinction between the key bindings and the controls.
 
 In the player struct, for each player we have the key bindings:</mh3>
-<pre><code class="language-cpp">int up_key, down_key, left_key, right_key, jump_key, fire_key, menu_key;</code></pre>
+<pre><code class="language-cpp">mPlayer.loc[p].up_key
+mPlayer.loc[p].down_key
+mPlayer.loc[p].left_key
+mPlayer.loc[p].right_key
+mPlayer.loc[p].jump_key
+mPlayer.loc[p].fire_key
+mPlayer.loc[p].menu_key</code></pre>
 
 <mh3>
 And then we have variables to indicate if a particular control is active for that frame: </mh3>
-<pre><code class="language-cpp">int up, down, left, right, jump, fire, menu;</code></pre>
+<pre><code class="language-cpp">mPlayer.syn[p].up
+mPlayer.syn[p].down
+mPlayer.syn[p].left
+mPlayer.syn[p].right
+mPlayer.syn[p].jump
+mPlayer.syn[p].fire
+mPlayer.syn[p].menu</code></pre>
 
 <mh3>
 The game used to have a very simple method of checking if a key was pressed and then setting the corresponding control.

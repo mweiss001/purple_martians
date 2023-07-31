@@ -1,5 +1,5 @@
 <!doctype html>
-<title>Bullets</title>
+<title>Shots</title>
 
 <html>
     <script src="prism.js"></script>
@@ -37,21 +37,22 @@
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
 <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
-<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
 
-<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
-<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
             
@@ -66,22 +67,22 @@
             </header>
 			
 <mh3><hr></mh3>
-<mh8>Bullets</mh8>
+<mh8>Shots</mh8>
 
 
-<mh3><hr><mdw_file_toc> <a href="bullets.html#Original Method" target="_top">Original Method</a>
- <a href="bullets.html#New Method" target="_top">New Method</a>
- <a href="bullets.html#Inputs and Outputs" target="_top">Inputs and Outputs</a>
- <a href="bullets.html#High Level Method" target="_top">High Level Method</a>
- <a href="bullets.html#My Brute Force Method" target="_top">My Brute Force Method</a>
- <a href="bullets.html#Conclusion" target="_top">Conclusion</a>
- <a href="bullets.html#The Better Solution" target="_top">The Better Solution</a>
+<mh3><hr><mdw_file_toc> <a href="shots.html#Original Method" target="_top">Original Method</a>
+ <a href="shots.html#New Method" target="_top">New Method</a>
+ <a href="shots.html#Inputs and Outputs" target="_top">Inputs and Outputs</a>
+ <a href="shots.html#High Level Method" target="_top">High Level Method</a>
+ <a href="shots.html#My Brute Force Method" target="_top">My Brute Force Method</a>
+ <a href="shots.html#Conclusion" target="_top">Conclusion</a>
+ <a href="shots.html#The Better Solution" target="_top">The Better Solution</a>
 </mdw_file_toc><hr></mh3>
 
 <a name="Original Method"></a>
 <mh7>Original Method</mh7>
 <mh3>
-When an enemy shoots a bullet at the player, the bullet was aimed exactly at the player.
+When an enemy shoots a the player, the shot was aimed exactly at the players current position.
 
 </mh3>
 
@@ -111,9 +112,9 @@ When an enemy shoots a bullet at the player, the bullet was aimed exactly at the
 
 
 <mh3>
-This worked as intended, but if the player moved before the bullet got there, obviously it would miss.
+This worked as intended, but if the player moved before the shot got there, it would miss.
 
-All the player need to do was keep moving and the bullets would miss. They would hit where the player used to be.
+All the player need to do was keep moving and the shots would miss. They would hit where the player used to be.
 
 </mh3>
 
@@ -122,9 +123,9 @@ All the player need to do was keep moving and the bullets would miss. They would
 <mh7>New Method</mh7>
         
 <mh3>        
-The new method involves the enemy shooting a bullet at where the player will be, not where they currently are.
+The new method involves the enemy shooting at where the player will be, not where they currently are.
 
-Assuming the player's motion remains constant, calculate where to shoot the bullet so it will collide with where the player will be.
+Assuming the player's motion remains constant, calculate the player's projected position and shoot there.
 
 This turned out to be a rather difficult thing to do, mathematically.
 
@@ -135,16 +136,11 @@ This turned out to be a rather difficult thing to do, mathematically.
 <mh3>
 The inputs are:
 
-bx, by, bspeed (the origin of the bullet and the bullet speed)
-px, py (the players initial position)
-pxinc, pyinc (the player's motion for each frame (time (t))
+bx, by, bv (the origin of the shot and the shot velocity)
+px, py (the players current position)
+pxv, pyv (the player's x and y velocity)
 
-
-The outputs needed are:
-
-what is required to set the direction of the bullet is:
-bxinc, byinc
-
+The outputs needed are the x and y velocity of the shot
 
 But I can easily calculate those if I can calculate any one of the following:
 - the time that the collision will take place
@@ -508,16 +504,17 @@ It is slightly simpler.
 
 This is how I patched it into my code:
 </mh3>
-<pre><code class="language-cpp">void fire_enemy_bulleta(int EN, int bullet_ans, int p)
-{
-   float bx = Efi[EN][0];
-   float by = Efi[EN][1];
-   float bv = Efi[EN][7];
 
-   float px  = players[p].PX;
-   float py  = players[p].PY;
-   float pvx = players[p].xinc;
-   float pvy = players[p].yinc;
+<pre><code class="language-cpp">void mwShot::calc_where_player_will_be(int e, int p, float& rx, float& ry)
+{
+   float bx = mEnemy.Ef[e][0];
+   float by = mEnemy.Ef[e][1];
+   float bv = mEnemy.Ef[e][7];
+
+   float px  = mPlayer.syn[p].x;
+   float py  = mPlayer.syn[p].y;
+   float pvx = mPlayer.syn[p].xinc;
+   float pvy = mPlayer.syn[p].yinc;
 
    // Edgar's method
    //float A = pow(pvx,2) + pow(pvy,2) - pow(bv,2);
@@ -531,36 +528,28 @@ This is how I patched it into my code:
    float B = 2*(x*pvx) + 2*(y*pvy);
    float C = pow(x,2) + pow(y,2);
 
-   float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
-   al_fixed px1 = px + al_fixmul(pvx, al_ftofix(t)); // get player target position based on t
-   al_fixed py1 = py + al_fixmul(pvy, al_ftofix(t));
-   fire_enemy_bulletz(EN, bullet_ans, px1, py1);
+// Egdar: You will have to check your code for division by A=0 and for a negative B^2 - 4AC discriminant.
+// Quadratic Formula: The roots of a quadratic equation ax2 + bx + c = 0 are given by x = [-b +/- sqrt(b^2 - 4ac)] / 2a.
+// The discriminant of the quadratic equation is D = b^2 - 4ac
+// For D > 0 the roots are real and distinct.
+// For D = 0 the roots are real and equal.
+// For D < 0 the roots do not exist, or the roots are imaginary.
+
+   float D = pow(B,2) - 4*(A*C); // discriminant
+   if ((A != 0) && (D >= 0))
+   {
+      float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
+      float px1 = px + pvx * t; // get player target position based on t
+      float py1 = py + pvy * t;
+      rx = px1;
+      ry = py1;
+   }
+   else  // if the discriminant test fails, return the current player's position
+   {
+      rx = px;
+      ry = py;
+   }
 }</code></pre>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

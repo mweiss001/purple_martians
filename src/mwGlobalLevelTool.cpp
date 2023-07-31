@@ -551,10 +551,6 @@ void mwGlobalLevelTool::execute(void)
 
 
 
-
-
-
-
 //
 //      for (int l=0; l<NUM_LIFTS; l++) // iterate lifts
 //         if (mLift.cur[l].active)
@@ -571,6 +567,41 @@ void mwGlobalLevelTool::execute(void)
 //
 //            }
 //
+
+
+
+
+
+
+
+
+
+
+
+      for (int i=0; i<500; i++)
+      {
+         int t = mItem.item[i][0];
+
+         if ((t == 4) || (t== 14) || (t== 15)) // key switch, bm
+         {
+            int x1 = mItem.item[i][6] / 20;
+            int y1 = mItem.item[i][7] / 20;
+            int x2 = x1 + mItem.item[i][8] / 20;
+            int y2 = y1 + mItem.item[i][9] / 20;
+
+            int error = 0;
+
+            if ((x1 < 0) || (x1 > 100) || (y1 < 0) || (y1>100)) error = 1;
+            if ((x2 < 0) || (x2 > 100) || (y2 < 0) || (y2>100)) error = 1;
+
+            if (error) printf("l:%3d type:%d item_num:%3d bad x1:%d y1:%d x2:%d y2:%d\n", le[x], t, i, x1, y1, x2, y2);
+
+            if (x1 < 0) x1 = 0;
+            if (y1 < 0) y1 = 0;
+         }
+
+      }
+
 
 
 

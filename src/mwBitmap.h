@@ -28,7 +28,6 @@ class mwBitmap
 
    ALLEGRO_BITMAP *tile[NUM_SPRITES];
    ALLEGRO_BITMAP *btile[NUM_SPRITES];
-
    ALLEGRO_BITMAP *player_tile[16][32];
    ALLEGRO_BITMAP *door_tile[2][16][8];
 
