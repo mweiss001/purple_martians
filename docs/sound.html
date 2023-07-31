@@ -37,21 +37,22 @@
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
 <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
-<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
 
-<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
-<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
             
@@ -97,74 +98,90 @@ I then attach samples, sample instances, and streams to these mixers.
 <br><a name="Sound setup"></a>
 <mh7>Sound setup</mh7>
 <mh3>
-These are the global variables used:</mh3>    
+These are the variables used:</mh3>    
         
-<pre><code class="language-cpp">ALLEGRO_VOICE *voice = NULL;
-ALLEGRO_MIXER *mn_mixer = NULL;
-ALLEGRO_MIXER *se_mixer = NULL;
-ALLEGRO_MIXER *st_mixer = NULL;
-ALLEGRO_SAMPLE *snd[20];
-ALLEGRO_SAMPLE_INSTANCE *sid_hiss;
-ALLEGRO_AUDIO_STREAM *pm_theme_stream;
-int sample_delay[8];
-int lit_item;
-int sound_on = 1;
-int se_scaler=5;
-int st_scaler=5;
+<pre><code class="language-cpp">// mwSound.h
 
-// these variables are also saved in the config file:
-int sound_on = 1;
-int se_scaler=5;
-int st_scaler=5;
+class mwSound
+{
+   public:
+
+   ALLEGRO_VOICE *voice = NULL;
+   ALLEGRO_MIXER *mn_mixer = NULL;
+   ALLEGRO_MIXER *se_mixer = NULL;
+   ALLEGRO_MIXER *st_mixer = NULL;
+   ALLEGRO_SAMPLE *snd[20];
+   ALLEGRO_SAMPLE_INSTANCE *sid_hiss;
+   ALLEGRO_AUDIO_STREAM *pm_theme_stream;
+   int fuse_loop_playing;
+   int sample_delay[8];
+   int se_scaler=5;
+   int st_scaler=5;
+   int lit_item;
+   int sound_on = 1;
+
+   void start_music(int resume);
+   void stop_sound(void);
+   void proc_sound(void);
+   void load_sound(void);
+   void set_se_scaler(void);
+   void set_st_scaler(void);
+};
+extern mwSound mSound;
+
+// these variables are saved in the config file:
+mSound.sound_on=1
+mSound.se_scaler=2
+mSound.st_scaler=1
 </code></pre>
 
 <mh3>
-In intial_setup() I call load_sound():
+In initial_setup() I call mSound.load_sound();
 </mh3>
         
-<pre><code class="language-cpp">void load_sound() // for normal loading of sound driver and samples
+<pre><code class="language-cpp">void mwSound::load_sound() // load sound driver and samples
 {
    int err = 0;
    if (sound_on)
    {
       if(!al_install_audio())
       {
-         m_err("Failed to initialize audio.\n");
+         mInput.m_err("Failed to initialize audio.\n");
          err = 1;
       }
       if ((!err) && (!al_init_acodec_addon()))
       {
-         m_err("Failed to initialize audio codecs.\n");
+         mInput.m_err("Failed to initialize audio codecs.\n");
          err = 1;
       }
       if (err)
       {
          sound_on = 0;
-         save_config();
+         mConfig.save();
       }
       else
       {
          voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
-         if (voice == NULL) m_err("Failed to create voice.\n");
+         if (voice == NULL) mInput.m_err("Failed to create voice.\n");
          al_set_default_voice(voice);
 
          mn_mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
-         if (mn_mixer == NULL) m_err("Failed to create mn_mixer\n");
+         if (mn_mixer == NULL) mInput.m_err("Failed to create mn_mixer\n");
 
          se_mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
-         if (se_mixer == NULL) m_err("Failed to create se_mixer\n");
+         if (se_mixer == NULL) mInput.m_err("Failed to create se_mixer\n");
 
          st_mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
-         if (st_mixer == NULL) m_err("Failed to create st_mixer\n");
+         if (st_mixer == NULL) mInput.m_err("Failed to create st_mixer\n");
 
-         if (!al_attach_mixer_to_voice(mn_mixer, voice)) m_err("Failed attaching mn_mixer\n");
-         if (!al_attach_mixer_to_mixer(se_mixer, mn_mixer)) m_err("Failed attaching se_mixer\n");
-         if (!al_attach_mixer_to_mixer(st_mixer, mn_mixer)) m_err("Failed attaching st_mixer\n");
+         if (!al_attach_mixer_to_voice(mn_mixer, voice)) mInput.m_err("Failed attaching mn_mixer\n");
+         if (!al_attach_mixer_to_mixer(se_mixer, mn_mixer)) mInput.m_err("Failed attaching se_mixer\n");
+         if (!al_attach_mixer_to_mixer(st_mixer, mn_mixer)) mInput.m_err("Failed attaching st_mixer\n");
 
          al_set_default_mixer(se_mixer);
          al_reserve_samples(20);
          char fn[20] = "snd/snd00.wav";
-         for (int x=0; x<9; x++)
+         for (int x=0; x<10; x++)
          {
             fn[8] = 48 + x;
             snd[x] = al_load_sample(fn);
@@ -173,8 +190,8 @@ In intial_setup() I call load_sound():
          al_set_sample_instance_playmode(sid_hiss, ALLEGRO_PLAYMODE_LOOP);
          al_attach_sample_instance_to_mixer(sid_hiss, se_mixer);
 
-         pm_theme_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
-         if (pm_theme_stream == NULL) m_err("Error loading snd/pm.xm\n");
+         pm_theme_stream = al_load_audio_stream("snd/pm.wav", 8, 1024);
+         if (pm_theme_stream == NULL) mInput.m_err("Error loading snd/pm.wav\n");
 
          al_set_audio_stream_playmode(pm_theme_stream, ALLEGRO_PLAYMODE_LOOP);
          al_set_audio_stream_playing(pm_theme_stream, 0);
@@ -184,7 +201,8 @@ In intial_setup() I call load_sound():
          set_st_scaler();
       }
    }
-}</code></pre>
+}
+</code></pre>
 
 
 <br><a name="Mixer volume controls"></a>
@@ -192,18 +210,19 @@ In intial_setup() I call load_sound():
 <mh3>
 I set the volume of se_mixer and st_mixer with se_scaler and st_scaler. 
 se_scaler and st_scaler are integers that range from 0-9.
-They are set by the user in 'Options Menu' and are also saved in the config file.
-When they are changed or set, these functions apply the values to the mixers:
+They are set by the user in 'Settings' -> 'Main' and are also saved in the config file.
+When they are set or changed, these functions apply the values to the mixers:
 </mh3>
-<pre><code class="language-cpp">void set_se_scaler(void)
+<pre><code class="language-cpp">void mwSound::set_se_scaler(void)
 {
    if (sound_on) al_set_mixer_gain(se_mixer, (float)se_scaler / 9);
-   save_config();
+   mConfig.save();
 }
-void set_st_scaler(void)
+
+void mwSound::set_st_scaler(void)
 {
    if (sound_on) al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
-   save_config();
+   mConfig.save();
 }</code></pre>
 
 
@@ -213,18 +232,25 @@ void set_st_scaler(void)
 The theme music is started like this when a game is started or resumed.
 The only difference is that resume does not rewind before starting.
 </mh3>
-<pre><code class="language-cpp">void start_music(int resume)
+<pre><code class="language-cpp">void mwSound::start_music(int resume)
 {
    if (sound_on)
    {
-      if (!resume) al_rewind_audio_stream(pm_theme_stream);
-      al_set_audio_stream_playing(pm_theme_stream, 1);
+      al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
+      al_set_mixer_gain(se_mixer, (float)se_scaler / 9);
+
+      // reset sound counters
+      for (int c=0; c<8; c++) sample_delay[c] = mLoop.frame_num;
+      if (sound_on)
+      {
+         if (!resume) al_rewind_audio_stream(pm_theme_stream);
+         al_set_audio_stream_playing(pm_theme_stream, 1);
+      }
    }
 }</code></pre>
-
 <mh3>
 Theme music and sound effects are stopped like this when the game is exited:</mh3>
-<pre><code class="language-cpp">void stop_sound(void)
+<pre><code class="language-cpp">void mwSound::stop_sound(void)
 {
    if (sound_on)
    {
@@ -240,55 +266,72 @@ Theme music and sound effects are stopped like this when the game is exited:</mh
 <mh3>
 When an event in the game requires a sound to be played, here is how I do that:
 </mh3>
-<pre><code class="language-cpp">switch (ev)
+<pre><code class="language-cpp">void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
+{
+...
+      if (mSound.sound_on)
       {
-         /*  sample numbers
-         0 - player shoots
-         1 - d'OH
-         2 - bonus
-         3 - hiss
-         4 - la dee dah  door, key, exit
-         5 - explosion
-         6 - grunt 1 shot
-         7 - grunt 2 hit
-         8 - enemy killed  */
-        case  1: // player shoots
-           al_play_sample(snd[0], 0.71, 0, .8, ALLEGRO_PLAYMODE_ONCE, NULL);
-        break;
-        case  2: case  4: case  5: // la dee dah (key, exit, door)
-           if (sample_delay[4]+30 < frame_num)
-           {
-              sample_delay[4] = frame_num;
-              al_play_sample(snd[4], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-           }
-        break;
-        case  6: case  9: // health bonus and free man
-           if (sample_delay[2]+30 < frame_num)
-           {
-              sample_delay[2] = frame_num;
-              al_play_sample(snd[2], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-           }
-        break;
-        case 11: // player got shot
-           al_play_sample(snd[6], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-        break;
-        case 8: case 10: case 12: case 34: case 35: // player got hit (bomb, mine, enemy collision, squished, stuck)
-           if (sample_delay[7]+14 < frame_num)
-           {
-              sample_delay[7] = frame_num;
-              al_play_sample(snd[7], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-           }
-        break;
-        case 13: // enemy killed
-             al_play_sample(snd[8], 0.5, 0, 1.2, ALLEGRO_PLAYMODE_ONCE, NULL);
-        break;
-        case 21: // d'Oh (player died)
-             al_play_sample(snd[1], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-        break;
-        case 22: // explosion
-             al_play_sample(snd[5], .78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-        break;
-      }
+            /*  sample numbers
+            0 - player shoots
+            1 - d'OH
+            2 - bonus
+            3 - hiss
+            4 - la dee dah  door, key, exit
+            5 - explosion
+            6 - grunt 1 shot
+            7 - grunt 2 hit
+            8 - enemy killed  */
+         switch (ev)
+         {
+            // al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, ALLEGRO_PLAYMODE loop, ALLEGRO_SAMPLE_ID *ret_id)
+            case  1: // player shoots
+               //al_play_sample(snd[0], 0.71, 0, .8, ALLEGRO_PLAYMODE_ONCE, NULL);
+               al_play_sample(mSound.snd[0], 0.81, 0, .7, ALLEGRO_PLAYMODE_ONCE, NULL);
+            break;
+
+            case 2: // explosion
+               al_play_sample(mSound.snd[5], .78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+            break;
+
+            case 20: case 22: case 4: // la dee dah (key, door, unlocked exit, warp)
+               if (mSound.sample_delay[4]+30 < mLoop.frame_num)
+               {
+                  mSound.sample_delay[4] = mLoop.frame_num;
+                  al_play_sample(mSound.snd[4], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+               }
+            break;
+
+            case 24: // sproingy
+               al_play_sample(mSound.snd[9], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+            break;
+
+            case 27: // purple coin
+              if (mSound.sample_delay[2]+30 < mLoop.frame_num)
+               {
+                  mSound.sample_delay[2] = mLoop.frame_num;
+                  al_play_sample(mSound.snd[2], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+               }
+            break;
+
+            case 40: case 41: // player got hurt
+               al_play_sample(mSound.snd[6], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+            break;
+
+            case 12: // player took damage
+               if (mSound.sample_delay[7]+14 < mLoop.frame_num)
+               {
+                  mSound.sample_delay[7] = mLoop.frame_num;
+                  al_play_sample(mSound.snd[7], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+               }
+            break;
+            case 42: // enemy killed
+               al_play_sample(mSound.snd[8], 0.5, 0, 1.2, ALLEGRO_PLAYMODE_ONCE, NULL);
+            break;
+            case 8: // d'Oh (player died)
+               al_play_sample(mSound.snd[1], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+            break;
+
+         }
 </code></pre>
 
 
@@ -308,7 +351,7 @@ Won't allow the same sample to be re-played until a specified number of frames h
 <mh3>
 To process the hiss sound (when a bomb fuse is burning or a rocket is lit), I call this function once per frame:
 </mh3>
-<pre><code class="language-cpp">void proc_sound()
+<pre><code class="language-cpp">void mwSound::proc_sound()  // called once per frame
 {
    if (sound_on)
    {
@@ -316,7 +359,8 @@ To process the hiss sound (when a bomb fuse is burning or a rocket is lit), I ca
       else          al_set_sample_instance_playing(sid_hiss, 0);
       lit_item = 0;
    }
-}</code></pre>
+}
+</code></pre>
 <mh3>lit_item is set to 0 at the end of this function.
 
 When bombs and rockets are processed, they will set lit_item if they are lit.

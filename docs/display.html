@@ -37,21 +37,22 @@
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
 <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
-<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
 
-<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
-<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
             
@@ -70,10 +71,10 @@
 <mh3><hr><mdw_file_toc> <a href="display.html#Global variables" target="_top">Global variables</a>
  <a href="display.html#Creating the display" target="_top">Creating the display</a>
  <a href="display.html#Process display change" target="_top">Process display change</a>
- <a href="display.html#Toggle fullscreen mode with F12" target="_top">Toggle fullscreen mode with F12</a>
+ <a href="display.html#Toggle fullscreen mode" target="_top">Toggle fullscreen mode</a>
  <a href="display.html#Saving window size and position" target="_top">Saving window size and position</a>
  <a href="display.html#Display transform double" target="_top">Display transform double</a>
- <a href="display.html#Changing display transform double with F12" target="_top">Changing display transform double with F12</a>
+ <a href="display.html#Cycle display transform double" target="_top">Cycle display transform double</a>
 </mdw_file_toc><hr></mh3>
 
 <a name="Global variables"></a>
@@ -82,95 +83,125 @@
 
 
 <mh3>
-I use these global variables for the display:
+These are the variables for the display:
 </mh3>
     
-<pre><code class="language-cpp">ALLEGRO_DISPLAY *display;
+<pre><code class="language-cpp">// mwDisplay.h
 
-int desktop_width;
-int desktop_height;
+class mwDisplay
+{
+   public:
 
-int disp_x_curr; // either wind in windowed mode or full fullscreen mode)
-int disp_y_curr;
-int disp_w_curr;
-int disp_h_curr;
+   ALLEGRO_DISPLAY *display = NULL;
 
-int disp_x_wind; // windowed
-int disp_y_wind;
-int disp_w_wind;
-int disp_h_wind;
+   int desktop_width;
+   int desktop_height;
 
-int disp_x_full; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
-int disp_y_full;
-int disp_w_full;
-int disp_h_full;
+   int disp_x_curr; // either wind in windowed mode or full fullscreen mode)
+   int disp_y_curr;
+   int disp_w_curr;
+   int disp_h_curr;
 
-int SCREEN_W;
-int SCREEN_H;
-int WX;
-int WY;
-int fullscreen = 1;
+   int disp_x_wind; // windowed
+   int disp_y_wind;
+   int disp_w_wind;
+   int disp_h_wind;
 
-// used to only redraw a region of background to increase fps
-int level_display_region_x;
-int level_display_region_y;
-int level_display_region_w;
-int level_display_region_h;
+   int disp_x_full; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
+   int disp_y_full;
+   int disp_w_full;
+   int disp_h_full;
 
-int display_transform_double = 1;
-int saved_display_transform_double = -1;
-int show_dtd = 0;</code></pre>
+   int SCREEN_W;
+   int SCREEN_H;
+
+   int fullscreen = 1;
+   int display_adapter_num = 0;
+
+   int show_scale_factor;
+   int scale_factor_holdoff;
+
+   int display_transform_double;
+   int display_transform_double_max;
+   int saved_display_transform_double;
+   int show_dtd;
+}</code></pre>
 
 <mh3>
-These values are also saved in the config file:
+These values are also saved in the config file with these defaults:
 </mh3>    
-<pre><code class="language-cpp">int fullscreen;
-int disp_x_wind;
-int disp_y_wind;
-int disp_w_wind;
-int disp_h_wind;
-int saved_display_transform_double;
+<pre><code class="language-cpp">mDisplay.disp_x_wind=200
+mDisplay.disp_y_wind=40
+mDisplay.disp_w_wind=1280
+mDisplay.disp_h_wind=1024
+mDisplay.scale_factor=1.0
+mDisplay.fullscreen=1
+mDisplay.display_adapter_num=0
+mDisplay.saved_display_transform_double=2
+mDisplay.display_transform_double_max=3
 </code></pre>
             
 <br>
 <a name="Creating the display"></a>
 <mh7>Creating the display</mh7>
 
-<pre><code class="language-cpp">int init_display(void)
+<pre><code class="language-cpp">int mwDisplay::init_display(void)
 {
-   al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_SUGGEST);
-   // (most of the time I get a 32 bit anyway, but if I get 16, it can be faster)
-   int flags = 0;
+   scale_factor_mlt = 0.01;
+
+   int num_adapters = al_get_num_video_adapters();
+   if (display_adapter_num >=  num_adapters) display_adapter_num = 0;
+   al_set_new_display_adapter(display_adapter_num);
+
+   al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, ALLEGRO_REQUIRE);
+
+   // this is needed to make opengl 4.3 work the same as windows
+   al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, 1, ALLEGRO_REQUIRE);
+
+   // check if windowed values are valid
+   int th = 100;
+   if (disp_x_wind > disp_w_full-th) disp_x_wind = disp_w_full-th;
+   if (disp_y_wind > disp_h_full-th) disp_y_wind = disp_h_full-th;
+   if (disp_w_wind > disp_w_full) disp_w_wind = disp_w_full;
+   if (disp_h_wind > disp_h_full) disp_h_wind = disp_h_full;
+
+   mConfig.save();
+
+
    if (fullscreen)
    {
-      flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE;
+      int flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE;
       al_set_new_display_flags(flags);
       display = al_create_display(disp_w_wind, disp_h_wind);
    }
    else // windowed
    {
-      flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
+      int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
       al_set_new_display_flags(flags);
       display = al_create_display(disp_w_wind, disp_h_wind);
    }
+
+   al_set_window_constraints(display, 320, 240, 0, 0);
+   al_apply_window_constraints(display, 1);
+   mConfig.save();
+
    if(!display)
    {
       sprintf(msg, "Error creating display\n");
-      m_err(msg);
+      mInput.m_err(msg);
       exit(0);
    }
    if (!fullscreen) al_set_window_position(display, disp_x_wind, disp_y_wind);
    if (fullscreen)  al_resize_display(display, disp_w_full, disp_h_full);
    al_acknowledge_resize(display);
-   
+
    disp_w_curr = al_get_display_width(display);
    disp_h_curr = al_get_display_height(display);
    al_get_window_position(display, &disp_x_curr, &disp_y_curr);
 
    set_display_transform();
-   window_title();
-   create_bitmaps();
-   make_palette();
+   set_window_title();
+   mBitmap.create_bitmaps();
    return 1;
 }</code></pre>
 
@@ -180,17 +211,15 @@ int saved_display_transform_double;
 <mh7>Process display change</mh7>
 <mh3>
 This function is called when:
-
 - an event 'ALLEGRO_EVENT_DISPLAY_RESIZE' is received
-
-- fullscreen mode is toggled on or off with F12
+- fullscreen mode is toggled
 </mh3>
-<pre><code class="language-cpp">void proc_display_change(void)
+<pre><code class="language-cpp">void mwDisplay::proc_display_change(void)
 {
    al_acknowledge_resize(display);                              // important that this is here, later and it does not work as intended
    al_get_window_position(display, &disp_x_curr, &disp_y_curr); // set my local variables with the system ones
-   int disp_w_curr = al_get_display_width(display);   
-   int disp_h_curr = al_get_display_height(display);
+   disp_w_curr = al_get_display_width(display);
+   disp_h_curr = al_get_display_height(display);
    if (fullscreen)
    {
       disp_x_full = disp_x_curr;
@@ -206,25 +235,29 @@ This function is called when:
       disp_h_wind = disp_h_curr;
    }
    set_display_transform();
-   rebuild_bitmaps();
-   save_config();
+   mBitmap.rebuild_bitmaps();
+   mConfig.save();
+   //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
+   set_window_title();
 }</code></pre>
 
 <br>
-<a name="Toggle fullscreen mode with F12"></a>
-<mh7>Toggle fullscreen mode with F12</mh7>
+<a name="Toggle fullscreen mode"></a>
+<mh7>Toggle fullscreen mode</mh7>
 <mh3>
-The F12 key toggles fullscreen mode.
+The F12 key toggles fullscreen mode (or the key can be customized to something else)
   
 </mh3>
 
-<pre><code class="language-cpp">if (key[ALLEGRO_KEY_F12])
+<pre><code class="language-cpp">if (key[function_key_fullscreen][2])  mDisplay.toggle_fullscreen();
+
+void mwDisplay::toggle_fullscreen(void)
 {
    if (fullscreen) proc_display_change_fromfs();
    else            proc_display_change_tofs();
 }
 
-void proc_display_change_tofs(void)
+void mwDisplay::proc_display_change_tofs(void)
 {
    fullscreen = 1;
    // save window position and size before entering fullscreen
@@ -235,7 +268,7 @@ void proc_display_change_tofs(void)
    proc_display_change();
 }
 
-void proc_display_change_fromfs(void)
+void mwDisplay::proc_display_change_fromfs(void)
 {
    fullscreen = 0;
    al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
@@ -250,18 +283,17 @@ void proc_display_change_fromfs(void)
 <a name="Saving window size and position"></a>
 <mh7>Saving window size and position</mh7>
 <mh3>
-This is called when the display is resized or switched to fullscreen, but not when the window is simply moved.
-
-So I also call this when exiting.
+This is automatically done when the display is resized or switched to fullscreen, but not when the window is simply moved.
+So I also call this when exiting to save window position.
 </mh3>
-<pre><code class="language-cpp">void save_display_window_position(void)
+<pre><code class="language-cpp">void mwDisplay::save_display_window_position(void)
 {
    if (!fullscreen)
    {
       al_get_window_position(display, &disp_x_wind, &disp_y_wind);
       disp_w_wind = al_get_display_width(display);
       disp_h_wind = al_get_display_height(display);
-      save_config();
+      mConfig.save();
    }
 }</code></pre>
 
@@ -270,16 +302,43 @@ So I also call this when exiting.
 <a name="Display transform double"></a>
 <mh7>Display transform double</mh7>
 <mh3>
-I also use an orthographic transform to double or triple the screen size.
+I use an orthographic transform to double or triple the screen size.
 
 This was implemented to address large screen sizes and small text on menus and overlays.
-</mh3>
-<pre><code class="language-cpp">extern int display_transform_double;
-// 1 = normal (no double)
-// 2 = double
-// 3 = triple
 
-void set_display_transform()
+display_transform_double = 1; // normal (no double)
+display_transform_double = 2; // double
+display_transform_double = 3; // triple
+
+</mh3>
+<pre><code class="language-cpp">void mwDisplay::auto_set_display_transform_double(void)
+{
+   display_transform_double = 1;
+   if (disp_w_curr > 1023) display_transform_double = 2;
+   if (disp_h_curr > 1023) display_transform_double = 2;
+   if (disp_w_curr < 1024) display_transform_double = 1;
+   if (disp_h_curr < 700)  display_transform_double = 1;
+   if (mLoop.help_screens_running)
+   {
+      if (disp_w_curr > 1279) display_transform_double = 2;
+      if (disp_w_curr < 1280) display_transform_double = 1;
+   }
+}
+
+void mwDisplay::set_saved_display_transform(int sdt)
+{
+   float old_display_transform_double = display_transform_double;
+   saved_display_transform_double = sdt;
+   mConfig.save();
+   set_display_transform();
+   float new_display_transform_double = display_transform_double;
+   float sfa = new_display_transform_double/old_display_transform_double;
+   scale_factor /= sfa;
+   scale_factor_current = scale_factor;
+   for (int a=0; a < NUM_MW; a++) mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa); // adjust window positions
+}
+
+void mwDisplay::set_display_transform()
 {
    if (!saved_display_transform_double) auto_set_display_transform_double();
    else display_transform_double = saved_display_transform_double;
@@ -291,22 +350,7 @@ void set_display_transform()
    al_identity_transform(&trans);
    al_orthographic_transform(&trans, 0, 0, -1.0, SCREEN_W, SCREEN_H, 1.0);
    al_use_projection_transform(&trans);
-   set_map_var();
-}
-
-void auto_set_display_transform_double(void)
-{
-   display_transform_double = 1;
-   if (disp_w_curr > 1023) display_transform_double = 2;
-   if (disp_h_curr > 1023) display_transform_double = 2;
-   if (disp_w_curr < 1024) display_transform_double = 1;
-   if (disp_h_curr < 700)  display_transform_double = 1;
-   if (level_editor_running) display_transform_double = 1;
-   if (help_screens_running)
-   {
-      if (disp_w_curr > 1279) display_transform_double = 2;
-      if (disp_w_curr < 1280) display_transform_double = 1;
-   }
+   mScreen.set_map_var();
 }</code></pre>
 <mh3>
 Then all of my drawing functions throughout the rest of the game that need to know screen size use
@@ -319,36 +363,35 @@ mouse_y = ev.mouse.y / display_transform_double;
 </code></pre>
 
 <br>
-<a name="Changing display transform double with F12"></a>
-<mh7>Changing display transform double with F12</mh7>
+<a name="Cycle display transform double"></a>
+<mh7>Cycle display transform double</mh7>
 <mh3>
-If [CONTROL] and [SHIFT] are held, the F12 key cycles display_transform_double
+You can cycle display transform double with F11 (or customize to some other key)
 
 It can be forced to 1, 2, or 3.
 
 Or if it is set to 0, it will be automatically set with the function 'auto_set_display_transform_double()'
 
 This value is then saved in the config file.
+
+See also 'Settings' -> 'Double' for more options.
   
 </mh3>
 
-<pre><code class="language-cpp">if (key[ALLEGRO_KEY_F12])
+<pre><code class="language-cpp">if (key[function_key_text_double][2]) mDisplay.cycle_display_transform();
+   
+void mwDisplay::cycle_display_transform(void)
 {
-   if ((key[ALLEGRO_KEY_LSHIFT]) && (key[ALLEGRO_KEY_LCTRL]))
-   {
-      float old_display_transform_double = display_transform_double;
-      if (++saved_display_transform_double>3) saved_display_transform_double = 0;
-      save_config();
-      set_display_transform();
-      set_map_var();
-
-      float new_display_transform_double = display_transform_double;
-      float sfa = new_display_transform_double/old_display_transform_double;
-      scale_factor /= sfa;
-      scale_factor_current = scale_factor;
-   }
+   float old_display_transform_double = display_transform_double;
+   if (++saved_display_transform_double>display_transform_double_max) saved_display_transform_double = 0;
+   mConfig.save();
+   set_display_transform();
+   float new_display_transform_double = display_transform_double;
+   float sfa = new_display_transform_double/old_display_transform_double;
+   scale_factor /= sfa;
+   scale_factor_current = scale_factor;
+   for (int a=0; a < NUM_MW; a++) mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa); // adjust window positions
 }</code></pre>
-
 
 
 

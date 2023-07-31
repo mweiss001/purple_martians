@@ -37,21 +37,22 @@
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
 <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
-<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
 
-<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
-<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
 
@@ -106,11 +107,12 @@ From that header, the destination frame number is the current frame number on th
 That is what the client uses to measure its timing relation to the server.
 </mh3>
 
-<pre><code class="language-cpp">Packet("stdf");
-PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
-PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
-....
-ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+<pre><code class="language-cpp">void mwNetgame::server_send_dif(int p)
+{
+   ...
+   Packet("stdf");
+   PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
+   ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
 </code></pre>
 
 
@@ -125,12 +127,11 @@ ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
 <mh3>    
 When the client receives an 'stdf' packet, it uses the server's frame_num and its own local frame_num to make a simple frame based integer sync.
 </mh3>
-<pre><code class="language-cpp">void client_process_stdf_packet(double timestamp)
+<pre><code class="language-cpp">void mwNetgame::client_process_stdf_packet(double timestamp)
 {
-   int src = PacketGet4ByteInt();
+   ...
    int dst = PacketGet4ByteInt();
-
-   int client_sync = dst - frame_num;                             // crude integer sync based on frame numbers
+   int client_sync = dst - mLoop.frame_num;                             // crude integer sync based on frame numbers
 </code></pre>
 
 <mh3>This is called 'client_sync' and only has a resolution of 1 frame (25ms).
@@ -142,14 +143,15 @@ This is used to give timing information less than one frame.
 
 The two are combined and the result is 'dsync'.
 </mh3>
-<pre><code class="language-cpp">   if (players1[p].client_last_stdf_rx_frame_num != frame_num)    // first stdf received for this frame
+<pre><code class="language-cpp">   if (mPlayer.loc[p].client_last_stdf_rx_frame_num != mLoop.frame_num)    // this is the first stdf received for this frame
    {
-      players1[p].dsync = al_get_time() - timestamp;              // time between when the packet was received into the packet buffer and now
-      players1[p].dsync += (double) client_sync * 0.025;          // combine with client_sync
+      mPlayer.loc[p].client_last_stdf_rx_frame_num = mLoop.frame_num;   // client keeps track of last stdf rx'd and quits if too long
+      mPlayer.loc[p].dsync = al_get_time() - timestamp;                 // time between when the packet was received into the packet buffer and now
+      mPlayer.loc[p].dsync += (double) client_sync * 0.025;             // combine with client_sync
 </code></pre>
 <mh3> Then dsync is <a href="rolling_average.html" target="_top">averaged</a> and 'client_timer_adjust()' is called.</mh3>
-<pre><code class="language-cpp">      mwRA[2].add_data(players1[p].dsync); // send to rolling average
-      players1[p].dsync_avg = mwRA[2].avg;
+<pre><code class="language-cpp">      mRollingAverage[2].add_data(mPlayer.loc[p].dsync);    // send to rolling average
+      mPlayer.loc[p].dsync_avg = mRollingAverage[2].avg;
       client_timer_adjust();
    }</code></pre>
 
@@ -184,17 +186,17 @@ I was experimenting with implementing a <a href="https://www.google.com/search?q
 </mh3>
 
 
-<pre><code class="language-cpp">void client_timer_adjust(void)
+<pre><code class="language-cpp">void mwNetgame::client_timer_adjust(void)
 {
-   int p = active_local_player;
-
-   float mva = players1[p].dsync_avg;            // measured value
-   float sp = players1[p].client_chase_offset;   // set point
-   float err = sp - mva;                         // error = set point - measured value
+   int p = mPlayer.active_local_player;
+   float mva = mPlayer.loc[p].dsync_avg;            // measured value
+   float mv = mPlayer.loc[p].dsync;                 // measured value
+   float sp = mPlayer.loc[p].client_chase_offset;   // set point
+   float err = sp - mva;                            // error = set point - measured value
 
    float p_adj = err * 80; // instantaneous error adjustment (proportional)
 
-   tmaj_i += err;          // cumulative error adjust (integral)
+   tmaj_i += err; // cumulative error adjust (integral)
    float i_clamp = 5;
    if (tmaj_i >  i_clamp) tmaj_i =  i_clamp;
    if (tmaj_i < -i_clamp) tmaj_i = -i_clamp;
@@ -203,13 +205,13 @@ I was experimenting with implementing a <a href="https://www.google.com/search?q
 
    float t_adj = p_adj + i_adj; // total adj
 
-   float fps_chase = frame_speed - t_adj;
+   float fps_chase = mLoop.frame_speed - t_adj;
 
-   al_set_timer_speed(fps_timer, ( 1 / fps_chase));
-}
-</code></pre>
-
-
+   if (fps_chase < 10) fps_chase = 10; // never let this go negative
+   if (fps_chase > 70) fps_chase = 70;
+   al_set_timer_speed(mEventQueue.fps_timer, ( 1 / fps_chase));
+   mPlayer.loc[p].client_chase_fps = fps_chase;
+}</code></pre>
 
 
 <mh3>

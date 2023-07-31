@@ -142,6 +142,8 @@ class mwLevel
    void save_data(void);
    void setup_data(void);
 
+   void dump_level_data(void);
+
    void check_achievments(void);
 
    void level_start_data(void);

@@ -81,18 +81,14 @@ void mwLoop::initialize(void)
 void mwLoop::move_frame(void)
 {
    char msg[1024];
-
    double t[8] = { 0 };
-
    if ((mLog.LOG_TMR_move_tot) || (mLog.LOG_TMR_move_all)) t[0] = al_get_time();
-
    mShot.move_eshots();      if (mLog.LOG_TMR_move_all) t[1] = al_get_time();
    mShot.move_pshots();      if (mLog.LOG_TMR_move_all) t[2] = al_get_time();
    mLift.move_lifts(0);      if (mLog.LOG_TMR_move_all) t[3] = al_get_time();
    mPlayer.move_players();   if (mLog.LOG_TMR_move_all) t[4] = al_get_time();
    mEnemy.move_enemies();    if (mLog.LOG_TMR_move_all) t[5] = al_get_time();
    mItem.move_items();       if (mLog.LOG_TMR_move_all) t[6] = al_get_time();
-
 
 //   int p = mPlayer.active_local_player;
 //   if (mPlayer.syn[p].player_ride) // if player is riding lift
@@ -102,8 +98,6 @@ void mwLoop::move_frame(void)
 //      float ly = mLift.cur[d].y;
 //      printf("move frame end - px:%4.2f lx:%4.2f dif:%4.2f\n", mPlayer.syn[p].x, lx, mPlayer.syn[p].x-lx);
 //   }
-
-
 
    if (mLog.LOG_TMR_move_all)
    {
@@ -1021,21 +1015,23 @@ void mwLoop::proc_level_done_mode(void)
 {
 //   printf("level_done_mode:%d\n", mPlayer.syn[0].level_done_mode);
 
-   if (super_fast_mode)
-   {
-      if (mPlayer.syn[0].level_done_mode == 30) mLevel.level_complete_data(0, mLevel.play_level);
-      mPlayer.syn[0].level_done_mode = 1;
-      state[0] = 12;
-      return;
-   }
-
 
    //-------------------------------------
    // start of final level rocket cutscene
    //-------------------------------------
    if (mPlayer.syn[0].level_done_mode == 30) // setup for players seek and zoom out
-
    {
+
+      mLevel.level_complete_data(0, mLevel.play_level);
+
+      if (super_fast_mode) // skip cutscene
+      {
+         mPlayer.syn[0].level_done_mode = 1;
+         state[0] = 12;
+         return;
+      }
+
+
       mPlayer.syn[0].level_done_timer = 0; // immediate next mode
       cutscene_original_zoom = mDisplay.scale_factor_current;
 
@@ -1092,7 +1088,7 @@ void mwLoop::proc_level_done_mode(void)
 
       // actually erase everything else from level
       for (int i=0; i<100; i++) if (mEnemy.Ei[i][0] != 19) mEnemy.Ei[i][0] = 0; // enemies (except crew)
-      for (int i=0; i<500; i++) mItem.item[i][0] = 0; // items
+      for (int i=0; i<500; i++) if (mItem.item[i][0] != 6) mItem.item[i][0] = 0; // items (except orb)
       mShot.clear_shots();
 
       // blocks
@@ -1121,6 +1117,7 @@ void mwLoop::proc_level_done_mode(void)
 
       mEnemy.draw_enemies();
       mPlayer.draw_players();
+      mItem.draw_items();
 
       mScreen.draw_scaled_level_region_to_display(0);
       mScreen.draw_screen_overlay();
@@ -1128,28 +1125,20 @@ void mwLoop::proc_level_done_mode(void)
       al_flip_display();
 
    }
-   if (mPlayer.syn[0].level_done_mode == 26) mDisplay.set_custom_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/320, 100); // set up for zoom in
+//   if (mPlayer.syn[0].level_done_mode == 26) mDisplay.set_custom_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/320, 100); // set up for zoom in
+   if (mPlayer.syn[0].level_done_mode == 26) mDisplay.set_custom_scale_factor(cutscene_original_zoom, 100); // set up for zoom in
    if (mPlayer.syn[0].level_done_mode == 25) {} // zoom in
    if (mPlayer.syn[0].level_done_mode == 24) // jump to level done
    {
       mPlayer.syn[0].level_done_mode = 6;
       mPlayer.syn[0].level_done_timer = 0;
-
-      //if (mMain.classic_mode) mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level);
-      //else                    mPlayer.syn[0].level_done_next_level = 1;
-
       mPlayer.syn[0].level_done_next_level = 1; // always go to overworld after beating the game
-
-      mLevel.level_complete_data(0, mLevel.play_level);
-
-
    }
 
    if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
    {
       mScreen.set_player_join_quit_display(mPlayer.syn[0].level_done_player, 2, 60);
-
-      //mLevel.level_complete_data(0, mLevel.play_level);
+      mLevel.level_complete_data(0, mLevel.play_level);
 
       for (int p=0; p<NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active)
@@ -1259,7 +1248,6 @@ void mwLoop::main_loop(void)
 
          if (state[1] == 11) // game loop running
          {
-
             frame_num++;
             mBitmap.update_animation();
 
@@ -1278,14 +1266,20 @@ void mwLoop::main_loop(void)
             mPlayer.proc_player_input();
             mGameMoves.proc();
 
+
+
             if (ldm) proc_level_done_mode();
             else move_frame();
+
 
             double t0 = al_get_time();
             mNetgame.server_create_new_state();
             if (mLog.LOG_TMR_sdif) mLog.add_log_TMR(al_get_time() - t0, "sdif", 0);
 
             if ((ldm != 27) && (!super_fast_mode)) mDrawSequence.draw(0);
+
+
+
 
             double pt = al_get_time() - mTimeStamp.timestamp_frame_start;
             if (mLog.LOG_TMR_cpu) mLog.add_log_TMR(pt, "cpu", 0);

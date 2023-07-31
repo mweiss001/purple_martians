@@ -37,21 +37,22 @@
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
 <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
-<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
 
-<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
-<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
 
@@ -75,7 +76,7 @@
  <a href="netgame_ping.html#Client uses 'ping_avg' time to set 'client_chase_offset'" target="_top">Client uses 'ping_avg' time to set 'client_chase_offset'</a>
  <a href="netgame_ping.html#What this adjustment accomplishes" target="_top">What this adjustment accomplishes</a>
  <a href="netgame_ping.html#Server receives 'pang'" target="_top">Server receives 'pang'</a>
- <a href="netgame_ping.html#Server uses 'server_max_client_ping' to adjust 'server_state_freq'" target="_top">Server uses 'server_max_client_ping' to adjust 'server_state_freq'</a>
+ <a href="netgame_ping.html#Server determines max ping from all clients in the last second and uses that to adjust 'server_state_freq'" target="_top">Server determines max ping from all clients in the last second and uses that to adjust 'server_state_freq'</a>
  <a href="netgame_ping.html#What the adjustment accomplishes" target="_top">What the adjustment accomplishes</a>
 </mdw_file_toc><hr></mh3>
 
@@ -90,7 +91,7 @@ This is used in multiple places on the client and the server to adjust network t
 
 The clients measure and keep track of the round trip time it takes for a packet to get to the server and back.
 
-The server keeps track of that for each client individually.
+The server keeps track of ping times for each client individually.
 
 </mh3>    
 <a name="Client initiates by sending 'ping'"></a>
@@ -100,7 +101,7 @@ The server keeps track of that for each client individually.
 The client starts the process by sending a 'ping' packet containing the client's local timestamp from when the packet was sent.
 </mh3>    
 
-<pre><code class="language-cpp">void client_send_ping(void)
+<pre><code class="language-cpp">void mwNetgame::client_send_ping(void)
 {
    Packet("ping");
    PacketPutDouble(al_get_time());
@@ -112,11 +113,12 @@ The client starts the process by sending a 'ping' packet containing the client's
 To reduce the possibility of interference, the ping is sent at the end of the frame, after drawing.
 This should be a time when the game loop is waiting to start the next frame, not busy doing other things.
 </mh3>    
-<pre><code class="language-cpp">if (players1[active_local_player].client_ping_flag)
+<pre><code class="language-cpp">if ((mPlayer.loc[mPlayer.active_local_player].client_ping_flag) && (mNetgame.ima_client))
 {
-   players1[active_local_player].client_ping_flag = 0;
-   client_send_ping();
-}</code></pre>
+   mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 0;
+   mNetgame.client_send_ping();
+}
+</code></pre>
 <mh3>
 The flag to send a ping is set whenever the png_timer event fires:
 </mh3>    
@@ -125,7 +127,7 @@ The flag to send a ping is set whenever the png_timer event fires:
 
    if (ev.type == ALLEGRO_EVENT_TIMER)
    {
-      if (ev.timer.source == png_timer) players1[active_local_player].client_ping_flag = 1;
+      if (ev.timer.source == png_timer) mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 1;
    }
 </code></pre>
 
@@ -139,18 +141,24 @@ In the server's fast packet loop, when it receives a 'ping' packet, it immediate
 
 - the server's local timestamp from when it sends the 'pong' packet
 </mh3>    
-<pre><code class="language-cpp">void server_fast_packet_loop(void)
+<pre><code class="language-cpp">void mwNetgame::server_fast_packet_loop(void)
 {
+   int who;
    while((packetsize = ServerReceive(packetbuffer, &who)))
    {
+      double timestamp = al_get_time();
       if (PacketRead("ping"))
       {
-         double t0 = PacketGetDouble();
-         double t1 = al_get_time();
-         Packet("pong");
-         PacketPutDouble(t0);
-         PacketPutDouble(t1);
-         ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+         int p = get_player_num_from_who(who);
+         if (p != -1)
+         {
+            double t0 = PacketGetDouble();
+            double t1 = al_get_time();
+            Packet("pong");
+            PacketPutDouble(t0);
+            PacketPutDouble(t1);
+            ServerSendTo(packetbuffer, packetsize, mPlayer.loc[p].who, p);
+         }
       }
 </code></pre>
 
@@ -162,27 +170,37 @@ In the server's fast packet loop, when it receives a 'ping' packet, it immediate
 <mh3>
 In the client's fast packet loop, when it receives a 'pong' packet:
 
-It calculates the round trip transit time from the client to the server and back and saves it in 'players1[active_local_player].ping'
+It calculates the round trip transit time from the client to the server.
+
+It runs the value through a rolling average algorithm and saves it in 'mPlayer.loc[p].ping_avg'.
 
 Then immediately replies with a 'pang' packet that contains the timestamp from the 'pong' packet it is replying to.
 </mh3>    
-<pre><code class="language-cpp">void client_fast_packet_loop(void)
+<pre><code class="language-cpp">void mwNetgame::client_fast_packet_loop(void)
 {
+   int p = mPlayer.active_local_player;
    while ((packetsize = ClientReceive(packetbuffer)))
    {
+      double timestamp = al_get_time();
+
       if (PacketRead("pong"))
       {
          double t0 = PacketGetDouble();
          double t1 = PacketGetDouble();
          double t2 = al_get_time();
-         players1[active_local_player].ping = t2 - t0;
+         mPlayer.loc[p].ping = t2 - t0;
 
-         mwRA[1].add_data(players1[p].ping); // send to rolling average
-         players1[p].ping_avg = mwRA[1].avg;
+         mRollingAverage[1].add_data(mPlayer.loc[p].ping); // send to rolling average
+         mPlayer.loc[p].ping_avg = mRollingAverage[1].avg;
+
+         if (mPlayer.loc[p].client_chase_offset_mode) mPlayer.loc[p].client_chase_offset = - mPlayer.loc[p].ping_avg + mPlayer.loc[p].client_chase_offset_auto_offset;
+
 
          Packet("pang");
          PacketPutDouble(t1);
          ClientSend(packetbuffer, packetsize);
+         ClientSend(packetbuffer, packetsize);
+		 
 </code></pre>
 
 <a name="Client calculates the rolling average of its ping time"></a>
@@ -194,20 +212,20 @@ Because ping times fluctuate based on network conditions, we don't want to use t
 
 Instead we run it through a <a href="rolling_average.html" target="_top">rolling average</a> algorithm and use that instead.
 </mh3>    
-<pre><code class="language-cpp">         mwRA[1].add_data(players1[p].ping); // send to rolling average
-         players1[p].ping_avg = mwRA[1].avg;
+<pre><code class="language-cpp">         mRollingAverage[1].add_data(mPlayer.loc[p].ping); // send to rolling average
+         mPlayer.loc[p].ping_avg = mRollingAverage[1].avg;
 </code></pre>
 
 <a name="Client uses 'ping_avg' time to set 'client_chase_offset'"></a>
 <mh7>Client uses 'ping_avg' time to set 'client_chase_offset'</mh7>
-<pre><code class="language-cpp">   if (players1[p].client_chase_offset_mode) players1[p].client_chase_offset = - players1[p].ping_avg + players1[p].client_chase_offset_auto_offset;
+<pre><code class="language-cpp">         if (mPlayer.loc[p].client_chase_offset_mode) mPlayer.loc[p].client_chase_offset = - mPlayer.loc[p].ping_avg + mPlayer.loc[p].client_chase_offset_auto_offset;
 }</code></pre>
 
 <a name="What this adjustment accomplishes"></a>
 <mh7>What this adjustment accomplishes</mh7>
 
 <mh3>
-'client_chase_offset' is used by the client_timing_sync algorithm as the target setpoint for dsync (the target amount of time offset between the client and the server)
+'client_chase_offset' is used by the <a href="netgame_client_timing_sync.html" target="_top">client timing sync</a> algorithm as the target setpoint for dsync (the target amount of time offset between the client and the server)
 
 Ideally, when pings are low, the client and server will run closer to each other.
 
@@ -221,40 +239,46 @@ But as ping times increase, the client's inputs will arrive too late to be appli
 <mh3>
 In the server's fast packet loop, when it receives a 'pang' packet, it calculates the round trip transit time from the server to the client and back.
 
-The server keeps a ping time for each active client in 'players1[p].ping'.
+The server keeps a ping time for each active client in 'mPlayer.loc[p].ping'.
 
-The server also keeps track of the maximum ping time for all clients and stores that in 'players1[0].server_max_client_ping'. 
+The server also adds all ping times to a mTally object. 
 </mh3>    
-<pre><code class="language-cpp">void server_fast_packet_loop(void)
+<pre><code class="language-cpp">void mwNetgame::server_fast_packet_loop(void)
 {
-   while((packetsize = ServerReceive(packetbuffer, &who)))
-   {
+...
       if (PacketRead("pang"))
       {
-         double t0 = PacketGetDouble();
-         double t1 = al_get_time();
-         players1[p].ping = t1 - t0;
-         if (players1[p].ping > players1[0].server_max_client_ping) players1[0].server_max_client_ping = players1[p].ping;
+         int p = get_player_num_from_who(who);
+         if (p != -1)
+         {
+            double t0 = PacketGetDouble();
+            double t1 = al_get_time();
+            mPlayer.loc[p].ping = t1 - t0;
+            mTally[4].add_data(mPlayer.loc[p].ping); // add to max tally
+         }
       }
 </code></pre>
 
 
 <a name="Server uses 'server_max_client_ping' to adjust 'server_state_freq'"></a>
-<mh7>Server uses 'server_max_client_ping' to adjust 'server_state_freq'</mh7>
-<mh3>
-In the 1 Hz timer loop, the server uses 'server_max_client_ping' to set 'server_state_freq'.
-
-Then 'server_max_client_ping' is reset to zero.
-</mh3>    
+<mh7>Server determines max ping from all clients in the last second and uses that to adjust 'server_state_freq'</mh7>
 <pre><code class="language-cpp">      // ----------------------------------------------------------
       // do things based on the 1 Hz sec_timer event
       // ----------------------------------------------------------
-      if (ima_server)
+      if (mEventQueue.program_update_1s)
       {
-         int mcp = players1[0].server_max_client_ping*1000;
-         players1[0].server_max_client_ping = 0;
-         if (mcp > 100) mcp = 100;
-         players1[0].server_state_freq = 1 + mcp/25; // use client max ping to set server_state_freq
+         mEventQueue.program_update_1s = 0;
+         if (state[1] == 11) // game loop running
+         {
+            if (mNetgame.ima_server)
+            {
+               // auto adjust server state frequency
+               if (mPlayer.loc[0].server_state_freq_mode == 1) // 0 = manual, 1 = auto
+               {
+                  int mcp = mTally[4].get_max()*1000;
+                  if (mcp > 100) mcp = 100;
+                  mPlayer.loc[0].server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
+               }
 </code></pre>
 
 
@@ -273,7 +297,7 @@ These difs are considerably (5-10 times) larger.
 
 The minimum value for server_state_freq is 1, which corresponds to sending states every frame.
 
-This will only work in a LAN where ping times are very low.
+This works well in a LAN where ping times are very low.
 
 Values of 2-5 are typical for the amount of lag over the internet.
 

@@ -37,21 +37,22 @@
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
 <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
-<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
 
-<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
-<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
 
@@ -79,24 +80,28 @@ Every frame, the client's controls are compared with their previous state.
 
 If they have changed:
 
-- the change is applied to the client's local game state
 - an entry is put in the client's local game moves array (in case the change needs to be played back later)
+
 - a 'cdat' packet with the control change and frame number is sent to the server
+
+- the change is applied to the client's local game state
 </mh3>    
-<pre><code class="language-cpp">if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
+<pre><code class="language-cpp">void mwPlayer::proc_player_input(void)
 {
-   players1[p].old_comp_move = players1[p].comp_move;
+...
+   if (loc[p].old_comp_move != loc[p].comp_move)  // player's controls have changed
+   {
+	  loc[p].old_comp_move = loc[p].comp_move;
+      mGameMoves.add_game_move(mLoop.frame_num, 5, p, loc[p].comp_move);	
+	  if (cm == 4)   // in client mode, send cdat packet, and apply move directly to controls
+	  {
+		 mNetgame.Packet("cdat");
+		 mNetgame.PacketPut1ByteInt(p);
+		 mNetgame.PacketPut4ByteInt(mLoop.frame_num);
+		 mNetgame.PacketPut1ByteInt(loc[p].comp_move);
+		 mNetgame.ClientSend(mNetgame.packetbuffer, mNetgame.packetsize);
+		 set_controls_from_comp_move(p, loc[p].comp_move);
 
-   set_controls_from_comp_move(p, players1[p].comp_move);
-
-   add_game_move(frame_num, 5, p, players1[p].comp_move);
-  
-   Packet("cdat");
-   PacketPut1ByteInt(p);
-   PacketPut4ByteInt(frame_num);
-   PacketPut1ByteInt(players1[p].comp_move);
-   ClientSend(packetbuffer, packetsize);
-}
 </code></pre>
 
 <br><a name="Server receives control change"></a>
@@ -110,35 +115,37 @@ If it is earlier, the cdat arrived too late to be applied and is discarded.
 Otherwise the client's control change is added to the server's game moves array.
 </mh3>    
             
-<pre><code class="language-cpp">void server_proc_cdat_packet(double timestamp)
+<pre><code class="language-cpp">void mwNetgame::server_proc_cdat_packet(double timestamp)
 {
+   char msg[1024];
    int p = PacketGet1ByteInt();
    int cdat_frame_num = PacketGet4ByteInt();
    int cm = PacketGet1ByteInt();
 
-   players1[p].client_cdat_packets_tx++;
+   mPlayer.loc[p].client_cdat_packets_tx++;
 
    // calculate game_move_sync
-   players1[p].server_game_move_sync = cdat_frame_num - frame_num;
+   mPlayer.loc[p].server_game_move_sync = cdat_frame_num - mLoop.frame_num;
 
    // calculate game_move_dsync
-   players1[p].game_move_dsync = ( (double) players1[p].server_game_move_sync * 0.025) + timestamp_frame_start - timestamp;
-   players1[p].game_move_dsync_avg_last_sec_tally += players1[p].game_move_dsync;
-   players1[p].game_move_dsync_avg_last_sec_count +=1;
+   mPlayer.loc[p].game_move_dsync = ( (double) mPlayer.loc[p].server_game_move_sync * 0.025) + mTimeStamp.timestamp_frame_start - timestamp;
+
+   mTally_game_move_dsync_avg_last_sec[p].add_data(mPlayer.loc[p].game_move_dsync); // add to average tally
+
 
    // check to see if earlier than the last stdf state
    if (cdat_frame_num < srv_client_state_frame_num[0][1])
    {
-      players1[p].late_cdats_last_sec_tally++;
-      players1[p].late_cdats++;
-      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] late - droppped\n", p, cdat_frame_num, players1[p].server_game_move_sync);
+      mPlayer.loc[p].late_cdats++;
+      mTally_late_cdats_last_sec[p].add_data(1); // add to tally
+      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] late - droppped\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync);
    }
    else
    {
-      add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
-      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, players1[p].server_game_move_sync, game_move_entry_pos);
+      mGameMoves.add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
+      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, mGameMoves.entry_pos);
    }
-   if (LOG_NET_cdat) add_log_entry2(35, p, msg);
+   if (mLog.LOG_NET_cdat) mLog.add_log_entry2(35, p, msg);
 }</code></pre>
 
                <footer>                <mh11>Purple Martians</mh11><hr>

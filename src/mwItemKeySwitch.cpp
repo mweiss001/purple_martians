@@ -124,6 +124,11 @@ void mwItem::proc_key_block_range(int i, int action)
    int x2 = x1 + item[i][8] / 20;
    int y2 = y1 + item[i][9] / 20;
 
+   if (x1 < 0) x1 = 0;
+   if (x2 > 100) x2 = 100;
+   if (y1 < 0) y1 = 0;
+   if (y2 > 100) y2 = 100;
+
    for (int x=x1; x<x2; x++)
       for (int y=y1; y<y2; y++)
       {
@@ -173,10 +178,8 @@ void mwItem::proc_switch_collision(int p, int i)
       {
          item[i][11] = mLoop.frame_num + 4; // switch lockout for next 4 frames
          mGameEvent.add(21, 0, 0, p, item[i][1], 0, 0);
-
          if (item[i][1] > 111) item[i][1] -= 16;
          else item[i][1] += 16;
-
          al_set_target_bitmap(mBitmap.level_background);
          proc_switch_block_range(i, 1);
       }
@@ -191,6 +194,10 @@ void mwItem::proc_switch_block_range(int i, int action)
    int x2 = x1 + item[i][8] / 20;
    int y2 = y1 + item[i][9] / 20;
 
+   if (x1 < 0) x1 = 0;
+   if (x2 > 100) x2 = 100;
+   if (y1 < 0) y1 = 0;
+   if (y2 > 100) y2 = 100;
 
    if (action == 1)
    {
@@ -209,6 +216,7 @@ void mwItem::proc_switch_block_range(int i, int action)
             if ((item[i][10] & 0b1000) && (tn == 10))  mLevel.change_block(x, y, (175 | PM_BTILE_ALL_SOLID)); // purple empty to solid
          }
       al_set_target_backbuffer(mDisplay.display);
+
    }
 
    // this method sets block then calls init_level..
@@ -231,7 +239,6 @@ void mwItem::proc_switch_block_range(int i, int action)
 //      if (action == 1) init_level_background();
 //   }
 
-
    if (action == 2)
    {
       for (int x=x1; x<x2; x++)
@@ -245,36 +252,4 @@ void mwItem::proc_switch_block_range(int i, int action)
          }
    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

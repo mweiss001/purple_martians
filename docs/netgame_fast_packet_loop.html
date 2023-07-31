@@ -37,21 +37,22 @@
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
 <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
-<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
 
-<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
-<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
 
@@ -104,7 +105,7 @@ Both the client and the server use it.
 </mh3>    
     
 
-<pre><code class="language-cpp">extern struct packet_buffer packet_buffers[200];
+<pre><code class="language-cpp">// mwNetgame.h
 struct packet_buffer
 {
    int active;
@@ -115,7 +116,14 @@ struct packet_buffer
    char data[1024];
 };
 
-void init_packet_buffer(void)
+class mwNetgame
+{
+   ...
+   struct packet_buffer packet_buffers[200];
+   void init_packet_buffer(void);
+   ...
+
+void mwNetgame::init_packet_buffer(void)
 {
    for (int i=0; i<200; i++)
    {
@@ -126,8 +134,7 @@ void init_packet_buffer(void)
       packet_buffers[i].packetsize = 0;
       packet_buffers[i].data[0] = 0;
    }
-}
-</code></pre>
+}</code></pre>
 
 
 
@@ -138,7 +145,7 @@ void init_packet_buffer(void)
 It is called outside the game loop, so it is not constrained to running at 40 fps.
 </mh3>    
 
-<pre><code class="language-cpp">void main_loop(void)
+<pre><code class="language-cpp">void mwLoop::main_loop(void)
 {
    while (!main_loop_exit)
    {
@@ -150,26 +157,21 @@ It is called outside the game loop, so it is not constrained to running at 40 fp
       // ----------------------------------------------------------
       // process event queue
       // ----------------------------------------------------------
-      proc_event_queue();
+      mEventQueue.proc();
 
       // ----------------------------------------------------------
       // process fast packet loops
       // ----------------------------------------------------------
-      if (ima_server) server_fast_packet_loop();
-      if (ima_client) client_fast_packet_loop();
+      if (mNetgame.ima_server) mNetgame.server_fast_packet_loop();
+      if (mNetgame.ima_client) mNetgame.client_fast_packet_loop();
 
       // ----------------------------------------------------------
       // do things based on the 40 Hz fps_timer event
       // ----------------------------------------------------------
-      if (program_update)
+      if (mEventQueue.program_update)
       {
-         program_update = 0;
-
-         if (program_state == 11) // game loop running
-         {
-            frame_num++;
-            update_animation();
-			......
+         mEventQueue.program_update = 0;
+         ....   
 </code></pre>
 
 <a name="Server fast packet loop"></a>
@@ -185,7 +187,7 @@ For each packet, it is either processed immediately (<a href="netgame_ping.html#
 If it is put in the buffer, the timestamp when it was received is saved also.
 </mh3>    
 
-<pre><code class="language-cpp">void server_fast_packet_loop(void)
+<pre><code class="language-cpp">void mwNetgame::server_fast_packet_loop(void)
 {
    int who;
    while((packetsize = ServerReceive(packetbuffer, &who)))
@@ -201,9 +203,10 @@ If it is put in the buffer, the timestamp when it was received is saved also.
             Packet("pong");
             PacketPutDouble(t0);
             PacketPutDouble(t1);
-            ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+            ServerSendTo(packetbuffer, packetsize, mPlayer.loc[p].who, p);
          }
       }
+
       if (PacketRead("pang"))
       {
          int p = get_player_num_from_who(who);
@@ -211,8 +214,8 @@ If it is put in the buffer, the timestamp when it was received is saved also.
          {
             double t0 = PacketGetDouble();
             double t1 = al_get_time();
-            players1[p].ping = t1 - t0;
-            if (players1[p].ping > players1[0].server_max_client_ping) players1[0].server_max_client_ping = players1[p].ping;
+            mPlayer.loc[p].ping = t1 - t0;
+            mTally[4].add_data(mPlayer.loc[p].ping); // add to max tally
          }
       }
 
@@ -222,7 +225,7 @@ If it is put in the buffer, the timestamp when it was received is saved also.
       if(PacketRead("cjon")) type = 3;
       if (type)
       {
-         for (int i=0; i < 200; i++)
+         for (int i=0; i<200; i++)
             if (!packet_buffers[i].active) // find empty
             {
                packet_buffers[i].active = 1;
@@ -244,7 +247,7 @@ If it is put in the buffer, the timestamp when it was received is saved also.
 <mh3>
 In the game loop (which runs at 40 fps), the server processes all packets stored in the buffer.
 </mh3>    
-<pre><code class="language-cpp">void server_read_packet_buffer(void)
+<pre><code class="language-cpp">void mwNetgame::server_read_packet_buffer(void)
 {
    for (int i=0; i < 200; i++)
       if (packet_buffers[i].active)
@@ -253,7 +256,7 @@ In the game loop (which runs at 40 fps), the server processes all packets stored
          packetsize = packet_buffers[i].packetsize;
          set_packetpos(4);
          if (packet_buffers[i].type == 1) server_proc_cdat_packet(packet_buffers[i].timestamp);
-         if (packet_buffers[i].type == 2) server_proc_stak_packet();
+         if (packet_buffers[i].type == 2) server_proc_stak_packet(packet_buffers[i].timestamp);
          if (packet_buffers[i].type == 3) server_proc_cjon_packet(packet_buffers[i].who);
          packet_buffers[i].active = 0;
       }
@@ -262,6 +265,7 @@ In the game loop (which runs at 40 fps), the server processes all packets stored
 
 
 <mh3>The function 'server_proc_cdat_packet(packet_buffers[i].timestamp)' makes use of the timestamp to determine how close the cdat was to being late.
+
 
 </mh3>    
 
@@ -279,8 +283,9 @@ For each packet, it is either processed immediately (<a href="netgame_ping.html#
 If it is put in the buffer, the timestamp when it was received is saved also.
 </mh3>    
 
-<pre><code class="language-cpp">void client_fast_packet_loop(void)
+<pre><code class="language-cpp">void mwNetgame::client_fast_packet_loop(void)
 {
+   int p = mPlayer.active_local_player;
    while ((packetsize = ClientReceive(packetbuffer)))
    {
       double timestamp = al_get_time();
@@ -289,12 +294,18 @@ If it is put in the buffer, the timestamp when it was received is saved also.
          double t0 = PacketGetDouble();
          double t1 = PacketGetDouble();
          double t2 = al_get_time();
-         players1[active_local_player].ping = t2 - t0;
-         ping_array_add(players1[active_local_player].ping);
+         mPlayer.loc[p].ping = t2 - t0;
+
+         mRollingAverage[1].add_data(mPlayer.loc[p].ping); // send to rolling average
+         mPlayer.loc[p].ping_avg = mRollingAverage[1].avg;
+
+         if (mPlayer.loc[p].client_chase_offset_mode) mPlayer.loc[p].client_chase_offset = - mPlayer.loc[p].ping_avg + mPlayer.loc[p].client_chase_offset_auto_offset;
+
          Packet("pang");
          PacketPutDouble(t1);
          ClientSend(packetbuffer, packetsize);
       }
+
       int type = 0;
       if (PacketRead("stdf")) type = 1;
       if (PacketRead("sjon")) type = 2;
@@ -321,9 +332,9 @@ If it is put in the buffer, the timestamp when it was received is saved also.
 <mh3>
 In the game loop (which runs at 40 fps), the client processes all packets stored in the buffer.
 </mh3>    
-<pre><code class="language-cpp">void client_read_packet_buffer(void)
+<pre><code class="language-cpp">void mwNetgame::client_read_packet_buffer(void)
 {
-   for (int i=0; i<200; i++)
+   for (int i=0; i < 200; i++)
       if (packet_buffers[i].active)
       {
          memcpy(packetbuffer, packet_buffers[i].data, 1024);
@@ -333,8 +344,7 @@ In the game loop (which runs at 40 fps), the client processes all packets stored
          if (packet_buffers[i].type == 2) client_process_sjon_packet();
          packet_buffers[i].active = 0;
       }
-}
-</code></pre>
+}</code></pre>
 
 <mh3>The function:  'client_process_stdf_packet(packet_buffers[i].timestamp)'  makes use of the timestamp to make <a href="netgame_client_timing_sync.html#Client receives 'stdf' packet" target="_top">dsync</a>  more precise. 
 

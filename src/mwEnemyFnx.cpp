@@ -3,7 +3,7 @@
 #include "pm.h"
 #include "mwEnemy.h"
 #include "mwPlayer.h"
-
+#include "mwShot.h"
 
 
 // used by vinepod
@@ -25,6 +25,10 @@ int mwEnemy::is_player_in_enemy_trigger_box(int e)
 
 
 
+
+
+
+
 // used in vinepod when moving
 // used in bouncer always
 // used in cannon when player not in prox range
@@ -34,12 +38,14 @@ void mwEnemy::set_enemy_rot_from_incs(int e)
    Ef[e][14] = atan2(Ef[e][3], Ef[e][2]) - ALLEGRO_PI/2;
 }
 
-// used in cannon when player in prox range
-// used in vinepod
-void mwEnemy::set_enemy_rot_from_player(int e, int p)
+// used in cannon and vinepod
+void mwEnemy::set_enemy_rot_from_players_position(int e, int p, int extrapolate)
 {
-   float xlen = mPlayer.syn[p].x - Ef[e][0];
-   float ylen = mPlayer.syn[p].y - Ef[e][1];
+   float px = mPlayer.syn[p].x;
+   float py = mPlayer.syn[p].y;
+   if (extrapolate) mShot.calc_where_player_will_be(e, p, px, py);
+   float xlen = px - Ef[e][0];
+   float ylen = py - Ef[e][1];
    Ef[e][14] = atan2(ylen, xlen) - ALLEGRO_PI/2;
 }
 

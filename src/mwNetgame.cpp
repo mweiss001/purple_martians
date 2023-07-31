@@ -27,7 +27,6 @@
 
 mwNetgame mNetgame;
 
-
 mwNetgame::mwNetgame()
 {
    NetworkDriver = -1;
@@ -37,27 +36,21 @@ mwNetgame::mwNetgame()
    TCP = 0;
    zlib_cmp = 7;
 
-
    ServerConn = NULL;
    ServerChannel = NULL;
 
    tmaj_i = 0;
 
    ClientNum = 0;
-   ListenConn = NULL;                         // listening connection
-   ClientConn[MAX_CLIENTS] = {NULL, };        // array of connections for each client
+   ListenConn = NULL;                      // listening connection
+   ClientConn[MAX_CLIENTS] = {NULL, };     // array of connections for each client
    ListenChannel = NULL;                   // listen channel
    ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
-
-
 }
 
 
 
-
-
-// n_network.cpp
-// Initialize libnet and setup a driver to use. Returns 0 on success.
+// initialize libnet and setup a driver to use. Returns 0 on success.
 int mwNetgame::NetworkInit(void)
 {
    NET_DRIVERLIST drivers;
@@ -91,11 +84,6 @@ int mwNetgame::NetworkInit(void)
    }
 }
 
-
-// n_packet.cpp
-
-
-
 void mwNetgame::init_packet_buffer(void)
 {
    for (int i=0; i<200; i++)
@@ -119,7 +107,6 @@ int mwNetgame::get_packetpos(void)
 {
    return packetpos;
 }
-
 
 
 // create a new packet
@@ -167,8 +154,6 @@ void mwNetgame::PacketReadString(char* s)
 {
    for (int i=0; i<16; i++) s[i] = PacketGetByte();
 }
-
-
 
 void mwNetgame::PacketPutDouble(double d)
 {
@@ -265,70 +250,45 @@ int mwNetgame::PacketGet4ByteInt(void)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// n_netgame.cpp
-
-// ------------------------------------------------
-// ----------------- netgame ----------------------
-// ------------------------------------------------
-
 void mwNetgame::game_vars_to_state(char * b)
 {
    int sz = 0, offset = 0;
-   offset += sz; sz = sizeof(mPlayer.syn); memcpy(b+offset, mPlayer.syn, sz);
-   offset += sz; sz = sizeof(mEnemy.Ei);   memcpy(b+offset, mEnemy.Ei,   sz);
-   offset += sz; sz = sizeof(mEnemy.Ef);   memcpy(b+offset, mEnemy.Ef,   sz);
-   offset += sz; sz = sizeof(mItem.item);  memcpy(b+offset, mItem.item,  sz);
-   offset += sz; sz = sizeof(mItem.itemf); memcpy(b+offset, mItem.itemf, sz);
-   offset += sz; sz = sizeof(mLift.cur);   memcpy(b+offset, mLift.cur,   sz);
-   offset += sz; sz = sizeof(mLevel.l);    memcpy(b+offset, mLevel.l,    sz);
-   offset += sz; sz = sizeof(mShot.p);     memcpy(b+offset, mShot.p,     sz);
-   offset += sz; sz = sizeof(mShot.e);     memcpy(b+offset, mShot.e,     sz);
+   offset += sz; sz = sizeof(mPlayer.syn);         memcpy(b+offset, mPlayer.syn,         sz);
+   offset += sz; sz = sizeof(mEnemy.Ei);           memcpy(b+offset, mEnemy.Ei,           sz);
+   offset += sz; sz = sizeof(mEnemy.Ef);           memcpy(b+offset, mEnemy.Ef,           sz);
+   offset += sz; sz = sizeof(mItem.item);          memcpy(b+offset, mItem.item,          sz);
+   offset += sz; sz = sizeof(mItem.itemf);         memcpy(b+offset, mItem.itemf,         sz);
+   offset += sz; sz = sizeof(mLift.cur);           memcpy(b+offset, mLift.cur,           sz);
+   offset += sz; sz = sizeof(mLevel.l);            memcpy(b+offset, mLevel.l,            sz);
+   offset += sz; sz = sizeof(mShot.p);             memcpy(b+offset, mShot.p,             sz);
+   offset += sz; sz = sizeof(mShot.e);             memcpy(b+offset, mShot.e,             sz);
    offset += sz; sz = sizeof(mTriggerEvent.event); memcpy(b+offset, mTriggerEvent.event, sz);
 }
 
 void mwNetgame::state_to_game_vars(char * b)
 {
    int sz = 0, offset = 0;
-   sz = sizeof(mPlayer.syn); memcpy(mPlayer.syn, b+offset, sz); offset += sz;
-   sz = sizeof(mEnemy.Ei);   memcpy(mEnemy.Ei,   b+offset, sz); offset += sz;
-   sz = sizeof(mEnemy.Ef);   memcpy(mEnemy.Ef,   b+offset, sz); offset += sz;
-   sz = sizeof(mItem.item);  memcpy(mItem.item,  b+offset, sz); offset += sz;
-   sz = sizeof(mItem.itemf); memcpy(mItem.itemf, b+offset, sz); offset += sz;
-   sz = sizeof(mLift.cur);   memcpy(mLift.cur,   b+offset, sz); offset += sz;
-   sz = sizeof(mLevel.l);    memcpy(mLevel.l,    b+offset, sz); offset += sz;
-   sz = sizeof(mShot.p);     memcpy(mShot.p,     b+offset, sz); offset += sz;
-   sz = sizeof(mShot.e);     memcpy(mShot.e,     b+offset, sz); offset += sz;
+   sz = sizeof(mPlayer.syn);         memcpy(mPlayer.syn,         b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ei);           memcpy(mEnemy.Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ef);           memcpy(mEnemy.Ef,           b+offset, sz); offset += sz;
+   sz = sizeof(mItem.item);          memcpy(mItem.item,          b+offset, sz); offset += sz;
+   sz = sizeof(mItem.itemf);         memcpy(mItem.itemf,         b+offset, sz); offset += sz;
+   sz = sizeof(mLift.cur);           memcpy(mLift.cur,           b+offset, sz); offset += sz;
+   sz = sizeof(mLevel.l);            memcpy(mLevel.l,            b+offset, sz); offset += sz;
+   sz = sizeof(mShot.p);             memcpy(mShot.p,             b+offset, sz); offset += sz;
+   sz = sizeof(mShot.e);             memcpy(mShot.e,             b+offset, sz); offset += sz;
    sz = sizeof(mTriggerEvent.event); memcpy(mTriggerEvent.event, b+offset, sz); offset += sz;
 }
 
 void mwNetgame::get_state_dif(char *a, char *b, char *c, int size)
 {
-   for (int i=0; i<size; i++)
-      c[i] = a[i] - b[i];
+   for (int i=0; i<size; i++) c[i] = a[i] - b[i];
 }
 
 void mwNetgame::apply_state_dif(char *a, char *c, int size)
 {
-   for (int i=0; i<size; i++)
-      a[i] -= c[i];
+   for (int i=0; i<size; i++) a[i] -= c[i];
 }
-
-
 
 void mwNetgame::reset_states(void)
 {
@@ -356,7 +316,6 @@ void mwNetgame::reset_states(void)
    }
 }
 
-
 void mwNetgame::reset_client_state(int p) // server only
 {
    memset(srv_client_state[p][0], 0, STATE_SIZE);
@@ -364,8 +323,4 @@ void mwNetgame::reset_client_state(int p) // server only
    srv_client_state_frame_num[p][0] = 0;  // src
    srv_client_state_frame_num[p][1] = -3; // dst
 }
-
-
-
-
 

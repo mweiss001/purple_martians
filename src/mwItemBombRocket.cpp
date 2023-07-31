@@ -210,7 +210,7 @@ void mwItem::bomb_blocks(int i, int t, int dr, float x, float y)
    for (int e = (bx-bd); e < (bx+bd)+1; e++)        // cycle blast range of blocks
       for (int f = (by-bd); f < (by+bd)+1; f++)
       {
-         if ((e) && (e < 100) && (f) && (f < 100))
+         if ((e > -1) && (e < 100) && (f > -1) && (f < 100))
          {
             // get center of block
             float cx = (float)(e*20+10);
@@ -259,7 +259,7 @@ void mwItem::bomb_crosshairs(float x, float y)
 void mwItem::bomb_enemies(int i, int t, int dr, float x, float y)
 {
    for (int e=0; e<100 ; e++) // enemies in damage window?
-      if ((mEnemy.Ei[e][0]) && (! ((mEnemy.Ei[e][0] == 9) && mEnemy.Ei[e][30])) ) // active and  not(cloner and invincible)
+      if ((mEnemy.Ei[e][0]) && (! ((mEnemy.Ei[e][0] == 9) && mEnemy.Ei[e][30])) ) // active and not (cloner and invincible)
        {
          float dist = sqrt(pow(mEnemy.Ef[e][0]-x, 2) + pow(mEnemy.Ef[e][1]-y, 2));
          if (dist < dr)

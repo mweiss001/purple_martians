@@ -123,7 +123,7 @@ void mwScreen::transition_cutscene(int i, int f, int debug_print)
          // restore viewport so transition lines up
          level_display_region_x = mScreen.gate_transition_wx;
          level_display_region_y = mScreen.gate_transition_wy;
-         mDisplay.set_scale_factor(mScreen.gate_transition_scale, 1);
+         //mDisplay.set_scale_factor(mScreen.gate_transition_scale, 1); // disabled for now, I want to keep scale if changed while playing
 
          fmsf = mDisplay.scale_factor_current * (200.0 / 2000.0); // level icon size = 200;
          fmxf = gate_transition_x + px * fmsf;
@@ -420,7 +420,7 @@ void mwScreen::draw_scaled_level_region_to_display(int type)
    }
 
 
-   // in level editor mode, if the level is smaller than the screen edges, draw a thin line to show where it ends...
+   // in level editor mode, if the level is smaller than the screen edges, draw thin lines to show where it ends...
    if (type == 3)
    {
       int c = mPlayer.syn[mPlayer.active_local_player].color;
@@ -446,7 +446,6 @@ void mwScreen::draw_scaled_level_region_to_display(int type)
       }
       if (xdraw) al_draw_line(xl, bw, xl, yl, mColor.pc[c], 0);
       if (ydraw) al_draw_line(bw, yl, xl, yl, mColor.pc[c], 0);
-      //al_draw_rectangle(sbx, sby, sbx+sbw, sby+sbh, mColor.pc[c], 0);
    }
 }
 

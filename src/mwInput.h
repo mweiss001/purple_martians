@@ -65,7 +65,6 @@ class mwInput
    int mouse_dx;
    int mouse_dy;
    int mouse_dz;
-
    bool mouse_b[5][4];
 
    const char *key_names[256] =

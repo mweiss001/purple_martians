@@ -37,21 +37,22 @@
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
 <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
-<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
 
-<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
-<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
             
@@ -72,7 +73,6 @@
 <mh3><hr><mdw_file_toc> <a href="tiles.html#Overview" target="_top">Overview</a>
  <a href="tiles.html#History" target="_top">History</a>
  <a href="tiles.html#Data Structure" target="_top">Data Structure</a>
- <a href="tiles.html#Creating bitmaps" target="_top">Creating bitmaps</a>
  <a href="tiles.html#Loading tile bitmaps" target="_top">Loading tile bitmaps</a>
  <a href="tiles.html#Rebuilding tile bitmaps" target="_top">Rebuilding tile bitmaps</a>
  <a href="tiles.html#Using indexed tiles" target="_top">Using indexed tiles</a>
@@ -115,73 +115,74 @@ I have since converted door and player tiles to have their tilemap files.
 <a name="Data Structure"></a>
 <mh7>Data Structure</mh7>
 <mh3>
-The bitmap files for the tilemaps are stored in the bitmap/ folder:
+The bitmap files for the tiles are stored in the bitmaps/ folder:
 </mh3>
 
 <pre><code class="language-cpp">tiles.bmp        (1024 main tile storage)
-block_tiles      (1024 tiles used for blocks in levels)
+block_tiles.bmp  (1024 tiles used for blocks in levels)
 player_tiles.bmp (16 colors x 24 shapes)
 door_tiles.bmp   (16 colors x 8 shapes x 2 door types)</code></pre>
 
-<mh3>
-I load these from file only once when the game starts. They are stored here as video bitmaps:
-</mh3>
-<pre><code class="language-cpp">al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
-al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
-tilemap  = al_create_bitmap(640, 640);
-btilemap = al_create_bitmap(640, 640);
-ptilemap = al_create_bitmap(380, 320);
-dtilemap = al_create_bitmap(160, 640);</code></pre>
+<mh3>Each file is loaded to 2 different types of allegro bitmaps. (video bitmaps and memory bitmaps)
+The video bitmaps are stored in the graphics card memory, are much faster, and used for all drawing in the game.
+Unfortunately video bitmaps are lost whenever the display changes, so I also store them as memory bitmaps.
+That way I can very quickly restore the video bitmaps from the memory bitmaps when needed.
 
-<mh3>
-They are also stored here as memory bitmaps so that I can re-store the video bitmaps if the screen changes.
-</mh3>
-<pre><code class="language-cpp">al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
-al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-M_tilemap =  al_create_bitmap(640,640);
-M_btilemap = al_create_bitmap(640,640);
-M_ptilemap = al_create_bitmap(380,320);
-M_dtilemap = al_create_bitmap(160,640);</code></pre>
+I also create arrays of sub-bitmaps so that I can draw tiles with indexes.
 
-<mh3>
-I use sub-bitmaps created from the video bitmaps so that I can draw with indexes:
+Here are all the bitmap declarations:
 </mh3>
 
-<pre><code class="language-cpp">ALLEGRO_BITMAP *tile[NUM_SPRITES];
-ALLEGRO_BITMAP *btile[NUM_SPRITES];
-ALLEGRO_BITMAP *player_tile[16][32];
-ALLEGRO_BITMAP *door_tile[2][16][8];
+<pre><code class="language-cpp">#define NUM_SPRITES 1024
+class mwBitmap
+{
+   public:
+   ALLEGRO_BITMAP *tilemap;
+   ALLEGRO_BITMAP *btilemap;
+   ALLEGRO_BITMAP *ptilemap;
+   ALLEGRO_BITMAP *dtilemap;
+
+   ALLEGRO_BITMAP *M_tilemap;
+   ALLEGRO_BITMAP *M_btilemap;
+   ALLEGRO_BITMAP *M_ptilemap;
+   ALLEGRO_BITMAP *M_dtilemap;
+
+   ALLEGRO_BITMAP *tile[NUM_SPRITES];
+   ALLEGRO_BITMAP *btile[NUM_SPRITES];
+   ALLEGRO_BITMAP *player_tile[16][32];
+   ALLEGRO_BITMAP *door_tile[2][16][8];
+
 </code></pre>
 
-<br><a name="Creating bitmaps for tiles"></a>
-<mh7>Creating bitmaps</mh7>
 
 <mh3>
-'create_bitmaps()' is called only once from 'initial_setup()'
-
+Here I actually create the bitmaps:
 </mh3>
-<pre><code class="language-cpp">void create_bitmaps(void)
+<pre><code class="language-cpp">void mwBitmap::create_bitmaps(void)
 {
+   // this bitmap format will be used for all bitmaps, it is never changed
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
 
-   // create memory bitmaps as temp storage for restoring tilemaps after screen change
+   // these bitmap flags are only for the M_XXX memory bitmaps
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   M_tilemap  = al_create_bitmap(640,640);
-   M_btilemap = al_create_bitmap(640,640);
-   M_ptilemap = al_create_bitmap(480,320);
-   M_dtilemap = al_create_bitmap(160,640);
+
+   // create memory bitmaps as temp storage for restoring tilemaps after screen change
+   M_tilemap  = create_and_clear_bitmap(640, 640);
+   M_btilemap = create_and_clear_bitmap(640, 640);
+   M_ptilemap = create_and_clear_bitmap(480, 320);
+   M_dtilemap = create_and_clear_bitmap(160, 640);
+
+   // this bitmap format is used for tiles
+   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
 
    // create tilemap bitmaps
-   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
-   tilemap  = al_create_bitmap(640, 640);
-   btilemap = al_create_bitmap(640, 640);
-   ptilemap = al_create_bitmap(480,320);
-   dtilemap = al_create_bitmap(160,640);
+   tilemap  = create_and_clear_bitmap(640, 640);
+   btilemap = create_and_clear_bitmap(640, 640);
+   ptilemap = create_and_clear_bitmap(480, 320);
+   dtilemap = create_and_clear_bitmap(160, 640);
+}
+</code></pre>
 
-   // create level_background and level_buffer bitmaps
-   level_background = al_create_bitmap(2000,2000);
-   level_buffer = al_create_bitmap(2000,2000);
-}</code></pre>
             
 <br><a name="Loading tile bitmaps"></a>
 <mh7>Loading tile bitmaps</mh7>
@@ -193,13 +194,17 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
 - sub_bitmaps are created from tilemaps
 </mh3>
 
-<pre><code class="language-cpp">int load_tiles(void)
+<pre><code class="language-cpp">int mwBitmap::load_tiles(void)
 {
    int load_error = 0;
 
    // get main tiles
    tilemap = al_load_bitmap("bitmaps/tiles.bmp");
-   if (!tilemap) load_error = 1;
+   if (!tilemap)
+   {
+      mInput.m_err("Can't load tiles from bitmaps/tiles.bmp");
+      load_error = 1;
+   }
    else
    {
       al_convert_mask_to_alpha(tilemap, al_map_rgb(0, 0, 0)) ;
@@ -212,7 +217,11 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
 
    // get block tiles
    btilemap = al_load_bitmap("bitmaps/block_tiles.bmp");
-   if (!btilemap) load_error = 1;
+   if (!btilemap)
+   {
+      mInput.m_err("Can't load tiles from bitmaps/block_tiles.bmp");
+      load_error = 1;
+   }
    else
    {
       al_convert_mask_to_alpha(btilemap, al_map_rgb(0, 0, 0)) ;
@@ -222,10 +231,13 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
          for (int x=0; x<32; x++)
             btile[y*32 + x] = al_create_sub_bitmap(btilemap, x*20, y*20, 20, 20);
    }
-
    // get player tiles
    ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
-   if (!ptilemap) load_error = 1;
+   if (!ptilemap)
+   {
+      mInput.m_err("Can't load tiles from bitmaps/player_tiles.bmp");
+      load_error = 1;
+   }
    else
    {
       al_convert_mask_to_alpha(ptilemap, al_map_rgb(0, 0, 0)) ;
@@ -238,7 +250,11 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
 
    // get door tiles
    dtilemap = al_load_bitmap("bitmaps/door_tiles.bmp");
-   if (!dtilemap) load_error = 1;
+   if (!dtilemap)
+   {
+      mInput.m_err("Can't load tiles from bitmaps/door_tiles.bmp");
+      load_error = 1;
+   }
    else
    {
       al_convert_mask_to_alpha(dtilemap, al_map_rgb(0, 0, 0)) ;
@@ -251,12 +267,12 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
             door_tile[1][a][b] = al_create_sub_bitmap(dtilemap, b*20, 320+a*20, 20, 20);
          }
    }
-
    load_sprit(); // get animation sequences and shape attributes
-
    if (load_error) return 0;
    else return 1;
-}</code></pre>
+}
+</code></pre>
+
 
 <br><a name="Rebuilding tile bitmaps"></a>
 <mh7>Rebuilding tile bitmaps</mh7>
@@ -267,20 +283,28 @@ This is done by drawing the memory bitmaps (M_tilemaps) to the video bitmaps (ti
 The sub_bitmaps do not need to rebuilt, just their parents.
 This is only called from 'proc_screen_change()'
 </mh3>
-<pre><code class="language-cpp">void rebuild_bitmaps(void)
+<pre><code class="language-cpp">void mwBitmap::rebuild_bitmaps(void)
 {
+   // rebuild main tiles
    al_set_target_bitmap(tilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(M_tilemap, 0, 0, 0);
 
+   // rebuild block tiles
    al_set_target_bitmap(btilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(M_btilemap, 0, 0, 0);
 
+   // rebuild player tiles
    al_set_target_bitmap(ptilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(M_ptilemap, 0, 0, 0);
 
+   // rebuild door tiles
    al_set_target_bitmap(dtilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(M_dtilemap, 0, 0, 0);
-}</code></pre>
+...</code></pre>
 
 <br><a name="Using indexed tiles"></a>
 <mh7>Using indexed tiles</mh7>
@@ -288,20 +312,20 @@ This is only called from 'proc_screen_change()'
 <mh3>
 The indexed tiles are used like this:
 </mh3>
-<pre><code class="language-cpp">al_draw_bitmap(tile[shape], x, y, 0);</code></pre>
+<pre><code class="language-cpp">al_draw_bitmap(mBitmap.tile[shape], x, y, 0);</code></pre>
 
 <mh3> where shape is an int from 0-1023.
 
 
-Both btile[] and tile[] have only one index [0-1023]
+Both btile[1024] and tile[1024] have only one index [0-1023]
 
-ptilemap[][] has an 2nd index for color.
+mBitmap.ptilemap[16][32] has an 2nd index for color.
 </mh3>
-<pre><code class="language-cpp">ptilemap[color 0-15][shape 0-23]</code></pre>
+<pre><code class="language-cpp">mBitmap.player_tile[color 0-15][shape 0-23]</code></pre>
 <mh3> 
-dtilemap[][][] has an 2nd index for color and a 3rd for the 2 types of door shapes
+mBitmap.dtilemap[2][16][8] has an 2nd index for color and a 3rd for the 2 types of door shapes
 </mh3>
-<pre><code class="language-cpp">dtilemap[shape type 0-1][color 0-15][shape 0-7]</code></pre>
+<pre><code class="language-cpp">mBitmap.door_tile[shape type 0-1][color 0-15][shape 0-7]</code></pre>
            
 
                <footer>                <mh11>Purple Martians</mh11><hr>

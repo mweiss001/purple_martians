@@ -102,8 +102,8 @@ void mwConfig::save(void)
       asci(NETWORK, mShot.deathmatch_shots)
       asci(NETWORK, mShot.deathmatch_shot_damage)
       asci(NETWORK, mShot.suicide_shots)
-
       asci(NETWORK, mPlayer.loc[0].server_state_freq_mode)
+
 
 
 

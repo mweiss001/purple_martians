@@ -37,21 +37,22 @@
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
 <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
-<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
 
-<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
-<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
-<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
 
@@ -107,19 +108,18 @@ When all the pieces have been received, 'client_state_buffer' is decompressed in
 The source and destination frame of 'client_state_dif' are updated to mark it as valid.
 </mh3>
 
-<pre><code class="language-cpp">void client_process_stdf_packet(double timestamp)
+<pre><code class="language-cpp">void mwNetgame::client_process_stdf_packet(double timestamp)
 {
-   int p = active_local_player;
+   int p = mPlayer.active_local_player;
    int src = PacketGet4ByteInt();
    int dst = PacketGet4ByteInt();
    int seq = PacketGet1ByteInt();
    int max_seq = PacketGet1ByteInt();
    int sb = PacketGet4ByteInt();
    int sz = PacketGet4ByteInt();
-   players1[p].late_cdats_last_sec = PacketGet1ByteInt();
 
-   memcpy(client_state_buffer + sb, packetbuffer+23, sz);  // put the piece of data in the buffer
-   client_state_buffer_pieces[seq] = dst;                  // mark it with destination frame_num
+   memcpy(client_state_buffer + sb, packetbuffer+23, sz);     // put the piece of data in the buffer
+   client_state_buffer_pieces[seq] = dst;                     // mark it with destination mLoop.frame_num
 
    int complete = 1;                                          // did we just get the last packet? (yes by default)
    for (int i=0; i< max_seq; i++)
@@ -127,21 +127,11 @@ The source and destination frame of 'client_state_dif' are updated to mark it as
 
    if (complete)
    {
-      // decompress client_state_buffer to dif
+      // uncompress client_state_buffer to dif
       uLongf destLen = sizeof(client_state_dif);
       uncompress((Bytef*)client_state_dif, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
-      if (destLen == STATE_SIZE)
-      {
-         sprintf(msg, "rx dif complete [%d to %d] sync[%d] dsync[%3.1fms] - decompressed\n", src, dst, players1[p].client_sync, players1[p].dsync*1000);
-         client_state_dif_src = src; // mark dif data with new src and dst
-         client_state_dif_dst = dst;
-      }
-      else
-      {
-         sprintf(msg, "rx dif complete [%d to %d] sync[%d] - bad decompress\n", src, dst, players1[p].client_sync);
-         client_state_dif_src = -1; // mark dif data as bad
-         client_state_dif_dst = -1;
-      }
+      client_state_dif_src = src; // mark dif data with new src and dst
+      client_state_dif_dst = dst;
    }
 }</code></pre>
 
@@ -153,24 +143,23 @@ Every frame the client checks its locally stored dif.
 
 First it checks if the dif is valid:
 </mh3>
-<pre><code class="language-cpp">void client_apply_dif(void)
+<pre><code class="language-cpp">void mwNetgame::client_apply_dif(void)
 {
-   int p = active_local_player;
+   int p = mPlayer.active_local_player;
    if ((client_state_dif_src == -1) || (client_state_dif_dst == -1)) // check if valid dif
    {
       sprintf(msg, "dif is not valid - src:%d dst:%d\n", client_state_dif_src, client_state_dif_dst);
-      if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+      if (mLog.LOG_NET_dif_not_applied) mLog.add_log_entry2(31, p, msg);
    }
    else
-   {
-</code></pre>
+   {</code></pre>
 <mh3>
 Then it checks if the dif source is greater than 100 frames in the future (this is to prevent stray late difs from a previous level affecting a newly started level)
 </mh3>
-<pre><code class="language-cpp">      if (client_state_dif_src - frame_num > 100)
+<pre><code class="language-cpp">      if ((client_state_dif_src - mLoop.frame_num > 100) && (mLoop.frame_num != 0))
       {
-         sprintf(msg, "dif_src is > 100 frames in the future - src:%d frame_num:%d\n", client_state_dif_src, frame_num);
-         if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+         sprintf(msg, "dif_src is > 100 frames in the future - src:%d mLoop.frame_num:%d\n", client_state_dif_src, mLoop.frame_num);
+         if (mLog.LOG_NET_dif_not_applied) mLog.add_log_entry2(31, p, msg);
       }
       else
       {
@@ -181,7 +170,7 @@ Then it checks if the dif's destination frame number is newer than the last appl
 <pre><code class="language-cpp">         if ((client_state_dif_dst <= client_state_base_frame_num)) // dif destination is not newer than last applied dif
          {
             sprintf(msg, "dif [%d to %d] not applied - not newer than current [%d]\n", client_state_dif_src, client_state_dif_dst, client_state_base_frame_num);
-            if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+            if (mLog.LOG_NET_dif_not_applied) mLog.add_log_entry2(31, p, msg);
          }
          else
          {
@@ -209,8 +198,8 @@ If the base is zero, the compressed dif sent over the network will be considerab
             {
                memset(client_state_base, 0, STATE_SIZE);
                client_state_base_frame_num = 0;
-               if (LOG_NET_dif_not_applied) add_log_entry2(31, p, "Resetting client base state to zero\n");
-               players1[p].client_base_resets++;
+               if (mLog.LOG_NET_dif_not_applied) mLog.add_log_entry2(31, p, "Resetting client base state to zero\n");
+               mPlayer.loc[p].client_base_resets++;
             }
 </code></pre>
 
@@ -227,7 +216,7 @@ If the bases do not match, the client resends a <a href="netgame_client_state.ht
 <pre><code class="language-cpp">            if (client_state_base_frame_num != client_state_dif_src) // stored base state does NOT match dif source
             {
                sprintf(msg, "dif cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
-               if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+               if (mLog.LOG_NET_dif_not_applied) mLog.add_log_entry2(31, p, msg);
                client_send_stak(); // resend ack to server with correct acknowledged base state
             }
             else // we have a matching base to apply dif
@@ -249,16 +238,16 @@ If the destination frame of the dif is in the future, we will not apply it yet. 
 </mh3>
 <pre><code class="language-cpp">            else // we have a matching base to apply dif
             {
-               int ff = players1[p].client_rewind = frame_num - client_state_dif_dst; // dst compared to current frame_num
+               int ff = mPlayer.loc[p].client_rewind = mLoop.frame_num - client_state_dif_dst; // dst compared to current mLoop.frame_num
                char tmsg[64];
-               if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", frame_num);
+               if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", mLoop.frame_num);
                if (ff > 0)  sprintf(tmsg, "rewind [%d] frames\n", ff);
                if (ff < 0)  sprintf(tmsg, "early [%d] frames\n", -ff);
-               if (frame_num == 0) sprintf(tmsg, "initial state\n");
-               if ((ff < 0) && (frame_num != 0))
+               if (mLoop.frame_num == 0) sprintf(tmsg, "initial state\n");
+               if ((ff < 0) && (mLoop.frame_num != 0))
                {
                   sprintf(msg, "dif [%d to %d] not applied yet - [%d] early\n", client_state_dif_src, client_state_dif_dst, -ff);
-                  if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+                  if (mLog.LOG_NET_dif_not_applied) mLog.add_log_entry2(31, p, msg);
                }
                else
                {
@@ -330,16 +319,15 @@ Then we send a 'stak' packet to the server to acknowledge our new saved base sta
 
 ...
 
-void client_send_stak(void)
+void mwNetgame::client_send_stak(void)
 {
-   int p = active_local_player;
+   int p = mPlayer.active_local_player;
    Packet("stak");
    PacketPut1ByteInt(p);
    PacketPut4ByteInt(client_state_base_frame_num);
-   PacketPut4ByteInt(frame_num);
-   PacketPut4ByteInt(players1[p].frames_skipped);
-   PacketPutDouble(players1[p].client_chase_fps);
-   PacketPutDouble(players1[p].dsync);
+   PacketPut4ByteInt(mLoop.frame_num);
+   PacketPutDouble(mPlayer.loc[p].client_chase_fps);
+   PacketPutDouble(mPlayer.loc[p].dsync_avg);
    ClientSend(packetbuffer, packetsize);
 }
 </code></pre>
@@ -348,27 +336,28 @@ void client_send_stak(void)
 <a name="The entire function 'client_apply_dif()'"></a>
 <mh7>The entire function 'client_apply_dif'</mh7>
 
-<pre><code class="language-cpp">void client_apply_dif(void)
+<pre><code class="language-cpp">void mwNetgame::client_apply_dif(void)
 {
-   int p = active_local_player;
+   char msg[1024];
+   int p = mPlayer.active_local_player;
    if ((client_state_dif_src == -1) || (client_state_dif_dst == -1)) // check if valid dif
    {
       sprintf(msg, "dif is not valid - src:%d dst:%d\n", client_state_dif_src, client_state_dif_dst);
-      if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+      if (mLog.LOG_NET_dif_not_applied) mLog.add_log_entry2(31, p, msg);
    }
    else
    {
-      if (client_state_dif_src - frame_num > 100)
+      if ((client_state_dif_src - mLoop.frame_num > 100) && (mLoop.frame_num != 0))
       {
-         sprintf(msg, "dif_src is > 100 frames in the future - src:%d frame_num:%d\n", client_state_dif_src, frame_num);
-         if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+         sprintf(msg, "dif_src is > 100 frames in the future - src:%d mLoop.frame_num:%d\n", client_state_dif_src, mLoop.frame_num);
+         if (mLog.LOG_NET_dif_not_applied) mLog.add_log_entry2(31, p, msg);
       }
       else
       {
          if ((client_state_dif_dst <= client_state_base_frame_num)) // dif destination is not newer than last applied dif
          {
             sprintf(msg, "dif [%d to %d] not applied - not newer than current [%d]\n", client_state_dif_src, client_state_dif_dst, client_state_base_frame_num);
-            if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+            if (mLog.LOG_NET_dif_not_applied) mLog.add_log_entry2(31, p, msg);
          }
          else
          {
@@ -376,33 +365,37 @@ void client_send_stak(void)
             {
                memset(client_state_base, 0, STATE_SIZE);
                client_state_base_frame_num = 0;
-               if (LOG_NET_dif_not_applied) add_log_entry2(31, p, "Resetting client base state to zero\n");
-               players1[p].client_base_resets++;
+               if (mLog.LOG_NET_dif_not_applied) mLog.add_log_entry2(31, p, "Resetting client base state to zero\n");
+               mPlayer.loc[p].client_base_resets++;
             }
+
             if (client_state_base_frame_num != client_state_dif_src) // stored base state does NOT match dif source
             {
                sprintf(msg, "dif cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
-               if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+               if (mLog.LOG_NET_dif_not_applied) mLog.add_log_entry2(31, p, msg);
                client_send_stak(); // resend ack to server with correct acknowledged base state
             }
             else // we have a matching base to apply dif
             {
-               int ff = players1[p].client_rewind = frame_num - client_state_dif_dst; // dst compared to current frame_num
+               int ff = mPlayer.loc[p].client_rewind = mLoop.frame_num - client_state_dif_dst; // dst compared to current mLoop.frame_num
                char tmsg[64];
-               if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", frame_num);
+               if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", mLoop.frame_num);
                if (ff > 0)  sprintf(tmsg, "rewind [%d] frames\n", ff);
                if (ff < 0)  sprintf(tmsg, "early [%d] frames\n", -ff);
-               if (frame_num == 0) sprintf(tmsg, "initial state\n");
-               if ((ff < 0) && (frame_num != 0))
+               if (mLoop.frame_num == 0) sprintf(tmsg, "initial state\n");
+               if ((ff < 0) && (mLoop.frame_num != 0))
                {
                   sprintf(msg, "dif [%d to %d] not applied yet - [%d] early\n", client_state_dif_src, client_state_dif_dst, -ff);
-                  if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+                  if (mLog.LOG_NET_dif_not_applied) mLog.add_log_entry2(31, p, msg);
                }
                else
                {
                   // make a copy of level array l[][]
                   int old_l[100][100];
-                  memcpy(old_l, l, sizeof(l));
+                  memcpy(old_l, mLevel.l, sizeof(mLevel.l));
+
+                  // make a copy of players x pos
+                  float oldpx = mPlayer.syn[p].x;
 
                   // apply dif to base state
                   apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
@@ -410,56 +403,56 @@ void client_send_stak(void)
                   // copy modified base state to game_vars
                   state_to_game_vars(client_state_base);
 
+                  // make a copy of players x pos
+                  float xcor = oldpx - mPlayer.syn[p].x;
+
+                  if (mLoop.frame_num > mPlayer.loc[p].xcor_reset_frame)
+                  {
+                     mPlayer.loc[p].xcor_reset_frame = mLoop.frame_num + 100;
+                     mPlayer.loc[p].xcor_max = 0;
+                  }
+
+                  if (xcor > mPlayer.loc[p].xcor_max)  mPlayer.loc[p].xcor_max = xcor;
+
+                  double t0 = al_get_time();
+
                   // compare old_l to l and redraw changed tiles
-                  al_set_target_bitmap(level_background);
+                  al_set_target_bitmap(mBitmap.level_background);
                   for (int x=0; x<100; x++)
                      for (int y=0; y<100; y++)
-                        if (l[x][y] != old_l[x][y])
+                        if (mLevel.l[x][y] != old_l[x][y])
                         {
                            // printf("dif at x:%d y:%d\n", x, y);
-                           al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-                           al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+                           al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
+                           al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
                         }
 
+                  mLog.add_log_TMR(al_get_time() - t0, "oldl", 0);
+
                   // fix control methods
-                  players[0].control_method = 2; // on client, server is mode 2
-                  if (players[p].control_method == 2) players[p].control_method = 4;
-                  if (players[p].control_method == 8) new_program_state = 1; // server quit
+                  mPlayer.syn[0].control_method = 2; // on client, server is mode 2
+                  if (mPlayer.syn[p].control_method == 2) mPlayer.syn[p].control_method = 4;
+                  if (mPlayer.syn[p].control_method == 8) mLoop.state[0] = 1; // server quit
 
-                  // update frame_num and client base frame_num
-                  frame_num = client_state_base_frame_num = client_state_dif_dst;
+                  // update mLoop.frame_num and client base mLoop.frame_num
+                  mLoop.frame_num = client_state_base_frame_num = client_state_dif_dst;
 
-                  if (ff) loop_frame(ff); // if we rewound time, play it back
+                  mPlayer.loc[p].client_last_dif_applied = mLoop.frame_num;
+
+                  if (ff) mLoop.loop_frame(ff); // if we rewound time, play it back
 
                   client_send_stak();
 
-                  players1[p].client_move_lag = frame_num - client_state_dif_src;
-                  players1[p].client_last_dif_applied = frame_num;
+                  if (client_state_dif_src) mPlayer.loc[p].client_move_lag = mLoop.frame_num - client_state_dif_src;
+
                   sprintf(msg, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
-                  if (LOG_NET_dif_applied) add_log_entry2(30, p, msg);
+                  if (mLog.LOG_NET_dif_applied) mLog.add_log_entry2(30, p, msg);
                }
             }
          }
       }
    }
 }</code></pre>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

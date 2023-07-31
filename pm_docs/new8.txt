@@ -28391,6 +28391,479 @@ lots of levels still left to go...
 all levels have been done
 
 
+lets see if I can beat the record of 7:27 for amazing...
+
+
+will bombs destroy the vinepod circle?
+
+actually i did 31 beginnings
+same at 5:14??
+
+
+do 23, reduced from 7:57 to 5:58
+
+
+reduce part times:
+
+15 smash is not a fun level
+added a bit more
+
+
+
+make sproingies higher in overworld done
+
+
+
+show official time at end of level press any thing
+
+
+added level_done_frame to player syn struct
+now show official time only on player that completed
+this works but I don't like how it looks...
+
+how about if we are in level done mode, make the top frame time freeze and show the completed time.....
+
+that seems to work...
+this assumes that exit is the thing that counts when level is done...this shouls always be the case except for level 64?
+
+
+
+made it so that level complete uses the time from player struct..
+
+
+
+now I want to thin the number of calls to
+void mwLevel::level_complete_data(int type, int lev)
+
+it should be common to exit and 64
+
+i would like to call it from level done mode..
+
+
+
+normal (exit)
+ldm 9 to 1
+
+how does demo do it?
+the same?
+
+it looks like it does
+
+so patch it in in mode 9..done
+
+
+now it is called:
+not exit or orb...
+
+debug C pressed on gate
+mode 30
+mode 9
+
+
+now lets see if it works...
+
+also test purple coins and exit at the same time, i think that works now...
+
+bug - sometimes getting purple coin and exit at the same time show coin at end of level but not on stats...fixed
+
+
+
+
+bug, now that some objects are drawn directly to screen, they are sometime invisible when draw just the level...
+
+example:
+purple coins only show when game is running
+players also
+
+bug - vinepod on overworld shows when it should be hidden
+basically everything that draws direct to screen is not hidden with hiders
+the only things I notice are the vinepods on overworld
+I do not have too many hiders...
+What can I do to fix this?
+
+
+bug - purple coins to show when drawing level...
+
+// this seems to work better
+if ((item[i][6] == 3) && (mLoop.state[0] == 11) && (mLoop.frame_num > 0)  ) // purple coin custom draw only when game running
+
+can I do the same for player?
+
+I have the old drawing method if not state 11...seems to work
+
+
+now vinepods...
+currently the shape draws but not the vine
+
+I am going to revert to the old vinepod drawing...reasons:
+- the new one is no faster
+- the new one draws so clean it looks out of place
+- the new one is more complicated
+- the new cannot be hidden by hiders
+
+
+
+I think that these are all fixed now...what about crew?
+crew and player disappears when rocket takes off
+come back when zooming in
+I think I am doing it the hard way...
+
+now the final cutscene looks better
+
+I think all of this is done now...
+
+
+save the original zoom and restore it after cutscene..done
+
+also do not restore zoom with transitions..done
+
+
+
+bug - when setting triggers for lifts step, item line is not set properly
+make test level 63
+could not reproduce:
+created lift with wait event step
+created trigger, timer and orb
+from lift step set trigger and can choose any input and line looks good...
+
+created a second lift and it does not work like it should
+
+
+
+int mwTriggerEvent::get_trigger_item(int obj_type, int obj_num, int obj_ext, int& ti_obj_type, int& ti_obj_num, int& ti_obj_ext)
+what does this want?
+
+
+
+
+
+
+
+   if (obj_type == 4) // lift
+   {
+      int ti_obj_type, ti_obj_ext, ti_num;
+      if (mTriggerEvent.get_trigger_item(4, obj_num, 0, ti_obj_type, ti_num, ti_obj_ext))
+      {
+
+
+
+
+
+this is called by all the items and enemies, but not lifts??
+
+
+
+find_event_sender_for_obj(int obj_type, int obj_num, int obj_ext, int obj_ext2)
+
+called by:
+
+     if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,0,  1,0,1,d, "Set Trigger")) mTriggerEvent.find_event_sender_for_obj(4, l, s, 0);
+
+good so far...
+
+next...
+
+
+find_event_sender_for_obj(int obj_type, int obj_num, int obj_ext, int obj_ext2)
+
+   if (obj_type == 4) // lift
+   {
+      int ti_obj_type, ti_obj_ext, ti_num;
+      if (mTriggerEvent.get_trigger_item(4, obj_num, 0, ti_obj_type, ti_num, ti_obj_ext))
+      {
+         int ev = mTriggerEvent.get_unused_pm_event();
+
+         mLift.stp[obj_num][obj_ext].val = ev; // set event number in receiver
+
+         // set event num in sender
+         set_event_num_in_sender(ti_obj_type, ti_num, ti_obj_ext, 1, ev);
+
+      }
+
+   }
+
+why am i passing 0
+
+      if (mTriggerEvent.get_trigger_item(4, obj_num, 0, ti_obj_type, ti_num, ti_obj_ext))
+
+looking at it I also have them reversed
+
+
+int mwTriggerEvent::get_trigger_item(int obj_type, int obj_num, int obj_ext, int& ti_obj_type, int& ti_obj_num, int& ti_obj_ext)
+/*
+   prompts to select an object that has an event sender
+
+   passed the object that we want to link to (the receiver) int obj_type, int obj_num, int obj_ext
+   currently works for items (orb, trigger, timer) enemies (cloner and vinepod) and lift step type 5
+
+   currently only looks for items (orb, trigger, timer 1 and 2)
+
+   want to make work for list step type 6 also
+*/
+
+{
+   while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+   mScreen.init_level_background();
+   int tx = mDisplay.SCREEN_W/2;
+
+   int quit=0;
+   int mouse_on_item = 0;
+
+   int x2=0, y2=0, itx=0, ity=0;
+
+
+   // get object position for display
+   if (obj_type == 2) // item
+   {
+      x2 = mItem.item[obj_num][4]+10;
+      y2 = mItem.item[obj_num][5]+10;
+   }
+
+   if (obj_type == 3) // enemy
+   {
+      x2 = mEnemy.Ef[obj_num][0]+10;
+      y2 = mEnemy.Ef[obj_num][1]+10;
+   }
+
+   if (obj_type == 4) // lift
+   {
+      int l = obj_ext;
+      int s = obj_num;
+      x2 = mLift.stp[l][s].x + mLift.stp[l][s].w / 2;
+      y2 = mLift.stp[l][s].y + mLift.stp[l][s].h / 2;
+//      int pms = mLift.find_previous_move_step(l, s);
+//      x2 = mLift.stp[l][pms].x + mLift.stp[l][pms].w / 2;
+//      y2 = mLift.stp[l][pms].y + mLift.stp[l][pms].h / 2;
+   }
+
+
+   fix this...
+
+fixed:
+
+find_event_sender_for_obj(int obj_type, int obj_num, int obj_ext, int obj_ext2)
+   if (obj_type == 4) // lift
+   {
+      int ti_obj_type, ti_obj_ext, ti_num;
+      if (mTriggerEvent.get_trigger_item(4, obj_num, 0, ti_obj_type, ti_num, ti_obj_ext))
+
+to:
+
+      if (mTriggerEvent.get_trigger_item(4, obj_num, obj_ext, ti_obj_type, ti_num, ti_obj_ext))
+
+and:
+
+int mwTriggerEvent::get_trigger_item(int obj_type, int obj_num, int obj_ext, int& ti_obj_type, int& ti_obj_num, int& ti_obj_ext)
+   if (obj_type == 4) // lift
+   {
+      int l = obj_ext;
+      int s = obj_num;
+      x2 = mLift.stp[l][s].x + mLift.stp[l][s].w / 2;
+      y2 = mLift.stp[l][s].y + mLift.stp[l][s].h / 2;
+//      int pms = mLift.find_previous_move_step(l, s);
+//      x2 = mLift.stp[l][pms].x + mLift.stp[l][pms].w / 2;
+//      y2 = mLift.stp[l][pms].y + mLift.stp[l][pms].h / 2;
+   }
+
+to:
+      int l = obj_num;
+      int s = obj_ext;
+      x2 = mLift.stp[l][s].x + mLift.stp[l][s].w / 2;
+      y2 = mLift.stp[l][s].y + mLift.stp[l][s].h / 2;
+      int pms = mLift.find_previous_move_step(l, s);
+      x2 = mLift.stp[l][pms].x + mLift.stp[l][pms].w / 2;
+      y2 = mLift.stp[l][pms].y + mLift.stp[l][pms].h / 2;
+   }
+
+now this works like I think is should
+
+
+test if I can also use lift sender as source...
+
+that seems to work also...
+
+
+
+level editor vinepod triggers are not on the list of things that can auto set
+
+tested:
+created vinepod
+linked to it from lift...worked good...
+
+linked vinepod to trigger input and that worked good also..
+what does not work?
+maybe it just seems to not work because you have to mouse over the extended position..
+
+
+also bug with green line showing path, only in level editor and and only if path shown and only when viewer active..fixed
+it was a weird bug with target bitmap...
+
+
+
+can I make cannons show the rotation where the bullet will be fired?
+right now they just aim at the player...
+
+added to cannon
+Ei[][10]  targetted player (-1) if none
+set this in move...
+I now have the option to do that...
+also vinepod uses this as well
+
+
+bug when player is moving on rope bullets do not trigger motion
+what about ladders also?
+ladders are good..
+made a change to set xinc to + or -3 depending on direction
+now the tagetting works, but...
+how many demos are broken?
+
+all perfect total best time 2:34:23 same as the old one...
+
+bug - demo for blue key fall has huge # of killed enemies / only sometimes
+probably an array out if bounds, hard to fix, because it only occur occasionally...
+
+can I print out the level data and see where the error occurs?
+2031791
+
+I never seem to get playdata with that value, just level data..
+
+
+I found the culprit...
+
+switch block range too large....
+
+
+find them with glt...fix them manually
+
+add checks in code to prevent from happening again..
+
+
+should I check all 6, 7, 8, 9?
+
+
+I should have some automatic repair
+
+just set the bounds to something reasonable
+
+switch, key, block manip, ...???
+
+put in limits at:
+
+mwItem::proc_switch_block_range(int i, int action)
+mwItem::proc_key_block_range(int i, int action)
+mwItem::bomb_blocks(int i, int t, int dr, float x, float y)
+
+mwLevel::change_block(int x, int y, int block)
+mwLevel::is_block_empty(int x, int y, int test_block, int test_item, int test_enemy)
+
+
+what about block manip?
+
+
+void mwItem::proc_block_manip(int i)
+{
+   int et = item[i][1]; // pm_event trigger we are looking for
+   if (mTriggerEvent.event[et])
+   {
+      al_set_target_bitmap(mBitmap.level_background);
+      int x1 = item[i][6]/20;
+      int y1 = item[i][7]/20;
+      int x2 = x1 + item[i][8]/20;
+      int y2 = y1 + item[i][9]/20;
+
+
+
+I have checked all keys, switches and bm, and they are all not out of bounds
+and I have put checks in place...
+
+
+bug - do better at testing for empty...done
+int mwLevel::is_block_empty(int x, int y, int test_block, int test_item, int test_enemy)
+   if (test_block) if (mLevel.l[x][y] & PM_BTILE_ALL_SOLID) mpty = 0; // if any of the solids match, it is not empty
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -445,8 +445,8 @@ void mwNetgame::server_send_dif(int p) // send dif to a specific client
       }
 
       Packet("stdf");
-      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src mLoop.frame_num
-      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst mLoop.frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
       PacketPut1ByteInt(packet_num);
       PacketPut1ByteInt(num_packets);
       PacketPut4ByteInt(start_byte);
@@ -583,15 +583,11 @@ void mwNetgame::server_lock_client(int p)
 void mwNetgame::server_proc_stak_packet(double timestamp)
 {
    char msg[1024];
-   int p                                    = PacketGet1ByteInt();
-   int ack_frame_num                        = PacketGet4ByteInt();
-   int client_frame_num                     = PacketGet4ByteInt();
-   mPlayer.loc[p].client_chase_fps             = PacketGetDouble();
-   mPlayer.loc[p].dsync                        = PacketGetDouble();
-
-
-
-
+   int p                           = PacketGet1ByteInt();
+   int ack_frame_num               = PacketGet4ByteInt();
+   int client_frame_num            = PacketGet4ByteInt();
+   mPlayer.loc[p].client_chase_fps = PacketGetDouble();
+   mPlayer.loc[p].dsync            = PacketGetDouble();
 
    // calculate stak_sync
    int stak_sync = mLoop.frame_num - srv_client_state_frame_num[0][1];

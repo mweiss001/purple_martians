@@ -98,12 +98,12 @@ void mwEnemy::move_cannon(int e)
       }
    }
 
-   int p = find_closest_player_cannon(e);
-   if (p != -1) set_enemy_rot_from_player(e, p); // rotate to face player if player in proximity
-   else         set_enemy_rot_from_incs(e);      // set rotation based on direction of travel
+   int p = Ei[e][10] = find_closest_player_cannon(e);
+   if (p != -1) set_enemy_rot_from_players_position(e, p, 1); // rotate to face player if player in proximity
+   else         set_enemy_rot_from_incs(e);                   // set rotation based on direction of travel
 
    // set bitmap
-   float rtio = Ei[e][16] / Ei[e][15];
+   float rtio = (float)Ei[e][16] / (float)Ei[e][15];
    Ei[e][1] = 412;                  // green cannon by default
    if (rtio < 0.3)  Ei[e][1] = 413; // less green cannon
    if (rtio < 0.2)  Ei[e][1] = 414; // orange cannon

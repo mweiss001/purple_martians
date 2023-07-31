@@ -40,7 +40,7 @@ int mwGameMoves::has_player_acknowledged(int p)
    return 0;
 }
 
-// this function processes all entries in the game_moves array that match current mLoop.frame_num
+// this function processes all entries in the game_moves array that match current frame_num
 void mwGameMoves::proc(void)
 {
    // search entire range
