@@ -49,6 +49,11 @@ class mwItem
 
    void draw_gate_info(int i);
 
+
+   char * chrd(int v, char* ft);
+   char * chrd(int v1, int v2, char* ft);
+
+
    char* chrms(int time, char* ft);
 
    void draw_line(int x1, int x2, int y, const char * txt1, const char * txt2, int col);

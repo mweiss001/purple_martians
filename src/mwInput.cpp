@@ -210,7 +210,6 @@ void mwInput::serial_key_check(int key)
       set_controls_to_custom_sets(4);
    }
 
-
    sprintf(tst, "cheat");
    tl = strlen(tst);
    if (skc_index > tl-1)
@@ -221,7 +220,6 @@ void mwInput::serial_key_check(int key)
          mLevel.skc_trigger_demo_cheat = 1;
       }
    }
-
 
    sprintf(tst, "fakekey");
    tl = strlen(tst);
@@ -282,15 +280,10 @@ void mwInput::function_key_check(void)
       mLog.save_log_file();
    }
 
-
-
    if (mDemoMode.demo_debug_super_fast_mode_F2)
    {
       if (key[ALLEGRO_KEY_F2][3]) mLoop.super_fast_mode = !mLoop.super_fast_mode;
    }
-
-
-
 
    if ((mLoop.level_editor_running) || (mLoop.state[1] == 11)) // only do these when game is running or in level editor
    {
@@ -318,7 +311,7 @@ void mwInput::function_key_check(void)
             else                        mLoop.frame_speed -=1;
 //            if (mLoop.frame_speed < 5)  mLoop.frame_speed =5;
             if (mLoop.frame_speed < 10)  mLoop.frame_speed =10;
-            mEventQueue.set_speed();
+            al_set_timer_speed(mEventQueue.fps_timer, (1 / (double) mLoop.frame_speed));
          }
          if (key[function_key_speed_inc][2]) // increase
          {
@@ -327,12 +320,12 @@ void mwInput::function_key_check(void)
             else if (CTRL())                 mLoop.frame_speed +=20;
             else                             mLoop.frame_speed +=1;
             if (mLoop.frame_speed > 100000)  mLoop.frame_speed = 100000;
-            mEventQueue.set_speed();
+            al_set_timer_speed(mEventQueue.fps_timer, (1 / (double) mLoop.frame_speed));
          }
          if ((key[function_key_speed_dec][0]) && (key[function_key_speed_dec][1]) && (key[function_key_speed_inc][0]) && (key[function_key_speed_inc][1])) // reset to 40fps
          {
             mLoop.frame_speed = 40;
-            mEventQueue.set_speed();
+            al_set_timer_speed(mEventQueue.fps_timer, (1 / (double) mLoop.frame_speed));
          }
       }
 

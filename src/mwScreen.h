@@ -61,6 +61,42 @@ class mwScreen
    int transition_delay;
 
 
+   // the position and size of the menu
+   int menu_x;
+   int menu_y;
+   int menu_w;
+   int menu_h;
+
+
+   // the position of the level info text
+   int menu_level_info_x;
+   int menu_level_info_y;
+   int menu_level_info_w;
+
+
+   // the size and position of the level display under the menu
+   int menu_level_display_size;
+   int menu_level_display_x;
+   int menu_level_display_y;
+
+   // the scale and position of the spinning logo beside the menu
+   float menu_logo_scale;
+   float menu_logo_x;
+   float menu_logo_y;
+
+   // the scale and position of the spinning logo in full screen splash mode
+   float splash_logo_scale;
+   float splash_logo_x;
+   float splash_logo_y;
+
+   // transition from splash logo to menu logo
+   float splash_logo_scale_dec;
+   float splash_logo_x_dec;
+   float splash_logo_y_dec;
+
+
+
+
    void draw_hyst_rect(void);
 
    void set_screen_display_variables(void);
@@ -84,8 +120,11 @@ class mwScreen
 
    void draw_screen_frame(void);
 
+   void draw_line_of_players(void);
 
-   void frame_and_title(int show_players);
+   void draw_level_info(void);
+
+   void frame_and_title(void);
    void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, float op);
 
    void draw_framed_text(int xc, int y, ALLEGRO_FONT *f, int col, const char* txt);
@@ -98,7 +137,7 @@ class mwScreen
    void draw_percent_bar_range(int cx, int y, int width, int height, int color, int start, int end);
    void draw_percent_barf(float x1, float x2, float y1, float y2, float percent);
 
-   // z_screen_overlay.h
+   // Screen Overlay
    int dif_from_now_to_nl();
    void show_player_stat_box(int tx, int y, int p);
    void show_level_done(void);

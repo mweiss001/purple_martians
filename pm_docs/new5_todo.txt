@@ -3,28 +3,19 @@
 ---------------------------------------------------------
 
 
-
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-I want something like gate info, but in classic mode for start level
+make the cannon facing direction optional
 
-Move my spinning name logo to the right side and have level data on the the left
+make the shortcut keys in the menu optional
+
+can I run demo from menu in classic mode
+yes, but how to patch it in so it looks nice
 
 
 
-
-can I add level name to the filename
-How would that look?
-
-level002.pml
-
-level002_Switch_Nest.pml
-
-Can I add the level name to vls
 
 
 
@@ -36,6 +27,57 @@ Can I add the level name to vls
 
 
 
+
+--------------------------------------------------------
+--  Short History --
+--------------------------------------------------------
+
+Short history:
+
+Winter 1997 project started.
+Win98/DOS Allegro 2.2 DJGPP RHIDE
+
+2003
+Win98/WinXP/linux
+Allegro 4
+Dev-Cpp
+
+
+201803 - finally got netplay to work
+201804 - ported to Allegro 5
+
+201804 - 202211 no dev
+
+2022 - better netplay
+2023 - converted all to objects
+
+
+
+Why?
+
+To show that I can.
+
+I always wanted to be a programmer.
+
+I want to show off all the cool things I have done with the game.
+
+--------------------------------------------------------
+-- The best things about the game to show off --
+--------------------------------------------------------
+- netgame
+- dynamic resizing
+
+
+
+
+
+
+
+
+
+
+
+
 --------------------------------------------------------
 --  Help Screens To Do  --
 --------------------------------------------------------
@@ -44,6 +86,49 @@ Can I add the level name to vls
 make much simpler history page for help screens
 
 add to history
+
+also fix history on index.html page
+
+
+maybe have a nice short history and then an in depth one
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Redid entire project to use objects
 removed all global variable
@@ -220,13 +305,15 @@ remove log file viewer and graphs?? why?
 
 
 
-
-
 somehow describe snap...
 
 hiders
 
 npc
+
+
+
+
 
 
 
@@ -243,12 +330,7 @@ should put that in its own file
 there is some major rewriting needed for events and inputs
 
 
-
 to do:
-project org
-events
-
-
 
 
 done:
@@ -263,8 +345,8 @@ level array
 level done
 timers
 input
-
-
+events
+project org
 
 
 netgame main
@@ -423,6 +505,14 @@ too much work, just leave it...
 
 
 
+
+
+can I add level name to the filename
+How would that look?
+
+level002.pml
+
+level002_Switch_Nest.pml
 
 
 

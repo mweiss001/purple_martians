@@ -181,3 +181,37 @@ that was all that was needed to get running again
 
 
 
+20230805
+
+upgrading to 5.2.8
+
+downloaded:
+allegro-x86_64-w64-mingw32-gcc-12.1.0-posix-seh-static-5.2.8.0.zip
+
+copied bin              to : C:\Program Files\CodeBlocks\MinGW\bin
+copied lib              to : C:\Program Files\CodeBlocks\MinGW\lib
+copied include\allegro5 to : C:\Program Files\CodeBlocks\MinGW\include\allegro5
+
+changed search path in code::block to find headers
+
+downloaded dependencies:
+allegro_deps-x86_64-w64-mingw32-gcc-12.1.0-posix-seh-1.13.0.zip
+
+manually copy all files from allegro_deps\lib to C:\Program Files\CodeBlocks\MinGW\lib
+- libzlib.a
+- libdumb.a
+- libfreetype.a
+- libpng16.a
+...etc
+
+after all this, everything compiles and links clean, but windows will not run the exe..
+
+so I went back to 5.2.7.1
+
+
+
+
+
+
+
+

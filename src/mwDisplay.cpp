@@ -108,6 +108,9 @@ void mwDisplay::proc_custom_scale_factor_change(void)
 
 
 
+
+
+
 void mwDisplay::show_bitmap_flags(int flags)
 {
    printf("bitmap flags:\n");
@@ -246,6 +249,8 @@ void mwDisplay::show_fullscreen_modes(void)
       show_pixel_format(dm.format);
    }
 }
+
+
 
 void mwDisplay::show_var_sizes(void)
 {
@@ -503,10 +508,6 @@ int mwDisplay::init_display(void)
 
   // al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_SUGGEST);
   // al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
-
-
-
-
 
 
 

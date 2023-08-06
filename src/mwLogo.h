@@ -30,35 +30,12 @@ class mwLogo
    int mdw_an2(void);
    void splash_screen(void);
 
+   int show_splash_screen = 1;
+   int splash_screen_done = 0;
+
    void spline_test(void);
    void redraw_spline(int s);
    void spline_adjust(void);
-
-
-   float mdw_map_logo_x;
-   float mdw_map_logo_y;
-   float mdw_map_logo_scale;
-
-   float mdw_splash_logo_x;
-   float mdw_splash_logo_y;
-   float mdw_splash_logo_scale;
-
-   float mdw_logo_scale_dec;
-   float mdw_logo_x_dec;
-   float mdw_logo_y_dec;
-
-
-
-   // might as well store these here too
-   int menu_map_size;
-   int menu_map_x;
-   int menu_map_y;
-
-
-
-
-   int show_splash_screen = 1;
-   int splash_screen_done = 0;
 
 };
 

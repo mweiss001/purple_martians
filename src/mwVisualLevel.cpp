@@ -461,7 +461,11 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
       al_draw_rectangle(x1+0-a, y1+24-a, x2-0+a, y2+24+a, mColor.pc[fc + (15-a)*16], 1 );
    int tc = 15;
    if (fc == 15) tc = 0;
-   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d", cur);
+
+//   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d", cur);
+   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d - %s", cur, mLevel.data[cur].level_name);
+
+
    if (mLevel.load_level(cur, 0, 1))
    {
       mScreen.draw_level2(NULL, x1+2, y1+26, size-3, 1, 1, 1, 1, 0);
@@ -604,7 +608,7 @@ void mwVisualLevel::load_visual_level_select(void)
 int mwVisualLevel::visual_level_select(void)
 {
 
-   if (mLevel.resume_allowed) mLevel.level_abort_data(mLevel.play_level);
+   if (mLevel.resume_allowed) mLevel.add_play_data_record(mLevel.play_level, 0);
 
 
    mLoop.visual_level_select_running = 1;
@@ -684,7 +688,8 @@ int mwVisualLevel::visual_level_select(void)
          al_draw_text(mFont.pr8, mColor.pc[11], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Arrow keys change selection" );
          al_draw_text(mFont.pr8, mColor.pc[10], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "<ESC> to abort");
 
-         al_draw_textf(mFont.pr8, mColor.pc[15], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Icon size:%d", grid_size);
+//         al_draw_textf(mFont.pr8, mColor.pc[15], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Icon size:%d", grid_size);
+
 
 
          al_flip_display();

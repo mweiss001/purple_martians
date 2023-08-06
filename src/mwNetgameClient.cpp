@@ -511,7 +511,7 @@ void mwNetgame::client_timer_adjust(void)
 
    if (fps_chase < 10) fps_chase = 10; // never let this go negative
    if (fps_chase > 70) fps_chase = 70;
-   al_set_timer_speed(mEventQueue.fps_timer, ( 1 / fps_chase));
+   al_set_timer_speed(mEventQueue.fps_timer, (1 / fps_chase));
    mPlayer.loc[p].client_chase_fps = fps_chase;
 
    sprintf(msg, "tmst mv:[%5.2f] ma:[%5.2f] sp:[%5.2f] er:[%6.2f] pa:[%6.2f] ia:[%6.2f] ta:[%6.2f]\n", mv*1000, mva*1000, sp*1000, err*1000, p_adj, i_adj, t_adj);

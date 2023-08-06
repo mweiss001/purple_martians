@@ -2,8 +2,6 @@
 #ifndef mwPlayers_H
 #define mwPlayers_H
 
-
-
 struct psyn // synced between server and client
 {
    int active;  // all routines that process player will skip inactive
@@ -195,7 +193,6 @@ class mwPlayer
    struct ploc loc[NUM_PLAYERS];
    int active_local_player = 0;
 
-
    void set_player_start_pos(int p, int cont);
    void proc_player_health(int p);
    void proc_player_xy_move_test(int p);
@@ -224,49 +221,11 @@ class mwPlayer
    void init_player(int p, int t);
    void fill_player_tile(void);
 
-
-
-
-
    void clear_controls(int p);
    void set_controls_from_comp_move(int p, int comp_move);
    void set_comp_move_from_player_key_check(int p);
    void set_controls_from_player_key_check(int p);
    void proc_player_input(void);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 };
 extern mwPlayer mPlayer;
