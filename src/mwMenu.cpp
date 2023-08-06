@@ -13,6 +13,11 @@
 #include "mwEventQueue.h"
 #include "mwLevel.h"
 #include "mwScreen.h"
+#include "mwMain.h"
+
+#include "mwGameMoves.h"
+#include "mwLoop.h"
+
 
 mwMenu mMenu;
 
@@ -20,38 +25,24 @@ void mwMenu::init_zmenu(int menu_num)
 {
    if (menu_num == 1) // classic mode main menu
    {
-      strcpy (menu_string[0], "");
-      strcpy (menu_string[1], "");
-      sprintf(menu_string[2], "Start Level (%d)", mLevel.start_level);
-      strcpy (menu_string[3], "Start New Game");
-      strcpy (menu_string[4], "Resume Current Game");
-      strcpy (menu_string[5], "Host Network Game");
-      strcpy (menu_string[6], "Join Network Game");
-      strcpy (menu_string[7], "Settings");
-      strcpy (menu_string[8], "Level Editor");
-      strcpy (menu_string[9], "Demo Mode");
-      strcpy (menu_string[10], "Help Screens");
-      strcpy (menu_string[11], "end");
-   }
-   if (menu_num == 2)  // story mode main menu
-   {
-      strcpy (menu_string[0], "");
-      strcpy (menu_string[1], "");
-      strcpy (menu_string[2], "Single Player Game");
+      sprintf(menu_string[0], "Start Level (%d)", mLevel.start_level);
+      strcpy (menu_string[1], "Start New Game");
+      strcpy (menu_string[2], "Resume Current Game");
       strcpy (menu_string[3], "Host Network Game");
       strcpy (menu_string[4], "Join Network Game");
       strcpy (menu_string[5], "Settings");
-      strcpy (menu_string[6], "Demo Mode");
-      strcpy (menu_string[7], "Help Screens");
-      strcpy (menu_string[8], "end");
+      strcpy (menu_string[6], "Level Editor");
+      strcpy (menu_string[7], "Demo Mode");
+      strcpy (menu_string[8], "Help Screens");
+      strcpy (menu_string[9], "end");
    }
-   if (menu_num == 3)  // story mode in-level menu
+   if (menu_num == 2)  // story mode main menu
    {
-      strcpy (menu_string[0], "");
-      strcpy (menu_string[1], "");
-      strcpy (menu_string[2], "Back to Level");
-      strcpy (menu_string[3], "Quit to Overworld");
-      strcpy (menu_string[4], "Settings");
+      strcpy (menu_string[0], "Single Player Game");
+      strcpy (menu_string[1], "Host Network Game");
+      strcpy (menu_string[2], "Join Network Game");
+      strcpy (menu_string[3], "Settings");
+      strcpy (menu_string[4], "Demo Mode");
       strcpy (menu_string[5], "Help Screens");
       strcpy (menu_string[6], "end");
    }
@@ -81,7 +72,27 @@ void mwMenu::init_pmenu(int type)
    }
 }
 
-int mwMenu::zmenu(int menu_num, int menu_pos, int y)
+
+void mwMenu::get_zmenu_width_and_height(int menu_num, int& width, int &height)
+{
+   init_zmenu(menu_num);
+
+   width = 0;
+   height = 0;
+
+   // iterate the menu items
+   int c = 0;
+   while (strcmp(menu_string[c],"end") != 0)
+   {
+      int sl = strlen(menu_string[c]) * 8;
+      if (sl > width) width = sl;
+      height +=10;
+      c++;
+   }
+}
+
+
+int mwMenu::zmenu(int menu_num, int menu_pos)
 /*
    used only for the main game menu
    blocks until a menu item is selected
@@ -97,19 +108,19 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
 
    init_zmenu(menu_num);
 
-   y+=4;
+   int y = mScreen.menu_y;
+   int mx = mScreen.menu_x;
 
    mDemoMode.countdown_val = mDemoMode.countdown_reset;
 
    int demo_mode_menu_item_num = 0; // off by default
-   if (menu_num == 1) demo_mode_menu_item_num = 9;
-   if (menu_num == 2) demo_mode_menu_item_num = 6;
+   if (menu_num == 1) demo_mode_menu_item_num = 7;
+   if (menu_num == 2) demo_mode_menu_item_num = 4;
 
 
    int highlight = menu_pos;
 
    //printf("highlight:%d\n", highlight);
-
 
 
    int selection = 999;
@@ -125,6 +136,8 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
    while (selection == 999)
    {
 
+
+
       al_set_target_backbuffer(mDisplay.display);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -132,12 +145,21 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
       while (!mEventQueue.menu_update) mEventQueue.proc_menu();
       mEventQueue.menu_update = 0;
 
-      mScreen.frame_and_title(1);
-      mLogo.mdw_an(mLogo.mdw_map_logo_x, mLogo.mdw_map_logo_y, mLogo.mdw_map_logo_scale);
 
-      int mx = mDisplay.SCREEN_W/2;
+      mx = mScreen.menu_x; // re-load every frame in case screen size changes
+
+      mScreen.draw_line_of_players();
+
+
+      mLogo.mdw_an(mScreen.menu_logo_x, mScreen.menu_logo_y, mScreen.menu_logo_scale);
 
       mScreen.draw_level_map_under_menu();
+
+      if (mMain.classic_mode) mScreen.draw_level_info();
+
+      mScreen.frame_and_title();
+
+
 
       if (demo_mode_menu_item_num)
       {
@@ -156,6 +178,16 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
       }
 
 
+//      float hx1 = mx - mScreen.menu_w/2;
+//      float hx2 = mx + mScreen.menu_w/2;
+//      float hy1 = y;
+//      float hy2 = y + mScreen.menu_h;
+//      al_draw_rectangle(hx1-1, hy1, hx2+1, hy2, mColor.pc[10], 0);
+
+
+
+
+
       // draw the menu items
       int c = 0;
       while (strcmp(menu_string[c],"end") != 0)
@@ -163,7 +195,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
          int sl = strlen(menu_string[c]) * 4;
          int b = 15; // b = mPlayer.syn[mPlayer.active_local_player].color;
 
-         if ((menu_num == 1) && (!mLevel.resume_allowed) && (c==4)) b+=80; // dimmer if can't resume
+         if ((menu_num == 1) && (!mLevel.resume_allowed) && (c==2)) b+=80; // dimmer if can't resume
 
          // is mouse on menu item
          float mix1 = mx-sl-2;
@@ -180,6 +212,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
                selection = highlight;
             }
          }
+
 
 
 
@@ -208,6 +241,11 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
       if (((mInput.key[ALLEGRO_KEY_DOWN][0]) || (mPlayer.syn[0].down))  && (down_held == 0))
       {
          if (++highlight > last_list_item) highlight = last_list_item;
+
+         if ((menu_num == 1) && (!mLevel.resume_allowed) && (highlight == 2)) highlight = 3; // skip
+
+
+
          down_held = 1;
          mDemoMode.countdown_val = mDemoMode.countdown_reset;
          mDemoMode.autoplay_enabled = 0;
@@ -216,7 +254,10 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
 
       if (((mInput.key[ALLEGRO_KEY_UP][0]) || (mPlayer.syn[0].up)) && (up_held == 0))
       {
-         if (--highlight < 2) highlight = 2;
+         if (--highlight < 0) highlight = 0;
+
+         if ((menu_num == 1) && (!mLevel.resume_allowed) && (highlight == 2)) highlight = 1; // skip
+
          up_held = 1;
          mDemoMode.countdown_val = mDemoMode.countdown_reset;
          mDemoMode.autoplay_enabled = 0;
@@ -226,23 +267,25 @@ int mwMenu::zmenu(int menu_num, int menu_pos, int y)
       if (menu_num == 1)
       {
          // shortcut keys
-         if (mInput.key[ALLEGRO_KEY_L][0])                                    return 8; // level editor
-         if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 7; // settings
+         if (mInput.key[ALLEGRO_KEY_L][0])                                    return 6; // level editor
+         if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 5; // settings
       }
       if (menu_num == 2)
       {
          // shortcut keys
-         if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 5; // settings
-      }
-      if (menu_num == 3)
-      {
-         // shortcut keys
-         if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 4; // settings
+         if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 3; // settings
       }
       if (mInput.key[ALLEGRO_KEY_PGDN][0])   highlight = last_list_item;
-      if (mInput.key[ALLEGRO_KEY_PGUP][0])   highlight = 2;
+      if (mInput.key[ALLEGRO_KEY_PGUP][0])   highlight = 0;
       if (mInput.key[ALLEGRO_KEY_ENTER][0])  selection = highlight;
-      if (mInput.key[ALLEGRO_KEY_ESCAPE][0]) selection = 1;
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][0]) selection = -1;
+
+
+      if (mLevel.skc_trigger_demo) selection = 666;
+
+
+
+
    }
    return selection;
 }

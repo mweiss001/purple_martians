@@ -76,153 +76,116 @@
 <a name="Overview"></a>
 <mh7>Overview</mh7>
 <mh3>
-Allegro 5 is event based.  When I converted my game from Allegro 4, I had to do a lot of things differently.
+When I converted my game from Allegro 4, I had to do a lot of things differently.
 
-Allegro 5 has an event queue that needs to be processed.
-    
-In the examples I've seen, the event queue proccessing is the main control loop of the program, like this:
-</mh3>    
-<pre><code class="language-cpp">// example event processing loop
-while (1)
-{
-   al_wait_for_event(queue, &event);
-   if (event.type == ALLEGRO_EVENT_TIMER)
-   {
-      handle_game_tick();
-      need_redraw = true;
-   }
-   if (need_redraw && al_event_queue_is_empty(queue))
-   {
-      render_last_frame();
-      need_redraw = false;
-   }
-}</code></pre>               
-<mh3>This is not how I process the event queue in my game.
-    
-I didn't want to make such a huge change to my code, so I came up with an alternative approach.
+Allegro 5 is event based. The event queue has to be processed regularily.
 
-I have always had a function called 'proc_controllers()' that I call once per frame to handle input.
-For Allegro 5, I re-purposed it to also process the event queue, and it seems to work just fine. 
-    
-I never call al_wait_for_event().  Once every game loop, I process all events in the queue and move on.
-    
-When the game is not running and I'm in a menu or the level editor, or whatever, I just call 'proc_controllers()' in whatever loop I'm in.
-    
-The speed of the game and menu are controlled by <a href="timers.html" target="_top">timers</a>.
+All input comes from events, rather than being updated asyncronously in the background in Allegro 4.
 
 </mh3>    
-
-<br>
 <a name="Processing the event queue"></a>
 <mh7>Processing the event queue</mh7>
-    
 <mh3>
-This function is very important.
+The function 'mEventQueue.proc()' is called from whatever loop I am in.
 
-It processes the ALLEGRO event queue and handles all input.
+It is called in the main loop when the game is running, and in the menu loop when the menu is running.
 
-When the game is running, it is called once per frame.
-When the game is not running, it must be called in whatever loop you are in.
-If not, everything freezes and locks.
+Any time I am in a blocking loop that needs input, I need to call 'mEventQueue.proc()'  
 
-Most events are passed on to '<a href="events.html#Processing events" target="_top">proc_events()</a>' for processing.
-
-'ALLEGRO_EVENT_DISPLAY_RESIZE' is handled by <a href="display.html#Process screen change" target="_top">proc_screen_change()</a>.
-
-The speed of the menu is controlled by the timer event here, but the speed of the game is handled differently.
-
-See <a href="timers.html" target="_top">Timers</a> or <a href="timers.html#Game speed regulation" target="_top">Game speed regulation</a>.
-
-</mh3>
-<pre><code class="language-cpp">int proc_controllers()
+</mh3>    
+<pre><code class="language-cpp">void mwEventQueue::proc(void)
 {
-   int ret=0, menu_timer_block=1;
-   key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work properly
-   key_pressed_ASCII = 0;
-   while (menu_timer_block)
+   while (!al_is_event_queue_empty(event_queue))
    {
-      while (!al_is_event_queue_empty(event_queue))
-      {
-         ALLEGRO_EVENT ev;
-         if (al_get_next_event(event_queue, &ev))
-         {
-            if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_block = 0;
-            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) proc_display_change();
-            else ret = proc_events(ev, ret);
-         }
-      }
-      function_key_check();
-      if (game_exit) // if if not called from game only do key check for active local player
-      {
-          clear_controls(active_local_player);
-          set_controls_from_player_key_check(active_local_player);
-      }
-      else // game is in progress
-      {
-         menu_timer_block = 0;
-         proc_player_input(ret);
-         proc_game_move();  // run once per frame to process system messages from game_move
-      }
+      ALLEGRO_EVENT ev;
+      al_get_next_event(event_queue, &ev);
+      proc_events(ev);
    }
-   return ret;
 }</code></pre>               
 
-<br>
+
+</mh3>    
 <a name="Processing events"></a>
 <mh7>Processing events</mh7>
-    
-<mh3>
-Here is how most events are processed:  (also see <a href="input.html" target="_top">input</a>)
 
-</mh3>
-
-<pre><code class="language-cpp">int proc_events(ALLEGRO_EVENT ev, int ret)
+<pre><code class="language-cpp">void mwEventQueue::proc_events(ALLEGRO_EVENT ev)
 {
-   if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) fast_exit(0);
+   if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) mDisplay.proc_display_change();
+   if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) mMain.fast_exit(0);
+   if (ev.type == ALLEGRO_EVENT_TIMER)
+   {
+      if (ev.timer.source == fps_timer) program_update = 1;
+      if (ev.timer.source == sec_timer) program_update_1s = 1;
+      if (ev.timer.source == mnu_timer) menu_update = 1;
+      if (ev.timer.source == png_timer) mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 1;
+      if (ev.timer.source == mou_timer)
+      {
+         if (mLoop.level_editor_running) al_set_timer_count(mEventQueue.mou_timer, 0);
+         if (al_get_timer_count(mEventQueue.mou_timer) > 2) al_hide_mouse_cursor(mDisplay.display);
+      }
+   }
+   mInput.proc_input_events(ev);  // send all other events to input handler
+}</code></pre>               
+<mh3>
+Display events are sent to their appropriate handler.
+
+Timer events set flags when they occur, or process the mouse hiding algorithm. See <a href="timers.html" target="_top">timers</a>.
+
+Input events are processed by: 'mInput.proc_input_events(ev)' See <a href="input.html" target="_top">input</a>.
+</mh3>    
+
+<pre><code class="language-cpp">void mwInput::proc_input_events(ALLEGRO_EVENT ev)
+{
    if (ev.type == ALLEGRO_EVENT_MOUSE_WARPED)
    {
-      mouse_x = ev.mouse.x / display_transform_double;
-      mouse_y = ev.mouse.y / display_transform_double;
+      mouse_x = ev.mouse.x / mDisplay.display_transform_double;
+      mouse_y = ev.mouse.y / mDisplay.display_transform_double;
    }
    if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
    {
-      mouse_x = ev.mouse.x / display_transform_double;
-      mouse_y = ev.mouse.y / display_transform_double;
-      mouse_z = ev.mouse.z / display_transform_double;
+      mouse_x = ev.mouse.x / mDisplay.display_transform_double;
+      mouse_y = ev.mouse.y / mDisplay.display_transform_double;
+      mouse_z = ev.mouse.z / mDisplay.display_transform_double;
       mouse_dx = ev.mouse.dx;
       mouse_dy = ev.mouse.dy;
       mouse_dz = ev.mouse.dz;
+      al_show_mouse_cursor(mDisplay.display);
+      al_set_timer_count(mEventQueue.mou_timer, 0);
    }
+
    if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
    {
-      if (ev.mouse.button == 1) mouse_b1 = 1;
-      if (ev.mouse.button == 2) mouse_b2 = 1;
-      if (ev.mouse.button == 3) mouse_b3 = 1;
-      if (ev.mouse.button == 4) mouse_b4 = 1;
+      if (ev.mouse.button == 1) mouse_b[1][0] = true;
+      if (ev.mouse.button == 2) mouse_b[2][0] = true;
+      if (ev.mouse.button == 3) mouse_b[3][0] = true;
+      if (ev.mouse.button == 4) mouse_b[4][0] = true;
+      al_show_mouse_cursor(mDisplay.display);
+      al_set_timer_count(mEventQueue.mou_timer, 0);
    }
    if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
    {
-      if (ev.mouse.button == 1) mouse_b1 = 0;
-      if (ev.mouse.button == 2) mouse_b2 = 0;
-      if (ev.mouse.button == 3) mouse_b3 = 0;
-      if (ev.mouse.button == 4) mouse_b4 = 0;
+      if (ev.mouse.button == 1) mouse_b[1][0] = false;
+      if (ev.mouse.button == 2) mouse_b[2][0] = false;
+      if (ev.mouse.button == 3) mouse_b[3][0] = false;
+      if (ev.mouse.button == 4) mouse_b[4][0] = false;
    }
    if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
    {
       int k = ev.keyboard.keycode;
-      key[k] = true;
-      ret = k;
+      key[k][0] = true;
    }
    if (ev.type == ALLEGRO_EVENT_KEY_UP)
    {
       int k = ev.keyboard.keycode;
-      key[k] = false;
-      if (k == ALLEGRO_KEY_PRINTSCREEN) key[k] = true; // special exception to make PRINTSCREEN work
+      key[k][0] = false;
+      if (k == ALLEGRO_KEY_PRINTSCREEN) key[k][0] = true; // special exception to make PRINTSCREEN work
    }
    if (ev.type == ALLEGRO_EVENT_KEY_CHAR)
    {
-      Key_pressed_ASCII = ev.keyboard.unichar;
-      serial_key_check(Key_pressed_ASCII);
+      key_pressed_ASCII = ev.keyboard.unichar;
+      serial_key_check(key_pressed_ASCII);
+      mEventQueue.menu_update = 1;
+      //printf("key_pressed_ASCII:%d\n", key_pressed_ASCII);
    }
    if (ev.type == ALLEGRO_EVENT_JOYSTICK_AXIS)
    {
@@ -234,32 +197,31 @@ Here is how most events are processed:  (also see <a href="input.html" target="_
       float pos = ev.joystick.pos;
       if (ax == 0) // x axis
       {
-         key[130+jo] = false;
-         key[131+jo] = false;
-         if (pos > 0) key[131+jo] = true;
-         if (pos < 0) key[130+jo] = true;
+         key[130+jo][0] = false;
+         key[131+jo][0] = false;
+         if (pos > 0) key[131+jo][0] = true;
+         if (pos < 0) key[130+jo][0] = true;
       }
       if (ax == 1) // y axis
       {
-         key[128+jo] = false;
-         key[129+jo] = false;
-         if (pos > 0) key[129+jo] = true;
-         if (pos < 0) key[128+jo] = true;
+         key[128+jo][0] = false;
+         key[129+jo][0] = false;
+         if (pos > 0) key[129+jo][0] = true;
+         if (pos < 0) key[128+jo][0] = true;
       }
    }
    if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN)
    {
       int jy = getJoystickNum(ev.joystick.id);
       int sc = get_scan_code_from_joystick(jy, 1, ev.joystick.button);
-      key[sc] = true;
+      key[sc][0] = true;
    }
    if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_UP)
    {
       int jy = getJoystickNum(ev.joystick.id);
       int sc = get_scan_code_from_joystick(jy, 1, ev.joystick.button);
-      key[sc] = false;
+      key[sc][0] = false;
    }
-   return ret;
 }</code></pre>               
 
 

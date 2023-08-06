@@ -8,13 +8,7 @@
 #include "mwLoop.h"
 #include "mwMain.h"
 
-
 mwEventQueue mEventQueue;
-
-void mwEventQueue::set_speed(void)
-{
-   al_set_timer_speed(mEventQueue.fps_timer, 1/(float)mLoop.frame_speed);
-}
 
 void mwEventQueue::create_timers(void)
 {

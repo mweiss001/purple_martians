@@ -151,120 +151,55 @@ void mwLoop::game_menu(void)
    if (mMain.classic_mode)
    {
       if (!mLevel.resume_allowed) mLevel.set_start_level();
-      if (top_menu_sel < 3) top_menu_sel = 3;
-      while (top_menu_sel != 1)
+      if (top_menu_sel < 1) top_menu_sel = 1;
+      while (top_menu_sel != -1)
       {
-         top_menu_sel = mMenu.zmenu(1, top_menu_sel, 10);
+         top_menu_sel = mMenu.zmenu(1, top_menu_sel);
 
-         if (top_menu_sel == 1)  // exit
+         if (top_menu_sel == -1)  // exit
          {
             state[0] = 0;
             return;
          }
 
-         if  (top_menu_sel == 2) // visual level select
+         if (top_menu_sel == 666)  // skc demo
+         {
+            mLevel.skc_trigger_demo = 0;
+            if (mGameMoves.load_gm(mLevel.play_level))
+            {
+               mDemoMode.mode = 1;
+               mDemoMode.restore_mode = 21;
+               mDemoMode.restore_level = mLevel.play_level;
+               mLoop.state[0] = 31;
+               quit_action = 1; // menu
+               top_menu_sel = 1;
+               return;
+            }
+         }
+
+
+
+
+
+         if  (top_menu_sel == 0) // visual level select
          {
             int r = mVisualLevel.visual_level_select();
-            if (r == 1) top_menu_sel = 3; // start new game
-            if (r == 3) top_menu_sel = 8; // start level editor
+            if (r == 1) top_menu_sel = 1; // start new game
+            if (r == 3) top_menu_sel = 6; // start level editor
          }
-         if (top_menu_sel == 3) // start new game
+         if (top_menu_sel == 1) // start new game
          {
             mLevel.play_level = mLevel.start_level;
             state[0] = 10;
             quit_action = 1;
             done_action = 1;
-            top_menu_sel = 4;
+            top_menu_sel = 2; // resume
             return;
          }
-         if ((top_menu_sel == 4) && (mLevel.resume_allowed))  // resume game
+         if ((top_menu_sel == 2) && (mLevel.resume_allowed))  // resume game
          {
             state[0] = 13;
             quit_action = 1;
-            return;
-         }
-         if (top_menu_sel == 5)  // host network game
-         {
-            state[0] = 20;
-            quit_action = 1;
-            done_action = 1;
-            return;
-         }
-         if (top_menu_sel == 6) // join network game
-         {
-            state[0] = 24;
-            quit_action = 1;
-            done_action = 1;
-            return;
-         }
-         if (top_menu_sel == 7) // settings
-         {
-            state[0] = 3;
-            mLoop.quit_action = 1; // menu
-            return;
-         }
-         if (top_menu_sel == 8)  // level editor
-         {
-            mLevel.set_start_level(mWM.mW[1].edit_menu(mLevel.start_level));
-            quit_action = 1; // menu
-            state[0] = 10;
-            return;
-         }
-
-         if (top_menu_sel == 9) // demo mode
-         {
-            mDemoMode.mode = 2;
-            mDemoMode.restore_mode = 21;
-            mDemoMode.restore_level = mLevel.start_level;
-            state[0] = 12;
-            quit_action = 1; // menu
-            done_action = 5; // next rand level
-            return;
-         }
-
-         if (top_menu_sel == 10) mHelp.help("");
-
-
-         if ((top_menu_sel > 100) && (top_menu_sel < 200)) // right pressed on menu item
-         {
-            top_menu_sel -= 100;
-            if (top_menu_sel == 2)
-            {
-               if (mLevel.resume_allowed) mLevel.level_abort_data(mLevel.play_level);
-               mLevel.next_level(); // next level
-            }
-         }
-         if ((top_menu_sel > 200) && (top_menu_sel < 300)) // left pressed on menu item
-         {
-            top_menu_sel -= 200;
-            if (top_menu_sel == 2)
-            {
-               if (mLevel.resume_allowed) mLevel.level_abort_data(mLevel.play_level);
-               mLevel.prev_level(); // prev level
-            }
-         }
-      }
-   }
-   else // story mode
-   {
-      mLevel.set_start_level();
-      if (top_menu_sel < 2) top_menu_sel = 2;
-      if (top_menu_sel > 7 ) top_menu_sel = 7;
-
-      while (top_menu_sel != 1)
-      {
-         top_menu_sel = mMenu.zmenu(2, top_menu_sel, 10);
-
-         if (top_menu_sel == 1)  // exit
-         {
-            state[0] = 0;
-            return;
-         }
-         if (top_menu_sel == 2) // start new game
-         {
-            state[0] = 10;
-            quit_action = 1; // menu
-            done_action = 2; // overworld
             return;
          }
          if (top_menu_sel == 3)  // host network game
@@ -287,7 +222,91 @@ void mwLoop::game_menu(void)
             mLoop.quit_action = 1; // menu
             return;
          }
-         if (top_menu_sel == 6) // demo mode
+         if (top_menu_sel == 6)  // level editor
+         {
+            mLevel.set_start_level(mWM.mW[1].edit_menu(mLevel.start_level));
+            quit_action = 1; // menu
+            state[0] = 10;
+            return;
+         }
+
+         if (top_menu_sel == 7) // demo mode
+         {
+            mDemoMode.mode = 2;
+            mDemoMode.restore_mode = 21;
+            mDemoMode.restore_level = mLevel.start_level;
+            state[0] = 12;
+            quit_action = 1; // menu
+            done_action = 5; // next rand level
+            return;
+         }
+
+         if (top_menu_sel == 8) mHelp.help("");
+
+
+         if ((top_menu_sel >= 100) && (top_menu_sel < 200)) // right pressed on menu item
+         {
+            top_menu_sel -= 100;
+            if (top_menu_sel == 0)
+            {
+               if (mLevel.resume_allowed) mLevel.add_play_data_record(mLevel.play_level, 0);
+               mLevel.next_level(); // next level
+            }
+         }
+         if ((top_menu_sel >= 200) && (top_menu_sel < 300)) // left pressed on menu item
+         {
+            top_menu_sel -= 200;
+            if (top_menu_sel == 0)
+            {
+               if (mLevel.resume_allowed) mLevel.add_play_data_record(mLevel.play_level, 0);
+               mLevel.prev_level(); // prev level
+            }
+         }
+      }
+   }
+   else // story mode
+   {
+      mLevel.set_start_level();
+      if (top_menu_sel < 0) top_menu_sel = 0;
+      if (top_menu_sel > 5 ) top_menu_sel = 5;
+
+      while (top_menu_sel != -1)
+      {
+         top_menu_sel = mMenu.zmenu(2, top_menu_sel);
+
+         if (top_menu_sel == -1)  // exit
+         {
+            state[0] = 0;
+            return;
+         }
+         if (top_menu_sel == 0) // start new game
+         {
+            state[0] = 10;
+            quit_action = 1; // menu
+            done_action = 2; // overworld
+            return;
+         }
+         if (top_menu_sel == 1)  // host network game
+         {
+            state[0] = 20;
+            quit_action = 1;
+            done_action = 1;
+            return;
+         }
+         if (top_menu_sel == 2) // join network game
+         {
+            state[0] = 24;
+            quit_action = 1;
+            done_action = 1;
+            return;
+         }
+         if (top_menu_sel == 3) // settings
+         {
+            state[0] = 3;
+            mLoop.quit_action = 1; // menu
+            return;
+         }
+         if (top_menu_sel == 4) // demo mode
          {
             mDemoMode.mode = 2;
             mDemoMode.restore_mode = 21;
@@ -298,7 +317,7 @@ void mwLoop::game_menu(void)
             return;
          }
 
-         if (top_menu_sel == 7) mHelp.help(""); // help
+         if (top_menu_sel == 5) mHelp.help(""); // help
 
          while (top_menu_sel > 100) top_menu_sel-=100; // to account for left and right which are not used
       }
@@ -389,7 +408,7 @@ void mwLoop::proc_program_state(void)
             quit_action = 1;    // menu
             done_action = 2;    // overworld (should never trigger level done from overworld, no exits)
 
-            mLevel.level_abort_data(mLevel.play_level);
+            mLevel.add_play_data_record(mLevel.play_level, 0);
 
             return;
          }
@@ -1022,7 +1041,7 @@ void mwLoop::proc_level_done_mode(void)
    if (mPlayer.syn[0].level_done_mode == 30) // setup for players seek and zoom out
    {
 
-      mLevel.level_complete_data(0, mLevel.play_level);
+      mLevel.add_play_data_record(mLevel.play_level, 1);
 
       if (super_fast_mode) // skip cutscene
       {
@@ -1138,7 +1157,7 @@ void mwLoop::proc_level_done_mode(void)
    if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
    {
       mScreen.set_player_join_quit_display(mPlayer.syn[0].level_done_player, 2, 60);
-      mLevel.level_complete_data(0, mLevel.play_level);
+      mLevel.add_play_data_record(mLevel.play_level, 1);
 
       for (int p=0; p<NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active)

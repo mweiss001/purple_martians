@@ -28786,6 +28786,685 @@ int mwLevel::is_block_empty(int x, int y, int test_block, int test_item, int tes
 
 
 
+I want something like gate info, but in classic mode for start level
+
+Move my spinning name logo to the right side and have level data on the the left
+
+
+mark out where things are
+
+rename the variable to something better:
+
+currently
+
+where the level display is:
+
+mLogo.menu_map_size
+mLogo.menu_map_x
+mLogo.menu_map_y
+
+mLogo.mdw_splash_logo_x
+mLogo.mdw_splash_logo_y
+mLogo.mdw_splash_logo_scale
+
+mLogo.mdw_map_logo_x
+mLogo.mdw_map_logo_y
+mLogo.mdw_map_logo_scale
+
+mLogo.mdw_logo_x_dec
+mLogo.mdw_logo_y_dec
+mLogo.mdw_logo_scale_dec
+
+
+
+how about:
+
+mLogo.menu_level_display_x
+mLogo.menu_level_display_y
+mLogo.menu_level_display_size
+
+mLogo.splash_x
+mLogo.splash_y
+mLogo.splash_scale
+
+mLogo.menu_x
+mLogo.menu_y
+mLogo.menu_scale
+
+mLogo.menu_x_dec
+mLogo.menu_y_dec
+mLogo.menu_scale_dec
+
+
+where is the menu position?
+
+also frame and title draws line of players on each side
+
+I want to keep track of all of these element and have their variables somehwere common
+
+
+
+All the drawing is done in zmenu.
+
+zmenu is passed y
+
+zmenu ias called onlt twice and alway with y = 10;
+then at the start of zmenu y+=4;
+
+remove the passing and force to 14...later, save that somehwere
+
+then in zmenu, these are called...
+
+      mScreen.frame_and_title(1);
+      mLogo.mdw_an(mLogo.mdw_map_logo_x, mLogo.mdw_map_logo_y, mLogo.mdw_map_logo_scale);
+      mScreen.draw_level_map_under_menu();
+
+separate the draw line of players to its own function
+
+now I have:
+
+      mScreen.frame_and_title();
+      mScreen.draw_line_of_players();
+      mLogo.mdw_an(mLogo.mdw_map_logo_x, mLogo.mdw_map_logo_y, mLogo.mdw_map_logo_scale);
+      mScreen.draw_level_map_under_menu();
+
+
+where would be a logical place to store all these screen positions
+
+Logo
+Menu
+Screem
+Display
+
+??
+
+
+
+
+while I am at it, what is the deal with Display and Screen?
+
+what logical separtion do those have?
+
+Display was mostly about the allegro functions to set up the display
+670 lines
+
+Screen was more about the actual drawing on that screen
+900 lines
+
+ScreenOverlay
+1200 lines
+
+
+what about one class but different source files
+
+I kind of want all the variables related to the display and positions on the display in one common class...
+
+
+what if Display just has the allegro functions the ortho doubling functions and functions to change display size
+
+then screen has its own size that it gets from display
+
+that is kind of how it is now
+
+so then the logical place for the logo and menu and level icon x, y, size is in screen....
+
+
+
+
+
+yes, i think so...
+
+what names?
+
+// the size and position of the level display under then menu
+mScreen.menu_level_display_x
+mScreen.menu_level_display_y
+mScreen.menu_level_display_size
+
+
+// the scale and position of the spinning logo beside the menu
+mScreen.menu_logo_x
+mScreen.menu_logo_y
+mScreen.menu_logo_scale
+
+// the scale and position of the spinning logo in full screen splash mode
+mScreen.splash_logo_x
+mScreen.splash_logo_y
+mScreen.splash_logo_scale
+
+// the decrement to link full screen splash mode to menu logo
+mScreen.splash_logo_x_dec
+mScreen.splash_logo_y_dec
+mScreen.splash_logo_scale_dec
+
+// the position of the menu
+mScreen.menu_x
+mScreen.menu_y
+
+
+
+//-------------------------------------
+
+ok lets do some search and replace:
+
+old:
+mLogo.menu_map_x
+mLogo.menu_map_y
+mLogo.menu_map_size
+
+new:
+mScreen.menu_level_display_x
+mScreen.menu_level_display_y
+mScreen.menu_level_display_size
+
+
+mLogo.menu_map_x mScreen.menu_level_display_x
+mLogo.menu_map_y mScreen.menu_level_display_y
+mLogo.menu_map_size mScreen.menu_level_display_size
+
+done and removed from Logo..
+also removed all mScreen.prefixes where not necessary
+
+
+next...
+
+old:
+mLogo.mdw_map_logo_x
+mLogo.mdw_map_logo_y
+mLogo.mdw_map_logo_scale
+
+new:
+// the scale and position of the spinning logo beside the menu
+mScreen.menu_logo_x
+mScreen.menu_logo_y
+mScreen.menu_logo_scale
+
+mLogo.mdw_map_logo_x mScreen.menu_logo_x
+mLogo.mdw_map_logo_y mScreen.menu_logo_y
+mLogo.mdw_map_logo_scale mScreen.menu_logo_scale
+
+done and removed from Logo..
+also removed all mScreen.prefixes where not necessary
+
+
+next...
+
+old:
+mLogo.mdw_splash_logo_x
+mLogo.mdw_splash_logo_y
+mLogo.mdw_splash_logo_scale
+
+// the scale and position of the spinning logo in full screen splash mode
+mScreen.splash_logo_x
+mScreen.splash_logo_y
+mScreen.splash_logo_scale
+
+mLogo.mdw_splash_logo_scale mScreen.splash_logo_scale
+mLogo.mdw_splash_logo_x mScreen.splash_logo_x
+mLogo.mdw_splash_logo_y mScreen.splash_logo_y
+
+done and removed from Logo..
+also removed all mScreen.prefixes where not necessary
+
+
+next...
+
+
+mLogo.mdw_logo_x_dec
+mLogo.mdw_logo_y_dec
+mLogo.mdw_logo_scale_dec
+
+// the decrement to link full screen splash mode to menu logo
+mScreen.splash_logo_x_dec
+mScreen.splash_logo_y_dec
+mScreen.splash_logo_scale_dec
+
+
+
+mLogo.mdw_logo_x_dec mScreen.splash_logo_x_dec
+done and removed from Logo..
+also removed all mScreen.prefixes where not necessary
+
+all that is left is:
+
+// the position and size of the menu
+mScreen.menu_x
+mScreen.menu_y
+mScreen.menu_w
+mScreen.menu_h
+
+done..
+
+now look at the line of players
+
+The largest one is pretty much the same height as the menu
+
+change the goddamn zmenu to not have 2 blank spaces at the top
+done...
+
+
+I am trying to figure out why sometimes when I draw tiles, I get a line at the top
+like an artifact from the adjacent tile...
+
+
+tried
+ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR
+but they made the bitmaps fuzzy and they still had the lines
+
+I am looking at:
+ALLEGRO_BITMAP_WRAP
+but it looks like it is only for version 5.2.8
+
+in windows I am using 5.2.7.1
+
+i don't know hat version I have for linux...
+
+how do I get the latest version?
+
+downloaded the latest version
+
+rebuilt all, but will not run on my pc..
+
+I have gcc version 8.3.0
+
+luckily I was able to go back to 5.2.7.1
+
+
+fuck it, I don't want to mess with this...
+
+
+
+
+
+I want something like gate info, but in classic mode for start level
+
+Move my spinning name logo to the right side and have level data on the the left
+
+mark out where things are
+
+Now start making some text display for the current level
+
+
+Do not display any level stats for level 1 (overworld)
+
+
+What about the title over the level icon?
+
+Could I just put the name there?
+
+in story mode show no title and no stats...done
+
+
+find the minimun width of level info
+
+23 char? lets do 25...25*8 = 200;
+
+
+
+
+
+new sizing algorithm
+
+level_display is no longer centered
+
+lose logo for now...
+
+
+
+
+level_display y and level info y are the same and are directly under the menu
+
+info w is always fixed at 200
+
+added outline around level and now it looks great..
+
+center the level number and name
+
+outline the info area
+
+rearrange items
+
+add stuff like enemy counts. etc...
+
+
+
+why don't I just add all these extra fields to level_data??
+
+
+this is how it is redone
+
+struct level_data
+{
+   char level_name[200];
+
+   int status;
+
+   int min_respawns;
+   int max_purple_coins_collected;
+   int tot_purple_coins;
+   int min_enemies_left;
+   int min_enemies_left_par;
+   int max_enemies_killed;
+
+   int times_played;
+   int times_beat;
+   int times_quit;
+
+   int time_par;
+   int time_best;
+   int time_worst;
+   int time_average;
+   int time_total;
+
+
+this will break a lot of shit!!!
+
+but when all is done it will be better...
+
+
+make a function that you pass status to and get text and color....
+
+void mwLevel::get_status_text_and_color(int status, int& col, char txt[])
+{
+   if (status == 0) { sprintf(txt, "Locked");   col = 10; } // red
+   if (status == 1) { sprintf(txt, "Ready");    col = 13; } // lt blue
+   if (status == 2) { sprintf(txt, "Complete"); col = 12; } // dk blue
+   if (status == 3) { sprintf(txt, "Perfect!"); col = 8;  } // purple
+}
+
+make a fucntion that calculates all of these fields
+
+
+
+I have it all in place and am chasing down bugs...
+
+story mode
+erase level data
+
+level_stats display should be lock, unlock, ready but is blank...fixed
+
+
+when completing first level, shows perfect, but no time recorded...
+
+
+
+I want to make a clear distinction...
+
+only level_done and level_abort create play_data entries
+
+then they call calc and that does the rest, including achievements
+
+make it so, then debug...
+
+
+
+level complete good
+
+level perfect does not show time
+
+
+got that working...
+
+now unlocking next level??
+
+I have no idea why it does not work as intended..
+
+calc is called first
+
+I think I have this cleaned up...look harder...
+
+looking good...
+
+
+add the level name to vls..done
+
+
+
+re-did the project organization html page
+
+now all html pages should be up to date
+
+index??
+
+how many levels?
+
+41 main levels
+12 extra
+8 trainer
+1 overworld
+2 muliplayer bomb toss
+14 advanced demo
+
+over 70..
+
+
+
+I am agonizing where the put the spining logo..
+
+beside or under info is not looking good...
+
+how about replacing rhs large player in line of players?
+
+I like how that looks
+
+in story mode, center the level
+
+
+make it so that level info does not go past bottom of screen
+why does outline of level and info dissapear in some sizes?
+raise level to match space above menu
+done
+
+
+
+
+
+I want to make the perfect calculation need to have both time and coins in the same run
+
+how does it work now?
+
+
+
+make a new status, 4
+
+3 is both achievements done
+4 is both done in the same level...
+
+or just modify 3 so that only both at once count
+but now the time can be way less than par, beacuse all coins are not collected
+should I have 2 times, best and best with all coins?
+
+or should I modify best time to only count if all coins are collected
+
+
+stage 1 beat level
+stage 2 beat level with all coins
+stage 3 beat level with all coins < par time
+
+beating level less than par time without all coins collected does not save best time
+
+OK I thinks I have all that figured out_func
+now I have 2 times:
+overall and all_coins
+only all coins counts towards perfect
+
+
+icon timer fix..done
+
+now I need to fix level stats...
+I might need to add a new column...
+
+done
+
+I would also like to modify the area unlocking
+when an area is unlocked, unlock all levels in the area
+then when 3 of 5 are complete, unlock the next area
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

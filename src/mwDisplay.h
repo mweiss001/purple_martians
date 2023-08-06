@@ -39,8 +39,6 @@ class mwDisplay
    int show_dtd;
 
 
-
-
    void set_window_title(void);
 
    float scale_factor;

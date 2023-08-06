@@ -206,7 +206,13 @@ void mwLogo::draw_logo(float x, float y, float x_scale, float y_scale)
    // get thickness from max scale, x or y
    float max_scale = fabs(x_scale);
    if (fabs(y_scale) > fabs(x_scale)) max_scale = fabs(y_scale);
-   float t = 3 + max_scale * 7;
+
+
+//   float t = 3 + max_scale * 7;  // original
+
+//   float t = 2 + max_scale * 7;
+
+   float t = 1 + max_scale * 9;
 
    float draw_points[9][8];
 
@@ -393,8 +399,8 @@ void mwLogo::mdw_an(float x, float y, float sc)
 // splash screen uses an2
 int mwLogo::mdw_an2(void)
 {
-   float x_scale = mdw_splash_logo_scale;
-   float y_scale = mdw_splash_logo_scale;
+   float x_scale = mScreen.splash_logo_scale;
+   float y_scale = mScreen.splash_logo_scale;
 
    // 1st grow while rotating 256   0    - 255
    // 2nd xlink                64   256  - 319
@@ -412,8 +418,8 @@ int mwLogo::mdw_an2(void)
       float nt = ((float)(mdw_an_seq - 0) / 256) * ALLEGRO_PI*2;
       float s = (float)mdw_an_seq / 320;
       if (s > 1) s = 1;
-      x_scale = s * mdw_splash_logo_scale * sin(nt);
-      y_scale = s * mdw_splash_logo_scale * cos(nt);
+      x_scale = s * mScreen.splash_logo_scale * sin(nt);
+      y_scale = s * mScreen.splash_logo_scale * cos(nt);
    }
    // fix x scale
    if ((mdw_an_seq > 255) && (mdw_an_seq < 319))
@@ -421,43 +427,43 @@ int mwLogo::mdw_an2(void)
       float nt = ((float)(mdw_an_seq - 256) / 256) * ALLEGRO_PI*2;
       float s = (float)mdw_an_seq / 320;
       if (s > 1) s = 1;
-      x_scale = s * mdw_splash_logo_scale * sin(nt);
-      y_scale = s * mdw_splash_logo_scale;
+      x_scale = s * mScreen.splash_logo_scale * sin(nt);
+      y_scale = s * mScreen.splash_logo_scale;
    }
    // freeze
    if ((mdw_an_seq > 319) && (mdw_an_seq < 448))
    {
-      x_scale = mdw_splash_logo_scale;
-      y_scale = mdw_splash_logo_scale;
+      x_scale = mScreen.splash_logo_scale;
+      y_scale = mScreen.splash_logo_scale;
    }
    // spin back to prepare for dual flip...
    if ((mdw_an_seq > 447) && (mdw_an_seq < 640))
    {
       float nt = ((float)(mdw_an_seq - 448) / 256) * ALLEGRO_PI*2;
-      x_scale = mdw_splash_logo_scale * cos(nt);
+      x_scale = mScreen.splash_logo_scale * cos(nt);
    }
    // shrink and move
    if ((mdw_an_seq > 639) && (mdw_an_seq < 960))
    {
-      mdw_splash_logo_x -= mdw_logo_x_dec;
-      mdw_splash_logo_y -= mdw_logo_y_dec;
-      mdw_splash_logo_scale -= mdw_logo_scale_dec;
+      mScreen.splash_logo_x     -= mScreen.splash_logo_x_dec;
+      mScreen.splash_logo_y     -= mScreen.splash_logo_y_dec;
+      mScreen.splash_logo_scale -= mScreen.splash_logo_scale_dec;
    }
    // dual flip
    if ((mdw_an_seq > 639) && (mdw_an_seq < 896))
    {
       float nt = ((float)(mdw_an_seq - 640) / 256) * ALLEGRO_PI*2;
-      x_scale = mdw_splash_logo_scale * sin(nt);
-      y_scale = mdw_splash_logo_scale * cos(nt);
+      x_scale = mScreen.splash_logo_scale * sin(nt);
+      y_scale = mScreen.splash_logo_scale * cos(nt);
    }
    // back to original
    if ((mdw_an_seq > 895) && (mdw_an_seq < 960))
    {
       float nt = ((float)(mdw_an_seq - 896) / 256) * ALLEGRO_PI*2;
-      x_scale = mdw_splash_logo_scale * sin(nt);
-      y_scale = mdw_splash_logo_scale;
+      x_scale = mScreen.splash_logo_scale * sin(nt);
+      y_scale = mScreen.splash_logo_scale;
    }
-   draw_logo(mdw_splash_logo_x, mdw_splash_logo_y, x_scale, y_scale);
+   draw_logo(mScreen.splash_logo_x, mScreen.splash_logo_y, x_scale, y_scale);
    return 0;
 }
 

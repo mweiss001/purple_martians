@@ -7,7 +7,10 @@ class mwMenu
    char menu_string[25][80];
 
    void init_zmenu(int menu_num);
-   int zmenu(int menu_num, int menu_pos, int y);
+
+   void get_zmenu_width_and_height(int menu_num, int& width, int &height);
+
+   int zmenu(int menu_num, int menu_pos);
 
    int tmenu(int menu_pos, int x1, int y1);
 

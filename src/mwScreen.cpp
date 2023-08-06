@@ -19,7 +19,7 @@
 #include "mwInput.h"
 #include "mwMain.h"
 #include "mwNetgame.h"
-
+#include "mwMenu.h"
 
 mwScreen mScreen;
 
@@ -102,15 +102,15 @@ void mwScreen::transition_cutscene(int i, int f, int debug_print)
       }
       if (i == 2) // menu
       {
-         fmsi = (float)mLogo.menu_map_size / 2000;
-         fmxi = mLogo.menu_map_x + px * fmsi;
-         fmyi = mLogo.menu_map_y + py * fmsi;
+         fmsi = (float)menu_level_display_size / 2000;
+         fmxi = menu_level_display_x + px * fmsi;
+         fmyi = menu_level_display_y + py * fmsi;
       }
       if (f == 2) // menu
       {
-         fmsf = (float)mLogo.menu_map_size / 2000;
-         fmxf = mLogo.menu_map_x + px * fmsf;
-         fmyf = mLogo.menu_map_y + py * fmsf;
+         fmsf = (float)menu_level_display_size / 2000;
+         fmxf = menu_level_display_x + px * fmsf;
+         fmyf = menu_level_display_y + py * fmsf;
       }
       if (i == 3) // gate
       {
@@ -468,39 +468,99 @@ void mwScreen::draw_hyst_rect(void)
 
 void mwScreen::set_map_var(void)
 {
-   // determine menu_map_size and position
-   int y_size = mDisplay.SCREEN_H-160;
-   int x_size = mDisplay.SCREEN_W-260;
-   if (y_size < x_size) mLogo.menu_map_size = y_size;
-   else mLogo.menu_map_size = x_size;
-   if (mLogo.menu_map_size < 10) mLogo.menu_map_size = 10;
-   mLogo.menu_map_x = mDisplay.SCREEN_W/2-(mLogo.menu_map_size/2);
-   mLogo.menu_map_y = 140;
+   // set menu x and y
+   menu_x = mDisplay.SCREEN_W/2;
+   menu_y = 34;
 
-   // splash screen logo position
-   mLogo.mdw_splash_logo_x = mDisplay.SCREEN_W/2;
-   mLogo.mdw_splash_logo_y = mDisplay.SCREEN_H/2;
+   // get menu width and height
+   int menu_num = 2;
+   if (mMain.classic_mode) menu_num = 1;
+   mMenu.get_zmenu_width_and_height(menu_num, menu_w, menu_h);
 
-   // splash screen logo size
+   // the ypos of level_display and level_info are the same and are directly under the menu
+   menu_level_info_y = menu_level_display_y = menu_y + menu_h + 4;
+
+   // level_info width is fixed at 200 or 25 char
+   menu_level_info_w = 24 * 8;
+
+   if (!mMain.classic_mode) menu_level_info_w = 0;
+
+
+
+
+   // determine the size of the level_display
+
+   // get the available y space left for the level display
+   int y_size = mDisplay.SCREEN_H - menu_level_display_y - BORDER_WIDTH;
+
+   // get the available x space left for the level display
+   int x_size = mDisplay.SCREEN_W - menu_level_info_w - BORDER_WIDTH*2 - 4;
+
+   // then use the minimum to set level display size
+   if (y_size < x_size) menu_level_display_size = y_size;
+   else menu_level_display_size = x_size;
+
+   // now find out where to put everything..
+   int total_width = menu_level_info_w + menu_level_display_size;
+   menu_level_display_x = mDisplay.SCREEN_W/2 - total_width / 2;
+   menu_level_info_x = menu_level_display_x + menu_level_display_size + 1;
+
+
+
+   // splash logo scale
    float min_d = mDisplay.SCREEN_H;  // find miniumum dimension
    if (mDisplay.SCREEN_W < mDisplay.SCREEN_H) min_d = mDisplay.SCREEN_W;
-   mLogo.mdw_splash_logo_scale = min_d / 500; // 400 is the exact size, make it bigger for padding
+   splash_logo_scale = min_d / 450; // 400 is the exact size, make it bigger for padding
 
-   // map screen logo position and size
-   float sp = mLogo.menu_map_x - BORDER_WIDTH;    // how much space do I have between the map and the screen edge?
-   mLogo.mdw_map_logo_scale = sp / 500; // 400 is the exact size, make it bigger for padding
-   mLogo.mdw_map_logo_x = BORDER_WIDTH + sp/2;
-   mLogo.mdw_map_logo_y = mLogo.menu_map_y + mLogo.mdw_map_logo_scale * 200; // align top of logo with top of map
+   // splash logo position
+   splash_logo_x = mDisplay.SCREEN_W/2;
+   splash_logo_y = mDisplay.SCREEN_H/2;
 
-   // this is the link from splash to map
-   mLogo.mdw_logo_scale_dec = (mLogo.mdw_splash_logo_scale - mLogo.mdw_map_logo_scale) / 320;
-   mLogo.mdw_logo_x_dec = (mLogo.mdw_splash_logo_x - mLogo.mdw_map_logo_x) / 320;
-   mLogo.mdw_logo_y_dec = (mLogo.mdw_splash_logo_y - mLogo.mdw_map_logo_y) / 320;
 
-//   printf("slx %f sly %f\n", mdw_splash_logo_x, mdw_splash_logo_y );
-//   printf("mlx %d mly %d\n", mdw_map_logo_x, mdw_map_logo_y );
-//   printf("xdec %f ydec %f\n", mdw_logo_x_dec, mdw_logo_y_dec );
-//   printf("xdec %f ydec %f\n", mdw_logo_x_dec*320, mdw_logo_y_dec*320 );
+   // menu logo scale
+   // same size as menu h
+   menu_logo_scale = (float)menu_h / 500; // 400 is the exact size, make it bigger for padding
+
+   menu_logo_y = menu_y + menu_h/2;
+
+   menu_logo_x = menu_x - menu_w/2 - menu_logo_scale*200 - 5;
+
+
+//   // menu logo scale
+//   // same size as info block width
+//   menu_logo_scale = (float)menu_level_info_w / 500; // 400 is the exact size, make it bigger for padding
+//
+//   // menu logo position
+//
+//   menu_logo_x = menu_level_info_x + menu_level_info_w/2;
+//
+//   menu_logo_y = mDisplay.SCREEN_H - BORDER_WIDTH - menu_level_info_w/2;
+
+
+
+
+//   // menu logo scale
+//   float sp = menu_level_display_x - BORDER_WIDTH;    // how much space do I have between the map and the screen edge?
+//   menu_logo_scale = sp / 500; // 400 is the exact size, make it bigger for padding
+//
+//   // menu logo position
+//   //menu_logo_x = BORDER_WIDTH + sp/2; // left hand side
+//   menu_logo_x = mDisplay.SCREEN_W - BORDER_WIDTH - sp/2; // right hand side
+//   menu_logo_y = menu_level_display_y + menu_logo_scale * 200; // align top of logo with top of map
+
+
+
+
+   // transition from splash logo to menu logo
+   splash_logo_scale_dec = (splash_logo_scale - menu_logo_scale) / 320;
+   splash_logo_x_dec     = (splash_logo_x     - menu_logo_x)     / 320;
+   splash_logo_y_dec     = (splash_logo_y     - menu_logo_y)     / 320;
+
+
+
+
+
+
 }
 
 
@@ -547,9 +607,9 @@ void mwScreen::init_level_background(void) // fill level_background with block t
 
 void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players)
 {
-   if (blocks) get_new_background(1);
    if (mLevel.valid_level_loaded)
    {
+      if (blocks) get_new_background(1);
       if (lifts)   mLift.draw_lifts();
       if (items)   mItem.draw_items();
       if (enemies) mEnemy.draw_enemies();
@@ -599,97 +659,164 @@ void mwScreen::draw_level_centered_on_player_pos(int screen_x, int screen_y, flo
 
 void mwScreen::draw_level_map_under_menu(void) // used only in menu
 {
-   int blocks = 0;
-   if (mLevel.valid_level_loaded) blocks = 1;
+   int sz = menu_level_display_size;
+   int x = menu_level_display_x;
+   int y = menu_level_display_y;
 
-   int lev = mLevel.last_level_loaded;
+   draw_level2(NULL, x, y, sz, 1, 1, 1, 1, 1);
 
-   draw_level2(NULL, mLogo.menu_map_x, mLogo.menu_map_y, mLogo.menu_map_size, blocks, 1, 1, 1, 1);
+   if (mMain.classic_mode) al_draw_rectangle(x, y, x+sz, y+sz, mColor.pc[15], 1);
 
 
+   /*
    int text_x = mDisplay.SCREEN_W / 2;
-   int text_y = mLogo.menu_map_y - 16;
-
+   int text_y = menu_level_display_y - 16;
+   int lev = mLevel.last_level_loaded;
    if (mMain.classic_mode)
    {
+      text_y += 8;
+      al_draw_textf(mFont.pr8, mColor.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d %s", lev, mLevel.data[lev].level_name);
+
       al_draw_textf(mFont.pr8, mColor.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", lev );
       text_y += 8;
-
       if (mLevel.resume_allowed) al_draw_text(mFont.pr8, mColor.pc[14], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  (paused)  ");
       else if (mLevel.valid_level_loaded) al_draw_text(mFont.pr8, mColor.pc[9], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  start level  ");
       else al_draw_text(mFont.pr8, mColor.pc[10], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  not found !  ");
+
+
    }
    else // story mode
    {
-//      if (lev == 1) al_draw_text(mFont.pr8, mColor.pc[15], text_x, text_y+8, ALLEGRO_ALIGN_CENTRE, "Overworld");
-//      else
-//      {
-//         al_draw_textf(mFont.pr8, mColor.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", lev ); text_y += 8;
-//         al_draw_textf(mFont.pr8, mColor.pc[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " %s ", mLevel.data[lev].level_name );
-//      }
+      //if (lev == 1) al_draw_text(mFont.pr8, mColor.pc[15], text_x, text_y+8, ALLEGRO_ALIGN_CENTRE, "Overworld");
    }
-
+   */
 }
 
 
-void mwScreen::frame_and_title(int show_players)
+void mwScreen::draw_level_info(void) // used only in menu
 {
-   int co = mPlayer.syn[mPlayer.active_local_player].color;
-   int tc = mColor.get_contrasting_color(co);
+   char msg[80];
+   int lev = mLevel.last_level_loaded;
+
+   int x1 = menu_level_info_x;
+   int x2 = x1 + menu_level_info_w;
+   int xc = (x1+x2)/2;
+   int y = menu_level_info_y;
+
+   y+=2;
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], xc, y, ALLEGRO_ALIGN_CENTER, "Level %d", lev); y+=8;
+
+   y+=1; al_draw_line(x1-1, y, x2+1, y, mColor.pc[15], 1); y+=2;
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], xc, y, ALLEGRO_ALIGN_CENTER, "%s", mLevel.data[lev].level_name); y+=8;
+
+   if (lev > 1)
+   {
+
+      y+=1; al_draw_line(x1-1, y, x2+1, y, mColor.pc[15], 1); y+=2;
+
+      mItem.draw_line(x1, x2, y, "Status",                mLevel.data[lev].status_text, mLevel.data[lev].status_color); y+=9;
+
+      if (mLevel.data[lev].status < 2)
+      {
+         mItem.draw_line(x1, x2, y, "Par Time",           mItem.chrms( mLevel.data[lev].time_par,  msg),        15); y+=9;
+         mItem.draw_line(x1, x2, y, "Purple Coins",       mItem.chrd(  mLevel.data[lev].tot_purple_coins, msg), 15); y+=9;
+      }
+      else // completed
+      {
+         if (mLevel.data[lev].time_best < mLevel.data[lev].time_par) mItem.draw_line(x1, x2, y, "Time < Par",  "Yes", 8);
+         else                                                        mItem.draw_line(x1, x2, y, "Time < Par",  "No",  15);
+         y+=9;
+
+
+         int mpc = mLevel.data[lev].max_purple_coins_collected;
+         int tpc = mLevel.data[lev].tot_purple_coins;
+         int pcc = 15;
+         if (mpc >= tpc) pcc = 8;
+         mItem.draw_line(x1, x2, y, "Purple Coins",   mItem.chrd(mpc, tpc, msg), pcc); y+=9;
+
+
+         y+=1; al_draw_line(x1-1, y, x2+1, y, mColor.pc[15], 1); y+=2;
+
+
+
+         mItem.draw_line(x1, x2, y, "Par Time",           mItem.chrms( mLevel.data[lev].time_par,            msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Min Time Overall",   mItem.chrms( mLevel.data[lev].time_best,           msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Min Time w/coins",   mItem.chrms( mLevel.data[lev].time_best_all_coins, msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Worst Time",         mItem.chrms( mLevel.data[lev].time_worst,          msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Average Time",       mItem.chrms( mLevel.data[lev].time_average,        msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Total Play Time",    mItem.chrms( mLevel.data[lev].time_total,          msg), 15); y+=9;
+         y+=1; al_draw_line(x1-1, y, x2+1, y, mColor.pc[15], 1); y+=2;
+
+         mItem.draw_line(x1, x2, y, "Times Played",       mItem.chrd(  mLevel.data[lev].times_played,        msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Times Completed",    mItem.chrd(  mLevel.data[lev].times_beat,          msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Times Quit",         mItem.chrd(  mLevel.data[lev].times_quit,          msg), 15); y+=9;
+
+         y+=1; al_draw_line(x1-1, y, x2+1, y, mColor.pc[15], 1); y+=2;
+
+         mItem.draw_line(x1, x2, y, "Min Player Deaths",  mItem.chrd(  mLevel.data[lev].min_respawns,        msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Max Enemies Killed", mItem.chrd(  mLevel.data[lev].max_enemies_killed,  msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Min Enemies Left",   mItem.chrd(  mLevel.data[lev].min_enemies_left,    msg), 15); y+=9;
+
+
+      }
+   }
+   al_draw_rectangle(x1-1, menu_level_info_y, x2+1, y+1, mColor.pc[15], 1);
+}
+
+
+void mwScreen::draw_line_of_players(void)
+{
+   // draw a line of players on each side of menu
+
+
+   float sc = (float)menu_h / 20; // initial scale has player the same height as menu
+   float y = menu_y+sc*10;        // initial y position has player lined up with menu
+
+   int xo = menu_w/2 + sc*10;           // offset player by the width of the menu and half player size
+   float x1 = mDisplay.SCREEN_W/2 - xo; // initial x position
+   float x2 = mDisplay.SCREEN_W/2 + xo; // initial x position
+   int c = mPlayer.syn[mPlayer.active_local_player].color; // initial color is active local player's color
+
+   int np = 0; // count players drawn
+
+   int first = 1;
+
+   while ((x1 > 30) && (np < 12))
+   {
+
+      if (!first) al_draw_scaled_rotated_bitmap(mBitmap.player_tile[c][1], 10, 10, x1, y, sc, sc, 0, 0);
+      al_draw_scaled_rotated_bitmap(mBitmap.player_tile[c][1], 10, 10, x2, y, sc, sc, 0, ALLEGRO_FLIP_HORIZONTAL);
+
+      float sp = 10*sc + 20; // spacing based on scale
+      x1 -= sp;
+      x2 += sp;
+
+      sc *= .75;           // reduce scale
+
+      if (++c > 15) c = 1; // cycle through players colors
+
+      np++;
+
+      first = 0;
+
+   }
+}
+
+void mwScreen::frame_and_title(void)
+{
+   int c = mPlayer.syn[mPlayer.active_local_player].color;
+   int tc = mColor.get_contrasting_color(c);
 
    draw_screen_frame();
-
-   // draw the title on top on the border
-   draw_title(mDisplay.SCREEN_W/2, 2, 322, 32, co);
 
    // draw the version text centered on the bottom of the border
    al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H-10, ALLEGRO_ALIGN_CENTRE, "Version %s", mLoop.pm_version_string);
 
-   if (show_players)
-   {
-      // draw a line of players on each side of menu
-      int c = co;                              // initial color
-      int lim = 12;                            // number of players to draw
-      float flsc = 5;                          // initial scale
-      float y_pos = 20;                        // initial y position
-      float y_step = 20 / lim;                 // inc to raise 20
-      float x_pos = mDisplay.SCREEN_W/2 - 180; // initial x position
-      int dist = (int)x_pos - BORDER_WIDTH;    // how much space do I have?
-      // how much space will it take based on how many to draw ???
-      float x_sp = (dist - 240) / (lim-1);     // spacing to stretch row to screen edge
-      for (float a=0; a<lim; a++)
-      {
-         int y = BORDER_WIDTH + (int)y_pos;    // y position
-         y_pos -= y_step;                      // move up
-         int x = (int)x_pos;                   // x position
-         x_pos -= 11*flsc;                     // spacing based on scale
-         x_pos -= x_sp;                        // extra spacing stretch row to edge of screen
-         flsc *= .78;                          // reduce scale by 78%
-         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[c][1], 0, 0, x+10, y+10, flsc, flsc, 0, 0);
-         if (++c > 15) c = 1;                  // cycle through players colors
-      }
+   // draw the title on top on the border
+   draw_title(mDisplay.SCREEN_W/2, 2, 322, 32, c);
 
-      c = co;                                  // initial color
-      flsc = 5;                                // initial scale
-      y_pos = 20;                              // initial y position
-      y_step = 20 / lim;                       // inc to raise 20
-      x_pos = mDisplay.SCREEN_W/2 + 80;        // initial x position
-      dist = (mDisplay.SCREEN_W - BORDER_WIDTH) - (int)x_pos;   // how much space do I have?
-      // how much space will it take based on how many to draw ???
-      x_sp = (dist - 360) / (lim-1);           // spacing to stretch row to screen edge
-      for (float a=0; a<lim; a++)
-      {
-         int y = BORDER_WIDTH + (int)y_pos;    // y position
-         y_pos -= y_step;                      // move up
-         int x = (int)x_pos;                   // x position
-         x_pos += 15.1*flsc;                   // spacing based on scale
-         x_pos += x_sp;                        // extra spacing stretch row to edge of screen
-         flsc *= .78;                          // reduce scale by 78%
-         x_sp += .5;                           // hack to make things line up on right hand side of screen
-         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[c][1], 0, 0, x+10, y+10, flsc, flsc, 0, ALLEGRO_FLIP_HORIZONTAL);
-         if (++c > 15) c = 1;                  // cycle through players colors
-      }
-   }
 }
 
 void mwScreen::rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, float op)

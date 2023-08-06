@@ -1118,7 +1118,7 @@ void mwScreen::draw_top_frame(int p)
    if (mDisplay.show_dtd > 0)
    {
       mDisplay.show_dtd --;
-      int dtd = mDisplay.display_transform_double;
+      int dtd = mDisplay.saved_display_transform_double;
       if (dtd) al_draw_textf(mFont.pr8, mColor.pc[tc],mDisplay.SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [f]", dtd);
       else     al_draw_textf(mFont.pr8, mColor.pc[tc],mDisplay.SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [a]", dtd);
    }

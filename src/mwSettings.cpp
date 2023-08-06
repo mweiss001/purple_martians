@@ -355,11 +355,6 @@ void mwSettings::settings_pages(int set_page)
 
       int cf_h = page_h + tabs_h + title_h + frame_width*2;
 
-//      int cf_h = 400;
-//      int cf_y1 = mLogo.menu_map_y - 61; // line up exactly with the menu item "Settings"
-//      if (!mMain.classic_mode) cf_y1 -= 20; // line up exactly with the menu item "Settings"
-
-
       int cf_y1 = 32;  // or just line up under Main Title
 
       int cf_y2 = cf_y1 + cf_h;
@@ -376,33 +371,16 @@ void mwSettings::settings_pages(int set_page)
          }
       }
 
-
       fc = mPlayer.syn[0].color; // frame color
 
       al_show_mouse_cursor(mDisplay.display);
       al_set_target_backbuffer(mDisplay.display);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0, 0, 0));
-      mScreen.frame_and_title(1);
-      mLogo.mdw_an(mLogo.mdw_map_logo_x, mLogo.mdw_map_logo_y, mLogo.mdw_map_logo_scale);
-
-
-//      for (int c=0; c<7; c++)       // show first 7 menu items
-//      {
-//         int b = 15;
-//         if ((!mLevel.resume_allowed) && (c==4)) b+=80; // dimmer if can't resume
-//         al_draw_text(mFont.pr8, mColor.pc[b], mDisplay.SCREEN_W/2, 14+(c*10)+1, ALLEGRO_ALIGN_CENTRE, mMenu.menu_string[c]);
-//      }
-
-
-
+      mScreen.frame_and_title();
 
       while (!mEventQueue.menu_update) mEventQueue.proc();
       mEventQueue.menu_update = 0;
-
-
-
-
 
 
       // figure out the title size
@@ -418,12 +396,6 @@ void mwSettings::settings_pages(int set_page)
 
       // set the bottom of the tab area, where the tabs will start and extend upwards
       int cfp_y1 = cf_y1 + tabs_h + title_h;
-      //int cfp_y2 = cf_y2 - frame_width;
-
-      // set the top of the page area, where the pages will start and extend downwards
-      // int page_y1 = cfp_y1 + frame_width;
-      //int page_y2 = page_y1 + page_h;
-
 
       al_draw_filled_rectangle(cf_x1, cf_y1, cf_x2, cf_y2, mColor.pc[fc+224]); // erase everything
 
@@ -520,6 +492,9 @@ void mwSettings::settings_pages(int set_page)
             {
                mLevel.set_start_level(1); // make sure we are on overworld
             }
+
+            mScreen.set_map_var();
+
          }
 
 
@@ -1857,10 +1832,8 @@ void mwSettings::settings_pages(int set_page)
 
          int old_frame_speed = mLoop.frame_speed;
          mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,cc,15,15, 0,0,1,adj, mLoop.frame_speed, 200, 4, 1, "Frame Speed:");
-         if (old_frame_speed != mLoop.frame_speed) mEventQueue.set_speed();
+         if (old_frame_speed != mLoop.frame_speed) al_set_timer_speed(mEventQueue.fps_timer, (1 / mLoop.frame_speed));
          ya -=2;
-
-
 
          ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 

@@ -8,8 +8,6 @@ class mwFont
    public:
    void load_fonts(void);
 
-
-
    void mw_get_text_dimensions(ALLEGRO_FONT *f, const char* txt, int &bx, int &by, int &bw, int &bh);
 
 

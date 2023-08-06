@@ -1,20 +1,31 @@
 // mwLevel.h
 
-
-
 struct level_data
 {
    char level_name[200];
-   int par_time;
-   int unlocked;
-   int completed;
-   int best_time;
+
+   int status;
+   int status_color;
+   char status_text[16];
+
    int min_respawns;
    int max_purple_coins_collected;
    int tot_purple_coins;
    int min_enemies_left;
    int min_enemies_left_par;
    int max_enemies_killed;
+
+   int times_played;
+   int times_beat;
+   int times_quit;
+
+   int time_par;
+   int time_best;
+   int time_best_all_coins;
+   int time_worst;
+   int time_average;
+   int time_total;
+
 };
 
 
@@ -70,6 +81,7 @@ class mwLevel
    int save_level_prompt();
 
 
+
    void show_level_stats_outline_with_thicker_lines(int x1, int x2, int gy, int y, int draw, ALLEGRO_COLOR c);
 
    void show_level_stats_totals(int x1, int x2, int gy, int ty, int& max_x, int& y, int draw, int vline[], int &vli, int tally[][16], int col, int msg_type);
@@ -121,13 +133,9 @@ class mwLevel
    void reset_level_data(void);
    void unlock_all_levels(void);
 
-
-
    void draw_level_stats(int x1, int y1, int msg_type);
-
    void show_level_stats(int &w, int &h, int draw, int msg_type );
 
-   void get_level_status(int lev, int& status, int& col, char txt[]);
 
    void sob_hline(int x1, int x2, int y, int a);
    void sob_vline(int x, int y1, int y2, int a);
@@ -144,11 +152,14 @@ class mwLevel
 
    void dump_level_data(void);
 
+   void level_start_data(void);
+
+   void add_play_data_record(int lev, int type);
+   void calc_level_stats(int lev);
    void check_achievments(void);
 
-   void level_start_data(void);
-   void level_complete_data(int type, int lev);
-   void level_abort_data(int lev);
+
+
 
    ALLEGRO_BITMAP * level_icon_100[100];
    ALLEGRO_BITMAP * level_icon_200[100];
@@ -183,6 +194,4 @@ class mwLevel
 
 };
 extern mwLevel mLevel;
-
-
 

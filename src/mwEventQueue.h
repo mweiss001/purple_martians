@@ -17,8 +17,6 @@ class mwEventQueue
    int program_update_1s;
    int menu_update;
 
-   void set_speed(void);
-
    void proc(void);
    void proc_menu(void);
 
