@@ -23,12 +23,10 @@
 
 mwDisplay mDisplay;
 
-
 void mwDisplay::mw_set_clipping_rect(float x, float y, float w, float h)
 {
    al_set_clipping_rectangle(x * display_transform_double, y * display_transform_double, w * display_transform_double, h * display_transform_double);
 }
-
 
 void mwDisplay::set_scale_factor(float new_scale_factor, int instant)
 {
@@ -62,9 +60,7 @@ void mwDisplay::proc_scale_factor_change(void)
    }
 }
 
-
 /*
-
 these custom change scale functions have one purpose
 in the rocket cutscene at the end I need to do a scale change
 that takes an exact number of frames to get from start to finish
@@ -102,6 +98,304 @@ void mwDisplay::proc_custom_scale_factor_change(void)
        if (scale_factor_current < scale_factor) scale_factor_current = scale_factor; // if we overshoot set to exact to prevent oscillation
    }
 }
+
+
+void mwDisplay::auto_set_display_transform_double(void)
+{
+   display_transform_double = 1;
+
+   if (disp_w_curr > 1023) display_transform_double = 2;
+   if (disp_h_curr > 1023) display_transform_double = 2;
+
+   if (disp_w_curr < 1024) display_transform_double = 1;
+   if (disp_h_curr < 700)  display_transform_double = 1;
+
+   if (mLoop.help_screens_running)
+   {
+      if (disp_w_curr > 1279) display_transform_double = 2;
+      if (disp_w_curr < 1280) display_transform_double = 1;
+   }
+}
+
+void mwDisplay::set_saved_display_transform(int sdt)
+{
+   float old_display_transform_double = display_transform_double;
+
+   saved_display_transform_double = sdt;
+   mConfig.save();
+
+   set_display_transform();
+
+   float new_display_transform_double = display_transform_double;
+   float sfa = new_display_transform_double/old_display_transform_double;
+   scale_factor /= sfa;
+   scale_factor_current = scale_factor;
+
+   // adjust window positions
+   for (int a=0; a<NUM_MW; a++)
+      mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
+
+}
+
+
+void mwDisplay::cycle_display_transform(void)
+{
+   float old_display_transform_double = display_transform_double;
+
+   if (++saved_display_transform_double>display_transform_double_max) saved_display_transform_double = 0;
+   mConfig.save();
+
+   set_display_transform();
+
+   float new_display_transform_double = display_transform_double;
+   float sfa = new_display_transform_double/old_display_transform_double;
+   scale_factor /= sfa;
+   scale_factor_current = scale_factor;
+
+   // adjust window positions
+   for (int a=0; a<NUM_MW; a++) mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
+}
+
+void mwDisplay::set_display_transform()
+{
+   mVisualLevel.load_visual_level_select_done = 0;
+
+   if (!saved_display_transform_double) auto_set_display_transform_double();
+   else display_transform_double = saved_display_transform_double;
+
+   show_dtd = 80;
+
+   al_set_target_backbuffer(display);
+   SCREEN_W = (float)disp_w_curr/(float)display_transform_double;
+   SCREEN_H = (float)disp_h_curr/(float)display_transform_double;
+   ALLEGRO_TRANSFORM trans;
+   al_identity_transform(&trans);
+   al_orthographic_transform(&trans, 0, 0, -1.0, SCREEN_W, SCREEN_H, 1.0);
+   al_use_projection_transform(&trans);
+   mScreen.set_map_var();
+}
+
+
+int mwDisplay::init_display(void)
+{
+   char msg[1024];
+   scale_factor_mlt = 0.01;
+
+   int num_adapters = al_get_num_video_adapters();
+   // printf("%d adapters found...\n", num_adapters);
+
+//   ALLEGRO_MONITOR_INFO info;
+//   int i, j;
+//   for (i = 0; i < num_adapters; i++)
+//   {
+//      al_get_monitor_info(i, &info);
+//      printf("Adapter %d: ", i);
+//      int dpi = al_get_monitor_dpi(i);
+//      printf("(%d, %d) - (%d, %d) - dpi: %d\n", info.x1, info.y1, info.x2, info.y2, dpi);
+//      al_set_new_display_adapter(i);
+//      printf("   Available fullscreen display modes:\n");
+//      for (j = 0; j < al_get_num_display_modes(); j++)
+//      {
+//         ALLEGRO_DISPLAY_MODE mode;
+//         al_get_display_mode(j, &mode);
+//         printf("   Mode %3d: %4d x %4d, %d Hz\n", j, mode.width, mode.height, mode.refresh_rate);
+//      }
+//   }
+
+
+   if (display_adapter_num >=  num_adapters) display_adapter_num = 0;
+   al_set_new_display_adapter(display_adapter_num);
+
+   //show_fullscreen_modes();
+
+   al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, ALLEGRO_REQUIRE);
+
+   // this is needed to make opengl 4.3 work the same as windows
+   // see visual level select, etc..
+   al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, 1, ALLEGRO_REQUIRE);
+
+  // al_set_new_display_option(ALLEGRO_SWAP_METHOD, 1, ALLEGRO_REQUIRE);
+  // al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_SUGGEST);
+  // al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
+
+   // show_disp_values(0, 0, 1, 1, 1, "init");
+   // check if windowed values are valid
+   int th = 100;
+   if (disp_x_wind > disp_w_full-th) disp_x_wind = disp_w_full-th;
+   if (disp_y_wind > disp_h_full-th) disp_y_wind = disp_h_full-th;
+   if (disp_w_wind > disp_w_full) disp_w_wind = disp_w_full;
+   if (disp_h_wind > disp_h_full) disp_h_wind = disp_h_full;
+   //show_disp_values(0, 0, 1, 1, 1, "pc");
+   mConfig.save();
+
+
+   int flags = 0;
+
+   if (fullscreen)
+   {
+      flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE;
+      al_set_new_display_flags(flags);
+      display = al_create_display(disp_w_wind, disp_h_wind);
+   }
+   else // windowed
+   {
+      flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
+      al_set_new_display_flags(flags);
+      display = al_create_display(disp_w_wind, disp_h_wind);
+   }
+
+
+
+   al_set_window_constraints(display, 320, 240, 0, 0);
+   al_apply_window_constraints(display, 1);
+   mConfig.save();
+
+
+//   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_OPENGL ;
+//   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL;
+
+//   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0;
+//   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0;
+
+//   al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
+
+
+   if(!display)
+   {
+      sprintf(msg, "Error creating display\n");
+      mInput.m_err(msg);
+      exit(0);
+   }
+   if (!fullscreen) al_set_window_position(display, disp_x_wind, disp_y_wind);
+   if (fullscreen)  al_resize_display(display, disp_w_full, disp_h_full);
+   al_acknowledge_resize(display);
+
+
+   disp_w_curr = al_get_display_width(display);
+   disp_h_curr = al_get_display_height(display);
+   al_get_window_position(display, &disp_x_curr, &disp_y_curr);
+   //printf("x:%d y:%d w:%d h:%4d\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
+
+
+
+   set_display_transform();
+   set_window_title();
+
+//   show_display_flags(al_get_display_flags(display));
+//   show_display_options();
+//   show_pixel_format(al_get_display_format(display));
+//   show_display_orienation();
+//   printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
+
+   //printf("init screen\n");
+   mBitmap.create_bitmaps();
+   return 1;
+}
+
+
+
+
+
+void mwDisplay::proc_display_change(void)
+{
+   al_acknowledge_resize(display);                              // important that this is here, later and it does not work as intended
+   al_get_window_position(display, &disp_x_curr, &disp_y_curr); // set my local variables with the system ones
+   disp_w_curr = al_get_display_width(display);
+   disp_h_curr = al_get_display_height(display);
+   if (fullscreen)
+   {
+      disp_x_full = disp_x_curr;
+      disp_y_full = disp_y_curr;
+      disp_w_full = disp_w_curr;
+      disp_h_full = disp_h_curr;
+   }
+   else
+   {
+      disp_x_wind = disp_x_curr;
+      disp_y_wind = disp_y_curr;
+      disp_w_wind = disp_w_curr;
+      disp_h_wind = disp_h_curr;
+   }
+   set_display_transform();
+   mBitmap.rebuild_bitmaps();
+   mConfig.save();
+   //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
+   set_window_title();
+
+}
+
+
+void mwDisplay::save_display_window_position(void)
+{
+// This is automatically done when the display is resized or switched to fullscreen, but not when the window is simply moved
+// So I also call this when exiting to save window position.
+
+   if (!fullscreen)
+   {
+      al_get_window_position(display, &disp_x_wind, &disp_y_wind);
+      disp_w_wind = al_get_display_width(display);
+      disp_h_wind = al_get_display_height(display);
+      mConfig.save();
+   }
+}
+
+
+void mwDisplay::toggle_fullscreen(void)
+{
+   if (fullscreen) proc_display_change_fromfs();
+   else            proc_display_change_tofs();
+}
+
+void mwDisplay::proc_display_change_tofs(void)
+{
+   //printf("\n-----------to fullscreen------------\n");
+   fullscreen = 1;
+
+   // save window position and size before entering fullscreen
+   al_get_window_position(display, &disp_x_wind, &disp_y_wind);
+   disp_w_wind = al_get_display_width(display);
+   disp_h_wind = al_get_display_height(display);
+
+   al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
+
+   // here is one of the few places I will set xywh from my local variables
+//   al_resize_display(display, disp_w_full, disp_h_full);
+//   al_set_window_position(display, disp_x_full, disp_y_full);
+   proc_display_change();
+}
+
+void mwDisplay::proc_display_change_fromfs(void)
+{
+   //printf("\n-----------to windowed--------------\n");
+   fullscreen = 0;
+   al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
+
+   al_acknowledge_resize(display);
+
+   // here is one of the few places I will set xywh from my local variables
+   al_resize_display(display, disp_w_wind, disp_h_wind);
+   al_set_window_position(display, disp_x_wind, disp_y_wind);
+   proc_display_change();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -316,80 +610,28 @@ void mwDisplay::show_var_sizes(void)
    printf("log_lines_int :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
 }
 
-void mwDisplay::auto_set_display_transform_double(void)
-{
-   display_transform_double = 1;
-
-   if (disp_w_curr > 1023) display_transform_double = 2;
-   if (disp_h_curr > 1023) display_transform_double = 2;
-
-   if (disp_w_curr < 1024) display_transform_double = 1;
-   if (disp_h_curr < 700)  display_transform_double = 1;
-
-   if (mLoop.help_screens_running)
-   {
-      if (disp_w_curr > 1279) display_transform_double = 2;
-      if (disp_w_curr < 1280) display_transform_double = 1;
-   }
-}
-
-void mwDisplay::set_saved_display_transform(int sdt)
-{
-   float old_display_transform_double = display_transform_double;
-
-   saved_display_transform_double = sdt;
-   mConfig.save();
-
-   set_display_transform();
-
-   float new_display_transform_double = display_transform_double;
-   float sfa = new_display_transform_double/old_display_transform_double;
-   scale_factor /= sfa;
-   scale_factor_current = scale_factor;
-
-   // adjust window positions
-   for (int a=0; a<NUM_MW; a++)
-      mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
-
-}
 
 
-void mwDisplay::cycle_display_transform(void)
-{
-   float old_display_transform_double = display_transform_double;
 
-   if (++saved_display_transform_double>display_transform_double_max) saved_display_transform_double = 0;
-   mConfig.save();
 
-   set_display_transform();
 
-   float new_display_transform_double = display_transform_double;
-   float sfa = new_display_transform_double/old_display_transform_double;
-   scale_factor /= sfa;
-   scale_factor_current = scale_factor;
 
-   // adjust window positions
-   for (int a=0; a<NUM_MW; a++) mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
-}
 
-void mwDisplay::set_display_transform()
-{
-   mVisualLevel.load_visual_level_select_done = 0;
 
-   if (!saved_display_transform_double) auto_set_display_transform_double();
-   else display_transform_double = saved_display_transform_double;
 
-   show_dtd = 80;
 
-   al_set_target_backbuffer(display);
-   SCREEN_W = disp_w_curr/display_transform_double;
-   SCREEN_H = disp_h_curr/display_transform_double;
-   ALLEGRO_TRANSFORM trans;
-   al_identity_transform(&trans);
-   al_orthographic_transform(&trans, 0, 0, -1.0, SCREEN_W, SCREEN_H, 1.0);
-   al_use_projection_transform(&trans);
-   mScreen.set_map_var();
-}
+
+
+
+
+
+
+
+
+
+
+
+
 
 void mwDisplay::show_disp_values(int fs, int disp, int curr, int wind, int full, char *head)
 {
@@ -412,9 +654,6 @@ void mwDisplay::show_disp_values(int fs, int disp, int curr, int wind, int full,
 
    //  printf("0:%4d 0:%4d w:%4d h:%4d - scrn\n", 0, 0, mwD.SCREEN_W, mwD.SCREEN_H);
 }
-
-
-
 
 void mwDisplay::show_display_adapters(void)
 {
@@ -459,215 +698,3 @@ void mwDisplay::set_window_title(void)
    al_set_window_title(display, msg);
 }
 
-
-
-
-int mwDisplay::init_display(void)
-{
-   char msg[1024];
-   scale_factor_mlt = 0.01;
-
-   int num_adapters = al_get_num_video_adapters();
-   // printf("%d adapters found...\n", num_adapters);
-
-//   ALLEGRO_MONITOR_INFO info;
-//   int i, j;
-//   for (i = 0; i < num_adapters; i++)
-//   {
-//      al_get_monitor_info(i, &info);
-//      printf("Adapter %d: ", i);
-//      int dpi = al_get_monitor_dpi(i);
-//      printf("(%d, %d) - (%d, %d) - dpi: %d\n", info.x1, info.y1, info.x2, info.y2, dpi);
-//      al_set_new_display_adapter(i);
-//      printf("   Available fullscreen display modes:\n");
-//      for (j = 0; j < al_get_num_display_modes(); j++)
-//      {
-//         ALLEGRO_DISPLAY_MODE mode;
-//         al_get_display_mode(j, &mode);
-//         printf("   Mode %3d: %4d x %4d, %d Hz\n", j, mode.width, mode.height, mode.refresh_rate);
-//      }
-//   }
-
-
-   if (display_adapter_num >=  num_adapters) display_adapter_num = 0;
-   al_set_new_display_adapter(display_adapter_num);
-
-
-   //show_fullscreen_modes();
-
-   al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, ALLEGRO_REQUIRE);
-
-
-   // this is needed to make opengl 4.3 work the same as windows
-   // see visual level select, etc..
-   al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, 1, ALLEGRO_REQUIRE);
-
-
-
-//   al_set_new_display_option(ALLEGRO_SWAP_METHOD, 1, ALLEGRO_REQUIRE);
-
-  // al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_SUGGEST);
-  // al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
-
-
-
-   // show_disp_values(0, 0, 1, 1, 1, "init");
-   // check if windowed values are valid
-   int th = 100;
-   if (disp_x_wind > disp_w_full-th) disp_x_wind = disp_w_full-th;
-   if (disp_y_wind > disp_h_full-th) disp_y_wind = disp_h_full-th;
-   if (disp_w_wind > disp_w_full) disp_w_wind = disp_w_full;
-   if (disp_h_wind > disp_h_full) disp_h_wind = disp_h_full;
-   //show_disp_values(0, 0, 1, 1, 1, "pc");
-   mConfig.save();
-
-
-   int flags = 0;
-
-   if (fullscreen)
-   {
-      flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE;
-      al_set_new_display_flags(flags);
-      display = al_create_display(disp_w_wind, disp_h_wind);
-   }
-   else // windowed
-   {
-      flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
-      al_set_new_display_flags(flags);
-      display = al_create_display(disp_w_wind, disp_h_wind);
-   }
-
-
-
-   al_set_window_constraints(display, 320, 240, 0, 0);
-   al_apply_window_constraints(display, 1);
-   mConfig.save();
-
-
-
-//   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_OPENGL ;
-//   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL;
-
-//   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0;
-//   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0;
-
-//   al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
-
-
-   if(!display)
-   {
-      sprintf(msg, "Error creating display\n");
-      mInput.m_err(msg);
-      exit(0);
-   }
-   if (!fullscreen) al_set_window_position(display, disp_x_wind, disp_y_wind);
-   if (fullscreen)  al_resize_display(display, disp_w_full, disp_h_full);
-   al_acknowledge_resize(display);
-
-
-   disp_w_curr = al_get_display_width(display);
-   disp_h_curr = al_get_display_height(display);
-   al_get_window_position(display, &disp_x_curr, &disp_y_curr);
-   //printf("x:%d y:%d w:%d h:%4d\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
-
-
-
-   set_display_transform();
-   set_window_title();
-
-//   show_display_flags(al_get_display_flags(display));
-//   show_display_options();
-//   show_pixel_format(al_get_display_format(display));
-//   show_display_orienation();
-//   printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
-
-   //printf("init screen\n");
-   mBitmap.create_bitmaps();
-   return 1;
-}
-
-
-
-
-
-void mwDisplay::proc_display_change(void)
-{
-   al_acknowledge_resize(display);                              // important that this is here, later and it does not work as intended
-   al_get_window_position(display, &disp_x_curr, &disp_y_curr); // set my local variables with the system ones
-   disp_w_curr = al_get_display_width(display);
-   disp_h_curr = al_get_display_height(display);
-   if (fullscreen)
-   {
-      disp_x_full = disp_x_curr;
-      disp_y_full = disp_y_curr;
-      disp_w_full = disp_w_curr;
-      disp_h_full = disp_h_curr;
-   }
-   else
-   {
-      disp_x_wind = disp_x_curr;
-      disp_y_wind = disp_y_curr;
-      disp_w_wind = disp_w_curr;
-      disp_h_wind = disp_h_curr;
-   }
-   set_display_transform();
-   mBitmap.rebuild_bitmaps();
-   mConfig.save();
-   //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
-   set_window_title();
-
-}
-
-
-void mwDisplay::save_display_window_position(void)
-{
-// This is automatically done when the display is resized or switched to fullscreen, but not when the window is simply moved
-// So I also call this when exiting to save window position.
-
-   if (!fullscreen)
-   {
-      al_get_window_position(display, &disp_x_wind, &disp_y_wind);
-      disp_w_wind = al_get_display_width(display);
-      disp_h_wind = al_get_display_height(display);
-      mConfig.save();
-   }
-}
-
-
-void mwDisplay::toggle_fullscreen(void)
-{
-   if (fullscreen) proc_display_change_fromfs();
-   else            proc_display_change_tofs();
-}
-
-void mwDisplay::proc_display_change_tofs(void)
-{
-   //printf("\n-----------to fullscreen------------\n");
-   fullscreen = 1;
-
-   // save window position and size before entering fullscreen
-   al_get_window_position(display, &disp_x_wind, &disp_y_wind);
-   disp_w_wind = al_get_display_width(display);
-   disp_h_wind = al_get_display_height(display);
-
-   al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
-
-   // here is one of the few places I will set xywh from my local variables
-//   al_resize_display(display, disp_w_full, disp_h_full);
-//   al_set_window_position(display, disp_x_full, disp_y_full);
-   proc_display_change();
-}
-
-void mwDisplay::proc_display_change_fromfs(void)
-{
-   //printf("\n-----------to windowed--------------\n");
-   fullscreen = 0;
-   al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
-
-   al_acknowledge_resize(display);
-
-   // here is one of the few places I will set xywh from my local variables
-   al_resize_display(display, disp_w_wind, disp_h_wind);
-   al_set_window_position(display, disp_x_wind, disp_y_wind);
-   proc_display_change();
-}

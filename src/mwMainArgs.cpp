@@ -253,7 +253,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-e") == 0 )
       {
          printf("running level editor for level:%d\n", mLevel.start_level);
-         mLevel.set_start_level(mWM.mW[1].edit_menu(mLevel.start_level));
+         mLevel.set_start_level(mWM.loop(mLevel.start_level));
          mMain.fast_exit(0);
       }
 
@@ -360,8 +360,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          {
             mLevel.set_start_level(pl);
             printf("running level editor for level:%d\n", pl);
-            pl = mWM.mW[1].edit_menu(pl);
-            mLevel.set_start_level(pl);
+            mLevel.set_start_level(mWM.loop(mLevel.start_level));
             mMain.fast_exit(0);
          }
          else printf("%s could not be parsed to an integer level number\n", argument_array[2]);

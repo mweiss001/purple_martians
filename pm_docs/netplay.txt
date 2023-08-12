@@ -508,7 +508,6 @@ clients can be from 1-7
 
 Well a lot has changed.  I've gone to the dark side.  Even worse I'm on both sides now.
 
-
 My method of deterministic lockstep was not robust enough.  I kept getting little errors.
 
 So I made a method to send object's positions to the clients, just to check that they

@@ -35,8 +35,6 @@ class mwWindow
    void em_show_item_info(int x, int y, int color, int type, int num);
    void em_find_point_item(void);
    void em_process_mouse(void);
-   int edit_menu(int el);
-
 
    // mW[2] - select window only
    int select_window_block_on;

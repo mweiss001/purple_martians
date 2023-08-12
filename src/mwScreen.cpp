@@ -785,6 +785,8 @@ void mwScreen::draw_line_of_players(void)
 
    while ((x1 > 30) && (np < 12))
    {
+//      printf("c:%d sc:%f x2:%f y:%f\n", c, sc, x2, y);
+
 
       if (!first) al_draw_scaled_rotated_bitmap(mBitmap.player_tile[c][1], 10, 10, x1, y, sc, sc, 0, 0);
       al_draw_scaled_rotated_bitmap(mBitmap.player_tile[c][1], 10, 10, x2, y, sc, sc, 0, ALLEGRO_FLIP_HORIZONTAL);

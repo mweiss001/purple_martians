@@ -37,7 +37,7 @@ class mwWindowManager
 
    void initialize(int edit_level);
    void set_windows(int mode);
-   void loop(int edit_level);
+   int loop(int edit_level);
 
    void get_block_position_on_map(void);
    void process_scrolledge(void);

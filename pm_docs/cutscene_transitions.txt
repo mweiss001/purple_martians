@@ -1,7 +1,7 @@
 Cutscene transistions
 
 
-One thing that make the game look great are the transitions bewteen levels...
+One thing that make the game look great are the transitions between levels...
 
 Menu to game, level done, etc. All of these have a smooth transition instead a jarring jump.
 

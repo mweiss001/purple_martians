@@ -816,12 +816,3 @@ void mwWindow::em_process_mouse(void)
       } // end of switch case
    } // end of mInput.mouse_b[2][0]
 }
-
-
-int mwWindow::edit_menu(int edit_level)
-{
-   mWM.loop(edit_level);
-
-
-   return mLevel.last_level_loaded;
-}

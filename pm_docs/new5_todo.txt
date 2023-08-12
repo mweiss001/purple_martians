@@ -7,6 +7,21 @@
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+make new dev setup instructions to document how to do new gcc with new allegro
+
+
+test on linux and try to get latest version of both there too...
+
+
+work on the bash script make release to include version number
+
+
+
+
+
+
+
+
 make the cannon facing direction optional
 
 make the shortcut keys in the menu optional
@@ -16,65 +31,16 @@ yes, but how to patch it in so it looks nice
 
 
 
-
-
-
-
-
 --------------------------------------------------------
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
-
-
-
-
---------------------------------------------------------
---  Short History --
---------------------------------------------------------
-
-Short history:
-
-Winter 1997 project started.
-Win98/DOS Allegro 2.2 DJGPP RHIDE
-
-2003
-Win98/WinXP/linux
-Allegro 4
-Dev-Cpp
-
-
-201803 - finally got netplay to work
-201804 - ported to Allegro 5
-
-201804 - 202211 no dev
-
-2022 - better netplay
-2023 - converted all to objects
-
-
-
-Why?
-
-To show that I can.
-
-I always wanted to be a programmer.
-
-I want to show off all the cool things I have done with the game.
 
 --------------------------------------------------------
 -- The best things about the game to show off --
 --------------------------------------------------------
 - netgame
 - dynamic resizing
-
-
-
-
-
-
-
-
-
+- logging, graphing, profiling
 
 
 
@@ -89,221 +55,12 @@ add to history
 
 also fix history on index.html page
 
-
 maybe have a nice short history and then an in depth one
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Redid entire project to use objects
-removed all global variable
-refactored almost every line of code
-
-made major changes to netgame,
-now works over internet as well as LAN
-
-
-Purple Martians was started in the winter of 1997 in a cold, dark, one bedroom basement apartment in Victoria, BC.
-
-I was on a seasonal layoff from a menial labor construction job, waiting on unemployment benefits, amd I had some time on my hands.
-
-This was 1997 so the high end PC's were pentium 120 with 16M of RAM. I had an old Compaq 486 laptop.
-
-1997 was the year I first connected the internet. I had a dial-up account with Pacific Coast Net.
-
-It's amazing when I think of the time before the internet. What did we do without it?
-
-
-I was unusual in that I had access to computers at a much earlier age than almost anyone I knew.
-
-In 1980, when I was 12, my dad brought home a Commodore PET from the college where he taught electronics.
-
-I spent a lot of time figuring out how it worked. That was my first exposure to programming.
-
-BASIC. It seems so simplistic and crude now.
-
-But the joy of typing in commands and seeing the results instantly...it was something I fell in love with.
-
-A few years later the Commodore PET was replaced with an Apple II.
-
-Kind of similar, but the one huge difference was the graphics.
-
-Color. 280x192 hi res graphics. Commands in BASIC to draw pixels and lines.
-
-I created programs that drew string art-moire patterns.
-
-But what I really wanted to do was make a video game.
-
-To have a little player jumping around from level to level, shooting and avoiding enemies,
-climbing ladders.
-
-Some early influences were Ms. Pac Man and Donkey Kong Junior, the only 2 games at the local convenience store.
-The only time I could see them was during school lunch breaks, because I lived out in the country.
-For a few years, I mostly watched other kids play, mesmerized, wanting so bad to have a quarter and a turn.
-Lunch time was so short there was only time for a few games, so it was rare that I got a turn.
-
-There were a few games that could be played on the Apple. A pac man clone called snoogle. Lode Runner.
-
-Lode Runner had a big influence on the game I wanted to create. Simple block based, puzzle solving.
-
-Other games that had a huge influence are the Mario series, Doom and of course one of my all time favorites,
-Bubble Bobble. That game is so amazing with all of the secrets and special items. I consider it a masterpiece.
-
-I had tried many times to make a game. At the bare minimum I wanted a player that could move and jump on platforms.
-
-I first tried to do that in BASIC on the Apple II. The character was a simple collection of drawn lines and pixels.
-Very simple and crude. But even that was agonizingly slow as I attempted to draw and move it across the screen.
-
-I experimented with the vector based shape tables built into the apple, and taught myself the the basics of assembly language.
-I made some progress, but it was such a huge task, and I did not have the skills to build a complex project like that in assmebly.
-Eventually I grew up, moved out, got a job, and left programming behind. I never did own a computer, they were all borrowed.
-The apple that my dad brought home to learn on, and then in high school I hung out lots in the computer lab that had a bunch
-of apples also.
-
-
-It's hard to realize what computers were like back in those days, before the internet.
-They were pretty much all stand alone units used for a single purpose.
-I used some in the course of my electronics career, but mostly just to perform one specific task.
-
-What got me back into computers was digital audio. I had been writing and recording music with analog tape
-machines for years, and was excited to try digital recording. It looked so promising.
-Unlimited tracks, non-linear editting, digital effects.
-
-I started that with a Pentium 100 with 8M of RAM and a huge 1.2G HD.
-I bought Cakewalk Pro Audio at the local Long and McQuade and a Soundblaster from Radio Shack.
-
-At that time, consumer computer technology was just barely fast enough to record audio.
-There was a lot of pain setting things up, and even at the best, it just barely worked.
-
-This was also the time that I really developed a strong dislike for any garbage that Creative Labs makes.
-The sound blaster I bought was advertised as full duplex, windows compatible.
-Cakewalk said that all it required was a full duplex windows sound card.
-It just would not work. It would record and it would play back, but it would not do both at once.
-After spending many hours on the phone with tech support, I finally figured out that by design, this card could only
-do full duplex by severly degrading the recording quality. So I returned it and bought a much more expensive
-sound card that just simply did what it was supposed to.
-
-In the process of getting tech support over the phone, the guys I were talking to told me about these
-on-line tech support forums, that would probably help me way more than telephone tech support.
-
-And that was the catalyst. That was the reason I got a dial up internet connection. I think it was $25 a month.
-The forums were great, many people running the same software, running into the same issues, and discussing solutions.
-
-I was able to get my DAW (Digital Audio Workstation) fully functional and did quite a lot of recording for
-a few months before my computer and a lots of other valuable things were stolen in a break-in.
-
-I lost all of my digital copies of my music, all I had were the cassette tapes master I had recorded from the DAW.
-
-Months passed and I moved into a bedroom in a basement in Oak Bay. Cold, dark, dingy...sketchy people that lived in the
-other rooms. Landlady that lived upstairs and complained about the tiniest noise. She literally complained one time about
-the music being too loud when I was wearing headphones.
-
-I had this old broke down 486 laptop, and I still had my internet account. I had been laid off for the winter (it happened every year)
-so I knew I had some time on my hands. And with the internet I had the entirety of the worlds information just waiting to be explored.
-
-How hard could it be to make some shapes and draw them on the screen? It had been so many years since the Apple II days. The last time
-I had tried to program. That was probably around 1987 or so, 10 years ago.
-
-I can't remember all the things I looked at then, but I do remember that even back then, I did not like Microsoft.
-What they did in the browser wars, plus many other low down shady tactics, plus just using windows and getting annoyed at all the
-stupid design decisions, locked in data, predatory business practices. But the worst for me was the crap software.
-Barely functional, riddled with bugs, and only succesfull because they were the largest installed base.
-
-But if I had to use something microsoft to make my game, I resigned myself to give it a shot.
-
-What I found instead was Allegro, a small project by Shawn Hargraves. It was exactly what I was looking for.
-I did not want a game engine, what I wanted was a game programming library.
-Some simple functions to draw shapes on the screen. Fast.
-
-Allegro is completely free. Thus began my lifelong love of open source, freely distributable software.
-The complete opposite of windows.
-
-I would have to learn to program in C. I did not know anything about it, but I learned fast.
-
-The compiler used is gcc. I am so happy I have never once had to use MSVC.
-
-I followed the install directions to setup gcc for windows, installed Allegro 2.0, and set up RHIDE as my integrated develeopment editor.
-
-The best way to learn is by doing. I had a few books on C, and worked through a couple of examples, but then I just focused on getting things done.
-
-Like for example:
-
-Create a display and change its color. Then draw some diferent colored lines on it. Then some other graphics primitives like rectangle and circle.
-This is pretty cool! Now back to the first days with the Apple II, I recreated some string art moire patterns. They looked great!
-OK, enough with primitives, I want to create some sprites and draw them to the screen. That worked great also.
-
-Then in the spirit of doing everything from scratch, I built tools to create, save and edit my own sprites.
-I saved and loaded them one get_pixel and set_pixel at a time.
-I learned how to save things to disk, file handles, iostreams, data formats.  All new and all so very cool.
-
-And also I was leaning C at the same time.
-
-C is so simple and elegant, I compare it to the game of chess.
-
-Chess has a very simple set of rules about how each piece can move. Those rules can be learned very easily.
-However the strategies of playing the game can take a lifetime to master.
-
-C is similar in that the core functionality of the language is very simple.
-How you use those very simple building blocks to create more complex things is an art that can take a lifetime to master.
-
-I had some bad habits from BASIC, but I soon overcame them. Now 25 years later I am still improving all the time.
-
-I love to program. To me all of programming is 'managing complexity'
-
-To simplify, abstract, to make very complex things easier to understand, implement, and maintain.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-remove log file viewer and graphs?? why?
-
-
+remove log file viewer and graphs from help screens?? why?
 
 somehow describe snap...
 

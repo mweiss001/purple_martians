@@ -224,7 +224,7 @@ void mwLoop::game_menu(void)
          }
          if (top_menu_sel == 6)  // level editor
          {
-            mLevel.set_start_level(mWM.mW[1].edit_menu(mLevel.start_level));
+            mLevel.set_start_level(mWM.loop(mLevel.start_level));
             quit_action = 1; // menu
             state[0] = 10;
             return;

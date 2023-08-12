@@ -46,8 +46,8 @@ void mwEventQueue::proc_events(ALLEGRO_EVENT ev)
       if (ev.timer.source == png_timer) mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 1;
       if (ev.timer.source == mou_timer)
       {
-         if (mLoop.level_editor_running) al_set_timer_count(mEventQueue.mou_timer, 0);
-         if (al_get_timer_count(mEventQueue.mou_timer) > 2) al_hide_mouse_cursor(mDisplay.display);
+         if (mLoop.level_editor_running) al_set_timer_count(mou_timer, 0);
+         if (al_get_timer_count(mou_timer) > 2) al_hide_mouse_cursor(mDisplay.display);
       }
    }
    mInput.proc_input_events(ev);  // send all other events to input handler

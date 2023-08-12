@@ -24,8 +24,8 @@ class mwDisplay
    int disp_w_full;
    int disp_h_full;
 
-   int SCREEN_W;
-   int SCREEN_H;
+   float SCREEN_W;
+   float SCREEN_H;
 
    int fullscreen = 1;
    int display_adapter_num = 0;

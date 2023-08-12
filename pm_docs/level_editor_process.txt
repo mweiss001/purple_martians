@@ -5,7 +5,7 @@ High level description of the process for level editor
 Data structure:
 
 class mwWindowManager
-contains 10
+contains 10 static object instances of:
 class mwWindow
 
 
@@ -18,21 +18,9 @@ and externed in mwWindowManager.h
 extern mwWindowManager mwWM;
 
 
+The level editor is started by calling: mWM.loop(start_level);
 
-
-Started by calling: edit_menu(start_level)
-
-------------------------------------------------------
-int edit_menu(start_level);
-------------------------------------------------------
-
-which calls the loop method of mwWindowManager:
-
-int edit_menu(int edit_level)
-{
-   mwWM.loop(edit_level);
-   return last_level_loaded;
-}
+It blocks until done.
 
 
 ------------------------------------------------------
@@ -123,89 +111,6 @@ calls to cycle_windows(int draw_only)
 - 1 call when re-arranging ge list items      (draw_only = 1)
 - 1 call running lifts                        (draw_only = 1)
 - sliders has 2 calls when moving slider bars (draw_only = 1)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

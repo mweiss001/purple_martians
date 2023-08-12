@@ -2,6 +2,10 @@
 
 #define PM_VERSION "7.24.237"
 
+
+#define ALLEGRO_UNSTABLE
+
+
 #include <stdio.h>
 #include <math.h>
 #include <libnet.h>

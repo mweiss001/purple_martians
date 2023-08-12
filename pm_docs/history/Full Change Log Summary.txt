@@ -1,0 +1,509 @@
+This is the master time line.
+
+It contains a master summary of the change logs.
+
+The change logs have much more detail from 20011223.
+
+I have re-constructed things before that from the source backups I could find.
+
+
+
+Winter 1997 project started.
+Win95/DOS Allegro 2.2 DJGPP RHIDE
+
+486/33MHz
+8M RAM
+2M disk space
+
+19980922 - Earliest version (no sources)
+
+19981112 - Earliest version with sources
+has integrated level editor
+lifts are called moveable objects
+F7 does the map
+
+
+
+19981120 - First Release - Shareware Version and Full Version 
+
+19991202 - Version 2 Release - Shareware Version and Full Version 
+
+20000404 - Version 3 Release - Free from now on
+
+
+20010301 - Version 4 Release 
+Feb 25, 2001 to version 4.01 (from pmhelp.txt)
+
+20011223 - started a_changes.txt
+
+Win98/WinXP/linux
+Allegro 4
+Dev-Cpp
+
+making changes to the code to make a second player
+
+20020522 - first references to libnet
+
+20030622 Released Version 5.0 !!!
+
+it says it has 2 player split screen
+it does and it works!!!
+all the versions do not have any function keys to adjust the splits
+enabled
+
+
+20031101 replaced floats with fixed in player struct and plan to do the same woth items and enemies
+
+200408 last entry for a while
+
+
+
+
+
+over a five year pause
+
+
+20091209 started working on it again
+
+this was probably at schlumberger and I would work on it at work
+and in my toyota van up in Nisku
+
+new versions:
+-------------
+dev-cpp-4.9.9.2.exe
+added allegro-4.2.2-1len.DevPak with package manager
+dumb-0.9.3
+libnet-0.10.11
+
+
+messing around trying to get netgame to work
+
+20091212 milestone, first time game has ran over 3 computers
+(not that it was synchronized, they just all connected)
+then make the player have different color
+
+up to aroung line 3500....
+
+added the new screen message thing, its like bmsg, but shows on screen where the thing happened
+
+20091222 more netgame and screen message
+
+added api (game moves array) for all players instead of individual
+
+logging is already happening
+
+20091227 - enemy move has been split into functions for each enemy type
+
+add player bullet recoil
+
+20100114 - added player color change abililty
+
+20100207 - more bugfixes and stuff
+
+got rid of bomb[][], now just use item[][0] == 98
+
+20100309 - level editor has been integrated in main game executable
+
+huge gap in log until 20140206
+
+then another gap until 20170301
+
+20170301 - removed netplay with ifdefs
+
+20171022 - replacing more floats with fixed to do deterministic lockstep
+
+20171107 - renabled netplay with ifdef
+
+20171113 - huge change to drawing code, now all draw on level_buffer and then only the visible part get copied to screen buffer
+
+20171118 - first time I use scale_factor to change the amount of level drawn when the game is playing!!!
+
+20171119 - made player_join_quit thing
+
+change exit all dead to an amount, instead of ON|OFF
+
+20171120 - made level_viewer to view and move levels in level_editor
+
+changed creating lifts from dynamic to static array like everything else
+
+20171124 - still working on lift editor stuff
+
+20171127 - netgame troubleshooting
+
+20171201 - made keys able to remove all blocks or just matching color locked ones
+
+20171202 - tested channels vs connections in libnet..about the same
+
+fixed multiple player carry item bugs
+player solid checks, getting stuck in blocks, pushed by lifts
+
+20171209 - removed counting of player's bullet
+
+working on scale factor, when did I first implement that?
+
+added rotate text for vertical lifts
+
+updated allegro version to 4.4.2 from 4.2.2
+
+20171211 - made an icon for the program from player shape
+
+20171213 - config file recreates itself with defaults if deleted
+
+removed custom screen size variable md (map_double) and now just dynamically set based on screen size
+
+redoing the drawing sequence and what bitmaps it uses, l2000
+
+fixing object rotations in level editor 
+
+stimp and stamp and line of players
+
+remove map translucent blocks with glt
+
+20171217 - doors, new animations, plus many new features
+
+
+20171221 - adding more things to map move in ov
+
+20171223 - make dynamically created array of door shapes like player...
+
+
+when player drops item he is carrying, check that its not in a wall and fix it if it is
+
+started visual level select
+
+20171225 - visual level select complete
+
+lots of message refactoring
+
+20171228 - re-did the key animation code where it shows what blocks are removed, now non-blocking
+
+added lock to exit to show it is locked
+
+refactoring help tags
+
+20171230 - massive slider refactor in object viewer 
+
+20180101 - major flapper refactor
+
+20180104 - test netgame on work laptop with win 10 and it seemed to work great
+
+lots of bug fixes...
+
+20190108 ov - blinking legend lines and map position
+
+working on integrating object_viewer parts
+
+working with stacked objects
+
+updated info on allegro.cc
+
+testing on linux (ubuntu 16.04)
+
+20180106 - made new more accurate solid modes so trakbots could naviagte single blocks spaces
+
+20180118 - added level comparer to level_viewer
+
+
+20180121 - cloner, added max objects created, and time to die!
+
+20180125 - made a group edit randomizer function in zfs, but has to be configured in source code then recompiled
+
+20180129 - new block flood fill for zfs
+
+20180201 - making MDW logo with splines
+
+20180202 - experimenting with making videos by saving screenshots every frame
+
+20180204 - re-arrange levels again, solid 1-40
+
+20180204 - testing netplay, seems broken
+
+20180207 - made level editor use screen_buffer just like game
+
+20180207 - using syck packets to test netplay, enemies positions differ
+
+20180210 - The very start of the concept of sending the entire game state.
+
+i cant belive it that in one session..10 hours or so...
+-i researched compression
+-started with lz4 but then switched to zlib
+-figured out how to use memcpy to copy arrays to binary blocks
+-compress the entire game state
+-break it up into 1K chucks for packets
+-send to clients and have clients re-assemble
+-decompress and blast data back into clients arrays
+
+20180213 - The start of the dif method.
+
+20180219 - Success! 28 minutes 8 players full crazy mode on a level with 100 enemies
+
+20180221 - started log file viewer 
+
+20180224 - bandwidth logging and graph
+
+20180225 - more testing and bug fixing
+
+20180303 - converted tile load and save to use bitmap files instead of saving and loading one pixel at a time
+
+messing with color depths
+
+working on overlay
+
+20180311 - Version 6.0 Release
+
+
+20180314 - Starting port to Allegro 5
+
+20180422 - Converted to Allegro 5 Ported Released Version 7 
+
+20180426 - first commit to github
+
+
+20180606 - Version 7.05
+
+201807 - 202203 no-dev no commits in github
+
+
+
+
+
+20220319 - better predictive bullet targetting
+
+20220319 - web docs part of project
+
+20220323 - completely redid bmsg
+
+20220326 - new enemy type field 
+
+20220331 - to extend field, made new items trigger, block damage, block manip
+
+20220401 - new item, purple coin
+
+20220404 - major refactor of block tiles, now using block flags instead of tile ranges
+
+20220409 - tiles used for blocks now have their own bmp file
+
+20220410 - levels are now saved as a zlib compressed chunk kind of like states 
+
+20220411 - many new features for lifts
+
+20220415 - major work on lift viewer
+
+20220419 - start block checkpoints spawn point index
+
+20220420 - started working new level editor feature, group edit
+
+20220502 - lift viewer integated with object viewer
+
+20220508 - object filter window
+
+20220508 - starting the framework new window class mwWindow
+
+20220512 - filter, status and selection added to mwWindow
+
+20220514 - zfs converted to mwWindow
+
+20220516 - made a common redraw for mwWindow, also common getxy and getbox
+
+20220516 - removed all traces of enemy field,(item trigger, bm and bd do all that and more) 
+
+20220518 - flapper, archwag and cannon, bullet prox changed to circle like other enemies
+
+20220521 - make switches capable of affecting any combination of colors, and have tiles that show that
+
+20220523 - major refactor of sliders, and removed more very old edit_int
+
+20220523 - new item, orb that emits triggers
+
+20220528 - new enemy jumpworm
+
+20220531 - mwWindow made common cm_process_mouse and cm_process_keypress
+
+20220531 - mwWindow made top_menu
+
+20220611 - started on end of level summary
+
+20220618 - still working on level_done in netgame
+
+20220619 - large text screen overlay uses its own bitmap instead of redrawing every frame
+20220619 - chase fps and sync graph
+20220619 - new client lock code
+
+20220620 - chasing down some weird flicker issues in opengl, fixed with single buffer
+
+20220625 - fixing bugs
+
+20220628 - set up OBS and did some recording
+
+20220705 - bug fixing and working on levels
+
+20220722 - removed the whole LIVES, free men and game over concept
+
+20220813 - added secondary monitor functionality, need to set config value, used primarily for recording with OBS
+
+20220821 - new level editor mode, tile helper
+
+20220910 - made a hub level with warps to other levels
+
+20220910 - started new enemy vinepod, by extending podzilla to use splines
+
+changed block walker to be able to choose block that gets created
+
+made door have the option to be invisible
+
+added wall jump option to jumpworm
+
+20220925 - message - added trigger box, fixed size, and now uses allegro multi-line print routine
+
+made my own custom quit level editor dialog box to replace native dialog
+
+20221002 - replaced built-in 8x8 font with Pristine
+
+20221018 - version 7.24 release...ha ha
+
+20221020 - testing and squashing bugs
+
+20221120 - still finding bugs
+
+20221128 - document netgame
+
+20221211 - Huge decision to redo netgame because I cannot stand the 75ms lag.
+
+massive amount of changes
+
+no longer syncing game moves array
+added bullets to things that are synced in states
+added rewind and replay capability on both server and client
+level done took a lot to get working
+
+20221224 - testing on the internet
+
+20221225 - success over the internet
+
+20221226 - hooked up 2nd internet connection for testing
+
+20221227 - the birth of fast packet loop
+
+20221228 - completely re-factored the program's main loop, much cleaner now
+
+20221228 - testing ping with fast packet loop
+
+20221230 - measuring sync more accuratley with fast packet loop
+
+20221231 - make custom graphs into a generic class
+
+20230108 - finished class to draw multicolored dashed lines 
+
+20230110 - finished mwGraph class, and use it for bandwidth, ping, chase and sync, working on code profiling
+
+20230111 - the birth of the Settings tabbed pages
+
+20230113 - moving lots of configurable things to setting pages and cleaning up zmenu
+
+20230115 - source code stats!
+
+20230116 - real time scrolling graph on screen overlay
+
+20230118 - refactoring and trying to find out what is taking a long time to draw
+
+20230121 - working on reducing globals and refactoring
+
+experimenting with a PID control loop for client chase
+
+testing netgame S1 and S2 values
+
+experimenting with linux tc and netem to simulate bad internet connections
+
+made a class mwRollingAverage
+
+tried to draw some graphical representation of the server client timing relationship
+
+removed old fps stuff about skipping draw frame and measuring actual fps 
+
+changed update_animation() to not rely on frame numbers, this was from the earliest days!!
+
+in the interests of speed tried to draw half things one frame and half next, failed badly but still kept mwDrawSequence
+
+refactored all functions in screen_overlay
+
+finally got rid of all references to proc_controllers and used my key[][4] array
+
+20230205 - refactor of level editor and mwWindow system, created a mwWindowManager class to handle all of the windows as a group
+coneverting to classes to get rid of globals
+mwLogo, mwBottomMessage, mwDemoMode, mwDisplay, mwBitmap, mwFont....
+
+20230212 - all global variables and function prototypes are gone from pm.h !!
+
+20230214 - made mwShot class to take care of player and enemy bullets
+
+20230214 - changed fixed to floats for: lifts, items, players, enemies, PDE...all fixed references are gone
+
+20230219 - changed lifts into a class, working on converting more to classes
+
+20230326 - Everything has been converted to a class and named consistantly
+
+20230226 - new item, Timer
+
+20230226 - make cloner triggered by event only, to extend and greatly simplify cloner
+
+20230304 - trigger event system automatically finding senders and emitters and drawing links
+
+20230304 - fix cloner, bm, bd to use new timer when apropriate, removed timers from bd
+
+20230312 - new items, wrap line and warp rectangles, eventually gave up and removed
+
+no dev for a while, working on another project, bsd or bank statement data
+
+
+20230416 - roll back and remove all traces of wrap
+
+20230416 - add bottom message settings page
+
+20230425 - bottom message settings page done
+
+added advanced and debug to settings pages
+
+made the system keys configurable
+
+made a link translation table for when I am pasting things with event links to keep them from colliding with already existing links
+
+20230510 - made vinepod do everything podzilla does, then converted all podzilla to vinepod and kill all traces of podzilla
+
+rearranged enemy numbers
+
+vinepod - added input and output trigger, can disable internal trigger box, can disable bullet firing, drawing helpers (rot, scale)
+
+20230520 - added snap and precise moveability in ov
+
+made the final level blast off cutscene that I have wanted to do since the earliest days!
+
+20230524 - new item, gate
+
+20230524 - removed all traces of item, warp
+
+started the whole story mode, overworld, level stats thing
+
+20230601 - stimp and stamp have been greatly expanded and called transitions
+
+20230605 - still working on transitions and level state for menu, overworld, levels, demo mode
+
+20230618 - still refining
+
+auto turn on eco draw if too many lifts
+
+custom level load icons to its own bitmap file to help with slow loading on slow computers
+
+made a bunch of viewport changes and setting page for them
+
+changed some player x y move code and had to redo all my demo levels!!
+
+refactored where everything is drawn on the main game menu screen
+
+
+
+
+
+
+
+
+

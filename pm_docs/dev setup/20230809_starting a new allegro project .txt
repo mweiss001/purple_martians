@@ -1,0 +1,117 @@
+Code Blocks new project
+
+console
+
+set folder location and project name
+
+gcc
+
+Release Build
+
+
+
+
+Project -> Build Options
+
+Choose 'Release'
+
+Linker Settings:
+
+Other Linker options:
+
+paste:
+
+-lallegro_monolith-static
+-ldumb
+-lfreetype
+-lpng16
+-lzlib
+-ldsound
+-lgdiplus
+-luuid
+-lkernel32
+-lwinmm
+-lpsapi
+-lopengl32
+-lglu32
+-luser32
+-lcomdlg32
+-lgdi32
+-lshell32
+-lole32
+-ladvapi32
+-lws2_32
+-lshlwapi
+-ljpeg
+-lwebp
+-lwebpdecoder
+-lFLAC
+-ltheoradec
+-lvorbisfile
+-lvorbis
+-lopusfile
+-lopus
+-logg
+-lnet
+-lwsock32
+
+Search Directories -> Compiler
+
+add:
+
+C:\Program Files\CodeBlocks\MinGW\include
+
+
+
+
+
+edit main.cpp
+
+
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
+
+#define W 800
+#define H 600
+
+int main(int, char *[])
+{
+   al_init();
+   al_init_primitives_addon();
+   ALLEGRO_DISPLAY *display = al_create_display(W, H);
+   ALLEGRO_TIMER *timer = al_create_timer(1.0 / 30.0);
+   ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
+   al_register_event_source(queue, al_get_display_event_source(display));
+   al_register_event_source(queue, al_get_timer_event_source(timer));
+
+   bool running = true;
+   bool advance = true;
+
+   al_start_timer(timer);
+
+   while (running)
+   {
+      ALLEGRO_EVENT event;
+      al_wait_for_event(queue, nullptr);
+      while (al_get_next_event(queue, &event))
+      {
+         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) running = false;
+         else if (event.type == ALLEGRO_EVENT_TIMER) advance = true;
+      }
+      if (advance)
+      {
+         al_clear_to_color(al_map_rgb(0, 0, 0));
+         al_flip_display();
+
+         // al_draw_reactangle();
+
+      }
+    }
+  }
+  return 0;
+}
+
+
+
+
+

@@ -32,38 +32,44 @@ void mwBitmap::create_bitmaps(void)
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 
    // create memory bitmaps as temp storage for restoring tilemaps after screen change
-   M_tilemap  = create_and_clear_bitmap(640, 640);
-   M_btilemap = create_and_clear_bitmap(640, 640);
-   M_ptilemap = create_and_clear_bitmap(480, 320);
-   M_dtilemap = create_and_clear_bitmap(160, 640);
+   M_tilemap  = create_and_clear_bitmap(704, 704);
+   M_btilemap = create_and_clear_bitmap(704, 704);
+   M_ptilemap = create_and_clear_bitmap(528, 352);
+   M_dtilemap = create_and_clear_bitmap(176, 704);
+
+
+
 
    // this bitmap format is used for tiles
 //   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP | ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR | ALLEGRO_MIPMAP);
 
-
 //   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP | ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
 
 
+   // this bitmap format is used for all other bitmaps
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
 
+
    // create tilemap bitmaps
-   tilemap  = create_and_clear_bitmap(640, 640);
-   btilemap = create_and_clear_bitmap(640, 640);
-   ptilemap = create_and_clear_bitmap(480, 320);
-   dtilemap = create_and_clear_bitmap(160, 640);
+   tilemap  = create_and_clear_bitmap(704, 704);
+   btilemap = create_and_clear_bitmap(704, 704);
+   ptilemap = create_and_clear_bitmap(528, 352);
+   dtilemap = create_and_clear_bitmap(176, 704);
 
    // create bottom message bitmaps
    mBottomMessage.create_bitmaps();
-
-//   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
 
    // create level_background and level_buffer bitmaps
    level_background  = create_and_clear_bitmap(2000, 2000);
    level_buffer      = create_and_clear_bitmap(2000, 2000);
 }
 
+
+
 void mwBitmap::rebuild_bitmaps(void)
 {
+   double t0 = al_get_time();
+
    // rebuild main tiles
    al_set_target_bitmap(tilemap);
    al_clear_to_color(al_map_rgba(0,0,0,0));
@@ -83,6 +89,8 @@ void mwBitmap::rebuild_bitmaps(void)
    al_set_target_bitmap(dtilemap);
    al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(M_dtilemap, 0, 0, 0);
+
+   printf("restore tile array time:%f\n", al_get_time() - t0);
 
    mFont.load_fonts();
 
@@ -154,7 +162,7 @@ int mwBitmap::load_tiles(void)
       al_draw_bitmap(tilemap, 0, 0, 0);
       for (int y=0; y<32; y++)
          for (int x=0; x<32; x++)
-            tile[y*32 + x] = al_create_sub_bitmap(tilemap, x*20, y*20, 20, 20);
+            tile[y*32 + x] = al_create_sub_bitmap(tilemap, x*22+1, y*22+1, 20, 20);
    }
 
    // get block tiles
@@ -171,8 +179,9 @@ int mwBitmap::load_tiles(void)
       al_draw_bitmap(btilemap, 0, 0, 0);
       for (int y=0; y<32; y++)
          for (int x=0; x<32; x++)
-            btile[y*32 + x] = al_create_sub_bitmap(btilemap, x*20, y*20, 20, 20);
+            btile[y*32 + x] = al_create_sub_bitmap(btilemap, x*22+1, y*22+1, 20, 20);
    }
+
    // get player tiles
    ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
    if (!ptilemap)
@@ -187,7 +196,7 @@ int mwBitmap::load_tiles(void)
       al_draw_bitmap(ptilemap, 0, 0, 0);
       for (int a=0; a<16; a++)
          for (int b=0; b<24; b++)
-            player_tile[a][b] = al_create_sub_bitmap(ptilemap, b*20, a*20, 20, 20);
+            player_tile[a][b] = al_create_sub_bitmap(ptilemap, b*22+1, a*22+1, 20, 20);
    }
 
    // get door tiles
@@ -205,8 +214,8 @@ int mwBitmap::load_tiles(void)
       for (int a=0; a<16; a++)
          for (int b=0; b<8; b++)
          {
-            door_tile[0][a][b] = al_create_sub_bitmap(dtilemap, b*20,     a*20, 20, 20);
-            door_tile[1][a][b] = al_create_sub_bitmap(dtilemap, b*20, 320+a*20, 20, 20);
+            door_tile[0][a][b] = al_create_sub_bitmap(dtilemap, b*22+1,      a*22+1, 20, 20);
+            door_tile[1][a][b] = al_create_sub_bitmap(dtilemap, b*22+1, (a+16)*22+1, 20, 20);
          }
    }
    load_sprit(); // get animation sequences and shape attributes

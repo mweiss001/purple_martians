@@ -1,0 +1,166 @@
+
+Notes on versions
+
+----------------
+-- pm_19980922 
+----------------
+earliest surviving version
+no sources
+no sound
+no level editor
+320x200 (16x10 blocks)
+
+no rocket, cloners, messages
+no bullet or timer counting
+
+SPRIT001.XXX size 352,942
+PMR.EXE size 228,864
+
+F6 toggles top display
+F7 toggles map 100
+
+no way of choosing start level
+notes say it is not the shareware version
+levels 1-7
+001 is the one with the podzillas on spikes
+002  red and blue can complete but cant kill all
+003 can get stuck and not complete, exit is in section marked 2
+004 lots of semi solid platforms
+005 large rocket level
+006 full of breakable blocks
+007 another famous level
+
+
+
+----------------
+-- pm_19981112 
+----------------
+is quite a lot better than the previous version
+
+player bullet counting
+timer counting
+and actually has points!!
+
+original bonus structure:
+if (item[x][6]) { p1_points += item[x][6]*100; sprintf(b_msg, "BONUS! %d points",    item[x][6]*100); }
+if (item[x][7]) { LIFE += item[x][7];	       sprintf(b_msg, "BONUS! health + %d",  item[x][7]); }
+if (item[x][8]) { num_bullets += item[x][8];   sprintf(b_msg, "BONUS! bullets + %d", item[x][8]); }
+if (item[x][9]) { level_time += item[x][9]*50; sprintf(b_msg, "BONUS! time + %d",    item[x][9]); }
+
+
+has sources (these are the earliest sources)
+
+has integrated level editor
+has sound
+level 1-9 and 11 21 41
+900 save game
+5 named levels (Escape from Mars...etc)
+ability to set start level
+001 no keys lots of semi solid u's
+002 bombs, cant complete
+...
+041 warehouse
+levels are really rough
+
+F6 toggles top display
+F7 toggles map
+
+Level editor has enemy group editor
+
+100 enemies with 10 ints and 10 floats each
+500 items with 16 ints and 4 floats
+
+20 lifts with 20 steps each
+float mov_obf[20][4];
+int mov_ob[20][20];
+int mov_obi[20][20][4];
+
+The original item types:
+1 - Door
+2 - Bonus
+3 - Exit
+4 - Key
+5 - Start
+6 - Free Man
+7 - Mine
+8 - Bomb
+10 - Popup Message
+
+no rocket yet
+
+The original enemy types:
+enemy type 1 follows man with no regard to walls or gravity and no checks for out-of-bounds  
+enemy type 2 follows man with regard to walls , but no gravity
+enemy type 3 (archwagon) follows man with regard to walls and gravity
+enemy type 4 (bouncer) does not follow man, bounces off walls , no gravity
+enemy type 5 stationery bullet firer
+enemy type 6 bouncing cannon
+enemy type 7 pod cannon stationery bullet firer
+enemy type 8 CLIMBER DUDE (trakbot)
+
+no cloner yet
+
+
+----------------
+-- pm_19981120 
+----------------
+Version 1.0 Release
+
+shareware version with 1 level
+
+full version
+minor improvements over 19981112
+
+now has cloners and rockets
+
+
+
+----------------
+-- pm_19991202 
+----------------
+Version 2.0 Release
+
+shareware version with 1 level (just a typo) 
+says at the bottom of the screen "Shareware version 1"
+
+full version with 20 levels 1-20
+says at the bottom of the screen "Registered Version 2.01"
+messages are there but still use global text and fixed position on screen...
+
+screen sizes 640, 800, 1024
+
+Level editor has been separated
+
+level editor has the first appearances of Status Window and Selection Window
+level editor has the first appearance of viewers for items, enemies and lifts, but they still use edit int and edit float
+can't see bitmap editor because it is commented out...
+
+
+
+
+
+
+pm_20000404
+Version 3.01
+
+now more full and shareware, free from now on
+
+game now has allegro gui select for screen size
+level editor has 3 static sizes  640, 800, 1024
+
+level editor still does not have sliders
+level editor has block editor
+
+
+help screens scrolling 37 pages
+
+
+
+
+
+
+
+
+
+
+
