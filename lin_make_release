@@ -9,40 +9,34 @@ fd='purple_martians_'"$version"'_linux'
 
 mkdir "$fd"
 mkdir "$fd"/bitmaps
+mkdir "$fd"
+mkdir "$fd"/bitmaps
+mkdir "$fd"/help
+mkdir "$fd"/data
+mkdir "$fd"/levels
+mkdir "$fd"/linux_libs
+mkdir "$fd"/logs
+mkdir "$fd"/savegame
+mkdir "$fd"/savegame/demo
+mkdir "$fd"/screenshots
+mkdir "$fd"/sel
+mkdir "$fd"/snd
 
+cp bitmaps/*       "$fd"/bitmaps
+cp help/*          "$fd"/help
+cp snd/*           "$fd"/snd
+cp levels/level0*  "$fd"/levels
+cp linux_libs/*    "$fd"/linux_libs
+cp savegame/demo/* "$fd"/savegame/demo
 
-mkdir purple_martians__linux
-mkdir purple_martians__linux/bitmaps
-mkdir purple_martians__linux/help
-mkdir purple_martians__linux/data
-mkdir purple_martians__linux/levels
-mkdir purple_martians__linux/linux_libs
-mkdir purple_martians__linux/logs
-mkdir purple_martians__linux/savegame
-mkdir purple_martians__linux/savegame/demo
-mkdir purple_martians__linux/screenshots
-mkdir purple_martians__linux/sel
-mkdir purple_martians__linux/snd
+cp data/level_icons_100.bmp "$fd"/data
+cp data/level_icons_200.bmp "$fd"/data
 
+cp pm "$fd"/
+cp readme_linux "$fd"/
+cp license.txt "$fd"/
+cp pml "$fd"/
+cp lin_install_libs "$fd"/
 
-
-cp bitmaps/*       purple_martians__linux/bitmaps
-cp help/*          purple_martians__linux/help
-cp snd/*           purple_martians__linux/snd
-cp levels/level0*  purple_martians__linux/levels
-cp linux_libs/*    purple_martians__linux/linux_libs
-cp savegame/demo/* purple_martians__linux/savegame/demo
-
-cp data/level_icons_100.bmp purple_martians__linux/data
-cp data/level_icons_200.bmp purple_martians__linux/data
-
-cp pm purple_martians__linux/
-cp readme_linux purple_martians__linux/
-cp license.txt purple_martians__linux/
-cp pml purple_martians__linux/
-cp lin_install_libs purple_martians__linux/
-
-
-tar -zcvf ./purple_martians__linux.tar.gz ./purple_martians__linux/*
-
+tar -zcvf ./"$fd".tar.gz ./"$fd"/*
 

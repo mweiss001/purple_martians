@@ -29551,7 +29551,56 @@ OK I think I have that fixed....
 
 
 
+work on the bash script make release to include version number..done
 
+mkdir linux_libs/
+
+cp /usr/lib/liballegro_monolith.so.5.2 ./linux_libs/
+cp /lib/x86_64-linux-gnu/libOpenGL.so.0 ./linux_libs/
+
+version=7.24.567
+
+fd='purple_martians_'"$version"'_linux'
+
+
+mkdir "$fd"
+mkdir "$fd"/bitmaps
+mkdir "$fd"
+mkdir "$fd"/bitmaps
+mkdir "$fd"/help
+mkdir "$fd"/data
+mkdir "$fd"/levels
+mkdir "$fd"/linux_libs
+mkdir "$fd"/logs
+mkdir "$fd"/savegame
+mkdir "$fd"/savegame/demo
+mkdir "$fd"/screenshots
+mkdir "$fd"/sel
+mkdir "$fd"/snd
+
+
+
+cp bitmaps/*       "$fd"/bitmaps
+cp help/*          "$fd"/help
+cp snd/*           "$fd"/snd
+cp levels/level0*  "$fd"/levels
+cp linux_libs/*    "$fd"/linux_libs
+cp savegame/demo/* "$fd"/savegame/demo
+
+cp data/level_icons_100.bmp "$fd"/data
+cp data/level_icons_200.bmp "$fd"/data
+
+cp pm "$fd"/
+cp readme_linux "$fd"/
+cp license.txt "$fd"/
+cp pml "$fd"/
+cp lin_install_libs "$fd"/
+
+
+tar -zcvf ./"$fd".tar.gz ./"$fd"/*
+
+
+bug - story mode arrow key on top menu item does weird things....fixed
 
 
 

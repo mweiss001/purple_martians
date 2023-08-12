@@ -187,8 +187,19 @@ void mwInput::serial_key_check(int key)
    {
       if (memcmp((skc + skc_index-tl), tst, tl) == 0)
          printf("test matched!!!\n");
-
    }
+
+   sprintf(tst, "TEST");
+   tl = strlen(tst);
+   if (skc_index > tl-1)
+   {
+      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+         printf("TEST matched!!!\n");
+   }
+
+
+
+
 
    mLevel.skc_trigger_demo = 0;
    //mLevel.skc_trigger_demo_cheat = 0;
@@ -207,8 +218,23 @@ void mwInput::serial_key_check(int key)
    if (skc_index > tl-1)
    {
       if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+      {
+         set_controls_to_custom_sets(4);
+         printf("ijkl matched!!!\n");
+      }
+
+   }
+
+   sprintf(tst, "IJKL C");
+   tl = strlen(tst);
+   if (skc_index > tl-1)
+   {
+      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
       set_controls_to_custom_sets(4);
    }
+
+
+
 
    sprintf(tst, "cheat");
    tl = strlen(tst);

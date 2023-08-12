@@ -2,18 +2,142 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+make serial key check for IJKL work in client mode
+
+while in game you cannot change keys
+server has them...no
+
+its because set controls to custom sets always sets player 0
+
+while the game is running as a client, we are not using player 0
+
+in init player we set a player not 0 to use 0 controls
+
+later I should figure this out....
+
+
+
+in netgame make current gate set for all players when any player enters gate??
+or should each player keep track of the last gate they touched?
+not sure that is what is happening either...look into it later
+
+
+bug - levels do not unlock in netgame, or at all!!!
+wtf did i break?
+
+
+do something about strict story mode...make it work and configurable
+also it needs to be the same on client and server
+
+even more...levels unlocked need to be controlled by server
+
+this is getting complex....!!!
+
+reset all level data button takes a long time to complete in linux
+it loads the level a few times
+void mwLevel::reset_level_data(void)
+{
+   clear_data();
+   save_data();
+   level_stats_bmp_msg_type = 0;        // to force recreation
+   load_level(mLevel.play_level, 0, 0); // reload play level
+}
+m36 profile:
+clear data time:0.413559
+save data time:0.417563
+
+scat profile:
+clear data time:6.8
+save data time:6.8
+
+
+
+m36 profile:
+clear data time 1:0.006482
+clear data time 2:0.007348
+clear data time 3:0.008380
+clear data time 4:0.369059
+
+scat profile:
+9.2 s on last one...
+
+scat iterate levels only: 0.11
+pc check, still 0.11
+
+it is all in calc_level_stat
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+add notes to controller setup about being able to press 2 directions at once is required for game
+some joysticks will not allow you to do this
+
+
+
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
 
 make new dev setup instructions to document how to do new gcc with new allegro
 
 
 test on linux and try to get latest version of both there too...
 
+ubuntu 20.04
+gcc 10.3.0
+Allegro version 5.2.9.0
 
-work on the bash script make release to include version number
+from allegro git 5.2.8 was release in June 2022
+
+why do I have a higher version??
+
+
+
+profile create tilemaps on other systems...
+m36                0.01 to 0.02
+ubuntu 20.0.4 scat 0.02 to 0.03
+4230               0.3
+
+
+test some multiplayer
+
+
+
+
+
+
+
+I would really like to make a headless server.
+why?
+so that I could start and run it and configure it from a ssh session
+
+I am thinking I would like to always have one running somewhere, attached to the internet with an external static IP
+
+
+
+
+
 
 
 
@@ -28,6 +152,10 @@ make the shortcut keys in the menu optional
 
 can I run demo from menu in classic mode
 yes, but how to patch it in so it looks nice
+also does it work even if level has already been beat
+
+
+
 
 
 
