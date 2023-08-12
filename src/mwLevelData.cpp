@@ -21,10 +21,18 @@
 
 void mwLevel::reset_level_data(void)
 {
+//   double t0 = al_get_time();
+
    clear_data();
+//   printf("clear data time:%f\n", al_get_time() - t0);
+
    save_data();
+//   printf("save data time:%f\n", al_get_time() - t0);
+
    level_stats_bmp_msg_type = 0;        // to force recreation
    load_level(mLevel.play_level, 0, 0); // reload play level
+
+
 }
 
 void mwLevel::unlock_all_levels(void)
@@ -174,7 +182,7 @@ void mwLevel::check_achievments(void)
    int strict = 0;
    // in strict mode all levels are locked until the previous one is completed
    // other wise you just need to beat > 50% of levels in an area to unlock the next area and levels in it
-   if (strict)
+//   if (strict) // do always
    {
       // do the level unlocks by iterating levels with area_array, they are all in order
       for(int i=0; i<99; i++)
@@ -560,6 +568,13 @@ void mwLevel::unlock_all_level_in_area(int area)
 
 void mwLevel::clear_data(void)
 {
+
+
+
+
+
+
+
    for(int i=0; i<16; i++) area_locks[i] = 1; // set all locks
 
    area_locks[13] = 0; // basic training area unlocked
@@ -567,6 +582,9 @@ void mwLevel::clear_data(void)
    load_level(1, 1, 0); // load overworld level (also sets overworld barriers)
 
    fill_area_array();
+
+
+
 
    overworld_level = 0; // no gate will be found and player will start from start block
 
@@ -936,6 +954,7 @@ void mwLevel::clear_data(void)
    strcpy(data[i].level_name, "Lifts");
    data[i].time_par = 3600; // 1:30 demo 1:11
 
+
    for(int i=0; i<100000; i++)
    {
       play_data[i].level = 0;
@@ -953,6 +972,9 @@ void mwLevel::clear_data(void)
    unlock_all_level_in_area(11);
    unlock_all_level_in_area(12);
 
+
+   double t0 = al_get_time();
+
    // load all levels to get purple coin counts
    for (int p=0; p<100; p++)
    if (mLevel.load_level(p, 1, 1))
@@ -963,6 +985,12 @@ void mwLevel::clear_data(void)
       for (int i=0; i<500; i++)
          if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 3)) data[p].tot_purple_coins++;
    }
+
+   printf("clear load levels time:%f\n", al_get_time() - t0);
+
+
+
+
 }
 
 

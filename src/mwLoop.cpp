@@ -177,10 +177,6 @@ void mwLoop::game_menu(void)
             }
          }
 
-
-
-
-
          if  (top_menu_sel == 0) // visual level select
          {
             int r = mVisualLevel.visual_level_select();
@@ -319,7 +315,7 @@ void mwLoop::game_menu(void)
 
          if (top_menu_sel == 5) mHelp.help(""); // help
 
-         while (top_menu_sel > 100) top_menu_sel-=100; // to account for left and right which are not used
+         while (top_menu_sel >= 100) top_menu_sel-=100; // to account for left and right which are not used
       }
    }
 }
