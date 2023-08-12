@@ -2109,7 +2109,6 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
-
          ya +=4;
 
 
@@ -2121,9 +2120,8 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
+         if (mWidget.buttont(xa+200, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Dump Level Data")) mLevel.dump_level_data();
 
-
-         if (mWidget.buttont(xa+260, ya, xa+370, bts, 0,0,0,0,  0, 8,15, 0,  1,0,1,0, "Dump Level Data")) mLevel.dump_level_data();
 
 
 

@@ -211,6 +211,92 @@ so I went back to 5.2.7.1
 
 
 
+step 1 - setup code blocks with mingW64 manually so I can get gcc version 12.1
+
+mingw downloads
+
+https://github.com/niXman/mingw-builds-binaries/releases
+
+x86_64-12.1.0-release-posix-seh-rt_v10-rev3.7z
+
+extracted...now what?
+600M 20K files
+
+tried copying the folder to C:\Program Files\CodeBlocks\MinGW did not work...
+
+
+this works....
+
+mingw downloads
+
+https://github.com/niXman/mingw-builds-binaries/releases
+
+x86_64-12.1.0-release-posix-seh-rt_v10-rev3.7z
+
+extract and rename folder to MinGW (from mingw64) 
+
+in C:\Program Files\CodeBlocks\
+
+rename existing 'MinGW' to 'old_MinGW'
+
+copy new one to there...
+
+then add libnet and the latest allegro and deps
+
+the rebuild my project, now I am at version 5.2.8.1
+
+yay!!
+
+
+
+
+The minimum I need to make a new allegro project:
+
+
+include 
+
+linker options
+
+
+-lallegro_monolith-static
+-ldumb
+-lfreetype
+-lpng16
+-lzlib
+-ldsound
+-lgdiplus
+-luuid
+-lkernel32
+-lwinmm
+-lpsapi
+-lopengl32
+-lglu32
+-luser32
+-lcomdlg32
+-lgdi32
+-lshell32
+-lole32
+-ladvapi32
+-lws2_32
+-lshlwapi
+-ljpeg
+-lwebp
+-lwebpdecoder
+-lFLAC
+-ltheoradec
+-lvorbisfile
+-lvorbis
+-lopusfile
+-lopus
+-logg
+-lnet
+-lwsock32
+
+
+
+
+
+
 
 
 

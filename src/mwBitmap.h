@@ -16,6 +16,7 @@ class mwBitmap
    void spin_shape2(int tn, float x, float y, float scale, float dim, int cycle);
 
 
+
    ALLEGRO_BITMAP *tilemap;
    ALLEGRO_BITMAP *btilemap;
    ALLEGRO_BITMAP *ptilemap;

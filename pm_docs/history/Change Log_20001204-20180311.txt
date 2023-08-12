@@ -267,7 +267,7 @@ I thought I would need to redo my allocation, but that still works fine using
 malloc(sizeof()) free, although I would eventually like to change it to
 new and delete, but why change it if it works?
 The bugs turned out to be mostly cases of referencing an not-yet allocated variable
-- just about completely al_fixed
+- just about completely fixed
 - sometimes still crashes when deleting lifts from the lift viewer
 - does not crash when deleting from the pop-up menu
 
@@ -289,7 +289,7 @@ Added Frame Skip to options menu
 Added text to the main screen that shows which is player 1 and player 2 and if they are active
 
 ------------------------------------
-Got libnet to compile with both versions and documented how to dot it
+Got libnet to compile with both versions and documented how to do it
 The next thing I need to do with the network stuff is:
 get a startup routine that measures the amount of delay between computers
 set the keys to lag by twice the number of frames needed to beat the lag
@@ -684,7 +684,7 @@ The max jump height is defined as he can just barely not jump on a 4 block rise 
 
 This has been done.
 
-Also the max sproingy jump is 100 and it enough to jump from the lowest to the highest
+Also the max sproingy jump is 100 and it is enough to jump from the lowest to the highest
 
 Also the max x speed is now 4 just like before.
 
@@ -732,11 +732,6 @@ make a new structure called amsg
 when an event occurs and the call to:
 
 create_amsg(char *text1, *text2, int justify, int length_in_ticks, int start_scale, int end_scale, al_fixed xinc
-
-
-
-
-
 
 
 
@@ -1678,7 +1673,7 @@ added shape to player
 
 works.............
 
-now i discover my auto coloring routine messes with the eyes!!!...al_fixed
+now i discover my auto coloring routine messes with the eyes!!!...fixed
 
 
 bitmap 755 bullet redraw to have only three colors
@@ -2574,7 +2569,7 @@ back to sjoin rx'd...in client init...
 
 
 what does sjoin read?....sp_passcount (2) play_level(1) fps(1) cn(1) sf(2) ef(2)
-what does sjoin send?....IT NEVER SENDS SF and EF!!!!!.....al_fixed
+what does sjoin send?....IT NEVER SENDS SF and EF!!!!!.....fixed
 
 now client start and sync's then exits??.............wtf
 client log show no start or end yet
@@ -5361,7 +5356,6 @@ next....enemy_player_hit_proc()
 
 DONE...newline counts
 
-
 99 enemy death count down..done (34 31 lines)
 3 archwagon (252 to 182 lines)
 4 bouncer (110 to 90 lines)
@@ -5371,8 +5365,6 @@ DONE...newline counts
 9 cloner (200 to 150 lines)
 11 block walker (167 to 145 lines)
 12 flapper (98 to 61 lines)
-
-
 
 
 not much but it looks a lot better...!!!!
@@ -5405,10 +5397,7 @@ al_fixed...remove p2 from menu...
 
 
 
-
-
-
-in level editor why can't i edit filename im trying to save..al_fixed
+in level editor why can't i edit filename im trying to save..fixed
 
 
 where are the block map colors in pmwin??
@@ -5511,7 +5500,7 @@ make archwagon ride lift up only
 in down check...
 
 
-how does player adjust wit hlift??..
+how does player adjust with lift??..
 
 
 redo menu...
@@ -6111,7 +6100,7 @@ if successful connect save to config file
 server_IP = 192.168.0.100
 
 
-BUG after run game local control don't work...al_fixed
+BUG after run game local control don't work...fixed
 
 make main command line args better...done
 
@@ -7216,7 +7205,7 @@ snapsnot taken
 
 
 
-snapshot taken 20100308 just before niku trip
+snapshot taken 20100308 just before nisku trip
 
 I am combining the two projects, pm and pmfle
 
@@ -8082,7 +8071,7 @@ something is going wrong with lifts that move slowly
 they don't move at all...
 looks like speeds < 10 freeze lifts...
 changed code to cast to float befor dividing by 10
-al_fixed...
+fixed...
 
 
 then I need to add code to be able to edit move to step zero speed
@@ -8316,7 +8305,7 @@ players[p].yinc
 int:
 item[x][7]
 
-A al_fixed point value can be multiplied or divided by an integer with the normal `*' and `/' operators
+A fixed point value can be multiplied or divided by an integer with the normal `*' and `/' operators
 
 
 players[p].yinc = al_ftofix(0-(float)item[x][7] / 2.82 );
@@ -10183,6 +10172,7 @@ maps is getting better, removed all legacy shit
 now make the size thingy more smooth.. done
 
 
+
 removed even more map stuff...
 
 
@@ -10582,11 +10572,10 @@ the server lost track of what client aleady had and sent again
 right about when the player went active...
 
 
-changed this back.....that al_fixed it!!!!
+changed this back.....that fixed it!!!!
 
 //   for (int x=game_move_entry_pos; x>game_move_entry_pos-20; x--)  // only look back 20 steps at most
    for (int x=game_move_entry_pos; x>0; x--)  // only look back 20 steps at most
-
 
 
 -----------------------------------------------------------------
@@ -12295,7 +12284,7 @@ i shouldn't do the sort after each removal....
 how hard could that be...
 
 found a better solution, when erasing multiple lifts, iterate the loop backward, because lifts get removed from the end...
-al_fixed......
+fixed......
 
 
 find all referneces to destroy_lift and replace with clear...done
@@ -12418,7 +12407,7 @@ and step 2 loop to start
 
 I cant insert before 1, or 2...need to fix so i can insert before 2...
 
-al_fixed....
+fixed....
 
 
 ---------------------------------------------------------------------------------
@@ -12429,7 +12418,7 @@ I want a create mode where I can continually enter new steps, until cancelled...
 
 
 ---------------------------------------------------------------------
-cannons are not that accurate since al_fixed replacement....
+cannons are not that accurate since fixed replacement....
 ---------------------------------------------------------------------
 void fire_enemy_bulleta
 
@@ -14176,10 +14165,10 @@ fix the command line args so that I can use different 1 arg flags...done
 
 
 ------------------------------------------------------------
-when I al_fixed the item viewer to not redraw unless the mouse moved
+when I fixed the item viewer to not redraw unless the mouse moved
 now it doesn't redraw when a button is pressed...
 removed the code for that.. the problem is that the button and slider functions
-draw and process, so i can just not call them or they wont work...
+draw and process, so i can't just not call them or they wont work...
 also did the same for lifts....
 lets hope i don't forget in the future and do it again....
 -------------------------------------------------------------
@@ -14397,7 +14386,7 @@ this actually works pretty good and I think I'll keep it
 
 
 ---------------------------------------------------
-player can be pushed sideway into solid blocks, by lifts...al_fixed
+player can be pushed sideway into solid blocks, by lifts...fixed
 -------------------------------------------------------
 more accurately, he doesn't, but some snap to lift side gets him...
 when player is being pushed by lift, check to see if solid..done
@@ -14405,7 +14394,7 @@ when player is being pushed by lift, check to see if solid..done
 
 
 ---------------------------------------------------
-when riding rocket through semi solid, player fires...al_fixed
+when riding rocket through semi solid, player fires...fixed
 ---------------------------------------------------
 removed the check in player move, now does all that stuff even if riding rocket...
 was that wise???...its seems to work...no keep the check in...
@@ -14446,11 +14435,12 @@ with one line change id proc lit rocket I can make rockets go in all direction
 in semi solid, but for now its set to all but down....
 
 
-
-08/12/17 03:30
+20171208 03:30
 another day...
 
 I'm going to fix semi solid today
+
+
 
 
 
@@ -14936,7 +14926,7 @@ remove the counting of player bullets...done
 
 
 ---------------------------------------------------------------
-al_fixed a bug in level viewer, replaced SCREEN_W with 1280 and SCREEN_H with 1024
+fixed a bug in level viewer, replaced SCREEN_W with 1280 and SCREEN_H with 1024
 
 ---------------------------------------------------------------
 
@@ -14962,13 +14952,12 @@ do for both speed and size
 just like map...done
 
 
-
 ---------------------------------------------------------------
 - in lift editor fix the create steps in a loop and create button
 - in lift editor when creating a new lift can only add steps from menu, not pop up (until more steps are added)
 ---------------------------------------------------------------
 
-what about if by defalut mutiple steps....
+what about if by deflaut mutiple steps....
 
 
 changed from :
@@ -15065,14 +15054,14 @@ need to pass values of sucide and deatmatch in SJON packet
 done and tested
 
 ---------------------------------------------------------------
-you can keep shooting the other player after he's dead....al_fixed
+you can keep shooting the other player after he's dead....fixed
 ---------------------------------------------------------------
 
 ---------------------------------------------------------------
 lost the bullet recoil for player on player...done
 ---------------------------------------------------------------
 its because its applied to xinc and yinc
-tried to apply directly to PX and PY but theat look blocky and dumb
+tried to apply directly to PX and PY but that looks blocky and dumb
 need to add to left and right xinc
 looks good, might be to much recoil
 player's bullet travells at 12 pix/frame
@@ -15080,7 +15069,7 @@ recoil is set to 1/3 of that 4 fix/frame
 
 
 ---------------------------------------------------------------
-when you kill player with a lot of right of left xinc it carries over to after death..al_fixed
+when you kill player with a lot of right of left xinc it carries over to after death..fixed
 ---------------------------------------------------------------
 
 
@@ -15102,7 +15091,7 @@ make -c work without args, same with -s...done
 ---------------------------------------------------------------
 no effect when player is shot from below when riding lift
 ---------------------------------------------------------------
-al_fixed by making player_ride = 0
+fixed by making player_ride = 0
 and adding yinc immediately
 and raising y recoil from bullet_speed/3 to bullet_speed/2
 looks good..
@@ -15115,9 +15104,8 @@ made stop sounds into a function
 in proc_level health added check for inactive player
 
 
-
 ---------------------------------------------------------------
-when clicking on slider bar mouse snaps to left edge and value changes right away..al_fixed
+when clicking on slider bar mouse snaps to left edge and value changes right away..fixed
 ---------------------------------------------------------------
 
 
@@ -15305,13 +15293,13 @@ like screen size, and start level and speed...done
 12/12/17 06:15
 
 ---------------------------------------------------------------
-current level disappers when going to options menu...al_fixed
+current level disappers when going to options menu...fixed
 ---------------------------------------------------------------
 
 12/12/17 07:06
 
 ---------------------------------------------------------------
-show level data erases too much on the right...al_fixed
+show level data erases too much on the right...fixed
 ---------------------------------------------------------------
 
 
@@ -15321,10 +15309,8 @@ time to go.....
 13/12/17 04:37
 
 
-
-
 ---------------------------------------------------------------
-why does level less than 100 exit instantly??...al_fixed
+why does level less than 100 exit instantly??...fixed
 ---------------------------------------------------------------
 only one level does this...level 4
 
@@ -15489,14 +15475,7 @@ some of the time draw doesn't need to reload level_buffer
 
 when level not found... reset num_lifts..done
 
-
 and dont display menu map...
-
-
-
-
-
-
 
 
 
@@ -15511,8 +15490,6 @@ in frame and title
    if (md == 2) // 640 x 480
 
 anywhere else in game...?? md is used..??
-
-
 
 
 here is what I need to do...
@@ -15644,7 +15621,7 @@ I still want to do the stimp and stamp
 
 find a place to put the player standing on a block
 
-get his position on the screen when the level starts (usually the middle but now always)
+get his position on the screen when the level starts (usually near the middle but not always)
 
 divide that motion by x equal steps
 
@@ -15672,8 +15649,6 @@ they both meet when the level is the same size as the full screen
 they both use level buffer as the source
 
 do either cause errors when they go to far?
-
-
 
 
 15/12/17 03:19
@@ -15759,11 +15734,9 @@ when you change speed on cannon, x and y inc change too, where????
 
    }
 
-al_fixed... now can set speed to zero and don't have to get new direction..
+fixed... now can set speed to zero and don't have to get new direction..
 
 if set bouncer speed to zero, cannot set rot with direction but who cares!
-
-
 
 
 also rocket's rot is set good in lev editor and shows
@@ -16088,7 +16061,7 @@ what can I do to split the difference
 
 16/12/17 07:02
 
-i have al_fixed the line of players on the menu screen...it only took 4 fucking hours!!!
+i have fixed the line of players on the menu screen...it only took 4 fucking hours!!!
 for 50 fucking lines....
 
 
@@ -16107,7 +16080,7 @@ they will not run when the game is running....
 
 16/12/17 08:21
 
-it took over an hour to figure out why I couln't predict wher the player would be when the game started
+it took over an hour to figure out why I couln't predict where the player would be when the game started
 
 i got it now....
 
@@ -16333,7 +16306,7 @@ done
 
 why don't I have a way to edit the PDE text???
 
-patched it in from a previuos version and al_fixed it up.
+patched it in from a previous version and fixed it up.
 
 needed while (key...s added and marked text entry pos..
 works great and the whole text edit thing is 130 lines....
@@ -16386,7 +16359,7 @@ why doesn't player take bomb damage??? looks like he does to me...
 
 
 ---------------------------------------------------------------
-when going from playing a level to level editor, bullets are shown...al_fixed
+when going from playing a level to level editor, bullets are shown...fixed
 ---------------------------------------------------------------
 
 
@@ -16568,7 +16541,7 @@ bug..if up pressed then walk away, come back and immediate enter
                       if ((!players[p].up) && (item[x][10] == passcount-1)) // up was just released
                       {
                          item[x][10] = 0;
-that al_fixed it...
+that fixed it...
 
 
 
@@ -16671,7 +16644,7 @@ if player paused don't animate walk....done
 
 
 ---------------------------------------------------------------------------------------------
-make a function like s that shows all lifts, but shows all items...done 19/12/17 02:57
+make a function like shows all lifts, but shows all items...done 19/12/17 02:57
 enemies done too...19/12/17 03:11
 ---------------------------------------------------------------------------------------------
 
@@ -16806,7 +16779,7 @@ and center the draw shpe on the line..done
 --------------------------------------------------------------------
 
 --------------------------------------------------------------------
-bug-- if player quits in the middle of a door travel loop ..al_fixed 19/12/17 13:46
+bug-- if player quits in the middle of a door travel loop..fixed 19/12/17 13:46
 even starting a new game won't get them out!!!
 added  players[p].paused = 0;
 to void init_player_before_level_entry(int p)
@@ -16975,7 +16948,7 @@ time for a backup and work
 
 ----------------------------------------------------------------------------
 i can't change the scale, because proc player carry resets it...!!!
-al_fixed 20/12/17 08:43  dont reset if in paused mode...
+fixed 20/12/17 08:43  dont reset if in paused mode...
 ----------------------------------------------------------------------------
 
 
@@ -17138,13 +17111,13 @@ maybe just needs to set f's..yes..done20/12/17 16:12
 
 
 ---------------------------------------------------------------
-when changed door from al_fixed to linked, can set to item that is not a door like 0;
+when changed door from fixed to linked, can set to item that is not a door like 0;
 ---------------------------------------------------------------
 what if i made it link to itself...if immed..dies there...
 even if up still dies there
 
 ---------------------------------------------------------------
-make doors be able to handle a zero move, like linked to the selves
+make doors be able to handle a zero move, like linked to themselves
 ---------------------------------------------------------------
 done.. added code to prevent move if num steps is 0 or very high
 21/12/17 02:52
@@ -17495,7 +17468,7 @@ time to go in the house and see what's up....
 
 
 ---------------------------------------------------------------
-when player leaves ricket he still has left and right xinc ... need to zero...done 22/12/17 13:44
+when player leaves rocket he still has left and right xinc ... need to zero...done 22/12/17 13:44
 ---------------------------------------------------------------
 
 ---------------------------------------------------------------
@@ -17773,7 +17746,7 @@ now that the draw only happens in one place....
 
 newly created door have a color = 0, which doesnt not draw well...
 
-why? al_fixed to make it 1 if 0
+why? fixed to make it 1 if 0
 
 right now door draw completely ignores 1 and 13
 shape is entirely chosen by color from door_bitmap
@@ -17785,7 +17758,7 @@ the fancy door open stuff is still there,
 it requires that 13 be set to 448
 but it uses 1 to draw so its never seen
 
-al_fixed it so that its seen now
+fixed it so that its seen now
 
 that looks good
 
@@ -18015,7 +17988,7 @@ why doesnt fcopy or other copy show??
 26/12/17 07:07 its fucking -37 outside!!!
 ---------------------------------------------------------------
 when creating a sproingy, first adjust is bad, jumps all over
-al_fixed, by making intial create use 40 rather than 14
+fixed, by making intial create use 40 rather than 14
 ---------------------------------------------------------------
 
 
@@ -18137,7 +18110,7 @@ regular creator...
 
 al_fixed a nasty bug about creating more lift than i have space for
 
-zoom full screen cant get to 100,100..al_fixed
+zoom full screen cant get to 100,100..fixed
 
 
 
@@ -18905,10 +18878,9 @@ lets call this done....28/12/17 10:03
 
 I am going to work on the help stuff....
 
-right now it has a al_fixed width of 640
+right now it has a fixed width of 640
 
 make a command line flag to start it instantly... -h
-
 
 
 
@@ -18942,10 +18914,6 @@ what are all the tags i can use in help??
 <msxxxxxxxxx....> 20 shapes three digits each
 
 
-
-
-
-
 i want to add code to stack tags on a single line....
 
 like 2 ans
@@ -18966,12 +18934,12 @@ show more enemies ...
 why don't the colors line up with the players color bitmap index??
 
 
-colors and color names are good..al_fixed
+colors and color names are good..fixed
 
 I have to show the health bar....done
 
 
-I have made som eawesome progress on the help stuff...
+I have made some awesome progress on the help stuff...
 
 29/12/17 00:02
 
@@ -19062,11 +19030,7 @@ did a backup 20171230
 
 remove bullet bonus from enemies in help..done
 
-
-
-
 draw proper shape on bouncer and cannon buttons....done
-
 
 remove bullet bonus from enemy sliders...done
 
@@ -19124,7 +19088,6 @@ so now I know that netgame will work on xp....
 i feel bad that i disbled full screen mode...
 lets see if I can re-enabled it if XP is detected....
 where and how....
-
 
 IT WORKS BUT NOT FROM COMMAND LINE
 
@@ -19261,8 +19224,6 @@ edit item sets it to 18
 that is where I will do it..done
 
 
-
-
 why do cloners mostly have 0 sizes after convert
 look like it was only level 202...al_fixed
 
@@ -19292,15 +19253,10 @@ all seems to work good now....
 bugs, when in a small screen mode and setting the scale factor very zoomed in
 then changing to a large screen mode, the scale factor is
 more than noramlly can be set...
-the bounds check is not done until scale is changed....al_fixed
-
+the bounds check is not done until scale is changed....fixed
 
 make a creator for a single door not linked to anything
 creator?, maybe just pde..done
-
-
-
-
 
 
 
@@ -19430,12 +19386,12 @@ they don't seem to find the player very good
 
 
 ----------------------------------------------------------
-bug when deleting item from viewer, no redraw??..al_fixed
+bug when deleting item from viewer, no redraw??..fixed
 ----------------------------------------------------------
 
 
 ----------------------------------------------------------
-viewer does not update when bomb range changed...al_fixed
+viewer does not update when bomb range changed...fixed
 ----------------------------------------------------------
 
 
@@ -19460,17 +19416,16 @@ allow lit bombs to be embedded in walls...done
 
 
 ---------------------------------------------------------------
-items sliding on ground do not stop completely...al_fixed
+items sliding on ground do not stop completely...fixed
 ---------------------------------------------------------------
 06/01/18 06:11
 
 
 ---------------------------------------------------------------
 in level editor can go to -1 on main level display...
-only when SCREEN_W > 2000...al_fixed
+only when SCREEN_W > 2000...fixed
 ---------------------------------------------------------------
 06/01/18 06:20
-
 
 ---------------------------------------------------------------
 
@@ -19481,8 +19436,7 @@ so that door is marked as touched, but you are still carrying the other door.
 make it a property of a door, if that door can be carried through other doors
 
 
-
-I just realized that this marked door stuff se he can only choose one
+I just realized that this marked door stuff can only choose one
 does not work with multiple players...only one door can be marked for all players
 
 need to make marked door a property of player.done
@@ -19527,7 +19481,7 @@ done 06/01/18 09:50
 why do bombs not respect stationary
 i set it to automatically promote to carry when lit
 -------------------------------------------------------------------
-al_fixed 07/01/18 08:31
+fixed 07/01/18 08:31
 
 
 
@@ -19696,16 +19650,14 @@ i could make another global..num_legend_lines...
 set by title and used by viewer
 done.
 
+
 now all items and enemies have a nice legend blinking highlight thing
 ---------------------------------------------------------------
 done 09/01/18 06:40
 
 
 
-
-
-
-add comon button to viewers
+add common button to viewers
 
 map adjust mode-
 off
@@ -21454,9 +21406,6 @@ show mode, and x and x pos each frame..
 made some new solid functions
 
 
-
-
-
       switch (mode)
       {
          case 0:                                                  // floor right
@@ -21780,15 +21729,14 @@ even at speed 10 still gets 3 moves per mode...
 looks good...
 
 i now pronounce trakbots, completely finished and tested....
-19/01/18 07:04
+
+20180119 07:04
 
 -----------------------------------------------------
-
 
 make a backup....
 
 20180119
-
 
 -----------------------------------------------------
 fix flappers with glt
@@ -21922,8 +21870,9 @@ I just set the shapes in didn't want to S or E with bitmap...
 ---------------------------------------------------------------
 zoom full screen, not detecting enemies in selection window????
 ---------------------------------------------------------------
-al_fixed detection and bug in pointer_text()
+fixed detection and bug in pointer_text()
 done 20/01/18 08:04
+
 
 
 ---------------------------------------------------------------
@@ -21968,7 +21917,7 @@ XP and ubuntu do not...live with it..too difficult to fix...
 ubuntu floating point execption in grphical level select
 the error was looking for levels with .PML should be .pml
 --------------------------------------------------------------
-al_fixed... 20/01/18 10:38
+fixed... 20/01/18 10:38
 
 
 --------------------------------------------------------------
@@ -21978,7 +21927,6 @@ make something to tell what levels are similar...
 i made an awesome level comparer...done
 --------------------------------------------------------------
 20/01/18 14:01
-
 
 
 
@@ -22004,14 +21952,11 @@ done....
 
 
 ---------------------------------------------------------------
-mouse shows during game...al_fixed
+mouse shows during game...fixed
 ---------------------------------------------------------------
 show_mouse(NULL) already in initial setup
 added in loop at end of start mode
 20/01/18 19:20
-
-
-
 
 ---------------------------------------------------------------
 made lifts more accurate by setting exact position when switching steps
@@ -22026,10 +21971,7 @@ backup...
 
 
 
-
-
-
-i don't like how cloner keeps going till all enemies of items are done
+i don't like how cloner keeps going till all enemies or items are used
 add to cloner
 max enemies created
 how to keep track...
@@ -22459,8 +22401,8 @@ make it so empty block in fsel don't show anything...done
 
 25/01/18 06:10
 
-
 back to group edit (or randomizer)
+
 
 
 make a randomizer function
@@ -22880,7 +22822,8 @@ done..30/01/18 05:53
 ---------------------------------------------------------------
 cant turn off map if you can't cycle all the modes, like when stuck in lower left corner
 ---------------------------------------------------------------
-al_fixed...30/01/18 06:11
+fixed...30/01/18 06:11
+
 
 
 
@@ -23733,7 +23676,7 @@ rename it to tst1
 to make slashes work in both windows and linux...
 use '/' not '\'
 
-windows wil take either
+windows will take either
 linux won't
 
 don't need to escape either...
@@ -23875,11 +23818,6 @@ same on both...
 enemy 23 is different on lin
 lin x510 y682
 win x578 y682
-
-
-
-
-
 
 
 
@@ -24056,15 +23994,15 @@ max fall = 160
 inc = 5
 
 
-al_fixed trakbot sync....
+fixed trakbot sync....
 
 ----------------------------
 
 what else can I check...
 
-block walker has 2 mentions..al_fixed
+block walker has 2 mentions..fixed
 
-flapper has 1.. al_fixed...
+flapper has 1.. fixed...
 
 
 i would like to put a check for items, lifts and all players
@@ -24154,7 +24092,6 @@ damn... this is great...
 08/02/18 06:58
 
 
-
 08/02/18 16:36
 snow day at work
 
@@ -24187,7 +24124,7 @@ set_seek(EN)
 to find player to seek to
 used by cannon and bouncer
 i think i al_fixed it, how to test...?
-al_fixed 09/02/18 05:02
+fixed 09/02/18 05:02
 
 
 ------------------------------------------------------------------------------
@@ -24223,7 +24160,7 @@ added progress bar...not sure if that will makes things worse...
 
 ---------------------------------------------------------------
 when player are all in a group a bullet hits them all
-al_fixed by breaking out of loop for e and p bullets player detection.
+fixed by breaking out of loop for e and p bullets player detection.
 ---------------------------------------------------------------
 09/02/18 10:06
 
@@ -24286,7 +24223,7 @@ done, need to test
 09/02/18 11:47
 
 
-al_fixed one more syck error with cannons using fmul for size inc...
+fixed one more syck error with cannons using fmul for size inc...
 ...fmul...not fixmul...??? wtf
 ---------------------------------------------------------------
 got syck error on ubuntu
@@ -24779,7 +24716,7 @@ get client to request chnk...
 now that chnk works so good, it could replace chase and sync...
 
 ------------------------
-i cant belive it that in one seesion..10 hours or so...
+i cant belive it that in one session..10 hours or so...
 -i researched compression
 -started with lz4 but then switched to zlib
 -figured out how to use memcpy to copy arrays to binary blocks
@@ -24862,7 +24799,7 @@ the req_move is made by putting stuff in xinc and yinc
 then the code will determine is that is allowed
 never mind this noise, i al_fixed it
 ---------------------------------------------------------------
-archwagons don't ride lifts like they used to...al_fixed
+archwagons don't ride lifts like they used to...fixed
 ---------------------------------------------------------------
 12/02/18 10:18
 
@@ -24873,8 +24810,7 @@ somtimes copies expiring item....
 // are we copying something that already has an expiry date?? if so leave it
 if (item[b][14] == 0) item[c][14] = Ei[EN][9]; // otherwise set time to live from cloner
 ---------------------------------------------------------------
-al_fixed...12/02/18 10:26
-
+fixed...12/02/18 10:26
 
 
 12/02/18 10:26
@@ -25392,7 +25328,7 @@ time for a backup and work...
 need to reset passcount timers too...
 or not use them like this...
 
-al_fixed, now use passcount mod scheme to set bitmap
+fixed, now use passcount mod scheme to set bitmap
 
 
 ------------------
@@ -25481,7 +25417,6 @@ only wait for 1 good frame, send active in 4 frames...
 this works good...
 
 test it on many computers....
-
 
 not good with more clients
 
@@ -25732,11 +25667,11 @@ when you let go of an item in a solid wall it get bumped up the next higher bloc
 im assuming this only happens for bomb, other stuff cant be stuck in wall...
 in player_drop_item:
 else itemf[pc][1] += al_itofix(2); // when putting bomb in wall, this stops it from snapping to block above
-al_fixed...17/02/18 14:21
+fixed...17/02/18 14:21
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
-why does controller menu write over map...al_fixed...17/02/18 14:28
+why does controller menu write over map...fixed...17/02/18 14:28
 -------------------------------------------------------------------------------
 
 this is how much data I'm using...
@@ -28032,7 +27967,7 @@ it looks like the chak packets are not received on the server
 on the client, even though they are recived on the correct passcount
 because of the ordering they were not process until the next...fix that...
 
-run game will not work unless can look back to start...al_fixed
+run game will not work unless can look back to start...fixed
 
 make active player draw on top of rest...done
 19/02/18 21:09
@@ -29642,11 +29577,11 @@ void proc_level_done(void)
 26/02/18 04:16
 
 cleaned the client init code
-logging and errors al_fixed
+logging and errors fixed
 26/02/18 04:17
 
 
-i think the level done this has to do with states
+i think the level done thing has to do with states
 
 make sure states on sever are good..
 everything gets reset on level done..
@@ -30097,7 +30032,7 @@ change to mean if > 63 then quit reason
 do it....
 join stuff can stay the same
 
-al_fixed a bunch of stuff in game move....
+fixed a bunch of stuff in game move....
 now to find and fix all the places that a quit game move gets entered..
 
 the code in control where players become inactive has been
@@ -30171,7 +30106,7 @@ done...
 
 ---------------------------------------------------------------
 I just made a huge change to the game
-since rthey very begining I have been saving sptit001.pm the same way:
+since they very begining I have been saving sptit001.pm the same way:
 read and write each pixel with get_pixel and put_pixel then save to file
 and the pallete the same way
 now I use load_bitmap and save_bitmap
@@ -30906,7 +30841,7 @@ always show fps
 if not 40 show set act
 if skip last sec show fps act skip
 
-on over lay show all
+on overlay show all
 finally happy with this...
 08/03/18 10:42
 
@@ -31198,256 +31133,7 @@ to see if simultanoeous is good
 done 11/03/18 14:15
 
 
+20180311 - Released Version 6.0
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-------------------------------------------------
-20180314 pi day
-
-OK here I am converting to Allegro 5
-
-imported the project from .dev into code::blocks
-
-removed all e_ files and n_ files
-
-in pm.h undefined sound DUMB netplay
-
-now lets see if I can get it to compile...
-
-first thing in that the new allegro headers cant be found:
-
-
-al_fixed that..
-
-al_fixed has been replaced with al_fixed???
-
-when I'm doing things like this should I not do it for my entire project?
-
-yes...
-
-fixed -> al_fixed
-BITMAP -> ALLEGRO_BITMAP
-al_destroy_bitmap -> al_destroy_bitmap
-
-DIALOG gone from 5
-disable for now, maybe get EGG_DIALOG later
-
-PALLETE ????? ditch it
-
-
-END_OF_FUNCTION(inc_timer_passcount);
-
-
-void inc_timer_passcount()
-{
-   timer_passcount++;
-}
-END_OF_FUNCTION(inc_timer_passcount);
-
-void second_timer()
-{
-   fps = passcount - last_fps_passcount;
-   last_fps_passcount = passcount;
-
-   frames_skipped_last_second = (players1[active_local_player].frames_skipped - last_frames_skipped);
-   last_frames_skipped = players1[active_local_player].frames_skipped;
-}
-END_OF_FUNCTION(second_timer);
-
-
-
-   LOCK_VARIABLE(timer_passcount);
-   LOCK_FUNCTION(inc_timer_passcount);
-
-   LOCK_VARIABLE(fps);
-   LOCK_VARIABLE(last_fps_passcount);
-
-   // this is for the fps
-   LOCK_FUNCTION(second_timer);
-   install_int_ex(second_timer, BPS_TO_TIMER(1));
-
-
-
-it looks like the old timers, called a function...
-where the new ones generate an event
-
-
-I only have 2 timers:
-1 to count actual frames per second
-1 to control the frame rate
-both are only used in the game loop
-I'm having trouble thinking why I want to do this with events...
-
-one solution is to spawn another thread that does nothing but update passcount
-
-or in my loop, at the frame delay I can wait until i get an event...
-
-
-
-
-al_create_timer
-ALLEGRO_TIMER *al_create_timer(double speed_secs)
-
-Allocates and initializes a timer.
-If successful, a pointer to a new timer object is returned, otherwise NULL is returned.
-speed_secs is in seconds per "tick", and must be positive. The new timer is initially stopped.
-Usage note: typical granularity is on the order of microseconds, but with some drivers might only be milliseconds.
-
-See also: al_start_timer, al_destroy_timer
-
-al_start_timer
-
-
-al_get_timer_count
-int64_t al_get_timer_count(const ALLEGRO_TIMER *timer)
-Source Code
-
-Return the timer's counter value. The timer can be started or stopped.
-
-See also: al_set_timer_count
-
-I think with this i don't need events at all
-
-
-
-'fps_timer' will be the name of my new timer
-
-ALLEGRO_TIMER * fps_timer = al_create_timer(0.025);
-
-
-"timer_passcount" used to be the variable that got incremented in the
-old timer loop.
-
-now it will be al_get_timer_count(fps_timer);
-
-
-void al_set_timer_speed(ALLEGRO_TIMER *timer, double new_speed_secs)
-Set the timer's speed, i.e. the rate at which its counter will be incremented when it is started.
-This can be done when the timer is started or stopped.
-If the timer is currently running, it is made to look as though the speed change occurred precisely at the last tick.
-
-void al_set_timer_count(ALLEGRO_TIMER *timer, int64_t new_count)
-Set the timer's counter value. The timer can be started or stopped.
-The count value may be positive or negative, but will always be incremented by +1 at each tick.
-
-
-
-
-disable the fps per second one for now...
-commented out in main
-
-
-
-change the timer:
-
-add global and extern in pm.h
-ALLEGRO_TIMER * fps_timer ;
-
-create timer in initial setup:
-fps_timer = al_create_timer(1/fps_passcount_timer);
-
-
-look for all mentions of timer_passcount and replace with al_get_timer_count(fps_timer);
-or set...  done
-
-
-
-
-sprintf() needed <stdio.h>?? why didn't it need it before??'
-
-
-config is all fucked.. more more int float string, now its all string
-will need to make convertors...atoi and itoa...etc
-
-
-also I need to load the config file first...
-
-where do I do these things in my program?
-
-right after allegro_init
-
-set_config_file("pm.cfg");
-
-
-why don't I load it in initial setup
-and destroy right after.
-
-whenever I want to save a change i will need to load the file
-make the change and save it.
-
-
-i should have one function that saves everything to config
-and also one that loads everything
-
-what do i do about defaults??
-
-
-
-
-make my own load data from config fucntion
-
-
-this file is getting so long....almost 900K
-I'm moving to a new one...
-
-20180315.....
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+This file is getting so long....almost 900K, I'm moving to a new one...
 

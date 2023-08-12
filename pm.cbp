@@ -147,6 +147,7 @@
 		<Unit filename="src/mwLevel.cpp" />
 		<Unit filename="src/mwLevel.h" />
 		<Unit filename="src/mwLevelData.cpp" />
+		<Unit filename="src/mwLevelDataStats.cpp" />
 		<Unit filename="src/mwLift.cpp" />
 		<Unit filename="src/mwLift.h" />
 		<Unit filename="src/mwLog.cpp" />

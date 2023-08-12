@@ -17819,9 +17819,6 @@ Block and Default Flag Editor
 
 
 
-
-
-
 Commit message:
 
 Tiles used for blocks now have their own file: block_tiles.bmp
@@ -25630,7 +25627,6 @@ when in drag mode, deactivate the button detection...
 still if you drag too fast and the mouse in on the buttons it freezes...done...
 
 20220512 6:30 AM  push
-
 implement the +/- collapse button
 
 what kind of button?? the same!
@@ -30031,6 +30027,7 @@ i would like to learn how to do a dashed line in allegro..gave up again...
 
 
 
+
 show comparison between
 int fps_chase = frame_speed + (players1[p].client_sync - server_lead_frames)*2;
 and
@@ -31288,9 +31285,6 @@ actually it was a bonus item with health 100
 
 
 
-
-
-
 20220813
 
 I am going to add functionality for extra displays
@@ -31492,17 +31486,7 @@ this looks a lot better now..
 
 
 
-
-
-
-
-
-
-
-
-
-
-20200910
+202200910
 
 make a hub level with warps to various things
 
@@ -31813,8 +31797,6 @@ I would like to make some leaves on the vine as it extends..done
 make it so that when moving with zfs, all points move too..
 
 what about copy with draw item? that too??
-
-
 
 i just realized that all these points are absolute
 they could be relative to the initial position...
@@ -32684,7 +32666,6 @@ feck 192.168.1.106 (u22) dev
 mi3 can ping dred and 111
 
 
-
 local dns is still bad on all ubuntu
 but I can ping now...
 
@@ -32694,9 +32675,6 @@ but u to a different windows system is good..
 used 4230i as server and lin clients can connect but not with hostname
 
 i don't know what the hell is going on
-
-
-
 
 
 
@@ -33514,25 +33492,14 @@ anything but crashing without any explanation
 
 
 
-
-
-
-
-
-
-
-
-
 nothing in the server log about why p1 stopped working sometime around frame 47480
 looked into it in more detail...
 last rx cdat from p1 was frame 47490
 cdats were arriving in pairs with sync of 0 and 1
 then at frame 4759 server dropped p1 (last sdak rx > 100)
 
-
 why do graphs not work?
 what packets are required for each...
-
 
 sync graph
 max of 10,000 points
@@ -33586,7 +33553,6 @@ broke redraw out and made it a function
 same with autoscale
 
 make home key set gs_pc = 0 and autoscale
-
 
 
 
@@ -37696,7 +37662,7 @@ For mode 1
 
 ------------------
 
-wait...I am trybing to do something better am I not?
+wait...I am trying to do something better am I not?
 
 
 I propose a single search back through the game moves array for all players and special game moves.
@@ -41980,7 +41946,7 @@ try to start implementing this...
 playable, but omg what a mess!!
 
 
-20221208
+20221228
 
 
 The function 'proc_program_state()' is called every frame.

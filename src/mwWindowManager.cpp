@@ -54,7 +54,7 @@ void mwWindowManager::initialize(int edit_level)
    mInput.initialize();
 }
 
-void mwWindowManager::loop(int edit_level)
+int mwWindowManager::loop(int edit_level)
 {
    mLoop.level_editor_running = 1;
    al_show_mouse_cursor(mDisplay.display);
@@ -63,7 +63,6 @@ void mwWindowManager::loop(int edit_level)
    active = 1;
 
    mW[5].ge_init_data();
-
 
    while (active)
    {
@@ -76,6 +75,7 @@ void mwWindowManager::loop(int edit_level)
    mLoop.level_editor_running = 0;
    mLevel.resume_allowed = 0;
    al_hide_mouse_cursor(mDisplay.display);
+   return mLevel.last_level_loaded;
 }
 
 void mwWindowManager::get_block_position_on_map(void)
@@ -92,12 +92,6 @@ void mwWindowManager::get_block_position_on_map(void)
    float mx3 = (float)mScreen.level_display_region_x / 20;
    float my3 = (float)mScreen.level_display_region_y / 20;
 
-   /*
-   mDisplay.level_display_region_x
-
-   mDisplay.level_display_region_y
-
-   */
    // add
    float mx4 = mx3 + mx2;
    float my4 = my3 + my2;

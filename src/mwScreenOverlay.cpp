@@ -667,7 +667,7 @@ void mwScreen::draw_common_debug_overlay(int p, int &cx, int &cy)
    {
       al_draw_filled_rectangle(cx, cy, cx+168, cy+47, mColor.pc[0]); cy+=2;
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "display: %d x %d ", al_get_display_width(mDisplay.display), al_get_display_height(mDisplay.display)); cy+=9;
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "screen : %d x %d", mDisplay.SCREEN_W, mDisplay.SCREEN_H); cy+=9;
+      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "screen : %d x %d", (int)mDisplay.SCREEN_W, (int)mDisplay.SCREEN_H); cy+=9;
       if (mDisplay.saved_display_transform_double == 0) al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "double:%d [auto]", mDisplay.display_transform_double);
       else                                         al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "double:%d [static]", mDisplay.display_transform_double);
       cy+=9;

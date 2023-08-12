@@ -359,61 +359,74 @@ Note: You will need <a href="https://www.dosbox.com/">DOSBOX</a> to run version 
 <a name="History"></a>        
 <br><mh7>History</mh7>
 <mh3>
-I started Purple Martians in 1997 in a basement in Victoria, BC, Canada.
 
 I had been trying to write a game for a long time.
 
-In 1978, when I was 10, I learned BASIC on a Commodore PET and wrote a few simple programs to manipulate and draw text.
+In 1978, when I was 10, I learned BASIC on a Commodore PET
+and wrote a few simple programs to manipulate and draw text.
 
-From 1980-1987, I had access to an Apple II+ and spent a lot of time learning how to program on that.  (280 x 192 hires graphics mode!)
-I made some games in BASIC, and later 6502 assembly.
+From 1980-1987, I had access to an Apple II+ and spent a lot of time
+learning how to program on that.  (280 x 192 hires graphics mode!)
+I made some games in BASIC, and assembly.
 
 The BASIC games could not not get fast enough, no matter what.
 Probably due to an interpreted language and my lack of skills.
 
-Assembly was better, but my skills were not enough to write that complex of a program in assembly.
+Assembly was better, but my skills were not enough to write that
+complex of a program in assembly.
 
-For many years I had no access to a computer, or the time or inclination to do anything about it.
+For many years I had no access to a computer, or the time or
+inclination to do anything about it.
 
-I still wanted to create the game I had in my head, with a little man running around a level, jumping from platform to platform.
+I still wanted to create the game I had in my head, with a little man
+running around a level, jumping from platform to platform.
 
-Then in 1997, I was in a seasonal layoff from my job over the winter, waiting on unemployment benefits, and I had a laptop and internet access.
+Then in 1997, I was in a seasonal layoff from my job over the winter,
+waiting on unemployment benefits, and I had a laptop and internet access.
 
 I decided I was going to work on the game I had in my head.
 
-I searched for some proper tools to create games.  I was thinking even if I had to pirate something, I was going to figure out how to make my game a reality.  All of the microsoft crap did not appeal to me, but I resigned myself to go there if I had to.
+I searched for some proper tools to create games.  I was thinking even
+if I had to pirate something, I was going to figure out how to make
+my game a reality.  All of the microsoft crap did not appeal to me,
+but I resigned myself to go there if I had to.
 
-What I found instead was Allegro.  It looked awesome.  The more I read, the more I knew it was what I was looking for.  And the best part was that it was free!  Nothing to pirate!
+What I found instead was Allegro.  It looked awesome.  The more I read,
+the more I knew it was what I was looking for.  And the best part was
+that it was free!  Nothing to pirate!
 
 The only catch... I would have to learn how to program in C.
 
-I downloaded DJGPP, used RHIDE as my IDE, added Allegro 2.2, and my journey began.
+I downloaded DJGPP, used RHIDE as my IDE, and added Allegro 2.2.
 
-As I learned C, I was amazed at how logical, simple, precise and elegant it is.  No gotos or line numbers.  And it's really fast!
+As I learned C, I was amazed at how logical, simple, precise and elegant
+it is.  No gotos or line numbers.  And it's really fast!
 
 In my game I built everything from scratch. (Well, except for Allegro!)
 I started by learning how to draw on the screen.
 Then I made some shapes to blit here and there.
 Early on I decided to make my game sprites 20x20 pixels.
 I made an bitmap editor to draw and edit these sprites.
-I built my own routine for saving and loading bitmaps to disk, (one get_pixel and put_pixel at a time!)
+I built my own routine for saving and loading bitmaps to disk,
+(one get_pixel and put_pixel at a time!)
 
 I decided on a level size of 100x100 blocks made of these shapes.
 I used an array of 10,000 ints, int l[100][100].
 
-When I was figuring out how to run my game loop flicker free with a screen buffer,
-I created a bitmap the size of the whole level: 2000 x 2000 pixels.
-4 million pixels on a 486 with 8M RAM!
+When I was figuring out how to run my game loop flicker free with a
+screen buffer,  I created a bitmap the size of the whole level:
+2000 x 2000 pixels.  4 million pixels!
 
-1997-2003 is what I call the first phase of the development.
+From 1997 to 2003 I call the first phase of the development.
 
 I always knew I wanted to do some kind of multiplayer.
 The game would just be so much better with more players.
 It had to be simultaneous multiplayer, like Bubble Bobble.
-Just two players taking turns was too boring to be considered.
+Just two players taking turns was never even considered.
 
 Initially, I came up with a split screen method.
-I created a second player and re-wrote a lot of code that assumed there was only ever going to be one player.
+I created a second player and re-wrote a lot of code that assumed
+there was only ever going to be one player.
 
 That worked, but the split screens were kind of small.
 Still it was really cool to play simultaneously with another player.
@@ -423,62 +436,61 @@ I started to think about how amazing networked multiplayer would be.
 I found libnet and made a simple packet exchange of moves.
 Exchanging game move packets was easy, but synchronizing the game was not.
 
-I spent a lot of time trying different concepts and abandoning them when I realized they wouldn't work or I thought of a better way to do it.
+I spent a lot of time trying different concepts and abandoning them when
+I realized they wouldn't work or I thought of a better way to do it.
 
-In 2003 I released version 5. The netplay stuff didn't work yet, so I disabled it with #ifdef's in the source.
+In 2003 I released version 5. The netplay stuff didn't work yet, so I
+disabled all traces of it with #ifdef's in the source.
 
-I let it go for a few years until I came back with a vengenance in 2009-2010 to solve the netplay stuff.
+I let it go for a few years until I came back with a vengeance
+in 2009-2010 to solve the netplay stuff.
 
 I made a lot of changes and improvements, but still had sync issues.
 It would almost run perfectly until they slightly went out of sync.
 
-I had made a lot of changes, but because netplay was broken I held off releasing.
-Eventually I gave up and let it go for many years.
+I had made a lot of changes, but because netplay was broken I didn't want
+to release without it.  Eventually I gave up and let it go for many years.
 
-I had been thinking about the various methods of syncing, but was still convinced my method should work.
+I had been thinking about the various methods of syncing, but
+was still convinced my method should work.
 
-The method I use is called deterministic lockstep, and I wrote in depth about it in netplay.txt.
+The method I use is called deterministic lockstep, and I wrote in
+depth about it in netplay.txt.
 
-The concept is that for the exact same set of inputs, the output will be exactly the same.
-So if I could just sync the inputs (what controls are pressed on what frame), the output should be identical.
+The concept is that for the exact same set of inputs, the output will
+be exactly the same.  So if I could just sync the inputs (what controls 
+are pressed on what frame), the output should be identical.
 
-I almost went to the dark side.
-I contemplayed trying something like Unity that had built in network multiplayer.
-I even spent a few hours bulding a test project in Unity to get a feel of what it would be like to re-do the game in that.
+I was almost going to try something like Unity that had built in
+network multiplayer.  I even spent a few hours building a test project
+in Unity and seeing what it would be like to re-do the game in that.
+I decided not to for a few reasons.  I wanted do it my way.  I wanted to
+figure it out myself.  I didn't want to spend a huge amount of time
+figuring out a new platform and porting my game to it.
 
-I decided not to for a few reasons.
-
-The most important reasons were personal.
-
-I wanted do it my way.  I wanted to figure it out myself.
-    
-I didn't want to spend a huge amount of time figuring out how to shoehorn my my project into a game engine where I would have to do things their way.
-
-That is what I love about Allegro.
-Its a game programming library, not an engine.
-You are free to design your game any way you like.
-    
-I love that amount of control, and for me, being able to say I figured out how to
-do it myself was very important.
-    
 In 2017-2018 I came back again and tested a new idea I had.
 Basically I removed all floats and replaced them with fixed point numbers.
-Floats, while very precise, were not as perfectly deterministic across different systems as I needed.
+Floats, while very precise, were not as perfectly deterministic across
+different systems as I needed.
 Fixed points, while not as accurate, gave the exact same results every time.
+After a lot of rewriting, I finally was getting good sync.
+I could play 3 and 4 players games with no problems.
 
-After a lot of rewriting, I finally was getting much better sync.
-I could play 3 and 4 players games with minimal problems.
+I still had rare occasions that the sync would break.  Often enough that 
+I couldn't call it fixed.  I wrote a huge amount of logging code, trying
+to get to the bottom of the problem.
 
-I still had rare occasions that the sync would break.  Often enough that  I couldn't call it fixed.  I wrote a huge amount of logging code, trying to get to the bottom of the problem.
+Eventually I started passing some state information from server to clients
+to tell when the game was going out of sync.
 
-Eventually I started passing some state information from server to clients to tell when the game was going out of sync.
+That grew to be more and more information until I thought, why don't I try 
+to send the entire state?
 
-That grew to be more and more information until I thought, why don't I try to send the entire state?
-
-I never designed the game with that in mind, and the structures and arrays holding all of that data were huge.
+I never designed the game with that in mind, and the structures and arrays
+holding all of that data were huge.
 
 100 enemies, each with 16 ints and 32 fixed_point
-500 items, each with 16 ints and 4 fixed_point
+500 items,   each with 16 ints and 4 fixed_point
 40 lifts structures, each with up to 40 steps
 the level block array (100x100) ints
 8 player data structures
@@ -487,44 +499,55 @@ All of that came in at over 100k.  Way too much to sync with 1K packets.
 
 I did some research and decided to try to use zlib to compress it.
 That got my 100K down to around 6-12K.
-I wrote code to split it into 1K packets and reassamble them on the clients.
-It worked, but it was still too much data and was too slow.
-    
-At this point I was only using it to check and see if the game had gone out of sync.
+I wrote code to split it into 1K packets and reassemble them on the
+clients.  It worked, but it was still too much data and was too slow.
+At this point I was only using it to check and see if the game had
+gone out of sync.
 
-Then I came up with a dif method.
-Instead of sending the whole 100K, I would only send what had changed.
+Then I came up with a dif method.  Instead of sending the whole 100K,
+I would only send what had changed.
 
-I basically just subtracted one entire state from another, called that my dif, and compressed that.
+I basically just subtracted one entire state from another, called that
+my dif, and compressed that.
 
 That gave me around 600 to 1800 bytes. I would only need 1 or 2 packets!
 
-When I got that working, I decided instead of just checking if I am out of sync, why don't I just use that to correct the state on the clients?
+When I got that working, I decided instead of just checking if I am out 
+of sync, why don't I just use that to correct the state on the clients?
 
-That is the way that it works now.  It checks for differences, but then just overwrites with the new state anyway.
-I still check for differences because I want to know what is drifting and see if I can find out why.
-Its not really necesary because getting a new state fixes everything.
+That is the way that it works now.  It checks for differences, but then
+just overwrites with the new state anyway.  I still check for
+differences because I want to know what is drifting and see if I can
+find out why. Its not really necessary because getting a new state fixes
+everything.
 
-So now there are two methods for the game sync:
-The old original one just sync's the clients inputs.
-Every frame, if the clients controls change, a packet with that control change is sent to the server.
-The server then consolidates all client inputs, and syncs that back to each client independantly.
+So there are two methods for the game sync:
+The old original one just sync's the clients inputs.  Every frame, if
+the clients controls change, a packet with that control change is sent
+to the server.  The server then consolidates all client inputs, and
+syncs that back to each client independently.
 
-The second method periodically sends a new complete state to each client in the form of a dif from the last acknowledged one.
+The second method periodically sends a new complete state to each
+client in the form of a dif from the last acknowledged one.
 
-Between these two methods, I can now play very long games, with up to 8 players, across all windows and linux versions, and it works perfectly!
+Between these two methods, I can now play very long games, with up
+to 8 players, across all windows and linux versions, and it works
+perfectly!
 
-Then I cleaned up a lot of things in the code that I had broken, refactored just about every line in the game, added new features, removed some old ones, went through all the levels, updated the help screens, made a fancy new rotating logo with splines for the splash screen...
+Then I cleaned up a lot of things in the code that I had broken,
+refactored just about every line in the game, added new features, removed
+some old ones, went through all the levels, updated the help screens,
+made a fancy new rotating logo with splines for the splash screen...
 
-Finally on March 11, 2018 I released Version 6.
+Finally here we are on March 11, 2018 with Version 6.
 
 Netplayer with up to 8 players.
 Works on Windows XP, Windows 7, Windows 10, Ubuntu 16.04.
 
-Then I almost immediately started on my long overdue plan to convert to Allegro 5.
+This will be the final release on Allegro 4.
+For the next version, I'll convert to Allegro 5.
 
-On April 22, 2018 I released Version 7.
-
+Well here we are again on April 22, 2018 with Version 7.
 Now with Allegro 5.2.4!
 Just about every line (25K) of code has been re-factored.
 The display routines have been completely redone.
@@ -532,13 +555,8 @@ Now with dynamic resizing while the game is playing!
 The linux version now is a precompiled executable.
 Numerous small bug fixes and improvements.
 
-I did nothing on the project until 2022, when I came back and figured out how to set up windows and linux developement environments again.
-
-I have been doing minor bugfixes, small improvements here and there.
-
-I really want to do a better job on the levels. There is so much more I could do and so much I want to do better.
-
-Later....skater....don't be a hater...
+Updated to Version 7.24 on October 18, 2022
+Added some new items, enemies, redid levels...
 
     
 </mh3>

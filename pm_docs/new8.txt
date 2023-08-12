@@ -1282,7 +1282,7 @@ better....
 
 can I auto range based on the data shown?...yes...
 
-my stak log line can bee too long
+my stak log line can be too long
 
 [30][3][500]rx stak syn:[4] dsy:[12405.5] chs:[70.0] afn:496 cfn:496 failed to set base! cl:499
 
@@ -1305,6 +1305,8 @@ more:
 [30][2][6184]rx stak s[-2] d[-100.0] c[33.0] af:6179 cf:6186 fail set base:6183
 
 saved 20 char
+
+
 
 
 
@@ -2380,6 +2382,8 @@ to do today...
 
 
 
+
+
 pop up menu to adjust stuff on series legend, like line size.
 config screen that stays overlaid while you change things and see immediate results
 
@@ -2526,15 +2530,6 @@ still need to make these work together
 make a copy of original bad method in note then erase it//done
 
 try a version with only 2 colors to see if its faster...less segements by 1/3 but not faster...
-
-
-
-
-
-
-
-
-
 
 
 
@@ -3135,7 +3130,6 @@ do only the line....done
 
 
 that is done...now add it to bandwidth graph...done....
-
 
 
 test graph on weak clients...it seems really slow  can take up to 800ms to plot
@@ -5537,11 +5531,6 @@ do some more testing....
 
 
 
-
-
-
-
-
 I would like a scrolling real time graph to show on debug overlay...
 oh really, and would you like some gold and silver with that?
 
@@ -5668,7 +5657,7 @@ fixed cpu...now lets get this to as many clients as I can...
 
 20230117 6:0AM
 
-thing are going slower no that I am back to work....
+thing are going slower now that I am back to work....
 
 add more options to pm -t
 -t   type 1 exe only
@@ -5696,10 +5685,6 @@ move 95% 30us BUT! spikes to 2000 and once to 4000!!!
 I need to know what...
 
 did the move_all profiling and found spikes on player (2ms) and enemy (2-4ms)
-
-
-
-
 
 
 implement the per enemy and per item timers...
@@ -5864,7 +5849,6 @@ how much do graphs take?
 bottom msg
 why does it take so much when creating a new one?
 displaying them all does not take so much...
-
 
 
 gtg its linzies 18th!!
@@ -13004,7 +12988,7 @@ the one thing I like about the old button was that they showed a highlight when 
 
 I want to make a new type of button...
 
-text and returs 1 when pressed, just like buttont, but...
+text and returns 1 when pressed, just like buttont, but...
 
 this one will show a highlight when moused over
 and will draw centered
@@ -13219,7 +13203,7 @@ mwLift mwLifts
 started the class...
 
 
-in order to change variables I need to make a shadow varaible for lifts (lift steps is not changing)
+in order to change variables I need to make a shadow variable for lifts (lift steps is not changing)
 
 load old
 convert to new
@@ -17517,11 +17501,6 @@ Purple Martians Source Code Line Counts [2023-02-26  22:38:24]
 
 
 
-
-
-
-
-
 20230227
 fix percent bar to draw exactly where you would expect it to..done
 
@@ -19439,8 +19418,8 @@ having this break from pm hopefully has reset my obsession...
 now that I am back I want to halt all new features and just complete and release the thing...
 
 specifically:
-roll back warp
-remove warp line and warp rect
+roll back wrap
+remove wrap line and wrap rect
 remove all instances in levels and remove from PDE...
 
 removed this from bugs as it has been fixed:
@@ -29308,478 +29287,266 @@ then when 3 of 5 are complete, unlock the next area
 
 
 
+level editor is started with:
 
+in menu
 
+mLevel.set_start_level(mWM.mW[1].edit_menu(mLevel.start_level));
 
+in args: twice
+mLevel.set_start_level(mWM.mW[1].edit_menu(mLevel.start_level));
 
 
+this calls:
 
+int mwWindow::edit_menu(int edit_level)
+{
+   mWM.loop(edit_level);
 
+   return mLevel.last_level_loaded;
+}
 
+which calls:
 
+void mwWindowManager::loop(int edit_level)
+{
+   mLoop.level_editor_running = 1;
+   al_show_mouse_cursor(mDisplay.display);
+   initialize(edit_level);
+   if (mLoop.autosave_level_editor_state) load_mW();
+   active = 1;
 
+   mW[5].ge_init_data();
 
+   while (active)
+   {
+      redraw_level_editor_background();
+      if (!cycle_windows(0)) process_mouse();
+      process_keypress();
+   }
 
+   if (mLoop.autosave_level_editor_state) save_mW();
+   mLoop.level_editor_running = 0;
+   mLevel.resume_allowed = 0;
+   al_hide_mouse_cursor(mDisplay.display);
+}
 
+why do I not skip the first call to edit_menu?
 
+done....
 
 
 
+see if I can find out why I get artifacts on drawing tiles in some scales
 
+try to get the newest version of allgero and the newest version of gcc
 
+what version is that?
 
+look for notes in pm_docs/dev_setup/
 
+success, I have gcc 12.1 and aleegro version 5.2.8.1
 
 
+now what was that option??
 
+ALLEGRO_BITMAP_WRAP
 
+I had to set unstable but finally I am testing it and it makes no difference
 
+other things I could try...
 
 
+try making the sub bitmaps actual stand alone bitmaps
 
+try a border between tiles...
 
+both are not that easy to try...
 
 
+also what if it is actually the video bitmaps not exactly pixel perefect, try a 0.5 offset???
 
 
 
 
 
+or....
 
+I load them to video, then draw to M_
 
 
+what if I reverse this order??
 
+try it for player only
 
+does not seem to have any effect
 
 
 
+I think I am down to making a border...but first can you make an example of the bad behaviour?
+what is the simplest a5 example I can make??
 
 
+it kind of looks like it only happens when I am doing a orthographic transform
 
 
+how hard would it be to do the actual pixel border buffer...
 
 
 
 
+this is the actual one in he game that is bad
 
+c:8 sc:3.375000 x2:643.750000 y:79.000000
+c:9 sc:2.531250 x2:697.500000 y:79.000000
+c:10 sc:1.898438 x2:742.812500 y:79.000000
 
+I can reproduce it!!!
+in the example, I need a scale of 3.375 and dtd of 2
+and I need to draw in scaled, rotatated bitmap
+no there are easier examples that dont need this
 
 
 
 
 
+Unexpected behaviour drawing scaled sub bitmaps.
 
+When I draw scaled sub bitmaps, sometimes I get artifacts from pixels outside the sub bitmap region.
 
+This only happens with certain combinations of scale and position, only with video bitmaps, and happens with opengl and d3d.
 
+I have made a small test program to demonstrate this.
 
+Basically what I do in my game is:
 
+- I have a bitmap file that stores tiles I use to draw.
+- The tiles are 20x20s pixels and are stored in a grid with no padding.
 
+- I load the bitmap files into an Allgro bitmap.
+- I make an array of sub bitmaps from this main bitmap so that I can draw tiles from an indexed array.
 
+This works great 99% of the time.
+However, rarely, when a very specific combination of scale and position is used I get artifacts from adjacent tiles.
 
+I have thought of a couple of ways I could fix this:
+- store the tiles with padding between them
+- instead of sub bitmap, create my array of bitmap by drawing onto each one individually.
 
+I kind of want to keep doing it the way that I do it with sub bitmaps because that method greatly helps me solve another problem.
 
+The problem of quickly restoring the video bitmaps when the display changes.
 
+What I do is:
+- When I load the tiles from files, I create a video bitmap and a memory bitmap.
+- Then I make sub bitmaps from the video bitmap.
+- When the display changes and the video bitmaps are lost, I simply draw the memory bitmap to the video bitmap.
 
+This is a very fast way to restore.
 
 
+So anyways, before I go down the rabbit hole of testing different solutions, I wanted to see if anyone had any insight into this.
+Is this normal behavior?
+Is there any simple fix that I have not considered?
 
+I have tried ALLEGRO_MIN_LINEAR and ALLEGRO_MAG_LINEAR but did not like the fuzzy results.
 
+I also tried the new experimental feature ALLEGRO_BITMAP_WRAP, but it did not seem to make any difference.
 
+I can reproduce this with both opengl and d3d.
 
+It only happens with video sub bitmaps.
 
 
 
+Edgar says to use 1 pixel padding...I will do that...
 
+Where?
 
+In the source bitmap files.
 
+What should the color of the padding be? 0,0,0,0
 
+Am I going to draw a 1 pixel box around each tile?
 
+Then the spacing will be:
+2 pixel betwen tiles
+1 pixel from the borders
 
+each tile will be 22x22
 
+then when I make my sub bitmaps, I'll just point at the 20x20 in the middle
 
+How to get there?
 
+make a function to convert tilemap.bmp
 
 
+just save new:
 
 
+just realized that my copy bitmap thing will break...it just deals with the entire bitmap...
+edit tile attribute will not, it uses tiles...
 
+or I could profile how long it take to copy M_ to video in one big chuck, vs how long it take to do them all seperately
+maybe it doesnt take that long
 
 
+new:
 
+only make M_ full maps
+draw to each tile...
 
+when recreating, draw to each tile
 
 
+new method:
+restore tile array time:0.809792
+restore tile array time:0.437307
 
+old method:
+restore tile array time:0.013486
+restore tile array time:0.010335
+restore tile array time:0.013285
+restore tile array time:0.009972
 
+it is a lot slower....
 
+why is original method called twice?
 
+I don't know...
 
 
+anyways this new method is a lot slower, so I am going to abandon it and just pad the tilemap...
 
 
+I going to draw a 1 pixel box around each tile?
 
+Then the spacing will be:
+2 pixel betwen tiles
+1 pixel from the borders
 
+each tile will be 22x22
 
+then when I make my sub bitmaps, I'll just point at the 20x20 in the middle
 
+How to get there?
 
+make a function to convert tilemap.bmp
 
 
 
 
+I think I hve it all done...
 
+made new tilemaps
+added offsets to creating sub bitmaps
 
+I forgot to increase the size of my bitmaps...done
 
+removed all testing of new restore method
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+OK I think I have that fixed....
 
 
 
