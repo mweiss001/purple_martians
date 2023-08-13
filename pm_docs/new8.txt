@@ -29604,6 +29604,31 @@ bug - story mode arrow key on top menu item does weird things....fixed
 
 
 
+bug - serial key check for IJKL work in client mode
+
+while in game you cannot change keys
+server has them...no
+
+its because set controls to custom sets always sets player 0
+
+while the game is running as a client, we are not using player 0
+
+in init player we set a player not 0 to use 0 controls
+
+later I should figure this out....
+
+everything works, so what is there to figure out?
+
+made it so that set_controls_to_custom_sets(
+sets active local player instead of zero.
+the only time this will not be zero is when a client is playing
+this will work, but will not save the changes for the client
+after the game they will back to defaults
+
+
+bug - levels do not unlock in netgame, or at all!!!
+wtf did i break? fixed...need to do next level unlocks in both strict and non
+
 
 
 

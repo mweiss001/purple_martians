@@ -583,56 +583,60 @@ void mwInput::test_keys(int x, int sy)
 
 void mwInput::set_controls_to_custom_sets(int s)
 {
+   int p = mPlayer.active_local_player;
+   // the only time this will not be zero is when a client is in a netgame
+   // this is here so that client can change controls with serial_key_check IJKL
+
    if (s == 1) // set all to joy1
    {
-      mPlayer.loc[0].up_key = 128;
-      mPlayer.loc[0].down_key = 129;
-      mPlayer.loc[0].right_key = 131;
-      mPlayer.loc[0].left_key = 130;
-      mPlayer.loc[0].jump_key = 133;
-      mPlayer.loc[0].fire_key = 132;
-      mPlayer.loc[0].menu_key = 135;
+      mPlayer.loc[p].up_key = 128;
+      mPlayer.loc[p].down_key = 129;
+      mPlayer.loc[p].right_key = 131;
+      mPlayer.loc[p].left_key = 130;
+      mPlayer.loc[p].jump_key = 133;
+      mPlayer.loc[p].fire_key = 132;
+      mPlayer.loc[p].menu_key = 135;
    }
    if (s == 2) // set all to joy2
    {
-      mPlayer.loc[0].up_key = 148;
-      mPlayer.loc[0].down_key = 149;
-      mPlayer.loc[0].right_key = 151;
-      mPlayer.loc[0].left_key = 150;
-      mPlayer.loc[0].jump_key = 153;
-      mPlayer.loc[0].fire_key = 152;
-      mPlayer.loc[0].menu_key = 155;
+      mPlayer.loc[p].up_key = 148;
+      mPlayer.loc[p].down_key = 149;
+      mPlayer.loc[p].right_key = 151;
+      mPlayer.loc[p].left_key = 150;
+      mPlayer.loc[p].jump_key = 153;
+      mPlayer.loc[p].fire_key = 152;
+      mPlayer.loc[p].menu_key = 155;
    }
    if (s == 3) // set all to arrows
    {
-      mPlayer.loc[0].up_key = 84;
-      mPlayer.loc[0].down_key = 85;
-      mPlayer.loc[0].right_key = 83;
-      mPlayer.loc[0].left_key = 82;
-      mPlayer.loc[0].jump_key = 75;
-      mPlayer.loc[0].fire_key = 3;
-      mPlayer.loc[0].menu_key = 59;
+      mPlayer.loc[p].up_key = 84;
+      mPlayer.loc[p].down_key = 85;
+      mPlayer.loc[p].right_key = 83;
+      mPlayer.loc[p].left_key = 82;
+      mPlayer.loc[p].jump_key = 75;
+      mPlayer.loc[p].fire_key = 3;
+      mPlayer.loc[p].menu_key = 59;
    }
    if (s == 4) // set all to IJKL
    {
-      mPlayer.loc[0].up_key = 9;
-      mPlayer.loc[0].down_key = 11;
-      mPlayer.loc[0].right_key = 12;
-      mPlayer.loc[0].left_key = 10;
-      mPlayer.loc[0].jump_key = 75;
-      mPlayer.loc[0].fire_key = 3;
-      mPlayer.loc[0].menu_key = 59;
+      mPlayer.loc[p].up_key = 9;
+      mPlayer.loc[p].down_key = 11;
+      mPlayer.loc[p].right_key = 12;
+      mPlayer.loc[p].left_key = 10;
+      mPlayer.loc[p].jump_key = 75;
+      mPlayer.loc[p].fire_key = 3;
+      mPlayer.loc[p].menu_key = 59;
    }
 
    if (s == 5) // set all to WASD
    {
-      mPlayer.loc[0].up_key = 23;
-      mPlayer.loc[0].down_key = 19;
-      mPlayer.loc[0].left_key = 1;
-      mPlayer.loc[0].right_key = 4;
-      mPlayer.loc[0].jump_key = 75;
-      mPlayer.loc[0].fire_key = 3;
-      mPlayer.loc[0].menu_key = 59;
+      mPlayer.loc[p].up_key = 23;
+      mPlayer.loc[p].down_key = 19;
+      mPlayer.loc[p].left_key = 1;
+      mPlayer.loc[p].right_key = 4;
+      mPlayer.loc[p].jump_key = 75;
+      mPlayer.loc[p].fire_key = 3;
+      mPlayer.loc[p].menu_key = 59;
    }
 
 

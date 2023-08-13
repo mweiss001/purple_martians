@@ -177,7 +177,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
          else sprintf(menu_string[demo_mode_menu_item_num], "Demo Mode");
       }
 
-
+//      debug draw rectangle around menu area
 //      float hx1 = mx - mScreen.menu_w/2;
 //      float hx2 = mx + mScreen.menu_w/2;
 //      float hy1 = y;
@@ -298,10 +298,9 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
 
 
 int mwMenu::tmenu(int menu_pos, int x1, int y1)
-/*
-   used in the level editor as the main menu
+// level editor main menu
 
-*/
+
 
 {
    int pc = mPlayer.syn[mPlayer.active_local_player].color;

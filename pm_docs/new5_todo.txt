@@ -2,36 +2,17 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-make serial key check for IJKL work in client mode
-
-while in game you cannot change keys
-server has them...no
-
-its because set controls to custom sets always sets player 0
-
-while the game is running as a client, we are not using player 0
-
-in init player we set a player not 0 to use 0 controls
-
-later I should figure this out....
-
-
-
 in netgame make current gate set for all players when any player enters gate??
 or should each player keep track of the last gate they touched?
 not sure that is what is happening either...look into it later
 
 
-bug - levels do not unlock in netgame, or at all!!!
-wtf did i break?
-
 
 do something about strict story mode...make it work and configurable
 also it needs to be the same on client and server
-
 even more...levels unlocked need to be controlled by server
-
 this is getting complex....!!!
+
 
 reset all level data button takes a long time to complete in linux
 it loads the level a few times
@@ -66,9 +47,21 @@ pc check, still 0.11
 
 it is all in calc_level_stat
 
+made it a little better...moved
+
+   check_achievments();
+   save_data();
+   level_stats_bmp_msg_type = 0;
 
 
+   from being called every time calc_level_stats is called.
+   now called external to that function
 
+   testing on
+work laptop and time went from .9 to 0.24
+
+
+test on others
 
 
 
@@ -149,11 +142,26 @@ I am thinking I would like to always have one running somewhere, attached to the
 make the cannon facing direction optional
 
 make the shortcut keys in the menu optional
+also shortcut key in vls
+
+
+
+
+
+
+
 
 can I run demo from menu in classic mode
 yes, but how to patch it in so it looks nice
 also does it work even if level has already been beat
+is is triggered from skc
+menu selects 666
+it does not look like anything stops it from being called, locked, beat...
 
+how about if demo is called from classic menu, then first of all do the current level demo...
+
+
+I don't really want to add another menu item...
 
 
 
