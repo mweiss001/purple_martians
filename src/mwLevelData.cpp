@@ -101,6 +101,12 @@ void mwLevel::add_play_data_record(int lev, int type)
 
       calc_level_stats(lev);
    }
+
+   check_achievments();
+   save_data();
+   level_stats_bmp_msg_type = 0;
+
+
 }
 
 void mwLevel::calc_level_stats(int lev)
@@ -171,9 +177,9 @@ void mwLevel::calc_level_stats(int lev)
 
    if ((data[lev].time_best_all_coins > 0) && (data[lev].time_best_all_coins < data[lev].time_par))  data[lev].status = 3; // perfect
 
-   check_achievments();
-   save_data();
-   level_stats_bmp_msg_type = 0;
+//   check_achievments();
+//   save_data();
+//   level_stats_bmp_msg_type = 0;
 }
 
 
@@ -181,14 +187,14 @@ void mwLevel::check_achievments(void)
 {
    int strict = 0;
    // in strict mode all levels are locked until the previous one is completed
-   // other wise you just need to beat > 50% of levels in an area to unlock the next area and levels in it
-//   if (strict) // do always
-   {
-      // do the level unlocks by iterating levels with area_array, they are all in order
-      for(int i=0; i<99; i++)
-         if ((data[area_array[i][0]].status > 1) && (data[area_array[i+1][0]].status < 1)) data[area_array[i+1][0]].status = 1;
+   // in non-strict mode you just need to beat > 50% of levels in an area to unlock the next area and levels in it
 
-   }
+   // do the level unlocks by iterating levels with area_array, they are all in order
+   // if a level is complete (status > 1) and the next level is locked (status < 1) unlock the level (status = 1)
+   // do this in both strict and non strict mode
+   for(int i=0; i<99; i++)
+     if ((data[area_array[i][0]].status > 1) && (data[area_array[i+1][0]].status < 1)) data[area_array[i+1][0]].status = 1;
+
 
    // check for completed areas and do the area unlocks
    for (int a=1; a<15; a++) // iterate areas
@@ -985,6 +991,12 @@ void mwLevel::clear_data(void)
       for (int i=0; i<500; i++)
          if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 3)) data[p].tot_purple_coins++;
    }
+
+   check_achievments();
+   save_data();
+   level_stats_bmp_msg_type = 0;
+
+
 
    printf("clear load levels time:%f\n", al_get_time() - t0);
 
