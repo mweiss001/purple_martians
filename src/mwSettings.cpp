@@ -797,7 +797,7 @@ void mwSettings::settings_pages(int set_page)
          if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,0,0, "Test controls"))
          {
             al_draw_filled_rectangle(cf_x1+10, ty1, cf_x2-10, cf_y2-10, mColor.pc[fc+224]); // erase everything
-            mInput.test_keys(cfp_x1 + (cfp_x2-cfp_x1) / 2, ya-bts*7);
+            mInput.test_keys(cfp_x1 + (cfp_x2-cfp_x1) / 2, ya-bts*8);
          }
 
          xa += xw4; xb = xa+xw4-10;

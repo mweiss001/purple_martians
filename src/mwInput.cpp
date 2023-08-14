@@ -543,7 +543,7 @@ void mwInput::test_keys(int x, int sy)
    {
       int y = sy;
 
-      al_draw_filled_rectangle(x-170, y, x+170, y+154, mColor.pc[0]); // erase background
+      al_draw_filled_rectangle(x-170, y+6, x+170, y+(24*8), mColor.pc[0]); // erase background
 
       al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------" );
       al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Test controller setup.");
@@ -555,6 +555,13 @@ void mwInput::test_keys(int x, int sy)
       al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Keyboards widely differ in the number");
       al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "keys that can be detected at one time.");
       al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------" );
+      al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Some joysticks do not allow 2 directions");
+      al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "to be pressed at the same time.");
+      al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "This will make the game harder to play.");
+      al_draw_text(mFont.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------" );
+
+
+
       y +=16;
       if (mPlayer.syn[0].up) al_draw_text(mFont.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "UP" );
       y +=8;

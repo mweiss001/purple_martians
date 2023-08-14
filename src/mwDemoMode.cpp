@@ -142,32 +142,49 @@ int mwDemoMode::load_random_demo(void)
 
 void mwDemoMode::key_check(int p)
 {
-   if (mInput.key[ALLEGRO_KEY_0][0]) mPlayer.active_local_player = 0;
-   if (mInput.key[ALLEGRO_KEY_1][0]) mPlayer.active_local_player = 1;
-   if (mInput.key[ALLEGRO_KEY_2][0]) mPlayer.active_local_player = 2;
-   if (mInput.key[ALLEGRO_KEY_3][0]) mPlayer.active_local_player = 3;
-   if (mInput.key[ALLEGRO_KEY_4][0]) mPlayer.active_local_player = 4;
-   if (mInput.key[ALLEGRO_KEY_5][0]) mPlayer.active_local_player = 5;
-   if (mInput.key[ALLEGRO_KEY_6][0]) mPlayer.active_local_player = 6;
-   if (mInput.key[ALLEGRO_KEY_7][0]) mPlayer.active_local_player = 7;
+   int key_used = 0;
 
-   // dont let alp be an inactive player
-   while (!mPlayer.syn[mPlayer.active_local_player].active) // if alp not active
-      if (++mPlayer.active_local_player > 7) mPlayer.active_local_player = 0;
+   int new_player = -1;
+   if (mInput.key[ALLEGRO_KEY_0][0]) new_player = 0;
+   if (mInput.key[ALLEGRO_KEY_2][0]) new_player = 1;
+   if (mInput.key[ALLEGRO_KEY_3][0]) new_player = 2;
+   if (mInput.key[ALLEGRO_KEY_4][0]) new_player = 3;
+   if (mInput.key[ALLEGRO_KEY_5][0]) new_player = 4;
+   if (mInput.key[ALLEGRO_KEY_5][0]) new_player = 5;
+   if (mInput.key[ALLEGRO_KEY_6][0]) new_player = 6;
+   if (mInput.key[ALLEGRO_KEY_7][0]) new_player = 7;
 
-
-   if ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.key[ALLEGRO_KEY_ENTER][0]) || (mInput.key[ALLEGRO_KEY_SPACE][0]))
+   if ((new_player != -1) && (new_player != mPlayer.active_local_player) && (mPlayer.syn[new_player].active))
    {
-      mInput.key[ALLEGRO_KEY_ESCAPE][0] = 0;
-      mLoop.state[0] = 32; // demo level cleanup and exit
+      mPlayer.active_local_player = new_player;
+      key_used = 1;
    }
 
-   if ((mInput.key[ALLEGRO_KEY_N][0]) && (mode == 2)) mLoop.state[0] = 12; // skip to next random level
+
+//
+//
+//   if (mInput.key[ALLEGRO_KEY_0][0]) mPlayer.active_local_player = 0;
+//   if (mInput.key[ALLEGRO_KEY_1][0]) mPlayer.active_local_player = 1;
+//   if (mInput.key[ALLEGRO_KEY_2][0]) mPlayer.active_local_player = 2;
+//   if (mInput.key[ALLEGRO_KEY_3][0]) mPlayer.active_local_player = 3;
+//   if (mInput.key[ALLEGRO_KEY_4][0]) mPlayer.active_local_player = 4;
+//   if (mInput.key[ALLEGRO_KEY_5][0]) mPlayer.active_local_player = 5;
+//   if (mInput.key[ALLEGRO_KEY_6][0]) mPlayer.active_local_player = 6;
+//   if (mInput.key[ALLEGRO_KEY_7][0]) mPlayer.active_local_player = 7;
+//
+//   // dont let alp be an inactive player
+//   while (!mPlayer.syn[mPlayer.active_local_player].active) // if alp not active
+//      if (++mPlayer.active_local_player > 7) mPlayer.active_local_player = 0;
+//
+
+
+   if ((mInput.key[ALLEGRO_KEY_N][0]) && (mode == 2))
+   {
+       mLoop.state[0] = 12; // skip to next random level
+       key_used = 1;
+   }
 
    if (mLoop.frame_num > last_frame + 160) mLoop.state[0] = 12; // if games_moves doesn't end with level_done kill it after 4 seconds
-
-
-
 
 
    if (demo_debug_convert_playback_to_record_with_fire)
@@ -175,6 +192,7 @@ void mwDemoMode::key_check(int p)
       // in single demo mode, 'C' key will allow player to take over and start playing level from current position
       if ((mode == 1) && (mInput.key[ALLEGRO_KEY_C][0]))
       {
+         key_used = 1;
          mode = 0;
          mPlayer.syn[0].control_method = 0; // change to single player mode
 
@@ -195,6 +213,29 @@ void mwDemoMode::key_check(int p)
                max_i = x;
             }
          mGameMoves.entry_pos = max_i + 1;
+      }
+   }
+
+//   if ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.key[ALLEGRO_KEY_ENTER][0]) || (mInput.key[ALLEGRO_KEY_SPACE][0]))
+//   {
+//      mInput.key[ALLEGRO_KEY_ESCAPE][0] = 0;
+//      mLoop.state[0] = 32; // demo level cleanup and exit
+//   }
+
+   if (!key_used) // if key not used
+   {
+      int key_cancel = 0;
+
+//      // any key
+//      for (int k = 0; k < ALLEGRO_KEY_MAX; k++) if (mInput.key[k][0]) key_cancel = 1;
+
+      // only these keys
+      if ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.key[ALLEGRO_KEY_ENTER][0]) || (mInput.key[ALLEGRO_KEY_SPACE][0])) key_cancel = 1;
+
+      if (key_cancel)
+      {
+         mInput.key[ALLEGRO_KEY_ESCAPE][0] = 0;
+         mLoop.state[0] = 32; // demo level cleanup and exit
       }
    }
 }

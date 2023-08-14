@@ -6,12 +6,44 @@ in netgame make current gate set for all players when any player enters gate??
 or should each player keep track of the last gate they touched?
 not sure that is what is happening either...look into it later
 
+whst if server is in story mode and client is in classic
+server shoud force client to return to overworld..server controls next level
 
+then from overworld client could choose and start level just like client player
 
-do something about strict story mode...make it work and configurable
-also it needs to be the same on client and server
-even more...levels unlocked need to be controlled by server
-this is getting complex....!!!
+the only issue I see is if client or server have different unlocked levels and areas
+
+how does gate work?
+
+   // set current overworld level for active local player
+   if (p == mPlayer.active_local_player)
+   {
+      if (mLevel.overworld_level != lev)
+      {
+         mLevel.overworld_level = lev;
+         mConfig.save();
+      }
+   }
+
+this should have a different one for each player
+it is not stored in player but in level
+
+it is only set locally when active local player touches gate
+
+it is saved in config!!
+
+in set player_start_pos
+   if (mLevel.play_level == 1) // hub level
+   {
+      for (int i=0; i<500; i++)
+         if ((mItem.item[i][0] == 18) && (mItem.item[i][6] == mLevel.overworld_level)) item_to_get_start_from = i;
+   }
+
+This all should work as expected.
+Any client touching a gate should have that stored locally.
+And when coming back to hubworld that should be respected..
+test and see if this actually happens.
+
 
 
 reset all level data button takes a long time to complete in linux
@@ -60,21 +92,7 @@ made it a little better...moved
    testing on
 work laptop and time went from .9 to 0.24
 
-
 test on others
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -163,6 +181,9 @@ how about if demo is called from classic menu, then first of all do the current 
 
 I don't really want to add another menu item...
 
+
+what key interrupts demo?
+made it so that could be any key, or just ESC, ENTER, SPACE
 
 
 
