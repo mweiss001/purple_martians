@@ -21,18 +21,10 @@
 
 void mwLevel::reset_level_data(void)
 {
-//   double t0 = al_get_time();
-
    clear_data();
-//   printf("clear data time:%f\n", al_get_time() - t0);
-
    save_data();
-//   printf("save data time:%f\n", al_get_time() - t0);
-
    level_stats_bmp_msg_type = 0;        // to force recreation
    load_level(mLevel.play_level, 0, 0); // reload play level
-
-
 }
 
 void mwLevel::unlock_all_levels(void)
@@ -574,24 +566,10 @@ void mwLevel::unlock_all_level_in_area(int area)
 
 void mwLevel::clear_data(void)
 {
-
-
-
-
-
-
-
    for(int i=0; i<16; i++) area_locks[i] = 1; // set all locks
-
    area_locks[13] = 0; // basic training area unlocked
-
-   load_level(1, 1, 0); // load overworld level (also sets overworld barriers)
-
+   load_level(1, 1, 0); // load overworld level to set overworld barriers
    fill_area_array();
-
-
-
-
    overworld_level = 0; // no gate will be found and player will start from start block
 
    for(int i=0; i<100; i++)
@@ -996,12 +974,7 @@ void mwLevel::clear_data(void)
    save_data();
    level_stats_bmp_msg_type = 0;
 
-
-
    printf("clear load levels time:%f\n", al_get_time() - t0);
-
-
-
 
 }
 

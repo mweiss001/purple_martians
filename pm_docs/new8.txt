@@ -29630,6 +29630,15 @@ bug - levels do not unlock in netgame, or at all!!!
 wtf did i break? fixed...need to do next level unlocks in both strict and non
 
 
+do something about strict story mode...make it work and configurable
+also it needs to be the same on client and server
+even more...levels unlocked need to be controlled by server
+this is getting complex....!!!
+I think I will just make non strict mode set in code
+
+
+
+
 
 
 
