@@ -107,7 +107,7 @@ void mwMain::copy_files_to_clients(int type)
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 -- has stupid network issues, sometimes take 4s to get a packet reply
 //   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
 
-   sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
+//   sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
 //   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
 //   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
    sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7

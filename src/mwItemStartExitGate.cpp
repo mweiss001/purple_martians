@@ -148,15 +148,13 @@ void mwItem::proc_gate_collision(int p, int i)
    set_gate_level_icon_position(i);
    int lev = item[i][6];
 
-   // set current overworld level for active local player
-   if (p == mPlayer.active_local_player)
+   if (mPlayer.syn[p].overworld_last_touched_gate != lev)
    {
-      if (mLevel.overworld_level != lev)
-      {
-         mLevel.overworld_level = lev;
-         mConfig.save();
-      }
+      mPlayer.syn[p].overworld_last_touched_gate = lev;
+      if (p == 0) mConfig.save(); // clients do not save to config
    }
+
+
 
     // debug set level complete
    if ((mPlayer.syn[p].fire) && (mDemoMode.demo_debug_complete_level_on_gate_with_fire) && (mLevel.data[lev].status < 2))

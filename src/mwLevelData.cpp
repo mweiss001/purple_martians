@@ -105,6 +105,8 @@ void mwLevel::calc_level_stats(int lev)
 {
    // iterates all play_data and sets these variables
 
+   // data[lev].status = 0; // do not set this automatically
+
    data[lev].times_played = 0;
    data[lev].times_beat = 0;
    data[lev].times_quit = 0;
@@ -115,7 +117,6 @@ void mwLevel::calc_level_stats(int lev)
 
    int time_played_completed_only = 0;
 
-   // run through all level data and calc total plays, quit, beat, total time, worst time
    for (int i=0; i<play_data_num; i++)
       if (play_data[i].level == lev)
       {
@@ -165,13 +166,11 @@ void mwLevel::calc_level_stats(int lev)
             if (play_data[i].purple_coins_collected     > data[lev].max_purple_coins_collected) data[lev].max_purple_coins_collected = play_data[i].purple_coins_collected;
          }
       }
+
    if (data[lev].times_beat) data[lev].time_average = time_played_completed_only/data[lev].times_beat; // average time (only count completed records)
 
    if ((data[lev].time_best_all_coins > 0) && (data[lev].time_best_all_coins < data[lev].time_par))  data[lev].status = 3; // perfect
 
-//   check_achievments();
-//   save_data();
-//   level_stats_bmp_msg_type = 0;
 }
 
 
@@ -238,16 +237,19 @@ void mwLevel::check_achievments(void)
       }
    }
 
-   // update level status
-   for(int i=0; i<100; i++)
-   {
-      if (data[i].status == 0) { sprintf(data[i].status_text, "Locked");   data[i].status_color = 10; } // red
-      if (data[i].status == 1) { sprintf(data[i].status_text, "Ready");    data[i].status_color = 13; } // lt blue
-      if (data[i].status == 2) { sprintf(data[i].status_text, "Complete"); data[i].status_color = 12; } // dk blue
-      if (data[i].status == 3) { sprintf(data[i].status_text, "Perfect");  data[i].status_color = 8;  } // purple
-   }
-
+   for (int i=0; i<100; i++) update_level_status(i);
 }
+
+void mwLevel::update_level_status(int lev)
+{
+   if (data[lev].status == 0) { sprintf(data[lev].status_text, "Locked");   data[lev].status_color = 10; } // red
+   if (data[lev].status == 1) { sprintf(data[lev].status_text, "Ready");    data[lev].status_color = 13; } // lt blue
+   if (data[lev].status == 2) { sprintf(data[lev].status_text, "Complete"); data[lev].status_color = 12; } // dk blue
+   if (data[lev].status == 3) { sprintf(data[lev].status_text, "Perfect");  data[lev].status_color = 8;  } // purple
+}
+
+
+
 
 void mwLevel::sob_hline(int x1, int x2, int y, int a)
 {
@@ -568,9 +570,11 @@ void mwLevel::clear_data(void)
 {
    for(int i=0; i<16; i++) area_locks[i] = 1; // set all locks
    area_locks[13] = 0; // basic training area unlocked
+
    load_level(1, 1, 0); // load overworld level to set overworld barriers
    fill_area_array();
-   overworld_level = 0; // no gate will be found and player will start from start block
+
+   mPlayer.syn[0].overworld_last_touched_gate = 0; // no gate will be found and player will start from start block
 
    for(int i=0; i<100; i++)
    {
@@ -939,7 +943,7 @@ void mwLevel::clear_data(void)
    data[i].time_par = 3600; // 1:30 demo 1:11
 
 
-   for(int i=0; i<100000; i++)
+   for (int i=0; i<100000; i++)
    {
       play_data[i].level = 0;
       play_data[i].start_timestamp=0;
@@ -961,20 +965,19 @@ void mwLevel::clear_data(void)
 
    // load all levels to get purple coin counts
    for (int p=0; p<100; p++)
-   if (mLevel.load_level(p, 1, 1))
-   {
-      calc_level_stats(p); // run to set initial status and color
+      if (mLevel.load_level(p, 1, 1))
+      {
+         update_level_status(p);
 
-      data[p].tot_purple_coins = 0;
-      for (int i=0; i<500; i++)
-         if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 3)) data[p].tot_purple_coins++;
-   }
-
-   check_achievments();
-   save_data();
-   level_stats_bmp_msg_type = 0;
+         data[p].tot_purple_coins = 0;
+         for (int i=0; i<500; i++)
+            if ((mItem.item[i][0] == 2) && (mItem.item[i][6] == 3)) data[p].tot_purple_coins++;
+      }
 
    printf("clear load levels time:%f\n", al_get_time() - t0);
+
+   save_data();
+   level_stats_bmp_msg_type = 0;
 
 }
 

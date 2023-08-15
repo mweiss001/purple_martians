@@ -52,8 +52,6 @@ class mwLevel
    int start_level;
    int play_level;
 
-   int overworld_level;
-
    int valid_level_loaded;
    int prev_level_loaded;
    int last_level_loaded;
@@ -158,7 +156,7 @@ class mwLevel
    void calc_level_stats(int lev);
    void check_achievments(void);
 
-
+   void update_level_status(int lev);
 
 
    ALLEGRO_BITMAP * level_icon_100[100];
