@@ -48,7 +48,9 @@ void mwConfig::save(void)
 
       asci(GAME, mPlayer.syn[0].color)
       asci(GAME, mLevel.start_level)
-      asci(GAME, mLevel.overworld_level)
+
+      asci(GAME, mPlayer.syn[0].overworld_last_touched_gate)
+
 
       asci(GAME, mMain.classic_mode)
 
@@ -305,7 +307,10 @@ void mwConfig::load(void)
 
    agci(GAME, mLevel.start_level, 1)
 
-   agci(GAME, mLevel.overworld_level, 2)
+   agci(GAME, mPlayer.syn[0].overworld_last_touched_gate, 0)
+
+
+
 
    agci(GAME, mMain.classic_mode, 0)
 

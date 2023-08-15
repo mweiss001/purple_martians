@@ -37,7 +37,7 @@ void mwPlayer::set_player_start_pos(int p, int cont)
    if (mLevel.play_level == 1) // hub level
    {
       for (int i=0; i<500; i++)
-         if ((mItem.item[i][0] == 18) && (mItem.item[i][6] == mLevel.overworld_level)) item_to_get_start_from = i;
+         if ((mItem.item[i][0] == 18) && (mItem.item[i][6] == mPlayer.syn[p].overworld_last_touched_gate)) item_to_get_start_from = i;
    }
    if (item_to_get_start_from == -1)
    {

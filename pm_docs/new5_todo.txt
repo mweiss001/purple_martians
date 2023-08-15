@@ -2,104 +2,13 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-in netgame make current gate set for all players when any player enters gate??
-or should each player keep track of the last gate they touched?
-not sure that is what is happening either...look into it later
-
-whst if server is in story mode and client is in classic
-server shoud force client to return to overworld..server controls next level
-
-then from overworld client could choose and start level just like client player
-
-the only issue I see is if client or server have different unlocked levels and areas
-
-how does gate work?
-
-   // set current overworld level for active local player
-   if (p == mPlayer.active_local_player)
-   {
-      if (mLevel.overworld_level != lev)
-      {
-         mLevel.overworld_level = lev;
-         mConfig.save();
-      }
-   }
-
-this should have a different one for each player
-it is not stored in player but in level
-
-it is only set locally when active local player touches gate
-
-it is saved in config!!
-
-in set player_start_pos
-   if (mLevel.play_level == 1) // hub level
-   {
-      for (int i=0; i<500; i++)
-         if ((mItem.item[i][0] == 18) && (mItem.item[i][6] == mLevel.overworld_level)) item_to_get_start_from = i;
-   }
-
-This all should work as expected.
-Any client touching a gate should have that stored locally.
-And when coming back to hubworld that should be respected..
-test and see if this actually happens.
-
-
-
-reset all level data button takes a long time to complete in linux
-it loads the level a few times
-void mwLevel::reset_level_data(void)
-{
-   clear_data();
-   save_data();
-   level_stats_bmp_msg_type = 0;        // to force recreation
-   load_level(mLevel.play_level, 0, 0); // reload play level
-}
-m36 profile:
-clear data time:0.413559
-save data time:0.417563
-
-scat profile:
-clear data time:6.8
-save data time:6.8
-
-
-
-m36 profile:
-clear data time 1:0.006482
-clear data time 2:0.007348
-clear data time 3:0.008380
-clear data time 4:0.369059
-
-scat profile:
-9.2 s on last one...
-
-scat iterate levels only: 0.11
-pc check, still 0.11
-
-it is all in calc_level_stat
-
-made it a little better...moved
-
-   check_achievments();
-   save_data();
-   level_stats_bmp_msg_type = 0;
-
-
-   from being called every time calc_level_stats is called.
-   now called external to that function
-
-   testing on
-work laptop and time went from .9 to 0.24
-
-test on others
 
 
 
 
 
-add notes to controller setup about being able to press 2 directions at once is required for game
-some joysticks will not allow you to do this
+
+
 
 
 
@@ -107,6 +16,15 @@ some joysticks will not allow you to do this
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+what about messages and in level stats only show on local screen?
+unless they are the show always type...
+
+
+
+
+
 
 
 
