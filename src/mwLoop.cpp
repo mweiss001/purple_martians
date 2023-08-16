@@ -162,16 +162,20 @@ void mwLoop::game_menu(void)
             return;
          }
 
-         if (top_menu_sel == 666)  // skc demo
+//         if (top_menu_sel == 666)  // skc demo
+
+
+         if (top_menu_sel == 7)  // skc demo
          {
             mLevel.skc_trigger_demo = 0;
             if (mGameMoves.load_gm(mLevel.play_level))
             {
                mDemoMode.mode = 1;
-               mDemoMode.restore_mode = 21;
+               mDemoMode.restore_mode = 22;
                mDemoMode.restore_level = mLevel.play_level;
                mLoop.state[0] = 31;
                quit_action = 1; // menu
+               done_action = 1;
                top_menu_sel = 1;
                return;
             }
@@ -226,16 +230,21 @@ void mwLoop::game_menu(void)
             return;
          }
 
-         if (top_menu_sel == 7) // demo mode
-         {
-            mDemoMode.mode = 2;
-            mDemoMode.restore_mode = 21;
-            mDemoMode.restore_level = mLevel.start_level;
-            state[0] = 12;
-            quit_action = 1; // menu
-            done_action = 5; // next rand level
-            return;
-         }
+
+// old
+//         if (top_menu_sel == 7) // demo mode
+//         {
+//
+//
+//
+//            mDemoMode.mode = 2;
+//            mDemoMode.restore_mode = 21;
+//            mDemoMode.restore_level = mLevel.start_level;
+//            state[0] = 12;
+//            quit_action = 1; // menu
+//            done_action = 5; // next rand level
+//            return;
+//         }
 
          if (top_menu_sel == 8) mHelp.help("");
 
@@ -864,8 +873,18 @@ void mwLoop::proc_program_state(void)
       if (load_and_setup_level_load(mLevel.play_level))
       {
          state[0] = 11;
-         if (mDemoMode.restore_mode == 42) mScreen.transition_cutscene(3, 1, debug_print_more); // gate to game
-         else                              mScreen.transition_cutscene(0, 1, debug_print_more); // all other (nothing to game)
+         if      (mDemoMode.restore_mode == 42) mScreen.transition_cutscene(3, 1, debug_print_more); // gate to game
+         else if (mDemoMode.restore_mode == 22) mScreen.transition_cutscene(2, 1, debug_print_more); // menu to game (single)
+         else                                   mScreen.transition_cutscene(0, 1, debug_print_more); // all other (nothing to game)
+
+//         if (mDemoMode.restore_mode == 21)  mScreen.transition_cutscene(2, 1, debug_print_more); // menu to game (rnd)
+
+
+
+//         if (quit_action == 1) mScreen.transition_cutscene(2, 1, debug_print_more); // menu to game
+
+
+
       }
       else state[0] = 1;
    }
@@ -898,7 +917,8 @@ void mwLoop::proc_program_state(void)
          mScreen.transition_cutscene(1, 0, debug_print_more); // game to nothing
          state[0] = 0;
       }
-      if (rm == 21) // started from menu
+
+      if (rm == 21) // rnd demo started from menu
       {
          mScreen.transition_cutscene(1, 0, debug_print_more);   // game to nothing
 
@@ -916,6 +936,28 @@ void mwLoop::proc_program_state(void)
          quit_action = 99;  // to prevent transition in state 1
          state[0] = 1;
       }
+
+
+      if (rm == 22) // single started from menu
+      {
+         mScreen.transition_cutscene(1, 2, debug_print_more);   // game to menu
+         mLevel.load_level(mDemoMode.restore_level, 0, 0);      // restore old level
+         if (debug_print_state_names) printf("[State 32 - Restore Level:%d\n", mDemoMode.restore_level);
+         for (int p=0; p<NUM_PLAYERS; p++)
+         {
+            mPlayer.init_player(p, 1);            // full reset
+            mPlayer.set_player_start_pos(p, 0);   // get starting position for all players, active or not
+         }
+         quit_action = 99;  // to prevent transition in state 1
+         state[0] = 1;
+      }
+
+
+
+
+
+
+
       if (rm == 42) // started from gate, send to overworld with 12 - next level
       {
          mPlayer.syn[0].level_done_next_level = 1; // set to overworld level

@@ -29816,10 +29816,27 @@ mPlayer.syn[0].overworld_last_touched_gate
 
 I think I have it working
 
+test the github 2FA..seems to be working
 
 
+can I run demo from menu in classic mode
+yes, but how to patch it in so it looks nice
+also does it work even if level has already been beat
+is is triggered from skc
+menu selects 666
+it does not look like anything stops it from being called, locked, beat...
+how about if demo is called from classic menu, then first of all do the current level demo...
+I don't really want to add another menu item...
+what key interrupts demo?
+made it so that could be any key, or just ESC, ENTER, SPACE
 
-test the github 2FA
+
+replaced demo mode in classic mode with demo current level
+seems to fit in nicely...transitions could be better...
+make transitions like starting game...
+seems to be working now
+
+
 
 
 

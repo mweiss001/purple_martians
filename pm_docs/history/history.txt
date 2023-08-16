@@ -3,122 +3,90 @@
 
 Brief History
 
-
 1997-1999
+DOS/Win95
+DJGPP/RHIDE/Allegro 2.2
 Project start, learning C and Allegro
 Initially only did fullscreen 320x200 on a 486/33 with 8M RAM
 Initial idea was to have a shareware version with one level and a full version for $10
 Versions 1 and 2
 
-
 2000-2003
+Win98/WinXP/linux
+Dev-Cpp/mingW/Allegro 4
 now supports larger screen sizes (640x480, 800x600, 1024x768)
 decided to make the game free
 2 player split screen
 Started working on netgame in 2002, disabled for 2003's version 5 release
+version 5 was the first linux release
 Versions 3, 4 and 5
 
-
 2009-2010
+WinXP/linux
+Dev-Cpp/mingW/Allegro 4.2
+
 Did a lot of work try to get netgame working but was not successful
 Re-integrated level editor back into main game
-
+Many other minor changes and bugfixes
+No release, gave up when I failed to get netgame working
 
 201703-201802
+Win7/linux
+Dev-Cpp/mingW/Allegro 4.4.2 
 Huge effort to get netgame working and succeeded!
 Released Version 6
 
 201803-201806
+Win7/Win10/linux
+Code::Blocks/mingW-64/Allegro 5.2.4 
 Ported to Allegro 5
 Released Version 7
 
-
 2022-2023
+Win7/Win10/linux
+Code::Blocks/mingW64/Allegro 5.2.8 
 Huge changes to core algorithm of netgame to remove lag and make it playable over the internet
 Redid entire project with objects and got rid of all global variables
 Replaced all fixed data types with float
-
 Made optional story mode with overworld and level stats.
-
 Made the final end of game cutscene where you get all your children and blast off in a rocket.
-
 Added purple coins.
-
 Removed the whole, lives, free men, game over stuff. Now the only consequence of dying is to be sent back to the respawn point.
-
 New enemy, jumpworm.
-
 Podzilla enemy has been superceded by Vinepod. Now can use splines and other improvements.
-
 Added level done summary when exiting and made it work in netgame.
-
 Added event trigger system and new items (Trigger, Timer, Block Manip, Block Damage, Orb)
-
 Extended event trigger system to messages, lifts, cloners, vinepod.
-
 Re-did the entire level editor with my newly created window and window manager classes.
-
 Level editor now has zoomable background, just like game.
-
 Better predictive enemy bullet targeting.
-
 Created group edit level editor mode.
-
 Created tile helper level editor mode.
-
 Added Settings Pages instead of doing everything by scrolling through menus.
-
 Bottom Message major refactor and now has many configurable options on settings page
-
 Major refactor of block tiles, now using block flags instead of tile ranges
-
 Levels are now saved as a zlib compressed chunk of data
-
 Many new features for lifts, resizing, color changes, solid for different objects, reset modes
-
 Completely re-factored the program's main loop, much cleaner now. Uses program_state and allegro timer events.
-
 Redid graphs to be a generic class. Made a multicolor line draw class for graph lines.
-
 Implemented a profiling system that logs execution times then displays them in a nice graph.
 
+For a much more detailed history see the web page documentation...
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+My Programming Journey
 
 
 Purple Martians was started in the winter of 1997 in a cold, dark, one bedroom basement apartment in Victoria, BC.
 
-I was on a seasonal layoff from a menial labor construction job, waiting on unemployment benefits, and I had some time on my hands.
+I was on a seasonal layoff from a construction job, waiting on unemployment benefits, and I had some time on my hands.
 
-This was 1997 so the high end PC's were Pentium 120 with 16M of RAM. I had an old Compaq 486 laptop.
+This was 1997 so the high end PC's were Pentium 120 with 16M of RAM. I had an old 486/33 Compaq laptop with 8M of RAM.
 
-1997 was the year I first connected the internet. I had a dial-up account with Pacific Coast Net.
+1997 was also the year I first connected the internet. I had a dial-up account with Pacific Coast Net.
 
 It's amazing when I think of the time before the internet. What did we do without it?
 
@@ -208,10 +176,10 @@ other rooms. Landlady that lived upstairs and complained about the tiniest noise
 the music being too loud when I was wearing headphones.
 
 I had this old broke down 486 laptop, and I still had my internet account. I had been laid off for the winter (it happened every year)
-so I knew I had some time on my hands. And with the internet I had the entirety of the worlds information just waiting to be explored.
+so I had some time on my hands. And with the internet I had the entirety of the worlds information just waiting to be explored.
 
 How hard could it be to make some shapes and draw them on the screen? It had been so many years since the Apple II days. The last time
-I had tried to program. That was probably around 1987 or so, 10 years ago.
+I had tried to program. That was probably around 1987 or so, 10 years earlier.
 
 I can't remember all the things I looked at then, but I do remember that even back then, I did not like Microsoft.
 What they did in the browser wars, plus many other low down shady tactics, plus just using windows and getting annoyed at all the
@@ -231,7 +199,7 @@ I would have to learn to program in C. I did not know anything about it, but I l
 
 The compiler used is gcc. I am so happy I have never once had to use MSVC.
 
-I followed the install directions to setup gcc for windows, installed Allegro 2.0, and set up RHIDE as my integrated development editor.
+I followed the install directions to setup gcc for windows (DJGPP), installed Allegro 2.0, and set up RHIDE as my integrated development editor.
 
 The best way to learn is by doing. I had a few books on C, and worked through a couple of examples, but then I just focused on getting things done.
 
@@ -247,9 +215,9 @@ I learned how to save things to disk, file handles, iostreams, data formats.  Al
 
 And also I was leaning C at the same time.
 
-C is so simple and elegant, I compare it to the game of chess.
+C is so simple and elegant, I like compare it to the game of chess.
 
-Chess has a very simple set of rules about how each piece can move. Those rules can be learned very easily.
+Chess has a very simple set of rules about how each piece can move. Those rules can be learned very quickly.
 However the strategies of playing the game can take a lifetime to master.
 
 C is similar in that the core functionality of the language is very simple.
@@ -261,7 +229,9 @@ I love to program. To me all of programming is 'managing complexity'
 
 To simplify, abstract, to make very complex things easier to understand, implement, and maintain.
 
+Now, my project uses C++ objects and has over 40k lines of code.
 
+I can't count the number of times I have refactored, I am continually learning and improving.
 
 
 from pm_help.txt
