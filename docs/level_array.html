@@ -110,12 +110,11 @@ When a level is loaded, all 10,000 tiles are drawn to the level_background.
    draw_lift_lines();
 }</code></pre>
 <mh3>
+Because of the time it takes to draw all 10,00 tiles, they are predrawn on the level_background and only redrawn if they have to be.
 
-Because it takes times to draw all 10,00 tiles, they are predrawn on the level_background only redrawn if they have to be.
+(For example, when the screen size is changed, or blocks change in the level).
 
-For example, when the screen size is changed, or blocks change in the level.
-
-This is the base background that is copied to level_buffer every frame and then that is drawn on.
+This is the base background that is copied to level_buffer every frame and then drawn on.
 
 </mh3>
 
