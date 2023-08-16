@@ -24,10 +24,6 @@ or maybe close like: install code blocks, then copy this folder...
 
 
 
-
-
-
-
 test on linux and try to get latest version of both there too...
 
 ubuntu 20.04
@@ -64,10 +60,6 @@ I am thinking I would like to always have one running somewhere, attached to the
 
 
 
-
-
-
-
 make the cannon facing direction optional
 
 make the shortcut keys in the menu optional
@@ -77,31 +69,15 @@ also shortcut key in vls
 
 
 
-
-
-
-can I run demo from menu in classic mode
-yes, but how to patch it in so it looks nice
-also does it work even if level has already been beat
-is is triggered from skc
-menu selects 666
-it does not look like anything stops it from being called, locked, beat...
-
-how about if demo is called from classic menu, then first of all do the current level demo...
-
-
-I don't really want to add another menu item...
-
-
-what key interrupts demo?
-made it so that could be any key, or just ESC, ENTER, SPACE
-
-
-
-
 --------------------------------------------------------
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
+
+
+Move test levels to > 300
+
+
+
 
 --------------------------------------------------------
 -- The best things about the game to show off --

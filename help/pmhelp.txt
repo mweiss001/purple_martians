@@ -3633,8 +3633,145 @@ the player number.
 <section>History
 
 
+<c15>1997-1999
+<b15>
+DOS/Win95
+DJGPP/RHIDE/Allegro 2.2
+<b15>
+Project start, learning C and Allegro
 
-I started with Allegro in 1997 in a basement in Victoria, BC, Canada.
+Only did fullscreen 320x200 on a 486/33 with 8M RAM
+
+Initial idea was to have a shareware version and a full version for $10
+
+Versions 1 and 2
+<b15>
+
+
+<c15>2000-2003
+<b15>
+Win98/WinXP/linux
+Dev-Cpp/mingW/Allegro 4
+<b15>
+Now supports larger screen sizes (640x480, 800x600, 1024x768)
+
+Decided to make the game free
+
+2 player split screen
+
+Started working on netgame in 2002, disabled for version 5 release
+
+Version 5 was the first linux release
+
+Versions 3, 4 and 5
+<b15>
+
+
+<c15>2009-2010
+<b15>
+WinXP/linux
+Dev-Cpp/mingW/Allegro 4.2
+<b15>
+Did a lot of work try to get netgame working but was not successful
+
+Re-integrated level editor back into main game
+
+Many other minor changes and bugfixes
+
+No release, gave up when I failed to get netgame working
+<b15>
+
+
+<c15>201703-201802
+<b15>
+Win7/linux
+Dev-Cpp/mingW/Allegro 4.4.2 
+<b15>
+Huge effort to get netgame working and succeeded!
+
+Released Version 6
+<b15>
+
+<c15>201803-201806
+<b15>
+Win7/Win10/linux
+Code::Blocks/mingW-64/Allegro 5.2.4 
+<b15>
+Ported to Allegro 5
+
+Released Version 7
+<b15>
+
+<c15>2022-2023
+<b15>
+Win7/Win10/linux
+Code::Blocks/mingW64/Allegro 5.2.8 
+<b15>
+Huge changes to core algorithm of netgame to remove lag and make it
+playable over the internet.
+
+Redid entire project with objects and got rid of all global variables.
+
+Replaced all fixed data types with float.
+
+Made optional story mode with overworld and level stats.
+
+Made the final end of game cutscene where you rescue your children
+and blast off in a rocket.
+
+Added purple coins.
+
+Removed the whole lives, free men, game over stuff.  Now the only
+consequence of dying is to be sent back to the respawn point.
+
+New enemy, jumpworm.
+
+Podzilla enemy has been superceded by Vinepod with optional splines.
+
+Better predictive enemy bullet targeting.
+
+Added level done summary when exiting and made it work in netgame.
+
+Added event trigger system and new items (Trigger, Timer, Block Manip,
+Block Damage, Orb)
+ 
+Extended event trigger system to messages, lifts, cloners, vinepod.
+
+Complete refactor of entire level editor with my newly created window
+and window manager classes.
+
+Level editor now has zoomable background, just like game.
+
+Created group edit level editor mode.
+
+Created tile helper level editor mode.
+
+Added settings pages instead of doing everything with menus.
+
+Bottom message major refactor and configurable options on settings page.
+
+Major refactor of block tiles, now uses block flags instead of tile ranges.
+
+Levels are now saved as a zlib compressed chunk of data.
+
+Many new features for lifts, resizing, color changes...etc.
+
+Completely re-factored the program's main loop, much cleaner now.
+Uses program state and allegro timer events.
+
+Redid graphs to be a generic class.
+
+Made a multicolor line draw class for graph lines.
+
+Implemented a profiling system that logs execution times and displays
+them in a nice graph.
+
+
+
+For a much more detailed history see the web page documentation...
+
+https://mweiss001.github.io/purple_martians/
+
 
 
 <section>Credits

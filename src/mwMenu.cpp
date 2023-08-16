@@ -160,7 +160,6 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
       mScreen.frame_and_title();
 
 
-
       if (demo_mode_menu_item_num)
       {
          if (mLevel.resume_allowed) mDemoMode.autoplay_enabled = 0;
@@ -176,6 +175,20 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
          }
          else sprintf(menu_string[demo_mode_menu_item_num], "Demo Mode");
       }
+
+      if (menu_num == 1) // classic mode
+      {
+         mDemoMode.autoplay_enabled = 0;
+         sprintf(menu_string[demo_mode_menu_item_num], "Demo Current Level");
+      }
+
+
+
+
+
+
+
+
 
 //      debug draw rectangle around menu area
 //      float hx1 = mx - mScreen.menu_w/2;
@@ -269,6 +282,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
          // shortcut keys
          if (mInput.key[ALLEGRO_KEY_L][0])                                    return 6; // level editor
          if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 5; // settings
+
       }
       if (menu_num == 2)
       {
