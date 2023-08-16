@@ -3,14 +3,9 @@
 ---------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
+Since I padded my tilemaps I have broken copy tiles in level editor....
+Do I even care?  A bit..
+should I make the padding an option so I can load from old versions?
 
 
 ---------------------------------------------------------
@@ -18,17 +13,19 @@
 ---------------------------------------------------------
 
 
-what about messages and in level stats only show on local screen?
-unless they are the show always type...
-
-
-
-
-
-
-
 
 make new dev setup instructions to document how to do new gcc with new allegro
+it should be very similar to the previous one...
+
+make a folder that has all code blocks, gcc, allegro and libraries, you know, almost portable....
+or maybe close like: install code blocks, then copy this folder...
+
+
+
+
+
+
+
 
 
 test on linux and try to get latest version of both there too...
@@ -50,10 +47,6 @@ ubuntu 20.0.4 scat 0.02 to 0.03
 
 
 test some multiplayer
-
-
-
-
 
 
 
@@ -335,6 +328,14 @@ one for all coins and one for not..
 maybe I could just not count a speed record if all coins are not collected
 too much work, just leave it...
 
+
+
+what about messages and in level stats only show on local screen?
+unless they are the show always type...
+level_stats is a message also...
+there is no mechanism in message to determine which player to show it for..
+it would take a lot to add functionality to display different for each player
+skip this
 
 
 
