@@ -431,6 +431,20 @@ void mwPlayer::proc_player_paused(int p)
 {
    syn[p].player_ride = 0;
    if (syn[p].paused_type == 2) mItem.proc_player_door_move(p);
+
+
+
+   if (syn[p].paused_type == 3) // headless server player
+   {
+      syn[p].paused = 1;
+   }
+
+
+
+
+
+
+
    if (syn[p].paused_type == 1) // frozen after player dies, until the timer runs out
    {
       syn[p].carry_item = 0;
@@ -468,7 +482,11 @@ void mwPlayer::proc_player_paused(int p)
          syn[p].xinc = 0;
          syn[p].yinc = 0;
          set_player_start_pos(p, 1); // get starting position from start block
-         mScreen.draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
+
+         // i don't even think this is needed at all...
+         // if (!mDisplay.no_display) mScreen.draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
+
+
       }
    }
 }
@@ -1021,13 +1039,34 @@ void mwPlayer::proc_player_ladder(int p)
 
 void mwPlayer::move_players(void)
 {
+   int debug_print = 0;
+
+   if (debug_print) printf("testmp0\n");
+
+
+
+   if (mMain.headless_server)
+   {
+      syn[0].paused = 1;
+      syn[0].paused_type = 3;
+   }
+
+
+
    for (int p=0; p<NUM_PLAYERS; p++)
       if (syn[p].active)
       {
+         if (debug_print) printf("testmp1:%d\n", p);
+
+
          if (syn[p].paused) proc_player_paused(p);
          else // not paused
          {
+            if (debug_print) printf("testmp2\n");
+
             reset_player_scale_and_rot(p);
+
+            if (debug_print) printf("testmp3\n");
 
 
             if (is_player_riding_rocket(p)) proc_player_riding_rocket(p);
@@ -1040,9 +1079,15 @@ void mwPlayer::move_players(void)
                   proc_player_xy_move(p);
             }
 
+
+            if (debug_print) printf("testmp4\n");
+
+
             // common to all not paused modes
             mShot.proc_player_shoot(p);
+            if (debug_print) printf("testmp5\n");
             mItem.proc_player_carry(p);
+            if (debug_print) printf("testmp6\n");
             proc_player_collisions(p);
             proc_player_health(p);
             proc_player_bounds_check(p);
@@ -1054,130 +1099,134 @@ void mwPlayer::move_players(void)
 
 void mwPlayer::draw_player(int p)
 {
-   al_set_target_bitmap(mBitmap.level_buffer);
-   int px = syn[p].x;
-   int py = syn[p].y;
-   set_players_shape(p);
-
-   // old draw method if game not running
-
-   if ((mLoop.state[0] != 11) || (syn[0].level_done_mode == 27))
+   if (syn[p].paused_type != 3)
    {
-      float scale = syn[p].draw_scale;
-      float rot = syn[p].draw_rot;
-      int flags = ALLEGRO_FLIP_HORIZONTAL;
-      if (syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-//      printf("color:%d shape:%d\n", syn[p].color, syn[p].shape );
-      al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, px+10, py+10, scale, scale, rot, flags);
 
-      /*
+      al_set_target_bitmap(mBitmap.level_buffer);
+      int px = syn[p].x;
+      int py = syn[p].y;
+      set_players_shape(p);
 
-      al_draw_textf(mFont.pr8, mColor.pc[15], AX+10, AY-30, ALLEGRO_ALIGN_CENTER, "X:%d Y:%d", AX, AY);
+      // old draw method if game not running
 
-
-      if (syn[p].on_ladder)
-         al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+19, 0.5+AY+19, mColor.pc[11], 1);
-
-      if (syn[p].on_rope)
-         al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+17, 0.5+AY+19, mColor.pc[10], 1);
-
-
-       detect block that player is on...
-
-      int bx2, bx1 = AX / 20;
-      int am = AX % 20;
-      if (am < 9) // this block only
+      if ((mLoop.state[0] != 11) || (syn[0].level_done_mode == 27))
       {
-         bx2 = bx1;
-      }
-      if (am > 10) // next block only
-      {
-         bx1++;
-         bx2 = bx1;
-      }
-      if ((am > 8) && (am < 11)) // both blocks
-      {
-         bx2 = bx1 + 1;
-      }
+         float scale = syn[p].draw_scale;
+         float rot = syn[p].draw_rot;
+         int flags = ALLEGRO_FLIP_HORIZONTAL;
+         if (syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+   //      printf("color:%d shape:%d\n", syn[p].color, syn[p].shape );
+         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, px+10, py+10, scale, scale, rot, flags);
 
-      int by = AY / 20;
-      am = AY % 20;
+         /*
 
-      al_draw_textf(mFont.pr8, mColor.pc[15], AX, AY-20, 0, "%d", am );
-
-      int good_height = 0;
-
-      if (am < 5) // this block only
-      {
-         good_height = 1;
-      }
-      if (am > 15) // next block only
-      {
-         good_height = 1;
-         by++;
-      }
-
-      if (good_height)
-         if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-         if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-         if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-           if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-    for (int x=bx1; x<=bx2; x++)
-      {
-         al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mColor.pc[8], 1);
-         if (l[x][by] == 19) al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mColor.pc[11], 1);
-      }
-*/
-
-   }
+         al_draw_textf(mFont.pr8, mColor.pc[15], AX+10, AY-30, ALLEGRO_ALIGN_CENTER, "X:%d Y:%d", AX, AY);
 
 
+         if (syn[p].on_ladder)
+            al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+19, 0.5+AY+19, mColor.pc[11], 1);
+
+         if (syn[p].on_rope)
+            al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+17, 0.5+AY+19, mColor.pc[10], 1);
 
 
+          detect block that player is on...
 
-   // death sequence star overlay
-   if ((syn[p].paused) && (syn[p].paused_type == 1))
-   {
-      int pp = syn[p].paused;
-      int st = 96; // frame to start at
-      int sp = 3;  // speed of sequence
-      if ((pp < st) && (pp > st-sp*8))
-      {
-         int seq = (st-syn[p].paused) / sp;
-         al_draw_bitmap(mBitmap.tile[952+seq], px, py, 0);
-      }
-   }
-
-
-   if (loc[p].health_display > 0)
-   {
-      loc[p].health_display--;
-
-      // show current health bar
-      int ch = syn[p].health; // current health
-      mScreen.draw_percent_bar(px+10, py-6, 16, 3, ch);
-
-      // show last health adjustment
-      int h = loc[p].last_health_adjust; // last health adjust
-      if (h > 0) al_draw_textf(mFont.pixl, mColor.pc[11], px+10, py-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
-      if (h < 0) al_draw_textf(mFont.pixl, mColor.pc[10], px+10, py-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
-
-      // show potential bomb damage
-      int dmg = loc[p].potential_bomb_damage; // potential bomb damage
-      if (dmg)
-      {
-         int nh = ch - dmg; // new health
-         if (nh < 0) nh = 0;
-         if (mLoop.frame_num % 20 < 10)
+         int bx2, bx1 = AX / 20;
+         int am = AX % 20;
+         if (am < 9) // this block only
          {
-            // draw segment from new health to current health
-            mScreen.draw_percent_bar_range(px+10, py-6, 16, 3, 10, nh, ch);
+            bx2 = bx1;
+         }
+         if (am > 10) // next block only
+         {
+            bx1++;
+            bx2 = bx1;
+         }
+         if ((am > 8) && (am < 11)) // both blocks
+         {
+            bx2 = bx1 + 1;
+         }
 
-            // show damage amount
-            al_draw_textf(mFont.pixl, mColor.pc[10], px+10, py-16, ALLEGRO_ALIGN_CENTER, "%+d", -dmg);
+         int by = AY / 20;
+         am = AY % 20;
 
-            // draw a tiny bomb picture
-            al_draw_scaled_rotated_bitmap(mBitmap.tile[464], 10, 10,  px+20, py-12, .5, .5, 0, 0);
+         al_draw_textf(mFont.pr8, mColor.pc[15], AX, AY-20, 0, "%d", am );
+
+         int good_height = 0;
+
+         if (am < 5) // this block only
+         {
+            good_height = 1;
+         }
+         if (am > 15) // next block only
+         {
+            good_height = 1;
+            by++;
+         }
+
+         if (good_height)
+            if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+            if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+            if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+              if (timer_draw_mode2) al_draw_textf(mFont.pr8, mColor.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+       for (int x=bx1; x<=bx2; x++)
+         {
+            al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mColor.pc[8], 1);
+            if (l[x][by] == 19) al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mColor.pc[11], 1);
+         }
+   */
+
+      }
+
+
+
+
+
+      // death sequence star overlay
+      if ((syn[p].paused) && (syn[p].paused_type == 1))
+      {
+         int pp = syn[p].paused;
+         int st = 96; // frame to start at
+         int sp = 3;  // speed of sequence
+         if ((pp < st) && (pp > st-sp*8))
+         {
+            int seq = (st-syn[p].paused) / sp;
+            al_draw_bitmap(mBitmap.tile[952+seq], px, py, 0);
+         }
+      }
+
+
+      if (loc[p].health_display > 0)
+      {
+         loc[p].health_display--;
+
+         // show current health bar
+         int ch = syn[p].health; // current health
+         mScreen.draw_percent_bar(px+10, py-6, 16, 3, ch);
+
+         // show last health adjustment
+         int h = loc[p].last_health_adjust; // last health adjust
+         if (h > 0) al_draw_textf(mFont.pixl, mColor.pc[11], px+10, py-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
+         if (h < 0) al_draw_textf(mFont.pixl, mColor.pc[10], px+10, py-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
+
+         // show potential bomb damage
+         int dmg = loc[p].potential_bomb_damage; // potential bomb damage
+         if (dmg)
+         {
+            int nh = ch - dmg; // new health
+            if (nh < 0) nh = 0;
+            if (mLoop.frame_num % 20 < 10)
+            {
+               // draw segment from new health to current health
+               mScreen.draw_percent_bar_range(px+10, py-6, 16, 3, 10, nh, ch);
+
+               // show damage amount
+               al_draw_textf(mFont.pixl, mColor.pc[10], px+10, py-16, ALLEGRO_ALIGN_CENTER, "%+d", -dmg);
+
+               // draw a tiny bomb picture
+               al_draw_scaled_rotated_bitmap(mBitmap.tile[464], 10, 10,  px+20, py-12, .5, .5, 0, 0);
+            }
          }
       }
    }
@@ -1192,12 +1241,15 @@ void mwPlayer::draw_players(void)
 
 void mwPlayer::draw_player_direct_to_screen(int p)
 {
-   float px, py;
-   mScreen.calc_actual_screen_position(syn[p].x+10, syn[p].y+10, px, py);
-   float scale = mPlayer.syn[p].draw_scale * mDisplay.scale_factor_current;
-   int flags = ALLEGRO_FLIP_HORIZONTAL;
-   if (mPlayer.syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-   al_draw_scaled_rotated_bitmap(mBitmap.player_tile[mPlayer.syn[p].color][mPlayer.syn[p].shape], 10, 10, px, py, scale, scale, mPlayer.syn[p].draw_rot, flags);
+   if (syn[p].paused_type != 3)
+   {
+      float px, py;
+      mScreen.calc_actual_screen_position(syn[p].x+10, syn[p].y+10, px, py);
+      float scale = mPlayer.syn[p].draw_scale * mDisplay.scale_factor_current;
+      int flags = ALLEGRO_FLIP_HORIZONTAL;
+      if (mPlayer.syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+      al_draw_scaled_rotated_bitmap(mBitmap.player_tile[mPlayer.syn[p].color][mPlayer.syn[p].shape], 10, 10, px, py, scale, scale, mPlayer.syn[p].draw_rot, flags);
+   }
 }
 
 

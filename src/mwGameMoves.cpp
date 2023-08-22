@@ -13,6 +13,9 @@
 #include "mwDisplay.h"
 #include "mwDemoMode.h"
 #include "mwScreen.h"
+#include "mwMain.h"
+
+
 
 mwGameMoves mGameMoves;
 
@@ -32,6 +35,10 @@ void mwGameMoves::initialize(void)
 
 int mwGameMoves::has_player_acknowledged(int p)
 {
+
+   if (mPlayer.syn[p].paused_type == 3) return 1; // headless server player
+
+
    int start_pos = entry_pos;
    int end_pos = start_pos - 1000;
    if (end_pos < 0) end_pos = 0;
@@ -59,6 +66,10 @@ void mwGameMoves::proc(void)
       if (arr[x][0] == mLoop.frame_num) // found frame number that matches current frame
       {
          if (x > current_pos) current_pos = x; // index of last used gm - keep this at the most recent one, never go back
+
+//         printf("gm:%d\n", arr[x][1]);
+
+
          switch (arr[x][1])
          {
             case 1: proc_player_active_game_move(x); break;
@@ -206,11 +217,17 @@ void mwGameMoves::proc_player_active_game_move(int x)
 
       mGameEvent.add(6, 0, 0, p, 0, 0, 0);
 
-      if (mLog.LOG_NET)
+
+      if (!mLoop.ff_state)
       {
-         sprintf(msg,"PLAYER:%d became ACTIVE color:%d", p, mPlayer.syn[p].color);
-         mLog.add_log_entry_header(10, p, msg, 1);
+         if ((mMain.headless_server) && (p)) printf("Player:%d joined\n", p);
+         if (mLog.LOG_NET)
+         {
+            sprintf(msg,"PLAYER:%d became ACTIVE color:%d", p, mPlayer.syn[p].color);
+            mLog.add_log_entry_header(10, p, msg, 1);
+         }
       }
+
    }
 }
 
@@ -236,9 +253,12 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
 
    if (mPlayer.syn[p].active)
    {
+      if (mMain.headless_server) printf("Player:%d quit\n", p);
+
+
       if (mLog.LOG_NET)
       {
-         sprintf(msg,"PLAYER:%d became INACTIVE", p);
+         sprintf(msg, "PLAYER:%d became INACTIVE", p);
          mLog.add_log_entry_header(10, p, msg, 1);
       }
 

@@ -1,0 +1,10 @@
+gc='g++ -Wall '
+
+for filename in src/*.cpp; do
+el="$gc"' -c '"$filename"' -o o/src/'"$(basename "$filename" .cpp)"'.o' 
+echo $el
+$el
+
+done
+
+

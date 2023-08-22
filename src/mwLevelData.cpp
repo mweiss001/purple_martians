@@ -17,6 +17,8 @@
 #include "mwPlayer.h"
 #include "mwVisualLevel.h"
 #include "mwDemoMode.h"
+#include "mwMain.h"
+
 
 
 void mwLevel::reset_level_data(void)
@@ -29,12 +31,151 @@ void mwLevel::reset_level_data(void)
 
 void mwLevel::unlock_all_levels(void)
 {
-   for(int i=0; i<100; i++) if (data[i].status == 0) data[i].status = 1;
+   for(int i=0; i<100; i++)
+   {
+      if (data[i].status == 0) data[i].status = 1;
+      update_level_status(i);
+   }
    for(int i=0; i<16; i++) area_locks[i] = 0;
    save_data();
    level_stats_bmp_msg_type = 0;        // to force recreation
    load_level(mLevel.play_level, 0, 0); // reload play level
 }
+
+
+void mwLevel::complete_all_levels_in_demo_mode(void)
+{
+//   int debug_print = 0;
+//   if (!files_for_random_loaded)
+//   {
+//      countdown_reset = 2400;
+//      num_demo_filenames = 0;
+//      char fname[1024];
+//      sprintf(fname, "savegame/demo");
+//
+//      //printf("fname:%s\n", fname);
+//      // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
+//      ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
+//      //sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
+//      //printf("FS_fname:%s\n", fname);
+//
+//      // iterate levels in demo folder and put in filename array
+//      al_for_each_fs_entry(FS_fname, fill_demo_array, NULL);
+//
+//      //printf("\nDemo mode. List of demo files found\n");
+//      //for (int i=0; i< num_demo_filenames; i++)
+//         //printf("%s\n", al_get_fs_entry_name(demo_FS_filenames[i]));
+//
+//      files_for_random_loaded = 1;
+//   }
+//   if (num_demo_filenames == 0)
+//   {
+//      printf("No demo files found.\n");
+//      mode = 0;
+//      return 0;
+//   }
+//
+//   int index;
+//
+//   if (debug_print) printf("\n----------------------------------\n");
+//   if (debug_print) printf("------Pass:%d--Prev Lev:%d--------\n", pass, prev_index);
+//
+//   if (num_demo_filenames > 1)
+//   {
+//
+//      // have all levels this pass been played?
+//      int all_played = 1;
+//      for (int i=0; i< num_demo_filenames; i++)
+//      {
+//         if (debug_print) printf("demo_played[%d] - %d \n", i, demo_played[i]);
+//         if (demo_played[i] < pass) all_played = 0;
+//      }
+//
+//      if (all_played == 1)
+//      {
+//         pass++; // next pass
+//         if (debug_print) printf("All levels have been played this pass - next pass:%d\n", pass);
+//      }
+//
+//      int timeout = 0;
+//
+//      index = -1;
+//      while (index < 0)
+//      {
+//         index = rand() % num_demo_filenames;      // get random index
+//         if (debug_print) printf("New random level index:%d", index);
+//
+//         if (demo_played[index] >= pass) // already been played this pass
+//         {
+//            if (debug_print) printf("  -  already been played this pass\n");
+//            index = -1;
+//         }
+//         if (prev_index == index)         // just previously played
+//         {
+//            if (debug_print) printf("  -  just previously played\n");
+//            index = -1;
+//         }
+//         timeout++;
+//         if (timeout > 100)
+//         {
+//            if (debug_print) printf("\nCould not find not played level after 1000 random iterations, choosing first index and moving on\n");
+//            index = 0;
+//         }
+//      }
+//      demo_played[index] = pass;
+//      prev_index = index;
+//   }
+//
+//
+//
+//
+//   else index = 0;
+//
+//   if (debug_print) printf("  ----------------  selected!\n");
+//
+//   if (mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[index])))
+//   {
+//      if (debug_print) printf("Demo Mode random file chooser - pass:%d index:%d level:%d\n", pass, index, mLevel.play_level);
+//      printf("demo rnd - pass:%d index:%d level:%d  lf:%d\n", pass, index, mLevel.play_level, mDemoMode.last_frame);
+//      return 1;
+//   }
+//   else
+//   {
+//      mode = 0;
+//      return 0;
+//   }
+//}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
 
 void mwLevel::setup_data(void)
 {
@@ -53,6 +194,12 @@ void mwLevel::level_start_data(void)
 
 void mwLevel::add_play_data_record(int lev, int type)
 {
+
+   if (mMain.headless_server) printf("Level:%d Complete\n", lev);
+
+
+
+
    int save_flag = 1;
    if (mPlayer.syn[mPlayer.active_local_player].control_method == 1) save_flag = 0; // if running demo mode, don't save data
    if (mLevel.skc_trigger_demo_cheat) save_flag = 1;                                // in cheat mode save data
@@ -1099,60 +1246,63 @@ void mwLevel::create_level_icons(void)
 
 void mwLevel::load_level_icons(void)
 {
-   int sz = 100;
-   ALLEGRO_BITMAP *tmp = al_load_bitmap("data/level_icons_100.bmp");
-   if (!tmp)
+   if (!mDisplay.no_display)
    {
-      printf("Error loading tiles from: level_icons_100.bmp - recreating\n");
-      create_level_icons();
-   }
-   else
-   {
-      int x=0;
-      int y=0;
-      for (int i=0; i<100; i++)
+      int sz = 100;
+      ALLEGRO_BITMAP *tmp = al_load_bitmap("data/level_icons_100.bmp");
+      if (!tmp)
       {
-         if (!level_icon_100[i]) level_icon_100[i] = al_create_bitmap(sz, sz);
-
-         al_set_target_bitmap(level_icon_100[i]);
-         al_clear_to_color(al_map_rgba(0,0,0,0));
-
-         al_draw_bitmap_region(tmp, x*sz, y*sz, sz, sz, 0, 0, 0);
-         if (++x > 9)
-         {
-            x = 0;
-            y++;
-         }
-     }
-     al_destroy_bitmap(tmp);
-   }
-
-   sz = 200;
-   tmp = al_load_bitmap("data/level_icons_200.bmp");
-   if (!tmp)
-   {
-      printf("Error loading tiles from:level_icons_200.bmp - recreating\n");
-      create_level_icons();
-   }
-   else
-   {
-      int x=0;
-      int y=0;
-      for (int i=0; i<100; i++)
+         printf("Error loading tiles from: level_icons_100.bmp - recreating\n");
+         create_level_icons();
+      }
+      else
       {
-         if (!level_icon_200[i]) level_icon_200[i] = al_create_bitmap(sz, sz);
-
-         al_set_target_bitmap(level_icon_200[i]);
-         al_clear_to_color(al_map_rgba(0,0,0,0));
-
-         al_draw_bitmap_region(tmp, x*sz, y*sz, sz, sz, 0, 0, 0);
-         if (++x > 9)
+         int x=0;
+         int y=0;
+         for (int i=0; i<100; i++)
          {
-            x = 0;
-            y++;
-         }
-     }
-     al_destroy_bitmap(tmp);
+            if (!level_icon_100[i]) level_icon_100[i] = al_create_bitmap(sz, sz);
+
+            al_set_target_bitmap(level_icon_100[i]);
+            al_clear_to_color(al_map_rgba(0,0,0,0));
+
+            al_draw_bitmap_region(tmp, x*sz, y*sz, sz, sz, 0, 0, 0);
+            if (++x > 9)
+            {
+               x = 0;
+               y++;
+            }
+        }
+        al_destroy_bitmap(tmp);
+      }
+
+      sz = 200;
+      tmp = al_load_bitmap("data/level_icons_200.bmp");
+      if (!tmp)
+      {
+         printf("Error loading tiles from:level_icons_200.bmp - recreating\n");
+         create_level_icons();
+      }
+      else
+      {
+         int x=0;
+         int y=0;
+         for (int i=0; i<100; i++)
+         {
+            if (!level_icon_200[i]) level_icon_200[i] = al_create_bitmap(sz, sz);
+
+            al_set_target_bitmap(level_icon_200[i]);
+            al_clear_to_color(al_map_rgba(0,0,0,0));
+
+            al_draw_bitmap_region(tmp, x*sz, y*sz, sz, sz, 0, 0, 0);
+            if (++x > 9)
+            {
+               x = 0;
+               y++;
+            }
+        }
+        al_destroy_bitmap(tmp);
+      }
    }
 }
 

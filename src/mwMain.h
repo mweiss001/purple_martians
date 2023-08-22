@@ -9,12 +9,13 @@ class mwMain
    void show_system_id();
    void set_exe_path(void);
    void set_and_get_versions(void);
-   void get_desktop_resolution();
    int initial_setup(void);
 
    int pm_main(int argument_count, char **argument_array);
 
    int classic_mode;
+
+   int headless_server = 0;
 
 
    // z_args.h

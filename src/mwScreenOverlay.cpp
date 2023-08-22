@@ -78,7 +78,13 @@ void mwScreen::show_level_done(void)
       int y = mDisplay.SCREEN_H/2;
 
       int np = 0; // number of active players
-      for (int p=0; p<NUM_PLAYERS; p++) if (mPlayer.syn[p].active) np++;
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3)) np++;
+
+
+
+
+
 
       int tx=0, ty=0, pc=0;
       if (np == 1)
@@ -86,7 +92,7 @@ void mwScreen::show_level_done(void)
          tx = x-100;
          ty = y-25;
          for (int p=0; p<NUM_PLAYERS; p++)
-            if (mPlayer.syn[p].active)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
             {
                show_player_stat_box(tx, ty, p);
                ty += 56;
@@ -97,7 +103,7 @@ void mwScreen::show_level_done(void)
          int tx = x-200;
          int ty = y-25;
          for (int p=0; p<NUM_PLAYERS; p++)
-            if (mPlayer.syn[p].active)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
             {
                show_player_stat_box(tx, ty, p);
                tx = x+5;
@@ -106,7 +112,7 @@ void mwScreen::show_level_done(void)
       if (np == 3)
       {
          for (int p=0; p<NUM_PLAYERS; p++)
-            if (mPlayer.syn[p].active)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
             {
                if (pc == 0) { tx = x-100; ty = y-80; }
                if (pc == 1) { tx = x-100; ty = y-25; }
@@ -118,7 +124,7 @@ void mwScreen::show_level_done(void)
       if (np == 4)
       {
          for (int p=0; p<NUM_PLAYERS; p++)
-            if (mPlayer.syn[p].active)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
             {
                if (pc == 0) { tx = x+-200; ty = y-50; }
                if (pc == 1) { tx = x+5;    ty = y-50; }
@@ -131,7 +137,7 @@ void mwScreen::show_level_done(void)
       if ((np == 5) || (np == 6))
       {
          for (int p=0; p<NUM_PLAYERS; p++)
-            if (mPlayer.syn[p].active)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
             {
                if (pc == 0) { tx = x-200; ty = y-80; }
                if (pc == 1) { tx = x+5;   ty = y-80; }
@@ -146,7 +152,7 @@ void mwScreen::show_level_done(void)
       if ((np == 7) || (np == 8))
       {
          for (int p=0; p<NUM_PLAYERS; p++)
-            if (mPlayer.syn[p].active)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
             {
                if (pc == 0) { tx = x-200; ty = y-105; }
                if (pc == 1) { tx = x+5;   ty = y-105; }
@@ -1260,6 +1266,10 @@ void mwScreen::draw_screen_overlay(void)
 
    if (mNetgame.ima_server)                     draw_server_debug_overlay(p, cx, cy);
    if (mNetgame.ima_client)                     draw_client_debug_overlay(p, cx, cy);
+
+//   if (mNetgame.ima_client)                     draw_server_debug_overlay(p, cx, cy);
+
+
    if (mPlayer.syn[0].control_method == 1) draw_demo_debug_overlay(p, cx, cy);
 
    draw_common_debug_overlay(p, cx, cy);

@@ -29841,6 +29841,318 @@ seems to be working now
 
 
 
+headless server:
+
+linux only
+
+the ability to run from shell with no screen
+
+./pm -sh
+
+
+I would also like the ability to compile from shell..done!!
+
+lin_compile
+
+g++ -Wall  -c src/main.cpp -o o/src/main.o
+g++ -Wall  -c src/mwBitmap.cpp -o o/src/mwBitmap.o
+g++ -Wall  -c src/mwBitmapTools.cpp -o o/src/mwBitmapTools.o
+g++ -Wall  -c src/mwBottomMessage.cpp -o o/src/mwBottomMessage.o
+g++ -Wall  -c src/mwCodeStats.cpp -o o/src/mwCodeStats.o
+g++ -Wall  -c src/mwColor.cpp -o o/src/mwColor.o
+g++ -Wall  -c src/mwConfig.cpp -o o/src/mwConfig.o
+g++ -Wall  -c src/mwDemoMode.cpp -o o/src/mwDemoMode.o
+g++ -Wall  -c src/mwDisplay.cpp -o o/src/mwDisplay.o
+g++ -Wall  -c src/mwDrawSequence.cpp -o o/src/mwDrawSequence.o
+g++ -Wall  -c src/mwEnemy.cpp -o o/src/mwEnemy.o
+g++ -Wall  -c src/mwEnemyArchwagon.cpp -o o/src/mwEnemyArchwagon.o
+g++ -Wall  -c src/mwEnemyCannon.cpp -o o/src/mwEnemyCannon.o
+g++ -Wall  -c src/mwEnemyCloner.cpp -o o/src/mwEnemyCloner.o
+g++ -Wall  -c src/mwEnemyEditorFnx.cpp -o o/src/mwEnemyEditorFnx.o
+g++ -Wall  -c src/mwEnemyFlapper.cpp -o o/src/mwEnemyFlapper.o
+g++ -Wall  -c src/mwEnemyFnx.cpp -o o/src/mwEnemyFnx.o
+g++ -Wall  -c src/mwEnemyJumpworm.cpp -o o/src/mwEnemyJumpworm.o
+g++ -Wall  -c src/mwEnemyTrakbot.cpp -o o/src/mwEnemyTrakbot.o
+g++ -Wall  -c src/mwEnemyVinePod.cpp -o o/src/mwEnemyVinePod.o
+g++ -Wall  -c src/mwEventQueue.cpp -o o/src/mwEventQueue.o
+g++ -Wall  -c src/mwFileIterator.cpp -o o/src/mwFileIterator.o
+g++ -Wall  -c src/mwFont.cpp -o o/src/mwFont.o
+g++ -Wall  -c src/mwGameEvent.cpp -o o/src/mwGameEvent.o
+g++ -Wall  -c src/mwGameMoves.cpp -o o/src/mwGameMoves.o
+g++ -Wall  -c src/mwGlobalLevelTool.cpp -o o/src/mwGlobalLevelTool.o
+g++ -Wall  -c src/mwGraph.cpp -o o/src/mwGraph.o
+g++ -Wall  -c src/mwHelp.cpp -o o/src/mwHelp.o
+g++ -Wall  -c src/mwInput.cpp -o o/src/mwInput.o
+g++ -Wall  -c src/mwItem.cpp -o o/src/mwItem.o
+g++ -Wall  -c src/mwItemBombRocket.cpp -o o/src/mwItemBombRocket.o
+g++ -Wall  -c src/mwItemDoor.cpp -o o/src/mwItemDoor.o
+g++ -Wall  -c src/mwItemEditorFnx.cpp -o o/src/mwItemEditorFnx.o
+g++ -Wall  -c src/mwItemKeySwitch.cpp -o o/src/mwItemKeySwitch.o
+g++ -Wall  -c src/mwItemMessage.cpp -o o/src/mwItemMessage.o
+g++ -Wall  -c src/mwItemStartExitGate.cpp -o o/src/mwItemStartExitGate.o
+g++ -Wall  -c src/mwItemTrigger.cpp -o o/src/mwItemTrigger.o
+g++ -Wall  -c src/mwLevel.cpp -o o/src/mwLevel.o
+g++ -Wall  -c src/mwLevelData.cpp -o o/src/mwLevelData.o
+g++ -Wall  -c src/mwLevelDataStats.cpp -o o/src/mwLevelDataStats.o
+g++ -Wall  -c src/mwLift.cpp -o o/src/mwLift.o
+g++ -Wall  -c src/mwLog.cpp -o o/src/mwLog.o
+g++ -Wall  -c src/mwLogGraph.cpp -o o/src/mwLogGraph.o
+g++ -Wall  -c src/mwLogo.cpp -o o/src/mwLogo.o
+g++ -Wall  -c src/mwLogViewer.cpp -o o/src/mwLogViewer.o
+g++ -Wall  -c src/mwLoop.cpp -o o/src/mwLoop.o
+g++ -Wall  -c src/mwMain.cpp -o o/src/mwMain.o
+g++ -Wall  -c src/mwMainArgs.cpp -o o/src/mwMainArgs.o
+g++ -Wall  -c src/mwMenu.cpp -o o/src/mwMenu.o
+g++ -Wall  -c src/mwMiscFnx.cpp -o o/src/mwMiscFnx.o
+g++ -Wall  -c src/mwMulticolorLine.cpp -o o/src/mwMulticolorLine.o
+g++ -Wall  -c src/mwNetgame.cpp -o o/src/mwNetgame.o
+g++ -Wall  -c src/mwNetgameClient.cpp -o o/src/mwNetgameClient.o
+g++ -Wall  -c src/mwNetgameServer.cpp -o o/src/mwNetgameServer.o
+g++ -Wall  -c src/mwPDE.cpp -o o/src/mwPDE.o
+g++ -Wall  -c src/mwPlayer.cpp -o o/src/mwPlayer.o
+g++ -Wall  -c src/mwQuickGraph.cpp -o o/src/mwQuickGraph.o
+g++ -Wall  -c src/mwRollingAverage.cpp -o o/src/mwRollingAverage.o
+g++ -Wall  -c src/mwScreen.cpp -o o/src/mwScreen.o
+g++ -Wall  -c src/mwScreenOverlay.cpp -o o/src/mwScreenOverlay.o
+g++ -Wall  -c src/mwSettings.cpp -o o/src/mwSettings.o
+g++ -Wall  -c src/mwShot.cpp -o o/src/mwShot.o
+g++ -Wall  -c src/mwSolid.cpp -o o/src/mwSolid.o
+g++ -Wall  -c src/mwSound.cpp -o o/src/mwSound.o
+g++ -Wall  -c src/mwTally.cpp -o o/src/mwTally.o
+g++ -Wall  -c src/mwTimeStamp.cpp -o o/src/mwTimeStamp.o
+g++ -Wall  -c src/mwTriggerEvent.cpp -o o/src/mwTriggerEvent.o
+g++ -Wall  -c src/mwVisualLevel.cpp -o o/src/mwVisualLevel.o
+g++ -Wall  -c src/mwWidget.cpp -o o/src/mwWidget.o
+g++ -Wall  -c src/mwWindow.cpp -o o/src/mwWindow.o
+g++ -Wall  -c src/mwWindowEditorMain.cpp -o o/src/mwWindowEditorMain.o
+g++ -Wall  -c src/mwWindowEditSelection.cpp -o o/src/mwWindowEditSelection.o
+g++ -Wall  -c src/mwWindowGroupEdit.cpp -o o/src/mwWindowGroupEdit.o
+g++ -Wall  -c src/mwWindowManager.cpp -o o/src/mwWindowManager.o
+g++ -Wall  -c src/mwWindowObjectViewer.cpp -o o/src/mwWindowObjectViewer.o
+g++ -Wall  -c src/mwWindowTileHelper.cpp -o o/src/mwWindowTileHelper.o
+g++  -o pm o/src/main.o o/src/mwBitmap.o o/src/mwBitmapTools.o o/src/mwBottomMessage.o o/src/mwCodeStats.o o/src/mwColor.o o/src/mwConfig.o o/src/mwDemoMode.o o/src/mwDisplay.o o/src/mwDrawSequence.o o/src/mwEnemy.o o/src/mwEnemyArchwagon.o o/src/mwEnemyCannon.o o/src/mwEnemyCloner.o o/src/mwEnemyEditorFnx.o o/src/mwEnemyFlapper.o o/src/mwEnemyFnx.o o/src/mwEnemyJumpworm.o o/src/mwEnemyTrakbot.o o/src/mwEnemyVinePod.o o/src/mwEventQueue.o o/src/mwFileIterator.o o/src/mwFont.o o/src/mwGameEvent.o o/src/mwGameMoves.o o/src/mwGlobalLevelTool.o o/src/mwGraph.o o/src/mwHelp.o o/src/mwInput.o o/src/mwItem.o o/src/mwItemBombRocket.o o/src/mwItemDoor.o o/src/mwItemEditorFnx.o o/src/mwItemKeySwitch.o o/src/mwItemMessage.o o/src/mwItemStartExitGate.o o/src/mwItemTrigger.o o/src/mwLevel.o o/src/mwLevelData.o o/src/mwLevelDataStats.o o/src/mwLift.o o/src/mwLog.o o/src/mwLogGraph.o o/src/mwLogo.o o/src/mwLogViewer.o o/src/mwLoop.o o/src/mwMain.o o/src/mwMainArgs.o o/src/mwMenu.o o/src/mwMiscFnx.o o/src/mwMulticolorLine.o o/src/mwNetgame.o o/src/mwNetgameClient.o o/src/mwNetgameServer.o o/src/mwPDE.o o/src/mwPlayer.o o/src/mwQuickGraph.o o/src/mwRollingAverage.o o/src/mwScreen.o o/src/mwScreenOverlay.o o/src/mwSettings.o o/src/mwShot.o o/src/mwSolid.o o/src/mwSound.o o/src/mwTally.o o/src/mwTimeStamp.o o/src/mwTriggerEvent.o o/src/mwVisualLevel.o o/src/mwWidget.o o/src/mwWindow.o o/src/mwWindowEditorMain.o o/src/mwWindowEditSelection.o o/src/mwWindowGroupEdit.o o/src/mwWindowManager.o o/src/mwWindowObjectViewer.o o/src/mwWindowTileHelper.o  -lallegro_monolith -lz -lnet -lpthread -Wl,-rpath='./linux_libs'
+
+
+
+why do I do things in this order?
+
+get_desktop_resolution
+create event queue
+create display
+
+
+get_desktop_resolution fails if no display
+or rather sets w and h to zero
+
+is there any reason not to move it to display code?
+
+try it...
+
+get_desktop_resolution has been moved from main to display
+
+now move the call to init
+
+actually moved all the functionality to init_display
+
+
+now do something different if num_display_adapters = 0;
+
+no display, no bitmaps...wow!
+
+now in init_display, if no adapters found do not try to create display...works
+
+now, can I set a variable indicating that no display has been created....
+
+then test for it in many places
+
+
+
+removed stuff in enemy that used animation sequence but I think I need to re-enable that...
+
+the server needs to set that and send it out to clients, even if the server does not actually draw it...
+
+server needs to load zz even if headless..done...
+
+removed also bottom msg add
+
+it runs now...
+
+
+testing with windows version and display disabled
+
+when entering gate to new level client drops but server keeps running
+
+
+
+server unexpectedly quits...
+during move frame...
+items..
+probably when bm removes blocks
+redid that and it's fixed
+
+now when client respawns, server borks
+somewhere in move player
+fixed..it was when player was finishing pause mode after respawn
+
+switches and keys...
+
+changed the function mLevel change block and also change bm to use that...
+
+
+tested bombs, rockets, keys, switches, bm...they all work
+
+test more
+
+
+client starting level with locked gate (locked on client but unlocked on server)
+client borks, but rejoining brings him back to that level...
+this is not even related to no display
+happens even if server has a display...
+
+
+how about implementing the flag pm -sh
+
+if no display quit, unless started with this flag...
+
+need a variable for this...
+
+mMain.headless_server
+
+or can I just re-use no_display?
+
+I think I need a new one...
+
+I think I have that working
+-sh and -sh <int>
+
+should i try it on linux?
+it works....
+
+
+next...how to make that player not visible....
+
+I can't make it inactive, but how about a new paused mode?
+
+
+paused_type = 3, do not draw or process
+
+now make it not take part in end of level stats...
+
+I think I've got it..
+
+make a few more shell status things for server...
+like when a level is started or completed
+when a player joins or quits
+
+done
+
+what is left to for headless server?
+
+test...
+
+what about the locked stuff?
+
+test server starting level that client is locked on...
+that does not kill client
+
+how about a server locked level started by client
+client freezes and is unresponsive, but does not leave netgame
+
+server unlocked, client locked, server start -- works
+server unlocked, client locked, client start -- works
+server locked, client unlocked, client start -- client freezes and is unresponsive, but does not leave netgame, if server shoots client off gate, client regains control
+server locked, client unlocked, server start -- can't enter
+
+
+now try in headless mode:
+server unlocked, client locked, client start -- works
+server locked, client unlocked, client start -- client freezes and is unresponsive, but does not leave netgame, server does not change level...other clients can shoot him off
+
+test with more clients..looks good...
+
+
+I want to do some remote tests, but....
+
+how will I administer the server, ssh only? that's ok for config stuff, but what about bigger stuff??
+
+C:\pm>pscp -r c:\pm\src\* m@scat:Desktop/pm_client726/src
+
+
+C:\pm>pscp -r c:\pm\* m@scat:Desktop/pm_client726
+all 700M, less than 20s over lan
+
+pscp -r c:\pm\src\* m@96.45.13.253:dev/pm/src
+
+
+
+deployed pmh at work
+
+96.45.13.253
+
+top shows 100%, but my cpu measurement shows 3-4% with one client
+
+
+is there any other way I can monitor my headless server?
+I could save log files
+
+i want my headless server to go back to overworld if no clients are connected
+maybe after a timeout?
+
+on the headless server should I make all levels unlocked?
+should I have the stats reset?
+
+On the headless server, everything should be unlocked
+
+
+
+pscp -r c:\pm\data\level_data.pm m@96.45.13.253:dev/pm/data/level_data.pm
+
+
+looking at client sync graph, it is ony available on server...doh
+
+
+
+
+
+client disappears after first level...
+actually...when client quits...they go back to overworld, but not in a netgame anymore and invisible...
+server stays on level...
+
+
+
+
+
+
+
+
+
+
+
+
+
+how do I make adjustments to netgame?
+
+
+stdf freq?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

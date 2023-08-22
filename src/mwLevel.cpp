@@ -93,16 +93,22 @@ void mwLevel::prev_level(void)
 }
 
 
+
 void mwLevel::change_block(int x, int y, int block)
 {
-   if ((x > -1) && (x < 100) & (y > -1) && (y < 100))
+   if ((x >= 0) && (x < 100) & (y >= 0) && (y < 100))
    {
       l[x][y] = block;
-      al_set_target_bitmap(mBitmap.level_background);
-      al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.btile[block & 1023], x*20, y*20, 0);
+      if (!mDisplay.no_display)
+      {
+         al_set_target_bitmap(mBitmap.level_background);
+         al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
+         al_draw_bitmap(mBitmap.btile[block & 1023], x*20, y*20, 0);
+      }
    }
 }
+
+
 
 int mwLevel::is_block_empty(int x, int y, int test_block, int test_item, int test_enemy)
 {
@@ -210,8 +216,13 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
 
          level_check();
          level_start_data();
-         mScreen.init_level_background(); // draw blocks on level_background
+
+
+         if (!mDisplay.no_display) mScreen.init_level_background(); // draw blocks on level_background
+
+
          //set_player_start_pos(0, 0);
+
          mPlayer.init_player(0, 2);
 
          mLoop.eco_draw = 0;

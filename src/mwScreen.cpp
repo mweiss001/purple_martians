@@ -41,7 +41,7 @@ void mwScreen::get_new_background(int full)
 
 void mwScreen::transition_cutscene(int i, int f, int debug_print)
 {
-   if ((!mNetgame.ima_server) && (!mNetgame.ima_client))
+   if ((!mNetgame.ima_server) && (!mNetgame.ima_client) && (!mDisplay.no_display))
    {
       if (debug_print)
       {

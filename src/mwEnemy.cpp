@@ -278,8 +278,12 @@ void mwEnemy::move_enemies()
          if ((Ef[e][0] < 0) || (Ef[e][0] > 1980)) Ei[e][0]=0;
          if ((Ef[e][1] < 0) || (Ef[e][1] > 1980)) Ei[e][0]=0;
 
+//         printf("testme2:%d\n", Ei[e][0]);
+
          switch (Ei[e][0])
          {
+
+
             case 1:  move_bouncer(e);   break;
             case 2:  move_cannon(e);    break;
             case 3:  move_archwagon(e); break;
