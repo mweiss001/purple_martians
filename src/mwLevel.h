@@ -128,6 +128,9 @@ class mwLevel
 
    void unlock_all_level_in_area(int area);
 
+   void complete_all_levels_in_demo_mode(void);
+
+
    void reset_level_data(void);
    void unlock_all_levels(void);
 

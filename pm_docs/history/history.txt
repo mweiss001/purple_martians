@@ -1,5 +1,49 @@
 
 
+Another brief history
+
+
+start with lots about the very beginning
+
+then not much in the middle
+
+then the troubles I had with netgame
+
+then where it is now: 40K lines of code
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Brief History
 

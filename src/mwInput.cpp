@@ -28,28 +28,35 @@ mwInput::mwInput()
 
 void mwInput::initialize(void)
 {
-   for (int i=0; i<64; i++) skc[i] = 0;
-   skc_index = 0;
+   if (!mDisplay.no_display)
+   {
 
-   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++)
-      for (int i=0; i<4; i++)
-         key[k][i] = false;
 
-   for (int k=0; k<5; k++)
-      for (int i=0; i<4; i++)
-         mouse_b[k][i] = false;
 
-   key_pressed_ASCII = 0;
 
-   ALLEGRO_MOUSE_STATE state;
-   al_get_mouse_state(&state);
-   mouse_x = state.x / mDisplay.display_transform_double;
-   mouse_y = state.y / mDisplay.display_transform_double;
-   mouse_z = state.z / mDisplay.display_transform_double;
+      for (int i=0; i<64; i++) skc[i] = 0;
+      skc_index = 0;
 
-   mouse_dx = 0;
-   mouse_dy = 0;
-   mouse_dz = 0;
+      for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++)
+         for (int i=0; i<4; i++)
+            key[k][i] = false;
+
+      for (int k=0; k<5; k++)
+         for (int i=0; i<4; i++)
+            mouse_b[k][i] = false;
+
+      key_pressed_ASCII = 0;
+
+      ALLEGRO_MOUSE_STATE state;
+      al_get_mouse_state(&state);
+      mouse_x = state.x / mDisplay.display_transform_double;
+      mouse_y = state.y / mDisplay.display_transform_double;
+      mouse_z = state.z / mDisplay.display_transform_double;
+
+      mouse_dx = 0;
+      mouse_dy = 0;
+      mouse_dz = 0;
+   }
 }
 
 

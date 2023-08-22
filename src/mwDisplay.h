@@ -6,6 +6,8 @@ class mwDisplay
 
    ALLEGRO_DISPLAY *display = NULL;
 
+   int no_display = 0;
+
    int desktop_width;
    int desktop_height;
 
@@ -71,6 +73,7 @@ class mwDisplay
    void set_display_transform();
    void show_disp_values(int fs, int disp, int curr, int wind, int full, char *head);
    void show_display_adapters(void);
+
    int init_display(void);
    void proc_display_change(void);
    void save_display_window_position(void);

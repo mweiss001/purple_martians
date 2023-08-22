@@ -16,6 +16,7 @@
 #include "mwGameEvent.h"
 #include "mwShot.h"
 
+
 /*
 item[][0] = 6 - orb
 item[][1] = bitmap
@@ -420,21 +421,23 @@ item[][14] = copy y
 
 
 */
+
+
+
+
 void mwItem::proc_block_manip(int i)
 {
    int et = item[i][1]; // pm_event trigger we are looking for
    if (mTriggerEvent.event[et])
    {
-      al_set_target_bitmap(mBitmap.level_background);
+      int mode = item[i][3];
+      int block1 = item[i][10];
+      int block2 = item[i][11];
+
       int x1 = item[i][6]/20;
       int y1 = item[i][7]/20;
       int x2 = x1 + item[i][8]/20;
       int y2 = y1 + item[i][9]/20;
-
-      if (x1 < 0) x1 = 0;
-      if (x2 > 100) x2 = 100;
-      if (y1 < 0) y1 = 0;
-      if (y2 > 100) y2 = 100;
 
       // copt rect pos
       int x3 = item[i][13]/20;
@@ -446,48 +449,21 @@ void mwItem::proc_block_manip(int i)
 
       for (int x=x1; x<x2; x++)
          for (int y=y1; y<y2; y++)
-         {
-            int mode = item[i][3];
-            int block1 = item[i][10];
-            int block2 = item[i][11];
-            if (mode == 1) // set all blocks to block 1
+            if ((x >= 0) && (y >= 0) && (x<100) && (y<100)) // valid level block position
             {
-               mLevel.l[x][y] = block1;
-               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
-               al_draw_bitmap(mBitmap.btile[block1&1023], x*20, y*20, 0 );
-            }
-            if (mode == 2) // set all block2 to block 1
-            {
-               if (mLevel.l[x][y] == block2)
+               if (mode == 1) mLevel.change_block(x, y, block1); // set all to block 1
+               if (mode == 2) if (mLevel.l[x][y] == block2) mLevel.change_block(x, y, block1); // set all block2 to block 1
+               if (mode == 3) // toggle block1 and block 2
                {
-                  mLevel.l[x][y] = block1;
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
-                  al_draw_bitmap(mBitmap.btile[block1&1023], x*20, y*20, 0 );
+                  if      (mLevel.l[x][y] == block1) mLevel.change_block(x, y, block2);
+                  else if (mLevel.l[x][y] == block2) mLevel.change_block(x, y, block1);
                }
-            }
-            if (mode == 3) // toggle block1 and block 2
-            {
-               if (mLevel.l[x][y] == block1)
+               if (mode == 4) // copy rect area
                {
-                  mLevel.l[x][y] = block2;
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
-                  al_draw_bitmap(mBitmap.btile[block2&1023], x*20, y*20, 0 );
+                  int sx = x+x4;
+                  int sy = y+y4;
+                  if ((sx >= 0) && (sy >= 0) && (sx<100) && (sy<100)) mLevel.change_block(x, y, mLevel.l[sx][sy]); // valid level block position
                }
-               else if (mLevel.l[x][y] == block2)
-               {
-                  mLevel.l[x][y] = block1;
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
-                  al_draw_bitmap(mBitmap.btile[block1&1023], x*20, y*20, 0 );
-               }
-            }
-            if (mode == 4) // copy rect area
-            {
-               block1 = mLevel.l[x+x4][y+y4];
-               mLevel.l[x][y] = block1;
-               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
-               al_draw_bitmap(mBitmap.btile[block1&1023], x*20, y*20, 0 );
-
-            }
          }
    }
 }

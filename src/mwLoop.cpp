@@ -83,12 +83,44 @@ void mwLoop::move_frame(void)
    char msg[1024];
    double t[8] = { 0 };
    if ((mLog.LOG_TMR_move_tot) || (mLog.LOG_TMR_move_all)) t[0] = al_get_time();
+
+   int debug_print = 0;
+
+
+   if (debug_print) printf("testmf1\n");
+
+
+
    mShot.move_eshots();      if (mLog.LOG_TMR_move_all) t[1] = al_get_time();
+
+   if (debug_print) printf("testmf2\n");
+
+
+
    mShot.move_pshots();      if (mLog.LOG_TMR_move_all) t[2] = al_get_time();
+
+   if (debug_print) printf("testmf3\n");
+
    mLift.move_lifts(0);      if (mLog.LOG_TMR_move_all) t[3] = al_get_time();
+
+   if (debug_print) printf("testmf4\n");
+
    mPlayer.move_players();   if (mLog.LOG_TMR_move_all) t[4] = al_get_time();
+
+
+   if (debug_print) printf("testmf5\n");
+
+
    mEnemy.move_enemies();    if (mLog.LOG_TMR_move_all) t[5] = al_get_time();
+
+   if (debug_print) printf("testmf6\n");
+
    mItem.move_items();       if (mLog.LOG_TMR_move_all) t[6] = al_get_time();
+
+   if (debug_print) printf("testmf7\n");
+
+
+
 
 //   int p = mPlayer.active_local_player;
 //   if (mPlayer.syn[p].player_ride) // if player is riding lift
@@ -128,7 +160,10 @@ int mwLoop::have_all_players_acknowledged(void)
    int ret = 1; // yes by default
    for (int p=0; p<NUM_PLAYERS; p++)
    {
-      if (mPlayer.syn[p].active)
+
+
+
+      if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
       {
          if (mGameMoves.has_player_acknowledged(p))
          {
@@ -571,9 +606,15 @@ void mwLoop::proc_program_state(void)
       frame_num = 0;
       mNetgame.reset_states();
       mShot.clear_shots();
+
+
+
       mBottomMessage.initialize();
       mInput.initialize();
       mTriggerEvent.initialize();
+
+
+
 
       mNetgame.game_vars_to_state(mNetgame.srv_client_state[0][1]);
       mNetgame.srv_client_state_frame_num[0][1] = frame_num;
@@ -595,10 +636,12 @@ void mwLoop::proc_program_state(void)
          mLog.add_log_entry_header(10, 0, msg, 3);
       }
 
+
       show_player_join_quit_timer = 0;
       mSound.start_music(0); // rewind and start theme
       mTimeStamp.init_timestamps();
       state[0] = 11;
+
    }
 
    //---------------------------------------
@@ -716,6 +759,9 @@ void mwLoop::proc_program_state(void)
       }
 
 
+
+
+
 // --------------------------------------------------------
 // cleanup after level done
 // --------------------------------------------------------
@@ -831,6 +877,9 @@ void mwLoop::proc_program_state(void)
 // load the new level
 // ---------------------------------------------------
 
+
+
+
       // if we get here in demo mode, either initially or after level done
       // call mDemoMode.load_random_demo() to load game moves for next demo level
       // this needs to be after the cutscene transitions
@@ -844,6 +893,9 @@ void mwLoop::proc_program_state(void)
       mLevel.play_level = mPlayer.syn[0].level_done_next_level;
       if (load_and_setup_level_load(mLevel.play_level)) state[0] = 11;
       else state[0] = 1;
+
+      if (mMain.headless_server) printf("Started Level:%d\n", mLevel.play_level);
+
 
 // ----------------------------------------
 // post-load transition
@@ -1088,7 +1140,6 @@ void mwLoop::proc_level_done_mode(void)
          return;
       }
 
-
       mPlayer.syn[0].level_done_timer = 0; // immediate next mode
       cutscene_original_zoom = mDisplay.scale_factor_current;
 
@@ -1103,7 +1154,7 @@ void mwLoop::proc_level_done_mode(void)
       int xh = 120;
       int yh = 260;
       for (int p=0; p< NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (p != c)) // all active players except captain
+         if ((mPlayer.syn[p].active) && (p != c) && (mPlayer.syn[p].paused_type != 3)) // all active players except captain
          {
             // distance to home position
             float dx = xh - mPlayer.syn[p].x;
@@ -1124,7 +1175,7 @@ void mwLoop::proc_level_done_mode(void)
    if (mPlayer.syn[0].level_done_mode == 29) // players seek and zoom out
    {
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active)
+         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
          {
             mPlayer.syn[p].x += mPlayer.syn[p].xinc;
             mPlayer.syn[p].y += mPlayer.syn[p].yinc;
@@ -1198,7 +1249,7 @@ void mwLoop::proc_level_done_mode(void)
       mLevel.add_play_data_record(mLevel.play_level, 1);
 
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active)
+         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
          {
             mPlayer.syn[p].paused = 5; // set player paused
 
@@ -1220,7 +1271,7 @@ void mwLoop::proc_level_done_mode(void)
       float fade = 0.3 + (float) mPlayer.syn[0].level_done_timer / 85; // 1 to .3 in 60 frames
       if (mSound.sound_on) al_set_mixer_gain(mSound.st_mixer, ((float)mSound.st_scaler / 9) * fade);
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active)
+         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
          {
             mPlayer.syn[p].x += mPlayer.syn[p].xinc;
             mPlayer.syn[p].y += mPlayer.syn[p].yinc;
@@ -1229,7 +1280,7 @@ void mwLoop::proc_level_done_mode(void)
    if (mPlayer.syn[0].level_done_mode == 7) // shrink and rotate
    {
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active)
+         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
          {
             mPlayer.syn[p].draw_scale -= 0.05;
             mPlayer.syn[p].draw_rot -= 8;
@@ -1301,40 +1352,76 @@ void mwLoop::main_loop(void)
 
       if (mEventQueue.program_update)
       {
+
+         int debug_print = 0;
+
          mEventQueue.program_update = 0;
 
          if (state[1] == 11) // game loop running
          {
             frame_num++;
-            mBitmap.update_animation();
 
-            mSound.proc_sound();
+
+
+            if (debug_print) printf("test1\n");
+
+            if (!mDisplay.no_display)
+            {
+               mBitmap.update_animation();
+               mSound.proc_sound();
+            }
+
+            if (debug_print) printf("test2\n");
+
 
             mTimeStamp.timestamp_frame_start = al_get_time();
 
             int ldm = mPlayer.syn[0].level_done_mode;
 
+
+            if (!mDisplay.no_display)
+            {
+
+
             if ((ldm == 30) || (ldm == 25)) mDisplay.proc_custom_scale_factor_change();
             else                            mDisplay.proc_scale_factor_change();
+
+
+            }
+
+            if (debug_print) printf("test3\n");
+
 
             if (mNetgame.ima_server) mNetgame.server_control();
             if (mNetgame.ima_client) mNetgame.client_control();
 
             mPlayer.proc_player_input();
+
+
+            if (debug_print) printf("test4\n");
+
+
             mGameMoves.proc();
 
+            if (debug_print) printf("test5\n");
 
 
             if (ldm) proc_level_done_mode();
             else move_frame();
 
 
+            if (debug_print) printf("test6\n");
+
+
             double t0 = al_get_time();
             mNetgame.server_create_new_state();
             if (mLog.LOG_TMR_sdif) mLog.add_log_TMR(al_get_time() - t0, "sdif", 0);
 
-            if ((ldm != 27) && (!super_fast_mode)) mDrawSequence.draw(0);
 
+            if (!mDisplay.no_display)
+            {
+               if ((ldm != 27) && (!super_fast_mode)) mDrawSequence.draw(0);
+            }
 
 
 
@@ -1367,6 +1454,8 @@ void mwLoop::main_loop(void)
          mEventQueue.program_update_1s = 0;
          if (state[1] == 11) // game loop running
          {
+            //if (!mDisplay.no_display) printf("cpu:% 2.0f%%\n",mRollingAverage[0].mx);
+
             if (mNetgame.ima_server)
             {
                // auto adjust server state frequency

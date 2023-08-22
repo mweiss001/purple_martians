@@ -135,12 +135,8 @@ void mwMain::set_and_get_versions(void)
    sprintf(mLoop.al_version_string, "Allegro Version: %d.%d.%d.%d", major, minor, revision, release);
    printf("%s\n", mLoop.al_version_string);
 
-
    // get hostname
-   char msg[256];
-   sprintf(msg, "hostname");
-   FILE *fp;
-   fp = popen(msg,"r");
+   FILE *fp = popen("hostname", "r");
    int loop = 0;
    int ch = fgetc(fp);
    while((ch != '\n') && (ch != EOF))
@@ -150,22 +146,8 @@ void mwMain::set_and_get_versions(void)
       ch = fgetc(fp);
    }
    mLoop.local_hostname[loop] = 0;
-   fclose(fp);
-
-}
-
-void mwMain::get_desktop_resolution()
-{
-   ALLEGRO_MONITOR_INFO aminfo;
-   al_get_monitor_info(0, &aminfo);
-   mDisplay.desktop_width  = aminfo.x2 - aminfo.x1;
-   mDisplay.desktop_height = aminfo.y2 - aminfo.y1;
-   printf("Desktop Resolution: %dx%d\n", mDisplay.desktop_width, mDisplay.desktop_height);
-
-   mDisplay.disp_x_full = 0; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
-   mDisplay.disp_y_full = 0;
-   mDisplay.disp_w_full = mDisplay.desktop_width;
-   mDisplay.disp_h_full = mDisplay.desktop_height;
+   pclose(fp);
+//   printf("Hostname:%s\n", mLoop.local_hostname);
 }
 
 int mwMain::initial_setup(void)
@@ -177,7 +159,6 @@ int mwMain::initial_setup(void)
    set_and_get_versions();
    mConfig.load();
    show_system_id();
-   get_desktop_resolution();
 
    srand(time(NULL));
 
@@ -185,100 +166,151 @@ int mwMain::initial_setup(void)
    mEventQueue.event_queue = al_create_event_queue();
    if(!mEventQueue.event_queue)
    {
-      mInput.m_err("Failed to create event queue.\n");
+      printf("Failed to create event queue.\n");
       return 0;
    }
-
-   // --- display --------------------
-   if (!mDisplay.init_display())
-   {
-      mInput.m_err("Failed to initialize display.\n");
-      return 0;
-   }
-
-   al_register_event_source(mEventQueue.event_queue, al_get_display_event_source(mDisplay.display));
-
-   // --- allegro add ons ------------
-   if(!al_init_native_dialog_addon())
-   {
-      mInput.m_err("Failed to initialize native dialog addon.\n");
-      return 0;
-   }
-
-   if(!al_init_primitives_addon())
-   {
-      mInput.m_err("Failed to initialize primitives addon.\n");
-      return 0;
-   }
-
-   if(!al_init_image_addon())
-   {
-      mInput.m_err("Failed to initialize image addon.\n");
-      return 0;
-   }
-
-   if(!al_init_font_addon())
-   {
-      mInput.m_err("Failed to initialize font addon.\n");
-      return 0;
-   }
-
-   if(!al_init_ttf_addon())
-   {
-      mInput.m_err("Failed to initialize ttf addon.\n");
-      return 0;
-   }
-   mFont.load_fonts();
-
-   // --- keyboard -------------------
-   if (!al_install_keyboard())
-   {
-      mInput.m_err("Failed to install keyboard.\n");
-      return 0;
-   }
-   //else printf("installed keyboard\n");
-   al_register_event_source(mEventQueue.event_queue, al_get_keyboard_event_source());
-
-
-   // --- mouse ----------------------
-   if (!al_install_mouse())
-   {
-      mInput.m_err("Failed to install mouse.\n");
-      return 0;
-   }
-   //else printf("installed mouse\n");
-   al_register_event_source(mEventQueue.event_queue, al_get_mouse_event_source());
-   al_hide_mouse_cursor(mDisplay.display);
-
-
-   // --- joystick -------------------
-   if (!al_install_joystick())
-   {
-      mInput.m_err("Failed to install joystick.\n");
-      return 0;
-   }
-   //else printf("installed joystick\n");
-   int nj = al_get_num_joysticks();
-   //printf("found %d joystick(s)\n", nj);
-   if (nj > 0)
-   {
-      mInput.joy0 = al_get_joystick(0);
-      //printf("j0 - %s\n", al_get_joystick_name(joy0));
-
-      if (nj > 1)
-      {
-         mInput.joy1 = al_get_joystick(1);
-         //printf("j1 - %s\n", al_get_joystick_name(joy1));
-      }
-      al_register_event_source(mEventQueue.event_queue, al_get_joystick_event_source());
-   }
-
-   mBitmap.load_tiles();
-   al_set_display_icon(mDisplay.display, mBitmap.tile[401]);
 
    mEventQueue.create_timers();
 
-   mSound.load_sound();
+
+   // --- display --------------------
+   mDisplay.init_display();
+
+   if ((mDisplay.no_display) && (!headless_server))
+   {
+      printf("Failed to initialize display.\n");
+      return 0;
+   }
+
+   if (headless_server)
+   {
+      printf("Starting Headless Server.\n");
+      mSound.sound_on = 0;
+      mBitmap.load_sprit(); // get animation sequences and shape attributes
+   }
+   else if (!mDisplay.no_display) // normal
+//
+//
+//   }
+//   else
+//   {
+//
+//
+//
+//
+//
+//
+//
+//
+//   if (!mDisplay.init_display())
+//
+//   {
+//      if (headless_server)
+//      {
+//         printf("Starting Headless Server.\n");
+//         mSound.sound_on = 0;
+//         mBitmap.load_sprit(); // get animation sequences and shape attributes
+//      }
+//      else
+//      {
+//         printf("Failed to initialize display.\n");
+//         return 0;
+//      }
+//
+//
+//   }
+//   else
+   {
+
+
+      al_register_event_source(mEventQueue.event_queue, al_get_display_event_source(mDisplay.display));
+
+      // --- allegro add ons ------------
+      if(!al_init_native_dialog_addon())
+      {
+         mInput.m_err("Failed to initialize native dialog addon.\n");
+         return 0;
+      }
+
+      if(!al_init_primitives_addon())
+      {
+         mInput.m_err("Failed to initialize primitives addon.\n");
+         return 0;
+      }
+
+      if(!al_init_image_addon())
+      {
+         mInput.m_err("Failed to initialize image addon.\n");
+         return 0;
+      }
+
+      if(!al_init_font_addon())
+      {
+         mInput.m_err("Failed to initialize font addon.\n");
+         return 0;
+      }
+
+      if(!al_init_ttf_addon())
+      {
+         mInput.m_err("Failed to initialize ttf addon.\n");
+         return 0;
+      }
+      mFont.load_fonts();
+
+      // --- keyboard -------------------
+      if (!al_install_keyboard())
+      {
+         mInput.m_err("Failed to install keyboard.\n");
+         return 0;
+      }
+      //else printf("installed keyboard\n");
+      al_register_event_source(mEventQueue.event_queue, al_get_keyboard_event_source());
+
+
+      // --- mouse ----------------------
+      if (!al_install_mouse())
+      {
+         mInput.m_err("Failed to install mouse.\n");
+         return 0;
+      }
+      //else printf("installed mouse\n");
+      al_register_event_source(mEventQueue.event_queue, al_get_mouse_event_source());
+      al_hide_mouse_cursor(mDisplay.display);
+
+
+      // --- joystick -------------------
+      if (!al_install_joystick())
+      {
+         mInput.m_err("Failed to install joystick.\n");
+         return 0;
+      }
+      //else printf("installed joystick\n");
+      int nj = al_get_num_joysticks();
+      //printf("found %d joystick(s)\n", nj);
+      if (nj > 0)
+      {
+         mInput.joy0 = al_get_joystick(0);
+         //printf("j0 - %s\n", al_get_joystick_name(joy0));
+
+         if (nj > 1)
+         {
+            mInput.joy1 = al_get_joystick(1);
+            //printf("j1 - %s\n", al_get_joystick_name(joy1));
+         }
+         al_register_event_source(mEventQueue.event_queue, al_get_joystick_event_source());
+      }
+
+      mBitmap.load_tiles();
+      al_set_display_icon(mDisplay.display, mBitmap.tile[401]);
+
+      mSound.load_sound();
+
+   }
+
+
+
+
+
 
    // init players
    for (int p=1; p<NUM_PLAYERS; p++) mPlayer.syn[p].color = 0; // all but player[0] which we got from config file
@@ -303,12 +335,8 @@ int mwMain::initial_setup(void)
    if (classic_mode) mLevel.set_start_level();
    else mLevel.set_start_level(1);
 
-
-
    return 1;
 }
-
-
 
 int mwMain::pm_main(int argument_count, char **argument_array)
 {
@@ -320,8 +348,6 @@ int mwMain::pm_main(int argument_count, char **argument_array)
       {
          mLoop.state[1] = mLoop.state[0] = 1; // set up for menu
       }
-
-
       mLoop.main_loop();
    }
    if (mLog.autosave_log_on_program_exit) mLog.save_log_file();

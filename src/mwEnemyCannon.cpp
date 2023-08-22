@@ -6,6 +6,8 @@
 #include "mwShot.h"
 #include "mwSolid.h"
 #include "mwLoop.h"
+#include "mwDisplay.h"
+
 
 
 void mwEnemy::move_bouncer_cannon_common(int e)
@@ -138,6 +140,7 @@ void mwEnemy::move_bouncer(int e)
 
    set_enemy_rot_from_incs(e);  // set rotation based on direction of travel
 
+
    // set animation sequence
    if (Ei[e][7]) Ei[e][3] = Ei[e][5]; // main ans
    else Ei[e][3] = Ei[e][6]; // seek ans
@@ -155,7 +158,7 @@ void mwEnemy::move_bouncer(int e)
    // total sequence length in frames
    int tsl = nf * ns;
 
-   // get mod of mLoop.frame_num
+   // get mod of frame_num
    int pm = mLoop.frame_num % tsl;
 
    // get shape number from mod
@@ -163,6 +166,7 @@ void mwEnemy::move_bouncer(int e)
 
    // set shape in enemy array
    Ei[e][1] = mBitmap.zz[5+ss][ans];
+
 }
 
 

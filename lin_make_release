@@ -9,8 +9,6 @@ fd='purple_martians_'"$version"'_linux'
 
 mkdir "$fd"
 mkdir "$fd"/bitmaps
-mkdir "$fd"
-mkdir "$fd"/bitmaps
 mkdir "$fd"/help
 mkdir "$fd"/data
 mkdir "$fd"/levels

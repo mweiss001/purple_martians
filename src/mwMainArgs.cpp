@@ -107,7 +107,7 @@ void mwMain::copy_files_to_clients(int type)
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 -- has stupid network issues, sometimes take 4s to get a packet reply
 //   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
 
-//   sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
+   sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
 //   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
 //   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
    sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
@@ -156,6 +156,10 @@ void mwMain::copy_files_to_clients(int type)
 
 void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
 {
+
+   if ((argument_count > 1) && (strcmp(argument_array[1],"-sh") == 0 )) headless_server = 1;
+
+
    if (argument_count == 2) // example 'pmwin x'
    {
       if (strcmp(argument_array[1],"-t")  == 0 ) { copy_files_to_clients(1); exit(0); } // exe only
@@ -166,8 +170,6 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-tc") == 0 ) { copy_files_to_clients(5); exit(0); } // cfg only
 
       if (strcmp(argument_array[1],"-tu") == 0 ) { pm_copy_src("\\\\scat\\pm_client726"); exit(0); } // copy src dir only to specific linux machine
-
-
 
 
 
@@ -191,6 +193,9 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
          printf("\n");
          printf(" -s        (immediately hosts a netgame on the current level eg: 'pm.exe -s')\n");
          printf(" -s [lev]  (immediately hosts a netgame on level [lev], eg: 'pm.exe -s 23')\n");
+
+         printf(" -sh       (headless server mode\n");
+
 
          printf("\n");
          printf(" -e        (starts in level editor mode on the current level, eg: 'pm.exe -e')\n");
@@ -305,6 +310,15 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          return;
       }
 
+
+      if (strcmp(argument_array[1],"-sh") == 0 ) // headless server
+      {
+         mLogo.show_splash_screen = 0;
+         mLoop.state[0] = 20;
+         return;
+      }
+
+
       if (strcmp(argument_array[1],"-f") == 0 )
       {
          mLogo.show_splash_screen = 0;
@@ -385,6 +399,25 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          }
          else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
       }
+
+      if (strcmp(argument_array[1],"-sh") == 0 )
+      {
+         int pl = atoi(argument_array[2]);
+         if ((pl > 0) && (pl < 400))
+         {
+            mLevel.set_start_level(pl);
+            mLogo.show_splash_screen = 0;
+            mLoop.state[0] = 20;
+            return;
+         }
+         else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
+      }
+
+
+
+
+
+
    } // end of argument_count == 3
 }
 

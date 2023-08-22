@@ -1,0 +1,11 @@
+
+gc='g++ -o pm '
+
+for filename in o/src/*.o; do
+gc+="$filename"' ' 
+done
+
+gc+="-lallegro_monolith -lz -lnet -lpthread -Wl,-rpath='./linux_libs' "
+
+echo $gc
+$gc

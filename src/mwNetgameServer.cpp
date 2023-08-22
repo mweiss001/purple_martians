@@ -310,7 +310,7 @@ int mwNetgame::server_init(void)
    }
 
    sprintf(msg, "Server successfully initialized");
-   printf("%s\n\n", msg);
+   printf("%s\n", msg);
    if (mLog.LOG_NET)
    {
       mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");

@@ -250,9 +250,13 @@ void mwBitmap::save_sprit(void)
 void mwBitmap::load_sprit(void)
 {
    FILE *fp = fopen("bitmaps/sprit001.pm", "rb");
-   fread(zz, sizeof(zz), 1, fp);
-   fread(sa, sizeof(sa), 1, fp);
-   fclose(fp);
+   if (fp)
+   {
+      fread(zz, sizeof(zz), 1, fp);
+      fread(sa, sizeof(sa), 1, fp);
+      fclose(fp);
+   }
+   else printf("error opening bitmaps/sprit001.pm\n");
 }
 
 void mwBitmap::spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle)

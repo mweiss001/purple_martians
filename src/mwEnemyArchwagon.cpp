@@ -280,6 +280,7 @@ void mwEnemy::move_arch_block_common(int e)
 
 void mwEnemy::move_blokwalk(int e)
 {
+
    int EXint = Ef[e][0];
    int EYint = Ef[e][1];
 
@@ -294,19 +295,22 @@ void mwEnemy::move_blokwalk(int e)
 
       int block = Ei[e][13];
 
-
       mLevel.l[ex][ey] = block;
 
-      al_set_target_bitmap(mBitmap.level_background);
-      al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, mColor.pc[0]);
-      al_draw_bitmap(mBitmap.btile[block & 1023], ex*20, ey*20, 0);
+      if (!mDisplay.no_display)
+      {
+
+         al_set_target_bitmap(mBitmap.level_background);
+         al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, mColor.pc[0]);
+         al_draw_bitmap(mBitmap.btile[block & 1023], ex*20, ey*20, 0);
+      }
+
 
       mGameEvent.add(42, 0, 0, Ei[e][26], e, 11, Ei[e][31]);
 
       Ei[e][0] = 0;
       return; // to stop rest of execution
    }
-
    move_arch_block_common(e);
 
    // set the bitmap and drawing mode

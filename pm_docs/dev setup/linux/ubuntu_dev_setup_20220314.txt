@@ -565,10 +565,6 @@ guest ok = yes
 
 
 
-
-
-
-
 made a folder on the desktop 'pm_client17' and shared it
 
 right-clicking should show an option to share, if not, open it in nautilus file thingy and try again
@@ -654,6 +650,1233 @@ Configured with: ../src/configure -v --with-pkgversion='Ubuntu 10.3.0-15ubuntu1'
 Thread model: posix
 Supported LTO compression algorithms: zlib zstd
 gcc version 10.3.0 (Ubuntu 10.3.0-15ubuntu1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+20230819 trying to get the latest version
+
+
+
+
+
+making a new server for deployment at work...
+
+name:pmh
+m zaiden
+ubuntu 22.04
+
+optiplex 3020
+i5-4570 8G RAM
+240G SSD
+
+192.168.1.141
+
+
+sudo apt install git cmake cmake-curses-gui build-essential \
+                 libdumb1-dev \
+                 libflac-dev \
+                 libfreetype6-dev \
+                 libgl1-mesa-dev \
+                 libglu1-mesa-dev \
+                 libgtk-3-dev \
+                 libjpeg-dev \
+                 libopenal-dev \
+                 libphysfs-dev \
+                 libpng-dev \
+                 libpulse-dev \
+                 libtheora-dev \
+                 libvorbis-dev \
+                 libwebp-dev \
+                 libxext-dev \
+                 libxxf86vm-dev \
+                 libxrandr-dev \
+                 libxinerama-dev \
+                 libxpm-dev \
+                 libopusfile-dev \
+                 gcc
+
+                 
+m@pmh:~$ gcc -v
+Using built-in specs.
+COLLECT_GCC=gcc
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/11/lto-wrapper
+OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+OFFLOAD_TARGET_DEFAULT=1
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu 11.4.0-1ubuntu1~22.04' --with-bugurl=file:///usr/share/doc/gcc-11/README.Bugs --enable-languages=c,ada,c++,go,brig,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-11 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-11-XeT9lY/gcc-11-11.4.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-11-XeT9lY/gcc-11-11.4.0/debian/tmp-gcn/usr --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+Thread model: posix
+Supported LTO compression algorithms: zlib zstd
+gcc version 11.4.0 (Ubuntu 11.4.0-1ubuntu1~22.04)
+m@pmh:~$ gcc -v
+
+
+    
+---------------------------------------------------------------
+Download Allegro's source from git and navigate to its directory.
+---------------------------------------------------------------
+
+Make a folder in home: dev
+
+mkdir dev
+
+from a terminal in dir dev
+
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+
+Configure and build Allegro.
+
+mkdir build
+cd build
+
+cmake ..
+ccmake -DCMAKE_INSTALL_PREFIX=/usr ..             
+                 
+                 
+                 
+
+ALLEGRO_PROJECT_NAME             ALLEGRO
+ ALLEGRO_PROJECT_SUFFIX
+ ALLEGRO_SDL                      OFF
+ CMAKE_BUILD_TYPE                 Release
+ DOC_GIT_REF
+ FRAMEWORK_INSTALL_PREFIX         /Library/Frameworks
+ FREETYPE_BZIP2                   OFF
+ FREETYPE_HARFBUZZ                OFF
+ FREETYPE_PNG                     OFF
+ FREETYPE_ZLIB                    OFF
+ GL_BUILD_TYPE                    auto
+ LIB_SUFFIX
+ NO_FPU                           OFF
+ PREFER_STATIC_DEPS               OFF
+ SHARED                           ON
+ STRICT_WARN                      OFF
+ WANT_ACODEC_DYNAMIC_LOAD         OFF
+ WANT_ALLOW_SSE                   ON
+ WANT_ALSA                        OFF
+ WANT_AQUEUE                      OFF
+ WANT_AUDIO                       ON
+ WANT_COLOR                       ON
+ WANT_CURL_EXAMPLE                OFF
+ WANT_D3D                         OFF
+ WANT_D3D9EX                      OFF
+ WANT_DEMO                        OFF
+ WANT_DLL_TLS                     OFF
+ WANT_DOCS                        OFF
+ WANT_DOCS_HTML                   OFF
+ WANT_DOCS_INFO                   OFF
+ WANT_DOCS_MAN                    OFF
+ WANT_DOCS_PDF                    OFF
+ WANT_DOCS_PDF_PAPER              OFF
+ WANT_DSOUND                      ON
+ WANT_EMBED                       OFF
+ WANT_EXAMPLES                    OFF
+ WANT_FLAC                        OFF
+ WANT_FONT                        ON
+ WANT_FRAMEWORKS                  OFF
+ WANT_GLES3                       OFF
+ WANT_IMAGE                       ON
+ WANT_IMAGE_FREEIMAGE             OFF
+ WANT_IMAGE_JPG                   OFF
+ WANT_IMAGE_PNG                   OFF
+ WANT_IMAGE_WEBP                  OFF
+ WANT_LUAJIT                      OFF
+ WANT_MEMFILE                     OFF
+ WANT_MODAUDIO                    OFF
+ WANT_MONOLITH                    ON
+ WANT_MP3                         OFF
+ WANT_MUDFLAP                     OFF
+ WANT_NATIVE_DIALOG               ON
+ WANT_NATIVE_IMAGE_LOADER         OFF
+ WANT_OGG_VIDEO                   OFF
+ WANT_OPENAL                      OFF
+ WANT_OPENGL                      ON
+ WANT_OPENSL                      OFF
+ WANT_OPUS                        OFF
+ WANT_OSS                         OFF
+ WANT_PHYSFS                      OFF
+ WANT_POPUP_EXAMPLES              OFF
+ WANT_PRIMITIVES                  ON
+ WANT_PULSEAUDIO                  ON
+ WANT_PYTHON_WRAPPER              OFF
+ WANT_RELEASE_LOGGING             OFF
+ WANT_SHADERS_D3D                 OFF
+ WANT_SHADERS_GL                  ON
+ WANT_STATIC_RUNTIME              OFF
+ WANT_TESTS                       OFF
+ WANT_TREMOR                      OFF
+ WANT_TTF                         ON
+ WANT_VIDEO                       OFF
+ WANT_VORBIS                      OFF
+ WANT_WAIT_EVENT_SLEEP            OFF
+ WANT_X11                         ON
+ WANT_X11_XF86VIDMODE             ON
+ WANT_X11_XINERAMA                ON
+ WANT_X11_XRANDR                  ON
+ WANT_X11_XSCREENSAVER            ON
+ X11_xcb_icccm_INCLUDE_PATH       X11_xcb_icccm_INCLUDE_PATH-NOTFOUND
+ X11_xcb_icccm_LIB                X11_xcb_icccm_LIB-NOTFOUND
+ XCURSOR_LIB                      /usr/lib/x86_64-linux-gnu/libXcursor.so
+ XINERAMA_LIB                     /usr/lib/x86_64-linux-gnu/libXinerama.so
+ XPM_LIB                          /usr/lib/x86_64-linux-gnu/libXpm.so
+ XRANDR_LIB                       /usr/lib/x86_64-linux-gnu/libXrandr.so
+
+
+ Allowing GCC/Clang to use SSE instructions
+ Performing Test ALLEGRO_HAVE_PROCFS_ARGCV
+ Performing Test ALLEGRO_HAVE_PROCFS_ARGCV - Failed
+ Performing Test ALLEGRO_HAVE_SV_PROCFS_H
+ Performing Test ALLEGRO_HAVE_SV_PROCFS_H - Failed
+ ===========================
+ Configuration summary
+ ===========================
+ - OpenGL: Desktop
+ - Primitives addon: yes
+ - Image addon: yes
+  - FreeImage: NO
+  - libpng: NO
+  - libjpeg: NO
+  - libwebp: NO
+ - Font addon: yes
+ - Audio addon: yes
+  - OSS: NO
+  - PulseAudio: yes
+  - ALSA: NO
+  - OpenAL: NO
+  - OpenSL: NO
+ - Acodec addon: yes
+  - FLAC: NO
+  - DUMB: NO
+  - Ogg/Vorbis: NO
+  - Opus: NO
+  - MP3: NO
+ - TTF addon: yes
+ - Color addon: yes
+ - Memfile addon: NO
+ - PhysFS addon: NO
+ - Native Dialog addon: yes
+ - Video addon: NO
+ ===========================
+ Configuring done
+
+press "c", "e" and then "q". You should now be back to a console.
+
+make
+sudo make install
+
+
+
+
+
+
+
+
+SiegeLord instructions from 2022
+
+
+Install general system dependencies.
+
+sudo apt install git cmake build-essential
+
+Install various dependencies.
+
+sudo apt install libdumb1-dev \
+                 libflac-dev \
+                 libfreetype6-dev \
+                 libgl1-mesa-dev \
+                 libglu1-mesa-dev \
+                 libgtk-3-dev \
+                 libjpeg-dev \
+                 libopenal-dev \
+                 libphysfs-dev \
+                 libpng-dev \
+                 libpulse-dev \
+                 libtheora-dev \
+                 libvorbis-dev \
+                 libwebp-dev \
+                 libxext-dev \
+                 libxxf86vm-dev \
+                 libxrandr-dev \
+                 libxinerama-dev \
+                 libxpm-dev \
+                 libopusfile-dev
+
+Download Allegro's source from git and navigate to its directory.
+
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+
+Naturally, you can replace the repository to something else if you want grab the code from, e.g., a GitHub fork.
+
+If you want MP3 support, download the header-only MiniMP3 library as follows:
+
+mkdir -p deps/include
+cd deps/include
+curl -O https://raw.githubusercontent.com/lieff/minimp3/master/minimp3.h
+curl -O https://raw.githubusercontent.com/lieff/minimp3/master/minimp3_ex.h
+cd ../..
+
+Configure and build Allegro.
+
+mkdir build
+cd build
+cmake ..
+make -j$(nproc)
+
+If you're reproducing some sort of bug or developing a new feature, it can be helpful to build Allegro in debug mode by issuing cmake ..  -DCMAKE_BUILD_TYPE=Debug. The default CMAKE_BUILD_TYPE is RelWithDebInfo.
+
+Test by running an example.
+
+cd examples
+./ex_draw_bitmap
+
+this just worked...
+
+
+get the sources there...
+
+I want to use scp...
+
+C:\pm>pscp -r c:\pm\* m@pmh:dev/pm
+
+
+done...
+
+try to compile
+
+
+---------------------------------------------------------
+Install libnet
+---------------------------------------------------------
+- from my local copy of the sources
+from a terminal go to the folder 'libnet' in the game folder
+'make clean'
+'make lib'
+'sudo make install'
+(puts libnet.h in /usr/include/)
+(puts libnet.a in /usr/lib/x86_64-linux-gnu/)
+
+
+
+ [Allegro] Allegro Version: [5.2.9]
+ Allowing GCC/Clang to use SSE instructions
+ Performing Test ALLEGRO_HAVE_PROCFS_ARGCV
+ Performing Test ALLEGRO_HAVE_PROCFS_ARGCV - Failed
+ Performing Test ALLEGRO_HAVE_SV_PROCFS_H
+ Performing Test ALLEGRO_HAVE_SV_PROCFS_H - Failed
+ CMake Error at CMakeLists.txt:1238 (install):
+   install TARGETS given target "allegro" which does not exist.
+
+ ===========================
+ Configuration summary
+ ===========================
+ - OpenGL: Desktop
+ - Primitives addon: yes
+ - Image addon: yes
+  - FreeImage: NO
+  - libpng: NO
+  - libjpeg: NO
+  - libwebp: NO
+ - Font addon: yes
+ - Audio addon: yes
+  - OSS: NO
+  - PulseAudio: yes
+  - ALSA: NO
+  - OpenAL: NO
+  - OpenSL: NO
+ - Acodec addon: yes
+  - FLAC: NO
+  - DUMB: NO
+  - Ogg/Vorbis: NO
+  - Opus: NO
+  - MP3: NO
+ - TTF addon: yes
+ - Color addon: yes
+ - Memfile addon: NO
+ - PhysFS addon: NO
+ - Native Dialog addon: yes
+ - Video addon: NO
+ ===========================
+ Configuring incomplete, errors occurred!
+ See also "/home/m/dev/allegro5/build/CMakeFiles/CMakeOutput.log".
+ See also "/home/m/dev/allegro5/build/CMakeFiles/CMakeError.log".
+
+ 
+ 
+ 
+ 
+-- Generating done
+-- Build files have been written to: /home/m/dev/allegro5/build
+m@pmh:~/dev/allegro5/build$ ccmake -DCMAKE_INSTALL_PREFIX=/usr ..
+-- Up-to-date: /usr/local/include/allegro5/opengl/GLext/gl_ext_api.h
+-- Up-to-date: /usr/local/include/allegro5/opengl/GLext/gl_ext_list.h
+-- Up-to-date: /usr/local/include/allegro5/opengl/GLext/glx_ext_api.h
+-- Up-to-date: /usr/local/include/allegro5/opengl/GLext/glx_ext_list.h
+-- Up-to-date: /usr/local/include/allegro5/opengl/GLext/wgl_ext_api.h
+-- Up-to-date: /usr/local/include/allegro5/opengl/GLext/wgl_ext_list.h
+-- Up-to-date: /usr/local/include/allegro5/platform/alplatf.h
+-- Up-to-date: /usr/local/lib/pkgconfig/allegro-5.pc
+-- Up-to-date: /usr/local/lib/pkgconfig/allegro_primitives-5.pc
+-- Up-to-date: /usr/local/lib/pkgconfig/allegro_image-5.pc
+-- Up-to-date: /usr/local/lib/pkgconfig/allegro_font-5.pc
+-- Up-to-date: /usr/local/lib/pkgconfig/allegro_audio-5.pc
+-- Up-to-date: /usr/local/lib/pkgconfig/allegro_acodec-5.pc
+-- Up-to-date: /usr/local/lib/pkgconfig/allegro_ttf-5.pc
+-- Up-to-date: /usr/local/lib/pkgconfig/allegro_color-5.pc
+-- Up-to-date: /usr/local/lib/pkgconfig/allegro_memfile-5.pc
+-- Up-to-date: /usr/local/lib/pkgconfig/allegro_physfs-5.pc
+-- Up-to-date: /usr/local/lib/pkgconfig/allegro_dialog-5.pc
+-- Up-to-date: /usr/local/lib/pkgconfig/allegro_video-5.pc
+-- Up-to-date: /usr/local/lib/pkgconfig/allegro_main-5.pc
+-- Up-to-date: /usr/local/lib/liballegro.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro.so
+-- Up-to-date: /usr/local/lib/liballegro_primitives.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_primitives.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_primitives.so
+-- Up-to-date: /usr/local/lib/liballegro_image.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_image.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_image.so
+-- Up-to-date: /usr/local/lib/liballegro_font.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_font.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_font.so
+-- Up-to-date: /usr/local/lib/liballegro_audio.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_audio.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_audio.so
+-- Up-to-date: /usr/local/lib/liballegro_acodec.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_acodec.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_acodec.so
+-- Up-to-date: /usr/local/lib/liballegro_ttf.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_ttf.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_ttf.so
+-- Up-to-date: /usr/local/lib/liballegro_color.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_color.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_color.so
+-- Up-to-date: /usr/local/lib/liballegro_memfile.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_memfile.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_memfile.so
+-- Up-to-date: /usr/local/lib/liballegro_physfs.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_physfs.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_physfs.so
+-- Up-to-date: /usr/local/lib/liballegro_dialog.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_dialog.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_dialog.so
+-- Up-to-date: /usr/local/lib/liballegro_video.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_video.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_video.so
+-- Up-to-date: /usr/local/lib/liballegro_main.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_main.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_main.so
+-- Up-to-date: /usr/local/lib/cmake/allegro/AllegroTargets.cmake
+-- Up-to-date: /usr/local/lib/cmake/allegro/AllegroTargets-relwithdebinfo.cmake
+-- Up-to-date: /usr/local/lib/cmake/allegro/AllegroConfig.cmake
+-- Up-to-date: /usr/local/lib/cmake/allegro/AllegroConfigVersion.cmake
+-- Up-to-date: /usr/local/lib/liballegro_primitives.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_primitives.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_primitives.so
+-- Up-to-date: /usr/local/include/allegro5/allegro_primitives.h
+-- Up-to-date: /usr/local/lib/liballegro_image.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_image.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_image.so
+-- Up-to-date: /usr/local/include/allegro5/allegro_image.h
+-- Up-to-date: /usr/local/lib/liballegro_font.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_font.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_font.so
+-- Up-to-date: /usr/local/include/allegro5/allegro_font.h
+-- Up-to-date: /usr/local/lib/liballegro_audio.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_audio.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_audio.so
+-- Up-to-date: /usr/local/include/allegro5/allegro_audio.h
+-- Up-to-date: /usr/local/lib/liballegro_acodec.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_acodec.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_acodec.so
+-- Up-to-date: /usr/local/include/allegro5/allegro_acodec.h
+-- Up-to-date: /usr/local/lib/liballegro_ttf.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_ttf.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_ttf.so
+-- Up-to-date: /usr/local/include/allegro5/allegro_ttf.h
+-- Up-to-date: /usr/local/lib/liballegro_color.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_color.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_color.so
+-- Up-to-date: /usr/local/include/allegro5/allegro_color.h
+-- Up-to-date: /usr/local/lib/liballegro_memfile.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_memfile.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_memfile.so
+-- Up-to-date: /usr/local/include/allegro5/allegro_memfile.h
+-- Up-to-date: /usr/local/lib/liballegro_physfs.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_physfs.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_physfs.so
+-- Up-to-date: /usr/local/include/allegro5/allegro_physfs.h
+-- Up-to-date: /usr/local/lib/liballegro_dialog.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_dialog.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_dialog.so
+-- Up-to-date: /usr/local/include/allegro5/allegro_native_dialog.h
+-- Up-to-date: /usr/local/lib/liballegro_video.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_video.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_video.so
+-- Up-to-date: /usr/local/include/allegro5/allegro_video.h
+-- Up-to-date: /usr/local/lib/liballegro_main.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_main.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_main.so
+m@pmh:~/dev/allegro5/build$
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
+what do I need to link on linux
+
+g++  -o pm o/src/main.o o/src/mwBitmap.o o/src/mwBitmapTools.o o/src/mwBottomMessage.o o/src/mwCodeStats.o o/src/mwColor.o o/src/mwConfig.o o/src/mwDemoMode.o o/src/mwDisplay.o o/src/mwDrawSequence.o o/src/mwEnemy.o o/src/mwEnemyArchwagon.o o/src/mwEnemyCannon.o o/src/mwEnemyCloner.o o/src/mwEnemyEditorFnx.o o/src/mwEnemyFlapper.o o/src/mwEnemyFnx.o o/src/mwEnemyJumpworm.o o/src/mwEnemyTrakbot.o o/src/mwEnemyVinePod.o o/src/mwEventQueue.o o/src/mwFileIterator.o o/src/mwFont.o o/src/mwGameEvent.o o/src/mwGameMoves.o o/src/mwGlobalLevelTool.o o/src/mwGraph.o o/src/mwHelp.o o/src/mwInput.o o/src/mwItem.o o/src/mwItemBombRocket.o o/src/mwItemDoor.o o/src/mwItemEditorFnx.o o/src/mwItemKeySwitch.o o/src/mwItemMessage.o o/src/mwItemStartExitGate.o o/src/mwItemTrigger.o o/src/mwLevel.o o/src/mwLevelData.o o/src/mwLevelDataStats.o o/src/mwLift.o o/src/mwLog.o o/src/mwLogGraph.o o/src/mwLogo.o o/src/mwLogViewer.o o/src/mwLoop.o o/src/mwMain.o o/src/mwMainArgs.o o/src/mwMenu.o o/src/mwMiscFnx.o o/src/mwMulticolorLine.o o/src/mwNetgame.o o/src/mwNetgameClient.o o/src/mwNetgameServer.o o/src/mwPDE.o o/src/mwPlayer.o o/src/mwQuickGraph.o o/src/mwRollingAverage.o o/src/mwScreen.o o/src/mwScreenOverlay.o o/src/mwSettings.o o/src/mwShot.o o/src/mwSolid.o o/src/mwSound.o o/src/mwTally.o o/src/mwTimeStamp.o o/src/mwTriggerEvent.o o/src/mwVisualLevel.o o/src/mwWidget.o o/src/mwWindow.o o/src/mwWindowEditorMain.o o/src/mwWindowEditSelection.o o/src/mwWindowGroupEdit.o o/src/mwWindowManager.o o/src/mwWindowObjectViewer.o o/src/mwWindowTileHelper.o  -lallegro_monolith -lz -lnet -lpthread -Wl,-rpath='./linux_libs'
+
+
+
+I finally got it to work by copying 
+
+liballegro_monolith.so
+liballegro_monolith.so.5.2
+liballegro_monolith.so.5.2.9
+
+from /usr/lib on the previous machine to /usr/lib on the new machine
+
+this totally goes against bulding it from source...
+
+--------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
+ 
+So now I have a machine I want to deploy at my work with a static IP
+
+I will be able to ssh into it and use scp to copy files to it..I think...
+
+lets try it....
+
+
+
+
+
+# Set the path to the source directory
+
+src_dir="/home/aaliyan/Documents"
+
+# Set the path to the destination directory
+
+dest_dir="/home/aaliyan/NewDocuments"
+
+# Loop over each file in the source directory
+
+for file in "$src_dir"/*; do
+
+# Get the filename without the path
+
+filename=$(basename "$file")
+
+ 
+
+# Add the suffix to the filename
+
+new_filename="${filename}_new"
+
+ 
+
+# Set the path to the destination file
+
+dest_file="$dest_dir/$new_filename"
+
+ 
+
+# Move the file to the destination directory with the new filename
+
+mv "$file" "$dest_file"
+
+done
+
+
+
+
+
+
+
+fn='main' 
+el="$gc"' -c src/'"$fn"'.cpp -o o/src/'"$fn"'.o' 
+echo $el
+$el
+
+fn='mwBitmap' 
+el="$gc"' -c src/'"$fn"'.cpp -o o/src/'"$fn"'.o' 
+echo $el
+$el
+
+fn='mwBitmapTools' 
+el="$gc"' -c src/'"$fn"'.cpp -o o/src/'"$fn"'.o' 
+echo $el
+$el
+
+fn='mwBottomMessage' 
+el="$gc"' -c src/'"$fn"'.cpp -o o/src/'"$fn"'.o' 
+echo $el
+$el
+
+
+
+
+
+echo 2nd
+
+#$gc '-c src/'"$fn"'.cpp -o o/src/'"$fn"'.o'
+
+
+#$gc -c src/mwBitmap.cpp -o o/src/mwBitmap.o
+#$gc -c src/mwBitmapTools.cpp -o o/src/mwBitmapTools.o
+
+#g++ -Wall  -c src/main.cpp -o o/src/main.o
+
+
+
+
+#g++ -Wall  -c src/mwBottomMessage.cpp -o o/src/mwBottomMessage.o
+g++ -Wall  -c src/mwCodeStats.cpp -o o/src/mwCodeStats.o
+g++ -Wall  -c src/mwColor.cpp -o o/src/mwColor.o
+g++ -Wall  -c src/mwConfig.cpp -o o/src/mwConfig.o
+g++ -Wall  -c src/mwDemoMode.cpp -o o/src/mwDemoMode.o
+g++ -Wall  -c src/mwDisplay.cpp -o o/src/mwDisplay.o
+g++ -Wall  -c src/mwDrawSequence.cpp -o o/src/mwDrawSequence.o
+g++ -Wall  -c src/mwEnemy.cpp -o o/src/mwEnemy.o
+g++ -Wall  -c src/mwEnemyArchwagon.cpp -o o/src/mwEnemyArchwagon.o
+g++ -Wall  -c src/mwEnemyCannon.cpp -o o/src/mwEnemyCannon.o
+g++ -Wall  -c src/mwEnemyCloner.cpp -o o/src/mwEnemyCloner.o
+g++ -Wall  -c src/mwEnemyEditorFnx.cpp -o o/src/mwEnemyEditorFnx.o
+g++ -Wall  -c src/mwEnemyFlapper.cpp -o o/src/mwEnemyFlapper.o
+g++ -Wall  -c src/mwEnemyFnx.cpp -o o/src/mwEnemyFnx.o
+g++ -Wall  -c src/mwEnemyJumpworm.cpp -o o/src/mwEnemyJumpworm.o
+g++ -Wall  -c src/mwEnemyTrakbot.cpp -o o/src/mwEnemyTrakbot.o
+g++ -Wall  -c src/mwEnemyVinePod.cpp -o o/src/mwEnemyVinePod.o
+g++ -Wall  -c src/mwEventQueue.cpp -o o/src/mwEventQueue.o
+g++ -Wall  -c src/mwFileIterator.cpp -o o/src/mwFileIterator.o
+g++ -Wall  -c src/mwFont.cpp -o o/src/mwFont.o
+g++ -Wall  -c src/mwGameEvent.cpp -o o/src/mwGameEvent.o
+g++ -Wall  -c src/mwGameMoves.cpp -o o/src/mwGameMoves.o
+g++ -Wall  -c src/mwGlobalLevelTool.cpp -o o/src/mwGlobalLevelTool.o
+g++ -Wall  -c src/mwGraph.cpp -o o/src/mwGraph.o
+g++ -Wall  -c src/mwHelp.cpp -o o/src/mwHelp.o
+g++ -Wall  -c src/mwInput.cpp -o o/src/mwInput.o
+g++ -Wall  -c src/mwItem.cpp -o o/src/mwItem.o
+g++ -Wall  -c src/mwItemBombRocket.cpp -o o/src/mwItemBombRocket.o
+g++ -Wall  -c src/mwItemDoor.cpp -o o/src/mwItemDoor.o
+g++ -Wall  -c src/mwItemEditorFnx.cpp -o o/src/mwItemEditorFnx.o
+g++ -Wall  -c src/mwItemKeySwitch.cpp -o o/src/mwItemKeySwitch.o
+g++ -Wall  -c src/mwItemMessage.cpp -o o/src/mwItemMessage.o
+g++ -Wall  -c src/mwItemStartExitGate.cpp -o o/src/mwItemStartExitGate.o
+g++ -Wall  -c src/mwItemTrigger.cpp -o o/src/mwItemTrigger.o
+g++ -Wall  -c src/mwLevel.cpp -o o/src/mwLevel.o
+g++ -Wall  -c src/mwLevelData.cpp -o o/src/mwLevelData.o
+g++ -Wall  -c src/mwLevelDataStats.cpp -o o/src/mwLevelDataStats.o
+g++ -Wall  -c src/mwLift.cpp -o o/src/mwLift.o
+g++ -Wall  -c src/mwLog.cpp -o o/src/mwLog.o
+g++ -Wall  -c src/mwLogGraph.cpp -o o/src/mwLogGraph.o
+g++ -Wall  -c src/mwLogo.cpp -o o/src/mwLogo.o
+g++ -Wall  -c src/mwLogViewer.cpp -o o/src/mwLogViewer.o
+g++ -Wall  -c src/mwLoop.cpp -o o/src/mwLoop.o
+g++ -Wall  -c src/mwMain.cpp -o o/src/mwMain.o
+g++ -Wall  -c src/mwMainArgs.cpp -o o/src/mwMainArgs.o
+g++ -Wall  -c src/mwMenu.cpp -o o/src/mwMenu.o
+g++ -Wall  -c src/mwMiscFnx.cpp -o o/src/mwMiscFnx.o
+g++ -Wall  -c src/mwMulticolorLine.cpp -o o/src/mwMulticolorLine.o
+g++ -Wall  -c src/mwNetgame.cpp -o o/src/mwNetgame.o
+g++ -Wall  -c src/mwNetgameClient.cpp -o o/src/mwNetgameClient.o
+g++ -Wall  -c src/mwNetgameServer.cpp -o o/src/mwNetgameServer.o
+g++ -Wall  -c src/mwPDE.cpp -o o/src/mwPDE.o
+g++ -Wall  -c src/mwPlayer.cpp -o o/src/mwPlayer.o
+g++ -Wall  -c src/mwQuickGraph.cpp -o o/src/mwQuickGraph.o
+g++ -Wall  -c src/mwRollingAverage.cpp -o o/src/mwRollingAverage.o
+g++ -Wall  -c src/mwScreen.cpp -o o/src/mwScreen.o
+g++ -Wall  -c src/mwScreenOverlay.cpp -o o/src/mwScreenOverlay.o
+g++ -Wall  -c src/mwSettings.cpp -o o/src/mwSettings.o
+g++ -Wall  -c src/mwShot.cpp -o o/src/mwShot.o
+g++ -Wall  -c src/mwSolid.cpp -o o/src/mwSolid.o
+g++ -Wall  -c src/mwSound.cpp -o o/src/mwSound.o
+g++ -Wall  -c src/mwTally.cpp -o o/src/mwTally.o
+g++ -Wall  -c src/mwTimeStamp.cpp -o o/src/mwTimeStamp.o
+g++ -Wall  -c src/mwTriggerEvent.cpp -o o/src/mwTriggerEvent.o
+g++ -Wall  -c src/mwVisualLevel.cpp -o o/src/mwVisualLevel.o
+g++ -Wall  -c src/mwWidget.cpp -o o/src/mwWidget.o
+g++ -Wall  -c src/mwWindow.cpp -o o/src/mwWindow.o
+g++ -Wall  -c src/mwWindowEditorMain.cpp -o o/src/mwWindowEditorMain.o
+g++ -Wall  -c src/mwWindowEditSelection.cpp -o o/src/mwWindowEditSelection.o
+g++ -Wall  -c src/mwWindowGroupEdit.cpp -o o/src/mwWindowGroupEdit.o
+g++ -Wall  -c src/mwWindowManager.cpp -o o/src/mwWindowManager.o
+g++ -Wall  -c src/mwWindowObjectViewer.cpp -o o/src/mwWindowObjectViewer.o
+g++ -Wall  -c src/mwWindowTileHelper.cpp -o o/src/mwWindowTileHelper.o
+
+
+
+new compile script:
+
+gc='g++ -Wall '
+
+for filename in src/*.cpp; do
+el="$gc"' -c '"$filename"' -o o/src/'"$(basename "$filename" .cpp)"'.o' 
+echo $el
+$el
+
+done
+
+
+
+
+old link script:
+
+g++  -o pm o/src/main.o o/src/mwBitmap.o o/src/mwBitmapTools.o o/src/mwBottomMessage.o o/src/mwCodeStats.o o/src/mwColor.o o/src/mwConfig.o o/src/mwDemoMode.o o/src/mwDisplay.o o/src/mwDrawSequence.o o/src/mwEnemy.o o/src/mwEnemyArchwagon.o o/src/mwEnemyCannon.o o/src/mwEnemyCloner.o o/src/mwEnemyEditorFnx.o o/src/mwEnemyFlapper.o o/src/mwEnemyFnx.o o/src/mwEnemyJumpworm.o o/src/mwEnemyTrakbot.o o/src/mwEnemyVinePod.o o/src/mwEventQueue.o o/src/mwFileIterator.o o/src/mwFont.o o/src/mwGameEvent.o o/src/mwGameMoves.o o/src/mwGlobalLevelTool.o o/src/mwGraph.o o/src/mwHelp.o o/src/mwInput.o o/src/mwItem.o o/src/mwItemBombRocket.o o/src/mwItemDoor.o o/src/mwItemEditorFnx.o o/src/mwItemKeySwitch.o o/src/mwItemMessage.o o/src/mwItemStartExitGate.o o/src/mwItemTrigger.o o/src/mwLevel.o o/src/mwLevelData.o o/src/mwLevelDataStats.o o/src/mwLift.o o/src/mwLog.o o/src/mwLogGraph.o o/src/mwLogo.o o/src/mwLogViewer.o o/src/mwLoop.o o/src/mwMain.o o/src/mwMainArgs.o o/src/mwMenu.o o/src/mwMiscFnx.o o/src/mwMulticolorLine.o o/src/mwNetgame.o o/src/mwNetgameClient.o o/src/mwNetgameServer.o o/src/mwPDE.o o/src/mwPlayer.o o/src/mwQuickGraph.o o/src/mwRollingAverage.o o/src/mwScreen.o o/src/mwScreenOverlay.o o/src/mwSettings.o o/src/mwShot.o o/src/mwSolid.o o/src/mwSound.o o/src/mwTally.o o/src/mwTimeStamp.o o/src/mwTriggerEvent.o o/src/mwVisualLevel.o o/src/mwWidget.o o/src/mwWindow.o o/src/mwWindowEditorMain.o o/src/mwWindowEditSelection.o o/src/mwWindowGroupEdit.o o/src/mwWindowManager.o o/src/mwWindowObjectViewer.o o/src/mwWindowTileHelper.o  -lallegro_monolith -lz -lnet -lpthread -Wl,-rpath='./linux_libs'  
+
+
+new link bash script:
+
+gc='g++ -o pm '
+
+for filename in o/src/*.o; do
+gc+="$filename"' ' 
+done
+
+gc+="-lallegro_monolith -lz -lnet -lpthread -Wl,-rpath='./linux_libs' "
+
+echo $gc
+$gc
+
+m@pmh:~/dev/pm$ ./lin_link
+g++ -o pm o/src/main.o o/src/mwBitmap.o o/src/mwBitmapTools.o o/src/mwBottomMessage.o o/src/mwCodeStats.o o/src/mwColor.o o/src/mwConfig.o o/src/mwDemoMode.o o/src/mwDisplay.o o/src/mwDrawSequence.o o/src/mwEnemyArchwagon.o o/src/mwEnemyCannon.o o/src/mwEnemyCloner.o o/src/mwEnemyEditorFnx.o o/src/mwEnemyFlapper.o o/src/mwEnemyFnx.o o/src/mwEnemyJumpworm.o o/src/mwEnemy.o o/src/mwEnemyTrakbot.o o/src/mwEnemyVinePod.o o/src/mwEventQueue.o o/src/mwFileIterator.o o/src/mwFont.o o/src/mwGameEvent.o o/src/mwGameMoves.o o/src/mwGlobalLevelTool.o o/src/mwGraph.o o/src/mwHelp.o o/src/mwInput.o o/src/mwItemBombRocket.o o/src/mwItemDoor.o o/src/mwItemEditorFnx.o o/src/mwItemKeySwitch.o o/src/mwItemMessage.o o/src/mwItem.o o/src/mwItemStartExitGate.o o/src/mwItemTrigger.o o/src/mwLevelData.o o/src/mwLevelDataStats.o o/src/mwLevel.o o/src/mwLift.o o/src/mwLogGraph.o o/src/mwLog.o o/src/mwLogo.o o/src/mwLogViewer.o o/src/mwLoop.o o/src/mwMainArgs.o o/src/mwMain.o o/src/mwMenu.o o/src/mwMiscFnx.o o/src/mwMulticolorLine.o o/src/mwNetgameClient.o o/src/mwNetgame.o o/src/mwNetgameServer.o o/src/mwPDE.o o/src/mwPlayer.o o/src/mwQuickGraph.o o/src/mwRollingAverage.o o/src/mwScreen.o o/src/mwScreenOverlay.o o/src/mwSettings.o o/src/mwShot.o o/src/mwSolid.o o/src/mwSound.o o/src/mwTally.o o/src/mwTimeStamp.o o/src/mwTriggerEvent.o o/src/mwVisualLevel.o o/src/mwWidget.o o/src/mwWindowEditorMain.o o/src/mwWindowEditSelection.o o/src/mwWindowGroupEdit.o o/src/mwWindowManager.o o/src/mwWindow.o o/src/mwWindowObjectViewer.o o/src/mwWindowTileHelper.o -lallegro_monolith -lz -lnet -lpthread -Wl,-rpath='./linux_libs'
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
+
+allegro.cc advice from edgar
+
+use either cmake or ccmake but not both
+
+
+starting over:
+
+
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+mkdir build
+cd build
+
+cmake ..
+ccmake -DCMAKE_INSTALL_PREFIX=/usr ..
+
+cmake -DWANT_MONOLITH=On ..
+
+
+
+
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+mkdir build
+cd build
+cmake ..
+
+no errors
+
+then run:
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DWANT_MONOLITH=On ..
+
+errors
+
+
+do it again with only 2nd command
+
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DWANT_MONOLITH=On ..
+
+no errors
+complies and works!!
+
+now try with only ccmake...
+ccmake ..
+empty cache
+
+ccmake -DCMAKE_INSTALL_PREFIX=/usr ..
+empty cache
+
+I think that cmake needs to be run first....
+
+cmake ..
+ccmake -DCMAKE_INSTALL_PREFIX=/usr ..
+
+this does not give errors when I type 'c' in ccmake, but when I try to make the project I get the error
+
+I think I should not use ccmake at all...
+
+make my own custom list of options:
+
+-DCMAKE_BUILD_TYPE=Release
+-DWANT_MONOLITH:ON
+-DWANT_D3D:OFF
+-DWANT_D3D9EX:OFF
+-DWANT_DEMO:OFF
+-DWANT_DLL_TLS:OFF
+-DWANT_DOCS:OFF
+-DWANT_DOCS_HTML:OFF
+-DWANT_DOCS_INFO:OFF
+-DWANT_DOCS_MAN:OFF
+-DWANT_DOCS_PDF:OFF
+-DWANT_DOCS_PDF_PAPER:OFF
+-DWANT_NATIVE_IMAGE_LOADER:OFF
+-DWANT_OPENAL:OFF
+-DWANT_VIDEO:OFF
+-DWANT_VORBIS:OFF
+-DWANT_IMAGE_FREEIMAGE:OFF
+-DWANT_IMAGE_JPG:OFF
+-DWANT_IMAGE_PNG:OFF
+-DWANT_IMAGE_WEBP:OFF
+-DWANT_LUAJIT:OFF
+-DWANT_MEMFILE:OFF
+-DWANT_MODAUDIO:OFF
+-DWANT_EMBED:OFF
+-DWANT_EXAMPLES:OFF
+-DWANT_FLAC:OFF
+-DFREETYPE_BZIP2:OFF
+-DFREETYPE_HARFBUZZ:OFF
+-DFREETYPE_PNG:OFF
+-DFREETYPE_ZLIB:OFF
+-DWANT_ALSA:OFF
+-DWANT_AQUEUE:OFF
+-DWANT_FRAMEWORKS:OFF
+-DWANT_GLES3:OFF
+-DWANT_MP3:OFF
+-DWANT_MUDFLAP:OFF
+-DWANT_OPENSL:OFF
+-DWANT_OPUS:OFF
+-DWANT_OSS:OFF
+-DWANT_PHYSFS:OFF
+-DWANT_POPUP_EXAMPLES:OFF
+-DWANT_PYTHON_WRAPPER:OFF
+-DWANT_RELEASE_LOGGING:OFF
+-DWANT_SHADERS_D3D:OFF
+-DWANT_STATIC_RUNTIME:OFF
+-DWANT_TESTS:OFF
+-DWANT_TREMOR:OFF
+-DWANT_WAIT_EVENT_SLEEP:OFF
+-DSTRICT_WARN:OFF
+-DWANT_ACODEC_DYNAMIC_LOAD:OFF
+
+
+
+
+
+
+
+ALLEGRO_PROJECT_NAME             ALLEGRO
+ ALLEGRO_PROJECT_SUFFIX
+ ALLEGRO_SDL                      OFF
+ DOC_GIT_REF
+ FRAMEWORK_INSTALL_PREFIX         /Library/Frameworks
+ GL_BUILD_TYPE                    auto
+ LIB_SUFFIX
+ NO_FPU                           OFF
+ PREFER_STATIC_DEPS               OFF
+ SHARED                           ON
+ WANT_ALLOW_SSE                   ON
+ WANT_AUDIO                       ON
+ WANT_COLOR                       ON
+ WANT_DSOUND                      ON
+ WANT_FONT                        ON
+ WANT_IMAGE                       ON
+ WANT_NATIVE_DIALOG               ON
+ WANT_OPENGL                      ON
+ WANT_PRIMITIVES                  ON
+ WANT_PULSEAUDIO                  ON
+ WANT_SHADERS_GL                  ON
+ WANT_TTF                         ON
+ WANT_X11                         ON
+ WANT_X11_XF86VIDMODE             ON
+ WANT_X11_XINERAMA                ON
+ WANT_X11_XRANDR                  ON
+ WANT_X11_XSCREENSAVER            ON
+ X11_xcb_icccm_INCLUDE_PATH       X11_xcb_icccm_INCLUDE_PATH-NOTFOUND
+ X11_xcb_icccm_LIB                X11_xcb_icccm_LIB-NOTFOUND
+ XCURSOR_LIB                      /usr/lib/x86_64-linux-gnu/libXcursor.so
+ XINERAMA_LIB                     /usr/lib/x86_64-linux-gnu/libXinerama.so
+ XPM_LIB                          /usr/lib/x86_64-linux-gnu/libXpm.so
+ XRANDR_LIB                       /usr/lib/x86_64-linux-gnu/libXrandr.so
+
+
+
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DWANT_MONOLITH=ON -DWANT_D3D=OFF -DWANT_D3D9EX=OFF -DWANT_DEMO=OFF -DWANT_DLL_TLS=OFF -DWANT_DOCS=OFF -DWANT_DOCS_HTML=OFF -DWANT_DOCS_INFO=OFF -DWANT_DOCS_MAN=OFF -DWANT_DOCS_PDF=OFF -DWANT_DOCS_PDF_PAPER=OFF -DWANT_NATIVE_IMAGE_LOADER=OFF -DWANT_OPENAL=OFF -DWANT_VIDEO=OFF -DWANT_VORBIS=OFF -DWANT_IMAGE_FREEIMAGE=OFF -DWANT_IMAGE_JPG=OFF -DWANT_IMAGE_PNG=OFF -DWANT_IMAGE_WEBP=OFF -DWANT_LUAJIT=OFF -DWANT_MEMFILE=OFF -DWANT_MODAUDIO=OFF -DWANT_EMBED=OFF -DWANT_EXAMPLES=OFF -DWANT_FLAC=OFF  -DFREETYPE_BZIP2=OFF -DFREETYPE_HARFBUZZ=OFF -DFREETYPE_PNG=OFF -DFREETYPE_ZLIB=OFF -DWANT_ALSA=OFF -DWANT_AQUEUE=OFF -DWANT_FRAMEWORKS=OFF -DWANT_GLES3=OFF -DWANT_MP3=OFF -DWANT_MUDFLAP=OFF -DWANT_OPENSL=OFF -DWANT_OPUS=OFF -DWANT_OSS=OFF -DWANT_PHYSFS=OFF -DWANT_POPUP_EXAMPLES=OFF -DWANT_PYTHON_WRAPPER=OFF -DWANT_RELEASE_LOGGING=OFF -DWANT_SHADERS_D3D=OFF -DWANT_STATIC_RUNTIME=OFF -DWANT_TESTS=OFF -DWANT_TREMOR=OFF -DWANT_WAIT_EVENT_SLEEP=OFF -DSTRICT_WARN=OFF -DWANT_ACODEC_DYNAMIC_LOAD=OFF ..
+make
+sudo make install
+
+
+
+
+I got it to work:
+
+I could not get ccmake to work at all.
+If I run it first, it comes up blank and says 'empty cache'
+If I run 'cmake ..' then 'ccmake ..' I get all the options, but get the missing target errors.
+
+So I just use cmake and pass it all the options.
+
+Something else I was doing wrong:
+Do not run cmake more than once! I get the same missing target errors doing that.
+
+Funny thing, from my notes from a few years ago, I was using ccmake and it worked.
+
+Anyway I like passing the options to cmake better tham manually setting them with ccmake.
+
+Here is the final procedure than worked for me:
+
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DWANT_MONOLITH=ON -DWANT_D3D=OFF -DWANT_D3D9EX=OFF -DWANT_DEMO=OFF -DWANT_DLL_TLS=OFF -DWANT_DOCS=OFF -DWANT_DOCS_HTML=OFF -DWANT_DOCS_INFO=OFF -DWANT_DOCS_MAN=OFF -DWANT_DOCS_PDF=OFF -DWANT_DOCS_PDF_PAPER=OFF -DWANT_NATIVE_IMAGE_LOADER=OFF -DWANT_OPENAL=OFF -DWANT_VIDEO=OFF -DWANT_VORBIS=OFF -DWANT_IMAGE_FREEIMAGE=OFF -DWANT_IMAGE_JPG=OFF -DWANT_IMAGE_PNG=OFF -DWANT_IMAGE_WEBP=OFF -DWANT_LUAJIT=OFF -DWANT_MEMFILE=OFF -DWANT_MODAUDIO=OFF -DWANT_EMBED=OFF -DWANT_EXAMPLES=OFF -DWANT_FLAC=OFF  -DFREETYPE_BZIP2=OFF -DFREETYPE_HARFBUZZ=OFF -DFREETYPE_PNG=OFF -DFREETYPE_ZLIB=OFF -DWANT_ALSA=OFF -DWANT_AQUEUE=OFF -DWANT_FRAMEWORKS=OFF -DWANT_GLES3=OFF -DWANT_MP3=OFF -DWANT_MUDFLAP=OFF -DWANT_OPENSL=OFF -DWANT_OPUS=OFF -DWANT_OSS=OFF -DWANT_PHYSFS=OFF -DWANT_POPUP_EXAMPLES=OFF -DWANT_PYTHON_WRAPPER=OFF -DWANT_RELEASE_LOGGING=OFF -DWANT_SHADERS_D3D=OFF -DWANT_STATIC_RUNTIME=OFF -DWANT_TESTS=OFF -DWANT_TREMOR=OFF -DWANT_WAIT_EVENT_SLEEP=OFF -DSTRICT_WARN=OFF -DWANT_ACODEC_DYNAMIC_LOAD=OFF ..
+make
+sudo make install
+
+
+
+
+
+Then to get pm on the remote server:
+
+location: ~\dev\pm
+
+make changes to the project on the windows machine
+
+run the batch file:  win_copy_to_pmh.bat
+
+this uses pscp.exe in the same folder
+
+:: create directories
+ssh 96.45.13.253 "mkdir -p ~/dev/pm/src  ~/dev/pm/levels ~/dev/pm/data ~/dev/pm/bitmaps ~/dev/pm/o/src"
+
+set cc=pscp -pw zaiden
+set dest=m@96.45.13.253:dev/pm
+
+%cc% c:\pm\lin_compile %dest%
+%cc% c:\pm\lin_link %dest%
+%cc% c:\pm\lin_build_all %dest%
+%cc% c:\pm\op %dest%
+%cc% c:\pm\pm.cfg %dest%
+
+
+%cc% c:\pm\bitmaps\sprit001.pm  %dest%/bitmaps/sprit001.pm
+%cc% c:\pm\data\level_data.pm %dest%/data/level_data.pm
+
+%cc% -r c:\pm\src m@96.45.13.253:dev/pm
+%cc% -r c:\pm\levels\level0* m@96.45.13.253:dev/pm/levels
+
+
+then on the remote machine go to the pm dir
+
+chmod 777 ./op
+sudo ./op
+./lin_build_all
+
+
+back to building allegro...
+
+if I do not specify:
+-DCMAKE_INSTALL_PREFIX=/usr
+things get installed to:
+
+-- Installing: /usr/local/include/allegro5/opengl/GLext/wgl_ext_api.h
+-- Installing: /usr/local/include/allegro5/opengl/GLext/wgl_ext_list.h
+-- Installing: /usr/local/include/allegro5/platform/alplatf.h
+-- Installing: /usr/local/lib/liballegro_monolith.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_monolith.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_monolith.so
+-- Installing: /usr/local/lib/pkgconfig/allegro_monolith-5.pc
+-- Up-to-date: /usr/local/lib/liballegro_monolith.so.5.2.9
+-- Up-to-date: /usr/local/lib/liballegro_monolith.so.5.2
+-- Up-to-date: /usr/local/lib/liballegro_monolith.so
+-- Installing: /usr/local/lib/cmake/allegro/AllegroTargets.cmake
+
+
+when I do specify
+-DCMAKE_INSTALL_PREFIX=/usr
+things get installed to:
+
+-- Installing: /usr/include/allegro5/opengl/GLext/wgl_ext_api.h
+-- Installing: /usr/include/allegro5/opengl/GLext/wgl_ext_list.h
+-- Installing: /usr/include/allegro5/platform/alplatf.h
+-- Installing: /usr/lib/liballegro_monolith.so.5.2.9
+-- Up-to-date: /usr/lib/liballegro_monolith.so.5.2
+-- Up-to-date: /usr/lib/liballegro_monolith.so
+-- Installing: /usr/lib/pkgconfig/allegro_monolith-5.pc
+-- Up-to-date: /usr/lib/liballegro_monolith.so.5.2.9
+-- Up-to-date: /usr/lib/liballegro_monolith.so.5.2
+-- Up-to-date: /usr/lib/liballegro_monolith.so
+-- Old export file "/usr/lib/cmake/allegro/AllegroTargets.cmake" will be replaced.  Removing files [/usr/lib/cmake/allegro/AllegroTargets-relwithdebinfo.cmake].
+-- Installing: /usr/lib/cmake/allegro/AllegroTargets.cmake
+
+is the second one better? /usr instead of /usr/local ?
+
+
+now also can I use this server to build linux releases?
+
+If I do I will need to copy more things to the server...
+
+like for a full release...
+
+
+
+
+
+
+actually...why do I even care about limiting what I send to the linux machine?
+
+I dont care about the space...
+
+I want to have multiple options...
+
+one that does literally everything in the github repository
+this will actually be the easiest
+
+then one that does a release
+
+why don't I just do that initially to setup the directory structure and copy all the files...
+
+then I can have a simple script to update sources from local working version
+
+git clone https://github.com/mweiss001/purple_martians
+650M
+
+git clone --depth=1 https://github.com/mweiss001/purple_martians
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

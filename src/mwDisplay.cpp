@@ -20,6 +20,9 @@
 
 #include "mwVisualLevel.h"
 
+#include "mwMain.h"
+
+
 
 mwDisplay mDisplay;
 
@@ -182,30 +185,42 @@ int mwDisplay::init_display(void)
    scale_factor_mlt = 0.01;
 
    int num_adapters = al_get_num_video_adapters();
-   // printf("%d adapters found...\n", num_adapters);
+   if (num_adapters == 0)
+   {
+      printf("No Display Adapters Found!\n");
+      no_display = 1;
+      return 0;
+   }
 
-//   ALLEGRO_MONITOR_INFO info;
-//   int i, j;
-//   for (i = 0; i < num_adapters; i++)
-//   {
-//      al_get_monitor_info(i, &info);
-//      printf("Adapter %d: ", i);
-//      int dpi = al_get_monitor_dpi(i);
-//      printf("(%d, %d) - (%d, %d) - dpi: %d\n", info.x1, info.y1, info.x2, info.y2, dpi);
-//      al_set_new_display_adapter(i);
-//      printf("   Available fullscreen display modes:\n");
-//      for (j = 0; j < al_get_num_display_modes(); j++)
-//      {
-//         ALLEGRO_DISPLAY_MODE mode;
-//         al_get_display_mode(j, &mode);
-//         printf("   Mode %3d: %4d x %4d, %d Hz\n", j, mode.width, mode.height, mode.refresh_rate);
-//      }
-//   }
+   if (mMain.headless_server)
+   {
+//      printf("No Display Adapters Found!\n");
+      no_display = 1;
+      return 0;
+   }
+
+
+
 
 
    if (display_adapter_num >=  num_adapters) display_adapter_num = 0;
    al_set_new_display_adapter(display_adapter_num);
 
+   printf("%d adapters found...using:%d\n", num_adapters, display_adapter_num);
+
+   ALLEGRO_MONITOR_INFO aminfo;
+   al_get_monitor_info(display_adapter_num, &aminfo);
+   desktop_width  = aminfo.x2 - aminfo.x1;
+   desktop_height = aminfo.y2 - aminfo.y1;
+   printf("Desktop Resolution: %dx%d\n", desktop_width, desktop_height);
+
+   mDisplay.disp_x_full = 0; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
+   mDisplay.disp_y_full = 0;
+   mDisplay.disp_w_full = desktop_width;
+   mDisplay.disp_h_full = desktop_height;
+
+
+   //show_display_adapters();
    //show_fullscreen_modes();
 
    al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, ALLEGRO_REQUIRE);
@@ -613,26 +628,6 @@ void mwDisplay::show_var_sizes(void)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void mwDisplay::show_disp_values(int fs, int disp, int curr, int wind, int full, char *head)
 {
    printf("\n%s\n", head);
@@ -681,20 +676,16 @@ void mwDisplay::show_display_adapters(void)
 void mwDisplay::set_window_title(void)
 {
    char msg[1024];
-
-//   int sw = SCREEN_W;
-//   int sh = SCREEN_H;
-
+   //int SW = SCREEN_W;
+   //int SH = SCREEN_H;
    int sw = disp_w_curr;
    int sh = disp_h_curr;
-
 
 //   sprintf(msg, "Purple Martians");
 //   sprintf(msg, "Purple Martians %s", mLoop.pm_version_string);
 //   sprintf(msg, "Purple Martians %s   [%d x %d]", mLoop.pm_version_string, sw, sh);
    sprintf(msg, "Purple Martians [%d x %d]", sw, sh);
-//   sprintf(msg, "%d x %d", mDisplay.SCREEN_W, mDisplay.SCREEN_H);
-//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", mLoop.pm_version_string, mDisplay.SCREEN_W, mDisplay.SCREEN_H,  disp_w_curr, disp_h_curr, display_transform_double);
+//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", mLoop.pm_version_string, SW, SH, sw, sh, display_transform_double);
    al_set_window_title(display, msg);
 }
 

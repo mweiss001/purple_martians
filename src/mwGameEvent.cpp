@@ -5,13 +5,15 @@
 #include "mwBottomMessage.h"
 #include "mwSound.h"
 #include "mwLoop.h"
+#include "mwDisplay.h"
+
 
 
 mwGameEvent mGameEvent;
 
 void mwGameEvent::add(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
-   if (!mLoop.ff_state)
+   if ((!mLoop.ff_state) && (!mDisplay.no_display))
    {
       if (ev == 11) // tally raw damage
       {

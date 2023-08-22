@@ -126,18 +126,21 @@ void mwBottomMessage::create_bitmaps(void)
 
 void mwBottomMessage::initialize(void)
 {
-   for (int c=0; c<BMSG_MAX_LINES; c++)
+   if (!mDisplay.no_display)
    {
-      al_set_target_bitmap(bmsg_bmp[c]);
-      al_clear_to_color(al_map_rgba(0,0,0,0));
+      for (int c=0; c<BMSG_MAX_LINES; c++)
+      {
+         al_set_target_bitmap(bmsg_bmp[c]);
+         al_clear_to_color(al_map_rgba(0,0,0,0));
+      }
+      bmsg_index = 0;
+      bottom_msg_timer = 0;
+
+      test_mode_list_created = 0;
+
+      for (int i=0; i<10; i++)
+         game_event_retrigger_holdoff[i] = 0;
    }
-   bmsg_index = 0;
-   bottom_msg_timer = 0;
-
-   test_mode_list_created = 0;
-
-   for (int i=0; i<10; i++)
-      game_event_retrigger_holdoff[i] = 0;
 }
 
 
