@@ -30121,19 +30121,181 @@ server stays on level...
 
 
 
-
-
-
-
-
-
-
-
-
 how do I make adjustments to netgame?
 
 
 stdf freq?
+
+
+
+Tests of netgame on a real internet connection...
+
+
+
+late cdats...
+client have a bad habit of keys getting stuck
+
+late cdats means that client made a move that was not received in time on the server..
+
+state freq on server 2-3 sometimes even 4
+
+
+it is adjusted every second like this:
+
+            if (mNetgame.ima_server)
+            {
+               // auto adjust server state frequency
+               if (mPlayer.loc[0].server_state_freq_mode == 1) // 0 = manual, 1 = auto
+               {
+                  int mcp = mTally[4].get_max()*1000;
+                  if (mcp > 100) mcp = 100;
+                  mPlayer.loc[0].server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
+               }
+
+
+
+what is the only other adjustment?
+
+how far the client lag behind server....
+
+what happens with late cdat causing bad keypresses
+
+in player input comp_move and old_comp_move are local
+
+comp_move needs to be, can't have the server changing that
+
+could I also set old comp_move on server and sync it back?
+
+
+or another approach, how to limit late cdats
+
+both should be looked at:
+
+
+
+
+on client, if I manually change sync offset....
+default: -10
+
+0 to +10 gets me more late cdats
+
+more negative gets me less late cdats
+
+where is this set when done automtically?
+
+it is based on ping
+
+in client fast packet loop
+if (mPlayer.loc[p].client_chase_offset_mode) mPlayer.loc[p].client_chase_offset = - mPlayer.loc[p].ping_avg + mPlayer.loc[p].client_chase_offset_auto_offset;
+
+
+client_chase_offset_auto_offset is always set to -10 unless manually adjusted
+
+maybe I should set the default value to -20 and see if that helps
+
+try it...
+it does not seem to do what I want in auto mode
+try manual -20
+
+I need more documentation about what netgame control do...
+
+
+what is the effect and consequneces of adjusting server state frequency?
+
+if I go too low I get base resets
+1 is every frame and is too much
+
+
+
+
+if I go too high the corrections will be bigger
+
+
+
+I am thinking of showing a very busy graph of a netgame
+
+from the server's point of view
+
+each client and their ping and sync and late cdats
+
+stdf and base resets
+
+I could have the headless server send status data in a packet to another machine that would do nothing but display it
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1469,7 +1469,7 @@ void mwPlayer::init_player(int p, int t)
       loc[p].made_active_holdoff = 0;
 
       loc[p].client_chase_offset = 0.0;
-      loc[p].client_chase_offset_auto_offset = -0.01;
+      loc[p].client_chase_offset_auto_offset = -0.02;
       loc[p].client_chase_offset_mode = 1;
 
       loc[p].xcor_reset_frame = 0;
