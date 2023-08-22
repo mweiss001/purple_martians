@@ -23,6 +23,17 @@ should I make the padding an option so I can load from old versions?
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+
+look at making screen double do values other than integers like 1.5
+
+
+make "Rollin" play over final cutscene
+
+
+
+
+
+
 how can I setup headless server easily:
 
 need commandline option to:

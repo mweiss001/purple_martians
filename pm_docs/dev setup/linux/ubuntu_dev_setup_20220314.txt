@@ -1859,6 +1859,96 @@ git clone https://github.com/mweiss001/purple_martians
 git clone --depth=1 https://github.com/mweiss001/purple_martians
 
 
+OK lets assume that any changes to code will be made on one computer...
+
+then I will send that to the linux machine to build the linux version or to deploy the headless server
+
+so I want a script that can copy all that is needed to the linux machine....
+
+why not everything, it would be so much easier?
+
+
+scp to copy everything is very slow
+if I go recursive on the main dir the hidden git thing gets copied too...
+
+so what is the easiest method?
+
+do the git clone the first time, but do a shallow one
+then all the directories will be there
+
+then after that if I just have a simple update to the sources, just copy them...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+IF [%1]==[headless] (
+set used=1
+
+set cc=pscp -pw zaiden
+
+
+%cc% c:\pm\lin_compile %scp_dest%
+%cc% c:\pm\lin_link %scp_dest%
+%cc% c:\pm\lin_build_all %scp_dest%
+%cc% c:\pm\op %scp_dest%
+%cc% c:\pm\pm.cfg %scp_dest%
+
+
+%cc% c:\pm\bitmaps\sprit001.pm  %dest%/bitmaps/sprit001.pm
+%cc% c:\pm\data\level_data.pm %dest%/data/level_data.pm
+
+%cc% -r c:\pm\src m@96.45.13.253:dev/pm
+%cc% -r c:\pm\levels\level0* m@96.45.13.253:dev/pm/levels
+
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
