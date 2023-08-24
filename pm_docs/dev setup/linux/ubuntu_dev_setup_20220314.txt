@@ -1880,31 +1880,6 @@ then after that if I just have a simple update to the sources, just copy them...
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 IF [%1]==[headless] (
 set used=1
 
@@ -1925,6 +1900,254 @@ set cc=pscp -pw zaiden
 %cc% -r c:\pm\levels\level0* m@96.45.13.253:dev/pm/levels
 
 )
+
+
+
+
+I am getting bogged down with the complexity of the remote ubuntu server
+
+use cases:
+
+1 - simplest headless server (no compilebability)
+
+- copy only what is needed from sources with scp
+or
+- git clone
+
+do I have the latest linux binary on the dev machine or in git?
+
+2 - 
+
+
+
+--------------------------------------------------------------
+--------------------------------------------------------------
+
+much simpler...
+
+all cases...
+
+full allegro and git clone pm
+
+make a script to do it
+
+they will live in: ~/home/dev
+~/home/dev/allegro5
+~/home/dev/purple_martians
+
+all cases:
+regular version
+headless server
+dev machine with remote compilablility
+dev machine with local compilablility
+
+
+
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+
+sudo apt install gcc
+                 git \
+                 cmake \
+				 build-essential \
+                 libfreetype6-dev \
+                 libgl1-mesa-dev \
+                 libglu1-mesa-dev \
+                 libgtk-3-dev \
+                 libxext-dev \
+                 libxxf86vm-dev \
+                 libxrandr-dev \
+                 libxinerama-dev \
+                 libxpm-dev \
+
+# remove and recreate dev directory
+cd ~
+rm -rf dev
+mkdir dev
+cd dev
+
+# get and compile allegro
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DWANT_MONOLITH=ON -DWANT_D3D=OFF -DWANT_D3D9EX=OFF -DWANT_DEMO=OFF -DWANT_DLL_TLS=OFF -DWANT_DOCS=OFF -DWANT_DOCS_HTML=OFF -DWANT_DOCS_INFO=OFF -DWANT_DOCS_MAN=OFF -DWANT_DOCS_PDF=OFF -DWANT_DOCS_PDF_PAPER=OFF -DWANT_NATIVE_IMAGE_LOADER=OFF -DWANT_OPENAL=OFF -DWANT_VIDEO=OFF -DWANT_VORBIS=OFF -DWANT_IMAGE_FREEIMAGE=OFF -DWANT_IMAGE_JPG=OFF -DWANT_IMAGE_PNG=OFF -DWANT_IMAGE_WEBP=OFF -DWANT_LUAJIT=OFF -DWANT_MEMFILE=OFF -DWANT_MODAUDIO=OFF -DWANT_EMBED=OFF -DWANT_EXAMPLES=OFF -DWANT_FLAC=OFF  -DFREETYPE_BZIP2=OFF -DFREETYPE_HARFBUZZ=OFF -DFREETYPE_PNG=OFF -DFREETYPE_ZLIB=OFF -DWANT_ALSA=OFF -DWANT_AQUEUE=OFF -DWANT_FRAMEWORKS=OFF -DWANT_GLES3=OFF -DWANT_MP3=OFF -DWANT_MUDFLAP=OFF -DWANT_OPENSL=OFF -DWANT_OPUS=OFF -DWANT_OSS=OFF -DWANT_PHYSFS=OFF -DWANT_POPUP_EXAMPLES=OFF -DWANT_PYTHON_WRAPPER=OFF -DWANT_RELEASE_LOGGING=OFF -DWANT_SHADERS_D3D=OFF -DWANT_STATIC_RUNTIME=OFF -DWANT_TESTS=OFF -DWANT_TREMOR=OFF -DWANT_WAIT_EVENT_SLEEP=OFF -DSTRICT_WARN=OFF -DWANT_ACODEC_DYNAMIC_LOAD=OFF ..
+make
+sudo make install
+
+
+# get pm
+cd ~/dev
+git clone --depth=1 https://github.com/mweiss001/purple_martians
+cd purple_martians
+
+# fix permissions
+chmod 777 ./op
+sudo ./op
+
+# compile and install libnet
+cd libnet
+make clean
+make lib
+sudo make install
+
+# build puple martians
+cd ~/dev/purple_martians
+
+# make dir for .o files
+mkdir -p o/src
+
+./lin_build_all
+./lin_make_release
+
+
+
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+
+mow make a windows batch file to run 
+./lin_build_all
+./lin_make_release
+and copy the tar.gz to windows
+works...
+
+
+
+
+32M comp
+56M uncomp
+bin 1.4M
+
+
+win version:
+35M comp
+67M uncomp
+exe 15M
+
+common:
+
+bitmaps 4M
+level_icons and data: 23M
+sound:32M 
+
+do I really care about the size??
+
+
+
+so now to make my headless server I can just use a release, or git clone...
+but I really should have commandline options to unlock all levels...and reset all level data...
+
+mostly I think I will tweak on windows then send updates to linux version
+
+so I need an scp command to send sources, or levels, or....
+
+send new sources and recompile
+
+can I make my compile script smart enough to only do sources that have changed?
+
+I could but that is extra work
+
+I am getting confused with all these things...
+
+It should be simpler dammit! As simple as possible but no simpler
+
+
+
+
+
+
+I have a procdure now...
+
+
+make a file describing how to setup the project on linux
+this will be common to all
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
