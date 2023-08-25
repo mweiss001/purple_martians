@@ -1,11 +1,42 @@
+
+# create object directory 
 mkdir -p ./o/src
 
+# compiler executable and options
 gc='g++ -Wall '
 
+# iterate all *.cpp in source directory
 for filename in src/*.cpp; do
-el="$gc"' -c '"$filename"' -o o/src/'"$(basename "$filename" .cpp)"'.o' 
+
+# source filename with path and extension
+fnc=$filename
+
+# base filename with no path or extension
+fnb="$(basename "$filename" .cpp)"
+
+# object filename with path and extension
+fno=o/src/$fnb'.o' 
+
+
+
+#echo fnc:$fnc fnb:$fnb fno:$fno
+
+
+
+if [ "$fno" -nt "$fnc" ]
+then
+   echo $fnb is up to date
+fi
+
+
+if [ "$fnc" -nt "$fno" ]
+then
+
+el=$gc' -c '$fnc' -o '$fno
 echo $el
 $el
+
+fi
 
 done
 

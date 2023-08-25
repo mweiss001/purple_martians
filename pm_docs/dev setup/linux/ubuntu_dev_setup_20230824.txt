@@ -6,7 +6,7 @@ Will work for ubuntu desktop as well as ubuntu server.
 
 Start with ubuntu 22.04 desktop or server install.
 
-Do the most minimal install, but make sure ssh is installed.
+Do bare bones minimal install, make sure openssh is installed.
 
 As soon as the install and updates are done, you can do the rest over ssh.
 
@@ -58,9 +58,6 @@ sudo make install
 # build puple martians
 cd ~/dev/purple_martians
 
-# make dir for .o files
-mkdir -p o/src
-
 ./lin_build_all
 
 
@@ -84,11 +81,72 @@ Install code::blocks and open the project (only in desktop ubuntu)
 ------------------------------------------------------------------
 sudo apt install codeblocks
 
+make a desktop shortcut: 
+ln -s ~/dev/purple_martians ~/Desktop/pm_folder_shortcut
+
 
 
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
-Things you can do from windows dev machine batch scipts
+Things you can do from windows dev machine batch script: win_copy_to_pmh.bat
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+
+
+Erase and reclone pm (shallow) from git
+---------------------------------------
+win_copy_to_pmh.bat git_reclone
+
+
+
+Copy things from windows dev machine to linux server
+----------------------------------------------------
+
+these all use scp
+
+win_copy_to_pmh.bat copy_all
+(uses scp recursive, also copies huge hidden .git dir...)
+
+win_copy_to_pmh.bat copy_src
+win_copy_to_pmh.bat copy_levels
+win_copy_to_pmh.bat copy_data
+win_copy_to_pmh.bat copy_cfg
+
+
+Compile and Release
+--------------------------------------------
+
+win_copy_to_pmh.bat lin_build
+(compile and link)
+
+win_copy_to_pmh.bat lin_release
+(collect all files needed for release into dir, then compress and copy to windows machine)
+
+win_copy_to_pmh.bat lin_build_and_release
+(do both)
+
+
+
+
+
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+To make a linux release:
+
+Edit the version number manually in lin_make_release
+
+Make sure the sources on the linux machine are up to date.
+
+Its probabaly best to also make sure they are the version committed to git.
+
+
+win_copy_to_pmh.bat git_reclone
+win_copy_to_pmh.bat lin_build_and_release
+
+then upload the targz file to github as a release
+
+very easy....
+
 
 
 

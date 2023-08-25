@@ -2045,23 +2045,20 @@ send new sources and recompile
 
 can I make my compile script smart enough to only do sources that have changed?
 
+
+C:\pm>pscp -pw zaiden C:\pm\lin_compile m@96.45.13.253:dev/purple_martians/lin_compile
+
+
 I could but that is extra work
 
 I am getting confused with all these things...
 
 It should be simpler dammit! As simple as possible but no simpler
 
-
-
-
-
-
 I have a procdure now...
-
 
 make a file describing how to setup the project on linux
 this will be common to all
-
 
 
 
