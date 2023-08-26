@@ -89,7 +89,90 @@ it made the initial join take longer
 
 I want to move stdf freq from loc to netgame, just like cco
 done...
-also add actual value to config
+also add actual value to config and allow to change in settings...done
+
+bump ver and push
+
+
+
+
+I want to see the client sync graph...figure it out...
+
+      if (log_lines_int[i][0] == 30) // stak line
+      {
+         int p = log_lines_int[i][1];
+
+
+
+
+   sprintf(msg, "%s %s\n", tmsg1, tmsg2);
+   if (mLog.LOG_NET_server_rx_stak) mLog.add_log_entry2(33, p, msg);
+
+
+change 30 to 33
+
+also needs 10? for player active
+
+x_axis_draw_gridlines_and_labels(0);
+
+
+fixed a bug in graph...
+
+void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
+
+
+this while would block, so i added a guard to not do it if labels are not drawn
+
+         // find out if major gridline labels will touch each other....
+         if (x_axis_grid_label_draw_on)
+         {
+            int max_space_between_labels = - 9999;
+            while (max_space_between_labels < 10)
+            {
+
+
+Now, here is how client_sync_graph works:
+
+- only can run on server
+- need to have LOG_NET_server_rx_stak logging enabled
+- (optional) need to have LOG_NET enabled if you want to see when clients became active
+
+
+Fixed all the help entries related to logs...
+
+
+now moving on:
+
+I was wanting to see how the slow chase happens with larger stdf_freq
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

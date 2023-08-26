@@ -303,6 +303,7 @@ void mwLog::run_client_server_sync_graph(int num_lines)
    if (load_client_server_sync_graph(num_lines))
    {
 
+
       int c0 = 11;
       mGraph[0].set_series_legend_type(1);
       mGraph[0].series_legend_draw_on = 0;
@@ -369,7 +370,6 @@ void mwLog::run_client_server_sync_graph(int num_lines)
          al_set_target_backbuffer(mDisplay.display);
          al_clear_to_color(al_map_rgb(0, 0, 0));
 
-
          // 2 draggable resize bars!!
          int sx1 = mGraph[0].plot_x1;
          int sx2 = mDisplay.SCREEN_W;
@@ -408,6 +408,9 @@ void mwLog::run_client_server_sync_graph(int num_lines)
             }
          }
 
+
+
+
          if ((mInput.mouse_y >= s1y1) && (mInput.mouse_y <= s1y2) && (mInput.mouse_x > sx1) && (mInput.mouse_x < sx2))
          {
             al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N);
@@ -436,6 +439,7 @@ void mwLog::run_client_server_sync_graph(int num_lines)
                al_clear_to_color(al_map_rgb(0, 0, 0));
             }
          }
+
 
          mGraph[0].set_graph_pos(0, 0,             mDisplay.SCREEN_W, split_pos0-sg);
          mGraph[2].set_graph_pos(0, split_pos0+sg, mDisplay.SCREEN_W, split_pos1-sg);
@@ -491,12 +495,15 @@ int mwLog::load_client_server_sync_graph(int num_lines)
          char * ir = strstr(tll, ict);
          if ((ar) && (!ir))
          {
+            // printf("p:%d inactive:%d active:%d", p, fn-1, fn);
             mGraph[0].add_data_point(p, (double) fn-1, 0); // inactive
             mGraph[0].add_data_point(p, (double) fn, 1); // active
             pa[p] = 1;
          }
       }
-      if (log_lines_int[i][0] == 30) // stak line
+
+
+      if (log_lines_int[i][0] == 33) // stak line
       {
          int p = log_lines_int[i][1];
          int fn = log_lines_int[i][2];
@@ -511,11 +518,12 @@ int mwLog::load_client_server_sync_graph(int num_lines)
          mGraph[2].add_data_point(p, (double) fn, fc);  // fps chase
       }
    }
+
    int last_fn = log_lines_int[num_lines-1][2];
    for (int p=0; p<8; p++)
       mGraph[0].add_data_point(p, (double) last_fn, pa[p]); // active
 
-   if ((mGraph[0].calc_data_range()) && (mGraph[1].calc_data_range())&& (mGraph[2].calc_data_range())) return 1;
+   if ((mGraph[0].calc_data_range()) && (mGraph[1].calc_data_range()) && (mGraph[2].calc_data_range())) return 1;
    return 0;
 }
 
