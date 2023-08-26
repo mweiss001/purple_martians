@@ -1462,14 +1462,8 @@ void mwPlayer::init_player(int p, int t)
       loc[p].server_last_stak_rx_frame_num = 0;
       loc[p].client_last_stdf_rx_frame_num = 0;
 
-      loc[p].server_state_freq = 2;
-
       loc[p].cmp_dif_size = 0;
       loc[p].made_active_holdoff = 0;
-
-      loc[p].client_chase_offset = 0.0;
-      loc[p].client_chase_offset_auto_offset = -0.02;
-      loc[p].client_chase_offset_mode = 1;
 
       loc[p].xcor_reset_frame = 0;
       loc[p].xcor_max = 0;

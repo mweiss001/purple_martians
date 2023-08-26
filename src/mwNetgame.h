@@ -53,6 +53,15 @@ class mwNetgame
    int TCP = 0;
    int zlib_cmp = 7;
 
+   double client_chase_offset = 0.0;
+   double client_chase_offset_auto_offset = -0.02;
+   int client_chase_offset_mode = 1; // 0 = manual, 1 = auto
+
+   // server stdf frequency
+   int server_state_freq = 2;
+   int server_state_freq_mode = 1; // 0 = manual, 1 = auto
+
+
    // server's copies of client states
    char srv_client_state[8][2][STATE_SIZE];
    int srv_client_state_frame_num[8][2];

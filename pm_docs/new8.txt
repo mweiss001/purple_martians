@@ -30322,6 +30322,63 @@ I have made it work...but there is no option to load 1/2 from older bitmaps
 
 
 
+client starting level with locked gate (locked on client but unlocked on server)
+client borks, but rejoining brings him back to that level...
+
+could I make clients always able enter any level?
+
+I could make all levels unlocked for netgame
+
+levels locked only affects gate entry
+
+ignore when in netgame?
+
+yes, do that...
+
+ignore locked state when enetring gate in netgame mode....
+
+fixed
+
+
+client disappears after first level...
+actually...when client quits...they go back to overworld, but not in a netgame anymore and invisible...
+see if you can reproduce this:
+
+headless server in story mode
+join from menu then quit...back to menu...good
+join from command line and quit...exit prog..good
+
+headless server in story mode
+join on overworld
+start level from gate
+then client quit
+back to overworld and bad player
+
+
+I need to trace it through the states
+
+single player exit takes you back to overworld
+
+   //---------------------------------------
+   // 25 - client exit
+   //---------------------------------------
+   if (state[1] == 25) // client exit
+   {
+      mNetgame.client_exit();
+
+      quit_action = 1; // to prevent quitting clients from automatically going to overworld
+
+      state[0] = 1;
+   }
+
+this fixed it...
+
+
+
+
+
+
+
 
 
 

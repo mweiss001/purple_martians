@@ -342,7 +342,7 @@ void mwNetgame::server_exit(void)
 void mwNetgame::server_rewind(void)
 {
    char msg[1024];
-   int s1 = mPlayer.loc[0].server_state_freq;
+   int s1 = server_state_freq;
 
    if (mLoop.frame_num >= srv_client_state_frame_num[0][1] + s1)    // is it time to create a new state?
    {

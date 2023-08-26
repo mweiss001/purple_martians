@@ -104,10 +104,8 @@ void mwConfig::save(void)
       asci(NETWORK, mShot.deathmatch_shots)
       asci(NETWORK, mShot.deathmatch_shot_damage)
       asci(NETWORK, mShot.suicide_shots)
-      asci(NETWORK, mPlayer.loc[0].server_state_freq_mode)
-
-
-
+      asci(NETWORK, mNetgame.server_state_freq_mode)
+      asci(NETWORK, mNetgame.server_state_freq)
 
       asci(LOGGING, mLog.LOG_NET)
       asci(LOGGING, mLog.LOG_NET_join)
@@ -368,7 +366,10 @@ void mwConfig::load(void)
    agci(NETWORK, mShot.deathmatch_shot_damage, 5)
    agci(NETWORK, mShot.suicide_shots, 0)
 
-   agci(NETWORK, mPlayer.loc[0].server_state_freq_mode, 1)
+   agci(NETWORK, mNetgame.server_state_freq_mode, 1)
+   agci(NETWORK, mNetgame.server_state_freq, 2)
+
+
 
    agci(LOGGING, mLog.LOG_NET, 0)
    agci(LOGGING, mLog.LOG_NET_player_array, 0)

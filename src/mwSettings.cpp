@@ -936,8 +936,21 @@ void mwSettings::settings_pages(int set_page)
             ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
             ya-=2;
-            mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mPlayer.loc[0].server_state_freq_mode, "State Frequency Auto Adjust", 15, 15);
+            mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mNetgame.server_state_freq_mode, "State Frequency Auto Adjust", 15, 15);
             ya-=4;
+
+
+            if (!mNetgame.server_state_freq_mode)
+            {
+               ya+=6;
+               mWidget.slideri(xa+20, ya, xb-20, bts,  0,0,0,0,  0,fc,15,15,  0,0,1,0, mNetgame.server_state_freq, 10, 1, 1, "State Frequency:");
+               ya+=2;
+
+            }
+
+
+
+
 
             al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
             al_draw_line(cfp_x2-4, frame_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[fc], 1 );

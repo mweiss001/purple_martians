@@ -395,9 +395,9 @@ void mwLoop::proc_program_state(void)
   // printf("proc ps ps:%d nps:%d \n", state[1], state[0]);
    char msg[1024];
 
-   int debug_print_state_names = 0;
-   int debug_print_state_changes = 0;
-   int debug_print_more = 0;
+   int debug_print_state_names = 1;
+   int debug_print_state_changes = 1;
+   int debug_print_more = 1;
 
    // ----------------------------------------------------------
    // handle all the changes from one state to another
@@ -474,6 +474,9 @@ void mwLoop::proc_program_state(void)
    if (state[1] == 25) // client exit
    {
       mNetgame.client_exit();
+
+      quit_action = 1; // to prevent quitting clients from automatically going to overworld
+
       state[0] = 1;
    }
 
@@ -1459,11 +1462,11 @@ void mwLoop::main_loop(void)
             if (mNetgame.ima_server)
             {
                // auto adjust server state frequency
-               if (mPlayer.loc[0].server_state_freq_mode == 1) // 0 = manual, 1 = auto
+               if (mNetgame.server_state_freq_mode == 1) // 0 = manual, 1 = auto
                {
                   int mcp = mTally[4].get_max()*1000;
                   if (mcp > 100) mcp = 100;
-                  mPlayer.loc[0].server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
+                  mNetgame.server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
                }
                // tally late cdats and game move dsync
                for (int p=1; p<NUM_PLAYERS; p++)
