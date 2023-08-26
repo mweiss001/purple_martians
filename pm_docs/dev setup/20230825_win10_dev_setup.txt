@@ -1,0 +1,148 @@
+
+
+
+------------------------------------------------
+- Install git and get project source
+------------------------------------------------
+
+download the latest version of git from : https://git-scm.com/download/win
+
+Git-2.42.0-64-bit.exe
+
+installed to "C:\Program Files\Git"
+
+
+
+
+left checked:
+Windows Explorer Integration
+Git Bash Here
+Git GUI Here
+
+Git LFS
+associate .git config files with default text editor
+associate .sh files to be run with Bash
+
+all others unchecked
+
+default text editor: notepad++
+
+
+let git decide (does not affect existing repos)
+
+Use Git from command line and also 3rd party software
+
+use bundled OpenSSH (not windows shit)
+
+https transport backend openssl not win shit
+
+checkout as is commit as is
+
+use MinTTY
+
+behaviour of git pull: default
+
+credential helper: git (default) -- chose none
+cache yes
+sym links no
+no experimental
+
+finally it installed....
+
+
+start git gui
+choose clone repos
+set source to: https://github.com/mweiss001/purple_martians
+target c:/pm
+
+looks like it worked...
+
+
+
+
+--------------------------------------
+- Code::Blocks with MinGW included
+--------------------------------------
+
+got "codeblocks-20.03mingw-setup.exe"
+that comes with MinGW-W64 project (version 8.1.0, 32/64 bit, SEH)
+
+installed with all defaults:
+
+C:\Program Files\CodeBlocks
+C:\Program Files\CodeBlocks\MinGW
+
+
+
+--------------------------------------
+- Newer version of MinGW
+--------------------------------------
+
+mingw downloads
+
+https://github.com/niXman/mingw-builds-binaries/releases
+
+x86_64-12.1.0-release-posix-seh-rt_v10-rev3.7z
+
+extract and rename folder to MinGW (from mingw64) 
+
+in C:\Program Files\CodeBlocks\
+
+rename existing 'MinGW' to 'old_MinGW' (or delete)
+
+copy new one to there...
+
+
+
+-------------------------------
+- libnet
+-------------------------------
+use my precompiled versions in folder libnet_win with my sources 
+
+copy libnet.a to C:\Program Files\CodeBlocks\MinGW\lib
+copy libnet.h to C:\Program Files\CodeBlocks\MinGW\include
+
+
+
+
+
+------------------------------
+- allegro
+------------------------------
+
+https://github.com/liballeg/allegro5/releases
+
+downloaded binaries:
+allegro-x86_64-w64-mingw32-gcc-12.1.0-posix-seh-static-5.2.8.0.zip
+
+copied bin              to : C:\Program Files\CodeBlocks\MinGW\bin
+copied lib              to : C:\Program Files\CodeBlocks\MinGW\lib
+copied include\allegro5 to : C:\Program Files\CodeBlocks\MinGW\include\allegro5
+
+
+https://github.com/liballeg/allegro_winpkg/releases
+
+downloaded dependencies:
+allegro_deps-x86_64-w64-mingw32-gcc-12.1.0-posix-seh-1.13.0.zip
+
+manually copy all files from allegro_deps\lib to C:\Program Files\CodeBlocks\MinGW\lib
+- libzlib.a
+- libdumb.a
+- libfreetype.a
+- libpng16.a
+...etc
+
+
+------------------------------
+- code::blocks
+------------------------------
+
+open project file pm.cbp
+
+set target win_static
+
+build and run !!!
+
+
+
+

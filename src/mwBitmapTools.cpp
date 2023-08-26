@@ -466,6 +466,7 @@ void mwBitmapTools::redraw_grid(int x, int y, int current_selection) // draw 32x
 
 
 
+
 void mwBitmapTools::draw_flag_text(int x, int y, int ys, int col, int last_flag_show)
 {
    al_draw_text(mFont.pr8, mColor.pc[col], x, y, 0, "SOLID_PLAYER");     y+=ys;
