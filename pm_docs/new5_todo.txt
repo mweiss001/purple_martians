@@ -2,56 +2,66 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-
 client starting level with locked gate (locked on client but unlocked on server)
 client borks, but rejoining brings him back to that level...
 
 client disappears after first level...
 actually...when client quits...they go back to overworld, but not in a netgame anymore and invisible...
 server stays on level...
-
-Since I padded my tilemaps I have broken copy tiles in level editor....
-Do I even care?  A bit..
-should I make the padding an option so I can load from old versions?
-
-
-
+see if you can reproduce this
 
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+where can I do one place to store version?
+
+so it will show in the compiled program
+and also be used for lin and win build scripts
+
+I could just change it in three places...code, win and lin make_release..
+bump all now to 7.24.0826.1
+done...
+
+
+
+
 
 figure out netgame
 
+I need more documetation...
 
 
-look at making screen double do values other than integers like 1.5
+add more at the end of client timing sync??
 
-make "Rollin" play over final cutscene
-time:93s
-
-how long for all children to get in rocket?
-30s
-how long for rocket to fly
+there is some better descriptions of both in ping...
 
 
+this is what I have set right now:
+
+loc[p].client_chase_offset_auto_offset = -0.02;
+
+mPlayer.loc[0].server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
 
 
-
-
-
-
-
+how am I going to test, and what am I going to vary?
 
 
 
-make new dev setup instructions to document how to do new gcc with new allegro
-it should be very similar to the previous one...
+what is up with the client sync adjust?
 
-make a folder that has all code blocks, gcc, allegro and libraries, you know, almost portable....
-or maybe close like: install code blocks, then copy this folder...
+It does not work like I want it to...
+
+auto mode you can still adjust the offset
+manual mode you cannot adjust anything??
+
+
+
+
+
+
+
 
 
 
@@ -74,13 +84,9 @@ maybe that is not so bad...
 
 
 
-
 --------------------------------------------------------
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
-
-
-Move test levels to > 300
 
 
 --------------------------------------------------------
@@ -106,8 +112,6 @@ also fix history on index.html page
 maybe have a nice short history and then an in depth one
 
 
-
-
 remove log file viewer and graphs from help screens?? why?
 
 somehow describe snap...
@@ -115,9 +119,6 @@ somehow describe snap...
 hiders
 
 npc
-
-
-
 
 
 
@@ -280,6 +281,18 @@ VinePod
 -------------------------------
 -- Random thoughts and ideas --
 -------------------------------
+
+
+look at making screen double do values other than integers like 1.5
+
+make "Rollin" play over final cutscene
+time:93s
+
+how long for all children to get in rocket?
+30s
+how long for rocket to fly
+
+
 
 
 

@@ -91,7 +91,7 @@ struct ploc // not synced between server and client
    int damage_type;
 
    int up_key, down_key, left_key, right_key, jump_key, fire_key, menu_key;
-   int comp_move, old_comp_move;
+   int comp_move;
 
    int fake_keypress_mode;
 

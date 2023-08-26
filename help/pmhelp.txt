@@ -3724,7 +3724,7 @@ Added purple coins.
 Removed the whole lives, free men, game over stuff.  Now the only
 consequence of dying is to be sent back to the respawn point.
 
-New enemy, jumpworm.
+New enemy, Jumpworm.
 
 Podzilla enemy has been superceded by Vinepod with optional splines.
 
@@ -3742,9 +3742,7 @@ and window manager classes.
 
 Level editor now has zoomable background, just like game.
 
-Created group edit level editor mode.
-
-Created tile helper level editor mode.
+Created new level editor modes, group edit and tile helper.
 
 Added settings pages instead of doing everything with menus.
 
@@ -3786,13 +3784,13 @@ https://mweiss001.github.io/purple_martians/
 
 <c08>________________________________________
 
-<c15>Copyright 1997-2022 Michael David Weiss
+<c15>Copyright 1997-2023 Michael David Weiss
 <c08>________________________________________
 
 <c15>Music by Russel Hoy - Copyright 2000
 <c08>________________________________________
 
-<c15>Last Update: Oct 18, 2022 to version 7.24
+<c15>Last Update: Aug 25, 2023 to version 7.24.5678
 <c08>________________________________________
 
 
@@ -3817,15 +3815,16 @@ https://mweiss001.github.io/purple_martians/
 <c08>Created with:
 <c08>_______________________________________________________________________
 
-<c11>Allegro 5.2.7
+<c11>Allegro 5.2.8
 <c15>Allegro is an amazing cross-platform game programming library.
 <c15>It abstracts many low level functions for graphics, sound, input, etc.
 <c08>_______________________________________________________________________
 
-<c11>MinGW-w64 8.1.0
+<c11>MinGW-w64 12.1.0
 <c15>The MinGW-w64 project is a complete runtime environment for gcc to
 <c15>support binaries native to Windows 64-bit and 32-bit operating systems.
 <c08>_______________________________________________________________________
+
 <c11>Code Blocks 20.03
 <c15>The open source, cross-platform IDE
 <c08>_______________________________________________________________________

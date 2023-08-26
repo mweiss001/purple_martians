@@ -1,4 +1,4 @@
-// main.cpp poop
+// main.cpp
 
 #include "mwMain.h"
 

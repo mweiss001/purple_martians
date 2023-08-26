@@ -710,13 +710,15 @@ void mwNetgame::client_fast_packet_loop(void)
 
 
          // adjust client chase offset based on ping
+
+
          if (mPlayer.loc[p].client_chase_offset_mode) // auto mode
          {
             mPlayer.loc[p].client_chase_offset = - mPlayer.loc[p].ping_avg + mPlayer.loc[p].client_chase_offset_auto_offset;
          }
          else
          {
-            mPlayer.loc[p].client_chase_offset = mPlayer.loc[p].client_chase_offset_auto_offset;
+            //mPlayer.loc[p].client_chase_offset = mPlayer.loc[p].client_chase_offset_auto_offset;
          }
 
 

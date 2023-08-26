@@ -86,8 +86,15 @@ CALL :SUB_copy_cfg
 if %used% EQU 0 (
 ECHO: 
 ECHO Value Missing - use one from this list
-ECHO headless - copies all files needed for headless server
-ECHO release - copies all files needed for linux release
+ECHO lin_release
+ECHO lin_build
+ECHO lin_build_and_release
+ECHO git_reclone
+ECHO copy_all
+ECHO copy_src
+ECHO copy_levels
+ECHO copy_data
+ECHO copy_cfg
 ECHO: 
 
 )

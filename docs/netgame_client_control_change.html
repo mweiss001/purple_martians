@@ -88,9 +88,8 @@ If they have changed:
 <pre><code class="language-cpp">void mwPlayer::proc_player_input(void)
 {
 ...
-   if (loc[p].old_comp_move != loc[p].comp_move)  // player's controls have changed
+   if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
    {
-	  loc[p].old_comp_move = loc[p].comp_move;
       mGameMoves.add_game_move(mLoop.frame_num, 5, p, loc[p].comp_move);	
 	  if (cm == 4)   // in client mode, send cdat packet, and apply move directly to controls
 	  {

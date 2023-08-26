@@ -184,9 +184,6 @@ I should make a link from the webpage to the project page
 I should update allegro.cc page
 
 
-
-
-
 I got an error when using git gui to commit changes
 
 It wouldn't let me because I had made changes to readme.me on the web and the local copy did not have them
@@ -199,71 +196,6 @@ go to menu remote->fetch from origin
 then merge menu and local merge
 
 after that I was able to commit....
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
