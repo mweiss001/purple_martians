@@ -3506,13 +3506,15 @@ Vinepod - Emits event when extended.
 
 <b15>
 
-<l15>First enable logging.
-<l15>(Options Menu -> Logging Options)
+<l15>In Settings -> Logging:
 
-<l15>Then play a multiplayer netgame and exit to save the log.
+<l15>Enable 'LOG_NET' and others...
 
-<l15>Then run Log File Viewer and choose a log file.
-<l15>(Options Menu -> Logging Options -> Log File Viewer)
+<l15>Enable Autosave log options...
+
+<l15>Host a netgame, join with clients, then exit to save the log.
+
+<l15>Open the log in Log File Viewer.
 
 <b15>
 
@@ -3569,19 +3571,23 @@ the player number.
 
 <c09>The Bandwidth Graph graphs the bandwidth used in a netplayer game.
 
-<b15>
-
-<l15>First enable 'LOGGING_NETPLAY_bandwidth' in logging options.
-<l15>(Options Menu -> Logging Options)
-
-<l15>Then play a multiplayer netgame and exit to save the log.
-
-<l15>Then run Log File Viewer and click 'Bandwidth Graph'
-<l15>(Options Menu -> Logging Options -> Log File Viewer)
+<c09>(This only works with logs created on the server)
 
 <b15>
 
-<c09>While viewing the following controls are available:
+<l15>In Settings -> Logging:
+
+<l15>Enable 'LOG_NET_bandwidth'
+
+<l15>Enable Autosave log options...
+
+<l15>Host a netgame, join with clients, then exit to save the log.
+
+<l15>Open the log in Log File Viewer and click 'Bandwidth Graph'
+
+<b15>
+
+<c09>While viewing the graph, the following controls are available:
 
 <l15>Mouse wheel - zooms in and out, centered on mouse position
 
@@ -3589,11 +3595,7 @@ the player number.
 
 <l15>Shift click and drag - zooms to the selected x region
 
-<l15>F10 - resets graph x axis
-
-<l15>[UP] and [DOWN] - zoom y axis
-
-<l15>0-7 toggles the graph lines for players 0-7 on and off
+<l15>Right click and hold - pop up menu
 
 
 
@@ -3606,17 +3608,19 @@ the player number.
 
 <b15>
 
-<l15>First enable 'LOGGING_NETPLAY_sdak' in logging options.
-<l15>(Options Menu -> Logging Options)
+<l15>In Settings -> Logging:
 
-<l15>Then play a multiplayer netgame and exit to save the log.
+<l15>Enable 'LOG_NET' and 'LOG_NET_server_rx_stak'
 
-<l15>Then run Log File Viewer and click 'Client Sync Graph'
-<l15>(Options Menu -> Logging Options -> Log File Viewer)
+<l15>Enable Autosave log options...
+
+<l15>Host a netgame, join with clients, then exit to save the log.
+
+<l15>Open the log in Log File Viewer and click 'Client Sync Graph'
 
 <b15>
 
-<c09>While viewing the following controls are available:
+<c09>While viewing the graph, the following controls are available:
 
 <l15>Mouse wheel - zooms in and out, centered on mouse position
 
@@ -3624,9 +3628,7 @@ the player number.
 
 <l15>Shift click and drag - zooms to the selected x region
 
-<l15>F10 - resets graph x axis
-
-<l15>1-7 toggles the graph lines for clients 1-7 on and off
+<l15>Right click and hold - pop up menu
 
 
 

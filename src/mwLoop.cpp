@@ -395,9 +395,9 @@ void mwLoop::proc_program_state(void)
   // printf("proc ps ps:%d nps:%d \n", state[1], state[0]);
    char msg[1024];
 
-   int debug_print_state_names = 1;
-   int debug_print_state_changes = 1;
-   int debug_print_more = 1;
+   int debug_print_state_names = 0;
+   int debug_print_state_changes = 0;
+   int debug_print_more = 0;
 
    // ----------------------------------------------------------
    // handle all the changes from one state to another

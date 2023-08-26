@@ -155,11 +155,19 @@ void mwGraph::draw_graph(int draw_only)
    mouse_on_graph = false;
    mouse_on_scrollbar = false;
 
+
+
    x_axis_get_size_and_arrange_pos();
    y_axis_get_size_and_arrange_pos();
    enforce_axis_limits();
 
+
+
    proc_plot_area(draw_only);
+
+
+
+
 
    draw_title(0);
    draw_series_legend();
@@ -735,30 +743,36 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
 
 
          // find out if major gridline labels will touch each other....
-         int max_space_between_labels = - 9999;
-         while (max_space_between_labels < 10)
+         if (x_axis_grid_label_draw_on)
          {
-            // iterate major gridline minus last
-            double gx2 = round_to_nearest(sx_axis_min, x_gl_span);
-            for (double i=gx2; i<=(sx_axis_max-x_gl_span); i+=x_gl_span)
+            int max_space_between_labels = - 9999;
+            while (max_space_between_labels < 10)
             {
-               // get current label
-               convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly); // get screen position
-               mFont.mw_get_text_dimensions(f, x_axis_get_val_text(i* x_axis_divider, 0, msg), bx, by, bw, bh); // get text dimensions of label
-               int cur_end = lx + bw/2; // xpos at the end of this label
+               // iterate major gridline minus last
+               double gx2 = round_to_nearest(sx_axis_min, x_gl_span);
+               for (double i=gx2; i<=(sx_axis_max-x_gl_span); i+=x_gl_span)
+               {
+                  // get current label
+                  convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly); // get screen position
+                  mFont.mw_get_text_dimensions(f, x_axis_get_val_text(i* x_axis_divider, 0, msg), bx, by, bw, bh); // get text dimensions of label
+                  int cur_end = lx + bw/2; // xpos at the end of this label
 
-               // get next label
-               convert_gxy_to_sxy((i+x_gl_span) * x_axis_divider, 9999, lx, ly); // get screen position
-               mFont.mw_get_text_dimensions(f, x_axis_get_val_text((i+x_gl_span) * x_axis_divider, 0, msg), bx, by, bw, bh); // get text dimensions of label
-               int next_start = lx - bw/2; // xpos at the start of this label
+                  // get next label
+                  convert_gxy_to_sxy((i+x_gl_span) * x_axis_divider, 9999, lx, ly); // get screen position
+                  mFont.mw_get_text_dimensions(f, x_axis_get_val_text((i+x_gl_span) * x_axis_divider, 0, msg), bx, by, bw, bh); // get text dimensions of label
+                  int next_start = lx - bw/2; // xpos at the start of this label
 
-               int space = next_start - cur_end;
-               if (space > max_space_between_labels) max_space_between_labels = space;
-               // printf("space:%d max space betwen labels:%d\n", space, max_space_between_labels);
+                  int space = next_start - cur_end;
+                  if (space > max_space_between_labels) max_space_between_labels = space;
+                  // printf("space:%d max space betwen labels:%d\n", space, max_space_between_labels);
+               }
+               if (max_space_between_labels < 10) x_gl_span *=10; // increase span
             }
-            if (max_space_between_labels < 10) x_gl_span *=10; // increase span
+
          }
+
          int number_of_major_gridlines = (sx_axis_rng/x_gl_span);
+
 
          //al_draw_filled_rectangle              (plot_x1-12, plot_y2+50, x_axis_label_y1, plot_y2+58, mColor.pc[0]);
          // al_draw_textf(mFont.pr8, mColor.pc[15], plot_x1+50, plot_y2-42, 0, "gspan:%-3.5f  num of major gridlines:%d", x_gl_span, (int) (sx_axis_rng/x_gl_span));
@@ -800,6 +814,7 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
                al_draw_line(lx, x_axis_label_y0+1, lx, x_axis_label_y1-1, mColor.pc[mn_col], mn_size);
             }
          }
+
          // major gridlines with labels
          double gx2 = round_to_nearest(sx_axis_min, x_gl_span);
          for (double i=gx2; i<=sx_axis_max; i+=x_gl_span)
@@ -1436,10 +1451,18 @@ void mwGraph::proc_plot_area(int draw_only)
    al_draw_filled_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, mColor.pc[title_frame_color+224]); // erase plot background
    al_draw_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, mColor.pc[title_frame_color], 2);         // frame plot
 
+
    x_axis_draw_gridlines_and_labels(0);
+
+
    y_axis_draw_gridlines_and_labels(0);
 
+
+
    draw_plot_area();
+
+
+
 
    if (!draw_only)
    {

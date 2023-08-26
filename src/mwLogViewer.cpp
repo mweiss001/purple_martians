@@ -125,6 +125,7 @@ int mwLog::log_file_viewer(int type)
 
    // always on
    tags[10][0] = 1; tags[10][1] = 15; // reg netplay
+
    tags[11][0] = 1; tags[11][1] = 15; // join
    tags[20][0] = 1; tags[20][1] = 15; // game init stuff
    tags[22][0] = 1; tags[22][1] = 15; // ending stats
