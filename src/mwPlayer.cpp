@@ -1678,6 +1678,19 @@ void mwPlayer::set_controls_from_comp_move(int p, int comp_move)
    if (comp_move & PM_COMPMOVE_MENU)  syn[p].menu  = 1;
 }
 
+
+int mwPlayer::comp_move_from_players_current_controls(int p)
+{
+   int cm = 0;
+   if (syn[p].left)    cm |= PM_COMPMOVE_LEFT;
+   if (syn[p].right)   cm |= PM_COMPMOVE_RIGHT;
+   if (syn[p].up)      cm |= PM_COMPMOVE_UP;
+   if (syn[p].down)    cm |= PM_COMPMOVE_DOWN;
+   if (syn[p].jump)    cm |= PM_COMPMOVE_JUMP;
+   if (syn[p].fire)    cm |= PM_COMPMOVE_FIRE;
+   if (syn[p].menu)    cm |= PM_COMPMOVE_MENU;
+   return cm;
+}
 void mwPlayer::set_comp_move_from_player_key_check(int p) // doesn't set controls
 {
    int cm = 0;
@@ -1718,9 +1731,16 @@ void mwPlayer::proc_player_input(void)
             {
                if (loc[p].fake_keypress_mode) loc[p].comp_move = rand() % 64;
                else set_comp_move_from_player_key_check(p);
-               if (loc[p].old_comp_move != loc[p].comp_move)  // player's controls have changed
+
+               if (loc[p].comp_move != comp_move_from_players_current_controls(p))  // player's controls have changed
                {
-                  loc[p].old_comp_move = loc[p].comp_move;
+
+
+
+//               set_old_comp_move_from_players_current_controls(p);
+//               if (loc[p].old_comp_move != loc[p].comp_move)  // player's controls have changed
+//               {
+//                  loc[p].old_comp_move = loc[p].comp_move;
 
                   // in single player, client and server mode, add to game moves array
                   if ((cm == 0) || (cm == 3) || (cm == 4)) mGameMoves.add_game_move(mLoop.frame_num, 5, p, loc[p].comp_move);

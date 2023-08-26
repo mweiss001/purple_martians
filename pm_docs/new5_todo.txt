@@ -6,17 +6,16 @@
 client starting level with locked gate (locked on client but unlocked on server)
 client borks, but rejoining brings him back to that level...
 
-
-
 client disappears after first level...
 actually...when client quits...they go back to overworld, but not in a netgame anymore and invisible...
 server stays on level...
 
-
-
 Since I padded my tilemaps I have broken copy tiles in level editor....
 Do I even care?  A bit..
 should I make the padding an option so I can load from old versions?
+
+
+
 
 
 ---------------------------------------------------------
@@ -24,30 +23,18 @@ should I make the padding an option so I can load from old versions?
 ---------------------------------------------------------
 
 
+figure out netgame
+
+
+
 look at making screen double do values other than integers like 1.5
 
-
 make "Rollin" play over final cutscene
+time:93s
 
-
-
-
-
-
-how can I setup headless server easily:
-
-need commandline option to:
-reset level_data
-unlock all level
-set all complete
-
-
-
-
-
-what would it take to make a truly headless server
-
-that all it did was keep track of the game state, and exchange packets
+how long for all children to get in rocket?
+30s
+how long for rocket to fly
 
 
 
@@ -55,21 +42,6 @@ that all it did was keep track of the game state, and exchange packets
 
 
 
-should I redo my commandline stuff to have an arbitrary number of options in any order
-spec out exactly what you want.
-each chuck should contain no whitespace, use that as a delimiter
-
--e
--e:<int>
-
--p
--p:<int>
-
--s
--sh
-
--c
--c<host>
 
 
 
@@ -84,48 +56,12 @@ or maybe close like: install code blocks, then copy this folder...
 
 
 
-test on linux and try to get latest version of both there too...
-
-ubuntu 20.04
-gcc 10.3.0
-Allegro version 5.2.9.0
-
-from allegro git 5.2.8 was release in June 2022
-
-why do I have a higher version??
-
-
-
-profile create tilemaps on other systems...
-m36                0.01 to 0.02
-ubuntu 20.0.4 scat 0.02 to 0.03
-4230               0.3
-
-
-test some multiplayer
-
-
-
-I would really like to make a headless server.
-why?
-so that I could start and run it and configure it from a ssh session
-
-I am thinking I would like to always have one running somewhere, attached to the internet with an external static IP
-
-
-
-
-
-
-
-
 
 
 make the cannon facing direction optional
 
 make the shortcut keys in the menu optional
 also shortcut key in vls
-
 
 make functionality to save level if if beats the best time with purple coins
 that means I will need to track that also...
@@ -344,6 +280,27 @@ VinePod
 -------------------------------
 -- Random thoughts and ideas --
 -------------------------------
+
+
+
+should I redo my commandline stuff to have an arbitrary number of options in any order
+spec out exactly what you want.
+each chuck should contain no whitespace, use that as a delimiter
+
+-e
+-e:<int>
+
+-p
+-p:<int>
+
+-s
+-sh
+
+-c
+-c<host>
+
+
+
 
 
 Make some examples of vinepods to show off in levels
