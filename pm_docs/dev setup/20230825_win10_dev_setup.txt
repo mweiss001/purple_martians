@@ -144,5 +144,14 @@ set target win_static
 build and run !!!
 
 
+--------------------
+Other stuff:
+
+in git gui before you can commit you need to enter your username and email under edit->options
+
+also install putty 
+
+
+
 
 
