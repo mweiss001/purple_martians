@@ -1424,7 +1424,6 @@ void mwPlayer::init_player(int p, int t)
       syn[p].stat_purple_coins = 0;
 
       loc[p].comp_move = 0;
-      loc[p].old_comp_move = 0;
 
       loc[p].health_display = 0;
       loc[p].last_health_adjust = 0;
@@ -1678,8 +1677,7 @@ void mwPlayer::set_controls_from_comp_move(int p, int comp_move)
    if (comp_move & PM_COMPMOVE_MENU)  syn[p].menu  = 1;
 }
 
-
-int mwPlayer::comp_move_from_players_current_controls(int p)
+int mwPlayer::comp_move_from_players_current_controls(int p) // new method to replace old_comp_move
 {
    int cm = 0;
    if (syn[p].left)    cm |= PM_COMPMOVE_LEFT;
@@ -1732,18 +1730,9 @@ void mwPlayer::proc_player_input(void)
                if (loc[p].fake_keypress_mode) loc[p].comp_move = rand() % 64;
                else set_comp_move_from_player_key_check(p);
 
-               if (loc[p].comp_move != comp_move_from_players_current_controls(p))  // player's controls have changed
+               if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
                {
-
-
-
-//               set_old_comp_move_from_players_current_controls(p);
-//               if (loc[p].old_comp_move != loc[p].comp_move)  // player's controls have changed
-//               {
-//                  loc[p].old_comp_move = loc[p].comp_move;
-
-                  // in single player, client and server mode, add to game moves array
-                  if ((cm == 0) || (cm == 3) || (cm == 4)) mGameMoves.add_game_move(mLoop.frame_num, 5, p, loc[p].comp_move);
+                  mGameMoves.add_game_move(mLoop.frame_num, 5, p, loc[p].comp_move); // add to game moves array
 
                   // in client mode, send cdat packet, and apply move directly to controls
                   if (cm == 4)
@@ -1753,14 +1742,17 @@ void mwPlayer::proc_player_input(void)
                      mNetgame.PacketPut4ByteInt(mLoop.frame_num);
                      mNetgame.PacketPut1ByteInt(loc[p].comp_move);
                      mNetgame.ClientSend(mNetgame.packetbuffer, mNetgame.packetsize);
+                     loc[p].client_cdat_packets_tx++;
 
                      set_controls_from_comp_move(p, loc[p].comp_move);
 
-                     if (syn[p].menu) mLoop.state[0] = 25;
-                     loc[p].client_cdat_packets_tx++;
-                     sprintf(msg,"tx cdat - move:%d\n", loc[p].comp_move);
-                     if (mLog.LOG_NET_cdat) mLog.add_log_entry2(35, p, msg);
+                     if (syn[p].menu) mLoop.state[0] = 25; // menu key pressed
 
+                     if (mLog.LOG_NET_cdat)
+                     {
+                        sprintf(msg,"tx cdat - move:%d\n", loc[p].comp_move);
+                        mLog.add_log_entry2(35, p, msg);
+                     }
                   }
                }
             }

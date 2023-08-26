@@ -30297,32 +30297,27 @@ rewind in conjuction with late cdats dropped by server....
 I will call it fixed, unless it breaks something else....
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 I want to do a start over fresh win10 install thing
 
 can I do it from an existing win10?
 
+done...
+now I want to make it easier by making a copy of MimGW folder done...
 
+everything that is needed is in
+
+\\x\mw\docs\aa_mdw_programs\pm\aa_dev_2023
+
+
+now that I made the change to client input old_compmove netgame seems to be working great....
+
+send version to all and test
+
+
+Since I padded my tilemaps I have broken copy tiles in level editor....
+Do I even care?  A bit..
+should I make the padding an option so I can load from old versions?
+I have made it work...but there is no option to load 1/2 from older bitmaps
 
 
 

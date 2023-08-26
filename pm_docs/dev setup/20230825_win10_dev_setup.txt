@@ -1,18 +1,16 @@
+Setting up developement environment on windows
 
+Tested on win 10 (revi 10 23.08) on 20230825
 
 
 ------------------------------------------------
 - Install git and get project source
 ------------------------------------------------
 
-download the latest version of git from : https://git-scm.com/download/win
-
+download the latest version of git from: https://git-scm.com/download/win
 Git-2.42.0-64-bit.exe
 
 installed to "C:\Program Files\Git"
-
-
-
 
 left checked:
 Windows Explorer Integration
@@ -49,15 +47,12 @@ no experimental
 
 finally it installed....
 
-
 start git gui
 choose clone repos
 set source to: https://github.com/mweiss001/purple_martians
 target c:/pm
 
 looks like it worked...
-
-
 
 
 --------------------------------------
@@ -73,14 +68,12 @@ C:\Program Files\CodeBlocks
 C:\Program Files\CodeBlocks\MinGW
 
 
-
 --------------------------------------
 - Newer version of MinGW
 --------------------------------------
+We want gcc 12.1 to match what allegro was compiled with
 
-mingw downloads
-
-https://github.com/niXman/mingw-builds-binaries/releases
+mingw downloads: https://github.com/niXman/mingw-builds-binaries/releases
 
 x86_64-12.1.0-release-posix-seh-rt_v10-rev3.7z
 
@@ -93,7 +86,6 @@ rename existing 'MinGW' to 'old_MinGW' (or delete)
 copy new one to there...
 
 
-
 -------------------------------
 - libnet
 -------------------------------
@@ -101,8 +93,6 @@ use my precompiled versions in folder libnet_win with my sources
 
 copy libnet.a to C:\Program Files\CodeBlocks\MinGW\lib
 copy libnet.h to C:\Program Files\CodeBlocks\MinGW\include
-
-
 
 
 
@@ -150,8 +140,4 @@ Other stuff:
 in git gui before you can commit you need to enter your username and email under edit->options
 
 also install putty 
-
-
-
-
 
