@@ -136,19 +136,9 @@ struct ploc // not synced between server and client
    int quit_frame;
    int quit_reason;
 
-   // server stdf frequency
-   int server_state_freq;
-   int server_state_freq_mode; // 0 = manual, 1 = auto
-
    // used only to display in server debug grid
    int num_dif_packets;
    int cmp_dif_size;
-
-
-   double client_chase_offset;
-   double client_chase_offset_auto_offset;
-   int client_chase_offset_mode; // 0 = manual, 1 = auto
-
 
 
    // bandwidth counters and tallies

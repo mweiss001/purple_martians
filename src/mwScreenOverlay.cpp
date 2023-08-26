@@ -291,7 +291,7 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       al_draw_text(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[f]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
-         if (p == 0) al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[%d]", mPlayer.loc[p].server_state_freq);
+         if (p == 0) al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[%d]", mNetgame.server_state_freq);
          else        al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[ ]");
       }
       x+=3*8;
@@ -740,7 +740,7 @@ void mwScreen::draw_server_debug_overlay(int p, int &cx, int &cy)
 
    if (mSettings.overlay_grid[6][mLoop.show_debug_overlay]) // state freq adjust buttons
    {
-      if (mPlayer.loc[0].server_state_freq_mode == 0) // 0 = manual, 1 = auto
+      if (mNetgame.server_state_freq_mode == 0) // 0 = manual, 1 = auto
       {
          // -----------------------------------------------------
          // server buttons to display and change s1 and s2
@@ -771,8 +771,8 @@ void mwScreen::draw_server_debug_overlay(int p, int &cx, int &cy)
          static int b1_pres = 0;
          if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
          {
-            if (b1_pres == 0) mPlayer.loc[p].server_state_freq--;
-            if (mPlayer.loc[p].server_state_freq < 1) mPlayer.loc[p].server_state_freq = 1;
+            if (b1_pres == 0) mNetgame.server_state_freq--;
+            if (mNetgame.server_state_freq < 1) mNetgame.server_state_freq = 1;
             b1_pres = 1;
          }
          else b1_pres = 0;
@@ -781,11 +781,11 @@ void mwScreen::draw_server_debug_overlay(int p, int &cx, int &cy)
          static int b2_pres = 0;
          if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
          {
-            if (b2_pres == 0) mPlayer.loc[p].server_state_freq++;
+            if (b2_pres == 0) mNetgame.server_state_freq++;
             b2_pres = 1;
          }
          else b2_pres = 0;
-         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s1:%d", mPlayer.loc[p].server_state_freq);
+         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s1:%d", mNetgame.server_state_freq);
 
          csy3+=17;
 
@@ -818,7 +818,7 @@ void mwScreen::draw_server_debug_overlay(int p, int &cx, int &cy)
    {
       al_draw_filled_rectangle(cx, cy, cx+204, cy+20, mColor.pc[0]); cy+=2;
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "total game moves:%d", mGameMoves.entry_pos); cy+=9;
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "state frequency:%d", mPlayer.loc[p].server_state_freq); cy+=9;
+      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "state frequency:%d", mNetgame.server_state_freq); cy+=9;
       cy +=4;
    }
 
@@ -892,7 +892,7 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
       sprintf(msg, "Please wait for server syncronization");
       rtextout_centre(mFont.bltn, NULL, msg, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2-32, color, 2, 1);
 
-      sprintf(msg, "[%2.1f]", abs(mPlayer.loc[p].client_chase_offset - mPlayer.loc[p].dsync)*1000);
+      sprintf(msg, "[%2.1f]", abs(mNetgame.client_chase_offset - mPlayer.loc[p].dsync)*1000);
       rtextout_centre(mFont.bltn, NULL, msg, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, color, 4, 1);
    }
    if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - tt, "scov_client", 0);
@@ -986,15 +986,15 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
       {
          if (b1_pres == 0)
          {
-            if (mPlayer.loc[p].client_chase_offset_mode) // auto mode - adjust offset from ping
+            if (mNetgame.client_chase_offset_mode) // auto mode - adjust offset from ping
             {
-               if (mInput.CTRL()) mPlayer.loc[p].client_chase_offset_auto_offset -=0.01;
-               else mPlayer.loc[p].client_chase_offset_auto_offset -=0.001;
+               if (mInput.CTRL()) mNetgame.client_chase_offset_auto_offset -=0.01;
+               else mNetgame.client_chase_offset_auto_offset -=0.001;
             }
             else // manual mode - adjust offset directly
             {
-               if (mInput.CTRL()) mPlayer.loc[p].client_chase_offset -=0.01;
-               else mPlayer.loc[p].client_chase_offset -=0.001;
+               if (mInput.CTRL()) mNetgame.client_chase_offset -=0.01;
+               else mNetgame.client_chase_offset -=0.001;
             }
          }
          b1_pres = 1;
@@ -1006,15 +1006,15 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
       {
          if (b2_pres == 0)
          {
-            if (mPlayer.loc[p].client_chase_offset_mode) // auto mode - adjust offset from ping
+            if (mNetgame.client_chase_offset_mode) // auto mode - adjust offset from ping
             {
-               if (mInput.CTRL()) mPlayer.loc[p].client_chase_offset_auto_offset +=0.01;
-               else mPlayer.loc[p].client_chase_offset_auto_offset +=0.001;
+               if (mInput.CTRL()) mNetgame.client_chase_offset_auto_offset +=0.01;
+               else mNetgame.client_chase_offset_auto_offset +=0.001;
             }
             else // manual mode - adjust offset directly
             {
-               if (mInput.CTRL()) mPlayer.loc[p].client_chase_offset +=0.01;
-               else mPlayer.loc[p].client_chase_offset +=0.001;
+               if (mInput.CTRL()) mNetgame.client_chase_offset +=0.01;
+               else mNetgame.client_chase_offset +=0.001;
             }
          }
          b2_pres = 1;
@@ -1024,22 +1024,22 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
 
       static int b3_pres = 0;
       sprintf(msg, "Manual");
-      if (mPlayer.loc[p].client_chase_offset_mode) sprintf(msg, "Automatic");
+      if (mNetgame.client_chase_offset_mode) sprintf(msg, "Automatic");
 
       if (mWidget.buttont_nb(csx1+23, ya, csx2-23, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, msg))
       {
          if (b3_pres == 0)
          {
-            mPlayer.loc[p].client_chase_offset_mode =  !mPlayer.loc[p].client_chase_offset_mode;
+            mNetgame.client_chase_offset_mode =  !mNetgame.client_chase_offset_mode;
          }
          b3_pres = 1;
       }
       else b3_pres = 0;
 
-      if (mPlayer.loc[p].client_chase_offset_mode)
-         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "ping offset:%+3.0fms", mPlayer.loc[p].client_chase_offset_auto_offset*1000);
+      if (mNetgame.client_chase_offset_mode)
+         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "ping offset:%+3.0fms", mNetgame.client_chase_offset_auto_offset*1000);
       else
-         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "offset:%+3.0fms", mPlayer.loc[p].client_chase_offset*1000);
+         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "offset:%+3.0fms", mNetgame.client_chase_offset*1000);
 
       if (mLog.LOG_TMR_scrn_overlay) mLog.add_log_TMR(al_get_time() - tt, "scov_cbut", 0);
 

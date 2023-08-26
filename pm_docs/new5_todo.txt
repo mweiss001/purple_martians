@@ -2,14 +2,6 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-client starting level with locked gate (locked on client but unlocked on server)
-client borks, but rejoining brings him back to that level...
-
-client disappears after first level...
-actually...when client quits...they go back to overworld, but not in a netgame anymore and invisible...
-server stays on level...
-see if you can reproduce this
-
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
@@ -20,11 +12,9 @@ where can I do one place to store version?
 so it will show in the compiled program
 and also be used for lin and win build scripts
 
-I could just change it in three places...code, win and lin make_release..
+I could just change it in three places...code (pm.h), win and lin make_release..
 bump all now to 7.24.0826.1
 done...
-
-
 
 
 
@@ -47,14 +37,128 @@ mPlayer.loc[0].server_state_freq = 1 + mcp/25; // use max_client_ping to set ser
 
 how am I going to test, and what am I going to vary?
 
-
-
 what is up with the client sync adjust?
 
 It does not work like I want it to...
 
 auto mode you can still adjust the offset
 manual mode you cannot adjust anything??
+
+
+I still am lost at how to adjust these things
+
+at the very least add loc[p].client_chase_offset_auto_offset = -0.02; to config
+
+maybe it should be somewhere else rather than the player struct...
+
+
+I want to move these from loc struct to netgame class
+
+
+   double client_chase_offset;
+   double client_chase_offset_auto_offset;
+   int client_chase_offset_mode; // 0 = manual, 1 = auto
+
+done...
+
+what is the default stdf_freq if not auto?
+
+
+I want to be able to remotely monitor and control the server
+
+I am thinking of some dedicated packets for this:
+
+server will send a big chunk of data to a monitoring computer
+like logs and graphs, but in real time
+
+server will accept control packets from the same computer..
+
+but what would I send to control? stdf freq?
+
+I am thinking that I don't want to ever have stdf freq less than 2
+
+but I am not really able to see what affect I am having..
+
+base resets are the most important thing....
+
+I am not sure why lower stdf freq is desirable.
+Is it to reduce the size of corrections?
+
+I have played with stdf of 10 and did not see any problems...
+it made the initial join take longer
+
+I want to move stdf freq from loc to netgame, just like cco
+done...
+also add actual value to config
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

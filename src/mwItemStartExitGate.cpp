@@ -16,7 +16,7 @@
 #include "mwDemoMode.h"
 #include "mwScreen.h"
 #include "mwDisplay.h"
-
+#include "mwNetgame.h"
 
 
 
@@ -155,7 +155,6 @@ void mwItem::proc_gate_collision(int p, int i)
    }
 
 
-
     // debug set level complete
    if ((mPlayer.syn[p].fire) && (mDemoMode.demo_debug_complete_level_on_gate_with_fire) && (mLevel.data[lev].status < 2))
    {
@@ -165,12 +164,18 @@ void mwItem::proc_gate_collision(int p, int i)
 
 
 
-   // immediate next level to gate level
-   if ((mPlayer.syn[p].up) && (mLevel.data[item[i][6]].status))
+   int unlocked = mLevel.data[lev].status;
+   if ((mNetgame.ima_server) || (mNetgame.ima_client)) unlocked = 1; // ignore locks in netgame
+
+
+   // enter gate by pressing up
+   if ((mPlayer.syn[p].up) && (unlocked))
    {
+
+      // immediate next level to gate level
       mPlayer.syn[0].level_done_mode = 3;
       mPlayer.syn[0].level_done_timer = 0;
-      mPlayer.syn[0].level_done_next_level = item[i][6];
+      mPlayer.syn[0].level_done_next_level = lev;
 
       mLoop.quit_action = 2;
       mLoop.done_action = 2;

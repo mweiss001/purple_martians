@@ -247,6 +247,10 @@ int mwNetgame::client_init(void)
    mRollingAverage[1].initialize(); // ping rolling average
    mRollingAverage[2].initialize(); // dsync rolling average
 
+   client_chase_offset = 0.0;
+   client_chase_offset_auto_offset = -0.02;
+   client_chase_offset_mode = 1; // 0 = manual, 1 = auto
+
    printf("sending cjon\n");
    Packet("cjon");
    PacketPut1ByteInt(mPlayer.syn[0].color); // requested color
@@ -492,7 +496,11 @@ void mwNetgame::client_timer_adjust(void)
 
    float mva = mPlayer.loc[p].dsync_avg;            // measured value
    float mv = mPlayer.loc[p].dsync;                 // measured value
-   float sp = mPlayer.loc[p].client_chase_offset;   // set point
+
+//   float sp = mPlayer.loc[p].client_chase_offset;   // set point
+
+   float sp = client_chase_offset;   // set point
+
    float err = sp - mva;                          // error = set point - measured value
 
    float p_adj = err * 80; // instantaneous error adjustment (proportional)
@@ -517,7 +525,10 @@ void mwNetgame::client_timer_adjust(void)
    sprintf(msg, "tmst mv:[%5.2f] ma:[%5.2f] sp:[%5.2f] er:[%6.2f] pa:[%6.2f] ia:[%6.2f] ta:[%6.2f]\n", mv*1000, mva*1000, sp*1000, err*1000, p_adj, i_adj, t_adj);
    if (mLog.LOG_TMR_client_timer_adj) if (mLoop.frame_num) mLog.add_log_entry2(44, 0, msg);
 
-   sprintf(msg, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.3f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].client_chase_offset*1000, fps_chase);
+//   sprintf(msg, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.3f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].client_chase_offset*1000, fps_chase);
+
+   sprintf(msg, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.3f]\n", mPlayer.loc[p].dsync*1000, sp*1000, fps_chase);
+
    if (mLog.LOG_NET_client_timer_adj) mLog.add_log_entry2(36, p, msg);
 }
 
@@ -710,18 +721,14 @@ void mwNetgame::client_fast_packet_loop(void)
 
 
          // adjust client chase offset based on ping
-
-
-         if (mPlayer.loc[p].client_chase_offset_mode) // auto mode
+         if (client_chase_offset_mode) // auto mode
          {
-            mPlayer.loc[p].client_chase_offset = - mPlayer.loc[p].ping_avg + mPlayer.loc[p].client_chase_offset_auto_offset;
+            client_chase_offset = - mPlayer.loc[p].ping_avg + client_chase_offset_auto_offset;
          }
          else
          {
             //mPlayer.loc[p].client_chase_offset = mPlayer.loc[p].client_chase_offset_auto_offset;
          }
-
-
 
          sprintf(msg, "ping [%3.2f] avg[%3.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
          //printf(msg);
