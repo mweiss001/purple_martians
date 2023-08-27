@@ -303,7 +303,6 @@ void mwLog::run_client_server_sync_graph(int num_lines)
    if (load_client_server_sync_graph(num_lines))
    {
 
-
       int c0 = 11;
       mGraph[0].set_series_legend_type(1);
       mGraph[0].series_legend_draw_on = 0;

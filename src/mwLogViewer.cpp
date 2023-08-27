@@ -35,7 +35,9 @@ int mwLog::load_log_lines_array_from_static_file(const char* f)
       }
       buff[loop] = 0; // terminate the string
       if (loop > 99) printf("log line%d exceeded 99 char - %s\n", num_lines, buff);
-      strncpy(log_lines[num_lines++], buff, 99); // copy only first 99 char
+
+      if (loop > 0) strncpy(log_lines[num_lines++], buff, 99); // copy only first 99 char (and only copy if length > 0)
+
       if (num_lines >= NUM_LOG_LINES)
       {
          printf("log file exceeded %d lines\n", num_lines);
@@ -44,16 +46,18 @@ int mwLog::load_log_lines_array_from_static_file(const char* f)
       if (ch == EOF) done = 1;
    }
    fclose(filepntr);
-   num_lines--;
-   // printf("num_lines:%d\n", num_lines);
+
+   //printf("num_lines:%d\n", num_lines);
+
    for (int i=0; i<num_lines; i++)  // find and add tags to log_lines_int array
    {
-      char res[80];
+      //printf("line:%d %s \n", i, log_lines[i]);
+      char res[256] = {0};
       mMiscFnx.get_tag_text(log_lines[i], res, 0); // get first tag - type
       log_lines_int[i][0] = atoi(res);
       mMiscFnx.get_tag_text(log_lines[i], res, 0); // get second tag - player
       log_lines_int[i][1] = atoi(res);
-      mMiscFnx.get_tag_text(log_lines[i], res, 0); // get third tag - mLoop.frame_num
+      mMiscFnx.get_tag_text(log_lines[i], res, 0); // get third tag - frame_num
       log_lines_int[i][2] = atoi(res);
    }
    return num_lines;
