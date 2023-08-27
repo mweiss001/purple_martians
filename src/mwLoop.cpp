@@ -1458,8 +1458,6 @@ void mwLoop::main_loop(void)
          if (mNetgame.ima_client) mNetgame.client_send_ping();
 
 
-
-
          mEventQueue.program_update_1s = 0;
          if (state[1] == 11) // game loop running
          {
@@ -1478,7 +1476,7 @@ void mwLoop::main_loop(void)
                for (int p=1; p<NUM_PLAYERS; p++)
                   if (mPlayer.syn[p].control_method == 2)
                   {
-                     mPlayer.loc[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally();
+                     mPlayer.syn[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally();
                      mPlayer.loc[p].game_move_dsync_avg_last_sec = mTally_game_move_dsync_avg_last_sec[p].get_avg();
                   }
             }

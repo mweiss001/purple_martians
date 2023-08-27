@@ -422,8 +422,16 @@ void mwNetgame::client_apply_dif(void)
                   int old_l[100][100];
                   memcpy(old_l, mLevel.l, sizeof(mLevel.l));
 
-                  // make a copy of players x pos
-                  float oldpx = mPlayer.syn[p].x;
+
+                  // make a copy of players' pos
+                  for (int pp=0; pp<NUM_PLAYERS; pp++)
+                     if (mPlayer.syn[pp].active)
+                     {
+                        mPlayer.loc[pp].old_x = mPlayer.syn[pp].x;
+                        mPlayer.loc[pp].old_y = mPlayer.syn[pp].y;
+                     }
+
+
 
                   // apply dif to base state
                   apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
@@ -432,22 +440,9 @@ void mwNetgame::client_apply_dif(void)
                   state_to_game_vars(client_state_base);
 
 
-                  // make a copy of players x pos
-                  float xcor = oldpx - mPlayer.syn[p].x;
 
 
-                  if (mLoop.frame_num > mPlayer.loc[p].xcor_reset_frame)
-                  {
-                     mPlayer.loc[p].xcor_reset_frame = mLoop.frame_num + 100;
-                     mPlayer.loc[p].xcor_max = 0;
-
-                  }
-
-                  if (xcor > mPlayer.loc[p].xcor_max)  mPlayer.loc[p].xcor_max = xcor;
-
-
-
-                  double t0 = al_get_time();
+                  // double t0 = al_get_time();
 
                   // compare old_l to l and redraw changed tiles
                   al_set_target_bitmap(mBitmap.level_background);
@@ -460,7 +455,7 @@ void mwNetgame::client_apply_dif(void)
                            al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
                         }
 
-                  mLog.add_log_TMR(al_get_time() - t0, "oldl", 0);
+                  // mLog.add_log_TMR(al_get_time() - t0, "oldl", 0);
 
 
                   // fix control methods
@@ -474,6 +469,27 @@ void mwNetgame::client_apply_dif(void)
                   mPlayer.loc[p].client_last_dif_applied = mLoop.frame_num;
 
                   if (ff) mLoop.loop_frame(ff); // if we rewound time, play it back
+
+
+                  // calc players' correction
+                  for (int pp=0; pp<NUM_PLAYERS; pp++)
+                     if (mPlayer.syn[pp].active)
+                     {
+                        mPlayer.loc[pp].cor = sqrt(pow((mPlayer.loc[pp].old_x - mPlayer.syn[pp].x), 2) + pow((mPlayer.loc[pp].old_y - mPlayer.syn[pp].y), 2));  // hypotenuse distance
+                        if (mPlayer.loc[pp].cor > mPlayer.loc[pp].cor_max)  mPlayer.loc[pp].cor_max = mPlayer.loc[pp].cor;
+                     }
+
+
+                  // reset max players correction
+                  if (mLoop.frame_num > mPlayer.loc[p].cor_reset_frame)
+                  {
+                     mPlayer.loc[p].cor_reset_frame = mLoop.frame_num + 100;
+                     for (int pp=0; pp<NUM_PLAYERS; pp++)
+                        if (mPlayer.syn[pp].active) mPlayer.loc[pp].cor_max = 0;
+                  }
+
+
+
 
                   client_send_stak();
 
@@ -545,7 +561,6 @@ void mwNetgame::client_process_stdf_packet(double timestamp)
    int max_seq = PacketGet1ByteInt();
    int sb = PacketGet4ByteInt();
    int sz = PacketGet4ByteInt();
-   mPlayer.loc[p].late_cdats_last_sec = PacketGet1ByteInt();
 
    sprintf(msg, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d \n", seq+1, max_seq, src, dst, sb, sz);
    if (mLog.LOG_NET_stdf_all_packets) mLog.add_log_entry2(28, p, msg);
@@ -564,8 +579,7 @@ void mwNetgame::client_process_stdf_packet(double timestamp)
       client_timer_adjust();
    }
 
-
-   memcpy(client_state_buffer + sb, packetbuffer+23, sz);     // put the piece of data in the buffer
+   memcpy(client_state_buffer + sb, packetbuffer+22, sz);     // put the piece of data in the buffer
    client_state_buffer_pieces[seq] = dst;                     // mark it with destination mLoop.frame_num
 
    int complete = 1;                                          // did we just get the last packet? (yes by default)

@@ -321,7 +321,7 @@ void mwLog::log_ending_stats(int p)
    sprintf(msg,"cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"cdat packets late.........[%d]", mPlayer.loc[p].late_cdats);
+   sprintf(msg,"cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    log_bandwidth_stats(p);
@@ -377,7 +377,7 @@ void mwLog::log_ending_stats_server()
          sprintf(msg,"cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
          add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-         sprintf(msg,"cdat packets late.........[%d]", mPlayer.loc[p].late_cdats);
+         sprintf(msg,"cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
          add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
          log_bandwidth_stats(p);

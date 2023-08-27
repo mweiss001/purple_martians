@@ -4,9 +4,13 @@ setlocal EnableDelayedExpansion
 
 set used=0
 
+
 set srv=96.45.13.253
 
-REM set srv=scat
+
+set srv=scat
+
+
 
 
 set srv_dir=dev/purple_martians

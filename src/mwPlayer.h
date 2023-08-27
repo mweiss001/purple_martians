@@ -23,7 +23,6 @@ struct psyn // synced between server and client
    int overworld_last_touched_gate;
 
 
-
    float x, y;        // players position
    float xinc, yinc;  // players speed
    float right_xinc, left_xinc;
@@ -75,8 +74,21 @@ struct psyn // synced between server and client
    int stat_player_exploded;
    int stat_self_exploded;
 
+   int late_cdats;
+   int late_cdats_last_sec;
+
+
    int spare_int1;
-//   int spare_int2;
+   int spare_int2;
+   int spare_int3;
+   int spare_int4;
+   int spare_int5;
+   int spare_int6;
+   int spare_int7;
+
+
+
+
 
 };
 
@@ -118,12 +130,14 @@ struct ploc // not synced between server and client
    double client_chase_fps;
    double stak_dsync;
 
-   float xcor_max;
-   int xcor_reset_frame;
+
+   float old_x, old_y;        // old players position, used to calc client pos_correction
+   float cor;
+   float cor_max;
+   int cor_reset_frame;
 
    int client_cdat_packets_tx;
-   int late_cdats;
-   int late_cdats_last_sec;
+
    int server_game_move_sync;
    double game_move_dsync;
    double game_move_dsync_avg_last_sec;

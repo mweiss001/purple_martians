@@ -249,6 +249,336 @@ I dont know
 
 lets do another release and try over the internet....
 
+seems to work good with manual stdf of 4, 3, 2
+
+the only bad thing is the non local players seem to jump around a lot
+
+but its pretty much the same with 4, 3, 2
+
+
+I think that this is just the way that it is....
+
+
+
+20230827 where am I at?
+
+trying to put the finishing touches on netgame
+
+the most noticeable thing is other players in a netgame
+they jump and warp a lot
+
+
+can you put a number on it?
+
+can you make it less severe?
+
+I think that faster stdf and less offset would make it look better
+
+how can i measure?
+
+I need to do more monitoring on the client, that is where you see all the jumpiness
+
+how about max player correction for any active player...done
+
+it does not show much difference because....
+
+local client has been updated with local moves since last state
+remote ones have not
+
+this does not help, it actually is the opposite
+
+try it with a large stdf and see...
+
+tried with 8
+remote cor max up to 40
+local cor max up to 20
+
+this actually looks like I'm onto something, or just confirming what I already knew
+
+I want to document all the tools I have for monitoring and measuring netgame...
+
+Starting with this...
+
+wait a minute, should I measure corr after ff?
+
+what am I trying to do here
+
+
+original method:
+get pos now
+compare to past corrected pos
+
+new method:
+get pos now
+compare to past corrected pos then played forward to now
+
+alt:
+rewind and get pos
+apply and compare
+
+
+of all the methods new seems best.
+it compares now to corrected now
+
+
+what is client_move_lag
+
+measured on client when applying dif
+
+mPlayer.loc[p].client_move_lag = mLoop.frame_num - client_state_dif_src;
+
+what does it mean?
+
+how far back the base frame is.
+
+how many frames the client has been free running before it is corrected
+
+directly related to stdf freq
+
+
+
+what is client_rewind
+
+int ff = mPlayer.loc[p].client_rewind = mLoop.frame_num - client_state_dif_dst; // dst compared to current mLoop.frame_num
+
+measured on client when applying dif
+
+the amount of frames that are ff replayed after a dif is applied
+
+directly related to offset??, yes!!
+
+It seems like I am better understanding this now....
+
+the only thing to adjust on the server is stdf_freq
+
+the only thing client can control is their timing relationship to the server
+
+I was adjusting stdf freq based on max client ping, but maybe I should just make that fixed and adjust client offset
+
+I have some values I am trying to minimize:
+
+client_rewind
+client_move_lag
+late cdats
+
+speaking of late cdats on the client, could I make that part of syn?
+
+it is not documented??
+
+server sets
+
+
+change
+
+   int late_cdats;
+   int late_cdats_last_sec;
+
+from loc to syn
+
+I want to see them on the client and I don't want to pass them both with specialized packets
+
+add 8 more spare ints to syn...done...
+
+old:
+psyn is 2304
+tot is 112128
+
+new:
+psyn is 2304
+tot is 112384
+
+now move from loc to syn...done
+
+now remove from packet exchange..done
+
+now show in client debug grid
+
+BUGS i am pretty sure that server rewind is clearing these....
+
+      // save values we don't want rewound
+      int lcd[8][2] = { 0 };
+      for (int pp=0; pp<NUM_PLAYERS; pp++)
+         if (mPlayer.syn[pp].active)
+         {
+            lcd[pp][0] = mPlayer.syn[pp].late_cdats;
+            lcd[pp][1] = mPlayer.syn[pp].late_cdats_last_sec;
+         }
+
+      state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
+      mLoop.frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
+      mLoop.loop_frame(ff);
+
+      // restore
+      for (int pp=0; pp<NUM_PLAYERS; pp++)
+         if (mPlayer.syn[pp].active)
+         {
+            mPlayer.syn[pp].late_cdats = lcd[pp][0];
+            mPlayer.syn[pp].late_cdats_last_sec = lcd[pp][1];
+         }
+
+fixed...
+
+bump version and release...
+kill all data and config too..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

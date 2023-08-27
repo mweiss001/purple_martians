@@ -1,6 +1,6 @@
 // mwNetgame.h
 
-#define STATE_SIZE 112128
+#define STATE_SIZE 112384
 #define MAX_CLIENTS 32
 
 struct packet_buffer

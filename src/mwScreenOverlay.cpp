@@ -469,7 +469,7 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       {
          if (mPlayer.syn[p].active == 1) color = color1;
          if (mPlayer.syn[p].active == 0) color = color2;
-         al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[%4d]", mPlayer.loc[p].late_cdats);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[%4d]", mPlayer.syn[p].late_cdats);
       }
       x+=6*8;
    }
@@ -481,7 +481,7 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       {
          if (mPlayer.syn[p].active == 1) color = color1;
          if (mPlayer.syn[p].active == 0) color = color2;
-         al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[%4d]", mPlayer.loc[p].late_cdats_last_sec);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[%4d]", mPlayer.syn[p].late_cdats_last_sec);
       }
       x+=6*8;
    }
@@ -575,6 +575,8 @@ void mwScreen::cdg_show(int x, int y) // client debug grid
    sdg_show_column(4, x, y); // control method
    sdg_show_column(9, x, y);  // client base resets
    sdg_show_column(28, x, y); // client rewind
+   sdg_show_column(23, x, y); // late cdats
+   sdg_show_column(24, x, y); // late cdats last second
    sdg_show_column(19, x, y); // name and description (client version)
 }
 
@@ -1051,8 +1053,21 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
       al_draw_filled_rectangle(cx, cy, cx+204, cy+38, mColor.pc[0]); cy+=2;
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "local moves:%d", mGameMoves.entry_pos); cy+=9;
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "move lag:%d", mPlayer.loc[p].client_move_lag);  cy+=9;
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "max x correction:%3.1f", mPlayer.loc[p].xcor_max);  cy+=9;
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "late cdats last second:%d", mPlayer.loc[p].late_cdats_last_sec);  cy+=9;
+      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "late cdats last second:%d", mPlayer.syn[p].late_cdats_last_sec);  cy+=9;
+
+   //   al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "max correction:%3.1f", mPlayer.loc[p].cor_max);  cy+=9;
+
+
+      for (int pp=0; pp<NUM_PLAYERS; pp++)
+         if (mPlayer.syn[pp].active)
+         {
+            al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "P:%d max corr:%3.1f", pp, mPlayer.loc[pp].cor_max);  cy+=9;
+         }
+
+
+
+
+
       cy +=4;
    }
 
@@ -1210,9 +1225,9 @@ void mwScreen::draw_bottom_frame(int p)
       al_draw_text(mFont.pr8, mColor.pc[tc], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
 
-      if (mPlayer.loc[p].late_cdats_last_sec)
+      if (mPlayer.syn[p].late_cdats_last_sec)
       {
-         sprintf(msg, "Warning! Late cdats:%d%% ", (mPlayer.loc[p].late_cdats_last_sec*100)/40);
+         sprintf(msg, "Warning! Late cdats:%d%% ", (mPlayer.syn[p].late_cdats_last_sec*100)/40);
          bdx2 -= strlen(msg)*8;
          al_draw_text(mFont.pr8, mColor.pc[mColor.flash_color], bdx2, bdy, 0, msg);
          mColor.process_flash_color();

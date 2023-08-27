@@ -1438,15 +1438,15 @@ void mwPlayer::init_player(int p, int t)
 
       syn[p].marked_gate = -1;
 
-
-
    }
 
    if (t == 21) // netgame counters, etc
    {
       loc[p].client_cdat_packets_tx = 0;
 
-      loc[p].late_cdats = 0;
+      syn[p].late_cdats = 0;
+      syn[p].late_cdats_last_sec = 0;
+
       mTally_late_cdats_last_sec[p].initialize(); // initialize tally
 
       loc[p].client_chase_fps = 0;
@@ -1465,8 +1465,10 @@ void mwPlayer::init_player(int p, int t)
       loc[p].cmp_dif_size = 0;
       loc[p].made_active_holdoff = 0;
 
-      loc[p].xcor_reset_frame = 0;
-      loc[p].xcor_max = 0;
+      loc[p].cor_reset_frame = 0;
+      loc[p].cor_max = 0;
+      loc[p].cor = 0;
+
 
       loc[p].ping = 0;
       loc[p].ping_avg = 0;

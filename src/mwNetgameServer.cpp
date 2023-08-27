@@ -357,6 +357,19 @@ void mwNetgame::server_rewind(void)
          mLog.add_log_entry2(27, 0, msg);
       }
 
+      // save values we don't want rewound
+      int lcd[8][2] = { 0 };
+      for (int pp=0; pp<NUM_PLAYERS; pp++)
+         if (mPlayer.syn[pp].active)
+         {
+            lcd[pp][0] = mPlayer.syn[pp].late_cdats;
+            lcd[pp][1] = mPlayer.syn[pp].late_cdats_last_sec;
+         }
+
+
+
+
+
       double t0 = al_get_time();
 
       state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
@@ -365,6 +378,20 @@ void mwNetgame::server_rewind(void)
       mLoop.loop_frame(ff);
 
       if (mLog.LOG_TMR_rwnd) mLog.add_log_TMR(al_get_time() - t0, "rwnd", 0);
+
+
+
+      // restore
+      for (int pp=0; pp<NUM_PLAYERS; pp++)
+         if (mPlayer.syn[pp].active)
+         {
+            mPlayer.syn[pp].late_cdats = lcd[pp][0];
+            mPlayer.syn[pp].late_cdats_last_sec = lcd[pp][1];
+         }
+
+
+
+
 
       mPlayer.loc[0].server_send_dif = 1;
    }
@@ -451,7 +478,6 @@ void mwNetgame::server_send_dif(int p) // send dif to a specific client
       PacketPut1ByteInt(num_packets);
       PacketPut4ByteInt(start_byte);
       PacketPut4ByteInt(packet_data_size);
-      PacketPut1ByteInt(mPlayer.loc[p].late_cdats_last_sec);
       memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
       packetsize += packet_data_size;
       ServerSendTo(packetbuffer, packetsize, mPlayer.loc[p].who, p);
@@ -546,13 +572,14 @@ void mwNetgame::server_proc_cdat_packet(double timestamp)
 
    mTally_game_move_dsync_avg_last_sec[p].add_data(mPlayer.loc[p].game_move_dsync); // add to average tally
 
-
    // check to see if earlier than the last stdf state
    if (cdat_frame_num < srv_client_state_frame_num[0][1])
    {
-      mPlayer.loc[p].late_cdats++;
+      mPlayer.syn[p].late_cdats++;
       mTally_late_cdats_last_sec[p].add_data(1); // add to tally
       sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] late - droppped\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync);
+      printf("%s\n", msg);
+
    }
    else
    {
