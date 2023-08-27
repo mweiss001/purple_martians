@@ -235,6 +235,164 @@ mPlayer.loc[p].game_move_dsync_avg_last_sec
 
 </code></pre>
 
+
+
+
+
+
+
+
+
+
+
+
+
+<br><a name="Client Player Position Correction"></a>
+<mh7>Client Player Position Correction</mh7>
+
+<br><me1>Description</me1>
+<mh3>
+On the client, when a new state is applied, measure the amount each player's position is corrected.
+
+This measures the amount of warping of players' positions when corrected by the server.
+
+The local client player usually has less warping, because it plays back locally stored moves after correction.
+
+When states are sent more often (stdf_freq is lower) the corrections should be less.
+
+</mh3>
+
+
+<br><me1>Variables</me1>
+<mh3>
+float mPlayer.loc[p].old_x;
+float mPlayer.loc[p].old_y;
+float mPlayer.loc[p].cor;
+float mPlayer.loc[p].float cor_max;
+int   mPlayer.loc[p].cor_reset_frame;
+</mh3>
+
+<br><me1>Code</me1>
+<mh3>
+</mh3>
+
+<pre><code class="language-cpp">void mwNetgame::client_apply_dif(void)
+{
+...
+                  // make a copy of players' pos
+                  for (int pp=0; pp < NUM_PLAYERS; pp++)
+                     if (mPlayer.syn[pp].active)
+                     {
+                        mPlayer.loc[pp].old_x = mPlayer.syn[pp].x;
+                        mPlayer.loc[pp].old_y = mPlayer.syn[pp].y;
+                     }
+
+                  // apply dif to base state
+                  apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
+
+                  // copy modified base state to game_vars
+                  state_to_game_vars(client_state_base);
+
+                  if (ff) mLoop.loop_frame(ff); // if we rewound time, play it back
+
+
+                  // calc players' correction
+                  for (int pp=0; pp < NUM_PLAYERS; pp++)
+                     if (mPlayer.syn[pp].active)
+                     {
+                        mPlayer.loc[pp].cor = sqrt(pow((mPlayer.loc[pp].old_x - mPlayer.syn[pp].x), 2) + pow((mPlayer.loc[pp].old_y - mPlayer.syn[pp].y), 2));  // hypotenuse distance
+                        if (mPlayer.loc[pp].cor > mPlayer.loc[pp].cor_max)  mPlayer.loc[pp].cor_max = mPlayer.loc[pp].cor;
+                     }
+
+
+                  // reset max players correction
+                  if (mLoop.frame_num > mPlayer.loc[p].cor_reset_frame)
+                  {
+                     mPlayer.loc[p].cor_reset_frame = mLoop.frame_num + 100;
+                     for (int pp=0; pp < NUM_PLAYERS; pp++)
+                        if (mPlayer.syn[pp].active) mPlayer.loc[pp].cor_max = 0;
+                  }
+...
+
+void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
+{
+...
+      for (int pp=0; pp < NUM_PLAYERS; pp++)
+         if (mPlayer.syn[pp].active)
+            al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "P:%d max corr:%3.1f", pp, mPlayer.loc[pp].cor_max);
+         
+</code></pre>
+
+
+
+
+<br><a name="Server Late cdats"></a>
+<mh7>Server Late cdats</mh7>
+
+
+<br><me1>Description</me1>
+<mh3>
+On the server, when a cdat packet is processed and it is too late to be applied, it is discarded and counted.
+
+
+
+
+
+</mh3>
+
+
+<br><me1>Variables</me1>
+<mh3>
+float mPlayer.loc[p].old_x;
+float mPlayer.loc[p].old_y;
+float mPlayer.loc[p].cor;
+float mPlayer.loc[p].float cor_max;
+int   mPlayer.loc[p].cor_reset_frame;
+</mh3>
+
+<br><me1>Code</me1>
+<mh3>
+</mh3>
+
+<pre><code class="language-cpp">void mwNetgame::server_proc_cdat_packet(double timestamp)
+{
+...
+   if (cdat_frame_num < srv_client_state_frame_num[0][1]) // check to see if earlier than the last stdf state
+   {
+      mPlayer.loc[p].late_cdats++;
+      mTally_late_cdats_last_sec[p].add_data(1); // add to tally
+
+...
+
+// ----------------------------------------------------------
+// do things based on the 1 Hz sec_timer event
+// ----------------------------------------------------------
+// tally late cdats
+for (int p=1; p < NUM_PLAYERS; p++)
+   if (mPlayer.syn[p].control_method == 2)
+	   mPlayer.loc[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally();
+
+
+...
+
+
+
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                <footer>                <mh11>Purple Martians</mh11><hr>
                 <div id="copyright">
                 Copyright &copy; 2023, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
