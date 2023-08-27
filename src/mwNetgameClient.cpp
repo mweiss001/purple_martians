@@ -513,6 +513,7 @@ void mwNetgame::client_timer_adjust(void)
    float i_adj = tmaj_i * 0;
 
 
+
    float t_adj = p_adj + i_adj; // total adj
 
    float fps_chase = mLoop.frame_speed - t_adj;

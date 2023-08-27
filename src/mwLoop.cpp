@@ -1440,19 +1440,25 @@ void mwLoop::main_loop(void)
          }
       }
 
+//      // send client ping at this time in the loop, if flag is set
+//      if ((mPlayer.loc[mPlayer.active_local_player].client_ping_flag) && (mNetgame.ima_client))
+//      {
+//         mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 0;
+//         mNetgame.client_send_ping();
+//      }
 
-      // send client ping at this time in the loop, if flag is set
-      if ((mPlayer.loc[mPlayer.active_local_player].client_ping_flag) && (mNetgame.ima_client))
-      {
-         mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 0;
-         mNetgame.client_send_ping();
-      }
+
 
       // ----------------------------------------------------------
       // do things based on the 1 Hz sec_timer event
       // ----------------------------------------------------------
       if (mEventQueue.program_update_1s)
       {
+
+         if (mNetgame.ima_client) mNetgame.client_send_ping();
+
+
+
 
          mEventQueue.program_update_1s = 0;
          if (state[1] == 11) // game loop running

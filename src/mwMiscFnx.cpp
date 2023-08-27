@@ -53,21 +53,30 @@ void mwMiscFnx::get_tag_text(char *str, char *res, int show)
    // get first tag
    char * pch1 = strchr(str, '[');
    char * pch2 = strchr(str, ']');
-   int p1 = pch1-str;
-   int p2 = pch2-str;
-   int plen = p2-p1;
 
-   if (show) printf("p1:%d  p2:%d  plen:%d\n", p1, p2, plen);
-
-   if (plen < 10) // ???
+   if ((pch1 == NULL) || (pch2 == NULL))
    {
-       for(int j=0; j<plen; j++)
-          res[j] = str[j+p1+1];
-       res[plen-1] = 0;
-       if (show) printf("tag text [%s]\n", res);
-       mMiscFnx.chop_first_x_char(str, p2+1);
+      if (show) printf("Did not find tag [] in %s \n", str);
    }
-   if (show) printf("get tag final %s\n", str);
+   else
+   {
+
+      int p1 = pch1-str;
+      int p2 = pch2-str;
+      int plen = p2-p1;
+
+      if (show) printf("p1:%d  p2:%d  plen:%d\n", p1, p2, plen);
+
+      if (plen < 10) // ???
+      {
+          for(int j=0; j<plen; j++)
+             res[j] = str[j+p1+1];
+          res[plen-1] = 0;
+          if (show) printf("tag text [%s]\n", res);
+          mMiscFnx.chop_first_x_char(str, p2+1);
+      }
+      if (show) printf("get tag final %s\n", str);
+   }
 }
 
 

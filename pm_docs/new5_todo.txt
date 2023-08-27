@@ -140,10 +140,185 @@ Now, here is how client_sync_graph works:
 
 Fixed all the help entries related to logs...
 
+segfault when opening log...why?
+
+so many fucking bugs!  arrrghhh!!!
+
+fixed bug in get tag that errored when tag was not found
+
 
 now moving on:
 
 I was wanting to see how the slow chase happens with larger stdf_freq
+
+LAN e6430 server stdf manual 2
+start frame 237, lock 303
+
+LAN e6430 server stdf manual 4
+start frame 285, lock 384
+
+LAN e6430 server stdf manual 6
+start frame 203, lock 339
+
+LAN e6430 server stdf manual 8
+start frame 198, lock 372
+
+LAN e6430 server stdf manual 10
+start frame 209, lock 422
+
+so I dont see much with this data, but what I do see is that with larger stdf the graph swings up and down more
+
+what the hell is ping graph and what do I need to do to make it work?
+
+   tags[36][0] = 1; tags[36][1] = 13; tags[36][3] = 84; sprintf(ctags[36], "tmaj"); // timer adjust (T) [C]
+   tags[37][0] = 1; tags[37][1] = 13; tags[37][3] = 78; sprintf(ctags[37], "cpng"); // client ping  (N) [C]
+
+
+with higher stdf_freq   dsysnc really has a cyclic pattern
+
+what can I do about that?
+
+can I make packets used for sync different from stdf...
+
+what if I made ping packets once per frame?
+
+hell I was going to send stdf once per frame!!
+
+wait a tick here! I don't use stdf packets for timing....i use pong...
+
+and they only come once every 2s!!! no wonder my chase loop oscillates
+
+
+compare:
+
+
+LAN e6430 server stdf manual 10 ping_freq:20
+-22 -17 -23 -18 -23 -18
+-39.9 - 40.1 on a 2-3 sec sine wave
+
+
+LAN e6430 server stdf manual 10 ping_freq:2
+-29 -12 -27 -13 -26 -14
+-39.5 - 40.4 on a 2-3 sec sine wave
+
+
+LAN e6430 server stdf manual 10 ping_freq:40 (every frame)
+
+I am getting bad results doing it that way...
+
+
+what if the server just broadcasts ticks
+
+then the client can lock onto those
+
+the client can reply and then the server will know the client time...
+
+I can also make the tick more accurate
+
+
+why is the dysnc on a 2s cycle, no matter what ping or stdf freq?
+I don't know...
+
+
+DUH!
+client timer adjust is based on stdf dsync
+
+that is where it is adjusted
+
+all ping does is set chase offset....
+
+
+this seems far more complicated than it needs to be...
+
+I want to adjust time more often than when stdf's are received
+
+otherwise stdf's could be my tick
+
+put the ping back
+
+stick it in with the 1Hz stuff
+
+try stdf freq of 4, fixed and see if you can tweak the loop
+the chase has very little cycling
+
+
+what bad things happen when s1 never goes below 4?
+
+I dont know
+
+
+lets do another release and try over the internet....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
