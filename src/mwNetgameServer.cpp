@@ -344,8 +344,14 @@ void mwNetgame::server_rewind(void)
    char msg[1024];
    int s1 = server_state_freq;
 
-   if (mLoop.frame_num >= srv_client_state_frame_num[0][1] + s1)    // is it time to create a new state?
+
+   if (mLoop.frame_num >= srv_client_state_frame_num[0][1] + s1 - 1)    // is it time to create a new state?
    {
+
+      //printf("new state:%d   s1:%d\n", mLoop.frame_num, s1);
+
+
+
       int ff = mLoop.frame_num - srv_client_state_frame_num[0][1];  // almost always equals s1, unless s1 has changed
 
       // rewind and fast forward from last state to apply late client input
@@ -425,8 +431,21 @@ void mwNetgame::server_create_new_state(void)
 void mwNetgame::server_send_dif(int p) // send dif to a specific client
 {
    char msg[1024];
-   // if last_ack_state_frame == 0 set base to all zeros
-   if (srv_client_state_frame_num[p][0] == 0) memset(srv_client_state[p][0], 0, STATE_SIZE);
+
+   if (server_state_freq == 0)
+   {
+      // test always from base 0
+      srv_client_state_frame_num[p][0] = 0;
+      memset(srv_client_state[p][0], 0, STATE_SIZE);
+   }
+   else
+   {
+      // if last_ack_state_frame == 0 set base to all zeros
+      if (srv_client_state_frame_num[p][0] == 0) memset(srv_client_state[p][0], 0, STATE_SIZE);
+   }
+
+
+
 
    char dif[STATE_SIZE];
    char cmp[STATE_SIZE];

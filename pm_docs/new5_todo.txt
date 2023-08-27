@@ -421,20 +421,176 @@ fixed...
 bump version and release...
 kill all data and config too..
 
+remove late cdats line, now in grid
+add cor to client grid
+done
+
+
+lag also, but maybe rename
+
+think up better names for rewind and lag
+
+
+client_rewind
+
+int ff = mPlayer.loc[p].client_rewind = mLoop.frame_num - client_state_dif_dst; // dst compared to current mLoop.frame_num
+
+measured on client when applying dif
+
+the amount of frames that are ff replayed after a dif is applied
+
+directly related to offset??, yes!!
+
+
+other name that might be more descriptive:
+client_replay_frames
+client_ff_frames
+
+
+releated to client_lag which is:
+
+measured on client when applying dif
+
+mPlayer.loc[p].client_move_lag = mLoop.frame_num - client_state_dif_src;
+
+what does it mean?
+
+how far back the base frame is.
+
+directly related to stdf freq
+
+how many frames the client has been free running before it is corrected
+not exactly??
+
+
+    +-------------+---------------+
+base_frame   state_frame    current_frame
+
+cf-sf = client_rewind
+cf-bf = client_lag
+
+what if I showed a graphic representation of this:
+
+record the values when dif is applied
+
+sfd (src frame_delta)
+dfd (dst frame_delta)
+
+
+I just realized that frame span between sfd and dfd is stdf_freq..
+
+I really want to see this graphically in real time on the client
+
+
++--+--+
+s d c
 
 
 
 
 
+what if I send the entire game state every frame
+always based on state zero
+
+why?
+
+just to see what it does
+
+what kind of bandwidth are we talking here?
+
+would it help with retransmits
+
+how can I easily swap this in for testing?
+
+what do I get before
+
+
+do this with m36 as server and e6430 as client....
+
+s1:2 no base resets 5kB
+s1:1 no base resets 7kB
+size 300
 
 
 
+base 0
+70K
+size 3000
+
+
+make it optional with stdf_freq = 0??
+
+
+check what actually is going on...
+
+is s1 == 1 everyframe?
+
+no...wtf??
+
+new state:359   s1:2
+new state:362   s1:2
+new state:365   s1:2
+new state:368   s1:2
+new state:371   s1:2
+
+new state:393   s1:1
+new state:395   s1:1
+new state:397   s1:1
+new state:399   s1:1
+new state:401   s1:1
+
+new state:484   s1:0
+new state:485   s1:0
+new state:486   s1:0
 
 
 
+this is not what I expected, it could explain many things....
+
+if (mLoop.frame_num >= srv_client_state_frame_num[0][1] + s1)    // is it time to create a new state?
+
+change it so that it does what I expect...
+
+if (mLoop.frame_num >= srv_client_state_frame_num[0][1] + s1 -1)    // is it time to create a new state?
 
 
+0 = every frame and no base
+1 = every frame
+2 = every 2 frame
+3 = every 3 frame
 
+
+new state:191   s1:3
+new state:194   s1:3
+new state:197   s1:3
+
+new state:200   s1:2
+new state:202   s1:2
+new state:204   s1:2
+
+new state:226   s1:1
+new state:227   s1:1
+new state:228   s1:1
+
+new state:250   s1:0
+new state:251   s1:0
+new state:252   s1:0
+
+
+new bandwidths:
+
+s1:3 no base resets 5kB
+s1:2 no base resets 7kB
+s1:1 no base resets 13kB
+size 300
+
+
+base 0
+140K
+size 3000
+
+
+lets bump, deploy and test
 
 
 
