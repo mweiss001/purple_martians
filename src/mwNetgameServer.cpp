@@ -1,5 +1,7 @@
 // mwNetgameServer.cpp
 
+#include <limits>
+
 #include "pm.h"
 #include "mwNetgame.h"
 #include "mwLog.h"
