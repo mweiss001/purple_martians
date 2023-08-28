@@ -80,47 +80,30 @@ void mwLoop::initialize(void)
 
 void mwLoop::move_frame(void)
 {
-   char msg[1024];
    double t[8] = { 0 };
    if ((mLog.LOG_TMR_move_tot) || (mLog.LOG_TMR_move_all)) t[0] = al_get_time();
 
    int debug_print = 0;
 
-
    if (debug_print) printf("testmf1\n");
-
-
-
    mShot.move_eshots();      if (mLog.LOG_TMR_move_all) t[1] = al_get_time();
 
    if (debug_print) printf("testmf2\n");
-
-
-
    mShot.move_pshots();      if (mLog.LOG_TMR_move_all) t[2] = al_get_time();
 
    if (debug_print) printf("testmf3\n");
-
    mLift.move_lifts(0);      if (mLog.LOG_TMR_move_all) t[3] = al_get_time();
 
    if (debug_print) printf("testmf4\n");
-
    mPlayer.move_players();   if (mLog.LOG_TMR_move_all) t[4] = al_get_time();
 
-
    if (debug_print) printf("testmf5\n");
-
-
    mEnemy.move_enemies();    if (mLog.LOG_TMR_move_all) t[5] = al_get_time();
 
    if (debug_print) printf("testmf6\n");
-
    mItem.move_items();       if (mLog.LOG_TMR_move_all) t[6] = al_get_time();
 
    if (debug_print) printf("testmf7\n");
-
-
-
 
 //   int p = mPlayer.active_local_player;
 //   if (mPlayer.syn[p].player_ride) // if player is riding lift
@@ -131,13 +114,9 @@ void mwLoop::move_frame(void)
 //      printf("move frame end - px:%4.2f lx:%4.2f dif:%4.2f\n", mPlayer.syn[p].x, lx, mPlayer.syn[p].x-lx);
 //   }
 
-   if (mLog.LOG_TMR_move_all)
-   {
-      sprintf(msg, "tmst m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
-      (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[6]-t[5])*1000, (t[6]-t[0])*1000);
-      //printf("\n%s\n", msg);
-      mLog.add_log_entry2(44, 0, msg);
-   }
+   if (mLog.LOG_TMR_move_all) mLog.add_log_entry3(44, 0, 0, "tmst m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
+                   (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[6]-t[5])*1000, (t[6]-t[0])*1000);
+
    if (mLog.LOG_TMR_move_tot) mLog.add_log_TMR(al_get_time() - t[0], "move", 0);
 }
 
@@ -621,11 +600,8 @@ void mwLoop::proc_program_state(void)
 
       mNetgame.game_vars_to_state(mNetgame.srv_client_state[0][1]);
       mNetgame.srv_client_state_frame_num[0][1] = frame_num;
-      if (mLog.LOG_NET_stdf)
-      {
-         sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
-         mLog.add_log_entry2(27, 0, msg);
-      }
+      if (mLog.LOG_NET_stdf) mLog.add_log_entry3(27, 0, 0, "stdf saved server state[1]:%d\n", frame_num);
+
 
       mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
 
@@ -1095,12 +1071,8 @@ void mwLoop::setup_common_after_level_load(void)
       mNetgame.game_vars_to_state(mNetgame.srv_client_state[0][1]);
       mNetgame.srv_client_state_frame_num[0][1] = frame_num;
 
-      if (mLog.LOG_NET_stdf)
-      {
-         //   printf("saved server state[1]:%d\n\n", frame_num);
-         sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
-         mLog.add_log_entry2(27, 0, msg);
-      }
+      if (mLog.LOG_NET_stdf) mLog.add_log_entry3(27, 0, 0, "stdf saved server state[1]:%d\n", frame_num);
+
    }
    if (!mDemoMode.mode)
    {

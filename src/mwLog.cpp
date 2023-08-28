@@ -65,6 +65,56 @@ void mwLog::add_log_entry2(int type, int player, const char *txt)
    }
 }
 
+
+
+
+
+
+
+
+
+void mwLog::add_log_entry3(int type, int player, int print, const char *format, ...)
+{
+   char smsg[200];
+   va_list args;
+   va_start(args, format);
+   vsprintf(smsg, format, args);
+   va_end(args);
+
+   if (print) printf(smsg);
+
+
+   char tmsg[500];
+   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, smsg);
+   // strcat(log_msg, tmsg);
+
+
+   if ((log_msg_pos + strlen(tmsg)) >= NUM_LOG_CHAR)
+   {
+      printf("log array full, > %d char\n", NUM_LOG_CHAR);
+   }
+   else
+   {
+      memcpy(log_msg + log_msg_pos, tmsg, strlen(tmsg));
+      log_msg_pos += strlen(tmsg);
+      log_msg[log_msg_pos+1] = 0; // NULL terminate
+      //sprintf(log_msg, "%s", txt);
+      //printf("%s", tmsg);
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwLog::add_log_entry_position_text(int type, int player, int width, int pos, const char *txt, const char *border, const char *fill)
 {
    int l = strlen(txt);
@@ -221,9 +271,7 @@ void mwLog::log_reason_for_player_quit(int p)
 
 void mwLog::add_log_TMR(double dt, const char *tag, int p)
 {
-   char msg[1024];
-   sprintf(msg, "tmst %s:[%0.4f]\n", tag, dt*1000);
-   add_log_entry2(44, p, msg);
+   add_log_entry3(44, p, 0, "tmst %s:[%0.4f]\n", tag, dt*1000);
 }
 
 void mwLog::log_time_date_stamp(void)

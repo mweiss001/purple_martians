@@ -337,31 +337,113 @@ void mwNetgame::server_exit(void)
 
 
 
+int mwNetgame::find_earliest_rewind_state(void)
+{
+   // find lowest frame number
+   int mn = std::numeric_limits<int>::max();
+   int indx = -1;
+   for (int i=0; i<8; i++)
+   {
+      if ((srv_rewind_state_frame_num[i] > -1) && (srv_rewind_state_frame_num[i] < mn))
+      {
+         mn = srv_rewind_state_frame_num[i];
+         indx = i;
+      }
+   }
+   return indx;
+}
+
+
+
+
+
+void mwNetgame::show_rewind_states(const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+
+   // show rewind states
+   for (int i=0; i<8; i++)
+      printf("%d ", srv_rewind_state_frame_num[i]);
+
+   vprintf(format, args);
+
+
+   va_end(args);
+
+
+}
+
+
+
+
+void mwNetgame::add_rewind_state(void)
+{
+   int indx = -1;
+
+   // first use all empty slots (-1)
+   for (int i=0; i<8; i++)
+      if (srv_rewind_state_frame_num[i] == -1) indx = i;
+
+
+   if (indx == -1) // no empty's left
+   {
+      // find lowest frame number
+      int mn = std::numeric_limits<int>::max();
+      for (int i=0; i<8; i++)
+         if (srv_rewind_state_frame_num[i] < mn)
+         {
+            mn = srv_rewind_state_frame_num[i];
+            indx = i;
+         }
+   }
+   if (indx == -1)
+   {
+      show_rewind_states(" -  indx:%d  frame:%d  ERROR! adding server rewind state\n", indx, srv_rewind_state_frame_num[indx]);
+   }
+   else
+   {
+      show_rewind_states(" -  indx:%d  frame:%d  adding server rewind state \n", indx, srv_rewind_state_frame_num[indx]);
+      memcpy(srv_rewind_state[indx], srv_client_state[0][1], STATE_SIZE);
+      srv_rewind_state_frame_num[indx] = srv_client_state_frame_num[0][1];
+   }
+}
+
+
+void mwNetgame::set_rewind_state(void)
+{
+   if (mLoop.frame_num > 0)
+   {
+      int indx = find_earliest_rewind_state();
+      if (indx > -1)
+      {
+         memcpy(srv_client_state[0][1], srv_rewind_state[indx], STATE_SIZE);
+         srv_client_state_frame_num[0][1] = srv_rewind_state_frame_num[indx];
+         show_rewind_states(" -  indx:%d  frame:%d  loading server rewind state\n", indx, srv_rewind_state_frame_num[indx]);
+      }
+      else show_rewind_states(" -  indx:%d  frame:%d  ERROR! loading server rewind state\n", indx, srv_rewind_state_frame_num[indx]);
+   }
+}
+
+
 
 
 void mwNetgame::server_rewind(void)
 {
-   char msg[1024];
-   int s1 = server_state_freq;
-
-
-   if (mLoop.frame_num >= srv_client_state_frame_num[0][1] + s1 - 1)    // is it time to create a new state?
+   if (mLoop.frame_num >= srv_client_state_frame_num[0][1] + server_state_freq - 1)    // is it time to create a new state?
    {
 
-      //printf("new state:%d   s1:%d\n", mLoop.frame_num, s1);
-
+      set_rewind_state();
 
 
       int ff = mLoop.frame_num - srv_client_state_frame_num[0][1];  // almost always equals s1, unless s1 has changed
 
+
       // rewind and fast forward from last state to apply late client input
 
-      if (mLog.LOG_NET_stdf)
-      {
-         sprintf(msg, "stdf rewind to:%d\n", srv_client_state_frame_num[0][1]);
-         //printf(msg);
-         mLog.add_log_entry2(27, 0, msg);
-      }
+
+      if (mLog.LOG_NET_stdf) mLog.add_log_entry3(27, 0, 0, "stdf rewind to:%d\n", srv_client_state_frame_num[0][1]);
 
       // save values we don't want rewound
       int lcd[8][2] = { 0 };
@@ -372,13 +454,9 @@ void mwNetgame::server_rewind(void)
             lcd[pp][1] = mPlayer.syn[pp].late_cdats_last_sec;
          }
 
-
-
-
-
       double t0 = al_get_time();
 
-      state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
+      state_to_game_vars(srv_client_state[0][1]);         // apply rewind state
       mLoop.frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
 
       mLoop.loop_frame(ff);
@@ -395,17 +473,20 @@ void mwNetgame::server_rewind(void)
             mPlayer.syn[pp].late_cdats_last_sec = lcd[pp][1];
          }
 
-
-
-
-
       mPlayer.loc[0].server_send_dif = 1;
    }
+
+
+
+
+
+
+
+
 }
 
 void mwNetgame::server_create_new_state(void)
 {
-   char msg[1024];
    if (mPlayer.loc[0].server_send_dif)
    {
       mPlayer.loc[0].server_send_dif = 0;
@@ -414,12 +495,9 @@ void mwNetgame::server_create_new_state(void)
       game_vars_to_state(srv_client_state[0][1]);
       srv_client_state_frame_num[0][1] = mLoop.frame_num+1;
 
-      if (mLog.LOG_NET_stdf)
-      {
-         sprintf(msg, "stdf saved server state[1]:%d\n", mLoop.frame_num);
-         //printf(msg);
-         mLog.add_log_entry2(27, 0, msg);
-      }
+      add_rewind_state();
+
+      if (mLog.LOG_NET_stdf) mLog.add_log_entry3(27, 0, 1, "stdf saved server state[1]:%d\n", mLoop.frame_num);
 
       // send to all clients
       for (int p=1; p<NUM_PLAYERS; p++)
@@ -430,7 +508,6 @@ void mwNetgame::server_create_new_state(void)
 
 void mwNetgame::server_send_dif(int p) // send dif to a specific client
 {
-   char msg[1024];
 
    if (server_state_freq == 0)
    {
@@ -470,25 +547,21 @@ void mwNetgame::server_send_dif(int p) // send dif to a specific client
    mPlayer.loc[p].cmp_dif_size = cmp_size;
    mPlayer.loc[p].num_dif_packets = num_packets;
 
-   if (mLog.LOG_NET_stdf)
-   {
-      float cr = (float)cmp_size*100 / (float)STATE_SIZE; // compression ratio
-      sprintf(msg, "tx stdf p:%d [src:%d dst:%d] cmp:%d ratio:%3.2f [%d packets needed]\n",
+
+
+   float cr = (float)cmp_size*100 / (float)STATE_SIZE; // compression ratio
+
+   if (mLog.LOG_NET_stdf) mLog.add_log_entry3(27, p, 0, "tx stdf p:%d [src:%d dst:%d] cmp:%d ratio:%3.2f [%d packets needed]\n",
                             p, srv_client_state_frame_num[p][0], srv_client_state_frame_num[p][1], cmp_size, cr, num_packets);
-      mLog.add_log_entry2(27, p, msg);
-   }
+
    int start_byte = 0;
    for (int packet_num=0; packet_num < num_packets; packet_num++)
    {
       int packet_data_size = 1000; // default size
       if (start_byte + packet_data_size > cmp_size) packet_data_size = cmp_size - start_byte; // last piece is smaller
 
-      if (mLog.LOG_NET_stdf_all_packets)
-      {
-         sprintf(msg, "tx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n",
+      if (mLog.LOG_NET_stdf_all_packets) mLog.add_log_entry3(28, p, 0, "tx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n",
                        packet_num+1, num_packets, srv_client_state_frame_num[p][0], srv_client_state_frame_num[p][1], start_byte, packet_data_size);
-         mLog.add_log_entry2(28, p, msg);
-      }
 
       Packet("stdf");
       PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
@@ -592,12 +665,21 @@ void mwNetgame::server_proc_cdat_packet(double timestamp)
    mTally_game_move_dsync_avg_last_sec[p].add_data(mPlayer.loc[p].game_move_dsync); // add to average tally
 
    // check to see if earlier than the last stdf state
-   if (cdat_frame_num < srv_client_state_frame_num[0][1])
+
+   // find oldest frame
+   int of = srv_client_state_frame_num[0][1]; // default
+//   int indx = find_earliest_rewind_state();
+//   if (indx > -1) of = srv_rewind_state_frame_num[indx];
+
+   if (cdat_frame_num < of)
    {
       mPlayer.syn[p].late_cdats++;
       mTally_late_cdats_last_sec[p].add_data(1); // add to tally
       sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] late - droppped\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync);
-      printf("%s\n", msg);
+
+//      printf("%s\n", msg);
+
+//      printf("fn:%d cf:%d of:%d  -  %s", mLoop.frame_num, cdat_frame_num, of, msg);
 
    }
    else

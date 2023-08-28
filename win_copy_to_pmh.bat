@@ -5,9 +5,17 @@ setlocal EnableDelayedExpansion
 set used=0
 
 
-set srv=96.45.13.253
 
+set srv=%2
+
+
+
+IF [%2]==[] (
+set srv=96.45.13.253
 set srv=scat
+)
+
+
 
 
 

@@ -1067,39 +1067,43 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
    {
       al_draw_filled_rectangle(cx, cy, cx+204, cy+38, mColor.pc[0]); cy+=2;
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "local moves:%d", mGameMoves.entry_pos); cy+=9;
+
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "move lag:%d", mPlayer.loc[p].client_move_lag);  cy+=9;
       cy +=4;
 
 
-      cy +=8;
-
-      int sfd = mPlayer.loc[p].client_move_lag; // src frame delta
-      int dfd = mPlayer.loc[p].client_rewind;   // dst frame delta
-
-
-      int y1 = cy;
-      int y2 = cy+20;
-
-
-      int xs = 20;
-
-      int x1 = cx+10;
-      int x2 = sfd * xs; // entire width
-      int x3 = x2 - dfd * xs; // middle bar
-
-      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
-      al_draw_rectangle(x1, y1, x3, y2, mColor.pc[15], 1);
 
 
 
-      al_draw_textf(mFont.pixl, mColor.pc[15], x1, y1-12, ALLEGRO_ALIGN_CENTER, "S");
-
-      al_draw_textf(mFont.pixl, mColor.pc[15], x3, y1-12, ALLEGRO_ALIGN_CENTER, "D");
-
-      al_draw_textf(mFont.pixl, mColor.pc[15], x2, y1-12, ALLEGRO_ALIGN_CENTER, "C");
-
-
-      cy +=28;
+//
+//      cy +=8;
+//
+//      int sfd = mPlayer.loc[p].client_move_lag; // src frame delta
+//      int dfd = mPlayer.loc[p].client_rewind;   // dst frame delta
+//
+//
+//      int y1 = cy;
+//      int y2 = cy+20;
+//
+//
+//      int xs = 20;
+//
+//      int x1 = cx+10;
+//      int x2 = x1 + sfd * xs; // entire width
+//      int x3 = x2 - dfd * xs; // middle bar
+//
+//      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
+//      al_draw_rectangle(x1+1, y1+1, x3, y2-1, mColor.pc[10], 1);
+//
+//
+//      al_draw_textf(mFont.pixl, mColor.pc[15], x1, y1-12, ALLEGRO_ALIGN_CENTER, "S");
+//
+//      al_draw_textf(mFont.pixl, mColor.pc[15], x3, y1-12, ALLEGRO_ALIGN_CENTER, "D");
+//
+//      al_draw_textf(mFont.pixl, mColor.pc[15], x2, y1-12, ALLEGRO_ALIGN_CENTER, "C");
+//
+//
+//      cy +=28;
 
 
 

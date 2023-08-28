@@ -109,6 +109,7 @@ int mwNetgame::get_packetpos(void)
 }
 
 
+
 // create a new packet
 void mwNetgame::Packet(const char *id)
 {
@@ -307,16 +308,17 @@ void mwNetgame::reset_states(void)
       client_state_buffer_pieces[i] = -1;
 
    // reset server's client states
+   for (int i=0; i<8; i++) reset_client_state(i);
+
+   // reset server's rewind states
    for (int i=0; i<8; i++)
    {
-      memset(srv_client_state[i][0], 0, STATE_SIZE);
-      memset(srv_client_state[i][1], 0, STATE_SIZE);
-      srv_client_state_frame_num[i][0] = 0;  // src
-      srv_client_state_frame_num[i][1] = -3; // dst
+      memset(srv_rewind_state[i], 0, STATE_SIZE);
+      srv_rewind_state_frame_num[i] = -1;
    }
 }
 
-void mwNetgame::reset_client_state(int p) // server only
+void mwNetgame::reset_client_state(int p) // server calls this when client quits
 {
    memset(srv_client_state[p][0], 0, STATE_SIZE);
    memset(srv_client_state[p][1], 0, STATE_SIZE);

@@ -148,13 +148,16 @@ void mwBottomMessage::initialize(void)
 
 
 
-
-
 void mwBottomMessage::draw_text(const char *txt, int col, int &xpos)
 {
    al_draw_text(mFont.pr16, mColor.pc[col], xpos, 2, ALLEGRO_ALIGN_INTEGER, txt);
    xpos += (strlen(txt)*16);
 }
+
+
+
+
+
 
 void mwBottomMessage::draw_bmp(ALLEGRO_BITMAP *tmp, int &xpos, int xo, int yo)
 {

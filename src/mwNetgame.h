@@ -62,9 +62,18 @@ class mwNetgame
    int server_state_freq_mode = 1; // 0 = manual, 1 = auto
 
 
+   // server's last 8 states for rewinding
+   char srv_rewind_state[8][STATE_SIZE];
+   int srv_rewind_state_frame_num[8];
+
+
    // server's copies of client states
    char srv_client_state[8][2][STATE_SIZE];
    int srv_client_state_frame_num[8][2];
+
+
+
+
 
    // local client's states
    char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
@@ -138,6 +147,18 @@ class mwNetgame
    void server_exit(void);
    void server_send_dif(int p);
    void server_create_new_state(void);
+
+
+   int find_earliest_rewind_state(void);
+
+
+   void show_rewind_states(const char *format, ...);
+
+
+   void add_rewind_state(void);
+   void set_rewind_state(void);
+
+
    void server_rewind(void);
    void server_send_sdat(void);
    void server_proc_player_drop(void);
