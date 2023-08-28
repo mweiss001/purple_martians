@@ -97,7 +97,7 @@ in bottom message draw_text...rearrange so msg is last, then make another draw_t
 
 in log message also extend others that take a char as an arg
 
-
+test
 
 
 
