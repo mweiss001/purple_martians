@@ -72,6 +72,11 @@ class mwLog
    void erase_log(void);
    void save_log_file(void);
    void add_log_entry2(int type, int player, const char *txt);
+
+
+   void add_log_entry3(int type, int player, int print, const char *format, ...);
+
+
    void add_log_entry_position_text(int type, int player, int width, int pos, const char *txt, const char *border, const char *fill);
    void add_log_entry_centered_text(int type, int player, int width, const char *txt, const char *border, const char *fill);
    void add_log_entry_header(int type, int player, const char *txt, int blank_lines);

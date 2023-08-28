@@ -7,6 +7,134 @@
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+
+
+see if I can figure out how to make a wrapper for printf
+
+
+#include <stdarg.h>
+
+int write_log(int priority, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    if(priority & PRIO_LOG)
+            vprintf(format, args);
+
+    va_end(args);
+}
+
+
+this was so easy to do!!!
+
+what can I use it to replace?
+
+all the log stuff....
+
+
+
+old:
+
+      if (mLog.LOG_NET_stdf)
+      {
+         sprintf(msg, "stdf saved server state[1]:%d\n", mLoop.frame_num);
+         //printf(msg);
+         mLog.add_log_entry2(27, 0, msg);
+      }
+
+
+new:
+
+      if (mLog.LOG_NET_stdf) mLog.add_log_entry2(27, 0, "stdf saved server state[1]:%d\n", mLoop.frame_num);
+
+
+also add to the log stuff a parameter if I want to print to console
+
+
+add_log_entry2 occurances 41
+
+
+this is the first successfull replacement
+
+      if (mLog.LOG_NET_stdf) mLog.add_log_entry3(27, 0, 1, "stdf saved server state[1]:%d\n", mLoop.frame_num);
+
+//      if (mLog.LOG_NET_stdf)
+//      {
+//         sprintf(msg, "stdf saved server state[1]:%d\n", mLoop.frame_num);
+//         //printf(msg);
+//         mLog.add_log_entry2(27, 0, msg);
+//      }
+
+
+1 line instead of 6...nice...do more
+
+
+I am thinking of going one further
+
+
+I want to have the log id numbers as defines
+
+then do something like:
+
+old:
+
+if (mLog.LOG_NET_stdf) mLog.add_log_entry3(27, 0, 1, "stdf saved server state[1]:%d\n", mLoop.frame_num);
+
+new:
+
+mLog.add_log_entry3(LOG_NET_stdf_num, 0, 1, "stdf saved server state[1]:%d\n", mLoop.frame_num);
+
+then in the function use that number and test
+
+I can also add if I want to print that to the console...I can use this everywhere!!
+
+
+
+
+
+in bottom message draw_text...rearrange so msg is last, then make another draw_textf
+
+in log message also extend others that take a char as an arg
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 where can I do one place to store version?
 
 so it will show in the compiled program
@@ -591,6 +719,619 @@ size 3000
 
 
 lets bump, deploy and test
+
+can I make my headless server still detect serial key check?
+
+
+it works over the internet with s1=0
+
+each client uses about 140kB/s
+
+still does not look much better with the warping corrections
+
+my nice graphical thing is broken...it depends on the stdf src, which I am setting to zero for base reset reasons...
+
+why do I even care about dif src?
+
+I just liked having something to show on the client...
+
+why not just the time from now to the dest of the dif...
+
+that is crwd or ff
+
+
+If I leave s1:0
+
+the only other thing I can adjust is the client offset...
+and I want to monitor crwd...
+
+I can get 2 with offset > 25
+
+and 1 with < 25
+
+
+but I cant do < 25 when ping is 30
+
+try local
+
+m36 server and 2 clients
+each has 330kps for a total of 670kbps  wow
+I guess it depends on the level
+that was level 64
+level 1 has 135 each for a total of 270
+
+
+does not seem to make much difference in the warping...
+its better I think, but not dramatically better, hard to tell...
+
+what is stsy, cdsy and gmav on server debug grid?
+
+
+
+
+stsy - server stak sync
+mPlayer.loc[p].stak_dsync*1000);
+when server rx stak, how long did it take from client
+not really used, more like a ping time
+
+
+cdsy - client dsync
+mPlayer.loc[p].dsync
+calculated by client and passed to server with stak packets
+
+
+gmav - client game move sync avg last sec
+when server processes cdat it compares the time to the current server time
+tallies average last sec for each client
+
+
+
+I really want to be able to control and monitor the headless server remotely
+
+
+
+how?
+
+a seperate program connected with my own custom packet exchange?
+
+
+or a connected client can just open a debug connection to the server
+
+I want to see the full debug overlay, and be able to control s1 and zc
+
+
+it would be easier (maybe) to base it off a connected client
+
+put the client in a special inactive state...
+
+
+or I could make my own connection...
+independant of the netgame
+
+
+I want to write up what I have discovered today. Formally, so I do not have to discover it again later.
+
+First of all the good news. Netgame is working well. As good as possible with the current algorithm.
+
+Now for the bad news.
+
+Not really bad, but there is some warping of non-local clients on other clients games.
+
+It looks like the player is twitching and jumping around.
+
+Its really not that bad, but I spent a lot of time and effort to see if I could get rid of it or at least minimize it.
+
+
+There are only a few adjustable things in the game.
+
+On the server, the rate the states are sent.
+
+On the the client, the timing offset in relation to the server.
+
+
+First of all, lets discuss stdf_freq, the rate the server send states to clients.
+
+0 = every frame and no base
+1 = every frame
+2 = every 2 frames
+3 = every 3 frames
+
+The more often they are sent, the less corrections on the clients.
+
+This time I even made a new setting, 0, which in addition to sending states every frame,
+also gets rid of the need for a base to make a diff with.
+
+This was attempted to see what would happen.  Here is what happens:
+The amount of bandwidth increases almost 10 times.
+
+There might be a slight improvement in the client corrections, but its barely noticeable.
+The functionality is left there to experiment with.
+All you need to do is manually set stdf_freq to 0;
+
+The end result is that will probably always use manual 1 for stdf_freq.
+
+
+Next of all is client_offset.
+
+In order for things to run as smooth as possible, with the fewest corrections, client offset should be as low as possible.
+
+In a LAN with low ping times you can set client_offset as low as 5-10;
+
+If you set it too low you will get late_cdats. Where the server gets input too late to be applied.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------
+
+If I do not need states for making clients difs, could I keep extra for late_cdats
+
+I am not sure what I am talking about here...
+
+
+I am adjusting client sync to get very close to the server, but as I get too close I get late cdats...
+
+
+ideally I would get the dif on the frame it was needed, but then my input would be...
+
+
+what would happen if I kept more states on the server, like 20, enough for 500ms of game time
+then late cdats would not be an issue?
+
+but how late of an input would I allow to affect the current state?
+
+am i onto something here or am I just crazy?
+
+
+what would it take to test?
+
+
+
+an array of game states
+
+lets just do 8 for now
+
+
+   // server's last 8 states for rewinding
+   char srv_rewind_state[8][STATE_SIZE];
+   int srv_rewind_state_frame_num[8];
+
+
+now every frame save state
+
+how will I juggle the circular array?
+
+find oldest and overwrite...
+
+
+in function server rewind...
+
+I will need to keep track of dirty frames
+
+how about earliest new game move
+
+wait..game move is not sorted..i can use that to my advantage
+
+how about looking back
+
+each time a state is made, also store gmep for that frame
+
+then and this get tricky here
+
+cf = 100
+
+I have states from 92-99 stored
+
+take the oldest state
+look for new moves that match that state
+
+I could just play back and make new ones, that seems simpler
+
+- load oldest state
+- step one frame at a time and save states
+
+this all seems so complex
+
+why do I not make the one that I base these on one frame earlier...
+
+I am so confused....
+
+
+
+when server makes a new state it overwrites the old base state
+
+I want it to keep at least one older version
+
+then when rewinding go back to the earliest version
+
+then save newest and bump that to oldest
+
+
+
+this is sounding like something that might work...
+
+
+when server makes a new state save also save it in my new array and overwrite the oldest position
+
+
+
+when server rewinds, find the oldest state in the array and load from there
+
+
+wow! this is so simple and is just crazy enough to work
+
+
+
+I need a good way of finding the oldest (min) frame_number
+
+initialize array with mn = std::numeric_limits<int>::max();
+
+     // also save in array
+
+     // find lowest frame number
+     int mn = std::numeric_limits<int>::max();
+     int indx = 0;
+     for (int i=0; i<8; i++)
+     {
+        if (srv_rewind_state_frame_num[i] < mn)
+        {
+           mn = srv_rewind_state_frame_num[i];
+           indx = i;
+        }
+     }
+
+
+     memcpy(srv_rewind_state[indx], srv_client_state[0][1], STATE_SIZE);
+
+OK I have patched it in...lets take it for a ride
+
+
+my min max bullshit doesn't work
+
+start with zero
+
+
+what do I want?
+
+when adding I want to remove the lowest
+
+when fetching I want to find the lowest
+
+have -1 as unset....
+
+when adding, do all -1 first, then lowest
+
+when fetching, ignore -1
+
+
+
+OK I have patched it in and it works, right up until I get late cdats, then it all goes to hell
+
+do I even need to toss late cdats? they will not be executed...
+I do because I want know that they are occuring and I want to be able to play back the save game
+
+
+I could easily remove this new code I have added....
+
+
+I was thinking...does this not require the client to also have the previuos state?
+no...client base states are different, but are they?
+
+I could test with s1 = 0...
+
+It looks like its a server problem...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

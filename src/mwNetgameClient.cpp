@@ -405,7 +405,9 @@ void mwNetgame::client_apply_dif(void)
             }
             else // we have a matching base to apply dif
             {
-               int ff = mPlayer.loc[p].client_rewind = mLoop.frame_num - client_state_dif_dst; // dst compared to current mLoop.frame_num
+               int ff = mPlayer.loc[p].client_rewind = mLoop.frame_num - client_state_dif_dst; // dst compared to current frame_num
+
+
                char tmsg[64];
                if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", mLoop.frame_num);
                if (ff > 0)  sprintf(tmsg, "rewind [%d] frames\n", ff);
@@ -493,7 +495,7 @@ void mwNetgame::client_apply_dif(void)
 
                   client_send_stak();
 
-                  if (client_state_dif_src) mPlayer.loc[p].client_move_lag = mLoop.frame_num - client_state_dif_src;
+//                  if (client_state_dif_src) mPlayer.loc[p].client_move_lag = mLoop.frame_num - client_state_dif_src;
 
                   sprintf(msg, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
                   if (mLog.LOG_NET_dif_applied) mLog.add_log_entry2(30, p, msg);
@@ -610,7 +612,6 @@ void mwNetgame::client_process_stdf_packet(double timestamp)
 
 void mwNetgame::process_bandwidth_counters(int p)
 {
-   char msg[1024];
    // get maximums per frame
    if (mPlayer.loc[p].tx_current_packets_for_this_frame > mPlayer.loc[p].tx_max_packets_per_frame) mPlayer.loc[p].tx_max_packets_per_frame = mPlayer.loc[p].tx_current_packets_for_this_frame;
    if (mPlayer.loc[p].tx_current_bytes_for_this_frame >   mPlayer.loc[p].tx_max_bytes_per_frame)   mPlayer.loc[p].tx_max_bytes_per_frame =   mPlayer.loc[p].tx_current_bytes_for_this_frame;
@@ -643,7 +644,7 @@ void mwNetgame::process_bandwidth_counters(int p)
       if (mPlayer.loc[p].tx_packets_per_tally > mPlayer.loc[p].tx_max_packets_per_tally) mPlayer.loc[p].tx_max_packets_per_tally = mPlayer.loc[p].tx_packets_per_tally;
       if (mPlayer.loc[p].rx_packets_per_tally > mPlayer.loc[p].rx_max_packets_per_tally) mPlayer.loc[p].rx_max_packets_per_tally = mPlayer.loc[p].rx_packets_per_tally;
 
-      // stick in variables for display
+      // copy to display variables
       mPlayer.loc[p].tx_bytes_per_tally   = mPlayer.loc[p].tx_bytes_tally;
       mPlayer.loc[p].tx_packets_per_tally = mPlayer.loc[p].tx_packets_tally;
       mPlayer.loc[p].rx_bytes_per_tally   = mPlayer.loc[p].rx_bytes_tally;
@@ -651,11 +652,8 @@ void mwNetgame::process_bandwidth_counters(int p)
 
       if (mLog.LOG_NET_bandwidth)
       {
-         // log tallies
-         sprintf(msg, "bandwidth (B/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]\n", mPlayer.loc[p].tx_bytes_per_tally, mPlayer.loc[p].tx_max_bytes_per_tally, mPlayer.loc[p].rx_bytes_per_tally, mPlayer.loc[p].rx_max_bytes_per_tally);
-         mLog.add_log_entry2(23, p, msg);
-         sprintf(msg, "packets per s TX cur:[%3d] max:[%3d] RX cur:[%3d] max:[%3d]\n", mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].tx_max_packets_per_tally, mPlayer.loc[p].rx_packets_per_tally, mPlayer.loc[p].rx_max_packets_per_tally);
-         mLog.add_log_entry2(24, p, msg);
+         mLog.add_log_entry3(23, p, 0, "bandwidth (B/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]\n", mPlayer.loc[p].tx_bytes_per_tally, mPlayer.loc[p].tx_max_bytes_per_tally, mPlayer.loc[p].rx_bytes_per_tally, mPlayer.loc[p].rx_max_bytes_per_tally);
+         mLog.add_log_entry3(24, p, 0, "packets per s TX cur:[%3d] max:[%3d] RX cur:[%3d] max:[%3d]\n", mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].tx_max_packets_per_tally, mPlayer.loc[p].rx_packets_per_tally, mPlayer.loc[p].rx_max_packets_per_tally);
       }
 
       // reset tallies
@@ -716,7 +714,6 @@ void mwNetgame::client_proc_player_drop(void)
 
 void mwNetgame::client_fast_packet_loop(void)
 {
-   char msg[1024];
    int p = mPlayer.active_local_player;
 
    while ((packetsize = ClientReceive(packetbuffer)))
@@ -745,12 +742,8 @@ void mwNetgame::client_fast_packet_loop(void)
             //mPlayer.loc[p].client_chase_offset = mPlayer.loc[p].client_chase_offset_auto_offset;
          }
 
-         sprintf(msg, "ping [%3.2f] avg[%3.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
-         //printf(msg);
-         if (mLog.LOG_NET_client_ping) mLog.add_log_entry2(37, p, msg);
-
-         sprintf(msg, "tmst ping:[%5.2f] pavg:[%5.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
-         if (mLog.LOG_TMR_client_ping) if (mLoop.frame_num) mLog.add_log_entry2(44, 0, msg);
+         if (mLog.LOG_NET_client_ping) mLog.add_log_entry3(37, p, 0, "ping [%3.2f] avg[%3.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
+         if (mLog.LOG_TMR_client_ping) if (mLoop.frame_num) mLog.add_log_entry3(44, 0, 0, "tmst ping:[%5.2f] pavg:[%5.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
 
          Packet("pang");
          PacketPutDouble(t1);
