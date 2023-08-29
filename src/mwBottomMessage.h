@@ -54,7 +54,9 @@ class mwBottomMessage
    int bmsg_index;
    int game_event_retrigger_holdoff[10];
 
+   void draw_textf(int &xpos, int col, const char *format, ...);
    void draw_text(int &xpos, int col, const char *txt);
+
    void draw_bmp(ALLEGRO_BITMAP *tmp, int &xpos, int xo, int yo);
 
 };

@@ -93,7 +93,6 @@ void mwPlayer::set_player_start_pos(int p, int cont)
 
 void mwPlayer::proc_player_health(int p)
 {
-   char msg[1024];
    if ((mLoop.frame_num) && (mLoop.frame_num == loc[p].damage_holdoff)) mGameEvent.add(12, 0, 0, p, loc[p].damage_type, 0, loc[p].damage_tally);
    if (syn[p].old_health != syn[p].health)
    {
@@ -110,8 +109,7 @@ void mwPlayer::proc_player_health(int p)
    {
       syn[p].health = 0;
 
-      sprintf(msg,"PLAYER:%d DIED!", p);
-      if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 1);
+      if (mLog.LOG_NET) mLog.add_log_entry_headerf(10, 0, 1, "PLAYER:%d DIED!", p);
 
       mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
       syn[p].stat_respawns++;
@@ -1713,7 +1711,6 @@ void mwPlayer::set_controls_from_player_key_check(int p) // used only in menu
 
 void mwPlayer::proc_player_input(void)
 {
-   char msg[1024];
    for (int p=0; p<NUM_PLAYERS; p++)
       if (syn[p].active) // cycle all active players
       {
@@ -1744,11 +1741,8 @@ void mwPlayer::proc_player_input(void)
 
                      if (syn[p].menu) mLoop.state[0] = 25; // menu key pressed
 
-                     if (mLog.LOG_NET_cdat)
-                     {
-                        sprintf(msg,"tx cdat - move:%d\n", loc[p].comp_move);
-                        mLog.add_log_entry2(35, p, msg);
-                     }
+                     if (mLog.LOG_NET_cdat) mLog.add_log_entry3(35, p, 0, "tx cdat - move:%d\n", loc[p].comp_move);
+
                   }
                }
             }

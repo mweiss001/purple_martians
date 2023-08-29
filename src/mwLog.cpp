@@ -65,14 +65,6 @@ void mwLog::add_log_entry2(int type, int player, const char *txt)
    }
 }
 
-
-
-
-
-
-
-
-
 void mwLog::add_log_entry3(int type, int player, int print, const char *format, ...)
 {
    char smsg[200];
@@ -83,39 +75,22 @@ void mwLog::add_log_entry3(int type, int player, int print, const char *format, 
 
    if (print) printf(smsg);
 
-
-   char tmsg[500];
-   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, smsg);
-   // strcat(log_msg, tmsg);
-
-
-   if ((log_msg_pos + strlen(tmsg)) >= NUM_LOG_CHAR)
-   {
-      printf("log array full, > %d char\n", NUM_LOG_CHAR);
-   }
-   else
-   {
-      memcpy(log_msg + log_msg_pos, tmsg, strlen(tmsg));
-      log_msg_pos += strlen(tmsg);
-      log_msg[log_msg_pos+1] = 0; // NULL terminate
-      //sprintf(log_msg, "%s", txt);
-      //printf("%s", tmsg);
-   }
+   add_log_entry2(type, player, smsg);
 }
 
 
 
+void mwLog::add_log_entry_position_textf(int type, int player, int width, int pos, const char *border, const char *fill, const char *format, ...)
+{
+   char smsg[200];
+   va_list args;
+   va_start(args, format);
+   vsprintf(smsg, format, args);
+   va_end(args);
+   add_log_entry_position_text(type, player, width, pos, border, fill, smsg);
+}
 
-
-
-
-
-
-
-
-
-
-void mwLog::add_log_entry_position_text(int type, int player, int width, int pos, const char *txt, const char *border, const char *fill)
+void mwLog::add_log_entry_position_text(int type, int player, int width, int pos, const char *border, const char *fill, const char *txt)
 {
    int l = strlen(txt);
    int j1 = pos-2;
@@ -158,7 +133,18 @@ void mwLog::add_log_entry_position_text(int type, int player, int width, int pos
 
 }
 
-void mwLog::add_log_entry_centered_text(int type, int player, int width, const char *txt, const char *border, const char *fill)
+
+void mwLog::add_log_entry_centered_textf(int type, int player, int width, const char *fill, const char *border, const char *format, ...)
+{
+   char smsg[200];
+   va_list args;
+   va_start(args, format);
+   vsprintf(smsg, format, args);
+   va_end(args);
+   add_log_entry_centered_text(type, player, width, fill, border, smsg);
+}
+
+void mwLog::add_log_entry_centered_text(int type, int player, int width, const char *fill, const char *border, const char *txt)
 {
    int l = strlen(txt);
    int j1 = (width-l)/2 - 1;
@@ -177,79 +163,50 @@ void mwLog::add_log_entry_centered_text(int type, int player, int width, const c
    add_log_entry2(type, player, p);
 }
 
-void mwLog::add_log_entry_header(int type, int player, const char *txt, int blank_lines)
+
+void mwLog::add_log_entry_headerf(int type, int player, int blank_lines, const char *format, ...)
 {
-   char htext[80]; // make a copy so that doesn't get overwritten
-   sprintf(htext, "%s", txt);
-   add_log_entry_centered_text(type, player, 76, "", "+", "-");
+   char smsg[200];
+   va_list args;
+   va_start(args, format);
+   vsprintf(smsg, format, args);
+   va_end(args);
+   add_log_entry_header(type, player, blank_lines, smsg);
+}
 
-   for (int i=0; i<blank_lines; i++)
-      add_log_entry_centered_text(type, player, 76, "", "|", " ");
 
-   add_log_entry_centered_text(type, player, 76, htext, "|", " ");
 
-   for (int i=0; i<blank_lines; i++)
-      add_log_entry_centered_text(type, player, 76, "", "|", " ");
-
-   add_log_entry_centered_text(type, player, 76, "", "+", "-");
+void mwLog::add_log_entry_header(int type, int player, int blank_lines, const char *txt)
+{
+   add_log_entry_centered_text(type, player, 76, "+", "-", "");
+   for (int i=0; i<blank_lines; i++) add_log_entry_centered_text(type, player, 76, "|", "", "");
+   add_log_entry_centered_text(type, player, 76, "|", " ", txt);
+   for (int i=0; i<blank_lines; i++) add_log_entry_centered_text(type, player, 76, "|", "", "");
+   add_log_entry_centered_text(type, player, 76, "+", "-", "");
 }
 
 void mwLog::log_bandwidth_stats(int p)
 {
-   char msg[1024];
-   sprintf(msg,"total tx bytes............[%d]", mPlayer.loc[p].tx_total_bytes);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"max tx bytes per frame....[%d]", mPlayer.loc[p].tx_max_bytes_per_frame);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"avg tx bytes per frame....[%d]", mPlayer.loc[p].tx_total_bytes / mLoop.frame_num);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"max rx bytes per second...[%d]", mPlayer.loc[p].tx_max_bytes_per_tally);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"avg tx bytes per sec......[%d]", (mPlayer.loc[p].tx_total_bytes *40)/ mLoop.frame_num);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"total tx packets..........[%d]", mPlayer.loc[p].tx_total_packets);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"max tx packets per frame..[%d]", mPlayer.loc[p].tx_max_packets_per_frame);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"max tx packets per second.[%d]", mPlayer.loc[p].tx_max_packets_per_tally);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-
-   sprintf(msg,"total rx bytes............[%d]", mPlayer.loc[p].rx_total_bytes);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"max rx bytes per frame....[%d]", mPlayer.loc[p].rx_max_bytes_per_frame);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"avg rx bytes per frame....[%d]", mPlayer.loc[p].rx_total_bytes / mLoop.frame_num);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"max rx bytes per second...[%d]", mPlayer.loc[p].rx_max_bytes_per_tally);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"avg rx bytes per sec......[%d]", (mPlayer.loc[p].rx_total_bytes *40)/ mLoop.frame_num);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"total rx packets..........[%d]", mPlayer.loc[p].rx_total_packets);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"max rx packets per frame..[%d]", mPlayer.loc[p].rx_max_packets_per_frame);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"max rx packets per second.[%d]", mPlayer.loc[p].rx_max_packets_per_tally);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "total tx bytes............[%d]", mPlayer.loc[p].tx_total_bytes);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "max tx bytes per frame....[%d]", mPlayer.loc[p].tx_max_bytes_per_frame);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "avg tx bytes per frame....[%d]", mPlayer.loc[p].tx_total_bytes / mLoop.frame_num);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "max rx bytes per second...[%d]", mPlayer.loc[p].tx_max_bytes_per_tally);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "avg tx bytes per sec......[%d]", (mPlayer.loc[p].tx_total_bytes *40)/ mLoop.frame_num);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "total tx packets..........[%d]", mPlayer.loc[p].tx_total_packets);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "max tx packets per frame..[%d]", mPlayer.loc[p].tx_max_packets_per_frame);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "max tx packets per second.[%d]", mPlayer.loc[p].tx_max_packets_per_tally);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "total rx bytes............[%d]", mPlayer.loc[p].rx_total_bytes);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "max rx bytes per frame....[%d]", mPlayer.loc[p].rx_max_bytes_per_frame);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "avg rx bytes per frame....[%d]", mPlayer.loc[p].rx_total_bytes / mLoop.frame_num);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "max rx bytes per second...[%d]", mPlayer.loc[p].rx_max_bytes_per_tally);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "avg rx bytes per sec......[%d]", (mPlayer.loc[p].rx_total_bytes *40)/ mLoop.frame_num);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "total rx packets..........[%d]", mPlayer.loc[p].rx_total_packets);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "max rx packets per frame..[%d]", mPlayer.loc[p].rx_max_packets_per_frame);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "max rx packets per second.[%d]", mPlayer.loc[p].rx_max_packets_per_tally);
 }
 
 void mwLog::log_reason_for_player_quit(int p)
 {
-   char msg[1024];
    char tmsg[80];
    sprintf(tmsg,"unknown");
    int r = mPlayer.loc[p].quit_reason;
@@ -264,8 +221,7 @@ void mwLog::log_reason_for_player_quit(int p)
    if (r == 92) sprintf(tmsg,"remote server quit");
    if (r == 93) sprintf(tmsg,"remote client quit");
 
-   sprintf(msg,"reason for quit...........[%s]", tmsg);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "reason for quit...........[%s]", tmsg);
 }
 
 
@@ -284,25 +240,23 @@ void mwLog::log_time_date_stamp(void)
    strftime(tmsg, sizeof(tmsg), "%Y-%m-%d  %H:%M:%S", timenow);
    sprintf(msg, "Date and time: %s",tmsg);
    printf("%s\n", msg);
-   add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, 0, 76, 10, "|", " ", msg);
 }
 
 void mwLog::log_versions(void)
 {
-   char msg[1024];
-   add_log_entry_centered_text(10, 0, 76, "", "+", "-");
-   sprintf(msg, "Purple Martians Version %s", mLoop.pm_version_string);
-   add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-   add_log_entry_position_text(10, 0, 76, 10, mLoop.al_version_string, "|", " ");
+   add_log_entry_centered_text(10, 0, 76, "+", "-", "");
+   add_log_entry_position_textf(10, 0, 76, 10, "|", " ", "Purple Martians Version %s", mLoop.pm_version_string);
+   add_log_entry_position_text(10, 0, 76, 10, "|", " ", mLoop.al_version_string);
    log_time_date_stamp();
-   add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+   add_log_entry_centered_text(10, 0, 76, "+", "-", "");
 }
 
 void mwLog::log_player_array(void)
 {
    char msg[1024];
-   add_log_entry_header(10, 0,  "Player Array", 0);
-   add_log_entry_position_text(10, 0, 76, 10, "[p][wh][a][co][m]", "|", " ");
+   add_log_entry_header(10, 0, 0, "Player Array");
+   add_log_entry_position_text(10, 0, 76, 10, "|", " ", "[p][wh][a][co][m]");
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       char ms[80];
@@ -327,110 +281,77 @@ void mwLog::log_player_array(void)
                                               mPlayer.syn[p].control_method,
                                               mPlayer.loc[p].hostname,
                                               ms );
-      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      add_log_entry_position_text(10, 0, 76, 10, "|", " ", msg);
    }
-   add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+   add_log_entry_centered_text(10, 0, 76, "+", "-", "");
 }
 
 void mwLog::log_player_array2(void)
 {
-   char msg[1024];
-   sprintf(msg, "[p][a][m][sy]");
-   add_log_entry_position_text(26, 0, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(26, 0, 76, 10, "|", " ", "[p][a][m][sy]");
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       float sy = mPlayer.loc[p].dsync;
       if (p == 0) sy = 0;
-      sprintf(msg, "[%d][%d][%d][%3.2f]",   p, mPlayer.syn[p].active, mPlayer.syn[p].control_method, sy );
-      add_log_entry_position_text(26, 0, 76, 10, msg, "|", " ");
+      add_log_entry_position_textf(26, 0, 76, 10, "|", " ", "[%d][%d][%d][%3.2f]",   p, mPlayer.syn[p].active, mPlayer.syn[p].control_method, sy );
    }
 }
 
 void mwLog::log_ending_stats(int p)
 {
-   char msg[1024];
-   sprintf(msg,"Client %d (%s) ending stats", p, mPlayer.loc[p].hostname);
-   add_log_entry_header(10, p, msg, 0);
+   add_log_entry_headerf(10, p, 0, "Client %d (%s) ending stats", p, mPlayer.loc[p].hostname);
 
-   sprintf(msg,"total game frames.........[%d]", mLoop.frame_num);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-   sprintf(msg,"frame when client joined..[%d]", mPlayer.loc[p].join_frame);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "total game frames.........[%d]", mLoop.frame_num);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "frame when client joined..[%d]", mPlayer.loc[p].join_frame);
 
    if (mPlayer.loc[p].quit_frame == 0) mPlayer.loc[p].quit_frame = mLoop.frame_num;
-   sprintf(msg,"frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
 
    log_reason_for_player_quit(p);
 
-   sprintf(msg,"frames client was active..[%d]", mPlayer.loc[p].quit_frame - mPlayer.loc[p].join_frame);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
-   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "frames client was active..[%d]", mPlayer.loc[p].quit_frame - mPlayer.loc[p].join_frame);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
+   add_log_entry_position_textf(10, p, 76, 10, "|", " ", "cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
 
    log_bandwidth_stats(p);
-   add_log_entry_centered_text(10, p, 76, "", "+", "-");
+   add_log_entry_centered_text(10, p, 76, "+", "-", "");
 }
 
 void mwLog::log_ending_stats_server()
 {
-   char msg[1024];
-   sprintf(msg,"Server (%s) ending stats", mLoop.local_hostname);
-   add_log_entry_header(10, 0, msg, 0);
+   add_log_entry_headerf(10, 0, 0, "Server (%s) ending stats", mLoop.local_hostname);
 
-   add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+   add_log_entry_centered_text(10, 0, 76, "+", "-", "");
 
-   sprintf(msg,"level.....................[%d]", mLevel.play_level);
-   add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"total frames..............[%d]", mLoop.frame_num);
-   add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"total moves...............[%d]", mGameMoves.entry_pos);
-   add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"total time (seconds)......[%d]", mLoop.frame_num/40);
-   add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"total time (minutes)......[%d]", mLoop.frame_num/40/60);
-   add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+   add_log_entry_position_textf(10, 0, 76, 10, "|", " ", "level.....................[%d]", mLevel.play_level);
+   add_log_entry_position_textf(10, 0, 76, 10, "|", " ", "total frames..............[%d]", mLoop.frame_num);
+   add_log_entry_position_textf(10, 0, 76, 10, "|", " ", "total moves...............[%d]", mGameMoves.entry_pos);
+   add_log_entry_position_textf(10, 0, 76, 10, "|", " ", "total time (seconds)......[%d]", mLoop.frame_num/40);
+   add_log_entry_position_textf(10, 0, 76, 10, "|", " ", "total time (minutes)......[%d]", mLoop.frame_num/40/60);
 
    log_bandwidth_stats(0);
 
-   add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+   add_log_entry_centered_text(10, 0, 76, "+", "-", "");
 
    for (int p=1; p<NUM_PLAYERS; p++)
    {
       if ((mPlayer.syn[p].control_method == 2) || (mPlayer.syn[p].control_method == 8))
       {
-         sprintf(msg,"Player:%d (%s)", p, mPlayer.loc[p].hostname);
-         add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-         sprintf(msg,"frame when client joined..[%d]", mPlayer.loc[p].join_frame);
-         add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
+         add_log_entry_position_textf(10, p, 76, 10, "|", " ", "Player:%d (%s)", p, mPlayer.loc[p].hostname);
+         add_log_entry_position_textf(10, p, 76, 10, "|", " ", "frame when client joined..[%d]", mPlayer.loc[p].join_frame);
 
          if (mPlayer.loc[p].quit_frame == 0) mPlayer.loc[p].quit_frame = mLoop.frame_num;
-         sprintf(msg,"frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
-         add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
+         add_log_entry_position_textf(10, p, 76, 10, "|", " ", "frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
 
          log_reason_for_player_quit(p);
 
-         sprintf(msg,"frames client was active..[%d]", mPlayer.loc[p].quit_frame - mPlayer.loc[p].join_frame);
-         add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-         sprintf(msg,"cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
-         add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
-
-         sprintf(msg,"cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
-         add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
+         add_log_entry_position_textf(10, p, 76, 10, "|", " ", "frames client was active..[%d]", mPlayer.loc[p].quit_frame - mPlayer.loc[p].join_frame);
+         add_log_entry_position_textf(10, p, 76, 10, "|", " ", "cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
+         add_log_entry_position_textf(10, p, 76, 10, "|", " ", "cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
 
          log_bandwidth_stats(p);
 
-         add_log_entry_centered_text(10, p, 76, "", "+", "-");
+         add_log_entry_centered_text(10, p, 76, "+", "-", "");
       }
    }
    log_player_array();

@@ -144,19 +144,21 @@ void mwBottomMessage::initialize(void)
 }
 
 
-
-
-
-
 void mwBottomMessage::draw_text(int &xpos, int col, const char *txt)
 {
    al_draw_text(mFont.pr16, mColor.pc[col], xpos, 2, ALLEGRO_ALIGN_INTEGER, txt);
    xpos += (strlen(txt)*16);
 }
 
-
-
-
+void mwBottomMessage::draw_textf(int &xpos, int col, const char *format, ...)
+{
+   char msg[1024];
+   va_list args;
+   va_start(args, format);
+   vsprintf(msg, format, args);
+   va_end(args);
+   draw_text(xpos, col, msg);
+}
 
 
 void mwBottomMessage::draw_bmp(ALLEGRO_BITMAP *tmp, int &xpos, int xo, int yo)
@@ -172,7 +174,6 @@ void mwBottomMessage::draw_player(int p, int &xpos)
 
    char msg[256];
    sprintf(msg, "P%d", p);
-
    if (disp_player_text_long) sprintf(msg, "Player %d", p);
 
    //sprintf(msg, "Player %d", p);
@@ -237,29 +238,14 @@ void mwBottomMessage::draw_item(ALLEGRO_BITMAP *tmp, const char *txt, int col, i
 void mwBottomMessage::draw_health(int p, int h, int &xpos, int xo, int yo)
 {
    xpos += xo;
-
    int dh = disp_health;
-
    int col = 13; // blue
    if (h < 0) col = 10; // red
    if (h > 0) col = 9;  // green
 
-   char msg[256] = {0};
-   if (dh == 0)
-   {
-      sprintf(msg, "Health %+d", h);
-      draw_text(xpos, col, msg);
-   }
-   if (dh == 1)
-   {
-      sprintf(msg, "H%+d", h);
-      draw_text(xpos, col, msg);
-   }
-   if (dh == 2)
-   {
-      sprintf(msg, "%+d", h);
-      draw_text(xpos, col, msg);
-   }
+   if (dh == 0) draw_textf(xpos, col, "Health %+d", h);
+   if (dh == 1) draw_textf(xpos, col, "H%+d", h);
+   if (dh == 2) draw_textf(xpos, col, "%+d", h);
    if (dh == 3)
    {
       int hbw = 24;
@@ -274,7 +260,6 @@ void mwBottomMessage::draw_health(int p, int h, int &xpos, int xo, int yo)
 
 void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4)
 {
-
    char msg[256];
    double t0;
    if (mLog.LOG_TMR_bmsg_add) t0 = al_get_time();
