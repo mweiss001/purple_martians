@@ -517,11 +517,7 @@ void mwLoop::proc_program_state(void)
       mInput.initialize();
       mTriggerEvent.initialize();
 
-      if (mLog.LOG_NET)
-      {
-         sprintf(msg,"LEVEL %d STARTED", mLevel.play_level);
-         mLog.add_log_entry_header(10, 0, msg, 3);
-      }
+      if (mLog.LOG_NET) mLog.add_log_entry_headerf(10, 0, 3, "LEVEL %d STARTED", mLevel.play_level);
 
       show_player_join_quit_timer = 0;
       mSound.start_music(0);
@@ -554,7 +550,7 @@ void mwLoop::proc_program_state(void)
          // set holdoff 200 frames in future so client won't try to drop while syncing
          mPlayer.loc[p].client_last_stdf_rx_frame_num = frame_num + 200;
 
-         if (mLog.LOG_NET_join) mLog.add_log_entry_header(11, p, "Game state updated - starting chase and lock", 1);
+         if (mLog.LOG_NET_join) mLog.add_log_entry_header(11, p, 1, "Game state updated - starting chase and lock");
          state[0] = 11;
       }
    }
@@ -609,12 +605,7 @@ void mwLoop::proc_program_state(void)
       for (int p=0; p<NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, 1, p, mPlayer.syn[p].color); // 1 - player_state and color
 
-      if (mLog.LOG_NET)
-      {
-         sprintf(msg,"LEVEL %d STARTED", mLevel.play_level);
-         mLog.add_log_entry_header(10, 0, msg, 3);
-      }
-
+      if (mLog.LOG_NET) mLog.add_log_entry_headerf(10, 0, 3, "LEVEL %d STARTED", mLevel.play_level);
 
       show_player_join_quit_timer = 0;
       mSound.start_music(0); // rewind and start theme
@@ -746,9 +737,13 @@ void mwLoop::proc_program_state(void)
 // --------------------------------------------------------
       mSound.stop_sound();
       mPlayer.syn[0].level_done_mode = 0;
-      if (mLog.LOG_NET) { sprintf(msg,"NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level); mLog.add_log_entry_header(10, 0, msg, 3); }
-      if ((mLog.LOG_NET) && (mNetgame.ima_client)) mLog.log_ending_stats(mPlayer.active_local_player);
-      if ((mLog.LOG_NET) && (mNetgame.ima_server)) mLog.log_ending_stats_server();
+      if (mLog.LOG_NET)
+      {
+         mLog.add_log_entry_headerf(10, 0, 3, "NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level);
+         if (mNetgame.ima_client) mLog.log_ending_stats(mPlayer.active_local_player);
+         if (mNetgame.ima_server) mLog.log_ending_stats_server();
+      }
+
       if (mNetgame.ima_server) mNetgame.server_flush();
       if (mNetgame.ima_client) mNetgame.client_flush();
       if (mLog.autosave_log_on_level_done) mLog.save_log_file();
@@ -1053,7 +1048,6 @@ void mwLoop::setup_players_after_level_load(int type)
 
 void mwLoop::setup_common_after_level_load(void)
 {
-   char msg[80];
    mInput.initialize();
    mBottomMessage.initialize();
    mTriggerEvent.initialize();
@@ -1080,11 +1074,7 @@ void mwLoop::setup_common_after_level_load(void)
       for (int p=0; p<NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, 1, p, mPlayer.syn[p].color); // [01] player_state and color
 
-      if (mLog.LOG_NET)
-      {
-         sprintf(msg,"LEVEL %d STARTED", mLevel.play_level);
-         mLog.add_log_entry_header(10, 0, msg, 3);
-      }
+      if (mLog.LOG_NET) mLog.add_log_entry_headerf(10, 0, 3, "LEVEL %d STARTED", mLevel.play_level);
    }
 }
 

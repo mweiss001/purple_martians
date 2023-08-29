@@ -77,9 +77,18 @@ class mwLog
    void add_log_entry3(int type, int player, int print, const char *format, ...);
 
 
-   void add_log_entry_position_text(int type, int player, int width, int pos, const char *txt, const char *border, const char *fill);
-   void add_log_entry_centered_text(int type, int player, int width, const char *txt, const char *border, const char *fill);
-   void add_log_entry_header(int type, int player, const char *txt, int blank_lines);
+   void add_log_entry_position_text (int type, int player, int width, int pos, const char *border, const char *fill, const char *txt);
+   void add_log_entry_position_textf(int type, int player, int width, int pos, const char *border, const char *fill, const char *format, ...);
+
+
+   void add_log_entry_centered_text (int type, int player, int width, const char *border, const char *fill, const char *txt);
+   void add_log_entry_centered_textf(int type, int player, int width, const char *fill, const char *border, const char *format, ...);
+
+
+   void add_log_entry_header (int type, int player, int blank_lines, const char *txt);
+   void add_log_entry_headerf(int type, int player, int blank_lines, const char *format, ...);
+
+
 
    void log_bandwidth_stats(int p);
    void log_reason_for_player_quit(int p);

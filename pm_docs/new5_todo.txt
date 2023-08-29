@@ -86,18 +86,69 @@ new:
 mLog.add_log_entry3(LOG_NET_stdf_num, 0, 1, "stdf saved server state[1]:%d\n", mLoop.frame_num);
 
 then in the function use that number and test
-
 I can also add if I want to print that to the console...I can use this everywhere!!
 
+I am doing this...
+
+how many mLog.add_log_entry2? 29
+
+how many can I switch?
+
+
+I am down to 15 left...mostly when I want to print to console also... but sometimes when I spend a long complicated time building a string...
 
 
 
 
-in bottom message draw_text...rearrange so msg is last, then make another draw_textf
+in bottom message draw_text...rearrange so msg is last, then make another draw_textf..done..not many use new function...
 
 in log message also extend others that take a char as an arg
 
-test
+82 void mwLog::add_log_entry_position_text(int type, int player, int width, int pos, const char *txt, const char *border, const char *fill)
+31 void mwLog::add_log_entry_centered_text(int type, int player, int width, const char *txt, const char *border, const char *fill)
+20 void mwLog::add_log_entry_header(int type, int player, const char *txt, int blank_lines)
+
+step 1 rearrange parameters so that txt is last
+
+done...
+
+setp 2 add a f type wrapper to each
+
+done:
+
+step 3 do replacements
+
+26 82 void mwLog::add_log_entry_position_text(int type, int player, int width, int pos, const char *txt, const char *border, const char *fill)
+31 31 void mwLog::add_log_entry_centered_text(int type, int player, int width, const char *txt, const char *border, const char *fill)
+8 20 void mwLog::add_log_entry_header(int type, int player, const char *txt, int blank_lines)
+
+done and push...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

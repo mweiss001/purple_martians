@@ -249,7 +249,6 @@ void mwEnemy::proc_enemy_collision_with_pshot(int e)
 
 void mwEnemy::move_enemies()
 {
-   char msg[1024];
    if (mLog.LOG_TMR_move_enem) mTimeStamp.init_timestamps();
    num_enemy = 0; // count enemies
    for (int e=0; e<100; e++)
@@ -321,9 +320,8 @@ void mwEnemy::move_enemies()
             sprintf(l, "m-%s:[%0.4f] ", enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000000);
             strcat(t, l);
          }
-      sprintf(msg, "tmst %s\n", t);
       // printf("%s", msg);
-      mLog.add_log_entry2(44, 0, msg);
+      mLog.add_log_entry3(44, 0, 0, "tmst %s\n", t);
    }
 }
 

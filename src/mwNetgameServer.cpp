@@ -71,7 +71,7 @@ int mwNetgame::ServerInitNetwork() // Initialize the server
       // printf("Local address of channel%s\n", net_getlocaladdress (ListenChannel));
    }
    printf("%s\n", msg);
-   if (mLog.LOG_NET) mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+   if (mLog.LOG_NET) mLog.add_log_entry_position_text(10, 0, 76, 10, "|", " ", msg);
    return 0;
 }
 
@@ -93,9 +93,9 @@ void mwNetgame::ServerListen()
 
          if (mLog.LOG_NET)
          {
-            mLog.add_log_entry_centered_text(10, 0, 76, "", "+", "-");
-            mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-            mLog.add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+            mLog.add_log_entry_centered_text(10, 0, 76, "+", "-", "");
+            mLog.add_log_entry_position_text(10, 0, 76, 10, "|", " ", msg);
+            mLog.add_log_entry_centered_text(10, 0, 76, "+", "-", "");
          }
       }
    }
@@ -130,9 +130,9 @@ void mwNetgame::ServerListen()
             printf("%s\n", msg);
             if (mLog.LOG_NET)
             {
-               mLog.add_log_entry_centered_text(10, 0, 76, "", "+", "-");
-               mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-               mLog.add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+               mLog.add_log_entry_centered_text(10, 0, 76, "+", "-", "");
+               mLog.add_log_entry_position_text(10, 0, 76, 10, "|", " ", msg);
+               mLog.add_log_entry_centered_text(10, 0, 76, "+", "-", "");
             }
             Packet("5678");
             ServerSendTo(packetbuffer, packetsize, ClientNum, 0);
@@ -239,7 +239,7 @@ void mwNetgame::ServerExitNetwork() // Shut the server down
    char msg[1024];
    sprintf(msg, "Shutting down the server");
    printf("%s\n", msg);
-   if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 1);
+   if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, 1, msg);
    if (TCP)
    {
       for(int n = 0; n < ClientNum; n++)
@@ -287,18 +287,18 @@ int mwNetgame::server_init(void)
    if (mLog.LOG_NET)
    {
       mLog.log_versions();
-      mLog.add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+      mLog.add_log_entry_centered_text(10, 0, 76, "+", "-", "");
 
       sprintf(msg, "Server mode started");
-      mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      mLog.add_log_entry_position_text(10, 0, 76, 10, "|", " ", msg);
       printf("\n%s\n", msg);
 
       sprintf(msg, "Server hostname:    [%s]", mLoop.local_hostname);
-      mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      mLog.add_log_entry_position_text(10, 0, 76, 10, "|", " ", msg);
       printf("%s\n", msg);
 
       sprintf(msg, "Level:              [%d]", mLevel.play_level);
-      mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      mLog.add_log_entry_position_text(10, 0, 76, 10, "|", " ", msg);
       printf("%s\n", msg);
    }
 
@@ -315,8 +315,8 @@ int mwNetgame::server_init(void)
    printf("%s\n", msg);
    if (mLog.LOG_NET)
    {
-      mLog.add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-      mLog.add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+      mLog.add_log_entry_position_text(10, 0, 76, 10, "|", " ", msg);
+      mLog.add_log_entry_centered_text(10, 0, 76, "+", "-", "");
    }
 
    // still needed or client dies at joining
@@ -364,17 +364,11 @@ void mwNetgame::show_rewind_states(const char *format, ...)
     va_list args;
     va_start(args, format);
 
-
    // show rewind states
    for (int i=0; i<8; i++)
       printf("%d ", srv_rewind_state_frame_num[i]);
-
    vprintf(format, args);
-
-
    va_end(args);
-
-
 }
 
 
@@ -584,7 +578,6 @@ void mwNetgame::server_send_dif(int p) // send dif to a specific client
 
 void mwNetgame::server_proc_player_drop(void)
 {
-   char msg[1024];
    // check to see if we need to drop clients
    for (int p=1; p<NUM_PLAYERS; p++)   // server only; skip p[0]
       if (mPlayer.syn[p].control_method == 2)
@@ -596,21 +589,9 @@ void mwNetgame::server_proc_player_drop(void)
             //printf("[%4d][%4d] drop p:%d \n", mLoop.frame_num, mPlayer.loc[p].server_last_stak_rx_frame_num, p);
             mGameMoves.add_game_move(mLoop.frame_num + 4, 2, p, 71); // make client inactive (reason no stak for 100 frames)
 
-            sprintf(msg,"Server dropped player:%d (last stak rx > 100)", p);
-            if (mLog.LOG_NET) mLog.add_log_entry_header(10, p, msg, 1);
+            if (mLog.LOG_NET) mLog.add_log_entry_headerf(10, p, 1, "Server dropped player:%d (last stak rx > 100)", p);
          }
       }
-
-//   // check to see if we are approaching limit of game_moves array and do something if we are
-//   if (mGameMoves.entry_pos > (GAME_MOVES_SIZE - 100))
-//   {
-//      sprintf(msg,"Server Approaching %d Game Moves! - Shutting Down", GAME_MOVES_SIZE);
-//      if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 0);
-//
-//      // insert state inactive special move
-//      mGameMoves.add_game_move2(mLoop.frame_num + 8, 2, 0, 64); // type 2 - player inactive
-//   }
-
 
    int reload = 0;
    int gm_limit = GAME_MOVES_SIZE - 100;
@@ -621,16 +602,13 @@ void mwNetgame::server_proc_player_drop(void)
 
    if (mGameMoves.entry_pos > gm_limit)
    {
-      sprintf(msg,"Server Approaching %d Game Moves! - Reload", GAME_MOVES_SIZE);
-      if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 0);
+      if (mLog.LOG_NET) mLog.add_log_entry_headerf(10, 0, 0, "Server Approaching %d Game Moves! - Reload", GAME_MOVES_SIZE);
       reload = 1;
    }
 
-
    if (mLoop.frame_num > tm_limit)
    {
-      sprintf(msg,"Server Approaching %d frames! - Reload", tm_limit);
-      if (mLog.LOG_NET) mLog.add_log_entry_header(10, 0, msg, 0);
+      if (mLog.LOG_NET) mLog.add_log_entry_headerf(10, 0, 0, "Server Approaching %d frames! - Reload", tm_limit);
       reload = 1;
    }
 
@@ -645,13 +623,11 @@ void mwNetgame::server_proc_player_drop(void)
          mLoop.done_action = 1;
       }
    }
-
 }
 
 
 void mwNetgame::server_proc_cdat_packet(double timestamp)
 {
-   char msg[1024];
    int p = PacketGet1ByteInt();
    int cdat_frame_num = PacketGet4ByteInt();
    int cm = PacketGet1ByteInt();
@@ -677,7 +653,7 @@ void mwNetgame::server_proc_cdat_packet(double timestamp)
    {
       mPlayer.syn[p].late_cdats++;
       mTally_late_cdats_last_sec[p].add_data(1); // add to tally
-      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] late - droppped\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync);
+      if (mLog.LOG_NET_cdat) mLog.add_log_entry3(35, p, 0, "rx cdat p:%d fn:[%d] sync:[%d] late - droppped\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync);
 
 //      printf("%s\n", msg);
 
@@ -687,14 +663,13 @@ void mwNetgame::server_proc_cdat_packet(double timestamp)
    else
    {
       mGameMoves.add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
-      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, mGameMoves.entry_pos);
+      if (mLog.LOG_NET_cdat) mLog.add_log_entry3(35, p, 0, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, mGameMoves.entry_pos);
    }
-   if (mLog.LOG_NET_cdat) mLog.add_log_entry2(35, p, msg);
+
 }
 
 void mwNetgame::server_lock_client(int p)
 {
-   char msg[1024];
    if ((!mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == 2)) // inactive client chasing for lock
    {
       if ((mPlayer.loc[p].dsync > -0.2) && (mPlayer.loc[p].dsync < 0.03)) mPlayer.loc[p].sync_stabilization_holdoff++; // -200 to +30
@@ -705,14 +680,12 @@ void mwNetgame::server_lock_client(int p)
       mGameMoves.add_game_move(mLoop.frame_num + 4, 1, p, mPlayer.syn[p].color);
       mPlayer.loc[p].sync_stabilization_holdoff = 0;
 
-      sprintf(msg,"Player:%d has locked and will become active in 4 frames!", p);
-      if (mLog.LOG_NET_join) mLog.add_log_entry_header(11, 0, msg, 0);
+      if (mLog.LOG_NET_join) mLog.add_log_entry_headerf(11, 0, 0, "Player:%d has locked and will become active in 4 frames!", p);
    }
 }
 
 void mwNetgame::server_proc_stak_packet(double timestamp)
 {
-   char msg[1024];
    int p                           = PacketGet1ByteInt();
    int ack_frame_num               = PacketGet4ByteInt();
    int client_frame_num            = PacketGet4ByteInt();
@@ -727,46 +700,38 @@ void mwNetgame::server_proc_stak_packet(double timestamp)
 
    server_lock_client(p);
 
-   char tmsg1[80];
-   char tmsg2[80];
-
    // this is used to see if client is still alive
    mPlayer.loc[p].server_last_stak_rx_frame_num = mLoop.frame_num;
 
-   sprintf(tmsg1, "rx stak d[%4.1f] c[%4.1f] a:%d c:%d", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].client_chase_fps, ack_frame_num, client_frame_num );
-
+   char tmsg[80];
    if (ack_frame_num == srv_client_state_frame_num[p][1]) // check to make sure we have a copy of acknowledged state
    {
       // acknowledged state is new base state
       memcpy(srv_client_state[p][0], srv_client_state[p][1], STATE_SIZE);  // copy 1 to 0
       srv_client_state_frame_num[p][0] = srv_client_state_frame_num[p][1];
-      sprintf(tmsg2, "set new base");
+      sprintf(tmsg, "set new base");
    }
    else // we don't have a copy of acknowledged state !!!
    {
-      sprintf(tmsg2, "fail base set:%d", srv_client_state_frame_num[p][1]);
       memset(srv_client_state[p][0], 0, STATE_SIZE); // reset base to all zero
       srv_client_state_frame_num[p][0] = 0;
       mPlayer.loc[p].client_base_resets++;
+      sprintf(tmsg, "fail base set:%d", srv_client_state_frame_num[p][1]);
    }
-
-   sprintf(msg, "%s %s\n", tmsg1, tmsg2);
-   if (mLog.LOG_NET_server_rx_stak) mLog.add_log_entry2(33, p, msg);
+   if (mLog.LOG_NET_server_rx_stak) mLog.add_log_entry3(33, p, 0, "rx stak d[%4.1f] c[%4.1f] a:%d c:%d %s\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].client_chase_fps, ack_frame_num, client_frame_num, tmsg);
 }
 
 
 void mwNetgame::server_proc_cjon_packet(int who)
 {
-   char msg[1024];
    char temp_name[16];
    int color = PacketGet1ByteInt();
    PacketReadString(temp_name);
 
    if (mLog.LOG_NET_join)
    {
-      sprintf(msg,"Server received join request from %s requesting color:%d", temp_name, color);
-      mLog.add_log_entry_centered_text(11, 0, 76, "", "+", "-");
-      mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+      mLog.add_log_entry_centered_text(11, 0, 76, "+", "-", "");
+      mLog.add_log_entry_position_textf(11, 0, 76, 10, "|", " ", "Server received join request from %s requesting color:%d", temp_name, color);
    }
    // find empty player slot
    int cn = 99;
@@ -780,9 +745,8 @@ void mwNetgame::server_proc_cjon_packet(int who)
    {
       if (mLog.LOG_NET_join)
       {
-         sprintf(msg, "Reply sent: 'SERVER FULL'");
-         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         mLog.add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+         mLog.add_log_entry_position_textf(11, 0, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
+         mLog.add_log_entry_centered_text(11, 0, 76, "+", "-", "");
       }
 
       Packet("sjon");    // reply with sjon
@@ -821,23 +785,15 @@ void mwNetgame::server_proc_cjon_packet(int who)
 
       if (mLog.LOG_NET_join)
       {
-         sprintf(msg,"Server replied with join invitation:");
-         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Level:[%d]", mLevel.play_level);
-         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Player Number:[%d]", cn);
-         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Player Color:[%d]", color);
-         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Server mLoop.frame_num:[%d]", mLoop.frame_num);
-         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Deathmatch player shots:[%d]", mShot.deathmatch_shots);
-         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Deathmatch player shot damage:[%d]", mShot.deathmatch_shot_damage);
-         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Suicide player shots:[%d]", mShot.suicide_shots);
-         mLog.add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         mLog.add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+         mLog.add_log_entry_position_textf(11, 0, 76, 10, "|", " ", "Server replied with join invitation:");
+         mLog.add_log_entry_position_textf(11, 0, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
+         mLog.add_log_entry_position_textf(11, 0, 76, 10, "|", " ", "Player Number:[%d]", cn);
+         mLog.add_log_entry_position_textf(11, 0, 76, 10, "|", " ", "Player Color:[%d]", color);
+         mLog.add_log_entry_position_textf(11, 0, 76, 10, "|", " ", "Server mLoop.frame_num:[%d]", mLoop.frame_num);
+         mLog.add_log_entry_position_textf(11, 0, 76, 10, "|", " ", "Deathmatch player shots:[%d]", mShot.deathmatch_shots);
+         mLog.add_log_entry_position_textf(11, 0, 76, 10, "|", " ", "Deathmatch player shot damage:[%d]", mShot.deathmatch_shot_damage);
+         mLog.add_log_entry_position_textf(11, 0, 76, 10, "|", " ", "Suicide player shots:[%d]", mShot.suicide_shots);
+         mLog.add_log_entry_centered_text (11, 0, 76, "+", "-", "");
       }
    }
 }

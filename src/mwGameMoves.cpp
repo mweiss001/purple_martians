@@ -195,8 +195,6 @@ void mwGameMoves::proc_player_client_quit_game_move(int x)
 
 void mwGameMoves::proc_player_active_game_move(int x)
 {
-   char msg[1024];
-
    int p                = arr[x][2]; // player number
    mPlayer.syn[p].color = arr[x][3]; // color
 
@@ -217,17 +215,11 @@ void mwGameMoves::proc_player_active_game_move(int x)
 
       mGameEvent.add(6, 0, 0, p, 0, 0, 0);
 
-
       if (!mLoop.ff_state)
       {
          if ((mMain.headless_server) && (p)) printf("Player:%d joined\n", p);
-         if (mLog.LOG_NET)
-         {
-            sprintf(msg,"PLAYER:%d became ACTIVE color:%d", p, mPlayer.syn[p].color);
-            mLog.add_log_entry_header(10, p, msg, 1);
-         }
+         if (mLog.LOG_NET) mLog.add_log_entry_headerf(10, p, 1, "PLAYER:%d became ACTIVE color:%d", p, mPlayer.syn[p].color);
       }
-
    }
 }
 
@@ -259,7 +251,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
       if (mLog.LOG_NET)
       {
          sprintf(msg, "PLAYER:%d became INACTIVE", p);
-         mLog.add_log_entry_header(10, p, msg, 1);
+         mLog.add_log_entry_header(10, p, 1, msg);
       }
 
       // ------------------------------------
