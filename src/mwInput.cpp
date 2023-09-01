@@ -670,7 +670,7 @@ int mwInput::CTRL(void)
 
 void mwInput::m_err(const char * err_msg)
 {
-   fprintf(stderr, "%s\n", err_msg);
+   //fprintf(stderr, "%s\n", err_msg);
    al_show_native_message_box(mDisplay.display, "Error", "Error:", err_msg, NULL,  ALLEGRO_MESSAGEBOX_ERROR );
 }
 

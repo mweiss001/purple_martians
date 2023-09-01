@@ -1057,79 +1057,6 @@ int mwMiscFnx::mw_file_select(const char * title, char * fn, const char * ext, i
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // edit text stuff
 void mwMiscFnx::show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore)
 {
@@ -1196,24 +1123,19 @@ void mwMiscFnx::edit_server_name(int x, int y)
    int quit = 0;
    while (!quit)
    {
-      int tx = mDisplay.SCREEN_W/2;
-      int ty1 = mDisplay.SCREEN_H/2;
+      int tx = x;
+      int ty1 = y+20;
       int w = (char_count+1)*4;
 
-      tx = x;
-      ty1 = y+20;
-
-
-
       al_flip_display();
+
       // clear text background
       al_draw_filled_rectangle(tx-w-8, ty1-4-2, tx+w+18, ty1+4+3, mColor.pc[0]);
 
-//      al_draw_text(mFont.pr8, mColor.pc[15], tx, ty1-14, ALLEGRO_ALIGN_CENTER, "Set Server IP or Hostname");
       // frame text
       al_draw_rectangle       (tx-w-1, ty1-4-1, tx+w+6, ty1+6, mColor.pc[tc], 1);
 
-      mScreen.rtextout_centre(mFont.pr8, NULL, fst, tx, ty1+1, tc, 1, 1);
+      al_draw_text(mFont.pr8, mColor.pc[tc], tx, ty1+1-4, ALLEGRO_ALIGN_CENTER, fst);
 
       if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1-3, tc, 0);
       else show_cursor(fst, cursor_pos, tx, ty1-3, tc, 1);

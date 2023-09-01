@@ -1,4 +1,4 @@
-Last updated 20230125
+Last updated 20230831
 
 ---------------------------------------------------------------------------------
 -------------   The official list of how logging works: -------------------------
@@ -7,41 +7,212 @@ Last updated 20230125
 Just for netgame, timer logging not covered. (yet)
 
 
+#define LOG_error                  9
+#define LOG_net                    10
+#define LOG_net_join               11
+#define LOG_net_game_init          20
+#define LOG_net_ending_stats       22
+#define LOG_net_bandwidth_bytes    23
+#define LOG_net_bandwidth_packets  24
+#define LOG_net_player_array       26
+#define LOG_net_stdf               27
+#define LOG_net_stdf_packets       28
+#define LOG_net_dif_applied        30
+#define LOG_net_dif_not_applied    31
+#define LOG_net_server_rx_stak     33
+#define LOG_net_cdat               35
+#define LOG_net_client_ping        36
+#define LOG_net_timer_adjust       37
 
-extern int LOG_NET;
-extern int LOG_NET_join;
-extern int LOG_NET_player_array;
-extern int LOG_NET_bandwidth;
-extern int LOG_NET_cdat;
-extern int LOG_NET_stdf;
-extern int LOG_NET_stdf_all_packets;
-extern int LOG_NET_dif_applied;
-extern int LOG_NET_dif_not_applied;
-extern int LOG_NET_client_ping;
-extern int LOG_NET_client_timer_adj;
-extern int LOG_NET_server_rx_stak;
+
+#define LOG_ACTION_PRINT  0b001
+#define LOG_ACTION_LOG    0b010
+#define LOG_ACTION_ERROR  0b100
 
 
 
 
 
-what numbers are used:
+--------------------------------------------------------
+LOG_net_stdf [27] [both]
+--------------------------------------------------------
+mwNetgame::server_rewind(void)                mLog.addf(LOG_net_stdf, 0, "stdf rewind to:%d\n", srv_client_state_frame_num[0][1]);
+mwNetgame::server_create_new_state(void)      mLog.addf(LOG_net_stdf, 0, "stdf saved server state[1]:%d\n", mLoop.frame_num);
+mwNetgame::server_send_dif(int p)             mLog.addf(LOG_net_stdf, 0, "tx stdf p:%d [src:%d dst:%d] cmp:%d ratio:%3.2f .....
 
-10 - LOG_NET
-11 - LOG_NET_join
-23 - LOG_NET_bandwidth
-24 - LOG_NET_bandwidth
-26 - LOG_NET_player_array
-27 - LOG_NET_stdf
-28 - LOG_NET_stdf_all_packets
-30 - LOG_NET_dif_applied
-31 - LOG_NET_dif_not_applied
-33 - LOG_NET_server_rx_stak
-35 - LOG_NET_cdat
-36 - LOG_NET_client_timer_adj
-37 - LOG_NET_client_ping
 
-44 - LOG_TMR_xxx
+
+
+   //---------------------------------------
+   // 20 - server new game
+   //---------------------------------------
+   mLog.addf(LOG_net_stdf, 0, 0, "stdf saved server state[1]:%d\n", frame_num);
+
+
+
+void mwLoop::setup_common_after_level_load(void)
+
+   if (mNetgame.ima_server) // set server initial state
+   {
+      mLog.addf(LOG_net_stdf, 0, 0, "stdf saved server state[1]:%d\n", frame_num);
+   }
+
+
+void mwNetgame::client_process_stdf_packet(double timestamp)
+
+         mLog.addf(LOG_net_stdf, p, "rx dif complete [%d to %d] dsync[%3.1fms] - uncompressed\n", src, dst, mPlayer.loc[p].dsync*1000);
+         mLog.addf(LOG_net_stdf, p, "rx dif complete [%d to %d] dsync[%3.1f] - bad uncompress\n", src, dst, mPlayer.loc[p].dsync*1000);
+
+done
+
+
+
+
+--------------------------------------------------------
+LOG_net_stdf_packets [28] [both]
+--------------------------------------------------------
+mwNetgame::server_send_dif(int p) mLog.addf(LOG_net_stdf_packets, 0, "tx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n",
+mwNetgame::client_process_stdf_packet() mLog.addf(LOG_net_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%...
+done...
+
+
+--------------------------------------------------------
+LOG_net_server_rx_stak [33] [server]
+--------------------------------------------------------
+mwNetgame::server_proc_stak_packet(double timestamp)  mLog.addf(LOG_net_server_rx_stak, p, "rx stak d[%4.1f] c[%4.1f] a:%d c:%d %s\n", ...
+done...
+
+
+--------------------------------------------------------
+LOG_net_cdat [35] [both]
+--------------------------------------------------------
+
+mwNetgame::server_proc_cdat_packet() mLog.addf(LOG_net_cdat, p, "rx cdat p:%d fn:[%d] sync:[%d] late - droppped\n", p, cdat_frame_num, 
+mwNetgame::server_proc_cdat_packet() mLog.addf(LOG_net_cdat, p, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, 
+mwPlayer::proc_player_input(void) mLog.addf(LOG_net_cdat, p, "tx cdat - move:%d\n", loc[p].comp_move);
+done...
+
+
+
+--------------------------------------------------------
+LOG_net_client_timer_adj [36] [client]
+--------------------------------------------------------
+mwNetgame::client_timer_adjust(void) mLog.addf(LOG_net_timer_adjust, p, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.3f]\n", ...
+done...
+
+
+
+
+
+--------------------------------------------------------
+LOG_net_client_ping [37] [client]
+--------------------------------------------------------
+mwNetgame::client_fast_packet_loop() mLog.addf(LOG_net_client_ping, p, "ping [%3.2f] avg[%3.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
+done...
+
+
+
+
+--------------------------------------------------------
+LOG_net_dif_applied [30] [client]
+--------------------------------------------------------
+mwNetgame::client_apply_dif() mLog.addf(LOG_net_dif_applied, p, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
+
+
+
+
+
+
+
+--------------------------------------------------------
+LOG_net_dif_not_applied [31] [client]
+--------------------------------------------------------
+mwNetgame::client_apply_dif()
+
+      mLog.addf(LOG_net_dif_not_applied, p, "dif is not valid - src:%d dst:%d\n", client_state_dif_src, client_state_dif_dst);
+      mLog.addf(LOG_net_dif_not_applied, p, "dif_src is > 100 frames in the future - src:%d mLoop.frame_num:%d\n", client_state_dif_src, mLoop.frame_num);
+      mLog.addf(LOG_net_dif_not_applied, p, "dif [%d to %d] not applied - not newer than current [%d]\n", client_state_dif_src, client_state_dif_dst,                mLog.addf(LOG_net_dif_not_applied, p, "Resetting client base state to zero\n");
+      mLog.addf(LOG_net_dif_not_applied, p, "dif cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
+      mLog.addf(LOG_net_dif_not_applied, p, "dif [%d to %d] not applied yet - [%d] early\n", client_state_dif_src, client_state_dif_dst, -ff);
+
+
+
+
+
+--------------------------------------------------------
+LOG_net_bandwidth_bytes [23] [both]
+--------------------------------------------------------
+mwNetgame::process_bandwidth_counters() mLog.addf(LOG_net_bandwidth_bytes, p, "bandwidth (B/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]\n", 
+done
+
+--------------------------------------------------------
+LOG_net_bandwidth_packets [24] [both]
+--------------------------------------------------------
+mwNetgame::process_bandwidth_counters()  mLog.addf(LOG_net_bandwidth_packets, p, "packets per s TX cur:[%3d] max:[%3d] RX cur:[%3d] max:[%3d]\n", 
+done
+
+
+
+
+--------------------------------------------------------
+LOG_net_player_array [26] [server]
+--------------------------------------------------------
+
+void mwNetgame::server_control()
+{
+
+   if (mLog.LOG_NET_player_array) mLog.log_player_array2();
+
+
+this will need some work...
+
+do some test of this one....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////
+
+old......
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -113,104 +284,4 @@ server rx cjon
 server tx sjon
 server tx sjon SERVER FULL
 server client has locked
-
---------------------------------------------------------
-LOG_NET_player_array [26] [server]
---------------------------------------------------------
-1 x server_control()
-
---------------------------------------------------------
-LOG_NET_bandwidth [23][24] [both]
---------------------------------------------------------
-1 x process_bandwidth_counters()
-
-
---------------------------------------------------------
-LOG_NET_stdf [27] [both]
---------------------------------------------------------
-1 x client_process_stdf_packet() dif received and decompressed
-
-1 x server_send_stdf() send all stdf packets
-2 x server_rewind() // once when rewinding to prev state, once when setting new state
-
-
-   //---------------------------------------
-   // 12 - level done
-   //---------------------------------------
-   //---------------------------------------
-   // server new game
-   //---------------------------------------
-   // set server initial state (for both 2-new game and 5-level done when server)
-   game_vars_to_state(srv_stdf_state[1]);
-   srv_stdf_state_frame_num[1] = frame_num;
-   if (LOG_NET_stdf)
-   {
-      sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
-      add_log_entry2(27, 0, msg);
-   }
-
---------------------------------------------------------
-LOG_NET_stdf_all_packets [28] [both]
---------------------------------------------------------
-1 x client_process_stdf_packet() // when any stdf packets is received
-1 x server_send_stdf()           // when sending an individual stdf packets to a client
-
-
---------------------------------------------------------
-LOG_NET_dif_applied [30] [client]
---------------------------------------------------------
-1 x client_apply_diff()
-
-
---------------------------------------------------------
-LOG_NET_dif_not_applied [31] [client]
---------------------------------------------------------
-1 x Resetting client base state to zero
-1 x dif cannot be applied (wrong client base)
-1 x dif [%d to %d] not applied yet - [%d] early
-1 x dif [%d to %d] not applied - not newer than current
-
-
---------------------------------------------------------
-LOG_NET_server_rx_stak [33] [server]
---------------------------------------------------------
-1 x server_proc_stak_packet() [30]
-
---------------------------------------------------------
-LOG_NET_cdat [35] [both]
---------------------------------------------------------
-1 x server_proc_cdat_packet()
-1 x proc_player_input()
-
---------------------------------------------------------
-LOG_NET_client_timer_adj [36] [client]
---------------------------------------------------------
-1 x client_timer_adjust()
-
---------------------------------------------------------
-LOG_NET_client_ping [37] [client]
---------------------------------------------------------
-1 x ping_array_add()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

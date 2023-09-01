@@ -300,7 +300,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
       {
          // printf("Remote Player Quit :%d\n", mLoop.frame_num);
          mPlayer.loc[p].quit_reason = 93;
-         if (mLog.LOG_NET) mLog.log_ending_stats(p);
+         mLog.log_ending_stats_client(p);
          mPlayer.init_player(p, 1);
          mNetgame.reset_client_state(p);
 //         mPlayer.syn[p].active = 0;
