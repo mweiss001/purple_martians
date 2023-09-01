@@ -13,12 +13,70 @@
 #define NUM_LOG_CHAR  100000000
 #define NUM_LOG_LINES 1000000
 
+
+#define LOG_error                  9
+#define LOG_net                    10
+#define LOG_net_join               11
+#define LOG_net_game_init          20
+#define LOG_net_ending_stats       22
+#define LOG_net_bandwidth_bytes    23
+#define LOG_net_bandwidth_packets  24
+#define LOG_net_player_array       26
+#define LOG_net_stdf               27
+#define LOG_net_stdf_packets       28
+#define LOG_net_dif_applied        30
+#define LOG_net_dif_not_applied    31
+#define LOG_net_server_rx_stak     33
+#define LOG_net_cdat               35
+#define LOG_net_client_ping        36
+#define LOG_net_timer_adjust       37
+
+
+#define LOG_ACTION_PRINT  0b001
+#define LOG_ACTION_LOG    0b010
+#define LOG_ACTION_ERROR  0b100
+
+
+struct log_type
+{
+   int group; // 0=unused, 1=net, 2=timer, 3=other
+   int action; // 001=print_to_console, 010=log_to_file, 100=error_dialog
+   char name[40];
+};
+
+
+
 class mwLog
 {
-   private:
-   int lp[8][2];
 
    public:
+
+   mwLog(); // default constructor
+
+   int lp[8][2];
+
+
+   struct log_type log_types[100];
+
+   void init_log_types(void);
+
+   void addf(int type, int player, const char *format, ...);
+   void add(int type, int player, const char *msg);
+
+   void add_fwf(int type, int player, int width, int pos, const char *border, const char *fill, const char *format, ...);
+   void add_fw(int type, int player, int width, int pos, const char *border, const char *fill, const char *txt);
+
+   void add_headerf(int type, int player, int blank_lines, const char *format, ...);
+   void add_header(int type, int player, int blank_lines, const char *txt);
+
+
+
+
+
+   void log_time_date_stamp(void);
+   void log_versions(void);
+
+
 
    ALLEGRO_FS_ENTRY *filenames[1000];
    int num_filenames;
@@ -32,17 +90,17 @@ class mwLog
    int LOG_NET = 0;
    int LOG_NET_join = 0;
    int LOG_NET_player_array = 0;
-   int LOG_NET_bandwidth = 0;
-   int LOG_NET_cdat = 0;
-   int LOG_NET_stdf = 0;
-   int LOG_NET_stdf_all_packets = 0;
+//   int LOG_NET_bandwidth = 0;
+//   int LOG_NET_cdat = 0;
+//   int LOG_NET_stdf = 0;
+//   int LOG_NET_stdf_all_packets = 0;
 
-   int LOG_NET_dif_applied = 0;
-   int LOG_NET_dif_not_applied = 0;
+//   int LOG_NET_dif_applied = 0;
+//   int LOG_NET_dif_not_applied = 0;
 
-   int LOG_NET_client_ping = 0;
-   int LOG_NET_client_timer_adj = 0;
-   int LOG_NET_server_rx_stak = 0;
+//   int LOG_NET_client_ping = 0;
+//   int LOG_NET_client_timer_adj = 0;
+//   int LOG_NET_server_rx_stak = 0;
 
    int LOG_TMR_cpu = 0;
    int LOG_TMR_move_tot = 0;
@@ -74,16 +132,11 @@ class mwLog
    void add_log_entry2(int type, int player, const char *txt);
 
 
-   void add_log_entry3(int type, int player, int print, const char *format, ...);
 
+   void add_log_entry3(int type, int player, int print, const char *format, ...);
 
    void add_log_entry_position_text (int type, int player, int width, int pos, const char *border, const char *fill, const char *txt);
    void add_log_entry_position_textf(int type, int player, int width, int pos, const char *border, const char *fill, const char *format, ...);
-
-
-   void add_log_entry_centered_text (int type, int player, int width, const char *border, const char *fill, const char *txt);
-   void add_log_entry_centered_textf(int type, int player, int width, const char *fill, const char *border, const char *format, ...);
-
 
    void add_log_entry_header (int type, int player, int blank_lines, const char *txt);
    void add_log_entry_headerf(int type, int player, int blank_lines, const char *format, ...);
@@ -93,11 +146,9 @@ class mwLog
    void log_bandwidth_stats(int p);
    void log_reason_for_player_quit(int p);
    void add_log_TMR(double dt, const char *tag, int p);
-   void log_time_date_stamp(void);
-   void log_versions(void);
    void log_player_array(void);
    void log_player_array2(void);
-   void log_ending_stats(int p);
+   void log_ending_stats_client(int p);
    void log_ending_stats_server();
 
    // in mwLogGraph.cpp

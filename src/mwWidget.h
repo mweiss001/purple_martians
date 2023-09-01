@@ -56,6 +56,12 @@ class mwWidget
    int togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                   int &var, const char* t, int text_col, int frame_col);
 
+   void togglec_log(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+               int ltn, int text_col, int frame_col);
+
+
+
+
 
 };
 extern mwWidget mWidget;

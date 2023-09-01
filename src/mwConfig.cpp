@@ -23,6 +23,8 @@ mwConfig mConfig;
 
 void mwConfig::save(void)
 {
+  // printf("save cfg\n");
+
    char msg[1024];
    ALLEGRO_CONFIG * cfg = al_load_config_file("pm.cfg");
    if(!cfg)
@@ -107,20 +109,25 @@ void mwConfig::save(void)
       asci(NETWORK, mNetgame.server_state_freq_mode)
       asci(NETWORK, mNetgame.server_state_freq)
 
-      asci(LOGGING, mLog.LOG_NET)
-      asci(LOGGING, mLog.LOG_NET_join)
-      asci(LOGGING, mLog.LOG_NET_player_array)
-      asci(LOGGING, mLog.LOG_NET_bandwidth)
-      asci(LOGGING, mLog.LOG_NET_cdat)
-      asci(LOGGING, mLog.LOG_NET_stdf)
-      asci(LOGGING, mLog.LOG_NET_stdf_all_packets)
+//      asci(LOGGING, mLog.LOG_NET)
+//      asci(LOGGING, mLog.LOG_NET_join)
+//      asci(LOGGING, mLog.LOG_NET_player_array)
+//      asci(LOGGING, mLog.LOG_NET_bandwidth)
+//      asci(LOGGING, mLog.LOG_NET_cdat)
+//      asci(LOGGING, mLog.LOG_NET_stdf)
+//      asci(LOGGING, mLog.LOG_NET_stdf_all_packets)
+//      asci(LOGGING, mLog.LOG_NET_dif_applied)
+//      asci(LOGGING, mLog.LOG_NET_dif_not_applied)
+//      asci(LOGGING, mLog.LOG_NET_client_ping)
+//      asci(LOGGING, mLog.LOG_NET_client_timer_adj)
+//      asci(LOGGING, mLog.LOG_NET_server_rx_stak)
 
-      asci(LOGGING, mLog.LOG_NET_dif_applied)
-      asci(LOGGING, mLog.LOG_NET_dif_not_applied)
 
-      asci(LOGGING, mLog.LOG_NET_client_ping)
-      asci(LOGGING, mLog.LOG_NET_client_timer_adj)
-      asci(LOGGING, mLog.LOG_NET_server_rx_stak)
+
+
+
+
+
 
       asci(LOGGING, mLog.LOG_TMR_cpu)
       asci(LOGGING, mLog.LOG_TMR_move_tot)
@@ -264,12 +271,25 @@ void mwConfig::save(void)
    }
    al_save_config_file("pm.cfg", cfg);
    al_destroy_config(cfg);
+
+   mSettings.save_settings();
+
 }
 
 void mwConfig::load(void)
 {
    // this reads values and validates
    // after that, it immediately calls save in case values were not found and defaults were used
+
+
+   mSettings.load_settings();
+
+
+//   printf("load cfg\n");
+
+
+
+
 
    char msg[1024];
    ALLEGRO_CONFIG * cfg = NULL;
@@ -369,22 +389,20 @@ void mwConfig::load(void)
    agci(NETWORK, mNetgame.server_state_freq_mode, 1)
    agci(NETWORK, mNetgame.server_state_freq, 2)
 
+//   agci(LOGGING, mLog.LOG_NET, 0)
+//   agci(LOGGING, mLog.LOG_NET_player_array, 0)
+//   agci(LOGGING, mLog.LOG_NET_join, 0)
+//   agci(LOGGING, mLog.LOG_NET_bandwidth, 0)
+//   agci(LOGGING, mLog.LOG_NET_cdat, 0)
+//   agci(LOGGING, mLog.LOG_NET_stdf, 0)
+//   agci(LOGGING, mLog.LOG_NET_stdf_all_packets, 0)
+//   agci(LOGGING, mLog.LOG_NET_dif_applied, 0)
+//   agci(LOGGING, mLog.LOG_NET_dif_not_applied, 0)
+//   agci(LOGGING, mLog.LOG_NET_client_ping, 0)
+//   agci(LOGGING, mLog.LOG_NET_client_timer_adj, 0)
+//   agci(LOGGING, mLog.LOG_NET_server_rx_stak, 0)
 
 
-   agci(LOGGING, mLog.LOG_NET, 0)
-   agci(LOGGING, mLog.LOG_NET_player_array, 0)
-   agci(LOGGING, mLog.LOG_NET_join, 0)
-   agci(LOGGING, mLog.LOG_NET_bandwidth, 0)
-   agci(LOGGING, mLog.LOG_NET_cdat, 0)
-   agci(LOGGING, mLog.LOG_NET_stdf, 0)
-   agci(LOGGING, mLog.LOG_NET_stdf_all_packets, 0)
-
-   agci(LOGGING, mLog.LOG_NET_dif_applied, 0)
-   agci(LOGGING, mLog.LOG_NET_dif_not_applied, 0)
-
-   agci(LOGGING, mLog.LOG_NET_client_ping, 0)
-   agci(LOGGING, mLog.LOG_NET_client_timer_adj, 0)
-   agci(LOGGING, mLog.LOG_NET_server_rx_stak, 0)
 
 
    agci(LOGGING, mLog.LOG_TMR_cpu, 0)
@@ -527,4 +545,6 @@ void mwConfig::load(void)
 
    al_destroy_config(cfg);
    save();
+
+
 }

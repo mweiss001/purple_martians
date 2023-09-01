@@ -1999,6 +1999,81 @@ int mwWidget::togglec(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 }
 
 
+// double toggle check box flag -- custom for log types only
+void mwWidget::togglec_log(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+               int ltn, int text_col, int frame_col)
+{
+
+   // check box size
+   int cbs = 6;
+
+   // check box y positions
+   int cb_y1 = y1 + (bts - cbs - 2) /2;
+   int cb_y2 = cb_y1 + cbs;
+
+   // checkbox 1
+   int cb1_x1 = x1;
+   int cb1_x2 = cb1_x1 + cbs;
+
+   // checkbox 2
+   int cb2_x1 = cb1_x2 + cbs + 2;
+   int cb2_x2 = cb2_x1 + cbs;
+
+
+   // draw checkboxes
+   if (mLog.log_types[ltn].action & LOG_ACTION_PRINT) al_draw_filled_rectangle(cb1_x1, cb_y1, cb1_x2, cb_y2, mColor.pc[frame_col]);
+   else                                               al_draw_rectangle(       cb1_x1, cb_y1, cb1_x2, cb_y2, mColor.pc[frame_col], 1);
+   if (mLog.log_types[ltn].action & LOG_ACTION_LOG)   al_draw_filled_rectangle(cb2_x1, cb_y1, cb2_x2, cb_y2, mColor.pc[frame_col]);
+   else                                               al_draw_rectangle(       cb2_x1, cb_y1, cb2_x2, cb_y2, mColor.pc[frame_col], 1);
+
+
+   // process mouse on checkboxes
+   if ((mInput.mouse_y > cb_y1) && (mInput.mouse_y < cb_y2))
+   {
+      if ((mInput.mouse_x > cb1_x1) && (mInput.mouse_x < cb1_x2))
+      {
+         al_draw_rectangle(cb1_x1, cb_y1, cb1_x2, cb_y2, mColor.pc[14], 1);
+         if (mInput.mouse_b[1][0])
+         {
+             while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+             mLog.log_types[ltn].action ^= LOG_ACTION_PRINT;
+         }
+      }
+      if ((mInput.mouse_x > cb2_x1) && (mInput.mouse_x < cb2_x2))
+      {
+         al_draw_rectangle(cb2_x1, cb_y1, cb2_x2, cb_y2, mColor.pc[14], 1);
+         if (mInput.mouse_b[1][0])
+         {
+             while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+             mLog.log_types[ltn].action ^= LOG_ACTION_LOG;
+         }
+      }
+   }
+
+   // draw text
+   float mtx = cb2_x2 + cbs + 2;
+   float mty = y1 + (bts-10)/2;
+   al_draw_text(mFont.pr8, mColor.pc[text_col], mtx, mty, 0, mLog.log_types[ltn].name);
+
+   if (q6 == 1) y1+=bts;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

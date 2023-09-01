@@ -596,7 +596,10 @@ void mwLoop::proc_program_state(void)
 
       mNetgame.game_vars_to_state(mNetgame.srv_client_state[0][1]);
       mNetgame.srv_client_state_frame_num[0][1] = frame_num;
-      if (mLog.LOG_NET_stdf) mLog.add_log_entry3(27, 0, 0, "stdf saved server state[1]:%d\n", frame_num);
+//      if (mLog.LOG_NET_stdf) mLog.add_log_entry3(27, 0, 0, "stdf saved server state[1]:%d\n", frame_num);
+
+      mLog.addf(LOG_net_stdf, 0, 0, "stdf saved server state[1]:%d\n", frame_num);
+
 
 
       mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
@@ -740,7 +743,7 @@ void mwLoop::proc_program_state(void)
       if (mLog.LOG_NET)
       {
          mLog.add_log_entry_headerf(10, 0, 3, "NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level);
-         if (mNetgame.ima_client) mLog.log_ending_stats(mPlayer.active_local_player);
+         if (mNetgame.ima_client) mLog.log_ending_stats_client(mPlayer.active_local_player);
          if (mNetgame.ima_server) mLog.log_ending_stats_server();
       }
 
@@ -1065,8 +1068,8 @@ void mwLoop::setup_common_after_level_load(void)
       mNetgame.game_vars_to_state(mNetgame.srv_client_state[0][1]);
       mNetgame.srv_client_state_frame_num[0][1] = frame_num;
 
-      if (mLog.LOG_NET_stdf) mLog.add_log_entry3(27, 0, 0, "stdf saved server state[1]:%d\n", frame_num);
-
+//      if (mLog.LOG_NET_stdf) mLog.add_log_entry3(27, 0, 0, "stdf saved server state[1]:%d\n", frame_num);
+      mLog.addf(LOG_net_stdf, 0, 0, "stdf saved server state[1]:%d\n", frame_num);
    }
    if (!mDemoMode.mode)
    {

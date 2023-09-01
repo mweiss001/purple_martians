@@ -22,6 +22,9 @@ class mwSettings
    int overlay_grid[10][4] = {0};
    int number_of_debug_overlay_modes = 2;
 
+   void load_settings(void);
+   void save_settings(void);
+
 
    void redraw_one_fcontrol(int x, int y, int &ya, int bts, int tc, int show_buttons, int num, int num_lines, int i, int &key, const char* nam);
    int redraw_all_fcontrols(int x, int y, int bts, int tc, int show_buttons, int num, int num_lines);

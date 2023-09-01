@@ -1741,7 +1741,8 @@ void mwPlayer::proc_player_input(void)
 
                      if (syn[p].menu) mLoop.state[0] = 25; // menu key pressed
 
-                     if (mLog.LOG_NET_cdat) mLog.add_log_entry3(35, p, 0, "tx cdat - move:%d\n", loc[p].comp_move);
+//                     if (mLog.LOG_NET_cdat) mLog.add_log_entry3(35, p, 0, "tx cdat - move:%d\n", loc[p].comp_move);
+                     mLog.addf(LOG_net_cdat, p, "tx cdat - move:%d\n", loc[p].comp_move);
 
                   }
                }

@@ -40,15 +40,15 @@ void mwSettings::set_all_logging(int v)
    mLog.LOG_NET=v;
    mLog.LOG_NET_join=v;
    mLog.LOG_NET_player_array=v;
-   mLog.LOG_NET_bandwidth=v;
-   mLog.LOG_NET_cdat=v;
-   mLog.LOG_NET_stdf=v;
-   mLog.LOG_NET_stdf_all_packets=v;
-   mLog.LOG_NET_dif_applied=v;
-   mLog.LOG_NET_dif_not_applied=v;
-   mLog.LOG_NET_client_ping=v;
-   mLog.LOG_NET_client_timer_adj=v;
-   mLog.LOG_NET_server_rx_stak=v;
+//   mLog.LOG_NET_bandwidth=v;
+   // mLog.LOG_NET_cdat=v;
+//   mLog.LOG_NET_stdf=v;
+   //mLog.LOG_NET_stdf_all_packets=v;
+//   mLog.LOG_NET_dif_applied=v;
+//   mLog.LOG_NET_dif_not_applied=v;
+//   mLog.LOG_NET_client_ping=v;
+//   mLog.LOG_NET_client_timer_adj=v;
+//   mLog.LOG_NET_server_rx_stak=v;
    mLog.LOG_TMR_cpu=v;
    mLog.LOG_TMR_move_tot=v;
    mLog.LOG_TMR_move_all=v;
@@ -68,8 +68,37 @@ void mwSettings::set_all_logging(int v)
 
 
 
+void mwSettings::load_settings(void)
+{
+//   printf("Loading data/settings.pm\n");
+   FILE *fp =fopen("data/settings.pm","rb");
+   if (fp)
+   {
+      fread(mLog.log_types,    sizeof(mLog.log_types),          1, fp);
+      fclose(fp);
+      return;
+   }
+   else
+   {
+      printf("Error loading data/settings.pm, recreating....\n");
+      mLog.init_log_types();
+      save_settings();
+   }
+}
 
+void mwSettings::save_settings(void)
+{
+//   printf("Saving data/settings.pm\n");
 
+   FILE *fp =fopen("data/settings.pm","wb");
+   if (fp)
+   {
+      fwrite(mLog.log_types,    sizeof(mLog.log_types),          1, fp);
+      fclose(fp);
+      return;
+   }
+   printf("Error saving data/settings.pm\n");
+}
 
 
 
@@ -2020,28 +2049,95 @@ void mwSettings::settings_pages(int set_page)
          int bts = 10;
          int tc = 13;
          int fc = 15;
-         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET,                    "LOG_NET", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_join,               "LOG_NET_join", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_player_array,       "LOG_NET_player_array", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_bandwidth,          "LOG_NET_bandwidth", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_cdat,               "LOG_NET_cdat", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_stdf,               "LOG_NET_stdf", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_stdf_all_packets,   "LOG_NET_stdf_all_packets", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_dif_applied,        "LOG_NET_dif_applied", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_dif_not_applied,    "LOG_NET_dif_not_applied", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_client_ping,        "LOG_NET_client_ping", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_client_timer_adj,   "LOG_NET_client_timer_adj", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_server_rx_stak,     "LOG_NET_server_rx_stak", tc, fc);
 
-         ya+=10;
+
+
+         int bfy1 = ya-1;
+
+         for (int i=0; i<100; i++)
+            if (mLog.log_types[i].group == 1)
+               mWidget.togglec_log(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, i, tc, fc);
+
+         // draw a frame around each group of buttons
+         int bfy2 = ya-1;
+
+
+         int c = 6;
+         int bf1x1 = xa-2;
+         int bf1x2 = bf1x1+10;
+         int bf1x3 = (bf1x1+bf1x2)/2;
+         int bf1y4 = bfy2 + 20;
+         al_draw_rectangle(bf1x1, bfy1, bf1x2, bfy2, mColor.pc[c], 1);
+         al_draw_line( bf1x3, bfy2, bf1x3, bf1y4, mColor.pc[c], 1);
+         al_draw_line( bf1x3, bf1y4, bf1x3+6, bf1y4, mColor.pc[c], 1);
+         al_draw_text(mFont.pr8, mColor.pc[c], bf1x2+2, bf1y4-4, 0, "print to console");
+
+
+         ya = bf1y4-4;
+
+         if (mWidget.buttont(bf1x2 + 140, ya, bf1x2 + 196, 12,  0,0,0,0,  0,c,15, 0,  1,1,0,0, "All On"))
+            for (int i=0; i<100; i++)
+               if (mLog.log_types[i].group == 1) mLog.log_types[i].action |= LOG_ACTION_PRINT;
+
+
+
+         if (mWidget.buttont(bf1x2 + 202, ya, bf1x2 + 266, 12,  0,0,0,0,  0,c,15, 0,  1,1,0,0, "All Off"))
+            for (int i=0; i<100; i++)
+               if (mLog.log_types[i].group == 1) mLog.log_types[i].action &= ~LOG_ACTION_PRINT;
+
+
+
+         c = 7;
+         int bf2x1 = xa+12;
+         int bf2x2 = bf2x1+10;
+         int bf2x3 = (bf2x1+bf2x2)/2;
+         int bf2y4 = bfy2 + 8;
+         al_draw_rectangle(bf2x1, bfy1, bf2x2, bfy2, mColor.pc[c], 1);
+         al_draw_line( bf2x3, bfy2, bf2x3, bf2y4, mColor.pc[c], 1);
+         al_draw_line( bf2x3, bf2y4, bf2x3+6, bf2y4, mColor.pc[c], 1);
+         al_draw_text(mFont.pr8, mColor.pc[c], bf2x2, bf2y4-4, 0, "log to file");
+
+         ya = bf2y4-4;
+
+         if (mWidget.buttont(bf1x2 + 140, ya, bf1x2 + 196, 12,  0,0,0,0,  0,c,15, 0,  1,1,0,0, "All On"))
+            for (int i=0; i<100; i++)
+               if (mLog.log_types[i].group == 1) mLog.log_types[i].action |= LOG_ACTION_LOG;
+
+         if (mWidget.buttont(bf1x2 + 202, ya, bf1x2 + 266, 12,  0,0,0,0,  0,c,15, 0,  1,1,0,0, "All Off"))
+            for (int i=0; i<100; i++)
+               if (mLog.log_types[i].group == 1) mLog.log_types[i].action &= ~LOG_ACTION_LOG;
+
+
+
+
+
+//         ya+=20;
+
+
+//         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET,                    "LOG_NET", tc, fc);
+//         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_join,               "LOG_NET_join", tc, fc);
+//         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_player_array,       "LOG_NET_player_array", tc, fc);
+//         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_bandwidth,          "LOG_NET_bandwidth", tc, fc);
+//         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_cdat,               "LOG_NET_cdat", tc, fc);
+//         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_stdf,               "LOG_NET_stdf", tc, fc);
+//         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_stdf_all_packets,   "LOG_NET_stdf_all_packets", tc, fc);
+//         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_dif_applied,        "LOG_NET_dif_applied", tc, fc);
+//         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_dif_not_applied,    "LOG_NET_dif_not_applied", tc, fc);
+//         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_client_ping,        "LOG_NET_client_ping", tc, fc);
+//         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_client_timer_adj,   "LOG_NET_client_timer_adj", tc, fc);
+//         mWidget.togglec(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, mLog.LOG_NET_server_rx_stak,     "LOG_NET_server_rx_stak", tc, fc);
+
+
+
+//         xb = xa+60;
+//         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "All On")) set_all_logging(1);
+//         xa = xa+80;
+//         xb = xa+60;
+//         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,1,0, "All Off")) set_all_logging(0);
+
+
+         ya+=18;
          bts = 14;
-         xb = xa+60;
-         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "All On")) set_all_logging(1);
-         xa = xa+80;
-         xb = xa+60;
-         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,1,0, "All Off")) set_all_logging(0);
-
-
          xa = cfp_x1 + 10;
          xb = cfp_x2 - 10;
 
