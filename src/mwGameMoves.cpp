@@ -218,14 +218,13 @@ void mwGameMoves::proc_player_active_game_move(int x)
       if (!mLoop.ff_state)
       {
          if ((mMain.headless_server) && (p)) printf("Player:%d joined\n", p);
-         if (mLog.LOG_NET) mLog.add_log_entry_headerf(10, p, 1, "PLAYER:%d became ACTIVE color:%d", p, mPlayer.syn[p].color);
+         mLog.add_headerf(LOG_net, p, 1, "PLAYER:%d became ACTIVE color:%d", p, mPlayer.syn[p].color);
       }
    }
 }
 
 void mwGameMoves::proc_player_inactive_game_move(int x)
 {
-   char msg[1024];
    int p   = arr[x][2]; // player number
    int val = arr[x][3]; // reason
 
@@ -246,13 +245,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
    if (mPlayer.syn[p].active)
    {
       if (mMain.headless_server) printf("Player:%d quit\n", p);
-
-
-      if (mLog.LOG_NET)
-      {
-         sprintf(msg, "PLAYER:%d became INACTIVE", p);
-         mLog.add_log_entry_header(10, p, 1, msg);
-      }
+      mLog.add_headerf(LOG_net, p, 1, "PLAYER:%d became INACTIVE", p);
 
       // ------------------------------------
       // player in run demo mode became inactive
@@ -279,7 +272,8 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
          for (int pp=1; pp<NUM_PLAYERS; pp++)
             if ((mPlayer.syn[pp].active) && (mPlayer.syn[pp].control_method == 2))
                mPlayer.loc[pp].quit_reason = 91;
-         if (mLog.LOG_NET) mLog.log_ending_stats_server();
+
+         mLog.log_ending_stats_server(LOG_net_ending_stats);
          mLoop.state[0] = 1;
       }
 
@@ -300,7 +294,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
       {
          // printf("Remote Player Quit :%d\n", mLoop.frame_num);
          mPlayer.loc[p].quit_reason = 93;
-         mLog.log_ending_stats_client(p);
+         mLog.log_ending_stats_client(LOG_net_ending_stats, p);
          mPlayer.init_player(p, 1);
          mNetgame.reset_client_state(p);
 //         mPlayer.syn[p].active = 0;

@@ -249,7 +249,8 @@ void mwEnemy::proc_enemy_collision_with_pshot(int e)
 
 void mwEnemy::move_enemies()
 {
-   if (mLog.LOG_TMR_move_enem) mTimeStamp.init_timestamps();
+   mTimeStamp.init_timestamps();
+
    num_enemy = 0; // count enemies
    for (int e=0; e<100; e++)
       if (Ei[e][0])
@@ -277,12 +278,8 @@ void mwEnemy::move_enemies()
          if ((Ef[e][0] < 0) || (Ef[e][0] > 1980)) Ei[e][0]=0;
          if ((Ef[e][1] < 0) || (Ef[e][1] > 1980)) Ei[e][0]=0;
 
-//         printf("testme2:%d\n", Ei[e][0]);
-
          switch (Ei[e][0])
          {
-
-
             case 1:  move_bouncer(e);   break;
             case 2:  move_cannon(e);    break;
             case 3:  move_archwagon(e); break;
@@ -292,37 +289,27 @@ void mwEnemy::move_enemies()
             case 7:  move_vinepod(e);  break;
             case 8:  move_trakbot(e);  break;
             case 9:  move_cloner(e);  break;
-
             case 19:  move_crew(e);  break;
-
-
-
             case 99: enemy_deathcount(e); break;
          }
-         if (mLog.LOG_TMR_move_enem) mTimeStamp.add_timestamp(103, e, Ei[e][0], al_get_time()-t0, 0);
+         mTimeStamp.add_timestamp(103, e, Ei[e][0], al_get_time()-t0, 0);
       }
-   if (mLog.LOG_TMR_move_enem)
-   {
-      // tally up all the times for each enemy type
-      double tmr_tally[100][3] = {0};
-      for (int i=0; i<10000; i++)
-         if (mTimeStamp.timestamps[i].type == 103)
-         {
-            tmr_tally[mTimeStamp.timestamps[i].frame2][0] +=1;                 // add to number of this type tally
-            tmr_tally[mTimeStamp.timestamps[i].frame2][1] += mTimeStamp.timestamps[i].t1; // add to time tally
-         }
-      // build log entry
-      char t[512] = {0};
-      char l[64] = {0};
-      for (int i=0; i<100; i++)
-         if (tmr_tally[i][1] > 0)
-         {
-            sprintf(l, "m-%s:[%0.4f] ", enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000000);
-            strcat(t, l);
-         }
-      // printf("%s", msg);
-      mLog.add_log_entry3(44, 0, 0, "tmst %s\n", t);
-   }
+
+   // tally up all the times for each enemy type
+   double tmr_tally[100][3] = {0};
+   for (int i=0; i<10000; i++)
+      if (mTimeStamp.timestamps[i].type == 103)
+      {
+         tmr_tally[mTimeStamp.timestamps[i].frame2][0] +=1;                 // add to number of this type tally
+         tmr_tally[mTimeStamp.timestamps[i].frame2][1] += mTimeStamp.timestamps[i].t1; // add to time tally
+      }
+
+   // build log entry
+   char t[512] = {0};
+   for (int i=0; i<100; i++)
+      if (tmr_tally[i][1] > 0)
+         sprintf(t, "%sm-%s:[%0.4f] ", t, enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000000);
+   mLog.add_tmrf(LOG_tmr_move_enem, 0, "%s\n", t);
 }
 
 

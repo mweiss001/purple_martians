@@ -109,48 +109,6 @@ void mwConfig::save(void)
       asci(NETWORK, mNetgame.server_state_freq_mode)
       asci(NETWORK, mNetgame.server_state_freq)
 
-//      asci(LOGGING, mLog.LOG_NET)
-//      asci(LOGGING, mLog.LOG_NET_join)
-//      asci(LOGGING, mLog.LOG_NET_player_array)
-//      asci(LOGGING, mLog.LOG_NET_bandwidth)
-//      asci(LOGGING, mLog.LOG_NET_cdat)
-//      asci(LOGGING, mLog.LOG_NET_stdf)
-//      asci(LOGGING, mLog.LOG_NET_stdf_all_packets)
-//      asci(LOGGING, mLog.LOG_NET_dif_applied)
-//      asci(LOGGING, mLog.LOG_NET_dif_not_applied)
-//      asci(LOGGING, mLog.LOG_NET_client_ping)
-//      asci(LOGGING, mLog.LOG_NET_client_timer_adj)
-//      asci(LOGGING, mLog.LOG_NET_server_rx_stak)
-
-
-
-
-
-
-
-
-      asci(LOGGING, mLog.LOG_TMR_cpu)
-      asci(LOGGING, mLog.LOG_TMR_move_tot)
-      asci(LOGGING, mLog.LOG_TMR_move_all)
-      asci(LOGGING, mLog.LOG_TMR_move_enem)
-      asci(LOGGING, mLog.LOG_TMR_bmsg_add)
-      asci(LOGGING, mLog.LOG_TMR_bmsg_draw)
-      asci(LOGGING, mLog.LOG_TMR_scrn_overlay)
-
-
-
-      asci(LOGGING, mLog.LOG_TMR_draw_tot)
-      asci(LOGGING, mLog.LOG_TMR_draw_all)
-      asci(LOGGING, mLog.LOG_TMR_sdif)
-      asci(LOGGING, mLog.LOG_TMR_cdif)
-      asci(LOGGING, mLog.LOG_TMR_rwnd)
-      asci(LOGGING, mLog.LOG_TMR_client_timer_adj)
-      asci(LOGGING, mLog.LOG_TMR_client_ping)
-
-
-
-
-
       asci(LOGGING, mLog.autosave_log_on_program_exit)
       asci(LOGGING, mLog.autosave_log_on_game_exit)
       asci(LOGGING, mLog.autosave_log_on_level_done)
@@ -388,42 +346,6 @@ void mwConfig::load(void)
 
    agci(NETWORK, mNetgame.server_state_freq_mode, 1)
    agci(NETWORK, mNetgame.server_state_freq, 2)
-
-//   agci(LOGGING, mLog.LOG_NET, 0)
-//   agci(LOGGING, mLog.LOG_NET_player_array, 0)
-//   agci(LOGGING, mLog.LOG_NET_join, 0)
-//   agci(LOGGING, mLog.LOG_NET_bandwidth, 0)
-//   agci(LOGGING, mLog.LOG_NET_cdat, 0)
-//   agci(LOGGING, mLog.LOG_NET_stdf, 0)
-//   agci(LOGGING, mLog.LOG_NET_stdf_all_packets, 0)
-//   agci(LOGGING, mLog.LOG_NET_dif_applied, 0)
-//   agci(LOGGING, mLog.LOG_NET_dif_not_applied, 0)
-//   agci(LOGGING, mLog.LOG_NET_client_ping, 0)
-//   agci(LOGGING, mLog.LOG_NET_client_timer_adj, 0)
-//   agci(LOGGING, mLog.LOG_NET_server_rx_stak, 0)
-
-
-
-
-   agci(LOGGING, mLog.LOG_TMR_cpu, 0)
-   agci(LOGGING, mLog.LOG_TMR_move_tot, 0)
-   agci(LOGGING, mLog.LOG_TMR_move_all, 0)
-   agci(LOGGING, mLog.LOG_TMR_move_enem, 0)
-   agci(LOGGING, mLog.LOG_TMR_bmsg_add, 0)
-   agci(LOGGING, mLog.LOG_TMR_bmsg_draw, 0)
-   agci(LOGGING, mLog.LOG_TMR_scrn_overlay, 0)
-
-
-   agci(LOGGING, mLog.LOG_TMR_draw_tot, 0)
-   agci(LOGGING, mLog.LOG_TMR_draw_all, 0)
-   agci(LOGGING, mLog.LOG_TMR_sdif, 0)
-   agci(LOGGING, mLog.LOG_TMR_cdif, 0)
-   agci(LOGGING, mLog.LOG_TMR_rwnd, 0)
-
-   agci(LOGGING, mLog.LOG_TMR_client_timer_adj, 0)
-   agci(LOGGING, mLog.LOG_TMR_client_ping, 0)
-
-
 
    agci(LOGGING, mLog.autosave_log_on_program_exit, 0)
    agci(LOGGING, mLog.autosave_log_on_game_exit, 0)

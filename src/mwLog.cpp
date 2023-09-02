@@ -11,17 +11,11 @@
 #include "mwConfig.h"
 
 
-
 mwLog mLog;
-
 
 mwLog::mwLog()
 {
-   // init_log_types();
-   // only do this when recreating settings.pm
-
-
-
+   // init_log_types(); // now only done when recreating settings.pm
 }
 
 void mwLog::init_log_types(void)
@@ -39,75 +33,38 @@ void mwLog::init_log_types(void)
    }
 
 
-   i = LOG_error;
-   log_types[i].group = 9;
-   log_types[i].action = 7; // all always all three actions
-   strcpy(log_types[i].name, "LOG_error");
+   i = LOG_error;                   log_types[i].group = 9;   strcpy(log_types[i].name, "LOG_error"); log_types[i].action = 7;   // always all three actions
 
+   i = LOG_net;                     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net");
+   i = LOG_net_join;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_join");
+   i = LOG_net_game_init;           log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_game_init");
+   i = LOG_net_ending_stats;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_ending_stats");
+   i = LOG_net_bandwidth_bytes;     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_bandwidth_bytes");
+   i = LOG_net_bandwidth_packets;   log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_bandwidth_packets");
+   i = LOG_net_player_array;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_player_array");
+   i = LOG_net_stdf;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_stdf");
+   i = LOG_net_stdf_packets;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_stdf_packets");
+   i = LOG_net_dif_applied;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_dif_applied");
+   i = LOG_net_dif_not_applied;     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_dif_not_applied");
+   i = LOG_net_server_rx_stak;      log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_server_rx_stak");
+   i = LOG_net_cdat;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_cdat");
+   i = LOG_net_client_ping;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_client_ping");
+   i = LOG_net_timer_adjust;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_timer_adjust");
 
-   i = LOG_net;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net");
-
-   i = LOG_net_join;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net_join");
-
-   i = LOG_net_game_init;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net_game_init");
-
-   i = LOG_net_ending_stats;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net_ending_stats");
-
-   i = LOG_net_bandwidth_bytes;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net_bandwidth_bytes");
-
-   i = LOG_net_bandwidth_packets;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net_bandwidth_packets");
-
-   i = LOG_net_player_array;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net_player_array");
-
-   i = LOG_net_stdf;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net_stdf");
-
-   i = LOG_net_stdf_packets;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net_stdf_packets");
-
-   i = LOG_net_dif_applied;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net_dif_applied");
-
-   i = LOG_net_dif_not_applied;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net_dif_not_applied");
-
-   i = LOG_net_server_rx_stak;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net_server_rx_stak");
-
-   i = LOG_net_cdat;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net_cdat");
-
-   i = LOG_net_client_ping;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net_client_ping");
-
-   i = LOG_net_timer_adjust;
-   log_types[i].group = 1;
-   strcpy(log_types[i].name, "LOG_net_timer_adjust");
-
-//   mConfig.save();
-//   mConfig.load();
-
+   i = LOG_tmr_cpu;                 log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_cpu");
+   i = LOG_tmr_move_tot;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_move_tot");
+   i = LOG_tmr_move_all;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_move_all");
+   i = LOG_tmr_move_enem;           log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_move_enem");
+   i = LOG_tmr_draw_tot;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_draw_tot");
+   i = LOG_tmr_draw_all;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_draw_all");
+   i = LOG_tmr_bmsg_add;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_bmsg_add");
+   i = LOG_tmr_bmsg_draw;           log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_bmsg_draw");
+   i = LOG_tmr_scrn_overlay;        log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_scrn_overlay");
+   i = LOG_tmr_sdif;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_sdif");
+   i = LOG_tmr_cdif;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_cdif");
+   i = LOG_tmr_rwnd;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_rwnd");
+   i = LOG_tmr_client_timer_adj;    log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_client_timer_adj");
+   i = LOG_tmr_client_ping;         log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_client_ping");
 
 }
 
@@ -177,24 +134,6 @@ void mwLog::add(int type, int player, const char *txt)
          log_msg[log_msg_pos+1] = 0; // NULL terminate
       }
    }
-
-
-
-//   if (log_type[type].print_to_console) printf(txt);
-//   if (log_type[type].error_dialog) mInput.m_err(txt);
-//   if (log_type[type].log_to_file)
-//   {
-//      char tmsg[500];
-//      sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
-//
-//      if ((log_msg_pos + strlen(tmsg)) >= NUM_LOG_CHAR) printf("log array full, > %d char\n", NUM_LOG_CHAR);
-//      else
-//      {
-//         memcpy(log_msg + log_msg_pos, tmsg, strlen(tmsg));
-//         log_msg_pos += strlen(tmsg);
-//         log_msg[log_msg_pos+1] = 0; // NULL terminate
-//      }
-//   }
 }
 
 // adds fixed width formatted printf style text string
@@ -291,7 +230,7 @@ void mwLog::log_versions(void)
 
 
 
-void mwLog::log_ending_stats_client(int p)
+void mwLog::log_ending_stats_client(int type, int p)
 {
    add_headerf(10, 0, 0, "Client %d (%s) ending stats", p, mPlayer.loc[p].hostname);
 
@@ -312,7 +251,7 @@ void mwLog::log_ending_stats_client(int p)
 }
 
 
-void mwLog::log_ending_stats_server()
+void mwLog::log_ending_stats_server(int type)
 {
    add_headerf(10, 0, 0, "Server (%s) ending stats", mLoop.local_hostname);
 
@@ -347,11 +286,11 @@ void mwLog::log_ending_stats_server()
          add_fw(10, 0, 76, 10, "+", "-", "");
       }
    }
-   log_player_array();
+   log_player_array(10);
 }
 
 
-void mwLog::log_player_array(void)
+void mwLog::log_player_array(int type)
 {
    char msg[1024];
    add_header(10, 0, 0, "Player Array");
@@ -386,6 +325,19 @@ void mwLog::log_player_array(void)
    }
    add_fw(10, 0, 76, 10, "+", "-", "");
 }
+
+void mwLog::log_player_array2(int type)
+{
+   add_fw(type, 0, 76, 10, "|", " ", "[p][a][m][sy]");
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      float sy = mPlayer.loc[p].dsync;
+      if (p == 0) sy = 0;
+      add_fwf(type, 0, 76, 10, "|", " ", "[%d][%d][%d][%3.2f]",   p, mPlayer.syn[p].active, mPlayer.syn[p].control_method, sy );
+   }
+}
+
+
 
 void mwLog::log_reason_for_player_quit(int p)
 {
@@ -427,152 +379,54 @@ void mwLog::log_bandwidth_stats(int p)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void mwLog::add_log_entry2(int type, int player, const char *txt)
-{
-   char tmsg[500];
-   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
-   // strcat(log_msg, tmsg);
-
-   if ((log_msg_pos + strlen(tmsg)) >= NUM_LOG_CHAR)
-   {
-      printf("log array full, > %d char\n", NUM_LOG_CHAR);
-   }
-   else
-   {
-      memcpy(log_msg + log_msg_pos, tmsg, strlen(tmsg));
-      log_msg_pos += strlen(tmsg);
-      log_msg[log_msg_pos+1] = 0; // NULL terminate
-      //sprintf(log_msg, "%s", txt);
-      //printf("%s", tmsg);
-   }
-}
-
-void mwLog::add_log_entry3(int type, int player, int print, const char *format, ...)
-{
-   char smsg[200];
-   va_list args;
-   va_start(args, format);
-   vsprintf(smsg, format, args);
-   va_end(args);
-
-   if (print) printf(smsg);
-
-   add_log_entry2(type, player, smsg);
-}
-
-
-
-void mwLog::add_log_entry_position_textf(int type, int player, int width, int pos, const char *border, const char *fill, const char *format, ...)
-{
-   char smsg[200];
-   va_list args;
-   va_start(args, format);
-   vsprintf(smsg, format, args);
-   va_end(args);
-   add_log_entry_position_text(type, player, width, pos, border, fill, smsg);
-}
-
-void mwLog::add_log_entry_position_text(int type, int player, int width, int pos, const char *border, const char *fill, const char *txt)
-{
-   int l = strlen(txt);
-   int j1 = pos-2;
-   int j2 = width - l - pos;
-   char p[200];
-
-   if (pos > 1)
-   {
-      strcpy(p, border);
-      for (int i=0; i<j1; i++) strcat(p, fill);
-      strcat(p, txt);
-      for (int i=0; i<j2; i++) strcat(p, fill);
-      strcat(p, border);
-      strcat(p, "\n");
-   }
-
-   if (pos == 1)
-   {
-      j2--;
-      strcpy(p, border);
-      for (int i=0; i<j1; i++) strcat(p, fill);
-      strcat(p, txt);
-      for (int i=0; i<j2; i++) strcat(p, fill);
-      strcat(p, border);
-      strcat(p, "\n");
-   }
-
-   if (pos == 0)
-   {
-      strcpy(p, "");
-      j2--;
-      for (int i=0; i<j1; i++) strcat(p, fill);
-      strcat(p, txt);
-      for (int i=0; i<j2; i++) strcat(p, fill);
-      strcat(p, border);
-      strcat(p, "\n");
-   }
-   add_log_entry2(type, player, p);
-
-}
-
-
-void mwLog::add_log_entry_headerf(int type, int player, int blank_lines, const char *format, ...)
-{
-   char smsg[200];
-   va_list args;
-   va_start(args, format);
-   vsprintf(smsg, format, args);
-   va_end(args);
-   add_log_entry_header(type, player, blank_lines, smsg);
-}
-
-void mwLog::add_log_entry_header(int type, int player, int blank_lines, const char *txt)
-{
-   add_log_entry_position_text(type, player, 76, 10, "+", "-", "");
-   for (int i=0; i<blank_lines; i++) add_log_entry_position_text(type, player, 76, 10, "|", " ", "");
-   add_log_entry_position_text(type, player, 76, (76 - strlen(txt))/2, "|", " ", txt);
-   for (int i=0; i<blank_lines; i++) add_log_entry_position_text(type, player, 76, 10, "|", " ", "");
-   add_log_entry_position_text(type, player, 76, 10, "+", "-", "");
-}
-
-
 void mwLog::add_log_TMR(double dt, const char *tag, int p)
 {
-   add_log_entry3(44, p, 0, "tmst %s:[%0.4f]\n", tag, dt*1000);
+   addf(44, p, "tmst %s:[%0.4f]\n", tag, dt*1000);
 }
 
 
-void mwLog::log_player_array2(void)
+
+
+
+// for single tags
+void mwLog::add_tmr1(int type, int p, const char *tag, double dt)
 {
-   add_log_entry_position_text(26, 0, 76, 10, "|", " ", "[p][a][m][sy]");
-   for (int p=0; p<NUM_PLAYERS; p++)
+   char txt[500];
+   sprintf(txt, "%s:[%0.4f]\n", tag, dt*1000);
+   add_tmr(type, p, txt);
+}
+
+
+// takes a printf format
+void mwLog::add_tmrf(int type, int p, const char *format, ...)
+{
+   char smsg[200];
+   va_list args;
+   va_start(args, format);
+   vsprintf(smsg, format, args);
+   va_end(args);
+
+   add_tmr(type, p, smsg);
+}
+
+// takes an already formatted string
+void mwLog::add_tmr(int type, int p, const char *txt)
+{
+   if (log_types[type].action & LOG_ACTION_PRINT) printf(txt);
+   if (log_types[type].action & LOG_ACTION_LOG)
    {
-      float sy = mPlayer.loc[p].dsync;
-      if (p == 0) sy = 0;
-      add_log_entry_position_textf(26, 0, 76, 10, "|", " ", "[%d][%d][%d][%3.2f]",   p, mPlayer.syn[p].active, mPlayer.syn[p].control_method, sy );
+      char tmsg[500];
+      sprintf(tmsg, "[%2d][%d][%d]tmst %s", 44, p, mLoop.frame_num, txt); // force type 44
+
+      if ((log_msg_pos + strlen(tmsg)) >= NUM_LOG_CHAR) printf("log array full, > %d char\n", NUM_LOG_CHAR);
+      else
+      {
+         memcpy(log_msg + log_msg_pos, tmsg, strlen(tmsg));
+         log_msg_pos += strlen(tmsg);
+         log_msg[log_msg_pos+1] = 0; // NULL terminate
+      }
    }
 }
+
+
 

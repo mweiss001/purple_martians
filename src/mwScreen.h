@@ -125,7 +125,9 @@ class mwScreen
    void draw_level_info(void);
 
    void frame_and_title(void);
-   void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, float op);
+
+   void rtextout_centref(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, int x, int y, int col, float scale, float op, const char *format, ...);
+   void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, int x, int y, int col, float scale, float op, const char *txt);
 
    void draw_framed_text(int xc, int y, ALLEGRO_FONT *f, int col, const char* txt);
 
