@@ -475,6 +475,10 @@ void mwLogo::splash_screen(void)
    mScreen.set_map_var();
    int quit = 0;
 
+   mInput.key_or_mouse_pressed = 0;
+
+
+
    mEventQueue.proc();
 
    mScreen.draw_large_text_overlay(1, 8);
@@ -488,7 +492,7 @@ void mwLogo::splash_screen(void)
          while (!mEventQueue.menu_update) mEventQueue.proc();
          mEventQueue.menu_update = 0;
 
-         if (mInput.key_pressed_ASCII)
+         if (mInput.key_or_mouse_pressed)
          {
             quit = 1;
             i = 1000;
@@ -511,7 +515,7 @@ void mwLogo::splash_screen(void)
       {
          while (!mEventQueue.menu_update) mEventQueue.proc();
          mEventQueue.menu_update = 0;
-         if (mInput.key_pressed_ASCII)
+         if (mInput.key_or_mouse_pressed)
          {
             quit = 1;
             i = 1000;
@@ -530,7 +534,7 @@ void mwLogo::splash_screen(void)
       al_flip_display();
       while (!mEventQueue.menu_update) mEventQueue.proc();
       mEventQueue.menu_update = 0;
-      if (mInput.key_pressed_ASCII) quit = 1;
+      if (mInput.key_or_mouse_pressed) quit = 1;
    }
 
    al_clear_to_color(al_map_rgb(0,0,0));

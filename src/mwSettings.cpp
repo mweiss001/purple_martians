@@ -31,39 +31,39 @@
 #include "mwMain.h"
 #include "mwBitmapTools.h"
 
-
-
 mwSettings mSettings;
-
-
 
 
 void mwSettings::load_settings(void)
 {
-//   printf("Loading data/settings.pm\n");
+   //printf("Loading data/settings.pm\n");
    FILE *fp =fopen("data/settings.pm","rb");
    if (fp)
    {
-      fread(mLog.log_types,    sizeof(mLog.log_types),          1, fp);
+      fread(mLog.log_types,               sizeof(mLog.log_types),               1, fp);
+      fread(overlay_grid,                 sizeof(overlay_grid),                 1, fp);
+      fread(mBottomMessage.filter_event,  sizeof(mBottomMessage.filter_event),  1, fp);
       fclose(fp);
       return;
    }
    else
    {
-      printf("Error loading data/settings.pm, recreating....\n");
+      printf("error loading data/settings.pm -- recreating\n");
       mLog.init_log_types();
+      mBottomMessage.init_filter_events();
       save_settings();
    }
 }
 
 void mwSettings::save_settings(void)
 {
-//   printf("Saving data/settings.pm\n");
-
+   //printf("Saving data/settings.pm\n");
    FILE *fp =fopen("data/settings.pm","wb");
    if (fp)
    {
-      fwrite(mLog.log_types,    sizeof(mLog.log_types),          1, fp);
+      fwrite(mLog.log_types,               sizeof(mLog.log_types),               1, fp);
+      fwrite(overlay_grid,                 sizeof(overlay_grid),                 1, fp);
+      fwrite(mBottomMessage.filter_event,  sizeof(mBottomMessage.filter_event),  1, fp);
       fclose(fp);
       return;
    }
@@ -636,7 +636,8 @@ void mwSettings::settings_pages(int set_page)
             {
                al_remove_filename("pm.cfg");
                al_remove_filename("data/mW.pm");
-               mConfig.load();
+               al_remove_filename("data/settings.pm");
+               mConfig.load_config();
             }
          }
       }
@@ -986,7 +987,7 @@ void mwSettings::settings_pages(int set_page)
             mLoop.quit_action = 3; // settings
             mLoop.done_action = 5; // next rand level
             al_hide_mouse_cursor(mDisplay.display);
-            mConfig.save();
+            mConfig.save_config();
             return;
          }
          ya +=10;
@@ -1000,7 +1001,7 @@ void mwSettings::settings_pages(int set_page)
             mLoop.quit_action = 3; // settings
             mLoop.done_action = 3; // settings
             al_hide_mouse_cursor(mDisplay.display);
-            mConfig.save();
+            mConfig.save_config();
             return;
          }
 
@@ -1027,7 +1028,7 @@ void mwSettings::settings_pages(int set_page)
          float old_overlay_opacity = mDemoMode.overlay_opacity;
          if ((mInput.mouse_x > xa) && (mInput.mouse_x < xb) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts)) mScreen.draw_large_text_overlay(3, 15);
          mWidget.sliderfnb(xa, ya, xb, bts,  2,0,0,0,  0,12,15,15,  0,0,1,0, mDemoMode.overlay_opacity, 0.4, 0, .01, "");
-         if (old_overlay_opacity != mDemoMode.overlay_opacity) mConfig.save();
+         if (old_overlay_opacity != mDemoMode.overlay_opacity) mConfig.save_config();
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
       }
@@ -1893,6 +1894,7 @@ void mwSettings::settings_pages(int set_page)
       if (page == 15)
       {
          int line_spacing = 8;
+         //line_spacing +=  mLoop.pct_y;
          int tc = 15;  // text color
          //int fc = 13;  // frame color
          int xa = cfp_x1 + 10;
@@ -1925,7 +1927,8 @@ void mwSettings::settings_pages(int set_page)
 // ---------------------------------------------------------------
       if (page == 16)
       {
-         int line_spacing = 8;
+         int line_spacing = 10;
+         //line_spacing +=  mLoop.pct_y;
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
          int ya = cfp_y1 + 10;
@@ -1933,60 +1936,89 @@ void mwSettings::settings_pages(int set_page)
          int tc = 13;
          int fc = 15;
 
-         int bfy1 = ya-1;
 
+
+
+
+
+
+
+
+
+
+
+
+         int bfy1 = ya-1; // ypos at top of checkbox rectangles
+
+         // draw the types for this group
          for (int i=0; i<100; i++)
-            if (mLog.log_types[i].group == 2)
-               mWidget.togglec_log(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, i, tc, fc);
+            if (mLog.log_types[i].group == 2) mWidget.togglec_log(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, i, tc, fc);
 
-         // draw a frame around each group of buttons
-         int bfy2 = ya-1;
+         int bfy2 = ya-1; // ypos at bottom top of checkbox rectangles
+
+         int bfxt = xa+28;  // where text starts
+         int bfxb = xa+170; // where buttons start
+
+         int bs = 12; // button height
+         int bco = 96; // button color offset
 
 
+
+
+         // 1st group of checkbox rectangles
          int c = 6;
          int bf1x1 = xa-2;
          int bf1x2 = bf1x1+10;
          int bf1x3 = (bf1x1+bf1x2)/2;
-         int bf1y4 = bfy2 + 20;
+         int bf1y4 = bfy2 + 25;
+
+         // draw a frame around checkbox rectangles
          al_draw_rectangle(bf1x1, bfy1, bf1x2, bfy2, mColor.pc[c], 1);
+
+         // draw lines and text description
          al_draw_line( bf1x3, bfy2, bf1x3, bf1y4, mColor.pc[c], 1);
-         al_draw_line( bf1x3, bf1y4, bf1x3+6, bf1y4, mColor.pc[c], 1);
-         al_draw_text(mFont.pr8, mColor.pc[c], bf1x2+2, bf1y4-4, 0, "print to console");
+         al_draw_line( bf1x3, bf1y4, bfxt-2, bf1y4, mColor.pc[c], 1);
+         al_draw_text(mFont.pr8, mColor.pc[c], bfxt, bf1y4-4, 0, "print to console");
 
+         ya = bf1y4-5;
 
-         ya = bf1y4-4;
+         if (mWidget.buttont(bfxb,    ya, bfxb+56,  bs,  0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All On"))
+            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 2) mLog.log_types[i].action |= LOG_ACTION_PRINT;
 
-         if (mWidget.buttont(bf1x2 + 140, ya, bf1x2 + 196, 12,  0,0,0,0,  0,c,15, 0,  1,1,0,0, "All On"))
-            for (int i=0; i<100; i++)
-               if (mLog.log_types[i].group == 2) mLog.log_types[i].action |= LOG_ACTION_PRINT;
+         if (mWidget.buttont(bfxb+62, ya, bfxb+126, bs,  0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All Off"))
+            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 2) mLog.log_types[i].action &= ~LOG_ACTION_PRINT;
 
-         if (mWidget.buttont(bf1x2 + 202, ya, bf1x2 + 266, 12,  0,0,0,0,  0,c,15, 0,  1,1,0,0, "All Off"))
-            for (int i=0; i<100; i++)
-               if (mLog.log_types[i].group == 2) mLog.log_types[i].action &= ~LOG_ACTION_PRINT;
+         // draw a frame around text and buttons
+         al_draw_rectangle(bfxt-2, bf1y4-6, bfxb+127, bf1y4+6, mColor.pc[c], 1);
 
-
+         // 2nd group of checkbox rectangles
          c = 7;
          int bf2x1 = xa+12;
          int bf2x2 = bf2x1+10;
          int bf2x3 = (bf2x1+bf2x2)/2;
-         int bf2y4 = bfy2 + 8;
+         int bf2y4 = bfy2+9;
+
+         // draw a frame around checkbox rectangles
          al_draw_rectangle(bf2x1, bfy1, bf2x2, bfy2, mColor.pc[c], 1);
-         al_draw_line( bf2x3, bfy2, bf2x3, bf2y4, mColor.pc[c], 1);
-         al_draw_line( bf2x3, bf2y4, bf2x3+6, bf2y4, mColor.pc[c], 1);
-         al_draw_text(mFont.pr8, mColor.pc[c], bf2x2, bf2y4-4, 0, "log to file");
 
-         ya = bf2y4-4;
+         // draw lines and text description
+         al_draw_line(bf2x3, bfy2, bf2x3, bf2y4, mColor.pc[c], 1);
+         al_draw_line(bf2x3, bf2y4, bfxt-2, bf2y4, mColor.pc[c], 1);
+         al_draw_text(mFont.pr8, mColor.pc[c], bfxt, bf2y4-4, 0, "log to file");
 
-         if (mWidget.buttont(bf1x2 + 140, ya, bf1x2 + 196, 12,  0,0,0,0,  0,c,15, 0,  1,1,0,0, "All On"))
-            for (int i=0; i<100; i++)
-               if (mLog.log_types[i].group == 2) mLog.log_types[i].action |= LOG_ACTION_LOG;
+         ya = bf2y4-5;
 
-         if (mWidget.buttont(bf1x2 + 202, ya, bf1x2 + 266, 12,  0,0,0,0,  0,c,15, 0,  1,1,0,0, "All Off"))
-            for (int i=0; i<100; i++)
-               if (mLog.log_types[i].group == 2) mLog.log_types[i].action &= ~LOG_ACTION_LOG;
+         if (mWidget.buttont(bfxb,    ya, bfxb+56,  bs, 0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All On"))
+            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 2) mLog.log_types[i].action |= LOG_ACTION_LOG;
+
+         if (mWidget.buttont(bfxb+62, ya, bfxb+126, bs, 0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All Off"))
+            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 2) mLog.log_types[i].action &= ~LOG_ACTION_LOG;
+
+         // draw a frame around text and buttons
+         al_draw_rectangle(bfxt-2, bf2y4-6, bfxb+127, bf2y4+6, mColor.pc[c], 1);
 
 
-         ya+=18;
+         ya+=26;
          xa = cfp_x1 + 10;
          xb = cfp_x2 - 10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -2000,9 +2032,7 @@ void mwSettings::settings_pages(int set_page)
 
          bts = 16;
          if (mWidget.buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Profile Graph")) mLog.run_profile_graph(0);
-
-         ya += 8;
-
+         ya += 4;
          if (mWidget.buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select and Open Profile Graph")) mLog.run_profile_graph(1);
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -2013,7 +2043,7 @@ void mwSettings::settings_pages(int set_page)
             mLoop.quit_action = 3; // settings
             mLoop.done_action = 3; // settings
             al_hide_mouse_cursor(mDisplay.display);
-            mConfig.save();
+            mConfig.save_config();
             return;
          }
          ya += 8;
@@ -2022,7 +2052,7 @@ void mwSettings::settings_pages(int set_page)
          {
             mLoop.state[0] = 20;
             al_hide_mouse_cursor(mDisplay.display);
-            mConfig.save();
+            mConfig.save_config();
             return;
          }
          xa = xa+200;
@@ -2031,7 +2061,7 @@ void mwSettings::settings_pages(int set_page)
          {
             mLoop.state[0] = 24;
             al_hide_mouse_cursor(mDisplay.display);
-            mConfig.save();
+            mConfig.save_config();
             return;
          }
       }
@@ -2040,7 +2070,7 @@ void mwSettings::settings_pages(int set_page)
 // ---------------------------------------------------------------
       if (page == 17)
       {
-         int line_spacing = 12;
+         int line_spacing = 10;
          //line_spacing +=  mLoop.pct_y;
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
@@ -2050,64 +2080,77 @@ void mwSettings::settings_pages(int set_page)
          int fc = 15;
 
 
+         int bfy1 = ya-1; // ypos at top of checkbox rectangles
 
-         int bfy1 = ya-1;
-
+         // draw the types for this group
          for (int i=0; i<100; i++)
             if (mLog.log_types[i].group == 1)
                mWidget.togglec_log(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, i, tc, fc);
 
-         // draw a frame around each group of buttons
-         int bfy2 = ya-1;
+         int bfy2 = ya-1; // ypos at bottom top of checkbox rectangles
+
+         int bfxt = xa+28;  // where text starts
+         int bfxb = xa+170; // where buttons start
+
+         int bs = 12; // button height
+         int bco = 96; // button color offset
 
 
+
+
+         // 1st group of checkbox rectangles
          int c = 6;
          int bf1x1 = xa-2;
          int bf1x2 = bf1x1+10;
          int bf1x3 = (bf1x1+bf1x2)/2;
-         int bf1y4 = bfy2 + 20;
+         int bf1y4 = bfy2 + 25;
+
+         // draw a frame around checkbox rectangles
          al_draw_rectangle(bf1x1, bfy1, bf1x2, bfy2, mColor.pc[c], 1);
+
+         // draw lines and text description
          al_draw_line( bf1x3, bfy2, bf1x3, bf1y4, mColor.pc[c], 1);
-         al_draw_line( bf1x3, bf1y4, bf1x3+6, bf1y4, mColor.pc[c], 1);
-         al_draw_text(mFont.pr8, mColor.pc[c], bf1x2+2, bf1y4-4, 0, "print to console");
+         al_draw_line( bf1x3, bf1y4, bfxt-2, bf1y4, mColor.pc[c], 1);
+         al_draw_text(mFont.pr8, mColor.pc[c], bfxt, bf1y4-4, 0, "print to console");
 
+         ya = bf1y4-5;
 
-         ya = bf1y4-4;
+         if (mWidget.buttont(bfxb,    ya, bfxb+56,  bs,  0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All On"))
+            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 1) mLog.log_types[i].action |= LOG_ACTION_PRINT;
 
-         if (mWidget.buttont(bf1x2 + 140, ya, bf1x2 + 196, 12,  0,0,0,0,  0,c,15, 0,  1,1,0,0, "All On"))
-            for (int i=0; i<100; i++)
-               if (mLog.log_types[i].group == 1) mLog.log_types[i].action |= LOG_ACTION_PRINT;
+         if (mWidget.buttont(bfxb+62, ya, bfxb+126, bs,  0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All Off"))
+            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 1) mLog.log_types[i].action &= ~LOG_ACTION_PRINT;
 
+         // draw a frame around text and buttons
+         al_draw_rectangle(bfxt-2, bf1y4-6, bfxb+127, bf1y4+6, mColor.pc[c], 1);
 
-
-         if (mWidget.buttont(bf1x2 + 202, ya, bf1x2 + 266, 12,  0,0,0,0,  0,c,15, 0,  1,1,0,0, "All Off"))
-            for (int i=0; i<100; i++)
-               if (mLog.log_types[i].group == 1) mLog.log_types[i].action &= ~LOG_ACTION_PRINT;
-
-
-
+         // 2nd group of checkbox rectangles
          c = 7;
          int bf2x1 = xa+12;
          int bf2x2 = bf2x1+10;
          int bf2x3 = (bf2x1+bf2x2)/2;
-         int bf2y4 = bfy2 + 8;
+         int bf2y4 = bfy2+9;
+
+         // draw a frame around checkbox rectangles
          al_draw_rectangle(bf2x1, bfy1, bf2x2, bfy2, mColor.pc[c], 1);
-         al_draw_line( bf2x3, bfy2, bf2x3, bf2y4, mColor.pc[c], 1);
-         al_draw_line( bf2x3, bf2y4, bf2x3+6, bf2y4, mColor.pc[c], 1);
-         al_draw_text(mFont.pr8, mColor.pc[c], bf2x2, bf2y4-4, 0, "log to file");
 
-         ya = bf2y4-4;
+         // draw lines and text description
+         al_draw_line(bf2x3, bfy2, bf2x3, bf2y4, mColor.pc[c], 1);
+         al_draw_line(bf2x3, bf2y4, bfxt-2, bf2y4, mColor.pc[c], 1);
+         al_draw_text(mFont.pr8, mColor.pc[c], bfxt, bf2y4-4, 0, "log to file");
 
-         if (mWidget.buttont(bf1x2 + 140, ya, bf1x2 + 196, 12,  0,0,0,0,  0,c,15, 0,  1,1,0,0, "All On"))
-            for (int i=0; i<100; i++)
-               if (mLog.log_types[i].group == 1) mLog.log_types[i].action |= LOG_ACTION_LOG;
+         ya = bf2y4-5;
 
-         if (mWidget.buttont(bf1x2 + 202, ya, bf1x2 + 266, 12,  0,0,0,0,  0,c,15, 0,  1,1,0,0, "All Off"))
-            for (int i=0; i<100; i++)
-               if (mLog.log_types[i].group == 1) mLog.log_types[i].action &= ~LOG_ACTION_LOG;
+         if (mWidget.buttont(bfxb,    ya, bfxb+56,  bs, 0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All On"))
+            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 1) mLog.log_types[i].action |= LOG_ACTION_LOG;
 
-         ya+=18;
-         bts = 14;
+         if (mWidget.buttont(bfxb+62, ya, bfxb+126, bs, 0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All Off"))
+            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 1) mLog.log_types[i].action &= ~LOG_ACTION_LOG;
+
+         // draw a frame around text and buttons
+         al_draw_rectangle(bfxt-2, bf2y4-6, bfxb+127, bf2y4+6, mColor.pc[c], 1);
+
+         ya+=26;
          xa = cfp_x1 + 10;
          xb = cfp_x2 - 10;
 
@@ -2133,7 +2176,7 @@ void mwSettings::settings_pages(int set_page)
             mLoop.quit_action = 3; // settings
             mLoop.done_action = 3; // settings
             al_hide_mouse_cursor(mDisplay.display);
-            mConfig.save();
+            mConfig.save_config();
             return;
          }
 
@@ -2143,7 +2186,7 @@ void mwSettings::settings_pages(int set_page)
          {
             mLoop.state[0] = 20;
             al_hide_mouse_cursor(mDisplay.display);
-            mConfig.save();
+            mConfig.save_config();
             return;
          }
          xa = xa+200;
@@ -2152,7 +2195,7 @@ void mwSettings::settings_pages(int set_page)
          {
             mLoop.state[0] = 24;
             al_hide_mouse_cursor(mDisplay.display);
-            mConfig.save();
+            mConfig.save_config();
             return;
          }
       }
@@ -2219,6 +2262,6 @@ void mwSettings::settings_pages(int set_page)
       }
    }
    al_hide_mouse_cursor(mDisplay.display);
-   mConfig.save();
+   mConfig.save_config();
    mLoop.state[0] = 1;
 }

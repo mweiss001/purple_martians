@@ -41,7 +41,7 @@ void mwDisplay::set_scale_factor(float new_scale_factor, int instant)
       if (scale_factor < .2) scale_factor = .2;
       if (scale_factor > 40) scale_factor = 40;
       show_scale_factor = 80;
-      mConfig.save();
+      mConfig.save_config();
       if (instant) scale_factor_current = scale_factor;
    }
 }
@@ -125,7 +125,7 @@ void mwDisplay::set_saved_display_transform(int sdt)
    float old_display_transform_double = display_transform_double;
 
    saved_display_transform_double = sdt;
-   mConfig.save();
+   mConfig.save_config();
 
    set_display_transform();
 
@@ -146,7 +146,7 @@ void mwDisplay::cycle_display_transform(void)
    float old_display_transform_double = display_transform_double;
 
    if (++saved_display_transform_double>display_transform_double_max) saved_display_transform_double = 0;
-   mConfig.save();
+   mConfig.save_config();
 
    set_display_transform();
 
@@ -194,7 +194,6 @@ int mwDisplay::init_display(void)
 
    if (mMain.headless_server)
    {
-//      printf("No Display Adapters Found!\n");
       no_display = 1;
       return 0;
    }
@@ -206,7 +205,7 @@ int mwDisplay::init_display(void)
    if (display_adapter_num >=  num_adapters) display_adapter_num = 0;
    al_set_new_display_adapter(display_adapter_num);
 
-   printf("%d adapters found...using:%d\n", num_adapters, display_adapter_num);
+   if (num_adapters > 1) printf("%d adapters found...using:%d\n", num_adapters, display_adapter_num);
 
    ALLEGRO_MONITOR_INFO aminfo;
    al_get_monitor_info(display_adapter_num, &aminfo);
@@ -241,7 +240,9 @@ int mwDisplay::init_display(void)
    if (disp_w_wind > disp_w_full) disp_w_wind = disp_w_full;
    if (disp_h_wind > disp_h_full) disp_h_wind = disp_h_full;
    //show_disp_values(0, 0, 1, 1, 1, "pc");
-   mConfig.save();
+
+
+   mConfig.save_config();
 
 
    int flags = 0;
@@ -263,7 +264,8 @@ int mwDisplay::init_display(void)
 
    al_set_window_constraints(display, 320, 240, 0, 0);
    al_apply_window_constraints(display, 1);
-   mConfig.save();
+
+   mConfig.save_config();
 
 
 //   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_OPENGL ;
@@ -333,7 +335,7 @@ void mwDisplay::proc_display_change(void)
    }
    set_display_transform();
    mBitmap.rebuild_bitmaps();
-   mConfig.save();
+   mConfig.save_config();
    //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
    set_window_title();
 
@@ -350,7 +352,7 @@ void mwDisplay::save_display_window_position(void)
       al_get_window_position(display, &disp_x_wind, &disp_y_wind);
       disp_w_wind = al_get_display_width(display);
       disp_h_wind = al_get_display_height(display);
-      mConfig.save();
+      mConfig.save_config();
    }
 }
 

@@ -32,7 +32,7 @@ void mwSound::load_sound() // load sound driver and samples
       if (err)
       {
          sound_on = 0;
-         mConfig.save();
+         mConfig.save_config();
       }
       else
       {
@@ -84,13 +84,13 @@ void mwSound::load_sound() // load sound driver and samples
 void mwSound::set_se_scaler(void)
 {
    if (sound_on) al_set_mixer_gain(se_mixer, (float)se_scaler / 9);
-   mConfig.save();
+   mConfig.save_config();
 }
 
 void mwSound::set_st_scaler(void)
 {
    if (sound_on) al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
-   mConfig.save();
+   mConfig.save_config();
 }
 
 void mwSound::start_music(int resume)

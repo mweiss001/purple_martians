@@ -32,7 +32,9 @@
 #define LOG_net_client_ping        36
 #define LOG_net_timer_adjust       37
 
+#define LOG_tmr                    44
 #define LOG_tmr_cpu                70
+#define LOG_tmr_rebuild_bitmaps    72
 #define LOG_tmr_move_tot           74
 #define LOG_tmr_move_all           75
 #define LOG_tmr_move_enem          76
@@ -52,7 +54,6 @@
 #define LOG_ACTION_ERROR  0b100
 
 
-#define LOG_tmr                    44
 
 
 

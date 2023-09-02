@@ -211,7 +211,7 @@ void mwGameMoves::proc_player_active_game_move(int x)
       // if player 0 is file play all added players will be too
       if (mPlayer.syn[0].control_method == 1) mPlayer.syn[p].control_method = 1;
 
-      mScreen.set_player_join_quit_display(p, 1, 60);
+      mScreen.set_player_text_overlay(p, 1);
 
       mGameEvent.add(6, 0, 0, p, 0, 0, 0);
 
@@ -301,7 +301,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
 //         mPlayer.syn[p].control_method = 9; // prevent re-use of this player number in this level
 //         mPlayer.loc[p].who = 99;
       }
-      mScreen.set_player_join_quit_display(p, 0, 60);
+      mScreen.set_player_text_overlay(p, 0);
       mGameEvent.add(7, 0, 0, p, 0, 0, 0);
    }
 }

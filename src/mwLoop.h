@@ -26,10 +26,6 @@ class mwLoop
 
    int show_debug_overlay;
 
-   int show_player_join_quit_timer;
-   int show_player_join_quit_player;
-   int show_player_join_quit_jq;
-
 
    // frame_speed, frames per second, frame_num stuff
    int frame_speed = 40;

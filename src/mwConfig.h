@@ -30,8 +30,8 @@ main()
 class mwConfig
 {
    public:
-   void save(void);
-   void load(void);
+   void save_config(void);
+   void load_config(void);
 };
 extern mwConfig mConfig;
 

@@ -105,6 +105,13 @@ class mwScreen
 
 
 
+
+
+
+
+
+
+
    void draw_scaled_level_region_to_display(int type);
    void set_map_var(void);
    void mark_non_default_block(int x, int y);
@@ -139,7 +146,18 @@ class mwScreen
    void draw_percent_bar_range(int cx, int y, int width, int height, int color, int start, int end);
    void draw_percent_barf(float x1, float x2, float y1, float y2, float percent);
 
-   // Screen Overlay
+
+
+
+   // screen overlay
+
+   void set_player_text_overlay(int p, int type);
+   void show_player_text_overlay(void);
+   int player_text_overlay_timer;
+   int player_text_overlay_type;
+   int player_text_overlay_player;
+   int player_text_overlay_timer_reset_val = 80;
+
    int dif_from_now_to_nl();
    void show_player_stat_box(int tx, int y, int p);
    void show_level_done(void);
@@ -147,8 +165,7 @@ class mwScreen
    void calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1);
 
    void draw_screen_overlay(void);
-   void set_player_join_quit_display(int p, int type, int time);
-   void show_player_join_quit(void);
+
    void sdg_show_column(int col, int &x, int y);
    void sdg_show(int x, int y);
    void cdg_show(int x, int y);

@@ -157,7 +157,9 @@ int mwMain::initial_setup(void)
    al_init();
    set_exe_path();
    set_and_get_versions();
-   mConfig.load();
+
+   mConfig.load_config();
+
    show_system_id();
 
    srand(time(NULL));
@@ -189,40 +191,7 @@ int mwMain::initial_setup(void)
       mBitmap.load_sprit(); // get animation sequences and shape attributes
    }
    else if (!mDisplay.no_display) // normal
-//
-//
-//   }
-//   else
-//   {
-//
-//
-//
-//
-//
-//
-//
-//
-//   if (!mDisplay.init_display())
-//
-//   {
-//      if (headless_server)
-//      {
-//         printf("Starting Headless Server.\n");
-//         mSound.sound_on = 0;
-//         mBitmap.load_sprit(); // get animation sequences and shape attributes
-//      }
-//      else
-//      {
-//         printf("Failed to initialize display.\n");
-//         return 0;
-//      }
-//
-//
-//   }
-//   else
    {
-
-
       al_register_event_source(mEventQueue.event_queue, al_get_display_event_source(mDisplay.display));
 
       // --- allegro add ons ------------
@@ -330,10 +299,15 @@ int mwMain::initial_setup(void)
 
    mDemoMode.autoplay_enabled = mDemoMode.config_autoplay_enabled; // set only at startup from config file
 
+
    mLevel.setup_data();
+
 
    if (classic_mode) mLevel.set_start_level();
    else mLevel.set_start_level(1);
+
+//   printf("test3\n");
+
 
    return 1;
 }
@@ -351,7 +325,7 @@ int mwMain::pm_main(int argument_count, char **argument_array)
       mLoop.main_loop();
    }
    if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
-   mConfig.save();
+   mConfig.save_config();
    final_wrapup();
    exit(0);
 }

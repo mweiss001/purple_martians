@@ -58,6 +58,11 @@ class mwInput
 
    bool key[ALLEGRO_KEY_MAX][4];
    int key_pressed_ASCII;
+   int key_pressed;
+   int key_or_mouse_pressed;
+
+
+
 
    int mouse_x;
    int mouse_y;

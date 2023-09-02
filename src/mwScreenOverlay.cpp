@@ -169,30 +169,30 @@ void mwScreen::show_level_done(void)
    }
 }
 
-void mwScreen::set_player_join_quit_display(int p, int type, int time)
+void mwScreen::set_player_text_overlay(int p, int type)
 {
-   mLoop.show_player_join_quit_timer = time;
-   mLoop.show_player_join_quit_jq = type;
-   mLoop.show_player_join_quit_player = p;
+   player_text_overlay_timer = player_text_overlay_timer_reset_val;
+   player_text_overlay_type = type;
+   player_text_overlay_player = p;
 }
 
-void mwScreen::show_player_join_quit(void)
+void mwScreen::show_player_text_overlay(void)
 {
    char msg[1024];
-   if (mLoop.show_player_join_quit_timer)
+   if (player_text_overlay_timer)
    {
-      int t =  mLoop.show_player_join_quit_timer--;
-      int jq = mLoop.show_player_join_quit_jq;
-      int p = mLoop.show_player_join_quit_player;
-      int color = mPlayer.syn[p].color;
+      int tm =  player_text_overlay_timer--;
+      int ty = player_text_overlay_type;
+      int p = player_text_overlay_player;
+      int c = mPlayer.syn[p].color;
 
-      if (jq == 0) sprintf(msg, "Player %d left the game!", p);
-      if (jq == 1) sprintf(msg, "Player %d joined the game!", p);
-      if (jq == 2) sprintf(msg, "Player %d found the exit!", p);
-      if (jq == 3) sprintf(msg, "Player %d DIED!", p);
+      if (ty == 0) sprintf(msg, "Player %d left the game!", p);
+      if (ty == 1) sprintf(msg, "Player %d joined the game!", p);
+      if (ty == 2) sprintf(msg, "Player %d found the exit!", p);
+      if (ty == 3) sprintf(msg, "Player %d DIED!", p);
 
       float stretch = ( (float)mDisplay.SCREEN_W / (strlen(msg)*8)) - 1; // (mDisplay.SCREEN_W / text length*8) -1
-      float ratio = (float)t / 60;
+      float ratio = (float)tm / (float)player_text_overlay_timer_reset_val;
 
       int y_pos = mDisplay.SCREEN_H/2;
       int y_pos_move = mDisplay.SCREEN_H/2;
@@ -212,7 +212,7 @@ void mwScreen::show_player_join_quit(void)
            y_pos += (int)(ra2 * y_pos_move);
       }
       if (stretch < .1) stretch = .1;
-      rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, y_pos, color, stretch, 0.5, msg);
+      rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, y_pos, c, stretch, 0.5, msg);
    }
 }
 
@@ -894,7 +894,7 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
    double t0 = al_get_time();
    if (!mPlayer.syn[p].active)
    {
-      rtextout_centref(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2-32, mPlayer.syn[p].color, 2, 1, "Please wait for server syncronization");
+      rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2-32, mPlayer.syn[p].color, 2, 1, "Please wait for server syncronization");
       rtextout_centref(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2,    mPlayer.syn[p].color, 4, 1, "[%2.1f]", abs(mNetgame.client_chase_offset - mPlayer.loc[p].dsync)*1000);
    }
    mLog.add_tmr1(LOG_tmr_scrn_overlay, 0, "scov_client", al_get_time() - t0);
@@ -1282,7 +1282,7 @@ void mwScreen::draw_screen_overlay(void)
 
    mBottomMessage.draw(0);
 
-   show_player_join_quit();
+   show_player_text_overlay();
 
    draw_top_frame(p);
    draw_bottom_frame(p);
