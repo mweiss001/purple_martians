@@ -261,8 +261,7 @@ void mwBottomMessage::draw_health(int p, int h, int &xpos, int xo, int yo)
 void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4)
 {
    char msg[256];
-   double t0;
-   if (mLog.LOG_TMR_bmsg_add) t0 = al_get_time();
+   double t0 = al_get_time();
 
    if (filter_event[ev] == 0) ev = 0;
 
@@ -463,7 +462,7 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
          }
       }
    }
-   if (mLog.LOG_TMR_bmsg_add) mLog.add_log_TMR(al_get_time() - t0, "bmsg_add4", 0);
+   mLog.add_tmr1(LOG_tmr_bmsg_add, 0, "bmsg_add4", al_get_time() - t0);
 }
 
 void mwBottomMessage::draw(int outline)
@@ -518,6 +517,6 @@ void mwBottomMessage::draw(int outline)
          }
       }
    }
-   if (mLog.LOG_TMR_bmsg_draw) mLog.add_log_TMR(al_get_time() - t0, "bmsg_draw", 0);
+   mLog.add_tmr1(LOG_tmr_bmsg_draw, 0, "bmsg_draw", al_get_time() - t0);
 }
 

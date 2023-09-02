@@ -821,16 +821,32 @@ void mwScreen::frame_and_title(void)
 
 }
 
-void mwScreen::rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, float op)
+
+void mwScreen::rtextout_centref(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, int x, int y, int col, float scale, float op, const char *format, ...)
+{
+   char smsg[200];
+   va_list args;
+   va_start(args, format);
+   vsprintf(smsg, format, args);
+   va_end(args);
+   rtextout_centre(f, dbmp, x, y, col, scale, op, smsg);
+}
+
+void mwScreen::rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, int x, int y, int col, float scale, float op, const char *txt)
 {
    // draws stretched text
    // used in many places
-   int sw = strlen(txt1) * 8;
+   float sw = strlen(txt) * 8;
+
+   // if passed -1, do auto scale
+   if (scale == -1) scale = (float)mDisplay.SCREEN_W / (sw-16);
+
+
    ALLEGRO_BITMAP *temp = al_create_bitmap(sw, 8);
    al_set_target_bitmap(temp);
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
-   al_draw_text(f, mColor.pc[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt1);
+   al_draw_text(f, mColor.pc[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt);
 
    if (dbmp != NULL) al_set_target_bitmap(dbmp);
    else al_set_target_backbuffer(mDisplay.display);

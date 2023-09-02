@@ -15,6 +15,7 @@
 
 
 #define LOG_error                  9
+
 #define LOG_net                    10
 #define LOG_net_join               11
 #define LOG_net_game_init          20
@@ -31,10 +32,31 @@
 #define LOG_net_client_ping        36
 #define LOG_net_timer_adjust       37
 
+#define LOG_tmr_cpu                70
+#define LOG_tmr_move_tot           74
+#define LOG_tmr_move_all           75
+#define LOG_tmr_move_enem          76
+#define LOG_tmr_draw_tot           80
+#define LOG_tmr_draw_all           81
+#define LOG_tmr_bmsg_add           84
+#define LOG_tmr_bmsg_draw          85
+#define LOG_tmr_scrn_overlay       87
+#define LOG_tmr_sdif               90
+#define LOG_tmr_cdif               91
+#define LOG_tmr_rwnd               92
+#define LOG_tmr_client_timer_adj   95
+#define LOG_tmr_client_ping        96
 
 #define LOG_ACTION_PRINT  0b001
 #define LOG_ACTION_LOG    0b010
 #define LOG_ACTION_ERROR  0b100
+
+
+#define LOG_tmr                    44
+
+
+
+
 
 
 struct log_type
@@ -55,7 +77,6 @@ class mwLog
 
    int lp[8][2];
 
-
    struct log_type log_types[100];
 
    void init_log_types(void);
@@ -68,9 +89,6 @@ class mwLog
 
    void add_headerf(int type, int player, int blank_lines, const char *format, ...);
    void add_header(int type, int player, int blank_lines, const char *txt);
-
-
-
 
 
    void log_time_date_stamp(void);
@@ -86,39 +104,9 @@ class mwLog
    char log_lines[NUM_LOG_LINES][100];  // for log file viewer
    int log_lines_int[NUM_LOG_LINES][3]; // for log file viewer
 
-
-   int LOG_NET = 0;
-   int LOG_NET_join = 0;
-   int LOG_NET_player_array = 0;
-//   int LOG_NET_bandwidth = 0;
-//   int LOG_NET_cdat = 0;
-//   int LOG_NET_stdf = 0;
-//   int LOG_NET_stdf_all_packets = 0;
-
-//   int LOG_NET_dif_applied = 0;
-//   int LOG_NET_dif_not_applied = 0;
-
-//   int LOG_NET_client_ping = 0;
-//   int LOG_NET_client_timer_adj = 0;
-//   int LOG_NET_server_rx_stak = 0;
-
-   int LOG_TMR_cpu = 0;
-   int LOG_TMR_move_tot = 0;
-   int LOG_TMR_move_all = 0;
-   int LOG_TMR_move_enem = 0;
-
-   int LOG_TMR_bmsg_add = 0;
-   int LOG_TMR_bmsg_draw = 0;
-   int LOG_TMR_scrn_overlay = 0;
-
-   int LOG_TMR_draw_tot = 0;
-   int LOG_TMR_draw_all = 0;
-   int LOG_TMR_sdif = 0;
-   int LOG_TMR_cdif = 0;
-   int LOG_TMR_rwnd = 0;
-
-   int LOG_TMR_client_timer_adj = 0;
-   int LOG_TMR_client_ping = 0;
+   void add_tmrf(int type, int p, const char *format, ...);
+   void add_tmr1(int type, int p, const char *tag, double dt);
+   void add_tmr(int type, int p, const char *txt);
 
    int autosave_log_on_program_exit = 0;
    int autosave_log_on_game_exit = 0;
@@ -129,27 +117,18 @@ class mwLog
 
    void erase_log(void);
    void save_log_file(void);
-   void add_log_entry2(int type, int player, const char *txt);
 
 
+   void log_player_array(int type);
+   void log_player_array2(int type);
 
-   void add_log_entry3(int type, int player, int print, const char *format, ...);
-
-   void add_log_entry_position_text (int type, int player, int width, int pos, const char *border, const char *fill, const char *txt);
-   void add_log_entry_position_textf(int type, int player, int width, int pos, const char *border, const char *fill, const char *format, ...);
-
-   void add_log_entry_header (int type, int player, int blank_lines, const char *txt);
-   void add_log_entry_headerf(int type, int player, int blank_lines, const char *format, ...);
-
+   void log_ending_stats_client(int type, int p);
+   void log_ending_stats_server(int type);
 
 
    void log_bandwidth_stats(int p);
    void log_reason_for_player_quit(int p);
    void add_log_TMR(double dt, const char *tag, int p);
-   void log_player_array(void);
-   void log_player_array2(void);
-   void log_ending_stats_client(int p);
-   void log_ending_stats_server();
 
    // in mwLogGraph.cpp
    void run_profile_graph(int choose);

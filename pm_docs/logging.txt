@@ -34,12 +34,27 @@ Just for netgame, timer logging not covered. (yet)
 
 
 --------------------------------------------------------
+LOG_net_error [9] [both]
+--------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------
 LOG_net_stdf [27] [both]
 --------------------------------------------------------
 mwNetgame::server_rewind(void)                mLog.addf(LOG_net_stdf, 0, "stdf rewind to:%d\n", srv_client_state_frame_num[0][1]);
 mwNetgame::server_create_new_state(void)      mLog.addf(LOG_net_stdf, 0, "stdf saved server state[1]:%d\n", mLoop.frame_num);
 mwNetgame::server_send_dif(int p)             mLog.addf(LOG_net_stdf, 0, "tx stdf p:%d [src:%d dst:%d] cmp:%d ratio:%3.2f .....
-
 
 
 
@@ -158,59 +173,10 @@ done
 LOG_net_player_array [26] [server]
 --------------------------------------------------------
 
-void mwNetgame::server_control()
-{
-
-   if (mLog.LOG_NET_player_array) mLog.log_player_array2();
+mwNetgame::server_control() mLog.log_player_array2(LOG_net_player_array);
 
 
-this will need some work...
-
-do some test of this one....
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-///////////////////////////////////////////////////////////
-
-old......
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+do some testing of this one....
 
 
 
@@ -218,70 +184,101 @@ old......
 
 
 --------------------------------------------------------
-LOG_NET [10] [both]
+LOG_net_join [11] [both]
 --------------------------------------------------------
-8 x  ClientInitNetwork()
-1 x ClientExitNetwork()
-2 x client_init()
-3 x client_proc_player_drop()
 
-6 x ServerInitNetwork()
-4 x ServerListen()
-1 x ServerExitNetwork()
-3 x server_init()
-3 x server_proc_player_drop()
 
-1 x proc_player_active_game_move()
-3 x proc_player_inactive_game_move()
+   //---------------------------------------
+   // 21 - client wait for intial state
+   //---------------------------------------
+   mLog.add_headerf(LOG_net_join, p, 1, "Game state updated - starting chase and lock");
+
+
+mwNetgame::client_process_sjon_packet(void)
+   mLog.add(mLog.LOG_net_join, 11, "Server replied with 'SERVER FULL'\n");
+
+      mLog.add_fwf(11, 0, 76, 10, "|", " ", "Client received join invitation from server");
+      mLog.add_fwf(11, 0, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
+      mLog.add_fwf(11, 0, 76, 10, "|", " ", "Player Number:[%d]", p);
+      mLog.add_fwf(11, 0, 76, 10, "|", " ", "Player Color:[%d]", color);
+      mLog.add_fwf(11, 0, 76, 10, "|", " ", "Server Frame Num:[%d]", server_sjon_frame_num);
+      mLog.add_fwf(11, 0, 76, 10, "|", " ", "Deathmatch player shots:[%d]", mShot.deathmatch_shots);
+      mLog.add_fwf(11, 0, 76, 10, "|", " ", "Deathmatch player shot damage:[%d]", mShot.deathmatch_shot_damage);
+      mLog.add_fwf(11, 0, 76, 10, "|", " ", "Suicide player shots:[%d]", mShot.suicide_shots);
+      mLog.add_fwf(11, 0, 76, 10, "+", "-", "");
+
+mwNetgame::server_lock_client(int p)
+      mLog.addf(LOG_net_join, p, "Player:%d has locked and will become active in 4 frames!", p);
+
+
+mwNetgame::server_proc_cjon_packet(int who)
+
+
+   mLog.add_fwf(LOG_net_join, 0, 76, 10, "+", "-", "");
+   mLog.add_fwf(LOG_net_join, 0, 76, 10, "|", " ", "Server received join request from %s requesting color:%d", temp_name, color);
+
+      mLog.add_fwf(LOG_net_join, 0, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
+      mLog.add_fwf(LOG_net_join, 0, 76, 10, "+", "-", "");
+
+      mLog.add_fwf(LOG_net_join, 0, 76, 10, "|", " ", "Server replied with join invitation:");
+      mLog.add_fwf(LOG_net_join, 0, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
+      mLog.add_fwf(LOG_net_join, 0, 76, 10, "|", " ", "Player Number:[%d]", cn);
+      mLog.add_fwf(LOG_net_join, 0, 76, 10, "|", " ", "Player Color:[%d]", color);
+      mLog.add_fwf(LOG_net_join, 0, 76, 10, "|", " ", "Server mLoop.frame_num:[%d]", mLoop.frame_num);
+      mLog.add_fwf(LOG_net_join, 0, 76, 10, "|", " ", "Deathmatch player shots:[%d]", mShot.deathmatch_shots);
+      mLog.add_fwf(LOG_net_join, 0, 76, 10, "|", " ", "Deathmatch player shot damage:[%d]", mShot.deathmatch_shot_damage);
+      mLog.add_fwf(LOG_net_join, 0, 76, 10, "|", " ", "Suicide player shots:[%d]", mShot.suicide_shots);
+      mLog.add_fwf(LOG_net_join, 0, 76, 10, "+", "-", "");
+
+
+
+
+
+
+--------------------------------------------------------
+LOG_net_ending_stats  22
+--------------------------------------------------------
+
+mwGameMoves::proc_player_inactive_game_move()
+      // ------------------------------------
+      // local server player quit
+      // ------------------------------------
+
+      if (mLog.LOG_NET) mLog.log_ending_stats_server();
+
+
+
+
+
+
+--------------------------------------------------------
+LOG_net [10] [both]
+--------------------------------------------------------
+
+mwGameMoves::proc_player_active_game_move() mLog.add_headerf(LOG_net, p, 1, "PLAYER:%d became ACTIVE color:%d", p, mPlayer.syn[p].color);
+
+mwGameMoves::proc_player_inactive_game_move() mLog.add_headerf(LOG_net, p, 1, "PLAYER:%d became INACTIVE", p);
+
 
    //---------------------------------------
    // 22 - client level setup
    //---------------------------------------
-   if (program_state == 22)
-   if (LOG_NET)
-   {
-      sprintf(msg,"LEVEL %d STARTED", play_level);
-      add_log_entry_header(10, 0, msg, 3);
-   }
+      mLog.add_headerf(LOG_net, 0, 3, "LEVEL %d STARTED", mLevel.play_level);
+
 
    //---------------------------------------
-   // 12 - level done
+   // 12 - Next Level
    //---------------------------------------
-   if (program_state == 12)
-   {
-      if (LOG_NET) { sprintf(msg,"NEXT LEVEL:%d", next_level); add_log_entry_header(10, 0, msg, 3); }
-
-      if (LOG_NET)
-      {
-         sprintf(msg,"LEVEL %d STARTED", play_level);
-         add_log_entry_header(10, 0, msg, 3);
-      }
-
-   //---------------------------------------
-   // server new game
-   //---------------------------------------
-   if (program_state == 20)
-   {
-      if (LOG_NET)
-      {
-         sprintf(msg,"LEVEL %d STARTED", play_level);
-         add_log_entry_header(10, 0, msg, 3);
-      }
-
-1 x void proc_player_health(int p)
-{
-      sprintf(msg,"PLAYER:%d DIED!", p);
-      if (LOG_NET) add_log_entry_header(10, 0, msg, 1);
+      mLog.add_headerf(LOG_net, 0, 3, "NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level);
 
 
---------------------------------------------------------
-LOG_NET_join [11] [both]
---------------------------------------------------------
-client tx cjon
-client rx sjon
-client rx sjon SERVER FULL
-server rx cjon
-server tx sjon
-server tx sjon SERVER FULL
-server client has locked
+mwNetgame::client_proc_player_drop(void)
+         mLog.add_fwf(LOG_net, p, 76, 10, "+", "-", "");
+         mLog.add_fwf(LOG_net, p, 76, 10, "|", " ", "Local Player Client %d Lost Server Connection!", p);
+         mLog.add_fwf(LOG_net, p, 76, 10, "|", " ", "mLoop.frame_num:[%d] last_stdf_rx:[%d] dif:[%d]", mLoop.frame_num, lsf, ss);
+         mLog.add_fwf(LOG_net, p, 76, 10, "+", "-", "");
+
+
+void mwPlayer::proc_player_health(int p) mLog.add_headerf(LOG_net, p, 1, "PLAYER:%d DIED!", p);
+
 

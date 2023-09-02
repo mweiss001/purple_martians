@@ -109,7 +109,7 @@ void mwPlayer::proc_player_health(int p)
    {
       syn[p].health = 0;
 
-      if (mLog.LOG_NET) mLog.add_log_entry_headerf(10, 0, 1, "PLAYER:%d DIED!", p);
+      mLog.add_headerf(LOG_net, p, 1, "PLAYER:%d DIED!", p);
 
       mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
       syn[p].stat_respawns++;
@@ -1741,7 +1741,6 @@ void mwPlayer::proc_player_input(void)
 
                      if (syn[p].menu) mLoop.state[0] = 25; // menu key pressed
 
-//                     if (mLog.LOG_NET_cdat) mLog.add_log_entry3(35, p, 0, "tx cdat - move:%d\n", loc[p].comp_move);
                      mLog.addf(LOG_net_cdat, p, "tx cdat - move:%d\n", loc[p].comp_move);
 
                   }

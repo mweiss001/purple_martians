@@ -186,21 +186,6 @@ void mwDrawSequence::draw(int setup_only)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
    if (setup_only) add_names(i, "d-ovrl", "draw_screen_overlay");
    else { mScreen.draw_screen_overlay(); add(i); }
 
@@ -217,24 +202,18 @@ void mwDrawSequence::draw(int setup_only)
    }
 
    ns = i; // number of items
-   if (mLog.LOG_TMR_draw_all)
-   {
-      char msg[1024];
-      char msg2[64];
-      sprintf(msg, "tmst");
-      for (int i=1; i<ns-1; i++)
-      {
-         sprintf(msg2, " %s:[%0.4f]", name[0][i], (ts[i] - ts[i-1]) * 1000 );
-         strcat(msg, msg2);
-      }
-      sprintf(msg2, " %s:[%0.4f]\n", name[0][ns-1], totl * 1000);  // total
-      strcat(msg, msg2);
-      //printf("\n%s\n", msg);
-      mLog.add_log_entry2(44, 0, msg);
-   }
-   if (mLog.LOG_TMR_draw_tot) mLog.add_log_TMR(totl, "draw", 0);
-}
 
+   // profile draw all
+   char msg[1024] = {0};
+   for (int i=1; i<ns-1; i++)
+      sprintf(msg, "%s%s:[%0.4f] " , msg, name[0][i], (ts[i] - ts[i-1]) * 1000 );
+   sprintf   (msg, "%s%s:[%0.4f]\n", msg, name[0][ns-1], totl * 1000);  // total
+   mLog.add_tmr(LOG_tmr_draw_all, 0, msg);
+
+   // profile draw total
+   mLog.add_tmr1(LOG_tmr_draw_tot, 0, "draw", totl);
+
+}
 
 char * mwDrawSequence::get_line(int s, char* msg)
 {
