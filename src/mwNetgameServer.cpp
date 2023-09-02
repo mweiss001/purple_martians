@@ -52,7 +52,6 @@ int mwNetgame::ServerInitNetwork() // Initialize the server
          return -1;
       }
       mLog.add_fw(LOG_net, 0, 76, 10, "|", " ", "Network initialized - channel mode (UDP)");
-      //mLog.add_fwf(LOG_net, 0, 76, 10, "|", " ", "Local address of channel%s", net_getlocaladdress(ListenChannel));
    }
    return 0;
 }
@@ -252,7 +251,6 @@ int mwNetgame::server_init(void)
    // still needed or client dies at joining
    Packet("JUNK");
    ServerBroadcast(packetbuffer, packetsize);
-
    ima_server = 1;
    return 1;
 }
@@ -352,6 +350,9 @@ void mwNetgame::set_rewind_state(void)
 
 void mwNetgame::server_rewind(void)
 {
+   double t0 = al_get_time();
+
+
    if (mLoop.frame_num >= srv_client_state_frame_num[0][1] + server_state_freq - 1)    // is it time to create a new state?
    {
 
@@ -374,11 +375,9 @@ void mwNetgame::server_rewind(void)
             lcd[pp][1] = mPlayer.syn[pp].late_cdats_last_sec;
          }
 
-      double t0 = al_get_time();
       state_to_game_vars(srv_client_state[0][1]);         // apply rewind state
       mLoop.frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
       mLoop.loop_frame(ff);
-      mLog.add_tmr1(LOG_tmr_rwnd, 0, "rwnd", al_get_time() - t0);
 
       // restore
       for (int pp=0; pp<NUM_PLAYERS; pp++)
@@ -391,12 +390,7 @@ void mwNetgame::server_rewind(void)
       mPlayer.loc[0].server_send_dif = 1;
    }
 
-
-
-
-
-
-
+   mLog.add_tmr1(LOG_tmr_rwnd, 0, "rwnd", al_get_time() - t0);
 
 }
 
@@ -503,7 +497,7 @@ void mwNetgame::server_proc_player_drop(void)
          if (mPlayer.loc[p].server_last_stak_rx_frame_num + 100 < mLoop.frame_num)
          {
             mGameMoves.add_game_move(mLoop.frame_num + 4, 2, p, 71); // make client inactive (reason no stak for 100 frames)
-            mLog.add_headerf(10, p, 1, "Server dropped player:%d (last stak rx > 100)", p);
+            mLog.add_headerf(LOG_net, p, 1, "Server dropped player:%d (last stak rx > 100)", p);
          }
       }
 
@@ -517,13 +511,13 @@ void mwNetgame::server_proc_player_drop(void)
 
    if (mGameMoves.entry_pos > gm_limit)
    {
-      mLog.add_headerf(10, 0, 1, "Server Approaching %d Game Moves! - Reload", GAME_MOVES_SIZE);
+      mLog.add_headerf(LOG_net, 0, 1, "Server Approaching %d Game Moves! - Reload", GAME_MOVES_SIZE);
       reload = 1;
    }
 
    if (mLoop.frame_num > tm_limit)
    {
-      mLog.add_headerf(10, 0, 1, "Server Approaching %d frames! - Reload", tm_limit);
+      mLog.add_headerf(LOG_net, 0, 1, "Server Approaching %d frames! - Reload", tm_limit);
       reload = 1;
    }
 

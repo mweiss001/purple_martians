@@ -276,7 +276,7 @@ void mwNetgame::client_exit(void)
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
    mPlayer.syn[0].active = 1; // local_control
    mPlayer.active_local_player = 0;
-   mConfig.load(); // to restore color and other settings
+   mConfig.load_config(); // to restore color and other settings
 }
 
 void mwNetgame::client_send_ping(void)
@@ -578,23 +578,15 @@ void mwNetgame::process_bandwidth_counters(int p)
 
 void mwNetgame::client_proc_player_drop(void)
 {
-//   char msg[1024];
    int p = mPlayer.active_local_player;
-
    if (mPlayer.syn[p].control_method == 8)
    {
-//      sprintf(msg, "SERVER ENDED GAME!");
-//      float stretch = ( (float)mDisplay.SCREEN_W / (strlen(msg)*8)) - 1;
-//      mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mPlayer.syn[p].color, stretch, 1, msg);
-
-      mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -1, 1, "SERVER ENDED GAME!");
-
-
-      al_flip_display();
-      mInput.tsw();
       mPlayer.loc[p].quit_reason = 92;
       mLog.log_ending_stats_client(LOG_net_ending_stats, p);
       mLoop.state[0] = 1;
+      mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "SERVER ENDED GAME!");
+      al_flip_display();
+      mInput.tsw();
    }
 
    int lsf = mPlayer.loc[p].client_last_stdf_rx_frame_num;
@@ -603,23 +595,16 @@ void mwNetgame::client_proc_player_drop(void)
       int ss = mLoop.frame_num - lsf;
       if (ss > 120)
       {
+         mPlayer.loc[p].quit_reason = 75;
          mLog.add_fwf(LOG_net, p, 76, 10, "+", "-", "");
          mLog.add_fwf(LOG_net, p, 76, 10, "|", " ", "Local Player Client %d Lost Server Connection!", p);
          mLog.add_fwf(LOG_net, p, 76, 10, "|", " ", "mLoop.frame_num:[%d] last_stdf_rx:[%d] dif:[%d]", mLoop.frame_num, lsf, ss);
          mLog.add_fwf(LOG_net, p, 76, 10, "+", "-", "");
-
-//         sprintf(msg, "LOST SERVER CONNECTION!");
-//         float stretch = ( (float)mDisplay.SCREEN_W / (strlen(msg)*8)) - 1;
-//         mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, mPlayer.syn[p].color, stretch, 1, msg);
-
-         mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -1, 1, "LOST SERVER CONNECTION!");
-
-
-         al_flip_display();
-         mInput.tsw();
-         mPlayer.loc[p].quit_reason = 75;
          mLog.log_ending_stats_client(LOG_net_ending_stats, p);
          mLoop.state[0] = 25;
+         mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "LOST SERVER CONNECTION!");
+         al_flip_display();
+         mInput.tsw();
       }
    }
 }
@@ -658,7 +643,7 @@ void mwNetgame::client_fast_packet_loop(void)
          }
 
          mLog.addf(LOG_net_client_ping, p, "ping [%3.2f] avg[%3.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
-         if (mLoop.frame_num) mLog.addf(LOG_tmr_client_ping, p, "ping:[%5.2f] pavg:[%5.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
+         if (mLoop.frame_num) mLog.add_tmrf(LOG_tmr_client_ping, p, "ping:[%5.2f] pavg:[%5.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
 
          Packet("pang");
          PacketPutDouble(t1);

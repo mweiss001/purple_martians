@@ -30930,6 +30930,195 @@ done...need to test
 
 Now I really want to test everything about the new log system
 
+ok here are the tests:
+server dies when logging...
+server dies always...fixed bug
+size wrong on server quit client message "SERVER ENDED GAME"
+fixed with -2 message
+
+all of the new rtextout's work and the replacement jq works...has all been tested..
+
+now test the goddamn log stuff!!
+
+bug in bandwidth
+
+bug in opening log file..
+
+i see nothing
+
+do I need log_net?
+yes
+log file will not display in viewer without it
+why not?
+actually it will, but by default, bandwidth entries are hidden
+
+
+
+look for any call that uses number instead of constant:
+
+add
+addf
+
+done
+
+
+
+
+
+
+
+make load config not save at end, unless file does not exist
+
+done...now whay are there so many save_config at start?
+
+- init_display - saves actual screen size
+
+- set start level
+
+
+set_scale_factor saves
+
+it is called in load...
+
+how do i fix this?
+just ignore all the muliple calls to save...it works....
+reverted back to exactly where it was before
+
+
+
+
+add more variables to settings...
+
+mSettings.overlay_grid
+mBottomMessage.filter_event
+
+done.. that was easy
+
+
+make any key stop splash, not just control
+done, also mouse button
+
+
+make reset all settings button also erase settings.pm..done
+
+
+
+
+
+add rebuild_bitmaps to profile timers
+
+#define LOG_tmr_rebuild_bitmaps    72
+
+i = LOG_tmr_rebuild_bitmaps;     log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_rebuild_bitmaps");
+
+recreate settings.pm
+
+   double t[8] = { 0 };
+   t[0] = al_get_time();
+
+
+   // rebuild main tiles
+   al_set_target_bitmap(tilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_tilemap, 0, 0, 0);
+
+   // rebuild block tiles
+   al_set_target_bitmap(btilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_btilemap, 0, 0, 0);
+
+   // rebuild player tiles
+   al_set_target_bitmap(ptilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_ptilemap, 0, 0, 0);
+
+   // rebuild door tiles
+   al_set_target_bitmap(dtilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_dtilemap, 0, 0, 0);
+
+   t[1] = al_get_time();
+
+
+   //printf("restore tile array time:%f\n", al_get_time() - t[0]);
+
+   mFont.load_fonts();
+
+   t[2] = al_get_time();
+
+
+   mLevel.load_level_icons();
+
+   t[3] = al_get_time();
+
+   mScreen.init_level_background();
+
+   t[4] = al_get_time();
+
+   mDisplay.set_display_transform();
+   mLogo.logo_text_bitmaps_create = 1;
+   large_text_overlay_state = 0;
+   text_title_bitmaps_create = 1;
+   mScreen.set_map_var();
+   mVisualLevel.load_visual_level_select_done = 0;
+   mLevel.level_stats_bmp_msg_type = 0;
+
+   t[5] = al_get_time();
+
+   mLog.add_tmrf(LOG_tmr_rebuild_bitmaps, 0, "tiles:[%0.4f] fonts:[%0.4f] icons:[%0.4f] lvbk:[%0.4f] misc:[%0.4f] totl:[%0.4f]\n",
+                   (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[5]-t[0])*1000);
+
+
+this all works well.
+
+cannot view profile graph if log was made without game running, all y axis (time) will be frame 0...nbd
+
+made the settting pages look even better....
+
+
+added more logging documentation
+profile and graphs are fully documented and tested...
+
+net logging is partially done
+
+
+bump version and push
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -150,7 +150,6 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
 
       mScreen.draw_line_of_players();
 
-
       mLogo.mdw_an(mScreen.menu_logo_x, mScreen.menu_logo_y, mScreen.menu_logo_scale);
 
       mScreen.draw_level_map_under_menu();

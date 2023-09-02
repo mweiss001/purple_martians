@@ -115,12 +115,11 @@ void mwPlayer::proc_player_health(int p)
       syn[p].stat_respawns++;
       if (!mLoop.ff_state) mLevel.level_data_player_respawns++;
 
-      mScreen.set_player_join_quit_display(p, 3, 60);
+      mScreen.set_player_text_overlay(p, 3);
 
       loc[p].health_display = 200;
       syn[p].paused = 100;
       syn[p].paused_type = 1;
-
    }
 }
 

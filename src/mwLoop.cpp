@@ -375,7 +375,7 @@ state = 32; // quit demo with keypress
 void mwLoop::proc_program_state(void)
 {
   // printf("proc ps ps:%d nps:%d \n", state[1], state[0]);
-   char msg[1024];
+//   char msg[1024];
 
    int debug_print_state_names = 0;
    int debug_print_state_changes = 0;
@@ -522,7 +522,7 @@ void mwLoop::proc_program_state(void)
 
       mLog.add_headerf(LOG_net, 0, 3, "LEVEL %d STARTED", mLevel.play_level);
 
-      show_player_join_quit_timer = 0;
+      mScreen.player_text_overlay_timer = 0;
       mSound.start_music(0);
       mTimeStamp.init_timestamps();
       state[0] = 21;
@@ -539,14 +539,7 @@ void mwLoop::proc_program_state(void)
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) state[0] = 25;
 
-
-//      sprintf(msg, "Waiting for game state from server");
-//      float stretch = ( (float)mDisplay.SCREEN_W / ((strlen(msg)+2)*8));
-//      mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, stretch, 1, msg);
-
-      mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -1, 1, "Waiting for game state from server");
-
-
+      mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "Waiting for game state from server");
 
       al_flip_display();
 
@@ -578,7 +571,9 @@ void mwLoop::proc_program_state(void)
          return;
       }
 
+
       mLevel.set_start_level();
+
 
       // reset players
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -586,6 +581,7 @@ void mwLoop::proc_program_state(void)
          mPlayer.init_player(p, 1);           // full reset (start modes 1, 2, 3, 9)
          mPlayer.set_player_start_pos(p, 0);  // get starting position for all players, active or not
       }
+
 
       mPlayer.syn[0].active = 1;
       mPlayer.syn[0].control_method = 3;
@@ -602,15 +598,10 @@ void mwLoop::proc_program_state(void)
       mInput.initialize();
       mTriggerEvent.initialize();
 
-
-
-
       mNetgame.game_vars_to_state(mNetgame.srv_client_state[0][1]);
       mNetgame.srv_client_state_frame_num[0][1] = frame_num;
 
-      mLog.addf(LOG_net_stdf, 0, 0, "stdf saved server state[1]:%d\n", frame_num);
-
-
+      mLog.addf(LOG_net_stdf, 0, "stdf saved server state[1]:%d\n", frame_num);
 
       mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
 
@@ -621,8 +612,8 @@ void mwLoop::proc_program_state(void)
       mLog.add_headerf(LOG_net, 0, 3, "LEVEL %d STARTED", mLevel.play_level);
 
 
+      mScreen.player_text_overlay_timer = 0;
 
-      show_player_join_quit_timer = 0;
       mSound.start_music(0); // rewind and start theme
       mTimeStamp.init_timestamps();
       state[0] = 11;
@@ -758,6 +749,8 @@ void mwLoop::proc_program_state(void)
 
       if (mNetgame.ima_client) mLog.log_ending_stats_client(LOG_net_ending_stats, mPlayer.active_local_player);
       if (mNetgame.ima_server) mLog.log_ending_stats_server(LOG_net_ending_stats);
+
+
 
       if (mNetgame.ima_server) mNetgame.server_flush();
       if (mNetgame.ima_client) mNetgame.client_flush();
@@ -950,7 +943,7 @@ void mwLoop::proc_program_state(void)
       for (int p=0; p<NUM_PLAYERS; p++) mPlayer.syn[p].active = 0;       // set all players inactive
       mPlayer.syn[0].active = 1; // make player 0 active
       mPlayer.syn[0].control_method = 0; // reset to local control
-      mConfig.load(); // restore player color
+      mConfig.load_config(); // restore player color
 
 
       if (rm == 10) // started from command line, exit
@@ -1068,7 +1061,7 @@ void mwLoop::setup_common_after_level_load(void)
    mTriggerEvent.initialize();
    mShot.clear_shots();
    frame_num = 0;
-   show_player_join_quit_timer = 0;
+   mScreen.player_text_overlay_timer = 0;
    mTimeStamp.init_timestamps();
    mSound.start_music(0); // rewind and start theme
    state[0] = 11;
@@ -1221,7 +1214,7 @@ void mwLoop::proc_level_done_mode(void)
 
    if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
    {
-      mScreen.set_player_join_quit_display(mPlayer.syn[0].level_done_player, 2, 60);
+      mScreen.set_player_text_overlay(mPlayer.syn[0].level_done_player, 2);
       mLevel.add_play_data_record(mLevel.play_level, 1);
 
       for (int p=0; p<NUM_PLAYERS; p++)

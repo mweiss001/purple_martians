@@ -21,9 +21,11 @@
 
 mwConfig mConfig;
 
-void mwConfig::save(void)
+void mwConfig::save_config(void)
 {
-  // printf("save cfg\n");
+   //printf("save cfg\n");
+
+   mSettings.save_settings();
 
    char msg[1024];
    ALLEGRO_CONFIG * cfg = al_load_config_file("pm.cfg");
@@ -43,7 +45,6 @@ void mwConfig::save(void)
       asci(SCREEN, mDisplay.fullscreen)
       asci(SCREEN, mDisplay.display_adapter_num)
       asci(SCREEN, mLogo.show_splash_screen)
-      asci(SCREEN, mBottomMessage.bottom_msg_on)
 
       asci(SCREEN, mDisplay.saved_display_transform_double)
       asci(SCREEN, mDisplay.display_transform_double_max)
@@ -125,102 +126,23 @@ void mwConfig::save(void)
       asci(DEMO, mDemoMode.demo_debug_super_fast_mode_F2);
 
 
-
+      asci(BMSG, mBottomMessage.bottom_msg_on)
       asci(BMSG, mBottomMessage.num_lines)
-
       ascf(BMSG, mBottomMessage.io)
       ascf(BMSG, mBottomMessage.fo)
       ascf(BMSG, mBottomMessage.ihs)
       ascf(BMSG, mBottomMessage.ivs)
       ascf(BMSG, mBottomMessage.fhs)
       ascf(BMSG, mBottomMessage.fvs)
-
       asci(BMSG, mBottomMessage.disp_player)
       asci(BMSG, mBottomMessage.disp_enemy)
       asci(BMSG, mBottomMessage.disp_item)
       asci(BMSG, mBottomMessage.disp_health)
-
       asci(BMSG, mBottomMessage.disp_player_text_long)
-
-      asci(BMSG, mBottomMessage.filter_event[6])  // player join
-      asci(BMSG, mBottomMessage.filter_event[7])  // player quit
-      asci(BMSG, mBottomMessage.filter_event[8])  // player died
-      asci(BMSG, mBottomMessage.filter_event[12]) // show damage
-
-      asci(BMSG, mBottomMessage.filter_event[20]) // key
-      asci(BMSG, mBottomMessage.filter_event[21]) // switch
-      asci(BMSG, mBottomMessage.filter_event[22]) // door
-      asci(BMSG, mBottomMessage.filter_event[23]) // exit
-      asci(BMSG, mBottomMessage.filter_event[24]) // spring
-      asci(BMSG, mBottomMessage.filter_event[25]) // bomb
-      asci(BMSG, mBottomMessage.filter_event[26]) // rocket
-      asci(BMSG, mBottomMessage.filter_event[27]) // coin
-      asci(BMSG, mBottomMessage.filter_event[28]) // bonus
-
-      asci(BMSG, mBottomMessage.filter_event[40]) // player hurt player
-      asci(BMSG, mBottomMessage.filter_event[41]) // player hurt by enemy
-      asci(BMSG, mBottomMessage.filter_event[42]) // player killed enemy
-
 
       asci(SETTINGS, mSettings.current_page)
       asci(SETTINGS, mSettings.show_advanced)
       asci(SETTINGS, mSettings.show_debug)
-
-
-
-      // cpu
-      asci(OVERLAY, mSettings.overlay_grid[0][0]);
-      asci(OVERLAY, mSettings.overlay_grid[0][1]);
-      asci(OVERLAY, mSettings.overlay_grid[0][2]);
-      asci(OVERLAY, mSettings.overlay_grid[0][3]);
-
-      // display
-      asci(OVERLAY, mSettings.overlay_grid[1][0]);
-      asci(OVERLAY, mSettings.overlay_grid[1][1]);
-      asci(OVERLAY, mSettings.overlay_grid[1][2]);
-      asci(OVERLAY, mSettings.overlay_grid[1][3]);
-
-      // draw profile
-      asci(OVERLAY, mSettings.overlay_grid[2][0]);
-      asci(OVERLAY, mSettings.overlay_grid[2][1]);
-      asci(OVERLAY, mSettings.overlay_grid[2][2]);
-      asci(OVERLAY, mSettings.overlay_grid[2][3]);
-
-      // debug grid
-      asci(OVERLAY, mSettings.overlay_grid[3][0]);
-      asci(OVERLAY, mSettings.overlay_grid[3][1]);
-      asci(OVERLAY, mSettings.overlay_grid[3][2]);
-      asci(OVERLAY, mSettings.overlay_grid[3][3]);
-
-      // sync graph
-      asci(OVERLAY, mSettings.overlay_grid[4][0]);
-      asci(OVERLAY, mSettings.overlay_grid[4][1]);
-      asci(OVERLAY, mSettings.overlay_grid[4][2]);
-      asci(OVERLAY, mSettings.overlay_grid[4][3]);
-
-      // sync adjust
-      asci(OVERLAY, mSettings.overlay_grid[5][0]);
-      asci(OVERLAY, mSettings.overlay_grid[5][1]);
-      asci(OVERLAY, mSettings.overlay_grid[5][2]);
-      asci(OVERLAY, mSettings.overlay_grid[5][3]);
-
-      // state freq adj
-      asci(OVERLAY, mSettings.overlay_grid[6][0]);
-      asci(OVERLAY, mSettings.overlay_grid[6][1]);
-      asci(OVERLAY, mSettings.overlay_grid[6][2]);
-      asci(OVERLAY, mSettings.overlay_grid[6][3]);
-
-      // bandwidth stats
-      asci(OVERLAY, mSettings.overlay_grid[7][0]);
-      asci(OVERLAY, mSettings.overlay_grid[7][1]);
-      asci(OVERLAY, mSettings.overlay_grid[7][2]);
-      asci(OVERLAY, mSettings.overlay_grid[7][3]);
-
-      // misc
-      asci(OVERLAY, mSettings.overlay_grid[8][0]);
-      asci(OVERLAY, mSettings.overlay_grid[8][1]);
-      asci(OVERLAY, mSettings.overlay_grid[8][2]);
-      asci(OVERLAY, mSettings.overlay_grid[8][3]);
 
       asci(OVERLAY, mSettings.number_of_debug_overlay_modes);
 
@@ -230,31 +152,24 @@ void mwConfig::save(void)
    al_save_config_file("pm.cfg", cfg);
    al_destroy_config(cfg);
 
-   mSettings.save_settings();
 
 }
 
-void mwConfig::load(void)
+void mwConfig::load_config(void)
 {
    // this reads values and validates
    // after that, it immediately calls save in case values were not found and defaults were used
 
-
    mSettings.load_settings();
 
-
-//   printf("load cfg\n");
-
-
-
-
+   // printf("load cfg\n");
 
    char msg[1024];
    ALLEGRO_CONFIG * cfg = NULL;
    cfg = al_load_config_file("pm.cfg");
-   if(!cfg)
+   if (!cfg)
    {
-      sprintf(msg, "error loading pm.cfg -- creating new pm.cfg");
+      sprintf(msg, "error loading pm.cfg -- recreating");
       printf("%s\n", msg);
       cfg = al_create_config();
       al_save_config_file("pm.cfg", cfg);
@@ -279,10 +194,7 @@ void mwConfig::load(void)
    agci(SCREEN, mLogo.show_splash_screen, 1)
    if (!mLogo.show_splash_screen) mLogo.splash_screen_done = 1;
 
-   agci(SCREEN, mBottomMessage.bottom_msg_on, 1)
-
    agci(GAME, mLevel.start_level, 1)
-
    agci(GAME, mPlayer.syn[0].overworld_last_touched_gate, 0)
 
 
@@ -362,111 +274,30 @@ void mwConfig::load(void)
    agci(DEMO, mDemoMode.demo_debug_convert_playback_to_record_with_fire, 0)
    agci(DEMO, mDemoMode.demo_debug_super_fast_mode_F2, 0);
 
-
-
+   agci(BMSG, mBottomMessage.bottom_msg_on, 1)
    agci(BMSG, mBottomMessage.num_lines, 8)
-
    agcf(BMSG, mBottomMessage.io, 1.0)
    agcf(BMSG, mBottomMessage.fo, 0.1)
    agcf(BMSG, mBottomMessage.ihs, 0.5)
    agcf(BMSG, mBottomMessage.ivs, 0.5)
    agcf(BMSG, mBottomMessage.fhs, 0.1)
    agcf(BMSG, mBottomMessage.fvs, 0.1)
-
    agci(BMSG, mBottomMessage.disp_player, 0)
    agci(BMSG, mBottomMessage.disp_enemy, 0)
    agci(BMSG, mBottomMessage.disp_item, 0)
    agci(BMSG, mBottomMessage.disp_health, 0)
-
    agci(BMSG, mBottomMessage.disp_player_text_long, 1)
-
-   agci(BMSG, mBottomMessage.filter_event[6],  1) // player join
-   agci(BMSG, mBottomMessage.filter_event[7],  1) // player quit
-   agci(BMSG, mBottomMessage.filter_event[8],  1) // player died
-   agci(BMSG, mBottomMessage.filter_event[12], 1) // show damage
-
-   agci(BMSG, mBottomMessage.filter_event[20], 1) // key
-   agci(BMSG, mBottomMessage.filter_event[21], 1) // switch
-   agci(BMSG, mBottomMessage.filter_event[22], 1) // door
-   agci(BMSG, mBottomMessage.filter_event[23], 1) // exit
-   agci(BMSG, mBottomMessage.filter_event[24], 1) // spring
-   agci(BMSG, mBottomMessage.filter_event[25], 1) // bomb
-   agci(BMSG, mBottomMessage.filter_event[26], 1) // rocket
-   agci(BMSG, mBottomMessage.filter_event[27], 1) // coin
-   agci(BMSG, mBottomMessage.filter_event[28], 1) // bonus
-
-   agci(BMSG, mBottomMessage.filter_event[40], 1) // player hurt player
-   agci(BMSG, mBottomMessage.filter_event[41], 1) // player hurt by enemy
-   agci(BMSG, mBottomMessage.filter_event[42], 1) // player killed enemy
-
-
 
    agci(SETTINGS, mSettings.current_page, 0)
    agci(SETTINGS, mSettings.show_advanced, 0)
    agci(SETTINGS, mSettings.show_debug, 0)
-
-
-
-   // cpu
-   agci(OVERLAY, mSettings.overlay_grid[0][0], 0);
-   agci(OVERLAY, mSettings.overlay_grid[0][1], 1);
-   agci(OVERLAY, mSettings.overlay_grid[0][2], 0);
-   agci(OVERLAY, mSettings.overlay_grid[0][3], 0);
-
-   // display
-   agci(OVERLAY, mSettings.overlay_grid[1][0], 0);
-   agci(OVERLAY, mSettings.overlay_grid[1][1], 0);
-   agci(OVERLAY, mSettings.overlay_grid[1][2], 0);
-   agci(OVERLAY, mSettings.overlay_grid[1][3], 0);
-
-   // draw profile
-   agci(OVERLAY, mSettings.overlay_grid[2][0], 0);
-   agci(OVERLAY, mSettings.overlay_grid[2][1], 0);
-   agci(OVERLAY, mSettings.overlay_grid[2][2], 0);
-   agci(OVERLAY, mSettings.overlay_grid[2][3], 0);
-
-   // debug grid
-   agci(OVERLAY, mSettings.overlay_grid[3][0], 0);
-   agci(OVERLAY, mSettings.overlay_grid[3][1], 0);
-   agci(OVERLAY, mSettings.overlay_grid[3][2], 0);
-   agci(OVERLAY, mSettings.overlay_grid[3][3], 0);
-
-   // sync graph
-   agci(OVERLAY, mSettings.overlay_grid[4][0], 0);
-   agci(OVERLAY, mSettings.overlay_grid[4][1], 0);
-   agci(OVERLAY, mSettings.overlay_grid[4][2], 0);
-   agci(OVERLAY, mSettings.overlay_grid[4][3], 0);
-
-   // sync adjust
-   agci(OVERLAY, mSettings.overlay_grid[5][0], 0);
-   agci(OVERLAY, mSettings.overlay_grid[5][1], 0);
-   agci(OVERLAY, mSettings.overlay_grid[5][2], 0);
-   agci(OVERLAY, mSettings.overlay_grid[5][3], 0);
-
-   // state freq adj
-   agci(OVERLAY, mSettings.overlay_grid[6][0], 0);
-   agci(OVERLAY, mSettings.overlay_grid[6][1], 0);
-   agci(OVERLAY, mSettings.overlay_grid[6][2], 0);
-   agci(OVERLAY, mSettings.overlay_grid[6][3], 0);
-
-   // bandwidth stats
-   agci(OVERLAY, mSettings.overlay_grid[7][0], 0);
-   agci(OVERLAY, mSettings.overlay_grid[7][1], 0);
-   agci(OVERLAY, mSettings.overlay_grid[7][2], 0);
-   agci(OVERLAY, mSettings.overlay_grid[7][3], 0);
-
-   // misc
-   agci(OVERLAY, mSettings.overlay_grid[8][0], 0);
-   agci(OVERLAY, mSettings.overlay_grid[8][1], 0);
-   agci(OVERLAY, mSettings.overlay_grid[8][2], 0);
-   agci(OVERLAY, mSettings.overlay_grid[8][3], 0);
 
    agci(OVERLAY, mSettings.number_of_debug_overlay_modes, 2);
 
    agci(LEVEL_EDITOR, mLoop.autosave_level_editor_state, 0);
 
    al_destroy_config(cfg);
-   save();
 
+   save_config(); // to save default values
 
 }

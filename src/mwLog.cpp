@@ -20,18 +20,14 @@ mwLog::mwLog()
 
 void mwLog::init_log_types(void)
 {
-   printf("init log types\n");
-
-
+   //printf("init log types\n");
    int i;
-
    for (i=0; i<100; i++)
    {
       log_types[i].group = 0;
       log_types[i].action = 0;
       strcpy(log_types[i].name, "");
    }
-
 
    i = LOG_error;                   log_types[i].group = 9;   strcpy(log_types[i].name, "LOG_error"); log_types[i].action = 7;   // always all three actions
 
@@ -52,6 +48,7 @@ void mwLog::init_log_types(void)
    i = LOG_net_timer_adjust;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_timer_adjust");
 
    i = LOG_tmr_cpu;                 log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_cpu");
+   i = LOG_tmr_rebuild_bitmaps;     log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_rebuild_bitmaps");
    i = LOG_tmr_move_tot;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_move_tot");
    i = LOG_tmr_move_all;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_move_all");
    i = LOG_tmr_move_enem;           log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_move_enem");
@@ -65,10 +62,7 @@ void mwLog::init_log_types(void)
    i = LOG_tmr_rwnd;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_rwnd");
    i = LOG_tmr_client_timer_adj;    log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_client_timer_adj");
    i = LOG_tmr_client_ping;         log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_client_ping");
-
 }
-
-
 
 void mwLog::erase_log(void)
 {

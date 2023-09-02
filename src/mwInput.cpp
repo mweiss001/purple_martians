@@ -46,6 +46,9 @@ void mwInput::initialize(void)
             mouse_b[k][i] = false;
 
       key_pressed_ASCII = 0;
+      key_pressed = 0;
+      key_or_mouse_pressed = 0;
+
 
       ALLEGRO_MOUSE_STATE state;
       al_get_mouse_state(&state);
@@ -87,6 +90,7 @@ void mwInput::proc_input_events(ALLEGRO_EVENT ev)
       if (ev.mouse.button == 4) mouse_b[4][0] = true;
       al_show_mouse_cursor(mDisplay.display);
       al_set_timer_count(mEventQueue.mou_timer, 0);
+      key_or_mouse_pressed = 1;
    }
    if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
    {
@@ -97,6 +101,8 @@ void mwInput::proc_input_events(ALLEGRO_EVENT ev)
    }
    if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
    {
+      key_pressed = 1;
+      key_or_mouse_pressed = 1;
       int k = ev.keyboard.keycode;
       key[k][0] = true;
    }
@@ -536,7 +542,7 @@ int mwInput::is_key_used(int k)
 void mwInput::get_all_keys(int x, int y, int tc, int bts) // prompts for all seven keys
 {
    for (int k=0; k<7; k++) my_readkey2(x,y,tc,bts,k);  // iterate the keys
-   mConfig.save();
+   mConfig.save_config();
 }
 
 void mwInput::test_keys(int x, int sy)

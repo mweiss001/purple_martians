@@ -839,7 +839,8 @@ void mwScreen::rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, int x, int
    float sw = strlen(txt) * 8;
 
    // if passed -1, do auto scale
-   if (scale == -1) scale = (float)mDisplay.SCREEN_W / (sw-16);
+   if (scale == -1) scale = (float)mDisplay.SCREEN_W / (sw+16);
+   else if (scale == -2) scale = (float)(mDisplay.SCREEN_W / sw) * 0.9;
 
 
    ALLEGRO_BITMAP *temp = al_create_bitmap(sw, 8);

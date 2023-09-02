@@ -17,6 +17,32 @@
 mwBottomMessage mBottomMessage;
 
 
+void mwBottomMessage::init_filter_events(void)
+{
+   // all off
+   for (int i=0; i<100; i++) filter_event[i] = 0;
+
+   filter_event[6] = 1;  // player join
+   filter_event[7] = 1;  // player quit
+   filter_event[8] = 1;  // player died
+   filter_event[12] = 1; // show damage
+   filter_event[20] = 1; // key
+   filter_event[21] = 1; // switch
+   filter_event[22] = 1; // door
+   filter_event[23] = 1; // exit
+   filter_event[24] = 1; // spring
+   filter_event[25] = 1; // bomb
+   filter_event[26] = 1; // rocket
+   filter_event[27] = 1; // coin
+   filter_event[28] = 1; // bonus
+   filter_event[40] = 1; // player hurt player
+   filter_event[41] = 1; // player hurt by enemy
+   filter_event[42] = 1; // player killed enemy
+}
+
+
+
+
 
 void mwBottomMessage::create_test_mode_list(void)
 {
@@ -103,17 +129,6 @@ void mwBottomMessage::create_test_mode_list(void)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 void mwBottomMessage::create_bitmaps(void)
 {
    for (int x=0; x<BMSG_MAX_LINES; x++)
@@ -142,6 +157,7 @@ void mwBottomMessage::initialize(void)
          game_event_retrigger_holdoff[i] = 0;
    }
 }
+
 
 
 void mwBottomMessage::draw_text(int &xpos, int col, const char *txt)

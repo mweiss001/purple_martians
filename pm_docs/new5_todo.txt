@@ -2,11 +2,12 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+do all the timer test and docs
+working on it
 
 
 
@@ -27,7 +28,7 @@ done...
 
 figure out netgame
 
-I need more documetation...
+I need more documentation...
 
 
 add more at the end of client timing sync??

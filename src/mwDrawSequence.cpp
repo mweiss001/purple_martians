@@ -155,8 +155,13 @@ void mwDrawSequence::draw(int setup_only)
 
 
    // draw purple coins directly on the screen, so they scale nicely
-   for (int c=0; c<500; c++)
-      if ((mItem.item[c][0] == 2) && (mItem.item[c][6] == 3)) mItem.draw_purple_coin_screen_direct(c);
+   if (setup_only) add_names(i, "d-pcds", "purple coins direct to screen");
+   else
+   {
+      for (int c=0; c<500; c++)
+         if ((mItem.item[c][0] == 2) && (mItem.item[c][6] == 3)) mItem.draw_purple_coin_screen_direct(c);
+      add(i);
+   }
 
 
 
@@ -169,7 +174,7 @@ void mwDrawSequence::draw(int setup_only)
 //   }
 
 
-   if (setup_only) add_names(i, "plyr", "players direct to screen");
+   if (setup_only) add_names(i, "d-plrd", "players direct to screen");
    else
    {
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -181,9 +186,13 @@ void mwDrawSequence::draw(int setup_only)
    }
 
    // draw npc directly on the screen, so they scale nicely
-   for (int e=0; e<100; e++)
-      if (mEnemy.Ei[e][0] == 19) mEnemy.draw_crew_screen_direct(e);
-
+   if (setup_only) add_names(i, "d-npcd", "npc direct to screen");
+   else
+   {
+      for (int e=0; e<100; e++)
+         if (mEnemy.Ei[e][0] == 19) mEnemy.draw_crew_screen_direct(e);
+      add(i);
+   }
 
 
    if (setup_only) add_names(i, "d-ovrl", "draw_screen_overlay");

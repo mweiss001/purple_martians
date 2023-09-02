@@ -151,7 +151,7 @@ void mwItem::proc_gate_collision(int p, int i)
    if (mPlayer.syn[p].overworld_last_touched_gate != lev)
    {
       mPlayer.syn[p].overworld_last_touched_gate = lev;
-      if (p == 0) mConfig.save(); // clients do not save to config
+      if (p == 0) mConfig.save_config(); // clients do not save to config
    }
 
 

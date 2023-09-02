@@ -35,6 +35,10 @@ class mwBottomMessage
    void create_bitmaps(void);
    void initialize(void);
 
+
+   void init_filter_events(void);
+
+
    void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4);
 
    void add(int ev, int x, int y, int z1, int z2, int z3, int z4);

@@ -68,7 +68,9 @@ void mwBitmap::create_bitmaps(void)
 
 void mwBitmap::rebuild_bitmaps(void)
 {
-   double t0 = al_get_time();
+   double t[8] = { 0 };
+   t[0] = al_get_time();
+
 
    // rebuild main tiles
    al_set_target_bitmap(tilemap);
@@ -90,21 +92,36 @@ void mwBitmap::rebuild_bitmaps(void)
    al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(M_dtilemap, 0, 0, 0);
 
-   printf("restore tile array time:%f\n", al_get_time() - t0);
+   t[1] = al_get_time();
+
+
+   //printf("restore tile array time:%f\n", al_get_time() - t[0]);
 
    mFont.load_fonts();
 
+   t[2] = al_get_time();
+
+
    mLevel.load_level_icons();
 
+   t[3] = al_get_time();
+
    mScreen.init_level_background();
+
+   t[4] = al_get_time();
+
    mDisplay.set_display_transform();
    mLogo.logo_text_bitmaps_create = 1;
    large_text_overlay_state = 0;
    text_title_bitmaps_create = 1;
    mScreen.set_map_var();
    mVisualLevel.load_visual_level_select_done = 0;
-
    mLevel.level_stats_bmp_msg_type = 0;
+
+   t[5] = al_get_time();
+
+   mLog.add_tmrf(LOG_tmr_rebuild_bitmaps, 0, "tiles:[%0.4f] fonts:[%0.4f] icons:[%0.4f] lvbk:[%0.4f] misc:[%0.4f] totl:[%0.4f]\n",
+                   (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[5]-t[0])*1000);
 
 
 }
