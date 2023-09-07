@@ -478,7 +478,7 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
          }
       }
    }
-   mLog.add_tmr1(LOG_tmr_bmsg_add, 0, "bmsg_add4", al_get_time() - t0);
+   mLog.add_tmr1(LOG_TMR_bmsg_add, 0, "bmsg_add4", al_get_time() - t0);
 }
 
 void mwBottomMessage::draw(int outline)
@@ -533,6 +533,6 @@ void mwBottomMessage::draw(int outline)
          }
       }
    }
-   mLog.add_tmr1(LOG_tmr_bmsg_draw, 0, "bmsg_draw", al_get_time() - t0);
+   mLog.add_tmr1(LOG_TMR_bmsg_draw, 0, "bmsg_draw", al_get_time() - t0);
 }
 

@@ -217,10 +217,10 @@ void mwDrawSequence::draw(int setup_only)
    for (int i=1; i<ns-1; i++)
       sprintf(msg, "%s%s:[%0.4f] " , msg, name[0][i], (ts[i] - ts[i-1]) * 1000 );
    sprintf   (msg, "%s%s:[%0.4f]\n", msg, name[0][ns-1], totl * 1000);  // total
-   mLog.add_tmr(LOG_tmr_draw_all, 0, msg);
+   mLog.add_tmr(LOG_TMR_draw_all, 0, msg);
 
    // profile draw total
-   mLog.add_tmr1(LOG_tmr_draw_tot, 0, "draw", totl);
+   mLog.add_tmr1(LOG_TMR_draw_tot, 0, "draw", totl);
 
 }
 

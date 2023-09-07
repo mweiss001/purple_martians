@@ -2,6 +2,10 @@
 
 #define STATE_SIZE 112384
 #define MAX_CLIENTS 32
+#define NUM_REWIND_STATES 4
+#define USE_REWIND_STATES
+
+
 
 struct packet_buffer
 {
@@ -62,18 +66,21 @@ class mwNetgame
    int server_state_freq_mode = 1; // 0 = manual, 1 = auto
 
 
-   // server's last 8 states for rewinding
-   char srv_rewind_state[8][STATE_SIZE];
-   int srv_rewind_state_frame_num[8];
+   // server's last NUM_REWIND_STATES states for rewinding
+   char srv_rewind_state[NUM_REWIND_STATES][STATE_SIZE];
+   int srv_rewind_state_frame_num[NUM_REWIND_STATES];
 
+
+   int find_earliest_rewind_state(int include_neg);
+
+
+   void load_earliest_rewind_state(void);
+
+   void add_rewind_state(int frame_num);
 
    // server's copies of client states
    char srv_client_state[8][2][STATE_SIZE];
    int srv_client_state_frame_num[8][2];
-
-
-
-
 
    // local client's states
    char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
@@ -145,19 +152,10 @@ class mwNetgame
    void server_flush(void);
    int  server_init(void);
    void server_exit(void);
-   void server_send_dif(int p);
+   void server_send_dif(void);
    void server_create_new_state(void);
 
-
-   int find_earliest_rewind_state(void);
-
-
    void show_rewind_states(const char *format, ...);
-
-
-   void add_rewind_state(void);
-   void set_rewind_state(void);
-
 
    void server_rewind(void);
    void server_send_sdat(void);

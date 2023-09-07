@@ -172,6 +172,7 @@ void mwLog::run_bandwidth_graph(int num_lines, int both)
       mGraph[0].set_y_axis_labels(1, 1, 2, c1);                    // type, font, tick_size, color
       mGraph[0].linked_group_id = 17;
 
+
       if (both)
       {
          int c2 = 13;
@@ -277,16 +278,28 @@ int mwLog::load_bandwidth_graph(int num_lines, int both)
          mMiscFnx.get_tag_text(tll, res, 0);
          int tx = atoi(res);
 
-         // get second tag and discard - tx_max
-         mMiscFnx.get_tag_text(tll, res, 0);
-
-         // get third tag  - rx_cur
+         // get second tag  - rx_cur
          mMiscFnx.get_tag_text(tll, res, 0);
          int rx = atoi(res);
+
+
+//         // get third tag - tx_pak
+//         mMiscFnx.get_tag_text(tll, res, 0);
+//         int txp = atoi(res);
+//
+//         // get fourth tag - rx_pak
+//         mMiscFnx.get_tag_text(tll, res, 0);
+//         int rxp = atoi(res);
+
+
 
          // enter one array data point
          mGraph[0].add_data_point(p, (double) fn, (double) tx);
          mGraph[1].add_data_point(p, (double) fn, (double) rx);
+
+         // packets
+//         mGraph[0].add_data_point(p, (double) fn, (double) txp);
+//         mGraph[1].add_data_point(p, (double) fn, (double) rxp);
 
          //printf("fn:%d  p:%d tx:%d  rx:%d\n", fn, p, tx, rx);
     }

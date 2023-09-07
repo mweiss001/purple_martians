@@ -116,10 +116,10 @@ void mwLoop::move_frame(void)
 //   }
 
 
-   mLog.add_tmrf(LOG_tmr_move_all, 0, "m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
+   mLog.add_tmrf(LOG_TMR_move_all, 0, "m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
                    (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[6]-t[5])*1000, (t[6]-t[0])*1000);
 
-   mLog.add_tmr1(LOG_tmr_move_tot, 0, "move", al_get_time() - t[0]);
+   mLog.add_tmr1(LOG_TMR_move_tot, 0, "move", al_get_time() - t[0]);
 
 }
 
@@ -520,7 +520,7 @@ void mwLoop::proc_program_state(void)
       mInput.initialize();
       mTriggerEvent.initialize();
 
-      mLog.add_headerf(LOG_net, 0, 3, "LEVEL %d STARTED", mLevel.play_level);
+      mLog.add_headerf(LOG_NET_network_setup, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
 
       mScreen.player_text_overlay_timer = 0;
       mSound.start_music(0);
@@ -533,28 +533,18 @@ void mwLoop::proc_program_state(void)
    //---------------------------------------
    if (state[1] == 21)
    {
+      mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "Waiting for game state from server");
+      al_flip_display();
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) state[0] = 25;
+
       mNetgame.client_fast_packet_loop();
       mNetgame.client_read_packet_buffer();
       mNetgame.client_apply_dif();
-
-      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) state[0] = 25;
-
-      mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "Waiting for game state from server");
-
-      al_flip_display();
-
       if (frame_num > 0)
       {
-         printf("got initial state for frame:%d\n", frame_num);
          int p = mPlayer.active_local_player;
-
-         // set holdoff 200 frames in future so client won't try to drop while syncing
-         mPlayer.loc[p].client_last_stdf_rx_frame_num = frame_num + 200;
-
-         mLog.add_headerf(LOG_net_join, p, 1, "Game state updated - starting chase and lock");
-
-
-
+         mPlayer.loc[p].client_last_stdf_rx_frame_num = frame_num + 200; // set holdoff 200 frames in future so client won't try to drop while syncing
+         mLog.add_headerf(LOG_NET_network_setup, p, 0, "Client received initial state - starting chase and lock");
          state[0] = 11;
       }
    }
@@ -571,9 +561,7 @@ void mwLoop::proc_program_state(void)
          return;
       }
 
-
       mLevel.set_start_level();
-
 
       // reset players
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -581,7 +569,6 @@ void mwLoop::proc_program_state(void)
          mPlayer.init_player(p, 1);           // full reset (start modes 1, 2, 3, 9)
          mPlayer.set_player_start_pos(p, 0);  // get starting position for all players, active or not
       }
-
 
       mPlayer.syn[0].active = 1;
       mPlayer.syn[0].control_method = 3;
@@ -593,15 +580,25 @@ void mwLoop::proc_program_state(void)
       mShot.clear_shots();
 
 
-
       mBottomMessage.initialize();
       mInput.initialize();
       mTriggerEvent.initialize();
 
+
+
+
       mNetgame.game_vars_to_state(mNetgame.srv_client_state[0][1]);
       mNetgame.srv_client_state_frame_num[0][1] = frame_num;
 
-      mLog.addf(LOG_net_stdf, 0, "stdf saved server state[1]:%d\n", frame_num);
+      // save rewind states
+      mNetgame.game_vars_to_state(mNetgame.srv_rewind_state[0]);
+      mNetgame.srv_rewind_state_frame_num[0] = frame_num;
+
+
+      mLog.addf(LOG_NET_stdf, 0, "stdf saved server state[1]:%d\n", frame_num);
+
+
+
 
       mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
 
@@ -609,7 +606,7 @@ void mwLoop::proc_program_state(void)
       for (int p=0; p<NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, 1, p, mPlayer.syn[p].color); // 1 - player_state and color
 
-      mLog.add_headerf(LOG_net, 0, 3, "LEVEL %d STARTED", mLevel.play_level);
+      mLog.add_headerf(LOG_NET_network_setup, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
 
 
       mScreen.player_text_overlay_timer = 0;
@@ -745,10 +742,10 @@ void mwLoop::proc_program_state(void)
       mPlayer.syn[0].level_done_mode = 0;
 
 
-      mLog.add_headerf(LOG_net, 0, 3, "NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level);
+      mLog.add_headerf(LOG_NET_network_setup, 0, 1, "NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level);
 
-      if (mNetgame.ima_client) mLog.log_ending_stats_client(LOG_net_ending_stats, mPlayer.active_local_player);
-      if (mNetgame.ima_server) mLog.log_ending_stats_server(LOG_net_ending_stats);
+      if (mNetgame.ima_client) mLog.log_ending_stats_client(LOG_NET_ending_stats, mPlayer.active_local_player);
+      if (mNetgame.ima_server) mLog.log_ending_stats_server(LOG_NET_ending_stats);
 
 
 
@@ -1071,14 +1068,20 @@ void mwLoop::setup_common_after_level_load(void)
       mPlayer.syn[0].control_method = 3;
       mNetgame.game_vars_to_state(mNetgame.srv_client_state[0][1]);
       mNetgame.srv_client_state_frame_num[0][1] = frame_num;
-      mLog.addf(LOG_net_stdf, 0, 0, "stdf saved server state[1]:%d\n", frame_num);
+
+      mNetgame.game_vars_to_state(mNetgame.srv_rewind_state[0]);
+      mNetgame.srv_rewind_state_frame_num[0] = frame_num;
+
+
+
+      mLog.addf(LOG_NET_stdf, 0, 0, "stdf saved server state[1]:%d\n", frame_num);
    }
    if (!mDemoMode.mode)
    {
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, 1, p, mPlayer.syn[p].color); // [01] player_state and color
-      mLog.add_headerf(LOG_net, 0, 3, "LEVEL %d STARTED", mLevel.play_level);
+      mLog.add_headerf(LOG_NET_network_setup, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
    }
 }
 
@@ -1322,7 +1325,6 @@ void mwLoop::main_loop(void)
       if (mEventQueue.program_update)
       {
 
-         int debug_print = 0;
 
          mEventQueue.program_update = 0;
 
@@ -1331,34 +1333,21 @@ void mwLoop::main_loop(void)
             frame_num++;
 
 
-
-            if (debug_print) printf("test1\n");
-
             if (!mDisplay.no_display)
             {
                mBitmap.update_animation();
                mSound.proc_sound();
             }
 
-            if (debug_print) printf("test2\n");
-
-
             mTimeStamp.timestamp_frame_start = al_get_time();
 
             int ldm = mPlayer.syn[0].level_done_mode;
 
-
             if (!mDisplay.no_display)
             {
-
-
-            if ((ldm == 30) || (ldm == 25)) mDisplay.proc_custom_scale_factor_change();
-            else                            mDisplay.proc_scale_factor_change();
-
-
+               if ((ldm == 30) || (ldm == 25)) mDisplay.proc_custom_scale_factor_change();
+               else                            mDisplay.proc_scale_factor_change();
             }
-
-            if (debug_print) printf("test3\n");
 
 
             if (mNetgame.ima_server) mNetgame.server_control();
@@ -1366,54 +1355,31 @@ void mwLoop::main_loop(void)
 
             mPlayer.proc_player_input();
 
-
-            if (debug_print) printf("test4\n");
-
-
             mGameMoves.proc();
-
-            if (debug_print) printf("test5\n");
-
 
             if (ldm) proc_level_done_mode();
             else move_frame();
 
 
-            if (debug_print) printf("test6\n");
-
             double t0 = al_get_time();
             mNetgame.server_create_new_state();
-
-            mLog.add_tmr1(LOG_tmr_sdif, 0, "sdif", al_get_time() - t0);
+            mLog.add_tmr1(LOG_TMR_sdif, 0, "sdif", al_get_time() - t0);
 
             if (!mDisplay.no_display)
             {
                if ((ldm != 27) && (!super_fast_mode)) mDrawSequence.draw(0);
             }
 
-
-
             double pt = al_get_time() - mTimeStamp.timestamp_frame_start;
-
-            mLog.add_tmr1(LOG_tmr_cpu, 0, "cpu", pt);
-
+            mLog.add_tmr1(LOG_TMR_cpu, 0, "cpu", pt);
             mRollingAverage[0].add_data((pt/0.025)*100);
+
             mQuickGraph[0].add_data(0, mRollingAverage[0].last_input);
             mQuickGraph[0].add_data(1, mRollingAverage[0].mn);
             mQuickGraph[0].add_data(2, mRollingAverage[0].mx);
             mQuickGraph[0].add_data(3, mRollingAverage[0].avg);
-
          }
       }
-
-//      // send client ping at this time in the loop, if flag is set
-//      if ((mPlayer.loc[mPlayer.active_local_player].client_ping_flag) && (mNetgame.ima_client))
-//      {
-//         mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 0;
-//         mNetgame.client_send_ping();
-//      }
-
-
 
       // ----------------------------------------------------------
       // do things based on the 1 Hz sec_timer event
