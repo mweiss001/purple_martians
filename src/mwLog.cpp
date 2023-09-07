@@ -31,37 +31,35 @@ void mwLog::init_log_types(void)
 
    i = LOG_error;                   log_types[i].group = 9;   strcpy(log_types[i].name, "LOG_error"); log_types[i].action = 7;   // always all three actions
 
-   i = LOG_net;                     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net");
-   i = LOG_net_join;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_join");
-   i = LOG_net_game_init;           log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_game_init");
-   i = LOG_net_ending_stats;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_ending_stats");
-   i = LOG_net_bandwidth_bytes;     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_bandwidth_bytes");
-   i = LOG_net_bandwidth_packets;   log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_bandwidth_packets");
-   i = LOG_net_player_array;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_player_array");
-   i = LOG_net_stdf;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_stdf");
-   i = LOG_net_stdf_packets;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_stdf_packets");
-   i = LOG_net_dif_applied;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_dif_applied");
-   i = LOG_net_dif_not_applied;     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_dif_not_applied");
-   i = LOG_net_server_rx_stak;      log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_server_rx_stak");
-   i = LOG_net_cdat;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_cdat");
-   i = LOG_net_client_ping;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_client_ping");
-   i = LOG_net_timer_adjust;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_net_timer_adjust");
+   i = LOG_NET_network_setup;       log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_network_setup");
+   i = LOG_NET_join_details;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_join_details");
+   i = LOG_NET_ending_stats;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_ending_stats");
+   i = LOG_NET_bandwidth;           log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_bandwidth");
+   i = LOG_NET_player_array;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_player_array");
+   i = LOG_NET_stdf;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf");
+   i = LOG_NET_stdf_packets;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf_packets");
+   i = LOG_NET_dif_applied;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_dif_applied");
+   i = LOG_NET_dif_not_applied;     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_dif_not_applied");
+   i = LOG_NET_server_rx_stak;      log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_server_rx_stak");
+   i = LOG_NET_cdat;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_cdat");
+   i = LOG_NET_client_ping;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_client_ping");
+   i = LOG_NET_timer_adjust;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_timer_adjust");
 
-   i = LOG_tmr_cpu;                 log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_cpu");
-   i = LOG_tmr_rebuild_bitmaps;     log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_rebuild_bitmaps");
-   i = LOG_tmr_move_tot;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_move_tot");
-   i = LOG_tmr_move_all;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_move_all");
-   i = LOG_tmr_move_enem;           log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_move_enem");
-   i = LOG_tmr_draw_tot;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_draw_tot");
-   i = LOG_tmr_draw_all;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_draw_all");
-   i = LOG_tmr_bmsg_add;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_bmsg_add");
-   i = LOG_tmr_bmsg_draw;           log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_bmsg_draw");
-   i = LOG_tmr_scrn_overlay;        log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_scrn_overlay");
-   i = LOG_tmr_sdif;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_sdif");
-   i = LOG_tmr_cdif;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_cdif");
-   i = LOG_tmr_rwnd;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_rwnd");
-   i = LOG_tmr_client_timer_adj;    log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_client_timer_adj");
-   i = LOG_tmr_client_ping;         log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_tmr_client_ping");
+   i = LOG_TMR_cpu;                 log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_cpu");
+   i = LOG_TMR_rebuild_bitmaps;     log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_rebuild_bitmaps");
+   i = LOG_TMR_move_tot;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_move_tot");
+   i = LOG_TMR_move_all;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_move_all");
+   i = LOG_TMR_move_enem;           log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_move_enem");
+   i = LOG_TMR_draw_tot;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_draw_tot");
+   i = LOG_TMR_draw_all;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_draw_all");
+   i = LOG_TMR_bmsg_add;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_bmsg_add");
+   i = LOG_TMR_bmsg_draw;           log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_bmsg_draw");
+   i = LOG_TMR_scrn_overlay;        log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_scrn_overlay");
+   i = LOG_TMR_sdif;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_sdif");
+   i = LOG_TMR_cdif;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_cdif");
+   i = LOG_TMR_rwnd;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_rwnd");
+   i = LOG_TMR_client_timer_adj;    log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_timer_adj");
+   i = LOG_TMR_client_ping;         log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_ping");
 }
 
 void mwLog::erase_log(void)
@@ -226,70 +224,70 @@ void mwLog::log_versions(void)
 
 void mwLog::log_ending_stats_client(int type, int p)
 {
-   add_headerf(10, 0, 0, "Client %d (%s) ending stats", p, mPlayer.loc[p].hostname);
+   add_headerf(type, 0, 0, "Client %d (%s) ending stats", p, mPlayer.loc[p].hostname);
 
-   add_fwf(10, p, 76, 10, "|", " ", "total game frames.........[%d]", mLoop.frame_num);
-   add_fwf(10, p, 76, 10, "|", " ", "frame when client joined..[%d]", mPlayer.loc[p].join_frame);
+   add_fwf(type, p, 76, 10, "|", " ", "total game frames.........[%d]", mLoop.frame_num);
+   add_fwf(type, p, 76, 10, "|", " ", "frame when client joined..[%d]", mPlayer.loc[p].join_frame);
 
    if (mPlayer.loc[p].quit_frame == 0) mPlayer.loc[p].quit_frame = mLoop.frame_num;
-   add_fwf(10, p, 76, 10, "|", " ", "frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
+   add_fwf(type, p, 76, 10, "|", " ", "frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
 
-   log_reason_for_player_quit(p);
+   log_reason_for_player_quit(type, p);
 
-   add_fwf(10, p, 76, 10, "|", " ", "frames client was active..[%d]", mPlayer.loc[p].quit_frame - mPlayer.loc[p].join_frame);
-   add_fwf(10, p, 76, 10, "|", " ", "cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
-   add_fwf(10, p, 76, 10, "|", " ", "cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
+   add_fwf(type, p, 76, 10, "|", " ", "frames client was active..[%d]", mPlayer.loc[p].quit_frame - mPlayer.loc[p].join_frame);
+   add_fwf(type, p, 76, 10, "|", " ", "cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
+   add_fwf(type, p, 76, 10, "|", " ", "cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
 
-   log_bandwidth_stats(p);
-   add_fwf(10, 0, 76, 10, "+", "-", "");
+   log_bandwidth_stats(type, p);
+   add_fwf(type, 0, 76, 10, "+", "-", "");
 }
 
 
 void mwLog::log_ending_stats_server(int type)
 {
-   add_headerf(10, 0, 0, "Server (%s) ending stats", mLoop.local_hostname);
+   add_headerf(type, 0, 0, "Server (%s) ending stats", mLoop.local_hostname);
 
-   add_fw (10, 0, 76, 10, "+", "-", "");
-   add_fwf(10, 0, 76, 10, "|", " ", "level.....................[%d]", mLevel.play_level);
-   add_fwf(10, 0, 76, 10, "|", " ", "total frames..............[%d]", mLoop.frame_num);
-   add_fwf(10, 0, 76, 10, "|", " ", "total moves...............[%d]", mGameMoves.entry_pos);
-   add_fwf(10, 0, 76, 10, "|", " ", "total time (seconds)......[%d]", mLoop.frame_num/40);
-   add_fwf(10, 0, 76, 10, "|", " ", "total time (minutes)......[%d]", mLoop.frame_num/40/60);
-   log_bandwidth_stats(0);
-   add_fw (10, 0, 76, 10, "+", "-", "");
+   add_fw (type, 0, 76, 10, "+", "-", "");
+   add_fwf(type, 0, 76, 10, "|", " ", "level.....................[%d]", mLevel.play_level);
+   add_fwf(type, 0, 76, 10, "|", " ", "total frames..............[%d]", mLoop.frame_num);
+   add_fwf(type, 0, 76, 10, "|", " ", "total moves...............[%d]", mGameMoves.entry_pos);
+   add_fwf(type, 0, 76, 10, "|", " ", "total time (seconds)......[%d]", mLoop.frame_num/40);
+   add_fwf(type, 0, 76, 10, "|", " ", "total time (minutes)......[%d]", mLoop.frame_num/40/60);
+   log_bandwidth_stats(type, 0);
+   add_fw (type, 0, 76, 10, "+", "-", "");
 
    for (int p=1; p<NUM_PLAYERS; p++)
    {
       if ((mPlayer.syn[p].control_method == 2) || (mPlayer.syn[p].control_method == 8))
       {
-         add_fwf(10, p, 76, 10, "|", " ", "Player:%d (%s)", p, mPlayer.loc[p].hostname);
-         add_fwf(10, p, 76, 10, "|", " ", "frame when client joined..[%d]", mPlayer.loc[p].join_frame);
+         add_fwf(type, p, 76, 10, "|", " ", "Player:%d (%s)", p, mPlayer.loc[p].hostname);
+         add_fwf(type, p, 76, 10, "|", " ", "frame when client joined..[%d]", mPlayer.loc[p].join_frame);
 
          if (mPlayer.loc[p].quit_frame == 0) mPlayer.loc[p].quit_frame = mLoop.frame_num;
-         add_fwf(10, p, 76, 10, "|", " ", "frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
+         add_fwf(type, p, 76, 10, "|", " ", "frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
 
-         log_reason_for_player_quit(p);
+         log_reason_for_player_quit(type, p);
 
-         add_fwf(10, p, 76, 10, "|", " ", "frames client was active..[%d]", mPlayer.loc[p].quit_frame - mPlayer.loc[p].join_frame);
-         add_fwf(10, p, 76, 10, "|", " ", "cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
-         add_fwf(10, p, 76, 10, "|", " ", "cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
+         add_fwf(type, p, 76, 10, "|", " ", "frames client was active..[%d]", mPlayer.loc[p].quit_frame - mPlayer.loc[p].join_frame);
+         add_fwf(type, p, 76, 10, "|", " ", "cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
+         add_fwf(type, p, 76, 10, "|", " ", "cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
 
-         log_bandwidth_stats(p);
+         log_bandwidth_stats(type, p);
 
-         add_fw(10, 0, 76, 10, "+", "-", "");
-         add_fw(10, 0, 76, 10, "+", "-", "");
+         add_fw(type, 0, 76, 10, "+", "-", "");
+         add_fw(type, 0, 76, 10, "+", "-", "");
       }
    }
-   log_player_array(10);
+   log_player_array(type);
 }
 
 
 void mwLog::log_player_array(int type)
 {
    char msg[1024];
-   add_header(10, 0, 0, "Player Array");
+   add_header(type, 0, 0, "Player Array");
 
-   add_fw(10, 0, 76, 10, "|", " ", "[p][wh][a][co][m]");
+   add_fw(type, 0, 76, 10, "|", " ", "[p][wh][a][co][m]");
 
    for (int p=0; p<NUM_PLAYERS; p++)
    {
@@ -315,9 +313,9 @@ void mwLog::log_player_array(int type)
                                               mPlayer.syn[p].control_method,
                                               mPlayer.loc[p].hostname,
                                               ms );
-      add_fw(10, 0, 76, 10, "|", " ", msg);
+      add_fw(type, 0, 76, 10, "|", " ", msg);
    }
-   add_fw(10, 0, 76, 10, "+", "-", "");
+   add_fw(type, 0, 76, 10, "+", "-", "");
 }
 
 void mwLog::log_player_array2(int type)
@@ -333,7 +331,7 @@ void mwLog::log_player_array2(int type)
 
 
 
-void mwLog::log_reason_for_player_quit(int p)
+void mwLog::log_reason_for_player_quit(int type, int p)
 {
    char tmsg[80];
    sprintf(tmsg,"unknown");
@@ -349,27 +347,27 @@ void mwLog::log_reason_for_player_quit(int p)
    if (r == 92) sprintf(tmsg,"remote server quit");
    if (r == 93) sprintf(tmsg,"remote client quit");
 
-   add_fwf(10, p, 76, 10, "|", " ", "reason for quit...........[%s]", tmsg);
+   add_fwf(type, p, 76, 10, "|", " ", "reason for quit...........[%s]", tmsg);
 }
 
-void mwLog::log_bandwidth_stats(int p)
+void mwLog::log_bandwidth_stats(int type, int p)
 {
-   add_fwf(10, p, 76, 10, "|", " ", "total tx bytes............[%d]", mPlayer.loc[p].tx_total_bytes);
-   add_fwf(10, p, 76, 10, "|", " ", "max tx bytes per frame....[%d]", mPlayer.loc[p].tx_max_bytes_per_frame);
-   add_fwf(10, p, 76, 10, "|", " ", "avg tx bytes per frame....[%d]", mPlayer.loc[p].tx_total_bytes / mLoop.frame_num);
-   add_fwf(10, p, 76, 10, "|", " ", "max rx bytes per second...[%d]", mPlayer.loc[p].tx_max_bytes_per_tally);
-   add_fwf(10, p, 76, 10, "|", " ", "avg tx bytes per sec......[%d]", (mPlayer.loc[p].tx_total_bytes *40)/ mLoop.frame_num);
-   add_fwf(10, p, 76, 10, "|", " ", "total tx packets..........[%d]", mPlayer.loc[p].tx_total_packets);
-   add_fwf(10, p, 76, 10, "|", " ", "max tx packets per frame..[%d]", mPlayer.loc[p].tx_max_packets_per_frame);
-   add_fwf(10, p, 76, 10, "|", " ", "max tx packets per second.[%d]", mPlayer.loc[p].tx_max_packets_per_tally);
-   add_fwf(10, p, 76, 10, "|", " ", "total rx bytes............[%d]", mPlayer.loc[p].rx_total_bytes);
-   add_fwf(10, p, 76, 10, "|", " ", "max rx bytes per frame....[%d]", mPlayer.loc[p].rx_max_bytes_per_frame);
-   add_fwf(10, p, 76, 10, "|", " ", "avg rx bytes per frame....[%d]", mPlayer.loc[p].rx_total_bytes / mLoop.frame_num);
-   add_fwf(10, p, 76, 10, "|", " ", "max rx bytes per second...[%d]", mPlayer.loc[p].rx_max_bytes_per_tally);
-   add_fwf(10, p, 76, 10, "|", " ", "avg rx bytes per sec......[%d]", (mPlayer.loc[p].rx_total_bytes *40)/ mLoop.frame_num);
-   add_fwf(10, p, 76, 10, "|", " ", "total rx packets..........[%d]", mPlayer.loc[p].rx_total_packets);
-   add_fwf(10, p, 76, 10, "|", " ", "max rx packets per frame..[%d]", mPlayer.loc[p].rx_max_packets_per_frame);
-   add_fwf(10, p, 76, 10, "|", " ", "max rx packets per second.[%d]", mPlayer.loc[p].rx_max_packets_per_tally);
+   add_fwf(type, p, 76, 10, "|", " ", "total tx bytes............[%d]", mPlayer.loc[p].tx_total_bytes);
+   add_fwf(type, p, 76, 10, "|", " ", "max tx bytes per frame....[%d]", mPlayer.loc[p].tx_max_bytes_per_frame);
+   add_fwf(type, p, 76, 10, "|", " ", "avg tx bytes per frame....[%d]", mPlayer.loc[p].tx_total_bytes / mLoop.frame_num);
+   add_fwf(type, p, 76, 10, "|", " ", "max rx bytes per second...[%d]", mPlayer.loc[p].tx_max_bytes_per_tally);
+   add_fwf(type, p, 76, 10, "|", " ", "avg tx bytes per sec......[%d]", (mPlayer.loc[p].tx_total_bytes *40)/ mLoop.frame_num);
+   add_fwf(type, p, 76, 10, "|", " ", "total tx packets..........[%d]", mPlayer.loc[p].tx_total_packets);
+   add_fwf(type, p, 76, 10, "|", " ", "max tx packets per frame..[%d]", mPlayer.loc[p].tx_max_packets_per_frame);
+   add_fwf(type, p, 76, 10, "|", " ", "max tx packets per second.[%d]", mPlayer.loc[p].tx_max_packets_per_tally);
+   add_fwf(type, p, 76, 10, "|", " ", "total rx bytes............[%d]", mPlayer.loc[p].rx_total_bytes);
+   add_fwf(type, p, 76, 10, "|", " ", "max rx bytes per frame....[%d]", mPlayer.loc[p].rx_max_bytes_per_frame);
+   add_fwf(type, p, 76, 10, "|", " ", "avg rx bytes per frame....[%d]", mPlayer.loc[p].rx_total_bytes / mLoop.frame_num);
+   add_fwf(type, p, 76, 10, "|", " ", "max rx bytes per second...[%d]", mPlayer.loc[p].rx_max_bytes_per_tally);
+   add_fwf(type, p, 76, 10, "|", " ", "avg rx bytes per sec......[%d]", (mPlayer.loc[p].rx_total_bytes *40)/ mLoop.frame_num);
+   add_fwf(type, p, 76, 10, "|", " ", "total rx packets..........[%d]", mPlayer.loc[p].rx_total_packets);
+   add_fwf(type, p, 76, 10, "|", " ", "max rx packets per frame..[%d]", mPlayer.loc[p].rx_max_packets_per_frame);
+   add_fwf(type, p, 76, 10, "|", " ", "max rx packets per second.[%d]", mPlayer.loc[p].rx_max_packets_per_tally);
 }
 
 

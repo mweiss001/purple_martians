@@ -311,11 +311,13 @@ void mwNetgame::reset_states(void)
    for (int i=0; i<8; i++) reset_client_state(i);
 
    // reset server's rewind states
-   for (int i=0; i<8; i++)
+   for (int i=0; i<NUM_REWIND_STATES; i++)
    {
       memset(srv_rewind_state[i], 0, STATE_SIZE);
       srv_rewind_state_frame_num[i] = -1;
    }
+
+
 }
 
 void mwNetgame::reset_client_state(int p) // server calls this when client quits

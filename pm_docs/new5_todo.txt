@@ -923,6 +923,548 @@ I could test with s1 = 0...
 
 It looks like its a server problem...
 
+when ever the client does a sync offset and catches up to and passes the server the server gets messed up...
+
+
+it happens when server tries to enter late game move??
+
+
+I think I might know why?
+
+server rewinds back 8 then replays to apply new input, but it only saves the newest state after the rewind.
+it should resave all of them...
+
+
+the way I have the states in a ring buffer is not needed anymore.
+
+I will be redoing the entire list everytime I rewind
+
+always have the oldest in position 0, then newer until space is gone
+
+I only ever load from the oldest anyway...
+
+
+
+
+load earliest state
+
+ff and save rewind states up for current
+
+play current
+
+save current in rewind and other
+
+
+
+reset all rewind states
+
+or I could have a rewind_state_entry_index and reset that to zero
+
+
+I think I have this new method working, kind of...
+
+remove all traces orf old and save here in the comments..then test more
+
+
+//int mwNetgame::find_earliest_rewind_state(void)
+//{
+//   // find lowest frame number
+//   int mn = std::numeric_limits<int>::max();
+//   int indx = -1;
+//   for (int i=0; i<8; i++)
+//   {
+//      if ((srv_rewind_state_frame_num[i] > -1) && (srv_rewind_state_frame_num[i] < mn))
+//      {
+//         mn = srv_rewind_state_frame_num[i];
+//         indx = i;
+//      }
+//   }
+//   return indx;
+//}
+
+
+//
+//void mwNetgame::add_rewind_state(void)
+//{
+//   int indx = -1;
+//
+//   // first use all empty slots (-1)
+//   for (int i=0; i<8; i++)
+//      if (srv_rewind_state_frame_num[i] == -1) indx = i;
+//
+//
+//   if (indx == -1) // no empty's left
+//   {
+//      // find lowest frame number
+//      int mn = std::numeric_limits<int>::max();
+//      for (int i=0; i<8; i++)
+//         if (srv_rewind_state_frame_num[i] < mn)
+//         {
+//            mn = srv_rewind_state_frame_num[i];
+//            indx = i;
+//         }
+//   }
+//   if (indx == -1)
+//   {
+//      //show_rewind_states(" -  indx:%d  frame:%d  ERROR! adding server rewind state\n", indx, srv_rewind_state_frame_num[indx]);
+//   }
+//   else
+//   {
+//      //show_rewind_states(" -  indx:%d  frame:%d  adding server rewind state \n", indx, srv_rewind_state_frame_num[indx]);
+//      memcpy(srv_rewind_state[indx], srv_client_state[0][1], STATE_SIZE);
+//      srv_rewind_state_frame_num[indx] = srv_client_state_frame_num[0][1];
+//   }
+//}
+//
+//
+//
+//void mwNetgame::load_earliest_rewind_state(void)
+//{
+//   if (mLoop.frame_num > 0)
+//   {
+//      int indx = find_earliest_rewind_state();
+//      if (indx > -1)
+//      {
+//         memcpy(srv_client_state[0][1], srv_rewind_state[indx], STATE_SIZE);
+//         srv_client_state_frame_num[0][1] = srv_rewind_state_frame_num[indx];
+//        // show_rewind_states(" -  indx:%d  frame:%d  loading server rewind state\n", indx, srv_rewind_state_frame_num[indx]);
+//      }
+////      else show_rewind_states(" -  indx:%d  frame:%d  ERROR! loading server rewind state\n", indx, srv_rewind_state_frame_num[indx]);
+//   }
+//}
+//
+
+the whole algorithm is flawed...
+
+34 34 -1 -1 -1 -1 -1 -1 frame:34
+stdf saved server state[1]:34
+stdf rewind to:35
+35 35 -1 -1 -1 -1 -1 -1 frame:35
+stdf saved server state[1]:35
+stdf rewind to:36
+
+
+rewind to index 0 then play back to current
+
+but it only does the first few....
+
+
+
+it might work when setup, but how to get it setup?
+
+do not overwrite oldest? until array is filled?
+
+
+I have thought about making this whole thing a class...
+
+then I could tell it:
+
+rewind to oldest and play back to current
+
+and I would know how to do this from the start as well as while running
+
+
+get a very detailed description of how you want it to work
+
+- start out with all 8 rewind slots blank (frame set to -1)
+
+- when server starts, add state from frame 0 to index 0
+
+then every frame:
+
+find the oldest and rewind to that one, ignoring -1's
+
+then set that index to -1 so it can be reused
+
+what if the oldest was always in slot 0?
+
+then rewind to oldest
+
+and as you play back overwrite from 0 up
+
+this sound easy and intuitive:
+
+1 - rewind to earliest (probably always index 0, maybe skip check and rewind to index 0)
+
+2 - erase all other frame numbers (set to -1)
+
+3 - as you play back save all new states
+
+
+the only problem with this is it will start by rewinding 1 and never grow to more...
+
+
+how about 0 is current frame and all others are previuos
+
+have a way of poking in new state from the end and shifting all others back one, (and losing earliest)
+
+
+1 - rewind to earliest
+2 - play back and overwrite matching frame numbers
+3 - do current loop and push from end, dropping earliest
+
+3 could also be:
+- find a place to put newest
+- could be a -1, or if no -1 then the earliest
+
+I think this might actually work!!
+
+
+first of all, do I reset to -1? yes, i do
+
+   for (int i=0; i<8; i++)
+   {
+      memset(srv_rewind_state[i], 0, STATE_SIZE);
+      srv_rewind_state_frame_num[i] = -1;
+   }
+
+next, add initial state to index 0
+
+bring back rewind to earliest (not including -1)
+
+do i need multiple find earliest?
+
+when I am rewinding, I want to min, but ignore -1
+
+when I am adding, I want to replace the earliest, but -1 first
+
+
+make 2 versions...
+
+
+
+
+I think I have this all working...
+
+server is saving states like it should
+
+client can run with positive sync
+need to clean it up a bit and do more tests...
+
+
+cleaned up the code a bit...do some more tests tomorrow
+
+
+
+what does it mean if the client dsync goes positive?
+it means I can get crwd to zero, where the client does not have to ff after receving states
+
+If I go too far and get crwd -1 then the client is dropped by the server?
+
+
+tested over internet and it seems very choppy...also takes lots of cpu...
+
+test more....
+
+
+
+It is relatively simple to comment out in code:
+
+
+
+Here are all the places in the server code:
+
+
+
+void mwNetgame::server_rewind(void)
+{
+
+//      // load earliest rewind state
+//      load_earliest_rewind_state();
+//      mLog.addf(LOG_NET_stdf, 0, "stdf rewind to:%d\n", srv_client_state_frame_num[0][1]);
+
+
+      // calculate ff (how many frames will need to be replayed in fast forward mode)
+      int ff = mLoop.frame_num - srv_client_state_frame_num[0][1];  // almost always equals s1, unless s1 has changed
+
+      // apply rewind state and set frame num
+      state_to_game_vars(srv_client_state[0][1]);
+      mLoop.frame_num = srv_client_state_frame_num[0][1];
+
+      // fast forward and save rewind states
+      for (int i=0; i<ff; i++)
+      {
+         mLoop.loop_frame(1);
+//         add_rewind_state(mLoop.frame_num);
+      }
+
+//      show_rewind_states("frame:%d\n", mLoop.frame_num);
+
+
+
+server_create_new_state(void)
+
+      // save state as a base for next rewind
+      game_vars_to_state(srv_client_state[0][1]);
+      srv_client_state_frame_num[0][1] = mLoop.frame_num+1;
+
+//      add_rewind_state(mLoop.frame_num+1);
+
+
+
+cdat:
+
+   // find oldest frame
+   int of = srv_client_state_frame_num[0][1]; // default
+//   int indx = find_earliest_rewind_state(0);
+//   if (indx > -1) of = srv_rewind_state_frame_num[indx];
+
+
+
+I actually don't think this is a bad idea to save more rewind states
+
+then I could do away with using  srv_client_state[0][1]...but maybe I need it beacuse I need a source and a dest to make a dif??
+
+----------------------------------------
+
+maybe I could encapsulate this in a class owned by netgame
+
+name: state_ring_buffer, state_history
+
+methods:
+clear
+add_initial
+load_earliest_rewind_state
+add_rewind_state
+
+----------------------------------------
+
+when sending dif:
+
+on server, after applying moves for current frame, that frame is saved with frame+1 as the base for the next frame
+but when the dif is sent to clients, its dest is set to the current frame
+
+i don't know if that is an issue, but it looks funny in the logs when i see:
+stdf saved server state[1]:277
+tx stdf p:1 [src:275 dst:276] cmp:600 ratio:0.53 [1 packets needed]
+
+
+on the client:
+
+frame_num++
+mNetgame.client_control();
+mPlayer.proc_player_input();
+
+so the client will get a new state then process local input
+
+I think this all looks good... I mean, it is working....so it should be correct....
+
+----------------------------------------
+
+made some defines in mwNetgame.h
+#define NUM_REWIND_STATES 8
+#define USE_REWIND_STATES
+
+test cpu usage
+
+m36 server with 1 client on LAN
+8 27%
+4 24%
+disabled 20%
+
+m36 server with no clients
+8 14-16%
+4 12-14%
+disabled 9-10%
+
+
+e6420 server with 1 client internet
+4 50%
+but its doing stdf freq = 1 and base resets every frame
+
+
+
+----------------------------------------
+
+test some more
+
+it looks like this new method can get the client a little closer to the server in time
+
+on LAN when crwd is zero it seems to work great
+
+on internet when increased to make crwd one less than normal it seems good, but more than that and it gets really jumpy
+
+
+what about making s1 = 2 forced
+
+
+I also notice that the printing to console takes a noticeable amount of cpu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

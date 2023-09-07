@@ -120,7 +120,7 @@ void mwBitmap::rebuild_bitmaps(void)
 
    t[5] = al_get_time();
 
-   mLog.add_tmrf(LOG_tmr_rebuild_bitmaps, 0, "tiles:[%0.4f] fonts:[%0.4f] icons:[%0.4f] lvbk:[%0.4f] misc:[%0.4f] totl:[%0.4f]\n",
+   mLog.add_tmrf(LOG_TMR_rebuild_bitmaps, 0, "tiles:[%0.4f] fonts:[%0.4f] icons:[%0.4f] lvbk:[%0.4f] misc:[%0.4f] totl:[%0.4f]\n",
                    (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[5]-t[0])*1000);
 
 

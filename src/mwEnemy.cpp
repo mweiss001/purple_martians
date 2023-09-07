@@ -309,7 +309,7 @@ void mwEnemy::move_enemies()
    for (int i=0; i<100; i++)
       if (tmr_tally[i][1] > 0)
          sprintf(t, "%sm-%s:[%0.4f] ", t, enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000000);
-   mLog.add_tmrf(LOG_tmr_move_enem, 0, "%s\n", t);
+   mLog.add_tmrf(LOG_TMR_move_enem, 0, "%s\n", t);
 }
 
 

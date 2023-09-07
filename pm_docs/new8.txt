@@ -31081,8 +31081,108 @@ profile and graphs are fully documented and tested...
 
 net logging is partially done
 
-
 bump version and push
+
+
+
+I want to do more fine granulatity in all the log_net things
+
+first doc all that it does:
+
+PLAYER ACTIVE, INACTIVE, DIED
+
+network init
+
+
+First of all separate the network init stuff...
+
+game_init 20 is unused
+
+I could use it, but I want to call it something else...
+
+network_init
+
+now what is left?
+PLAYER ACTIVE, INACTIVE, DIED
+level started, next level
+
+
+I am thinking that I want to to have everything in network init....
+
+call it network setup
+
+why did I need three categories before?
+
+maybe have an optional join details?
+
+make network_setup default to print..
+
+
+now network_setup has almost everything, including most of join
+
+test what that looks like...
+
+
+Player locked on server needs to be in a header..fixed
+
+ending stats always show...fixed
+
+player died on server, prints many times during rewind..fixed
+how about just never log things in a ff??
+player died ff repeat...fixed
+
+
+endings stats for all clients do not show used clients now, because I reuse them and set mode to 0 instead of 8 like I used to....
+
+client does not show when player comes active
+
+client does not show ending stats when quitting
+
+
+can I combine both bandwidth into a single log entry?
+yes, but do not have a way of showing in graph yet....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
