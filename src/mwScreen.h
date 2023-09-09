@@ -46,7 +46,7 @@ class mwScreen
 
    void get_new_background(int full);
 
-   void transition_cutscene(int i, int f, int debug_print);
+   void transition_cutscene(int i, int f);
 
    void do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, float num_steps, float delay);
 

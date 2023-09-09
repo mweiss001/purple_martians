@@ -60,6 +60,14 @@ void mwLog::init_log_types(void)
    i = LOG_TMR_rwnd;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_rwnd");
    i = LOG_TMR_client_timer_adj;    log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_timer_adj");
    i = LOG_TMR_client_ping;         log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_ping");
+
+   i = LOG_OTH_program_state;       log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_OTH_program_state");
+   i = LOG_OTH_transitions;         log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_OTH_transitions");
+   i = LOG_OTH_level_done;          log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_OTH_level_done");
+   i = LOG_OTH_move;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_OTH_move");
+   i = LOG_OTH_draw;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_OTH_draw");
+
+
 }
 
 void mwLog::erase_log(void)
@@ -97,6 +105,8 @@ void mwLog::save_log_file(void)
    erase_log();
 }
 
+
+
 // adds printf style text string
 void mwLog::addf(int type, int player, const char *format, ...)
 {
@@ -127,6 +137,9 @@ void mwLog::add(int type, int player, const char *txt)
       }
    }
 }
+
+
+
 
 // adds fixed width formatted printf style text string
 void mwLog::add_fwf(int type, int player, int width, int pos, const char *border, const char *fill, const char *format, ...)
