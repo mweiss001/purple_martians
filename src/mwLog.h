@@ -45,11 +45,17 @@
 #define LOG_TMR_client_timer_adj   95
 #define LOG_TMR_client_ping        96
 
+
+#define LOG_OTH_program_state      50
+#define LOG_OTH_transitions        51
+#define LOG_OTH_level_done         52
+#define LOG_OTH_move               53
+#define LOG_OTH_draw               54
+
+
 #define LOG_ACTION_PRINT  0b001
 #define LOG_ACTION_LOG    0b010
 #define LOG_ACTION_ERROR  0b100
-
-
 
 
 
@@ -78,6 +84,9 @@ class mwLog
 
    void init_log_types(void);
 
+
+
+
    void addf(int type, int player, const char *format, ...);
    void add(int type, int player, const char *msg);
 
@@ -86,6 +95,10 @@ class mwLog
 
    void add_headerf(int type, int player, int blank_lines, const char *format, ...);
    void add_header(int type, int player, int blank_lines, const char *txt);
+
+
+
+
 
 
    void log_time_date_stamp(void);

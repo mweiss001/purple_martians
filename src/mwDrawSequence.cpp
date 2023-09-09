@@ -60,13 +60,22 @@ void mwDrawSequence::draw(int setup_only)
    float totl = 0;
 
 
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Get new background\n", mLoop.frame_num);
+
+
    if (setup_only) add_names(i, "d-bkgr", "get_new_background");
    else { mScreen.get_new_background(1);  add(i); }
+
+
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Lifts\n", mLoop.frame_num);
 
    if (setup_only) add_names(i, "d-lift", "draw_lifts");
    else { mLift.draw_lifts();  add(i); }
 
    if (RA[i-1].avg*1000 > 5) mLoop.eco_draw = 1;
+
+
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Items\n", mLoop.frame_num);
 
 
    if (setup_only) add_names(i, "d-item", "draw_items");
@@ -106,16 +115,20 @@ void mwDrawSequence::draw(int setup_only)
 
 
 
-
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Enemies\n", mLoop.frame_num);
    if (setup_only) add_names(i, "d-enem", "draw_enemies");
    else { mEnemy.draw_enemies(); add(i); }
 
+
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - eshots\n", mLoop.frame_num);
    if (setup_only) add_names(i, "d-esht", "draw_eshots");
    else { mShot.draw_eshots(); add(i); }
 
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - pshots\n", mLoop.frame_num);
    if (setup_only) add_names(i, "d-psht", "draw_pshots");
    else { mShot.draw_pshots(); add(i); }
 
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - players\n", mLoop.frame_num);
    if (setup_only) add_names(i, "d-plyr", "draw_players");
    else { mPlayer.draw_players(); add(i); }
 
@@ -123,6 +136,7 @@ void mwDrawSequence::draw(int setup_only)
 
 
 
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Erase Hidden\n", mLoop.frame_num);
 
    if (setup_only) add_names(i, "d-erhd", "erase hidden");
    else
@@ -131,6 +145,8 @@ void mwDrawSequence::draw(int setup_only)
        add(i);
    }
 
+
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Gate Info\n", mLoop.frame_num);
    if (setup_only) add_names(i, "d-gnfo", "gate info");
    else
    {
@@ -141,6 +157,7 @@ void mwDrawSequence::draw(int setup_only)
        add(i);
    }
 
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Level Stats\n", mLoop.frame_num);
    if (setup_only) add_names(i, "d-lsta", "level stats");
    else
    {
@@ -150,10 +167,14 @@ void mwDrawSequence::draw(int setup_only)
        add(i);
    }
 
+
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw scaled level region to display\n", mLoop.frame_num);
    if (setup_only) add_names(i, "d-buff", "scale_buff_to_display");
    else { mScreen.draw_scaled_level_region_to_display(0); add(i); }
 
 
+
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw purple coins direct to screen\n", mLoop.frame_num);
    // draw purple coins directly on the screen, so they scale nicely
    if (setup_only) add_names(i, "d-pcds", "purple coins direct to screen");
    else
@@ -174,6 +195,7 @@ void mwDrawSequence::draw(int setup_only)
 //   }
 
 
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw players direct to screen\n", mLoop.frame_num);
    if (setup_only) add_names(i, "d-plrd", "players direct to screen");
    else
    {
@@ -185,6 +207,7 @@ void mwDrawSequence::draw(int setup_only)
       add(i);
    }
 
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw npc direct to screen\n", mLoop.frame_num);
    // draw npc directly on the screen, so they scale nicely
    if (setup_only) add_names(i, "d-npcd", "npc direct to screen");
    else
@@ -194,10 +217,11 @@ void mwDrawSequence::draw(int setup_only)
       add(i);
    }
 
-
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw screen overlay\n", mLoop.frame_num);
    if (setup_only) add_names(i, "d-ovrl", "draw_screen_overlay");
    else { mScreen.draw_screen_overlay(); add(i); }
 
+   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Flip display\n", mLoop.frame_num);
    if (setup_only) add_names(i, "d-flip", "al_flip_display");
    else { al_flip_display(); add(i); }
 

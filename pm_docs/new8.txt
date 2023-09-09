@@ -31149,6 +31149,63 @@ yes, but do not have a way of showing in graph yet....
 
 
 
+----------------------------------
+
+
+add more logging options:
+
+program states
+
+drawing
+
+moving
+
+level done
+
+add stuff to logging to enter stuff without \n
+
+actually I think 'add' does that already...just omit the \n
+
+I now have program_state and transitions done...
+
+I now have move and draw done
+
+level done mode done
+
+for now I am not going to make a custom setting page for these...I will add them to profile by making their group also 2
+but then when I am done with them I will make their group 3...
+
+
+now back to why server dies when going from gate to level...fixed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

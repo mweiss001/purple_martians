@@ -20,6 +20,8 @@
 #include "mwMain.h"
 #include "mwNetgame.h"
 #include "mwMenu.h"
+#include "mwLog.h"
+
 
 mwScreen mScreen;
 
@@ -39,97 +41,102 @@ void mwScreen::get_new_background(int full)
 }
 
 
-void mwScreen::transition_cutscene(int i, int f, int debug_print)
+void mwScreen::transition_cutscene(int i, int f)
 {
    if ((!mNetgame.ima_server) && (!mNetgame.ima_client) && (!mDisplay.no_display))
    {
-      if (debug_print)
+
+      if (LOG_OTH_transitions)
       {
          const char* tcn[5] = {"nothing", "game", "menu", "gate"};
-         printf("transition from %s to %s\n", tcn[i], tcn[f]);
+         mLog.addf(LOG_OTH_transitions, 0, "transition from %s to %s\n", tcn[i], tcn[f]);
       }
 
-
-      int num_steps = transition_num_steps;
-      float delay = (float)transition_delay/1000;
-
-      if (mLoop.super_fast_mode)
+      if ((i) && (f)) // only in not both 0
       {
-         num_steps = 1;
-         delay = 0;
-      }
-
-      float fmxi=0;
-      float fmyi=0;
-      float fmsi=1;
-
-      float fmxf=0;
-      float fmyf=0;
-      float fmsf=1;
-
-      set_screen_display_variables();
-      set_level_display_region_xy();
-      set_map_var();
 
 
-      // player's position in level
-      float px = mPlayer.syn[mPlayer.active_local_player].x;
-      float py = mPlayer.syn[mPlayer.active_local_player].y;
+         int num_steps = transition_num_steps;
+         float delay = (float)transition_delay/1000;
 
-      if (i == 0) // nothing
-      {
-         fmxi = mDisplay.SCREEN_W/2;
-         fmyi = mDisplay.SCREEN_H/2;
-         fmsi = 0.005;
-      }
-      if (f == 0) // nothing
-      {
-         fmxf = mDisplay.SCREEN_W/2;
-         fmyf = mDisplay.SCREEN_H/2;
-         fmsf = 0.005;
-      }
-      if (i == 1) // game
-      {
-         fmsi = mDisplay.scale_factor_current;
-         fmxi = screen_display_x + (px - level_display_region_x) * fmsi;
-         fmyi = screen_display_y + (py - level_display_region_y) * fmsi;
-      }
-      if (f == 1) // game
-      {
-         fmsf = mDisplay.scale_factor_current;
-         fmxf = screen_display_x + (px - level_display_region_x) * fmsf;
-         fmyf = screen_display_y + (py - level_display_region_y) * fmsf;
-      }
-      if (i == 2) // menu
-      {
-         fmsi = (float)menu_level_display_size / 2000;
-         fmxi = menu_level_display_x + px * fmsi;
-         fmyi = menu_level_display_y + py * fmsi;
-      }
-      if (f == 2) // menu
-      {
-         fmsf = (float)menu_level_display_size / 2000;
-         fmxf = menu_level_display_x + px * fmsf;
-         fmyf = menu_level_display_y + py * fmsf;
-      }
-      if (i == 3) // gate
-      {
-         fmsi = mDisplay.scale_factor_current * (200.0 / 2000.0); // level icon size = 200;
-         fmxi = gate_transition_x + px * fmsi;
-         fmyi = gate_transition_y + py * fmsi;
-      }
-      if (f == 3) // gate
-      {
-         // restore viewport so transition lines up
-         level_display_region_x = mScreen.gate_transition_wx;
-         level_display_region_y = mScreen.gate_transition_wy;
-         //mDisplay.set_scale_factor(mScreen.gate_transition_scale, 1); // disabled for now, I want to keep scale if changed while playing
+         if (mLoop.super_fast_mode)
+         {
+            num_steps = 1;
+            delay = 0;
+         }
 
-         fmsf = mDisplay.scale_factor_current * (200.0 / 2000.0); // level icon size = 200;
-         fmxf = gate_transition_x + px * fmsf;
-         fmyf = gate_transition_y + py * fmsf;
+         float fmxi=0;
+         float fmyi=0;
+         float fmsi=1;
+
+         float fmxf=0;
+         float fmyf=0;
+         float fmsf=1;
+
+         set_screen_display_variables();
+         set_level_display_region_xy();
+         set_map_var();
+
+
+         // player's position in level
+         float px = mPlayer.syn[mPlayer.active_local_player].x;
+         float py = mPlayer.syn[mPlayer.active_local_player].y;
+
+         if (i == 0) // nothing
+         {
+            fmxi = mDisplay.SCREEN_W/2;
+            fmyi = mDisplay.SCREEN_H/2;
+            fmsi = 0.005;
+         }
+         if (f == 0) // nothing
+         {
+            fmxf = mDisplay.SCREEN_W/2;
+            fmyf = mDisplay.SCREEN_H/2;
+            fmsf = 0.005;
+         }
+         if (i == 1) // game
+         {
+            fmsi = mDisplay.scale_factor_current;
+            fmxi = screen_display_x + (px - level_display_region_x) * fmsi;
+            fmyi = screen_display_y + (py - level_display_region_y) * fmsi;
+         }
+         if (f == 1) // game
+         {
+            fmsf = mDisplay.scale_factor_current;
+            fmxf = screen_display_x + (px - level_display_region_x) * fmsf;
+            fmyf = screen_display_y + (py - level_display_region_y) * fmsf;
+         }
+         if (i == 2) // menu
+         {
+            fmsi = (float)menu_level_display_size / 2000;
+            fmxi = menu_level_display_x + px * fmsi;
+            fmyi = menu_level_display_y + py * fmsi;
+         }
+         if (f == 2) // menu
+         {
+            fmsf = (float)menu_level_display_size / 2000;
+            fmxf = menu_level_display_x + px * fmsf;
+            fmyf = menu_level_display_y + py * fmsf;
+         }
+         if (i == 3) // gate
+         {
+            fmsi = mDisplay.scale_factor_current * (200.0 / 2000.0); // level icon size = 200;
+            fmxi = gate_transition_x + px * fmsi;
+            fmyi = gate_transition_y + py * fmsi;
+         }
+         if (f == 3) // gate
+         {
+            // restore viewport so transition lines up
+            level_display_region_x = mScreen.gate_transition_wx;
+            level_display_region_y = mScreen.gate_transition_wy;
+            //mDisplay.set_scale_factor(mScreen.gate_transition_scale, 1); // disabled for now, I want to keep scale if changed while playing
+
+            fmsf = mDisplay.scale_factor_current * (200.0 / 2000.0); // level icon size = 200;
+            fmxf = gate_transition_x + px * fmsf;
+            fmyf = gate_transition_y + py * fmsf;
+         }
+         do_transition(fmxi, fmyi, fmxf, fmyf, fmsi, fmsf, num_steps, delay);
       }
-      do_transition(fmxi, fmyi, fmxf, fmyf, fmsi, fmsf, num_steps, delay);
    }
 }
 

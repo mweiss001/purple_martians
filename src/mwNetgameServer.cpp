@@ -266,6 +266,7 @@ void mwNetgame::server_exit(void)
 
 
 
+
 void mwNetgame::show_rewind_states(const char *format, ...)
 {
     va_list args;
@@ -273,7 +274,7 @@ void mwNetgame::show_rewind_states(const char *format, ...)
 
    // show rewind states
    for (int i=0; i<NUM_REWIND_STATES; i++)
-      printf("%d ", srv_rewind_state_frame_num[i]);
+      printf("[%4d] ", srv_rewind_state_frame_num[i]);
    vprintf(format, args);
    va_end(args);
 }

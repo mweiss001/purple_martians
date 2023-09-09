@@ -2,17 +2,12 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
-
-do all the timer test and docs
-working on it
-
-
-
-
-
 
 
 where can I do one place to store version?
@@ -1285,10 +1280,197 @@ on LAN when crwd is zero it seems to work great
 on internet when increased to make crwd one less than normal it seems good, but more than that and it gets really jumpy
 
 
-what about making s1 = 2 forced
-
+what about making s1 = 2 forced..test what happens...
 
 I also notice that the printing to console takes a noticeable amount of cpu
+
+
+---------------------
+
+so to recap, the saving of more rewind states thing, what has it achieved?
+
+- it allows me to run a client closer in time to the server without getting late cdats
+
+before I had to stay a little behind...
+
+I am so confused as too which way....
+
+And I don't explicitly say in the docs..
+
+can I figure it out with crwd?
+
+if crwd = 0 then difs are arriving exactly on the frame they are needed
+
+if crwd = 1 then difs are arriving 1 frame too late.
+because then after applying 1 frame has to be played back
+
+when sync is from -25 to 0   crwd = 1
+when sync is from -25 to -50 crwd = 2
+
+when client has to ff it means that the server is ahead, or in other words that the client is behind
+
+so with this data I can say that:
+
+dysnc is 0 when client receives dif exactly when needed
+dysnc is negative when client recieves dif before it is needed (then it is applied and fast forwarded)
+dysnc is positive when client receives dif after it is needed (this would never work, client would jump ahead)
+
+so then why do I get late cdats when client gets closer to 0?
+
+i think it was when there was not much time between rewind states
+but now that that is not an issue...
+
+I want to run the client as close as I can behind the server, so that crwd is zero
+
+this seems to work well on LAN but not internet
+
+do some tests and look at gmav and stuff
+
+-----------
+I just had a brainwave
+
+you know how I do logs for netgame? what if I did a huge graph with all the relevant data...
+
+like dsync,
+
+
+ -------------
+
+ Here is the official client dsync decription
+
+
+
+ -------------
+
+
+
+Do I want to run the client as close as I can to the server so that rewind is zero?
+
+Are there any drawbacks to this?
+
+
+test with e6430 as server and 2 clients
+
+server force stdf 1 and 4 rewind states
+
+in a LAN game with ping 0
+
+sync is auto at -20
+crwd is 1
+maxcor 6.4
+
+srv shows
+cdsy: -20
+stsy: 15
+gmav: 15
+
+
+now try to reduce sync...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

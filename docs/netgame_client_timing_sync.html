@@ -85,9 +85,20 @@ The server is the master timing source, and runs at 40 frames per second.
 
 Clients are responsible for measuring and maintaining their timing offset with the server.
 
+Clients use the 'stdf' packet sent from the server as their timing reference.
+
 The time difference between the client and server is called dsync.
 
-Clients use the 'stdf' packet sent from the server as the timing reference.
+If the state from the server arrives exactly on the frame it is needed then dsync is zero.
+
+If it arrives earlier than needed, then dsync is negative.
+
+It should never arrive later than needed.
+
+When it arrives earlier than needed and is applied, that has the effect of setting the client's state back in time.
+
+Then the client plays forward to the current frame and applies its stored local moves for those frames.
+
 </mh3>
 
 
