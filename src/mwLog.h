@@ -71,10 +71,21 @@ struct log_type
 
 
 
+//#include "mwStateHistory.h"
+
+
+
+
+
+
+
 class mwLog
 {
 
    public:
+
+//   mwStateHistory ppoo;
+
 
    mwLog(); // default constructor
 
@@ -83,6 +94,12 @@ class mwLog
    struct log_type log_types[100];
 
    void init_log_types(void);
+
+
+
+
+   void appf(int type, const char *format, ...);
+   void app(int type, const char *txt);
 
 
 

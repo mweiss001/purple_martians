@@ -340,7 +340,7 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       {
          if (mPlayer.syn[p].active == 1) color = color1;
          if (mPlayer.syn[p].active == 0) color = color2;
-         al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[%5d]", mNetgame.srv_client_state_frame_num[p][0]);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[%5d]", mNetgame.state_frame_num[p][0]);
       }
       x+=7*8;
    }
@@ -351,7 +351,7 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       {
          if (mPlayer.syn[p].active == 1) color = color1;
          if (mPlayer.syn[p].active == 0) color = color2;
-         al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[%5d]", mNetgame.srv_client_state_frame_num[p][1]);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[%5d]", mNetgame.state_frame_num[p][1]);
       }
       x+=7*8;
    }

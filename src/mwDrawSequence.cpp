@@ -237,11 +237,22 @@ void mwDrawSequence::draw(int setup_only)
    ns = i; // number of items
 
    // profile draw all
-   char msg[1024] = {0};
+   // build log entry
+   mLog.add_tmr(LOG_TMR_draw_all, 0, "");
    for (int i=1; i<ns-1; i++)
-      sprintf(msg, "%s%s:[%0.4f] " , msg, name[0][i], (ts[i] - ts[i-1]) * 1000 );
-   sprintf   (msg, "%s%s:[%0.4f]\n", msg, name[0][ns-1], totl * 1000);  // total
-   mLog.add_tmr(LOG_TMR_draw_all, 0, msg);
+      mLog.appf(LOG_TMR_draw_all, "%s:[%0.4f] " , name[0][i], (ts[i] - ts[i-1]) * 1000);
+   mLog.app(LOG_TMR_draw_all, "\n");
+
+
+//   // profile draw all
+//   char msg[1024] = {0};
+//   for (int i=1; i<ns-1; i++)
+//      sprintf(msg, "%s%s:[%0.4f] " , msg, name[0][i], (ts[i] - ts[i-1]) * 1000 );
+//   sprintf   (msg, "%s%s:[%0.4f]\n", msg, name[0][ns-1], totl * 1000);  // total
+//   mLog.add_tmr(LOG_TMR_draw_all, 0, msg);
+
+
+
 
    // profile draw total
    mLog.add_tmr1(LOG_TMR_draw_tot, 0, "draw", totl);

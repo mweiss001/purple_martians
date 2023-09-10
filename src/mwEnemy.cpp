@@ -305,11 +305,22 @@ void mwEnemy::move_enemies()
       }
 
    // build log entry
-   char t[512] = {0};
+   mLog.add_tmr(LOG_TMR_move_enem, 0, "");
    for (int i=0; i<100; i++)
       if (tmr_tally[i][1] > 0)
-         sprintf(t, "%sm-%s:[%0.4f] ", t, enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000000);
-   mLog.add_tmrf(LOG_TMR_move_enem, 0, "%s\n", t);
+         mLog.appf(LOG_TMR_move_enem, "m-%s:[%0.4f] ", enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000000);
+   mLog.app(LOG_TMR_move_enem, "\n");
+
+
+//   // build log entry
+//   char t[512] = {0};
+//   for (int i=0; i<100; i++)
+//      if (tmr_tally[i][1] > 0)
+//         sprintf(t, "%sm-%s:[%0.4f] ", t, enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000000);
+//   mLog.add_tmrf(LOG_TMR_move_enem, 0, "%s\n", t);
+
+
+
 }
 
 
