@@ -190,6 +190,8 @@
 		<Unit filename="src/mwSolid.h" />
 		<Unit filename="src/mwSound.cpp" />
 		<Unit filename="src/mwSound.h" />
+		<Unit filename="src/mwStateHistory.cpp" />
+		<Unit filename="src/mwStateHistory.h" />
 		<Unit filename="src/mwTally.cpp" />
 		<Unit filename="src/mwTally.h" />
 		<Unit filename="src/mwTimeStamp.cpp" />

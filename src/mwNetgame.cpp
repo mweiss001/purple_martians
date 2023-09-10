@@ -23,6 +23,8 @@
 #include "mwEventQueue.h"
 #include "mwConfig.h"
 #include "mwScreen.h"
+#include "mwStateHistory.h"
+
 
 
 mwNetgame mNetgame;
@@ -293,10 +295,6 @@ void mwNetgame::apply_state_dif(char *a, char *c, int size)
 
 void mwNetgame::reset_states(void)
 {
-   // reset base state on client
-   memset(client_state_base, 0, STATE_SIZE);
-   client_state_base_frame_num = 0;  // mLoop.frame_num id
-
    // reset dif buffer and mLoop.frame_num
    memset(client_state_dif, 0, STATE_SIZE);
    client_state_dif_src = -1; // -1 will never match a mLoop.frame_num
@@ -310,21 +308,41 @@ void mwNetgame::reset_states(void)
    // reset server's client states
    for (int i=0; i<8; i++) reset_client_state(i);
 
-   // reset server's rewind states
-   for (int i=0; i<NUM_REWIND_STATES; i++)
-   {
-      memset(srv_rewind_state[i], 0, STATE_SIZE);
-      srv_rewind_state_frame_num[i] = -1;
-   }
+   mStateHistory.initialize();
 
-
+//   // reset server's rewind states
+//   for (int i=0; i<NUM_REWIND_STATES; i++)
+//   {
+//      memset(srv_rewind_state[i], 0, STATE_SIZE);
+//      srv_rewind_state_frame_num[i] = -1;
+//   }
 }
 
 void mwNetgame::reset_client_state(int p) // server calls this when client quits
 {
-   memset(srv_client_state[p][0], 0, STATE_SIZE);
-   memset(srv_client_state[p][1], 0, STATE_SIZE);
-   srv_client_state_frame_num[p][0] = 0;  // src
-   srv_client_state_frame_num[p][1] = -3; // dst
+   memset(state[p][0], 0, STATE_SIZE);
+   memset(state[p][1], 0, STATE_SIZE);
+   state_frame_num[p][0] = -3; // src
+   state_frame_num[p][1] = -3; // dst
+
+
+
+
 }
+
+
+void mwNetgame::save_server_state(int frame_num) // called twice from mLoop
+{
+   game_vars_to_state(state[0][1]);
+   state_frame_num[0][1] = frame_num;
+
+   mLog.addf(LOG_NET_stdf, 0, "stdf saved server state[1]:%d\n", frame_num);
+
+   game_vars_to_state(mStateHistory.history_state[0]);
+   mStateHistory.history_state_frame_num[0] = frame_num;
+}
+
+
+
+
 

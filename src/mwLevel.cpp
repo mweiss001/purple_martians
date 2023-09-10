@@ -16,6 +16,9 @@
 #include "mwLoop.h"
 #include "mwPlayer.h"
 #include "mwVisualLevel.h"
+#include "mwNetgame.h"
+#include "mwShot.h"
+#include "mwTriggerEvent.h"
 
 
 
@@ -217,15 +220,90 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
          level_check();
          level_start_data();
 
+         mShot.clear_shots();
+
+         mTriggerEvent.initialize();
 
          if (!mDisplay.no_display) mScreen.init_level_background(); // draw blocks on level_background
-
 
          //set_player_start_pos(0, 0);
 
          mPlayer.init_player(0, 2);
 
          mLoop.eco_draw = 0;
+
+
+         for (int i=1; i<8; i++)
+         {
+//            mNetgame.state_frame_num[i][0] = -3;
+            mNetgame.game_vars_to_state(mNetgame.state[i][0]);
+         }
+
+
+
+
+//         // save syn array
+//         int sz = sizeof(mPlayer.syn);
+//         char tmp[sz];
+//         memcpy(tmp, mPlayer.syn, sz);
+//
+//         memset(mPlayer.syn, 0, sz);
+
+//         for (int p=0; p<8; p++) mPlayer.init_player(p, 1); // full reset
+
+         // server and clients copy of the level immediately after load
+//         mNetgame.game_vars_to_state(mNetgame.state[0][0]);
+//         for (int i=0; i<8; i++) mNetgame.state_frame_num[i][0] = -3;
+
+
+
+//         // restore values
+//         memcpy(mPlayer.syn, tmp, sz);
+
+
+////
+////
+//
+//
+//         int tp[8][3];
+//
+//
+//         // save values
+//         for (int p=0; p<8; p++)
+//         {
+//            tp[p][0] = mPlayer.syn[p].active;
+//            tp[p][1] = mPlayer.syn[p].control_method;
+//            tp[p][2] = mPlayer.syn[p].paused;
+//         }
+//
+//         // set to zero
+//         for (int p=0; p<8; p++)
+//         {
+//            mPlayer.syn[p].active = 0;
+//            mPlayer.syn[p].control_method = 0;
+//            mPlayer.syn[p].paused = 0;
+//         }
+//
+//
+//
+//         // server and clients copy of the level immediately after load
+//         mNetgame.game_vars_to_state(mNetgame.load_state);
+//
+//
+//         // restore values
+//         for (int p=0; p<8; p++)
+//         {
+//            mPlayer.syn[p].active = tp[p][0];
+//            mPlayer.syn[p].control_method = tp[p][1];
+//            mPlayer.syn[p].paused = tp[p][2];
+//         }
+//
+
+
+
+
+
+
 
       }
 

@@ -292,141 +292,149 @@ void mwNetgame::client_send_stak(void)
    int p = mPlayer.active_local_player;
    Packet("stak");
    PacketPut1ByteInt(p);
-   PacketPut4ByteInt(client_state_base_frame_num);
+   PacketPut4ByteInt(client_state_dif_dst);
    PacketPut4ByteInt(mLoop.frame_num);
    PacketPutDouble(mPlayer.loc[p].client_chase_fps);
    PacketPutDouble(mPlayer.loc[p].dsync_avg);
    ClientSend(packetbuffer, packetsize);
+
+
 }
 
 void mwNetgame::client_apply_dif(void)
 {
    int p = mPlayer.active_local_player;
+   mLog.addf(LOG_NET_dif_applied, p, "--- Client Apply Dif [%d to %d] ---\n", client_state_dif_src, client_state_dif_dst);
+
+   if ((client_state_dif_dst == 0) && (state_frame_num[p][0] == -3)) // base_state from server (only do once)
+   {
+      mLog.addf(LOG_NET_dif_applied, p, "dif [%d to %d] base state received\n", client_state_dif_src, client_state_dif_dst);
+      memset(state[p][0], 0, STATE_SIZE);
+      mNetgame.apply_state_dif(state[p][0], client_state_dif, STATE_SIZE);
+      state_frame_num[p][0] = client_state_dif_src;
+      client_send_stak();
+      return;
+   }
+
    if ((client_state_dif_src == -1) || (client_state_dif_dst == -1)) // check if valid dif
    {
       mLog.addf(LOG_NET_dif_not_applied, p, "dif is not valid - src:%d dst:%d\n", client_state_dif_src, client_state_dif_dst);
+      return;
    }
-   else
+
+   if (state_frame_num[p][0] != client_state_dif_src)  // base state != client dif src
    {
-      if ((client_state_dif_src - mLoop.frame_num > 100) && (mLoop.frame_num != 0))
-      {
-         mLog.addf(LOG_NET_dif_not_applied, p, "dif_src is > 100 frames in the future - src:%d mLoop.frame_num:%d\n", client_state_dif_src, mLoop.frame_num);
-      }
-      else
-      {
-         if ((client_state_dif_dst <= client_state_base_frame_num)) // dif destination is not newer than last applied dif
-         {
-            mLog.addf(LOG_NET_dif_not_applied, p, "dif [%d to %d] not applied - not newer than current [%d]\n", client_state_dif_src, client_state_dif_dst, client_state_base_frame_num);
-         }
-         else
-         {
-            if (client_state_dif_src == 0) // if server has sent dif from src == 0, reset client base to 0
-            {
-               memset(client_state_base, 0, STATE_SIZE);
-               client_state_base_frame_num = 0;
-               mPlayer.loc[p].client_base_resets++;
-               mLog.addf(LOG_NET_dif_not_applied, p, "Resetting client base state to zero\n");
-            }
-
-            if (client_state_base_frame_num != client_state_dif_src) // stored base state does NOT match dif source
-            {
-               client_send_stak(); // resend ack to server with correct acknowledged base state
-               mLog.addf(LOG_NET_dif_not_applied, p, "dif cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
-            }
-            else // we have a matching base to apply dif
-            {
-               int ff = mPlayer.loc[p].client_rewind = mLoop.frame_num - client_state_dif_dst; // dst compared to current frame_num
-
-               char tmsg[64];
-               if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", mLoop.frame_num);
-               if (ff > 0)  sprintf(tmsg, "rewind [%d] frames\n", ff);
-               if (ff < 0)  sprintf(tmsg, "early [%d] frames\n", -ff);
-               if (mLoop.frame_num == 0) sprintf(tmsg, "initial state\n");
-               if ((ff < 0) && (mLoop.frame_num != 0))
-               {
-                  mLog.addf(LOG_NET_dif_not_applied, p, "dif [%d to %d] not applied yet - [%d] early\n", client_state_dif_src, client_state_dif_dst, -ff);
-               }
-               else
-               {
-                  // make a copy of level array l[][]
-                  int old_l[100][100];
-                  memcpy(old_l, mLevel.l, sizeof(mLevel.l));
-
-
-                  // make a copy of players' pos
-                  for (int pp=0; pp<NUM_PLAYERS; pp++)
-                     if (mPlayer.syn[pp].active)
-                     {
-                        mPlayer.loc[pp].old_x = mPlayer.syn[pp].x;
-                        mPlayer.loc[pp].old_y = mPlayer.syn[pp].y;
-                     }
-
-
-
-                  // apply dif to base state
-                  apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
-
-                  // copy modified base state to game_vars
-                  state_to_game_vars(client_state_base);
-
-
-
-
-                  // double t0 = al_get_time();
-
-                  // compare old_l to l and redraw changed tiles
-                  al_set_target_bitmap(mBitmap.level_background);
-                  for (int x=0; x<100; x++)
-                     for (int y=0; y<100; y++)
-                        if (mLevel.l[x][y] != old_l[x][y])
-                        {
-                           // printf("dif at x:%d y:%d\n", x, y);
-                           al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
-                           al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
-                        }
-
-                  // mLog.add_log_TMR(al_get_time() - t0, "oldl", 0);
-
-
-                  // fix control methods
-                  mPlayer.syn[0].control_method = 2; // on client, server is mode 2
-                  if (mPlayer.syn[p].control_method == 2) mPlayer.syn[p].control_method = 4;
-                  if (mPlayer.syn[p].control_method == 8) mLoop.state[0] = 1; // server quit
-
-                  // update mLoop.frame_num and client base mLoop.frame_num
-                  mLoop.frame_num = client_state_base_frame_num = client_state_dif_dst;
-
-                  mPlayer.loc[p].client_last_dif_applied = mLoop.frame_num;
-
-                  if (ff) mLoop.loop_frame(ff); // if we rewound time, play it back
-
-
-                  // calc players' correction
-                  for (int pp=0; pp<NUM_PLAYERS; pp++)
-                     if (mPlayer.syn[pp].active)
-                     {
-                        mPlayer.loc[pp].cor = sqrt(pow((mPlayer.loc[pp].old_x - mPlayer.syn[pp].x), 2) + pow((mPlayer.loc[pp].old_y - mPlayer.syn[pp].y), 2));  // hypotenuse distance
-                        if (mPlayer.loc[pp].cor > mPlayer.loc[pp].cor_max)  mPlayer.loc[pp].cor_max = mPlayer.loc[pp].cor;
-                     }
-
-
-                  // reset max players correction
-                  if (mLoop.frame_num > mPlayer.loc[p].cor_reset_frame)
-                  {
-                     mPlayer.loc[p].cor_reset_frame = mLoop.frame_num + 100;
-                     for (int pp=0; pp<NUM_PLAYERS; pp++)
-                        if (mPlayer.syn[pp].active) mPlayer.loc[pp].cor_max = 0;
-                  }
-                  client_send_stak();
-                  //if (client_state_dif_src) mPlayer.loc[p].client_move_lag = mLoop.frame_num - client_state_dif_src;
-                  mLog.addf(LOG_NET_dif_applied, p, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
-               }
-            }
-         }
-      }
+      mLog.addf(LOG_NET_dif_not_applied, p, "dif src:[%d] does not match base state:[%d]\n", client_state_dif_src, state_frame_num[p][0]);
+      return;
    }
-}
 
+   int ff = mPlayer.loc[p].client_rewind = mLoop.frame_num - client_state_dif_dst; // dst compared to current frame_num
+   char tmsg[64];
+   if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", mLoop.frame_num);
+   if (ff > 0)  sprintf(tmsg, "rewind [%d] frames\n", ff);
+   if (ff < 0)  sprintf(tmsg, "early [%d] frames\n", -ff);
+
+
+   if ((ff < 0) && (mLoop.frame_num != 0))
+   {
+      mLog.addf(LOG_NET_dif_not_applied, p, "dif [%d to %d] not applied yet - [%d] too early!!! - this should not happen!\n", client_state_dif_src, client_state_dif_dst, -ff);
+      return;
+   }
+
+
+   // make a copy of level array l[][]
+   int old_l[100][100];
+   memcpy(old_l, mLevel.l, sizeof(mLevel.l));
+
+   // make a copy of players' pos
+   for (int pp=0; pp<NUM_PLAYERS; pp++)
+      if (mPlayer.syn[pp].active)
+      {
+         mPlayer.loc[pp].old_x = mPlayer.syn[pp].x;
+         mPlayer.loc[pp].old_y = mPlayer.syn[pp].y;
+      }
+
+
+
+
+
+
+
+   char base[STATE_SIZE] = {0}; // make a copy so we can overwrite it
+   memcpy(base, state[p][0], STATE_SIZE);
+
+   // apply dif
+   apply_state_dif(base, client_state_dif, STATE_SIZE);
+
+   // copy modified base state to game_vars
+   state_to_game_vars(base);
+
+   // update mLoop.frame_num
+   mLoop.frame_num = client_state_dif_dst;
+
+   mPlayer.loc[p].client_last_dif_applied = mLoop.frame_num;
+
+   mLog.addf(LOG_NET_dif_applied, p, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
+
+   // save to history here
+
+   // what method?
+
+   // if any blank use them first
+   // if no blanks then if exact match overwrite???
+   // if no blank and no match then replace oldest
+
+   // is this the same as the other??
+
+   mStateHistory.add_state(mLoop.frame_num);
+   mStateHistory.show_states("frame:%d\n", mLoop.frame_num);
+
+//   if (client_state_dif_dst % 200 == 0) // time for a new base
+//   {
+//      memcpy(state[p][0], base, STATE_SIZE);
+//      state_frame_num[p][0] = client_state_dif_dst;
+//      mLog.addf(LOG_NET_dif_applied, p, "new base state: %d\n", client_state_dif_dst);
+//   }
+
+
+   // double t0 = al_get_time();
+   // compare old_l to l and redraw changed tiles
+   al_set_target_bitmap(mBitmap.level_background);
+   for (int x=0; x<100; x++)
+      for (int y=0; y<100; y++)
+         if (mLevel.l[x][y] != old_l[x][y])
+         {
+            // printf("dif at x:%d y:%d\n", x, y);
+            al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
+            al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
+         }
+   // mLog.add_log_TMR(al_get_time() - t0, "oldl", 0);
+
+   // fix control methods
+   mPlayer.syn[0].control_method = 2; // on client, server is always control method 2
+   if (mPlayer.syn[p].control_method == 2) mPlayer.syn[p].control_method = 4;
+   if (mPlayer.syn[p].control_method == 8) mLoop.state[0] = 1; // server quit
+
+   if (ff) mLoop.loop_frame(ff); // if we rewound time, play it back
+
+   // calc players' correction
+   for (int pp=0; pp<NUM_PLAYERS; pp++)
+      if (mPlayer.syn[pp].active)
+      {
+         mPlayer.loc[pp].cor = sqrt(pow((mPlayer.loc[pp].old_x - mPlayer.syn[pp].x), 2) + pow((mPlayer.loc[pp].old_y - mPlayer.syn[pp].y), 2));  // hypotenuse distance
+         if (mPlayer.loc[pp].cor > mPlayer.loc[pp].cor_max)  mPlayer.loc[pp].cor_max = mPlayer.loc[pp].cor;
+      }
+
+   // reset max players correction
+   if (mLoop.frame_num > mPlayer.loc[p].cor_reset_frame)
+   {
+      mPlayer.loc[p].cor_reset_frame = mLoop.frame_num + 100;
+      for (int pp=0; pp<NUM_PLAYERS; pp++)
+         if (mPlayer.syn[pp].active) mPlayer.loc[pp].cor_max = 0;
+   }
+
+   client_send_stak();
+}
 
 void mwNetgame::client_timer_adjust(void)
 {
@@ -477,8 +485,6 @@ void mwNetgame::client_process_stdf_packet(double timestamp)
 
 
    mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d \n", seq+1, max_seq, src, dst, sb, sz);
-
-
 
    int client_sync = dst - mLoop.frame_num;                             // crude integer sync based on frame numbers
 

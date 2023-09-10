@@ -107,6 +107,46 @@ void mwLog::save_log_file(void)
 
 
 
+
+
+// these are for appending text to lines
+
+// appends printf style text string
+void mwLog::appf(int type, const char *format, ...)
+{
+   char smsg[200];
+   va_list args;
+   va_start(args, format);
+   vsprintf(smsg, format, args);
+   va_end(args);
+   app(type, smsg);
+}
+
+// appends text string
+void mwLog::app(int type, const char *txt)
+{
+   if (log_types[type].action & LOG_ACTION_PRINT) printf("%s", txt);
+   if (log_types[type].action & LOG_ACTION_ERROR) mInput.m_err(txt);
+   if (log_types[type].action & LOG_ACTION_LOG)
+   {
+      if ((log_msg_pos + strlen(txt)) >= NUM_LOG_CHAR) printf("log array full, > %d char\n", NUM_LOG_CHAR);
+      else
+      {
+         memcpy(log_msg + log_msg_pos, txt, strlen(txt));
+         log_msg_pos += strlen(txt);
+         log_msg[log_msg_pos+1] = 0; // NULL terminate
+      }
+   }
+}
+
+
+
+
+
+
+
+// these are for adding lines with the prefix...
+
 // adds printf style text string
 void mwLog::addf(int type, int player, const char *format, ...)
 {
@@ -121,13 +161,14 @@ void mwLog::addf(int type, int player, const char *format, ...)
 // adds text string
 void mwLog::add(int type, int player, const char *txt)
 {
-   if (log_types[type].action & LOG_ACTION_PRINT) printf(txt);
+   char tmsg[500];
+   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
+
+
+   if (log_types[type].action & LOG_ACTION_PRINT) printf("%s", tmsg);
    if (log_types[type].action & LOG_ACTION_ERROR) mInput.m_err(txt);
    if (log_types[type].action & LOG_ACTION_LOG)
    {
-      char tmsg[500];
-      sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
-
       if ((log_msg_pos + strlen(tmsg)) >= NUM_LOG_CHAR) printf("log array full, > %d char\n", NUM_LOG_CHAR);
       else
       {
@@ -390,9 +431,6 @@ void mwLog::add_log_TMR(double dt, const char *tag, int p)
 }
 
 
-
-
-
 // for single tags
 void mwLog::add_tmr1(int type, int p, const char *tag, double dt)
 {
@@ -410,14 +448,13 @@ void mwLog::add_tmrf(int type, int p, const char *format, ...)
    va_start(args, format);
    vsprintf(smsg, format, args);
    va_end(args);
-
    add_tmr(type, p, smsg);
 }
 
 // takes an already formatted string
 void mwLog::add_tmr(int type, int p, const char *txt)
 {
-   if (log_types[type].action & LOG_ACTION_PRINT) printf(txt);
+   if (log_types[type].action & LOG_ACTION_PRINT) printf("%s", txt);
    if (log_types[type].action & LOG_ACTION_LOG)
    {
       char tmsg[500];

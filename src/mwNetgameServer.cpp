@@ -263,107 +263,11 @@ void mwNetgame::server_exit(void)
    mPlayer.syn[0].active = 1;
 }
 
-
-
-
-
-void mwNetgame::show_rewind_states(const char *format, ...)
-{
-    va_list args;
-    va_start(args, format);
-
-   // show rewind states
-   for (int i=0; i<NUM_REWIND_STATES; i++)
-      printf("[%4d] ", srv_rewind_state_frame_num[i]);
-   vprintf(format, args);
-   va_end(args);
-}
-
-
-// include -1 state in minimum calc, unless ignore neg is set
-// if all states are -1 then return -1
-int mwNetgame::find_earliest_rewind_state(int include_neg)
-{
-   // find lowest frame number
-   int mn = std::numeric_limits<int>::max();
-   int indx = -1;
-   for (int i=0; i<NUM_REWIND_STATES; i++)
-   {
-      int fn = srv_rewind_state_frame_num[i];
-
-      if ( ((fn > -1) || (include_neg)) && (fn < mn))
-      {
-         mn = fn;
-         indx = i;
-      }
-   }
-   return indx;
-}
-
-
-
-
-void mwNetgame::load_earliest_rewind_state(void)
-{
-   if (mLoop.frame_num > 0)
-   {
-      int indx = find_earliest_rewind_state(0);
-      if (indx > -1)
-      {
-         memcpy(srv_client_state[0][1], srv_rewind_state[indx], STATE_SIZE);
-         srv_client_state_frame_num[0][1] = srv_rewind_state_frame_num[indx];
-        // show_rewind_states(" -  indx:%d  frame:%d  loading server rewind state\n", indx, srv_rewind_state_frame_num[indx]);
-      }
-//      else show_rewind_states(" -  indx:%d  frame:%d  ERROR! loading server rewind state\n", indx, srv_rewind_state_frame_num[indx]);
-   }
-}
-
-
-void mwNetgame::add_rewind_state(int frame_num)
-{
-   // if a state already exists with exact frame number, overwrite it
-   // if not,
-   // if we have an open -1 slot use that, if not used the oldest slot and overwrite it
-   // used for both ff add and end of frame add
-
-
-   int indx = -1;
-
-   // if a state already exists with exact frame number, overwrite it
-   for (int i=0; i<NUM_REWIND_STATES; i++)
-      if (srv_rewind_state_frame_num[i] == frame_num) indx = i;
-
-
-   if (indx == -1) // exact frame match not found
-   {
-      indx = find_earliest_rewind_state(1);  // use the oldest slot, if there are any -1 they will be used first
-   }
-
-
-   if (indx > -1)
-   {
-      game_vars_to_state(srv_rewind_state[indx]);
-      srv_rewind_state_frame_num[indx] = frame_num;
-   }
-}
-
-
-
-
-
-
-
-
-
-
-
-
 void mwNetgame::server_rewind(void)
 {
    double t0 = al_get_time();
 
-
-   if (mLoop.frame_num >= srv_client_state_frame_num[0][1] + server_state_freq - 1)    // is it time to create a new state?
+   if (mLoop.frame_num >= state_frame_num[0][1] + server_state_freq - 1)    // is it time to create a new state?
    {
       // save values we don't want rewound
       int lcd[8][2] = { 0 };
@@ -375,34 +279,40 @@ void mwNetgame::server_rewind(void)
          }
 
 
-#ifdef USE_REWIND_STATES
-      load_earliest_rewind_state();
-#endif
+      #ifdef USE_REWIND_STATES
+      //load_earliest_rewind_state();
+      mStateHistory.load_earliest_state();
+      #endif
 
-
-      mLog.addf(LOG_NET_stdf, 0, "stdf rewind to:%d\n", srv_client_state_frame_num[0][1]);
-
+      mLog.addf(LOG_NET_stdf, 0, "stdf rewind to:%d\n", state_frame_num[0][1]);
 
       // calculate ff (how many frames will need to be replayed in fast forward mode)
-      int ff = mLoop.frame_num - srv_client_state_frame_num[0][1];  // almost always equals s1, unless s1 has changed
+      int ff = mLoop.frame_num - state_frame_num[0][1];  // almost always equals s1, unless s1 has changed
 
       // apply rewind state and set frame num
-      state_to_game_vars(srv_client_state[0][1]);
-      mLoop.frame_num = srv_client_state_frame_num[0][1];
-
+      state_to_game_vars(state[0][1]);
+      mLoop.frame_num = state_frame_num[0][1];
 
       // fast forward and save rewind states
       for (int i=0; i<ff; i++)
       {
+         // check if base state matches frame and resave if it does
+         for (int p=1; p<NUM_PLAYERS; p++)
+            if ((mPlayer.syn[p].active) && (mLoop.frame_num == state_frame_num[p][0])) game_vars_to_state(state[p][0]);
+
          mLoop.loop_frame(1);
+
+
 #ifdef USE_REWIND_STATES
-         add_rewind_state(mLoop.frame_num);
+         //add_rewind_state(mLoop.frame_num);
+         mStateHistory.add_state(mLoop.frame_num);
 #endif
       }
 
 
 #ifdef USE_REWIND_STATES
 //      show_rewind_states("frame:%d\n", mLoop.frame_num);
+//      mStateHistory.show_states("frame:%d\n", mLoop.frame_num);
 #endif
 
       // restore values we don't want reset
@@ -412,12 +322,9 @@ void mwNetgame::server_rewind(void)
             mPlayer.syn[pp].late_cdats = lcd[pp][0];
             mPlayer.syn[pp].late_cdats_last_sec = lcd[pp][1];
          }
-
-      mPlayer.loc[0].server_send_dif = 1;
+      mPlayer.loc[0].server_send_dif = 1; // set flag to create and send dif at the end of this frame
    }
-
    mLog.add_tmr1(LOG_TMR_rwnd, 0, "rwnd", al_get_time() - t0);
-
 }
 
 void mwNetgame::server_create_new_state(void)
@@ -426,91 +333,82 @@ void mwNetgame::server_create_new_state(void)
    {
       mPlayer.loc[0].server_send_dif = 0;
 
-      // save state as a base for next rewind
-      game_vars_to_state(srv_client_state[0][1]);
-      srv_client_state_frame_num[0][1] = mLoop.frame_num+1;
+      // save with frame number + 1, this state is the starting point for the next frame
+      state_frame_num[0][1] = mLoop.frame_num+1;
 
 #ifdef USE_REWIND_STATES
-      add_rewind_state(mLoop.frame_num+1);
+      //add_rewind_state(mLoop.frame_num+1);
+      mStateHistory.add_state(mLoop.frame_num+1);
 #endif
 
       mLog.addf(LOG_NET_stdf, 0, "stdf saved server state[1]:%d\n", mLoop.frame_num+1);
-
       server_send_dif(); // send to all clients
    }
 }
 
+void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) // send dif to a client
+{
+   char cmp[STATE_SIZE];
+
+   // compress dif to cmp
+   uLongf destLen= sizeof(cmp);
+   compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)dif, STATE_SIZE, zlib_cmp);
+   int cmp_size = destLen;
+   float cr = (float)cmp_size*100 / (float)STATE_SIZE; // compression ratio
+
+   // break compressed dif into smaller pieces
+   int num_packets = (cmp_size / 1000) + 1;
+
+   mPlayer.loc[p].cmp_dif_size = cmp_size;
+   mPlayer.loc[p].num_dif_packets = num_packets;
+
+   mLog.addf(LOG_NET_stdf, 0, "tx stdf p:%d [src:%d dst:%d] cmp:%d ratio:%3.2f [%d packets needed]\n", p, src, dst, cmp_size, cr, num_packets);
+
+   int start_byte = 0;
+   for (int packet_num=0; packet_num < num_packets; packet_num++)
+   {
+      int packet_data_size = 1000; // default size
+      if (start_byte + packet_data_size > cmp_size) packet_data_size = cmp_size - start_byte; // last piece is smaller
+
+      mLog.addf(LOG_NET_stdf_packets, 0, "tx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", packet_num+1, num_packets, src, dst, start_byte, packet_data_size);
+
+      Packet("stdf");
+      PacketPut4ByteInt(src); // src frame_num
+      PacketPut4ByteInt(dst); // dst frame_num
+      PacketPut1ByteInt(packet_num);
+      PacketPut1ByteInt(num_packets);
+      PacketPut4ByteInt(start_byte);
+      PacketPut4ByteInt(packet_data_size);
+      memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
+      packetsize += packet_data_size;
+      ServerSendTo(packetbuffer, packetsize, mPlayer.loc[p].who, p);
+      start_byte+=1000;
+   }
+}
 
 void mwNetgame::server_send_dif(void) // send dif to all clients
 {
    for (int p=1; p<NUM_PLAYERS; p++)
       if ((mPlayer.syn[p].control_method == 2) || (mPlayer.syn[p].control_method == 8))
       {
-
-         if (server_state_freq == 0) // force always send from base 0
-         {
-            srv_client_state_frame_num[p][0] = 0;
-            memset(srv_client_state[p][0], 0, STATE_SIZE);
-         }
-         else
-         {
-            // if client's last acknowledged state has frame_num == 0, set base to all zeros
-            if (srv_client_state_frame_num[p][0] == 0) memset(srv_client_state[p][0], 0, STATE_SIZE);
-         }
-
-
          char dif[STATE_SIZE];
-         char cmp[STATE_SIZE];
 
-         // put current state in client's state slot 1
-         game_vars_to_state(srv_client_state[p][1]);
-
-         // put current mLoop.frame_num
-         srv_client_state_frame_num[p][1] = mLoop.frame_num;
-
-         // make a new dif from base and current
-         get_state_dif(srv_client_state[p][0], srv_client_state[p][1], dif, STATE_SIZE);
-
-         // compress dif to cmp
-         uLongf destLen= sizeof(cmp);
-         compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)dif, sizeof(dif), zlib_cmp);
-         int cmp_size = destLen;
-         float cr = (float)cmp_size*100 / (float)STATE_SIZE; // compression ratio
-
-         // break compressed dif into smaller pieces
-         int num_packets = (cmp_size / 1000) + 1;
-
-         mPlayer.loc[p].cmp_dif_size = cmp_size;
-         mPlayer.loc[p].num_dif_packets = num_packets;
-
-         mLog.addf(LOG_NET_stdf, 0, "tx stdf p:%d [src:%d dst:%d] cmp:%d ratio:%3.2f [%d packets needed]\n",
-                                  p, srv_client_state_frame_num[p][0], srv_client_state_frame_num[p][1], cmp_size, cr, num_packets);
-
-         int start_byte = 0;
-         for (int packet_num=0; packet_num < num_packets; packet_num++)
+         if (state_frame_num[p][0] == -3) // client does not have initial base state
          {
-            int packet_data_size = 1000; // default size
-            if (start_byte + packet_data_size > cmp_size) packet_data_size = cmp_size - start_byte; // last piece is smaller
-
-            mLog.addf(LOG_NET_stdf_packets, 0, "tx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n",
-                             packet_num+1, num_packets, srv_client_state_frame_num[p][0], srv_client_state_frame_num[p][1], start_byte, packet_data_size);
-
-            Packet("stdf");
-            PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
-            PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
-            PacketPut1ByteInt(packet_num);
-            PacketPut1ByteInt(num_packets);
-            PacketPut4ByteInt(start_byte);
-            PacketPut4ByteInt(packet_data_size);
-            memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
-            packetsize += packet_data_size;
-            ServerSendTo(packetbuffer, packetsize, mPlayer.loc[p].who, p);
-            start_byte+=1000;
+            char zero[STATE_SIZE] = {0};
+            get_state_dif(zero, state[p][0], dif, STATE_SIZE);
+            server_send_compressed_dif(p, 0, 0, dif);
+         }
+         else // normal dif
+         {
+            // make a new dif from current game state and base for this client
+            char current_state[STATE_SIZE];
+            game_vars_to_state(current_state);
+            get_state_dif(state[p][0], current_state, dif, STATE_SIZE);
+            server_send_compressed_dif(p, state_frame_num[p][0], mLoop.frame_num, dif);
          }
       }
 }
-
-
 
 void mwNetgame::server_proc_player_drop(void)
 {
@@ -580,11 +478,13 @@ void mwNetgame::server_proc_cdat_packet(double timestamp)
 
 
    // find oldest frame
-   int of = srv_client_state_frame_num[0][1]; // default
+   int of = state_frame_num[0][1]; // default
 
 #ifdef USE_REWIND_STATES
-   int indx = find_earliest_rewind_state(0);
-   if (indx > -1) of = srv_rewind_state_frame_num[indx];
+//   int indx = find_earliest_rewind_state(0);
+//   if (indx > -1) of = srv_rewind_state_frame_num[indx];
+   int indx = mStateHistory.find_earliest_state(0);
+   if (indx > -1) of = mStateHistory.history_state_frame_num[indx];
 #endif
 
 
@@ -626,7 +526,7 @@ void mwNetgame::server_proc_stak_packet(double timestamp)
    mPlayer.loc[p].dsync            = PacketGetDouble();
 
    // calculate stak_sync
-   int stak_sync = mLoop.frame_num - srv_client_state_frame_num[0][1];
+   int stak_sync = mLoop.frame_num - state_frame_num[0][1];
 
    // calculate stak_dsync
    mPlayer.loc[p].stak_dsync = ( (double) stak_sync * 0.025) + mTimeStamp.timestamp_frame_start - timestamp;
@@ -636,24 +536,9 @@ void mwNetgame::server_proc_stak_packet(double timestamp)
    // this is used to see if client is still alive
    mPlayer.loc[p].server_last_stak_rx_frame_num = mLoop.frame_num;
 
-   char tmsg[80];
-   if (ack_frame_num == srv_client_state_frame_num[p][1]) // check to make sure we have a copy of acknowledged state
-   {
-      // acknowledged state is new base state
-      memcpy(srv_client_state[p][0], srv_client_state[p][1], STATE_SIZE);  // copy 1 to 0
-      srv_client_state_frame_num[p][0] = srv_client_state_frame_num[p][1];
-      sprintf(tmsg, "set new base");
-   }
-   else // we don't have a copy of acknowledged state !!!
-   {
-      memset(srv_client_state[p][0], 0, STATE_SIZE); // reset base to all zero
-      srv_client_state_frame_num[p][0] = 0;
-      mPlayer.loc[p].client_base_resets++;
-      sprintf(tmsg, "fail base set:%d", srv_client_state_frame_num[p][1]);
-   }
+   state_frame_num[p][0] = ack_frame_num; // client has acknowledged having this base
 
-   mLog.addf(LOG_NET_server_rx_stak, p, "rx stak d[%4.1f] c[%4.1f] a:%d c:%d %s\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].client_chase_fps, ack_frame_num, client_frame_num, tmsg);
-
+   mLog.addf(LOG_NET_server_rx_stak, p, "rx stak d[%4.1f] c[%4.1f] a:%d c:%d\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].client_chase_fps, ack_frame_num, client_frame_num);
 }
 
 

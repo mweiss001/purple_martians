@@ -1,11 +1,15 @@
 // mwNetgame.h
 
+#ifndef mwNetgame_H
+#define mwNetgame_H
+
+
 #define STATE_SIZE 112384
 #define MAX_CLIENTS 32
-#define NUM_REWIND_STATES 4
 #define USE_REWIND_STATES
 
 
+#include "mwStateHistory.h"
 
 
 struct packet_buffer
@@ -26,6 +30,11 @@ class mwNetgame
 
    int NetworkDriver;
    int NetworkInit();
+
+
+   mwStateHistory mStateHistory;
+
+
 
    struct packet_buffer packet_buffers[200];
    void init_packet_buffer(void);
@@ -66,28 +75,16 @@ class mwNetgame
    int server_state_freq = 2;
    int server_state_freq_mode = 1; // 0 = manual, 1 = auto
 
-
-   // server's last NUM_REWIND_STATES states for rewinding
-   char srv_rewind_state[NUM_REWIND_STATES][STATE_SIZE];
-   int srv_rewind_state_frame_num[NUM_REWIND_STATES];
-
-
-   int find_earliest_rewind_state(int include_neg);
-
-
-   void load_earliest_rewind_state(void);
-
-   void add_rewind_state(int frame_num);
+   void save_server_state(int frame_num); // called twice from mLoop
 
    // server's copies of client states
-   char srv_client_state[8][2][STATE_SIZE];
-   int srv_client_state_frame_num[8][2];
+   char state[8][2][STATE_SIZE];
+   int state_frame_num[8][2];
 
    // local client's states
    char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
    int  client_state_buffer_pieces[16];   // to mark packet pieces as received
-   char client_state_base[STATE_SIZE];    // last ack state
-   int  client_state_base_frame_num;      // last ack state frame_num
+
    char client_state_dif[STATE_SIZE];     // uncompressed dif
    int  client_state_dif_src;             // uncompressed dif src frame_num
    int  client_state_dif_dst;             // uncompressed dif dst frame_num
@@ -153,8 +150,13 @@ class mwNetgame
    void server_flush(void);
    int  server_init(void);
    void server_exit(void);
+
+
+   void server_send_compressed_dif(int p, int src, int dst, char * dif);
+
    void server_send_dif(void);
    void server_create_new_state(void);
+
 
    void show_rewind_states(const char *format, ...);
 
@@ -173,3 +175,8 @@ class mwNetgame
 
 };
 extern mwNetgame mNetgame;
+
+
+
+#endif // mwStateHistory_H
+
