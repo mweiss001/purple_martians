@@ -239,7 +239,11 @@ void mwNetgame::client_process_sjon_packet(void)
    else // join allowed
    {
       mPlayer.active_local_player = p;
+
+      mPlayer.syn[p].active = 1;
+
       mPlayer.syn[p].control_method = 4;
+
       mPlayer.syn[p].color = color;
       strncpy(mPlayer.loc[0].hostname, m_serveraddress, 16);
       strncpy(mPlayer.loc[p].hostname, mLoop.local_hostname, 16);
@@ -260,7 +264,6 @@ void mwNetgame::client_process_sjon_packet(void)
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Deathmatch player shot damage:[%d]", mShot.deathmatch_shot_damage);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Suicide player shots:[%d]", mShot.suicide_shots);
       mLog.add_fwf(LOG_NET_network_setup, 0, 76, 10, "+", "-", "");
-
       mLoop.state[0] = 22;
    }
 }
@@ -285,62 +288,118 @@ void mwNetgame::client_send_ping(void)
 }
 
 
-
-
-void mwNetgame::client_send_stak(void)
+void mwNetgame::client_process_stdf_packet(double timestamp)
 {
    int p = mPlayer.active_local_player;
-   Packet("stak");
-   PacketPut1ByteInt(p);
-   PacketPut4ByteInt(client_state_dif_dst);
-   PacketPut4ByteInt(mLoop.frame_num);
-   PacketPutDouble(mPlayer.loc[p].client_chase_fps);
-   PacketPutDouble(mPlayer.loc[p].dsync_avg);
-   ClientSend(packetbuffer, packetsize);
+   int src = PacketGet4ByteInt();
+   int dst = PacketGet4ByteInt();
+   int seq = PacketGet1ByteInt();
+   int max_seq = PacketGet1ByteInt();
+   int sb = PacketGet4ByteInt();
+   int sz = PacketGet4ByteInt();
 
 
+   int client_sync = dst - mLoop.frame_num;      // crude integer sync based on frame numbers
+   double dsync = al_get_time() - timestamp;     // time between when the packet was received into the packet buffer and now
+   dsync += (double) client_sync * 0.025;        // combine with client_sync
+
+
+   mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d dsyn:%4.2f\n", seq+1, max_seq, src, dst, sb, sz, dsync*1000);
+
+   if (mPlayer.loc[p].client_last_stdf_rx_frame_num != mLoop.frame_num)    // this is the first stdf received for this frame
+   {
+      mPlayer.loc[p].client_last_stdf_rx_frame_num = mLoop.frame_num;      // client keeps track of last stdf rx'd and quits if too long
+      mPlayer.loc[p].dsync = al_get_time() - timestamp;                    // time between when the packet was received into the packet buffer and now
+      mPlayer.loc[p].dsync += (double) client_sync * 0.025;                // combine with client_sync
+
+      mRollingAverage[2].add_data(mPlayer.loc[p].dsync);                   // send to rolling average
+      mPlayer.loc[p].dsync_avg = mRollingAverage[2].avg;                   // get average
+
+      client_timer_adjust();
+   }
+
+
+   memcpy(client_state_buffer + sb, packetbuffer+22, sz);     // put the piece of data in the buffer
+   client_state_buffer_pieces[seq] = dst;                     // mark it with destination mLoop.frame_num
+   int complete = 1;                                          // did we just get the last packet? (yes by default)
+   for (int i=0; i< max_seq; i++)
+      if (client_state_buffer_pieces[i] != dst) complete = 0; // no, if any piece not at latest frame_num
+
+   if (complete)
+   {
+      // uncompress client_state_buffer to dif
+      uLongf destLen = sizeof(client_state_dif);
+      uncompress((Bytef*)client_state_dif, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
+
+      if (destLen == STATE_SIZE)
+      {
+         mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] dsync[%3.1fms] - uncompressed\n", src, dst, mPlayer.loc[p].dsync*1000);
+         client_state_dif_src = src; // mark dif data with new src and dst
+         client_state_dif_dst = dst;
+         client_apply_dif();
+      }
+      else
+      {
+         mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] dsync[%3.1f] - bad uncompress\n", src, dst, mPlayer.loc[p].dsync*1000);
+         client_state_dif_src = -1; // mark dif data as bad
+         client_state_dif_dst = -1;
+      }
+   }
 }
+
 
 void mwNetgame::client_apply_dif(void)
 {
    int p = mPlayer.active_local_player;
    mLog.addf(LOG_NET_dif_applied, p, "--- Client Apply Dif [%d to %d] ---\n", client_state_dif_src, client_state_dif_dst);
 
-   if ((client_state_dif_dst == 0) && (state_frame_num[p][0] == -3)) // base_state from server (only do once)
-   {
-      mLog.addf(LOG_NET_dif_applied, p, "dif [%d to %d] base state received\n", client_state_dif_src, client_state_dif_dst);
-      memset(state[p][0], 0, STATE_SIZE);
-      mNetgame.apply_state_dif(state[p][0], client_state_dif, STATE_SIZE);
-      state_frame_num[p][0] = client_state_dif_src;
-      client_send_stak();
-      return;
-   }
-
+   // first check if dif is valid, if not, return immediatley
    if ((client_state_dif_src == -1) || (client_state_dif_dst == -1)) // check if valid dif
    {
-      mLog.addf(LOG_NET_dif_not_applied, p, "dif is not valid - src:%d dst:%d\n", client_state_dif_src, client_state_dif_dst);
+      mLog.addf(LOG_NET_dif_not_applied, p, "dif [%d to %d] not valid\n", client_state_dif_src, client_state_dif_dst);
       return;
    }
 
-   if (state_frame_num[p][0] != client_state_dif_src)  // base state != client dif src
-   {
-      mLog.addf(LOG_NET_dif_not_applied, p, "dif src:[%d] does not match base state:[%d]\n", client_state_dif_src, state_frame_num[p][0]);
-      return;
-   }
-
-   int ff = mPlayer.loc[p].client_rewind = mLoop.frame_num - client_state_dif_dst; // dst compared to current frame_num
+   // compare dif destination to current frame number
+   int ff = mPlayer.loc[p].client_rewind = mLoop.frame_num - client_state_dif_dst;
    char tmsg[64];
    if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", mLoop.frame_num);
-   if (ff > 0)  sprintf(tmsg, "rewind [%d] frames\n", ff);
-   if (ff < 0)  sprintf(tmsg, "early [%d] frames\n", -ff);
-
-
-   if ((ff < 0) && (mLoop.frame_num != 0))
+   if (ff > 0)  sprintf(tmsg, "rewound [%d] frames\n", ff);
+   if (ff < 0)
    {
-      mLog.addf(LOG_NET_dif_not_applied, p, "dif [%d to %d] not applied yet - [%d] too early!!! - this should not happen!\n", client_state_dif_src, client_state_dif_dst, -ff);
+      if (mLoop.frame_num > 0)
+      {
+         mLog.addf(LOG_NET_dif_not_applied, p, "dif [%d to %d] not applied - dst is %d frames in the future!\n", client_state_dif_src, client_state_dif_dst, -ff);
+         return;
+      }
+      else sprintf(tmsg, "Initial State\n");
+   }
+
+
+   // if we got this far, we know that dif is valid and the dif destination is not in the future
+
+   // now check if we have a base state that matches dif source
+
+   char base[STATE_SIZE] = {0};
+   int base_frame_num = 0;
+
+   // finds and sets base matching 'client_state_dif_src'
+   // if not found, leaves base as is (zero)
+   mStateHistory[p].get_base_state(base, base_frame_num, client_state_dif_src);
+
+   if ((base_frame_num == 0) && (client_state_dif_src != 0))
+   {
+      int fn = mStateHistory[p].find_newest_frame_number();
+      mLog.addf(LOG_NET_dif_applied, p, "Could not find matching base in history, resending stak [%d] to server\n", fn);
+      client_send_stak(fn);
       return;
    }
 
+
+
+   // ------------------------------------------------
+   // save things before applying dif
+   // ------------------------------------------------
 
    // make a copy of level array l[][]
    int old_l[100][100];
@@ -355,50 +414,38 @@ void mwNetgame::client_apply_dif(void)
       }
 
 
-
-
-
-
-
-   char base[STATE_SIZE] = {0}; // make a copy so we can overwrite it
-   memcpy(base, state[p][0], STATE_SIZE);
-
-   // apply dif
+   // apply dif to base
    apply_state_dif(base, client_state_dif, STATE_SIZE);
 
-   // copy modified base state to game_vars
+   // copy to game vars and set new frame number
    state_to_game_vars(base);
-
-   // update mLoop.frame_num
    mLoop.frame_num = client_state_dif_dst;
 
+   // keep track of frame number when last client dif was applied
    mPlayer.loc[p].client_last_dif_applied = mLoop.frame_num;
 
+   // save to history
+   mStateHistory[p].add_state(mLoop.frame_num);
+   //mStateHistory[p].show_states("save frame:%d to history\n", mLoop.frame_num);
+
+   // send acknowledgement
+   client_send_stak(client_state_dif_dst);
+
+   // add log entry
    mLog.addf(LOG_NET_dif_applied, p, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
 
-   // save to history here
+   // ------------------------------------------------
+   // restore things after applying dif
+   // ------------------------------------------------
 
-   // what method?
-
-   // if any blank use them first
-   // if no blanks then if exact match overwrite???
-   // if no blank and no match then replace oldest
-
-   // is this the same as the other??
-
-   mStateHistory.add_state(mLoop.frame_num);
-   mStateHistory.show_states("frame:%d\n", mLoop.frame_num);
-
-//   if (client_state_dif_dst % 200 == 0) // time for a new base
-//   {
-//      memcpy(state[p][0], base, STATE_SIZE);
-//      state_frame_num[p][0] = client_state_dif_dst;
-//      mLog.addf(LOG_NET_dif_applied, p, "new base state: %d\n", client_state_dif_dst);
-//   }
+   // fix control methods
+   mPlayer.syn[0].control_method = 2; // on client, server is always control method 2
+   if (mPlayer.syn[p].control_method == 2) mPlayer.syn[p].control_method = 4;
+   if (mPlayer.syn[p].control_method == 8) mLoop.state[0] = 1; // server quit
 
 
-   // double t0 = al_get_time();
    // compare old_l to l and redraw changed tiles
+   // double t0 = al_get_time();
    al_set_target_bitmap(mBitmap.level_background);
    for (int x=0; x<100; x++)
       for (int y=0; y<100; y++)
@@ -410,14 +457,16 @@ void mwNetgame::client_apply_dif(void)
          }
    // mLog.add_log_TMR(al_get_time() - t0, "oldl", 0);
 
-   // fix control methods
-   mPlayer.syn[0].control_method = 2; // on client, server is always control method 2
-   if (mPlayer.syn[p].control_method == 2) mPlayer.syn[p].control_method = 4;
-   if (mPlayer.syn[p].control_method == 8) mLoop.state[0] = 1; // server quit
+   // ------------------------------------------------
+   // if we rewound time, play it back
+   // ------------------------------------------------
+   if (ff) mLoop.loop_frame(ff);
 
-   if (ff) mLoop.loop_frame(ff); // if we rewound time, play it back
 
-   // calc players' correction
+   // ------------------------------------------------
+   // calc players' corrections
+   // ------------------------------------------------
+
    for (int pp=0; pp<NUM_PLAYERS; pp++)
       if (mPlayer.syn[pp].active)
       {
@@ -433,8 +482,21 @@ void mwNetgame::client_apply_dif(void)
          if (mPlayer.syn[pp].active) mPlayer.loc[pp].cor_max = 0;
    }
 
-   client_send_stak();
 }
+
+
+void mwNetgame::client_send_stak(int ack_frame)
+{
+   int p = mPlayer.active_local_player;
+   Packet("stak");
+   PacketPut1ByteInt(p);
+   PacketPut4ByteInt(ack_frame);
+   PacketPut4ByteInt(mLoop.frame_num);
+   PacketPutDouble(mPlayer.loc[p].client_chase_fps);
+   PacketPutDouble(mPlayer.loc[p].dsync_avg);
+   ClientSend(packetbuffer, packetsize);
+}
+
 
 void mwNetgame::client_timer_adjust(void)
 {
@@ -471,113 +533,6 @@ void mwNetgame::client_timer_adjust(void)
    mLog.addf(LOG_NET_timer_adjust, p, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.3f]\n", mPlayer.loc[p].dsync*1000, sp*1000, fps_chase);
 }
 
-
-void mwNetgame::client_process_stdf_packet(double timestamp)
-{
-   int p = mPlayer.active_local_player;
-
-   int src = PacketGet4ByteInt();
-   int dst = PacketGet4ByteInt();
-   int seq = PacketGet1ByteInt();
-   int max_seq = PacketGet1ByteInt();
-   int sb = PacketGet4ByteInt();
-   int sz = PacketGet4ByteInt();
-
-
-   mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d \n", seq+1, max_seq, src, dst, sb, sz);
-
-   int client_sync = dst - mLoop.frame_num;                             // crude integer sync based on frame numbers
-
-   if (mPlayer.loc[p].client_last_stdf_rx_frame_num != mLoop.frame_num)    // this is the first stdf received for this frame
-   {
-      mPlayer.loc[p].client_last_stdf_rx_frame_num = mLoop.frame_num;      // client keeps track of last stdf rx'd and quits if too long
-      mPlayer.loc[p].dsync = al_get_time() - timestamp;              // time between when the packet was received into the packet buffer and now
-      mPlayer.loc[p].dsync += (double) client_sync * 0.025;          // combine with client_sync
-
-      mRollingAverage[2].add_data(mPlayer.loc[p].dsync); // send to rolling average
-      mPlayer.loc[p].dsync_avg = mRollingAverage[2].avg;
-
-      client_timer_adjust();
-   }
-
-   memcpy(client_state_buffer + sb, packetbuffer+22, sz);     // put the piece of data in the buffer
-   client_state_buffer_pieces[seq] = dst;                     // mark it with destination mLoop.frame_num
-
-   int complete = 1;                                          // did we just get the last packet? (yes by default)
-   for (int i=0; i< max_seq; i++)
-      if (client_state_buffer_pieces[i] != dst) complete = 0; // no, if any piece not at latest frame_num
-
-   if (complete)
-   {
-      // uncompress client_state_buffer to dif
-      uLongf destLen = sizeof(client_state_dif);
-      uncompress((Bytef*)client_state_dif, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
-
-      if (destLen == STATE_SIZE)
-      {
-         mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] dsync[%3.1fms] - uncompressed\n", src, dst, mPlayer.loc[p].dsync*1000);
-         client_state_dif_src = src; // mark dif data with new src and dst
-         client_state_dif_dst = dst;
-      }
-      else
-      {
-         mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] dsync[%3.1f] - bad uncompress\n", src, dst, mPlayer.loc[p].dsync*1000);
-         client_state_dif_src = -1; // mark dif data as bad
-         client_state_dif_dst = -1;
-      }
-   }
-}
-
-void mwNetgame::process_bandwidth_counters(int p)
-{
-   // get maximums per frame
-   if (mPlayer.loc[p].tx_current_packets_for_this_frame > mPlayer.loc[p].tx_max_packets_per_frame) mPlayer.loc[p].tx_max_packets_per_frame = mPlayer.loc[p].tx_current_packets_for_this_frame;
-   if (mPlayer.loc[p].tx_current_bytes_for_this_frame >   mPlayer.loc[p].tx_max_bytes_per_frame)   mPlayer.loc[p].tx_max_bytes_per_frame =   mPlayer.loc[p].tx_current_bytes_for_this_frame;
-   if (mPlayer.loc[p].rx_current_packets_for_this_frame > mPlayer.loc[p].rx_max_packets_per_frame) mPlayer.loc[p].rx_max_packets_per_frame = mPlayer.loc[p].rx_current_packets_for_this_frame;
-   if (mPlayer.loc[p].rx_current_bytes_for_this_frame >   mPlayer.loc[p].rx_max_bytes_per_frame)   mPlayer.loc[p].rx_max_bytes_per_frame =   mPlayer.loc[p].rx_current_bytes_for_this_frame;
-
-   // get totals
-   mPlayer.loc[p].tx_total_bytes   += mPlayer.loc[p].tx_current_bytes_for_this_frame;
-   mPlayer.loc[p].tx_total_packets += mPlayer.loc[p].tx_current_packets_for_this_frame;
-   mPlayer.loc[p].rx_total_bytes   += mPlayer.loc[p].rx_current_bytes_for_this_frame;
-   mPlayer.loc[p].rx_total_packets += mPlayer.loc[p].rx_current_packets_for_this_frame;
-
-   // add to tallies
-   mPlayer.loc[p].tx_bytes_tally   += mPlayer.loc[p].tx_current_bytes_for_this_frame;
-   mPlayer.loc[p].tx_packets_tally += mPlayer.loc[p].tx_current_packets_for_this_frame;
-   mPlayer.loc[p].rx_bytes_tally   += mPlayer.loc[p].rx_current_bytes_for_this_frame;
-   mPlayer.loc[p].rx_packets_tally += mPlayer.loc[p].rx_current_packets_for_this_frame;
-
-   // reset counts for this frame
-   mPlayer.loc[p].tx_current_bytes_for_this_frame = 0;
-   mPlayer.loc[p].tx_current_packets_for_this_frame = 0;
-   mPlayer.loc[p].rx_current_bytes_for_this_frame = 0;
-   mPlayer.loc[p].rx_current_packets_for_this_frame = 0;
-
-   if (mLoop.frame_num % 40 == 0) // tally freq = 40 frames = 1s
-   {
-      // get maximums per tally
-      if (mPlayer.loc[p].tx_bytes_per_tally >   mPlayer.loc[p].tx_max_bytes_per_tally)   mPlayer.loc[p].tx_max_bytes_per_tally =   mPlayer.loc[p].tx_bytes_per_tally;
-      if (mPlayer.loc[p].rx_bytes_per_tally >   mPlayer.loc[p].rx_max_bytes_per_tally)   mPlayer.loc[p].rx_max_bytes_per_tally =   mPlayer.loc[p].rx_bytes_per_tally;
-      if (mPlayer.loc[p].tx_packets_per_tally > mPlayer.loc[p].tx_max_packets_per_tally) mPlayer.loc[p].tx_max_packets_per_tally = mPlayer.loc[p].tx_packets_per_tally;
-      if (mPlayer.loc[p].rx_packets_per_tally > mPlayer.loc[p].rx_max_packets_per_tally) mPlayer.loc[p].rx_max_packets_per_tally = mPlayer.loc[p].rx_packets_per_tally;
-
-      // copy to display variables
-      mPlayer.loc[p].tx_bytes_per_tally   = mPlayer.loc[p].tx_bytes_tally;
-      mPlayer.loc[p].tx_packets_per_tally = mPlayer.loc[p].tx_packets_tally;
-      mPlayer.loc[p].rx_bytes_per_tally   = mPlayer.loc[p].rx_bytes_tally;
-      mPlayer.loc[p].rx_packets_per_tally = mPlayer.loc[p].rx_packets_tally;
-
-      mLog.addf(LOG_NET_bandwidth, p, "bandwidth txb:[%d] rxb:[%d] txp:[%d] rxp:[%d]\n", mPlayer.loc[p].tx_bytes_per_tally, mPlayer.loc[p].rx_bytes_per_tally, mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].rx_packets_per_tally);
-
-      // reset tallies
-      mPlayer.loc[p].tx_bytes_tally = 0;
-      mPlayer.loc[p].tx_packets_tally = 0;
-      mPlayer.loc[p].rx_bytes_tally = 0;
-      mPlayer.loc[p].rx_packets_tally = 0;
-   }
-}
-
 void mwNetgame::client_proc_player_drop(void)
 {
    int p = mPlayer.active_local_player;
@@ -610,8 +565,6 @@ void mwNetgame::client_proc_player_drop(void)
       }
    }
 }
-
-
 
 
 void mwNetgame::client_fast_packet_loop(void)

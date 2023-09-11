@@ -282,6 +282,23 @@ void mwInput::function_key_check(void)
    if (key[ALLEGRO_KEY_LEFT][ 2]) mLoop.pct_x--;
    if (key[ALLEGRO_KEY_RIGHT][2]) mLoop.pct_x++;
 
+   if (key[ALLEGRO_KEY_F1][2]) // force base reset
+   {
+//      mNetgame.reset_states();
+
+//      mNetgame.mStateHistory[mPlayer.active_local_player].initialize();
+
+      for (int p=1; p<NUM_PLAYERS; p++)
+         mNetgame.mStateHistory[p].initialize();
+
+
+
+   }
+
+
+
+
+
    // fullscreen toggle
    if (key[function_key_fullscreen][2])  mDisplay.toggle_fullscreen();
 

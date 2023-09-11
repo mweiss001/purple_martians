@@ -301,7 +301,8 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
          mPlayer.loc[p].quit_reason = 93;
          if (!mLoop.ff_state) mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
          mPlayer.init_player(p, 1);
-         mNetgame.reset_client_state(p);
+         mNetgame.mStateHistory[p].initialize();  // reset client states
+
 //         mPlayer.syn[p].active = 0;
 //         mPlayer.syn[p].control_method = 9; // prevent re-use of this player number in this level
 //         mPlayer.loc[p].who = 99;

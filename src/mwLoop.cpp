@@ -465,6 +465,7 @@ void mwLoop::proc_program_state(void)
       mQuickGraph[2].initialize(2);
 
       for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
+
       mPlayer.syn[0].active = 1;
 
       state[0] = 23;
@@ -498,7 +499,6 @@ void mwLoop::proc_program_state(void)
       for (int p=0; p<NUM_PLAYERS; p++)
          mPlayer.set_player_start_pos(p, 0);     // get starting position for all players, active or not
 
-
       mGameMoves.initialize();
 
       frame_num = 0;
@@ -523,7 +523,6 @@ void mwLoop::proc_program_state(void)
    {
       mLog.add(LOG_OTH_program_state, 0, "[State 21 - Client Wait for Initial State]\n");
 
-
       mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "Waiting for game state from server");
       al_flip_display();
       if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) state[0] = 25;
@@ -532,19 +531,13 @@ void mwLoop::proc_program_state(void)
       mNetgame.client_read_packet_buffer();
       mNetgame.client_apply_dif();
 
-
-      int p = mPlayer.active_local_player;
-
-
-      if ((mNetgame.state_frame_num[p][0] == 0) && (mLoop.frame_num > 0))
+      if (frame_num > 0)
       {
-         mPlayer.loc[p].client_last_stdf_rx_frame_num = frame_num + 2000; // set holdoff 200 frames in future so client won't try to drop while syncing
-         mLog.add_headerf(LOG_NET_network_setup, p, 0, "Client received base state and initial state");
+         int p = mPlayer.active_local_player;
+         // set holdoff 200 frames in future so client won't try to drop while syncing
+         mPlayer.loc[p].client_last_stdf_rx_frame_num = frame_num + 200;
          state[0] = 11;
       }
-
-
-
    }
 
    //---------------------------------------
@@ -584,7 +577,9 @@ void mwLoop::proc_program_state(void)
       mInput.initialize();
       mTriggerEvent.initialize();
 
-      mNetgame.save_server_state(frame_num);
+
+      mNetgame.mStateHistory[0].add_state(frame_num);
+      mLog.addf(LOG_NET_stdf, 0, "stdf saved server state:%d\n", frame_num);
 
       mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
 
@@ -1021,7 +1016,8 @@ void mwLoop::setup_common_after_level_load(void)
    if (mNetgame.ima_server) // set server initial state
    {
       mPlayer.syn[0].control_method = 3;
-      mNetgame.save_server_state(frame_num);
+      mNetgame.mStateHistory[0].add_state(frame_num);
+      mLog.addf(LOG_NET_stdf, 0, "stdf saved server state:%d\n", frame_num);
    }
    if (!mDemoMode.mode)
    {

@@ -3,11 +3,8 @@
 #ifndef mwNetgame_H
 #define mwNetgame_H
 
-
 #define STATE_SIZE 112384
 #define MAX_CLIENTS 32
-#define USE_REWIND_STATES
-
 
 #include "mwStateHistory.h"
 
@@ -32,8 +29,8 @@ class mwNetgame
    int NetworkInit();
 
 
-   mwStateHistory mStateHistory;
 
+   mwStateHistory mStateHistory[8];
 
 
    struct packet_buffer packet_buffers[200];
@@ -75,12 +72,6 @@ class mwNetgame
    int server_state_freq = 2;
    int server_state_freq_mode = 1; // 0 = manual, 1 = auto
 
-   void save_server_state(int frame_num); // called twice from mLoop
-
-   // server's copies of client states
-   char state[8][2][STATE_SIZE];
-   int state_frame_num[8][2];
-
    // local client's states
    char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
    int  client_state_buffer_pieces[16];   // to mark packet pieces as received
@@ -95,9 +86,6 @@ class mwNetgame
    void get_state_dif(char *a, char *b, char *c, int size);
    void apply_state_dif(char *a, char *c, int size);
    void reset_states(void);
-   void reset_client_state(int p); // server only
-
-
 
    // --------------------------------------------------------------------
    // ---   mwNetgameClient.cpp  -----------------------------------------
@@ -120,7 +108,6 @@ class mwNetgame
    void client_process_sjon_packet(void);
    void client_read_game_move_from_packet(int x);
    void client_send_ping(void);
-   void client_send_stak(void);
    void client_timer_adjust(void);
    void client_process_stdf_packet(double timestamp);
    void client_apply_dif();
@@ -154,9 +141,8 @@ class mwNetgame
 
    void server_send_compressed_dif(int p, int src, int dst, char * dif);
 
-   void server_send_dif(void);
+   void server_send_dif(int frame_num);
    void server_create_new_state(void);
-
 
    void show_rewind_states(const char *format, ...);
 
@@ -165,6 +151,8 @@ class mwNetgame
    void server_proc_player_drop(void);
    void server_proc_cdat_packet(double timestamp);
    void server_lock_client(int p);
+
+   void client_send_stak(int ack_frame);
 
    void server_proc_stak_packet(double timestamp);
    void server_proc_cjon_packet(int who);
@@ -177,6 +165,5 @@ class mwNetgame
 extern mwNetgame mNetgame;
 
 
-
-#endif // mwStateHistory_H
+#endif // mwNetgame_H
 
