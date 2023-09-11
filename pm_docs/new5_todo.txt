@@ -2061,6 +2061,926 @@ back to client waiting for initial state..
 
 
 
+change the part in program_state 21 back....
+
+old:
+      if ((mNetgame.state_frame_num[p][0] == 0) && (mLoop.frame_num > 0))
+      {
+         mPlayer.loc[p].client_last_stdf_rx_frame_num = frame_num + 2000; // set holdoff 200 frames in future so client won't try to drop while syncing
+         mLog.add_headerf(LOG_NET_network_setup, p, 0, "Client received base state and initial state");
+         state[0] = 11;
+      }
+
+
+original:
+
+
+      if (frame_num > 0)
+      {
+         int p = mPlayer.active_local_player;
+         // set holdoff 200 frames in future so client won't try to drop while syncing
+         mPlayer.loc[p].client_last_stdf_rx_frame_num = frame_num + 200;
+         state[0] = 11;
+      }
+
+done:
+
+
+when the server creates a new dif to send:
+it need to find an appropriate base to use...
+
+on the server state_frame_num[p][0] should have the frame number of the last acknowledge state
+it is set when receiving stak...
+
+use this when creating a state, just like before
+
+but where will i get the actual states from? the same place? yes for now, till something better comes up...
+
+
+fixed this in serevr rx stak
+
+//   state_frame_num[p][0] = ack_frame_num; // client has acknowledged having this base
+
+   if (ack_frame_num == state_frame_num[p][1]) // check to make sure we have a copy of acknowledged state
+   {
+      // acknowledged state is new base state
+      memcpy(state[p][0], state[p][1], STATE_SIZE);  // copy 1 to 0
+      state_frame_num[p][0] = state_frame_num[p][1];
+
+   }
+   else // we don't have a copy of acknowledged state !!!
+   {
+      // see if we can find it in history...if not then reset to zero
+
+//      memset(srv_client_state[p][0], 0, STATE_SIZE); // reset base to all zero
+//      srv_client_state_frame_num[p][0] = 0;
+//      mPlayer.loc[p].client_base_resets++;
+
+
+   }
+
+
+now I need a way to look for it in history...
+
+//   state_frame_num[p][0] = ack_frame_num; // client has acknowledged having this base
+
+   if (ack_frame_num == state_frame_num[p][1]) // check to make sure we have a copy of acknowledged state
+   {
+      // acknowledged state is new base state
+      memcpy(state[p][0], state[p][1], STATE_SIZE);  // copy 1 to 0
+      state_frame_num[p][0] = state_frame_num[p][1];
+
+   }
+   else // we don't have a copy of acknowledged state !!!
+   {
+      // see if we can find it in history...if not then reset to zero
+      int indx = -1;
+      for (int i=0; i<NUM_HISTORY_STATES; i++)
+         if (ack_frame_num == mStateHistory.history_state_frame_num[i]) indx = i;
+
+      if (indx > -1)
+      {
+         memcpy(state[p][0], mStateHistory.history_state[indx], STATE_SIZE);
+         state_frame_num[p][0] = ack_frame_num;
+      }
+      else
+      {
+         memset(state[p][0], 0, STATE_SIZE); // reset base to all zero
+         state_frame_num[p][0] = 0;
+         mPlayer.loc[p].client_base_resets++;
+      }
+   }
+
+here is the whole thing...
+
+
+
+now that the server has that, it should be easy to make new difs...
+
+original
+
+
+   char msg[1024];
+   // if last_ack_state_frame == 0 set base to all zeros
+   if (srv_client_state_frame_num[p][0] == 0) memset(srv_client_state[p][0], 0, STATE_SIZE);
+
+   char dif[STATE_SIZE];
+   char cmp[STATE_SIZE];
+
+   // put current state in client's state slot 1
+   game_vars_to_state(srv_client_state[p][1]);
+
+   // put current mLoop.frame_num
+   srv_client_state_frame_num[p][1] = mLoop.frame_num;
+
+   // make a new dif from base and current
+   get_state_dif(srv_client_state[p][0], srv_client_state[p][1], dif, STATE_SIZE);
+
+
+
+new
+         if (state_frame_num[p][0] == -3) // client does not have initial base state
+         {
+            char zero[STATE_SIZE] = {0};
+            get_state_dif(zero, state[p][0], dif, STATE_SIZE);
+            server_send_compressed_dif(p, 0, 0, dif);
+         }
+         else // normal dif
+         {
+            // make a new dif from current game state and base for this client
+            char current_state[STATE_SIZE];
+            game_vars_to_state(current_state);
+            get_state_dif(state[p][0], current_state, dif, STATE_SIZE);
+            server_send_compressed_dif(p, state_frame_num[p][0], mLoop.frame_num, dif);
+         }
+
+
+
+
+ok that part is done also...
+
+now what about load level...
+
+
+goddamn am I ready to try?
+
+waiting for game state frm server....
+
+
+
+
+-------------------------
+
+20230910
+
+yesterday I did massive 20H session.
+changed all of netgame to use a single base created after level load.
+it was nice, used 400 to 500 byte packets...
+then I tried it on bigger, more complicated levels and it grew to 5-8K
+then I though I would resend a new base ocaasionally, but that was too complex
+so I ripped it all out started to implement a state history buffer on client as well
+that is most done, but not quite working yet.
+I also made a new class mwStateHistory that I use for both server rewind and client history
+
+
+joins then dies
+
+
+combine log message for rewind and save server state
+
+I don't think I can, they happen as such different times
+- rewind
+- save state
+- send dif
+
+comment out the top 2 for now
+combine and make server rx sdak nicer too
+
+
+done...
+
+client dies on move player??
+
+client joins sometimes with proper cm and same on server
+but position is off on client only...
+
+
+could I have an issue with the server re doing states?
+
+if I get a state from the server, could it later change?  I think it could...
+
+do I need to separate the rewind states from the client base states?
+
+because when rewinding I change them?
+
+server sends dif 98-100
+
+server later changes 98
+
+why was this never an issue before?
+
+because I never dipped into the rewind states to use as bases!!!
+
+how hard will this be to implement?
+
+it was surpisingly easy...
+
+changed to array: mwStateHistory mStateHistory[8];
+changed all times server uses it to mStateHistory[0] and client to mStateHistory[p]
+
+client connects nicely now, but dies a few frames later....
+
+I might be doing something wrong in client apply dif...
+
+what are the the 2 states used for?
+
+0 is the base
+1 is the new state??
+
+0 should not be overwritten until
+
+in the old method it was called client_state_base
+now I call it state[p][0]
+
+I think it is the same:
+
+first make sure base matches dif_src
+then apply dif to base
+the use base to set vars
+the save state (which uses vars to create a new one)
+then ff
+
+the state left in base will be the base for next time
+or if if does not match, look in history...
+
+
+this all looks good, so what is going wrong?
+
+it looks like the problem was the server making a new state for the next frame, but not adding 1 to frame when sending and saving
+
+It seems to work smoothtly now...
+
+test and monitor
+
+this looks great on LAN cannot detect any lag...
+no maxcor??
+tested with 2 clients...no corrections locally and half what I normally got before for non-local client
+
+
+clients quitting need to clean stuff up so they can rejoin without restarting server....
+added mStateHistory[p].initialize(); to mwNetgame::reset_client_state(int p)
+
+
+lets test on internet
+
+having weird issues
+
+server would not work on e6430 anymore, finally got server to work on scat
+
+e6430 connected and worked good, but m36 would not
+
+rebooted m36 and connected but it messed up the other client...
+
+I now have tested scat server with three clients and it works
+but occasionally a client will fuck up and all clients will die hard
+
+sometimes the player colors get messed up too...
+
+do some logging on clients and see what I can see
+
+
+I found a bug in client, when applying dif, if base does not match then send newest state
+it used to just try to apply it anyway...
+
+maybe I should set it to what I have in state[p][0]...???
+
+probably the same....
+
+
+anyway, I still get crashes that kill all the clients
+
+
+whatever I did this last time, I made the clients all jumpy....
+
+
+clients look like they have a huge swing in dsync
+
+dsync is all over the place
+
+but ping is not...
+
+I am basing this on the first stdf packet received in a frame, but maybe I should look at something else....
+
+
+[28][1][47946]rx stdf piece [1 of 2] [47921 to 47942] st:   0 sz:1000
+[28][1][47946]rx stdf piece [2 of 2] [47921 to 47942] st:1000 sz: 148
+[28][1][47946]rx stdf piece [1 of 2] [47921 to 47943] st:   0 sz:1000
+[28][1][47946]rx stdf piece [2 of 2] [47921 to 47943] st:1000 sz: 149
+[28][1][47947]rx stdf piece [1 of 9] [0 to 47944] st:   0 sz:1000
+[37][1][47947]timer adjust dsync[-72.81] offset[-51.70] fps_chase[31.447]
+[28][1][47947]rx stdf piece [2 of 9] [0 to 47944] st:1000 sz:1000
+[28][1][47947]rx stdf piece [3 of 9] [0 to 47944] st:2000 sz:1000
+[28][1][47947]rx stdf piece [4 of 9] [0 to 47944] st:3000 sz:1000
+[28][1][47947]rx stdf piece [5 of 9] [0 to 47944] st:4000 sz:1000
+[28][1][47947]rx stdf piece [6 of 9] [0 to 47944] st:5000 sz:1000
+[28][1][47947]rx stdf piece [7 of 9] [0 to 47944] st:6000 sz:1000
+[28][1][47947]rx stdf piece [8 of 9] [0 to 47944] st:7000 sz:1000
+[28][1][47947]rx stdf piece [9 of 9] [0 to 47944] st:8000 sz: 279
+[28][1][47947]rx stdf piece [1 of 9] [0 to 47945] st:   0 sz:1000
+[28][1][47947]rx stdf piece [2 of 9] [0 to 47945] st:1000 sz:1000
+[28][1][47947]rx stdf piece [3 of 9] [0 to 47945] st:2000 sz:1000
+[28][1][47947]rx stdf piece [4 of 9] [0 to 47945] st:3000 sz:1000
+[28][1][47947]rx stdf piece [5 of 9] [0 to 47945] st:4000 sz:1000
+[28][1][47947]rx stdf piece [6 of 9] [0 to 47945] st:5000 sz:1000
+[28][1][47947]rx stdf piece [7 of 9] [0 to 47945] st:6000 sz:1000
+[28][1][47947]rx stdf piece [8 of 9] [0 to 47945] st:7000 sz:1000
+[28][1][47947]rx stdf piece [9 of 9] [0 to 47945] st:8000 sz: 292
+[28][1][47947]rx stdf piece [1 of 9] [0 to 47946] st:   0 sz:1000
+[28][1][47947]rx stdf piece [2 of 9] [0 to 47946] st:1000 sz:1000
+[28][1][47947]rx stdf piece [3 of 9] [0 to 47946] st:2000 sz:1000
+[28][1][47947]rx stdf piece [4 of 9] [0 to 47946] st:3000 sz:1000
+[28][1][47947]rx stdf piece [5 of 9] [0 to 47946] st:4000 sz:1000
+[28][1][47947]rx stdf piece [6 of 9] [0 to 47946] st:5000 sz:1000
+[28][1][47947]rx stdf piece [7 of 9] [0 to 47946] st:6000 sz:1000
+[28][1][47948]rx stdf piece [8 of 9] [0 to 47946] st:7000 sz:1000
+[37][1][47948]timer adjust dsync[-48.39] offset[-51.70] fps_chase[31.503]
+[28][1][47948]rx stdf piece [9 of 9] [0 to 47946] st:8000 sz: 306
+[28][1][47948]rx stdf piece [1 of 9] [0 to 47947] st:   0 sz:1000
+[28][1][47948]rx stdf piece [2 of 9] [0 to 47947] st:1000 sz:1000
+[28][1][47948]rx stdf piece [3 of 9] [0 to 47947] st:2000 sz:1000
+[28][1][47948]rx stdf piece [4 of 9] [0 to 47947] st:3000 sz:1000
+[28][1][47948]rx stdf piece [5 of 9] [0 to 47947] st:4000 sz:1000
+[28][1][47948]rx stdf piece [6 of 9] [0 to 47947] st:5000 sz:1000
+[28][1][47948]rx stdf piece [7 of 9] [0 to 47947] st:6000 sz:1000
+[28][1][47948]rx stdf piece [8 of 9] [0 to 47947] st:7000 sz:1000
+[28][1][47948]rx stdf piece [9 of 9] [0 to 47947] st:8000 sz: 290
+[28][1][47949]rx stdf piece [1 of 9] [0 to 47948] st:   0 sz:1000
+[37][1][47949]timer adjust dsync[-16.87] offset[-51.70] fps_chase[31.866]
+[28][1][47949]rx stdf piece [2 of 9] [0 to 47948] st:1000 sz:1000
+[28][1][47949]rx stdf piece [3 of 9] [0 to 47948] st:2000 sz:1000
+[28][1][47949]rx stdf piece [4 of 9] [0 to 47948] st:3000 sz:1000
+[28][1][47949]rx stdf piece [5 of 9] [0 to 47948] st:4000 sz:1000
+[28][1][47949]rx stdf piece [6 of 9] [0 to 47948] st:5000 sz:1000
+[28][1][47949]rx stdf piece [7 of 9] [0 to 47948] st:6000 sz:1000
+[28][1][47949]rx stdf piece [8 of 9] [0 to 47948] st:7000 sz:1000
+[28][1][47949]rx stdf piece [9 of 9] [0 to 47948] st:8000 sz: 295
+[28][1][47950]rx stdf piece [1 of 9] [0 to 47949] st:   0 sz:1000
+[37][1][47950]timer adjust dsync[-9.54] offset[-51.70] fps_chase[32.297]
+[28][1][47950]rx stdf piece [2 of 9] [0 to 47949] st:1000 sz:1000
+[28][1][47950]rx stdf piece [3 of 9] [0 to 47949] st:2000 sz:1000
+[28][1][47950]rx stdf piece [4 of 9] [0 to 47949] st:3000 sz:1000
+[28][1][47950]rx stdf piece [5 of 9] [0 to 47949] st:4000 sz:1000
+[28][1][47950]rx stdf piece [6 of 9] [0 to 47949] st:5000 sz:1000
+[28][1][47950]rx stdf piece [7 of 9] [0 to 47949] st:6000 sz:1000
+[28][1][47950]rx stdf piece [8 of 9] [0 to 47949] st:7000 sz:1000
+[28][1][47950]rx stdf piece [9 of 9] [0 to 47949] st:8000 sz: 305
+[28][1][47950]rx stdf piece [1 of 9] [0 to 47950] st:   0 sz:1000
+[28][1][47950]rx stdf piece [2 of 9] [0 to 47950] st:1000 sz:1000
+[28][1][47950]rx stdf piece [3 of 9] [0 to 47950] st:2000 sz:1000
+[28][1][47950]rx stdf piece [4 of 9] [0 to 47950] st:3000 sz:1000
+[28][1][47950]rx stdf piece [5 of 9] [0 to 47950] st:4000 sz:1000
+[28][1][47950]rx stdf piece [6 of 9] [0 to 47950] st:5000 sz:1000
+[28][1][47950]rx stdf piece [7 of 9] [0 to 47950] st:6000 sz:1000
+[28][1][47950]rx stdf piece [8 of 9] [0 to 47950] st:7000 sz:1000
+[28][1][47950]rx stdf piece [9 of 9] [0 to 47950] st:8000 sz: 321
+[28][1][47951]rx stdf piece [1 of 1] [47947 to 47951] st:   0 sz: 881
+[37][1][47951]timer adjust dsync[1.61] offset[-53.12] fps_chase[32.982]
+[28][1][47952]rx stdf piece [1 of 1] [47948 to 47952] st:   0 sz: 886
+[37][1][47952]timer adjust dsync[22.51] offset[-53.12] fps_chase[33.743]
+[28][1][47953]rx stdf piece [1 of 1] [47951 to 47953] st:   0 sz: 859
+[37][1][47953]timer adjust dsync[24.26] offset[-53.12] fps_chase[39.380]
+[28][1][47953]rx stdf piece [1 of 1] [47951 to 47954] st:   0 sz: 892
+[28][1][47955]rx stdf piece [1 of 1] [47952 to 47955] st:   0 sz: 902
+[37][1][47955]timer adjust dsync[26.58] offset[-53.12] fps_chase[43.524]
+[28][1][47955]rx stdf piece [1 of 1] [47952 to 47956] st:   0 sz: 904
+[28][1][47957]rx stdf piece [1 of 1] [47954 to 47957] st:   0 sz: 852
+[37][1][47957]timer adjust dsync[23.39] offset[-53.12] fps_chase[44.486]
+[28][1][47958]rx stdf piece [1 of 1] [47954 to 47958] st:   0 sz: 881
+[37][1][47958]timer adjust dsync[19.36] offset[-53.12] fps_chase[45.163]
+[28][1][47959]rx stdf piece [1 of 1] [47954 to 47959] st:   0 sz: 899
+[37][1][47959]timer adjust dsync[17.45] offset[-53.12] fps_chase[45.506]
+[28][1][47960]rx stdf piece [1 of 1] [47957 to 47960] st:   0 sz: 832
+[37][1][47960]timer adjust dsync[15.31] offset[-53.12] fps_chase[45.755]
+[28][1][47961]rx stdf piece [1 of 1] [47958 to 47961] st:   0 sz: 871
+[37][1][47961]timer adjust dsync[6.87] offset[-53.12] fps_chase[45.807]
+[28][1][47962]rx stdf piece [1 of 1] [47959 to 47962] st:   0 sz: 840
+[37][1][47962]timer adjust dsync[8.93] offset[-53.12] fps_chase[45.671]
+
+
+OK this still might be an issue but the dying still happens....why??
+
+
+I think it is only a client thing, the server just keeps going
+
+
+see if I can catch it in move or draw or program state...
+
+now that I enabled move I see a huge square wave from -45 to -70 in the sync graph, but it did not die!!
+ping is -30 to -35 approx
+
+it died after move eshots
+it died after move players
+
+it has over 100% cpu when it dies
+
+when move only is on I get spikes in dsync
+
+
+I think the logging to console is causing weird timing shit....
+
+but the crashing happens even with no logging....
+
+
+This is so weird... when I stand by a bonus, without picking it up, it flickers back and forth, but only on client
+
+what the hell??
+
+
+maybe it is something on the server...
+
+
+on the server:
+tx stdf 1700 1702
+rx stak 1701 1703
+
+which is right?
+
+
+
+
+real example:
+
+server side:
+
+
+350 rx stak 348 351
+350 tx stdf 348 351
+
+351 rx stak 350 352
+351 tx stdf 350 352
+
+352 rx stak 350 353
+352 tx stdf 350 353
+
+353 rx stak 351 354
+353 tx stdf 351 354
+
+
+why am I getting a reply before I send?
+
+client side:
+
+[30][1][354]--- Client Apply Dif [348 to 351] ---
+[30][1][354]Found matching base in history
+[30][1][351]dif [348 to 351] applied - rewound [3] frames
+
+[30][1][355]--- Client Apply Dif [350 to 353] ---
+[30][1][355]Found matching base in history
+[30][1][353]dif [350 to 353] applied - rewound [2] frames
+
+[30][1][356]--- Client Apply Dif [350 to 353] ---
+[30][1][356]Found matching base in history
+[30][1][353]dif [350 to 353] applied - rewound [3] frames
+
+[30][1][357]--- Client Apply Dif [351 to 354] ---
+[30][1][357]Found matching base in history
+[30][1][354]dif [351 to 354] applied - rewound [3] frames
+
+
+
+
+On the server, why do I get a reply stak, before I send the stdf...this makes no sense at all...
+
+Other than that, the frame numbers seem to make sense..
+server sends on frame 350, but the dif destination is one more 351 because it is the base for the next frame
+server uses base 348...why?...because the last stak (also on frame 350) acknowledges 348
+
+On the client:
+On frame 354 the dif is applied
+client had base 348 in history, applied dif get to frame 351, then ff 3 frames
+then somehow it sent stak that arrived and was logged on server before sending initial stdf
+
+
+I is rock solid on LAN with m36 as server
+
+what if I tried TCP?
+had 4230 take up 150% cpu
+cant reproduce, maybe base resets?
+cpu   TCP UDP
+m36   16  14
+e6430 11  11
+4230  45 44
+
+so all looks good on LAN even with TCP
+
+I want to see if the server does the out of order stuff...
+
+back to UDP also
+
+[33][1][382]rx stak d[-20.1] c[40.0] a:382 c:383 ack state = state[p][0]
+[27][0][382]tx stdf p:1 [src:382 dst:383] cmp:606 ratio:0.54 [1 packets needed]
+
+[33][1][383]rx stak d[-20.2] c[40.0] a:383 c:384 ack state = state[p][0]
+[27][0][383]tx stdf p:1 [src:383 dst:384] cmp:610 ratio:0.54 [1 packets needed]
+
+[33][1][384]rx stak d[-20.2] c[40.0] a:384 c:385 ack state = state[p][0]
+[27][0][384]tx stdf p:1 [src:384 dst:385] cmp:641 ratio:0.57 [1 packets needed]
+
+I just realized I made a mistake and this is nothing!!  I think...
+
+frame 382 stak 382
+frame 382 stdf 382-383
+
+frame 383 stak 383
+frame 383 stdf 383-384
+
+
+so back to why stuff is fucking up on WAN...
+
+I don't know?  Is that an answer? Yes, but not very useful....
+
+how about turn on lots of logging and try....it doesn't save when it crashes...damn...
+
+
+ok look up your notes for running debugger...
+
+
+on client the shuddering is probably due to corrupted states
+
+
+so add some logging to figure that out...
+
+
+
+where does it hook into history?
+
+
+void mwNetgame::client_apply_dif(void)
+
+      for (int i=0; i<NUM_HISTORY_STATES; i++) if (client_state_dif_src == mStateHistory[p].history_state_frame_num[i]) indx = i;
+      if (indx > -1)
+      {
+         mLog.addf(LOG_NET_dif_applied, p, "Found matching base in history\n");
+         memcpy(state[p][0], mStateHistory[p].history_state[indx], STATE_SIZE);
+         state_frame_num[p][0] = client_state_dif_src;
+
+   // save to history
+   mStateHistory[p].add_state(mLoop.frame_num);
+
+
+
+what can I do?
+
+
+
+I think it is unnecasiraly complex to use state[p] for clients previous state...especially now that I have state history
+
+lets see if I can do without it....
+
+on client when I need that I will just query the class and it will tell me the most current base
+
+how about a function that gets you the most recent base
+
+
+void get_most_recent_base(char * base, int * frame_num)
+
+
+actually I don't want most recent base...I just want a base that matches or zero
+
+1 line....
+
+   mStateHistory[p].get_base_state(base, base_frame_num, int frame_num);
+
+
+that really simplified a lot of things on the client....
+
+now how about I kill it all on the server also?...done
+
+
+
+I have now freed up the 16 states I used to use...
+
+//   // server's copies of client states
+//   char state[8][2][STATE_SIZE];
+//   int state_frame_num[8][2];
+
+
+I still have 4 x 8 in history though...
+
+
+It seem to work OK...why do I have constant base resets??
+
+void mwStateHistory::get_most_recent_state(char* base, int& base_frame_num)
+
+need to fill in this function...
+
+
+now having problems with initial state...
+
+it looks like I got muliple complete difs before apply is called...call it from decompress also..done
+
+
+now I randomly have issues with player going active at join...
+
+
+server lock works and sets the player active
+
+but for some reason that does not make it back to the client
+
+
+what if I skip the whole chase and lock thing...i don't use it at level done...
+
+
+can I make a hotkey to force reset base?
+
+am I adding properly on the client, not replacing existing, but oldest...
+
+I am replacing frame num if it exists and I think that is correct...
+
+
+
+My big concern right now is:
+
+Why do I have differences between server and client states? player array....
+
+am i not saving things properly?
+
+do I have wrong bases on server or client?
+
+that is why I want to force re base from zero
+
+
+but how can I do that?
+
+what if client sends stak with zero?
+
+that should make server rebase from zero, but it probably doesn't
+
+
+what if server sends with src zero....
+that should make client load zero base, apply and save as a new state....
+
+the good news is that initializing state history on the server for 1-7 fixed the weirdness
+
+the bad news is that weirdness is happening....
+
+20230910 10:37 PM
+
+push....
+
+
+next I want to figure out that weirdness
+show what is happening with the history, how wide they are and where I get hits.
+see if I can minimize the size of history
+see if I can reduce copying of states
+test all that is broken
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

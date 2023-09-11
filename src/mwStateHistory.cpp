@@ -4,12 +4,12 @@
 #include "mwStateHistory.h"
 #include "mwLoop.h"
 #include "mwNetgame.h"
-
+#include <limits>
 
 
 mwStateHistory::mwStateHistory()
 {
-//   initialize();
+   initialize();
 }
 
 void mwStateHistory::initialize(void)
@@ -23,18 +23,87 @@ void mwStateHistory::initialize(void)
 }
 
 
-
-
 void mwStateHistory::show_states(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
 
-   // show rewind states
+   // show states
    for (int i=0; i<NUM_HISTORY_STATES; i++)
       printf("[%4d] ", history_state_frame_num[i]);
    vprintf(format, args);
    va_end(args);
+}
+
+
+int mwStateHistory::get_most_recent_index(void)
+{
+   // find index with the highest frame number
+   int mx = -1;
+   int indx = -1;
+   for (int i=0; i<NUM_HISTORY_STATES; i++)
+   {
+      int fn = history_state_frame_num[i];
+      if (fn > mx)
+      {
+         mx = fn;
+         indx = i;
+      }
+   }
+   return indx;
+}
+
+
+
+void mwStateHistory::get_base_state(char* base, int& base_frame_num, int frame_num)
+{
+   if (frame_num == 0) return; // base 0 leave as is
+   int indx = -1;
+   for (int i=0; i<NUM_HISTORY_STATES; i++) if (frame_num == history_state_frame_num[i]) indx = i;
+   if (indx > -1)
+   {
+      memcpy(base, history_state[indx], STATE_SIZE);
+      base_frame_num = history_state_frame_num[indx];
+   }
+}
+
+
+void mwStateHistory::get_most_recent_state(char* base, int& base_frame_num)
+{
+   int indx = get_most_recent_index();
+   if (indx > -1)
+   {
+      memcpy(base, history_state[indx], STATE_SIZE);
+      base_frame_num = history_state_frame_num[indx];
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int mwStateHistory::find_newest_frame_number(void)
+{
+   // find highest frame number
+   // minimum this will return is zero, it ignores any -1's
+
+   int mx = 0;
+   for (int i=0; i<NUM_HISTORY_STATES; i++)
+      if (history_state_frame_num[i] > mx) mx = history_state_frame_num[i];
+   return mx;
 }
 
 
@@ -57,18 +126,18 @@ int mwStateHistory::find_earliest_state(int include_neg)
    return indx;
 }
 
-void mwStateHistory::load_earliest_state(void)
+void mwStateHistory::load_earliest_state(char* base, int& base_frame_num)
 {
    if (mLoop.frame_num > 0)
    {
       int indx = find_earliest_state(0);
       if (indx > -1)
       {
-         memcpy(mNetgame.state[0][1], history_state[indx], STATE_SIZE);
-         mNetgame.state_frame_num[0][1] = history_state_frame_num[indx];
-        // show_rewind_states(" -  indx:%d  frame:%d  loading server rewind state\n", indx, srv_rewind_state_frame_num[indx]);
+         memcpy(base, history_state[indx], STATE_SIZE);
+         base_frame_num = history_state_frame_num[indx];
+         //show_states(" -  indx:%d  frame:%d  loading state\n", indx, history_state_frame_num[indx]);
       }
-//      else show_rewind_states(" -  indx:%d  frame:%d  ERROR! loading server rewind state\n", indx, srv_rewind_state_frame_num[indx]);
+      //else show_states(" -  indx:%d  frame:%d  ERROR! loading state\n", indx, history_state_frame_num[indx]);
    }
 }
 

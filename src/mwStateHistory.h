@@ -3,7 +3,6 @@
 #ifndef mwStateHistory_H
 #define mwStateHistory_H
 
-
 #define NUM_HISTORY_STATES 4
 
 
@@ -16,9 +15,6 @@
 
 
 
-
-
-
 class mwStateHistory
 {
    public:
@@ -26,14 +22,31 @@ class mwStateHistory
    mwStateHistory(); // default constructor
    void initialize(void);
 
+   void get_base_state(char* base, int& base_frame_num, int frame_num);
+
+   void get_most_recent_state(char* base, int& base_frame_num);
+
+
+
+   int get_most_recent_index(void);
+
+   int find_newest_frame_number(void);
+
+
 
    char history_state[NUM_HISTORY_STATES][STATE_SIZE];
 
    int history_state_frame_num[NUM_HISTORY_STATES];
 
    void show_states(const char *format, ...);
+
+
    int find_earliest_state(int include_neg);
-   void load_earliest_state(void);
+
+
+   void load_earliest_state(char* base, int& base_frame_num);
+
+
    void add_state(int frame_num);
 
 
