@@ -389,7 +389,7 @@ void mwNetgame::client_apply_dif(void)
 
    if ((base_frame_num == 0) && (client_state_dif_src != 0))
    {
-      int fn = mStateHistory[p].find_newest_frame_number();
+      int fn = mStateHistory[p].newest_state_frame_num;
       mLog.addf(LOG_NET_dif_applied, p, "Could not find matching base in history, resending stak [%d] to server\n", fn);
       client_send_stak(fn);
       return;

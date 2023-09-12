@@ -577,7 +577,6 @@ void mwLoop::proc_program_state(void)
       mInput.initialize();
       mTriggerEvent.initialize();
 
-
       mNetgame.mStateHistory[0].add_state(frame_num);
       mLog.addf(LOG_NET_stdf, 0, "stdf saved server state:%d\n", frame_num);
 

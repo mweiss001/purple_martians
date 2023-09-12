@@ -1,4 +1,4 @@
-set version=7.24.0902.1
+set version=7.24.0911.1
 
 mkdir purple_martians_%version%_windows
 mkdir purple_martians_%version%_windows\screenshots
