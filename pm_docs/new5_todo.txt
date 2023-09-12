@@ -2715,6 +2715,297 @@ see if I can minimize the size of history
 see if I can reduce copying of states
 test all that is broken
 
+20230911
+
+Muliplayer looks great
+
+I can't even detect any local corrections on clients, even over the internet..
+
+Non local clients are still jumpy
+
+When client is playing ahead it assumes that the other players controls are never active
+I could try to predict that the controls will stay the same as they were when the state arrived....
+but that would not be accurate....
+
+
+
+class mwStateHistory
+
+I want a variable that always has the highest frame number, the lowest frame number and indexes to both
+
+I also want be be able to just get pointers to states instead of making copies
+
+
+when is the only time that the contents of state history are changed?
+
+initialize and add...
+
+at that time update the variables
+
+   newest_state_frame_num = -1;
+   newest_state_frame_index = -1;
+   newest_state_pointer = NULL;
+
+   oldest_state_frame_num = -1;
+   oldest_state_frame_index = -1;
+   oldest_state_pointer = NULL;
+
+
+here are the rules:
+
+when initialized they have this state:
+
+   newest_state_frame_num = -1;
+   newest_state_frame_index = -1;
+   newest_state_pointer = NULL;
+
+   oldest_state_frame_num = -1;
+   oldest_state_frame_index = -1;
+   oldest_state_pointer = NULL;
+
+as soon as one is added they both are set to that...
+
+oldest will never be -1 unless there are no other valid states
+
+
+
+I have patched it in for server rewind and it works...the old method made a copy...new method uses the char pointer
+
+
+now I am looking at: server_send_dif(int frame_num)
+if I use pointer here, I will not have the base anymore
+
+I think I should leave this one??
+
+for now
+
+
+while I am at is I would like to have the class have a values for the last stak state from a client...
+used only by server...
+
+what do I use now?
+
+I think I might have found the bug....
+
+server uses most recent and assumes that is the last ack, but it may not be
+
+
+added:
+
+   int last_ack_state_frame_num;
+   int last_ack_state_index;
+   char * last_ack_state;
+
+all this works...
+
+now all of server should use the new stuff...
+
+
+now how about client?
+
+done...
+
+
+
+I have now patched all this in and it looks much cleaner, and seems to work...
+
+now test on internet...
+
+client sync is way off like -200??
+
+why?
+
+
+look at logs...
+
+the server is getting stak, but still sending from zero...
+
+make some logging to see if it is missing the match...
+
+
+server never adds anything to clients state history....
+
+found the bug in add...
+
+Test Game level 64 on server scat (internet)
+
+
+now I am playing 8 player game over the internet with a reported ping of 35
+7 clients all with fakekey
+approx 300kB/s
+
+server is scat and has approx 35% cpu
+client m36 has approx 7% cpu
+client e6430 has approx 20% cpu
+client 4230 have 60-80% but 29(jj) has closer to 100
+
+clients local maxcor is always 0 and is beautiful to play locally
+clients non local maxcor can go up to 24 and is quite jumpy
+
+clients crwd is 2-3
+gmav 20-40
+
+between 1-2 packets (mostly 1 but sometimes 2)
+
+a few late cdats
+
+
+e6430 tried manually setting offest to -10 (from -55 auto)
+now on e6430 other clients have maxcor of 7 and local player has12 mostly
+about the same maxcor on other clients
+
+
+This is a huge milestone..stuff is working great and I looks simpler...
+
+clean up code a bit and push
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

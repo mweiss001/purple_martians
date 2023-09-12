@@ -28,8 +28,6 @@ class mwNetgame
    int NetworkDriver;
    int NetworkInit();
 
-
-
    mwStateHistory mStateHistory[8];
 
 

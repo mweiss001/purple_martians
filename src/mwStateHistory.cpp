@@ -20,8 +20,19 @@ void mwStateHistory::initialize(void)
       memset(history_state[i], 0, STATE_SIZE);
       history_state_frame_num[i] = -1;
    }
-}
 
+   newest_state_frame_num = -1;
+   newest_state_index = -1;
+   newest_state = NULL;
+
+   oldest_state_frame_num = -1;
+   oldest_state_index = -1;
+   oldest_state = NULL;
+
+   last_ack_state_frame_num = -1;
+   last_ack_state_index = -1;
+   last_ack_state = NULL;
+}
 
 void mwStateHistory::show_states(const char *format, ...)
 {
@@ -35,25 +46,89 @@ void mwStateHistory::show_states(const char *format, ...)
    va_end(args);
 }
 
-
-int mwStateHistory::get_most_recent_index(void)
+// internal class use only
+void mwStateHistory::_set_newest_and_oldest(void)
 {
-   // find index with the highest frame number
-   int mx = -1;
-   int indx = -1;
+   int mn = std::numeric_limits<int>::max();
+   int mx = std::numeric_limits<int>::min();
+
+   int mn_indx = -1;
+   int mx_indx = -1;
+
    for (int i=0; i<NUM_HISTORY_STATES; i++)
    {
       int fn = history_state_frame_num[i];
-      if (fn > mx)
+
+      if (fn > -1) // ignore all unset states
       {
-         mx = fn;
-         indx = i;
+         if (fn < mn)
+         {
+            mn = fn;
+            mn_indx = i;
+         }
+         if (fn > mx)
+         {
+            mx = fn;
+            mx_indx = i;
+         }
       }
    }
-   return indx;
+   if (mn_indx > -1)
+   {
+      oldest_state_frame_num = mn;
+      oldest_state_index = mn_indx;
+      oldest_state = history_state[mn_indx];
+   }
+
+   if (mx_indx > -1)
+   {
+      newest_state_frame_num = mx;
+      newest_state_index = mx_indx;
+      newest_state = history_state[mx_indx];
+   }
 }
 
 
+
+// the server is making a dif to send to a client and needs a base to build it on
+void mwStateHistory::get_last_ack_state(char* base, int& base_frame_num)
+{
+   int indx = last_ack_state_index;
+   if (indx > -1)
+   {
+      memcpy(base, history_state[indx], STATE_SIZE);
+      base_frame_num = history_state_frame_num[indx];
+   }
+
+
+
+
+}
+
+
+
+
+// the server has just received a stak packet acknowledging frame_num
+// if we have a state that matches that frame_num, set last_ack variables
+// if we do not, then reset them
+void mwStateHistory::set_ack_state(int frame_num)
+{
+   // see if we have a state with this frame_num
+   int indx = -1;
+   for (int i=0; i<NUM_HISTORY_STATES; i++) if (frame_num == history_state_frame_num[i]) indx = i;
+   if (indx > -1)
+   {
+      last_ack_state_frame_num = frame_num;
+      last_ack_state_index = indx;
+      last_ack_state = history_state[indx];
+   }
+   else
+   {
+      last_ack_state_frame_num = -1;
+      last_ack_state_index = -1;
+      last_ack_state = NULL;
+   }
+}
 
 void mwStateHistory::get_base_state(char* base, int& base_frame_num, int frame_num)
 {
@@ -67,102 +142,32 @@ void mwStateHistory::get_base_state(char* base, int& base_frame_num, int frame_n
    }
 }
 
-
-void mwStateHistory::get_most_recent_state(char* base, int& base_frame_num)
-{
-   int indx = get_most_recent_index();
-   if (indx > -1)
-   {
-      memcpy(base, history_state[indx], STATE_SIZE);
-      base_frame_num = history_state_frame_num[indx];
-   }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-int mwStateHistory::find_newest_frame_number(void)
-{
-   // find highest frame number
-   // minimum this will return is zero, it ignores any -1's
-
-   int mx = 0;
-   for (int i=0; i<NUM_HISTORY_STATES; i++)
-      if (history_state_frame_num[i] > mx) mx = history_state_frame_num[i];
-   return mx;
-}
-
-
-// include -1 state in minimum calc, unless ignore neg is set
-// if all states are -1 then return -1
-int mwStateHistory::find_earliest_state(int include_neg)
-{
-   // find lowest frame number
-   int mn = std::numeric_limits<int>::max();
-   int indx = -1;
-   for (int i=0; i<NUM_HISTORY_STATES; i++)
-   {
-      int fn = history_state_frame_num[i];
-      if ( ((fn > -1) || (include_neg)) && (fn < mn))
-      {
-         mn = fn;
-         indx = i;
-      }
-   }
-   return indx;
-}
-
-void mwStateHistory::load_earliest_state(char* base, int& base_frame_num)
-{
-   if (mLoop.frame_num > 0)
-   {
-      int indx = find_earliest_state(0);
-      if (indx > -1)
-      {
-         memcpy(base, history_state[indx], STATE_SIZE);
-         base_frame_num = history_state_frame_num[indx];
-         //show_states(" -  indx:%d  frame:%d  loading state\n", indx, history_state_frame_num[indx]);
-      }
-      //else show_states(" -  indx:%d  frame:%d  ERROR! loading state\n", indx, history_state_frame_num[indx]);
-   }
-}
-
-
+// if a state already exists with exact frame number, overwrite it
+// if not replace the oldest frame number (include empty -1's so they get used first)
+// this is the only way that anything gets added or changed
 void mwStateHistory::add_state(int frame_num)
 {
-   // if a state already exists with exact frame number, overwrite it
-   // if not, if we have an open -1 slot use that,
-   // if not, use the oldest slot and overwrite it
-   // used for both ff add and end of frame add
-
-   // now for client add also
-
    int indx = -1;
-   for (int i=0; i<NUM_HISTORY_STATES; i++) if (history_state_frame_num[i] == frame_num) indx = i;   // if a state already exists with exact frame number, overwrite it
-   if (indx == -1) indx = find_earliest_state(1);  // use the oldest slot, if there are any -1 they will be used first
+   // if a state already exists with exact frame number, use that index and overwrite it
+   for (int i=0; i<NUM_HISTORY_STATES; i++) if (history_state_frame_num[i] == frame_num) indx = i;
 
+   if (indx == -1)
+   {
+      // find lowest frame number, include -1 so they will be used first if any exist
+      int mn = std::numeric_limits<int>::max();
+      for (int i=0; i<NUM_HISTORY_STATES; i++)
+         if (history_state_frame_num[i] < mn)
+         {
+            mn = history_state_frame_num[i];
+            indx = i;
+         }
+   }
    if (indx > -1)
    {
       mNetgame.game_vars_to_state(history_state[indx]);
       history_state_frame_num[indx] = frame_num;
    }
+   else show_states("mwStateHistory::add_state(%d) did not add state?...wtf!\n");
+
+   _set_newest_and_oldest();
 }
-
-
-
-
-

@@ -40,6 +40,7 @@ void mwMain::pm_copy_cfg(const char* filepath)
 {
    char sys_cmd[500];
    sprintf(sys_cmd, "copy pm.cfg %s\\pm.cfg /Y", filepath);                       printf("%s\n",sys_cmd); system(sys_cmd);
+   sprintf(sys_cmd, "copy data\\settings.pm %s\\data\\settings.pm /Y", filepath);   printf("%s\n",sys_cmd); system(sys_cmd);
 }
 
 void mwMain::pm_copy_levels(const char* filepath)
@@ -108,11 +109,11 @@ void mwMain::copy_files_to_clients(int type)
 //   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
    sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-//   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
 
 
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)

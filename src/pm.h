@@ -1,6 +1,6 @@
 // pm.h
 
-#define PM_VERSION "7.24.0902.1"
+#define PM_VERSION "7.24.0911.1"
 
 #define ALLEGRO_UNSTABLE
 

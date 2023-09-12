@@ -266,10 +266,7 @@ void mwNetgame::server_exit(void)
 void mwNetgame::server_rewind(void)
 {
    double t0 = al_get_time();
-
-   int sfn = mStateHistory[0].find_newest_frame_number();
-
-   if (mLoop.frame_num >= sfn + server_state_freq - 1)    // is it time to create a new state?
+   if (mLoop.frame_num >= mStateHistory[0].newest_state_frame_num + server_state_freq - 1) // is it time to create a new state?
    {
       // save values we don't want rewound
       int lcd[8][2] = { 0 };
@@ -280,27 +277,30 @@ void mwNetgame::server_rewind(void)
             lcd[pp][1] = mPlayer.syn[pp].late_cdats_last_sec;
          }
 
-      char base[STATE_SIZE] = {0};
-      int base_frame_num = 0;
-      mStateHistory[0].load_earliest_state(base, base_frame_num);
+      // get oldest state to rewind to
+      int rew_fn = mStateHistory[0].oldest_state_frame_num;
 
-      //mLog.addf(LOG_NET_stdf, 0, "stdf rewind to:%d\n", base_frame_num);
-
-      // calculate ff (how many frames will need to be replayed in fast forward mode)
-      int ff = mLoop.frame_num - base_frame_num;  // almost always equals s1, unless s1 has changed
-
-      // apply rewind state and set frame num
-      state_to_game_vars(base);
-      mLoop.frame_num = base_frame_num;
-
-      // fast forward and save rewind states
-      for (int i=0; i<ff; i++)
+      // if oldest state is valid
+      if (rew_fn > -1)
       {
-         mLoop.loop_frame(1);
-         mStateHistory[0].add_state(mLoop.frame_num);
-      }
-      //mStateHistory[0].show_states("frame:%d\n", mLoop.frame_num);
+         // calculate ff (how many frames will need to be replayed in fast forward mode)
+         int ff = mLoop.frame_num - rew_fn;  // almost always equals s1, unless s1 has changed
 
+         // apply rewind state and set frame num
+         state_to_game_vars(mStateHistory[0].oldest_state);
+         mLoop.frame_num = rew_fn;
+
+ //      //mLog.addf(LOG_NET_stdf, 0, "stdf rewind to:%d\n", base_frame_num);
+
+         // fast forward and save rewind states
+         for (int i=0; i<ff; i++)
+         {
+            mLoop.loop_frame(1);
+            mStateHistory[0].add_state(mLoop.frame_num);
+         }
+         //mStateHistory[0].show_states("frame:%d\n", mLoop.frame_num);
+
+      }
 
       // restore values we don't want reset
       for (int pp=0; pp<NUM_PLAYERS; pp++)
@@ -343,7 +343,8 @@ void mwNetgame::server_send_dif(int frame_num) // send dif to all clients
          // if not found, leaves base as is (zero)
          char base[STATE_SIZE] = {0};
          int base_frame_num = 0;
-         mStateHistory[p].get_most_recent_state(base, base_frame_num);
+
+         mStateHistory[p].get_last_ack_state(base, base_frame_num);
 
          // get current state
          char cur[STATE_SIZE];
@@ -410,9 +411,7 @@ void mwNetgame::server_proc_stak_packet(double timestamp)
    mPlayer.loc[p].dsync            = PacketGetDouble();
 
    // calculate stak_sync
-   int sfn = mStateHistory[p].find_newest_frame_number();
-
-   int stak_sync = mLoop.frame_num - sfn; //state_frame_num[0][1]; //  state_frame_num[p][1];
+   int stak_sync = mLoop.frame_num - mStateHistory[p].newest_state_frame_num;
 
    // calculate stak_dsync
    mPlayer.loc[p].stak_dsync = ( (double) stak_sync * 0.025) + mTimeStamp.timestamp_frame_start - timestamp;
@@ -422,35 +421,8 @@ void mwNetgame::server_proc_stak_packet(double timestamp)
    // this is used to see if client is still alive
    mPlayer.loc[p].server_last_stak_rx_frame_num = mLoop.frame_num;
 
-
-//   char msg[80];
-//   if (ack_frame_num == state_frame_num[p][1]) // make sure we have a copy of acknowledged state
-//   {
-//      sprintf(msg, "= state[p][0]");
-//      memcpy(state[p][0], state[p][1], STATE_SIZE);  // copy 1 to 0
-//      state_frame_num[p][0] = ack_frame_num;
-//   }
-//   else // acknowledged state mismatch, look in history
-//   {
-//      int indx = -1;
-//      for (int i=0; i<NUM_HISTORY_STATES; i++) if (ack_frame_num == mStateHistory[p].history_state_frame_num[i]) indx = i;
-//      if (indx > -1)
-//      {
-//         sprintf(msg, "found in history");
-//         memcpy(state[p][0], mStateHistory[p].history_state[indx], STATE_SIZE);
-//         state_frame_num[p][0] = ack_frame_num;
-//      }
-//      else
-//      {
-//         sprintf(msg, "not found - reset to zero");
-//         memset(state[p][0], 0, STATE_SIZE); // reset base to all zero
-//         state_frame_num[p][0] = 0;
-//         mPlayer.loc[p].client_base_resets++;
-//      }
-//   }
-//
-//   mLog.addf(LOG_NET_server_rx_stak, p, "rx stak d[%4.1f] c[%4.1f] a:%d c:%d ack state %s\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].client_chase_fps, ack_frame_num, client_frame_num, msg);
-
+   // make sure we have a copy of acknowledged state in histroy, finds and sets values, or sets to -1 if not found
+   mStateHistory[p].set_ack_state(ack_frame_num);
 
    mLog.addf(LOG_NET_server_rx_stak, p, "rx stak d[%4.1f] c[%4.1f] a:%d c:%d\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].client_chase_fps, ack_frame_num, client_frame_num);
 }
@@ -520,11 +492,7 @@ void mwNetgame::server_proc_cdat_packet(double timestamp)
    mTally_game_move_dsync_avg_last_sec[p].add_data(mPlayer.loc[p].game_move_dsync);
 
    // determine the cutoff frame for late cdats
-   int of = 0;
-
-   // use oldest rewind state if valid
-   int indx = mStateHistory[0].find_earliest_state(0);
-   if (indx > -1) of = mStateHistory[0].history_state_frame_num[indx];
+   int of = mStateHistory[0].oldest_state_frame_num;
 
    if (cdat_frame_num < of)
    {
