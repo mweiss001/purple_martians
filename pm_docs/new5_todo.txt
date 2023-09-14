@@ -2859,6 +2859,242 @@ This is a huge milestone..stuff is working great and I looks simpler...
 
 clean up code a bit and push
 
+done
+
+
+added good documentation to each function in mwHistory
+
+
+test some next level stuff
+
+
+
+I just played a game where it all got screwed up again
+
+
+reset base all the time, client sync -200 -400
+
+
+
+
+I can reproduce...
+
+scat server, internet, 8 clients join, do one level done at least to level 64
+all fake key, after 1 min:
+constant base resets
+sync -200 to -300
+ping 300-400
+
+resetting base to zero on client or server does not fix...
+
+are base resets the cause or is bad sysnc the cause?
+
+
+
+some more data...
+when it happens, all clients have constant base resets and cdsy -250 to -270
+could this mean is is something on the server, is all clients have the same issue??
+
+
+one nice thing, since I implemented state history, clients almost always have zero local corrections
+even if they rewind a lot, like 12 frames.
+I think this is because the local moves always make it to the server and are validated.
+But the other clients still have corrections that get a lot worse the more they need to rewind...
+
+so, what could be wrong that is causing this?
+
+turn on a lots of logging and look....
+
+
+happened around 4:00
+
+on client:
+
+what the hell happened?
+
+why did this dif get applied so many times?
+
+[30][1][9511]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [3] frames
+
+
+and also why does everydif get applied more that once...
+
+apply dif is called from stdf and also once everyframe
+
+this is OK maybe, is it needed to be called from stdf, I thought that was needed for join
+see if I can remove that one....I did and still seems to join fine
+
+
+
+also make it so that apply_dif does not try to do the same dest more than once??
+
+can I do that? yes, i think so, server will never send a dif then send an older one
+client should never apply a dif with a dest older than one it has already applied....
+
+but also, why does having it applied again and again cause bigger rewinds?
+
+
+[30][1][9506]--- Client Apply Dif [9499 to 9503]dif [9499 to 9503] applied - rewound [3] frames
+[30][1][9506]--- Client Apply Dif [9499 to 9503]dif [9499 to 9503] applied - rewound [3] frames
+[27][1][9507]rx dif complete [9501 to 9504] dsync[-57.4ms] - uncompressed
+[30][1][9507]--- Client Apply Dif [9501 to 9504]dif [9501 to 9504] applied - rewound [3] frames
+[30][1][9507]--- Client Apply Dif [9501 to 9504]dif [9501 to 9504] applied - rewound [3] frames
+[27][1][9508]rx dif complete [9503 to 9505] dsync[-57.4ms] - uncompressed
+[30][1][9508]--- Client Apply Dif [9503 to 9505]dif [9503 to 9505] applied - rewound [3] frames
+[30][1][9508]--- Client Apply Dif [9503 to 9505]dif [9503 to 9505] applied - rewound [3] frames
+[27][1][9509]rx dif complete [9503 to 9506] dsync[-57.9ms] - uncompressed
+[30][1][9509]--- Client Apply Dif [9503 to 9506]dif [9503 to 9506] applied - rewound [3] frames
+[30][1][9509]--- Client Apply Dif [9503 to 9506]dif [9503 to 9506] applied - rewound [3] frames
+[27][1][9510]rx dif complete [9505 to 9507] dsync[-57.7ms] - uncompressed
+[30][1][9510]--- Client Apply Dif [9505 to 9507]dif [9505 to 9507] applied - rewound [3] frames
+[30][1][9510]--- Client Apply Dif [9505 to 9507]dif [9505 to 9507] applied - rewound [3] frames
+[27][1][9511]rx dif complete [9505 to 9508] dsync[-59.5ms] - uncompressed
+[30][1][9511]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [3] frames
+[30][1][9511]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [3] frames
+[30][1][9512]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [4] frames
+[30][1][9513]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [5] frames
+[30][1][9514]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [6] frames
+[30][1][9515]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [7] frames
+[30][1][9516]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [8] frames
+[30][1][9517]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [9] frames
+[30][1][9518]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [10] frames
+[30][1][9519]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [11] frames
+[30][1][9520]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [12] frames
+[30][1][9521]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [13] frames
+[30][1][9522]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [14] frames
+[30][1][9523]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [15] frames
+[30][1][9524]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [16] frames
+[30][1][9525]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [17] frames
+[30][1][9526]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [18] frames
+[30][1][9527]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [19] frames
+[30][1][9528]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [20] frames
+[30][1][9529]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [21] frames
+[30][1][9530]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [22] frames
+[30][1][9531]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [23] frames
+[30][1][9532]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [24] frames
+[30][1][9533]--- Client Apply Dif [9505 to 9508]dif [9505 to 9508] applied - rewound [25] frames
+[27][1][9534]rx dif complete [9507 to 9509] dsync[-623.2ms] - uncompressed
+[30][1][9534]--- Client Apply Dif [9507 to 9509]dif [9507 to 9509] applied - rewound [25] frames
+[27][1][9534]rx dif complete [9508 to 9510] dsync[-623.2ms] - uncompressed
+[30][1][9534]--- Client Apply Dif [9508 to 9510]dif [9508 to 9510] applied - rewound [24] frames
+[30][1][9534]--- Client Apply Dif [9508 to 9510]dif [9508 to 9510] applied - rewound [24] frames
+[27][1][9535]rx dif complete [9508 to 9511] dsync[-581.0ms] - uncompressed
+[30][1][9535]--- Client Apply Dif [9508 to 9511]dif [9508 to 9511] applied - rewound [24] frames
+[27][1][9535]rx dif complete [9508 to 9512] dsync[-581.0ms] - uncompressed
+[30][1][9535]--- Client Apply Dif [9508 to 9512]dif [9508 to 9512] applied - rewound [23] frames
+[27][1][9535]rx dif complete [9508 to 9513] dsync[-581.0ms] - uncompressed
+[30][1][9535]--- Client Apply Dif [9508 to 9513]dif [9508 to 9513] applied - rewound [22] frames
+[27][1][9535]rx dif complete [9508 to 9514] dsync[-581.0ms] - uncompressed
+[30][1][9535]--- Client Apply Dif [9508 to 9514]dif [9508 to 9514] applied - rewound [21] frames
+[27][1][9535]rx dif complete [9508 to 9515] dsync[-581.0ms] - uncompressed
+[30][1][9535]--- Client Apply Dif [9508 to 9515]dif [9508 to 9515] applied - rewound [20] frames
+[27][1][9535]rx dif complete [0 to 9527] dsync[-581.0ms] - uncompressed
+[30][1][9535]--- Client Apply Dif [0 to 9527]dif [0 to 9527] applied - rewound [8] frames
+[30][1][9535]--- Client Apply Dif [0 to 9527]dif [0 to 9527] applied - rewound [8] frames
+[27][1][9536]rx dif complete [0 to 9528] dsync[-182.3ms] - uncompressed
+[30][1][9536]--- Client Apply Dif [0 to 9528]dif [0 to 9528] applied - rewound [8] frames
+[30][1][9536]--- Client Apply Dif [0 to 9528]dif [0 to 9528] applied - rewound [8] frames
+[27][1][9537]rx dif complete [0 to 9529] dsync[-167.8ms] - uncompressed
+[30][1][9537]--- Client Apply Dif [0 to 9529]dif [0 to 9529] applied - rewound [8] frames
+[30][1][9537]--- Client Apply Dif [0 to 9529]dif [0 to 9529] applied - rewound [8] frames
+[27][1][9538]rx dif complete [0 to 9530] dsync[-166.6ms] - uncompressed
+
+
+make sure all clients do things the same
+now they do not have any repeats
+
+
+
+7:20 = 7 * 60 + 20 = 440 * 40 = 17600
+
+[27][1][17640]rx dif complete [17634 to 17637] dsync[-60.1ms] - uncompressed
+[30][1][17640]--- Client Apply Dif [17634 to 17637]dif applied - rewound [3] frames
+[27][1][17641]rx dif complete [17635 to 17638] dsync[-60.1ms] - uncompressed
+[30][1][17641]--- Client Apply Dif [17635 to 17638]dif applied - rewound [3] frames
+[30][1][17642]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17643]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17644]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17645]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17646]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17647]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17648]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17649]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17650]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17651]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17652]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17653]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17654]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17655]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17656]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17657]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17658]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17659]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17660]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17661]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17662]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[30][1][17663]--- Client Apply Dif [17635 to 17638] not newer than last dif applied
+[27][1][17664]rx dif complete [17636 to 17639] dsync[-606.8ms] - uncompressed
+[27][1][17664]rx dif complete [17637 to 17640] dsync[-606.8ms] - uncompressed
+[27][1][17664]rx dif complete [17637 to 17641] dsync[-606.8ms] - uncompressed
+[27][1][17664]rx dif complete [17637 to 17642] dsync[-606.8ms] - uncompressed
+[27][1][17664]rx dif complete [17637 to 17643] dsync[-606.8ms] - uncompressed
+[27][1][17664]rx dif complete [17637 to 17644] dsync[-606.8ms] - uncompressed
+[30][1][17664]--- Client Apply Dif [17637 to 17644]dif applied - rewound [20] frames
+[27][1][17665]rx dif complete [0 to 17660] dsync[-101.4ms] - uncompressed
+[30][1][17665]--- Client Apply Dif [0 to 17660]dif applied - rewound [5] frames
+[27][1][17666]rx dif complete [0 to 17661] dsync[-97.5ms] - uncompressed
+[27][1][17666]rx dif complete [0 to 17662] dsync[-97.5ms] - uncompressed
+[30][1][17666]--- Client Apply Dif [0 to 17662]dif applied - rewound [4] frames
+[30][1][17667]--- Client Apply Dif [0 to 17662] not newer than last dif applied
+[27][1][17668]rx dif complete [0 to 17663] dsync[-96.5ms] - uncompressed
+[27][1][17668]rx dif complete [0 to 17664] dsync[-96.5ms] - uncompressed
+[30][1][17668]--- Client Apply Dif [0 to 17664]dif applied - rewound [4] frames
+[27][1][17669]rx dif complete [17660 to 17665] dsync[-83.3ms] - uncompressed
+[27][1][17669]rx dif complete [17662 to 17666] dsync[-83.3ms] - uncompressed
+[27][1][17669]rx dif complete [17662 to 17667] dsync[-83.3ms] - uncompressed
+[30][1][17669]--- Client Apply Dif [17662 to 17667]dif applied - rewound [2] frames
+[27][1][17670]rx dif complete [17662 to 17668] dsync[-24.9ms] - uncompressed
+[27][1][17670]rx dif complete [17667 to 17669] dsync[-24.9ms] - uncompressed
+[30][1][17670]--- Client Apply Dif [17667 to 17669]dif applied - rewound [1] frames
+[27][1][17671]rx dif complete [17667 to 17670] dsync[-24.7ms] - uncompressed
+[30][1][17671]--- Client Apply Dif [17667 to 17670]dif applied - rewound [1] frames
+[27][1][17672]rx dif complete [17667 to 17671] dsync[-14.6ms] - uncompressed
+[30][1][17672]--- Client Apply Dif [17667 to 17671]dif applied - rewound [1] frames
+
+what the hell does this look like on the server?
+
+
+looks like the stdf's were sent on the proper frames....
+
+for some reason they did not arrive for 64-41 - 23 frames * 25ms = 575ms
+
+
+this could be just a network hiccup...now netgame looks like it will survive it....
+
+I have also reduced a lot of extra apply dif on clients
+
+
+bump version and push
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

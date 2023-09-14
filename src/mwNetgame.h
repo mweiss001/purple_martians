@@ -3,7 +3,6 @@
 #ifndef mwNetgame_H
 #define mwNetgame_H
 
-#define STATE_SIZE 112384
 #define MAX_CLIENTS 32
 
 #include "mwStateHistory.h"

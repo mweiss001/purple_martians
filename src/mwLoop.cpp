@@ -562,7 +562,6 @@ void mwLoop::proc_program_state(void)
          mPlayer.set_player_start_pos(p, 0);  // set starting position for all players, active or not
       }
 
-
       mPlayer.syn[0].active = 1;
       mPlayer.syn[0].control_method = 3;
       strncpy(mPlayer.loc[0].hostname, local_hostname, 16);
@@ -571,7 +570,6 @@ void mwLoop::proc_program_state(void)
       frame_num = 0;
       mNetgame.reset_states();
       mShot.clear_shots();
-
 
       mBottomMessage.initialize();
       mInput.initialize();
