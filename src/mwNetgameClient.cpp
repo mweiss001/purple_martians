@@ -336,7 +336,6 @@ void mwNetgame::client_process_stdf_packet(double timestamp)
          mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] dsync[%3.1fms] - uncompressed\n", src, dst, mPlayer.loc[p].dsync*1000);
          client_state_dif_src = src; // mark dif data with new src and dst
          client_state_dif_dst = dst;
-         client_apply_dif();
       }
       else
       {
@@ -351,46 +350,57 @@ void mwNetgame::client_process_stdf_packet(double timestamp)
 void mwNetgame::client_apply_dif(void)
 {
    int p = mPlayer.active_local_player;
-   mLog.addf(LOG_NET_dif_applied, p, "--- Client Apply Dif [%d to %d] ---\n", client_state_dif_src, client_state_dif_dst);
 
-   // first check if dif is valid, if not, return immediatley
-   if ((client_state_dif_src == -1) || (client_state_dif_dst == -1)) // check if valid dif
+   mLog.addf(LOG_NET_dif_applied, p, "----- Apply dif [%d to %d] ", client_state_dif_src, client_state_dif_dst);
+
+   // check if dif is valid
+   if ((client_state_dif_src == -1) || (client_state_dif_dst == -1))
    {
-      mLog.addf(LOG_NET_dif_not_applied, p, "dif [%d to %d] not valid\n", client_state_dif_src, client_state_dif_dst);
+      mLog.app(LOG_NET_dif_not_applied, "[not applied] [dif not valid]\n");
       return;
    }
+
+   // check if dif_dest has already been applied (check if dif_dest is less than or equal to newest_state_frame_num)
+   if (client_state_dif_dst <= mStateHistory[p].newest_state_frame_num)
+   {
+      mLog.app(LOG_NET_dif_not_applied, "[not applied] [not newer than last dif applied]\n");
+      return;
+   }
+
 
    // compare dif destination to current frame number
    int ff = mPlayer.loc[p].client_rewind = mLoop.frame_num - client_state_dif_dst;
    char tmsg[64];
-   if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", mLoop.frame_num);
-   if (ff > 0)  sprintf(tmsg, "rewound [%d] frames\n", ff);
+   if (ff == 0) sprintf(tmsg, "exact frame match [%d]", mLoop.frame_num);
+   if (ff > 0)  sprintf(tmsg, "rewound [%d] frames", ff);
    if (ff < 0)
    {
-      if (mLoop.frame_num > 0)
+      if (mLoop.frame_num == 0) sprintf(tmsg, "initial state");
+      else
       {
-         mLog.addf(LOG_NET_dif_not_applied, p, "dif [%d to %d] not applied - dst is %d frames in the future!\n", client_state_dif_src, client_state_dif_dst, -ff);
+         mLog.appf(LOG_NET_dif_not_applied, "[not applied] [dst is %d frames in the future!]\n", client_state_dif_src, client_state_dif_dst, -ff);
          return;
       }
-      else sprintf(tmsg, "Initial State\n");
    }
 
+   // if we got this far, we know that:
+   // - dif is valid
+   // - dif destination is not in the future
+   // - dif destination is newer than last applied dif
 
-   // if we got this far, we know that dif is valid and the dif destination is not in the future
+
 
    // now check if we have a base state that matches dif source
-
    char base[STATE_SIZE] = {0};
    int base_frame_num = 0;
 
-   // finds and sets base matching 'client_state_dif_src'
-   // if not found, leaves base as is (zero)
+   // finds and sets base matching 'client_state_dif_src' -- if not found, leaves base as is (zero)
    mStateHistory[p].get_base_state(base, base_frame_num, client_state_dif_src);
 
    if ((base_frame_num == 0) && (client_state_dif_src != 0))
    {
       int fn = mStateHistory[p].newest_state_frame_num;
-      mLog.addf(LOG_NET_dif_applied, p, "Could not find matching base in history, resending stak [%d] to server\n", fn);
+      mLog.appf(LOG_NET_dif_not_applied, "[not applied] [base not found] - resending stak [%d]\n", fn);
       client_send_stak(fn);
       return;
    }
@@ -432,8 +442,7 @@ void mwNetgame::client_apply_dif(void)
    client_send_stak(client_state_dif_dst);
 
    // add log entry
-   mLog.addf(LOG_NET_dif_applied, p, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
-
+   mLog.appf(LOG_NET_dif_not_applied, "[applied] [%s]\n", tmsg);
    // ------------------------------------------------
    // restore things after applying dif
    // ------------------------------------------------

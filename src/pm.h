@@ -1,9 +1,6 @@
 // pm.h
 
-#define PM_VERSION "7.24.0911.1"
-
-#define ALLEGRO_UNSTABLE
-
+#define PM_VERSION "7.24.0914.1"
 
 #include <stdio.h>
 #include <math.h>
@@ -24,6 +21,12 @@
 #define NUM_PLAYERS 8
 #define BORDER_WIDTH 14
 #define NUM_LIFTS 40
+
+#define STATE_SIZE 112384
+
+
+
+
 
 // enemy debug stuff
 //#define SHOW_CANNON_COLLISION_BOX

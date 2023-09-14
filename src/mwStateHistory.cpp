@@ -47,6 +47,7 @@ void mwStateHistory::show_states(const char *format, ...)
 }
 
 // internal class use only
+// called whenever adding state
 void mwStateHistory::_set_newest_and_oldest(void)
 {
    int mn = std::numeric_limits<int>::max();
@@ -61,12 +62,12 @@ void mwStateHistory::_set_newest_and_oldest(void)
 
       if (fn > -1) // ignore all unset states
       {
-         if (fn < mn)
+         if (fn < mn) // new minimum
          {
             mn = fn;
             mn_indx = i;
          }
-         if (fn > mx)
+         if (fn > mx) // new maximum
          {
             mx = fn;
             mx_indx = i;
@@ -90,7 +91,7 @@ void mwStateHistory::_set_newest_and_oldest(void)
 
 
 
-// the server is making a dif to send to a client and needs a base to build it on
+// called when the server is making a dif to send to a client and needs a base to build it on
 void mwStateHistory::get_last_ack_state(char* base, int& base_frame_num)
 {
    int indx = last_ack_state_index;
@@ -99,16 +100,9 @@ void mwStateHistory::get_last_ack_state(char* base, int& base_frame_num)
       memcpy(base, history_state[indx], STATE_SIZE);
       base_frame_num = history_state_frame_num[indx];
    }
-
-
-
-
 }
 
-
-
-
-// the server has just received a stak packet acknowledging frame_num
+// called when the server receives stak packet acknowledging frame_num
 // if we have a state that matches that frame_num, set last_ack variables
 // if we do not, then reset them
 void mwStateHistory::set_ack_state(int frame_num)
@@ -130,6 +124,8 @@ void mwStateHistory::set_ack_state(int frame_num)
    }
 }
 
+
+// called when client needs a base state to apply a dif to
 void mwStateHistory::get_base_state(char* base, int& base_frame_num, int frame_num)
 {
    if (frame_num == 0) return; // base 0 leave as is
@@ -141,6 +137,19 @@ void mwStateHistory::get_base_state(char* base, int& base_frame_num, int frame_n
       base_frame_num = history_state_frame_num[indx];
    }
 }
+
+// for state exchange:
+// client calls after applying new state
+// server calls after making new state for server
+
+// for server rewind:
+// called after making new state
+// called when ff after rewind after each ff to update states
+
+// in mwLoop: called to set initial state
+// called in program state 20 - server new game
+// called in setup common after level load if ima server
+
 
 // if a state already exists with exact frame number, overwrite it
 // if not replace the oldest frame number (include empty -1's so they get used first)
@@ -170,4 +179,11 @@ void mwStateHistory::add_state(int frame_num)
    else show_states("mwStateHistory::add_state(%d) did not add state?...wtf!\n");
 
    _set_newest_and_oldest();
+
+   // check if we just invalidated last ack state by adding a new state
+   if (last_ack_state_frame_num > -1) set_ack_state(last_ack_state_frame_num);
+
+
+
+
 }

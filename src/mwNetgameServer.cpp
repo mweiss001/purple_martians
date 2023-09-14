@@ -336,26 +336,25 @@ void mwNetgame::server_create_new_state(void)
 
 void mwNetgame::server_send_dif(int frame_num) // send dif to all clients
 {
+   // get current state
+   char cur[STATE_SIZE];
+   game_vars_to_state(cur);
+
    for (int p=1; p<NUM_PLAYERS; p++)
       if ((mPlayer.syn[p].control_method == 2) || (mPlayer.syn[p].control_method == 8))
       {
+         // save current state in history as base for next clients send
+         mStateHistory[p].add_state(frame_num);
+
          // get client's most recent base state (the last one acknowledged to the server)
          // if not found, leaves base as is (zero)
          char base[STATE_SIZE] = {0};
          int base_frame_num = 0;
-
          mStateHistory[p].get_last_ack_state(base, base_frame_num);
-
-         // get current state
-         char cur[STATE_SIZE];
-         game_vars_to_state(cur);
 
          // make a new dif from base and current
          char dif[STATE_SIZE];
          get_state_dif(base, cur, dif, STATE_SIZE);
-
-         // save current state in history as base for next clients send
-         mStateHistory[p].add_state(frame_num);
 
          // break into packet and send to client
          server_send_compressed_dif(p, base_frame_num, frame_num, dif);
@@ -378,7 +377,7 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
    mPlayer.loc[p].cmp_dif_size = cmp_size;
    mPlayer.loc[p].num_dif_packets = num_packets;
 
-   mLog.addf(LOG_NET_stdf, 0, "tx stdf p:%d [src:%d dst:%d] cmp:%d ratio:%3.2f [%d packets needed]\n", p, src, dst, cmp_size, cr, num_packets);
+   mLog.addf(LOG_NET_stdf, p, "tx stdf p:%d [src:%d dst:%d] cmp:%d ratio:%3.2f [%d packets needed]\n", p, src, dst, cmp_size, cr, num_packets);
 
    int start_byte = 0;
    for (int packet_num=0; packet_num < num_packets; packet_num++)
@@ -386,7 +385,7 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
       int packet_data_size = 1000; // default size
       if (start_byte + packet_data_size > cmp_size) packet_data_size = cmp_size - start_byte; // last piece is smaller
 
-      mLog.addf(LOG_NET_stdf_packets, 0, "tx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", packet_num+1, num_packets, src, dst, start_byte, packet_data_size);
+      mLog.addf(LOG_NET_stdf_packets, p, "tx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", packet_num+1, num_packets, src, dst, start_byte, packet_data_size);
 
       Packet("stdf");
       PacketPut4ByteInt(src); // src frame_num

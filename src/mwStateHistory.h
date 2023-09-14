@@ -6,12 +6,6 @@
 #define NUM_HISTORY_STATES 8
 
 
-// this is such fucking bullshit! I don't want to define this twice!!
-#define STATE_SIZE 112384
-
-// I can't use this or I get stupid header file recursion
-// #include "mwNetgame.h"
-
 
 class mwStateHistory
 {
