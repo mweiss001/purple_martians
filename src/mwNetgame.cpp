@@ -304,8 +304,10 @@ void mwNetgame::reset_states(void)
    memset(client_state_buffer, 0, STATE_SIZE);
    for (int i=0; i<16; i++) client_state_buffer_pieces[i] = -1;
 
-   // reset client states
    for (int i=0; i<8; i++) mStateHistory[i].initialize();
+
+   server_dirty_frame = -1;
+
 }
 
 

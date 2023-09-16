@@ -575,9 +575,6 @@ void mwLoop::proc_program_state(void)
       mInput.initialize();
       mTriggerEvent.initialize();
 
-      mNetgame.mStateHistory[0].add_state(frame_num);
-      mLog.addf(LOG_NET_stdf, 0, "stdf saved server state:%d\n", frame_num);
-
       mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
 
       // save colors in game moves array
@@ -1013,8 +1010,8 @@ void mwLoop::setup_common_after_level_load(void)
    if (mNetgame.ima_server) // set server initial state
    {
       mPlayer.syn[0].control_method = 3;
-      mNetgame.mStateHistory[0].add_state(frame_num);
-      mLog.addf(LOG_NET_stdf, 0, "stdf saved server state:%d\n", frame_num);
+//      mNetgame.mStateHistory[0].add_state(frame_num);
+//      mLog.addf(LOG_NET_stdf, 0, "stdf saved server state:%d\n", frame_num);
    }
    if (!mDemoMode.mode)
    {

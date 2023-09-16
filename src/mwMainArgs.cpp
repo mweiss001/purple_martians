@@ -40,20 +40,8 @@ void mwMain::pm_copy_cfg(const char* filepath)
 {
    char sys_cmd[500];
    sprintf(sys_cmd, "copy pm.cfg %s\\pm.cfg /Y", filepath);                       printf("%s\n",sys_cmd); system(sys_cmd);
-
-//   sprintf(sys_cmd, "copy data\\settings.pm %s\\data\\settings.pm /Y", filepath);   printf("%s\n",sys_cmd); system(sys_cmd);
-
-
-   sprintf(sys_cmd, "copy data\\*.pm %s\\data ", filepath);   printf("%s\n",sys_cmd); system(sys_cmd);
-
-
+   sprintf(sys_cmd, "copy data\\*.pm %s\\data ", filepath);                       printf("%s\n",sys_cmd); system(sys_cmd);
 }
-
-
-
-
-
-
 
 
 void mwMain::pm_copy_levels(const char* filepath)
