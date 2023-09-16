@@ -69,6 +69,9 @@ class mwNetgame
    int server_state_freq = 2;
    int server_state_freq_mode = 1; // 0 = manual, 1 = auto
 
+   int server_dirty_frame = 0;
+
+
    // local client's states
    char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
    int  client_state_buffer_pieces[16];   // to mark packet pieces as received

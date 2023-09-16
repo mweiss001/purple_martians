@@ -293,7 +293,6 @@ void mwInput::function_key_check(void)
       for (int p=1; p<NUM_PLAYERS; p++)
          mNetgame.mStateHistory[p].initialize();
 
-
       printf("force base reset\n");
 
 

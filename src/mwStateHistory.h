@@ -34,6 +34,9 @@ class mwStateHistory
    void get_last_ack_state(char* base, int& base_frame_num);
    void set_ack_state(int frame_num);
    void get_base_state(char* base, int& base_frame_num, int frame_num);
+
+   void apply_rewind_state(int frame_num);
+
    void show_states(const char *format, ...);
    void add_state(int frame_num);
 };

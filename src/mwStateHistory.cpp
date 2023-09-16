@@ -5,6 +5,8 @@
 #include "mwLoop.h"
 #include "mwNetgame.h"
 #include <limits>
+#include "mwLog.h"
+#include "mwPlayer.h"
 
 
 mwStateHistory::mwStateHistory()
@@ -90,7 +92,6 @@ void mwStateHistory::_set_newest_and_oldest(void)
 }
 
 
-
 // called when the server is making a dif to send to a client and needs a base to build it on
 void mwStateHistory::get_last_ack_state(char* base, int& base_frame_num)
 {
@@ -101,6 +102,7 @@ void mwStateHistory::get_last_ack_state(char* base, int& base_frame_num)
       base_frame_num = history_state_frame_num[indx];
    }
 }
+
 
 // called when the server receives stak packet acknowledging frame_num
 // if we have a state that matches that frame_num, set last_ack variables
@@ -125,7 +127,64 @@ void mwStateHistory::set_ack_state(int frame_num)
 }
 
 
+
+// used by server to apply a rewind state that matches sent frame number
+// does nothing if:
+// sent frame_num less than 1
+// sent frame_num is the same as current frame
+// if sent frame is not found in history, use oldest frame (if valid)
+
+void mwStateHistory::apply_rewind_state(int frame_num)
+{
+   if (frame_num < 1) return;
+
+   // how many frames to rewind and replay
+   int ff = mPlayer.loc[0].rewind = mLoop.frame_num - frame_num;
+
+   // if same frame as current frame, do nothing
+   if (ff == 0)
+   {
+      mLog.addf(LOG_NET_stdf, 0, "stdf rewind [none]\n");
+      return;
+   }
+
+   // find index of matching frame
+   int indx = -1;
+   for (int i=0; i<NUM_HISTORY_STATES; i++) if (frame_num == history_state_frame_num[i]) indx = i;
+
+
+   if (indx == -1)
+   {
+      mLog.addf(LOG_NET_stdf, 0, "stdf rewind [%d] not found - ", frame_num);
+      indx = oldest_state_index;
+      if (indx == -1) mLog.app(LOG_NET_stdf, "oldest frame not valid\n");
+      else mLog.appf(LOG_NET_stdf, "using oldest frame [%d]\n", history_state_frame_num[indx]);
+   }
+
+   if (indx > -1)
+   {
+      mLog.addf(LOG_NET_stdf, 0, "stdf rewind to:%d [%d]\n", frame_num, -ff);
+
+      mNetgame.state_to_game_vars(history_state[indx]);
+      mLoop.frame_num = history_state_frame_num[indx];
+
+      // fast forward and save rewind states
+      for (int i=0; i<ff; i++)
+      {
+         mLoop.loop_frame(1);
+         add_state(mLoop.frame_num);
+      }
+   }
+}
+
+
+
+
+
+
+
 // called when client needs a base state to apply a dif to
+// searches for a match for passed frame_num
 void mwStateHistory::get_base_state(char* base, int& base_frame_num, int frame_num)
 {
    if (frame_num == 0) return; // base 0 leave as is
@@ -138,17 +197,24 @@ void mwStateHistory::get_base_state(char* base, int& base_frame_num, int frame_n
    }
 }
 
+
+
+
+
+
+
 // for state exchange:
+// server calls after making new state for sending
 // client calls after applying new state
-// server calls after making new state for server
 
 // for server rewind:
-// called after making new state
+// called after making new state for sending
 // called when ff after rewind after each ff to update states
 
 // in mwLoop: called to set initial state
 // called in program state 20 - server new game
 // called in setup common after level load if ima server
+
 
 
 // if a state already exists with exact frame number, overwrite it

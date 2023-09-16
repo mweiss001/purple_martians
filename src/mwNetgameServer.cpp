@@ -276,31 +276,8 @@ void mwNetgame::server_rewind(void)
             lcd[pp][0] = mPlayer.syn[pp].late_cdats;
             lcd[pp][1] = mPlayer.syn[pp].late_cdats_last_sec;
          }
-
-      // get oldest state to rewind to
-      int rew_fn = mStateHistory[0].oldest_state_frame_num;
-
-      // if oldest state is valid
-      if (rew_fn > -1)
-      {
-         // calculate ff (how many frames will need to be replayed in fast forward mode)
-         int ff = mLoop.frame_num - rew_fn;  // almost always equals s1, unless s1 has changed
-
-         // apply rewind state and set frame num
-         state_to_game_vars(mStateHistory[0].oldest_state);
-         mLoop.frame_num = rew_fn;
-
- //      //mLog.addf(LOG_NET_stdf, 0, "stdf rewind to:%d\n", base_frame_num);
-
-         // fast forward and save rewind states
-         for (int i=0; i<ff; i++)
-         {
-            mLoop.loop_frame(1);
-            mStateHistory[0].add_state(mLoop.frame_num);
-         }
-         //mStateHistory[0].show_states("frame:%d\n", mLoop.frame_num);
-
-      }
+//      mStateHistory[0].apply_rewind_state(mStateHistory[0].oldest_state_frame_num);
+      mStateHistory[0].apply_rewind_state(server_dirty_frame);
 
       // restore values we don't want reset
       for (int pp=0; pp<NUM_PLAYERS; pp++)
@@ -320,41 +297,43 @@ void mwNetgame::server_create_new_state(void)
    // because of that it is actually the starting point of the next frame
    // so it is sent and saved with frame_num + 1
 
-   int frame_num = mLoop.frame_num + 1;
-
    if (mPlayer.loc[0].server_send_dif)
    {
+
+
+      int frame_num = mLoop.frame_num + 1;
+
+      server_dirty_frame = frame_num;
+
+
       mPlayer.loc[0].server_send_dif = 0;
 
       // this is the server rewind state, not the client base
       mStateHistory[0].add_state(frame_num);
 
-      //mLog.addf(LOG_NET_stdf, 0, "stdf saved server state[1]:%d\n", frame_num);
+      mLog.addf(LOG_NET_stdf, 0, "stdf save state:%d\n", frame_num);
       server_send_dif(frame_num); // send to all clients
    }
 }
 
 void mwNetgame::server_send_dif(int frame_num) // send dif to all clients
 {
-   // get current state
-   char cur[STATE_SIZE];
-   game_vars_to_state(cur);
-
-   for (int p=1; p<NUM_PLAYERS; p++)
+  for (int p=1; p<NUM_PLAYERS; p++)
       if ((mPlayer.syn[p].control_method == 2) || (mPlayer.syn[p].control_method == 8))
       {
          // save current state in history as base for next clients send
          mStateHistory[p].add_state(frame_num);
 
-         // get client's most recent base state (the last one acknowledged to the server)
-         // if not found, leaves base as is (zero)
          char base[STATE_SIZE] = {0};
          int base_frame_num = 0;
+
+         // get client's most recent base state (the last one acknowledged to the server)
+         // if not found, leaves base as is (zero)
          mStateHistory[p].get_last_ack_state(base, base_frame_num);
 
          // make a new dif from base and current
          char dif[STATE_SIZE];
-         get_state_dif(base, cur, dif, STATE_SIZE);
+         get_state_dif(base, mStateHistory[p].newest_state, dif, STATE_SIZE);
 
          // break into packet and send to client
          server_send_compressed_dif(p, base_frame_num, frame_num, dif);
@@ -408,6 +387,7 @@ void mwNetgame::server_proc_stak_packet(double timestamp)
    int client_frame_num            = PacketGet4ByteInt();
    mPlayer.loc[p].client_chase_fps = PacketGetDouble();
    mPlayer.loc[p].dsync            = PacketGetDouble();
+   mPlayer.loc[p].rewind           = PacketGet1ByteInt();
 
    // calculate stak_sync
    int stak_sync = mLoop.frame_num - mStateHistory[p].newest_state_frame_num;
@@ -503,6 +483,9 @@ void mwNetgame::server_proc_cdat_packet(double timestamp)
    {
       mGameMoves.add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
       mLog.addf(LOG_NET_cdat, p, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, mGameMoves.entry_pos);
+
+      if (cdat_frame_num < server_dirty_frame) server_dirty_frame = cdat_frame_num;
+
    }
 
 }

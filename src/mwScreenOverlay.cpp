@@ -523,15 +523,15 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       x+=6*8;
    }
 
-   if (col == 28) // client rewind
+   if (col == 28) // rewind
    {
-      al_draw_text(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[crwd]");
+      al_draw_text(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[rwnd]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (mPlayer.syn[p].active == 1) color = color1;
          if (mPlayer.syn[p].active == 0) color = color2;
-         if (p == 0) al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[    ]");
-         else        al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[%4d]", mPlayer.loc[p].client_rewind);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[%4d]", mPlayer.loc[p].rewind);
+
       }
       x+=6*8;
    }
@@ -543,8 +543,7 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       {
          if (mPlayer.syn[p].active == 1) color = color1;
          if (mPlayer.syn[p].active == 0) color = color2;
-         if (p == 0) al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[    ]");
-         else        al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[%4.1f]", mPlayer.loc[p].cor_max);
+         al_draw_textf(mFont.pr8, mColor.pc[color], x, y+=8, 0, "[%4.1f]", mPlayer.loc[p].cor_max);
       }
       x+=6*8;
    }
@@ -563,6 +562,7 @@ void mwScreen::sdg_show(int x, int y) // server debug grid
 //   sdg_show_column(7, x, y); // client chase fps
    sdg_show_column(8, x, y); // server_game_move_sync
    sdg_show_column(9, x, y); // client base resets
+   sdg_show_column(28, x, y); // rewind
    sdg_show_column(23, x, y); // late cdats
    sdg_show_column(24, x, y); // late cdats last second
 //   sdg_show_column(10, x+1, y); // dif src
@@ -587,7 +587,7 @@ void mwScreen::cdg_show(int x, int y) // client debug grid
    sdg_show_column(3, x, y); // color
    sdg_show_column(4, x, y); // control method
    sdg_show_column(9, x, y);  // client base resets
-   sdg_show_column(28, x, y); // client rewind
+   sdg_show_column(28, x, y); // rewind
    sdg_show_column(23, x, y); // late cdats
    sdg_show_column(24, x, y); // late cdats last second
    sdg_show_column(29, x, y); // max cor
@@ -1056,7 +1056,7 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
       cy +=8;
 
       int sfd = mPlayer.loc[p].client_move_lag; // src frame delta
-      int dfd = mPlayer.loc[p].client_rewind;   // dst frame delta
+      int dfd = mPlayer.loc[p].rewind;   // dst frame delta
 
 
       int y1 = cy;

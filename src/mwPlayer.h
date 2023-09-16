@@ -114,7 +114,13 @@ struct ploc // not synced between server and client
    int client_last_stdf_rx_frame_num; // used by client to see if server is still responding
    int server_send_dif;               // used by server to determine which frame to send dif
 
-   int client_rewind; // for client to keep track of how many frames it needed to rewind
+
+
+   int rewind; // for client and server to keep track of how many frames rewound and played back
+
+
+
+//   int client_rewind; // for client to keep track of how many frames it needed to rewind
    int client_move_lag;
    int client_base_resets;
    int client_last_dif_applied;

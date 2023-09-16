@@ -207,7 +207,7 @@ int mwNetgame::client_init(void)
    mRollingAverage[2].initialize(); // dsync rolling average
 
    client_chase_offset = 0.0;
-   client_chase_offset_auto_offset = -0.02;
+   client_chase_offset_auto_offset = 0.010;   //-0.02;
    client_chase_offset_mode = 1; // 0 = manual, 1 = auto
 
    Packet("cjon");
@@ -369,7 +369,7 @@ void mwNetgame::client_apply_dif(void)
 
 
    // compare dif destination to current frame number
-   int ff = mPlayer.loc[p].client_rewind = mLoop.frame_num - client_state_dif_dst;
+   int ff = mPlayer.loc[p].rewind = mLoop.frame_num - client_state_dif_dst;
    char tmsg[64];
    if (ff == 0) sprintf(tmsg, "exact frame match [%d]", mLoop.frame_num);
    if (ff > 0)  sprintf(tmsg, "rewound [%d] frames", ff);
@@ -503,6 +503,9 @@ void mwNetgame::client_send_stak(int ack_frame)
    PacketPut4ByteInt(mLoop.frame_num);
    PacketPutDouble(mPlayer.loc[p].client_chase_fps);
    PacketPutDouble(mPlayer.loc[p].dsync_avg);
+
+   PacketPut1ByteInt(mPlayer.loc[p].rewind);
+
    ClientSend(packetbuffer, packetsize);
 }
 
