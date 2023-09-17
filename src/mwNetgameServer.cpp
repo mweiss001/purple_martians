@@ -331,6 +331,8 @@ void mwNetgame::server_send_dif(int frame_num) // send dif to all clients
          // if not found, leaves base as is (zero)
          mStateHistory[p].get_last_ack_state(base, base_frame_num);
 
+         if (base_frame_num == 0) mPlayer.loc[p].client_base_resets++;
+
          // make a new dif from base and current
          char dif[STATE_SIZE];
          get_state_dif(base, mStateHistory[p].newest_state, dif, STATE_SIZE);
@@ -388,6 +390,16 @@ void mwNetgame::server_proc_stak_packet(double timestamp)
    mPlayer.loc[p].client_chase_fps = PacketGetDouble();
    mPlayer.loc[p].dsync            = PacketGetDouble();
    mPlayer.loc[p].rewind           = PacketGet1ByteInt();
+
+
+   mPlayer.loc[p].client_loc_plr_cor = PacketGetDouble();
+   mPlayer.loc[p].client_rmt_plr_cor = PacketGetDouble();
+
+   mTally_client_loc_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_loc_plr_cor);
+   mTally_client_rmt_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_rmt_plr_cor);
+
+
+
 
    // calculate stak_sync
    int stak_sync = mLoop.frame_num - mStateHistory[p].newest_state_frame_num;

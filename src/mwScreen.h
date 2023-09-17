@@ -166,6 +166,11 @@ class mwScreen
 
    void draw_screen_overlay(void);
 
+
+   ALLEGRO_COLOR col_clr(int p);
+   ALLEGRO_COLOR col_clr2(int p);
+
+
    void sdg_show_column(int col, int &x, int y);
    void sdg_show(int x, int y);
    void cdg_show(int x, int y);

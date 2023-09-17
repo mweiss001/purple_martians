@@ -1,0 +1,25 @@
+
+#set -x #echo on
+
+echo "remove all delays"
+tc qdisc del dev eno1 root
+tc qdisc del dev ifb0 root
+
+if [ $# -eq 1 ]
+then
+   echo "set $1ms delay"
+
+   # set delay on outgoing traffic
+   tc qdisc add dev eno1 root netem delay $1ms
+
+   # set delay on incoming traffic
+   modprobe ifb
+   ip link set dev ifb0 up
+   tc qdisc add dev eno1 ingress
+   tc filter add dev eno1 parent ffff: protocol ip u32 match u32 0 0 flowid 1:1 action mirred egress redirect dev ifb0
+   tc qdisc add dev ifb0 root netem delay $1ms
+fi
+
+tc qdisc show dev eno1
+tc qdisc show dev ifb0
+

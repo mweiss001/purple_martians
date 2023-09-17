@@ -34755,6 +34755,137 @@ I think all this is working good...
 
 
 
+now I would like to figure out how to send maxcor from client to server
+
+client has 8 values, one for each player
+
+I would like to send instanatneous values with stak...
+
+but I have 8...
+
+maybe I could send local_
+
+
+I think I will make 2 things:
+
+local_cor
+remote_cor
+
+each time client applies dif, I will calc these
+
+these will not be max, they will be just the instantanous value for that frame
+
+
+should I make a place in the array to save them, the loc array?
+
+client_local_player_state_correction
+client_remote_player_max_state_correction
+
+done...
+
+now how to show in debug_grid...
+get max for last sec
+use tally..done
+
+make common place to do tallies for server...
+
+
+mwTally mTally_client_local_player_state_correction_last_sec[8];
+mwTally mTally_client_remote_player_max_state_correction_last_sec[8];
+
+
+these variable names are getting out of hand
+
+client_loc_plr_cor
+client_rem_plr_cor
+
+this looks better...
+
+
+now send them with stak...
+
+good, now I have that on server also....
+
+clean up some stuff in debug array..
+
+server don't show p0 for cdsy, gmav, sgms, base, lcdt, ldls, stsy
+
+fix base reset counter...done...
+
+
+I would like to do some more tests, but I want to be able to run netem easily...
+
+
+
+start documenting it...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
