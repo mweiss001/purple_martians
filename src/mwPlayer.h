@@ -114,13 +114,18 @@ struct ploc // not synced between server and client
    int client_last_stdf_rx_frame_num; // used by client to see if server is still responding
    int server_send_dif;               // used by server to determine which frame to send dif
 
-
-
    int rewind; // for client and server to keep track of how many frames rewound and played back
 
+   float old_x, old_y;        // old players position, used to calc client pos_correction
+   float cor;
+   float cor_max;
+   int cor_reset_frame;
 
+   float client_loc_plr_cor;
+   float client_rmt_plr_cor;
+   float client_loc_plr_cor_max;
+   float client_rmt_plr_cor_max;
 
-//   int client_rewind; // for client to keep track of how many frames it needed to rewind
    int client_move_lag;
    int client_base_resets;
    int client_last_dif_applied;
@@ -137,10 +142,6 @@ struct ploc // not synced between server and client
    double stak_dsync;
 
 
-   float old_x, old_y;        // old players position, used to calc client pos_correction
-   float cor;
-   float cor_max;
-   int cor_reset_frame;
 
    int client_cdat_packets_tx;
 

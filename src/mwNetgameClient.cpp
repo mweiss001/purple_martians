@@ -17,6 +17,9 @@
 #include "mwLoop.h"
 #include "mwScreen.h"
 #include "mwShot.h"
+#include "mwTally.h"
+
+
 
 int mwNetgame::ClientInitNetwork(const char *serveraddress)
 {
@@ -402,6 +405,7 @@ void mwNetgame::client_apply_dif(void)
       int fn = mStateHistory[p].newest_state_frame_num;
       mLog.appf(LOG_NET_dif_not_applied, "[not applied] [base not found] - resending stak [%d]\n", fn);
       client_send_stak(fn);
+      mPlayer.loc[p].client_base_resets++;
       return;
    }
 
@@ -476,12 +480,28 @@ void mwNetgame::client_apply_dif(void)
    // calc players' corrections
    // ------------------------------------------------
 
+   // reset remote max
+   mPlayer.loc[p].client_rmt_plr_cor = 0;
+
    for (int pp=0; pp<NUM_PLAYERS; pp++)
       if (mPlayer.syn[pp].active)
       {
-         mPlayer.loc[pp].cor = sqrt(pow((mPlayer.loc[pp].old_x - mPlayer.syn[pp].x), 2) + pow((mPlayer.loc[pp].old_y - mPlayer.syn[pp].y), 2));  // hypotenuse distance
+         float cor = sqrt(pow((mPlayer.loc[pp].old_x - mPlayer.syn[pp].x), 2) + pow((mPlayer.loc[pp].old_y - mPlayer.syn[pp].y), 2));  // hypotenuse distance
+
+
+         // original method for client only, gets cor and max
+         mPlayer.loc[pp].cor = cor;
          if (mPlayer.loc[pp].cor > mPlayer.loc[pp].cor_max)  mPlayer.loc[pp].cor_max = mPlayer.loc[pp].cor;
+
+         // new method, gets current local cor and max remote cor
+         if (p == pp) mPlayer.loc[p].client_loc_plr_cor = cor;
+         else if (cor > mPlayer.loc[p].client_rmt_plr_cor) mPlayer.loc[p].client_rmt_plr_cor = cor;
+
       }
+
+   // add data to tally
+   mTally_client_loc_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_loc_plr_cor);
+   mTally_client_rmt_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_rmt_plr_cor);
 
    // reset max players correction
    if (mLoop.frame_num > mPlayer.loc[p].cor_reset_frame)
@@ -490,7 +510,6 @@ void mwNetgame::client_apply_dif(void)
       for (int pp=0; pp<NUM_PLAYERS; pp++)
          if (mPlayer.syn[pp].active) mPlayer.loc[pp].cor_max = 0;
    }
-
 }
 
 
@@ -505,6 +524,14 @@ void mwNetgame::client_send_stak(int ack_frame)
    PacketPutDouble(mPlayer.loc[p].dsync_avg);
 
    PacketPut1ByteInt(mPlayer.loc[p].rewind);
+
+
+   PacketPutDouble(mPlayer.loc[p].client_loc_plr_cor);
+   PacketPutDouble(mPlayer.loc[p].client_rmt_plr_cor);
+
+
+
+
 
    ClientSend(packetbuffer, packetsize);
 }

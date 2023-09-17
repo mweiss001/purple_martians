@@ -1348,7 +1348,18 @@ void mwLoop::main_loop(void)
       if (mEventQueue.program_update_1s)
       {
 
-         if (mNetgame.ima_client) mNetgame.client_send_ping();
+         if (mNetgame.ima_client)
+         {
+
+            mNetgame.client_send_ping();
+
+            int p = mPlayer.active_local_player;
+            // get max from tally and reset
+            mPlayer.loc[p].client_loc_plr_cor_max = mTally_client_loc_plr_cor_last_sec[p].get_max();
+            mPlayer.loc[p].client_rmt_plr_cor_max = mTally_client_rmt_plr_cor_last_sec[p].get_max();
+
+
+         }
 
 
          mEventQueue.program_update_1s = 0;
@@ -1371,6 +1382,8 @@ void mwLoop::main_loop(void)
                   {
                      mPlayer.syn[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally();
                      mPlayer.loc[p].game_move_dsync_avg_last_sec = mTally_game_move_dsync_avg_last_sec[p].get_avg();
+                     mPlayer.loc[p].client_loc_plr_cor_max = mTally_client_loc_plr_cor_last_sec[p].get_max();
+                     mPlayer.loc[p].client_rmt_plr_cor_max = mTally_client_rmt_plr_cor_last_sec[p].get_max();
                   }
             }
          }

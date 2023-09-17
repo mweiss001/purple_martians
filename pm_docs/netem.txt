@@ -1,0 +1,84 @@
+
+first of all test with 40
+
+
+
+set up 40ms delay on outgoing traffic:
+--------------------------------------
+sudo tc qdisc add dev eno1 root netem delay 40ms
+
+cancel:
+--------------------------------------
+sudo tc qdisc del dev eno1 root
+
+
+How can I use netem on incoming traffic?
+
+You need to use the Intermediate Functional Block pseudo-device IFB . This network device allows attaching queuing discplines to incoming packets.
+
+ # modprobe ifb
+ # ip link set dev ifb0 up
+ # tc qdisc add dev eth0 ingress
+ # tc filter add dev eth0 parent ffff: \
+   protocol ip u32 match u32 0 0 flowid 1:1 action mirred egress redirect dev ifb0
+ # tc qdisc add dev ifb0 root netem delay 750ms
+
+
+
+set up 40ms delay on incoming traffic:
+--------------------------------------
+sudo modprobe ifb
+sudo ip link set dev ifb0 up
+sudo tc qdisc add dev eno1 ingress
+sudo tc filter add dev eno1 parent ffff: protocol ip u32 match u32 0 0 flowid 1:1 action mirred egress redirect dev ifb0
+sudo tc qdisc add dev ifb0 root netem delay 40ms
+
+cancel:
+--------------------------------------
+sudo tc qdisc del dev ifb0 root
+
+Exclusivity flag on, cannot modify.
+
+
+This is my bash script to make it easier to set these values
+
+mw_ntm
+
+no args
+deletes netem rules
+shows current settings
+
+1 arg
+deletes netem rules
+sets outgoing and incoming to arg ms 
+shows current settings
+
+
+
+
+#set -x #echo on
+
+echo "remove all delays"
+tc qdisc del dev eno1 root
+tc qdisc del dev ifb0 root
+
+if [ $# -eq 1 ]
+then
+   echo "set $1ms delay"
+
+   # set delay on outgoing traffic
+   tc qdisc add dev eno1 root netem delay $1ms
+
+   # set delay on incoming traffic
+   modprobe ifb
+   ip link set dev ifb0 up
+   tc qdisc add dev eno1 ingress
+   tc filter add dev eno1 parent ffff: protocol ip u32 match u32 0 0 flowid 1:1 action mirred egress redirect dev ifb0
+   tc qdisc add dev ifb0 root netem delay $1ms
+fi
+
+tc qdisc show dev eno1
+tc qdisc show dev ifb0
+
+
+

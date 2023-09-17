@@ -36,49 +36,6 @@ or log it!!!
 
 
 
-now I would like to figure out how to send maxcor from client to server
-
-client has 8 values, one for each player
-
-I would like to send instanatneous values with stak...
-
-but I have 8...
-
-maybe I could send local_
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
