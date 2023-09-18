@@ -77,6 +77,7 @@ struct psyn // synced between server and client
    int late_cdats;
    int late_cdats_last_sec;
 
+   float client_chase_offset = 0.01;
 
    int spare_int1;
    int spare_int2;
@@ -84,10 +85,6 @@ struct psyn // synced between server and client
    int spare_int4;
    int spare_int5;
    int spare_int6;
-   int spare_int7;
-
-
-
 
 
 };
@@ -116,21 +113,17 @@ struct ploc // not synced between server and client
 
    int rewind; // for client and server to keep track of how many frames rewound and played back
 
-   float old_x, old_y;        // old players position, used to calc client pos_correction
-   float cor;
-   float cor_max;
-   int cor_reset_frame;
 
+   float old_x, old_y;        // old players position, used to calc client pos_correction
    float client_loc_plr_cor;
    float client_rmt_plr_cor;
    float client_loc_plr_cor_max;
    float client_rmt_plr_cor_max;
+   float client_loc_plr_cor_avg;
+   float client_rmt_plr_cor_avg;
 
-   int client_move_lag;
    int client_base_resets;
    int client_last_dif_applied;
-
-   int client_ping_flag;
 
    double ping;
    double ping_avg;
@@ -140,7 +133,6 @@ struct ploc // not synced between server and client
 
    double client_chase_fps;
    double stak_dsync;
-
 
 
    int client_cdat_packets_tx;

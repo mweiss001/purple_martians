@@ -209,12 +209,8 @@ int mwNetgame::client_init(void)
    mRollingAverage[1].initialize(); // ping rolling average
    mRollingAverage[2].initialize(); // dsync rolling average
 
-   client_chase_offset = 0.0;
-   client_chase_offset_auto_offset = 0.010;   //-0.02;
-   client_chase_offset_mode = 1; // 0 = manual, 1 = auto
-
    Packet("cjon");
-   PacketPut1ByteInt(mPlayer.syn[0].color); // requested color
+   PacketPutInt1(mPlayer.syn[0].color); // requested color
    PacketAddString(mLoop.local_hostname);
    ClientSend(packetbuffer, packetsize);
 
@@ -225,14 +221,14 @@ int mwNetgame::client_init(void)
 
 void mwNetgame::client_process_sjon_packet(void)
 {
-   int pl = PacketGet2ByteInt();   // play level
-   int server_sjon_frame_num  =  PacketGet4ByteInt();
+   int pl = PacketGetInt2();   // play level
+   int server_sjon_frame_num  =  PacketGetInt4();
 
-   int p = PacketGet1ByteInt();      // client player number
-   int color = PacketGet1ByteInt();  // client player color
-   int ds = PacketGet1ByteInt();     // deathmatch_shots
-   int dd = PacketGet2ByteInt();     // deathmatch_shot_damage
-   int ss = PacketGet1ByteInt();     // suicide_shots
+   int p = PacketGetInt1();      // client player number
+   int color = PacketGetInt1();  // client player color
+   int ds = PacketGetInt1();     // deathmatch_shots
+   int dd = PacketGetInt2();     // deathmatch_shot_damage
+   int ss = PacketGetInt1();     // suicide_shots
 
    if (p == 99) // server full, join denied
    {
@@ -291,35 +287,22 @@ void mwNetgame::client_send_ping(void)
 }
 
 
+
+
+
 void mwNetgame::client_process_stdf_packet(double timestamp)
 {
    int p = mPlayer.active_local_player;
-   int src = PacketGet4ByteInt();
-   int dst = PacketGet4ByteInt();
-   int seq = PacketGet1ByteInt();
-   int max_seq = PacketGet1ByteInt();
-   int sb = PacketGet4ByteInt();
-   int sz = PacketGet4ByteInt();
+   int src = PacketGetInt4();
+   int dst = PacketGetInt4();
+   int seq = PacketGetInt1();
+   int max_seq = PacketGetInt1();
+   int sb = PacketGetInt4();
+   int sz = PacketGetInt4();
 
+   mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", seq+1, max_seq, src, dst, sb, sz);
 
-   int client_sync = dst - mLoop.frame_num;      // crude integer sync based on frame numbers
-   double dsync = al_get_time() - timestamp;     // time between when the packet was received into the packet buffer and now
-   dsync += (double) client_sync * 0.025;        // combine with client_sync
-
-
-   mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d dsyn:%4.2f\n", seq+1, max_seq, src, dst, sb, sz, dsync*1000);
-
-   if (mPlayer.loc[p].client_last_stdf_rx_frame_num != mLoop.frame_num)    // this is the first stdf received for this frame
-   {
-      mPlayer.loc[p].client_last_stdf_rx_frame_num = mLoop.frame_num;      // client keeps track of last stdf rx'd and quits if too long
-      mPlayer.loc[p].dsync = al_get_time() - timestamp;                    // time between when the packet was received into the packet buffer and now
-      mPlayer.loc[p].dsync += (double) client_sync * 0.025;                // combine with client_sync
-
-      mRollingAverage[2].add_data(mPlayer.loc[p].dsync);                   // send to rolling average
-      mPlayer.loc[p].dsync_avg = mRollingAverage[2].avg;                   // get average
-
-      client_timer_adjust();
-   }
+   mPlayer.loc[p].client_last_stdf_rx_frame_num = mLoop.frame_num;      // client keeps track of last stdf rx'd and quits if too long
 
 
    memcpy(client_state_buffer + sb, packetbuffer+22, sz);     // put the piece of data in the buffer
@@ -370,7 +353,6 @@ void mwNetgame::client_apply_dif(void)
       return;
    }
 
-
    // compare dif destination to current frame number
    int ff = mPlayer.loc[p].rewind = mLoop.frame_num - client_state_dif_dst;
    char tmsg[64];
@@ -391,8 +373,6 @@ void mwNetgame::client_apply_dif(void)
    // - dif destination is not in the future
    // - dif destination is newer than last applied dif
 
-
-
    // now check if we have a base state that matches dif source
    char base[STATE_SIZE] = {0};
    int base_frame_num = 0;
@@ -400,12 +380,13 @@ void mwNetgame::client_apply_dif(void)
    // finds and sets base matching 'client_state_dif_src' -- if not found, leaves base as is (zero)
    mStateHistory[p].get_base_state(base, base_frame_num, client_state_dif_src);
 
+   if (base_frame_num == 0) mPlayer.loc[p].client_base_resets++;
+
    if ((base_frame_num == 0) && (client_state_dif_src != 0))
    {
       int fn = mStateHistory[p].newest_state_frame_num;
       mLog.appf(LOG_NET_dif_not_applied, "[not applied] [base not found] - resending stak [%d]\n", fn);
       client_send_stak(fn);
-      mPlayer.loc[p].client_base_resets++;
       return;
    }
 
@@ -442,8 +423,6 @@ void mwNetgame::client_apply_dif(void)
    mStateHistory[p].add_state(mLoop.frame_num);
    //mStateHistory[p].show_states("save frame:%d to history\n", mLoop.frame_num);
 
-   // send acknowledgement
-   client_send_stak(client_state_dif_dst);
 
    // add log entry
    mLog.appf(LOG_NET_dif_not_applied, "[applied] [%s]\n", tmsg);
@@ -475,41 +454,24 @@ void mwNetgame::client_apply_dif(void)
    // ------------------------------------------------
    if (ff) mLoop.loop_frame(ff);
 
+   // send acknowledgement
+   client_send_stak(client_state_dif_dst);
 
    // ------------------------------------------------
    // calc players' corrections
    // ------------------------------------------------
-
-   // reset remote max
-   mPlayer.loc[p].client_rmt_plr_cor = 0;
-
+   mPlayer.loc[p].client_rmt_plr_cor = 0; // reset max remote
    for (int pp=0; pp<NUM_PLAYERS; pp++)
       if (mPlayer.syn[pp].active)
       {
          float cor = sqrt(pow((mPlayer.loc[pp].old_x - mPlayer.syn[pp].x), 2) + pow((mPlayer.loc[pp].old_y - mPlayer.syn[pp].y), 2));  // hypotenuse distance
-
-
-         // original method for client only, gets cor and max
-         mPlayer.loc[pp].cor = cor;
-         if (mPlayer.loc[pp].cor > mPlayer.loc[pp].cor_max)  mPlayer.loc[pp].cor_max = mPlayer.loc[pp].cor;
-
-         // new method, gets current local cor and max remote cor
-         if (p == pp) mPlayer.loc[p].client_loc_plr_cor = cor;
-         else if (cor > mPlayer.loc[p].client_rmt_plr_cor) mPlayer.loc[p].client_rmt_plr_cor = cor;
-
+         if (p == pp) mPlayer.loc[p].client_loc_plr_cor = cor; // save local cor
+         else if (cor > mPlayer.loc[p].client_rmt_plr_cor) mPlayer.loc[p].client_rmt_plr_cor = cor; // save max remote cor
       }
 
    // add data to tally
    mTally_client_loc_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_loc_plr_cor);
    mTally_client_rmt_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_rmt_plr_cor);
-
-   // reset max players correction
-   if (mLoop.frame_num > mPlayer.loc[p].cor_reset_frame)
-   {
-      mPlayer.loc[p].cor_reset_frame = mLoop.frame_num + 100;
-      for (int pp=0; pp<NUM_PLAYERS; pp++)
-         if (mPlayer.syn[pp].active) mPlayer.loc[pp].cor_max = 0;
-   }
 }
 
 
@@ -517,59 +479,115 @@ void mwNetgame::client_send_stak(int ack_frame)
 {
    int p = mPlayer.active_local_player;
    Packet("stak");
-   PacketPut1ByteInt(p);
-   PacketPut4ByteInt(ack_frame);
-   PacketPut4ByteInt(mLoop.frame_num);
+   PacketPutInt1(p);
+   PacketPutInt4(ack_frame);
+   PacketPutInt4(mLoop.frame_num);
    PacketPutDouble(mPlayer.loc[p].client_chase_fps);
    PacketPutDouble(mPlayer.loc[p].dsync_avg);
-
-   PacketPut1ByteInt(mPlayer.loc[p].rewind);
-
-
+   PacketPutInt1(mPlayer.loc[p].rewind);
    PacketPutDouble(mPlayer.loc[p].client_loc_plr_cor);
    PacketPutDouble(mPlayer.loc[p].client_rmt_plr_cor);
-
-
-
-
-
    ClientSend(packetbuffer, packetsize);
+   mLog.addf(LOG_NET_stak, p, "tx stak p:%d ack:[%d] cur:[%d]\n", p, ack_frame, mLoop.frame_num);
 }
 
 
 void mwNetgame::client_timer_adjust(void)
 {
+   // iterate all stdf packets, calc dysnc, then get max dysnc
+   float max_dsync = -1000;
+   int stdf_count = 0;
+
+   // iterate all stdf packets stored in the packet buffer
+   for (int i=0; i<200; i++)
+      if ((packet_buffers[i].active) && (packet_buffers[i].type == 1))
+      {
+         stdf_count++;
+         int dst = 0;
+         memcpy(&dst, packet_buffers[i].data+8, 4);
+
+         // calc dysnc
+         float csync = (float)(dst - mLoop.frame_num) * 0.025;   // crude integer sync based on frame numbers
+         float dsync = al_get_time() - packet_buffers[i].timestamp + csync;  // add time between now and when the packet was received into packet buffer
+
+         if (dsync > max_dsync) max_dsync = dsync;
+      }
+
    int p = mPlayer.active_local_player;
+   if (max_dsync > -1000)
+   {
+      mPlayer.loc[p].dsync = max_dsync;
+      mRollingAverage[2].add_data(mPlayer.loc[p].dsync);    // send to rolling average
+      mPlayer.loc[p].dsync_avg = mRollingAverage[2].avg;    // get average
+//      mLog.addf(LOG_NET_timer_adjust, p, "timer adjust ds:[%3.2f] dsa:[%3.2f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].dsync_avg*1000);
 
-   float mva = mPlayer.loc[p].dsync_avg;            // measured value
-   float mv = mPlayer.loc[p].dsync;                 // measured value
+      // in mode 2 only - get offset from server
+      if (client_chase_offset_mode == 2) client_chase_offset = mPlayer.syn[0].client_chase_offset;
 
-//   float sp = mPlayer.loc[p].client_chase_offset;   // set point
+      // set point
+      float sp = client_chase_offset;
 
-   float sp = client_chase_offset;   // set point
+      // error = set point - measured value
+      float err = sp - mPlayer.loc[p].dsync_avg;
 
-   float err = sp - mva;                          // error = set point - measured value
+      // instantaneous error adjustment (proportional)
+      float p_adj = err * 80;
 
-   float p_adj = err * 80; // instantaneous error adjustment (proportional)
+      // cumulative error adjust (integral)
+      tmaj_i += err;
+      float i_clamp = 5;
+      if (tmaj_i >  i_clamp) tmaj_i =  i_clamp;
+      if (tmaj_i < -i_clamp) tmaj_i = -i_clamp;
+      tmaj_i *= 0.95; // decay
+      float i_adj = tmaj_i * 0;
 
-   tmaj_i += err; // cumulative error adjust (integral)
-   float i_clamp = 5;
-   if (tmaj_i >  i_clamp) tmaj_i =  i_clamp;
-   if (tmaj_i < -i_clamp) tmaj_i = -i_clamp;
-   tmaj_i *= 0.95; // decay
-   float i_adj = tmaj_i * 0;
+      // combine to get total adjust
+      float t_adj = p_adj + i_adj;
 
-   float t_adj = p_adj + i_adj; // total adj
+      // adjust speed
+      float fps_chase = mLoop.frame_speed - t_adj;
 
-   float fps_chase = mLoop.frame_speed - t_adj;
+      if (fps_chase < 10) fps_chase = 10; // never let this go negative
+      if (fps_chase > 70) fps_chase = 70;
 
-   if (fps_chase < 10) fps_chase = 10; // never let this go negative
-   if (fps_chase > 70) fps_chase = 70;
-   al_set_timer_speed(mEventQueue.fps_timer, (1 / fps_chase));
-   mPlayer.loc[p].client_chase_fps = fps_chase;
+      al_set_timer_speed(mEventQueue.fps_timer, (1 / fps_chase));
 
-   mLog.add_tmrf(LOG_TMR_client_timer_adj, 0, "mv:[%5.2f] ma:[%5.2f] sp:[%5.2f] er:[%6.2f] pa:[%6.2f] ia:[%6.2f] ta:[%6.2f]\n", mv*1000, mva*1000, sp*1000, err*1000, p_adj, i_adj, t_adj);
-   mLog.addf(LOG_NET_timer_adjust, p, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.3f]\n", mPlayer.loc[p].dsync*1000, sp*1000, fps_chase);
+      mPlayer.loc[p].client_chase_fps = fps_chase;
+
+      mLog.add_tmrf(LOG_TMR_client_timer_adj, 0, "dsc:[%5.2f] dsa:[%5.2f] sp:[%5.2f] er:[%6.2f] pa:[%6.2f] ia:[%6.2f] ta:[%6.2f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].dsync_avg*1000, sp*1000, err*1000, p_adj, i_adj, t_adj);
+      mLog.addf(LOG_NET_timer_adjust, p, "timer adjust dsc[%5.1f] dsa[%5.1f] off[%3.1f] chs[%3.3f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].dsync_avg*1000, sp*1000, fps_chase);
+   }
+   else mLog.addf(LOG_NET_timer_adjust, p, "timer adjust no stdf packets this frame dsc[%5.1f] dsa[%5.1f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].dsync_avg*1000);
+
+
+//
+//
+//   int client_sync = dst - mLoop.frame_num;                   // crude integer sync based on frame numbers
+//   double dsync1 = al_get_time() - timestamp;                 // time between when the packet was received into the packet buffer and now
+//   double dsync = dsync1 + (double) client_sync * 0.025;      // combine with client_sync
+//
+//   mLog.addf(LOG_NET_timer_adjust, p, "rx stdf timer adjust cs:%d ds1:[%3.2f] ds:[%3.2f]\n", client_sync, dsync1*1000, dsync*1000);
+//
+//   mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d dsyn:%4.2f\n", seq+1, max_seq, src, dst, sb, sz, dsync*1000);
+//
+//
+//
+//   if (mPlayer.loc[p].client_last_stdf_rx_frame_num != mLoop.frame_num)    // this is the first stdf received for this frame
+//   {
+//      mPlayer.loc[p].client_last_stdf_rx_frame_num = mLoop.frame_num;      // client keeps track of last stdf rx'd and quits if too long
+//      mPlayer.loc[p].dsync = al_get_time() - timestamp;                    // time between when the packet was received into the packet buffer and now
+//      mPlayer.loc[p].dsync += (double) client_sync * 0.025;                // combine with client_sync
+//
+//      mRollingAverage[2].add_data(mPlayer.loc[p].dsync);                   // send to rolling average
+//      mPlayer.loc[p].dsync_avg = mRollingAverage[2].avg;                   // get average
+//
+////      client_timer_adjust();
+//   }
+//
+
+
+
+
 }
 
 void mwNetgame::client_proc_player_drop(void)
@@ -625,16 +643,9 @@ void mwNetgame::client_fast_packet_loop(void)
          mRollingAverage[1].add_data(mPlayer.loc[p].ping); // send to rolling average
          mPlayer.loc[p].ping_avg = mRollingAverage[1].avg;
 
+         // adjust client chase offset based on ping time
+         if (client_chase_offset_mode == 1) client_chase_offset = - mPlayer.loc[p].ping_avg + client_chase_offset_auto_offset;
 
-         // adjust client chase offset based on ping
-         if (client_chase_offset_mode) // auto mode
-         {
-            client_chase_offset = - mPlayer.loc[p].ping_avg + client_chase_offset_auto_offset;
-         }
-         else
-         {
-            //mPlayer.loc[p].client_chase_offset = mPlayer.loc[p].client_chase_offset_auto_offset;
-         }
 
          mLog.addf(LOG_NET_client_ping, p, "ping [%3.2f] avg[%3.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
          if (mLoop.frame_num) mLog.add_tmrf(LOG_TMR_client_ping, p, "ping:[%5.2f] pavg:[%5.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
@@ -650,18 +661,23 @@ void mwNetgame::client_fast_packet_loop(void)
       // printf("type:%d\n", type);
       if (type)
       {
-         for (int i=0; i<200; i++)
-            if (!packet_buffers[i].active) // find empty
-            {
-               //printf("%d stored packet:%d size:%d type:%d\n", mLoop.frame_num, i, packetsize, type);
-
-               packet_buffers[i].active = 1;
-               packet_buffers[i].type = type;
-               packet_buffers[i].timestamp = timestamp;
-               packet_buffers[i].packetsize = packetsize;
-               memcpy(packet_buffers[i].data, packetbuffer, 1024);
-               break;
-            }
+         // find empty
+         int indx = -1;
+         for (int i=0; i<200; i++) if (!packet_buffers[i].active)
+         {
+            indx = i;
+            break;
+         }
+         if (indx == -1) printf("Packet buffer full!\n");
+         else
+         {
+            //printf("%d stored packet:%d size:%d type:%d\n", mLoop.frame_num, i, packetsize, type);
+            packet_buffers[indx].active = 1;
+            packet_buffers[indx].type = type;
+            packet_buffers[indx].timestamp = timestamp;
+            packet_buffers[indx].packetsize = packetsize;
+            memcpy(packet_buffers[indx].data, packetbuffer, 1024);
+         }
       }
    }
 }
@@ -683,6 +699,7 @@ void mwNetgame::client_read_packet_buffer(void)
 
 void mwNetgame::client_control(void)
 {
+   client_timer_adjust();
    client_read_packet_buffer();
    client_apply_dif();
    client_proc_player_drop();

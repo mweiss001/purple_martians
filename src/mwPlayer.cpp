@@ -1462,11 +1462,6 @@ void mwPlayer::init_player(int p, int t)
       loc[p].cmp_dif_size = 0;
       loc[p].made_active_holdoff = 0;
 
-      loc[p].cor_reset_frame = 0;
-      loc[p].cor_max = 0;
-      loc[p].cor = 0;
-
-
       loc[p].ping = 0;
       loc[p].ping_avg = 0;
       mTally[4].initialize(); // initialize max tally
@@ -1730,9 +1725,9 @@ void mwPlayer::proc_player_input(void)
                   if (cm == 4)
                   {
                      mNetgame.Packet("cdat");
-                     mNetgame.PacketPut1ByteInt(p);
-                     mNetgame.PacketPut4ByteInt(mLoop.frame_num);
-                     mNetgame.PacketPut1ByteInt(loc[p].comp_move);
+                     mNetgame.PacketPutInt1(p);
+                     mNetgame.PacketPutInt4(mLoop.frame_num);
+                     mNetgame.PacketPutInt1(loc[p].comp_move);
                      mNetgame.ClientSend(mNetgame.packetbuffer, mNetgame.packetsize);
                      loc[p].client_cdat_packets_tx++;
 

@@ -16,21 +16,18 @@ void mwEventQueue::create_timers(void)
    fps_timer = al_create_timer(1 / (float) mLoop.frame_speed);
    mnu_timer = al_create_timer(.008); // 125 fps
    sec_timer = al_create_timer(1);    // 1s
-   png_timer = al_create_timer(.5);   // 2 fps
    mou_timer = al_create_timer(1);    // 1s
 
    // register timer event source
    al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(sec_timer));
-   al_register_event_source(event_queue, al_get_timer_event_source(png_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(mou_timer));
 
    // start timers
    al_start_timer(fps_timer);
    al_start_timer(mnu_timer);
    al_start_timer(sec_timer);
-   al_start_timer(png_timer);
    al_start_timer(mou_timer);
 }
 
@@ -43,7 +40,6 @@ void mwEventQueue::proc_events(ALLEGRO_EVENT ev)
       if (ev.timer.source == fps_timer) program_update = 1;
       if (ev.timer.source == sec_timer) program_update_1s = 1;
       if (ev.timer.source == mnu_timer) menu_update = 1;
-      if (ev.timer.source == png_timer) mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 1;
       if (ev.timer.source == mou_timer)
       {
          if (mLoop.level_editor_running) al_set_timer_count(mou_timer, 0);

@@ -110,6 +110,10 @@ void mwConfig::save_config(void)
       asci(NETWORK, mNetgame.server_state_freq_mode)
       asci(NETWORK, mNetgame.server_state_freq)
 
+      ascf(NETWORK, mNetgame.client_chase_offset)
+      ascf(NETWORK, mNetgame.client_chase_offset_auto_offset)
+      asci(NETWORK, mNetgame.client_chase_offset_mode)
+
       asci(LOGGING, mLog.autosave_log_on_program_exit)
       asci(LOGGING, mLog.autosave_log_on_game_exit)
       asci(LOGGING, mLog.autosave_log_on_level_done)
@@ -258,6 +262,10 @@ void mwConfig::load_config(void)
 
    agci(NETWORK, mNetgame.server_state_freq_mode, 1)
    agci(NETWORK, mNetgame.server_state_freq, 2)
+
+   agcf(NETWORK, mNetgame.client_chase_offset, 0.01)
+   agcf(NETWORK, mNetgame.client_chase_offset_auto_offset, 0.01)
+   agci(NETWORK, mNetgame.client_chase_offset_mode, 1)
 
    agci(LOGGING, mLog.autosave_log_on_program_exit, 0)
    agci(LOGGING, mLog.autosave_log_on_game_exit, 0)

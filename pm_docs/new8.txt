@@ -8834,7 +8834,7 @@ how are they calculated
 
 void server_proc_stak_packet(void)
 {
-   int p                        = PacketGet1ByteInt();
+   int p                        = PacketGetInt1();
    int ack_frame_num            = PacketGet4ByteInt();
    int client_frame_num         = PacketGet4ByteInt();
    players1[p].frames_skipped   = PacketGet4ByteInt();
@@ -8892,7 +8892,7 @@ server keeps track of it for each client when stak packet received
 
 void server_proc_stak_packet(void)
 {
-   int p                        = PacketGet1ByteInt();
+   int p                        = PacketGetInt1();
    int ack_frame_num            = PacketGet4ByteInt();
    int client_frame_num         = PacketGet4ByteInt();
    players1[p].frames_skipped   = PacketGet4ByteInt();
@@ -34815,49 +34815,150 @@ fix base reset counter...done...
 
 I would like to do some more tests, but I want to be able to run netem easily...
 
+start documenting it...done
 
 
-start documenting it...
+now do some tests with netem to make network worse
 
+I really want to know what some of the thing I measure mean, like:
 
+sgms
+stsy
+gmav
 
+server:scat
+stdf freq:1
+level:64
+8 players all with fakekey
+internet ping (from a client) (27-30)
+offset mode: ping +10
 
+added delay with netem:0
+actual client ping:(27-30)
 
+cdsy:-15 to -20
+srwd:0-1
+crwd:1
+lcrm:0-12
+lcra:0.1
+rcrm:8-12
+rcra:4
+sgms:0
+stsy:6-18
+gmav:5-13
 
 
+added delay with netem:10 (20)
+actual client ping:(47-50)
 
+cdsy:-37 to -40
+srwd:0-2
+crwd:2
+lcrm:0-22
+lcra:0.5 - 1
+rcrm:12-22
+rcra:6-8
+sgms:0 to -1
+stsy:6-18
+gmav:-10 to 14
 
 
 
+added delay with netem:20 (40)
+actual client ping:(71-75)
 
+cdsy:-60 to -65
+srwd:0-3
+crwd:3
+lcrm:0-22
+lcra:1-3
+rcrm:18-25
+rcra:9-10
+sgms:0 to -1
+stsy:6-18
+gmav:-10 to 14
 
 
 
 
 
+added delay with netem:30 (60)
+actual client ping:(85-90)
 
+cdsy:-80 to -95
+srwd:0-3 (hard to tell)
+crwd:3-4
+lcrm:0-26
+lcra:0-4
+rcrm:24-33
+rcra:9-16
+sgms:0 to -1
+stsy:6-18
+gmav:-10 to 14
 
 
 
 
 
+offset mode: +10 (manual, no ping)
+added delay with netem:10
+actual client ping:(27-30)
 
+cdsy: 10
+srwd:1-2
+crwd:0
+lcrm:0-12
+lcra:0-2
+rcrm:7-11
+rcra:3-4
 
 
+added delay with netem:10 (20)
+actual client ping:(47-50)
 
+cdsy: 10
+srwd:2
+crwd:0
+lcrm:0-18
+lcra:2-3
+rcrm:12-18
+rcra:5-8
 
 
 
+added delay with netem:20 (40)
+actual client ping:(66-67)
 
+cdsy: 10
+srwd:3
+crwd:0
+lcrm:0-24
+lcra:4-5
+rcrm:18-30
+rcra:5-8
 
+I broke the game!!!
+all clients are base resetting every frame
+I think it happened after a large network freeze
+pings are 275-300 for all clients
 
+they all still have cdsy of 10
 
+I do not know what caused this and what I can do to fix it....
+was the pause big enough that the history buffer ran out...
 
+is the whole problem based on the client not chasing to proper frame?
 
+forced resetting base on server or client does nothing...
 
+client quits and rejoins, still has huge ping...
 
+its look like a server thing
 
+what if I remove the netem? from 20 to 0  (40 to 0)
+pings are now all 225-250 from 275-300
 
+what on the server could be causing this?
 
 
 
@@ -34883,7 +34984,11 @@ start documenting it...
 
 
 
+remove client ping flag, now it just sends once per second like other 1Hz stuf and that should be fine...
+also png_timer
+done
 
+remove old maxcor and use only new..done
 
 
 
@@ -34923,61 +35028,654 @@ start documenting it...
 
 
 
+-----------------------------------------------------------
+Now I would like to experiment with different offsets...
+-----------------------------------------------------------
+I would like a way for the server to tell the client what to use??
+would I really now?
+how would I do that?
+make it part of the player syn
 
+reuse stdf freq change controls on server
 
+what variables?
 
 
+right now I am still doing + 10 from ping
 
+I never measured what +10 with no ref to ping would do...try that
 
 
 
 
 
+timer adjust uses strictly this value:
 
+client_chase_offset;   // set point
 
 
+in fast packet loop when rx pong
 
+         // adjust client chase offset based on ping
+         if (client_chase_offset_mode) // auto mode
+         {
+            client_chase_offset = - mPlayer.loc[p].ping_avg + client_chase_offset_auto_offset;
+         }
+         else
+         {
+            //mPlayer.loc[p].client_chase_offset = mPlayer.loc[p].client_chase_offset_auto_offset;
+         }
 
 
 
+netgame.h
 
+   double client_chase_offset = 0.0;
+   double client_chase_offset_auto_offset = -0.02;
+   int client_chase_offset_mode = 1; // 0 = manual, 1 = auto
 
 
+what if I made another mode?
+2 - get offset from server
+and made it so that the mode was saved in config
 
 
+still timer adjust would always only use client_chase_offset
 
+when receiving pong if in mode 1, then adjust client_chase_offset
 
+so far this is still how it is already
 
+adjustments in screen overlay are good, manual adjusts directly, auto adjusts the auto_offset
 
+make the mode button also do mode 2 server direct control..done
 
+make it so that the mode is saved in config
+actually, save all three...done
 
+now, where to set server
 
 
+in manual mode it gets the value from config and is only ever changed with buttons
+in auto mode it is adjusted when rx pong
 
+in server mode??
 
+how about in timer adjust, just copy from server p0..done
 
+add to syn..done
 
+modify server controls to change it...done
 
+make it so that server rewind does not restore it...done...
 
+now I have control over all clients offset from server
 
+what am I going to do with this?
 
+I have a nasty bug that I want to fix
 
+it just happened again...
 
+what can I do to reproduce it?
 
 
+8P netgame LAN
+forced offset 10
 
+It seems to happen with huge network freezes
 
+but what causes that? and how can I work with it?
 
+make the samba share work again with scat so I can get logs..doesn't work over internet...duh
 
+reproduced with server logging stdf and stak
+all i can tell is:
+server tx stdfs every frame all based from zero
+server rx stak, but they are 10-11 frames old
 
+this could be just a side effect of the client getting stuck too far behind...
 
+lets look in the logs there...
 
+another reproduction...
+netem 40 (80)
 
 
+started at frame 9650 on server
+before that tx stdf the rx stak approx 4 frame earlier
+after that it still shows it sent stdf every frame, but did not get a stak reply until frame 9677 (27 frames later)
 
+also strange is that it sent stdf for frames 50, 51, 52 based on 46, but then after that starting sending stdf based on zero...
+this seems strange because it did this without getting a stak....
 
+looking at this code:
 
+it looks like saving the current state is pushing out the valid base
+this may not be optimal, but I don't think it is what is causing the issues....
+at the worst, it should trigger a base reset and recover
 
+void mwNetgame::server_send_dif(int frame_num) // send dif to all clients
+{
+  for (int p=1; p<NUM_PLAYERS; p++)
+      if ((mPlayer.syn[p].control_method == 2) || (mPlayer.syn[p].control_method == 8))
+      {
+         // save current state in history as base for next clients send
+         mStateHistory[p].add_state(frame_num);
+
+         char base[STATE_SIZE] = {0};
+         int base_frame_num = 0;
+
+         // get client's most recent base state (the last one acknowledged to the server)
+         // if not found, leaves base as is (zero)
+         mStateHistory[p].get_last_ack_state(base, base_frame_num);
+
+         if (base_frame_num == 0) mPlayer.loc[p].client_base_resets++;
+
+         // make a new dif from base and current
+         char dif[STATE_SIZE];
+         get_state_dif(base, mStateHistory[p].newest_state, dif, STATE_SIZE);
+
+         // break into packet and send to client
+         server_send_compressed_dif(p, base_frame_num, frame_num, dif);
+      }
+}
+
+
+
+now lets look on the client
+
+frame 9646 rx stdf from 9641-9646
+then the next stdf was rx'd at 9672
+
+the big gap matches up...
+
+after the big gap
+
+it now has a dysnc of -600 and starts adjusting itself
+
+I don't think the dsync value is correct
+
+how is it calculated again?
+
+
+void mwNetgame::client_process_stdf_packet(double timestamp)
+{
+   int p = mPlayer.active_local_player;
+   int src = PacketGet4ByteInt();
+   int dst = PacketGet4ByteInt();
+   int seq = PacketGet1ByteInt();
+   int max_seq = PacketGet1ByteInt();
+   int sb = PacketGet4ByteInt();
+   int sz = PacketGet4ByteInt();
+
+
+   int client_sync = dst - mLoop.frame_num;      // crude integer sync based on frame numbers
+   double dsync = al_get_time() - timestamp;     // time between when the packet was received into the packet buffer and now
+   dsync += (double) client_sync * 0.025;        // combine with client_sync
+
+
+
+
+
+so if i suddenly after a long freeze, get an stdf from the very past....
+dsync will be affected
+
+so why can't rejoining fix it?
+
+
+
+maybe I am getting a lot of stdf packets and I need to look at them all and only process the newest one..
+this is for cases where they build up and I get a lot in one frame
+my current method is only use the first one for timing....
+
+
+how about this?
+
+for client timing:
+separate function to search packet buffer for stdf packets
+if there are multiple, use the one with the highest dst frame
+
+
+
+
+
+
+also, i think it is important that if I decode an old state that i dont apply it if there are newer ones
+should I have muliple current difs waiting on the client? no
+
+
+read packet buffer on client
+1st pass
+
+
+
+how is packet buffer processed?
+
+in order?
+
+
+
+
+
+
+
+packet buffer only has 200, could I be running into the limit?
+I now have an error that prints when full
+
+
+full fakekey packets/sec packet/frame
+
+client tx 80   2 (one cdat, one stak)
+client rx 250  6
+
+server tx 2200 55
+server rx 580  14
+
+I should be no where near the 200 packet in the buffer limit...
+
+I want to capture a freeze event and see what the max's are
+not much higher
+
+client tx 82
+client rx 314
+
+server tx 2527
+server rx 585
+
+
+then I also want to see if a brand new client can re-join
+yes they can, but never get ping always zero
+
+so it has somthing to do with the server, something gets screwed up and is not reset by restarting client
+
+do a log when trying to do this...duh...
+I still don't know what is going on
+ELI5
+got dif and applied dsync -12 target 10
+then it adjusted timer until it was 10
+pings say 300 ...
+
+what could be causing ping to be wrong?
+
+also ping never gets back to server
+it is a separte calc
+
+
+now I do a reset of the client history when server sets up joining client
+
+mPlayer.init_player(cn, 1); // full player reset
+mStateHistory[cn].initialize();
+restarting one client fixed for everyone...
+
+cannot reproduce...
+
+constant base resets, but I get pings both locally and remotely
+
+I notice on the server I get cpu usage around 80% with constant base resets...
+lowering zc from 7 to 5 makes a big difference
+
+what else am I going to try?
+
+what about what stdf packets I am using for timing?
+
+make my own custom timing thing
+
+it makes sense to use the newest stdf for timing
+I don't think it can be too new
+
+I could calculate dsync and then get the max of that
+
+
+new task
+
+
+in my packet functions
+
+replace 1 2 3 4 byte int put and get...
+
+replace with 1 and 4
+
+how many occurance?
+
+get put
+4 12 11
+3 0 0
+2 2 4
+1 13 17
+
+done
+
+3 is dead
+
+1 and 2 have just been renamed
+
+4 uses memcpy
+
+now back to ...
+
+
+now I have a new method of getting dsync
+I am getting the highest number, but I am not sure that is correct...
+
+still locks with constant base resets
+
+I started having these issues when I tried sync of +10
+
+I could try lowering it, but I really want to know how it gets in its loop and how to fix it....
+
+I was able to reproduce even with netem 0
+
+
+turn on all logging, especially stdf packet and see...
+
+
+I captured an almost loop at 4966, but it recovered
+
+srvr
+4960 rx stak
+4987 rx stak
+I can see individual stdf pieces sent inbetween these frame
+
+clnt
+4960 rx dif complete
+4986 rx dif complete
+nothing in between
+cant tell if stdf packet were rx'd
+
+then it applies the dif and rewinds 25 frames
+then the next frame it applies another and rewinds 20 frames
+
+then for sure at 6800
+
+what causes it?
+
+
+another example
+
+7503
+
+srv
+7500 rx stak
+7528 rx stak
+
+
+clt
+
+I don't care as much that is breaks, as much as I care that it doesn't fix itself....
+
+I think it is primarily a sync thing
+
+server sends
+7570 tx stdf 0-7571
+7571 rx stak 7559 (this has the frame number 7559 so I am pretty sure the client applied it on frame 7559)
+
+client
+7573 rx dif 0-7571
+7573 rx dif 0-7572
+7573 apply dif 0-7572
+
+7559 rx dif 0-7558
+7559 apply dif 7558
+
+
+
+
+add logging on client for send stak
+
+
+
+changed the order  of client sending stak..used to do it right after applying state, now does it after ff
+the only difference will be that stak packet will now send current client frame after rewind, rather than frame after apply dif.
+i don't expect that ill fix anything, but the way it was, both frame numbers were always the same
+not that I make any use of that frame number anyway...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------------------
+I also would like to know where in the history my hits or lookups occur.
+-----------------------------------------------------------
+Does rewind tell me that? No.
+
+on server, rewind tells me the latest cdat rx'd and thus how far I need to rewind
+this is aleady what I want
+
+
+on client, rewind tells me how far the dest is from current frame
+I also want to know how far the source is...
+
+I will almost alway be dst-1, because src and dst are one frame apart
+I would like to measure and see.
+
+what would I call this?
+client_base_rewind?
+yes that describes it...
+
+when client looks up a base to apply a dif, also record this
+
+the base frame compared to what?
+the current frame?
+the oldest frame in history?
+the newest frame in history?
+the dst frame?
 
 
 

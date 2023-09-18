@@ -7,10 +7,10 @@ class mwTally
    mwTally(); // default constructor
    void initialize(void);
 
-   double get_tally(void);
-   double get_avg(void);
-   double get_max(void);
-   double get_min(void);
+   double get_tally(int reset);
+   double get_avg(int reset);
+   double get_max(int reset);
+   double get_min(int reset);
 
    void add_data(double d);
 

@@ -269,6 +269,8 @@ void mwNetgame::server_rewind(void)
    if (mLoop.frame_num >= mStateHistory[0].newest_state_frame_num + server_state_freq - 1) // is it time to create a new state?
    {
       // save values we don't want rewound
+      float old_cco = mPlayer.syn[0].client_chase_offset;
+
       int lcd[8][2] = { 0 };
       for (int pp=0; pp<NUM_PLAYERS; pp++)
          if (mPlayer.syn[pp].active)
@@ -276,10 +278,19 @@ void mwNetgame::server_rewind(void)
             lcd[pp][0] = mPlayer.syn[pp].late_cdats;
             lcd[pp][1] = mPlayer.syn[pp].late_cdats_last_sec;
          }
+
+
+
+
+
+
+
 //      mStateHistory[0].apply_rewind_state(mStateHistory[0].oldest_state_frame_num);
       mStateHistory[0].apply_rewind_state(server_dirty_frame);
 
       // restore values we don't want reset
+      mPlayer.syn[0].client_chase_offset = old_cco;
+
       for (int pp=0; pp<NUM_PLAYERS; pp++)
          if (mPlayer.syn[pp].active)
          {
@@ -358,7 +369,7 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
    mPlayer.loc[p].cmp_dif_size = cmp_size;
    mPlayer.loc[p].num_dif_packets = num_packets;
 
-   mLog.addf(LOG_NET_stdf, p, "tx stdf p:%d [src:%d dst:%d] cmp:%d ratio:%3.2f [%d packets needed]\n", p, src, dst, cmp_size, cr, num_packets);
+   mLog.addf(LOG_NET_stdf, p, "tx stdf p:%d [s:%d d:%d] cmp:%d ratio:%3.2f [%d packets needed]\n", p, src, dst, cmp_size, cr, num_packets);
 
    int start_byte = 0;
    for (int packet_num=0; packet_num < num_packets; packet_num++)
@@ -369,12 +380,12 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
       mLog.addf(LOG_NET_stdf_packets, p, "tx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", packet_num+1, num_packets, src, dst, start_byte, packet_data_size);
 
       Packet("stdf");
-      PacketPut4ByteInt(src); // src frame_num
-      PacketPut4ByteInt(dst); // dst frame_num
-      PacketPut1ByteInt(packet_num);
-      PacketPut1ByteInt(num_packets);
-      PacketPut4ByteInt(start_byte);
-      PacketPut4ByteInt(packet_data_size);
+      PacketPutInt4(src); // src frame_num
+      PacketPutInt4(dst); // dst frame_num
+      PacketPutInt1(packet_num);
+      PacketPutInt1(num_packets);
+      PacketPutInt4(start_byte);
+      PacketPutInt4(packet_data_size);
       memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
       packetsize += packet_data_size;
       ServerSendTo(packetbuffer, packetsize, mPlayer.loc[p].who, p);
@@ -384,22 +395,17 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
 
 void mwNetgame::server_proc_stak_packet(double timestamp)
 {
-   int p                           = PacketGet1ByteInt();
-   int ack_frame_num               = PacketGet4ByteInt(); // client has acknowledged getting and applying this base
-   int client_frame_num            = PacketGet4ByteInt();
-   mPlayer.loc[p].client_chase_fps = PacketGetDouble();
-   mPlayer.loc[p].dsync            = PacketGetDouble();
-   mPlayer.loc[p].rewind           = PacketGet1ByteInt();
-
-
+   int p                             = PacketGetInt1();
+   int ack_frame_num                 = PacketGetInt4(); // client has acknowledged getting and applying this base
+   int client_frame_num              = PacketGetInt4();
+   mPlayer.loc[p].client_chase_fps   = PacketGetDouble();
+   mPlayer.loc[p].dsync              = PacketGetDouble();
+   mPlayer.loc[p].rewind             = PacketGetInt1();
    mPlayer.loc[p].client_loc_plr_cor = PacketGetDouble();
    mPlayer.loc[p].client_rmt_plr_cor = PacketGetDouble();
 
    mTally_client_loc_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_loc_plr_cor);
    mTally_client_rmt_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_rmt_plr_cor);
-
-
-
 
    // calculate stak_sync
    int stak_sync = mLoop.frame_num - mStateHistory[p].newest_state_frame_num;
@@ -415,7 +421,7 @@ void mwNetgame::server_proc_stak_packet(double timestamp)
    // make sure we have a copy of acknowledged state in histroy, finds and sets values, or sets to -1 if not found
    mStateHistory[p].set_ack_state(ack_frame_num);
 
-   mLog.addf(LOG_NET_server_rx_stak, p, "rx stak d[%4.1f] c[%4.1f] a:%d c:%d\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].client_chase_fps, ack_frame_num, client_frame_num);
+   mLog.addf(LOG_NET_stak, p, "rx stak p:%d ack:[%d] cur:[%d] dsync:[%4.1f] chase:[%4.1f]\n", p, ack_frame_num, client_frame_num, mPlayer.loc[p].dsync*1000, mPlayer.loc[p].client_chase_fps);
 }
 
 
@@ -467,9 +473,9 @@ void mwNetgame::server_proc_player_drop(void)
 
 void mwNetgame::server_proc_cdat_packet(double timestamp)
 {
-   int p = PacketGet1ByteInt();
-   int cdat_frame_num = PacketGet4ByteInt();
-   int cm = PacketGet1ByteInt();
+   int p = PacketGetInt1();
+   int cdat_frame_num = PacketGetInt4();
+   int cm = PacketGetInt1();
 
    mPlayer.loc[p].client_cdat_packets_tx++;
 
@@ -526,7 +532,7 @@ void mwNetgame::server_lock_client(int p)
 void mwNetgame::server_proc_cjon_packet(int who)
 {
    char temp_name[16];
-   int color = PacketGet1ByteInt();
+   int color = PacketGetInt1();
    PacketReadString(temp_name);
 
    mLog.add_fwf(LOG_NET_network_setup, 0, 76, 10, "+", "-", "");
@@ -546,20 +552,25 @@ void mwNetgame::server_proc_cjon_packet(int who)
       mLog.add_fwf(LOG_NET_network_setup, 0, 76, 10, "+", "-", "");
 
       Packet("sjon");    // reply with sjon
-      PacketPut2ByteInt(0);
-      PacketPut4ByteInt(0);
-      PacketPut1ByteInt(0);
-      PacketPut1ByteInt(99); // send sjon with player 99 to indicate server full
-      PacketPut1ByteInt(0);
-      PacketPut2ByteInt(0);
-      PacketPut1ByteInt(0);
+      PacketPutInt2(0);
+      PacketPutInt4(0);
+      PacketPutInt1(0);
+      PacketPutInt1(99); // send sjon with player 99 to indicate server full
+      PacketPutInt1(0);
+      PacketPutInt2(0);
+      PacketPutInt1(0);
       ServerSendTo(packetbuffer, packetsize, who, 0);
    }
    else // empty player slot found, proceed with join
    {
       // try to use requested color, unless already used by another player
       while (mPlayer.is_player_color_used(color)) if (++color > 15) color = 1;
-      mPlayer.init_player(cn, 1);
+
+      mPlayer.init_player(cn, 1); // full player reset
+
+      mStateHistory[cn].initialize();
+
+
       mPlayer.set_player_start_pos(cn, 0);
 
       mPlayer.syn[cn].active = 1;
@@ -573,13 +584,13 @@ void mwNetgame::server_proc_cjon_packet(int who)
       mGameMoves.add_game_move(mLoop.frame_num, 3, cn, color); // add a game move type 3 to mark client started join
 
       Packet("sjon"); // reply with sjon
-      PacketPut2ByteInt(mLevel.play_level);
-      PacketPut4ByteInt(mLoop.frame_num);
-      PacketPut1ByteInt(cn);
-      PacketPut1ByteInt(color);
-      PacketPut1ByteInt(mShot.deathmatch_shots);
-      PacketPut2ByteInt(mShot.deathmatch_shot_damage+1000);
-      PacketPut1ByteInt(mShot.suicide_shots);
+      PacketPutInt2(mLevel.play_level);
+      PacketPutInt4(mLoop.frame_num);
+      PacketPutInt1(cn);
+      PacketPutInt1(color);
+      PacketPutInt1(mShot.deathmatch_shots);
+      PacketPutInt2(mShot.deathmatch_shot_damage+1000);
+      PacketPutInt1(mShot.suicide_shots);
       ServerSendTo(packetbuffer, packetsize, who, cn);
 
       mLog.add_fwf(LOG_NET_network_setup, 0, 76, 10, "|", " ", "Server replied with join invitation:");
@@ -644,18 +655,24 @@ void mwNetgame::server_fast_packet_loop(void)
       if(PacketRead("cjon")) type = 3;
       if (type)
       {
-         for (int i=0; i<200; i++)
-            if (!packet_buffers[i].active) // find empty
-            {
-               //printf("%d stored packet:%d size:%d type:%d\n", mLoop.frame_num, i, packetsize, type);
-               packet_buffers[i].active = 1;
-               packet_buffers[i].type = type;
-               packet_buffers[i].timestamp = timestamp;
-               packet_buffers[i].who = who;
-               packet_buffers[i].packetsize = packetsize;
-               memcpy(packet_buffers[i].data, packetbuffer, 1024);
-               break;
-            }
+         // find empty
+         int indx = -1;
+         for (int i=0; i<200; i++) if (!packet_buffers[i].active)
+         {
+            indx = i;
+            break;
+         }
+         if (indx == -1) printf("Packet buffer full!\n");
+         else
+         {
+            //printf("%d stored packet:%d size:%d type:%d\n", mLoop.frame_num, i, packetsize, type);
+            packet_buffers[indx].active = 1;
+            packet_buffers[indx].type = type;
+            packet_buffers[indx].timestamp = timestamp;
+            packet_buffers[indx].who = who;
+            packet_buffers[indx].packetsize = packetsize;
+            memcpy(packet_buffers[indx].data, packetbuffer, 1024);
+         }
       }
    }
 }

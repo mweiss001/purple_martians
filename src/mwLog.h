@@ -23,7 +23,7 @@
 #define LOG_NET_stdf_packets       28
 #define LOG_NET_dif_applied        30
 #define LOG_NET_dif_not_applied    31
-#define LOG_NET_server_rx_stak     33
+#define LOG_NET_stak               33
 #define LOG_NET_cdat               35
 #define LOG_NET_client_ping        36
 #define LOG_NET_timer_adjust       37
