@@ -172,12 +172,27 @@ double mwNetgame::PacketGetDouble(void)
 	return d;
 }
 
-void mwNetgame::PacketPut1ByteInt(int b)
+void mwNetgame::PacketPutInt4(int d)
+{
+   memcpy(packetbuffer + packetsize, &d, 4);
+	packetsize+=4;
+}
+
+int mwNetgame::PacketGetInt4(void)
+{
+   int d = 0;
+   memcpy(&d, packetbuffer + packetpos, 4);
+	packetpos+=4;
+	return d;
+}
+
+
+void mwNetgame::PacketPutInt1(int b)
 {
    unsigned char lo_b = (unsigned char) (b);
    PacketAddByte(lo_b);
 }
-void mwNetgame::PacketPut2ByteInt(int b)
+void mwNetgame::PacketPutInt2(int b)
 {
    unsigned char hi_b = (unsigned char) (b/256);
    PacketAddByte(hi_b);
@@ -185,70 +200,17 @@ void mwNetgame::PacketPut2ByteInt(int b)
    unsigned char lo_b = (unsigned char) (b - (hi_b*256));
    PacketAddByte(lo_b);
 }
-void mwNetgame::PacketPut3ByteInt(int b)
-{
-   int t = b;
-
-   unsigned char sh_b = (unsigned char) (t/65536);
-   PacketAddByte(sh_b);
-   t -= sh_b * 65536;
-
-   unsigned char hi_b = (unsigned char) (t/256);
-   PacketAddByte(hi_b);
-   t -= hi_b * 256;
-
-   unsigned char lo_b = (unsigned char) t;
-   PacketAddByte(lo_b);
-}
-
-void mwNetgame::PacketPut4ByteInt(int b)
-{
-   int t = b;
-
-   unsigned char uh_b = (unsigned char) (t/16777216);
-   PacketAddByte(uh_b);
-   t -= uh_b * 16777216;
-
-   unsigned char sh_b = (unsigned char) (t/65536);
-   PacketAddByte(sh_b);
-   t -= sh_b * 65536;
-
-   unsigned char hi_b = (unsigned char) (t/256);
-   PacketAddByte(hi_b);
-   t -= hi_b * 256;
-
-   unsigned char lo_b = (unsigned char) t;
-   PacketAddByte(lo_b);
-}
-
-int mwNetgame::PacketGet1ByteInt(void)
+int mwNetgame::PacketGetInt1(void)
 {
    unsigned char byte_lo = (unsigned char)PacketGetByte();
    int b = byte_lo;
 	return b;
 }
-int mwNetgame::PacketGet2ByteInt(void)
+int mwNetgame::PacketGetInt2(void)
 {
    unsigned char byte_ho = (unsigned char)PacketGetByte();
    unsigned char byte_lo = (unsigned char)PacketGetByte();
    int b = (byte_ho * 256) + byte_lo;
-   return b;
-}
-int mwNetgame::PacketGet3ByteInt(void)
-{
-   unsigned char byte_sh = (unsigned char)PacketGetByte();
-   unsigned char byte_ho = (unsigned char)PacketGetByte();
-   unsigned char byte_lo = (unsigned char)PacketGetByte();
-   int b = (byte_sh*65536) + (byte_ho*256) + byte_lo;
-   return b;
-}
-int mwNetgame::PacketGet4ByteInt(void)
-{
-   unsigned char byte_uh = (unsigned char)PacketGetByte();
-   unsigned char byte_sh = (unsigned char)PacketGetByte();
-   unsigned char byte_ho = (unsigned char)PacketGetByte();
-   unsigned char byte_lo = (unsigned char)PacketGetByte();
-   int b = (byte_uh*16777216) + (byte_sh*65536) + (byte_ho*256) + byte_lo;
    return b;
 }
 

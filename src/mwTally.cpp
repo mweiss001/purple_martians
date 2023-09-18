@@ -28,38 +28,40 @@ void mwTally::initialize(void)
 }
 
 
-// return tally and reset
-double mwTally::get_tally(void)
+
+
+// return tally and optionally reset
+double mwTally::get_tally(int reset)
 {
    double tmp = tally;
-   initialize();
+   if (reset) initialize();
    return tmp;
 }
 
-// return average and reset
-double mwTally::get_avg(void)
+// return average and optionally reset
+double mwTally::get_avg(int reset)
 {
    double avg = 0;
    if (num) avg = tally / num;
-   initialize();
+   if (reset) initialize();
    return avg;
 }
 
-// return max and reset
-double mwTally::get_max(void)
+// return max and optionally reset
+double mwTally::get_max(int reset)
 {
    double tmx = 0;
    if (num) tmx = mx;
-   initialize();
+   if (reset) initialize();
    return tmx;
 }
 
-// return min and reset
-double mwTally::get_min(void)
+// return min and optionally reset
+double mwTally::get_min(int reset)
 {
    double tmn = 0;
    if (num) tmn = mn;
-   initialize();
+   if (reset) initialize();
    return tmn;
 }
 

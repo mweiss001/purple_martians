@@ -22,7 +22,7 @@
 #include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwItem.h"
-
+#include "mwConfig.h"
 
 
 void mwScreen::show_player_stat_box(int tx, int y, int p)
@@ -236,7 +236,6 @@ ALLEGRO_COLOR mwScreen::col_clr2(int p)
 
 void mwScreen::sdg_show_column(int col, int &x, int y)
 {
-   char msg[1024];
    y-=8;
 
    ALLEGRO_COLOR c1 = mColor.pc[15];
@@ -352,52 +351,27 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       x+=6*8;
    }
 
-   if (col == 18) // server name and description
+
+
+
+   if (col == 17) // type of player description
    {
+      int a = mPlayer.active_local_player;
+
       y+=8;
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          y+=8;
 
-         if (p == 0)
-         {
-            sprintf(msg, "[%s] <-- server (me!)", mPlayer.loc[p].hostname);
-            al_draw_text(mFont.pr8, mColor.pc[mPlayer.syn[p].color], x, y, 0, msg);
-         }
-         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == 2))
-         {
-            sprintf(msg, "[%s] <-- active client", mPlayer.loc[p].hostname);
-            al_draw_text(mFont.pr8, mColor.pc[mPlayer.syn[p].color], x, y, 0, msg);
-         }
-         if ((!mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == 2))
-         {
-            sprintf(msg, "[%s] <-- syncing client", mPlayer.loc[p].hostname);
-            al_draw_text(mFont.pr8, mColor.pc[mPlayer.syn[p].color], x, y, 0, msg);
-         }
-         if (mPlayer.syn[p].control_method == 9)
-         {
-            sprintf(msg, "[%s] <-- used client", mPlayer.loc[p].hostname);
-            al_draw_text(mFont.pr8, mColor.pc[mPlayer.syn[p].color], x, y, 0, msg);
-         }
-      }
-   }
+         char lr[20] = { 0 };
+         if (p == a) sprintf(lr, "[loc ");
+         else        sprintf(lr, "[rmt ");
 
-   if (col == 19) // client name and description
-   {
-      y+=8;
-      for (int p=0; p<NUM_PLAYERS; p++)
-      {
-         y+=8;
-         sprintf(msg, " "); // blank
-         if (p == 0) sprintf(msg, "[%s] <-- server", mPlayer.loc[p].hostname);
-         else
-         {
-            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == 2)) sprintf(msg, "[%s] <-- active client", mPlayer.loc[p].hostname);
-            if ((!mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == 2)) sprintf(msg, "[%s] <-- syncing client", mPlayer.loc[p].hostname);
-            if (mPlayer.syn[p].control_method == 9) sprintf(msg, "[%s] <-- used client", mPlayer.loc[p].hostname);
-            if (p == mPlayer.active_local_player) sprintf(msg, "[%s] <-- local client (me)", mPlayer.loc[p].hostname);
-         }
-         al_draw_text(mFont.pr8, mColor.pc[mPlayer.syn[p].color], x, y, 0, msg);
+         char ty[20] = { 0 };
+         if (p == 0) sprintf(ty, "server]");
+         else        sprintf(ty, "client]");
+
+         if (mPlayer.syn[p].active) al_draw_textf(mFont.pr8, mColor.pc[mPlayer.syn[p].color], x, y, 0, "%s%s %s", lr, ty, mPlayer.loc[p].hostname);
       }
    }
 
@@ -458,38 +432,53 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
    if (col == 28) // rewind
    {
       al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[rwnd]");
-      al_draw_textf(mFont.pr8, c2,            x, y+=8, 0, "[    ]");
-      for (int p=1; p<NUM_PLAYERS; p++)
+      for (int p=0; p<NUM_PLAYERS; p++)
          al_draw_textf(mFont.pr8, col_clr(p), x, y+=8, 0, "[%4d]", mPlayer.loc[p].rewind);
       x+=6*8;
    }
 
-   if (col == 29) // client player max correction
+   if (col == 30) // client loc player correction avg
    {
-      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[mxcr]");
+      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[lcra]");
       al_draw_textf(mFont.pr8, c2,            x, y+=8, 0, "[    ]");
       for (int p=1; p<NUM_PLAYERS; p++)
-         al_draw_textf(mFont.pr8, col_clr(p), x, y+=8, 0, "[%4.1f]", mPlayer.loc[p].cor_max);
+         al_draw_textf(mFont.pr8, col_clr(p), x, y+=8, 0, "[%4.1f]", mPlayer.loc[p].client_loc_plr_cor_avg);
       x+=6*8;
    }
 
-   if (col == 30) // client loc player max correction
+   if (col == 31) // client loc player correction max
    {
-      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[lcor]");
+      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[lcrm]");
       al_draw_textf(mFont.pr8, c2,            x, y+=8, 0, "[    ]");
       for (int p=1; p<NUM_PLAYERS; p++)
          al_draw_textf(mFont.pr8, col_clr(p), x, y+=8, 0, "[%4.1f]", mPlayer.loc[p].client_loc_plr_cor_max);
       x+=6*8;
    }
 
-   if (col == 31) // client rmt player max correction
+   if (col == 32) // client rmt player correction avg
    {
-      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[rcor]");
+      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[rcra]");
+      al_draw_textf(mFont.pr8, c2,            x, y+=8, 0, "[    ]");
+      for (int p=1; p<NUM_PLAYERS; p++)
+         al_draw_textf(mFont.pr8, col_clr(p), x, y+=8, 0, "[%4.1f]", mPlayer.loc[p].client_rmt_plr_cor_avg);
+      x+=6*8;
+   }
+
+   if (col == 33) // client rmt player correction max
+   {
+      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[rcrm]");
       al_draw_textf(mFont.pr8, c2,            x, y+=8, 0, "[    ]");
       for (int p=1; p<NUM_PLAYERS; p++)
          al_draw_textf(mFont.pr8, col_clr(p), x, y+=8, 0, "[%4.1f]", mPlayer.loc[p].client_rmt_plr_cor_max);
       x+=6*8;
    }
+
+
+
+
+
+
+
 
 }
 
@@ -498,13 +487,13 @@ void mwScreen::sdg_show(int x, int y) // server debug grid
    al_draw_filled_rectangle(x, y, x+880, y+73, mColor.pc[0]);
    y+=1;
    sdg_show_column(1, x, y); // player number
-   sdg_show_column(2, x, y); // active
-   sdg_show_column(3, x, y); // color
-   sdg_show_column(4, x, y); // control method
+//   sdg_show_column(2, x, y); // active
+//   sdg_show_column(3, x, y); // color
+//   sdg_show_column(4, x, y); // control method
 //   sdg_show_column(5, x, y); // who
 //   sdg_show_column(6, x, y); // server_state_freq
-   sdg_show_column(7, x, y); // client chase fps
-   sdg_show_column(8, x, y); // server_game_move_sync
+//   sdg_show_column(7, x, y); // client chase fps
+//   sdg_show_column(8, x, y); // server_game_move_sync
    sdg_show_column(9, x, y); // client base resets
    sdg_show_column(28, x, y); // rewind
    sdg_show_column(23, x, y); // late cdats
@@ -512,32 +501,46 @@ void mwScreen::sdg_show(int x, int y) // server debug grid
    sdg_show_column(12, x, y); // number of packets
    sdg_show_column(13, x, y); // dif size
    sdg_show_column(14, x, y); // tx kB/sec
-   sdg_show_column(15, x, y); // rx kB/sec
-   sdg_show_column(20, x, y); // stak_sysnc
+//   sdg_show_column(15, x, y); // rx kB/sec
+//   sdg_show_column(20, x, y); // stak_sysnc
    sdg_show_column(27, x, y); // ping
    sdg_show_column(25, x, y); // dsync
-   sdg_show_column(26, x, y); // gmav
-   sdg_show_column(30, x, y); // loc cor
-   sdg_show_column(31, x, y); // rmt cor
-   sdg_show_column(18, x, y); // name and description (server version)
+//   sdg_show_column(26, x, y); // gmav
+
+   sdg_show_column(31, x, y); // loc cor max
+   sdg_show_column(30, x, y); // loc cor avg
+   sdg_show_column(33, x, y); // rmt cor max
+   sdg_show_column(32, x, y); // rmt cor avg
+
+   sdg_show_column(17, x, y); // name and description (server version)
 }
 
 void mwScreen::cdg_show(int x, int y) // client debug grid
 {
-   al_draw_filled_rectangle(x, y, x+400, y+73, mColor.pc[0]);
+   al_draw_filled_rectangle(x, y, x+600, y+73, mColor.pc[0]);
    y+=1;
    sdg_show_column(1, x, y); // player number
-   sdg_show_column(2, x, y); // active
-   sdg_show_column(3, x, y); // color
-   sdg_show_column(4, x, y); // control method
+//   sdg_show_column(2, x, y); // active
+//   sdg_show_column(3, x, y); // color
+//   sdg_show_column(4, x, y); // control method
+
+
    sdg_show_column(9, x, y);  // client base resets
    sdg_show_column(28, x, y); // rewind
    sdg_show_column(23, x, y); // late cdats
    sdg_show_column(24, x, y); // late cdats last second
-   sdg_show_column(29, x, y); // max cor
-   sdg_show_column(30, x, y); // loc cor
-   sdg_show_column(31, x, y); // rmt cor
-   sdg_show_column(19, x, y); // name and description (client version)
+
+   sdg_show_column(31, x, y); // loc cor max
+   sdg_show_column(30, x, y); // loc cor avg
+   sdg_show_column(33, x, y); // rmt cor max
+   sdg_show_column(32, x, y); // rmt cor avg
+
+
+   sdg_show_column(1, x, y); // player number
+//   sdg_show_column(2, x, y); // active
+//   sdg_show_column(3, x, y); // color
+//   sdg_show_column(4, x, y); // control method
+   sdg_show_column(17, x, y); // name and description (client version)
 }
 
 
@@ -726,8 +729,13 @@ void mwScreen::draw_server_debug_overlay(int p, int &cx, int &cy)
          static int b1_pres = 0;
          if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
          {
-            if (b1_pres == 0) mNetgame.server_state_freq--;
-            if (mNetgame.server_state_freq < 0) mNetgame.server_state_freq = 0;
+            if (b1_pres == 0) mPlayer.syn[0].client_chase_offset -= 0.005;
+
+
+            //if (b1_pres == 0) mNetgame.server_state_freq--;
+            //if (mNetgame.server_state_freq < 0) mNetgame.server_state_freq = 0;
+
+
             b1_pres = 1;
          }
          else b1_pres = 0;
@@ -736,11 +744,27 @@ void mwScreen::draw_server_debug_overlay(int p, int &cx, int &cy)
          static int b2_pres = 0;
          if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
          {
-            if (b2_pres == 0) mNetgame.server_state_freq++;
+
+            if (b2_pres == 0) mPlayer.syn[0].client_chase_offset += 0.005;
+
+//            if (b2_pres == 0) mNetgame.server_state_freq++;
+
+
+
             b2_pres = 1;
+
          }
          else b2_pres = 0;
-         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s1:%d", mNetgame.server_state_freq);
+
+
+
+//         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s1:%d", mNetgame.server_state_freq);
+
+
+         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "o:%2.0f", mPlayer.syn[0].client_chase_offset * 1000);
+
+
+
 
          csy3+=17;
 
@@ -930,12 +954,12 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
       {
          if (b1_pres == 0)
          {
-            if (mNetgame.client_chase_offset_mode) // auto mode - adjust offset from ping
+            if (mNetgame.client_chase_offset_mode == 1) // auto mode - adjust offset from ping
             {
                if (mInput.CTRL()) mNetgame.client_chase_offset_auto_offset -=0.01;
                else mNetgame.client_chase_offset_auto_offset -=0.001;
             }
-            else // manual mode - adjust offset directly
+            if (mNetgame.client_chase_offset_mode == 0) // manual mode - adjust offset directly
             {
                if (mInput.CTRL()) mNetgame.client_chase_offset -=0.01;
                else mNetgame.client_chase_offset -=0.001;
@@ -950,12 +974,12 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
       {
          if (b2_pres == 0)
          {
-            if (mNetgame.client_chase_offset_mode) // auto mode - adjust offset from ping
+            if (mNetgame.client_chase_offset_mode == 1) // auto mode - adjust offset from ping
             {
                if (mInput.CTRL()) mNetgame.client_chase_offset_auto_offset +=0.01;
                else mNetgame.client_chase_offset_auto_offset +=0.001;
             }
-            else // manual mode - adjust offset directly
+            if (mNetgame.client_chase_offset_mode == 0) // manual mode - adjust offset directly
             {
                if (mInput.CTRL()) mNetgame.client_chase_offset +=0.01;
                else mNetgame.client_chase_offset +=0.001;
@@ -968,19 +992,25 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
       static int b3_pres = 0;
       char msg[1024];
       sprintf(msg, "Manual");
-      if (mNetgame.client_chase_offset_mode) sprintf(msg, "Automatic");
+      if (mNetgame.client_chase_offset_mode == 0) sprintf(msg, "Manual");
+      if (mNetgame.client_chase_offset_mode == 1) sprintf(msg, "Automatic");
+      if (mNetgame.client_chase_offset_mode == 2) sprintf(msg, "Server");
+
 
       if (mWidget.buttont_nb(csx1+23, ya, csx2-23, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, msg))
       {
          if (b3_pres == 0)
          {
-            mNetgame.client_chase_offset_mode =  !mNetgame.client_chase_offset_mode;
+            if (++mNetgame.client_chase_offset_mode > 2) mNetgame.client_chase_offset_mode = 0;
+
+            mConfig.save_config();
+
          }
          b3_pres = 1;
       }
       else b3_pres = 0;
 
-      if (mNetgame.client_chase_offset_mode)
+      if (mNetgame.client_chase_offset_mode == 1)
          al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "ping offset:%+3.0fms", mNetgame.client_chase_offset_auto_offset*1000);
       else
          al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "offset:%+3.0fms", mNetgame.client_chase_offset*1000);
@@ -996,8 +1026,6 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
    {
       al_draw_filled_rectangle(cx, cy, cx+204, cy+38, mColor.pc[0]); cy+=2;
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "local moves:%d", mGameMoves.entry_pos); cy+=9;
-
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "move lag:%d", mPlayer.loc[p].client_move_lag);  cy+=9;
       cy +=4;
 
 
@@ -1009,7 +1037,7 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
 
       cy +=8;
 
-      int sfd = mPlayer.loc[p].client_move_lag; // src frame delta
+      int sfd = 0; // src frame delta
       int dfd = mPlayer.loc[p].rewind;   // dst frame delta
 
 
@@ -1183,7 +1211,7 @@ void mwScreen::draw_bottom_frame(int p)
       al_draw_text(mFont.pr8, mColor.pc[tc], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
 
-      sprintf(msg, " sync:%3.1f ", mPlayer.loc[p].dsync*1000);
+      sprintf(msg, " sync:%3.1f ", mPlayer.loc[p].dsync * 1000);
       al_draw_text(mFont.pr8, mColor.pc[tc], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
 

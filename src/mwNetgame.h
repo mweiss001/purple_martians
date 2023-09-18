@@ -44,16 +44,24 @@ class mwNetgame
    char PacketGetByte(void);
    void PacketAddString(char*);
    void PacketReadString(char*);
-   void PacketPut1ByteInt(int b);
-   void PacketPut2ByteInt(int b);
-   void PacketPut3ByteInt(int b);
-   void PacketPut4ByteInt(int b);
-   int PacketGet1ByteInt(void);
-   int PacketGet2ByteInt(void);
-   int PacketGet3ByteInt(void);
-   int PacketGet4ByteInt(void);
+   void PacketPutInt1(int b);
+   void PacketPutInt2(int b);
+
+//   void PacketPut3ByteInt(int b);
+//   void PacketPut4ByteInt(int b);
+
+   int PacketGetInt1(void);
+   int PacketGetInt2(void);
+//   int PacketGet3ByteInt(void);
+//   int PacketGet4ByteInt(void);
+
    void PacketPutDouble(double);
    double PacketGetDouble(void);
+
+
+   void PacketPutInt4(int d);
+   int  PacketGetInt4(void);
+
 
    int ima_server = 0;
    int ima_client = 0;
@@ -61,9 +69,11 @@ class mwNetgame
    int TCP = 0;
    int zlib_cmp = 7;
 
-   double client_chase_offset = 0.0;
-   double client_chase_offset_auto_offset = -0.02;
-   int client_chase_offset_mode = 1; // 0 = manual, 1 = auto
+
+   float client_chase_offset;
+   float client_chase_offset_auto_offset;
+   int client_chase_offset_mode; // 0 = manual, 1 = auto, 2 = server
+
 
    // server stdf frequency
    int server_state_freq = 2;

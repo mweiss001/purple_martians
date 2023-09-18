@@ -73,6 +73,10 @@ IF [%1]==[copy_all] (
 CALL :SUB_copy_all 
 )
 
+IF [%1]==[get_logs] (
+CALL :SUB_get_logs 
+)
+
 
 IF [%1]==[copy_src] (
 CALL :SUB_copy_src 
@@ -112,6 +116,20 @@ ECHO:
 
 
 GOTO :EOF
+
+
+
+
+
+
+:SUB_get_logs 
+set cmd1=pscp -pw zaiden %scp_dest%/logs/* C:\pm\logs\
+echo %cmd1%
+%cmd1%
+EXIT /B
+
+
+
 
 
 :SUB_get_targz 

@@ -127,38 +127,26 @@ int mwLog::log_file_viewer(int type)
       tags[i][4] = 0;  // pos in list
    }
 
+
+   int i=0;
+
    // always on
-   tags[10][0] = 1; tags[10][1] = 15; // reg netplay
+   i = LOG_NET_network_setup;   tags[i][0] = 1; tags[i][1] = 15; // network setup
+   i = LOG_NET_join_details;    tags[i][0] = 1; tags[i][1] = 15; // join details
+   i = LOG_NET_ending_stats;    tags[i][0] = 1; tags[i][1] = 15; // ending stats
 
-   tags[11][0] = 1; tags[11][1] = 15; // join
-   tags[20][0] = 1; tags[20][1] = 15; // game init stuff
-   tags[22][0] = 1; tags[22][1] = 15; // ending stats
+   i = LOG_NET_player_array;    tags[i][0] = 1; tags[i][1] = 15; tags[i][3] = 82; sprintf(ctags[i], "parr"); // player array (R) [CS]
+   i = LOG_NET_bandwidth;       tags[i][0] = 0; tags[i][1] = 15; tags[i][3] = 66; sprintf(ctags[i], "band"); // bandwidth    (B) [CS]
+   i = LOG_NET_stdf;            tags[i][0] = 1; tags[i][1] = 13; tags[i][3] = 88; sprintf(ctags[i], "stdf"); // stdf         (X) [CS]
+   i = LOG_NET_stdf_packets;    tags[i][0] = 0; tags[i][1] = 1;  tags[i][3] = 80; sprintf(ctags[i], "stdp"); // stdf piece   (P) [CS]
+   i = LOG_NET_stak;            tags[i][0] = 0; tags[i][1] = 6;  tags[i][3] = 75; sprintf(ctags[i], "stak"); // stak         (K) [S]
+   i = LOG_NET_dif_applied;     tags[i][0] = 0; tags[i][1] = 7;  tags[i][3] = 68; sprintf(ctags[i], "difa"); // dif applied  (D) [C]
+   i = LOG_NET_dif_not_applied; tags[i][0] = 0; tags[i][1] = 8;  tags[i][3] = 87; sprintf(ctags[i], "difn"); // dif not app  (W) [C]
+   i = LOG_NET_cdat;            tags[i][0] = 1; tags[i][1] = 3;  tags[i][3] = 67; sprintf(ctags[i], "cdat"); // cdat         (C) [CS]
+   i = LOG_NET_timer_adjust;    tags[i][0] = 1; tags[i][1] = 6;  tags[i][3] = 84; sprintf(ctags[i], "tmaj"); // timer adjust (T) [C]
+   i = LOG_NET_client_ping;     tags[i][0] = 1; tags[i][1] = 14; tags[i][3] = 78; sprintf(ctags[i], "cpng"); // client ping  (N) [C]
 
-
-   tags[23][0] = 0; tags[23][1] = 15; tags[23][3] = 66; sprintf(ctags[23], "byts"); // bandwidth    (B) [CS]
-   tags[24][0] = 0; tags[24][1] = 15; tags[24][3] = 65; sprintf(ctags[24], "pcks"); // packets      (A) [CS]
-
-   tags[26][0] = 1; tags[26][1] = 15; tags[26][3] = 82; sprintf(ctags[26], "parr"); // player array (R) [CS]
-
-   tags[27][0] = 1; tags[27][1] = 13; tags[27][3] = 88; sprintf(ctags[27], "stdf"); // stdf         (X) [CS]
-   tags[28][0] = 0; tags[28][1] = 1;  tags[28][3] = 80; sprintf(ctags[28], "stdp"); // stdf piece   (P) [CS]
-
-   tags[30][0] = 0; tags[30][1] = 7;  tags[30][3] = 68; sprintf(ctags[30], "difa"); // dif applied  (D) [C]
-   tags[31][0] = 0; tags[31][1] = 8;  tags[31][3] = 87; sprintf(ctags[31], "difn"); // dif not app  (W) [C]
-
-
-   tags[33][0] = 0; tags[33][1] = 6;  tags[33][3] = 75; sprintf(ctags[33], "stak"); // stak         (K) [S]
-
-   tags[35][0] = 1; tags[35][1] = 3;  tags[35][3] = 67; sprintf(ctags[35], "cdat"); // cdat         (C) [CS]
-
-   tags[36][0] = 1; tags[36][1] = 13; tags[36][3] = 84; sprintf(ctags[36], "tmaj"); // timer adjust (T) [C]
-   tags[37][0] = 1; tags[37][1] = 13; tags[37][3] = 78; sprintf(ctags[37], "cpng"); // client ping  (N) [C]
-
-   tags[40][0] = 1; tags[40][1] = 15; tags[40][3] = 69; sprintf(ctags[40], "gmar"); // game move array (E) [S]
-   tags[41][0] = 1; tags[41][1] = 15; tags[41][3] = 77; sprintf(ctags[41], "move"); // move objects    (M) [S]
-
-
-   tags[44][0] = 1; tags[44][1] = 15; tags[44][3] = 79; sprintf(ctags[44], "tmst"); // timestamp       (O) [CS]
+   i = LOG_TMR;                 tags[i][0] = 1; tags[i][1] = 15; tags[i][3] = 79; sprintf(ctags[i], "tmst"); // timestamp    (O) [CS]
 
    tags[99][0] = 1; tags[99][1] = 10; // bad tag
 

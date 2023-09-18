@@ -40,7 +40,7 @@ void mwLog::init_log_types(void)
    i = LOG_NET_stdf_packets;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf_packets");
    i = LOG_NET_dif_applied;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_dif_applied");
    i = LOG_NET_dif_not_applied;     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_dif_not_applied");
-   i = LOG_NET_server_rx_stak;      log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_server_rx_stak");
+   i = LOG_NET_stak;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stak");
    i = LOG_NET_cdat;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_cdat");
    i = LOG_NET_client_ping;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_client_ping");
    i = LOG_NET_timer_adjust;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_timer_adjust");

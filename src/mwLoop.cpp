@@ -468,6 +468,10 @@ void mwLoop::proc_program_state(void)
 
       mPlayer.syn[0].active = 1;
 
+
+
+
+
       state[0] = 23;
    }
 
@@ -1354,13 +1358,14 @@ void mwLoop::main_loop(void)
             mNetgame.client_send_ping();
 
             int p = mPlayer.active_local_player;
-            // get max from tally and reset
-            mPlayer.loc[p].client_loc_plr_cor_max = mTally_client_loc_plr_cor_last_sec[p].get_max();
-            mPlayer.loc[p].client_rmt_plr_cor_max = mTally_client_rmt_plr_cor_last_sec[p].get_max();
 
+            mPlayer.loc[p].client_loc_plr_cor_avg = mTally_client_loc_plr_cor_last_sec[p].get_avg(0);
+            mPlayer.loc[p].client_rmt_plr_cor_avg = mTally_client_rmt_plr_cor_last_sec[p].get_avg(0);
+
+            mPlayer.loc[p].client_loc_plr_cor_max = mTally_client_loc_plr_cor_last_sec[p].get_max(1);
+            mPlayer.loc[p].client_rmt_plr_cor_max = mTally_client_rmt_plr_cor_last_sec[p].get_max(1);
 
          }
-
 
          mEventQueue.program_update_1s = 0;
          if (state[1] == 11) // game loop running
@@ -1372,7 +1377,7 @@ void mwLoop::main_loop(void)
                // auto adjust server state frequency
                if (mNetgame.server_state_freq_mode == 1) // 0 = manual, 1 = auto
                {
-                  int mcp = mTally[4].get_max()*1000;
+                  int mcp = mTally[4].get_max(0)*1000;
                   if (mcp > 100) mcp = 100;
                   mNetgame.server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
                }
@@ -1380,10 +1385,19 @@ void mwLoop::main_loop(void)
                for (int p=1; p<NUM_PLAYERS; p++)
                   if (mPlayer.syn[p].control_method == 2)
                   {
-                     mPlayer.syn[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally();
-                     mPlayer.loc[p].game_move_dsync_avg_last_sec = mTally_game_move_dsync_avg_last_sec[p].get_avg();
-                     mPlayer.loc[p].client_loc_plr_cor_max = mTally_client_loc_plr_cor_last_sec[p].get_max();
-                     mPlayer.loc[p].client_rmt_plr_cor_max = mTally_client_rmt_plr_cor_last_sec[p].get_max();
+                     mPlayer.syn[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally(1);
+                     mPlayer.loc[p].game_move_dsync_avg_last_sec = mTally_game_move_dsync_avg_last_sec[p].get_avg(1);
+
+
+                     mPlayer.loc[p].client_loc_plr_cor_avg = mTally_client_loc_plr_cor_last_sec[p].get_avg(0);
+                     mPlayer.loc[p].client_rmt_plr_cor_avg = mTally_client_rmt_plr_cor_last_sec[p].get_avg(0);
+
+                     mPlayer.loc[p].client_loc_plr_cor_max = mTally_client_loc_plr_cor_last_sec[p].get_max(1);
+                     mPlayer.loc[p].client_rmt_plr_cor_max = mTally_client_rmt_plr_cor_last_sec[p].get_max(1);
+
+
+
+
                   }
             }
          }
