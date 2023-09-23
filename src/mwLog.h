@@ -14,7 +14,7 @@
 #define NUM_LOG_LINES 1000000
 
 #define LOG_error                  9
-#define LOG_NET_network_setup      10
+#define LOG_NET                    10
 #define LOG_NET_join_details       12
 #define LOG_NET_ending_stats       22
 #define LOG_NET_bandwidth          23

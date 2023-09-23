@@ -82,3 +82,120 @@ tc qdisc show dev ifb0
 
 
 
+tc qdisc show dev eno1
+qdisc fq_codel 0: root refcnt 2 limit 10240p flows 1024 quantum 1514 target 5.0ms interval 100.0ms memory_limit 32Mb ecn
+
+
+
+To delete all rules use the following command:
+
+tc qdisc del dev eth0 root
+tc qdisc show  dev eth0
+qdisc pfifo_fast 0: root refcnt 2 bands 3 priomap  1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+
+this is what I am told should be the default qdisc
+but this is what I get:
+
+tc qdisc show dev eno1
+qdisc fq_codel 0: root refcnt 2 limit 10240p flows 1024 quantum 1514 target 5.0ms interval 100.0ms memory_limit 32Mb ecn
+
+
+
+
+
+This happens because probably NetworkManager (or some other process) is controlling the interface. They periodically reset the interface configuration. To solve the issue:
+
+Check which interfaces are being managed by NetworkManager:
+
+nmcli dev status
+
+m@scat:~$ nmcli dev status
+DEVICE  TYPE      STATE      CONNECTION
+eno1    ethernet  connected  Wired connection 1
+lo      loopback  unmanaged  --
+m@scat:~$
+
+
+sudo nano /etc/NetworkManager/NetworkManager.conf
+
+[keyfile]
+unmanaged-devices=interface-name:eno1
+
+m@scat:~$ sudo nano /etc/NetworkManager/NetworkManager.conf
+m@scat:~$ systemctl stop NetworkManager
+m@scat:~$ systemctl start NetworkManager
+m@scat:~$ nmcli dev status
+DEVICE  TYPE      STATE      CONNECTION
+eno1    ethernet  unmanaged  --
+lo      loopback  unmanaged  --
+
+
+sudo tc qdisc add dev eno1 root pfifo_fast
+
+m@scat:~$ tc qdisc show dev eno1
+qdisc fq_codel 0: root refcnt 2 limit 10240p flows 1024 quantum 1514 target 5.0ms interval 100.0ms memory_limit 32Mb ecn
+m@scat:~$ sudo tc qdisc add dev eno1 root pfifo_fast
+m@scat:~$ tc qdisc show dev eno1
+qdisc pfifo_fast 8001: root refcnt 2 bands 3 priomap 1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+
+
+
+now I can get 10,000 pps and 10mBs
+
+
+
+
+
+does it stay after a reboot, does it work over the internet
+
+
+
+
+0
+
+I will answer my question since I have fixed the issue
+
+This happens because probably NetworkManager (or some other process) is controlling the interface. They periodically reset the interface configuration. To solve the issue:
+
+Check which interfaces are being managed by NetworkManager:
+
+nmcli dev status
+
+If the test interfaces are listed in the output of the above command as managed, then they are being controlled by NetworkManager. Else they will be listed as unmanaged. If they are listed as managed, then we have two options:
+
+Option A: Edit NetworkManager configuration file and add interfaces to exclude from being managed by NetworkManager:
+sudo nano /etc/NetworkManager/NetworkManager.conf Add the following lines to the conf file:
+
+[keyfile]
+unmanaged-devices=mac:00:11:22:33:44:55;mac:66:77:88:99:00:aa
+Replace the mac addresses, with the mac addresses of the test interfaces. On newer versions of NetworkManager, we can use interface names to do this:
+
+[keyfile]
+unmanaged-devices=interface-name:eno1,interface-name:enp4s0
+Restart NetworkManager:
+
+systemctl stop NetworkManager
+systemctl start NetworkManager
+Check if the interfaces are now unmanaged:
+
+nmcli dev status
+
+Option B: Stop NetworkManager.
+Stop for current session (it will start again on next boot):
+
+sudo systemctl stop NetworkManager
+
+OR disable NetworkManager (it will NOT start again by default on next boot):
+
+systemctl disable NetworkManager
+
+If they are not listed in NetworkManager as managed, then they might be leased by dhclient. To check that:
+
+sudo cat /var/lib/dhcp/dhcpd.leases
+
+If the interface is being leased by dhclient, then it will be listed in the output. If it is, either find PID of dhclient and kill it, OR edit configuration file of dhclient and exclude the test interfaces.
+
+Share
+Improve this answer
+Follow
+

@@ -154,6 +154,20 @@ struct ploc // not synced between server and client
    int cmp_dif_size;
 
 
+   // used only by server remote_control
+   int srv_frame_num;
+   int srv_stdf_freq;
+   int srv_total_game_moves;
+   int srv_level;
+   float srv_cpu;
+
+   int srv_zlib_cmp;
+   int srv_extra_packets_num;
+   int srv_extra_packets_size;
+
+
+
+
    // bandwidth counters and tallies
 
    // used to add up until frame end

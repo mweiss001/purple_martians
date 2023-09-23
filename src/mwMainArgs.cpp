@@ -110,11 +110,11 @@ void mwMain::copy_files_to_clients(int type)
 //   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
-   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
-   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
-   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
-   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+//   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
 
 
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
@@ -161,6 +161,8 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
 
    if ((argument_count > 1) && (strcmp(argument_array[1],"-sh") == 0 )) headless_server = 1;
 
+//   if ((argument_count > 1) && (strcmp(argument_array[1],"-rc") == 0 )) server_remote_control = 1;
+
 
    if (argument_count == 2) // example 'pmwin x'
    {
@@ -172,6 +174,9 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-tc") == 0 ) { copy_files_to_clients(5); exit(0); } // cfg only
 
       if (strcmp(argument_array[1],"-tu") == 0 ) { pm_copy_src("\\\\scat\\pm_client726"); exit(0); } // copy src dir only to specific linux machine
+
+
+
 
 
 
@@ -197,7 +202,7 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
          printf(" -s [lev]  (immediately hosts a netgame on level [lev], eg: 'pm.exe -s 23')\n");
 
          printf(" -sh       (headless server mode\n");
-
+         printf(" -rc       (server remote control mode\n");
 
          printf("\n");
          printf(" -e        (starts in level editor mode on the current level, eg: 'pm.exe -e')\n");
@@ -223,30 +228,7 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
 
          mMain.fast_exit(0);
       }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
    }
-
-
-
-
 }
 
 
@@ -255,7 +237,6 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
 {
    if (argument_count == 2) // example 'pmwin arg1'
    {
-
       // run level editor -- eg: 'pm.exe -e'
       if (strcmp(argument_array[1],"-e") == 0 )
       {
@@ -312,7 +293,6 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          return;
       }
 
-
       if (strcmp(argument_array[1],"-sh") == 0 ) // headless server
       {
          mLogo.show_splash_screen = 0;
@@ -320,6 +300,13 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          return;
       }
 
+      if (strcmp(argument_array[1],"-rc") == 0 ) // server remote control
+      {
+         server_remote_control = 1;
+         mLogo.show_splash_screen = 0;
+         mLoop.state[0] = 40;
+         return;
+      }
 
       if (strcmp(argument_array[1],"-f") == 0 )
       {

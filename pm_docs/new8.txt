@@ -35432,6 +35432,1106 @@ not that I make any use of that frame number anyway...
 
 
 
+pushed and recloned on server
+erased and redid all clients
+
+
+next example:
+
+srv
+5430 rx stak 5424
+
+
+
+the server complains of packet buffer full
+tx max 2110 pps / 40 = 52ppf
+
+tried with offset -10 took 20 min but it borked too
+
+also log array full...
+
+
+I am giving up for now....
+
+
+20230918 next morning, new thoughts
+
+I have been fighting this one bug for a while now
+
+describe it
+
+when netgame plays for a while, the server gets in this mode where it will send full difs based on zero
+I am pretty sure this happens because the client is lagging too far the server and they do not have a common base
+
+why the client lags behind is a mystery to me, it should not do this
+
+the client syncs based on the stdf packets it gets and that seems proper
+
+there just seems to be a lag between the two
+
+I cannot see the lag with dsync, that looks normal, because the client syncs's based on that stream of packets
+Is is because that stream of packets is delayed?
+
+my measured ping from both client and server side show around 250-300
+
+could it be that I actually have a network issue, not a netgame issue?
+
+https://serverfault.com/questions/826066/ubuntu-server-weird-latency-jumps-in-lan
+
+what if I try running a ping from command line when this is happening?
+
+
+what evidence from the logs can I use to pinpoint it is a network issue
+
+
+
+
+
+
+
+
+
+-------------
+on another note I want to do a nice server graph with loads of lines
+
+basically everything that show in server debug tables and logs
+
+for each frame
+
+
+
+
+new test run, first of day, no netem or ssh just a brand new reboot
+scat o:+10 zc:7
+ping running on command line from m36 to scat 96.45.15.166
+ping 25-27
+
+
+briefly happened at 15min but only for p7 - m36 and it corrected itself
+at the same time I got a missed ping on command line
+
+ran for 60 min no freezes....
+
+
+next test run:
+scat o:+10 zc:7
+ssh and netem 20 (40)
+ping running on command line from m36 to scat 96.45.15.166
+ping 65-67
+
+20 min no bad, increase netem to 30 (60)
+ping 85-90
+
+30 min no bad, increase netem to 40 (80)
+ping 100-110
+
+missed on ping on commndline m36 around 37:40
+
+40 min no bad, increase netem to 50 (100)
+ping 125-140
+
+
+it did it! at around 43:00
+
+command line ping 380-450 then 'request timed out'
+
+ssh on scat ping 8.8.8.8 time:300ms
+
+removed netem and now ping 8.8.8.8  from scat is 225ms
+
+scat is using 2400kB/s according to pm server
+
+started removing clients and ping went back to 28-30
+
+I have been chasing a ghost all this time! I was a network issue, not a netgame issue!
+
+The symptoms are exactly what I would expect if I suddenly had network latency of 270-300ms
+
+
+
+
+
+what should I do when log array is full? dump to disk and erase?...yes...done
+
+print more details if packet buffer full...done on server and client
+
+change all LOG_NET_network_setup to LOG_NET...done
+
+make a better correction line on client and remove from cdb..done
+
+look at server_dirty_frame
+
+what happens if dirty_frame is not found when rewinding and nothing is done?
+
+
+
+
+so now that I know what is causing the issue, lets see what it takes to cause it to happen
+
+
+I suspect it is when too many packets or too much bandwidth
+so log that on the server....
+
+I got a occurrance!!
+
+server
+cpu 78-82
+tx 2400 rx 6-8 total 2408
+
+ping 200-400-600
+
+removing client
+(6 clients) 2067
+(5 clients) 1715
+(4 clients) 1373
+(3 clients) broke the spell
+
+
+lets see if i can reproduce my increase bandwith until it happens
+
+
+
+I want more buttons on the server....fixed so that is much easier to do
+
+
+I want a method to test the bandwidth increase
+if I send out extra packets are they ignored by clients? yes
+
+does cpu take into account the time it takes to send packets? yes
+
+int srv_exp_num = 0;
+int srv_exp_siz = 0;
+
+
+I am ready to test!!
+
+I think it is the number of packets....
+tx 2700 pps
+
+
+1400 good
+around 1600 I have issues
+
+TCP is much worse
+aound 600 I start getting issues
+
+
+I tested UDP on LAN
+
+16K pps and no issues
+12mBps
+
+could it be EIDnet?
+
+I just switched over to e6430 as my server, still on eidnet...
+8000pps no issues
+
+
+I am now sure it is my linux box...
+
+
+but how? and why
+
+
+
+The problem was that Network Manager was managing the interface.
+
+The default qdisc is supposed to be pfifo_fast but was actually something else:
+
+tc qdisc show dev eno1
+qdisc fq_codel 0: root refcnt 2 limit 10240p flows 1024 quantum 1514 target 5.0ms interval 100.0ms memory_limit 32Mb ecn
+
+
+Check which interfaces are being managed by NetworkManager:
+
+nmcli dev status
+DEVICE  TYPE      STATE      CONNECTION
+eno1    ethernet  connected  Wired connection 1
+lo      loopback  unmanaged  --
+
+
+fix this...
+
+sudo nano /etc/NetworkManager/NetworkManager.conf
+
+add:
+
+[keyfile]
+unmanaged-devices=interface-name:eno1
+
+
+
+m@scat:~$ systemctl stop NetworkManager
+m@scat:~$ systemctl start NetworkManager
+m@scat:~$ nmcli dev status
+DEVICE  TYPE      STATE      CONNECTION
+eno1    ethernet  unmanaged  --
+lo      loopback  unmanaged  --
+
+m@scat:~$ tc qdisc show dev eno1
+qdisc fq_codel 0: root refcnt 2 limit 10240p flows 1024 quantum 1514 target 5.0ms interval 100.0ms memory_limit 32Mb ecn
+m@scat:~$ sudo tc qdisc add dev eno1 root pfifo_fast
+m@scat:~$ tc qdisc show dev eno1
+qdisc pfifo_fast 8001: root refcnt 2 bands 3 priomap 1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+
+
+now I can get 10,000 pps and 10mBs
+
+does it stay on reboot?
+
+
+on reboot it does not get a network address at all...
+
+reenabled nm
+
+
+11641 pps 10mBs
+
+finally ping went to 40-80
+
+
+I cannot reproduce the problem??
+
+Do I need internet to reproduce?
+
+
+
+2800pps and 1.5mBs adds 100 to ping
+
+
+20230920 more testing
+
+NM enabled no changes
+scat internet
+
+can get to 14kpps (ep 400) then client drops
+
+then lower to 12kpps (ep 300) and client has trouble  staying connected
+
+then lower to 8kpps (ep 200) and client has trouble  staying connected
+
+It looks like server is send 8k 12k but client never rx more than 2k
+
+first time before locking 12 12
+
+restart server
+
+now ep100 sends 4k but client only rx 2k and pings went to 400
+
+tc qdisc show dev eno1
+sudo tc qdisc del dev eno1 root
+sudo tc qdisc add dev eno1 root pfifo_fast
+tc qdisc show dev eno1
+
+
+
+m@scat:~$ tc qdisc show dev eno1
+qdisc fq_codel 0: root refcnt 2 limit 10240p flows 1024 quantum 1514 target 5.0ms interval 100.0ms memory_limit 32Mb ecn
+m@scat:~$ sudo tc qdisc del dev eno1 root
+Error: Cannot delete qdisc with handle of zero.
+m@scat:~$ sudo tc qdisc add dev eno1 root pfifo_fast
+m@scat:~$ tc qdisc show dev eno1
+qdisc pfifo_fast 8001: root refcnt 2 bands 3 priomap 1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+
+client still rx only 2k and ping to 400
+
+
+sudo systemctl stop NetworkManager
+
+m@scat:~$ nmcli dev status
+DEVICE  TYPE      STATE      CONNECTION
+eno1    ethernet  connected  Wired connection 1
+lo      loopback  unmanaged  --
+m@scat:~$ sudo systemctl stop NetworkManager
+m@scat:~$ nmcli dev status
+Error: NetworkManager is not running.
+m@scat:~$ tc qdisc show dev eno1
+qdisc pfifo_fast 8001: root refcnt 2 bands 3 priomap 1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+
+
+client still rx only 2k and ping to 400
+
+what the hell else can I try?
+
+server only sends 1.2k (ep30)
+
+client rx 1.2k and no problems
+
+
+try increase
+
+
+at ep34 1400tx
+
+client sometimes get ping in the 200's
+
+same limit as before, but what is causing it?
+
+I thought that qdisc and NM were the culprit, but now I am not sure...
+
+funny thing, at the start, before triggered, I could do 12k 12k
+
+
+restart scat and try again...
+
+
+ep200 8kpps no problem
+
+ep300 12kpps client is missing a few
+ep400 14kpps client drops
+
+ep300 client can reconnect no prob
+
+ep400 client will not reconnect
+
+now client seems to have a max of 2-4kpps
+
+so i have triggered whatever it was I wanted to trigger...
+
+what if I reboot and disable NM and set pfifo_fast before triggered??
+
+same...
+
+
+test on LAN...
+
+does not get ip...
+
+sudo systemctl start NetworkManager
+
+ep400 16kpps no prob
+ep1000 40kpps no problem
+
+
+
+try e6430 on internet
+
+ep300 12kpps starting to miss some on client
+
+restart client and max rx is 2k-4k
+
+IT ALSO HAPPENS ON WINDOWS!!!
+
+now I strongly suspect EIDnet
+
+I am at an impasse
+
+the only way i can test more is if I have another internet connection
+
+If I never trigger this I won't have an issue??
+
+can I fix by restarting server?
+no, I still have that lower limit...
+
+during a typical game what are my pps?
+
+worst case, with 7 clients doing full base resets at 10 packets each
+70 packets per frame * 40 = 2800pps
+
+
+1 client, 1 packet for dif * 40 = 40pps
+
+
+
+how can i test?
+
+have server send 5000 packets and have clients reply with how many they got
+
+
+
+I was thinking, could there be a limit in netgame?, but then I realize it works on LAN.....
+
+
+what if I do a LAN test, but with netem and see what happens...
+
+also, why does rebooting server remove the limit?, does it time out?  test this...
+
+
+
+
+here is the thing...the server gets stuck in this loop because it is continually sending from state zero
+normal operation has max 2 packet dif
+7 clients x 2 packets = 14 packets per frame * 40 = 560pps
+
+
+
+I have some thought on ways to accomodate this
+
+increase state history to reduce possibilty of zero base difs
+
+
+
+- test for packet limits
+periodically send a burst to client and see how many got through
+- increase s1 to reduce packets
+
+- put all my tx packets in a buffer and send at the end of the frame (i dont think this will do anything)
+
+- put all stdf packets in a buffer, then if too many run send stdf again (this will not help, only increasing s1 will)
+
+
+
+
+
+
+
+
+
+I want to start on the server remote control.
+
+design:
+
+a remote machine to display server debug overlay and controls
+
+intended for use mainly on remote headless server
+
+will need a two way packet exchange
+
+it can probably be handled by sending the entire player array, not just the syn part
+
+syn 2304
+loc 2688
+---------
+    4992
+
+packet names
+snfo - server info
+sctl - server control
+
+I will need some method of setting up connection also
+
+prog start
+
+client machine
+have a mode like settings, or help...a self contained program state
+
+- setup connection to server
+- read and send packets
+- display and control
+
+
+
+make a new command line option to connect to remote control server
+
+added to main.h
+
+   int server_remote_control = 0;
+
+made command line -rc set this to 1 and set mode 40
+
+
+
+state = 40; server remote control setup
+state = 41; server remote control run
+
+now copy from client setup to continue
+
+I have set up network and got a connection
+
+client should not need modification but server will need a new place to save connection that is not part of player struct
+
+actually I think it already does have room for 32 MAX_CLIENTS
+
+somewhere on server I will need to store the connection used for remote control
+I think who is what I am looking for...but how do I know which who??
+
+I think I will also need to do the join thing...that is where a connection turns into an actual client
+
+packet cjrc and sjrc
+
+I think I have the join working
+
+
+now that they are joined I want server to send a packet to the rc
+
+snfo..done
+
+
+add a few more things to loc so they will get to rmt
+
+   // used only by server remote_control
+   int srv_frame_num;
+   int srv_stdf_freq;
+   int srv_total_game_moves;
+   float srv_cpu;
+
+
+also show what level is currently running..done
+
+show time as frames and also mm:ss ..done
+
+send cpu as raw value and do local q graph..done
+
+
+this is coming along nicely
+
+I want to make it prettier, but maybe I should implement controls first...
+
+I will need a packet sent from rc to server:
+
+possible things to change:
+
+stdf_freq
+zlib_cmp
+client offset
+extra_packet_num
+extra_packet_siz
+
+
+
+actually anything I wish to change is also something I am displaying on the remote
+
+should I let the remote overwrite?
+or should I just have the remote request to modify and let the server decide?
+
+packet rctl
+int stdf_freq_inc;
+int zlib_cpm_inc;
+
+etc...
+
+where to start?
+
+make buttons on remote for  s1 freq
+
+I think I have that done...
+
+client_offset mPlayer.syn[0].client_chase_offset
+why is this a float?, even worse, a double...
+
+
+add to loc...
+zlib_cmp
+epn
+eps
+
+   int srv_zlib_cmp;
+   int srv_extra_packets_num;
+   int srv_extra_packets_size;
+
+
+mNetgame.zlib_cmp
+mNetgame.srv_exp_num
+mNetgame.srv_exp_siz
+
+
+loc 2944
+syn 2304
+
+--- 5248
+
+done...
+
+I have all 5 control things implemented
+
+now what?
+
+what are some other things I want to be able to do from remote control
+
+reload current level
+warp to overworld
+
+force save log
+
+drop specific player
+
+
+
+
+
+
+
+restore internet.....done
+lab server: 96.45.13.253
+
+update versions and push...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

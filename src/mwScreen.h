@@ -181,8 +181,12 @@ class mwScreen
    void draw_viewport_debug_overlay(int p, int &cx, int &cy);
 
 
-   void draw_server_debug_overlay(int p, int &cx, int &cy);
-   void draw_client_debug_overlay(int p, int &cx, int &cy);
+   void draw_bandwidth_stats(int &cx, int &cy);
+
+
+
+   void draw_server_debug_overlay(int &cx, int &cy);
+   void draw_client_debug_overlay(int &cx, int &cy);
    void draw_demo_debug_overlay(int p, int &cx, int &cy);
 
 

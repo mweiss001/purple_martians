@@ -475,11 +475,6 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
 
 
 
-
-
-
-
-
 }
 
 void mwScreen::sdg_show(int x, int y) // server debug grid
@@ -494,6 +489,33 @@ void mwScreen::sdg_show(int x, int y) // server debug grid
 //   sdg_show_column(6, x, y); // server_state_freq
 //   sdg_show_column(7, x, y); // client chase fps
 //   sdg_show_column(8, x, y); // server_game_move_sync
+
+
+//
+//   sdg_show_column(9, x, y); // client base resets
+//   sdg_show_column(28, x, y); // rewind
+//   sdg_show_column(23, x, y); // late cdats
+//   sdg_show_column(24, x, y); // late cdats last second
+//   sdg_show_column(12, x, y); // number of packets
+//   sdg_show_column(13, x, y); // dif size
+//   sdg_show_column(14, x, y); // tx kB/sec
+//
+////   sdg_show_column(15, x, y); // rx kB/sec
+////   sdg_show_column(20, x, y); // stak_sysnc
+//   sdg_show_column(27, x, y); // ping
+//   sdg_show_column(25, x, y); // dsync
+////   sdg_show_column(26, x, y); // gmav
+//
+//   sdg_show_column(31, x, y); // loc cor max
+//   sdg_show_column(30, x, y); // loc cor avg
+//   sdg_show_column(33, x, y); // rmt cor max
+//   sdg_show_column(32, x, y); // rmt cor avg
+//
+//   sdg_show_column(17, x, y); // name and description (server version)
+//
+
+
+
    sdg_show_column(9, x, y); // client base resets
    sdg_show_column(28, x, y); // rewind
    sdg_show_column(23, x, y); // late cdats
@@ -501,6 +523,7 @@ void mwScreen::sdg_show(int x, int y) // server debug grid
    sdg_show_column(12, x, y); // number of packets
    sdg_show_column(13, x, y); // dif size
    sdg_show_column(14, x, y); // tx kB/sec
+
 //   sdg_show_column(15, x, y); // rx kB/sec
 //   sdg_show_column(20, x, y); // stak_sysnc
    sdg_show_column(27, x, y); // ping
@@ -513,30 +536,38 @@ void mwScreen::sdg_show(int x, int y) // server debug grid
    sdg_show_column(32, x, y); // rmt cor avg
 
    sdg_show_column(17, x, y); // name and description (server version)
+
+
+
+
+
+
+
+
+
 }
 
 void mwScreen::cdg_show(int x, int y) // client debug grid
 {
-   al_draw_filled_rectangle(x, y, x+600, y+73, mColor.pc[0]);
+   al_draw_filled_rectangle(x, y, x+400, y+73, mColor.pc[0]);
    y+=1;
    sdg_show_column(1, x, y); // player number
 //   sdg_show_column(2, x, y); // active
 //   sdg_show_column(3, x, y); // color
 //   sdg_show_column(4, x, y); // control method
 
-
    sdg_show_column(9, x, y);  // client base resets
    sdg_show_column(28, x, y); // rewind
    sdg_show_column(23, x, y); // late cdats
-   sdg_show_column(24, x, y); // late cdats last second
+//   sdg_show_column(24, x, y); // late cdats last second
 
-   sdg_show_column(31, x, y); // loc cor max
-   sdg_show_column(30, x, y); // loc cor avg
-   sdg_show_column(33, x, y); // rmt cor max
-   sdg_show_column(32, x, y); // rmt cor avg
+//   sdg_show_column(31, x, y); // loc cor max
+//   sdg_show_column(30, x, y); // loc cor avg
+//   sdg_show_column(33, x, y); // rmt cor max
+//   sdg_show_column(32, x, y); // rmt cor avg
 
 
-   sdg_show_column(1, x, y); // player number
+//   sdg_show_column(1, x, y); // player number
 //   sdg_show_column(2, x, y); // active
 //   sdg_show_column(3, x, y); // color
 //   sdg_show_column(4, x, y); // control method
@@ -679,7 +710,7 @@ void mwScreen::draw_common_debug_overlay(int p, int &cx, int &cy)
    mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_CPU", al_get_time() - t0);
 }
 
-void mwScreen::draw_server_debug_overlay(int p, int &cx, int &cy)
+void mwScreen::draw_server_debug_overlay(int &cx, int &cy)
 {
    double t0 = al_get_time();
 
@@ -700,93 +731,135 @@ void mwScreen::draw_server_debug_overlay(int p, int &cx, int &cy)
       if (mNetgame.server_state_freq_mode == 0) // 0 = manual, 1 = auto
       {
          // -----------------------------------------------------
-         // server buttons to display and change s1 and s2
+         // server buttons to display and change parameters while running
+         // non blocking buttons!
          // -----------------------------------------------------
+
 
          t0 = al_get_time();
 
-         int csx1 = mDisplay.SCREEN_W-BORDER_WIDTH-96;
+
+         // x position and width of entire widget
          int csw = 80;
+         int csx1 = mDisplay.SCREEN_W-BORDER_WIDTH-csw-16;
          int csx2 = csx1 + csw;
 
-         int csy1 = mDisplay.SCREEN_H-36-60;
-         int csh = 36;
+         int ya = 0, btw = 16, bth = 16;
+         int number_of_rows = 5;
+
+         // y position and height of entire widget
+         int csh = number_of_rows*btw+4;
+         int csy1 = mDisplay.SCREEN_H-csh-60;
          int csy2 = csy1 + csh;
 
          int color = 13;
-
-         // non blocking buttons!
 
          al_show_mouse_cursor(mDisplay.display);
 
          al_draw_filled_rectangle(csx1, csy1, csx2, csy2, mColor.pc[color+224]); // erase background
          al_draw_rectangle(csx1, csy1, csx2, csy2, mColor.pc[color], 1);         // frame
 
-         int ya = 0, btw = 16;
-         int csy3 = csy1 + 3;
 
-         ya = csy3;
-         static int b1_pres = 0;
-         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
+         static int b_press[10] = { 0 };
+
+
+         ya = csy1+2;
+         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
          {
-            if (b1_pres == 0) mPlayer.syn[0].client_chase_offset -= 0.005;
-
-
-            //if (b1_pres == 0) mNetgame.server_state_freq--;
-            //if (mNetgame.server_state_freq < 0) mNetgame.server_state_freq = 0;
-
-
-            b1_pres = 1;
+            if (b_press[0] == 0) mPlayer.syn[0].client_chase_offset -= 0.005;
+            b_press[0] = 1;
          }
-         else b1_pres = 0;
+         else b_press[0] = 0;
 
-         ya = csy3;
-         static int b2_pres = 0;
-         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
+         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
          {
-
-            if (b2_pres == 0) mPlayer.syn[0].client_chase_offset += 0.005;
-
-//            if (b2_pres == 0) mNetgame.server_state_freq++;
-
-
-
-            b2_pres = 1;
-
+            if (b_press[1] == 0) mPlayer.syn[0].client_chase_offset += 0.005;
+            b_press[1] = 1;
          }
-         else b2_pres = 0;
+         else b_press[1] = 0;
+         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "o:%2.0f", mPlayer.syn[0].client_chase_offset * 1000);
 
 
 
-//         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s1:%d", mNetgame.server_state_freq);
-
-
-         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "o:%2.0f", mPlayer.syn[0].client_chase_offset * 1000);
-
-
-
-
-         csy3+=17;
-
-         ya = csy3;
-         static int b3_pres = 0;
-         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
+         ya += bth+1;
+         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
          {
-            if (b3_pres == 0) mNetgame.zlib_cmp--;
+            if (b_press[2] == 0) mNetgame.zlib_cmp--;
             if (mNetgame.zlib_cmp < 1) mNetgame.zlib_cmp = 1;
-            b3_pres = 3;
+            b_press[2] = 3;
          }
-         else b3_pres = 0;
+         else b_press[2] = 0;
 
-         ya = csy3;
-         static int b4_pres = 0;
-         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
+         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
          {
-            if (b4_pres == 0) mNetgame.zlib_cmp++;
-            b4_pres = 1;
+            if (b_press[3] == 0) mNetgame.zlib_cmp++;
+            b_press[3] = 1;
          }
-         else b4_pres = 0;
-         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "zc:%d", mNetgame.zlib_cmp);
+         else b_press[3] = 0;
+         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "zc:%d", mNetgame.zlib_cmp);
+
+
+         ya += bth+1;
+         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
+         {
+            if (b_press[4] == 0) mNetgame.server_state_freq--;
+            if (mNetgame.server_state_freq < 0) mNetgame.server_state_freq = 0;
+            b_press[4] = 1;
+         }
+         else b_press[4] = 0;
+
+         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
+         {
+            if (b_press[5] == 0) mNetgame.server_state_freq++;
+            b_press[5] = 1;
+         }
+         else b_press[5] = 0;
+         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "s1:%d", mNetgame.server_state_freq);
+
+
+
+         ya += bth+1;
+         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
+         {
+            if (b_press[6] == 0)
+            {
+               if (mInput.CTRL()) mNetgame.srv_exp_num-=10;
+               else mNetgame.srv_exp_num--;
+            }
+            b_press[6] = 1;
+         }
+         else b_press[6] = 0;
+
+         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
+         {
+            if (b_press[7] == 0)
+            {
+               if (mInput.CTRL()) mNetgame.srv_exp_num+=10;
+               else mNetgame.srv_exp_num++;
+            }
+            b_press[7] = 1;
+         }
+         else b_press[7] = 0;
+         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "ep:%d", mNetgame.srv_exp_num);
+
+
+         ya += bth+1;
+         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
+         {
+            if (b_press[8] == 0) mNetgame.srv_exp_siz--;
+            b_press[8] = 1;
+         }
+         else b_press[8] = 0;
+
+         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
+         {
+            if (b_press[9] == 0) mNetgame.srv_exp_siz++;
+            b_press[9] = 1;
+         }
+         else b_press[9] = 0;
+         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "ep:%d", mNetgame.srv_exp_siz);
+
+
       }
       mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_sbutt", al_get_time() - t0);
    }
@@ -798,33 +871,38 @@ void mwScreen::draw_server_debug_overlay(int p, int &cx, int &cy)
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "state frequency:%d", mNetgame.server_state_freq); cy+=9;
       cy +=4;
    }
-
-   if (mSettings.overlay_grid[7][mLoop.show_debug_overlay])  // bandwidth stats
-   {
-      int nap = 0;
-      for(int p=0; p<NUM_PLAYERS; p++) if (mPlayer.syn[p].active) nap++;
-
-      al_draw_filled_rectangle(cx, cy, cx+604, cy+6+nap*18, mColor.pc[0]); cy+=2;
-
-      for(int p=0; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active)
-         {
-            al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "p:%d bandwidth (B/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]",
-            p, mPlayer.loc[p].tx_bytes_per_tally, mPlayer.loc[p].tx_max_bytes_per_tally, mPlayer.loc[p].rx_bytes_per_tally, mPlayer.loc[p].rx_max_bytes_per_tally);
-            cy+=9;
-         }
-
-      cy+=4;
-      for(int p=0; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active)
-         {
-            al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "p:%d packets   (p/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]",
-            p, mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].tx_max_packets_per_tally, mPlayer.loc[p].rx_packets_per_tally, mPlayer.loc[p].rx_max_packets_per_tally);
-            cy+=9;
-         }
-
-   }
+   if (mSettings.overlay_grid[7][mLoop.show_debug_overlay]) draw_bandwidth_stats(cx, cy); // bandwidth stats
 }
+
+
+
+void mwScreen::draw_bandwidth_stats(int &cx, int &cy)
+{
+   int nap = 0; // number of active players
+   for(int p=0; p<NUM_PLAYERS; p++) if (mPlayer.syn[p].active) nap++;
+
+   al_draw_filled_rectangle(cx, cy, cx+604, cy+6+nap*18, mColor.pc[0]); cy+=2;
+
+   for(int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].active)
+      {
+         al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "p:%d bandwidth (B/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]",
+         p, mPlayer.loc[p].tx_bytes_per_tally, mPlayer.loc[p].tx_max_bytes_per_tally, mPlayer.loc[p].rx_bytes_per_tally, mPlayer.loc[p].rx_max_bytes_per_tally);
+         cy+=9;
+      }
+
+   cy+=4;
+   for(int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].active)
+      {
+         al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "p:%d packets   (p/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]",
+         p, mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].tx_max_packets_per_tally, mPlayer.loc[p].rx_packets_per_tally, mPlayer.loc[p].rx_max_packets_per_tally);
+         cy+=9;
+      }
+}
+
+
+
 
 void mwScreen::draw_demo_debug_overlay(int p, int &cx, int &cy)
 {
@@ -858,8 +936,9 @@ void mwScreen::draw_demo_debug_overlay(int p, int &cx, int &cy)
    }
 }
 
-void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
+void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
 {
+   int p = mPlayer.active_local_player;
    double t0 = al_get_time();
    if (!mPlayer.syn[p].active)
    {
@@ -1028,41 +1107,37 @@ void mwScreen::draw_client_debug_overlay(int p, int &cx, int &cy)
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "local moves:%d", mGameMoves.entry_pos); cy+=9;
       cy +=4;
 
-
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "local cor:%f",      mPlayer.loc[p].client_loc_plr_cor);  cy+=9;
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "remote cor:%f",     mPlayer.loc[p].client_rmt_plr_cor);  cy+=9;
-
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "local cor_max:%f",  mPlayer.loc[p].client_loc_plr_cor_max);  cy+=9;
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "remote cor max:%f", mPlayer.loc[p].client_rmt_plr_cor_max);  cy+=9;
+      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "loc cor avg:%4.2f max:%4.2f",  mPlayer.loc[p].client_loc_plr_cor_avg, mPlayer.loc[p].client_loc_plr_cor_max);  cy+=9;
+      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "rmt cor avg:%4.2f max:%4.2f",  mPlayer.loc[p].client_rmt_plr_cor_avg, mPlayer.loc[p].client_rmt_plr_cor_max);  cy+=9;
 
       cy +=8;
 
-      int sfd = 0; // src frame delta
-      int dfd = mPlayer.loc[p].rewind;   // dst frame delta
-
-
-      int y1 = cy;
-      int y2 = cy+20;
-
-
-      int xs = 20;
-
-      int x1 = cx+10;
-      int x2 = x1 + sfd * xs; // entire width
-      int x3 = x2 - dfd * xs; // middle bar
-
-      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
-      al_draw_rectangle(x1+1, y1+1, x3, y2-1, mColor.pc[10], 1);
-
-
-      al_draw_textf(mFont.pixl, mColor.pc[15], x1, y1-12, ALLEGRO_ALIGN_CENTER, "S");
-
-      al_draw_textf(mFont.pixl, mColor.pc[15], x3, y1-12, ALLEGRO_ALIGN_CENTER, "D");
-
-      al_draw_textf(mFont.pixl, mColor.pc[15], x2, y1-12, ALLEGRO_ALIGN_CENTER, "C");
-
-
-      cy +=28;
+//      int sfd = 0; // src frame delta
+//      int dfd = mPlayer.loc[p].rewind;   // dst frame delta
+//
+//
+//      int y1 = cy;
+//      int y2 = cy+20;
+//
+//
+//      int xs = 20;
+//
+//      int x1 = cx+10;
+//      int x2 = x1 + sfd * xs; // entire width
+//      int x3 = x2 - dfd * xs; // middle bar
+//
+//      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
+//      al_draw_rectangle(x1+1, y1+1, x3, y2-1, mColor.pc[10], 1);
+//
+//
+//      al_draw_textf(mFont.pixl, mColor.pc[15], x1, y1-12, ALLEGRO_ALIGN_CENTER, "S");
+//
+//      al_draw_textf(mFont.pixl, mColor.pc[15], x3, y1-12, ALLEGRO_ALIGN_CENTER, "D");
+//
+//      al_draw_textf(mFont.pixl, mColor.pc[15], x2, y1-12, ALLEGRO_ALIGN_CENTER, "C");
+//
+//
+//      cy +=28;
 
 
 
@@ -1267,8 +1342,8 @@ void mwScreen::draw_screen_overlay(void)
 
    //draw_viewport_debug_overlay(p, cx, cy);
 
-   if (mNetgame.ima_server)                     draw_server_debug_overlay(p, cx, cy);
-   if (mNetgame.ima_client)                     draw_client_debug_overlay(p, cx, cy);
+   if (mNetgame.ima_server)  draw_server_debug_overlay(cx, cy);
+   if (mNetgame.ima_client)  draw_client_debug_overlay(cx, cy);
 
    if (mPlayer.syn[0].control_method == 1) draw_demo_debug_overlay(p, cx, cy);
 

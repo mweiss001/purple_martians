@@ -3,6 +3,14 @@
 ---------------------------------------------------------
 
 why do client player shots not sound on the server????
+as soon as you click client sync mode server sound stops
+I think it has to do with the frame numbers in sound
+i think it is because shots get fired only on rewind, not the first time around
+
+
+player paused after death, lit bomb with detonators, does not check if dead player was holding detonator
+fix this and verify it works like you expect
+
 
 
 

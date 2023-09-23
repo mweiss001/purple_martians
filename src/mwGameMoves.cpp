@@ -218,8 +218,8 @@ void mwGameMoves::proc_player_active_game_move(int x)
       if (!mLoop.ff_state)
       {
          if ((mMain.headless_server) && (p)) printf("Player:%d joined\n", p);
-         //mLog.add_headerf(LOG_NET_network_setup, p, 1, "PLAYER:%d became ACTIVE color:%d", p, mPlayer.syn[p].color);
-         mLog.add_headerf(LOG_NET_network_setup, p, 0, "Player:%d became ACTIVE!                                ", p);
+         //mLog.add_headerf(LOG_NET, p, 1, "PLAYER:%d became ACTIVE color:%d", p, mPlayer.syn[p].color);
+         mLog.add_headerf(LOG_NET, p, 0, "Player:%d became ACTIVE!                                ", p);
 
 
       }
@@ -249,8 +249,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
    {
       if (mMain.headless_server) printf("Player:%d quit\n", p);
 
-      // (!mLoop.ff_state) mLog.add_headerf(LOG_NET_network_setup, p, 1, "PLAYER:%d became INACTIVE", p);
-      if (!mLoop.ff_state) mLog.add_headerf(LOG_NET_network_setup, p, 0, "Player:%d became INACTIVE!                              ", p);
+      if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 0, "Player:%d became INACTIVE!                              ", p);
 
       // ------------------------------------
       // player in run demo mode became inactive

@@ -614,6 +614,10 @@ void mwDisplay::show_var_sizes(void)
 
    printf("\nOther Large Variables\n\n");
 
+
+   sz = (int)sizeof(mPlayer.loc);
+   printf("mPlayer.loc   :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
    sz = (int)sizeof(mGameMoves.arr);
    printf("game_moves    :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
 

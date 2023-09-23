@@ -1,6 +1,6 @@
 // pm.h
 
-#define PM_VERSION "7.24.0914.1"
+#define PM_VERSION "7.24.0923.1"
 
 #include <stdio.h>
 #include <math.h>
@@ -23,8 +23,6 @@
 #define NUM_LIFTS 40
 
 #define STATE_SIZE 112384
-
-
 
 
 

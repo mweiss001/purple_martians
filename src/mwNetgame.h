@@ -29,7 +29,6 @@ class mwNetgame
 
    mwStateHistory mStateHistory[8];
 
-
    struct packet_buffer packet_buffers[200];
    void init_packet_buffer(void);
 
@@ -40,27 +39,29 @@ class mwNetgame
    int get_packetpos(void);
    void Packet(const char *id);
    int PacketRead(const char *id);
+
    void PacketAddByte(char b);
    char PacketGetByte(void);
+
    void PacketAddString(char*);
    void PacketReadString(char*);
+
    void PacketPutInt1(int b);
    void PacketPutInt2(int b);
-
-//   void PacketPut3ByteInt(int b);
-//   void PacketPut4ByteInt(int b);
-
+   void PacketPutInt4(int d);
    int PacketGetInt1(void);
    int PacketGetInt2(void);
-//   int PacketGet3ByteInt(void);
-//   int PacketGet4ByteInt(void);
+   int PacketGetInt4(void);
 
    void PacketPutDouble(double);
    double PacketGetDouble(void);
 
 
-   void PacketPutInt4(int d);
-   int  PacketGetInt4(void);
+
+   // debug testing of sending more packets
+   int srv_exp_num = 0;
+   int srv_exp_siz = 0;
+
 
 
    int ima_server = 0;
@@ -82,14 +83,14 @@ class mwNetgame
    int server_dirty_frame = 0;
 
 
-   // local client's states
-   char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
+   // local client's buffer for building compressed dif from packets
+   char client_state_buffer[STATE_SIZE];
    int  client_state_buffer_pieces[16];   // to mark packet pieces as received
 
-   char client_state_dif[STATE_SIZE];     // uncompressed dif
-   int  client_state_dif_src;             // uncompressed dif src frame_num
-   int  client_state_dif_dst;             // uncompressed dif dst frame_num
-
+   // local client's uncompressed dif
+   char client_state_dif[STATE_SIZE];
+   int  client_state_dif_src;          // src frame_num
+   int  client_state_dif_dst;          // dst frame_num
 
    void game_vars_to_state(char * b);
    void state_to_game_vars(char * b);
@@ -102,7 +103,14 @@ class mwNetgame
    // --------------------------------------------------------------------
    NET_CONN *ServerConn = NULL;
    NET_CHANNEL *ServerChannel = NULL;
+
    float tmaj_i;
+
+
+   void client_send_cjrc_packet(void);
+
+   void client_send_rctl_packet(int s1_adj, float co_adj, int zl_adj, int epn_adj, int eps_adj);
+
 
    void client_read_packet_buffer(void);
    void client_fast_packet_loop(void);
@@ -138,6 +146,12 @@ class mwNetgame
    NET_CHANNEL *ListenChannel = NULL;                   // listen channel
    NET_CHANNEL *ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
 
+
+
+   void server_send_snfo(void);
+
+
+
    int ServerInitNetwork(void);
    void ServerExitNetwork(void);
    void ServerListen(void);
@@ -147,23 +161,16 @@ class mwNetgame
    void server_flush(void);
    int  server_init(void);
    void server_exit(void);
-
-
    void server_send_compressed_dif(int p, int src, int dst, char * dif);
-
    void server_send_dif(int frame_num);
    void server_create_new_state(void);
-
    void show_rewind_states(const char *format, ...);
-
    void server_rewind(void);
    void server_send_sdat(void);
    void server_proc_player_drop(void);
    void server_proc_cdat_packet(double timestamp);
    void server_lock_client(int p);
-
    void client_send_stak(int ack_frame);
-
    void server_proc_stak_packet(double timestamp);
    void server_proc_cjon_packet(int who);
    void server_control();

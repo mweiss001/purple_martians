@@ -31,7 +31,7 @@ void mwLog::init_log_types(void)
 
    i = LOG_error;                   log_types[i].group = 9;   strcpy(log_types[i].name, "LOG_error"); log_types[i].action = 7;   // always all three actions
 
-   i = LOG_NET_network_setup;       log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_network_setup");
+   i = LOG_NET;                     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET");
    i = LOG_NET_join_details;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_join_details");
    i = LOG_NET_ending_stats;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_ending_stats");
    i = LOG_NET_bandwidth;           log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_bandwidth");
@@ -129,7 +129,12 @@ void mwLog::app(int type, const char *txt)
    if (log_types[type].action & LOG_ACTION_ERROR) mInput.m_err(txt);
    if (log_types[type].action & LOG_ACTION_LOG)
    {
-      if ((log_msg_pos + strlen(txt)) >= NUM_LOG_CHAR) printf("log array full, > %d char\n", NUM_LOG_CHAR);
+      if ((log_msg_pos + strlen(txt)) >= NUM_LOG_CHAR)
+      {
+         printf("log array full, > %d char\n", NUM_LOG_CHAR);
+         save_log_file();
+         erase_log();
+      }
       else
       {
          memcpy(log_msg + log_msg_pos, txt, strlen(txt));
@@ -140,12 +145,14 @@ void mwLog::app(int type, const char *txt)
 }
 
 
-
-
-
-
-
 // these are for adding lines with the prefix...
+// [%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
+
+// adds text string
+void mwLog::add(int type, int player, const char *txt)
+{
+   appf(type, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
+}
 
 // adds printf style text string
 void mwLog::addf(int type, int player, const char *format, ...)
@@ -158,26 +165,37 @@ void mwLog::addf(int type, int player, const char *format, ...)
    add(type, player, smsg);
 }
 
-// adds text string
-void mwLog::add(int type, int player, const char *txt)
-{
-   char tmsg[500];
-   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
+//   char tmsg[500];
+//   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
+//   app(type, tmsg);
+
+//   char tmsg[500];
+//   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
+//   if (log_types[type].action & LOG_ACTION_PRINT) printf("%s", tmsg);
+//   if (log_types[type].action & LOG_ACTION_ERROR) mInput.m_err(txt);
+//   if (log_types[type].action & LOG_ACTION_LOG)
+//   {
+//      if ((log_msg_pos + strlen(txt)) >= NUM_LOG_CHAR)
+//      {
+//         printf("log array full, > %d char\n", NUM_LOG_CHAR);
+//         save_log_file();
+//         erase_log();
+//      }
+//      else
+//      {
+//         memcpy(log_msg + log_msg_pos, tmsg, strlen(tmsg));
+//         log_msg_pos += strlen(tmsg);
+//         log_msg[log_msg_pos+1] = 0; // NULL terminate
+//      }
+//   }
+//
 
 
-   if (log_types[type].action & LOG_ACTION_PRINT) printf("%s", tmsg);
-   if (log_types[type].action & LOG_ACTION_ERROR) mInput.m_err(txt);
-   if (log_types[type].action & LOG_ACTION_LOG)
-   {
-      if ((log_msg_pos + strlen(tmsg)) >= NUM_LOG_CHAR) printf("log array full, > %d char\n", NUM_LOG_CHAR);
-      else
-      {
-         memcpy(log_msg + log_msg_pos, tmsg, strlen(tmsg));
-         log_msg_pos += strlen(tmsg);
-         log_msg[log_msg_pos+1] = 0; // NULL terminate
-      }
-   }
-}
+
+
+
+
+
 
 
 
