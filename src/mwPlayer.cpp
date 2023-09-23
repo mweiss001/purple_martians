@@ -109,7 +109,7 @@ void mwPlayer::proc_player_health(int p)
    {
       syn[p].health = 0;
 
-      if (!mLoop.ff_state) mLog.add_headerf(LOG_NET_network_setup, p, 1, "PLAYER:%d DIED!", p);
+      if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 1, "PLAYER:%d DIED!", p);
 
       mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
       syn[p].stat_respawns++;
@@ -448,10 +448,20 @@ void mwPlayer::proc_player_paused(int p)
       if (syn[p].paused == 100) // do only once per death
       {
          // does this player have any bomb remotes?
+
+         // am i missing something? where does it check if this player has the remote???
+         // as is this will change all lit bombs with detonators....
+
+
          for (int i=0; i<500; i++)
             if ((mItem.item[i][0] == 99) && (mItem.item[i][6] == 3)) // lit bomb with remote detonator
             {
-               mItem.item[i][0] = 8; // change back to regular bomb
+
+
+
+
+               mItem.item[i][0] = 8; // change back to regular bomb or...
+
                // set bomb to explode!
                //mItem.item[i][6] = 2; // mode 2; explosion
                //mItem.item[i][8] = mItem.item[i][9] = 20; // explosion timer
@@ -462,11 +472,9 @@ void mwPlayer::proc_player_paused(int p)
          float sa = .025;
          syn[p].draw_scale -= sa; // shrink player
          if (syn[p].draw_scale < 0) syn[p].draw_scale = 0;
-
          float ra;
          if (syn[p].left_right) ra = 5;
          else ra = -5;
-
          syn[p].draw_rot += ra; // rotate player
       }
       else // frozen done !!
@@ -479,11 +487,6 @@ void mwPlayer::proc_player_paused(int p)
          syn[p].xinc = 0;
          syn[p].yinc = 0;
          set_player_start_pos(p, 1); // get starting position from start block
-
-         // i don't even think this is needed at all...
-         // if (!mDisplay.no_display) mScreen.draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
-
-
       }
    }
 }

@@ -132,7 +132,13 @@ void mwStateHistory::set_ack_state(int frame_num)
 // does nothing if:
 // sent frame_num less than 1
 // sent frame_num is the same as current frame
+
 // if sent frame is not found in history, use oldest frame (if valid)
+
+// ??????
+// if that happens, you should also set dirty frame to oldest frame (if valid) or -1 if not ???????
+
+
 
 void mwStateHistory::apply_rewind_state(int frame_num)
 {

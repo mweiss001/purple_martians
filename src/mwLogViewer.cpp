@@ -131,7 +131,7 @@ int mwLog::log_file_viewer(int type)
    int i=0;
 
    // always on
-   i = LOG_NET_network_setup;   tags[i][0] = 1; tags[i][1] = 15; // network setup
+   i = LOG_NET;                 tags[i][0] = 1; tags[i][1] = 15; // network
    i = LOG_NET_join_details;    tags[i][0] = 1; tags[i][1] = 15; // join details
    i = LOG_NET_ending_stats;    tags[i][0] = 1; tags[i][1] = 15; // ending stats
 

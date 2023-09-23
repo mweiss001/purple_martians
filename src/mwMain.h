@@ -18,6 +18,12 @@ class mwMain
    int headless_server = 0;
 
 
+   int server_remote_control = 0;
+   int server_remote_control_who = -99;
+
+
+
+
    // z_args.h
    void pm_copy_src(const char* filepath);
    void pm_copy_exe(const char* filepath);

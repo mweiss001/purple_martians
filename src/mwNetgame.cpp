@@ -269,56 +269,55 @@ void mwNetgame::reset_states(void)
    for (int i=0; i<8; i++) mStateHistory[i].initialize();
 
    server_dirty_frame = -1;
-
 }
 
 
 void mwNetgame::process_bandwidth_counters(int p)
 {
-   // get maximums per frame
+   // get max per frame
    if (mPlayer.loc[p].tx_current_packets_for_this_frame > mPlayer.loc[p].tx_max_packets_per_frame) mPlayer.loc[p].tx_max_packets_per_frame = mPlayer.loc[p].tx_current_packets_for_this_frame;
-   if (mPlayer.loc[p].tx_current_bytes_for_this_frame >   mPlayer.loc[p].tx_max_bytes_per_frame)   mPlayer.loc[p].tx_max_bytes_per_frame =   mPlayer.loc[p].tx_current_bytes_for_this_frame;
    if (mPlayer.loc[p].rx_current_packets_for_this_frame > mPlayer.loc[p].rx_max_packets_per_frame) mPlayer.loc[p].rx_max_packets_per_frame = mPlayer.loc[p].rx_current_packets_for_this_frame;
-   if (mPlayer.loc[p].rx_current_bytes_for_this_frame >   mPlayer.loc[p].rx_max_bytes_per_frame)   mPlayer.loc[p].rx_max_bytes_per_frame =   mPlayer.loc[p].rx_current_bytes_for_this_frame;
+   if (mPlayer.loc[p].tx_current_bytes_for_this_frame   > mPlayer.loc[p].tx_max_bytes_per_frame)   mPlayer.loc[p].tx_max_bytes_per_frame   = mPlayer.loc[p].tx_current_bytes_for_this_frame;
+   if (mPlayer.loc[p].rx_current_bytes_for_this_frame   > mPlayer.loc[p].rx_max_bytes_per_frame)   mPlayer.loc[p].rx_max_bytes_per_frame   = mPlayer.loc[p].rx_current_bytes_for_this_frame;
 
    // get totals
    mPlayer.loc[p].tx_total_bytes   += mPlayer.loc[p].tx_current_bytes_for_this_frame;
-   mPlayer.loc[p].tx_total_packets += mPlayer.loc[p].tx_current_packets_for_this_frame;
    mPlayer.loc[p].rx_total_bytes   += mPlayer.loc[p].rx_current_bytes_for_this_frame;
+   mPlayer.loc[p].tx_total_packets += mPlayer.loc[p].tx_current_packets_for_this_frame;
    mPlayer.loc[p].rx_total_packets += mPlayer.loc[p].rx_current_packets_for_this_frame;
 
    // add to tallies
    mPlayer.loc[p].tx_bytes_tally   += mPlayer.loc[p].tx_current_bytes_for_this_frame;
-   mPlayer.loc[p].tx_packets_tally += mPlayer.loc[p].tx_current_packets_for_this_frame;
    mPlayer.loc[p].rx_bytes_tally   += mPlayer.loc[p].rx_current_bytes_for_this_frame;
+   mPlayer.loc[p].tx_packets_tally += mPlayer.loc[p].tx_current_packets_for_this_frame;
    mPlayer.loc[p].rx_packets_tally += mPlayer.loc[p].rx_current_packets_for_this_frame;
 
    // reset counts for this frame
-   mPlayer.loc[p].tx_current_bytes_for_this_frame = 0;
+   mPlayer.loc[p].tx_current_bytes_for_this_frame   = 0;
+   mPlayer.loc[p].rx_current_bytes_for_this_frame   = 0;
    mPlayer.loc[p].tx_current_packets_for_this_frame = 0;
-   mPlayer.loc[p].rx_current_bytes_for_this_frame = 0;
    mPlayer.loc[p].rx_current_packets_for_this_frame = 0;
 
    if (mLoop.frame_num % 40 == 0) // tally freq = 40 frames = 1s
    {
       // get maximums per tally
-      if (mPlayer.loc[p].tx_bytes_per_tally >   mPlayer.loc[p].tx_max_bytes_per_tally)   mPlayer.loc[p].tx_max_bytes_per_tally =   mPlayer.loc[p].tx_bytes_per_tally;
-      if (mPlayer.loc[p].rx_bytes_per_tally >   mPlayer.loc[p].rx_max_bytes_per_tally)   mPlayer.loc[p].rx_max_bytes_per_tally =   mPlayer.loc[p].rx_bytes_per_tally;
+      if (mPlayer.loc[p].tx_bytes_per_tally   > mPlayer.loc[p].tx_max_bytes_per_tally)   mPlayer.loc[p].tx_max_bytes_per_tally   = mPlayer.loc[p].tx_bytes_per_tally;
+      if (mPlayer.loc[p].rx_bytes_per_tally   > mPlayer.loc[p].rx_max_bytes_per_tally)   mPlayer.loc[p].rx_max_bytes_per_tally   = mPlayer.loc[p].rx_bytes_per_tally;
       if (mPlayer.loc[p].tx_packets_per_tally > mPlayer.loc[p].tx_max_packets_per_tally) mPlayer.loc[p].tx_max_packets_per_tally = mPlayer.loc[p].tx_packets_per_tally;
       if (mPlayer.loc[p].rx_packets_per_tally > mPlayer.loc[p].rx_max_packets_per_tally) mPlayer.loc[p].rx_max_packets_per_tally = mPlayer.loc[p].rx_packets_per_tally;
 
       // copy to display variables
       mPlayer.loc[p].tx_bytes_per_tally   = mPlayer.loc[p].tx_bytes_tally;
-      mPlayer.loc[p].tx_packets_per_tally = mPlayer.loc[p].tx_packets_tally;
       mPlayer.loc[p].rx_bytes_per_tally   = mPlayer.loc[p].rx_bytes_tally;
+      mPlayer.loc[p].tx_packets_per_tally = mPlayer.loc[p].tx_packets_tally;
       mPlayer.loc[p].rx_packets_per_tally = mPlayer.loc[p].rx_packets_tally;
 
       mLog.addf(LOG_NET_bandwidth, p, "bandwidth txb:[%d] rxb:[%d] txp:[%d] rxp:[%d]\n", mPlayer.loc[p].tx_bytes_per_tally, mPlayer.loc[p].rx_bytes_per_tally, mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].rx_packets_per_tally);
 
       // reset tallies
-      mPlayer.loc[p].tx_bytes_tally = 0;
+      mPlayer.loc[p].tx_bytes_tally   = 0;
+      mPlayer.loc[p].rx_bytes_tally   = 0;
       mPlayer.loc[p].tx_packets_tally = 0;
-      mPlayer.loc[p].rx_bytes_tally = 0;
       mPlayer.loc[p].rx_packets_tally = 0;
    }
 }
