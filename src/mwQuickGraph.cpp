@@ -5,6 +5,9 @@
 #include "mwFont.h"
 #include "mwColor.h"
 
+//#include "mwDisplay.h"
+
+
 mwQuickGraph mQuickGraph[10];
 
 mwQuickGraph::mwQuickGraph()
@@ -33,6 +36,8 @@ void mwQuickGraph::initialize(int typ)
 }
 
 
+
+
 void mwQuickGraph::add_data(int s, double d)
 {
    // slide all the data down
@@ -45,6 +50,10 @@ void mwQuickGraph::add_data(int s, double d)
 
 void mwQuickGraph::draw_graph(int x, int y)
 {
+
+ //  printf("draw graph x:%d y:%d\n", x, y);
+
+
 
 
    int bc = 12+192; // background color
@@ -145,6 +154,7 @@ void mwQuickGraph::draw_graph(int x, int y)
             double y2 = gy2 - ((d2 - y_axis_min) / y_axis_rng)*height;
 
             al_draw_line(x1, y1, x2, y2, mColor.pc[series[s].color], ls);
+
          }
    }
 }

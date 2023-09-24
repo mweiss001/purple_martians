@@ -221,6 +221,7 @@ void mwDrawSequence::draw(int setup_only)
    if (setup_only) add_names(i, "d-ovrl", "draw_screen_overlay");
    else { mScreen.draw_screen_overlay(); add(i); }
 
+
    mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Flip display\n", mLoop.frame_num);
    if (setup_only) add_names(i, "d-flip", "al_flip_display");
    else { al_flip_display(); add(i); }

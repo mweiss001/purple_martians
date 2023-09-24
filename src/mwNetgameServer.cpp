@@ -356,21 +356,6 @@ void mwNetgame::server_send_dif(int frame_num) // send dif to all clients
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) // send dif to a client
 {
    char cmp[STATE_SIZE];
@@ -380,6 +365,8 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
    compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)dif, STATE_SIZE, zlib_cmp);
    int cmp_size = destLen;
    float cr = (float)cmp_size*100 / (float)STATE_SIZE; // compression ratio
+
+
 
    // break compressed dif into smaller pieces
    int num_packets = (cmp_size / 1000) + 1;
@@ -418,7 +405,6 @@ void mwNetgame::server_send_snfo(void) // send info to remote control
    // copy values into loc
    mPlayer.loc[0].srv_frame_num = mLoop.frame_num;
    mPlayer.loc[0].srv_stdf_freq = mNetgame.server_state_freq;
-   mPlayer.loc[0].srv_cpu = mRollingAverage[0].last_input;
    mPlayer.loc[0].srv_total_game_moves = mGameMoves.entry_pos;
    mPlayer.loc[0].srv_level = mLevel.play_level;
    mPlayer.loc[0].srv_zlib_cmp = mNetgame.zlib_cmp;
@@ -429,27 +415,78 @@ void mwNetgame::server_send_snfo(void) // send info to remote control
    char dst[5400];
 
    int sz=0, offset=0;
-   offset += sz; sz = sizeof(mPlayer.syn); memcpy(src+offset, mPlayer.syn, sz);
-   offset += sz; sz = sizeof(mPlayer.loc); memcpy(src+offset, mPlayer.loc, sz);
+   offset += sz; sz = sizeof(mPlayer.syn); memcpy(src + offset, mPlayer.syn, sz);
+   offset += sz; sz = sizeof(mPlayer.loc); memcpy(src + offset, mPlayer.loc, sz);
 
    // compress src to dst
    uLongf destLen= sizeof(dst);
    compress2((Bytef*)dst, (uLongf*)&destLen, (Bytef*)src, sizeof(src), zlib_cmp);
    int dst_size = destLen;
 
-   float cr = (float)dst_size*100 / (float)5400; // compression ratio
-   printf ("compessed size:%d ratio:%4.1f\n", dst_size, cr);
+   // break compressed dst into smaller pieces
+   int num_packets = (dst_size / 1000) + 1;
 
-   // send
-   if (dst_size < 1000)
+   //float cr = (float)dst_size*100 / (float)5400; // compression ratio
+   //printf("tx snfo fn:[%d] size:[%d] ratio:[%3.2f] [%d packets needed]\n", mLoop.frame_num, dst_size, cr, num_packets);
+
+   int start_byte = 0;
+   for (int packet_num=0; packet_num < num_packets; packet_num++)
    {
+      int packet_data_size = 1000; // default size
+      if (start_byte + packet_data_size > dst_size) packet_data_size = dst_size - start_byte; // last piece is smaller
+
+      // printf("tx snfo piece fn:[%d] packet:[%d of %d]\n", mLoop.frame_num, packet_num+1, num_packets);
+
       Packet("snfo");
-      PacketPutInt4(dst_size);  // payload size
-      memcpy(packetbuffer+packetsize, dst, dst_size);
-      packetsize += dst_size;
+      PacketPutInt4(mLoop.frame_num);       // frame_num
+      PacketPutInt1(packet_num);
+      PacketPutInt1(num_packets);
+      PacketPutInt4(start_byte);
+      PacketPutInt4(packet_data_size);
+      memcpy(packetbuffer + packetsize, dst + start_byte, packet_data_size);
+      packetsize += packet_data_size;
       ServerSendTo(packetbuffer, packetsize, mMain.server_remote_control_who, 99);
+      start_byte+=1000;
    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void mwNetgame::server_proc_stak_packet(double timestamp)
 {
