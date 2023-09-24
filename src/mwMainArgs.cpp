@@ -110,11 +110,11 @@ void mwMain::copy_files_to_clients(int type)
 //   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-//   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
+   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
+   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
 
 
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
@@ -174,6 +174,13 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-tc") == 0 ) { copy_files_to_clients(5); exit(0); } // cfg only
 
       if (strcmp(argument_array[1],"-tu") == 0 ) { pm_copy_src("\\\\scat\\pm_client726"); exit(0); } // copy src dir only to specific linux machine
+
+
+      if (strcmp(argument_array[1],"-la") == 0 ) // turn all logging to console on
+      {
+         for (int i=0; i<100; i++)
+            if ((mLog.log_types[i].group) && (mLog.log_types[i].group < 4)) mLog.log_types[i].action = 1;
+      }
 
 
 
@@ -283,6 +290,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          mLogo.show_splash_screen = 0;
          mLoop.state[0] = 24;
+         mLoop.quit_action = 0;
          return;
       }
       // host netgame - use start level from config file
@@ -290,6 +298,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          mLogo.show_splash_screen = 0;
          mLoop.state[0] = 20;
+         mLoop.quit_action = 0;
          return;
       }
 
@@ -374,6 +383,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          mConfig.save_config();
          mLogo.show_splash_screen = 0;
          mLoop.state[0] = 24;
+         mLoop.quit_action = 0;
          return;
       }
       if (strcmp(argument_array[1],"-s") == 0 )
@@ -384,6 +394,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
             mLevel.set_start_level(pl);
             mLogo.show_splash_screen = 0;
             mLoop.state[0] = 20;
+            mLoop.quit_action = 0;
             return;
          }
          else printf("%s could not be parsed to an integer level number\n", argument_array[2]);

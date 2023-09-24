@@ -3,6 +3,7 @@
 #include "pm.h"
 #include "mwScreen.h"
 #include "mwQuickGraph.h"
+#include "mwQuickGraph2.h"
 #include "mwLog.h"
 #include "mwPlayer.h"
 #include "mwNetgame.h"
@@ -23,7 +24,6 @@
 #include "mwLevel.h"
 #include "mwItem.h"
 #include "mwConfig.h"
-
 
 void mwScreen::show_player_stat_box(int tx, int y, int p)
 {
@@ -682,32 +682,18 @@ void mwScreen::draw_common_debug_overlay(int p, int &cx, int &cy)
        mDrawSequence.show_text(cx, cy); // show draw profile times
        cy+=100;
    }
-
-   t0 = al_get_time();
    if (mSettings.overlay_grid[0][mLoop.show_debug_overlay]) // cpu graph
    {
-      //sprintf(mQuickGraph[0].series[0].name, "");
-              mQuickGraph[0].series[0].color = 13+128;
-              mQuickGraph[0].series[0].active = 1;
+//      t0 = al_get_time();
+//      mQuickGraph[0].draw_graph(mDisplay.SCREEN_W-228, mDisplay.SCREEN_H-56);
+//      mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_CPU1", al_get_time() - t0);
 
-      sprintf(mQuickGraph[0].series[1].name, "MIN");
-              mQuickGraph[0].series[1].color = 9+32;
-              mQuickGraph[0].series[1].active = 0;
-
-      sprintf(mQuickGraph[0].series[2].name, "MAX");
-              mQuickGraph[0].series[2].color = 10+32;
-              mQuickGraph[0].series[2].active = 0;
-
-      sprintf(mQuickGraph[0].series[3].name, "CPU");
-              mQuickGraph[0].series[3].color = 13;
-              mQuickGraph[0].series[3].active = 1;
-
-
-      mQuickGraph[0].width = 200;
-      mQuickGraph[0].height = 36;
-      mQuickGraph[0].draw_graph(mDisplay.SCREEN_W-228, mDisplay.SCREEN_H-56);
+      mQuickGraph2[0].width = 200;
+      mQuickGraph2[0].height = 36;
+      t0 = al_get_time();
+      mQuickGraph2[0].draw_graph(mDisplay.SCREEN_W-mQuickGraph2[0].width-28, mDisplay.SCREEN_H-mQuickGraph2[0].height-20);
+      mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_CPU2", al_get_time() - t0);
    }
-   mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_CPU", al_get_time() - t0);
 }
 
 void mwScreen::draw_server_debug_overlay(int &cx, int &cy)
@@ -965,7 +951,7 @@ void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
       // ping and sync graph
       // ----------------------------------
       t0 = al_get_time();
-      double ds = -mPlayer.loc[p].dsync    * 1000; // the current value of dsync for display
+      double ds = -mPlayer.loc[p].dsync   * 1000; // the current value of dsync for display
       double pa = mPlayer.loc[p].ping_avg * 1000;
 
       mQuickGraph[1].add_data(0, ds);
@@ -1148,13 +1134,13 @@ void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
       al_draw_filled_rectangle(cx, cy, cx+274, cy+60, mColor.pc[0]); cy+=2;
 
       al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "bandwidth (bytes per second)");   cy+=9;
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "TX currrent:[%d] max:[%d]", mPlayer.loc[p].tx_bytes_per_tally, mPlayer.loc[p].tx_max_bytes_per_tally);   cy+=9;
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "RX currrent:[%d] max:[%d]", mPlayer.loc[p].rx_bytes_per_tally, mPlayer.loc[p].rx_max_bytes_per_tally);   cy+=9;
+      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "TX currrent:[%6d] max:[%6d]", mPlayer.loc[p].tx_bytes_per_tally, mPlayer.loc[p].tx_max_bytes_per_tally);   cy+=9;
+      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "RX currrent:[%6d] max:[%6d]", mPlayer.loc[p].rx_bytes_per_tally, mPlayer.loc[p].rx_max_bytes_per_tally);   cy+=9;
 
       cy +=4;
       al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "packets per second");   cy+=9;
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "TX currrent:[%d] max:[%d]", mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].tx_max_packets_per_tally);   cy+=9;
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "RX currrent:[%d] max:[%d]", mPlayer.loc[p].rx_packets_per_tally, mPlayer.loc[p].rx_max_packets_per_tally);   cy+=9;
+      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "TX currrent:[%4d] max:[%4d]", mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].tx_max_packets_per_tally);   cy+=9;
+      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "RX currrent:[%4d] max:[%4d]", mPlayer.loc[p].rx_packets_per_tally, mPlayer.loc[p].rx_max_packets_per_tally);   cy+=9;
       cy +=4;
    }
 }

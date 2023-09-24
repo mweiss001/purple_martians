@@ -13,11 +13,48 @@ fix this and verify it works like you expect
 
 
 
+I want lost server connection to quit to dos with one press, not 3...
+
+
+make things that draw direct to screen, not draw on top of border
+
+
+
+make a way to turn all logging on with command line switch..done
+
 
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+dedicated server bandwidth line at top, also with p/f and b/f
+make bandwidth able to be toggled..done
+
+
+
+figure out how to auto range qg2
+
+
+client cpu graph off screen...fixed
+
+
+add more things to graph
+
+auto arrange graph sizes to fill available space
+
+
+
+
+
+
+
+
+
+
+figure out how to reload level without losing all clients
+
 
 
 

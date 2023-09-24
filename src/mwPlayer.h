@@ -89,7 +89,7 @@ struct psyn // synced between server and client
 
 };
 
-struct ploc // not synced between server and client
+struct ploc // not synced between server and client (but synced from server to remote)
 {
    int health_display;
    int last_health_adjust;

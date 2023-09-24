@@ -305,8 +305,57 @@ void mwNetgame::client_send_ping(void)
 }
 
 
+void mwNetgame::client_process_snfo_packets(void)
+{
+   while ((mNetgame.packetsize = mNetgame.ClientReceive(mNetgame.packetbuffer)))
+   {
+      if (mNetgame.PacketRead("snfo"))
+      {
+         int fn = PacketGetInt4(); // frame_num
+         int seq = PacketGetInt1();
+         int max_seq = PacketGetInt1();
+         int sb = PacketGetInt4();
+         int sz = PacketGetInt4();
 
+         // printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d\n", seq+1, max_seq, fn, sb, sz);
 
+         // do some checks, because one time i recieved: rx snfo piece [121 of 218] frame:[994] st:1616929891 sz:1180829280
+         int bad_data = 0;
+         if ((max_seq < 1) || (max_seq > 6)) bad_data = 1;
+         if ((seq < 0) || (seq > 6) || (seq > max_seq)) bad_data = 1;
+         if ((sb < 0) || (sb > 5000)) bad_data = 1;
+         if ((sz < 0) || (sz > 1000)) bad_data = 1;
+
+         if (bad_data) printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d  --- Bad Data!\n", seq+1, max_seq, fn, sb, sz);
+         else
+         {
+            memcpy(client_state_buffer + sb, packetbuffer+18, sz);    // put the piece of data in the buffer
+            client_state_buffer_pieces[seq] = fn;                     // mark it with frame_num
+
+            int complete = 1;                                         // did we just get the last packet? (yes by default)
+            for (int i=0; i< max_seq; i++)
+               if (client_state_buffer_pieces[i] != fn) complete = 0; // no, if any piece not at latest frame_num
+
+            if (complete)
+            {
+               // printf("rx snfo complete\n");
+               char dmp[5400];
+               // uncompress
+               uLongf destLen = sizeof(dmp);
+               uncompress((Bytef*)dmp, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
+
+               // copy to variables
+               int sz=0, offset=0;
+               sz = sizeof(mPlayer.syn); memcpy(mPlayer.syn, dmp+offset, sz); offset += sz;
+               sz = sizeof(mPlayer.loc); memcpy(mPlayer.loc, dmp+offset, sz); offset += sz;
+
+               mLoop.cpu_graph_add_data(); // add data to cpu graph
+
+            }
+         }
+      }
+   }
+}
 
 void mwNetgame::client_process_stdf_packet(double timestamp)
 {
@@ -584,10 +633,10 @@ void mwNetgame::client_proc_player_drop(void)
    {
       mPlayer.loc[p].quit_reason = 92;
       mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
-      mLoop.state[0] = 1;
       mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "SERVER ENDED GAME!");
       al_flip_display();
       mInput.tsw();
+      mLoop.state[0] = 1;
    }
 
    int lsf = mPlayer.loc[p].client_last_stdf_rx_frame_num;
@@ -603,11 +652,10 @@ void mwNetgame::client_proc_player_drop(void)
          mLog.add_fwf(LOG_NET, p, 76, 10, "+", "-", "");
          mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
 
-         mLoop.state[0] = 1;
-        // mLoop.state[0] = 25;
          mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "LOST SERVER CONNECTION!");
          al_flip_display();
          mInput.tsw();
+         mLoop.state[0] = 1;
       }
    }
 }

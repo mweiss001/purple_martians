@@ -36035,6 +36035,11 @@ force save log
 
 drop specific player
 
+test max packet
+server will send 1000 packets and see how many are rx'd by client
+packet burst
+
+
 
 
 
@@ -36044,7 +36049,312 @@ drop specific player
 restore internet.....done
 lab server: 96.45.13.253
 
-update versions and push...
+update versions and push...done
+
+
+seemed to run well for 5-10 minute, then started dropping pings
+clients disconnected
+ssh timed out
+command line ping
+
+Reply from 96.45.13.253: bytes=32 time=27ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=27ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=26ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=26ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=28ms TTL=56
+Request timed out.
+Reply from 96.45.13.253: bytes=32 time=25ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=25ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=24ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=22ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=25ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=27ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=27ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=27ms TTL=56
+Request timed out.
+Reply from 96.45.13.253: bytes=32 time=28ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=25ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=25ms TTL=56
+Request timed out.
+Reply from 96.45.13.253: bytes=32 time=44ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=24ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=59ms TTL=56
+Reply from 96.45.13.253: bytes=32 time=27ms TTL=56
+
+wtf
+
+seemed to reset after a few minutes
+it is on bro-sec-16?? i thought it was 11??
+there is also one on bro-sec-11
+
+my home radio on bro-sec-02 is doing the same thing....
+
+
+ssh into remote and ping 8.8.8.8 no hiccups there....
+
+tried a ping to 8.8.8.8 from home and it timed out for 2 pings exactly when 13.253 did...
+
+I could be me!!!!!
+and by that I mean shaw
+and by that I mean rogers
+
+
+to test this...
+
+use two eid connections
+
+one on scat and one at lab
+
+
+lab - server
+client - scat
+
+remote m36
+
+
+
+
+the remote is turning out to need more than 1 packet
+
+my 5400 bytes is only compressing at 25% or worse...
+
+damn, this will complicate things....
+not that much actually, reused the buffer that client uses...
+
+it seems to be working better...
+
+could it be that the data is now not so one sided?
+
+I still get times where all the client will go to 400 ping, except scat which is a different eid connection
+
+
+doing more testing....
+
+
+server: pmh
+7 clients
+1 on edit scat
+
+ran for 1H
+
+
+
+
+
+
+it might be nice to see some realtime graph on the rmt server
+I would like to try to experiment with realtime graphs to see if I can make them faster...
+right now it does a complete redraw every frame
+I could make qg own its bitmap and just draw new points to that.
+
+
+then when drawing on screen I would just draw it in 2 sections
+
+I would keep no history, draw the point, then discard
+
+I would not be able to resize like I can now.
+
+
+but still this might be useful...
+
+lets try making quickgraph2
+
+
+I still want multiple series
+I will need to keep last point, just so that I can draw a line to it
+
+
+profiling:
+m36
+
+170us old cpu draw
+4us new cpu add
+2us new cpu draw
+
+this is very much faster:
+
+170 / 6 = 28.3 times faster
+
+
+
+e6430
+400-600us old cpu draw
+23-27us new cpu add
+7-17us new cpu draw
+
+600 wc more than 10 times faster
+50us wc
+
+
+try on 4320
+5000-6000 us old cpu draw
+85-700 add
+60-600 draw
+
+wc 6000 / 1500
+4 times faster
+
+I lose the ability to draw very fine lines because of the intermediate bitmap
+I also lose the ability to dynamically resize
+
+
+cleaned up a bunch of stuff related to quick graphs initialization, adding cpu, and drawing
+
+
+I want to make qg2 capable of muliple series, it should be simple
+
+I just need an array for the series
+
+each should have color and last point
+
+entry pos will need to manually incremented?
+unless I enter all points at once
+
+
+should I also make series active or not?, why not
+
+what am I going to test it with?
+
+something on the server that has a value for each client
+
+i could just run it on the remote...yes!!
+
+lets do dsync
+
+
+
+
+I am very happy with how remote is working
+
+I have a bunch of graphs scrolling in real time
+
+It is easy to play with sync and find a sweet spot where lcor is mostly zero and rcor is low..
+
+on internet with pings of 28-30 the sweet spot if client offset -20...
+
+I have not had any re-occurances of getting stuck with 280-300 pings
+
+almost all of my test were done with pmh as the server, remote in the lab
+
+m36 was the remote controller on shaw
+
+scat was an eid client
+
+e6430 and 5 x 4320 were the remaining clients...
+
+I got a lot done today:
+- remote working
+- quick graph2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

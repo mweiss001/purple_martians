@@ -111,6 +111,11 @@ class mwNetgame
 
    void client_send_rctl_packet(int s1_adj, float co_adj, int zl_adj, int epn_adj, int eps_adj);
 
+   void client_process_snfo_packets(void);
+
+
+
+
 
    void client_read_packet_buffer(void);
    void client_fast_packet_loop(void);

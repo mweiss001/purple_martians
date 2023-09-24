@@ -60,6 +60,11 @@ class mwLoop
 
    void move_frame(void);
    void loop_frame(int);
+
+   void initialize_graphs();
+
+   void cpu_graph_add_data(void);
+
    int have_all_players_acknowledged(void);
    void game_menu(void);
    void proc_level_done_mode(void);
@@ -68,5 +73,4 @@ class mwLoop
 
 };
 extern mwLoop mLoop;
-
 
