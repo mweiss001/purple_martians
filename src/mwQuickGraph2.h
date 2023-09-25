@@ -7,7 +7,13 @@ class mwQuickGraph2
    public:
 
    mwQuickGraph2(); // default constructor
-   void initialize(float width, float height, float dmin, float dmax, const char* name, int type, int c1, int c2);
+   void initialize(float width, float height, float dmin, float dmax, const char* name, int type, int c1, int c2, int act);
+
+
+   int active;
+
+   float x;
+   float y;
 
    float width;
    float height;
@@ -15,8 +21,8 @@ class mwQuickGraph2
    int entry_pos;
    int last_entry_pos;
 
-
-
+   void set_pos(float xp, float yp);
+   void set_size(float w, float h, int rebuild_bitmap);
 
    ALLEGRO_BITMAP *bmp = NULL;
 
@@ -37,8 +43,7 @@ class mwQuickGraph2
    float data_max;
    float data_rng;
 
-
-   void draw_graph(int x, int y);
+   void draw_graph(void);
 
    void change_range(float new_min, float new_max);
 
