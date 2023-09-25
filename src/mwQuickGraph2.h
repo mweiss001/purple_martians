@@ -1,28 +1,37 @@
 // mwQuickGraph2.h
 
+#include "mwRollingAverage.h"
+
 class mwQuickGraph2
 {
    public:
 
    mwQuickGraph2(); // default constructor
-   void initialize(int width, int height, float dmin, float dmax, const char* name, int name_disp_type, int bgc);
+   void initialize(float width, float height, float dmin, float dmax, const char* name, int type, int c1, int c2);
 
-   int width;
-   int height;
+   float width;
+   float height;
 
    int entry_pos;
    int last_entry_pos;
 
 
+
+
    ALLEGRO_BITMAP *bmp = NULL;
 
-   int bg_color;
+   int col1;
+   int col2;
+
+   int bco = 208; // background color offset
+
+
 
    char name[256];
 
-   int name_display_type;
+   int type;
 
-
+   mwRollingAverage RA;
 
    float data_min;
    float data_max;
@@ -31,8 +40,12 @@ class mwQuickGraph2
 
    void draw_graph(int x, int y);
 
+   void change_range(float new_min, float new_max);
 
    void new_entry_pos();
+
+   void autorange(void);
+
 
    void add_data(int series, float d);
 

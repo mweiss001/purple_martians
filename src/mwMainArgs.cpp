@@ -186,9 +186,6 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
 
 
 
-
-
-
       if (strcmp(argument_array[1],"-?") == 0 )
       {
          printf("\nUsage:\n");
@@ -290,6 +287,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          mLogo.show_splash_screen = 0;
          mLoop.state[0] = 24;
+         mLoop.done_action = 1;
          mLoop.quit_action = 0;
          return;
       }
@@ -299,6 +297,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          mLogo.show_splash_screen = 0;
          mLoop.state[0] = 20;
          mLoop.quit_action = 0;
+         mLoop.done_action = 1;
          return;
       }
 
@@ -306,6 +305,8 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          mLogo.show_splash_screen = 0;
          mLoop.state[0] = 20;
+         mLoop.quit_action = 0;
+         mLoop.done_action = 1;
          return;
       }
 
@@ -384,6 +385,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          mLogo.show_splash_screen = 0;
          mLoop.state[0] = 24;
          mLoop.quit_action = 0;
+         mLoop.done_action = 1;
          return;
       }
       if (strcmp(argument_array[1],"-s") == 0 )
@@ -395,6 +397,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
             mLogo.show_splash_screen = 0;
             mLoop.state[0] = 20;
             mLoop.quit_action = 0;
+            mLoop.done_action = 1;
             return;
          }
          else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
@@ -408,16 +411,12 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
             mLevel.set_start_level(pl);
             mLogo.show_splash_screen = 0;
             mLoop.state[0] = 20;
+            mLoop.quit_action = 0;
+            mLoop.done_action = 1;
             return;
          }
          else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
       }
-
-
-
-
-
-
    } // end of argument_count == 3
 }
 

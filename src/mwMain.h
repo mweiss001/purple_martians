@@ -17,7 +17,6 @@ class mwMain
 
    int headless_server = 0;
 
-
    int server_remote_control = 0;
    int server_remote_control_who = -99;
 

@@ -29,7 +29,6 @@ void mwTally::initialize(void)
 
 
 
-
 // return tally and optionally reset
 double mwTally::get_tally(int reset)
 {

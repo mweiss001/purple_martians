@@ -184,7 +184,7 @@ void mwWindowManager::get_new_box(void)
       by2 = gy;
       redraw_level_editor_background(0);
       show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
-      mScreen.draw_scaled_level_region_to_display(3);
+      mScreen.draw_scaled_level_region_to_display(1);
    }
    if (bx1 > bx2) mMiscFnx.swap_int(&bx1, &bx2); // swap if wrong order
    if (by1 > by2) mMiscFnx.swap_int(&by1, &by2);
@@ -395,7 +395,7 @@ int mwWindowManager::redraw_level_editor_background(void)
                }
             }
       }
-      if (level_editor_mode) mScreen.draw_scaled_level_region_to_display(3);
+      if (level_editor_mode) mScreen.draw_scaled_level_region_to_display(1);
    }
    return drawn;
 }

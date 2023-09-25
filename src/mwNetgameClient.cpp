@@ -18,6 +18,9 @@
 #include "mwScreen.h"
 #include "mwShot.h"
 #include "mwTally.h"
+#include "mwQuickGraph2.h"
+
+
 
 
 
@@ -207,8 +210,8 @@ int mwNetgame::client_init(void)
     // initialize driver with server address
    if (!ClientInitNetwork(m_serveraddress)) return 0;
 
-   mRollingAverage[1].initialize(); // ping rolling average
-   mRollingAverage[2].initialize(); // dsync rolling average
+   mRollingAverage[1].initialize(8); // ping rolling average
+   mRollingAverage[2].initialize(8); // dsync rolling average
 
    Packet("cjon");
    PacketPutInt1(mPlayer.syn[0].color); // requested color
@@ -220,13 +223,15 @@ int mwNetgame::client_init(void)
    return 1;
 }
 
+
+
 void mwNetgame::client_send_cjrc_packet(void)
 {
    Packet("cjrc");
    ClientSend(packetbuffer, packetsize);
 }
 
-void mwNetgame::client_send_rctl_packet(int s1_adj, float co_adj, int zl_adj, int epn_adj, int eps_adj)
+void mwNetgame::client_send_rctl_packet(int s1_adj, float co_adj, int zl_adj, int epn_adj, int eps_adj, int server_reload)
 {
    Packet("rctl");
    PacketPutInt4(s1_adj);
@@ -234,8 +239,13 @@ void mwNetgame::client_send_rctl_packet(int s1_adj, float co_adj, int zl_adj, in
    PacketPutInt4(zl_adj);
    PacketPutInt4(epn_adj);
    PacketPutInt4(eps_adj);
+   PacketPutInt4(server_reload);
    ClientSend(packetbuffer, packetsize);
 }
+
+
+
+
 
 void mwNetgame::client_process_sjon_packet(void)
 {
@@ -350,6 +360,55 @@ void mwNetgame::client_process_snfo_packets(void)
                sz = sizeof(mPlayer.loc); memcpy(mPlayer.loc, dmp+offset, sz); offset += sz;
 
                mLoop.cpu_graph_add_data(); // add data to cpu graph
+
+               // dsync, ping graphs
+               for (int i=1; i<8; i++) // cycle all clients
+                  if (mPlayer.syn[i].active)
+                  {
+                     mQuickGraph2[1].series[i].active = 1;
+                     mQuickGraph2[1].series[i].color = mPlayer.syn[i].color;
+                     mQuickGraph2[1].add_data(i, mPlayer.loc[i].dsync*1000);
+
+                     mQuickGraph2[2].series[i].active = 1;
+                     mQuickGraph2[2].series[i].color = mPlayer.syn[i].color;
+                     mQuickGraph2[2].add_data(i, mPlayer.loc[i].ping*1000);
+
+                     mQuickGraph2[3].series[i].active = 1;
+                     mQuickGraph2[3].series[i].color = mPlayer.syn[i].color;
+                     mQuickGraph2[3].add_data(i, mPlayer.loc[i].cmp_dif_size);
+
+
+                     mQuickGraph2[6].series[i].active = 1;
+                     mQuickGraph2[6].series[i].color = mPlayer.syn[i].color;
+                     mQuickGraph2[6].add_data(i, mPlayer.loc[i].client_loc_plr_cor);
+
+                     mQuickGraph2[7].series[i].active = 1;
+                     mQuickGraph2[7].series[i].color = mPlayer.syn[i].color;
+                     mQuickGraph2[7].add_data(i, mPlayer.loc[i].client_rmt_plr_cor);
+
+                  }
+
+
+               for (int i=0; i<8; i++) // cycle all players
+                  if (mPlayer.syn[i].active)
+                  {
+                     mQuickGraph2[4].series[i].active = 1;
+                     mQuickGraph2[4].series[i].color = mPlayer.syn[i].color;
+                     mQuickGraph2[4].add_data(i, mPlayer.loc[i].tx_bytes_per_tally/1000);
+
+                     mQuickGraph2[5].series[i].active = 1;
+                     mQuickGraph2[5].series[i].color = mPlayer.syn[i].color;
+                     mQuickGraph2[5].add_data(i, mPlayer.loc[i].rewind);
+
+                  }
+
+               mQuickGraph2[1].new_entry_pos();
+               mQuickGraph2[2].new_entry_pos();
+               mQuickGraph2[3].new_entry_pos();
+               mQuickGraph2[4].new_entry_pos();
+               mQuickGraph2[5].new_entry_pos();
+               mQuickGraph2[6].new_entry_pos();
+               mQuickGraph2[7].new_entry_pos();
 
             }
          }

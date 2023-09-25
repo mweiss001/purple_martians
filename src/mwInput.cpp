@@ -17,6 +17,9 @@
 #include "mwGameMoves.h"
 #include "mwLevel.h"
 #include "mwDemoMode.h"
+#include "mwQuickGraph2.h"
+
+
 
 
 mwInput mInput;
@@ -290,10 +293,22 @@ void mwInput::function_key_check(void)
 //      mNetgame.reset_states();
 //      mNetgame.mStateHistory[mPlayer.active_local_player].initialize();
 
-      for (int p=1; p<NUM_PLAYERS; p++)
-         mNetgame.mStateHistory[p].initialize();
+//      for (int p=1; p<NUM_PLAYERS; p++)
+//         mNetgame.mStateHistory[p].initialize();
+//
+//      printf("force base reset\n");
 
-      printf("force base reset\n");
+
+//      mNetgame.server_reload(-1); // current level
+//      printf("server reload\n");
+
+//      static int f = 1;
+//
+//      if (++f > 3) f = 0;
+//      if (f==0) mQuickGraph2[9].change_range(20, 70);
+//      if (f==1) mQuickGraph2[9].change_range(0,  50);
+//      if (f==2) mQuickGraph2[9].change_range(25, 100);
+//      if (f==3) mQuickGraph2[9].change_range(-20, 80);
 
 
    }

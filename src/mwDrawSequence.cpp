@@ -29,7 +29,7 @@ void mwDrawSequence::initialize(void)
 {
    for (int i=0; i<20; i++)
    {
-      RA[i].initialize();
+      RA[i].initialize(8);
       ts[i] = 0;
    }
 }
@@ -61,14 +61,11 @@ void mwDrawSequence::draw(int setup_only)
 
 
    mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Get new background\n", mLoop.frame_num);
-
-
    if (setup_only) add_names(i, "d-bkgr", "get_new_background");
    else { mScreen.get_new_background(1);  add(i); }
 
 
    mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Lifts\n", mLoop.frame_num);
-
    if (setup_only) add_names(i, "d-lift", "draw_lifts");
    else { mLift.draw_lifts();  add(i); }
 
@@ -76,8 +73,6 @@ void mwDrawSequence::draw(int setup_only)
 
 
    mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Items\n", mLoop.frame_num);
-
-
    if (setup_only) add_names(i, "d-item", "draw_items");
    else { mItem.draw_items(); add(i); }
 
@@ -131,9 +126,6 @@ void mwDrawSequence::draw(int setup_only)
    mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - players\n", mLoop.frame_num);
    if (setup_only) add_names(i, "d-plyr", "draw_players");
    else { mPlayer.draw_players(); add(i); }
-
-
-
 
 
    mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Erase Hidden\n", mLoop.frame_num);
