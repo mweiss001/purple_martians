@@ -2,25 +2,26 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+BUG
 why do client player shots not sound on the server????
 as soon as you click client sync mode server sound stops
 I think it has to do with the frame numbers in sound
 i think it is because shots get fired only on rewind, not the first time around
+this is not a bug
+
+
 
 
 player paused after death, lit bomb with detonators, does not check if dead player was holding detonator
 fix this and verify it works like you expect
 
 
-
 I want lost server connection to quit to dos with one press, not 3...
 
 
-make things that draw direct to screen, not draw on top of border
+sometimes remote freezes, don't know why, can I show something that it is alive??
 
 
-
-make a way to turn all logging on with command line switch..done
 
 
 
@@ -29,31 +30,11 @@ make a way to turn all logging on with command line switch..done
 ---------------------------------------------------------
 
 
-dedicated server bandwidth line at top, also with p/f and b/f
-make bandwidth able to be toggled..done
-
-
-
 figure out how to auto range qg2
 
 
-client cpu graph off screen...fixed
-
-
-add more things to graph
 
 auto arrange graph sizes to fill available space
-
-
-
-
-
-
-
-
-
-
-figure out how to reload level without losing all clients
 
 
 

@@ -684,14 +684,18 @@ void mwScreen::draw_common_debug_overlay(int p, int &cx, int &cy)
    }
    if (mSettings.overlay_grid[0][mLoop.show_debug_overlay]) // cpu graph
    {
-//      t0 = al_get_time();
-//      mQuickGraph[0].draw_graph(mDisplay.SCREEN_W-228, mDisplay.SCREEN_H-56);
-//      mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_CPU1", al_get_time() - t0);
-
-      mQuickGraph2[0].width = 200;
-      mQuickGraph2[0].height = 36;
+      // original style
+      int gx = mDisplay.SCREEN_W-mQuickGraph[0].width-28;
+      int gy = mDisplay.SCREEN_H-mQuickGraph[0].height-20;
       t0 = al_get_time();
-      mQuickGraph2[0].draw_graph(mDisplay.SCREEN_W-mQuickGraph2[0].width-28, mDisplay.SCREEN_H-mQuickGraph2[0].height-20);
+      mQuickGraph[0].draw_graph(gx, gy);
+      mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_CPU1", al_get_time() - t0);
+
+      // new style
+      gx = mDisplay.SCREEN_W-mQuickGraph2[9].width-28;
+      gy = mDisplay.SCREEN_H-mQuickGraph2[9].height-120;
+      t0 = al_get_time();
+      mQuickGraph2[9].draw_graph(gx, gy);
       mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_CPU2", al_get_time() - t0);
    }
 }
@@ -1314,6 +1318,8 @@ void mwScreen::draw_screen_overlay(void)
    int cy = BORDER_WIDTH;
 
    al_set_target_backbuffer(mDisplay.display);
+
+   draw_screen_frame();
 
    double t0 = al_get_time();
 

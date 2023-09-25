@@ -144,7 +144,7 @@ void mwScreen::draw_screen_frame(void)
 {
    int c = mPlayer.syn[mPlayer.active_local_player].color;
    for (int x=0; x<BORDER_WIDTH; x++)
-      al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f,  mColor.pc[c + (x * 16)], 1);
+      al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f, mColor.pc[c + (x * 16)], 1);
 }
 
 void mwScreen::do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, float num_steps, float delay)
@@ -383,11 +383,12 @@ void mwScreen::set_level_display_region_xy(void)
 void mwScreen::draw_scaled_level_region_to_display(int type)
 {
    set_screen_display_variables();
-   if (type != 3) set_level_display_region_xy();
+   if (!type) set_level_display_region_xy();
 
    al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgb(0,0,0));
-   draw_screen_frame();
+
+   if (type) draw_screen_frame();
 
    int ldrx = level_display_region_x;
    int ldry = level_display_region_y;
@@ -396,7 +397,6 @@ void mwScreen::draw_scaled_level_region_to_display(int type)
 
    // draw the level region from level buffer to display
    al_draw_scaled_bitmap(mBitmap.level_buffer, ldrx, ldry, ldrw, ldrh, screen_display_x, screen_display_y, screen_display_w, screen_display_h, 0);
-
 
    // show viewport hysteresis rectangle
    if ((viewport_show_hyst) && (viewport_mode != 0))
@@ -428,7 +428,7 @@ void mwScreen::draw_scaled_level_region_to_display(int type)
 
 
    // in level editor mode, if the level is smaller than the screen edges, draw thin lines to show where it ends...
-   if (type == 3)
+   if (type)
    {
       int c = mPlayer.syn[mPlayer.active_local_player].color;
       int bw = BORDER_WIDTH;

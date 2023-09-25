@@ -6,9 +6,10 @@ class mwRollingAverage
 {
    public:
    mwRollingAverage(); // default constructor
-   void initialize(void);
+   void initialize(int arr_siz);
    void add_data(double d);
-   double arr[8];
+   double arr[4000];
+   int arr_size = 8;
    int    num_filled;
    int    index;
    double last_input;

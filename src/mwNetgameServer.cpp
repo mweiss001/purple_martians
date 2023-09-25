@@ -520,9 +520,6 @@ void mwNetgame::server_proc_stak_packet(double timestamp)
 }
 
 
-
-
-
 void mwNetgame::server_proc_player_drop(void)
 {
    // check to see if we need to drop clients
@@ -545,25 +542,31 @@ void mwNetgame::server_proc_player_drop(void)
       mLog.add_headerf(LOG_NET, 0, 1, "Server Approaching %d Game Moves! - Reload", GAME_MOVES_SIZE);
       reload = 1;
    }
-
    if (mLoop.frame_num > tm_limit)
    {
       mLog.add_headerf(LOG_NET, 0, 1, "Server Approaching %d frames! - Reload", tm_limit);
       reload = 1;
    }
+   if (reload) server_reload(1); // to overworld
+}
 
-   if (reload)
+void mwNetgame::server_reload(int level)
+{
+   //  1-99 level num
+   //  0 nothing
+   // -1 current level
+   // -2 next level
+
+   if ((level != 0) && (mPlayer.syn[0].level_done_mode == 0)) // only trigger from level done mode 0
    {
-      if (mPlayer.syn[0].level_done_mode == 0)
-      {
-         mPlayer.syn[0].level_done_mode = 3;
-         mPlayer.syn[0].level_done_timer = 0;
-         mPlayer.syn[0].level_done_next_level = 1;
-         mLoop.quit_action = 1;
-         mLoop.done_action = 1;
-      }
+      if (level == -2) level = mLevel.get_next_level(mLevel.play_level);
+      if (level == -1) level = mLevel.play_level;
+      mPlayer.syn[0].level_done_mode = 3;
+      mPlayer.syn[0].level_done_timer = 0;
+      mPlayer.syn[0].level_done_next_level = level;
    }
 }
+
 
 
 void mwNetgame::server_proc_cdat_packet(double timestamp)
@@ -759,16 +762,15 @@ void mwNetgame::server_fast_packet_loop(void)
          int zl_adj = PacketGetInt4();
          int epn_adj = PacketGetInt4();
          int eps_adj = PacketGetInt4();
+         int srv_reload = PacketGetInt4();
 
          mNetgame.server_state_freq += s1_adj;
          mPlayer.syn[0].client_chase_offset += co_adj;
          mNetgame.zlib_cmp += zl_adj;
          mNetgame.srv_exp_num += epn_adj;
          mNetgame.srv_exp_siz += eps_adj;
+         if (srv_reload) server_reload(srv_reload);
       }
-
-
-
 
       int type = 0;
       if(PacketRead("cdat")) type = 1;
@@ -854,19 +856,11 @@ void mwNetgame::server_read_packet_buffer(void)
 void mwNetgame::server_control()
 {
    ServerListen();               // listen for new client connections
-
    server_read_packet_buffer();  // process all packets in buffer
-
    server_rewind();              // to replay and apply late client input
-
    server_proc_player_drop();    // check to see if we need to drop clients
 
-
-
    if (mMain.server_remote_control) server_send_snfo();
-
-
-
 
    // send extra packets
    for (int i=0; i<srv_exp_num; i++)
@@ -877,9 +871,6 @@ void mwNetgame::server_control()
             packetsize += srv_exp_siz * 100;
             ServerSendTo(packetbuffer, packetsize, mPlayer.loc[p].who, p);
          }
-
-
-
 
    mLog.log_player_array2(LOG_NET_player_array);
 

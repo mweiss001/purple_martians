@@ -54,8 +54,6 @@ void mwQuickGraph::draw_graph(int x, int y)
  //  printf("draw graph x:%d y:%d\n", x, y);
 
 
-
-
    int bc = 12+192; // background color
    int fc = 12;  // frame color
    //int tc = 15;  // title color

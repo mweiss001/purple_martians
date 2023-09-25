@@ -109,7 +109,7 @@ class mwNetgame
 
    void client_send_cjrc_packet(void);
 
-   void client_send_rctl_packet(int s1_adj, float co_adj, int zl_adj, int epn_adj, int eps_adj);
+   void client_send_rctl_packet(int s1_adj, float co_adj, int zl_adj, int epn_adj, int eps_adj, int server_reload);
 
    void client_process_snfo_packets(void);
 
@@ -155,7 +155,7 @@ class mwNetgame
 
    void server_send_snfo(void);
 
-
+   void server_reload(int level);
 
    int ServerInitNetwork(void);
    void ServerExitNetwork(void);

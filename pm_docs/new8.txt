@@ -35699,6 +35699,53 @@ Do I need internet to reproduce?
 2800pps and 1.5mBs adds 100 to ping
 
 
+
+
+
+
+
+
+
+
+
+-----------------------------------------------------------
+I also would like to know where in the history my hits or lookups occur.
+-----------------------------------------------------------
+Does rewind tell me that? No.
+
+on server, rewind tells me the latest cdat rx'd and thus how far I need to rewind
+this is aleady what I want
+
+
+on client, rewind tells me how far the dest is from current frame
+I also want to know how far the source is...
+
+I will almost alway be dst-1, because src and dst are one frame apart
+I would like to measure and see.
+
+what would I call this?
+client_base_rewind?
+yes that describes it...
+
+when client looks up a base to apply a dif, also record this
+
+the base frame compared to what?
+the current frame?
+the oldest frame in history?
+the newest frame in history?
+the dst frame?
+
+
+
+
+
+
+
+
+
+
+
+
 20230920 more testing
 
 NM enabled no changes
@@ -36242,64 +36289,135 @@ scat was an eid client
 
 e6430 and 5 x 4320 were the remaining clients...
 
-I got a lot done today:
+I got a lot done today: 20230923
 - remote working
 - quick graph2
 
 
+big things today 20230924
 
 
 
 
+BUG - things that draw direct to screen draw on top of border
+the function:
+void mwScreen::draw_scaled_level_region_to_display(int type)
+is called 14 times
+it draws the border
+I want to move that to
+mScreen.draw_screen_overlay();
+I also want to do a little cleanup
+only two calls are for game, the remaining 14 are for level editor
+just make it so that frame only gets draw in level editor mode
+and change from 3 to 1...done
 
 
 
+button for reload level and debug that
 
+I think the problem with my reload button is that is does not survive rewind
+I need to put something in the game moves array...
 
+as soon as I set level_done mode
 
 
+this is how gate does it
 
 
+      // immediate next level to gate level
+      mPlayer.syn[0].level_done_mode = 3;
+      mPlayer.syn[0].level_done_timer = 0;
+      mPlayer.syn[0].level_done_next_level = lev;
 
+      mLoop.quit_action = 2;
+      mLoop.done_action = 2;
 
+I just tested and gates also cause client to immediately quit
+when server initiates, not when client initiates
 
 
+OK look into logs...
 
+I looks like mode 12 level done
 
+quit to cmd beacuse done_action = 0....why?
+works fine if game is joined from menu...
+added done_action = 1 to -c and -c <ip>
+now it seems to work perectly
+test more...
+add button to rc
 
+I can now reload server levels remotely and it works great
 
 
 
 
 
 
+why is client cpu overlay graph not erasing backgrond properly
+it has something to do with the sizes....
 
 
+the cpu graph used for screen_overlay needs to be separate from the one used in remote...done
 
+make the ones used in remote not use any resources unless in remote mode...done
 
+moved the adding of data to remote graphs only happen after receiving snfo, not every frame like before..done
 
 
+auto range qg2
+test with 9 cpu overlay
+give it 2 ranges...0-50 and 0-100
+toggle with F3 for testing...
+after much work I can now range qg2
+now..how to do it automatically
 
+could I use a helper like Tally?
 
+build it into the class with custom handlers for each type
 
+autorange_type
+0 = none
+1 = cpu
 
+then keep a history array like with the other qg
 
+max_min etc...
 
+sound like something I can do with tally...
+I have to manually reset tally
+rolling average looks good but only has 8
 
 
+what do I need it to do?
 
+keep a rolling history of min and max
 
+for at least 5 seconds or 200 frames
 
+why don't you extend RollingAverage to let you specify the history number?
 
+It might be a waste, but I could statically create an array of 400, then specify how much to use...done
 
+made qg2 own one RA sized it 200, add data to it...
 
+it seems to work, now what else can I try it on??
 
+dsync
+first of all, dsync add 7 data points per frame
 
+I am having a hard time autoranging it
 
+I feel like giving up
 
+some thoughts:
 
+I could not resize the bitmap when changing range, just print old and new range numbers
+I could not change range at all, make a mark where data goes out of bounds and maybe print value??
 
+I don't really need auto range
 
+can i disable it mostly?
 
 
 
@@ -36391,708 +36509,13 @@ I got a lot done today:
 
 
 
+do something about sizes and positions of qg2
 
+should I make them store their own positions?
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
------------------------------------------------------------
-I also would like to know where in the history my hits or lookups occur.
------------------------------------------------------------
-Does rewind tell me that? No.
-
-on server, rewind tells me the latest cdat rx'd and thus how far I need to rewind
-this is aleady what I want
-
-
-on client, rewind tells me how far the dest is from current frame
-I also want to know how far the source is...
-
-I will almost alway be dst-1, because src and dst are one frame apart
-I would like to measure and see.
-
-what would I call this?
-client_base_rewind?
-yes that describes it...
-
-when client looks up a base to apply a dif, also record this
-
-the base frame compared to what?
-the current frame?
-the oldest frame in history?
-the newest frame in history?
-the dst frame?
-
-
-
-
-
-
-
+make a function to resize the graphs in remote
 
 
 

@@ -8,12 +8,13 @@ mwRollingAverage mRollingAverage[4];
 
 mwRollingAverage::mwRollingAverage()
 {
-   initialize();
+   initialize(8);
 }
 
-void mwRollingAverage::initialize(void)
+void mwRollingAverage::initialize(int arr_sz)
 {
-   for (int i=0; i<8; i++) arr[i] = 0;
+   for (int i=0; i<400; i++) arr[i] = 0;
+   arr_size = arr_sz;
    num_filled = 0;
    index = 0;
    avg = 0;
@@ -27,11 +28,11 @@ void mwRollingAverage::add_data(double d)
    last_input = d;
 
    arr[index] = d;  // put new entries where index points
-   if (++index > 7) index = 0;
+   if (++index > arr_size-1) index = 0;
    num_filled++;
 
-   int ul = 8; // find number of valid entries, 8 by default unless not filled yet
-   if (num_filled < 8) ul = num_filled;
+   int ul = arr_size; // find number of valid entries, arr_size by default unless not filled yet
+   if (num_filled < arr_size) ul = num_filled;
 
    mn = std::numeric_limits<double>::max();
    mx = std::numeric_limits<double>::lowest();
