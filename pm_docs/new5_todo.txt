@@ -2,26 +2,9 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-BUG
-why do client player shots not sound on the server????
-as soon as you click client sync mode server sound stops
-I think it has to do with the frame numbers in sound
-i think it is because shots get fired only on rewind, not the first time around
-this is not a bug
-
-
-
 
 player paused after death, lit bomb with detonators, does not check if dead player was holding detonator
 fix this and verify it works like you expect
-
-
-I want lost server connection to quit to dos with one press, not 3...
-
-
-sometimes remote freezes, don't know why, can I show something that it is alive??
-
-
 
 
 
@@ -30,38 +13,20 @@ sometimes remote freezes, don't know why, can I show something that it is alive?
 ---------------------------------------------------------
 
 
-figure out how to auto range qg2
-
-
-
-auto arrange graph sizes to fill available space
 
 
 
 
 
-Were can I do one place to store version?
+
+
+
+Where can I do one place to store version?
 
 so it will show in the compiled program
 and also be used for lin and win build scripts
 
 right now I change it in three places...code (pm.h), win and lin make_release..
-
-
-I really want to do remote control and monitoring of headless server with some kind of packet exchange
-this will mean that the server will need more info from each client, like what??
-
-we already have dysnc_avg and fps_chase sent back with stak
-I was thinking of sending more back also, like max_cor
-anything else? what about offset and crwd
-
-then the server will have all info...
-
-then I could make a packet that contains all of that info
-send it to a controlling app
-or log it!!!
-
-
 
 
 
@@ -84,9 +49,16 @@ maybe that is not so bad...
 
 
 
+
 --------------------------------------------------------
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
+
+profile settings page has all that extra crap
+
+
+
+
 
 
 --------------------------------------------------------

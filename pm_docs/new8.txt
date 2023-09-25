@@ -36417,105 +36417,56 @@ I could not change range at all, make a mark where data goes out of bounds and m
 
 I don't really need auto range
 
-can i disable it mostly?
+can i disable it mostly? yes
 
 
 
 
 
+BUG
+why do client player shots not sound on the server????
+as soon as you click client sync mode server sound stops
+I think it has to do with the frame numbers in sound
+i think it is because shots get fired only on rewind, not the first time around
+this is not a bug
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+well now what?
 
 do something about sizes and positions of qg2
 
-should I make them store their own positions?
-
-
+should I make them store their own positions? yes...
 
 make a function to resize the graphs in remote
+
+It will basically just call init on them
+
+and that will arrange them
+
+next I want button set enable and disable graphs 8 of them...
+
+separate initialize and resize...done
+
+
+
+it is coming along, way more polished than yesterday...
+
+
+still much to do...
+
+
+20230924 10:00PM new version and push
+
+
+
+
+
+
+
+
 
 
 

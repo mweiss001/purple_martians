@@ -1053,9 +1053,8 @@ void mwLoop::proc_program_state(void)
          mLog.add(LOG_OTH_program_state, 0, "[State 40 - Server Remote Control Run]\n");
       }
 
+
       initialize_graphs();
-
-
 
    }
 
@@ -1423,14 +1422,67 @@ void mwLoop::cpu_graph_add_data(void)
    else
    {
       // for overlay
-      mQuickGraph2[9].add_data(0, mRollingAverage[0].avg - mLoop.pct_y*3); /// temp testing
+      mQuickGraph2[9].add_data(0, mRollingAverage[0].avg);  // - mLoop.pct_y*3); /// temp testing
       mQuickGraph2[9].new_entry_pos();
    }
 
-
-
    mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_CPUA", al_get_time() - t0);
 }
+
+
+void mwLoop::initialize_and_resize_remote_graphs(void)
+{
+   // width and x position are based soley on screen width
+   int width = remote_graphs_width;
+   int gx = 20;
+
+   // each graph has a suggested height, this will only be used to scale them relative to each other
+   mQuickGraph2[0].set_size(width, 30,  0);
+   mQuickGraph2[1].set_size(width, 100, 0);
+   mQuickGraph2[2].set_size(width, 100, 0);
+   mQuickGraph2[3].set_size(width, 40,  0);
+   mQuickGraph2[4].set_size(width, 40,  0);
+   mQuickGraph2[5].set_size(width, 40,  0);
+   mQuickGraph2[6].set_size(width, 100, 0);
+   mQuickGraph2[7].set_size(width, 100, 0);
+
+   // iterate all and tally graph height and space between them
+   float gs=0; // graph space
+   int gc=0; // graph count
+
+   for (int i=0; i<8; i++)
+      if (mQuickGraph2[i].active)
+      {
+         gs+=mQuickGraph2[i].height;
+         gc++;
+      }
+
+   int bs = (gc-1) * 10; // buffer space
+   float ts = remote_graphs_height - bs; // space available
+
+   if ((gs != 0) && (ts > 0))
+   {
+      float ra = (float)ts / (float)gs;   // ratio of space available to requested
+      // scale all the heights
+      for (int i=0; i<8; i++)
+         if (mQuickGraph2[i].active) mQuickGraph2[i].set_size(width, mQuickGraph2[i].height * ra, 1);
+   }
+
+   // set positions
+   int gy = mDisplay.SCREEN_H;
+
+   for (int i=0; i<8; i++)
+      if (mQuickGraph2[i].active)
+      {
+         gy-= mQuickGraph2[i].height + 10;
+         mQuickGraph2[i].set_pos(gx, gy);
+      }
+
+   al_set_target_backbuffer(mDisplay.display);
+
+}
+
+
 
 void mwLoop::initialize_graphs(void)
 {
@@ -1438,50 +1490,44 @@ void mwLoop::initialize_graphs(void)
    {
       if (mMain.server_remote_control)
       {
-         int width = mDisplay.SCREEN_W-40;
-         mQuickGraph2[0].initialize(width, 30,    0,   50, "CPU",      1, 12, 13);
-         mQuickGraph2[1].initialize(width, 100, -60,   20, "DSYNC",    0, 10, 15);
-         mQuickGraph2[2].initialize(width, 100,   0,  100, "PING",     0, 14, 15);
-         mQuickGraph2[3].initialize(width, 40,    0, 9000, "DIF SIZE", 0, 11, 15);
-         mQuickGraph2[4].initialize(width, 40,    0,  900, "TX KBPS",  0, 8,  15);
-         mQuickGraph2[5].initialize(width, 40,    0,    8, "REWIND",   0, 5,  15);
-         mQuickGraph2[6].initialize(width, 100,   0,   40, "LCOR",     0, 15, 15);
-         mQuickGraph2[7].initialize(width, 100,   0,   40, "RCOR",     0, 15, 15);
+         int width = remote_graphs_width;
+         mQuickGraph2[0].initialize(width, 30,    0,   50, "CPU",      1, 12, 13, 1);
+         mQuickGraph2[1].initialize(width, 100, -60,   20, "SYNC",     0, 10, 15, 1);
+         mQuickGraph2[2].initialize(width, 100,   0,  100, "PING",     0, 14, 15, 1);
+         mQuickGraph2[3].initialize(width, 40,    0, 9000, "DIF SIZE", 0, 11, 15, 1);
+         mQuickGraph2[4].initialize(width, 40,    0,  900, "TX KBPS",  0, 8,  15, 0);
+         mQuickGraph2[5].initialize(width, 40,    0,    8, "REWIND",   0, 5,  15, 1);
+         mQuickGraph2[6].initialize(width, 100,   0,   40, "LCOR",     0, 15, 15, 1);
+         mQuickGraph2[7].initialize(width, 100,   0,   40, "RCOR",     0, 15, 15, 1);
       }
-      else
-      {
-         // for screen overlay
-         mQuickGraph2[9].initialize(200,    36,    0,   50, "CPU",      9, 12, 13);
 
+      // for screen overlay
+      mQuickGraph2[9].initialize(200,    36,    0,   50, "CPU",      9, 12, 13, 1);
 
-         mQuickGraph[0].initialize(1);
-         mQuickGraph[1].initialize(2);
-         mQuickGraph[2].initialize(2);
+      mQuickGraph[0].initialize(1);
+      mQuickGraph[1].initialize(2);
+      mQuickGraph[2].initialize(2);
 
-         //sprintf(mQuickGraph[0].series[0].name, "");
-                 mQuickGraph[0].series[0].color = 13+128;
-                 mQuickGraph[0].series[0].active = 1;
+      //sprintf(mQuickGraph[0].series[0].name, "");
+              mQuickGraph[0].series[0].color = 13+128;
+              mQuickGraph[0].series[0].active = 1;
 
-         sprintf(mQuickGraph[0].series[1].name, "MIN");
-                 mQuickGraph[0].series[1].color = 9+32;
-                 mQuickGraph[0].series[1].active = 0;
+      sprintf(mQuickGraph[0].series[1].name, "MIN");
+              mQuickGraph[0].series[1].color = 9+32;
+              mQuickGraph[0].series[1].active = 0;
 
-         sprintf(mQuickGraph[0].series[2].name, "MAX");
-                 mQuickGraph[0].series[2].color = 10+32;
-                 mQuickGraph[0].series[2].active = 0;
+      sprintf(mQuickGraph[0].series[2].name, "MAX");
+              mQuickGraph[0].series[2].color = 10+32;
+              mQuickGraph[0].series[2].active = 0;
 
-         sprintf(mQuickGraph[0].series[3].name, "CPU");
-                 mQuickGraph[0].series[3].color = 13;
-                 mQuickGraph[0].series[3].active = 1;
+      sprintf(mQuickGraph[0].series[3].name, "CPU");
+              mQuickGraph[0].series[3].color = 13;
+              mQuickGraph[0].series[3].active = 1;
 
-         mQuickGraph[0].width = 200;
-         mQuickGraph[0].height = 36;
-      }
+      mQuickGraph[0].width = 200;
+      mQuickGraph[0].height = 36;
    }
 }
-
-
-
 
 
 
@@ -1516,7 +1562,7 @@ void mwLoop::main_loop(void)
          mEventQueue.program_update = 0;
 
 
-         if (state[1] == 41) // remote control loop running
+         if (state[1] == 41) // remote control loop
          {
 
             mNetgame.client_process_snfo_packets();
@@ -1530,29 +1576,77 @@ void mwLoop::main_loop(void)
 
             int cx = 10, cy = 10;
 
-
             static int wd;
             wd++;
 
             al_draw_textf(mFont.pr8, mColor.pc[13], cx, cy, 0, "Server Remote Control   %d ", wd); cy+=20;
-            al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "Level:[%d] - Time:[%s] - Frame:[%d] - Moves:[%d]", mPlayer.loc[0].srv_level, mItem.chrms(fn, msg), fn, mPlayer.loc[0].srv_total_game_moves); cy+=20;
+            al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "Level:[%d] - Time:[%s] - Frame:[%d] - Moves:[%d]", mPlayer.loc[0].srv_level, mItem.chrms(fn, msg), fn, mPlayer.loc[0].srv_total_game_moves); cy+=30;
 
-
-//      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "bandwidth (bytes per frame)");   cy+=9;
-//      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "TX currrent:[%5d] max:[%5d]", mPlayer.loc[0].tx_current_bytes_for_this_frame, mPlayer.loc[0].tx_max_bytes_per_frame);   cy+=9;
-//      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "RX currrent:[%5d] max:[%5d]", mPlayer.loc[0].rx_current_bytes_for_this_frame, mPlayer.loc[0].rx_max_bytes_per_frame);   cy+=9;
-//
-//      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "packets (packets per frame)");   cy+=9;
-//      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "TX currrent:[%5d] max:[%5d]", mPlayer.loc[0].tx_current_packets_for_this_frame, mPlayer.loc[0].tx_max_packets_per_frame);   cy+=9;
-//      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "RX currrent:[%5d] max:[%5d]", mPlayer.loc[0].rx_current_packets_for_this_frame, mPlayer.loc[0].rx_max_packets_per_frame);   cy+=9;
 
 
             mScreen.sdg_show(cx, cy); // server debug grid
 
 
+            int i = 1;
+            if (mWidget.buttontcb(cx+388, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "sync" ))
+            {
+               mQuickGraph2[i].active = !mQuickGraph2[i].active;
+               initialize_and_resize_remote_graphs();
+            }
 
 
-            cy+=80;
+            i = 2;
+            if (mWidget.buttontcb(cx+340, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "ping" ))
+            {
+               mQuickGraph2[i].active = !mQuickGraph2[i].active;
+               initialize_and_resize_remote_graphs();
+            }
+
+
+            i = 3;
+            if (mWidget.buttontcb(cx+244, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "difs" ))
+            {
+               mQuickGraph2[i].active = !mQuickGraph2[i].active;
+               initialize_and_resize_remote_graphs();
+            }
+
+            i = 4;
+            if (mWidget.buttontcb(cx+292, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "tkbs" ))
+            {
+               mQuickGraph2[i].active = !mQuickGraph2[i].active;
+               initialize_and_resize_remote_graphs();
+            }
+
+            i = 5;
+            if (mWidget.buttontcb(cx+76, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "rwnd" ))
+            {
+               mQuickGraph2[i].active = !mQuickGraph2[i].active;
+               initialize_and_resize_remote_graphs();
+            }
+
+
+
+
+            cy+=90;
+
+
+            // graph enable disable buttons
+            for (int i=0; i<8; i++)
+            {
+               if (mWidget.buttontcb(cx+400, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, mQuickGraph2[i].name) )
+               {
+                  mQuickGraph2[i].active = !mQuickGraph2[i].active;
+                  initialize_and_resize_remote_graphs();
+               }
+               cy+=12;
+            }
+            cy-=96;
+
+
+
+            al_set_target_backbuffer(mDisplay.display);
+
+
 
             int cs = 12; // control spacing
 
@@ -1610,40 +1704,25 @@ void mwLoop::main_loop(void)
             if (show_bandwidth) mScreen.draw_bandwidth_stats(cx, cy); // bandwidth stats
 
 
+            cy+=40;
+
+            // this is when I know how much space I have
+
+            int height = mDisplay.SCREEN_H - cy;
+            int width = mDisplay.SCREEN_W - 40;
+
+            if ((remote_graphs_height != height) || (remote_graphs_width != width))
+            {
+               remote_graphs_height = height;
+               remote_graphs_width = width;
+               initialize_and_resize_remote_graphs();
+            }
 
 
-            cy+=20;
 
+            for (int i=0; i<8; i++)
+               if (mQuickGraph2[i].active) mQuickGraph2[i].draw_graph();
 
-            al_set_target_backbuffer(mDisplay.display);
-
-            //mQuickGraph[0].draw_graph(mDisplay.SCREEN_W-228, mDisplay.SCREEN_H-56);
-
-            int gy = mDisplay.SCREEN_H-56;
-            int gxo = 20;
-
-            mQuickGraph2[0].draw_graph(mDisplay.SCREEN_W-mQuickGraph2[0].width - gxo, gy);
-
-            gy-= mQuickGraph2[1].height + 10;
-            mQuickGraph2[1].draw_graph(mDisplay.SCREEN_W-mQuickGraph2[1].width - gxo, gy);
-
-            gy-= mQuickGraph2[2].height + 10;
-            mQuickGraph2[2].draw_graph(mDisplay.SCREEN_W-mQuickGraph2[2].width - gxo, gy);
-
-            gy-= mQuickGraph2[3].height + 10;
-            mQuickGraph2[3].draw_graph(mDisplay.SCREEN_W-mQuickGraph2[3].width - gxo, gy);
-
-//            gy-= mQuickGraph2[4].height + 10;
-//            mQuickGraph2[4].draw_graph(mDisplay.SCREEN_W-mQuickGraph2[4].width - gxo, gy);
-
-            gy-= mQuickGraph2[5].height + 10;
-            mQuickGraph2[5].draw_graph(mDisplay.SCREEN_W-mQuickGraph2[5].width - gxo, gy);
-
-            gy-= mQuickGraph2[6].height + 10;
-            mQuickGraph2[6].draw_graph(mDisplay.SCREEN_W-mQuickGraph2[6].width - gxo, gy);
-
-            gy-= mQuickGraph2[7].height + 10;
-            mQuickGraph2[7].draw_graph(mDisplay.SCREEN_W-mQuickGraph2[7].width - gxo, gy);
 
 
             if (mInput.key[ALLEGRO_KEY_ESCAPE][0])

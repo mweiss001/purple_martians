@@ -404,7 +404,7 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
 
    if (col == 25) // client dsync
    {
-      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[cdsy]");
+      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[sync]");
       al_draw_textf(mFont.pr8, c2,            x, y+=8, 0, "[    ]");
       for (int p=1; p<NUM_PLAYERS; p++)
          al_draw_textf(mFont.pr8, col_clr(p), x, y+=8, 0, "[%4.0f]", mPlayer.loc[p].dsync*1000);
@@ -692,10 +692,9 @@ void mwScreen::draw_common_debug_overlay(int p, int &cx, int &cy)
       mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_CPU1", al_get_time() - t0);
 
       // new style
-      gx = mDisplay.SCREEN_W-mQuickGraph2[9].width-28;
-      gy = mDisplay.SCREEN_H-mQuickGraph2[9].height-120;
+      mQuickGraph2[9].set_pos(mDisplay.SCREEN_W-mQuickGraph2[9].width-28, mDisplay.SCREEN_H-mQuickGraph2[9].height-120);
       t0 = al_get_time();
-      mQuickGraph2[9].draw_graph(gx, gy);
+      mQuickGraph2[9].draw_graph();
       mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_CPU2", al_get_time() - t0);
    }
 }
@@ -889,6 +888,19 @@ void mwScreen::draw_bandwidth_stats(int &cx, int &cy)
          p, mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].tx_max_packets_per_tally, mPlayer.loc[p].rx_packets_per_tally, mPlayer.loc[p].rx_max_packets_per_tally);
          cy+=9;
       }
+
+
+//      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "bandwidth (bytes per frame)");   cy+=9;
+//      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "TX currrent:[%5d] max:[%5d]", mPlayer.loc[0].tx_current_bytes_for_this_frame, mPlayer.loc[0].tx_max_bytes_per_frame);   cy+=9;
+//      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "RX currrent:[%5d] max:[%5d]", mPlayer.loc[0].rx_current_bytes_for_this_frame, mPlayer.loc[0].rx_max_bytes_per_frame);   cy+=9;
+//
+//      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "packets (packets per frame)");   cy+=9;
+//      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "TX currrent:[%5d] max:[%5d]", mPlayer.loc[0].tx_current_packets_for_this_frame, mPlayer.loc[0].tx_max_packets_per_frame);   cy+=9;
+//      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "RX currrent:[%5d] max:[%5d]", mPlayer.loc[0].rx_current_packets_for_this_frame, mPlayer.loc[0].rx_max_packets_per_frame);   cy+=9;
+
+
+
+
 }
 
 

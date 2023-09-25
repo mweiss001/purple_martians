@@ -16,7 +16,7 @@ mwQuickGraph2::mwQuickGraph2()
 
 }
 
-void mwQuickGraph2::initialize(float w, float h, float dmin, float dmax, const char* nm, int ty, int c1, int c2)
+void mwQuickGraph2::initialize(float w, float h, float dmin, float dmax, const char* nm, int ty, int c1, int c2, int act)
 {
    width = w;
    height = h;
@@ -28,7 +28,8 @@ void mwQuickGraph2::initialize(float w, float h, float dmin, float dmax, const c
    col2 = c2;
    sprintf(name, "%s", nm);
 
-//   if (type !=9) bco = 208;
+   active = act;
+
 
    bco = 224;
 
@@ -44,8 +45,6 @@ void mwQuickGraph2::initialize(float w, float h, float dmin, float dmax, const c
    if (type == 9) hist_depth = 200;
    RA.initialize(hist_depth);
 
-
-
    for (int i=0; i<10; i++)
    {
       series[i].active = 0;
@@ -53,6 +52,35 @@ void mwQuickGraph2::initialize(float w, float h, float dmin, float dmax, const c
       series[i].last_data = 0;
    }
 }
+
+
+void mwQuickGraph2::set_size(float w, float h, int rebuild_bitmap)
+{
+   width = w;
+   height = h;
+
+   if (rebuild_bitmap)
+   {
+      if (bmp) al_destroy_bitmap(bmp);
+      bmp = al_create_bitmap(width, height);
+      al_set_target_bitmap(bmp);
+      al_clear_to_color(mColor.pc[col1+bco]);
+   }
+
+}
+
+void mwQuickGraph2::set_pos(float xp, float yp)
+{
+   x = xp;
+   y = yp;
+}
+
+
+
+
+
+
+
 
 
 void mwQuickGraph2::change_range(float new_min, float new_max)
@@ -143,6 +171,9 @@ void mwQuickGraph2::new_entry_pos(void)
 }
 
 
+
+
+
 void mwQuickGraph2::add_data(int s, float d)
 {
    al_set_target_bitmap(bmp);
@@ -150,6 +181,10 @@ void mwQuickGraph2::add_data(int s, float d)
    int x1 = entry_pos;        // current line
    int x2 = last_entry_pos;   // last line
    int x3 = x1+1;             // next line
+
+
+
+
 
    // erase old line
    al_draw_line(x1, 0, x3, height, mColor.pc[col1+bco], 1);
@@ -174,8 +209,9 @@ void mwQuickGraph2::add_data(int s, float d)
 
 }
 
-void mwQuickGraph2::draw_graph(int x, int y)
+void mwQuickGraph2::draw_graph(void)
 {
+
    int x1 = 0;         // start
    int x2 = width;     // end
    int xe = entry_pos; // entry position

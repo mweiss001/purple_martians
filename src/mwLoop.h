@@ -61,7 +61,14 @@ class mwLoop
    void move_frame(void);
    void loop_frame(int);
 
+
+   void initialize_and_resize_remote_graphs(void);
+
    void initialize_graphs();
+
+   int remote_graphs_width = 600;
+   int remote_graphs_height = 400;
+
 
    void cpu_graph_add_data(void);
 
