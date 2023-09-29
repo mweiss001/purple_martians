@@ -220,7 +220,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
             highlight = c;
             if (mInput.mouse_b[1][0])
             {
-               while (mInput.mouse_b[1][0]) mEventQueue.proc();
+               while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
                selection = highlight;
             }
          }
@@ -379,19 +379,19 @@ int mwMenu::tmenu(int menu_pos, int x1, int y1)
 
       if (mInput.mouse_b[1][0])
       {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc();
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
          selection = highlight;
       }
 
       if (mInput.mouse_b[2][0])
       {
-         while (mInput.mouse_b[2][0]) mEventQueue.proc();
+         while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
          selection = 0;
       }
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
          selection = 0; // default position for back
       }
 
@@ -461,7 +461,7 @@ int mwMenu::pmenu(int type, int bg_color)
          }
          last_list_item = c-1;
          al_flip_display();
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          highlight = 2;
          if ( (mInput.mouse_x > (kx - 100)) && (mInput.mouse_x < (kx+100)) )
             if ( (mInput.mouse_y > ky ) && (mInput.mouse_y < ky + ((last_list_item+1)*8)) )
@@ -511,7 +511,7 @@ int mwMenu::pmenu(int type, int bg_color)
          last_list_item = c-1;
 
          al_flip_display();
-         mEventQueue.proc();
+         mEventQueue.proc(1);
 
          //show_mouse(screen);
          highlight = 2;

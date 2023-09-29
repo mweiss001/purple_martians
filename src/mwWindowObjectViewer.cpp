@@ -1967,7 +1967,7 @@ void mwWindow::ov_process_mouse(void)
 
    if (mInput.mouse_b[2][0])
    {
-      while (mInput.mouse_b[2][0]) mEventQueue.proc();
+      while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
       mWM.set_windows(1);
    }
 }
@@ -2055,9 +2055,9 @@ void mwWindow::ov_process_keypress(void)
       mLift.cur[mWM.mW[7].num].current_step = step;
    }
 
-   while (mInput.key[ALLEGRO_KEY_DELETE][0]) { mEventQueue.proc(); mb = 20; }
-   while (mInput.key[ALLEGRO_KEY_RIGHT][0])  { mEventQueue.proc(); mb = 21; }
-   while (mInput.key[ALLEGRO_KEY_LEFT][0])   { mEventQueue.proc(); mb = 22; }
+   while (mInput.key[ALLEGRO_KEY_DELETE][0]) { mEventQueue.proc(1); mb = 20; }
+   while (mInput.key[ALLEGRO_KEY_RIGHT][0])  { mEventQueue.proc(1); mb = 21; }
+   while (mInput.key[ALLEGRO_KEY_LEFT][0])   { mEventQueue.proc(1); mb = 22; }
 
    switch(mb)
    {
@@ -2085,7 +2085,7 @@ void mwWindow::ov_process_keypress(void)
                   mWM.cycle_windows(1); // draw only
                }
             }
-            while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(); // wait for release
+            while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1); // wait for release
             mLift.lift_setup(); // reset all lifts to step 0
          }
       }

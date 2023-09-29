@@ -81,7 +81,7 @@ void mwLog::run_ping_graph(int num_lines)
                al_draw_filled_rectangle(sx1, sy1, sx2, sy2, mColor.pc[10]);
 
                al_flip_display();
-               mEventQueue.proc();
+               mEventQueue.proc(1);
                al_clear_to_color(al_map_rgb(0, 0, 0));
             }
          }
@@ -91,7 +91,7 @@ void mwLog::run_ping_graph(int num_lines)
          mGraph[1].proc_graph();
 
          al_flip_display();
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
       }
    }
@@ -227,7 +227,7 @@ void mwLog::run_bandwidth_graph(int num_lines, int both)
                   mGraph[1].draw_graph(1);
                   al_draw_filled_rectangle(sx1, sy1, sx2, sy2, mColor.pc[10]);
                   al_flip_display();
-                  mEventQueue.proc();
+                  mEventQueue.proc(1);
                   al_clear_to_color(al_map_rgb(0, 0, 0));
                }
             }
@@ -245,7 +245,7 @@ void mwLog::run_bandwidth_graph(int num_lines, int both)
             mGraph[0].proc_graph();
          }
          al_flip_display();
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
       }
    }
@@ -415,7 +415,7 @@ void mwLog::run_client_server_sync_graph(int num_lines)
 
                al_draw_filled_rectangle(sx1, s0y1, sx2, s0y2, mColor.pc[10]);
                al_flip_display();
-               mEventQueue.proc();
+               mEventQueue.proc(1);
                al_clear_to_color(al_map_rgb(0, 0, 0));
             }
          }
@@ -447,7 +447,7 @@ void mwLog::run_client_server_sync_graph(int num_lines)
 
                al_draw_filled_rectangle(sx1, s1y1, sx2, s1y2, mColor.pc[10]);
                al_flip_display();
-               mEventQueue.proc();
+               mEventQueue.proc(1);
                al_clear_to_color(al_map_rgb(0, 0, 0));
             }
          }
@@ -462,7 +462,7 @@ void mwLog::run_client_server_sync_graph(int num_lines)
          mGraph[2].proc_graph();
 
          al_flip_display();
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
       }
    }
@@ -564,7 +564,7 @@ void mwLog::run_profile_graph(int choose)
          mGraph[0].proc_graph();
 
          al_flip_display();
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
       }
    }
@@ -757,7 +757,7 @@ void mwLog::run_timestamp_graph(void)
 
 
       al_flip_display();
-      mEventQueue.proc();
+      mEventQueue.proc(1);
       if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
 }

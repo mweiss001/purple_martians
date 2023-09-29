@@ -268,13 +268,13 @@ void mwBitmapTools::select_bitmap(int &tn)
 
       if (mInput.mouse_b[1][0])
       {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
          tn = local_point_item_num;
          quit = 1;
       }
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
          quit = 1;
       }
    }
@@ -288,7 +288,7 @@ int mwBitmapTools::select_bitmap_ans(int zzindx, int &bmp_index)
    int quit = 0;
    while (!quit)
    {
-      mEventQueue.proc();
+      mEventQueue.proc(1);
 
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
@@ -352,7 +352,7 @@ void mwBitmapTools::animation_sequence_editor(void)
    while (!quit)
    {
 
-      mEventQueue.proc();
+      mEventQueue.proc(1);
 
       if (mEventQueue.program_update)
       {
@@ -436,12 +436,12 @@ void mwBitmapTools::animation_sequence_editor(void)
 
       if (mInput.key[ALLEGRO_KEY_DELETE][0]) // erase current sequence
       {
-         while (mInput.key[ALLEGRO_KEY_DELETE][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_DELETE][0]) mEventQueue.proc(1);
          for (int c=0; c<20; c++) mBitmap.zz[c][zzindx] = 0;
       }
       while ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.mouse_b[2][0]))
       {
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          quit = 1;
       }
    }
@@ -529,7 +529,7 @@ void mwBitmapTools::draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w,
       al_draw_rectangle(x-1, y+(ys*highlight), x+w+1, y+h+(ys*highlight), mColor.pc[15], 1);
       if (mInput.mouse_b[1][0])
       {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
          if (highlight ==  0) mBitmap.sa[tn][0] ^= PM_BTILE_SOLID_PLAYER;
          if (highlight ==  1) mBitmap.sa[tn][0] ^= PM_BTILE_SOLID_ENEMY;
          if (highlight ==  2) mBitmap.sa[tn][0] ^= PM_BTILE_SOLID_ITEM;
@@ -575,7 +575,7 @@ void mwBitmapTools::draw_flags(int x1, int y1, int& num, int& mpow, int view_onl
          al_draw_rectangle(x1-1, y1+(ys*highlight)-1, x1+frw+1, y1+frh+(ys*highlight)+1, mColor.pc[15], 1);
          if (mInput.mouse_b[1][0])
          {
-            while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+            while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
             if (highlight ==  0) (num) ^= PM_BTILE_SOLID_PLAYER;
             if (highlight ==  1) (num) ^= PM_BTILE_SOLID_ENEMY;
             if (highlight ==  2) (num) ^= PM_BTILE_SOLID_ITEM;
@@ -669,7 +669,7 @@ void mwBitmapTools::draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2,
 
       if (mInput.mouse_b[1][0])
       {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc();
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
 
          int action = 0;
 
@@ -727,7 +727,7 @@ void mwBitmapTools::edit_btile_attributes(void)
 
    while (!quit)
    {
-      mEventQueue.proc();
+      mEventQueue.proc(1);
 
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
@@ -824,7 +824,7 @@ void mwBitmapTools::edit_btile_attributes(void)
 
          if (mInput.mouse_b[2][0])
          {
-            while (mInput.mouse_b[2][0]) mEventQueue.proc();
+            while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
             if (mode == 0) mBitmap.sa[pointer][0] = mBitmap.sa[current_selection][0];
          }
 
@@ -841,7 +841,7 @@ void mwBitmapTools::edit_btile_attributes(void)
 
                while (mInput.mouse_b[1][0]) // trap while b1 is held
                {
-                  mEventQueue.proc();
+                  mEventQueue.proc(1);
                   al_flip_display();
                   al_clear_to_color(al_map_rgb(0,0,0));
                   redraw_grid(0, 0, -1);
@@ -891,7 +891,7 @@ void mwBitmapTools::edit_btile_attributes(void)
          al_draw_rounded_rectangle(sb_x, sb_y, sb_x+sb_w, sb_y2, 2, 2, mColor.pc[sb_col], 2);
          if (mInput.mouse_b[1][0])
          {
-            while (mInput.mouse_b[1][0]) mEventQueue.proc();
+            while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
             mBitmap.save_sprit();
           }
       }
@@ -916,7 +916,7 @@ void mwBitmapTools::edit_btile_attributes(void)
          al_draw_rounded_rectangle(mb_x, mb_y, mb_x2, mb_y2, 2, 2, mColor.pc[mb_col], 2);
          if (mInput.mouse_b[1][0])
          {
-            while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+            while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
             if (++mode>1) mode = 0;
          }
       }
@@ -938,13 +938,13 @@ void mwBitmapTools::edit_btile_attributes(void)
          al_draw_rounded_rectangle(gb_x, gb_y, gb_x+gb_w, gb_y2, 2, 2, mColor.pc[gb_col], 2);
          if (mInput.mouse_b[1][0])
          {
-            while (mInput.mouse_b[1][0]) mEventQueue.proc();
+            while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
             gridlines = !gridlines;
           }
       }
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
          quit = 1;
       }
 
@@ -1089,7 +1089,7 @@ void mwBitmapTools::copy_tiles(void)
 //         reload_b2 = 0;
 //      }
 
-      mEventQueue.proc();
+      mEventQueue.proc(1);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
 
@@ -1159,7 +1159,7 @@ void mwBitmapTools::copy_tiles(void)
 
          if (mInput.mouse_b[2][0])
          {
-            while (mInput.mouse_b[2][0]) mEventQueue.proc();
+            while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
             al_set_target_bitmap(qtmp);
             al_clear_to_color(al_map_rgb(0, 0, 0));
             al_draw_bitmap_region(b2, bp_x1, bp_y1, 20, 20, 0, 0, 0);
@@ -1219,7 +1219,7 @@ void mwBitmapTools::copy_tiles(void)
 
          if (mInput.mouse_b[1][0])
          {
-            while (mInput.mouse_b[1][0]) mEventQueue.proc();
+            while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
             al_set_target_bitmap(b1);                                                 // point at bitmap 1
             al_draw_filled_rectangle(bp_x1, bp_y1, bp_x1+20, bp_y1+20, mColor.pc[0]); // erase
             al_draw_bitmap(qtmp, bp_x1, bp_y1, 0);                                     // draw new tile
@@ -1228,7 +1228,7 @@ void mwBitmapTools::copy_tiles(void)
 
          if (mInput.mouse_b[2][0])
          {
-            while (mInput.mouse_b[2][0]) mEventQueue.proc();
+            while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
             al_set_target_bitmap(qtmp);
             al_clear_to_color(al_map_rgb(0, 0, 0));
             al_draw_bitmap_region(b1, bp_x1, bp_y1, 20, 20, 0, 0, 0);
@@ -1239,7 +1239,7 @@ void mwBitmapTools::copy_tiles(void)
       }
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
          quit = 1;
       }
 

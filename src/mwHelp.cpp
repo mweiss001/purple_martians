@@ -416,7 +416,7 @@ void mwHelp::help(const char *topic)
       } // end of cycle lines
 
 
-      mEventQueue.proc();
+      mEventQueue.proc(1);
 
       line -= mInput.mouse_dz * 4;
       mInput.mouse_dz = 0;
@@ -470,7 +470,7 @@ void mwHelp::help(const char *topic)
       while ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.mouse_b[2][0]))
       {
          quit = 1;
-         mEventQueue.proc();
+         mEventQueue.proc(1);
       }
    }  // end of while not quit
    al_destroy_bitmap(status_window);

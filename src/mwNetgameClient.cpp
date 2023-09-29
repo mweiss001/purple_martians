@@ -130,7 +130,7 @@ int mwNetgame::ClientCheckResponse(void) // check for a repsonse from the server
       int done = 10;
       while (done)
       {
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) return -2;
          packetsize = net_receive(ServerChannel, packetbuffer, 1024, address);
          if (packetsize)
@@ -231,17 +231,28 @@ void mwNetgame::client_send_cjrc_packet(void)
    ClientSend(packetbuffer, packetsize);
 }
 
-void mwNetgame::client_send_rctl_packet(int s1_adj, float co_adj, int zl_adj, int epn_adj, int eps_adj, int server_reload)
+//void mwNetgame::client_send_rctl_packet(int s1_adj, float co_adj, int zl_adj, int epn_adj, int eps_adj, int server_reload)
+//{
+//   Packet("rctl");
+//   PacketPutInt4(s1_adj);
+//   PacketPutDouble(co_adj);
+//   PacketPutInt4(zl_adj);
+//   PacketPutInt4(epn_adj);
+//   PacketPutInt4(eps_adj);
+//   PacketPutInt4(server_reload);
+//   ClientSend(packetbuffer, packetsize);
+//}
+//
+
+
+void mwNetgame::client_send_rctl_packet(int type, double val)
 {
    Packet("rctl");
-   PacketPutInt4(s1_adj);
-   PacketPutDouble(co_adj);
-   PacketPutInt4(zl_adj);
-   PacketPutInt4(epn_adj);
-   PacketPutInt4(eps_adj);
-   PacketPutInt4(server_reload);
+   PacketPutInt4(type);
+   PacketPutDouble(val);
    ClientSend(packetbuffer, packetsize);
 }
+
 
 
 
@@ -251,12 +262,8 @@ void mwNetgame::client_process_sjon_packet(void)
 {
    int pl = PacketGetInt2();   // play level
    int server_sjon_frame_num  =  PacketGetInt4();
-
    int p = PacketGetInt1();      // client player number
    int color = PacketGetInt1();  // client player color
-   int ds = PacketGetInt1();     // deathmatch_shots
-   int dd = PacketGetInt2();     // deathmatch_shot_damage
-   int ss = PacketGetInt1();     // suicide_shots
 
    if (p == 99) // server full, join denied
    {
@@ -278,18 +285,11 @@ void mwNetgame::client_process_sjon_packet(void)
 
       mLevel.play_level = pl;
 
-      mShot.deathmatch_shots = ds;
-      mShot.deathmatch_shot_damage = dd-1000;
-      mShot.suicide_shots = ss;
-
       mLog.add_fwf(LOG_NET,               0, 76, 10, "|", " ", "Client received join invitation from server");
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Number:[%d]", p);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Color:[%d]", color);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Frame Num:[%d]", server_sjon_frame_num);
-      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Deathmatch player shots:[%d]", mShot.deathmatch_shots);
-      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Deathmatch player shot damage:[%d]", mShot.deathmatch_shot_damage);
-      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Suicide player shots:[%d]", mShot.suicide_shots);
       mLog.add_fwf(LOG_NET,               0, 76, 10, "+", "-", "");
       mLoop.state[0] = 22;
    }
@@ -339,6 +339,8 @@ void mwNetgame::client_process_snfo_packets(void)
          if (bad_data) printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d  --- Bad Data!\n", seq+1, max_seq, fn, sb, sz);
          else
          {
+            printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d\n", seq+1, max_seq, fn, sb, sz);
+
             memcpy(client_state_buffer + sb, packetbuffer+18, sz);    // put the piece of data in the buffer
             client_state_buffer_pieces[seq] = fn;                     // mark it with frame_num
 
@@ -348,7 +350,7 @@ void mwNetgame::client_process_snfo_packets(void)
 
             if (complete)
             {
-               // printf("rx snfo complete\n");
+               printf("rx snfo complete - frame:[%d]\n", fn);
                char dmp[5400];
                // uncompress
                uLongf destLen = sizeof(dmp);
@@ -358,8 +360,6 @@ void mwNetgame::client_process_snfo_packets(void)
                int sz=0, offset=0;
                sz = sizeof(mPlayer.syn); memcpy(mPlayer.syn, dmp+offset, sz); offset += sz;
                sz = sizeof(mPlayer.loc); memcpy(mPlayer.loc, dmp+offset, sz); offset += sz;
-
-               mLoop.cpu_graph_add_data(); // add data to cpu graph
 
                // dsync, ping graphs
                for (int i=1; i<8; i++) // cycle all clients
@@ -392,6 +392,10 @@ void mwNetgame::client_process_snfo_packets(void)
                for (int i=0; i<8; i++) // cycle all players
                   if (mPlayer.syn[i].active)
                   {
+                     mQuickGraph2[0].series[i].active = 1;
+                     mQuickGraph2[0].series[i].color = mPlayer.syn[i].color;
+                     mQuickGraph2[0].add_data(i, mPlayer.loc[i].cpu);
+
                      mQuickGraph2[4].series[i].active = 1;
                      mQuickGraph2[4].series[i].color = mPlayer.syn[i].color;
                      mQuickGraph2[4].add_data(i, mPlayer.loc[i].tx_bytes_per_tally/1000);
@@ -399,9 +403,8 @@ void mwNetgame::client_process_snfo_packets(void)
                      mQuickGraph2[5].series[i].active = 1;
                      mQuickGraph2[5].series[i].color = mPlayer.syn[i].color;
                      mQuickGraph2[5].add_data(i, mPlayer.loc[i].rewind);
-
                   }
-
+               mQuickGraph2[0].new_entry_pos();
                mQuickGraph2[1].new_entry_pos();
                mQuickGraph2[2].new_entry_pos();
                mQuickGraph2[3].new_entry_pos();
@@ -409,7 +412,6 @@ void mwNetgame::client_process_snfo_packets(void)
                mQuickGraph2[5].new_entry_pos();
                mQuickGraph2[6].new_entry_pos();
                mQuickGraph2[7].new_entry_pos();
-
             }
          }
       }
@@ -613,6 +615,8 @@ void mwNetgame::client_send_stak(int ack_frame)
    PacketPutInt1(mPlayer.loc[p].rewind);
    PacketPutDouble(mPlayer.loc[p].client_loc_plr_cor);
    PacketPutDouble(mPlayer.loc[p].client_rmt_plr_cor);
+   PacketPutDouble(mPlayer.loc[p].cpu);
+
    ClientSend(packetbuffer, packetsize);
    mLog.addf(LOG_NET_stak, p, "tx stak p:%d ack:[%d] cur:[%d]\n", p, ack_frame, mLoop.frame_num);
 }

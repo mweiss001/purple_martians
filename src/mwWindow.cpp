@@ -899,7 +899,7 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
 
             if (mInput.mouse_b[1][0])
             {
-               while (mInput.mouse_b[1][0]) mEventQueue.proc();     // wait for release
+               while (mInput.mouse_b[1][0]) mEventQueue.proc(1);     // wait for release
                int pn = mPDE.PDEi[ret][0];
                if (pn < 200)
                {
@@ -959,7 +959,7 @@ void mwWindow::cm_draw_selection_window(int x1, int x2, int y1, int y2, int d, i
 
          if ((mInput.mouse_b[1][0]) || (mInput.mouse_b[2][0]))
          {
-            while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+            while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
             mWM.mW[1].draw_item_type = 1;
             mWM.mW[1].draw_item_num = ret;
          }

@@ -180,6 +180,7 @@ void mwInput::proc_keys_held(void)
       else mouse_b[m][3] = false;
       mouse_b[m][1] = mouse_b[m][0]; // previous for next time
    }
+   function_key_check();
 }
 
 
@@ -626,7 +627,7 @@ void mwInput::test_keys(int x, int sy)
       mEventQueue.proc_menu();
       if (mInput.mouse_b[2][0])
       {
-         while (mInput.mouse_b[2][0]) mEventQueue.proc();
+         while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
          quit = 1;
       }
    }
@@ -728,6 +729,6 @@ void mwInput::tsw(void)
          }
       }
    }
-   while (key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+   while (key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
 }
 

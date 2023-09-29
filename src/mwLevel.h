@@ -66,11 +66,8 @@ class mwLevel
    void set_start_level(void);
    void set_start_level(int s);
 
-   void next_level(void);
-   void prev_level(void);
-
-   int get_next_level(int lev);
-
+   int get_next_level(int lev, int max_lev, int wrap);
+   int get_prev_level(int lev, int max_lev, int wrap);
 
    int load_level(int level_to_load, int load_only, int fail_silently);
    void save_level(int level_to_save);

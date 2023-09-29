@@ -16,7 +16,7 @@ class mwEventQueue
    int program_update_1s;
    int menu_update;
 
-   void proc(void);
+   void proc(int pch);
    void proc_menu(void);
 
 

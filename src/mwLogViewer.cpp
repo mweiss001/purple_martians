@@ -285,7 +285,7 @@ int mwLog::log_file_viewer(int type)
 
          if (mInput.mouse_b[1][0])
          {
-            while (mInput.mouse_b[1][0]) mEventQueue.proc();
+            while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
             first_line = sbmy; // set new log line pos
          }
       }
@@ -389,7 +389,7 @@ int mwLog::log_file_viewer(int type)
 
       al_flip_display();
 
-      mEventQueue.proc();
+      mEventQueue.proc(1);
 
       int k = mInput.key_pressed_ASCII;
       if ((k > 36) && (k < 45)) k+=11; // convert number pad number to regular numbers

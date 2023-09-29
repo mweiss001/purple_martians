@@ -14,6 +14,8 @@
 #include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwScreen.h"
+#include "mwMain.h"
+
 
 
 mwVisualLevel mVisualLevel;
@@ -29,7 +31,7 @@ void mwVisualLevel::mark_rect(int sel, int color)
 void mwVisualLevel::show_cur(void)
 {
    int xpos = 1000+ (1280 - 1000)/2;
-   al_draw_text(mFont.pr8, mColor.pc[14], xpos, 4, ALLEGRO_ALIGN_CENTER,"Currently selected level");
+   al_draw_text(mFont.pr8, mColor.pc[14], xpos, 4, ALLEGRO_ALIGN_CENTER, "Currently selected level");
    al_draw_textf(mFont.pr8, mColor.pc[15], xpos, 15, ALLEGRO_ALIGN_CENTER, "Level:[%d]", cur);
    al_draw_rectangle(1000, 24, 1279, 303, mColor.pc[14], 1 );
    al_draw_rectangle(1001, 25, 1278, 302, mColor.pc[14], 1 );
@@ -45,7 +47,7 @@ void mwVisualLevel::show_cur(void)
       al_set_target_backbuffer(mDisplay.display);
       mLevel.show_level_data(1010, 308, 0);
    }
-   else al_draw_text(mFont.pr8, mColor.pc[10], xpos, 30, ALLEGRO_ALIGN_CENTER,"not found");
+   else al_draw_text(mFont.pr8, mColor.pc[10], xpos, 30, ALLEGRO_ALIGN_CENTER, "not found");
 
 }
 
@@ -53,7 +55,7 @@ void mwVisualLevel::show_msel(void)
 {
    int xpos = 1000+ (1280 - 1000)/2;
    int yo = 1024/2 - 96;
-   al_draw_text(mFont.pr8, mColor.pc[10], xpos, yo + 4, ALLEGRO_ALIGN_CENTER,"Level under mouse");
+   al_draw_text(mFont.pr8, mColor.pc[10], xpos, yo + 4, ALLEGRO_ALIGN_CENTER, "Level under mouse");
    al_draw_textf(mFont.pr8, mColor.pc[10], xpos, yo + 15, ALLEGRO_ALIGN_CENTER, "Level:[%d]", sel);
    al_draw_rectangle(1000, yo + 24, 1279, yo + 303, mColor.pc[10], 1 );
    al_draw_rectangle(1001, yo + 25, 1278, yo + 302, mColor.pc[10], 1 );
@@ -69,7 +71,7 @@ void mwVisualLevel::show_msel(void)
       al_set_target_backbuffer(mDisplay.display);
       mLevel.show_level_data(1010, yo + 308, 0);
    }
-   else al_draw_text(mFont.pr8, mColor.pc[10], xpos, yo + 30, ALLEGRO_ALIGN_CENTER,"not found" );
+   else al_draw_text(mFont.pr8, mColor.pc[10], xpos, yo + 30, ALLEGRO_ALIGN_CENTER, "not found");
 }
 
 
@@ -465,7 +467,6 @@ void mwVisualLevel::show_cur_vs(int cur, int x1, int y1, int size, int fc)
 //   al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d", cur);
    al_draw_textf(mFont.pr8, mColor.pc[tc], xc, y1+15-3, ALLEGRO_ALIGN_CENTER, "Level %d - %s", cur, mLevel.data[cur].level_name);
 
-
    if (mLevel.load_level(cur, 0, 1))
    {
       mScreen.draw_level2(NULL, x1+2, y1+26, size-3, 1, 1, 1, 1, 0);
@@ -607,9 +608,7 @@ void mwVisualLevel::load_visual_level_select(void)
 
 int mwVisualLevel::visual_level_select(void)
 {
-
-   if (mLevel.resume_allowed) mLevel.add_play_data_record(mLevel.play_level, 0);
-
+   if ((!mMain.server_remote_control) && (mLevel.resume_allowed)) mLevel.add_play_data_record(mLevel.play_level, 0);
 
    mLoop.visual_level_select_running = 1;
 
@@ -647,8 +646,8 @@ int mwVisualLevel::visual_level_select(void)
       }
       if (vl_redraw)
       {
-         al_set_target_backbuffer(mDisplay.display);
          vl_redraw = 0;
+         al_set_target_backbuffer(mDisplay.display);
          al_clear_to_color(al_map_rgb(0,0,0));
 
          // draw the grid of icons
@@ -687,15 +686,10 @@ int mwVisualLevel::visual_level_select(void)
          al_draw_text(mFont.pr8, mColor.pc[14], tx, ty1+=16, ALLEGRO_ALIGN_CENTER, "Choose a level with <ENTER>");
          al_draw_text(mFont.pr8, mColor.pc[11], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Arrow keys change selection" );
          al_draw_text(mFont.pr8, mColor.pc[10], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "<ESC> to abort");
-
 //         al_draw_textf(mFont.pr8, mColor.pc[15], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Icon size:%d", grid_size);
-
-
 
          al_flip_display();
       } // end of redraw
-
-
 
       if (al_get_timer_count(mEventQueue.mou_timer) == 0) // if mouse is not hidden (asleep)
          if ((mInput.mouse_x > 16) && (mInput.mouse_x < 16 + grid_width) && (mInput.mouse_y > 16) && (mInput.mouse_y < 16 + grid_height)) // if mouse is on grid
@@ -711,14 +705,12 @@ int mwVisualLevel::visual_level_select(void)
 
                if (mInput.mouse_b[1][0])
                {
-                  while (mInput.mouse_b[1][0]) mEventQueue.proc();
+                  while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
                   mLevel.set_start_level(selected_level);
                   quit = 1;
                }
             }
          }
-
-
 
 
       mEventQueue.proc_menu();
@@ -804,7 +796,7 @@ int mwVisualLevel::visual_level_select(void)
 
       if (mInput.mouse_b[2][0])
       {
-         while (mInput.mouse_b[2][0]) mEventQueue.proc();
+         while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
          quit = 2;
       }
 

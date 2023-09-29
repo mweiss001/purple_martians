@@ -79,12 +79,14 @@ struct psyn // synced between server and client
 
    float client_chase_offset = 0.01;
 
+   int player_vs_player_shots;
+   int player_vs_player_shot_damage;
+   int player_vs_self_shots;
+
+
    int spare_int1;
    int spare_int2;
    int spare_int3;
-   int spare_int4;
-   int spare_int5;
-   int spare_int6;
 
 
 };
@@ -141,7 +143,6 @@ struct ploc // not synced between server and client (but synced from server to r
    double game_move_dsync;
    double game_move_dsync_avg_last_sec;
 
-
    int made_active_holdoff;
    int sync_stabilization_holdoff;
 
@@ -154,12 +155,17 @@ struct ploc // not synced between server and client (but synced from server to r
    int cmp_dif_size;
 
 
+
+   float cpu;
+
+
+
    // used only by server remote_control
    int srv_frame_num;
    int srv_stdf_freq;
    int srv_total_game_moves;
    int srv_level;
-   float srv_cpu;
+
 
    int srv_zlib_cmp;
    int srv_extra_packets_num;

@@ -49,7 +49,7 @@ void mwEventQueue::proc_events(ALLEGRO_EVENT ev)
    mInput.proc_input_events(ev);  // send all other events to input handler
 }
 
-void mwEventQueue::proc(void)
+void mwEventQueue::proc(int pch)
 {
    mInput.key[ALLEGRO_KEY_PRINTSCREEN][0] = 0; // hack to make PRINTSCREEN key work properly
    mInput.key_pressed_ASCII = 0;
@@ -60,14 +60,14 @@ void mwEventQueue::proc(void)
       al_get_next_event(event_queue, &ev);
       proc_events(ev);
    }
-   mInput.proc_keys_held();
-   mInput.function_key_check();
+   if (pch) mInput.proc_keys_held();
+//   mInput.function_key_check();
 //   printf("f:%d mt:%d\n", mLoop.frame_num, al_get_timer_count(mEventQueue.mou_timer));
 }
 
 void mwEventQueue::proc_menu(void)
 {
-   proc();
+   proc(1);
    // this is done so that the game controls can be used to navigate menus and visual level select
    mPlayer.clear_controls(mPlayer.active_local_player);
    mPlayer.set_controls_from_player_key_check(mPlayer.active_local_player);

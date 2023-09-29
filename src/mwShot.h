@@ -27,10 +27,6 @@ class mwShot
    struct eshot e[50];
    struct pshot p[50];
 
-   int deathmatch_shots;
-   int deathmatch_shot_damage;
-   int suicide_shots;
-
    void clear_shots(void);
 
    void proc_player_shoot(int p);

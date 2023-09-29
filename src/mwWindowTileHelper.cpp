@@ -601,7 +601,7 @@ void mwWindow::th_process_mouse(void)
 {
    if (mInput.mouse_b[1][0])
    {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc();
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
 
       // add or del single tile at the specific location
       if (mWM.mW[9].th_match == 0) mWM.thl[mWM.gx][mWM.gy] = mWM.mW[9].th_add_del;
@@ -620,7 +620,7 @@ void mwWindow::th_process_mouse(void)
 
    if (mInput.mouse_b[2][0])
    {
-      while (mInput.mouse_b[2][0]) mEventQueue.proc();
+      while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
       mWM.set_windows(1);
    }
 }

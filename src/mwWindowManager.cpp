@@ -206,7 +206,7 @@ void mwWindowManager::process_keypress(void)
    while (mInput.key[ALLEGRO_KEY_ESCAPE][0])
    {
       active = 0;
-      mEventQueue.proc();
+      mEventQueue.proc(1);
    }
 
    if (active == 0)
@@ -230,7 +230,7 @@ int mwWindowManager::redraw_level_editor_background(void)
    char msg[1024];
    int drawn = 0;
 
-   mEventQueue.proc();
+   mEventQueue.proc(1);
    if (mEventQueue.program_update)
    {
       mEventQueue.program_update = 0;

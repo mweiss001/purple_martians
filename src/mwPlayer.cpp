@@ -620,15 +620,15 @@ void mwPlayer::proc_player_collisions(int p)
          if ((px > bx1) && (px < bx2) && (py > by1) && (py < by2))
          {
             int pb = mShot.p[b].player; // player that fired the shot
-            if ((mShot.deathmatch_shots) && (pb != p))
+            if ((mPlayer.syn[0].player_vs_player_shots) && (pb != p))
             {
                 mShot.proc_pshot_collision(p, b);
-                mGameEvent.add(40, 0, 0, pb, p, 1, mShot.deathmatch_shot_damage);
+                mGameEvent.add(40, 0, 0, pb, p, 1, mPlayer.syn[0].player_vs_player_shot_damage);
             }
-            if ((mShot.suicide_shots) && (pb == p))
+            if ((mPlayer.syn[0].player_vs_self_shots) && (pb == p))
             {
                 mShot.proc_pshot_collision(p, b);
-                mGameEvent.add(40, 0, 0, pb, p, 1, mShot.deathmatch_shot_damage);
+                mGameEvent.add(40, 0, 0, pb, p, 1, mPlayer.syn[0].player_vs_player_shot_damage);
             }
          }
       }
@@ -1458,7 +1458,7 @@ void mwPlayer::init_player(int p, int t)
       loc[p].join_frame = 0;
       loc[p].client_base_resets = 0;
 
-      loc[p].num_dif_packets =0 ;
+      loc[p].num_dif_packets = 0;
       loc[p].server_last_stak_rx_frame_num = 0;
       loc[p].client_last_stdf_rx_frame_num = 0;
 
@@ -1472,6 +1472,22 @@ void mwPlayer::init_player(int p, int t)
       loc[p].game_move_dsync = 0;
       loc[p].game_move_dsync_avg_last_sec = 0;
       mTally_game_move_dsync_avg_last_sec[p].initialize(); // initialize tally
+
+
+      loc[p].old_x = 0;
+      loc[p].old_y = 0;
+
+      loc[p].client_loc_plr_cor = 0;
+      loc[p].client_rmt_plr_cor = 0;
+      loc[p].client_loc_plr_cor_max = 0;
+      loc[p].client_rmt_plr_cor_max = 0;
+      loc[p].client_loc_plr_cor_avg = 0;
+      loc[p].client_rmt_plr_cor_avg = 0;
+
+      mTally_client_loc_plr_cor_last_sec[p].initialize();
+      mTally_client_rmt_plr_cor_last_sec[p].initialize();
+
+
    }
 
    if (t == 23) // clear bandwidth counters

@@ -28581,7 +28581,7 @@ int mwTriggerEvent::get_trigger_item(int obj_type, int obj_num, int obj_ext, int
 */
 
 {
-   while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+   while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
    mScreen.init_level_background();
    int tx = mDisplay.SCREEN_W/2;
 
@@ -36459,6 +36459,361 @@ still much to do...
 
 
 20230924 10:00PM new version and push
+
+
+
+20230926
+
+
+I want to also send cpu fron clients to server
+
+change to store cpu per player
+
+its all convoluted now
+
+now it is stored per player, now what?
+
+have clients send their local to server with stak and have server rx and put in loc.cpu...done
+
+now server will auto send to rmtmp
+
+don't make rmt avg it just display raw...
+
+
+
+at the end of game_loop...
+calc cpu and put in player array with active local player
+
+what about the average...
+
+
+I should have another place to store it....
+local_cpu
+and this one can use the rolling average
+
+then I will also use that for remote...
+
+
+
+
+
+what if I have a whole new method for non-blocking buttons
+
+have a section of code that detects where the mouse is
+like a bunch of normal buttons
+
+
+
+then have that wrapped in a function that detects if the mouse has just been pressed
+
+then each button wiil be passed if mouse was just pressed...
+
+
+I could use the keys_held thing I already have...the problem is that sometimes event queue gets processed much faster and just pressed is not detected
+I could decouple proc_keys held from proc event queue
+
+that would probably do it, but there would be many places in code I would have to fix...
+
+
+
+to start with, make proc take an arg int pch if 1 then do the pch
+then change all refs to 1
+
+
+then figure out where I want to do something different
+
+
+163 matches...wow
+
+did them all...
+
+the only place I do it different is the main loop...
+I call event queue very fast, but proc_keys_held only when 40Hz timer fires...seems to work...hope it doesn't break anything
+had to move function key check to get called only from keys held...
+
+this makes the non blocking buttons much easier to implement
+
+old:
+if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
+{
+   if (b_press[0] == 0) mPlayer.syn[0].client_chase_offset -= 0.005;
+   b_press[0] = 1;
+}
+else b_press[0] = 0;
+if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
+{
+   if (b_press[1] == 0) mPlayer.syn[0].client_chase_offset += 0.005;
+   b_press[1] = 1;
+}
+else b_press[1] = 0;
+al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "o:%2.0f", mPlayer.syn[0].client_chase_offset * 1000);
+
+new:
+if (mWidget.buttont_nb2(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-")) mPlayer.syn[0].client_chase_offset -= 0.005;
+if (mWidget.buttont_nb2(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+")) mPlayer.syn[0].client_chase_offset += 0.005;
+al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "o:%2.0f", mPlayer.syn[0].client_chase_offset * 1000);
+
+
+converted all 3 client overlay buttons also, renamed to nb from nb2, removed all traces of old...
+
+now back to making rmt use them...
+
+
+
+20230928
+
+What would make the load level thing so much simpler in remote is to have one button for vls that reloads that level
+don't need to show current load level
+
+I want some way to force clients to reconnect...why?
+
+just to get new player slots...and new bullet config?
+
+I am not sure if I really want to do that...I would need somehow to make the server tell the client to do that...
+sounds too complicated...
+
+But I do want some way for server remote to be able to change bullet config
+
+if I make it part of the player struct, it will automatically get synced
+
+either method seems messy, hacky
+
+I shouldn't worry about changing the rules in the middle of a netgame, clients will never be able to play back anyway, they dont have all the game moves...
+
+move these to player struct
+
+   agci(NETWORK, mShot.deathmatch_shots, 0)
+   agci(NETWORK, mShot.deathmatch_shot_damage, 5)
+   agci(NETWORK, mShot.suicide_shots, 0)
+
+can I come up with better names:
+
+player_vs_player_shots
+player_vs_player_shot_damage
+player_vs_self_shots
+
+
+player_vs_player_shots
+0 = none
+1 = yes
+2 = self also
+
+do I even need to do this?
+it is a part of mShots, and I am sure I sync that...yes, the 2 arrays but not that part...
+
+
+move to player struct
+
+player_vs_player_shots
+player_vs_player_shot_damage
+player_vs_self_shots
+
+done...
+remove all mentions of old ...done
+
+
+test....
+
+
+after this I should be able to change on server and have it propogate to clinets
+make sure it is not killed by server rewind
+done
+
+
+redo send rtcl packet
+instead of ever increasing parameters, just two...typr and val,
+
+can still send packet with all, but not call
+
+maybe I should change that as well
+
+
+make some defines in netgame.h
+
+inc version and push
+
+20230929
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

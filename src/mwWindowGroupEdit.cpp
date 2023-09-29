@@ -856,7 +856,7 @@ void mwWindow::ge_show_obj_list(int x, int y, int *ew, int *eh, int d)
          {
             if (mInput.SHFT()) // remove item from list
             {
-               while (mInput.mouse_b[1][0]) mEventQueue.proc();
+               while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
                ge_remove_obj_list_item(mpl);
             }
             else // keep mouse for drag swap
@@ -1149,7 +1149,7 @@ void mwWindow::ge_process_mouse(void)
       }
       else
       {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc();
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
 
          // is mouse on item
          for (int i=0; i<500; i++)
@@ -1173,7 +1173,7 @@ void mwWindow::ge_process_mouse(void)
    }
    if (mInput.mouse_b[2][0])
    {
-      while (mInput.mouse_b[2][0]) mEventQueue.proc();
+      while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
       mWM.set_windows(1);
    }
 }

@@ -343,12 +343,10 @@ void mwGameMoves::save_gm_txt(char *sfname)
    filepntr = fopen(fname,"w");
 
    fprintf(filepntr,"number of entries %d\n", entry_pos);
-   fprintf(filepntr,"deathmatch_shots %d\n", mShot.deathmatch_shots);
-   fprintf(filepntr,"deathmatch_shot_damage %d\n", mShot.deathmatch_shot_damage);
-   fprintf(filepntr,"suicide_shots %d\n", mShot.suicide_shots);
-
+   fprintf(filepntr,"player_vs_player_shots %d\n",       mPlayer.syn[0].player_vs_player_shots);
+   fprintf(filepntr,"player_vs_player_shot_damage %d\n", mPlayer.syn[0].player_vs_player_shot_damage);
+   fprintf(filepntr,"player_vs_self_shots %d\n",         mPlayer.syn[0].player_vs_self_shots);
    fprintf(filepntr,"[ gm][frame][t][p][cm]\n");
-
    for (int x=0; x<entry_pos; x++)
    {
       int f = arr[x][0]; // frame
@@ -382,9 +380,9 @@ void mwGameMoves::save_gm_gm(char *sfname)
 
    fprintf(filepntr,"%d\n", entry_pos);  // num_entries
 
-   fprintf(filepntr,"%d\n", mShot.deathmatch_shots);
-   fprintf(filepntr,"%d\n", mShot.deathmatch_shot_damage );
-   fprintf(filepntr,"%d\n", mShot.suicide_shots);
+   fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_player_shots);
+   fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_player_shot_damage );
+   fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_self_shots);
 
    for (int x=0; x<entry_pos; x++)
       for (int y=0; y<4; y++)
@@ -588,7 +586,7 @@ int mwGameMoves::load_gm(const char *sfname )
          entry_pos = atoi(buff);
 
 
-         // then deathmatch_shots
+         // then pvp_shots
          loop = 0;
          ch = fgetc(filepntr);
          while((ch != '\n') && (ch != EOF))
@@ -598,21 +596,11 @@ int mwGameMoves::load_gm(const char *sfname )
             ch = fgetc(filepntr);
          }
          buff[loop] = 0;
-         mShot.deathmatch_shots= atoi(buff);
+         mPlayer.syn[0].player_vs_player_shots = atoi(buff);
 
-         // then deathmatch_shot_damage
-         loop = 0;
-         ch = fgetc(filepntr);
-         while((ch != '\n') && (ch != EOF))
-         {
-            buff[loop] = ch;
-            loop++;
-            ch = fgetc(filepntr);
-         }
-         buff[loop] = 0;
-         mShot.deathmatch_shot_damage= atoi(buff);
 
-         // then suicide_shots
+
+         // then pvp_shot_damage
          loop = 0;
          ch = fgetc(filepntr);
          while((ch != '\n') && (ch != EOF))
@@ -622,7 +610,19 @@ int mwGameMoves::load_gm(const char *sfname )
             ch = fgetc(filepntr);
          }
          buff[loop] = 0;
-         mShot.suicide_shots = atoi(buff);
+         mPlayer.syn[0].player_vs_player_shot_damage = atoi(buff);
+
+         // then pvs_shots
+         loop = 0;
+         ch = fgetc(filepntr);
+         while((ch != '\n') && (ch != EOF))
+         {
+            buff[loop] = ch;
+            loop++;
+            ch = fgetc(filepntr);
+         }
+         buff[loop] = 0;
+         mPlayer.syn[0].player_vs_self_shots = atoi(buff);
 
          // then get all the entries
          for (int x=0; x<entry_pos; x++)

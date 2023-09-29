@@ -237,7 +237,7 @@ void mwSettings::draw_tab(struct settings_tab st[], int p, int col, int text_col
 void mwSettings::settings_pages(int set_page)
 {
    // if esc is pressed on entry, wait for release
-   while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+   while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
 
 
    char msg[1024];
@@ -378,7 +378,7 @@ void mwSettings::settings_pages(int set_page)
       al_clear_to_color(al_map_rgb(0, 0, 0));
       mScreen.frame_and_title();
 
-      while (!mEventQueue.menu_update) mEventQueue.proc();
+      while (!mEventQueue.menu_update) mEventQueue.proc(1);
       mEventQueue.menu_update = 0;
 
 
@@ -441,7 +441,7 @@ void mwSettings::settings_pages(int set_page)
          draw_tab(st, mouse_on_tab, fc, tc); // draw the tab the mouse is on
          if (mInput.mouse_b[1][0])
          {
-            while (mInput.mouse_b[1][0]) mEventQueue.proc();
+            while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
             current_page = page = mouse_on_tab;
          }
       }
@@ -534,7 +534,7 @@ void mwSettings::settings_pages(int set_page)
             cfp_draw_player(i, xa+px1, ya+py1);
             if ( (mInput.mouse_x > (xa + px1)) && (mInput.mouse_x < (xa + px1 + spacing)) && (mInput.mouse_y > (ya + py1)) && (mInput.mouse_y < (ya + py1 +22)) && (mInput.mouse_b[1][0]))
             {
-               while (mInput.mouse_b[1][0]) mEventQueue.proc();
+               while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
                mPlayer.syn[0].color = i;
             }
             px1 += spacing;
@@ -604,7 +604,7 @@ void mwSettings::settings_pages(int set_page)
          if (mWidget.buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,8,tc, 0,  1,0,1,0, "Show now"))
          {
              mLogo.splash_screen();
-             while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+             while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
          }
          ya -=2;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
@@ -889,20 +889,20 @@ void mwSettings::settings_pages(int set_page)
          frame_y1 = ya;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mShot.deathmatch_shots, "Deathmatch player shots", 15, 15);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mPlayer.syn[0].player_vs_player_shots, "Player vs Player shots", 15, 15);
          al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's shots affect other players?");
 
          ya+=10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mShot.suicide_shots, "Suicide player shots", 15, 15);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mPlayer.syn[0].player_vs_self_shots, "Player vs Self shots", 15, 15);
          al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's shots affect themselves?");
 
          ya+=10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
          ya+=4;
 
-         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  0,0,1,0, mShot.deathmatch_shot_damage, 100, -10, 1, "Player shot damage:");
+         mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  0,0,1,0, mPlayer.syn[0].player_vs_player_shot_damage, 100, -10, 1, "Player shot damage:");
          ya+=4;
          al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The amount of damage player's shots do to");
          al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya+10, ALLEGRO_ALIGN_CENTER, "other players and themselves.");
@@ -2251,13 +2251,13 @@ void mwSettings::settings_pages(int set_page)
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
          quit = 1;
       }
 
       if (mInput.mouse_b[2][0])
       {
-         while (mInput.mouse_b[2][0]) mEventQueue.proc();
+         while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
          quit = 1;
       }
    }

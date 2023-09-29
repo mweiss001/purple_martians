@@ -134,7 +134,7 @@ float mwWidget::get_slider_position2(float sul, float sll, float sinc, int q4 ,i
    }
    else
    {
-      mEventQueue.proc();
+      mEventQueue.proc(1);
       al_flip_display();
    }
 
@@ -168,7 +168,7 @@ float mwWidget::get_slider_position3(float f, float sul, float sll, float sinc, 
    }
    else
    {
-      mEventQueue.proc();
+      mEventQueue.proc(1);
       al_flip_display();
    }
    if (mInput.key[ALLEGRO_KEY_RIGHT][2])
@@ -599,7 +599,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
 
    if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
       press = 1;
    }
 
@@ -970,7 +970,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
          mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][10], mpow_jnk, 0, 1, 1);
          while (mInput.CTRL())
          {
-            mEventQueue.proc();
+            mEventQueue.proc(1);
             al_flip_display();
             mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][10], mpow_jnk, 0, 1, 1);
          }
@@ -988,7 +988,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
          mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][11], mpow_jnk, 0, 1, 1);
          while (mInput.CTRL())
          {
-            mEventQueue.proc();
+            mEventQueue.proc(1);
             al_flip_display();
             mBitmapTools.draw_flags(x2+6, y1, mItem.item[num][11], mpow_jnk, 0, 1, 1);
          }
@@ -1007,7 +1007,7 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
          mBitmapTools.draw_flags(x2+6, y1, mEnemy.Ei[num][13], mpow_jnk, 0, 1, 1);
          while (mInput.CTRL())
          {
-            mEventQueue.proc();
+            mEventQueue.proc(1);
             al_flip_display();
             mBitmapTools.draw_flags(x2+6, y1, mEnemy.Ei[num][13], mpow_jnk, 0, 1, 1);
          }
@@ -1248,7 +1248,7 @@ int mwWidget::buttont(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 
    if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
@@ -1283,14 +1283,14 @@ int mwWidget::buttontca(int xc, int &y1, int xd, int bts, int bn, int num, int t
 
       if ((!q7) && (mInput.mouse_b[1][0]))
       {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
          ret = 1;
       }
    }
 
    if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
@@ -1321,7 +1321,7 @@ int mwWidget::buttontcb(int x1, int &y1, int xd, int bts, int bn, int num, int t
 
       if ((!q7) && (mInput.mouse_b[1][0]))
       {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
          ret = 1;
       }
    }
@@ -1332,12 +1332,15 @@ int mwWidget::buttontcb(int x1, int &y1, int xd, int bts, int bn, int num, int t
 
    if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
    return ret;
 }
+
+
+
 
 
 
@@ -1377,14 +1380,35 @@ int mwWidget::buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int 
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
    draw_slider_text(x1, y1,  x2, y2, q2, q5, txt);
 
-   if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
-   {
-//      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
-      ret = 1;
-   }
+   if ((!q7) && (mInput.mouse_b[1][2]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2)) ret = 1;
+
    if (q6) y1+=bts;
    return ret;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1413,7 +1437,7 @@ int mwWidget::buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int ty
    al_draw_bitmap(mBitmap.btile[tn], x, y1+1, 0);
    if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
@@ -1434,7 +1458,7 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    int press = 0;
    if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
       press = 1;
    }
 
@@ -1873,7 +1897,7 @@ void mwWidget::colsel(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    // is mouse pressed on button?
    if ((!q7) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (mInput.mouse_b[1][0]))
    {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc();
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
       int color = (int)(1+(mInput.mouse_x-x1)/b);
 
       if (bn == 2) // text color
@@ -1918,7 +1942,7 @@ int mwWidget::toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type
    // is mouse pressed on this button?
    if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
    {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
       var = ! var;
    }
    if (var)
@@ -1964,7 +1988,7 @@ int mwWidget::togglec(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    // is mouse pressed on this button?
    if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
    {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
       var = ! var;
       press = 1;
    }
@@ -2035,7 +2059,7 @@ void mwWidget::togglec_log(int x1, int &y1, int x2, int bts, int bn, int num, in
          al_draw_rectangle(cb1_x1, cb_y1, cb1_x2, cb_y2, mColor.pc[14], 1);
          if (mInput.mouse_b[1][0])
          {
-             while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+             while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
              mLog.log_types[ltn].action ^= LOG_ACTION_PRINT;
          }
       }
@@ -2044,7 +2068,7 @@ void mwWidget::togglec_log(int x1, int &y1, int x2, int bts, int bn, int num, in
          al_draw_rectangle(cb2_x1, cb_y1, cb2_x2, cb_y2, mColor.pc[14], 1);
          if (mInput.mouse_b[1][0])
          {
-             while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+             while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
              mLog.log_types[ltn].action ^= LOG_ACTION_LOG;
          }
       }
@@ -2118,7 +2142,7 @@ int mwWidget::togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type
    // is mouse pressed on this button?
    if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
-      while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
       var ^= flag;
    }
    if (var & flag)

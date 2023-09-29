@@ -196,7 +196,7 @@ void mwPDE::edit_text(int e)
       al_flip_display();
 
 
-      mEventQueue.proc();
+      mEventQueue.proc(1);
       int k = mInput.key_pressed_ASCII;
       if ((k>31) && (k<127)) // insert if alphanumeric or return
       {
@@ -215,7 +215,7 @@ void mwPDE::edit_text(int e)
 
       if (mInput.key[ALLEGRO_KEY_BACKSPACE][0])
       {
-         while (mInput.key[ALLEGRO_KEY_BACKSPACE][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_BACKSPACE][0]) mEventQueue.proc(1);
          if (--tx<0) tx = 0;
          int z = strlen(PDEt[e][ty1]);
          for (int x=tx; x<z; x++)
@@ -223,7 +223,7 @@ void mwPDE::edit_text(int e)
       }
       if (mInput.key[ALLEGRO_KEY_ENTER][3])
       {
-         while (mInput.key[ALLEGRO_KEY_ENTER][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_ENTER][0]) mEventQueue.proc(1);
          for (int y=19; y>ty1; y--)  // slide all down
             strcpy(PDEt[e][y],PDEt[e][y-1]);
          if (strlen(PDEt[e][ty1]) == 999) // cursor past end of line
@@ -240,7 +240,7 @@ void mwPDE::edit_text(int e)
       }
       if (mInput.key[ALLEGRO_KEY_DELETE][0])
       {
-         while (mInput.key[ALLEGRO_KEY_DELETE][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_DELETE][0]) mEventQueue.proc(1);
          if (PDEt[e][ty1][tx] == (char)NULL)
          {
             for (int x=0; x<=30-tx; x++) // get portion from line below
@@ -260,22 +260,22 @@ void mwPDE::edit_text(int e)
 
       if (mInput.key[ALLEGRO_KEY_RIGHT][0])
       {
-         while (mInput.key[ALLEGRO_KEY_RIGHT][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_RIGHT][0]) mEventQueue.proc(1);
          if (++tx > line_length-1) tx = line_length-1;
       }
       if (mInput.key[ALLEGRO_KEY_LEFT][0])
       {
-         while (mInput.key[ALLEGRO_KEY_LEFT][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_LEFT][0]) mEventQueue.proc(1);
          if (--tx < 0) tx = 0;
       }
       if (mInput.key[ALLEGRO_KEY_UP][0])
       {
-         while (mInput.key[ALLEGRO_KEY_UP][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_UP][0]) mEventQueue.proc(1);
             if (--ty1 < 0) ty1 = 0;
       }
       if (mInput.key[ALLEGRO_KEY_DOWN][0])
       {
-         while (mInput.key[ALLEGRO_KEY_DOWN][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_DOWN][0]) mEventQueue.proc(1);
          if (++ty1 > 19) ty1 = 19;
       }
 
@@ -289,7 +289,7 @@ void mwPDE::edit_text(int e)
 
       while ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.mouse_b[2][0]))
       {
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          quit = 1;
       }
    }
@@ -300,7 +300,7 @@ void mwPDE::edit_text(int e)
 void mwPDE::run(void)
 {
    char msg[1024];
-   while (mInput.mouse_b[2][0]) mEventQueue.proc();
+   while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
    if (load())
    {
       int e = 0, redraw = 1;
@@ -379,11 +379,11 @@ void mwPDE::run(void)
 
          redraw=1;
 
-         mEventQueue.proc();
+         mEventQueue.proc(1);
 
          if (mInput.CTRL() && mInput.key[ALLEGRO_KEY_S][0]) // sort
          {
-            while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc();
+            while (mInput.key[ALLEGRO_KEY_S][0]) mEventQueue.proc(1);
             pde_sort();
             redraw = 1;
          }
@@ -392,7 +392,7 @@ void mwPDE::run(void)
 
          if (mInput.key[ALLEGRO_KEY_RIGHT][0])
          {
-            while (mInput.key[ALLEGRO_KEY_RIGHT][0]) mEventQueue.proc();
+            while (mInput.key[ALLEGRO_KEY_RIGHT][0]) mEventQueue.proc(1);
             e +=1;
             if (e > 99) e = 99;
             redraw =1;
@@ -400,34 +400,34 @@ void mwPDE::run(void)
 
 //         if (mInput.key[ALLEGRO_KEY_B][0])
 //         {
-//            while (mInput.key[ALLEGRO_KEY_B][0]) mEventQueue.proc();
+//            while (mInput.key[ALLEGRO_KEY_B][0]) mEventQueue.proc(1);
 //            PDEi[e][13] = 35586216;
 //         }
 
          if (mInput.key[ALLEGRO_KEY_LEFT][0])
          {
-            while (mInput.key[ALLEGRO_KEY_LEFT][0]) mEventQueue.proc();
+            while (mInput.key[ALLEGRO_KEY_LEFT][0]) mEventQueue.proc(1);
             e -=1;
             if (e < 0) e = 0;
             redraw =1;
          }
          if (mInput.key[ALLEGRO_KEY_PGUP][0])
          {
-            while (mInput.key[ALLEGRO_KEY_PGUP][0]) mEventQueue.proc();
+            while (mInput.key[ALLEGRO_KEY_PGUP][0]) mEventQueue.proc(1);
             e +=10;
             if (e > 99) e = 99;
             redraw =1;
          }
          if (mInput.key[ALLEGRO_KEY_PGDN][0])
          {
-            while (mInput.key[ALLEGRO_KEY_PGDN][0]) mEventQueue.proc();
+            while (mInput.key[ALLEGRO_KEY_PGDN][0]) mEventQueue.proc(1);
             e -=10;
             if (e < 0) e = 0;
             redraw =1;
          }
          if (mInput.CTRL() && mInput.key[ALLEGRO_KEY_DELETE][0]) // DELETE PD
          {
-            while (mInput.key[ALLEGRO_KEY_DELETE][0]) mEventQueue.proc();
+            while (mInput.key[ALLEGRO_KEY_DELETE][0]) mEventQueue.proc(1);
 
             for (int y=0; y<32; y++) PDEi[e][y] = 0;
             for (int y=0; y<16; y++) PDEf[e][y] = 0;
@@ -438,7 +438,7 @@ void mwPDE::run(void)
          }
          if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
          {
-            while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+            while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
             quit = 1;
          }
       }
