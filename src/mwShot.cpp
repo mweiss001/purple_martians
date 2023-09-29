@@ -15,7 +15,7 @@ mwShot mShot;
 
 void mwShot::proc_pshot_collision(int p, int b)
 {
-   mPlayer.syn[p].health -= mPlayer.syn[p].player_vs_player_shot_damage;
+   mPlayer.syn[p].health -= mPlayer.syn[0].player_vs_player_shot_damage;
 
    float bxinc = mShot.p[b].xinc/3;
 

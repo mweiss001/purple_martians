@@ -36635,6 +36635,30 @@ inc version and push
 20230929
 
 
+still testing...
+
+add rctl to make all clients fake key
+
+now it is part of player loc
+
+if I move it to syn, local clients will not be able to set it, it will be overwritten by server....hmmm
+
+
+add to syn and give it the option to override local
+
+do I even need local?
+
+im not ready to kill it yet...
+
+should it also apply to server player??
+
+
+
+
+
+
+
+
 
 
 
