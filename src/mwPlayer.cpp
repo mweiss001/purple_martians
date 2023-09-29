@@ -620,21 +620,19 @@ void mwPlayer::proc_player_collisions(int p)
          if ((px > bx1) && (px < bx2) && (py > by1) && (py < by2))
          {
             int pb = mShot.p[b].player; // player that fired the shot
-            if ((mPlayer.syn[0].player_vs_player_shots) && (pb != p))
+
+            if ((syn[0].player_vs_player_shots) && (pb != p))
             {
-                mShot.proc_pshot_collision(p, b);
-                mGameEvent.add(40, 0, 0, pb, p, 1, mPlayer.syn[0].player_vs_player_shot_damage);
+               mShot.proc_pshot_collision(p, b);
+               mGameEvent.add(40, 0, 0, pb, p, 1, syn[0].player_vs_player_shot_damage);
             }
-            if ((mPlayer.syn[0].player_vs_self_shots) && (pb == p))
+            if ((syn[0].player_vs_self_shots) && (pb == p))
             {
-                mShot.proc_pshot_collision(p, b);
-                mGameEvent.add(40, 0, 0, pb, p, 1, mPlayer.syn[0].player_vs_player_shot_damage);
+               mShot.proc_pshot_collision(p, b);
+               mGameEvent.add(40, 0, 0, pb, p, 1, syn[0].player_vs_player_shot_damage);
             }
          }
       }
-
-
-
 }
 
 
@@ -1733,7 +1731,7 @@ void mwPlayer::proc_player_input(void)
          {
             if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
             {
-               if (loc[p].fake_keypress_mode) loc[p].comp_move = rand() % 64;
+               if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey)) loc[p].comp_move = rand() % 64;
                else set_comp_move_from_player_key_check(p);
 
                if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed

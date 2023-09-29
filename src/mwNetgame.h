@@ -16,8 +16,8 @@
 
 #define PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj    6
 
-#define PM_RCTL_PACKET_TYPE_pvp_shot_toggle        10
-#define PM_RCTL_PACKET_TYPE_pvs_shot_toggle        11
+#define PM_RCTL_PACKET_TYPE_pvp_shots_toggle       10
+#define PM_RCTL_PACKET_TYPE_pvs_shots_toggle       11
 
 #define PM_RCTL_PACKET_TYPE_server_reload          20
 

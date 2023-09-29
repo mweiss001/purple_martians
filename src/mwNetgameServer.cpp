@@ -771,9 +771,9 @@ void mwNetgame::server_proc_rctl_packet(void)
    if (type == PM_RCTL_PACKET_TYPE_server_reload) server_reload((int)val);
 
 
-   if (type == PM_RCTL_PACKET_TYPE_pvp_shot_toggle) mPlayer.syn[0].player_vs_player_shots = !mPlayer.syn[0].player_vs_player_shots;
+   if (type == PM_RCTL_PACKET_TYPE_pvp_shots_toggle) mPlayer.syn[0].player_vs_player_shots = !mPlayer.syn[0].player_vs_player_shots;
 
-   if (type == PM_RCTL_PACKET_TYPE_pvs_shot_toggle) mPlayer.syn[0].player_vs_self_shots = !mPlayer.syn[0].player_vs_self_shots;
+   if (type == PM_RCTL_PACKET_TYPE_pvs_shots_toggle) mPlayer.syn[0].player_vs_self_shots = !mPlayer.syn[0].player_vs_self_shots;
 
    mConfig.save_config();
 

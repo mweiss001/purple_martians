@@ -77,16 +77,18 @@ struct psyn // synced between server and client
    int late_cdats;
    int late_cdats_last_sec;
 
-   float client_chase_offset = 0.01;
+   float client_chase_offset = -0.02;
 
    int player_vs_player_shots;
    int player_vs_player_shot_damage;
    int player_vs_self_shots;
 
 
+   int server_force_fakekey = 0;
+
+
    int spare_int1;
    int spare_int2;
-   int spare_int3;
 
 
 };

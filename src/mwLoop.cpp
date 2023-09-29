@@ -1709,7 +1709,19 @@ void mwLoop::main_loop(void)
             al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
 
 
+            cy+=cs;
+            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shots_toggle, 0);
+            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.syn[0].player_vs_player_shots);
+            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shots_toggle, 0);
+            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "pvp shots");
+            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
 
+            cy+=cs;
+            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvs_shots_toggle, 0);
+            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.syn[0].player_vs_self_shots);
+            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvs_shots_toggle, 0);
+            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "pvs shots");
+            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
 
 
 
@@ -1804,7 +1816,7 @@ void mwLoop::main_loop(void)
 
 
             cx = 10;
-            cy+=70;
+            cy+=70+20;
 
 
             static int show_bandwidth = 0;
