@@ -8,6 +8,22 @@
 #include "mwStateHistory.h"
 
 
+#define PM_RCTL_PACKET_TYPE_state_freq_adj         1
+#define PM_RCTL_PACKET_TYPE_client_offset_adj      2
+#define PM_RCTL_PACKET_TYPE_zlib_compression_adj   3
+#define PM_RCTL_PACKET_TYPE_exra_packet_num_adj    4
+#define PM_RCTL_PACKET_TYPE_exra_packet_siz_adj    5
+
+#define PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj    6
+
+#define PM_RCTL_PACKET_TYPE_pvp_shot_toggle        10
+#define PM_RCTL_PACKET_TYPE_pvs_shot_toggle        11
+
+#define PM_RCTL_PACKET_TYPE_server_reload          20
+
+
+
+
 struct packet_buffer
 {
    int active;
@@ -109,7 +125,11 @@ class mwNetgame
 
    void client_send_cjrc_packet(void);
 
-   void client_send_rctl_packet(int s1_adj, float co_adj, int zl_adj, int epn_adj, int eps_adj, int server_reload);
+//   void client_send_rctl_packet(int s1_adj, float co_adj, int zl_adj, int epn_adj, int eps_adj, int server_reload);
+
+   void client_send_rctl_packet(int type, double val);
+
+
 
    void client_process_snfo_packets(void);
 
@@ -178,6 +198,9 @@ class mwNetgame
    void client_send_stak(int ack_frame);
    void server_proc_stak_packet(double timestamp);
    void server_proc_cjon_packet(int who);
+
+   void server_proc_rctl_packet(void);
+
    void server_control();
    int get_player_num_from_who(int who);
    void server_fast_packet_loop(void);

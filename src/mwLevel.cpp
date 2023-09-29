@@ -47,31 +47,57 @@ int level_exists(int level)
    return 0;
 }
 
-void mwLevel::next_level(void)
-{
-   int done = 0;
-   while (!done)
-   {
-      if (level_exists(++start_level)) done = 1;
-      if (start_level > 199)
-      {
-         prev_level();
-         done = 1;
-      }
-   }
-   set_start_level(start_level);
-}
 
-int mwLevel::get_next_level(int lev)
+// returns the next level that exists after 'lev'
+// if greater than max_lev:
+// if wrap return 1
+// if not wrap (clamp) return highest level less than max
+int mwLevel::get_next_level(int lev, int max_lev, int wrap)
 {
    int done = 0;
    while (!done)
    {
       if (level_exists(++lev)) done = 1;
-      if (lev > 199)
+      if (lev > max_lev)
       {
-         lev = 1;
-         done = 1;
+         if (wrap)
+         {
+            lev = 1;
+            done = 1;
+         }
+         else
+         {
+            lev = get_prev_level(lev, max_lev, wrap);
+            done = 1;
+         }
+      }
+   }
+   return lev;
+}
+
+// returns the first prev level that exists before 'lev'
+// if less than 1
+// if wrap return highest level less than max
+// if not wrap (clamp) return level 1
+int mwLevel::get_prev_level(int lev, int max_lev, int wrap)
+{
+   int done = 0;
+   while (!done)
+   {
+      if (level_exists(--lev)) done = 1;
+      if (lev < 1)
+      {
+         if (wrap)
+         {
+            lev = max_lev;
+            lev = get_prev_level(lev, max_lev, wrap);
+            done = 1;
+         }
+         else
+         {
+            lev = 1;
+            done = 1;
+         }
       }
    }
    return lev;
@@ -80,20 +106,16 @@ int mwLevel::get_next_level(int lev)
 
 
 
-void mwLevel::prev_level(void)
-{
-   int done = 0;
-   while (!done)
-   {
-      if (level_exists(--start_level)) done = 1;
-      if (start_level < 1)
-      {
-         start_level = 1;
-         done = 1;
-      }
-   }
-   set_start_level(start_level);
-}
+
+
+
+
+
+
+
+
+
+
 
 
 

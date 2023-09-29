@@ -15,7 +15,7 @@ mwShot mShot;
 
 void mwShot::proc_pshot_collision(int p, int b)
 {
-   mPlayer.syn[p].health -= deathmatch_shot_damage;
+   mPlayer.syn[p].health -= mPlayer.syn[p].player_vs_player_shot_damage;
 
    float bxinc = mShot.p[b].xinc/3;
 
@@ -272,14 +272,17 @@ void mwShot::fire_enemy_shota(int e, int shot_ans, int p)
 
 void mwShot::calc_where_player_will_be(int e, int p, float& rx, float& ry)
 {
+   // origin of the shot and velocity with no direction
    float bx = mEnemy.Ef[e][0];
    float by = mEnemy.Ef[e][1];
    float bv = mEnemy.Ef[e][7];
 
+   // targetted player x and y and velocity xinc and yinc
    float px  = mPlayer.syn[p].x;
    float py  = mPlayer.syn[p].y;
    float pvx = mPlayer.syn[p].xinc;
    float pvy = mPlayer.syn[p].yinc;
+
 
    // Edgar's method
    //float A = pow(pvx,2) + pow(pvy,2) - pow(bv,2);

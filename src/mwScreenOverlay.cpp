@@ -437,7 +437,20 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       x+=6*8;
    }
 
-   if (col == 30) // client loc player correction avg
+
+
+
+   if (col == 30) // client loc player correction
+   {
+      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[lcor]");
+      al_draw_textf(mFont.pr8, c2,            x, y+=8, 0, "[    ]");
+      for (int p=1; p<NUM_PLAYERS; p++)
+         al_draw_textf(mFont.pr8, col_clr(p), x, y+=8, 0, "[%4.1f]", mPlayer.loc[p].client_loc_plr_cor);
+      x+=6*8;
+   }
+
+
+   if (col == 31) // client loc player correction avg
    {
       al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[lcra]");
       al_draw_textf(mFont.pr8, c2,            x, y+=8, 0, "[    ]");
@@ -446,7 +459,7 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       x+=6*8;
    }
 
-   if (col == 31) // client loc player correction max
+   if (col == 32) // client loc player correction max
    {
       al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[lcrm]");
       al_draw_textf(mFont.pr8, c2,            x, y+=8, 0, "[    ]");
@@ -455,7 +468,17 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       x+=6*8;
    }
 
-   if (col == 32) // client rmt player correction avg
+
+
+   if (col == 34) // client rmt player correction
+   {
+      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[rcor]");
+      al_draw_textf(mFont.pr8, c2,            x, y+=8, 0, "[    ]");
+      for (int p=1; p<NUM_PLAYERS; p++)
+         al_draw_textf(mFont.pr8, col_clr(p), x, y+=8, 0, "[%4.1f]", mPlayer.loc[p].client_rmt_plr_cor);
+      x+=6*8;
+   }
+   if (col == 35) // client rmt player correction avg
    {
       al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[rcra]");
       al_draw_textf(mFont.pr8, c2,            x, y+=8, 0, "[    ]");
@@ -464,7 +487,7 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       x+=6*8;
    }
 
-   if (col == 33) // client rmt player correction max
+   if (col == 36) // client rmt player correction max
    {
       al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[rcrm]");
       al_draw_textf(mFont.pr8, c2,            x, y+=8, 0, "[    ]");
@@ -472,6 +495,17 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
          al_draw_textf(mFont.pr8, col_clr(p), x, y+=8, 0, "[%4.1f]", mPlayer.loc[p].client_rmt_plr_cor_max);
       x+=6*8;
    }
+
+
+   if (col == 40) // cpu
+   {
+      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[cpu ]");
+      for (int p=0; p<NUM_PLAYERS; p++)
+         al_draw_textf(mFont.pr8, col_clr(p), x, y+=8, 0, "[%4.1f]", mPlayer.loc[p].cpu);
+      x+=6*8;
+   }
+
+
 
 
 
@@ -482,6 +516,24 @@ void mwScreen::sdg_show(int x, int y) // server debug grid
    al_draw_filled_rectangle(x, y, x+880, y+73, mColor.pc[0]);
    y+=1;
    sdg_show_column(1, x, y); // player number
+
+   sdg_show_column(40, x, y); // cpu
+   sdg_show_column(25, x, y); // dsync
+   sdg_show_column(27, x, y); // ping
+   sdg_show_column(13, x, y); // dif size
+   sdg_show_column(14, x, y); // tx kB/sec
+   sdg_show_column(28, x, y); // rewind
+
+
+   sdg_show_column(30, x, y); // loc cor
+   sdg_show_column(32, x, y); // loc cor max
+   sdg_show_column(31, x, y); // loc cor avg
+
+   sdg_show_column(34, x, y); // rmt cor
+   sdg_show_column(36, x, y); // rmt cor max
+   sdg_show_column(35, x, y); // rmt cor avg
+
+
 //   sdg_show_column(2, x, y); // active
 //   sdg_show_column(3, x, y); // color
 //   sdg_show_column(4, x, y); // control method
@@ -515,25 +567,16 @@ void mwScreen::sdg_show(int x, int y) // server debug grid
 //
 
 
-
-   sdg_show_column(9, x, y); // client base resets
-   sdg_show_column(28, x, y); // rewind
+   sdg_show_column(9, x, y);  // client base resets
    sdg_show_column(23, x, y); // late cdats
-   sdg_show_column(24, x, y); // late cdats last second
-   sdg_show_column(12, x, y); // number of packets
-   sdg_show_column(13, x, y); // dif size
-   sdg_show_column(14, x, y); // tx kB/sec
+//   sdg_show_column(24, x, y); // late cdats last second
+//   sdg_show_column(12, x, y); // number of packets
 
 //   sdg_show_column(15, x, y); // rx kB/sec
 //   sdg_show_column(20, x, y); // stak_sysnc
-   sdg_show_column(27, x, y); // ping
-   sdg_show_column(25, x, y); // dsync
 //   sdg_show_column(26, x, y); // gmav
 
-   sdg_show_column(31, x, y); // loc cor max
-   sdg_show_column(30, x, y); // loc cor avg
-   sdg_show_column(33, x, y); // rmt cor max
-   sdg_show_column(32, x, y); // rmt cor avg
+
 
    sdg_show_column(17, x, y); // name and description (server version)
 
@@ -724,9 +767,7 @@ void mwScreen::draw_server_debug_overlay(int &cx, int &cy)
          // non blocking buttons!
          // -----------------------------------------------------
 
-
          t0 = al_get_time();
-
 
          // x position and width of entire widget
          int csw = 80;
@@ -749,105 +790,33 @@ void mwScreen::draw_server_debug_overlay(int &cx, int &cy)
          al_draw_rectangle(csx1, csy1, csx2, csy2, mColor.pc[color], 1);         // frame
 
 
-         static int b_press[10] = { 0 };
-
-
          ya = csy1+2;
-         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
-         {
-            if (b_press[0] == 0) mPlayer.syn[0].client_chase_offset -= 0.005;
-            b_press[0] = 1;
-         }
-         else b_press[0] = 0;
-
-         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
-         {
-            if (b_press[1] == 0) mPlayer.syn[0].client_chase_offset += 0.005;
-            b_press[1] = 1;
-         }
-         else b_press[1] = 0;
+         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-")) mPlayer.syn[0].client_chase_offset -= 0.005;
+         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+")) mPlayer.syn[0].client_chase_offset += 0.005;
          al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "o:%2.0f", mPlayer.syn[0].client_chase_offset * 1000);
 
-
-
          ya += bth+1;
-         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
-         {
-            if (b_press[2] == 0) mNetgame.zlib_cmp--;
-            if (mNetgame.zlib_cmp < 1) mNetgame.zlib_cmp = 1;
-            b_press[2] = 3;
-         }
-         else b_press[2] = 0;
-
-         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
-         {
-            if (b_press[3] == 0) mNetgame.zlib_cmp++;
-            b_press[3] = 1;
-         }
-         else b_press[3] = 0;
+         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-")) if (--mNetgame.zlib_cmp < 0) mNetgame.zlib_cmp = 0;
+         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+")) if (++mNetgame.zlib_cmp > 9) mNetgame.zlib_cmp = 9;
          al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "zc:%d", mNetgame.zlib_cmp);
 
-
          ya += bth+1;
-         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
-         {
-            if (b_press[4] == 0) mNetgame.server_state_freq--;
-            if (mNetgame.server_state_freq < 0) mNetgame.server_state_freq = 0;
-            b_press[4] = 1;
-         }
-         else b_press[4] = 0;
-
-         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
-         {
-            if (b_press[5] == 0) mNetgame.server_state_freq++;
-            b_press[5] = 1;
-         }
-         else b_press[5] = 0;
+         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-")) if (--mNetgame.server_state_freq < 0) mNetgame.server_state_freq = 0;
+         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+")) if (++mNetgame.server_state_freq > 9) mNetgame.server_state_freq = 9;
          al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "s1:%d", mNetgame.server_state_freq);
 
-
+         int inc = 1;
+         if (mInput.CTRL()) inc = 10;
 
          ya += bth+1;
-         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
-         {
-            if (b_press[6] == 0)
-            {
-               if (mInput.CTRL()) mNetgame.srv_exp_num-=10;
-               else mNetgame.srv_exp_num--;
-            }
-            b_press[6] = 1;
-         }
-         else b_press[6] = 0;
-
-         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
-         {
-            if (b_press[7] == 0)
-            {
-               if (mInput.CTRL()) mNetgame.srv_exp_num+=10;
-               else mNetgame.srv_exp_num++;
-            }
-            b_press[7] = 1;
-         }
-         else b_press[7] = 0;
+         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-")) if ((mNetgame.srv_exp_num-=inc) < 0)   mNetgame.srv_exp_num = 0;
+         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+")) if ((mNetgame.srv_exp_num+=inc) > 200) mNetgame.srv_exp_num = 200;
          al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "ep:%d", mNetgame.srv_exp_num);
 
-
          ya += bth+1;
-         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
-         {
-            if (b_press[8] == 0) mNetgame.srv_exp_siz--;
-            b_press[8] = 1;
-         }
-         else b_press[8] = 0;
-
-         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
-         {
-            if (b_press[9] == 0) mNetgame.srv_exp_siz++;
-            b_press[9] = 1;
-         }
-         else b_press[9] = 0;
-         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "ep:%d", mNetgame.srv_exp_siz);
-
+         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-")) if ((mNetgame.srv_exp_siz-=100) < 0) mNetgame.srv_exp_siz = 0;
+         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+")) if ((mNetgame.srv_exp_siz+=100) > 1000) mNetgame.srv_exp_siz = 1000;
+         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "ps:%d", mNetgame.srv_exp_siz/100);
 
       }
       mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_sbutt", al_get_time() - t0);
@@ -1028,76 +997,34 @@ void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
 
       // non blocking buttons!
       int ya = csy5 + 2;
-      int btw = 16;
 
-      static int b1_pres = 0;
-      if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
+      float inc = 0.001;
+      if (mInput.CTRL()) inc = 0.01;
+      if (mWidget.buttont_nb(csx1+2, ya, csx1+2+16, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
       {
-         if (b1_pres == 0)
-         {
-            if (mNetgame.client_chase_offset_mode == 1) // auto mode - adjust offset from ping
-            {
-               if (mInput.CTRL()) mNetgame.client_chase_offset_auto_offset -=0.01;
-               else mNetgame.client_chase_offset_auto_offset -=0.001;
-            }
-            if (mNetgame.client_chase_offset_mode == 0) // manual mode - adjust offset directly
-            {
-               if (mInput.CTRL()) mNetgame.client_chase_offset -=0.01;
-               else mNetgame.client_chase_offset -=0.001;
-            }
-         }
-         b1_pres = 1;
+         if (mNetgame.client_chase_offset_mode == 1) mNetgame.client_chase_offset_auto_offset -= inc; // auto mode - adjust offset from ping
+         if (mNetgame.client_chase_offset_mode == 0) mNetgame.client_chase_offset -= inc; // manual mode - adjust offset directly
       }
-      else b1_pres = 0;
-
-      static int b2_pres = 0;
-      if (mWidget.buttont_nb(csx2-btw-2, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
+      if (mWidget.buttont_nb(csx2-16-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
       {
-         if (b2_pres == 0)
-         {
-            if (mNetgame.client_chase_offset_mode == 1) // auto mode - adjust offset from ping
-            {
-               if (mInput.CTRL()) mNetgame.client_chase_offset_auto_offset +=0.01;
-               else mNetgame.client_chase_offset_auto_offset +=0.001;
-            }
-            if (mNetgame.client_chase_offset_mode == 0) // manual mode - adjust offset directly
-            {
-               if (mInput.CTRL()) mNetgame.client_chase_offset +=0.01;
-               else mNetgame.client_chase_offset +=0.001;
-            }
-         }
-         b2_pres = 1;
+         if (mNetgame.client_chase_offset_mode == 1) mNetgame.client_chase_offset_auto_offset += inc; // auto mode - adjust offset from ping
+         if (mNetgame.client_chase_offset_mode == 0) mNetgame.client_chase_offset += inc; // manual mode - adjust offset directly
       }
-      else b2_pres = 0;
-
-      static int b3_pres = 0;
       char msg[1024];
       sprintf(msg, "Manual");
       if (mNetgame.client_chase_offset_mode == 0) sprintf(msg, "Manual");
       if (mNetgame.client_chase_offset_mode == 1) sprintf(msg, "Automatic");
       if (mNetgame.client_chase_offset_mode == 2) sprintf(msg, "Server");
-
-
       if (mWidget.buttont_nb(csx1+23, ya, csx2-23, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, msg))
       {
-         if (b3_pres == 0)
-         {
-            if (++mNetgame.client_chase_offset_mode > 2) mNetgame.client_chase_offset_mode = 0;
-
-            mConfig.save_config();
-
-         }
-         b3_pres = 1;
+         if (++mNetgame.client_chase_offset_mode > 2) mNetgame.client_chase_offset_mode = 0;
+         mConfig.save_config();
       }
-      else b3_pres = 0;
 
       if (mNetgame.client_chase_offset_mode == 1)
          al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "ping offset:%+3.0fms", mNetgame.client_chase_offset_auto_offset*1000);
       else
          al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "offset:%+3.0fms", mNetgame.client_chase_offset*1000);
-
-
-
 
       mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_cbut", al_get_time() - t0);
    }

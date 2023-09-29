@@ -70,7 +70,9 @@ class mwLoop
    int remote_graphs_height = 400;
 
 
-   void cpu_graph_add_data(void);
+   void add_local_cpu_data(double cpu);
+
+//   void cpu_graph_add_data(void);
 
    int have_all_players_acknowledged(void);
    void game_menu(void);

@@ -286,7 +286,7 @@ void mwLoop::game_menu(void)
             if (top_menu_sel == 0)
             {
                if (mLevel.resume_allowed) mLevel.add_play_data_record(mLevel.play_level, 0);
-               mLevel.next_level(); // next level
+               mLevel.set_start_level(mLevel.get_next_level(mLevel.start_level, 10, 0));
             }
          }
          if ((top_menu_sel >= 200) && (top_menu_sel < 300)) // left pressed on menu item
@@ -295,7 +295,7 @@ void mwLoop::game_menu(void)
             if (top_menu_sel == 0)
             {
                if (mLevel.resume_allowed) mLevel.add_play_data_record(mLevel.play_level, 0);
-               mLevel.prev_level(); // prev level
+               mLevel.set_start_level(mLevel.get_prev_level(mLevel.start_level, 10, 0));
             }
          }
       }
@@ -1024,7 +1024,7 @@ void mwLoop::proc_program_state(void)
       int reply = 0;
       while (!reply)
       {
-         mEventQueue.proc();
+         mEventQueue.proc(1);
 
          al_set_target_backbuffer(mDisplay.display);
 
@@ -1035,7 +1035,7 @@ void mwLoop::proc_program_state(void)
 
          if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
          {
-            while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+            while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
             state[0] = 0;
             reply = -1;
          }
@@ -1399,35 +1399,26 @@ void mwLoop::proc_level_done_mode(void)
 }
 
 
-void mwLoop::cpu_graph_add_data(void)
+void mwLoop::add_local_cpu_data(double cpu)
 {
-   // send the current cpu to rolling average
-   mRollingAverage[0].add_data(mPlayer.loc[0].srv_cpu);
+   // send to rolling average
+   mRollingAverage[0].add_data(cpu);
 
-   // original style graph
-   mQuickGraph[0].add_data(0, mRollingAverage[0].last_input);
-   mQuickGraph[0].add_data(1, mRollingAverage[0].mn);
-   mQuickGraph[0].add_data(2, mRollingAverage[0].mx);
-   mQuickGraph[0].add_data(3, mRollingAverage[0].avg);
-
-   // new style graph
-   double t0 = al_get_time();
-
-   // for remote
-   if (mMain.server_remote_control)
+   if (!mMain.headless_server)
    {
-      mQuickGraph2[0].add_data(0, mRollingAverage[0].avg);
-      mQuickGraph2[0].new_entry_pos();
-   }
-   else
-   {
-      // for overlay
-      mQuickGraph2[9].add_data(0, mRollingAverage[0].avg);  // - mLoop.pct_y*3); /// temp testing
+      // original style graph
+      mQuickGraph[0].add_data(0, mRollingAverage[0].last_input);
+      mQuickGraph[0].add_data(1, mRollingAverage[0].mn);
+      mQuickGraph[0].add_data(2, mRollingAverage[0].mx);
+      mQuickGraph[0].add_data(3, mRollingAverage[0].avg);
+
+      // new style graph
+      mQuickGraph2[9].add_data(0, mRollingAverage[0].avg);
       mQuickGraph2[9].new_entry_pos();
    }
-
-   mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_CPUA", al_get_time() - t0);
 }
+
+
 
 
 void mwLoop::initialize_and_resize_remote_graphs(void)
@@ -1437,7 +1428,7 @@ void mwLoop::initialize_and_resize_remote_graphs(void)
    int gx = 20;
 
    // each graph has a suggested height, this will only be used to scale them relative to each other
-   mQuickGraph2[0].set_size(width, 30,  0);
+   mQuickGraph2[0].set_size(width, 100,  0);
    mQuickGraph2[1].set_size(width, 100, 0);
    mQuickGraph2[2].set_size(width, 100, 0);
    mQuickGraph2[3].set_size(width, 40,  0);
@@ -1491,14 +1482,14 @@ void mwLoop::initialize_graphs(void)
       if (mMain.server_remote_control)
       {
          int width = remote_graphs_width;
-         mQuickGraph2[0].initialize(width, 30,    0,   50, "CPU",      1, 12, 13, 1);
+         mQuickGraph2[0].initialize(width, 100,   0,  100, "CPU",      0, 12, 13, 1);
          mQuickGraph2[1].initialize(width, 100, -60,   20, "SYNC",     0, 10, 15, 1);
          mQuickGraph2[2].initialize(width, 100,   0,  100, "PING",     0, 14, 15, 1);
          mQuickGraph2[3].initialize(width, 40,    0, 9000, "DIF SIZE", 0, 11, 15, 1);
          mQuickGraph2[4].initialize(width, 40,    0,  900, "TX KBPS",  0, 8,  15, 0);
          mQuickGraph2[5].initialize(width, 40,    0,    8, "REWIND",   0, 5,  15, 1);
-         mQuickGraph2[6].initialize(width, 100,   0,   40, "LCOR",     0, 15, 15, 1);
-         mQuickGraph2[7].initialize(width, 100,   0,   40, "RCOR",     0, 15, 15, 1);
+         mQuickGraph2[6].initialize(width, 100,   0,   40, "LCOR",     0, 6,  15, 1);
+         mQuickGraph2[7].initialize(width, 100,   0,   40, "RCOR",     0, 7,  15, 1);
       }
 
       // for screen overlay
@@ -1533,6 +1524,8 @@ void mwLoop::initialize_graphs(void)
 
 void mwLoop::main_loop(void)
 {
+
+
    while (!main_loop_exit)
    {
       // ----------------------------------------------------------
@@ -1543,7 +1536,7 @@ void mwLoop::main_loop(void)
       // ----------------------------------------------------------
       // process event queue
       // ----------------------------------------------------------
-      mEventQueue.proc();
+      mEventQueue.proc(0);
 
       // ----------------------------------------------------------
       // process fast packet loops
@@ -1559,11 +1552,19 @@ void mwLoop::main_loop(void)
       // ----------------------------------------------------------
       if (mEventQueue.program_update)
       {
+
          mEventQueue.program_update = 0;
+         mInput.proc_keys_held();
 
 
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+// remote control loop
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
          if (state[1] == 41) // remote control loop
          {
+            double t0 = al_get_time();
 
             mNetgame.client_process_snfo_packets();
 
@@ -1584,63 +1585,67 @@ void mwLoop::main_loop(void)
 
 
 
+
+
             mScreen.sdg_show(cx, cy); // server debug grid
 
-
-            int i = 1;
-            if (mWidget.buttontcb(cx+388, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "sync" ))
+            int i = 0;
+            cx = 38;
+            if (mWidget.buttontcb(cx, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "cpu " ))
             {
                mQuickGraph2[i].active = !mQuickGraph2[i].active;
                initialize_and_resize_remote_graphs();
             }
 
+            i = 1;
+            if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "sync" ))
+            {
+               mQuickGraph2[i].active = !mQuickGraph2[i].active;
+               initialize_and_resize_remote_graphs();
+            }
 
             i = 2;
-            if (mWidget.buttontcb(cx+340, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "ping" ))
+            if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "ping" ))
             {
                mQuickGraph2[i].active = !mQuickGraph2[i].active;
                initialize_and_resize_remote_graphs();
             }
 
-
             i = 3;
-            if (mWidget.buttontcb(cx+244, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "difs" ))
+            if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "difs" ))
             {
                mQuickGraph2[i].active = !mQuickGraph2[i].active;
                initialize_and_resize_remote_graphs();
             }
 
             i = 4;
-            if (mWidget.buttontcb(cx+292, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "tkbs" ))
+            if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "tkbs" ))
             {
                mQuickGraph2[i].active = !mQuickGraph2[i].active;
                initialize_and_resize_remote_graphs();
             }
 
             i = 5;
-            if (mWidget.buttontcb(cx+76, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "rwnd" ))
+            if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "rwnd" ))
             {
                mQuickGraph2[i].active = !mQuickGraph2[i].active;
                initialize_and_resize_remote_graphs();
             }
 
-
-
-
-            cy+=90;
-
-
-            // graph enable disable buttons
-            for (int i=0; i<8; i++)
+            i = 6;
+            if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "lcor" ))
             {
-               if (mWidget.buttontcb(cx+400, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, mQuickGraph2[i].name) )
-               {
-                  mQuickGraph2[i].active = !mQuickGraph2[i].active;
-                  initialize_and_resize_remote_graphs();
-               }
-               cy+=12;
+               mQuickGraph2[i].active = !mQuickGraph2[i].active;
+               initialize_and_resize_remote_graphs();
             }
-            cy-=96;
+
+            i = 7;
+            if (mWidget.buttontcb(cx+=48*3, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "rcor" ))
+            {
+               mQuickGraph2[i].active = !mQuickGraph2[i].active;
+               initialize_and_resize_remote_graphs();
+            }
+
 
 
 
@@ -1648,51 +1653,158 @@ void mwLoop::main_loop(void)
 
 
 
-            int cs = 12; // control spacing
+            cx = 10;
+            cy+=90;
 
-            sprintf(msg, "State Frequency:%d", mPlayer.loc[0].srv_stdf_freq);
-            al_draw_text(mFont.pr8, mColor.pc[13], 10, cy, 0, msg);
-            if (mWidget.buttontcb(strlen(msg) *8 + 20, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(-1, 0, 0, 0, 0, 0);
-            if (mWidget.buttontcb(strlen(msg) *8 + 40, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet( 1, 0, 0, 0, 0, 0);
+            int rcy = cy; // remember cy
+            int cs = 16; // control spacing
+            int btw = 12, bth = 12; // button size
+            int btc = 15+96; // button color
 
-            cy+=cs;
-            sprintf(msg, "Client Chase Offset:%2.0f", mPlayer.syn[0].client_chase_offset*1000);
-            al_draw_text(mFont.pr8, mColor.pc[13], 10, cy, 0, msg);
-            if (mWidget.buttontcb(strlen(msg) *8 + 20, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(0, -0.005, 0, 0, 0, 0);
-            if (mWidget.buttontcb(strlen(msg) *8 + 40, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(0,  0.005, 0, 0, 0, 0);
+            int b1x = 10;
+            int tx  = 40;
+            int b2x = 60;
 
-            cy+=cs;
-            sprintf(msg, "zlib compression:%d", mPlayer.loc[0].srv_zlib_cmp);
-            al_draw_text(mFont.pr8, mColor.pc[13], 10, cy, 0, msg);
-            if (mWidget.buttontcb(strlen(msg) *8 + 20, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(0, 0, -1, 0, 0, 0);
-            if (mWidget.buttontcb(strlen(msg) *8 + 40, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(0, 0,  1, 0, 0, 0);
 
-            cy+=cs;
-            sprintf(msg, "Extra Packets Num:%d", mPlayer.loc[0].srv_extra_packets_num);
-            al_draw_text(mFont.pr8, mColor.pc[13], 10, cy, 0, msg);
-            if (mWidget.buttontcb(strlen(msg) *8 + 20, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(0, 0, 0, -1, 0, 0);
-            if (mWidget.buttontcb(strlen(msg) *8 + 40, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(0, 0, 0,  1, 0, 0);
+            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_state_freq_adj, -1);
+            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_stdf_freq);
+            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_state_freq_adj, 1);
+            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "State Frequency");
+            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
 
             cy+=cs;
-            sprintf(msg, "Extra Packets Size:%d", mPlayer.loc[0].srv_extra_packets_size);
-            al_draw_text(mFont.pr8, mColor.pc[13], 10, cy, 0, msg);
-            if (mWidget.buttontcb(strlen(msg) *8 + 20, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(0, 0, 0, 0, -1, 0);
-            if (mWidget.buttontcb(strlen(msg) *8 + 40, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(0, 0, 0, 0,  1, 0);
+            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, -0.005);
+            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%2.0f", mPlayer.syn[0].client_chase_offset*1000);
+            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, 0.005);
+            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "Client Chase Offset");
+            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
+
+            cy+=cs;
+            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, -1);
+            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_zlib_cmp);
+            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, 1);
+            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "zlib compression level");
+            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
+
+            cy+=cs;
+            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_num_adj, -1);
+            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_extra_packets_num);
+            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_num_adj, 1);
+            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "number of extra packets");
+            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
+
+            cy+=cs;
+            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_siz_adj, -100);
+            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_extra_packets_size);
+            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_num_adj, 100);
+            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "extra packet size");
+            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
 
 
-            cy+=20;
+            cy+=cs;
+            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, -1);
+            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.syn[0].player_vs_player_shot_damage);
+            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, 1);
+            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "pvp shot damage");
+            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
 
 
-            if (mWidget.buttontcb(cx, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Reload Current Level") ) mNetgame.client_send_rctl_packet(0, 0, 0, 0,  0, -1);
+
+
+
+
+
+            cx = 400;
+            cy = rcy; // remember cy
+
+
+
+
+
+            if (mWidget.buttontcb(cx, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Reload Current Level") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, -1);
             cy+=12;
 
-            if (mWidget.buttontcb(cx, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Reload Overworld") ) mNetgame.client_send_rctl_packet(0, 0, 0, 0,  0, 1);
+            if (mWidget.buttontcb(cx, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Reload Overworld") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, 1);
             cy+=12;
 
-            if (mWidget.buttontcb(cx, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Next Level") ) mNetgame.client_send_rctl_packet(0, 0, 0, 0,  0, -2);
-            cy+=20;
+            if (mWidget.buttontcb(cx, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Next Level") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, -2);
+            cy+=12;
+
+            if (mWidget.buttontcb(cx, cy, cx+80, bth, 0,0,0,0, 0,btc,15,14, 1,0,0,0, "Visual Level Select and Reload") )
+            {
+               //mLevel.start_level = mPlayer.loc[0].srv_level;
+               if (mVisualLevel.visual_level_select() == 1) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, mLevel.start_level);
+            }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//            static int load_level = 1;
+//
+//            b1x +=400;
+//            tx  +=400;
+//            b2x +=400;
+//
+//            int inc = 1;
+//            if (mInput.CTRL()) inc = 10;
+//
+//            cy+=cs;
+//            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) for (int i=0; i<inc; i++) load_level = mLevel.get_prev_level(load_level, 199, 1);
+//            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", load_level);
+//            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) for (int i=0; i<inc; i++) load_level = mLevel.get_next_level(load_level, 199, 1);
+//            if (mWidget.buttont_nb(cx+90, cy, cx+90+80, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "load_level") ) mNetgame.client_send_rctl_packet(0, 0, 0, 0,  0, load_level);
+//            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
+
+
+//            if (!mVisualLevel.load_visual_level_select_done) mVisualLevel.load_visual_level_select();
+//            al_set_target_backbuffer(mDisplay.display);
+//            al_draw_bitmap(mVisualLevel.level_icon_vls[load_level], cx+100, cy+16, 0);
+//            al_draw_bitmap(mLevel.level_icon_100[load_level], cx+300, cy, 0);
+//            al_draw_bitmap(mLevel.level_icon_200[load_level], cx+500, cy-120, 0);
+
+//            cy+=cs;
+//            if (mWidget.buttontcb(cx, cy, cx+80, bth, 0,0,0,0, 0,btc,15,14, 1,0,0,0, "Visual Level Select and Reload") )
+//            {
+//               mLevel.start_level = load_level;
+//               if (mVisualLevel.visual_level_select() == 1) mNetgame.client_send_rctl_packet(0, 0, 0, 0,  0, mLevel.start_level);
+//               load_level = mLevel.start_level;
+//            }
+
+
+
+
+
+            cx = 10;
+            cy+=70;
 
 
             static int show_bandwidth = 0;
@@ -1724,19 +1836,40 @@ void mwLoop::main_loop(void)
                if (mQuickGraph2[i].active) mQuickGraph2[i].draw_graph();
 
 
+            mQuickGraph2[9].set_pos(mDisplay.SCREEN_W-mQuickGraph2[9].width-28, 10);
+            mQuickGraph2[9].draw_graph();
+
+
 
             if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
             {
-               while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+               while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
                state[0] = 0;
             }
+
+            // --------------------------------------------
+            // measure time it took to process loop
+            // --------------------------------------------
+            double pt = al_get_time() - t0;
+
+            // convert to 'cpu', a percent of the total frame time (25ms)
+            float cpu = (pt / 0.025) * 100;
+
+            // store in local cpu variables
+            add_local_cpu_data(cpu);
+
+
 
 
 
          }
 
 
-
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+// main game loop
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
 
 
          if (state[1] == 11) // game loop running
@@ -1801,19 +1934,32 @@ void mwLoop::main_loop(void)
             if ((!mDisplay.no_display) && (ldm != 27) && (!super_fast_mode)) mDrawSequence.draw(0);
 
 
-
             // --------------------------------------------
-            // calculate cpu time and send to quick graph
+            // measure time it took to process loop
             // --------------------------------------------
             double pt = al_get_time() - mTimeStamp.timestamp_frame_start;
             mLog.add_tmr1(LOG_TMR_cpu, 0, "cpu", pt);
 
-            mPlayer.loc[0].srv_cpu = (pt / 0.025) * 100;
+            // convert to 'cpu', a percent of the total frame time (25ms)
+            float cpu = (pt / 0.025) * 100;
 
-            if (!mMain.headless_server) cpu_graph_add_data();
+            // store in player array cpu variable
+            mPlayer.loc[mPlayer.active_local_player].cpu = cpu;
+
+            // store in local cpu variables
+            add_local_cpu_data(cpu);
 
          }
       }
+
+
+
+
+
+
+
+
+
 
       // ----------------------------------------------------------
       // do things based on the 1 Hz sec_timer event

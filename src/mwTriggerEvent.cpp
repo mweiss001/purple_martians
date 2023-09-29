@@ -558,7 +558,7 @@ int mwTriggerEvent::get_trigger_item(int obj_type, int obj_num, int obj_ext, int
 */
 
 {
-   while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+   while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
    mScreen.init_level_background();
    int tx = mDisplay.SCREEN_W/2;
 
@@ -662,13 +662,13 @@ int mwTriggerEvent::get_trigger_item(int obj_type, int obj_num, int obj_ext, int
 
       while (mInput.mouse_b[1][0])
       {
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          if (mouse_on_item) quit = 1;
          else quit = 2;
       }
       while ((mInput.mouse_b[2][0]) || (mInput.key[ALLEGRO_KEY_ESCAPE][0]))
       {
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          quit = 2;
       }
    }

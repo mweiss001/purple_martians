@@ -189,7 +189,7 @@ int mwMiscFnx::get_tag_text2(char *str, char *res, char *res1, int show)
 
 int mwMiscFnx::exit_level_editor_dialog(void)
 {
-   while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+   while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
 
    al_set_target_backbuffer(mDisplay.display);
    al_show_mouse_cursor(mDisplay.display);
@@ -238,28 +238,28 @@ int mwMiscFnx::exit_level_editor_dialog(void)
       if (mWidget.buttont(xa, by1, xb, bts, 0,0,0,0,  0,bc,15,0, 1,0,1,0, "Cancel"))                { quit = 1; ret = 2; }
       if (ret == 2) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, mColor.pc[10], 2);
 
-      mEventQueue.proc();
+      mEventQueue.proc(1);
       al_flip_display();
 
       if (mInput.key[ALLEGRO_KEY_DOWN][0])
       {
-         while (mInput.key[ALLEGRO_KEY_DOWN][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_DOWN][0]) mEventQueue.proc(1);
          if (++ret > 2) ret = 2;
       }
 
       if (mInput.key[ALLEGRO_KEY_UP][0])
       {
-         while (mInput.key[ALLEGRO_KEY_UP][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_UP][0]) mEventQueue.proc(1);
          if (--ret < 0) ret = 0;
       }
       if (mInput.key[ALLEGRO_KEY_ENTER][0])
       {
-         while (mInput.key[ALLEGRO_KEY_ENTER][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_ENTER][0]) mEventQueue.proc(1);
          quit = 1;
       }
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
          ret = 2; // cancel
          quit = 1;
       }
@@ -480,7 +480,7 @@ int mwMiscFnx::get_block_range(const char *txt, int *x1, int *y1, int *x2, int *
       }
       while ((mInput.mouse_b[2][0]) || (mInput.key[ALLEGRO_KEY_ESCAPE][0]))
       {
-         mEventQueue.proc(); // wait for release
+         mEventQueue.proc(1); // wait for release
          quit = 1;
          ret = 0;
       }
@@ -547,7 +547,7 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
    int retval=0;
    int quit=0;
 
-   while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+   while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
 
    // get original values in case we are cancelled and need to restore them
    int original_dx=0;
@@ -744,19 +744,19 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
 
       while (mInput.mouse_b[1][0])
       {
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          quit = 1;
          retval = 1;  // b1 xy
       }
       while (mInput.mouse_b[2][0])
       {
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          quit = 1;
          retval = 2;  // b2 xy
       }
       while (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          quit = 1;
          retval = 0;  // ignore xy
       }
@@ -882,7 +882,7 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
    int x2 = mItem.item[num][4]+10; // get the originating door's location
    int y2 = mItem.item[num][5]+10;
 
-   while (mInput.mouse_b[1][0]) mEventQueue.proc(); // wait for release
+   while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
 
    while(!quit)
    {
@@ -923,12 +923,12 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
 
       while (mInput.mouse_b[1][0])
       {
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          quit = 1;
       }
       while ((mInput.mouse_b[2][0]) || (mInput.key[ALLEGRO_KEY_ESCAPE][0]))
       {
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          quit = 1;
          ret_item = - 1;
       }
@@ -1119,7 +1119,7 @@ void mwMiscFnx::edit_server_name(int x, int y)
    int old_cp=0;
    int blink_count = 3;
    int blink_counter = 0;
-   while (mInput.key[ALLEGRO_KEY_ENTER][0]) mEventQueue.proc();
+   while (mInput.key[ALLEGRO_KEY_ENTER][0]) mEventQueue.proc(1);
    int quit = 0;
    while (!quit)
    {
@@ -1149,7 +1149,7 @@ void mwMiscFnx::edit_server_name(int x, int y)
       }
 
       al_rest(.08);
-      mEventQueue.proc();
+      mEventQueue.proc(1);
       if (mInput.key[ALLEGRO_KEY_RIGHT][0])
       {
          if (++cursor_pos > char_count) cursor_pos = char_count;
@@ -1244,7 +1244,7 @@ int mwMiscFnx::edit_lift_name(int lift, int y1, int x1, char *fst)
          blink_counter = 0;
       }
 
-      mEventQueue.proc();
+      mEventQueue.proc(1);
       if (mInput.key[ALLEGRO_KEY_RIGHT][0])
       {
          if (++cursor_pos >= char_count) cursor_pos = char_count-1;

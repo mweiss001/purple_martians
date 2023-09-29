@@ -15,7 +15,7 @@
 #include "mwInput.h"
 #include "mwMain.h"
 #include "mwRollingAverage.h"
-
+#include "mwConfig.h"
 
 
 
@@ -272,9 +272,13 @@ void mwNetgame::server_rewind(void)
    double t0 = al_get_time();
    if (mLoop.frame_num >= mStateHistory[0].newest_state_frame_num + server_state_freq - 1) // is it time to create a new state?
    {
+
+
       // save values we don't want rewound
       float old_cco = mPlayer.syn[0].client_chase_offset;
-
+      int pvps = mPlayer.syn[0].player_vs_player_shots;
+      int pvpd = mPlayer.syn[0].player_vs_player_shot_damage;
+      int pvss = mPlayer.syn[0].player_vs_self_shots;
       int lcd[8][2] = { 0 };
       for (int pp=0; pp<NUM_PLAYERS; pp++)
          if (mPlayer.syn[pp].active)
@@ -286,17 +290,23 @@ void mwNetgame::server_rewind(void)
 
 //      mStateHistory[0].apply_rewind_state(mStateHistory[0].oldest_state_frame_num);
       mStateHistory[0].apply_rewind_state(server_dirty_frame);
+      mPlayer.loc[0].server_send_dif = 1; // set flag to create and send dif at the end of this frame
+
 
       // restore values we don't want reset
       mPlayer.syn[0].client_chase_offset = old_cco;
-
+      mPlayer.syn[0].player_vs_player_shots = pvps;
+      mPlayer.syn[0].player_vs_player_shot_damage = pvpd;
+      mPlayer.syn[0].player_vs_self_shots = pvss;
       for (int pp=0; pp<NUM_PLAYERS; pp++)
          if (mPlayer.syn[pp].active)
          {
             mPlayer.syn[pp].late_cdats = lcd[pp][0];
             mPlayer.syn[pp].late_cdats_last_sec = lcd[pp][1];
          }
-      mPlayer.loc[0].server_send_dif = 1; // set flag to create and send dif at the end of this frame
+
+
+
    }
    mLog.add_tmr1(LOG_TMR_rwnd, 0, "rwnd", al_get_time() - t0);
 }
@@ -498,6 +508,7 @@ void mwNetgame::server_proc_stak_packet(double timestamp)
    mPlayer.loc[p].rewind             = PacketGetInt1();
    mPlayer.loc[p].client_loc_plr_cor = PacketGetDouble();
    mPlayer.loc[p].client_rmt_plr_cor = PacketGetDouble();
+   mPlayer.loc[p].cpu                = PacketGetDouble();
 
    mTally_client_loc_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_loc_plr_cor);
    mTally_client_rmt_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_rmt_plr_cor);
@@ -559,7 +570,7 @@ void mwNetgame::server_reload(int level)
 
    if ((level != 0) && (mPlayer.syn[0].level_done_mode == 0)) // only trigger from level done mode 0
    {
-      if (level == -2) level = mLevel.get_next_level(mLevel.play_level);
+      if (level == -2) level = mLevel.get_next_level(mLevel.play_level, 199, 1);
       if (level == -1) level = mLevel.play_level;
       mPlayer.syn[0].level_done_mode = 3;
       mPlayer.syn[0].level_done_timer = 0;
@@ -686,9 +697,7 @@ void mwNetgame::server_proc_cjon_packet(int who)
       PacketPutInt4(mLoop.frame_num);
       PacketPutInt1(cn);
       PacketPutInt1(color);
-      PacketPutInt1(mShot.deathmatch_shots);
-      PacketPutInt2(mShot.deathmatch_shot_damage+1000);
-      PacketPutInt1(mShot.suicide_shots);
+
       ServerSendTo(packetbuffer, packetsize, who, cn);
 
       mLog.add_fwf(LOG_NET,               0, 76, 10, "|", " ", "Server replied with join invitation:");
@@ -696,9 +705,6 @@ void mwNetgame::server_proc_cjon_packet(int who)
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Number:[%d]", cn);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Color:[%d]", color);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server mLoop.frame_num:[%d]", mLoop.frame_num);
-      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Deathmatch player shots:[%d]", mShot.deathmatch_shots);
-      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Deathmatch player shot damage:[%d]", mShot.deathmatch_shot_damage);
-      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Suicide player shots:[%d]", mShot.suicide_shots);
       mLog.add_fwf(LOG_NET,               0, 76, 10, "+", "-", "");
    }
 }
@@ -710,6 +716,79 @@ int mwNetgame::get_player_num_from_who(int who)
       if (mPlayer.loc[p].who == who) return p;
    return -1;
 }
+
+
+
+
+
+void mwNetgame::server_proc_rctl_packet(void)
+{
+   int type = PacketGetInt4();
+   double val = PacketGetDouble();
+
+
+   if (type == PM_RCTL_PACKET_TYPE_state_freq_adj)
+   {
+      mNetgame.server_state_freq += val;
+      if (mNetgame.server_state_freq < 1)  mNetgame.server_state_freq = 1;
+      if (mNetgame.server_state_freq > 9)  mNetgame.server_state_freq = 9;
+   }
+
+   if (type == PM_RCTL_PACKET_TYPE_client_offset_adj)
+   {
+      mPlayer.syn[0].client_chase_offset += val;
+   }
+
+
+   if (type == PM_RCTL_PACKET_TYPE_zlib_compression_adj)
+   {
+      mNetgame.zlib_cmp += val;
+      if (mNetgame.zlib_cmp < 0)  mNetgame.zlib_cmp = 0;
+      if (mNetgame.zlib_cmp > 9)  mNetgame.zlib_cmp = 9;
+   }
+
+   if (type == PM_RCTL_PACKET_TYPE_exra_packet_num_adj)
+   {
+      mNetgame.srv_exp_num += val;
+      if (mNetgame.srv_exp_num < 0)    mNetgame.srv_exp_num = 0;
+      if (mNetgame.srv_exp_num > 500)  mNetgame.srv_exp_num = 500;
+   }
+
+   if (type == PM_RCTL_PACKET_TYPE_exra_packet_siz_adj)
+   {
+      mNetgame.srv_exp_siz += val;
+      if (mNetgame.srv_exp_siz < 0)     mNetgame.srv_exp_siz = 0;
+      if (mNetgame.srv_exp_siz > 1000)  mNetgame.srv_exp_siz = 1000;
+   }
+
+   if (type == PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj)
+   {
+      mPlayer.syn[0].player_vs_player_shot_damage += val;
+      if (mPlayer.syn[0].player_vs_player_shot_damage < -100)  mPlayer.syn[0].player_vs_player_shot_damage = -100;
+      if (mPlayer.syn[0].player_vs_player_shot_damage > 100)  mPlayer.syn[0].player_vs_player_shot_damage = 100;
+   }
+
+   if (type == PM_RCTL_PACKET_TYPE_server_reload) server_reload((int)val);
+
+
+   if (type == PM_RCTL_PACKET_TYPE_pvp_shot_toggle) mPlayer.syn[0].player_vs_player_shots = !mPlayer.syn[0].player_vs_player_shots;
+
+   if (type == PM_RCTL_PACKET_TYPE_pvs_shot_toggle) mPlayer.syn[0].player_vs_self_shots = !mPlayer.syn[0].player_vs_self_shots;
+
+   mConfig.save_config();
+
+
+
+}
+
+
+
+
+
+
+
+
+
 
 void mwNetgame::server_fast_packet_loop(void)
 {
@@ -755,22 +834,8 @@ void mwNetgame::server_fast_packet_loop(void)
          ServerSendTo(packetbuffer, packetsize, who, 99);
       }
 
-      if (PacketRead("rctl"))
-      {
-         int s1_adj = PacketGetInt4();
-         double co_adj = PacketGetDouble();
-         int zl_adj = PacketGetInt4();
-         int epn_adj = PacketGetInt4();
-         int eps_adj = PacketGetInt4();
-         int srv_reload = PacketGetInt4();
+      if (PacketRead("rctl")) server_proc_rctl_packet();
 
-         mNetgame.server_state_freq += s1_adj;
-         mPlayer.syn[0].client_chase_offset += co_adj;
-         mNetgame.zlib_cmp += zl_adj;
-         mNetgame.srv_exp_num += epn_adj;
-         mNetgame.srv_exp_siz += eps_adj;
-         if (srv_reload) server_reload(srv_reload);
-      }
 
       int type = 0;
       if(PacketRead("cdat")) type = 1;
@@ -868,7 +933,7 @@ void mwNetgame::server_control()
          if (mPlayer.syn[p].control_method == 2)
          {
             Packet("extr");
-            packetsize += srv_exp_siz * 100;
+            packetsize += srv_exp_siz;
             ServerSendTo(packetbuffer, packetsize, mPlayer.loc[p].who, p);
          }
 

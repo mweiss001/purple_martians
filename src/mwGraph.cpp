@@ -301,7 +301,7 @@ void mwGraph::draw_series_legend(void)
          }
       if ((mInput.mouse_b[1][0]) && (mouse_sel != -1))
       {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc();
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
          series[mouse_sel].active = !series[mouse_sel].active;
       }
    }
@@ -1487,7 +1487,7 @@ void mwGraph::proc_plot_area(int draw_only)
                   int rmy = mInput.mouse_y;
                   while (mInput.mouse_b[1][0])
                   {
-                     mEventQueue.proc();
+                     mEventQueue.proc(1);
                      convert_sxy_to_gxy(mInput.mouse_x, mInput.mouse_y, mx2, my2);
                      {
                         draw_graph(1);
@@ -1515,7 +1515,7 @@ void mwGraph::proc_plot_area(int draw_only)
 
                   while (mInput.mouse_b[1][0])
                   {
-                     mEventQueue.proc();
+                     mEventQueue.proc(1);
                      if (convert_sxy_to_gxy(mInput.mouse_x, mInput.mouse_y, mx2, my2))
                      {
                         if ((!x_axis_zoom_lock) && (!x_axis_slave))
@@ -1717,7 +1717,7 @@ void mwGraph::y_axis_proc_scrollbar(int draw_only)
             enforce_axis_limits();
             draw_graph(1);
             al_flip_display();
-            mEventQueue.proc();
+            mEventQueue.proc(1);
          }
       }
       if (sb == 6) // drag adjust axis_min
@@ -1730,7 +1730,7 @@ void mwGraph::y_axis_proc_scrollbar(int draw_only)
             enforce_axis_limits();
             draw_graph(1);
             al_flip_display();
-            mEventQueue.proc();
+            mEventQueue.proc(1);
          }
       }
       if (sb == 5) // drag adjust axis_min
@@ -1743,7 +1743,7 @@ void mwGraph::y_axis_proc_scrollbar(int draw_only)
             enforce_axis_limits();
             draw_graph(1);
             al_flip_display();
-            mEventQueue.proc();
+            mEventQueue.proc(1);
          }
       }
       if (sb == 4) // set new pos (jump to new pos between data_min and axis_min )
@@ -1861,7 +1861,7 @@ void mwGraph::x_axis_proc_scrollbar(int draw_only)
             enforce_axis_limits();
             draw_graph(1);
             al_flip_display();
-            mEventQueue.proc();
+            mEventQueue.proc(1);
          }
       }
       if (sb == 6) // drag adjust axis_min
@@ -1873,7 +1873,7 @@ void mwGraph::x_axis_proc_scrollbar(int draw_only)
             enforce_axis_limits();
             draw_graph(1);
             al_flip_display();
-            mEventQueue.proc();
+            mEventQueue.proc(1);
          }
       }
       if (sb == 5) // drag adjust axis_max
@@ -1885,7 +1885,7 @@ void mwGraph::x_axis_proc_scrollbar(int draw_only)
             enforce_axis_limits();
             draw_graph(1);
             al_flip_display();
-            mEventQueue.proc();
+            mEventQueue.proc(1);
          }
       }
       if (sb == 4) // set new pos (jump to new pos between data_min and axis_min )

@@ -617,7 +617,7 @@ void mwWindow::em_process_mouse(void)
    if (mInput.mouse_b[1][0])
    {
       // don't allow drag draw selection unless draw type is block
-      if (mWM.mW[1].draw_item_type != 1) while (mInput.mouse_b[1][0]) mEventQueue.proc();
+      if (mWM.mW[1].draw_item_type != 1) while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
 
       int din = mWM.mW[1].draw_item_num; // shorter variable name
       switch (mWM.mW[1].draw_item_type)

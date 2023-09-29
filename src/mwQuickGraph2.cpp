@@ -232,10 +232,11 @@ void mwQuickGraph2::draw_graph(void)
    al_draw_textf(mFont.pixl, mColor.pc[15], x+width+2, y+height/2-6, 0, "%2.0f", data_min + data_rng/2);
    al_draw_textf(mFont.pixl, mColor.pc[15], x+width+2, y+height-6,   0, "%0.0f", data_min);
 
-   if (type == 0) al_draw_textf(mFont.pr8, mColor.pc[col2], x+width/2, y+height/2-4,  ALLEGRO_ALIGN_CENTER, "%s", name);
+//   if (type == 0) al_draw_textf(mFont.pr8, mColor.pc[col2], x+width/2, y+height/2-4,  ALLEGRO_ALIGN_CENTER, "%s", name);
+//   if (type == 1) al_draw_textf(mFont.pr8, mColor.pc[col2], x+width/2, y+height/2-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", name, series[0].last_data);
 
-   if (type == 1) al_draw_textf(mFont.pr8, mColor.pc[col2], x+width/2, y+height/2-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", name, series[0].last_data);
-   if (type == 9) al_draw_textf(mFont.pr8, mColor.pc[col2], x+width/2, y+height/2-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", name, series[0].last_data);
+//   if (type == 9) al_draw_textf(mFont.pr8, mColor.pc[col2], x+width/2, y+height/2-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", name, series[0].last_data);
+   al_draw_textf(mFont.pr8, mColor.pc[col2], x+width/2, y+height/2-4,  ALLEGRO_ALIGN_CENTER, "%s", name);
 
 
 

@@ -319,7 +319,7 @@ int mwItem::edit_pmsg_text(int c, int new_msg)
 //      al_draw_rectangle(xa, by1-30, xb, by1-10, mColor.pc[15], 1);
 //      al_draw_textf(mFont.pr8, mColor.pc[15], xa, by1-20, 0, "%d/%d %d", cursor_pos, char_count, strlen(f));
 
-      mEventQueue.proc();
+      mEventQueue.proc(1);
 
       if (mInput.key[ALLEGRO_KEY_HOME][0])  cursor_pos = 0;
       if (mInput.key[ALLEGRO_KEY_END][0])   cursor_pos = char_count;
@@ -341,7 +341,7 @@ int mwItem::edit_pmsg_text(int c, int new_msg)
 
       if (mInput.key[ALLEGRO_KEY_LEFT][3])
       {
-         while (mInput.key[ALLEGRO_KEY_LEFT][3]) mEventQueue.proc();    // wait for release
+         while (mInput.key[ALLEGRO_KEY_LEFT][3]) mEventQueue.proc(1);    // wait for release
 
          if ((mInput.SHFT()) && (mInput.CTRL()))
          {

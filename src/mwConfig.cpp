@@ -104,9 +104,11 @@ void mwConfig::save_config(void)
 
       al_set_config_value(cfg, "NETWORK", "server_IP", mNetgame.m_serveraddress);
       asci(NETWORK, mNetgame.TCP)
-      asci(NETWORK, mShot.deathmatch_shots)
-      asci(NETWORK, mShot.deathmatch_shot_damage)
-      asci(NETWORK, mShot.suicide_shots)
+
+      asci(NETWORK, mPlayer.syn[0].player_vs_player_shots)
+      asci(NETWORK, mPlayer.syn[0].player_vs_player_shot_damage)
+      asci(NETWORK, mPlayer.syn[0].player_vs_self_shots)
+
       asci(NETWORK, mNetgame.server_state_freq_mode)
       asci(NETWORK, mNetgame.server_state_freq)
 
@@ -256,9 +258,10 @@ void mwConfig::load_config(void)
    else sprintf(mNetgame.m_serveraddress, "%s", val);
 
    agci(NETWORK, mNetgame.TCP, 0)
-   agci(NETWORK, mShot.deathmatch_shots, 0)
-   agci(NETWORK, mShot.deathmatch_shot_damage, 5)
-   agci(NETWORK, mShot.suicide_shots, 0)
+
+   agci(NETWORK, mPlayer.syn[0].player_vs_player_shots, 1)
+   agci(NETWORK, mPlayer.syn[0].player_vs_player_shot_damage, 5)
+   agci(NETWORK, mPlayer.syn[0].player_vs_self_shots, 1)
 
    agci(NETWORK, mNetgame.server_state_freq_mode, 1)
    agci(NETWORK, mNetgame.server_state_freq, 2)
@@ -275,7 +278,6 @@ void mwConfig::load_config(void)
    agci(DEMO, mLog.autosave_game_on_level_done, 0)
    agci(DEMO, mLog.autosave_game_on_game_exit, 0)
    agcf(DEMO, mDemoMode.overlay_opacity, 0)
-
 
    agci(DEMO, mDemoMode.demo_debug_complete_level_on_gate_with_fire, 0)
    agci(DEMO, mDemoMode.demo_debug_running_demo_saves_level_data, 0)

@@ -479,7 +479,7 @@ void mwLogo::splash_screen(void)
 
 
 
-   mEventQueue.proc();
+   mEventQueue.proc(1);
 
    mScreen.draw_large_text_overlay(1, 8);
 
@@ -489,7 +489,7 @@ void mwLogo::splash_screen(void)
    if (!quit)
       for (int i=0; i<220; i++)
       {
-         while (!mEventQueue.menu_update) mEventQueue.proc();
+         while (!mEventQueue.menu_update) mEventQueue.proc(1);
          mEventQueue.menu_update = 0;
 
          if (mInput.key_or_mouse_pressed)
@@ -513,7 +513,7 @@ void mwLogo::splash_screen(void)
    if (!quit)
       for (int i=0; i<120; i++)
       {
-         while (!mEventQueue.menu_update) mEventQueue.proc();
+         while (!mEventQueue.menu_update) mEventQueue.proc(1);
          mEventQueue.menu_update = 0;
          if (mInput.key_or_mouse_pressed)
          {
@@ -532,7 +532,7 @@ void mwLogo::splash_screen(void)
       al_clear_to_color(al_map_rgb(0,0,0));
       quit = mdw_an2();
       al_flip_display();
-      while (!mEventQueue.menu_update) mEventQueue.proc();
+      while (!mEventQueue.menu_update) mEventQueue.proc(1);
       mEventQueue.menu_update = 0;
       if (mInput.key_or_mouse_pressed) quit = 1;
    }
@@ -594,12 +594,12 @@ void mwLogo::spline_test(void)
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
 
-      while (!mEventQueue.menu_update) mEventQueue.proc();
+      while (!mEventQueue.menu_update) mEventQueue.proc(1);
       mEventQueue.menu_update = 0;
 
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc();
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
          quit = 1;
       }
 
@@ -634,7 +634,7 @@ void mwLogo::spline_adjust(void)
       al_clear_to_color(al_map_rgb(0,0,0));
       redraw_spline(current_spline);
       al_flip_display();
-      mEventQueue.proc();
+      mEventQueue.proc(1);
 
       int mx = mInput.mouse_x-200;
       int my = mInput.mouse_y-200;
@@ -651,7 +651,7 @@ void mwLogo::spline_adjust(void)
                redraw_spline(current_spline);
                al_draw_circle(points[current_spline][i]+200, points[current_spline][i+1]+200, 6, mColor.pc[10], 3);
                al_flip_display();
-               mEventQueue.proc();
+               mEventQueue.proc(1);
 
                points[current_spline][i] = mInput.mouse_x-200;
                points[current_spline][i+1] = mInput.mouse_y-200;
@@ -671,7 +671,7 @@ void mwLogo::spline_adjust(void)
       }
       while ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.mouse_b[2][0]))
       {
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          quit = 1;
       }
    }

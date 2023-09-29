@@ -107,9 +107,18 @@ void mwMain::copy_files_to_clients(int type)
 //   sprintf(client[num_clients++], "\\\\zi3\\pm_client99");  // zaiden
 //   sprintf(client[num_clients++], "\\\\sat-p100\\pm_client31");  // win 7 does not work...32 bit??
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 -- has stupid network issues, sometimes take 4s to get a packet reply
+//   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
 //   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
+//   sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7 - stupid network issues, game wont connect or host but can ping???
+
+
+//   sprintf(client[num_clients++], "\\\\rp74\\pm_client74");  // win 10
+
+//   sprintf(client[num_clients++], "\\\\i990\\pm_client32");  // win 7
+
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
+
    sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
    sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
    sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
@@ -117,7 +126,8 @@ void mwMain::copy_files_to_clients(int type)
    sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
 
 
-//   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
+
+
 
 
    for (int c=0; c<num_clients; c++)
@@ -557,7 +567,7 @@ void mwMain::temp_test(void)
 //      al_draw_rotated_bitmap(mBitmap.tile[248], 10, 10, x, y, (float)aa/1000, 0);
 //      al_flip_display();
 //      al_clear_to_color(mColor.pc[0]);
-//      mEventQueue.proc();
+//      mEventQueue.proc(1);
 //      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 //   }
 //
@@ -700,7 +710,7 @@ void mwMain::temp_test(void)
 
       al_flip_display();
       al_clear_to_color(mColor.pc[0]);
-      mEventQueue.proc();
+      mEventQueue.proc(1);
       if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 
    }
@@ -917,7 +927,7 @@ void mwMain::temp_test(void)
       al_flip_display();
 
       al_clear_to_color(mColor.pc[0]);
-      mEventQueue.proc();
+      mEventQueue.proc(1);
       if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 
    }
@@ -1014,7 +1024,7 @@ void mwMain::temp_test(void)
 //
 //
 //      al_flip_display();
-//      mEventQueue.proc();
+//      mEventQueue.proc(1);
 //      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 //   }
 //
@@ -1055,7 +1065,7 @@ void mwMain::temp_test(void)
 //
 //
 //      al_flip_display();
-//      mEventQueue.proc();
+//      mEventQueue.proc(1);
 //      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 //   }
 
@@ -1287,14 +1297,14 @@ void show_level_done(void);
    int quit = 0;
    while (!quit)
    {
-      mEventQueue.proc();
+      mEventQueue.proc(1);
       al_clear_to_color(al_map_rgb(0,0,0));
       show_level_done();
       al_flip_display();
 
       while ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.mouse_b[2][0]))
       {
-         mEventQueue.proc();
+         mEventQueue.proc(1);
          quit = 1;
       }
       if (mInput.key[ALLEGRO_KEY_1][3]) mPlayer.syn[1].active = !mPlayer.syn[1].active;

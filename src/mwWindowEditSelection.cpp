@@ -1053,12 +1053,12 @@ void mwWindow::es_process_mouse(void)
    {
       if (mWM.mW[4].copy_mode)
       {
-         while (mInput.mouse_b[1][0]) mEventQueue.proc();
+         while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
          es_do_fcopy(mWM.gx, mWM.gy);
       }
       if (mWM.mW[4].brf_mode)
       {
-         while (mInput.mouse_b[1][0])mEventQueue.proc();
+         while (mInput.mouse_b[1][0])mEventQueue.proc(1);
          es_do_brf(mWM.gx, mWM.gy, mWM.mW[1].draw_item_num);
       }
       if ((!mWM.mW[4].copy_mode) && (!mWM.mW[4].brf_mode)) mWM.get_new_box(); // get new selection
@@ -1066,7 +1066,7 @@ void mwWindow::es_process_mouse(void)
 
    if (mInput.mouse_b[2][0])
    {
-      while (mInput.mouse_b[2][0]) mEventQueue.proc();
+      while (mInput.mouse_b[2][0]) mEventQueue.proc(1);
       mWM.set_windows(1);
    }
 }

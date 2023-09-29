@@ -372,7 +372,7 @@ int mwLift::get_new_lift_step(int lift, int step)
    {
       al_rest(0.02);
       al_flip_display();
-      mEventQueue.proc();
+      mEventQueue.proc(1);
       if ((mInput.mouse_b[2][0]) || (mInput.key[ALLEGRO_KEY_ESCAPE][0])) quit = 99;
       al_draw_textf(mFont.pr8, mColor.pc[fc], xc, sty-6, ALLEGRO_ALIGN_CENTER, "Insert New Step %d", step);
       al_draw_text(mFont.pr8, mColor.pc[tc], xc, sty+5, ALLEGRO_ALIGN_CENTER, "Select Step Type");
@@ -494,7 +494,7 @@ void mwLift::step_popup_menu(int lift, int step)
    al_set_system_mouse_cursor(mDisplay.display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
    al_set_mouse_xy(mDisplay.display, smx * mDisplay.display_transform_double, smy * mDisplay.display_transform_double);
 
-   mEventQueue.proc(); // to deal with mouse warp
+   mEventQueue.proc(1); // to deal with mouse warp
 
    // full menu
    sprintf(mMenu.menu_string[0],"Lift:%d Step:%d", lift+1, step);
