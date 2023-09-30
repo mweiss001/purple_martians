@@ -61,11 +61,11 @@ void mwLog::init_log_types(void)
    i = LOG_TMR_client_timer_adj;    log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_timer_adj");
    i = LOG_TMR_client_ping;         log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_ping");
 
-   i = LOG_OTH_program_state;       log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_OTH_program_state");
-   i = LOG_OTH_transitions;         log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_OTH_transitions");
-   i = LOG_OTH_level_done;          log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_OTH_level_done");
-   i = LOG_OTH_move;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_OTH_move");
-   i = LOG_OTH_draw;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_OTH_draw");
+   i = LOG_OTH_program_state;       log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_program_state");
+   i = LOG_OTH_transitions;         log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_transitions");
+   i = LOG_OTH_level_done;          log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_level_done");
+   i = LOG_OTH_move;                log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_move");
+   i = LOG_OTH_draw;                log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_draw");
 
 
 }

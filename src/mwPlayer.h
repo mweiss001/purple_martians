@@ -164,7 +164,7 @@ struct ploc // not synced between server and client (but synced from server to r
 
    // used only by server remote_control
    int srv_frame_num;
-   int srv_stdf_freq;
+//   int srv_stdf_freq;
    int srv_total_game_moves;
    int srv_level;
 

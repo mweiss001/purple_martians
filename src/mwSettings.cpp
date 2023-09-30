@@ -262,8 +262,7 @@ void mwSettings::settings_pages(int set_page)
    sprintf(st[12].title,  "Double");
    sprintf(st[13].title,  "Speed");
 
-   sprintf(st[15].title,  "Info");
-   sprintf(st[16].title,  "Profiling");
+   sprintf(st[16].title,  "Info");
    sprintf(st[17].title,  "Logging");
    sprintf(st[18].title,  "misc");
 
@@ -285,12 +284,11 @@ void mwSettings::settings_pages(int set_page)
 
       st[1].show = 0; // mode off
 
-
       if (show_advanced)
       {
          for (int i=10; i<14; i++) st[i].show = 1;
          if (show_debug)
-            for (int i=15; i<19; i++) st[i].show = 1;
+            for (int i=16; i<19; i++) st[i].show = 1;
       }
 
       // if current page is not shown, change to page 0
@@ -378,6 +376,7 @@ void mwSettings::settings_pages(int set_page)
       al_clear_to_color(al_map_rgb(0, 0, 0));
       mScreen.frame_and_title();
 
+      // wait for timer event menu_update
       while (!mEventQueue.menu_update) mEventQueue.proc(1);
       mEventQueue.menu_update = 0;
 
@@ -935,18 +934,18 @@ void mwSettings::settings_pages(int set_page)
 
             ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
-            ya-=2;
-            mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mNetgame.server_state_freq_mode, "State Frequency Auto Adjust", 15, 15);
-            ya-=4;
-
-
-            if (!mNetgame.server_state_freq_mode)
-            {
-               ya+=6;
-               mWidget.slideri(xa+20, ya, xb-20, bts,  0,0,0,0,  0,fc,15,15,  0,0,1,0, mNetgame.server_state_freq, 10, 1, 1, "State Frequency:");
-               ya+=2;
-
-            }
+//            ya-=2;
+//            mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mNetgame.server_state_freq_mode, "State Frequency Auto Adjust", 15, 15);
+//            ya-=4;
+//
+//
+//            if (!mNetgame.server_state_freq_mode)
+//            {
+//               ya+=6;
+//               mWidget.slideri(xa+20, ya, xb-20, bts,  0,0,0,0,  0,fc,15,15,  0,0,1,0, mNetgame.server_state_freq, 10, 1, 1, "State Frequency:");
+//               ya+=2;
+//
+//            }
 
 
 
@@ -1787,12 +1786,7 @@ void mwSettings::settings_pages(int set_page)
             mDisplay.set_saved_display_transform(0);
             newval = mDisplay.display_transform_double;
          }
-
-
-
       }
-
-
 
 
 // ---------------------------------------------------------------
@@ -1889,9 +1883,9 @@ void mwSettings::settings_pages(int set_page)
 
 
 // ---------------------------------------------------------------
-//  15 - info
+//  16 - info
 // ---------------------------------------------------------------
-      if (page == 15)
+      if (page == 16)
       {
          int line_spacing = 8;
          //line_spacing +=  mLoop.pct_y;
@@ -1922,155 +1916,14 @@ void mwSettings::settings_pages(int set_page)
          if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display adapters"))             mDisplay.show_display_adapters();
          if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show code statistics"))              mwCodeStats::run();
       }
-// ---------------------------------------------------------------
-//  16 - profiling
-// ---------------------------------------------------------------
-      if (page == 16)
-      {
-         int line_spacing = 10;
-         //line_spacing +=  mLoop.pct_y;
-         int xa = cfp_x1 + 10;
-         int xb = cfp_x2 - 10;
-         int ya = cfp_y1 + 10;
-         int bts = 10;
-         int tc = 13;
-         int fc = 15;
 
 
-
-
-
-
-
-
-
-
-
-
-
-         int bfy1 = ya-1; // ypos at top of checkbox rectangles
-
-         // draw the types for this group
-         for (int i=0; i<100; i++)
-            if (mLog.log_types[i].group == 2) mWidget.togglec_log(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, i, tc, fc);
-
-         int bfy2 = ya-1; // ypos at bottom top of checkbox rectangles
-
-         int bfxt = xa+28;  // where text starts
-         int bfxb = xa+170; // where buttons start
-
-         int bs = 12; // button height
-         int bco = 96; // button color offset
-
-
-
-
-         // 1st group of checkbox rectangles
-         int c = 6;
-         int bf1x1 = xa-2;
-         int bf1x2 = bf1x1+10;
-         int bf1x3 = (bf1x1+bf1x2)/2;
-         int bf1y4 = bfy2 + 25;
-
-         // draw a frame around checkbox rectangles
-         al_draw_rectangle(bf1x1, bfy1, bf1x2, bfy2, mColor.pc[c], 1);
-
-         // draw lines and text description
-         al_draw_line( bf1x3, bfy2, bf1x3, bf1y4, mColor.pc[c], 1);
-         al_draw_line( bf1x3, bf1y4, bfxt-2, bf1y4, mColor.pc[c], 1);
-         al_draw_text(mFont.pr8, mColor.pc[c], bfxt, bf1y4-4, 0, "print to console");
-
-         ya = bf1y4-5;
-
-         if (mWidget.buttont(bfxb,    ya, bfxb+56,  bs,  0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All On"))
-            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 2) mLog.log_types[i].action |= LOG_ACTION_PRINT;
-
-         if (mWidget.buttont(bfxb+62, ya, bfxb+126, bs,  0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All Off"))
-            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 2) mLog.log_types[i].action &= ~LOG_ACTION_PRINT;
-
-         // draw a frame around text and buttons
-         al_draw_rectangle(bfxt-2, bf1y4-6, bfxb+127, bf1y4+6, mColor.pc[c], 1);
-
-         // 2nd group of checkbox rectangles
-         c = 7;
-         int bf2x1 = xa+12;
-         int bf2x2 = bf2x1+10;
-         int bf2x3 = (bf2x1+bf2x2)/2;
-         int bf2y4 = bfy2+9;
-
-         // draw a frame around checkbox rectangles
-         al_draw_rectangle(bf2x1, bfy1, bf2x2, bfy2, mColor.pc[c], 1);
-
-         // draw lines and text description
-         al_draw_line(bf2x3, bfy2, bf2x3, bf2y4, mColor.pc[c], 1);
-         al_draw_line(bf2x3, bf2y4, bfxt-2, bf2y4, mColor.pc[c], 1);
-         al_draw_text(mFont.pr8, mColor.pc[c], bfxt, bf2y4-4, 0, "log to file");
-
-         ya = bf2y4-5;
-
-         if (mWidget.buttont(bfxb,    ya, bfxb+56,  bs, 0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All On"))
-            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 2) mLog.log_types[i].action |= LOG_ACTION_LOG;
-
-         if (mWidget.buttont(bfxb+62, ya, bfxb+126, bs, 0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All Off"))
-            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 2) mLog.log_types[i].action &= ~LOG_ACTION_LOG;
-
-         // draw a frame around text and buttons
-         al_draw_rectangle(bfxt-2, bf2y4-6, bfxb+127, bf2y4+6, mColor.pc[c], 1);
-
-
-         ya+=26;
-         xa = cfp_x1 + 10;
-         xb = cfp_x2 - 10;
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
-         bts = 10;
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_level_done,    "Autosave log on level done", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_game_exit,     "Autosave log on game exit", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_program_exit,  "Autosave log on program exit", tc, fc);
-
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
-         bts = 16;
-         if (mWidget.buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Profile Graph")) mLog.run_profile_graph(0);
-         ya += 4;
-         if (mWidget.buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select and Open Profile Graph")) mLog.run_profile_graph(1);
-
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
-         if (mWidget.buttont(xa+80, ya, xb-80, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
-         {
-            mLoop.state[0] = 10;
-            mLoop.quit_action = 3; // settings
-            mLoop.done_action = 3; // settings
-            al_hide_mouse_cursor(mDisplay.display);
-            mConfig.save_config();
-            return;
-         }
-         ya += 8;
-         xb = xa+180;
-         if (mWidget.buttont(xa+20, ya, xb, bts,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
-         {
-            mLoop.state[0] = 20;
-            al_hide_mouse_cursor(mDisplay.display);
-            mConfig.save_config();
-            return;
-         }
-         xa = xa+200;
-         xb = cfp_x2 - 30;
-         if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,8,15, 0,  1,0,1,0, "Join Network Game"))
-         {
-            mLoop.state[0] = 24;
-            al_hide_mouse_cursor(mDisplay.display);
-            mConfig.save_config();
-            return;
-         }
-      }
 // ---------------------------------------------------------------
 //  17 - logging
 // ---------------------------------------------------------------
       if (page == 17)
       {
-         int line_spacing = 10;
+         int line_spacing = 6;
          //line_spacing +=  mLoop.pct_y;
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
@@ -2079,12 +1932,21 @@ void mwSettings::settings_pages(int set_page)
          int tc = 13;
          int fc = 15;
 
+         if (log_group == 1) sprintf(msg, "Logging Group: Network");
+         if (log_group == 2) sprintf(msg, "Logging Group: Profile");
+         if (log_group == 3) sprintf(msg, "Logging Group: Other");
+
+
+         if (mWidget.buttont(xa-2, ya, xa+200,  16,  0,0,0,0, 0,12,15,0,  1,1,1,0, msg)) if (++log_group > 3) log_group = 1;
+
+         ya += line_spacing;
+
 
          int bfy1 = ya-1; // ypos at top of checkbox rectangles
 
          // draw the types for this group
          for (int i=0; i<100; i++)
-            if (mLog.log_types[i].group == 1)
+            if (mLog.log_types[i].group == log_group)
                mWidget.togglec_log(xa, ya, xb, bts, 0,0,0,0,0,0,0,0,1,0,1,0, i, tc, fc);
 
          int bfy2 = ya-1; // ypos at bottom top of checkbox rectangles
@@ -2096,10 +1958,8 @@ void mwSettings::settings_pages(int set_page)
          int bco = 96; // button color offset
 
 
-
-
          // 1st group of checkbox rectangles
-         int c = 6;
+         int c = 7;
          int bf1x1 = xa-2;
          int bf1x2 = bf1x1+10;
          int bf1x3 = (bf1x1+bf1x2)/2;
@@ -2111,21 +1971,24 @@ void mwSettings::settings_pages(int set_page)
          // draw lines and text description
          al_draw_line( bf1x3, bfy2, bf1x3, bf1y4, mColor.pc[c], 1);
          al_draw_line( bf1x3, bf1y4, bfxt-2, bf1y4, mColor.pc[c], 1);
-         al_draw_text(mFont.pr8, mColor.pc[c], bfxt, bf1y4-4, 0, "print to console");
+         al_draw_text(mFont.pr8, mColor.pc[c], bfxt, bf1y4-4, 0, "log to file");
 
          ya = bf1y4-5;
 
          if (mWidget.buttont(bfxb,    ya, bfxb+56,  bs,  0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All On"))
-            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 1) mLog.log_types[i].action |= LOG_ACTION_PRINT;
+            for (int i=0; i<100; i++) if (mLog.log_types[i].group == log_group) mLog.log_types[i].action |= LOG_ACTION_LOG;
 
          if (mWidget.buttont(bfxb+62, ya, bfxb+126, bs,  0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All Off"))
-            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 1) mLog.log_types[i].action &= ~LOG_ACTION_PRINT;
+            for (int i=0; i<100; i++) if (mLog.log_types[i].group == log_group) mLog.log_types[i].action &= ~LOG_ACTION_LOG;
 
          // draw a frame around text and buttons
          al_draw_rectangle(bfxt-2, bf1y4-6, bfxb+127, bf1y4+6, mColor.pc[c], 1);
 
+
+
+
          // 2nd group of checkbox rectangles
-         c = 7;
+         c = 6;
          int bf2x1 = xa+12;
          int bf2x2 = bf2x1+10;
          int bf2x3 = (bf2x1+bf2x2)/2;
@@ -2137,36 +2000,51 @@ void mwSettings::settings_pages(int set_page)
          // draw lines and text description
          al_draw_line(bf2x3, bfy2, bf2x3, bf2y4, mColor.pc[c], 1);
          al_draw_line(bf2x3, bf2y4, bfxt-2, bf2y4, mColor.pc[c], 1);
-         al_draw_text(mFont.pr8, mColor.pc[c], bfxt, bf2y4-4, 0, "log to file");
+         al_draw_text(mFont.pr8, mColor.pc[c], bfxt, bf2y4-4, 0, "print to console");
 
          ya = bf2y4-5;
 
          if (mWidget.buttont(bfxb,    ya, bfxb+56,  bs, 0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All On"))
-            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 1) mLog.log_types[i].action |= LOG_ACTION_LOG;
+            for (int i=0; i<100; i++) if (mLog.log_types[i].group == log_group) mLog.log_types[i].action |= LOG_ACTION_PRINT;
 
          if (mWidget.buttont(bfxb+62, ya, bfxb+126, bs, 0,0,0,0,0,c+bco,15, 0,  1,1,0,0, "All Off"))
-            for (int i=0; i<100; i++) if (mLog.log_types[i].group == 1) mLog.log_types[i].action &= ~LOG_ACTION_LOG;
+            for (int i=0; i<100; i++) if (mLog.log_types[i].group == log_group) mLog.log_types[i].action &= ~LOG_ACTION_PRINT;
 
          // draw a frame around text and buttons
          al_draw_rectangle(bfxt-2, bf2y4-6, bfxb+127, bf2y4+6, mColor.pc[c], 1);
 
-         ya+=26;
-         xa = cfp_x1 + 10;
+
+
+
+         ya+=34;
+         xa = cfp_x1 + 36;
          xb = cfp_x2 - 10;
-
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
          bts = 10;
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_level_done,    "Autosave log on level done", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_game_exit,     "Autosave log on game exit", tc, fc);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_program_exit,  "Autosave log on program exit", tc, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_level_done,    "save log on level done", 7, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_game_exit,     "save log on game exit", 7, fc);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_program_exit,  "save log on program exit", 7, fc);
 
+
+
+
+         xa = cfp_x1 + 10;
+         ya = 352; // +  mLoop.pct_y; // force y pos
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
          bts = 16;
-         if (mWidget.buttont(xa+20, ya, xb-20, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Log In Log File Viewer")) mLog.log_file_viewer(2);
-         ya+=4;
-         if (mWidget.buttont(xa+20, ya, xb-20, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select And Open Log In Log File Viewer")) mLog.log_file_viewer(1);
+
+         if (log_group == 2)
+         {
+            if (mWidget.buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Profile Graph")) mLog.run_profile_graph(0);
+            ya += 4;
+            if (mWidget.buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select and Open Profile Graph")) mLog.run_profile_graph(1);
+         }
+         else
+         {
+            if (mWidget.buttont(xa+20, ya, xb-20, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Log In Log File Viewer")) mLog.log_file_viewer(2);
+            ya+=4;
+            if (mWidget.buttont(xa+20, ya, xb-20, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select And Open Log In Log File Viewer")) mLog.log_file_viewer(1);
+         }
+
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -2180,7 +2058,7 @@ void mwSettings::settings_pages(int set_page)
             return;
          }
 
-         ya += 8;
+         ya +=  line_spacing;//+=  mLoop.pct_y8;
          xb = xa+180;
          if (mWidget.buttont(xa+20, ya, xb, bts,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
          {

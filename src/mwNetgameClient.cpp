@@ -231,32 +231,14 @@ void mwNetgame::client_send_cjrc_packet(void)
    ClientSend(packetbuffer, packetsize);
 }
 
-//void mwNetgame::client_send_rctl_packet(int s1_adj, float co_adj, int zl_adj, int epn_adj, int eps_adj, int server_reload)
-//{
-//   Packet("rctl");
-//   PacketPutInt4(s1_adj);
-//   PacketPutDouble(co_adj);
-//   PacketPutInt4(zl_adj);
-//   PacketPutInt4(epn_adj);
-//   PacketPutInt4(eps_adj);
-//   PacketPutInt4(server_reload);
-//   ClientSend(packetbuffer, packetsize);
-//}
-//
-
-
 void mwNetgame::client_send_rctl_packet(int type, double val)
 {
+   mLoop.remote_frames_since_last_rctl_sent = 0;
    Packet("rctl");
    PacketPutInt4(type);
    PacketPutDouble(val);
    ClientSend(packetbuffer, packetsize);
 }
-
-
-
-
-
 
 void mwNetgame::client_process_sjon_packet(void)
 {
@@ -339,7 +321,7 @@ void mwNetgame::client_process_snfo_packets(void)
          if (bad_data) printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d  --- Bad Data!\n", seq+1, max_seq, fn, sb, sz);
          else
          {
-            printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d\n", seq+1, max_seq, fn, sb, sz);
+            //printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d\n", seq+1, max_seq, fn, sb, sz);
 
             memcpy(client_state_buffer + sb, packetbuffer+18, sz);    // put the piece of data in the buffer
             client_state_buffer_pieces[seq] = fn;                     // mark it with frame_num
@@ -350,7 +332,7 @@ void mwNetgame::client_process_snfo_packets(void)
 
             if (complete)
             {
-               printf("rx snfo complete - frame:[%d]\n", fn);
+               //printf("rx snfo complete - frame:[%d]\n", fn);
                char dmp[5400];
                // uncompress
                uLongf destLen = sizeof(dmp);

@@ -235,9 +235,8 @@ void mwQuickGraph2::draw_graph(void)
 //   if (type == 0) al_draw_textf(mFont.pr8, mColor.pc[col2], x+width/2, y+height/2-4,  ALLEGRO_ALIGN_CENTER, "%s", name);
 //   if (type == 1) al_draw_textf(mFont.pr8, mColor.pc[col2], x+width/2, y+height/2-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", name, series[0].last_data);
 
-//   if (type == 9) al_draw_textf(mFont.pr8, mColor.pc[col2], x+width/2, y+height/2-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", name, series[0].last_data);
-   al_draw_textf(mFont.pr8, mColor.pc[col2], x+width/2, y+height/2-4,  ALLEGRO_ALIGN_CENTER, "%s", name);
-
+   if (type == 9) al_draw_textf(mFont.pr8, mColor.pc[col2], x+width/2, y+height/2-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", name, series[0].last_data);
+   else           al_draw_textf(mFont.pr8, mColor.pc[col2], x+width/2, y+height/2-4,  ALLEGRO_ALIGN_CENTER, "%s", name);
 
 
 //   if (type == 1) al_draw_textf(mFont.pr8, mColor.pc[15], x+width/2, y+height/2-4+10,  ALLEGRO_ALIGN_CENTER, "MN:%4.2f MX:%4.2f AV:%4.2f", RA.mn, RA.mx, RA.avg );

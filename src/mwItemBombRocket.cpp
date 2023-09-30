@@ -16,14 +16,15 @@
 
 void mwItem::proc_bomb_collision(int p, int i)
 {
-   item[i][0] = 99; // change to lit bomb
-   item[i][13] = p; // mark player that lit bomb
-   if (item[i][12] == 0) // fuse timer
+   item[i][0] = 99;            // change to lit bomb
+   item[i][13] = p;            // mark player that lit bomb
+
+   if (item[i][12] == 0)       // fuse timer
    {
-      item[i][6] = 1;  // mode == lit
+      item[i][6] = 1;          // mode == lit
       item[i][8] = item[i][9]; // fuse wait count
    }
-   if (item[i][12] == 1) // remote detonator
+   if (item[i][12] == 1)       // remote detonator
    {
       item[i][6] = 3;
    }

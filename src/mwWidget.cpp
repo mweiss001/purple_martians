@@ -1235,17 +1235,13 @@ int mwWidget::button(int x1, int &y1, int x2, int bts,
 }
 
 
-
-
 // displays a text string, and returns 1 if pressed
 int mwWidget::buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
    int y2 = y1+bts-2;
    int ret = 0;
-
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
    draw_slider_text(x1, y1,  x2, y2, q2, q5, txt);
-
    if ((!q7) && (mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2))
    {
       while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
@@ -2045,9 +2041,9 @@ void mwWidget::togglec_log(int x1, int &y1, int x2, int bts, int bn, int num, in
 
 
    // draw checkboxes
-   if (mLog.log_types[ltn].action & LOG_ACTION_PRINT) al_draw_filled_rectangle(cb1_x1, cb_y1, cb1_x2, cb_y2, mColor.pc[frame_col]);
+   if (mLog.log_types[ltn].action & LOG_ACTION_LOG)   al_draw_filled_rectangle(cb1_x1, cb_y1, cb1_x2, cb_y2, mColor.pc[frame_col]);
    else                                               al_draw_rectangle(       cb1_x1, cb_y1, cb1_x2, cb_y2, mColor.pc[frame_col], 1);
-   if (mLog.log_types[ltn].action & LOG_ACTION_LOG)   al_draw_filled_rectangle(cb2_x1, cb_y1, cb2_x2, cb_y2, mColor.pc[frame_col]);
+   if (mLog.log_types[ltn].action & LOG_ACTION_PRINT) al_draw_filled_rectangle(cb2_x1, cb_y1, cb2_x2, cb_y2, mColor.pc[frame_col]);
    else                                               al_draw_rectangle(       cb2_x1, cb_y1, cb2_x2, cb_y2, mColor.pc[frame_col], 1);
 
 
@@ -2060,7 +2056,7 @@ void mwWidget::togglec_log(int x1, int &y1, int x2, int bts, int bn, int num, in
          if (mInput.mouse_b[1][0])
          {
              while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-             mLog.log_types[ltn].action ^= LOG_ACTION_PRINT;
+             mLog.log_types[ltn].action ^= LOG_ACTION_LOG;
          }
       }
       if ((mInput.mouse_x > cb2_x1) && (mInput.mouse_x < cb2_x2))
@@ -2069,7 +2065,7 @@ void mwWidget::togglec_log(int x1, int &y1, int x2, int bts, int bn, int num, in
          if (mInput.mouse_b[1][0])
          {
              while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
-             mLog.log_types[ltn].action ^= LOG_ACTION_LOG;
+             mLog.log_types[ltn].action ^= LOG_ACTION_PRINT;
          }
       }
    }
