@@ -270,7 +270,12 @@ void mwNetgame::server_exit(void)
 void mwNetgame::server_rewind(void)
 {
    double t0 = al_get_time();
-   if (mLoop.frame_num >= mStateHistory[0].newest_state_frame_num + server_state_freq - 1) // is it time to create a new state?
+
+
+//   if (mLoop.frame_num >= mStateHistory[0].newest_state_frame_num + server_state_freq - 1) // is it time to create a new state?
+
+
+
    {
 
 
@@ -414,7 +419,7 @@ void mwNetgame::server_send_snfo(void) // send info to remote control
 {
    // copy values into loc
    mPlayer.loc[0].srv_frame_num = mLoop.frame_num;
-   mPlayer.loc[0].srv_stdf_freq = mNetgame.server_state_freq;
+//   mPlayer.loc[0].srv_stdf_freq = mNetgame.server_state_freq;
    mPlayer.loc[0].srv_total_game_moves = mGameMoves.entry_pos;
    mPlayer.loc[0].srv_level = mLevel.play_level;
    mPlayer.loc[0].srv_zlib_cmp = mNetgame.zlib_cmp;
@@ -727,12 +732,12 @@ void mwNetgame::server_proc_rctl_packet(void)
    double val = PacketGetDouble();
 
 
-   if (type == PM_RCTL_PACKET_TYPE_state_freq_adj)
-   {
-      mNetgame.server_state_freq += val;
-      if (mNetgame.server_state_freq < 1)  mNetgame.server_state_freq = 1;
-      if (mNetgame.server_state_freq > 9)  mNetgame.server_state_freq = 9;
-   }
+//   if (type == PM_RCTL_PACKET_TYPE_state_freq_adj)
+//   {
+//      mNetgame.server_state_freq += val;
+//      if (mNetgame.server_state_freq < 1)  mNetgame.server_state_freq = 1;
+//      if (mNetgame.server_state_freq > 9)  mNetgame.server_state_freq = 9;
+//   }
 
    if (type == PM_RCTL_PACKET_TYPE_client_offset_adj)
    {
@@ -775,8 +780,10 @@ void mwNetgame::server_proc_rctl_packet(void)
 
    if (type == PM_RCTL_PACKET_TYPE_pvs_shots_toggle) mPlayer.syn[0].player_vs_self_shots = !mPlayer.syn[0].player_vs_self_shots;
 
-   mConfig.save_config();
 
+   if (type == PM_RCTL_PACKET_TYPE_fakekey_toggle) mPlayer.syn[0].server_force_fakekey = !mPlayer.syn[0].server_force_fakekey;
+
+   mConfig.save_config();
 
 
 }

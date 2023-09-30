@@ -427,19 +427,10 @@ void mwPlayer::proc_player_xy_move(int p)
 void mwPlayer::proc_player_paused(int p)
 {
    syn[p].player_ride = 0;
+
    if (syn[p].paused_type == 2) mItem.proc_player_door_move(p);
 
-
-
-   if (syn[p].paused_type == 3) // headless server player
-   {
-      syn[p].paused = 1;
-   }
-
-
-
-
-
+   if (syn[p].paused_type == 3) syn[p].paused = 1; // headless server player
 
 
    if (syn[p].paused_type == 1) // frozen after player dies, until the timer runs out
@@ -448,19 +439,10 @@ void mwPlayer::proc_player_paused(int p)
       if (syn[p].paused == 100) // do only once per death
       {
          // does this player have any bomb remotes?
-
-         // am i missing something? where does it check if this player has the remote???
-         // as is this will change all lit bombs with detonators....
-
-
          for (int i=0; i<500; i++)
-            if ((mItem.item[i][0] == 99) && (mItem.item[i][6] == 3)) // lit bomb with remote detonator
+            if ((mItem.item[i][0] == 99) && (mItem.item[i][6] == 3) && (mItem.item[i][13] == p))  // lit bomb with remote detonator that was lit by this player
             {
-
-
-
-
-               mItem.item[i][0] = 8; // change back to regular bomb or...
+               mItem.item[i][0] = 8; // change back to unlit bomb or...
 
                // set bomb to explode!
                //mItem.item[i][6] = 2; // mode 2; explosion
@@ -477,7 +459,7 @@ void mwPlayer::proc_player_paused(int p)
          else ra = -5;
          syn[p].draw_rot += ra; // rotate player
       }
-      else // frozen done !!
+      else // frozen done
       {
          syn[p].paused = 0;
          syn[p].old_health = 100;
@@ -1731,8 +1713,11 @@ void mwPlayer::proc_player_input(void)
          {
             if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
             {
-               if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey)) loc[p].comp_move = rand() % 64;
-               else set_comp_move_from_player_key_check(p);
+               set_comp_move_from_player_key_check(p);
+
+               // even in fakekey mode allow ESC or menu
+               if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey))
+                  if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
 
                if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
                {

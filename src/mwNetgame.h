@@ -8,7 +8,9 @@
 #include "mwStateHistory.h"
 
 
-#define PM_RCTL_PACKET_TYPE_state_freq_adj         1
+#define PM_RCTL_PACKET_TYPE_keep_alive             0
+
+//#define PM_RCTL_PACKET_TYPE_state_freq_adj         1
 #define PM_RCTL_PACKET_TYPE_client_offset_adj      2
 #define PM_RCTL_PACKET_TYPE_zlib_compression_adj   3
 #define PM_RCTL_PACKET_TYPE_exra_packet_num_adj    4
@@ -18,6 +20,10 @@
 
 #define PM_RCTL_PACKET_TYPE_pvp_shots_toggle       10
 #define PM_RCTL_PACKET_TYPE_pvs_shots_toggle       11
+
+#define PM_RCTL_PACKET_TYPE_fakekey_toggle         12
+
+
 
 #define PM_RCTL_PACKET_TYPE_server_reload          20
 
@@ -92,9 +98,9 @@ class mwNetgame
    int client_chase_offset_mode; // 0 = manual, 1 = auto, 2 = server
 
 
-   // server stdf frequency
-   int server_state_freq = 2;
-   int server_state_freq_mode = 1; // 0 = manual, 1 = auto
+//   // server stdf frequency
+//   int server_state_freq = 1;
+//   int server_state_freq_mode = 0; // 0 = manual, 1 = auto
 
    int server_dirty_frame = 0;
 

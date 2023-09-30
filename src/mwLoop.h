@@ -51,7 +51,6 @@ class mwLoop
 
 
 
-
    int load_and_setup_level_load(int level);
    void setup_level_after_load();
    void setup_players_after_level_load(int type);
@@ -69,10 +68,15 @@ class mwLoop
    int remote_graphs_width = 600;
    int remote_graphs_height = 400;
 
+   int remote_frames_since_last_rctl_sent = 0;
+
+
 
    void add_local_cpu_data(double cpu);
 
-//   void cpu_graph_add_data(void);
+
+
+
 
    int have_all_players_acknowledged(void);
    void game_menu(void);

@@ -3,12 +3,6 @@
 ---------------------------------------------------------
 
 
-player paused after death, lit bomb with detonators, does not check if dead player was holding detonator
-fix this and verify it works like you expect
-
-
-
-vls on remote crashes when moving to new level, but only if vls is started on level 1
 
 
 
@@ -22,7 +16,77 @@ vls on remote crashes when moving to new level, but only if vls is started on le
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+Can I remove server state freq?
+or at least the auto part?
+mNetgame.server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
 
+
+
+
+
+
+
+
+what about client offset?
+should I let each client choose that automatically? basically same as ping...
+
+should I make remote able to force clients to server offset control?
+when not active, just go back to what they were using before
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+document netgame, yet again
+
+
+can I make netem stuff work with a script on server??
+
+https://www.suse.com/support/kb/doc/?id=000016906
+
+this is what I want:
+
+I want to be able to run tc netem
+
+but I need to be root...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+should I just abandon old syle cpu graph??
+it is nice that it does not reset when screen changes
+commented out for now...
+could I measure the time it takes to draw it?, like eco_draw?
 
 
 

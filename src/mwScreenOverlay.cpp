@@ -283,14 +283,14 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       x+=4*8;
    }
 
-   if (col == 6) // server_state_freq
-   {
-      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[f]");
-      al_draw_textf(mFont.pr8, c1,            x, y+=8, 0, "[%d]", mNetgame.server_state_freq);
-      for (int p=1; p<NUM_PLAYERS; p++)
-         al_draw_textf(mFont.pr8, c2,         x, y+=8, 0, "[ ]");
-      x+=3*8;
-   }
+//   if (col == 6) // server_state_freq
+//   {
+//      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[f]");
+//      al_draw_textf(mFont.pr8, c1,            x, y+=8, 0, "[%d]", mNetgame.server_state_freq);
+//      for (int p=1; p<NUM_PLAYERS; p++)
+//         al_draw_textf(mFont.pr8, c2,         x, y+=8, 0, "[ ]");
+//      x+=3*8;
+//   }
 
    if (col == 7) // client chase fps
    {
@@ -727,15 +727,15 @@ void mwScreen::draw_common_debug_overlay(int p, int &cx, int &cy)
    }
    if (mSettings.overlay_grid[0][mLoop.show_debug_overlay]) // cpu graph
    {
-      // original style
-      int gx = mDisplay.SCREEN_W-mQuickGraph[0].width-28;
-      int gy = mDisplay.SCREEN_H-mQuickGraph[0].height-20;
-      t0 = al_get_time();
-      mQuickGraph[0].draw_graph(gx, gy);
-      mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_CPU1", al_get_time() - t0);
+//      // original style
+//      int gx = mDisplay.SCREEN_W-mQuickGraph[0].width-28;
+//      int gy = mDisplay.SCREEN_H-mQuickGraph[0].height-20;
+//      t0 = al_get_time();
+//      mQuickGraph[0].draw_graph(gx, gy);
+//      mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_CPU1", al_get_time() - t0);
 
       // new style
-      mQuickGraph2[9].set_pos(mDisplay.SCREEN_W-mQuickGraph2[9].width-28, mDisplay.SCREEN_H-mQuickGraph2[9].height-120);
+      mQuickGraph2[9].set_pos(mDisplay.SCREEN_W-mQuickGraph2[9].width-28, mDisplay.SCREEN_H-mQuickGraph2[9].height-20);
       t0 = al_get_time();
       mQuickGraph2[9].draw_graph();
       mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_CPU2", al_get_time() - t0);
@@ -760,7 +760,7 @@ void mwScreen::draw_server_debug_overlay(int &cx, int &cy)
 
    if (mSettings.overlay_grid[6][mLoop.show_debug_overlay]) // state freq adjust buttons
    {
-      if (mNetgame.server_state_freq_mode == 0) // 0 = manual, 1 = auto
+//      if (mNetgame.server_state_freq_mode == 0) // 0 = manual, 1 = auto
       {
          // -----------------------------------------------------
          // server buttons to display and change parameters while running
@@ -775,7 +775,7 @@ void mwScreen::draw_server_debug_overlay(int &cx, int &cy)
          int csx2 = csx1 + csw;
 
          int ya = 0, btw = 16, bth = 16;
-         int number_of_rows = 5;
+         int number_of_rows = 4;
 
          // y position and height of entire widget
          int csh = number_of_rows*btw+4;
@@ -800,10 +800,10 @@ void mwScreen::draw_server_debug_overlay(int &cx, int &cy)
          if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+")) if (++mNetgame.zlib_cmp > 9) mNetgame.zlib_cmp = 9;
          al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "zc:%d", mNetgame.zlib_cmp);
 
-         ya += bth+1;
-         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-")) if (--mNetgame.server_state_freq < 0) mNetgame.server_state_freq = 0;
-         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+")) if (++mNetgame.server_state_freq > 9) mNetgame.server_state_freq = 9;
-         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "s1:%d", mNetgame.server_state_freq);
+//         ya += bth+1;
+//         if (mWidget.buttont_nb(csx1+2, ya, csx1+2+btw, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-")) if (--mNetgame.server_state_freq < 0) mNetgame.server_state_freq = 0;
+//         if (mWidget.buttont_nb(csx2-btw-4, ya, csx2-2, bth,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+")) if (++mNetgame.server_state_freq > 9) mNetgame.server_state_freq = 9;
+//         al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, ya+2, ALLEGRO_ALIGN_CENTER, "s1:%d", mNetgame.server_state_freq);
 
          int inc = 1;
          if (mInput.CTRL()) inc = 10;
@@ -826,7 +826,7 @@ void mwScreen::draw_server_debug_overlay(int &cx, int &cy)
    {
       al_draw_filled_rectangle(cx, cy, cx+204, cy+20, mColor.pc[0]); cy+=2;
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "total game moves:%d", mGameMoves.entry_pos); cy+=9;
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "state frequency:%d", mNetgame.server_state_freq); cy+=9;
+//      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "state frequency:%d", mNetgame.server_state_freq); cy+=9;
       cy +=4;
    }
    if (mSettings.overlay_grid[7][mLoop.show_debug_overlay]) draw_bandwidth_stats(cx, cy); // bandwidth stats

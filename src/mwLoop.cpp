@@ -484,9 +484,6 @@ void mwLoop::proc_program_state(void)
       initialize_graphs();
 
 
-
-
-
       for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
 
       mPlayer.syn[0].active = 1;
@@ -566,6 +563,9 @@ void mwLoop::proc_program_state(void)
          state[0] = 11;
       }
    }
+
+
+
 
    //---------------------------------------
    // 20 - server new game
@@ -897,6 +897,8 @@ void mwLoop::proc_program_state(void)
    //---------------------------------------
    if (state[1] == 31)
    {
+      initialize_graphs();
+
       mLog.addf(LOG_OTH_program_state, 0, "[State 31 - Setup Demo Level]  [lev:%d]  [drm:%d]\n", mLevel.play_level, mDemoMode.restore_mode);
 
       if (load_and_setup_level_load(mLevel.play_level))
@@ -1413,8 +1415,9 @@ void mwLoop::add_local_cpu_data(double cpu)
       mQuickGraph[0].add_data(3, mRollingAverage[0].avg);
 
       // new style graph
-      mQuickGraph2[9].add_data(0, mRollingAverage[0].avg);
+      mQuickGraph2[9].add_data(0, mRollingAverage[0].mx);
       mQuickGraph2[9].new_entry_pos();
+
    }
 }
 
@@ -1492,13 +1495,14 @@ void mwLoop::initialize_graphs(void)
          mQuickGraph2[7].initialize(width, 100,   0,   40, "RCOR",     0, 7,  15, 1);
       }
 
-      // for screen overlay
+      // for screen overlay common and remote local cpu
       mQuickGraph2[9].initialize(200,    36,    0,   50, "CPU",      9, 12, 13, 1);
 
-      mQuickGraph[0].initialize(1);
+      // client ping and sync
       mQuickGraph[1].initialize(2);
-      mQuickGraph[2].initialize(2);
 
+      // old style cpu
+      mQuickGraph[0].initialize(1);
       //sprintf(mQuickGraph[0].series[0].name, "");
               mQuickGraph[0].series[0].color = 13+128;
               mQuickGraph[0].series[0].active = 1;
@@ -1524,8 +1528,6 @@ void mwLoop::initialize_graphs(void)
 
 void mwLoop::main_loop(void)
 {
-
-
    while (!main_loop_exit)
    {
       // ----------------------------------------------------------
@@ -1570,6 +1572,11 @@ void mwLoop::main_loop(void)
 
             int fn = mPlayer.loc[0].srv_frame_num; // set frame number from last snfo packet update
 
+
+            // check how long since last rtcl packet has been sent, and send keep alive packet if too long
+            if (++remote_frames_since_last_rctl_sent > 400) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_keep_alive, 0);
+
+
             char msg[200];
             al_set_target_backbuffer(mDisplay.display);
             al_flip_display();
@@ -1577,10 +1584,12 @@ void mwLoop::main_loop(void)
 
             int cx = 10, cy = 10;
 
-            static int wd;
-            wd++;
+//            static int wd;
+//            wd++;
+//            al_draw_textf(mFont.pr8, mColor.pc[13], cx, cy, 0, "Server Remote Control   %d %d ", wd, remote_frames_since_last_rctl_sent); cy+=20;
 
-            al_draw_textf(mFont.pr8, mColor.pc[13], cx, cy, 0, "Server Remote Control   %d ", wd); cy+=20;
+
+            al_draw_textf(mFont.pr8, mColor.pc[13], cx, cy, 0, "Server Remote Control"); cy+=20;
             al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "Level:[%d] - Time:[%s] - Frame:[%d] - Moves:[%d]", mPlayer.loc[0].srv_level, mItem.chrms(fn, msg), fn, mPlayer.loc[0].srv_total_game_moves); cy+=30;
 
 
@@ -1666,13 +1675,12 @@ void mwLoop::main_loop(void)
             int b2x = 60;
 
 
-            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_state_freq_adj, -1);
-            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_stdf_freq);
-            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_state_freq_adj, 1);
-            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "State Frequency");
-            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
+//            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_state_freq_adj, -1);
+//            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_stdf_freq);
+//            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_state_freq_adj, 1);
+//            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "State Frequency");
+//            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
 
-            cy+=cs;
             if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, -0.005);
             al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%2.0f", mPlayer.syn[0].client_chase_offset*1000);
             if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, 0.005);
@@ -1723,6 +1731,12 @@ void mwLoop::main_loop(void)
             al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "pvs shots");
             al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
 
+            cy+=cs;
+            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_fakekey_toggle, 0);
+            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.syn[0].server_force_fakekey);
+            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_fakekey_toggle, 0);
+            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "force fake_key");
+            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
 
 
 
@@ -1816,7 +1830,7 @@ void mwLoop::main_loop(void)
 
 
             cx = 10;
-            cy+=70+20;
+            cy+=70+40;
 
 
             static int show_bandwidth = 0;
@@ -1925,6 +1939,7 @@ void mwLoop::main_loop(void)
             // ------------------------------
             mGameMoves.proc();
 
+
             // ------------------------------
             // move
             // ------------------------------
@@ -1958,8 +1973,11 @@ void mwLoop::main_loop(void)
             // store in player array cpu variable
             mPlayer.loc[mPlayer.active_local_player].cpu = cpu;
 
+
+
             // store in local cpu variables
             add_local_cpu_data(cpu);
+
 
          }
       }
@@ -1992,13 +2010,17 @@ void mwLoop::main_loop(void)
             }
             if (mNetgame.ima_server)
             {
-               // auto adjust server state frequency
-               if (mNetgame.server_state_freq_mode == 1) // 0 = manual, 1 = auto
-               {
-                  int mcp = mTally[4].get_max(0)*1000;
-                  if (mcp > 100) mcp = 100;
-                  mNetgame.server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
-               }
+
+//               // auto adjust server state frequency
+//               if (mNetgame.server_state_freq_mode == 1) // 0 = manual, 1 = auto
+//               {
+//                  int mcp = mTally[4].get_max(0)*1000;
+//                  if (mcp > 100) mcp = 100;
+//                  mNetgame.server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
+//               }
+
+
+
                // tally late cdats and game move dsync
                for (int p=1; p<NUM_PLAYERS; p++)
                   if (mPlayer.syn[p].control_method == 2)

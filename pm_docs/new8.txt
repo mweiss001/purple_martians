@@ -36634,6 +36634,36 @@ inc version and push
 
 20230929
 
+vls on remote crashes when moving to new level, but only if vls is started on level 1
+fixed
+
+remote stops receiving packets, i think it is because it receives so many without replying
+make a keep alive to send a packet every now and then
+count how long it has been since last sending one...
+12000 / 40 = 300s = 5 min
+
+client shows cpu on top of other stuff...fixed
+
+
+make it so that ESC still quits in fakekey mode..done
+
+//               if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey)) loc[p].comp_move = rand() % 64;
+//               else set_comp_move_from_player_key_check(p);
+
+               set_comp_move_from_player_key_check(p);
+               if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey))
+                  if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
+
+player paused after death, lit bomb with detonators, does not check if dead player was holding detonator
+fix this and verify it works like you expect
+make test level
+have player hold det and die
+have player hold det while other player dies
+all dets go back to bombs...
+fixed
+
+
+
 
 still testing...
 
@@ -36651,6 +36681,31 @@ do I even need local?
 im not ready to kill it yet...
 
 should it also apply to server player??
+
+I think all I have left is to set it via remote control
+
+done...now that works too...
+
+what else do I want to do via remote?
+drop players?
+force players to rejoin, why?
+
+
+test that all demos still play...they do!
+
+dies hard when starting demo....any type...
+fixed by initializing graphs...
+
+
+
+
+figure out how to make the new OTH logging things fit on the settings screen nicely
+change the order of file and console
+make middle section with the list of types changeable
+then I can have all three in one settings tab....
+done and removed profiling tab...
+
+
 
 
 
