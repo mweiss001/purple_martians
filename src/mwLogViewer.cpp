@@ -135,7 +135,6 @@ int mwLog::log_file_viewer(int type)
    i = LOG_NET_join_details;    tags[i][0] = 1; tags[i][1] = 15; // join details
    i = LOG_NET_ending_stats;    tags[i][0] = 1; tags[i][1] = 15; // ending stats
 
-   i = LOG_NET_player_array;    tags[i][0] = 1; tags[i][1] = 15; tags[i][3] = 82; sprintf(ctags[i], "parr"); // player array (R) [CS]
    i = LOG_NET_bandwidth;       tags[i][0] = 0; tags[i][1] = 15; tags[i][3] = 66; sprintf(ctags[i], "band"); // bandwidth    (B) [CS]
    i = LOG_NET_stdf;            tags[i][0] = 1; tags[i][1] = 13; tags[i][3] = 88; sprintf(ctags[i], "stdf"); // stdf         (X) [CS]
    i = LOG_NET_stdf_packets;    tags[i][0] = 0; tags[i][1] = 1;  tags[i][3] = 80; sprintf(ctags[i], "stdp"); // stdf piece   (P) [CS]

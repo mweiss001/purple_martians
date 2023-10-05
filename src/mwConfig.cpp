@@ -109,9 +109,6 @@ void mwConfig::save_config(void)
       asci(NETWORK, mPlayer.syn[0].player_vs_player_shot_damage)
       asci(NETWORK, mPlayer.syn[0].player_vs_self_shots)
 
-//      asci(NETWORK, mNetgame.server_state_freq_mode)
-//      asci(NETWORK, mNetgame.server_state_freq)
-
       ascf(NETWORK, mNetgame.client_chase_offset)
       ascf(NETWORK, mNetgame.client_chase_offset_auto_offset)
       asci(NETWORK, mNetgame.client_chase_offset_mode)
@@ -262,9 +259,6 @@ void mwConfig::load_config(void)
    agci(NETWORK, mPlayer.syn[0].player_vs_player_shots, 1)
    agci(NETWORK, mPlayer.syn[0].player_vs_player_shot_damage, 5)
    agci(NETWORK, mPlayer.syn[0].player_vs_self_shots, 1)
-
-//   agci(NETWORK, mNetgame.server_state_freq_mode, 1)
-//   agci(NETWORK, mNetgame.server_state_freq, 1)
 
    agcf(NETWORK, mNetgame.client_chase_offset, -0.02)
    agcf(NETWORK, mNetgame.client_chase_offset_auto_offset, -0.005)

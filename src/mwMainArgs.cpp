@@ -129,7 +129,6 @@ void mwMain::copy_files_to_clients(int type)
 
 
 
-
    for (int c=0; c<num_clients; c++)
    {
       if (type == 1) // exe only
@@ -168,7 +167,6 @@ void mwMain::copy_files_to_clients(int type)
 
 void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
 {
-
    if ((argument_count > 1) && (strcmp(argument_array[1],"-sh") == 0 )) headless_server = 1;
 
 //   if ((argument_count > 1) && (strcmp(argument_array[1],"-rc") == 0 )) server_remote_control = 1;
@@ -313,6 +311,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
 
       if (strcmp(argument_array[1],"-sh") == 0 ) // headless server
       {
+         mNetgame.headless_server_setup();
          mLogo.show_splash_screen = 0;
          mLoop.state[0] = 20;
          mLoop.quit_action = 0;
@@ -418,6 +417,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          int pl = atoi(argument_array[2]);
          if ((pl > 0) && (pl < 400))
          {
+            mNetgame.headless_server_setup();
             mLevel.set_start_level(pl);
             mLogo.show_splash_screen = 0;
             mLoop.state[0] = 20;

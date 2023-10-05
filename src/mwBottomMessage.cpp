@@ -5,7 +5,6 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwTimeStamp.h"
 #include "mwColor.h"
 #include "mwLoop.h"
 #include "mwItem.h"

@@ -35,10 +35,7 @@ void mwGameMoves::initialize(void)
 
 int mwGameMoves::has_player_acknowledged(int p)
 {
-
    if (mPlayer.syn[p].paused_type == 3) return 1; // headless server player
-
-
    int start_pos = entry_pos;
    int end_pos = start_pos - 1000;
    if (end_pos < 0) end_pos = 0;

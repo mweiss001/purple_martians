@@ -6,19 +6,10 @@
 
 
 
-
-
-
-
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-Can I remove server state freq?
-or at least the auto part?
-mNetgame.server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
 
 
 
@@ -27,16 +18,15 @@ mNetgame.server_state_freq = 1 + mcp/25; // use max_client_ping to set server_st
 
 
 
-what about client offset?
-should I let each client choose that automatically? basically same as ping...
+add some server stats so I can tell if anyone else is playing and when etc...
 
-should I make remote able to force clients to server offset control?
-when not active, just go back to what they were using before
+when a connection is established
+when a client joins
+save ip and hostname
 
+i suppose I could do this by just saving logs on the server all the time
 
-
-
-
+then I just need something to read and parse the logs...
 
 
 

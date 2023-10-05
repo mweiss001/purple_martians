@@ -35,6 +35,7 @@ class mwLoop
 
    int super_fast_mode = 0;
 
+   double frame_start_timestamp = 0;
 
 
    // some global strings

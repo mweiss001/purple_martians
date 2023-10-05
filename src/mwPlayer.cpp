@@ -1023,8 +1023,6 @@ void mwPlayer::move_players(void)
 
    if (debug_print) printf("testmp0\n");
 
-
-
    if (mMain.headless_server)
    {
       syn[0].paused = 1;
@@ -1369,6 +1367,11 @@ void mwPlayer::init_player(int p, int t)
    if (t == 17) // player common
    {
       syn[p].paused = 0;
+      syn[p].paused_type = 0;
+      syn[p].paused_mode = 0;
+      syn[p].paused_mode_count = 0;
+
+
       syn[p].carry_item = 0;
       syn[p].player_ride = 0;
       syn[p].on_ladder = 0;
@@ -1447,7 +1450,6 @@ void mwPlayer::init_player(int p, int t)
 
       loc[p].ping = 0;
       loc[p].ping_avg = 0;
-      mTally[4].initialize(); // initialize max tally
 
       loc[p].game_move_dsync = 0;
       loc[p].game_move_dsync_avg_last_sec = 0;
@@ -1714,7 +1716,6 @@ void mwPlayer::proc_player_input(void)
             if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
             {
                set_comp_move_from_player_key_check(p);
-
                // even in fakekey mode allow ESC or menu
                if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey))
                   if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
@@ -1722,23 +1723,14 @@ void mwPlayer::proc_player_input(void)
                if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
                {
                   mGameMoves.add_game_move(mLoop.frame_num, 5, p, loc[p].comp_move); // add to game moves array
-
                   // in client mode, send cdat packet, and apply move directly to controls
                   if (cm == 4)
                   {
-                     mNetgame.Packet("cdat");
-                     mNetgame.PacketPutInt1(p);
-                     mNetgame.PacketPutInt4(mLoop.frame_num);
-                     mNetgame.PacketPutInt1(loc[p].comp_move);
-                     mNetgame.ClientSend(mNetgame.packetbuffer, mNetgame.packetsize);
+                     mNetgame.client_send_cdat(p);
                      loc[p].client_cdat_packets_tx++;
-
                      set_controls_from_comp_move(p, loc[p].comp_move);
-
                      if (syn[p].menu) mLoop.state[0] = 25; // menu key pressed
-
                      mLog.addf(LOG_NET_cdat, p, "tx cdat - move:%d\n", loc[p].comp_move);
-
                   }
                }
             }

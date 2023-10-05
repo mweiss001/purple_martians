@@ -12,7 +12,6 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option use_console_runner="0" />
-				<Option parameters="-rc" />
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-DALLEGRO_STATICLINK" />
@@ -174,6 +173,8 @@
 		<Unit filename="src/mwNetgameServer.cpp" />
 		<Unit filename="src/mwPDE.cpp" />
 		<Unit filename="src/mwPDE.h" />
+		<Unit filename="src/mwPacketBuffer.cpp" />
+		<Unit filename="src/mwPacketBuffer.h" />
 		<Unit filename="src/mwPlayer.cpp" />
 		<Unit filename="src/mwPlayer.h" />
 		<Unit filename="src/mwQuickGraph.cpp" />
@@ -197,8 +198,6 @@
 		<Unit filename="src/mwStateHistory.h" />
 		<Unit filename="src/mwTally.cpp" />
 		<Unit filename="src/mwTally.h" />
-		<Unit filename="src/mwTimeStamp.cpp" />
-		<Unit filename="src/mwTimeStamp.h" />
 		<Unit filename="src/mwTriggerEvent.cpp" />
 		<Unit filename="src/mwTriggerEvent.h" />
 		<Unit filename="src/mwVisualLevel.cpp" />

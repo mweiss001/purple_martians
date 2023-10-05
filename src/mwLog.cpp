@@ -35,7 +35,6 @@ void mwLog::init_log_types(void)
    i = LOG_NET_join_details;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_join_details");
    i = LOG_NET_ending_stats;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_ending_stats");
    i = LOG_NET_bandwidth;           log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_bandwidth");
-   i = LOG_NET_player_array;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_player_array");
    i = LOG_NET_stdf;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf");
    i = LOG_NET_stdf_packets;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf_packets");
    i = LOG_NET_dif_applied;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_dif_applied");
@@ -60,6 +59,9 @@ void mwLog::init_log_types(void)
    i = LOG_TMR_rwnd;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_rwnd");
    i = LOG_TMR_client_timer_adj;    log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_timer_adj");
    i = LOG_TMR_client_ping;         log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_ping");
+
+   i = LOG_TMR_proc_rx_buffer;      log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_proc_rx_buffer");
+
 
    i = LOG_OTH_program_state;       log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_program_state");
    i = LOG_OTH_transitions;         log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_transitions");
@@ -104,6 +106,34 @@ void mwLog::save_log_file(void)
    }
    erase_log();
 }
+
+
+
+
+void mwLog::set_log_type_action(int type, int action, int save)
+{
+   log_types[type].action = action;
+   if (save) mConfig.save_config();
+}
+
+void mwLog::clear_all_log_actions(void)
+{
+   for (int i=0; i<100; i++)
+      if (log_types[i].group != 9) // except for errors
+         log_types[i].action = 0;
+
+   autosave_log_on_level_done = 0;
+   autosave_log_on_game_exit = 0;
+   autosave_log_on_program_exit = 0;
+
+   mConfig.save_config();
+}
+
+
+
+
+
+
 
 
 
@@ -400,6 +430,22 @@ void mwLog::log_player_array2(int type)
       add_fwf(type, 0, 76, 10, "|", " ", "[%d][%d][%d][%3.2f]",   p, mPlayer.syn[p].active, mPlayer.syn[p].control_method, sy );
    }
 }
+
+void mwLog::log_player_array3(int type)
+{
+   add_fw(    type, 0, 76, 10, "|", " ", "[p][a][m][co][pa][pt][pm][pc]");
+   for (int p=0; p<NUM_PLAYERS; p++)
+      add_fwf(type, 0, 76, 10, "|", " ", "[%d][%d][%d][%2d][%2d][%2d][%2d][%2d]",
+                                           p,
+                                               mPlayer.syn[p].active,
+                                                   mPlayer.syn[p].control_method,
+                                                       mPlayer.syn[p].color,
+                                                            mPlayer.syn[p].paused,
+                                                                 mPlayer.syn[p].paused_type,
+                                                                      mPlayer.syn[p].paused_mode,
+                                                                           mPlayer.syn[p].paused_mode_count );
+}
+
 
 
 
