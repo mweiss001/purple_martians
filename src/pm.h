@@ -25,7 +25,6 @@
 #define STATE_SIZE 112384
 
 
-
 // enemy debug stuff
 //#define SHOW_CANNON_COLLISION_BOX
 //#define SHOW_FLAPPER_DEBUG

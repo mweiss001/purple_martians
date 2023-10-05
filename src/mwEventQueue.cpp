@@ -18,17 +18,32 @@ void mwEventQueue::create_timers(void)
    sec_timer = al_create_timer(1);    // 1s
    mou_timer = al_create_timer(1);    // 1s
 
+
+   thr_timer = al_create_timer(0.001);    // 1ms
+
+
+
+
    // register timer event source
    al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(sec_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(mou_timer));
 
+   al_register_event_source(event_queue, al_get_timer_event_source(thr_timer));
+
+
+
+
    // start timers
    al_start_timer(fps_timer);
    al_start_timer(mnu_timer);
    al_start_timer(sec_timer);
    al_start_timer(mou_timer);
+
+   al_start_timer(thr_timer);
+
+
 }
 
 void mwEventQueue::proc_events(ALLEGRO_EVENT ev)
@@ -45,6 +60,13 @@ void mwEventQueue::proc_events(ALLEGRO_EVENT ev)
          if (mLoop.level_editor_running) al_set_timer_count(mou_timer, 0);
          if (al_get_timer_count(mou_timer) > 2) al_hide_mouse_cursor(mDisplay.display);
       }
+
+
+      if (ev.timer.source == thr_timer) thr_proc = 1;
+
+
+
+
    }
    mInput.proc_input_events(ev);  // send all other events to input handler
 }

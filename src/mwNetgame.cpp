@@ -18,7 +18,6 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwTimeStamp.h"
 #include "mwColor.h"
 #include "mwEventQueue.h"
 #include "mwConfig.h"
@@ -34,6 +33,9 @@ mwNetgame::mwNetgame()
    NetworkDriver = -1;
    ima_server = 0;
    ima_client = 0;
+   remote_join_reply = 0;
+
+
    sprintf(m_serveraddress, "192.168.1.2");
    TCP = 0;
    zlib_cmp = 7;
@@ -86,20 +88,6 @@ int mwNetgame::NetworkInit(void)
    }
 }
 
-void mwNetgame::init_packet_buffer(void)
-{
-   for (int i=0; i<200; i++)
-   {
-      packet_buffers[i].active = 0;
-      packet_buffers[i].type = 0;
-      packet_buffers[i].timestamp = 0;
-      packet_buffers[i].who = 0;
-      packet_buffers[i].packetsize = 0;
-      packet_buffers[i].data[0] = 0;
-   }
-}
-
-
 void mwNetgame::set_packetpos(int pos)
 {
    packetpos = pos;
@@ -109,8 +97,6 @@ int mwNetgame::get_packetpos(void)
 {
    return packetpos;
 }
-
-
 
 // create a new packet
 void mwNetgame::Packet(const char *id)
@@ -130,34 +116,6 @@ int mwNetgame::PacketRead(const char *id)
 	return 0;
 }
 
-// append a byte to the packet
-void mwNetgame::PacketAddByte(char b)
-{
-	packetbuffer[packetsize] = b;
-	packetsize++;
-}
-
-// get the next byte from the packet
-char mwNetgame::PacketGetByte(void)
-{
-	char b = packetbuffer[packetpos];
-	packetpos++;
-	return b;
-}
-
-
-
-void mwNetgame::PacketAddString(char* s)
-{
-   for (int i=0; i<15; i++) PacketAddByte(s[i]); // copy first 15 char only
-   PacketAddByte(0); // for safety terminate with NULL in case string is longer than 15
-}
-
-void mwNetgame::PacketReadString(char* s)
-{
-   for (int i=0; i<16; i++) s[i] = PacketGetByte();
-}
-
 void mwNetgame::PacketPutDouble(double d)
 {
    memcpy(packetbuffer + packetsize, &d, 8);
@@ -171,49 +129,6 @@ double mwNetgame::PacketGetDouble(void)
 	packetpos+=8;
 	return d;
 }
-
-void mwNetgame::PacketPutInt4(int d)
-{
-   memcpy(packetbuffer + packetsize, &d, 4);
-	packetsize+=4;
-}
-
-int mwNetgame::PacketGetInt4(void)
-{
-   int d = 0;
-   memcpy(&d, packetbuffer + packetpos, 4);
-	packetpos+=4;
-	return d;
-}
-
-
-void mwNetgame::PacketPutInt1(int b)
-{
-   unsigned char lo_b = (unsigned char) (b);
-   PacketAddByte(lo_b);
-}
-void mwNetgame::PacketPutInt2(int b)
-{
-   unsigned char hi_b = (unsigned char) (b/256);
-   PacketAddByte(hi_b);
-
-   unsigned char lo_b = (unsigned char) (b - (hi_b*256));
-   PacketAddByte(lo_b);
-}
-int mwNetgame::PacketGetInt1(void)
-{
-   unsigned char byte_lo = (unsigned char)PacketGetByte();
-   int b = byte_lo;
-	return b;
-}
-int mwNetgame::PacketGetInt2(void)
-{
-   unsigned char byte_ho = (unsigned char)PacketGetByte();
-   unsigned char byte_lo = (unsigned char)PacketGetByte();
-   int b = (byte_ho * 256) + byte_lo;
-   return b;
-}
-
 
 void mwNetgame::game_vars_to_state(char * b)
 {

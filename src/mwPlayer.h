@@ -77,7 +77,6 @@ struct psyn // synced between server and client
    int late_cdats;
    int late_cdats_last_sec;
 
-   float client_chase_offset = -0.02;
 
    int player_vs_player_shots;
    int player_vs_player_shot_damage;
@@ -85,10 +84,10 @@ struct psyn // synced between server and client
 
 
    int server_force_fakekey = 0;
-
+   int server_force_client_offset = 0;
+   float client_chase_offset = -0.02;
 
    int spare_int1;
-   int spare_int2;
 
 
 };
@@ -113,10 +112,7 @@ struct ploc // not synced between server and client (but synced from server to r
 
    int server_last_stak_rx_frame_num; // used by server to see if client is still responding
    int client_last_stdf_rx_frame_num; // used by client to see if server is still responding
-   int server_send_dif;               // used by server to determine which frame to send dif
-
    int rewind; // for client and server to keep track of how many frames rewound and played back
-
 
    float old_x, old_y;        // old players position, used to calc client pos_correction
    float client_loc_plr_cor;
@@ -156,23 +152,17 @@ struct ploc // not synced between server and client (but synced from server to r
    int num_dif_packets;
    int cmp_dif_size;
 
-
-
    float cpu;
-
 
 
    // used only by server remote_control
    int srv_frame_num;
-//   int srv_stdf_freq;
    int srv_total_game_moves;
    int srv_level;
-
 
    int srv_zlib_cmp;
    int srv_extra_packets_num;
    int srv_extra_packets_size;
-
 
 
 

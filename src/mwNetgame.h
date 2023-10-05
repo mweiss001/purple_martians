@@ -9,36 +9,16 @@
 
 
 #define PM_RCTL_PACKET_TYPE_keep_alive             0
-
-//#define PM_RCTL_PACKET_TYPE_state_freq_adj         1
+#define PM_RCTL_PACKET_TYPE_force_client_offset    1
 #define PM_RCTL_PACKET_TYPE_client_offset_adj      2
 #define PM_RCTL_PACKET_TYPE_zlib_compression_adj   3
 #define PM_RCTL_PACKET_TYPE_exra_packet_num_adj    4
 #define PM_RCTL_PACKET_TYPE_exra_packet_siz_adj    5
-
 #define PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj    6
-
 #define PM_RCTL_PACKET_TYPE_pvp_shots_toggle       10
 #define PM_RCTL_PACKET_TYPE_pvs_shots_toggle       11
-
 #define PM_RCTL_PACKET_TYPE_fakekey_toggle         12
-
-
-
 #define PM_RCTL_PACKET_TYPE_server_reload          20
-
-
-
-
-struct packet_buffer
-{
-   int active;
-   int type;
-   double timestamp;
-   int who;
-   int packetsize;
-   char data[1024];
-};
 
 class mwNetgame
 {
@@ -51,43 +31,26 @@ class mwNetgame
 
    mwStateHistory mStateHistory[8];
 
-   struct packet_buffer packet_buffers[200];
-   void init_packet_buffer(void);
-
    char packetbuffer[1024];
    int packetsize;
    int packetpos;
    void set_packetpos(int pos);
    int get_packetpos(void);
+
    void Packet(const char *id);
    int PacketRead(const char *id);
 
-   void PacketAddByte(char b);
-   char PacketGetByte(void);
-
-   void PacketAddString(char*);
-   void PacketReadString(char*);
-
-   void PacketPutInt1(int b);
-   void PacketPutInt2(int b);
-   void PacketPutInt4(int d);
-   int PacketGetInt1(void);
-   int PacketGetInt2(void);
-   int PacketGetInt4(void);
-
    void PacketPutDouble(double);
    double PacketGetDouble(void);
-
-
 
    // debug testing of sending more packets
    int srv_exp_num = 0;
    int srv_exp_siz = 0;
 
-
-
    int ima_server = 0;
    int ima_client = 0;
+   int remote_join_reply = 0;
+
    char m_serveraddress[256] = "192.168.1.2";
    int TCP = 0;
    int zlib_cmp = 7;
@@ -97,13 +60,7 @@ class mwNetgame
    float client_chase_offset_auto_offset;
    int client_chase_offset_mode; // 0 = manual, 1 = auto, 2 = server
 
-
-//   // server stdf frequency
-//   int server_state_freq = 1;
-//   int server_state_freq_mode = 0; // 0 = manual, 1 = auto
-
    int server_dirty_frame = 0;
-
 
    // local client's buffer for building compressed dif from packets
    char client_state_buffer[STATE_SIZE];
@@ -129,22 +86,9 @@ class mwNetgame
    float tmaj_i;
 
 
-   void client_send_cjrc_packet(void);
-
-//   void client_send_rctl_packet(int s1_adj, float co_adj, int zl_adj, int epn_adj, int eps_adj, int server_reload);
-
-   void client_send_rctl_packet(int type, double val);
 
 
 
-   void client_process_snfo_packets(void);
-
-
-
-
-
-   void client_read_packet_buffer(void);
-   void client_fast_packet_loop(void);
    int  ClientInitNetwork(const char *serveraddress);
    void ClientExitNetwork(void);
    int  ClientCheckResponse(void);
@@ -154,15 +98,26 @@ class mwNetgame
    int  client_init_join(void);
    void client_exit(void);
    int  client_init(void);
-   void client_process_sjon_packet(void);
    void client_read_game_move_from_packet(int x);
    void client_send_ping(void);
    void client_timer_adjust(void);
-   void client_process_stdf_packet(double timestamp);
    void client_apply_dif();
    void client_block_until_initial_state_received(void);
-   void client_process_sdat_packet(void);
-   void client_process_serr_packet(void);
+
+
+   void client_send_cjon_packet(void);
+   void client_send_cjrc_packet(void);
+   void client_send_rctl_packet(int type, double val);
+   void client_send_stak(int ack_frame);
+   void client_send_cdat(int p);
+
+   void client_proc_pong_packet(int i);
+
+   void client_process_sjon_packet(int i);
+   void client_process_stdf_packet(int i);
+   void client_process_sjrc_packet(int i);
+   void client_process_snfo_packet(int i);
+
    void client_proc_player_drop(void);
    void client_control(void);
    void client_local_control(int p);
@@ -179,7 +134,6 @@ class mwNetgame
 
 
 
-   void server_send_snfo(void);
 
    void server_reload(int level);
 
@@ -192,25 +146,35 @@ class mwNetgame
    void server_flush(void);
    int  server_init(void);
    void server_exit(void);
+
+
+   void headless_server_setup(void);
+
+
    void server_send_compressed_dif(int p, int src, int dst, char * dif);
    void server_send_dif(int frame_num);
    void server_create_new_state(void);
    void show_rewind_states(const char *format, ...);
    void server_rewind(void);
-   void server_send_sdat(void);
    void server_proc_player_drop(void);
-   void server_proc_cdat_packet(double timestamp);
    void server_lock_client(int p);
-   void client_send_stak(int ack_frame);
-   void server_proc_stak_packet(double timestamp);
-   void server_proc_cjon_packet(int who);
 
-   void server_proc_rctl_packet(void);
+   void server_send_snfo_packet(void);
+   void server_send_sjon_packet(int who, int level, int frame, int player_num, int player_color);
+   void server_send_sjrc_packet(int who);
+
+
+   void server_proc_ping_packet(int i);
+   void server_proc_pang_packet(int i);
+
+   void server_proc_cdat_packet(int i);
+   void server_proc_stak_packet(int i);
+   void server_proc_cjon_packet(int i);
+   void server_proc_cjrc_packet(int i);
+   void server_proc_rctl_packet(int i);
 
    void server_control();
    int get_player_num_from_who(int who);
-   void server_fast_packet_loop(void);
-   void server_read_packet_buffer(void);
 
 };
 extern mwNetgame mNetgame;

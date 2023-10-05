@@ -6,6 +6,13 @@
 
 mwRollingAverage mRollingAverage[4];
 
+
+
+//mwRollingAverage mRollingAverage[4];
+
+
+
+
 mwRollingAverage::mwRollingAverage()
 {
    initialize(8);

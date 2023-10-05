@@ -8,7 +8,6 @@
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
-#include "mwTimeStamp.h"
 #include "mwColor.h"
 #include "mwInput.h"
 #include "mwEventQueue.h"
@@ -19,9 +18,7 @@
 #include "mwShot.h"
 #include "mwTally.h"
 #include "mwQuickGraph2.h"
-
-
-
+#include "mwPacketBuffer.h"
 
 
 int mwNetgame::ClientInitNetwork(const char *serveraddress)
@@ -63,6 +60,7 @@ int mwNetgame::ClientInitNetwork(const char *serveraddress)
       mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client network (UDP) initialized -- server:[%s]", serveraddress);
       //mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Local address%s", net_getlocaladdress(ServerChannel));
    }
+
 
 
    // Check for reply from server
@@ -182,6 +180,8 @@ void mwNetgame::client_flush(void)
 
 void mwNetgame::ClientExitNetwork(void)
 {
+   mPacketBuffer.stop_packet_threads();
+
    mLog.add_header(LOG_NET, 0, 0, "Shutting down the client network");
    if (TCP)
    {
@@ -210,13 +210,14 @@ int mwNetgame::client_init(void)
     // initialize driver with server address
    if (!ClientInitNetwork(m_serveraddress)) return 0;
 
+   ima_client = 1;
+
+   mPacketBuffer.start_packet_threads();
+
    mRollingAverage[1].initialize(8); // ping rolling average
    mRollingAverage[2].initialize(8); // dsync rolling average
 
-   Packet("cjon");
-   PacketPutInt1(mPlayer.syn[0].color); // requested color
-   PacketAddString(mLoop.local_hostname);
-   ClientSend(packetbuffer, packetsize);
+   client_send_cjon_packet();
 
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client sent join request to server with player color:[%2d]", mPlayer.syn[0].color);
    mLog.add_fw (LOG_NET, 0, 76, 10, "+", "-", "");
@@ -225,27 +226,62 @@ int mwNetgame::client_init(void)
 
 
 
+void mwNetgame::client_send_cjon_packet(void)
+{
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "cjon");
+   mPacketBuffer.PacketPutInt1(data, pos, mPlayer.syn[0].color); // requested color
+   mPacketBuffer.PacketAddString(data, pos, mLoop.local_hostname);
+   mPacketBuffer.add_to_tx_buffer(data, pos, 0);
+}
+
+
 void mwNetgame::client_send_cjrc_packet(void)
 {
-   Packet("cjrc");
-   ClientSend(packetbuffer, packetsize);
+   printf("server remote control setup 53\n");
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "cjrc");
+   mPacketBuffer.add_to_tx_buffer(data, pos, 0);
 }
 
 void mwNetgame::client_send_rctl_packet(int type, double val)
 {
    mLoop.remote_frames_since_last_rctl_sent = 0;
-   Packet("rctl");
-   PacketPutInt4(type);
-   PacketPutDouble(val);
-   ClientSend(packetbuffer, packetsize);
+
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "rctl");
+   mPacketBuffer.PacketPutInt4(data, pos, type);
+   mPacketBuffer.PacketPutDouble(data, pos, val);
+   mPacketBuffer.add_to_tx_buffer(data, pos, 0);
 }
 
-void mwNetgame::client_process_sjon_packet(void)
+
+void mwNetgame::client_process_sjrc_packet(int i)
 {
-   int pl = PacketGetInt2();   // play level
-   int server_sjon_frame_num  =  PacketGetInt4();
-   int p = PacketGetInt1();      // client player number
-   int color = PacketGetInt1();  // client player color
+   remote_join_reply = 1;
+}
+
+
+void mwNetgame::client_proc_pong_packet(int i)
+{
+   double t0 = mPacketBuffer.PacketGetDouble(i);
+   double t1 = mPacketBuffer.PacketGetDouble(i);
+
+   mPacketBuffer.RA[mPlayer.active_local_player].add_data(al_get_time() - t0);
+
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "pang");
+   mPacketBuffer.PacketPutDouble(data, pos, t1);
+   mPacketBuffer.add_to_tx_buffer(data, pos, -1);
+}
+
+
+void mwNetgame::client_process_sjon_packet(int i)
+{
+   int pl                     = mPacketBuffer.PacketGetInt2(i);  // play level
+   int server_sjon_frame_num  = mPacketBuffer.PacketGetInt4(i);  // server join frame number
+   int p                      = mPacketBuffer.PacketGetInt1(i);  // client player number
+   int color                  = mPacketBuffer.PacketGetInt1(i);  // client player color
 
    if (p == 99) // server full, join denied
    {
@@ -263,7 +299,6 @@ void mwNetgame::client_process_sjon_packet(void)
       mPlayer.syn[p].color = color;
       strncpy(mPlayer.loc[0].hostname, m_serveraddress, 16);
       strncpy(mPlayer.loc[p].hostname, mLoop.local_hostname, 16);
-      ima_client = 1;
 
       mLevel.play_level = pl;
 
@@ -285,137 +320,134 @@ void mwNetgame::client_exit(void)
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
    mPlayer.syn[0].active = 1; // local_control
    mPlayer.active_local_player = 0;
-   mConfig.load_config(); // to restore color and other settings
+   mConfig.load_config(); // to restore colors and other settings
 }
 
 void mwNetgame::client_send_ping(void)
 {
-   Packet("ping");
-   PacketPutDouble(al_get_time());
-   ClientSend(packetbuffer, packetsize);
+   char data[1024] = {0};
+   sprintf(data, "ping");
+   int pos = 4;
+   mPacketBuffer.PacketPutDouble(data, pos, al_get_time());
+   mPacketBuffer.add_to_tx_buffer(data, pos, 0);
    // printf("%d ping server\n", mLoop.frame_num);
 }
 
 
-void mwNetgame::client_process_snfo_packets(void)
+void mwNetgame::client_process_snfo_packet(int i)
 {
-   while ((mNetgame.packetsize = mNetgame.ClientReceive(mNetgame.packetbuffer)))
+   if (mLoop.state[1] == 41)
    {
-      if (mNetgame.PacketRead("snfo"))
+      int fn      = mPacketBuffer.PacketGetInt4(i); // frame_num
+      int seq     = mPacketBuffer.PacketGetInt1(i);
+      int max_seq = mPacketBuffer.PacketGetInt1(i);
+      int sb      = mPacketBuffer.PacketGetInt4(i);
+      int sz      = mPacketBuffer.PacketGetInt4(i);
+
+      // printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d\n", seq+1, max_seq, fn, sb, sz);
+
+      // do some checks, because one time i recieved: rx snfo piece [121 of 218] frame:[994] st:1616929891 sz:1180829280
+      int bad_data = 0;
+      if ((max_seq < 1) || (max_seq > 6)) bad_data = 1;
+      if ((seq < 0) || (seq > 6) || (seq > max_seq)) bad_data = 1;
+      if ((sb < 0) || (sb > 5000)) bad_data = 1;
+      if ((sz < 0) || (sz > 1000)) bad_data = 1;
+
+      if (bad_data) printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d  --- Bad Data!\n", seq+1, max_seq, fn, sb, sz);
+      else
       {
-         int fn = PacketGetInt4(); // frame_num
-         int seq = PacketGetInt1();
-         int max_seq = PacketGetInt1();
-         int sb = PacketGetInt4();
-         int sz = PacketGetInt4();
+         //printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d\n", seq+1, max_seq, fn, sb, sz);
 
-         // printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d\n", seq+1, max_seq, fn, sb, sz);
+         memcpy(client_state_buffer + sb, packetbuffer+18, sz);    // put the piece of data in the buffer
+         client_state_buffer_pieces[seq] = fn;                     // mark it with frame_num
 
-         // do some checks, because one time i recieved: rx snfo piece [121 of 218] frame:[994] st:1616929891 sz:1180829280
-         int bad_data = 0;
-         if ((max_seq < 1) || (max_seq > 6)) bad_data = 1;
-         if ((seq < 0) || (seq > 6) || (seq > max_seq)) bad_data = 1;
-         if ((sb < 0) || (sb > 5000)) bad_data = 1;
-         if ((sz < 0) || (sz > 1000)) bad_data = 1;
+         int complete = 1;                                         // did we just get the last packet? (yes by default)
+         for (int i=0; i< max_seq; i++)
+            if (client_state_buffer_pieces[i] != fn) complete = 0; // no, if any piece not at latest frame_num
 
-         if (bad_data) printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d  --- Bad Data!\n", seq+1, max_seq, fn, sb, sz);
-         else
+         if (complete)
          {
-            //printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d\n", seq+1, max_seq, fn, sb, sz);
+            //printf("rx snfo complete - frame:[%d]\n", fn);
+            char dmp[5400];
+            // uncompress
+            uLongf destLen = sizeof(dmp);
+            uncompress((Bytef*)dmp, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
 
-            memcpy(client_state_buffer + sb, packetbuffer+18, sz);    // put the piece of data in the buffer
-            client_state_buffer_pieces[seq] = fn;                     // mark it with frame_num
+            // copy to variables
+            int sz=0, offset=0;
+            sz = sizeof(mPlayer.syn); memcpy(mPlayer.syn, dmp+offset, sz); offset += sz;
+            sz = sizeof(mPlayer.loc); memcpy(mPlayer.loc, dmp+offset, sz); offset += sz;
 
-            int complete = 1;                                         // did we just get the last packet? (yes by default)
-            for (int i=0; i< max_seq; i++)
-               if (client_state_buffer_pieces[i] != fn) complete = 0; // no, if any piece not at latest frame_num
+            // dsync, ping graphs
+            for (int i=1; i<8; i++) // cycle all clients
+               if (mPlayer.syn[i].active)
+               {
+                  mQuickGraph2[1].series[i].active = 1;
+                  mQuickGraph2[1].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[1].add_data(i, mPlayer.loc[i].dsync*1000);
 
-            if (complete)
-            {
-               //printf("rx snfo complete - frame:[%d]\n", fn);
-               char dmp[5400];
-               // uncompress
-               uLongf destLen = sizeof(dmp);
-               uncompress((Bytef*)dmp, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
+                  mQuickGraph2[2].series[i].active = 1;
+                  mQuickGraph2[2].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[2].add_data(i, mPlayer.loc[i].ping*1000);
 
-               // copy to variables
-               int sz=0, offset=0;
-               sz = sizeof(mPlayer.syn); memcpy(mPlayer.syn, dmp+offset, sz); offset += sz;
-               sz = sizeof(mPlayer.loc); memcpy(mPlayer.loc, dmp+offset, sz); offset += sz;
-
-               // dsync, ping graphs
-               for (int i=1; i<8; i++) // cycle all clients
-                  if (mPlayer.syn[i].active)
-                  {
-                     mQuickGraph2[1].series[i].active = 1;
-                     mQuickGraph2[1].series[i].color = mPlayer.syn[i].color;
-                     mQuickGraph2[1].add_data(i, mPlayer.loc[i].dsync*1000);
-
-                     mQuickGraph2[2].series[i].active = 1;
-                     mQuickGraph2[2].series[i].color = mPlayer.syn[i].color;
-                     mQuickGraph2[2].add_data(i, mPlayer.loc[i].ping*1000);
-
-                     mQuickGraph2[3].series[i].active = 1;
-                     mQuickGraph2[3].series[i].color = mPlayer.syn[i].color;
-                     mQuickGraph2[3].add_data(i, mPlayer.loc[i].cmp_dif_size);
+                  mQuickGraph2[3].series[i].active = 1;
+                  mQuickGraph2[3].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[3].add_data(i, mPlayer.loc[i].cmp_dif_size);
 
 
-                     mQuickGraph2[6].series[i].active = 1;
-                     mQuickGraph2[6].series[i].color = mPlayer.syn[i].color;
-                     mQuickGraph2[6].add_data(i, mPlayer.loc[i].client_loc_plr_cor);
+                  mQuickGraph2[6].series[i].active = 1;
+                  mQuickGraph2[6].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[6].add_data(i, mPlayer.loc[i].client_loc_plr_cor);
 
-                     mQuickGraph2[7].series[i].active = 1;
-                     mQuickGraph2[7].series[i].color = mPlayer.syn[i].color;
-                     mQuickGraph2[7].add_data(i, mPlayer.loc[i].client_rmt_plr_cor);
+                  mQuickGraph2[7].series[i].active = 1;
+                  mQuickGraph2[7].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[7].add_data(i, mPlayer.loc[i].client_rmt_plr_cor);
 
-                  }
+               }
 
 
-               for (int i=0; i<8; i++) // cycle all players
-                  if (mPlayer.syn[i].active)
-                  {
-                     mQuickGraph2[0].series[i].active = 1;
-                     mQuickGraph2[0].series[i].color = mPlayer.syn[i].color;
-                     mQuickGraph2[0].add_data(i, mPlayer.loc[i].cpu);
+            for (int i=0; i<8; i++) // cycle all players
+               if (mPlayer.syn[i].active)
+               {
+                  mQuickGraph2[0].series[i].active = 1;
+                  mQuickGraph2[0].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[0].add_data(i, mPlayer.loc[i].cpu);
 
-                     mQuickGraph2[4].series[i].active = 1;
-                     mQuickGraph2[4].series[i].color = mPlayer.syn[i].color;
-                     mQuickGraph2[4].add_data(i, mPlayer.loc[i].tx_bytes_per_tally/1000);
+                  mQuickGraph2[4].series[i].active = 1;
+                  mQuickGraph2[4].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[4].add_data(i, mPlayer.loc[i].tx_bytes_per_tally/1000);
 
-                     mQuickGraph2[5].series[i].active = 1;
-                     mQuickGraph2[5].series[i].color = mPlayer.syn[i].color;
-                     mQuickGraph2[5].add_data(i, mPlayer.loc[i].rewind);
-                  }
-               mQuickGraph2[0].new_entry_pos();
-               mQuickGraph2[1].new_entry_pos();
-               mQuickGraph2[2].new_entry_pos();
-               mQuickGraph2[3].new_entry_pos();
-               mQuickGraph2[4].new_entry_pos();
-               mQuickGraph2[5].new_entry_pos();
-               mQuickGraph2[6].new_entry_pos();
-               mQuickGraph2[7].new_entry_pos();
-            }
+                  mQuickGraph2[5].series[i].active = 1;
+                  mQuickGraph2[5].series[i].color = mPlayer.syn[i].color;
+                  mQuickGraph2[5].add_data(i, mPlayer.loc[i].rewind);
+               }
+            mQuickGraph2[0].new_entry_pos();
+            mQuickGraph2[1].new_entry_pos();
+            mQuickGraph2[2].new_entry_pos();
+            mQuickGraph2[3].new_entry_pos();
+            mQuickGraph2[4].new_entry_pos();
+            mQuickGraph2[5].new_entry_pos();
+            mQuickGraph2[6].new_entry_pos();
+            mQuickGraph2[7].new_entry_pos();
          }
       }
    }
 }
 
-void mwNetgame::client_process_stdf_packet(double timestamp)
+void mwNetgame::client_process_stdf_packet(int i)
 {
-   int p = mPlayer.active_local_player;
-   int src = PacketGetInt4();
-   int dst = PacketGetInt4();
-   int seq = PacketGetInt1();
-   int max_seq = PacketGetInt1();
-   int sb = PacketGetInt4();
-   int sz = PacketGetInt4();
+   int p       = mPlayer.active_local_player;
+   int src     = mPacketBuffer.PacketGetInt4(i);
+   int dst     = mPacketBuffer.PacketGetInt4(i);
+   int seq     = mPacketBuffer.PacketGetInt1(i);
+   int max_seq = mPacketBuffer.PacketGetInt1(i);
+   int sb      = mPacketBuffer.PacketGetInt4(i);
+   int sz      = mPacketBuffer.PacketGetInt4(i);
 
    mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", seq+1, max_seq, src, dst, sb, sz);
-
    mPlayer.loc[p].client_last_stdf_rx_frame_num = mLoop.frame_num;      // client keeps track of last stdf rx'd and quits if too long
+   memcpy(client_state_buffer + sb, mPacketBuffer.rx_buf[i].data+22, sz);   // put the piece of data in the buffer
 
-
-   memcpy(client_state_buffer + sb, packetbuffer+22, sz);     // put the piece of data in the buffer
    client_state_buffer_pieces[seq] = dst;                     // mark it with destination mLoop.frame_num
    int complete = 1;                                          // did we just get the last packet? (yes by default)
    for (int i=0; i< max_seq; i++)
@@ -584,46 +616,40 @@ void mwNetgame::client_apply_dif(void)
    mTally_client_rmt_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_rmt_plr_cor);
 }
 
+void mwNetgame::client_send_cdat(int p)
+{
+   char data[1024] = { 0 };
+   sprintf(data, "cdat");
+   int pos = 4;
+   mPacketBuffer.PacketPutInt1(data, pos, p);
+   mPacketBuffer.PacketPutInt4(data, pos, mLoop.frame_num);
+   mPacketBuffer.PacketPutInt1(data, pos, mPlayer.loc[p].comp_move);
+   mPacketBuffer.add_to_tx_buffer(data, pos, 0);
+}
 
 void mwNetgame::client_send_stak(int ack_frame)
 {
    int p = mPlayer.active_local_player;
-   Packet("stak");
-   PacketPutInt1(p);
-   PacketPutInt4(ack_frame);
-   PacketPutInt4(mLoop.frame_num);
-   PacketPutDouble(mPlayer.loc[p].client_chase_fps);
-   PacketPutDouble(mPlayer.loc[p].dsync_avg);
-   PacketPutInt1(mPlayer.loc[p].rewind);
-   PacketPutDouble(mPlayer.loc[p].client_loc_plr_cor);
-   PacketPutDouble(mPlayer.loc[p].client_rmt_plr_cor);
-   PacketPutDouble(mPlayer.loc[p].cpu);
-
-   ClientSend(packetbuffer, packetsize);
+   char data[1024] = { 0 };
+   sprintf(data, "stak");
+   int pos = 4;
+   mPacketBuffer.PacketPutInt1(data, pos, p);
+   mPacketBuffer.PacketPutInt4(data, pos, ack_frame);
+   mPacketBuffer.PacketPutInt4(data, pos, mLoop.frame_num);
+   mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].client_chase_fps);
+   mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].dsync_avg);
+   mPacketBuffer.PacketPutInt1(data, pos, mPlayer.loc[p].rewind);
+   mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].client_loc_plr_cor);
+   mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].client_rmt_plr_cor);
+   mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].cpu);
+   mPacketBuffer.add_to_tx_buffer(data, pos, 0);
    mLog.addf(LOG_NET_stak, p, "tx stak p:%d ack:[%d] cur:[%d]\n", p, ack_frame, mLoop.frame_num);
 }
 
 
 void mwNetgame::client_timer_adjust(void)
 {
-   // iterate all stdf packets, calc dysnc, then get max dysnc
-   float max_dsync = -1000;
-   int stdf_count = 0;
-
-   // iterate all stdf packets stored in the packet buffer
-   for (int i=0; i<200; i++)
-      if ((packet_buffers[i].active) && (packet_buffers[i].type == 1))
-      {
-         stdf_count++;
-         int dst = 0;
-         memcpy(&dst, packet_buffers[i].data+8, 4);
-
-         // calc dysnc
-         float csync = (float)(dst - mLoop.frame_num) * 0.025;   // crude integer sync based on frame numbers
-         float dsync = al_get_time() - packet_buffers[i].timestamp + csync;  // add time between now and when the packet was received into packet buffer
-
-         if (dsync > max_dsync) max_dsync = dsync;
-      }
+   float max_dsync = mPacketBuffer.get_max_dsync();    // iterate all stdf packets, calc dysnc, then get max dysnc
 
    int p = mPlayer.active_local_player;
    if (max_dsync > -1000)
@@ -632,8 +658,11 @@ void mwNetgame::client_timer_adjust(void)
       mRollingAverage[2].add_data(mPlayer.loc[p].dsync);    // send to rolling average
       mPlayer.loc[p].dsync_avg = mRollingAverage[2].avg;    // get average
 
-      // in mode 2 only - get offset from server
-      if (client_chase_offset_mode == 2) client_chase_offset = mPlayer.syn[0].client_chase_offset;
+      // automatically adjust client_chase_offset based on ping time
+      if (client_chase_offset_mode == 1) client_chase_offset = - mPlayer.loc[p].ping_avg + client_chase_offset_auto_offset;
+
+      // overidden by server
+      if (mPlayer.syn[0].server_force_client_offset) client_chase_offset = mPlayer.syn[0].client_chase_offset;
 
       // set point
       float sp = client_chase_offset;
@@ -706,110 +735,12 @@ void mwNetgame::client_proc_player_drop(void)
 }
 
 
-void mwNetgame::client_fast_packet_loop(void)
-{
-   int p = mPlayer.active_local_player;
-
-   while ((packetsize = ClientReceive(packetbuffer)))
-   {
-      double timestamp = al_get_time();
-
-      if (PacketRead("pong"))
-      {
-         double t0 = PacketGetDouble();
-         double t1 = PacketGetDouble();
-         double t2 = al_get_time();
-
-         Packet("pang");
-         PacketPutDouble(t1);
-         ClientSend(packetbuffer, packetsize);
-
-         mPlayer.loc[p].ping = t2 - t0;
-
-         //printf("%d rx pong [%3.1f ms] - send pang\n", mLoop.frame_num, mPlayer.loc[p].ping * 1000);
-
-         mRollingAverage[1].add_data(mPlayer.loc[p].ping); // send to rolling average
-         mPlayer.loc[p].ping_avg = mRollingAverage[1].avg;
-
-         // adjust client chase offset based on ping time
-         if (client_chase_offset_mode == 1) client_chase_offset = - mPlayer.loc[p].ping_avg + client_chase_offset_auto_offset;
-
-         mLog.addf(LOG_NET_client_ping, p, "ping [%3.2f] avg[%3.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
-         if (mLoop.frame_num) mLog.add_tmrf(LOG_TMR_client_ping, p, "ping:[%5.2f] pavg:[%5.2f]\n", mPlayer.loc[p].ping*1000, mPlayer.loc[p].ping_avg*1000);
-      }
-
-      int type = 0;
-      if (PacketRead("stdf")) type = 1;
-      if (PacketRead("sjon")) type = 2;
-      // printf("type:%d\n", type);
-      if (type)
-      {
-         // find empty
-         int indx = -1;
-         for (int i=0; i<200; i++) if (!packet_buffers[i].active)
-         {
-            indx = i;
-            break;
-         }
-
-
-         if (indx == -1)
-         {
-            mLog.add(LOG_NET, 0, "Packet buffer full!\n");
-            printf("[%d] Packet buffer full!\n", mLoop.frame_num);
-
-            // count types of packets in buffer
-            int stdf_count = 0;
-            int sjon_count = 0;
-            int all_count = 0;
-
-            for (int i=0; i<200; i++)
-               if (!packet_buffers[i].active)
-               {
-                  all_count++;
-                  if (packet_buffers[i].type == 1) stdf_count++;
-                  if (packet_buffers[i].type == 2) sjon_count++;
-               }
-            mLog.addf(LOG_NET, 0, "[%d] stdf\n", stdf_count);
-            mLog.addf(LOG_NET, 0, "[%d] sjon\n", sjon_count);
-            mLog.addf(LOG_NET, 0, "[%d] all\n", all_count);
-
-            printf("[%d] stdf\n", stdf_count);
-            printf("[%d] sjon\n", sjon_count);
-            printf("[%d] all\n", all_count);
-         }
-         else
-         {
-            //printf("%d stored packet:%d size:%d type:%d\n", mLoop.frame_num, i, packetsize, type);
-            packet_buffers[indx].active = 1;
-            packet_buffers[indx].type = type;
-            packet_buffers[indx].timestamp = timestamp;
-            packet_buffers[indx].packetsize = packetsize;
-            memcpy(packet_buffers[indx].data, packetbuffer, 1024);
-         }
-      }
-   }
-}
-
-// process all packets stored in the packet buffer
-void mwNetgame::client_read_packet_buffer(void)
-{
-   for (int i=0; i<200; i++)
-      if (packet_buffers[i].active)
-      {
-         memcpy(packetbuffer, packet_buffers[i].data, 1024);
-         packetsize = packet_buffers[i].packetsize;
-         set_packetpos(4);
-         if (packet_buffers[i].type == 1) client_process_stdf_packet(packet_buffers[i].timestamp);
-         if (packet_buffers[i].type == 2) client_process_sjon_packet();
-         packet_buffers[i].active = 0;
-      }
-}
-
 void mwNetgame::client_control(void)
 {
    client_timer_adjust();
-   client_read_packet_buffer();
+
+   mPacketBuffer.proc_rx_buffer();
+
    client_apply_dif();
    client_proc_player_drop();
    process_bandwidth_counters(mPlayer.active_local_player);

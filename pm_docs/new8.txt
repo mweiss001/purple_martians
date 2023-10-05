@@ -36706,6 +36706,1960 @@ then I can have all three in one settings tab....
 done and removed profiling tab...
 
 
+Can I remove server state freq?
+or at least the auto part?
+mNetgame.server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
+I went ahead and removed all traces....now always 1
+should I make it permanent? yes...
+removed all traces...
+now states are created every frame
+
+
+what about client offset?
+should I let each client choose that automatically? basically same as ping...
+
+should I make remote able to force clients to server offset control?
+when not active, just go back to what they were using before
+
+client offset:
+still has 3 modes
+0 manual
+1 auto (ping -10)
+2 server override
+
+
+I want to make server overide like fakekey...
+make it a part of loc[0]..done
+
+make is so that remote can toggle it...
+
+client cannot set it, only server can
+
+where is it set on client?
+
+2 places places, but would like to change
+
+timer_adjust
+
+client rx pong
+
+now they are both in timer adj
+
+I think I have it all working...test more...
+
+
+
+
+if you are a headless server, you should be in story mode with all levels unlocked
+
+if you are a client, you should have all levels unlocked, but after testing found that it does not error
+
+this is not ideal, but is needed to prevent errors like:
+client cannot enter locked level
+test this...
+server in story mode
+
+server all unlocked
+1 client not all unlocked...
+1 client all unlocked
+both can enter locked and unlocked levels
+locked areas follow server
+locked levels follow local
+
+
+server locked
+1 client not all unlocked...
+1 client all unlocked
+both can enter locked and unlocked levels
+locked areas follow server
+locked levels follow local
+
+
+server in classic mode
+all unlocked
+what happens at level done?
+back to overworld
+but that is because the level was started from overworld
+start from another level
+tried force from rmt...same back to overworld
+tried start level from command line, then goes to next
+
+
+I think that I should always start headless server in story...
+
+make a way to set this and view this from remote? or force story and all unlocked for sh
+
+force story and all unlocked for sh.....done
+make it so that sh always saves logs, simple ones
+made a common sh setup that sets story mode, unlocks all levels and sets logging...
+
+
+what does timestamp class do??
+
+- saves start of frame
+which is then used by cpu, server dsync and server stak_dsync
+these could easily be replaced
+
+used by move enemy to tally move times for each enemy type...
+
+removed all traces of mwTimeStamp
+
+
+
+
+
+testing
+
+level 64 on pmh
+7 clients
+no fakekey
+
+
+fakekey
+390 kbps
+2 packets
+
+
+
+
+
+pings to 25-30
+offset 20
+rcora 3-4
+rwnd 0 1
+
+added nt 10 (20)
+increased pings to 45-50
+offset 45
+game still works great...
+rcora 6-7
+rwnd 0 2
+
+
+added nt 20 (40)
+increased pings to 65-70
+offset 65
+rcora 9-11
+rwnd 0 3
+
+
+added nt 30 (60)
+increased pings to 85-90
+offset 85
+rcora 14-16
+rwnd 0 4
+
+added nt 40 (80)
+increased pings to 100-110
+offset -115
+rcora 17-20
+rwnd 0 5
+
+50
+
+60
+pings 145-155
+rcora 25-35
+rwnd 0 7
+base resets start
+2000 kbps
+
+70 constant base resets
+
+
+0 LAN
+ping 0.1 -0.2
+sync 5
+rcora 1.0 -1.2
+rwnd 0 0
+
+so how do I set offset automatically
+
+ping +5
+
+
+LAN 0 +5
+
+internet 25-30 -20
+
+
+
+offset = 5-ping
+
+
+ping is not very reliable on client
+if client has high cpu time, pings will be altered
+
+its this huge block of time that the main processing takes that affect my packet delivery
+
+fast packet loop helps in that I am rxing packets the entire time I am waiting,
+but that does not help for the huge amount of time I am doing things...
+
+
+20231001
+
+I am looking at threads again.
+
+
+High level view of what I am trying to accomplish.
+
+
+When my program has high 'cpu' this means that the game loop is taking a high percentage of the time available.
+
+The frame fregueny is 40Hz which means each frame has at most 25ms to complete.
+
+If it takes 20ms to complete, I call that 20/25 * 100 = 80%
+
+That means that my packet processing is frozen for 20ms.
+
+Normally this is not an issue, as the data cannot be used until the next frame anyway.
+
+But when I am using these packets for timing, like measuring ping, this delay causes issues.
+
+I had already identified this problem and implemented what I called 'fast_packet_loop'
+
+This ran as fast as the system would let it, as opposed to the main game loop that only ran at 40Hz.
+
+This was effective when my 'cpu' was low, and I had a lot of wait time.
+
+Fast packet loop would run then.
+
+So what I want to do now, is have fast_packet_loop run in its own thread.
+
+It will continually listen for packets.
+
+But then what?
+
+Any variables that it touches will need to be protected by a mutex.
+
+I need to think out what is going to be shared...
+
+
+lets call it fast packet thread
+
+
+
+exclusive use of fpt
+--------------------
+reading packets and putting them in pb
+responding immediately to pings
+recording times
+
+
+shared
+------
+packet buffer
+
+time_vars
+
+
+when ever fpb has a new packets to read:
+- lock pb
+- add packets
+
+if time packets
+lock time_vars
+modify
+unlock time_vars
+
+- unlock pb
+
+
+is libnet thread safe?
+by that I mean if am reading a packet in one thread, and another thread is trying to send, will that cause locks?
+
+could I avoid this by making flt the only place packets are sent also?
+
+this would add complexity, but would prevent race conditions
+
+I could add another packet_buffer or modify the existing one to also queue packets for sending
+
+then when I want to send_packets:
+lock buffer
+add data
+unclock buffer
+
+this could be done without too much fuckery
+make a wrapper function to do that
+
+
+to start with, I should make sure that there are no reads outside of fast packet loop
+
+int ClientReceive(void *data);
+client_fast_packet_loop
+client_flush
+
+remote_join
+loop 1000
+fixed this to use buffer
+
+process_snfo_packets
+
+
+
+
+int ServerReceive(void *data, int *sender);
+server_fast_packet_loop
+server_flush
+
+
+also I have different fast_packet_loops for client and server, need to make only one
+
+
+made a common funtion to find empty and display error if it cant...
+
+need to make type numbers uniquie for client and server...
+
+
+         if (packet_buffers[i].type == 1) cdat_count++;
+         if (packet_buffers[i].type == 2) stak_count++;
+         if (packet_buffers[i].type == 3) cjon_count++;
+         if (packet_buffers[i].type == 4) cjrc_count++;
+         if (packet_buffers[i].type == 5) rctl_count++;
+
+         if (packet_buffers[i].type == 11) stdf_count++;
+         if (packet_buffers[i].type == 12) sjon_count++;
+         if (packet_buffers[i].type == 13) sjrc_count++;
+         if (packet_buffers[i].type == 14) snfo_count++;
+
+
+done...
+
+
+now what more can I do to make fast_packet_loop commmon for server and client?
+
+I have now made it common...
+
+where is it called from:
+
+mNetgame.client_fast_packet_loop();
+Client Wait For Join
+Client Wait for Initial State
+Remote Control - Waiting for server reply
+main loop outside of 40Hz
+remote control loop
+
+mNetgame.server_fast_packet_loop();
+main loop outside of 40Hz
+
+
+I propose to replace all these calls with:
+
+mNetgame.fast_packet_loop();
+
+do it...done
+
+
+now the next thing might be to make common the read packet buffer calls
+
+mNetgame.client_read_packet_buffer();
+Client Wait For Join
+Client Wait for Initial State
+Remote Control - Waiting for server reply
+remote control loop
+client control
+
+mNetgame.server_read_packet_buffer(void)
+server_control
+
+replace with proc_packet_buffer
+
+done...
+
+now all packet reading is soley done with mNetgame.fast_packet_loop();
+except for server and client flush...
+this is the only way that packets get into packetbuffer
+
+
+now all processing of packets in packetbuffer is done by
+proc_packet_buffer....
+
+except for timer adj that reads all stdf....what aboout that?
+
+
+what is your goal here?
+
+
+make packet buffer have a mutex,
+
+so I can add packets in another thread
+
+and read them in the main thread
+
+then I will make the fast packet loop in its own thread
+
+
+I am thinking of making packet_buffer a class
+
+that might make it easier to control access with mutexes
+
+when reading out...
+- lock
+- read into packetbuffer
+- process
+- unlock
+
+made packet buffer a class...
+
+now I want to do something about timer_adj
+
+
+add this to class
+
+
+   // iterate all stdf packets, calc dysnc, then get max dysnc
+   float max_dsync = -1000;
+   int stdf_count = 0;
+
+
+
+   // iterate all stdf packets stored in the packet buffer
+   for (int i=0; i<200; i++)
+      if ((mPacketBuffer.buf[i].active) && (mPacketBuffer.buf[i].type == 1))
+      {
+         stdf_count++;
+         int dst = 0;
+         memcpy(&dst, mPacketBuffer.buf[i].data+8, 4);
+
+         // calc dysnc
+         float csync = (float)(dst - mLoop.frame_num) * 0.025;   // crude integer sync based on frame numbers
+         float dsync = al_get_time() - mPacketBuffer.buf[i].timestamp + csync;  // add time between now and when the packet was received into packet buffer
+
+         if (dsync > max_dsync) max_dsync = dsync;
+      }
+
+done:
+
+
+
+now, what accesses the values outside the class?
+you know I could make that private...done...nothing does...
+
+what variables does this class touch outside itself?
+
+
+fast:
+mPlayer.loc[p].ping = t2 - t0;                    // calc current ping
+mRollingAverage[1].add_data(mPlayer.loc[p].ping); // send to rolling average
+mPlayer.loc[p].ping_avg = mRollingAverage[1].avg; // get back average
+also LOG
+
+
+I think this is the only part I need to wory about...
+this is the only thing I will be running in another thread
+
+the rolling average should not matter, these are the only 2 calls to it
+
+but what about:
+mPlayer.loc[p].ping
+mPlayer.loc[p].ping_avg
+
+this is the only thing that writes to it, (i think)
+and if other things read it while updating, it should not matter...
+
+so what do I need to lock with a mutex?
+
+fast and read
+
+is that all?
+
+fast will always be in its own thread
+read will always be in main thread...
+
+this means that the read_and_proc will need to be replaced with just read
+
+also when do I start the thread?
+
+after network is initialize?
+
+
+created mutex and guarded fast and read...
+
+now what?
+start thread...
+where do I define and start thread??
+in the same class?
+
+
+I am getting weird crashes...time to look for variable that might be shared...
+
+what can I do about ping?
+
+I can still add to average in the thread, but to put into player vars, I should do elsewhere
+how about in proc?
+
+I have removed the player refs in fast packet loop
+
+added:
+mwRollingAverage RA[8];
+
+these are set in fast like this:
+RA[mPlayer.active_local_player].add_data(al_get_time() - t0);
+
+then added to player in read like this:
+for (int p=0; p<NUM_PLAYERS; p++)
+{
+   mPlayer.loc[p].ping = RA[p].last_input;
+   mPlayer.loc[p].ping_avg = RA[p].avg;
+}
+
+this made no difference, tested without threads and it works fine
+
+
+next I think sending packets might be the culprit
+
+definitely both threads could be sending at the same time....
+
+do I need to make a buffer for transmit, like I did with send?
+make it run in its own thread also?
+
+then make it so that only one can be active at a time?
+
+
+also the way that I process packets from the buffer....
+I copy them back into the packet structure, again this is shared....
+
+first of all, how can I not do that?
+
+use the actual buffer variable??
+
+
+
+
+
+         memcpy(mNetgame.packetbuffer, buf[i].data, 1024);
+         mNetgame.packetsize = buf[i].packetsize;
+         mNetgame.set_packetpos(4);
+         if (mNetgame.ima_server)
+         {
+            if (buf[i].type == 1) mNetgame.server_proc_cdat_packet(buf[i].timestamp);
+            if (buf[i].type == 2) mNetgame.server_proc_stak_packet(buf[i].timestamp);
+            if (buf[i].type == 3) mNetgame.server_proc_cjon_packet(buf[i].who);
+            if (buf[i].type == 4) mNetgame.server_proc_cjrc_packet(buf[i].who);
+            if (buf[i].type == 5) mNetgame.server_proc_rctl_packet();
+         }
+         if (mNetgame.ima_client)
+         {
+            if (buf[i].type == 11) mNetgame.client_process_stdf_packet(buf[i].timestamp);
+            if (buf[i].type == 12) mNetgame.client_process_sjon_packet();
+            if (buf[i].type == 13) mNetgame.client_process_sjrc_packet();
+            if (buf[i].type == 14) mNetgame.client_process_snfo_packet();
+         }
+         buf[i].active = 0;
+
+
+
+
+
+
+I have redone all of the read functions
+
+old:
+
+   char PacketGetByte(void);
+   void PacketReadString(char*);
+   int PacketGetInt1(void);
+   int PacketGetInt2(void);
+   int PacketGetInt4(void);
+   double PacketGetDouble(void);
+
+new:
+   char PacketGetByte(int i);
+   void PacketReadString(int i, char* s);
+   double PacketGetDouble(int i);
+   int PacketGetInt4(int i);
+   int PacketGetInt2(int i);
+   int PacketGetInt1(int i);
+
+now they are members in mwPacketBuffer and work with that data...
+
+changed all....
+
+
+now that means that when I read from packet buffer, I do not need any shared data from mNetgame...
+
+do I need to go further and make my sending packet buffer?
+
+
+maybe I should just test it first...
+
+works good as is
+
+now enable thread:
+
+still has issues
+
+
+what is next?
+
+tx packet buffer
+
+with its own buffer and thread?
+also with priority!!
+
+
+build packet
+lock
+add packet
+unlock
+
+send packet thread
+if any packets to send:
+lock
+send all packets in priority order
+unlock
+
+
+
+
+I am going to rename some things
+
+
+void proc_rx_buffer(void);
+// called in main program to process and empty the rx packet buffer
+
+void add_to_rx_buffer(void);
+// called in spearate thread to add any waiting packets to the rx packet buffer
+
+rx_buf
+
+
+i gave them their own mutexes, but do i need that?
+
+shouldn't they use the same mutex?
+
+I am also trying to make only one thing use netgame at a time
+
+when I add stuff to the tx_buffer I am not using netgame...
+
+
+I do not need to use packetbuffer at all to send
+
+void mwNetgame::ClientSend(void *data, int len)
+
+I am using tx_mutex to prevent both read and write from tx_buff at the same time
+
+OK,,,
+
+now I need to build packets on a temp variable
+
+this works so well with the tx packet buffer, I am going to remove the old method permanently
+
+now what?
+
+
+server rmt is broken
+
+I am sure I broke the bandwidth counters
+
+see is I can remove more manual packet sending
+
+check out ping
+
+do timing of how long i spend with mutex locks
+
+
+add timestamp to rx buffer to see how long it takes from packet rx to packet proc
+same for tx
+
+resuse existing timestamp, already set when added
+
+
+when proc_rx buffer at start on client or server code the delay can be up to 20ms
+
+when proc_rx buffer immediately it is typically 1-5 us
+
+longer delays occur when there are multiple packets in the buffer
+like when sending base from zero
+
+I think I should use it for ping as well, and modify it so that pings are always processed first
+
+I will need to give ping a number
+
+
+no prioritize my rx proc and tx send loops to do pings first
+
+add to tx buffer
+
+modify to also add type int so I can prioritize
+
+should I make defines for all the packet types and just send as an int?
+
+
+
+20231003
+
+I just realized...my function, get_max_dsync relies on there being stdf packets in the buffer, and relies on reading them once per frame
+I will need to rethink this...
+
+
+what if I process rx ping packets in the buffer instantly, but all others once per frame?
+
+
+I am thinking about building the state buffer from packets and how the packets might arrive out of order
+
+maybe I could do that differently...
+
+in the rx buffer only:
+- by default keep all stdf pieces
+- do not autamatically put them in the buffer
+- once per frame:
+- find the max dst of any that are complete, just by comparing dst, seq, and max
+decode and apply that
+erase any older pieces
+
+
+
+I am trying to profile the times but it is not as simple as it seems...
+with multiple threads and blocking mutexs...
+
+
+I need some profile timers that add up over the course of the frame...
+
+could I use Tally?
+
+I have found that proc_rx_buffer is called almost 100,000 times per frame and can take 20ms to 40ms
+but this is run in its own thread...
+
+more importantly, does this cause any blocking when I try to call it from main thread?
+
+i want to measure that too...
+
+Ok I seem to be able to measure things...
+
+can I add something to packet buffer class to let me know if I have any packets in the buffer?
+
+I am thinking of not even getting the lock if there are no packets
+
+
+rx_buf_has_packets
+rx_buf_has_ping_packets
+
+these could be set whenever adding a packet
+
+then when packet processing occurs they could be tested and cleared when done
+
+this is getting complex, maybe too much so
+
+all I want if for ping to immediate get processed and send a reply
+
+but then to do something different for other packets?  why?
+
+
+do i think stdf will break?
+
+do I need timing from stdf packets...
+
+i should:
+- fix the timing from stdf packets
+- try processing all packets immed
+- fix the blocking that this creates (maybe by only processing from other thread it won't)
+
+I think this will not work...processing stdf from the other thread will cause race issues...
+
+just process pings and send replies instantly, dont put in queue at all...
+
+kind of like how it used to be...
+
+
+
+
+
+I reverted a lot of this all back to the original....
+
+rx packets buffer is emptied once per frame
+
+ping packets are processed immediately instead of being added to buffer
+I use a temp buffer 199 to pass packets for immediate processing
+
+
+it works but still takes a lot of cpu
+
+profile again...
+
+client takes a lot of cpu
+
+
+removed PT and add_rx takes 9 ms
+but add rx does not take up main cpu time....it runs in another thread
+main cpu thread takes 3-4ms
+add_rx is called 10K times per frame on e6430 and 25k times per frame on m36
+
+try adding a delay in the thread...thread is not running this, I am in the the main thread
+
+OK, ignoring that for now, lets measure proc_rx_buffer
+I think it might be blocked??
+
+proc_rx_buffer never takes more than 1ms
+
+what is cauing cpu spikes?
+
+add_rx_buf is going to 30ms but should be in own thread...
+
+on task manager all cpus go high
+
+try limit in thread
+
+al_rest(0.001) (1ms) about 20 calls per frame
+
+al_rest(0.0001) (.1ms) runs wide open
+
+compare this to running in main loop...
+
+
+
+
+main loop
+------------
+game cpu 2-3
+
+task manager cpu 27%
+cpu1 80
+cpu2 0
+cpu3 0
+cpu4 20
+
+calls to rx buf
+10K
+total 9ms
+avg .8us
+
+
+
+
+thread
+----------
+game cpu 5-10ms
+
+
+task manager cpu 74%
+cpu1 80
+cpu2 80
+cpu3 70
+cpu4 80
+
+calls to rx buf
+10-20K
+total 12-25ms
+avg 1.2 ms
+
+
+test adding rx_buf_has_packets..not much different
+
+
+main loop
+------------
+game cpu 2-4
+
+task manager cpu 26-28%
+cpu1 80
+cpu2 0
+cpu3 0
+cpu4 20
+
+calls to rx buf
+11K
+total 9ms
+avg .8us
+
+
+
+thread
+----------
+game cpu 4-6ms spike 10
+
+task manager cpu 75%
+cpu1 95
+cpu2 75
+cpu3 75
+cpu4 72
+
+calls to rx buf
+10-20K
+total 12-25ms
+avg 1.2 ms
+
+
+
+I don't want to use so much cpu...
+
+test with thread throttle to 1ms
+
+
+
+
+thread (1ms)
+----------
+game cpu 5-8 ms spike 18
+
+task manager cpu 50%
+cpu1 60
+cpu2 60
+cpu3 60
+cpu4 0
+
+calls to rx buf
+~20
+total .1 to .6ms
+avg 4-20 us
+
+
+
+stuff got a lot better, but not game cpu
+
+test throttling tx thread also
+
+
+thread (both 1ms)
+
+game cpu 2-4 ms spike 5
+
+task manager cpu 27%
+cpu1 60 (50-80)
+cpu2 0
+cpu3 30-40
+cpu4 0
+
+calls to rx buf
+~20
+total .1 to .6ms
+avg 4-20 us
+
+
+this seems to do a lot better
+
+but I am running my fast packet threads at 1ms
+because that is the best I can do with the timer I have
+
+
+I don't even know how reliable that is across platforms
+
+I suppose I could test it....
+
+
+I want to try a timer...
+done
+
+timer can do .5ms
+
+try .1 ms
+looks like that works also...
+
+
+but it seems to take a lot of cpu in task manager
+
+
+
+
+thread with timer(1ms)
+
+game cpu 3-5 ms spike 10
+
+task manager cpu 98%
+cpu1 100
+cpu2 95
+cpu3 95
+cpu4 95
+
+calls to rx buf
+~18
+total .1ms
+avg 4-6 us
+
+
+
+
+
+
+
+
+
+
+
+thread with timer( .1ms)
+
+game cpu 3-5 ms spike 10
+
+task manager cpu 98%
+cpu1 100
+cpu2 100
+cpu3 95
+cpu4 95
+
+calls to rx buf
+~150
+total .3ms
+avg 1-2 us
+
+
+
+
+
+
+
+
+I was able to reduce the ammount of time spent in the rx_buffer in two ways:
+
+I could put al_rest in the thread, or I could use an al_timer_event to set a variable
+
+both cases seemed to solve some problems,
+the problem of the thread getting executed so many times that:
+- the mutex was usually locked
+- cpu usage for that thread was high
+
+but this method caused the task manager cpu to almost peak..
+
+after doing some more research, this naive method is called spin-locking, or busy-locking and is a waste of resources
+
+
+I think what I want to use it a thread condition.....
+
+kind of like what I was starting to implement with:
+int rx_buf_has_packets = 0;
+
+
+ALLEGRO_COND *al_create_cond(void)
+
+
+I need to wait for something before allowing add_to_rx to continue
+
+what is that something and how often do I check for that?
+
+is this a chicken and egg thing?
+
+how do I check without locking something?
+
+
+maybe I don't have the problem fully defined
+
+
+I only want to wait when receiving packets
+
+
+net_query
+Prototype
+int net_query(CHANNEL *channel);
+Purpose
+This function checks to see if there is data waiting to be read from the channel.
+
+Parameters
+channel is the channel to query.
+
+Return value
+Returns nonzero if data is waiting, zero if not.
+
+Example
+if (net_query (chan)) get_data(chan);
+
+how would I use this?
+
+do this as a test in the outermost loop
+
+
+lets try to use it for UDP client rx..
+
+client:
+len = net_receive(ServerChannel, data, 1024, NULL);
+
+
+for (int n=0; n<ClientNum; n++)
+   if (ClientChannel[n])
+      len = net_receive(ClientChannel[n], data, 1024, NULL);
+
+
+so I am thinking of doing this in a very fast loop
+
+int data_waiting = 0;
+
+if ((ima_client) && (net_query(ServerChannel)) data_waiting = 1;
+
+if (ima_server)
+   for (int n=0; n<ClientNum; n++)
+      if ((ClientChannel[n]) && (net_query(ClientChannel[n]))) data_waiting = 1;
+
+
+but then what?
+
+set the flag?
+
+I don't think I am getting any better here
+
+I don't want to check as fast as the processor will let me.
+
+I just want a way of timing the calls without wasting time...
+
+I don't think that this condition variable will do what I want, I will still spin lock checking that....
+
+
+
+
+
+
+
+Using very short allegro timers in separate thread and getting lots of cpu usage in task manager.
+
+
+I am trying to use an allegro timer to control how often I check for packets in a thread dedicated just to checking for and reading packets into a buffer.
+
+It works as expected, but takes up almost 100% cpu for all 4 cores (I'm looking in windows task manager)
+
+
+
+
+
+
+The whole reason I started this....
+
+I used to check for packets once per frame (in my case 25ms)
+This was/is fine for game state info, as I can't really use it any earlier anyway.
+
+
+But I also send packets that I use to control the timing relationship between the master and the clients.
+These packets I want to receive and process immediately, not wait until the end of the 25ms game loop.
+
+So what I did was to continually look for and process packets in the wait time at the end of every frame.
+This improved the accuracy of timing when I received the packets.
+
+loop()
+{
+   if (game_loop_event_timer)
+   {
+      get input
+      move
+      draw
+   }
+
+   fast_packet_proc()
+
+}
+
+
+But there was still a problem.
+
+When the time it takes to process and draw a frame increases, the wait time at the end of the frame decreases.
+And that is the only time I was checking for new packets.
+If it took 20ms to process a frame, I only had 5ms left to recieve packets.
+And then my timing was considerably less accurate.
+
+
+
+
+So I looked into and implemented a separate thread to look for and process packets.
+If it is a timing packet, it is processed immediately.
+Otherwise is is added to a buffer and processed at the start of the next frame.
+
+
+
+
+That worked, but I am having some issues about timing.
+
+Initially the thread ran as fast as it could:
+
+void *mwPacketBuffer::rx_thread_func(ALLEGRO_THREAD *thr, void *arg)
+{
+   mPacketBuffer.add_to_rx_buffer();
+}
+
+Sometimes it would run 10,000 times per frame!
+Besides the wasted time and resources, it also ran so fast, it barely left any time the mutex's were unlocked.
+
+
+
+So I experimented with ways to throttle it down to a more reasonable time
+
+Instead of 10,000 times per frame, I would be happy if it only ran 250 times
+That way I could measure time to .1ms or 100us
+
+Initially I just simply tried al_rest()
+
+Then I tried using a timer.
+
+
+thr_timer = al_create_timer(0.0001);    // .1ms
+al_register_event_source(event_queue, al_get_timer_event_source(thr_timer));
+al_start_timer(thr_timer);
+if (ev.timer.source == thr_timer) thr_proc = 1;
+
+void *mwPacketBuffer::rx_thread_func(ALLEGRO_THREAD *thr, void *arg)
+{
+   while (1)
+   {
+//      al_rest(0.001);
+//      mPacketBuffer.add_to_rx_buffer();
+
+      if (mEventQueue.thr_proc)
+      {
+         mPacketBuffer.add_to_rx_buffer();
+         mEventQueue.thr_proc = 0;
+      }
+   }
+}
+
+
+It seems to work and my game seems to runs fine, but in windows task manager all four cores peg out at nearly 100%
+
+Is this normal for allegro timers?
+Am I using them wrong?
+Is it because the timer interval is so small? (100us)
+
+I really want to find a way to limit the thread from running wide open at 10,000 iterations per frame, that also doesn't take up so much cpu time.
+
+Also any other advice or pointers would be greatly appreciated!
+
+I am really new to threads, this is the first time I have actually used them for something other than simple example programs.
+
+
+
+
+
+-----------------------------
+
+
+tx buffer...
+
+that could benefit from the tx_buf_empty
+
+
+I don't even know why I am bothering with a tx buffer?
+
+why don't I just send immediatley?
+
+I used to do that...
+
+what possible benefit could I have from enqueing?
+
+
+
+I now send packets immediately
+
+I am having weird issues with seconf client joining, or is it just 4230?
+
+just 4230...sync is funny
+
+
+that comes from stdf packets, does it not??
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+why does client always crash when quitting in thread mode?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+another big question?
+
+why do I wait until the start of the frame to proccess rxed packets?
+
+what would happen if I processed them as I got them?
+
+like, why do I even bother with putting them in a buffer?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

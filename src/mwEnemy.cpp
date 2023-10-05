@@ -5,7 +5,6 @@
 #include "mwLog.h"
 #include "mwPlayer.h"
 #include "mwDisplay.h"
-#include "mwTimeStamp.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
@@ -249,7 +248,7 @@ void mwEnemy::proc_enemy_collision_with_pshot(int e)
 
 void mwEnemy::move_enemies()
 {
-   mTimeStamp.init_timestamps();
+   double tmr_tally[100][2] = {0};
 
    num_enemy = 0; // count enemies
    for (int e=0; e<100; e++)
@@ -292,35 +291,21 @@ void mwEnemy::move_enemies()
             case 19:  move_crew(e);  break;
             case 99: enemy_deathcount(e); break;
          }
-         mTimeStamp.add_timestamp(103, e, Ei[e][0], al_get_time()-t0, 0);
+         tmr_tally[Ei[e][0]][0]++;
+         tmr_tally[Ei[e][0]][1]+= al_get_time()-t0;
       }
 
-   // tally up all the times for each enemy type
-   double tmr_tally[100][3] = {0};
-   for (int i=0; i<10000; i++)
-      if (mTimeStamp.timestamps[i].type == 103)
-      {
-         tmr_tally[mTimeStamp.timestamps[i].frame2][0] +=1;                 // add to number of this type tally
-         tmr_tally[mTimeStamp.timestamps[i].frame2][1] += mTimeStamp.timestamps[i].t1; // add to time tally
-      }
 
    // build log entry
-   mLog.add_tmr(LOG_TMR_move_enem, 0, "");
-   for (int i=0; i<100; i++)
-      if (tmr_tally[i][1] > 0)
-         mLog.appf(LOG_TMR_move_enem, "m-%s:[%0.4f] ", enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000000);
-   mLog.app(LOG_TMR_move_enem, "\n");
-
-
-//   // build log entry
-//   char t[512] = {0};
-//   for (int i=0; i<100; i++)
-//      if (tmr_tally[i][1] > 0)
-//         sprintf(t, "%sm-%s:[%0.4f] ", t, enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000000);
-//   mLog.add_tmrf(LOG_TMR_move_enem, 0, "%s\n", t);
-
-
-
+   if (LOG_TMR_move_enem)
+   {
+      mLog.add_tmr(LOG_TMR_move_enem, 0, "");
+      for (int i=0; i<100; i++)
+         if (tmr_tally[i][1] > 0)
+//            mLog.appf(LOG_TMR_move_enem, "m-%s:[%0.4f] ", enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000); // average time for one enemy in each type
+            mLog.appf(LOG_TMR_move_enem, "m-%s:[%0.4f] ", enemy_name[i][1], tmr_tally[i][1]*1000); // total time per enemy type
+      mLog.app(LOG_TMR_move_enem, "\n");
+   }
 }
 
 

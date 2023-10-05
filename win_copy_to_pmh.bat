@@ -228,7 +228,7 @@ echo Copy data with scp
 echo.
 
 REM dir must exist before copy 
-set cmd8=pscp -pw zaiden c:\pm\data\* %scp_dest%/data
+set cmd8=pscp -pw zaiden c:\pm\data\*.pm %scp_dest%/data
 
 echo %cmd8%
 %cmd8%

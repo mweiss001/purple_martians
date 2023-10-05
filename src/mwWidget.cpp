@@ -1293,6 +1293,9 @@ int mwWidget::buttontca(int xc, int &y1, int xd, int bts, int bn, int num, int t
    return ret;
 }
 
+
+
+
 // no faded frame, just a simple frame that highlights when moused over
 // displays a text string, and returns 1 if pressed
 // auto width based on text length

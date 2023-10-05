@@ -7,7 +7,6 @@
 #include <limits>
 #include "mwFont.h"
 #include "mwLift.h"
-#include "mwTimeStamp.h"
 #include "mwColor.h"
 #include "mwLoop.h"
 #include "mwItem.h"

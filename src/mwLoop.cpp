@@ -16,7 +16,6 @@
 #include "mwBottomMessage.h"
 #include "mwDemoMode.h"
 #include "mwDisplay.h"
-#include "mwTimeStamp.h"
 #include "mwFont.h"
 #include "mwLift.h"
 #include "mwVisualLevel.h"
@@ -43,6 +42,10 @@
 
 
 #include "mwWidget.h"
+
+#include "mwPacketBuffer.h"
+
+
 
 
 mwLoop mLoop;
@@ -480,18 +483,9 @@ void mwLoop::proc_program_state(void)
          state[0] = 25;
          return;
       }
-
       initialize_graphs();
-
-
       for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
-
       mPlayer.syn[0].active = 1;
-
-
-
-
-
       state[0] = 23;
    }
 
@@ -501,8 +495,7 @@ void mwLoop::proc_program_state(void)
    if (state[1] == 23)
    {
       mLog.add(LOG_OTH_program_state, 0, "[State 23 - Client Wait For Join]\n");
-      mNetgame.client_fast_packet_loop();
-      mNetgame.client_read_packet_buffer();
+      mPacketBuffer.rx_and_proc();
       if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) state[0] = 25; // give them an escape option
    }
 
@@ -536,7 +529,6 @@ void mwLoop::proc_program_state(void)
 
       mScreen.player_text_overlay_timer = 0;
       mSound.start_music(0);
-      mTimeStamp.init_timestamps();
       state[0] = 21;
    }
 
@@ -551,8 +543,8 @@ void mwLoop::proc_program_state(void)
       al_flip_display();
       if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) state[0] = 25;
 
-      mNetgame.client_fast_packet_loop();
-      mNetgame.client_read_packet_buffer();
+      mPacketBuffer.rx_and_proc();
+
       mNetgame.client_apply_dif();
 
       if (frame_num > 0)
@@ -616,7 +608,6 @@ void mwLoop::proc_program_state(void)
       mScreen.player_text_overlay_timer = 0;
 
       mSound.start_music(0); // rewind and start theme
-      mTimeStamp.init_timestamps();
       state[0] = 11;
 
    }
@@ -702,34 +693,13 @@ void mwLoop::proc_program_state(void)
    if (state[1] == 10)
    {
       mLog.add(LOG_OTH_program_state, 0, "[State 10 - Single Player New Game]\n");
-
       initialize_graphs();
-
       if (!mMain.classic_mode) mLevel.start_level = mLevel.play_level = 1;
-
       if (load_and_setup_level_load(mLevel.play_level)) state[0] = 11;
       else state[0] = 1;
-
       if (quit_action == 0) mScreen.transition_cutscene(0, 1); // nothing to game
       if (quit_action == 1) mScreen.transition_cutscene(2, 1); // menu to game
    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -749,13 +719,18 @@ void mwLoop::proc_program_state(void)
 
       mLog.add_headerf(LOG_NET, 0, 1, "NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level);
 
-      if (mNetgame.ima_client) mLog.log_ending_stats_client(LOG_NET_ending_stats, mPlayer.active_local_player);
+      if (mNetgame.ima_client)
+      {
+         mNetgame.client_flush();
+         mLog.log_ending_stats_client(LOG_NET_ending_stats, mPlayer.active_local_player);
+      }
 
-      if (mNetgame.ima_server) mLog.log_ending_stats_server(LOG_NET_ending_stats);
+      if (mNetgame.ima_server)
+      {
+         mNetgame.server_flush();
+         mLog.log_ending_stats_server(LOG_NET_ending_stats);
+      }
 
-      if (mNetgame.ima_server) mNetgame.server_flush();
-
-      if (mNetgame.ima_client) mNetgame.client_flush();
 
       if (mLog.autosave_log_on_level_done) mLog.save_log_file();
       mGameMoves.blind_save_game_moves(1);
@@ -1020,7 +995,16 @@ void mwLoop::proc_program_state(void)
          return;
       }
 
+
+      printf("server remote control setup 2\n");
+
+
+      mNetgame.ima_client = 1;
+
       mNetgame.client_send_cjrc_packet();
+
+      printf("server remote control setup 3\n");
+
 
       // wait for reply
       int reply = 0;
@@ -1041,11 +1025,9 @@ void mwLoop::proc_program_state(void)
             state[0] = 0;
             reply = -1;
          }
+         mPacketBuffer.rx_and_proc();
 
-         while ((mNetgame.packetsize = mNetgame.ClientReceive(mNetgame.packetbuffer)))
-         {
-            if (mNetgame.PacketRead("sjrc")) reply = 1;
-         }
+         if (mNetgame.remote_join_reply) reply = 1;
       }
 
       if (reply == 1)
@@ -1151,7 +1133,6 @@ void mwLoop::setup_common_after_level_load(void)
    mShot.clear_shots();
    frame_num = 0;
    mScreen.player_text_overlay_timer = 0;
-   mTimeStamp.init_timestamps();
    mSound.start_music(0); // rewind and start theme
    state[0] = 11;
 
@@ -1428,7 +1409,7 @@ void mwLoop::initialize_and_resize_remote_graphs(void)
 {
    // width and x position are based soley on screen width
    int width = remote_graphs_width;
-   int gx = 20;
+   int gx = 4;
 
    // each graph has a suggested height, this will only be used to scale them relative to each other
    mQuickGraph2[0].set_size(width, 100,  0);
@@ -1439,6 +1420,10 @@ void mwLoop::initialize_and_resize_remote_graphs(void)
    mQuickGraph2[5].set_size(width, 40,  0);
    mQuickGraph2[6].set_size(width, 100, 0);
    mQuickGraph2[7].set_size(width, 100, 0);
+
+
+   mQuickGraph2[9].set_size(200, 30, 1);
+
 
    // iterate all and tally graph height and space between them
    float gs=0; // graph space
@@ -1543,8 +1528,19 @@ void mwLoop::main_loop(void)
       // ----------------------------------------------------------
       // process fast packet loops
       // ----------------------------------------------------------
-      if (mNetgame.ima_server) mNetgame.server_fast_packet_loop();
-      if (mNetgame.ima_client) mNetgame.client_fast_packet_loop();
+
+
+      // run here if not running in their own threads
+      if (!mPacketBuffer.PT)
+      {
+         if ((mNetgame.ima_server) || (mNetgame.ima_client))
+         {
+            mPacketBuffer.add_to_rx_buffer();
+//            mPacketBuffer.send_tx_buffer();
+         }
+      }
+
+
 
       if (super_fast_mode) mEventQueue.program_update = 1; // temp testing as fast as it can go
 
@@ -1568,7 +1564,7 @@ void mwLoop::main_loop(void)
          {
             double t0 = al_get_time();
 
-            mNetgame.client_process_snfo_packets();
+            mPacketBuffer.rx_and_proc();
 
             int fn = mPlayer.loc[0].srv_frame_num; // set frame number from last snfo packet update
 
@@ -1584,15 +1580,14 @@ void mwLoop::main_loop(void)
 
             int cx = 10, cy = 10;
 
-//            static int wd;
-//            wd++;
-//            al_draw_textf(mFont.pr8, mColor.pc[13], cx, cy, 0, "Server Remote Control   %d %d ", wd, remote_frames_since_last_rctl_sent); cy+=20;
 
 
-            al_draw_textf(mFont.pr8, mColor.pc[13], cx, cy, 0, "Server Remote Control"); cy+=20;
-            al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "Level:[%d] - Time:[%s] - Frame:[%d] - Moves:[%d]", mPlayer.loc[0].srv_level, mItem.chrms(fn, msg), fn, mPlayer.loc[0].srv_total_game_moves); cy+=30;
+//            al_draw_textf(mFont.pr8, mColor.pc[13], cx, cy, 0, "Server Remote Control"); cy+=20;
+//            al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "Level:[%d] - Time:[%s] - Frame:[%d] - Moves:[%d]", mPlayer.loc[0].srv_level, mItem.chrms(fn, msg), fn, mPlayer.loc[0].srv_total_game_moves); cy+=30;
 
 
+            al_draw_textf(mFont.pr8, mColor.pc[13], cx, cy, 0, "Server Remote Control ");
+            al_draw_textf(mFont.pr8, mColor.pc[15], cx+180, cy, 0, "Level:[%d] - Time:[%s] - Frame:[%d] - Moves:[%d]", mPlayer.loc[0].srv_level, mItem.chrms(fn, msg), fn, mPlayer.loc[0].srv_total_game_moves); cy+=20;
 
 
 
@@ -1655,199 +1650,128 @@ void mwLoop::main_loop(void)
                initialize_and_resize_remote_graphs();
             }
 
-
-
-
             al_set_target_backbuffer(mDisplay.display);
 
+            cy+=78;
 
 
+            // -------------------------------------------
+            // first column
+            // -------------------------------------------
             cx = 10;
-            cy+=90;
-
             int rcy = cy; // remember cy
+
+
+
+
+
             int cs = 16; // control spacing
             int btw = 12, bth = 12; // button size
             int btc = 15+96; // button color
 
-            int b1x = 10;
-            int tx  = 40;
-            int b2x = 60;
+            int b1x = cx+2;
+            int tx  = cx+32;
+            int b2x = cx+52;
 
 
-//            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_state_freq_adj, -1);
-//            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_stdf_freq);
-//            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_state_freq_adj, 1);
-//            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "State Frequency");
-//            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
-
+            int gfc = 10; // group frame color
+            if (mWidget.togglec(cx, cy, cx+200, 16, 0,0,0,0, 0,gfc,15,0, 1,0,1,0, mPlayer.syn[0].server_force_client_offset, "Force Client Offset", 15, 15) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_force_client_offset, 0);
             if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, -0.005);
-            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%2.0f", mPlayer.syn[0].client_chase_offset*1000);
+            al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%2.0f", mPlayer.syn[0].client_chase_offset*1000);
             if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, 0.005);
-            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "Client Chase Offset");
-            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
+            al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "Offset (ms)");
+            al_draw_rectangle(b1x-2, cy-2, b1x+198, cy+cs-4, mColor.pc[gfc], 1);
 
-            cy+=cs;
-            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, -1);
-            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_zlib_cmp);
-            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, 1);
-            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "zlib compression level");
-            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
+            cy+=20;
 
-            cy+=cs;
-            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_num_adj, -1);
-            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_extra_packets_num);
-            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_num_adj, 1);
-            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "number of extra packets");
-            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
-
-            cy+=cs;
-            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_siz_adj, -100);
-            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_extra_packets_size);
-            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_num_adj, 100);
-            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "extra packet size");
-            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
-
-
-            cy+=cs;
+            gfc = 9; // group frame color
+            if (mWidget.togglec(cx, cy, cx+200, 16, 0,0,0,0, 0,9,15,0, 1,0,1,0, mPlayer.syn[0].player_vs_player_shots, "Player vs Player Shots", 15, 15) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shots_toggle, 0);
+            cy-=2;
+            if (mWidget.togglec(cx, cy, cx+200, 16, 0,0,0,0, 0,9,15,0, 1,0,1,0, mPlayer.syn[0].player_vs_self_shots,   "Player vs Self Shots",   15, 15) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvs_shots_toggle, 0);
             if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, -1);
-            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.syn[0].player_vs_player_shot_damage);
+            al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.syn[0].player_vs_player_shot_damage);
             if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, 1);
-            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "pvp shot damage");
-            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
-
-
-            cy+=cs;
-            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shots_toggle, 0);
-            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.syn[0].player_vs_player_shots);
-            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shots_toggle, 0);
-            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "pvp shots");
-            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
-
-            cy+=cs;
-            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvs_shots_toggle, 0);
-            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.syn[0].player_vs_self_shots);
-            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvs_shots_toggle, 0);
-            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "pvs shots");
-            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
-
-            cy+=cs;
-            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_fakekey_toggle, 0);
-            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.syn[0].server_force_fakekey);
-            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_fakekey_toggle, 0);
-            al_draw_text(mFont.pr8, mColor.pc[13], cx+76, cy+1, 0, "force fake_key");
-            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
+            al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "Shot Damage");
+            al_draw_rectangle(b1x-2, cy-2, b1x+198, cy+cs-4, mColor.pc[gfc], 1);
 
 
 
-            cx = 400;
-            cy = rcy; // remember cy
+            int mxcy = cy+16; // max cy, for marking where to start next section
+
+
+            // -------------------------------------------
+            // second column
+            // -------------------------------------------
+            cx = 240;
+            cy = rcy+2; // restore cy
+
+            b1x = cx + 2;
+            tx  = cx +32;
+            b2x = cx +52;
+
+            gfc = 8; // group frame color
+            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, -1);
+            al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_zlib_cmp);
+            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, 1);
+            al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "zlib compression level");
+            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[gfc], 1);
+
+            cy+=20;
+
+            gfc = 14; // group frame color
+            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_num_adj, -1);
+            al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_extra_packets_num);
+            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_num_adj, 1);
+            al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "number of extra packets");
+            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[gfc], 1);
+
+            cy+=cs-2;
+            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_siz_adj, -100);
+            al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_extra_packets_size);
+            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_num_adj, 100);
+            al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "extra packet size");
+            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[gfc], 1);
+
+
+            cy+=20;
+
+            gfc = 7; // group frame color
+            if (mWidget.togglec(cx, cy, cx+200, 16, 0,0,0,0, 0,gfc,15,0, 1,0,1,0, mPlayer.syn[0].server_force_fakekey, "Server Force Fakekey", 15, 15) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_fakekey_toggle, 0);
 
 
 
+            cy+=20;
 
 
-            if (mWidget.buttontcb(cx, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Reload Current Level") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, -1);
-            cy+=12;
-
-            if (mWidget.buttontcb(cx, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Reload Overworld") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, 1);
-            cy+=12;
-
-            if (mWidget.buttontcb(cx, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Next Level") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, -2);
-            cy+=12;
-
-            if (mWidget.buttontcb(cx, cy, cx+80, bth, 0,0,0,0, 0,btc,15,14, 1,0,0,0, "Visual Level Select and Reload") )
+            // -------------------------------------------
+            // third column
+            // -------------------------------------------
+            cx = 540;
+            cy = rcy; // restore cy
+            int cxc2 = cx + 100;
+            if (mWidget.buttontca(cxc2, cy, 0, 16, 0,0,0,0, 0,13,15,0, 1,0,1,0, " Select and Reload Level ") )
             {
-               //mLevel.start_level = mPlayer.loc[0].srv_level;
                if (mVisualLevel.visual_level_select() == 1) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, mLevel.start_level);
             }
+            cy+=6;
+            if (mWidget.buttontca(cxc2, cy, 0, 16, 0,0,0,0, 0,9,15,0, 1,0,1,0, "  Reload Current Level   ") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, -1);
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//            static int load_level = 1;
-//
-//            b1x +=400;
-//            tx  +=400;
-//            b2x +=400;
-//
-//            int inc = 1;
-//            if (mInput.CTRL()) inc = 10;
-//
-//            cy+=cs;
-//            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) for (int i=0; i<inc; i++) load_level = mLevel.get_prev_level(load_level, 199, 1);
-//            al_draw_textf(mFont.pr8, mColor.pc[13], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", load_level);
-//            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) for (int i=0; i<inc; i++) load_level = mLevel.get_next_level(load_level, 199, 1);
-//            if (mWidget.buttont_nb(cx+90, cy, cx+90+80, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "load_level") ) mNetgame.client_send_rctl_packet(0, 0, 0, 0,  0, load_level);
-//            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[13], 1);
-
-
-//            if (!mVisualLevel.load_visual_level_select_done) mVisualLevel.load_visual_level_select();
-//            al_set_target_backbuffer(mDisplay.display);
-//            al_draw_bitmap(mVisualLevel.level_icon_vls[load_level], cx+100, cy+16, 0);
-//            al_draw_bitmap(mLevel.level_icon_100[load_level], cx+300, cy, 0);
-//            al_draw_bitmap(mLevel.level_icon_200[load_level], cx+500, cy-120, 0);
-
-//            cy+=cs;
-//            if (mWidget.buttontcb(cx, cy, cx+80, bth, 0,0,0,0, 0,btc,15,14, 1,0,0,0, "Visual Level Select and Reload") )
-//            {
-//               mLevel.start_level = load_level;
-//               if (mVisualLevel.visual_level_select() == 1) mNetgame.client_send_rctl_packet(0, 0, 0, 0,  0, mLevel.start_level);
-//               load_level = mLevel.start_level;
-//            }
-
-
-
-
-
-            cx = 10;
-            cy+=70+40;
-
-
+            cy+=10;
             static int show_bandwidth = 0;
+            if (mWidget.buttontcb(cx, cy, 0, 13, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Show/Hide Bandwidth") ) show_bandwidth = !show_bandwidth;
 
-            if (mWidget.buttontcb(cx, cy, 0, 11, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Show/Hide Bandwidth") ) show_bandwidth = !show_bandwidth;
-
-            cy+=12;
-
+            cy = mxcy; // position of next section inder buttons
+            cx = 10;
             if (show_bandwidth) mScreen.draw_bandwidth_stats(cx, cy); // bandwidth stats
 
 
-            cy+=40;
+            // this is when I know how much space I have left for graphs
 
-            // this is when I know how much space I have
-
-            int height = mDisplay.SCREEN_H - cy;
-            int width = mDisplay.SCREEN_W - 40;
+            int height = mDisplay.SCREEN_H - cy - 20;
+            int width = mDisplay.SCREEN_W - 20;
 
             if ((remote_graphs_height != height) || (remote_graphs_width != width))
             {
@@ -1857,15 +1781,12 @@ void mwLoop::main_loop(void)
             }
 
 
-
             for (int i=0; i<8; i++)
                if (mQuickGraph2[i].active) mQuickGraph2[i].draw_graph();
 
 
-            mQuickGraph2[9].set_pos(mDisplay.SCREEN_W-mQuickGraph2[9].width-28, 10);
+            mQuickGraph2[9].set_pos(mDisplay.SCREEN_W-mQuickGraph2[9].width-28, 4);
             mQuickGraph2[9].draw_graph();
-
-
 
             if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
             {
@@ -1884,10 +1805,6 @@ void mwLoop::main_loop(void)
             // store in local cpu variables
             add_local_cpu_data(cpu);
 
-
-
-
-
          }
 
 
@@ -1897,12 +1814,10 @@ void mwLoop::main_loop(void)
 // ----------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------
 
-
          if (state[1] == 11) // game loop running
          {
             frame_num++;
-
-            mTimeStamp.timestamp_frame_start = al_get_time();
+            frame_start_timestamp = al_get_time();
 
             // -----------------------------------
             // update animation and process sound
@@ -1939,7 +1854,6 @@ void mwLoop::main_loop(void)
             // ------------------------------
             mGameMoves.proc();
 
-
             // ------------------------------
             // move
             // ------------------------------
@@ -1960,11 +1874,10 @@ void mwLoop::main_loop(void)
             // ------------------------------
             if ((!mDisplay.no_display) && (ldm != 27) && (!super_fast_mode)) mDrawSequence.draw(0);
 
-
             // --------------------------------------------
-            // measure time it took to process loop
+            // measure time to process loop
             // --------------------------------------------
-            double pt = al_get_time() - mTimeStamp.timestamp_frame_start;
+            double pt = al_get_time() - frame_start_timestamp;
             mLog.add_tmr1(LOG_TMR_cpu, 0, "cpu", pt);
 
             // convert to 'cpu', a percent of the total frame time (25ms)
@@ -1973,21 +1886,39 @@ void mwLoop::main_loop(void)
             // store in player array cpu variable
             mPlayer.loc[mPlayer.active_local_player].cpu = cpu;
 
-
-
             // store in local cpu variables
             add_local_cpu_data(cpu);
 
 
+
+//            printf("add_rx_buf   times called:%d  total_time:%8.4fms  avg:%8.4fus \n", mTally[1].num, mTally[1].get_tally(0)*1000, mTally[1].get_avg(0)*1000000);
+//
+//            printf("prc_rx_buf   times called:%d  total_time:%8.4fms  avg:%8.4fus \n", mTally[0].num, mTally[0].get_tally(0)*1000, mTally[0].get_avg(0)*1000000);
+
+
+            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "add_rx_buf", mTally[1].get_tally(1));
+
+            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "proc_rx_buf", mTally[0].get_tally(1));
+
+            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "add_rx_block", mTally[2].get_tally(1));
+
+            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "proc_rx_block", mTally[3].get_tally(1));
+
+
+
+
+
+
+            for (int p=0; p<NUM_PLAYERS; p++)
+            {
+               mPlayer.loc[p].ping = mPacketBuffer.RA[p].last_input;
+               mPlayer.loc[p].ping_avg = mPacketBuffer.RA[p].avg;
+            }
+
+
+
          }
       }
-
-
-
-
-
-
-
 
 
 
@@ -2010,17 +1941,6 @@ void mwLoop::main_loop(void)
             }
             if (mNetgame.ima_server)
             {
-
-//               // auto adjust server state frequency
-//               if (mNetgame.server_state_freq_mode == 1) // 0 = manual, 1 = auto
-//               {
-//                  int mcp = mTally[4].get_max(0)*1000;
-//                  if (mcp > 100) mcp = 100;
-//                  mNetgame.server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
-//               }
-
-
-
                // tally late cdats and game move dsync
                for (int p=1; p<NUM_PLAYERS; p++)
                   if (mPlayer.syn[p].control_method == 2)
@@ -2028,13 +1948,11 @@ void mwLoop::main_loop(void)
                      mPlayer.syn[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally(1);
                      mPlayer.loc[p].game_move_dsync_avg_last_sec = mTally_game_move_dsync_avg_last_sec[p].get_avg(1);
 
-
                      mPlayer.loc[p].client_loc_plr_cor_avg = mTally_client_loc_plr_cor_last_sec[p].get_avg(0);
                      mPlayer.loc[p].client_rmt_plr_cor_avg = mTally_client_rmt_plr_cor_last_sec[p].get_avg(0);
 
                      mPlayer.loc[p].client_loc_plr_cor_max = mTally_client_loc_plr_cor_last_sec[p].get_max(1);
                      mPlayer.loc[p].client_rmt_plr_cor_max = mTally_client_rmt_plr_cor_last_sec[p].get_max(1);
-
                   }
             }
          }

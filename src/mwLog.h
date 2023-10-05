@@ -18,7 +18,6 @@
 #define LOG_NET_join_details       12
 #define LOG_NET_ending_stats       22
 #define LOG_NET_bandwidth          23
-#define LOG_NET_player_array       26
 #define LOG_NET_stdf               27
 #define LOG_NET_stdf_packets       28
 #define LOG_NET_dif_applied        30
@@ -44,6 +43,8 @@
 #define LOG_TMR_rwnd               92
 #define LOG_TMR_client_timer_adj   95
 #define LOG_TMR_client_ping        96
+
+#define LOG_TMR_proc_rx_buffer     97
 
 
 #define LOG_OTH_program_state      50
@@ -71,11 +72,6 @@ struct log_type
 
 
 
-//#include "mwStateHistory.h"
-
-
-
-
 
 
 
@@ -84,7 +80,10 @@ class mwLog
 
    public:
 
-//   mwStateHistory ppoo;
+
+
+
+
 
 
    mwLog(); // default constructor
@@ -96,6 +95,8 @@ class mwLog
    void init_log_types(void);
 
 
+   void set_log_type_action(int type, int action, int save);
+   void clear_all_log_actions(void);
 
 
    void appf(int type, const char *format, ...);
@@ -148,6 +149,9 @@ class mwLog
 
    void log_player_array(int type);
    void log_player_array2(int type);
+   void log_player_array3(int type);
+
+
 
    void log_ending_stats_client(int type, int p);
    void log_ending_stats_server(int type);
