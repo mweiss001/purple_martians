@@ -31,18 +31,6 @@ class mwNetgame
 
    mwStateHistory mStateHistory[8];
 
-   char packetbuffer[1024];
-   int packetsize;
-   int packetpos;
-   void set_packetpos(int pos);
-   int get_packetpos(void);
-
-   void Packet(const char *id);
-   int PacketRead(const char *id);
-
-   void PacketPutDouble(double);
-   double PacketGetDouble(void);
-
    // debug testing of sending more packets
    int srv_exp_num = 0;
    int srv_exp_siz = 0;
@@ -111,7 +99,7 @@ class mwNetgame
    void client_send_stak(int ack_frame);
    void client_send_cdat(int p);
 
-   void client_proc_pong_packet(int i);
+   void client_proc_pong_packet(char *data);
 
    void client_process_sjon_packet(int i);
    void client_process_stdf_packet(int i);
@@ -142,7 +130,7 @@ class mwNetgame
    void ServerListen(void);
    int ServerReceive(void *data, int *sender);
    void ServerBroadcast(void *data, int len);
-   void ServerSendTo(void *data, int len, int who, int player);
+   void ServerSendTo(void *data, int len, int who);
    void server_flush(void);
    int  server_init(void);
    void server_exit(void);
@@ -164,8 +152,8 @@ class mwNetgame
    void server_send_sjrc_packet(int who);
 
 
-   void server_proc_ping_packet(int i);
-   void server_proc_pang_packet(int i);
+   void server_proc_ping_packet(char *data, int who);
+   void server_proc_pang_packet(char *data, int who);
 
    void server_proc_cdat_packet(int i);
    void server_proc_stak_packet(int i);

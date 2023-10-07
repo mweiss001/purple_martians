@@ -10,18 +10,11 @@ class mwEventQueue
    ALLEGRO_TIMER * sec_timer;  // used to do theing on a 1 Hz schedule
    ALLEGRO_TIMER * mou_timer;  // used to control hiding the mouse cursor
 
-   ALLEGRO_TIMER * thr_timer;  // used to control the packet loop threads
-
-
-
    void create_timers(void);
 
    int program_update;
    int program_update_1s;
    int menu_update;
-
-   int thr_proc;
-
 
    void proc(int pch);
    void proc_menu(void);

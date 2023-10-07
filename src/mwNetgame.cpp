@@ -35,7 +35,6 @@ mwNetgame::mwNetgame()
    ima_client = 0;
    remote_join_reply = 0;
 
-
    sprintf(m_serveraddress, "192.168.1.2");
    TCP = 0;
    zlib_cmp = 7;
@@ -88,47 +87,6 @@ int mwNetgame::NetworkInit(void)
    }
 }
 
-void mwNetgame::set_packetpos(int pos)
-{
-   packetpos = pos;
-}
-
-int mwNetgame::get_packetpos(void)
-{
-   return packetpos;
-}
-
-// create a new packet
-void mwNetgame::Packet(const char *id)
-{
-	strncpy(packetbuffer, id, 4);
-	packetsize = 4;
-}
-
-// check if a packet with the given id can be read
-int mwNetgame::PacketRead(const char *id)
-{
-	if(packetsize >= 4 && !strncmp(packetbuffer, id, 4))
-   {
-		packetpos = 4;
-		return 1;
-	}
-	return 0;
-}
-
-void mwNetgame::PacketPutDouble(double d)
-{
-   memcpy(packetbuffer + packetsize, &d, 8);
-	packetsize+=8;
-}
-
-double mwNetgame::PacketGetDouble(void)
-{
-   double d = 0;
-   memcpy(&d, packetbuffer + packetpos, 8);
-	packetpos+=8;
-	return d;
-}
 
 void mwNetgame::game_vars_to_state(char * b)
 {

@@ -3,6 +3,8 @@
 ---------------------------------------------------------
 
 
+why does client always crash when quitting in thread mode?
+
 
 
 

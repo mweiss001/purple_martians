@@ -37941,59 +37941,146 @@ that comes from stdf packets, does it not??
 
 
 
+-----------------
+testing al_rest()
 
 
+al_rest(0.001)
+54%
+90 20 90 20
 
+timer 0.001
+75%
+95 95 95 20
 
 
+put the print back in but only print once per second
 
 
+al_rest(0.001)
+50%
+5 95 75 20
+(on e6420 I get 1000 per second, but on m36 I only get 500)
 
 
+timer 0.001
+75%
+25 95 80 95
 
 
 
+lets try 0.0005
 
+timer 0.0005
+75%
+95 90 20 95
+both about 2000/s
 
+al_rest(0.0005)
+70-75%
+95 90 5 95
+(on both system runs wide open m36 1M/s, e6420 500k/s
 
 
 
+lets try 0.0001
 
+timer 0.0001
+70%
+95 95 95 10
+both about 9000/s
 
+al_rest(0.0001)
+70-75%
+95 90 5 95
+(on both system runs wide open m36 1M/s, e6420 500k/s
 
 
 
+just to get more data:
+0.005
 
 
+timer 0.005
+50%
+95 20 20 80
+m36 200/s, e6420 199/s
 
+al_rest(0.005)
+25%
+40 0 60 0
+m36 160/s, e6420 199/s
 
 
 
+0.01
 
 
+timer 0.01
+50%
+95 20 20 80
+m36 100/s, e6420 100/s
 
+al_rest(0.01)
+25%
+60 0 40 0
+m36 91/s, e6420 99/s
 
 
 
+Timer    expected    al_rest                  al_timer
+value    calls/sec   cpu  actual calls/sec    cpu  actual calls/sec
+-------------------------------------------------------------------
+0.01     100         25   90-99               50%  100
+0.005    200         25   160-199             50%  200
+0.001    1000        50   500-1000            75%  1000
+0.0005   2000        75   1,000,000           75%  2000
+0.0001   10000       75   1,000,000           70%  9000
 
 
 
 
 
+I am now thinking that signals might help...
+I was reading about how condition variables can be used to pause a thread.
+Then I would need to use some external method to set the condition variable with the allegro timer..
+I think I would need to check the event_loop and it would all be based on how often I check that....
+probably back to square 1
 
 
 
+Hell I could even just do it myself with repeated call to al_get_time(), although would hammering that call in its own thread be any better?
 
 
+      static double t0 = al_get_time();
+      double t1 = al_get_time();
+      if (t1-t0>0.001)
+      {
+         t0 = t1;
+         mPacketBuffer.add_to_rx_buffer();
+      }
 
 
+my timer 0.005
+50%
+99 10 95 0
+m36 200/s, e6420 200/s
 
 
+my timer 0.001
+50%
+99 10 95 0
+m36 1000/s, e6420 1000/s
 
 
 
+my timer 0.0005
+50%
+99 10 95 0
+m36 2000/s, e6420 2000/s
 
 
+my timer 0.0001
 
 
 
@@ -38004,257 +38091,26 @@ that comes from stdf packets, does it not??
 
 
 
+void _al_win_rest(double seconds)
+{
+   if (seconds <= 0)
+      return;
 
+   Sleep((DWORD)(seconds * 1000.0));
+}
 
 
+void _al_unix_rest(double seconds)
+{
+   struct timespec timeout;
+   double integral;
+   double frac;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-why does client always crash when quitting in thread mode?
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   frac = modf(seconds, &integral);
+   timeout.tv_sec = (time_t)integral;
+   timeout.tv_nsec = (suseconds_t)(frac * 1e9);
+   nanosleep(&timeout, 0);
+}
 
 
 
@@ -38262,58 +38118,174 @@ why does client always crash when quitting in thread mode?
 another big question?
 
 why do I wait until the start of the frame to proccess rxed packets?
-
 what would happen if I processed them as I got them?
-
 like, why do I even bother with putting them in a buffer?
+Well one reason is the variables that processing modifies, would need to be protected with mutexes...
 
 
 
+20231007
 
+I have some other things I think I broke:
+- one client works ok but when second one joins:
+2nd client has no ping
+1st client's dsync goes to hell
 
 
 
+make sure that all ping packets use the proper player number...
 
 
+void mwNetgame::client_send_ping(void)
+{
+   char data[1024] = {0};
+   sprintf(data, "ping");
+   int pos = 4;
+   mPacketBuffer.PacketPutDouble(data, pos, al_get_time());
+   mPacketBuffer.add_to_tx_buffer(data, pos, 0);
+   // printf("%d ping server\n", mLoop.frame_num);
+}
 
 
+detour:
+remove all add_to_tx_buffer
+now all packets are sent with ServerSend and ClientSend and they all use the new method of creating packets
 
+make sure all packets are received the same...
 
+ClientReceive is good
+ServerReceive is good
 
+what about packet_buffer?
+things are received into packet_buffer...
+what else could i do?
 
+packet_buffer is not thread safe
+but as long as the only thing using it is my thread, it should be OK?
 
+nothing that sends uses it...double check
 
 
+I need my own packet read that checks the header and I can pass a data struct to...
+then I will not need packet_buffer
 
+this has all been removed from mNetgame.h
+//   char packetbuffer[1024];
+//   int packetsize;
+//   int packetpos;
+//   void set_packetpos(int pos);
+//   int get_packetpos(void);
+//   void Packet(const char *id);
+//   int PacketRead(const char *id);
+//
+//   void PacketPutDouble(double);
+//   double PacketGetDouble(void);
 
 
+Hopefully this has simplified things....
 
+now back to tracing pings and player nums
 
+void mwNetgame::client_send_ping(void)
+{
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "ping");
+   mPacketBuffer.PacketPutDouble(data, pos, al_get_time());
+   ClientSend(data, pos);
+   // printf("%d ping server\n", mLoop.frame_num);
+}
 
 
+// receives all waiting packets and puts them in the rx buffer
+void mwPacketBuffer::add_to_rx_buffer(void)
+{
+   char data[1024] = {0};
 
+   double t0 = al_get_time();
 
+   if (PM) al_lock_mutex(rx_mutex);
 
+   mTally[2].add_data(al_get_time() - t0);
 
+   int who = -1;
+   if (mNetgame.ima_server)
+      while(mNetgame.ServerReceive(data, &who))
+         add_to_rx_buffer_single(data, who);
 
 
+void mwPacketBuffer::add_to_rx_buffer_single(char *data, int who)
+{
+   // process these immediately and do not add to buffer
+   if (PacketRead(data, "ping"))
+   {
+      memcpy(rx_buf[199].data, data, 1024);
+      rx_buf[199].packetpos = 4;
+      mNetgame.server_proc_ping_packet(199);
+      return;
+   }
 
 
+void mwNetgame::server_proc_ping_packet(int i)
+{
+   int who = mPacketBuffer.rx_buf[i].who;
+   int p = mNetgame.get_player_num_from_who(who);
+   if (p != -1)
+   {
+      //printf("rx ping from p:%d - tx pong\n", p);
 
+      double t0 = mPacketBuffer.PacketGetDouble(i);
+      double t1 = al_get_time();
 
+      char data[1024] = {0}; int pos;
+      mPacketBuffer.PacketName(data, pos, "pong");
+      mPacketBuffer.PacketPutDouble(data, pos, t0);
+      mPacketBuffer.PacketPutDouble(data, pos, t1);
+      ServerSendTo(data, pos, who);
+   }
+}
 
 
+ima stop right here and not use buffer 199 to pass data...
 
+the problem is, all my packet put and get, just read from the buffer
 
+could I have both methods?
 
+one that takes the buffer index and one that just takes raw data and pos?
 
+is that unneccesairily complex?
 
+it looks like it is only the readers...the writers already are like that...
 
+It was not that complex, the only one I had to change was get double
 
 
+void mwPacketBuffer::add_to_rx_buffer_single(char *data, int who)
+{
+   // process these immediately and do not add to buffer
+   if (PacketRead(data, "ping"))
+   {
+      mNetgame.server_proc_ping_packet(data, who);
+      return;
+   }
 
+void mwNetgame::server_proc_ping_packet(char *data, int who)
+{
+   int p = mNetgame.get_player_num_from_who(who);
+   if (p != -1)
+   {
+      //printf("rx ping from p:%d - tx pong\n", p);
 
+      int pos = 4;
+      double t0 = mPacketBuffer.PacketGetDouble(data, pos);
+      double t1 = al_get_time();
 
+      mPacketBuffer.PacketName(data, pos, "pong");
+      mPacketBuffer.PacketPutDouble(data, pos, t0);
+      mPacketBuffer.PacketPutDouble(data, pos, t1);
+      ServerSendTo(data, pos, who);
+   }
+}
 
 
 
@@ -38321,447 +38293,128 @@ like, why do I even bother with putting them in a buffer?
 
 
 
+Now that I have that done, the problem seems to be fixed
 
+more clients do not screw up...
 
+test with even more...
 
+OK it looks like everything is working
 
+now try to enable thread...
 
 
 
+al_rest(0.002) // target 500
+s 333
+c 500
+e6430 25%
+4230 50%
+pings are either 3 or 6
 
 
+no thread
+s 155K
+c 100-900K
+e6430 25%
+4230 50%
+pings are 0.1 4 10...
 
 
+al_rest(0.001) // target 1000
+s 500
+c 1000
+e6430 27%
+4230 54%
+pings are either 2 or 4
 
 
+my al_rest(0.001) // target 1000
+s 1000
+c 1000
+e6430 40%
 
+all other clients dropped with high cpu
+e6430 has over 100 cpu frequently but has not droppped
 
+this happens even with one client...test like that and see what is slowing it down
 
+reduced to 0.01 and still bad...
 
 
 
+I am thinking that I might try C++ threads
 
+why?
 
+because then maybe I can use thread sleep...
 
 
+OK here are the results:
 
 
+class mwPacketBuffer
+{
+   public:
 
+   int thread_running = 0;
+   std::thread t1;
 
 
 
+mwPacketBuffer::mwPacketBuffer()
+{
+   init_packet_buffer();
+   rx_mutex = al_create_mutex();
 
+   if (PT) t1 = std::thread(&mwPacketBuffer::crx_thread_func, this);
 
+}
 
 
+void mwPacketBuffer::crx_thread_func(void)
+{
+   while (1)
+   {
+      if (thread_running) mPacketBuffer.add_to_rx_buffer();
+      std::this_thread::sleep_for(std::chrono::microseconds(1000));
+//      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+   }
+}
 
 
 
+if I try to go less than 1000us i get no delay at all
 
+so here are the results at 1ms
+s 1000
+c 1000
+e6430 27%
+4230 55%
+pings are usually 1 or 2 sometimes up to 8
 
 
+and here are the wide open results
+s 800k
+c 150 - 900k
+e6430 48%
+4230 95%
+pings are 0.1 or 0.2
+4230 quits due to lost server and high cpu
 
 
 
+------------------------
+this is better if I can get it to work at 1ms
 
+I figured out how to quit nicely
 
+now I want to use c++ mutex
 
 
+OK done
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+now I want to see if it works in linux....
 
 
 
