@@ -83,11 +83,12 @@ void mwNetgame::ServerListen()
    else // UDP - listen for channels
    {
       char address[32];
-      packetsize = net_receive(ListenChannel, packetbuffer, 1024, address);
-      if (packetsize)
+      char data[1024] = {0}; int pos;
+
+      pos = net_receive(ListenChannel, data, 1024, address);
+      if (pos)
       {
-         set_packetpos(0);
-         if (PacketRead("1234"))
+         if (mPacketBuffer.PacketRead(data, "1234"))
          {
             mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received initial 1234 packet from '%s'",address);
             if (!(ClientChannel[ClientNum] = net_openchannel(NetworkDriver, NULL)))
@@ -101,8 +102,8 @@ void mwNetgame::ServerListen()
                net_closechannel (ClientChannel[ClientNum]);
                return;
             }
-            Packet("5678");
-            ServerSendTo(packetbuffer, packetsize, ClientNum, 0);
+            mPacketBuffer.PacketName(data, pos, "5678");
+            ServerSendTo(data, pos, ClientNum);
             ClientNum++;
             mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server opened channel for `%s' and sent reply", address);
          }
@@ -139,7 +140,7 @@ int mwNetgame::ServerReceive(void *data, int *sender)
    			}
    		}
       }
-   } // end of if TCP
+   } // end of TCP
    else // UDP
    {
       for (int n=0; n<ClientNum; n++)
@@ -167,6 +168,82 @@ int mwNetgame::ServerReceive(void *data, int *sender)
       }
    } // end of UDP
 	return 0;
+
+
+
+//   if (TCP)
+//   {
+//      for (int n=0; n<ClientNum; n++)
+//      {
+//   	   if (ClientConn[n])
+//         {
+//   		   int len = net_receive_rdm(ClientConn[n], data, 1024);
+//   			if (len > 0)
+//            {
+//               // add to server's counts
+//               mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
+//               mPlayer.loc[0].rx_current_packets_for_this_frame++;
+//               // use n (who) to get player number
+//               for (int p=0; p<NUM_PLAYERS; p++)
+//                  if ((mPlayer.syn[p].active) && (mPlayer.loc[p].who == n))
+//                  {
+//                     // add to client's counts
+//                     mPlayer.loc[p].rx_current_bytes_for_this_frame += len;
+//                     mPlayer.loc[p].rx_current_packets_for_this_frame++;
+//                  }
+//   				if (sender) *sender = n;
+//   				return len;
+//   			}
+//   		}
+//      }
+//   } // end of if TCP
+//   else // UDP
+//   {
+//      for (int n=0; n<ClientNum; n++)
+//      {
+//   		if (ClientChannel[n])
+//         {
+//            int len = net_receive(ClientChannel[n], data, 1024, NULL);
+//   			if (len > 0)
+//            {
+//               // add to server's counts
+//               mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
+//               mPlayer.loc[0].rx_current_packets_for_this_frame++;
+//               // use n (who) to get player number
+//               for (int p=0; p<NUM_PLAYERS; p++)
+//                  if ((mPlayer.syn[p].active) && (mPlayer.loc[p].who == n))
+//                  {
+//                     // add to client's counts
+//                     mPlayer.loc[p].rx_current_bytes_for_this_frame += len;
+//                     mPlayer.loc[p].rx_current_packets_for_this_frame++;
+//                  }
+//   				if (sender) *sender = n;
+//   				return len;
+//   			}
+//   		}
+//      }
+//   } // end of UDP
+//	return 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 void mwNetgame::ServerBroadcast(void *data, int len)
@@ -179,33 +256,33 @@ void mwNetgame::ServerBroadcast(void *data, int len)
 }
 
 // send data to a specific client
-void mwNetgame::ServerSendTo(void *data, int len, int who, int player)
+void mwNetgame::ServerSendTo(void *data, int len, int who)
 {
    if (TCP) net_send_rdm(ClientConn[who], data, len);
    else     net_send(ClientChannel[who], data, len);
-
 
    // add to server's counts
    mPlayer.loc[0].tx_current_bytes_for_this_frame += len;
    mPlayer.loc[0].tx_current_packets_for_this_frame++;
 
-   if (player != 99)
+   int p = get_player_num_from_who(who);
+   if (p != 99)
    {
       // add to client's counts
-      mPlayer.loc[player].tx_current_bytes_for_this_frame += len;
-      mPlayer.loc[player].tx_current_packets_for_this_frame++;
+      mPlayer.loc[p].tx_current_bytes_for_this_frame += len;
+      mPlayer.loc[p].tx_current_packets_for_this_frame++;
    }
 
 }
 void mwNetgame::server_flush(void)
 {
-   int who;
-   while (ServerReceive(packetbuffer, &who));
+   char data[1024]; int who;
+   while (ServerReceive(data, &who));
 }
 
 void mwNetgame::ServerExitNetwork() // Shut the server down
 {
-   mPacketBuffer.stop_packet_threads();
+   mPacketBuffer.stop_packet_thread();
 
    mLog.add_header(LOG_NET, 0, 0, "Shutting down the server network");
    if (TCP)
@@ -258,11 +335,12 @@ int mwNetgame::server_init(void)
 
    ima_server = 1;
 
-   mPacketBuffer.start_packet_threads();
+   mPacketBuffer.start_packet_thread();
 
-   // still needed or client dies at joining   ---------- i should test this....
-   Packet("JUNK");
-   ServerBroadcast(packetbuffer, packetsize);
+   // still needed or client dies at joining   ---------- i should test this....seems OK without it...
+//   char data[1024] = {0}; int pos;
+//   mPacketBuffer.PacketName(data, pos, "JUNK");
+//   ServerBroadcast(data, pos);
 
 
    return 1;
@@ -418,10 +496,8 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
 
       mLog.addf(LOG_NET_stdf_packets, p, "tx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", packet_num+1, num_packets, src, dst, start_byte, packet_data_size);
 
-      char data[1024] = { 0 };
-      sprintf(data, "stdf");
-      int pos = 4;
-
+      char data[1024] = {0}; int pos;
+      mPacketBuffer.PacketName(data, pos, "stdf");
       mPacketBuffer.PacketPutInt4(data, pos, src);
       mPacketBuffer.PacketPutInt4(data, pos, dst);
       mPacketBuffer.PacketPutInt1(data, pos, packet_num);
@@ -432,7 +508,7 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
       memcpy(data+pos, cmp+start_byte, packet_data_size);
       pos += packet_data_size;
 
-      mPacketBuffer.add_to_tx_buffer(data, pos, mPlayer.loc[p].who);
+      ServerSendTo(data, pos, mPlayer.loc[p].who);
 
       start_byte+=1000;
    }
@@ -476,9 +552,8 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
 
       // printf("tx snfo piece fn:[%d] packet:[%d of %d]\n", mLoop.frame_num, packet_num+1, num_packets);
 
-      char data[1024] = { 0 };
-      sprintf(data, "snfo");
-      int pos = 4;
+      char data[1024] = {0}; int pos;
+      mPacketBuffer.PacketName(data, pos, "snfo");
       mPacketBuffer.PacketPutInt4(data, pos, mLoop.frame_num);
       mPacketBuffer.PacketPutInt1(data, pos, packet_num);
       mPacketBuffer.PacketPutInt1(data, pos, num_packets);
@@ -488,7 +563,7 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
       memcpy(data+pos, dst+start_byte, packet_data_size);
       pos += packet_data_size;
 
-      mPacketBuffer.add_to_tx_buffer(data, pos, mMain.server_remote_control_who);
+      ServerSendTo(data, pos, mMain.server_remote_control_who);
 
       start_byte+=1000;
    }
@@ -695,27 +770,16 @@ void mwNetgame::server_lock_client(int p)
 }
 
 
-
-
-
-
-
-
 void mwNetgame::server_send_sjon_packet(int who, int level, int frame, int player_num, int player_color)
 {
-   char data[1024] = { 0 };
-   sprintf(data, "sjon");
-   int pos = 4;
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "sjon");
    mPacketBuffer.PacketPutInt2(data, pos, level);
    mPacketBuffer.PacketPutInt4(data, pos, frame);
    mPacketBuffer.PacketPutInt1(data, pos, player_num);
    mPacketBuffer.PacketPutInt1(data, pos, player_color);
-   mPacketBuffer.add_to_tx_buffer(data, pos, who);
+   ServerSendTo(data, pos, who);
 }
-
-
-
-
 
 void mwNetgame::server_proc_cjon_packet(int i)
 {
@@ -792,43 +856,41 @@ void mwNetgame::server_proc_cjrc_packet(int i)
 
 void mwNetgame::server_send_sjrc_packet(int who)
 {
-   char data[1024] = { 0 };
-   sprintf(data, "sjrc");
-   int pos = 4;
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "sjrc");
    mPacketBuffer.PacketPutDouble(data, pos, 0);
-   mPacketBuffer.add_to_tx_buffer(data, pos, who);
+   ServerSendTo(data, pos, who);
 }
 
 
 
 
-void mwNetgame::server_proc_ping_packet(int i)
+void mwNetgame::server_proc_ping_packet(char *data, int who)
 {
-   int who = mPacketBuffer.rx_buf[i].who;
    int p = mNetgame.get_player_num_from_who(who);
    if (p != -1)
    {
       //printf("rx ping from p:%d - tx pong\n", p);
 
-      double t0 = mPacketBuffer.PacketGetDouble(i);
+      int pos = 4;
+      double t0 = mPacketBuffer.PacketGetDouble(data, pos);
       double t1 = al_get_time();
 
-      char data[1024] = {0}; int pos;
       mPacketBuffer.PacketName(data, pos, "pong");
       mPacketBuffer.PacketPutDouble(data, pos, t0);
       mPacketBuffer.PacketPutDouble(data, pos, t1);
-      mPacketBuffer.add_to_tx_buffer(data, pos, who);
+      ServerSendTo(data, pos, who);
    }
 }
 
 
-void mwNetgame::server_proc_pang_packet(int i)
+void mwNetgame::server_proc_pang_packet(char *data, int who)
 {
-   int who = mPacketBuffer.rx_buf[i].who;
    int p = mNetgame.get_player_num_from_who(who);
    if (p != -1)
    {
-      double t0 = mPacketBuffer.PacketGetDouble(i);
+      int pos = 4;
+      double t0 = mPacketBuffer.PacketGetDouble(data, pos);
       mPacketBuffer.RA[p].add_data(al_get_time() - t0);
    }
 }
@@ -895,10 +957,6 @@ void mwNetgame::server_control()
 //   mTally[1].add_data(al_get_time() - t0);
 
 
-
-
-
-
    server_rewind();                       // to replay and apply late client input
    server_proc_player_drop();             // check to see if we need to drop clients
 
@@ -909,9 +967,9 @@ void mwNetgame::server_control()
       for (int p=1; p<NUM_PLAYERS; p++)
          if (mPlayer.syn[p].control_method == 2)
          {
-            Packet("extr");
-            packetsize += srv_exp_siz;
-            ServerSendTo(packetbuffer, packetsize, mPlayer.loc[p].who, p);
+            char data[1024] = {0}; int pos;
+            mPacketBuffer.PacketName(data, pos, "extr");
+            ServerSendTo(data, pos + srv_exp_siz, mPlayer.loc[p].who);
          }
    for (int p=0; p<NUM_PLAYERS; p++) if (mPlayer.syn[p].active) process_bandwidth_counters(p);
 }

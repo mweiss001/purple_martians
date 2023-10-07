@@ -988,6 +988,8 @@ void mwLoop::proc_program_state(void)
 
       mLog.add(LOG_OTH_program_state, 0, "[State 40 - Server Remote Control Setup]\n");
 
+      printf("server remote control setup 2\n");
+
       // initialize driver with server address
       if (!mNetgame.ClientInitNetwork(mNetgame.m_serveraddress))
       {
@@ -996,15 +998,9 @@ void mwLoop::proc_program_state(void)
       }
 
 
-      printf("server remote control setup 2\n");
-
-
-      mNetgame.ima_client = 1;
-
       mNetgame.client_send_cjrc_packet();
 
       printf("server remote control setup 3\n");
-
 
       // wait for reply
       int reply = 0;
@@ -1025,6 +1021,7 @@ void mwLoop::proc_program_state(void)
             state[0] = 0;
             reply = -1;
          }
+
          mPacketBuffer.rx_and_proc();
 
          if (mNetgame.remote_join_reply) reply = 1;
@@ -1533,14 +1530,8 @@ void mwLoop::main_loop(void)
       // run here if not running in their own threads
       if (!mPacketBuffer.PT)
       {
-         if ((mNetgame.ima_server) || (mNetgame.ima_client))
-         {
-            mPacketBuffer.add_to_rx_buffer();
-//            mPacketBuffer.send_tx_buffer();
-         }
+         if ((mNetgame.ima_server) || (mNetgame.ima_client)) mPacketBuffer.add_to_rx_buffer();
       }
-
-
 
       if (super_fast_mode) mEventQueue.program_update = 1; // temp testing as fast as it can go
 
@@ -1889,20 +1880,18 @@ void mwLoop::main_loop(void)
             // store in local cpu variables
             add_local_cpu_data(cpu);
 
-
-
 //            printf("add_rx_buf   times called:%d  total_time:%8.4fms  avg:%8.4fus \n", mTally[1].num, mTally[1].get_tally(0)*1000, mTally[1].get_avg(0)*1000000);
 //
 //            printf("prc_rx_buf   times called:%d  total_time:%8.4fms  avg:%8.4fus \n", mTally[0].num, mTally[0].get_tally(0)*1000, mTally[0].get_avg(0)*1000000);
 
 
-            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "add_rx_buf", mTally[1].get_tally(1));
-
-            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "proc_rx_buf", mTally[0].get_tally(1));
-
-            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "add_rx_block", mTally[2].get_tally(1));
-
-            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "proc_rx_block", mTally[3].get_tally(1));
+//            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "add_rx_buf", mTally[1].get_tally(1));
+//
+//            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "proc_rx_buf", mTally[0].get_tally(1));
+//
+//            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "add_rx_block", mTally[2].get_tally(1));
+//
+//            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "proc_rx_block", mTally[3].get_tally(1));
 
 
 
@@ -1930,6 +1919,13 @@ void mwLoop::main_loop(void)
          mEventQueue.program_update_1s = 0;
          if (state[1] == 11) // game loop running
          {
+
+
+            printf("add_rx_buf   times called:%d  total_time:%8.4fms  avg:%8.4fus \n", mTally[1].num, mTally[1].get_tally(0)*1000, mTally[1].get_avg(0)*1000000);
+            mTally[1].initialize();
+
+
+
             if (mNetgame.ima_client)
             {
                mNetgame.client_send_ping();

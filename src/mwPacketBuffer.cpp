@@ -11,17 +11,29 @@
 #include "mwEventQueue.h"
 
 
+#include <thread>
+#include <chrono>
+
+
 mwPacketBuffer mPacketBuffer;
 
-mwPacketBuffer::mwPacketBuffer()
+mwPacketBuffer::mwPacketBuffer() // default constructor
 {
    init_packet_buffer();
    rx_mutex = al_create_mutex();
-   tx_mutex = al_create_mutex();
-
-   rx_cond = al_create_cond();
-
+   if (PT) t1 = std::thread(&mwPacketBuffer::crx_thread_func, this);
+   thread_running = 1;
 }
+
+
+mwPacketBuffer::~mwPacketBuffer() // default deconstructor
+{
+   thread_running = 0;
+   t1.join();
+}
+
+
+
 
 void mwPacketBuffer::init_packet_buffer(void)
 {
@@ -38,138 +50,66 @@ void mwPacketBuffer::init_packet_buffer(void)
    for (int p=0; p<NUM_PLAYERS; p++) RA[p].initialize(8);
 }
 
-
 void *mwPacketBuffer::rx_thread_func(ALLEGRO_THREAD *thr, void *arg)
 {
    while (1)
    {
+//      static double t0 = al_get_time();
+//      double t1 = al_get_time();
+//      if (t1-t0>0.01)
+//      {
+//         t0 = t1;
+//         mPacketBuffer.add_to_rx_buffer();
+//      }
+
 //      al_rest(0.001);
 //      mPacketBuffer.add_to_rx_buffer();
 
-      if (mEventQueue.thr_proc)
-      {
-         mPacketBuffer.add_to_rx_buffer();
-         mEventQueue.thr_proc = 0;
-      }
    }
 }
 
-void *mwPacketBuffer::tx_thread_func(ALLEGRO_THREAD *thr, void *arg)
+
+
+void mwPacketBuffer::crx_thread_func(void)
 {
-   while (1)
+//   while (thread_running)
+   while (thread_running)
    {
-//      al_rest(0.001);
-//      mPacketBuffer.send_tx_buffer();
-//      if (mEventQueue.thr_proc)
-//      {
-//         mPacketBuffer.send_tx_buffer();
-//         mEventQueue.thr_proc = 0;
-//      }
+      if (thread_working) mPacketBuffer.add_to_rx_buffer();
+
+//      std::this_thread::sleep_for(0.001);
+
+//      std::this_thread::sleep_for(1ms);
+
+//      std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
    }
 }
 
-void mwPacketBuffer::start_packet_threads(void)
-{
-   if (PT)
-   {
-      int junk = 0;
-      rx_thread = al_create_thread(rx_thread_func, &junk);
-      al_start_thread(rx_thread);
-//      tx_thread = al_create_thread(tx_thread_func, &junk);
-//      al_start_thread(tx_thread);
-   }
-}
 
-void mwPacketBuffer::stop_packet_threads(void)
+
+
+void mwPacketBuffer::start_packet_thread(void)
 {
-   if (PT) al_set_thread_should_stop(rx_thread);
+
+   if (PT) thread_working = 1;
 
 
 //   if (PT)
 //   {
-//      al_set_thread_should_stop(rx_thread);
-//      al_set_thread_should_stop(tx_thread);
+//      int junk = 0;
+//      rx_thread = al_create_thread(rx_thread_func, &junk);
+//      al_start_thread(rx_thread);
 //   }
 }
 
-
-
-
-
-// sends all packets waiting in tx buffer
-void mwPacketBuffer::send_tx_buffer(void)
+void mwPacketBuffer::stop_packet_thread(void)
 {
-//   if (PM) al_lock_mutex(tx_mutex);
-//
-//   for (int i=0; i<200; i++)
-//      if (tx_buf[i].active)
-//      {
-//         if (mNetgame.ima_client)
-//         {
-//            if (mNetgame.TCP) net_send_rdm(mNetgame.ServerConn,    tx_buf[i].data, tx_buf[i].packetsize);
-//            else              net_send(    mNetgame.ServerChannel, tx_buf[i].data, tx_buf[i].packetsize);
-//            //mwNetgame::ClientSend(tx_buf[indx].data, tx_buf[i].packetsize);
-//         }
-//         if (mNetgame.ima_server)
-//         {
-//            if (mNetgame.TCP) net_send_rdm(mNetgame.ClientConn[   tx_buf[i].who], tx_buf[i].data, tx_buf[i].packetsize);
-//            else              net_send(    mNetgame.ClientChannel[tx_buf[i].who], tx_buf[i].data, tx_buf[i].packetsize);
-//
-//            //mwNetgame::ServerSendTo(tx_buf[indx].data, tx_buf[indx].packetsize, tx_buf[i].who, );
-//         }
-//         tx_buf[i].active = 0;
-//      }
-//
-//   if (PM) al_unlock_mutex(tx_mutex);
-}
+//   if (PT) al_set_thread_should_stop(rx_thread);
 
-
-// send a packet immediatley
-void mwPacketBuffer::send_packet(char* data, int len, int who)
-{
-   if (mNetgame.ima_client)
-   {
-      if (mNetgame.TCP) net_send_rdm(mNetgame.ServerConn,    data, len);
-      else              net_send(    mNetgame.ServerChannel, data, len);
-      //mwNetgame::ClientSend(data, len);
-   }
-   if (mNetgame.ima_server)
-   {
-      if (mNetgame.TCP) net_send_rdm(mNetgame.ClientConn[   who], data, len);
-      else              net_send(    mNetgame.ClientChannel[who], data, len);
-
-      //mwNetgame::ServerSendTo(data, len, who);
-   }
-}
-
-
-
-
-
-// adds a packets to tx buffer
-void mwPacketBuffer::add_to_tx_buffer(char* data, int len, int who)
-{
-
-   send_packet(data, len, who);
-
-
-//   if (PM) al_lock_mutex(tx_mutex);
-//
-//   int indx = find_empty_tx_packet_buffer();
-//   if (indx != -1)
-//   {
-//      //printf("%d stored tx packet:%d len:%d who:%d\n", mLoop.frame_num, indx, len, who);
-//      tx_buf[indx].active = 1;
-//      tx_buf[indx].packetsize = len;
-//      tx_buf[indx].who = who;
-//      memcpy(tx_buf[indx].data, data, len);
-//   }
-//   if (PM) al_unlock_mutex(tx_mutex);
-//
-//   if (!mPacketBuffer.PT) mPacketBuffer.send_tx_buffer();
-//
-
-
+   if (PT) thread_working = 0;
 
 }
 
@@ -212,86 +152,84 @@ void mwPacketBuffer::proc_rx_buffer(void)
 {
    double t0 = al_get_time();
 
-   if (PM) al_lock_mutex(rx_mutex);
+   lock_mutex();
+
 
    mTally[3].add_data(al_get_time() - t0);
 
-   if (rx_buf_has_packets)
-      for (int i=0; i<199; i++)
-         if (rx_buf[i].active) proc_rx_buffer_single(i);
+   for (int i=0; i<199; i++)
+      if (rx_buf[i].active) proc_rx_buffer_single(i);
 
-   rx_buf_has_packets = 0;
+   unlock_mutex();
 
-   if (PM) al_unlock_mutex(rx_mutex);
 
    mTally[0].add_data(al_get_time() - t0);
-
 }
+
+
 
 
 
 // receives all waiting packets and puts them in the rx buffer
 void mwPacketBuffer::add_to_rx_buffer(void)
 {
+   char data[1024] = {0};
+
    double t0 = al_get_time();
 
-   if (PM) al_lock_mutex(rx_mutex);
+   lock_mutex();
 
    mTally[2].add_data(al_get_time() - t0);
 
    int who = -1;
    if (mNetgame.ima_server)
-      while((mNetgame.packetsize = mNetgame.ServerReceive(mNetgame.packetbuffer, &who)))
-         add_to_rx_buffer_single(who);
+      while(mNetgame.ServerReceive(data, &who))
+         add_to_rx_buffer_single(data, who);
 
    if (mNetgame.ima_client)
-      while ((mNetgame.packetsize = mNetgame.ClientReceive(mNetgame.packetbuffer)))
-         add_to_rx_buffer_single(who);
+      while (mNetgame.ClientReceive(data))
+         add_to_rx_buffer_single(data, who);
 
-   if (PM) al_unlock_mutex(rx_mutex);
+   unlock_mutex();
 
    mTally[1].add_data(al_get_time() - t0);
 
 }
 
 
-
-void mwPacketBuffer::add_to_rx_buffer_single(int who)
+void mwPacketBuffer::add_to_rx_buffer_single(char *data, int who)
 {
+   // process these immediately and do not add to buffer
+   if (PacketRead(data, "ping"))
+   {
+      mNetgame.server_proc_ping_packet(data, who);
+      return;
+   }
+   if (PacketRead(data, "pang"))
+   {
+      mNetgame.server_proc_pang_packet(data, who);
+      return;
+   }
+   if (PacketRead(data, "pong"))
+   {
+      mNetgame.client_proc_pong_packet(data);
+      return;
+   }
+
+
    int type = 0;
-   if (mNetgame.PacketRead("cdat")) type = 1;
-   if (mNetgame.PacketRead("stak")) type = 2;
-   if (mNetgame.PacketRead("cjon")) type = 3;
-   if (mNetgame.PacketRead("cjrc")) type = 4;
-   if (mNetgame.PacketRead("rctl")) type = 5;
 
-   if (mNetgame.PacketRead("stdf")) type = 11;
-   if (mNetgame.PacketRead("sjon")) type = 12;
-   if (mNetgame.PacketRead("sjrc")) type = 13;
-   if (mNetgame.PacketRead("snfo")) type = 14;
+   if (PacketRead(data, "cdat")) type = 1;
+   if (PacketRead(data, "stak")) type = 2;
+   if (PacketRead(data, "cjon")) type = 3;
+   if (PacketRead(data, "cjrc")) type = 4;
+   if (PacketRead(data, "rctl")) type = 5;
 
+   if (PacketRead(data, "stdf")) type = 11;
+   if (PacketRead(data, "sjon")) type = 12;
+   if (PacketRead(data, "sjrc")) type = 13;
+   if (PacketRead(data, "snfo")) type = 14;
 
-   // process these immediately
-   if (mNetgame.PacketRead("ping"))
-   {
-      memcpy(rx_buf[199].data, mNetgame.packetbuffer, 1024);
-      rx_buf[199].packetpos = 4;
-      mNetgame.server_proc_ping_packet(199);
-   }
-
-   if (mNetgame.PacketRead("pang"))
-   {
-      memcpy(rx_buf[199].data, mNetgame.packetbuffer, 1024);
-      rx_buf[199].packetpos = 4;
-      mNetgame.server_proc_pang_packet(199);
-   }
-
-   if (mNetgame.PacketRead("pong"))
-   {
-      memcpy(rx_buf[199].data, mNetgame.packetbuffer, 1024);
-      rx_buf[199].packetpos = 4;
-      mNetgame.client_proc_pong_packet(199);
-   }
 
    if (type)
    {
@@ -303,21 +241,9 @@ void mwPacketBuffer::add_to_rx_buffer_single(int who)
          rx_buf[indx].type = type;
          rx_buf[indx].timestamp = al_get_time();
          rx_buf[indx].who = who;
-         rx_buf[indx].packetsize = mNetgame.packetsize;
-         memcpy(rx_buf[indx].data, mNetgame.packetbuffer, 1024);
-         rx_buf_has_packets = 1;
+         memcpy(rx_buf[indx].data, data, 1024);
       }
    }
-}
-
-
-int mwPacketBuffer::find_empty_tx_packet_buffer(void)
-{
-   for (int i=0; i<200; i++) if (!tx_buf[i].active) return i;
-
-   mLog.add(LOG_NET, 0, "tx packet buffer full!\n");
-   printf("[%d] tx packet buffer full!\n", mLoop.frame_num);
-   return -1;
 }
 
 int mwPacketBuffer::find_empty_rx_packet_buffer(void)
@@ -378,12 +304,32 @@ int mwPacketBuffer::find_empty_rx_packet_buffer(void)
 
 }
 
+void mwPacketBuffer::lock_mutex(void)
+{
+   if (PM)
+   {
+      //al_lock_mutex(rx_mutex);
+      m.lock();
+   }
+}
+
+void mwPacketBuffer::unlock_mutex(void)
+{
+   if (PM)
+   {
+      //al_unlock_mutex(rx_mutex);
+      m.unlock();
+   }
+}
+
 
 
 
 float mwPacketBuffer::get_max_dsync(void)
 {
-   if (PM) al_lock_mutex(rx_mutex);
+   lock_mutex();
+
+
    // iterate all stdf packets, calc dysnc, then get max dysnc
    float max_dsync = -1000;
 
@@ -400,7 +346,9 @@ float mwPacketBuffer::get_max_dsync(void)
 
          if (dsync > max_dsync) max_dsync = dsync;
       }
-   if (PM) al_unlock_mutex(rx_mutex);
+
+   unlock_mutex();
+
    return max_dsync;
 }
 
@@ -413,6 +361,16 @@ void mwPacketBuffer::PacketName(char *data, int &pos, const char *name)
    sprintf(data, "%s", name);
    pos = 4;
 }
+
+// check if a packet has the given id
+int mwPacketBuffer::PacketRead(char *data, const char *id )
+{
+   if (!strncmp(data, id, 4)) return 1;
+	return 0;
+}
+
+
+
 
 
 char mwPacketBuffer::PacketGetByte(int i)
@@ -439,13 +397,35 @@ void mwPacketBuffer::PacketReadString(int i, char* s)
    for (int i=0; i<16; i++) s[i] = PacketGetByte(i);
 }
 
+
+
 double mwPacketBuffer::PacketGetDouble(int i)
 {
+   return PacketGetDouble(rx_buf[i].data, rx_buf[i].packetpos);
+}
+
+double mwPacketBuffer::PacketGetDouble(char *data, int &pos)
+{
    double d = 0;
-   memcpy(&d, rx_buf[i].data + rx_buf[i].packetpos, 8);
-	rx_buf[i].packetpos+=8;
+   memcpy(&d, data + pos, 8);
+	pos+=8;
 	return d;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void mwPacketBuffer::PacketPutDouble(char *data, int &pos, double d)
 {
@@ -477,7 +457,6 @@ void mwPacketBuffer::PacketPutInt1(char *data, int &pos, int b)
 
 
 
-
 int mwPacketBuffer::PacketGetInt4(int i)
 {
    int d = 0;
@@ -500,7 +479,6 @@ int mwPacketBuffer::PacketGetInt1(int i)
    int b = byte_lo;
 	return b;
 }
-
 
 
 
