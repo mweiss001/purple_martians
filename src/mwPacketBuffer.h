@@ -22,45 +22,33 @@ struct packet_buffer
 class mwPacketBuffer
 {
    public:
-
    mwRollingAverage RA[8];
-
    mwPacketBuffer(); // default constructor
-
    ~mwPacketBuffer(); // default deconstructor
+   void init_packet_buffer(void);
 
 
+   // add to rx buffer thread type
+   int thread_type = 2; // 0-none  1-Allegro  2-C++
+
+   // Allegro Threads
+   ALLEGRO_THREAD *rx_thread;
+   ALLEGRO_MUTEX *rx_mutex;
+   static void *al_rx_thread_func(ALLEGRO_THREAD *thr, void *arg);
+
+   // C++ Threads
+   std::thread t1;
+   std::mutex m;
+   int thread_running = 0;
+   int thread_working = 0;
+   void c_rx_thread_func(void);
+
+   // Common to Allegro Threads and C++ Threads
+   void start_packet_thread(void);
+   void stop_packet_thread(void);
    void lock_mutex(void);
    void unlock_mutex(void);
 
-
-   void init_packet_buffer(void);
-
-   float get_max_dsync(void);
-
-   void start_packet_thread(void);
-   void stop_packet_thread(void);
-
-   int PT=1;
-   int PM=1;
-
-   ALLEGRO_THREAD *rx_thread;
-   ALLEGRO_MUTEX *rx_mutex;
-
-
-   int thread_running = 0;
-
-   int thread_working = 0;
-
-
-   std::thread t1;
-   std::mutex m;
-
-
-
-
-
-   static void *rx_thread_func(ALLEGRO_THREAD *thr, void *arg);
 
    void PacketName(char *data, int &pos, const char *name);
    int PacketRead(char *data, const char *id );
@@ -74,25 +62,28 @@ class mwPacketBuffer
 
    char PacketGetByte(int i);
    void PacketReadString(int i, char* s);
+   double PacketGetDouble(char *data, int &pos);
    double PacketGetDouble(int i);
    int PacketGetInt4(int i);
    int PacketGetInt2(int i);
    int PacketGetInt1(int i);
 
 
-   double PacketGetDouble(char *data, int &pos);
-
-
-   void crx_thread_func(void);
-
-
    struct packet_buffer rx_buf[200];
+
+   void check_for_packets(void);
+
    void add_to_rx_buffer(void);
    void add_to_rx_buffer_single(char *data, int who);
    int find_empty_rx_packet_buffer(void);
    void rx_and_proc(void);
    void proc_rx_buffer(void);
    void proc_rx_buffer_single(int i);
+
+
+   float get_max_dsync(void);
+
+
 };
 
 extern mwPacketBuffer mPacketBuffer;

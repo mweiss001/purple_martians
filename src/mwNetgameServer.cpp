@@ -27,246 +27,98 @@ int mwNetgame::ServerInitNetwork() // Initialize the server
       mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Error: failed to initialize network");
       return -1;
    }
-   if (TCP)
+   // open the listening channel
+   if (!(ListenChannel = net_openchannel(NetworkDriver, "")))
    {
-      ListenConn = net_openconn(NetworkDriver, "");
-      if (!ListenConn)
-      {
-         mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Error opening connection");
-         return -1;
-      }
-      if (net_listen(ListenConn))
-      {
-         mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Error listening on connection");
-         return -1;
-      }
-      mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Network initialized - connection mode (TCP)");
+      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Error opening listening channel");
+      return -1;
    }
-   else // UDP
+   if (net_assigntarget(ListenChannel, ""))
    {
-      // open the listening channel
-      if (!(ListenChannel = net_openchannel(NetworkDriver, "")))
-      {
-         mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Error opening listening channel");
-         return -1;
-      }
-      if (net_assigntarget(ListenChannel, ""))
-      {
-         mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Error assigning target to listening channel");
-         net_closechannel(ListenChannel);
-         return -1;
-      }
-      mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Network initialized - channel mode (UDP)");
+      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Error assigning target to listening channel");
+      net_closechannel(ListenChannel);
+      return -1;
    }
-
-
+   mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Network initialized - channel mode (UDP)");
    return 0;
 }
 
 
 void mwNetgame::ServerListen()
 {
-   if (TCP) // listen for connections
-   {
-      NET_CONN *newconn;
-      newconn = net_poll_listen(ListenConn);
-      if (newconn == NULL) return;
-      else
-      {
-         ClientConn[ClientNum] = newconn;
-         ClientNum++;
-         mLog.add_fw (LOG_NET, 0, 76, 10, "+", "-", "");
-         mLog.add_fwf(LOG_NET, 0, 76, 10, "+", "-", "Connection received from %s", net_getpeer (newconn));
-         mLog.add_fw (LOG_NET, 0, 76, 10, "+", "-", "");
-      }
-   }
-   else // UDP - listen for channels
-   {
-      char address[32];
-      char data[1024] = {0}; int pos;
+   char address[32];
+   char data[1024] = {0}; int pos;
 
-      pos = net_receive(ListenChannel, data, 1024, address);
-      if (pos)
+   pos = net_receive(ListenChannel, data, 1024, address);
+   if (pos)
+   {
+      if (mPacketBuffer.PacketRead(data, "1234"))
       {
-         if (mPacketBuffer.PacketRead(data, "1234"))
+         mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received initial 1234 packet from '%s'",address);
+         if (!(ClientChannel[ClientNum] = net_openchannel(NetworkDriver, NULL)))
          {
-            mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received initial 1234 packet from '%s'",address);
-            if (!(ClientChannel[ClientNum] = net_openchannel(NetworkDriver, NULL)))
-            {
-               mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", "Error: failed to open channel for %s\n", address);
-               return;
-            }
-            if (net_assigntarget (ClientChannel[ClientNum], address))
-            {
-               mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", "Error: couldn't assign target `%s' to channel\n", address);
-               net_closechannel (ClientChannel[ClientNum]);
-               return;
-            }
-            mPacketBuffer.PacketName(data, pos, "5678");
-            ServerSendTo(data, pos, ClientNum);
-            ClientNum++;
-            mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server opened channel for `%s' and sent reply", address);
+            mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", "Error: failed to open channel for %s\n", address);
+            return;
          }
+         if (net_assigntarget (ClientChannel[ClientNum], address))
+         {
+            mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", "Error: couldn't assign target `%s' to channel\n", address);
+            net_closechannel (ClientChannel[ClientNum]);
+            return;
+         }
+         mPacketBuffer.PacketName(data, pos, "5678");
+         ServerSendTo(data, pos, ClientNum);
+         ClientNum++;
+         mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server opened channel for `%s' and sent reply", address);
       }
    }
 }
 
-// Receive all waiting packets from all clients, and store in provided array
-// (must have room for 1024 bytes). Returns the size of the stored data
+// receive waiting packets from clients, and store in provided array
 int mwNetgame::ServerReceive(void *data, int *sender)
 {
-   if (TCP)
-   {
-      for (int n=0; n<ClientNum; n++)
+   for (int n=0; n<ClientNum; n++)
+      if (ClientChannel[n])
       {
-   	   if (ClientConn[n])
+         int len = net_receive(ClientChannel[n], data, 1024, NULL);
+         if (len > 0)
          {
-   		   int len = net_receive_rdm(ClientConn[n], data, 1024);
-   			if (len > 0)
+            // add to server's counts
+            mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
+            mPlayer.loc[0].rx_current_packets_for_this_frame++;
+
+            // add to client's counts
+            int p = server_get_player_num_from_who(n);
+            if (p > -1)
             {
-               // add to server's counts
-               mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
-               mPlayer.loc[0].rx_current_packets_for_this_frame++;
-               // use n (who) to get player number
-               for (int p=0; p<NUM_PLAYERS; p++)
-                  if ((mPlayer.syn[p].active) && (mPlayer.loc[p].who == n))
-                  {
-                     // add to client's counts
-                     mPlayer.loc[p].rx_current_bytes_for_this_frame += len;
-                     mPlayer.loc[p].rx_current_packets_for_this_frame++;
-                  }
-   				if (sender) *sender = n;
-   				return len;
-   			}
-   		}
+               mPlayer.loc[p].rx_current_bytes_for_this_frame += len;
+               mPlayer.loc[p].rx_current_packets_for_this_frame++;
+            }
+            *sender = n;
+            return len;
+         }
       }
-   } // end of TCP
-   else // UDP
-   {
-      for (int n=0; n<ClientNum; n++)
-      {
-   		if (ClientChannel[n])
-         {
-            int len = net_receive(ClientChannel[n], data, 1024, NULL);
-   			if (len > 0)
-            {
-               // add to server's counts
-               mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
-               mPlayer.loc[0].rx_current_packets_for_this_frame++;
-               // use n (who) to get player number
-               for (int p=0; p<NUM_PLAYERS; p++)
-                  if ((mPlayer.syn[p].active) && (mPlayer.loc[p].who == n))
-                  {
-                     // add to client's counts
-                     mPlayer.loc[p].rx_current_bytes_for_this_frame += len;
-                     mPlayer.loc[p].rx_current_packets_for_this_frame++;
-                  }
-   				if (sender) *sender = n;
-   				return len;
-   			}
-   		}
-      }
-   } // end of UDP
 	return 0;
-
-
-
-//   if (TCP)
-//   {
-//      for (int n=0; n<ClientNum; n++)
-//      {
-//   	   if (ClientConn[n])
-//         {
-//   		   int len = net_receive_rdm(ClientConn[n], data, 1024);
-//   			if (len > 0)
-//            {
-//               // add to server's counts
-//               mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
-//               mPlayer.loc[0].rx_current_packets_for_this_frame++;
-//               // use n (who) to get player number
-//               for (int p=0; p<NUM_PLAYERS; p++)
-//                  if ((mPlayer.syn[p].active) && (mPlayer.loc[p].who == n))
-//                  {
-//                     // add to client's counts
-//                     mPlayer.loc[p].rx_current_bytes_for_this_frame += len;
-//                     mPlayer.loc[p].rx_current_packets_for_this_frame++;
-//                  }
-//   				if (sender) *sender = n;
-//   				return len;
-//   			}
-//   		}
-//      }
-//   } // end of if TCP
-//   else // UDP
-//   {
-//      for (int n=0; n<ClientNum; n++)
-//      {
-//   		if (ClientChannel[n])
-//         {
-//            int len = net_receive(ClientChannel[n], data, 1024, NULL);
-//   			if (len > 0)
-//            {
-//               // add to server's counts
-//               mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
-//               mPlayer.loc[0].rx_current_packets_for_this_frame++;
-//               // use n (who) to get player number
-//               for (int p=0; p<NUM_PLAYERS; p++)
-//                  if ((mPlayer.syn[p].active) && (mPlayer.loc[p].who == n))
-//                  {
-//                     // add to client's counts
-//                     mPlayer.loc[p].rx_current_bytes_for_this_frame += len;
-//                     mPlayer.loc[p].rx_current_packets_for_this_frame++;
-//                  }
-//   				if (sender) *sender = n;
-//   				return len;
-//   			}
-//   		}
-//      }
-//   } // end of UDP
-//	return 0;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 void mwNetgame::ServerBroadcast(void *data, int len)
 {
    for (int n=0; n<ClientNum; n++)
-   {
-      if ((TCP)  && (ClientConn[n]))    net_send_rdm( ClientConn[n],    data, len);
-      if ((!TCP) && (ClientChannel[n])) net_send(     ClientChannel[n], data, len);
-   }
+      if (ClientChannel[n]) net_send(ClientChannel[n], data, len);
 }
+
 
 // send data to a specific client
 void mwNetgame::ServerSendTo(void *data, int len, int who)
 {
-   if (TCP) net_send_rdm(ClientConn[who], data, len);
-   else     net_send(ClientChannel[who], data, len);
+   net_send(ClientChannel[who], data, len);
 
    // add to server's counts
    mPlayer.loc[0].tx_current_bytes_for_this_frame += len;
    mPlayer.loc[0].tx_current_packets_for_this_frame++;
 
-   int p = get_player_num_from_who(who);
-   if (p != 99)
+   int p = server_get_player_num_from_who(who);
+   if (p != -1)
    {
       // add to client's counts
       mPlayer.loc[p].tx_current_bytes_for_this_frame += len;
@@ -285,28 +137,14 @@ void mwNetgame::ServerExitNetwork() // Shut the server down
    mPacketBuffer.stop_packet_thread();
 
    mLog.add_header(LOG_NET, 0, 0, "Shutting down the server network");
-   if (TCP)
-   {
-      for (int n=0; n<ClientNum; n++)
-         if (ClientConn[n])
-         {
-            net_closeconn(ClientConn[n]);
-            ClientConn[n] = NULL;
-         }
-   	if (ListenConn) net_closeconn(ListenConn);
-   	ListenConn = NULL;
-   }
-   else // UDP
-   {
-      for (int n=0; n<ClientNum; n++)
-         if (ClientChannel[n])
-         {
-             net_closechannel(ClientChannel[n]);
-             ClientChannel[n] = NULL;
-         }
-   	if (ListenChannel) net_closechannel(ListenChannel);
-   	ListenChannel = NULL;
-   }
+   for (int n=0; n<ClientNum; n++)
+      if (ClientChannel[n])
+      {
+          net_closechannel(ClientChannel[n]);
+          ClientChannel[n] = NULL;
+      }
+   if (ListenChannel) net_closechannel(ListenChannel);
+   ListenChannel = NULL;
 }
 
 
@@ -338,9 +176,9 @@ int mwNetgame::server_init(void)
    mPacketBuffer.start_packet_thread();
 
    // still needed or client dies at joining   ---------- i should test this....seems OK without it...
-//   char data[1024] = {0}; int pos;
-//   mPacketBuffer.PacketName(data, pos, "JUNK");
-//   ServerBroadcast(data, pos);
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "JUNK");
+   ServerBroadcast(data, pos);
 
 
    return 1;
@@ -834,7 +672,7 @@ void mwNetgame::server_proc_cjon_packet(int i)
 }
 
 
-int mwNetgame::get_player_num_from_who(int who)
+int mwNetgame::server_get_player_num_from_who(int who)
 {
    for(int p=0; p<NUM_PLAYERS; p++)
       if (mPlayer.loc[p].who == who) return p;
@@ -867,7 +705,7 @@ void mwNetgame::server_send_sjrc_packet(int who)
 
 void mwNetgame::server_proc_ping_packet(char *data, int who)
 {
-   int p = mNetgame.get_player_num_from_who(who);
+   int p = server_get_player_num_from_who(who);
    if (p != -1)
    {
       //printf("rx ping from p:%d - tx pong\n", p);
@@ -886,7 +724,7 @@ void mwNetgame::server_proc_ping_packet(char *data, int who)
 
 void mwNetgame::server_proc_pang_packet(char *data, int who)
 {
-   int p = mNetgame.get_player_num_from_who(who);
+   int p = server_get_player_num_from_who(who);
    if (p != -1)
    {
       int pos = 4;

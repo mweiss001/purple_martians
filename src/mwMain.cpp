@@ -158,6 +158,9 @@ int mwMain::initial_setup(void)
    set_exe_path();
    set_and_get_versions();
 
+
+
+
    mConfig.load_config();
 
    show_system_id();
@@ -307,7 +310,6 @@ int mwMain::initial_setup(void)
    else mLevel.set_start_level(1);
 
 //   printf("test3\n");
-
 
    return 1;
 }

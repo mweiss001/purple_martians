@@ -1508,6 +1508,8 @@ void mwLoop::initialize_graphs(void)
 
 
 
+
+
 void mwLoop::main_loop(void)
 {
    while (!main_loop_exit)
@@ -1523,15 +1525,10 @@ void mwLoop::main_loop(void)
       mEventQueue.proc(0);
 
       // ----------------------------------------------------------
-      // process fast packet loops
+      // check for packets
       // ----------------------------------------------------------
+      mPacketBuffer.check_for_packets();
 
-
-      // run here if not running in their own threads
-      if (!mPacketBuffer.PT)
-      {
-         if ((mNetgame.ima_server) || (mNetgame.ima_client)) mPacketBuffer.add_to_rx_buffer();
-      }
 
       if (super_fast_mode) mEventQueue.program_update = 1; // temp testing as fast as it can go
 
@@ -1541,9 +1538,10 @@ void mwLoop::main_loop(void)
       // ----------------------------------------------------------
       if (mEventQueue.program_update)
       {
-
          mEventQueue.program_update = 0;
          mInput.proc_keys_held();
+
+
 
 
 // ----------------------------------------------------------------------------------------------------------------
@@ -1829,6 +1827,8 @@ void mwLoop::main_loop(void)
                else                            mDisplay.proc_scale_factor_change();
             }
 
+            mPacketBuffer.check_for_packets();
+
             // -----------------------------------
             // process server and client control
             // -----------------------------------
@@ -1845,10 +1845,18 @@ void mwLoop::main_loop(void)
             // ------------------------------
             mGameMoves.proc();
 
+
+
+
+            mPacketBuffer.check_for_packets();
+
             // ------------------------------
             // move
             // ------------------------------
             move_frame();
+
+
+            mPacketBuffer.check_for_packets();
 
             // ----------------------------------
             // create and send states to clients
@@ -1860,10 +1868,18 @@ void mwLoop::main_loop(void)
                mLog.add_tmr1(LOG_TMR_sdif, 0, "sdif", al_get_time() - t0);
             }
 
+
+            mPacketBuffer.check_for_packets();
+
+
             // ------------------------------
             // draw
             // ------------------------------
             if ((!mDisplay.no_display) && (ldm != 27) && (!super_fast_mode)) mDrawSequence.draw(0);
+
+
+            mPacketBuffer.check_for_packets();
+
 
             // --------------------------------------------
             // measure time to process loop
@@ -1921,7 +1937,9 @@ void mwLoop::main_loop(void)
          {
 
 
-            printf("add_rx_buf   times called:%d  total_time:%8.4fms  avg:%8.4fus \n", mTally[1].num, mTally[1].get_tally(0)*1000, mTally[1].get_avg(0)*1000000);
+            printf("add_rx_buf checked:%d tot_ctime:%8.4fms  avg_ctime:%8.4fus  proc:%d tot_ptime:%8.4fms  avg_ptime:%8.4fus \n", mTally[0].num, mTally[0].get_tally(0)*1000, mTally[0].get_avg(0)*1000000,
+                                                                                                                                  mTally[1].num, mTally[1].get_tally(0)*1000, mTally[1].get_avg(0)*1000000);
+            mTally[0].initialize();
             mTally[1].initialize();
 
 

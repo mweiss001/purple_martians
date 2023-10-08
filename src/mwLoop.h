@@ -71,20 +71,13 @@ class mwLoop
 
    int remote_frames_since_last_rctl_sent = 0;
 
-
-
    void add_local_cpu_data(double cpu);
-
-
-
-
 
    int have_all_players_acknowledged(void);
    void game_menu(void);
    void proc_level_done_mode(void);
    void proc_program_state(void);
    void main_loop(void);
-
 };
 extern mwLoop mLoop;
 

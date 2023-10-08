@@ -35,18 +35,14 @@ mwNetgame::mwNetgame()
    ima_client = 0;
    remote_join_reply = 0;
 
+
    sprintf(m_serveraddress, "192.168.1.2");
-   TCP = 0;
    zlib_cmp = 7;
-
-   ServerConn = NULL;
-   ServerChannel = NULL;
-
    tmaj_i = 0;
 
+
+   ServerChannel = NULL;
    ClientNum = 0;
-   ListenConn = NULL;                      // listening connection
-   ClientConn[MAX_CLIENTS] = {NULL, };     // array of connections for each client
    ListenChannel = NULL;                   // listen channel
    ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
 }
@@ -70,10 +66,9 @@ int mwNetgame::NetworkInit(void)
 
    free(drivernames);
 
-   // valid driver?
-   if(NetworkDriver >= 0)
+   if (NetworkDriver >= 0)
    {
-      if(net_initdriver(NetworkDriver)) return 0;
+      if (net_initdriver(NetworkDriver)) return 0;
       else
       {
          // Error: Couldn't initialize network driver
@@ -86,6 +81,25 @@ int mwNetgame::NetworkInit(void)
       return -1;
    }
 }
+
+
+int mwNetgame::is_data_waiting(void)
+{
+   double t0 = al_get_time();
+   int data_waiting = 0;
+   if (mNetgame.ima_server)
+   {
+      for (int n=0; n<ClientNum; n++)
+         if ((ClientChannel[n]) && (net_query(ClientChannel[n]))) data_waiting = 1;
+   }
+   if (mNetgame.ima_client)
+   {
+      if (net_query(ServerChannel)) data_waiting = 1;
+   }
+   mTally[0].add_data(al_get_time() - t0);
+   return data_waiting;
+}
+
 
 
 void mwNetgame::game_vars_to_state(char * b)

@@ -28,39 +28,20 @@ int mwNetgame::ClientInitNetwork(const char *serveraddress)
       mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Error: failed to initialize network");
       return -1;
    }
-   if (TCP)
-   {
-      ServerConn = net_openconn(NetworkDriver, NULL);
-      if (!ServerConn)
-      {
-         mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Error: Client failed to create netconnection (TCP)");
-         return 0;
-      }
-      if (net_connect(ServerConn, serveraddress))
-      {
-         mLog.add_fwf(LOG_error, 0, 76, 10, "|", " ", "Error: Client failed to set netconnection target: server[%s] (TCP)", serveraddress);
-         net_closeconn(ServerConn);
-   		return 0;
-   	}
-      mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client network (TCP) initialized -- server[%s]", serveraddress);
-   }
-   else // UDP
-   {
-      ServerChannel = net_openchannel(NetworkDriver, "");
-      if (ServerChannel == NULL)
-      {
-         mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Error: Client failed to create netchannel (UDP)");
-         return 0;
-      }
-      if (net_assigntarget(ServerChannel, serveraddress))
-      {
-         mLog.add_fwf(LOG_error, 0, 76, 10, "|", " ", "Error: Client failed to set netchannel target: server[%s] (UDP)", serveraddress);
-         return 0;
-      }
-      mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client network (UDP) initialized -- server:[%s]", serveraddress);
-      //mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Local address%s", net_getlocaladdress(ServerChannel));
-   }
 
+   ServerChannel = net_openchannel(NetworkDriver, "");
+   if (ServerChannel == NULL)
+   {
+      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Error: Client failed to create netchannel (UDP)");
+      return 0;
+   }
+   if (net_assigntarget(ServerChannel, serveraddress))
+   {
+      mLog.add_fwf(LOG_error, 0, 76, 10, "|", " ", "Error: Client failed to set netchannel target: server[%s] (UDP)", serveraddress);
+      return 0;
+   }
+   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client network (UDP) initialized -- server:[%s]", serveraddress);
+   //mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Local address%s", net_getlocaladdress(ServerChannel));
 
 
    // Check for reply from server
@@ -88,12 +69,6 @@ int mwNetgame::ClientInitNetwork(const char *serveraddress)
             return 0;
          }
       }
-      if (ccr == -1)
-      {
-         mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "TCP response Error!");
-         mLog.add_fw(LOG_NET, 0, 76, 10, "+", "-", "");
-         return 0;
-      }
       if (ccr == -2)
       {
          mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Cancelled");
@@ -110,50 +85,37 @@ int mwNetgame::ClientInitNetwork(const char *serveraddress)
 
 int mwNetgame::ClientCheckResponse(void) // check for a repsonse from the server
 {
-   if (TCP)
+   char address[32];
+
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "1234");
+   ClientSend(data, pos);
+
+   mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Sent initial packet (1234) to server");
+   mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Waiting for reply");
+
+   int done = 20;
+
+   while (done)
    {
-   	int x = net_poll_connect(ServerConn);
-      if (x == 0) return 0; // no response yet
-   	if (x >  0) return 1; // good response
-   	if (x <  0) // error
+      mEventQueue.proc(1);
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) return -2;
+
+      int len = net_receive(ServerChannel, data, 1024, address);
+      if (len >= 4)
       {
-   		net_closeconn(ServerConn);
-   		return -1;
-   	}
-   }
-   else // UDP
-   {
-      char address[32];
-
-      char data[1024] = {0}; int pos;
-      mPacketBuffer.PacketName(data, pos, "1234");
-      ClientSend(data, pos);
-
-      mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Sent initial packet (1234) to server");
-      mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Waiting for reply");
-
-      int done = 10;
-
-      while (done)
-      {
-         mEventQueue.proc(1);
-         if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) return -2;
-
-         int len = net_receive(ServerChannel, data, 1024, address);
-         if (len >= 4)
+         if (mPacketBuffer.PacketRead(data, "5678"))
          {
-            if (mPacketBuffer.PacketRead(data, "5678"))
-            {
-               mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Got Response");
-               net_assigntarget(ServerChannel, address);
-               return 1;
-            }
+            mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Got Response");
+            net_assigntarget(ServerChannel, address);
+            return 1;
          }
-         al_rest(.1);
-         done--;
       }
-      mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "No Response");
+      al_rest(.1);
+      done--;
    }
+   mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "No Response");
+
    return 0;
 }
 
@@ -162,9 +124,7 @@ int mwNetgame::ClientCheckResponse(void) // check for a repsonse from the server
 // (must have room for 1024 bytes). Returns the size of the stored data.
 int mwNetgame::ClientReceive(void *data)
 {
-   int len;
-   if (TCP) len = net_receive_rdm(ServerConn,    data, 1024);
-   else    	len = net_receive(    ServerChannel, data, 1024, NULL);
+   int len = net_receive(ServerChannel, data, 1024, NULL);
    if (len > 0)
    {
       mPlayer.loc[mPlayer.active_local_player].rx_current_bytes_for_this_frame+= len;
@@ -176,8 +136,7 @@ int mwNetgame::ClientReceive(void *data)
 
 void mwNetgame::ClientSend(void *data, int len)
 {
-   if (TCP) net_send_rdm(ServerConn   , data, len);
-   else     net_send(    ServerChannel, data, len);
+   net_send(ServerChannel, data, len);
 
    mPlayer.loc[mPlayer.active_local_player].tx_current_bytes_for_this_frame+= len;
    mPlayer.loc[mPlayer.active_local_player].tx_current_packets_for_this_frame++;
@@ -195,18 +154,9 @@ void mwNetgame::client_flush(void)
 void mwNetgame::ClientExitNetwork(void)
 {
    mPacketBuffer.stop_packet_thread();
-
    mLog.add_header(LOG_NET, 0, 0, "Shutting down the client network");
-   if (TCP)
-   {
-   	if(ServerConn) net_closeconn(ServerConn);
-   	ServerConn = NULL;
-   }
-   else // UDP
-   {
-   	if(ServerChannel) net_closechannel(ServerChannel);
-   	ServerChannel = NULL;
-   }
+   if(ServerChannel) net_closechannel(ServerChannel);
+   ServerChannel = NULL;
    net_shutdown();
 }
 

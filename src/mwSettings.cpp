@@ -851,7 +851,7 @@ void mwSettings::settings_pages(int set_page)
       if (page == 4)
       {
          int line_spacing = 10;
-         if (show_advanced) line_spacing = 5;
+//         if (show_advanced) line_spacing = 5;
 //         line_spacing +=  mLoop.pct_y;
          int tc = 13;
          int fc = 15;
@@ -916,26 +916,26 @@ void mwSettings::settings_pages(int set_page)
          if (mWidget.buttont(xa+120, ya, xb-120, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Netgame Help")) mHelp.help("Netgame");
 
 
-         if (show_advanced)
-         {
-            ya+=20;
-
-            fc = 14;
-            frame_y1 = ya;
-            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
-
-            al_draw_text(mFont.pr8, mColor.pc[14], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Advanced Settings");
-            ya+=8;
-            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
-
-            ya-=2;
-            mWidget.toggle( xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mNetgame.TCP, "Packet type:UDP", "Packet type:TCP", 15, 15, -1, -1);
-            ya-=4;
-
-            al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
-            al_draw_line(cfp_x2-4, frame_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[fc], 1 );
-            ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
-         }
+//         if (show_advanced)
+//         {
+//            ya+=20;
+//
+//            fc = 14;
+//            frame_y1 = ya;
+//            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
+//
+//            al_draw_text(mFont.pr8, mColor.pc[14], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Advanced Settings");
+//            ya+=8;
+//            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
+//
+////            ya-=2;
+////            mWidget.toggle( xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mNetgame.TCP, "Packet type:UDP", "Packet type:TCP", 15, 15, -1, -1);
+////            ya-=4;
+//
+//            al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
+//            al_draw_line(cfp_x2-4, frame_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[fc], 1 );
+//            ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
+//         }
       }
 
 
