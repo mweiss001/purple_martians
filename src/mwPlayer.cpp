@@ -109,7 +109,7 @@ void mwPlayer::proc_player_health(int p)
    {
       syn[p].health = 0;
 
-      if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 1, "PLAYER:%d DIED!", p);
+      if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 0, "PLAYER:%d DIED!", p);
 
       mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
       syn[p].stat_respawns++;

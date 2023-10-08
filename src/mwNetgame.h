@@ -29,6 +29,11 @@ class mwNetgame
    int NetworkDriver;
    int NetworkInit();
 
+
+
+   int is_data_waiting(void);
+
+
    mwStateHistory mStateHistory[8];
 
    // debug testing of sending more packets
@@ -40,9 +45,7 @@ class mwNetgame
    int remote_join_reply = 0;
 
    char m_serveraddress[256] = "192.168.1.2";
-   int TCP = 0;
    int zlib_cmp = 7;
-
 
    float client_chase_offset;
    float client_chase_offset_auto_offset;
@@ -162,7 +165,7 @@ class mwNetgame
    void server_proc_rctl_packet(int i);
 
    void server_control();
-   int get_player_num_from_who(int who);
+   int server_get_player_num_from_who(int who);
 
 };
 extern mwNetgame mNetgame;

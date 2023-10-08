@@ -38417,6 +38417,418 @@ OK done
 now I want to see if it works in linux....
 
 
+yes... I have an 8 player game with remote also
+lev 64 full fakekey
+
+server and clients doing 1ms packet buffer checks
+
+looks like c++ threads is doing its job.
+
+very similar to what al_threads and al_rest was doing except I couldn't set al_rest to 1000, m36 only did 500, but all the rest did 1000
+
+I want to be able to change between the different methods easily...
+
+cthread
+athread
+nthread
+
+thread_type 0=none 1=al 2 =c++
+
+
+ok I can switch between them now
+
+lets do a final comparison on pmh
+
+
+
+------------------------
+no threads
+-----------------------
+pmh  175k 700ms 4us
+6430 800k 700ms 0.8us
+4230  90k 400ms 5us
+
+task manager cpu
+6430 26
+4230 55
+
+game cpu
+pmh 24
+6430 12
+4230 40
+
+pings 18-35
+
+fakekey number are about the same
+
+
+---------------------------------
+allegro threads 1ms with al_rest
+---------------------------------
+
+pmh  1K 6ms  6us
+6430 1K 16ms 16us
+4230 1K 30ms 30us
+
+task manager cpu
+6430 25
+4230 58
+
+game cpu
+pmh 24
+6430 12
+4230 40
+
+pings 20-40
+
+fakekey numbers are about the same
+
+
+---------------------------------
+C++ threads 1ms
+---------------------------------
+
+pmh  1K 8ms  8us
+6430 1K 16ms 16us
+4230 1K 35ms 35us
+
+task manager cpu
+6430 25
+4230 58
+
+game cpu
+pmh 24
+6430 12
+4230 40
+
+pings 20-40
+
+fakekey numbers are about the same
+
+
+so with all these different methods, i don't see much difference
+
+
+
+---------------------------------
+allegro threads 1ms with my al_get_time
+---------------------------------
+clients use so mucg gcpu that they do not stay connected
+
+
+
+so if I do not see any improvemnet on using threads as opposed to my original method, should I just go back to that?
+
+I want to put a couple more calls to fast packet stuff in the middle of my game loop...
+
+
+I am looking at what low level shit libnet does under the hood...
+first of all, what driver does it use?
+
+
+   // detect drivers in the internet class
+   drivers = net_detectdrivers(net_classes[NET_CLASS_INET].drivers);
+   drivernames = net_getdrivernames(drivers);
+
+   NetworkDriver = drivernames[0].num; // use first detected driver
+
+
+
+implemented a test to see if any data is waiting
+
+int mwNetgame::is_data_waiting(void)
+{
+   int data_waiting = 0;
+
+   if (mNetgame.ima_server)
+   {
+      if (TCP)
+      {
+         for (int n=0; n<ClientNum; n++)
+            if ((ClientConn[n]) && (net_query_rdm(ClientConn[n]))) data_waiting = 1;
+      }
+      else // UDP
+      {
+         for (int n=0; n<ClientNum; n++)
+            if ((ClientChannel[n]) && (net_query(ClientChannel[n]))) data_waiting = 1;
+      }
+   }
+
+   if (mNetgame.ima_client)
+   {
+      if (TCP)
+      {
+         if (net_query_rdm(ServerConn)) data_waiting = 1;
+      }
+      else // UDP
+      {
+         if (net_query(ServerChannel))  data_waiting = 1;
+      }
+   }
+   return data_waiting;
+}
+
+does not seem to make anything faster or better
+
+I have some more data on that...
+
+running with no thread:
+check runs about 720Hz takes abput 1.1ms total and 1.6 us avg
+
+
+m36
+chck:720Hz tot:1.1ms avg:1.6us
+proc:40    tot:0.1ms avg:2.8us
+
+
+e6430
+chck:720Hz tot:1.8ms avg:2.6us
+proc:40    tot:0.3ms avg:7us
+
+720Hz = 18 per frame
+
+compare this with no check:
+
+
+m36
+proc:720    tot:0.6ms avg:0.9us
+
+e6430
+proc:720    tot:1.5ms avg:2.3us
+
+
+why 720Hz??
+
+I was getting hundreds of thousands last time it was unlocked
+
+I don't know wtf nut now its better:
+
+
+
+no check:
+
+m36
+proc:1.4M    tot:840ms avg:0.6us
+
+e6430
+proc:1M      tot:777ms avg:0.75us
+
+
+check:
+
+m36
+chck:1.7M  tot:875ms avg:1.2us
+proc:42    tot:0.1ms avg:2.9us
+
+e6430
+chck:600k  tot:800ms avg:1.3us
+proc:41    tot:0.7ms avg:17us
+
+
+
+this is looking good
+
+should I just remove all TCP?
+
+I never use it and it just complicates things
+
+yes, I should do that.....
+
+start with client....
+
+TCP/UDP has been removed!!!
+
+
+what would it look like with the thread wide open now?
+
+do c++ with no limit...
+
+
+
+
+
+
+I have done much more experimenting and here is what I have found:
+
+Allegro threads with al_rest() work like I would expect. They do not spin lock and waste cpu time.
+The down side is that I cannot seem to get lower than 1 ms with al_rest() and 2ms on a windows 10 machine.
+
+I experimented with C++ 11 std:threads and got very similar results
+I used std::this_thread::sleep_for() but I was again not able to get better that 1ms.
+
+I am pretty sure its limited by the underlying system.
+
+My method of:
+
+static double t0 = al_get_time();
+double t1 = al_get_time();
+if (t1-t0 > 0.001)
+
+turned out to be the worst of all.
+It could actually do times less than 1ms, but the high cpu usage caused everything else to break.
+
+So I will proabably stick with running the packet checking thread at 1000Hz, which is not so bad.
+
+Or I will go back to the old method, of checking as fast as it will go, but only in the wait time after processing the game loop.
+
+I have actually added a few more manual packets checks in the middle of the game loop to help.
+
+
+
+It is really a shame though that it does not seem possible to throttle the speed of the thread past a certain point.
+
+1000Hz (or 1ms) seems to be the limit.  But yet when there is no limit it can run at 200kHz (5us) to over 1MHz (<1us)
+
+
+
+
+c++ check no limit:
+
+m36
+chek:700k      tot: 970ms avg:1.3us
+proc:42        tot:.078ms avg:1.9us
+
+6430 (uses 50% tcpu)
+chek:650k      tot: 950ms avg:1.4us
+proc:41        tot: 1.4ms avg:34us
+
+4230 (uses 100% tcpu)
+chek:164k      tot: 846ms avg:5us
+proc:250       tot: 14ms  avg:34us
+
+
+
+
+
+try c++ check limit 100us on linux
+
+
+200us
+add_rx_buf checked:3753 tot_ctime:  9.3768ms  avg_ctime:  2.4985us  proc:42 tot_ptime:  0.1838ms  avg_ptime:  4.3755us
+add_rx_buf checked:3753 tot_ctime:  9.3989ms  avg_ctime:  2.5044us  proc:41 tot_ptime:  0.1801ms  avg_ptime:  4.3921us
+add_rx_buf checked:3754 tot_ctime:  9.4023ms  avg_ctime:  2.5046us  proc:43 tot_ptime:  0.1973ms  avg_ptime:  4.5880us
+
+100us
+add_rx_buf checked:6491 tot_ctime:  8.3674ms  avg_ctime:  1.2891us  proc:42 tot_ptime:  0.1552ms  avg_ptime:  3.6959us
+add_rx_buf checked:6499 tot_ctime:  8.2620ms  avg_ctime:  1.2713us  proc:42 tot_ptime:  0.1258ms  avg_ptime:  2.9943us
+add_rx_buf checked:6500 tot_ctime:  8.2576ms  avg_ctime:  1.2704us  proc:42 tot_ptime:  0.1250ms  avg_ptime:  2.9759us
+
+10us
+add_rx_buf checked:15751 tot_ctime: 19.9012ms  avg_ctime:  1.2635us  proc:40 tot_ptime:  0.1302ms  avg_ptime:  3.2549us
+add_rx_buf checked:15749 tot_ctime: 19.8932ms  avg_ctime:  1.2631us  proc:41 tot_ptime:  0.1220ms  avg_ptime:  2.9754us
+add_rx_buf checked:15747 tot_ctime: 19.9158ms  avg_ctime:  1.2647us  proc:42 tot_ptime:  0.1244ms  avg_ptime:  2.9620us
+
+
+1us
+add_rx_buf checked:18219 tot_ctime: 34.9331ms  avg_ctime:  1.9174us  proc:38 tot_ptime:  0.1522ms  avg_ptime:  4.0053us
+add_rx_buf checked:18223 tot_ctime: 35.0056ms  avg_ctime:  1.9210us  proc:42 tot_ptime:  0.1736ms  avg_ptime:  4.1336us
+add_rx_buf checked:18215 tot_ctime: 35.0842ms  avg_ctime:  1.9261us  proc:41 tot_ptime:  0.1601ms  avg_ptime:  3.9042us
+
+
+
+no limit...
+
+add_rx_buf checked:535547 tot_ctime:983.9508ms  avg_ctime:  1.8373us  proc:0 tot_ptime:  0.0000ms  avg_ptime:  0.0000us
+add_rx_buf checked:535127 tot_ctime:983.9828ms  avg_ctime:  1.8388us  proc:0 tot_ptime:  0.0000ms  avg_ptime:  0.0000us
+add_rx_buf checked:535681 tot_ctime:983.9105ms  avg_ctime:  1.8367us  proc:0 tot_ptime:  0.0000ms  avg_ptime:  0.0000us
+add_rx_buf checked:535749 tot_ctime:983.9031ms  avg_ctime:  1.8365us  proc:0 tot_ptime:  0.0000ms  avg_ptime:  0.0000us
+add_rx_buf checked:535727 tot_ctime:983.8707ms  avg_ctime:  1.8365us  proc:0 tot_ptime:  0.0000ms  avg_ptime:  0.0000us
+[10][0][1677]|        Server received initial 1234 packet from '70.75.230.31:24785'     |
+[10][0][1677]|        Server opened channel for `70.75.230.31:24785' and sent reply     |
+add_rx_buf checked:525691 tot_ctime:984.1130ms  avg_ctime:  1.8720us  proc:0 tot_ptime:  0.0000ms  avg_ptime:  0.0000us
+[10][0][1682]+--------------------------------------------------------------------------+
+[10][0][1682]|        Server received join request from e6430 requesting color:8        |
+[10][0][1682]|        Server replied with join invitation:                              |
+[10][0][1682]+--------------------------------------------------------------------------+
+add_rx_buf checked:404262 tot_ctime:988.5307ms  avg_ctime:  2.4453us  proc:37 tot_ptime:  0.1870ms  avg_ptime:  5.0541us
+add_rx_buf checked:404047 tot_ctime:987.6136ms  avg_ctime:  2.4443us  proc:38 tot_ptime:  0.1880ms  avg_ptime:  4.9473us
+add_rx_buf checked:403807 tot_ctime:987.6706ms  avg_ctime:  2.4459us  proc:42 tot_ptime:  0.1900ms  avg_ptime:  4.5230us
+add_rx_buf checked:404099 tot_ctime:987.7178ms  avg_ctime:  2.4442us  proc:42 tot_ptime:  0.1892ms  avg_ptime:  4.5052us
+
+
+timeBeginPeriod(1)
+
+https://stackoverflow.com/questions/13397571/precise-thread-sleep-needed-max-1ms-error
+
+https://github.com/jhu-cisst/cisst/blob/master/cisstOSAbstraction/code/osaSleep.cpp
+
+
+its the same thing as when I went down this rabbit hoel 20 years ago. timing is difficlut.
+
+I am just going to live with what I get and I think that 1ms is good enough.
+
+
+So now I two options:
+
+- no thread, wide open
+- thread capped at 1ms
+or I could run a training session and dynamically adjust the timer value until it was not wide open
+
+that is pretty much all I want, not wide open...
+
+
+I have some other bugs to work on,
+
+like why does the game lose server connection when adjusting screen size?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
