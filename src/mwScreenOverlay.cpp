@@ -397,7 +397,7 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[sync]");
       al_draw_textf(mFont.pr8, c2,            x, y+=8, 0, "[    ]");
       for (int p=1; p<NUM_PLAYERS; p++)
-         al_draw_textf(mFont.pr8, col_clr(p), x, y+=8, 0, "[%4.0f]", mPlayer.loc[p].dsync*1000);
+         al_draw_textf(mFont.pr8, col_clr(p), x, y+=8, 0, "[%4.0f]", mPlayer.loc[p].pdsync*1000);
       x+=6*8;
    }
 
@@ -902,7 +902,7 @@ void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
    if (!mPlayer.syn[p].active)
    {
       rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2-32, mPlayer.syn[p].color, 2, 1, "Please wait for server syncronization");
-      rtextout_centref(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2,    mPlayer.syn[p].color, 4, 1, "[%2.1f]", abs(mNetgame.client_chase_offset - mPlayer.loc[p].dsync)*1000);
+      rtextout_centref(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2,    mPlayer.syn[p].color, 4, 1, "[%2.1f]", abs(mNetgame.client_chase_offset - mPlayer.loc[p].pdsync)*1000);
    }
    mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_client", al_get_time() - t0);
 
@@ -924,7 +924,7 @@ void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
       // ping and sync graph
       // ----------------------------------
       t0 = al_get_time();
-      double ds = -mPlayer.loc[p].dsync   * 1000; // the current value of dsync for display
+      double ds = -mPlayer.loc[p].pdsync   * 1000; // the current value of dsync for display
       double pa = mPlayer.loc[p].ping_avg * 1000;
 
       mQuickGraph[1].add_data(0, ds);
@@ -958,7 +958,7 @@ void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
       int csh = 52;
       int csy2 = csy1 + csh;
       int color = 13;
-      double ts = mPlayer.loc[p].dsync; // the current value of dsync for display
+      double ts = mPlayer.loc[p].pdsync; // the current value of dsync for display
       al_show_mouse_cursor(mDisplay.display);
       al_draw_filled_rectangle(csx1, csy1, csx2, csy2, mColor.pc[color+224]); // erase background
       al_draw_rectangle(csx1, csy1, csx2, csy2, mColor.pc[color], 1);    // frame
@@ -1184,7 +1184,7 @@ void mwScreen::draw_bottom_frame(int p)
        // calculate num of clients
        int num_clients = 0;
        for (int p=0; p<NUM_PLAYERS; p++)
-          if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == 2)) num_clients++;
+          if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)) num_clients++;
 
       // sprintf(msg, "[clients:%d] [moves:%d]", num_clients, entry_pos);
       sprintf(msg, " clients:%d ", num_clients);
@@ -1213,7 +1213,7 @@ void mwScreen::draw_bottom_frame(int p)
       al_draw_text(mFont.pr8, mColor.pc[tc], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
 
-      sprintf(msg, " sync:%3.1f ", mPlayer.loc[p].dsync * 1000);
+      sprintf(msg, " sync:%3.1f ", mPlayer.loc[p].pdsync * 1000);
       al_draw_text(mFont.pr8, mColor.pc[tc], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
 
@@ -1226,7 +1226,7 @@ void mwScreen::draw_bottom_frame(int p)
          mColor.process_flash_color();
       }
    }
-   if (mPlayer.syn[0].control_method == 1) // file play
+   if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) // file play
    {
       sprintf(msg, "Running Saved Game ");
       al_draw_text(mFont.pr8, mColor.pc[tc], bdx, bdy, 0, msg);
@@ -1274,7 +1274,7 @@ void mwScreen::draw_screen_overlay(void)
    if (mNetgame.ima_server)  draw_server_debug_overlay(cx, cy);
    if (mNetgame.ima_client)  draw_client_debug_overlay(cx, cy);
 
-   if (mPlayer.syn[0].control_method == 1) draw_demo_debug_overlay(p, cx, cy);
+   if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) draw_demo_debug_overlay(p, cx, cy);
 
    draw_common_debug_overlay(p, cx, cy);
 

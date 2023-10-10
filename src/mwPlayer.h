@@ -128,8 +128,8 @@ struct ploc // not synced between server and client (but synced from server to r
    double ping;
    double ping_avg;
 
-   double dsync;
-   double dsync_avg;
+   double pdsync;
+   double pdsync_avg;
 
    double client_chase_fps;
    double stak_dsync;

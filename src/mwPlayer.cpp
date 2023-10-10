@@ -1324,7 +1324,7 @@ void mwPlayer::set_players_shape(int p)
 int mwPlayer::is_player_color_used(int color)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((syn[p].active) || (syn[p].control_method == 9) || (syn[p].control_method == 2))
+      if ((syn[p].active) || (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_USED) || (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
          if (color == syn[p].color) return 1;
    return 0;
 }
@@ -1335,7 +1335,7 @@ void mwPlayer::init_player(int p, int t)
    {
       syn[p].active = 0;
       syn[p].paused = 0;
-      syn[p].control_method = 0;
+      syn[p].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER;
 
       syn[p].old_health = 100;
       syn[p].health = 100;
@@ -1722,12 +1722,11 @@ void mwPlayer::proc_player_input(void)
 
                if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
                {
-                  mGameMoves.add_game_move(mLoop.frame_num, 5, p, loc[p].comp_move); // add to game moves array
+                  mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_MOVE, p, loc[p].comp_move); // add to game moves array
                   // in client mode, send cdat packet, and apply move directly to controls
                   if (cm == 4)
                   {
-                     mNetgame.client_send_cdat(p);
-                     loc[p].client_cdat_packets_tx++;
+                     mNetgame.client_send_cdat_packet(p);
                      set_controls_from_comp_move(p, loc[p].comp_move);
                      if (syn[p].menu) mLoop.state[0] = 25; // menu key pressed
                      mLog.addf(LOG_NET_cdat, p, "tx cdat - move:%d\n", loc[p].comp_move);
@@ -1736,7 +1735,7 @@ void mwPlayer::proc_player_input(void)
             }
          }
       }
-      else if (syn[p].control_method == 4) // not active and control method 4 is a client waiting for server to make it active
+      else if (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL) // not active and control method 4 is a client waiting for server to make it active
       {
          if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.state[0] = 25; // give them an escape option
       }

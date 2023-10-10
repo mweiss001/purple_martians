@@ -41,16 +41,16 @@
 
 <div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
 <div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
 <div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
 <div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
 <div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
 <div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
 <div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
 <div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
 <div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
@@ -69,9 +69,10 @@
 <mh8>Netgame - Client Timing Sync</mh8>
 <mh3><hr><mdw_file_toc> <a href="netgame_client_timing_sync.html#Client Timing Sync" target="_top">Client Timing Sync</a>
  <a href="netgame_client_timing_sync.html#Server sends 'stdf' packet" target="_top">Server sends 'stdf' packet</a>
- <a href="netgame_client_timing_sync.html#Client receives 'stdf' packet and calculates dsync" target="_top">Client receives 'stdf' packet and calculates dsync</a>
+ <a href="netgame_client_timing_sync.html#Client calculates dsync" target="_top">Client calculates dsync</a>
  <a href="netgame_client_timing_sync.html#Determine the setpoint" target="_top">Determine the setpoint</a>
  <a href="netgame_client_timing_sync.html#Adjust client timer" target="_top">Adjust client timer</a>
+ <a href="netgame_client_timing_sync.html#Entire client_timer_adjust() function" target="_top">Entire client_timer_adjust() function</a>
 </mdw_file_toc><hr></mh3>
 
 
@@ -81,24 +82,25 @@
 <mh3>    
 Timing is critical in netgame. The server and client must have a tightly controlled timing relationship.
 
-The server is the master timing source, and runs at 40 frames per second.
+The server is the master timing source, running at 40 frames per second.
 
-Clients are responsible for measuring and maintaining their timing offset with the server.
+Clients are responsible for measuring and maintaining their timing offset in relation to the server.
 
-Clients use the 'stdf' packet sent from the server as their timing reference.
+Clients use 'stdf' packets sent from the server as their timing reference.
 
-The time difference between the client and server is called dsync.
+The measure of the time difference is called dsync.
 
-If the state from the server arrives exactly on the frame it is needed then dsync is zero.
+dsync = stdf_dst frame - current frame
 
-If it arrives earlier than needed, then dsync is negative.
+If the stdf from the server matches the current frame, then dsync is zero.
 
-It should never arrive later than needed.
+If the stdf is from the past, then dysnc is positive.
+This means that when it is applied, the client will go back to a previous state. 
+After doing that, the client then fast forwards to the current frame.
 
-When it arrives earlier than needed and is applied, that has the effect of setting the client's state back in time.
-
-Then the client plays forward to the current frame and applies its stored local moves for those frames.
-
+If the stdf is from the future, then dsync is negative.
+This means that when applied, the client jump forward in time. 
+The is the least common scenario, and should rarely happen.
 </mh3>
 
 
@@ -108,7 +110,7 @@ Then the client plays forward to the current frame and applies its stored local 
 
 
 <mh3>    
-The server sends 'stdf' packets to clients on a regular basis. Usually only a few frames apart.
+The server sends 'stdf' packets to clients every frame.
 
 These stdf packets contain pieces of a compressed dif state, and a header that describes the contents.
 
@@ -117,70 +119,83 @@ From that header, the destination frame number is the current frame number on th
 That is what the client uses to measure its timing relation to the server.
 </mh3>
 
-<pre><code class="language-cpp">void mwNetgame::server_send_dif(int p)
-{
-   ...
-   Packet("stdf");
-   PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
-   ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
-</code></pre>
+<pre><code class="language-cpp">      mPacketBuffer.PacketName(data, pos, "stdf");
+      mPacketBuffer.PacketPutInt4(data, pos, src);
+      mPacketBuffer.PacketPutInt4(data, pos, dst);
+      ....
+      ServerSendTo(data, pos, mPlayer.loc[p].who);</code></pre>
 
 
-
-
-
-<br><a name="Client receives 'stdf' packet and calculates dsync"></a>
-<mh7>Client receives 'stdf' packet and calculates dsync</mh7>
-
-
+<br><a name="Client calculates dsync"></a>
+<mh7>Client calculates dsync</mh7>
 
 <mh3>    
-When the client receives an 'stdf' packet, it uses the server's frame_num and its own local frame_num to make a simple frame based integer sync.
+Every frame the client processes all 'stdf' packets in the packet buffer.
+
+The difference between the destination frame and the current frame makes a crude integer dsync only accurate to one frame (or 25ms)
+
+This is combined with the timestamp recorded by <a href="netgame_packet_buffer.html#Check for new packets" target="_top">packet buffer</a> when the packet was actually received.
+
+Then the maximum dysnc is calculated and returned.
 </mh3>
-<pre><code class="language-cpp">void mwNetgame::client_process_stdf_packet(double timestamp)
+<pre><code class="language-cpp">float mwPacketBuffer::get_max_dsync(void)
 {
-   ...
-   int dst = PacketGet4ByteInt();
-   int client_sync = dst - mLoop.frame_num;                             // crude integer sync based on frame numbers
-</code></pre>
+   float max_dsync = -1000;
+   lock_mutex();
+   // iterate all stdf packets, calc dysnc and max dysnc
+   for (int i=0; i < 200; i++)
+      if ((rx_buf[i].active) && (rx_buf[i].type == 11))
+      {
+         int dst = 0;
+         memcpy(&dst, rx_buf[i].data+8, 4);
+         // calc dysnc
+         float csync = (float)(dst - mLoop.frame_num) * 0.025;   // crude integer sync based on frame numbers
+         float dsync = al_get_time() - mPacketBuffer.rx_buf[i].timestamp + csync;  // add time between now and when the packet was received into packet buffer
+         if (dsync > max_dsync) max_dsync = dsync;
+      }
+   unlock_mutex();
+   return max_dsync;
+}</code></pre>
 
-<mh3>This is called 'client_sync' and only has a resolution of 1 frame (25ms).
+<mh3> Then dsync is <a href="rolling_average.html" target="_top">averaged</a> in 'client_timer_adjust()'.</mh3>
 
-    
-The passed variable 'timestamp' was recorded by the <a href="netgame_fast_packet_loop.html#Client fast packet loop" target="_top">fast packet loop</a> when the packet was actually received.
+<pre><code class="language-cpp">void mwNetgame::client_timer_adjust(void)
+{
+   float max_dsync = mPacketBuffer.get_max_dsync();    // iterate all stdf packets, calc dysnc, then get max dysnc
 
-This is used to give timing information less than one frame.
-
-The two are combined and the result is 'dsync'.
-</mh3>
-<pre><code class="language-cpp">   if (mPlayer.loc[p].client_last_stdf_rx_frame_num != mLoop.frame_num)    // this is the first stdf received for this frame
+   int p = mPlayer.active_local_player;
+   if (max_dsync > -1000)
    {
-      mPlayer.loc[p].client_last_stdf_rx_frame_num = mLoop.frame_num;   // client keeps track of last stdf rx'd and quits if too long
-      mPlayer.loc[p].dsync = al_get_time() - timestamp;                 // time between when the packet was received into the packet buffer and now
-      mPlayer.loc[p].dsync += (double) client_sync * 0.025;             // combine with client_sync
+      mPlayer.loc[p].dsync = max_dsync;
+      mRollingAverage[2].add_data(mPlayer.loc[p].dsync);    // send to rolling average
+      mPlayer.loc[p].dsync_avg = mRollingAverage[2].avg;    // get average
+.....
 </code></pre>
-<mh3> Then dsync is <a href="rolling_average.html" target="_top">averaged</a> and 'client_timer_adjust()' is called.</mh3>
-<pre><code class="language-cpp">      mRollingAverage[2].add_data(mPlayer.loc[p].dsync);    // send to rolling average
-      mPlayer.loc[p].dsync_avg = mRollingAverage[2].avg;
-      client_timer_adjust();
-   }</code></pre>
+
 
 <br><a name="Determine the setpoint"></a>
 <mh7>Determine the setpoint</mh7>
 
 <mh3>    
 Before we adjust the timer, we need two things:
-
 - a measured value, 'dsync_avg', which we just calculated
-
 - a setpoint (what we want the value to be)
 
-The setpoint is called 'client_chase_offset', and it is set from the average ping time as described here:
-
-<a href="netgame_ping.html" target="_top">How ping is calculated.</a>
-
-<a href="netgame_ping.html#Client uses 'ping_avg' time to set 'client_chase_offset'" target="_top">How ping is used to set client_chase_offset.</a>.
+The setpoint is called 'client_chase_offset', and it is set from one of three things:
+- manually set by the client to a static value
+- automatically set by the client based on <a href="netgame_ping.html" target="_top">ping</a>.
+- manually set by the server (mostly for testing and debug purposes)
 </mh3>
+
+<pre><code class="language-cpp">      // automatically adjust client_chase_offset based on ping time
+      if (client_chase_offset_mode == 1) client_chase_offset = - mPlayer.loc[p].ping_avg + client_chase_offset_auto_offset;
+
+      // overridden by server
+      if (mPlayer.syn[0].server_force_client_offset) client_chase_offset = mPlayer.syn[0].client_chase_offset;
+
+      // set point
+      float sp = client_chase_offset;</code></pre>
+
 
 
 <br><a name="Adjust client timer"></a>
@@ -196,38 +211,88 @@ I was experimenting with implementing a <a href="https://www.google.com/search?q
 </mh3>
 
 
+<pre><code class="language-cpp">      // error = set point - measured value
+      float err = sp - mPlayer.loc[p].dsync_avg;
+
+      // instantaneous error adjustment (proportional)
+      float p_adj = err * 80;
+
+      // cumulative error adjust (integral)
+      tmaj_i += err;
+      float i_clamp = 5;
+      if (tmaj_i >  i_clamp) tmaj_i =  i_clamp;
+      if (tmaj_i < -i_clamp) tmaj_i = -i_clamp;
+      tmaj_i *= 0.95; // decay
+      float i_adj = tmaj_i * 0;
+
+      // combine to get total adjust
+      float t_adj = p_adj + i_adj;
+
+      // adjust speed
+      float fps_chase = mLoop.frame_speed - t_adj;
+
+      if (fps_chase < 10) fps_chase = 10; // never let this go negative
+      if (fps_chase > 70) fps_chase = 70;
+
+      al_set_timer_speed(mEventQueue.fps_timer, (1 / fps_chase));}</code></pre>
+
+
+
+<br><a name="Entire client_timer_adjust() function"></a>
+<mh7>Entire client_timer_adjust() function</mh7>
+
 <pre><code class="language-cpp">void mwNetgame::client_timer_adjust(void)
 {
+   float max_dsync = mPacketBuffer.get_max_dsync();    // iterate all stdf packets, calc dysnc, then get max dysnc
+
    int p = mPlayer.active_local_player;
-   float mva = mPlayer.loc[p].dsync_avg;            // measured value
-   float mv = mPlayer.loc[p].dsync;                 // measured value
-   float sp = mPlayer.loc[p].client_chase_offset;   // set point
-   float err = sp - mva;                            // error = set point - measured value
+   if (max_dsync > -1000)
+   {
+      mPlayer.loc[p].dsync = max_dsync;
+      mRollingAverage[2].add_data(mPlayer.loc[p].dsync);    // send to rolling average
+      mPlayer.loc[p].dsync_avg = mRollingAverage[2].avg;    // get average
 
-   float p_adj = err * 80; // instantaneous error adjustment (proportional)
+      // automatically adjust client_chase_offset based on ping time
+      if (client_chase_offset_mode == 1) client_chase_offset = - mPlayer.loc[p].ping_avg + client_chase_offset_auto_offset;
 
-   tmaj_i += err; // cumulative error adjust (integral)
-   float i_clamp = 5;
-   if (tmaj_i >  i_clamp) tmaj_i =  i_clamp;
-   if (tmaj_i < -i_clamp) tmaj_i = -i_clamp;
-   tmaj_i *= 0.95; // decay
-   float i_adj = tmaj_i * 0;
+      // overidden by server
+      if (mPlayer.syn[0].server_force_client_offset) client_chase_offset = mPlayer.syn[0].client_chase_offset;
 
-   float t_adj = p_adj + i_adj; // total adj
+      // set point
+      float sp = client_chase_offset;
 
-   float fps_chase = mLoop.frame_speed - t_adj;
+      // error = set point - measured value
+      float err = sp - mPlayer.loc[p].dsync_avg;
 
-   if (fps_chase < 10) fps_chase = 10; // never let this go negative
-   if (fps_chase > 70) fps_chase = 70;
-   al_set_timer_speed(mEventQueue.fps_timer, ( 1 / fps_chase));
-   mPlayer.loc[p].client_chase_fps = fps_chase;
+      // instantaneous error adjustment (proportional)
+      float p_adj = err * 80;
+
+      // cumulative error adjust (integral)
+      tmaj_i += err;
+      float i_clamp = 5;
+      if (tmaj_i >  i_clamp) tmaj_i =  i_clamp;
+      if (tmaj_i < -i_clamp) tmaj_i = -i_clamp;
+      tmaj_i *= 0.95; // decay
+      float i_adj = tmaj_i * 0;
+
+      // combine to get total adjust
+      float t_adj = p_adj + i_adj;
+
+      // adjust speed
+      float fps_chase = mLoop.frame_speed - t_adj;
+
+      if (fps_chase < 10) fps_chase = 10; // never let this go negative
+      if (fps_chase > 70) fps_chase = 70;
+
+      al_set_timer_speed(mEventQueue.fps_timer, (1 / fps_chase));
+
+      mPlayer.loc[p].client_chase_fps = fps_chase;
+
+      mLog.add_tmrf(LOG_TMR_client_timer_adj, 0, "dsc:[%5.2f] dsa:[%5.2f] sp:[%5.2f] er:[%6.2f] pa:[%6.2f] ia:[%6.2f] ta:[%6.2f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].dsync_avg*1000, sp*1000, err*1000, p_adj, i_adj, t_adj);
+      mLog.addf(LOG_NET_timer_adjust, p, "timer adjust dsc[%5.1f] dsa[%5.1f] off[%3.1f] chs[%3.3f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].dsync_avg*1000, sp*1000, fps_chase);
+   }
+   // else mLog.addf(LOG_NET_timer_adjust, p, "timer adjust no stdf packets this frame dsc[%5.1f] dsa[%5.1f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].dsync_avg*1000);
 }</code></pre>
-
-
-<mh3>
-
-</mh3>
-
 
                <footer>                <mh11>Purple Martians</mh11><hr>
                 <div id="copyright">

@@ -33,10 +33,6 @@ void mwInput::initialize(void)
 {
    if (!mDisplay.no_display)
    {
-
-
-
-
       for (int i=0; i<64; i++) skc[i] = 0;
       skc_index = 0;
 

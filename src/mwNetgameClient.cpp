@@ -2,10 +2,11 @@
 
 #include "pm.h"
 #include "mwNetgame.h"
+#include "mwPacketBuffer.h"
 #include "mwLog.h"
 #include "mwPlayer.h"
-#include "mwRollingAverage.h"
 #include "mwDisplay.h"
+#include "mwScreen.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
 #include "mwColor.h"
@@ -14,34 +15,37 @@
 #include "mwLevel.h"
 #include "mwConfig.h"
 #include "mwLoop.h"
-#include "mwScreen.h"
-#include "mwShot.h"
-#include "mwTally.h"
 #include "mwQuickGraph2.h"
-#include "mwPacketBuffer.h"
 
-
-int mwNetgame::ClientInitNetwork(const char *serveraddress)
+int mwNetgame::ClientInitNetwork(void)
 {
+   char msg[256];
+
 	if(NetworkInit())
    {
-      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Error: failed to initialize network");
+      sprintf(msg, "Error: failed to initialize network");
+      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
+      mInput.m_err(msg);
       return -1;
    }
 
    ServerChannel = net_openchannel(NetworkDriver, "");
    if (ServerChannel == NULL)
    {
-      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Error: Client failed to create netchannel (UDP)");
+      sprintf(msg, "Error: Client failed to create NetChannel");
+      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
+      mInput.m_err(msg);
       return 0;
    }
    if (net_assigntarget(ServerChannel, serveraddress))
    {
-      mLog.add_fwf(LOG_error, 0, 76, 10, "|", " ", "Error: Client failed to set netchannel target: server[%s] (UDP)", serveraddress);
+      sprintf(msg, "Error: Client failed to set NetChannel target: server[%s]", serveraddress);
+      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
+      mInput.m_err(msg);
       return 0;
    }
-   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client network (UDP) initialized -- server:[%s]", serveraddress);
-   //mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Local address%s", net_getlocaladdress(ServerChannel));
+   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client network initialized -- server:[%s]", serveraddress);
+   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Local address:[%s]", net_getlocaladdress(ServerChannel));
 
 
    // Check for reply from server
@@ -63,7 +67,9 @@ int mwNetgame::ClientInitNetwork(const char *serveraddress)
          al_rest(try_delay);
          if (++tries > 2)
          {
-            mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Did not get reply from server");
+            sprintf(msg, "Did not get reply from server");
+            mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
+            mInput.m_err(msg);
 
             mLog.add_fw(LOG_NET, 0, 76, 10, "+", "-", "");
             return 0;
@@ -71,7 +77,7 @@ int mwNetgame::ClientInitNetwork(const char *serveraddress)
       }
       if (ccr == -2)
       {
-         mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", "Cancelled");
+         mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Cancelled");
          mLog.add_fw(LOG_NET, 0, 76, 10, "+", "-", "");
          return 0;
       }
@@ -85,22 +91,29 @@ int mwNetgame::ClientInitNetwork(const char *serveraddress)
 
 int mwNetgame::ClientCheckResponse(void) // check for a repsonse from the server
 {
-   char address[32];
-
    char data[1024] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "1234");
    ClientSend(data, pos);
 
-   mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Sent initial packet (1234) to server");
+   mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Sent initial packet to server");
    mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Waiting for reply");
 
-   int done = 20;
+   al_set_target_backbuffer(mDisplay.display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   mScreen.rtextout_centref(mFont.pr8, NULL, mDisplay.SCREEN_W/2, 2*mDisplay.SCREEN_H/4, 15, -2, 1, "Waiting for Server:[%s]", serveraddress);
+   mScreen.rtextout_centre( mFont.pr8, NULL, mDisplay.SCREEN_W/2, 3*mDisplay.SCREEN_H/4, 15, -2, 1, "             ESC to cancel             ");
+   al_flip_display();
 
-   while (done)
+   char prog[41];
+   sprintf(prog, "                                        ");
+
+   int done = 0;
+   while (done < 40)
    {
       mEventQueue.proc(1);
       if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) return -2;
 
+      char address[32];
       int len = net_receive(ServerChannel, data, 1024, address);
       if (len >= 4)
       {
@@ -111,14 +124,32 @@ int mwNetgame::ClientCheckResponse(void) // check for a repsonse from the server
             return 1;
          }
       }
+      prog[done] = '.';
+      mScreen.rtextout_centref(mFont.pr8, NULL, mDisplay.SCREEN_W/2, 5*mDisplay.SCREEN_H/8, 15, -2, 1, "%s", prog);
+      al_flip_display();
       al_rest(.1);
-      done--;
+      done++;
    }
    mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "No Response");
 
    return 0;
 }
 
+void mwNetgame::ClientExitNetwork(void)
+{
+   mPacketBuffer.stop_packet_thread();
+   mLog.add_header(LOG_NET, 0, 0, "Shutting down the client network");
+   if(ServerChannel) net_closechannel(ServerChannel);
+   ServerChannel = NULL;
+   net_shutdown();
+
+   ima_client = 0;
+   // reset player data
+   for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
+   mPlayer.syn[0].active = 1; // local_control
+   mPlayer.active_local_player = 0;
+   mConfig.load_config(); // to restore colors and other settings
+}
 
 // Receive data from the server, and store in the provided array
 // (must have room for 1024 bytes). Returns the size of the stored data.
@@ -133,7 +164,6 @@ int mwNetgame::ClientReceive(void *data)
 	return len;
 }
 
-
 void mwNetgame::ClientSend(void *data, int len)
 {
    net_send(ServerChannel, data, len);
@@ -142,22 +172,11 @@ void mwNetgame::ClientSend(void *data, int len)
    mPlayer.loc[mPlayer.active_local_player].tx_current_packets_for_this_frame++;
 }
 
-
 // read and discard all waiting packets
-void mwNetgame::client_flush(void)
+void mwNetgame::ClientFlush(void)
 {
    char data[1024];
    while (ClientReceive(data));
-}
-
-
-void mwNetgame::ClientExitNetwork(void)
-{
-   mPacketBuffer.stop_packet_thread();
-   mLog.add_header(LOG_NET, 0, 0, "Shutting down the client network");
-   if(ServerChannel) net_closechannel(ServerChannel);
-   ServerChannel = NULL;
-   net_shutdown();
 }
 
 
@@ -165,25 +184,9 @@ void mwNetgame::ClientExitNetwork(void)
 // ***************************************************************************************************************
 //----------------------------------------------------------------------------------------------------------------
 
-int mwNetgame::client_init(void)
-{
-   mLog.log_versions();
-   mLog.add_fw (LOG_NET, 0, 76, 10, "+", "-", "");
-   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client mode started on localhost:[%s]", mLoop.local_hostname);
-
-    // initialize driver with server address
-   if (!ClientInitNetwork(m_serveraddress)) return 0;
 
 
-   mRollingAverage[1].initialize(8); // ping rolling average
-   mRollingAverage[2].initialize(8); // dsync rolling average
 
-   client_send_cjon_packet();
-
-   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client sent join request to server with player color:[%2d]", mPlayer.syn[0].color);
-   mLog.add_fw (LOG_NET, 0, 76, 10, "+", "-", "");
-   return 1;
-}
 
 
 
@@ -199,7 +202,6 @@ void mwNetgame::client_send_cjon_packet(void)
 
 void mwNetgame::client_send_cjrc_packet(void)
 {
-   printf("server remote control setup 53\n");
    char data[1024] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "cjrc");
    ClientSend(data, pos);
@@ -217,7 +219,7 @@ void mwNetgame::client_send_rctl_packet(int type, double val)
 }
 
 
-void mwNetgame::client_process_sjrc_packet(int i)
+void mwNetgame::client_proc_sjrc_packet(int i)
 {
    remote_join_reply = 1;
 }
@@ -237,32 +239,27 @@ void mwNetgame::client_proc_pong_packet(char *data)
 }
 
 
-void mwNetgame::client_process_sjon_packet(int i)
+void mwNetgame::client_proc_sjon_packet(int i)
 {
    int pl                     = mPacketBuffer.PacketGetInt2(i);  // play level
    int server_sjon_frame_num  = mPacketBuffer.PacketGetInt4(i);  // server join frame number
    int p                      = mPacketBuffer.PacketGetInt1(i);  // client player number
    int color                  = mPacketBuffer.PacketGetInt1(i);  // client player color
-
    if (p == 99) // server full, join denied
    {
       mLog.add(LOG_error, 0, "Server replied with 'SERVER FULL'\n");
+      mInput.m_err("Server Full");
       mLoop.state[0] = 25;
    }
    else // join allowed
    {
       mPlayer.active_local_player = p;
-
       mPlayer.syn[p].active = 1;
-
-      mPlayer.syn[p].control_method = 4;
-
+      mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL;
       mPlayer.syn[p].color = color;
-      strncpy(mPlayer.loc[0].hostname, m_serveraddress, 16);
+      strncpy(mPlayer.loc[0].hostname, serveraddress, 16);
       strncpy(mPlayer.loc[p].hostname, mLoop.local_hostname, 16);
-
       mLevel.play_level = pl;
-
       mLog.add_fwf(LOG_NET,               0, 76, 10, "|", " ", "Client received join invitation from server");
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Number:[%d]", p);
@@ -273,18 +270,8 @@ void mwNetgame::client_process_sjon_packet(int i)
    }
 }
 
-void mwNetgame::client_exit(void)
-{
-   ClientExitNetwork();
-   ima_client = 0;
-   // reset player data
-   for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
-   mPlayer.syn[0].active = 1; // local_control
-   mPlayer.active_local_player = 0;
-   mConfig.load_config(); // to restore colors and other settings
-}
 
-void mwNetgame::client_send_ping(void)
+void mwNetgame::client_send_ping_packet(void)
 {
    char data[1024] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "ping");
@@ -294,7 +281,7 @@ void mwNetgame::client_send_ping(void)
 }
 
 
-void mwNetgame::client_process_snfo_packet(int i)
+void mwNetgame::client_proc_snfo_packet(int i)
 {
    if (mLoop.state[1] == 41)
    {
@@ -344,7 +331,7 @@ void mwNetgame::client_process_snfo_packet(int i)
                {
                   mQuickGraph2[1].series[i].active = 1;
                   mQuickGraph2[1].series[i].color = mPlayer.syn[i].color;
-                  mQuickGraph2[1].add_data(i, mPlayer.loc[i].dsync*1000);
+                  mQuickGraph2[1].add_data(i, mPlayer.loc[i].pdsync*1000);
 
                   mQuickGraph2[2].series[i].active = 1;
                   mQuickGraph2[2].series[i].color = mPlayer.syn[i].color;
@@ -394,7 +381,7 @@ void mwNetgame::client_process_snfo_packet(int i)
    }
 }
 
-void mwNetgame::client_process_stdf_packet(int i)
+void mwNetgame::client_proc_stdf_packet(int i)
 {
    int p       = mPlayer.active_local_player;
    int src     = mPacketBuffer.PacketGetInt4(i);
@@ -421,13 +408,13 @@ void mwNetgame::client_process_stdf_packet(int i)
 
       if (destLen == STATE_SIZE)
       {
-         mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] dsync[%3.1fms] - uncompressed\n", src, dst, mPlayer.loc[p].dsync*1000);
+         mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] - uncompressed\n", src, dst);
          client_state_dif_src = src; // mark dif data with new src and dst
          client_state_dif_dst = dst;
       }
       else
       {
-         mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] dsync[%3.1f] - bad uncompress\n", src, dst, mPlayer.loc[p].dsync*1000);
+         mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] - bad uncompress\n", src, dst);
          client_state_dif_src = -1; // mark dif data as bad
          client_state_dif_dst = -1;
       }
@@ -455,6 +442,10 @@ void mwNetgame::client_apply_dif(void)
       return;
    }
 
+
+   // if we got this far, we know that dif is valid and dif destination is newer than last applied dif
+
+
    // compare dif destination to current frame number
    int ff = mPlayer.loc[p].rewind = mLoop.frame_num - client_state_dif_dst;
    char tmsg[64];
@@ -463,36 +454,47 @@ void mwNetgame::client_apply_dif(void)
    if (ff < 0)
    {
       if (mLoop.frame_num == 0) sprintf(tmsg, "initial state");
-      else
-      {
-         mLog.appf(LOG_NET_dif_not_applied, "[not applied] [dst is %d frames in the future!]\n", client_state_dif_src, client_state_dif_dst, -ff);
-         return;
-      }
+      else                      sprintf(tmsg, "jumped ahead %d frames", -ff);
    }
 
-   // if we got this far, we know that:
-   // - dif is valid
-   // - dif destination is not in the future
-   // - dif destination is newer than last applied dif
+
 
    // now check if we have a base state that matches dif source
    char base[STATE_SIZE] = {0};
    int base_frame_num = 0;
 
-   // finds and sets base matching 'client_state_dif_src' -- if not found, leaves base as is (zero)
-   mStateHistory[p].get_base_state(base, base_frame_num, client_state_dif_src);
-
-   if (base_frame_num == 0) mPlayer.loc[p].client_base_resets++;
-
-   if ((base_frame_num == 0) && (client_state_dif_src != 0))
+   if (client_state_dif_src == 0) mPlayer.loc[p].client_base_resets++; // server sent a dif based on zero
+   else
    {
-      int fn = mStateHistory[p].newest_state_frame_num;
-      mLog.appf(LOG_NET_dif_not_applied, "[not applied] [base not found] - resending stak [%d]\n", fn);
-      client_send_stak(fn);
-      return;
+      // finds and sets base matching 'client_state_dif_src' -- if not found, leaves base as is (zero)
+      mStateHistory[p].get_base_state(base, base_frame_num, client_state_dif_src);
+
+      if (base_frame_num == 0) // base was not found in history
+      {
+         int fn = mStateHistory[p].newest_state_frame_num; // get newest base we do have
+         client_send_stak_packet(fn);
+         mLog.appf(LOG_NET_dif_not_applied, "[not applied] [base not found] - resending stak [%d]\n", fn);
+         return;
+      }
    }
 
 
+//   // finds and sets base matching 'client_state_dif_src' -- if not found, leaves base as is (zero)
+//   mStateHistory[p].get_base_state(base, base_frame_num, client_state_dif_src);
+//
+//   if (base_frame_num == 0)
+//   {
+//      if (client_state_dif_src != 0)
+//      {
+//
+//         int fn = mStateHistory[p].newest_state_frame_num;
+//         mLog.appf(LOG_NET_dif_not_applied, "[not applied] [base not found] - resending stak [%d]\n", fn);
+//         client_send_stak_packet(fn);
+//         return;
+//      }
+//   }
+//
+//
 
    // ------------------------------------------------
    // save things before applying dif
@@ -533,9 +535,9 @@ void mwNetgame::client_apply_dif(void)
    // ------------------------------------------------
 
    // fix control methods
-   mPlayer.syn[0].control_method = 2; // on client, server is always control method 2
-   if (mPlayer.syn[p].control_method == 2) mPlayer.syn[p].control_method = 4;
-   if (mPlayer.syn[p].control_method == 8) mLoop.state[0] = 1; // server quit
+   mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE; // on client, server is PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE
+   if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL;
+   if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON) mLoop.state[0] = 1; // server quit
 
 
    // compare old_l to l and redraw changed tiles
@@ -554,10 +556,10 @@ void mwNetgame::client_apply_dif(void)
    // ------------------------------------------------
    // if we rewound time, play it back
    // ------------------------------------------------
-   if (ff) mLoop.loop_frame(ff);
+   if (ff>0) mLoop.loop_frame(ff);
 
-   // send acknowledgement
-   client_send_stak(client_state_dif_dst);
+   // send acknowledgment
+   client_send_stak_packet(client_state_dif_dst);
 
    // ------------------------------------------------
    // calc players' corrections
@@ -576,7 +578,7 @@ void mwNetgame::client_apply_dif(void)
    mTally_client_rmt_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_rmt_plr_cor);
 }
 
-void mwNetgame::client_send_cdat(int p)
+void mwNetgame::client_send_cdat_packet(int p)
 {
    char data[1024] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "cdat");
@@ -584,9 +586,10 @@ void mwNetgame::client_send_cdat(int p)
    mPacketBuffer.PacketPutInt4(data, pos, mLoop.frame_num);
    mPacketBuffer.PacketPutInt1(data, pos, mPlayer.loc[p].comp_move);
    ClientSend(data, pos);
+   mPlayer.loc[p].client_cdat_packets_tx++;
 }
 
-void mwNetgame::client_send_stak(int ack_frame)
+void mwNetgame::client_send_stak_packet(int ack_frame)
 {
    int p = mPlayer.active_local_player;
 
@@ -596,7 +599,7 @@ void mwNetgame::client_send_stak(int ack_frame)
    mPacketBuffer.PacketPutInt4(data, pos, ack_frame);
    mPacketBuffer.PacketPutInt4(data, pos, mLoop.frame_num);
    mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].client_chase_fps);
-   mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].dsync_avg);
+   mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].pdsync_avg);
    mPacketBuffer.PacketPutInt1(data, pos, mPlayer.loc[p].rewind);
    mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].client_loc_plr_cor);
    mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].client_rmt_plr_cor);
@@ -609,26 +612,26 @@ void mwNetgame::client_send_stak(int ack_frame)
 
 void mwNetgame::client_timer_adjust(void)
 {
-   float max_dsync = mPacketBuffer.get_max_dsync();    // iterate all stdf packets, calc dysnc, then get max dysnc
-
    int p = mPlayer.active_local_player;
+
+   float max_dsync = mPacketBuffer.get_max_dsync();    // iterate all stdf packets, calc dysnc, then get max dysnc
    if (max_dsync > -1000)
    {
-      mPlayer.loc[p].dsync = max_dsync;
-      mRollingAverage[2].add_data(mPlayer.loc[p].dsync);    // send to rolling average
-      mPlayer.loc[p].dsync_avg = mRollingAverage[2].avg;    // get average
+      mPlayer.loc[p].pdsync = max_dsync;
+      mRollingAverage[2].add_data(mPlayer.loc[p].pdsync);    // send to rolling average
+      mPlayer.loc[p].pdsync_avg = mRollingAverage[2].avg;    // get average
 
       // automatically adjust client_chase_offset based on ping time
       if (client_chase_offset_mode == 1) client_chase_offset = - mPlayer.loc[p].ping_avg + client_chase_offset_auto_offset;
 
-      // overidden by server
+      // overridden by server
       if (mPlayer.syn[0].server_force_client_offset) client_chase_offset = mPlayer.syn[0].client_chase_offset;
 
       // set point
       float sp = client_chase_offset;
 
       // error = set point - measured value
-      float err = sp - mPlayer.loc[p].dsync_avg;
+      float err = sp - mPlayer.loc[p].pdsync_avg;
 
       // instantaneous error adjustment (proportional)
       float p_adj = err * 80;
@@ -654,8 +657,8 @@ void mwNetgame::client_timer_adjust(void)
 
       mPlayer.loc[p].client_chase_fps = fps_chase;
 
-      mLog.add_tmrf(LOG_TMR_client_timer_adj, 0, "dsc:[%5.2f] dsa:[%5.2f] sp:[%5.2f] er:[%6.2f] pa:[%6.2f] ia:[%6.2f] ta:[%6.2f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].dsync_avg*1000, sp*1000, err*1000, p_adj, i_adj, t_adj);
-      mLog.addf(LOG_NET_timer_adjust, p, "timer adjust dsc[%5.1f] dsa[%5.1f] off[%3.1f] chs[%3.3f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].dsync_avg*1000, sp*1000, fps_chase);
+      mLog.add_tmrf(LOG_TMR_client_timer_adj, 0, "dsc:[%5.2f] dsa:[%5.2f] sp:[%5.2f] er:[%6.2f] pa:[%6.2f] ia:[%6.2f] ta:[%6.2f]\n", mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].pdsync_avg*1000, sp*1000, err*1000, p_adj, i_adj, t_adj);
+      mLog.addf(LOG_NET_timer_adjust, p, "timer adjust dsc[%5.1f] dsa[%5.1f] off[%3.1f] chs[%3.3f]\n", mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].pdsync_avg*1000, sp*1000, fps_chase);
    }
    // else mLog.addf(LOG_NET_timer_adjust, p, "timer adjust no stdf packets this frame dsc[%5.1f] dsa[%5.1f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].dsync_avg*1000);
 }
@@ -663,7 +666,7 @@ void mwNetgame::client_timer_adjust(void)
 void mwNetgame::client_proc_player_drop(void)
 {
    int p = mPlayer.active_local_player;
-   if (mPlayer.syn[p].control_method == 8)
+   if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON)
    {
       mPlayer.loc[p].quit_reason = 92;
       mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
@@ -677,7 +680,7 @@ void mwNetgame::client_proc_player_drop(void)
    if ((mLoop.frame_num > 0) && (lsf > 0)) // check to see if server connection is lost
    {
       int ss = mLoop.frame_num - lsf;
-      if (ss > 120)
+      if (ss > 200)
       {
          mPlayer.loc[p].quit_reason = 75;
          mLog.add_fwf(LOG_NET, p, 76, 10, "+", "-", "");

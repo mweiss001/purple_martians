@@ -41,16 +41,16 @@
 
 <div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
 <div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
 <div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
 <div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
 <div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
 <div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
 <div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
 <div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
 <div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
@@ -73,7 +73,7 @@
 <mh3><hr><mdw_file_toc> <a href="netgame_state_and_dif.html#The game state" target="_top">The game state</a>
  <a href="netgame_state_and_dif.html#Game state variables" target="_top">Game state variables</a>
  <a href="netgame_state_and_dif.html#Combining game state variables into 'state'" target="_top">Combining game state variables into 'state'</a>
- <a href="netgame_state_and_dif.html#'state' variables" target="_top">'state' variables</a>
+ <a href="netgame_state_and_dif.html#State variables" target="_top">State variables</a>
  <a href="netgame_state_and_dif.html#State compression methods" target="_top">State compression methods</a>
  <a href="netgame_state_and_dif.html#The differential method" target="_top">The differential method</a>
 </mdw_file_toc><hr></mh3>
@@ -95,20 +95,20 @@ The server's game state is periodically sent to clients to keep them in sync.
 <br><a name="Game state variables"></a>
 <mh7>Game state variables</mh7>
 
-<pre><code class="language-cpp">// Variables used for netgame state exchange
-players  :  2048 - player structs
-Ei       : 12800 - enemy ints
-Ef       :  6400 - enemy floats
-item     : 32000 - item ints
-itemf    :  8000 - item floats
-lifts    :  5280 - lift structs
-mLevel.l : 40000 - 100 x 100 tile level
-mShot.p  :  1200 - player's shots
-mShot.e  :  1200 - enemy's shots
-pm_event :  4000 - events
----------:------
-total    :112928
-</code></pre>
+<pre><code class="language-cpp">Variables used for netgame state exchange
+
+mPlayer.syn         :  2304
+mEnemy.Ei           : 12800
+mEnemy.Ef           :  6400
+mItem.item          : 32000
+mItem.itemf         :  8000
+mLift.cur           :  4480
+mLevel.l            : 40000
+mShot.p             :  1200
+mShot.e             :  1200
+mTriggerEvent.event :  4000
+--------------------:------
+total               :112384</code></pre>
 
 
 <br><a name="Combining game state variables into 'state'"></a>
@@ -125,7 +125,7 @@ They contain the entire game state for a specific frame.
 This is how data is put into a 'state', and how it is retrieved:
 </mh3>
 
-<pre><code class="language-cpp">#define STATE_SIZE 112928
+<pre><code class="language-cpp">#define STATE_SIZE 112384
 
 char state[STATE_SIZE];
 
@@ -164,27 +164,24 @@ void mwNetgame::state_to_game_vars(char * b)
 </code></pre>
 
 
-<br><a name="'state' variables"></a>
-<mh7>'state' variables</mh7>
+<br><a name="State variables"></a>
+<mh7>State variables</mh7>
 
 <mh3>
-Clients use 3 'state's and the server uses 16 (2 for each client).
+<a href="netgame_state_history.html" target="_top">State History</a> keeps a history of states for both server and clients. 
+
+Clients also use 2 local states for building and decompressing difs
 </mh3>
-<pre><code class="language-cpp">#define STATE_SIZE 112928
+<pre><code class="language-cpp">#define STATE_SIZE 112384
 
-// server's copies of client states
-char srv_client_state[8][2][STATE_SIZE];
-int srv_client_state_frame_num[8][2];
-
-// local client's states
-char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
+// local client's buffer for building compressed dif from packets
+char client_state_buffer[STATE_SIZE];
 int  client_state_buffer_pieces[16];   // to mark packet pieces as received
-char client_state_base[STATE_SIZE];    // last ack state
-int  client_state_base_frame_num;      // last ack state frame_num
-char client_state_dif[STATE_SIZE];     // uncompressed dif
-int  client_state_dif_src;             // uncompressed dif src frame_num
-int  client_state_dif_dst;             // uncompressed dif dst frame_num
-</code></pre>
+
+// local client's uncompressed dif
+char client_state_dif[STATE_SIZE];
+int  client_state_dif_src;          // src frame_num
+int  client_state_dif_dst;          // dst frame_num</code></pre>
 
 <br><a name="State compression methods"></a>
 <mh7>State compression methods</mh7>

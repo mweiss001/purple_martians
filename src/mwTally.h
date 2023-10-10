@@ -1,5 +1,9 @@
 // mwTally.h
 
+#ifndef mwTally_H
+#define mwTally_H
+
+
 class mwTally
 {
    public:
@@ -35,3 +39,4 @@ extern mwTally mTally_game_move_dsync_avg_last_sec[8];
 extern mwTally mTally_client_loc_plr_cor_last_sec[8];
 extern mwTally mTally_client_rmt_plr_cor_last_sec[8];
 
+#endif

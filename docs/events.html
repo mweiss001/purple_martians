@@ -41,16 +41,16 @@
 
 <div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
 <div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
 <div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
 <div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
 <div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
 <div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
 <div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
 <div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
 <div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
@@ -92,14 +92,17 @@ It is called in the main loop when the game is running, and in the menu loop whe
 Any time I am in a blocking loop that needs input, I need to call 'mEventQueue.proc()'  
 
 </mh3>    
-<pre><code class="language-cpp">void mwEventQueue::proc(void)
+<pre><code class="language-cpp">void mwEventQueue::proc(int pch)
 {
+   mInput.key[ALLEGRO_KEY_PRINTSCREEN][0] = 0; // hack to make PRINTSCREEN key work properly
+   mInput.key_pressed_ASCII = 0;
    while (!al_is_event_queue_empty(event_queue))
    {
       ALLEGRO_EVENT ev;
       al_get_next_event(event_queue, &ev);
       proc_events(ev);
    }
+   if (pch) mInput.proc_keys_held();
 }</code></pre>               
 
 
@@ -116,7 +119,6 @@ Any time I am in a blocking loop that needs input, I need to call 'mEventQueue.p
       if (ev.timer.source == fps_timer) program_update = 1;
       if (ev.timer.source == sec_timer) program_update_1s = 1;
       if (ev.timer.source == mnu_timer) menu_update = 1;
-      if (ev.timer.source == png_timer) mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 1;
       if (ev.timer.source == mou_timer)
       {
          if (mLoop.level_editor_running) al_set_timer_count(mEventQueue.mou_timer, 0);
@@ -160,6 +162,7 @@ Input events are processed by: 'mInput.proc_input_events(ev)' See <a href="input
       if (ev.mouse.button == 4) mouse_b[4][0] = true;
       al_show_mouse_cursor(mDisplay.display);
       al_set_timer_count(mEventQueue.mou_timer, 0);
+      key_or_mouse_pressed = 1;
    }
    if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
    {
@@ -170,6 +173,8 @@ Input events are processed by: 'mInput.proc_input_events(ev)' See <a href="input
    }
    if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
    {
+      key_pressed = 1;
+      key_or_mouse_pressed = 1;
       int k = ev.keyboard.keycode;
       key[k][0] = true;
    }

@@ -41,16 +41,16 @@
 
 <div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
 <div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
 <div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
 <div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
 <div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
 <div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
 <div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
 <div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
 <div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
@@ -79,34 +79,43 @@ Items are one of the 5 basic types of objects that interact in the game.
 These are all types of items:
 - start
 - exit
-- warp
 - door
 - key
 - switch
-- sproingy
+- spring
 - bonus
-- free man
 - bomb
 - rocket
 - mine
-- pop-up msg
+- msg
+- timer
+- trigger
+- gate
+
 
 
 They all live in 2 arrays that can hold 500 items.
 
-extern int item[500][16];      // item ints
-extern al_fixed itemf[500][4]; // item fixeds
+class mwItem
+{
+   int item[500][16];    // item ints
+   float itemf[500][4];  // item floats
 
-Each item has 16 ints to hold its data and 4 fixed's to hold position and momentum.
+
+Each item has 16 ints for data and 4 floats for position and momentum.
+
 
 when the game loop is running, these functions bring them to life:
 
-proc_item_collision();
-proc_item_move();
+   void move_items();
+   void proc_item_collision(int p, int i);
+   void draw_items(void);
 
-the game loop calls this function to draw items on the level
-draw_items();
-	  
+
+
+
+
+
 
 </mh3>
 

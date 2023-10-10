@@ -35,72 +35,79 @@ mwItem::mwItem()
 
 void mwItem::initialize(void)
 {
+
    strcpy(item_name[0],  "item_empty");
-   strcpy(item_name[1],  "Door");
-   strcpy(item_name[2],  "Bonus");
-   strcpy(item_name[3],  "Exit");
-   strcpy(item_name[4],  "Key");
-   strcpy(item_name[5],  "Start");
-   strcpy(item_name[6],  "Orb");
-   strcpy(item_name[7],  "Mine");
-   strcpy(item_name[8],  "Bomb");
-   strcpy(item_name[9],  "Trigger");
-   strcpy(item_name[10], "Message");
-   strcpy(item_name[11], "Rocket");
+
+   strcpy(item_name[PM_ITEM_TYPE_DOOR],   "Door");
+   strcpy(item_name[PM_ITEM_TYPE_BONUS],  "Bonus");
+   strcpy(item_name[PM_ITEM_TYPE_EXIT],   "Exit");
+   strcpy(item_name[PM_ITEM_TYPE_KEY],    "Key");
+   strcpy(item_name[PM_ITEM_TYPE_START],  "Start");
+   strcpy(item_name[PM_ITEM_TYPE_ORB],    "Orb");
+   strcpy(item_name[PM_ITEM_TYPE_MINE],   "Mine");
+   strcpy(item_name[PM_ITEM_TYPE_BOMB],   "Bomb");
+   strcpy(item_name[PM_ITEM_TYPE_TRIGGR], "Trigger");
+   strcpy(item_name[PM_ITEM_TYPE_MSG],    "Message");
+   strcpy(item_name[PM_ITEM_TYPE_ROCKET], "Rocket");
+
    strcpy(item_name[12], "undef");
-   strcpy(item_name[13], "Timer");
-   strcpy(item_name[14], "Switch");
-   strcpy(item_name[15], "Sproingy");
-   strcpy(item_name[16], "Block Manip");
-   strcpy(item_name[17], "Block Damage");
-   strcpy(item_name[18], "Gate");
-   strcpy(item_name[19], "Hider");
+
+   strcpy(item_name[PM_ITEM_TYPE_TIMER],  "Timer");
+   strcpy(item_name[PM_ITEM_TYPE_SWITCH], "Switch");
+   strcpy(item_name[PM_ITEM_TYPE_SPRING], "Sproingy");
+   strcpy(item_name[PM_ITEM_TYPE_BLKMNP], "Block Manip");
+   strcpy(item_name[PM_ITEM_TYPE_BLKDMG], "Block Damage");
+   strcpy(item_name[PM_ITEM_TYPE_GATE],   "Gate");
+   strcpy(item_name[PM_ITEM_TYPE_HIDER],  "Hider");
 
    item_tile[0]  = 0;
-   item_tile[1]  = 448;
-   item_tile[2]  = 304;
-   item_tile[3]  = 398;
-   item_tile[4]  = 272;
-   item_tile[5]  = 383;
-   item_tile[6]  = 418;
-   item_tile[7]  = 456;
-   item_tile[8]  = 538;
-   item_tile[9]  = 991;
-   item_tile[10] = 256;
-   item_tile[11] = 249;
+
+   item_tile[PM_ITEM_TYPE_DOOR]   = 448;
+   item_tile[PM_ITEM_TYPE_BONUS]  = 304;
+   item_tile[PM_ITEM_TYPE_EXIT]   = 398;
+   item_tile[PM_ITEM_TYPE_KEY]    = 272;
+   item_tile[PM_ITEM_TYPE_START]  = 383;
+   item_tile[PM_ITEM_TYPE_ORB]    = 418;
+   item_tile[PM_ITEM_TYPE_MINE]   = 456;
+   item_tile[PM_ITEM_TYPE_BOMB]   = 538;
+   item_tile[PM_ITEM_TYPE_TRIGGR] = 991;
+   item_tile[PM_ITEM_TYPE_MSG]    = 256;
+   item_tile[PM_ITEM_TYPE_ROCKET] = 249;
+
    item_tile[12] = 825;
-   item_tile[13] = 987;
-   item_tile[14] = 745;
-   item_tile[15] = 237;
-   item_tile[16] = 989;
-   item_tile[17] = 988;
-   item_tile[18] = 940;
-   item_tile[19] = 476;
+
+   item_tile[PM_ITEM_TYPE_TIMER] = 987;
+   item_tile[PM_ITEM_TYPE_SWITCH] = 745;
+   item_tile[PM_ITEM_TYPE_SPRING] = 237;
+   item_tile[PM_ITEM_TYPE_BLKMNP] = 989;
+   item_tile[PM_ITEM_TYPE_BLKDMG] = 988;
+   item_tile[PM_ITEM_TYPE_HIDER]  = 940;
+   item_tile[PM_ITEM_TYPE_GATE]   = 476;
 
 }
 
 // does the item type have a secondary position at 6,7?
 int mwItem::item_secondary67(int type)
 {
-   if (type == 4)  return 1; // key
-   if (type == 9)  return 1; // trigger
-   if (type == 10) return 1; // message
-   if (type == 13) return 1; // timer display
-   if (type == 14) return 1; // switch
-   if (type == 16) return 1; // block manip
-   if (type == 17) return 1; // block damage
-   if (type == 19) return 1; // hider
+   if (type == PM_ITEM_TYPE_KEY)    return 1; // key
+   if (type == PM_ITEM_TYPE_TRIGGR) return 1; // trigger
+   if (type == PM_ITEM_TYPE_MSG)    return 1; // message
+   if (type == PM_ITEM_TYPE_TIMER)  return 1; // timer display
+   if (type == PM_ITEM_TYPE_SWITCH) return 1; // switch
+   if (type == PM_ITEM_TYPE_BLKMNP) return 1; // block manip
+   if (type == PM_ITEM_TYPE_BLKDMG) return 1; // block damage
+   if (type == PM_ITEM_TYPE_HIDER)  return 1; // hider
    return 0;
 }
 
 
 int mwItem::item_secondary67_hires(int type)
 {
-   if (type == 9)  return 1; // trigger
-   if (type == 10) return 1; // message
-   if (type == 13) return 1; // timer display
-   if (type == 17) return 1; // block damage
-   if (type == 19) return 1; // hider
+   if (type == PM_ITEM_TYPE_TRIGGR) return 1; // trigger
+   if (type == PM_ITEM_TYPE_MSG)    return 1; // message
+   if (type == PM_ITEM_TYPE_TIMER)  return 1; // timer display
+   if (type == PM_ITEM_TYPE_BLKDMG) return 1; // block damage
+   if (type == PM_ITEM_TYPE_HIDER)  return 1; // hider
    return 0;
 }
 
@@ -130,28 +137,28 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
       y = cy;
    }
    int drawn = 0;
-   if (type == 1)  drawn = draw_door         (i, x, y, custom);
-   if (type == 2)  drawn = draw_bonus        (i, x, y, shape);
-   if (type == 3)  drawn = draw_exit         (i, x, y, shape);
-   if (type == 4)  drawn = draw_key          (i, x, y, shape);
-   if (type == 5)  drawn = draw_start        (i, x, y, shape);
-   if (type == 6)  drawn = draw_orb          (i, x, y);
-   if (type == 8)  drawn = draw_bomb         (i, x, y, shape);
-   if (type == 9)  drawn = draw_trigger      (i, x, y, custom);
-   if (type == 10) drawn = draw_message      (i, x, y, custom);
-   if (type == 11) drawn = draw_rocket       (i, x, y, shape);
-   if (type == 13) drawn = draw_timer        (i, x, y, custom);
-   if (type == 16) drawn = draw_block_manip  (i, x, y);
-   if (type == 17) drawn = draw_block_damage (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_DOOR)   drawn = draw_door         (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_BONUS)  drawn = draw_bonus        (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_EXIT)   drawn = draw_exit         (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_KEY)    drawn = draw_key          (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_START)  drawn = draw_start        (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_ORB)    drawn = draw_orb          (i, x, y);
+   if (type == PM_ITEM_TYPE_BOMB)   drawn = draw_bomb         (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_TRIGGR) drawn = draw_trigger      (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_MSG)    drawn = draw_message      (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_ROCKET) drawn = draw_rocket       (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_TIMER)  drawn = draw_timer        (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_BLKMNP) drawn = draw_block_manip  (i, x, y);
+   if (type == PM_ITEM_TYPE_BLKDMG) drawn = draw_block_damage (i, x, y, custom);
 
-//   if (type == 18) drawn = draw_gate         (i, x, y, custom);
+//   if (type == PM_ITEM_TYPE_GATE) drawn = draw_gate         (i, x, y, custom);
 
-   if (type == 18) drawn = 1;
+   if (type == PM_ITEM_TYPE_GATE) drawn = 1;
 
-   if (type == 19) drawn = draw_hider        (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_HIDER) drawn = draw_hider        (i, x, y, shape);
 
-   if (type == 98) drawn = draw_rocket       (i, x, y, shape);
-   if (type == 99) drawn = draw_lit_bomb     (i);
+   if (type == PM_ITEM_TYPE_LIT_RCKT) drawn = draw_rocket       (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_LIT_BOMB) drawn = draw_lit_bomb     (i);
 
    // default draw if nothing else has drawn it up to now
    if (!drawn) al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
@@ -179,10 +186,6 @@ void mwItem::draw_purple_coin_screen_direct(int i)
 }
 
 
-
-
-
-
 void mwItem::move_items()
 {
    for (int i=0; i<500; i++)
@@ -194,20 +197,23 @@ void mwItem::move_items()
          if ((x<0) || (x>1980) || (y<0) || (y>1980)) item[i][0] = 0; // remove if out of bounds
 
          int type = item[i][0];
-         if ((type == 4) && (item[i][11] > 0)) proc_moving_key(i);
-         if (type == 6)  proc_orb(i);
-         if (type == 9)  proc_trigger(i);
-         if (type == 10) proc_pmsg(i);
-         if (type == 13) proc_timer(i);
-         if (type == 16) proc_block_manip(i);
-         if (type == 17) proc_block_damage(i);
-         if (type == 19) proc_hider(i);
-         if (type == 99) proc_lit_bomb(i);
-         if (type == 98) proc_lit_rocket(i);
+         if ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)) proc_moving_key(i);
+         if (type == PM_ITEM_TYPE_ORB)      proc_orb(i);
+         if (type == PM_ITEM_TYPE_TRIGGR)   proc_trigger(i);
+         if (type == PM_ITEM_TYPE_MSG)      proc_pmsg(i);
+         if (type == PM_ITEM_TYPE_TIMER)    proc_timer(i);
+         if (type == PM_ITEM_TYPE_BLKMNP)   proc_block_manip(i);
+         if (type == PM_ITEM_TYPE_BLKDMG)   proc_block_damage(i);
+         if (type == PM_ITEM_TYPE_HIDER)    proc_hider(i);
+         if (type == PM_ITEM_TYPE_LIT_BOMB) proc_lit_bomb(i);
+         if (type == PM_ITEM_TYPE_LIT_RCKT) proc_lit_rocket(i);
 
 
          // check for time to live
-         if ((type != 9) && (type != 13) && (type != 16) && (type != 17) && (type != 20))
+         if ((type != PM_ITEM_TYPE_TRIGGR) &&
+             (type != PM_ITEM_TYPE_TIMER) &&
+             (type != PM_ITEM_TYPE_BLKMNP) &&
+             (type != PM_ITEM_TYPE_BLKDMG))
          {
             int ttl = item[i][14];
             if (ttl)
@@ -224,7 +230,14 @@ void mwItem::move_items()
          }
 
          // not stationary and not lit rocket, trigger, bm, bd or moving key
-         if ((item[i][3]) && (type != 98) && (type != 9) && (type != 13) && (type != 16) && (type != 17) && (type != 19) && (! ((type == 4) && (item[i][11] > 0)))    )
+         if ((item[i][3]) &&  // not stationary
+             (type != PM_ITEM_TYPE_LIT_RCKT) &&
+             (type != PM_ITEM_TYPE_TRIGGR) &&
+             (type != PM_ITEM_TYPE_TIMER) &&
+             (type != PM_ITEM_TYPE_BLKMNP) &&
+             (type != PM_ITEM_TYPE_BLKDMG) &&
+             (type != PM_ITEM_TYPE_HIDER) &&
+             (! ((type == PM_ITEM_TYPE_KEY) && (item[i][11] > 0)))    ) // not moving key
          {
             // check if being carried
             int pc = 0;
@@ -237,7 +250,7 @@ void mwItem::move_items()
             {
                // check for sticky bomb stuck to wall
                int sticky = 0;
-               if ((type == 99) && (item[i][11])) sticky = 1;
+               if ((type == PM_ITEM_TYPE_LIT_BOMB) && (item[i][11])) sticky = 1;
                if ((sticky) && (is_item_stuck_to_wall(i)) )
                {
                   itemf[i][2] = 0;  // xinc
@@ -410,6 +423,10 @@ int mwItem::player_drop_item(int p, int i)
    return wall_stuck;
 }
 
+
+
+
+
 void mwItem::proc_player_carry(int p)
 {
    if ((mPlayer.syn[p].active) && (mPlayer.syn[p].carry_item))
@@ -419,9 +436,9 @@ void mwItem::proc_player_carry(int p)
 
          if (!item[i][0]) mPlayer.syn[p].carry_item = 0; // if player is carrying inactive item, drop item
 
-         if ((item[i][0] == 98) || (item[i][0] == 99)) item[i][13] = p; // mark player carrying lit bomb or rocket
+         if ((item[i][0] == PM_ITEM_TYPE_LIT_RCKT) || (item[i][0] == PM_ITEM_TYPE_LIT_BOMB)) item[i][13] = p; // mark player carrying lit bomb or rocket
 
-         if (item[i][0] != 98)            // not lit rocket
+         if (item[i][0] != PM_ITEM_TYPE_LIT_RCKT)            // not lit rocket
          {
             // set item position relative to player that's carrying it
             itemf[i][1] = mPlayer.syn[p].y - 2;
@@ -439,7 +456,7 @@ void mwItem::proc_player_carry(int p)
             }
             else if (wall_stuck < 6)
             {
-               if (item[i][0] != 98)            // not lit rocket
+               if (item[i][0] != PM_ITEM_TYPE_LIT_RCKT)            // not lit rocket
                {
                   itemf[i][2] = mPlayer.syn[p].xinc;  // inherit the players momentum
                   itemf[i][3] = mPlayer.syn[p].yinc;
@@ -450,7 +467,7 @@ void mwItem::proc_player_carry(int p)
                }
 
                // prevent sticky bombs from sticking to the ground when throwing upwards
-               if ((item[i][0] == 99) && (item[i][11]) && (mPlayer.syn[p].up)) itemf[i][1] -= 2;
+               if ((item[i][0] == PM_ITEM_TYPE_LIT_BOMB) && (item[i][11]) && (mPlayer.syn[p].up)) itemf[i][1] -= 2;
 
             }
          }
@@ -481,25 +498,25 @@ void mwItem::proc_item_collision(int p, int i)
       for (int op=0; op<NUM_PLAYERS; op++)
          if ((mPlayer.syn[op].active) && (!mPlayer.syn[op].paused) && (mPlayer.syn[op].carry_item == i+1)) other_player_carrying = 1;
        // allow carry
-       if ((other_player_carrying == 0) ||   // if no other player is carrying
-          (item[i][0] == 98))          // allow multiple player carry for rocket
+       if ((other_player_carrying == 0) ||             // if no other player is carrying
+          (item[i][0] == PM_ITEM_TYPE_LIT_RCKT))       // allow multiple player carry for rocket
           mPlayer.syn[p].carry_item = i+1;
    }
 
    int t = item[i][0];
-   if (t == 1)   proc_door_collision(p, i);
-   if (t == 2)   proc_bonus_collision(p, i);
-   if (t == 3)   proc_exit_collision(p, i);
-   if (t == 4)   proc_key_collision(p, i);
-   if (t == 5)   proc_start_collision(p, i);
-   if (t == 6)   proc_orb_collision(p, i);
-   if (t == 7)   proc_mine_collision(p, i);
-   if (t == 8)   proc_bomb_collision(p, i);
-   if (t == 10)  proc_pmsg_collision(i);
-   if (t == 11)  proc_rocket_collision(p, i);
-   if (t == 14)  proc_switch_collision(p, i);
-   if (t == 15)  proc_sproingy_collision(p, i);
-   if (t == 18)  proc_gate_collision(p, i);
+   if (t == PM_ITEM_TYPE_DOOR)    proc_door_collision(p, i);
+   if (t == PM_ITEM_TYPE_BONUS)   proc_bonus_collision(p, i);
+   if (t == PM_ITEM_TYPE_EXIT)    proc_exit_collision(p, i);
+   if (t == PM_ITEM_TYPE_KEY)     proc_key_collision(p, i);
+   if (t == PM_ITEM_TYPE_START)   proc_start_collision(p, i);
+   if (t == PM_ITEM_TYPE_ORB)     proc_orb_collision(p, i);
+   if (t == PM_ITEM_TYPE_MINE)    proc_mine_collision(p, i);
+   if (t == PM_ITEM_TYPE_BOMB)    proc_bomb_collision(p, i);
+   if (t == PM_ITEM_TYPE_MSG)     proc_pmsg_collision(i);
+   if (t == PM_ITEM_TYPE_ROCKET)  proc_rocket_collision(p, i);
+   if (t == PM_ITEM_TYPE_SWITCH)  proc_switch_collision(p, i);
+   if (t == PM_ITEM_TYPE_SPRING)  proc_sproingy_collision(p, i);
+   if (t == PM_ITEM_TYPE_GATE)    proc_gate_collision(p, i);
 
 
 }

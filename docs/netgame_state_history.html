@@ -1,0 +1,474 @@
+<!doctype html>
+<title>Netgame - State History</title>
+
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="history.html" target="_top">History</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
+
+</mdw_lhs_nav>
+
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Netgame - State History</mh8>
+
+<mh3><hr><mdw_file_toc> <a href="netgame_state_history.html#Overview" target="_top">Overview</a>
+ <a href="netgame_state_history.html#Data Structure" target="_top">Data Structure</a>
+ <a href="netgame_state_history.html#Adding a new state to history" target="_top">Adding a new state to history</a>
+ <a href="netgame_state_history.html#Server rewinds state" target="_top">Server rewinds state</a>
+ <a href="netgame_state_history.html#Server makes a new state" target="_top">Server makes a new state</a>
+ <a href="netgame_state_history.html#Server sends dif states to clients" target="_top">Server sends dif states to clients</a>
+ <a href="netgame_state_history.html#Server gets acknowledgment from client" target="_top">Server gets acknowledgment from client</a>
+ <a href="netgame_state_history.html#Client applies dif state" target="_top">Client applies dif state</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
+<mh7>Overview</mh7>
+
+<mh3>
+State history is an array of objects used to save and manage a history of states.
+
+Both the server and clients make use of it.
+
+Clients save states to history whenever they apply a new state from the server.
+Then later they use those old states as a base to apply new dif states.
+
+The server keeps a history of states that it uses to rewind and replay when it receives late input from clients.
+The server also keeps a history of states it has sent to each client that are used to make new dif states for that client.
+
+</mh3>    
+
+
+<a name="Data Structure"></a>
+<mh7>Data Structure</mh7>
+
+<mh3>
+The class 'mwNetgame' owns an array of 8 objects of class 'mwStateHistory', one corresponding to each player.
+
+index 0   is used by the server for rewind states
+index 1-7 is used by the server for client base states 
+
+The clients only use one index for base states (the index that corresponds to their local player number)
+</mh3>    
+<pre><code class="language-cpp">class mwNetgame
+{
+   mwStateHistory mStateHistory[8];
+...</code></pre>
+
+
+<mh3>
+Each object has 8 history states.
+
+This is a trade off between the amount of memory used and the number of saved states.
+
+8 * 8 * 112384 = 7,192,576 bytes
+</mh3>    
+
+<pre><code class="language-cpp">
+#define NUM_HISTORY_STATES 8
+#define STATE_SIZE 112384
+class mwStateHistory
+{
+   char history_state[NUM_HISTORY_STATES][STATE_SIZE];
+...</code></pre>
+
+
+
+<a name="Adding a new state to history"></a>
+<mh7>Adding a new state to history</mh7>
+<mh3>
+Both the client and the server use it.
+
+It takes the current game variables and passed frame number and adds it to state history.
+
+This is the only method to add or change state history.
+
+Whenever it is called, it also checks and sets oldest and newest states.
+</mh3>    
+    
+<pre><code class="language-cpp">// if a state already exists with exact frame number, overwrite it
+// if not replace the oldest frame number (include empty -1's so they get used first)
+// this is the only way that anything gets added or changed
+void mwStateHistory::add_state(int frame_num)
+{
+   int indx = -1;
+   // if a state already exists with exact frame number, use that index and overwrite it
+   for (int i=0; i < NUM_HISTORY_STATES; i++) if (history_state_frame_num[i] == frame_num) indx = i;
+
+   if (indx == -1)
+   {
+      // find lowest frame number, include -1 so they will be used first if any exist
+      int mn = std::numeric_limits<int>::max();
+      for (int i=0; i < NUM_HISTORY_STATES; i++)
+         if (history_state_frame_num[i] < mn)
+         {
+            mn = history_state_frame_num[i];
+            indx = i;
+         }
+   }
+   if (indx > -1)
+   {
+      mNetgame.game_vars_to_state(history_state[indx]);
+      history_state_frame_num[indx] = frame_num;
+   }
+
+   _set_newest_and_oldest();
+
+   // check if we just invalidated last ack state by adding a new state
+   if (last_ack_state_frame_num > -1) set_ack_state(last_ack_state_frame_num);
+}
+
+// called whenever adding state
+void mwStateHistory::_set_newest_and_oldest(void)
+{
+   int mn = std::numeric_limits<int>::max();
+   int mx = std::numeric_limits<int>::min();
+   int mn_indx = -1;
+   int mx_indx = -1;
+   for (int i=0; i < NUM_HISTORY_STATES; i++)
+   {
+      int fn = history_state_frame_num[i];
+      if (fn > -1) // ignore all unset states
+      {
+         if (fn < mn) // new minimum
+         {
+            mn = fn;
+            mn_indx = i;
+         }
+         if (fn > mx) // new maximum
+         {
+            mx = fn;
+            mx_indx = i;
+         }
+      }
+   }
+   if (mn_indx > -1)
+   {
+      oldest_state_frame_num = mn;
+      oldest_state_index = mn_indx;
+      oldest_state = history_state[mn_indx];
+   }
+   if (mx_indx > -1)
+   {
+      newest_state_frame_num = mx;
+      newest_state_index = mx_indx;
+      newest_state = history_state[mx_indx];
+   }
+}</code></pre>
+
+
+<a name="Server rewinds state"></a>
+<mh7>Server rewinds state</mh7>
+
+<mh3>
+This is how the server rewinds state and replays back to current frame.
+</mh3>    
+
+<pre><code class="language-cpp">void mwNetgame::server_rewind(void)
+{
+...
+   mStateHistory[0].apply_rewind_state(server_dirty_frame);
+...
+}
+
+void mwStateHistory::apply_rewind_state(int frame_num)
+{
+   if (frame_num < 1) return;
+
+   // how many frames to rewind and replay
+   int ff = mPlayer.loc[0].rewind = mLoop.frame_num - frame_num;
+
+   // if same frame as current frame, do nothing
+   if (ff == 0)
+   {
+      mLog.addf(LOG_NET_stdf, 0, "stdf rewind [none]\n");
+      return;
+   }
+
+   // find index of matching frame
+   int indx = -1;
+   for (int i=0; i < NUM_HISTORY_STATES; i++) if (frame_num == history_state_frame_num[i]) indx = i;
+
+   if (indx == -1)
+   {
+      mLog.addf(LOG_NET_stdf, 0, "stdf rewind [%d] not found - ", frame_num);
+      indx = oldest_state_index;
+      if (indx == -1) mLog.app(LOG_NET_stdf, "oldest frame not valid\n");
+      else mLog.appf(LOG_NET_stdf, "using oldest frame [%d]\n", history_state_frame_num[indx]);
+   }
+
+   if (indx > -1)
+   {
+      mLog.addf(LOG_NET_stdf, 0, "stdf rewind to:%d [%d]\n", frame_num, -ff);
+
+      mNetgame.state_to_game_vars(history_state[indx]);
+      mLoop.frame_num = history_state_frame_num[indx];
+
+      // fast forward and save rewind states
+      for (int i=0; i < ff; i++)
+      {
+         mLoop.loop_frame(1);
+         add_state(mLoop.frame_num);
+      }
+   }
+}</code></pre>
+
+
+
+<a name="Server makes a new state"></a>
+<mh7>Server makes a new state</mh7>
+
+<mh3>
+This is how the server makes a new state.
+</mh3>    
+
+<pre><code class="language-cpp">void mwNetgame::server_create_new_state(void)
+{
+   // this state is created at the end of the frame, after moves have been applied
+   // because of that it is actually the starting point of the next frame
+   // so it is sent and saved with frame_num + 1
+
+   // it is done this way, rather than wait for the start of the next frame
+   // because after the end of the frame, there is a pause before the next frame starts
+   // and I want to send new state as soon as possible
+
+   int frame_num = mLoop.frame_num + 1;
+   server_dirty_frame = frame_num;
+
+   // this is the server rewind state, not the client base
+   mStateHistory[0].add_state(frame_num);
+
+   mLog.addf(LOG_NET_stdf, 0, "stdf save state:%d\n", frame_num);
+   server_send_dif(frame_num); // send to all clients
+}</code></pre>
+
+
+
+<a name="Server sends dif states to clients"></a>
+<mh7>Server sends dif states to clients</mh7>
+
+<mh3>
+This is how the server sends a dif states to each active client.
+</mh3>    
+
+<pre><code class="language-cpp">void mwNetgame::server_send_dif(int frame_num) // send dif to all clients
+{
+  for (int p=1; p < NUM_PLAYERS; p++)
+      if ((mPlayer.syn[p].control_method == 2) || (mPlayer.syn[p].control_method == 8))
+      {
+         // save current state in history as base for next clients send
+         mStateHistory[p].add_state(frame_num);
+
+         char base[STATE_SIZE] = {0};
+         int base_frame_num = 0;
+
+         // get client's most recent base state (the last one acknowledged to the server)
+         // if not found, leaves base as is (zero)
+         mStateHistory[p].get_last_ack_state(base, base_frame_num);
+
+         if (base_frame_num == 0) mPlayer.loc[p].client_base_resets++;
+
+         // make a new dif from base and current
+         char dif[STATE_SIZE];
+         get_state_dif(base, mStateHistory[p].newest_state, dif, STATE_SIZE);
+
+         // break into packet and send to client
+         server_send_compressed_dif(p, base_frame_num, frame_num, dif);
+      }
+}
+
+// called when the server is making a dif to send to a client and needs a base to build it on
+void mwStateHistory::get_last_ack_state(char* base, int& base_frame_num)
+{
+   int indx = last_ack_state_index;
+   if (indx > -1)
+   {
+      memcpy(base, history_state[indx], STATE_SIZE);
+      base_frame_num = history_state_frame_num[indx];
+   }
+}</code></pre>
+
+
+
+
+<a name="Server gets acknowledgment from client"></a>
+<mh7>Server gets acknowledgment from client</mh7>
+
+<mh3>
+When the server gets an acknowledgment from a client.
+</mh3>    
+
+<pre><code class="language-cpp">void mwNetgame::server_proc_stak_packet(int i)
+{
+...
+   int ack_frame_num = mPacketBuffer.PacketGetInt4(i);  // client has acknowledged getting and applying this base
+   mStateHistory[p].set_ack_state(ack_frame_num);
+...
+
+// called when the server receives stak packet acknowledging frame_num
+// if we have a state that matches that frame_num, set last_ack variables
+// if we do not, then reset them
+void mwStateHistory::set_ack_state(int frame_num)
+{
+   // see if we have a state with this frame_num
+   int indx = -1;
+   for (int i=0; i < NUM_HISTORY_STATES; i++) if (frame_num == history_state_frame_num[i]) indx = i;
+   if (indx > -1)
+   {
+      last_ack_state_frame_num = frame_num;
+      last_ack_state_index = indx;
+      last_ack_state = history_state[indx];
+   }
+   else
+   {
+      last_ack_state_frame_num = -1;
+      last_ack_state_index = -1;
+      last_ack_state = NULL;
+   }
+}</code></pre>
+
+
+
+<a name="Client applies dif state"></a>
+<mh7>Client applies dif state</mh7>
+
+<mh3>
+When the client applies a dif state from the server.
+</mh3>    
+
+<pre><code class="language-cpp">void mwNetgame::client_apply_dif(void)
+{
+...
+   // check if we have a base state that matches dif source
+   char base[STATE_SIZE] = {0};
+   int base_frame_num = 0;
+
+   // finds and sets base matching 'client_state_dif_src' -- if not found, leaves base as is (zero)
+   mStateHistory[p].get_base_state(base, base_frame_num, client_state_dif_src);
+
+   if (base_frame_num == 0)
+   {
+      mPlayer.loc[p].client_base_resets++;
+      if (client_state_dif_src != 0)
+      {
+         int fn = mStateHistory[p].newest_state_frame_num;
+         mLog.appf(LOG_NET_dif_not_applied, "[not applied] [base not found] - resending stak [%d]\n", fn);
+         client_send_stak_packet(fn);
+         return;
+      }
+   }
+
+   // apply dif to base
+   apply_state_dif(base, client_state_dif, STATE_SIZE);
+
+   // copy to game vars and set new frame number
+   state_to_game_vars(base);
+   mLoop.frame_num = client_state_dif_dst;
+
+   // save to history
+   mStateHistory[p].add_state(mLoop.frame_num);
+
+   // if we rewound time, play it back
+   if (ff > 0) mLoop.loop_frame(ff);
+
+   // send acknowledgment
+   client_send_stak_packet(client_state_dif_dst);
+}
+
+// called when client needs a base state to apply a dif to
+// searches for a match for passed frame_num
+void mwStateHistory::get_base_state(char* base, int& base_frame_num, int frame_num)
+{
+   if (frame_num == 0) return; // base 0 leave as is
+   int indx = -1;
+   for (int i=0; i<NUM_HISTORY_STATES; i++) if (frame_num == history_state_frame_num[i]) indx = i;
+   if (indx > -1)
+   {
+      memcpy(base, history_state[indx], STATE_SIZE);
+      base_frame_num = history_state_frame_num[indx];
+   }
+}</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2023, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

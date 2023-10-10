@@ -53,20 +53,13 @@
 #define LOG_OTH_move               53
 #define LOG_OTH_draw               54
 
-
 #define LOG_ACTION_PRINT  0b001
 #define LOG_ACTION_LOG    0b010
-#define LOG_ACTION_ERROR  0b100
-
-
-
-
-
 
 struct log_type
 {
    int group; // 0=unused, 1=net, 2=timer, 3=other
-   int action; // 001=print_to_console, 010=log_to_file, 100=error_dialog
+   int action; // 001=print_to_console, 010=log_to_file
    char name[40];
 };
 

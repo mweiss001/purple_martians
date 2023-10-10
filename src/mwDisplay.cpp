@@ -48,6 +48,8 @@ void mwDisplay::set_scale_factor(float new_scale_factor, int instant)
 
 void mwDisplay::proc_scale_factor_change(void)
 {
+   float scale_factor_mlt = 0.01;
+
    if (show_scale_factor    > 0) show_scale_factor--;
    if (scale_factor_holdoff > 0) scale_factor_holdoff--;
 
@@ -135,8 +137,7 @@ void mwDisplay::set_saved_display_transform(int sdt)
    scale_factor_current = scale_factor;
 
    // adjust window positions
-   for (int a=0; a<NUM_MW; a++)
-      mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
+   for (int a=0; a<NUM_MW; a++) mWM.mW[a].set_pos(mWM.mW[a].x1/sfa, mWM.mW[a].y1/sfa);
 
 }
 
@@ -181,8 +182,11 @@ void mwDisplay::set_display_transform()
 
 int mwDisplay::init_display(void)
 {
-   char msg[1024];
-   scale_factor_mlt = 0.01;
+   if (mMain.headless_server)
+   {
+      no_display = 1;
+      return 0;
+   }
 
    int num_adapters = al_get_num_video_adapters();
    if (num_adapters == 0)
@@ -191,16 +195,6 @@ int mwDisplay::init_display(void)
       no_display = 1;
       return 0;
    }
-
-   if (mMain.headless_server)
-   {
-      no_display = 1;
-      return 0;
-   }
-
-
-
-
 
    if (display_adapter_num >=  num_adapters) display_adapter_num = 0;
    al_set_new_display_adapter(display_adapter_num);
@@ -279,8 +273,7 @@ int mwDisplay::init_display(void)
 
    if(!display)
    {
-      sprintf(msg, "Error creating display\n");
-      mInput.m_err(msg);
+      mInput.m_err("Error creating display");
       exit(0);
    }
    if (!fullscreen) al_set_window_position(display, disp_x_wind, disp_y_wind);
@@ -292,8 +285,6 @@ int mwDisplay::init_display(void)
    disp_h_curr = al_get_display_height(display);
    al_get_window_position(display, &disp_x_curr, &disp_y_curr);
    //printf("x:%d y:%d w:%d h:%4d\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
-
-
 
    set_display_transform();
    set_window_title();
@@ -582,8 +573,8 @@ void mwDisplay::show_var_sizes(void)
    sz+= sizeof(mLift.cur);
    sz+= sizeof(mLift.stp);
    sz+= sizeof(mItem.pmsgtext);
-   printf("------------:------\n");
-   printf("total       :%6d\n",  sz );
+   printf("---------------:------\n");
+   printf("total          :%6d\n",  sz );
 
    printf("\nVariables used for netgame state exchange\n\n");
 
@@ -609,8 +600,8 @@ void mwDisplay::show_var_sizes(void)
    sz+= sizeof(mShot.p);
    sz+= sizeof(mShot.e);
    sz+= sizeof(mTriggerEvent.event);
-   printf("---------:------\n");
-   printf("total    :%6d\n",  sz );
+   printf("--------------------:------\n");
+   printf("total               :%6d\n",  sz );
 
    printf("\nOther Large Variables\n\n");
 

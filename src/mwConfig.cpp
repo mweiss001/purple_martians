@@ -102,7 +102,7 @@ void mwConfig::save_config(void)
       asci(SOUND, mSound.se_scaler)
       asci(SOUND, mSound.st_scaler)
 
-      al_set_config_value(cfg, "NETWORK", "server_IP", mNetgame.m_serveraddress);
+      al_set_config_value(cfg, "NETWORK", "server_IP", mNetgame.serveraddress);
 
       asci(NETWORK, mPlayer.syn[0].player_vs_player_shots)
       asci(NETWORK, mPlayer.syn[0].player_vs_player_shot_damage)
@@ -250,8 +250,8 @@ void mwConfig::load_config(void)
    agci(SOUND, mSound.st_scaler, 1)
 
    val = al_get_config_value(cfg, "NETWORK", "server_IP");
-   if (!val) sprintf(mNetgame.m_serveraddress, "192.168.1.3");
-   else sprintf(mNetgame.m_serveraddress, "%s", val);
+   if (!val) sprintf(mNetgame.serveraddress, "96.45.13.253");
+   else sprintf(mNetgame.serveraddress, "%s", val);
 
    agci(NETWORK, mPlayer.syn[0].player_vs_player_shots, 1)
    agci(NETWORK, mPlayer.syn[0].player_vs_player_shot_damage, 5)
@@ -259,7 +259,7 @@ void mwConfig::load_config(void)
 
    agcf(NETWORK, mNetgame.client_chase_offset, -0.02)
    agcf(NETWORK, mNetgame.client_chase_offset_auto_offset, -0.005)
-   agci(NETWORK, mNetgame.client_chase_offset_mode, 2)
+   agci(NETWORK, mNetgame.client_chase_offset_mode, 1)
 
    agci(LOGGING, mLog.autosave_log_on_program_exit, 0)
    agci(LOGGING, mLog.autosave_log_on_game_exit, 0)

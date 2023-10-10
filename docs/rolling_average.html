@@ -41,16 +41,16 @@
 
 <div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
 <div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
 <div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
 <div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
 <div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
 <div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
 <div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
 <div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
 <div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
@@ -100,10 +100,11 @@ double ping_avg = mwRA[1].avg;  // retrieve average
 <pre><code class="language-cpp">class mwRollingAverage
 {
    public:
-   mwRollingAverage();
-   void initialize(void);
+   mwRollingAverage(); // default constructor
+   void initialize(int arr_siz);
    void add_data(double d);
-   double arr[8];
+   double arr[4000];
+   int arr_size = 8;
    int    num_filled;
    int    index;
    double last_input;
@@ -111,21 +112,40 @@ double ping_avg = mwRA[1].avg;  // retrieve average
    double mn;
    double mx;
 };
-extern mwRollingAverage mwRA[4];
+extern mwRollingAverage mRollingAverage[4];
+
+
+mwRollingAverage::mwRollingAverage()
+{
+   initialize(8);
+}
+
+void mwRollingAverage::initialize(int arr_sz)
+{
+   for (int i=0; i<400; i++) arr[i] = 0;
+   arr_size = arr_sz;
+   num_filled = 0;
+   index = 0;
+   avg = 0;
+   last_input = 0;
+   mn = 0;
+   mx = 0;
+}
 
 void mwRollingAverage::add_data(double d)
 {
    last_input = d;
 
    arr[index] = d;  // put new entries where index points
-   if (++index > 7) index = 0;
+   if (++index > arr_size-1) index = 0;
    num_filled++;
 
-   int ul = 8; // find number of valid entries, 8 by default unless not filled yet
-   if (num_filled < 8) ul = num_filled;
+   int ul = arr_size; // find number of valid entries, arr_size by default unless not filled yet
+   if (num_filled < arr_size) ul = num_filled;
 
-   mn = 99999999;  // min
-   mx = -99999999; // max
+   mn = std::numeric_limits<double>::max();
+   mx = std::numeric_limits<double>::lowest();
+
    double tally = 0;
    for (int i=0; i < ul; i++) // cycle all the valid entries
    {
@@ -134,8 +154,8 @@ void mwRollingAverage::add_data(double d)
       if (arr[i] > mx) mx = arr[i]; // max
    }
    avg = tally / ul; // average
-}
-</code></pre>
+}</code></pre>
+
 
 <mh3>
 As an added bonus, you can also retrieve:

@@ -158,6 +158,8 @@
 		<Unit filename="src/mwLogo.h" />
 		<Unit filename="src/mwLoop.cpp" />
 		<Unit filename="src/mwLoop.h" />
+		<Unit filename="src/mwLoopLevelDone.cpp" />
+		<Unit filename="src/mwLoopRemoteControl.cpp" />
 		<Unit filename="src/mwMain.cpp" />
 		<Unit filename="src/mwMain.h" />
 		<Unit filename="src/mwMainArgs.cpp" />

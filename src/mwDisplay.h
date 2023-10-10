@@ -41,12 +41,19 @@ class mwDisplay
    int show_dtd;
 
 
+
+
+
+
+
+
+
    void set_window_title(void);
 
    float scale_factor;
    float scale_factor_current;
 
-   float scale_factor_mlt;
+
 
 
    void set_scale_factor(float new_scale_factor, int instant);

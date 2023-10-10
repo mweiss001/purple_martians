@@ -39,7 +39,6 @@ void mwLogo::seed_logo(void)
 
    points[4][0] = 0;
    points[4][1] = 0;
-
    points[4][6] = 0;
    points[4][7] = 200;
 
@@ -71,12 +70,11 @@ void mwLogo::seed_logo(void)
    points[8][3] = -88;
 }
 
-// 0 1 are the outer parts of M
-// 2 3 are the inner parts of M
-// 4 5 outer W
-// 6 7 inner W
-
-// 8 D
+// 0 1 'M' outer arms
+// 2 3 'M' inner arms
+// 4 5 'W' outer arms
+// 6 7 'W' inner arms
+// 8   'D'
 
 // 0 is copied to 1 4 5
 // 2 is copied to 3 6 7
@@ -84,8 +82,11 @@ void mwLogo::seed_logo(void)
 // the height and width of M and W are 200
 
 // they meet at the lower right corner of M and the upper left corner of W
-// that spot is the origin 0, 0
-// this makes scaling easy as I can mutlipy all the values by the same scaler
+// that spot is the origin (0, 0) and also the center of the entire grid
+// this makes scaling easy as I can mutlipy all the values by a scaler
+// or just all the x or y values
+
+
 
 void mwLogo::fill_logo(void)
 {
@@ -206,12 +207,6 @@ void mwLogo::draw_logo(float x, float y, float x_scale, float y_scale)
    // get thickness from max scale, x or y
    float max_scale = fabs(x_scale);
    if (fabs(y_scale) > fabs(x_scale)) max_scale = fabs(y_scale);
-
-
-//   float t = 3 + max_scale * 7;  // original
-
-//   float t = 2 + max_scale * 7;
-
    float t = 1 + max_scale * 9;
 
    float draw_points[9][8];

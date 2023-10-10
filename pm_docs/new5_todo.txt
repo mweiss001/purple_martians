@@ -3,14 +3,120 @@
 ---------------------------------------------------------
 
 
-why does client always crash when quitting in thread mode?
-
 
 
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+document netgame, yet again
+
+
+
+docs has not been started
+------------------------
+
+how to setup headless server and remote control it
+
+how to test
+
+how to profile
+
+enemies
+
+lifts
+
+help
+
+
+
+
+doc to do
+---------
+
+items.html (very basic but updated)
+level_array.html
+level_done.html
+project_organization.html (make sure object list at end is correct)
+tiles.html (maybe good, needs to be checked)
+
+
+
+
+doc done
+--------
+block_flags.html
+display.html
+events.html
+input.html
+game_moves.html
+timers.html
+rolling_average.html
+logo.html
+shots.html
+sound.html
+bitmap.html
+
+netgame_main.html
+
+netgame_client_control_change.html
+netgame_client_state.html
+netgame_client_timing_sync.html
+
+netgame_packets.html
+netgame_packet_buffer.html
+
+netgame_server_setup.html
+netgame_join.html
+
+netgame_config.html
+netgame_ping.html
+netgame_control_and_monitoring.html
+
+netgame_state_history.html
+netgame_state_and_dif.html
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -30,6 +136,16 @@ i suppose I could do this by just saving logs on the server all the time
 
 then I just need something to read and parse the logs...
 
+what kind of logs?
+
+just LOG_NET??
+also save all games, just level done should do for headless server
+
+then I can figure out later an automated method of parsing them
+
+for now make it so that headless server does this by default
+
+this is done....
 
 
 
@@ -39,7 +155,6 @@ then I just need something to read and parse the logs...
 
 
 
-document netgame, yet again
 
 
 can I make netem stuff work with a script on server??
@@ -79,10 +194,6 @@ should I just abandon old syle cpu graph??
 it is nice that it does not reset when screen changes
 commented out for now...
 could I measure the time it takes to draw it?, like eco_draw?
-
-
-
-
 
 
 

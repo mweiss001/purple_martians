@@ -16,8 +16,8 @@ class mwGameMoves
    void proc(void);
    void add_game_move2(int frame, int type, int data1, int data2);
    void add_game_move(int frame, int type, int data1, int data2);
-   void proc_player_client_join_game_move(int x);
-   void proc_player_client_quit_game_move(int x);
+   void proc_client_join_game_move(int x);
+   void proc_client_quit_game_move(int x);
    void proc_player_active_game_move(int x);
    void proc_player_inactive_game_move(int x);
 
