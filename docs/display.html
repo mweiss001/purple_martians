@@ -41,16 +41,16 @@
 
 <div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
 <div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
 <div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
 <div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
 <div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
 <div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
 <div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
 <div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
 <div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
@@ -67,7 +67,7 @@
 			
 <mh3><hr></mh3>
 <mh8>Display</mh8>
-<mh3><hr><mdw_file_toc> <a href="display.html#Global variables" target="_top">Global variables</a>
+<mh3><hr><mdw_file_toc> <a href="display.html#Variables" target="_top">Variables</a>
  <a href="display.html#Creating the display" target="_top">Creating the display</a>
  <a href="display.html#Process display change" target="_top">Process display change</a>
  <a href="display.html#Toggle fullscreen mode" target="_top">Toggle fullscreen mode</a>
@@ -76,22 +76,21 @@
  <a href="display.html#Cycle display transform double" target="_top">Cycle display transform double</a>
 </mdw_file_toc><hr></mh3>
 
-<a name="Global variables"></a>
-<mh7>Global variables</mh7>
-
+<a name="Variables"></a>
+<mh7>Variables</mh7>
 
 
 <mh3>
 These are the variables for the display:
 </mh3>
     
-<pre><code class="language-cpp">// mwDisplay.h
-
-class mwDisplay
+<pre><code class="language-cpp">class mwDisplay
 {
    public:
 
    ALLEGRO_DISPLAY *display = NULL;
+
+   int no_display = 0;
 
    int desktop_width;
    int desktop_height;
@@ -111,8 +110,8 @@ class mwDisplay
    int disp_w_full;
    int disp_h_full;
 
-   int SCREEN_W;
-   int SCREEN_H;
+   float SCREEN_W;
+   float SCREEN_H;
 
    int fullscreen = 1;
    int display_adapter_num = 0;
@@ -124,7 +123,7 @@ class mwDisplay
    int display_transform_double_max;
    int saved_display_transform_double;
    int show_dtd;
-}</code></pre>
+</code></pre>
 
 <mh3>
 These values are also saved in the config file with these defaults:
@@ -136,7 +135,7 @@ mDisplay.disp_h_wind=1024
 mDisplay.scale_factor=1.0
 mDisplay.fullscreen=1
 mDisplay.display_adapter_num=0
-mDisplay.saved_display_transform_double=2
+mDisplay.saved_display_transform_double=0
 mDisplay.display_transform_double_max=3
 </code></pre>
             
@@ -146,15 +145,40 @@ mDisplay.display_transform_double_max=3
 
 <pre><code class="language-cpp">int mwDisplay::init_display(void)
 {
-   scale_factor_mlt = 0.01;
+   if (mMain.headless_server)
+   {
+      no_display = 1;
+      return 0;
+   }
 
    int num_adapters = al_get_num_video_adapters();
+   if (num_adapters == 0)
+   {
+      printf("No Display Adapters Found!\n");
+      no_display = 1;
+      return 0;
+   }
+
    if (display_adapter_num >=  num_adapters) display_adapter_num = 0;
    al_set_new_display_adapter(display_adapter_num);
+
+   if (num_adapters > 1) printf("%d adapters found...using:%d\n", num_adapters, display_adapter_num);
+
+   ALLEGRO_MONITOR_INFO aminfo;
+   al_get_monitor_info(display_adapter_num, &aminfo);
+   desktop_width  = aminfo.x2 - aminfo.x1;
+   desktop_height = aminfo.y2 - aminfo.y1;
+   printf("Desktop Resolution: %dx%d\n", desktop_width, desktop_height);
+
+   mDisplay.disp_x_full = 0; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
+   mDisplay.disp_y_full = 0;
+   mDisplay.disp_w_full = desktop_width;
+   mDisplay.disp_h_full = desktop_height;
 
    al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, ALLEGRO_REQUIRE);
 
    // this is needed to make opengl 4.3 work the same as windows
+   // see visual level select, etc..
    al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, 1, ALLEGRO_REQUIRE);
 
    // check if windowed values are valid
@@ -164,30 +188,31 @@ mDisplay.display_transform_double_max=3
    if (disp_w_wind > disp_w_full) disp_w_wind = disp_w_full;
    if (disp_h_wind > disp_h_full) disp_h_wind = disp_h_full;
 
-   mConfig.save();
+   mConfig.save_config();
 
+   int flags = 0;
 
    if (fullscreen)
    {
-      int flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE;
+      flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE;
       al_set_new_display_flags(flags);
       display = al_create_display(disp_w_wind, disp_h_wind);
    }
    else // windowed
    {
-      int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
+      flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
       al_set_new_display_flags(flags);
       display = al_create_display(disp_w_wind, disp_h_wind);
    }
 
    al_set_window_constraints(display, 320, 240, 0, 0);
    al_apply_window_constraints(display, 1);
-   mConfig.save();
+
+   mConfig.save_config();
 
    if(!display)
    {
-      sprintf(msg, "Error creating display\n");
-      mInput.m_err(msg);
+      mInput.m_err("Error creating display");
       exit(0);
    }
    if (!fullscreen) al_set_window_position(display, disp_x_wind, disp_y_wind);
@@ -200,6 +225,7 @@ mDisplay.display_transform_double_max=3
 
    set_display_transform();
    set_window_title();
+
    mBitmap.create_bitmaps();
    return 1;
 }</code></pre>
@@ -236,7 +262,6 @@ This function is called when:
    set_display_transform();
    mBitmap.rebuild_bitmaps();
    mConfig.save();
-   //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
    set_window_title();
 }</code></pre>
 

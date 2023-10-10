@@ -3,27 +3,14 @@
 #include "pm.h"
 #include "mwNetgame.h"
 #include "mwPlayer.h"
+#include "mwEnemy.h"
+#include "mwItem.h"
 #include "mwLift.h"
 #include "mwTriggerEvent.h"
-#include "mwItem.h"
-#include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwShot.h"
 #include "mwLog.h"
-#include "mwTally.h"
-#include "mwGameMoves.h"
 #include "mwLoop.h"
-#include "mwInput.h"
-#include "mwRollingAverage.h"
-#include "mwDisplay.h"
-#include "mwFont.h"
-#include "mwBitmap.h"
-#include "mwColor.h"
-#include "mwEventQueue.h"
-#include "mwConfig.h"
-#include "mwScreen.h"
-#include "mwStateHistory.h"
-
 
 
 mwNetgame mNetgame;
@@ -36,7 +23,7 @@ mwNetgame::mwNetgame()
    remote_join_reply = 0;
 
 
-   sprintf(m_serveraddress, "192.168.1.2");
+   sprintf(serveraddress, "192.168.1.2");
    zlib_cmp = 7;
    tmaj_i = 0;
 
@@ -83,22 +70,6 @@ int mwNetgame::NetworkInit(void)
 }
 
 
-int mwNetgame::is_data_waiting(void)
-{
-   double t0 = al_get_time();
-   int data_waiting = 0;
-   if (mNetgame.ima_server)
-   {
-      for (int n=0; n<ClientNum; n++)
-         if ((ClientChannel[n]) && (net_query(ClientChannel[n]))) data_waiting = 1;
-   }
-   if (mNetgame.ima_client)
-   {
-      if (net_query(ServerChannel)) data_waiting = 1;
-   }
-   mTally[0].add_data(al_get_time() - t0);
-   return data_waiting;
-}
 
 
 

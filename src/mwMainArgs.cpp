@@ -118,13 +118,13 @@ void mwMain::copy_files_to_clients(int type)
 
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
-   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
-
-   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
-   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
-   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
-   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
+//
+//   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+//   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
 
 
 
@@ -388,7 +388,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       }
       if (strcmp(argument_array[1],"-c") == 0 )
       {
-         sprintf(mNetgame.m_serveraddress, "%s", argument_array[2]);
+         sprintf(mNetgame.serveraddress, "%s", argument_array[2]);
          mConfig.save_config();
          mLogo.show_splash_screen = 0;
          mLoop.state[0] = 24;

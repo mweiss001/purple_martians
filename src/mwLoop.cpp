@@ -8,16 +8,19 @@
 #include "mwSound.h"
 #include "mwLog.h"
 #include "mwSettings.h"
-#include "mwPlayer.h"
+
 #include "mwNetgame.h"
 #include "mwTally.h"
 #include "mwDrawSequence.h"
 #include "mwLogo.h"
 #include "mwBottomMessage.h"
 #include "mwDemoMode.h"
+
 #include "mwDisplay.h"
+#include "mwScreen.h"
 #include "mwFont.h"
-#include "mwLift.h"
+#include "mwColor.h"
+
 #include "mwVisualLevel.h"
 #include "mwGameMoves.h"
 #include "mwTriggerEvent.h"
@@ -26,24 +29,20 @@
 #include "mwBitmap.h"
 #include "mwMenu.h"
 #include "mwHelp.h"
-#include "mwItem.h"
+
+#include "mwPlayer.h"
 #include "mwEnemy.h"
+#include "mwItem.h"
+#include "mwLift.h"
+#include "mwShot.h"
 #include "mwLevel.h"
 
-#include "mwScreen.h"
-#include "mwShot.h"
-#include "mwWindow.h"
 #include "mwWindowManager.h"
 
-#include "mwColor.h"
 #include "mwMain.h"
-
 #include "mwConfig.h"
-
-
-#include "mwWidget.h"
-
 #include "mwPacketBuffer.h"
+
 
 
 
@@ -112,18 +111,6 @@ void mwLoop::move_frame(void)
       mLog.addf(LOG_OTH_move, 0, "[%4d]Move items\n", frame_num);
       mItem.move_items();       t[6] = al_get_time();
 
-
-
-   //   int p = mPlayer.active_local_player;
-   //   if (mPlayer.syn[p].player_ride) // if player is riding lift
-   //   {
-   //      int d = mPlayer.syn[p].player_ride - 32; // lift number
-   //      float lx = mLift.cur[d].x;
-   //      float ly = mLift.cur[d].y;
-   //      printf("move frame end - px:%4.2f lx:%4.2f dif:%4.2f\n", mPlayer.syn[p].x, lx, mPlayer.syn[p].x-lx);
-   //   }
-
-
       mLog.add_tmrf(LOG_TMR_move_all, 0, "m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
                       (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[6]-t[5])*1000, (t[6]-t[0])*1000);
 
@@ -139,18 +126,10 @@ void mwLoop::loop_frame(int times) // used for fast forwarding after rewind
    {
       mGameMoves.proc();
       move_frame();
-
-//      if (mPlayer.syn[0].level_done_mode) proc_level_done_mode();
-//      else move_frame();
-
-
       frame_num++;
    }
    ff_state = 0;
 }
-
-
-
 
 
 
@@ -159,9 +138,6 @@ int mwLoop::have_all_players_acknowledged(void)
    int ret = 1; // yes by default
    for (int p=0; p<NUM_PLAYERS; p++)
    {
-
-
-
       if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
       {
          if (mGameMoves.has_player_acknowledged(p))
@@ -416,8 +392,8 @@ void mwLoop::proc_program_state(void)
       {
          mLog.add(LOG_OTH_program_state, 0, "[State 1 - Game Menu]\n");
 
-         if (mNetgame.ima_server) mNetgame.server_exit();
-         if (mNetgame.ima_client) mNetgame.client_exit();
+         if (mNetgame.ima_server) mNetgame.ServerExitNetwork();
+         if (mNetgame.ima_client) mNetgame.ClientExitNetwork();
 
          if (mLog.autosave_log_on_game_exit) mLog.save_log_file();
          if (mLog.autosave_game_on_game_exit) mGameMoves.blind_save_game_moves(2);
@@ -467,7 +443,7 @@ void mwLoop::proc_program_state(void)
    if (state[1] == 25) // client exit
    {
       mLog.add(LOG_OTH_program_state, 0, "[State 25 - Client Exit]\n");
-      mNetgame.client_exit();
+      mNetgame.ClientExitNetwork();
       quit_action = 1; // to prevent quitting clients from automatically going to overworld
       state[0] = 1;
    }
@@ -478,11 +454,25 @@ void mwLoop::proc_program_state(void)
    if (state[1] == 24)
    {
       mLog.add(LOG_OTH_program_state, 0, "[State 24 - Client New Game]\n");
-      if (!mNetgame.client_init())
+
+      mLog.log_versions();
+      mLog.add_fw (LOG_NET, 0, 76, 10, "+", "-", "");
+      mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client mode started on localhost:[%s]", mLoop.local_hostname);
+
+      if (!mNetgame.ClientInitNetwork())
       {
          state[0] = 25;
          return;
       }
+
+      mRollingAverage[1].initialize(8); // ping rolling average
+      mRollingAverage[2].initialize(8); // dsync rolling average
+
+      mNetgame.client_send_cjon_packet();
+
+      mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client sent join request to server with player color:[%2d]", mPlayer.syn[0].color);
+      mLog.add_fw (LOG_NET, 0, 76, 10, "+", "-", "");
+
       initialize_graphs();
       for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
       mPlayer.syn[0].active = 1;
@@ -494,6 +484,7 @@ void mwLoop::proc_program_state(void)
    //---------------------------------------
    if (state[1] == 23)
    {
+
       mLog.add(LOG_OTH_program_state, 0, "[State 23 - Client Wait For Join]\n");
       mPacketBuffer.rx_and_proc();
       if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) state[0] = 25; // give them an escape option
@@ -511,7 +502,6 @@ void mwLoop::proc_program_state(void)
          state[0] = 25;
          return;
       }
-
 
       for (int p=0; p<NUM_PLAYERS; p++)
          mPlayer.set_player_start_pos(p, 0);     // get starting position for all players, active or not
@@ -565,9 +555,9 @@ void mwLoop::proc_program_state(void)
    if (state[1] == 20)
    {
       mLog.add(LOG_OTH_program_state, 0, "[State 20 - Server New Game]\n");
-      if (!mNetgame.server_init())
+      if (!mNetgame.ServerInitNetwork())
       {
-         mNetgame.server_exit();
+         mNetgame.ServerExitNetwork();
          state[0] = 19;
          return;
       }
@@ -582,7 +572,7 @@ void mwLoop::proc_program_state(void)
       }
 
       mPlayer.syn[0].active = 1;
-      mPlayer.syn[0].control_method = 3;
+      mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
       strncpy(mPlayer.loc[0].hostname, local_hostname, 16);
 
       mGameMoves.initialize();
@@ -596,11 +586,14 @@ void mwLoop::proc_program_state(void)
 
       initialize_graphs();
 
-      mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
+      mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
+
+
+
 
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, 1, p, mPlayer.syn[p].color); // 1 - player_state and color
+         if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color); // 1 - player_state and color
 
       mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
 
@@ -618,7 +611,7 @@ void mwLoop::proc_program_state(void)
    if (state[1] == 19) // server exit
    {
       mLog.add(LOG_OTH_program_state, 0, "[State 19 - Server Exit]\n");
-      mNetgame.server_exit();
+      mNetgame.ServerExitNetwork();
       state[0] = 1;
    }
 
@@ -721,13 +714,13 @@ void mwLoop::proc_program_state(void)
 
       if (mNetgame.ima_client)
       {
-         mNetgame.client_flush();
+         mNetgame.ClientFlush();
          mLog.log_ending_stats_client(LOG_NET_ending_stats, mPlayer.active_local_player);
       }
 
       if (mNetgame.ima_server)
       {
-         mNetgame.server_flush();
+         mNetgame.ServerFlush();
          mLog.log_ending_stats_server(LOG_NET_ending_stats);
       }
 
@@ -906,7 +899,7 @@ void mwLoop::proc_program_state(void)
 
       for (int p=0; p<NUM_PLAYERS; p++) mPlayer.syn[p].active = 0;       // set all players inactive
       mPlayer.syn[0].active = 1; // make player 0 active
-      mPlayer.syn[0].control_method = 0; // reset to local control
+      mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER; // reset to local control
       mConfig.load_config(); // restore player color
 
 
@@ -988,10 +981,8 @@ void mwLoop::proc_program_state(void)
 
       mLog.add(LOG_OTH_program_state, 0, "[State 40 - Server Remote Control Setup]\n");
 
-      printf("server remote control setup 2\n");
-
       // initialize driver with server address
-      if (!mNetgame.ClientInitNetwork(mNetgame.m_serveraddress))
+      if (!mNetgame.ClientInitNetwork())
       {
          state[0] = 0; //quit
          return;
@@ -999,8 +990,6 @@ void mwLoop::proc_program_state(void)
 
 
       mNetgame.client_send_cjrc_packet();
-
-      printf("server remote control setup 3\n");
 
       // wait for reply
       int reply = 0;
@@ -1039,43 +1028,6 @@ void mwLoop::proc_program_state(void)
 
    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 
@@ -1094,19 +1046,19 @@ void mwLoop::setup_level_after_load(void)
    {
       setup_players_after_level_load(1); // type 1 full reset,
       mGameMoves.initialize();
-      mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
+      mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
    }
    if (state[1] == 12) // next level
    {
       setup_players_after_level_load(2); // type 2 next level reset
       mGameMoves.initialize();
-      mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
+      mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
       mNetgame.reset_states();
    }
    if (state[1] == 31) // demo level setup
    {
       setup_players_after_level_load(1); // type 1 full reset,
-      mPlayer.syn[0].control_method = 1; // rungame demo mode
+      mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // rungame demo mode
    }
    setup_common_after_level_load();
 }
@@ -1135,7 +1087,7 @@ void mwLoop::setup_common_after_level_load(void)
 
    if (mNetgame.ima_server) // set server initial state
    {
-      mPlayer.syn[0].control_method = 3;
+      mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
 //      mNetgame.mStateHistory[0].add_state(frame_num);
 //      mLog.addf(LOG_NET_stdf, 0, "stdf saved server state:%d\n", frame_num);
    }
@@ -1143,7 +1095,7 @@ void mwLoop::setup_common_after_level_load(void)
    {
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, 1, p, mPlayer.syn[p].color); // [01] player_state and color
+         if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
       mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
    }
 }
@@ -1154,229 +1106,6 @@ void mwLoop::setup_common_after_level_load(void)
 
 
 
-
-void mwLoop::proc_level_done_mode(void)
-{
-//   mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d\n", frame_num, mPlayer.syn[0].level_done_mode);
-
-   //-------------------------------------
-   // start of final level rocket cutscene
-   //-------------------------------------
-   if (mPlayer.syn[0].level_done_mode == 30) // setup for players seek and zoom out
-   {
-      mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Setup for players seek and zoom out\n", frame_num, mPlayer.syn[0].level_done_mode);
-
-      mLevel.add_play_data_record(mLevel.play_level, 1);
-
-      if (super_fast_mode) // skip cutscene
-      {
-         mPlayer.syn[0].level_done_mode = 1;
-         state[0] = 12;
-         return;
-      }
-
-      mPlayer.syn[0].level_done_timer = 0; // immediate next mode
-      cutscene_original_zoom = mDisplay.scale_factor_current;
-
-      mDisplay.set_custom_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/2000, 100);
-
-      // bring other netgame players home
-      int c = mPlayer.syn[0].level_done_player; // captain of the ship!
-      mPlayer.syn[c].xinc = 0;
-      mPlayer.syn[c].yinc = 0;
-
-      // each player has its own home place on the ship
-      int xh = 120;
-      int yh = 260;
-      for (int p=0; p< NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (p != c) && (mPlayer.syn[p].paused_type != 3)) // all active players except captain
-         {
-            // distance to home position
-            float dx = xh - mPlayer.syn[p].x;
-            float dy = yh - mPlayer.syn[p].y;
-
-            // break into 100 steps
-            mPlayer.syn[p].xinc = dx / 100;
-            mPlayer.syn[p].yinc = dy / 100;
-
-           // set left right direction
-           if (mPlayer.syn[p].xinc > 0) mPlayer.syn[p].left_right = 1;
-           if (mPlayer.syn[p].xinc < 0) mPlayer.syn[p].left_right = 0;
-
-           xh += 20; // next home position
-         }
-   }
-
-   if (mPlayer.syn[0].level_done_mode == 29) // players seek and zoom out
-   {
-      mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Players seek and zoom out\n", frame_num, mPlayer.syn[0].level_done_mode);
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
-         {
-            mPlayer.syn[p].x += mPlayer.syn[p].xinc;
-            mPlayer.syn[p].y += mPlayer.syn[p].yinc;
-         }
-   }
-
-   if (mPlayer.syn[0].level_done_mode == 28) // set up for rocket move
-   {
-      mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Setup for rocket move\n", frame_num, mPlayer.syn[0].level_done_mode);
-      // create bitmap of the background
-      if (!cutscene_background) cutscene_background = al_create_bitmap(2000, 2000);
-      al_set_target_bitmap(cutscene_background);
-      al_clear_to_color(al_map_rgba(0,0,0,0));
-      al_draw_bitmap(mBitmap.level_buffer, 0, 0, 0);
-
-      // erase the rocket area
-      al_draw_filled_rectangle(20, 0, 380, 1980, mColor.Black);
-      al_convert_mask_to_alpha(cutscene_background, mColor.Black);
-
-      // actually erase everything else from level
-      for (int i=0; i<100; i++) if (mEnemy.Ei[i][0] != 19) mEnemy.Ei[i][0] = 0; // enemies (except crew)
-      for (int i=0; i<500; i++) if (mItem.item[i][0] != 6) mItem.item[i][0] = 0; // items (except orb)
-      mShot.clear_shots();
-
-      // blocks
-      for (int x=16; x<100; x++)
-         for (int y=0; y<100; y++)
-            mLevel.l[x][y] = 0;
-      for (int x=0; x<3; x++)
-         for (int y=0; y<100; y++)
-            mLevel.l[x][y] = 0;
-      for (int x=0; x<100; x++) mLevel.l[x][0] = 0; // top line
-      for (int x=0; x<100; x++) mLevel.l[x][99] = 0; // bottom line
-      mScreen.init_level_background();
-
-      cutscene_accel = 1.0;
-      cutscene_bg_x =  0.0;
-
-   }
-
-   if (mPlayer.syn[0].level_done_mode == 27) // rocket move
-   {
-      mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Rocket move\n", frame_num, mPlayer.syn[0].level_done_mode);
-      mScreen.get_new_background(1);
-
-      cutscene_bg_x += cutscene_accel;
-      cutscene_accel += 0.07;
-      al_draw_bitmap(cutscene_background, 0, cutscene_bg_x, 0);
-
-      mEnemy.draw_enemies();
-      mPlayer.draw_players();
-      mItem.draw_items();
-
-      mScreen.draw_scaled_level_region_to_display(0);
-      mScreen.draw_screen_overlay();
-
-      al_flip_display();
-
-   }
-   if (mPlayer.syn[0].level_done_mode == 26)
-   {
-      mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Setup for zoom in\n", frame_num, mPlayer.syn[0].level_done_mode);
-      mDisplay.set_custom_scale_factor(cutscene_original_zoom, 100); // set up for zoom in
-   }
-   if (mPlayer.syn[0].level_done_mode == 25)
-   {
-      mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Zoom in\n", frame_num, mPlayer.syn[0].level_done_mode);
-   }
-   if (mPlayer.syn[0].level_done_mode == 24) // jump to level done
-   {
-      mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Jump to level done\n", frame_num, mPlayer.syn[0].level_done_mode);
-      mPlayer.syn[0].level_done_mode = 6;
-      mPlayer.syn[0].level_done_timer = 0;
-      mPlayer.syn[0].level_done_next_level = 1; // always go to overworld after beating the game
-   }
-
-   if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
-   {
-      mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - pause player and setup exit xyincs\n", frame_num, mPlayer.syn[0].level_done_mode);
-      mScreen.set_player_text_overlay(mPlayer.syn[0].level_done_player, 2);
-      mLevel.add_play_data_record(mLevel.play_level, 1);
-
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
-         {
-            mPlayer.syn[p].paused = 5; // set player paused
-
-            // get distance between player and exit
-            float dx = mPlayer.syn[0].level_done_x - mPlayer.syn[p].x;
-            float dy = mPlayer.syn[0].level_done_y - mPlayer.syn[p].y;
-
-            // get move
-            mPlayer.syn[p].xinc = dx/60;
-            mPlayer.syn[p].yinc = dy/60;
-
-            // set left right direction
-            if (mPlayer.syn[p].xinc > 0) mPlayer.syn[p].left_right = 1;
-            if (mPlayer.syn[p].xinc < 0) mPlayer.syn[p].left_right = 0;
-         }
-   }
-   if (mPlayer.syn[0].level_done_mode == 8) // players seek exit
-   {
-      mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - players seek exit\n", frame_num, mPlayer.syn[0].level_done_mode);
-      float fade = 0.3 + (float) mPlayer.syn[0].level_done_timer / 85; // 1 to .3 in 60 frames
-      if (mSound.sound_on) al_set_mixer_gain(mSound.st_mixer, ((float)mSound.st_scaler / 9) * fade);
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
-         {
-            mPlayer.syn[p].x += mPlayer.syn[p].xinc;
-            mPlayer.syn[p].y += mPlayer.syn[p].yinc;
-         }
-   }
-   if (mPlayer.syn[0].level_done_mode == 7) // shrink and rotate
-   {
-      mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - players shrink and rotate\n", frame_num, mPlayer.syn[0].level_done_mode);
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
-         {
-            mPlayer.syn[p].draw_scale -= 0.05;
-            mPlayer.syn[p].draw_rot -= 8;
-         }
-   }
-   if (mPlayer.syn[0].level_done_mode == 5) // skippable 15s timeout
-   {
-      mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - skippable 15s timeout\n", frame_num, mPlayer.syn[0].level_done_mode);
-      if (!mNetgame.ima_client)
-      {
-         if (have_all_players_acknowledged()) mPlayer.syn[0].level_done_timer = 0; // skip
-      }
-   }
-
-   if (mPlayer.syn[0].level_done_mode == 2) // delay to load next level
-   {
-      mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - delay to load next level\n", frame_num, mPlayer.syn[0].level_done_mode);
-   }
-
-
-
-   if (--mPlayer.syn[0].level_done_timer <= 0) // time to change to next level_done_mode
-   {
-      mPlayer.syn[0].level_done_mode--;
-
-      if (mPlayer.syn[0].level_done_mode == 30) mPlayer.syn[0].level_done_timer = 0;   // set up for player move and zoom out
-      if (mPlayer.syn[0].level_done_mode == 29) mPlayer.syn[0].level_done_timer = 100; // player move and zoom out
-      if (mPlayer.syn[0].level_done_mode == 28) mPlayer.syn[0].level_done_timer = 0;   // set up for rocket move
-      if (mPlayer.syn[0].level_done_mode == 27) mPlayer.syn[0].level_done_timer = 240; // rocket move
-      if (mPlayer.syn[0].level_done_mode == 26) mPlayer.syn[0].level_done_timer = 0;   // set up for zoom in
-      if (mPlayer.syn[0].level_done_mode == 25) mPlayer.syn[0].level_done_timer = 100; // zoom in
-      if (mPlayer.syn[0].level_done_mode == 24) mPlayer.syn[0].level_done_timer = 0;   // jump to mode 6
-
-
-      if (mPlayer.syn[0].level_done_mode == 8) mPlayer.syn[0].level_done_timer = 60;  // players seek exit
-      if (mPlayer.syn[0].level_done_mode == 7) mPlayer.syn[0].level_done_timer = 20;  // players shrink and rotate into exit
-      if (mPlayer.syn[0].level_done_mode == 6) mPlayer.syn[0].level_done_timer = 0;
-      if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600; // skippable 15s delay;
-      if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;
-      if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;
-      if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 10;  // delay to load next level
-      if (mPlayer.syn[0].level_done_mode == 1)
-      {
-         mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Load lext level\n", frame_num, mPlayer.syn[0].level_done_mode);
-         state[0] = 12;
-      }
-   }
-}
 
 
 void mwLoop::add_local_cpu_data(double cpu)
@@ -1529,9 +1258,10 @@ void mwLoop::main_loop(void)
       // ----------------------------------------------------------
       mPacketBuffer.check_for_packets();
 
-
-      if (super_fast_mode) mEventQueue.program_update = 1; // temp testing as fast as it can go
-
+      // ----------------------------------------------------------
+      // temp testing as fast as it can go
+      // ----------------------------------------------------------
+      if (super_fast_mode) mEventQueue.program_update = 1;
 
       // ----------------------------------------------------------
       // do things based on the 40 Hz fps_timer event
@@ -1543,259 +1273,12 @@ void mwLoop::main_loop(void)
 
 
 
-
 // ----------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------
 // remote control loop
 // ----------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------
-         if (state[1] == 41) // remote control loop
-         {
-            double t0 = al_get_time();
-
-            mPacketBuffer.rx_and_proc();
-
-            int fn = mPlayer.loc[0].srv_frame_num; // set frame number from last snfo packet update
-
-
-            // check how long since last rtcl packet has been sent, and send keep alive packet if too long
-            if (++remote_frames_since_last_rctl_sent > 400) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_keep_alive, 0);
-
-
-            char msg[200];
-            al_set_target_backbuffer(mDisplay.display);
-            al_flip_display();
-            al_clear_to_color(al_map_rgb(0,0,0));
-
-            int cx = 10, cy = 10;
-
-
-
-//            al_draw_textf(mFont.pr8, mColor.pc[13], cx, cy, 0, "Server Remote Control"); cy+=20;
-//            al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "Level:[%d] - Time:[%s] - Frame:[%d] - Moves:[%d]", mPlayer.loc[0].srv_level, mItem.chrms(fn, msg), fn, mPlayer.loc[0].srv_total_game_moves); cy+=30;
-
-
-            al_draw_textf(mFont.pr8, mColor.pc[13], cx, cy, 0, "Server Remote Control ");
-            al_draw_textf(mFont.pr8, mColor.pc[15], cx+180, cy, 0, "Level:[%d] - Time:[%s] - Frame:[%d] - Moves:[%d]", mPlayer.loc[0].srv_level, mItem.chrms(fn, msg), fn, mPlayer.loc[0].srv_total_game_moves); cy+=20;
-
-
-
-            mScreen.sdg_show(cx, cy); // server debug grid
-
-            int i = 0;
-            cx = 38;
-            if (mWidget.buttontcb(cx, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "cpu " ))
-            {
-               mQuickGraph2[i].active = !mQuickGraph2[i].active;
-               initialize_and_resize_remote_graphs();
-            }
-
-            i = 1;
-            if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "sync" ))
-            {
-               mQuickGraph2[i].active = !mQuickGraph2[i].active;
-               initialize_and_resize_remote_graphs();
-            }
-
-            i = 2;
-            if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "ping" ))
-            {
-               mQuickGraph2[i].active = !mQuickGraph2[i].active;
-               initialize_and_resize_remote_graphs();
-            }
-
-            i = 3;
-            if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "difs" ))
-            {
-               mQuickGraph2[i].active = !mQuickGraph2[i].active;
-               initialize_and_resize_remote_graphs();
-            }
-
-            i = 4;
-            if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "tkbs" ))
-            {
-               mQuickGraph2[i].active = !mQuickGraph2[i].active;
-               initialize_and_resize_remote_graphs();
-            }
-
-            i = 5;
-            if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "rwnd" ))
-            {
-               mQuickGraph2[i].active = !mQuickGraph2[i].active;
-               initialize_and_resize_remote_graphs();
-            }
-
-            i = 6;
-            if (mWidget.buttontcb(cx+=48, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "lcor" ))
-            {
-               mQuickGraph2[i].active = !mQuickGraph2[i].active;
-               initialize_and_resize_remote_graphs();
-            }
-
-            i = 7;
-            if (mWidget.buttontcb(cx+=48*3, cy, 0, 11, 0,0,0,0, 0,-1,mQuickGraph2[i].col1 + (!mQuickGraph2[i].active)*128,15, 0,0,0,0, "rcor" ))
-            {
-               mQuickGraph2[i].active = !mQuickGraph2[i].active;
-               initialize_and_resize_remote_graphs();
-            }
-
-            al_set_target_backbuffer(mDisplay.display);
-
-            cy+=78;
-
-
-            // -------------------------------------------
-            // first column
-            // -------------------------------------------
-            cx = 10;
-            int rcy = cy; // remember cy
-
-
-
-
-
-            int cs = 16; // control spacing
-            int btw = 12, bth = 12; // button size
-            int btc = 15+96; // button color
-
-            int b1x = cx+2;
-            int tx  = cx+32;
-            int b2x = cx+52;
-
-
-            int gfc = 10; // group frame color
-            if (mWidget.togglec(cx, cy, cx+200, 16, 0,0,0,0, 0,gfc,15,0, 1,0,1,0, mPlayer.syn[0].server_force_client_offset, "Force Client Offset", 15, 15) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_force_client_offset, 0);
-            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, -0.005);
-            al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%2.0f", mPlayer.syn[0].client_chase_offset*1000);
-            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_client_offset_adj, 0.005);
-            al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "Offset (ms)");
-            al_draw_rectangle(b1x-2, cy-2, b1x+198, cy+cs-4, mColor.pc[gfc], 1);
-
-            cy+=20;
-
-            gfc = 9; // group frame color
-            if (mWidget.togglec(cx, cy, cx+200, 16, 0,0,0,0, 0,9,15,0, 1,0,1,0, mPlayer.syn[0].player_vs_player_shots, "Player vs Player Shots", 15, 15) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shots_toggle, 0);
-            cy-=2;
-            if (mWidget.togglec(cx, cy, cx+200, 16, 0,0,0,0, 0,9,15,0, 1,0,1,0, mPlayer.syn[0].player_vs_self_shots,   "Player vs Self Shots",   15, 15) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvs_shots_toggle, 0);
-            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, -1);
-            al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.syn[0].player_vs_player_shot_damage);
-            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj, 1);
-            al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "Shot Damage");
-            al_draw_rectangle(b1x-2, cy-2, b1x+198, cy+cs-4, mColor.pc[gfc], 1);
-
-
-
-            int mxcy = cy+16; // max cy, for marking where to start next section
-
-
-            // -------------------------------------------
-            // second column
-            // -------------------------------------------
-            cx = 240;
-            cy = rcy+2; // restore cy
-
-            b1x = cx + 2;
-            tx  = cx +32;
-            b2x = cx +52;
-
-            gfc = 8; // group frame color
-            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, -1);
-            al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_zlib_cmp);
-            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_zlib_compression_adj, 1);
-            al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "zlib compression level");
-            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[gfc], 1);
-
-            cy+=20;
-
-            gfc = 14; // group frame color
-            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_num_adj, -1);
-            al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_extra_packets_num);
-            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_num_adj, 1);
-            al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "number of extra packets");
-            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[gfc], 1);
-
-            cy+=cs-2;
-            if (mWidget.buttont_nb(b1x, cy, b1x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "-") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_siz_adj, -100);
-            al_draw_textf(mFont.pr8, mColor.pc[15], tx, cy+1, ALLEGRO_ALIGN_CENTER, "%d", mPlayer.loc[0].srv_extra_packets_size);
-            if (mWidget.buttont_nb(b2x, cy, b2x+btw, bth, 0,0,0,0, 0,btc,15,0, 1,0,0,0, "+") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_exra_packet_num_adj, 100);
-            al_draw_text(mFont.pr8, mColor.pc[15], cx+76, cy+1, 0, "extra packet size");
-            al_draw_rectangle(b1x-2, cy-2, b1x+270, cy+cs-4, mColor.pc[gfc], 1);
-
-
-            cy+=20;
-
-            gfc = 7; // group frame color
-            if (mWidget.togglec(cx, cy, cx+200, 16, 0,0,0,0, 0,gfc,15,0, 1,0,1,0, mPlayer.syn[0].server_force_fakekey, "Server Force Fakekey", 15, 15) ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_fakekey_toggle, 0);
-
-
-
-            cy+=20;
-
-
-            // -------------------------------------------
-            // third column
-            // -------------------------------------------
-            cx = 540;
-            cy = rcy; // restore cy
-            int cxc2 = cx + 100;
-            if (mWidget.buttontca(cxc2, cy, 0, 16, 0,0,0,0, 0,13,15,0, 1,0,1,0, " Select and Reload Level ") )
-            {
-               if (mVisualLevel.visual_level_select() == 1) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, mLevel.start_level);
-            }
-            cy+=6;
-            if (mWidget.buttontca(cxc2, cy, 0, 16, 0,0,0,0, 0,9,15,0, 1,0,1,0, "  Reload Current Level   ") ) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_server_reload, -1);
-
-
-
-
-            cy+=10;
-            static int show_bandwidth = 0;
-            if (mWidget.buttontcb(cx, cy, 0, 13, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Show/Hide Bandwidth") ) show_bandwidth = !show_bandwidth;
-
-            cy = mxcy; // position of next section inder buttons
-            cx = 10;
-            if (show_bandwidth) mScreen.draw_bandwidth_stats(cx, cy); // bandwidth stats
-
-
-            // this is when I know how much space I have left for graphs
-
-            int height = mDisplay.SCREEN_H - cy - 20;
-            int width = mDisplay.SCREEN_W - 20;
-
-            if ((remote_graphs_height != height) || (remote_graphs_width != width))
-            {
-               remote_graphs_height = height;
-               remote_graphs_width = width;
-               initialize_and_resize_remote_graphs();
-            }
-
-
-            for (int i=0; i<8; i++)
-               if (mQuickGraph2[i].active) mQuickGraph2[i].draw_graph();
-
-
-            mQuickGraph2[9].set_pos(mDisplay.SCREEN_W-mQuickGraph2[9].width-28, 4);
-            mQuickGraph2[9].draw_graph();
-
-            if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
-            {
-               while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
-               state[0] = 0;
-            }
-
-            // --------------------------------------------
-            // measure time it took to process loop
-            // --------------------------------------------
-            double pt = al_get_time() - t0;
-
-            // convert to 'cpu', a percent of the total frame time (25ms)
-            float cpu = (pt / 0.025) * 100;
-
-            // store in local cpu variables
-            add_local_cpu_data(cpu);
-
-         }
-
+         if (state[1] == 41) remote_control_loop();
 
 // ----------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------
@@ -1845,16 +1328,12 @@ void mwLoop::main_loop(void)
             // ------------------------------
             mGameMoves.proc();
 
-
-
-
             mPacketBuffer.check_for_packets();
 
             // ------------------------------
             // move
             // ------------------------------
             move_frame();
-
 
             mPacketBuffer.check_for_packets();
 
@@ -1870,7 +1349,6 @@ void mwLoop::main_loop(void)
 
 
             mPacketBuffer.check_for_packets();
-
 
             // ------------------------------
             // draw
@@ -1896,32 +1374,12 @@ void mwLoop::main_loop(void)
             // store in local cpu variables
             add_local_cpu_data(cpu);
 
-//            printf("add_rx_buf   times called:%d  total_time:%8.4fms  avg:%8.4fus \n", mTally[1].num, mTally[1].get_tally(0)*1000, mTally[1].get_avg(0)*1000000);
-//
-//            printf("prc_rx_buf   times called:%d  total_time:%8.4fms  avg:%8.4fus \n", mTally[0].num, mTally[0].get_tally(0)*1000, mTally[0].get_avg(0)*1000000);
-
-
-//            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "add_rx_buf", mTally[1].get_tally(1));
-//
-//            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "proc_rx_buf", mTally[0].get_tally(1));
-//
-//            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "add_rx_block", mTally[2].get_tally(1));
-//
-//            mLog.add_tmr1(LOG_TMR_proc_rx_buffer, 0, "proc_rx_block", mTally[3].get_tally(1));
-
-
-
-
-
 
             for (int p=0; p<NUM_PLAYERS; p++)
             {
                mPlayer.loc[p].ping = mPacketBuffer.RA[p].last_input;
                mPlayer.loc[p].ping_avg = mPacketBuffer.RA[p].avg;
             }
-
-
-
          }
       }
 
@@ -1936,17 +1394,13 @@ void mwLoop::main_loop(void)
          if (state[1] == 11) // game loop running
          {
 
-
-            printf("add_rx_buf checked:%d tot_ctime:%8.4fms  avg_ctime:%8.4fus  proc:%d tot_ptime:%8.4fms  avg_ptime:%8.4fus \n", mTally[0].num, mTally[0].get_tally(0)*1000, mTally[0].get_avg(0)*1000000,
-                                                                                                                                  mTally[1].num, mTally[1].get_tally(0)*1000, mTally[1].get_avg(0)*1000000);
-            mTally[0].initialize();
-            mTally[1].initialize();
+            mPacketBuffer.process_tally();
 
 
 
             if (mNetgame.ima_client)
             {
-               mNetgame.client_send_ping();
+               mNetgame.client_send_ping_packet();
                int p = mPlayer.active_local_player;
                mPlayer.loc[p].client_loc_plr_cor_avg = mTally_client_loc_plr_cor_last_sec[p].get_avg(0);
                mPlayer.loc[p].client_rmt_plr_cor_avg = mTally_client_rmt_plr_cor_last_sec[p].get_avg(0);
@@ -1957,7 +1411,7 @@ void mwLoop::main_loop(void)
             {
                // tally late cdats and game move dsync
                for (int p=1; p<NUM_PLAYERS; p++)
-                  if (mPlayer.syn[p].control_method == 2)
+                  if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
                   {
                      mPlayer.syn[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally(1);
                      mPlayer.loc[p].game_move_dsync_avg_last_sec = mTally_game_move_dsync_avg_last_sec[p].get_avg(1);

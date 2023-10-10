@@ -41,16 +41,16 @@
 
 <div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
 <div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
-<div style="text-align: center;"><a href="netgame_server_state.html"             target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
 <div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
 <div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
 <div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
-<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"         target="_top">Netgame - Fast Packet Loop</a></div>    
-<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
 <div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
 <div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
 <div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
 <div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
 
 </mdw_lhs_nav>
@@ -71,21 +71,19 @@
  <a href="timers.html#Game speed regulation" target="_top">Game speed regulation</a>
  <a href="timers.html#Second timer" target="_top">Second timer</a>
  <a href="timers.html#Menu timer" target="_top">Menu timer</a>
- <a href="timers.html#Ping Timer" target="_top">Ping Timer</a>
  <a href="timers.html#Mouse Timer" target="_top">Mouse Timer</a>
 </mdw_file_toc><hr></mh3>
 
 <a name="Overview"></a>
 <mh7>Overview</mh7>
 <mh3>
-Five timers are used in the game:
+Four timers are used in the game:
     
 </mh3>
 
 <pre><code class="language-cpp">ALLEGRO_TIMER * fps_timer;  // used to control the speed of the game
 ALLEGRO_TIMER * mnu_timer;  // used to control the speed of the menu
 ALLEGRO_TIMER * sec_timer;  // used to do things on a 1Hz schedule
-ALLEGRO_TIMER * png_timer;  // used to set the frequency of client pings
 ALLEGRO_TIMER * mou_timer;  // used to control hiding the mouse cursor
 
 void mwEventQueue::create_timers(void)
@@ -94,42 +92,35 @@ void mwEventQueue::create_timers(void)
    fps_timer = al_create_timer(1 / (float) mLoop.frame_speed);
    mnu_timer = al_create_timer(.008); // 125 fps
    sec_timer = al_create_timer(1);    // 1s
-   png_timer = al_create_timer(.5);   // 2 fps
    mou_timer = al_create_timer(1);    // 1s
 
    // register timer event source
    al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(sec_timer));
-   al_register_event_source(event_queue, al_get_timer_event_source(png_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(mou_timer));
 
    // start timers
    al_start_timer(fps_timer);
    al_start_timer(mnu_timer);
    al_start_timer(sec_timer);
-   al_start_timer(png_timer);
    al_start_timer(mou_timer);
-...
-
+}
 
 void mwEventQueue::proc_events(ALLEGRO_EVENT ev)
 {
-   ...
    if (ev.type == ALLEGRO_EVENT_TIMER)
    {
       if (ev.timer.source == fps_timer) program_update = 1;
       if (ev.timer.source == sec_timer) program_update_1s = 1;
       if (ev.timer.source == mnu_timer) menu_update = 1;
-      if (ev.timer.source == png_timer) mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 1;
       if (ev.timer.source == mou_timer)
       {
-         if (mLoop.level_editor_running) al_set_timer_count(mEventQueue.mou_timer, 0);
-         if (al_get_timer_count(mEventQueue.mou_timer) > 2) al_hide_mouse_cursor(mDisplay.display);
+         if (mLoop.level_editor_running) al_set_timer_count(mou_timer, 0);
+         if (al_get_timer_count(mou_timer) > 2) al_hide_mouse_cursor(mDisplay.display);
       }
    }
-...</code></pre>
-
+}</code></pre>
 
 
 <br><a name="Game speed regulation"></a>
@@ -142,7 +133,7 @@ Whenever fps_timer generates an event, program_update is set:
 
 
 <mh3>
-In the main loop, whenever 'mEventQueue.program_update' is true, the main game loop will run once.
+In the main loop, whenever 'mEventQueue.program_update' is true, the game loop will run once.
 </mh3>
 
 <pre><code class="language-cpp">void mwLoop::main_loop(void)
@@ -155,7 +146,7 @@ In the main loop, whenever 'mEventQueue.program_update' is true, the main game l
    {
       mEventQueue.program_update = 0;
 
-      // do everything in the main game loop
+      // do everything in the game loop
 ...</code></pre>
 
 
@@ -164,7 +155,7 @@ In the main loop, whenever 'mEventQueue.program_update' is true, the main game l
 <mh3>
 Used to do things on a 1 Hz schedule
 
-In the main game loop, whenever 'mEventQueue.program_update_1s' is true, (which will be once per second) these tasks are performed:
+In the main loop, whenever 'mEventQueue.program_update_1s' is true, (which will be once per second) these tasks are performed:
 
 </mh3>
 <pre><code class="language-cpp">void mwLoop::main_loop(void)
@@ -178,23 +169,8 @@ In the main game loop, whenever 'mEventQueue.program_update_1s' is true, (which 
       mEventQueue.program_update_1s = 0;
       if (state[1] == 11) // game loop running
       {
-         if (mNetgame.ima_server)
-         {
-            // auto adjust server state frequency
-            if (mPlayer.loc[0].server_state_freq_mode == 1) // 0 = manual, 1 = auto
-            {
-               int mcp = mTally[4].get_max()*1000;
-               if (mcp > 100) mcp = 100;
-               mPlayer.loc[0].server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
-            }
-            // tally late cdats and game move dsync
-            for (int p=1; p < NUM_PLAYERS; p++)
-               if (mPlayer.syn[p].control_method == 2)
-               {
-                  mPlayer.loc[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally();
-                  mPlayer.loc[p].game_move_dsync_avg_last_sec = mTally_game_move_dsync_avg_last_sec[p].get_avg();
-               }
-         }
+         // do stuff   
+
       }
    }</code></pre>
 
@@ -211,27 +187,6 @@ This code is run in that loop to both process the event queue and act as speed r
 </mh3>
 <pre><code class="language-cpp">while (!mEventQueue.menu_update) mEventQueue.proc_menu();
 mEventQueue.menu_update = 0;</code></pre>
-
-
-
-
-
-<br><a name="Ping Timer"></a>
-<mh7>Ping Timer</mh7>
-        
-<mh3>        
-'png_timer' controls the frequency of pings sent by the client.
-</mh3>
-<pre><code class="language-cpp">if (ev.timer.source == png_timer) mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 1;
-
-// send client ping at this time in the loop, if flag is set
-if ((mPlayer.loc[mPlayer.active_local_player].client_ping_flag) && (mNetgame.ima_client))
-{
-   mPlayer.loc[mPlayer.active_local_player].client_ping_flag = 0;
-   mNetgame.client_send_ping();
-}</code></pre>
-
-
 
 
 <br><a name="Mouse Timer"></a>

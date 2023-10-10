@@ -1,6 +1,8 @@
 // mwPacketBuffer.h
 
 #include "mwRollingAverage.h"
+#include "mwTally.h"
+
 #include <thread>
 #include <mutex>
 
@@ -16,20 +18,21 @@ struct packet_buffer
    char data[1024];
 };
 
-
-
-
 class mwPacketBuffer
 {
    public:
    mwRollingAverage RA[8];
+
+   mwTally threadTally[2];
+
    mwPacketBuffer(); // default constructor
    ~mwPacketBuffer(); // default deconstructor
    void init_packet_buffer(void);
 
-
    // add to rx buffer thread type
-   int thread_type = 2; // 0-none  1-Allegro  2-C++
+   int thread_type = 0; // 0-none  1-Allegro  2-C++
+
+   double thread_wait_microseconds = 1000;
 
    // Allegro Threads
    ALLEGRO_THREAD *rx_thread;
@@ -42,6 +45,9 @@ class mwPacketBuffer
    int thread_running = 0;
    int thread_working = 0;
    void c_rx_thread_func(void);
+
+
+
 
    // Common to Allegro Threads and C++ Threads
    void start_packet_thread(void);
@@ -68,17 +74,19 @@ class mwPacketBuffer
    int PacketGetInt2(int i);
    int PacketGetInt1(int i);
 
+   void process_tally(void);
 
    struct packet_buffer rx_buf[200];
 
    void check_for_packets(void);
+
+   int is_data_waiting(void);
 
    void add_to_rx_buffer(void);
    void add_to_rx_buffer_single(char *data, int who);
    int find_empty_rx_packet_buffer(void);
    void rx_and_proc(void);
    void proc_rx_buffer(void);
-   void proc_rx_buffer_single(int i);
 
 
    float get_max_dsync(void);

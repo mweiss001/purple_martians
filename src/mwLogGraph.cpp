@@ -121,7 +121,7 @@ int mwLog::load_ping_graph(int num_lines)
          sprintf(tll, "%s", log_lines[i]);
 
          mMiscFnx.get_tag_text(tll, res, 0);
-         double dsync = atof(res);
+         double sync = atof(res);
 
          mMiscFnx.get_tag_text(tll, res, 0);
          double offset = atof(res);
@@ -131,9 +131,9 @@ int mwLog::load_ping_graph(int num_lines)
 
          //printf("d:%f o:%f c:%f\n", dsync, offset, fps_chase);
 
-         if (dsync < 100) // ignore stupidly high ones at start
+         if (sync < 100) // ignore stupidly high ones at start
          {
-            mGraph[0].add_data_point(0, (double) fn, dsync);
+            mGraph[0].add_data_point(0, (double) fn, sync);
             mGraph[0].add_data_point(1, (double) fn, offset);
             mGraph[0].add_data_point(2, (double) fn, fps_chase);
          }

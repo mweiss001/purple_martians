@@ -9,10 +9,10 @@
 
 class mwStateHistory
 {
-   private:
+   public:
+
    void _set_newest_and_oldest(void);
 
-   public:
    mwStateHistory(); // default constructor
    void initialize(void);
 

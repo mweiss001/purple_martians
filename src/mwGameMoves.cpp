@@ -40,7 +40,7 @@ int mwGameMoves::has_player_acknowledged(int p)
    int end_pos = start_pos - 1000;
    if (end_pos < 0) end_pos = 0;
    for (int x=start_pos; x>end_pos; x--) // look back for ack
-      if ((arr[x][1] == 8) && (arr[x][2] == p)) return 1;
+      if ((arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK) && (arr[x][2] == p)) return 1;
    return 0;
 }
 
@@ -64,16 +64,13 @@ void mwGameMoves::proc(void)
       {
          if (x > current_pos) current_pos = x; // index of last used gm - keep this at the most recent one, never go back
 
-//         printf("gm:%d\n", arr[x][1]);
-
-
          switch (arr[x][1])
          {
-            case 1: proc_player_active_game_move(x); break;
-            case 2: proc_player_inactive_game_move(x); break;
-            case 3: proc_player_client_join_game_move(x); break;
-            case 4: proc_player_client_quit_game_move(x); break;
-            case 5: mPlayer.set_controls_from_comp_move(arr[x][2], arr[x][3]); break;
+            case PM_GAMEMOVE_TYPE_PLAYER_ACTIVE:    proc_player_active_game_move(x); break;
+            case PM_GAMEMOVE_TYPE_PLAYER_INACTIVE:  proc_player_inactive_game_move(x); break;
+            case PM_GAMEMOVE_TYPE_CLIENT_JOIN:      proc_client_join_game_move(x); break;
+            case PM_GAMEMOVE_TYPE_CLIENT_QUIT:      proc_client_quit_game_move(x); break;
+            case PM_GAMEMOVE_TYPE_MOVE:             mPlayer.set_controls_from_comp_move(arr[x][2], arr[x][3]); break;
          }
       }
    }
@@ -100,7 +97,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
    if ((mPlayer.syn[0].level_done_mode == 5) && (type == 5) && (data2)) // all move type inputs are acks in this mode
    {
       if (!has_player_acknowledged(data1)) // to prevent multiple acks
-         add_game_move2(frame, 8, data1, 0); // type 8 - acknowledge level done
+         add_game_move2(frame, PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK, data1, 0); // type 8 - acknowledge level done
       return; // to exit immediately
    }
 
@@ -112,7 +109,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       // ----------------------------------------------------------------------------------------
       // single player mode quit
       // ----------------------------------------------------------------------------------------
-      if ((mPlayer.active_local_player == 0) && (mPlayer.syn[0].control_method == 0))
+      if ((mPlayer.active_local_player == 0) && (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER))
       {
          // do not enter game move, just exit to menu
          mLoop.state[0] = 1;
@@ -126,13 +123,13 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       {
          // first set all connected clients to inactive
          for (int p=1; p<NUM_PLAYERS; p++)
-            if (mPlayer.syn[p].control_method == 2)
+            if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
             {
-               add_game_move2(frame + 2, 4, p, 0);   // type 4 - client quit
-               add_game_move2(frame + 10, 2, p, 64); // type 2 - player inactive
+               add_game_move2(frame + 2,  PM_GAMEMOVE_TYPE_CLIENT_QUIT,     p, 0);
+               add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 64);
             }
          // then set server to inactive in future
-         add_game_move2(frame + 10, 2, 0, 64); // type 2 - player inactive
+         add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, 0, 64);
          return;
       }
       // ----------------------------------------------------------------------------------------
@@ -140,7 +137,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       // ----------------------------------------------------------------------------------------
       if ((mNetgame.ima_server) && (data1 > 0))
       {
-         add_game_move2(frame + 2, 2, data1, 64); // type 2 - player inactive
+         add_game_move2(frame + 2, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, 64);
          return;
       }
       // ----------------------------------------------------------------------------------------
@@ -148,7 +145,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       // ----------------------------------------------------------------------------------------
       if (mNetgame.ima_client)
       {
-         add_game_move2(frame + 4, 2, data1, 64); // type 2 - player inactive
+         add_game_move2(frame + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, 64);
          return;
       }
 
@@ -158,7 +155,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       // ----------------------------------------------------------------------------------------
       // all other types of quitting
       // ----------------------------------------------------------------------------------------
-//      add_game_move2(frame + 4, 2, data1, 64); // type 2 - player inactive
+//      add_game_move2(frame + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, 64);
 //      return;
    }
 
@@ -170,23 +167,23 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 
 
 
-void mwGameMoves::proc_player_client_join_game_move(int x)
+void mwGameMoves::proc_client_join_game_move(int x)
 {
    if (mNetgame.ima_server)
    {
       int p = arr[x][2];  // player number
       int c = arr[x][3];  // color
-      mPlayer.syn[p].control_method = 2;
+      mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
       mPlayer.syn[p].color = c;
    }
 }
 
-void mwGameMoves::proc_player_client_quit_game_move(int x)
+void mwGameMoves::proc_client_quit_game_move(int x)
 {
    if (mNetgame.ima_server)
    {
       int p = arr[x][2];  // player number
-      mPlayer.syn[p].control_method = 8;
+      mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON;
    }
 }
 
@@ -203,10 +200,10 @@ void mwGameMoves::proc_player_active_game_move(int x)
       mPlayer.loc[p].join_frame = mLoop.frame_num;
 
       if ((mNetgame.ima_server) || (mNetgame.ima_client))
-         if (p != mPlayer.active_local_player) mPlayer.syn[p].control_method = 2;
+         if (p != mPlayer.active_local_player) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
 
       // if player 0 is file play all added players will be too
-      if (mPlayer.syn[0].control_method == 1) mPlayer.syn[p].control_method = 1;
+      if (mPlayer.syn[0].control_method == 1) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
 
       mScreen.set_player_text_overlay(p, 1);
 
@@ -233,12 +230,12 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
    // ------------------------------------
    // player never became active
    // ------------------------------------
-   if ((mPlayer.syn[p].active == 0) && (mPlayer.syn[p].control_method == 2))
+   if ((mPlayer.syn[p].active == 0) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
    {
       mPlayer.loc[p].join_frame = mLoop.frame_num;
       mPlayer.loc[p].quit_reason = 74;
-//      mPlayer.syn[p].control_method = 9; // prevent re-use of this player number in this level
-      mPlayer.syn[p].control_method = 0;
+//      mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_USED; // prevent re-use of this player number in this level
+      mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER;
       mPlayer.loc[p].who = 99;
    }
 
@@ -251,7 +248,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
       // ------------------------------------
       // player in run demo mode became inactive
       // ------------------------------------
-      if (mPlayer.syn[p].control_method == 1)
+      if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE)
       {
          mPlayer.syn[p].active = 0;
          // only quit if no players left active
@@ -264,14 +261,14 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
       // ------------------------------------
       // local server player quit
       // ------------------------------------
-      if (mPlayer.syn[p].control_method == 3)
+      if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL)
       {
          // printf("Local Server Player Quit :%d\n", mLoop.frame_num);
          mPlayer.loc[p].quit_reason = 91;
 
          // set quit reason for all active clients on server
          for (int pp=1; pp<NUM_PLAYERS; pp++)
-            if ((mPlayer.syn[pp].active) && (mPlayer.syn[pp].control_method == 2))
+            if ((mPlayer.syn[pp].active) && (mPlayer.syn[pp].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
                mPlayer.loc[pp].quit_reason = 91;
 
          if (!mLoop.ff_state) mLog.log_ending_stats_server(LOG_NET_ending_stats);
@@ -291,7 +288,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
       // ------------------------------------
       // remote player quit (server only)
       // ------------------------------------
-      if (mPlayer.syn[p].control_method == 2)
+      if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
       {
          // printf("Remote Player Quit :%d\n", mLoop.frame_num);
          mPlayer.loc[p].quit_reason = 93;
@@ -300,7 +297,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
          mNetgame.mStateHistory[p].initialize();  // reset client states
 
 //         mPlayer.syn[p].active = 0;
-//         mPlayer.syn[p].control_method = 9; // prevent re-use of this player number in this level
+//         mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_USED; // prevent re-use of this player number in this level
 //         mPlayer.loc[p].who = 99;
       }
       mScreen.set_player_text_overlay(p, 0);
@@ -353,15 +350,13 @@ void mwGameMoves::save_gm_txt(char *sfname)
 
       fprintf(filepntr,"[%3d][%5d][%d][%d][%2d]", x, f, t, p, v);
 
-      if (t == 0) fprintf(filepntr,"-------------START (level:%d)------------- ", v);
-      if (t == 1) fprintf(filepntr,"-------------PLAYER %d ACTIVE (color:%d)-- ", p, v);
-      if (t == 2) fprintf(filepntr,"-------------PLAYER %d INACTIVE------------", p);
-      if (t == 3) fprintf(filepntr,"-------------CLIENT %d JOIN!-------------- ", p);
-      if (t == 4) fprintf(filepntr,"-------------CLIENT %d QUIT!-------------- ", p);
-      if (t == 5) fprintf(filepntr,"%s", cmtos(arr[x][3], tmp));
-      if (t == 8) fprintf(filepntr,"-------------PLAYER %d ACKNOWLEDGE---------", p);
-
-
+      if (t == PM_GAMEMOVE_TYPE_LEVEL_START)     fprintf(filepntr,"-------------START (level:%d)------------- ", v);
+      if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   fprintf(filepntr,"-------------PLAYER %d ACTIVE (color:%d)-- ", p, v);
+      if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) fprintf(filepntr,"-------------PLAYER %d INACTIVE------------", p);
+      if (t == PM_GAMEMOVE_TYPE_CLIENT_JOIN)     fprintf(filepntr,"-------------CLIENT %d JOIN!-------------- ", p);
+      if (t == PM_GAMEMOVE_TYPE_CLIENT_QUIT)     fprintf(filepntr,"-------------CLIENT %d QUIT!-------------- ", p);
+      if (t == PM_GAMEMOVE_TYPE_MOVE)            fprintf(filepntr,"%s", cmtos(arr[x][3], tmp));
+      if (t == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)  fprintf(filepntr,"-------------PLAYER %d ACKNOWLEDGE---------", p);
 
       fprintf(filepntr,"\n");
    }
@@ -451,8 +446,6 @@ int mwGameMoves::load_gm(int lev)
    //printf("%s\n",msg);
    return load_gm(msg);
 }
-
-
 
 int mwGameMoves::load_gm(const char *sfname )
 {

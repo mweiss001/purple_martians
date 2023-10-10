@@ -77,6 +77,9 @@ class mwLoop
    void game_menu(void);
    void proc_level_done_mode(void);
    void proc_program_state(void);
+
+   void remote_control_loop(void);
+
    void main_loop(void);
 };
 extern mwLoop mLoop;

@@ -5,11 +5,6 @@
 #include "mwNetgame.h"
 #include "mwLoop.h"
 #include "mwLog.h"
-#include "mwPlayer.h"
-#include "mwTally.h"
-#include "mwRollingAverage.h"
-#include "mwEventQueue.h"
-
 
 #include <thread>
 #include <chrono>
@@ -58,14 +53,6 @@ void *mwPacketBuffer::al_rx_thread_func(ALLEGRO_THREAD *thr, void *arg)
 {
    while (1)
    {
-////      static double t0 = al_get_time();
-////      double t1 = al_get_time();
-////      if (t1-t0 > 0.001)
-////      {
-////         t0 = t1;
-////         mPacketBuffer.add_to_rx_buffer();
-////      }
-
       al_rest(0.001);
       mPacketBuffer.add_to_rx_buffer();
    }
@@ -78,9 +65,7 @@ void mwPacketBuffer::c_rx_thread_func(void)
    while (thread_running)
    {
       if (thread_working) mPacketBuffer.add_to_rx_buffer();
-//      std::this_thread::sleep_for(std::chrono::nanoseconds(100));
-//      std::this_thread::sleep_for(std::chrono::microseconds(1));
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      std::this_thread::sleep_for(std::chrono::microseconds((int)thread_wait_microseconds));
    }
 }
 
@@ -112,40 +97,33 @@ void mwPacketBuffer::rx_and_proc(void)
 }
 
 
-// processes a single packets from the rx buffer
-void mwPacketBuffer::proc_rx_buffer_single(int i)
-{
-//   double bt = al_get_time() - rx_buf[i].timestamp; // time spent in buffer
-//   printf("[%4d] proc packet:%d size:%4d buffer_time:%8.1f us\n", mLoop.frame_num, i, rx_buf[i].packetsize, bt*1000000);
-
-   rx_buf[i].packetpos = 4;
-   if (mNetgame.ima_server)
-   {
-      if (rx_buf[i].type == 1) mNetgame.server_proc_cdat_packet(i);
-      if (rx_buf[i].type == 2) mNetgame.server_proc_stak_packet(i);
-      if (rx_buf[i].type == 3) mNetgame.server_proc_cjon_packet(i);
-      if (rx_buf[i].type == 4) mNetgame.server_proc_cjrc_packet(i);
-      if (rx_buf[i].type == 5) mNetgame.server_proc_rctl_packet(i);
-
-   }
-   if (mNetgame.ima_client)
-   {
-      if (rx_buf[i].type == 11) mNetgame.client_process_stdf_packet(i);
-      if (rx_buf[i].type == 12) mNetgame.client_process_sjon_packet(i);
-      if (rx_buf[i].type == 13) mNetgame.client_process_sjrc_packet(i);
-      if (rx_buf[i].type == 14) mNetgame.client_process_snfo_packet(i);
-   }
-   rx_buf[i].active = 0;
-}
 
 // processes all packets waiting in rx buffer
 void mwPacketBuffer::proc_rx_buffer(void)
 {
    lock_mutex();
+   for (int i=0; i<200; i++)
+      if (rx_buf[i].active)
+      {
+         rx_buf[i].packetpos = 4;
+         if (mNetgame.ima_server)
+         {
+            if (rx_buf[i].type == 1) mNetgame.server_proc_cdat_packet(i);
+            if (rx_buf[i].type == 2) mNetgame.server_proc_stak_packet(i);
+            if (rx_buf[i].type == 3) mNetgame.server_proc_cjon_packet(i);
+            if (rx_buf[i].type == 4) mNetgame.server_proc_cjrc_packet(i);
+            if (rx_buf[i].type == 5) mNetgame.server_proc_rctl_packet(i);
 
-   for (int i=0; i<199; i++)
-      if (rx_buf[i].active) proc_rx_buffer_single(i);
-
+         }
+         if (mNetgame.ima_client)
+         {
+            if (rx_buf[i].type == 11) mNetgame.client_proc_stdf_packet(i);
+            if (rx_buf[i].type == 12) mNetgame.client_proc_sjon_packet(i);
+            if (rx_buf[i].type == 13) mNetgame.client_proc_sjrc_packet(i);
+            if (rx_buf[i].type == 14) mNetgame.client_proc_snfo_packet(i);
+         }
+         rx_buf[i].active = 0;
+      }
    unlock_mutex();
 }
 
@@ -158,15 +136,63 @@ void mwPacketBuffer::check_for_packets(void)
 }
 
 
+// this gets called once per second in the main loop
+void mwPacketBuffer::process_tally(void)
+{
+//   printf("add_rx_buf chek:%d tot:%0.3fms  avg:%0.3fus  proc:%d tot:%0.3fms  avg:%0.3fus twus:%f\n",
+//          threadTally[0].num, threadTally[0].get_tally(0)*1000, threadTally[0].get_avg(0)*1000000,
+//          threadTally[1].num, threadTally[1].get_tally(0)*1000, threadTally[1].get_avg(0)*1000000, thread_wait_microseconds);
 
 
+//   int act_tps = threadTally[0].num; // actual threads per second
+
+//   if (act_tps > 9000)
+//   {
+//      thread_wait_microseconds = thread_wait_microseconds * 1.05;
+//   }
+//
+//   if (act_tps < 9100)
+//   {
+//      thread_wait_microseconds = thread_wait_microseconds * 0.95;
+//   }
+//
+//
+
+   // reset tallies
+   threadTally[0].initialize();
+   threadTally[1].initialize();
+
+
+}
+
+
+
+
+
+
+
+int mwPacketBuffer::is_data_waiting(void)
+{
+   double t0 = al_get_time();
+   int data_waiting = 0;
+   if (mNetgame.ima_server)
+   {
+      for (int n=0; n<mNetgame.ClientNum; n++)
+         if ((mNetgame.ClientChannel[n]) && (net_query(mNetgame.ClientChannel[n]))) data_waiting = 1;
+   }
+   if (mNetgame.ima_client)
+   {
+      if (net_query(mNetgame.ServerChannel)) data_waiting = 1;
+   }
+   threadTally[0].add_data(al_get_time() - t0);
+   return data_waiting;
+}
 
 
 // receives all waiting packets and puts them in the rx buffer
 void mwPacketBuffer::add_to_rx_buffer(void)
 {
-
-   if (mNetgame.is_data_waiting())
+   if (is_data_waiting())
    {
 
       double t0 = al_get_time();
@@ -184,10 +210,8 @@ void mwPacketBuffer::add_to_rx_buffer(void)
          while (mNetgame.ClientReceive(data))
             add_to_rx_buffer_single(data, who);
 
-
       unlock_mutex();
-
-      mTally[1].add_data(al_get_time() - t0);
+      threadTally[1].add_data(al_get_time() - t0);
    }
 }
 

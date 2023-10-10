@@ -194,7 +194,7 @@ void mwDemoMode::key_check(int p)
       {
          key_used = 1;
          mode = 0;
-         mPlayer.syn[0].control_method = 0; // change to single player mode
+         mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER;
 
          // erase all game moves that have a higher frame number than current
          for (int x=0; x<GAME_MOVES_SIZE; x++)

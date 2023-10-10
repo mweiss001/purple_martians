@@ -29,7 +29,7 @@ void mwLog::init_log_types(void)
       strcpy(log_types[i].name, "");
    }
 
-   i = LOG_error;                   log_types[i].group = 9;   strcpy(log_types[i].name, "LOG_error"); log_types[i].action = 7;   // always all three actions
+   i = LOG_error;                   log_types[i].group = 9;   strcpy(log_types[i].name, "LOG_error"); log_types[i].action = 3;   // always both actions
 
    i = LOG_NET;                     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET");
    i = LOG_NET_join_details;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_join_details");
@@ -61,7 +61,6 @@ void mwLog::init_log_types(void)
    i = LOG_TMR_client_ping;         log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_ping");
 
    i = LOG_TMR_proc_rx_buffer;      log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_proc_rx_buffer");
-
 
    i = LOG_OTH_program_state;       log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_program_state");
    i = LOG_OTH_transitions;         log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_transitions");
@@ -156,7 +155,6 @@ void mwLog::appf(int type, const char *format, ...)
 void mwLog::app(int type, const char *txt)
 {
    if (log_types[type].action & LOG_ACTION_PRINT) printf("%s", txt);
-   if (log_types[type].action & LOG_ACTION_ERROR) mInput.m_err(txt);
    if (log_types[type].action & LOG_ACTION_LOG)
    {
       if ((log_msg_pos + strlen(txt)) >= NUM_LOG_CHAR)
@@ -194,40 +192,6 @@ void mwLog::addf(int type, int player, const char *format, ...)
    va_end(args);
    add(type, player, smsg);
 }
-
-//   char tmsg[500];
-//   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
-//   app(type, tmsg);
-
-//   char tmsg[500];
-//   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
-//   if (log_types[type].action & LOG_ACTION_PRINT) printf("%s", tmsg);
-//   if (log_types[type].action & LOG_ACTION_ERROR) mInput.m_err(txt);
-//   if (log_types[type].action & LOG_ACTION_LOG)
-//   {
-//      if ((log_msg_pos + strlen(txt)) >= NUM_LOG_CHAR)
-//      {
-//         printf("log array full, > %d char\n", NUM_LOG_CHAR);
-//         save_log_file();
-//         erase_log();
-//      }
-//      else
-//      {
-//         memcpy(log_msg + log_msg_pos, tmsg, strlen(tmsg));
-//         log_msg_pos += strlen(tmsg);
-//         log_msg[log_msg_pos+1] = 0; // NULL terminate
-//      }
-//   }
-//
-
-
-
-
-
-
-
-
-
 
 
 // adds fixed width formatted printf style text string
@@ -360,7 +324,7 @@ void mwLog::log_ending_stats_server(int type)
 
    for (int p=1; p<NUM_PLAYERS; p++)
    {
-      if ((mPlayer.syn[p].control_method == 2) || (mPlayer.syn[p].control_method == 8))
+      if ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) || (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON))
       {
          add_fwf(type, p, 76, 10, "|", " ", "Player:%d (%s)", p, mPlayer.loc[p].hostname);
          add_fwf(type, p, 76, 10, "|", " ", "frame when client joined..[%d]", mPlayer.loc[p].join_frame);
@@ -396,13 +360,13 @@ void mwLog::log_player_array(int type)
       char ms[80];
       sprintf(ms, " ");
 
-      if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == 2))
+      if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
          sprintf(ms, " <-- active client");
 
-      if ((!mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == 2))
+      if ((!mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
          sprintf(ms, " <-- syncing client");
 
-      if (mPlayer.syn[p].control_method == 9) sprintf(ms, " <-- used client");
+      if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_USED) sprintf(ms, " <-- used client");
 
       if (p == mPlayer.active_local_player) sprintf(ms, " <-- active local player (me!)");
       if (p == 0) sprintf(ms, " <-- server");
@@ -425,7 +389,7 @@ void mwLog::log_player_array2(int type)
    add_fw(type, 0, 76, 10, "|", " ", "[p][a][m][sy]");
    for (int p=0; p<NUM_PLAYERS; p++)
    {
-      float sy = mPlayer.loc[p].dsync;
+      float sy = mPlayer.loc[p].pdsync;
       if (p == 0) sy = 0;
       add_fwf(type, 0, 76, 10, "|", " ", "[%d][%d][%d][%3.2f]",   p, mPlayer.syn[p].active, mPlayer.syn[p].control_method, sy );
    }

@@ -29,11 +29,6 @@ class mwNetgame
    int NetworkDriver;
    int NetworkInit();
 
-
-
-   int is_data_waiting(void);
-
-
    mwStateHistory mStateHistory[8];
 
    // debug testing of sending more packets
@@ -44,7 +39,7 @@ class mwNetgame
    int ima_client = 0;
    int remote_join_reply = 0;
 
-   char m_serveraddress[256] = "192.168.1.2";
+   char serveraddress[256] = "192.168.1.2";
    int zlib_cmp = 7;
 
    float client_chase_offset;
@@ -74,45 +69,56 @@ class mwNetgame
    NET_CONN *ServerConn = NULL;
    NET_CHANNEL *ServerChannel = NULL;
 
-   float tmaj_i;
 
-
-
-
-
-   int  ClientInitNetwork(const char *serveraddress);
+   int  ClientInitNetwork(void);
    void ClientExitNetwork(void);
    int  ClientCheckResponse(void);
    int  ClientReceive(void *data);
    void ClientSend(void *data, int len);
-   void client_flush(void);
-   int  client_init_join(void);
-   void client_exit(void);
-   int  client_init(void);
+   void ClientFlush(void);
+
+
+
+
+
+
+
+
    void client_read_game_move_from_packet(int x);
-   void client_send_ping(void);
    void client_timer_adjust(void);
    void client_apply_dif();
    void client_block_until_initial_state_received(void);
 
 
+   void client_send_ping_packet(void);
    void client_send_cjon_packet(void);
    void client_send_cjrc_packet(void);
    void client_send_rctl_packet(int type, double val);
-   void client_send_stak(int ack_frame);
-   void client_send_cdat(int p);
+   void client_send_stak_packet(int ack_frame);
+   void client_send_cdat_packet(int p);
 
    void client_proc_pong_packet(char *data);
+   void client_proc_sjon_packet(int i);
+   void client_proc_stdf_packet(int i);
+   void client_proc_sjrc_packet(int i);
+   void client_proc_snfo_packet(int i);
 
-   void client_process_sjon_packet(int i);
-   void client_process_stdf_packet(int i);
-   void client_process_sjrc_packet(int i);
-   void client_process_snfo_packet(int i);
+
 
    void client_proc_player_drop(void);
+
+
+
    void client_control(void);
    void client_local_control(int p);
    void process_bandwidth_counters(int p);
+
+
+
+   float tmaj_i;
+
+
+
 
    // --------------------------------------------------------------------
    // ---   mwNetgameServer.cpp  -----------------------------------------
@@ -124,22 +130,20 @@ class mwNetgame
    NET_CHANNEL *ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
 
 
-
-
-   void server_reload(int level);
-
-   int ServerInitNetwork(void);
+   int  ServerInitNetwork(void);
    void ServerExitNetwork(void);
    void ServerListen(void);
-   int ServerReceive(void *data, int *sender);
+   int  ServerReceive(void *data, int *sender);
    void ServerBroadcast(void *data, int len);
    void ServerSendTo(void *data, int len, int who);
-   void server_flush(void);
-   int  server_init(void);
-   void server_exit(void);
+   void ServerFlush(void);
+
 
 
    void headless_server_setup(void);
+
+   void server_reload(int level);
+
 
 
    void server_send_compressed_dif(int p, int src, int dst, char * dif);
@@ -150,14 +154,13 @@ class mwNetgame
    void server_proc_player_drop(void);
    void server_lock_client(int p);
 
+
    void server_send_snfo_packet(void);
    void server_send_sjon_packet(int who, int level, int frame, int player_num, int player_color);
    void server_send_sjrc_packet(int who);
 
-
    void server_proc_ping_packet(char *data, int who);
    void server_proc_pang_packet(char *data, int who);
-
    void server_proc_cdat_packet(int i);
    void server_proc_stak_packet(int i);
    void server_proc_cjon_packet(int i);

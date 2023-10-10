@@ -870,7 +870,7 @@ void mwSettings::settings_pages(int set_page)
          al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Server Name or IP Address");
          ya+=12;
 
-         sprintf(msg, "%s", mNetgame.m_serveraddress);
+         sprintf(msg, "%s", mNetgame.serveraddress);
 
          if (mWidget.buttontcb(cfp_txc - (strlen(msg)*4), ya, 0, 13,  0,0,0,0,  0,15,15,10,  1,0,1,0, msg))  mMiscFnx.edit_server_name(cfp_txc, ya-28);
 
@@ -914,7 +914,6 @@ void mwSettings::settings_pages(int set_page)
 
          ya+=18;
          if (mWidget.buttont(xa+120, ya, xb-120, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Netgame Help")) mHelp.help("Netgame");
-
 
 //         if (show_advanced)
 //         {

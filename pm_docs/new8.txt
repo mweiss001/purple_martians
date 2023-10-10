@@ -38772,6 +38772,507 @@ I have some other bugs to work on,
 like why does the game lose server connection when adjusting screen size?
 
 
+lets see if I can dynamically adjust the time of the thread
+
+and check how it is working
+
+
+I want to store how fast the thread is running, but where?
+
+not player struct, I dump everything there...
+
+how about in a mTally owned by mPacketBuffer
+
+I will store the number of times the thread has been run and reset it every second
+
+I could move the check to packet buffer also..done
+
+
+rx_buf chek:3187 tot:0.213ms  avg:0.067us  proc:0 tot:0.000ms  avg:0.000us twus:250.344090
+add_rx_buf chek:3334 tot:0.224ms  avg:0.067us  proc:0 tot:0.000ms  avg:0.000us twus:237.826885
+add_rx_buf chek:3493 tot:0.235ms  avg:0.067us  proc:0 tot:0.000ms  avg:0.000us twus:225.935541
+add_rx_buf chek:3615 tot:0.239ms  avg:0.066us  proc:0 tot:0.000ms  avg:0.000us twus:214.638764
+add_rx_buf chek:3750 tot:0.251ms  avg:0.067us  proc:0 tot:0.000ms  avg:0.000us twus:203.906826
+add_rx_buf chek:3912 tot:0.265ms  avg:0.068us  proc:0 tot:0.000ms  avg:0.000us twus:193.711484
+add_rx_buf chek:4054 tot:0.264ms  avg:0.065us  proc:0 tot:0.000ms  avg:0.000us twus:184.025910
+add_rx_buf chek:4408 tot:0.104ms  avg:0.024us  proc:0 tot:0.000ms  avg:0.000us twus:174.824615
+add_rx_buf chek:4575 tot:0.104ms  avg:0.023us  proc:0 tot:0.000ms  avg:0.000us twus:166.083384
+add_rx_buf chek:4775 tot:0.101ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:157.779215
+add_rx_buf chek:5000 tot:0.106ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:149.890254
+add_rx_buf chek:5148 tot:0.110ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:142.395741
+add_rx_buf chek:5329 tot:0.118ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:135.275954
+add_rx_buf chek:5538 tot:0.130ms  avg:0.024us  proc:0 tot:0.000ms  avg:0.000us twus:128.512157
+add_rx_buf chek:5749 tot:0.124ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:122.086549
+add_rx_buf chek:6000 tot:0.128ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:115.982221
+add_rx_buf chek:6165 tot:0.132ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:110.183110
+add_rx_buf chek:6381 tot:0.144ms  avg:0.023us  proc:0 tot:0.000ms  avg:0.000us twus:104.673955
+add_rx_buf chek:6624 tot:0.153ms  avg:0.023us  proc:0 tot:0.000ms  avg:0.000us twus:99.440257
+add_rx_buf chek:6833 tot:0.145ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:94.468244
+add_rx_buf chek:7079 tot:0.152ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:89.744832
+add_rx_buf chek:7273 tot:0.155ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:85.257590
+add_rx_buf chek:7549 tot:0.168ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:80.994711
+add_rx_buf chek:7784 tot:0.166ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:76.944975
+add_rx_buf chek:7987 tot:0.175ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:73.097727
+add_rx_buf chek:8249 tot:0.175ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:69.442840
+add_rx_buf chek:8492 tot:0.191ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:65.970698
+add_rx_buf chek:8745 tot:0.222ms  avg:0.025us  proc:0 tot:0.000ms  avg:0.000us twus:62.672163
+add_rx_buf chek:8994 tot:0.191ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:59.538555
+add_rx_buf chek:9248 tot:0.198ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:56.561627
+add_rx_buf chek:8998 tot:0.193ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:59.389709
+add_rx_buf chek:9248 tot:0.198ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:56.420223
+add_rx_buf chek:8997 tot:0.202ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:59.241234
+add_rx_buf chek:9249 tot:0.199ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:56.279173
+add_rx_buf chek:8998 tot:0.192ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:59.093131
+add_rx_buf chek:9249 tot:0.201ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:56.138475
+add_rx_buf chek:9082 tot:0.193ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:58.945399
+add_rx_buf chek:9081 tot:0.210ms  avg:0.023us  proc:0 tot:0.000ms  avg:0.000us twus:58.798035
+add_rx_buf chek:9080 tot:0.213ms  avg:0.023us  proc:0 tot:0.000ms  avg:0.000us twus:58.651040
+add_rx_buf chek:9081 tot:0.215ms  avg:0.024us  proc:0 tot:0.000ms  avg:0.000us twus:58.504412
+add_rx_buf chek:9082 tot:0.197ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:58.358151
+add_rx_buf chek:9081 tot:0.197ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:58.212256
+add_rx_buf chek:9078 tot:0.195ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:58.066725
+add_rx_buf chek:9160 tot:0.195ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:57.921558
+add_rx_buf chek:8911 tot:0.192ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:60.817636
+add_rx_buf chek:9160 tot:0.197ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:57.776755
+add_rx_buf chek:8921 tot:0.190ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:60.665592
+add_rx_buf chek:9158 tot:0.195ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:57.632313
+add_rx_buf chek:8923 tot:0.190ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:60.513928
+add_rx_buf chek:9155 tot:0.196ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:57.488232
+add_rx_buf chek:8934 tot:0.195ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:60.362644
+add_rx_buf chek:9160 tot:0.197ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:57.344511
+add_rx_buf chek:8932 tot:0.190ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:60.211737
+add_rx_buf chek:9160 tot:0.195ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:57.201150
+add_rx_buf chek:8917 tot:0.193ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:60.061208
+add_rx_buf chek:9164 tot:0.199ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:57.058147
+add_rx_buf chek:8999 tot:0.193ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:59.911055
+add_rx_buf chek:9250 tot:0.199ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:56.915502
+add_rx_buf chek:8997 tot:0.194ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:59.761277
+add_rx_buf chek:9250 tot:0.197ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:56.773213
+add_rx_buf chek:8999 tot:0.192ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:59.611874
+add_rx_buf chek:9249 tot:0.199ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:56.631280
+add_rx_buf chek:8999 tot:0.193ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:59.462844
+add_rx_buf chek:9249 tot:0.197ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:56.489702
+add_rx_buf chek:8998 tot:0.192ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:59.314187
+add_rx_buf chek:9249 tot:0.198ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:56.348478
+add_rx_buf chek:8999 tot:0.193ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:59.165901
+add_rx_buf chek:9250 tot:0.197ms  avg:0.021us  proc:0 tot:0.000ms  avg:0.000us twus:56.207606
+add_rx_buf chek:8997 tot:0.206ms  avg:0.023us  proc:0 tot:0.000ms  avg:0.000us twus:59.017987
+add_rx_buf chek:9250 tot:0.214ms  avg:0.023us  proc:0 tot:0.000ms  avg:0.000us twus:56.067087
+add_rx_buf chek:9080 tot:0.202ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:58.870442
+add_rx_buf chek:9083 tot:0.195ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:58.723266
+add_rx_buf chek:9082 tot:0.197ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:58.576457
+add_rx_buf chek:9083 tot:0.198ms  avg:0.022us  proc:0 tot:0.000ms  avg:0.000us twus:58.430016
+
+linux works but not goddamn windows
+
+skip this auto adjust...
+
+I will either do 1000 in thread or no thread
+
+
+
+
+
+
+
+no thread server 4230
+140k
+60 tcpu
+95 thread
+25 thread
+50 gcpu
+
+
+C++ 1000 server 4230
+900
+55 tcpu
+75 thread 1
+35 thread 2
+47 gcpu
+
+not much goddamn difference
+
+
+
+no thread server 6430
+6M
+27 tcpu
+90 thread 1
+10 thread 2
+0  thread 3
+0  thread 4
+10 gcpu
+
+C++ 1000 server 6430
+990
+25 tcpu
+70 thread 1
+40 thread 2
+0  thread 3
+0  thread 4
+10 gcpu
+
+not much goddamn difference
+
+
+no thread server m36
+12M
+12 tcpu
+100 thread 1
+10  thread 2
+10  thread 3
+9 threads nothing
+3 gcpu
+
+
+C++ 1000 server m36
+980
+12 tcpu
+100 thread 1
+10  thread 2
+10  thread 3
+9 threads nothing
+3 gcpu
+
+not much goddamn difference
+
+
+so if there is barely any difference....am going to use threads or not?
+
+threads:
+stable speed
+does not run wide open
+more complex
+
+no threads:
+simpler
+runs faster
+
+lets go with not...
+
+maybe make it possible to alter without recompiling
+
+
+so now what else?
+
+is joining having issues?
+does not seem to be
+
+
+what happens when screen is adjusted
+
+I lose my stream of stdf's??
+
+
+how long does it that take to recreate all bitmaps?
+
+m36  100ms
+6430 200ms
+4230 700ms
+
+the worst are tiles and icons
+
+anyway, what I want to know is why communication dies after this delay...it should recover...
+
+
+do some logs with m36 server and 6430 client
+
+
+from the client logs, it looks like it just stopped receiving stdf packets
+1715 last stdf
+
+
+around 1638 started getting full difs
+but they were not applied because they were in the future
+then more full difs came but still in the future...
+
+..just a thought.. when that happens, why don't I just jump to the future?
+what do I gain by waiting for my simulation to catch up??
+
+this seems to work great!!!
+
+I am very happy with that
+
+
+now can I do something about join?
+it is fine...
+
+I want to combine:
+
+both server exits..done
+both server inits..done
+
+both client exits..done
+both client inits..done
+
+
+
+
+
+
+
+
+
+
+stak sends dsync avg to server
+
+
+I want to trace what actually uses dsync
+
+there are like 40 refs, most not usefull, so I rename the ones in the player struct to
+
+pdsync
+pdsync_avg
+
+now only 15 refs
+
+pdsync
+set on client in timer adj
+also added to RA at same time
+also pdsync_avg set
+
+pdsync_avg
+set on client in timer adj
+use for timer adj
+sent to server in stak
+
+
+server uses pdsync to lock client
+but that is the one that client sent and has been averaged already
+
+what can I do to uncomplicate this?
+
+
+
+
+
+
+
+#define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE    1
+#define PM_GAMEMOVE_TYPE_PLAYER_INACTIVE  2
+#define PM_GAMEMOVE_TYPE_CLIENT_JOIN      3
+#define PM_GAMEMOVE_TYPE_CLIENT_QUIT      4
+#define PM_GAMEMOVE_TYPE_MOVE             5
+#define PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK   8
+
+is there a level done move? 6
+
+I could not find one...
+
+maybe there used to be....
+
+
+
+
+
+
+
+
+
+
+local server quits
+
+this is the only thing that ever enters: PM_GAMEMOVE_TYPE_CLIENT_QUIT
+
+      // ----------------------------------------------------------------------------------------
+      // local server quitting
+      // ----------------------------------------------------------------------------------------
+      if ((mNetgame.ima_server) && (data1 == 0))
+      {
+         // first set all connected clients to inactive
+         for (int p=1; p<NUM_PLAYERS; p++)
+            if (mPlayer.syn[p].control_method == 2)
+            {
+               add_game_move2(frame + 2,  PM_GAMEMOVE_TYPE_CLIENT_QUIT,     p, 0);
+               add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 64);
+            }
+         // then set server to inactive in future
+         add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, 0, 64);
+         return;
+      }
+
+then when gma is processed that calls:
+
+case PM_GAMEMOVE_TYPE_CLIENT_QUIT:      proc_client_quit_game_move(x); break;
+
+void mwGameMoves::proc_client_quit_game_move(int x)
+{
+   if (mNetgame.ima_server)
+   {
+      int p = arr[x][2];  // player number
+      mPlayer.syn[p].control_method = 8;
+   }
+}
+
+then it will be synced to client...
+
+
+void mwNetgame::client_proc_player_drop(void)
+{
+   int p = mPlayer.active_local_player;
+   if (mPlayer.syn[p].control_method == 8)
+   {
+      mPlayer.loc[p].quit_reason = 92;
+      mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
+      mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "SERVER ENDED GAME!");
+      al_flip_display();
+      mInput.tsw();
+      mLoop.state[0] = 1;
+   }
+
+
+
+#define PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER  0
+#define PM_PLAYER_CONTROL_METHOD_DEMO_MODE      1
+#define PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE 2
+#define PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL   3
+#define PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL   4
+#define PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON 8
+#define PM_PLAYER_CONTROL_METHOD_CLIENT_USED    9
+
+I have done all the control moves also....
+
+
+
+
+
+I am going to push, and to make release versions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

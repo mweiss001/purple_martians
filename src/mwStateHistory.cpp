@@ -48,20 +48,16 @@ void mwStateHistory::show_states(const char *format, ...)
    va_end(args);
 }
 
-// internal class use only
 // called whenever adding state
 void mwStateHistory::_set_newest_and_oldest(void)
 {
    int mn = std::numeric_limits<int>::max();
    int mx = std::numeric_limits<int>::min();
-
    int mn_indx = -1;
    int mx_indx = -1;
-
    for (int i=0; i<NUM_HISTORY_STATES; i++)
    {
       int fn = history_state_frame_num[i];
-
       if (fn > -1) // ignore all unset states
       {
          if (fn < mn) // new minimum
@@ -82,7 +78,6 @@ void mwStateHistory::_set_newest_and_oldest(void)
       oldest_state_index = mn_indx;
       oldest_state = history_state[mn_indx];
    }
-
    if (mx_indx > -1)
    {
       newest_state_frame_num = mx;
@@ -137,7 +132,6 @@ void mwStateHistory::set_ack_state(int frame_num)
 
 // ??????
 // if that happens, you should also set dirty frame to oldest frame (if valid) or -1 if not ???????
-
 
 
 void mwStateHistory::apply_rewind_state(int frame_num)
@@ -207,8 +201,6 @@ void mwStateHistory::get_base_state(char* base, int& base_frame_num, int frame_n
 
 
 
-
-
 // for state exchange:
 // server calls after making new state for sending
 // client calls after applying new state
@@ -254,8 +246,4 @@ void mwStateHistory::add_state(int frame_num)
 
    // check if we just invalidated last ack state by adding a new state
    if (last_ack_state_frame_num > -1) set_ack_state(last_ack_state_frame_num);
-
-
-
-
 }
