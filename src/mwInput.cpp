@@ -295,7 +295,6 @@ void mwInput::function_key_check(void)
 //
 //      printf("force base reset\n");
 
-
 //      mNetgame.server_reload(-1); // current level
 //      printf("server reload\n");
 

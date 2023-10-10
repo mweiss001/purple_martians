@@ -811,7 +811,7 @@ void mwSettings::settings_pages(int set_page)
       if (page == 3)
       {
          int line_spacing = 12;
-         line_spacing +=  mLoop.pct_y;
+         //line_spacing +=  mLoop.pct_y;
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
          int ya = cfp_y1 + 10;
@@ -1819,7 +1819,8 @@ void mwSettings::settings_pages(int set_page)
 
          int old_frame_speed = mLoop.frame_speed;
          mWidget.slideri(xa, ya, xb, bts,  0,0,0,0,  0,cc,15,15, 0,0,1,adj, mLoop.frame_speed, 200, 4, 1, "Frame Speed:");
-         if (old_frame_speed != mLoop.frame_speed) al_set_timer_speed(mEventQueue.fps_timer, (1 / mLoop.frame_speed));
+         if (old_frame_speed != mLoop.frame_speed) al_set_timer_speed(mEventQueue.fps_timer, (1 / (double) mLoop.frame_speed));
+
          ya -=2;
 
          ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);

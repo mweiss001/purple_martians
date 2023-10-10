@@ -63,12 +63,13 @@ class mwNetgame
    void apply_state_dif(char *a, char *c, int size);
    void reset_states(void);
 
+   void process_bandwidth_counters(int p);
+
+
    // --------------------------------------------------------------------
    // ---   mwNetgameClient.cpp  -----------------------------------------
    // --------------------------------------------------------------------
-   NET_CONN *ServerConn = NULL;
    NET_CHANNEL *ServerChannel = NULL;
-
 
    int  ClientInitNetwork(void);
    void ClientExitNetwork(void);
@@ -77,18 +78,8 @@ class mwNetgame
    void ClientSend(void *data, int len);
    void ClientFlush(void);
 
-
-
-
-
-
-
-
-   void client_read_game_move_from_packet(int x);
    void client_timer_adjust(void);
    void client_apply_dif();
-   void client_block_until_initial_state_received(void);
-
 
    void client_send_ping_packet(void);
    void client_send_cjon_packet(void);
@@ -102,33 +93,15 @@ class mwNetgame
    void client_proc_stdf_packet(int i);
    void client_proc_sjrc_packet(int i);
    void client_proc_snfo_packet(int i);
-
-
-
    void client_proc_player_drop(void);
-
-
-
    void client_control(void);
-   void client_local_control(int p);
-   void process_bandwidth_counters(int p);
-
-
-
-   float tmaj_i;
-
-
-
 
    // --------------------------------------------------------------------
    // ---   mwNetgameServer.cpp  -----------------------------------------
    // --------------------------------------------------------------------
    int ClientNum;
-   NET_CONN *ListenConn = NULL;                         // listening connection
-   NET_CONN *ClientConn[MAX_CLIENTS] = {NULL, };        // array of connections for each client
    NET_CHANNEL *ListenChannel = NULL;                   // listen channel
    NET_CHANNEL *ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
-
 
    int  ServerInitNetwork(void);
    void ServerExitNetwork(void);
@@ -138,22 +111,19 @@ class mwNetgame
    void ServerSendTo(void *data, int len, int who);
    void ServerFlush(void);
 
-
+   int server_get_player_num_from_who(int who);
 
    void headless_server_setup(void);
 
-   void server_reload(int level);
-
-
-
-   void server_send_compressed_dif(int p, int src, int dst, char * dif);
-   void server_send_dif(int frame_num);
-   void server_create_new_state(void);
-   void show_rewind_states(const char *format, ...);
    void server_rewind(void);
-   void server_proc_player_drop(void);
-   void server_lock_client(int p);
+   void server_create_new_state(void);
+   void server_send_dif(int frame_num);
+   void server_send_compressed_dif(int p, int src, int dst, char * dif);
 
+   void server_proc_player_drop(void);
+   void server_proc_limits(void);
+   void server_reload(int level);
+   void server_lock_client(int p);
 
    void server_send_snfo_packet(void);
    void server_send_sjon_packet(int who, int level, int frame, int player_num, int player_color);
@@ -168,11 +138,8 @@ class mwNetgame
    void server_proc_rctl_packet(int i);
 
    void server_control();
-   int server_get_player_num_from_who(int who);
-
 };
 extern mwNetgame mNetgame;
-
 
 #endif // mwNetgame_H
 

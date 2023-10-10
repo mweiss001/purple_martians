@@ -9,7 +9,6 @@
 #include <thread>
 #include <chrono>
 
-
 mwPacketBuffer mPacketBuffer;
 
 mwPacketBuffer::mwPacketBuffer() // default constructor
@@ -23,7 +22,6 @@ mwPacketBuffer::mwPacketBuffer() // default constructor
    }
 }
 
-
 mwPacketBuffer::~mwPacketBuffer() // default deconstructor
 {
    if (thread_type == 2)
@@ -32,7 +30,6 @@ mwPacketBuffer::~mwPacketBuffer() // default deconstructor
       t1.join();
    }
 }
-
 
 void mwPacketBuffer::init_packet_buffer(void)
 {
@@ -58,8 +55,6 @@ void *mwPacketBuffer::al_rx_thread_func(ALLEGRO_THREAD *thr, void *arg)
    }
 }
 
-
-
 void mwPacketBuffer::c_rx_thread_func(void)
 {
    while (thread_running)
@@ -68,9 +63,6 @@ void mwPacketBuffer::c_rx_thread_func(void)
       std::this_thread::sleep_for(std::chrono::microseconds((int)thread_wait_microseconds));
    }
 }
-
-
-
 
 void mwPacketBuffer::start_packet_thread(void)
 {
@@ -89,14 +81,11 @@ void mwPacketBuffer::stop_packet_thread(void)
    if (thread_type == 2) thread_working = 0;
 }
 
-
 void mwPacketBuffer::rx_and_proc(void)
 {
    if (!thread_type) add_to_rx_buffer();
    proc_rx_buffer();
 }
-
-
 
 // processes all packets waiting in rx buffer
 void mwPacketBuffer::proc_rx_buffer(void)
@@ -108,25 +97,23 @@ void mwPacketBuffer::proc_rx_buffer(void)
          rx_buf[i].packetpos = 4;
          if (mNetgame.ima_server)
          {
-            if (rx_buf[i].type == 1) mNetgame.server_proc_cdat_packet(i);
-            if (rx_buf[i].type == 2) mNetgame.server_proc_stak_packet(i);
-            if (rx_buf[i].type == 3) mNetgame.server_proc_cjon_packet(i);
-            if (rx_buf[i].type == 4) mNetgame.server_proc_cjrc_packet(i);
-            if (rx_buf[i].type == 5) mNetgame.server_proc_rctl_packet(i);
-
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CDAT) mNetgame.server_proc_cdat_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STAK) mNetgame.server_proc_stak_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CJON) mNetgame.server_proc_cjon_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CJRC) mNetgame.server_proc_cjrc_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_RCTL) mNetgame.server_proc_rctl_packet(i);
          }
          if (mNetgame.ima_client)
          {
-            if (rx_buf[i].type == 11) mNetgame.client_proc_stdf_packet(i);
-            if (rx_buf[i].type == 12) mNetgame.client_proc_sjon_packet(i);
-            if (rx_buf[i].type == 13) mNetgame.client_proc_sjrc_packet(i);
-            if (rx_buf[i].type == 14) mNetgame.client_proc_snfo_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STDF) mNetgame.client_proc_stdf_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SJON) mNetgame.client_proc_sjon_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SJRC) mNetgame.client_proc_sjrc_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SNFO) mNetgame.client_proc_snfo_packet(i);
          }
          rx_buf[i].active = 0;
       }
    unlock_mutex();
 }
-
 
 // call from loop - many places
 // only does something if not already called from thread
@@ -137,15 +124,14 @@ void mwPacketBuffer::check_for_packets(void)
 
 
 // this gets called once per second in the main loop
+// to display how many times add_rx was called
 void mwPacketBuffer::process_tally(void)
 {
 //   printf("add_rx_buf chek:%d tot:%0.3fms  avg:%0.3fus  proc:%d tot:%0.3fms  avg:%0.3fus twus:%f\n",
 //          threadTally[0].num, threadTally[0].get_tally(0)*1000, threadTally[0].get_avg(0)*1000000,
 //          threadTally[1].num, threadTally[1].get_tally(0)*1000, threadTally[1].get_avg(0)*1000000, thread_wait_microseconds);
 
-
 //   int act_tps = threadTally[0].num; // actual threads per second
-
 //   if (act_tps > 9000)
 //   {
 //      thread_wait_microseconds = thread_wait_microseconds * 1.05;
@@ -157,18 +143,10 @@ void mwPacketBuffer::process_tally(void)
 //   }
 //
 //
-
    // reset tallies
    threadTally[0].initialize();
    threadTally[1].initialize();
-
-
 }
-
-
-
-
-
 
 
 int mwPacketBuffer::is_data_waiting(void)
@@ -194,13 +172,9 @@ void mwPacketBuffer::add_to_rx_buffer(void)
 {
    if (is_data_waiting())
    {
-
       double t0 = al_get_time();
-
       lock_mutex();
-
       char data[1024] = {0};
-
       int who = -1;
       if (mNetgame.ima_server)
          while(mNetgame.ServerReceive(data, &who))
@@ -214,7 +188,6 @@ void mwPacketBuffer::add_to_rx_buffer(void)
       threadTally[1].add_data(al_get_time() - t0);
    }
 }
-
 
 void mwPacketBuffer::add_to_rx_buffer_single(char *data, int who)
 {
@@ -235,20 +208,18 @@ void mwPacketBuffer::add_to_rx_buffer_single(char *data, int who)
       return;
    }
 
-
    int type = 0;
 
-   if (PacketRead(data, "cdat")) type = 1;
-   if (PacketRead(data, "stak")) type = 2;
-   if (PacketRead(data, "cjon")) type = 3;
-   if (PacketRead(data, "cjrc")) type = 4;
-   if (PacketRead(data, "rctl")) type = 5;
+   if (PacketRead(data, "cdat")) type = PM_NETGAME_PACKET_TYPE_CDAT;
+   if (PacketRead(data, "stak")) type = PM_NETGAME_PACKET_TYPE_STAK;
+   if (PacketRead(data, "cjon")) type = PM_NETGAME_PACKET_TYPE_CJON;
+   if (PacketRead(data, "cjrc")) type = PM_NETGAME_PACKET_TYPE_CJRC;
+   if (PacketRead(data, "rctl")) type = PM_NETGAME_PACKET_TYPE_RCTL;
 
-   if (PacketRead(data, "stdf")) type = 11;
-   if (PacketRead(data, "sjon")) type = 12;
-   if (PacketRead(data, "sjrc")) type = 13;
-   if (PacketRead(data, "snfo")) type = 14;
-
+   if (PacketRead(data, "stdf")) type = PM_NETGAME_PACKET_TYPE_STDF;
+   if (PacketRead(data, "sjon")) type = PM_NETGAME_PACKET_TYPE_SJON;
+   if (PacketRead(data, "sjrc")) type = PM_NETGAME_PACKET_TYPE_SJRC;
+   if (PacketRead(data, "snfo")) type = PM_NETGAME_PACKET_TYPE_SNFO;
 
    if (type)
    {
@@ -288,15 +259,15 @@ int mwPacketBuffer::find_empty_rx_packet_buffer(void)
       if (!rx_buf[i].active)
       {
          all_count++;
-         if (rx_buf[i].type == 1)  cdat_count++;
-         if (rx_buf[i].type == 2)  stak_count++;
-         if (rx_buf[i].type == 3)  cjon_count++;
-         if (rx_buf[i].type == 4)  cjrc_count++;
-         if (rx_buf[i].type == 5)  rctl_count++;
-         if (rx_buf[i].type == 11) stdf_count++;
-         if (rx_buf[i].type == 12) sjon_count++;
-         if (rx_buf[i].type == 13) sjrc_count++;
-         if (rx_buf[i].type == 14) snfo_count++;
+         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CDAT) cdat_count++;
+         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STAK) stak_count++;
+         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CJON) cjon_count++;
+         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CJRC) cjrc_count++;
+         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_RCTL) rctl_count++;
+         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STDF) stdf_count++;
+         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SJON) sjon_count++;
+         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SJRC) sjrc_count++;
+         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SNFO) snfo_count++;
       }
    mLog.addf(LOG_NET, 0, "[%d] cdat\n", cdat_count);
    mLog.addf(LOG_NET, 0, "[%d] stak\n", stak_count);
@@ -323,7 +294,6 @@ void mwPacketBuffer::unlock_mutex(void)
    if (thread_type == 2) m.unlock();
 }
 
-
 float mwPacketBuffer::get_max_dsync(void)
 {
    float max_dsync = -1000;
@@ -331,14 +301,14 @@ float mwPacketBuffer::get_max_dsync(void)
 
    // iterate all stdf packets, calc dysnc and max dysnc
    for (int i=0; i<200; i++)
-      if ((rx_buf[i].active) && (rx_buf[i].type == 11))
+      if ((rx_buf[i].active) && (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STDF))
       {
          int dst = 0;
-         memcpy(&dst, rx_buf[i].data+8, 4);
+         memcpy(&dst, rx_buf[i].data+8, 4); // memcpy dst
 
          // calc dysnc
-         float csync = (float)(dst - mLoop.frame_num) * 0.025;   // crude integer sync based on frame numbers
-         float dsync = al_get_time() - mPacketBuffer.rx_buf[i].timestamp + csync;  // add time between now and when the packet was received into packet buffer
+         float csync = (float)(dst - mLoop.frame_num) * 0.025;                     // crude integer sync based on frame numbers
+         float dsync = csync + al_get_time() - mPacketBuffer.rx_buf[i].timestamp;  // add time between now and when the packet was received into packet buffer
 
          if (dsync > max_dsync) max_dsync = dsync;
       }
@@ -346,10 +316,6 @@ float mwPacketBuffer::get_max_dsync(void)
    unlock_mutex();
    return max_dsync;
 }
-
-
-
-
 
 void mwPacketBuffer::PacketName(char *data, int &pos, const char *name)
 {

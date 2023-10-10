@@ -39133,10 +39133,86 @@ void mwNetgame::client_proc_player_drop(void)
 I have done all the control moves also....
 
 
-
-
-
 I am going to push, and to make release versions
+
+
+
+So I did and all things are looking good...
+
+
+
+Kaileb found a bug about jumping up through a solid block when there is a semi-solid below
+
+it is very easy to reproduce..
+
+level 18
+
+
+I do not have any time to look into it now
+
+I made this one change and it does not do it anymore
+all demo play back good except for 51 - cannon bees
+
+
+fix that demo level
+
+old time:2:21
+
+cut in time:1:05
+
+done
+
+new time 2:20
+
+
+
+            float oy = syn[p].y;
+
+            int y = syn[p].y;
+
+            int ym20 = y % 20;
+
+            if (ym20 < 19)
+            {
+
+               syn[p].yinc = 0;              // kill downwards motion
+               syn[p].y = y - ym20;          // align with floor
+
+            }
+
+
+//            syn[p].yinc = 0;                  // kill downwards motion
+//            syn[p].y = y - (y % 20);          // align with floor
+
+//            printf("player moving down and collison:%f   %f  %d\n", oy, syn[p].y, ym20);
+
+
+
+
+
+
+
+
+
+
+
+
+
+can I remote control a server that is not headless? I sure can!!
+
+20231010 9:30 AM
+new version 7.24.1010.2
+push and release
+
+
+
+
+
+
+
+
+
+
 
 
 

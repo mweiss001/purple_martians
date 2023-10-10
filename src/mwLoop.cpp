@@ -56,7 +56,6 @@ mwLoop::mwLoop()
 
 void mwLoop::initialize(void)
 {
-
    for (int i=0; i<8; i++) state[i]= 0;
 
    top_menu_sel = 0;
@@ -80,10 +79,6 @@ void mwLoop::initialize(void)
 }
 
 
-
-
-
-
 void mwLoop::move_frame(void)
 {
    if (mPlayer.syn[0].level_done_mode) proc_level_done_mode();
@@ -91,7 +86,6 @@ void mwLoop::move_frame(void)
    {
       double t[8] = { 0 };
       t[0] = al_get_time();
-
 
       mLog.addf(LOG_OTH_move, 0, "[%4d]Move eshots\n", frame_num);
       mShot.move_eshots();      t[1] = al_get_time();
@@ -132,7 +126,6 @@ void mwLoop::loop_frame(int times) // used for fast forwarding after rewind
 }
 
 
-
 int mwLoop::have_all_players_acknowledged(void)
 {
    int ret = 1; // yes by default
@@ -171,9 +164,6 @@ void mwLoop::game_menu(void)
             state[0] = 0;
             return;
          }
-
-//         if (top_menu_sel == 666)  // skc demo
-
 
          if (top_menu_sel == 7)  // skc demo
          {
@@ -240,24 +230,7 @@ void mwLoop::game_menu(void)
             return;
          }
 
-
-// old
-//         if (top_menu_sel == 7) // demo mode
-//         {
-//
-//
-//
-//            mDemoMode.mode = 2;
-//            mDemoMode.restore_mode = 21;
-//            mDemoMode.restore_level = mLevel.start_level;
-//            state[0] = 12;
-//            quit_action = 1; // menu
-//            done_action = 5; // next rand level
-//            return;
-//         }
-
          if (top_menu_sel == 8) mHelp.help("");
-
 
          if ((top_menu_sel >= 100) && (top_menu_sel < 200)) // right pressed on menu item
          {
@@ -387,7 +360,6 @@ void mwLoop::proc_program_state(void)
       // slide all down (now state[0] == state[1])
       for (int i=7; i>0; i--) state[i] = state[i-1];
 
-
       if (state[1] == 1) // game menu or fast exit
       {
          mLog.add(LOG_OTH_program_state, 0, "[State 1 - Game Menu]\n");
@@ -468,14 +440,15 @@ void mwLoop::proc_program_state(void)
       mRollingAverage[1].initialize(8); // ping rolling average
       mRollingAverage[2].initialize(8); // dsync rolling average
 
+      initialize_graphs();
+      for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
+      mPlayer.syn[0].active = 1;
+
       mNetgame.client_send_cjon_packet();
 
       mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client sent join request to server with player color:[%2d]", mPlayer.syn[0].color);
       mLog.add_fw (LOG_NET, 0, 76, 10, "+", "-", "");
 
-      initialize_graphs();
-      for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
-      mPlayer.syn[0].active = 1;
       state[0] = 23;
    }
 
@@ -484,7 +457,6 @@ void mwLoop::proc_program_state(void)
    //---------------------------------------
    if (state[1] == 23)
    {
-
       mLog.add(LOG_OTH_program_state, 0, "[State 23 - Client Wait For Join]\n");
       mPacketBuffer.rx_and_proc();
       if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) state[0] = 25; // give them an escape option
@@ -546,9 +518,6 @@ void mwLoop::proc_program_state(void)
       }
    }
 
-
-
-
    //---------------------------------------
    // 20 - server new game
    //---------------------------------------
@@ -589,8 +558,6 @@ void mwLoop::proc_program_state(void)
       mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
 
 
-
-
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color); // 1 - player_state and color
@@ -617,72 +584,9 @@ void mwLoop::proc_program_state(void)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   //---------------------------------------
-   // 10 - single player new game
-   //---------------------------------------
+//---------------------------------------
+// 10 - single player new game
+//---------------------------------------
    if (state[1] == 10)
    {
       mLog.add(LOG_OTH_program_state, 0, "[State 10 - Single Player New Game]\n");
@@ -693,8 +597,6 @@ void mwLoop::proc_program_state(void)
       if (quit_action == 0) mScreen.transition_cutscene(0, 1); // nothing to game
       if (quit_action == 1) mScreen.transition_cutscene(2, 1); // menu to game
    }
-
-
 
 
 //----------------------------------------------------------------------------------------------------------
@@ -839,12 +741,7 @@ void mwLoop::proc_program_state(void)
 // ----------------------------------------
       mLog.add(LOG_OTH_transitions, 0, "post-load ");
       mScreen.transition_cutscene(post_load_transistion_initial, post_load_transistion_final);
-
-
-
-
    }
-
 
 
 
@@ -875,9 +772,6 @@ void mwLoop::proc_program_state(void)
          if      (mDemoMode.restore_mode == 42) mScreen.transition_cutscene(3, 1); // gate to game
          else if (mDemoMode.restore_mode == 22) mScreen.transition_cutscene(2, 1); // menu to game (single)
          else                                   mScreen.transition_cutscene(0, 1); // all other (nothing to game)
-
-//         if (mDemoMode.restore_mode == 21)  mScreen.transition_cutscene(2, 1); // menu to game (rnd)
-//         if (quit_action == 1) mScreen.transition_cutscene(2, 1); // menu to game
       }
       else state[0] = 1;
    }
@@ -902,7 +796,6 @@ void mwLoop::proc_program_state(void)
       mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER; // reset to local control
       mConfig.load_config(); // restore player color
 
-
       if (rm == 10) // started from command line, exit
       {
          mScreen.transition_cutscene(1, 0); // game to nothing
@@ -926,7 +819,6 @@ void mwLoop::proc_program_state(void)
          state[0] = 1;
       }
 
-
       if (rm == 22) // single started from menu
       {
          mLog.addf(LOG_OTH_program_state, 0, "[State 32 - Restore Mode:22 (single demo start from menu) Restore Level:%d\n", mDemoMode.restore_level);
@@ -943,8 +835,6 @@ void mwLoop::proc_program_state(void)
          state[0] = 1;
       }
 
-
-
       if (rm == 42) // started from gate, send to overworld with 12 - next level
       {
          mLog.addf(LOG_OTH_program_state, 0, "[State 32 - Restore Mode:42 (demo start from gate) Restore Level:%d -- changed quit_action to 1\n", mDemoMode.restore_level);
@@ -952,7 +842,6 @@ void mwLoop::proc_program_state(void)
          mPlayer.syn[0].level_done_next_level = 1; // set to overworld level
          state[0] = 12; // next level
          quit_action = 1;
-
       }
 
       if (rm == 32) // started from settings, restore old level, then back to settings
@@ -968,18 +857,16 @@ void mwLoop::proc_program_state(void)
 
 
 
-
    //-------------------------------------------------------
    // 40 - server remote control setup
    //-------------------------------------------------------
    if (state[1] == 40)
    {
+      mLog.add(LOG_OTH_program_state, 0, "[State 40 - Server Remote Control Setup]\n");
       printf("server remote control setup\n");
 
       for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
 
-
-      mLog.add(LOG_OTH_program_state, 0, "[State 40 - Server Remote Control Setup]\n");
 
       // initialize driver with server address
       if (!mNetgame.ClientInitNetwork())
@@ -988,46 +875,30 @@ void mwLoop::proc_program_state(void)
          return;
       }
 
-
       mNetgame.client_send_cjrc_packet();
 
-      // wait for reply
-      int reply = 0;
-      while (!reply)
+      while (mNetgame.remote_join_reply)
       {
+         mPacketBuffer.rx_and_proc();
+
          mEventQueue.proc(1);
-
          al_set_target_backbuffer(mDisplay.display);
-
-         al_flip_display();
          al_clear_to_color(al_map_rgb(0,0,0));
-
          al_draw_textf(mFont.pr8, mColor.pc[10], 100, 80,  0, "Remote Control - Waiting for server reply");
+         al_flip_display();
 
          if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
          {
             while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
             state[0] = 0;
-            reply = -1;
+            return;
          }
-
-         mPacketBuffer.rx_and_proc();
-
-         if (mNetgame.remote_join_reply) reply = 1;
       }
-
-      if (reply == 1)
-      {
-         state[0] = 41;
-         printf("server remote control run\n");
-         mLog.add(LOG_OTH_program_state, 0, "[State 40 - Server Remote Control Run]\n");
-      }
-
-
+      state[0] = 41;
+      printf("server remote control run\n");
+      mLog.add(LOG_OTH_program_state, 0, "[State 40 - Server Remote Control Run]\n");
       initialize_graphs();
-
    }
-
 }
 
 
@@ -1085,12 +956,8 @@ void mwLoop::setup_common_after_level_load(void)
    mSound.start_music(0); // rewind and start theme
    state[0] = 11;
 
-   if (mNetgame.ima_server) // set server initial state
-   {
-      mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
-//      mNetgame.mStateHistory[0].add_state(frame_num);
-//      mLog.addf(LOG_NET_stdf, 0, "stdf saved server state:%d\n", frame_num);
-   }
+   if (mNetgame.ima_server) mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
+
    if (!mDemoMode.mode)
    {
       // save colors in game moves array
@@ -1099,13 +966,6 @@ void mwLoop::setup_common_after_level_load(void)
       mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
    }
 }
-
-
-
-
-
-
-
 
 
 void mwLoop::add_local_cpu_data(double cpu)
@@ -1382,7 +1242,6 @@ void mwLoop::main_loop(void)
             }
          }
       }
-
 
 
       // ----------------------------------------------------------

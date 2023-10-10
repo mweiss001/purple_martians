@@ -22,11 +22,8 @@ mwNetgame::mwNetgame()
    ima_client = 0;
    remote_join_reply = 0;
 
-
    sprintf(serveraddress, "192.168.1.2");
    zlib_cmp = 7;
-   tmaj_i = 0;
-
 
    ServerChannel = NULL;
    ClientNum = 0;
