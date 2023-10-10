@@ -46,9 +46,6 @@ class mwPacketBuffer
    int thread_working = 0;
    void c_rx_thread_func(void);
 
-
-
-
    // Common to Allegro Threads and C++ Threads
    void start_packet_thread(void);
    void stop_packet_thread(void);

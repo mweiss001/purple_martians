@@ -177,39 +177,35 @@ void mwNetgame::ServerFlush(void)
    while (ServerReceive(data, &who));
 }
 
+int mwNetgame::server_get_player_num_from_who(int who)
+{
+   for(int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.loc[p].who == who) return p;
+   return -1;
+}
 
 // ---------------------------------------------------------------------------------------------------------------
 // ***************************************************************************************************************
 //----------------------------------------------------------------------------------------------------------------
-
-
 
 void mwNetgame::headless_server_setup(void)
 {
    mMain.classic_mode = 0;
    mLevel.unlock_all_levels();
 
+   // ensure that only the basic LOG_NET is active and is sending console as well as saving to file
    mLog.clear_all_log_actions();
-
+   mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG, 1);
    mLog.autosave_log_on_level_done = 1;
    mLog.autosave_log_on_game_exit = 1;
    mLog.autosave_log_on_program_exit = 1;
 
-   mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG, 1);
-
-
+   // make sure we are always saving games
    mLog.autosave_game_on_level_done = 1;
    mLog.autosave_game_on_game_exit = 1;
 
    mConfig.save_config();
-
-
 }
-
-
-
-
-
 
 
 void mwNetgame::server_rewind(void)
@@ -231,10 +227,7 @@ void mwNetgame::server_rewind(void)
          lcd[pp][1] = mPlayer.syn[pp].late_cdats_last_sec;
       }
 
-//      mStateHistory[0].apply_rewind_state(mStateHistory[0].oldest_state_frame_num);
    mStateHistory[0].apply_rewind_state(server_dirty_frame);
-
-
 
    // restore values we don't want reset
    mPlayer.syn[0].client_chase_offset = old_cco;
@@ -263,18 +256,21 @@ void mwNetgame::server_create_new_state(void)
    // because after the end of the frame, there is a pause before the next frame starts
    // and I want to send new state as soon as possible
 
-
    int frame_num = mLoop.frame_num + 1;
+
+   // reset dirty_frame
    server_dirty_frame = frame_num;
 
    // this is the server rewind state, not the client base
    mStateHistory[0].add_state(frame_num);
 
    mLog.addf(LOG_NET_stdf, 0, "stdf save state:%d\n", frame_num);
-   server_send_dif(frame_num); // send to all clients
+
+    // send to all active clients
+   server_send_dif(frame_num);
 }
 
-void mwNetgame::server_send_dif(int frame_num) // send dif to all clients
+void mwNetgame::server_send_dif(int frame_num)
 {
   for (int p=1; p<NUM_PLAYERS; p++)
       if ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) || (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON))
@@ -282,17 +278,17 @@ void mwNetgame::server_send_dif(int frame_num) // send dif to all clients
          // save current state in history as base for next clients send
          mStateHistory[p].add_state(frame_num);
 
+         // variables for base and dif
          char base[STATE_SIZE] = {0};
          int base_frame_num = 0;
+         char dif[STATE_SIZE];
 
-         // get client's most recent base state (the last one acknowledged to the server)
-         // if not found, leaves base as is (zero)
+         // get client's most recent base state (the last one acknowledged to the server) if not found, leaves base as is (zero)
          mStateHistory[p].get_last_ack_state(base, base_frame_num);
 
          if (base_frame_num == 0) mPlayer.loc[p].client_base_resets++;
 
          // make a new dif from base and current
-         char dif[STATE_SIZE];
          get_state_dif(base, mStateHistory[p].newest_state, dif, STATE_SIZE);
 
          // break into packet and send to client
@@ -344,8 +340,6 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
       start_byte+=1000;
    }
 }
-
-
 
 void mwNetgame::server_send_snfo_packet(void) // send info to remote control
 {
@@ -400,37 +394,52 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
    }
 }
 
+void mwNetgame::server_proc_rctl_packet(int i)
+{
+   int type = mPacketBuffer.PacketGetInt4(i);
+   double val = mPacketBuffer.PacketGetDouble(i);
 
+   if (type == PM_RCTL_PACKET_TYPE_client_offset_adj)
+   {
+      mPlayer.syn[0].client_chase_offset += val;
+   }
 
+   if (type == PM_RCTL_PACKET_TYPE_zlib_compression_adj)
+   {
+      mNetgame.zlib_cmp += val;
+      if (mNetgame.zlib_cmp < 0)  mNetgame.zlib_cmp = 0;
+      if (mNetgame.zlib_cmp > 9)  mNetgame.zlib_cmp = 9;
+   }
 
+   if (type == PM_RCTL_PACKET_TYPE_exra_packet_num_adj)
+   {
+      mNetgame.srv_exp_num += val;
+      if (mNetgame.srv_exp_num < 0)    mNetgame.srv_exp_num = 0;
+      if (mNetgame.srv_exp_num > 500)  mNetgame.srv_exp_num = 500;
+   }
 
+   if (type == PM_RCTL_PACKET_TYPE_exra_packet_siz_adj)
+   {
+      mNetgame.srv_exp_siz += val;
+      if (mNetgame.srv_exp_siz < 0)     mNetgame.srv_exp_siz = 0;
+      if (mNetgame.srv_exp_siz > 1000)  mNetgame.srv_exp_siz = 1000;
+   }
 
+   if (type == PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj)
+   {
+      mPlayer.syn[0].player_vs_player_shot_damage += val;
+      if (mPlayer.syn[0].player_vs_player_shot_damage < -100)  mPlayer.syn[0].player_vs_player_shot_damage = -100;
+      if (mPlayer.syn[0].player_vs_player_shot_damage > 100)  mPlayer.syn[0].player_vs_player_shot_damage = 100;
+   }
 
+   if (type == PM_RCTL_PACKET_TYPE_server_reload) server_reload((int)val);
+   if (type == PM_RCTL_PACKET_TYPE_pvp_shots_toggle) mPlayer.syn[0].player_vs_player_shots = !mPlayer.syn[0].player_vs_player_shots;
+   if (type == PM_RCTL_PACKET_TYPE_pvs_shots_toggle) mPlayer.syn[0].player_vs_self_shots = !mPlayer.syn[0].player_vs_self_shots;
+   if (type == PM_RCTL_PACKET_TYPE_fakekey_toggle) mPlayer.syn[0].server_force_fakekey = !mPlayer.syn[0].server_force_fakekey;
+   if (type == PM_RCTL_PACKET_TYPE_force_client_offset) mPlayer.syn[0].server_force_client_offset = !mPlayer.syn[0].server_force_client_offset;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   mConfig.save_config();
+}
 
 void mwNetgame::server_proc_stak_packet(int i)
 {
@@ -446,6 +455,7 @@ void mwNetgame::server_proc_stak_packet(int i)
    mPlayer.loc[p].client_rmt_plr_cor = mPacketBuffer.PacketGetDouble(i);
    mPlayer.loc[p].cpu                = mPacketBuffer.PacketGetDouble(i);
 
+   // add lcor and rcor to tally object
    mTally_client_loc_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_loc_plr_cor);
    mTally_client_rmt_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_rmt_plr_cor);
 
@@ -470,27 +480,21 @@ void mwNetgame::server_proc_stak_packet(int i)
 void mwNetgame::server_proc_player_drop(void)
 {
    // check to see if we need to drop clients
+   int drop_frame_limit = mLoop.frame_num - 100;
+
    for (int p=1; p<NUM_PLAYERS; p++)
-      if ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) && (mPlayer.loc[p].server_last_stak_rx_frame_num + 100 < mLoop.frame_num))
+      if ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) && (mPlayer.loc[p].server_last_stak_rx_frame_num < drop_frame_limit))
       {
-         mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 71); // make client inactive (reason no stak for 100 frames)
-         mLog.add_headerf(LOG_NET, p, 1, "Server dropped player:%d (last stak rx > 100)", p);
+         mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 71); // make client inactive (reason no stak for x frames)
+         mLog.add_headerf(LOG_NET, p, 1, "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
       }
+}
 
-
-
-
-
-
-
-
-
+void mwNetgame::server_proc_limits(void)
+{
    int reload = 0;
    int gm_limit = GAME_MOVES_SIZE - 100;
-   int tm_limit = 60 * 60 * 40; // 1H
-
-//   int gm_limit = 20;
-//   int tm_limit = 30 * 40;
+   int tm_limit = 60 * 60 * 40; // 60s x 60m x 40fps == 144000 = 1h
 
    if (mGameMoves.entry_pos > gm_limit)
    {
@@ -579,12 +583,6 @@ void mwNetgame::server_lock_client(int p)
    }
 }
 
-
-
-
-
-
-
 void mwNetgame::server_send_sjon_packet(int who, int level, int frame, int player_num, int player_color)
 {
    char data[1024] = {0}; int pos;
@@ -637,12 +635,6 @@ void mwNetgame::server_proc_cjon_packet(int i)
       mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_CLIENT_JOIN, cn, color); // add a game move type 3 to mark client started join
       server_send_sjon_packet(who, mLevel.play_level, mLoop.frame_num, cn, color);
 
-
-
-
-
-
-
       mLog.add_fwf(LOG_NET,               0, 76, 10, "|", " ", "Server replied with join invitation:");
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Number:[%d]", cn);
@@ -652,21 +644,10 @@ void mwNetgame::server_proc_cjon_packet(int i)
    }
 }
 
-
-int mwNetgame::server_get_player_num_from_who(int who)
-{
-   for(int p=0; p<NUM_PLAYERS; p++)
-      if (mPlayer.loc[p].who == who) return p;
-   return -1;
-}
-
 void mwNetgame::server_proc_cjrc_packet(int i)
 {
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received remote control request");
-
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server replied with sjrc packet");
-
-
    int who = mPacketBuffer.rx_buf[i].who;
    mMain.server_remote_control_who = who;
    mMain.server_remote_control = 1;
@@ -681,16 +662,11 @@ void mwNetgame::server_send_sjrc_packet(int who)
    ServerSendTo(data, pos, who);
 }
 
-
-
-
 void mwNetgame::server_proc_ping_packet(char *data, int who)
 {
    int p = server_get_player_num_from_who(who);
    if (p != -1)
    {
-      //printf("rx ping from p:%d - tx pong\n", p);
-
       int pos = 4;
       double t0 = mPacketBuffer.PacketGetDouble(data, pos);
       double t1 = al_get_time();
@@ -701,7 +677,6 @@ void mwNetgame::server_proc_ping_packet(char *data, int who)
       ServerSendTo(data, pos, who);
    }
 }
-
 
 void mwNetgame::server_proc_pang_packet(char *data, int who)
 {
@@ -714,69 +689,17 @@ void mwNetgame::server_proc_pang_packet(char *data, int who)
    }
 }
 
-
-
-
-void mwNetgame::server_proc_rctl_packet(int i)
-{
-   int type = mPacketBuffer.PacketGetInt4(i);
-   double val = mPacketBuffer.PacketGetDouble(i);
-
-   if (type == PM_RCTL_PACKET_TYPE_client_offset_adj)
-   {
-      mPlayer.syn[0].client_chase_offset += val;
-   }
-
-   if (type == PM_RCTL_PACKET_TYPE_zlib_compression_adj)
-   {
-      mNetgame.zlib_cmp += val;
-      if (mNetgame.zlib_cmp < 0)  mNetgame.zlib_cmp = 0;
-      if (mNetgame.zlib_cmp > 9)  mNetgame.zlib_cmp = 9;
-   }
-
-   if (type == PM_RCTL_PACKET_TYPE_exra_packet_num_adj)
-   {
-      mNetgame.srv_exp_num += val;
-      if (mNetgame.srv_exp_num < 0)    mNetgame.srv_exp_num = 0;
-      if (mNetgame.srv_exp_num > 500)  mNetgame.srv_exp_num = 500;
-   }
-
-   if (type == PM_RCTL_PACKET_TYPE_exra_packet_siz_adj)
-   {
-      mNetgame.srv_exp_siz += val;
-      if (mNetgame.srv_exp_siz < 0)     mNetgame.srv_exp_siz = 0;
-      if (mNetgame.srv_exp_siz > 1000)  mNetgame.srv_exp_siz = 1000;
-   }
-
-   if (type == PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj)
-   {
-      mPlayer.syn[0].player_vs_player_shot_damage += val;
-      if (mPlayer.syn[0].player_vs_player_shot_damage < -100)  mPlayer.syn[0].player_vs_player_shot_damage = -100;
-      if (mPlayer.syn[0].player_vs_player_shot_damage > 100)  mPlayer.syn[0].player_vs_player_shot_damage = 100;
-   }
-
-   if (type == PM_RCTL_PACKET_TYPE_server_reload) server_reload((int)val);
-   if (type == PM_RCTL_PACKET_TYPE_pvp_shots_toggle) mPlayer.syn[0].player_vs_player_shots = !mPlayer.syn[0].player_vs_player_shots;
-   if (type == PM_RCTL_PACKET_TYPE_pvs_shots_toggle) mPlayer.syn[0].player_vs_self_shots = !mPlayer.syn[0].player_vs_self_shots;
-   if (type == PM_RCTL_PACKET_TYPE_fakekey_toggle) mPlayer.syn[0].server_force_fakekey = !mPlayer.syn[0].server_force_fakekey;
-   if (type == PM_RCTL_PACKET_TYPE_force_client_offset) mPlayer.syn[0].server_force_client_offset = !mPlayer.syn[0].server_force_client_offset;
-   mConfig.save_config();
-}
-
-
 void mwNetgame::server_control()
 {
    ServerListen();                        // listen for new client connections
-
    mPacketBuffer.proc_rx_buffer();        // process all packets in buffer
-
    server_rewind();                       // to replay and apply late client input
-
-   server_proc_player_drop();             // check to see if we need to drop clients
+   server_proc_player_drop();             // check to see if we need to drop inactive clients
+   server_proc_limits();                  // check to see if we need to reload level
 
    if (mMain.server_remote_control) server_send_snfo_packet();
 
-   // send extra packets
+   // send extra packets (testing and debug only)
    for (int i=0; i<srv_exp_num; i++)
       for (int p=1; p<NUM_PLAYERS; p++)
          if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
@@ -785,6 +708,6 @@ void mwNetgame::server_control()
             mPacketBuffer.PacketName(data, pos, "extr");
             ServerSendTo(data, pos + srv_exp_siz, mPlayer.loc[p].who);
          }
+
    for (int p=0; p<NUM_PLAYERS; p++) if (mPlayer.syn[p].active) process_bandwidth_counters(p);
 }
-

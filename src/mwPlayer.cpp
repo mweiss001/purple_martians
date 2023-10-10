@@ -393,9 +393,15 @@ void mwPlayer::proc_player_xy_move(int p)
          if (mSolid.is_down_solid(syn[p].x, syn[p].y, 0, 1))  // check for floor below (no lift)
          {
             if (debug_print) printf("player moving down and collison\n");
+
             int y = syn[p].y;
-            syn[p].yinc = 0;                  // kill downwards motion
-            syn[p].y = y - (y % 20);          // align with floor
+            int ym20 = y % 20;
+
+            if (ym20 < 19) // prevent warping one block up
+            {
+               syn[p].yinc = 0;              // kill downwards motion
+               syn[p].y = y - ym20;          // align with floor
+            }
 
             // check for collision with lift above if lift is moving down
             int a = mSolid.is_up_solid(syn[p].x, syn[p].y, 1, 1);
