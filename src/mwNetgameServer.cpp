@@ -103,7 +103,7 @@ void mwNetgame::ServerListen()
             mInput.m_err(msg);
             return;
          }
-         if (net_assigntarget (ClientChannel[ClientNum], address))
+         if (net_assigntarget(ClientChannel[ClientNum], address))
          {
             sprintf(msg, "Error: couldn't assign target `%s' to channel\n", address);
             mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
@@ -149,7 +149,11 @@ int mwNetgame::ServerReceive(void *data, int *sender)
 void mwNetgame::ServerBroadcast(void *data, int len)
 {
    for (int n=0; n<ClientNum; n++)
-      if (ClientChannel[n]) net_send(ClientChannel[n], data, len);
+      if (ClientChannel[n])
+      {
+         printf("server broadcast to:%d\n", n);  // this will never happen...??
+         net_send(ClientChannel[n], data, len);
+      }
 }
 
 

@@ -21,7 +21,7 @@ int mwNetgame::ClientInitNetwork(void)
 {
    char msg[512];
 
-	if(NetworkInit())
+   if (NetworkInit())
    {
       sprintf(msg, "Error: failed to initialize network");
       mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
@@ -110,8 +110,17 @@ int mwNetgame::ClientCheckResponse(void) // check for a repsonse from the server
 
       char address[32];
       int len = net_receive(ServerChannel, data, 1024, address);
+
+      if (len) mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Got packet");
+      else mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "nothing to recieve");
+
+
+
       if (len >= 4)
       {
+
+         mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Got packet >= 4");
+
          if (mPacketBuffer.PacketRead(data, "5678"))
          {
             mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Got Response");
