@@ -166,7 +166,6 @@ int mwPacketBuffer::is_data_waiting(void)
    return data_waiting;
 }
 
-
 // receives all waiting packets and puts them in the rx buffer
 void mwPacketBuffer::add_to_rx_buffer(void)
 {
@@ -329,7 +328,6 @@ int mwPacketBuffer::PacketRead(char *data, const char *id )
    if (!strncmp(data, id, 4)) return 1;
 	return 0;
 }
-
 
 char mwPacketBuffer::PacketGetByte(int i)
 {

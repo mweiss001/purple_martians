@@ -54,11 +54,6 @@ int mwNetgame::ServerInitNetwork(void)
 
    mPacketBuffer.start_packet_thread();
 
-   // still needed or client dies at joining   ---------- i should test this....seems OK without it...
-   char data[1024] = {0}; int pos;
-   mPacketBuffer.PacketName(data, pos, "JUNK");
-   ServerBroadcast(data, pos);
-
    return 1;
 }
 
