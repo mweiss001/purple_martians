@@ -316,8 +316,8 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
       mPacketBuffer.PacketName(data, pos, "stdf");
       mPacketBuffer.PacketPutInt4(data, pos, src);
       mPacketBuffer.PacketPutInt4(data, pos, dst);
-      mPacketBuffer.PacketPutInt1(data, pos, packet_num);
-      mPacketBuffer.PacketPutInt1(data, pos, num_packets);
+      mPacketBuffer.PacketPutByte(data, pos, packet_num);
+      mPacketBuffer.PacketPutByte(data, pos, num_packets);
       mPacketBuffer.PacketPutInt4(data, pos, start_byte);
       mPacketBuffer.PacketPutInt4(data, pos, packet_data_size);
 
@@ -369,8 +369,8 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
       char data[1024] = {0}; int pos;
       mPacketBuffer.PacketName(data, pos, "snfo");
       mPacketBuffer.PacketPutInt4(data, pos, mLoop.frame_num);
-      mPacketBuffer.PacketPutInt1(data, pos, packet_num);
-      mPacketBuffer.PacketPutInt1(data, pos, num_packets);
+      mPacketBuffer.PacketPutByte(data, pos, packet_num);
+      mPacketBuffer.PacketPutByte(data, pos, num_packets);
       mPacketBuffer.PacketPutInt4(data, pos, start_byte);
       mPacketBuffer.PacketPutInt4(data, pos, packet_data_size);
 
@@ -434,12 +434,12 @@ void mwNetgame::server_proc_stak_packet(int i)
 {
    double timestamp = mPacketBuffer.rx_buf[i].timestamp;
 
-   int p                             = mPacketBuffer.PacketGetInt1(i);
+   int p                             = mPacketBuffer.PacketGetByte(i);
    int ack_frame_num                 = mPacketBuffer.PacketGetInt4(i);  // client has acknowledged getting and applying this base
    int client_frame_num              = mPacketBuffer.PacketGetInt4(i);
    mPlayer.loc[p].client_chase_fps   = mPacketBuffer.PacketGetDouble(i);
    mPlayer.loc[p].pdsync             = mPacketBuffer.PacketGetDouble(i);
-   mPlayer.loc[p].rewind             = mPacketBuffer.PacketGetInt1(i);
+   mPlayer.loc[p].rewind             = mPacketBuffer.PacketGetByte(i);
    mPlayer.loc[p].client_loc_plr_cor = mPacketBuffer.PacketGetDouble(i);
    mPlayer.loc[p].client_rmt_plr_cor = mPacketBuffer.PacketGetDouble(i);
    mPlayer.loc[p].cpu                = mPacketBuffer.PacketGetDouble(i);
@@ -520,9 +520,9 @@ void mwNetgame::server_reload(int level)
 
 void mwNetgame::server_proc_cdat_packet(int i)
 {
-   int p              = mPacketBuffer.PacketGetInt1(i);
+   int p              = mPacketBuffer.PacketGetByte(i);
    int cdat_frame_num = mPacketBuffer.PacketGetInt4(i);
-   int cm             = mPacketBuffer.PacketGetInt1(i);
+   int cm             = mPacketBuffer.PacketGetByte(i);
    double timestamp   = mPacketBuffer.rx_buf[i].timestamp;
 
    mPlayer.loc[p].client_cdat_packets_tx++;
@@ -573,17 +573,17 @@ void mwNetgame::server_send_sjon_packet(int who, int level, int frame, int playe
 {
    char data[1024] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "sjon");
-   mPacketBuffer.PacketPutInt2(data, pos, level);
+   mPacketBuffer.PacketPutInt4(data, pos, level);
    mPacketBuffer.PacketPutInt4(data, pos, frame);
-   mPacketBuffer.PacketPutInt1(data, pos, player_num);
-   mPacketBuffer.PacketPutInt1(data, pos, player_color);
+   mPacketBuffer.PacketPutByte(data, pos, player_num);
+   mPacketBuffer.PacketPutByte(data, pos, player_color);
    ServerSendTo(data, pos, who);
 }
 
 void mwNetgame::server_proc_cjon_packet(int i)
 {
    int who    = mPacketBuffer.rx_buf[i].who;
-   int color  = mPacketBuffer.PacketGetInt1(i);
+   int color  = mPacketBuffer.PacketGetByte(i);
    char temp_name[16];
    mPacketBuffer.PacketReadString(i, temp_name);
 
@@ -602,7 +602,7 @@ void mwNetgame::server_proc_cjon_packet(int i)
    {
       mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
       mLog.add_fwf(LOG_NET, 0, 76, 10, "+", "-", "");
-      server_send_sjon_packet(who, 0, 0, 0, 99);
+      server_send_sjon_packet(who, 0, 0, 99, 0);
    }
    else // empty player slot found, proceed with join
    {
