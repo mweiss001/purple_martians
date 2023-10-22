@@ -141,16 +141,6 @@ int mwNetgame::ServerReceive(void *data, int *sender)
 	return 0;
 }
 
-void mwNetgame::ServerBroadcast(void *data, int len)
-{
-   for (int n=0; n<ClientNum; n++)
-      if (ClientChannel[n])
-      {
-         printf("server broadcast to:%d\n", n);  // this will never happen...??
-         net_send(ClientChannel[n], data, len);
-      }
-}
-
 
 // send data to a specific client
 void mwNetgame::ServerSendTo(void *data, int len, int who)
@@ -192,7 +182,7 @@ void mwNetgame::headless_server_setup(void)
    mMain.classic_mode = 0;
    mLevel.unlock_all_levels();
 
-   // ensure that only the basic LOG_NET is active and is sending console as well as saving to file
+   // ensure that only the basic LOG_NET is active and is printing to console as well as saving to file
    mLog.clear_all_log_actions();
    mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG, 1);
    mLog.autosave_log_on_level_done = 1;
@@ -464,7 +454,9 @@ void mwNetgame::server_proc_stak_packet(int i)
    // calculate stak_dsync
    mPlayer.loc[p].stak_dsync = ( (double) stak_sync * 0.025) + mLoop.frame_start_timestamp - timestamp;
 
-   server_lock_client(p);
+   // inactive client chasing for lock
+   if ((!mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)) server_lock_client(p);
+
 
    // this is used to see if client is still alive
    mPlayer.loc[p].server_last_stak_rx_frame_num = mLoop.frame_num;
@@ -562,18 +554,13 @@ void mwNetgame::server_proc_cdat_packet(int i)
 }
 
 
-
 void mwNetgame::server_lock_client(int p)
 {
+   // inactive client chasing for lock
    float sync = mPlayer.loc[p].pdsync * 1000;
-
-   // printf("Server Lock Client:%d a:%d cm:%d dsync:%4.2f\n", p, mPlayer.syn[p].active, mPlayer.syn[p].control_method, sync);
-
-   if ((!mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)) // inactive client chasing for lock
-   {
-      if ((sync > -200) && (sync < 30)) mPlayer.loc[p].sync_stabilization_holdoff++;
-      else mPlayer.loc[p].sync_stabilization_holdoff = 0;
-   }
+   printf("Server Lock Client:%d a:%d cm:%d dsync:%4.2f\n", p, mPlayer.syn[p].active, mPlayer.syn[p].control_method, sync);
+   if ((sync > -200) && (sync < 30)) mPlayer.loc[p].sync_stabilization_holdoff++;
+   else mPlayer.loc[p].sync_stabilization_holdoff = 0;
    if (mPlayer.loc[p].sync_stabilization_holdoff > 20) // we have been stable for over 20 frames
    {
       mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
@@ -638,7 +625,7 @@ void mwNetgame::server_proc_cjon_packet(int i)
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Number:[%d]", cn);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Color:[%d]", color);
-      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server mLoop.frame_num:[%d]", mLoop.frame_num);
+      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Frame:[%d]", mLoop.frame_num);
       mLog.add_fwf(LOG_NET,               0, 76, 10, "+", "-", "");
    }
 }

@@ -133,12 +133,10 @@ void mwItem::draw_pop_message(int i, int custom, int xpos_c, int ypos, int curso
    }
    else al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[fc+13*16]);  // background
 
-
    if (frame_width == 1)
    {
       al_draw_rectangle(x1, y1, x2, y2, mColor.pc[fc], 1);
    }
-
 
    if (frame_width == 2)
    {

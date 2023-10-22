@@ -39213,6 +39213,313 @@ push and release
 
 
 
+20231017 back from vacation
+
+
+had trouble with netgame and davis's router
+
+he had to bind a specific port and ip to one computer to get it to work
+
+testing at home:
+
+all clients initiate with 24785 as the port, so does server
+
+when clients join, the server shows them having 24785, unless it is the second or greater one from my home then they have other ports...
+
+I have upnp setup on my home router, but it does not look like it is doing anything
+
+the three entries in the list are not ones that I am using for clients
+
+
+what else do I want to check?
+
+test other routers and locations
+
+I could test at customers homes!!!
+
+
+I want to make logging for connections and attempts
+
+
+What do I want to see?
+
+From the server's POV
+
+YYYMMDDHHMMSS timestamp
+
+IP, port, hostname
+
+1 - server rx connection attempt and sent reply to initiate channnel
+2 - server rx cjon and reply with sjon
+3 -
+
+
+the becoming active thing seems to never get called...
+
+do I always have my clients active?
+
+when server send sjon it sets up the client as active.
+I just tested by setting it to inactive, and the lock thing happened...
+Is this just unnessary?  wow, I wonder for how long....
+
+
+I am going to leave off the inactive for now
+
+but what does this all mean?
+
+
+can I still tell if the client connection attempt fails?
+
+
+I guess if the connection attempt 1 occurs on the server, but then the server never gets the cjon....
+
+does this ever fill up the client slots on the server?
+
+I never had an issue, but I also never checked...
+
+
+So basically the server connection log I want is:
+
+was it successfull?
+how long was the session?
+how many keys pressed?
+
+
+was it successfull could be answered by if I get an accompanying cjon after the connection attempt
+
+how long was the session will need to look at multiple logs
+
+
+I am thinking of making a separate log for the server that just keeps track of these things.
+Connections and how long they last.
+
+
+
+
+Test the game with multiple router setups....
+
+find out what it take to make it work....
+
+
+My router Nighthawk r7000 seems to work for all clients at home
+but does it work if I disable uPnp?
+
+
+try other routers, but use second internet connection
+
+
+
+e6430 eidnet direct - yes
+e6430 eidnet beacon 6 - no
+see if I can find a setting on the router that will allow it
+
+
+enabled uPNP and DLNA .. no change
+
+what did work was port forwarding
+for a specific LAN client
+UDP
+WAN 1-65000
+LAN 1-65000
+
+left Wan Connection as is...1_TR069_INTERNET_OTHER_R_VID_0
+actually it is not edittable....
+
+
+
+On my router:
+Hardware version: R7000P
+Firmware version: v1.3.1.64_10.1.36
+
+no port forwarding...
+UPNP On
+Advertisment period: 30 min
+Advertisment time to live: 4 hops
+
+there are three entries in the list, but none that look like anything related to pm
+tcp 16816 16816 192.168.1.106
+udp 16816 42831 192.168.1.106
+udp 56147 56147 192.168.1.118
+
+106 is hop
+118 is not connected when I looked
+UDP port 56147 does not match any common things
+
+turned off UPNP and it still works on R7000
+
+
+I dont have any other router to try right now...
+
+should bring home calix and r195 to test
+
+also test tethered to phone...
+
+
+calix
+------------
+factory default
+ping works
+pm doesnt work
+upnp is on by default
+firewall has high security by default and even turning it off has no effect
+
+port forwarding is what makes it work
+on calix I set up a specific LAN IP (or name) UDP 1-65000 to any external IP
+also on calix I can do application forwarding, but it still only works for one LAN client
+
+calix also has a DMZ section that might work for a server
+
+R195
+-----
+factory defaults
+ping works, pm not
+port forward
+src:96.45.13.253
+dst: 192.168.1.213
+UDP 1-65000
+reboot
+does not work....
+try DMZ
+does not work either....
+give up
+
+
+right arrow on menu does not advance level past 10...fixed, set to 199
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
