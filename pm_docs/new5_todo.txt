@@ -4,40 +4,6 @@
 
 
 
-server full does not get displayed, instead tries to load level 000
-I think I fixed this, need to test...
-
-
-Stats msg on overworld with frame 1, text lines up differently in linux
-
-level 1
-w48 h14
-
-also see level 96
-h:17
-h:13
-
-I do not see the issue on scat, maybe 1 line lower at best...
-
-what version opengl??
-
-display flags both are the same:
-WINDOWED
-OPENGL
-RESIZEABLE
-
-display options:
-OPENGL 4.5 (scat)
-OPENGL 3.3 (6510)
-
-that would be the difference....
-
-I am not going to fight with this, it works in direct x and open gl 4, but not opengl 3
-
-
-
-
-
 
 
 
