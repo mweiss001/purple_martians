@@ -336,7 +336,7 @@ char mwPacketBuffer::PacketGetByte(int i)
 	return b;
 }
 
-void mwPacketBuffer::PacketAddByte(char *data, int &pos, char b)
+void mwPacketBuffer::PacketPutByte(char *data, int &pos, char b)
 {
 	data[pos] = b;
 	pos++;
@@ -344,8 +344,8 @@ void mwPacketBuffer::PacketAddByte(char *data, int &pos, char b)
 
 void mwPacketBuffer::PacketAddString(char *data, int &pos, char* s)
 {
-   for (int a=0; a<15; a++) PacketAddByte(data, pos, s[a]); // copy first 15 char only
-   PacketAddByte(data, pos, 0);                             // for safety terminate with NULL in case string is longer than 15
+   for (int a=0; a<15; a++) PacketPutByte(data, pos, s[a]); // copy first 15 char only
+   PacketPutByte(data, pos, 0);                             // for safety terminate with NULL in case string is longer than 15
 }
 
 void mwPacketBuffer::PacketReadString(int i, char* s)
@@ -366,8 +366,6 @@ double mwPacketBuffer::PacketGetDouble(char *data, int &pos)
 	return d;
 }
 
-
-
 void mwPacketBuffer::PacketPutDouble(char *data, int &pos, double d)
 {
    memcpy(data + pos, &d, 8);
@@ -380,40 +378,10 @@ void mwPacketBuffer::PacketPutInt4(char *data, int &pos, int d)
 	pos+=4;
 }
 
-void mwPacketBuffer::PacketPutInt2(char *data, int &pos, int b)
-{
-   unsigned char hi_b = (unsigned char) (b/256);
-   PacketAddByte(data, pos, hi_b);
-
-   unsigned char lo_b = (unsigned char) (b - (hi_b*256));
-   PacketAddByte(data, pos, lo_b);
-}
-
-void mwPacketBuffer::PacketPutInt1(char *data, int &pos, int b)
-{
-   unsigned char lo_b = (unsigned char) (b);
-   PacketAddByte(data, pos, lo_b);
-}
-
 int mwPacketBuffer::PacketGetInt4(int i)
 {
    int d = 0;
    memcpy(&d, rx_buf[i].data + rx_buf[i].packetpos, 4);
 	rx_buf[i].packetpos+=4;
 	return d;
-}
-
-int mwPacketBuffer::PacketGetInt2(int i)
-{
-   unsigned char byte_ho = (unsigned char)PacketGetByte(i);
-   unsigned char byte_lo = (unsigned char)PacketGetByte(i);
-   int b = (byte_ho * 256) + byte_lo;
-   return b;
-}
-
-int mwPacketBuffer::PacketGetInt1(int i)
-{
-   unsigned char byte_lo = (unsigned char)PacketGetByte(i);
-   int b = byte_lo;
-	return b;
 }

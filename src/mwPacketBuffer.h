@@ -56,20 +56,16 @@ class mwPacketBuffer
    void PacketName(char *data, int &pos, const char *name);
    int PacketRead(char *data, const char *id );
 
-   void PacketAddByte(char *data, int &pos, char b);
+   void PacketPutByte(char *data, int &pos, char b);
    void PacketAddString(char *data, int &pos, char* s);
    void PacketPutDouble(char *data, int &pos, double d);
    void PacketPutInt4(char *data, int &pos, int d);
-   void PacketPutInt2(char *data, int &pos, int b);
-   void PacketPutInt1(char *data, int &pos, int b);
 
    char PacketGetByte(int i);
    void PacketReadString(int i, char* s);
    double PacketGetDouble(char *data, int &pos);
    double PacketGetDouble(int i);
    int PacketGetInt4(int i);
-   int PacketGetInt2(int i);
-   int PacketGetInt1(int i);
 
    void process_tally(void);
 
