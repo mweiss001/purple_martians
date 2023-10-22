@@ -238,7 +238,7 @@ void mwLoop::game_menu(void)
             if (top_menu_sel == 0)
             {
                if (mLevel.resume_allowed) mLevel.add_play_data_record(mLevel.play_level, 0);
-               mLevel.set_start_level(mLevel.get_next_level(mLevel.start_level, 10, 0));
+               mLevel.set_start_level(mLevel.get_next_level(mLevel.start_level, 199, 0));
             }
          }
          if ((top_menu_sel >= 200) && (top_menu_sel < 300)) // left pressed on menu item
@@ -247,7 +247,7 @@ void mwLoop::game_menu(void)
             if (top_menu_sel == 0)
             {
                if (mLevel.resume_allowed) mLevel.add_play_data_record(mLevel.play_level, 0);
-               mLevel.set_start_level(mLevel.get_prev_level(mLevel.start_level, 10, 0));
+               mLevel.set_start_level(mLevel.get_prev_level(mLevel.start_level, 199, 0));
             }
          }
       }

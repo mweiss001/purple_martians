@@ -107,7 +107,6 @@ class mwNetgame
    void ServerExitNetwork(void);
    void ServerListen(void);
    int  ServerReceive(void *data, int *sender);
-   void ServerBroadcast(void *data, int len);
    void ServerSendTo(void *data, int len, int who);
    void ServerFlush(void);
 
