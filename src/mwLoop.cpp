@@ -962,7 +962,7 @@ void mwLoop::setup_common_after_level_load(void)
    {
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
+         if (mPlayer.syn[p].active) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
       mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
    }
 }

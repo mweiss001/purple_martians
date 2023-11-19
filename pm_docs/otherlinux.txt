@@ -1,3 +1,14 @@
+
+
+
+
+
+I really need to put what version of pm and what date I tested in on.
+
+These are all pretty old....probably from 2018
+
+
+
 linuxmint-18.3-cinnamon-64bit
 works great from live version
 
@@ -24,8 +35,6 @@ sudo systemctl stop firewalld
 
 Fedora-Workstation-Live-x86_64-27-1.6
 works great from live version
-
-
 
 
 openSUSE-Tumbleweed-Kubic-DVD-x86_64-Snapshot20180420-Media

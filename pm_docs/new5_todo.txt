@@ -6,10 +6,62 @@
 
 
 
+bug - playing back muliplayer games does not work
+
+
+
+client ijkl skc does not save config
+
+pm -rc <server> does not work
+
+
+
+
+clients are losing server connnection more than usual, look into why
+of course now they won't do it...
+
+why would a client lose server connection?
+
+only reason I can see is last stdf rx > 200 frames
+
+
+mPlayer.loc[p].client_last_stdf_rx_frame_num
+this gets set whenever a new stdf packet is received by client
+it gets reset to 0 with new level player init
+it gets set to frame+200 when client joins
+
+
+sometimes weird artifacts show in level background, like msg from previous level??
+
+
+
+
+
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+what to do to release?
+
+before I put it away and move on?
+
+
+I think logs are always being saved on server
+I should be able to tell from that when players joins
+yes I can but it is not easily parseable
+
+are levels being saved, yes...
+
+what can I run to get one?
+
+pscp -pw zaiden m@96.45.13.253:dev/purple_martians/savegame/level_done_20231119-110349-lev32.gm C:\pm
+
+
+
+
+
 
 
 document netgame, yet again

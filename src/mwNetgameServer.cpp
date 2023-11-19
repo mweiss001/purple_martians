@@ -471,7 +471,7 @@ void mwNetgame::server_proc_stak_packet(int i)
 void mwNetgame::server_proc_player_drop(void)
 {
    // check to see if we need to drop clients
-   int drop_frame_limit = mLoop.frame_num - 100;
+   int drop_frame_limit = mLoop.frame_num - 200;
 
    for (int p=1; p<NUM_PLAYERS; p++)
       if ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) && (mPlayer.loc[p].server_last_stak_rx_frame_num < drop_frame_limit))

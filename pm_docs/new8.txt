@@ -39424,11 +39424,181 @@ I am not going to fight with this, it works in direct x and open gl 4, but not o
 
 
 
-
-
 20231022 bump version and do new release
 
-now
+
+
+
+
+20231119
+
+bug - playing back muliplayer games does not work
+
+
+m36 server
+e6430 client
+
+
+player 1 never goes active...
+
+what is different between playback and normal play
+
+
+
+I have found out one thing:
+The client will never be able to play back.
+This is just the way things are since I no longer sync gamne moves to clients.
+
+
+The server should have all the game moves though and should be able to play back.
+
+changed this code:
+
+old:
+
+void mwGameMoves::proc_client_join_game_move(int x)
+{
+   if (mNetgame.ima_server)
+   {
+      int p = arr[x][2];  // player number
+      int c = arr[x][3];  // color
+      mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
+      mPlayer.syn[p].color = c;
+   }
+}
+
+
+new:
+
+void mwGameMoves::proc_client_join_game_move(int x)
+{
+   int p = arr[x][2];  // player number
+   int c = arr[x][3];  // color
+   mPlayer.syn[p].active = 1;
+   mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
+   mPlayer.syn[p].color = c;
+}
+
+
+now it will play back properly, if the client joins....
+
+what about when the active happens on frame 0?
+
+how can I test that?
+
+complete a level...
+
+overworld would be the easiest
+
+
+it does not work...
+
+the function that looks for game moves that match current frame number, starts on frame 1
+
+this is why the actives never get processed....
+
+it works fine for all other modes, because the player array is only reset with mode 2
+but in file play the player array is reset with mode 1...
+
+these active and color game moves are only needed in file play
+
+make an exception in file play mode to read them also...works...
+
+or when enetering these active game moves, make them on frame 1...
+yes...do that instead
+
+old: if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
+new: if (mPlayer.syn[p].active) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
+
+
+void mwLoop::setup_common_after_level_load(void)
+{
+   if (!mDemoMode.mode)
+   {
+      // save colors in game moves array
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (mPlayer.syn[p].active) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
+      mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
+   }
+}
+
+done and it works...
+
+what about multiple joins and quits?
+
+the join needs to reset the joining players position..done...it seems to work now, should I upload to server and test there?
+
+
+
+changed to this:
+
+void mwGameMoves::proc_client_join_game_move(int x)
+{
+   int p = arr[x][2];  // player number
+   int c = arr[x][3];  // color
+
+   if (!mNetgame.ima_server) // for demo playback only
+   {
+      mPlayer.init_player(p, 1);           // type 1 full reset
+      mPlayer.syn[p].active = 1;
+      mPlayer.set_player_start_pos(p, 0);  // set starting position
+   }
+
+   mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
+   mPlayer.syn[p].color = c;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
