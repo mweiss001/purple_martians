@@ -881,7 +881,7 @@ void mwLevel::clear_data(void)
 
    i = 35;
    strcpy(data[i].level_name, "Bomb Toss");
-   data[i].time_par = 12000; // 5:00 demo 3:37
+   data[i].time_par = 12000; // 5:00 demo 3:36
 
    i = 38;
    strcpy(data[i].level_name, "Come Over");

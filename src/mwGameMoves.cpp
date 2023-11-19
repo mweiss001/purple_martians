@@ -63,7 +63,6 @@ void mwGameMoves::proc(void)
       if (arr[x][0] == mLoop.frame_num) // found frame number that matches current frame
       {
          if (x > current_pos) current_pos = x; // index of last used gm - keep this at the most recent one, never go back
-
          switch (arr[x][1])
          {
             case PM_GAMEMOVE_TYPE_PLAYER_ACTIVE:    proc_player_active_game_move(x); break;
@@ -166,16 +165,21 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 }
 
 
-
 void mwGameMoves::proc_client_join_game_move(int x)
 {
-   if (mNetgame.ima_server)
+   int p = arr[x][2];  // player number
+   int c = arr[x][3];  // color
+
+   if (!mNetgame.ima_server) // for demo playback only
    {
-      int p = arr[x][2];  // player number
-      int c = arr[x][3];  // color
-      mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
-      mPlayer.syn[p].color = c;
+      mPlayer.init_player(p, 1);           // type 1 full reset
+      mPlayer.syn[p].active = 1;
+      mPlayer.set_player_start_pos(p, 0);  // set starting position
    }
+
+
+   mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
+   mPlayer.syn[p].color = c;
 }
 
 void mwGameMoves::proc_client_quit_game_move(int x)
@@ -189,8 +193,10 @@ void mwGameMoves::proc_client_quit_game_move(int x)
 
 void mwGameMoves::proc_player_active_game_move(int x)
 {
-   int p                = arr[x][2]; // player number
-   mPlayer.syn[p].color = arr[x][3]; // color
+   int p = arr[x][2];  // player number
+   int c = arr[x][3];  // color
+
+   mPlayer.syn[p].color = c; // color
 
    // player was inactive before and just now changes to active
    if (mPlayer.syn[p].active == 0)
@@ -212,10 +218,7 @@ void mwGameMoves::proc_player_active_game_move(int x)
       if (!mLoop.ff_state)
       {
          if ((mMain.headless_server) && (p)) printf("Player:%d joined\n", p);
-         //mLog.add_headerf(LOG_NET, p, 1, "PLAYER:%d became ACTIVE color:%d", p, mPlayer.syn[p].color);
          mLog.add_headerf(LOG_NET, p, 0, "Player:%d became ACTIVE!                                ", p);
-
-
       }
    }
 }

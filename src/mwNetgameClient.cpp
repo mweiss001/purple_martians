@@ -224,12 +224,10 @@ void mwNetgame::client_proc_pong_packet(char *data)
 
 void mwNetgame::client_proc_sjon_packet(int i)
 {
-   int pl                     = mPacketBuffer.PacketGetInt4(i);  // play level
-   int server_sjon_frame_num  = mPacketBuffer.PacketGetInt4(i);  // server join frame number
-//   int p                      = mPacketBuffer.PacketGetInt1(i);  // client player number
-//   int color                  = mPacketBuffer.PacketGetInt1(i);  // client player color
-   int p                      = mPacketBuffer.PacketGetByte(i);  // client player number
-   int color                  = mPacketBuffer.PacketGetByte(i);  // client player color
+   int pl     = mPacketBuffer.PacketGetInt4(i);  // play level
+   int sfnum  = mPacketBuffer.PacketGetInt4(i);  // server join frame number
+   int p      = mPacketBuffer.PacketGetByte(i);  // client player number
+   int color  = mPacketBuffer.PacketGetByte(i);  // client player color
 
    if (p == 99) // server full, join denied
    {
@@ -250,7 +248,7 @@ void mwNetgame::client_proc_sjon_packet(int i)
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Number:[%d]", p);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Color:[%d]", color);
-      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Frame Num:[%d]", server_sjon_frame_num);
+      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Frame Num:[%d]", sfnum);
       mLog.add_fwf(LOG_NET,               0, 76, 10, "+", "-", "");
       mLoop.state[0] = 22;
    }
@@ -278,7 +276,7 @@ void mwNetgame::client_proc_snfo_packet(int i)
 
       // printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d\n", seq+1, max_seq, fn, sb, sz);
 
-      // do some checks, because one time i recieved: rx snfo piece [121 of 218] frame:[994] st:1616929891 sz:1180829280
+      // do some checks, because one time i received: rx snfo piece [121 of 218] frame:[994] st:1616929891 sz:1180829280
       int bad_data = 0;
       if ((max_seq < 1) || (max_seq > 6)) bad_data = 1;
       if ((seq < 0) || (seq > 6) || (seq > max_seq)) bad_data = 1;
@@ -291,7 +289,7 @@ void mwNetgame::client_proc_snfo_packet(int i)
          //printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d\n", seq+1, max_seq, fn, sb, sz);
 
          memcpy(client_state_buffer + sb, mPacketBuffer.rx_buf[i].data+18, sz);    // put the piece of data in the buffer
-         client_state_buffer_pieces[seq] = fn;                                    // mark it with frame_num
+         client_state_buffer_pieces[seq] = fn;                                     // mark it with frame_num
 
          int complete = 1;                                         // did we just get the last packet? (yes by default)
          for (int i=0; i< max_seq; i++)

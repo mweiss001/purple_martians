@@ -16,10 +16,6 @@ set srv=scat
 )
 
 
-
-
-
-
 set srv_dir=dev/purple_martians
 set srv_usr=m
 
