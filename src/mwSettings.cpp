@@ -962,7 +962,7 @@ void mwSettings::settings_pages(int set_page)
             mDemoMode.mode = 2;
             mDemoMode.restore_mode = 32;
             mDemoMode.restore_level = mLevel.last_level_loaded;
-            mLoop.state[0] = 12;
+            mLoop.state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
             mLoop.quit_action = 3; // settings
             mLoop.done_action = 5; // next rand level
             al_hide_mouse_cursor(mDisplay.display);
@@ -976,7 +976,7 @@ void mwSettings::settings_pages(int set_page)
             mDemoMode.mode = 1;
             mDemoMode.restore_mode = 32;
             mDemoMode.restore_level = mLevel.last_level_loaded;
-            mLoop.state[0] = 31;
+            mLoop.state[0] = PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN;
             mLoop.quit_action = 3; // settings
             mLoop.done_action = 3; // settings
             al_hide_mouse_cursor(mDisplay.display);
@@ -2025,7 +2025,7 @@ void mwSettings::settings_pages(int set_page)
 
          if (mWidget.buttont(xa+80, ya, xb-80, 16,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
          {
-            mLoop.state[0] = 10;
+            mLoop.state[0] = PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME;
             mLoop.quit_action = 3; // settings
             mLoop.done_action = 3; // settings
             al_hide_mouse_cursor(mDisplay.display);
@@ -2037,7 +2037,7 @@ void mwSettings::settings_pages(int set_page)
          xb = xa+180;
          if (mWidget.buttont(xa+20, ya, xb, 16,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
          {
-            mLoop.state[0] = 20;
+            mLoop.state[0] = PM_PROGRAM_STATE_SERVER_NEW_GAME;
             al_hide_mouse_cursor(mDisplay.display);
             mConfig.save_config();
             return;
@@ -2046,7 +2046,7 @@ void mwSettings::settings_pages(int set_page)
          xb = cfp_x2 - 30;
          if (mWidget.buttont(xa, ya, xb, 16,  0,0,0,0,  0,8,15, 0,  1,0,1,0, "Join Network Game"))
          {
-            mLoop.state[0] = 24;
+            mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_NEW_GAME;
             al_hide_mouse_cursor(mDisplay.display);
             mConfig.save_config();
             return;
@@ -2116,5 +2116,5 @@ void mwSettings::settings_pages(int set_page)
    }
    al_hide_mouse_cursor(mDisplay.display);
    mConfig.save_config();
-   mLoop.state[0] = 1;
+   mLoop.state[0] = PM_PROGRAM_STATE_MENU;
 }

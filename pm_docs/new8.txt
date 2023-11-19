@@ -39550,6 +39550,94 @@ void mwGameMoves::proc_client_join_game_move(int x)
 
 
 
+this whole thing is kind of complex, but is it more complex than it needs to be?
+
+
+what if I just had active and inactive
+
+and did not care about join and quit?
+
+
+I just want some way at the beginning of gm to tell what players are active and what color they are...
+The way that I have it now seems the easiest, one gm for each...
+assume all are off unless explicitly stated
+
+what the hell do I do with join that I could not do with active?
+
+PM_GAMEMOVE_TYPE_CLIENT_JOIN is only refernced 4 times in the entire project...
+PM_GAMEMOVE_TYPE_CLIENT_QUIT is also only refernced 4 times in the entire project...
+
+
+
+OK i removed all that shit, but I still have a bug I think...
+
+
+I think it is all related to preparing a level for a player to enter it...
+
+
+Cases:
+single player new game
+single player level done
+
+client new game (joins an already playing level on the server)
+- get sjon
+- load level
+- get first dif
+
+the client will get most stuff from the server in the player struct
+does not need the player color sent at all, that will come from the server
+can I also make the self bullet thing do that?, it already does
+
+The client should not really do anything manually to the player array..
+Maybe at the very start initialize everything, but after that, just let difs set everything
+
+
+I think I have all program state defines done...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

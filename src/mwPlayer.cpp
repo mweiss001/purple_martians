@@ -1093,7 +1093,7 @@ void mwPlayer::draw_player(int p)
 
       // old draw method if game not running
 
-      if ((mLoop.state[0] != 11) || (syn[0].level_done_mode == 27))
+      if ((mLoop.state[0] != PM_PROGRAM_STATE_MAIN_GAME_LOOP) || (syn[0].level_done_mode == 27))
       {
          float scale = syn[p].draw_scale;
          float rot = syn[p].draw_rot;
@@ -1734,7 +1734,7 @@ void mwPlayer::proc_player_input(void)
                   {
                      mNetgame.client_send_cdat_packet(p);
                      set_controls_from_comp_move(p, loc[p].comp_move);
-                     if (syn[p].menu) mLoop.state[0] = 25; // menu key pressed
+                     if (syn[p].menu) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT; // menu key pressed
                      mLog.addf(LOG_NET_cdat, p, "tx cdat - move:%d\n", loc[p].comp_move);
                   }
                }
@@ -1743,7 +1743,7 @@ void mwPlayer::proc_player_input(void)
       }
       else if (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL) // not active and control method 4 is a client waiting for server to make it active
       {
-         if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.state[0] = 25; // give them an escape option
+         if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT; // give them an escape option
       }
 }
 

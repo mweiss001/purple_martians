@@ -345,7 +345,7 @@ void mwEnemy::move_crew(int e)
 
 void mwEnemy::draw_crew(int e, int cx, int cy, int custom)
 {
-   if ((mLoop.state[0] != 11) || (mPlayer.syn[0].level_done_mode == 27))// don't draw when game is running, custom draw direct to screen in screen overlay so scaling looks nice
+   if ((mLoop.state[0] != PM_PROGRAM_STATE_MAIN_GAME_LOOP) || (mPlayer.syn[0].level_done_mode == 27))// don't draw when game is running, custom draw direct to screen in screen overlay so scaling looks nice
    {
       int x = Ef[e][0];
       int y = Ef[e][1];
