@@ -274,7 +274,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          copy_files_to_clients(1); // pm.exe and levels only
          mLogo.show_splash_screen = 0;
-         mLoop.state[0] = 20;
+         mLoop.state[0] = PM_PROGRAM_STATE_SERVER_NEW_GAME;
          return;
       }
 
@@ -294,7 +294,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-c") == 0 )
       {
          mLogo.show_splash_screen = 0;
-         mLoop.state[0] = 24;
+         mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_NEW_GAME;
          mLoop.done_action = 1;
          mLoop.quit_action = 0;
          return;
@@ -303,7 +303,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-s") == 0 )
       {
          mLogo.show_splash_screen = 0;
-         mLoop.state[0] = 20;
+         mLoop.state[0] = PM_PROGRAM_STATE_SERVER_NEW_GAME;
          mLoop.quit_action = 0;
          mLoop.done_action = 1;
          return;
@@ -313,7 +313,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          mNetgame.headless_server_setup();
          mLogo.show_splash_screen = 0;
-         mLoop.state[0] = 20;
+         mLoop.state[0] = PM_PROGRAM_STATE_SERVER_NEW_GAME;
          mLoop.quit_action = 0;
          mLoop.done_action = 1;
          return;
@@ -323,7 +323,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          server_remote_control = 1;
          mLogo.show_splash_screen = 0;
-         mLoop.state[0] = 40;
+         mLoop.state[0] = PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP;
          return;
       }
 
@@ -334,7 +334,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          {
             mDemoMode.mode = 1;
             mDemoMode.restore_mode = 10;
-            mLoop.state[0] = 31;
+            mLoop.state[0] = PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN;
             mLoop.quit_action = 0;
             mLoop.done_action = 0;
          }
@@ -349,7 +349,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          mLogo.show_splash_screen = 0;
          mLevel.set_start_level(pl);
          printf("started game on level:%d\n", pl);
-         mLoop.state[0] = 10;
+         mLoop.state[0] = PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME;
          mLoop.quit_action = 0;
          mLoop.done_action = 0;
       }
@@ -364,7 +364,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
             //mLogo.show_splash_screen = 0;
             mDemoMode.mode = 1;
             mDemoMode.restore_mode = 10;
-            mLoop.state[0] = 31;
+            mLoop.state[0] = PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN;
             mLoop.quit_action = 0;
             mLoop.done_action = 0;
             return;
@@ -392,7 +392,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          sprintf(mNetgame.serveraddress, "%s", argument_array[2]);
          mConfig.save_config();
          mLogo.show_splash_screen = 0;
-         mLoop.state[0] = 24;
+         mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_NEW_GAME;
          mLoop.quit_action = 0;
          mLoop.done_action = 1;
          return;
@@ -404,7 +404,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          {
             mLevel.set_start_level(pl);
             mLogo.show_splash_screen = 0;
-            mLoop.state[0] = 20;
+            mLoop.state[0] = PM_PROGRAM_STATE_SERVER_NEW_GAME;
             mLoop.quit_action = 0;
             mLoop.done_action = 1;
             return;
@@ -420,7 +420,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
             mNetgame.headless_server_setup();
             mLevel.set_start_level(pl);
             mLogo.show_splash_screen = 0;
-            mLoop.state[0] = 20;
+            mLoop.state[0] = PM_PROGRAM_STATE_SERVER_NEW_GAME;
             mLoop.quit_action = 0;
             mLoop.done_action = 1;
             return;
@@ -429,18 +429,6 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       }
    } // end of argument_count == 3
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

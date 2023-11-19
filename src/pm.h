@@ -1,6 +1,6 @@
 // pm.h
 
-#define PM_VERSION "7.24.1119.1"
+#define PM_VERSION "7.24.1119.2"
 
 #include <stdio.h>
 #include <math.h>
@@ -42,8 +42,6 @@
 #define PM_GAMEMOVE_TYPE_LEVEL_START      0
 #define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE    1
 #define PM_GAMEMOVE_TYPE_PLAYER_INACTIVE  2
-#define PM_GAMEMOVE_TYPE_CLIENT_JOIN      3
-#define PM_GAMEMOVE_TYPE_CLIENT_QUIT      4
 #define PM_GAMEMOVE_TYPE_MOVE             5
 #define PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK   8
 
@@ -67,6 +65,79 @@
 #define PM_NETGAME_PACKET_TYPE_SJON 12
 #define PM_NETGAME_PACKET_TYPE_SJRC 13
 #define PM_NETGAME_PACKET_TYPE_SNFO 14
+
+
+
+#define PM_PROGRAM_STATE_QUIT                           0
+#define PM_PROGRAM_STATE_MENU                           1
+#define PM_PROGRAM_STATE_CONFIG                         3
+
+
+#define PM_PROGRAM_STATE_CLIENT_NEW_GAME               200
+#define PM_PROGRAM_STATE_CLIENT_WAIT_FOR_JOIN          201
+#define PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP            202
+#define PM_PROGRAM_STATE_CLIENT_WAIT_FOR_INITIAL_STATE 203
+#define PM_PROGRAM_STATE_CLIENT_EXIT                   204
+
+#define PM_PROGRAM_STATE_SERVER_NEW_GAME               20
+#define PM_PROGRAM_STATE_SERVER_EXIT                   19
+
+#define PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME        10
+#define PM_PROGRAM_STATE_MAIN_GAME_LOOP                11
+#define PM_PROGRAM_STATE_NEXT_LEVEL                    12
+#define PM_PROGRAM_STATE_RESUME                        13
+
+#define PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN            31
+#define PM_PROGRAM_STATE_DEMO_QUIT_WITH_KEYPRESS       32
+
+#define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP   40
+#define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_RUN     41
+
+
+//state =  0; // quit
+//state =  1; // menu
+//state =  3; // config
+//
+//state = 10; // start new game
+//state = 11; // main game loop
+//state = 12; // level_done
+//state = 13; // resume
+//
+//state = 19; // server exit
+//state = 20; // start server game
+//state = 21; // client wait for initial state
+//state = 22; // client load level and set up
+//state = 23; // client wait for sjon
+//state = 24; // client init network and send cjon
+//state = 25; // client exit and clean up network
+//
+//state = 31; // setup and run demo level  (from 12 or manual load gm)
+//state = 32; // quit demo with keypress
+//
+//state = 40; server remote control setup
+//state = 41; server remote control run
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #define PM_ITEM_TYPE_DOOR     1

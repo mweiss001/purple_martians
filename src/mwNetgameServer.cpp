@@ -618,7 +618,11 @@ void mwNetgame::server_proc_cjon_packet(int i)
       mPlayer.loc[cn].who = who;
       mPlayer.loc[cn].server_last_stak_rx_frame_num = mLoop.frame_num + 200;
       sprintf(mPlayer.loc[cn].hostname, "%s", temp_name);
-      mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_CLIENT_JOIN, cn, color); // add a game move type 3 to mark client started join
+
+ //     mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_CLIENT_JOIN, cn, color); // add a game move type 3 to mark client started join
+
+      mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, cn, color); // add a game move type 1 to make client active
+
       server_send_sjon_packet(who, mLevel.play_level, mLoop.frame_num, cn, color);
 
       mLog.add_fwf(LOG_NET,               0, 76, 10, "|", " ", "Server replied with join invitation:");

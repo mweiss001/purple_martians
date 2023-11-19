@@ -320,9 +320,9 @@ int mwMain::pm_main(int argument_count, char **argument_array)
    if (initial_setup())
    {
       proc_command_line_args2(argument_count, argument_array); // these args get processed after initial setup is called
-      if (mLoop.state[0] == 0) // nothing set by command line args
+      if (mLoop.state[0] == PM_PROGRAM_STATE_QUIT) // nothing set by command line args
       {
-         mLoop.state[1] = mLoop.state[0] = 1; // set up for menu
+         mLoop.state[1] = mLoop.state[0] = PM_PROGRAM_STATE_MENU; // set up for menu
       }
       mLoop.main_loop();
    }

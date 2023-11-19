@@ -173,7 +173,7 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
 
 int mwItem::draw_bonus(int i, int x, int y, int shape)
 {
-   if ((item[i][6] == 3) && (mLoop.state[0] == 11) && (mLoop.frame_num > 0)  ) return 1; // purple coin custom draw only when game running
+   if ((item[i][6] == 3) && (mLoop.state[0] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) && (mLoop.frame_num > 0)  ) return 1; // purple coin custom draw only when game running
    return 0;
 }
 

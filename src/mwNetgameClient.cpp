@@ -233,7 +233,7 @@ void mwNetgame::client_proc_sjon_packet(int i)
    {
       mLog.add(LOG_error, 0, "Server replied with 'SERVER FULL'\n");
       mInput.m_err("Server Full");
-      mLoop.state[0] = 25;
+      mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
    }
    else // join allowed
    {
@@ -250,7 +250,7 @@ void mwNetgame::client_proc_sjon_packet(int i)
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Color:[%d]", color);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Frame Num:[%d]", sfnum);
       mLog.add_fwf(LOG_NET,               0, 76, 10, "+", "-", "");
-      mLoop.state[0] = 22;
+      mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP;
    }
 }
 
@@ -266,7 +266,7 @@ void mwNetgame::client_send_ping_packet(void)
 
 void mwNetgame::client_proc_snfo_packet(int i)
 {
-   if (mLoop.state[1] == 41)
+   if (mLoop.state[1] == PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_RUN)
    {
       int fn      = mPacketBuffer.PacketGetInt4(i); // frame_num
       int seq     = mPacketBuffer.PacketGetByte(i);
@@ -499,7 +499,7 @@ void mwNetgame::client_apply_dif(void)
    if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL;
 
    // server quit
-   if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON) mLoop.state[0] = 1; // server quit
+   if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON) mLoop.state[0] = PM_PROGRAM_STATE_MENU;
 
 
    // compare old_l to l and redraw changed tiles
@@ -630,7 +630,7 @@ void mwNetgame::client_proc_player_drop(void)
       mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "SERVER ENDED GAME!");
       al_flip_display();
       mInput.tsw();
-      mLoop.state[0] = 1;
+      mLoop.state[0] = PM_PROGRAM_STATE_MENU;
    }
 
    int lsf = mPlayer.loc[p].client_last_stdf_rx_frame_num;
@@ -649,7 +649,7 @@ void mwNetgame::client_proc_player_drop(void)
          mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "LOST SERVER CONNECTION!");
          al_flip_display();
          mInput.tsw();
-         mLoop.state[0] = 1;
+         mLoop.state[0] = PM_PROGRAM_STATE_MENU;
       }
    }
 }

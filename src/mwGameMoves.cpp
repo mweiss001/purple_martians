@@ -67,8 +67,6 @@ void mwGameMoves::proc(void)
          {
             case PM_GAMEMOVE_TYPE_PLAYER_ACTIVE:    proc_player_active_game_move(x); break;
             case PM_GAMEMOVE_TYPE_PLAYER_INACTIVE:  proc_player_inactive_game_move(x); break;
-            case PM_GAMEMOVE_TYPE_CLIENT_JOIN:      proc_client_join_game_move(x); break;
-            case PM_GAMEMOVE_TYPE_CLIENT_QUIT:      proc_client_quit_game_move(x); break;
             case PM_GAMEMOVE_TYPE_MOVE:             mPlayer.set_controls_from_comp_move(arr[x][2], arr[x][3]); break;
          }
       }
@@ -111,7 +109,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       if ((mPlayer.active_local_player == 0) && (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER))
       {
          // do not enter game move, just exit to menu
-         mLoop.state[0] = 1;
+         mLoop.state[0] = PM_PROGRAM_STATE_MENU;
          mLevel.resume_allowed = 1;
          return;
       }
@@ -124,7 +122,11 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
          for (int p=1; p<NUM_PLAYERS; p++)
             if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
             {
-               add_game_move2(frame + 2,  PM_GAMEMOVE_TYPE_CLIENT_QUIT,     p, 0);
+
+//               mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON;
+//
+//
+//               add_game_move2(frame + 2,  PM_GAMEMOVE_TYPE_CLIENT_QUIT,     p, 0);
                add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 64);
             }
          // then set server to inactive in future
@@ -165,22 +167,23 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 }
 
 
+/*
+
 void mwGameMoves::proc_client_join_game_move(int x)
 {
    int p = arr[x][2];  // player number
    int c = arr[x][3];  // color
 
-   if (!mNetgame.ima_server) // for demo playback only
+   if ((!mNetgame.ima_server) && (!mNetgame.ima_client)) // for demo playback only
    {
       mPlayer.init_player(p, 1);           // type 1 full reset
       mPlayer.syn[p].active = 1;
       mPlayer.set_player_start_pos(p, 0);  // set starting position
    }
-
-
    mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
    mPlayer.syn[p].color = c;
 }
+
 
 void mwGameMoves::proc_client_quit_game_move(int x)
 {
@@ -190,6 +193,9 @@ void mwGameMoves::proc_client_quit_game_move(int x)
       mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON;
    }
 }
+
+*/
+
 
 void mwGameMoves::proc_player_active_game_move(int x)
 {
@@ -258,7 +264,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
          int still_active = 0;
          for (int p=0; p<NUM_PLAYERS; p++)
             if (mPlayer.syn[p].active) still_active = 1;
-         if (!still_active) mLoop.state[0] = 1;
+         if (!still_active) mLoop.state[0] = PM_PROGRAM_STATE_MENU;
       }
 
       // ------------------------------------
@@ -275,7 +281,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
                mPlayer.loc[pp].quit_reason = 91;
 
          if (!mLoop.ff_state) mLog.log_ending_stats_server(LOG_NET_ending_stats);
-         mLoop.state[0] = 1;
+         mLoop.state[0] = PM_PROGRAM_STATE_MENU;
       }
 
       // ------------------------------------
@@ -285,7 +291,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
       {
          // printf("Remote Server Quit :%d\n", mLoop.frame_num);
          if (val == 64) mPlayer.loc[mPlayer.active_local_player].quit_reason = 92;
-         mLoop.state[0] = 1;
+         mLoop.state[0] = PM_PROGRAM_STATE_MENU;
       }
 
       // ------------------------------------
@@ -356,8 +362,6 @@ void mwGameMoves::save_gm_txt(char *sfname)
       if (t == PM_GAMEMOVE_TYPE_LEVEL_START)     fprintf(filepntr,"-------------START (level:%d)------------- ", v);
       if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   fprintf(filepntr,"-------------PLAYER %d ACTIVE (color:%d)-- ", p, v);
       if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) fprintf(filepntr,"-------------PLAYER %d INACTIVE------------", p);
-      if (t == PM_GAMEMOVE_TYPE_CLIENT_JOIN)     fprintf(filepntr,"-------------CLIENT %d JOIN!-------------- ", p);
-      if (t == PM_GAMEMOVE_TYPE_CLIENT_QUIT)     fprintf(filepntr,"-------------CLIENT %d QUIT!-------------- ", p);
       if (t == PM_GAMEMOVE_TYPE_MOVE)            fprintf(filepntr,"%s", cmtos(arr[x][3], tmp));
       if (t == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)  fprintf(filepntr,"-------------PLAYER %d ACKNOWLEDGE---------", p);
 

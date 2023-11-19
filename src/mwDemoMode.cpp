@@ -182,11 +182,11 @@ void mwDemoMode::key_check(int p)
 
    if ((mInput.key[ALLEGRO_KEY_N][0]) && (mode == 2))
    {
-       mLoop.state[0] = 12; // skip to next random level
+       mLoop.state[0] = PM_PROGRAM_STATE_NEXT_LEVEL; // skip to next random level
        key_used = 1;
    }
 
-   if (mLoop.frame_num > last_frame + 160) mLoop.state[0] = 12; // if games_moves doesn't end with level_done kill it after 4 seconds
+   if (mLoop.frame_num > last_frame + 160) mLoop.state[0] = PM_PROGRAM_STATE_NEXT_LEVEL; // if games_moves doesn't end with level_done kill it after 4 seconds
 
 
    if (demo_debug_convert_playback_to_record_with_fire)
@@ -221,7 +221,7 @@ void mwDemoMode::key_check(int p)
 //   if ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.key[ALLEGRO_KEY_ENTER][0]) || (mInput.key[ALLEGRO_KEY_SPACE][0]))
 //   {
 //      mInput.key[ALLEGRO_KEY_ESCAPE][0] = 0;
-//      mLoop.state[0] = 32; // demo level cleanup and exit
+//      mLoop.state[0] = PM_PROGRAM_STATE_DEMO_QUIT_WITH_KEYPRESS; // demo level cleanup and exit
 //   }
 
    if (!key_used) // if key not used
@@ -237,7 +237,7 @@ void mwDemoMode::key_check(int p)
       if (key_cancel)
       {
          mInput.key[ALLEGRO_KEY_ESCAPE][0] = 0;
-         mLoop.state[0] = 32; // demo level cleanup and exit
+         mLoop.state[0] = PM_PROGRAM_STATE_DEMO_QUIT_WITH_KEYPRESS; // demo level cleanup and exit
       }
    }
 }

@@ -36,7 +36,7 @@ void mwLoop::proc_level_done_mode(void)
       if (super_fast_mode) // skip cutscene
       {
          mPlayer.syn[0].level_done_mode = 1;
-         state[0] = 12;
+         state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
          return;
       }
 
@@ -238,7 +238,7 @@ void mwLoop::proc_level_done_mode(void)
       if (mPlayer.syn[0].level_done_mode == 1)
       {
          mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Load lext level\n", frame_num, mPlayer.syn[0].level_done_mode);
-         state[0] = 12;
+         state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
       }
    }
 }

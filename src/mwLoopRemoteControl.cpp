@@ -253,7 +253,7 @@ void mwLoop::remote_control_loop(void)
    if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
    {
       while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
-      state[0] = 0;
+      state[0] = PM_PROGRAM_STATE_QUIT;
    }
 
    // --------------------------------------------
