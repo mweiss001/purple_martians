@@ -67,6 +67,9 @@ void mwGameMoves::proc(void)
          {
             case PM_GAMEMOVE_TYPE_PLAYER_ACTIVE:    proc_player_active_game_move(x); break;
             case PM_GAMEMOVE_TYPE_PLAYER_INACTIVE:  proc_player_inactive_game_move(x); break;
+
+            case PM_GAMEMOVE_TYPE_PLAYER_HIDDEN:    proc_player_hidden_game_move(x); break;
+
             case PM_GAMEMOVE_TYPE_MOVE:             mPlayer.set_controls_from_comp_move(arr[x][2], arr[x][3]); break;
          }
       }
@@ -164,6 +167,16 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
    // the normal method of simply entering the game move
    // ----------------------------------------------------------------------------------------
    add_game_move2(frame, type, data1, data2);
+}
+
+
+void mwGameMoves::proc_player_hidden_game_move(int x)
+{
+   int p = arr[x][2];  // player number
+
+   mPlayer.syn[p].paused = 1;
+   mPlayer.syn[p].paused_type = 3;
+
 }
 
 

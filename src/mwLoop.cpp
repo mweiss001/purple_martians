@@ -450,7 +450,9 @@ void mwLoop::proc_program_state(void)
       mRollingAverage[1].initialize(8); // ping rolling average
       mRollingAverage[2].initialize(8); // dsync rolling average
 
-      initialize_graphs();
+//      initialize_graphs(); done later
+
+
       for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
       mPlayer.syn[0].active = 1;
 
@@ -479,29 +481,8 @@ void mwLoop::proc_program_state(void)
    {
       mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP]\n");
 
-      if (!mLevel.load_level(mLevel.play_level, 0, 0))
-      {
-         state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
-         return;
-      }
-
-      for (int p=0; p<NUM_PLAYERS; p++)
-         mPlayer.set_player_start_pos(p, 0);     // get starting position for all players, active or not
-
-      mGameMoves.initialize();
-
-      frame_num = 0;
-      mNetgame.reset_states();
-      mShot.clear_shots();
-      mBottomMessage.initialize();
-      mInput.initialize();
-      mTriggerEvent.initialize();
-
-      mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
-
-      mScreen.player_text_overlay_timer = 0;
-      mSound.start_music(0);
-      state[0] = PM_PROGRAM_STATE_CLIENT_WAIT_FOR_INITIAL_STATE;
+      if (load_and_setup_level_load(mLevel.play_level)) state[0] = PM_PROGRAM_STATE_CLIENT_WAIT_FOR_INITIAL_STATE;
+      else state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
    }
 
 //-----------------------------------------------------------------
@@ -530,72 +511,25 @@ void mwLoop::proc_program_state(void)
 
 
 
-
-
-
-
-
-
-
-
-
-   //---------------------------------------
-   // PM_PROGRAM_STATE_SERVER_NEW_GAME   20 - server new game
-   //---------------------------------------
+//---------------------------------------
+// PM_PROGRAM_STATE_SERVER_NEW_GAME
+//---------------------------------------
    if (state[1] == PM_PROGRAM_STATE_SERVER_NEW_GAME)
    {
       mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SERVER_NEW_GAME]\n");
       if (!mNetgame.ServerInitNetwork())
       {
-         mNetgame.ServerExitNetwork();
          state[0] = PM_PROGRAM_STATE_SERVER_EXIT;
          return;
       }
 
-      mLevel.set_start_level();
-
-      // reset players
-      for (int p=0; p<NUM_PLAYERS; p++)
-      {
-         mPlayer.init_player(p, 1);           // full reset
-         mPlayer.set_player_start_pos(p, 0);  // set starting position for all players, active or not
-      }
-
-      mPlayer.syn[0].active = 1;
-      mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
-      strncpy(mPlayer.loc[0].hostname, local_hostname, 16);
-
-      mGameMoves.initialize();
-      frame_num = 0;
-      mNetgame.reset_states();
-      mShot.clear_shots();
-
-      mBottomMessage.initialize();
-      mInput.initialize();
-      mTriggerEvent.initialize();
-
-      initialize_graphs();
-
-      mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
-
-
-      // save colors in game moves array
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color); // 1 - player_state and color
-
-      mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
-
-
-      mScreen.player_text_overlay_timer = 0;
-
-      mSound.start_music(0); // rewind and start theme
-      state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
+      if (!load_and_setup_level_load(mLevel.play_level)) state[0] = PM_PROGRAM_STATE_SERVER_EXIT;
 
    }
 
-   //---------------------------------------
-   // PM_PROGRAM_STATE_SERVER_EXIT 19 - server exit
-   //---------------------------------------
+//---------------------------------------
+// PM_PROGRAM_STATE_SERVER_EXIT
+//---------------------------------------
    if (state[1] == PM_PROGRAM_STATE_SERVER_EXIT) // server exit
    {
       mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SERVER_EXIT]\n");
@@ -611,17 +545,18 @@ void mwLoop::proc_program_state(void)
    if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME)
    {
       mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME]\n");
-      initialize_graphs();
+
       if (!mMain.classic_mode) mLevel.start_level = mLevel.play_level = 1;
-      if (load_and_setup_level_load(mLevel.play_level)) state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
-      else state[0] = PM_PROGRAM_STATE_MENU;
+
+      if (!load_and_setup_level_load(mLevel.play_level)) state[0] = PM_PROGRAM_STATE_MENU;
+
       if (quit_action == 0) mScreen.transition_cutscene(0, 1); // nothing to game
       if (quit_action == 1) mScreen.transition_cutscene(2, 1); // menu to game
    }
 
 
 //----------------------------------------------------------------------------------------------------------
-// PM_PROGRAM_STATE_NEXT_LEVEL     12 - Next Level
+// PM_PROGRAM_STATE_NEXT_LEVEL
 //----------------------------------------------------------------------------------------------------------
    if (state[1] == PM_PROGRAM_STATE_NEXT_LEVEL)
    {
@@ -752,8 +687,8 @@ void mwLoop::proc_program_state(void)
       }
 
       mLevel.play_level = mPlayer.syn[0].level_done_next_level;
-      if (load_and_setup_level_load(mLevel.play_level)) state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
-      else state[0] = PM_PROGRAM_STATE_MENU;
+
+      if (!load_and_setup_level_load(mLevel.play_level)) state[0] = PM_PROGRAM_STATE_MENU;
 
       if (mMain.headless_server) printf("Started Level:%d\n", mLevel.play_level);
 
@@ -763,9 +698,6 @@ void mwLoop::proc_program_state(void)
       mLog.add(LOG_OTH_transitions, 0, "post-load ");
       mScreen.transition_cutscene(post_load_transistion_initial, post_load_transistion_final);
    }
-
-
-
 
 
 
@@ -785,7 +717,6 @@ void mwLoop::proc_program_state(void)
    //---------------------------------------
    if (state[1] == PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN)
    {
-      initialize_graphs();
 
       mLog.addf(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN]  [lev:%d]  [drm:%d]\n", mLevel.play_level, mDemoMode.restore_mode);
 
@@ -801,7 +732,7 @@ void mwLoop::proc_program_state(void)
 
 
    //-------------------------------------------------------
-   // 32 - demo level cleanup and exit to where we came from
+   // PM_PROGRAM_STATE_DEMO_QUIT_WITH_KEYPRESS
    //-------------------------------------------------------
    if (state[1] == PM_PROGRAM_STATE_DEMO_QUIT_WITH_KEYPRESS)
    {
@@ -810,7 +741,7 @@ void mwLoop::proc_program_state(void)
 
       mSound.stop_sound();
 
-      mLog.addf(LOG_OTH_program_state, 0, "[State 32 - Quit and Cleanup Demo Mode]  [drm:%d]  [m:%d]\n", rm,  m);
+      mLog.addf(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_DEMO_QUIT_WITH_KEYPRESS]  [drm:%d]  [m:%d]\n", rm,  m);
 
       mDemoMode.mode = 0;
 
@@ -932,37 +863,46 @@ int mwLoop::load_and_setup_level_load(int level)
    return 1;
 }
 
-
-
 void mwLoop::setup_level_after_load(void)
 {
-   if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME) // new game
+   if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME)
    {
       setup_players_after_level_load(1); // type 1 full reset,
       mGameMoves.initialize();
-      mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
    }
-   if (state[1] == PM_PROGRAM_STATE_NEXT_LEVEL) // next level
+   if (state[1] == PM_PROGRAM_STATE_NEXT_LEVEL)
    {
       setup_players_after_level_load(2); // type 2 next level reset
       mGameMoves.initialize();
-      mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
-      mNetgame.reset_states();
    }
-   if (state[1] == PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN) // demo level setup
+
+   if (state[1] == PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP)
+   {
+      setup_players_after_level_load(2); // type 2 next level reset
+      mGameMoves.initialize();
+   }
+   if (state[1] == PM_PROGRAM_STATE_SERVER_NEW_GAME)
    {
       setup_players_after_level_load(1); // type 1 full reset,
-      mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // rungame demo mode
+      strncpy(mPlayer.loc[0].hostname, local_hostname, 16);
+      mGameMoves.initialize();
+      mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
    }
+
+   if (state[1] == PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN)
+   {
+      setup_players_after_level_load(1); // type 1 full reset,
+      mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
+   }
+
    setup_common_after_level_load();
 }
 
-
 void mwLoop::setup_players_after_level_load(int type)
 {
-   for (int p=0; p<NUM_PLAYERS; p++)       // reset players
+   for (int p=0; p<NUM_PLAYERS; p++)
    {
-      mPlayer.init_player(p, type);        // type 1 full reset, type 2 level done reset
+      mPlayer.init_player(p, type);        // type 1 = full reset, type 2 = level done reset
       mPlayer.set_player_start_pos(p, 0);  // get starting position for all players, active or not
    }
    mPlayer.syn[0].active = 1;
@@ -970,6 +910,8 @@ void mwLoop::setup_players_after_level_load(int type)
 
 void mwLoop::setup_common_after_level_load(void)
 {
+   initialize_graphs();
+   mNetgame.reset_states();
    mInput.initialize();
    mBottomMessage.initialize();
    mTriggerEvent.initialize();
@@ -979,14 +921,20 @@ void mwLoop::setup_common_after_level_load(void)
    mSound.start_music(0); // rewind and start theme
    state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
 
-   if (mNetgame.ima_server) mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
-
    if (!mDemoMode.mode)
    {
+      mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
+
+      // add initial special game moves
+
+      mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
+
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
          if (mPlayer.syn[p].active) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
-      mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
+
+      // add game move to hide player 0 in headless server mode
+      if (mMain.headless_server) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_HIDDEN, 0, 0);
    }
 }
 
@@ -1007,7 +955,6 @@ void mwLoop::add_local_cpu_data(double cpu)
       // new style graph
       mQuickGraph2[9].add_data(0, mRollingAverage[0].mx);
       mQuickGraph2[9].new_entry_pos();
-
    }
 }
 
@@ -1029,7 +976,6 @@ void mwLoop::initialize_and_resize_remote_graphs(void)
    mQuickGraph2[5].set_size(width, 40,  0);
    mQuickGraph2[6].set_size(width, 100, 0);
    mQuickGraph2[7].set_size(width, 100, 0);
-
 
    mQuickGraph2[9].set_size(200, 30, 1);
 
