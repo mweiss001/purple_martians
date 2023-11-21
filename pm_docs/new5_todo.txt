@@ -6,13 +6,19 @@
 
 
 
-bug - playing back muliplayer games does not work
+
+bug - playing back multiplayer games does not work
+
+
+bug - extra packet size changes the wrong thing
+
 
 
 
 client ijkl skc does not save config
 
 pm -rc <server> does not work
+
 
 
 
@@ -38,6 +44,21 @@ sometimes weird artifacts show in level background, like msg from previous level
 
 
 
+I think I have a lot of duplication in setting up a level to play
+server new game and client new game do a lot of custom things
+that could be covered by:
+
+int mwLoop::load_and_setup_level_load(int level)
+void mwLoop::setup_level_after_load(void)
+void mwLoop::setup_players_after_level_load(int type)
+void mwLoop::setup_common_after_level_load(void)
+
+I want to do this in the interest of less code duplication
+to make things simpler and easier to understand
+
+
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
@@ -57,6 +78,18 @@ are levels being saved, yes...
 what can I run to get one?
 
 pscp -pw zaiden m@96.45.13.253:dev/purple_martians/savegame/level_done_20231119-110349-lev32.gm C:\pm
+
+pscp -pw zaiden m@96.45.13.253:dev/purple_martians/savegame/level_done_20231119-160711-lev1.gm C:\pm
+
+
+drwxrwxrwx  2 m m 4096 Nov 19 16:03 demo/
+-rw-rw-r--  1 m m  299 Nov 19 16:07 level_done_20231119-160711-lev1.gm
+-rw-rw-r--  1 m m 1850 Nov 19 16:07 level_done_20231119-160711-lev1.txt
+
+pscp -pw zaiden m@96.45.13.253:dev/purple_martians/savegame/level_done_20231119-183820-lev3.gm C:\pm
+pscp -pw zaiden m@96.45.13.253:dev/purple_martians/savegame/level_done_20231119-183820-lev3.txt C:\pm
+
+pscp -pw zaiden m@96.45.13.253:dev/purple_martians/savegame/level_done_20231120-045812-lev80.gm C:\pm
 
 
 

@@ -148,10 +148,10 @@ void mwDemoMode::key_check(int p)
 
    int new_player = -1;
    if (mInput.key[ALLEGRO_KEY_0][0]) new_player = 0;
-   if (mInput.key[ALLEGRO_KEY_2][0]) new_player = 1;
-   if (mInput.key[ALLEGRO_KEY_3][0]) new_player = 2;
-   if (mInput.key[ALLEGRO_KEY_4][0]) new_player = 3;
-   if (mInput.key[ALLEGRO_KEY_5][0]) new_player = 4;
+   if (mInput.key[ALLEGRO_KEY_1][0]) new_player = 1;
+   if (mInput.key[ALLEGRO_KEY_2][0]) new_player = 2;
+   if (mInput.key[ALLEGRO_KEY_3][0]) new_player = 3;
+   if (mInput.key[ALLEGRO_KEY_4][0]) new_player = 4;
    if (mInput.key[ALLEGRO_KEY_5][0]) new_player = 5;
    if (mInput.key[ALLEGRO_KEY_6][0]) new_player = 6;
    if (mInput.key[ALLEGRO_KEY_7][0]) new_player = 7;
@@ -162,22 +162,19 @@ void mwDemoMode::key_check(int p)
       key_used = 1;
    }
 
+   // dont let alp be hidden player (for demo playeback of headless server games
+   if ((mPlayer.active_local_player == 0) && (mPlayer.syn[mPlayer.active_local_player].paused == 1) && (mPlayer.syn[mPlayer.active_local_player].paused_type == 3))
+   {
+      // set to next active player
+      ++mPlayer.active_local_player;
 
-//
-//
-//   if (mInput.key[ALLEGRO_KEY_0][0]) mPlayer.active_local_player = 0;
-//   if (mInput.key[ALLEGRO_KEY_1][0]) mPlayer.active_local_player = 1;
-//   if (mInput.key[ALLEGRO_KEY_2][0]) mPlayer.active_local_player = 2;
-//   if (mInput.key[ALLEGRO_KEY_3][0]) mPlayer.active_local_player = 3;
-//   if (mInput.key[ALLEGRO_KEY_4][0]) mPlayer.active_local_player = 4;
-//   if (mInput.key[ALLEGRO_KEY_5][0]) mPlayer.active_local_player = 5;
-//   if (mInput.key[ALLEGRO_KEY_6][0]) mPlayer.active_local_player = 6;
-//   if (mInput.key[ALLEGRO_KEY_7][0]) mPlayer.active_local_player = 7;
-//
-//   // dont let alp be an inactive player
-//   while (!mPlayer.syn[mPlayer.active_local_player].active) // if alp not active
-//      if (++mPlayer.active_local_player > 7) mPlayer.active_local_player = 0;
-//
+      while (!mPlayer.syn[mPlayer.active_local_player].active)
+         if (++mPlayer.active_local_player > 7)
+         {
+            mPlayer.active_local_player = 0;
+            printf("Error in demo mode key check, no active non-hidden players found\n");
+         }
+   }
 
 
    if ((mInput.key[ALLEGRO_KEY_N][0]) && (mode == 2))

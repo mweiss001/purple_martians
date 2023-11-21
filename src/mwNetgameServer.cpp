@@ -23,6 +23,7 @@ int mwNetgame::ServerInitNetwork(void)
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server hostname:    [%s]", mLoop.local_hostname);
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Level:              [%d]", mLevel.play_level);
 
+
    char msg[256];
    if (NetworkInit())
    {
