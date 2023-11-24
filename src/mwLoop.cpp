@@ -371,8 +371,8 @@ void mwLoop::proc_program_state(void)
          if (mNetgame.ima_server) mNetgame.ServerExitNetwork();
          if (mNetgame.ima_client) mNetgame.ClientExitNetwork();
 
-         if (mLog.autosave_log_on_game_exit) mLog.save_log_file();
-         if (mLog.autosave_game_on_game_exit) mGameMoves.blind_save_game_moves(2);
+         if (mLog.autosave_log_on_level_quit) mLog.save_log_file();
+         if (mGameMoves.autosave_game_on_level_quit) mGameMoves.autosave_gm(2);
 
          mSound.stop_sound();
 
@@ -449,9 +449,6 @@ void mwLoop::proc_program_state(void)
 
       mRollingAverage[1].initialize(8); // ping rolling average
       mRollingAverage[2].initialize(8); // dsync rolling average
-
-//      initialize_graphs(); done later
-
 
       for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
       mPlayer.syn[0].active = 1;
@@ -582,9 +579,9 @@ void mwLoop::proc_program_state(void)
          mLog.log_ending_stats_server(LOG_NET_ending_stats);
       }
 
-
       if (mLog.autosave_log_on_level_done) mLog.save_log_file();
-      mGameMoves.blind_save_game_moves(1);
+      if (mGameMoves.autosave_game_on_level_done) mGameMoves.autosave_gm(1);
+
 
 
 // --------------------------------------------------------
@@ -690,7 +687,7 @@ void mwLoop::proc_program_state(void)
 
       if (!load_and_setup_level_load(mLevel.play_level)) state[0] = PM_PROGRAM_STATE_MENU;
 
-      if (mMain.headless_server) printf("Started Level:%d\n", mLevel.play_level);
+      //if (mMain.headless_server) printf("Started Level:%d\n", mLevel.play_level);
 
 // ----------------------------------------
 // post-load transition

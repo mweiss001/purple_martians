@@ -10,6 +10,10 @@ class mwInput
    void proc_input_events(ALLEGRO_EVENT ev);
    void proc_keys_held(void);
 
+
+
+
+   bool serial_key_test(const char *tst);
    void serial_key_check(int key);
 
    void function_key_check(void);

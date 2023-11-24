@@ -42,7 +42,6 @@ void mwLevel::unlock_all_levels(void)
    load_level(mLevel.play_level, 0, 0); // reload play level
 }
 
-
 void mwLevel::complete_all_levels_in_demo_mode(void)
 {
 //   int debug_print = 0;
@@ -145,33 +144,7 @@ void mwLevel::complete_all_levels_in_demo_mode(void)
 //      return 0;
 //   }
 //}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
-
-
 
 
 
@@ -194,11 +167,7 @@ void mwLevel::level_start_data(void)
 
 void mwLevel::add_play_data_record(int lev, int type)
 {
-
-   if (mMain.headless_server) printf("Level:%d Complete\n", lev);
-
-
-
+   //if (mMain.headless_server) printf("Level:%d Complete\n", lev);
 
    int save_flag = 1;
    if (mPlayer.syn[mPlayer.active_local_player].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) save_flag = 0; // if running demo mode, don't save data
@@ -226,6 +195,95 @@ void mwLevel::add_play_data_record(int lev, int type)
       if (type == 2) ct = data[lev].time_par + 1200; // fake time (par time + 30s)
 
 
+      // check for new record
+      if (type == 1) // normal completion only sets new records
+      {
+         int best_time = data[lev].time_best; // best time for this level
+         int par_time = data[lev].time_par; // best time for this level
+
+         int pcc = level_data_purple_coins_collected;
+         int pct = data[lev].tot_purple_coins;
+
+         printf("check for new record - ct:%d bt:%d pt:%d   pcc:%d pct:%d\n", ct, best_time, par_time, pcc, pct);
+
+
+         if (pcc < pct) printf("all purple coins not collected\n");
+         else
+         {
+
+            if ((ct < best_time) && (ct < par_time))
+            {
+               printf("better than par and best\n");
+            }
+
+            if (ct < best_time)
+            {
+               printf("better than prev best\n");
+            }
+
+            if (ct < par_time)
+            {
+               printf("better than par\n");
+            }
+         }
+      }
+
+//
+//
+//
+//         if (best_time == 0)
+//
+//         // check if a new record has been set
+//
+//         printf("no new time record:%d best:%d\n", ct, data[lev].time_best);
+//
+//         if (ct < data[lev].time_best)
+//         {
+//            printf("New time record:%d prev best:%d\n", ct, data[lev].time_best);
+//         }
+//
+////         // find all completed levels that match this level and have all purple coins collected
+////         for (int i=0; i<play_data_num; i++)
+////            if (play_data[i].level == lev)
+////               if (play_data[i].completed)
+////               {
+////                  printf("found level match\n");
+////
+////                  if (play_data[i].purple_coins_collected == data[lev].tot_purple_coins)
+////                  {
+////                     printf("all purple coins collected\n");
+////
+////                     printf("tmr:%d best tmr:%d\n",play_data[i].timer, data[lev].time_best);
+////
+//////                     if (play_data[i].timer < data[lev].time_best)
+////                     if (ct < play_data[i].timer < data[lev].time_best)
+////                     {
+////                        printf("New time record!!\n");
+////
+////                     }
+////
+////                  }
+////
+////               }
+//
+//      }
+
+/*
+
+Type:1
+found level match
+all purple coins collected
+tmr:1611 best tmr:906
+found level match
+all purple coins collected
+tmr:952 best tmr:906
+found level match
+all purple coins collected
+tmr:906 best tmr:906
+
+  */
+
+
       // add entry to play_data[] array
       int i = play_data_num;
       // printf("save level_complete_data(%d) %d\n", lev, i);
@@ -244,8 +302,6 @@ void mwLevel::add_play_data_record(int lev, int type)
    check_achievments();
    save_data();
    level_stats_bmp_msg_type = 0;
-
-
 }
 
 void mwLevel::calc_level_stats(int lev)

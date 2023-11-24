@@ -4,57 +4,29 @@
 
 
 
-
-
-
 bug - playing back multiplayer games does not work
 
 
-bug - extra packet size changes the wrong thing
-
-
-
-
-client ijkl skc does not save config
-
-pm -rc <server> does not work
-
-
-
+client ijkl skc does not save config...fixed but need to test to see if it breaks other things
 
 
 clients are losing server connnection more than usual, look into why
 of course now they won't do it...
-
 why would a client lose server connection?
-
 only reason I can see is last stdf rx > 200 frames
-
-
 mPlayer.loc[p].client_last_stdf_rx_frame_num
 this gets set whenever a new stdf packet is received by client
 it gets reset to 0 with new level player init
 it gets set to frame+200 when client joins
 
 
+
 sometimes weird artifacts show in level background, like msg from previous level??
+have not seen this happen for a long time
 
 
 
 
-
-
-I think I have a lot of duplication in setting up a level to play
-server new game and client new game do a lot of custom things
-that could be covered by:
-
-int mwLoop::load_and_setup_level_load(int level)
-void mwLoop::setup_level_after_load(void)
-void mwLoop::setup_players_after_level_load(int type)
-void mwLoop::setup_common_after_level_load(void)
-
-I want to do this in the interest of less code duplication
-to make things simpler and easier to understand
 
 
 
@@ -62,6 +34,15 @@ to make things simpler and easier to understand
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+I have a thought about program state and how I save in in an array that slides down so I can see previous states...
+What if the proper code structure for that was a stack?
+push on a new state and to go back pop it off?
+
+
+
+
 
 
 what to do to release?
@@ -163,26 +144,6 @@ netgame_control_and_monitoring.html
 
 netgame_state_history.html
 netgame_state_and_dif.html
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -316,11 +277,6 @@ maybe that is not so bad...
 --------------------------------------------------------
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
-
-profile settings page has all that extra crap
-
-
-
 
 
 

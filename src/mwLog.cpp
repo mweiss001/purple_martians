@@ -122,7 +122,7 @@ void mwLog::clear_all_log_actions(void)
          log_types[i].action = 0;
 
    autosave_log_on_level_done = 0;
-   autosave_log_on_game_exit = 0;
+   autosave_log_on_level_quit = 0;
    autosave_log_on_program_exit = 0;
 
    mConfig.save_config();
