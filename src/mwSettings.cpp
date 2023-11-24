@@ -851,7 +851,6 @@ void mwSettings::settings_pages(int set_page)
       if (page == 4)
       {
          int line_spacing = 10;
-//         if (show_advanced) line_spacing = 5;
 //         line_spacing +=  mLoop.pct_y;
          int tc = 13;
          int fc = 15;
@@ -859,7 +858,6 @@ void mwSettings::settings_pages(int set_page)
          int xb = cfp_x2 - 10;
          int ya = cfp_y1 + 4;
          int bts = 16;
-
 
 
          fc = 8;
@@ -881,7 +879,6 @@ void mwSettings::settings_pages(int set_page)
          al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
          al_draw_line(cfp_x2-4, frame_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[fc], 1 );
          ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
-
 
 
          fc = 12;
@@ -914,27 +911,6 @@ void mwSettings::settings_pages(int set_page)
 
          ya+=18;
          if (mWidget.buttont(xa+120, ya, xb-120, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Netgame Help")) mHelp.help("Netgame");
-
-//         if (show_advanced)
-//         {
-//            ya+=20;
-//
-//            fc = 14;
-//            frame_y1 = ya;
-//            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
-//
-//            al_draw_text(mFont.pr8, mColor.pc[14], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Advanced Settings");
-//            ya+=8;
-//            ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
-//
-////            ya-=2;
-////            mWidget.toggle( xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mNetgame.TCP, "Packet type:UDP", "Packet type:TCP", 15, 15, -1, -1);
-////            ya-=4;
-//
-//            al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
-//            al_draw_line(cfp_x2-4, frame_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[fc], 1 );
-//            ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
-//         }
       }
 
 
@@ -943,7 +919,7 @@ void mwSettings::settings_pages(int set_page)
 // ---------------------------------------------------------------
       if (page == 5) // demo
       {
-         int line_spacing = 20;
+         int line_spacing = 18;
 
          //line_spacing +=  mLoop.pct_y;
 
@@ -991,11 +967,12 @@ void mwSettings::settings_pages(int set_page)
          ya -=4;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,14,tc, 0,  1,0,1,0, "Save current game in progress")) mGameMoves.save_gm();
+         if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,14,tc, 0,  1,0,1,0, "Save current game in progress")) mGameMoves.save_gm_file_select();
 
          ya +=6;
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_game_on_level_done, "Autosave on level done", tc, 14);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_game_on_game_exit,  "Autosave on game exit", tc, 14);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mGameMoves.autosave_game_on_level_done,   "Autosave on level done", tc, 14);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mGameMoves.autosave_game_on_level_quit,   "Autosave on level quit", tc, 14);
+         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mGameMoves.autosave_game_on_program_exit, "Autosave on program exit", tc, 14);
 
          ya -=4;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -1999,7 +1976,7 @@ void mwSettings::settings_pages(int set_page)
          xa = cfp_x1 + 36;
          xb = cfp_x2 - 10;
          mWidget.togglec(xa, ya, xb, 10,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_level_done,    "save log on level done", 7, fc);
-         mWidget.togglec(xa, ya, xb, 10,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_game_exit,     "save log on game exit", 7, fc);
+         mWidget.togglec(xa, ya, xb, 10,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_level_quit,    "save log on level quit", 7, fc);
          mWidget.togglec(xa, ya, xb, 10,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mLog.autosave_log_on_program_exit,  "save log on program exit", 7, fc);
 
 

@@ -82,8 +82,6 @@ void mwMain::pm_copy_misc(const char* filepath)
 
 }
 
-
-
 void mwMain::copy_files_to_clients(int type)
 {
    char sys_cmd[500];
@@ -115,8 +113,6 @@ void mwMain::copy_files_to_clients(int type)
 
 //   sprintf(client[num_clients++], "\\\\i990\\pm_client32");  // win 7
 
-
-
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
 //   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
 //
@@ -125,8 +121,6 @@ void mwMain::copy_files_to_clients(int type)
 //   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
 //   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
 //   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
-
-
 
 
    for (int c=0; c<num_clients; c++)
@@ -158,9 +152,6 @@ void mwMain::copy_files_to_clients(int type)
       {
          pm_copy_cfg(client[c]);
       }
-
-
-
 
    }
 }
@@ -256,7 +247,6 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          mLevel.set_start_level(mWM.loop(mLevel.start_level));
          mMain.fast_exit(0);
       }
-
 
       if (strcmp(argument_array[1],"-h") == 0 )  // help
       {
@@ -397,6 +387,11 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          mLoop.done_action = 1;
          return;
       }
+
+
+
+
+
       if (strcmp(argument_array[1],"-s") == 0 )
       {
          int pl = atoi(argument_array[2]);
@@ -427,6 +422,22 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          }
          else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
       }
+
+      if (strcmp(argument_array[1],"-rc") == 0 ) // server remote control
+      {
+         sprintf(mNetgame.serveraddress, "%s", argument_array[2]);
+         mConfig.save_config();
+         server_remote_control = 1;
+         mLogo.show_splash_screen = 0;
+         mLoop.state[0] = PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP;
+         return;
+      }
+
+
+
+
+
+
    } // end of argument_count == 3
 }
 
@@ -502,23 +513,6 @@ memcpy(&out,arr2,sizeof(out));
 void mwMain::temp_test(void)
 {
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //
 //
 //   al_set_target_backbuffer(mDisplay.display);
@@ -561,41 +555,6 @@ void mwMain::temp_test(void)
 //
 //
 //
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //   mColor.show_palette();

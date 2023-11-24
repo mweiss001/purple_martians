@@ -187,12 +187,12 @@ void mwNetgame::headless_server_setup(void)
    mLog.clear_all_log_actions();
    mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG, 1);
    mLog.autosave_log_on_level_done = 1;
-   mLog.autosave_log_on_game_exit = 1;
+   mLog.autosave_log_on_level_quit = 1;
    mLog.autosave_log_on_program_exit = 1;
 
    // make sure we are always saving games
-   mLog.autosave_game_on_level_done = 1;
-   mLog.autosave_game_on_game_exit = 1;
+   mGameMoves.autosave_game_on_level_done = 1;
+   mGameMoves.autosave_game_on_program_exit = 1;
 
    mConfig.save_config();
 }
@@ -484,21 +484,41 @@ void mwNetgame::server_proc_player_drop(void)
 
 void mwNetgame::server_proc_limits(void)
 {
-   int reload = 0;
-   int gm_limit = GAME_MOVES_SIZE - 100;
-   int tm_limit = 60 * 60 * 40; // 60s x 60m x 40fps == 144000 = 1h
+   if (mPlayer.syn[0].level_done_mode == 0) // only trigger from level done mode 0
+   {
 
-   if (mGameMoves.entry_pos > gm_limit)
-   {
-      mLog.add_headerf(LOG_NET, 0, 1, "Server Approaching %d Game Moves! - Reload", GAME_MOVES_SIZE);
-      reload = 1;
+      int reload = 0;
+      int gm_limit = GAME_MOVES_SIZE - 100;
+      int tm_limit = 60 * 60 * 40; // 60s x 60m x 40fps == 144000 = 1h
+
+
+      // if headless server and not overworld and no clients, go back to overworld
+      if ((mMain.headless_server) && (mLevel.play_level != 1))
+      {
+         int num_clients = 0;
+         for (int p=1; p<NUM_PLAYERS; p++)
+            if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) num_clients++;
+         if (num_clients == 0)
+         {
+            mLog.add_headerf(LOG_NET, 0, 1, "Headless Server with no clients! - Reload");
+            reload = 1;
+         }
+      }
+
+
+      if (mGameMoves.entry_pos > gm_limit)
+      {
+         mLog.add_headerf(LOG_NET, 0, 1, "Server Approaching %d Game Moves! - Reload", GAME_MOVES_SIZE);
+         reload = 1;
+      }
+      if (mLoop.frame_num > tm_limit)
+      {
+         mLog.add_headerf(LOG_NET, 0, 1, "Server Approaching %d frames! - Reload", tm_limit);
+         reload = 1;
+      }
+      if (reload) server_reload(1); // to overworld
    }
-   if (mLoop.frame_num > tm_limit)
-   {
-      mLog.add_headerf(LOG_NET, 0, 1, "Server Approaching %d frames! - Reload", tm_limit);
-      reload = 1;
-   }
-   if (reload) server_reload(1); // to overworld
+
 }
 
 void mwNetgame::server_reload(int level)

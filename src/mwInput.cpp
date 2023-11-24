@@ -180,95 +180,41 @@ void mwInput::proc_keys_held(void)
 }
 
 
+
+bool mwInput::serial_key_test(const char *tst)
+{
+   int tl = strlen(tst);
+   if ((skc_index > tl-1) && (memcmp((skc + skc_index-tl), tst, tl) == 0)) return true;
+   return false;
+}
+
 void mwInput::serial_key_check(int key)
 {
    skc[skc_index] = key;
-   skc_index++;
-   if (skc_index > 63) skc_index = 0;
+   if (++skc_index > 63) skc_index = 0;
    skc[skc_index] = 0;
 
-//   printf("%s\n", skc);
+   if ((serial_key_test("test")) || (serial_key_test("TEST"))) printf("test matched!!!\n");
 
-   char tst[16];
-   int tl = 0;
-
-
-
-   sprintf(tst, "test");
-   tl = strlen(tst);
-   if (skc_index > tl-1)
+   if ((serial_key_test("ijkl c")) || (serial_key_test("IJKL C")))
    {
-      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-         printf("test matched!!!\n");
+      set_controls_to_custom_sets(4);
+      mConfig.save_config();
    }
 
-   sprintf(tst, "TEST");
-   tl = strlen(tst);
-   if (skc_index > tl-1)
+   if ((serial_key_test("fakekey")) || (serial_key_test("FAKEKEY")))
    {
-      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-         printf("TEST matched!!!\n");
+      mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode =! mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode;
+      printf("fake keypress mode:%d\n", mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode);
    }
-
-
-
-
 
    mLevel.skc_trigger_demo = 0;
-   //mLevel.skc_trigger_demo_cheat = 0;
 
-
-   sprintf(tst, "demo");
-   tl = strlen(tst);
-   if (skc_index > tl-1)
+   if ((serial_key_test("demo")) || (serial_key_test("DEMO"))) mLevel.skc_trigger_demo = 1;
+   if ((serial_key_test("cheat")) || (serial_key_test("CHEAT")))
    {
-      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
       mLevel.skc_trigger_demo = 1;
-   }
-
-   sprintf(tst, "ijkl c");
-   tl = strlen(tst);
-   if (skc_index > tl-1)
-   {
-      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-      {
-         set_controls_to_custom_sets(4);
-         printf("ijkl matched!!!\n");
-      }
-
-   }
-
-   sprintf(tst, "IJKL C");
-   tl = strlen(tst);
-   if (skc_index > tl-1)
-   {
-      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-      set_controls_to_custom_sets(4);
-   }
-
-
-
-
-   sprintf(tst, "cheat");
-   tl = strlen(tst);
-   if (skc_index > tl-1)
-   {
-      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-      {
-         mLevel.skc_trigger_demo = 1;
-         mLevel.skc_trigger_demo_cheat = 1;
-      }
-   }
-
-   sprintf(tst, "fakekey");
-   tl = strlen(tst);
-   if (skc_index > tl-1)
-   {
-      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-      {
-         mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode =! mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode;
-         printf("fake keypress mode:%d\n", mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode);
-      }
+      mLevel.skc_trigger_demo_cheat = 1;
    }
 }
 
@@ -316,7 +262,7 @@ void mwInput::function_key_check(void)
    // force instant game save and log save
    if (key[function_key_force_save][3])
    {
-      mGameMoves.blind_save_game_moves(4);
+      mGameMoves.autosave_gm(4);
       mLog.save_log_file();
    }
 

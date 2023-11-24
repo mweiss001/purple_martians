@@ -107,15 +107,8 @@ class mwLog
    void add_headerf(int type, int player, int blank_lines, const char *format, ...);
    void add_header(int type, int player, int blank_lines, const char *txt);
 
-
-
-
-
-
    void log_time_date_stamp(void);
    void log_versions(void);
-
-
 
    ALLEGRO_FS_ENTRY *filenames[1000];
    int num_filenames;
@@ -129,26 +122,19 @@ class mwLog
    void add_tmr1(int type, int p, const char *tag, double dt);
    void add_tmr(int type, int p, const char *txt);
 
-   int autosave_log_on_program_exit = 0;
-   int autosave_log_on_game_exit = 0;
    int autosave_log_on_level_done = 0;
-   int autosave_game_on_game_exit = 0;
-   int autosave_game_on_level_done = 0;
-
+   int autosave_log_on_level_quit = 0;
+   int autosave_log_on_program_exit = 0;
 
    void erase_log(void);
    void save_log_file(void);
-
 
    void log_player_array(int type);
    void log_player_array2(int type);
    void log_player_array3(int type);
 
-
-
    void log_ending_stats_client(int type, int p);
    void log_ending_stats_server(int type);
-
 
    void log_bandwidth_stats(int type, int p);
    void log_reason_for_player_quit(int type, int p);

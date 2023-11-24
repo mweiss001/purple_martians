@@ -91,7 +91,7 @@ void mwMain::fast_exit(int why)
 {
    if (why != 0) mPlayer.loc[mPlayer.active_local_player].quit_reason = why; // don't overwrite if not zero
    if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
-   if (mLog.autosave_game_on_game_exit) mGameMoves.blind_save_game_moves(3);
+   if (mGameMoves.autosave_game_on_program_exit) mGameMoves.autosave_gm(3);
    final_wrapup();
    exit(0);
 }
@@ -157,8 +157,6 @@ int mwMain::initial_setup(void)
    al_init();
    set_exe_path();
    set_and_get_versions();
-
-
 
 
    mConfig.load_config();
@@ -279,14 +277,8 @@ int mwMain::initial_setup(void)
 
    }
 
-
-
-
-
-
    // init players
-   for (int p=1; p<NUM_PLAYERS; p++) mPlayer.syn[p].color = 0; // all but player[0] which we got from config file
-
+//   for (int p=1; p<NUM_PLAYERS; p++) mPlayer.syn[p].color = 0; // all but player[0] which we got from config file
 
    mPlayer.syn[1].color = 10;
    mPlayer.syn[2].color = 11;
@@ -296,20 +288,16 @@ int mwMain::initial_setup(void)
    mPlayer.syn[6].color = 15;
    mPlayer.syn[7].color = 9;
 
-
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
+
    mPlayer.syn[0].active = 1;
 
    mDemoMode.autoplay_enabled = mDemoMode.config_autoplay_enabled; // set only at startup from config file
 
-
    mLevel.setup_data();
-
 
    if (classic_mode) mLevel.set_start_level();
    else mLevel.set_start_level(1);
-
-//   printf("test3\n");
 
    return 1;
 }
@@ -320,6 +308,7 @@ int mwMain::pm_main(int argument_count, char **argument_array)
    if (initial_setup())
    {
       proc_command_line_args2(argument_count, argument_array); // these args get processed after initial setup is called
+
       if (mLoop.state[0] == PM_PROGRAM_STATE_QUIT) // nothing set by command line args
       {
          mLoop.state[1] = mLoop.state[0] = PM_PROGRAM_STATE_MENU; // set up for menu
@@ -327,7 +316,10 @@ int mwMain::pm_main(int argument_count, char **argument_array)
       mLoop.main_loop();
    }
    if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
+   if (mGameMoves.autosave_game_on_program_exit) mGameMoves.autosave_gm(3);
+
    mConfig.save_config();
+
    final_wrapup();
    exit(0);
 }

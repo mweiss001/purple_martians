@@ -125,11 +125,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
          for (int p=1; p<NUM_PLAYERS; p++)
             if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
             {
-
-//               mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON;
-//
-//
-//               add_game_move2(frame + 2,  PM_GAMEMOVE_TYPE_CLIENT_QUIT,     p, 0);
+               // mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON; // what does this even do?
                add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 64);
             }
          // then set server to inactive in future
@@ -179,37 +175,6 @@ void mwGameMoves::proc_player_hidden_game_move(int x)
 
 }
 
-
-/*
-
-void mwGameMoves::proc_client_join_game_move(int x)
-{
-   int p = arr[x][2];  // player number
-   int c = arr[x][3];  // color
-
-   if ((!mNetgame.ima_server) && (!mNetgame.ima_client)) // for demo playback only
-   {
-      mPlayer.init_player(p, 1);           // type 1 full reset
-      mPlayer.syn[p].active = 1;
-      mPlayer.set_player_start_pos(p, 0);  // set starting position
-   }
-   mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
-   mPlayer.syn[p].color = c;
-}
-
-
-void mwGameMoves::proc_client_quit_game_move(int x)
-{
-   if (mNetgame.ima_server)
-   {
-      int p = arr[x][2];  // player number
-      mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON;
-   }
-}
-
-*/
-
-
 void mwGameMoves::proc_player_active_game_move(int x)
 {
    int p = arr[x][2];  // player number
@@ -236,7 +201,7 @@ void mwGameMoves::proc_player_active_game_move(int x)
 
       if (!mLoop.ff_state)
       {
-         if ((mMain.headless_server) && (p)) printf("Player:%d joined\n", p);
+         //if ((mMain.headless_server) && (p)) printf("Player:%d joined\n", p);
          mLog.add_headerf(LOG_NET, p, 0, "Player:%d became ACTIVE!                                ", p);
       }
    }
@@ -263,7 +228,7 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
 
    if (mPlayer.syn[p].active)
    {
-      if (mMain.headless_server) printf("Player:%d quit\n", p);
+      //if (mMain.headless_server) printf("Player:%d quit\n", p);
 
       if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 0, "Player:%d became INACTIVE!                              ", p);
 
@@ -383,26 +348,31 @@ void mwGameMoves::save_gm_txt(char *sfname)
    fclose(filepntr);
 }
 
-void mwGameMoves::save_gm_gm(char *sfname)
+void mwGameMoves::save_gm(char *sfname)
 {
-   FILE *filepntr;
-   char fname[80];
-   sprintf(fname, "savegame/%s.gm", sfname);
-   filepntr = fopen(fname,"w");
+   if (entry_pos)
+   {
+      FILE *filepntr;
+      char fname[80];
+      sprintf(fname, "savegame/%s.gm", sfname);
+      filepntr = fopen(fname,"w");
 
-   fprintf(filepntr,"%d\n", entry_pos);  // num_entries
+      fprintf(filepntr,"%d\n", entry_pos);  // num_entries
 
-   fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_player_shots);
-   fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_player_shot_damage );
-   fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_self_shots);
+      fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_player_shots);
+      fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_player_shot_damage );
+      fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_self_shots);
 
-   for (int x=0; x<entry_pos; x++)
-      for (int y=0; y<4; y++)
-         fprintf(filepntr,"%d\n", arr[x][y]);
-   fclose(filepntr);
+      for (int x=0; x<entry_pos; x++)
+         for (int y=0; y<4; y++)
+            fprintf(filepntr,"%d\n", arr[x][y]);
+      fclose(filepntr);
+
+      save_gm_txt(sfname); // then as a human readable text file
+   }
 }
 
-void mwGameMoves::save_gm()
+void mwGameMoves::save_gm_file_select()
 {
    char fname[1024];
    sprintf(fname, "savegame/");
@@ -424,46 +394,40 @@ void mwGameMoves::save_gm()
          ALLEGRO_PATH *p = al_create_path(fname);
          sprintf(fname, "%s", al_get_path_filename(p));
          //printf("file selected:%s\n", fname);
-         save_gm_gm(fname);
-         save_gm_txt(fname);
+         save_gm(fname);
       }
    }
    else printf("file select cancelled\n" );
    al_destroy_native_file_dialog(afc);
 }
 
-void mwGameMoves::blind_save_game_moves(int d)
+void mwGameMoves::autosave_gm(int d)
 {
-   int do_save = 0;
-   if ((d == 1) && (mLog.autosave_game_on_level_done))    do_save = 1;
-   if ((d == 2) && (mLog.autosave_game_on_game_exit))     do_save = 1;
-   if ((d == 3) && (mLog.autosave_game_on_game_exit))     do_save = 1;
-   if (d == 4) do_save = 1;
-   if (do_save)
-   {
-      char lev[80];
-      sprintf(lev, "-lev%d", mLevel.play_level);
-      char filename[80];
-      struct tm *timenow;
-      time_t now = time(NULL);
-      timenow = localtime(&now);
-      if (d == 1) strftime(filename, sizeof(filename), "level_done_%Y%m%d-%H%M%S", timenow);
-      if (d == 2) strftime(filename, sizeof(filename), "game_exit_%Y%m%d-%H%M%S",  timenow);
-      if (d == 3) strftime(filename, sizeof(filename), "bad_exit_%Y%m%d-%H%M%S",   timenow);
-      if (d == 4) strftime(filename, sizeof(filename), "force_save_%Y%m%d-%H%M%S", timenow);
-      strcat(filename, lev);
+   char description[40];
+   if (d == 1) sprintf(description, "level_done_");
+   if (d == 2) sprintf(description, "level_quit_");
+   if (d == 3) sprintf(description, "program_exit_");
+   if (d == 4) sprintf(description, "manual_save_");
 
+   char timestamp[40];
+   struct tm *timenow;
+   time_t now = time(NULL);
+   timenow = localtime(&now);
+   strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
 
-      save_gm_gm(filename);  // first save as a playable *.gm
-      save_gm_txt(filename); // then as a human readable text file
-   }
+   char lev[20];
+   sprintf(lev, "-lev%d", mLevel.play_level);
+
+   char filename[120];
+   sprintf(filename, "%s%s%s", description, timestamp, lev);
+   save_gm(filename);
 }
+
 
 int mwGameMoves::load_gm(int lev)
 {
    char msg[256];
    sprintf(msg, "savegame/demo/lev%03d.gm", lev);
-   //printf("%s\n",msg);
    return load_gm(msg);
 }
 

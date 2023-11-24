@@ -18,6 +18,8 @@
 #include "mwVisualLevel.h"
 #include "mwMain.h"
 #include "mwScreen.h"
+#include "mwGameMoves.h"
+
 
 mwConfig mConfig;
 
@@ -112,13 +114,19 @@ void mwConfig::save_config(void)
       ascf(NETWORK, mNetgame.client_chase_offset_auto_offset)
       asci(NETWORK, mNetgame.client_chase_offset_mode)
 
-      asci(LOGGING, mLog.autosave_log_on_program_exit)
-      asci(LOGGING, mLog.autosave_log_on_game_exit)
       asci(LOGGING, mLog.autosave_log_on_level_done)
+      asci(LOGGING, mLog.autosave_log_on_level_quit)
+      asci(LOGGING, mLog.autosave_log_on_program_exit)
+
+
+
 
       asci(DEMO, mDemoMode.config_autoplay_enabled)
-      asci(DEMO, mLog.autosave_game_on_level_done)
-      asci(DEMO, mLog.autosave_game_on_game_exit)
+
+      asci(DEMO, mGameMoves.autosave_game_on_level_done)
+      asci(DEMO, mGameMoves.autosave_game_on_level_quit)
+      asci(DEMO, mGameMoves.autosave_game_on_program_exit)
+
       ascf(DEMO, mDemoMode.overlay_opacity)
 
 
@@ -261,13 +269,17 @@ void mwConfig::load_config(void)
    agcf(NETWORK, mNetgame.client_chase_offset_auto_offset, -0.005)
    agci(NETWORK, mNetgame.client_chase_offset_mode, 1)
 
-   agci(LOGGING, mLog.autosave_log_on_program_exit, 0)
-   agci(LOGGING, mLog.autosave_log_on_game_exit, 0)
    agci(LOGGING, mLog.autosave_log_on_level_done, 0)
+   agci(LOGGING, mLog.autosave_log_on_level_quit, 0)
+   agci(LOGGING, mLog.autosave_log_on_program_exit, 0)
 
    agci(DEMO, mDemoMode.config_autoplay_enabled, 1)
-   agci(DEMO, mLog.autosave_game_on_level_done, 0)
-   agci(DEMO, mLog.autosave_game_on_game_exit, 0)
+
+   agci(DEMO, mGameMoves.autosave_game_on_level_done, 0)
+   agci(DEMO, mGameMoves.autosave_game_on_level_quit, 0)
+   agci(DEMO, mGameMoves.autosave_game_on_program_exit, 0)
+
+
    agcf(DEMO, mDemoMode.overlay_opacity, 0)
 
    agci(DEMO, mDemoMode.demo_debug_complete_level_on_gate_with_fire, 0)

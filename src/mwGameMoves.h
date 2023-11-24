@@ -17,22 +17,19 @@ class mwGameMoves
    void add_game_move2(int frame, int type, int data1, int data2);
    void add_game_move(int frame, int type, int data1, int data2);
 
-
-//   void proc_client_join_game_move(int x);
-//   void proc_client_quit_game_move(int x);
-
-
    void proc_player_active_game_move(int x);
    void proc_player_inactive_game_move(int x);
 
    void proc_player_hidden_game_move(int x);
 
-
+   int autosave_game_on_level_done = 0;
+   int autosave_game_on_level_quit = 0;
+   int autosave_game_on_program_exit = 0;
 
    void save_gm_txt(char *sfname);
-   void save_gm_gm(char *sfname);
-   void save_gm();
-   void blind_save_game_moves(int d);
+   void save_gm(char *sfname);
+   void save_gm_file_select();
+   void autosave_gm(int d);
 
    int load_gm(int lev);
    int load_gm(const char *sfname);

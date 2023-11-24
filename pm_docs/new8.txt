@@ -39639,6 +39639,17 @@ in next level player_reset mode 2 is called which should reset client_last_stdf_
 
 Clean up load and setup level
 
+I think I have a lot of duplication in setting up a level to play
+server new game and client new game do a lot of custom things
+that could be covered by:
+
+int mwLoop::load_and_setup_level_load(int level)
+void mwLoop::setup_level_after_load(void)
+void mwLoop::setup_players_after_level_load(int type)
+void mwLoop::setup_common_after_level_load(void)
+
+I want to do this in the interest of less code duplication
+to make things simpler and easier to understand
 
 
 PM_PROGRAM_STATE_NEXT_LEVEL
@@ -39773,6 +39784,279 @@ new:
 there, that has simpliifed things a bit...
 
 20231121 new version and push
+
+
+
+
+Do I have the savegame thing fixed on headless server?
+
+it saves and is playable, but...
+
+- does not save until level is done..that is the way it should be
+- not easy to get off headless server, need commandline scp and specific filename
+- no way to tell if it is new record
+
+i propose to add hostname to game moves thing, like color...
+
+this will not be easy...
+
+why not go all the way?
+
+make 'name' field
+
+8 char fixed length
+
+used in place of 'player x'
+
+used to display wherever 'player x' would be displayed or hostname in muliplayer
+
+this is a very ambitious, labour intensive change...
+
+
+
+Make my own file transfer thing, between server and client so that the server can push a file to the client
+like, logs, savegames, even levels.
+
+
+
+
+document how to set up assocations in windows so the clicking on a .gm file plays it...
+
+
+
+How about on headless server, if no clients are playing a level, go back to overworld.
+
+This could be a configurable setting...
+
+It would solve the issue of the server getting stuck on a level and any client joining needs to finish that level.
+
+I think I have that working
+
+I don't have it optional, but do I really want/need to?
+
+Is is saving gm?
+
+Where does that happen?
+
+I will need to manually do it....
+
+
+I want to clean up auto_save_game and blind save game move...make it more consistant naming and add for my new server reload...
+
+
+
+In log I have:
+
+   int autosave_log_on_program_exit = 0;
+   int autosave_log_on_game_exit = 0;
+   int autosave_log_on_level_done = 0;
+
+   int autosave_game_on_game_exit = 0;
+   int autosave_game_on_level_done = 0;
+
+
+
+void mwLog::save_log_file(void)
+
+
+   void save_gm_txt(char *sfname);
+   void save_gm_gm(char *sfname);
+   void save_gm();
+   void blind_save_game_moves(int d);
+
+
+
+
+new:
+
+   int autosave_log_on_level_done = 0;
+   int autosave_log_on_level_quit = 0;
+   int autosave_log_on_program_exit = 0;
+
+   int autosave_game_on_level_done = 0;
+   int autosave_game_on_level_quit = 0;
+   int autosave_game_on_program_exit = 0;
+
+
+do this and put them in the proper class
+
+log is done....
+
+
+now save game:
+
+   int autosave_game_on_level_done = 0;
+   int autosave_game_on_level_quit = 0;
+   int autosave_game_on_program_exit = 0;
+
+they are all moved to mGameMoves
+
+now make sure I have three checkboxes in setting...done
+
+now go through all cases:
+
+
+void mwGameMoves::autosave_game_moves(int d)
+{
+   int do_save = 0;
+   if ((d == 1) && (mGameMoves.autosave_game_on_level_done))       do_save = 1;
+   if ((d == 2) && (mGameMoves.autosave_game_on_level_quit))       do_save = 1;
+   if ((d == 3) && (mGameMoves.autosave_game_on_program_exit))     do_save = 1;
+   if (d == 4) do_save = 1;
+   if (do_save)
+   {
+      char lev[80];
+      sprintf(lev, "-lev%d", mLevel.play_level);
+      char filename[80];
+      struct tm *timenow;
+      time_t now = time(NULL);
+      timenow = localtime(&now);
+      if (d == 1) strftime(filename, sizeof(filename), "level_done_%Y%m%d-%H%M%S", timenow);
+      if (d == 2) strftime(filename, sizeof(filename), "game_exit_%Y%m%d-%H%M%S",  timenow);
+      if (d == 3) strftime(filename, sizeof(filename), "bad_exit_%Y%m%d-%H%M%S",   timenow);
+      if (d == 4) strftime(filename, sizeof(filename), "force_save_%Y%m%d-%H%M%S", timenow);
+      strcat(filename, lev);
+      save_gm(filename);
+
+
+
+1 is called like this:
+if (mGameMoves.autosave_game_on_level_done) mGameMoves.autosave_gm(1);
+
+2 is called like this:
+if (mGameMoves.autosave_game_on_level_quit) mGameMoves.autosave_gm(2);
+
+
+3 is called like this:
+
+fast exit:
+if (mGameMoves.autosave_game_on_program_exit) mGameMoves.autosave_gm(3);
+
+main:
+if (mGameMoves.autosave_game_on_program_exit) mGameMoves.autosave_gm(3);
+
+4 is called like this:
+mGameMoves.autosave_gm(4);
+
+
+
+changed to this:
+
+void mwGameMoves::autosave_gm(int d)
+{
+   char lev[80];
+   sprintf(lev, "-lev%d", mLevel.play_level);
+   char filename[80];
+   struct tm *timenow;
+   time_t now = time(NULL);
+   timenow = localtime(&now);
+   if (d == 1) strftime(filename, sizeof(filename), "level_done_%Y%m%d-%H%M%S", timenow);
+   if (d == 2) strftime(filename, sizeof(filename), "game_exit_%Y%m%d-%H%M%S",  timenow);
+   if (d == 3) strftime(filename, sizeof(filename), "bad_exit_%Y%m%d-%H%M%S",   timenow);
+   if (d == 4) strftime(filename, sizeof(filename), "force_save_%Y%m%d-%H%M%S", timenow);
+   strcat(filename, lev);
+   save_gm(filename);
+}
+
+
+now this:
+
+void mwGameMoves::autosave_gm(int d)
+{
+   char description[40];
+   if (d == 1) sprintf(description, "level_done_");
+   if (d == 2) sprintf(description, "level_quit_");
+   if (d == 3) sprintf(description, "program_exit_");
+   if (d == 4) sprintf(description, "manual_save_");
+
+   char timestamp[40];
+   struct tm *timenow;
+   time_t now = time(NULL);
+   timenow = localtime(&now);
+   strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
+
+   char lev[20];
+   sprintf(lev, "-lev%d", mLevel.play_level);
+
+   char filename[120];
+   sprintf(filename, "%s%s%s", description, timestamp, lev);
+   save_gm(filename);
+}
+
+
+OK this is looking a lot better...
+
+now I want to filter just quitting to menu...
+I think the only time I want to do that is when there is an actual game in progress, not just from settings to menu
+I compromised and only save gm when there is something to save
+
+now what do I also want to do?
+
+check when level is completed to see if a new record has been set and save gm
+
+
+looks like I will need to add to this function some tests
+
+void mwLevel::add_play_data_record(int lev, int type)
+
+
+what am I checking for?
+
+better than best time?
+better that par time?
+
+both?
+
+1 - save any better than par
+2 - save only if better than prev best
+3 - save if better than prev best and better than par
+
+
+for now I will do 3
+
+
+time_best
+
+time_best_all_coins
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
