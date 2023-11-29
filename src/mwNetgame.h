@@ -15,16 +15,32 @@
 #define PM_RCTL_PACKET_TYPE_exra_packet_num_adj    4
 #define PM_RCTL_PACKET_TYPE_exra_packet_siz_adj    5
 #define PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj    6
+
 #define PM_RCTL_PACKET_TYPE_pvp_shots_toggle       10
 #define PM_RCTL_PACKET_TYPE_pvs_shots_toggle       11
 #define PM_RCTL_PACKET_TYPE_fakekey_toggle         12
 #define PM_RCTL_PACKET_TYPE_server_reload          20
+
+
+
+struct file_to_send
+{
+   int active;
+   int attempts;
+   int last_sent_frame;
+   int id;
+   int who;
+   char name[256];
+};
+
 
 class mwNetgame
 {
    public:
 
    mwNetgame(); // constructor
+
+   struct file_to_send files_to_send[20];
 
    int NetworkDriver;
    int NetworkInit();
@@ -52,6 +68,14 @@ class mwNetgame
    char client_state_buffer[STATE_SIZE];
    int  client_state_buffer_pieces[16];   // to mark packet pieces as received
 
+
+
+
+   // local client's buffer for building compressed sfil from packets
+   char client_sfil_buffer[100000];
+   int  client_sfil_buffer_pieces[100];   // to mark packet pieces as received
+
+
    // local client's uncompressed dif
    char client_state_dif[STATE_SIZE];
    int  client_state_dif_src;          // src frame_num
@@ -64,6 +88,7 @@ class mwNetgame
    void reset_states(void);
 
    void process_bandwidth_counters(int p);
+
 
 
    // --------------------------------------------------------------------
@@ -91,6 +116,14 @@ class mwNetgame
    void client_proc_pong_packet(char *data);
    void client_proc_sjon_packet(int i);
    void client_proc_stdf_packet(int i);
+
+   void client_proc_sfil_packet(int i);
+
+   void client_send_sfak_packet(int id);
+   void client_send_crfl(void);
+
+
+
    void client_proc_sjrc_packet(int i);
    void client_proc_snfo_packet(int i);
    void client_proc_player_drop(void);
@@ -110,6 +143,13 @@ class mwNetgame
    void ServerSendTo(void *data, int len, int who);
    void ServerFlush(void);
 
+
+
+
+
+
+
+
    int server_get_player_num_from_who(int who);
 
    void headless_server_setup(void);
@@ -118,6 +158,15 @@ class mwNetgame
    void server_create_new_state(void);
    void server_send_dif(int frame_num);
    void server_send_compressed_dif(int p, int src, int dst, char * dif);
+
+
+   void server_proc_files_to_send(void);
+   void server_send_file(int i);
+
+
+   void server_add_file_to_send(const char * filename, int who);
+
+   void server_proc_crfl_packet(int i);
 
    void server_proc_player_drop(void);
    void server_proc_limits(void);
@@ -135,6 +184,8 @@ class mwNetgame
    void server_proc_cjon_packet(int i);
    void server_proc_cjrc_packet(int i);
    void server_proc_rctl_packet(int i);
+   void server_proc_sfak_packet(int i);
+
 
    void server_control();
 };

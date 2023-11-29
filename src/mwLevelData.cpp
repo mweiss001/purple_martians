@@ -20,7 +20,6 @@
 #include "mwMain.h"
 
 
-
 void mwLevel::reset_level_data(void)
 {
    clear_data();
@@ -42,114 +41,6 @@ void mwLevel::unlock_all_levels(void)
    load_level(mLevel.play_level, 0, 0); // reload play level
 }
 
-void mwLevel::complete_all_levels_in_demo_mode(void)
-{
-//   int debug_print = 0;
-//   if (!files_for_random_loaded)
-//   {
-//      countdown_reset = 2400;
-//      num_demo_filenames = 0;
-//      char fname[1024];
-//      sprintf(fname, "savegame/demo");
-//
-//      //printf("fname:%s\n", fname);
-//      // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
-//      ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
-//      //sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
-//      //printf("FS_fname:%s\n", fname);
-//
-//      // iterate levels in demo folder and put in filename array
-//      al_for_each_fs_entry(FS_fname, fill_demo_array, NULL);
-//
-//      //printf("\nDemo mode. List of demo files found\n");
-//      //for (int i=0; i< num_demo_filenames; i++)
-//         //printf("%s\n", al_get_fs_entry_name(demo_FS_filenames[i]));
-//
-//      files_for_random_loaded = 1;
-//   }
-//   if (num_demo_filenames == 0)
-//   {
-//      printf("No demo files found.\n");
-//      mode = 0;
-//      return 0;
-//   }
-//
-//   int index;
-//
-//   if (debug_print) printf("\n----------------------------------\n");
-//   if (debug_print) printf("------Pass:%d--Prev Lev:%d--------\n", pass, prev_index);
-//
-//   if (num_demo_filenames > 1)
-//   {
-//
-//      // have all levels this pass been played?
-//      int all_played = 1;
-//      for (int i=0; i< num_demo_filenames; i++)
-//      {
-//         if (debug_print) printf("demo_played[%d] - %d \n", i, demo_played[i]);
-//         if (demo_played[i] < pass) all_played = 0;
-//      }
-//
-//      if (all_played == 1)
-//      {
-//         pass++; // next pass
-//         if (debug_print) printf("All levels have been played this pass - next pass:%d\n", pass);
-//      }
-//
-//      int timeout = 0;
-//
-//      index = -1;
-//      while (index < 0)
-//      {
-//         index = rand() % num_demo_filenames;      // get random index
-//         if (debug_print) printf("New random level index:%d", index);
-//
-//         if (demo_played[index] >= pass) // already been played this pass
-//         {
-//            if (debug_print) printf("  -  already been played this pass\n");
-//            index = -1;
-//         }
-//         if (prev_index == index)         // just previously played
-//         {
-//            if (debug_print) printf("  -  just previously played\n");
-//            index = -1;
-//         }
-//         timeout++;
-//         if (timeout > 100)
-//         {
-//            if (debug_print) printf("\nCould not find not played level after 1000 random iterations, choosing first index and moving on\n");
-//            index = 0;
-//         }
-//      }
-//      demo_played[index] = pass;
-//      prev_index = index;
-//   }
-//
-//
-//
-//
-//   else index = 0;
-//
-//   if (debug_print) printf("  ----------------  selected!\n");
-//
-//   if (mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[index])))
-//   {
-//      if (debug_print) printf("Demo Mode random file chooser - pass:%d index:%d level:%d\n", pass, index, mLevel.play_level);
-//      printf("demo rnd - pass:%d index:%d level:%d  lf:%d\n", pass, index, mLevel.play_level, mDemoMode.last_frame);
-//      return 1;
-//   }
-//   else
-//   {
-//      mode = 0;
-//      return 0;
-//   }
-//}
-}
-
-
-
-
-
 void mwLevel::setup_data(void)
 {
    load_data();
@@ -164,16 +55,15 @@ void mwLevel::level_start_data(void)
    level_data_enemies_killed = 0;
 }
 
-
 void mwLevel::add_play_data_record(int lev, int type)
 {
-   //if (mMain.headless_server) printf("Level:%d Complete\n", lev);
-
    int save_flag = 1;
    if (mPlayer.syn[mPlayer.active_local_player].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) save_flag = 0; // if running demo mode, don't save data
    if (mLevel.skc_trigger_demo_cheat) save_flag = 1;                                // in cheat mode save data
    if (mDemoMode.demo_debug_running_demo_saves_level_data) save_flag = 1;           // or if this is option is set
    if (lev == 1) save_flag = 0; // never save data for overworld
+
+
 
    if (save_flag)
    {
@@ -198,8 +88,8 @@ void mwLevel::add_play_data_record(int lev, int type)
       // check for new record
       if (type == 1) // normal completion only sets new records
       {
-         int best_time = data[lev].time_best; // best time for this level
-         int par_time = data[lev].time_par; // best time for this level
+         int best_time = data[lev].time_best_all_coins;
+         int par_time = data[lev].time_par;
 
          int pcc = level_data_purple_coins_collected;
          int pct = data[lev].tot_purple_coins;
@@ -228,60 +118,9 @@ void mwLevel::add_play_data_record(int lev, int type)
          }
       }
 
-//
-//
-//
-//         if (best_time == 0)
-//
-//         // check if a new record has been set
-//
-//         printf("no new time record:%d best:%d\n", ct, data[lev].time_best);
-//
-//         if (ct < data[lev].time_best)
-//         {
-//            printf("New time record:%d prev best:%d\n", ct, data[lev].time_best);
-//         }
-//
-////         // find all completed levels that match this level and have all purple coins collected
-////         for (int i=0; i<play_data_num; i++)
-////            if (play_data[i].level == lev)
-////               if (play_data[i].completed)
-////               {
-////                  printf("found level match\n");
-////
-////                  if (play_data[i].purple_coins_collected == data[lev].tot_purple_coins)
-////                  {
-////                     printf("all purple coins collected\n");
-////
-////                     printf("tmr:%d best tmr:%d\n",play_data[i].timer, data[lev].time_best);
-////
-//////                     if (play_data[i].timer < data[lev].time_best)
-////                     if (ct < play_data[i].timer < data[lev].time_best)
-////                     {
-////                        printf("New time record!!\n");
-////
-////                     }
-////
-////                  }
-////
-////               }
-//
-//      }
 
-/*
 
-Type:1
-found level match
-all purple coins collected
-tmr:1611 best tmr:906
-found level match
-all purple coins collected
-tmr:952 best tmr:906
-found level match
-all purple coins collected
-tmr:906 best tmr:906
 
-  */
 
 
       // add entry to play_data[] array

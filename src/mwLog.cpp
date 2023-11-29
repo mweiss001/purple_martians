@@ -366,8 +366,6 @@ void mwLog::log_player_array(int type)
       if ((!mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
          sprintf(ms, " <-- syncing client");
 
-      if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_USED) sprintf(ms, " <-- used client");
-
       if (p == mPlayer.active_local_player) sprintf(ms, " <-- active local player (me!)");
       if (p == 0) sprintf(ms, " <-- server");
 

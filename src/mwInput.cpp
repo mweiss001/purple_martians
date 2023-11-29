@@ -202,11 +202,21 @@ void mwInput::serial_key_check(int key)
       mConfig.save_config();
    }
 
+   if ((mNetgame.ima_client) && (serial_key_test("sendfile"))) mNetgame.client_send_crfl();
+
    if ((serial_key_test("fakekey")) || (serial_key_test("FAKEKEY")))
    {
       mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode =! mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode;
       printf("fake keypress mode:%d\n", mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode);
    }
+
+
+   if (serial_key_test("demr"))
+   {
+      if (mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD) mLoop.state[0] = PM_PROGRAM_STATE_DEMO_RECORD;
+      else if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) mLoop.state[0] = PM_PROGRAM_STATE_MENU;
+   }
+
 
    mLevel.skc_trigger_demo = 0;
 
@@ -217,7 +227,6 @@ void mwInput::serial_key_check(int key)
       mLevel.skc_trigger_demo_cheat = 1;
    }
 }
-
 
 
 void mwInput::function_key_check(void)
@@ -266,12 +275,14 @@ void mwInput::function_key_check(void)
       mLog.save_log_file();
    }
 
+
+
    if (mDemoMode.demo_debug_super_fast_mode_F2)
    {
       if (key[ALLEGRO_KEY_F2][3]) mLoop.super_fast_mode = !mLoop.super_fast_mode;
    }
 
-   if ((mLoop.level_editor_running) || (mLoop.state[1] == PM_PROGRAM_STATE_MAIN_GAME_LOOP)) // only do these when game is running or in level editor
+   if ((mLoop.level_editor_running) || (mLoop.state[1] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) || (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)) // only do these when game is running or in level editor
    {
       // zoom controls
       if (key[function_key_zoom_out][0]) mDisplay.set_scale_factor(mDisplay.scale_factor * .90, 0);

@@ -1866,7 +1866,7 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 
 
 
-void mwWidget::colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
+int mwWidget::colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
    char msg[80];
    int y2 = y1+bts-2;
@@ -1881,12 +1881,13 @@ void mwWidget::colsel(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 
    if (bn == 2) sprintf(msg, "Select Text Color");
    if (bn == 3) sprintf(msg, "Select Frame Color");
-   if (bn == 4) sprintf(msg, "Select Lift Color");
+   //if (bn == 4) sprintf(msg, "Select Lift Color");
    if (bn == 5) sprintf(msg, "Select Door Color");
    if (bn == 6) sprintf(msg, "Select Trigger Field Color");
    if (bn == 7) sprintf(msg, "Select Block Manip Field Color");
    if (bn == 8) sprintf(msg, "Select Lift Step Color");
    if (bn == 9) sprintf(msg, "Select Crew Player Color");
+   if (bn == 10) sprintf(msg, "Player Color");
 
    draw_slider_text(x1, y1,  x2, y2, q2, q5, msg);
 
@@ -1913,7 +1914,7 @@ void mwWidget::colsel(int x1, int &y1, int x2, int bts, int bn, int num, int typ
          fc = color;
          mMiscFnx.set_int_3216(mItem.item[num][13], tc, fc);
       }
-      if (bn == 4) mLift.cur[num].color = color;   // lift color
+      //if (bn == 4) mLift.cur[num].color = color;   // lift color
       if (bn == 5) mItem.item[num][6] = color;     // door color
       if (bn == 6) mItem.item[num][2] = color;     // trigger color
       if (bn == 7) mItem.item[num][12] = color;    // block manip color
@@ -1926,9 +1927,17 @@ void mwWidget::colsel(int x1, int &y1, int x2, int bts, int bn, int num, int typ
          mLift.stp[num][type].type &= 0b00001111111111111111111111111111; // clear old color
          mLift.stp[num][type].type |= cf; // merge color with type
       }
+      return color;
    }
    if (q6 == 1) y1+=bts;
+   return -1;
 }
+
+
+
+
+
+
 
 
 // toggles the int and displays text, text color, and frame color based on value

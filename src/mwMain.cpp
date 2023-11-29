@@ -278,19 +278,11 @@ int mwMain::initial_setup(void)
    }
 
    // init players
-//   for (int p=1; p<NUM_PLAYERS; p++) mPlayer.syn[p].color = 0; // all but player[0] which we got from config file
-
-   mPlayer.syn[1].color = 10;
-   mPlayer.syn[2].color = 11;
-   mPlayer.syn[3].color = 12;
-   mPlayer.syn[4].color = 13;
-   mPlayer.syn[5].color = 14;
-   mPlayer.syn[6].color = 15;
-   mPlayer.syn[7].color = 9;
-
+   mPlayer.set_default_player_colors();
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
-
    mPlayer.syn[0].active = 1;
+
+
 
    mDemoMode.autoplay_enabled = mDemoMode.config_autoplay_enabled; // set only at startup from config file
 

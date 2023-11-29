@@ -232,6 +232,12 @@ void mwLoop::game_menu(void)
 
          if (top_menu_sel == 8) mHelp.help("");
 
+         if (top_menu_sel == 66)
+         {
+            state[0] = PM_PROGRAM_STATE_DEMO_RECORD;
+            return;
+         }
+
          if ((top_menu_sel >= 100) && (top_menu_sel < 200)) // right pressed on menu item
          {
             top_menu_sel -= 100;
@@ -336,15 +342,15 @@ state = 25; // client exit and clean up network
 state = 31; // setup and run demo level  (from 12 or manual load gm)
 state = 32; // quit demo with keypress
 
-
-
-
-
 state = 40; server remote control setup
 state = 41; server remote control run
 
-
 */
+
+
+
+
+
 
 
 void mwLoop::proc_program_state(void)
@@ -385,8 +391,8 @@ void mwLoop::proc_program_state(void)
 
          if (quit_action == 1) // menu (already set)
          {
-            // only do this if not returning from settings
-            if (state[2] != PM_PROGRAM_STATE_CONFIG) mScreen.transition_cutscene(1, 2); // game to menu
+            // only do this if not returning from settings or demo record
+            if ((state[2] != PM_PROGRAM_STATE_CONFIG) && (state[2] != PM_PROGRAM_STATE_DEMO_RECORD)) mScreen.transition_cutscene(1, 2); // game to menu
          }
          if (quit_action == 2)  // overworld
          {
@@ -409,15 +415,42 @@ void mwLoop::proc_program_state(void)
       }
    }
 
+
    if (state[1] == PM_PROGRAM_STATE_QUIT) main_loop_exit = 1; // quit
    if (state[1] == PM_PROGRAM_STATE_MENU) game_menu();  // game menu (this blocks)
-   if (state[1] == PM_PROGRAM_STATE_CONFIG) mSettings.settings_pages(-1);  // this blocks
+   if (state[1] == PM_PROGRAM_STATE_CONFIG) mSettings.settings_pages(-1); // this blocks
+   if (state[1] == PM_PROGRAM_STATE_DEMO_RECORD) mDemoMode.demo_record(); // blocks
 
 
 
 
 
+//-----------------------------------------------------------------
+// PM_PROGRAM_STATE_CLIENT_PREEXIT1
+//-----------------------------------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT1)
+   {
+      if (mGameMoves.autosave_game_on_level_quit)
+      {
+         // when client quits with escape, send a file request to the server to get the gm file
+         mNetgame.client_send_crfl();
+         state[0] = PM_PROGRAM_STATE_CLIENT_PREEXIT2;
+      }
+      else state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
+   }
 
+//-----------------------------------------------------------------
+// PM_PROGRAM_STATE_CLIENT_PREEXIT2
+//-----------------------------------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT2)
+   {
+      mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "Waiting for file from server");
+      al_flip_display();
+      mPacketBuffer.rx_and_proc(); // when file is received, state will be set to exit
+
+      mEventQueue.proc(1);
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][2]) state[0] = PM_PROGRAM_STATE_CLIENT_EXIT; // give them an escape option
+   }
 
 //-----------------------------------------------------------------
 // PM_PROGRAM_STATE_CLIENT_EXIT
@@ -581,7 +614,6 @@ void mwLoop::proc_program_state(void)
 
       if (mLog.autosave_log_on_level_done) mLog.save_log_file();
       if (mGameMoves.autosave_game_on_level_done) mGameMoves.autosave_gm(1);
-
 
 
 // --------------------------------------------------------
@@ -852,7 +884,6 @@ void mwLoop::proc_program_state(void)
    }
 }
 
-
 int mwLoop::load_and_setup_level_load(int level)
 {
    if (!mLevel.load_level(level, 0, 0)) return 0;
@@ -1063,8 +1094,6 @@ void mwLoop::initialize_graphs(void)
 
 
 
-
-
 void mwLoop::main_loop(void)
 {
    while (!main_loop_exit)
@@ -1179,7 +1208,7 @@ void mwLoop::main_loop(void)
             // ------------------------------
             // draw
             // ------------------------------
-            if ((!mDisplay.no_display) && (ldm != 27) && (!super_fast_mode)) mDrawSequence.draw(0);
+            if ((!mDisplay.no_display) && (ldm != 27) && (!super_fast_mode)) mDrawSequence.draw(0, 1);
 
 
             mPacketBuffer.check_for_packets();

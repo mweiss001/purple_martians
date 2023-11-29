@@ -23,7 +23,7 @@ mwDrawSequence mDrawSequence;
 mwDrawSequence::mwDrawSequence()
 {
    initialize();
-   draw(1);
+   draw(1, 0);
 }
 
 void mwDrawSequence::initialize(void)
@@ -51,7 +51,7 @@ void mwDrawSequence::add(int &i)
    i++;
 }
 
-void mwDrawSequence::draw(int setup_only)
+void mwDrawSequence::draw(int setup_only, int flip)
 {
    int i=0;
 
@@ -246,7 +246,7 @@ void mwDrawSequence::draw(int setup_only)
 
    mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Flip display\n", mLoop.frame_num);
    if (setup_only) add_names(i, "d-flip", "al_flip_display");
-   else { al_flip_display(); add(i); }
+   else { if (flip) al_flip_display(); add(i); }
 
 
    if (setup_only) add_names(i, "d-totl", "total draw time");
