@@ -102,6 +102,8 @@ void mwPacketBuffer::proc_rx_buffer(void)
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CJON) mNetgame.server_proc_cjon_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CJRC) mNetgame.server_proc_cjrc_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_RCTL) mNetgame.server_proc_rctl_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SFAK) mNetgame.server_proc_sfak_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CRFL) mNetgame.server_proc_crfl_packet(i);
          }
          if (mNetgame.ima_client)
          {
@@ -109,6 +111,7 @@ void mwPacketBuffer::proc_rx_buffer(void)
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SJON) mNetgame.client_proc_sjon_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SJRC) mNetgame.client_proc_sjrc_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SNFO) mNetgame.client_proc_snfo_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SFIL) mNetgame.client_proc_sfil_packet(i);
          }
          rx_buf[i].active = 0;
       }
@@ -208,17 +211,18 @@ void mwPacketBuffer::add_to_rx_buffer_single(char *data, int who)
    }
 
    int type = 0;
-
    if (PacketRead(data, "cdat")) type = PM_NETGAME_PACKET_TYPE_CDAT;
    if (PacketRead(data, "stak")) type = PM_NETGAME_PACKET_TYPE_STAK;
    if (PacketRead(data, "cjon")) type = PM_NETGAME_PACKET_TYPE_CJON;
    if (PacketRead(data, "cjrc")) type = PM_NETGAME_PACKET_TYPE_CJRC;
    if (PacketRead(data, "rctl")) type = PM_NETGAME_PACKET_TYPE_RCTL;
-
+   if (PacketRead(data, "sfak")) type = PM_NETGAME_PACKET_TYPE_SFAK;
    if (PacketRead(data, "stdf")) type = PM_NETGAME_PACKET_TYPE_STDF;
    if (PacketRead(data, "sjon")) type = PM_NETGAME_PACKET_TYPE_SJON;
    if (PacketRead(data, "sjrc")) type = PM_NETGAME_PACKET_TYPE_SJRC;
    if (PacketRead(data, "snfo")) type = PM_NETGAME_PACKET_TYPE_SNFO;
+   if (PacketRead(data, "sfil")) type = PM_NETGAME_PACKET_TYPE_SFIL;
+   if (PacketRead(data, "crfl")) type = PM_NETGAME_PACKET_TYPE_CRFL;
 
    if (type)
    {

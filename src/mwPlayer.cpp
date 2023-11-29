@@ -1330,7 +1330,7 @@ void mwPlayer::set_players_shape(int p)
 int mwPlayer::is_player_color_used(int color)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((syn[p].active) || (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_USED) || (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
+      if ((syn[p].active) || (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
          if (color == syn[p].color) return 1;
    return 0;
 }
@@ -1513,6 +1513,20 @@ void mwPlayer::init_player(int p, int t)
       loc[p].rx_total_packets = 0;
    }
 }
+
+
+
+void mwPlayer::set_default_player_colors(void)
+{
+   mPlayer.syn[1].color = 10;
+   mPlayer.syn[2].color = 11;
+   mPlayer.syn[3].color = 12;
+   mPlayer.syn[4].color = 13;
+   mPlayer.syn[5].color = 14;
+   mPlayer.syn[6].color = 15;
+   mPlayer.syn[7].color = 9;
+}
+
 
 void mwPlayer::fill_player_tile(void)
 {
@@ -1710,40 +1724,47 @@ void mwPlayer::set_controls_from_player_key_check(int p) // used only in menu
    if (mInput.key[ALLEGRO_KEY_ESCAPE][0])    syn[p].menu  = 1;
 }
 
+
 void mwPlayer::proc_player_input(void)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
+   {
       if (syn[p].active) // cycle all active players
       {
          int cm = syn[p].control_method;
-         if (cm == 1) mDemoMode.key_check(p); // run game from file
-         if ((cm == 0) || (cm == 3) || (cm == 4)) // single player, server, client
+         if ((cm == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) && (mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD)) mDemoMode.key_check(p);
+         if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) || (cm == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL) || (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL))
          {
             if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
             {
                set_comp_move_from_player_key_check(p);
+
                // even in fakekey mode allow ESC or menu
                if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey))
                   if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
 
                if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
                {
-                  mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_MOVE, p, loc[p].comp_move); // add to game moves array
+                  if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) && (p == active_local_player))
+                     mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_MOVE, p, loc[p].comp_move); // add to game moves array
+
                   // in client mode, send cdat packet, and apply move directly to controls
-                  if (cm == 4)
+                  if (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)
                   {
+                     mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_MOVE, p, loc[p].comp_move); // add to game moves array
                      mNetgame.client_send_cdat_packet(p);
                      set_controls_from_comp_move(p, loc[p].comp_move);
-                     if (syn[p].menu) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT; // menu key pressed
+                     if (syn[p].menu) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_PREEXIT1; // menu key pressed
                      mLog.addf(LOG_NET_cdat, p, "tx cdat - move:%d\n", loc[p].comp_move);
                   }
                }
             }
          }
       }
-      else if (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL) // not active and control method 4 is a client waiting for server to make it active
+      else if (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL) // client waiting for server to make it active
       {
          if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT; // give them an escape option
       }
+   }
 }
 

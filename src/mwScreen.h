@@ -171,6 +171,8 @@ class mwScreen
    ALLEGRO_COLOR col_clr2(int p);
 
 
+   void drg_show(int x, int y); // demo record debug grid
+
    void sdg_show_column(int col, int &x, int y);
    void sdg_show(int x, int y);
    void cdg_show(int x, int y);

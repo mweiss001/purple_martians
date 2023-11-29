@@ -9,6 +9,8 @@ class mwGameMoves
    mwGameMoves(); // default constructor
    void initialize(void);
 
+   void clear_single(int i);
+
    int has_player_acknowledged(int p);
    int arr[GAME_MOVES_SIZE][4];
    int entry_pos = 0;
@@ -25,6 +27,9 @@ class mwGameMoves
    int autosave_game_on_level_done = 0;
    int autosave_game_on_level_quit = 0;
    int autosave_game_on_program_exit = 0;
+
+
+   char* cmtos(int cm, char* tmp);
 
    void save_gm_txt(char *sfname);
    void save_gm(char *sfname);

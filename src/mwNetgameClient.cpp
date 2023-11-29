@@ -354,6 +354,84 @@ void mwNetgame::client_proc_snfo_packet(int i)
    }
 }
 
+void mwNetgame::client_proc_sfil_packet(int i)
+{
+   int id      = mPacketBuffer.PacketGetInt4(i);
+   int seq     = mPacketBuffer.PacketGetByte(i);
+   int max_seq = mPacketBuffer.PacketGetByte(i);
+   int sb      = mPacketBuffer.PacketGetInt4(i);
+   int sz      = mPacketBuffer.PacketGetInt4(i);
+   int fsize   = mPacketBuffer.PacketGetInt4(i); // uncompressed file size
+
+   //printf("rx sfil piece [%d of %d] id:[%d] st:%4d sz:%4d fsz:%4d\n", seq+1, max_seq, id, sb, sz, fsize);
+
+   memcpy(client_sfil_buffer + sb, mPacketBuffer.rx_buf[i].data+22, sz);    // put the piece of data in the buffer
+   client_sfil_buffer_pieces[seq] = id;                                     // mark it with id
+
+   int complete = 1;                                         // did we just get the last piece? (yes by default)
+   for (int i=0; i< max_seq; i++)
+      if (client_sfil_buffer_pieces[i] != id) complete = 0;  // no, if any piece does not have latest id
+
+   if (complete)
+   {
+      // uncompress
+      char dmp[fsize + 128];
+      uLongf destLen = sizeof(dmp);
+      uncompress((Bytef*)dmp, (uLongf*)&destLen, (Bytef*)client_sfil_buffer, sizeof(client_sfil_buffer));
+
+      // copy to variables
+      char fname[256];
+      memcpy(fname, dmp, sizeof(fname));
+
+      printf("Client received filename:[%s] size:[%d] id:[%d]\n", fname, fsize, id);
+
+      // write to file
+      FILE *fp = fopen(fname, "wb");
+      if (!fp)
+      {
+         printf("Error opening %s", fname);
+         return;
+      }
+      fwrite(dmp + 128, fsize, 1, fp);
+      fclose(fp);
+
+      client_send_sfak_packet(id); // send ack
+
+      if (mLoop.state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT2) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
+   }
+}
+
+
+void mwNetgame::client_send_sfak_packet(int id)
+{
+   // printf("Client ack id:%d\n", id);
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "sfak");
+   mPacketBuffer.PacketPutInt4(data, pos, id);
+   ClientSend(data, pos);
+}
+
+void mwNetgame::client_send_crfl(void)
+{
+   printf("Client request file\n");
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "crfl");
+   ClientSend(data, pos);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwNetgame::client_proc_stdf_packet(int i)
 {
    int p       = mPlayer.active_local_player;

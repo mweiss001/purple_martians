@@ -40016,539 +40016,596 @@ for now I will do 3
 
 
 time_best
-
 time_best_all_coins
 
+this complicates things....
 
 
+do I also need to save the best times from my demos?
 
 
+in client mode, is there any reason to save demo? It will not be playable...
 
 
+How hard would it be to do a file transfer with my packets?
 
+I would need a new type of packet...
 
+and build my own custom retry until they are all received mechanism..
 
 
+it would be from server to client only
+- send logs, savegames
+- could even send the compressed level before starting, but why??
 
 
+when triggered on server, get the file and
 
+how am i going to encode the filename:
 
+in a header...
 
+what packets type will I use?
 
+SFIL
+CFAK
 
+I will need to declare a chunk of memory to hold the pieces...
 
+Why not use something like another state?
 
 
+Make a list of files to transfer on the server
+The server will go through the list and send them one at a time..
 
+How much room on the list? 20 to start with
 
+What does each entry need?
 
+filename and client to send to
 
+make it part of the server class
 
+struct file_to_send
+{
+   int active;
+   int who;
+   char * name;
+};
 
+constructor:
 
+   for (int i=0; i<20; i++)
+      files_to_send[i].active = 0;
 
 
+active:
+0 - inactive
+1 - has file waiting to send
+>1 - sent file, waiting for reply
 
 
+now in:
+void mwNetgame::server_control()
 
+make it call a fucntion every frame...
 
+void server_proc_files_to_send(void);
 
+now what does my data_struct look like?
 
 
+I have a filename that could be up to 256 char
 
+should I send the first packet with nothing but the filename?
 
+how will I know that that all the packets belong to one group?
 
+can I use server frame num just like before?  I think that would work...all packets are being sent on the same frame...
 
 
+could I just add a 256 byte char to the data? and possibly some other meta data, like where to store it?
 
+Here is what I think I should do...
 
+- copy the file into memory
+- add the filename and other metadata
+- compress and send
 
 
+on the client side:
+- decompress
+- parse metadata
+- save file
 
 
+pass the file size with the metadata, so that I know how big of a buffer to create...
 
+how am I going to do this?
 
+outside the compressed data? yes...
 
+as part of the header...
 
+I need a persistant place to store packet data as it arrives...and it will need to have a fixed size...
 
 
+   // local client's buffer for building compressed sfil from packets
+   char client_sfil_buffer[100000];
+   int  client_sfil_buffer_pieces[100];   // to mark packet pieces as received
 
 
 
 
+now I need a way to send just the filename and let the client choose the path
 
+I don't know if I want them to end up in the same dir on both ends...
+wait, I think I do!
 
+try that...it works
 
 
 
+holy shit, I am able to transfer a file!!
 
+there is much cleanup and refining still to do...
 
+in ack, how do I know what I am acking?
 
+I am using frame_number on client, but server does not know that...
 
+what if a made a unique random 4 byte integer to identify files I and sending?
+Is this overkill? Is it necessary? Are there easier ways to do it?
 
+when adding file to list generate a unique ID..done
 
+I have the ack done...
 
+now what?
 
+when to use this
 
+to send to clients...
 
+patch one in...
 
+It is coming along nicely...
 
 
+does it work in linux? try headless server...no way to force save...
 
+how about on server, if client quits, try to save and send file before quitting....
+the client immediately quits, don't think that will work...
 
 
+or make it so that the client can request the file to be sent
+I want to make this work...
 
+yet another packet...
+crfl
+client request file
+when the server gets this, it does a force save and sends the files to the client
 
+client initiates with skc
 
+I think that works....
 
 
+now lets try on headless server...
 
+I think it works...
 
 
+now what is a good test?
 
+4 clients
 
+it works exactly like I had hoped it would...
 
+now what?
 
+I would love to be able to do it when a client quits
+but that would mean I need to do a delay instead of letting the client quit immediately
 
+add another state...done...
 
+i think it is all working good now....
 
 
 
+now I need to clean it up and make things optional that need to be...
 
+client gets gm file from server
+- on client quit
+- on level done
 
+I think this should follow the existing flags.
 
+savegame on level quit
 
+if the client has 'mGameMoves.autosave_game_on_level_quit' set
+it should request the file from the server
 
+done...
 
+when level_done on client and 'mGameMoves.autosave_game_on_level_done' set....
 
 
+how about when sending the request to the server, it only replies to that client? is that possible...
+probably not...
+the only time the request is sent is when the client quits, or client sends with skc
+the other time, the server sends and does not know if the client wants it or not....
+I could make it part of syn and then the server would know....
+now the server will be doing it all the time at level done...
 
+right now the server does it whenever autosave is called...
 
+I also want to make optional the saving of the gm text version
 
+I think I have all this stuff working, but I need to figure out how to make it all optional....
 
+I really want to make the copying to clients optional on a per client basis...
 
+that would require the server to know the clients preferences
 
+I think the only one that really matters here is the level_done
 
+but I also want to be able to do it if a new record is attained...
 
+how about par, local_best, all_time_best
 
+I also really want to do some multiplayer best...
 
+and figure out how to layer record
+like have a special interface for that
+hotkeys for different speeds
+customizable punch in options
 
 
 
 
 
+------------------------
 
+I am going to try to make mutiplayer layer recording work....
 
+original:
 
+   if (demo_debug_convert_playback_to_record_with_fire)
+   {
+      // in single demo mode, 'C' key will allow player to take over and start playing level from current position
+      if ((mode == 1) && (mInput.key[ALLEGRO_KEY_C][0]))
+      {
+         key_used = 1;
+         mode = 0;
+         mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER;
 
+         // erase all game moves that have a higher frame number than current
+         for (int x=0; x<GAME_MOVES_SIZE; x++)
+         {
+            if (mGameMoves.arr[x][0] >= mLoop.frame_num)
+               for (int y=0; y<4; y++)
+                  mGameMoves.arr[x][y] = 0;
+         }
 
+         // set new entry pos by finding index of max frame
+         int max_i = 0, max_f = 0;
+         for (int x=0; x<GAME_MOVES_SIZE; x++)
+            if (mGameMoves.arr[x][0] > max_f)
+            {
+               max_f = mGameMoves.arr[x][0];
+               max_i = x;
+            }
+         mGameMoves.entry_pos = max_i + 1;
+      }
+   }
 
+I want a way to know that I am still in demo record mode even though i have left it...
 
 
+I will need some tools for demo levels...
 
+- reorder game moves in chron order
+- remove a player
+- show player ranges
+- change player colors
+- add player inactive at a certain frame
 
 
+if more than one player is active and cm 1 they will both enter game moves into the gm array
+make a test so only alp can do this...done
 
+how will I do the demo recorder
 
+A window that hovers over the main game....
 
 
+Multitrack demo recorder...
 
+slider at the bottom showing the time line
 
+and also showing what players are active for what time ranges
 
+where do I fit it into the state...
+something like a menu...
 
+#define PM_PROGRAM_STATE_DEMO_RECORD                    7
 
+make a horizontal scroll bar with all players active time visible
+make clicking on bar set that time...
 
 
+experimenting with one player with 2 different active section...
+p0 does not work
+other players ok but continued from last pos...probably not what I want...
+I know when clients reconnect they definitely start from start block
+fixed so that when player cuts in, if they are not active, they are reset first
 
 
+now I want to seek to a certain place in the demo and show it...
 
+why do players not playback properly when ff??
 
+its like the players do not go inactive, but they do when actually playing...
 
 
 
+It has to do with the control method...what do I even use PM_PLAYER_CONTROL_METHOD_DEMO_MODE for?
 
+could I use another method to tell if I am in demo mode?
 
+like the actual mode?
 
 
+I need to rethink how this all works...
 
+only one player should ever be PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER and active at the same time
+- that is the one that is getting local input
+- it should also always be active local player
 
+when playing back a demo:
+- all active players should be PM_PLAYER_CONTROL_METHOD_DEMO_MODE
 
+unless one is recording, then that one should be PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER
 
+This is all done and now works...
 
+now make zoom work..done
 
+now show some game moves around the current time...done
 
+now what?
 
+can I implement a play button?...yes!!
 
+what about a record button?
 
+move the game moves to just above the timeline
 
+I can play back demo 23 but it does not look right in demo record
 
+it looks like in my ff setup I actually start on frame 1 instead of zero
+no that is not it
+why?
 
+the only differnce is that new demos make player 0 active on frame 1
+old demos do that on frame 0
+so that might get missed, but why does it play properly, just not in demo record??
 
+do I manually make player 0 active in the normal method?
+yes I do, changing that fixed it...
 
+I have different versions of gm files then....
 
+some make the player active on frame 0 and some on frame 1
 
+this is inconsistant and I want it fixed....
 
+I would like to make it so that game moves on frame zero are processed, the fact that they might get skipped is unacceptable...
 
+The complication is that the first thing the game loop does is increment the frame...
+I did that for some netgame timing issues and don't want to go down the rabbit hole of fixing that..
 
+so what are my options?
+- leave it as is and do not process any frame 0 game moves? ...all the new stuff works this way
 
+The only things that would need to be changed are all my existing demo levels....
+But if I manually make player0 active when setting up a level, it should not make a difference...
 
 
+I had to make my own ff loop, it turns out that the frame++ was in the wrong place...
 
 
+   int target_fn = mLoop.frame_num;
+   mLoop.frame_num = 0;
+   mLoop.ff_state = 1;
+   while (mLoop.frame_num < target_fn)
+   {
+      mLoop.frame_num++;
+      mGameMoves.proc();
+      mLoop.move_frame();
+   }
+   mLoop.ff_state = 0;
 
 
+now all seems well....
 
+I want to make a speed control widget, how about just a slider?
 
+as far as record goes how about this?
 
+punch in buttons (or keys)
 
+when playing
 
+what would they look like?
 
+slider to choose player
+record button
 
+can be presed on its own, or when playing already...
 
+other notes, if gm does not have an ack at the end my thing just keeps going....not true, just does not do level done stuff...
 
+I really want to see the player array for debug reasons...done
 
 
+remember how I wanted to know if I was in demo record mode? I can by checking state
 
+need to enter inactive game move when esc quitting from record....
+the problem is that I can't use escape for some reason
+found the reason!!!! normal demo mode keycheck was eating esc...
 
+need to remove 0 0 0 0 game moves after sorting
 
+what is the best way to do that?
 
 
 
+are there default colors for players
 
+0 = purple
+1 = red
 
+etc...where do they come from??
 
+get unused color?
 
+initial setup:
 
+   mPlayer.syn[1].color = 10;
+   mPlayer.syn[2].color = 11;
+   mPlayer.syn[3].color = 12;
+   mPlayer.syn[4].color = 13;
+   mPlayer.syn[5].color = 14;
+   mPlayer.syn[6].color = 15;
+   mPlayer.syn[7].color = 9;
 
 
+make speed persist for demo recording..done
 
+sort before save...done
 
+fixed zero remove...done
 
+make selecting player num, automatically set default color...done
 
+show overlay in frozen mode..done
 
+don't show bottom message and jq...done
 
+when changing player num also make it alp
 
 
+purple coins in multiplayer does not register as complete, coins got by different players
 
+I should show in the top frame current_player_pc / all_players_purple_coins / total purple coins
 
 
 
 
+make more tools like
+- erase all move past a point
+- insert and delete single game moves
 
 
+show/hide/resize:
+timeline
+game moves list
+player array
+play sections
 
+time display in time as well as frames..done
 
+mark level done
+I will need to actually play level for that to happen...
 
+make a function that plays the gm and finds level_done
 
+also look for acks
 
+make a way to select a section or player from the timeline
 
+could I make an array of found sections?
 
+create an array of sections found...
 
+int active
+int player_num
+int player_color
+int start_frame
+int end_frame
 
+int player_sections[20][5]
 
 
+when record is pressed
+- it records from current time
+- it records for player (rec_player_num)
+- it uses rec_player_color
+- if the player is not active, it inserts player active game move
+- all game moves for that player num to end of gm file are erased
 
+make some toggles at the top of the screen to show/hide various elements
 
 
+make a way of showing if an actual player inactive gm was found or just ran to end of level...
+section[9] -- end type
+0 - none
+1 - inactive
 
 
+show if any deaths occur in timeline
+do this at the same time as finding level done
+I woud like to see activity...
+draw when game moves happen so you can see idle sections
+then draw deaths on top of that...
+maybe only do for active segment...??
 
+detect if active game moves happen on frame 0 -- maybe optionally fix...
 
 
 
+show more data for current section:
 
+should I do a bitmap for each section?
+that sound very expensive and complex
+just count deaths
+level dones
+acks
 
+store that all in sections
+add 3 more to sections
+deaths
+level_done
+ack
 
 
 
+I have broken my game... cant play normally now...why???
+where does it die?
+is is like the frame number never increments?? no it was never drawing...flip...fixed
 
 
 
 
+should I remove all ack from demo's?
+is there a point to keeping them?
+when I am playing back I should just handle it automatically...
+either no acks at all and let it time out....
+or immediately skip in super fast mode...
 
+I think I can make my super fast do all demos now...
+don't use main loop, make my own custom playback for that.....done
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+make a fix button for current section...
+- changes first active to 1 if not already...
+- removes acks
 
 
 

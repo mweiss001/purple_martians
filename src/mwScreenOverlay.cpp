@@ -570,14 +570,22 @@ void mwScreen::sdg_show(int x, int y) // server debug grid
    sdg_show_column(17, x, y); // name and description (server version)
 
 
-
-
-
-
-
-
-
 }
+
+
+void mwScreen::drg_show(int x, int y) // demo record debug grid
+{
+   al_draw_filled_rectangle(x, y, x+104, y+73, mColor.pc[0]);
+   y+=1;
+   sdg_show_column(1, x, y); // player number
+   sdg_show_column(2, x, y); // active
+   sdg_show_column(4, x, y); // control method
+   sdg_show_column(3, x, y); // color
+}
+
+
+
+
 
 void mwScreen::cdg_show(int x, int y) // client debug grid
 {
@@ -605,6 +613,7 @@ void mwScreen::cdg_show(int x, int y) // client debug grid
 //   sdg_show_column(4, x, y); // control method
    sdg_show_column(17, x, y); // name and description (client version)
 }
+
 
 
 void mwScreen::draw_viewport_debug_overlay(int p, int &cx, int &cy)
@@ -1262,9 +1271,12 @@ void mwScreen::draw_screen_overlay(void)
 
    show_level_done();
 
-   mBottomMessage.draw(0);
 
-   show_player_text_overlay();
+   if (!(mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD))
+   {
+      mBottomMessage.draw(0);
+      show_player_text_overlay();
+   }
 
    draw_top_frame(p);
    draw_bottom_frame(p);

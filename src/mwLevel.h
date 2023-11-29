@@ -19,12 +19,18 @@ struct level_data
    int times_beat;
    int times_quit;
 
+
+//   int time_record;
+
    int time_par;
    int time_best;
    int time_best_all_coins;
    int time_worst;
    int time_average;
    int time_total;
+
+
+
 
 };
 
@@ -124,8 +130,6 @@ class mwLevel
    int area_array[100][2];
 
    void unlock_all_level_in_area(int area);
-
-   void complete_all_levels_in_demo_mode(void);
 
 
    void reset_level_data(void);

@@ -73,9 +73,9 @@ void mwConfig::save_config(void)
       asci(GAME, mScreen.viewport_look_player_facing_left_right)
       asci(GAME, mScreen.viewport_look_rocket)
 
-
-
       asci(GAME, mLoop.speed_control_lock)
+      asci(GAME, mLoop.frame_speed)
+
       asci(GAME, mVisualLevel.max_level_num)
       asci(GAME, mVisualLevel.level_icon_size)
 
@@ -119,8 +119,6 @@ void mwConfig::save_config(void)
       asci(LOGGING, mLog.autosave_log_on_program_exit)
 
 
-
-
       asci(DEMO, mDemoMode.config_autoplay_enabled)
 
       asci(DEMO, mGameMoves.autosave_game_on_level_done)
@@ -132,7 +130,6 @@ void mwConfig::save_config(void)
 
       asci(DEMO, mDemoMode.demo_debug_complete_level_on_gate_with_fire)
       asci(DEMO, mDemoMode.demo_debug_running_demo_saves_level_data)
-      asci(DEMO, mDemoMode.demo_debug_convert_playback_to_record_with_fire)
       asci(DEMO, mDemoMode.demo_debug_super_fast_mode_F2);
 
 
@@ -228,6 +225,8 @@ void mwConfig::load_config(void)
    agci(GAME, mScreen.viewport_look_rocket, 1)
 
    agci(GAME, mLoop.speed_control_lock, 1)
+   agci(GAME, mLoop.frame_speed, 40)
+
 
    agci(GAME, mVisualLevel.max_level_num, 100)
    agci(GAME, mVisualLevel.level_icon_size, 40)
@@ -284,7 +283,6 @@ void mwConfig::load_config(void)
 
    agci(DEMO, mDemoMode.demo_debug_complete_level_on_gate_with_fire, 0)
    agci(DEMO, mDemoMode.demo_debug_running_demo_saves_level_data, 0)
-   agci(DEMO, mDemoMode.demo_debug_convert_playback_to_record_with_fire, 0)
    agci(DEMO, mDemoMode.demo_debug_super_fast_mode_F2, 0);
 
    agci(BMSG, mBottomMessage.bottom_msg_on, 1)

@@ -237,6 +237,8 @@ class mwPlayer
    void set_players_shape(int p);
    int is_player_color_used(int color);
    void init_player(int p, int t);
+
+   void set_default_player_colors(void);
    void fill_player_tile(void);
 
    void clear_controls(int p);

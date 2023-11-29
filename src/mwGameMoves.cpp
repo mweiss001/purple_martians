@@ -26,12 +26,18 @@ mwGameMoves::mwGameMoves()
 
 void mwGameMoves::initialize(void)
 {
-   for (int x=0; x<GAME_MOVES_SIZE; x++)
-      for (int y=0; y<4; y++)
-         arr[x][y] = 0;
+   for (int x=0; x<GAME_MOVES_SIZE; x++) clear_single(x);
    entry_pos = 0;
    current_pos = 0;
 }
+
+
+void mwGameMoves::clear_single(int i)
+{
+   for (int y=0; y<4; y++) arr[i][y] = 0;
+}
+
+
 
 int mwGameMoves::has_player_acknowledged(int p)
 {
@@ -51,30 +57,35 @@ void mwGameMoves::proc(void)
    int start_index = entry_pos-1;
    int end_index = 0;
 
-   // reduce search range
-   start_index = current_pos + 100;
-   if (start_index > entry_pos-1) start_index = entry_pos-1;
+   if (!(mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD))
+   {
+      // reduce search range
+      start_index = current_pos + 100;
+      if (start_index > entry_pos-1) start_index = entry_pos-1;
 
-   end_index = current_pos - 100;
-   if (end_index < 0) end_index = 0;
+      end_index = current_pos - 100;
+      if (end_index < 0) end_index = 0;
+   }
 
    for (int x=start_index; x>=end_index; x--)  // search backwards from start_index to end_index
    {
       if (arr[x][0] == mLoop.frame_num) // found frame number that matches current frame
       {
-         if (x > current_pos) current_pos = x; // index of last used gm - keep this at the most recent one, never go back
+         if (!(mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD))
+            if (x > current_pos) current_pos = x; // index of last used gm - keep this at the most recent one, never go back
+
          switch (arr[x][1])
          {
             case PM_GAMEMOVE_TYPE_PLAYER_ACTIVE:    proc_player_active_game_move(x); break;
             case PM_GAMEMOVE_TYPE_PLAYER_INACTIVE:  proc_player_inactive_game_move(x); break;
-
             case PM_GAMEMOVE_TYPE_PLAYER_HIDDEN:    proc_player_hidden_game_move(x); break;
-
             case PM_GAMEMOVE_TYPE_MOVE:             mPlayer.set_controls_from_comp_move(arr[x][2], arr[x][3]); break;
          }
       }
    }
 }
+
+
 
 
 void mwGameMoves::add_game_move2(int frame, int type, int data1, int data2)
@@ -107,6 +118,16 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
    if ((type == 5) && (data2 & PM_COMPMOVE_MENU))  // menu key
    {
       // ----------------------------------------------------------------------------------------
+      // demo record single player quit
+      // ----------------------------------------------------------------------------------------
+      if ((mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) && (mPlayer.syn[data1].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER))
+      {
+         add_game_move2(frame, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, 0);
+         return;
+      }
+
+
+      // ----------------------------------------------------------------------------------------
       // single player mode quit
       // ----------------------------------------------------------------------------------------
       if ((mPlayer.active_local_player == 0) && (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER))
@@ -116,6 +137,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
          mLevel.resume_allowed = 1;
          return;
       }
+
       // ----------------------------------------------------------------------------------------
       // local server quitting
       // ----------------------------------------------------------------------------------------
@@ -148,6 +170,11 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
          add_game_move2(frame + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, 64);
          return;
       }
+
+
+
+
+
 
       sprintf(msg, "Error: menu key not handled...should never get here");
       mInput.m_err(msg);
@@ -192,18 +219,17 @@ void mwGameMoves::proc_player_active_game_move(int x)
       if ((mNetgame.ima_server) || (mNetgame.ima_client))
          if (p != mPlayer.active_local_player) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
 
+
+
       // if player 0 is file play all added players will be too
-      if (mPlayer.syn[0].control_method == 1) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
+      if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
+
 
       mScreen.set_player_text_overlay(p, 1);
 
       mGameEvent.add(6, 0, 0, p, 0, 0, 0);
 
-      if (!mLoop.ff_state)
-      {
-         //if ((mMain.headless_server) && (p)) printf("Player:%d joined\n", p);
-         mLog.add_headerf(LOG_NET, p, 0, "Player:%d became ACTIVE!                                ", p);
-      }
+      if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 0, "Player:%d became ACTIVE!                                ", p);
    }
 }
 
@@ -221,15 +247,12 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
    {
       mPlayer.loc[p].join_frame = mLoop.frame_num;
       mPlayer.loc[p].quit_reason = 74;
-//      mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_USED; // prevent re-use of this player number in this level
       mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER;
       mPlayer.loc[p].who = 99;
    }
 
    if (mPlayer.syn[p].active)
    {
-      //if (mMain.headless_server) printf("Player:%d quit\n", p);
-
       if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 0, "Player:%d became INACTIVE!                              ", p);
 
       // ------------------------------------
@@ -282,17 +305,13 @@ void mwGameMoves::proc_player_inactive_game_move(int x)
          if (!mLoop.ff_state) mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
          mPlayer.init_player(p, 1);
          mNetgame.mStateHistory[p].initialize();  // reset client states
-
-//         mPlayer.syn[p].active = 0;
-//         mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_USED; // prevent re-use of this player number in this level
-//         mPlayer.loc[p].who = 99;
       }
       mScreen.set_player_text_overlay(p, 0);
       mGameEvent.add(7, 0, 0, p, 0, 0, 0);
    }
 }
 
-char* cmtos(int cm, char* tmp)
+char* mwGameMoves::cmtos(int cm, char* tmp)
 {
    sprintf(tmp, " ");
    if (cm > 31) { cm -= 32; strcat(tmp, "[FIRE]");  }
@@ -317,12 +336,7 @@ void mwGameMoves::save_gm_txt(char *sfname)
    char fname[80];
    sprintf(fname, "savegame/%s.txt", sfname);
 
-   printf("%s - saved\n", fname);
-
-   //replace_extension(fname, fname, "txt", sizeof(fname) );
-
    filepntr = fopen(fname,"w");
-
    fprintf(filepntr,"number of entries %d\n", entry_pos);
    fprintf(filepntr,"player_vs_player_shots %d\n",       mPlayer.syn[0].player_vs_player_shots);
    fprintf(filepntr,"player_vs_player_shot_damage %d\n", mPlayer.syn[0].player_vs_player_shot_damage);
@@ -346,12 +360,24 @@ void mwGameMoves::save_gm_txt(char *sfname)
       fprintf(filepntr,"\n");
    }
    fclose(filepntr);
+
+   if (mNetgame.ima_server) // if server, send to all active clients
+   {
+      for (int p=1; p<NUM_PLAYERS; p++)
+         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
+            mNetgame.server_add_file_to_send(fname, mPlayer.loc[p].who);
+   }
 }
 
 void mwGameMoves::save_gm(char *sfname)
 {
    if (entry_pos)
    {
+
+      mDemoMode.demo_sort();
+
+
+
       FILE *filepntr;
       char fname[80];
       sprintf(fname, "savegame/%s.gm", sfname);
@@ -368,7 +394,13 @@ void mwGameMoves::save_gm(char *sfname)
             fprintf(filepntr,"%d\n", arr[x][y]);
       fclose(filepntr);
 
-      save_gm_txt(sfname); // then as a human readable text file
+      if (mNetgame.ima_server) // if server, send to all active clients
+      {
+         for (int p=1; p<NUM_PLAYERS; p++)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
+               mNetgame.server_add_file_to_send(fname, mPlayer.loc[p].who);
+      }
+      save_gm_txt(sfname); // also save as a human readable text file
    }
 }
 
@@ -403,24 +435,28 @@ void mwGameMoves::save_gm_file_select()
 
 void mwGameMoves::autosave_gm(int d)
 {
-   char description[40];
-   if (d == 1) sprintf(description, "level_done_");
-   if (d == 2) sprintf(description, "level_quit_");
-   if (d == 3) sprintf(description, "program_exit_");
-   if (d == 4) sprintf(description, "manual_save_");
+   if (!mNetgame.ima_client) // do not save for clients, the gm is missing data and is not playable
+   {
+      char description[40];
+      if (d == 1) sprintf(description, "level_done_");
+      if (d == 2) sprintf(description, "level_quit_");
+      if (d == 3) sprintf(description, "program_exit_");
+      if (d == 4) sprintf(description, "manual_save_");
+      if (d == 5) sprintf(description, "new_record_");
 
-   char timestamp[40];
-   struct tm *timenow;
-   time_t now = time(NULL);
-   timenow = localtime(&now);
-   strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
+      char timestamp[40];
+      struct tm *timenow;
+      time_t now = time(NULL);
+      timenow = localtime(&now);
+      strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
 
-   char lev[20];
-   sprintf(lev, "-lev%d", mLevel.play_level);
+      char lev[20];
+      sprintf(lev, "-lev%d", mLevel.play_level);
 
-   char filename[120];
-   sprintf(filename, "%s%s%s", description, timestamp, lev);
-   save_gm(filename);
+      char filename[120];
+      sprintf(filename, "%s%s%s", description, timestamp, lev);
+      save_gm(filename);
+   }
 }
 
 
@@ -618,6 +654,8 @@ int mwGameMoves::load_gm(const char *sfname )
          mLevel.play_level = arr[0][3]; // set play level
          mDemoMode.last_frame = arr[entry_pos-1][0];
          if (debug_print) printf("dmlf:%d\n", mDemoMode.last_frame );
+         if (debug_print) printf("fname:%s\n", fname);
+         sprintf(mDemoMode.current_loaded_demo_file, fname);
          return 1;
       }
    }

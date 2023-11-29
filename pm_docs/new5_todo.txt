@@ -3,13 +3,6 @@
 ---------------------------------------------------------
 
 
-
-bug - playing back multiplayer games does not work
-
-
-client ijkl skc does not save config...fixed but need to test to see if it breaks other things
-
-
 clients are losing server connnection more than usual, look into why
 of course now they won't do it...
 why would a client lose server connection?
@@ -20,25 +13,32 @@ it gets reset to 0 with new level player init
 it gets set to frame+200 when client joins
 
 
-
 sometimes weird artifacts show in level background, like msg from previous level??
 have not seen this happen for a long time
-
-
-
-
-
-
-
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
 
-I have a thought about program state and how I save in in an array that slides down so I can see previous states...
-What if the proper code structure for that was a stack?
-push on a new state and to go back pop it off?
+
+Make the autosaving of demos work...
+
+I think I am stuck on the part where I have par and best, but not my absolute best like in the demos...
+
+//   int time_record;
+
+   int time_par;
+   int time_best;
+   int time_best_all_coins;
+   int time_worst;
+   int time_average;
+   int time_total;
+
+Should I save that also?
+
+I would like to do it automatically...
+
 
 
 
@@ -54,36 +54,14 @@ I think logs are always being saved on server
 I should be able to tell from that when players joins
 yes I can but it is not easily parseable
 
-are levels being saved, yes...
-
-what can I run to get one?
-
-pscp -pw zaiden m@96.45.13.253:dev/purple_martians/savegame/level_done_20231119-110349-lev32.gm C:\pm
-
-pscp -pw zaiden m@96.45.13.253:dev/purple_martians/savegame/level_done_20231119-160711-lev1.gm C:\pm
-
-
-drwxrwxrwx  2 m m 4096 Nov 19 16:03 demo/
--rw-rw-r--  1 m m  299 Nov 19 16:07 level_done_20231119-160711-lev1.gm
--rw-rw-r--  1 m m 1850 Nov 19 16:07 level_done_20231119-160711-lev1.txt
-
-pscp -pw zaiden m@96.45.13.253:dev/purple_martians/savegame/level_done_20231119-183820-lev3.gm C:\pm
-pscp -pw zaiden m@96.45.13.253:dev/purple_martians/savegame/level_done_20231119-183820-lev3.txt C:\pm
-
-pscp -pw zaiden m@96.45.13.253:dev/purple_martians/savegame/level_done_20231120-045812-lev80.gm C:\pm
-
-
-
-
 
 
 
 document netgame, yet again
 
 
-
-docs has not been started
-------------------------
+docs that nave not been started
+-------------------------------
 
 how to setup headless server and remote control it
 
@@ -96,8 +74,6 @@ enemies
 lifts
 
 help
-
-
 
 
 doc to do
@@ -472,6 +448,11 @@ VinePod
 -------------------------------
 -- Random thoughts and ideas --
 -------------------------------
+
+
+I have a thought about program state and how I save in in an array that slides down so I can see previous states...
+What if the proper code structure for that was a stack?
+push on a new state and to go back pop it off?
 
 
 look at making screen double do values other than integers like 1.5
