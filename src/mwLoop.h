@@ -33,7 +33,6 @@ class mwLoop
    int speed_control_lock = 0;
    int eco_draw = 0;
 
-   int super_fast_mode = 0;
 
    double frame_start_timestamp = 0;
 

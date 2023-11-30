@@ -461,7 +461,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
          if (mLevel.skc_trigger_demo)
          {
             mLevel.skc_trigger_demo = 0;
-            if (mGameMoves.load_gm(lev))
+            if (mGameMoves.load_demo_level(lev))
             {
                mDemoMode.mode = 1;
                mDemoMode.restore_mode = 42;
@@ -485,7 +485,7 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
          {
             mLevel.skc_trigger_demo = 0;
             if (mLevel.skc_trigger_demo_cheat) mLevel.skc_trigger_demo_cheat = 0; // do nothing if trying to cheat here
-            else if (mGameMoves.load_gm(lev))
+            else if (mGameMoves.load_demo_level(lev))
             {
                mDemoMode.mode = 1;
                mDemoMode.restore_mode = 42;
@@ -496,24 +496,5 @@ void mwItem::show_page(int page, int xc, int bs, int by, int lev, int col)
 
       }
    }
-
-//   // trigger on any page
-//   if (mLevel.skc_trigger_demo)
-//   {
-//      mLevel.skc_trigger_demo = 0;
-//      if (mGameMoves.load_gm(lev))
-//      {
-//         mDemoMode.mode = 1;
-//         mDemoMode.restore_mode = 42;
-//         mDemoMode.restore_level = lev;
-//         mLoop.state[0] = PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN;
-//         mLoop.quit_action = 2;
-//         mLoop.done_action = 2;
-//
-//
-//      }
-//   }
-
-
 }
 

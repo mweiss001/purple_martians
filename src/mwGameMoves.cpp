@@ -37,6 +37,68 @@ void mwGameMoves::clear_single(int i)
    for (int y=0; y<4; y++) arr[i][y] = 0;
 }
 
+// removes entry i and slides all the rest down
+void mwGameMoves::gm_remove(int i)
+{
+   if (entry_pos > 1)
+   {
+      for (int x=i; x<entry_pos-1; x++)
+         for (int k=0; k<4; k++) arr[x][k] = arr[x+1][k];
+      entry_pos--;
+   }
+}
+
+void mwGameMoves::gm_swap(int i, int j)
+{
+   for (int k=0; k<4; k++)
+   {
+      int tmp = arr[i][k];
+      arr[i][k] = arr[j][k];
+      arr[j][k] = tmp;
+   }
+}
+
+void mwGameMoves::gm_sort(void)
+{
+   // first sort by frame
+   int swap_flag = 1;
+   while (swap_flag)
+   {
+      swap_flag = 0;
+      for (int x=0; x<entry_pos-1; x++)
+      {
+         if (arr[x][0] > arr[x+1][0])
+         {
+            gm_swap(x, x+1);
+            swap_flag++; // if any swaps
+         }
+      }
+   }
+
+   // then sort by player num
+   swap_flag = 1;
+   while (swap_flag)
+   {
+      swap_flag = 0;
+      for (int x=0; x<entry_pos-1; x++)
+      {
+         if (arr[x][0] == arr[x+1][0]) // same frame num
+            if (arr[x][2] > arr[x+1][2]) // sort by player num
+            {
+               gm_swap(x, x+1);
+               swap_flag++; // if any swaps
+            }
+      }
+   }
+
+   // now remove all zero entries from the start
+   for (int x=0; x<entry_pos; x++)
+      if ((entry_pos > 4) && (arr[x][0] == 0) && (arr[x][1] == 0) && (arr[x][2] == 0) && (arr[x][3] == 0) )
+      {
+         gm_remove(x);
+         x--;
+      }
+}
 
 
 int mwGameMoves::has_player_acknowledged(int p)
@@ -76,9 +138,10 @@ void mwGameMoves::proc(void)
 
          switch (arr[x][1])
          {
-            case PM_GAMEMOVE_TYPE_PLAYER_ACTIVE:    proc_player_active_game_move(x); break;
-            case PM_GAMEMOVE_TYPE_PLAYER_INACTIVE:  proc_player_inactive_game_move(x); break;
-            case PM_GAMEMOVE_TYPE_PLAYER_HIDDEN:    proc_player_hidden_game_move(x); break;
+            case PM_GAMEMOVE_TYPE_PLAYER_ACTIVE:    proc_game_move_player_active(x); break;
+            case PM_GAMEMOVE_TYPE_PLAYER_INACTIVE:  proc_game_move_player_inactive(x); break;
+            case PM_GAMEMOVE_TYPE_PLAYER_HIDDEN:    proc_game_move_player_hidden(x); break;
+            case PM_GAMEMOVE_TYPE_SHOT_CONFIG:      proc_game_move_shot_config(x); break;
             case PM_GAMEMOVE_TYPE_MOVE:             mPlayer.set_controls_from_comp_move(arr[x][2], arr[x][3]); break;
          }
       }
@@ -96,6 +159,58 @@ void mwGameMoves::add_game_move2(int frame, int type, int data1, int data2)
    arr[entry_pos][3] = data2;
    entry_pos++;
 }
+
+
+void mwGameMoves::insert_game_move(int frame, int type, int data1, int data2)
+{
+   if (frame < entry_pos)
+   {
+      // push all up from frame
+      for (int x = mGameMoves.entry_pos; x > frame; x--)
+         for (int k=0; k<4; k++) mGameMoves.arr[x][k] = mGameMoves.arr[x-1][k];
+
+      mGameMoves.entry_pos++;
+
+      arr[frame][0] = frame;
+      arr[frame][1] = type;
+      arr[frame][2] = data1;
+      arr[frame][3] = data2;
+   }
+}
+
+
+void mwGameMoves::add_game_move_shot_config(int frame)
+{
+   arr[entry_pos][0] = frame;
+   arr[entry_pos][1] = PM_GAMEMOVE_TYPE_SHOT_CONFIG;
+
+   arr[entry_pos][2] = 0;
+   if (mPlayer.syn[0].player_vs_player_shots) arr[entry_pos][2] |= 0b01;
+   if (mPlayer.syn[0].player_vs_self_shots)   arr[entry_pos][2] |= 0b10;
+
+   arr[entry_pos][3] = mPlayer.syn[0].player_vs_player_shot_damage;
+
+   entry_pos++;
+}
+
+
+void mwGameMoves::proc_game_move_shot_config(int i)
+{
+   mPlayer.syn[0].player_vs_player_shots = 0;
+   mPlayer.syn[0].player_vs_self_shots = 0;
+
+   if (arr[i][2] & 0b01) mPlayer.syn[0].player_vs_player_shots = 1;
+   if (arr[i][2] & 0b10) mPlayer.syn[0].player_vs_self_shots = 1;
+
+   mPlayer.syn[0].player_vs_player_shot_damage = arr[i][3];
+}
+
+
+
+
+
+
+
 
 
 void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
@@ -193,7 +308,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 }
 
 
-void mwGameMoves::proc_player_hidden_game_move(int x)
+void mwGameMoves::proc_game_move_player_hidden(int x)
 {
    int p = arr[x][2];  // player number
 
@@ -202,7 +317,7 @@ void mwGameMoves::proc_player_hidden_game_move(int x)
 
 }
 
-void mwGameMoves::proc_player_active_game_move(int x)
+void mwGameMoves::proc_game_move_player_active(int x)
 {
    int p = arr[x][2];  // player number
    int c = arr[x][3];  // color
@@ -233,7 +348,7 @@ void mwGameMoves::proc_player_active_game_move(int x)
    }
 }
 
-void mwGameMoves::proc_player_inactive_game_move(int x)
+void mwGameMoves::proc_game_move_player_inactive(int x)
 {
    int p   = arr[x][2]; // player number
    int val = arr[x][3]; // reason
@@ -329,14 +444,19 @@ char* mwGameMoves::cmtos(int cm, char* tmp)
    return tmp;
 }
 
-void mwGameMoves::save_gm_txt(char *sfname)
+void mwGameMoves::save_gm_txt(const char *sfname)
 {
    char tmp[100];
-   FILE *filepntr;
-   char fname[80];
-   sprintf(fname, "savegame/%s.txt", sfname);
 
-   filepntr = fopen(fname,"w");
+   char fname[128];
+   sprintf(fname, "%s", sfname);
+
+   // change extension to .txt
+   ALLEGRO_PATH *path = al_create_path(fname);
+   al_set_path_extension(path, ".txt");
+   sprintf(fname, "%s", al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
+
+   FILE *filepntr = fopen(fname,"w");
    fprintf(filepntr,"number of entries %d\n", entry_pos);
    fprintf(filepntr,"player_vs_player_shots %d\n",       mPlayer.syn[0].player_vs_player_shots);
    fprintf(filepntr,"player_vs_player_shot_damage %d\n", mPlayer.syn[0].player_vs_player_shot_damage);
@@ -369,47 +489,43 @@ void mwGameMoves::save_gm_txt(char *sfname)
    }
 }
 
-void mwGameMoves::save_gm(char *sfname)
+void mwGameMoves::save_gm(const char *fname)
 {
-   if (entry_pos)
+   if (entry_pos == 0) printf("No game moves to save\n");
+   else
    {
+      gm_sort();
 
-      mDemoMode.demo_sort();
-
-
-
-      FILE *filepntr;
-      char fname[80];
-      sprintf(fname, "savegame/%s.gm", sfname);
-      filepntr = fopen(fname,"w");
-
-      fprintf(filepntr,"%d\n", entry_pos);  // num_entries
-
-      fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_player_shots);
-      fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_player_shot_damage );
-      fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_self_shots);
-
-      for (int x=0; x<entry_pos; x++)
-         for (int y=0; y<4; y++)
-            fprintf(filepntr,"%d\n", arr[x][y]);
-      fclose(filepntr);
-
-      if (mNetgame.ima_server) // if server, send to all active clients
+      FILE *filepntr = fopen(fname,"w");
+      if (filepntr == NULL) printf("Error opening file:%s\n", fname);
+      else
       {
-         for (int p=1; p<NUM_PLAYERS; p++)
-            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
-               mNetgame.server_add_file_to_send(fname, mPlayer.loc[p].who);
+         fprintf(filepntr,"%d\n", entry_pos);  // num_entries
+         fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_player_shots);
+         fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_player_shot_damage );
+         fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_self_shots);
+
+         for (int x=0; x<entry_pos; x++)
+            for (int y=0; y<4; y++)
+               fprintf(filepntr,"%d\n", arr[x][y]);
+         fclose(filepntr);
+
+         if (mNetgame.ima_server) // if server, send to all active clients
+         {
+            for (int p=1; p<NUM_PLAYERS; p++)
+               if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
+                  mNetgame.server_add_file_to_send(fname, mPlayer.loc[p].who);
+         }
+         save_gm_txt(fname); // also save as a human readable text file
       }
-      save_gm_txt(sfname); // also save as a human readable text file
    }
 }
 
-void mwGameMoves::save_gm_file_select()
+void mwGameMoves::save_gm_file_select(void)
 {
    char fname[1024];
    sprintf(fname, "savegame/");
-   //printf("fname:%s\n", fname);
-   // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
+   // convert to 'ALLEGRO_FS_ENTRY' (to make fully qualified path)
    ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
    sprintf(fname, "%s\\", al_get_fs_entry_name(FS_fname));
    //printf("FS_fname:%s\n", fname);
@@ -419,13 +535,8 @@ void mwGameMoves::save_gm_file_select()
    {
       if (al_get_native_file_dialog_count(afc) == 1)
       {
-         const char * r = al_get_native_file_dialog_path(afc, 0);
-         sprintf(fname, "%s", r);
-         //printf("file and path selected:%s\n", fname);
-         // after all this i am going to strip away the fully qualified path and get just the filename
-         ALLEGRO_PATH *p = al_create_path(fname);
-         sprintf(fname, "%s", al_get_path_filename(p));
-         //printf("file selected:%s\n", fname);
+         sprintf(fname, "%s.gm", al_get_native_file_dialog_path(afc, 0));
+         printf("file and path selected:%s\n", fname);
          save_gm(fname);
       }
    }
@@ -454,134 +565,76 @@ void mwGameMoves::autosave_gm(int d)
       sprintf(lev, "-lev%d", mLevel.play_level);
 
       char filename[120];
-      sprintf(filename, "%s%s%s", description, timestamp, lev);
+      sprintf(filename, "savegame/%s%s%s.gm", description, timestamp, lev);
       save_gm(filename);
    }
 }
 
 
-int mwGameMoves::load_gm(int lev)
+int mwGameMoves::load_demo_level(int lev)
 {
    char msg[256];
    sprintf(msg, "savegame/demo/lev%03d.gm", lev);
    return load_gm(msg);
 }
 
+
+
+int mwGameMoves::load_gm_file_select(void)
+{
+   int good_load = 0;
+
+   char fname[1024];
+   sprintf(fname, "savegame/");
+   // convert to 'ALLEGRO_FS_ENTRY' (to make fully qualified path)
+   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
+   sprintf(fname, "%s\\", al_get_fs_entry_name(FS_fname));
+   //printf("FS_fname:%s\n", fname);
+
+   ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Run Demo Filename", "*.gm", 0);
+
+   if (al_show_native_file_dialog(mDisplay.display, afc))
+   {
+      if (al_get_native_file_dialog_count(afc) == 1)
+      {
+         sprintf(fname, "%s", al_get_native_file_dialog_path(afc, 0));
+         printf("file and path selected:%s\n", fname);
+         if (load_gm(fname)) good_load = 1;
+      }
+   }
+   else printf("file select cancelled\n" );
+   al_destroy_native_file_dialog(afc);
+   return good_load;
+}
+
+
+
 int mwGameMoves::load_gm(const char *sfname )
 {
-   int debug_print = 0;
-
-   if (debug_print) printf("sfname:%s\n", sfname);
-
-   int bad_filename = 0;
-
-   FILE *filepntr;
-   char fname[1024];
-
-   if (strlen(sfname) >= 0)
+   // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
+   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(sfname);
+   if (!al_fs_entry_exists(FS_fname))
    {
-
-      sprintf(fname, "%s", sfname);
-
-      if (debug_print) printf("fname:%s\n", fname);
-
-      // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
-      ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
-      sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
-
-      if (debug_print) printf("FS_fname:%s\n", fname);
-
-      // check if the passed filename exists
-      if (!al_fs_entry_exists(FS_fname))
-      {
-         if (debug_print) printf("%s does not exist\n", al_get_fs_entry_name(FS_fname));
-         bad_filename = 1;
-      }
+      printf("%s does not exist\n", al_get_fs_entry_name(FS_fname));
+      return 0;
    }
    else
    {
-      if (debug_print) printf("No filename passed, staring file select\n");
-      bad_filename = 1;
-   }
-
-
-   if (!bad_filename)
-   {
-      // check the filename and extension
-      ALLEGRO_PATH * path = al_create_path(fname);
-      const char *tmp = al_get_path_filename(path);
-      if (strlen(tmp)<1) bad_filename = 1;
-      const char *tme = al_get_path_extension(path);
-      if (strcmp(tme, ".gm") !=0) bad_filename = 1;
-      al_destroy_path(path);
-   }
-
-   // prompt to select file
-   if (bad_filename)
-   {
-      sprintf(fname, "savegame/");
-
-      if (debug_print) printf("fname:%s\n", fname);
-
-      // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
-      ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
-      sprintf(fname, "%s\\", al_get_fs_entry_name(FS_fname));
-
-      if (debug_print) printf("FS_fname:%s\n", fname);
-
-      ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Run Demo Filename", "*.gm", 0);
-
-      if (al_show_native_file_dialog(mDisplay.display, afc))
-      {
-         if (al_get_native_file_dialog_count(afc) == 1)
-         {
-            sprintf(fname, "%s", al_get_native_file_dialog_path(afc, 0));
-            if (debug_print) printf("file selected:%s\n", fname);
-         }
-
-         // check to see if we selected a good filename
-
-         // start by assuming its good
-
-         bad_filename = 0;
-         // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
-         ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
-         sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
-
-         // check if it exists
-         if (!al_fs_entry_exists(FS_fname))
-         {
-            //printf("%s does not exist\n", al_get_fs_entry_name(FS_fname));
-            bad_filename = 1;
-         }
-         if (!bad_filename)
-         {
-            // check the filename and extension
-            ALLEGRO_PATH * path = al_create_path(fname);
-            const char *tmp = al_get_path_filename(path);
-            if (strlen(tmp)<1) bad_filename = 1;
-            const char *tme = al_get_path_extension(path);
-            if (strcmp(tme, ".gm") !=0) bad_filename = 1;
-            al_destroy_path(path);
-         }
-      }
-      else if (debug_print) printf("file select cancelled\n" );
-      al_destroy_native_file_dialog(afc);
-   }
-
-
-
-
-   // after all that, now do we now have a valid filename?
-   if (!bad_filename)
-   {
-      //printf("processing file %s\n", fname);
+      int loop, ch;
+      char buff[2000];
 
       initialize();
 
-      int loop, ch;
-      char buff[2000];
-      if ((filepntr=fopen(fname, "r")))
+      char fname[1024];
+      sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
+
+      FILE *filepntr = fopen(fname, "r");
+      if (filepntr == NULL)
+      {
+         printf("Error opening file:%s\n", fname);
+         return 0;
+      }
+      else
       {
          // first get number of entries
          loop = 0;
@@ -595,7 +648,6 @@ int mwGameMoves::load_gm(const char *sfname )
          buff[loop] = 0;
          entry_pos = atoi(buff);
 
-
          // then pvp_shots
          loop = 0;
          ch = fgetc(filepntr);
@@ -607,8 +659,6 @@ int mwGameMoves::load_gm(const char *sfname )
          }
          buff[loop] = 0;
          mPlayer.syn[0].player_vs_player_shots = atoi(buff);
-
-
 
          // then pvp_shot_damage
          loop = 0;
@@ -653,13 +703,11 @@ int mwGameMoves::load_gm(const char *sfname )
 
          mLevel.play_level = arr[0][3]; // set play level
          mDemoMode.last_frame = arr[entry_pos-1][0];
-         if (debug_print) printf("dmlf:%d\n", mDemoMode.last_frame );
-         if (debug_print) printf("fname:%s\n", fname);
+         //printf("dmlf:%d\n", mDemoMode.last_frame );
+         //printf("fname:%s\n", fname);
          sprintf(mDemoMode.current_loaded_demo_file, fname);
          return 1;
       }
    }
    return 0;
 }
-
-

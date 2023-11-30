@@ -33,12 +33,6 @@ void mwLoop::proc_level_done_mode(void)
 
       mLevel.add_play_data_record(mLevel.play_level, 1);
 
-      if (super_fast_mode) // skip cutscene
-      {
-         mPlayer.syn[0].level_done_mode = 1;
-         state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
-         return;
-      }
 
       mPlayer.syn[0].level_done_timer = 0; // immediate next mode
       cutscene_original_zoom = mDisplay.scale_factor_current;

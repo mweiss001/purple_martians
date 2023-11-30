@@ -40,7 +40,6 @@ class mwDemoMode
 
    int demo_debug_complete_level_on_gate_with_fire;
    int demo_debug_running_demo_saves_level_data;
-   int demo_debug_super_fast_mode_F2;
 
 
    int player_sections[20][20] = {0};
@@ -61,6 +60,9 @@ class mwDemoMode
 
    void play_all_demos_and_save_stats(int x, int y);
 
+   void gdt(void);
+
+
 
    void seek_to_frame(int frame, int draw);
 
@@ -78,12 +80,6 @@ class mwDemoMode
 
    int load_demo_record(void);
    void start_record(void);
-
-
-   void demo_remove(int i);
-   void demo_swap(int i, int j);
-   void demo_sort(void);
-
 
 
    // position and size of the scrollbar track list rectangle (timeline)

@@ -45,7 +45,6 @@ void mwScreen::transition_cutscene(int i, int f)
 {
    if ((!mNetgame.ima_server) && (!mNetgame.ima_client) && (!mDisplay.no_display))
    {
-
       if (LOG_OTH_transitions)
       {
          const char* tcn[5] = {"nothing", "game", "menu", "gate"};
@@ -54,16 +53,8 @@ void mwScreen::transition_cutscene(int i, int f)
 
       if ((i) && (f)) // only in not both 0
       {
-
-
          int num_steps = transition_num_steps;
          float delay = (float)transition_delay/1000;
-
-         if (mLoop.super_fast_mode)
-         {
-            num_steps = 1;
-            delay = 0;
-         }
 
          float fmxi=0;
          float fmyi=0;

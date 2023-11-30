@@ -277,10 +277,6 @@ void mwInput::function_key_check(void)
 
 
 
-   if (mDemoMode.demo_debug_super_fast_mode_F2)
-   {
-      if (key[ALLEGRO_KEY_F2][3]) mLoop.super_fast_mode = !mLoop.super_fast_mode;
-   }
 
    if ((mLoop.level_editor_running) || (mLoop.state[1] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) || (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)) // only do these when game is running or in level editor
    {
