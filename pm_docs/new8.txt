@@ -40564,8 +40564,6 @@ maybe only do for active segment...??
 
 detect if active game moves happen on frame 0 -- maybe optionally fix...
 
-
-
 show more data for current section:
 
 should I do a bitmap for each section?
@@ -40581,12 +40579,9 @@ level_done
 ack
 
 
-
 I have broken my game... cant play normally now...why???
 where does it die?
 is is like the frame number never increments?? no it was never drawing...flip...fixed
-
-
 
 
 should I remove all ack from demo's?
@@ -40597,15 +40592,194 @@ or immediately skip in super fast mode...
 
 I think I can make my super fast do all demos now...
 don't use main loop, make my own custom playback for that.....done
-
-
-
-
-
+removed press key to record demo
+how about also super fast mode
+all done....
 
 make a fix button for current section...
 - changes first active to 1 if not already...
 - removes acks
+
+I want to have something like glt only for demo levels....
+
+load then do things....
+
+- show frame numbers for all player active gm's
+
+- find the time between level done and ack
+
+- find ones with no acks
+
+I have now manually fixed all demo levels to have player 0 active on frame 1 instead of zero
+
+time between level done and ack ... 84 to 155
+
+
+I don't think it really matters
+
+I need to make a way to save the demo with the exact same filename
+
+I should make sure I back things up first....
+
+make save_gm take a fully qualified path, do all of the file and path manipulation before calling it...
+test on linux..seems to work...
+
+fixed all that
+
+changed load_gm a lot, now separate load_gm_prompt and removed all that from regular load...
+
+looks a lot cleaner...
+
+
+pm C:\pm\savegame\lev005_3p_55s.gm
+pm savegame\lev005_3p_55s.gm
+these both work from command line
+
+
+what if I saved the pvp and pvs shots as game moves?
+
+I could do it in one gm
+
+#define PM_GAMEMOVE_TYPE_SHOT_CONFIG              9
+
+      int f = arr[x][0]; // frame
+      int t = arr[x][1]; // type
+      int p = arr[x][2]; // player
+      int v = arr[x][3]; // value
+
+p = bitfield of pvs and pvp
+v = shot values
+
+Why do I want to do this?
+- I already have the ability to change these on the fly with remote server, but I have no way of recording these in gm files
+- it would be a cleaner file format...
+
+add the functionality to game moves...
+
+
+void mwGameMoves::add_game_move_shot_config(int frame)
+{
+   arr[entry_pos][0] = frame;
+   arr[entry_pos][1] = PM_GAMEMOVE_TYPE_SHOT_CONFIG;
+
+   arr[entry_pos][2] = 0;
+   if (mPlayer.syn[0].player_vs_player_shots) arr[entry_pos][2] |= 0b01;
+   if (mPlayer.syn[0].player_vs_self_shots)   arr[entry_pos][2] |= 0b10;
+
+   arr[entry_pos][3] = mPlayer.syn[0].player_vs_player_shot_damage;
+
+   entry_pos++;
+}
+
+void mwGameMoves::proc_game_move_shot_config(int i)
+{
+   mPlayer.syn[0].player_vs_player_shots = 0;
+   mPlayer.syn[0].player_vs_self_shots = 0;
+
+   if (arr[i][2] & 0b01) mPlayer.syn[0].player_vs_player_shots = 1;
+   if (arr[i][2] & 0b10) mPlayer.syn[0].player_vs_self_shots = 1;
+
+   mPlayer.syn[0].player_vs_player_shot_damage = arr[i][3];
+}
+
+
+done...
+
+
+now move these from demo to game_moves
+
+void mwDemoMode::demo_swap(int i, int j)
+void mwDemoMode::demo_remove(int i)
+void mwDemoMode::demo_sort(void)
+
+
+the pieces are coming into place....
+
+next I want to insert or remove a specific game move and then save the gm file
+
+make sure this is all working fine then try to do the convert to using gm for pvp setting
+
+once that is all working fine, then I could load and save gm in binary mode instead of text...???
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

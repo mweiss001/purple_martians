@@ -130,7 +130,9 @@ void mwConfig::save_config(void)
 
       asci(DEMO, mDemoMode.demo_debug_complete_level_on_gate_with_fire)
       asci(DEMO, mDemoMode.demo_debug_running_demo_saves_level_data)
-      asci(DEMO, mDemoMode.demo_debug_super_fast_mode_F2);
+
+
+
 
 
       asci(BMSG, mBottomMessage.bottom_msg_on)
@@ -283,7 +285,6 @@ void mwConfig::load_config(void)
 
    agci(DEMO, mDemoMode.demo_debug_complete_level_on_gate_with_fire, 0)
    agci(DEMO, mDemoMode.demo_debug_running_demo_saves_level_data, 0)
-   agci(DEMO, mDemoMode.demo_debug_super_fast_mode_F2, 0);
 
    agci(BMSG, mBottomMessage.bottom_msg_on, 1)
    agci(BMSG, mBottomMessage.num_lines, 8)

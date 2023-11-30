@@ -948,7 +948,7 @@ void mwSettings::settings_pages(int set_page)
          }
          ya +=10;
          if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Choose file and run saved game"))
-            if (mGameMoves.load_gm(""))
+            if (mGameMoves.load_gm_file_select())
             {
                mDemoMode.mode = 1;
                mDemoMode.restore_mode = 32;
@@ -1424,6 +1424,18 @@ void mwSettings::settings_pages(int set_page)
                ya +=8;
                al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Play all demo levels and set stats."); ya +=8;
                ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+               if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "GDT")) mDemoMode.gdt();
+               ya +=8;
+               //al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Play all demo levels and set stats."); ya +=8;
+               ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+
+                  void gdt(void);
+
+
 
                if (mWidget.buttont(xa+80, ya, xb-80, bts, 0,0,0,0,  0, 10,15, 0,  1,0,1,0, "Reset all level data")) mLevel.reset_level_data();
                ya +=8;
@@ -2071,7 +2083,6 @@ void mwSettings::settings_pages(int set_page)
 
          mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_complete_level_on_gate_with_fire,     "Pressing fire on gate marks level complete", 15, 15);
          mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_running_demo_saves_level_data,        "Running demo always saves level data", 15, 15);
-         mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mDemoMode.demo_debug_super_fast_mode_F2,                   "Toggle super fast mode with F2", 15, 15);
 
 
          ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);

@@ -173,7 +173,7 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
 
       if (strcmp(argument_array[1],"-tc") == 0 ) { copy_files_to_clients(5); exit(0); } // cfg only
 
-      if (strcmp(argument_array[1],"-tu") == 0 ) { pm_copy_src("\\\\scat\\pm_client726"); exit(0); } // copy src dir only to specific linux machine
+      if (strcmp(argument_array[1],"-tu") == 0 ) { pm_copy_src("\\\\scat\\pm23"); exit(0); } // copy src dir only to specific linux machine
 
 
       if (strcmp(argument_array[1],"-la") == 0 ) // turn all logging to console on
@@ -321,7 +321,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-f") == 0 )
       {
          mLogo.show_splash_screen = 0;
-         if (mGameMoves.load_gm(""))
+         if (mGameMoves.load_gm_file_select())
          {
             mDemoMode.mode = 1;
             mDemoMode.restore_mode = 10;

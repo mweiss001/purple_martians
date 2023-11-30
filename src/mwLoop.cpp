@@ -168,7 +168,7 @@ void mwLoop::game_menu(void)
          if (top_menu_sel == 7)  // skc demo
          {
             mLevel.skc_trigger_demo = 0;
-            if (mGameMoves.load_gm(mLevel.play_level))
+            if (mGameMoves.load_demo_level(mLevel.play_level))
             {
                mDemoMode.mode = 1;
                mDemoMode.restore_mode = 22;
@@ -1114,11 +1114,6 @@ void mwLoop::main_loop(void)
       mPacketBuffer.check_for_packets();
 
       // ----------------------------------------------------------
-      // temp testing as fast as it can go
-      // ----------------------------------------------------------
-      if (super_fast_mode) mEventQueue.program_update = 1;
-
-      // ----------------------------------------------------------
       // do things based on the 40 Hz fps_timer event
       // ----------------------------------------------------------
       if (mEventQueue.program_update)
@@ -1208,7 +1203,7 @@ void mwLoop::main_loop(void)
             // ------------------------------
             // draw
             // ------------------------------
-            if ((!mDisplay.no_display) && (ldm != 27) && (!super_fast_mode)) mDrawSequence.draw(0, 1);
+            if ((!mDisplay.no_display) && (ldm != 27)) mDrawSequence.draw(0, 1);
 
 
             mPacketBuffer.check_for_packets();

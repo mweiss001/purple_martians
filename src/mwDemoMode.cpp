@@ -41,7 +41,6 @@ void mwDemoMode::initialize(void)
 
    demo_debug_complete_level_on_gate_with_fire = 0;
    demo_debug_running_demo_saves_level_data = 0;
-   demo_debug_super_fast_mode_F2 = 0;
 
 }
 
@@ -88,6 +87,45 @@ int mwDemoMode::load_demo_file_array(void)
    }
    else return 1;
 }
+
+void mwDemoMode::gdt(void)
+{
+   if (!load_demo_file_array()) return;
+
+   for (int i=0; i<num_demo_filenames; i++)
+   {
+      //printf("index:%d\n",i);
+      mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[i]));
+
+      printf("GDT lev:[%2d] --------------------------------\n", mLevel.play_level);
+
+//      printf("GDT lev:[%2d] -----", mLevel.play_level);
+//      for (int x=0; x<mGameMoves.entry_pos; x++)
+//         if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
+//         {
+//            printf("[%d] p:%d active\n", mGameMoves.arr[x][0], mGameMoves.arr[x][2]);
+//         }
+
+
+      find_level_done();
+
+      printf("[%d] level done\n", level_done_frame);
+
+
+      int ack = 0;
+      for (int x=0; x<mGameMoves.entry_pos; x++)
+         if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)
+         {
+            ack = mGameMoves.arr[x][0];
+            printf("[%d] p:%d ack\n", mGameMoves.arr[x][0], mGameMoves.arr[x][2]);
+         }
+
+      printf("Time between level done and ack  -------  [%d]\n", ack - level_done_frame);
+
+
+   }
+}
+
 
 void mwDemoMode::play_all_demos_and_save_stats(int x, int y)
 {
@@ -237,79 +275,10 @@ void mwDemoMode::key_check(int p)
 }
 
 
-
-void mwDemoMode::demo_swap(int i, int j)
-{
-   for (int k=0; k<4; k++)
-   {
-      int tmp = mGameMoves.arr[i][k];
-      mGameMoves.arr[i][k] = mGameMoves.arr[j][k];
-      mGameMoves.arr[j][k] = tmp;
-   }
-}
-
-// removes entry i and slides all the rest down
-void mwDemoMode::demo_remove(int i)
-{
-   if (mGameMoves.entry_pos > 1)
-   {
-      for (int x=i; x<mGameMoves.entry_pos-1; x++)
-         for (int k=0; k<4; k++) mGameMoves.arr[x][k] = mGameMoves.arr[x+1][k];
-      mGameMoves.entry_pos--;
-   }
-}
-
-
-
-void mwDemoMode::demo_sort(void)
-{
-   // first sort by frame
-   int swap_flag = 1;
-   while (swap_flag)
-   {
-      swap_flag = 0;
-      for (int x=0; x<mGameMoves.entry_pos-1; x++)
-      {
-         if (mGameMoves.arr[x][0] > mGameMoves.arr[x+1][0])
-         {
-            demo_swap(x, x+1);
-            swap_flag++; // if any swaps
-         }
-      }
-   }
-
-   // then sort by player num
-   swap_flag = 1;
-   while (swap_flag)
-   {
-      swap_flag = 0;
-      for (int x=0; x<mGameMoves.entry_pos-1; x++)
-      {
-         if (mGameMoves.arr[x][0] == mGameMoves.arr[x+1][0]) // same frame num
-            if (mGameMoves.arr[x][2] > mGameMoves.arr[x+1][2]) // sort by player num
-            {
-               demo_swap(x, x+1);
-               swap_flag++; // if any swaps
-            }
-      }
-   }
-
-   // now remove all zero entries from the start
-   for (int x=0; x<mGameMoves.entry_pos; x++)
-      if ((mGameMoves.entry_pos > 4) && (mGameMoves.arr[x][0] == 0) && (mGameMoves.arr[x][1] == 0) && (mGameMoves.arr[x][2] == 0) && (mGameMoves.arr[x][3] == 0) )
-      {
-         demo_remove(x);
-         x--;
-      }
-}
-
-
-
 float screen_pos_from_frame_num(float frame, float last_frame, float sb_x1, float sb_w)
 {
    return sb_x1 + (float)sb_w * ((float)frame / (float)last_frame);
 }
-
 
 
 void mwDemoMode::seek_to_frame(int frame, int draw)
@@ -461,7 +430,7 @@ void mwDemoMode::start_record(void)
 
 int mwDemoMode::load_demo_record(void)
 {
-   if (!mGameMoves.load_gm("")) return 0;
+   if (!mGameMoves.load_gm_file_select()) return 0;
    set_player_colors_from_gm();
 
    fill_player_sections();
@@ -750,6 +719,9 @@ void mwDemoMode::demo_record(void)
 
 
          sprintf(msg, "File:%s", al_get_path_filename(al_create_path(current_loaded_demo_file)));
+
+//         sprintf(msg, "File:%s", current_loaded_demo_file);
+
          if (mWidget.buttont(xa, ya, xa+400, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, msg))
             if (!load_demo_record()) quit = 1;
 
@@ -759,8 +731,11 @@ void mwDemoMode::demo_record(void)
                      if (mWidget.buttont(xa+100, ya, xa+180, bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Record")) start_record();
 
          bts = 16;
-         if (mWidget.buttont(xa+200, ya, xa+280, bts,  0,0,0,0,  0,6,15, 0,  1,0,0,0, "sort")) demo_sort();
-         if (mWidget.buttont(xa+300, ya, xa+380, bts,  0,0,0,0,  0,6,15, 0,  1,0,1,0, "save")) mGameMoves.autosave_gm(5);
+         if (mWidget.buttont(xa+200, ya, xa+280, bts,  0,0,0,0,  0,6,15, 0,  1,0,0,0, "sort")) mGameMoves.gm_sort();
+         if (mWidget.buttont(xa+300, ya, xa+380, bts,  0,0,0,0,  0,6,15, 0,  1,0,1,0, "save as new file")) mGameMoves.autosave_gm(5);
+
+
+         if (mWidget.buttont(xa+300, ya, xa+380, bts,  0,0,0,0,  0,6,15, 0,  1,0,1,0, "overwrite")) mGameMoves.save_gm(current_loaded_demo_file);
 
 
          // this is a group to select a player number and color
@@ -798,7 +773,7 @@ void mwDemoMode::demo_record(void)
          if (mWidget.buttont(xa, ya, xa+200, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, msg)) find_level_done();
 
          //mScreen.drg_show(mDisplay.SCREEN_W-130, sb_y1-80); // demo record debug grid
-         draw_gm_txt_lines(sb_x1, sb_y1-24, 20); // show game moves
+//         draw_gm_txt_lines(sb_x1, sb_y1-24, 20); // show game moves
 
 //         // draw section details of all active section
 //         for (int i=0; i<20; i++)
