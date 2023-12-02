@@ -97,8 +97,13 @@ void mwDemoMode::gdt(void)
       //printf("index:%d\n",i);
       mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[i]));
 
-      printf("GDT lev:[%2d] --------------------------------\n", mLevel.play_level);
+//      printf("GDT lev:[%2d] --------------------------------\n", mLevel.play_level);
 
+      printf("GDT lev:[%2d] ----", mLevel.play_level);
+
+
+
+//        // show all player active game moves
 //      printf("GDT lev:[%2d] -----", mLevel.play_level);
 //      for (int x=0; x<mGameMoves.entry_pos; x++)
 //         if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
@@ -107,20 +112,44 @@ void mwDemoMode::gdt(void)
 //         }
 
 
-      find_level_done();
 
-      printf("[%d] level done\n", level_done_frame);
+//      // find time bewteen level done and ack
+//      find_level_done();
+//      printf("[%d] level done\n", level_done_frame);
+//      int ack = 0;
+//      for (int x=0; x<mGameMoves.entry_pos; x++)
+//         if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)
+//         {
+//            ack = mGameMoves.arr[x][0];
+//            printf("[%d] p:%d ack\n", mGameMoves.arr[x][0], mGameMoves.arr[x][2]);
+//         }
+//      printf("Time between level done and ack  -------  [%d]\n", ack - level_done_frame);
+
+      // add shot config and save
+      //mGameMoves.add_game_move_shot_config(1);
+      //mGameMoves.save_gm(current_loaded_demo_file);
 
 
-      int ack = 0;
-      for (int x=0; x<mGameMoves.entry_pos; x++)
-         if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)
-         {
-            ack = mGameMoves.arr[x][0];
-            printf("[%d] p:%d ack\n", mGameMoves.arr[x][0], mGameMoves.arr[x][2]);
-         }
 
-      printf("Time between level done and ack  -------  [%d]\n", ack - level_done_frame);
+      // change shot config
+//      for (int x=0; x<mGameMoves.entry_pos; x++)
+//         if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
+//         {
+//            mGameMoves.arr[x][2] = 0;
+//         }
+//      mGameMoves.save_gm(current_loaded_demo_file);
+
+
+
+
+
+
+      // show shot config
+      printf("pvs:%d pvs:%d dmg:%d\n", mPlayer.syn[0].player_vs_player_shots, mPlayer.syn[0].player_vs_self_shots, mPlayer.syn[0].player_vs_player_shot_damage);
+
+
+//      mGameMoves.save_gm(current_loaded_demo_file);
+
 
 
    }
@@ -308,26 +337,6 @@ void mwDemoMode::seek_to_frame(int frame, int draw)
 }
 
 
-void draw_gm_txt_line(int x, int y, int i)
-{
-   int f = mGameMoves.arr[i][0]; // frame
-   int t = mGameMoves.arr[i][1]; // type
-   int p = mGameMoves.arr[i][2]; // player
-   int v = mGameMoves.arr[i][3]; // value
-
-   char msg[256];
-   if (t == PM_GAMEMOVE_TYPE_LEVEL_START)     sprintf(msg,"-------------START (level:%d)------------- ", v);
-   if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   sprintf(msg,"-------------PLAYER %d ACTIVE (color:%d)-- ", p, v);
-   if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) sprintf(msg,"-------------PLAYER %d INACTIVE------------", p);
-   if (t == PM_GAMEMOVE_TYPE_MOVE)            sprintf(msg,"%s", mGameMoves.cmtos(mGameMoves.arr[i][3], msg));
-   if (t == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)  sprintf(msg,"-------------PLAYER %d ACKNOWLEDGE---------", p);
-
-   int col = mPlayer.syn[mGameMoves.arr[i][2]].color;
-   if (i == 0) col = 15;
-
-   al_draw_textf(mFont.pr8, mColor.pc[col], x, y, 0, "[%3d][%5d][%d][%d][%2d]%s", i, f, t, p, v, msg);
-}
-
 void draw_gm_txt_lines(int x, int y, int num_lines)
 {
 
@@ -353,9 +362,13 @@ void draw_gm_txt_lines(int x, int y, int num_lines)
 
    int ypos = y-num_lines*8;
 
+   char msg[256];
+
    for (int i=gm1; i<gm2; i++)
    {
-      draw_gm_txt_line(x, ypos, i);
+      int col = mPlayer.syn[mGameMoves.arr[i][2]].color;
+      if (i == 0) col = 15;
+      al_draw_text(mFont.pr8, mColor.pc[col], x, ypos, 0, mGameMoves.get_gm_text(i, msg));
       ypos+=8;
    }
 }
@@ -500,6 +513,8 @@ void mwDemoMode::get_more_player_section_info(void)
          //seek_to_frame(0, 1);
       }
 }
+
+
 
 
 void mwDemoMode::fill_player_sections(void)
@@ -737,6 +752,20 @@ void mwDemoMode::demo_record(void)
 
          if (mWidget.buttont(xa+300, ya, xa+380, bts,  0,0,0,0,  0,6,15, 0,  1,0,1,0, "overwrite")) mGameMoves.save_gm(current_loaded_demo_file);
 
+         if (mWidget.buttont(xa+300, ya, xa+380, bts,  0,0,0,0,  0,6,15, 0,  1,0,1,0, "insert")) mGameMoves.add_game_move2(4, 21, 22, 23);
+
+         if (mWidget.buttont(xa+300, ya, xa+380, bts,  0,0,0,0,  0,6,15, 0,  1,0,1,0, "remove")) mGameMoves.gm_remove(2);
+
+
+
+         if (mWidget.buttont(xa+300, ya, xa+380, bts,  0,0,0,0,  0,6,15, 0,  1,0,1,0, "add shot conf"))
+         {
+             mGameMoves.add_game_move_shot_config(1);
+         }
+
+
+
+
 
          // this is a group to select a player number and color
          ya+= 20;
@@ -773,7 +802,7 @@ void mwDemoMode::demo_record(void)
          if (mWidget.buttont(xa, ya, xa+200, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, msg)) find_level_done();
 
          //mScreen.drg_show(mDisplay.SCREEN_W-130, sb_y1-80); // demo record debug grid
-//         draw_gm_txt_lines(sb_x1, sb_y1-24, 20); // show game moves
+         draw_gm_txt_lines(sb_x1, sb_y1-24, 20); // show game moves
 
 //         // draw section details of all active section
 //         for (int i=0; i<20; i++)
