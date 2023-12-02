@@ -148,9 +148,6 @@ void mwGameMoves::proc(void)
    }
 }
 
-
-
-
 void mwGameMoves::add_game_move2(int frame, int type, int data1, int data2)
 {
    arr[entry_pos][0] = frame;
@@ -159,25 +156,6 @@ void mwGameMoves::add_game_move2(int frame, int type, int data1, int data2)
    arr[entry_pos][3] = data2;
    entry_pos++;
 }
-
-
-void mwGameMoves::insert_game_move(int frame, int type, int data1, int data2)
-{
-   if (frame < entry_pos)
-   {
-      // push all up from frame
-      for (int x = mGameMoves.entry_pos; x > frame; x--)
-         for (int k=0; k<4; k++) mGameMoves.arr[x][k] = mGameMoves.arr[x-1][k];
-
-      mGameMoves.entry_pos++;
-
-      arr[frame][0] = frame;
-      arr[frame][1] = type;
-      arr[frame][2] = data1;
-      arr[frame][3] = data2;
-   }
-}
-
 
 void mwGameMoves::add_game_move_shot_config(int frame)
 {
@@ -193,7 +171,6 @@ void mwGameMoves::add_game_move_shot_config(int frame)
    entry_pos++;
 }
 
-
 void mwGameMoves::proc_game_move_shot_config(int i)
 {
    mPlayer.syn[0].player_vs_player_shots = 0;
@@ -204,14 +181,6 @@ void mwGameMoves::proc_game_move_shot_config(int i)
 
    mPlayer.syn[0].player_vs_player_shot_damage = arr[i][3];
 }
-
-
-
-
-
-
-
-
 
 void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 {
@@ -426,23 +395,64 @@ void mwGameMoves::proc_game_move_player_inactive(int x)
    }
 }
 
-char* mwGameMoves::cmtos(int cm, char* tmp)
+
+
+char* mwGameMoves::get_gm_text(int gm, char* tmp)
 {
-   sprintf(tmp, " ");
-   if (cm > 31) { cm -= 32; strcat(tmp, "[FIRE]");  }
-   else                     strcat(tmp, "[    ]");
-   if (cm > 15) { cm -= 16; strcat(tmp, "[JUMP]");  }
-   else                     strcat(tmp, "[    ]");
-   if (cm > 7)  { cm -= 8;  strcat(tmp, "[DOWN]");  }
-   else                     strcat(tmp, "[    ]");
-   if (cm > 3)  { cm -= 4;  strcat(tmp, "[UP]");    }
-   else                     strcat(tmp, "[  ]");
-   if (cm > 1)  { cm -= 2;  strcat(tmp, "[RIGHT]"); }
-   else                     strcat(tmp, "[     ]");
-   if (cm > 0)  { cm -= 1;  strcat(tmp, "[LEFT]");  }
-   else                     strcat(tmp, "[    ]");
+   int f = arr[gm][0]; // frame
+   int t = arr[gm][1]; // type
+   int p = arr[gm][2]; // player
+   int v = arr[gm][3]; // value
+   char dsc[80] = {0};
+   if (t == PM_GAMEMOVE_TYPE_LEVEL_START)     sprintf(dsc, "--- START LEVEL %d ------------- ", v);
+   if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   sprintf(dsc, "--- PLAYER %d ACTIVE (col:%d) -- ", p, v);
+   if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) sprintf(dsc, "--- PLAYER %d INACTIVE ------------", p);
+   if (t == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)  sprintf(dsc, "--- PLAYER %d ACKNOWLEDGE ---------", p);
+
+   if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
+   {
+      int pvp = 0;
+      int pvs = 0;
+      if (p & 0b01) pvp = 1;
+      if (p & 0b10) pvs = 1;
+      sprintf(dsc, "--- SHOT CONFIG pvp:%d pvs:%d dmg:%d ---", pvp, pvs, v);
+   }
+
+
+
+   if (t == PM_GAMEMOVE_TYPE_MOVE)
+   {
+      if (v & PM_COMPMOVE_LEFT) strcat(dsc, "[L]");
+      else                      strcat(dsc, "[ ]");
+      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "[R]");
+      else                      strcat(dsc, "[ ]");
+      if (v & PM_COMPMOVE_UP)   strcat(dsc, "[U]");
+      else                      strcat(dsc, "[ ]");
+      if (v & PM_COMPMOVE_DOWN) strcat(dsc, "[D]");
+      else                      strcat(dsc, "[ ]");
+      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "[JUMP]");
+      else                      strcat(dsc, "[    ]");
+      if (v & PM_COMPMOVE_FIRE) strcat(dsc, "[FIRE]");
+      else                      strcat(dsc, "[    ]");
+
+//      if (v & PM_COMPMOVE_FIRE) strcat(dsc, "[FIRE]");
+//      else                      strcat(dsc, "[    ]");
+//      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "[JUMP]");
+//      else                      strcat(dsc, "[    ]");
+//      if (v & PM_COMPMOVE_DOWN) strcat(dsc, "[DOWN]");
+//      else                      strcat(dsc, "[    ]");
+//      if (v & PM_COMPMOVE_UP)   strcat(dsc, "[UP]");
+//      else                      strcat(dsc, "[  ]");
+//      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "[RIGHT]");
+//      else                      strcat(dsc, "[     ]");
+//      if (v & PM_COMPMOVE_LEFT) strcat(dsc, "[LEFT]");
+//      else                      strcat(dsc, "[    ]");
+   }
+   sprintf(tmp, "[%3d][%5d][%d][%d][%2d] %s", gm, f, t, p, v, dsc);
    return tmp;
 }
+
+
 
 void mwGameMoves::save_gm_txt(const char *sfname)
 {
@@ -458,27 +468,9 @@ void mwGameMoves::save_gm_txt(const char *sfname)
 
    FILE *filepntr = fopen(fname,"w");
    fprintf(filepntr,"number of entries %d\n", entry_pos);
-   fprintf(filepntr,"player_vs_player_shots %d\n",       mPlayer.syn[0].player_vs_player_shots);
-   fprintf(filepntr,"player_vs_player_shot_damage %d\n", mPlayer.syn[0].player_vs_player_shot_damage);
-   fprintf(filepntr,"player_vs_self_shots %d\n",         mPlayer.syn[0].player_vs_self_shots);
    fprintf(filepntr,"[ gm][frame][t][p][cm]\n");
    for (int x=0; x<entry_pos; x++)
-   {
-      int f = arr[x][0]; // frame
-      int t = arr[x][1]; // type
-      int p = arr[x][2]; // player
-      int v = arr[x][3]; // value
-
-      fprintf(filepntr,"[%3d][%5d][%d][%d][%2d]", x, f, t, p, v);
-
-      if (t == PM_GAMEMOVE_TYPE_LEVEL_START)     fprintf(filepntr,"-------------START (level:%d)------------- ", v);
-      if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   fprintf(filepntr,"-------------PLAYER %d ACTIVE (color:%d)-- ", p, v);
-      if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) fprintf(filepntr,"-------------PLAYER %d INACTIVE------------", p);
-      if (t == PM_GAMEMOVE_TYPE_MOVE)            fprintf(filepntr,"%s", cmtos(arr[x][3], tmp));
-      if (t == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)  fprintf(filepntr,"-------------PLAYER %d ACKNOWLEDGE---------", p);
-
-      fprintf(filepntr,"\n");
-   }
+      fprintf(filepntr, "%s\n", get_gm_text(x, tmp));
    fclose(filepntr);
 
    if (mNetgame.ima_server) // if server, send to all active clients
@@ -501,14 +493,13 @@ void mwGameMoves::save_gm(const char *fname)
       else
       {
          fprintf(filepntr,"%d\n", entry_pos);  // num_entries
-         fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_player_shots);
-         fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_player_shot_damage );
-         fprintf(filepntr,"%d\n", mPlayer.syn[0].player_vs_self_shots);
 
          for (int x=0; x<entry_pos; x++)
             for (int y=0; y<4; y++)
                fprintf(filepntr,"%d\n", arr[x][y]);
          fclose(filepntr);
+
+         printf("saved:%s\n", fname);
 
          if (mNetgame.ima_server) // if server, send to all active clients
          {
@@ -647,42 +638,6 @@ int mwGameMoves::load_gm(const char *sfname )
          }
          buff[loop] = 0;
          entry_pos = atoi(buff);
-
-         // then pvp_shots
-         loop = 0;
-         ch = fgetc(filepntr);
-         while((ch != '\n') && (ch != EOF))
-         {
-            buff[loop] = ch;
-            loop++;
-            ch = fgetc(filepntr);
-         }
-         buff[loop] = 0;
-         mPlayer.syn[0].player_vs_player_shots = atoi(buff);
-
-         // then pvp_shot_damage
-         loop = 0;
-         ch = fgetc(filepntr);
-         while((ch != '\n') && (ch != EOF))
-         {
-            buff[loop] = ch;
-            loop++;
-            ch = fgetc(filepntr);
-         }
-         buff[loop] = 0;
-         mPlayer.syn[0].player_vs_player_shot_damage = atoi(buff);
-
-         // then pvs_shots
-         loop = 0;
-         ch = fgetc(filepntr);
-         while((ch != '\n') && (ch != EOF))
-         {
-            buff[loop] = ch;
-            loop++;
-            ch = fgetc(filepntr);
-         }
-         buff[loop] = 0;
-         mPlayer.syn[0].player_vs_self_shots = atoi(buff);
 
          // then get all the entries
          for (int x=0; x<entry_pos; x++)
