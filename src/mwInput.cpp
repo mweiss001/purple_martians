@@ -271,7 +271,7 @@ void mwInput::function_key_check(void)
    // force instant game save and log save
    if (key[function_key_force_save][3])
    {
-      mGameMoves.autosave_gm(4);
+      mGameMoves.save_gm_make_fn("F key force save");
       mLog.save_log_file();
    }
 

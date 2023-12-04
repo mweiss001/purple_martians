@@ -23,7 +23,6 @@ class mwGameMoves
 
    void add_game_move2(int frame, int type, int data1, int data2);
    void add_game_move(int frame, int type, int data1, int data2);
-   void add_game_move_shot_config(int frame);
 
    void proc_game_move_player_active(int x);
    void proc_game_move_player_inactive(int x);
@@ -34,12 +33,15 @@ class mwGameMoves
    int autosave_game_on_level_quit = 0;
    int autosave_game_on_program_exit = 0;
 
+
+   char* get_gm_text2(int gm, int f, int t, int p, int v, char* tmp);
    char* get_gm_text(int gm, char* tmp);
 
-   void save_gm_txt(const char *sfname);
+
+   void save_gm_file_select(void);
+   void save_gm_make_fn(const char* desc);
    void save_gm(const char *sfname);
-   void save_gm_file_select();
-   void autosave_gm(int d);
+   void save_gm_txt(const char *sfname);
 
    int load_demo_level(int lev);
    int load_gm(const char *sfname);

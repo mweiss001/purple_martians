@@ -174,7 +174,8 @@ void mwQuickGraph2::new_entry_pos(void)
 
 
 
-void mwQuickGraph2::add_data(int s, float d)
+
+void mwQuickGraph2::add_data(int s, float d, int erase_only)
 {
    al_set_target_bitmap(bmp);
 
@@ -183,30 +184,30 @@ void mwQuickGraph2::add_data(int s, float d)
    int x3 = x1+1;             // next line
 
 
-
-
-
    // erase old line
    al_draw_line(x1, 0, x3, height, mColor.pc[col1+bco], 1);
 
-   // convert ranges
-   float y1 = height - (d -                   data_min) / data_rng * height;
-   float y2 = height - (series[s].last_data - data_min) / data_rng * height;
+   if (!erase_only)
+   {
 
-   // if data is out of bounds clamp to edges
-   if (y1 <= 1) y1 = 2;
-   if (y1 >= height) y1 = height-1;
+      // convert ranges
+      float y1 = height - (d -                   data_min) / data_rng * height;
+      float y2 = height - (series[s].last_data - data_min) / data_rng * height;
 
-   if (y2 <= 1) y2 = 2;
-   if (y2 >= height) y2 = height-1;
+      // if data is out of bounds clamp to edges
+      if (y1 <= 1) y1 = 2;
+      if (y1 >= height) y1 = height-1;
 
-   // draw new line (unless it wraps)
-   if (x1 > x2) al_draw_line(x1, y1, x2, y2, mColor.pc[series[s].color], 1);
+      if (y2 <= 1) y2 = 2;
+      if (y2 >= height) y2 = height-1;
 
-   series[s].last_data = d;
+      // draw new line (unless it wraps)
+      if (x1 > x2) al_draw_line(x1, y1, x2, y2, mColor.pc[series[s].color], 1);
 
-   RA.add_data(d);
+      series[s].last_data = d;
 
+      RA.add_data(d);
+   }
 }
 
 void mwQuickGraph2::draw_graph(void)

@@ -91,7 +91,8 @@ void mwMain::fast_exit(int why)
 {
    if (why != 0) mPlayer.loc[mPlayer.active_local_player].quit_reason = why; // don't overwrite if not zero
    if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
-   if (mGameMoves.autosave_game_on_program_exit) mGameMoves.autosave_gm(3);
+   if (mGameMoves.autosave_game_on_program_exit) mGameMoves.save_gm_make_fn("autosave on program exit");
+
    final_wrapup();
    exit(0);
 }
@@ -308,7 +309,7 @@ int mwMain::pm_main(int argument_count, char **argument_array)
       mLoop.main_loop();
    }
    if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
-   if (mGameMoves.autosave_game_on_program_exit) mGameMoves.autosave_gm(3);
+   if (mGameMoves.autosave_game_on_program_exit) mGameMoves.save_gm_make_fn("autosave on program exit");
 
    mConfig.save_config();
 

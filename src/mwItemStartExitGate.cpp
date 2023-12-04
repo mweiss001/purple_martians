@@ -326,6 +326,9 @@ void mwItem::draw_line(int x1, int x2, int y, const char * txt1, const char * tx
    al_draw_text(mFont.pr8, mColor.pc[col], x2-tl-1, y, 0, txt2);
 }
 
+
+
+
 // format time from frames to seconds or minutes
 char * mwItem::chrms(int time, char* ft)
 {

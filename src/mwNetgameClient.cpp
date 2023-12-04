@@ -314,23 +314,23 @@ void mwNetgame::client_proc_snfo_packet(int i)
                {
                   mQuickGraph2[1].series[i].active = 1;
                   mQuickGraph2[1].series[i].color = mPlayer.syn[i].color;
-                  mQuickGraph2[1].add_data(i, mPlayer.loc[i].pdsync*1000);
+                  mQuickGraph2[1].add_data(i, mPlayer.loc[i].pdsync*1000, 0);
 
                   mQuickGraph2[2].series[i].active = 1;
                   mQuickGraph2[2].series[i].color = mPlayer.syn[i].color;
-                  mQuickGraph2[2].add_data(i, mPlayer.loc[i].ping*1000);
+                  mQuickGraph2[2].add_data(i, mPlayer.loc[i].ping*1000, 0);
 
                   mQuickGraph2[3].series[i].active = 1;
                   mQuickGraph2[3].series[i].color = mPlayer.syn[i].color;
-                  mQuickGraph2[3].add_data(i, mPlayer.loc[i].cmp_dif_size);
+                  mQuickGraph2[3].add_data(i, mPlayer.loc[i].cmp_dif_size, 0);
 
                   mQuickGraph2[6].series[i].active = 1;
                   mQuickGraph2[6].series[i].color = mPlayer.syn[i].color;
-                  mQuickGraph2[6].add_data(i, mPlayer.loc[i].client_loc_plr_cor);
+                  mQuickGraph2[6].add_data(i, mPlayer.loc[i].client_loc_plr_cor, 0);
 
                   mQuickGraph2[7].series[i].active = 1;
                   mQuickGraph2[7].series[i].color = mPlayer.syn[i].color;
-                  mQuickGraph2[7].add_data(i, mPlayer.loc[i].client_rmt_plr_cor);
+                  mQuickGraph2[7].add_data(i, mPlayer.loc[i].client_rmt_plr_cor, 0);
                }
 
             for (int i=0; i<8; i++) // cycle all players
@@ -338,16 +338,28 @@ void mwNetgame::client_proc_snfo_packet(int i)
                {
                   mQuickGraph2[0].series[i].active = 1;
                   mQuickGraph2[0].series[i].color = mPlayer.syn[i].color;
-                  mQuickGraph2[0].add_data(i, mPlayer.loc[i].cpu);
+                  mQuickGraph2[0].add_data(i, mPlayer.loc[i].cpu, 0);
 
                   mQuickGraph2[4].series[i].active = 1;
                   mQuickGraph2[4].series[i].color = mPlayer.syn[i].color;
-                  mQuickGraph2[4].add_data(i, mPlayer.loc[i].tx_bytes_per_tally/1000);
+                  mQuickGraph2[4].add_data(i, mPlayer.loc[i].tx_bytes_per_tally/1000, 0);
 
                   mQuickGraph2[5].series[i].active = 1;
                   mQuickGraph2[5].series[i].color = mPlayer.syn[i].color;
-                  mQuickGraph2[5].add_data(i, mPlayer.loc[i].rewind);
+                  mQuickGraph2[5].add_data(i, mPlayer.loc[i].rewind, 0);
                }
+
+
+            // if no clients are active, erase and scroll graph data (otherwise old data just keeps scrolling forever)
+            int ca = 0;
+            for (int i=1; i<8; i++)
+               if (mPlayer.syn[i].active) ca++;
+
+            if (ca == 0)
+               for (int i=1; i<8; i++)
+                  for (int j=0; j<8; j++) mQuickGraph2[j].add_data(i, 0, 1); // erase line only
+
+
             for (int i=0; i<8; i++) mQuickGraph2[i].new_entry_pos();
          }
       }
