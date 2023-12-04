@@ -378,7 +378,8 @@ void mwLoop::proc_program_state(void)
          if (mNetgame.ima_client) mNetgame.ClientExitNetwork();
 
          if (mLog.autosave_log_on_level_quit) mLog.save_log_file();
-         if (mGameMoves.autosave_game_on_level_quit) mGameMoves.autosave_gm(2);
+
+         if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit");
 
          mSound.stop_sound();
 
@@ -459,6 +460,7 @@ void mwLoop::proc_program_state(void)
    {
       mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_EXIT]\n");
       mNetgame.ClientExitNetwork();
+
       quit_action = 1; // to prevent quitting clients from automatically going to overworld
       state[0] = PM_PROGRAM_STATE_MENU;
    }
@@ -611,9 +613,8 @@ void mwLoop::proc_program_state(void)
          mNetgame.ServerFlush();
          mLog.log_ending_stats_server(LOG_NET_ending_stats);
       }
-
       if (mLog.autosave_log_on_level_done) mLog.save_log_file();
-      if (mGameMoves.autosave_game_on_level_done) mGameMoves.autosave_gm(1);
+      if (mGameMoves.autosave_game_on_level_done) mGameMoves.save_gm_make_fn("autosave on level done");
 
 
 // --------------------------------------------------------
@@ -794,8 +795,8 @@ void mwLoop::proc_program_state(void)
 
          for (int p=0; p<NUM_PLAYERS; p++)
          {
-            mPlayer.init_player(p, 1);            // full reset
-            mPlayer.set_player_start_pos(p, 0);   // get starting position for all players, active or not
+            mPlayer.init_player(p, 1);         // full reset
+            mPlayer.set_player_start_pos(p);   // get starting position for all players, active or not
          }
          mScreen.transition_cutscene(0, 2); // nothing to menu
          quit_action = 99;  // to prevent transition in state 1
@@ -811,8 +812,8 @@ void mwLoop::proc_program_state(void)
 
          for (int p=0; p<NUM_PLAYERS; p++)
          {
-            mPlayer.init_player(p, 1);            // full reset
-            mPlayer.set_player_start_pos(p, 0);   // get starting position for all players, active or not
+            mPlayer.init_player(p, 1);         // full reset
+            mPlayer.set_player_start_pos(p);   // get starting position for all players, active or not
          }
          quit_action = 99;  // to prevent transition in state 1
          state[0] = PM_PROGRAM_STATE_MENU;
@@ -930,8 +931,8 @@ void mwLoop::setup_players_after_level_load(int type)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
    {
-      mPlayer.init_player(p, type);        // type 1 = full reset, type 2 = level done reset
-      mPlayer.set_player_start_pos(p, 0);  // get starting position for all players, active or not
+      mPlayer.init_player(p, type);     // type 1 = full reset, type 2 = level done reset
+      mPlayer.set_player_start_pos(p);  // get starting position for all players, active or not
    }
    mPlayer.syn[0].active = 1;
 }
@@ -951,11 +952,13 @@ void mwLoop::setup_common_after_level_load(void)
 
    if (!mDemoMode.mode)
    {
-      mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
-
       // add initial special game moves
 
+      mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
+
       mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
+
+      mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_SHOT_CONFIG, 0, 0);
 
       // save colors in game moves array
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -981,7 +984,7 @@ void mwLoop::add_local_cpu_data(double cpu)
       mQuickGraph[0].add_data(3, mRollingAverage[0].avg);
 
       // new style graph
-      mQuickGraph2[9].add_data(0, mRollingAverage[0].mx);
+      mQuickGraph2[9].add_data(0, mRollingAverage[0].mx, 0);
       mQuickGraph2[9].new_entry_pos();
    }
 }
@@ -1203,7 +1206,7 @@ void mwLoop::main_loop(void)
             // ------------------------------
             // draw
             // ------------------------------
-            if ((!mDisplay.no_display) && (ldm != 27)) mDrawSequence.draw(0, 1);
+            if ((!mDisplay.no_display) && (ldm != 27)) mDrawSequence.ds_draw(0, 1);
 
 
             mPacketBuffer.check_for_packets();

@@ -16,6 +16,39 @@ it gets set to frame+200 when client joins
 sometimes weird artifacts show in level background, like msg from previous level??
 have not seen this happen for a long time
 
+
+on remote control, when a client quits, the graphs still scroll the data for that client on a loop
+nothing is overwriting it...
+make it so that if no clients, it still gets overwritten...
+
+tried this:
+
+            for (int i=0; i<8; i++) // cycle all inactive players and disable their graph series
+               if (!mPlayer.syn[i].active)
+                  for (int j=0; j<8; j++) mQuickGraph2[j].series[i].active = 0;
+
+does not erase...
+this fixed it...
+
+
+
+            // if no clients are active, erase and scroll graph data
+            int ca = 0;
+            for (int i=1; i<8; i++)
+               if (mPlayer.syn[i].active) ca++;
+
+            if (ca == 0)
+            {
+               for (int i=1; i<8; i++)
+                  for (int j=0; j<8; j++) mQuickGraph2[j].add_data(i, 0, 1);
+            }
+
+
+
+
+
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------

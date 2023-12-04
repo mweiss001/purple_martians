@@ -415,16 +415,44 @@ void mwNetgame::server_proc_rctl_packet(int i)
       if (mNetgame.srv_exp_siz > 1000)  mNetgame.srv_exp_siz = 1000;
    }
 
+
+   // ----------------------------------------------------------------------------------------
+   // shot config adjustments - do not apply directly, add a game move one frame in the future
+   // ----------------------------------------------------------------------------------------
+   int shot_config_change = 0;
+   int new_dmg = mPlayer.syn[0].player_vs_player_shot_damage;
+   int new_pvp = mPlayer.syn[0].player_vs_player_shots;
+   int new_pvs = mPlayer.syn[0].player_vs_self_shots;
+
    if (type == PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj)
    {
-      mPlayer.syn[0].player_vs_player_shot_damage += val;
-      if (mPlayer.syn[0].player_vs_player_shot_damage < -100)  mPlayer.syn[0].player_vs_player_shot_damage = -100;
-      if (mPlayer.syn[0].player_vs_player_shot_damage > 100)  mPlayer.syn[0].player_vs_player_shot_damage = 100;
+      shot_config_change = 1;
+      new_dmg += val;
+      if (new_dmg < -100) new_dmg = -100;
+      if (new_dmg >  100) new_dmg =  100;
+   }
+   if (type == PM_RCTL_PACKET_TYPE_pvp_shots_toggle)
+   {
+      shot_config_change = 1;
+      new_pvp = !new_pvp;
+   }
+   if (type == PM_RCTL_PACKET_TYPE_pvs_shots_toggle)
+   {
+      shot_config_change = 1;
+      new_pvs = !new_pvs;
+   }
+   if (shot_config_change)
+   {
+      int sc = 0;
+      if (new_pvp) sc |= 0b01;
+      if (new_pvs) sc |= 0b10;
+      mGameMoves.add_game_move2(mLoop.frame_num+1, PM_GAMEMOVE_TYPE_SHOT_CONFIG, sc, new_dmg);
    }
 
+
+
+
    if (type == PM_RCTL_PACKET_TYPE_server_reload) server_reload((int)val);
-   if (type == PM_RCTL_PACKET_TYPE_pvp_shots_toggle) mPlayer.syn[0].player_vs_player_shots = !mPlayer.syn[0].player_vs_player_shots;
-   if (type == PM_RCTL_PACKET_TYPE_pvs_shots_toggle) mPlayer.syn[0].player_vs_self_shots = !mPlayer.syn[0].player_vs_self_shots;
    if (type == PM_RCTL_PACKET_TYPE_fakekey_toggle) mPlayer.syn[0].server_force_fakekey = !mPlayer.syn[0].server_force_fakekey;
    if (type == PM_RCTL_PACKET_TYPE_force_client_offset) mPlayer.syn[0].server_force_client_offset = !mPlayer.syn[0].server_force_client_offset;
 
@@ -632,7 +660,7 @@ void mwNetgame::server_proc_cjon_packet(int i)
 
       mPlayer.init_player(cn, 1); // full player reset
       mStateHistory[cn].initialize();
-      mPlayer.set_player_start_pos(cn, 0);
+      mPlayer.set_player_start_pos(cn);
       mPlayer.syn[cn].active = 1;
       mPlayer.syn[cn].color = color;
       mPlayer.syn[cn].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
@@ -795,7 +823,7 @@ void mwNetgame::server_proc_sfak_packet(int i)
 void mwNetgame::server_proc_crfl_packet(int i)
 {
    //printf("rx crfl\n");
-   mGameMoves.autosave_gm(4);
+   mGameMoves.save_gm_make_fn("server save on rx crfl packet");
 }
 
 void mwNetgame::server_add_file_to_send(const char * filename, int who)

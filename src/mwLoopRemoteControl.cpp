@@ -243,6 +243,7 @@ void mwLoop::remote_control_loop(void)
    }
 
 
+
    for (int i=0; i<8; i++)
       if (mQuickGraph2[i].active) mQuickGraph2[i].draw_graph();
 

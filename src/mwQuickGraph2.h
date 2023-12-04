@@ -52,7 +52,7 @@ class mwQuickGraph2
    void autorange(void);
 
 
-   void add_data(int series, float d);
+   void add_data(int series, float d, int erase_only);
 
    struct data_series
    {

@@ -8,7 +8,7 @@ class mwDrawSequence
 
    mwDrawSequence(); // default constructor
    void initialize(void);
-   void draw(int setup_only, int flip);
+   void ds_draw(int setup_only, int flip);
    void add(int& i);
    void show_text(int x, int y);
 

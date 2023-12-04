@@ -40821,8 +40821,583 @@ headless server will have p0 active but hidden
 
 can other demos have p0 inactive? test if that will work...
 
-
 test if setting all demos to 0 0 5 makes them still playable
+
+there were 3 levels that did not complete so I manually editted them...
+
+20231202
+try playing demos created on headless server
+looks like it works
+
+
+there is no shot config game move...
+
+where do I need to set it?
+same place as player active...done
+
+that seems to work...
+
+now can I do a change in the middle of a game...
+
+I think I can and I think it is working...
+
+does it go active on the correct frame?
+
+should I make the server read it from game moves array? that would be better...did that...
+
+
+
+If it is changed on a client by the server, does that get saved in the clients config as the new default?
+yes, it looks like it does
+how can I avoid this?
+
+just like the player color, if overridden by the server, I want to restore it...
+
+load config is already called from client exit network
+
+where does it get saved?
+
+now I cant seem to reproduce it...
+
+in demo mode when a player leaves the game they still show??
+actually I think that is working properly
+
+but if a client leaves the game and other players are still active, they will not have the proper inactive game moves...
+this is exactly how it should be.....
+
+what about when player 0 is not active?
+I think player zero always needs to be active
+
+single player, always p0
+normal netgame, p0 always active (if server quits, game is done)
+headless netgame, same only p0 is hidden (not inactive, just never shown and never interacts with the level)
+in demo mode, when would p0 be inactive? only when I was step recording...
+add tag in step recording to show that player is hidden
+
+
+
+make a different tag for the start of the filename when copied from server
+it just blindly copies, I will need to change it on the server...
+while I am at it, should I change the filename format to have the timestamp first?
+I think I will...done
+made more changes to the way that works
+now when ever I call to save gm i pass the desc text with it...
+
+they all call save_gm and that is what sends the files to all active clients
+
+
+dont save gm for level 1, ever....
+or if in demo mode
+done...hope it doesn't interfere with other stuff....
+
+
+can I remove the manual setting p0 active when starting demo?
+still shows on frame 0, until frame 1 hides it...
+is this really a big deal?
+what if I just make demo record rewind to frame 1?
+i think I need to add    current_frame_num = 1;
+I think it is fixed and will stay like this..
+
+
+show cpu usage when running...make custom like the other loop...
+done
+
+I want to be able to see the actual frames_per_second set, if not set to 40....
+
+make toggles to turn off sections
+
+cleaned up level_done real nice...
+
+why does it still flicker when playing?
+
+fixed I think, extra flip!!!
+
+what gets call with refresh?
+level_done??
+
+
+where do I keep track of level done?
+
+I don't need it for each segment, there can only be one
+
+   void find_level_done(void);
+   int level_done_frame = -1;
+   int level_done_player = -1;
+
+
+
+can I do a save as with file select?
+I don't think I was ever able to get that working in windows file save dialog...
+
+file stuff
+load new file
+save (overwrite)
+save with timestamp new filename
+save prompt for filename
+
+these all look good...
+when saving with these, make the current filename the saved name when done
+
+having trouble adding extra players
+
+
+20231203
+
+-------------------------------------------
+I want to view game moves list for one player only
+by filtering out game moves from other players
+
+this has turned out to be harder than I thought.
+
+I am thinking of making a separate filtered array
+done....
+---------------------------
+
+I would like to be able to scroll the game moves list
+then the current time would also move
+...?? maybe??
+---------------------------
+
+also being able to select a certain game move with mouse and
+- delete
+- edit
+---------------------------
+
+---------------------------
+
+make ending recording optionally add inactive move
+- if recording and esc pressed
+- if stop is pressed
+---------------------------
+
+
+
+what is set colors from gm and why do I need it?
+also set default color??
+I don't know why?
+
+disabled all of both, lets see what happens
+
+sections are not colored properly
+
+could I make color a property of section?
+it is, but I am filling it wrong..fixed
+I now have permanently removed set player colors
+
+
+
+make frame/time apply to section details also..done
+
+
+
+---------------------------
+
+frame and title the record section
+record player number
+record player color
+these can be set by setting current section
+or modified manually
+done
+---------------------------
+
+add to section
+- number of game moves
+- last game move
+show in section details
+done....
+
+
+int arr[10000][4];
+when setting a section active,load this...
+
+
+why does a player going inactive not show in demo record?
+
+it does, but the file needs to be reloaded??...no
+
+I think it is only if that player is the active_local_player....fixed by testing if active_local_player is active in draw player...
+
+make it so that add inactive game move erases all game moves after...done
+need to test, but first fix...single list clamps to end...fixed
+
+
+
+I have got a lot of things done...
+I want to go back to testing and seeing how easy it is to use...
+
+
+
+usage...start playing new level and save...
+
+
+in demo record
+-load that demo
+-set rec to p1, leave col as red
+with current frame set to 1 press record
+when done, hit esc and get taken back to main menu
+
+this gets saved automatically on quit
+
+neither player has inactive game move
+
+added player 2 with color while at frame 100
+
+looks good
+
+last frame for p2 was 700
+added inactive at frame 710 and manually saved
+
+still all good...
+
+lets try taking over for a player...
+
+
+set rec player to 0 and played, then pressed record to take over
+it worked, but again, pressing esc, sent me back to main menu...
+
+
+I have a var 'play' that lets me know when I am playing, but do I have something for record?
+I would like to trap the esc in that mode....
+
+actually I just moved the esc test at the bottom of the loop to inside..
+now the loop gets frist crack at it and it saves inactice just like it should..
+
+however it still quits to main menu, see if can trap that...done...
+
+noice, now what to test?
+
+
+I would like a punch in record option...
+when set, and in play mode, any key press starts recording
+
+--------------------------------------
+make timeline set mouse detection wider..done
+--------------------------------------
+make settable number of lines in gm_list
+--------------------------------------
+reduce line spacing and clear background for checkboxes
+--------------------------------------
+all done
+
+I think I have punch in mode working!!!
+
+noice!!!!
+
+do some more tests....
+
+
+bug - when a new player joins they do not join at the correct spawn point....
+maybe after death it is good, but I need to to get start pos when joining also...
+
+
+void mwPlayer::set_player_start_pos(int p, int cont)
+
+if cont == 0 the force to use start index 0
+
+there are 8 calls to set_player_start_pos()
+and all but one force index 0;
+
+the only one that does not it coming back after death....
+
+is this the way that I want it?
+
+
+I don't think so...
+
+I want all player to use the current spawn point, even if they are just joining.
+it make no sense to have them ignore the current one and start at index 0, then by touching that it will now become current...
+
+
+I am going to remove this behaviour and see if any demos break...they are all single player so they should not....
+
+they all seem to play back properly
+
+now it works in playback, but not in demo record...fixed
+
+when saving, update the filename and load again..
+
+add to section buttons...delete all game moves past level done...done
+
+make a reload button
+
+I can erase from position to end by adding inactive move then removing it...
+
+this seems to be working well...it is easy to use...
+
+the timeline gets in the way of recording sometimes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+when changing player 0 it gets saved to the config, I would like to not do that....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

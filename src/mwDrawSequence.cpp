@@ -23,7 +23,7 @@ mwDrawSequence mDrawSequence;
 mwDrawSequence::mwDrawSequence()
 {
    initialize();
-   draw(1, 0);
+   ds_draw(1, 0);
 }
 
 void mwDrawSequence::initialize(void)
@@ -51,7 +51,7 @@ void mwDrawSequence::add(int &i)
    i++;
 }
 
-void mwDrawSequence::draw(int setup_only, int flip)
+void mwDrawSequence::ds_draw(int setup_only, int flip)
 {
    int i=0;
 
@@ -198,7 +198,6 @@ void mwDrawSequence::draw(int setup_only, int flip)
    }
 
 
-
 //   if (setup_only) add_names(i, "vpod", "vinepods direct to screen");
 //   else
 //   {
@@ -210,16 +209,9 @@ void mwDrawSequence::draw(int setup_only, int flip)
    mPacketBuffer.check_for_packets();
 
    mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw players direct to screen\n", mLoop.frame_num);
-   if (setup_only) add_names(i, "d-plrd", "players direct to screen");
-   else
-   {
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active) mPlayer.draw_player_direct_to_screen(p);
+   if (setup_only) add_names(i, "d-plyr", "draw_players");
+   else { mPlayer.draw_players_direct_to_screen(); add(i); }
 
-      // do this so that that local player is always drawn on top
-      mPlayer.draw_player_direct_to_screen(mPlayer.active_local_player);
-      add(i);
-   }
 
 
    mPacketBuffer.check_for_packets();
@@ -274,9 +266,6 @@ void mwDrawSequence::draw(int setup_only, int flip)
 //      sprintf(msg, "%s%s:[%0.4f] " , msg, name[0][i], (ts[i] - ts[i-1]) * 1000 );
 //   sprintf   (msg, "%s%s:[%0.4f]\n", msg, name[0][ns-1], totl * 1000);  // total
 //   mLog.add_tmr(LOG_TMR_draw_all, 0, msg);
-
-
-
 
    // profile draw total
    mLog.add_tmr1(LOG_TMR_draw_tot, 0, "draw", totl);

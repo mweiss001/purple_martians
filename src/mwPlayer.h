@@ -211,7 +211,7 @@ class mwPlayer
    struct ploc loc[NUM_PLAYERS];
    int active_local_player = 0;
 
-   void set_player_start_pos(int p, int cont);
+   void set_player_start_pos(int p);
    void proc_player_health(int p);
    void proc_player_xy_move_test(int p);
    void proc_player_xy_move(int p);
@@ -231,6 +231,11 @@ class mwPlayer
    void move_players(void);
 
    void draw_player_direct_to_screen(int p);
+
+   void draw_players_direct_to_screen(void);
+
+
+
 
    void draw_player(int p);
    void draw_players(void);

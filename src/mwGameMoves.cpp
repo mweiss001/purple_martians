@@ -91,6 +91,22 @@ void mwGameMoves::gm_sort(void)
       }
    }
 
+   // then put shot config first of all in the same frame
+   swap_flag = 1;
+   while (swap_flag)
+   {
+      swap_flag = 0;
+      for (int x=0; x<entry_pos-1; x++)
+      {
+         if (arr[x][0] == arr[x+1][0]) // same frame num
+            if (arr[x][1] != PM_GAMEMOVE_TYPE_SHOT_CONFIG &&  arr[x+1][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
+            {
+               gm_swap(x, x+1);
+               swap_flag++; // if any swaps
+            }
+      }
+   }
+
    // now remove all zero entries from the start
    for (int x=0; x<entry_pos; x++)
       if ((entry_pos > 4) && (arr[x][0] == 0) && (arr[x][1] == 0) && (arr[x][2] == 0) && (arr[x][3] == 0) )
@@ -157,34 +173,22 @@ void mwGameMoves::add_game_move2(int frame, int type, int data1, int data2)
    entry_pos++;
 }
 
-void mwGameMoves::add_game_move_shot_config(int frame)
-{
-   arr[entry_pos][0] = frame;
-   arr[entry_pos][1] = PM_GAMEMOVE_TYPE_SHOT_CONFIG;
 
-   arr[entry_pos][2] = 0;
-   if (mPlayer.syn[0].player_vs_player_shots) arr[entry_pos][2] |= 0b01;
-   if (mPlayer.syn[0].player_vs_self_shots)   arr[entry_pos][2] |= 0b10;
-
-   arr[entry_pos][3] = mPlayer.syn[0].player_vs_player_shot_damage;
-
-   entry_pos++;
-}
-
-void mwGameMoves::proc_game_move_shot_config(int i)
-{
-   mPlayer.syn[0].player_vs_player_shots = 0;
-   mPlayer.syn[0].player_vs_self_shots = 0;
-
-   if (arr[i][2] & 0b01) mPlayer.syn[0].player_vs_player_shots = 1;
-   if (arr[i][2] & 0b10) mPlayer.syn[0].player_vs_self_shots = 1;
-
-   mPlayer.syn[0].player_vs_player_shot_damage = arr[i][3];
-}
 
 void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 {
    char msg[1024];
+
+   if (type == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
+   {
+      int sc = 0;
+      if (mPlayer.syn[0].player_vs_player_shots) sc |= 0b01;
+      if (mPlayer.syn[0].player_vs_self_shots)   sc |= 0b10;
+
+
+      add_game_move2(frame, type, sc, mPlayer.syn[0].player_vs_player_shot_damage);
+      return; // to exit immediately
+   }
 
    // ----------------------------------------------------------------------------------------
    // if we are in level_done_mode 5, all moves are converted to type 8, level done acknowledge
@@ -277,6 +281,18 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 }
 
 
+void mwGameMoves::proc_game_move_shot_config(int i)
+{
+//   mPlayer.syn[0].player_vs_player_shots = 0;
+//   mPlayer.syn[0].player_vs_self_shots = 0;
+//   if (arr[i][2] & 0b01) mPlayer.syn[0].player_vs_player_shots = 1;
+//   if (arr[i][2] & 0b10) mPlayer.syn[0].player_vs_self_shots = 1;
+
+   mPlayer.syn[0].player_vs_player_shots       = arr[i][2] & 0b01;
+   mPlayer.syn[0].player_vs_self_shots         = arr[i][2] & 0b10;
+   mPlayer.syn[0].player_vs_player_shot_damage = arr[i][3];
+}
+
 void mwGameMoves::proc_game_move_player_hidden(int x)
 {
    int p = arr[x][2];  // player number
@@ -296,14 +312,12 @@ void mwGameMoves::proc_game_move_player_active(int x)
    // player was inactive before and just now changes to active
    if (mPlayer.syn[p].active == 0)
    {
-      mPlayer.set_player_start_pos(p, 0); // set starting position
+      mPlayer.set_player_start_pos(p);
       mPlayer.syn[p].active = 1;
       mPlayer.loc[p].join_frame = mLoop.frame_num;
 
       if ((mNetgame.ima_server) || (mNetgame.ima_client))
          if (p != mPlayer.active_local_player) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
-
-
 
       // if player 0 is file play all added players will be too
       if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
@@ -344,6 +358,8 @@ void mwGameMoves::proc_game_move_player_inactive(int x)
       // ------------------------------------
       if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE)
       {
+         printf("demo mode player:%d inactive\n", p) ;
+
          mPlayer.syn[p].active = 0;
          // only quit if no players left active
          int still_active = 0;
@@ -397,17 +413,15 @@ void mwGameMoves::proc_game_move_player_inactive(int x)
 
 
 
-char* mwGameMoves::get_gm_text(int gm, char* tmp)
+char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
 {
-   int f = arr[gm][0]; // frame
-   int t = arr[gm][1]; // type
-   int p = arr[gm][2]; // player
-   int v = arr[gm][3]; // value
    char dsc[80] = {0};
-   if (t == PM_GAMEMOVE_TYPE_LEVEL_START)     sprintf(dsc, "--- START LEVEL %d ------------- ", v);
-   if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   sprintf(dsc, "--- PLAYER %d ACTIVE (col:%d) -- ", p, v);
-   if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) sprintf(dsc, "--- PLAYER %d INACTIVE ------------", p);
-   if (t == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)  sprintf(dsc, "--- PLAYER %d ACKNOWLEDGE ---------", p);
+   if (t == PM_GAMEMOVE_TYPE_LEVEL_START)     sprintf(dsc, " START LEVEL %d", v);
+   if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   sprintf(dsc, " P%d ACTIVE - COL:%d)", p, v);
+   if (t == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)   sprintf(dsc, " P%d HIDDEN", p);
+   if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) sprintf(dsc, " P%d INACTIVE", p);
+   if (t == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)  sprintf(dsc, " P%d ACKNOWLEDGE", p);
+   if (t == PM_GAMEMOVE_TYPE_MOVE)            sprintf(dsc, " P%d CONTROLS", p);
 
    if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
    {
@@ -415,25 +429,41 @@ char* mwGameMoves::get_gm_text(int gm, char* tmp)
       int pvs = 0;
       if (p & 0b01) pvp = 1;
       if (p & 0b10) pvs = 1;
-      sprintf(dsc, "--- SHOT CONFIG pvp:%d pvs:%d dmg:%d ---", pvp, pvs, v);
+                                              sprintf(dsc, " SHOT CONFIG pvp:%d pvs:%d dmg:%d", pvp, pvs, v);
    }
-
-
 
    if (t == PM_GAMEMOVE_TYPE_MOVE)
    {
-      if (v & PM_COMPMOVE_LEFT) strcat(dsc, "[L]");
-      else                      strcat(dsc, "[ ]");
-      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "[R]");
-      else                      strcat(dsc, "[ ]");
-      if (v & PM_COMPMOVE_UP)   strcat(dsc, "[U]");
-      else                      strcat(dsc, "[ ]");
-      if (v & PM_COMPMOVE_DOWN) strcat(dsc, "[D]");
-      else                      strcat(dsc, "[ ]");
-      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "[JUMP]");
-      else                      strcat(dsc, "[    ]");
-      if (v & PM_COMPMOVE_FIRE) strcat(dsc, "[FIRE]");
-      else                      strcat(dsc, "[    ]");
+      strcat(dsc, "[");
+      if (v & PM_COMPMOVE_LEFT) strcat(dsc, "L");
+      else                      strcat(dsc, " ");
+      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "R");
+      else                      strcat(dsc, " ");
+      if (v & PM_COMPMOVE_UP)   strcat(dsc, "U");
+      else                      strcat(dsc, " ");
+      if (v & PM_COMPMOVE_DOWN) strcat(dsc, "D");
+      else                      strcat(dsc, " ");
+      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "J");
+      else                      strcat(dsc, " ");
+      if (v & PM_COMPMOVE_FIRE) strcat(dsc, "F");
+      else                      strcat(dsc, " ");
+      strcat(dsc, "]");
+
+
+//      if (v & PM_COMPMOVE_LEFT) strcat(dsc, "[L]");
+//      else                      strcat(dsc, "[ ]");
+//      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "[R]");
+//      else                      strcat(dsc, "[ ]");
+//      if (v & PM_COMPMOVE_UP)   strcat(dsc, "[U]");
+//      else                      strcat(dsc, "[ ]");
+//      if (v & PM_COMPMOVE_DOWN) strcat(dsc, "[D]");
+//      else                      strcat(dsc, "[ ]");
+//      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "[J]");
+//      else                      strcat(dsc, "[ ]");
+//      if (v & PM_COMPMOVE_FIRE) strcat(dsc, "[F]");
+//      else                      strcat(dsc, "[ ]");
+//
+
 
 //      if (v & PM_COMPMOVE_FIRE) strcat(dsc, "[FIRE]");
 //      else                      strcat(dsc, "[    ]");
@@ -448,8 +478,18 @@ char* mwGameMoves::get_gm_text(int gm, char* tmp)
 //      if (v & PM_COMPMOVE_LEFT) strcat(dsc, "[LEFT]");
 //      else                      strcat(dsc, "[    ]");
    }
-   sprintf(tmp, "[%3d][%5d][%d][%d][%2d] %s", gm, f, t, p, v, dsc);
+   sprintf(tmp, "[%3d][%5d][%d][%d][%2d]%s", gm, f, t, p, v, dsc);
    return tmp;
+}
+
+
+char* mwGameMoves::get_gm_text(int gm, char* tmp)
+{
+   int f = arr[gm][0]; // frame
+   int t = arr[gm][1]; // type
+   int p = arr[gm][2]; // player
+   int v = arr[gm][3]; // value
+   return get_gm_text2(gm, f, t, p, v, tmp);
 }
 
 
@@ -481,10 +521,34 @@ void mwGameMoves::save_gm_txt(const char *sfname)
    }
 }
 
+
+
 void mwGameMoves::save_gm(const char *fname)
 {
-   if (entry_pos == 0) printf("No game moves to save\n");
-   else
+   int skip = 0;
+   if (mNetgame.ima_client) skip = 1;  // do not save for clients, the gm is missing data and is not playable
+
+   if (entry_pos == 0)
+   {
+      skip = 1;
+      printf("No game moves to save\n");
+   }
+
+   if (mLevel.play_level == 1)
+   {
+      skip = 1;
+      printf("Never save demo for overworld\n");
+   }
+
+   if (mDemoMode.mode)
+   {
+      skip = 1;
+      printf("Never save demo when in demo mode\n");
+   }
+
+
+
+   if (!skip)
    {
       gm_sort();
 
@@ -507,6 +571,10 @@ void mwGameMoves::save_gm(const char *fname)
                if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
                   mNetgame.server_add_file_to_send(fname, mPlayer.loc[p].who);
          }
+
+
+         sprintf(mDemoMode.current_loaded_demo_file, "%s", fname); // update the name
+
          save_gm_txt(fname); // also save as a human readable text file
       }
    }
@@ -535,30 +603,21 @@ void mwGameMoves::save_gm_file_select(void)
    al_destroy_native_file_dialog(afc);
 }
 
-void mwGameMoves::autosave_gm(int d)
+void mwGameMoves::save_gm_make_fn(const char* description)
 {
-   if (!mNetgame.ima_client) // do not save for clients, the gm is missing data and is not playable
-   {
-      char description[40];
-      if (d == 1) sprintf(description, "level_done_");
-      if (d == 2) sprintf(description, "level_quit_");
-      if (d == 3) sprintf(description, "program_exit_");
-      if (d == 4) sprintf(description, "manual_save_");
-      if (d == 5) sprintf(description, "new_record_");
+   char timestamp[40];
+   struct tm *timenow;
+   time_t now = time(NULL);
+   timenow = localtime(&now);
+   strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
 
-      char timestamp[40];
-      struct tm *timenow;
-      time_t now = time(NULL);
-      timenow = localtime(&now);
-      strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
+   char lev[20];
+   sprintf(lev, "[%02d]", mLevel.play_level);
 
-      char lev[20];
-      sprintf(lev, "-lev%d", mLevel.play_level);
+   char filename[120];
+   sprintf(filename, "savegame/%s-%s-%s.gm", timestamp, lev, description);
 
-      char filename[120];
-      sprintf(filename, "savegame/%s%s%s.gm", description, timestamp, lev);
-      save_gm(filename);
-   }
+   save_gm(filename);
 }
 
 
@@ -568,8 +627,6 @@ int mwGameMoves::load_demo_level(int lev)
    sprintf(msg, "savegame/demo/lev%03d.gm", lev);
    return load_gm(msg);
 }
-
-
 
 int mwGameMoves::load_gm_file_select(void)
 {
@@ -600,7 +657,7 @@ int mwGameMoves::load_gm_file_select(void)
 
 
 
-int mwGameMoves::load_gm(const char *sfname )
+int mwGameMoves::load_gm(const char *sfname)
 {
    // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
    ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(sfname);
@@ -616,7 +673,7 @@ int mwGameMoves::load_gm(const char *sfname )
 
       initialize();
 
-      char fname[1024];
+      char fname[256];
       sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
 
       FILE *filepntr = fopen(fname, "r");
@@ -660,7 +717,7 @@ int mwGameMoves::load_gm(const char *sfname )
          mDemoMode.last_frame = arr[entry_pos-1][0];
          //printf("dmlf:%d\n", mDemoMode.last_frame );
          //printf("fname:%s\n", fname);
-         sprintf(mDemoMode.current_loaded_demo_file, fname);
+         sprintf(mDemoMode.current_loaded_demo_file, "%s", fname);
          return 1;
       }
    }

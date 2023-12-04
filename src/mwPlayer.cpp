@@ -28,7 +28,7 @@
 mwPlayer mPlayer;
 
 
-void mwPlayer::set_player_start_pos(int p, int cont)
+void mwPlayer::set_player_start_pos(int p)
 {
    //printf("set player:%d start pos\n", p);
 
@@ -72,7 +72,10 @@ void mwPlayer::set_player_start_pos(int p, int cont)
 
             if ((mode == 2) || (mode == 3)) // check point common and individual
             {
-               if (!cont) syn[p].spawn_point_index = 0; // initial
+//               if (!cont) syn[p].spawn_point_index = 0; // initial
+
+
+
             }
          }
          item_to_get_start_from = s[syn[p].spawn_point_index];
@@ -474,7 +477,7 @@ void mwPlayer::proc_player_paused(int p)
          syn[p].right_xinc = 0;
          syn[p].xinc = 0;
          syn[p].yinc = 0;
-         set_player_start_pos(p, 1); // get starting position from start block
+         set_player_start_pos(p);
       }
    }
 }
@@ -1220,7 +1223,13 @@ void mwPlayer::draw_players(void)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
       if (syn[p].active) draw_player(p);
-   draw_player(active_local_player); // do this so that that local player is always drawn on top
+
+//   draw_player(active_local_player); // do this so that that local player is always drawn on top
+
+   // in some weird cases (demo record) active local player might not be active
+   if (syn[active_local_player].active) draw_player(active_local_player);
+
+
 }
 
 void mwPlayer::draw_player_direct_to_screen(int p)
@@ -1237,13 +1246,17 @@ void mwPlayer::draw_player_direct_to_screen(int p)
 }
 
 
+void mwPlayer::draw_players_direct_to_screen(void)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (syn[p].active) draw_player_direct_to_screen(p);
 
+   // do this so that that local player is always drawn on top
+//      mPlayer.draw_player_direct_to_screen(mPlayer.active_local_player);
 
-
-
-
-
-
+   // in some weird cases (demo record) active local player might not be active
+   if (syn[active_local_player].active) draw_player_direct_to_screen(active_local_player);
+}
 
 
 
@@ -1426,6 +1439,8 @@ void mwPlayer::init_player(int p, int t)
       syn[p].level_done_player = 0;
 
       syn[p].marked_gate = -1;
+
+      syn[p].spawn_point_index = 0;
 
    }
 
