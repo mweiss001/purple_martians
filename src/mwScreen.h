@@ -136,7 +136,7 @@ class mwScreen
    void rtextout_centref(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, int x, int y, int col, float scale, float op, const char *format, ...);
    void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, int x, int y, int col, float scale, float op, const char *txt);
 
-   void draw_framed_text(int xc, int y, ALLEGRO_FONT *f, int col, const char* txt);
+   void draw_framed_text(int xc, int y, int round, ALLEGRO_FONT *f, int fc, int tc, const char* txt);
 
    void draw_title(int tx, int ty, int ttw, int tth, int color);
    void draw_large_text_overlay(int type, int color);

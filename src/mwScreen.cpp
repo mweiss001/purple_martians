@@ -840,7 +840,6 @@ void mwScreen::rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, int x, int
    if (scale == -1) scale = (float)mDisplay.SCREEN_W / (sw+16);
    else if (scale == -2) scale = (float)(mDisplay.SCREEN_W / sw) * 0.9;
 
-
    ALLEGRO_BITMAP *temp = al_create_bitmap(sw, 8);
    al_set_target_bitmap(temp);
    al_clear_to_color(al_map_rgba(0,0,0,0));
@@ -855,10 +854,8 @@ void mwScreen::rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, int x, int
 }
 
 
-
-void mwScreen::draw_framed_text(int xc, int y, ALLEGRO_FONT *f, int col, const char* txt)
+void mwScreen::draw_framed_text(int xc, int y, int round, ALLEGRO_FONT *f, int fc, int tc, const char* txt)
 {
-   // get text dimensions
    int bx, by, bw, bh;
    mFont.mw_get_text_dimensions(f, txt, bx, by, bw, bh);
 
@@ -870,16 +867,10 @@ void mwScreen::draw_framed_text(int xc, int y, ALLEGRO_FONT *f, int col, const c
    float fy1 = y+0.5;
    float fy2 = y+bh+3.5;
 
-   // draw
    al_draw_filled_rectangle(       x1, fy1, x2, fy2, mColor.pc[0]);      // clear background
-   al_draw_rectangle(              x1, fy1, x2, fy2, mColor.pc[col], 1); // frame
-   al_draw_textf(f, mColor.pc[15], xc, tfy, ALLEGRO_ALIGN_CENTER, "%s", txt);
+   al_draw_rounded_rectangle(      x1, fy1, x2, fy2, round, round, mColor.pc[fc], 1); // frame
+   al_draw_textf(f, mColor.pc[tc], xc, tfy, ALLEGRO_ALIGN_CENTER, "%s", txt);
 }
-
-
-
-
-
 
 
 void mwScreen::draw_title(int x, int y, int w, int h, int color)

@@ -22,6 +22,8 @@
 
 
 #include "mwQuickGraph2.h"
+#include "mwMenu.h"
+
 
 
 mwDemoMode mDemoMode;
@@ -365,7 +367,32 @@ void mwDemoMode::seek_to_frame(int frame, int draw)
 
 
 
-void mwDemoMode::draw_gm_txt_lines_one(int x, int y)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void mwDemoMode::draw_gm_txt_lines(int x, int y)
 {
    int num_lines = gm_list_lines;
 
@@ -375,9 +402,9 @@ void mwDemoMode::draw_gm_txt_lines_one(int x, int y)
    int i_closest = 0;
    int dist = 999999;
 
-   for (int i=0; i<tmp_entry_pos; i++)
+   for (int i=0; i<lnk_entry_pos; i++)
    {
-      int td = abs(tmp_arr[i][0] - mLoop.frame_num);
+      int td = abs(mGameMoves.arr[lnk_arr[i]][0] - mLoop.frame_num);
       if (td < dist)
       {
          dist = td;
@@ -391,82 +418,164 @@ void mwDemoMode::draw_gm_txt_lines_one(int x, int y)
 
    // set end of range
    int gm2 = gm1 + num_lines;
-   if (gm2 > tmp_entry_pos) gm2 = tmp_entry_pos;
+   if (gm2 > lnk_entry_pos) gm2 = lnk_entry_pos;
 
    // recalc num of lines (in case we are past the end)
-   num_lines = gm2 - gm1;
-
-   int ypos = y-num_lines*8;
+//   num_lines = gm2 - gm1;
+   y -= num_lines*8;
 
    char msg[256];
 
+   int x1 = x;
+   int x2 = x1+336;
+   int y1 = y;
+   int y2 = y1+num_lines*8;
+
+   al_draw_filled_rectangle(x1, y1-11, x2, y2, mColor.pc[0]);
+
+   al_draw_rectangle(x1-1, y1-1, x2+1, y2+1, mColor.pc[11], 1);
+
+   al_draw_rectangle(x1-1, y1-1, x2+1, y1-11, mColor.pc[11], 1);
+
+
+   int ya = y1-10;
+   int old_gm_list_all = gm_list_all;
+   mWidget.togglec(x1+2, ya, x1+30, 10,  0,0,0,0,  0,0,0,0, 1,0,0,0, gm_list_all, "all", 15, 15);
+   if (old_gm_list_all != gm_list_all) load_lnk_arr();
+   mWidget.slideri(x1+50, ya, x1+250, 10,  0,0,0,0,  0,12,15,15,  0,0,0,0, gm_list_lines, 100, 10, 1, "lines:");
+
+
    for (int i=gm1; i<gm2; i++)
    {
-      int col = player_sections[current_section][2];
+      int gi = lnk_arr[i]; // get actual game move index from link translation table
+      int f = mGameMoves.arr[gi][0];
+      int t = mGameMoves.arr[gi][1];
+      int p = mGameMoves.arr[gi][2];
+      int v = mGameMoves.arr[gi][3];
+      sprintf(msg, "%s", mGameMoves.get_gm_text2(i, f, t, p, v, msg));
 
-      if (tmp_arr[i][1] == PM_GAMEMOVE_TYPE_LEVEL_START) col = 15;
-      if (tmp_arr[i][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) col = 15;
+      int text_col = mPlayer.syn[p].color;
+      if (t == PM_GAMEMOVE_TYPE_LEVEL_START) text_col = 15;
+      if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG) text_col = 15;
+      // if (!gm_list_all) text_col = 15; // always white when only one player number shown
 
+      // line dimensions for background draw and mouse detection
+      int x2 = x+strlen(msg)*8;
+      int y2 = y+8;
 
-      al_draw_filled_rectangle(x, ypos, x+336, ypos+8, mColor.pc[0]);
-
-      al_draw_text(mFont.pr8, mColor.pc[col], x, ypos, 0, mGameMoves.get_gm_text2(i, tmp_arr[i][0], tmp_arr[i][1], tmp_arr[i][2], tmp_arr[i][3], msg));
-
-      ypos+=8;
-   }
-}
-
-
-
-void mwDemoMode::draw_gm_txt_lines(int x, int y)
-{
-   if (gm_list_all) draw_gm_txt_lines_all(x, y);
-   else             draw_gm_txt_lines_one(x, y);
-}
+      int bkg_col = 0;
 
 
-void mwDemoMode::draw_gm_txt_lines_all(int x, int y)
-{
-   int num_lines = gm_list_lines;
+      if (i == i_closest) bkg_col = 11+128;
 
-   // find game move index closest to current frame, but not less than
-   int gmi = 0;
-   for (int i=0; i<mGameMoves.entry_pos; i++)
-      if (mGameMoves.arr[i][0] >= mLoop.frame_num)
+
+      if ((mInput.mouse_x > x) && (mInput.mouse_x < x2) && (mInput.mouse_y > y) && (mInput.mouse_y < y2))
       {
-         gmi = i;
-         break;
+         bkg_col = 10+128;
+         proc_gm_list_menu(gi);
+         //if (mInput.mouse_b[1][0]){}
       }
 
-   // go back half of num_lines (but don't go back past zero)
-   int gm1 = gmi - num_lines/2;
-   if (gm1 < 0) gm1 = 0;
+      al_draw_filled_rectangle(x, y, x2, y2, mColor.pc[bkg_col]); // background color
+      al_draw_text(mFont.pr8, mColor.pc[text_col], x, y, 0, msg);
 
-   // set end of range
-   int gm2 = gm1 + num_lines;
-   if (gm2 > mGameMoves.entry_pos) gm2 = mGameMoves.entry_pos;
-
-   // recalc num of lines (in case we are past the end)
-   num_lines = gm2 - gm1;
-
-   int ypos = y-num_lines*8;
-
-   char msg[256];
-
-   for (int i=gm1; i<gm2; i++)
-   {
-      int col = mPlayer.syn[mGameMoves.arr[i][2]].color;
-
-      if (mGameMoves.arr[i][1] == PM_GAMEMOVE_TYPE_LEVEL_START) col = 15;
-      if (mGameMoves.arr[i][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) col = 15;
-
-      al_draw_filled_rectangle(x, ypos, x+336, ypos+8, mColor.pc[0]);
-      al_draw_text(mFont.pr8, mColor.pc[col], x, ypos, 0, mGameMoves.get_gm_text(i, msg));
-      ypos+=8;
+      y+=8;
    }
 }
 
 
+
+void mwDemoMode::edit_gm(int gi)
+{
+
+   int quit = 0;
+
+   int x1 = mInput.mouse_x;
+   int y1 = mInput.mouse_y;
+
+   int x2 = x1 + 200;
+   int y2 = y1 + 200;
+
+
+
+
+   while (!quit)
+   {
+      int ya = y1;
+      al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[10+160]);
+
+
+
+      int f = mGameMoves.arr[gi][0];
+      int t = mGameMoves.arr[gi][1];
+      int p = mGameMoves.arr[gi][2];
+      int v = mGameMoves.arr[gi][3];
+      char msg[256];
+      sprintf(msg, "%s", mGameMoves.get_gm_text2(gi, f, t, p, v, msg));
+      al_draw_text(mFont.pr8, mColor.pc[15], x1, ya, 0, msg);
+
+      ya+=8;
+
+
+
+      mWidget.slideri(x1, ya, x1+100, 16,  0,0,0,0,  0,12,15,15,  0,0,1,0, mGameMoves.arr[gi][2], 7, 0, 1, "p:");
+
+
+
+      if (mWidget.buttont(x1, ya, x1+100, 16,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "QUIT ")) quit = 1;
+
+
+
+
+
+
+      al_flip_display();
+      mEventQueue.proc(1);
+
+
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
+      {
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
+         quit = 1;
+      }
+
+
+
+
+
+   }
+
+}
+
+
+
+
+void mwDemoMode::proc_gm_list_menu(int gi)
+{
+   if (mInput.mouse_b[2][0])
+   {
+      sprintf(mMenu.menu_string[0],"Game List Menu");
+      sprintf(mMenu.menu_string[1],"--------------");
+      sprintf(mMenu.menu_string[2],"Edit");
+      sprintf(mMenu.menu_string[3],"Insert");
+      sprintf(mMenu.menu_string[4],"Delete");
+
+      sprintf(mMenu.menu_string[5],"end");
+      switch (mMenu.pmenu(5, 13))
+      {
+
+         case 2: edit_gm(gi); break;
+
+
+         case 4: // delete
+            mGameMoves.gm_remove(gi);
+            mGameMoves.gm_sort();
+            refresh();
+            set_active_section(current_section);
+         break;
+      }
+   }
+}
 
 
 
@@ -480,15 +589,9 @@ float screen_pos_from_frame_num(float frame, float last_frame, float sb_x1, floa
 void mwDemoMode::mark_timeline_position(int frame, int x1, int y1, int sb_y2, int col)
 {
    char msg[64];
-   sprintf(msg, "%s", gettf(frame, msg));
-   int len = strlen(msg);
-   int xtw = 2 + len*4;
-   al_draw_filled_rectangle(x1-xtw, y1-10, x1+xtw, y1+1, mColor.pc[0]);
-   al_draw_rounded_rectangle(x1-xtw, y1-10, x1+xtw, y1+1, 1, 1, mColor.pc[col], 1);
    al_draw_line(x1, y1+1, x1, sb_y2, mColor.pc[col], 1);
-   al_draw_text(mFont.pr8, mColor.pc[col], x1, y1-8, ALLEGRO_ALIGN_CENTER, msg);
+   mScreen.draw_framed_text(x1, y1-11, 1, mFont.pr8, col, col, gettf(frame, msg));
 }
-
 
 void mwDemoMode::find_level_done(void)
 {
@@ -746,7 +849,6 @@ int mwDemoMode::draw_record_settings(int x1, int y1)
    al_draw_textf(mFont.pr8, mColor.pc[15], (x1+w/2), y1+2, ALLEGRO_ALIGN_CENTER, "Record Settings");
    y1+=14;
 
-
    int xa = x1+4;
    int xb = x2-4;
 
@@ -772,11 +874,6 @@ int mwDemoMode::draw_record_settings(int x1, int y1)
 
    mWidget.toggle(x1+4, y1, x2-4, 16,   0,0,0,0,  0,0,0,0, 1,0,1,0, record_punch_in_armed, "Arm", "Armed", 15, 15, 9, 10);
 
-
-
-//   al_draw_textf(mFont.pr8, mColor.pc[15], (x1+w/2), y1+2, ALLEGRO_ALIGN_CENTER, "Armed:%d", record_punch_in_armed);
-
-
    return y1;
 }
 
@@ -787,7 +884,6 @@ void mwDemoMode::draw_section_details_one_line(int i, int x, int y)
    int col = player_sections[i][2];
    int f1  = player_sections[i][3];
    int f2  = player_sections[i][4];
-   int af  = player_sections[i][12];
 
    char et[20] = {0};
    int end_type = player_sections[i][9];
@@ -797,10 +893,14 @@ void mwDemoMode::draw_section_details_one_line(int i, int x, int y)
    char hd[20] = {0};
    if (player_sections[i][13]) sprintf(hd, "[hidden]");
 
-   int ld = player_sections[i][11]; // level done
-   int dth = player_sections[i][10]; // deaths
+   char m1[64], m2[64];
+   al_draw_textf(mFont.pr8, mColor.pc[col], x, y, 0, "p%d %s-%s %s %s", p, gettf(f1, m1), gettf(f2, m2), et, hd);
 
-   al_draw_textf(mFont.pr8, mColor.pc[col], x, y, 0, "p%d %d-%d af:%d ld:%d dth:%d %s %s", p, f1, f2, af, ld, dth, et, hd);
+//   int dth = player_sections[i][10]; // deaths
+//   int ld = player_sections[i][11]; // level done
+//   int af  = player_sections[i][12];
+//   al_draw_textf(mFont.pr8, mColor.pc[col], x, y, 0, "p%d %d-%d af:%d ld:%d dth:%d %s %s", p, f1, f2, af, ld, dth, et, hd);
+
 }
 
 
@@ -970,37 +1070,42 @@ int mwDemoMode::draw_section_details(int i, int x1, int y1)
 void mwDemoMode::set_active_section(int i)
 {
    current_section = i;
+   record_player_number = mPlayer.active_local_player = player_sections[current_section][1];
+   record_player_color = player_sections[current_section][2];
+   load_lnk_arr();    // load games moves into link array
+}
 
-   int p = player_sections[i][1];
-
-   mPlayer.active_local_player = record_player_number = p;
-   record_player_color = player_sections[i][2];
 
 
-   // load all games move for this player into temp array
-   tmp_entry_pos = 0;
+void mwDemoMode::load_lnk_arr(void)
+{
+   lnk_entry_pos = 0;
    for (int i=0; i<mGameMoves.entry_pos; i++)
    {
       int add = 0;
-      if (mGameMoves.arr[i][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) add = 1;
-      if (mGameMoves.arr[i][1] == PM_GAMEMOVE_TYPE_LEVEL_START) add = 1;
-      if (mGameMoves.arr[i][2] == p) add = 1;
-
+      if (gm_list_all) add = 1;
+      else
+      {
+         if (mGameMoves.arr[i][1] == PM_GAMEMOVE_TYPE_SHOT_CONFIG) add = 1;
+         if (mGameMoves.arr[i][1] == PM_GAMEMOVE_TYPE_LEVEL_START) add = 1;
+         if (mGameMoves.arr[i][2] == player_sections[current_section][1]) add = 1;
+      }
       if (add)
       {
-         for (int j=0; j<4; j++)
-            tmp_arr[tmp_entry_pos][j] = mGameMoves.arr[i][j];
-
-         tmp_entry_pos++;
-
-         if (tmp_entry_pos > 9999)
+         lnk_arr[lnk_entry_pos] = i;
+         if (++lnk_entry_pos > 9999)
          {
-            printf("tmp_arr ran out of room\n");
+            printf("lnk_arr ran out of room\n");
             return;
          }
       }
    }
 }
+
+
+
+
+
 
 
 
@@ -1056,29 +1161,32 @@ void mwDemoMode::draw_timeline(void)
    if (sh_level_done)
    {
       char msg[80];
-      if (!level_done_frame)  sprintf(msg, "Level Not Done");
+      if (!level_done_frame) sprintf(msg, "Level Not Done");
       else
       {
+         sprintf(msg, "Level Done");
          int x = screen_pos_from_frame_num(level_done_frame, last_frame, sb_x1, sb_w);
          int y = level_done_section_y;
-
          mark_timeline_position(level_done_frame, x, sb_y1-3, y, 11); // mark level done frame
          al_draw_filled_circle(x, y, 3, mColor.pc[11]);
-         sprintf(msg, "Level Done");
       }
-      int w = 12 + strlen(msg) * 8;
-      int x = mDisplay.SCREEN_W - w - 14;
+      int x = mDisplay.SCREEN_W - 16 - strlen(msg) * 4;;
       int y = sb_y1-28;
-      mWidget.buttont(x, y, x+w, 14,  0,0,0,0,  0,11+64,15, 0,  1,0,1,0, msg);
+      mScreen.draw_framed_text(x, y, 1, mFont.pr8, 11+64, 11+64, msg);
    }
 }
 
 
-void mwDemoMode::show_play_record_buttons(int x, int y)
+
+
+int mwDemoMode::show_play_record_buttons(int x, int y)
 {
+   int bts = 32;
+
+
    if (play)
    {
-      if (mWidget.buttont(x,     y, x+60,  32,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Stop"))
+      if (mWidget.buttont(x,     y, x+60,  bts,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Stop"))
       {
          play = 0;
          record = 0;
@@ -1086,14 +1194,36 @@ void mwDemoMode::show_play_record_buttons(int x, int y)
    }
    else
    {
-      if (mWidget.buttont(x,     y, x+60,  32,  0,0,0,0,  0,11,15, 0,  1,0,0,0, "Play"))
+      if (mWidget.buttont(x,     y, x+60,  bts,  0,0,0,0,  0,11,15, 0,  1,0,0,0, "Play"))
       {
          play = 1;
       }
    }
 
-   if (record) mWidget.buttont(x+70, y, x+160, 32,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Recording");
-   else if (   mWidget.buttont(x+70, y, x+160, 32,  0,0,0,0,  0,14,15, 0,  1,0,0,0, "Record")) start_record();
+   if (record) mWidget.buttont(x+70, y, x+160, bts,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Recording");
+   else if (   mWidget.buttont(x+70, y, x+160, bts,  0,0,0,0,  0,14,15, 0,  1,0,0,0, "Record")) start_record();
+
+
+   int y2 = y + 36;
+
+   char msg[80];
+   char m2[40];
+   sprintf(msg, "Current Time:%s", gettf(current_frame_num, m2));
+   mScreen.draw_framed_text(x+80, y2, 1, mFont.pr8, 11, 15, msg);
+
+   y2+= 18;
+   bts = 20;
+
+   if ((!play) && (!record))
+   {
+      int old_cf = current_frame_num;
+      if (mWidget.buttont(x,      y2, x+70,  bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Rewind")) current_frame_num = 1;
+      if (mWidget.buttont(x+90,   y2, x+120, bts,  0,0,0,0,  0,9, 15, 0,  1,0,0,0, "-")) current_frame_num--;
+      if (mWidget.buttont(x+130,  y2, x+160, bts,  0,0,0,0,  0,9, 15, 0,  1,0,0,0, "+")) current_frame_num++;
+      if (old_cf != current_frame_num) seek_to_frame(current_frame_num, 1);
+   }
+
+   return 90;
 
 }
 
@@ -1122,6 +1252,134 @@ void mwDemoMode::proc_cpu_time(double frame_start_timestamp)
 
 }
 
+int mwDemoMode::draw_overlay(void)
+{
+   if ((sh_overlay_in_play) && (play)) return 0;
+   if ((sh_overlay_in_rec) && (record)) return 0;
+
+   char msg[256];
+
+
+   // 1st column
+   int xa = 14;
+   int ya = 14;
+   int bts = 16;
+
+   // show currently loaded file and prompt for load if clicked
+   sprintf(msg, "File:%s", al_get_path_filename(al_create_path(current_loaded_demo_file))); // name only
+   //sprintf(msg, "File:%s", current_loaded_demo_file); // full path
+   if ((mWidget.buttont(xa, ya, xa+400, bts,  0,0,0,0,  0,10,15, 0,  1,0,0,0, msg)) && (!load_demo_record())) return 1;
+
+
+   ya += 18;
+
+   ya += show_play_record_buttons(xa, ya);
+
+
+
+
+   // draw record controls
+   if (sh_rec_controls) ya = draw_record_settings(xa, ya);
+
+
+
+
+   // draw current section details
+   if (sh_section_details) draw_section_details(current_section, xa, ya+20);
+
+//         if (mWidget.buttont(xa+200, ya, xa+280, bts,  0,0,0,0,  0,6,15, 0,  1,0,0,0, "sort")) mGameMoves.gm_sort();
+//         if (mWidget.buttont(xa+300, ya, xa+380, bts,  0,0,0,0,  0,6,15, 0,  1,0,1,0, "insert")) mGameMoves.add_game_move2(4, 21, 22, 23);
+//         if (mWidget.buttont(xa+300, ya, xa+380, bts,  0,0,0,0,  0,6,15, 0,  1,0,1,0, "remove")) mGameMoves.gm_remove(2);
+
+   // 2nd column - save and refresh buttons
+   int xa1 = 232;
+   int ya1 = 32;
+   int c1 = 4;
+   if (mWidget.buttont(xa1, ya1, xa1+160, bts,  0,0,0,0,  0,c1,15, 0,  1,0,1,0, "Save (overwrite)  "))
+   {
+      mGameMoves.save_gm(current_loaded_demo_file);
+      mGameMoves.load_gm(current_loaded_demo_file);
+      refresh();
+   }
+   if (mWidget.buttont(xa1, ya1, xa1+160, bts,  0,0,0,0,  0,c1,15, 0,  1,0,1,0, "Save (new copy)   "))
+   {
+      mGameMoves.save_gm_make_fn("new copy");
+      mGameMoves.load_gm(current_loaded_demo_file);
+      refresh();
+   }
+   if (mWidget.buttont(xa1, ya1, xa1+160, bts,  0,0,0,0,  0,c1,15, 0,  1,0,1,0, "Save (name prompt)"))
+   {
+      mGameMoves.save_gm_file_select();
+      mGameMoves.load_gm(current_loaded_demo_file);
+      refresh();
+   }
+
+   ya1+=4;
+   if (mWidget.buttont(xa1+40, ya1, xa1+120, bts,  0,0,0,0,  0,10,15,0,  1,0,1,0, "Refresh")) refresh();
+
+   ya1+=4;
+   if (mWidget.buttont(xa1+40, ya1, xa1+120, bts,  0,0,0,0,  0,10,15,0,  1,0,1,0, "Reload")) reload();
+
+
+
+   // 3rd column - checkbox settings
+//         int xa2 = 420;
+//         int ya2 = 32;
+
+
+   int xa2 = 240;
+   int ya2 = 132;
+
+   bts = 10;
+
+
+//         al_draw_filled_rectangle(xa2, ya2, xa2+200+mLoop.pct_x, ya2+200+mLoop.pct_y, mColor.pc[10+128]);
+//         al_draw_filled_rectangle(xa2, ya2, xa2+200+mLoop.pct_x, ya2+200+mLoop.pct_y, mColor.pc[0]);
+
+   al_draw_filled_rectangle(xa2, ya2, xa2+200, ya2+120, mColor.pc[0]);
+
+
+//   mWidget.toggle( xa2, ya2, xa2+60, 16,   0,0,0,0,  0,0,0,0, 1,0,1,0, tm_frame, "Time", "Frame", 15, 15, 11, 13);
+
+   mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, tm_frame,           "Time/Frame format", 15, 15);
+
+   ya2+=2;
+
+   mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_gamemoves_list,  "Show game moves list", 15, 15);
+
+   mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_timeline,        "Show timeline", 15, 15);
+   mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_level_done,      "Show level done", 15, 15);
+
+
+   mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_section_details, "Show section details", 15, 15);
+   mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_rec_controls,    "Show record controls", 15, 15);
+
+
+   mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_cpu_graph,       "Show cpu graph", 15, 15);
+   mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_player_grid,     "Show player grid", 15, 15);
+
+
+   mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_overlay_in_play, "Hide overlay when playing", 15, 15);
+   mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_overlay_in_rec,  "Hide overlay when recording", 15, 15);
+
+
+
+   // debug player grid
+   if (sh_player_grid) mScreen.drg_show(mDisplay.SCREEN_W-130, sb_y1-120);
+
+   // game moves list
+   if (sh_gamemoves_list) draw_gm_txt_lines(sb_x1, sb_y1-24);
+
+   // timeline
+   if (sh_timeline) draw_timeline();
+
+   return 0;
+
+}
+
+
+
+
 void mwDemoMode::demo_record(void)
 {
 
@@ -1129,7 +1387,6 @@ void mwDemoMode::demo_record(void)
    mQuickGraph2[9].initialize(200,    36,    0,   50, "CPU",      9, 12, 13, 1);
 
 
-   char msg[256];
 
    mLoop.frame_num = 0;
 
@@ -1186,118 +1443,7 @@ void mwDemoMode::demo_record(void)
          }
          al_set_target_backbuffer(mDisplay.display);
 
-
-
-         if (!record)
-         {
-
-
-         // 1st column
-         int xa = 14;
-         int ya = 14;
-         int bts = 16;
-
-         // show currently loaded file and prompt for load if clicked
-         sprintf(msg, "File:%s", al_get_path_filename(al_create_path(current_loaded_demo_file))); // name only
-         //sprintf(msg, "File:%s", current_loaded_demo_file); // full path
-         if ((mWidget.buttont(xa, ya, xa+400, bts,  0,0,0,0,  0,10,15, 0,  1,0,0,0, msg)) && (!load_demo_record())) quit = 1;
-
-         show_play_record_buttons(xa, 32);
-
-         // draw record controls
-         if (sh_rec_controls) ya = draw_record_settings(xa, 72);
-
-         // draw current section details
-         if (sh_section_details) draw_section_details(current_section, xa, ya+20);
-
-
-//         if (mWidget.buttont(xa+200, ya, xa+280, bts,  0,0,0,0,  0,6,15, 0,  1,0,0,0, "sort")) mGameMoves.gm_sort();
-//         if (mWidget.buttont(xa+300, ya, xa+380, bts,  0,0,0,0,  0,6,15, 0,  1,0,1,0, "insert")) mGameMoves.add_game_move2(4, 21, 22, 23);
-//         if (mWidget.buttont(xa+300, ya, xa+380, bts,  0,0,0,0,  0,6,15, 0,  1,0,1,0, "remove")) mGameMoves.gm_remove(2);
-
-
-
-
-
-
-         // 2nd column - save and refresh buttons
-         int xa1 = 232;
-         int ya1 = 32;
-         int c1 = 4;
-         if (mWidget.buttont(xa1, ya1, xa1+160, bts,  0,0,0,0,  0,c1,15, 0,  1,0,1,0, "save (overwrite)"))
-         {
-            mGameMoves.save_gm(current_loaded_demo_file);
-            mGameMoves.load_gm(current_loaded_demo_file);
-            refresh();
-         }
-         if (mWidget.buttont(xa1, ya1, xa1+160, bts,  0,0,0,0,  0,c1,15, 0,  1,0,1,0, "save (new copy)"))
-         {
-            mGameMoves.save_gm_make_fn("new copy");
-            mGameMoves.load_gm(current_loaded_demo_file);
-            refresh();
-         }
-         if (mWidget.buttont(xa1, ya1, xa1+160, bts,  0,0,0,0,  0,c1,15, 0,  1,0,1,0, "save (name prompt)"))
-         {
-            mGameMoves.save_gm_file_select();
-            mGameMoves.load_gm(current_loaded_demo_file);
-            refresh();
-         }
-
-         ya1+=4;
-         if (mWidget.buttont(xa1+40, ya1, xa1+120, bts,  0,0,0,0,  0,10,15,0,  1,0,1,0, "Refresh")) refresh();
-
-         ya1+=4;
-         if (mWidget.buttont(xa1+40, ya1, xa1+120, bts,  0,0,0,0,  0,10,15,0,  1,0,1,0, "Reload")) reload();
-
-
-
-         // 3rd column - checkbox settings
-//         int xa2 = 420;
-//         int ya2 = 32;
-
-
-         int xa2 = 240;
-         int ya2 = 132;
-
-         bts = 10;
-
-
-//         al_draw_filled_rectangle(xa2, ya2, xa2+200+mLoop.pct_x, ya2+200+mLoop.pct_y, mColor.pc[10+128]);
-//         al_draw_filled_rectangle(xa2, ya2, xa2+200+mLoop.pct_x, ya2+200+mLoop.pct_y, mColor.pc[0]);
-
-         al_draw_filled_rectangle(xa2, ya2, xa2+200, ya2+120, mColor.pc[0]);
-
-
-         mWidget.toggle( xa2, ya2, xa2+60, 16,   0,0,0,0,  0,0,0,0, 1,0,1,0, tm_frame, "Time", "Frame", 15, 15, 11, 13);
-         mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_section_details, "Show section details", 15, 15);
-         mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_level_done,      "Show level done", 15, 15);
-         mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_gamemoves_list,  "Show game moves list", 15, 15);
-         mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, gm_list_all,        "Show game moves from all players", 15, 15);
-         mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_cpu_graph,       "Show cpu graph", 15, 15);
-         mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_player_grid,     "Show player grid", 15, 15);
-         mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_rec_controls,    "Show record controls", 15, 15);
-         mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_timeline,        "Show timeline", 15, 15);
-
-         mWidget.slideri(xa2, ya2, xa2+240, bts,  0,0,0,0,  0,12,15,15,  0,0,1,0, gm_list_lines, 100, 10, 1, "gm lines:");
-
-
-
-
-
-
-
-
-         // debug player grid
-         if (sh_player_grid) mScreen.drg_show(mDisplay.SCREEN_W-130, sb_y1-120);
-
-         // game moves list
-         if (sh_gamemoves_list) draw_gm_txt_lines(sb_x1, sb_y1-24);
-
-         // timeline
-         if (sh_timeline) draw_timeline();
-
-
-         }
+         quit = draw_overlay();
 
          proc_cpu_time(frame_start_timestamp);
 
