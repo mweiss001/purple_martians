@@ -202,7 +202,7 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
 
       al_draw_scaled_bitmap(mBitmap.tile[127+col], 0, 0, 20, 20, x-10, y-20, 40, 40, 0); // draw the gate tile
 
-      mScreen.draw_framed_text(xc, y-19, mFont.pixl, col, mLevel.data[lev].status_text); // draw status text
+      mScreen.draw_framed_text(xc, y-19, 1, mFont.pixl, col, 15, mLevel.data[lev].status_text); // draw status text
 
       if (mLevel.data[lev].status == 0) al_draw_scaled_bitmap(mBitmap.tile[366], 0, 0, 20, 20, x-11, y-24, 40, 40, 0); // show lock
 
@@ -228,7 +228,7 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
       ly+=101;
 
       // draw and frame the level name
-      mScreen.draw_framed_text(xc, ly, mFont.pixl, col, mLevel.data[lev].level_name);
+      mScreen.draw_framed_text(xc, ly, 1, mFont.pixl, col, 15, mLevel.data[lev].level_name);
       ly+=8;
    }
    return 1;
@@ -249,7 +249,7 @@ void mwItem::draw_gate_info(int i)
    if (by > 1900) by = 1721; // special case for gates on bottom rom to show info above instead
 
 
-   mScreen.draw_framed_text(xc, by, mFont.pr8, col, mLevel.data[lev].level_name); // draw and frame the level name
+   mScreen.draw_framed_text(xc, by, 1, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
 
    if (mLevel.data[lev].status == 0)
    {

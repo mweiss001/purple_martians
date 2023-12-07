@@ -41127,63 +41127,209 @@ this seems to be working well...it is easy to use...
 the timeline gets in the way of recording sometimes
 
 
+made it so that the screen stuff is hidden when recording...
+make that optional
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+add time/frame to one line section details...done
 
 
 
 when changing player 0 it gets saved to the config, I would like to not do that....
+
+
+
+
+20231204
+
+still left to do:
+
+gm list
+- scrollable
+- actions can be performed on list item
+
+I need to make the second gm_list to just have links to the first..done, that was easy!!
+
+
+make a helper button to set game move type from only the allowed types...
+
+
+
+
+
+
+
+
+
+
+
+
+make a nice way to call demo record, maybe a button from demo page in settings
+
+automatic way to clean up at the end of the level....
+
+if I add ack, how far in the future should they be?
+
+I think the way it is now, demos are ending because mLoop,frame is way past last frame...
+if this was not the case, then I would see level done stuff....
+
+line up things on the overlay a little better...
+
+add frame + and - buttons to move just a little bit
+also rewind
+
+
+make a frame for gm_list...
+
+
+
+I need to combine all and one into a single function
+
+how about making all also copy to lnk_gm, but just copy everything regardless of player number...
+
+
+
+20231207
+
+step 1 - combine both lists into one (all and single)
+done...
+
+step 2 - make a frame with controls
+done...
+
+
+I would like a marker in gm_list to show:
+- last gm_entry
+- last gm_entry for current player
+
+I want some frame control buttons
+
+I dont things I want them on the gm_list...probably with the play and rec buttons
+
+rew to start
++- frame
+
+then I will need to show that value there also....
+
+right now I just show it on the timeline
+
+done...
+
+next to do, finish the edit gm controls...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

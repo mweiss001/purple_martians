@@ -39,13 +39,13 @@ class mwDemoMode
 
    char * gettf(int frame, char* ft);
 
-
-   int tmp_arr[10000][4] = {0};
-   int tmp_entry_pos = 0;
-
+   int lnk_arr[10000] = {0};
+   int lnk_entry_pos = 0;
 
    int player_sections[20][20] = {0};
    char current_loaded_demo_file[256];
+
+   int draw_overlay(void);
 
    void demo_record(void);
    int load_demo_record(void);
@@ -66,9 +66,17 @@ class mwDemoMode
    void find_ack_moves(int i);
    void find_level_done(void);
 
-   void draw_gm_txt_lines_one(int x, int y);
-   void draw_gm_txt_lines_all(int x, int y);
+
    void draw_gm_txt_lines(int x, int y);
+
+   void proc_gm_list_menu(int gi);
+
+   void edit_gm(int gi);
+
+
+   void load_lnk_arr(void);
+
+
 
    void proc_cpu_time(double frame_start_timestamp);
 
@@ -78,7 +86,7 @@ class mwDemoMode
    int draw_record_settings(int x, int y);
    void draw_timeline(void);
 
-   void show_play_record_buttons(int x, int y);
+   int show_play_record_buttons(int x, int y);
 
    int play = 0;
    int record = 0;
@@ -114,17 +122,21 @@ class mwDemoMode
 
 
    int tm_frame = 1;
-   int sh_gamemoves_list = 0;
    int sh_cpu_graph = 0;
    int sh_level_done = 1;
    int sh_section_details = 1;
+
+   int sh_gamemoves_list = 1;
    int gm_list_all = 0;
+   int gm_list_lines = 20;
 
    int sh_player_grid = 0;
    int sh_rec_controls = 1;
    int sh_timeline = 1;
 
-   int gm_list_lines = 20;
+
+   int sh_overlay_in_play;
+   int sh_overlay_in_rec;
 
 
 
