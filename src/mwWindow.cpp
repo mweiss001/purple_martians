@@ -158,7 +158,7 @@ void mwWindow::process_mouse(void)
             sprintf(mMenu.menu_string[6],"All Items Off");
             sprintf(mMenu.menu_string[7],"All Enemies Off");
             sprintf(mMenu.menu_string[8],"end");
-            switch (mMenu.pmenu(6, 13))
+            switch (mMenu.pmenu(6, 13, -20, 2))
             {
                 case 2:
                    for (int i=0; i<5; i++)
@@ -206,7 +206,7 @@ void mwWindow::process_mouse(void)
             else                         sprintf(mMenu.menu_string[3],"Show Non-Default Blocks");
 
             sprintf(mMenu.menu_string[4],"end");
-            switch (mMenu.pmenu(6, 13))
+            switch (mMenu.pmenu(6, 13, -20, 2))
             {
                 case 2: mWM.mW[1].show_flag_details =! mWM.mW[1].show_flag_details; break;
                 case 3: mWM.mW[1].show_non_default_blocks =! mWM.mW[1].show_non_default_blocks; mScreen.init_level_background(); break;
@@ -227,7 +227,7 @@ void mwWindow::process_mouse(void)
                sprintf(mMenu.menu_string[5],"Add Selection To List And Set Filters");
                sprintf(mMenu.menu_string[6],"end");
 
-               switch (mMenu.pmenu(6, 13))
+               switch (mMenu.pmenu(6, 13, -20, 2))
                {
                   case 2: ge_clear_obj_list(); break;
                   case 3: mWM.mW[5].show_sel_frame = 0; break;
@@ -240,7 +240,7 @@ void mwWindow::process_mouse(void)
                sprintf(mMenu.menu_string[2],"Clear Object List");
                sprintf(mMenu.menu_string[3],"Show Selection");
                sprintf(mMenu.menu_string[4],"end");
-               switch (mMenu.pmenu(6, 13))
+               switch (mMenu.pmenu(6, 13, -20, 2))
                {
                   case 2: ge_clear_obj_list(); break;
                   case 3: mWM.mW[5].show_sel_frame = 1; break;

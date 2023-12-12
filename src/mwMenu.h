@@ -15,7 +15,8 @@ class mwMenu
    int tmenu(int menu_pos, int x1, int y1);
 
    void init_pmenu(int type);
-   int pmenu(int type, int bg_color);
+   int pmenu(int type, int bg_color, int y_offset, int default_selection);
+
 
 };
 

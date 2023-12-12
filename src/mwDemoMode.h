@@ -74,9 +74,11 @@ class mwDemoMode
    void edit_gm(int gi);
 
 
+   void proc_edit_gm_type_menu(int & t);
+   void proc_edit_gm_player_num_menu(int & p);
+
+
    void load_lnk_arr(void);
-
-
 
    void proc_cpu_time(double frame_start_timestamp);
 
@@ -115,12 +117,6 @@ class mwDemoMode
    int sb_size = 20;
    int sb_text = 1;
 
-
-//   int sb_spacing = 1;
-//   int sb_size = 6;
-//   int sb_text = 0;
-
-
    int tm_frame = 1;
    int sh_cpu_graph = 0;
    int sh_level_done = 1;
@@ -128,16 +124,19 @@ class mwDemoMode
 
    int sh_gamemoves_list = 1;
    int gm_list_all = 0;
-   int gm_list_lines = 20;
+   int gm_list_lines = 40;
+
+   int gm_list_mono = 0;
+
 
    int sh_player_grid = 0;
    int sh_rec_controls = 1;
    int sh_timeline = 1;
 
+   int timeline_size = 4;
 
-   int sh_overlay_in_play;
-   int sh_overlay_in_rec;
-
+   int sh_overlay_in_play = 0;
+   int sh_overlay_in_rec = 0;
 
 
 };

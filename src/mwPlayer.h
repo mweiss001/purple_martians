@@ -61,7 +61,7 @@ struct psyn // synced between server and client
    // flags that indicate a control has been activated or held
    int up, down, left, right, jump, fire, fire_held, menu;
 
-   int shot_wait_counter, request_shot, shot_wait, shot_speed;
+   int shot_wait_counter, shot_wait, shot_speed;
 
    int stat_respawns;
    int stat_shots_fired;
@@ -88,6 +88,7 @@ struct psyn // synced between server and client
    float client_chase_offset = -0.02;
 
    int spare_int1;
+   int spare_int2;
 
 
 };

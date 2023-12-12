@@ -27,7 +27,15 @@ class mwShot
    struct eshot e[50];
    struct pshot p[50];
 
+   int num_eshots;
+   int num_pshots;
+
    void clear_shots(void);
+
+   int find_empty_pshot(void);
+   int find_empty_eshot(void);
+
+
 
    void proc_player_shoot(int p);
 

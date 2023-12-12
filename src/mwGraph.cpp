@@ -1316,7 +1316,7 @@ int mwGraph::proc_series_legend_menu(void)
          sprintf(mMenu.menu_string[9],"Hide Series Legend");
 
          sprintf(mMenu.menu_string[10],"end");
-         switch (mMenu.pmenu(5, 13))
+         switch (mMenu.pmenu(5, 13, -20, 2))
          {
             case 2: if (++plot_line_size > 5) plot_line_size = 5;  break;
             case 3: if (--plot_line_size < 0) plot_line_size = 0;  break;
@@ -1383,7 +1383,7 @@ void mwGraph::proc_plot_menu(void)
       if (x_axis_slave)          sprintf(mMenu.menu_string[ya],"-- X Axis: [Slave] --");
 
       sprintf(mMenu.menu_string[13],"end");
-      switch (mMenu.pmenu(5, 13))
+      switch (mMenu.pmenu(5, 13, -20, 2))
       {
          case 2: autorange_axis(1, 1); break;
          case 3: autorange_axis(1, 0); break;

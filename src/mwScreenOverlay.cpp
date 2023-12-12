@@ -24,6 +24,9 @@
 #include "mwItem.h"
 #include "mwConfig.h"
 
+#include "mwShot.h"
+
+
 void mwScreen::show_player_stat_box(int tx, int y, int p)
 {
 
@@ -1135,6 +1138,14 @@ void mwScreen::draw_top_frame(int p)
          al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
       }
    }
+
+
+
+   if (mLoop.frame_speed != 40) al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W/2, 2, ALLEGRO_ALIGN_CENTER, "fps:%d", mLoop.frame_speed);
+
+   al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W/2-120, 2, ALLEGRO_ALIGN_CENTER, "ps:%2d es:%2d", mShot.num_pshots, mShot.num_eshots);
+
+
 
    if (mDisplay.show_scale_factor > 0)
    {
