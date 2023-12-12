@@ -749,7 +749,7 @@ void mwWindow::em_process_mouse(void)
          break;
       }
 
-      switch (mMenu.pmenu(2, 0))
+      switch (mMenu.pmenu(2, 0, -20, 2))
       {
          case 2:  // copy
             if (mWM.mW[1].point_item_type < 4)

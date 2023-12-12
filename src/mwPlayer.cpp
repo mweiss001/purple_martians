@@ -1408,9 +1408,7 @@ void mwPlayer::init_player(int p, int t)
       syn[p].left_xinc = 0;
       syn[p].right_xinc = 0;
 
-
-      syn[p].shot_wait_counter=0;
-      syn[p].request_shot = 0;
+      syn[p].shot_wait_counter = 0;
       syn[p].shot_wait = 4;
       syn[p].shot_speed = 12;
 
@@ -1761,12 +1759,12 @@ void mwPlayer::proc_player_input(void)
                if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
                {
                   if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) && (p == active_local_player))
-                     mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_MOVE, p, loc[p].comp_move); // add to game moves array
+                     mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, loc[p].comp_move); // add to game moves array
 
                   // in client mode, send cdat packet, and apply move directly to controls
                   if (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)
                   {
-                     mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_MOVE, p, loc[p].comp_move); // add to game moves array
+                     mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, loc[p].comp_move); // add to game moves array
                      mNetgame.client_send_cdat_packet(p);
                      set_controls_from_comp_move(p, loc[p].comp_move);
                      if (syn[p].menu) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_PREEXIT1; // menu key pressed

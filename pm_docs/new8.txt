@@ -41216,6 +41216,253 @@ done...
 
 next to do, finish the edit gm controls...
 
+show fps and have fps controls
+
+
+I have some weird bugs...
+game moves are doubled but show the same??
+RIGHT was not showing...fixed
+
+
+
+
+20231209
+
+- put header at bottom of gm list instead of top...done
+
+- finish edit gm move dialog..done
+
+- click on gm list sets current frame..done
+
+- scrollwheel on gm_list scrolls list??..no
+
+- limit frame in edit gm...done
+
+- += 10 and 100 in main controls like edit gm..done
+
+- more checks
+like if more than 1 active or inactive
+
+test how far adding ack in future works
+
+make the entire demo play thing not use the main loop
+
+this would probably cleanup a lot of the confusing program state change things
+
+- resizable timeline..done
+
+add current section += to title bar...done
+
+
+
+
+back to testing....
+
+bug - player joined the game shows when players go active on frame 1...fixed
+
+bug - shot config is not getting saved with new level??
+or maybe it is getting erased by p0 start from begining?
+
+bug - make insert gm use current player..done
+
+
+
+
+
+when to add ack?
+
+l64 with end cutscene...does not play cutscene if no ack
+
+added ack at 1000f after level done
+
+
+I think I have some manual fuckery when demo level does level done for when I was playing them fast...
+especially for cutscene in lev64
+
+I am thinking again about making the demo playing stuff its own loop...
+
+
+
+it can be called from:
+command line
+menu
+settings
+in a level (overworld)
+
+it needs to be able to return to where it came from
+
+transitions are all messed up anyway...when did that happen?
+
+this is not something I want to get into now...
+
+
+can I make a routine to automatically remove players shots that do not hit anything?
+
+can I make a more fair method for players shots?
+
+
+right now there are 50 shared
+
+each player could have a quota....
+
+1 - 20
+2 - 25
+3 - 16
+4 - 12
+5 - 10
+6 - 8
+7 - 7
+8 - 6
+
+it would only come into effect if the array is full....
+
+in that case the player with the most active shots loses their oldest shot...
+
+I would need to keep track of the frame that shots were fired on....
+
+add 1 int...i should also do this for enemies
+
+when they are processed (once per frame),
+
+or when needed...
+
+make a function that finds the player with the most active shots
+and then find the oldest one in that group
+
+
+what if I repurpose active!!
+
+it will now have the frame number of the shot
+
+
+this was so easy to achieve
+
+actually I just find the oldest frame number across all players
+
+demos still play properly
+
+
+20231211
+
+add enemy shot count like for player
+this broke 3 demo levels
+27
+34
+44
+
+
+
+
+
+add tracer line for player...looks cool
+redo section details, maybe a more section
+
+
+
+make menu line up better for edit gm
+show last line before popping up menu
+edit controls in frame...
+pop up menu for type...
+did a bunch of messing around with edit gm and it looks good...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

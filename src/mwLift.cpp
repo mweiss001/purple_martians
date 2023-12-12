@@ -515,7 +515,7 @@ void mwLift::step_popup_menu(int lift, int step)
       sprintf(mMenu.menu_string[5],"Apply Color to All");
       sprintf(mMenu.menu_string[6],"Apply Flags to All");
       sprintf(mMenu.menu_string[7],"end");
-         switch (mMenu.pmenu(6, 13))
+         switch (mMenu.pmenu(6, 13, -20, 2))
          {
             case 3: move_lift_step(lift, step); break;
             case 4: set_all_steps(lift, step, 1); break;
@@ -528,7 +528,7 @@ void mwLift::step_popup_menu(int lift, int step)
    {
       strcpy (mMenu.menu_string[3],"Insert Steps");
       sprintf(mMenu.menu_string[4],"end");
-      if (mMenu.pmenu(6, 13) == 3) insert_steps_until_quit(lift, step);
+      if (mMenu.pmenu(6, 13, -20, 2) == 3) insert_steps_until_quit(lift, step);
    }
    else // regular step (not first or last)
    {
@@ -547,7 +547,7 @@ void mwLift::step_popup_menu(int lift, int step)
 
 
          sprintf(mMenu.menu_string[10],"end");
-         switch (mMenu.pmenu(6, 13))
+         switch (mMenu.pmenu(6, 13, -20, 2))
          {
             case 3: move_lift_step(lift, step); break;
             case 4: delete_lift_step(lift, step); break;
@@ -563,7 +563,7 @@ void mwLift::step_popup_menu(int lift, int step)
          sprintf(mMenu.menu_string[3],"Delete Step %d", step);
          sprintf(mMenu.menu_string[4],"Insert Steps");
          sprintf(mMenu.menu_string[5],"end");
-         switch (mMenu.pmenu(6, 13))
+         switch (mMenu.pmenu(6, 13, -20, 2))
          {
             case 3: delete_lift_step(lift, step); break;
             case 4: insert_steps_until_quit(lift, step); break;

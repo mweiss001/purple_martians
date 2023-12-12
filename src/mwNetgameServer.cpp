@@ -596,7 +596,7 @@ void mwNetgame::server_proc_cdat_packet(int i)
    }
    else
    {
-      mGameMoves.add_game_move(cdat_frame_num, PM_GAMEMOVE_TYPE_MOVE, p, cm); // add to game_move array
+      mGameMoves.add_game_move(cdat_frame_num, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, cm); // add to game_move array
       mLog.addf(LOG_NET_cdat, p, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, mGameMoves.entry_pos);
       if (cdat_frame_num < server_dirty_frame) server_dirty_frame = cdat_frame_num;
    }

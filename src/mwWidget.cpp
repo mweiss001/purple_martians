@@ -1711,7 +1711,45 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 
 
 
-
+   if (bn == 414) // Game Move Type
+   {
+      if (var == PM_GAMEMOVE_TYPE_LEVEL_START)
+      {
+         sprintf(msg, "Level Start");
+         if (press) var = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE;
+      }
+      else if (var == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
+      {
+         sprintf(msg, "Player Active");
+         if (press) var = PM_GAMEMOVE_TYPE_PLAYER_INACTIVE;
+      }
+      else if (var == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
+      {
+         sprintf(msg, "Player Inactive");
+         if (press) var = PM_GAMEMOVE_TYPE_PLAYER_HIDDEN;
+      }
+      else if (var == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)
+      {
+         sprintf(msg, "Player Hidden");
+         if (press) var = PM_GAMEMOVE_TYPE_PLAYER_MOVE;
+      }
+      else if (var == PM_GAMEMOVE_TYPE_PLAYER_MOVE)
+      {
+         sprintf(msg, "Player Move");
+         if (press) var = PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK;
+      }
+      else if (var == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)
+      {
+         sprintf(msg, "Level Done Ack");
+         if (press) var = PM_GAMEMOVE_TYPE_SHOT_CONFIG;
+      }
+      else if (var == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
+      {
+         sprintf(msg, "Shot Config");
+         if (press) var = PM_GAMEMOVE_TYPE_LEVEL_START;
+      }
+      else sprintf(msg, "Invalid Type:%d", var);
+   }
 
 
 
@@ -2031,6 +2069,45 @@ int mwWidget::togglec(int x1, int &y1, int x2, int bts, int bn, int num, int typ
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // double toggle check box flag -- custom for log types only
 void mwWidget::togglec_log(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                int ltn, int text_col, int frame_col)
@@ -2106,22 +2183,54 @@ void mwWidget::togglec_log(int x1, int &y1, int x2, int bts, int bn, int num, in
 
 
 
+// toggles the flag and displays text, text color, and frame color based on value  -- check box style
+int mwWidget::togglfc(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+               int &var, int flag, const char* t, int text_col, int frame_col)
+{
+   int y2 = y1+bts-2;
+   int press = 0;
+
+   // debug show mouse detection area
+//   if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
+//      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[10], 1);
 
 
+   // is mouse pressed on this button?
+   if ((mInput.mouse_b[1][0]) && (mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y1) && (mInput.mouse_y < y2) && (!q7))
+   {
+      while (mInput.mouse_b[1][0]) mEventQueue.proc(1); // wait for release
+      var ^= flag;
+      press = 1;
+   }
 
 
+   float my1 = y1;
+   float my2 = y2;
+
+   // get y center of button
+   float myc = my1 + (my2-my1)/2;
+
+   float rs = 6; // check box size
+   float ry1 = myc - rs/2;
+   float ry2 = ry1 + rs;
+   float rx1 = x1 + 4;
+   float rx2 = rx1 + rs;
+
+   // text pos
+   float mtx = rx2+6;
+   float mty = myc-4;
+
+   if (q1>0) al_draw_rectangle(x1, y1, x2, y2, mColor.pc[q1], 1);
 
 
+   if (var & flag) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, mColor.pc[frame_col]);
+   else            al_draw_rectangle(       rx1, ry1, rx2, ry2, mColor.pc[frame_col], 1);
 
+   al_draw_text(mFont.pr8, mColor.pc[text_col], mtx, mty, 0, t);
 
-
-
-
-
-
-
-
-
+   if (q6 == 1) y1+=bts;
+   return press;
+}
 
 
 

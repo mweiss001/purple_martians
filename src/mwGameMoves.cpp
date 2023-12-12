@@ -109,7 +109,7 @@ void mwGameMoves::gm_sort(void)
 
    // now remove all zero entries from the start
    for (int x=0; x<entry_pos; x++)
-      if ((entry_pos > 4) && (arr[x][0] == 0) && (arr[x][1] == 0) && (arr[x][2] == 0) && (arr[x][3] == 0) )
+      if ((entry_pos > 1) && (arr[x][0] == 0) && (arr[x][1] == 0) && (arr[x][2] == 0) && (arr[x][3] == 0) )
       {
          gm_remove(x);
          x--;
@@ -158,7 +158,7 @@ void mwGameMoves::proc(void)
             case PM_GAMEMOVE_TYPE_PLAYER_INACTIVE:  proc_game_move_player_inactive(x); break;
             case PM_GAMEMOVE_TYPE_PLAYER_HIDDEN:    proc_game_move_player_hidden(x); break;
             case PM_GAMEMOVE_TYPE_SHOT_CONFIG:      proc_game_move_shot_config(x); break;
-            case PM_GAMEMOVE_TYPE_MOVE:             mPlayer.set_controls_from_comp_move(arr[x][2], arr[x][3]); break;
+            case PM_GAMEMOVE_TYPE_PLAYER_MOVE:      mPlayer.set_controls_from_comp_move(arr[x][2], arr[x][3]); break;
          }
       }
    }
@@ -322,12 +322,14 @@ void mwGameMoves::proc_game_move_player_active(int x)
       // if player 0 is file play all added players will be too
       if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
 
+      if (mLoop.frame_num > 1) // don't show notifications if player was active at the start of the level
+      {
+         mScreen.set_player_text_overlay(p, 1);
+         mGameEvent.add(6, 0, 0, p, 0, 0, 0);
+         if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 0, "Player:%d became ACTIVE!                                ", p);
+      }
 
-      mScreen.set_player_text_overlay(p, 1);
 
-      mGameEvent.add(6, 0, 0, p, 0, 0, 0);
-
-      if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 0, "Player:%d became ACTIVE!                                ", p);
    }
 }
 
@@ -417,11 +419,11 @@ char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
 {
    char dsc[80] = {0};
    if (t == PM_GAMEMOVE_TYPE_LEVEL_START)     sprintf(dsc, " START LEVEL %d", v);
-   if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   sprintf(dsc, " P%d ACTIVE - COL:%d)", p, v);
+   if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   sprintf(dsc, " P%d ACTIVE", p);
    if (t == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)   sprintf(dsc, " P%d HIDDEN", p);
    if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) sprintf(dsc, " P%d INACTIVE", p);
-   if (t == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)  sprintf(dsc, " P%d ACKNOWLEDGE", p);
-   if (t == PM_GAMEMOVE_TYPE_MOVE)            sprintf(dsc, " P%d CONTROLS", p);
+   if (t == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)  sprintf(dsc, " P%d ACK", p);
+   if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)     sprintf(dsc, " P%d MOVE", p);
 
    if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
    {
@@ -429,54 +431,54 @@ char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
       int pvs = 0;
       if (p & 0b01) pvp = 1;
       if (p & 0b10) pvs = 1;
-                                              sprintf(dsc, " SHOT CONFIG pvp:%d pvs:%d dmg:%d", pvp, pvs, v);
+                                              sprintf(dsc, " SHOTS P:%d S:%d D:%d", pvp, pvs, v);
    }
 
-   if (t == PM_GAMEMOVE_TYPE_MOVE)
+   if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)
    {
-      strcat(dsc, "[");
-      if (v & PM_COMPMOVE_LEFT) strcat(dsc, "L");
-      else                      strcat(dsc, " ");
-      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "R");
-      else                      strcat(dsc, " ");
-      if (v & PM_COMPMOVE_UP)   strcat(dsc, "U");
-      else                      strcat(dsc, " ");
-      if (v & PM_COMPMOVE_DOWN) strcat(dsc, "D");
-      else                      strcat(dsc, " ");
-      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "J");
-      else                      strcat(dsc, " ");
-      if (v & PM_COMPMOVE_FIRE) strcat(dsc, "F");
-      else                      strcat(dsc, " ");
+      strcat(dsc, " [");
+      if (v & PM_COMPMOVE_LEFT)  strcat(dsc, "L");
+      else                       strcat(dsc, " ");
+      if (v & PM_COMPMOVE_RIGHT) strcat(dsc, "R");
+      else                       strcat(dsc, " ");
+      if (v & PM_COMPMOVE_UP)    strcat(dsc, "U");
+      else                       strcat(dsc, " ");
+      if (v & PM_COMPMOVE_DOWN)  strcat(dsc, "D");
+      else                       strcat(dsc, " ");
+      if (v & PM_COMPMOVE_JUMP)  strcat(dsc, "J");
+      else                       strcat(dsc, " ");
+      if (v & PM_COMPMOVE_FIRE)  strcat(dsc, "F");
+      else                       strcat(dsc, " ");
       strcat(dsc, "]");
 
 
-//      if (v & PM_COMPMOVE_LEFT) strcat(dsc, "[L]");
-//      else                      strcat(dsc, "[ ]");
-//      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "[R]");
-//      else                      strcat(dsc, "[ ]");
-//      if (v & PM_COMPMOVE_UP)   strcat(dsc, "[U]");
-//      else                      strcat(dsc, "[ ]");
-//      if (v & PM_COMPMOVE_DOWN) strcat(dsc, "[D]");
-//      else                      strcat(dsc, "[ ]");
-//      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "[J]");
-//      else                      strcat(dsc, "[ ]");
-//      if (v & PM_COMPMOVE_FIRE) strcat(dsc, "[F]");
-//      else                      strcat(dsc, "[ ]");
+//      if (v & PM_COMPMOVE_LEFT)  strcat(dsc, "[L]");
+//      else                       strcat(dsc, "[ ]");
+//      if (v & PM_COMPMOVE_RIGHT) strcat(dsc, "[R]");
+//      else                       strcat(dsc, "[ ]");
+//      if (v & PM_COMPMOVE_UP)    strcat(dsc, "[U]");
+//      else                       strcat(dsc, "[ ]");
+//      if (v & PM_COMPMOVE_DOWN)  strcat(dsc, "[D]");
+//      else                       strcat(dsc, "[ ]");
+//      if (v & PM_COMPMOVE_JUMP)  strcat(dsc, "[J]");
+//      else                       strcat(dsc, "[ ]");
+//      if (v & PM_COMPMOVE_FIRE)  strcat(dsc, "[F]");
+//      else                       strcat(dsc, "[ ]");
 //
 
 
-//      if (v & PM_COMPMOVE_FIRE) strcat(dsc, "[FIRE]");
-//      else                      strcat(dsc, "[    ]");
-//      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "[JUMP]");
-//      else                      strcat(dsc, "[    ]");
-//      if (v & PM_COMPMOVE_DOWN) strcat(dsc, "[DOWN]");
-//      else                      strcat(dsc, "[    ]");
-//      if (v & PM_COMPMOVE_UP)   strcat(dsc, "[UP]");
-//      else                      strcat(dsc, "[  ]");
-//      if (v & PM_COMPMOVE_JUMP) strcat(dsc, "[RIGHT]");
-//      else                      strcat(dsc, "[     ]");
-//      if (v & PM_COMPMOVE_LEFT) strcat(dsc, "[LEFT]");
-//      else                      strcat(dsc, "[    ]");
+//      if (v & PM_COMPMOVE_FIRE)  strcat(dsc, "[FIRE]");
+//      else                       strcat(dsc, "[    ]");
+//      if (v & PM_COMPMOVE_JUMP)  strcat(dsc, "[JUMP]");
+//      else                       strcat(dsc, "[    ]");
+//      if (v & PM_COMPMOVE_DOWN)  strcat(dsc, "[DOWN]");
+//      else                       strcat(dsc, "[    ]");
+//      if (v & PM_COMPMOVE_UP)    strcat(dsc, "[UP]");
+//      else                       strcat(dsc, "[  ]");
+//      if (v & PM_COMPMOVE_RIGHT) strcat(dsc, "[RIGHT]");
+//      else                       strcat(dsc, "[     ]");
+//      if (v & PM_COMPMOVE_LEFT)  strcat(dsc, "[LEFT]");
+//      else                       strcat(dsc, "[    ]");
    }
    sprintf(tmp, "[%3d][%5d][%d][%d][%2d]%s", gm, f, t, p, v, dsc);
    return tmp;
@@ -575,7 +577,7 @@ void mwGameMoves::save_gm(const char *fname)
 
          sprintf(mDemoMode.current_loaded_demo_file, "%s", fname); // update the name
 
-         save_gm_txt(fname); // also save as a human readable text file
+//         save_gm_txt(fname); // also save as a human readable text file
       }
    }
 }

@@ -426,23 +426,27 @@ void mwDemoMode::draw_gm_txt_lines(int x, int y)
 
    char msg[256];
 
-   int x1 = x;
-   int x2 = x1+336;
-   int y1 = y;
-   int y2 = y1+num_lines*8;
+   int x1 = x-1;
+   int x2 = x1+328+1;
+   int y1 = y-1;
+   int y2 = y1+num_lines*8+2;
 
-   al_draw_filled_rectangle(x1, y1-11, x2, y2, mColor.pc[0]);
+   // erase and frame main area
+   al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[0]);
+   al_draw_rectangle(       x1, y1, x2, y2, mColor.pc[11], 1);
 
-   al_draw_rectangle(x1-1, y1-1, x2+1, y2+1, mColor.pc[11], 1);
+   // erase and frame bottom control bar
+   al_draw_filled_rectangle(x1, y2, x2, y2+12, mColor.pc[0]);
+   al_draw_rectangle(       x1, y2, x2, y2+12, mColor.pc[11], 1);
 
-   al_draw_rectangle(x1-1, y1-1, x2+1, y1-11, mColor.pc[11], 1);
-
-
-   int ya = y1-10;
+   int ya = y2+2;
    int old_gm_list_all = gm_list_all;
    mWidget.togglec(x1+2, ya, x1+30, 10,  0,0,0,0,  0,0,0,0, 1,0,0,0, gm_list_all, "all", 15, 15);
    if (old_gm_list_all != gm_list_all) load_lnk_arr();
    mWidget.slideri(x1+50, ya, x1+250, 10,  0,0,0,0,  0,12,15,15,  0,0,0,0, gm_list_lines, 100, 10, 1, "lines:");
+
+   mWidget.togglec(x2-52, ya, x2-32, 10,  0,0,0,0,  0,0,0,0, 1,0,0,0, gm_list_mono, "mono", 15, 15);
+
 
 
    for (int i=gm1; i<gm2; i++)
@@ -457,117 +461,75 @@ void mwDemoMode::draw_gm_txt_lines(int x, int y)
       int text_col = mPlayer.syn[p].color;
       if (t == PM_GAMEMOVE_TYPE_LEVEL_START) text_col = 15;
       if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG) text_col = 15;
-      // if (!gm_list_all) text_col = 15; // always white when only one player number shown
+      if (gm_list_mono) text_col = 15;
 
       // line dimensions for background draw and mouse detection
       int x2 = x+strlen(msg)*8;
-      int y2 = y+8;
+      y2 = y+8;
+
+
 
       int bkg_col = 0;
-
-
       if (i == i_closest) bkg_col = 11+128;
 
-
-      if ((mInput.mouse_x > x) && (mInput.mouse_x < x2) && (mInput.mouse_y > y) && (mInput.mouse_y < y2))
+      int mouse_on_line = 0;
+      if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y >= y) && (mInput.mouse_y < y2))
       {
          bkg_col = 10+128;
-         proc_gm_list_menu(gi);
-         //if (mInput.mouse_b[1][0]){}
-      }
+         mouse_on_line = 1;
 
+         if (mInput.mouse_b[2][0])
+         {
+            mInput.mouse_y = y2+8;
+            al_set_mouse_xy(mDisplay.display, mInput.mouse_x * mDisplay.display_transform_double, mInput.mouse_y * mDisplay.display_transform_double);
+
+
+
+         }
+
+
+      }
       al_draw_filled_rectangle(x, y, x2, y2, mColor.pc[bkg_col]); // background color
       al_draw_text(mFont.pr8, mColor.pc[text_col], x, y, 0, msg);
+
+
+      if (mouse_on_line)
+      {
+         proc_gm_list_menu(gi);
+         if (mInput.mouse_b[1][0])
+         {
+            while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
+            current_frame_num = f;
+            refresh();
+         }
+      }
+
+
 
       y+=8;
    }
 }
 
-
-
-void mwDemoMode::edit_gm(int gi)
-{
-
-   int quit = 0;
-
-   int x1 = mInput.mouse_x;
-   int y1 = mInput.mouse_y;
-
-   int x2 = x1 + 200;
-   int y2 = y1 + 200;
-
-
-
-
-   while (!quit)
-   {
-      int ya = y1;
-      al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[10+160]);
-
-
-
-      int f = mGameMoves.arr[gi][0];
-      int t = mGameMoves.arr[gi][1];
-      int p = mGameMoves.arr[gi][2];
-      int v = mGameMoves.arr[gi][3];
-      char msg[256];
-      sprintf(msg, "%s", mGameMoves.get_gm_text2(gi, f, t, p, v, msg));
-      al_draw_text(mFont.pr8, mColor.pc[15], x1, ya, 0, msg);
-
-      ya+=8;
-
-
-
-      mWidget.slideri(x1, ya, x1+100, 16,  0,0,0,0,  0,12,15,15,  0,0,1,0, mGameMoves.arr[gi][2], 7, 0, 1, "p:");
-
-
-
-      if (mWidget.buttont(x1, ya, x1+100, 16,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "QUIT ")) quit = 1;
-
-
-
-
-
-
-      al_flip_display();
-      mEventQueue.proc(1);
-
-
-      if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
-      {
-         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
-         quit = 1;
-      }
-
-
-
-
-
-   }
-
-}
-
-
-
-
 void mwDemoMode::proc_gm_list_menu(int gi)
 {
    if (mInput.mouse_b[2][0])
    {
-      sprintf(mMenu.menu_string[0],"Game List Menu");
-      sprintf(mMenu.menu_string[1],"--------------");
-      sprintf(mMenu.menu_string[2],"Edit");
-      sprintf(mMenu.menu_string[3],"Insert");
-      sprintf(mMenu.menu_string[4],"Delete");
-
-      sprintf(mMenu.menu_string[5],"end");
-      switch (mMenu.pmenu(5, 13))
+      sprintf(mMenu.menu_string[0],"Edit");
+      sprintf(mMenu.menu_string[1],"Insert");
+      sprintf(mMenu.menu_string[2],"Delete");
+      sprintf(mMenu.menu_string[3],"end");
+      switch (mMenu.pmenu(5, 13, -4, 99))
       {
+         case 0: edit_gm(gi); break;
 
-         case 2: edit_gm(gi); break;
+         case 1: // insert (same frame, same player_num)
+            mGameMoves.add_game_move2(mGameMoves.arr[gi][0], PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK, mGameMoves.arr[gi][2], 0);
+            mGameMoves.gm_sort();
+            refresh();
+            set_active_section(current_section);
+         break;
 
-
-         case 4: // delete
+         case 2: // delete
             mGameMoves.gm_remove(gi);
             mGameMoves.gm_sort();
             refresh();
@@ -576,6 +538,293 @@ void mwDemoMode::proc_gm_list_menu(int gi)
       }
    }
 }
+
+void mwDemoMode::proc_edit_gm_type_menu(int & t)
+{
+   if (mInput.mouse_b[2][0])
+   {
+      mInput.mouse_y+=8;
+      al_set_mouse_xy(mDisplay.display, mInput.mouse_x * mDisplay.display_transform_double, mInput.mouse_y * mDisplay.display_transform_double);
+
+
+
+
+      sprintf(mMenu.menu_string[0],"PLAYER_MOVE");
+      sprintf(mMenu.menu_string[1],"PLAYER_ACTIVE");
+      sprintf(mMenu.menu_string[2],"PLAYER_INACTIVE");
+      sprintf(mMenu.menu_string[3],"SHOT_CONFIG");
+      sprintf(mMenu.menu_string[4],"PLAYER_HIDDEN");
+      sprintf(mMenu.menu_string[5],"LEVEL_DONE_ACK");
+      sprintf(mMenu.menu_string[6],"LEVEL_START");
+      sprintf(mMenu.menu_string[7],"end");
+      switch (mMenu.pmenu(5, 13, -4, 99))
+      {
+         case 0: t = PM_GAMEMOVE_TYPE_PLAYER_MOVE; break;
+         case 1: t = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE; break;
+         case 2: t = PM_GAMEMOVE_TYPE_PLAYER_INACTIVE; break;
+         case 3: t = PM_GAMEMOVE_TYPE_SHOT_CONFIG; break;
+         case 4: t = PM_GAMEMOVE_TYPE_PLAYER_HIDDEN; break;
+         case 5: t = PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK; break;
+         case 6: t = PM_GAMEMOVE_TYPE_LEVEL_START; break;
+      }
+
+      mInput.mouse_y-=8;
+      al_set_mouse_xy(mDisplay.display, mInput.mouse_x * mDisplay.display_transform_double, mInput.mouse_y * mDisplay.display_transform_double);
+
+   }
+}
+
+void mwDemoMode::proc_edit_gm_player_num_menu(int & p)
+{
+   if (mInput.mouse_b[2][0])
+   {
+      mInput.mouse_y+=8;
+      al_set_mouse_xy(mDisplay.display, mInput.mouse_x * mDisplay.display_transform_double, mInput.mouse_y * mDisplay.display_transform_double);
+
+      sprintf(mMenu.menu_string[0],"P0");
+      sprintf(mMenu.menu_string[1],"P1");
+      sprintf(mMenu.menu_string[2],"P2");
+      sprintf(mMenu.menu_string[3],"P3");
+      sprintf(mMenu.menu_string[4],"P4");
+      sprintf(mMenu.menu_string[5],"P5");
+      sprintf(mMenu.menu_string[6],"P6");
+      sprintf(mMenu.menu_string[7],"P7");
+      sprintf(mMenu.menu_string[8],"end");
+
+      int mp = mMenu.pmenu(5, 13, -4, 99);
+
+      if ((mp >= 0) && (mp < 8)) p = mp;
+
+      mInput.mouse_y-=8;
+      al_set_mouse_xy(mDisplay.display, mInput.mouse_x * mDisplay.display_transform_double, mInput.mouse_y * mDisplay.display_transform_double);
+
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+void mwDemoMode::edit_gm(int gi)
+{
+   char msg[256];
+
+   int quit = 0;
+
+   int x1 = sb_x1-1;
+   int y1 = mInput.mouse_y-6;
+
+   int x2 = x1 + 329;
+   int y2 = y1 + 46;
+
+   int col = 14;
+
+   int f = mGameMoves.arr[gi][0];
+   int t = mGameMoves.arr[gi][1];
+   int p = mGameMoves.arr[gi][2];
+   int v = mGameMoves.arr[gi][3];
+
+   while (!quit)
+   {
+
+//      x2 = x1 + 328 + mLoop.pct_x;
+
+
+      // erase and frame
+      al_draw_filled_rectangle(x1, y1, x2, y2, mColor.pc[col+208]);
+      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[col], 1);
+
+      int xa = x1+2;
+      int ya = y1+2;
+
+      // show text line of game move being edited
+      sprintf(msg, "%s", mGameMoves.get_gm_text2(gi, f, t, p, v, msg));
+      al_draw_text(mFont.pr8, mColor.pc[15], xa-1, ya, 0, msg);
+      ya+=9;
+
+      al_draw_line(x1, ya, x2, ya, mColor.pc[col], 1);
+      ya+=2;
+
+
+      // common y's for all title bar stuff
+      int tb_y1 = y1+1;
+      int tb_y2 = tb_y1+9;
+
+      if ((mInput.mouse_y >= tb_y1) && (mInput.mouse_y < tb_y2))
+      {
+
+         // player num pop-up menu
+         if ((t != PM_GAMEMOVE_TYPE_LEVEL_START) && (t != PM_GAMEMOVE_TYPE_SHOT_CONFIG))
+         {
+            int p_x1 = x1+184;
+            int p_x2 = p_x1+16;
+            if ((mInput.mouse_x > p_x1) && (mInput.mouse_x < p_x2))
+            {
+               al_draw_rectangle(p_x1, tb_y1, p_x2, tb_y2, mColor.pc[10], 1);
+               proc_edit_gm_player_num_menu(p);
+            }
+         }
+
+         // game move type pop-up menu
+         int t_x1, t_x2;
+         if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)     { t_x1 = x1+208; t_x2 = t_x1+34; }
+         if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   { t_x1 = x1+208; t_x2 = t_x1+50; }
+         if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) { t_x1 = x1+208; t_x2 = t_x1+68; }
+         if (t == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)   { t_x1 = x1+208; t_x2 = t_x1+50; }
+         if (t == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)  { t_x1 = x1+208; t_x2 = t_x1+26; }
+         if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG)     { t_x1 = x1+184; t_x2 = t_x1+42; }
+         if (t == PM_GAMEMOVE_TYPE_LEVEL_START)     { t_x1 = x1+184; t_x2 = t_x1+88; }
+         if ((mInput.mouse_x > t_x1) && (mInput.mouse_x < t_x2))
+         {
+            al_draw_rectangle(t_x1, tb_y1, t_x2, tb_y2, mColor.pc[10], 1);
+            proc_edit_gm_type_menu(t);
+         }
+
+         // toggle player controls for game move type 'PM_GAMEMOVE_TYPE_PLAYER_MOVE'
+         if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)
+         {
+            int c_x1 = x1+256;
+            int c_x2 = c_x1+48;
+            if ((mInput.mouse_x > c_x1) && (mInput.mouse_x < c_x2))
+            {
+               int cn = (mInput.mouse_x - c_x1) / 8;
+               int cnx = c_x1 + cn*8;
+
+               al_draw_rectangle(cnx, tb_y1, cnx+8, tb_y2, mColor.pc[10], 1);
+
+               if (mInput.mouse_b[1][0])
+               {
+                  while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
+                  v ^= (int) pow(2, cn);
+               }
+            }
+         }
+      }
+
+
+
+
+
+      // frame number display and adjustment
+
+      al_draw_textf(mFont.pr8, mColor.pc[9], (x1+x2)/2, ya+4, ALLEGRO_ALIGN_CENTER,  "Frame:%d", f);
+      al_draw_textf(mFont.pr8, mColor.pc[15], (x1+x2)/2, ya+4, ALLEGRO_ALIGN_CENTER, "      %d", f);
+
+      int c = 9+128;
+
+      int bp = 10; // button padding
+      int bs = 2; // button spacing
+
+//      bp = 10 + mLoop.pct_x;
+
+      int x7 = xa;
+      int x8 = x7 + bp + 8*2;
+      if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "-1")) f--;
+      x7 = x8 + bs; x8 = x7 + bp + 8*3;
+      if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "-10")) f-=10;
+      x7 = x8 + bs; x8 = x7 + bp + 8*4;
+      if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "-100")) f-=100;
+
+
+      x8 = x2 - 2;  x7 = x8 - (bp + 8*4);
+      if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "+100")) f+=100;
+      x8 = x7 - bs; x7 = x8 - (bp + 8*3);
+      if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "+10")) f+=10;
+      x8 = x7 - bs; x7 = x8 - (bp + 8*2);
+      if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "+1")) f++;
+
+      ya+=17;
+
+      mWidget.slideri(xa, ya, x2-2, 16,  0,0,0,0,  0,c,15,15,  0,0,1,0, f, last_frame+1000, 0, 1, "");
+
+      if (f < 0) f = 0;
+
+
+
+      if ((t == PM_GAMEMOVE_TYPE_LEVEL_START) || (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE) || (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG))
+      {
+         // erase and frame
+         al_draw_filled_rectangle(x1, ya, x2, ya+18, mColor.pc[col+208]);
+         al_draw_rectangle(x1, ya, x2, ya+18, mColor.pc[col], 1);
+         ya+=2;
+      }
+
+
+
+      if (t == PM_GAMEMOVE_TYPE_LEVEL_START)
+      {
+         mWidget.slideri(xa, ya, x2-2, 16,  0,0,0,0,  0,12,15,15,  0,0,1,0, v, 100, 1, 1, "Level:");
+      }
+
+
+      if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
+      {
+         int cl = mWidget.colsel(xa, ya, x2-2, 16,  10,0,0,0,  0,12,15,15,  0,0,1,0);
+         if (cl != -1) v = cl;
+      }
+
+
+      if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
+      {
+         mWidget.togglfc(xa,     ya, xa+20,  16, 0,0,0,0,  0,0,0,0,     1,0,0,0, p, 0b01, "Other Players", 15, 15);
+         mWidget.togglfc(xa+128, ya, xa+148, 16, 0,0,0,0,  0,0,0,0,     1,0,0,0, p, 0b10, "Self", 15, 15);
+         mWidget.slideri(xa+180, ya, x2-2,   16, 0,0,0,0,  0,12,15,15,  0,0,1,0, v, 100, -100, 1, "Damage:");
+      }
+
+
+      // erase and frame
+      al_draw_filled_rectangle(x1, ya, x2, ya+24, mColor.pc[col+208]);
+      al_draw_rectangle(x1, ya, x2, ya+24, mColor.pc[col], 1);
+      ya+=3;
+
+
+      int sp = 45;
+      x7 = xa + sp;
+      if (mWidget.buttont(x7, ya, x7+60, 20,  0,0,0,0,  0,6,15, 0,  1,0,0,0, "Reload"))
+      {
+         f = mGameMoves.arr[gi][0];
+         t = mGameMoves.arr[gi][1];
+         p = mGameMoves.arr[gi][2];
+         v = mGameMoves.arr[gi][3];
+      }
+      x7 += 60 + sp;
+      if (mWidget.buttont(x7, ya, x7+60, 20,  0,0,0,0,  0,14,15, 0,  1,0,0,0, "Commit"))
+      {
+         mGameMoves.arr[gi][0] = f;
+         mGameMoves.arr[gi][1] = t;
+         mGameMoves.arr[gi][2] = p;
+         mGameMoves.arr[gi][3] = v;
+         mGameMoves.gm_sort();
+         refresh();
+         set_active_section(current_section);
+         quit = 1;
+      }
+      x7 += 60 + sp;
+      if (mWidget.buttont(x7, ya, x7+60, 20,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Cancel")) quit = 1;
+
+
+
+      al_draw_filled_rectangle(x1, ya+21, x2, ya+40, mColor.pc[0]);
+
+
+
+
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
+      {
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
+         quit = 1;
+      }
+      al_flip_display();
+      mEventQueue.proc(1);
+   }
+}
+
 
 
 
@@ -619,35 +868,36 @@ void mwDemoMode::find_level_done(void)
 
 void mwDemoMode::start_record(void)
 {
-   int p = record_player_number;
-   int col = record_player_color;
-
    play = 1;
    record = 1;
 
-   // erase all game moves for this player that have a higher frame number than current
-   for (int x=0; x<GAME_MOVES_SIZE; x++)
-      if ((mGameMoves.arr[x][2] == p) && (mGameMoves.arr[x][0] >= mLoop.frame_num)) mGameMoves.clear_single(x);
+   // erase all game moves for this player that have a frame number equal or higher than current frame number
+   // also check if there still is PM_GAMEMOVE_TYPE_PLAYER_ACTIVE game move after erasing
+   // never erase PM_GAMEMOVE_TYPE_SHOT_CONFIG
+   int aa = 0;
+   int p = record_player_number;
+   for (int x=0; x<mGameMoves.entry_pos; x++)
+      if ((mGameMoves.arr[x][2] == p) && (mGameMoves.arr[x][1] != PM_GAMEMOVE_TYPE_SHOT_CONFIG))
+      {
+         if ((mGameMoves.arr[x][0] >= mLoop.frame_num)) mGameMoves.clear_single(x); // erase all game moves that have a higher frame number than current
+         if ((mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)) aa = 1;      // do we still have an active game move?
+      }
 
-   if (!mPlayer.syn[p].active) // if player is not currently active
+   if (!aa) // player does not have a PM_GAMEMOVE_TYPE_PLAYER_ACTIVE game move
    {
-      mPlayer.syn[p].color = col;
+
+      int spi = mPlayer.syn[p].spawn_point_index; // save spawn_point_index
+      mPlayer.init_player(p, 1);                  // full player reset
+      mPlayer.syn[p].spawn_point_index = spi;     // restore spawn_point_index
+      mPlayer.set_player_start_pos(p);            // set starting position
+
+      mPlayer.syn[p].active = 1;
+      mPlayer.syn[p].color = record_player_color;
 
       // insert 'active' game move
       int fn = mLoop.frame_num;
-      if (fn == 0) fn = 1;
+      if (fn < 1) fn = 1;
       mGameMoves.add_game_move(fn, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
-
-
-      int spi = mPlayer.syn[p].spawn_point_index;
-
-      mPlayer.init_player(p, 1);        // full reset
-
-      mPlayer.syn[p].spawn_point_index = spi;
-
-      mPlayer.set_player_start_pos(p);  // set starting position
-
-      mPlayer.syn[p].active = 1;
 
    }
    mPlayer.active_local_player = p;
@@ -732,6 +982,40 @@ void mwDemoMode::fill_player_sections(void)
    sb_x2 = mDisplay.SCREEN_W - 20;
    sb_w = sb_x2 - sb_x1;
    sb_y2 = mDisplay.SCREEN_H - 14;
+
+
+   if (timeline_size == 4)
+   {
+      sb_x2 = mDisplay.SCREEN_W/5;
+      sb_w = sb_x2 - sb_x1;
+
+      sb_spacing = 1;
+      sb_size = 10;
+      sb_text = 1;
+   }
+
+   if (timeline_size == 3)
+   {
+      sb_spacing = 4;
+      sb_size = 20;
+      sb_text = 1;
+   }
+
+   if (timeline_size == 2)
+   {
+      sb_spacing = 2;
+      sb_size = 10;
+      sb_text = 1;
+   }
+
+   if (timeline_size == 1)
+   {
+      sb_spacing = 1;
+      sb_size = 4;
+      sb_text = 0;
+   }
+
+
 
    // clear
    for (int i=0; i<20; i++)
@@ -912,9 +1196,6 @@ char * mwDemoMode::gettf(int frame, char* ft)
    return ft;
 }
 
-
-
-
 int mwDemoMode::draw_section_details(int i, int x1, int y1)
 {
    int p   = player_sections[i][1];
@@ -947,8 +1228,10 @@ int mwDemoMode::draw_section_details(int i, int x1, int y1)
    al_draw_rectangle(x1, y1, x2, y2, mColor.pc[col], 1);
    al_draw_line(x1, y1+12, x2, y1+12, mColor.pc[col], 1);
    al_draw_textf(mFont.pr8, mColor.pc[15], (x1+w/2), y1+2, ALLEGRO_ALIGN_CENTER, "Current Section");
-   y1+=14;
-
+   y1+=4;
+   if (mWidget.buttont(x1+4,  y1, x1+12, 8,  0,0,0,0,  0,-1,15, 0,  1,0,0,0, "-")) set_active_section(current_section-1);
+   if (mWidget.buttont(x2-12, y1, x2-4,  8,  0,0,0,0,  0,-1,15, 0,  1,0,0,0, "+")) set_active_section(current_section+1);
+   y1+=10;
 
    int line_space = 10;
 
@@ -1069,10 +1352,13 @@ int mwDemoMode::draw_section_details(int i, int x1, int y1)
 
 void mwDemoMode::set_active_section(int i)
 {
-   current_section = i;
-   record_player_number = mPlayer.active_local_player = player_sections[current_section][1];
-   record_player_color = player_sections[current_section][2];
-   load_lnk_arr();    // load games moves into link array
+   if ((i >= 0) && (player_sections[i][0]))
+   {
+      current_section = i;
+      record_player_number = mPlayer.active_local_player = player_sections[current_section][1];
+      record_player_color = player_sections[current_section][2];
+      load_lnk_arr();    // load games moves into link array
+   }
 }
 
 
@@ -1131,10 +1417,17 @@ void mwDemoMode::draw_timeline(void)
 
          if (sb_text) draw_section_details_one_line(i, x1+8, y2+((y1-y2)-8)/2);
 
-         if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y > y2) && (mInput.mouse_y < y1) && (mInput.mouse_b[1][0])) set_active_section(i);
+         if ((mInput.mouse_x > x1) && (mInput.mouse_x < x2) && (mInput.mouse_y >= y2) && (mInput.mouse_y <= y1))
+         {
+            if (mInput.mouse_b[1][0]) set_active_section(i);
+
+            al_draw_filled_rectangle(x1-1, y1-1, x2+1, y2+1, mColor.pc[col]);
+
+         }
 
          if (current_section == i) al_draw_rectangle(x1+1, y2+1, x2-1, y1-1, mColor.pc[col], 1);
       }
+
    al_draw_rectangle(sb_x1, sb_y1, sb_x2, sb_y2, mColor.pc[15], 1); // timeline frame
 
    mark_timeline_position(mLoop.frame_num, screen_pos_from_frame_num(mLoop.frame_num, last_frame, sb_x1, sb_w), sb_y1-3, sb_y2, 15); // mark current frame
@@ -1161,7 +1454,13 @@ void mwDemoMode::draw_timeline(void)
    if (sh_level_done)
    {
       char msg[80];
-      if (!level_done_frame) sprintf(msg, "Level Not Done");
+      int ty = sb_y1-28;
+      if (!level_done_frame)
+      {
+         sprintf(msg, "Level Not Done");
+         int x = sb_x2 - strlen(msg) * 4;;
+         mScreen.draw_framed_text(x, ty, 1, mFont.pr8, 11+64, 11+64, msg);
+      }
       else
       {
          sprintf(msg, "Level Done");
@@ -1169,10 +1468,9 @@ void mwDemoMode::draw_timeline(void)
          int y = level_done_section_y;
          mark_timeline_position(level_done_frame, x, sb_y1-3, y, 11); // mark level done frame
          al_draw_filled_circle(x, y, 3, mColor.pc[11]);
+         x = sb_x2 - strlen(msg) * 4;
+         mScreen.draw_framed_text(x, ty, 1, mFont.pr8, 11+64, 11+64, msg);
       }
-      int x = mDisplay.SCREEN_W - 16 - strlen(msg) * 4;;
-      int y = sb_y1-28;
-      mScreen.draw_framed_text(x, y, 1, mFont.pr8, 11+64, 11+64, msg);
    }
 }
 
@@ -1181,12 +1479,19 @@ void mwDemoMode::draw_timeline(void)
 
 int mwDemoMode::show_play_record_buttons(int x, int y)
 {
+   int x1 = x;
+   int x2 = x1+168;
+   int ya = y;
    int bts = 32;
 
 
+   int f = current_frame_num;
+
+   if (mWidget.buttont(x1,     ya, x+40,  bts,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Rew")) f = 1;
+
    if (play)
    {
-      if (mWidget.buttont(x,     y, x+60,  bts,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Stop"))
+      if (mWidget.buttont(x1 + 44,     ya, x1+94,  bts,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Stop"))
       {
          play = 0;
          record = 0;
@@ -1194,36 +1499,54 @@ int mwDemoMode::show_play_record_buttons(int x, int y)
    }
    else
    {
-      if (mWidget.buttont(x,     y, x+60,  bts,  0,0,0,0,  0,11,15, 0,  1,0,0,0, "Play"))
+      if (mWidget.buttont(x1 +44,     ya, x1+94,  bts,  0,0,0,0,  0,11,15, 0,  1,0,0,0, "Play"))
       {
          play = 1;
       }
    }
 
-   if (record) mWidget.buttont(x+70, y, x+160, bts,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Recording");
-   else if (   mWidget.buttont(x+70, y, x+160, bts,  0,0,0,0,  0,14,15, 0,  1,0,0,0, "Record")) start_record();
+   if (record) mWidget.buttont(x1+98, ya, x2, bts,  0,0,0,0,  0,10,15, 0,  1,0,0,0, "Recording");
+   else if (   mWidget.buttont(x1+98, ya, x2, bts,  0,0,0,0,  0,14,15, 0,  1,0,0,0, "Record")) start_record();
+
+   ya+=34;
+
+   int c = 9+128;
+   int bp = 5; // button padding
+   int bs = 2; // button spacing
+
+   mWidget.slideri(x, ya, x2, 16,  0,0,0,0,  0,c,15,15,  0,0,1,0, f, last_frame+1000, 0, 1, "Current Frame:");
+   ya+=1;
+   int x7 = x;
+   int x8 = x7 + bp + 8*3;
+   if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "-80")) f-=80;
+
+   x7 = x8 + bs; x8 = x7 + bp + 8*3;
+   if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "-10")) f-=10;
+
+   x7 = x8 + bs; x8 = x7 + bp + 8*2;
+   if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "-1")) f--;
 
 
-   int y2 = y + 36;
+   x8 = x2;  x7 = x8 - (bp + 8*3);
+   if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "+80")) f+=80;
+   x8 = x7 - bs; x7 = x8 - (bp + 8*3);
+   if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "+10")) f+=10;
+   x8 = x7 - bs; x7 = x8 - (bp + 8*2);
+   if (mWidget.buttont(x7, ya, x8, 16,  0,0,0,0,  0,c,15, 0,  1,0,0,0, "+1")) f++;
 
-   char msg[80];
-   char m2[40];
-   sprintf(msg, "Current Time:%s", gettf(current_frame_num, m2));
-   mScreen.draw_framed_text(x+80, y2, 1, mFont.pr8, 11, 15, msg);
+   if (f < 0) f = 0;
 
-   y2+= 18;
-   bts = 20;
-
-   if ((!play) && (!record))
+   if (f != current_frame_num)
    {
-      int old_cf = current_frame_num;
-      if (mWidget.buttont(x,      y2, x+70,  bts,  0,0,0,0,  0,12,15, 0,  1,0,0,0, "Rewind")) current_frame_num = 1;
-      if (mWidget.buttont(x+90,   y2, x+120, bts,  0,0,0,0,  0,9, 15, 0,  1,0,0,0, "-")) current_frame_num--;
-      if (mWidget.buttont(x+130,  y2, x+160, bts,  0,0,0,0,  0,9, 15, 0,  1,0,0,0, "+")) current_frame_num++;
-      if (old_cf != current_frame_num) seek_to_frame(current_frame_num, 1);
+      current_frame_num = f;
+      seek_to_frame(f, 1);
    }
 
-   return 90;
+
+   ya+=16;
+
+
+   return ya;
 
 }
 
@@ -1259,7 +1582,6 @@ int mwDemoMode::draw_overlay(void)
 
    char msg[256];
 
-
    // 1st column
    int xa = 14;
    int ya = 14;
@@ -1269,30 +1591,24 @@ int mwDemoMode::draw_overlay(void)
    sprintf(msg, "File:%s", al_get_path_filename(al_create_path(current_loaded_demo_file))); // name only
    //sprintf(msg, "File:%s", current_loaded_demo_file); // full path
    if ((mWidget.buttont(xa, ya, xa+400, bts,  0,0,0,0,  0,10,15, 0,  1,0,0,0, msg)) && (!load_demo_record())) return 1;
-
-
    ya += 18;
 
-   ya += show_play_record_buttons(xa, ya);
-
-
-
+   ya = show_play_record_buttons(xa, ya);
+   ya += 18;
 
    // draw record controls
    if (sh_rec_controls) ya = draw_record_settings(xa, ya);
-
-
-
+   ya += 18;
 
    // draw current section details
-   if (sh_section_details) draw_section_details(current_section, xa, ya+20);
+   if (sh_section_details) draw_section_details(current_section, xa, ya);
 
 //         if (mWidget.buttont(xa+200, ya, xa+280, bts,  0,0,0,0,  0,6,15, 0,  1,0,0,0, "sort")) mGameMoves.gm_sort();
 //         if (mWidget.buttont(xa+300, ya, xa+380, bts,  0,0,0,0,  0,6,15, 0,  1,0,1,0, "insert")) mGameMoves.add_game_move2(4, 21, 22, 23);
 //         if (mWidget.buttont(xa+300, ya, xa+380, bts,  0,0,0,0,  0,6,15, 0,  1,0,1,0, "remove")) mGameMoves.gm_remove(2);
 
    // 2nd column - save and refresh buttons
-   int xa1 = 232;
+   int xa1 = 200;
    int ya1 = 32;
    int c1 = 4;
    if (mWidget.buttont(xa1, ya1, xa1+160, bts,  0,0,0,0,  0,c1,15, 0,  1,0,1,0, "Save (overwrite)  "))
@@ -1315,10 +1631,9 @@ int mwDemoMode::draw_overlay(void)
    }
 
    ya1+=4;
-   if (mWidget.buttont(xa1+40, ya1, xa1+120, bts,  0,0,0,0,  0,10,15,0,  1,0,1,0, "Refresh")) refresh();
+   if (mWidget.buttont(xa1,     ya1, xa1+60, bts,  0,0,0,0,  0,10,15,0,  1,0,0,0, "Reload")) reload();
 
-   ya1+=4;
-   if (mWidget.buttont(xa1+40, ya1, xa1+120, bts,  0,0,0,0,  0,10,15,0,  1,0,1,0, "Reload")) reload();
+   if (mWidget.buttont(xa1+80, ya1, xa1+160, bts,  0,0,0,0,  0,10,15,0,  1,0,1,0, "Refresh")) refresh();
 
 
 
@@ -1327,29 +1642,29 @@ int mwDemoMode::draw_overlay(void)
 //         int ya2 = 32;
 
 
-   int xa2 = 240;
-   int ya2 = 132;
+   int xa2 = 200;
+   int ya2 = ya1 + 10;
 
    bts = 10;
 
-
-//         al_draw_filled_rectangle(xa2, ya2, xa2+200+mLoop.pct_x, ya2+200+mLoop.pct_y, mColor.pc[10+128]);
-//         al_draw_filled_rectangle(xa2, ya2, xa2+200+mLoop.pct_x, ya2+200+mLoop.pct_y, mColor.pc[0]);
-
-   al_draw_filled_rectangle(xa2, ya2, xa2+200, ya2+120, mColor.pc[0]);
-
+   al_draw_filled_rectangle(xa2, ya2, xa2+200, ya2+100, mColor.pc[0]);
 
 //   mWidget.toggle( xa2, ya2, xa2+60, 16,   0,0,0,0,  0,0,0,0, 1,0,1,0, tm_frame, "Time", "Frame", 15, 15, 11, 13);
 
    mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, tm_frame,           "Time/Frame format", 15, 15);
 
-   ya2+=2;
+//   ya2+=2;
 
    mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_gamemoves_list,  "Show game moves list", 15, 15);
 
    mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_timeline,        "Show timeline", 15, 15);
-   mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_level_done,      "Show level done", 15, 15);
 
+
+   int old_tls = timeline_size;
+   mWidget.slideri(xa2, ya2, xa2+180, bts,  0,0,0,0,  0,12,15,15,  0,0,1,0, timeline_size, 5, 1, 1, "Timeline size:");
+   if (old_tls != timeline_size) refresh();
+
+   mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_level_done,      "Show level done", 15, 15);
 
    mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_section_details, "Show section details", 15, 15);
    mWidget.togglec(xa2, ya2, xa2+40, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, sh_rec_controls,    "Show record controls", 15, 15);
@@ -1368,7 +1683,7 @@ int mwDemoMode::draw_overlay(void)
    if (sh_player_grid) mScreen.drg_show(mDisplay.SCREEN_W-130, sb_y1-120);
 
    // game moves list
-   if (sh_gamemoves_list) draw_gm_txt_lines(sb_x1, sb_y1-24);
+   if (sh_gamemoves_list) draw_gm_txt_lines(sb_x1, sb_y1-30);
 
    // timeline
    if (sh_timeline) draw_timeline();
@@ -1411,8 +1726,10 @@ void mwDemoMode::demo_record(void)
    while (!quit)
    {
       mEventQueue.proc(1);
+
       if (mEventQueue.program_update)
       {
+
          mEventQueue.program_update = 0;
          frame_start_timestamp = al_get_time();
          mDisplay.proc_scale_factor_change();
@@ -1441,26 +1758,30 @@ void mwDemoMode::demo_record(void)
             mScreen.draw_scaled_level_region_to_display(0);
             mScreen.draw_screen_overlay();
          }
-         al_set_target_backbuffer(mDisplay.display);
-
-         quit = draw_overlay();
 
          proc_cpu_time(frame_start_timestamp);
 
-         al_flip_display();
-
-         if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
-         {
-            while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
-            if (play)
-            {
-               play = 0;
-               record = 0;
-               current_frame_num = mLoop.frame_num;
-            }
-            else quit = 1;
-         }
       }
+
+      al_set_target_backbuffer(mDisplay.display);
+
+      quit = draw_overlay();
+
+      al_flip_display();
+
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
+      {
+         while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
+         if (play)
+         {
+            play = 0;
+            record = 0;
+            current_frame_num = mLoop.frame_num;
+         }
+         else quit = 1;
+      }
+
+
 
 
    }

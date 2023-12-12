@@ -9,6 +9,8 @@
 #include "mwEnemy.h"
 #include "mwPlayer.h"
 #include "mwLift.h"
+#include "mwLoop.h"
+
 
 
 mwShot mShot;
@@ -37,6 +39,33 @@ void mwShot::proc_pshot_collision(int p, int b)
    mShot.p[b].active = 0;  // shot dies
 }
 
+
+
+int mwShot::find_empty_pshot(void)
+{
+   int index = -1;
+
+   for (int b=0; b<50; b++)
+      if (!mShot.p[b].active) index = b;
+
+   if (index == -1) // array is full !
+   {
+      // find the oldest entry and remove it
+      int lowest_fn = 9999999;
+      for (int b=0; b<50; b++)
+      {
+         if (mShot.p[b].active < lowest_fn)
+         {
+            lowest_fn = mShot.p[b].active;
+            index = b;
+         }
+      }
+   }
+   return index;
+}
+
+
+
 void mwShot::proc_player_shoot(int p)
 {
    float x = mPlayer.syn[p].x;
@@ -52,49 +81,48 @@ void mwShot::proc_player_shoot(int p)
          {
             mPlayer.syn[p].stat_shots_fired++;
 
-            for (int b=0; b<50; b++)     // search for empty shot
-               if (!mShot.p[b].active)
-               {
-                  mShot.p[b].active = 1;
-                  mShot.p[b].player = p;
-                  mShot.p[b].x = x;
-                  mShot.p[b].y = y + 1;
-                  mShot.p[b].xinc = 0;
-                  mShot.p[b].yinc = 0;
+            int b = find_empty_pshot();
+            if (b != -1)
+            {
+               mShot.p[b].active = mLoop.frame_num;
+               mShot.p[b].player = p;
+               mShot.p[b].x = x;
+               mShot.p[b].y = y + 1;
+               mShot.p[b].xinc = 0;
+               mShot.p[b].yinc = 0;
 
-                  if (mPlayer.syn[p].left_right) mShot.p[b].x = x+4;
-                  else mShot.p[b].x = x-3;
+               if (mPlayer.syn[p].left_right) mShot.p[b].x = x+4;
+               else mShot.p[b].x = x-3;
 
-                  if      (mPlayer.syn[p].up)    mShot.p[b].yinc = -bs;
-                  else if (mPlayer.syn[p].down)  mShot.p[b].yinc =  bs;
-                  else                       mShot.p[b].xinc = (mPlayer.syn[p].left_right*bs*2) - bs;
+               if      (mPlayer.syn[p].up)    mShot.p[b].yinc = -bs;
+               else if (mPlayer.syn[p].down)  mShot.p[b].yinc =  bs;
+               else                           mShot.p[b].xinc = (mPlayer.syn[p].left_right*bs*2) - bs;
 
-
-                  // if this line is not here player cannot shoot breakable blocks
-                  // when directly in front of them..
-                  if ((!mPlayer.syn[p].up) && (!mPlayer.syn[p].down) && (mPlayer.syn[p].left_right))
-                      mShot.p[b].x -=1;
+               // if this line is not here player cannot shoot breakable blocks
+               // when directly in front of them..
+               if ((!mPlayer.syn[p].up) && (!mPlayer.syn[p].down) && (mPlayer.syn[p].left_right))
+                   mShot.p[b].x -=1;
 
 //                  // temp testing
 //                  mShot.p[b][2] = x + (mPlayer.syn[p].left_right * (40*2) ) - 40;
 //                  mShot.p[b][3] = y + 1;
 
-                     // move
-                     mShot.p[b].x += mShot.p[b].xinc;  // xinc
-                     mShot.p[b].y += mShot.p[b].yinc;  // yinc
+                  // move
+                  mShot.p[b].x += mShot.p[b].xinc;  // xinc
+                  mShot.p[b].y += mShot.p[b].yinc;  // yinc
 
 //                  // temp testing
 //                  mShot.p[b][4] = 0; // xinc
 //                  mShot.p[b][5] = 0; // yinc
 
-                  mPlayer.syn[p].shot_wait_counter = mPlayer.syn[p].shot_wait;
-                  mPlayer.syn[p].fire_held = 1;
+               mPlayer.syn[p].shot_wait_counter = mPlayer.syn[p].shot_wait;
+               mPlayer.syn[p].fire_held = 1;
 
-                  // extra data is player number, shot number
-                  mGameEvent.add(1, x, y, p, b, 0, 0);
+               // extra data is player number, shot number
+               mGameEvent.add(1, x, y, p, b, 0, 0);
 
-                  break; // to break out of for loop
-               }
+            }
+            //else printf("player shot array full!\n");
          }
       }
    }
@@ -103,12 +131,16 @@ void mwShot::proc_player_shoot(int p)
 }
 
 
-void mwShot::move_pshots()
+void mwShot::move_pshots(void)
 {
+   num_pshots = 0;
+
    // move and process wall collisions
    for (int b=0; b<50; b++)
       if (mShot.p[b].active)
       {
+         num_pshots++;
+
          // move
          mShot.p[b].x += mShot.p[b].xinc;
          mShot.p[b].y += mShot.p[b].yinc;
@@ -172,9 +204,11 @@ void mwShot::proc_eshot_collision(int p, int b)
 
 void mwShot::move_eshots()
 {
+   num_eshots = 0;
    for (int b=0; b<50; b++)
       if (e[b].active)
       {
+         num_eshots++;
          e[b].x += e[b].xinc;
          e[b].y += e[b].yinc;
 
@@ -241,6 +275,34 @@ void mwShot::clear_shots(void)
 }
 
 
+
+
+int mwShot::find_empty_eshot(void)
+{
+   int index = -1;
+
+   for (int b=0; b<50; b++)
+      if (!mShot.e[b].active) index = b;
+
+   if (index == -1) // array is full !
+   {
+      // find the oldest entry and remove it
+      int lowest_fn = 9999999;
+      for (int b=0; b<50; b++)
+      {
+         if (mShot.e[b].active < lowest_fn)
+         {
+            lowest_fn = mShot.e[b].active;
+            index = b;
+         }
+      }
+   }
+   return index;
+}
+
+
+
+
 void mwShot::fire_enemy_shotz(int e, int shot_ans, float px, float py)
 {
    float xlen = px - mEnemy.Ef[e][0];   // get the x distance between enemy and player
@@ -251,16 +313,16 @@ void mwShot::fire_enemy_shotz(int e, int shot_ans, float px, float py)
    float xinc = xlen / scaler;        // calc xinc
    float yinc = ylen / scaler;        // calc yinc
 
-   for (int b=0; b<50; b++)  // find empty e_shot
-      if (!mShot.e[b].active)
+
+   int b = find_empty_eshot();
+      if (b != -1)
       {
-         mShot.e[b].active = 1;
+         mShot.e[b].active = mLoop.frame_num;
          mShot.e[b].shape = 1000 + shot_ans;
          mShot.e[b].x = mEnemy.Ef[e][0];
          mShot.e[b].y = mEnemy.Ef[e][1];
          mShot.e[b].xinc = xinc;
          mShot.e[b].yinc = yinc;
-         b=50;
       }
 }
 void mwShot::fire_enemy_shota(int e, int shot_ans, int p)

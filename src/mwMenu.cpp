@@ -406,13 +406,11 @@ int mwMenu::tmenu(int menu_pos, int x1, int y1)
 
 
 
-int mwMenu::pmenu(int type, int bg_color)
+int mwMenu::pmenu(int type, int bg_color, int y_offset, int default_selection)
 {
-
-
    init_pmenu(type);
 
-   int highlight = 2;
+   int highlight = default_selection;
    int selection = 999;
    int last_list_item;
    int c, b;
@@ -422,7 +420,7 @@ int mwMenu::pmenu(int type, int bg_color)
    if (kx > mDisplay.SCREEN_W-100) kx = mDisplay.SCREEN_W-100;
 
    int up = 0;
-   int ky = mInput.mouse_y-20;
+   int ky = mInput.mouse_y+y_offset;
    if (type == 2) if (ky > mDisplay.SCREEN_H - 160) up=1; // main editor menu
    if (type == 6) if (ky > mDisplay.SCREEN_H -  60) up=1; // lift step menu
    if (type == 5) if (ky > mDisplay.SCREEN_H -  80) up=1; // generic menu
@@ -466,7 +464,7 @@ int mwMenu::pmenu(int type, int bg_color)
          last_list_item = c-1;
          al_flip_display();
          mEventQueue.proc(1);
-         highlight = 2;
+         highlight = default_selection;
          if ( (mInput.mouse_x > (kx - 100)) && (mInput.mouse_x < (kx+100)) )
             if ( (mInput.mouse_y > ky ) && (mInput.mouse_y < ky + ((last_list_item+1)*8)) )
                highlight = (mInput.mouse_y-ky) / 8;
@@ -518,7 +516,7 @@ int mwMenu::pmenu(int type, int bg_color)
          mEventQueue.proc(1);
 
          //show_mouse(screen);
-         highlight = 2;
+         highlight = default_selection;
          if ( (mInput.mouse_x > (kx - 100)) && (mInput.mouse_x < (kx+100)) )
             if ( (mInput.mouse_y < ky ) && (mInput.mouse_y > ky - ((last_list_item+1)*8) ) )
                highlight = (ky-mInput.mouse_y+8) / 8;

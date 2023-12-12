@@ -1227,12 +1227,13 @@ void mwLoop::main_loop(void)
             // store in local cpu variables
             add_local_cpu_data(cpu);
 
-
-            for (int p=0; p<NUM_PLAYERS; p++)
-            {
-               mPlayer.loc[p].ping = mPacketBuffer.RA[p].last_input;
-               mPlayer.loc[p].ping_avg = mPacketBuffer.RA[p].avg;
-            }
+            // why is this all the time? only when client?, server, both??
+            if ((mNetgame.ima_server) || (mNetgame.ima_client))
+               for (int p=0; p<NUM_PLAYERS; p++)
+               {
+                  mPlayer.loc[p].ping = mPacketBuffer.RA[p].last_input;
+                  mPlayer.loc[p].ping_avg = mPacketBuffer.RA[p].avg;
+               }
          }
       }
 
@@ -1245,13 +1246,9 @@ void mwLoop::main_loop(void)
          mEventQueue.program_update_1s = 0;
          if (state[1] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) // game loop running
          {
-
-            mPacketBuffer.process_tally();
-
-
-
             if (mNetgame.ima_client)
             {
+               mPacketBuffer.process_tally();
                mNetgame.client_send_ping_packet();
                int p = mPlayer.active_local_player;
                mPlayer.loc[p].client_loc_plr_cor_avg = mTally_client_loc_plr_cor_last_sec[p].get_avg(0);
@@ -1261,6 +1258,7 @@ void mwLoop::main_loop(void)
             }
             if (mNetgame.ima_server)
             {
+               mPacketBuffer.process_tally();
                // tally late cdats and game move dsync
                for (int p=1; p<NUM_PLAYERS; p++)
                   if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
@@ -1277,5 +1275,8 @@ void mwLoop::main_loop(void)
             }
          }
       } // end of 1 Hz
+
+
+
    }
 }
