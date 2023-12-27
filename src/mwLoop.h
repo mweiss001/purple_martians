@@ -34,8 +34,8 @@ class mwLoop
    int eco_draw = 0;
 
 
-   double frame_start_timestamp = 0;
 
+   double frame_start_timestamp = 0;
 
    // some global strings
    char local_hostname[80];
@@ -49,11 +49,8 @@ class mwLoop
    float cutscene_accel;
    float cutscene_bg_x;
 
-   int load_and_setup_level_load(int level);
-   void setup_level_after_load();
+   int load_and_setup_level(int level, int type);
    void setup_players_after_level_load(int type);
-   void setup_common_after_level_load(void);
-
 
    void move_frame(void);
    void loop_frame(int);

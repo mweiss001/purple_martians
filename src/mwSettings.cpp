@@ -933,33 +933,9 @@ void mwSettings::settings_pages(int set_page)
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-
-         if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Play random demo game"))
-         {
-            mDemoMode.mode = 2;
-            mDemoMode.restore_mode = 32;
-            mDemoMode.restore_level = mLevel.last_level_loaded;
-            mLoop.state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
-            mLoop.quit_action = 3; // settings
-            mLoop.done_action = 5; // next rand level
-            al_hide_mouse_cursor(mDisplay.display);
-            mConfig.save_config();
-            return;
-         }
+         if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Play random demo game")) mDemoMode.run_continuous_random();
          ya +=10;
-         if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Choose file and run saved game"))
-            if (mGameMoves.load_gm_file_select())
-            {
-               mDemoMode.mode = 1;
-               mDemoMode.restore_mode = 32;
-               mDemoMode.restore_level = mLevel.last_level_loaded;
-               mLoop.state[0] = PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN;
-               mLoop.quit_action = 3; // settings
-               mLoop.done_action = 3; // settings
-               al_hide_mouse_cursor(mDisplay.display);
-               mConfig.save_config();
-               return;
-            }
+         if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Choose file and run saved game")) mDemoMode.run_single_from_settings();
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 

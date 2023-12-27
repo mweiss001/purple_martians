@@ -13,6 +13,8 @@
 #include "mwShot.h"
 #include "mwGameEvent.h"
 #include "mwLevel.h"
+#include "mwDemoMode.h"
+
 
 mwEnemy mEnemy;
 
@@ -45,7 +47,16 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
       int tn = Ei[e][1];
       float rot = Ef[e][14];
       float sc =  Ef[e][12];
-      al_draw_scaled_rotated_bitmap(mBitmap.tile[tn], 10, 10, x+10, y+10, sc, sc, rot, flags);
+
+
+      if (type == 99) // use opacity for deathcount
+      {
+         float op = Ef[e][10];
+         al_draw_tinted_scaled_rotated_bitmap(mBitmap.tile[tn], al_map_rgba_f(op, op, op, op), 10, 10, x+10, y+10, sc, sc, rot, flags);
+      }
+      else al_draw_scaled_rotated_bitmap(mBitmap.tile[tn], 10, 10, x+10, y+10, sc, sc, rot, flags);
+
+
 
       // if enemy is expiring show how many seconds it has left
       if ((!mLoop.level_editor_running) && (Ei[e][27])) al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
@@ -237,11 +248,12 @@ void mwEnemy::proc_enemy_collision_with_pshot(int e)
          if ((x > x1-cx) && (x < x2+cx) && (y > y1-cy) && (y < y2+cy))
          {
             //printf("hit!\n");
-            int p = mShot.p[c].player;       // player number of shot
-            Ei[e][31] = 1;                 // flag that this enemy got shot
-            Ei[e][26] = p;                 // number of player that shot enemy
+            int p = mShot.p[c].player;         // player number of shot
+            Ei[e][31] = 1;                     // flag that this enemy got shot
+            Ei[e][26] = p;                     // number of player that shot enemy
             mPlayer.syn[p].stat_enemy_hits++;  // add to number of hits the player has
-            mShot.p[c].active = 0;           // shot dies
+            mDemoMode.mark_player_shot_used(p, mShot.p[c].active, 1);
+            mShot.p[c].active = 0;             // shot dies
          }
       }
 }
@@ -263,9 +275,9 @@ void mwEnemy::move_enemies()
          {
             if (ttl < 11)
             {
-               Ei[e][0] = 66;             // change to different type to prevent use
-               Ef[e][4] = 0;  // cant hurt anymore
-               Ei[e][29] = 0;             // no collision box
+               Ei[e][0] = 66;      // change to different type to prevent use
+               Ef[e][4] = 0;       // cant hurt anymore
+               Ei[e][29] = 0;      // no collision box
                int sq = 10-ttl;
                Ei[e][1] = mBitmap.zz[5+sq][74];
             }
@@ -312,13 +324,12 @@ void mwEnemy::move_enemies()
 
 void mwEnemy::enemy_deathcount(int e)
 {
-   int EXint = Ef[e][0];
-   int EYint = Ef[e][1];
-   Ef[e][14] += Ef[e][13]; // rot inc
-   Ef[e][12] *= Ef[e][11]; // scale scaler
-
    Ef[e][0] += Ef[e][2]; // xinc
    Ef[e][1] += Ef[e][3]; // yinc
+
+   Ef[e][14] += Ef[e][13]; // rot inc
+   Ef[e][12] *= Ef[e][11]; // scale scaler
+   Ef[e][10] -= Ef[e][9];  // op dec
 
    Ei[e][1] = mBitmap.zz[0][ Ei[e][3] ]; // draw current ans shape
    // dec and check countdown timer
@@ -326,23 +337,20 @@ void mwEnemy::enemy_deathcount(int e)
    {
       Ei[e][0] = 0; // kill enemy
       for (int c=0; c<500; c++)
-         if (mItem.item[c][0] == 0) // find empty
+         if (mItem.item[c][0] == 0) // find empty item
          {
             for (int y=0; y<16; y++) mItem.item[c][y] = 0; // clear item
             mItem.item[c][0] = 2;           // type - bonus
             mItem.item[c][1] = Ei[e][24];  // flower shape
             mItem.item[c][2] = 1; // draw mode normal
             mItem.item[c][3] = -1; // carryable
-            mItem.item[c][4] = EXint;
-            mItem.item[c][5] = EYint;
             mItem.item[c][6] = 1; // bonus type 1 - health
             mItem.item[c][7] = Ei[e][25];  //  life
             mItem.item[c][8] = 0;
-
             mItem.item[c][14] = 800; // time to live
 
-            mItem.itemf[c][0] = mItem.item[c][4];
-            mItem.itemf[c][1] = mItem.item[c][5];
+            mItem.itemf[c][0] = Ef[e][0];
+            mItem.itemf[c][1] = Ef[e][1];
             mItem.itemf[c][2] = 0;
             mItem.itemf[c][3] = 0;
             break; // end loop
@@ -371,6 +379,9 @@ void mwEnemy::enemy_killed(int e)
 {
    Ef[e][2] = 0;       // xinc
    Ef[e][3] = 0;       // yinc
+
+   Ef[e][9]  = .05; // opacity dec
+   Ef[e][10] = 1.0; // opacity
 
    int type = Ei[e][0];
    switch (type)
@@ -419,6 +430,7 @@ void mwEnemy::enemy_killed(int e)
          Ef[e][12] = 2.8;   // initial scale
          Ef[e][11] = 0.94;  // scale multiplier
          Ef[e][13] = 0;     // rot inc
+         Ef[e][9]  = .025; // opacity dec
       break;
       case 8: // trakbot
          Ei[e][3]  = 44;    // new ans
@@ -426,6 +438,7 @@ void mwEnemy::enemy_killed(int e)
          Ei[e][24] = 931;   // health bonus tile
          Ef[e][11] = 1.00;  // scale multiplier
          Ef[e][13] = 0.4;   // rot inc
+         Ef[e][9]  = .083;  // opacity dec
       break;
       case 9: // cloner
          Ei[e][3]  = 105;   // new ans
@@ -447,8 +460,8 @@ void mwEnemy::enemy_killed(int e)
    int dl = Ei[e][30]; // death_loop_wait; set delay
 
    mBitmap.zz[0][na] = mBitmap.zz[5][na];      // set shape
-   mBitmap.zz[1][na] = 0;                  // point to zero
-   mBitmap.zz[2][na] = 0;                  // set counter
+   mBitmap.zz[1][na] = 0;                      // point to zero
+   mBitmap.zz[2][na] = 0;                      // set counter
    mBitmap.zz[3][na] = dl / mBitmap.zz[4][na]; // set ans timer
 
    mGameEvent.add(42, 0, 0, Ei[e][26], e, type, hbm);
@@ -533,6 +546,10 @@ Ei[][31] // hit type (shot or bomb)
 Ef[][4]  // life dec
 Ef[][11] // scale multiplier
 Ef[][13] // rot inc
+
+
+
+
 
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------

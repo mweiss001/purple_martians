@@ -41366,6 +41366,1885 @@ pop up menu for type...
 did a bunch of messing around with edit gm and it looks good...
 
 
+bug - after leaving demo record mode and playing game I cant exit...
+
+I think I know how to detect shots that never kill any enemies
+I am now saving the frame number of when the shot was fired
+
+if it is destoryed by a wall or edges of the screen, make a note and mark it as unused
+
+what about trigger that detects shots?
+do they ever get destroyed?
+
+I will need to create an array
+- whenever a player shot is fired add it to the array
+- it will need frame fired, player number, and used
+- by default used = 0
+- test all the times it could get used and mark if it is...
+- make a function to that, or igore if not in demo record mode
+
+how many shots? size of array...10,000
+
+types:
+1 - shot hit enemy
+2 - shot hit player
+3 - shot detected by orb
+4 - shot detected by trigger
+
+
+I did not take into account when pressing fire is used to grab something...
+can't erase those
+
+is it only items?
+
+what can I do about that?
+
+
+ranges when fire is pressed:
+if at any time during that range, player is holding item, then mark that initial fire press as used
+
+every frame,
+
+if (mPlayer.syn[p].carry_item)
+
+find the previous ups that matches player
+
+
+
+
+this does not detect game moves when fire is pressed, only when shots are fired
+
+
+
+how about modifiying each ups entry?
+
+right now frame is when a bullet was fired
+add another frame for when fire is released
+
+then if at any time while fire is help, player carry is true, then mark that range as used...
+
+or
+
+
+I think I missed even one more...when it hits a breakable block...
+
+this is turning out to be way complex than I thought
+
+when I remove fire that causes a shot, sometimes now a fire press shorly after that causes a shot, when it did not before...
+
+
+a brand new idea...
+
+- run through the game moves list for a player and generate sections where fire is pressed
+each of these sections will have:
+- frame start (the first frame that fire is pressed)
+- a guarantee that the frame before that did NOT have fire pressed
+- frame end (the last frame in the run that fire was pressed)
+- a guarantee that the next frame after that did NOT have fire pressed
+
+- player number
+- was a shot initiated?
+- did the shot get used?
+- did a carry happen any time within the range?
+
+
+then later when removing...
+
+if a carry happened anytime within the range - do not do anything
+
+if no carry
+if not shot initiated - delete range
+if shot initiated and not used - delete range
+
+this is getting very complex!!
+
+can I extend and use ups??
+
+what if I call it fhs? fire held sections
+f1
+f2
+p
+pc
+ps
+psu
+
+I think I might be able to get rid of fired and just go with used....
+holy shit, this worked this first time I tested it...
+I want to simplify it...
+combine 4 5 and 6
+
+
+done!! wow!
+
+it does not work perfectly
+
+check out level 11 8P
+
+I think the many shots are because of continually picking up and dropping a bonus...
+
+
+demo levels that do not play back properly
+27 - gauntlet
+
+35 and 44 are broken by new eshot method...
+
+
+when I click play all...
+it does a seek to frame (last_frame)
+so if I do not have game move past level_done, it will not register as done
+
+the more I think about it, this is how I want to do all my demos, with a custom loop, instead of the main one...
+
+make a button to set ack move at level_done +1
+
+fix broken demo levels...leave enemy shots at new mode..
+
+lev023-4P-235.gm - when removing unused fire sections level done is broken...why??
+lev064-8P - level done shows 4262? but should be much earlier
+
+
+--------------------------
+20231217 ok time for a big one...remove demo play from the main program state stuff and make it its own loop...
+why?
+to umcomplicate the main program_state thing, it seems like there are so many exceptions to make it do demo also...
+
+
+
+I will need to create 2 blocking functions:
+- one to play a single demo and return when done
+- one to play random demos in a loop until told to stop
+
+
+do the single demo one...
+
+
+do it from the call to run it from menu..done...
+
+next from settings..done but transitions don't work...from nothing
+
+next from gate...
+
+how is that triggered? skc??
+
+make a common load_and_setup_level_load(int level)
+
+but there are so many different options for each...
+
+int mwLoop::load_and_setup_level_load(int level)
+
+int mwLoop::load_and_setup_level(int level, int type)
+
+ok now in single I have menu, settings, gate...what is left? command line
+
+now I have all the single calls handled by the new method
+- zero transitions still do not work..fixed!!
+
+now  want to do the random multiple stuff...called from story mode menu and settings
+make key check return 0 for nothing 1 for exit 2 for next level...done
+
+now hook in the settings random..done...
+
+now remove all traces of the old shit...nice!!
+lots done in loop
+
+
+I think that I have this all sorted
+
+now make a pause after a level is done to see the end of level_stats...
+
+
+need to add a move marker to the end of gm files, one past the level done frame
+
+if there is no game move past level done, the level will not get marked as complete
+
+
+I could make a special move that has no effect except to mark the end of the level
+
+I could detect level_done...
+
+where do I do these things?
+playing back all levels for records
+playing back to watch...
+
+fixed records to do level done or last frame + 200
+now I can remove last placeholder ack at level end +1
+
+now playing back to watch
+
+80f
+
+then 600
+
+200 = 5s
+
+ok this is done also...
+
+now all the levels do not need any markers, just run erase past level done....
+
+do it for lev 2-10..done
+
+now make the cont rnd do a pause also..doen needs test...
+
+
+make an auto method to fix levels
+- erase past level done
+- remove usused fire sections
+- remove doubled game moves
+
+
+- remove doubled game moves ---
+method...
+
+first do a sort
+
+then player by player...
+
+- find game move and store it
+- find next game move
+-- if dif- new game move
+-- if sam- erase game move
+
+I think I've got it...
+
+
+now I have 6 levels that fail tests...
+
+
+level 24 old copy good, new one fails after running fhs
+it has a player hit??
+do I detect player hits?
+
+level 42, fhs breaks it
+level 49, fhs breaks it
+
+
+
+level 27, old copy fails also
+level 35, old copy fails also
+level 44, old copy fails also
+
+I can now try to figure out why...or I can just re-do them
+
+what about others??
+
+
+other
+23 fhs breaks it...
+64 now 1:46?? just the way its recorded...
+
+
+
+
+
+
+
+27 has been redone
+35 was bad due to eshots...redo..done
+44 done
+
+
+
+
+I really need to find out why fhs is still breaking things...
+
+level 24
+just come out of yellow door and shoot on frame 1415
+but it looks like the shot was not actually fired until 1416
+
+FIRE was pressed when the player was paused from door move...
+one frame later player was not paused and that's when the shot was actually fired.
+
+the mark_used did not detect beacuse the start frame was not exactly when the shot was fired
+This is rare, but I think I can fix it by searching for the range, instead of the exact start
+
+void mwDemoMode::mark_player_shot_used(int p, int f, int type)
+{
+   // mark that a shot was used for this section
+//   for (int i=0; i<fhs_indx; i++)
+//      if ((fhs[i][1] == f) && (fhs[i][0] == p)) fhs[i][3] = type;
+
+   for (int i=0; i<fhs_indx; i++)
+      if ((p == fhs[i][0]) && (f >= fhs[i][1]) && (f < fhs[i][2])) fhs[i][3] = type;
+
+
+
+
+new 24 - 5668
+old 24 - 5867 5 sec longer 2:26
+
+done..
+
+now see if i can fix 42...no fhs still breaks it
+49??
+
+
+42 and 49 fhs breaks
+other 23
+are those the only levels that it does
+
+
+I want to see why?
+
+chnged this to have a wider range >= on f2
+   for (int i=0; i<fhs_indx; i++)
+      if ((p == fhs[i][0]) && (f >= fhs[i][1]) && (f < fhs[i][2])) fhs[i][3] = type;
+
+
+still bad...
+
+
+go through line by line a see where it diverges
+23 player 1
+2240 shot down
+
+
+
+I think I get it...
+
+there are a couple of close fires and some that don't trigger a shot...
+
+I remove one unused and now another that did not previously trigger a shot now does, and causes the next to not fire due to a time out...
+
+orig
+2192 shot down (but not used)
+2195 fire pressed but no shot (item carried though)
+2198 shot right and kill enemy
+
+after
+2192 shot removed
+2195 shot down and item carried
+2198 fire pressed but no shot, not enough cool down time
+
+
+how can i detect and avoid this?
+
+add to section, shot fired
+then later if no shot fired then there is an issue
+
+if section starts are closer than 4 frames...
+
+if a section used to fire a used shot and now after changes it doesn't...
+
+make a list of used shots and check after removing if they are still the same...
+
+
+should I add a few things?
+- shot fired
+- shot used
+- carry detected
+
+---
+
+I could remove sections one at a time and test if level done changes
+
+
+Removing section:656  p:2  975-976   ild:6219 ld:6219
+Removing section:657  p:2  978-980   ild:6219 ld:6219
+Removing section:658  p:2  981-983   ild:6219 ld:6219
+Removing section:660  p:2  989-990   ild:6219 ld:0
+Error removing section!!-------------------------
+Removing section:661  p:2  992-993   ild:0 ld:6219
+Error removing section!!-------------------------
+Removing section:663  p:2  998-999   ild:6219 ld:6219
+Removing section:664  p:2  1001-1002   ild:6219 ld:0
+Error removing section!!-------------------------
+Removing section:667  p:2  1014-1015   ild:0 ld:0
+Removing section:669  p:2  1021-1023   ild:0 ld:0
+Removing section:671  p:2  1028-1030   ild:0 ld:0
+Removing section:672  p:2  1032-1033   ild:0 ld:0
+Removing section:673  p:2  1036-1037   ild:0 ld:0
+Removing section:675  p:2  1059-1060   ild:0 ld:0
+
+
+but they do no seem to trigger the issue...
+
+do not play sounds arrgh!!..fixed...
+
+lev23, remove
+
+
+make tools to remove
+
+
+pop up menu on section
+put all buttons there that relate to section
+now add more like:
+- find unused fire sections
+- remove unused fire sections
+- remove duplicates
+
+done...
+
+
+
+now I want something like section details, but for the entire file
+
+and a popup menu to do things to the entire file...
+
+
+start with filename
+
+loaded file:
+
+I think I have made the record controls window unneccsary, I will not delete it yet, just hide it..done
+
+
+now after all these changes back to the issue at hand:
+why does p1 fhs break it but does not detect on line at a time?
+
+
+I think it works when run through the long way, but I need to test and keep track of stuff...
+
+
+
+lev023-4P-235.gm
+4151 moves
+
+p0
+1081 moves
+640 after removing
+
+l23-m0
+total 3708
+
+p2
+1124 moves
+721 after remove
+
+
+l23-m02
+total 3305
+
+
+p3
+984 moves
+722 after remove
+
+
+l23-m023
+total 3043
+
+p1
+960 moves
+531 after remove (also ld cleared)
+
+545 after remove with test (ld good)
+
+did it again, now down to 524 (ld good)
+
+why does it work like this, but not the long way??
+
+
+
+with test remove:
+
+file and path selected:C:\pm\savegame\l23-m023.gm
+326 - total fire held sections ----------------
+247 - unused fire held sections
+47 - enemy hits
+0 - player hits
+0 - breakable blocks
+0 - orb detect
+0 - trg detect
+32 - player carry
+Removing section:3  p:1  732-734   ild:6219 ld:6219
+Removing section:4  p:1  736-738   ild:6219 ld:6219
+Removing section:5  p:1  1002-1004   ild:6219 ld:6219
+
+
+960 moves, then remove dup and 545
+
+then run again:
+
+86 - total fire held sections ----------------
+11 - unused fire held sections
+47 - enemy hits
+0 - player hits
+0 - breakable blocks
+0 - orb detect
+0 - trg detect
+28 - player carry
+Removing section:8  p:1  1351-1355   ild:6219 ld:6219
+Removing section:19  p:1  2198-2200   ild:6219 ld:6219
+Removing section:21  p:1  2212-2213   ild:6219 ld:6219
+Removing section:22  p:1  2215-2217   ild:6219 ld:6219
+Removing section:23  p:1  2229-2231   ild:6219 ld:6219
+Removing section:52  p:1  3293-3294   ild:6219 ld:6219
+Removing section:55  p:1  3330-3331   ild:6219 ld:6219
+Removing section:66  p:1  3648-3649   ild:6219 ld:6219
+Removing section:79  p:1  4081-4083   ild:6219 ld:6219
+Removing section:81  p:1  4094-4095   ild:6219 ld:6219
+Removing section:83  p:1  4100-4102   ild:6219 ld:6219
+
+
+545 moves, then remove dup and 524
+
+run again:
+
+75 - total fire held sections ----------------
+0 - unused fire held sections
+47 - enemy hits
+0 - player hits
+0 - breakable blocks
+0 - orb detect
+0 - trg detect
+28 - player carry
+
+
+and the level done is still there!!
+
+now why does this not work when not testing after ever remove
+
+this part is the same:
+
+file and path selected:C:\pm\savegame\l23-m023.gm
+326 - total fire held sections ----------------
+247 - unused fire held sections
+47 - enemy hits
+0 - player hits
+0 - breakable blocks
+0 - orb detect
+0 - trg detect
+32 - player carry
+
+Error! - After removing all sections, level done has changed from 6219 to 0
+79 - total fire held sections ----------------
+7 - unused fire held sections
+46 - enemy hits
+0 - player hits
+0 - breakable blocks
+0 - orb detect
+0 - trg detect
+26 - player carry
+
+
+79 - total fire held sections ----------------
+7 - unused fire held sections
+46 - enemy hits
+0 - player hits
+0 - breakable blocks
+0 - orb detect
+0 - trg detect
+26 - player carry
+
+
+
+---------
+I still have no idea why checking for level done after each remove is different than not doing that.
+
+what does check for level done do?
+- seek to 0 (reloads level and resets player data)
+- play until level done found
+
+manually check for divergence
+
+
+2192
+
+
+add to game move list pop up menu - dump to console..done
+
+original
+
+file and path selected:C:\pm\savegame\l23-m023.gm
+[345][ 2184][5][1][ 9] P1 MOVE [L  D  ]
+[346][ 2185][5][1][41] P1 MOVE [L  D F]
+[347][ 2186][5][1][ 9] P1 MOVE [L  D  ]
+[348][ 2188][5][1][41] P1 MOVE [L  D F]
+[349][ 2189][5][1][ 8] P1 MOVE [   D  ]
+[350][ 2191][5][1][10] P1 MOVE [ R D  ]
+[351][ 2192][5][1][42] P1 MOVE [ R D F]
+[352][ 2193][5][1][10] P1 MOVE [ R D  ]
+[353][ 2195][5][1][42] P1 MOVE [ R D F]
+[354][ 2196][5][1][10] P1 MOVE [ R D  ]
+[355][ 2198][5][1][34] P1 MOVE [ R   F]
+[356][ 2200][5][1][ 2] P1 MOVE [ R    ]
+[357][ 2202][5][1][34] P1 MOVE [ R   F]
+[358][ 2203][5][1][ 2] P1 MOVE [ R    ]
+[359][ 2205][5][1][34] P1 MOVE [ R   F]
+[360][ 2206][5][1][ 2] P1 MOVE [ R    ]
+[361][ 2209][5][1][34] P1 MOVE [ R   F]
+[362][ 2210][5][1][ 2] P1 MOVE [ R    ]
+[363][ 2211][5][1][ 1] P1 MOVE [L     ]
+[364][ 2212][5][1][33] P1 MOVE [L    F]
+[365][ 2213][5][1][ 1] P1 MOVE [L     ]
+[366][ 2215][5][1][33] P1 MOVE [L    F]
+[367][ 2216][5][1][41] P1 MOVE [L  D F]
+[368][ 2217][5][1][ 9] P1 MOVE [L  D  ]
+[369][ 2219][5][1][41] P1 MOVE [L  D F]
+[370][ 2220][5][1][ 9] P1 MOVE [L  D  ]
+[371][ 2222][5][1][41] P1 MOVE [L  D F]
+[372][ 2224][5][1][ 9] P1 MOVE [L  D  ]
+[373][ 2226][5][1][41] P1 MOVE [L  D F]
+[374][ 2227][5][1][ 9] P1 MOVE [L  D  ]
+
+bad remove
+
+326 - total fire held sections ----------------
+247 - unused fire held sections
+47 - enemy hits
+0 - player hits
+0 - breakable blocks
+0 - orb detect
+0 - trg detect
+32 - player carry
+Error! - After removing all sections, level done has changed from 6219 to 0
+[345][ 2184][5][1][ 9] P1 MOVE [L  D  ]
+[346][ 2185][5][1][ 9] P1 MOVE [L  D  ]
+[347][ 2186][5][1][ 9] P1 MOVE [L  D  ]
+[348][ 2188][5][1][ 9] P1 MOVE [L  D  ]
+[349][ 2189][5][1][ 8] P1 MOVE [   D  ]
+[350][ 2191][5][1][10] P1 MOVE [ R D  ]
+[351][ 2192][5][1][10] P1 MOVE [ R D  ]
+[352][ 2193][5][1][10] P1 MOVE [ R D  ]
+[353][ 2195][5][1][42] P1 MOVE [ R D F]
+[354][ 2196][5][1][10] P1 MOVE [ R D  ]
+[355][ 2198][5][1][34] P1 MOVE [ R   F]
+[356][ 2200][5][1][ 2] P1 MOVE [ R    ]
+[357][ 2202][5][1][ 2] P1 MOVE [ R    ]
+[358][ 2203][5][1][ 2] P1 MOVE [ R    ]
+[359][ 2205][5][1][ 2] P1 MOVE [ R    ]
+[360][ 2206][5][1][ 2] P1 MOVE [ R    ]
+[361][ 2209][5][1][ 2] P1 MOVE [ R    ]
+[362][ 2210][5][1][ 2] P1 MOVE [ R    ]
+[363][ 2211][5][1][ 1] P1 MOVE [L     ]
+[364][ 2212][5][1][33] P1 MOVE [L    F]
+[365][ 2213][5][1][ 1] P1 MOVE [L     ]
+[366][ 2215][5][1][33] P1 MOVE [L    F]
+[367][ 2216][5][1][41] P1 MOVE [L  D F]
+[368][ 2217][5][1][ 9] P1 MOVE [L  D  ]
+[369][ 2219][5][1][ 9] P1 MOVE [L  D  ]
+[370][ 2220][5][1][ 9] P1 MOVE [L  D  ]
+[371][ 2222][5][1][ 9] P1 MOVE [L  D  ]
+[372][ 2224][5][1][ 9] P1 MOVE [L  D  ]
+[373][ 2226][5][1][ 9] P1 MOVE [L  D  ]
+[374][ 2227][5][1][ 9] P1 MOVE [L  D  ]
+
+good remove:
+
+[345][ 2184][5][1][ 9] P1 MOVE [L  D  ]
+[346][ 2185][5][1][ 9] P1 MOVE [L  D  ]
+[347][ 2186][5][1][ 9] P1 MOVE [L  D  ]
+[348][ 2188][5][1][ 9] P1 MOVE [L  D  ]
+[349][ 2189][5][1][ 8] P1 MOVE [   D  ]
+[350][ 2191][5][1][10] P1 MOVE [ R D  ]
+[351][ 2192][5][1][10] P1 MOVE [ R D  ]
+[352][ 2193][5][1][10] P1 MOVE [ R D  ]
+[353][ 2195][5][1][42] P1 MOVE [ R D F]
+[354][ 2196][5][1][10] P1 MOVE [ R D  ]
+[355][ 2198][5][1][34] P1 MOVE [ R   F]
+[356][ 2200][5][1][ 2] P1 MOVE [ R    ]
+[357][ 2202][5][1][34] P1 MOVE [ R   F]
+[358][ 2203][5][1][ 2] P1 MOVE [ R    ]
+[359][ 2205][5][1][ 2] P1 MOVE [ R    ]
+[360][ 2206][5][1][ 2] P1 MOVE [ R    ]
+[361][ 2209][5][1][ 2] P1 MOVE [ R    ]
+[362][ 2210][5][1][ 2] P1 MOVE [ R    ]
+[363][ 2211][5][1][ 1] P1 MOVE [L     ]
+[364][ 2212][5][1][33] P1 MOVE [L    F]
+[365][ 2213][5][1][ 1] P1 MOVE [L     ]
+[366][ 2215][5][1][33] P1 MOVE [L    F]
+[367][ 2216][5][1][41] P1 MOVE [L  D F]
+[368][ 2217][5][1][ 9] P1 MOVE [L  D  ]
+[369][ 2219][5][1][ 9] P1 MOVE [L  D  ]
+[370][ 2220][5][1][ 9] P1 MOVE [L  D  ]
+[371][ 2222][5][1][ 9] P1 MOVE [L  D  ]
+[372][ 2224][5][1][ 9] P1 MOVE [L  D  ]
+[373][ 2226][5][1][ 9] P1 MOVE [L  D  ]
+[374][ 2227][5][1][ 9] P1 MOVE [L  D  ]
+
+
+
+
+
+
+again with more logging....
+
+
+file and path selected:C:\pm\savegame\l23-m023.gm
+326 - total fire held sections ----------------
+247 - unused fire held sections
+47 - enemy hits
+0 - player hits
+0 - breakable blocks
+0 - orb detect
+0 - trg detect
+32 - player carry
+Removing section:3  p:1  732-734   ild:6219 ld:6219
+Removing section:4  p:1  736-738   ild:6219 ld:6219
+Removing section:5  p:1  1002-1004   ild:6219 ld:6219
+Removing section:6  p:1  1006-1008   ild:6219 ld:6219
+Removing section:7  p:1  1010-1011   ild:6219 ld:6219
+Removing section:8  p:1  1013-1014   ild:6219 ld:6219
+Removing section:9  p:1  1016-1017   ild:6219 ld:6219
+Removing section:11  p:1  1042-1044   ild:6219 ld:6219
+Removing section:12  p:1  1046-1047   ild:6219 ld:6219
+Removing section:13  p:1  1050-1051   ild:6219 ld:6219
+Removing section:14  p:1  1074-1077   ild:6219 ld:6219
+Removing section:15  p:1  1079-1080   ild:6219 ld:6219
+Removing section:16  p:1  1082-1084   ild:6219 ld:6219
+Removing section:18  p:1  1113-1115   ild:6219 ld:6219
+Removing section:20  p:1  1120-1121   ild:6219 ld:6219
+Removing section:21  p:1  1123-1125   ild:6219 ld:6219
+Removing section:22  p:1  1127-1129   ild:6219 ld:6219
+Removing section:23  p:1  1144-1146   ild:6219 ld:6219
+Removing section:24  p:1  1148-1150   ild:6219 ld:6219
+Removing section:25  p:1  1152-1153   ild:6219 ld:6219
+Removing section:26  p:1  1155-1157   ild:6219 ld:6219
+Removing section:27  p:1  1159-1161   ild:6219 ld:6219
+Removing section:28  p:1  1216-1218   ild:6219 ld:6219
+Removing section:29  p:1  1220-1221   ild:6219 ld:6219
+Removing section:30  p:1  1223-1225   ild:6219 ld:6219
+Removing section:32  p:1  1230-1233   ild:6219 ld:6219
+Removing section:33  p:1  1236-1239   ild:6219 ld:6219
+Removing section:34  p:1  1242-1246   ild:6219 ld:6219
+Removing section:35  p:1  1248-1251   ild:6219 ld:6219
+Removing section:36  p:1  1253-1256   ild:6219 ld:6219
+Removing section:37  p:1  1310-1312   ild:6219 ld:6219
+Removing section:38  p:1  1314-1315   ild:6219 ld:6219
+Removing section:39  p:1  1317-1319   ild:6219 ld:6219
+Removing section:40  p:1  1336-1338   ild:6219 ld:6219
+Removing section:41  p:1  1340-1342   ild:6219 ld:6219
+Removing section:42  p:1  1344-1348   ild:6219 ld:6219
+Removing section:44  p:1  1357-1361   ild:6219 ld:6219
+Removing section:45  p:1  1363-1366   ild:6219 ld:6219
+Removing section:46  p:1  1368-1371   ild:6219 ld:6219
+Removing section:47  p:1  1373-1376   ild:6219 ld:6219
+Removing section:48  p:1  1378-1381   ild:6219 ld:6219
+Removing section:49  p:1  1384-1387   ild:6219 ld:6219
+Removing section:53  p:1  1404-1408   ild:6219 ld:6219
+Removing section:54  p:1  1410-1412   ild:6219 ld:6219
+Removing section:55  p:1  1455-1458   ild:6219 ld:6219
+Removing section:56  p:1  1491-1493   ild:6219 ld:6219
+Removing section:58  p:1  1499-1500   ild:6219 ld:6219
+Removing section:59  p:1  1502-1503   ild:6219 ld:6219
+Removing section:61  p:1  1617-1618   ild:6219 ld:6219
+Removing section:62  p:1  1627-1628   ild:6219 ld:6219
+Removing section:63  p:1  1630-1631   ild:6219 ld:6219
+Removing section:64  p:1  1633-1634   ild:6219 ld:6219
+Removing section:65  p:1  1637-1645   ild:6219 ld:6219
+Removing section:66  p:1  1647-1650   ild:6219 ld:6219
+Removing section:68  p:1  1951-1952   ild:6219 ld:6219
+Removing section:70  p:1  1958-1959   ild:6219 ld:6219
+Removing section:72  p:1  1997-1999   ild:6219 ld:6219
+Removing section:73  p:1  2001-2002   ild:6219 ld:6219
+Removing section:74  p:1  2008-2009   ild:6219 ld:6219
+Removing section:75  p:1  2011-2012   ild:6219 ld:6219
+Removing section:76  p:1  2014-2016   ild:6219 ld:6219
+Removing section:77  p:1  2018-2020   ild:6219 ld:6219
+Removing section:78  p:1  2032-2034   ild:6219 ld:6219
+Removing section:79  p:1  2036-2038   ild:6219 ld:6219
+Removing section:80  p:1  2040-2042   ild:6219 ld:6219
+Removing section:81  p:1  2095-2097   ild:6219 ld:6219
+Removing section:82  p:1  2099-2101   ild:6219 ld:6219
+Removing section:84  p:1  2162-2164   ild:6219 ld:6219
+Removing section:85  p:1  2166-2168   ild:6219 ld:6219
+Removing section:86  p:1  2169-2170   ild:6219 ld:6219
+Removing section:87  p:1  2172-2174   ild:6219 ld:6219
+Removing section:88  p:1  2175-2177   ild:6219 ld:6219
+Removing section:89  p:1  2178-2180   ild:6219 ld:6219
+Removing section:90  p:1  2182-2183   ild:6219 ld:6219
+Removing section:91  p:1  2185-2186   ild:6219 ld:6219
+Removing section:92  p:1  2188-2189   ild:6219 ld:6219
+Removing section:93  p:1  2192-2193   ild:6219 ld:6219
+Removing section:96  p:1  2202-2203   ild:6219 ld:6219
+Removing section:97  p:1  2205-2206   ild:6219 ld:6219
+Removing section:98  p:1  2209-2210   ild:6219 ld:6219
+Removing section:101  p:1  2219-2220   ild:6219 ld:6219
+Removing section:102  p:1  2222-2224   ild:6219 ld:6219
+Removing section:103  p:1  2226-2227   ild:6219 ld:6219
+Removing section:106  p:1  2236-2238   ild:6219 ld:6219
+Removing section:108  p:1  2243-2244   ild:6219 ld:6219
+Removing section:109  p:1  2247-2248   ild:6219 ld:6219
+Removing section:110  p:1  2250-2252   ild:6219 ld:6219
+Removing section:111  p:1  2254-2256   ild:6219 ld:6219
+Removing section:112  p:1  2258-2260   ild:6219 ld:6219
+Removing section:114  p:1  2292-2294   ild:6219 ld:6219
+Removing section:115  p:1  2295-2297   ild:6219 ld:6219
+Removing section:116  p:1  2299-2300   ild:6219 ld:6219
+Removing section:117  p:1  2302-2304   ild:6219 ld:6219
+Removing section:118  p:1  2320-2321   ild:6219 ld:6219
+Removing section:119  p:1  2323-2325   ild:6219 ld:6219
+Removing section:121  p:1  2330-2332   ild:6219 ld:6219
+Removing section:122  p:1  2334-2336   ild:6219 ld:6219
+Removing section:123  p:1  2360-2362   ild:6219 ld:6219
+Removing section:124  p:1  2364-2365   ild:6219 ld:6219
+Removing section:125  p:1  2368-2369   ild:6219 ld:6219
+Removing section:126  p:1  2371-2373   ild:6219 ld:6219
+Removing section:127  p:1  2375-2377   ild:6219 ld:6219
+Removing section:128  p:1  2379-2381   ild:6219 ld:6219
+Removing section:129  p:1  2401-2404   ild:6219 ld:6219
+Removing section:130  p:1  2406-2407   ild:6219 ld:6219
+Removing section:131  p:1  2410-2411   ild:6219 ld:6219
+Removing section:132  p:1  2413-2415   ild:6219 ld:6219
+Removing section:133  p:1  2417-2419   ild:6219 ld:6219
+Removing section:134  p:1  2421-2423   ild:6219 ld:6219
+Removing section:135  p:1  2438-2441   ild:6219 ld:6219
+Removing section:136  p:1  2443-2445   ild:6219 ld:6219
+Removing section:137  p:1  2447-2448   ild:6219 ld:6219
+Removing section:138  p:1  2450-2452   ild:6219 ld:6219
+Removing section:139  p:1  2454-2456   ild:6219 ld:6219
+Removing section:140  p:1  2458-2460   ild:6219 ld:6219
+Removing section:141  p:1  2476-2478   ild:6219 ld:6219
+Removing section:142  p:1  2480-2482   ild:6219 ld:6219
+Removing section:143  p:1  2484-2485   ild:6219 ld:6219
+Removing section:144  p:1  2487-2489   ild:6219 ld:6219
+Removing section:145  p:1  2491-2493   ild:6219 ld:6219
+Removing section:147  p:1  2498-2500   ild:6219 ld:6219
+Removing section:148  p:1  2502-2503   ild:6219 ld:6219
+Removing section:149  p:1  2506-2507   ild:6219 ld:6219
+Removing section:150  p:1  2875-2878   ild:6219 ld:6219
+Removing section:151  p:1  2880-2882   ild:6219 ld:6219
+Removing section:152  p:1  2884-2886   ild:6219 ld:6219
+Removing section:153  p:1  2888-2890   ild:6219 ld:6219
+Removing section:154  p:1  2893-2895   ild:6219 ld:6219
+Removing section:155  p:1  2929-2931   ild:6219 ld:6219
+Removing section:156  p:1  2933-2935   ild:6219 ld:6219
+Removing section:157  p:1  2937-2938   ild:6219 ld:6219
+Removing section:158  p:1  2940-2942   ild:6219 ld:6219
+Removing section:159  p:1  2944-2946   ild:6219 ld:6219
+Removing section:161  p:1  2951-2953   ild:6219 ld:6219
+Removing section:162  p:1  2955-2957   ild:6219 ld:6219
+Removing section:165  p:1  2984-2985   ild:6219 ld:6219
+Removing section:166  p:1  2987-2988   ild:6219 ld:6219
+Removing section:167  p:1  2990-2992   ild:6219 ld:6219
+Removing section:168  p:1  2993-2995   ild:6219 ld:6219
+Removing section:169  p:1  2997-2998   ild:6219 ld:6219
+Removing section:170  p:1  3000-3002   ild:6219 ld:6219
+Removing section:171  p:1  3004-3005   ild:6219 ld:6219
+Removing section:172  p:1  3007-3009   ild:6219 ld:6219
+Removing section:174  p:1  3014-3015   ild:6219 ld:6219
+Removing section:175  p:1  3018-3019   ild:6219 ld:6219
+Removing section:176  p:1  3022-3023   ild:6219 ld:6219
+Removing section:177  p:1  3025-3027   ild:6219 ld:6219
+Removing section:178  p:1  3029-3030   ild:6219 ld:6219
+Removing section:179  p:1  3032-3033   ild:6219 ld:6219
+Removing section:180  p:1  3035-3037   ild:6219 ld:6219
+Removing section:181  p:1  3039-3040   ild:6219 ld:6219
+Removing section:182  p:1  3042-3044   ild:6219 ld:6219
+Removing section:183  p:1  3046-3048   ild:6219 ld:6219
+Removing section:184  p:1  3050-3052   ild:6219 ld:6219
+Removing section:185  p:1  3055-3057   ild:6219 ld:6219
+Removing section:186  p:1  3059-3061   ild:6219 ld:6219
+Removing section:188  p:1  3066-3068   ild:6219 ld:6219
+Removing section:190  p:1  3073-3075   ild:6219 ld:6219
+Removing section:192  p:1  3080-3081   ild:6219 ld:6219
+Removing section:193  p:1  3083-3085   ild:6219 ld:6219
+Removing section:194  p:1  3086-3087   ild:6219 ld:6219
+Removing section:195  p:1  3094-3100   ild:6219 ld:6219
+Removing section:196  p:1  3103-3105   ild:6219 ld:6219
+Removing section:197  p:1  3119-3121   ild:6219 ld:6219
+Removing section:198  p:1  3122-3124   ild:6219 ld:6219
+Removing section:199  p:1  3126-3128   ild:6219 ld:6219
+Removing section:200  p:1  3130-3132   ild:6219 ld:6219
+Removing section:201  p:1  3134-3136   ild:6219 ld:6219
+Removing section:203  p:1  3142-3143   ild:6219 ld:6219
+Removing section:204  p:1  3145-3147   ild:6219 ld:6219
+Removing section:206  p:1  3178-3180   ild:6219 ld:6219
+Removing section:208  p:1  3185-3186   ild:6219 ld:6219
+Removing section:209  p:1  3188-3190   ild:6219 ld:6219
+Removing section:211  p:1  3225-3227   ild:6219 ld:6219
+Removing section:212  p:1  3229-3231   ild:6219 ld:6219
+Removing section:214  p:1  3236-3238   ild:6219 ld:6219
+Removing section:215  p:1  3240-3241   ild:6219 ld:6219
+Removing section:216  p:1  3243-3245   ild:6219 ld:6219
+Removing section:226  p:1  3276-3278   ild:6219 ld:6219
+Removing section:228  p:1  3283-3284   ild:6219 ld:6219
+Removing section:229  p:1  3286-3287   ild:6219 ld:6219
+Removing section:230  p:1  3289-3291   ild:6219 ld:6219
+Removing section:232  p:1  3297-3298   ild:6219 ld:6219
+Removing section:233  p:1  3300-3301   ild:6219 ld:6219
+Removing section:234  p:1  3303-3305   ild:6219 ld:6219
+Removing section:235  p:1  3307-3309   ild:6219 ld:6219
+Removing section:236  p:1  3319-3321   ild:6219 ld:6219
+Removing section:240  p:1  3333-3335   ild:6219 ld:6219
+Removing section:244  p:1  3426-3427   ild:6219 ld:6219
+Removing section:245  p:1  3429-3430   ild:6219 ld:6219
+Removing section:246  p:1  3432-3434   ild:6219 ld:6219
+Removing section:247  p:1  3436-3437   ild:6219 ld:6219
+Removing section:248  p:1  3439-3441   ild:6219 ld:6219
+Removing section:255  p:1  3522-3524   ild:6219 ld:6219
+Removing section:256  p:1  3526-3527   ild:6219 ld:6219
+Removing section:258  p:1  3533-3534   ild:6219 ld:6219
+Removing section:259  p:1  3537-3538   ild:6219 ld:6219
+Removing section:260  p:1  3541-3543   ild:6219 ld:6219
+Removing section:262  p:1  3651-3654   ild:6219 ld:6219
+Removing section:263  p:1  3673-3676   ild:6219 ld:6219
+Removing section:265  p:1  3699-3701   ild:6219 ld:6219
+Removing section:266  p:1  3703-3705   ild:6219 ld:6219
+Removing section:267  p:1  3733-3735   ild:6219 ld:6219
+Removing section:268  p:1  3737-3739   ild:6219 ld:6219
+Removing section:269  p:1  3741-3744   ild:6219 ld:6219
+Removing section:274  p:1  3799-3800   ild:6219 ld:6219
+Removing section:275  p:1  3803-3804   ild:6219 ld:6219
+Removing section:280  p:1  3832-3834   ild:6219 ld:6219
+Removing section:281  p:1  3836-3838   ild:6219 ld:6219
+Removing section:283  p:1  3871-3872   ild:6219 ld:6219
+Removing section:284  p:1  3874-3876   ild:6219 ld:6219
+Removing section:285  p:1  3878-3882   ild:6219 ld:6219
+Removing section:286  p:1  4064-4066   ild:6219 ld:6219
+Removing section:287  p:1  4068-4070   ild:6219 ld:6219
+Removing section:288  p:1  4072-4073   ild:6219 ld:6219
+Removing section:289  p:1  4075-4076   ild:6219 ld:6219
+Removing section:291  p:1  4081-4083   ild:6219 ld:6219
+Removing section:292  p:1  4085-4086   ild:6219 ld:6219
+Removing section:293  p:1  4088-4089   ild:6219 ld:6219
+Removing section:295  p:1  4094-4095   ild:6219 ld:6219
+Removing section:297  p:1  4100-4102   ild:6219 ld:6219
+Removing section:299  p:1  4107-4108   ild:6219 ld:6219
+Removing section:300  p:1  4110-4111   ild:6219 ld:6219
+Removing section:301  p:1  4113-4114   ild:6219 ld:6219
+Removing section:302  p:1  4116-4118   ild:6219 ld:6219
+Removing section:304  p:1  4123-4124   ild:6219 ld:6219
+Removing section:305  p:1  4126-4127   ild:6219 ld:6219
+Removing section:306  p:1  4129-4131   ild:6219 ld:6219
+Removing section:307  p:1  4133-4134   ild:6219 ld:6219
+Removing section:308  p:1  4136-4137   ild:6219 ld:6219
+Removing section:309  p:1  4139-4140   ild:6219 ld:6219
+Removing section:310  p:1  4142-4144   ild:6219 ld:6219
+Removing section:311  p:1  4146-4147   ild:6219 ld:6219
+Removing section:312  p:1  4149-4151   ild:6219 ld:6219
+Removing section:313  p:1  4153-4154   ild:6219 ld:6219
+Removing section:314  p:1  4156-4158   ild:6219 ld:6219
+Removing section:315  p:1  4160-4161   ild:6219 ld:6219
+Removing section:316  p:1  4163-4164   ild:6219 ld:6219
+Removing section:317  p:1  4167-4168   ild:6219 ld:6219
+Removing section:318  p:1  4170-4171   ild:6219 ld:6219
+Removing section:319  p:1  4174-4175   ild:6219 ld:6219
+Removing section:320  p:1  4177-4179   ild:6219 ld:6219
+Removing section:321  p:1  4181-4182   ild:6219 ld:6219
+Removing section:322  p:1  4184-4186   ild:6219 ld:6219
+Removing section:323  p:1  4188-4190   ild:6219 ld:6219
+Removing section:324  p:1  4192-4194   ild:6219 ld:6219
+Removing section:325  p:1  4196-4197   ild:6219 ld:6219
+Error! - After removing all sections, level done has changed from 6219 to 0
+[344][ 2183][5][1][ 8] P1 MOVE [   D  ]
+[345][ 2184][5][1][ 9] P1 MOVE [L  D  ]
+[346][ 2185][5][1][ 9] P1 MOVE [L  D  ]
+[347][ 2186][5][1][ 9] P1 MOVE [L  D  ]
+[348][ 2188][5][1][ 9] P1 MOVE [L  D  ]
+[349][ 2189][5][1][ 8] P1 MOVE [   D  ]
+[350][ 2191][5][1][10] P1 MOVE [ R D  ]
+[351][ 2192][5][1][10] P1 MOVE [ R D  ]
+[352][ 2193][5][1][10] P1 MOVE [ R D  ]
+[353][ 2195][5][1][42] P1 MOVE [ R D F]
+[354][ 2196][5][1][10] P1 MOVE [ R D  ]
+[355][ 2198][5][1][34] P1 MOVE [ R   F]
+[356][ 2200][5][1][ 2] P1 MOVE [ R    ]
+[357][ 2202][5][1][ 2] P1 MOVE [ R    ]
+[358][ 2203][5][1][ 2] P1 MOVE [ R    ]
+[359][ 2205][5][1][ 2] P1 MOVE [ R    ]
+[360][ 2206][5][1][ 2] P1 MOVE [ R    ]
+[361][ 2209][5][1][ 2] P1 MOVE [ R    ]
+[362][ 2210][5][1][ 2] P1 MOVE [ R    ]
+[363][ 2211][5][1][ 1] P1 MOVE [L     ]
+[364][ 2212][5][1][33] P1 MOVE [L    F]
+[365][ 2213][5][1][ 1] P1 MOVE [L     ]
+[366][ 2215][5][1][33] P1 MOVE [L    F]
+[367][ 2216][5][1][41] P1 MOVE [L  D F]
+[368][ 2217][5][1][ 9] P1 MOVE [L  D  ]
+[369][ 2219][5][1][ 9] P1 MOVE [L  D  ]
+[370][ 2220][5][1][ 9] P1 MOVE [L  D  ]
+[371][ 2222][5][1][ 9] P1 MOVE [L  D  ]
+[372][ 2224][5][1][ 9] P1 MOVE [L  D  ]
+[373][ 2226][5][1][ 9] P1 MOVE [L  D  ]
+[374][ 2227][5][1][ 9] P1 MOVE [L  D  ]
+[375][ 2229][5][1][41] P1 MOVE [L  D F]
+[376][ 2231][5][1][ 9] P1 MOVE [L  D  ]
+[377][ 2233][5][1][41] P1 MOVE [L  D F]
+[378][ 2234][5][1][ 9] P1 MOVE [L  D  ]
+[379][ 2236][5][1][ 9] P1 MOVE [L  D  ]
+[380][ 2238][5][1][ 9] P1 MOVE [L  D  ]
+[381][ 2240][5][1][41] P1 MOVE [L  D F]
+[382][ 2241][5][1][ 9] P1 MOVE [L  D  ]
+[383][ 2243][5][1][ 9] P1 MOVE [L  D  ]
+
+
+
+
+
+
+326 - total fire held sections ----------------
+247 - unused fire held sections
+47 - enemy hits
+0 - player hits
+0 - breakable blocks
+0 - orb detect
+0 - trg detect
+32 - player carry
+Removing section:3  p:1  732-734   ild:6219 ld:6219
+Removing section:4  p:1  736-738   ild:6219 ld:6219
+Removing section:5  p:1  1002-1004   ild:6219 ld:6219
+Removing section:6  p:1  1006-1008   ild:6219 ld:6219
+Removing section:7  p:1  1010-1011   ild:6219 ld:6219
+Removing section:8  p:1  1013-1014   ild:6219 ld:6219
+Removing section:9  p:1  1016-1017   ild:6219 ld:6219
+Removing section:11  p:1  1042-1044   ild:6219 ld:6219
+Removing section:12  p:1  1046-1047   ild:6219 ld:6219
+Removing section:13  p:1  1050-1051   ild:6219 ld:6219
+Removing section:14  p:1  1074-1077   ild:6219 ld:6219
+Removing section:15  p:1  1079-1080   ild:6219 ld:6219
+Removing section:16  p:1  1082-1084   ild:6219 ld:6219
+Removing section:18  p:1  1113-1115   ild:6219 ld:6219
+Removing section:20  p:1  1120-1121   ild:6219 ld:6219
+Removing section:21  p:1  1123-1125   ild:6219 ld:6219
+Removing section:22  p:1  1127-1129   ild:6219 ld:6219
+Removing section:23  p:1  1144-1146   ild:6219 ld:6219
+Removing section:24  p:1  1148-1150   ild:6219 ld:6219
+Removing section:25  p:1  1152-1153   ild:6219 ld:6219
+Removing section:26  p:1  1155-1157   ild:6219 ld:6219
+Removing section:27  p:1  1159-1161   ild:6219 ld:6219
+Removing section:28  p:1  1216-1218   ild:6219 ld:6219
+Removing section:29  p:1  1220-1221   ild:6219 ld:6219
+Removing section:30  p:1  1223-1225   ild:6219 ld:6219
+Removing section:32  p:1  1230-1233   ild:6219 ld:6219
+Removing section:33  p:1  1236-1239   ild:6219 ld:6219
+Removing section:34  p:1  1242-1246   ild:6219 ld:6219
+Removing section:35  p:1  1248-1251   ild:6219 ld:6219
+Removing section:36  p:1  1253-1256   ild:6219 ld:6219
+Removing section:37  p:1  1310-1312   ild:6219 ld:6219
+Removing section:38  p:1  1314-1315   ild:6219 ld:6219
+Removing section:40  p:1  1336-1338   ild:6219 ld:6219
+Removing section:41  p:1  1340-1342   ild:6219 ld:6219
+Removing section:42  p:1  1344-1348   ild:6219 ld:6219
+Removing section:44  p:1  1357-1361   ild:6219 ld:6219
+Removing section:45  p:1  1363-1366   ild:6219 ld:6219
+Removing section:46  p:1  1368-1371   ild:6219 ld:6219
+Removing section:47  p:1  1373-1376   ild:6219 ld:6219
+Removing section:48  p:1  1378-1381   ild:6219 ld:6219
+Removing section:49  p:1  1384-1387   ild:6219 ld:6219
+Removing section:53  p:1  1404-1408   ild:6219 ld:6219
+Removing section:54  p:1  1410-1412   ild:6219 ld:6219
+Removing section:55  p:1  1455-1458   ild:6219 ld:6219
+Removing section:56  p:1  1491-1493   ild:6219 ld:6219
+Removing section:58  p:1  1499-1500   ild:6219 ld:6219
+Removing section:59  p:1  1502-1503   ild:6219 ld:6219
+Removing section:61  p:1  1617-1618   ild:6219 ld:6219
+Removing section:62  p:1  1627-1628   ild:6219 ld:6219
+Removing section:63  p:1  1630-1631   ild:6219 ld:6219
+Removing section:64  p:1  1633-1634   ild:6219 ld:6219
+Removing section:65  p:1  1637-1645   ild:6219 ld:6219
+Removing section:66  p:1  1647-1650   ild:6219 ld:6219
+Removing section:68  p:1  1951-1952   ild:6219 ld:6219
+Removing section:70  p:1  1958-1959   ild:6219 ld:6219
+Removing section:72  p:1  1997-1999   ild:6219 ld:6219
+Removing section:73  p:1  2001-2002   ild:6219 ld:6219
+Removing section:74  p:1  2008-2009   ild:6219 ld:6219
+Removing section:75  p:1  2011-2012   ild:6219 ld:6219
+Removing section:76  p:1  2014-2016   ild:6219 ld:6219
+Removing section:77  p:1  2018-2020   ild:6219 ld:6219
+Removing section:78  p:1  2032-2034   ild:6219 ld:6219
+Removing section:79  p:1  2036-2038   ild:6219 ld:6219
+Removing section:80  p:1  2040-2042   ild:6219 ld:6219
+Removing section:81  p:1  2095-2097   ild:6219 ld:6219
+Removing section:82  p:1  2099-2101   ild:6219 ld:6219
+Removing section:84  p:1  2162-2164   ild:6219 ld:6219
+Removing section:85  p:1  2166-2168   ild:6219 ld:6219
+Removing section:86  p:1  2169-2170   ild:6219 ld:6219
+Removing section:87  p:1  2172-2174   ild:6219 ld:6219
+Removing section:88  p:1  2175-2177   ild:6219 ld:6219
+Removing section:89  p:1  2178-2180   ild:6219 ld:6219
+Removing section:90  p:1  2182-2183   ild:6219 ld:6219
+Removing section:91  p:1  2185-2186   ild:6219 ld:6219
+Removing section:92  p:1  2188-2189   ild:6219 ld:6219
+Removing section:93  p:1  2192-2193   ild:6219 ld:6219
+Removing section:97  p:1  2205-2206   ild:6219 ld:6219
+Removing section:98  p:1  2209-2210   ild:6219 ld:6219
+Removing section:101  p:1  2219-2220   ild:6219 ld:6219
+Removing section:102  p:1  2222-2224   ild:6219 ld:6219
+Removing section:103  p:1  2226-2227   ild:6219 ld:6219
+Removing section:106  p:1  2236-2238   ild:6219 ld:6219
+Removing section:108  p:1  2243-2244   ild:6219 ld:6219
+Removing section:109  p:1  2247-2248   ild:6219 ld:6219
+Removing section:110  p:1  2250-2252   ild:6219 ld:6219
+Removing section:111  p:1  2254-2256   ild:6219 ld:6219
+Removing section:112  p:1  2258-2260   ild:6219 ld:6219
+Removing section:114  p:1  2292-2294   ild:6219 ld:6219
+Removing section:115  p:1  2295-2297   ild:6219 ld:6219
+Removing section:116  p:1  2299-2300   ild:6219 ld:6219
+Removing section:117  p:1  2302-2304   ild:6219 ld:6219
+Removing section:118  p:1  2320-2321   ild:6219 ld:6219
+Removing section:119  p:1  2323-2325   ild:6219 ld:6219
+Removing section:121  p:1  2330-2332   ild:6219 ld:6219
+Removing section:122  p:1  2334-2336   ild:6219 ld:6219
+Removing section:123  p:1  2360-2362   ild:6219 ld:6219
+Removing section:124  p:1  2364-2365   ild:6219 ld:6219
+Removing section:125  p:1  2368-2369   ild:6219 ld:6219
+Removing section:126  p:1  2371-2373   ild:6219 ld:6219
+Removing section:127  p:1  2375-2377   ild:6219 ld:6219
+Removing section:128  p:1  2379-2381   ild:6219 ld:6219
+Removing section:129  p:1  2401-2404   ild:6219 ld:6219
+Removing section:130  p:1  2406-2407   ild:6219 ld:6219
+Removing section:131  p:1  2410-2411   ild:6219 ld:6219
+Removing section:132  p:1  2413-2415   ild:6219 ld:6219
+Removing section:133  p:1  2417-2419   ild:6219 ld:6219
+Removing section:134  p:1  2421-2423   ild:6219 ld:6219
+Removing section:135  p:1  2438-2441   ild:6219 ld:6219
+Removing section:136  p:1  2443-2445   ild:6219 ld:6219
+Removing section:137  p:1  2447-2448   ild:6219 ld:6219
+Removing section:138  p:1  2450-2452   ild:6219 ld:6219
+Removing section:139  p:1  2454-2456   ild:6219 ld:6219
+Removing section:140  p:1  2458-2460   ild:6219 ld:6219
+Removing section:141  p:1  2476-2478   ild:6219 ld:6219
+Removing section:142  p:1  2480-2482   ild:6219 ld:6219
+Removing section:143  p:1  2484-2485   ild:6219 ld:6219
+Removing section:144  p:1  2487-2489   ild:6219 ld:6219
+Removing section:145  p:1  2491-2493   ild:6219 ld:6219
+Removing section:147  p:1  2498-2500   ild:6219 ld:6219
+Removing section:148  p:1  2502-2503   ild:6219 ld:6219
+Removing section:149  p:1  2506-2507   ild:6219 ld:6219
+Removing section:150  p:1  2875-2878   ild:6219 ld:6219
+Removing section:151  p:1  2880-2882   ild:6219 ld:6219
+Removing section:152  p:1  2884-2886   ild:6219 ld:6219
+Removing section:153  p:1  2888-2890   ild:6219 ld:6219
+Removing section:154  p:1  2893-2895   ild:6219 ld:6219
+Removing section:155  p:1  2929-2931   ild:6219 ld:6219
+Removing section:156  p:1  2933-2935   ild:6219 ld:6219
+Removing section:157  p:1  2937-2938   ild:6219 ld:6219
+Removing section:158  p:1  2940-2942   ild:6219 ld:6219
+Removing section:159  p:1  2944-2946   ild:6219 ld:6219
+Removing section:161  p:1  2951-2953   ild:6219 ld:6219
+Removing section:162  p:1  2955-2957   ild:6219 ld:6219
+Removing section:165  p:1  2984-2985   ild:6219 ld:6219
+Removing section:166  p:1  2987-2988   ild:6219 ld:6219
+Removing section:167  p:1  2990-2992   ild:6219 ld:6219
+Removing section:168  p:1  2993-2995   ild:6219 ld:6219
+Removing section:169  p:1  2997-2998   ild:6219 ld:6219
+Removing section:170  p:1  3000-3002   ild:6219 ld:6219
+Removing section:171  p:1  3004-3005   ild:6219 ld:6219
+Removing section:172  p:1  3007-3009   ild:6219 ld:6219
+Removing section:174  p:1  3014-3015   ild:6219 ld:6219
+Removing section:175  p:1  3018-3019   ild:6219 ld:6219
+Removing section:176  p:1  3022-3023   ild:6219 ld:6219
+Removing section:177  p:1  3025-3027   ild:6219 ld:6219
+Removing section:178  p:1  3029-3030   ild:6219 ld:6219
+Removing section:179  p:1  3032-3033   ild:6219 ld:6219
+Removing section:180  p:1  3035-3037   ild:6219 ld:6219
+Removing section:181  p:1  3039-3040   ild:6219 ld:6219
+Removing section:182  p:1  3042-3044   ild:6219 ld:6219
+Removing section:183  p:1  3046-3048   ild:6219 ld:6219
+Removing section:184  p:1  3050-3052   ild:6219 ld:6219
+Removing section:185  p:1  3055-3057   ild:6219 ld:6219
+Removing section:186  p:1  3059-3061   ild:6219 ld:6219
+Removing section:188  p:1  3066-3068   ild:6219 ld:6219
+Removing section:190  p:1  3073-3075   ild:6219 ld:6219
+Removing section:192  p:1  3080-3081   ild:6219 ld:6219
+Removing section:193  p:1  3083-3085   ild:6219 ld:6219
+Removing section:194  p:1  3086-3087   ild:6219 ld:6219
+Removing section:195  p:1  3094-3100   ild:6219 ld:6219
+Removing section:196  p:1  3103-3105   ild:6219 ld:6219
+Removing section:197  p:1  3119-3121   ild:6219 ld:6219
+Removing section:198  p:1  3122-3124   ild:6219 ld:6219
+Removing section:199  p:1  3126-3128   ild:6219 ld:6219
+Removing section:200  p:1  3130-3132   ild:6219 ld:6219
+Removing section:201  p:1  3134-3136   ild:6219 ld:6219
+Removing section:203  p:1  3142-3143   ild:6219 ld:6219
+Removing section:204  p:1  3145-3147   ild:6219 ld:6219
+Removing section:206  p:1  3178-3180   ild:6219 ld:6219
+Removing section:208  p:1  3185-3186   ild:6219 ld:6219
+Removing section:209  p:1  3188-3190   ild:6219 ld:6219
+Removing section:211  p:1  3225-3227   ild:6219 ld:6219
+Removing section:212  p:1  3229-3231   ild:6219 ld:6219
+Removing section:214  p:1  3236-3238   ild:6219 ld:6219
+Removing section:215  p:1  3240-3241   ild:6219 ld:6219
+Removing section:216  p:1  3243-3245   ild:6219 ld:6219
+Removing section:226  p:1  3276-3278   ild:6219 ld:6219
+Removing section:228  p:1  3283-3284   ild:6219 ld:6219
+Removing section:229  p:1  3286-3287   ild:6219 ld:6219
+Removing section:232  p:1  3297-3298   ild:6219 ld:6219
+Removing section:233  p:1  3300-3301   ild:6219 ld:6219
+Removing section:234  p:1  3303-3305   ild:6219 ld:6219
+Removing section:235  p:1  3307-3309   ild:6219 ld:6219
+Removing section:236  p:1  3319-3321   ild:6219 ld:6219
+Removing section:240  p:1  3333-3335   ild:6219 ld:6219
+Removing section:244  p:1  3426-3427   ild:6219 ld:6219
+Removing section:245  p:1  3429-3430   ild:6219 ld:6219
+Removing section:246  p:1  3432-3434   ild:6219 ld:6219
+Removing section:247  p:1  3436-3437   ild:6219 ld:6219
+Removing section:248  p:1  3439-3441   ild:6219 ld:6219
+Removing section:255  p:1  3522-3524   ild:6219 ld:6219
+Removing section:256  p:1  3526-3527   ild:6219 ld:6219
+Removing section:258  p:1  3533-3534   ild:6219 ld:6219
+Removing section:259  p:1  3537-3538   ild:6219 ld:6219
+Removing section:260  p:1  3541-3543   ild:6219 ld:6219
+Removing section:263  p:1  3673-3676   ild:6219 ld:6219
+Removing section:265  p:1  3699-3701   ild:6219 ld:6219
+Removing section:266  p:1  3703-3705   ild:6219 ld:6219
+Removing section:267  p:1  3733-3735   ild:6219 ld:6219
+Removing section:268  p:1  3737-3739   ild:6219 ld:6219
+Removing section:269  p:1  3741-3744   ild:6219 ld:6219
+Removing section:274  p:1  3799-3800   ild:6219 ld:6219
+Removing section:275  p:1  3803-3804   ild:6219 ld:6219
+Removing section:280  p:1  3832-3834   ild:6219 ld:6219
+Removing section:281  p:1  3836-3838   ild:6219 ld:6219
+Removing section:283  p:1  3871-3872   ild:6219 ld:6219
+Removing section:284  p:1  3874-3876   ild:6219 ld:6219
+Removing section:285  p:1  3878-3882   ild:6219 ld:6219
+Removing section:286  p:1  4064-4066   ild:6219 ld:6219
+Removing section:287  p:1  4068-4070   ild:6219 ld:6219
+Removing section:288  p:1  4072-4073   ild:6219 ld:6219
+Removing section:289  p:1  4075-4076   ild:6219 ld:6219
+Removing section:292  p:1  4085-4086   ild:6219 ld:6219
+Removing section:293  p:1  4088-4089   ild:6219 ld:6219
+Removing section:299  p:1  4107-4108   ild:6219 ld:6219
+Removing section:300  p:1  4110-4111   ild:6219 ld:6219
+Removing section:301  p:1  4113-4114   ild:6219 ld:6219
+Removing section:302  p:1  4116-4118   ild:6219 ld:6219
+Removing section:304  p:1  4123-4124   ild:6219 ld:6219
+Removing section:305  p:1  4126-4127   ild:6219 ld:6219
+Removing section:306  p:1  4129-4131   ild:6219 ld:6219
+Removing section:307  p:1  4133-4134   ild:6219 ld:6219
+Removing section:308  p:1  4136-4137   ild:6219 ld:6219
+Removing section:309  p:1  4139-4140   ild:6219 ld:6219
+Removing section:310  p:1  4142-4144   ild:6219 ld:6219
+Removing section:311  p:1  4146-4147   ild:6219 ld:6219
+Removing section:312  p:1  4149-4151   ild:6219 ld:6219
+Removing section:313  p:1  4153-4154   ild:6219 ld:6219
+Removing section:314  p:1  4156-4158   ild:6219 ld:6219
+Removing section:315  p:1  4160-4161   ild:6219 ld:6219
+Removing section:316  p:1  4163-4164   ild:6219 ld:6219
+Removing section:317  p:1  4167-4168   ild:6219 ld:6219
+Removing section:318  p:1  4170-4171   ild:6219 ld:6219
+Removing section:319  p:1  4174-4175   ild:6219 ld:6219
+Removing section:320  p:1  4177-4179   ild:6219 ld:6219
+Removing section:321  p:1  4181-4182   ild:6219 ld:6219
+Removing section:322  p:1  4184-4186   ild:6219 ld:6219
+Removing section:323  p:1  4188-4190   ild:6219 ld:6219
+Removing section:324  p:1  4192-4194   ild:6219 ld:6219
+Removing section:325  p:1  4196-4197   ild:6219 ld:6219
+[344][ 2183][5][1][ 8] P1 MOVE [   D  ]
+[345][ 2184][5][1][ 9] P1 MOVE [L  D  ]
+[346][ 2185][5][1][ 9] P1 MOVE [L  D  ]
+[347][ 2186][5][1][ 9] P1 MOVE [L  D  ]
+[348][ 2188][5][1][ 9] P1 MOVE [L  D  ]
+[349][ 2189][5][1][ 8] P1 MOVE [   D  ]
+[350][ 2191][5][1][10] P1 MOVE [ R D  ]
+[351][ 2192][5][1][10] P1 MOVE [ R D  ]
+[352][ 2193][5][1][10] P1 MOVE [ R D  ]
+[353][ 2195][5][1][42] P1 MOVE [ R D F]
+[354][ 2196][5][1][10] P1 MOVE [ R D  ]
+[355][ 2198][5][1][34] P1 MOVE [ R   F]
+[356][ 2200][5][1][ 2] P1 MOVE [ R    ]
+[357][ 2202][5][1][34] P1 MOVE [ R   F]
+[358][ 2203][5][1][ 2] P1 MOVE [ R    ]
+[359][ 2205][5][1][ 2] P1 MOVE [ R    ]
+[360][ 2206][5][1][ 2] P1 MOVE [ R    ]
+[361][ 2209][5][1][ 2] P1 MOVE [ R    ]
+[362][ 2210][5][1][ 2] P1 MOVE [ R    ]
+[363][ 2211][5][1][ 1] P1 MOVE [L     ]
+[364][ 2212][5][1][33] P1 MOVE [L    F]
+[365][ 2213][5][1][ 1] P1 MOVE [L     ]
+[366][ 2215][5][1][33] P1 MOVE [L    F]
+[367][ 2216][5][1][41] P1 MOVE [L  D F]
+[368][ 2217][5][1][ 9] P1 MOVE [L  D  ]
+[369][ 2219][5][1][ 9] P1 MOVE [L  D  ]
+[370][ 2220][5][1][ 9] P1 MOVE [L  D  ]
+[371][ 2222][5][1][ 9] P1 MOVE [L  D  ]
+[372][ 2224][5][1][ 9] P1 MOVE [L  D  ]
+[373][ 2226][5][1][ 9] P1 MOVE [L  D  ]
+[374][ 2227][5][1][ 9] P1 MOVE [L  D  ]
+[375][ 2229][5][1][41] P1 MOVE [L  D F]
+[376][ 2231][5][1][ 9] P1 MOVE [L  D  ]
+[377][ 2233][5][1][41] P1 MOVE [L  D F]
+[378][ 2234][5][1][ 9] P1 MOVE [L  D  ]
+[379][ 2236][5][1][ 9] P1 MOVE [L  D  ]
+[380][ 2238][5][1][ 9] P1 MOVE [L  D  ]
+[381][ 2240][5][1][41] P1 MOVE [L  D F]
+[382][ 2241][5][1][ 9] P1 MOVE [L  D  ]
+[383][ 2243][5][1][ 9] P1 MOVE [L  D  ]
+
+
+
+the first one without test removed this:
+Removing section:96  p:1  2202-2203   ild:6219 ld:6219
+
+the second one did not..
+
+Removing section:93  p:1  2192-2193   ild:6219 ld:6219
+Removing section:97  p:1  2205-2206   ild:6219 ld:6219
+Removing section:98  p:1  2209-2210   ild:6219 ld:6219
+
+WHY???!!!!
+
+just the fact of playing back the level sets unused sections used...!!!!
+this is a good thing! it breaks much less..
+
+so an used section that might be scheduled for removal
+then the section before it is removed
+then the test for level done is run, playing back the level
+now the section after might be marked as used!!
+
+
+I want to make more stats at the same time as level done..
+also how many ememies killed, how many coins, etc... I think I have this already
+level_stats??
+
+
+
+but I want to check them after I remove sections
+
+add frame and title to timeline
+add pop-up menu to timeline
+add hide/show while play/record to transport menu
+
+now all demo level play back perfectly
+
+no sound with playallforrecords..done
+
+can I do the auto thing with gdt...see if it breaks things
+42 and 49 still have issues
+
+look at them manually
+
+42
+
+Removing section:59  p:0  3638-3642
+Removing section:61  p:0  3647-3650
+Removing section:62  p:0  3651-3653
+Removing section:63  p:0  3655-3659
+Removing section:64  p:0  3661-3664
+Removing section:69  p:0  3708-3710
+Removing section:71  p:0  3715-3717
+Removing section:72  p:0  3718-3720
+Removing section:72  p:0  3718-3720   ild:14974 ld:0 ----  Error!
+Removing section:73  p:0  3721-3722
+Removing section:73  p:0  3721-3722   ild:0 ld:14974 ----  Error!
+Removing section:74  p:0  3724-3725
+Removing section:74  p:0  3724-3725   ild:14974 ld:0 ----  Error!
+Removing section:75  p:0  3727-3728
+Removing section:75  p:0  3727-3728   ild:0 ld:14974 ----  Error!
+Removing section:79  p:0  3743-3745
+Removing section:80  p:0  3746-3748
+Removing section:82  p:0  3779-3781
+Removing section:84  p:0  3791-3793
+Removing section:86  p:0  3833-3834
+Removing section:88  p:0  3838-3839
+
+Removing section:173  p:0  5542-5543 ld:14974
+Removing section:175  p:0  5645-5646 ld:14974
+Removing section:176  p:0  5648-5649 ld:14974
+Removing section:177  p:0  5651-5652 ld:14974
+Removing section:180  p:0  5660-5661 ld:14974
+Removing section:181  p:0  5663-5665 ld:14974
+Removing section:183  p:0  6092-6095 ld:14974
+Removing section:184  p:0  6097-6098 ld:14974
+Removing section:184  p:0  6097-6098   ild:14974 ld:0 ----  Error!
+Removing section:185  p:0  6100-6101 ld:0
+Removing section:185  p:0  6100-6101   ild:0 ld:14974 ----  Error!
+Removing section:186  p:0  6103-6104 ld:14974
+Removing section:186  p:0  6103-6104   ild:14974 ld:0 ----  Error!
+Removing section:188  p:0  6109-6111 ld:0
+Removing section:189  p:0  6272-6274 ld:0
+Removing section:191  p:0  6280-6282 ld:0
+Removing section:192  p:0  6283-6284 ld:0
+Removing section:195  p:0  7705-7706 ld:0
+Removing section:196  p:0  7708-7709 ld:0
+Removing section:197  p:0  8088-8090 ld:0
+Removing section:198  p:0  8092-8094 ld:0
+Removing section:199  p:0  8095-8097 ld:0
+
+
+what am I going to do to fix this?
+
+
+can I add an execption? like dont erase a specific index? or frame range?
+
+
+
+or if removing it causes error add it back...
+
+
+I finally got l42 to work by manually excepting some indexes
+do 49 also..done
+
+
+now all level have been done...
+
+re do level 49 single
+
+
+20231226
+
+weird bug when tossing lit exploding bomb upward and it hits ceiling then ttl gets set...why??
+
+idk why it gets set, but I fixed it by never checking ttl for lit bombs...
+
+test demos...all good
+
+
+make a new helper function:
+
+add shot at current frame...
+
+makes sure that current frame has a game move with fire...
+and that the next frame has one with fire off
+and that if fire is active before, remove it...
+
+it would be nice to have range tools also:
+
+seperate widget...
+start frame
+end frame
+then some tools
+- erase range
+- erase fire from range
+- remove dup
+- add rapid fire
+- move range +/1 frame
+
+
+20231227
+
+I have been working in recording demos for a long time now...
+what is my end game for this project...
+
+
+
+clean up the source file and break it into some smaller files...
+
+
+
+when stopping record, do the sort and stuff..done
+
+why does draw look different for player and purple coins?
+in the process of fixed this...
+drawing end cutscene rocket move looks choppy...
+when in demo mode
+is there any other way to look at it besides that??
+temp door looks good...
+made draw_sequence not do anything in ldm mode 27 or if no display...
+now back to draw player...
+
+this fixed that issue...
+      int old_draw_method = 1;
+      if (mLoop.state[0] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) old_draw_method = 0;
+      if (mLoop.state[0] == PM_PROGRAM_STATE_DEMO_RECORD) old_draw_method = 0;
+      if (syn[0].level_done_mode == 27) old_draw_method = 1;
+      if (old_draw_method)
+      {
+
+what else get drawn directly on screen?
+purple coins
+now that is fixed also..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+remove lower frame text, 'running saved game' for demo record mode...done
+make time bubbles for timeline show on bottom done
+same with level done done
+then make game moves list lower done
+context pop up menu for timeline
+
+
+
+
+
+
+
+
+
 
 
 

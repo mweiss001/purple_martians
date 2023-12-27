@@ -172,17 +172,8 @@ class mwLevel
    int level_stats_bmp_w;
    int level_stats_bmp_h;
 
-
-
    void load_level_icons(void);
    void create_level_icons(void);
-
-
-
-
-
-
-
 
    int level_data_purple_coins_collected;
    int level_data_player_respawns;

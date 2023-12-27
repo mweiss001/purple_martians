@@ -53,6 +53,25 @@ this fixed it...
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+can I implement fading on enemy deathcount?
+I might need 2 more variables for opacity and op_dec
+
+
+Ef[][9]  = opacity
+Ef[][10] = op_dec
+
+Ef[][11] = scale multiplier
+Ef[][12] = scale;
+Ef[][13] = rot inc
+Ef[][14] = rot
+
+
+
+
+
+
+
+
 
 
 Make the autosaving of demos work...

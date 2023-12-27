@@ -1045,7 +1045,6 @@ void mwPlayer::move_players(void)
       {
          if (debug_print) printf("testmp1:%d\n", p);
 
-
          if (syn[p].paused) proc_player_paused(p);
          else // not paused
          {
@@ -1094,9 +1093,12 @@ void mwPlayer::draw_player(int p)
       int py = syn[p].y;
       set_players_shape(p);
 
-      // old draw method if game not running
+      int old_draw_method = 1;
+      if (mLoop.state[0] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) old_draw_method = 0;
+      if ((mLoop.state[0] == PM_PROGRAM_STATE_DEMO_RECORD) && (mDemoMode.play)) old_draw_method = 0;
+      if (syn[0].level_done_mode == 27) old_draw_method = 1;
 
-      if ((mLoop.state[0] != PM_PROGRAM_STATE_MAIN_GAME_LOOP) || (syn[0].level_done_mode == 27))
+      if (old_draw_method)
       {
          float scale = syn[p].draw_scale;
          float rot = syn[p].draw_rot;
@@ -1105,10 +1107,8 @@ void mwPlayer::draw_player(int p)
    //      printf("color:%d shape:%d\n", syn[p].color, syn[p].shape );
          al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, px+10, py+10, scale, scale, rot, flags);
 
+
          /*
-
-         al_draw_textf(mFont.pr8, mColor.pc[15], AX+10, AY-30, ALLEGRO_ALIGN_CENTER, "X:%d Y:%d", AX, AY);
-
 
          if (syn[p].on_ladder)
             al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+19, 0.5+AY+19, mColor.pc[11], 1);
@@ -1168,6 +1168,11 @@ void mwPlayer::draw_player(int p)
 
 
 
+      if (p == 2)
+      {
+         al_draw_textf(mFont.pr8, mColor.pc[15], px+10, py-38, ALLEGRO_ALIGN_CENTER, "x:%2.1f y:%2.1f", syn[p].x, syn[p].y);
+         al_draw_textf(mFont.pr8, mColor.pc[15], px+10, py-30, ALLEGRO_ALIGN_CENTER, "xi:%2.1f yi:%2.1f", syn[p].xinc, syn[p].yinc);
+      }
 
 
       // death sequence star overlay
@@ -1737,7 +1742,6 @@ void mwPlayer::set_controls_from_player_key_check(int p) // used only in menu
    if (mInput.key[ALLEGRO_KEY_ESCAPE][0])    syn[p].menu  = 1;
 }
 
-
 void mwPlayer::proc_player_input(void)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
@@ -1745,7 +1749,6 @@ void mwPlayer::proc_player_input(void)
       if (syn[p].active) // cycle all active players
       {
          int cm = syn[p].control_method;
-         if ((cm == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) && (mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD)) mDemoMode.key_check(p);
          if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) || (cm == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL) || (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL))
          {
             if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes

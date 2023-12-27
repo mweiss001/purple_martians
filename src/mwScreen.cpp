@@ -51,7 +51,7 @@ void mwScreen::transition_cutscene(int i, int f)
          mLog.addf(LOG_OTH_transitions, 0, "transition from %s to %s\n", tcn[i], tcn[f]);
       }
 
-      if ((i) && (f)) // only in not both 0
+      if ((i) || (f)) // only if not both 0
       {
          int num_steps = transition_num_steps;
          float delay = (float)transition_delay/1000;

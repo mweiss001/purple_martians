@@ -10,6 +10,9 @@
 #include "mwPlayer.h"
 #include "mwLift.h"
 #include "mwLoop.h"
+#include "mwDemoMode.h"
+#include "mwFont.h"
+#include "mwColor.h"
 
 
 
@@ -36,6 +39,9 @@ void mwShot::proc_pshot_collision(int p, int b)
       mPlayer.syn[p].player_ride = 0;
       mPlayer.syn[p].y += mPlayer.syn[p].yinc;
    }
+
+   mDemoMode.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 2);
+
    mShot.p[b].active = 0;  // shot dies
 }
 
@@ -98,29 +104,17 @@ void mwShot::proc_player_shoot(int p)
                else if (mPlayer.syn[p].down)  mShot.p[b].yinc =  bs;
                else                           mShot.p[b].xinc = (mPlayer.syn[p].left_right*bs*2) - bs;
 
-               // if this line is not here player cannot shoot breakable blocks
-               // when directly in front of them..
-               if ((!mPlayer.syn[p].up) && (!mPlayer.syn[p].down) && (mPlayer.syn[p].left_right))
-                   mShot.p[b].x -=1;
+               // if this line is not here player cannot shoot breakable blocks when directly in front of them (when facing right/left??
+               if ((!mPlayer.syn[p].up) && (!mPlayer.syn[p].down) && (mPlayer.syn[p].left_right)) mShot.p[b].x -=1;
 
-//                  // temp testing
-//                  mShot.p[b][2] = x + (mPlayer.syn[p].left_right * (40*2) ) - 40;
-//                  mShot.p[b][3] = y + 1;
-
-                  // move
-                  mShot.p[b].x += mShot.p[b].xinc;  // xinc
-                  mShot.p[b].y += mShot.p[b].yinc;  // yinc
-
-//                  // temp testing
-//                  mShot.p[b][4] = 0; // xinc
-//                  mShot.p[b][5] = 0; // yinc
+               // initial move
+               mShot.p[b].x += mShot.p[b].xinc;  // xinc
+               mShot.p[b].y += mShot.p[b].yinc;  // yinc
 
                mPlayer.syn[p].shot_wait_counter = mPlayer.syn[p].shot_wait;
                mPlayer.syn[p].fire_held = 1;
 
-               // extra data is player number, shot number
                mGameEvent.add(1, x, y, p, b, 0, 0);
-
             }
             //else printf("player shot array full!\n");
          }
@@ -152,18 +146,28 @@ void mwShot::move_pshots(void)
          int x = ((mShot.p[b].x+10) / 20);
          int y = ((mShot.p[b].y+10) / 20);
          int d = mLevel.l[x][y];
-         if ((d & PM_BTILE_SOLID_PBUL) || (d & PM_BTILE_BREAKABLE_PSHOT)) // shot hit solid or breakable wall
+
+
+         if (d & PM_BTILE_BREAKABLE_PSHOT)
          {
+            mLevel.change_block(x, y, 0);
+            mDemoMode.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 6);
             mShot.p[b].active = 0;  // shot is done
-            if (d & PM_BTILE_BREAKABLE_PSHOT) mLevel.change_block(x, y, 0);
          }
+
+         if (d & PM_BTILE_SOLID_PBUL) mShot.p[b].active = 0;  // shot hit solid wall, done
+
       }
 }
 
 void mwShot::draw_pshots()
 {
    for (int b=0; b<50; b++)
-      if (mShot.p[b].active) al_draw_bitmap(mBitmap.player_tile[mPlayer.syn[mShot.p[b].player].color][18], mShot.p[b].x, mShot.p[b].y, 0);
+      if (mShot.p[b].active)
+      {
+         al_draw_bitmap(mBitmap.player_tile[mPlayer.syn[mShot.p[b].player].color][18], mShot.p[b].x, mShot.p[b].y, 0);
+         al_draw_textf(mFont.pixl, mColor.pc[15], mShot.p[b].x+10, mShot.p[b].y+3, ALLEGRO_ALIGN_CENTER, "%d", mShot.p[b].active);
+      }
 }
 
 void mwShot::proc_eshot_collision(int p, int b)
@@ -286,6 +290,9 @@ int mwShot::find_empty_eshot(void)
 
    if (index == -1) // array is full !
    {
+//      return -1; // old behaviour
+
+
       // find the oldest entry and remove it
       int lowest_fn = 9999999;
       for (int b=0; b<50; b++)

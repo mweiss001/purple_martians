@@ -15,7 +15,7 @@
 #include "mwShot.h"
 #include "mwMiscFnx.h"
 #include "mwPacketBuffer.h"
-
+#include "mwDisplay.h"
 
 
 mwDrawSequence mDrawSequence;
@@ -53,38 +53,43 @@ void mwDrawSequence::add(int &i)
 
 void mwDrawSequence::ds_draw(int setup_only, int flip)
 {
-   int i=0;
+   int skip_draw = 0;
+   if (mPlayer.syn[0].level_done_mode == 27) skip_draw = 1;
+   if (mDisplay.no_display) skip_draw = 1;
+   if (!skip_draw)
+   {
+      int i=0;
 
-   if (!setup_only) ts[i] = al_get_time(); // get starting timestamp
-   i++;
+      if (!setup_only) ts[i] = al_get_time(); // get starting timestamp
+      i++;
 
-   float totl = 0;
-
-
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Get new background\n", mLoop.frame_num);
-   if (setup_only) add_names(i, "d-bkgr", "get_new_background");
-   else { mScreen.get_new_background(1);  add(i); }
-
-
-   mPacketBuffer.check_for_packets();
+      float totl = 0;
 
 
-
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Lifts\n", mLoop.frame_num);
-   if (setup_only) add_names(i, "d-lift", "draw_lifts");
-   else { mLift.draw_lifts();  add(i); }
-
-   if (RA[i-1].avg*1000 > 5) mLoop.eco_draw = 1;
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Get new background\n", mLoop.frame_num);
+      if (setup_only) add_names(i, "d-bkgr", "get_new_background");
+      else { mScreen.get_new_background(1);  add(i); }
 
 
-   mPacketBuffer.check_for_packets();
+      mPacketBuffer.check_for_packets();
 
 
 
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Lifts\n", mLoop.frame_num);
+      if (setup_only) add_names(i, "d-lift", "draw_lifts");
+      else { mLift.draw_lifts();  add(i); }
 
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Items\n", mLoop.frame_num);
-   if (setup_only) add_names(i, "d-item", "draw_items");
-   else { mItem.draw_items(); add(i); }
+      if (RA[i-1].avg*1000 > 5) mLoop.eco_draw = 1;
+
+
+      mPacketBuffer.check_for_packets();
+
+
+
+
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Items\n", mLoop.frame_num);
+      if (setup_only) add_names(i, "d-item", "draw_items");
+      else { mItem.draw_items(); add(i); }
 
 
 
@@ -119,157 +124,157 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 //
 
 
-   mPacketBuffer.check_for_packets();
+      mPacketBuffer.check_for_packets();
 
 
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Enemies\n", mLoop.frame_num);
-   if (setup_only) add_names(i, "d-enem", "draw_enemies");
-   else { mEnemy.draw_enemies(); add(i); }
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Enemies\n", mLoop.frame_num);
+      if (setup_only) add_names(i, "d-enem", "draw_enemies");
+      else { mEnemy.draw_enemies(); add(i); }
 
-   mPacketBuffer.check_for_packets();
+      mPacketBuffer.check_for_packets();
 
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - eshots\n", mLoop.frame_num);
-   if (setup_only) add_names(i, "d-esht", "draw_eshots");
-   else { mShot.draw_eshots(); add(i); }
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - eshots\n", mLoop.frame_num);
+      if (setup_only) add_names(i, "d-esht", "draw_eshots");
+      else { mShot.draw_eshots(); add(i); }
 
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - pshots\n", mLoop.frame_num);
-   if (setup_only) add_names(i, "d-psht", "draw_pshots");
-   else { mShot.draw_pshots(); add(i); }
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - pshots\n", mLoop.frame_num);
+      if (setup_only) add_names(i, "d-psht", "draw_pshots");
+      else { mShot.draw_pshots(); add(i); }
 
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - players\n", mLoop.frame_num);
-   if (setup_only) add_names(i, "d-plyr", "draw_players");
-   else { mPlayer.draw_players(); add(i); }
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - players\n", mLoop.frame_num);
+      if (setup_only) add_names(i, "d-plyr", "draw_players");
+      else { mPlayer.draw_players(); add(i); }
 
-   mPacketBuffer.check_for_packets();
+      mPacketBuffer.check_for_packets();
 
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Erase Hidden\n", mLoop.frame_num);
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Erase Hidden\n", mLoop.frame_num);
 
-   if (setup_only) add_names(i, "d-erhd", "erase hidden");
-   else
-   {
-       if (!mLoop.level_editor_running) mItem.erase_hider_areas();
-       add(i);
+      if (setup_only) add_names(i, "d-erhd", "erase hidden");
+      else
+      {
+          if (!mLoop.level_editor_running) mItem.erase_hider_areas();
+          add(i);
+      }
+
+      mPacketBuffer.check_for_packets();
+
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Gate Info\n", mLoop.frame_num);
+      if (setup_only) add_names(i, "d-gnfo", "gate info");
+      else
+      {
+         // draw gate info
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
+               mItem.draw_gate_info(mPlayer.syn[p].marked_gate);
+          add(i);
+      }
+
+      mPacketBuffer.check_for_packets();
+
+
+
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Level Stats\n", mLoop.frame_num);
+      if (setup_only) add_names(i, "d-lsta", "level stats");
+      else
+      {
+         for (int i=0; i<500; i++)
+            if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16)))
+               mItem.draw_message(i, 0, 0, 0);
+          add(i);
+      }
+
+      mPacketBuffer.check_for_packets();
+
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw scaled level region to display\n", mLoop.frame_num);
+      if (setup_only) add_names(i, "d-buff", "scale_buff_to_display");
+      else { mScreen.draw_scaled_level_region_to_display(0); add(i); }
+
+      mPacketBuffer.check_for_packets();
+
+
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw purple coins direct to screen\n", mLoop.frame_num);
+      // draw purple coins directly on the screen, so they scale nicely
+      if (setup_only) add_names(i, "d-pcds", "purple coins direct to screen");
+      else
+      {
+         for (int c=0; c<500; c++)
+            if ((mItem.item[c][0] == 2) && (mItem.item[c][6] == 3)) mItem.draw_purple_coin_screen_direct(c);
+         add(i);
+      }
+
+
+   //   if (setup_only) add_names(i, "vpod", "vinepods direct to screen");
+   //   else
+   //   {
+   //      for (int e=0; e<100; e++)
+   //         if (mEnemy.Ei[e][0] == 7) mEnemy.draw_vinepod_screen_direct(e); // vinepod
+   //      add(i);
+   //   }
+
+      mPacketBuffer.check_for_packets();
+
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw players direct to screen\n", mLoop.frame_num);
+      if (setup_only) add_names(i, "d-plyr", "draw_players");
+      else { mPlayer.draw_players_direct_to_screen(); add(i); }
+
+
+
+      mPacketBuffer.check_for_packets();
+
+
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw npc direct to screen\n", mLoop.frame_num);
+      // draw npc directly on the screen, so they scale nicely
+      if (setup_only) add_names(i, "d-npcd", "npc direct to screen");
+      else
+      {
+         for (int e=0; e<100; e++)
+            if (mEnemy.Ei[e][0] == 19) mEnemy.draw_crew_screen_direct(e);
+         add(i);
+      }
+
+      mPacketBuffer.check_for_packets();
+
+
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw screen overlay\n", mLoop.frame_num);
+      if (setup_only) add_names(i, "d-ovrl", "draw_screen_overlay");
+      else { mScreen.draw_screen_overlay(); add(i); }
+
+      mPacketBuffer.check_for_packets();
+
+      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Flip display\n", mLoop.frame_num);
+      if (setup_only) add_names(i, "d-flip", "al_flip_display");
+      else { if (flip) al_flip_display(); add(i); }
+
+
+      if (setup_only) add_names(i, "d-totl", "total draw time");
+      else
+      {
+         ts[i] = al_get_time(); // set final timestamp
+         totl = ts[i] - ts[0];  // get total time
+         RA[i].add_data(totl);  // add total time
+         i++;
+      }
+
+      ns = i; // number of items
+
+      // profile draw all
+      // build log entry
+      mLog.add_tmr(LOG_TMR_draw_all, 0, "");
+      for (int i=1; i<ns-1; i++)
+         mLog.appf(LOG_TMR_draw_all, "%s:[%0.4f] " , name[0][i], (ts[i] - ts[i-1]) * 1000);
+      mLog.app(LOG_TMR_draw_all, "\n");
+
+
+   //   // profile draw all
+   //   char msg[1024] = {0};
+   //   for (int i=1; i<ns-1; i++)
+   //      sprintf(msg, "%s%s:[%0.4f] " , msg, name[0][i], (ts[i] - ts[i-1]) * 1000 );
+   //   sprintf   (msg, "%s%s:[%0.4f]\n", msg, name[0][ns-1], totl * 1000);  // total
+   //   mLog.add_tmr(LOG_TMR_draw_all, 0, msg);
+
+      // profile draw total
+      mLog.add_tmr1(LOG_TMR_draw_tot, 0, "draw", totl);
    }
-
-   mPacketBuffer.check_for_packets();
-
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Gate Info\n", mLoop.frame_num);
-   if (setup_only) add_names(i, "d-gnfo", "gate info");
-   else
-   {
-      // draw gate info
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
-            mItem.draw_gate_info(mPlayer.syn[p].marked_gate);
-       add(i);
-   }
-
-   mPacketBuffer.check_for_packets();
-
-
-
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Level Stats\n", mLoop.frame_num);
-   if (setup_only) add_names(i, "d-lsta", "level stats");
-   else
-   {
-      for (int i=0; i<500; i++)
-         if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16)))
-            mItem.draw_message(i, 0, 0, 0);
-       add(i);
-   }
-
-   mPacketBuffer.check_for_packets();
-
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw scaled level region to display\n", mLoop.frame_num);
-   if (setup_only) add_names(i, "d-buff", "scale_buff_to_display");
-   else { mScreen.draw_scaled_level_region_to_display(0); add(i); }
-
-   mPacketBuffer.check_for_packets();
-
-
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw purple coins direct to screen\n", mLoop.frame_num);
-   // draw purple coins directly on the screen, so they scale nicely
-   if (setup_only) add_names(i, "d-pcds", "purple coins direct to screen");
-   else
-   {
-      for (int c=0; c<500; c++)
-         if ((mItem.item[c][0] == 2) && (mItem.item[c][6] == 3)) mItem.draw_purple_coin_screen_direct(c);
-      add(i);
-   }
-
-
-//   if (setup_only) add_names(i, "vpod", "vinepods direct to screen");
-//   else
-//   {
-//      for (int e=0; e<100; e++)
-//         if (mEnemy.Ei[e][0] == 7) mEnemy.draw_vinepod_screen_direct(e); // vinepod
-//      add(i);
-//   }
-
-   mPacketBuffer.check_for_packets();
-
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw players direct to screen\n", mLoop.frame_num);
-   if (setup_only) add_names(i, "d-plyr", "draw_players");
-   else { mPlayer.draw_players_direct_to_screen(); add(i); }
-
-
-
-   mPacketBuffer.check_for_packets();
-
-
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw npc direct to screen\n", mLoop.frame_num);
-   // draw npc directly on the screen, so they scale nicely
-   if (setup_only) add_names(i, "d-npcd", "npc direct to screen");
-   else
-   {
-      for (int e=0; e<100; e++)
-         if (mEnemy.Ei[e][0] == 19) mEnemy.draw_crew_screen_direct(e);
-      add(i);
-   }
-
-   mPacketBuffer.check_for_packets();
-
-
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw screen overlay\n", mLoop.frame_num);
-   if (setup_only) add_names(i, "d-ovrl", "draw_screen_overlay");
-   else { mScreen.draw_screen_overlay(); add(i); }
-
-   mPacketBuffer.check_for_packets();
-
-   mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Flip display\n", mLoop.frame_num);
-   if (setup_only) add_names(i, "d-flip", "al_flip_display");
-   else { if (flip) al_flip_display(); add(i); }
-
-
-   if (setup_only) add_names(i, "d-totl", "total draw time");
-   else
-   {
-      ts[i] = al_get_time(); // set final timestamp
-      totl = ts[i] - ts[0];  // get total time
-      RA[i].add_data(totl);  // add total time
-      i++;
-   }
-
-   ns = i; // number of items
-
-   // profile draw all
-   // build log entry
-   mLog.add_tmr(LOG_TMR_draw_all, 0, "");
-   for (int i=1; i<ns-1; i++)
-      mLog.appf(LOG_TMR_draw_all, "%s:[%0.4f] " , name[0][i], (ts[i] - ts[i-1]) * 1000);
-   mLog.app(LOG_TMR_draw_all, "\n");
-
-
-//   // profile draw all
-//   char msg[1024] = {0};
-//   for (int i=1; i<ns-1; i++)
-//      sprintf(msg, "%s%s:[%0.4f] " , msg, name[0][i], (ts[i] - ts[i-1]) * 1000 );
-//   sprintf   (msg, "%s%s:[%0.4f]\n", msg, name[0][ns-1], totl * 1000);  // total
-//   mLog.add_tmr(LOG_TMR_draw_all, 0, msg);
-
-   // profile draw total
-   mLog.add_tmr1(LOG_TMR_draw_tot, 0, "draw", totl);
-
 }
 
 char * mwDrawSequence::get_line(int s, char* msg)

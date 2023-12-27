@@ -117,6 +117,36 @@ void mwGameMoves::gm_sort(void)
 }
 
 
+
+void mwGameMoves::remove_doubled_moves(void)
+{
+   gm_sort();
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      int cm = 0; // initial move
+      for (int x=0; x<entry_pos; x++)
+      {
+         if ((arr[x][2] == p) && (arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_MOVE))
+         {
+            if (arr[x][3] != cm) cm = arr[x][3]; // different cm, update
+            else clear_single(x);  // same cm, clear
+         }
+      }
+   }
+   gm_sort();
+}
+
+
+
+
+
+
+
+
+
+
+
+
 int mwGameMoves::has_player_acknowledged(int p)
 {
    if (mPlayer.syn[p].paused_type == 3) return 1; // headless server player
@@ -360,7 +390,7 @@ void mwGameMoves::proc_game_move_player_inactive(int x)
       // ------------------------------------
       if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE)
       {
-         printf("demo mode player:%d inactive\n", p) ;
+         //printf("demo mode player:%d inactive\n", p) ;
 
          mPlayer.syn[p].active = 0;
          // only quit if no players left active

@@ -61,7 +61,6 @@ void mwEventQueue::proc(int pch)
       proc_events(ev);
    }
    if (pch) mInput.proc_keys_held();
-//   mInput.function_key_check();
 //   printf("f:%d mt:%d\n", mLoop.frame_num, al_get_timer_count(mEventQueue.mou_timer));
 }
 
