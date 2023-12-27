@@ -15,6 +15,8 @@ class mwGameMoves
    void gm_swap(int i, int j);
    void gm_sort(void);
 
+   void remove_doubled_moves(void);
+
    int has_player_acknowledged(int p);
    int arr[GAME_MOVES_SIZE][4];
    int entry_pos = 0;

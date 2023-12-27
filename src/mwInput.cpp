@@ -278,7 +278,7 @@ void mwInput::function_key_check(void)
 
 
 
-   if ((mLoop.level_editor_running) || (mLoop.state[1] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) || (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)) // only do these when game is running or in level editor
+   if ((mLoop.level_editor_running) || (mLoop.state[1] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) || (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) || (mDemoMode.mode)) // only do these when game is running or in level editor
    {
       // zoom controls
       if (key[function_key_zoom_out][0]) mDisplay.set_scale_factor(mDisplay.scale_factor * .90, 0);

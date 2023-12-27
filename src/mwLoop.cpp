@@ -165,23 +165,13 @@ void mwLoop::game_menu(void)
             return;
          }
 
-         if (top_menu_sel == 7)  // skc demo
+         if (top_menu_sel == 7)  // skc demo ??
          {
-            mLevel.skc_trigger_demo = 0;
-            if (mGameMoves.load_demo_level(mLevel.play_level))
-            {
-               mDemoMode.mode = 1;
-               mDemoMode.restore_mode = 22;
-               mDemoMode.restore_level = mLevel.play_level;
-               mLoop.state[0] = PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN;
-               quit_action = 1; // menu
-               done_action = 1;
-               top_menu_sel = 1;
-               return;
-            }
+            //mLevel.skc_trigger_demo = 0;
+            mDemoMode.run_single_from_menu(); // this blocks until done
          }
 
-         if  (top_menu_sel == 0) // visual level select
+         if (top_menu_sel == 0) // visual level select
          {
             int r = mVisualLevel.visual_level_select();
             if (r == 1) top_menu_sel = 1; // start new game
@@ -302,13 +292,7 @@ void mwLoop::game_menu(void)
          }
          if (top_menu_sel == 4) // demo mode
          {
-            mDemoMode.mode = 2;
-            mDemoMode.restore_mode = 21;
-            mDemoMode.restore_level = mLevel.start_level;
-            state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
-            mLoop.quit_action = 1; // menu
-            mLoop.done_action = 5; // next rand level
-            return;
+            mDemoMode.run_continuous_random();
          }
 
          if (top_menu_sel == 5) mHelp.help(""); // help
@@ -317,40 +301,6 @@ void mwLoop::game_menu(void)
       }
    }
 }
-
-
-/*
-
-state =  0; // quit
-state =  1; // menu
-state =  3; // config
-
-state = 10; // start new game
-state = 11; // main game loop
-state = 12; // level_done
-state = 13; // resume
-
-
-state = 19; // server exit
-state = 20; // start server game
-state = 21; // client wait for initial state
-state = 22; // client load level and set up
-state = 23; // client wait for sjon
-state = 24; // client init network and send cjon
-state = 25; // client exit and clean up network
-
-state = 31; // setup and run demo level  (from 12 or manual load gm)
-state = 32; // quit demo with keypress
-
-state = 40; server remote control setup
-state = 41; server remote control run
-
-*/
-
-
-
-
-
 
 
 void mwLoop::proc_program_state(void)
@@ -513,7 +463,7 @@ void mwLoop::proc_program_state(void)
    {
       mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP]\n");
 
-      if (load_and_setup_level_load(mLevel.play_level)) state[0] = PM_PROGRAM_STATE_CLIENT_WAIT_FOR_INITIAL_STATE;
+      if (load_and_setup_level(mLevel.play_level, 2)) state[0] = PM_PROGRAM_STATE_CLIENT_WAIT_FOR_INITIAL_STATE;
       else state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
    }
 
@@ -555,7 +505,7 @@ void mwLoop::proc_program_state(void)
          return;
       }
 
-      if (!load_and_setup_level_load(mLevel.play_level)) state[0] = PM_PROGRAM_STATE_SERVER_EXIT;
+      if (!load_and_setup_level(mLevel.play_level, 3)) state[0] = PM_PROGRAM_STATE_SERVER_EXIT;
 
    }
 
@@ -570,7 +520,6 @@ void mwLoop::proc_program_state(void)
    }
 
 
-
 //---------------------------------------
 // PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME
 //---------------------------------------
@@ -580,7 +529,7 @@ void mwLoop::proc_program_state(void)
 
       if (!mMain.classic_mode) mLevel.start_level = mLevel.play_level = 1;
 
-      if (!load_and_setup_level_load(mLevel.play_level)) state[0] = PM_PROGRAM_STATE_MENU;
+      if (!load_and_setup_level(mLevel.play_level, 0)) state[0] = PM_PROGRAM_STATE_MENU;
 
       if (quit_action == 0) mScreen.transition_cutscene(0, 1); // nothing to game
       if (quit_action == 1) mScreen.transition_cutscene(2, 1); // menu to game
@@ -629,17 +578,6 @@ void mwLoop::proc_program_state(void)
          return; // to exit immediately
       }
 
-// --------------------------------------------------------
-// single level demo mode completed
-// we are in demo mode 1 and next level is called
-// --------------------------------------------------------
-      if (mDemoMode.mode == 1) // demo level just completed
-      {
-         mLog.add(LOG_OTH_program_state, 0, "immediate jump to program state 32\n");
-         state[0] = PM_PROGRAM_STATE_DEMO_QUIT_WITH_KEYPRESS; // demo mode cleanup and exit
-         return;
-      }
-
 // ----------------------------------------------------------
 // determine what transitions to use
 // ----------------------------------------------------------
@@ -663,9 +601,8 @@ void mwLoop::proc_program_state(void)
 
 // -----------------------------------------------------------------------------------------------------
 // if going from overworld to any other level, assume gate is used...no transition until after load
-// also test that we are not in demo mode
 // -----------------------------------------------------------------------------------------------------
-      if ((mLevel.play_level == 1) && (mPlayer.syn[0].level_done_next_level != 1) && (!mDemoMode.mode))
+      if ((mLevel.play_level == 1) && (mPlayer.syn[0].level_done_next_level != 1))
       {
          mLog.add(LOG_OTH_transitions, 0, "Next level from overworld\n");
          post_load_transistion_initial = 3; // gate
@@ -685,17 +622,6 @@ void mwLoop::proc_program_state(void)
          post_load_transistion_final   = 1; // game
       }
 
-// -----------------------------------------------------------------------------------------------------
-// previous state == 1, called here from menu
-// the only time this happens is when starting demo mode from menu
-// -----------------------------------------------------------------------------------------------------
-      if ((state[2] == PM_PROGRAM_STATE_MENU) && (mDemoMode.mode == 2))
-      {
-         mLog.add(LOG_OTH_transitions, 0, "Demo mode started from menu\n");
-         pre_load_transistion_initial  = 2; // menu
-         pre_load_transistion_final    = 0; // nothing
-      }
-
 // ------------------------------------------------------------------------------------------------------------------------------------
 // ---   pre load transition
 // ------------------------------------------------------------------------------------------------------------------------------------
@@ -705,20 +631,8 @@ void mwLoop::proc_program_state(void)
 // ---------------------------------------------------
 // load the new level
 // ---------------------------------------------------
-
-      // if we get here in demo mode, either initially or after level done
-      // call mDemoMode.load_random_demo() to load game moves for next demo level
-      // this needs to be after the cutscene transitions
-      if (mDemoMode.mode == 2)
-      {
-         if (mDemoMode.load_random_demo()) state[0] = PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN;
-         else state[0] = PM_PROGRAM_STATE_MENU;
-         return; // to exit immediately
-      }
-
       mLevel.play_level = mPlayer.syn[0].level_done_next_level;
-
-      if (!load_and_setup_level_load(mLevel.play_level)) state[0] = PM_PROGRAM_STATE_MENU;
+      if (!load_and_setup_level(mLevel.play_level, 1)) state[0] = PM_PROGRAM_STATE_MENU;
 
       //if (mMain.headless_server) printf("Started Level:%d\n", mLevel.play_level);
 
@@ -728,7 +642,6 @@ void mwLoop::proc_program_state(void)
       mLog.add(LOG_OTH_transitions, 0, "post-load ");
       mScreen.transition_cutscene(post_load_transistion_initial, post_load_transistion_final);
    }
-
 
 
    //---------------------------------------
@@ -741,105 +654,6 @@ void mwLoop::proc_program_state(void)
       mScreen.transition_cutscene(2, 1); // menu to game
       state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
    }
-
-   //---------------------------------------
-   // PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN
-   //---------------------------------------
-   if (state[1] == PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN)
-   {
-
-      mLog.addf(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN]  [lev:%d]  [drm:%d]\n", mLevel.play_level, mDemoMode.restore_mode);
-
-      if (load_and_setup_level_load(mLevel.play_level))
-      {
-         state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
-         if      (mDemoMode.restore_mode == 42) mScreen.transition_cutscene(3, 1); // gate to game
-         else if (mDemoMode.restore_mode == 22) mScreen.transition_cutscene(2, 1); // menu to game (single)
-         else                                   mScreen.transition_cutscene(0, 1); // all other (nothing to game)
-      }
-      else state[0] = PM_PROGRAM_STATE_MENU;
-   }
-
-
-   //-------------------------------------------------------
-   // PM_PROGRAM_STATE_DEMO_QUIT_WITH_KEYPRESS
-   //-------------------------------------------------------
-   if (state[1] == PM_PROGRAM_STATE_DEMO_QUIT_WITH_KEYPRESS)
-   {
-      int rm = mDemoMode.restore_mode;
-      int m = mDemoMode.mode;
-
-      mSound.stop_sound();
-
-      mLog.addf(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_DEMO_QUIT_WITH_KEYPRESS]  [drm:%d]  [m:%d]\n", rm,  m);
-
-      mDemoMode.mode = 0;
-
-      for (int p=0; p<NUM_PLAYERS; p++) mPlayer.syn[p].active = 0;       // set all players inactive
-      mPlayer.syn[0].active = 1; // make player 0 active
-      mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER; // reset to local control
-      mConfig.load_config(); // restore player color
-
-      if (rm == 10) // started from command line, exit
-      {
-         mScreen.transition_cutscene(1, 0); // game to nothing
-         state[0] = PM_PROGRAM_STATE_QUIT;
-      }
-
-      if (rm == 21) // rnd demo started from menu
-      {
-         mLog.addf(LOG_OTH_program_state, 0, "[State 32 - Restore Mode:21 (rnd demo start from menu) Restore Level:%d\n", mDemoMode.restore_level);
-
-         mScreen.transition_cutscene(1, 0);   // game to nothing
-         mLevel.load_level(mDemoMode.restore_level, 0, 0);      // restore old level
-
-         for (int p=0; p<NUM_PLAYERS; p++)
-         {
-            mPlayer.init_player(p, 1);         // full reset
-            mPlayer.set_player_start_pos(p);   // get starting position for all players, active or not
-         }
-         mScreen.transition_cutscene(0, 2); // nothing to menu
-         quit_action = 99;  // to prevent transition in state 1
-         state[0] = PM_PROGRAM_STATE_MENU;
-      }
-
-      if (rm == 22) // single started from menu
-      {
-         mLog.addf(LOG_OTH_program_state, 0, "[State 32 - Restore Mode:22 (single demo start from menu) Restore Level:%d\n", mDemoMode.restore_level);
-
-         mScreen.transition_cutscene(1, 2);   // game to menu
-         mLevel.load_level(mDemoMode.restore_level, 0, 0);      // restore old level
-
-         for (int p=0; p<NUM_PLAYERS; p++)
-         {
-            mPlayer.init_player(p, 1);         // full reset
-            mPlayer.set_player_start_pos(p);   // get starting position for all players, active or not
-         }
-         quit_action = 99;  // to prevent transition in state 1
-         state[0] = PM_PROGRAM_STATE_MENU;
-      }
-
-      if (rm == 42) // started from gate, send to overworld with 12 - next level
-      {
-         mLog.addf(LOG_OTH_program_state, 0, "[State 32 - Restore Mode:42 (demo start from gate) Restore Level:%d -- changed quit_action to 1\n", mDemoMode.restore_level);
-
-         mPlayer.syn[0].level_done_next_level = 1; // set to overworld level
-         state[0] = PM_PROGRAM_STATE_NEXT_LEVEL; // next level
-         quit_action = 1;
-      }
-
-      if (rm == 32) // started from settings, restore old level, then back to settings
-      {
-         mLog.addf(LOG_OTH_program_state, 0, "[State 32 - Restore Mode:32 (started from settings, restore old level, then back to settings) Restore Level:%d\n", mDemoMode.restore_level);
-
-         mScreen.transition_cutscene(1, 0); // settings (game to nothing)
-         mLevel.load_level(mDemoMode.restore_level, 0, 0); // restore old level
-         state[0] = PM_PROGRAM_STATE_CONFIG;
-         quit_action = 1;    // menu
-      }
-   }
-
-
 
    //-------------------------------------------------------
    // PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP
@@ -885,46 +699,92 @@ void mwLoop::proc_program_state(void)
    }
 }
 
-int mwLoop::load_and_setup_level_load(int level)
+
+/*
+0 - SINGLE_PLAYER_NEW_GAME
+1 - NEXT_LEVEL
+2 - CLIENT
+3 - SERVER_NEW_GAME
+4 - DEMO
+5 - LOAD AND RESET ALL BUT DO NOT START LEVEL
+
+
+*/
+int mwLoop::load_and_setup_level(int level, int type)
 {
    if (!mLevel.load_level(level, 0, 0)) return 0;
-   else setup_level_after_load();
+   else
+   {
+
+      if (type != 4) mGameMoves.initialize(); // do not reset game moves in demo mode
+
+      if (type == 0) // SINGLE_PLAYER_NEW_GAME
+      {
+         setup_players_after_level_load(1); // type 1 full reset,
+      }
+
+      if (type == 1) // NEXT_LEVEL
+      {
+         setup_players_after_level_load(2); // type 2 partial reset,
+      }
+
+      if (type == 2) // CLIENT_LEVEL_SETUP
+      {
+         setup_players_after_level_load(2); // type 2 partial reset,
+      }
+
+      if (type == 3) // SERVER_NEW_GAME
+      {
+         setup_players_after_level_load(1); // type 1 full reset,
+         strncpy(mPlayer.loc[0].hostname, local_hostname, 16);
+         mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
+      }
+
+      if (type == 4) // DEMO
+      {
+         setup_players_after_level_load(1); // type 1 full reset,
+         mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
+      }
+
+      if (type == 5) // LOAD AND RESET ALL BUT DO NOT START LEVEL
+      {
+         setup_players_after_level_load(1); // type 1 full reset,
+      }
+
+      initialize_graphs();
+      mNetgame.reset_states();
+      mInput.initialize();
+      mBottomMessage.initialize();
+      mTriggerEvent.initialize();
+      mShot.clear_shots();
+      frame_num = 0;
+      mScreen.player_text_overlay_timer = 0;
+
+      if (type == 5) return 1; // LOAD AND RESET ALL BUT DO NOT START LEVEL
+
+      mSound.start_music(0); // rewind and start theme
+
+      if (!mDemoMode.mode)
+      {
+         state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
+         // add initial special game moves
+
+         mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
+
+         mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
+
+         mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_SHOT_CONFIG, 0, 0);
+
+         // save colors in game moves array
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if (mPlayer.syn[p].active) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
+
+         // add game move to hide player 0 in headless server mode
+         if (mMain.headless_server) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_HIDDEN, 0, 0);
+      }
+
+   }
    return 1;
-}
-
-void mwLoop::setup_level_after_load(void)
-{
-   if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME)
-   {
-      setup_players_after_level_load(1); // type 1 full reset,
-      mGameMoves.initialize();
-   }
-   if (state[1] == PM_PROGRAM_STATE_NEXT_LEVEL)
-   {
-      setup_players_after_level_load(2); // type 2 next level reset
-      mGameMoves.initialize();
-   }
-
-   if (state[1] == PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP)
-   {
-      setup_players_after_level_load(2); // type 2 next level reset
-      mGameMoves.initialize();
-   }
-   if (state[1] == PM_PROGRAM_STATE_SERVER_NEW_GAME)
-   {
-      setup_players_after_level_load(1); // type 1 full reset,
-      strncpy(mPlayer.loc[0].hostname, local_hostname, 16);
-      mGameMoves.initialize();
-      mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
-   }
-
-   if (state[1] == PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN)
-   {
-      setup_players_after_level_load(1); // type 1 full reset,
-      mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
-   }
-
-   setup_common_after_level_load();
 }
 
 void mwLoop::setup_players_after_level_load(int type)
@@ -937,37 +797,7 @@ void mwLoop::setup_players_after_level_load(int type)
    mPlayer.syn[0].active = 1;
 }
 
-void mwLoop::setup_common_after_level_load(void)
-{
-   initialize_graphs();
-   mNetgame.reset_states();
-   mInput.initialize();
-   mBottomMessage.initialize();
-   mTriggerEvent.initialize();
-   mShot.clear_shots();
-   frame_num = 0;
-   mScreen.player_text_overlay_timer = 0;
-   mSound.start_music(0); // rewind and start theme
-   state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
 
-   if (!mDemoMode.mode)
-   {
-      // add initial special game moves
-
-      mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
-
-      mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
-
-      mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_SHOT_CONFIG, 0, 0);
-
-      // save colors in game moves array
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
-
-      // add game move to hide player 0 in headless server mode
-      if (mMain.headless_server) mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_PLAYER_HIDDEN, 0, 0);
-   }
-}
 
 
 void mwLoop::add_local_cpu_data(double cpu)
@@ -988,8 +818,6 @@ void mwLoop::add_local_cpu_data(double cpu)
       mQuickGraph2[9].new_entry_pos();
    }
 }
-
-
 
 
 void mwLoop::initialize_and_resize_remote_graphs(void)
@@ -1206,11 +1034,9 @@ void mwLoop::main_loop(void)
             // ------------------------------
             // draw
             // ------------------------------
-            if ((!mDisplay.no_display) && (ldm != 27)) mDrawSequence.ds_draw(0, 1);
-
+            mDrawSequence.ds_draw(0, 1);
 
             mPacketBuffer.check_for_packets();
-
 
             // --------------------------------------------
             // measure time to process loop

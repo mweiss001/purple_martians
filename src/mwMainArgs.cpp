@@ -321,15 +321,8 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-f") == 0 )
       {
          mLogo.show_splash_screen = 0;
-         if (mGameMoves.load_gm_file_select())
-         {
-            mDemoMode.mode = 1;
-            mDemoMode.restore_mode = 10;
-            mLoop.state[0] = PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN;
-            mLoop.quit_action = 0;
-            mLoop.done_action = 0;
-         }
-         return;
+         mDemoMode.run_single_from_cmd_prompt();
+         fast_exit(0);
       }
 
       // keep this last so if no other single flag matches try to run like it an int level...
@@ -348,18 +341,9 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          printf("%s could not be parsed to an integer level number\n", argument_array[1]);
          printf("trying to run as a demo file\n");
-
-         // let's see if it is a valid gm file
-         if (mGameMoves.load_gm(argument_array[1]))
-         {
-            //mLogo.show_splash_screen = 0;
-            mDemoMode.mode = 1;
-            mDemoMode.restore_mode = 10;
-            mLoop.state[0] = PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN;
-            mLoop.quit_action = 0;
-            mLoop.done_action = 0;
-            return;
-         }
+         mLogo.show_splash_screen = 0;
+         mDemoMode.run_single_from_cmd_fn(argument_array[1]);
+         fast_exit(0);
       }
    } // end of argument_count == 2
 

@@ -309,6 +309,9 @@ void mwItem::bomb_players(int i, int t, int dr, float x, float y)
 
 void mwItem::proc_lit_bomb(int i)
 {
+
+   // printf("lit bomb:%d 8:%d 14:%d\n", i, mItem.item[i][8], mItem.item[i][14]);
+
    mItem.item[i][8]--; // timer dec
 
    if (mItem.item[i][6] == 3) // remote detonator
@@ -325,6 +328,10 @@ void mwItem::proc_lit_bomb(int i)
       mSound.lit_item = 1;
       if (mItem.item[i][8] < 1) // fuse done
       {
+
+         // printf("lit bomb:%d changing to explode mode\n", i);
+
+
          mItem.item[i][6] = 2; // mode 2; explosion
          mItem.item[i][8] = mItem.item[i][9] = 20; // explosion timer
 
@@ -344,6 +351,8 @@ void mwItem::proc_lit_bomb(int i)
    }
    if (mItem.item[i][6] == 2) // explosion
    {
+      // printf("lit bomb:%d explosion mode 8:%d\n", i, mItem.item[i][8]);
+
       float r = 1 - (float)mItem.item[i][8] / (float)mItem.item[i][9]; // ratio
       int dr = (int) (  (float)mItem.item[i][7] * r); // damage range scaled by ratio
 

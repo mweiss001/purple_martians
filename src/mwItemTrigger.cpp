@@ -15,6 +15,8 @@
 #include "mwScreen.h"
 #include "mwGameEvent.h"
 #include "mwShot.h"
+#include "mwDemoMode.h"
+
 
 
 /*
@@ -56,7 +58,12 @@ int mwItem::proc_orb_shot_collision(int i)
       {
          float bx = mShot.p[b].x;
          float by = mShot.p[b].y;
-         if ((x > bx-s) && (x < bx+s) && (y > by-s) && (y < by+s)) return 1;
+         if ((x > bx-s) && (x < bx+s) && (y > by-s) && (y < by+s))
+         {
+            mDemoMode.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 3);
+            return 1;
+         }
+
       }
    return 0;
 }
@@ -366,7 +373,18 @@ void mwItem::detect_trigger_collisions(int i)
          {
             int x = mShot.p[b].x;
             int y = mShot.p[b].y;
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) flags |= PM_ITEM_TRIGGER_CURR;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
+            {
+               flags |= PM_ITEM_TRIGGER_CURR;
+
+               mDemoMode.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 4);
+
+
+
+            }
+
+
+
          }
    if (flags & PM_ITEM_TRIGGER_ESHOT) // check enemy shots
       for (int b=0; b<50; b++)

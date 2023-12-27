@@ -10,7 +10,22 @@ class mwDemoMode
    int load_random_demo(void);
    void play_all_demos_and_save_stats(int x, int y);
    void gdt(void);
-   void key_check(int p);
+   int key_check(void);
+
+   void run_loop(int ti, int tf, int restore_level);
+
+   void run_single_from_menu(void);
+   void run_single_from_settings(void);
+   void run_single_from_gate(int lev);
+   void run_single_from_cmd_fn(const char* fn);
+   void run_single_from_cmd_prompt(void);
+
+   void run_continuous_random(void);
+
+
+   void play_demo_for_stats(void);
+
+
 
    ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
    int num_demo_filenames;
@@ -55,8 +70,19 @@ class mwDemoMode
    void seek_to_frame(int frame, int draw);
 
    void start_record(void);
+   void stop_transport(void);
 
    void set_active_section(int i);
+
+
+
+   void range_tools_set_fire_moves(int f, int clear_set);
+
+   void range_tools_do(int action);
+   void proc_range_tools_menu(void);
+   int draw_range_tools(int x1, int y1);
+
+
 
 
    void mark_timeline_position(int frame, int x1, int y1, int sb_y2, int col);
@@ -67,28 +93,56 @@ class mwDemoMode
    void find_level_done(void);
 
 
-   void draw_gm_txt_lines(int x, int y);
+   void draw_gm_txt_lines(int x, int y, int dump);
 
    void proc_gm_list_menu(int gi);
 
    void edit_gm(int gi);
 
+   void copy_ptp(int sp, int dp);
 
    void proc_edit_gm_type_menu(int & t);
    void proc_edit_gm_player_num_menu(int & p);
+
+
+
+
+   int fhs[10000][4] = {0};
+   int fhs_indx = 0;
+   // 0 - p
+   // 1 - f1
+   // 2 - f2
+   // 3 - used
+
+   void find_fire_held_sections(int p);
+
+   void mark_player_carry(int p);
+   void mark_player_shot_used(int p, int f, int type);
+
+   void remove_unused_fire_held_sections(int test);
+
+
+   void proc_file_details_menu(void);
+   int draw_file_details(int x1, int y1);
 
 
    void load_lnk_arr(void);
 
    void proc_cpu_time(double frame_start_timestamp);
 
-   int draw_section_details(int i, int x, int y);
+   void proc_section_details_menu(void);
+
+
+   int draw_section_details(int x, int y);
    void draw_section_details_one_line(int i, int x, int y);
 
    int draw_record_settings(int x, int y);
    void draw_timeline(void);
 
-   int show_play_record_buttons(int x, int y);
+   void proc_transport_menu(void);
+   int draw_transport_controls(int x, int y);
+
+
 
    int play = 0;
    int record = 0;
@@ -129,14 +183,21 @@ class mwDemoMode
    int gm_list_mono = 0;
 
 
+   int sh_range_tools = 1;
+
+   int rt_start_frame = 0;
+   int rt_end_frame = 0;
+   int rt_all_players = 0;
+
+
    int sh_player_grid = 0;
-   int sh_rec_controls = 1;
+   int sh_rec_controls = 0;
    int sh_timeline = 1;
 
    int timeline_size = 4;
 
    int sh_overlay_in_play = 0;
-   int sh_overlay_in_rec = 0;
+   int sh_overlay_in_rec = 1;
 
 
 };

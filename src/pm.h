@@ -79,7 +79,6 @@
 
 #define PM_PROGRAM_STATE_DEMO_RECORD                    7
 
-
 #define PM_PROGRAM_STATE_CLIENT_NEW_GAME               200
 #define PM_PROGRAM_STATE_CLIENT_WAIT_FOR_JOIN          201
 #define PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP            202
@@ -89,9 +88,6 @@
 #define PM_PROGRAM_STATE_CLIENT_PREEXIT2               211
 #define PM_PROGRAM_STATE_CLIENT_EXIT                   214
 
-
-
-
 #define PM_PROGRAM_STATE_SERVER_NEW_GAME               300
 #define PM_PROGRAM_STATE_SERVER_EXIT                   301
 
@@ -100,12 +96,8 @@
 #define PM_PROGRAM_STATE_NEXT_LEVEL                    12
 #define PM_PROGRAM_STATE_RESUME                        13
 
-#define PM_PROGRAM_STATE_DEMO_SETUP_AND_RUN            31
-#define PM_PROGRAM_STATE_DEMO_QUIT_WITH_KEYPRESS       32
-
 #define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP   40
 #define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_RUN     41
-
 
 
 //state =  0; // quit
@@ -124,9 +116,6 @@
 //state = 23; // client wait for sjon
 //state = 24; // client init network and send cjon
 //state = 25; // client exit and clean up network
-//
-//state = 31; // setup and run demo level  (from 12 or manual load gm)
-//state = 32; // quit demo with keypress
 //
 //state = 40; server remote control setup
 //state = 41; server remote control run

@@ -26,6 +26,9 @@
 #include "mwShot.h"
 #include "mwScreen.h"
 
+#include "mwDemoMode.h"
+
+
 mwItem mItem;
 
 mwItem::mwItem()
@@ -173,7 +176,11 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
 
 int mwItem::draw_bonus(int i, int x, int y, int shape)
 {
-   if ((item[i][6] == 3) && (mLoop.state[0] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) && (mLoop.frame_num > 0)  ) return 1; // purple coin custom draw only when game running
+   if ((item[i][6] == 3) && (mLoop.frame_num > 0)) // purple coin
+   {
+      if (mLoop.state[0] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) return 1; // purple coin custom draw when game running
+      if ((mLoop.state[0] == PM_PROGRAM_STATE_DEMO_RECORD) && (mDemoMode.play)) return 1;
+   }
    return 0;
 }
 
@@ -213,7 +220,9 @@ void mwItem::move_items()
          if ((type != PM_ITEM_TYPE_TRIGGR) &&
              (type != PM_ITEM_TYPE_TIMER) &&
              (type != PM_ITEM_TYPE_BLKMNP) &&
+             (type != PM_ITEM_TYPE_LIT_BOMB) &&
              (type != PM_ITEM_TYPE_BLKDMG))
+
          {
             int ttl = item[i][14];
             if (ttl)
@@ -502,6 +511,11 @@ void mwItem::proc_item_collision(int p, int i)
           (item[i][0] == PM_ITEM_TYPE_LIT_RCKT))       // allow multiple player carry for rocket
           mPlayer.syn[p].carry_item = i+1;
    }
+
+
+   if (mPlayer.syn[p].carry_item) mDemoMode.mark_player_carry(p);
+
+
 
    int t = item[i][0];
    if (t == PM_ITEM_TYPE_DOOR)    proc_door_collision(p, i);

@@ -1132,19 +1132,21 @@ void mwScreen::draw_top_frame(int p)
       int tpc = mLevel.data[mLevel.play_level].tot_purple_coins;
       if (tpc)
       {
+         int ct = mLevel.level_data_purple_coins_collected;
+         int cp = mPlayer.syn[p].stat_purple_coins;
+
          //al_draw_scaled_bitmap(mBitmap.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
          //al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+17, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
          mBitmap.spin_shape(197, tdx+5, tdy-4, 0, 0, 19, 19, 0.6, 0.5, 60);
-         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
+//         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d", mPlayer.syn[p].stat_purple_coins, tpc);
+         al_draw_textf(mFont.pr8, mColor.pc[tc], tdx+19, tdy+2, 0, ":%d/%d/%d", cp, ct, tpc);
       }
    }
-
 
 
    if (mLoop.frame_speed != 40) al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W/2, 2, ALLEGRO_ALIGN_CENTER, "fps:%d", mLoop.frame_speed);
 
    al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W/2-120, 2, ALLEGRO_ALIGN_CENTER, "ps:%2d es:%2d", mShot.num_pshots, mShot.num_eshots);
-
 
 
    if (mDisplay.show_scale_factor > 0)
@@ -1246,7 +1248,7 @@ void mwScreen::draw_bottom_frame(int p)
          mColor.process_flash_color();
       }
    }
-   if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) // file play
+   if ((mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) && (mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD))
    {
       sprintf(msg, "Running Saved Game ");
       al_draw_text(mFont.pr8, mColor.pc[tc], bdx, bdy, 0, msg);
