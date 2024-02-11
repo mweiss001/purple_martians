@@ -7,15 +7,17 @@ This would take some time and effort to sort out after a paste so I do it automa
 
 High Level Algorithm
 
+----------------------------------------------------------------------------------------------
 Before paste, iterate objects in ft_
 Look for any event references (receivers or senders) and add to link translation table
+----------------------------------------------------------------------------------------------
+
 
 clt[0] = obt (2=item, 3=enem, 4=lift)
-clt[1] = num
+clt[1] = index num
 clt[2] = ext (2,3 int var num  4=lift step index
 clt[3] = src_ev
 clt[4] = dst_ev
-
 
 
 int clt[100][5] = { 0 };
@@ -49,18 +51,17 @@ for (b=0; b<500; b++) // iterate items in ft
   }
 }
 
-   for (b=0; b<100; b++) // iterate enemies in ft
-   {
-      if (ft_Ei[b][0] == 9) // cloner
-      {
-         clt_last += mTriggerEvent.add_item_link_translation(3, b, 8, ft_Ei[b][8], clt, clt_last);
-      }      if (ft_Ei[b][0] == 7) // vinepod
-      {
-         clt_last += mTriggerEvent.add_item_link_translation(3, b, 18, ft_Ei[b][18], clt, clt_last);
-         clt_last += mTriggerEvent.add_item_link_translation(3, b, 19, ft_Ei[b][19], clt, clt_last);
-      }
-   }
-
+for (b=0; b<100; b++) // iterate enemies in ft
+{
+  if (ft_Ei[b][0] == 9) // cloner
+  {
+	 clt_last += mTriggerEvent.add_item_link_translation(3, b, 8, ft_Ei[b][8], clt, clt_last);
+  }      if (ft_Ei[b][0] == 7) // vinepod
+  {
+	 clt_last += mTriggerEvent.add_item_link_translation(3, b, 18, ft_Ei[b][18], clt, clt_last);
+	 clt_last += mTriggerEvent.add_item_link_translation(3, b, 19, ft_Ei[b][19], clt, clt_last);
+  }
+}
 
 for (b=0; b<ft_level_header[5]; b++) // iterate lifts in ft
   for (y=0; y<ft_lift[b][3]; y++) // iterate lift steps in ft
@@ -70,10 +71,11 @@ for (b=0; b<ft_level_header[5]; b++) // iterate lifts in ft
 	 if ((step_type == 5) || (step_type == 6)) clt_last += mTriggerEvent.add_item_link_translation(4, b, y, step_val, clt, clt_last);
   }
 
-
-when inserting, check to see if a translation has already been entered 
-if it has, use the existing translation 
-if not find a new unused event
+----------------------------------------------------------------------------------------------
+When inserting, check to see if a translation has already been entered 
+If it has, use the existing translation 
+If not find a new unused event
+----------------------------------------------------------------------------------------------
 
 int mwTriggerEvent::add_item_link_translation(int obt, int num, int ext, int src_ev, int clt[][5], int clt_last)
 {
@@ -92,25 +94,48 @@ int mwTriggerEvent::add_item_link_translation(int obt, int num, int ext, int src
    return 0; // nothing added
 }
 
-then when pasting ft_ check for match with clt table:
+----------------------------------------------------------------------------------------------
+Then when pasting ft_ check for match with clt table:
+----------------------------------------------------------------------------------------------
 
-// does this lift step have an entry in the clt table?
+// does this lift step to be copied have an entry in the clt table?
 for (int i=0; i<clt_last; i++)
   if ((clt[i][0] == 4) && (clt[i][1] == b) && (clt[i][2] == y)) // found match
 	 val = clt[i][4];  // new event
 
-
-// does this enemy have an entry in the clt table?
+// does this enemy to be copied have an entry in the clt table?
 for (int i=0; i<clt_last; i++)
   if ((clt[i][0] == 3) && (clt[i][1] == b)) // found index
 	 mEnemy.Ei[c][clt[i][2]] = clt[i][4];  // new event
 
-
-// does this copy item have an entry in the clt table?
+// does this item to be copied have an entry in the clt table?
 for (int i=0; i<clt_last; i++)
   if ((clt[i][0] == 2) && (clt[i][1] == b)) // found index of source item table
 	 mItem.item[c][clt[i][2]] = clt[i][4];  // new event
 
 
-this works perfectly as far as I have been able to test it...
+This method works as far as I have been able to test it...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
