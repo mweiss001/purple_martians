@@ -35,14 +35,12 @@ void mwDrawSequence::initialize(void)
    }
 }
 
-
 void mwDrawSequence::add_names(int &i, const char* n0, const char* n1)
 {
    strcpy(name[0][i], n0);
    strcpy(name[1][i], n1);
    i++;
 }
-
 
 void mwDrawSequence::add(int &i)
 {
@@ -61,19 +59,16 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       int i=0;
 
       if (!setup_only) ts[i] = al_get_time(); // get starting timestamp
+
       i++;
 
       float totl = 0;
-
 
       mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Get new background\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-bkgr", "get_new_background");
       else { mScreen.get_new_background(1);  add(i); }
 
-
       mPacketBuffer.check_for_packets();
-
-
 
       mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Lifts\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-lift", "draw_lifts");
@@ -83,8 +78,6 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
 
       mPacketBuffer.check_for_packets();
-
-
 
 
       mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Items\n", mLoop.frame_num);
@@ -290,6 +283,3 @@ void mwDrawSequence::show_text(int x, int y)
    for (int i=1; i<ns; i++)
       al_draw_textf(mFont.pr8, mColor.pc[15], 1+x, 1+y+i*9, 0, "%s", get_line(i, msg));
 }
-
-
-

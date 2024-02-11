@@ -1146,8 +1146,8 @@ void mwScreen::draw_top_frame(int p)
 
    if (mLoop.frame_speed != 40) al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W/2, 2, ALLEGRO_ALIGN_CENTER, "fps:%d", mLoop.frame_speed);
 
-   al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W/2-120, 2, ALLEGRO_ALIGN_CENTER, "ps:%2d es:%2d", mShot.num_pshots, mShot.num_eshots);
-
+   // show number of active player and enemy shots
+   // al_draw_textf(mFont.pr8, mColor.pc[tc], mDisplay.SCREEN_W/2-120, 2, ALLEGRO_ALIGN_CENTER, "ps:%2d es:%2d", mShot.num_pshots, mShot.num_eshots);
 
    if (mDisplay.show_scale_factor > 0)
    {

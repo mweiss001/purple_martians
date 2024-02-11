@@ -9,6 +9,7 @@
 #include "mwLogo.h"
 #include "mwBottomMessage.h"
 #include "mwDemoMode.h"
+#include "mwDemoRecord.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
@@ -920,7 +921,7 @@ void mwSettings::settings_pages(int set_page)
 // ---------------------------------------------------------------
       if (page == 5) // demo
       {
-         int line_spacing = 18;
+         int line_spacing = 15;
 
          //line_spacing +=  mLoop.pct_y;
 
@@ -964,6 +965,28 @@ void mwSettings::settings_pages(int set_page)
          if (old_overlay_opacity != mDemoMode.overlay_opacity) mConfig.save_config();
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+         if (show_advanced)
+         {
+            if (mWidget.buttont(xa+70, ya, xb-70, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Run Demo Recording System"))
+            {
+               mLoop.state[0] = PM_PROGRAM_STATE_DEMO_RECORD;
+               return;
+            }
+         }
+
+
+
+
+
+
+
+
+
+
+
+
       }
 
 
@@ -1402,14 +1425,12 @@ void mwSettings::settings_pages(int set_page)
                ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
 
-               if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "GDT")) mDemoMode.gdt();
+               if (mWidget.buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "GDT")) mDemoRecord.gdt();
                ya +=8;
                //al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Play all demo levels and set stats."); ya +=8;
                ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
 
-
-                  void gdt(void);
 
 
 

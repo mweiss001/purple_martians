@@ -13,7 +13,7 @@
 #include "mwShot.h"
 #include "mwGameEvent.h"
 #include "mwLevel.h"
-#include "mwDemoMode.h"
+#include "mwDemoRecord.h"
 
 
 mwEnemy mEnemy;
@@ -252,7 +252,7 @@ void mwEnemy::proc_enemy_collision_with_pshot(int e)
             Ei[e][31] = 1;                     // flag that this enemy got shot
             Ei[e][26] = p;                     // number of player that shot enemy
             mPlayer.syn[p].stat_enemy_hits++;  // add to number of hits the player has
-            mDemoMode.mark_player_shot_used(p, mShot.p[c].active, 1);
+            mDemoRecord.mark_player_shot_used(p, mShot.p[c].active, 1);
             mShot.p[c].active = 0;             // shot dies
          }
       }

@@ -12,6 +12,7 @@
 #include "mwShot.h"
 #include "mwDisplay.h"
 #include "mwDemoMode.h"
+#include "mwDemoRecord.h"
 #include "mwScreen.h"
 #include "mwMain.h"
 
@@ -605,7 +606,7 @@ void mwGameMoves::save_gm(const char *fname)
          }
 
 
-         sprintf(mDemoMode.current_loaded_demo_file, "%s", fname); // update the name
+         sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname); // update the name
 
 //         save_gm_txt(fname); // also save as a human readable text file
       }
@@ -749,7 +750,7 @@ int mwGameMoves::load_gm(const char *sfname)
          mDemoMode.last_frame = arr[entry_pos-1][0];
          //printf("dmlf:%d\n", mDemoMode.last_frame );
          //printf("fname:%s\n", fname);
-         sprintf(mDemoMode.current_loaded_demo_file, "%s", fname);
+         sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname);
          return 1;
       }
    }

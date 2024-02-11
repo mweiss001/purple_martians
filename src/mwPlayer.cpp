@@ -19,7 +19,8 @@
 #include "mwShot.h"
 #include "mwSolid.h"
 #include "mwNetgame.h"
-#include "mwDemoMode.h"
+#include "mwDemoRecord.h"
+
 #include "mwGameMoves.h"
 #include "mwEventQueue.h"
 #include "mwConfig.h"
@@ -1095,7 +1096,7 @@ void mwPlayer::draw_player(int p)
 
       int old_draw_method = 1;
       if (mLoop.state[0] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) old_draw_method = 0;
-      if ((mLoop.state[0] == PM_PROGRAM_STATE_DEMO_RECORD) && (mDemoMode.play)) old_draw_method = 0;
+      if ((mLoop.state[0] == PM_PROGRAM_STATE_DEMO_RECORD) && (mDemoRecord.play)) old_draw_method = 0;
       if (syn[0].level_done_mode == 27) old_draw_method = 1;
 
       if (old_draw_method)
@@ -1167,11 +1168,13 @@ void mwPlayer::draw_player(int p)
       }
 
 
-
-      if (p == 2)
+      if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) // game loop running
       {
-         al_draw_textf(mFont.pr8, mColor.pc[15], px+10, py-38, ALLEGRO_ALIGN_CENTER, "x:%2.1f y:%2.1f", syn[p].x, syn[p].y);
-         al_draw_textf(mFont.pr8, mColor.pc[15], px+10, py-30, ALLEGRO_ALIGN_CENTER, "xi:%2.1f yi:%2.1f", syn[p].xinc, syn[p].yinc);
+         if (p == mDemoRecord.record_player_number)
+         {
+            al_draw_textf(mFont.pr8, mColor.pc[15], px+10, py-38, ALLEGRO_ALIGN_CENTER, "x:%2.1f y:%2.1f", syn[p].x, syn[p].y);
+            al_draw_textf(mFont.pr8, mColor.pc[15], px+10, py-30, ALLEGRO_ALIGN_CENTER, "xi:%2.1f yi:%2.1f", syn[p].xinc, syn[p].yinc);
+         }
       }
 
 
