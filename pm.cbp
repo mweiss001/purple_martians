@@ -102,6 +102,8 @@
 		<Unit filename="src/mwConfig.h" />
 		<Unit filename="src/mwDemoMode.cpp" />
 		<Unit filename="src/mwDemoMode.h" />
+		<Unit filename="src/mwDemoRecord.cpp" />
+		<Unit filename="src/mwDemoRecord.h" />
 		<Unit filename="src/mwDisplay.cpp" />
 		<Unit filename="src/mwDisplay.h" />
 		<Unit filename="src/mwDrawSequence.cpp" />

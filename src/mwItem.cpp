@@ -27,7 +27,7 @@
 #include "mwScreen.h"
 
 #include "mwDemoMode.h"
-
+#include "mwDemoRecord.h"
 
 mwItem mItem;
 
@@ -179,7 +179,8 @@ int mwItem::draw_bonus(int i, int x, int y, int shape)
    if ((item[i][6] == 3) && (mLoop.frame_num > 0)) // purple coin
    {
       if (mLoop.state[0] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) return 1; // purple coin custom draw when game running
-      if ((mLoop.state[0] == PM_PROGRAM_STATE_DEMO_RECORD) && (mDemoMode.play)) return 1;
+      if ((mLoop.state[0] == PM_PROGRAM_STATE_DEMO_RECORD) && (mDemoRecord.play)) return 1;
+      if (mDemoMode.mode) return 1; // demo mode is playing
    }
    return 0;
 }
@@ -513,7 +514,7 @@ void mwItem::proc_item_collision(int p, int i)
    }
 
 
-   if (mPlayer.syn[p].carry_item) mDemoMode.mark_player_carry(p);
+   if (mPlayer.syn[p].carry_item) mDemoRecord.mark_player_carry(p);
 
 
 

@@ -2,7 +2,6 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-
 clients are losing server connnection more than usual, look into why
 of course now they won't do it...
 why would a client lose server connection?
@@ -17,53 +16,40 @@ sometimes weird artifacts show in level background, like msg from previous level
 have not seen this happen for a long time
 
 
-on remote control, when a client quits, the graphs still scroll the data for that client on a loop
-nothing is overwriting it...
-make it so that if no clients, it still gets overwritten...
-
-tried this:
-
-            for (int i=0; i<8; i++) // cycle all inactive players and disable their graph series
-               if (!mPlayer.syn[i].active)
-                  for (int j=0; j<8; j++) mQuickGraph2[j].series[i].active = 0;
-
-does not erase...
-this fixed it...
-
-
-
-            // if no clients are active, erase and scroll graph data
-            int ca = 0;
-            for (int i=1; i<8; i++)
-               if (mPlayer.syn[i].active) ca++;
-
-            if (ca == 0)
-            {
-               for (int i=1; i<8; i++)
-                  for (int j=0; j<8; j++) mQuickGraph2[j].add_data(i, 0, 1);
-            }
-
-
-
-
-
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-can I implement fading on enemy deathcount?
-I might need 2 more variables for opacity and op_dec
+
+I have been thinking about a major re-ordering of levels...
+I have so many mediocre ones mixed in with the great ones...
+I just want to re-arrange and put some more of them in the extra categories....
 
 
-Ef[][9]  = opacity
-Ef[][10] = op_dec
 
-Ef[][11] = scale multiplier
-Ef[][12] = scale;
-Ef[][13] = rot inc
-Ef[][14] = rot
+right now I have:
+8 training levels
+40 main game
+1 final rocket level
+12 extra
+14 demo
+2 multiplayer bomb toss
+
+
+what if I was to remove 8 from regular and add them to extra
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -92,11 +78,6 @@ Should I save that also?
 I would like to do it automatically...
 
 
-
-
-
-
-
 what to do to release?
 
 before I put it away and move on?
@@ -105,7 +86,6 @@ before I put it away and move on?
 I think logs are always being saved on server
 I should be able to tell from that when players joins
 yes I can but it is not easily parseable
-
 
 
 
@@ -613,7 +593,7 @@ netgame expects that the move frames happen exactly when they are supposed to
 if I draw then I will screw up the timimg of netgame
 I tried a staggered draw but the flashing was too much...
 what I did not try was:
-frame 1 get new back ground and draw
+frame 1 get new background and draw
 
 
 wait a tick here!
@@ -667,10 +647,12 @@ log like cpu, but with a multicolored bar...move, draw, other, all added up
 
 
 
+
 Things to add to settings:
 
 optional resolution in window title
 - I can already show it with debug overlay
+
 
 optional text in bottom frame
 
@@ -688,13 +670,10 @@ low long does it take to switch blocks?
 how long does it take to draw all the blocks?
 how long does it take to draw all messages?
 
-
 what about the other timing thing I was going to do?
 start of frame, and where everything else happened....not sure how useful that will be....
 
-I wanted to experiment with differnt s1 and s2 values, but I wanted to be able to actually measure some effect it has.
-that was the big push behind the program state thing, then the graph thing, then the settings menu because I want to be able
-to measure stuff...
+
 
 
 
@@ -839,8 +818,6 @@ can do page up and page down intelligently
 moving up and down by one line (or 10 or 100) will actually do what we expect
 -------------------------------------------------
 
-
-
 code stat to do optional alphabetical sort also optional skip header files
 
 
@@ -849,22 +826,6 @@ make a way to click and drag to move le window
 make a button to have le window show current item in center
 
 
-add a bunch of settings for bottom message:
-how many lines: 8 (max 20)
-float io = 1.0; // initial opacity
-float fo = 0.1; // final opacity
-float ivs = 0.5; // initial v size
-float fvs = 0.1; // final v size
-float ihs = 0.5; // initial h size
-float fhs = 0.1; // final h size
-
-which game events cause messages
-
-player tile, text or both
-enemy  tile, text or both
-item   tile, text or both
-
-how close the player has to be to reduce messages
 
 
 
@@ -1078,20 +1039,10 @@ netgame_main (or overview) the main landing page that gives the highest level de
 netgame_status..started
 
 
-
 netgame_server_setup
 like join, but from the client's side....
 
 maybe join should be more like client_join...
-
-
-
-
-
-
-
-
-
 
 
 links:

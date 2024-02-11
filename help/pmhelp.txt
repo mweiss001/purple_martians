@@ -862,7 +862,7 @@ Bombs and rockets will destroy these blocks.
 <c15>Sets the Draw Item to [item].
 
 
-<c09>View (item)
+<c09>View [item]
 
 <c15>Opens the viewer/editor for [item].
 

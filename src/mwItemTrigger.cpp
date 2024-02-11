@@ -16,6 +16,7 @@
 #include "mwGameEvent.h"
 #include "mwShot.h"
 #include "mwDemoMode.h"
+#include "mwDemoRecord.h"
 
 
 
@@ -60,7 +61,7 @@ int mwItem::proc_orb_shot_collision(int i)
          float by = mShot.p[b].y;
          if ((x > bx-s) && (x < bx+s) && (y > by-s) && (y < by+s))
          {
-            mDemoMode.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 3);
+            mDemoRecord.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 3);
             return 1;
          }
 
@@ -377,7 +378,7 @@ void mwItem::detect_trigger_collisions(int i)
             {
                flags |= PM_ITEM_TRIGGER_CURR;
 
-               mDemoMode.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 4);
+               mDemoRecord.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 4);
 
 
 

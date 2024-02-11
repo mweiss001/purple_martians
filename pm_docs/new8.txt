@@ -42763,6 +42763,23 @@ now all level have been done...
 re do level 49 single
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 20231226
 
 weird bug when tossing lit exploding bomb upward and it hits ceiling then ttl gets set...why??
@@ -42826,6 +42843,88 @@ this fixed that issue...
 what else get drawn directly on screen?
 purple coins
 now that is fixed also..
+
+
+
+
+
+
+copy from one player to another, where did that go??
+
+section, file?
+
+gm list...
+
+make it go from current section to record player....
+
+
+make insert fire move at current pos, on the pop-up menu for sectiom
+
+add insert game move at current pos
+
+20231231
+
+add shift at current pos, shifts everything after +1 or -1 frame
+
+show path for current player
+- how?
+iterate the level and record player positions in array
+but then how will I draw it? and match the level?
+
+I could just make a new level overlay and draw on it...
+
+---
+
+move all overlay to halfway pos, in mode 5
+
+
+I am in the middle of re-making level 55, ancient ruins
+
+
+
+
+20240210
+
+Move some of demo record into its own file (now demo_mode is 2700 lines)
+split mwDemoMode(2800) into mwDemoMode(400)  and mwDemoRecord (2000)
+...done
+
+Make the display of num of active enemy and player shots in the top frame optional? no just disable...done...
+
+Make the showing of frame number on player bullet optional, maybe only in demo_record
+if (!(mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD))
+done....
+
+
+Does purple coin draw funny in demo mode playback?
+yes
+
+how can I tell when demo mode is playing?
+
+int mwItem::draw_bonus(int i, int x, int y, int shape)
+{
+   if ((item[i][6] == 3) && (mLoop.frame_num > 0)) // purple coin
+   {
+      if (mLoop.state[0] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) return 1; // purple coin custom draw when game running
+      if ((mLoop.state[0] == PM_PROGRAM_STATE_DEMO_RECORD) && (mDemoRecord.play)) return 1;
+      if (mDemoMode.mode) return 1; // demo mode is playing
+   }
+   return 0;
+}
+fixed....
+
+
+Make a nice way to start demo_record mode (now its just SHIFT-D)
+Advanced section of settings demo page...done
+Diabled the keyboard shortcut in top_menu...done
+
+
+Finish level 55, ancient ruins
+is 55 in the main rotation? no.
+put down in words what you are trying to achieve here...
+I spent some time looking at it and I am at a loss....
+I reverted it!!
+
 
 
 

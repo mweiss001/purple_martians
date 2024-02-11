@@ -15,6 +15,7 @@
 #include "mwLogo.h"
 #include "mwBottomMessage.h"
 #include "mwDemoMode.h"
+#include "mwDemoRecord.h"
 
 #include "mwDisplay.h"
 #include "mwScreen.h"
@@ -370,7 +371,7 @@ void mwLoop::proc_program_state(void)
    if (state[1] == PM_PROGRAM_STATE_QUIT) main_loop_exit = 1; // quit
    if (state[1] == PM_PROGRAM_STATE_MENU) game_menu();  // game menu (this blocks)
    if (state[1] == PM_PROGRAM_STATE_CONFIG) mSettings.settings_pages(-1); // this blocks
-   if (state[1] == PM_PROGRAM_STATE_DEMO_RECORD) mDemoMode.demo_record(); // blocks
+   if (state[1] == PM_PROGRAM_STATE_DEMO_RECORD) mDemoRecord.demo_record(); // blocks
 
 
 

@@ -100,27 +100,6 @@
 #define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_RUN     41
 
 
-//state =  0; // quit
-//state =  1; // menu
-//state =  3; // config
-//
-//state = 10; // start new game
-//state = 11; // main game loop
-//state = 12; // level_done
-//state = 13; // resume
-//
-//state = 19; // server exit
-//state = 20; // start server game
-//state = 21; // client wait for initial state
-//state = 22; // client load level and set up
-//state = 23; // client wait for sjon
-//state = 24; // client init network and send cjon
-//state = 25; // client exit and clean up network
-//
-//state = 40; server remote control setup
-//state = 41; server remote control run
-
-
 #define PM_ITEM_TYPE_DOOR     1
 #define PM_ITEM_TYPE_BONUS    2
 #define PM_ITEM_TYPE_EXIT     3

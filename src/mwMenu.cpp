@@ -280,12 +280,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
          // shortcut keys
          if (mInput.key[ALLEGRO_KEY_L][0])                                    return 6; // level editor
          if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 5; // settings
-
-         if (mInput.key[ALLEGRO_KEY_D][0])                                    return 66; // demo record
-
-
-
-
+         //if (mInput.key[ALLEGRO_KEY_D][0])                                    return 66; // demo record
       }
       if (menu_num == 2)
       {

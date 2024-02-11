@@ -10,7 +10,7 @@
 #include "mwPlayer.h"
 #include "mwLift.h"
 #include "mwLoop.h"
-#include "mwDemoMode.h"
+#include "mwDemoRecord.h"
 #include "mwFont.h"
 #include "mwColor.h"
 
@@ -40,7 +40,7 @@ void mwShot::proc_pshot_collision(int p, int b)
       mPlayer.syn[p].y += mPlayer.syn[p].yinc;
    }
 
-   mDemoMode.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 2);
+   mDemoRecord.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 2);
 
    mShot.p[b].active = 0;  // shot dies
 }
@@ -151,7 +151,7 @@ void mwShot::move_pshots(void)
          if (d & PM_BTILE_BREAKABLE_PSHOT)
          {
             mLevel.change_block(x, y, 0);
-            mDemoMode.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 6);
+            mDemoRecord.mark_player_shot_used(mShot.p[b].player, mShot.p[b].active, 6);
             mShot.p[b].active = 0;  // shot is done
          }
 
@@ -166,7 +166,9 @@ void mwShot::draw_pshots()
       if (mShot.p[b].active)
       {
          al_draw_bitmap(mBitmap.player_tile[mPlayer.syn[mShot.p[b].player].color][18], mShot.p[b].x, mShot.p[b].y, 0);
-         al_draw_textf(mFont.pixl, mColor.pc[15], mShot.p[b].x+10, mShot.p[b].y+3, ALLEGRO_ALIGN_CENTER, "%d", mShot.p[b].active);
+
+         // overlay frame number of when bullet was shot (useful for doing muliplayer recording)
+         if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) al_draw_textf(mFont.pixl, mColor.pc[15], mShot.p[b].x+10, mShot.p[b].y+3, ALLEGRO_ALIGN_CENTER, "%d", mShot.p[b].active);
       }
 }
 
