@@ -11,8 +11,8 @@ set srv=%2
 
 
 IF [%2]==[] (
-set srv=96.45.13.253
-set srv=scat
+set srv=96.45.13.220
+REM set srv=scat
 )
 
 

@@ -1,0 +1,93 @@
+Editing tilesets with gimp
+--------------------------
+
+
+Download gimp-2.10.30
+
+open tiles.bmp
+
+image->configure grid 20x20 pixels and choose a light color
+view-> show grid
+view-> snap to grid
+view-> snap to canvas edges
+
+
+create new brush called pixel
+radius 0.5
+spikes 2
+hardness 1.0
+aspect 1.0
+angle 0.0
+spacing 1.0
+
++ and - to zoom
+
+copy and paste an existing tile then click the green anchor in layers
+
+O sets the eyedropper tool
+N set pencil
+
+then file->overwrite
+
+
+
+Changing block tiles
+--------------------
+
+make some new ones in gimp
+
+move tiles around also with copy tiles in pm
+add block flags in pm
+
+make tiles line up on row starts by editing 'em_set_swbl()'
+
+customize automatic group drawing in: 'em_set_block_range()'
+
+customize group match ranges in: 'int th_compare_tile(int rb, int cb, int group)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

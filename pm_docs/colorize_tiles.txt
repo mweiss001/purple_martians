@@ -1,7 +1,4 @@
 
-
-
-
 void colorize_tile(void)
 {
    al_set_target_backbuffer(display);
@@ -14,10 +11,7 @@ void colorize_tile(void)
 
    al_draw_bitmap(btile[139], 0, 0, 0);
 
-
-
    al_lock_bitmap(ctmp, al_get_bitmap_format(ctmp), ALLEGRO_LOCK_READWRITE);
-
 
    int cs = -1;
 
@@ -37,16 +31,8 @@ void colorize_tile(void)
   al_unlock_bitmap(ctmp);
   al_convert_mask_to_alpha(ctmp, al_map_rgb(0, 0, 0)) ;
 
-
-
    al_set_target_backbuffer(display);
    al_draw_bitmap(ctmp, 200, 200, 0);
-
-
-
-
-
-
 
    al_flip_display();
 

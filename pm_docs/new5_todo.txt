@@ -21,10 +21,40 @@ have not seen this happen for a long time
 ---------------------------------------------------------
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 I have been thinking about a major re-ordering of levels...
 I have so many mediocre ones mixed in with the great ones...
 I just want to re-arrange and put some more of them in the extra categories....
-
 
 
 right now I have:
@@ -38,6 +68,7 @@ right now I have:
 
 what if I was to remove 8 from regular and add them to extra
 
+which 8
 
 
 
@@ -86,6 +117,9 @@ before I put it away and move on?
 I think logs are always being saved on server
 I should be able to tell from that when players joins
 yes I can but it is not easily parseable
+
+
+
 
 
 
@@ -152,15 +186,6 @@ netgame_control_and_monitoring.html
 
 netgame_state_history.html
 netgame_state_and_dif.html
-
-
-
-
-
-
-
-
-
 
 
 
