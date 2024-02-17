@@ -186,6 +186,13 @@ void mwNetgame::headless_server_setup(void)
    // ensure that only the basic LOG_NET is active and is printing to console as well as saving to file
    mLog.clear_all_log_actions();
    mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG, 1);
+
+   // add these for troubleshooting
+   mLog.set_log_type_action(LOG_NET_stak, LOG_ACTION_LOG, 1);
+   mLog.set_log_type_action(LOG_NET_stdf, LOG_ACTION_LOG, 1);
+
+
+
    mLog.autosave_log_on_level_done = 1;
    mLog.autosave_log_on_level_quit = 1;
    mLog.autosave_log_on_program_exit = 1;
@@ -319,6 +326,7 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
       mPacketBuffer.PacketPutInt4(data, pos, dst);
       mPacketBuffer.PacketPutByte(data, pos, packet_num);
       mPacketBuffer.PacketPutByte(data, pos, num_packets);
+      mPacketBuffer.PacketPutByte(data, pos, mPlayer.syn[0].server_lev_seq_num);
       mPacketBuffer.PacketPutInt4(data, pos, start_byte);
       mPacketBuffer.PacketPutInt4(data, pos, packet_data_size);
 
@@ -450,9 +458,9 @@ void mwNetgame::server_proc_rctl_packet(int i)
    }
 
 
-
-
    if (type == PM_RCTL_PACKET_TYPE_server_reload) server_reload((int)val);
+
+
    if (type == PM_RCTL_PACKET_TYPE_fakekey_toggle) mPlayer.syn[0].server_force_fakekey = !mPlayer.syn[0].server_force_fakekey;
    if (type == PM_RCTL_PACKET_TYPE_force_client_offset) mPlayer.syn[0].server_force_client_offset = !mPlayer.syn[0].server_force_client_offset;
 
@@ -494,31 +502,51 @@ void mwNetgame::server_proc_stak_packet(int i)
    mStateHistory[p].set_ack_state(ack_frame_num);
 
    mLog.addf(LOG_NET_stak, p, "rx stak p:%d ack:[%d] cur:[%d] dsync:[%4.1f] chase:[%4.1f]\n", p, ack_frame_num, client_frame_num, mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].client_chase_fps);
+
+//   printf("rx stak p:%d ack:[%d] cur:[%d] dsync:[%4.1f] chase:[%4.1f]\n", p, ack_frame_num, client_frame_num, mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].client_chase_fps);
+
 }
 
 
 void mwNetgame::server_proc_player_drop(void)
 {
-   // check to see if we need to drop clients
-   int drop_frame_limit = mLoop.frame_num - 200;
+   if (mLoop.frame_num > 300) // don't even try until this far into the game
+   {
+      // check to see if we need to drop clients
+      int drop_frame_limit = mLoop.frame_num - 200;
 
-   for (int p=1; p<NUM_PLAYERS; p++)
-      if ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) && (mPlayer.loc[p].server_last_stak_rx_frame_num < drop_frame_limit))
-      {
-         mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 71); // make client inactive (reason no stak for x frames)
-         mLog.add_headerf(LOG_NET, p, 1, "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
-      }
+      for (int p=1; p<NUM_PLAYERS; p++)
+         if ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) && (mPlayer.loc[p].server_last_stak_rx_frame_num < drop_frame_limit))
+         {
+            mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 71); // make client inactive (reason no stak for x frames)
+            mLog.add_headerf(LOG_NET, p, 1, "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
+         }
+   }
+
+
+
+
+//   // temp testing
+//   if (mLoop.frame_num % 4000 == 0)
+//   {
+//      printf("mod 400\n");
+//
+//      for (int p=1; p<NUM_PLAYERS; p++)
+//         if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
+//         {
+//            mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 71); // make client inactive (reason no stak for x frames)
+//            mLog.add_headerf(LOG_NET, p, 1, "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
+//         }
+//   }
+
+
 }
 
 void mwNetgame::server_proc_limits(void)
 {
    if (mPlayer.syn[0].level_done_mode == 0) // only trigger from level done mode 0
    {
-
       int reload = 0;
-      int gm_limit = GAME_MOVES_SIZE - 100;
-      int tm_limit = 60 * 60 * 40; // 60s x 60m x 40fps == 144000 = 1h
-
 
       // if headless server and not overworld and no clients, go back to overworld
       if ((mMain.headless_server) && (mLevel.play_level != 1))
@@ -533,7 +561,8 @@ void mwNetgame::server_proc_limits(void)
          }
       }
 
-
+      int gm_limit = GAME_MOVES_SIZE - 100;
+      int tm_limit = 60 * 60 * 40; // 60s x 60m x 40fps == 144000 = 1h
       if (mGameMoves.entry_pos > gm_limit)
       {
          mLog.add_headerf(LOG_NET, 0, 1, "Server Approaching %d Game Moves! - Reload", GAME_MOVES_SIZE);
@@ -546,7 +575,6 @@ void mwNetgame::server_proc_limits(void)
       }
       if (reload) server_reload(1); // to overworld
    }
-
 }
 
 void mwNetgame::server_reload(int level)
@@ -626,6 +654,7 @@ void mwNetgame::server_send_sjon_packet(int who, int level, int frame, int playe
    mPacketBuffer.PacketPutInt4(data, pos, frame);
    mPacketBuffer.PacketPutByte(data, pos, player_num);
    mPacketBuffer.PacketPutByte(data, pos, player_color);
+   mPacketBuffer.PacketPutByte(data, pos, mPlayer.syn[0].server_lev_seq_num);
    ServerSendTo(data, pos, who);
 }
 
@@ -679,6 +708,7 @@ void mwNetgame::server_proc_cjon_packet(int i)
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Number:[%d]", cn);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Color:[%d]", color);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Frame:[%d]", mLoop.frame_num);
+      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Level Sequence Num:[%d]", mPlayer.syn[0].server_lev_seq_num);
       mLog.add_fwf(LOG_NET,               0, 76, 10, "+", "-", "");
    }
 }
@@ -771,40 +801,43 @@ void mwNetgame::server_send_file(int i)
    char dst[fsize + 128];
 
    // compress
-   uLongf destLen= sizeof(dst);
+   uLongf destLen = sizeof(dst);
    compress((Bytef*)dst, (uLongf*)&destLen, (Bytef*)buf, sizeof(buf));
    int dst_size = destLen;
    //printf("Compressed size:%d\n", dst_size);
 
    // break into pieces and send
    int num_packets = (dst_size / 1000) + 1;
-
-   //float cr = (float)dst_size*100 / (float)(fsize+128); // compression ratio
-   //printf("tx sfil fn:[%d] size:[%d] ratio:[%3.2f] [%d packets needed]\n", mLoop.frame_num, dst_size, cr, num_packets);
-
-   int start_byte = 0;
-   for (int packet_num=0; packet_num < num_packets; packet_num++)
+   if (num_packets > 200) printf("File [%s] transfer aborted (more than 200 packets required)\n", fname);
+   else
    {
-      int packet_data_size = 1000; // default size
-      if (start_byte + packet_data_size > dst_size) packet_data_size = dst_size - start_byte; // last piece is smaller
+      //float cr = (float)dst_size*100 / (float)(fsize+128); // compression ratio
+      //printf("tx sfil fn:[%d] size:[%d] ratio:[%3.2f] [%d packets needed]\n", mLoop.frame_num, dst_size, cr, num_packets);
 
-      //printf("tx sfil piece fn:[%d] packet:[%d of %d]\n", mLoop.frame_num, packet_num+1, num_packets);
+      int start_byte = 0;
+      for (int packet_num=0; packet_num < num_packets; packet_num++)
+      {
+         int packet_data_size = 1000; // default size
+         if (start_byte + packet_data_size > dst_size) packet_data_size = dst_size - start_byte; // last piece is smaller
 
-      char data[1024] = {0}; int pos;
-      mPacketBuffer.PacketName(data, pos, "sfil");
-      mPacketBuffer.PacketPutInt4(data, pos, files_to_send[i].id);
-      mPacketBuffer.PacketPutByte(data, pos, packet_num);
-      mPacketBuffer.PacketPutByte(data, pos, num_packets);
-      mPacketBuffer.PacketPutInt4(data, pos, start_byte);
-      mPacketBuffer.PacketPutInt4(data, pos, packet_data_size);
-      mPacketBuffer.PacketPutInt4(data, pos, fsize); // uncompressed file size
+         //printf("tx sfil piece fn:[%d] packet:[%d of %d]\n", mLoop.frame_num, packet_num+1, num_packets);
 
-      memcpy(data+pos, dst+start_byte, packet_data_size);
-      pos += packet_data_size;
+         char data[1024] = {0}; int pos;
+         mPacketBuffer.PacketName(data, pos, "sfil");
+         mPacketBuffer.PacketPutInt4(data, pos, files_to_send[i].id);
+         mPacketBuffer.PacketPutByte(data, pos, packet_num);
+         mPacketBuffer.PacketPutByte(data, pos, num_packets);
+         mPacketBuffer.PacketPutInt4(data, pos, start_byte);
+         mPacketBuffer.PacketPutInt4(data, pos, packet_data_size);
+         mPacketBuffer.PacketPutInt4(data, pos, fsize); // uncompressed file size
 
-      ServerSendTo(data, pos, files_to_send[i].who);
+         memcpy(data+pos, dst+start_byte, packet_data_size);
+         pos += packet_data_size;
 
-      start_byte+=1000;
+         ServerSendTo(data, pos, files_to_send[i].who);
+
+         start_byte+=1000;
+      }
    }
 }
 

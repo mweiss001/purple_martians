@@ -106,7 +106,7 @@ void mwItem::proc_exit_collision(int p, int i)
          mPlayer.syn[0].level_done_player = p;
          mPlayer.syn[0].level_done_frame = mLoop.frame_num;
 
-         if (mLevel.prev_level_loaded == 1) mPlayer.syn[0].level_done_next_level = 1;                   // if started from overworld, return there
+         if (!mMain.classic_mode) mPlayer.syn[0].level_done_next_level = 1;                             // in story mode all exits return to overworld
          else mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level, 199, 1);  // otherwise do next chron level
          mGameEvent.add(4, 0, 0, 0, 0, 0, 0);
       }

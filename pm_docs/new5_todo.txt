@@ -2,14 +2,9 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-clients are losing server connnection more than usual, look into why
-of course now they won't do it...
-why would a client lose server connection?
-only reason I can see is last stdf rx > 200 frames
-mPlayer.loc[p].client_last_stdf_rx_frame_num
-this gets set whenever a new stdf packet is received by client
-it gets reset to 0 with new level player init
-it gets set to frame+200 when client joins
+headless server, how do I make it save logs...
+I can't quit with CTRL-C in the terminal or kill the process...the log will not get saved
+I have to make a level done happen, (or reload level?...yes)
 
 
 sometimes weird artifacts show in level background, like msg from previous level??
@@ -20,36 +15,9 @@ have not seen this happen for a long time
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+Where do I have the IP hard coded into the game?
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+config?
 
 
 I have been thinking about a major re-ordering of levels...
@@ -70,27 +38,6 @@ what if I was to remove 8 from regular and add them to extra
 
 which 8
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 Make the autosaving of demos work...
 
 I think I am stuck on the part where I have par and best, but not my absolute best like in the demos...
@@ -108,6 +55,21 @@ Should I save that also?
 
 I would like to do it automatically...
 
+What is going on with the autosaving...I think it is in a not complete state....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 what to do to release?
 
@@ -117,6 +79,28 @@ before I put it away and move on?
 I think logs are always being saved on server
 I should be able to tell from that when players joins
 yes I can but it is not easily parseable
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

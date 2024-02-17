@@ -72,7 +72,6 @@ void mwLoop::initialize(void)
    pct_x = 0;
    pct_y = 0;
 
-   // frame_speed, frames per second, mwPS.frame_num stuff
    frame_speed = 40;
    frame_num = 0;
    speed_control_lock = 1;
@@ -129,7 +128,8 @@ void mwLoop::loop_frame(int times) // used for fast forwarding after rewind
 
 int mwLoop::have_all_players_acknowledged(void)
 {
-   int ret = 1; // yes by default
+   int ret = 1; // yes by default, if any have not then change to no
+
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))
@@ -166,9 +166,8 @@ void mwLoop::game_menu(void)
             return;
          }
 
-         if (top_menu_sel == 7)  // skc demo ??
+         if (top_menu_sel == 7) // demo
          {
-            //mLevel.skc_trigger_demo = 0;
             mDemoMode.run_single_from_menu(); // this blocks until done
          }
 
@@ -376,7 +375,6 @@ void mwLoop::proc_program_state(void)
 
 
 
-
 //-----------------------------------------------------------------
 // PM_PROGRAM_STATE_CLIENT_PREEXIT1
 //-----------------------------------------------------------------
@@ -407,7 +405,7 @@ void mwLoop::proc_program_state(void)
 //-----------------------------------------------------------------
 // PM_PROGRAM_STATE_CLIENT_EXIT
 //-----------------------------------------------------------------
-   if (state[1] == PM_PROGRAM_STATE_CLIENT_EXIT) // client exit
+   if (state[1] == PM_PROGRAM_STATE_CLIENT_EXIT)
    {
       mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_EXIT]\n");
       mNetgame.ClientExitNetwork();
@@ -483,16 +481,8 @@ void mwLoop::proc_program_state(void)
 
       mNetgame.client_apply_dif();
 
-      if (frame_num > 0)
-      {
-         int p = mPlayer.active_local_player;
-         // set holdoff 200 frames in future so client won't try to drop while syncing
-         mPlayer.loc[p].client_last_stdf_rx_frame_num = frame_num + 200;
-         state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
-      }
+      if (frame_num > 0) state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
    }
-
-
 
 //---------------------------------------
 // PM_PROGRAM_STATE_SERVER_NEW_GAME
@@ -513,13 +503,12 @@ void mwLoop::proc_program_state(void)
 //---------------------------------------
 // PM_PROGRAM_STATE_SERVER_EXIT
 //---------------------------------------
-   if (state[1] == PM_PROGRAM_STATE_SERVER_EXIT) // server exit
+   if (state[1] == PM_PROGRAM_STATE_SERVER_EXIT)
    {
       mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SERVER_EXIT]\n");
       mNetgame.ServerExitNetwork();
       state[0] = PM_PROGRAM_STATE_MENU;
    }
-
 
 //---------------------------------------
 // PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME
@@ -535,7 +524,6 @@ void mwLoop::proc_program_state(void)
       if (quit_action == 0) mScreen.transition_cutscene(0, 1); // nothing to game
       if (quit_action == 1) mScreen.transition_cutscene(2, 1); // menu to game
    }
-
 
 //----------------------------------------------------------------------------------------------------------
 // PM_PROGRAM_STATE_NEXT_LEVEL
@@ -556,12 +544,13 @@ void mwLoop::proc_program_state(void)
       {
          mNetgame.ClientFlush();
          mLog.log_ending_stats_client(LOG_NET_ending_stats, mPlayer.active_local_player);
+         if (++mPlayer.syn[0].server_lev_seq_num > 255) mPlayer.syn[0].server_lev_seq_num = 0;
       }
-
       if (mNetgame.ima_server)
       {
          mNetgame.ServerFlush();
          mLog.log_ending_stats_server(LOG_NET_ending_stats);
+         if (++mPlayer.syn[0].server_lev_seq_num > 255) mPlayer.syn[0].server_lev_seq_num = 0;
       }
       if (mLog.autosave_log_on_level_done) mLog.save_log_file();
       if (mGameMoves.autosave_game_on_level_done) mGameMoves.save_gm_make_fn("autosave on level done");
@@ -739,6 +728,7 @@ int mwLoop::load_and_setup_level(int level, int type)
          setup_players_after_level_load(1); // type 1 full reset,
          strncpy(mPlayer.loc[0].hostname, local_hostname, 16);
          mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
+         mPlayer.syn[0].server_lev_seq_num = 0;
       }
 
       if (type == 4) // DEMO

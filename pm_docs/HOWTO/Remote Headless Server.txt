@@ -1,0 +1,194 @@
+Setting up a remote headless server
+
+20240211
+
+Follow the instructions to set up a dev system on ubuntu:
+'pm_docs\dev setup\linux\ubuntu_dev_setup_20230824.txt'
+
+
+This will be a non-gui version of ubuntu.
+
+You will do all administering remotely, via ssh and other tools.
+
+So obviously you need to know the IP address, and ideally it should be static.
+
+
+
+
+When I do the official pm server, I will get a static IP and save with the release.
+
+96.45.13.220
+
+The place to save it is in the config:
+
+   val = al_get_config_value(cfg, "NETWORK", "server_IP");
+   if (!val) sprintf(mNetgame.serveraddress, "96.45.13.220");
+   else sprintf(mNetgame.serveraddress, "%s", val);
+
+
+
+
+
+ssh into the server
+cd ~/dev/purple_martians
+
+
+
+---------------------------------------------------------
+Starting and stopping the purple martians server process
+---------------------------------------------------------
+
+ssh into the server
+cd ~/dev/purple_martians
+
+
+./pm -sh
+(this will only run as long as the ssh session is alive)
+
+nohup ./pm -sh &
+(this will stay running after the ssh session is ended)
+
+
+top
+(to show the process running)
+
+kill <PID>
+(to stop the process)
+
+trying to run a 2nd instance fails when a opening a listening channel...
+
+
+
+---------------------------------------------------------
+Remote control and monitoring 
+---------------------------------------------------------
+From another computer with a gui (win or lin)
+
+start purple martians with the option -rc
+
+windows:
+pm -rc
+
+linux
+./pm -rc 
+
+
+
+
+---------------------------------------------------------
+Forced Settings on headless server
+---------------------------------------------------------
+
+void mwNetgame::headless_server_setup(void)
+{
+   mMain.classic_mode = 0;
+   mLevel.unlock_all_levels();
+
+   // ensure that only the basic LOG_NET is active and is printing to console as well as saving to file
+   mLog.clear_all_log_actions();
+   mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG, 1);
+   mLog.autosave_log_on_level_done = 1;
+   mLog.autosave_log_on_level_quit = 1;
+   mLog.autosave_log_on_program_exit = 1;
+
+   // make sure we are always saving games
+   mGameMoves.autosave_game_on_level_done = 1;
+   mGameMoves.autosave_game_on_program_exit = 1;
+
+   mConfig.save_config();
+}
+
+
+
+
+
+---------------------------------------------------------
+Server copies files to clients
+---------------------------------------------------------
+Who initiates this?
+
+It looks like the function:
+void mwGameMoves::save_gm(const char *fname)
+
+does it for all clients
+
+ if (mNetgame.ima_server) // if server, send to all active clients
+ {
+	for (int p=1; p<NUM_PLAYERS; p++)
+	   if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
+		  mNetgame.server_add_file_to_send(fname, mPlayer.loc[p].who);
+ }
+
+
+
+it also looks like there is this option:
+
+void mwNetgame::server_proc_crfl_packet(int i)
+{
+   //printf("rx crfl\n");
+   mGameMoves.save_gm_make_fn("server save on rx crfl packet");
+}
+
+client can request this in two places
+
+
+
+   if (state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT1)
+   {
+      if (mGameMoves.autosave_game_on_level_quit)
+      {
+         // when client quits with escape, send a file request to the server to get the gm file
+         mNetgame.client_send_crfl();
+         state[0] = PM_PROGRAM_STATE_CLIENT_PREEXIT2;
+      }
+      else state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
+   }
+
+   if ((mNetgame.ima_client) && (serial_key_test("sendfile"))) mNetgame.client_send_crfl();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

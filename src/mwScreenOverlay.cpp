@@ -595,9 +595,9 @@ void mwScreen::cdg_show(int x, int y) // client debug grid
    al_draw_filled_rectangle(x, y, x+400, y+73, mColor.pc[0]);
    y+=1;
    sdg_show_column(1, x, y); // player number
-//   sdg_show_column(2, x, y); // active
-//   sdg_show_column(3, x, y); // color
-//   sdg_show_column(4, x, y); // control method
+   sdg_show_column(2, x, y); // active
+   sdg_show_column(3, x, y); // color
+   sdg_show_column(4, x, y); // control method
 
    sdg_show_column(9, x, y);  // client base resets
    sdg_show_column(28, x, y); // rewind
@@ -753,7 +753,7 @@ void mwScreen::draw_server_debug_overlay(int &cx, int &cy)
 
    if (mSettings.overlay_grid[3][mLoop.show_debug_overlay])
    {
-      sdg_show(cx, cy); // client debug grid
+      sdg_show(cx, cy); // server debug grid
       cy +=77;
    }
    mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_sgrid", al_get_time() - t0);
@@ -1296,8 +1296,10 @@ void mwScreen::draw_screen_overlay(void)
 
    //draw_viewport_debug_overlay(p, cx, cy);
 
-   if (mNetgame.ima_server)  draw_server_debug_overlay(cx, cy);
-   if (mNetgame.ima_client)  draw_client_debug_overlay(cx, cy);
+   draw_client_debug_overlay(cx, cy);
+
+//   if (mNetgame.ima_server)  draw_server_debug_overlay(cx, cy);
+//   if (mNetgame.ima_client)  draw_client_debug_overlay(cx, cy);
 
    if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) draw_demo_debug_overlay(p, cx, cy);
 

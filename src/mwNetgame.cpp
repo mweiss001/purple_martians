@@ -28,8 +28,6 @@ mwNetgame::mwNetgame()
    for (int i=0; i<20; i++)
       files_to_send[i].active = 0;
 
-
-
    ServerChannel = NULL;
    ClientNum = 0;
    ListenChannel = NULL;                   // listen channel
