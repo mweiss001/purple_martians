@@ -1,6 +1,6 @@
 // pm.h
 
-#define PM_VERSION "7.24.240211.0"
+#define PM_VERSION "7.24.240217.1"
 
 #include <stdio.h>
 #include <math.h>
@@ -62,9 +62,7 @@
 #define PM_NETGAME_PACKET_TYPE_CJRC 4
 #define PM_NETGAME_PACKET_TYPE_RCTL 5
 #define PM_NETGAME_PACKET_TYPE_SFAK 6
-
 #define PM_NETGAME_PACKET_TYPE_CRFL 7
-
 
 #define PM_NETGAME_PACKET_TYPE_STDF 11
 #define PM_NETGAME_PACKET_TYPE_SJON 12

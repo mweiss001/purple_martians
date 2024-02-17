@@ -1,0 +1,94 @@
+How to make a new release:
+
+
+--------------------------------------------------------------
+Step 1: Choose a version number and change it in three places:
+--------------------------------------------------------------
+
+pm.h
+#define PM_VERSION "7.24.240211.0"
+
+win_make_release.bat
+set version=7.24.240211.0
+
+lin_make_release
+version=7.24.240211.0
+
+
+-------------------------------------------------------
+Step 2: rebuild entire project in codeblocks
+-------------------------------------------------------
+
+
+
+-------------------------------------------------------
+Step 3: git commit
+-------------------------------------------------------
+
+
+
+-------------------------------------------------------
+Step 4: windows version
+-------------------------------------------------------
+
+Run 'win_make_release.bat'
+this will create a folder and copy all files needed for the release into that folder
+
+Right click on the folder and open with winrar 'add to archive'
+In winrar choose '.zip' instead of '.rar' and click OK
+
+You now have the zip file for the release....
+
+
+-------------------------------------------------------
+Step 5: linux version
+-------------------------------------------------------
+Follow the instructions to set up a dev system on ubuntu:
+'pm_docs\dev setup\linux\ubuntu_dev_setup_20230824.txt'
+
+from the windows machine
+win_copy_to_pmh.bat git_reclone
+win_copy_to_pmh.bat lin_build_and_release
+
+If everything works a tar.gz file will be copied to the windows system.
+
+If not, all the info needed to troubleshoot will be in:
+'pm_docs\dev setup\linux\ubuntu_dev_setup_20230824.txt' 
+
+
+
+
+-------------------------------------------------------
+Step 6: uploading the new versions to github
+-------------------------------------------------------
+
+log into github
+
+https://github.com/mweiss001/purple_martians
+
+
+go to 'Releases', then 'Draft a New Release'
+
+
+Under Choose a tad create a new one with the version number 7.24.240211.0
+
+Put the same for Release Title
+
+Add some text to describe this release (optional)
+
+Drag and drop the 2 files from step 4 and 5
+
+Click 'Publish'
+
+
+-------------------------------------------------------
+Step 7: delete the temp files
+-------------------------------------------------------
+
+Delete the zip file, and folder created in step 4
+
+Delete the tar.gz file created in step 5
+
+
+
+

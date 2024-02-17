@@ -1,0 +1,60 @@
+Server Client File Transfer
+
+
+A method to transfer a file between server and client with an estabilished connection.
+
+Why?
+
+
+I was thinking of using this also to send logs, but that has not yet been implemented.
+
+
+
+--------------------------------------------------------
+Case 1: Transfer the Server's .gm file to all clients
+--------------------------------------------------------
+
+The game moves array on client is incomplete and could never be used to play back the level.
+It only has game moves from the local client.
+
+The game moves array on the server can be saved to a gm file and sent to the client.
+
+
+Where and how does this happen:
+-------------------------------
+void mwGameMoves::save_gm_make_fn(const char* description)
+calls the function:
+void mwGameMoves::save_gm(const char *fname)
+that has this code:
+
+         if (mNetgame.ima_server) // if server, send to all active clients
+         {
+            for (int p=1; p<NUM_PLAYERS; p++)
+               if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
+                  mNetgame.server_add_file_to_send(fname, mPlayer.loc[p].who);
+         }
+
+So it can only happen on the server, and only when this function is called.
+
+
+When is this function called?
+----------------------------------
+
+- in mLoop at 'level_done' or 'level_quit'
+- in function key check force save
+- when server receives crfl packet 
+
+When does client send crfl?
+---------------------------
+-  if ((mNetgame.ima_client) && (serial_key_test("sendfile"))) mNetgame.client_send_crfl();
+
+-  if (state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT1)
+   {
+      if (mGameMoves.autosave_game_on_level_quit)
+      {
+         // when client quits with escape, send a file request to the server to get the gm file
+         mNetgame.client_send_crfl();
+
+
+
+

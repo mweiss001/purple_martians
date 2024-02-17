@@ -259,7 +259,7 @@ void mwConfig::load_config(void)
    agci(SOUND, mSound.st_scaler, 1)
 
    val = al_get_config_value(cfg, "NETWORK", "server_IP");
-   if (!val) sprintf(mNetgame.serveraddress, "96.45.13.253");
+   if (!val) sprintf(mNetgame.serveraddress, "96.45.13.220");
    else sprintf(mNetgame.serveraddress, "%s", val);
 
    agci(NETWORK, mPlayer.syn[0].player_vs_player_shots, 1)

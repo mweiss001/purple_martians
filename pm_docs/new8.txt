@@ -39819,8 +39819,9 @@ like, logs, savegames, even levels.
 
 
 
-
 document how to set up assocations in windows so the clicking on a .gm file plays it...
+
+
 
 
 
@@ -40722,6 +40723,7 @@ maybe make a function that removes ack
 or maybe actually use it to have a pause at the end of a complete level
 
 
+
 20231201
 
 add the shot config game move....
@@ -41132,9 +41134,8 @@ make that optional
 
 add time/frame to one line section details...done
 
-
-
 when changing player 0 it gets saved to the config, I would like to not do that....
+
 
 
 
@@ -42881,8 +42882,6 @@ move all overlay to halfway pos, in mode 5
 I am in the middle of re-making level 55, ancient ruins
 
 
-
-
 20240210
 
 Move some of demo record into its own file (now demo_mode is 2700 lines)
@@ -42916,418 +42915,13 @@ fixed....
 
 Make a nice way to start demo_record mode (now its just SHIFT-D)
 Advanced section of settings demo page...done
-Diabled the keyboard shortcut in top_menu...done
-
+Disabled the keyboard shortcut in top_menu...done
 
 Finish level 55, ancient ruins
 is 55 in the main rotation? no.
 put down in words what you are trying to achieve here...
 I spent some time looking at it and I am at a loss....
 I reverted it!!
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 remove lower frame text, 'running saved game' for demo record mode...done
@@ -43338,618 +42932,1713 @@ context pop up menu for timeline
 
 
 
+20140211
 
+figure out what is happening with autosaving...I think it is in a not complete state....
 
 
 
 
 
 
+start with with -c
+exit to menu
+start server from menu
+cannot use esc to quit
+actually cannot use esc to quit server at any time
 
+actually its even worse, running server has no local control at at all!! WTF why?
 
 
 
 
+this gets called every loop:
 
+i want to modify it, this is the original
 
 
+void mwPlayer::proc_player_input(void)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      if (syn[p].active) // cycle all active players
+      {
+         int cm = syn[p].control_method;
+         if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) || (cm == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL) || (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL))
+         {
+            if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
+            {
+               set_comp_move_from_player_key_check(p);
 
+               // even in fakekey mode allow ESC or menu
+               if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey))
+                  if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
 
+               if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
+               {
+                  if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) && (p == active_local_player))
+                     mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, loc[p].comp_move); // add to game moves array
 
+                  // in client mode, send cdat packet, and apply move directly to controls
+                  if (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)
+                  {
+                     mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, loc[p].comp_move); // add to game moves array
+                     mNetgame.client_send_cdat_packet(p);
+                     set_controls_from_comp_move(p, loc[p].comp_move);
+                     if (syn[p].menu) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_PREEXIT1; // menu key pressed
+                     mLog.addf(LOG_NET_cdat, p, "tx cdat - move:%d\n", loc[p].comp_move);
+                  }
 
+
+
+               }
+            }
+         }
+      }
+      else if (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL) // client waiting for server to make it active
+      {
+         if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT; // give them an escape option
+      }
+   }
+}
 
 
+first of all put this test outside the loop:
+it makes no sense inside the loop
 
+if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
 
 
 
 
+void mwPlayer::proc_player_input(void)
+{
+   if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
+      for (int p=0; p<NUM_PLAYERS; p++)
+      {
+         if (syn[p].active) // cycle all active players
+         {
+            int cm = syn[p].control_method;
 
+            // these are the only local control methods
+            if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) || (cm == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL) || (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL))
+            {
+               set_comp_move_from_player_key_check(p);
 
+               // even in fakekey mode allow ESC or menu
+               if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey))
+                  if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
 
+               if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
+               {
+                  mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, loc[p].comp_move); // add to game moves array
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                  // in client mode, also send cdat packet, and apply move directly to controls
+                  if (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)
+                  {
+                     mNetgame.client_send_cdat_packet(p);
+                     set_controls_from_comp_move(p, loc[p].comp_move);
+                     if (syn[p].menu) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_PREEXIT1; // menu key pressed
+                     mLog.addf(LOG_NET_cdat, p, "tx cdat - move:%d\n", loc[p].comp_move);
+                  }
+               }
+            }
+         }
+         else if (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL) // client waiting for server to make it active
+         {
+            if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT; // give them an escape option
+         }
+      }
+}
+
+
+final version:
+
+void mwPlayer::proc_player_input(void)
+{
+   if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
+      for (int p=0; p<NUM_PLAYERS; p++)
+      {
+         if (syn[p].active) // cycle all active players
+         {
+            int cm = syn[p].control_method;
+            if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) || (cm == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL) || (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)) // these are the only local control methods
+            {
+               set_comp_move_from_player_key_check(p);
+
+               // fakekey mode
+               if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey))
+               {
+                  // even in fakekey mode allow ESC or menu
+                  if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
+               }
+
+
+               if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
+               {
+                  mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, loc[p].comp_move); // add to game moves array
+
+                  // in client mode, also send cdat packet, and apply move directly to controls
+                  if (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)
+                  {
+                     mNetgame.client_send_cdat_packet(p);
+                     set_controls_from_comp_move(p, loc[p].comp_move);
+                     if (syn[p].menu) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_PREEXIT1; // menu key pressed
+                  }
+               }
+            }
+         }
+         else if (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL) // client waiting for server to make it active
+         {
+            if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT; // give them an escape option
+         }
+      }
+}
+
+
+
+
+
+
+
+clients are losing server connnection more than usual, look into why
+of course now they won't do it...
+why would a client lose server connection?
+only reason I can see is last stdf rx > 200 frames
+mPlayer.loc[p].client_last_stdf_rx_frame_num
+this gets set whenever a new stdf packet is received by client
+it gets reset to 0 with new level player init
+it gets set to frame+200 when client joins
+
+
+
+client loses server connection
+
+[10][0][138526]+--------------------------------------------------------------------------+
+[10][0][138526]|        Server received join request from m36 requesting color:10         |
+[10][0][138526]|        Server replied with join invitation:                              |
+[10][0][138526]+--------------------------------------------------------------------------+
+[10][0][138925]+--------------------------------------------------------------------------+
+[10][0][138925]|                                                                          |
+[10][0][138925]|                             NEXT LEVEL:80                                |
+[10][0][138925]|                                                                          |
+[10][0][138925]+--------------------------------------------------------------------------+
+logs/20240211-133721-[1][pmh].txt saved
+Never save demo for overworld
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 80 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[10][1][204]+--------------------------------------------------------------------------+
+[10][1][204]|                                                                          |
+[10][1][204]|                Server dropped player:1 (last stak rx:3)                  |
+[10][1][204]|                                                                          |
+[10][1][204]+--------------------------------------------------------------------------+
+[10][1][205]+--------------------------------------------------------------------------+
+[10][1][205]|                                                                          |
+[10][1][205]|                Server dropped player:1 (last stak rx:3)                  |
+[10][1][205]|                                                                          |
+[10][1][205]+--------------------------------------------------------------------------+
+
+
+and what is even worse is that the client ends up in a weird limbo state
+
+not single player, not client....
+
+
+lets try to track this down:
+
+made this change
+
+void mwNetgame::server_proc_player_drop(void)
+{
+   if (mLoop.frame_num > 300) // don't even try until this far into the game
+   {
+      // check to see if we need to drop clients
+      int drop_frame_limit = mLoop.frame_num - 200;
+
+      for (int p=1; p<NUM_PLAYERS; p++)
+         if ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) && (mPlayer.loc[p].server_last_stak_rx_frame_num < drop_frame_limit))
+         {
+            mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 71); // make client inactive (reason no stak for x frames)
+            mLog.add_headerf(LOG_NET, p, 1, "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
+         }
+   }
+}
+
+
+
+now I want to fail properly on the client if it does trigger
+
+
+new test:
+
+
+
+
+
+rx stak p:1 ack:[545] cur:[547] dsync:[-29.6] chase:[40.4]
+rx stak p:1 ack:[546] cur:[548] dsync:[-28.6] chase:[40.5]
+rx stak p:1 ack:[547] cur:[549] dsync:[-28.7] chase:[40.5]
+[10][0][549]+--------------------------------------------------------------------------+
+[10][0][549]|                                                                          |
+[10][0][549]|                             NEXT LEVEL:80                                |
+[10][0][549]|                                                                          |
+[10][0][549]+--------------------------------------------------------------------------+
+logs/20240212-071555-[1][pmh].txt saved
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 80 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+rx stak p:1 ack:[-1] cur:[1] dsync:[1685.4] chase:[70.0]
+rx stak p:1 ack:[-1] cur:[2] dsync:[3398.5] chase:[70.0]
+rx stak p:1 ack:[-1] cur:[3] dsync:[5111.9] chase:[70.0]
+rx stak p:1 ack:[-1] cur:[4] dsync:[5111.9] chase:[70.0]
+rx stak p:1 ack:[-1] cur:[5] dsync:[5111.9] chase:[70.0]
+rx stak p:1 ack:[-1] cur:[16] dsync:[-145.8] chase:[31.1]
+rx stak p:1 ack:[-1] cur:[17] dsync:[-154.0] chase:[30.4]
+rx stak p:1 ack:[-1] cur:[18] dsync:[-154.0] chase:[30.4]
+rx stak p:1 ack:[12] cur:[19] dsync:[-159.7] chase:[30.0]
+rx stak p:1 ack:[14] cur:[20] dsync:[-162.4] chase:[29.8]
+rx stak p:1 ack:[15] cur:[21] dsync:[-161.3] chase:[29.9]
+
+
+
+
+
+actually I think I am going about this all wrong!!!
+
+the client is the one that initiates the LOST SERVER CONNECTION
+
+
+I just did a test and the client quit immediately but the server did di do the drop until 10s later!!!
+
+
+
+
+rx stak p:1 ack:[268] cur:[270] dsync:[-38.2] chase:[39.8]
+rx stak p:1 ack:[269] cur:[271] dsync:[-39.3] chase:[39.7]
+rx stak p:1 ack:[270] cur:[272] dsync:[-39.7] chase:[39.7]
+rx stak p:1 ack:[271] cur:[273] dsync:[-39.5] chase:[39.7]
+rx stak p:1 ack:[-1] cur:[1] dsync:[812.4] chase:[70.0]
+rx stak p:1 ack:[-1] cur:[2] dsync:[812.4] chase:[70.0]
+[10][0][274]+--------------------------------------------------------------------------+
+[10][0][274]|                                                                          |
+[10][0][274]|                             NEXT LEVEL:80                                |
+[10][0][274]|                                                                          |
+[10][0][274]+--------------------------------------------------------------------------+
+logs/20240212-071905-[1][pmh].txt saved
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 80 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+rx stak p:1 ack:[-1] cur:[3] dsync:[812.4] chase:[70.0]
+rx stak p:1 ack:[-1] cur:[4] dsync:[1663.5] chase:[70.0]
+rx stak p:1 ack:[-1] cur:[5] dsync:[2513.4] chase:[70.0]
+rx stak p:1 ack:[-1] cur:[6] dsync:[2513.4] chase:[70.0]
+rx stak p:1 ack:[-1] cur:[7] dsync:[3356.0] chase:[70.0]
+rx stak p:1 ack:[275] cur:[275] dsync:[4196.1] chase:[70.0]
+[10][1][301]+--------------------------------------------------------------------------+
+[10][1][301]|                                                                          |
+[10][1][301]|                Server dropped player:1 (last stak rx:4)                  |
+[10][1][301]|                                                                          |
+[10][1][301]+--------------------------------------------------------------------------+
+[10][1][302]+--------------------------------------------------------------------------+
+[10][1][302]|                                                                          |
+[10][1][302]|                Server dropped player:1 (last stak rx:4)                  |
+[10][1][302]|                                                                          |
+[10][1][302]+--------------------------------------------------------------------------+
+[10][1][303]+--------------------------------------------------------------------------+
+[10][1][303]|                                                                          |
+[10][1][303]|                Server dropped player:1 (last stak rx:4)                  |
+[10][1][303]|                                                                          |
+[10][1][303]+--------------------------------------------------------------------------+
+[10][1][304]+--------------------------------------------------------------------------+
+[10][1][304]|                                                                          |
+[10][1][304]|                Server dropped player:1 (last stak rx:4)                  |
+[10][1][304]|                                                                          |
+[10][1][304]+--------------------------------------------------------------------------+
+[10][1][305]+--------------------------------------------------------------------------+
+[10][1][305]|                                                                          |
+[10][1][305]|                Server dropped player:1 (last stak rx:4)                  |
+[10][1][305]|                                                                          |
+[10][1][305]+--------------------------------------------------------------------------+
+[10][1][305]+--------------------------------------------------------------------------+
+[10][1][305]|        Player:1 became INACTIVE!                                         |
+[10][1][305]+--------------------------------------------------------------------------+
+[10][0][306]+--------------------------------------------------------------------------+
+[10][0][306]|                                                                          |
+[10][0][306]|               Headless Server with no clients! - Reload                  |
+[10][0][306]|                                                                          |
+[10][0][306]+--------------------------------------------------------------------------+
+[10][0][316]+--------------------------------------------------------------------------+
+[10][0][316]|                                                                          |
+[10][0][316]|                              NEXT LEVEL:1                                |
+[10][0][316]|                                                                          |
+[10][0][316]+--------------------------------------------------------------------------+
+logs/20240212-071913-[80][pmh].txt saved
+saved:savegame/20240212-071913-[80]-autosave on level done.gm
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 1 STARTED                               |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+
+
+from the client, but did not die...
+
+[27][1][1349]rx dif complete [1344 to 1347] - uncompressed
+[27][1][1349]rx dif complete [1344 to 1348] - uncompressed
+[33][1][1349]tx stak p:1 ack:[1348] cur:[1349]
+[10][0][1349]+--------------------------------------------------------------------------+
+[10][0][1349]|                                                                          |
+[10][0][1349]|                             NEXT LEVEL:80                                |
+[10][0][1349]|                                                                          |
+[10][0][1349]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 80 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[27][1][1]rx dif complete [1348 to 1349] - uncompressed
+[33][1][1]tx stak p:1 ack:[-1] cur:[1]
+[27][1][2]rx dif complete [1348 to 1350] - uncompressed
+[33][1][2]tx stak p:1 ack:[-1] cur:[2]
+[33][1][3]tx stak p:1 ack:[-1] cur:[3]
+[27][1][4]rx dif complete [-1 to 2] - uncompressed
+[27][1][6]rx dif complete [-1 to 3] - uncompressed
+[27][1][7]rx dif complete [-1 to 4] - uncompressed
+[27][1][9]rx dif complete [-1 to 5] - uncompressed
+[27][1][11]rx dif complete [-1 to 6] - uncompressed
+[27][1][13]rx dif complete [-1 to 7] - uncompressed
+[27][1][14]rx dif complete [-1 to 8] - uncompressed
+[27][1][15]rx dif complete [9 to 9] - uncompressed
+[27][1][15]rx dif complete [9 to 10] - uncompressed
+
+
+there is some concerning stuff here:
+
+still receiving dif from last level...
+
+why is client sending -1?
+
+
+
+[33][1][411]tx stak p:1 ack:[408] cur:[411]
+[27][1][412]rx dif complete [406 to 409] - uncompressed
+[30][1][412]----- Apply dif [406 to 409] [applied] [rewound [3] frames]
+[33][1][412]tx stak p:1 ack:[409] cur:[412]
+[27][1][413]rx dif complete [407 to 410] - uncompressed
+[30][1][413]----- Apply dif [407 to 410] [applied] [rewound [3] frames]
+[33][1][413]tx stak p:1 ack:[410] cur:[413]
+[10][0][413]+--------------------------------------------------------------------------+
+[10][0][413]|                                                                          |
+[10][0][413]|                             NEXT LEVEL:80                                |
+[10][0][413]|                                                                          |
+[10][0][413]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 80 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[27][1][1]rx dif complete [408 to 412] - uncompressed
+[27][1][1]rx dif complete [409 to 413] - uncompressed
+[30][1][1]----- Apply dif [409 to 413] [33][1][1]tx stak p:1 ack:[-1] cur:[1]
+[not applied] [base not found] - resending stak [-1]
+[27][1][2]rx dif complete [410 to 414] - uncompressed
+[30][1][2]----- Apply dif [410 to 414] [33][1][2]tx stak p:1 ack:[-1] cur:[2]
+[not applied] [base not found] - resending stak [-1]
+[30][1][3]----- Apply dif [410 to 414] [33][1][3]tx stak p:1 ack:[-1] cur:[3]
+[not applied] [base not found] - resending stak [-1]
+[30][1][4]----- Apply dif [410 to 414] [33][1][4]tx stak p:1 ack:[-1] cur:[4]
+[not applied] [base not found] - resending stak [-1]
+[30][1][5]----- Apply dif [410 to 414] [33][1][5]tx stak p:1 ack:[-1] cur:[5]
+[not applied] [base not found] - resending stak [-1]
+[27][1][6]rx dif complete [0 to 2] - uncompressed
+[30][1][6]----- Apply dif [0 to 2] [applied] [rewound [4] frames]
+[33][1][6]tx stak p:1 ack:[2] cur:[6]
+[30][1][7]----- Apply dif [0 to 2] [not applied] [not newer than last dif applied]
+[30][1][8]----- Apply dif [0 to 2] [not applied] [not newer than last dif applied]
+[27][1][9]rx dif complete [-1 to 3] - uncompressed
+[30][1][9]----- Apply dif [-1 to 3] [not applied] [dif not valid]
+[27][1][10]rx dif complete [-1 to 4] - uncompressed
+[30][1][10]----- Apply dif [-1 to 4] [not applied] [dif not valid]
+[27][1][11]rx dif complete [2 to 5] - uncompressed
+[30][1][11]----- Apply dif [2 to 5] [applied] [rewound [6] frames]
+[33][1][11]tx stak p:1 ack:[5] cur:[11]
+[27][1][12]rx dif complete [2 to 6] - uncompressed
+[30][1][12]----- Apply dif [2 to 6] [applied] [rewound [6] frames]
+[33][1][12]tx stak p:1 ack:[6] cur:[12]
+
+
+changed order so stak gets sent after  [not applied]
+ran again and captured a drop!
+
+
+[27][1][72540]rx dif complete [72534 to 72537] - uncompressed
+[30][1][72540]----- Apply dif [72534 to 72537] [applied] [rewound [3] frames]
+[33][1][72540]tx stak p:1 ack:[72537] cur:[72540]
+[27][1][72541]rx dif complete [72534 to 72538] - uncompressed
+[30][1][72541]----- Apply dif [72534 to 72538] [applied] [rewound [3] frames]
+[33][1][72541]tx stak p:1 ack:[72538] cur:[72541]
+[10][0][72541]+--------------------------------------------------------------------------+
+[10][0][72541]|                                                                          |
+[10][0][72541]|                             NEXT LEVEL:80                                |
+[10][0][72541]|                                                                          |
+[10][0][72541]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 80 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[27][1][1]rx dif complete [72534 to 72539] - uncompressed
+[27][1][1]rx dif complete [72536 to 72540] - uncompressed
+[30][1][1]----- Apply dif [72536 to 72540] [not applied] [base not found] - resending stak [-1]
+[33][1][1]tx stak p:1 ack:[-1] cur:[1]
+[30][1][2]----- Apply dif [72536 to 72540] [not applied] [base not found] - resending stak [-1]
+[33][1][2]tx stak p:1 ack:[-1] cur:[2]
+[27][1][3]rx dif complete [72538 to 72541] - uncompressed
+[30][1][3]----- Apply dif [72538 to 72541] [not applied] [base not found] - resending stak [-1]
+[33][1][3]tx stak p:1 ack:[-1] cur:[3]
+[30][1][4]----- Apply dif [72538 to 72541] [not applied] [base not found] - resending stak [-1]
+[33][1][4]tx stak p:1 ack:[-1] cur:[4]
+[30][1][5]----- Apply dif [72538 to 72541] [not applied] [base not found] - resending stak [-1]
+[33][1][5]tx stak p:1 ack:[-1] cur:[5]
+[30][1][6]----- Apply dif [72538 to 72541] [not applied] [base not found] - resending stak [-1]
+[33][1][6]tx stak p:1 ack:[-1] cur:[6]
+[27][1][7]rx dif complete [0 to 72542] - uncompressed
+[30][1][7]----- Apply dif [0 to 72542] [applied] [jumped ahead 72535 frames]
+[33][1][72542]tx stak p:1 ack:[72542] cur:[72542]
+[10][1][72542]+--------------------------------------------------------------------------+
+[10][1][72542]|        Local Player Client 1 Lost Server Connection!                     |
+[10][1][72542]|        last_stdf_rx:[7]                                                  |
+[10][1][72542]+--------------------------------------------------------------------------+
+[10][0][72542]+--------------------------------------------------------------------------+
+[10][0][72542]|                    Shutting down the client network                      |
+[10][0][72542]+--------------------------------------------------------------------------+
+[10][0][72542]+--------------------------------------------------------------------------+
+[10][0][72542]|                                                                          |
+[10][0][72542]|                              NEXT LEVEL:1                                |
+[10][0][72542]|                                                                          |
+[10][0][72542]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 1 STARTED                               |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+
+I think I can see the problem:
+client applied dif and jumped ahead 72535 frame
+
+not sure what that means or how it happened, but it is wrong....
+
+
+lets start simple:
+
+after a new level when client gets dif and base does not match, it replies with stak -1
+why -1, why not zero...
+
+
+
+fixed to not send zero anymore
+
+
+
+
+[33][1][72019]tx stak p:1 ack:[72016] cur:[72019]
+[27][1][72020]rx dif complete [72015 to 72017] - uncompressed
+[30][1][72020]----- Apply dif [72015 to 72017] [applied] [rewound [3] frames]
+[33][1][72020]tx stak p:1 ack:[72017] cur:[72020]
+[10][0][72020]+--------------------------------------------------------------------------+
+[10][0][72020]|                                                                          |
+[10][0][72020]|                             NEXT LEVEL:80                                |
+[10][0][72020]|                                                                          |
+[10][0][72020]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 80 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[27][1][1]rx dif complete [72015 to 72018] - uncompressed
+[30][1][1]----- Apply dif [72015 to 72018] [not applied] [no bases found] - resending stak [0]
+[33][1][1]tx stak p:1 ack:[0] cur:[1]
+[27][1][2]rx dif complete [72016 to 72019] - uncompressed
+[27][1][2]rx dif complete [72016 to 72020] - uncompressed
+[30][1][2]----- Apply dif [72016 to 72020] [not applied] [no bases found] - resending stak [0]
+[33][1][2]tx stak p:1 ack:[0] cur:[2]
+[27][1][3]rx dif complete [72017 to 72021] - uncompressed
+[30][1][3]----- Apply dif [72017 to 72021] [not applied] [no bases found] - resending stak [0]
+[33][1][3]tx stak p:1 ack:[0] cur:[3]
+
+[30][1][4]----- Apply dif [72017 to 72021] [not applied] [no bases found] - resending stak [0]
+[33][1][4]tx stak p:1 ack:[0] cur:[4]
+
+[30][1][5]----- Apply dif [72017 to 72021] [not applied] [no bases found] - resending stak [0]
+[33][1][5]tx stak p:1 ack:[0] cur:[5]
+
+[27][1][6]rx dif complete [0 to 2] - uncompressed
+[30][1][6]----- Apply dif [0 to 2] [applied] [rewound [4] frames]
+[33][1][6]tx stak p:1 ack:[2] cur:[6]
+
+[30][1][7]----- Apply dif [0 to 2] [not applied] [not newer than last dif applied]
+
+[27][1][8]rx dif complete [0 to 3] - uncompressed
+[30][1][8]----- Apply dif [0 to 3] [applied] [rewound [5] frames]
+[33][1][8]tx stak p:1 ack:[3] cur:[8]
+
+[27][1][9]rx dif complete [0 to 4] - uncompressed
+[30][1][9]----- Apply dif [0 to 4] [applied] [rewound [5] frames]
+
+
+I would love to have a way to get the server logs to the client, especially on headless server...
+I can do that now but it requires actually looking on the server, finding the exact filename, then typing that into a scp command on the client
+
+like this:
+
+
+-rw-rw-r--  1 m m  1580 Feb 13 06:28 '20240213-062833-[80][pmh].txt'
+-rw-rw-r--  1 m m  1426 Feb 13 06:29 '20240213-062952-[1][pmh].txt'
+-rw-rw-r--  1 m m  1580 Feb 13 06:29 '20240213-062954-[80][pmh].txt'
+-rw-rw-r--  1 m m  1437 Feb 13 06:56 '20240213-065619-[1][pmh].txt'
+-rw-rw-r--  1 m m  1593 Feb 13 06:56 '20240213-065625-[80][pmh].txt'
+m@pmh:~/dev/purple_martians/logs$
+
+
+C:\pm>pscp -pw zaiden m@96.45.13.220:dev/purple_martians/logs/20240213-065625-[80][pmh].txt c:\pm\logs
+pscp: wildcard '20240213-065625-[80][pmh].txt' matched no files
+
+this works:
+
+C:\pm>pscp -pw zaiden m@96.45.13.220:dev/purple_martians/logs/20240213* c:\pm\logs
+20240213-003741-[1][pmh]. | 1 kB |   1.3 kB/s | ETA: 00:00:00 | 100%
+20240213-065625-[80][pmh] | 1 kB |   1.6 kB/s | ETA: 00:00:00 | 100%
+20240213-053743-[1][pmh]. | 1 kB |   1.3 kB/s | ETA: 00:00:00 | 100%
+20240213-065619-[1][pmh]. | 1 kB |   1.4 kB/s | ETA: 00:00:00 | 100%
+20240213-023742-[1][pmh]. | 1 kB |   1.3 kB/s | ETA: 00:00:00 | 100%
+20240213-013742-[1][pmh]. | 1 kB |   1.3 kB/s | ETA: 00:00:00 | 100%
+20240213-062952-[1][pmh]. | 1 kB |   1.4 kB/s | ETA: 00:00:00 | 100%
+20240213-062833-[80][pmh] | 1 kB |   1.5 kB/s | ETA: 00:00:00 | 100%
+20240213-062831-[1][pmh]. | 1 kB |   1.4 kB/s | ETA: 00:00:00 | 100%
+20240213-062954-[80][pmh] | 1 kB |   1.5 kB/s | ETA: 00:00:00 | 100%
+20240213-033742-[1][pmh]. | 1 kB |   1.3 kB/s | ETA: 00:00:00 | 100%
+20240213-043742-[1][pmh]. | 1 kB |   1.3 kB/s | ETA: 00:00:00 | 100%
+
+quotes either "" or '' do not help
+
+the problem is the [] in the filename...this works:
+
+C:\pm>pscp -pw zaiden m@96.45.13.220:dev/purple_martians/logs/20240213-065625-*.txt c:\pm\logs
+20240213-065625-[80][pmh] | 1 kB |   1.6 kB/s | ETA: 00:00:00 | 100%
+
+pscp -ls -pw zaiden m@96.45.13.220:dev/purple_martians/logs
+gets a listing of all files in dir...
+
+
+
+
+
+
+
+20240213
+
+I got one!
+
+[10][0][10454]|        Purple Martians Version 7.24.240211.0                             |
+[10][0][10454]|        Allegro Version: 5.2.8.1                                          |
+[10][0][10454]|        Date and time: 2024-02-13  17:47:04                               |
+
+client:
+
+
+[27][1][10613]rx dif complete [10605 to 10608] - uncompressed
+[27][1][10613]rx dif complete [10605 to 10609] - uncompressed
+----- Apply dif [10605 to 10609] [applied] [rewound [4] frames]
+[33][1][10613]tx stak p:1 ack:[10609] cur:[10613]
+----- Apply dif [10605 to 10609] [not applied] [not newer than last dif applied]
+[27][1][10615]rx dif complete [10606 to 10610] - uncompressed
+----- Apply dif [10606 to 10610] [applied] [rewound [5] frames]
+[33][1][10615]tx stak p:1 ack:[10610] cur:[10615]
+[27][1][10616]rx dif complete [10609 to 10611] - uncompressed
+[27][1][10616]rx dif complete [10609 to 10612] - uncompressed
+----- Apply dif [10609 to 10612] [applied] [rewound [4] frames]
+[33][1][10616]tx stak p:1 ack:[10612] cur:[10616]
+[10][0][10616]+--------------------------------------------------------------------------+
+[10][0][10616]|                                                                          |
+[10][0][10616]|                             NEXT LEVEL:81                                |
+[10][0][10616]|                                                                          |
+[10][0][10616]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 81 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+----- Apply dif [-1 to -1] [not applied] [dif not valid]
+
+[27][1][2]rx dif complete [10612 to 10614] - uncompressed
+----- Apply dif [10612 to 10614] [not applied] [no bases found] - resending stak [0]
+[33][1][2]tx stak p:1 ack:[0] cur:[2]
+----- Apply dif [10612 to 10614] [not applied] [no bases found] - resending stak [0]
+[33][1][3]tx stak p:1 ack:[0] cur:[3]
+
+[27][1][4]rx dif complete [10612 to 10615] - uncompressed
+----- Apply dif [10612 to 10615] [not applied] [no bases found] - resending stak [0]
+[33][1][4]tx stak p:1 ack:[0] cur:[4]
+
+
+[27][1][5]rx dif complete [10612 to 10616] - uncompressed
+----- Apply dif [10612 to 10616] [not applied] [no bases found] - resending stak [0]
+[33][1][5]tx stak p:1 ack:[0] cur:[5]
+----- Apply dif [10612 to 10616] [not applied] [no bases found] - resending stak [0]
+[33][1][6]tx stak p:1 ack:[0] cur:[6]
+----- Apply dif [10612 to 10616] [not applied] [no bases found] - resending stak [0]
+[33][1][7]tx stak p:1 ack:[0] cur:[7]
+----- Apply dif [10612 to 10616] [not applied] [no bases found] - resending stak [0]
+[33][1][8]tx stak p:1 ack:[0] cur:[8]
+----- Apply dif [10612 to 10616] [not applied] [no bases found] - resending stak [0]
+[33][1][9]tx stak p:1 ack:[0] cur:[9]
+
+
+[27][1][10]rx dif complete [0 to 10617] - uncompressed
+----- Apply dif [0 to 10617] [applied] [jumped ahead 10607 frames]
+[33][1][10617]tx stak p:1 ack:[10617] cur:[10617]
+
+
+[10][1][10617]+--------------------------------------------------------------------------+
+[10][1][10617]|        Local Player Client 1 Lost Server Connection!                     |
+[10][1][10617]|        last_stdf_rx:[10]                                                 |
+[10][1][10617]+--------------------------------------------------------------------------+
+[10][0][10617]+--------------------------------------------------------------------------+
+[10][0][10617]|                    Shutting down the client network                      |
+[10][0][10617]+--------------------------------------------------------------------------+
+[10][0][10617]+--------------------------------------------------------------------------+
+[10][0][10617]|                                                                          |
+[10][0][10617]|                              NEXT LEVEL:1                                |
+[10][0][10617]|                                                                          |
+[10][0][10617]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 1 STARTED                               |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+
+
+
+server:
+
+
+pscp -pw zaiden m@96.45.13.220:dev/purple_martians/logs/20240213* c:\pm\logs
+
+there are no good logs on the server
+
+rx stak p:1 ack:[10606] cur:[10612] dsync:[-106.2] chase:[40.0]
+rx stak p:1 ack:[10609] cur:[10613] dsync:[-106.9] chase:[39.9]
+rx stak p:1 ack:[10610] cur:[10615] dsync:[-108.5] chase:[39.8]
+rx stak p:1 ack:[10612] cur:[10616] dsync:[-106.6] chase:[39.9]
+rx stak p:1 ack:[0] cur:[2] dsync:[33069.5] chase:[70.0]
+rx stak p:1 ack:[0] cur:[3] dsync:[33069.5] chase:[70.0]
+[10][0][10616]+--------------------------------------------------------------------------+
+[10][0][10616]|                                                                          |
+[10][0][10616]|                             NEXT LEVEL:81                                |
+[10][0][10616]|                                                                          |
+[10][0][10616]+--------------------------------------------------------------------------+
+logs/20240213-174652-[1][pmh].txt saved
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 81 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+rx stak p:1 ack:[0] cur:[4] dsync:[66245.6] chase:[70.0]
+rx stak p:1 ack:[0] cur:[5] dsync:[99418.1] chase:[70.0]
+rx stak p:1 ack:[0] cur:[6] dsync:[132589.6] chase:[70.0]
+rx stak p:1 ack:[0] cur:[7] dsync:[132589.6] chase:[70.0]
+rx stak p:1 ack:[0] cur:[8] dsync:[165758.8] chase:[70.0]
+rx stak p:1 ack:[0] cur:[9] dsync:[198921.4] chase:[70.0]
+rx stak p:1 ack:[10617] cur:[10617] dsync:[232083.4] chase:[70.0]
+[10][1][301]+--------------------------------------------------------------------------+
+[10][1][301]|                                                                          |
+[10][1][301]|                Server dropped player:1 (last stak rx:5)                  |
+[10][1][301]|                                                                          |
+[10][1][301]+--------------------------------------------------------------------------+
+
+
+
+I will need to make better logging on the server....
+
+
+but what can I tell from this occurrance?
+
+from the client side...
+level 81 started frame set to 0
+
+still getting difs from the previous level, rejecting them for not having base, resending stak saying we have base 0
+
+eventually gets a dif from previous level based on zero but far in the future
+
+when it applies this, it jumps very far in the future, then client quits due to no dif recieved for a long time...
+
+how can this be prevented?
+
+
+add LOG_NET_stak and LOG_NET_stdf to headless server and try again...
+
+
+
+tried many time in a row and would not fail
+
+here is s successfull one:
+
+client:
+
+[33][1][2979]tx stak p:1 ack:[2978] cur:[2979]
+[27][1][2980]rx dif complete [2977 to 2979] - uncompressed
+----- Apply dif [2977 to 2979] [applied] [rewound [1] frames]
+[33][1][2980]tx stak p:1 ack:[2979] cur:[2980]
+[27][1][2981]rx dif complete [2978 to 2980] - uncompressed
+----- Apply dif [2978 to 2980] [applied] [rewound [1] frames]
+[33][1][2981]tx stak p:1 ack:[2980] cur:[2981]
+[10][0][2981]+--------------------------------------------------------------------------+
+[10][0][2981]|                                                                          |
+[10][0][2981]|                             NEXT LEVEL:80                                |
+[10][0][2981]|                                                                          |
+[10][0][2981]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 80 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[27][1][1]rx dif complete [2979 to 2981] - uncompressed
+[27][1][1]rx dif complete [2980 to 2982] - uncompressed
+----- Apply dif [2980 to 2982] [not applied] [no bases found] - resending stak [0]
+[33][1][1]tx stak p:1 ack:[0] cur:[1]
+----- Apply dif [2980 to 2982] [not applied] [no bases found] - resending stak [0]
+[33][1][2]tx stak p:1 ack:[0] cur:[2]
+----- Apply dif [2980 to 2982] [not applied] [no bases found] - resending stak [0]
+[33][1][3]tx stak p:1 ack:[0] cur:[3]
+[27][1][4]rx dif complete [0 to 2] - uncompressed
+----- Apply dif [0 to 2] [applied] [rewound [2] frames]
+[33][1][4]tx stak p:1 ack:[2] cur:[4]
+[27][1][5]rx dif complete [0 to 3] - uncompressed
+----- Apply dif [0 to 3] [applied] [rewound [2] frames]
+[33][1][5]tx stak p:1 ack:[3] cur:[5]
+----- Apply dif [0 to 3] [not applied] [not newer than last dif applied]
+[27][1][7]rx dif complete [0 to 4] - uncompressed
+----- Apply dif [0 to 4] [applied] [rewound [3] frames]
+[33][1][7]tx stak p:1 ack:[4] cur:[7]
+[27][1][8]rx dif complete [3 to 5] - uncompressed
+----- Apply dif [3 to 5] [applied] [rewound [3] frames]
+[33][1][8]tx stak p:1 ack:[5] cur:[8]
+----- Apply dif [3 to 5] [not applied] [not newer than last dif applied]
+[27][1][10]rx dif complete [4 to 6] - uncompressed
+----- Apply dif [4 to 6] [applied] [rewound [4] frames]
+[33][1][10]tx stak p:1 ack:[6] cur:[10]
+[27][1][11]rx dif complete [5 to 7] - uncompressed
+
+server:
+
+
+
+[27][0][2978]stdf rewind [none]
+[27][0][2978]stdf save state:2979
+[27][1][2978]tx stdf p:1 [s:2977 d:2979] cmp:135 ratio:0.12 [1 packets needed]
+[33][1][2979]rx stak p:1 ack:[2978] cur:[2979] dsync:[-24.6] chase:[40.5]
+[27][0][2979]stdf rewind [none]
+[27][0][2979]stdf save state:2980
+[27][1][2979]tx stdf p:1 [s:2978 d:2980] cmp:135 ratio:0.12 [1 packets needed]
+[33][1][2980]rx stak p:1 ack:[2979] cur:[2980] dsync:[-22.1] chase:[40.7]
+[27][0][2980]stdf rewind [none]
+[27][0][2980]stdf save state:2981
+[27][1][2980]tx stdf p:1 [s:2979 d:2981] cmp:135 ratio:0.12 [1 packets needed]
+[33][1][2981]rx stak p:1 ack:[2980] cur:[2981] dsync:[-21.8] chase:[40.8]
+[27][0][2981]stdf rewind [none]
+[27][0][2981]stdf save state:2982
+[27][1][2981]tx stdf p:1 [s:2980 d:2982] cmp:138 ratio:0.12 [1 packets needed]
+[10][0][2981]+--------------------------------------------------------------------------+
+[10][0][2981]|                                                                          |
+[10][0][2981]|                             NEXT LEVEL:80                                |
+[10][0][2981]|                                                                          |
+[10][0][2981]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 80 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[27][0][1]stdf save state:2
+[27][1][1]tx stdf p:1 [s:0 d:2] cmp:1538 ratio:1.37 [2 packets needed]
+[33][1][2]rx stak p:1 ack:[0] cur:[1] dsync:[9300.7] chase:[70.0]
+[33][1][2]rx stak p:1 ack:[0] cur:[2] dsync:[9300.7] chase:[70.0]
+[27][0][2]stdf rewind [none]
+[27][0][2]stdf save state:3
+[27][1][2]tx stdf p:1 [s:0 d:3] cmp:1539 ratio:1.37 [2 packets needed]
+[33][1][3]rx stak p:1 ack:[0] cur:[3] dsync:[9300.7] chase:[70.0]
+[27][0][3]stdf rewind [none]
+[27][0][3]stdf save state:4
+[27][1][3]tx stdf p:1 [s:0 d:4] cmp:1542 ratio:1.37 [2 packets needed]
+[33][1][4]rx stak p:1 ack:[2] cur:[4] dsync:[9298.1] chase:[70.0]
+[33][1][4]rx stak p:1 ack:[3] cur:[5] dsync:[9295.5] chase:[70.0]
+[27][0][4]stdf rewind [none]
+[27][0][4]stdf save state:5
+[27][1][4]tx stdf p:1 [s:3 d:5] cmp:178 ratio:0.16 [1 packets needed]
+[33][1][5]rx stak p:1 ack:[4] cur:[7] dsync:[9289.7] chase:[70.0]
+[27][0][5]stdf rewind [none]
+[27][0][5]stdf save state:6
+[27][1][5]tx stdf p:1 [s:4 d:6] cmp:194 ratio:0.17 [1 packets needed]
+[33][1][6]rx stak p:1 ack:[5] cur:[8] dsync:[9283.8] chase:[70.0]
+[27][0][6]stdf rewind [none]
+[27][0][6]stdf save state:7
+[27][1][6]tx stdf p:1 [s:5 d:7] cmp:201 ratio:0.18 [1 packets needed]
+[33][1][7]rx stak p:1 ack:[6] cur:[10] dsync:[9275.2] chase:[70.0]
+[27][0][7]stdf rewind [none]
+[27][0][7]stdf save state:8
+[27][1][7]tx stdf p:1 [s:6 d:8] cmp:181 ratio:0.16 [1 packets needed]
+[33][1][8]rx stak p:1 ack:[7] cur:[11] dsync:[9264.8] chase:[70.0]
+[27][0][8]stdf rewind [none]
+[27][0][8]stdf save state:9
+[27][1][8]tx stdf p:1 [s:7 d:9] cmp:180 ratio:0.16 [1 packets needed]
+[33][1][9]rx stak p:1 ack:[8] cur:[14] dsync:[9250.2] chase:[70.0]
+[27][0][9]stdf rewind [none]
+[27][0][9]stdf save state:10
+[27][1][9]tx stdf p:1 [s:8 d:10] cmp:187 ratio:0.17 [1 packets needed]
+[33][1][10]rx stak p:1 ack:[9] cur:[15] dsync:[-84.3] chase:[35.8]
+[27][0][10]stdf rewind [none]
+[27][0][10]stdf save state:11
+[27][1][10]tx stdf p:1 [s:9 d:11] cmp:204 ratio:0.18 [1 packets needed]
+[27][0][11]stdf rewind [none]
+[27][0][11]stdf save state:12
+[27][1][11]tx stdf p:1 [s:9 d:12] cmp:195 ratio:0.17 [1 packets needed]
+[33][1][12]rx stak p:1 ack:[11] cur:[17] dsync:[-96.2] chase:[34.8]
+[27][0][12]stdf rewind [none]
+[27][0][12]stdf save state:13
+[27][1][12]tx stdf p:1 [s:11 d:13] cmp:194 ratio:0.17 [1 packets needed]
+[33][1][13]rx stak p:1 ack:[12] cur:[18] dsync:[-107.6] chase:[33.9]
+[27][0][13]stdf rewind [none]
+[27][0][13]stdf save state:14
+[27][1][13]tx stdf p:1 [s:12 d:14] cmp:199 ratio:0.18 [1 packets needed]
+[33][1][14]rx stak p:1 ack:[13] cur:[19] dsync:[-116.4] chase:[33.2]
+[27][0][14]stdf rewind [none]
+[27][0][14]stdf save state:15
+[27][1][14]tx stdf p:1 [s:13 d:15] cmp:167 ratio:0.15 [1 packets needed]
+[27][0][15]stdf rewind [none]
+[27][0][15]stdf save state:16
+[27][1][15]tx stdf p:1 [s:13 d:16] cmp:168 ratio:0.15 [1 packets needed]
+[27][0][16]stdf rewind [none]
+[27][0][16]stdf save state:17
+[27][1][16]tx stdf p:1 [s:13 d:17] cmp:182 ratio:0.16 [1 packets needed]
+[33][1][17]rx stak p:1 ack:[16] cur:[21] dsync:[-123.3] chase:[32.6]
+[27][0][17]stdf rewind [none]
+[27][0][17]stdf save state:18
+[27][1][17]tx stdf p:1 [s:16 d:18] cmp:203 ratio:0.18 [1 packets needed]
+[33][1][18]rx stak p:1 ack:[17] cur:[22] dsync:[-126.8] chase:[32.4]
+[27][0][18]stdf rewind [none]
+[27][0][18]stdf save state:19
+[27][1][18]tx stdf p:1 [s:17 d:19] cmp:206 ratio:0.18 [1 packets needed]
+[27][0][19]stdf rewind [none]
+[27][0][19]stdf save state:20
+
+
+
+
+
+lets try again to get a failed one:
+
+
+could not do it...
+
+what could prevent this?
+
+
+when client tries to apply dif, could I test what level it is from?
+I would need to add that info to the dif, and dif pieces
+
+
+I could test if the dif I am applying is a lot in the future...
+but I need to do this if joining late....
+
+
+I could set the last dif rx...wait, don't I already do this?
+maybe I could set, last dif applied frame number instead?
+
+what I keep track of is:
+
+mPlayer.loc[p].client_last_stdf_rx_frame_num = mLoop.frame_num;      // client keeps track of last stdf rx'd and quits if too long
+
+this is the frame number before the jump!!
+
+what if I change it to last dif applied frame number? (the destination)
+
+I think that might just be the answer!!
+
+I won't have to set the holdoff in the future anymore...
+
+I think the rest of the stuff will sort itself out...
+
+if I get late difs from previous level and jump way into the future...then what...it will fix itself?
+probably not....difs after that will not be applied because thet are earlier....
+
+so I still need a way to prevent late difs from a previous level...or have the client ignore them...
+
+even if I add the level num to the dif, that would not prevent server reloading the same level...
+
+
+
+
+20240214
+
+I want to implement this:
+
+what if I change it to last dif applied frame number? (the destination)
+
+I just want a way to have the client ignore difs from the previous level
+
+right now, this is the only way to detect that this bad behaviour is happening...
+
+why is it not reproducible for long periods of time?
+
+
+describe it simply
+
+difs from the previous level are still arriving
+they fail because of no matching base on the client
+client sends stak of 0 to request dif from 0 and sometimes gets one, but still from old level
+then the client applies that dif, does a huge jump into the future, then drops when testing last stdf rx frame
+
+this must mean that the client is ahead of the server...
+the client is looking for difs from the new level, but the server is still on the old level
+
+
+I think this could be fixed with some kind of level identifier
+
+each dif piece would need to have the same id
+
+
+how do I do it now?
+
+how does a dif piece know what level it is from?
+
+soley by dest frame
+
+   int seq     = mPacketBuffer.PacketGetByte(i);
+   int max_seq = mPacketBuffer.PacketGetByte(i);
+   int sb      = mPacketBuffer.PacketGetInt4(i);
+   int sz      = mPacketBuffer.PacketGetInt4(i);
+
+   mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", seq+1, max_seq, src, dst, sb, sz);
+   mPlayer.loc[p].client_last_stdf_rx_frame_num = mLoop.frame_num;      // client keeps track of last stdf rx'd and quits if too long
+   memcpy(client_state_buffer + sb, mPacketBuffer.rx_buf[i].data+22, sz);   // put the piece of data in the buffer
+
+   client_state_buffer_pieces[seq] = dst;                     // mark it with destination mLoop.frame_num
+   int complete = 1;                                          // did we just get the last packet? (yes by default)
+   for (int i=0; i< max_seq; i++)
+      if (client_state_buffer_pieces[i] != dst) complete = 0; // no, if any piece not at latest frame_num
+
+   if (complete)
+   {
+      // uncompress client_state_buffer to dif
+      uLongf destLen = sizeof(client_state_dif);
+      uncompress((Bytef*)client_state_dif, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
+
+
+I only have 24 bytes for the header of my stdf packets
+do I though?
+
+what am I limiting my payload to 1024? do I need to
+also what if I just made my 1000 piece slightly smaller?
+
+what do I do with sfil?
+I make a unique id...
+
+That would not really work here, I don't care about the packets within the sequence, just the overall level they came from...
+
+
+I could just simply use the level_num.
+Then when applying dif on the client, if they come from a different level just completely ignore them...
+The only problem with this is when a level is restarted...
+
+
+
+What about when a client changes level...as soon as that happens ignore any more dif from the prev level, but how?
+
+
+
+how about a flag on the client?
+since starting a new level, have we received a valid dif?
+
+
+
+
+
+I got a hit!!!!
+
+[27][1][56153]rx dif complete [56148 to 56150] - uncompressed
+----- Apply dif [56148 to 56150] [applied] [rewound [3] frames]
+[33][1][56153]tx stak p:1 ack:[56150] cur:[56153]
+[27][1][56154]rx dif complete [56149 to 56151] - uncompressed
+----- Apply dif [56149 to 56151] [applied] [rewound [3] frames]
+[33][1][56154]tx stak p:1 ack:[56151] cur:[56154]
+[27][1][56155]rx dif complete [56149 to 56152] - uncompressed
+----- Apply dif [56149 to 56152] [applied] [rewound [3] frames]
+[33][1][56155]tx stak p:1 ack:[56152] cur:[56155]
+[27][1][56156]rx dif complete [56151 to 56153] - uncompressed
+----- Apply dif [56151 to 56153] [applied] [rewound [3] frames]
+[33][1][56156]tx stak p:1 ack:[56153] cur:[56156]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+----- Apply dif [56151 to 56153] [not applied] [not newer than last dif applied]
+[10][0][56191]+--------------------------------------------------------------------------+
+[10][0][56191]|                                                                          |
+[10][0][56191]|                             NEXT LEVEL:81                                |
+[10][0][56191]|                                                                          |
+[10][0][56191]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 81 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+----- Apply dif [-1 to -1] [not applied] [dif not valid]
+----- Apply dif [-1 to -1] [not applied] [dif not valid]
+----- Apply dif [-1 to -1] [not applied] [dif not valid]
+----- Apply dif [-1 to -1] [not applied] [dif not valid]
+----- Apply dif [-1 to -1] [not applied] [dif not valid]
+----- Apply dif [-1 to -1] [not applied] [dif not valid]
+----- Apply dif [-1 to -1] [not applied] [dif not valid]
+----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[27][1][9]rx dif complete [56152 to 56154] - uncompressed
+[27][1][9]rx dif complete [56152 to 56155] - uncompressed
+[27][1][9]rx dif complete [56152 to 56156] - uncompressed
+[27][1][9]rx dif complete [56152 to 56157] - uncompressed
+[27][1][9]rx dif complete [56152 to 56158] - uncompressed
+[27][1][9]rx dif complete [56152 to 56159] - uncompressed
+[27][1][9]rx dif complete [0 to 56160] - uncompressed
+[27][1][9]rx dif complete [0 to 56161] - uncompressed
+[27][1][9]rx dif complete [0 to 56162] - uncompressed
+----- Apply dif [0 to 56162] [applied] [jumped ahead 56153 frames]
+[33][1][56162]tx stak p:1 ack:[56162] cur:[56162]
+[10][1][56162]+--------------------------------------------------------------------------+
+[10][1][56162]|        Local Player Client 1 Lost Server Connection!                     |
+[10][1][56162]|        last_stdf_rx:[9]                                                  |
+[10][1][56162]+--------------------------------------------------------------------------+
+[10][0][56162]+--------------------------------------------------------------------------+
+[10][0][56162]|                    Shutting down the client network                      |
+[10][0][56162]+--------------------------------------------------------------------------+
+[10][0][56162]+--------------------------------------------------------------------------+
+[10][0][56162]|                                                                          |
+[10][0][56162]|                              NEXT LEVEL:1                                |
+[10][0][56162]|                                                                          |
+[10][0][56162]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 1 STARTED                               |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+
+C:\pm>
+
+
+pscp -pw zaiden m@96.45.13.220:dev/purple_martians/logs/20240215-17* c:\pm\logs
+
+pscp -ls -pw zaiden m@96.45.13.220:dev/purple_martians/logs
+
+
+
+
+
+
+
+
+
+
+
+
+
+20240216 2010
+
+I GOT ONE!!
+
+
+----- Apply dif [204 to 207] [applied] [rewound [4] frames]
+[33][1][211]tx stak p:1 ack:[207] cur:[211]
+----- Apply dif [204 to 207] [not applied] [not newer than last dif applied]
+[10][0][212]+--------------------------------------------------------------------------+
+[10][0][212]|                                                                          |
+[10][0][212]|                             NEXT LEVEL:81                                |
+[10][0][212]|                                                                          |
+[10][0][212]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 81 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[27][1][1]rx dif complete [205 to 208] - uncompressed
+----- Apply dif [205 to 208] [not applied] [no bases found] - resending stak [0]
+[33][1][1]tx stak p:1 ack:[0] cur:[1]
+[27][1][2]rx dif complete [207 to 209] - uncompressed
+----- Apply dif [207 to 209] [not applied] [no bases found] - resending stak [0]
+[33][1][2]tx stak p:1 ack:[0] cur:[2]
+[27][1][3]rx dif complete [207 to 210] - uncompressed
+----- Apply dif [207 to 210] [not applied] [no bases found] - resending stak [0]
+[33][1][3]tx stak p:1 ack:[0] cur:[3]
+[27][1][4]rx dif complete [207 to 211] - uncompressed
+----- Apply dif [207 to 211] [not applied] [no bases found] - resending stak [0]
+[33][1][4]tx stak p:1 ack:[0] cur:[4]
+----- Apply dif [207 to 211] [not applied] [no bases found] - resending stak [0]
+[33][1][5]tx stak p:1 ack:[0] cur:[5]
+----- Apply dif [207 to 211] [not applied] [no bases found] - resending stak [0]
+[33][1][6]tx stak p:1 ack:[0] cur:[6]
+[27][1][7]rx dif complete [0 to 212] - uncompressed
+----- Apply dif [0 to 212] [applied] [jumped ahead 205 frames]
+[33][1][212]tx stak p:1 ack:[212] cur:[212]
+[10][1][212]+--------------------------------------------------------------------------+
+[10][1][212]|        Local Player Client 1 Lost Server Connection!                     |
+[10][1][212]|        last_stdf_rx:[7]                                                  |
+[10][1][212]+--------------------------------------------------------------------------+
+[10][0][212]+--------------------------------------------------------------------------+
+[10][0][212]|                                                                          |
+[10][0][212]|                             NEXT LEVEL:81                                |
+[10][0][212]|                                                                          |
+[10][0][212]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 81 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[27][1][1]rx dif complete [0 to 213] - uncompressed
+[27][1][1]rx dif complete [0 to 2] - uncompressed
+[27][1][1]rx dif complete [0 to 3] - uncompressed
+[27][1][1]rx dif complete [0 to 4] - uncompressed
+[27][1][1]rx dif complete [0 to 5] - uncompressed
+[27][1][1]rx dif complete [0 to 6] - uncompressed
+[27][1][1]rx dif complete [0 to 7] - uncompressed
+[27][1][1]rx dif complete [0 to 8] - uncompressed
+[27][1][1]rx dif complete [0 to 9] - uncompressed
+[27][1][1]rx dif complete [0 to 10] - uncompressed
+[27][1][1]rx dif complete [0 to 11] - uncompressed
+[27][1][1]rx dif complete [0 to 12] - uncompressed
+[27][1][1]rx dif complete [0 to 13] - uncompressed
+[27][1][1]rx dif complete [0 to 14] - uncompressed
+[27][1][1]rx dif complete [0 to 15] - uncompressed
+[27][1][1]rx dif complete [0 to 16] - uncompressed
+[27][1][1]rx dif complete [0 to 17] - uncompressed
+[27][1][1]rx dif complete [0 to 18] - uncompressed
+[27][1][1]rx dif complete [0 to 19] - uncompressed
+[27][1][1]rx dif complete [0 to 20] - uncompressed
+[27][1][1]rx dif complete [0 to 21] - uncompressed
+[27][1][1]rx dif complete [0 to 22] - uncompressed
+[27][1][1]rx dif complete [0 to 23] - uncompressed
+[27][1][1]rx dif complete [0 to 24] - uncompressed
+----- Apply dif [0 to 24] [applied] [jumped ahead 23 frames]
+[33][1][24]tx stak p:1 ack:[24] cur:[24]
+[27][1][25]rx dif complete [0 to 291] - uncompressed
+----- Apply dif [0 to 291] [applied] [jumped ahead 266 frames]
+[33][1][291]tx stak p:1 ack:[291] cur:[291]
+[10][1][291]+--------------------------------------------------------------------------+
+[10][1][291]|        Local Player Client 1 Lost Server Connection!                     |
+[10][1][291]|        last_stdf_rx:[25]                                                 |
+[10][1][291]+--------------------------------------------------------------------------+
+[10][0][291]+--------------------------------------------------------------------------+
+[10][0][291]|                    Shutting down the client network                      |
+[10][0][291]+--------------------------------------------------------------------------+
+[10][0][291]+--------------------------------------------------------------------------+
+[10][0][291]|                                                                          |
+[10][0][291]|                              NEXT LEVEL:1                                |
+[10][0][291]|                                                                          |
+[10][0][291]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 1 STARTED                               |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+
+C:\pm>
+
+
+pscp -pw zaiden m@96.45.13.220:dev/purple_martians/logs/20240216-200* c:\pm\logs
+
+
+
+[27][0][205]stdf rewind [none]
+[27][0][205]stdf save state:206
+[27][1][205]tx stdf p:1 [s:203 d:206] cmp:136 ratio:0.12 [1 packets needed]
+[33][1][206]rx stak p:1 ack:[204] cur:[209] dsync:[-111.6] chase:[40.4]
+[27][0][206]stdf rewind [none]
+[27][0][206]stdf save state:207
+[27][1][206]tx stdf p:1 [s:204 d:207] cmp:136 ratio:0.12 [1 packets needed]
+[33][1][207]rx stak p:1 ack:[205] cur:[210] dsync:[-112.6] chase:[40.3]
+[27][0][207]stdf rewind [none]
+[27][0][207]stdf save state:208
+[27][1][207]tx stdf p:1 [s:205 d:208] cmp:136 ratio:0.12 [1 packets needed]
+[33][1][208]rx stak p:1 ack:[207] cur:[211] dsync:[-108.4] chase:[40.6]
+[27][0][208]stdf rewind [none]
+[27][0][208]stdf save state:209
+[27][1][208]tx stdf p:1 [s:207 d:209] cmp:135 ratio:0.12 [1 packets needed]
+[27][0][209]stdf rewind [none]
+[27][0][209]stdf save state:210
+[27][1][209]tx stdf p:1 [s:207 d:210] cmp:136 ratio:0.12 [1 packets needed]
+[27][0][210]stdf rewind [none]
+[27][0][210]stdf save state:211
+[27][1][210]tx stdf p:1 [s:207 d:211] cmp:136 ratio:0.12 [1 packets needed]
+[33][1][211]rx stak p:1 ack:[0] cur:[1] dsync:[552.6] chase:[70.0]
+[33][1][211]rx stak p:1 ack:[0] cur:[2] dsync:[1214.9] chase:[70.0]
+[27][0][211]stdf rewind [none]
+[27][0][211]stdf save state:212
+[27][1][211]tx stdf p:1 [s:0 d:212] cmp:3346 ratio:2.98 [4 packets needed]
+[33][1][212]rx stak p:1 ack:[0] cur:[3] dsync:[1877.9] chase:[70.0]
+[33][1][212]rx stak p:1 ack:[0] cur:[4] dsync:[2540.0] chase:[70.0]
+[27][0][212]stdf rewind [none]
+[27][0][212]stdf save state:213
+[27][1][212]tx stdf p:1 [s:0 d:213] cmp:3344 ratio:2.98 [4 packets needed]
+[10][0][212]+--------------------------------------------------------------------------+
+[10][0][212]|                                                                          |
+[10][0][212]|                             NEXT LEVEL:81                                |
+[10][0][212]|                                                                          |
+[10][0][212]+--------------------------------------------------------------------------+
+
+new file....
+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 81 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[33][1][1]rx stak p:1 ack:[0] cur:[5] dsync:[2540.0] chase:[70.0]
+[33][1][1]rx stak p:1 ack:[0] cur:[6] dsync:[3198.2] chase:[70.0]
+[27][0][1]stdf save state:2
+[27][1][1]tx stdf p:1 [s:0 d:2] cmp:2221 ratio:1.98 [3 packets needed]
+[33][1][2]rx stak p:1 ack:[212] cur:[212] dsync:[3854.6] chase:[70.0]
+[27][0][2]stdf rewind [none]
+[27][0][2]stdf save state:3
+[27][1][2]tx stdf p:1 [s:0 d:3] cmp:2235 ratio:1.99 [3 packets needed]
+[27][0][3]stdf rewind [none]
+[27][0][3]stdf save state:4
+[27][1][3]tx stdf p:1 [s:0 d:4] cmp:2236 ratio:1.99 [3 packets needed]
+[27][0][4]stdf rewind [none]
+[27][0][4]stdf save state:5
+[27][1][4]tx stdf p:1 [s:0 d:5] cmp:2271 ratio:2.02 [3 packets needed]
+[27][0][5]stdf rewind [none]
+[27][0][5]stdf save state:6
+[27][1][5]tx stdf p:1 [s:0 d:6] cmp:2271 ratio:2.02 [3 packets needed]
+[27][0][6]stdf rewind [none]
+[27][0][6]stdf save state:7
+[27][1][6]tx stdf p:1 [s:0 d:7] cmp:2274 ratio:2.02 [3 packets needed]
+[27][0][7]stdf rewind [none]
+[27][0][7]stdf save state:8
+[27][1][7]tx stdf p:1 [s:0 d:8] cmp:2273 ratio:2.02 [3 packets needed]
+[27][0][8]stdf rewind [none]
+[27][0][8]stdf save state:9
+[27][1][8]tx stdf p:1 [s:0 d:9] cmp:2270 ratio:2.02 [3 packets needed]
+[27][0][9]stdf rewind [none]
+[27][0][9]stdf save state:10
+[27][1][9]tx stdf p:1 [s:0 d:10] cmp:2268 ratio:2.02 [3 packets needed]
+[27][0][10]stdf rewind [none]
+
+skip...all the same
+
+[27][0][492]stdf save state:493
+[27][1][492]tx stdf p:1 [s:0 d:493] cmp:2252 ratio:2.00 [3 packets needed]
+[27][0][493]stdf rewind [none]
+[27][0][493]stdf save state:494
+[27][1][493]tx stdf p:1 [s:0 d:494] cmp:2251 ratio:2.00 [3 packets needed]
+[27][0][494]stdf rewind [none]
+[27][0][494]stdf save state:495
+[27][1][494]tx stdf p:1 [s:0 d:495] cmp:2252 ratio:2.00 [3 packets needed]
+[27][0][495]stdf rewind [none]
+[10][1][495]+--------------------------------------------------------------------------+
+[10][1][495]|                                                                          |
+[10][1][495]|               Server dropped player:1 (last stak rx:294)                 |
+[10][1][495]|                                                                          |
+[10][1][495]+--------------------------------------------------------------------------+
+[27][0][495]stdf save state:496
+[27][1][495]tx stdf p:1 [s:0 d:496] cmp:2253 ratio:2.00 [3 packets needed]
+[27][0][496]stdf rewind [none]
+[10][1][496]+--------------------------------------------------------------------------+
+[10][1][496]|                                                                          |
+[10][1][496]|               Server dropped player:1 (last stak rx:294)                 |
+[10][1][496]|                                                                          |
+[10][1][496]+--------------------------------------------------------------------------+
+[27][0][496]stdf save state:497
+[27][1][496]tx stdf p:1 [s:0 d:497] cmp:2252 ratio:2.00 [3 packets needed]
+[27][0][497]stdf rewind [none]
+[10][1][497]+--------------------------------------------------------------------------+
+[10][1][497]|                                                                          |
+[10][1][497]|               Server dropped player:1 (last stak rx:294)                 |
+[10][1][497]|                                                                          |
+[10][1][497]+--------------------------------------------------------------------------+
+[27][0][497]stdf save state:498
+[27][1][497]tx stdf p:1 [s:0 d:498] cmp:2254 ratio:2.01 [3 packets needed]
+[27][0][498]stdf rewind [none]
+[10][1][498]+--------------------------------------------------------------------------+
+[10][1][498]|                                                                          |
+[10][1][498]|               Server dropped player:1 (last stak rx:294)                 |
+[10][1][498]|                                                                          |
+[10][1][498]+--------------------------------------------------------------------------+
+[27][0][498]stdf save state:499
+[27][1][498]tx stdf p:1 [s:0 d:499] cmp:2253 ratio:2.00 [3 packets needed]
+[27][0][499]stdf rewind [none]
+[10][1][499]+--------------------------------------------------------------------------+
+[10][1][499]|                                                                          |
+[10][1][499]|               Server dropped player:1 (last stak rx:294)                 |
+[10][1][499]|                                                                          |
+[10][1][499]+--------------------------------------------------------------------------+
+[10][1][499]+--------------------------------------------------------------------------+
+[10][1][499]|        Player:1 became INACTIVE!                                         |
+[10][1][499]+--------------------------------------------------------------------------+
+[27][0][499]stdf save state:500
+[27][0][500]stdf rewind [none]
+[10][0][500]+--------------------------------------------------------------------------+
+[10][0][500]|                                                                          |
+[10][0][500]|               Headless Server with no clients! - Reload                  |
+[10][0][500]|                                                                          |
+[10][0][500]+--------------------------------------------------------------------------+
+[27][0][500]stdf save state:501
+[27][0][501]stdf rewind [none]
+[27][0][501]stdf save state:502
+[27][0][502]stdf rewind [none]
+[27][0][502]stdf save state:503
+[27][0][503]stdf rewind [none]
+[27][0][503]stdf save state:504
+[27][0][504]stdf rewind [none]
+[27][0][504]stdf save state:505
+[27][0][505]stdf rewind [none]
+[27][0][505]stdf save state:506
+[27][0][506]stdf rewind [none]
+[27][0][506]stdf save state:507
+[27][0][507]stdf rewind [none]
+[27][0][507]stdf save state:508
+[27][0][508]stdf rewind [none]
+[27][0][508]stdf save state:509
+[27][0][509]stdf rewind [none]
+[27][0][509]stdf save state:510
+[27][0][510]stdf rewind [none]
+[27][0][510]stdf save state:511
+[10][0][510]+--------------------------------------------------------------------------+
+[10][0][510]|                                                                          |
+[10][0][510]|                              NEXT LEVEL:1                                |
+[10][0][510]|                                                                          |
+[10][0][510]+--------------------------------------------------------------------------+
+p
+
+
+I don't really see much difference now that I have the server log...
+wait...I see that the client is sending stak from the next level before the server has changed levels
+or more precisely, the server is rx stak from the client
+
+
+
+
+
+
+20240217
+
+I think I want to redo some core aspects of netgame
+
+server will still drop client if it doesnt get a stak reply after a certain time
+this is what I want to happen.
+
+client will respond to every dif sent??
+why?
+
+client needs a way to tell how long it has been since it successfully applied a dif
+
+if client receives a dif in the far future, should it just blindly apply it?
+
+then if a client receives one in the past should it blindly apply that also?
+
+
+I think I want to change the last stdf rx to lat stdf applied frame number
+
+change it when you get one way in the future and also one in the past
+
+
+-------------------
+what if server had a level seq number
+everytime a new level was started it was incremented
+server would send this with dif
+
+client would not try to apply dif unless that matched
+
+flesh it out:
+
+make it an 8 bit unsigned int, it doesn't matter if it rolls over
+do this only so it can be sent as a byte with the stdf packet
+
+add server_level_seq to psyn
+only for server player 0
+set to 0 when server started
+increment whenever a level changes
+
+add this to the dif meta data
+
+on client do not apply dif if it does not match
+
+that sounds like something that would work...
+
+
+added to syn:
+   int server_lev_seq_num;
+
+set when server started:
+mPlayer.syn[0].server_lev_seq_num = 0;
+
+level done server section:
+if (++mPlayer.syn[0].server_lev_seq_num > 255) mPlayer.syn[0].server_lev_seq_num = 0;
+
+
+server send stdf packet
+      char data[1024] = {0}; int pos;
+      mPacketBuffer.PacketName(data, pos, "stdf");
+      mPacketBuffer.PacketPutInt4(data, pos, src);
+      mPacketBuffer.PacketPutInt4(data, pos, dst);
+      mPacketBuffer.PacketPutByte(data, pos, packet_num);
+      mPacketBuffer.PacketPutByte(data, pos, num_packets);
+      mPacketBuffer.PacketPutByte(data, pos, mPlayer.syn[0].server_lev_seq_num);
+      mPacketBuffer.PacketPutInt4(data, pos, start_byte);
+      mPacketBuffer.PacketPutInt4(data, pos, packet_data_size);
+
+
+void mwNetgame::client_proc_stdf_packet(int i)
+{
+   int p       = mPlayer.active_local_player;
+   int src     = mPacketBuffer.PacketGetInt4(i);
+   int dst     = mPacketBuffer.PacketGetInt4(i);
+   int seq     = mPacketBuffer.PacketGetByte(i);
+   int max_seq = mPacketBuffer.PacketGetByte(i);
+   int sls     = mPacketBuffer.PacketGetByte(i); // server level sequence num
+   int sb      = mPacketBuffer.PacketGetInt4(i);
+   int sz      = mPacketBuffer.PacketGetInt4(i);
+
+
+I might also have to make client zero for initial connection
+
+or send as part of join....
+
+void mwNetgame::server_send_sjon_packet(int who, int level, int frame, int player_num, int player_color)
+{
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "sjon");
+   mPacketBuffer.PacketPutInt4(data, pos, level);
+   mPacketBuffer.PacketPutInt4(data, pos, frame);
+   mPacketBuffer.PacketPutByte(data, pos, player_num);
+   mPacketBuffer.PacketPutByte(data, pos, player_color);
+   mPacketBuffer.PacketPutByte(data, pos, mPlayer.syn[0].server_lev_seq_num);
+   ServerSendTo(data, pos, who);
+}
+
+OK this seems to work
+
+test out on remote server
+
+
+
+it is a chicken and egg thing
+
+server has changed seq, but client has not....
+
+how exactly do I do that anyway?
+
+try this:
+
+      if (mNetgame.ima_client)
+      {
+         mNetgame.ClientFlush();
+         mLog.log_ending_stats_client(LOG_NET_ending_stats, mPlayer.active_local_player);
+         if (++mPlayer.syn[0].server_lev_seq_num > 255) mPlayer.syn[0].server_lev_seq_num = 0;
+      }
+      if (mNetgame.ima_server)
+      {
+         mNetgame.ServerFlush();
+         mLog.log_ending_stats_server(LOG_NET_ending_stats);
+         if (++mPlayer.syn[0].server_lev_seq_num > 255) mPlayer.syn[0].server_lev_seq_num = 0;
+      }
+
+
+
+
+
+this seems to work, but when I reload level in rc, it never goes back to the overworld
+levels just increment after that....
+
+what happens when reload is called:
+
+server limits always calls reload like this:
+if (reload) server_reload(1); // to overworld
+
+this is how the other call happens:
+if (type == PM_RCTL_PACKET_TYPE_server_reload) server_reload((int)val);
+
+
+this code here in exit could be better
+
+if (mLevel.prev_level_loaded == 1) mPlayer.syn[0].level_done_next_level = 1;                   // if started from overworld, return there
+else mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level, 199, 1);  // otherwise do next chron level
+
+
+how about, if in story mode instead
+
+if (!mMain.classic_mode) mPlayer.syn[0].level_done_next_level = 1;                             // in story mode all exits return to overworld
+else mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level, 199, 1);  // otherwise do next chron level
+
+this should work..tested and it seems to work...
+
+
+now what?
+
+I still want to change the way a client quits
+
+
+
+old...
+
+void mwNetgame::client_proc_stdf_packet(int i)
+{
+   int p       = mPlayer.active_local_player;
+   int src     = mPacketBuffer.PacketGetInt4(i);
+   int dst     = mPacketBuffer.PacketGetInt4(i);
+   int seq     = mPacketBuffer.PacketGetByte(i);
+   int max_seq = mPacketBuffer.PacketGetByte(i);
+   int sls     = mPacketBuffer.PacketGetByte(i); // server level sequence num
+   int sb      = mPacketBuffer.PacketGetInt4(i);
+   int sz      = mPacketBuffer.PacketGetInt4(i);
+
+   if (sls != mPlayer.syn[0].server_lev_seq_num) printf("stdf from wrong seq! rx:%d should be:%d\n", sls, mPlayer.syn[0].server_lev_seq_num);
+   else
+   {
+
+      mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", seq+1, max_seq, src, dst, sb, sz);
+      mPlayer.loc[p].client_last_stdf_rx_frame_num = mLoop.frame_num;      // client keeps track of last stdf rx'd and quits if too long
+
+
+
+client_last_stdf_rx_frame_num
+
+new:
+
+mPlayer.loc[p].client_last_dif_applied_frame_num
+
+frame number saved when dif applied
+
+checked just like it used to be...
+
+this seems to work and is simpler
+
+now what?
+
+
+should I do a test of clients and see if I can get them to drop?
+
+If all this works I want to clean up the details...
+
+I am having weird issues....
+
+make sure all are at the latest version....
+
+
+I think I am having the same issues I was having months ago...
+when I put too much data, too many packets, I get a real degraded service...like 600-700ms ping
+
+
+when it happens i get constant base resets
+700,000 B/s
+
+
+I have server running in lab 96.45.13.220
+home network 96.45.15.155
+
+1 rc
+4 c
+level 6
+
+
+idle:
+ping 30-50
+160 kB/s
+204 p/s
+
+fakekey:
+ping 30-50
+190-200 kB/s
+300-400 p/s
+
+full stupid: (after 1-2 minutes)
+ping 900-1000
+800 kB/s
+880 p/s
+
+try again with only 2 clients and 1 rc
+dropped 2 clients
+now:
+ping: 30-50
+90 kB/s
+122 p/s
+ran for well over 10 minutes with no issue
+
+
+do I have any weird QOS shit on my router? qos is disabled
+
+add one more client:
+
+one would not connect but the other did:
+now:
+ping: 30-50
+120 kB/s
+203 p/s
+this has run for a while and seems stable....
+
+
+can't add another, 4230jj will not connect, yet it can ping the server
+I can see the connection attempt on the server but 4230jj times out waiting for a reply...
+
+i tried to reload current level and all clients died...could be when server tried to send a huge gm file to each client
+
+a 3.8M file with 40minutes of 3-4 player fakekey...
+
+that would require how many 1K payloads?   3,800,000M / 1000 = 3,800 packets....
+
+
+You know, I could work on this program forever...but I want to finish...
+
+
+I should put a size limit in file transfer...
+
+lets say 200 packets is the limit, I could send files up to 200K with that....
+
+Finish up the recent changes...
+sjon and ssln..should be done
+
+
+make a new release....
 
 
 

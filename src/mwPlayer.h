@@ -82,13 +82,21 @@ struct psyn // synced between server and client
    int player_vs_player_shot_damage;
    int player_vs_self_shots;
 
-
    int server_force_fakekey = 0;
    int server_force_client_offset = 0;
    float client_chase_offset = -0.02;
 
+
+
+   int server_lev_seq_num;
+
+
+
    int spare_int1;
-   int spare_int2;
+
+
+
+
 
 
 };
@@ -111,8 +119,8 @@ struct ploc // not synced between server and client (but synced from server to r
    int who; // for network id of clients
    char hostname[16];
 
-   int server_last_stak_rx_frame_num; // used by server to see if client is still responding
-   int client_last_stdf_rx_frame_num; // used by client to see if server is still responding
+   int server_last_stak_rx_frame_num;     // used by server to see if client is still responding
+   int client_last_dif_applied_frame_num; // used by client to see if server is still responding
    int rewind; // for client and server to keep track of how many frames rewound and played back
 
    float old_x, old_y;        // old players position, used to calc client pos_correction
@@ -124,7 +132,6 @@ struct ploc // not synced between server and client (but synced from server to r
    float client_rmt_plr_cor_avg;
 
    int client_base_resets;
-   int client_last_dif_applied;
 
    double ping;
    double ping_avg;

@@ -228,6 +228,9 @@ void mwNetgame::client_proc_sjon_packet(int i)
    int sfnum  = mPacketBuffer.PacketGetInt4(i);  // server join frame number
    int p      = mPacketBuffer.PacketGetByte(i);  // client player number
    int color  = mPacketBuffer.PacketGetByte(i);  // client player color
+   int slsn   = mPacketBuffer.PacketGetByte(i);  // server level sequence number
+
+   mPlayer.syn[0].server_lev_seq_num = mPacketBuffer.PacketGetByte(i);  // server level sequence
 
    if (p == 99) // server full, join denied
    {
@@ -237,6 +240,7 @@ void mwNetgame::client_proc_sjon_packet(int i)
    }
    else // join allowed
    {
+      mPlayer.syn[0].server_lev_seq_num = slsn;  // server level sequence
       mPlayer.active_local_player = p;
       mPlayer.syn[p].active = 1;
       mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL;
@@ -249,10 +253,12 @@ void mwNetgame::client_proc_sjon_packet(int i)
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Number:[%d]", p);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Color:[%d]", color);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Frame Num:[%d]", sfnum);
+      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Level Sequence Num:[%d]", slsn);
       mLog.add_fwf(LOG_NET,               0, 76, 10, "+", "-", "");
       mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP;
    }
 }
+
 
 
 void mwNetgame::client_send_ping_packet(void)
@@ -432,18 +438,6 @@ void mwNetgame::client_send_crfl(void)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 void mwNetgame::client_proc_stdf_packet(int i)
 {
    int p       = mPlayer.active_local_player;
@@ -451,35 +445,44 @@ void mwNetgame::client_proc_stdf_packet(int i)
    int dst     = mPacketBuffer.PacketGetInt4(i);
    int seq     = mPacketBuffer.PacketGetByte(i);
    int max_seq = mPacketBuffer.PacketGetByte(i);
+   int slsn    = mPacketBuffer.PacketGetByte(i); // server level sequence num
    int sb      = mPacketBuffer.PacketGetInt4(i);
    int sz      = mPacketBuffer.PacketGetInt4(i);
 
-   mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", seq+1, max_seq, src, dst, sb, sz);
-   mPlayer.loc[p].client_last_stdf_rx_frame_num = mLoop.frame_num;      // client keeps track of last stdf rx'd and quits if too long
-   memcpy(client_state_buffer + sb, mPacketBuffer.rx_buf[i].data+22, sz);   // put the piece of data in the buffer
-
-   client_state_buffer_pieces[seq] = dst;                     // mark it with destination mLoop.frame_num
-   int complete = 1;                                          // did we just get the last packet? (yes by default)
-   for (int i=0; i< max_seq; i++)
-      if (client_state_buffer_pieces[i] != dst) complete = 0; // no, if any piece not at latest frame_num
-
-   if (complete)
+   if (slsn != mPlayer.syn[0].server_lev_seq_num)
    {
-      // uncompress client_state_buffer to dif
-      uLongf destLen = sizeof(client_state_dif);
-      uncompress((Bytef*)client_state_dif, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
+      //printf("stdf from wrong seq! rx:%d should be:%d\n", slsn, mPlayer.syn[0].server_lev_seq_num);
+      mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d wrong seq:%d should be:%d\n", seq+1, max_seq, src, dst, sb, sz, slsn, mPlayer.syn[0].server_lev_seq_num);
+   }
+   else
+   {
 
-      if (destLen == STATE_SIZE)
+      mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", seq+1, max_seq, src, dst, sb, sz);
+      memcpy(client_state_buffer + sb, mPacketBuffer.rx_buf[i].data+23, sz);   // put the piece of data in the buffer
+
+      client_state_buffer_pieces[seq] = dst;                     // mark it with destination mLoop.frame_num
+      int complete = 1;                                          // did we just get the last packet? (yes by default)
+      for (int i=0; i< max_seq; i++)
+         if (client_state_buffer_pieces[i] != dst) complete = 0; // no, if any piece not at latest frame_num
+
+      if (complete)
       {
-         mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] - uncompressed\n", src, dst);
-         client_state_dif_src = src; // mark dif data with new src and dst
-         client_state_dif_dst = dst;
-      }
-      else
-      {
-         mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] - bad uncompress\n", src, dst);
-         client_state_dif_src = -1; // mark dif data as bad
-         client_state_dif_dst = -1;
+         // uncompress client_state_buffer to dif
+         uLongf destLen = sizeof(client_state_dif);
+         uncompress((Bytef*)client_state_dif, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
+
+         if (destLen == STATE_SIZE)
+         {
+            mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] - uncompressed\n", src, dst);
+            client_state_dif_src = src; // mark dif data with new src and dst
+            client_state_dif_dst = dst;
+         }
+         else
+         {
+            mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] - bad uncompress\n", src, dst);
+            client_state_dif_src = -1; // mark dif data as bad
+            client_state_dif_dst = -1;
+         }
       }
    }
 }
@@ -489,35 +492,37 @@ void mwNetgame::client_apply_dif(void)
 {
    int p = mPlayer.active_local_player;
 
-   mLog.addf(LOG_NET_dif_applied, p, "----- Apply dif [%d to %d] ", client_state_dif_src, client_state_dif_dst);
+   char log_msg_txt1[64];
+   sprintf(log_msg_txt1, "----- Apply dif [%d to %d]", client_state_dif_src, client_state_dif_dst);
+
+//   mLog.addf(LOG_NET_dif_applied, p, "----- Apply dif [%d to %d] ", client_state_dif_src, client_state_dif_dst);
 
    // check if dif is valid
    if ((client_state_dif_src == -1) || (client_state_dif_dst == -1))
    {
-      mLog.app(LOG_NET_dif_not_applied, "[not applied] [dif not valid]\n");
+      mLog.appf(LOG_NET_dif_not_applied, "%s [not applied] [dif not valid]\n", log_msg_txt1);
       return;
    }
 
    // check if dif_dest has already been applied (check if dif_dest is less than or equal to newest_state_frame_num)
    if (client_state_dif_dst <= mStateHistory[p].newest_state_frame_num)
    {
-      mLog.app(LOG_NET_dif_not_applied, "[not applied] [not newer than last dif applied]\n");
+      mLog.appf(LOG_NET_dif_not_applied, "%s [not applied] [not newer than last dif applied]\n", log_msg_txt1);
       return;
    }
-
 
    // if we got this far, we know that dif is valid and dif destination is newer than last applied dif
 
 
    // compare dif destination to current frame number
    int ff = mPlayer.loc[p].rewind = mLoop.frame_num - client_state_dif_dst;
-   char tmsg[64];
-   if (ff == 0) sprintf(tmsg, "exact frame match [%d]", mLoop.frame_num);
-   if (ff > 0)  sprintf(tmsg, "rewound [%d] frames", ff);
+   char log_msg_txt2[64];
+   if (ff == 0) sprintf(log_msg_txt2, "exact frame match [%d]", mLoop.frame_num);
+   if (ff > 0)  sprintf(log_msg_txt2, "rewound [%d] frames", ff);
    if (ff < 0)
    {
-      if (mLoop.frame_num == 0) sprintf(tmsg, "initial state");
-      else                      sprintf(tmsg, "jumped ahead %d frames", -ff);
+      if (mLoop.frame_num == 0) sprintf(log_msg_txt2, "initial state");
+      else                      sprintf(log_msg_txt2, "jumped ahead %d frames", -ff);
    }
 
 
@@ -525,20 +530,35 @@ void mwNetgame::client_apply_dif(void)
    char base[STATE_SIZE] = {0};
    int base_frame_num = 0;
 
-   if (client_state_dif_src == 0) mPlayer.loc[p].client_base_resets++; // server sent a dif based on zero
+   if (client_state_dif_src == 0) mPlayer.loc[p].client_base_resets++; // server sent a dif based on zero, leave base as is (all zero)
    else
    {
-      // finds and sets base matching 'client_state_dif_src' -- if not found, leaves base as is (zero)
+      // finds and sets base matching 'client_state_dif_src' -- if not found, leaves base as is (all zero)
       mStateHistory[p].get_base_state(base, base_frame_num, client_state_dif_src);
 
       if (base_frame_num == 0) // base was not found in history
       {
          int fn = mStateHistory[p].newest_state_frame_num; // get newest base we do have
+
+         if (fn == -1) // no valid base states at all
+         {
+            fn = 0; // do not sent stak with -1 send it with 0
+            mLog.appf(LOG_NET_dif_not_applied, "%s [not applied] [no bases found] - resending stak [%d]\n", log_msg_txt1, fn);
+         }
+         else
+         {
+            mLog.appf(LOG_NET_dif_not_applied, "%s [not applied] [base not found] - resending stak [%d]\n", log_msg_txt1, fn);
+         }
          client_send_stak_packet(fn);
-         mLog.appf(LOG_NET_dif_not_applied, "[not applied] [base not found] - resending stak [%d]\n", fn);
          return;
       }
    }
+
+   // if we got this far, we know that a valid base has been found and we will be aplying the dif
+
+
+
+
 
    // ------------------------------------------------
    // save things before applying dif
@@ -564,16 +584,16 @@ void mwNetgame::client_apply_dif(void)
    state_to_game_vars(base);
    mLoop.frame_num = client_state_dif_dst;
 
-   // keep track of frame number when last client dif was applied
-   mPlayer.loc[p].client_last_dif_applied = mLoop.frame_num;
+   // client keeps track of last dif applied and uses that to quit if no dif applied for a period of time
+   mPlayer.loc[p].client_last_dif_applied_frame_num = mLoop.frame_num;
 
    // save to history
    mStateHistory[p].add_state(mLoop.frame_num);
    //mStateHistory[p].show_states("save frame:%d to history\n", mLoop.frame_num);
 
-
    // add log entry
-   mLog.appf(LOG_NET_dif_not_applied, "[applied] [%s]\n", tmsg);
+   mLog.appf(LOG_NET_dif_not_applied, "%s [applied] [%s]\n", log_msg_txt1, log_msg_txt2);
+
 
 
    // ------------------------------------------------
@@ -613,6 +633,10 @@ void mwNetgame::client_apply_dif(void)
    // send acknowledgment
    client_send_stak_packet(client_state_dif_dst);
 
+
+
+
+
    // ------------------------------------------------
    // calc players' corrections
    // ------------------------------------------------
@@ -639,6 +663,7 @@ void mwNetgame::client_send_cdat_packet(int p)
    mPacketBuffer.PacketPutByte(data, pos, mPlayer.loc[p].comp_move);
    ClientSend(data, pos);
    mPlayer.loc[p].client_cdat_packets_tx++;
+   mLog.addf(LOG_NET_cdat, p, "tx cdat - move:%d\n", mPlayer.loc[p].comp_move);
 }
 
 void mwNetgame::client_send_stak_packet(int ack_frame)
@@ -723,16 +748,16 @@ void mwNetgame::client_proc_player_drop(void)
       mLoop.state[0] = PM_PROGRAM_STATE_MENU;
    }
 
-   int lsf = mPlayer.loc[p].client_last_stdf_rx_frame_num;
-   if ((mLoop.frame_num > 0) && (lsf > 0)) // check to see if server connection is lost
+   int lda = mPlayer.loc[p].client_last_dif_applied_frame_num;
+   if ((mLoop.frame_num > 0) && (lda > 0)) // check to see if server connection is lost
    {
-      int ss = mLoop.frame_num - lsf;
+      int ss = mLoop.frame_num - lda;
       if (ss > 200)
       {
          mPlayer.loc[p].quit_reason = 75;
          mLog.add_fwf(LOG_NET, p, 76, 10, "+", "-", "");
          mLog.add_fwf(LOG_NET, p, 76, 10, "|", " ", "Local Player Client %d Lost Server Connection!", p);
-         mLog.add_fwf(LOG_NET, p, 76, 10, "|", " ", "last_stdf_rx:[%d]", lsf);
+         mLog.add_fwf(LOG_NET, p, 76, 10, "|", " ", "last_dif_applied:[%d]", lda);
          mLog.add_fwf(LOG_NET, p, 76, 10, "+", "-", "");
          mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
 

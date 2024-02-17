@@ -64,7 +64,6 @@ void mwLevel::add_play_data_record(int lev, int type)
    if (lev == 1) save_flag = 0; // never save data for overworld
 
 
-
    if (save_flag)
    {
       mLevel.skc_trigger_demo_cheat = 0;
@@ -85,38 +84,40 @@ void mwLevel::add_play_data_record(int lev, int type)
       if (type == 2) ct = data[lev].time_par + 1200; // fake time (par time + 30s)
 
 
-      // check for new record
-      if (type == 1) // normal completion only sets new records
-      {
-         int best_time = data[lev].time_best_all_coins;
-         int par_time = data[lev].time_par;
-
-         int pcc = level_data_purple_coins_collected;
-         int pct = data[lev].tot_purple_coins;
-
-         printf("check for new record - ct:%d bt:%d pt:%d   pcc:%d pct:%d\n", ct, best_time, par_time, pcc, pct);
 
 
-         if (pcc < pct) printf("all purple coins not collected\n");
-         else
-         {
-
-            if ((ct < best_time) && (ct < par_time))
-            {
-               printf("better than par and best\n");
-            }
-
-            if (ct < best_time)
-            {
-               printf("better than prev best\n");
-            }
-
-            if (ct < par_time)
-            {
-               printf("better than par\n");
-            }
-         }
-      }
+//      // check for new record
+//      if (type == 1) // normal completion only sets new records
+//      {
+//         int best_time = data[lev].time_best_all_coins;
+//         int par_time = data[lev].time_par;
+//
+//         int pcc = level_data_purple_coins_collected;
+//         int pct = data[lev].tot_purple_coins;
+//
+//         printf("check for new record - ct:%d bt:%d pt:%d   pcc:%d pct:%d\n", ct, best_time, par_time, pcc, pct);
+//
+//
+//         if (pcc < pct) printf("all purple coins not collected\n");
+//         else
+//         {
+//
+//            if ((ct < best_time) && (ct < par_time))
+//            {
+//               printf("better than par and best\n");
+//            }
+//
+//            if (ct < best_time)
+//            {
+//               printf("better than prev best\n");
+//            }
+//
+//            if (ct < par_time)
+//            {
+//               printf("better than par\n");
+//            }
+//         }
+//      }
 
 
 

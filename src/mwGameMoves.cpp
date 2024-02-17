@@ -558,28 +558,13 @@ void mwGameMoves::save_gm_txt(const char *sfname)
 
 void mwGameMoves::save_gm(const char *fname)
 {
+   int print_level = 1;
+
    int skip = 0;
-   if (mNetgame.ima_client) skip = 1;  // do not save for clients, the gm is missing data and is not playable
-
-   if (entry_pos == 0)
-   {
-      skip = 1;
-      printf("No game moves to save\n");
-   }
-
-   if (mLevel.play_level == 1)
-   {
-      skip = 1;
-      printf("Never save demo for overworld\n");
-   }
-
-   if (mDemoMode.mode)
-   {
-      skip = 1;
-      printf("Never save demo when in demo mode\n");
-   }
-
-
+   if (mNetgame.ima_client)     { skip = 1;  if (print_level > 1) printf("Never save demo for client\n");        } // do not save for client, the gm is missing data and is not playable
+   if (entry_pos == 0)          { skip = 1;  if (print_level > 1) printf("No game moves to save\n");             }
+   if (mLevel.play_level == 1)  { skip = 1;  if (print_level > 1) printf("Never save demo for overworld\n");     }
+   if (mDemoMode.mode)          { skip = 1;  if (print_level > 1) printf("Never save demo when in demo mode\n"); }
 
    if (!skip)
    {
@@ -596,7 +581,7 @@ void mwGameMoves::save_gm(const char *fname)
                fprintf(filepntr,"%d\n", arr[x][y]);
          fclose(filepntr);
 
-         printf("saved:%s\n", fname);
+         if (print_level) printf("saved:%s\n", fname);
 
          if (mNetgame.ima_server) // if server, send to all active clients
          {
@@ -605,10 +590,9 @@ void mwGameMoves::save_gm(const char *fname)
                   mNetgame.server_add_file_to_send(fname, mPlayer.loc[p].who);
          }
 
-
          sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname); // update the name
 
-//         save_gm_txt(fname); // also save as a human readable text file
+         if (0) save_gm_txt(fname); // also save as a human readable text file
       }
    }
 }
@@ -632,7 +616,7 @@ void mwGameMoves::save_gm_file_select(void)
          save_gm(fname);
       }
    }
-   else printf("file select cancelled\n" );
+   else printf("file select cancelled\n");
    al_destroy_native_file_dialog(afc);
 }
 
@@ -643,13 +627,8 @@ void mwGameMoves::save_gm_make_fn(const char* description)
    time_t now = time(NULL);
    timenow = localtime(&now);
    strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
-
-   char lev[20];
-   sprintf(lev, "[%02d]", mLevel.play_level);
-
    char filename[120];
-   sprintf(filename, "savegame/%s-%s-%s.gm", timestamp, lev, description);
-
+   sprintf(filename, "savegame/%s-[%02d]-%s.gm", timestamp, mLevel.play_level, description);
    save_gm(filename);
 }
 
