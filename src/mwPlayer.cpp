@@ -1371,14 +1371,6 @@ void mwPlayer::init_player(int p, int t)
       loc[p].who = 99;
       loc[p].fake_keypress_mode = 0;
 
-      loc[p].up_key =    loc[0].up_key;
-      loc[p].down_key =  loc[0].down_key;
-      loc[p].left_key =  loc[0].left_key;
-      loc[p].right_key = loc[0].right_key;
-      loc[p].jump_key =  loc[0].jump_key;
-      loc[p].fire_key =  loc[0].fire_key;
-      loc[p].menu_key =  loc[0].menu_key;
-
       init_player(p, 17); // clear player common
       init_player(p, 21); // clear netgame counters, etc
       init_player(p, 23); // clear bandwidth counters
@@ -1719,82 +1711,32 @@ int mwPlayer::comp_move_from_players_current_controls(int p) // new method to re
    if (syn[p].menu)    cm |= PM_COMPMOVE_MENU;
    return cm;
 }
+
 void mwPlayer::set_comp_move_from_player_key_check(int p) // doesn't set controls
 {
    int cm = 0;
-   if (mInput.key[loc[p].left_key][0])       cm |= PM_COMPMOVE_LEFT;
-   if (mInput.key[loc[p].right_key][0])      cm |= PM_COMPMOVE_RIGHT;
-   if (mInput.key[loc[p].up_key][0])         cm |= PM_COMPMOVE_UP;
-   if (mInput.key[loc[p].down_key][0])       cm |= PM_COMPMOVE_DOWN;
-   if (mInput.key[loc[p].jump_key][0])       cm |= PM_COMPMOVE_JUMP;
-   if (mInput.key[loc[p].fire_key][0])       cm |= PM_COMPMOVE_FIRE;
-   if (mInput.key[loc[p].menu_key][0])       cm |= PM_COMPMOVE_MENU;
+   if (mInput.key[loc[0].left_key][0])       cm |= PM_COMPMOVE_LEFT;
+   if (mInput.key[loc[0].right_key][0])      cm |= PM_COMPMOVE_RIGHT;
+   if (mInput.key[loc[0].up_key][0])         cm |= PM_COMPMOVE_UP;
+   if (mInput.key[loc[0].down_key][0])       cm |= PM_COMPMOVE_DOWN;
+   if (mInput.key[loc[0].jump_key][0])       cm |= PM_COMPMOVE_JUMP;
+   if (mInput.key[loc[0].fire_key][0])       cm |= PM_COMPMOVE_FIRE;
+   if (mInput.key[loc[0].menu_key][0])       cm |= PM_COMPMOVE_MENU;
    if (mInput.key[ALLEGRO_KEY_ESCAPE][0])    cm |= PM_COMPMOVE_MENU;
    loc[p].comp_move = cm;
 }
 
 void mwPlayer::set_controls_from_player_key_check(int p) // used only in menu
 {
-   if (mInput.key[loc[p].left_key][0])       syn[p].left  = 1;
-   if (mInput.key[loc[p].right_key][0])      syn[p].right = 1;
-   if (mInput.key[loc[p].up_key][0])         syn[p].up    = 1;
-   if (mInput.key[loc[p].down_key][0])       syn[p].down  = 1;
-   if (mInput.key[loc[p].jump_key][0])       syn[p].jump  = 1;
-   if (mInput.key[loc[p].fire_key][0])       syn[p].fire  = 1;
-   if (mInput.key[loc[p].menu_key][0])       syn[p].menu  = 1;
+   if (mInput.key[loc[0].left_key][0])       syn[p].left  = 1;
+   if (mInput.key[loc[0].right_key][0])      syn[p].right = 1;
+   if (mInput.key[loc[0].up_key][0])         syn[p].up    = 1;
+   if (mInput.key[loc[0].down_key][0])       syn[p].down  = 1;
+   if (mInput.key[loc[0].jump_key][0])       syn[p].jump  = 1;
+   if (mInput.key[loc[0].fire_key][0])       syn[p].fire  = 1;
+   if (mInput.key[loc[0].menu_key][0])       syn[p].menu  = 1;
    if (mInput.key[ALLEGRO_KEY_ESCAPE][0])    syn[p].menu  = 1;
 }
-
-
-/*
-
-void mwPlayer::proc_player_input(void)
-{
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      if (syn[p].active) // cycle all active players
-      {
-         int cm = syn[p].control_method;
-         if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) || (cm == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL) || (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL))
-         {
-            if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
-            {
-               set_comp_move_from_player_key_check(p);
-
-               // even in fakekey mode allow ESC or menu
-               if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey))
-                  if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
-
-               if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
-               {
-                  if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) && (p == active_local_player))
-                     mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, loc[p].comp_move); // add to game moves array
-
-                  // in client mode, send cdat packet, and apply move directly to controls
-                  if (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)
-                  {
-                     mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, loc[p].comp_move); // add to game moves array
-                     mNetgame.client_send_cdat_packet(p);
-                     set_controls_from_comp_move(p, loc[p].comp_move);
-                     if (syn[p].menu) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_PREEXIT1; // menu key pressed
-                     mLog.addf(LOG_NET_cdat, p, "tx cdat - move:%d\n", loc[p].comp_move);
-                  }
-
-
-
-               }
-            }
-         }
-      }
-      else if (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL) // client waiting for server to make it active
-      {
-         if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT; // give them an escape option
-      }
-   }
-}
-
-*/
-
 
 void mwPlayer::proc_player_input(void)
 {
@@ -1836,15 +1778,3 @@ void mwPlayer::proc_player_input(void)
          }
       }
 }
-
-
-
-
-
-
-
-
-
-
-
-

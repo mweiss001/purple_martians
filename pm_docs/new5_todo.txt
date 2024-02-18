@@ -2,6 +2,30 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+
+bug...key bindings should only be in player 0....
+they only affect the local player
+there will never be time when any other than 0 are needed
+I think I have it done
+
+
+
+
+
+BUGS HERE IS THE MOST META BUG OF ALL!!!
+
+I want this game to show off my awesome skills.
+So everything that is not perfect will reflect badly on me.
+This is why it is so hard to finish, it will never be perfect...
+
+
+
+
+
+
+
+
+
 headless server, how do I make it save logs...
 I can't quit with CTRL-C in the terminal or kill the process...the log will not get saved
 I have to make a level done happen, (or reload level?...yes)
@@ -14,6 +38,12 @@ have not seen this happen for a long time
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+I want some way to show off all the multiplayer demos...
+put the other folder in demo and call it multiplayer tas..done
+tas escape rocket not all purple coins??..fixed
+
 
 Where do I have the IP hard coded into the game?
 

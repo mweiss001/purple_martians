@@ -44637,10 +44637,15 @@ lets say 200 packets is the limit, I could send files up to 200K with that....
 Finish up the recent changes...
 sjon and ssln..should be done
 
-
 make a new release....
 
+when a brand new client connects to server on the client all levels are locked
+how hard would this be to fix?
+the problem is that there is only one copy of the level locks, the local copy....
 
+how about in netgame mode, all are unlocked
+right now if server has locked what happens? It looks the same on the client
+but both c and s can enter locked levels
 
 
 
