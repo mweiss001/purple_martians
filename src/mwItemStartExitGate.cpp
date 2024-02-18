@@ -159,11 +159,8 @@ void mwItem::proc_gate_collision(int p, int i)
       mLevel.load_level(1, 0, 0);
    }
 
-
-
    int unlocked = mLevel.data[lev].status;
    if ((mNetgame.ima_server) || (mNetgame.ima_client)) unlocked = 1; // ignore locks in netgame
-
 
    // enter gate by pressing up
    if ((mPlayer.syn[p].up) && (unlocked))
@@ -199,12 +196,29 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
       int xc = x+10; // center of tile
       int lev = item[i][6];
       int col = mLevel.data[lev].status_color;
+      int status = mLevel.data[lev].status;
+
+      char stat_txt[16];
+      sprintf(stat_txt, "%s", mLevel.data[lev].status_text);
+
+
+      // all are unlocked in netgame
+      if ((mNetgame.ima_server) || (mNetgame.ima_client))
+      {
+         if (status == 0)
+         {
+            status = 1;
+            col = 13;
+            sprintf(stat_txt, "%s", "Ready");
+         }
+      }
+
 
       al_draw_scaled_bitmap(mBitmap.tile[127+col], 0, 0, 20, 20, x-10, y-20, 40, 40, 0); // draw the gate tile
 
-      mScreen.draw_framed_text(xc, y-19, 1, mFont.pixl, col, 15, mLevel.data[lev].status_text); // draw status text
+      mScreen.draw_framed_text(xc, y-19, 1, mFont.pixl, col, 15, stat_txt); // draw status text
 
-      if (mLevel.data[lev].status == 0) al_draw_scaled_bitmap(mBitmap.tile[366], 0, 0, 20, 20, x-11, y-24, 40, 40, 0); // show lock
+      if (status == 0) al_draw_scaled_bitmap(mBitmap.tile[366], 0, 0, 20, 20, x-11, y-24, 40, 40, 0); // show lock
 
       // show icon for purple coin achievement
       if (mLevel.data[lev].max_purple_coins_collected == mLevel.data[lev].tot_purple_coins)
@@ -213,6 +227,7 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
       // show icon for par time achievement
       if ((mLevel.data[lev].time_best_all_coins > 0) && (mLevel.data[lev].time_best_all_coins < mLevel.data[lev].time_par))
          al_draw_scaled_bitmap(mBitmap.tile[542], 3, 3, 14, 14, x+12, y-11, 14, 14, 0); // show clock
+
 
       // al_draw_textf(mFont.pr8, mColor.pc[15], xc+30, y, ALLEGRO_ALIGN_CENTER, "%d", lev); // draw the level number (optional, comment out for release)
 

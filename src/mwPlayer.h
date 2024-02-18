@@ -112,6 +112,8 @@ struct ploc // not synced between server and client (but synced from server to r
    int damage_type;
 
    int up_key, down_key, left_key, right_key, jump_key, fire_key, menu_key;
+
+
    int comp_move;
 
    int fake_keypress_mode;
