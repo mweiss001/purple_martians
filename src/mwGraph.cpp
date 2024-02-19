@@ -1040,7 +1040,7 @@ int mwGraph::calc_data_range(void)
    {
       printf("No Data.\n");
       mInput.m_err("No Data.");
-      // mMain.fast_exit(0);
+      // mMain.fast_exit();
       return 0;
    }
 

@@ -910,11 +910,7 @@ void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
 {
    int p = mPlayer.active_local_player;
    double t0 = al_get_time();
-   if (!mPlayer.syn[p].active)
-   {
-      rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2-32, mPlayer.syn[p].color, 2, 1, "Please wait for server syncronization");
-      rtextout_centref(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2,    mPlayer.syn[p].color, 4, 1, "[%2.1f]", abs(mNetgame.client_chase_offset - mPlayer.loc[p].pdsync)*1000);
-   }
+
    mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_client", al_get_time() - t0);
 
    // ------------------------------------

@@ -117,8 +117,6 @@ void mwGameMoves::gm_sort(void)
       }
 }
 
-
-
 void mwGameMoves::remove_doubled_moves(void)
 {
    gm_sort();
@@ -136,15 +134,6 @@ void mwGameMoves::remove_doubled_moves(void)
    }
    gm_sort();
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -210,44 +199,43 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 {
    char msg[1024];
 
+   int p = data1; // alias to improve for readability
+
    if (type == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
    {
       int sc = 0;
       if (mPlayer.syn[0].player_vs_player_shots) sc |= 0b01;
       if (mPlayer.syn[0].player_vs_self_shots)   sc |= 0b10;
 
-
       add_game_move2(frame, type, sc, mPlayer.syn[0].player_vs_player_shot_damage);
       return; // to exit immediately
    }
 
-   // ----------------------------------------------------------------------------------------
-   // if we are in level_done_mode 5, all moves are converted to type 8, level done acknowledge
-   // ----------------------------------------------------------------------------------------
-   if ((mPlayer.syn[0].level_done_mode == 5) && (type == 5) && (data2)) // all move type inputs are acks in this mode
+   // -----------------------------------------------------------------------------------------------------------------
+   // if we are in level_done_mode 5, all PM_GAMEMOVE_TYPE_PLAYER_MOVE are converted to PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK
+   // -----------------------------------------------------------------------------------------------------------------
+   if ((mPlayer.syn[0].level_done_mode == 5) && (type == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (data2))
    {
       if (!has_player_acknowledged(data1)) // to prevent multiple acks
-         add_game_move2(frame, PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK, data1, 0); // type 8 - acknowledge level done
-      return; // to exit immediately
+         add_game_move2(frame, PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK, p, 0);
+      return; // exit immediately
    }
 
-   // ----------------------------------------------------------------------------------------
-   // if menu key or escape was pressed, handle the quitting of the game for other players too
-   // ----------------------------------------------------------------------------------------
-   if ((type == 5) && (data2 & PM_COMPMOVE_MENU))  // menu key
+
+
+
+
+
+   // --------------------------------------------------------------------------------------
+   // PM_COMPMOVE_MENU was pressed - enter PM_GAMEMOVE_TYPE_PLAYER_INACTIVE
+   // --------------------------------------------------------------------------------------
+   if ((type == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (data2 & PM_COMPMOVE_MENU))
    {
-      // ----------------------------------------------------------------------------------------
-      // demo record single player quit
-      // ----------------------------------------------------------------------------------------
-      if ((mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) && (mPlayer.syn[data1].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER))
-      {
-         add_game_move2(frame, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, 0);
-         return;
-      }
+
 
 
       // ----------------------------------------------------------------------------------------
-      // single player mode quit
+      // single player mode quit - do not enter inactive game move so game can be resumed
       // ----------------------------------------------------------------------------------------
       if ((mPlayer.active_local_player == 0) && (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER))
       {
@@ -257,43 +245,53 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
          return;
       }
 
+
+
+
       // ----------------------------------------------------------------------------------------
-      // local server quitting
+      // demo record player quit
       // ----------------------------------------------------------------------------------------
-      if ((mNetgame.ima_server) && (data1 == 0))
+      if ((mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER))
       {
-         // first set all connected clients to inactive
-         for (int p=1; p<NUM_PLAYERS; p++)
-            if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
-            {
-               // mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON; // what does this even do?
-               add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 64);
-            }
-         // then set server to inactive in future
-         add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, 0, 64);
+         add_game_move2(frame, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, PM_PLAYER_QUIT_REASON_MENU_KEY);
          return;
       }
+
+
       // ----------------------------------------------------------------------------------------
-      // remote client quitting (server only)
+      // local server
       // ----------------------------------------------------------------------------------------
-      if ((mNetgame.ima_server) && (data1 > 0))
+      if (mNetgame.ima_server)
       {
-         add_game_move2(frame + 2, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, 64);
-         return;
+         if (p == 0) // server quitting
+         {
+            // first set all connected clients to inactive
+            for (int p=1; p<NUM_PLAYERS; p++)
+               if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
+               {
+                  mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON; // this lets the clients quit gracefully instead of timing out with lost server connection
+                  add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, PM_PLAYER_QUIT_REASON_SERVER_ENDED_GAME);
+               }
+
+            // then set server to inactive in future
+            add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, 0, PM_PLAYER_QUIT_REASON_SERVER_ENDED_GAME);
+            return;
+         }
+         else // client quitting
+         {
+            add_game_move2(frame + 2, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, PM_PLAYER_QUIT_REASON_SERVER_ENDED_GAME);
+            return;
+         }
       }
+
       // ----------------------------------------------------------------------------------------
-      // local client quitting (client only)
+      // local client quitting
       // ----------------------------------------------------------------------------------------
       if (mNetgame.ima_client)
       {
-         add_game_move2(frame + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, 64);
+         add_game_move2(frame + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, PM_PLAYER_QUIT_REASON_CLIENT_ENDED_GAME);
          return;
       }
-
-
-
-
-
 
       sprintf(msg, "Error: menu key not handled...should never get here");
       mInput.m_err(msg);
@@ -303,6 +301,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       // ----------------------------------------------------------------------------------------
 //      add_game_move2(frame + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, 64);
 //      return;
+
    }
 
    // ----------------------------------------------------------------------------------------
@@ -314,11 +313,6 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 
 void mwGameMoves::proc_game_move_shot_config(int i)
 {
-//   mPlayer.syn[0].player_vs_player_shots = 0;
-//   mPlayer.syn[0].player_vs_self_shots = 0;
-//   if (arr[i][2] & 0b01) mPlayer.syn[0].player_vs_player_shots = 1;
-//   if (arr[i][2] & 0b10) mPlayer.syn[0].player_vs_self_shots = 1;
-
    mPlayer.syn[0].player_vs_player_shots       = arr[i][2] & 0b01;
    mPlayer.syn[0].player_vs_self_shots         = arr[i][2] & 0b10;
    mPlayer.syn[0].player_vs_player_shot_damage = arr[i][3];
@@ -327,10 +321,8 @@ void mwGameMoves::proc_game_move_shot_config(int i)
 void mwGameMoves::proc_game_move_player_hidden(int x)
 {
    int p = arr[x][2];  // player number
-
    mPlayer.syn[p].paused = 1;
    mPlayer.syn[p].paused_type = 3;
-
 }
 
 void mwGameMoves::proc_game_move_player_active(int x)
@@ -338,6 +330,7 @@ void mwGameMoves::proc_game_move_player_active(int x)
    int p = arr[x][2];  // player number
    int c = arr[x][3];  // color
 
+   // if player was already active, just change the color
    mPlayer.syn[p].color = c; // color
 
    // player was inactive before and just now changes to active
@@ -359,28 +352,14 @@ void mwGameMoves::proc_game_move_player_active(int x)
          mGameEvent.add(6, 0, 0, p, 0, 0, 0);
          if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 0, "Player:%d became ACTIVE!                                ", p);
       }
-
-
    }
 }
 
 void mwGameMoves::proc_game_move_player_inactive(int x)
 {
-   int p   = arr[x][2]; // player number
-   int val = arr[x][3]; // reason
-
-   mPlayer.loc[p].quit_frame = mLoop.frame_num;
-
-   // ------------------------------------
-   // player never became active
-   // ------------------------------------
-   if ((mPlayer.syn[p].active == 0) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
-   {
-      mPlayer.loc[p].join_frame = mLoop.frame_num;
-      mPlayer.loc[p].quit_reason = 74;
-      mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER;
-      mPlayer.loc[p].who = 99;
-   }
+   int p = arr[x][2]; // player number
+   mPlayer.loc[p].quit_reason = arr[x][3];
+   mPlayer.loc[p].quit_frame  = mLoop.frame_num;
 
    if (mPlayer.syn[p].active)
    {
@@ -407,13 +386,6 @@ void mwGameMoves::proc_game_move_player_inactive(int x)
       if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL)
       {
          // printf("Local Server Player Quit :%d\n", mLoop.frame_num);
-         mPlayer.loc[p].quit_reason = 91;
-
-         // set quit reason for all active clients on server
-         for (int pp=1; pp<NUM_PLAYERS; pp++)
-            if ((mPlayer.syn[pp].active) && (mPlayer.syn[pp].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
-               mPlayer.loc[pp].quit_reason = 91;
-
          if (!mLoop.ff_state) mLog.log_ending_stats_server(LOG_NET_ending_stats);
          mLoop.state[0] = PM_PROGRAM_STATE_MENU;
       }
@@ -424,7 +396,6 @@ void mwGameMoves::proc_game_move_player_inactive(int x)
       if ((mNetgame.ima_client) && (p == 0))
       {
          // printf("Remote Server Quit :%d\n", mLoop.frame_num);
-         if (val == 64) mPlayer.loc[mPlayer.active_local_player].quit_reason = 92;
          mLoop.state[0] = PM_PROGRAM_STATE_MENU;
       }
 
@@ -434,7 +405,6 @@ void mwGameMoves::proc_game_move_player_inactive(int x)
       if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
       {
          //printf("Remote Player Quit :%d\n", mLoop.frame_num);
-         mPlayer.loc[p].quit_reason = 93;
          if (!mLoop.ff_state) mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
          mPlayer.syn[p].active = 0;
       }
@@ -442,8 +412,6 @@ void mwGameMoves::proc_game_move_player_inactive(int x)
       mGameEvent.add(7, 0, 0, p, 0, 0, 0);
    }
 }
-
-
 
 char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
 {
@@ -552,7 +520,6 @@ void mwGameMoves::save_gm_txt(const char *sfname)
             mNetgame.server_add_file_to_send(fname, mPlayer.loc[p].who);
    }
 }
-
 
 
 void mwGameMoves::save_gm(const char *fname)

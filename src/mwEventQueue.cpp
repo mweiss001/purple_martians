@@ -34,7 +34,7 @@ void mwEventQueue::create_timers(void)
 void mwEventQueue::proc_events(ALLEGRO_EVENT ev)
 {
    if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) mDisplay.proc_display_change();
-   if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) mMain.fast_exit(0);
+   if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) mMain.fast_exit();
    if (ev.type == ALLEGRO_EVENT_TIMER)
    {
       if (ev.timer.source == fps_timer) program_update = 1;

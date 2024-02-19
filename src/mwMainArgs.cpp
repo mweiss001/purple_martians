@@ -234,7 +234,7 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
          printf(" -tc       (copies config only eg: 'pm.exe -tc')\n");
 
 
-         mMain.fast_exit(0);
+         mMain.fast_exit();
       }
    }
 }
@@ -250,19 +250,19 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          printf("running level editor for level:%d\n", mLevel.start_level);
          mLevel.set_start_level(mWM.loop(mLevel.start_level));
-         mMain.fast_exit(0);
+         mMain.fast_exit();
       }
 
       if (strcmp(argument_array[1],"-h") == 0 )  // help
       {
          mHelp.help("Command Line");
-         mMain.fast_exit(0);
+         mMain.fast_exit();
       }
 
       if (strcmp(argument_array[1],"-test") == 0 )  // temp test
       {
          temp_test();
-         mMain.fast_exit(0);
+         mMain.fast_exit();
       }
 
       if (strcmp(argument_array[1],"-ts") == 0 )  // copy to clients and run server
@@ -276,13 +276,13 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-l") == 0 )  // log file viewer
       {
          mLog.log_file_viewer(1);
-         mMain.fast_exit(0);
+         mMain.fast_exit();
       }
 
       if (strcmp(argument_array[1],"-lr") == 0 )  // log file viewer most recent
       {
          mLog.log_file_viewer(2);
-         mMain.fast_exit(0);
+         mMain.fast_exit();
       }
 
       // join netgame - no server specified, use server from config file
@@ -326,7 +326,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          mLogo.show_splash_screen = 0;
          mDemoMode.run_single_from_cmd_prompt();
-         fast_exit(0);
+         fast_exit();
       }
 
       // keep this last so if no other single flag matches try to run like it an int level...
@@ -347,7 +347,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          printf("trying to run as a demo file\n");
          mLogo.show_splash_screen = 0;
          mDemoMode.run_single_from_cmd_fn(argument_array[1]);
-         fast_exit(0);
+         fast_exit();
       }
    } // end of argument_count == 2
 
@@ -362,7 +362,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
             mLevel.set_start_level(pl);
             printf("running level editor for level:%d\n", pl);
             mLevel.set_start_level(mWM.loop(mLevel.start_level));
-            mMain.fast_exit(0);
+            fast_exit();
          }
          else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
       }
@@ -1270,7 +1270,7 @@ void show_level_done(void);
 //            printf("running level editor for level:%d\n", play_level);
 //            play_level = edit_menu(play_level);
 //            set_start_level(play_level);
-//            mMain.fast_exit(0);
+//            mMain.fast_exit();
 
 
 

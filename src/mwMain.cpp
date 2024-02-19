@@ -87,9 +87,8 @@ void mwMain::final_wrapup(void)
 }
 
 
-void mwMain::fast_exit(int why)
+void mwMain::fast_exit(void)
 {
-   if (why != 0) mPlayer.loc[mPlayer.active_local_player].quit_reason = why; // don't overwrite if not zero
    if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
    if (mGameMoves.autosave_game_on_program_exit) mGameMoves.save_gm_make_fn("autosave on program exit");
 

@@ -45068,22 +45068,67 @@ force on for headless server
 all done...
 
 
+what gm folders are used for demo...meh
+use just the demo that contains TAS...done
 
 
-g++ -Wall -c src/mwNetgameSessionLog.cpp -o o/src/mwNetgameSessionLog.o
-src/mwNetgameSessionLog.cpp: In member function ‘void mwNetgame::session_add_entry(const char*, int)’:
-src/mwNetgameSessionLog.cpp:180:14: warning: ‘sprintf’ argument 4 overlaps destination object ‘this’ [-Wrestrict]
-  180 |       sprintf(client_sessions[i].session_name, "%s_%s_%d", ts, client_sessions[i].ip, client_sessions[i].port);
-      |       ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/mwNetgameSessionLog.cpp:144:63: note: destination object referenced by ‘restrict’-qualified argument 1 was declared here
 
+are log files saved with single quotes around them?
+not session but regular logs...
 
-  144 | void mwNetgame::session_add_entry(const char* address, int who)
-      |                                                               ^
-g++ -Wall -c src/mwPacketBuffer.cpp -o o/src/mwPacketBuffer.o
+tested on windows and I don't see quotes
 
+I think I have figured it out:
 
+the quotes are because bash needs to escape or quote [ and ]
 
+total 188
+drwxr-xr-x  3 m m  4096 Feb 19 12:43  ./
+drwxrwxrwx 16 m m  4096 Feb 19 11:41  ../
+-rw-rw-r--  1 m m  8543 Feb 19 11:49 '20240219-114905-[1][pmh].txt'
+-rw-rw-r--  1 m m  7932 Feb 19 11:53 '20240219-115338-[17][pmh].txt'
+-rw-rw-r--  1 m m  4601 Feb 19 11:53 '20240219-115359-[17][pmh].txt'
+-rw-rw-r--  1 m m 42446 Feb 19 12:05 '20240219-120523-[6][pmh].txt'
+-rw-rw-r--  1 m m  1137 Feb 19 12:05 '20240219-120524-[1][pmh].txt'
+-rw-rw-r--  1 m m 22500 Feb 19 12:17 '20240219-121731-[17][pmh].txt'
+-rw-rw-r--  1 m m   876 Feb 19 12:17 '20240219-121731-[1][pmh].txt'
+-rw-rw-r--  1 m m  2483 Feb 19 12:17 '20240219-121752-[17][pmh].txt'
+-rw-rw-r--  1 m m 66357 Feb 19 12:43 '20240219-124319-[30][pmh].txt'
+drwxr-xr-x  2 m m  4096 Feb 19 11:49  session/
+m@pmh:~/dev/purple_martians/logs$ cp 20240219-124319-\[30\]\[pmh\].txt test.txt
+m@pmh:~/dev/purple_martians/logs$ ll
+total 256
+drwxr-xr-x  3 m m  4096 Feb 19 13:03  ./
+drwxrwxrwx 16 m m  4096 Feb 19 11:41  ../
+-rw-rw-r--  1 m m  8543 Feb 19 11:49 '20240219-114905-[1][pmh].txt'
+-rw-rw-r--  1 m m  7932 Feb 19 11:53 '20240219-115338-[17][pmh].txt'
+-rw-rw-r--  1 m m  4601 Feb 19 11:53 '20240219-115359-[17][pmh].txt'
+-rw-rw-r--  1 m m 42446 Feb 19 12:05 '20240219-120523-[6][pmh].txt'
+-rw-rw-r--  1 m m  1137 Feb 19 12:05 '20240219-120524-[1][pmh].txt'
+-rw-rw-r--  1 m m 22500 Feb 19 12:17 '20240219-121731-[17][pmh].txt'
+-rw-rw-r--  1 m m   876 Feb 19 12:17 '20240219-121731-[1][pmh].txt'
+-rw-rw-r--  1 m m  2483 Feb 19 12:17 '20240219-121752-[17][pmh].txt'
+-rw-rw-r--  1 m m 66357 Feb 19 12:43 '20240219-124319-[30][pmh].txt'
+drwxr-xr-x  2 m m  4096 Feb 19 11:49  session/
+-rw-rw-r--  1 m m 66357 Feb 19 13:03  test.txt
+m@pmh:~/dev/purple_martians/logs$ cp 20240219-124319-\[30\]\[pmh\].txt test[123].txt
+m@pmh:~/dev/purple_martians/logs$ ll
+total 324
+drwxr-xr-x  3 m m  4096 Feb 19 13:03  ./
+drwxrwxrwx 16 m m  4096 Feb 19 11:41  ../
+-rw-rw-r--  1 m m  8543 Feb 19 11:49 '20240219-114905-[1][pmh].txt'
+-rw-rw-r--  1 m m  7932 Feb 19 11:53 '20240219-115338-[17][pmh].txt'
+-rw-rw-r--  1 m m  4601 Feb 19 11:53 '20240219-115359-[17][pmh].txt'
+-rw-rw-r--  1 m m 42446 Feb 19 12:05 '20240219-120523-[6][pmh].txt'
+-rw-rw-r--  1 m m  1137 Feb 19 12:05 '20240219-120524-[1][pmh].txt'
+-rw-rw-r--  1 m m 22500 Feb 19 12:17 '20240219-121731-[17][pmh].txt'
+-rw-rw-r--  1 m m   876 Feb 19 12:17 '20240219-121731-[1][pmh].txt'
+-rw-rw-r--  1 m m  2483 Feb 19 12:17 '20240219-121752-[17][pmh].txt'
+-rw-rw-r--  1 m m 66357 Feb 19 12:43 '20240219-124319-[30][pmh].txt'
+drwxr-xr-x  2 m m  4096 Feb 19 11:49  session/
+-rw-rw-r--  1 m m 66357 Feb 19 13:03 'test[123].txt'
+-rw-rw-r--  1 m m 66357 Feb 19 13:03  test.txt
+m@pmh:~/dev/purple_martians/logs$
 
 
 
@@ -45107,83 +45152,173 @@ g++ -Wall -c src/mwPacketBuffer.cpp -o o/src/mwPacketBuffer.o
 
 
 
+server did a segfault, but clients keep going???
+need to investigate....seems good now, maybe speed was off?
+clients all quit with lost server connection
 
+rc did not...
 
+when server quit, client all switched to 'Please Wait For Server Synchronization'
+then after a timeout went to 'LOST SERVER CONNECTION'
 
 
+question? is there still a chase and lock thing?
+i don't think so...
+when server rx cjon, it immediately makes the player active
 
+this code is what is doing it:
 
+void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
+{
+   if (!mPlayer.syn[p].active)
+   {
+      rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2-32, mPlayer.syn[p].color, 2, 1, "Please wait for server syncronization");
+      rtextout_centref(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2,    mPlayer.syn[p].color, 4, 1, "[%2.1f]", abs(mNetgame.client_chase_offset - mPlayer.loc[p].pdsync)*1000);
+   }
 
+it is not need and I will remove it...
 
 
+but then the question is: player is being made inactive, but client does not catch this?
 
 
+follow it through...
 
+server quits, just like every other player it enters an inactive game move
 
 
+removed these commented lines, just like above, client is not inactive and waiting
 
 
+void mwPlayer::proc_player_input(void)
+{
+   if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+      {
+         if (syn[p].active) // cycle all active players
+         {
+            int cm = syn[p].control_method;
+            if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) || (cm == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL) || (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)) // these are the only local control methods
+            {
+               set_comp_move_from_player_key_check(p);
 
+               // fakekey mode
+               if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey))
+               {
+                  // even in fakekey mode allow ESC or menu
+                  if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
+               }
 
 
+               if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
+               {
+                  mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, loc[p].comp_move); // add to game moves array
 
+                  // in client mode, also send cdat packet, and apply move directly to controls
+                  if (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)
+                  {
+                     mNetgame.client_send_cdat_packet(p);
+                     set_controls_from_comp_move(p, loc[p].comp_move);
+                     if (syn[p].menu) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_PREEXIT1; // menu key pressed
+                  }
+               }
+            }
+         }
+//         else if (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL) // client waiting for server to make it active
+//         {
+//            if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT; // give them an escape option
+//         }
+      }
+   }
+}
 
 
+then server sends this to all clients
 
 
+      if (mNetgame.ima_server)
+      {
+         if (p == 0) // server quitting
+         {
+            // first set all connected clients to inactive
+            for (int p=1; p<NUM_PLAYERS; p++)
+               if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
+               {
+                  mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON; // what does this even do?
+                  add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 64);
+               }
 
 
 
 
 
+There is a bit of a mess between when inactive game moves are added and inactive game moves are executed
 
+Are they both trying to set quit_reasons??
 
+Reason is part of the game move and should be set when entered...
 
+When executed it should just be copied to player struct
 
+done and game exit is much simpler..incomplete but who cares?
 
 
 
 
+trace what happens when client loses server connection
 
+it should go back to menu, not keep playing
 
+this is good:
+start client from cmd
+stop server nicely
+client 'server ended game'
+press and and quit to cmd
 
+start client from menu
+stop server nicely
+client 'server ended game'
+press and and quit to menu
 
 
 
+start client from cmd
+stop server badly
+client 'lost server'
+press and and quit to cmd
 
+start client from menu
+stop server badly
+client 'lost server'
+press and and quit to menu
 
+all these worked well...client was in classic mode and level was overworld
 
+m36 as sh
 
+fixed the state it was setting from MENU to CLIENT_EXIT
 
+void mwNetgame::client_proc_player_drop(void)
+{
+   int p = mPlayer.active_local_player;
+   if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON)
+   {
+      mPlayer.loc[p].quit_reason = PM_PLAYER_QUIT_REASON_SERVER_ENDED_GAME;
+      mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
+      mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "SERVER ENDED GAME!");
+      al_flip_display();
+      mInput.tsw();
+      mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
+   }
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+update the copyright date on the web pages
+and in the help screens
+done
 
 
 

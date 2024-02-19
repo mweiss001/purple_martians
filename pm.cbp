@@ -175,6 +175,8 @@
 		<Unit filename="src/mwNetgame.h" />
 		<Unit filename="src/mwNetgameClient.cpp" />
 		<Unit filename="src/mwNetgameServer.cpp" />
+		<Unit filename="src/mwNetgameServerFileTransfer.cpp" />
+		<Unit filename="src/mwNetgameSessionLog.cpp" />
 		<Unit filename="src/mwPDE.cpp" />
 		<Unit filename="src/mwPDE.h" />
 		<Unit filename="src/mwPacketBuffer.cpp" />

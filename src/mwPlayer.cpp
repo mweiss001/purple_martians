@@ -1744,7 +1744,6 @@ void mwPlayer::proc_player_input(void)
 {
    if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
       for (int p=0; p<NUM_PLAYERS; p++)
-      {
          if (syn[p].active) // cycle all active players
          {
             int cm = syn[p].control_method;
@@ -1758,7 +1757,6 @@ void mwPlayer::proc_player_input(void)
                   // even in fakekey mode allow ESC or menu
                   if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
                }
-
 
                if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
                {
@@ -1774,9 +1772,4 @@ void mwPlayer::proc_player_input(void)
                }
             }
          }
-         else if (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL) // client waiting for server to make it active
-         {
-            if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT; // give them an escape option
-         }
-      }
 }
