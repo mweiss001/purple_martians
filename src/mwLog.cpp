@@ -411,25 +411,15 @@ void mwLog::log_player_array3(int type)
                                                                            mPlayer.syn[p].paused_mode_count );
 }
 
-
-
-
 void mwLog::log_reason_for_player_quit(int type, int p)
 {
    char tmsg[80];
    sprintf(tmsg,"unknown");
    int r = mPlayer.loc[p].quit_reason;
-   if (r == 64) sprintf(tmsg,"player pressed ESC or menu key");
-   if (r == 70) sprintf(tmsg,"server drop (server sync > 100)");
-   if (r == 71) sprintf(tmsg,"server drop (no stak for 100 frames)");
-   if (r == 74) sprintf(tmsg,"client never became active");
-   if (r == 75) sprintf(tmsg,"client lost server connection");
-   if (r == 80) sprintf(tmsg,"level done");
-   if (r == 90) sprintf(tmsg,"local client quit");
-   if (r == 91) sprintf(tmsg,"local server quit");
-   if (r == 92) sprintf(tmsg,"remote server quit");
-   if (r == 93) sprintf(tmsg,"remote client quit");
-
+   if (r == PM_PLAYER_QUIT_REASON_MENU_KEY)                      sprintf(tmsg,"player pressed ESC or menu key");
+   if (r == PM_PLAYER_QUIT_REASON_CLIENT_LOST_SERVER_CONNECTION) sprintf(tmsg,"client lost server connection");
+   if (r == PM_PLAYER_QUIT_REASON_CLIENT_ENDED_GAME)             sprintf(tmsg,"client ended game");
+   if (r == PM_PLAYER_QUIT_REASON_SERVER_ENDED_GAME)             sprintf(tmsg,"server ended game");
    add_fwf(type, p, 76, 10, "|", " ", "reason for quit...........[%s]", tmsg);
 }
 
@@ -453,12 +443,10 @@ void mwLog::log_bandwidth_stats(int type, int p)
    add_fwf(type, p, 76, 10, "|", " ", "max rx packets per second.[%d]", mPlayer.loc[p].rx_max_packets_per_tally);
 }
 
-
 void mwLog::add_log_TMR(double dt, const char *tag, int p)
 {
    addf(44, p, "tmst %s:[%0.4f]\n", tag, dt*1000);
 }
-
 
 // for single tags
 void mwLog::add_tmr1(int type, int p, const char *tag, double dt)
@@ -467,7 +455,6 @@ void mwLog::add_tmr1(int type, int p, const char *tag, double dt)
    sprintf(txt, "%s:[%0.4f]\n", tag, dt*1000);
    add_tmr(type, p, txt);
 }
-
 
 // takes a printf format
 void mwLog::add_tmrf(int type, int p, const char *format, ...)

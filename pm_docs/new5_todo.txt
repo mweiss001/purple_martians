@@ -2,8 +2,7 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-server did a segfault, but clients keep going???
-need to investigate....
+
 
 
 
@@ -16,6 +15,36 @@ need to investigate....
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+do one more version
+
+then start on videos again
+
+
+should I make a new youtube channel just for purple martians?
+
+https://www.youtube.com/channel/UCSUTVur0deQa5_eYUhGjQlw
+
+
+yes...it is done...
+
+now make a goddamn video!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 what to do to release?
 ----------------------
@@ -23,85 +52,10 @@ what to do to release?
 before I put it away and move on?
 
 
-what gm folders are used for demo...meh
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+What about the static IP? 96.45.13.220
+Should I describe it in the game (help screens)
+I should make it static on the Brooks Server
 
 
 
@@ -180,51 +134,6 @@ netgame_state_and_dif.html
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-add some server stats so I can tell if anyone else is playing and when etc...
-
-when a connection is established
-when a client joins
-save ip and hostname
-
-i suppose I could do this by just saving logs on the server all the time
-
-then I just need something to read and parse the logs...
-
-what kind of logs?
-
-just LOG_NET??
-also save all games, just level done should do for headless server
-
-then I can figure out later an automated method of parsing them
-
-for now make it so that headless server does this by default
-
-this is done....
-
-
-
-
-
-
-
-
-
-
-
 can I make netem stuff work with a script on server??
 
 https://www.suse.com/support/kb/doc/?id=000016906
@@ -234,27 +143,6 @@ this is what I want:
 I want to be able to run tc netem
 
 but I need to be root...
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -272,8 +160,6 @@ so it will show in the compiled program
 and also be used for lin and win build scripts
 
 right now I change it in three places...code (pm.h), win and lin make_release..
-
-
 
 
 
@@ -331,11 +217,6 @@ somehow describe snap...
 hiders
 
 npc
-
-
-
-
-
 
 
 

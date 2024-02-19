@@ -428,9 +428,7 @@ void mwLoop::proc_program_state(void)
       mLog.add_fw (LOG_NET, 0, 76, 10, "+", "-", "");
       mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client mode started on localhost:[%s]", mLoop.local_hostname);
 
-
       mEventQueue.reset_fps_timer();
-
 
       if (!mNetgame.ClientInitNetwork())
       {

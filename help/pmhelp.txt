@@ -3786,13 +3786,13 @@ https://mweiss001.github.io/purple_martians/
 
 <c08>________________________________________
 
-<c15>Copyright 1997-2023 Michael David Weiss
+<c15>Copyright 1997-2024 Michael David Weiss
 <c08>________________________________________
 
 <c15>Music by Russel Hoy - Copyright 2000
 <c08>________________________________________
 
-<c15>Last Update: Aug 25, 2023 to version 7.24.5678
+<c15>Last Update: Feb 19, 2024 to version 7.24.0219.1
 <c08>________________________________________
 
 

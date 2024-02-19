@@ -363,7 +363,7 @@ int mwInput::my_readkey(void) // only get key or joystick bindings
          ALLEGRO_EVENT ev;
          if (al_get_next_event(mEventQueue.event_queue, &ev))
          {
-             if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) mMain.fast_exit(0);
+             if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) mMain.fast_exit();
              if (ev.type == ALLEGRO_EVENT_KEY_UP)
              {
                 ret = ev.keyboard.keycode;
@@ -639,7 +639,7 @@ void mwInput::tsw(void)
          ALLEGRO_EVENT ev;
          if (al_get_next_event(mEventQueue.event_queue, &ev))
          {
-             if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) mMain.fast_exit(0);
+             if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) mMain.fast_exit();
              if (ev.type == ALLEGRO_EVENT_KEY_DOWN) quit = 1;
          }
       }

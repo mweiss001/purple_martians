@@ -740,12 +740,12 @@ void mwNetgame::client_proc_player_drop(void)
    int p = mPlayer.active_local_player;
    if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON)
    {
-      mPlayer.loc[p].quit_reason = 92;
+      mPlayer.loc[p].quit_reason = PM_PLAYER_QUIT_REASON_SERVER_ENDED_GAME;
       mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
       mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "SERVER ENDED GAME!");
       al_flip_display();
       mInput.tsw();
-      mLoop.state[0] = PM_PROGRAM_STATE_MENU;
+      mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
    }
 
    int lda = mPlayer.loc[p].client_last_dif_applied_frame_num;
@@ -754,7 +754,7 @@ void mwNetgame::client_proc_player_drop(void)
       int ss = mLoop.frame_num - lda;
       if (ss > 200)
       {
-         mPlayer.loc[p].quit_reason = 75;
+         mPlayer.loc[p].quit_reason = PM_PLAYER_QUIT_REASON_CLIENT_LOST_SERVER_CONNECTION;
          mLog.add_fwf(LOG_NET, p, 76, 10, "+", "-", "");
          mLog.add_fwf(LOG_NET, p, 76, 10, "|", " ", "Local Player Client %d Lost Server Connection!", p);
          mLog.add_fwf(LOG_NET, p, 76, 10, "|", " ", "last_dif_applied:[%d]", lda);
@@ -764,7 +764,7 @@ void mwNetgame::client_proc_player_drop(void)
          mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "LOST SERVER CONNECTION!");
          al_flip_display();
          mInput.tsw();
-         mLoop.state[0] = PM_PROGRAM_STATE_MENU;
+         mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
       }
    }
 }

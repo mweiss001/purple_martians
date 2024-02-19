@@ -43,6 +43,14 @@ You now have the zip file for the release....
 -------------------------------------------------------
 Step 5: linux version
 -------------------------------------------------------
+
+Note:
+If you use unbuntu 22.04 to make a release, it will use GLIBC_2.35
+Then it won't run on ubuntu 20.04 which only has GLIBC_2.31
+The best way is to build with the older version.
+It is forward compatible but not backwards compatible.
+
+
 Follow the instructions to set up a dev system on ubuntu:
 'pm_docs\dev setup\linux\ubuntu_dev_setup_20230824.txt'
 
