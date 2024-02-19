@@ -3,24 +3,20 @@
 #include "pm.h"
 #include "mwDemoRecord.h"
 #include "mwDemoMode.h"
-
 #include "mwLoop.h"
 #include "mwLevel.h"
 #include "mwPlayer.h"
 #include "mwGameMoves.h"
 #include "mwInput.h"
-#include "mwItem.h"
+#include "mwMiscFnx.h"
 #include "mwEventQueue.h"
-
 #include "mwDisplay.h"
 #include "mwScreen.h"
 #include "mwFont.h"
 #include "mwColor.h"
 #include "mwWidget.h"
-
 #include "mwDrawSequence.h"
 #include "mwBitmap.h"
-
 #include "mwQuickGraph2.h"
 #include "mwMenu.h"
 #include "mwConfig.h"
@@ -1495,7 +1491,7 @@ void mwDemoRecord::set_active_section(int i)
 char * mwDemoRecord::gettf(int frame, char* ft)
 {
    if (tm_frame) sprintf(ft, "%d", frame);
-   else sprintf(ft, "%s", mItem.chrms(frame, ft));
+   else sprintf(ft, "%s", mMiscFnx.chrms(frame, ft));
    return ft;
 }
 

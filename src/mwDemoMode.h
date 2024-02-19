@@ -31,9 +31,8 @@ class mwDemoMode
    int restore_mode;
    int restore_level;
 
-   int countdown; // countdown
    int countdown_val;
-   int countdown_reset;
+   int countdown_reset = 2400;
 
    int autoplay_enabled;
    int config_autoplay_enabled;

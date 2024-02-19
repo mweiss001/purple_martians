@@ -2,37 +2,14 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-
-bug...key bindings should only be in player 0....
-they only affect the local player
-there will never be time when any other than 0 are needed
-I think I have it done
-
-
-
-
-
-BUGS HERE IS THE MOST META BUG OF ALL!!!
-
-I want this game to show off my awesome skills.
-So everything that is not perfect will reflect badly on me.
-This is why it is so hard to finish, it will never be perfect...
+server did a segfault, but clients keep going???
+need to investigate....
 
 
 
 
 
 
-
-
-
-headless server, how do I make it save logs...
-I can't quit with CTRL-C in the terminal or kill the process...the log will not get saved
-I have to make a level done happen, (or reload level?...yes)
-
-
-sometimes weird artifacts show in level background, like msg from previous level??
-have not seen this happen for a long time
 
 
 ---------------------------------------------------------
@@ -40,75 +17,72 @@ have not seen this happen for a long time
 ---------------------------------------------------------
 
 
-I want some way to show off all the multiplayer demos...
-put the other folder in demo and call it multiplayer tas..done
-tas escape rocket not all purple coins??..fixed
-
-
-Where do I have the IP hard coded into the game?
-
-config?
-
-
-I have been thinking about a major re-ordering of levels...
-I have so many mediocre ones mixed in with the great ones...
-I just want to re-arrange and put some more of them in the extra categories....
-
-
-right now I have:
-8 training levels
-40 main game
-1 final rocket level
-12 extra
-14 demo
-2 multiplayer bomb toss
-
-
-what if I was to remove 8 from regular and add them to extra
-
-which 8
-
-Make the autosaving of demos work...
-
-I think I am stuck on the part where I have par and best, but not my absolute best like in the demos...
-
-//   int time_record;
-
-   int time_par;
-   int time_best;
-   int time_best_all_coins;
-   int time_worst;
-   int time_average;
-   int time_total;
-
-Should I save that also?
-
-I would like to do it automatically...
-
-What is going on with the autosaving...I think it is in a not complete state....
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 what to do to release?
+----------------------
 
 before I put it away and move on?
 
 
-I think logs are always being saved on server
-I should be able to tell from that when players joins
-yes I can but it is not easily parseable
+what gm folders are used for demo...meh
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -140,7 +114,7 @@ yes I can but it is not easily parseable
 document netgame, yet again
 
 
-docs that nave not been started
+docs that have not been started
 -------------------------------
 
 how to setup headless server and remote control it
@@ -521,6 +495,15 @@ VinePod
 -------------------------------
 
 
+BUGS HERE IS THE MOST META BUG OF ALL!!!
+
+I want this game to show off my awesome skills.
+So everything that is not perfect will reflect badly on me.
+This is why it is so hard to finish, it will never be perfect...
+
+
+
+
 I have a thought about program state and how I save in in an array that slides down so I can see previous states...
 What if the proper code structure for that was a stack?
 push on a new state and to go back pop it off?
@@ -871,6 +854,23 @@ make a button to have le window show current item in center
 
 
 
+I have been thinking about a major re-ordering of levels...
+I have so many mediocre ones mixed in with the great ones...
+I just want to re-arrange and put some more of them in the extra categories....
+
+
+right now I have:
+8 training levels
+40 main game
+1 final rocket level
+12 extra
+14 demo
+2 multiplayer bomb toss
+
+
+what if I was to remove 8 from regular and add them to extra
+
+which 8
 
 
 

@@ -23,6 +23,66 @@
 
 
 
+struct client_session
+{
+   int active;
+   int status;
+   int who;
+
+   int player_num;
+
+
+
+
+   char session_name[64];
+
+   char timestamp[16];
+   char ip[16];
+   int port;
+
+   char host_name[16];
+
+   double start_time;
+   double end_time;
+   double duration;
+
+   int next_levels;
+   int exits;
+
+   int cdats_rx;
+
+   int respawns;
+   int shots_fired;
+   int enemy_hits;
+
+   int player_hits;
+   int self_hits;
+   int purple_coins;
+
+
+   int tx_total_bytes;
+   int tx_total_packets;
+   int tx_max_bytes_per_frame;
+   int tx_max_packets_per_frame;
+
+   int rx_total_bytes;
+   int rx_total_packets;
+   int rx_max_bytes_per_frame;
+   int rx_max_packets_per_frame;
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
 struct file_to_send
 {
    int active;
@@ -41,6 +101,8 @@ class mwNetgame
    mwNetgame(); // constructor
 
    struct file_to_send files_to_send[20];
+
+   struct client_session client_sessions[16];
 
    int NetworkDriver;
    int NetworkInit();
@@ -143,13 +205,6 @@ class mwNetgame
    void ServerSendTo(void *data, int len, int who);
    void ServerFlush(void);
 
-
-
-
-
-
-
-
    int server_get_player_num_from_who(int who);
 
    void headless_server_setup(void);
@@ -159,14 +214,6 @@ class mwNetgame
    void server_send_dif(int frame_num);
    void server_send_compressed_dif(int p, int src, int dst, char * dif);
 
-
-   void server_proc_files_to_send(void);
-   void server_send_file(int i);
-
-
-   void server_add_file_to_send(const char * filename, int who);
-
-   void server_proc_crfl_packet(int i);
 
    void server_proc_player_drop(void);
    void server_proc_limits(void);
@@ -184,10 +231,43 @@ class mwNetgame
    void server_proc_cjon_packet(int i);
    void server_proc_cjrc_packet(int i);
    void server_proc_rctl_packet(int i);
+   void server_control();
+
+
+   // --------------------------------------------------------------------
+   // ---   mwNetgameSessionLog.cpp  -------------------------------------
+   // --------------------------------------------------------------------
+   void session_clear_entry(int i);
+   int session_get_empty(void);
+   int session_get_index_from_who(int who);
+
+   void session_add_entry(const char* address, int who);
+   void session_update_entry(int who, int status, const char* hostname, int player_num);
+
+   void session_add_log(int i);
+   void session_drop_player(int p);
+
+   void session_check_active(void);
+
+   void session_save_active_at_level_done(void);
+   void session_flush_active_at_server_exit(void);
+
+   void session_tally(int i);
+
+
+   // --------------------------------------------------------------------
+   // ---   mwNetgameServerFileTransfer.cpp  -----------------------------
+   // --------------------------------------------------------------------
+   void server_proc_files_to_send(void);
+   void server_send_file(int i);
+   void server_add_file_to_send(const char * filename, int who);
+   void server_proc_crfl_packet(int i);
    void server_proc_sfak_packet(int i);
 
 
-   void server_control();
+
+
+
 };
 extern mwNetgame mNetgame;
 

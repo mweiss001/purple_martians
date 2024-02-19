@@ -7,7 +7,7 @@
 #include "mwPlayer.h"
 #include "mwGameMoves.h"
 #include "mwInput.h"
-#include "mwItem.h"
+#include "mwMiscFnx.h"
 #include "mwEventQueue.h"
 
 #include "mwDisplay.h"
@@ -29,23 +29,18 @@ mwDemoMode::mwDemoMode()
 
 void mwDemoMode::initialize(void)
 {
-   countdown_reset = 2400;
    pass = 0;
    prev_index = -1;
    mode = 0;
    restore_mode = 0;
    restore_level = 1;
-
-   demo_debug_complete_level_on_gate_with_fire = 0;
-   demo_debug_running_demo_saves_level_data = 0;
-
 }
 
 
-// this has to be outside the class
+// this callback function has to be outside the class
 int fill_demo_array(ALLEGRO_FS_ENTRY *fs, void * extra)
 {
-   if (mDemoMode.num_demo_filenames > 99) return 0; // only get 100 max
+   if (mDemoMode.num_demo_filenames > 99) return ALLEGRO_FOR_EACH_FS_ENTRY_STOP; // only get 100 max
    mDemoMode.demo_FS_filenames[mDemoMode.num_demo_filenames] = al_create_fs_entry(al_get_fs_entry_name(fs));
    mDemoMode.demo_played[mDemoMode.num_demo_filenames] = 0;
    mDemoMode.num_demo_filenames++;
@@ -57,25 +52,10 @@ int mwDemoMode::load_demo_file_array(void)
 {
    if (!files_for_random_loaded)
    {
-      countdown_reset = 2400;
       num_demo_filenames = 0;
-      char fname[1024];
-      sprintf(fname, "savegame/demo");
-
-      //printf("fname:%s\n", fname);
-      // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
-      ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
-      //sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
-      //printf("FS_fname:%s\n", fname);
 
       // iterate levels in demo folder and put in filename array
-      al_for_each_fs_entry(FS_fname, fill_demo_array, NULL);
-
-      //printf("\nDemo mode. List of demo files found\n");
-      //for (int i=0; i< num_demo_filenames; i++)
-         //printf("%s\n", al_get_fs_entry_name(demo_FS_filenames[i]));
-
-      files_for_random_loaded = 1;
+      al_for_each_fs_entry(al_create_fs_entry("savegame/demo"), fill_demo_array, NULL);
    }
    if (num_demo_filenames == 0)
    {
@@ -83,7 +63,14 @@ int mwDemoMode::load_demo_file_array(void)
       mode = 0;
       return 0;
    }
-   else return 1;
+   else
+   {
+      files_for_random_loaded = 1;
+      //printf("\nDemo mode. List of demo files found\n");
+      //for (int i=0; i< num_demo_filenames; i++)
+      //   printf("%s\n", al_get_fs_entry_name(demo_FS_filenames[i]));
+      return 1;
+   }
 }
 
 
@@ -212,7 +199,7 @@ int mwDemoMode::load_random_demo(void)
    {
       char msg[64];
       if (debug_print) printf("Demo Mode random file chooser - pass:[%d] index:[%2d] level:[%2d]\n", pass, index, mLevel.play_level);
-      printf("Demo Mode Random - pass:[%d] lev:[%2d] %s\n", pass, mLevel.play_level, mItem.chrms(mDemoMode.last_frame, msg));
+      printf("Demo Mode Random - pass:[%d] lev:[%2d] %s\n", pass, mLevel.play_level, mMiscFnx.chrms(mDemoMode.last_frame, msg));
       return 1;
    }
    else

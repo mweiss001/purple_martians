@@ -617,11 +617,13 @@ void mwPlayer::proc_player_collisions(int p)
             {
                mShot.proc_pshot_collision(p, b);
                mGameEvent.add(40, 0, 0, pb, p, 1, syn[0].player_vs_player_shot_damage);
+               mPlayer.syn[pb].stat_player_hits++;
             }
             if ((syn[0].player_vs_self_shots) && (pb == p))
             {
                mShot.proc_pshot_collision(p, b);
                mGameEvent.add(40, 0, 0, pb, p, 1, syn[0].player_vs_player_shot_damage);
+               mPlayer.syn[pb].stat_self_hits++;
             }
          }
       }

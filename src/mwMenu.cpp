@@ -181,13 +181,6 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
       }
 
 
-
-
-
-
-
-
-
 //      debug draw rectangle around menu area
 //      float hx1 = mx - mScreen.menu_w/2;
 //      float hx2 = mx + mScreen.menu_w/2;
