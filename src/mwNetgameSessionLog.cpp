@@ -157,27 +157,33 @@ void mwNetgame::session_add_entry(const char* address, int who)
       struct tm *timenow;
       time_t now = time(NULL);
       timenow = localtime(&now);
-      char ts[64];
+      char ts[16];
       strftime(ts, sizeof(ts), "%Y%m%d%H%M%S", timenow);
       strcpy(client_sessions[i].timestamp, ts);
 
       // make a copy of address so we can play with it
-      char ad[64];
+      char ad[32];
       strcpy(ad, address);
+
+      char ip[16];
 
       // split address at ':'  everything before is ip, everything after is port
       int c;
       for (c=0; c<(int)strlen(ad); c++)
          if (ad[c] == ':')
          {
-            strncpy(client_sessions[i].ip, ad, c);
-            client_sessions[i].session_name[c] = 0;
+            strncpy(ip, ad, c);
+            ip[c] = 0;
             break;
          }
+      strcpy(client_sessions[i].ip, ip);
+
       mMiscFnx.chop_first_x_char(ad, c+1);
+      int port = atoi(ad);
       client_sessions[i].port = atoi(ad);
 
-      sprintf(client_sessions[i].session_name, "%s_%s_%d", ts, client_sessions[i].ip, client_sessions[i].port);
+      sprintf(client_sessions[i].session_name, "%s_%s_%d", ts, ip, port);
+
       session_add_log(i);
    }
 }
