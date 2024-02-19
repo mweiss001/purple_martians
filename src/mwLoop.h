@@ -31,6 +31,7 @@ class mwLoop
    int frame_speed = 40;
    int frame_num;
    int speed_control_lock = 0;
+   int reset_frame_speed_at_program_start = 1;
    int eco_draw = 0;
 
 

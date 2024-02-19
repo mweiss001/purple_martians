@@ -33,6 +33,9 @@ void mwLog::init_log_types(void)
 
    i = LOG_NET;                     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET");
    i = LOG_NET_join_details;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_join_details");
+
+   i = LOG_NET_session;             log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_session");
+
    i = LOG_NET_ending_stats;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_ending_stats");
    i = LOG_NET_bandwidth;           log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_bandwidth");
    i = LOG_NET_stdf;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf");

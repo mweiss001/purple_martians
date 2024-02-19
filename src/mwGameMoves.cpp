@@ -433,11 +433,10 @@ void mwGameMoves::proc_game_move_player_inactive(int x)
       // ------------------------------------
       if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
       {
-         // printf("Remote Player Quit :%d\n", mLoop.frame_num);
+         //printf("Remote Player Quit :%d\n", mLoop.frame_num);
          mPlayer.loc[p].quit_reason = 93;
          if (!mLoop.ff_state) mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
-         mPlayer.init_player(p, 1);
-         mNetgame.mStateHistory[p].initialize();  // reset client states
+         mPlayer.syn[p].active = 0;
       }
       mScreen.set_player_text_overlay(p, 0);
       mGameEvent.add(7, 0, 0, p, 0, 0, 0);
@@ -583,7 +582,7 @@ void mwGameMoves::save_gm(const char *fname)
 
          if (print_level) printf("saved:%s\n", fname);
 
-         if (mNetgame.ima_server) // if server, send to all active clients
+         if ((mNetgame.ima_server) && (mGameMoves.server_send_gm_to_clients)) // if server, send to all active clients
          {
             for (int p=1; p<NUM_PLAYERS; p++)
                if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))

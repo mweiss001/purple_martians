@@ -15,7 +15,6 @@
 #include "mwScreen.h"
 
 
-
 mwBitmapTools mBitmapTools;
 
 void mwBitmapTools::color_shiftc(ALLEGRO_BITMAP *b, int sc, int cs, int x, int y)

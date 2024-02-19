@@ -1,4 +1,4 @@
-// mwLoop.cpp
+// mwLoopRemoteControl.cpp
 
 #include "pm.h"
 #include "mwLoop.h"
@@ -11,7 +11,7 @@
 #include "mwInput.h"
 
 #include "mwPlayer.h"
-#include "mwItem.h"
+#include "mwMiscFnx.h"
 #include "mwLevel.h"
 
 #include "mwDisplay.h"
@@ -30,7 +30,6 @@ void mwLoop::remote_control_loop(void)
 
    int fn = mPlayer.loc[0].srv_frame_num; // set frame number from last snfo packet update
 
-
    // check how long since last rtcl packet has been sent, and send keep alive packet if too long
    if (++remote_frames_since_last_rctl_sent > 400) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_keep_alive, 0);
 
@@ -44,7 +43,7 @@ void mwLoop::remote_control_loop(void)
 
 
    al_draw_textf(mFont.pr8, mColor.pc[13], cx, cy, 0, "Server Remote Control ");
-   al_draw_textf(mFont.pr8, mColor.pc[15], cx+180, cy, 0, "Level:[%d] - Time:[%s] - Frame:[%d] - Moves:[%d]", mPlayer.loc[0].srv_level, mItem.chrms(fn, msg), fn, mPlayer.loc[0].srv_total_game_moves); cy+=20;
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+180, cy, 0, "Level:[%d] - Time:[%s] - Frame:[%d] - Moves:[%d]", mPlayer.loc[0].srv_level, mMiscFnx.chrms(fn, msg), fn, mPlayer.loc[0].srv_total_game_moves); cy+=20;
 
 
 

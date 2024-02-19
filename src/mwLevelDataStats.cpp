@@ -4,7 +4,6 @@
 #include "mwLevel.h"
 #include "mwConfig.h"
 #include "mwLift.h"
-#include "mwItem.h"
 #include "mwEnemy.h"
 #include "mwScreen.h"
 #include "mwFont.h"
@@ -206,7 +205,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
 
 
          }
-         else if (total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(tally[0][9], msg));
+         else if (total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(tally[0][9], msg));
          else
          {
             if ((data[lev].time_best == 0) || (data[lev].status < 2))
@@ -215,7 +214,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
             }
             else
             {
-               al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(data[lev].time_best, msg));
+               al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(data[lev].time_best, msg));
             }
          }
       }
@@ -235,7 +234,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Best Time");
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "All Coins");
          }
-         else if (total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(tally[0][13], msg));
+         else if (total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(tally[0][13], msg));
          else
          {
             if ((data[lev].time_best_all_coins == 0) || (data[lev].status < 2))
@@ -246,7 +245,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
             {
                int tc = 15;
                if (data[lev].time_best_all_coins < data[lev].time_par) tc = 8;
-               al_draw_text(mFont.pr8, mColor.pc[tc], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(data[lev].time_best_all_coins, msg));
+               al_draw_text(mFont.pr8, mColor.pc[tc], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(data[lev].time_best_all_coins, msg));
             }
          }
       }
@@ -268,8 +267,8 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Par");
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
          }
-         else if (total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(tally[0][8], msg));
-         else            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(data[lev].time_par, msg));
+         else if (total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(tally[0][8], msg));
+         else            al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(data[lev].time_par, msg));
       }
       x += width + 8;
       vline[vli++] = x-4;
@@ -373,8 +372,8 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Total");
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
          }
-         else if (total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(tally[0][10], msg));
-         else al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(tta, msg));
+         else if (total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(tally[0][10], msg));
+         else al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(tta, msg));
       }
       x += width+8;
       vline[vli++] = x-4;
@@ -391,7 +390,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Worst");
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
          }
-         else if (!total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(wt, msg));
+         else if (!total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(wt, msg));
       }
       x += width+8;
       vline[vli++] = x-4;
@@ -407,7 +406,7 @@ void mwLevel::show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, 
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y,   ALLEGRO_ALIGN_CENTER, "Average");
             al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y+8, ALLEGRO_ALIGN_CENTER, "Time");
          }
-         else if (!total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mItem.chrms(mt, msg));
+         else if (!total) al_draw_text(mFont.pr8, mColor.pc[15], x+width/2, y, ALLEGRO_ALIGN_CENTER, mMiscFnx.chrms(mt, msg));
       }
       x += width+8;
       vline[vli++] = x-4;

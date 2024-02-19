@@ -293,9 +293,14 @@ void mwInput::function_key_check(void)
          printf("fake keypress mode:%d\n", mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode);
       }
 
+
+
+
       // adjust speed (fps)
       if ((!mLoop.speed_control_lock) && (!mNetgame.ima_client) && (!mNetgame.ima_server)) // only adjust speed if not locked and not in netgame
       {
+         int old_fps = mLoop.frame_speed;
+
          if (key[function_key_speed_dec][2]) // decrease
          {
             if (SHFT() && CTRL())       mLoop.frame_speed -=1000;
@@ -303,8 +308,6 @@ void mwInput::function_key_check(void)
             else if (CTRL())            mLoop.frame_speed -=20;
             else                        mLoop.frame_speed -=1;
             if (mLoop.frame_speed < 5)  mLoop.frame_speed =5;
-//            if (mLoop.frame_speed < 10)  mLoop.frame_speed =10;
-            al_set_timer_speed(mEventQueue.fps_timer, (1 / (double) mLoop.frame_speed));
          }
          if (key[function_key_speed_inc][2]) // increase
          {
@@ -313,18 +316,13 @@ void mwInput::function_key_check(void)
             else if (CTRL())                 mLoop.frame_speed +=20;
             else                             mLoop.frame_speed +=1;
             if (mLoop.frame_speed > 100000)  mLoop.frame_speed = 100000;
-            al_set_timer_speed(mEventQueue.fps_timer, (1 / (double) mLoop.frame_speed));
          }
          if ((key[function_key_speed_dec][0]) && (key[function_key_speed_dec][1]) && (key[function_key_speed_inc][0]) && (key[function_key_speed_inc][1])) // reset to 40fps
          {
             mLoop.frame_speed = 40;
-            al_set_timer_speed(mEventQueue.fps_timer, (1 / (double) mLoop.frame_speed));
          }
+         if (old_fps != mLoop.frame_speed) mEventQueue.adjust_fps_timer(mLoop.frame_speed);
       }
-
-
-
-
    }
 }
 

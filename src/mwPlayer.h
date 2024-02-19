@@ -22,7 +22,6 @@ struct psyn // synced between server and client
 
    int overworld_last_touched_gate;
 
-
    float x, y;        // players position
    float xinc, yinc;  // players speed
    float right_xinc, left_xinc;
@@ -38,6 +37,9 @@ struct psyn // synced between server and client
 
    int shape; // index to player_tile
    int color; // used to draw frames and stuff in players color
+
+   int left_right; // determines the direction the player is facing
+
 
    float draw_rot;
    float draw_scale;
@@ -55,7 +57,6 @@ struct psyn // synced between server and client
 
    int marked_gate;
    int spawn_point_index;
-   int left_right; // determines the direction the player is facing
 
 
    // flags that indicate a control has been activated or held
@@ -77,7 +78,6 @@ struct psyn // synced between server and client
    int late_cdats;
    int late_cdats_last_sec;
 
-
    int player_vs_player_shots;
    int player_vs_player_shot_damage;
    int player_vs_self_shots;
@@ -86,19 +86,9 @@ struct psyn // synced between server and client
    int server_force_client_offset = 0;
    float client_chase_offset = -0.02;
 
-
-
    int server_lev_seq_num;
 
-
-
    int spare_int1;
-
-
-
-
-
-
 };
 
 struct ploc // not synced between server and client (but synced from server to remote)
@@ -175,7 +165,6 @@ struct ploc // not synced between server and client (but synced from server to r
    int srv_extra_packets_size;
 
 
-
    // bandwidth counters and tallies
 
    // used to add up until frame end
@@ -183,6 +172,7 @@ struct ploc // not synced between server and client (but synced from server to r
    int tx_current_packets_for_this_frame;
    int tx_max_bytes_per_frame;
    int tx_max_packets_per_frame;
+
    int rx_current_bytes_for_this_frame;
    int rx_current_packets_for_this_frame;
    int rx_max_bytes_per_frame;

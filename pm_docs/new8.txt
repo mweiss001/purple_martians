@@ -44646,6 +44646,642 @@ the problem is that there is only one copy of the level locks, the local copy...
 how about in netgame mode, all are unlocked
 right now if server has locked what happens? It looks the same on the client
 but both c and s can enter locked levels
+done...
+
+
+
+bug...key bindings should only be in player 0....
+they only affect the local player
+there will never be time when any other than 0 are needed
+I think I have it done
+
+
+
+bug - wont run on scat anymore
+missing GLIBC_2.35, GLIBC_2.33 GLIBC_2.34
+it used to run great on scat, maybe it was the recent updates....
+
+its because I built the release on 22.04 (pmh) and I an trying to run it on 20.04 (scat)
+what a bunch of bullshit!!!!
+
+u20 2.31
+u22 2.35
+
+what if I built it on scat?
+
+what the hell else does it not work on?
+
+I can build on 2.31 u20 and it seems to work on newer, but not the other way around...
+
+
+
+
+headless server, how do I make it save logs...
+I can't quit with CTRL-C in the terminal or kill the process...the log will not get saved
+I have to make a level done happen, (or reload level?...yes)
+
+
+sometimes weird artifacts show in level background, like msg from previous level??
+have not seen this happen for a long time
+
+
+I want some way to show off all the multiplayer demos...
+put the other folder in demo and call it multiplayer tas..done
+tas escape rocket not all purple coins??..fixed
+
+Where do I have the IP hard coded into the game?
+config? yes
+
+
+
+
+
+
+new release 240217.2
+
+running 7P + 1R
+lev 83
+
+170 kbps
+320 pps
+ran 12 min with no bad thing happening
+
+lev 83 is kind of a simple level
+dif size 400-500
+
+lets try a complex level...
+
+lev 17
+
+lost jj
+now have 6P + 1R
+
+dif size 1800-2400
+
+430 kbps
+500 pps
+
+then I lost mint
+disbaled screen lock and got them both back
+
+
+now:
+
+530-580 kbps
+640-660 pps
+1800-2100 dif size
+
+it seems stable
+
+some of the clients have large cpu usage
+
+
+server did a segfault trying to copy file
+
+logs/20240218-082950-[17][pmh].txt saved
+saved:savegame/20240218-082950-[17]-autosave on level done.gm
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 1 STARTED                               |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+starting file transfer [savegame/20240218-082950-[17]-autosave on level done.gm]
+Segmentation fault (core dumped)
+m@pmh:~/dev/purple_martians$
+moved the size check from send to add to array...should be fixed
+
+
+I ran a LAN game and the sync was always -140 wtf???
+I did it again and they seem to work fine now...
+
+
+
+
+
+
+
+20240228
+
+Have the server log information about client sessions
+
+how? a separate log?
+when they connect is easy but when they disconnect is not
+
+should I build it into the server?
+
+add something like connection to connection less UDP?
+
+what about server end stats? that is close to what I want
+
+
+I want to know:
+- when someone attempts to connect
+- when someone connects
+- how long the session is
+- how many keys pressed
+- when they disconnect and why
+- how many level done
+- how many level done that they cause
+
+
+How about when a connection attempt is made a file gets saved.
+YYYYMMDDHHMMSS_IP:PORT
+
+and some kind of unique identifier that netgame keeps track of
+
+
+netgame keep an array of these
+
+
+when connection is made an entry is created
+then every frame after that is is checked
+if it goes away then the record is logged
+
+what do I call these?
+
+connections? sessions? client_sessions?
+
+client_sessions
+
+what to save?
+
+timestamp...what format...
+
+can I use an integer?
+
+   char filename[256];
+   struct tm *timenow;
+   time_t now = time(NULL);
+   timenow = localtime(&now);
+   strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S", timenow);
+
+
+I suppose I could just use a timestamp like this as the start
+
+then use the other al_time for duration like I always do...
+
+
+al_get_time
+double al_get_time(void)
+Return the number of seconds since the Allegro library was initialised. The return value is undefined if Allegro is uninitialised. The resolution depends on the used driver, but typically can be in the order of microseconds.
+
+that seems too complicated...I really want to just save seconds since epoch for both
+but now that seem complicated....
+
+I want to save it in a way that I can easily sort and print later
+
+
+how about a long string:
+
+YYYYMMDDHHMMSS_IP_PORT
+
+
+what is the max size it could be:
+
+YYYYMMDDHHMMSS_xxx.xxx.xxx.xxx_123456789 (41 char)
+
+lets go with 64 char
+
+int active;
+int who;
+
+char session_name[64];
+char host_name[16];
+
+double start_time;
+double end_time;
+double duration;
+
+int controls_pressed;
+int levels_done;
+int levels_done_by_this player;
+int enemies killed;
+int deaths;
+
+
+
+next:
+
+when connection attempt is made
+
+in server listen when rx 1234 and reply with 5678
+
+add a new entry to the list
+
+at this point we have:
+
+ip address
+who (ClientNum)
+timestamp
+
+what if I add a status int to the struct
+
+I suppose I could use active...no
+
+status
+1 = rx 1234 and sent 5678
+2 = rx cjon
+
+10 = server full
+4 = client quit
+5 = client dropped by server
+
+
+I want a fucntion that scans this list every frame to check status, etc.....why, what will it do?
+
+detects that the player associated with a session is not active any more
+detects that a session never went from status 1 to status 2 after a period of time
+
+
+void mwNetgame::server_check_client_sessions(void)
+called from void mwNetgame::server_control()
+
+so it run every frame
+
+iterates all active sessions
+this is the only place that removes active sessions
+when it does that, it creates a log entry
+
+now what?
+
+I am worried that the log entries will not get saved if the server quits unexpectedly
+
+right now they do not get saved unless the player goes inactive
+
+what would fix this?
+
+I could have a unique filename and save and resave
+
+save at the end of every level done
+
+make a way of telling if we detected an definite end vs abort...
+
+1st remove : from session_name when added
+2nd use session_name as filename
+3rd the actual saving was easy, i do not check if the file exists already, i just overwrite....
+
+now I want some more details in the file, like if it has a definite end
+
+
+status
+1 = rx 1234 and sent 5678
+2 = rx cjon
+
+10 = server full
+20 = server did not receive cjon from client after 10s
+
+30 = player became inactive
+40 = server quit
+
+50 = server dropped
+lets see if I can detect when server drops client
+I went down a real rabbit hole here about quit reason
+server adds game move player inactive and reason 71
+but I don't think anything uses that...
+found another way to do it...
+
+now I want to save all active when next level
+
+I think I have all that done, now I need to test it
+
+it looks like it is working...
+
+levels done gets counted even with gates
+
+levels done by this player gates are not counted...NBD
+
+now what?
+
+shots fired..needs to be counted at level done
+
+removed the code in game move player inactive loc server rmt client inactive
+where the player struct got initialized...
+this was messing with the stuff I wanted to keep track of...
+I'm sure that I initialize before I use them again...yes when rx cjon and setting up new player...
+
+what else do I want to add?
+
+total bytes rx and tx
+
+avg tx_kbps and rx_kbps
+
+max in 1s
+
+max in 1 frame
+
+avg ping?
+
+dammit...all these are not synced to server...but the server keeps track also does it not? yes!!!
+
+BYTES TRANSMITTED
+%d Total
+%d avg per sec
+%d Max per frame
+
+BYTES RECEIVED
+%d Total
+%d avg per sec
+%d Max per frame
+
+
+
+Adding Log Entry for Session Index:0 - Filename:logs/session/20240218185329_192.168.1.109_24785.txt
+Filename:logs/session/20240218185329_192.168.1.109_24785.txt
+Host Name:e6430
+Player Num:1
+Duration:9.4s
+Next Levels:1
+Exits Activated:0
+cdat's Received:82
+Respawns:0
+Shots Fired:15
+Enemy Hits:0
+Player Hits:0
+Self Hits:0
+Purple Coins:0
+TX Total Bytes:117583
+TX Total Packets:386
+RX Total Bytes:20260
+RX Total Packets:456
+TX Max Bytes/Frame:3460
+RX Max Bytes/Frame:108
+TX Max Packets/Frame:4
+RX Max Packets/Frame:4
+Active:0
+Status:30 - Player became inactive
+
+what next...avg ping??
+
+move this to MiscFnx
+
+mItem.chrms(mDemoMode.last_frame, msg));
+
+also make one to display k and m for bytes
+done...
+
+
+finish session logs...what is left?
+
+avg_ping..no easy way to do that
+
+make bandwidth look nice..done
+make DateStamp, IP, Port on line by themselves...done
+
+make optional
+were...just dont save?
+for the calls throughout the code:
+if (mLog.log_types[LOG_NET_session].action) session_check_active();
+and do print optional...done
+
+make session logs always on for headless server..done
+
+speed control save in config or reset with program start
+make sure that server does not do anything but 40!!!
+
+changed it so that locking frame speed in settings forces the speed to 40
+
+now make it so that starting server forces 40 as well and client...done
+
+make the reset with program start optional...
+
+
+what are the options?
+
+now matter what always revert to 40 on program start (read from config)
+
+checkbox reset speed to default on program start...
+only show if unlocked default if checked
+
+only when unchecked and unlocked is speed saved in config
+done....
+
+
+
+make optional
+server sending gm to client
+
+added to game moves:
+int server_send_gm_to_clients = 1;
+save in config
+add to settings
+force on for headless server
+all done...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

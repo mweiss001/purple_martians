@@ -21,9 +21,8 @@
 #include "mwLoop.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
-#include "mwItem.h"
 #include "mwConfig.h"
-
+#include "mwMiscFnx.h"
 #include "mwShot.h"
 
 
@@ -1114,8 +1113,8 @@ void mwScreen::draw_top_frame(int p)
    {
 
       char tmr[80];
-      if (mPlayer.syn[0].level_done_mode) mItem.chrms(mPlayer.syn[0].level_done_frame, tmr);
-      else  mItem.chrms(mLoop.frame_num, tmr);
+      if (mPlayer.syn[0].level_done_mode) mMiscFnx.chrms(mPlayer.syn[0].level_done_frame, tmr);
+      else  mMiscFnx.chrms(mLoop.frame_num, tmr);
 
 
       if (mDisplay.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%s En:%d ",                mLevel.play_level, tmr, mEnemy.num_enemy); // special case for narrow screens

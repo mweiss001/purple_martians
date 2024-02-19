@@ -46,6 +46,60 @@ void mwMiscFnx::chop_first_x_char(char *str, int n)
 
 
 
+// format time from frames to seconds or minutes
+char * mwMiscFnx::chrms(int time, char* ft)
+{
+   // less than 1 minute
+   if (time < 2400) sprintf(ft, "%0.1fs", (float)time/40);
+
+   // less than 1 hour
+   else if (time < 144000)
+   {
+      int m = time / 2400;    // minutes
+      int rt = time - m*2400; // remaining portion that is less than 1 minute
+      sprintf(ft, "%d:%02d", m, rt/40);
+   }
+   else
+   {
+      int h = time / 144000;    // hours
+      int rt = time - h*144000; // remaining portion that is less than 1 hour
+      int m = rt / 2400;        // minutes
+      rt -= m*2400;             // remaining portion that is less than 1 minute
+      sprintf(ft, "%d:%02d:%02d", h, m, rt/40);
+   }
+   return ft;
+}
+
+
+
+// format number from k to M to G
+char * mwMiscFnx::chrsi(int num, char* ft)
+{
+   int an = abs(num);
+   if ((an >= 0)          && (an < 1000))          sprintf(ft, "%d ", num);
+   if ((an >= 1000)       && (an < 1000000))       sprintf(ft, "%d k", num/1000 );
+   if ((an >= 1000000)    && (an < 1000000000))    sprintf(ft, "%d M", num/1000000 );
+   if ((an >= 1000000000) && (an < 1000000000000)) sprintf(ft, "%d G", num/1000000000 );
+   return ft;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwMiscFnx::get_tag_text(char *str, char *res, int show)
 {
    if (show) printf("\nget tag initial %s\n", str);
@@ -1292,11 +1346,4 @@ int mwMiscFnx::edit_lift_name(int lift, int y1, int x1, char *fst)
       if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) return 0;
    }
 }
-
-
-
-
-
-
-
 

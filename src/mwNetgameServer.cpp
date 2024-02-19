@@ -1,7 +1,5 @@
 // mwNetgameServer.cpp
 
-#include <limits>
-
 #include "pm.h"
 #include "mwNetgame.h"
 #include "mwPacketBuffer.h"
@@ -77,8 +75,9 @@ void mwNetgame::ServerExitNetwork(void)
    // reset player data
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
    mPlayer.syn[0].active = 1;
-}
 
+   if (mLog.log_types[LOG_NET_session].action) session_flush_active_at_server_exit();
+}
 
 
 void mwNetgame::ServerListen()
@@ -91,7 +90,7 @@ void mwNetgame::ServerListen()
    {
       if (mPacketBuffer.PacketRead(data, "1234"))
       {
-         mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received initial 1234 packet from '%s'",address);
+         mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received initial 1234 packet from '%s'", address);
          if (!(ClientChannel[ClientNum] = net_openchannel(NetworkDriver, NULL)))
          {
             sprintf(msg, "Error: failed to open channel for %s\n", address);
@@ -111,6 +110,8 @@ void mwNetgame::ServerListen()
          ServerSendTo(data, pos, ClientNum);
          ClientNum++;
          mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server opened channel for `%s' and sent reply", address);
+
+         if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, ClientNum - 1);
       }
    }
 }
@@ -187,9 +188,15 @@ void mwNetgame::headless_server_setup(void)
    mLog.clear_all_log_actions();
    mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG, 1);
 
-   // add these for troubleshooting
-   mLog.set_log_type_action(LOG_NET_stak, LOG_ACTION_LOG, 1);
-   mLog.set_log_type_action(LOG_NET_stdf, LOG_ACTION_LOG, 1);
+   // always have session logging on
+   mLog.set_log_type_action(LOG_NET_session, LOG_ACTION_LOG, 1);
+
+
+
+//   // add these for troubleshooting
+//   mLog.set_log_type_action(LOG_NET_stak, LOG_ACTION_LOG, 1);
+//   mLog.set_log_type_action(LOG_NET_stdf, LOG_ACTION_LOG, 1);
+
 
 
 
@@ -200,6 +207,8 @@ void mwNetgame::headless_server_setup(void)
    // make sure we are always saving games
    mGameMoves.autosave_game_on_level_done = 1;
    mGameMoves.autosave_game_on_program_exit = 1;
+
+   mGameMoves.server_send_gm_to_clients = 1;
 
    mConfig.save_config();
 }
@@ -520,10 +529,9 @@ void mwNetgame::server_proc_player_drop(void)
          {
             mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 71); // make client inactive (reason no stak for x frames)
             mLog.add_headerf(LOG_NET, p, 1, "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
+            if (mLog.log_types[LOG_NET_session].action) session_drop_player(p);
          }
    }
-
-
 
 
 //   // temp testing
@@ -604,6 +612,8 @@ void mwNetgame::server_proc_cdat_packet(int i)
 
    mPlayer.loc[p].client_cdat_packets_tx++;
 
+//   printf ("cdat:%d\n", mPlayer.loc[p].client_cdat_packets_tx);
+
    // calculate game_move_sync
    mPlayer.loc[p].server_game_move_sync = cdat_frame_num - mLoop.frame_num;
 
@@ -681,6 +691,9 @@ void mwNetgame::server_proc_cjon_packet(int i)
       mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
       mLog.add_fwf(LOG_NET, 0, 76, 10, "+", "-", "");
       server_send_sjon_packet(who, 0, 0, 99, 0);
+
+      if (mLog.log_types[LOG_NET_session].action) session_update_entry(who, 10, temp_name, cn);
+
    }
    else // empty player slot found, proceed with join
    {
@@ -697,9 +710,7 @@ void mwNetgame::server_proc_cjon_packet(int i)
       mPlayer.loc[cn].server_last_stak_rx_frame_num = mLoop.frame_num + 200;
       sprintf(mPlayer.loc[cn].hostname, "%s", temp_name);
 
- //     mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_CLIENT_JOIN, cn, color); // add a game move type 3 to mark client started join
-
-      mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, cn, color); // add a game move type 1 to make client active
+      mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, cn, color); // add a game move to make client active
 
       server_send_sjon_packet(who, mLevel.play_level, mLoop.frame_num, cn, color);
 
@@ -710,6 +721,9 @@ void mwNetgame::server_proc_cjon_packet(int i)
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Frame:[%d]", mLoop.frame_num);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Level Sequence Num:[%d]", mPlayer.syn[0].server_lev_seq_num);
       mLog.add_fwf(LOG_NET,               0, 76, 10, "+", "-", "");
+
+      if (mLog.log_types[LOG_NET_session].action) session_update_entry(who, 2, temp_name, cn);
+
    }
 }
 
@@ -760,185 +774,6 @@ void mwNetgame::server_proc_pang_packet(char *data, int who)
 
 
 
-// ------------------------------------------------------------------------
-// Send file routines
-// ------------------------------------------------------------------------
-void mwNetgame::server_send_file(int i)
-{
-   // does the file exist?
-   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(files_to_send[i].name);
-   if (!al_fs_entry_exists(FS_fname))
-   {
-      printf("%s does not exist\n", al_get_fs_entry_name(FS_fname));
-      files_to_send[i].active = 0;
-      return;
-   }
-
-   // the file exists, get filename and size
-   files_to_send[i].active = 2;
-   char fname[1024];
-   sprintf(fname, "%s", files_to_send[i].name);
-   int fsize = al_get_fs_entry_size(FS_fname);
-   //printf("%s exists -- size:%d \n", fname, fsize);
-
-   // buffer for uncompressed file and filename
-   char buf[fsize + 128];
-
-   // read the file into the buffer
-   FILE *fp = fopen(fname, "rb");
-   if (!fp)
-   {
-      printf("Error opening %s", fname);
-      return;
-   }
-   fread(buf + 128, sizeof(buf), 1, fp);
-   fclose(fp);
-
-   // add filename at the start of the buffer
-   sprintf(buf, "%s", fname);
-
-   // destination for the compressed data structure
-   char dst[fsize + 128];
-
-   // compress
-   uLongf destLen = sizeof(dst);
-   compress((Bytef*)dst, (uLongf*)&destLen, (Bytef*)buf, sizeof(buf));
-   int dst_size = destLen;
-   //printf("Compressed size:%d\n", dst_size);
-
-   // break into pieces and send
-   int num_packets = (dst_size / 1000) + 1;
-   if (num_packets > 200) printf("File [%s] transfer aborted (more than 200 packets required)\n", fname);
-   else
-   {
-      //float cr = (float)dst_size*100 / (float)(fsize+128); // compression ratio
-      //printf("tx sfil fn:[%d] size:[%d] ratio:[%3.2f] [%d packets needed]\n", mLoop.frame_num, dst_size, cr, num_packets);
-
-      int start_byte = 0;
-      for (int packet_num=0; packet_num < num_packets; packet_num++)
-      {
-         int packet_data_size = 1000; // default size
-         if (start_byte + packet_data_size > dst_size) packet_data_size = dst_size - start_byte; // last piece is smaller
-
-         //printf("tx sfil piece fn:[%d] packet:[%d of %d]\n", mLoop.frame_num, packet_num+1, num_packets);
-
-         char data[1024] = {0}; int pos;
-         mPacketBuffer.PacketName(data, pos, "sfil");
-         mPacketBuffer.PacketPutInt4(data, pos, files_to_send[i].id);
-         mPacketBuffer.PacketPutByte(data, pos, packet_num);
-         mPacketBuffer.PacketPutByte(data, pos, num_packets);
-         mPacketBuffer.PacketPutInt4(data, pos, start_byte);
-         mPacketBuffer.PacketPutInt4(data, pos, packet_data_size);
-         mPacketBuffer.PacketPutInt4(data, pos, fsize); // uncompressed file size
-
-         memcpy(data+pos, dst+start_byte, packet_data_size);
-         pos += packet_data_size;
-
-         ServerSendTo(data, pos, files_to_send[i].who);
-
-         start_byte+=1000;
-      }
-   }
-}
-
-void mwNetgame::server_proc_sfak_packet(int i)
-{
-   int id = mPacketBuffer.PacketGetInt4(i);  // client has acknowledged getting this file id
-   // printf("client ack id:[%d]\n", id);
-   for (int i=0; i<20; i++)
-      if (files_to_send[i].id == id)
-      {
-         files_to_send[i].active = 0;
-         //printf("filename:%s]\n", files_to_send[i].name);
-      }
-}
-
-void mwNetgame::server_proc_crfl_packet(int i)
-{
-   //printf("rx crfl\n");
-   mGameMoves.save_gm_make_fn("server save on rx crfl packet");
-}
-
-void mwNetgame::server_add_file_to_send(const char * filename, int who)
-{
-   for (int i=0; i<20; i++)
-      if (!files_to_send[i].active)
-      {
-         files_to_send[i].id = rand(); // random id
-         files_to_send[i].active = 1;
-         files_to_send[i].attempts = 0;
-         files_to_send[i].who = who;
-         sprintf(files_to_send[i].name, "%s", filename);
-         return;
-      }
-}
-
-void mwNetgame::server_proc_files_to_send(void)
-{
-   // check if file transfer in progress, waiting for acknowledgement
-   int in_prog = 0;
-   for (int i=0; i<20; i++)
-      if (files_to_send[i].active > 1)
-      {
-         in_prog = 1;
-         files_to_send[i].active++;
-         //printf("file transfer [%s] -- wait:[%d] attempt[%d]\n", files_to_send[i].name, files_to_send[i].active, files_to_send[i].attempts);
-         if (files_to_send[i].active > 9) // waited 10 frames for ack
-         {
-            if (++files_to_send[i].attempts < 4) server_send_file(i); // resend
-            else files_to_send[i].active = 0;                         // abort
-         }
-      }
-   // if no transfer in progress, see if we have one to start
-   if (!in_prog)
-   {
-      for (int i=0; i<20; i++)
-         if (files_to_send[i].active == 1)
-         {
-            printf("starting file transfer [%s]\n", files_to_send[i].name);
-            server_send_file(i);
-         }
-   }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void mwNetgame::server_control()
 {
    ServerListen();                        // listen for new client connections
@@ -947,10 +782,9 @@ void mwNetgame::server_control()
    server_proc_player_drop();             // check to see if we need to drop inactive clients
    server_proc_limits();                  // check to see if we need to reload level
 
-
    server_proc_files_to_send();
 
-
+   if (mLog.log_types[LOG_NET_session].action) session_check_active();
 
    if (mMain.server_remote_control) server_send_snfo_packet();
 

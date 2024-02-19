@@ -75,6 +75,9 @@ void mwLoop::initialize(void)
    frame_speed = 40;
    frame_num = 0;
    speed_control_lock = 1;
+
+   reset_frame_speed_at_program_start = 1;
+
    eco_draw = 0;
 }
 
@@ -425,6 +428,10 @@ void mwLoop::proc_program_state(void)
       mLog.add_fw (LOG_NET, 0, 76, 10, "+", "-", "");
       mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client mode started on localhost:[%s]", mLoop.local_hostname);
 
+
+      mEventQueue.reset_fps_timer();
+
+
       if (!mNetgame.ClientInitNetwork())
       {
          state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
@@ -496,6 +503,8 @@ void mwLoop::proc_program_state(void)
          return;
       }
 
+      mEventQueue.reset_fps_timer();
+
       if (!load_and_setup_level(mLevel.play_level, 3)) state[0] = PM_PROGRAM_STATE_SERVER_EXIT;
 
    }
@@ -551,6 +560,8 @@ void mwLoop::proc_program_state(void)
          mNetgame.ServerFlush();
          mLog.log_ending_stats_server(LOG_NET_ending_stats);
          if (++mPlayer.syn[0].server_lev_seq_num > 255) mPlayer.syn[0].server_lev_seq_num = 0;
+
+         if (mLog.log_types[LOG_NET_session].action) mNetgame.session_save_active_at_level_done();
       }
       if (mLog.autosave_log_on_level_done) mLog.save_log_file();
       if (mGameMoves.autosave_game_on_level_done) mGameMoves.save_gm_make_fn("autosave on level done");

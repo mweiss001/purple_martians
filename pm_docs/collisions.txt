@@ -1,6 +1,5 @@
 Collision checks happen at different places in the code.
 
-
 Most are are in: proc_player_collisions(int p)
 
 where players check for collisions with:
@@ -12,14 +11,10 @@ enemies:
 set mEnemy.Ei[e][22] = p+1;
 
 eshots:
-call mwS.proc_eshot_collision(p, b);
+call mShot.proc_eshot_collision(p, b);
 
 pshots:
-call mwS.proc_pshot_collision(p, b);
-
-
-
-
+call mShot.proc_pshot_collision(p, b);
 
 
 
@@ -35,8 +30,11 @@ if multiple hit cannon, get bigger and faster
 
 but most of the time, the enemy will die
 
-in move_pshots, pshots are checked for wall collisions and out of bounds
-in move_eshots, pshots are checked for wall collisions and out of bounds
+
+
+
+in mwShot::move_pshots, pshots are checked for wall collisions and out of bounds
+in mwShot::move_eshots, pshots are checked for wall collisions and out of bounds
 
 
 
@@ -53,7 +51,6 @@ e-ps
 the only thing that enemies can collide with are:
 player
 player's shots
-
 
 
 

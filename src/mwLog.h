@@ -16,6 +16,7 @@
 #define LOG_error                  9
 #define LOG_NET                    10
 #define LOG_NET_join_details       12
+#define LOG_NET_session            14
 #define LOG_NET_ending_stats       22
 #define LOG_NET_bandwidth          23
 #define LOG_NET_stdf               27
@@ -26,6 +27,9 @@
 #define LOG_NET_cdat               35
 #define LOG_NET_client_ping        36
 #define LOG_NET_timer_adjust       37
+
+
+
 
 #define LOG_TMR                    44
 #define LOG_TMR_cpu                70

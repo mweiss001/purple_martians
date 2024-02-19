@@ -76,6 +76,11 @@ void mwConfig::save_config(void)
       asci(GAME, mLoop.speed_control_lock)
       asci(GAME, mLoop.frame_speed)
 
+
+      asci(GAME, mLoop.reset_frame_speed_at_program_start)
+
+
+
       asci(GAME, mVisualLevel.max_level_num)
       asci(GAME, mVisualLevel.level_icon_size)
 
@@ -124,16 +129,15 @@ void mwConfig::save_config(void)
       asci(DEMO, mGameMoves.autosave_game_on_level_done)
       asci(DEMO, mGameMoves.autosave_game_on_level_quit)
       asci(DEMO, mGameMoves.autosave_game_on_program_exit)
+      asci(DEMO, mGameMoves.server_send_gm_to_clients)
+
+
 
       ascf(DEMO, mDemoMode.overlay_opacity)
 
 
       asci(DEMO, mDemoMode.demo_debug_complete_level_on_gate_with_fire)
       asci(DEMO, mDemoMode.demo_debug_running_demo_saves_level_data)
-
-
-
-
 
       asci(BMSG, mBottomMessage.bottom_msg_on)
       asci(BMSG, mBottomMessage.num_lines)
@@ -207,8 +211,6 @@ void mwConfig::load_config(void)
    agci(GAME, mPlayer.syn[0].overworld_last_touched_gate, 0)
 
 
-
-
    agci(GAME, mMain.classic_mode, 0)
 
    agci(GAME, mScreen.transition_num_steps, 80)
@@ -227,8 +229,13 @@ void mwConfig::load_config(void)
    agci(GAME, mScreen.viewport_look_rocket, 1)
 
    agci(GAME, mLoop.speed_control_lock, 1)
-   agci(GAME, mLoop.frame_speed, 40)
+   agci(GAME, mLoop.reset_frame_speed_at_program_start, 1)
 
+   if (mLoop.reset_frame_speed_at_program_start) mLoop.frame_speed = 40;
+   else
+   {
+      agci(GAME, mLoop.frame_speed, 40)
+   }
 
    agci(GAME, mVisualLevel.max_level_num, 100)
    agci(GAME, mVisualLevel.level_icon_size, 40)
@@ -279,6 +286,7 @@ void mwConfig::load_config(void)
    agci(DEMO, mGameMoves.autosave_game_on_level_done, 0)
    agci(DEMO, mGameMoves.autosave_game_on_level_quit, 0)
    agci(DEMO, mGameMoves.autosave_game_on_program_exit, 0)
+   agci(DEMO, mGameMoves.server_send_gm_to_clients, 0)
 
 
    agcf(DEMO, mDemoMode.overlay_opacity, 0)

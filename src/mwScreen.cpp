@@ -13,6 +13,7 @@
 #include "mwColor.h"
 #include "mwLoop.h"
 #include "mwItem.h"
+#include "mwMiscFnx.h"
 #include "mwEnemy.h"
 #include "mwLevel.h"
 #include "mwShot.h"
@@ -718,7 +719,7 @@ void mwScreen::draw_level_info(void) // used only in menu
 
       if (mLevel.data[lev].status < 2)
       {
-         mItem.draw_line(x1, x2, y, "Par Time",           mItem.chrms( mLevel.data[lev].time_par,  msg),        15); y+=9;
+         mItem.draw_line(x1, x2, y, "Par Time",           mMiscFnx.chrms( mLevel.data[lev].time_par,  msg),        15); y+=9;
          mItem.draw_line(x1, x2, y, "Purple Coins",       mItem.chrd(  mLevel.data[lev].tot_purple_coins, msg), 15); y+=9;
       }
       else // completed
@@ -739,12 +740,12 @@ void mwScreen::draw_level_info(void) // used only in menu
 
 
 
-         mItem.draw_line(x1, x2, y, "Par Time",           mItem.chrms( mLevel.data[lev].time_par,            msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Min Time Overall",   mItem.chrms( mLevel.data[lev].time_best,           msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Min Time w/coins",   mItem.chrms( mLevel.data[lev].time_best_all_coins, msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Worst Time",         mItem.chrms( mLevel.data[lev].time_worst,          msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Average Time",       mItem.chrms( mLevel.data[lev].time_average,        msg), 15); y+=9;
-         mItem.draw_line(x1, x2, y, "Total Play Time",    mItem.chrms( mLevel.data[lev].time_total,          msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Par Time",           mMiscFnx.chrms( mLevel.data[lev].time_par,            msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Min Time Overall",   mMiscFnx.chrms( mLevel.data[lev].time_best,           msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Min Time w/coins",   mMiscFnx.chrms( mLevel.data[lev].time_best_all_coins, msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Worst Time",         mMiscFnx.chrms( mLevel.data[lev].time_worst,          msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Average Time",       mMiscFnx.chrms( mLevel.data[lev].time_average,        msg), 15); y+=9;
+         mItem.draw_line(x1, x2, y, "Total Play Time",    mMiscFnx.chrms( mLevel.data[lev].time_total,          msg), 15); y+=9;
          y+=1; al_draw_line(x1-1, y, x2+1, y, mColor.pc[15], 1); y+=2;
 
          mItem.draw_line(x1, x2, y, "Times Played",       mItem.chrd(  mLevel.data[lev].times_played,        msg), 15); y+=9;
