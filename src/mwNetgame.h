@@ -31,9 +31,6 @@ struct client_session
 
    int player_num;
 
-
-
-
    char session_name[64];
 
    char timestamp[16];

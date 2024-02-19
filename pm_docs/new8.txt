@@ -45070,6 +45070,24 @@ all done...
 
 
 
+g++ -Wall -c src/mwNetgameSessionLog.cpp -o o/src/mwNetgameSessionLog.o
+src/mwNetgameSessionLog.cpp: In member function ‘void mwNetgame::session_add_entry(const char*, int)’:
+src/mwNetgameSessionLog.cpp:180:14: warning: ‘sprintf’ argument 4 overlaps destination object ‘this’ [-Wrestrict]
+  180 |       sprintf(client_sessions[i].session_name, "%s_%s_%d", ts, client_sessions[i].ip, client_sessions[i].port);
+      |       ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/mwNetgameSessionLog.cpp:144:63: note: destination object referenced by ‘restrict’-qualified argument 1 was declared here
+
+
+  144 | void mwNetgame::session_add_entry(const char* address, int who)
+      |                                                               ^
+g++ -Wall -c src/mwPacketBuffer.cpp -o o/src/mwPacketBuffer.o
+
+
+
+
+
+
+
 
 
 
