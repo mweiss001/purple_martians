@@ -35,14 +35,18 @@ void mwPlayer::set_player_start_pos(int p)
 
    int item_to_get_start_from = -1;
 
-   if (mLevel.play_level == 1) // hub level
+
+   // in overworld level, player starts at the last gate they touched
+   if (mLevel.play_level == 1)
    {
       for (int i=0; i<500; i++)
          if ((mItem.item[i][0] == 18) && (mItem.item[i][6] == mPlayer.syn[p].overworld_last_touched_gate)) item_to_get_start_from = i;
    }
-   if (item_to_get_start_from == -1)
+
+   if (item_to_get_start_from == -1) // start item not found yet....
    {
-      int ns = 0; // count number of starts
+      // count the starts and put them in an array
+      int ns = 0;
       int s[8] = {0};
       for (int i=0; i<500; i++)
          if (mItem.item[i][0] == 5)
@@ -54,39 +58,42 @@ void mwPlayer::set_player_start_pos(int p)
       if (ns == 0) printf("Error: no start found.\n");
       else
       {
+         // syn[p].spawn_point_index is saved for every player
+         // it is the current index into the array of starts
+
+         // if only one start, that has to be the one we use
          if (ns == 1) syn[p].spawn_point_index = 0;
+
+         // if more than one start....
          if (ns > 1)
          {
             int mode = mItem.item[s[0]][6];
-
             if (mode == 0)
             {
                printf("Lev:%d - Error: in start mode:0 there should be only one start.. all other starts are ignored.\n", mLevel.play_level);
                syn[p].spawn_point_index = 0;
             }
-
             if (mode == 1) // team start
             {
                if (p % 2) syn[p].spawn_point_index = 1; // odd
                else       syn[p].spawn_point_index = 0; // even
             }
-
             if ((mode == 2) || (mode == 3)) // check point common and individual
             {
-//               if (!cont) syn[p].spawn_point_index = 0; // initial
-
-
-
+               //if (!cont) syn[p].spawn_point_index = 0; // initial
             }
          }
+         // translate spawn_point index into an item we can get a position from
          item_to_get_start_from = s[syn[p].spawn_point_index];
       }
    }
+   // if after all that we do not have an item, pick a default place to start the player
    if (item_to_get_start_from == -1)
    {
       syn[p].x = 100;
       syn[p].y = 100;
    }
+   // set the player's position from the item position
    else
    {
       syn[p].x = mItem.itemf[item_to_get_start_from][0];
@@ -113,11 +120,13 @@ void mwPlayer::proc_player_health(int p)
    {
       syn[p].health = 0;
 
-      if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 0, "PLAYER:%d DIED!", p);
-
-      mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
-      syn[p].stat_respawns++;
-      if (!mLoop.ff_state) mLevel.level_data_player_respawns++;
+      if (!mLoop.ff_state)
+      {
+         mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
+         mLog.add_headerf(LOG_NET, p, 0, "PLAYER:%d DIED!", p);
+         mLevel.level_data_player_respawns++;
+         syn[p].stat_respawns++;
+      }
 
       mScreen.set_player_text_overlay(p, 3);
 
@@ -461,13 +470,13 @@ void mwPlayer::proc_player_paused(int p)
       }
       if (--syn[p].paused > 0)
       {
-         float sa = .025;
-         syn[p].draw_scale -= sa; // shrink player
+         // shrink player
+         syn[p].draw_scale -= 0.25;
          if (syn[p].draw_scale < 0) syn[p].draw_scale = 0;
-         float ra;
-         if (syn[p].left_right) ra = 5;
-         else ra = -5;
-         syn[p].draw_rot += ra; // rotate player
+
+         // rotate player
+         if (syn[p].left_right) syn[p].draw_rot += 5;
+         else                   syn[p].draw_rot -= 5;
       }
       else // frozen done
       {

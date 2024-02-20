@@ -1,0 +1,77 @@
+20240219 I think I am going to start over..
+
+I am using m36
+
+I have OBS Studio version 27.2.4 installed already but there is a newer version 30.0.2
+
+ran the update...
+
+
+I think what I want to do is run the game fullscreen on a second monitor, this is what I did before...
+
+so, connect a 1920 x 1080 monitor...
+
+in the game settings show display adapters...
+
+edit pm.cfg and set:
+mDisplay.display_adapter_num=1
+
+then when you run the game and make it fullscreen, it will use the second monitor...
+
+
+Now to get OBS to record...
+
+
+under sources, chose display and picked the correct display (I just noticed is is 1920x1200)
+
+then I started recording and did some things and it worked
+
+
+videos are saved to C:\Users\m\Videos
+
+mp4 video
+
+
+the video says it is 1920x1080 60Hz 1200kbps
+
+
+
+file->settings
+
+video tab:
+1920x1080 60Hz
+
+output tab:
+quality: high q med file size
+format: mp4
+vid enc: Hardware (NVENC, H.264)
+aud enc: AAC
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

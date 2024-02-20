@@ -28,8 +28,6 @@ class mwDemoMode
    int last_frame;
 
    int mode;
-   int restore_mode;
-   int restore_level;
 
    int countdown_val;
    int countdown_reset = 2400;
