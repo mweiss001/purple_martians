@@ -11,6 +11,133 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+demo mode does not stop sound when done
+discovered from settings demo choose and run single
+there are 5 places that demo can be run from:
+gate on overworld
+(in this case the overworld level needs to be reloaded and run after)
+single from menu
+single from settings
+single from cmd (prompt)
+single from cmd (file)
+these all are working good now.....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
@@ -30,6 +157,12 @@ yes...it is done...
 now make a goddamn video!
 
 
+
+
+
+
+just curious?
+what happens in a netgame if demo is tried to start from gate?
 
 
 

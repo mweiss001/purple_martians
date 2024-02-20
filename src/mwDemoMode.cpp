@@ -32,8 +32,6 @@ void mwDemoMode::initialize(void)
    pass = 0;
    prev_index = -1;
    mode = 0;
-   restore_mode = 0;
-   restore_level = 1;
 }
 
 
@@ -41,9 +39,12 @@ void mwDemoMode::initialize(void)
 int fill_demo_array(ALLEGRO_FS_ENTRY *fs, void * extra)
 {
    if (mDemoMode.num_demo_filenames > 99) return ALLEGRO_FOR_EACH_FS_ENTRY_STOP; // only get 100 max
-   mDemoMode.demo_FS_filenames[mDemoMode.num_demo_filenames] = al_create_fs_entry(al_get_fs_entry_name(fs));
-   mDemoMode.demo_played[mDemoMode.num_demo_filenames] = 0;
-   mDemoMode.num_demo_filenames++;
+   if (!(al_get_fs_entry_mode(fs) & ALLEGRO_FILEMODE_ISDIR))
+   {
+      mDemoMode.demo_FS_filenames[mDemoMode.num_demo_filenames] = al_create_fs_entry(al_get_fs_entry_name(fs));
+      mDemoMode.demo_played[mDemoMode.num_demo_filenames] = 0;
+      mDemoMode.num_demo_filenames++;
+   }
    return ALLEGRO_FOR_EACH_FS_ENTRY_OK;
 }
 
@@ -107,11 +108,6 @@ void mwDemoMode::play_demo_for_stats(void)
 
 
 
-
-
-
-
-
 void mwDemoMode::play_all_demos_and_save_stats(int x, int y)
 {
    if (!load_demo_file_array()) return;
@@ -123,9 +119,6 @@ void mwDemoMode::play_all_demos_and_save_stats(int x, int y)
       mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[i]));
 
       play_demo_for_stats();
-
-//      seek_to_frame(last_frame, 0);
-
 
       mScreen.draw_percent_bar(x, y, 200, 20, (i+1)*100 / num_demo_filenames);
       al_flip_display();
@@ -279,9 +272,12 @@ void mwDemoMode::run_loop(int ti, int tf, int restore_level)
 
          if (mPlayer.syn[0].level_done_mode)
          {
+            if (mPlayer.syn[0].level_done_mode == 1) mode = 0;
             if (mLoop.frame_num > mPlayer.syn[0].level_done_frame + 280) mode = 0; // 280 frames past level done (80) for seek and 5s more
          }
          else if (mLoop.frame_num > last_frame + 400) mode = 0; // 10s past last game move
+
+         // printf("%d lf:%d ldm:%d ldf:%d \n", mLoop.frame_num, last_frame, mPlayer.syn[0].level_done_mode, mPlayer.syn[0].level_done_frame );
 
          mBitmap.update_animation();
          if (key_check()) mode = 0;
@@ -290,17 +286,16 @@ void mwDemoMode::run_loop(int ti, int tf, int restore_level)
          mDrawSequence.ds_draw(0, 1);
       }
    }
+
    mSound.stop_sound();
    mScreen.transition_cutscene(tf, ti); // initial (game) to final
    mConfig.load_config();               // restore player color
 
-   mLevel.play_level = restore_level;
-   if (mLevel.play_level == 1)
+   if (restore_level != -1)
    {
-      mLoop.load_and_setup_level(restore_level, 0);
-      mLoop.state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
+      mLevel.play_level = restore_level;
+      mLoop.load_and_setup_level(mLevel.play_level, 5);
    }
-   else mLoop.load_and_setup_level(restore_level, 5);
 }
 
 void mwDemoMode::run_single_from_menu(void)
@@ -312,16 +307,9 @@ void mwDemoMode::run_single_from_menu(void)
 
 void mwDemoMode::run_single_from_settings(void)
 {
+   mode = 1;
    int original_level = mLevel.play_level;
-   mode = 1;
    if ((mGameMoves.load_gm_file_select()) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(0, 1, original_level);
-   mode = 0;
-}
-
-void mwDemoMode::run_single_from_gate(int lev)
-{
-   mode = 1;
-   if ((mGameMoves.load_demo_level(lev)) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(3, 1, 1);
    mode = 0;
 }
 
@@ -336,6 +324,17 @@ void mwDemoMode::run_single_from_cmd_prompt(void)
 {
    mode = 1;
    if ((mGameMoves.load_gm_file_select()) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(0, 0, mLevel.play_level);
+   mode = 0;
+}
+
+// this takes care of its own loading and running of overworld when done
+void mwDemoMode::run_single_from_gate(int lev)
+{
+   mode = 1;
+   if ((mGameMoves.load_demo_level(lev)) && (mLoop.load_and_setup_level(mLevel.play_level, 4))) run_loop(3, 1, -1);
+   mLevel.play_level = 1;
+   mLoop.load_and_setup_level(1, 0);
+   mLoop.state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
    mode = 0;
 }
 
@@ -372,8 +371,6 @@ void mwDemoMode::run_continuous_random(void)
                      mode = 0;
                      done = 1;
                   }
-
-
 
                   int next_lev = 0;
 

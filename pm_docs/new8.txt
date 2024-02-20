@@ -45343,6 +45343,379 @@ done
 
 
 
+is there something screwy about demo 37 ending?
+the file looks fine...is it because there is a respawn?
+
+I recorded a new one and it is the same
+
+why??
+
+
+what about it makes it not get the exit
+
+
+tested on level 2, when death occurs in a demo playback the end is messed up...
+
+
+do I only have one level where that happens ever?
+
+
+
+
+81 training level 2
+has a death but no weirdness at the end
+death at 8s
+level done at 53s
+
+
+37 sacrifice
+has a death at 5s
+level done at 13.3
+then a few seconds later the player spawns at the start block and touches the exit again
+
+does that a few times
+
+what does the death pause code look like?
+
+I don't see anything weird there
+
+void mwPlayer::proc_player_health(int p)
+{
+   if (syn[p].health < 1)
+   {
+      syn[p].health = 0;
+
+      if (!mLoop.ff_state)
+      {
+         mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
+         mLog.add_headerf(LOG_NET, p, 0, "PLAYER:%d DIED!", p);
+         mLevel.level_data_player_respawns++;
+         syn[p].stat_respawns++;
+      }
+
+      mScreen.set_player_text_overlay(p, 3);
+
+      loc[p].health_display = 200;
+      syn[p].paused = 100;
+      syn[p].paused_type = 1;
+   }
+}
+
+
+void mwPlayer::proc_player_paused(int p)
+{
+   if (syn[p].paused_type == 1) // frozen after player dies, until the timer runs out
+   {
+      syn[p].carry_item = 0;
+      if (--syn[p].paused > 0)
+      {
+         // shrink player
+         syn[p].draw_scale -= 0.25;
+         if (syn[p].draw_scale < 0) syn[p].draw_scale = 0;
+
+         // rotate player
+         if (syn[p].left_right) syn[p].draw_rot += 5;
+         else                   syn[p].draw_rot -= 5;
+      }
+      else // frozen done
+      {
+         syn[p].paused = 0;
+         syn[p].old_health = 100;
+         syn[p].health = 100;
+         syn[p].left_xinc = 0;
+         syn[p].right_xinc = 0;
+         syn[p].xinc = 0;
+         syn[p].yinc = 0;
+         set_player_start_pos(p);
+      }
+   }
+}
+
+
+
+OK then, where else can I look?
+what does the end of 81 look like?
+last_move 2117
+level_done 2136
+no ack....
+
+level 37
+
+level_done 634
+ack at 633
+wtf? that doesn't sound right
+
+removed that and it works!!!!
+
+lets look at the test level37 i created...
+level done 671
+ack at 927
+
+removed the game moves after level done and it works fine now...
+
+
+maybe that is my issue...
+i don't look for input after level done, so why do I have game moves after that?
+
+does this also apply to levels that don't have deaths?
+it looks like it does...
+
+why does recording demo's do that?
+should i run a sanitizer before saving level?
+
+
+
+maybe I should make sure that any levels I have do not have game moves after level done....
+
+
+
+GDT lev:[ 2] ----
+GDT lev:[ 3] ----
+GDT lev:[ 4] ----
+GDT lev:[ 5] ----
+GDT lev:[ 6] ----
+GDT lev:[ 7] ----
+GDT lev:[ 8] ----
+GDT lev:[ 9] ----
+GDT lev:[10] ----
+GDT lev:[11] ----
+GDT lev:[12] ----
+GDT lev:[13] ---- level not done 11248 is done, why not show in demo???
+GDT lev:[14] ----
+GDT lev:[15] ----
+GDT lev:[16] ----
+GDT lev:[17] ----
+GDT lev:[18] ----
+GDT lev:[19] ----
+GDT lev:[20] ----
+GDT lev:[21] ----
+GDT lev:[22] ----
+GDT lev:[23] ----
+GDT lev:[24] ----
+GDT lev:[25] ----
+GDT lev:[26] ----
+GDT lev:[27] ----
+GDT lev:[28] ----
+GDT lev:[29] ----
+GDT lev:[30] ----
+GDT lev:[31] ----
+GDT lev:[32] ----
+GDT lev:[33] ----
+GDT lev:[34] ----
+GDT lev:[35] ----
+GDT lev:[37] ----
+GDT lev:[38] ----
+GDT lev:[39] ----
+GDT lev:[40] ----
+GDT lev:[41] ----
+GDT lev:[42] ---- ack (ld 14974)
+GDT lev:[43] ----
+GDT lev:[44] ----
+GDT lev:[45] ----
+GDT lev:[46] ----
+GDT lev:[47] ----
+GDT lev:[48] ----
+GDT lev:[49] ---- ack
+GDT lev:[50] ----
+GDT lev:[51] ----
+GDT lev:[52] ----
+GDT lev:[53] ----
+GDT lev:[54] ----
+GDT lev:[55] ----
+GDT lev:[56] ----
+GDT lev:[57] ----
+GDT lev:[64] ----
+GDT lev:[80] ----
+GDT lev:[81] ----
+GDT lev:[82] ----
+GDT lev:[83] ----
+GDT lev:[84] ----
+GDT lev:[85] ----
+GDT lev:[86] ----
+GDT lev:[87] ----
+GDT lev:[88] ----
+GDT lev:[89] ----
+GDT lev:[90] ----
+GDT lev:[91] ----
+GDT lev:[92] ----
+GDT lev:[93] ----
+GDT lev:[94] ----
+GDT lev:[95] ----
+GDT lev:[96] ----
+GDT lev:[97] ----
+GDT lev:[98] ---- works fine
+
+Error opening file:C:\pm\savegame\demo\TAS
+GDT lev:[98] ---- level not done
+
+
+GDT lev:[ 4] ----
+GDT lev:[ 5] ----
+GDT lev:[ 6] ----
+GDT lev:[ 8] ----
+GDT lev:[ 9] ----
+GDT lev:[10] ----
+GDT lev:[11] ---- ack
+GDT lev:[12] ----
+GDT lev:[13] ----
+GDT lev:[16] ----
+GDT lev:[17] ----
+GDT lev:[18] ----
+GDT lev:[19] ----
+GDT lev:[23] ----
+GDT lev:[29] ----
+GDT lev:[30] ----
+GDT lev:[31] ----
+GDT lev:[32] ----
+GDT lev:[41] ----
+GDT lev:[64] ---- ack
+
+
+level 49
+
+
+6289 lf:6381 ldm:0 ldf:0
+6290 lf:6381 ldm:0 ldf:0
+6291 lf:6381 ldm:0 ldf:0
+6292 lf:6381 ldm:0 ldf:0
+6293 lf:6381 ldm:9 ldf:6292
+6294 lf:6381 ldm:8 ldf:6292
+6295 lf:6381 ldm:8 ldf:6292
+6296 lf:6381 ldm:8 ldf:6292
+6297 lf:6381 ldm:8 ldf:6292
+6298 lf:6381 ldm:8 ldf:6292
+6299 lf:6381 ldm:8 ldf:6292
+6300 lf:6381 ldm:8 ldf:6292
+6301 lf:6381 ldm:8 ldf:6292
+6302 lf:6381 ldm:8 ldf:6292
+6303 lf:6381 ldm:8 ldf:6292
+6304 lf:6381 ldm:8 ldf:6292
+6305 lf:6381 ldm:8 ldf:6292
+6306 lf:6381 ldm:8 ldf:6292
+6307 lf:6381 ldm:8 ldf:6292
+6360 lf:6381 ldm:7 ldf:6292
+6361 lf:6381 ldm:7 ldf:6292
+6362 lf:6381 ldm:7 ldf:6292
+6363 lf:6381 ldm:7 ldf:6292
+6364 lf:6381 ldm:7 ldf:6292
+6365 lf:6381 ldm:7 ldf:6292
+6366 lf:6381 ldm:7 ldf:6292
+6367 lf:6381 ldm:7 ldf:6292
+6368 lf:6381 ldm:7 ldf:6292
+6369 lf:6381 ldm:7 ldf:6292
+6370 lf:6381 ldm:7 ldf:6292
+6371 lf:6381 ldm:7 ldf:6292
+6372 lf:6381 ldm:7 ldf:6292
+6373 lf:6381 ldm:7 ldf:6292
+6374 lf:6381 ldm:6 ldf:6292
+6375 lf:6381 ldm:5 ldf:6292
+6376 lf:6381 ldm:4 ldf:6292
+6377 lf:6381 ldm:3 ldf:6292
+6378 lf:6381 ldm:2 ldf:6292
+6379 lf:6381 ldm:2 ldf:6292
+6380 lf:6381 ldm:2 ldf:6292
+6381 lf:6381 ldm:2 ldf:6292
+6382 lf:6381 ldm:2 ldf:6292
+6383 lf:6381 ldm:2 ldf:6292
+6384 lf:6381 ldm:2 ldf:6292
+6385 lf:6381 ldm:2 ldf:6292
+6386 lf:6381 ldm:2 ldf:6292
+6387 lf:6381 ldm:2 ldf:6292
+6388 lf:6381 ldm:1 ldf:6292
+6389 lf:6381 ldm:0 ldf:6292
+6390 lf:6381 ldm:0 ldf:6292
+6391 lf:6381 ldm:0 ldf:6292
+6392 lf:6381 ldm:0 ldf:6292
+6393 lf:6381 ldm:0 ldf:6292
+6394 lf:6381 ldm:0 ldf:6292
+6395 lf:6381 ldm:0 ldf:6292
+
+found the fix
+
+added: if (mPlayer.syn[0].level_done_mode == 1) mode = 0;
+
+void mwDemoMode::run_loop(int ti, int tf, int restore_level)
+{
+   mScreen.transition_cutscene(ti, tf); // initial to final (game)
+   while (mode)
+   {
+      mEventQueue.proc(1);
+      if (mEventQueue.program_update)
+      {
+         mEventQueue.program_update = 0;
+         mDisplay.proc_scale_factor_change();
+         mLoop.frame_num++;
+
+
+         if (mPlayer.syn[0].level_done_mode)
+         {
+            if (mPlayer.syn[0].level_done_mode == 1) mode = 0;
+            if (mLoop.frame_num > mPlayer.syn[0].level_done_frame + 280) mode = 0; // 280 frames past level done (80) for seek and 5s more
+         }
+         else if (mLoop.frame_num > last_frame + 400) mode = 0; // 10s past last game move
+
+
+what was happening was the keypress after level done made level_done get to zero before that test could pass
+
+fix level 49 and 42 remove all after level_done..done
+how about TAS 11 and 64...done
+
+
+all is looking good...why does 13 not show done in demo_record and other places yet play fine??
+
+GDT lev:[13] ---- level not done 11248 is done, why not show in demo???
+
+
+last move is 11049
+
+
+11248
+11049
+-----
+  199
+
+the problem was in the function:
+
+increased...
+if (mLoop.frame_num > mDemoMode.last_frame + 400) done = 1;
+
+
+
+void mwDemoRecord::find_level_done(void)
+{
+   level_done_frame = 0;
+   level_done_player = -1;
+
+   seek_to_frame(0, 0);
+
+   mLoop.ff_state = 1;
+   int done = 0;
+   while (!done)
+   {
+      mLoop.frame_num++;
+      mGameMoves.proc();
+      mLoop.move_frame();
+      if (mPlayer.syn[0].level_done_mode)
+      {
+         level_done_frame  = mPlayer.syn[0].level_done_frame;
+         level_done_player = mPlayer.syn[0].level_done_player;
+         done = 1;
+      }
+      if (mLoop.frame_num > mDemoMode.last_frame + 400) done = 1;
+   }
+   mLoop.ff_state = 0;
+}
+this is all done
+
+
+
+20240220 I will need to make new release....
+
+
+
+
+
+
 
 
 

@@ -38,6 +38,12 @@ void mwDemoRecord::gdt(void)
 
       printf("GDT lev:[%2d] ----", mLevel.play_level);
 
+
+
+
+/*
+
+
       find_level_done();
       if (level_done_frame)
       {
@@ -49,7 +55,7 @@ void mwDemoRecord::gdt(void)
          remove_unused_fire_held_sections(0);
          mGameMoves.remove_doubled_moves();
       }
-
+*/
 
 
 //        // show all player active game moves
@@ -72,7 +78,22 @@ void mwDemoRecord::gdt(void)
 //            ack = mGameMoves.arr[x][0];
 //            printf("[%d] p:%d ack\n", mGameMoves.arr[x][0], mGameMoves.arr[x][2]);
 //         }
-//      printf("Time between level done and ack  -------  [%d]\n", ack - level_done_frame);
+//      if (!ack) printf("no ack\n");
+//      else      printf("Time between level done and ack  -------  [%d]\n", ack - level_done_frame);
+//
+
+//      // find time bewteen level done and ack
+//      find_level_done();
+//      if (!level_done_frame) printf(" level not done ");
+//      int ack = 0;
+//      for (int x=0; x<mGameMoves.entry_pos; x++)
+//         if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK)
+//         {
+//            ack = mGameMoves.arr[x][0];
+//            //printf("[%d] p:%d ack\n", mGameMoves.arr[x][0], mGameMoves.arr[x][2]);
+//         }
+//      if (ack) printf(" ack ");
+//      printf("\n");
 
       // add shot config and save
       //mGameMoves.add_game_move_shot_config(1);
@@ -97,7 +118,7 @@ void mwDemoRecord::gdt(void)
 //      printf("pvs:%d pvs:%d dmg:%d\n", mPlayer.syn[0].player_vs_player_shots, mPlayer.syn[0].player_vs_self_shots, mPlayer.syn[0].player_vs_player_shot_damage);
 
 
-      mGameMoves.save_gm(current_loaded_demo_file);
+//      mGameMoves.save_gm(current_loaded_demo_file);
 
 
 
@@ -698,8 +719,9 @@ void mwDemoRecord::find_level_done(void)
       {
          level_done_frame  = mPlayer.syn[0].level_done_frame;
          level_done_player = mPlayer.syn[0].level_done_player;
+         done = 1;
       }
-      if (mLoop.frame_num > mDemoMode.last_frame + 100) done = 1;
+      if (mLoop.frame_num > mDemoMode.last_frame + 400) done = 1;
    }
    mLoop.ff_state = 0;
 }
