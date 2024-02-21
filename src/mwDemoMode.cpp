@@ -10,6 +10,8 @@
 #include "mwMiscFnx.h"
 #include "mwEventQueue.h"
 
+#include "mwItem.h"
+
 #include "mwDisplay.h"
 #include "mwScreen.h"
 
@@ -82,7 +84,7 @@ void mwDemoMode::play_demo_for_stats(void)
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       mPlayer.init_player(p, 1);        // full reset
-      mPlayer.set_player_start_pos(p);  // get starting position for all players, active or not
+      mItem.set_player_start_pos(p);  // get starting position for all players, active or not
    }
    mPlayer.syn[0].active = 1;
    mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // to ensure that all added players are this mode also

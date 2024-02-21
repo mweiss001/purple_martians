@@ -78,49 +78,43 @@ void mwShot::proc_player_shoot(int p)
    float y = mPlayer.syn[p].y;
    float bs = (float) mPlayer.syn[p].shot_speed;
 
-   if (mPlayer.syn[p].fire)
+   if (mPlayer.if_players_ctrl_just_pressed(p, PM_COMPMOVE_FIRE)) // fire pressed this frame, but not last frame
    {
-      if (mPlayer.syn[p].fire_held == 0) // fire button pressed, but not held
+      if (mPlayer.syn[p].shot_wait_counter < 1)
       {
-         mPlayer.syn[p].fire_held = 1;
-         if (mPlayer.syn[p].shot_wait_counter < 1 )
+         mPlayer.syn[p].stat_shots_fired++;
+
+         int b = find_empty_pshot();
+         if (b != -1)
          {
-            mPlayer.syn[p].stat_shots_fired++;
+            mShot.p[b].active = mLoop.frame_num;
+            mShot.p[b].player = p;
+            mShot.p[b].x = x;
+            mShot.p[b].y = y + 1;
+            mShot.p[b].xinc = 0;
+            mShot.p[b].yinc = 0;
 
-            int b = find_empty_pshot();
-            if (b != -1)
-            {
-               mShot.p[b].active = mLoop.frame_num;
-               mShot.p[b].player = p;
-               mShot.p[b].x = x;
-               mShot.p[b].y = y + 1;
-               mShot.p[b].xinc = 0;
-               mShot.p[b].yinc = 0;
+            if (mPlayer.syn[p].left_right) mShot.p[b].x = x+4;
+            else mShot.p[b].x = x-3;
 
-               if (mPlayer.syn[p].left_right) mShot.p[b].x = x+4;
-               else mShot.p[b].x = x-3;
+            if      (mPlayer.syn[p].up)    mShot.p[b].yinc = -bs;
+            else if (mPlayer.syn[p].down)  mShot.p[b].yinc =  bs;
+            else                           mShot.p[b].xinc = (mPlayer.syn[p].left_right*bs*2) - bs;
 
-               if      (mPlayer.syn[p].up)    mShot.p[b].yinc = -bs;
-               else if (mPlayer.syn[p].down)  mShot.p[b].yinc =  bs;
-               else                           mShot.p[b].xinc = (mPlayer.syn[p].left_right*bs*2) - bs;
+            // if this line is not here player cannot shoot breakable blocks when directly in front of them (when facing right/left??
+            if ((!mPlayer.syn[p].up) && (!mPlayer.syn[p].down) && (mPlayer.syn[p].left_right)) mShot.p[b].x -=1;
 
-               // if this line is not here player cannot shoot breakable blocks when directly in front of them (when facing right/left??
-               if ((!mPlayer.syn[p].up) && (!mPlayer.syn[p].down) && (mPlayer.syn[p].left_right)) mShot.p[b].x -=1;
+            // initial move
+            mShot.p[b].x += mShot.p[b].xinc;  // xinc
+            mShot.p[b].y += mShot.p[b].yinc;  // yinc
 
-               // initial move
-               mShot.p[b].x += mShot.p[b].xinc;  // xinc
-               mShot.p[b].y += mShot.p[b].yinc;  // yinc
+            mPlayer.syn[p].shot_wait_counter = mPlayer.syn[p].shot_wait;
 
-               mPlayer.syn[p].shot_wait_counter = mPlayer.syn[p].shot_wait;
-               mPlayer.syn[p].fire_held = 1;
-
-               mGameEvent.add(1, x, y, p, b, 0, 0);
-            }
-            //else printf("player shot array full!\n");
+            mGameEvent.add(1, x, y, p, b, 0, 0);
          }
+         //else printf("player shot array full!\n");
       }
    }
-   else mPlayer.syn[p].fire_held = 0;  // fire is not pressed
    if (mPlayer.syn[p].shot_wait_counter > 0) mPlayer.syn[p].shot_wait_counter--;
 }
 

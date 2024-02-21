@@ -1,6 +1,6 @@
 // pm.h
 
-#define PM_VERSION "7.24.0220.1"
+#define PM_VERSION "7.24.0221.1"
 
 #include <stdio.h>
 #include <math.h>
@@ -22,8 +22,7 @@
 #define BORDER_WIDTH 14
 #define NUM_LIFTS 40
 
-#define STATE_SIZE 112384
-
+#define STATE_SIZE 112480
 
 // enemy debug stuff
 //#define SHOW_CANNON_COLLISION_BOX

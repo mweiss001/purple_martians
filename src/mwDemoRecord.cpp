@@ -20,6 +20,8 @@
 #include "mwQuickGraph2.h"
 #include "mwMenu.h"
 #include "mwConfig.h"
+#include "mwItem.h"
+
 
 
 mwDemoRecord mDemoRecord;
@@ -149,7 +151,7 @@ void mwDemoRecord::seek_to_frame(int frame, int draw)
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       mPlayer.init_player(p, 1);        // full reset
-      mPlayer.set_player_start_pos(p);  // get starting position for all players, active or not
+      mItem.set_player_start_pos(p);  // get starting position for all players, active or not
    }
    mPlayer.syn[0].active = 1;
    mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // to ensure that all added players are this mode also
@@ -921,7 +923,7 @@ void mwDemoRecord::start_record(void)
       int spi = mPlayer.syn[p].spawn_point_index; // save spawn_point_index
       mPlayer.init_player(p, 1);                  // full player reset
       mPlayer.syn[p].spawn_point_index = spi;     // restore spawn_point_index
-      mPlayer.set_player_start_pos(p);            // set starting position
+      mItem.set_player_start_pos(p);              // set starting position
 
       mPlayer.syn[p].active = 1;
       mPlayer.syn[p].color = record_player_color;

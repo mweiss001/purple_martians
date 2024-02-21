@@ -750,7 +750,7 @@ item[][15] = damage
 [18] - gate
 item[][6] level num
 item[][7] player touching
-item[][8] player down key holdoff
+item[][8] display page
 item[][9]
 item[][10]
 item[][11]

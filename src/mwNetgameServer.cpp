@@ -11,6 +11,7 @@
 #include "mwInput.h"
 #include "mwMain.h"
 #include "mwConfig.h"
+#include "mwItem.h"
 
 
 int mwNetgame::ServerInitNetwork(void)
@@ -702,7 +703,7 @@ void mwNetgame::server_proc_cjon_packet(int i)
 
       mPlayer.init_player(cn, 1); // full player reset
       mStateHistory[cn].initialize();
-      mPlayer.set_player_start_pos(cn);
+      mItem.set_player_start_pos(cn);
       mPlayer.syn[cn].active = 1;
       mPlayer.syn[cn].color = color;
       mPlayer.syn[cn].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;

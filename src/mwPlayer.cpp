@@ -20,7 +20,6 @@
 #include "mwSolid.h"
 #include "mwNetgame.h"
 #include "mwDemoRecord.h"
-
 #include "mwGameMoves.h"
 #include "mwEventQueue.h"
 #include "mwConfig.h"
@@ -28,78 +27,6 @@
 
 mwPlayer mPlayer;
 
-
-void mwPlayer::set_player_start_pos(int p)
-{
-   //printf("set player:%d start pos\n", p);
-
-   int item_to_get_start_from = -1;
-
-
-   // in overworld level, player starts at the last gate they touched
-   if (mLevel.play_level == 1)
-   {
-      for (int i=0; i<500; i++)
-         if ((mItem.item[i][0] == 18) && (mItem.item[i][6] == mPlayer.syn[p].overworld_last_touched_gate)) item_to_get_start_from = i;
-   }
-
-   if (item_to_get_start_from == -1) // start item not found yet....
-   {
-      // count the starts and put them in an array
-      int ns = 0;
-      int s[8] = {0};
-      for (int i=0; i<500; i++)
-         if (mItem.item[i][0] == 5)
-         {
-            ns++;
-            s[mItem.item[i][7]] = i; // save index of this start
-         }
-
-      if (ns == 0) printf("Error: no start found.\n");
-      else
-      {
-         // syn[p].spawn_point_index is saved for every player
-         // it is the current index into the array of starts
-
-         // if only one start, that has to be the one we use
-         if (ns == 1) syn[p].spawn_point_index = 0;
-
-         // if more than one start....
-         if (ns > 1)
-         {
-            int mode = mItem.item[s[0]][6];
-            if (mode == 0)
-            {
-               printf("Lev:%d - Error: in start mode:0 there should be only one start.. all other starts are ignored.\n", mLevel.play_level);
-               syn[p].spawn_point_index = 0;
-            }
-            if (mode == 1) // team start
-            {
-               if (p % 2) syn[p].spawn_point_index = 1; // odd
-               else       syn[p].spawn_point_index = 0; // even
-            }
-            if ((mode == 2) || (mode == 3)) // check point common and individual
-            {
-               //if (!cont) syn[p].spawn_point_index = 0; // initial
-            }
-         }
-         // translate spawn_point index into an item we can get a position from
-         item_to_get_start_from = s[syn[p].spawn_point_index];
-      }
-   }
-   // if after all that we do not have an item, pick a default place to start the player
-   if (item_to_get_start_from == -1)
-   {
-      syn[p].x = 100;
-      syn[p].y = 100;
-   }
-   // set the player's position from the item position
-   else
-   {
-      syn[p].x = mItem.itemf[item_to_get_start_from][0];
-      syn[p].y = mItem.itemf[item_to_get_start_from][1];
-   }
-}
 
 
 void mwPlayer::proc_player_health(int p)
@@ -143,7 +70,6 @@ void mwPlayer::proc_player_xy_move_test(int p)
 
    syn[p].xinc = 0;
    syn[p].yinc = 0;
-
 
    if (mInput.key[ALLEGRO_KEY_LCTRL][0]) m *= 4;
 
@@ -442,7 +368,6 @@ void mwPlayer::proc_player_xy_move(int p)
 
 
 
-
 void mwPlayer::proc_player_paused(int p)
 {
    syn[p].player_ride = 0;
@@ -487,7 +412,7 @@ void mwPlayer::proc_player_paused(int p)
          syn[p].right_xinc = 0;
          syn[p].xinc = 0;
          syn[p].yinc = 0;
-         set_player_start_pos(p);
+         mItem.set_player_start_pos(p);
       }
    }
 }
@@ -583,9 +508,6 @@ void mwPlayer::proc_player_collisions(int p)
       }
    }
 
-
-
-
    // eshots
    for (int b=0; b<50; b++)
       if (mShot.e[b].active)  // if active
@@ -605,9 +527,6 @@ void mwPlayer::proc_player_collisions(int p)
 
          if ((px > bx1) && (px < bx2) && (py > by1) && (py < by2)) mShot.proc_eshot_collision(p, b);
       }
-
-
-
 
    // pshots
    for (int b=0; b<50; b++)
@@ -744,13 +663,11 @@ void mwPlayer::proc_player_rope_move(int p)
    {
       syn[p].left_right = 0;
       syn[p].x -= mSolid.is_left_solidf(syn[p].x, syn[p].y, 3, 0);
-//      syn[p].xinc = -3;
    }
    if (syn[p].right)
    {
       syn[p].left_right = 1;
       syn[p].x += mSolid.is_right_solidf(syn[p].x, syn[p].y, 3, 0);
-//      syn[p].xinc = 3;
    }
    if (syn[p].down)
    {
@@ -813,10 +730,7 @@ void mwPlayer::proc_player_ladder_move(int p)
    if (yd < 0) if (!is_player_within_ladder_reach(p)) syn[p].y += m;
 
 
-
-
    // did we pass by any single block openings??
-
    // if only x move
    if ((xd != 0) && (yd == 0))
    {
@@ -877,9 +791,6 @@ void mwPlayer::proc_player_ladder_move(int p)
          }
       }
    }
-
-
-
 
    // if only y move
    if ((yd != 0) && (xd == 0))
@@ -1538,8 +1449,6 @@ void mwPlayer::init_player(int p, int t)
    }
 }
 
-
-
 void mwPlayer::set_default_player_colors(void)
 {
    mPlayer.syn[1].color = 10;
@@ -1551,141 +1460,11 @@ void mwPlayer::set_default_player_colors(void)
    mPlayer.syn[7].color = 9;
 }
 
-
-void mwPlayer::fill_player_tile(void)
+bool mwPlayer::if_players_ctrl_just_pressed(int p, int ctrl)
 {
-   //printf("fill player bitmap\n");
-   int a, b, x, y;
-
-   if (0) // load from disk
-   {
-      mBitmap.ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
-      if (!mBitmap.ptilemap) mInput.m_err((char*)"Can't load tiles from bitmaps/player_tiles.bmp");
-      else
-      {
-         //printf("load good\n");
-         al_convert_mask_to_alpha(mBitmap.ptilemap, al_map_rgb(0, 0, 0)) ;
-
-         al_set_target_bitmap(mBitmap.M_ptilemap);
-         al_draw_bitmap(mBitmap.ptilemap, 0, 0, 0);
-
-         // create sub bitmaps
-         for (a=0; a<16; a++)
-            for (b=0; b<24; b++)
-               mBitmap.player_tile[a][b] = al_create_sub_bitmap(mBitmap.ptilemap, b*20, a*20, 20, 20);
-      }
-   }
-
-
-   if (0) // create from shapes
-   {
-       for (a=0; a<16; a++)
-          for (b=0; b<32; b++)
-             mBitmap.player_tile[a][b] = al_create_bitmap(20,20);
-
-   // fill the player_tile array
-      for (a=0; a<16; a++) // set all to default shapes
-      {
-         al_set_target_bitmap(mBitmap.player_tile[a][0]); al_draw_bitmap(mBitmap.tile[400], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][1]); al_draw_bitmap(mBitmap.tile[401], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][2]); al_draw_bitmap(mBitmap.tile[402], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][3]); al_draw_bitmap(mBitmap.tile[403], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][4]); al_draw_bitmap(mBitmap.tile[404], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][5]); al_draw_bitmap(mBitmap.tile[405], 0, 0, 0);
-
-         al_set_target_bitmap(mBitmap.player_tile[a][6]); al_draw_bitmap(mBitmap.tile[368], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][7]); al_draw_bitmap(mBitmap.tile[369], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][8]); al_draw_bitmap(mBitmap.tile[370], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][9]); al_draw_bitmap(mBitmap.tile[371], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][10]); al_draw_bitmap(mBitmap.tile[372], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][11]); al_draw_bitmap(mBitmap.tile[373], 0, 0, 0);
-
-         al_set_target_bitmap(mBitmap.player_tile[a][12]); al_draw_bitmap(mBitmap.tile[432], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][13]); al_draw_bitmap(mBitmap.tile[433], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][14]); al_draw_bitmap(mBitmap.tile[434], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][15]); al_draw_bitmap(mBitmap.tile[435], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][16]); al_draw_bitmap(mBitmap.tile[436], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][17]); al_draw_bitmap(mBitmap.tile[437], 0, 0, 0);
-
-         al_set_target_bitmap(mBitmap.player_tile[a][18]); al_draw_bitmap(mBitmap.tile[755], 0, 0, 0);
-
-         al_set_target_bitmap(mBitmap.player_tile[a][19]); al_draw_bitmap(mBitmap.tile[438], 0, 0, 0);
-
-         al_set_target_bitmap(mBitmap.player_tile[a][20]); al_draw_bitmap(mBitmap.tile[606], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][21]); al_draw_bitmap(mBitmap.tile[607], 0, 0, 0);
-
-         al_set_target_bitmap(mBitmap.player_tile[a][22]); al_draw_bitmap(mBitmap.tile[638], 0, 0, 0);
-         al_set_target_bitmap(mBitmap.player_tile[a][23]); al_draw_bitmap(mBitmap.tile[639], 0, 0, 0);
-
-      }
-
-
-      for (a=1; a<16; a++) //cycle 15 player colors (no zero)
-      {
-         int cs = -8 + a; // color shift (-8 to get from base to 0, then add player num for color)
-         for (b=0; b<24; b++) //cycle 19 bitmaps for one color
-         {
-            al_set_target_bitmap(mBitmap.player_tile[a][b]);
-            al_lock_bitmap(mBitmap.player_tile[a][b],al_get_bitmap_format(mBitmap.player_tile[a][b]),ALLEGRO_LOCK_READWRITE);
-
-            for (x=0; x<20; x++)
-               for (y=0; y<20; y++)
-               {
-                  ALLEGRO_COLOR p = al_get_pixel(mBitmap.player_tile[a][b], x, y);
-                    float D = 0.1;
-                    if (  (abs(p.r - mColor.pc[8].r) < D) &&
-                          (abs(p.g - mColor.pc[8].g) < D) &&
-                          (abs(p.b - mColor.pc[8].b) < D) ) al_put_pixel(x, y, mColor.pc[(8+cs)]);
-
-                    if (  (abs(p.r - mColor.pc[56].r) < D) &&
-                          (abs(p.g - mColor.pc[56].g) < D) &&
-                          (abs(p.b - mColor.pc[56].b) < D) ) al_put_pixel(x, y, mColor.pc[(56+cs)]);
-
-                    if (  (abs(p.r - mColor.pc[136].r) < D) &&
-                          (abs(p.g - mColor.pc[136].g) < D) &&
-                          (abs(p.b - mColor.pc[136].b) < D) ) al_put_pixel(x, y, mColor.pc[(136+cs)]);
-               }
-           al_unlock_bitmap(mBitmap.player_tile[a][b]);
-           al_convert_mask_to_alpha(mBitmap.player_tile[a][b], al_map_rgb(0, 0, 0)) ;
-         }
-      }
-   }
-
-   if (1)
-   {
-       // show all new player shapes
-       al_set_target_backbuffer(mDisplay.display);
-       for (a=0; a<16; a++)
-          for (b=0; b<24; b++)
-             al_draw_bitmap(mBitmap.player_tile[a][b], b*20, a*20, 0);
-       al_flip_display();
-       mInput.tsw();
-
-       al_rest(10);
-
-
-   }
-
-   if (0)
-   {
-       // save to disk
-       al_set_target_bitmap(mBitmap.ptilemap);
-       for (a=0; a<16; a++)
-          for (b=0; b<24; b++)
-             al_draw_bitmap(mBitmap.player_tile[a][b], b*20, a*20, 0);
-
-       al_set_target_backbuffer(mDisplay.display);
-       al_draw_bitmap(mBitmap.ptilemap, 0, 0, 0);
-
-       al_flip_display();
-
-       al_save_bitmap("bitmaps/player_tiles.bmp", mBitmap.ptilemap);
-
-       mInput.tsw();
-   }
+   if ((syn[p].ctrl_bitf & ctrl) && (!(syn[p].old_ctrl_bitf & ctrl))) return true;
+   else return false;
 }
-
-
 
 void mwPlayer::clear_controls(int p)
 {

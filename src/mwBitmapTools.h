@@ -10,6 +10,9 @@ class mwBitmapTools
    void copy_tiles(void);
 
 //   private:
+
+   void fill_player_tile(void);
+
    void color_shiftc(ALLEGRO_BITMAP *b, int sc, int cs, int x, int y);
    void color_shift4(ALLEGRO_BITMAP *b, int sc, int cs1, int cs2, int cs3, int cs4);
    void color_shift3(ALLEGRO_BITMAP *b, int sc, int cs1, int cs2, int cs3);

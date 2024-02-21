@@ -45324,22 +45324,16 @@ done
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+demo mode does not stop sound when done
+discovered from settings demo choose and run single
+there are 5 places that demo can be run from:
+gate on overworld
+(in this case the overworld level needs to be reloaded and run after)
+single from menu
+single from settings
+single from cmd (prompt)
+single from cmd (file)
+these all are working good now.....
 
 
 
@@ -45707,9 +45701,244 @@ void mwDemoRecord::find_level_done(void)
 }
 this is all done
 
+20240220 I will need to make new release....done
+
+should I make a new youtube channel just for purple martians?
+https://www.youtube.com/channel/UCSUTVur0deQa5_eYUhGjQlw
+yes...it is done...
+now make a goddamn video!
 
 
-20240220 I will need to make new release....
+
+just curious?
+what happens in a netgame if demo is tried to start from gate?
+on server it starts...I will need to disable this
+disable the demo page if client or server...done
+
+down held on gate prevents multiple triggering, work great but not in netgame...
+
+its because down_held is saved in item...
+
+could I save it in player struct?
+
+not trivially
+
+what if i set controls by incrementing value, instead of just on off...
+
+if on,  inc
+if off, set to 0
+
+tests would all be the same
+
+except now I could test for 1 meaning just pressed...
+
+look into this...
+
+itsa not that easy....
+that state is not really saved...it is pulled from game moves
+
+what if I made each player keep the last cmp_move
+
+then I could test current comp move against old_comp move and I could tell if a control has just been pressed
+
+
+
+where should I do this? not in player controls...maybe in get stuff from game_moves
+I will need a variable old_cmp_move...does it need to be syn or loc?
+
+why am I doing this?
+
+I want to be able to see if controls are held, just like with keys and mouse buttons
+
+I don't want to do it by actually reading the keys, but by the controls set from game moves array
+
+It will need to be on a per player basis, so it will need to be in the player struct...
+
+If there are other things that need to tell if a key in held, they can use this also
+
+
+
+---------------
+
+
+here is what I am thinking:
+
+proc_player_input - rename it to something to reflect that it only does local player input
+
+proc_game_moves_array - sets players controls from game moves array
+
+            // ------------------------------
+            // process player input
+            // ------------------------------
+            mPlayer.proc_player_input();
+
+            // ------------------------------
+            // process game games array
+            // ------------------------------
+            mGameMoves.proc();
+
+i was thinking of storing something like cmp_move and old_cmp_move for each player, but based on the actual game move controls, not the keys pressed
+
+
+- add 4 more ints to player syn...
+- use 2 of them, for ctrl_bitf and old_ctrl_bitf
+- set them every frame in proc game moves (or after) for every player
+
+
+test like this:
+
+if ((ctrl_bits && PM_COMPMOVE_DOWN) && (!(old_ctrl_bit && PM_COMPMOVE_DOWN)))
+
+i could even have a shortcut function
+
+bool is_ctrl_just_pressed(int p, int ctrl)
+
+
+what do I have to do to increase state_size? just do it?
+
+new size:
+#define STATE_SIZE 112480
+
+// a bitfield of the 6 controls
+int ctrl_bitf;
+int old_ctrl_bitf;
+
+
+added at the end of gamemove proc
+
+   // at this point all the players' controls are set for the frame
+   // save them in bitf
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].active)
+      {
+         mPlayer.syn[p].old_ctrl_bitf = mPlayer.syn[p].ctrl_bitf; // move current to old
+         mPlayer.syn[p].ctrl_bitf = mPlayer.comp_move_from_players_current_controls(p); // get new
+      }
+
+
+
+
+bool mwPlayer::if_players_ctrl_just_pressed(int p, int ctrl)
+{
+   if ((syn[p].ctrl_bitf & ctrl) && (!(syn[p].old_ctrl_bitf & ctrl))) return true;
+   else return false;
+}
+
+
+test
+
+if (mPlayer.if_players_ctrl_just_pressed(0, PM_COMPMOVE_UP)) printf("UP JUST PRESSED\n");
+
+
+try to use for down on gate
+
+old:
+
+   if (mPlayer.syn[p].down)
+   {
+      if (!item[i][8])   // if down not held
+      {
+         if (++mLevel.display_page > 5) mLevel.display_page = 0;
+      }
+      item[i][8] = 1;    // set down held
+   }
+   else item[i][8] = 0;  // set down not held
+
+
+new:
+
+if (mPlayer.if_players_ctrl_just_pressed(p, PM_COMPMOVE_DOWN)) if (++mLevel.display_page > 5) mLevel.display_page = 0;
+
+why are we using not synced level_display page?
+
+mLevel.display_page
+
+why don't we use the old item[i][8] from gate?
+
+this now works perfectly!!!
+
+
+now lets see if I can replace fire_held
+
+
+this is all of it...
+
+
+   if (mPlayer.syn[p].fire)
+   {
+      if (mPlayer.syn[p].fire_held == 0) // fire button pressed, but not held
+      {
+         mPlayer.syn[p].fire_held = 1;
+         if (mPlayer.syn[p].shot_wait_counter < 1 )
+         {
+            mPlayer.syn[p].stat_shots_fired++;
+
+            int b = find_empty_pshot();
+            if (b != -1)
+            {
+               mShot.p[b].active = mLoop.frame_num;
+               mShot.p[b].player = p;
+               mShot.p[b].x = x;
+               mShot.p[b].y = y + 1;
+               mShot.p[b].xinc = 0;
+               mShot.p[b].yinc = 0;
+
+               if (mPlayer.syn[p].left_right) mShot.p[b].x = x+4;
+               else mShot.p[b].x = x-3;
+
+               if      (mPlayer.syn[p].up)    mShot.p[b].yinc = -bs;
+               else if (mPlayer.syn[p].down)  mShot.p[b].yinc =  bs;
+               else                           mShot.p[b].xinc = (mPlayer.syn[p].left_right*bs*2) - bs;
+
+               // if this line is not here player cannot shoot breakable blocks when directly in front of them (when facing right/left??
+               if ((!mPlayer.syn[p].up) && (!mPlayer.syn[p].down) && (mPlayer.syn[p].left_right)) mShot.p[b].x -=1;
+
+               // initial move
+               mShot.p[b].x += mShot.p[b].xinc;  // xinc
+               mShot.p[b].y += mShot.p[b].yinc;  // yinc
+
+               mPlayer.syn[p].shot_wait_counter = mPlayer.syn[p].shot_wait;
+               mPlayer.syn[p].fire_held = 1;
+
+               mGameEvent.add(1, x, y, p, b, 0, 0);
+            }
+            //else printf("player shot array full!\n");
+         }
+      }
+   }
+   else mPlayer.syn[p].fire_held = 0;  // fire is not pressed
+
+
+this is done as well....
+fire_held has been removed
+
+is there anything else that gets toggled?
+
+door keep track of when key is held, but I don't think that would work here...
+
+
+test all levels after these changes
+wendy does not work...why?
+
+i dunno? everything else does, that's weird.....
+did a bunch of tests, it is only that level...fixed it with a few added shots
+back to exactly the same time as before...all level tests good
+
+20240221 making a new release...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

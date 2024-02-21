@@ -179,8 +179,6 @@ class mwLevel
    int level_data_player_respawns;
    int level_data_enemies_killed;
 
-   int display_page;
-
    int skc_trigger_demo;
    int skc_trigger_demo_cheat;
 
