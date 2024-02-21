@@ -15,6 +15,8 @@
 #include "mwDemoRecord.h"
 #include "mwScreen.h"
 #include "mwMain.h"
+#include "mwItem.h"
+
 
 
 
@@ -148,7 +150,8 @@ int mwGameMoves::has_player_acknowledged(int p)
    return 0;
 }
 
-// this function processes all entries in the game_moves array that match current frame_num
+
+// processes all entries in the game_moves array that match current frame_num
 void mwGameMoves::proc(void)
 {
    // search entire range
@@ -182,6 +185,14 @@ void mwGameMoves::proc(void)
          }
       }
    }
+
+   // at this point all the players' controls are set for the frame - save them in bitf
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].active)
+      {
+         mPlayer.syn[p].old_ctrl_bitf = mPlayer.syn[p].ctrl_bitf; // move current to old
+         mPlayer.syn[p].ctrl_bitf = mPlayer.comp_move_from_players_current_controls(p); // get new
+      }
 }
 
 void mwGameMoves::add_game_move2(int frame, int type, int data1, int data2)
@@ -199,7 +210,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 {
    char msg[1024];
 
-   int p = data1; // alias to improve for readability
+   int p = data1; // alias to improve readability
 
    if (type == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
    {
@@ -216,13 +227,10 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
    // -----------------------------------------------------------------------------------------------------------------
    if ((mPlayer.syn[0].level_done_mode == 5) && (type == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (data2))
    {
-      if (!has_player_acknowledged(data1)) // to prevent multiple acks
+      if (!has_player_acknowledged(p)) // to prevent multiple acks
          add_game_move2(frame, PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK, p, 0);
       return; // exit immediately
    }
-
-
-
 
 
 
@@ -235,11 +243,10 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 
 
       // ----------------------------------------------------------------------------------------
-      // single player mode quit - do not enter inactive game move so game can be resumed
+      // single player mode quit - do not enter inactive game move (so game can be resumed)
       // ----------------------------------------------------------------------------------------
       if ((mPlayer.active_local_player == 0) && (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER))
       {
-         // do not enter game move, just exit to menu
          mLoop.state[0] = PM_PROGRAM_STATE_MENU;
          mLevel.resume_allowed = 1;
          return;
@@ -336,7 +343,7 @@ void mwGameMoves::proc_game_move_player_active(int x)
    // player was inactive before and just now changes to active
    if (mPlayer.syn[p].active == 0)
    {
-      mPlayer.set_player_start_pos(p);
+      mItem.set_player_start_pos(p);
       mPlayer.syn[p].active = 1;
       mPlayer.loc[p].join_frame = mLoop.frame_num;
 
@@ -346,7 +353,7 @@ void mwGameMoves::proc_game_move_player_active(int x)
       // if player 0 is file play all added players will be too
       if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
 
-      if (mLoop.frame_num > 1) // don't show notifications if player was active at the start of the level
+      if (mLoop.frame_num > 1) // don't show notifications if player was made active at the start of the level
       {
          mScreen.set_player_text_overlay(p, 1);
          mGameEvent.add(6, 0, 0, p, 0, 0, 0);

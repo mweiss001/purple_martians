@@ -19,7 +19,6 @@
 #include "mwNetgame.h"
 
 
-
 // -----------------------------------------------------------------------
 // Start
 // -----------------------------------------------------------------------
@@ -39,7 +38,6 @@ void mwItem::proc_start_collision(int p, int i)
 {
    int cpi = mPlayer.syn[p].spawn_point_index;  // current index for player
    int npi = item[i][7];                        // new spawn point index
-
 
    // count number of starts and put in array indexed by start index
    int ns = 0;
@@ -71,6 +69,110 @@ void mwItem::proc_start_collision(int p, int i)
       }
    }
 }
+
+
+void mwItem::set_player_start_pos(int p)
+{
+   //printf("set player:%d start pos\n", p);
+
+   int item_to_get_start_from = -1;
+
+
+   // in overworld level, player starts at the last gate they touched
+   if (mLevel.play_level == 1)
+   {
+      for (int i=0; i<500; i++)
+         if ((item[i][0] == 18) && (item[i][6] == mPlayer.syn[p].overworld_last_touched_gate)) item_to_get_start_from = i;
+   }
+
+   if (item_to_get_start_from == -1) // start item not found yet....
+   {
+      // count the starts and put them in an array
+      int ns = 0;
+      int s[8] = {0};
+      for (int i=0; i<500; i++)
+         if (item[i][0] == 5)
+         {
+            ns++;
+            s[item[i][7]] = i; // save index of this start
+         }
+
+      if (ns == 0) printf("Error: no start found.\n");
+      else
+      {
+         // syn[p].spawn_point_index is saved for every player
+         // it is the current index into the array of starts
+
+         // if only one start, that has to be the one we use
+         if (ns == 1) mPlayer.syn[p].spawn_point_index = 0;
+
+         // if more than one start....
+         if (ns > 1)
+         {
+            int mode = item[s[0]][6];
+            if (mode == 0)
+            {
+               printf("Lev:%d - Error: in start mode:0 there should be only one start.. all other starts are ignored.\n", mLevel.play_level);
+               mPlayer.syn[p].spawn_point_index = 0;
+            }
+            if (mode == 1) // team start
+            {
+               if (p % 2) mPlayer.syn[p].spawn_point_index = 1; // odd
+               else       mPlayer.syn[p].spawn_point_index = 0; // even
+            }
+            if ((mode == 2) || (mode == 3)) // check point common and individual
+            {
+               //if (!cont) syn[p].spawn_point_index = 0; // initial
+            }
+         }
+         // translate spawn_point index into an item we can get a position from
+         item_to_get_start_from = s[mPlayer.syn[p].spawn_point_index];
+      }
+   }
+   // if after all that we do not have an item, pick a default place to start the player
+   if (item_to_get_start_from == -1)
+   {
+      mPlayer.syn[p].x = 100;
+      mPlayer.syn[p].y = 100;
+   }
+   // set the player's position from the item position
+   else
+   {
+      mPlayer.syn[p].x = itemf[item_to_get_start_from][0];
+      mPlayer.syn[p].y = itemf[item_to_get_start_from][1];
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // -----------------------------------------------------------------------
 // Exit
@@ -153,7 +255,7 @@ void mwItem::proc_gate_collision(int p, int i)
 
 
     // debug set level complete
-   if ((mPlayer.syn[p].fire) && (mDemoMode.demo_debug_complete_level_on_gate_with_fire) && (mLevel.data[lev].status < 2))
+   if ((mDemoMode.demo_debug_complete_level_on_gate_with_fire) && (mPlayer.syn[p].fire) && (mLevel.data[lev].status < 2))
    {
       mLevel.add_play_data_record(lev, 2);
       mLevel.load_level(1, 0, 0);
@@ -176,15 +278,9 @@ void mwItem::proc_gate_collision(int p, int i)
    }
 
    // cycle display pages
-   if (mPlayer.syn[p].down)
-   {
-      if (!item[i][8])   // if down not held
-      {
-         if (++mLevel.display_page > 5) mLevel.display_page = 0;
-      }
-      item[i][8] = 1;    // set down held
-   }
-   else item[i][8] = 0;  // set down not held
+
+   if (mPlayer.if_players_ctrl_just_pressed(p, PM_COMPMOVE_DOWN)) if (++item[i][8] > 5) item[i][8] = 0;
+
 }
 
 
@@ -263,35 +359,40 @@ void mwItem::draw_gate_info(int i)
 
    if (by > 1900) by = 1721; // special case for gates on bottom rom to show info above instead
 
-
    mScreen.draw_framed_text(xc, by, 1, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
+
+   if ((mNetgame.ima_server) || (mNetgame.ima_client)) // no demo page in netgame
+   {
+      if ((mLevel.data[lev].status == 1) && (item[i][8] == 2)) item[i][8] = 0;
+      if ((mLevel.data[lev].status  > 1) && (item[i][8] == 4)) item[i][8] = 0;
+   }
 
    if (mLevel.data[lev].status == 0)
    {
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+18, ALLEGRO_ALIGN_CENTER, "DOWN - Cycle Info");
-      if (mLevel.display_page == 0) show_page(0, xc, bs, by, lev, col); // level icon map
-      if (mLevel.display_page == 1) show_page(7, xc, bs, by, lev, col); // not completed general
-      if (mLevel.display_page > 1) mLevel.display_page = 0;
+      if (item[i][8] == 0) show_page(0, xc, bs, by, lev, col); // level icon map
+      if (item[i][8] == 1) show_page(7, xc, bs, by, lev, col); // not completed general
+      if (item[i][8] > 1) item[i][8] = 0;
    }
    if (mLevel.data[lev].status == 1)
    {
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+18, ALLEGRO_ALIGN_CENTER, "UP - Start Level");
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+24, ALLEGRO_ALIGN_CENTER, "DOWN - Cycle Info");
-      if (mLevel.display_page == 0) show_page( 0, xc, bs, by, lev, col); // level icon map
-      if (mLevel.display_page == 1) show_page( 7, xc, bs, by, lev, col); // not completed general
-      if (mLevel.display_page == 2) show_page(12, xc, bs, by, lev, col); // demo
-      if (mLevel.display_page > 2) mLevel.display_page = 0;
+      if (item[i][8] == 0) show_page( 0, xc, bs, by, lev, col); // level icon map
+      if (item[i][8] == 1) show_page( 7, xc, bs, by, lev, col); // not completed general
+      if (item[i][8] == 2) show_page(12, xc, bs, by, lev, col); // demo
+      if (item[i][8] > 2) item[i][8] = 0;
    }
    if (mLevel.data[lev].status > 1)
    {
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+18, ALLEGRO_ALIGN_CENTER, "UP - Start Level");
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+24, ALLEGRO_ALIGN_CENTER, "DOWN - Cycle Info");
-      if (mLevel.display_page == 0) show_page( 0, xc, bs, by, lev, col); // level icon map
-      if (mLevel.display_page == 1) show_page( 1, xc, bs, by, lev, col); // general
-      if (mLevel.display_page == 2) show_page( 2, xc, bs, by, lev, col); // times
-      if (mLevel.display_page == 3) show_page( 3, xc, bs, by, lev, col); // purple coins
-      if (mLevel.display_page == 4) show_page(12, xc, bs, by, lev, col); // demo
-      if (mLevel.display_page > 4) mLevel.display_page = 0;
+      if (item[i][8] == 0) show_page( 0, xc, bs, by, lev, col); // level icon map
+      if (item[i][8] == 1) show_page( 1, xc, bs, by, lev, col); // general
+      if (item[i][8] == 2) show_page( 2, xc, bs, by, lev, col); // times
+      if (item[i][8] == 3) show_page( 3, xc, bs, by, lev, col); // purple coins
+      if (item[i][8] == 4) show_page(12, xc, bs, by, lev, col); // demo
+      if (item[i][8] > 4) item[i][8] = 0;
    }
 }
 

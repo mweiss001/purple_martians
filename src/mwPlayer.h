@@ -58,9 +58,13 @@ struct psyn // synced between server and client
    int marked_gate;
    int spawn_point_index;
 
+   // controls
+   int up, down, left, right;
+   int jump, fire, menu;
 
-   // flags that indicate a control has been activated or held
-   int up, down, left, right, jump, fire, fire_held, menu;
+   // bitfields of the 7 controls
+   int ctrl_bitf;
+   int old_ctrl_bitf;
 
    int shot_wait_counter, shot_wait, shot_speed;
 
@@ -89,6 +93,8 @@ struct psyn // synced between server and client
    int server_lev_seq_num;
 
    int spare_int1;
+   int spare_int2;
+   int spare_int3;
 };
 
 struct ploc // not synced between server and client (but synced from server to remote)
@@ -211,7 +217,6 @@ class mwPlayer
    struct ploc loc[NUM_PLAYERS];
    int active_local_player = 0;
 
-   void set_player_start_pos(int p);
    void proc_player_health(int p);
    void proc_player_xy_move_test(int p);
    void proc_player_xy_move(int p);
@@ -231,26 +236,17 @@ class mwPlayer
    void move_players(void);
 
    void draw_player_direct_to_screen(int p);
-
    void draw_players_direct_to_screen(void);
-
-
-
 
    void draw_player(int p);
    void draw_players(void);
    void set_players_shape(int p);
    int is_player_color_used(int color);
    void init_player(int p, int t);
-
    void set_default_player_colors(void);
-   void fill_player_tile(void);
-
+   bool if_players_ctrl_just_pressed(int p, int ctrl);
    void clear_controls(int p);
-
    int comp_move_from_players_current_controls(int p);
-
-
    void set_controls_from_comp_move(int p, int comp_move);
    void set_comp_move_from_player_key_check(int p);
    void set_controls_from_player_key_check(int p);

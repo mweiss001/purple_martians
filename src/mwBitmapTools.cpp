@@ -17,6 +17,163 @@
 
 mwBitmapTools mBitmapTools;
 
+
+void mwBitmapTools::fill_player_tile(void)
+{
+   //printf("fill player bitmap\n");
+   int a, b, x, y;
+
+   if (0) // load from disk
+   {
+      mBitmap.ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
+      if (!mBitmap.ptilemap) mInput.m_err((char*)"Can't load tiles from bitmaps/player_tiles.bmp");
+      else
+      {
+         //printf("load good\n");
+         al_convert_mask_to_alpha(mBitmap.ptilemap, al_map_rgb(0, 0, 0)) ;
+
+         al_set_target_bitmap(mBitmap.M_ptilemap);
+         al_draw_bitmap(mBitmap.ptilemap, 0, 0, 0);
+
+         // create sub bitmaps
+         for (a=0; a<16; a++)
+            for (b=0; b<24; b++)
+               mBitmap.player_tile[a][b] = al_create_sub_bitmap(mBitmap.ptilemap, b*20, a*20, 20, 20);
+      }
+   }
+
+
+   if (0) // create from shapes
+   {
+       for (a=0; a<16; a++)
+          for (b=0; b<32; b++)
+             mBitmap.player_tile[a][b] = al_create_bitmap(20,20);
+
+   // fill the player_tile array
+      for (a=0; a<16; a++) // set all to default shapes
+      {
+         al_set_target_bitmap(mBitmap.player_tile[a][0]); al_draw_bitmap(mBitmap.tile[400], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][1]); al_draw_bitmap(mBitmap.tile[401], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][2]); al_draw_bitmap(mBitmap.tile[402], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][3]); al_draw_bitmap(mBitmap.tile[403], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][4]); al_draw_bitmap(mBitmap.tile[404], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][5]); al_draw_bitmap(mBitmap.tile[405], 0, 0, 0);
+
+         al_set_target_bitmap(mBitmap.player_tile[a][6]); al_draw_bitmap(mBitmap.tile[368], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][7]); al_draw_bitmap(mBitmap.tile[369], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][8]); al_draw_bitmap(mBitmap.tile[370], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][9]); al_draw_bitmap(mBitmap.tile[371], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][10]); al_draw_bitmap(mBitmap.tile[372], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][11]); al_draw_bitmap(mBitmap.tile[373], 0, 0, 0);
+
+         al_set_target_bitmap(mBitmap.player_tile[a][12]); al_draw_bitmap(mBitmap.tile[432], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][13]); al_draw_bitmap(mBitmap.tile[433], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][14]); al_draw_bitmap(mBitmap.tile[434], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][15]); al_draw_bitmap(mBitmap.tile[435], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][16]); al_draw_bitmap(mBitmap.tile[436], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][17]); al_draw_bitmap(mBitmap.tile[437], 0, 0, 0);
+
+         al_set_target_bitmap(mBitmap.player_tile[a][18]); al_draw_bitmap(mBitmap.tile[755], 0, 0, 0);
+
+         al_set_target_bitmap(mBitmap.player_tile[a][19]); al_draw_bitmap(mBitmap.tile[438], 0, 0, 0);
+
+         al_set_target_bitmap(mBitmap.player_tile[a][20]); al_draw_bitmap(mBitmap.tile[606], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][21]); al_draw_bitmap(mBitmap.tile[607], 0, 0, 0);
+
+         al_set_target_bitmap(mBitmap.player_tile[a][22]); al_draw_bitmap(mBitmap.tile[638], 0, 0, 0);
+         al_set_target_bitmap(mBitmap.player_tile[a][23]); al_draw_bitmap(mBitmap.tile[639], 0, 0, 0);
+
+      }
+
+
+      for (a=1; a<16; a++) //cycle 15 player colors (no zero)
+      {
+         int cs = -8 + a; // color shift (-8 to get from base to 0, then add player num for color)
+         for (b=0; b<24; b++) //cycle 19 bitmaps for one color
+         {
+            al_set_target_bitmap(mBitmap.player_tile[a][b]);
+            al_lock_bitmap(mBitmap.player_tile[a][b],al_get_bitmap_format(mBitmap.player_tile[a][b]),ALLEGRO_LOCK_READWRITE);
+
+            for (x=0; x<20; x++)
+               for (y=0; y<20; y++)
+               {
+                  ALLEGRO_COLOR p = al_get_pixel(mBitmap.player_tile[a][b], x, y);
+                    float D = 0.1;
+                    if (  (abs(p.r - mColor.pc[8].r) < D) &&
+                          (abs(p.g - mColor.pc[8].g) < D) &&
+                          (abs(p.b - mColor.pc[8].b) < D) ) al_put_pixel(x, y, mColor.pc[(8+cs)]);
+
+                    if (  (abs(p.r - mColor.pc[56].r) < D) &&
+                          (abs(p.g - mColor.pc[56].g) < D) &&
+                          (abs(p.b - mColor.pc[56].b) < D) ) al_put_pixel(x, y, mColor.pc[(56+cs)]);
+
+                    if (  (abs(p.r - mColor.pc[136].r) < D) &&
+                          (abs(p.g - mColor.pc[136].g) < D) &&
+                          (abs(p.b - mColor.pc[136].b) < D) ) al_put_pixel(x, y, mColor.pc[(136+cs)]);
+               }
+           al_unlock_bitmap(mBitmap.player_tile[a][b]);
+           al_convert_mask_to_alpha(mBitmap.player_tile[a][b], al_map_rgb(0, 0, 0)) ;
+         }
+      }
+   }
+
+   if (1)
+   {
+       // show all new player shapes
+       al_set_target_backbuffer(mDisplay.display);
+       for (a=0; a<16; a++)
+          for (b=0; b<24; b++)
+             al_draw_bitmap(mBitmap.player_tile[a][b], b*20, a*20, 0);
+       al_flip_display();
+       mInput.tsw();
+
+       al_rest(10);
+
+
+   }
+
+   if (0)
+   {
+       // save to disk
+       al_set_target_bitmap(mBitmap.ptilemap);
+       for (a=0; a<16; a++)
+          for (b=0; b<24; b++)
+             al_draw_bitmap(mBitmap.player_tile[a][b], b*20, a*20, 0);
+
+       al_set_target_backbuffer(mDisplay.display);
+       al_draw_bitmap(mBitmap.ptilemap, 0, 0, 0);
+
+       al_flip_display();
+
+       al_save_bitmap("bitmaps/player_tiles.bmp", mBitmap.ptilemap);
+
+       mInput.tsw();
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwBitmapTools::color_shiftc(ALLEGRO_BITMAP *b, int sc, int cs, int x, int y)
 {
    ALLEGRO_COLOR p = al_get_pixel(b, x, y);

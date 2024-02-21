@@ -792,7 +792,7 @@ void mwLoop::setup_players_after_level_load(int type)
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       mPlayer.init_player(p, type);     // type 1 = full reset, type 2 = level done reset
-      mPlayer.set_player_start_pos(p);  // get starting position for all players, active or not
+      mItem.set_player_start_pos(p);    // get starting position for all players, active or not
    }
    mPlayer.syn[0].active = 1;
 }

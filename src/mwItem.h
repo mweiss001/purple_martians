@@ -37,27 +37,29 @@ class mwItem
 
    // mwItemStartExitGate
    int draw_start(int i, int x, int y, int shape);
-   int draw_exit(int i, int x, int y, int shape);
    void proc_start_collision(int p, int i);
+   void set_player_start_pos(int p);
+
+   int draw_exit(int i, int x, int y, int shape);
    void proc_exit_collision(int p, int i);
+
 
 
    void proc_gate_collision(int p, int i);
    int draw_gate(int i, int x, int y, int custom);
-
    void set_gate_level_icon_position(int i);
-
    void draw_gate_info(int i);
-
 
    char * chrd(int v, char* ft);
    char * chrd(int v1, int v2, char* ft);
-
 
    char* chrms(int time, char* ft);
 
    void draw_line(int x1, int x2, int y, const char * txt1, const char * txt2, int col);
    void show_page(int page, int xc, int bs, int by, int lev, int col);
+
+
+
 
 
    // mwItemBombRocket.cpp
