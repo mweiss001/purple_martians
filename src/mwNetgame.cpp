@@ -31,8 +31,6 @@ mwNetgame::mwNetgame()
    for (int i=0; i<16; i++)
       session_clear_entry(i);
 
-
-
    ServerChannel = NULL;
    ClientNum = 0;
    ListenChannel = NULL;                   // listen channel

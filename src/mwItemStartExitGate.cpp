@@ -148,32 +148,6 @@ void mwItem::set_player_start_pos(int p)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // -----------------------------------------------------------------------
 // Exit
 // -----------------------------------------------------------------------
@@ -240,7 +214,6 @@ void mwItem::proc_exit_collision(int p, int i)
 // Gate
 // -----------------------------------------------------------------------
 
-
 void mwItem::proc_gate_collision(int p, int i)
 {
    mPlayer.syn[p].marked_gate = i;
@@ -253,7 +226,6 @@ void mwItem::proc_gate_collision(int p, int i)
       if (p == 0) mConfig.save_config(); // clients do not save to config
    }
 
-
     // debug set level complete
    if ((mDemoMode.demo_debug_complete_level_on_gate_with_fire) && (mPlayer.syn[p].fire) && (mLevel.data[lev].status < 2))
    {
@@ -261,13 +233,16 @@ void mwItem::proc_gate_collision(int p, int i)
       mLevel.load_level(1, 0, 0);
    }
 
-   int unlocked = mLevel.data[lev].status;
-   if ((mNetgame.ima_server) || (mNetgame.ima_client)) unlocked = 1; // ignore locks in netgame
-
-   // enter gate by pressing up
-   if ((mPlayer.syn[p].up) && (unlocked))
+   int status = mLevel.data[lev].status;
+   if ((mNetgame.ima_server) || (mNetgame.ima_client))
    {
+      // temporarily change all not complete status to complete status
+      if (status < 2) status = 2;
+   }
 
+   // if UP pressed, enter gate
+   if ((mPlayer.syn[p].up) && (status > 0))
+   {
       // immediate next level to gate level
       mPlayer.syn[0].level_done_mode = 3;
       mPlayer.syn[0].level_done_timer = 0;
@@ -277,10 +252,8 @@ void mwItem::proc_gate_collision(int p, int i)
       mLoop.done_action = 2;
    }
 
-   // cycle display pages
-
-   if (mPlayer.if_players_ctrl_just_pressed(p, PM_COMPMOVE_DOWN)) if (++item[i][8] > 5) item[i][8] = 0;
-
+   // if DOWN pressed, cycle display pages
+   if (mPlayer.if_players_ctrl_just_pressed(p, PM_COMPMOVE_DOWN)) item[i][8]++;
 }
 
 
@@ -298,14 +271,14 @@ int mwItem::draw_gate(int i, int x, int y, int custom)
       sprintf(stat_txt, "%s", mLevel.data[lev].status_text);
 
 
-      // all are unlocked in netgame
+      // in netgame, temporarily change all not complete status to complete status
       if ((mNetgame.ima_server) || (mNetgame.ima_client))
       {
-         if (status == 0)
+         if (status < 2)
          {
-            status = 1;
-            col = 13;
-            sprintf(stat_txt, "%s", "Ready");
+            status = 2;
+            col = 12;
+            sprintf(stat_txt, "%s", "Complete");
          }
       }
 
@@ -352,29 +325,37 @@ void mwItem::draw_gate_info(int i)
    int y = item[i][5];
    int xc = x + 10; // center of tile
    int lev = item[i][6];
-   int col = mLevel.data[lev].status_color;
 
    int bs = 200; // level icon size
    int by = y+35; // info y start pos
 
    if (by > 1900) by = 1721; // special case for gates on bottom rom to show info above instead
 
-   mScreen.draw_framed_text(xc, by, 1, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
 
-   if ((mNetgame.ima_server) || (mNetgame.ima_client)) // no demo page in netgame
+   int status = mLevel.data[lev].status;
+   int col = mLevel.data[lev].status_color;
+   if ((mNetgame.ima_server) || (mNetgame.ima_client))
    {
-      if ((mLevel.data[lev].status == 1) && (item[i][8] == 2)) item[i][8] = 0;
-      if ((mLevel.data[lev].status  > 1) && (item[i][8] == 4)) item[i][8] = 0;
+      // temporarily change all not complete status to complete status
+      if (status < 2)
+      {
+         status = 2;
+         col = 12;
+      }
+      // no demo page in netgame
+      if (item[i][8] == 4) item[i][8] = 0;
    }
 
-   if (mLevel.data[lev].status == 0)
+   mScreen.draw_framed_text(xc, by, 1, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
+
+   if (status == 0)
    {
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+18, ALLEGRO_ALIGN_CENTER, "DOWN - Cycle Info");
       if (item[i][8] == 0) show_page(0, xc, bs, by, lev, col); // level icon map
       if (item[i][8] == 1) show_page(7, xc, bs, by, lev, col); // not completed general
       if (item[i][8] > 1) item[i][8] = 0;
    }
-   if (mLevel.data[lev].status == 1)
+   if (status == 1)
    {
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+18, ALLEGRO_ALIGN_CENTER, "UP - Start Level");
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+24, ALLEGRO_ALIGN_CENTER, "DOWN - Cycle Info");
@@ -383,7 +364,7 @@ void mwItem::draw_gate_info(int i)
       if (item[i][8] == 2) show_page(12, xc, bs, by, lev, col); // demo
       if (item[i][8] > 2) item[i][8] = 0;
    }
-   if (mLevel.data[lev].status > 1)
+   if (status > 1)
    {
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+18, ALLEGRO_ALIGN_CENTER, "UP - Start Level");
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+24, ALLEGRO_ALIGN_CENTER, "DOWN - Cycle Info");
