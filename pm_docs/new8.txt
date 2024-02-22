@@ -45926,6 +45926,64 @@ back to exactly the same time as before...all level tests good
 
 20240221 making a new release...
 
+bug - the gate pages flicker badly sometimes in between pages - why
+
+
+I have some weird bugs...
+
+check size of state...that looks right
+112480
+
+both speeds look good, both are on the same version
+
+is something weird going on?
+
+like what?
+
+
+packet exchange?
+
+where do I need to change things when I change that size??
+I thought it was just STATE_SIZE...
+
+maybe something else different is going on...
+
+
+
+
+
+test...get prev version
+
+version 0220.1 works perfectly m36 to e6430
+version 0221.1 works perfectly m36 to e6430
+
+so why do I have issues with my dev setup??
+
+
+e6430 version 0221.1 STATE_SIZE 112480
+m36   version 0221.1 STATE_SIZE 112480
+
+
+now it seems to work with any issues WTF!!
+m36 dev to pm_client24
+
+pages between server and client are weird, beacuse they might have different status between them
+what if server sets a higher page then client?
+
+fixed by making all have status 2 (complete) if status is less than that (0 locked and 1 ready)
+this way the pages will always be the same between server and client
+seems to be working properly
+
+test with headless server...
+
+new version first...
+
+
+20240222 making a new release...
+
+
+
+
 
 
 
