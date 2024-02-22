@@ -1,4 +1,4 @@
-set version=7.24.0222.1
+set version=7.24.0222.2
 
 mkdir purple_martians_%version%_windows
 mkdir purple_martians_%version%_windows\screenshots
@@ -17,7 +17,7 @@ xcopy license.txt purple_martians_%version%_windows\  /y /i
 
 xcopy bitmaps purple_martians_%version%_windows\bitmaps  /y /i
 xcopy help purple_martians_%version%_windows\help  /y /i
-xcopy savegame\demo purple_martians_%version%_windows\savegame\demo /y /i
+xcopy savegame\demo purple_martians_%version%_windows\savegame\demo /y /i /s
 xcopy snd purple_martians_%version%_windows\snd /y /i
 
 xcopy levels\level0* purple_martians_%version%_windows\levels  /y /i
