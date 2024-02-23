@@ -176,6 +176,15 @@ void mwScreen::set_player_text_overlay(int p, int type)
    mPlayer.syn[p].player_text_overlay_type = type;
 }
 
+
+void mwScreen::proc_player_text_overlay(void)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].player_text_overlay_timer)
+         mPlayer.syn[p].player_text_overlay_timer--;
+}
+
+
 void mwScreen::show_player_text_overlay(void)
 {
    double t0 = al_get_time();
@@ -183,7 +192,7 @@ void mwScreen::show_player_text_overlay(void)
    for (int p=0; p<NUM_PLAYERS; p++)
       if (mPlayer.syn[p].player_text_overlay_timer)
       {
-         int tm = mPlayer.syn[p].player_text_overlay_timer--;
+         int tm = mPlayer.syn[p].player_text_overlay_timer;
          int c =  mPlayer.syn[p].color;
          int ty = mPlayer.syn[p].player_text_overlay_type;
 

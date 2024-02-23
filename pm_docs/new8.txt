@@ -46293,6 +46293,28 @@ it just looks like it is flickering beacuse it takes some time for the result to
 20240223 another release....
 
 
+I don't see any player text messages with headless server...why???
+
+the thing that is processing the messages is a draw thing and only happens when draw is called
+
+separate the draw from the processing...
+
+actually all I should have to do is decrement the counter...
+
+done...
+
+another release...
+
+
+
+
+
+
+
+
+
+
+
 
 
 

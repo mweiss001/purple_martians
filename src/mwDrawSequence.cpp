@@ -51,6 +51,8 @@ void mwDrawSequence::add(int &i)
 
 void mwDrawSequence::ds_draw(int setup_only, int flip)
 {
+   mScreen.proc_player_text_overlay(); // run the counter down, needed here because headless server does not excute draw code
+
    int skip_draw = 0;
    if (mPlayer.syn[0].level_done_mode == 27) skip_draw = 1;
    if (mDisplay.no_display) skip_draw = 1;
