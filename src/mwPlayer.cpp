@@ -46,20 +46,17 @@ void mwPlayer::proc_player_health(int p)
    if (syn[p].health < 1)
    {
       syn[p].health = 0;
-
+      loc[p].health_display = 200;
+      syn[p].paused = 100;
+      syn[p].paused_type = 1;
       if (!mLoop.ff_state)
       {
          mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
          mLog.add_headerf(LOG_NET, p, 0, "PLAYER:%d DIED!", p);
+         mScreen.set_player_text_overlay(p, 3);
          mLevel.level_data_player_respawns++;
          syn[p].stat_respawns++;
       }
-
-      mScreen.set_player_text_overlay(p, 3);
-
-      loc[p].health_display = 200;
-      syn[p].paused = 100;
-      syn[p].paused_type = 1;
    }
 }
 
@@ -1270,6 +1267,13 @@ void mwPlayer::set_players_shape(int p)
 }
 
 
+int mwPlayer::find_inactive_player(void)
+{
+   for (int p=1; p<NUM_PLAYERS; p++)
+      if (!syn[p].active) return p;
+   return 99;
+}
+
 int mwPlayer::is_player_color_used(int color)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
@@ -1371,10 +1375,18 @@ void mwPlayer::init_player(int p, int t)
       syn[p].late_cdats = 0;
       syn[p].late_cdats_last_sec = 0;
 
+      syn[p].player_text_overlay_timer = 0;
+      syn[p].player_text_overlay_type = 0;
+
+
       mTally_late_cdats_last_sec[p].initialize(); // initialize tally
 
       loc[p].client_chase_fps = 0;
       loc[p].server_game_move_sync = 0;
+
+
+
+
 
       loc[p].quit_frame = 0;
       loc[p].quit_reason = 0;

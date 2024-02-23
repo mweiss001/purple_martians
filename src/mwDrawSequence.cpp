@@ -76,9 +76,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
       if (RA[i-1].avg*1000 > 5) mLoop.eco_draw = 1;
 
-
       mPacketBuffer.check_for_packets();
-
 
       mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Items\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-item", "draw_items");
@@ -256,7 +254,6 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       for (int i=1; i<ns-1; i++)
          mLog.appf(LOG_TMR_draw_all, "%s:[%0.4f] " , name[0][i], (ts[i] - ts[i-1]) * 1000);
       mLog.app(LOG_TMR_draw_all, "\n");
-
 
    //   // profile draw all
    //   char msg[1024] = {0};

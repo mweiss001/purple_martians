@@ -758,7 +758,6 @@ int mwLoop::load_and_setup_level(int level, int type)
       mTriggerEvent.initialize();
       mShot.clear_shots();
       frame_num = 0;
-      mScreen.player_text_overlay_timer = 0;
 
       if (type == 5) return 1; // LOAD AND RESET ALL BUT DO NOT START LEVEL
 
