@@ -149,6 +149,8 @@ class mwScreen
 
    // screen overlay
    void set_player_text_overlay(int p, int type);
+
+   void proc_player_text_overlay(void);
    void show_player_text_overlay(void);
    int player_text_overlay_timer_reset_val = 80;
 
