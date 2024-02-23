@@ -147,15 +147,9 @@ class mwScreen
    void draw_percent_barf(float x1, float x2, float y1, float y2, float percent);
 
 
-
-
    // screen overlay
-
    void set_player_text_overlay(int p, int type);
    void show_player_text_overlay(void);
-   int player_text_overlay_timer;
-   int player_text_overlay_type;
-   int player_text_overlay_player;
    int player_text_overlay_timer_reset_val = 80;
 
    int dif_from_now_to_nl();
@@ -181,11 +175,7 @@ class mwScreen
    void draw_common_debug_overlay(int p, int &cx, int &cy);
 
    void draw_viewport_debug_overlay(int p, int &cx, int &cy);
-
-
    void draw_bandwidth_stats(int &cx, int &cy);
-
-
 
    void draw_server_debug_overlay(int &cx, int &cy);
    void draw_client_debug_overlay(int &cx, int &cy);

@@ -172,49 +172,48 @@ void mwScreen::show_level_done(void)
 
 void mwScreen::set_player_text_overlay(int p, int type)
 {
-   player_text_overlay_timer = player_text_overlay_timer_reset_val;
-   player_text_overlay_type = type;
-   player_text_overlay_player = p;
+   mPlayer.syn[p].player_text_overlay_timer = player_text_overlay_timer_reset_val;
+   mPlayer.syn[p].player_text_overlay_type = type;
 }
 
 void mwScreen::show_player_text_overlay(void)
 {
-   char msg[1024];
-   if (player_text_overlay_timer)
-   {
-      int tm =  player_text_overlay_timer--;
-      int ty = player_text_overlay_type;
-      int p = player_text_overlay_player;
-      int c = mPlayer.syn[p].color;
-
-      if (ty == 0) sprintf(msg, "Player %d left the game!", p);
-      if (ty == 1) sprintf(msg, "Player %d joined the game!", p);
-      if (ty == 2) sprintf(msg, "Player %d found the exit!", p);
-      if (ty == 3) sprintf(msg, "Player %d DIED!", p);
-
-      float stretch = ( (float)mDisplay.SCREEN_W / (strlen(msg)*8)) - 1; // (mDisplay.SCREEN_W / text length*8) -1
-      float ratio = (float)tm / (float)player_text_overlay_timer_reset_val;
-
-      int y_pos = mDisplay.SCREEN_H/2;
-      int y_pos_move = mDisplay.SCREEN_H/2;
-
-      if (ratio > .6)
+   double t0 = al_get_time();
+   char msg[80];
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].player_text_overlay_timer)
       {
-           float ra1 = 1 - ratio;                // starts at 0 and increases to .3
-           float ra2 = ra1 * 2.5;                // starts at 0 and increases to .999
-           stretch =  ra2 * stretch;
-           y_pos = y_pos - y_pos_move + (int)(ra2 * y_pos_move);
+         int tm = mPlayer.syn[p].player_text_overlay_timer--;
+         int c =  mPlayer.syn[p].color;
+         int ty = mPlayer.syn[p].player_text_overlay_type;
+
+         if (ty == 0) sprintf(msg, "Player %d left the game!", p);
+         if (ty == 1) sprintf(msg, "Player %d joined the game!", p);
+         if (ty == 2) sprintf(msg, "Player %d found the exit!", p);
+         if (ty == 3) sprintf(msg, "Player %d DIED!", p);
+         float stretch = ((float)mDisplay.SCREEN_W / (strlen(msg)*8)) * 0.9;
+
+         float tratio = (float)tm / (float)player_text_overlay_timer_reset_val;
+
+         int y_pos = mDisplay.SCREEN_H/2;
+         if (tratio > .6)
+         {
+            float ra1 = 1 - tratio;               // starts at 0 and increases to .4
+            float ra2 = ra1 * 2.5;                // starts at 0 and increases to .999
+            stretch = ra2 * stretch;
+            y_pos = ra2 * mDisplay.SCREEN_H/2;
+         }
+         if (tratio < .4)
+         {
+            float ra1 = .4 - tratio;              // starts at .4   and decreases to 0
+            float ra2 = ra1 * 2.5;                // starts at .999 and decreases to 0
+            stretch -= ra2 * stretch;
+            y_pos = mDisplay.SCREEN_H/2 + ra2 * mDisplay.SCREEN_H/2;
+         }
+         if (stretch < .1) stretch = .1;
+         rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, y_pos, c, stretch, 0.5, msg);
       }
-      if (ratio < .4)
-      {
-           float ra1 = .4 - ratio;               // starts at 0 and increases to .3
-           float ra2 = ra1 * 2.5;                // starts at 0 and increases to .999
-           stretch -=  ra2 * stretch;
-           y_pos += (int)(ra2 * y_pos_move);
-      }
-      if (stretch < .1) stretch = .1;
-      rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, y_pos, c, stretch, 0.5, msg);
-   }
+   mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_plr_txt", al_get_time() - t0);
 }
 
 
@@ -857,7 +856,6 @@ void mwScreen::draw_bandwidth_stats(int &cx, int &cy)
          cy+=9;
       }
 
-
 //      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "bandwidth (bytes per frame)");   cy+=9;
 //      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "TX currrent:[%5d] max:[%5d]", mPlayer.loc[0].tx_current_bytes_for_this_frame, mPlayer.loc[0].tx_max_bytes_per_frame);   cy+=9;
 //      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "RX currrent:[%5d] max:[%5d]", mPlayer.loc[0].rx_current_bytes_for_this_frame, mPlayer.loc[0].rx_max_bytes_per_frame);   cy+=9;
@@ -865,9 +863,6 @@ void mwScreen::draw_bandwidth_stats(int &cx, int &cy)
 //      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "packets (packets per frame)");   cy+=9;
 //      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "TX currrent:[%5d] max:[%5d]", mPlayer.loc[0].tx_current_packets_for_this_frame, mPlayer.loc[0].tx_max_packets_per_frame);   cy+=9;
 //      al_draw_textf(mFont.pr8, mColor.pc[15], cx, cy, 0, "RX currrent:[%5d] max:[%5d]", mPlayer.loc[0].rx_current_packets_for_this_frame, mPlayer.loc[0].rx_max_packets_per_frame);   cy+=9;
-
-
-
 
 }
 
@@ -1043,38 +1038,7 @@ void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
 
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "loc cor avg:%4.2f max:%4.2f",  mPlayer.loc[p].client_loc_plr_cor_avg, mPlayer.loc[p].client_loc_plr_cor_max);  cy+=9;
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "rmt cor avg:%4.2f max:%4.2f",  mPlayer.loc[p].client_rmt_plr_cor_avg, mPlayer.loc[p].client_rmt_plr_cor_max);  cy+=9;
-
       cy +=8;
-
-//      int sfd = 0; // src frame delta
-//      int dfd = mPlayer.loc[p].rewind;   // dst frame delta
-//
-//
-//      int y1 = cy;
-//      int y2 = cy+20;
-//
-//
-//      int xs = 20;
-//
-//      int x1 = cx+10;
-//      int x2 = x1 + sfd * xs; // entire width
-//      int x3 = x2 - dfd * xs; // middle bar
-//
-//      al_draw_rectangle(x1, y1, x2, y2, mColor.pc[15], 1);
-//      al_draw_rectangle(x1+1, y1+1, x3, y2-1, mColor.pc[10], 1);
-//
-//
-//      al_draw_textf(mFont.pixl, mColor.pc[15], x1, y1-12, ALLEGRO_ALIGN_CENTER, "S");
-//
-//      al_draw_textf(mFont.pixl, mColor.pc[15], x3, y1-12, ALLEGRO_ALIGN_CENTER, "D");
-//
-//      al_draw_textf(mFont.pixl, mColor.pc[15], x2, y1-12, ALLEGRO_ALIGN_CENTER, "C");
-//
-//
-//      cy +=28;
-
-
-
    }
 
    if (mSettings.overlay_grid[7][mLoop.show_debug_overlay]) // bandwidth stats

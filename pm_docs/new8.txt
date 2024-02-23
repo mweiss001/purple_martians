@@ -46080,6 +46080,228 @@ new release
 
 7.24.022.3
 
+It looks like I finally have the gate display problem fixed!!
+
+Now unless I find more bugs, I guess I am moving on to recording video's
+
+
+this looks like a mess still....
+
+- why do I not have all cases set: mPlayer.syn[p].active = 0;
+
+- why do they exit by settting: mLoop.state[0] = PM_PROGRAM_STATE_MENU;
+would not server or client exit be better?
+
+is the demo mode one even used?
+
+comment it out and see...
+
+
+
+
+
+
+
+to start with add active
+
+
+
+void mwGameMoves::proc_game_move_player_inactive(int x)
+{
+   int p = arr[x][2]; // player number
+   mPlayer.loc[p].quit_reason = arr[x][3];
+   mPlayer.loc[p].quit_frame  = mLoop.frame_num;
+
+   if (mPlayer.syn[p].active)
+   {
+      if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 0, "Player:%d became INACTIVE!                              ", p);
+
+      // ------------------------------------
+      // player in run demo mode became inactive
+      // ------------------------------------
+      if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE)
+      {
+         //printf("demo mode player:%d inactive\n", p) ;
+
+         mPlayer.syn[p].active = 0;
+         // only quit if no players left active
+         int still_active = 0;
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if (mPlayer.syn[p].active) still_active = 1;
+         if (!still_active) mLoop.state[0] = PM_PROGRAM_STATE_MENU;
+      }
+
+      // ------------------------------------
+      // local server player quit
+      // ------------------------------------
+      if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL)
+      {
+         // printf("Local Server Player Quit :%d\n", mLoop.frame_num);
+         if (!mLoop.ff_state) mLog.log_ending_stats_server(LOG_NET_ending_stats);
+         mLoop.state[0] = PM_PROGRAM_STATE_MENU;
+      }
+
+      // ------------------------------------
+      // remote server quit
+      // ------------------------------------
+      if ((mNetgame.ima_client) && (p == 0))
+      {
+         // printf("Remote Server Quit :%d\n", mLoop.frame_num);
+         mLoop.state[0] = PM_PROGRAM_STATE_MENU;
+      }
+
+      // ------------------------------------
+      // remote player quit (server only)
+      // is this really server only? would it not also apply to client on another client?
+      // ------------------------------------
+
+
+      if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
+      {
+         //printf("Remote Player Quit :%d\n", mLoop.frame_num);
+         if (!mLoop.ff_state) mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
+         mPlayer.syn[p].active = 0;
+      }
+      mScreen.set_player_text_overlay(p, 0);
+      mGameEvent.add(7, 0, 0, p, 0, 0, 0);
+   }
+}
+
+
+new:
+
+
+void mwGameMoves::proc_game_move_player_inactive(int x)
+{
+   int p = arr[x][2]; // player number
+   mPlayer.loc[p].quit_reason = arr[x][3];
+   mPlayer.loc[p].quit_frame  = mLoop.frame_num;
+
+   if (mPlayer.syn[p].active)
+   {
+      if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 0, "Player:%d became INACTIVE!                              ", p);
+      mPlayer.syn[p].active = 0;
+
+      if (mNetgame.ima_server)
+      {
+         if (p == 0) // local server player quit
+         {
+            // printf("Local Server Player Quit:%d\n", mLoop.frame_num);
+            if (!mLoop.ff_state) mLog.log_ending_stats_server(LOG_NET_ending_stats);
+            mLoop.state[0] = PM_PROGRAM_STATE_SERVER_EXIT;
+            return;
+         }
+         else // client quit on server
+         {
+            // printf("Client Quit on Server:%d\n", mLoop.frame_num);
+            if (!mLoop.ff_state) mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
+         }
+      }
+
+      if (mNetgame.ima_client)
+      {
+         if (p == 0) // server quit on client
+         {
+            // printf("Remote Server Quit:%d\n", mLoop.frame_num);
+            mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
+         }
+         else // a client quit
+         {
+
+            if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)
+            {
+               // printf("Local Client Quit:%d\n", mLoop.frame_num);
+               mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
+               return;
+            }
+
+            if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) // remote client quit
+            {
+               // printf("Remote Client Quit:%d\n", mLoop.frame_num);
+
+            }
+         }
+      }
+
+      mScreen.set_player_text_overlay(p, 0);
+      mGameEvent.add(7, 0, 0, p, 0, 0, 0);
+   }
+}
+
+test all types...it seems to work....
+
+
+I am thinking of making player_text_overlay use variables in the player structure
+
+void mwScreen::set_player_text_overlay(int p, int type)
+{
+   player_text_overlay_timer = player_text_overlay_timer_reset_val;
+   player_text_overlay_type = type;
+   player_text_overlay_player = p;
+}
+
+
+all I would need is:
+player_text_overlay_timer
+player_text_overlay_type
+
+
+
+right now they do not always propogate to clients...and there can ony be one active at a time
+
+I am worried if I do too many it might affect drawing time...
+
+
+measure...
+
+
+ok how?
+
+m36 player died 40us spkie to 80
+4230 baseline 300 spikes to 600
+
+worst case x8 2.4ms to 4.8ms
+
+I could also make it so that only the most recent one shows in case of multiples
+
+
+use 2 var in player struct....
+
+i want to change where server makes player active when rx cjon...
+server should insert game move to do this...why?..so it is like all the other times that happens
+done...
+actives show on clients, just like they did before
+because they are part of the player struct, but bottom msh do not, beacuse the client never gets the active game move. it only happens on the server
+this is fine...
+
+still seems to work...
+
+what about the time it takes to do all these?
+
+ignore it for now? turn off with eco_draw?
+
+it looks like eco_draw is only for lifts
+wouldn't it be nice to make eco_draw kick in when any cpu usage gets over 80%?
+just leave it all for now
+
+
+make button on remote control not double press (server fakekey)...
+it actually works as it should.
+it just looks like it is flickering beacuse it takes some time for the result to come back from the server
+
+
+20240223 another release....
+
+
+
+
+
+
+
+
+
+
+
 
 
 

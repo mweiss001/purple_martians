@@ -371,49 +371,45 @@ void mwGameMoves::proc_game_move_player_inactive(int x)
    if (mPlayer.syn[p].active)
    {
       if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 0, "Player:%d became INACTIVE!                              ", p);
+      mPlayer.syn[p].active = 0;
 
-      // ------------------------------------
-      // player in run demo mode became inactive
-      // ------------------------------------
-      if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE)
+      if (mNetgame.ima_server)
       {
-         //printf("demo mode player:%d inactive\n", p) ;
-
-         mPlayer.syn[p].active = 0;
-         // only quit if no players left active
-         int still_active = 0;
-         for (int p=0; p<NUM_PLAYERS; p++)
-            if (mPlayer.syn[p].active) still_active = 1;
-         if (!still_active) mLoop.state[0] = PM_PROGRAM_STATE_MENU;
+         if (p == 0) // local server player quit
+         {
+            // printf("Local Server Player Quit:%d\n", mLoop.frame_num);
+            if (!mLoop.ff_state) mLog.log_ending_stats_server(LOG_NET_ending_stats);
+            mLoop.state[0] = PM_PROGRAM_STATE_SERVER_EXIT;
+         }
+         else // client quit on server
+         {
+            // printf("Client Quit on Server:%d\n", mLoop.frame_num);
+            if (!mLoop.ff_state) mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
+         }
       }
 
-      // ------------------------------------
-      // local server player quit
-      // ------------------------------------
-      if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL)
+      if (mNetgame.ima_client)
       {
-         // printf("Local Server Player Quit :%d\n", mLoop.frame_num);
-         if (!mLoop.ff_state) mLog.log_ending_stats_server(LOG_NET_ending_stats);
-         mLoop.state[0] = PM_PROGRAM_STATE_MENU;
-      }
+         if (p == 0) // server quit on client
+         {
+            // printf("Remote Server Quit:%d\n", mLoop.frame_num);
+            mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
+         }
+         else // a client quit
+         {
 
-      // ------------------------------------
-      // remote server quit
-      // ------------------------------------
-      if ((mNetgame.ima_client) && (p == 0))
-      {
-         // printf("Remote Server Quit :%d\n", mLoop.frame_num);
-         mLoop.state[0] = PM_PROGRAM_STATE_MENU;
-      }
+            if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)
+            {
+               // printf("Local Client Quit:%d\n", mLoop.frame_num);
+               mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
+            }
 
-      // ------------------------------------
-      // remote player quit (server only)
-      // ------------------------------------
-      if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
-      {
-         printf("Remote Player Quit :%d\n", mLoop.frame_num);
-         if (!mLoop.ff_state) mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
-         mPlayer.syn[p].active = 0;
+            if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) // remote client quit
+            {
+               // printf("Remote Client Quit:%d\n", mLoop.frame_num);
+
+            }
+         }
       }
       mScreen.set_player_text_overlay(p, 0);
       mGameEvent.add(7, 0, 0, p, 0, 0, 0);

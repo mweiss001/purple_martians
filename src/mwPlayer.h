@@ -92,9 +92,12 @@ struct psyn // synced between server and client
 
    int server_lev_seq_num;
 
+   int player_text_overlay_timer;
+   int player_text_overlay_type;
+
    int spare_int1;
-   int spare_int2;
-   int spare_int3;
+//   int spare_int2;
+//   int spare_int3;
 };
 
 struct ploc // not synced between server and client (but synced from server to remote)
@@ -241,6 +244,7 @@ class mwPlayer
    void draw_player(int p);
    void draw_players(void);
    void set_players_shape(int p);
+   int find_inactive_player(void);
    int is_player_color_used(int color);
    void init_player(int p, int t);
    void set_default_player_colors(void);

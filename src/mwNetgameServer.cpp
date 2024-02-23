@@ -13,6 +13,9 @@
 #include "mwConfig.h"
 #include "mwItem.h"
 
+#include "mwScreen.h"
+
+
 
 int mwNetgame::ServerInitNetwork(void)
 {
@@ -662,52 +665,40 @@ void mwNetgame::server_proc_cjon_packet(int i)
    mLog.add_fwf(LOG_NET, 0, 76, 10, "+", "-", "");
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received join request from %s requesting color:%d", temp_name, color);
 
-   // find empty player slot
-   int cn = 99;
-   for (int p=1; p<NUM_PLAYERS; p++)
-      if (!mPlayer.syn[p].active)
-      {
-         cn = p;
-         break;
-      }
-   if (cn == 99) // no empty player slots found
+   int p = mPlayer.find_inactive_player();
+   if (p == 99) // no inactive player found
    {
       mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
       mLog.add_fwf(LOG_NET, 0, 76, 10, "+", "-", "");
       server_send_sjon_packet(who, 0, 0, 99, 0);
-
-      if (mLog.log_types[LOG_NET_session].action) session_update_entry(who, 10, temp_name, cn);
-
+      if (mLog.log_types[LOG_NET_session].action) session_update_entry(who, 10, temp_name, p);
    }
-   else // empty player slot found, proceed with join
+   else // inactive player found, proceed with join
    {
       // try to use requested color, unless already used by another player
       while (mPlayer.is_player_color_used(color)) if (++color > 15) color = 1;
 
-      mPlayer.init_player(cn, 1); // full player reset
-      mStateHistory[cn].initialize();
-      mItem.set_player_start_pos(cn);
-      mPlayer.syn[cn].active = 1;
-      mPlayer.syn[cn].color = color;
-      mPlayer.syn[cn].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
-      mPlayer.loc[cn].who = who;
-      mPlayer.loc[cn].server_last_stak_rx_frame_num = mLoop.frame_num + 200;
-      sprintf(mPlayer.loc[cn].hostname, "%s", temp_name);
+      mPlayer.init_player(p, 1); // full player reset
+      mStateHistory[p].initialize();
+      mItem.set_player_start_pos(p);
+      mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
+      mPlayer.loc[p].who = who;
+      mPlayer.loc[p].server_last_stak_rx_frame_num = mLoop.frame_num + 200;
+      sprintf(mPlayer.loc[p].hostname, "%s", temp_name);
 
-      mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, cn, color); // add a game move to make client active
+      mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, color); // add game move to make client active
 
-      server_send_sjon_packet(who, mLevel.play_level, mLoop.frame_num, cn, color);
+      server_send_sjon_packet(who, mLevel.play_level, mLoop.frame_num, p, color);
 
       mLog.add_fwf(LOG_NET,               0, 76, 10, "|", " ", "Server replied with join invitation:");
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
-      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Number:[%d]", cn);
+      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Number:[%d]", p);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Color:[%d]", color);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Frame:[%d]", mLoop.frame_num);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Level Sequence Num:[%d]", mPlayer.syn[0].server_lev_seq_num);
       mLog.add_fwf(LOG_NET,               0, 76, 10, "+", "-", "");
 
-      if (mLog.log_types[LOG_NET_session].action) session_update_entry(who, 2, temp_name, cn);
-
+      if (mLog.log_types[LOG_NET_session].action) session_update_entry(who, 2, temp_name, p);
    }
 }
 
