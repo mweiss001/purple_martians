@@ -411,7 +411,7 @@ void mwGameMoves::proc_game_move_player_inactive(int x)
       // ------------------------------------
       if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
       {
-         //printf("Remote Player Quit :%d\n", mLoop.frame_num);
+         printf("Remote Player Quit :%d\n", mLoop.frame_num);
          if (!mLoop.ff_state) mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
          mPlayer.syn[p].active = 0;
       }

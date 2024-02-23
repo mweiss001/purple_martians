@@ -215,7 +215,7 @@ class mwNetgame
    void server_proc_player_drop(void);
    void server_proc_limits(void);
    void server_reload(int level);
-   void server_lock_client(int p);
+
 
    void server_send_snfo_packet(void);
    void server_send_sjon_packet(int who, int level, int frame, int player_num, int player_color);
