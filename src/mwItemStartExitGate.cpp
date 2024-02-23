@@ -254,6 +254,14 @@ void mwItem::proc_gate_collision(int p, int i)
 
    // if DOWN pressed, cycle display pages
    if (mPlayer.if_players_ctrl_just_pressed(p, PM_COMPMOVE_DOWN)) item[i][8]++;
+
+   // enforce page limits
+   if ((status == 0) && (item[i][8] > 1)) item[i][8] = 0;
+   if ((status == 1) && (item[i][8] > 2)) item[i][8] = 0;
+   if ((status > 1)  && (item[i][8] > 4)) item[i][8] = 0;
+
+   // no demo page in netgame
+   if (((mNetgame.ima_server) || (mNetgame.ima_client)) && (item[i][8] == 4)) item[i][8] = 0;
 }
 
 
@@ -334,6 +342,7 @@ void mwItem::draw_gate_info(int i)
 
    int status = mLevel.data[lev].status;
    int col = mLevel.data[lev].status_color;
+
    if ((mNetgame.ima_server) || (mNetgame.ima_client))
    {
       // temporarily change all not complete status to complete status
@@ -342,8 +351,6 @@ void mwItem::draw_gate_info(int i)
          status = 2;
          col = 12;
       }
-      // no demo page in netgame
-      if (item[i][8] == 4) item[i][8] = 0;
    }
 
    mScreen.draw_framed_text(xc, by, 1, mFont.pr8, col, 15, mLevel.data[lev].level_name); // draw and frame the level name
@@ -353,7 +360,6 @@ void mwItem::draw_gate_info(int i)
       al_draw_textf(mFont.pixl, mColor.pc[15], xc, y+18, ALLEGRO_ALIGN_CENTER, "DOWN - Cycle Info");
       if (item[i][8] == 0) show_page(0, xc, bs, by, lev, col); // level icon map
       if (item[i][8] == 1) show_page(7, xc, bs, by, lev, col); // not completed general
-      if (item[i][8] > 1) item[i][8] = 0;
    }
    if (status == 1)
    {
@@ -362,7 +368,6 @@ void mwItem::draw_gate_info(int i)
       if (item[i][8] == 0) show_page( 0, xc, bs, by, lev, col); // level icon map
       if (item[i][8] == 1) show_page( 7, xc, bs, by, lev, col); // not completed general
       if (item[i][8] == 2) show_page(12, xc, bs, by, lev, col); // demo
-      if (item[i][8] > 2) item[i][8] = 0;
    }
    if (status > 1)
    {
@@ -373,7 +378,6 @@ void mwItem::draw_gate_info(int i)
       if (item[i][8] == 2) show_page( 2, xc, bs, by, lev, col); // times
       if (item[i][8] == 3) show_page( 3, xc, bs, by, lev, col); // purple coins
       if (item[i][8] == 4) show_page(12, xc, bs, by, lev, col); // demo
-      if (item[i][8] > 4) item[i][8] = 0;
    }
 }
 

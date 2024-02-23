@@ -280,7 +280,7 @@ void mwNetgame::server_create_new_state(void)
 void mwNetgame::server_send_dif(int frame_num)
 {
   for (int p=1; p<NUM_PLAYERS; p++)
-      if ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) || (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON))
+      if ((mPlayer.syn[p].active) && ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) || (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON)))
       {
          // save current state in history as base for next clients send
          mStateHistory[p].add_state(frame_num);
@@ -502,8 +502,7 @@ void mwNetgame::server_proc_stak_packet(int i)
    mPlayer.loc[p].stak_dsync = ( (double) stak_sync * 0.025) + mLoop.frame_start_timestamp - timestamp;
 
    // inactive client chasing for lock
-   if ((!mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)) server_lock_client(p);
-
+//   if ((!mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)) server_lock_client(p);
 
    // this is used to see if client is still alive
    mPlayer.loc[p].server_last_stak_rx_frame_num = mLoop.frame_num;
@@ -526,7 +525,7 @@ void mwNetgame::server_proc_player_drop(void)
       int drop_frame_limit = mLoop.frame_num - 200;
 
       for (int p=1; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) && (mPlayer.loc[p].server_last_stak_rx_frame_num < drop_frame_limit))
+         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) && (mPlayer.loc[p].server_last_stak_rx_frame_num < drop_frame_limit))
          {
             mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 71); // make client inactive (reason no stak for x frames)
             mLog.add_headerf(LOG_NET, p, 1, "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
@@ -641,22 +640,6 @@ void mwNetgame::server_proc_cdat_packet(int i)
    }
 }
 
-
-void mwNetgame::server_lock_client(int p)
-{
-   // inactive client chasing for lock
-   float sync = mPlayer.loc[p].pdsync * 1000;
-   printf("Server Lock Client:%d a:%d cm:%d dsync:%4.2f\n", p, mPlayer.syn[p].active, mPlayer.syn[p].control_method, sync);
-   if ((sync > -200) && (sync < 30)) mPlayer.loc[p].sync_stabilization_holdoff++;
-   else mPlayer.loc[p].sync_stabilization_holdoff = 0;
-   if (mPlayer.loc[p].sync_stabilization_holdoff > 20) // we have been stable for over 20 frames
-   {
-      mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
-      mPlayer.loc[p].sync_stabilization_holdoff = 0;
-      mLog.add_headerf(LOG_NET, p, 0, "Player:%d has locked and will become active in 4 frames!", p);
-   }
-}
-
 void mwNetgame::server_send_sjon_packet(int who, int level, int frame, int player_num, int player_color)
 {
    char data[1024] = {0}; int pos;
@@ -681,8 +664,8 @@ void mwNetgame::server_proc_cjon_packet(int i)
 
    // find empty player slot
    int cn = 99;
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if ((mPlayer.syn[p].active == 0) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER))
+   for (int p=1; p<NUM_PLAYERS; p++)
+      if (!mPlayer.syn[p].active)
       {
          cn = p;
          break;
@@ -792,7 +775,7 @@ void mwNetgame::server_control()
    // send extra packets (testing and debug only)
    for (int i=0; i<srv_exp_num; i++)
       for (int p=1; p<NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
+         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
          {
             char data[1024] = {0}; int pos;
             mPacketBuffer.PacketName(data, pos, "extr");

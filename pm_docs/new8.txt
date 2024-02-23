@@ -45983,7 +45983,102 @@ new version first...
 
 
 
+client quit, server keeps trying to drop it every frame
+added active check in player drop...that looks better...
+also server keeps trying to send difs...added active check there too...
 
+
+looking through server code I found server_lock_client...it is called but I don't think it does anything
+
+removed:
+
+void mwNetgame::server_proc_stak_packet(int i)
+{
+...
+   // inactive client chasing for lock
+   if ((!mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)) server_lock_client(p);
+void server_lock_client(int p);
+
+void mwNetgame::server_lock_client(int p)
+{
+   // inactive client chasing for lock
+   float sync = mPlayer.loc[p].pdsync * 1000;
+   printf("Server Lock Client:%d a:%d cm:%d dsync:%4.2f\n", p, mPlayer.syn[p].active, mPlayer.syn[p].control_method, sync);
+   if ((sync > -200) && (sync < 30)) mPlayer.loc[p].sync_stabilization_holdoff++;
+   else mPlayer.loc[p].sync_stabilization_holdoff = 0;
+   if (mPlayer.loc[p].sync_stabilization_holdoff > 20) // we have been stable for over 20 frames
+   {
+      mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, mPlayer.syn[p].color);
+      mPlayer.loc[p].sync_stabilization_holdoff = 0;
+      mLog.add_headerf(LOG_NET, p, 0, "Player:%d has locked and will become active in 4 frames!", p);
+   }
+}
+
+also changed this:
+
+old:
+
+void mwNetgame::server_proc_cjon_packet(int i)
+{
+...
+
+   // find empty player slot
+   int cn = 99;
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((mPlayer.syn[p].active == 0) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER))
+      {
+         cn = p;
+         break;
+      }
+
+new:
+
+void mwNetgame::server_proc_cjon_packet(int i)
+{
+...
+
+   // find empty player slot
+   int cn = 99;
+   for (int p=1; p<NUM_PLAYERS; p++)
+      if (!mPlayer.syn[p].active)
+      {
+         cn = p;
+         break;
+      }
+
+
+
+the gate pages still do not work nicely with headless server
+
+they seem to work fine with local server....
+
+could it have to do with the delay of a real server?
+
+does headless server set ima_server?...it must....
+
+i bet it also sets PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL
+
+that means it processes local input here:
+
+void mwPlayer::proc_player_input(void)
+{
+   if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (syn[p].active) // cycle all active players
+         {
+            int cm = syn[p].control_method;
+            if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) || (cm == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL) || (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)) // these are the only local control methods
+            {
+
+but this should not be an issue...it wouldn't hurt to disable this anyway for headless server player....
+
+where is my hidden attribute?
+
+it could also be because the server does not actually draw the gate it never checks the limits...YES! that was it....
+
+new release
+
+7.24.022.3
 
 
 
