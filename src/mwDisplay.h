@@ -30,7 +30,7 @@ class mwDisplay
    float SCREEN_H;
 
    int fullscreen = 1;
-   int display_adapter_num = 0;
+   int fullscreen_monitor_num = 0;
 
    int show_scale_factor;
    int scale_factor_holdoff;
@@ -40,21 +40,18 @@ class mwDisplay
    int saved_display_transform_double;
    int show_dtd;
 
+   void enforce_valid_window_pos(void);
 
 
+   void set_fullscreen_monitor_num_to_monitor_current_window_is_on(void);
 
-
-
-
+   void set_fullscreen(void);
 
 
    void set_window_title(void);
 
    float scale_factor;
    float scale_factor_current;
-
-
-
 
    void set_scale_factor(float new_scale_factor, int instant);
    void proc_scale_factor_change(void);

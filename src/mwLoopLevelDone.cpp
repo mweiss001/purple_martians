@@ -150,7 +150,7 @@ void mwLoop::proc_level_done_mode(void)
    if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
    {
       mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - pause player and setup exit xyincs\n", frame_num, mPlayer.syn[0].level_done_mode);
-      mScreen.set_player_text_overlay(mPlayer.syn[0].level_done_player, 2);
+      mScreen.add_player_text_overlay(mPlayer.syn[0].level_done_player, 2);
       mLevel.add_play_data_record(mLevel.play_level, 1);
 
       for (int p=0; p<NUM_PLAYERS; p++)

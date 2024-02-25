@@ -464,6 +464,7 @@ void mwLevel::level_check(void)
          }
    if (error)
    {
+      printf("Level Check Error: %s\n", msg);
       printf("number_of_starts:%d\n", number_of_starts);
       for (int i=0; i<8; i++)
          printf("%d %d\n", i, s[i]);

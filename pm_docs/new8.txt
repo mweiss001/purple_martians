@@ -46307,61 +46307,175 @@ another release...
 
 
 
+20240224 I think I am ready. Bug list is empty.
 
+How to do videos?
 
+First of all, where am I going to store them?
 
+I need to think of a good way to store and backup files...
 
 
+Can I add to x?
 
+the only reason I would worry about that is space...
 
 
+right now it looks like i use 2.6T on mw
+1000G pics
+700G ahv and shv
+450G studio
 
+the pm_stuff folder on m36 desktop with videos and sources is 2.6G
+on q3 i have about 50G of stuff
 
+I think I can just put them on x for now...and grow x when needed
+should I make a new folder? video projects? vid?
+video_projects
 
+each video I want to make should be in its own folder
 
+copied all the stuff from m36
 
 
 
+a few more changes:
 
+add al_inhibit_screensaver
 
+added here in initial_setup:
 
+   // --- event queue ----------------
+   mEventQueue.event_queue = al_create_event_queue();
+   if(!mEventQueue.event_queue)
+   {
+      printf("Failed to create event queue.\n");
+      return 0;
+   }
+   mEventQueue.create_timers();
 
+   // --- display --------------------
+   mDisplay.init_display();
 
+   if ((mDisplay.no_display) && (!headless_server))
+   {
+      printf("Failed to initialize display.\n");
+      return 0;
+   }
 
+   al_inhibit_screensaver(true);
 
+and in final_wrapup:
 
+   al_inhibit_screensaver(false);
+   al_uninstall_system();
 
 
 
+ran an >8hour netgame
+internet,
+7 clients and remote,
+fakekey
+level 64
+player hits and 50 damage
+all clients were still connected!!
 
+but the player text screen messages were stuck in places
+at least it was the exact same across all clients
 
+on remote turning off player shots stopped the dying, but not the stuck messages
+turning off fakekey cleared the stuck messages...
 
+Why?  What could cause this?
 
+i continued to run the 8 hour netgame, now it is a 24hour netgame!
+internet,
+7 clients and remote,
+fakekey
+level 64
+player hits and 50 damage
+all clients were still connected!!
 
+the stuck message issue did not happen again...
 
+made few changes to the proc_ code...tests if the time value was out of range
 
 
 
 
+hysteresis window...what moves it up and down? or what player?
+active_local_player
+does demo set that? yes...so by all accounts it should be working...
+yes it is...
 
 
+when using a second monitor,
+fullscreen on that 2nd monitor is saved and restored, but not window on 2nd, that always reverts to main monitor...
 
 
+in init_display I check if the window positions are valid
 
+   // check if windowed values are valid
+   int th = 100;
+   if (disp_x_wind > disp_w_full-th) disp_x_wind = disp_w_full-th;
+   if (disp_y_wind > disp_h_full-th) disp_y_wind = disp_h_full-th;
+   if (disp_w_wind > disp_w_full) disp_w_wind = disp_w_full;
+   if (disp_h_wind > disp_h_full) disp_h_wind = disp_h_full;
+   //show_disp_values(0, 0, 1, 1, 1, "pc");
 
+I think this is what is causing the values to reset....
 
+commented it out and now the window positions on secondary monitor are saved and restore properly
 
+I like these checks though...they prevent the display from being offscreen and hidden...
 
+Is there a way that I could tell that they were on a viable display?
 
+I suppose I could get monitor info, like
 
+ALLEGRO_MONITOR_INFO
 
+typedef struct ALLEGRO_MONITOR_INFO
 
+Source Code
 
+Describes a monitor’s size and position relative to other monitors. x1, y1 will be 0, 0 on the primary display. Other monitors can have negative values if they are to the left or above the primary display. x2, y2 are the coordinates one beyond the bottom right pixel, so that x2-x1 gives the width and y2-y1 gives the height of the display.
 
+typedef struct ALLEGRO_MONITOR_INFO
+{
+   int x1;
+   int y1;
+   int x2;
+   int y2;
+} ALLEGRO_MONITOR_INFO;
 
 
+and compare to those values instead of disp_full
 
+this is the shiny new result:
 
+void mwDisplay::enforce_valid_window_pos(void)
+{
+   int debug_print = 1;
+   int valid = 0;
+   int th = 100; // threshold for less than x2, y2
+   if (debug_print) printf("window position -  x:%d y:%d\n", disp_x_wind, disp_y_wind);
+   int num_adapters = al_get_num_video_adapters();
+   ALLEGRO_MONITOR_INFO info;
+   for (int i=0; i<num_adapters; i++)
+   {
+      al_get_monitor_info(i, &info);
+      if ((disp_x_wind > info.x1) && (disp_x_wind < info.x2 - th) && (disp_y_wind > info.y1) && (disp_y_wind < info.y2 - th)) valid = 1;
+      if (debug_print) if (valid)  printf("    valid on monitor:%d x1:%d x2:%d y1:%d y2:%d  \n", i, info.x1, info.x2, info.y1, info.y2);
+      if (debug_print) if (!valid) printf("not valid on monitor:%d x1:%d x2:%d y1:%d y2:%d  \n", i, info.x1, info.x2, info.y1, info.y2);
+   }
+   if (!valid)
+   {
+      if (debug_print) printf("window position (x:%d y:%d) not valid on any attached monitor, resetting to 100, 100 on primary display\n", disp_x_wind, disp_y_wind);
+      disp_x_wind = 100;
+      disp_y_wind = 100;
+   }
+}
 
 
 
@@ -46371,111 +46485,40 @@ another release...
 
 
 
+what if I made it so that switching to fullscreen detects what monitor the current window is on...
 
+that way I would not have to manually set display adapter in config
 
+this would be way better....
 
 
+make a function to detect what monitor the window is on
 
+looking into this, I might be doing something weird...
 
 
+in init_display  I set    al_set_new_display_adapter(display_adapter_num);
 
+why? do I need to do this?
 
+is this required for full screen?
 
+try not doing it and see what happens
 
+i think I will need to save in config the monitor used for fullscreen...
 
+replaced in mwDisplay and in config...
 
 
+I think I have it all working nicely...need to test on linux...
 
 
 
+make a release.....
 
+test that all demos play...yes..
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+7.24.0225.1
 
 
 

@@ -170,22 +170,30 @@ void mwScreen::show_level_done(void)
    }
 }
 
-void mwScreen::set_player_text_overlay(int p, int type)
+void mwScreen::add_player_text_overlay(int p, int type)
 {
    mPlayer.syn[p].player_text_overlay_timer = player_text_overlay_timer_reset_val;
    mPlayer.syn[p].player_text_overlay_type = type;
 }
 
 
-void mwScreen::proc_player_text_overlay(void)
+void mwScreen::proc_player_text_overlay_timers(void)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
+   {
       if (mPlayer.syn[p].player_text_overlay_timer)
          mPlayer.syn[p].player_text_overlay_timer--;
+
+      if (mPlayer.syn[p].player_text_overlay_timer < 0)
+         mPlayer.syn[p].player_text_overlay_timer = 0;
+
+      if (mPlayer.syn[p].player_text_overlay_timer > player_text_overlay_timer_reset_val)
+         mPlayer.syn[p].player_text_overlay_timer = player_text_overlay_timer_reset_val;
+   }
 }
 
 
-void mwScreen::show_player_text_overlay(void)
+void mwScreen::draw_player_text_overlay(void)
 {
    double t0 = al_get_time();
    char msg[80];
@@ -1256,7 +1264,7 @@ void mwScreen::draw_screen_overlay(void)
    if (!(mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD))
    {
       mBottomMessage.draw(0);
-      show_player_text_overlay();
+      draw_player_text_overlay();
    }
 
    draw_top_frame(p);
