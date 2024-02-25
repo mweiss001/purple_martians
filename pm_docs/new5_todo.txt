@@ -2,14 +2,7 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-
-
-
-
-
-
-
-
+after 8 hour netgame, player text screen messages were stuck in one place...maybe fixed can not reporduce
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
@@ -345,6 +338,9 @@ BUGS HERE IS THE MOST META BUG OF ALL!!!
 I want this game to show off my awesome skills.
 So everything that is not perfect will reflect badly on me.
 This is why it is so hard to finish, it will never be perfect...
+
+
+add al_set_clipboard_text for info things
 
 
 

@@ -355,7 +355,7 @@ void mwGameMoves::proc_game_move_player_active(int x)
 
       if (mLoop.frame_num > 1) // don't show notifications if player was made active at the start of the level
       {
-         mScreen.set_player_text_overlay(p, 1);
+         mScreen.add_player_text_overlay(p, 1);
          mGameEvent.add(6, 0, 0, p, 0, 0, 0);
          if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, p, 0, "Player:%d became ACTIVE!                                ", p);
       }
@@ -411,7 +411,7 @@ void mwGameMoves::proc_game_move_player_inactive(int x)
             }
          }
       }
-      mScreen.set_player_text_overlay(p, 0);
+      mScreen.add_player_text_overlay(p, 0);
       mGameEvent.add(7, 0, 0, p, 0, 0, 0);
    }
 }

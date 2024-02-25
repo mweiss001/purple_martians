@@ -83,6 +83,8 @@ void mwMain::final_wrapup(void)
   // printf("\nAfter al_uninstall_system()\n");
 
   */
+
+   al_inhibit_screensaver(false);
    al_uninstall_system();
 }
 
@@ -176,6 +178,10 @@ int mwMain::initial_setup(void)
    mEventQueue.create_timers();
 
 
+
+
+
+
    // --- display --------------------
    mDisplay.init_display();
 
@@ -184,6 +190,8 @@ int mwMain::initial_setup(void)
       printf("Failed to initialize display.\n");
       return 0;
    }
+
+   al_inhibit_screensaver(true);
 
    if (headless_server)
    {

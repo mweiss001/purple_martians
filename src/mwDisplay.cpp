@@ -180,6 +180,33 @@ void mwDisplay::set_display_transform()
 }
 
 
+
+void mwDisplay::enforce_valid_window_pos(void)
+{
+   int debug_print = 0;
+   int valid = 0;
+
+   int th = 100; // threshold for less than x2, y2
+   if (debug_print) printf("window position -  x:%d y:%d\n", disp_x_wind, disp_y_wind);
+   int num_adapters = al_get_num_video_adapters();
+   ALLEGRO_MONITOR_INFO info;
+   for (int i=0; i<num_adapters; i++)
+   {
+      al_get_monitor_info(i, &info);
+      if ((disp_x_wind > info.x1) && (disp_x_wind < info.x2 - th) && (disp_y_wind > info.y1) && (disp_y_wind < info.y2 - th)) valid = 1;
+      if (debug_print) if (valid)  printf("    valid on monitor:%d x1:%d x2:%d y1:%d y2:%d  \n", i, info.x1, info.x2, info.y1, info.y2);
+      if (debug_print) if (!valid) printf("not valid on monitor:%d x1:%d x2:%d y1:%d y2:%d  \n", i, info.x1, info.x2, info.y1, info.y2);
+   }
+   if (!valid)
+   {
+      if (debug_print) printf("window position (x:%d y:%d) not valid on any attached monitor, resetting to 100, 100 on primary display\n", disp_x_wind, disp_y_wind);
+      disp_x_wind = 100;
+      disp_y_wind = 100;
+   }
+}
+
+
+
 int mwDisplay::init_display(void)
 {
    if (mMain.headless_server)
@@ -196,21 +223,17 @@ int mwDisplay::init_display(void)
       return 0;
    }
 
-   if (display_adapter_num >=  num_adapters) display_adapter_num = 0;
-   al_set_new_display_adapter(display_adapter_num);
+   al_set_new_display_adapter(0);
 
-   if (num_adapters > 1) printf("%d adapters found...using:%d\n", num_adapters, display_adapter_num);
+   if (fullscreen_monitor_num > num_adapters) fullscreen_monitor_num = 0;
 
    ALLEGRO_MONITOR_INFO aminfo;
-   al_get_monitor_info(display_adapter_num, &aminfo);
+   al_get_monitor_info(0, &aminfo);
    desktop_width  = aminfo.x2 - aminfo.x1;
    desktop_height = aminfo.y2 - aminfo.y1;
    printf("Desktop Resolution: %dx%d\n", desktop_width, desktop_height);
 
-   mDisplay.disp_x_full = 0; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
-   mDisplay.disp_y_full = 0;
-   mDisplay.disp_w_full = desktop_width;
-   mDisplay.disp_h_full = desktop_height;
+
 
 
    //show_display_adapters();
@@ -227,34 +250,17 @@ int mwDisplay::init_display(void)
   // al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
 
    // show_disp_values(0, 0, 1, 1, 1, "init");
-   // check if windowed values are valid
-   int th = 100;
-   if (disp_x_wind > disp_w_full-th) disp_x_wind = disp_w_full-th;
-   if (disp_y_wind > disp_h_full-th) disp_y_wind = disp_h_full-th;
-   if (disp_w_wind > disp_w_full) disp_w_wind = disp_w_full;
-   if (disp_h_wind > disp_h_full) disp_h_wind = disp_h_full;
-   //show_disp_values(0, 0, 1, 1, 1, "pc");
 
+   enforce_valid_window_pos();
+
+   //show_disp_values(0, 0, 1, 1, 1, "pc");
 
    mConfig.save_config();
 
+   al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
+   display = al_create_display(disp_w_wind, disp_h_wind);
 
-   int flags = 0;
-
-   if (fullscreen)
-   {
-      flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE;
-      al_set_new_display_flags(flags);
-      display = al_create_display(disp_w_wind, disp_h_wind);
-   }
-   else // windowed
-   {
-      flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
-      al_set_new_display_flags(flags);
-      display = al_create_display(disp_w_wind, disp_h_wind);
-   }
-
-
+   if (fullscreen) set_fullscreen();
 
    al_set_window_constraints(display, 320, 240, 0, 0);
    al_apply_window_constraints(display, 1);
@@ -299,9 +305,6 @@ int mwDisplay::init_display(void)
    mBitmap.create_bitmaps();
    return 1;
 }
-
-
-
 
 
 void mwDisplay::proc_display_change(void)
@@ -354,6 +357,45 @@ void mwDisplay::toggle_fullscreen(void)
    else            proc_display_change_tofs();
 }
 
+
+
+void mwDisplay::set_fullscreen(void)
+{
+   ALLEGRO_MONITOR_INFO info;
+   al_get_monitor_info(fullscreen_monitor_num, &info);
+
+   disp_x_full = info.x1;
+   disp_y_full = info.y1;
+
+   disp_w_full = info.x2 - info.x1;
+   disp_h_full = info.y2 - info.y1;
+
+   al_set_display_flag(display, ALLEGRO_FRAMELESS, 1);
+   al_resize_display(display, disp_w_full, disp_h_full);
+   al_set_window_position(display, disp_x_full, disp_y_full);
+}
+
+
+void mwDisplay::set_fullscreen_monitor_num_to_monitor_current_window_is_on(void)
+{
+   int mon = -1;
+   ALLEGRO_MONITOR_INFO info;
+   for (int i=0; i<al_get_num_video_adapters(); i++)
+   {
+      al_get_monitor_info(i, &info);
+      if ((disp_x_wind > info.x1) && (disp_x_wind < info.x2) && (disp_y_wind > info.y1) && (disp_y_wind < info.y2)) mon = i;
+   }
+   if (mon == -1)
+   {
+      printf ("Error, cannot detect which monitor the current window is on! Using monitor 0.\n");
+      mon = 0;
+   }
+   fullscreen_monitor_num = mon;
+}
+
+
+
+
 void mwDisplay::proc_display_change_tofs(void)
 {
    //printf("\n-----------to fullscreen------------\n");
@@ -364,11 +406,9 @@ void mwDisplay::proc_display_change_tofs(void)
    disp_w_wind = al_get_display_width(display);
    disp_h_wind = al_get_display_height(display);
 
-   al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
+   set_fullscreen_monitor_num_to_monitor_current_window_is_on();
+   set_fullscreen();
 
-   // here is one of the few places I will set xywh from my local variables
-//   al_resize_display(display, disp_w_full, disp_h_full);
-//   al_set_window_position(display, disp_x_full, disp_y_full);
    proc_display_change();
 }
 
@@ -376,13 +416,15 @@ void mwDisplay::proc_display_change_fromfs(void)
 {
    //printf("\n-----------to windowed--------------\n");
    fullscreen = 0;
-   al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
 
-   al_acknowledge_resize(display);
+   al_set_display_flag(display, ALLEGRO_FRAMELESS, 0);
+
+   // al_acknowledge_resize(display); // this is also done in proc_display_change(); i am trying to comment this out to see if it is necessary here also
 
    // here is one of the few places I will set xywh from my local variables
    al_resize_display(display, disp_w_wind, disp_h_wind);
    al_set_window_position(display, disp_x_wind, disp_y_wind);
+
    proc_display_change();
 }
 

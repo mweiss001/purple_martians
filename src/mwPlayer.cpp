@@ -53,7 +53,7 @@ void mwPlayer::proc_player_health(int p)
       {
          mGameEvent.add(8, 0, 0, p, 0, 0, 0);  // player death
          mLog.add_headerf(LOG_NET, p, 0, "PLAYER:%d DIED!", p);
-         mScreen.set_player_text_overlay(p, 3);
+         mScreen.add_player_text_overlay(p, 3);
          mLevel.level_data_player_respawns++;
          syn[p].stat_respawns++;
       }

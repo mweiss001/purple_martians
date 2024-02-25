@@ -1033,10 +1033,6 @@ void mwLoop::main_loop(void)
             // ------------------------------
             // draw
             // ------------------------------
-
-
-
-
             mDrawSequence.ds_draw(0, 1);
 
             mPacketBuffer.check_for_packets();
