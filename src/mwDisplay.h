@@ -42,10 +42,15 @@ class mwDisplay
 
    void enforce_valid_window_pos(void);
 
+   void refresh_window_position_and_size(void);
+
+
 
    void set_fullscreen_monitor_num_to_monitor_current_window_is_on(void);
 
    void set_fullscreen(void);
+   void set_windowed(void);
+
 
 
    void set_window_title(void);
@@ -80,9 +85,7 @@ class mwDisplay
 
    int init_display(void);
    void proc_display_change(void);
-   void save_display_window_position(void);
-   void proc_display_change_tofs(void);
-   void proc_display_change_fromfs(void);
+
    void toggle_fullscreen(void);
 
 };
