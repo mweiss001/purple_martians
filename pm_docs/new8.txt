@@ -46523,4 +46523,637 @@ test that all demos play...yes..
 
 
 
+done!!
+
+damn I have problems in linux
+
+sometimes it cannot tell which monitor it is on...
+
+enable all print debugging and try again...
+
+
+maybe part of the issue is that on my linux machine (scat) display 1 is the primary display, not 0...
+
+
+m36:
+monitor:0 x1:   0 x2:3840 y1:   0 y2:2160 - primary
+monitor:1 x1:3840 x2:5760 y1:1080 y2:2160
+
+
+scat:
+monitor:0 x1:   0 x2:1920 y1:   0 y2:1200
+monitor:1 x1:1920 x2:3840 y1:   0 y2:1080 - primary
+
+switched the cables around:
+switched the layout in desktop settings, now 0 is on the left
+made 0 the primary display...
+
+scat:
+monitor:0 x1:   0 x2:1920 y1:   0 y2:1200 - primary
+monitor:1 x1:1920 x2:3840 y1:   0 y2:1080
+
+this is weird, the labels stayed the same
+
+power off and re_start
+
+
+can I show some debug stuff on the screen always...
+
+like x, y, w, h, mon,
+
+I think I found something out!
+
+on linux the window stuff does not change when dragging the window around..maybe I need to refreh it before i use it...
+
+
+
+for some reason linux has window positions -6 in the x and y
+
+
+
+al_get_window_borders
+
+bool al_get_window_borders(ALLEGRO_DISPLAY *display, int *left, int *top, int *right, int *bottom)
+
+Source Code
+
+If that information is available returns TRUE and fills in the size of the window borders. You can pass NULL for borders you do not want to retrieve.
+
+If the border information is not available returns FALSE.
+
+    Unstable API: This is an experimental feature and currently only partially works on X11 and Windows. The meaning of the upper border may change when menus are present.
+
+See also: al_set_window_position, al_get_window_position
+
+Since: 5.2.9
+
+I need to update to 5.2.9 so I dont care...
+
+
+----------
+
+
+
+what the fuck is going on in linux?
+
+If I have only one monitor does it work?...it seems to...
+
+it also seems like linux never has any negative values...
+
+what can I do to make things work there?
+
+scat setup:
+              alleg ubun
+top 1920x1080  m1    m1
+bot 1920x1200  m0    m2 primary
+
+
+m36 setup
+              alleg win
+top 1920x1080  m1    m2
+bot 3840x2160  m0    m1 primary
+
+on win primary was 0,0 and upper had y - 1080
+on ubu uppper has 0,0 and lower had y + 1080
+
+ubuntu does not go negative
+
+
+This is weird, but I should be able to work around it...I hope
+
+start with 200, 200, 800, 600 fullscreen off on primary
+
+that shows up on the top monitor, not the primary
+
+the game reports
+
+
+START
+window on top monitor
+Fullscreen:0
+190 155 800 600 for full and curr
+0 0 0 0 for full
+
+F12 (1st)
+now fullscreen on top monitor
+Fullscreen:1
+0 0 1920 1080 for curr and full
+190 192 800 600 for win
+
+F12 (2nd)
+does not appear different
+Fullscreen:0
+190 192 1920 1080 win and cur
+0 0 1920 1080 full
+
+F12
+does not appear different
+Fullscreen:1
+0 0 1920 1080 full win and curr
+
+F12
+does not appear different
+Fullscreen:0
+32 32 1920 1080 win and curr
+0 0 1920 1080 full
+
+from then on it just cycles between these last 2
+
+
+The first F12 does what it is supposed to do.
+the window is on monitor 1, so it makes that fullscreen
+
+The second F12 should have set brought back 800 600, but instead did 1920x1080
+
+
+removed this from the change from fs section, i think it was overwriting stuff
+void mwDisplay::refresh_window_position_and_size(void)
+
+
+
+
+
+START
+window on top monitor
+Fullscreen:0
+190 155 800 600 for full and curr
+0 0 0 0 for full
+
+F12 (1st)
+now fullscreen on top monitor
+Fullscreen:1
+0 0 1920 1080 for curr and full
+190 192 800 600 for win
+
+F12 (2nd)
+does not appear different
+Fullscreen:0
+190 192 1920 1080 win and cur
+0 0 1920 1080 full
+
+same....
+
+
+what about this?
+
+void mwEventQueue::proc_events(ALLEGRO_EVENT ev)
+{
+   if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) mDisplay.proc_display_change();
+
+
+in windows I get RESIZE EVENTS even when moving the window, i do not get that in x
+
+
+How can I make this just work in x?
+
+
+how about if
+
+   int j = al_get_system_id();
+   if (j == ALLEGRO_SYSTEM_ID_XGLX)        printf("System ID: Xglx\n");
+
+   the only thing that can happen if fullscreen on primary monitor
+
+
+   if (j == ALLEGRO_SYSTEM_ID_WINDOWS)     printf("System ID: Windows\n");
+
+
+
+
+OK I think i have it put back together in a simple form that works for windows
+
+test on x with only one monitor
+
+
+x and y wind are not restored when going back to windowed always goes to 0 0
+changed the order from:
+      al_set_window_position(display, disp_x_wind, disp_y_wind);
+      al_resize_display(display, disp_w_wind, disp_h_wind);
+to:
+      al_resize_display(display, disp_w_wind, disp_h_wind);
+      al_set_window_position(display, disp_x_wind, disp_y_wind);
+
+fixed the zero issue, but now the window keeps moving up and left slightly when changing to fullscreen and back...
+
+now i have the zero issue again...fuck I hate this bullshit!!!
+
+the zero issue is because screen position is not saved when going fullscreen
+
+
+------------------------------------------
+HOLY FUCK I got it!!!
+
+This works great for both!
+
+window drifts a little in x, but I can live with that...
+
+do I need to set full values?
+
+------------------------------------------
+
+void mwDisplay::enforce_valid_window_pos(void)
+{
+   int debug_print = 0;
+   int valid = 0;
+
+   int th = 100; // threshold for less than x2, y2
+   if (debug_print) printf("Checking for valid window position - x:%d y:%d\n", disp_x_wind, disp_y_wind);
+   int num_adapters = al_get_num_video_adapters();
+   ALLEGRO_MONITOR_INFO info;
+   for (int i=0; i<num_adapters; i++)
+   {
+      al_get_monitor_info(i, &info);
+      if ((disp_x_wind >= info.x1) && (disp_x_wind < info.x2 - th) && (disp_y_wind >= info.y1) && (disp_y_wind < info.y2 - th))
+      {
+         valid = 1;
+         if (debug_print) printf("monitor:%d x1:%4d x2:%4d y1:%4d y2:%4d - valid \n"    , i, info.x1, info.x2, info.y1, info.y2);
+      }
+      else
+         if (debug_print) printf("monitor:%d x1:%4d x2:%4d y1:%4d y2:%4d - not valid \n", i, info.x1, info.x2, info.y1, info.y2);
+   }
+   if (!valid)
+   {
+      if (debug_print) printf("window position not valid on any attached monitor, resetting to 100, 100 on primary display\n");
+      disp_x_wind = 100;
+      disp_y_wind = 100;
+   }
+}
+
+int mwDisplay::init_display(void)
+{
+   if (mMain.headless_server)
+   {
+      no_display = 1;
+      return 0;
+   }
+
+   int num_adapters = al_get_num_video_adapters();
+   if (num_adapters == 0)
+   {
+      printf("No Display Adapters Found!\n");
+      no_display = 1;
+      return 0;
+   }
+   al_set_new_display_adapter(0);
+   if (fullscreen_monitor_num > num_adapters) fullscreen_monitor_num = 0;
+
+   ALLEGRO_MONITOR_INFO info;
+   al_get_monitor_info(0, &info);
+   desktop_width  = info.x2 - info.x1;
+   desktop_height = info.y2 - info.y1;
+   printf("Desktop Resolution: %dx%d\n", desktop_width, desktop_height);
+
+   //show_display_adapters();
+   //show_fullscreen_modes();
+
+   al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, ALLEGRO_REQUIRE);
+
+   // this is needed to make opengl 4.3 work the same as windows
+   // see visual level select, etc..
+   al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, 1, ALLEGRO_REQUIRE);
+
+  // al_set_new_display_option(ALLEGRO_SWAP_METHOD, 1, ALLEGRO_REQUIRE);
+  // al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_SUGGEST);
+  // al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
+
+   // show_disp_values(0, 0, 1, 1, 1, "init");
+
+   enforce_valid_window_pos();
+
+   //show_disp_values(0, 0, 1, 1, 1, "pc");
+
+   al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
+   display = al_create_display(disp_w_wind, disp_h_wind);
+
+
+   if(!display)
+   {
+      mInput.m_err("Error creating display");
+      exit(0);
+   }
+
+   if (fullscreen) set_fullscreen();
+   else set_windowed();
+
+   al_set_window_constraints(display, 320, 240, 0, 0);
+   al_apply_window_constraints(display, 1);
+
+   refresh_window_position_and_size();
+   mConfig.save_config();
+
+
+   //printf("x:%d y:%d w:%d h:%4d\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
+
+   set_display_transform();
+   set_window_title();
+
+//   show_display_flags(al_get_display_flags(display));
+//   show_display_options();
+//   show_pixel_format(al_get_display_format(display));
+//   show_display_orienation();
+//   printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
+
+   //printf("init screen\n");
+   mBitmap.create_bitmaps();
+   return 1;
+}
+
+
+void mwDisplay::proc_display_change(void)
+{
+   //printf("proc_display_change\n");
+   al_acknowledge_resize(display); // important that this is here, later and it does not work as intended
+
+   refresh_window_position_and_size();
+   set_display_transform();
+   mBitmap.rebuild_bitmaps();
+   mConfig.save_config();
+   //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
+   set_window_title();
+}
+
+
+// when the window is moved, no events are sent.
+// so this function will poll and update display variables
+void mwDisplay::refresh_window_position_and_size(void)
+{
+   al_get_window_position(display, &disp_x_curr, &disp_y_curr);
+   disp_w_curr = al_get_display_width(display);
+   disp_h_curr = al_get_display_height(display);
+
+   if (fullscreen)
+   {
+      disp_x_full = disp_x_curr;
+      disp_y_full = disp_y_curr;
+      disp_w_full = disp_w_curr;
+      disp_h_full = disp_h_curr;
+   }
+   else
+   {
+      disp_x_wind = disp_x_curr;
+      disp_y_wind = disp_y_curr;
+      disp_w_wind = disp_w_curr;
+      disp_h_wind = disp_h_curr;
+   }
+}
+
+void mwDisplay::toggle_fullscreen(void)
+{
+   if (fullscreen) // change from fullscreen to windowed
+   {
+      set_windowed();
+   }
+   else // change from windowed to fullscreen
+   {
+      // update current position of window (this line is needed for linux)
+      al_get_window_position(display, &disp_x_wind, &disp_y_wind);
+      if (al_get_system_id() != ALLEGRO_SYSTEM_ID_XGLX) set_fullscreen_monitor_num_to_monitor_current_window_is_on();
+      set_fullscreen();
+   }
+   proc_display_change();
+}
+
+void mwDisplay::set_windowed(void)
+{
+   fullscreen = 0;
+   if (al_get_system_id() == ALLEGRO_SYSTEM_ID_XGLX)
+   {
+      al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, 0);
+      al_set_window_position(display, disp_x_wind, disp_y_wind);
+   }
+   else
+   {
+      al_set_display_flag(display, ALLEGRO_FRAMELESS, 0);
+      al_resize_display(display, disp_w_wind, disp_h_wind);
+      al_set_window_position(display, disp_x_wind, disp_y_wind);
+   }
+}
+
+void mwDisplay::set_fullscreen(void)
+{
+   fullscreen = 1;
+   if (al_get_system_id() == ALLEGRO_SYSTEM_ID_XGLX)
+   {
+      al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, 1);
+   }
+   else
+   {
+      ALLEGRO_MONITOR_INFO info;
+      al_get_monitor_info(fullscreen_monitor_num, &info);
+
+      disp_x_full = info.x1;
+      disp_y_full = info.y1;
+      disp_w_full = info.x2 - info.x1;
+      disp_h_full = info.y2 - info.y1;
+
+      al_set_display_flag(display, ALLEGRO_FRAMELESS, 1);
+      al_resize_display(display, disp_w_full, disp_h_full);
+      al_set_window_position(display, disp_x_full, disp_y_full);
+   }
+}
+
+void mwDisplay::set_fullscreen_monitor_num_to_monitor_current_window_is_on(void)
+{
+   int debug_print = 0;
+   if (debug_print) printf("Detecting which monitor the current window is on (window pos x:%d y:%d\n", disp_x_curr, disp_y_curr);
+   int mon = -1;
+   ALLEGRO_MONITOR_INFO info;
+   for (int i=0; i<al_get_num_video_adapters(); i++)
+   {
+      al_get_monitor_info(i, &info);
+      if ((disp_x_curr >= info.x1) && (disp_x_curr < info.x2) && (disp_y_curr >= info.y1) && (disp_y_curr < info.y2))
+      {
+         mon = i;
+         if (debug_print) printf("monitor:%d x1:%4d x2:%4d y1:%4d y2:%4d - window is on this monitor\n", i, info.x1, info.x2, info.y1, info.y2);
+      }
+      else
+         if (debug_print) printf("monitor:%d x1:%4d x2:%4d y1:%4d y2:%4d - window is not on this monitor\n", i, info.x1, info.x2, info.y1, info.y2);
+   }
+   if (mon == -1)
+   {
+      printf ("Error, cannot detect which monitor the current window is on! Using monitor 0.\n");
+      mon = 0;
+   }
+   fullscreen_monitor_num = mon;
+}
+
+
+
+
+
+
+
+
+after all that I am incrementing the release
+
+
+7.24.0225.2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

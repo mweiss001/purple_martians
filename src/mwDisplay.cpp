@@ -17,11 +17,8 @@
 #include "mwLevel.h"
 #include "mwShot.h"
 #include "mwLog.h"
-
 #include "mwVisualLevel.h"
-
 #include "mwMain.h"
-
 
 
 mwDisplay mDisplay;
@@ -75,6 +72,7 @@ A = P(1+r)^t
 A = P(1+r/n)^nt
 solve for mlt
 r = n( \nt/ A/P -1)
+
 in my case n = 1;
 A = P(1+r)^t
 r = (A/P)^(1/t)-1
@@ -187,19 +185,23 @@ void mwDisplay::enforce_valid_window_pos(void)
    int valid = 0;
 
    int th = 100; // threshold for less than x2, y2
-   if (debug_print) printf("window position -  x:%d y:%d\n", disp_x_wind, disp_y_wind);
+   if (debug_print) printf("Checking for valid window position - x:%d y:%d\n", disp_x_wind, disp_y_wind);
    int num_adapters = al_get_num_video_adapters();
    ALLEGRO_MONITOR_INFO info;
    for (int i=0; i<num_adapters; i++)
    {
       al_get_monitor_info(i, &info);
-      if ((disp_x_wind > info.x1) && (disp_x_wind < info.x2 - th) && (disp_y_wind > info.y1) && (disp_y_wind < info.y2 - th)) valid = 1;
-      if (debug_print) if (valid)  printf("    valid on monitor:%d x1:%d x2:%d y1:%d y2:%d  \n", i, info.x1, info.x2, info.y1, info.y2);
-      if (debug_print) if (!valid) printf("not valid on monitor:%d x1:%d x2:%d y1:%d y2:%d  \n", i, info.x1, info.x2, info.y1, info.y2);
+      if ((disp_x_wind >= info.x1) && (disp_x_wind < info.x2 - th) && (disp_y_wind >= info.y1) && (disp_y_wind < info.y2 - th))
+      {
+         valid = 1;
+         if (debug_print) printf("monitor:%d x1:%4d x2:%4d y1:%4d y2:%4d - valid \n"    , i, info.x1, info.x2, info.y1, info.y2);
+      }
+      else
+         if (debug_print) printf("monitor:%d x1:%4d x2:%4d y1:%4d y2:%4d - not valid \n", i, info.x1, info.x2, info.y1, info.y2);
    }
    if (!valid)
    {
-      if (debug_print) printf("window position (x:%d y:%d) not valid on any attached monitor, resetting to 100, 100 on primary display\n", disp_x_wind, disp_y_wind);
+      if (debug_print) printf("window position not valid on any attached monitor, resetting to 100, 100 on primary display\n");
       disp_x_wind = 100;
       disp_y_wind = 100;
    }
@@ -222,19 +224,14 @@ int mwDisplay::init_display(void)
       no_display = 1;
       return 0;
    }
-
    al_set_new_display_adapter(0);
-
    if (fullscreen_monitor_num > num_adapters) fullscreen_monitor_num = 0;
 
-   ALLEGRO_MONITOR_INFO aminfo;
-   al_get_monitor_info(0, &aminfo);
-   desktop_width  = aminfo.x2 - aminfo.x1;
-   desktop_height = aminfo.y2 - aminfo.y1;
+   ALLEGRO_MONITOR_INFO info;
+   al_get_monitor_info(0, &info);
+   desktop_width  = info.x2 - info.x1;
+   desktop_height = info.y2 - info.y1;
    printf("Desktop Resolution: %dx%d\n", desktop_width, desktop_height);
-
-
-
 
    //show_display_adapters();
    //show_fullscreen_modes();
@@ -255,26 +252,8 @@ int mwDisplay::init_display(void)
 
    //show_disp_values(0, 0, 1, 1, 1, "pc");
 
-   mConfig.save_config();
-
    al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
    display = al_create_display(disp_w_wind, disp_h_wind);
-
-   if (fullscreen) set_fullscreen();
-
-   al_set_window_constraints(display, 320, 240, 0, 0);
-   al_apply_window_constraints(display, 1);
-
-   mConfig.save_config();
-
-
-//   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_OPENGL ;
-//   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL;
-
-//   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0;
-//   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0;
-
-//   al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
 
 
    if(!display)
@@ -282,14 +261,17 @@ int mwDisplay::init_display(void)
       mInput.m_err("Error creating display");
       exit(0);
    }
-   if (!fullscreen) al_set_window_position(display, disp_x_wind, disp_y_wind);
-   if (fullscreen)  al_resize_display(display, disp_w_full, disp_h_full);
-   al_acknowledge_resize(display);
+
+   if (fullscreen) set_fullscreen();
+   else set_windowed();
+
+   al_set_window_constraints(display, 320, 240, 0, 0);
+   al_apply_window_constraints(display, 1);
+
+   refresh_window_position_and_size();
+   mConfig.save_config();
 
 
-   disp_w_curr = al_get_display_width(display);
-   disp_h_curr = al_get_display_height(display);
-   al_get_window_position(display, &disp_x_curr, &disp_y_curr);
    //printf("x:%d y:%d w:%d h:%4d\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
 
    set_display_transform();
@@ -309,10 +291,26 @@ int mwDisplay::init_display(void)
 
 void mwDisplay::proc_display_change(void)
 {
-   al_acknowledge_resize(display);                              // important that this is here, later and it does not work as intended
-   al_get_window_position(display, &disp_x_curr, &disp_y_curr); // set my local variables with the system ones
+   //printf("proc_display_change\n");
+   al_acknowledge_resize(display); // important that this is here, later and it does not work as intended
+
+   refresh_window_position_and_size();
+   set_display_transform();
+   mBitmap.rebuild_bitmaps();
+   mConfig.save_config();
+   //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
+   set_window_title();
+}
+
+
+// when the window is moved, no events are sent (in linux)
+// this function will poll and update display variables
+void mwDisplay::refresh_window_position_and_size(void)
+{
+   al_get_window_position(display, &disp_x_curr, &disp_y_curr);
    disp_w_curr = al_get_display_width(display);
    disp_h_curr = al_get_display_height(display);
+
    if (fullscreen)
    {
       disp_x_full = disp_x_curr;
@@ -327,63 +325,79 @@ void mwDisplay::proc_display_change(void)
       disp_w_wind = disp_w_curr;
       disp_h_wind = disp_h_curr;
    }
-   set_display_transform();
-   mBitmap.rebuild_bitmaps();
-   mConfig.save_config();
-   //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
-   set_window_title();
-
 }
-
-
-void mwDisplay::save_display_window_position(void)
-{
-// This is automatically done when the display is resized or switched to fullscreen, but not when the window is simply moved
-// So I also call this when exiting to save window position.
-
-   if (!fullscreen)
-   {
-      al_get_window_position(display, &disp_x_wind, &disp_y_wind);
-      disp_w_wind = al_get_display_width(display);
-      disp_h_wind = al_get_display_height(display);
-      mConfig.save_config();
-   }
-}
-
 
 void mwDisplay::toggle_fullscreen(void)
 {
-   if (fullscreen) proc_display_change_fromfs();
-   else            proc_display_change_tofs();
+   if (fullscreen) // change from fullscreen to windowed
+   {
+      set_windowed();
+   }
+   else // change from windowed to fullscreen
+   {
+      // update current position of window (this line is needed for linux)
+      al_get_window_position(display, &disp_x_wind, &disp_y_wind);
+      if (al_get_system_id() != ALLEGRO_SYSTEM_ID_XGLX) set_fullscreen_monitor_num_to_monitor_current_window_is_on();
+      set_fullscreen();
+   }
+   proc_display_change();
 }
 
-
+void mwDisplay::set_windowed(void)
+{
+   fullscreen = 0;
+   if (al_get_system_id() == ALLEGRO_SYSTEM_ID_XGLX)
+   {
+      al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, 0);
+      al_set_window_position(display, disp_x_wind, disp_y_wind);
+   }
+   else
+   {
+      al_set_display_flag(display, ALLEGRO_FRAMELESS, 0);
+      al_resize_display(display, disp_w_wind, disp_h_wind);
+      al_set_window_position(display, disp_x_wind, disp_y_wind);
+   }
+}
 
 void mwDisplay::set_fullscreen(void)
 {
-   ALLEGRO_MONITOR_INFO info;
-   al_get_monitor_info(fullscreen_monitor_num, &info);
+   fullscreen = 1;
+   if (al_get_system_id() == ALLEGRO_SYSTEM_ID_XGLX)
+   {
+      al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, 1);
+   }
+   else
+   {
+      ALLEGRO_MONITOR_INFO info;
+      al_get_monitor_info(fullscreen_monitor_num, &info);
 
-   disp_x_full = info.x1;
-   disp_y_full = info.y1;
+      disp_x_full = info.x1;
+      disp_y_full = info.y1;
+      disp_w_full = info.x2 - info.x1;
+      disp_h_full = info.y2 - info.y1;
 
-   disp_w_full = info.x2 - info.x1;
-   disp_h_full = info.y2 - info.y1;
-
-   al_set_display_flag(display, ALLEGRO_FRAMELESS, 1);
-   al_resize_display(display, disp_w_full, disp_h_full);
-   al_set_window_position(display, disp_x_full, disp_y_full);
+      al_set_display_flag(display, ALLEGRO_FRAMELESS, 1);
+      al_resize_display(display, disp_w_full, disp_h_full);
+      al_set_window_position(display, disp_x_full, disp_y_full);
+   }
 }
-
 
 void mwDisplay::set_fullscreen_monitor_num_to_monitor_current_window_is_on(void)
 {
+   int debug_print = 0;
+   if (debug_print) printf("Detecting which monitor the current window is on (window pos x:%d y:%d\n", disp_x_curr, disp_y_curr);
    int mon = -1;
    ALLEGRO_MONITOR_INFO info;
    for (int i=0; i<al_get_num_video_adapters(); i++)
    {
       al_get_monitor_info(i, &info);
-      if ((disp_x_wind > info.x1) && (disp_x_wind < info.x2) && (disp_y_wind > info.y1) && (disp_y_wind < info.y2)) mon = i;
+      if ((disp_x_curr >= info.x1) && (disp_x_curr < info.x2) && (disp_y_curr >= info.y1) && (disp_y_curr < info.y2))
+      {
+         mon = i;
+         if (debug_print) printf("monitor:%d x1:%4d x2:%4d y1:%4d y2:%4d - window is on this monitor\n", i, info.x1, info.x2, info.y1, info.y2);
+      }
+      else
+         if (debug_print) printf("monitor:%d x1:%4d x2:%4d y1:%4d y2:%4d - window is not on this monitor\n", i, info.x1, info.x2, info.y1, info.y2);
    }
    if (mon == -1)
    {
@@ -392,54 +406,6 @@ void mwDisplay::set_fullscreen_monitor_num_to_monitor_current_window_is_on(void)
    }
    fullscreen_monitor_num = mon;
 }
-
-
-
-
-void mwDisplay::proc_display_change_tofs(void)
-{
-   //printf("\n-----------to fullscreen------------\n");
-   fullscreen = 1;
-
-   // save window position and size before entering fullscreen
-   al_get_window_position(display, &disp_x_wind, &disp_y_wind);
-   disp_w_wind = al_get_display_width(display);
-   disp_h_wind = al_get_display_height(display);
-
-   set_fullscreen_monitor_num_to_monitor_current_window_is_on();
-   set_fullscreen();
-
-   proc_display_change();
-}
-
-void mwDisplay::proc_display_change_fromfs(void)
-{
-   //printf("\n-----------to windowed--------------\n");
-   fullscreen = 0;
-
-   al_set_display_flag(display, ALLEGRO_FRAMELESS, 0);
-
-   // al_acknowledge_resize(display); // this is also done in proc_display_change(); i am trying to comment this out to see if it is necessary here also
-
-   // here is one of the few places I will set xywh from my local variables
-   al_resize_display(display, disp_w_wind, disp_h_wind);
-   al_set_window_position(display, disp_x_wind, disp_y_wind);
-
-   proc_display_change();
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -725,6 +691,7 @@ void mwDisplay::set_window_title(void)
 //   sprintf(msg, "Purple Martians %s   [%d x %d]", mLoop.pm_version_string, sw, sh);
    sprintf(msg, "Purple Martians [%d x %d]", sw, sh);
 //   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", mLoop.pm_version_string, SW, SH, sw, sh, display_transform_double);
+
    al_set_window_title(display, msg);
 }
 

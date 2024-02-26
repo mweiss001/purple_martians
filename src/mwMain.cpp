@@ -20,7 +20,8 @@ mwMain mMain;
 
 void mwMain::final_wrapup(void)
 {
-   mDisplay.save_display_window_position();
+   mDisplay.refresh_window_position_and_size();
+   mConfig.save_config();
 
    al_destroy_audio_stream(mSound.pm_theme_stream);
 /*

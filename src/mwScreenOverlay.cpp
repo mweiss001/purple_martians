@@ -735,6 +735,48 @@ void mwScreen::draw_common_debug_overlay(int p, int &cx, int &cy)
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "frames per second:%d", mLoop.frame_speed); cy+=9;
       cy +=4;
       mLog.add_tmr1(LOG_TMR_scrn_overlay, 0, "scov_dbgcom", al_get_time() - t0);
+
+
+
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "wind: x:%5d y:%5d w:%5d h:%5d", mDisplay.disp_x_wind, mDisplay.disp_y_wind, mDisplay.disp_w_wind, mDisplay.disp_h_wind);
+   cy+=9;
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "full: x:%5d y:%5d w:%5d h:%5d", mDisplay.disp_x_full, mDisplay.disp_y_full, mDisplay.disp_w_full, mDisplay.disp_h_full);
+   cy+=9;
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "curr: x:%5d y:%5d w:%5d h:%5d", mDisplay.disp_x_curr, mDisplay.disp_y_curr, mDisplay.disp_w_curr, mDisplay.disp_h_curr);
+   cy+=9;
+
+
+
+   ALLEGRO_MONITOR_INFO info;
+   for (int i=0; i<al_get_num_video_adapters(); i++)
+   {
+      al_get_monitor_info(i, &info);
+      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "monitor:%d x1:%5d x2:%5d y1:%5d y2:%5d", i, info.x1, info.x2, info.y1, info.y2);
+      cy+=9;
+   }
+
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "Fullscreen:%d", mDisplay.fullscreen);
+   cy+=9;
+
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "Fullscreen Monitor:%d", mDisplay.fullscreen_monitor_num);
+   cy+=9;
+
+
+   // window is on monitor
+   for (int i=0; i<al_get_num_video_adapters(); i++)
+   {
+      al_get_monitor_info(i, &info);
+      if ((mDisplay.disp_x_wind >= info.x1) && (mDisplay.disp_x_wind < info.x2) && (mDisplay.disp_y_wind >= info.y1) && (mDisplay.disp_y_wind < info.y2))
+         al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "Window is on monitor:%d", i);
+      else
+         al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "Window is not on monitor:%d", i);
+
+      cy+=9;
+   }
+
+
    }
    if (mSettings.overlay_grid[2][mLoop.show_debug_overlay])
    {
