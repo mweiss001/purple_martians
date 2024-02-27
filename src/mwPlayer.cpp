@@ -948,33 +948,21 @@ void mwPlayer::proc_player_ladder(int p)
 
 void mwPlayer::move_players(void)
 {
-   int debug_print = 0;
-
-   if (debug_print) printf("testmp0\n");
-
    if (mMain.headless_server)
    {
       syn[0].paused = 1;
       syn[0].paused_type = 3;
    }
-
-
-
    for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      mScreen.proc_player_text_overlay_timer(p);
       if (syn[p].active)
       {
-         if (debug_print) printf("testmp1:%d\n", p);
 
          if (syn[p].paused) proc_player_paused(p);
          else // not paused
          {
-            if (debug_print) printf("testmp2\n");
-
             reset_player_scale_and_rot(p);
-
-            if (debug_print) printf("testmp3\n");
-
-
             if (is_player_riding_rocket(p)) proc_player_riding_rocket(p);
             else // not riding rocket
             {
@@ -984,22 +972,16 @@ void mwPlayer::move_players(void)
                   //proc_player_xy_move_test(p);
                   proc_player_xy_move(p);
             }
-
-
-            if (debug_print) printf("testmp4\n");
-
-
             // common to all not paused modes
             mShot.proc_player_shoot(p);
-            if (debug_print) printf("testmp5\n");
             mItem.proc_player_carry(p);
-            if (debug_print) printf("testmp6\n");
             proc_player_collisions(p);
             proc_player_health(p);
             proc_player_bounds_check(p);
             proc_player_stuck_in_blocks(p);
          }
       }
+   }
 }
 
 

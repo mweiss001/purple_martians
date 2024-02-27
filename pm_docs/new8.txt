@@ -46977,17 +46977,43 @@ void mwDisplay::set_fullscreen_monitor_num_to_monitor_current_window_is_on(void)
    fullscreen_monitor_num = mon;
 }
 
-
-
-
-
-
-
-
 after all that I am incrementing the release
 
+7.24.0225.4
 
-7.24.0225.2
+20240226
+
+today at work I changed the radio and the static IP changed, now 96.45.9.166 (used to be 96.45.13.220)
+
+
+I ran a sppedtest ony my radio while full fakekey game...game went stupid while test was running but recovered....
+
+got 323/93 on speedtest
+
+i normally get 4 down and 1 up while running ffg
+the server radio gets the reverse 3.3 up and 0.3 down
+
+
+
+can I fix the stuttering of the plyer txt messages by not decrementing unless not ff...no...
+I think the actual problem is that they dont get decremented in rewind
+I should move the dec to the move player code (it is guaranteed to run once per frame, is ff safe, etc...)
+that is so smooth now...!!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

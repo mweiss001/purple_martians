@@ -4,9 +4,20 @@
 
 after 8 hour netgame, player text screen messages were stuck in one place...maybe fixed can not reporduce
 
+
+
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+
+
+
+
+
 
 
 what to do to release?
