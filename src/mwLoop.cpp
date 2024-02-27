@@ -1008,8 +1008,6 @@ void mwLoop::main_loop(void)
             // ------------------------------
             mGameMoves.proc();
 
-            mPacketBuffer.check_for_packets();
-
             // ------------------------------
             // move
             // ------------------------------
@@ -1027,15 +1025,14 @@ void mwLoop::main_loop(void)
                mLog.add_tmr1(LOG_TMR_sdif, 0, "sdif", al_get_time() - t0);
             }
 
-
-            mPacketBuffer.check_for_packets();
-
             // ------------------------------
             // draw
             // ------------------------------
             mDrawSequence.ds_draw(0, 1);
 
+
             mPacketBuffer.check_for_packets();
+
 
             // --------------------------------------------
             // measure time to process loop

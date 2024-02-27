@@ -150,7 +150,13 @@ class mwScreen
    // screen overlay
    int player_text_overlay_timer_reset_val = 80;
    void add_player_text_overlay(int p, int type);
-   void proc_player_text_overlay_timers(void);
+
+
+//   void proc_player_text_overlay_timers(void);
+
+   void proc_player_text_overlay_timer(int p);
+
+
    void draw_player_text_overlay(void);
 
    int dif_from_now_to_nl();
