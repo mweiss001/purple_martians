@@ -83,12 +83,11 @@ void mwDemoMode::play_demo_for_stats(void)
 
    for (int p=0; p<NUM_PLAYERS; p++)
    {
-      mPlayer.init_player(p, 1);        // full reset
+      mPlayer.init_player(p, 1);      // full reset
       mItem.set_player_start_pos(p);  // get starting position for all players, active or not
    }
    mPlayer.syn[0].active = 1;
-   mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE; // to ensure that all added players are this mode also
-
+   mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
 
    int os = mSound.sound_on;
    mSound.sound_on = 0;
@@ -117,11 +116,8 @@ void mwDemoMode::play_all_demos_and_save_stats(int x, int y)
    demo_debug_running_demo_saves_level_data = 1; // force save stats
    for (int i=0; i<num_demo_filenames; i++)
    {
-      //printf("index:%d\n",i);
       mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[i]));
-
       play_demo_for_stats();
-
       mScreen.draw_percent_bar(x, y, 200, 20, (i+1)*100 / num_demo_filenames);
       al_flip_display();
    }
@@ -193,8 +189,7 @@ int mwDemoMode::load_random_demo(void)
    if (mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[index])))
    {
       char msg[64];
-      if (debug_print) printf("Demo Mode random file chooser - pass:[%d] index:[%2d] level:[%2d]\n", pass, index, mLevel.play_level);
-      printf("Demo Mode Random - pass:[%d] lev:[%2d] %s\n", pass, mLevel.play_level, mMiscFnx.chrms(mDemoMode.last_frame, msg));
+      if (debug_print) printf("Demo Mode random file chooser - pass:[%d] lev:[%2d] %s\n", pass, mLevel.play_level, mMiscFnx.chrms(mDemoMode.last_frame, msg));
       return 1;
    }
    else

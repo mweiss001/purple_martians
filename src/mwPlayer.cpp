@@ -1278,6 +1278,7 @@ void mwPlayer::init_player(int p, int t)
       loc[p].hostname[0] = 0;
       loc[p].who = 99;
       loc[p].fake_keypress_mode = 0;
+      syn[p].server_force_fakekey = 0;
 
       init_player(p, 17); // clear player common
       init_player(p, 21); // clear netgame counters, etc

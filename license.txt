@@ -2,7 +2,7 @@
 This project is licensed under the zlib license.
 
 -----------------------------------------------------------------------------
-Copyright (c) <1997-2023> <Michael David Weiss>
+Copyright (c) <1997-2024> <Michael David Weiss>
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any damages
@@ -23,10 +23,8 @@ freely, subject to the following restrictions:
 
 Source code available on github: https://github.com/mweiss001/purple_martians
 
-If you play the game or clone the repository, I humbly request that you do the following:
+If you play the game or clone the repository, I would appreciate feedback of any kind!
 
-- Send me an email (mweiss001@gmail.com)
+Please send me an email (mweiss001@gmail.com) with any feedback, thoughts, impressions, etc...
 
-- Create a new level for the game and attach it to the email you sent me.
-
-- Promise not to laugh at the nasty hacks and kludges in my code!
+Or what would be really amazing, if you created a new level for the game and sent it to me!
