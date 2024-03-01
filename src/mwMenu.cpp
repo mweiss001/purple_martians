@@ -104,7 +104,6 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
 */
 
 {
-
    init_zmenu(menu_num);
 
    int y = mScreen.menu_y;
@@ -116,11 +115,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
    if (menu_num == 1) demo_mode_menu_item_num = 7;
    if (menu_num == 2) demo_mode_menu_item_num = 4;
 
-
    int highlight = menu_pos;
-
-   //printf("highlight:%d\n", highlight);
-
 
    int selection = 999;
    int last_list_item;
@@ -134,16 +129,12 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
 
    while (selection == 999)
    {
-
-
-
       al_set_target_backbuffer(mDisplay.display);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
-      while (!mEventQueue.menu_update) mEventQueue.proc_menu();
+      while (!mEventQueue.menu_update) mEventQueue.proc_menu(); // block while waiting for menu timer
       mEventQueue.menu_update = 0;
-
 
       mx = mScreen.menu_x; // re-load every frame in case screen size changes
 
@@ -156,7 +147,6 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
       if (mMain.classic_mode) mScreen.draw_level_info();
 
       mScreen.frame_and_title();
-
 
       if (demo_mode_menu_item_num)
       {
@@ -180,17 +170,12 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
          sprintf(menu_string[demo_mode_menu_item_num], "Demo Current Level");
       }
 
-
 //      debug draw rectangle around menu area
 //      float hx1 = mx - mScreen.menu_w/2;
 //      float hx2 = mx + mScreen.menu_w/2;
 //      float hy1 = y;
 //      float hy2 = y + mScreen.menu_h;
 //      al_draw_rectangle(hx1-1, hy1, hx2+1, hy2, mColor.pc[10], 0);
-
-
-
-
 
       // draw the menu items
       int c = 0;
@@ -217,9 +202,6 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
             }
          }
 
-
-
-
          if (c == highlight) al_draw_rectangle(mix1+0.5f, miy1+0.5f, mix2+0.5f, miy2+0.5f, mColor.pc[b+80], 1);
          al_draw_text(mFont.pr8, mColor.pc[b], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, menu_string[c]);
          c++;
@@ -245,11 +227,7 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
       if (((mInput.key[ALLEGRO_KEY_DOWN][0]) || (mPlayer.syn[0].down))  && (down_held == 0))
       {
          if (++highlight > last_list_item) highlight = last_list_item;
-
          if ((menu_num == 1) && (!mLevel.resume_allowed) && (highlight == 2)) highlight = 3; // skip
-
-
-
          down_held = 1;
          mDemoMode.countdown_val = mDemoMode.countdown_reset;
          mDemoMode.autoplay_enabled = 0;
@@ -268,28 +246,25 @@ int mwMenu::zmenu(int menu_num, int menu_pos)
       }
       if ( (!(mInput.key[ALLEGRO_KEY_UP][0])) && (!(mPlayer.syn[0].up))) up_held = 0;
 
+
       if (menu_num == 1)
       {
          // shortcut keys
-         if (mInput.key[ALLEGRO_KEY_L][0])                                    return 6; // level editor
-         if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 5; // settings
+         //if (mInput.key[ALLEGRO_KEY_L][0])                                    return 6; // level editor
+         //if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 5; // settings
          //if (mInput.key[ALLEGRO_KEY_D][0])                                    return 66; // demo record
       }
       if (menu_num == 2)
       {
          // shortcut keys
-         if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 3; // settings
+         //if (mInput.key[ALLEGRO_KEY_O][0] && mInput.SHFT() && mInput.CTRL() ) return 3; // settings
       }
       if (mInput.key[ALLEGRO_KEY_PGDN][0])   highlight = last_list_item;
       if (mInput.key[ALLEGRO_KEY_PGUP][0])   highlight = 0;
       if (mInput.key[ALLEGRO_KEY_ENTER][0])  selection = highlight;
       if (mInput.key[ALLEGRO_KEY_ESCAPE][0]) selection = -1;
 
-
       if (mLevel.skc_trigger_demo) selection = 666;
-
-
-
 
    }
    return selection;

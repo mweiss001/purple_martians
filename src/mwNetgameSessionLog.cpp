@@ -6,6 +6,7 @@
 #include "mwMiscFnx.h"
 #include "mwLog.h"
 
+
 void mwNetgame::session_clear_entry(int i)
 {
    client_sessions[i].active = 0;
@@ -49,8 +50,6 @@ void mwNetgame::session_clear_entry(int i)
 }
 
 
-
-
 // adds current player tally things to session tally
 void mwNetgame::session_tally(int i)
 {
@@ -80,12 +79,6 @@ void mwNetgame::session_tally(int i)
 }
 
 
-
-
-
-
-
-
 void mwNetgame::session_flush_active_at_server_exit(void)
 {
    for (int i=0; i<16; i++)
@@ -97,7 +90,6 @@ void mwNetgame::session_flush_active_at_server_exit(void)
          session_add_log(i);
       }
 }
-
 
 
 void mwNetgame::session_save_active_at_level_done(void)
@@ -126,6 +118,9 @@ int mwNetgame::session_get_empty(void)
       }
    return ei;
 }
+
+
+
 
 
 int mwNetgame::session_get_index_from_who(int who)
@@ -188,30 +183,44 @@ void mwNetgame::session_add_entry(const char* address, int who)
    }
 }
 
+// this is called from game moves when client goes active
+void mwNetgame::session_update_entry_client_active(int p)
+{
+   int who = mPlayer.loc[p].who;
+   int i = session_get_index_from_who(who);
+   if (i != -1)
+   {
+      client_sessions[i].status = 2;
+      client_sessions[i].player_num = p;
+      sprintf(client_sessions[i].host_name, "%s", mPlayer.loc[p].hostname);
+      session_add_log(i);
+   }
+}
 
-void mwNetgame::session_update_entry(int who, int status, const char* hostname, int player_num)
+// this is called when server receives cjon and server is full
+void mwNetgame::session_close_entry_server_full(int who, const char* hostname)
 {
    int i = session_get_index_from_who(who);
    if (i != -1)
    {
-      client_sessions[i].status = status;
-      client_sessions[i].player_num = player_num;
+      client_sessions[i].active = 0;
+      client_sessions[i].status = 10;
       sprintf(client_sessions[i].host_name, "%s", hostname);
       session_add_log(i);
    }
 }
 
 
-// this will replace any exsiting log with the exact name
+
+// this will replace any existing log with the exact name
 void mwNetgame::session_add_log(int i)
 {
 
    // this will be a little differenr
 
-   // files are used as temp persistant storage, so i cant really just print to console
+   // files are used as temp persistant storage, so I really can't just print to console
    // if file is not on, nothing will be saved
    // print is optional is file is on
-
 
 
 /*
@@ -222,11 +231,9 @@ void mwNetgame::session_add_log(int i)
    if (mLog.log_types[LOG_NET_session].action & LOG_ACTION_LOG)
    {
 
-
       al_make_directory("logs/session"); // create if not already created
       char filename[256];
       sprintf(filename, "logs/session/%s.txt", client_sessions[i].session_name);
-
 
 
       FILE *filepntr;
@@ -309,7 +316,6 @@ void mwNetgame::session_add_log(int i)
 
       fclose(filepntr);
 
-
       if (mLog.log_types[LOG_NET_session].action & LOG_ACTION_PRINT) // open the file and print it
       {
          printf("\nAdded Log Entry:%s\n", filename);
@@ -350,6 +356,8 @@ void mwNetgame::session_drop_player(int p)
       }
 }
 
+
+// this is called every frame from server_control() to check and clean up active sessions
 void mwNetgame::session_check_active(void)
 {
    for (int i=0; i<16; i++)
@@ -366,21 +374,12 @@ void mwNetgame::session_check_active(void)
                session_add_log(i);
             }
          }
-
-         if (client_sessions[i].status == 10) // never started due to server full
+         if (client_sessions[i].status == 2) // active client session
          {
-            client_sessions[i].active = 0;
-            session_add_log(i);
-         }
-
-         if (client_sessions[i].status == 2) // active client
-         {
-            int p = client_sessions[i].player_num;
-            if (!mPlayer.syn[p].active)
+            if (!mPlayer.syn[client_sessions[i].player_num].active) // client is not active anymore
             {
                client_sessions[i].active = 0;
                client_sessions[i].status = 30;
-
                session_tally(i);
                session_add_log(i);
             }

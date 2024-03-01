@@ -558,7 +558,6 @@ void mwLoop::proc_program_state(void)
          mNetgame.ServerFlush();
          mLog.log_ending_stats_server(LOG_NET_ending_stats);
          if (++mPlayer.syn[0].server_lev_seq_num > 255) mPlayer.syn[0].server_lev_seq_num = 0;
-
          if (mLog.log_types[LOG_NET_session].action) mNetgame.session_save_active_at_level_done();
       }
       if (mLog.autosave_log_on_level_done) mLog.save_log_file();

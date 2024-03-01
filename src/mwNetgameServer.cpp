@@ -469,11 +469,7 @@ void mwNetgame::server_proc_rctl_packet(int i)
       if (new_pvs) sc |= 0b10;
       mGameMoves.add_game_move2(mLoop.frame_num+1, PM_GAMEMOVE_TYPE_SHOT_CONFIG, sc, new_dmg);
    }
-
-
    if (type == PM_RCTL_PACKET_TYPE_server_reload) server_reload((int)val);
-
-
    if (type == PM_RCTL_PACKET_TYPE_fakekey_toggle) mPlayer.syn[0].server_force_fakekey = !mPlayer.syn[0].server_force_fakekey;
    if (type == PM_RCTL_PACKET_TYPE_force_client_offset) mPlayer.syn[0].server_force_client_offset = !mPlayer.syn[0].server_force_client_offset;
 
@@ -671,7 +667,7 @@ void mwNetgame::server_proc_cjon_packet(int i)
       mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
       mLog.add_fwf(LOG_NET, 0, 76, 10, "+", "-", "");
       server_send_sjon_packet(who, 0, 0, 99, 0);
-      if (mLog.log_types[LOG_NET_session].action) session_update_entry(who, 10, temp_name, p);
+      if (mLog.log_types[LOG_NET_session].action) session_close_entry_server_full(who, temp_name);
    }
    else // inactive player found, proceed with join
    {
@@ -697,8 +693,6 @@ void mwNetgame::server_proc_cjon_packet(int i)
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Frame:[%d]", mLoop.frame_num);
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Level Sequence Num:[%d]", mPlayer.syn[0].server_lev_seq_num);
       mLog.add_fwf(LOG_NET,               0, 76, 10, "+", "-", "");
-
-      if (mLog.log_types[LOG_NET_session].action) session_update_entry(who, 2, temp_name, p);
    }
 }
 

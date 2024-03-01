@@ -239,7 +239,11 @@ class mwNetgame
    int session_get_index_from_who(int who);
 
    void session_add_entry(const char* address, int who);
-   void session_update_entry(int who, int status, const char* hostname, int player_num);
+//   void session_update_entry(int who, int status, const char* hostname, int player_num);
+
+   void session_close_entry_server_full(int who, const char* hostname);
+   void session_update_entry_client_active(int p);
+
 
    void session_add_log(int i);
    void session_drop_player(int p);

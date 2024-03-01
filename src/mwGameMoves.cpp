@@ -245,7 +245,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       // ----------------------------------------------------------------------------------------
       // single player mode quit - do not enter inactive game move (so game can be resumed)
       // ----------------------------------------------------------------------------------------
-      if ((mPlayer.active_local_player == 0) && (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER))
+      if ((mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) && (mPlayer.active_local_player == 0))
       {
          mLoop.state[0] = PM_PROGRAM_STATE_MENU;
          mLevel.resume_allowed = 1;
@@ -286,7 +286,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
          }
          else // client quitting
          {
-            add_game_move2(frame + 2, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, PM_PLAYER_QUIT_REASON_SERVER_ENDED_GAME);
+            add_game_move2(frame + 2, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, PM_PLAYER_QUIT_REASON_CLIENT_ENDED_GAME);
             return;
          }
       }
@@ -296,6 +296,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       // ----------------------------------------------------------------------------------------
       if (mNetgame.ima_client)
       {
+         // should I do this? or should I just wait for the server to do it??
          add_game_move2(frame + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, PM_PLAYER_QUIT_REASON_CLIENT_ENDED_GAME);
          return;
       }
@@ -349,6 +350,9 @@ void mwGameMoves::proc_game_move_player_active(int x)
 
       if ((mNetgame.ima_server) || (mNetgame.ima_client))
          if (p != mPlayer.active_local_player) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
+
+      // update session when client becomes active on server
+      if ((mNetgame.ima_server) && (mLog.log_types[LOG_NET_session].action)) mNetgame.session_update_entry_client_active(p);
 
       // if player 0 is file play all added players will be too
       if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;

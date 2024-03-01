@@ -47000,170 +47000,208 @@ I think the actual problem is that they dont get decremented in rewind
 I should move the dec to the move player code (it is guaranteed to run once per frame, is ff safe, etc...)
 that is so smooth now...!!!
 
+new release 7.24.0226.1
 
 
+bug - server fakekey, client quits...
+but fakekey is still active, and client is now stuck in a single player fakekey game with no escape!!!
 
+// fakekey mode
+if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey))
 
+added this:
 
+void mwPlayer::init_player(int p, int t)
+{
+   if (t == 1) // new game
+   {
+      loc[p].fake_keypress_mode = 0;
+      syn[p].server_force_fakekey = 0;
 
+that seems to fix it...
 
+how to transfer files from linux machine with pscp
 
+pscp -pw zaiden m@96.45.13.220:2024*.mp4 c:\pm
 
 
+Have I disabled the level editor shortcut keys?
+Look at all menu shortcut keys...
+disabled them by commenting out the relevant lines
 
 
 
+20240229
 
 
 
 
+after running for many hours, remote control graphs are frozen and time is frozen
+but the buttons still work to enable disable fakekey
+I think it is just scat...
+scat cannot join anymore, its like it can send to server but not get reply
+the next morning after sitting all night scat can join with no problems
 
 
 
+test my session logs, I think most are blank?
+pscp -pw zaiden m@96.45.9.166:dev/purple_martians/logs/session/* c:\pm\logs
+they all are...why?
 
+test, but now cant join...
+shut down server, update router...
 
+old router firmaware
+Nighthawk R7000P
+Firmware V1.3.1.64_10.1.36
 
+New firmware is found. Do you want to update the firmware?
+Current GUI Language Version: 	1.3.1.64_2.1.38.1
+New GUI Language Version: 	1.3.2.126_2.1.38.1
+Current Firmware Version 	1.3.1.64
+New Firmware Version 	1.3.2.134_10.1.66
+Release Notes:
+ 1.   [Security Fixes] This firmware addresses security vulnerabilities.
+ 2.   [Bug Fixes] Fixes the issue where the Armor status displays as activated when the NETGEAR account expired.
+ 3.   [Bug Fixes] Fixes the issue where the Armor status does not sync between the Nighthawk app and the router web interface after activating Armor from the app.
+ 4.   [Bug Fixes] Fixes the issue where the Nighthawk app displays an error message when accessing ReadyCLOUD from an Android device.
+ 5.   [Bug Fixes] Fixes the issue where a previous Armor account displays incorrectly after logging into another Armor account.
+ 6.   [Bug Fixes] Fixes the issue where an active page window displays when using another Armor account.
+ 7.   [Bug Fixes] Fixes the issue where if the device name for blocked devices is changed, the device becomes unblocked.
+ 8.   [Bug Fixes] Fixes the issue where a "Router Not Found" error message displays incorrectly during the installation process while using the Nighthawk app for iOS.
+ 9.   [Bug Fixes] Fixes the issue where the guest WiFi password fails when applying special characters.
+ 10.   [Bug Fixes] Fixes the issue where the Armor expiration date does not refresh automatically.
+ 11.   [Bug Fixes] Fixes the issue where if the time is up for the Time Limits or Off Time features, the user is redirected to the Meet Circle web page.
+ 12.   [Bug Fixes] Fixes the issue where the user can set the same SSID for both the 2.4 GHz and 5 GHz guest WiFi networks.
+ 13.   [Bug Fixes] Fixes the issue where the Nighthawk app displays an "Internet can't connect" message when the WAN is set to PPPoE mode.
+ 14.   [Bug Fixes] Fixes the error issue when enabling or disabling Circle using the Nighthawk app.
+ 15.   [Bug Fixes] Fixes the display issue for the Attached Devices page.
+ 16.   [Bug Fixes] Fixes the issue where if the device name or type is changed using the Nighthawk app, the update does not display in the router web interface.
 
 
+Sucessfully updated to V1.3.2.134_10.1.66
 
 
+logs are still blank?
 
+try local?
 
+what settings do I need to save logs?
 
+if (mLog.log_types[LOG_NET_session].action & LOG_ACTION_LOG)
 
 
+they seem to save
 
+Added Log Entry:logs/session/20240228054656_192.168.1.109_24785.txt
+Timestamp:20240228054656
+Duration:0.0s
+IP:192.168.1.109
+Port:24785
+Host Name:
 
+Session Open
+Status:1 - Waiting
 
+cdat's Received:0
 
+Added Log Entry:logs/session/20240228054656_192.168.1.109_24785.txt
+Timestamp:20240228054656
+Duration:0.0s
+IP:192.168.1.109
+Port:24785
+Host Name:e6430
 
+Session Open
+Status:2 - Running
 
+cdat's Received:0
 
+Added Log Entry:logs/session/20240228054656_192.168.1.109_24785.txt
+Timestamp:20240228054656
+Duration:0.3s
+IP:192.168.1.109
+Port:24785
+Host Name:e6430
 
+Session Closed
+Status:30 - Player became inactive
 
+cdat's Received:0
 
+but no cdats received?...is something erasing that info....
 
+server receives cdat from client with quit....
 
+server calls:
 
+mGameMoves.add_game_move(cdat_frame_num, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, cm); // add to game_move array
 
+then that calls:
 
+add_game_move2(frame + 2, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, PM_PLAYER_QUIT_REASON_CLIENT_ENDED_GAME);
 
+then when that game move is processed:
 
+      mPlayer.syn[p].active = 0;
 
+      if (mNetgame.ima_server)
+      {
+         if (p == 0) // local server player quit
+         {
+            // printf("Local Server Player Quit:%d\n", mLoop.frame_num);
+            if (!mLoop.ff_state) mLog.log_ending_stats_server(LOG_NET_ending_stats);
+            mLoop.state[0] = PM_PROGRAM_STATE_SERVER_EXIT;
+         }
+         else // client quit on server
+         {
+            // printf("Client Quit on Server:%d\n", mLoop.frame_num);
+            if (!mLoop.ff_state) mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
 
 
+the ending stats show the proper info
 
+they are printed after the close session stuff which shows all zeros
 
+is something erasing it?...
 
+no I think I finally found the problem...
 
 
+the session is getting closed way too soon
 
+like immediately after join...
 
 
+let me guess, when I changed the way the server makes players active from doing it immediately to adding game move...
+this makes it so that the session is in mode 2, but the player is not active yet!
 
+could move that session mode 2 to where the player becaome active....
 
 
+that seems to work...
 
 
+i want to do something with:
+session_update_entry(int who, int status, const char* hostname, int player_num)
 
+it is only used:
 
+when client joins and become active
 
+when server denies client join because of full
+and this one is probably wrong...should no leave the session open...
 
+how about when server gets cjon, it updates name in session data...eehhhh...
 
+just make server full do its own custom thing...
 
 
 
+make a new release...leap year release...
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+7.24.0229.1
 
 
 
