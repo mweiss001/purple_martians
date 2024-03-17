@@ -26,7 +26,7 @@ class mwInput
 
    int my_readkey(void);
    void my_readkey3(int x, int y, int tc, int bts, int num, int num_lines);
-   void my_readkey2(int x, int y, int tc, int bts, int num);
+   bool my_readkey2(int x, int y, int tc, int bts, int num);
 
 
    void get_all_keys(int x, int y, int tc, int bts);

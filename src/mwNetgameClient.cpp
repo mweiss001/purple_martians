@@ -495,8 +495,6 @@ void mwNetgame::client_apply_dif(void)
    char log_msg_txt1[64];
    sprintf(log_msg_txt1, "----- Apply dif [%d to %d]", client_state_dif_src, client_state_dif_dst);
 
-//   mLog.addf(LOG_NET_dif_applied, p, "----- Apply dif [%d to %d] ", client_state_dif_src, client_state_dif_dst);
-
    // check if dif is valid
    if ((client_state_dif_src == -1) || (client_state_dif_dst == -1))
    {
@@ -510,6 +508,7 @@ void mwNetgame::client_apply_dif(void)
       mLog.appf(LOG_NET_dif_not_applied, "%s [not applied] [not newer than last dif applied]\n", log_msg_txt1);
       return;
    }
+
 
    // if we got this far, we know that dif is valid and dif destination is newer than last applied dif
 
@@ -554,10 +553,8 @@ void mwNetgame::client_apply_dif(void)
       }
    }
 
-   // if we got this far, we know that a valid base has been found and we will be aplying the dif
 
-
-
+   // if we got this far, a valid base has been found and we will be applying the dif
 
 
    // ------------------------------------------------
@@ -632,9 +629,6 @@ void mwNetgame::client_apply_dif(void)
 
    // send acknowledgment
    client_send_stak_packet(client_state_dif_dst);
-
-
-
 
 
    // ------------------------------------------------

@@ -402,18 +402,41 @@ int mwInput::my_readkey(void) // only get key or joystick bindings
 }
 
 
-void mwInput::my_readkey2(int x, int y, int tc, int bts, int num) // used only to set new game control key or joystick bindings
+bool mwInput::my_readkey2(int x, int y, int tc, int bts, int num) // used only to set new game control key or joystick bindings
 {
    mSettings.redraw_all_controls(x, y, bts, tc, 0, num);
    al_flip_display();
    int k = my_readkey();
+   int key_used = 0;
+   if (k)
+   {
+      if (is_key_used(k)) key_used = 1;
 
-   if ((k) && (is_key_used(k)))
+      // exception if the key is used on the same control, don't force to change
+      if (key_used)
+      {
+         int original_k = - 1;
+         switch (num)
+         {
+            case  0: original_k = mPlayer.loc[0].up_key;    break;
+            case  1: original_k = mPlayer.loc[0].down_key;  break;
+            case  2: original_k = mPlayer.loc[0].left_key;  break;
+            case  3: original_k = mPlayer.loc[0].right_key; break;
+            case  4: original_k = mPlayer.loc[0].jump_key;  break;
+            case  5: original_k = mPlayer.loc[0].fire_key;  break;
+            case  6: original_k = mPlayer.loc[0].menu_key;  break;
+         }
+         if (k == original_k) key_used = 0;
+      }
+   }
+
+   if (key_used)
    {
       char msg[80];
-      sprintf(msg, "key [%s] ia already used", key_names[k]);
+      sprintf(msg, "key [%s] is already used", key_names[k]);
       printf("%s\n", msg);
       m_err(msg);
+      return false;
    }
    else switch (num)
    {
@@ -425,6 +448,7 @@ void mwInput::my_readkey2(int x, int y, int tc, int bts, int num) // used only t
       case  5: mPlayer.loc[0].fire_key  =  k; break;
       case  6: mPlayer.loc[0].menu_key  =  k; break;
    }
+   return true;
 }
 
 
@@ -438,7 +462,7 @@ void mwInput::my_readkey3(int x, int y, int tc, int bts, int num, int num_lines)
    if ((k) && (is_key_used(k)))
    {
       char msg[80];
-      sprintf(msg, "key [%s] ia already used", key_names[k]);
+      sprintf(msg, "key [%s] is already used", key_names[k]);
       printf("%s\n", msg);
       m_err(msg);
    }
@@ -491,7 +515,14 @@ int mwInput::is_key_used(int k)
 
 void mwInput::get_all_keys(int x, int y, int tc, int bts) // prompts for all seven keys
 {
-   for (int k=0; k<7; k++) my_readkey2(x,y,tc,bts,k);  // iterate the keys
+   int k=0;
+
+   while (k<7)
+   {
+      if (my_readkey2(x,y,tc,bts,k)) k++;  // iterate the keys
+   }
+
+//   for (int k=0; k<7; k++) my_readkey2(x,y,tc,bts,k);  // iterate the keys
    mConfig.save_config();
 }
 

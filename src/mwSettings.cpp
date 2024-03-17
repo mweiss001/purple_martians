@@ -400,6 +400,7 @@ void mwSettings::settings_pages(int set_page)
          {
             while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
             current_page = mouse_on_tab;
+            mConfig.save_config();
          }
       }
 
@@ -915,7 +916,20 @@ int mwSettings::page_demo(void)
    ya -=4;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-   if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,14,tc, 0,  1,0,1,0, "Save current game in progress")) mGameMoves.save_gm_file_select();
+
+   int save_allowed = 1;
+
+   if (mGameMoves.entry_pos == 0) save_allowed = 0;
+   if (mLevel.play_level == 1) save_allowed = 0;
+
+   if (save_allowed)
+   {
+      if (mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,14,tc, 0,  1,0,1,0, "Save current game in progress")) mGameMoves.save_gm_file_select();
+   }
+   else
+   {
+      mWidget.buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,15+128,tc, 0,  1,0,1,0, "No game in progress");
+   }
 
    ya +=6;
    mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mGameMoves.autosave_game_on_level_done,   "Autosave on level done", tc, 14);

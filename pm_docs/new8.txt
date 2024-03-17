@@ -47205,6 +47205,35 @@ make a new release...leap year release...
 
 
 
+20240310
+
+Made a small change to the loop where I prompt to set all controls.
+If the key is used, it would pop up an error and say the key was used.
+This was as intended, but if the key was used on the same control you were trying to set
+it would prevent you from re-choosing that same key and would actually force you to choose
+a different one. I made an exception for that case.
+
+20240314
+
+Fixed an issue on level 83 where you could get stuck by tossing the orb up and it would be destroyed.
+
+I would like to hide the Save Current Game button on the demo page, when in story mode
+Or maybe when it detects that there are not any game moves to save.
+Or maybe I could make it greyed out...done
+
+When starting single demo from settings, does not come back to right page...save first..fixed
+
+
+should I do a new release?  yes!!
+
+
+
+20240317 new release
+
+
+
+
+
 
 
 
