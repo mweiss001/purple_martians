@@ -3,7 +3,7 @@ mkdir linux_libs/
 cp /usr/lib/liballegro_monolith.so.5.2 ./linux_libs/
 cp /lib/x86_64-linux-gnu/libOpenGL.so.0 ./linux_libs/
 
-version=7.24.0229.1
+version=7.24.0317.1
 
 fd='purple_martians_'"$version"'_linux'
 

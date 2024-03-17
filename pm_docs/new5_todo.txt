@@ -6,45 +6,13 @@
 
 
 
+During a long netgame, a few clients lost connection to the server, but kept going on their own.
+For hours. The timer kept going up, the players were all moving randomly, but I am sure they were not connected to a server.
+Were they just playing game moves on a loop? Would fakekey make them act like that? Fakekey on a client could...
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+In a case like this, I wish I could see what was going on internally without disturbing the running game.
+Like a console window.
 
 
 
@@ -67,11 +35,8 @@
 
 
 
-
 How long has server been running?
 Keep some stats about that.
-
-
 
 
 

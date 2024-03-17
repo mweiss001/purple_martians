@@ -1,6 +1,6 @@
 // pm.h
 
-#define PM_VERSION "7.24.0229.1"
+#define PM_VERSION "7.24.0317.1"
 
 #include <stdio.h>
 #include <math.h>
@@ -44,8 +44,6 @@
 #define PM_GAMEMOVE_TYPE_PLAYER_MOVE      5
 #define PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK   8
 #define PM_GAMEMOVE_TYPE_SHOT_CONFIG      9
-
-
 
 #define PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER  0
 #define PM_PLAYER_CONTROL_METHOD_DEMO_MODE      1
