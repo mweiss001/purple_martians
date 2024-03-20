@@ -47234,6 +47234,304 @@ should I do a new release?  yes!!
 
 
 
+20240320
+
+bug on linux screenshots are not saved...slash is wrong....I think I fixed that...
+
+      //strftime(filename, sizeof(filename), "screenshots\\%Y%m%d%H%M%S.bmp", timenow); // bug - does not work on linux
+      strftime(filename, sizeof(filename), "screenshots/%Y%m%d%H%M%S.bmp", timenow);
+
+
+BUG - PRINTSCREEN key does not work, other keys do the printscreen function but not that key...
+I had to do special hacks to make printscreen work, but they do not work nicely with my key just pressed or released stuff
+
+should I just ditch trying to use printscreen? It does not do what it is supposed to do...
+
+OK here is the crazy part...it actually works, but not when the game is running???
+
+i think this is why:
+
+void mwLoop::main_loop(void)
+{
+   while (!main_loop_exit)
+   {
+      // ----------------------------------------------------------
+      // process state and state changes
+      // ----------------------------------------------------------
+      proc_program_state();
+
+      // ----------------------------------------------------------
+      // process event queue
+      // ----------------------------------------------------------
+      mEventQueue.proc(0);
+
+      // ----------------------------------------------------------
+      // check for packets
+      // ----------------------------------------------------------
+      mPacketBuffer.check_for_packets();
+
+      // ----------------------------------------------------------
+      // do things based on the 40 Hz fps_timer event
+      // ----------------------------------------------------------
+      if (mEventQueue.program_update)
+      {
+         mEventQueue.program_update = 0;
+         mInput.proc_keys_held();
+
+
+this gets called lots: mEventQueue.proc(0);
+but this only gets called when loop runs: mInput.proc_keys_held();
+
+try this:
+
+old:
+
+void mwEventQueue::proc(int pch)
+{
+   mInput.key[ALLEGRO_KEY_PRINTSCREEN][0] = 0; // hack to make PRINTSCREEN key work properly
+   mInput.key_pressed_ASCII = 0;
+
+   while (!al_is_event_queue_empty(event_queue))
+   {
+      ALLEGRO_EVENT ev;
+      al_get_next_event(event_queue, &ev);
+      proc_events(ev);
+   }
+   if (pch) mInput.proc_keys_held();
+//   printf("f:%d mt:%d\n", mLoop.frame_num, al_get_timer_count(mEventQueue.mou_timer));
+}
+
+new:
+
+void mwEventQueue::proc(int pch)
+{
+   mInput.key[ALLEGRO_KEY_PRINTSCREEN][0] = 0; // hack to make PRINTSCREEN key work properly
+
+
+   while (!al_is_event_queue_empty(event_queue))
+   {
+      ALLEGRO_EVENT ev;
+      al_get_next_event(event_queue, &ev);
+      proc_events(ev);
+   }
+   if (pch) mInput.proc_keys_held();
+
+   if (pch) mInput.key_pressed_ASCII = 0;
+
+
+//   printf("f:%d mt:%d\n", mLoop.frame_num, al_get_timer_count(mEventQueue.mou_timer));
+}
+
+
+I'm getting confused here....
+
+I'm afraid to break stuff...
+
+
+why do I have those 2 thing decoupled?
+
+reading the keys and processing the key held stuff
+
+I can think of a few reasons...
+- I want to process the event loop as fast as possible. when the game is running that is faster than the game loop.
+why do I want to do this?
+
+that means that I would miss key just pressed things....
+
+the problem with printscreen is that it only generates key up events, so my key held stuff misses it...
+
+just use a different key, I don't want to rewrite things...that would be the easiest...
+dont have a default printscreen key that...
+
+
+FIXED...removed all special hacks to make printscreen works
+removed printscreen as default key for screen shot, now no default key...
+also made it so that PRINTSCREEN cannot be chosen by myreadkey
+
+
+
+
+
+
+
+
+
+
+
+
+
+BUG
+
+
+
+What is going on with the Stats box on overworld?
+x:976
+y:84
+w:48
+h:14
+
+text looks good on m36 4K monitor
+
+download from github to another computer and it does not...
+
+why?
+
+why only that text?
+
+nothing seems to fix it, any screen size or text double or zoom
+
+height = 15 makes it look good...
+
+wtf!...why?
+
+why is it different on different systems?
+
+Look for messages with height 14 or less..
+
+
+Running Global Level Test
+l:  1 item_num:112 height:14
+l: 64 item_num: 84 height:13
+l: 64 item_num: 87 height:11
+l: 86 item_num: 80 height:13
+l: 86 item_num: 81 height:13
+l: 86 item_num: 89 height:13
+l: 88 item_num: 40 height:13
+l: 88 item_num: 41 height:13
+l: 88 item_num: 42 height:13
+l: 88 item_num: 46 height:13
+l: 88 item_num: 47 height:13
+l: 89 item_num: 19 height:13
+l: 89 item_num: 20 height:13
+l: 89 item_num: 21 height:13
+l: 89 item_num: 22 height:13
+l: 89 item_num: 23 height:13
+l: 90 item_num: 18 height:11
+l: 90 item_num: 19 height:11
+l: 90 item_num: 20 height:11
+l: 90 item_num: 24 height:11
+l: 90 item_num: 25 height:11
+l: 90 item_num: 26 height:11
+l: 90 item_num: 29 height:11
+l: 90 item_num: 30 height:11
+l: 90 item_num: 31 height:11
+l: 91 item_num:  5 height:13
+l: 92 item_num: 12 height:13
+l: 96 item_num: 14 height:13
+l: 96 item_num: 15 height:13
+l: 96 item_num: 16 height:13
+l: 97 item_num:  7 height:13
+l: 97 item_num:  8 height:13
+l: 97 item_num:  9 height:13
+
+
+
+what is different between these systems?
+linux
+m36
+o7440
+
+why does only o7440 look bad?
+
+level 1
+text height of 14
+only o7040 looks bad
+
+level 64
+text height of 13
+text height of 11
+only 07040 looks bad
+
+
+                         m36:  o7040:
+Direct x version:        12    12
+Driver Model:            2.7   1.3
+
+Feature levels: (m36 has more)
+9.1 9.2 9.3
+10.0 10.1
+11.0
+
+11.0 11.1
+12.0 12.1
+
+driver version for m36   is from 2024
+driver version for o7040 is from 2015
+
+
+also testing e6430-w10
+has same as 7040
+Feature levels: (m36 has more)
+9.1 9.2 9.3
+10.0 10.1
+11.0
+
+lev 1 Stats is a little funky but not as bad as 7040
+lev 64 looks good..
+
+I think I am going to skip trying to fix this weird issue that only happens on one hardware
+The problem is, I was going to use this system to make videos....
+Well I can avoid prominnetly showing that...work around it...
+
+
+pscp -pw zaiden c:\pm\levels\level101.pml m@scat:\dev\purple_martians\levels\level101.pml
+
+
+slashes are wrong...should be like this
+pscp -pw zaiden m@96.45.13.220:dev/purple_martians/logs/20240216-200* c:\pm\logs
+
+
+pscp -pw zaiden  m@scat:dev/purple_martians/screenshots/* c:\pm
+
+
+pscp -pw zaiden  m@scat:dev/purple_martians/*.bmp c:\pm
+
+made test level 101...
+
+I thinks I will inscrease Stats to 15 and leave everything else...
+
+
+new release
+
+
+7.24.0320.1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

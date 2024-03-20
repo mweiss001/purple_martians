@@ -51,9 +51,8 @@ void mwEventQueue::proc_events(ALLEGRO_EVENT ev)
 
 void mwEventQueue::proc(int pch)
 {
-   mInput.key[ALLEGRO_KEY_PRINTSCREEN][0] = 0; // hack to make PRINTSCREEN key work properly
+   //mInput.key[ALLEGRO_KEY_PRINTSCREEN][0] = 0; // hack to make PRINTSCREEN key work properly
    mInput.key_pressed_ASCII = 0;
-
    while (!al_is_event_queue_empty(event_queue))
    {
       ALLEGRO_EVENT ev;

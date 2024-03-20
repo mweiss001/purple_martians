@@ -599,6 +599,21 @@ void mwGlobalLevelTool::execute(void)
 
 
 
+
+
+//      for (int y=0; y<500; y++)
+//         if (mItem.item[y][0] == 10)
+//         {
+//            int h = mItem.item[y][9];
+//            if (h < 15) printf("l:%3d item_num:%3d height:%d\n", le[x], y, h);
+//         }
+
+
+
+
+
+
+
       if (0)
       {
          mLevel.save_level(le[x]);
