@@ -805,7 +805,7 @@ void mwSettings::page_controls2(void)
       mInput.function_key_zoom_in         = ALLEGRO_KEY_F6;
       mInput.function_key_speed_dec       = ALLEGRO_KEY_F7;
       mInput.function_key_speed_inc       = ALLEGRO_KEY_F8;
-      mInput.function_key_printscreen     = ALLEGRO_KEY_PRINTSCREEN;
+      mInput.function_key_printscreen     = 0;
       mInput.function_key_fakekey         = 0;
       mInput.function_key_force_save      = 0;
       mInput.function_key_init_background = 0;

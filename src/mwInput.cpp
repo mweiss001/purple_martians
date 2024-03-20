@@ -103,12 +103,14 @@ void mwInput::proc_input_events(ALLEGRO_EVENT ev)
       key_or_mouse_pressed = 1;
       int k = ev.keyboard.keycode;
       key[k][0] = true;
+      // if (k == ALLEGRO_KEY_PRINTSCREEN) printf("PRINTSCREEN pressed\n");
    }
    if (ev.type == ALLEGRO_EVENT_KEY_UP)
    {
       int k = ev.keyboard.keycode;
       key[k][0] = false;
-      if (k == ALLEGRO_KEY_PRINTSCREEN) key[k][0] = true; // special exception to make PRINTSCREEN work
+      //if (k == ALLEGRO_KEY_PRINTSCREEN) key[k][0] = true; // special exception to make PRINTSCREEN work
+      //if (k == ALLEGRO_KEY_PRINTSCREEN) printf("PRINTSCREEN released\n");
    }
    if (ev.type == ALLEGRO_EVENT_KEY_CHAR)
    {
@@ -254,7 +256,10 @@ void mwInput::function_key_check(void)
       struct tm *timenow;
       time_t now = time(NULL);
       timenow = localtime(&now);
-      strftime(filename, sizeof(filename), "screenshots\\%Y%m%d%H%M%S.bmp", timenow);
+
+      //strftime(filename, sizeof(filename), "screenshots\\%Y%m%d%H%M%S.bmp", timenow); // bug - does not work on linux
+      strftime(filename, sizeof(filename), "screenshots/%Y%m%d%H%M%S.bmp", timenow);
+
       printf("saved: %s\n", filename);
       al_save_bitmap(filename, ss_bmp);
       al_destroy_bitmap(ss_bmp);
@@ -366,8 +371,9 @@ int mwInput::my_readkey(void) // only get key or joystick bindings
              if (ev.type == ALLEGRO_EVENT_KEY_UP)
              {
                 ret = ev.keyboard.keycode;
-                if (ret != ALLEGRO_KEY_ENTER) quit = 1;
+                if ((ret != ALLEGRO_KEY_ENTER) && (ret != ALLEGRO_KEY_PRINTSCREEN)) quit = 1;
              }
+
              if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN)
              {
                 int jy = getJoystickNum(ev.joystick.id);

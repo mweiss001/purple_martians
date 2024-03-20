@@ -1723,10 +1723,10 @@ void mwWindow::ov_process_mouse(void)
          {
             if (obt == 3) // move enemy
             {
-               if (mInput.key[ALLEGRO_KEY_UP][3])    ov_move_enemy(num,  0, -1);
-               if (mInput.key[ALLEGRO_KEY_DOWN][3])  ov_move_enemy(num,  0,  1);
+               if (mInput.key[ALLEGRO_KEY_UP]   [3]) ov_move_enemy(num,  0, -1);
+               if (mInput.key[ALLEGRO_KEY_DOWN] [3]) ov_move_enemy(num,  0,  1);
                if (mInput.key[ALLEGRO_KEY_RIGHT][3]) ov_move_enemy(num,  1,  0);
-               if (mInput.key[ALLEGRO_KEY_LEFT][3])  ov_move_enemy(num, -1,  0);
+               if (mInput.key[ALLEGRO_KEY_LEFT] [3]) ov_move_enemy(num, -1,  0);
             }
          }
          if (mItem.item_secondary67_hires(mItem.item[num][0])) // hi-res adjust
@@ -1745,9 +1745,9 @@ void mwWindow::ov_process_mouse(void)
          if (mouse_on_cdb_ul) ov_b3_arrow_nudge(mEnemy.Ei[num][17], mEnemy.Ei[num][18]);
          if (mouse_on_csb_lr) ov_b3_arrow_nudge(mEnemy.Ei[num][19], mEnemy.Ei[num][20]);
 
-         if (mouse_on_esp) ov_b3_arrow_nudge(mEnemy.Ei[num][17], mEnemy.Ei[num][17]);
-         if (mouse_on_bmb) ov_b3_arrow_nudge(mItem.item[num][7], mItem.item[num][7]);
-         if (mouse_on_sp) ov_b3_arrow_nudge(mItem.item[num][7], mItem.item[num][7]);
+         if (mouse_on_esp)    ov_b3_arrow_nudge(mEnemy.Ei[num][17], mEnemy.Ei[num][17]);
+         if (mouse_on_bmb)    ov_b3_arrow_nudge(mItem.item[num][7], mItem.item[num][7]);
+         if (mouse_on_sp)     ov_b3_arrow_nudge(mItem.item[num][7], mItem.item[num][7]);
          mWM.redraw_level_editor_background();
       }
    }

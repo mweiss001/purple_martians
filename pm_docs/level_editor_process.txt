@@ -115,3 +115,16 @@ calls to cycle_windows(int draw_only)
 
 
 
+level editor adjusting rectangles
+
+click with mouse b3, then use arrows to move or adjust one pixel at a time
+
+
+
+
+
+
+
+
+
+
