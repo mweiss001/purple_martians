@@ -158,7 +158,7 @@ int mwPacketBuffer::is_data_waiting(void)
    int data_waiting = 0;
    if (mNetgame.ima_server)
    {
-      for (int n=0; n<mNetgame.ClientNum; n++)
+      for (int n=0; n<MAX_CLIENTS; n++)
          if ((mNetgame.ClientChannel[n]) && (net_query(mNetgame.ClientChannel[n]))) data_waiting = 1;
    }
    if (mNetgame.ima_client)

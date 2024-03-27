@@ -879,6 +879,21 @@ void mwScreen::draw_server_debug_overlay(int &cx, int &cy)
       cy +=4;
    }
    if (mSettings.overlay_grid[7][mLoop.show_debug_overlay]) draw_bandwidth_stats(cx, cy); // bandwidth stats
+
+
+//   // draw channel info
+//   for (int n=0; n<MAX_CLIENTS; n++)
+//      if (mNetgame.ClientChannel[n])
+//      {
+//         char port[256];
+//         sprintf(port, net_getlocaladdress(mNetgame.ClientChannel[n]));
+//         int player = mNetgame.server_get_player_num_from_who(n);
+//         int stale = mLoop.frame_num - mNetgame.ClientChannelLastRX[n];
+//         al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "Channel:%d port:%s player:%d stale:%d", n, port, player, stale); cy+=9;
+//      }
+
+
+
 }
 
 

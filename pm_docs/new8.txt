@@ -47493,8 +47493,423 @@ I thinks I will inscrease Stats to 15 and leave everything else...
 
 new release
 
-
 7.24.0320.1
+
+
+
+
+20240325
+
+I want to bind the server to a specific port, but let the client be a random ephermal one
+
+
+//   ServerChannel = net_openchannel(NetworkDriver, ""); // default 24785
+//   ServerChannel = net_openchannel(NetworkDriver, ":50001"); // specific
+   ServerChannel = net_openchannel(NetworkDriver, NULL); // ephemeral (above 49152? probably)
+
+this changes the client to use ephemeral
+
+ServerChannel = net_openchannel(NetworkDriver, NULL);     // ephemeral
+
+Local address:[:56661]
+Local address:[:56662]
+Local address:[:56663]
+Local address:[:56664]
+Local address:[:56665]
+Local address:[:56666]
+
+Local address:[:58118]
+Local address:[:58119]
+
+
+
+next I want to force server to use 24785
+
+why do I do assign target to listening channel on server??
+commented out and still seems to work...
+
+
+
+
+On the server I have a listening channel, and channels for connected clients...
+
+it seems I can't make multiple channels with the same port
+
+so I think I will only make the listening channel 24785
+
+should I make this changeable?
+
+lets test it first...
+
+how?
+
+m36 server and o7040 client...
+do it over the internet
+
+that did not work...even after rebooting both routers
+changed to o7040 server and m36 client...that worked
+
+added
+int server_UDP_listen_port
+saved in config
+
+server uses it:
+
+   // open the listening channel
+   char port[256];
+   sprintf(port, ":%d", server_UDP_listen_port);
+   if (!(ListenChannel = net_openchannel(NetworkDriver, port)))
+
+client uses it:
+
+   ServerChannel = net_openchannel(NetworkDriver, NULL); // dynamic port
+   if (ServerChannel == NULL)
+   {
+      sprintf(msg, "Error: Client failed to create NetChannel");
+      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
+      mInput.m_err(msg);
+      return 0;
+   }
+
+   char target[256];
+   sprintf(target, "%s:%d", serveraddress, server_UDP_listen_port);
+   if (net_assigntarget(ServerChannel, target))
+   {
+      sprintf(msg, "Error: Client failed to set NetChannel target: server[%s]", serveraddress);
+
+Tested and this seems to work...
+
+What did this do?
+Now I can specify the port instead of letting libnet choose 24785 when I pass ""
+
+When client opens channel, I now use a dynamic source port.
+
+When client sets target, it now assigns server IP and listening port, instead of just IP
+
+When server opens listening port it now uses server_UDP_listen_port instead of libnet default "" = 24785
+
+
+
+
+
+------------------
+
+
+I don't like MAX_CLIENTS
+and ClientNum++;
+
+there is no checking to see if ClientNum goes over MAX_CLIENTS...
+
+
+I tested and went up to 52, and nothing crashed, but that is not right, I should not be using an index that high...
+
+
+can I reuse them??
+
+I think I could set then to NULL easily, but how do I know when to do that?
+
+if no active player is assigned to it?
+
+at the same time as player drop?
+
+have a cleanup function?
+
+
+
+
+to start with I should make something to view them...
+
+they are an array of
+
+NET_CHANNEL *ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
+
+what can I tell about each one?
+
+the index is 'who'
+
+
+
+I have a list and show channels that are not NULL in screen overlay
+
+I also show if a player references who and display that player number...
+
+This seem to work well.
+
+When a client quits, it still shows the link.
+If that player joins again, now it has a new link...
+
+how about when that player gets set inactive, i also remove who?
+
+
+How about when I add a new client channel in server listen, I just search for an empty one.
+
+What do I call empty?
+
+one that is assigned to a specific player, but that player is inactive
+
+that could work....
+
+
+I have been thinking about this a lot....
+
+Why do I separate channel connection and join?
+
+On the server, no point setting up a slot for client unless we get 2 way communication
+
+So what do I want to do?
+
+prevent the channel list from filling up...
+
+how do I plan to do that?
+
+make something that shadows the channel list
+
+keeps track of when ...
+
+no...how about status?
+0 is free, unused
+1 is connection started
+2 is associated with player
+
+
+NET_CHANNEL *ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
+
+int ClientChannelStatus[MAX_CLIENTS][2] = {0};
+
+0 - status
+
+0 is free, unused
+1 is channel started
+2 is associated with player
+
+1 - status frame
+the frame number that the status changed to what it is now
+
+when server listen gets a new attempt
+find the first 0 status and use it
+
+set it to 1 and log the frame that happened at...
+
+
+if you get a join request or remote request
+
+
+
+-----------
+log the last time you received something from that channel
+if too much time passed drop that channel
+--------------
+
+I like this, it is simple...
+only need a 1D array
+
+int ClientChannelLastRX[MAX_CLIENTS] = 0;
+
+set it when creating
+set it when rxing
+
+
+
+// receive waiting packets from clients, and store in provided array
+int mwNetgame::ServerReceive(void *data, int *sender)
+{
+   for (int n=0; n<ClientNum; n++)
+      if (ClientChannel[n])
+      {
+         int len = net_receive(ClientChannel[n], data, 1024, NULL);
+         if (len > 0)
+         {
+            // add to server's counts
+            mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
+            mPlayer.loc[0].rx_current_packets_for_this_frame++;
+
+
+I think I have this working
+
+Now I just need something to check and remove stale channels....
+
+
+
+
+
+how about in server listen?
+
+   // check for stale channels
+   for (int n=0; n<MAX_CLIENTS; n++)
+      if (mNetgame.ClientChannel[n])
+      {
+         // last rx is more than 200 frames behind current frame
+         if ((mLoop.frame_num - mNetgame.ClientChannelLastRX[n]) > 200)
+         {
+            net_closechannel(ClientChannel[n]);
+            ClientChannel[n] = NULL;
+            ClientChannelLastRX[n] = 0;
+         }
+
+         // if removing remote control channel, make sure we turn off remote control
+         // or else server will keep trying to send snfo packets to the channel we just removed
+         if ((mMain.server_remote_control) && (mMain.server_remote_control_who == n))
+         {
+            mMain.server_remote_control = 0;
+            mMain.server_remote_control_who = -99;
+         }
+      }
+
+
+I think this is working...
+
+comment out in screen overlay and release...
+
+
+20240326
+
+7.24.0326.1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

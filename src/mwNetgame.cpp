@@ -11,7 +11,7 @@
 #include "mwShot.h"
 #include "mwLog.h"
 #include "mwLoop.h"
-
+#include "mwInput.h"
 
 mwNetgame mNetgame;
 
@@ -23,6 +23,10 @@ mwNetgame::mwNetgame()
    remote_join_reply = 0;
 
    sprintf(serveraddress, "192.168.1.2");
+
+   server_UDP_listen_port = 24785;
+
+
    zlib_cmp = 7;
 
    for (int i=0; i<20; i++)
@@ -32,28 +36,37 @@ mwNetgame::mwNetgame()
       session_clear_entry(i);
 
    ServerChannel = NULL;
-   ClientNum = 0;
-   ListenChannel = NULL;                   // listen channel
-   ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
+
+   ListenChannel = NULL;
+
+   for (int n=0; n<MAX_CLIENTS; n++)
+   {
+      ClientChannel[n] = NULL;
+      ClientChannelLastRX[n] = 0;
+   }
 }
+
+
 
 
 
 // initialize libnet and setup a driver to use. Returns 0 on success.
 int mwNetgame::NetworkInit(void)
 {
-   NET_DRIVERLIST drivers;
-   NET_DRIVERNAME *drivernames;
+   char msg[256];
 
-   net_init(); // initialize libnet
-   net_loadconfig(NULL); // configure libnet
+   if (net_init()) // initialize libnet
+   {
+      sprintf(msg, "Error: Couldn't initialize libnet\n");
+      mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
+      mInput.m_err(msg);
+      return -1;
+   }
 
    // detect drivers in the internet class
-   drivers = net_detectdrivers(net_classes[NET_CLASS_INET].drivers);
-   drivernames = net_getdrivernames(drivers);
-
+   NET_DRIVERLIST drivers = net_detectdrivers(net_classes[NET_CLASS_INET].drivers);
+   NET_DRIVERNAME *drivernames = net_getdrivernames(drivers);
    NetworkDriver = drivernames[0].num; // use first detected driver
-
    free(drivernames);
 
    if (NetworkDriver >= 0)
@@ -61,13 +74,17 @@ int mwNetgame::NetworkInit(void)
       if (net_initdriver(NetworkDriver)) return 0;
       else
       {
-         // Error: Couldn't initialize network driver
+         sprintf(msg, "Error: Couldn't initialize network driver\n");
+         mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
+         mInput.m_err(msg);
          return -1;
       }
    }
    else
    {
-      // Error: Found no driver in the internet network class
+      sprintf(msg, "Error: Found no driver in the internet network class\n");
+      mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
+      mInput.m_err(msg);
       return -1;
    }
 }

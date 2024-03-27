@@ -111,6 +111,9 @@ void mwConfig::save_config(void)
 
       al_set_config_value(cfg, "NETWORK", "server_IP", mNetgame.serveraddress);
 
+      asci(NETWORK, mNetgame.server_UDP_listen_port)
+
+
       asci(NETWORK, mPlayer.syn[0].player_vs_player_shots)
       asci(NETWORK, mPlayer.syn[0].player_vs_player_shot_damage)
       asci(NETWORK, mPlayer.syn[0].player_vs_self_shots)
@@ -268,6 +271,8 @@ void mwConfig::load_config(void)
    val = al_get_config_value(cfg, "NETWORK", "server_IP");
    if (!val) sprintf(mNetgame.serveraddress, "96.45.9.166");
    else sprintf(mNetgame.serveraddress, "%s", val);
+
+   agci(NETWORK, mNetgame.server_UDP_listen_port, 24785)
 
    agci(NETWORK, mPlayer.syn[0].player_vs_player_shots, 1)
    agci(NETWORK, mPlayer.syn[0].player_vs_player_shot_damage, 5)

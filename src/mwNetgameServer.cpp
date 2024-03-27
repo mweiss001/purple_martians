@@ -12,10 +12,7 @@
 #include "mwMain.h"
 #include "mwConfig.h"
 #include "mwItem.h"
-
 #include "mwScreen.h"
-
-
 
 int mwNetgame::ServerInitNetwork(void)
 {
@@ -25,7 +22,6 @@ int mwNetgame::ServerInitNetwork(void)
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server hostname:    [%s]", mLoop.local_hostname);
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Level:              [%d]", mLevel.play_level);
 
-
    char msg[256];
    if (NetworkInit())
    {
@@ -34,19 +30,14 @@ int mwNetgame::ServerInitNetwork(void)
       mInput.m_err(msg);
       return 0;
    }
+
    // open the listening channel
-   if (!(ListenChannel = net_openchannel(NetworkDriver, "")))
+   char port[256];
+   sprintf(port, ":%d", server_UDP_listen_port);
+   if (!(ListenChannel = net_openchannel(NetworkDriver, port)))
    {
       sprintf(msg, "Error opening listening channel");
       mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
-      mInput.m_err(msg);
-      return 0;
-   }
-   if (net_assigntarget(ListenChannel, ""))
-   {
-      sprintf(msg, "Error assigning target to listening channel");
-      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
-      net_closechannel(ListenChannel);
       mInput.m_err(msg);
       return 0;
    }
@@ -65,11 +56,12 @@ void mwNetgame::ServerExitNetwork(void)
    mPacketBuffer.stop_packet_thread();
 
    mLog.add_header(LOG_NET, 0, 0, "Shutting down the server network");
-   for (int n=0; n<ClientNum; n++)
+   for (int n=0; n<MAX_CLIENTS; n++)
       if (ClientChannel[n])
       {
           net_closechannel(ClientChannel[n]);
           ClientChannel[n] = NULL;
+          ClientChannelLastRX[n] = 0;
       }
    if (ListenChannel) net_closechannel(ListenChannel);
    ListenChannel = NULL;
@@ -84,7 +76,16 @@ void mwNetgame::ServerExitNetwork(void)
 }
 
 
-void mwNetgame::ServerListen()
+int mwNetgame::ServerFindUnusedChannel(void)
+{
+   for (int n=0; n<MAX_CLIENTS; n++)
+      if (!ClientChannel[n]) return n;
+   return -1;
+}
+
+
+
+void mwNetgame::ServerListen(void)
 {
    char msg[256];
    char address[32];
@@ -95,35 +96,72 @@ void mwNetgame::ServerListen()
       if (mPacketBuffer.PacketRead(data, "1234"))
       {
          mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received initial 1234 packet from '%s'", address);
-         if (!(ClientChannel[ClientNum] = net_openchannel(NetworkDriver, NULL)))
+
+         int n = ServerFindUnusedChannel();
+
+         if (n == -1)
+         {
+            sprintf(msg, "Error: could not find empty channel\n");
+            mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
+            mInput.m_err(msg);
+            return;
+         }
+
+         if (!(ClientChannel[n] = net_openchannel(NetworkDriver, NULL))) // use dynamic port
          {
             sprintf(msg, "Error: failed to open channel for %s\n", address);
             mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
             mInput.m_err(msg);
             return;
          }
-         if (net_assigntarget(ClientChannel[ClientNum], address))
+
+         if (net_assigntarget(ClientChannel[n], address))
          {
             sprintf(msg, "Error: couldn't assign target `%s' to channel\n", address);
             mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
-            net_closechannel (ClientChannel[ClientNum]);
+            net_closechannel (ClientChannel[n]);
             mInput.m_err(msg);
             return;
          }
+
+         ClientChannelLastRX[n] = mLoop.frame_num; // record time
+
          mPacketBuffer.PacketName(data, pos, "5678");
-         ServerSendTo(data, pos, ClientNum);
-         ClientNum++;
+         ServerSendTo(data, pos, n);
+
          mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server opened channel for `%s' and sent reply", address);
 
-         if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, ClientNum - 1);
+         if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, n);
       }
    }
+
+   // check for stale channels
+   for (int n=0; n<MAX_CLIENTS; n++)
+      if (mNetgame.ClientChannel[n])
+      {
+         // last rx is more than 200 frames behind current frame
+         if ((mLoop.frame_num - mNetgame.ClientChannelLastRX[n]) > 200)
+         {
+            net_closechannel(ClientChannel[n]);
+            ClientChannel[n] = NULL;
+            ClientChannelLastRX[n] = 0;
+         }
+
+         // if removing remote control channel, make sure we turn off remote control
+         // or else server will keep trying to send snfo packets to the channel we just removed
+         if ((mMain.server_remote_control) && (mMain.server_remote_control_who == n))
+         {
+            mMain.server_remote_control = 0;
+            mMain.server_remote_control_who = -99;
+         }
+
+      }
 }
 
 // receive waiting packets from clients, and store in provided array
 int mwNetgame::ServerReceive(void *data, int *sender)
 {
-   for (int n=0; n<ClientNum; n++)
+   for (int n=0; n<MAX_CLIENTS; n++)
       if (ClientChannel[n])
       {
          int len = net_receive(ClientChannel[n], data, 1024, NULL);
@@ -132,6 +170,10 @@ int mwNetgame::ServerReceive(void *data, int *sender)
             // add to server's counts
             mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
             mPlayer.loc[0].rx_current_packets_for_this_frame++;
+
+
+            ClientChannelLastRX[n] = mLoop.frame_num; // record time
+
 
             // add to client's counts
             int p = server_get_player_num_from_who(n);
