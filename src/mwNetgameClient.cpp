@@ -28,7 +28,7 @@ int mwNetgame::ClientInitNetwork(void)
       mInput.m_err(msg);
       return -1;
    }
-   ServerChannel = net_openchannel(NetworkDriver, "");
+   ServerChannel = net_openchannel(NetworkDriver, NULL); // dynamic port
    if (ServerChannel == NULL)
    {
       sprintf(msg, "Error: Client failed to create NetChannel");
@@ -36,14 +36,17 @@ int mwNetgame::ClientInitNetwork(void)
       mInput.m_err(msg);
       return 0;
    }
-   if (net_assigntarget(ServerChannel, serveraddress))
+
+   char target[256];
+   sprintf(target, "%s:%d", serveraddress, server_UDP_listen_port);
+   if (net_assigntarget(ServerChannel, target))
    {
-      sprintf(msg, "Error: Client failed to set NetChannel target: server[%s]", serveraddress);
+      sprintf(msg, "Error: Client failed to set NetChannel target:[%s]", target);
       mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
       mInput.m_err(msg);
       return 0;
    }
-   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client network initialized -- server:[%s]", serveraddress);
+   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client network initialized -- target:[%s]", target);
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Local address:[%s]", net_getlocaladdress(ServerChannel));
 
    // Check for reply from server

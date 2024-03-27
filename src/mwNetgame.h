@@ -115,6 +115,8 @@ class mwNetgame
    int remote_join_reply = 0;
 
    char serveraddress[256] = "192.168.1.2";
+   int server_UDP_listen_port;
+
    int zlib_cmp = 7;
 
    float client_chase_offset;
@@ -191,9 +193,12 @@ class mwNetgame
    // --------------------------------------------------------------------
    // ---   mwNetgameServer.cpp  -----------------------------------------
    // --------------------------------------------------------------------
-   int ClientNum;
+
    NET_CHANNEL *ListenChannel = NULL;                   // listen channel
    NET_CHANNEL *ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
+
+   int ClientChannelLastRX[MAX_CLIENTS] = {0};          // keep track of last rx from channel
+
 
    int  ServerInitNetwork(void);
    void ServerExitNetwork(void);
@@ -201,6 +206,10 @@ class mwNetgame
    int  ServerReceive(void *data, int *sender);
    void ServerSendTo(void *data, int len, int who);
    void ServerFlush(void);
+
+   int ServerFindUnusedChannel(void);
+
+
 
    int server_get_player_num_from_who(int who);
 

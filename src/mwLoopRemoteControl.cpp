@@ -31,7 +31,7 @@ void mwLoop::remote_control_loop(void)
    int fn = mPlayer.loc[0].srv_frame_num; // set frame number from last snfo packet update
 
    // check how long since last rtcl packet has been sent, and send keep alive packet if too long
-   if (++remote_frames_since_last_rctl_sent > 400) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_keep_alive, 0);
+   if (++remote_frames_since_last_rctl_sent > 100) mNetgame.client_send_rctl_packet(PM_RCTL_PACKET_TYPE_keep_alive, 0);
 
 
    char msg[200];
@@ -221,7 +221,7 @@ void mwLoop::remote_control_loop(void)
    static int show_bandwidth = 0;
    if (mWidget.buttontcb(cx, cy, 0, 13, 0,0,0,0, 0,15,15,14, 1,0,0,0, "Show/Hide Bandwidth") ) show_bandwidth = !show_bandwidth;
 
-   cy = mxcy; // position of next section inder buttons
+   cy = mxcy; // position of next section under buttons
    cx = 10;
    if (show_bandwidth) mScreen.draw_bandwidth_stats(cx, cy); // bandwidth stats
 

@@ -1,0 +1,1146 @@
+
+
+The only method I have found so far that works is to have the server directly connect to the internet.
+
+It might also work with a DMZ that some advanced routers have...
+
+
+
+I would like to make it simpler. If I had my own relay server setup to help fist time connections succeed...
+
+
+
+
+
+
+
+
+
+
+
+had trouble with netgame and davis's router
+
+he had to bind a specific port and ip to one computer to get it to work
+
+testing at home:
+
+all clients initiate with 24785 as the port, so does server
+
+when clients join, the server shows them having 24785, unless it is the second or greater one from my home then they have other ports...
+
+I have upnp setup on my home router, but it does not look like it is doing anything
+
+the three entries in the list are not ones that I am using for clients
+
+
+
+20240323 
+
+---------------------------
+Netgear Nighthawk R7000P
+---------------------------
+
+On my router at home I have no port forwarding setup...
+I have uPnP off...
+
+I can connect with multiple clients through the router.
+
+
+
+I need to do some more testing....like how does it work with other routers...
+
+hook up a switch before my router and split it....
+
+See if I can still see the server in the lab...
+
+update to latest version...done
+
+
+
+
+------------------------
+Beacon 6 
+------------------------
+
+my Beacon 6
+
+NOKIA_4E51 R53yZysgRB
+
+Beacon router by default does not work.
+can ping server, server gets join and replies, but reply never gets back to client..
+
+logged on to router and enabled UPNP/DLNA
+
+did not work...
+
+cannot figure out how to do port forwarding....
+
+now it works!!
+
+was in UPNP/DLNA??
+
+did it just take a while?
+
+I am pretty sure it was the port forwarding rule.
+
+
+
+
+----------------------------
+Calix router 844e
+----------------------------
+upnp is enabled by default but it doesn't work
+
+port forwarding..
+
+local
+this device
+UDP
+all ports
+
+remote
+all IP
+
+WAN ports
+all
+
+firewall off
+
+stealth mode off
+
+removed appliaction forwarding from pm to 192.168.1.2 (was there from before, but now my ip is 192.168.1.3)
+
+it works!!!
+
+now lets see what I can tutn off and it still works....
+
+firewall to low
+still works
+
+firewall to med
+still works
+
+firewall to high
+still works
+
+stealth mode on
+still works
+
+port forwarding off
+that broke it!!
+
+
+so it looks like out of the box all I needed was one port forward:
+local
+this device
+UDP
+1-65000
+
+remote
+96.45.9.166 (or all IP)
+
+WAN ports
+1-65000
+
+
+----------------
+R195
+---------------
+
+
+does not work out with defaults
+
+enabled upnp and rebooted
+
+there was a port forwarding rule, but it was wrong
+
+changed to 192.168.11.90 nad 96.45.9.166
+
+1-65000 UDP
+
+rebooted...
+
+now it works....
+
+disable upnp and try again...
+
+
+
+
+----------------------------------
+detailed description of how this works
+
+
+uses UDP
+
+a UDP datagram header contains source and destination port numbers
+
+I think the server always uses 24785
+
+
+I ran wireshark on e6430-w10 on my home network as client and connected to server in lab
+
+client: 192.168.1.142
+server: 96.45.9.166
+
+
+first packet from client to server (1234)
+src port: 24785
+dst port: 24785
+
+reply from server to client (5678)
+src port: 56262
+dst port: 24785
+
+cjon packet from client to server (cjon)
+src port: 24785
+dst port: 56262
+
+sjon packet from server to client (sjon)
+src port: 56262
+dst port: 24785
+
+did it again and the ony difference was the other port number
+
+
+I would really like to see what happens after the router...
+
+so much that I want to make a wireshark pass through machine..
+
+
+
+installed wireshark on linux mint machine
+
+did the meta package, not the flathub
+
+the usb adapter seems to work in linux...
+
+how do I do bridge mode?
+
+
+
+
+3. Configuring the Network Bridge on Linux with ip tool
+
+In this section, we will explain how to manage a network bridge with the ip tool from the iproute2 package, which is needed by the basic meta-package.
+
+Iproute2 is a collection of Linux applications for managing TCP/IP networking and network traffic. Currently, Stephen Hemminger is responsible for its maintenance. Alexey Kuznetsov, the original creator, is well-known for implementing QoS in the Linux kernel.
+
+Most network setup guides still include ifconfig and route as the key network configuration tools, despite the fact that ifconfig is notoriously ineffective in current network situations. The majority of distributions continue to include them.
+
+iproute2 is often distributed as part of a package named iproute or iproute2 and consists of many tools, the most essential of which being ip and tc. ip manages IPv4 and IPv6 settings, whereas tc regulates traffic. Both programs generate comprehensive use warnings and are supplemented by a collection of man pages.
+
+You may configure the Linux Bridge with ip tool by following the next steps:
+
+    Installing the ip tool
+    Creating a Bridge interface with ip tool
+    Adding Devices to a Bridge with ip tool
+    Viewing interfaces in a Bridge with ip tool
+
+3.1. Installing the ip tool
+
+To install ip tool on Debian/Ubuntu run the following command:
+
+apt install iproute
+
+3.2. Creating a Bridge interface with ip tool
+
+To create a new bridge and change its state to up, you may run the next command:
+
+ip link add name br0 type bridge
+
+ip link set br0 up
+
+This will create a new bridge device with a name br0.
+
+To delete a bridge you may run the following command:
+
+ip link delete br0 type bridge
+
+3.3. Adding Devices to a Bridge with ip tool
+
+To add the interface into the bridge by setting its master to br0, you may run the next command:
+
+ip link set ens18 master br0
+
+ip link set ens19 master br0
+
+This will add the two interfaces ens18 and ens19 to bridge br0.
+
+To remove an interface from a bridge device, you may run the following command:
+
+ip link set ens18 nomaster
+
+3.4. Viewing interfaces in a Bridge with ip tool
+
+To view the summary of the overall bridge status run the next command shown below:
+
+bridge link
+
+
+
+m@192.168.1.145's password:
+Last login: Sat Feb 17 11:07:10 2024 from 192.168.1.36
+m@e6510:~$ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: eno1: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 1000
+    link/ether 5c:26:0a:32:8d:cf brd ff:ff:ff:ff:ff:ff
+    altname enp0s25
+3: enxa0cec8e94d1a: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 1000
+    link/ether a0:ce:c8:e9:4d:1a brd ff:ff:ff:ff:ff:ff
+4: wlp3s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether c0:cb:38:65:91:62 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.145/24 brd 192.168.1.255 scope global dynamic noprefixroute wlp3s0
+       valid_lft 85901sec preferred_lft 85901sec
+    inet6 fe80::66ed:21da:da67:3580/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+
+
+
+
+
+
+
+did this: 
+apt install iproute2
+already installed
+
+sudo ip link add name br0 type bridge
+sudo ip link set br0 up
+sudo ip link set eno1 master br0
+sudo ip link set enxa0cec8e94d1a master br0
+sudo bridge link
+
+it is passing data....
+
+
+run wireshark as root or you cant see eno1
+
+filter ip.addr == 96.45.9.166 and udp
+
+
+
+initial 
+
+first packet from client to server (1234)
+src port: 24785
+dst port: 24785
+
+reply from server to client (5678)
+src port: 59452
+dst port: 24785
+
+
+
+
+
+I want to set this up over ssh
+what is the name of the linux mint machine
+wait a minute, i cant do that unless I have 3 network interfaces, right?
+yes...
+
+nevermind...
+
+
+I just did a 2 player and the results are much different
+
+
+the first one did:
+
+24785 24785
+24785 52518
+
+the second one did 
+
+55795 24785
+37145 55795
+
+I think what is going on is that the router changes the source port
+For the 1st one, it uses what the client asked for.
+For the 2nd one, it realized what the client requested was used and mapped to another random ephermal port
+
+
+lets wireshark all the things
+
+
+outgoing past router tap:
+-------------------------
+24785 24785
+50066 24785
+
+55223 24785
+52394 55223
+
+server terminal messages:
+------------------------
+Server received initial 1234 packet from '96.45.15.155:24785'     |
+Server received initial 1234 packet from '96.45.15.155:55223'     |
+
+
+wireshark client 1
+------------------
+24785 24785
+50066 24785
+
+wireshark client 2
+------------------
+24785 24785
+52394 24785
+
+
+Analysis:
+---------
+Both clients are using 24785 as their source port locally.
+When they send a packet past the router, the router uses that port number to determine which
+local IP to route the replies to.
+
+Client 1 uses port 24785
+The router maps this port to client 1, so any reply with a dest 24785 will go to client 1.
+
+Client 2 also uses port 24785
+The router cannot use that because it is already mapped to client 1
+The router assigns a new ephermal port and maps that to client 2
+Then when the router does rx a packet with that port, it translates back to the original port
+and sends to the appropriate local IP
+
+
+From the server's side, the initial packet has a port of 24785.
+The server replies with whatever port it wants the client to use to talk to it.
+
+This is not changed by the clients router.
+
+
+I think I understand how this works a lot better now...
+
+
+
+
+Now I want to try hosting a server from behind a router.
+
+Use a second router but the same internet connection.
+
+Start with R195 router and e6430-w10
+local ip 192.168.11.120
+public IP 96.45.15.146
+
+All that is needed is to set a port forwarding rule:
+from any(blank)
+to 192.168.1.120
+UDP 1-65000
+
+
+
+Now moving on to Calix
+192.168.1.142
+96.45.15.147
+
+Made a port forwarding rule:
+local LAN IP 192.168.1.142
+remote IP: all
+UDP 1-65000
+
+that works...
+
+--------------
+Beacon 6
+--------------
+
+192.168.18.4
+96.45.15.148
+
+I just needed to remove the existing port forwarding and make a new one
+
+Application name: Customer Setting
+WAN connection: 1_TR069_INTERNET_OTHER...
+WAN Port: 1-65000
+LAN Port: 1-65000
+Device name: [server's hostname]
+Internal Client: 192.168.18.4
+Protocol: UDP
+
+
+---------------------------
+Netgear Nighthawk R7000P
+---------------------------
+test as server
+
+
+lets make m36 the server
+
+wow, what if both local and internet clients could join??
+96.45.15.155
+
+they can but a local machine cannot connect with 96.45.15.155
+
+local machines can connect with m36
+
+o7040 can connect with 96.45.15.155
+
+i think that was a fluke, cannot reproduce
+
+
+start tracing from o7040
+
+wireshark on o7040 sees:
+src 192.168.18.4 24785
+dst 96.45.15.155 24785
+
+wireshark after Beacon sees:
+
+src 96.45.15.148 24785
+dst 96.45.15.155 24785
+
+so it looks like its getting through the beacon
+
+
+but I dont see it getting past the switch...
+
+dammit, I really need another internet connection
+
+
+and I need wireshark on that outgoing as well...
+
+If I drove by work and got a 3GHz Hi gain, an old box of cable and a POE....
+
+dammit, you need to do this don't you??
+
+
+
+It is done...now what?
+
+New setup on the right hand shelf:
+----------------------------------
+96.45.15.148 Beacon 6 
+192.168.18.2 e6430-w10 
+192.168.18.4 o7040 
+
+Main connection
+----------------------------------
+96.45.15.155 Netgear Nighthawk 
+m36
+
+
+
+testing m36 server and o7040 client XXX
+
+reversed works fine m36 client and o7040 server
+
+
+what I want to do is get m36 to work as server through Nighthawk
+
+lets run through the tests again...
+
+
+wireshark on o7040...packets
+
+wireshark after beacon 6
+
+
+sudo ip link add name br0 type bridge
+sudo ip link set br0 up
+sudo ip link set eno1 master br0
+sudo ip link set enxa0cec8e94d1a master br0
+sudo bridge link
+
+
+
+
+---------------
+
+
+i can seem to get anything working...
+
+lets go back to the start...
+
+
+server on pmh
+clients work on both home networks
+
+
+
+20240325 the next morning
+
+server on o7040
+client on m36
+works
+
+server on m36
+client on o7040
+works
+
+omg why did this not work last night!!
+
+what do I have set up on the routers?
+
+Netgear Nighthawk
+-----------------
+Advanced -> Advanced Setup -> Port Forwarding 
+Service Name: pms
+Protocol: UDP
+External Port Range: 1-65000
+Intrenal Port Range: 1-65000
+Internal IP address: 192.168.1.36
+
+Beacon 6 
+--------
+Advanced Setting -> Port Forwarding
+Application name: Customer Setting
+WAN connection: 1_TR069_INTERNET_OTHER_R_VID_0
+WAN port: 1-65000
+LAN port: 1-65000
+Device name: o7040
+Internal Client: 192.168.18.4
+Protocol: UDP
+Status: Active
+
+
+Next question: Can multiple clients join through Beacon on 2nd network?
+It does not appear so...
+The rule on the Beacon only does one local computer
+
+Can other clients join locally?
+yes they can
+they have a ping of 0.1 to 0.2, compared to 20-50 for o7040
+
+Tried to modify the rule of the Beacon.
+Can't add another with overlapping ports.
+Can't make local IP anything other than 1 specific IP
+Deleted and added new rule for e6430 192.168.18.2
+
+did not kick off existing first client (o7040)
+second client cannot join. request does not make it to server.
+did not see a way to reboot from menu, so I power cycled the Beacon...
+now neither will connect
+what if I reboot the nighthawk...
+
+now e6430 can connect and o7040 cannot...
+maybe rebooting nigthhawk is something I should do more often...
+
+
+next try connecting second network to pmh
+I expect the same results, only one at a time can connect
+actually both initial 1234 made it to pmh, but no join happened...
+power cycle the beacon
+now e6430 can connect to pmh
+o7040 cannot, but its 1234 reaches the server...
+this is what I should expect, the router is not limiting what I send, only what comes back...
+
+while waiting for that, can m36 connect to pmh? yes, no problem...
+
+question, does the port forwarding rule on nighthawk prevent muliple clients from joining?
+it does not.
+no rule was needed for muliple clients to work in the first place
+the rule was needed to get server to work
+
+I have to leave all this here, time for work...
+
+It is looking promising...
+
+I confirmed Beacon 6 and nighthawk can host over a real network.
+
+
+On to the next:
+R195 (now 96.45.15.159)
+
+o7040 connects to pmh
+e6430 does not
+
+Advanced -> Network -> Port Forward
+No. 1
+Comment: pm
+Src IP address: blank
+Dest IP address: 192.168.11.120
+Port Range: 1-65000
+Protocol: UDP
+
+try as server
+m36 can connect
+others also....
+
+e6430 can join on LAN 
+
+
+On to Calix
+admin / a1a550fe
+96.45.15.164
+
+o7040 connects to pmh
+e6430 does not
+
+Advanced -> Security -> Port Forwarding
+Local LAN Ports: 1-65000
+Protocol: UDP
+Local LAN IP address: 192.168.1.142
+WAN Ports: 1-65000
+Remote IP Address: All IP Addresses
+
+try as server
+m36 can connect
+others also....
+
+e6430 can join on LAN 
+
+
+wow, that all worked so well!!!
+
+
+
+I think I have answered almost all my questions
+but it would be nice to know...
+what effect, if any does upnp have?
+dmz
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+It looks like it is easier than I thought
+
+Can I describe it succinctly?
+
+
+
+
+The server will need port forwarding setup on its router.
+The local IP address of the server
+Any external IP
+UDP
+ports 1-65000
+
+this is needed so that the server will get connection attempts from any IP on the internet
+
+
+The client will need 
+
+
+
+
+
+
+How to setup Muliplayer over the Internet.
+------------------------------------------
+This is how to setup a Purple Martians multiplayer netgame over the internet.
+
+First lets setup the server.
+
+First you need to know your external IP address.
+
+Open a browser a search for whats my IP.
+
+Or go to a speedtest site.
+
+Then 
+
+
+
+
+You will need to know the local IP address of your server.
+
+Command prompt, ipconfig.
+
+Or on linux, open a terminal, ip a
+
+
+Now you will need access to your router's settings to setup a port forwarding rule.
+
+Every router does this in a slightly different manner, but here is what you are trying to achieve.
+
+Forward incoming UDP traffic from the internet to the server.
+The information you need to set up the port forwarding rule:
+
+From or source IP
+or WAN
+
+You should set this to 'any' or 'all' if possible.
+This will allow clients from any IP to connect.
+If you only have one person that wants to connect and you know their IP you can set it to just that.
+
+From or source IP
+
+
+
+
+
+
+Lets go through the Nokia Beacon 6 setup.
+
+There is no setting for WAN IP. So it will apply to all WAN IPs.
+
+WAN Port:
+We have a range here, so you can set 1 to 65000, or you could set 24785 and 24785 for single.
+
+LAN Port:
+Put the same as whatever you chose for WAN Port.
+
+Internal Client:
+This is the server.
+All you need to do is choose the host name from the drop down list. The IP is filled in.
+
+Protocol:
+UDP is what we want here.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+It has to be any IP, unless you only want to allow your one friend to connect.
+
+It has to be a wide range of ports, unless only one person will ever connect.
+In that case you can use port 24785.
+
+Here are a few examples of setting this up on different routers...
+
+R195
+
+Calix
+
+Beacon 6
+
+
+
+
+
+Netgear NightHawk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+To join a Netgame hosted on the Internet.
+-----------------------------------------
+
+Just like the LAN example, you need to know the IP address of the server.
+
+In this case it's the external IP.
+
+In most cases you will also need to set a port forwarding rule on the router.
+
+
+
+
+
+----------------------------------------------------------------------
+
+
+port numbers....
+
+Port type	Range	Description
+
+Well-known	0 to 1023	IANA assigns these numbers to the applications those are commonly used on the Internet such as DNS and HTTP.
+
+Registered	1024 to 49151	IANA assigns these numbers to the applications those are proprietary applications such as Shockwave and Oracle.
+
+Dynamically assigned	49152 to 65535	Sending device assigns these numbers to the sessions.
+
+
+When a client sends its first packet to the server 1234
+it uses port 24785 for both src and dst
+
+This is what the client sends
+
+src 192.168.18.4 24785
+dst 96.45.15.155 24785
+
+the router links the source ip and port
+if it gets a reply with that port number it knows what internal ip to send it to
+then the router replaces the internal ip address with the external one
+
+src 96.45.15.148 24785
+dst 96.45.15.155 24785
+
+if the router already has linked port 24785 with another local ip
+the router will make up a new ephermal port
+
+src 96.45.15.148 50001
+dst 96.45.15.155 24785
+
+---------------------
+when the server receives the packet 
+
+somehow the router needs to know what internal ip to send it to...
+
+
+
+
+
+
+
+
+I think I want to change how my program works....
+
+the server should have a known port, like 24785
+
+the client should not. it should be an ephermal port, made up on the spot
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
