@@ -37,7 +37,7 @@ int mwNetgame::ClientInitNetwork(void)
       return 0;
    }
 
-   char target[256];
+   char target[300];
    sprintf(target, "%s:%d", serveraddress, server_UDP_listen_port);
    if (net_assigntarget(ServerChannel, target))
    {

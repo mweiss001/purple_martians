@@ -108,7 +108,9 @@ void mwNetgame::change_address_port(char * address, int port)
    ret[1] = 0;
 
    // add new port
-   sprintf(address, "%s%d", address, port);
+   char port_str[16];
+   sprintf(port_str, "%d", port);
+   strcat(address, port_str);
 
    printf("New address:%s\n", address);
 }
@@ -116,7 +118,7 @@ void mwNetgame::change_address_port(char * address, int port)
 int mwNetgame::get_local_port_from_channel(NET_CHANNEL *chan)
 {
    char local_port[256];
-   sprintf(local_port, net_getlocaladdress(chan));
+   strcpy(local_port, net_getlocaladdress(chan));
    local_port[0] = 32; // remove leading ':'
    int port = atoi(local_port);  // convert to int
    return port;

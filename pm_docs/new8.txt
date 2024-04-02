@@ -47800,6 +47800,50 @@ new version
 
 
 
+g++ -Wall -c src/mwMiscFnx.cpp -o o/src/mwMiscFnx.o
+g++ -Wall -c src/mwMulticolorLine.cpp -o o/src/mwMulticolorLine.o
+g++ -Wall -c src/mwNetgameClient.cpp -o o/src/mwNetgameClient.o
+src/mwNetgameClient.cpp: In member function ‘int mwNetgame::ClientInitNetwork()’:
+src/mwNetgameClient.cpp:41:24: warning: ‘%d’ directive writing between 1 and 11 bytes into a region of size between 0 and 255 [-Wformat-overflow=]
+   41 |    sprintf(target, "%s:%d", serveraddress, server_UDP_listen_port);
+      |                        ^~
+src/mwNetgameClient.cpp:41:11: note: ‘sprintf’ output between 3 and 268 bytes into a destination of size 256
+   41 |    sprintf(target, "%s:%d", serveraddress, server_UDP_listen_port);
+      |    ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+g++ -Wall -c src/mwNetgame.cpp -o o/src/mwNetgame.o
+src/mwNetgame.cpp: In member function ‘int mwNetgame::get_local_port_from_channel(NET_CHANNEL*)’:
+src/mwNetgame.cpp:119:49: warning: format not a string literal and no format arguments [-Wformat-security]
+  119 |    sprintf(local_port, net_getlocaladdress(chan));
+      |                                                 ^
+src/mwNetgame.cpp: In member function ‘void mwNetgame::change_address_port(char*, int)’:
+src/mwNetgame.cpp:111:11: warning: ‘sprintf’ argument 3 overlaps destination object ‘address’ [-Wrestrict]
+  111 |    sprintf(address, "%s%d", address, port);
+      |    ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+g++ -Wall -c src/mwNetgameServer.cpp -o o/src/mwNetgameServer.o
+g++ -Wall -c src/mwNetgameServerFileTransfer.cpp -o o/src/mwNetgameServerFileTransfer.o
+g++ -Wall -c src/mwNetgameSessionLog.cpp -o o/src/mwNetgameSessionLog.o
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
