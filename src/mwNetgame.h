@@ -104,6 +104,14 @@ class mwNetgame
    int NetworkDriver;
    int NetworkInit();
 
+
+   void change_address_port(char * address, int port);
+   int get_dynamic_port(void);
+
+   int get_local_port_from_channel(NET_CHANNEL *chan);
+
+
+
    mwStateHistory mStateHistory[8];
 
    // debug testing of sending more packets
@@ -158,6 +166,9 @@ class mwNetgame
    NET_CHANNEL *ServerChannel = NULL;
 
    int  ClientInitNetwork(void);
+
+
+
    void ClientExitNetwork(void);
    int  ClientCheckResponse(void);
    int  ClientReceive(void *data);
@@ -200,6 +211,8 @@ class mwNetgame
    int ClientChannelLastRX[MAX_CLIENTS] = {0};          // keep track of last rx from channel
 
 
+
+
    int  ServerInitNetwork(void);
    void ServerExitNetwork(void);
    void ServerListen(void);
@@ -209,7 +222,7 @@ class mwNetgame
 
    int ServerFindUnusedChannel(void);
 
-
+   int ServerGetNewDynamicPort(void);
 
    int server_get_player_num_from_who(int who);
 

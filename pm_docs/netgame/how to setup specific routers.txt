@@ -1,0 +1,160 @@
+Tested 20240328
+
+
+Netgear Nighthawk
+-----------------
+
+client needs nothing to work and even more impressive, all clients in LAN work
+
+server:
+
+Advanced -> Advanced Setup -> Port Forwarding 
+Service Name: pm_server
+Protocol: UDP
+External Port Range: 24785-24785
+Intrenal Port Range: 24785-24785
+Internal IP address: 192.168.1.36
+
+
+
+
+
+Beacon 6 
+--------
+Advanced Setting -> Port Forwarding
+Application name: Customer Setting
+WAN connection: 1_TR069_INTERNET_OTHER_R_VID_0
+WAN port: 49152-65535
+LAN port: 49152-65535
+Device name: o7040
+Internal Client: 192.168.18.4
+Protocol: UDP
+Status: Active
+
+
+Advanced Setting -> Port Forwarding
+Application name: Customer Setting
+WAN connection: 1_TR069_INTERNET_OTHER_R_VID_0
+WAN port: 24785-24785
+LAN port: 24785-24785
+Device name: o7040
+Internal Client: 192.168.18.4
+Protocol: UDP
+Status: Active
+
+
+
+
+
+Calix
+-----
+Advanced -> Security -> Port Forwarding
+
+client
+Local LAN Ports: 49152-65535
+Protocol: UDP
+Local LAN IP address: 192.168.1.142
+WAN Ports: 49152-65535
+Remote IP Address: All IP Addresses
+
+server
+Local LAN Ports: 24785-24785
+Protocol: UDP
+Local LAN IP address: 192.168.1.142
+WAN Ports: 24785-24785
+Remote IP Address: All IP Addresses
+
+dmz works for both client and server
+
+
+
+
+
+DLINK-DIR-615
+-------------
+Port forwarding rules:
+
+name: pm_client
+ip address: 192.168.0.100
+application name: nothing
+computer name: nothing
+TCP 0
+UDP 49152-65535
+schedule: always
+inbound filter: allow all
+
+name: pm_server
+ip address: 192.168.0.100
+application name: nothing
+computer name: nothing
+TCP 0
+UDP 24785
+schedule: always
+inbound filter: allow all
+
+
+R195
+----
+Network -> Port Forward
+
+Comment: pm_client
+Src IP address: blank
+Dest IP address: 192.168.11.120
+Port Range: 49152-65535
+Protocol: UDP
+
+Comment: pm_server
+Src IP address: blank
+Dest IP address: 192.168.11.120
+Port Range: 24785-24785
+Protocol: UDP
+
+
+
+
+
+RVS4000 4-Port Security Router with VPN
+----------------------------------------
+
+Port Range Forwarding:
+application: pm_client
+start: 49152
+end: 65535
+protocol: UDP
+ip address: 192.168.1.100
+
+
+Single Port Forwarding:
+application: pm_server
+external port: 24785
+internal port: 24785
+protocol: UDP
+ip address: 192.168.1.100
+
+
+Cisco RV345 16 port Gigabit Ethernet Dual WAN
+---------------------------------------------
+System Configuration -> Service Management
+
+Application Name: pm_client
+Protocol: UDP
+Port Start: 49152
+Port End: 65535
+
+Application Name: pm_server
+Protocol: UDP
+Port Start: 24785
+Port End: 24785
+
+Firewall -> Port Forwarding
+
+External Service: pm_client
+Internal Service: pm_client
+Internal IP Address: 192.168.1.107
+Interface: WAN1
+
+External Service: pm_server
+Internal Service: pm_server
+Internal IP Address: 192.168.1.107
+Interface: WAN1
+

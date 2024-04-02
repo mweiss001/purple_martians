@@ -85,6 +85,20 @@ int mwNetgame::ServerFindUnusedChannel(void)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwNetgame::ServerListen(void)
 {
    char msg[256];
@@ -107,14 +121,13 @@ void mwNetgame::ServerListen(void)
             return;
          }
 
-         if (!(ClientChannel[n] = net_openchannel(NetworkDriver, NULL))) // use dynamic port
+         if (!(ClientChannel[n] = net_openchannel(NetworkDriver, NULL))) // use dynamic source port
          {
             sprintf(msg, "Error: failed to open channel for %s\n", address);
             mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
             mInput.m_err(msg);
             return;
          }
-
          if (net_assigntarget(ClientChannel[n], address))
          {
             sprintf(msg, "Error: couldn't assign target `%s' to channel\n", address);
@@ -130,31 +143,42 @@ void mwNetgame::ServerListen(void)
          ServerSendTo(data, pos, n);
 
          mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server opened channel for `%s' and sent reply", address);
-
          if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, n);
       }
    }
 
-   // check for stale channels
+   // check and remove stale channels
    for (int n=0; n<MAX_CLIENTS; n++)
       if (mNetgame.ClientChannel[n])
       {
+         int remove_channel = 0;
+
          // last rx is more than 200 frames behind current frame
-         if ((mLoop.frame_num - mNetgame.ClientChannelLastRX[n]) > 200)
+         if ((mLoop.frame_num - mNetgame.ClientChannelLastRX[n]) > 200) remove_channel = 1;
+
+
+         // if channel is associated with active player do not remove channel
+         // this should never happen, unless something really strange is going on
+         // still, this check will prevent server from crashing
+         // which it will do if we try to send something to a client that has its channel deleted
+         if (server_get_player_num_from_who(n) != -1) remove_channel = 0;
+
+         if (remove_channel)
          {
             net_closechannel(ClientChannel[n]);
             ClientChannel[n] = NULL;
             ClientChannelLastRX[n] = 0;
-         }
+            mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Removed inactive client channel:%d", n);
 
-         // if removing remote control channel, make sure we turn off remote control
-         // or else server will keep trying to send snfo packets to the channel we just removed
-         if ((mMain.server_remote_control) && (mMain.server_remote_control_who == n))
-         {
-            mMain.server_remote_control = 0;
-            mMain.server_remote_control_who = -99;
-         }
 
+            // if removing remote control channel, make sure we turn off remote control
+            // or else server will keep trying to send snfo packets to the channel we just removed
+            if ((mMain.server_remote_control) && (mMain.server_remote_control_who == n))
+            {
+               mMain.server_remote_control = 0;
+               mMain.server_remote_control_who = -99;
+            }
+         }
       }
 }
 

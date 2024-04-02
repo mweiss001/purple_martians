@@ -47767,6 +47767,45 @@ comment out in screen overlay and release...
 
 
 
+20240402
+
+tried a lots of experimentation with the initial client join..
+
+the hope was to reduce the ammount of ports that I needed to open, especially for client
+
+I was not successfull so I reverted... details are in the file Netgame over Internet
+
+
+what I need to do is open one port for server 24795, and a range for client 49152-65535
+
+the things I don't like about that are:
+
+1. That is a big range to open for client.
+2. Even with all those ports open on a client router, only one client can connect past that.
+Because the port forwarding rule can only point at one LAN IP.
+I really wonder why the Nighthawk can do multiple clients and does not need client port forwarding.
+
+I think I am stuck with these limitations. Unless I go with a third party setup like RakNet or something.
+And I really like doing ot my way.
+Maybe I could just use that to setup the connections, and do the rest my way....
+Not now though, or anytime soon either....
+
+
+new version
+
+7.24.0402.1
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
