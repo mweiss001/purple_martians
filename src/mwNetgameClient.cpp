@@ -87,6 +87,9 @@ int mwNetgame::ClientInitNetwork(void)
    return 1;
 }
 
+
+
+
 int mwNetgame::ClientCheckResponse(void) // check for a repsonse from the server
 {
    char data[1024] = {0}; int pos;
@@ -132,6 +135,7 @@ int mwNetgame::ClientCheckResponse(void) // check for a repsonse from the server
 
    return 0;
 }
+
 
 void mwNetgame::ClientExitNetwork(void)
 {

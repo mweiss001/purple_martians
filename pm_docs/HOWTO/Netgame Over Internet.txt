@@ -1,5 +1,10 @@
 
 
+
+
+
+
+
 The only method I have found so far that works is to have the server directly connect to the internet.
 
 It might also work with a DMZ that some advanced routers have...
@@ -7,9 +12,6 @@ It might also work with a DMZ that some advanced routers have...
 
 
 I would like to make it simpler. If I had my own relay server setup to help fist time connections succeed...
-
-
-
 
 
 
@@ -986,9 +988,7 @@ somehow the router needs to know what internal ip to send it to...
 
 
 
-
-
-
+----------------------------------------------------------------------
 
 
 I think I want to change how my program works....
@@ -998,58 +998,1430 @@ the server should have a known port, like 24785
 the client should not. it should be an ephermal port, made up on the spot
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ----------------------------------------------------------------------
+
+now that I have made these changes, i want to run the tests again and see if anything has changed
+and also see if there is a more minim,al setup that will work...
+
+
+do the client tests first
+
+use pmh as the server
+96.45.9.166
+
+and my second network at home
+96.45.15.164
+
+
+
+Calix...
+
+still has original port forward rule:
+1-65000 192.168.1.142 UDP 1-65000 All IP addresses
+
+does not work...
+
+porobably because its local IP is now 192.168.1.112
+
+change rule
+24785-65535 192.168.1.112 UDP 24785-65535 All IP addresses
+
+now it works...
+
+what if I made the rule?
+49152-65535 192.168.1.112 UDP 49152-65535 All IP addresses
+
+works
+
+what if I made the rule?
+49152-65535 192.168.1.112 UDP 49152-65535 96.45.9.166
+works
+
+what if I had no rule?
+does not work
+
+I just looked an UPnP seems to be enabled...
+
+I have UPnP state and UPnP NAT-T state both enabled
+
+Restoring Calix to Defaults...
+
+does not work...
+
+UPnP state and UPnP NAT-T state are both enabled...
+
+I need the port forward rule enabled or it does not work...
+
+remove the rule and try other settings...
+
+firewall off and stealth mode off...no
+
+application forwarding: no
+
+dmz for 192.168.1.112...works!!!
+unfortunately I can only specify one internal ip for this...
+
+what to test next?
+
+use this router as server?
+
+try...it works!!
+
+the only this I have done is dmz
+
+server: o7040
+clients:
+m36
+2x 4230
+and one LAN e6430
+
+disabled dmz
+
+now join does not reach server
+
+
+lets see if port forward works..
+
+1-65000 192.168.1.112 UDP 1-65000 All IP addresses
+yes it works...
+
+lets restrict it a bit...
+
+change rule
+24785-65535 192.168.1.112 UDP 24785-65535 All IP addresses
+works
+
+
+change rule
+24785-24785 192.168.1.112 UDP 24785-24785 All IP addresses
+works for server...
+wow!
+only one port open and server works!
+
+change rule
+49152-65535 192.168.1.112 UDP 49152-65535 All IP addresses
+does not work for server...
+
+This might be premature, but...
+- only one port needed for server
+- only dynamic range (49152-65535) needed for client
+- dmz only works for both
+
+that's it, lets try another router...
+
+
+moving onto Beacon 6.................................
+
+
+96.45.15.179
+192.168.18.4
+
+I think I will use pmh as the server...
+96.45.9.166
+
+no rule on Beacon
+packet get to pmh but never returns..
+
+try rule:
+1-65535 o7040 UDP
+works
+
+try rule:
+49152-65535 o7040 UDP
+works
+
+disable port forwarding and enable dmz
+works
+
+lets try this as server
+with dmz, server got 1234 but client never got reply
+
+I am experiencing the strangest bug...
+
+I am trying to connect with m36 as a client
+m36 is 96.45.15.155
+
+when I connect to pmh, this is what I see:
+
+
+[10][0][1196]|        Server received initial 1234 packet from '96.45.15.155:60459'     |
+[10][0][1196]|        Server opened channel for `96.45.15.155:60459' and sent reply     |
+[10][0][1198]+--------------------------------------------------------------------------+
+[10][0][1198]|        Server received join request from m36 requesting color:8          |
+[10][0][1198]|        Server replied with join invitation:                              |
+[10][0][1198]+--------------------------------------------------------------------------+
+[10][1][1198]+--------------------------------------------------------------------------+
+[10][1][1198]|        Player:1 became ACTIVE!                                           |
+[10][1][1198]+--------------------------------------------------------------------------+
+
+this is what I would expect...
+
+
+however when I try to connect to o7040 96.45.15.179
+the server gets the 1234, but it says it is from 96.45.15.179
+how can it be from itself???
+
+this makes no sense at all...
+turned off dmz on beacon...
+
+turned on the port forward and now it does what I think it should...
+rule
+1-65535 o7040 UDP
+works
+
+rule
+24785-24785 o7040 UDP
+works
+
+again only one port needs to be forwarded for server to work
+test LAN works
+test 2 x 4230 works...
+
+so on the Beacon
+24785-24785 o7040 UDP
+49152-65535 o7040 UDP
+
+what about port triggering?
+
+set up client router so that when 24785 is sent, it opens port 49152-65535
+
+try that on beacon...
+
+this port triggering rule works for client on beacon
+open port 49152-65535
+triggering port 24785-24785
+expiration 10s
+open protocol UDP
+trigger protocol UDP
+
+but it only allows one client to connect.
+even though it does not specify the local IP, it only allows one to work....
+even though I specified 10s it does not seem to time out, not sure how long I have to wait...
+but erasing and recreating the rule resets it
+
+
+moving on to a new router
+
+DLINK-DIR-615
+
+restore all to factory defaults
+client works out of the box...
+2nd does not
+now neither work...
+
+turn off UPnP
+
+first client works
+2nd does not
+then first does not work either
+weird...
+
+made a port forwarding rule
+
+name: pm_client
+ip address: 192.168.0.100
+application name: nothing
+computer name: nothing
+TCP 0
+UDP 49152-65535
+schedule: always
+inbound filter: allow all
+
+this works well.
+
+when set to 100 o7040 consistantly connects and 101 for e6430
+both cannot connect at same time
+
+
+all that is left is to test this as server...
+
+96.45.15.182
+
+name: pm_server
+ip address: 192.168.0.100
+application name: nothing
+computer name: nothing
+TCP 0
+UDP 24785
+schedule: always
+inbound filter: allow all
+
+it works!!
+
+
+
+
+next
+RVS4000 4-Port Security Router with VPN
+96.45.15.187
+
+client
+port forwarding rule:
+
+port range forwarding:
+application: pm
+start: 49152
+end: 65535
+protocol: UDP
+ip address: 192.168.1.100
+works
+
+server
+port forwarding rule:
+
+single port forwarding:
+application: pm
+external port: 24785
+internal port: 24785
+protocol: UDP
+ip address: 192.168.1.100
+works
+
+
+next:
+
+cisco RV345
+this is a more complex router...
+
+
+
+
+System Configuration -> Service Management
+
+made a service called pm_client
+
+Application Name: pm_client
+Protocol: UDP
+Port Start: 49152
+Port End: 65535
+
+
+made a service called pm_server
+
+Application Name: pm_server
+Protocol: UDP
+Port Start: 24785
+Port End: 24785
+
+Firewall -> Port Forwarding
+
+External Service: pm_client
+Internal Service: pm_client
+Internal IP Address: 192.168.1.107
+Interface: WAN1
+
+
+That worked!!!
+
+I have 100% success so far....
+
+I have a thought...
+
+Is port forwarding similar to firewall?
+
+Why does R7000P just work?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------
+
+Wait a minute here!!!
+
+I have been thinking about why the clients need a huge wide range of ports forwarded and ways to avoid that.
+
+
+the client sends something to ip:24785
+
+but what it gets in reply is ip:ephermal port
+
+that is why it doesn't automatically let it through
+
+
+what if I replied to the client on the same port, and told it about a new port to communciate on?
+
+could this work?
+
+if it does I could avoid having the clients open a huge range of ports
+
+
+block it out...
+
+IP:24785
+
+server makes new channel just the same as before
+
+but...server replies on listen channel and tells client what its new port is....
+
+
+this is mostly in place but I am having some problems
+
+This is what I have:
+
+Client sends 1234 - same
+Server gets  1234 - same
+server makes new channel - same
+
+server replies with 5678, here there are differences
+
+the 5678 packet has the new port appended to it
+server uses Listen Channel to reply
+server sets the target address of the Listen Channel 
+
+client recives from the server
+when it get 5678, it gets the new port from the payload and updates the port on the server channel
+
+then the client send the join packet to the server with this new port
+
+but the server never gets the join....
+
+
+
+I think what is happening is the servers router, rejects the join
+because it has never snet anything to that port, so when it gets something back it rejects it..
+
+I tried to make the server send a junk packet on that port, just to open it..
+
+When do that, the server actually receives the join request...
+
+The server replies with the sjon amd makes the client active 
+
+But the client never receives the sjon
+
+
+I might have to break out wireshark here...
+
+
+just for testing I added the client rule rule back on the client
+
+that borks at the same place...
+
+the second time it worked....
+
+client wireshark log:
+tx 1234 61875 24785
+rx 5678 24785 61874
+rx JUNK 59033 61874
+tx cjon 61874 59033
+rx sjon 59033 61874
+
+server wireshark log:
+rx 1234 61875 24785
+tx 5678 24785 61874
+tx JUNK 59033 61874
+rx cjon 61874 59033
+tx sjon 59033 61874
+
+OK I think it works in principle
+
+lets do the same without the rule
+
+
+client wireshark log:
+tx 1234 52544 24785
+rx 5678 24785 52544
+tx cjon 52544 55676
+
+server wireshark log:
+rx 1234 52544 24785
+tx 5678 24785 52544
+tx JUNK 55676 52544
+destination host unreachable...ICMP for packet JUNK
+rx cjon  1024 55676 ... what? why 1024
+tx sjon 55676 52544
+destination host unreachable...ICMP for packet sjon
+
+at least I can see where it is going wrong....
+
+the server can't send the junk packet
+
+probabaly doesnt get through the servers router
+
+but wait, that doesnt seem right, that's not the direction things get blocked...
+
+the client's router is probabaly blocking, beacuse it rejects from that port it has never sent from
+
+so, what if I make the client send junk packet....
+
+and remove server sending junk packet
+
+
+what is happening now?
+
+client wireshark log:
+tx 1234 63027 24785
+rx 5678 24785 63027
+tx junk 63027 64233
+tx cjon 63027 64233
+
+server wireshark log:
+rx 1234 63027 24785
+tx 5678 24785 63027
+
+server never gets cjon
+
+ok lets add back in the server sending JUNK
+
+client wireshark log:
+tx 1234 57308 24785
+rx 5678 24785 57308
+tx junk 57308 57293
+tx cjon 57308 57293
+
+
+server wireshark log:
+rx 1234 57308 24785
+tx 5678 24785 57308
+tx JUNK 57293 57308
+destination host unreachable...ICMP for packet JUNK
+rx junk  1024 57293 ... what? why 1024
+rx cjon  1024 57293 ... what? why 1024
+tx sjon 57293 57308
+
+
+
+I am getting bogged down here...
+why do I care?
+I just would like to not have to have the clients open that huge range of ports
+
+
+I think what has happened is the client sends junk on 57293
+the server rx junk on 57293, but the source port has been changed to 1024
+
+what router did that?
+
+
+
+is there another way of doing this?
+
+more setup?
+
+I can send to the server and receive back
+but how to setup more channels?
+
+
+------------------
+
+20240401
+
+reproduce now that I can sniff after router...
+
+client wireshark log:
+tx 1234 54674 24785
+rx 5678 24785 54674
+tx junk 54674 60778
+tx cjon 54674 60778
+
+after router wireshark log:
+tx 1234 54674 24785
+rx 5678 24785 54674
+rx sjnk 60778 54674
+destination host unreachable (port unreachable)...ICMP for packet sjnk (from R195 to Netgaer)
+rx junk  1024 60778 ... what? why 1024
+rx cjon  1024 60778 ... what? why 1024
+tx sjon 60778 54674
+
+
+server wireshark log:
+rx 1234 54674 24785
+tx 5678 24785 54674
+tx sjnk 60778 54674
+destination host unreachable (port unreachable)...ICMP for packet sjnk (from 129 to 155)
+rx junk  1024 60778 ... what? why 1024
+rx cjon  1024 60778 ... what? why 1024
+tx sjon 60778 54674
+
+
+analyze....
+
+
+server sends sjnk on port 60778
+clients router rejects it because of port unreachable
+
+
+
+
+
+
+do it again, this time with actual dumps
+-----------------------------------------
+
+server:
+    358 32.842757      96.45.15.129          192.168.1.36          UDP      60     58450 → 24785 Len=4
+    359 32.857060      192.168.1.36          96.45.15.129          UDP      50     24785 → 58450 Len=8
+    360 32.858461      192.168.1.36          96.45.15.129          UDP      46     65511 → 58450 Len=4
+    361 32.872476      96.45.15.129          192.168.1.36          ICMP     74     Destination unreachable (Port unreachable)
+    362 33.000183      96.45.15.129          192.168.1.36          UDP      60     1024 → 65511 Len=4
+    363 33.005107      96.45.15.129          192.168.1.36          UDP      63     1024 → 65511 Len=21
+    364 33.027382      192.168.1.36          96.45.15.129          UDP      57     65511 → 58450 Len=15
+    365 33.052479      96.45.15.129          192.168.1.36          ICMP     85     Destination unreachable (Port unreachable)
+    366 33.055033      192.168.1.36          96.45.15.129          UDP      1065   65511 → 58450 Len=1023
+
+client:
+      2 22.653745      192.168.11.120        96.45.15.155          UDP      46     58450 → 24785 Len=4
+      3 22.685846      96.45.15.155          192.168.11.120        UDP      60     24785 → 58450 Len=8
+      4 22.812866      192.168.11.120        96.45.15.155          UDP      46     58450 → 65511 Len=4
+      5 22.817113      192.168.11.120        96.45.15.155          UDP      63     58450 → 65511 Len=21
+
+after client router:
+    193 36.161814631   96.45.15.129          96.45.15.155          UDP      60     58450 → 24785 Len=4
+    194 36.192513885   96.45.15.155          96.45.15.129          UDP      60     24785 → 58450 Len=8
+    195 36.192514082   96.45.15.155          96.45.15.129          UDP      60     65511 → 58450 Len=4
+    196 36.192977023   96.45.15.129          96.45.15.155          ICMP     74     Destination unreachable (Port unreachable)
+    199 36.320889821   96.45.15.129          96.45.15.155          UDP      60     1024 → 65511 Len=4
+    200 36.325055518   96.45.15.129          96.45.15.155          UDP      63     1024 → 65511 Len=21
+    201 36.372518042   96.45.15.155          96.45.15.129          UDP      60     65511 → 58450 Len=15
+    202 36.372927897   96.45.15.129          96.45.15.155          ICMP     85     Destination unreachable (Port unreachable)
+    203 36.412544313   96.45.15.155          96.45.15.129          UDP      1065   65511 → 58450 Len=1023
+
+
+what is the order?
+
+server assigns 24795 to listen port
+server receives 1234 from client 58450 on listen port 
+
+server creates a new channel for this client and dynamically assigns 65511 to it
+
+server assigns target 58450 to listen channel
+
+server sends 5678 on listen channel (that also contains new channel port 65511)
+.02s later
+server sends sjnk on new channel port 65511 (purpose is to get server's router to open that port for incoming)
+.02s later
+server get ICMP from R195 Destination unreachable (Port unreachable)
+0.13s later
+server gets cjnk on port 65511 (this is correct) but src port is 1024
+.....
+
+
+client dynamically assigns itself 58450
+client sends 1234 to listen port from 58450 
+client gets 5678 on listen channel from server, with new server port 
+client changes target port for server to new server port (65511)
+client sends cjnk packet to server (65511)
+client sends cjon packet to server (65511)
+
+where it breaks on the router...
+
+the client sends cjnk from 58450 to 65511
+the router (R195) changes the source port from 58450 to 1024
+
+why?
+maybe....because it already had an mapping from that internal ip to an external port....
+
+maybe....
+
+what if the server sent back to the client 2 new ports to use?
+
+.....
+
+goddamn it, now you have to try that...
+
+I think I have it implemented.
+
+It works on LAN but still not on WAN...details...
+
+server:
+    245 28.031218      96.45.15.129          192.168.1.36          UDP      60     58697 → 24785 Len=4
+    246 28.048369      192.168.1.36          96.45.15.129          UDP      54     24785 → 58697 Len=12
+    247 28.054676      192.168.1.36          96.45.15.129          UDP      46     51094 → 52750 Len=4
+    248 28.073256      96.45.15.129          192.168.1.36          ICMP     74     Destination unreachable (Port unreachable)
+    251 28.199135      96.45.15.129          192.168.1.36          UDP      60     1024 → 51094 Len=4
+    252 28.203266      96.45.15.129          192.168.1.36          UDP      63     1024 → 51094 Len=21
+    253 28.219774      192.168.1.36          96.45.15.129          UDP      57     51094 → 52750 Len=15
+    255 28.248391      192.168.1.36          96.45.15.129          UDP      1065   51094 → 52750 Len=1023
+    256 28.248404      192.168.1.36          96.45.15.129          UDP      1065   51094 → 52750 Len=1023
+
+client:
+     15 16.494982      192.168.11.120        96.45.15.155          UDP      46     58697 → 24785 Len=4
+     16 16.534881      96.45.15.155          192.168.11.120        UDP      60     24785 → 58697 Len=12
+     17 16.661720      192.168.11.120        96.45.15.155          UDP      46     52750 → 51094 Len=4
+     18 16.666911      192.168.11.120        96.45.15.155          UDP      63     52750 → 51094 Len=21
+
+past client router:
+     14 1.750054063    96.45.15.155          255.255.255.255       TiVoConnect 209    Discovery Beacon R7000P (uuid:4d696e69-444c-164e-9d41-9c3dcf2aa77b)
+    114 23.233494931   96.45.15.129          96.45.15.155          UDP      60     58697 → 24785 Len=4
+    115 23.272646195   96.45.15.155          96.45.15.129          UDP      60     24785 → 58697 Len=12
+    116 23.275118786   96.45.15.155          96.45.15.129          UDP      60     51094 → 52750 Len=4
+    117 23.275535664   96.45.15.129          96.45.15.155          ICMP     74     Destination unreachable (Port unreachable)
+    119 23.400248702   96.45.15.129          96.45.15.155          UDP      60     1024 → 51094 Len=4
+    120 23.405330608   96.45.15.129          96.45.15.155          UDP      63     1024 → 51094 Len=21
+    121 23.440121148   96.45.15.155          96.45.15.129          UDP      60     51094 → 52750 Len=15
+    122 23.440522671   96.45.15.129          96.45.15.155          ICMP     85     Destination unreachable (Port unreachable)
+    123 23.485150406   96.45.15.155          96.45.15.129          UDP      1065   51094 → 52750 Len=1023
+    124 23.485566805   96.45.15.129          96.45.15.155          ICMP     590    Destination unreachable (Port unreachable)
+    125 23.490175108   96.45.15.155          96.45.15.129          UDP      1065   51094 → 52750 Len=1023
+    126 23.490574264   96.45.15.129          96.45.15.155          ICMP     590    Destination unreachable (Port unreachable)
+    127 23.500154833   96.45.15.155          96.45.15.129          UDP      1065   51094 → 52750 Len=1023
+    128 23.500155089   96.45.15.155          96.45.15.129          UDP      418    51094 → 52750 Len=376
+    129 23.500622294   96.45.15.129          96.45.15.155          ICMP     590    Destination unreachable (Port unreachable)
+    130 23.500701637   96.45.15.129          96.45.15.155          ICMP     446    Destination unreachable (Port unreachable)
+    131 23.505137707   96.45.15.155          96.45.15.129          UDP      1065   51094 → 52750 Len=1023
+    132 23.510109154   96.45.15.155          96.45.15.129          UDP      1065   51094 → 52750 Len=1023
+
+
+It looks like the same result as before 
+
+I am ready to give up and go back to what I know works...
+
+first of all detail what you did:
+
+client dynamically assigns itself 58697
+client sends 1234 to listen port from 58697 
+client gets 5678 on listen channel from server, with new_server_target_port:51094 and new_client_source_port:52750
+client closes and reopens ServerChannel to set new local address (port) 52750
+client changes target port for server to new server port (51094)
+client sends cjnk packet to server (51094)
+client sends cjon packet to server (51094)
+
+server assigns 24795 to listen port
+server receives 1234 from client 58697 on listen port 
+server creates a new channel for this client and dynamically assigns 51094 to it as the server's port
+server assigns target 58697 to listen channel
+server gets new random client source port: 52750
+server sends 5678 on listen channel with new_server_target_port:51094 and new_client_source_port:52750
+server sends sjnk on new channel port 51094 (purpose is to get server's router to open that port for incoming)
+server get ICMP from R195 Destination unreachable (Port unreachable)
+server gets cjnk on port 51094 (this is correct) but src port is 1024
+
+
+The packets the server sends to the client on the client channel (sjnk and sjon) do not get there
+R195 sends ICMP port unreachable
+what port would that be? 52750
+R195 delivers the 5678 on port 58697, sent from the listen channel, but not the sjnk sent from the clientchannel
+
+I think there can only be one mapping in the router...
+
+when I send something from client internal IP through router, it maps that port in the router so it knows where to come back to
+
+what if the client replied to the server on the listen channel?
+i don't think you are on the right track here, that seems to get through
+...yes, but on the wrong port...the router changes it....
+
+ClientCheckRepsonse
+
+      char address[32];
+      int len = net_receive(ServerChannel, data, 1024, address);
+      if (len >= 4)
+      {
+         if (mPacketBuffer.PacketRead(data, "5678"))
+         {
+            mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Got Response");
+
+            // change target port to the one in the packet
+
+            int new_server_target_port = 0;
+            memcpy(&new_server_target_port, data + pos, 4);
+
+
+            pos +=4;
+
+            int new_client_source_port = 0;
+            memcpy(&new_client_source_port, data + pos, 4);
+
+
+            printf("rx 5678 new_server_target_port:%d new_client_source_port:%d\n", new_server_target_port, new_client_source_port);
+
+
+            printf("closing and reopening channel with new binding\n");
+            net_closechannel(ServerChannel);
+
+            char ncsp[256];
+            sprintf(ncsp, ":%d", new_client_source_port);
+
+            ServerChannel = net_openchannel(NetworkDriver, ncsp);
+
+            change_address_port(address, new_server_target_port);
+            net_assigntarget(ServerChannel, address);
+
+//            printf("Target:[%s]", target);
+
+            printf("Local address:[%s]", net_getlocaladdress(ServerChannel));
+
+
+            char data[1024] = {0}; int pos;
+            mPacketBuffer.PacketName(data, pos, "cjnk");
+            ClientSend(data, pos);
+
+
+
+ServerListen
+
+      if (mPacketBuffer.PacketRead(data, "1234"))
+      {
+         mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received initial 1234 packet from '%s'", address);
+
+         int n = ServerFindUnusedChannel();
+
+         if (n == -1)
+         {
+            sprintf(msg, "Error: could not find empty channel\n");
+            mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
+            mInput.m_err(msg);
+            return;
+         }
+
+
+
+
+
+         if (!(ClientChannel[n] = net_openchannel(NetworkDriver, NULL))) // use dynamic source port
+         {
+            sprintf(msg, "Error: failed to open channel for %s\n", address);
+            mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
+            mInput.m_err(msg);
+            return;
+         }
+         printf("Server opened ClientChannel:%d for:%s\n", n, address);
+
+         int new_port = get_local_port_from_channel(ClientChannel[n]);
+         printf("Local address (port) of ClientChannel:%d is %d\n", n, new_port);
+
+
+         net_assigntarget(ListenChannel, address);
+         printf("Server assigned target `%s' to ListenChannel\n", address);
+
+
+
+         // get a new port to use for the clients src
+         int new_cs_port = get_dynamic_port();
+         printf("New Client source port:%d\n", new_cs_port);
+
+
+         mPacketBuffer.PacketName(data, pos, "5678");
+         mPacketBuffer.PacketPutInt4(data, pos, new_port);
+         mPacketBuffer.PacketPutInt4(data, pos, new_cs_port);
+         net_send(ListenChannel, data, pos);
+         printf("Server sent reply 5678 on Listen Channel\n");
+
+
+
+         change_address_port(address, new_cs_port);
+
+
+         if (net_assigntarget(ClientChannel[n], address))
+         {
+            sprintf(msg, "Error: couldn't assign target `%s' to channel\n", address);
+            mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
+            net_closechannel (ClientChannel[n]);
+            mInput.m_err(msg);
+            return;
+         }
+         printf("Server assigned target `%s' to ClientChannel:%d\n", address, n);
+
+         ClientChannelLastRX[n] = mLoop.frame_num; // record time
+
+
+
+
+         mPacketBuffer.PacketName(data, pos, "sjnk");
+         ServerSendTo(data, pos, n);
+         printf("Server sent sjnk packet on ClientChannel:%d\n", n);
+
+
+//         mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server opened channel for `%s' and sent reply", address);
+//         if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, n);
+
+
+
+
+20240402  --  revert
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

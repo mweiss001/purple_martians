@@ -1,0 +1,172 @@
+How do packet traverse the internet.
+
+Specifically, how do the port and IP's change when passing through routers.
+
+High level overview:
+--------------------
+The game uses UDP packets.
+
+The terminology for UDP is more accurately called a datagram, but packet is also used.
+I will use the term packet in this document.
+The terminology for a UDP communication link is a channel. (TCP is connection)
+
+A dynamic port is a temporary, ephermeral, randomly assigned port in the range 49152-65535.
+
+
+Each UDP packet has a header that contains:
+--------------------------------------------
+- source IP       :
+- source port     :
+- destination IP  :
+- destination port:
+--------------------------------------------
+
+A client sends an unsolicited packet to inititate a link.
+The client needs to know the server's IP address and the listening port of the server.
+The client uses its IP and makes up a random dynamic port for its source port.
+
+The server is listening on port 24785 for new clients.
+When the server gets a 1234 packet from a new client, it sets up a channel for that client.
+That client's IP and port are assigned as the target for the channel.
+The server makes up a random dynamic port for the source port of that channel.
+
+Then the server replies with a 5678 packet on the newly created channel.
+
+When the client receives this packet, it updates the dest port to match what the server replies with.
+
+From this point on all communciation uses these dynamic ports.
+
+
+
+
+An example:
+--------------
+
+Client's local  IP: 192.168.1.4
+Client's public IP: 96.45.15.155
+
+Server's local  IP: 192.168.18.101
+Server's public IP: 96.45.13.253
+
+
+Client's initial packet:
+--------------------------------------------
+- source IP       : 192.168.1.4
+- source port     : 50001
+- destination IP  : 96.45.13.253
+- destination port: 24785
+--------------------------------------------
+
+
+Client's packet after it passes router:
+--------------------------------------------
+- source IP       : 96.45.15.155
+- source port     : 50001
+- destination IP  : 96.45.13.253
+- destination port: 24785
+--------------------------------------------
+
+
+The same packet should arrive at the Server's router
+
+
+After the Server's router:
+--------------------------------------------
+- source IP       : 96.45.15.155
+- source port     : 50001
+- destination IP  : 192.168.18.101
+- destination port: 24785
+--------------------------------------------
+
+The Server's listening channel is bound to port 24785
+When it gets this packet, it opens a new channel for 96.45.15.155:50001
+The server sets a dynamic port for itself for this channel.
+The server sends a reply on this channel.
+
+
+Server's reply:
+--------------------------------------------
+- source IP       : 192.168.18.101
+- source port     : 50033
+- destination IP  : 96.45.15.155
+- destination port: 50001
+--------------------------------------------
+
+
+After Server's router:
+--------------------------------------------
+- source IP       : 96.45.13.253
+- source port     : 50033
+- destination IP  : 96.45.15.155
+- destination port: 50001
+--------------------------------------------
+
+
+
+The Client should get this same packet
+
+
+
+After Client's router:
+--------------------------------------------
+- source IP       : 96.45.13.253
+- source port     : 50033
+- destination IP  : 192.168.1.4
+- destination port: 50001
+--------------------------------------------
+
+When the Client gets this packet with the new port from the Server, it automatically updates its target port.
+From now on those dynamic ports are used for communication.
+
+
+
+
+
+Extra notes...
+
+Originally I did not have the client use a dynamic port for itself.
+I had it use 24785.
+This worked fine. But something else changed..
+The router was keeping track of what port was assigned to what internal IP.
+And there could not be any duplicates.
+So if more than one internal IP tried to use the same port, the router would assign a new dynamic port.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

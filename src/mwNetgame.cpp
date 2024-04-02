@@ -89,6 +89,46 @@ int mwNetgame::NetworkInit(void)
    }
 }
 
+int mwNetgame::get_dynamic_port(void)
+{
+   return rand() % 16383 + 49152;
+}
+
+void mwNetgame::change_address_port(char * address, int port)
+{
+   printf("Old address:%s\n", address);
+   printf("New port:%d\n", port);
+
+   // find position of ':'
+   char* ret;
+   const char ch = ':';
+   ret = strchr(address, ch);
+
+   // terminate string after ':'
+   ret[1] = 0;
+
+   // add new port
+   sprintf(address, "%s%d", address, port);
+
+   printf("New address:%s\n", address);
+}
+
+int mwNetgame::get_local_port_from_channel(NET_CHANNEL *chan)
+{
+   char local_port[256];
+   sprintf(local_port, net_getlocaladdress(chan));
+   local_port[0] = 32; // remove leading ':'
+   int port = atoi(local_port);  // convert to int
+   return port;
+}
+
+
+
+
+
+
+
+
 
 
 
