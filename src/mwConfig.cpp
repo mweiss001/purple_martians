@@ -269,7 +269,7 @@ void mwConfig::load_config(void)
    agci(SOUND, mSound.st_scaler, 1)
 
    val = al_get_config_value(cfg, "NETWORK", "server_IP");
-   if (!val) sprintf(mNetgame.serveraddress, "96.45.9.166");
+   if (!val) sprintf(mNetgame.serveraddress, "purplemartians.org");
    else sprintf(mNetgame.serveraddress, "%s", val);
 
    agci(NETWORK, mNetgame.server_UDP_listen_port, 24785)

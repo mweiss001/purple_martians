@@ -8148,7 +8148,7 @@ linux...
 tc and netem
 
 
-Linux — tc & netem
+Linux â€” tc & netem
 
 The most low-level and feature-rich at the same time is Linux Network Emulator (netem). If you are using one of the most common Linux distributions(Fedora, OpenSuse, Gentoo, Debian, Mandriva, Ubuntu) you already have it enabled in the kernel. It comes along with another built-in utility Traffic Control(tc). There is no UI, just CLI, the way most of Linux users like it.
 
@@ -8158,13 +8158,13 @@ tc qdisc add dev eth0 root netem delay 100ms
 
 What happens here:
 
-    tc qdisc — what Traffic control is doing under the hood is configuring the kernel packet scheduler.
-    add — operation of appending new rule, after the test you probably would want to execute `del` operation.
-    dev eth0 — the device on which the rule would be applied.
-    root — apply it on the egress (outbound traffic) qdisc
-    netem — use the network emulator
-    delay — network metric to be modified
-    100ms — value to be set on this metric
+    tc qdisc â€” what Traffic control is doing under the hood is configuring the kernel packet scheduler.
+    add â€” operation of appending new rule, after the test you probably would want to execute `del` operation.
+    dev eth0 â€” the device on which the rule would be applied.
+    root â€” apply it on the egress (outbound traffic) qdisc
+    netem â€” use the network emulator
+    delay â€” network metric to be modified
+    100ms â€” value to be set on this metric
 
 So overall this adds a delay of 100ms to outbound traffic.
 
@@ -46439,7 +46439,7 @@ typedef struct ALLEGRO_MONITOR_INFO
 
 Source Code
 
-Describes a monitor’s size and position relative to other monitors. x1, y1 will be 0, 0 on the primary display. Other monitors can have negative values if they are to the left or above the primary display. x2, y2 are the coordinates one beyond the bottom right pixel, so that x2-x1 gives the width and y2-y1 gives the height of the display.
+Describes a monitorâ€™s size and position relative to other monitors. x1, y1 will be 0, 0 on the primary display. Other monitors can have negative values if they are to the left or above the primary display. x2, y2 are the coordinates one beyond the bottom right pixel, so that x2-x1 gives the width and y2-y1 gives the height of the display.
 
 typedef struct ALLEGRO_MONITOR_INFO
 {
@@ -47793,40 +47793,138 @@ Not now though, or anytime soon either....
 
 new version
 
-7.24.0402.1
+7.24.0402.1 done...
+
+
+
+20240414
+
+I just bought 'purplemartians.org' from cloudflare for 4 years.
+pointed it at 96.45.9.166
+
+the game works great!
+
+can I do a very simple static webpage with links to youtube and github?
 
 
 
 
 
-
-g++ -Wall -c src/mwMiscFnx.cpp -o o/src/mwMiscFnx.o
-g++ -Wall -c src/mwMulticolorLine.cpp -o o/src/mwMulticolorLine.o
-g++ -Wall -c src/mwNetgameClient.cpp -o o/src/mwNetgameClient.o
-src/mwNetgameClient.cpp: In member function ‘int mwNetgame::ClientInitNetwork()’:
-src/mwNetgameClient.cpp:41:24: warning: ‘%d’ directive writing between 1 and 11 bytes into a region of size between 0 and 255 [-Wformat-overflow=]
-   41 |    sprintf(target, "%s:%d", serveraddress, server_UDP_listen_port);
-      |                        ^~
-src/mwNetgameClient.cpp:41:11: note: ‘sprintf’ output between 3 and 268 bytes into a destination of size 256
-   41 |    sprintf(target, "%s:%d", serveraddress, server_UDP_listen_port);
-      |    ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-g++ -Wall -c src/mwNetgame.cpp -o o/src/mwNetgame.o
-src/mwNetgame.cpp: In member function ‘int mwNetgame::get_local_port_from_channel(NET_CHANNEL*)’:
-src/mwNetgame.cpp:119:49: warning: format not a string literal and no format arguments [-Wformat-security]
-  119 |    sprintf(local_port, net_getlocaladdress(chan));
-      |                                                 ^
-src/mwNetgame.cpp: In member function ‘void mwNetgame::change_address_port(char*, int)’:
-src/mwNetgame.cpp:111:11: warning: ‘sprintf’ argument 3 overlaps destination object ‘address’ [-Wrestrict]
-  111 |    sprintf(address, "%s%d", address, port);
-      |    ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-g++ -Wall -c src/mwNetgameServer.cpp -o o/src/mwNetgameServer.o
-g++ -Wall -c src/mwNetgameServerFileTransfer.cpp -o o/src/mwNetgameServerFileTransfer.o
-g++ -Wall -c src/mwNetgameSessionLog.cpp -o o/src/mwNetgameSessionLog.o
+https://www.digitalocean.com/community/tutorials/how-to-install-the-apache-web-server-on-ubuntu-20-04
 
 
 
+using pmh
+
+u22.04
+
+96.45.9.166
 
 
+sudo apt update
+
+sudo apt install apache2
+
+m@pmh:~$ sudo ufw app list
+Available applications:
+  Apache
+  Apache Full
+  Apache Secure
+  OpenSSH
+
+m@pmh:~$ sudo ufw allow 'Apache'
+Rules updated
+Rules updated (v6)
+
+m@pmh:~$ sudo ufw status
+Status: inactive
+
+m@pmh:~$ sudo ufw allow 'OpenSSH'
+Rules updated
+Rules updated (v6)
+
+I am scared to turn it on, my server is remote...
+
+Just leave it for now..
+
+m@pmh:~$ sudo systemctl status apache2
+â— apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; enabled; vendor preset: enabled)
+     Active: active (running) since Sun 2024-04-14 08:31:03 MDT; 8min ago
+       Docs: https://httpd.apache.org/docs/2.4/
+   Main PID: 2020 (apache2)
+      Tasks: 55 (limit: 9292)
+     Memory: 5.5M
+        CPU: 52ms
+     CGroup: /system.slice/apache2.service
+             â”œâ”€2020 /usr/sbin/apache2 -k start
+             â”œâ”€2021 /usr/sbin/apache2 -k start
+             â””â”€2022 /usr/sbin/apache2 -k start
+
+Apr 14 08:31:03 pmh systemd[1]: Starting The Apache HTTP Server...
+Apr 14 08:31:03 pmh apachectl[2019]: AH00558: apache2: Could not reliably determine the server's fully qualified domain >
+Apr 14 08:31:03 pmh systemd[1]: Started The Apache HTTP Server.
+lines 1-16/16 (END)
+
+
+To stop your web server, type:
+
+    sudo systemctl stop apache2
+
+To start the web server when it is stopped, type:
+
+    sudo systemctl start apache2
+
+To stop and then start the service again, type:
+
+    sudo systemctl restart apache2
+
+If you are simply making configuration changes, Apache can often reload without dropping connections. To do this, use this command:
+
+    sudo systemctl reload apache2
+
+By default, Apache is configured to start automatically when the server boots. If this is not what you want, disable this behavior by typing:
+
+    sudo systemctl disable apache2
+
+To re-enable the service to start up at boot, type:
+
+sudo systemctl enable apache2
+
+/var/www/html
+
+now what is an easy way to get files to and from the server?
+
+2 steps:
+
+copy to temp location:
+pscp -r -pw zaiden c:\pm\docs\* m@96.45.9.166:sht
+
+copy to final place
+m@pmh:~$ sudo -r cp ~/sht/* /var/www/html
+
+
+I want to change the index page...
+
+Make the videos the new ones, I just made...
+
+video:
+<iframe width="960" height="540" src="https://www.youtube.com/embed/G4-NbqeFa3c" ></iframe>
+
+
+channel:
+https://www.youtube.com/@PurpleMartians-mdw1968
+
+remove itch.io direct download and point at github...done...
+
+
+I have a brand new index.html page and it looks very nice...
+
+
+time for a new release...
+
+
+20240414
 
 
 
