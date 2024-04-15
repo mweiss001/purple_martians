@@ -80,8 +80,7 @@
  <a href="block_flags.html#Conclusion" target="_top">Conclusion</a>
 </mdw_file_toc><hr></mh3>
 
-<a name="Overview"></a>
-<mh7>Overview</mh7>
+<a name="Overview"></a><mh7>Overview</mh7>
         
 
 <mh3>
@@ -92,8 +91,7 @@ Each level is made up of a grid of 100 x 100 blocks stored in an array of intege
 
 </mh3>
 
-<br><a name="Original Method"></a>
-<mh7>Original Method</mh7>
+<a name="Original Method"></a><mh7>Original Method</mh7>
 <mh3>    
 The original method used the tile number to control the attributes of the block. 	
 	
@@ -108,8 +106,7 @@ Different ranges had different properties:
 <mh3>    
 </mh3>
 
-<br><a name="New Method"></a>
-<mh7>New Method</mh7>
+<a name="New Method"></a><mh7>New Method</mh7>
 
 <mh3>    
 The new method uses bit flags stored in the higher, unused bits of the integers.
@@ -117,8 +114,7 @@ The new method uses bit flags stored in the higher, unused bits of the integers.
 1024 possible tiles (0-1023) uses 9 bits which leaves 23 bits free to be used for various flags.
 
 </mh3>    
-<br><a name="Flag Setup"></a>
-<mh7>Flag Setup</mh7>
+<a name="Flag Setup"></a><mh7>Flag Setup</mh7>
 <mh3>    
 This is how the flags are setup:
 </mh3>
@@ -147,8 +143,7 @@ This is how the flags are setup:
 <mh3>These flags are combined with the tile number and put into the level array l[100][100] to make a level.
 
 </mh3>
-<br><a name="Using Flags"></a>
-<mh7>Using Flags</mh7>
+<a name="Using Flags"></a><mh7>Using Flags</mh7>
 <mh3>    
 When drawing a tile, this is how I get just the tile number (the lowest 9 bits)
 </mh3>    
@@ -175,8 +170,7 @@ l[x][y] ^=  PM_BTILE_SOLID_PLAYER; // toggle flag
 <mh3>    
 </mh3>
 
-<br><a name="Default Block Flags"></a>
-<mh7>Default Block Flags</mh7>
+<a name="Default Block Flags"></a><mh7>Default Block Flags</mh7>
 
 <mh3>    
 There are a lot of possibilities here, but for now most blocks just have simple default flags.
@@ -220,11 +214,8 @@ l[x][y] |= PM_BTILE_SOLID_PBUL;
 l[x][y] |= PM_BTILE_SOLID_EBUL;
 l[x][y] |= PM_BTILE_BREAKABLE_PBUL;
 l[x][y] |= PM_BTILE_BREAKABLE_EBUL;</code></pre>
-<mh3>    
-</mh3>
 
-<br><a name="Changing Block Flags"></a>
-<mh7>Changing Block Flags</mh7>
+<a name="Changing Block Flags"></a><mh7>Changing Block Flags</mh7>
 
 <mh3>    
 In the level editor, the block flags can be changed from their default values.
@@ -246,11 +237,9 @@ To modify a tile already placed in the level:
 - modify the draw item flags
 - place the draw item back in the level with the left mouse button (b1)
 
-
 </mh3>    
 
-<br><a name="Block Sources in Level Editor"></a>
-<mh7>Block Sources in Level Editor</mh7>
+<a name="Block Sources in Level Editor"></a><mh7>Block Sources in Level Editor</mh7>
 
 <mh3>    
 In the level editor, you can get a block into the draw item from one of two places.
@@ -263,8 +252,7 @@ Or you can get it from "Block Selection" area in the "Selection Window".
 
 </mh3>    
 
-<br><a name="Changing Default Flags (advanced)"></a>
-<mh7>Changing Default Flags (advanced)</mh7>
+<a name="Changing Default Flags (advanced)"></a><mh7>Changing Default Flags (advanced)</mh7>
 
 
 <mh3>    
@@ -285,8 +273,7 @@ They are only used by level editor to populate the Selection Window.
 
 </mh3>    
 
-<br><a name="Block Tile Editor (advanced)"></a>
-<mh7>Block Tile Editor (advanced)</mh7>
+<a name="Block Tile Editor (advanced)"></a><mh7>Block Tile Editor (advanced)</mh7>
 
 <mh3>    
 You can manually work with block tiles with an external editor like GIMP.
@@ -313,8 +300,7 @@ Warning! If you move tiles around, existing levels will not work!
 </mh3>    
 
 
-<br><a name="Show Non-Default Block"></a>
-<mh7>Show Non-Default Blocks</mh7>
+<a name="Show Non-Default Block"></a><mh7>Show Non-Default Blocks</mh7>
 
 <mh3>    
 In the level editor, you can see the flags for any block by putting the mouse on that block.
@@ -334,8 +320,7 @@ This example shows normally solid blocks that have been marked not solid for pla
 </mh3>    
 
 
-<br><a name="Conclusion"></a>
-<mh7>Conclusion</mh7>
+<a name="Conclusion"></a><mh7>Conclusion</mh7>
 <mh3>    
 There are so many possibilities that this opens up.
 
@@ -345,7 +330,6 @@ There are so many possibilities that this opens up.
 - blocks that can act like rope or ladders.
 
 There are so many possible combinations!
-
 
 </mh3>    
 

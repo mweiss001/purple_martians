@@ -139,9 +139,7 @@ mDisplay.saved_display_transform_double=0
 mDisplay.display_transform_double_max=3
 </code></pre>
             
-<br>
-<a name="Creating the display"></a>
-<mh7>Creating the display</mh7>
+<a name="Creating the display"></a><mh7>Creating the display</mh7>
 
 <pre><code class="language-cpp">int mwDisplay::init_display(void)
 {
@@ -231,9 +229,7 @@ mDisplay.display_transform_double_max=3
 }</code></pre>
 
 
-<br>
-<a name="Process display change"></a>
-<mh7>Process display change</mh7>
+<a name="Process display change"></a><mh7>Process display change</mh7>
 <mh3>
 This function is called when:
 - an event 'ALLEGRO_EVENT_DISPLAY_RESIZE' is received
@@ -265,9 +261,8 @@ This function is called when:
    set_window_title();
 }</code></pre>
 
-<br>
-<a name="Toggle fullscreen mode"></a>
-<mh7>Toggle fullscreen mode</mh7>
+
+<a name="Toggle fullscreen mode"></a><mh7>Toggle fullscreen mode</mh7>
 <mh3>
 The F12 key toggles fullscreen mode (or the key can be customized to something else)
   
@@ -303,9 +298,7 @@ void mwDisplay::proc_display_change_fromfs(void)
    proc_display_change();
 }</code></pre>
 
-<br>
-<a name="Saving window size and position"></a>
-<mh7>Saving window size and position</mh7>
+<a name="Saving window size and position"></a><mh7>Saving window size and position</mh7>
 <mh3>
 This is automatically done when the display is resized or switched to fullscreen, but not when the window is simply moved.
 So I also call this when exiting to save window position.
@@ -322,9 +315,8 @@ So I also call this when exiting to save window position.
 }</code></pre>
 
 
-<br>            
-<a name="Display transform double"></a>
-<mh7>Display transform double</mh7>
+           
+<a name="Display transform double"></a><mh7>Display transform double</mh7>
 <mh3>
 I use an orthographic transform to double or triple the screen size.
 
@@ -386,9 +378,7 @@ The mouse_x and mouse_y positions are also scaled like this:
 mouse_y = ev.mouse.y / display_transform_double;
 </code></pre>
 
-<br>
-<a name="Cycle display transform double"></a>
-<mh7>Cycle display transform double</mh7>
+<a name="Cycle display transform double"></a><mh7>Cycle display transform double</mh7>
 <mh3>
 You can cycle display transform double with F11 (or customize to some other key)
 

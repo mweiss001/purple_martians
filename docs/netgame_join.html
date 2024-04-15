@@ -531,7 +531,7 @@ void mwNetgame::ClientExitNetwork(void)
             
 
 
-<br><a name="Setting up netgame"></a>
+<a name="Setting up netgame"></a>
 <mh7>Setting up netgame</mh7>
 
 <mh3>
@@ -568,18 +568,19 @@ Once you have ensured the client has the server's IP or hostname:
 Start the server with 'Host Network Game', then start the clients with 'Join Network Game'
     
 In a few seconds the client will join.
+
 </mh3>
 
 
-<br><a name="Netgame over the Internet"></a>
+<a name="Netgame over the Internet"></a>
 <mh7>Netgame over the Internet</mh7>
 
 <mh3>
-Setting up netgame over the internet is non-trivial. With port forwarding, DMZ's and other tricks and hacks, it can be done.
+Setting up netgame over the internet will probably require port forwarding.
 
-This is an issue that has nothing to do with this game and everything to do with 'Peer-to-Peer Communication Across Network Address Translators'.
+The server will need to forward UDP port 24785.
 
-The method I used was to have the server in a DMZ, or directly connected to the internet (no router).
+Clients will need to forward UDP ports 49152 to 65535.
 
 </mh3>
 

@@ -74,8 +74,7 @@
  <a href="level_array.html#Scale factor" target="_top">Scale factor</a>
 </mdw_file_toc><hr></mh3>
 
-<a name="Overview"></a>
-<mh7>Overview</mh7>
+<a name="Overview"></a><mh7>Overview</mh7>
         
 
 <mh3>
@@ -87,8 +86,7 @@ The level array is a 100 x 100 array of integers, one for each tile in the level
 <mh3>
 Each integer is an index to the tile that is drawn at that position on the level. (see <a href="tiles.html" target="_top">tiles</a> and <a href="block_flags.html" target="_top">blocks</a>)
  </mh3>      
-<br><a name="Drawing the level"></a>
-<mh7>Drawing the level</mh7>
+<a name="Drawing the level"></a><mh7>Drawing the level</mh7>
 
 <mh3>
 Two bitmaps are used, each the size of the entire level (2000x2000):
@@ -117,8 +115,7 @@ This is the base background that is copied to level_buffer every frame and then 
 
 </mh3>
 
-<br><a name="Drawing sequence in game loop"></a>
-<mh7>Drawing sequence in game loop</mh7>
+<a name="Drawing sequence in game loop"></a><mh7>Drawing sequence in game loop</mh7>
 <mh3>
 This happens every frame.
 </mh3>
@@ -179,8 +176,7 @@ This happens every frame.
 
 </mh3>
 
-<br><a name="Get new background"></a>
-<mh7>Get new background</mh7>
+<a name="Get new background"></a><mh7>Get new background</mh7>
 <pre><code class="language-cpp">void mwScreen::get_new_background(int full)
 {
    al_set_target_bitmap(mBitmap.level_buffer);
@@ -197,8 +193,11 @@ This happens every frame.
 }</code></pre>
 
 
-<br><a name="Draw scaled level region to display"></a>
-<mh7>Draw scaled level region to display</mh7>
+<mh3>
+</mh3>
+
+
+<a name="Draw scaled level region to display"></a><mh7>Draw scaled level region to display</mh7>
 <pre><code class="language-cpp">void mwScreen::draw_scaled_level_region_to_display(int type)
 {
    set_screen_display_variables();
@@ -462,8 +461,11 @@ void mwScreen::set_level_display_region_xy(void)
    }
 }</code></pre>
 
-<br><a name="Scale factor"></a>
-<mh7>Scale factor</mh7>
+<mh3>
+</mh3>
+
+
+<a name="Scale factor"></a><mh7>Scale factor</mh7>
 <mh3>
 Scale factor controls how much the of the level is shown on the screen.
 

@@ -118,8 +118,7 @@ All the player need to do was keep moving and the shots would miss. They would h
 </mh3>
 
 
-<br><a name="New Method"></a>
-<mh7>New Method</mh7>
+<a name="New Method"></a><mh7>New Method</mh7>
         
 <mh3>        
 The new method involves the enemy shooting at where the player will be, not where they currently are.
@@ -130,8 +129,7 @@ This turned out to be a rather difficult thing to do, mathematically.
 
 </mh3>
 
-<br><a name="Inputs and Outputs"></a>
-<mh7>Inputs and Outputs</mh7>
+<a name="Inputs and Outputs"></a><mh7>Inputs and Outputs</mh7>
 <mh3>
 The inputs are:
 
@@ -147,9 +145,9 @@ But I can easily calculate those if I can calculate any one of the following:
 
 </mh3>
 
-<br><a name="High Level Method"></a>
-<mh7>High Level Method</mh7>
-<mh3>Find the time when the distance the bullet travels equals the distance from the bullet origin to where the player will be.
+<a name="High Level Method"></a><mh7>High Level Method</mh7>
+<mh3>
+Find the time when the distance the bullet travels equals the distance from the bullet origin to where the player will be.
 
 <img src="images/diag1.png" width=753 height=437 alt="equation">
 
@@ -179,18 +177,16 @@ The entire equation looks like this:
 
 
 
-My math skills are not up to the task of solving this equation for t. I don't even know if it is possible.
+My math skills were not up to the task of solving this equation for t. I didn't even know if it was possible.
 
 
-So I resort to a brute force method of trying different values of t until both side of the equation are equal.
+So I resorted to a brute force method of trying different values of t until both side of the equation are equal.
 (Or in reality, simply close enough)
-
 
 </mh3>
 
 
-<br><a name="My Brute Force Method"></a>
-<mh7>My Brute Force Method</mh7>
+<a name="My Brute Force Method"></a><mh7>My Brute Force Method</mh7>
 <mh3>
 I made a function that calculates the difference between both sides of the equation:
 </mh3>
@@ -429,15 +425,13 @@ So I can compromise between accuracy and speed.
 </mh3>
 
 
-
-<br><a name="Conclusion"></a>
-<mh7>Conclusion</mh7>
+<a name="Conclusion"></a><mh7>Conclusion</mh7>
 <mh3>
-I consider this method a hack. An inelegant, brute force method.
+I considered this method a hack. An inelegant, brute force method.
 
-I welcome any feedback on other approaches to this.
+I reached out for help on other approaches to this.
 
-Maybe someone better at math knows of a way to solve this equation for t.
+Maybe someone better at math knows how to solve this equation for t.
 
 <img src="images/eq4.png" width=775 height=79 alt="equation">
 
@@ -447,8 +441,7 @@ Maybe there is an entirely different high level approach that did not even occur
 
 
 
-<br><a name="The Better Solution"></a>
-<mh7>The Better Solution</mh7>
+<a name="The Better Solution"></a><mh7>The Better Solution</mh7>
 <mh3>
 After asking for help on the allegro.cc forums I was shown a much better method.
 

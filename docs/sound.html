@@ -92,10 +92,10 @@ Sound is one of the easiest and most straight forward things that I do in the ga
 This is done so I can control the volume of the soundtrack and sound effects independantly.
 
 I then attach samples, sample instances, and streams to these mixers.
+
 </mh3>    
 
-<br><a name="Sound setup"></a>
-<mh7>Sound setup</mh7>
+<a name="Sound setup"></a><mh7>Sound setup</mh7>
 <mh3>
 These are the variables used:</mh3>    
         
@@ -204,8 +204,7 @@ In initial_setup() I call mSound.load_sound();
 </code></pre>
 
 
-<br><a name="Mixer volume controls"></a>
-<mh7>Mixer volume controls</mh7>
+<a name="Mixer volume controls"></a><mh7>Mixer volume controls</mh7>
 <mh3>
 I set the volume of se_mixer and st_mixer with se_scaler and st_scaler. 
 se_scaler and st_scaler are integers that range from 0-9.
@@ -225,8 +224,7 @@ void mwSound::set_st_scaler(void)
 }</code></pre>
 
 
-<br><a name="Theme music"></a>
-<mh7>Theme music</mh7>
+<a name="Theme music"></a><mh7>Theme music</mh7>
 <mh3>
 The theme music is started like this when a game is started or resumed.
 The only difference is that resume does not rewind before starting.
@@ -259,8 +257,7 @@ Theme music and sound effects are stopped like this when the game is exited:</mh
 }</code></pre>
 
 
-<br><a name="Sound effects"></a>
-<mh7>Sound effects</mh7>
+<a name="Sound effects"></a><mh7>Sound effects</mh7>
 
 <mh3>
 When an event in the game requires a sound to be played, here is how I do that:
@@ -334,8 +331,7 @@ When an event in the game requires a sound to be played, here is how I do that:
 </code></pre>
 
 
-<br><a name="Sample delay"></a>
-<mh7>Sample delay</mh7>
+<a name="Sample delay"></a><mh7>Sample delay</mh7>
 
 <mh3>
 I have implemented a simple system to prevent re-triggering a sample while it is still playing.
@@ -343,10 +339,11 @@ I have implemented a simple system to prevent re-triggering a sample while it is
 int sample_delay[20] keeps track of the frame_num when a sample was played.
 
 Won't allow the same sample to be re-played until a specified number of frames has passed.
+
 </mh3>
 
-<br><a name="Processing the hiss sound"></a>
-<mh7>Processing the hiss hound</mh7>
+<a name="Processing the hiss sound"></a><mh7>Processing the hiss hound</mh7>
+
 <mh3>
 To process the hiss sound (when a bomb fuse is burning or a rocket is lit), I call this function once per frame:
 </mh3>

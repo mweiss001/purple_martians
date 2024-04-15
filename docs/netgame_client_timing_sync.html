@@ -76,8 +76,7 @@
 </mdw_file_toc><hr></mh3>
 
 
-<br><a name="Client Timing Sync"></a>
-<mh7>Client Timing Sync</mh7>
+<a name="Client Timing Sync"></a><mh7>Client Timing Sync</mh7>
 
 <mh3>    
 Timing is critical in netgame. The server and client must have a tightly controlled timing relationship.
@@ -101,12 +100,11 @@ After doing that, the client then fast forwards to the current frame.
 If the stdf is from the future, then dsync is negative.
 This means that when applied, the client jump forward in time. 
 The is the least common scenario, and should rarely happen.
+
 </mh3>
 
 
-<br><a name="Server sends 'stdf' packet"></a>
-<mh7>Server sends 'stdf' packet</mh7>
-
+<a name="Server sends 'stdf' packet"></a><mh7>Server sends 'stdf' packet</mh7>
 
 
 <mh3>    
@@ -126,8 +124,7 @@ That is what the client uses to measure its timing relation to the server.
       ServerSendTo(data, pos, mPlayer.loc[p].who);</code></pre>
 
 
-<br><a name="Client calculates dsync"></a>
-<mh7>Client calculates dsync</mh7>
+<a name="Client calculates dsync"></a><mh7>Client calculates dsync</mh7>
 
 <mh3>    
 Every frame the client processes all 'stdf' packets in the packet buffer.
@@ -173,8 +170,7 @@ Then the maximum dysnc is calculated and returned.
 </code></pre>
 
 
-<br><a name="Determine the setpoint"></a>
-<mh7>Determine the setpoint</mh7>
+<a name="Determine the setpoint"></a><mh7>Determine the setpoint</mh7>
 
 <mh3>    
 Before we adjust the timer, we need two things:
@@ -198,8 +194,7 @@ The setpoint is called 'client_chase_offset', and it is set from one of three th
 
 
 
-<br><a name="Adjust client timer"></a>
-<mh7>Adjust client timer</mh7>
+<a name="Adjust client timer"></a><mh7>Adjust client timer</mh7>
 
 
 <mh3>    
@@ -238,8 +233,7 @@ I was experimenting with implementing a <a href="https://www.google.com/search?q
 
 
 
-<br><a name="Entire client_timer_adjust() function"></a>
-<mh7>Entire client_timer_adjust() function</mh7>
+<a name="Entire client_timer_adjust() function"></a><mh7>Entire client_timer_adjust() function</mh7>
 
 <pre><code class="language-cpp">void mwNetgame::client_timer_adjust(void)
 {
