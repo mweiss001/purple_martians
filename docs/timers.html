@@ -123,8 +123,7 @@ void mwEventQueue::proc_events(ALLEGRO_EVENT ev)
 }</code></pre>
 
 
-<br><a name="Game speed regulation"></a>
-<mh7>Game speed regulation</mh7>
+<a name="Game speed regulation"></a><mh7>Game speed regulation</mh7>
 <mh3>
 Whenever fps_timer generates an event, program_update is set:
 </mh3>
@@ -150,8 +149,7 @@ In the main loop, whenever 'mEventQueue.program_update' is true, the game loop w
 ...</code></pre>
 
 
-<br><a name="Second timer"></a>
-<mh7>Second timer</mh7>
+<a name="Second timer"></a><mh7>Second timer</mh7>
 <mh3>
 Used to do things on a 1 Hz schedule
 
@@ -175,8 +173,7 @@ In the main loop, whenever 'mEventQueue.program_update_1s' is true, (which will 
    }</code></pre>
 
 
-<br><a name="Menu timer"></a>
-<mh7>Menu timer</mh7>
+<a name="Menu timer"></a><mh7>Menu timer</mh7>
         
 <mh3>        
 'mnu_timer' generates events every 0.008s, which is 125 frames per second.
@@ -189,8 +186,7 @@ This code is run in that loop to both process the event queue and act as speed r
 mEventQueue.menu_update = 0;</code></pre>
 
 
-<br><a name="Mouse Timer"></a>
-<mh7>Mouse Timer</mh7>
+<a name="Mouse Timer"></a><mh7>Mouse Timer</mh7>
         
 <mh3>        
 'mou_timer' hides the mouse if it has been inactive for 1 second.

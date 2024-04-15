@@ -79,91 +79,66 @@
 <mh7>Overview</mh7>
 <mh3>
 These variables are used to control and monitor the status of netgame.
+
 </mh3>    
 
 
-<br><a name="dsync and dsync_avg"></a>
-<mh7>dsync and dsync_avg</mh7>
+<a name="dsync and dsync_avg"></a><mh7>dsync and dsync_avg</mh7><div style="height: 12px"></div>
 
-
-
-<br><me1>Description</me1>
-<mh3>
-The timing offset between the client and the server. See <a href="netgame_client_timing_sync.html" target="_top">Client Timing Sync</a>
-
+<me1>Description</me1>
+<mh3>The timing offset between the client and the server. See <a href="netgame_client_timing_sync.html" target="_top">Client Timing Sync</a>
 Calculated by clients when processing 'stdf' packets.
-
 A rolling average of dsync called dsync_avg is also calculated and used in client_timer_adjust().
-
 Clients also send dsync to the server with 'stak' packets, so the server also has a dsync value for each client.
 </mh3>
 
-<br><me1>Variables</me1>
-<mh3>
-mPlayer.loc[p].dsync
+<me1>Variables</me1>
+<mh3>mPlayer.loc[p].dsync
 mPlayer.loc[p].dsync_avg 
 </mh3>
 
-<br><me1>Code</me1>
-<mh3>
-See <a href="netgame_client_timing_sync.html" target="_top">Client Timing Sync</a>
-
+<me1>Code</me1>
+<mh3>See <a href="netgame_client_timing_sync.html" target="_top">Client Timing Sync</a>
 The client uses dsync_avg to adjust it's timing offset with reference to the server.
-
 The server uses dsync to control when joining clients become active like this: <a href="netgame_join.html#Client chase and lock" target="_top">Client chase and lock</a>
+
 </mh3>
 
 
+<a name="ping and ping_avg"></a><mh7>ping and ping_avg</mh7><div style="height: 12px"></div>
 
-
-
-<br><a name="ping and ping_avg"></a>
-<mh7>ping and ping_avg</mh7>
-
-<br><me1>Description</me1>
-<mh3>
-The round trip ping response times between client and the server.
-
+<me1>Description</me1>
+<mh3>The round trip ping response times between client and the server.
 Clients calculate and store their own ping time, as well as a rolling average.
-
 The server calculates and stores ping times for each client.
 </mh3>
 
-
-<br><me1>Variables</me1>
-<mh3>
-mPlayer.loc[p].ping
+<me1>Variables</me1>
+<mh3>mPlayer.loc[p].ping
 mPlayer.loc[p].ping_avg 
 </mh3>
 
-<br><me1>Code</me1>
-<mh3>
-The method of calculating ping is described here: <a href="netgame_ping.html" target="_top">ping</a>
-
+<me1>Code</me1>
+<mh3>The method of calculating ping is described here: <a href="netgame_ping.html" target="_top">ping</a>
 The client uses the ping average to set client_chase_offset here: <a href="netgame_client_timing_sync.html#Determine the setpoint" target="_top">Determine the setpoint</a>
+
 </mh3>
 
 
-<br><a name="Client player position correction"></a>
-<mh7>Client player position correction</mh7>
+<a name="Client player position correction"></a><mh7>Client player position correction</mh7><div style="height: 12px"></div>
 
-<br><me1>Description</me1>
-<mh3>
-On the client, when a new state is applied, measure the amount each player's position is corrected.
-
+<me1>Description</me1>
+<mh3>On the client, when a new state is applied, measure the amount each player's position is corrected.
 This measures the amount of warping of players' positions when corrected by the server.
-
 There are 2 classes, the local player, and all remote players.
 The local client player usually has less correction, because it plays back locally stored moves after applying states.
-
 These are not used to set anything, rather they are used to debug and get some measure of how well netgame is performing.
 They can be viewed in client and server debug overlays, and in server remote control graphs.
 </mh3>
 
 
-<br><me1>Variables</me1>
-<mh3>
-float mPlayer.loc[p].old_x;      // old players position, used to calc corrections
+<me1>Variables</me1>
+<mh3>float mPlayer.loc[p].old_x;      // old players position, used to calc corrections
 float mPlayer.loc[p].old_y;  
 float mPlayer.loc[p].client_loc_plr_cor;
 float mPlayer.loc[p].client_rmt_plr_cor;
@@ -173,8 +148,7 @@ float mPlayer.loc[p].client_loc_plr_cor_avg;
 float mPlayer.loc[p].client_rmt_plr_cor_avg;
 </mh3>
 
-<br><me1>Code</me1>
-
+<me1>Code</me1>
 <pre><code class="language-cpp">void mwNetgame::client_apply_dif(void)
 {
 ...
@@ -213,24 +187,18 @@ float mPlayer.loc[p].client_rmt_plr_cor_avg;
 
 
 
+<a name="Server late cdats"></a><mh7>Server late cdats</mh7><div style="height: 12px"></div>
 
-<br><a name="Server late cdats"></a>
-<mh7>Server late cdats</mh7>
-
-
-<br><me1>Description</me1>
-<mh3>
-On the server, when a cdat packet is processed and it is too late to be applied, it is discarded and counted.
+<me1>Description</me1>
+<mh3>On the server, when a cdat packet is processed and it is too late to be applied, it is discarded and counted.
 </mh3>
 
 
-<br><me1>Variables</me1>
-<mh3>
-mPlayer.syn[p].late_cdats;
+<me1>Variables</me1>
+<mh3>mPlayer.syn[p].late_cdats;
 </mh3>
 
-<br><me1>Code</me1>
-
+<me1>Code</me1>
 <pre><code class="language-cpp">void mwNetgame::server_proc_cdat_packet(int i)
 {
 ...
@@ -252,31 +220,19 @@ mPlayer.syn[p].late_cdats;
 }</code></pre>
 
 
+<a name="Client base resets"></a><mh7>Client base resets</mh7><div style="height: 12px"></div>
 
-<br><a name="Client base resets"></a>
-<mh7>Client base resets</mh7>
-
-
-<br><me1>Description</me1>
-<mh3>
-When the client receives a dif state based on zero.
-or
-The server does not have a valid last_ack_state for a client and has to send a dif state based on zero.
-
-Then client_base_resets is incremented.
-
-dif states based on zero are much larger than regular difs.
-
+<me1>Description</me1>
+<mh3>When the client receives a dif state based on zero, or the server does not have a valid last_ack_state for a client and has to send a dif state based on zero, then client_base_resets is incremented.
+Dif states based on zero are much larger than regular difs.
 They typically take 7-8 1000 byte packets to send, vs 1-2 for regular state difs.
 </mh3>
 
-<br><me1>Variables</me1>
-<mh3>
-mPlayer.loc[p].client_base_resets;
+<me1>Variables</me1>
+<mh3>mPlayer.loc[p].client_base_resets;
 </mh3>
 
-<br><me1>Code</me1>
-
+<me1>Code</me1>
 <pre><code class="language-cpp">void mwNetgame::client_apply_dif(void)
 {
    if (client_state_dif_src == 0) mPlayer.loc[p].client_base_resets++; // server sent a dif based on zero
@@ -293,13 +249,6 @@ void mwNetgame::server_send_dif(int frame_num)
 	 if (base_frame_num == 0) mPlayer.loc[p].client_base_resets++;
 ...
 </code></pre>
-
-
-
-
-
-
-
 
 
                <footer>                <mh11>Purple Martians</mh11><hr>

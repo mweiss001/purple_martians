@@ -80,8 +80,7 @@
 
 
 
-<br><a name="The game state"></a>
-<mh7>The game state</mh7>
+<a name="The game state"></a><mh7>The game state</mh7>
 
 <mh3>
 The game state is all of the data required to replicate the game between server and client.
@@ -89,13 +88,14 @@ The game state is all of the data required to replicate the game between server 
 It consists of all the relevant variables for the level, players, enemies, items, bullets, etc.
 
 The server's game state is periodically sent to clients to keep them in sync.
+
 </mh3>    
 
 
-<br><a name="Game state variables"></a>
+<a name="Game state variables"></a>
 <mh7>Game state variables</mh7>
 
-<pre><code class="language-cpp">Variables used for netgame state exchange
+<pre><code class="language-cpp">// Variables used for netgame state exchange
 
 mPlayer.syn         :  2304
 mEnemy.Ei           : 12800
@@ -108,10 +108,10 @@ mShot.p             :  1200
 mShot.e             :  1200
 mTriggerEvent.event :  4000
 --------------------:------
-total               :112384</code></pre>
+total               :112384 bytes</code></pre>
 
 
-<br><a name="Combining game state variables into 'state'"></a>
+<a name="Combining game state variables into 'state'"></a>
 <mh7>Combining game state variables into 'state'</mh7>
 
 
@@ -164,7 +164,7 @@ void mwNetgame::state_to_game_vars(char * b)
 </code></pre>
 
 
-<br><a name="State variables"></a>
+<a name="State variables"></a>
 <mh7>State variables</mh7>
 
 <mh3>
@@ -183,7 +183,7 @@ char client_state_dif[STATE_SIZE];
 int  client_state_dif_src;          // src frame_num
 int  client_state_dif_dst;          // dst frame_num</code></pre>
 
-<br><a name="State compression methods"></a>
+<a name="State compression methods"></a>
 <mh7>State compression methods</mh7>
 
 
@@ -200,8 +200,9 @@ A Massively Spiffy Yet Delicately Unobtrusive Compression Library (Also Free, No
 zlib alone will compress the 100K to approximately 6-8K.
 
 Using a differential method before compressing with zlib results in approximately 500-1100 bytes.
+
 </mh3>
-<br><a name="The differential method"></a>
+<a name="The differential method"></a>
 <mh7>The differential method</mh7>
 
 <mh3>

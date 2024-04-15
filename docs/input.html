@@ -71,14 +71,12 @@
 <mh3><hr><mdw_file_toc> <a href="input.html#Overview" target="_top">Overview</a>
  <a href="input.html#Keyboard input" target="_top">Keyboard input</a>
  <a href="input.html#Keys held array" target="_top">Keys held array</a>
- <a href="input.html#Hack to make PRINTSCREEN work" target="_top">Hack to make PRINTSCREEN work</a>
  <a href="input.html#Mouse input" target="_top">Mouse input</a>
  <a href="input.html#Joystick input" target="_top">Joystick input</a>
  <a href="input.html#Key bindings vs controls" target="_top">Key bindings vs controls</a>
 </mdw_file_toc><hr></mh3>
 
-<a name="Overview"></a>
-<mh7>Overview</mh7>
+<a name="Overview"></a><mh7>Overview</mh7>
 
 <mh3>
 I really missed the way that Allegro 4 handled input, so I recreated parts of it.
@@ -98,8 +96,7 @@ I recreated most of these, or similar equivalents, and update them when I proces
 </mh3>
 
 
-<br><a name="Keyboard input"></a>
-<mh7>Keyboard input</mh7>
+<a name="Keyboard input"></a><mh7>Keyboard input</mh7>
 
 <mh3>
 In Allegro 4, there is an array of key flags that are updated asynchronously:</mh3>    
@@ -125,10 +122,11 @@ void mwInput::proc_input_events(ALLEGRO_EVENT ev)
    if (ev.type == ALLEGRO_EVENT_KEY_UP)   key[ev.keyboard.keycode][0] = false;
 ...</code></pre>
 
+<mh3>
+</mh3>
 
 
-<br><a name="Keys held array"></a>
-<mh7>Keys held array</mh7>
+<a name="Keys held array"></a><mh7>Keys held array</mh7>
 
 <mh3>
 For each key (and mouse button), I detect not only if the key is pressed, but also if it has been just pressed, or just released.
@@ -182,37 +180,13 @@ if (mInput.key[ALLEGRO_KEY_I][3]) // key has just been released
    // do something
 }</code></pre>
 
-
-
-            
-<br><a name="Hack to make PRINTSCREEN work"></a>
-<mh7>Hack to make PRINTSCREEN work</mh7>
-
-<mh3>
-There is a known bug with the PRINTSCREEN key in windows.
-It does not generate ALLEGRO_EVENT_KEY_DOWN events, only ALLEGRO_EVENT_KEY_UP events.
-I made the following work around so I could use PRINTSCREEN for my screenshot function.
-
-At the start of my event processing I clear the key like this:
-</mh3>
-
-<pre><code class="language-cpp">   mInput.key[ALLEGRO_KEY_PRINTSCREEN][0] = 0; // hack to make PRINTSCREEN key work properly
-</code></pre>           
-<mh3>
-Then I add an exception to my key up section like this:
-</mh3>
-
-<pre><code class="language-cpp">if (ev.type == ALLEGRO_EVENT_KEY_UP)
-{
-   int k = ev.keyboard.keycode;
-   mInput.key[k] = false;
-   if (k == ALLEGRO_KEY_PRINTSCREEN) mInput.key[k] = true; // hack to make PRINTSCREEN work
-}
-</code></pre>           
-
                         
-<br><a name="Mouse input"></a>
-<mh7>Mouse input</mh7>
+<mh3>
+</mh3>
+
+
+						
+<a name="Mouse input"></a><mh7>Mouse input</mh7>
 
 <mh3>
 For mouse input, I do something similar to what I do for keyboard.
@@ -266,12 +240,12 @@ void mwInput::proc_input_events(ALLEGRO_EVENT ev)
 <mh3>Note that the mouse positions are divided by mDisplay.display_transform_double.
 
 This is to account for an orthographic screen tranformation. (see <a href="display.html#Display transform double" target="_top"> Display Transform Double</a>)
+
 </mh3>    
 
 
 
-<br><a name="Joystick input"></a>
-<mh7>Joystick input</mh7>
+<a name="Joystick input"></a><mh7>Joystick input</mh7>
 
 <mh3>
 I do something really weird for the joystick.  I've done it for many years.
@@ -430,8 +404,10 @@ int get_scan_code_from_joystick(int joy, int button, int num)
 }</code></pre>
 
 
-<br><a name="Key bindings vs controls"></a>
-<mh7>Key bindings vs controls</mh7>
+<mh3>
+</mh3>
+
+<a name="Key bindings vs controls"></a><mh7>Key bindings vs controls</mh7>
 
 <mh3>
 There is a clear distinction between the key bindings and the controls.

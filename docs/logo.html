@@ -78,8 +78,7 @@
 
 
 
-<a name="Overview"></a>
-<mh7>Overview</mh7>
+<a name="Overview"></a><mh7>Overview</mh7>
 
 <mh3>
 The animated splash screen logo of my name is made with a few different techniques:
@@ -87,18 +86,20 @@ The animated splash screen logo of my name is made with a few different techniqu
 -the large capital letters (M, D, W) are generated with splines.
 
 -the small letters are font based and drawn by a function that scales x and y independantly and mirrors if the scales are negative.
+
 </mh3>
 
 
 
-<br><a name="Demo Video"></a>
-<mh7>Demo Video</mh7>
-<br>        
+<a name="Demo Video"></a><mh7>Demo Video</mh7>
+     
 <div style="text-align: left;"><video src="images/logo.mp4" poster="images/logo1.png" controls width="800" height="600" preload="auto"></video></div>
 
+<mh3>
+</mh3>
 
-<br><a name="Splines"></a>
-<mh7>Splines</mh7>
+
+<a name="Splines"></a><mh7>Splines</mh7>
 
 <mh3>                        
 In Allegro5, in the 'drawing primitives add-on', I use the function: 'al_draw_spline()'
@@ -117,10 +118,10 @@ Control points 0 and 3 are the ends of the spline, and points 1 and 2 are guides
 
 The curve probably won't pass through points 1 and 2, but they affect the shape of the curve between points 0 and 3
 The easiest way to think of it is that the curve starts at p0, heading in the direction of p1, but curves round so that it arrives at p3 from the direction of p2.
+
 </mh3>
 
-<br><a name="Spline wrapper funtions"></a>
-<mh7>Spline wrapper funtions</mh7>
+<a name="Spline wrapper funtions"></a><mh7>Spline wrapper funtions</mh7>
 
 <mh3>
 I made a wrapper function for al_draw_spline() to add circles at the ends of the splines:</mh3>
@@ -146,9 +147,12 @@ Then I made another wrapper function to add a fading effect:</mh3>
       mspline(par, al_map_rgb_f(r*f, g*f, b*f), a);
    }
 }</code></pre>
+
+<mh3>
+</mh3>
+
             
-<br><a name="Setup of points on the grid"></a>
-<mh7>Setup of points on the grid</mh7>
+<a name="Setup of points on the grid"></a><mh7>Setup of points on the grid</mh7>
             
 <mh3>
 I set up an array with space for 9 splines.</mh3>
@@ -316,8 +320,11 @@ Then I set up all of the mirrored splines.
    points[8][5] = -points[8][3]; // mirror y
 } </code></pre>
 
-<br><a name="Drawing the small letters"></a>
-<mh7>Drawing the small letters</mh7>
+<mh3>
+</mh3>
+
+
+<a name="Drawing the small letters"></a><mh7>Drawing the small letters</mh7>
 
 <mh3>
 To draw the small letters, I use the function 'idw()' to draw scaled text.
@@ -375,9 +382,11 @@ The text bitmaps are generated only once, as it was too slow to generate them ev
    if (txt == 3) al_draw_scaled_rotated_bitmap(logo_eiss,   0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
 }</code></pre>
 
+<mh3>
+</mh3>
 
-<br><a name="Function to draw the entire static logo"></a>
-<mh7>Function to draw the entire static logo</mh7>
+
+<a name="Function to draw the entire static logo"></a><mh7>Function to draw the entire static logo</mh7>
 <mh3>                    
 Finally here is the function that draws the whole thing:
 </mh3>
@@ -448,8 +457,10 @@ Finally here is the function that draws the whole thing:
    idw(3, (int)(x + 146 * x_scale), (int)(y + 120 * y_scale), xs, ys); // eiss
 }</code></pre>
 
-<br><a name="Function to draw animated spinning logo"></a>
-<mh7>Function to draw animated spinning logo</mh7>
+<mh3>
+</mh3>
+
+<a name="Function to draw animated spinning logo"></a><mh7>Function to draw animated spinning logo</mh7>
 
 <mh3>
 This function is non-blocking and needs to be called in a loop, so it can do other things like process the event loop, etc.

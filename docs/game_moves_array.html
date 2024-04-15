@@ -77,8 +77,7 @@
  <a href="game_moves_array.html#Run demo game mode" target="_top">Run demo game mode</a>
 </mdw_file_toc><hr></mh3>
 
-<a name="Overview"></a>
-<mh7>Overview</mh7>
+<a name="Overview"></a><mh7>Overview</mh7>
 
 <mh3>
 The game moves array is the heart of the entire game control system.
@@ -97,8 +96,7 @@ So, in the interests of keeping things consistant, it is also the method used fo
 </mh3>
 
 
-<br><a name="Variables"></a>
-<mh7>Variables</mh7>
+<a name="Variables"></a><mh7>Variables</mh7>
 <pre><code class="language-cpp">#define GAME_MOVES_SIZE 1000000
 class mwGameMoves
 {
@@ -124,10 +122,10 @@ When a new move is added, it is added at this position, and then this position i
 <pre><code class="language-cpp">current_pos;</code></pre>
 <mh3>The current read position of the array.
 Used only for demo game playing to keep track of the current read position of the array.
+
 </mh3>
 
-<br><a name="Array elements"></a>
-<mh7>Array elements</mh7>
+<a name="Array elements"></a><mh7>Array elements</mh7>
 <mh3>
 Each game move entry has 4 elements:
 </mh3>
@@ -152,8 +150,7 @@ A player's controls are encoded into a bitfield called 'comp_move' with these va
 
 
 
-<br><a name="Types of game moves"></a>
-<mh7>Types of game moves</mh7>
+<a name="Types of game moves"></a><mh7>Types of game moves</mh7>
 
 <pre><code class="language-cpp">#define PM_GAMEMOVE_TYPE_LEVEL_START      0
 #define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE    1
@@ -232,10 +229,11 @@ mGameMoves.arr[x][2]; // player number
 mGameMoves.arr[x][3]; // not used (0)
 </code></pre>
 
+<mh3>   
+</mh3>
 
 
-<br><a name="How game_move entries are added in single player mode"></a>
-<mh7>How game_move entries are added in single player mode</mh7>
+<a name="How game_move entries are added in single player mode"></a><mh7>How game_move entries are added in single player mode</mh7>
 
 <pre><code class="language-cpp">void mwPlayer::set_comp_move_from_player_key_check(int p) // doesn't set controls
 {
@@ -267,14 +265,15 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 }
 </code></pre>
 
+<mh3>   
+</mh3>
 
 
 
 
 
 
-<br><a name="How game move entries are added in netgame"></a>
-<mh7>How game move entries are added in netgame</mh7>
+<a name="How game move entries are added in netgame"></a><mh7>How game move entries are added in netgame</mh7>
 <mh3>
 In netgame, things are done differently.
 
@@ -320,9 +319,12 @@ When the server receives the packet, the client's game move is puts in the serve
    }
 }</code></pre>
 
+<mh3>   
+</mh3>
 
-<br><a name="How controls are set from game move array"></a>
-<mh7>How controls are set from game move array</mh7>
+
+
+<a name="How controls are set from game move array"></a><mh7>How controls are set from game move array</mh7>
 <mh3>
 This is common to all modes (single player, run demo game, netgame).
 
@@ -371,8 +373,11 @@ void mwPlayer::set_controls_from_comp_move(int p, int comp_move)
    if (comp_move & PM_COMPMOVE_MENU)  syn[p].menu  = 1;
 }</code></pre>
 
-<br><a name="Run demo game mode"></a>
-<mh7>Run demo game mode</mh7>
+<mh3>   
+</mh3>
+
+
+<a name="Run demo game mode"></a><mh7>Run demo game mode</mh7>
 <mh3>
 In this mode, the game moves array is loaded from a file.  After that, it's played back from the array in the exact same way as every other mode.
 

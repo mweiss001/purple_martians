@@ -87,9 +87,10 @@ Clients run independently in between receiving states from the server.
 During that time, the client's control changes are applied locally and sent to the server.
 
 When a client receives a new state from the server, it overwrites its local game state.
+
 </mh3>    
 
-<br><a name="How a client gets a new state from the server"></a>
+<a name="How a client gets a new state from the server"></a>
 <mh7>How a client gets a new state from the server</mh7>
 <mh3>
 A client receives 'stdf' packets from the server.  Each packet contains pieces of a compressed dif state.
@@ -139,7 +140,7 @@ The source and destination frame of 'client_state_dif' are updated to mark it as
    }
 }</code></pre>
 
-<br><a name="How a client applies the new state"></a>
+<a name="How a client applies the new state"></a>
 <mh7>How a client applies the new state</mh7>
 
 <mh3>
@@ -402,7 +403,7 @@ You can view these variables on the debug overlay.
 </code></pre>
 
 
-<br><a name="The entire function 'client_apply_dif()'"></a>
+<a name="The entire function 'client_apply_dif()'"></a>
 <mh7>The entire function 'client_apply_dif'</mh7>
 
 <pre><code class="language-cpp">void mwNetgame::client_apply_dif(void)

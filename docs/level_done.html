@@ -81,8 +81,7 @@
 
 
 
-<br><a name="Overview"></a>
-<mh7>Overview</mh7>
+<a name="Overview"></a><mh7>Overview</mh7>
 <mh3>    
 A level is completed when any player touches an unlocked exit.
 
@@ -91,9 +90,11 @@ The level is frozen and the end of level stats are shown.
 Then after a timeout, or after all players acknowledge, the next level is loaded and started
 
 The server controls the process using the following variables, which are synced to the clients with the rest of the game data.
+
 </mh3>
-<br><a name="Variables"></a>
-<mh7>Variables</mh7>
+
+
+<a name="Variables"></a><mh7>Variables</mh7>
 <mh3>
 These are the variables used in the process:
 </mh3>
@@ -119,9 +120,11 @@ mPlayer.syn[0].level_done_next_level
 'frame' keeps track of the exact frame the level was completed
 
 'next_level' is the next level to load after 'Level Done' is complete
+
 </mh3>
-<br><a name="Modes"></a>
-<mh7>Modes</mh7>
+
+
+<a name="Modes"></a><mh7>Modes</mh7>
 
 <mh3>
 These are the different modes:
@@ -137,10 +140,10 @@ level_done_mode = 2; // delay to load next level
 level_done_mode = 1; // call proc_next_level() to load next level
 level_done_mode = 0; // normal game play
 </code></pre>
+<mh3>
+</mh3>
 
-
-<br><a name="How The Procedure Is Initiated"></a>
-<mh7>How The Procedure Is Initiated</mh7>
+<a name="How The Procedure Is Initiated"></a><mh7>How The Procedure Is Initiated</mh7>
 <mh3>    
 The procedure is initiated by setting 'level_done_mode', when an unlocked exit is touched by any player.
 
@@ -169,13 +172,15 @@ This can only be initiated from mode 0, to prevent re-triggering.
    else mGameEvent.add(23, 0, 0, p, i, exit_enemys_left, 0); // not enough dead yet
 }</code></pre>
 
+<mh3>
+</mh3>
 
-<br><a name="How The Procedure Progresses"></a>
-<mh7>How The Procedure Progresses</mh7>
+<a name="How The Procedure Progresses"></a><mh7>How The Procedure Progresses</mh7>
+
+
 
 <mh3>    
 Once the procedure is started, 'level_done_mode' works its way back to 1 where the next level is loaded and finally 0 for normal game_play.
-
 
 In the main game loop, if 'level_done_mode' is non-zero, 'proc_level_done_mode()' is called.
 
@@ -213,9 +218,10 @@ In 'process_level_done_mode()' the timer is decremented and modes are switched u
 }
 </code></pre>
 
+<mh3>
+</mh3>
 
-<br><a name="Mode 9 and 8 - Players Seek Exit"></a>
-<mh7>Mode 9 and 8 - Players Seek Exit</mh7>
+<a name="Mode 9 and 8 - Players Seek Exit"></a><mh7>Mode 9 and 8 - Players Seek Exit</mh7>
 
 
 <mh3>
@@ -256,10 +262,11 @@ When the level done procedure starts, the level is frozen and all players move t
    }
 </code></pre>
 
+<mh3>
+</mh3>
 
 
-<br><a name="Mode 7 - Players Shrink and Rotate into Exit"></a>
-<mh7>Mode 7 - Players Shrink and Rotate into Exit</mh7>
+<a name="Mode 7 - Players Shrink and Rotate into Exit"></a><mh7>Mode 7 - Players Shrink and Rotate into Exit</mh7>
 
 
 <mh3>
@@ -281,10 +288,11 @@ Then the players shrink and rotate into the exit.
 </code></pre>
 
 
+<mh3>
+</mh3>
 
 
-<br><a name="Mode 5 - Skippable Delay"></a>
-<mh7>Mode 5 - Skippable Delay</mh7>
+<a name="Mode 5 - Skippable Delay"></a><mh7>Mode 5 - Skippable Delay</mh7>
 
 
 <mh3>    
@@ -430,6 +438,7 @@ If the player has acknowledged it looks like this:
 
 <mh3>
 Once all players have acknowledged or timed out we progress to the next level_done_mode.
+
 </mh3>
 
 
@@ -437,8 +446,7 @@ Once all players have acknowledged or timed out we progress to the next level_do
 
 
 
-<br><a name="Mode 2 - Delay to Load Next Level"></a>
-<mh7>Mode 2 - Delay to Load Next Level</mh7>
+<a name="Mode 2 - Delay to Load Next Level"></a><mh7>Mode 2 - Delay to Load Next Level</mh7>
 
 
 <mh3>
@@ -471,9 +479,10 @@ This is enough time for the data to propagate to the client, so they can load th
 }
 </code></pre>
 
+<mh3>
+</mh3>
 
-<br><a name="Mode 1 - Load and start next level"></a>
-<mh7>Mode 1 - Load and start next level</mh7>
+<a name="Mode 1 - Load and start next level"></a><mh7>Mode 1 - Load and start next level</mh7>
 
 
 
@@ -493,8 +502,11 @@ In 'program_state == 12'  we do all the cleanup, resetting, loading and preparin
 }
 </code></pre>
 
-<br><a name="Conclusion and Notes"></a>
-<mh7>Conclusion and Notes</mh7>
+<mh3>
+</mh3>
+
+
+<a name="Conclusion and Notes"></a><mh7>Conclusion and Notes</mh7>
 
 <mh3>
 This entire process may seem overly complicated. I have tried to simplify it in as many ways as I can.
