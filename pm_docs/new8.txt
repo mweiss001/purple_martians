@@ -48725,6 +48725,28 @@ time for a new release....
 
 
 
+bug...why is remote not getting snfo packets
+
+
+they are getting to wireshark on the server
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

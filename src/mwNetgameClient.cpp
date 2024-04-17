@@ -306,7 +306,7 @@ void mwNetgame::client_proc_snfo_packet(int i)
       int sb      = mPacketBuffer.PacketGetInt4(i);
       int sz      = mPacketBuffer.PacketGetInt4(i);
 
-      // printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d\n", seq+1, max_seq, fn, sb, sz);
+      //printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d\n", seq+1, max_seq, fn, sb, sz);
 
       // do some checks, because one time i received: rx snfo piece [121 of 218] frame:[994] st:1616929891 sz:1180829280
       int bad_data = 0;

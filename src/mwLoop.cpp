@@ -669,6 +669,7 @@ void mwLoop::proc_program_state(void)
          return;
       }
 
+      mNetgame.ima_client = 1;
 
       state[0] = PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_RUN;
       printf("server remote control run\n");
