@@ -272,9 +272,7 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
       memcpy(data+pos, cmp+start_byte, packet_data_size);
       pos += packet_data_size;
 
-      //ServerSendTo(data, pos, mPlayer.loc[p].who);
       ServerSendTo(data, pos, p);
-
 
       start_byte+=1000;
    }
@@ -314,7 +312,7 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
       int packet_data_size = 1000; // default size
       if (start_byte + packet_data_size > dst_size) packet_data_size = dst_size - start_byte; // last piece is smaller
 
-      // printf("tx snfo piece fn:[%d] packet:[%d of %d]\n", mLoop.frame_num, packet_num+1, num_packets);
+      //printf("tx snfo piece fn:[%d] packet:[%d of %d]\n", mLoop.frame_num, packet_num+1, num_packets);
 
       char data[1024] = {0}; int pos;
       mPacketBuffer.PacketName(data, pos, "snfo");
@@ -327,7 +325,7 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
       memcpy(data+pos, dst+start_byte, packet_data_size);
       pos += packet_data_size;
 
-      ServerSendTo(data, pos, mMain.server_remote_control_who);
+      ServerSendTo(data, pos, 0);
 
       start_byte+=1000;
    }
@@ -649,19 +647,16 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
 
 void mwNetgame::server_proc_cjrc_packet(char *data, char * address)
 {
-   int who = 0; // remote control channel index
-
    // set up channel
-   mwChannels[who].active = 1;
-   strcpy(mwChannels[who].address, address);
+   mwChannels[0].active = 1;
+   strcpy(mwChannels[0].address, address);
 
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received remote control request");
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server replied with sjrc packet");
 
-   mMain.server_remote_control_who = who;
    mMain.server_remote_control = 1;
 
-   server_send_sjrc_packet(who);
+   server_send_sjrc_packet(0);
 }
 
 
