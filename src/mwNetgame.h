@@ -3,10 +3,7 @@
 #ifndef mwNetgame_H
 #define mwNetgame_H
 
-#define MAX_CLIENTS 32
-
 #include "mwStateHistory.h"
-
 
 #define PM_RCTL_PACKET_TYPE_keep_alive             0
 #define PM_RCTL_PACKET_TYPE_force_client_offset    1
@@ -21,13 +18,10 @@
 #define PM_RCTL_PACKET_TYPE_fakekey_toggle         12
 #define PM_RCTL_PACKET_TYPE_server_reload          20
 
-
-
 struct client_session
 {
    int active;
-   int status;
-   int who;
+   int inactive_reason;
 
    int player_num;
 
@@ -56,7 +50,6 @@ struct client_session
    int self_hits;
    int purple_coins;
 
-
    int tx_total_bytes;
    int tx_total_packets;
    int tx_max_bytes_per_frame;
@@ -70,14 +63,11 @@ struct client_session
 };
 
 
-
-
-
-
-
-
-
-
+struct mwChannel
+{
+   int active;
+   char address[256];
+};
 
 
 struct file_to_send
@@ -97,20 +87,14 @@ class mwNetgame
 
    mwNetgame(); // constructor
 
+   struct mwChannel mwChannels[8];
+
    struct file_to_send files_to_send[20];
 
-   struct client_session client_sessions[16];
+   struct client_session client_sessions[8];
 
    int NetworkDriver;
    int NetworkInit();
-
-
-   void change_address_port(char * address, int port);
-   int get_dynamic_port(void);
-
-   int get_local_port_from_channel(NET_CHANNEL *chan);
-
-
 
    mwStateHistory mStateHistory[8];
 
@@ -120,10 +104,9 @@ class mwNetgame
 
    int ima_server = 0;
    int ima_client = 0;
-   int remote_join_reply = 0;
 
-   char serveraddress[256] = "192.168.1.2";
-   int server_UDP_listen_port;
+   char server_address[256] = "purplemartians.org";
+   int server_port = 24785;
 
    int zlib_cmp = 7;
 
@@ -136,8 +119,6 @@ class mwNetgame
    // local client's buffer for building compressed dif from packets
    char client_state_buffer[STATE_SIZE];
    int  client_state_buffer_pieces[16];   // to mark packet pieces as received
-
-
 
 
    // local client's buffer for building compressed sfil from packets
@@ -163,10 +144,11 @@ class mwNetgame
    // --------------------------------------------------------------------
    // ---   mwNetgameClient.cpp  -----------------------------------------
    // --------------------------------------------------------------------
-   NET_CHANNEL *ServerChannel = NULL;
+   NET_CHANNEL *ClientChannel = NULL;
 
-   int  ClientInitNetwork(void);
-
+   int ClientInitNetwork(void);
+   int ClientJoin(void);
+   int RemoteJoin(void);
 
 
    void ClientExitNetwork(void);
@@ -180,13 +162,17 @@ class mwNetgame
 
    void client_send_ping_packet(void);
    void client_send_cjon_packet(void);
+
    void client_send_cjrc_packet(void);
    void client_send_rctl_packet(int type, double val);
    void client_send_stak_packet(int ack_frame);
    void client_send_cdat_packet(int p);
 
    void client_proc_pong_packet(char *data);
-   void client_proc_sjon_packet(int i);
+
+
+   int client_proc_sjon_packet(char *data);
+
    void client_proc_stdf_packet(int i);
 
    void client_proc_sfil_packet(int i);
@@ -195,8 +181,6 @@ class mwNetgame
    void client_send_crfl(void);
 
 
-
-   void client_proc_sjrc_packet(int i);
    void client_proc_snfo_packet(int i);
    void client_proc_player_drop(void);
    void client_control(void);
@@ -205,26 +189,16 @@ class mwNetgame
    // ---   mwNetgameServer.cpp  -----------------------------------------
    // --------------------------------------------------------------------
 
-   NET_CHANNEL *ListenChannel = NULL;                   // listen channel
-   NET_CHANNEL *ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
-
-   int ClientChannelLastRX[MAX_CLIENTS] = {0};          // keep track of last rx from channel
-
-
-
+   NET_CHANNEL *ServerChannel = NULL;                   // listen channel
 
    int  ServerInitNetwork(void);
    void ServerExitNetwork(void);
-   void ServerListen(void);
-   int  ServerReceive(void *data, int *sender);
    void ServerSendTo(void *data, int len, int who);
    void ServerFlush(void);
 
-   int ServerFindUnusedChannel(void);
-
    int ServerGetNewDynamicPort(void);
 
-   int server_get_player_num_from_who(int who);
+   int server_check_address(char * address);
 
    void headless_server_setup(void);
 
@@ -240,15 +214,19 @@ class mwNetgame
 
 
    void server_send_snfo_packet(void);
-   void server_send_sjon_packet(int who, int level, int frame, int player_num, int player_color);
+   void server_send_sjon_packet(char* address, int level, int frame, int player_num, int player_color);
    void server_send_sjrc_packet(int who);
 
    void server_proc_ping_packet(char *data, int who);
    void server_proc_pang_packet(char *data, int who);
+
    void server_proc_cdat_packet(int i);
    void server_proc_stak_packet(int i);
-   void server_proc_cjon_packet(int i);
-   void server_proc_cjrc_packet(int i);
+
+
+   void server_proc_cjon_packet(char* data, char* address);
+   void server_proc_cjrc_packet(char* data, char* address);;
+
    void server_proc_rctl_packet(int i);
    void server_control();
 
@@ -257,14 +235,13 @@ class mwNetgame
    // ---   mwNetgameSessionLog.cpp  -------------------------------------
    // --------------------------------------------------------------------
    void session_clear_entry(int i);
-   int session_get_empty(void);
-   int session_get_index_from_who(int who);
 
-   void session_add_entry(const char* address, int who);
+//   void session_add_entry(const char* address, int who);
 //   void session_update_entry(int who, int status, const char* hostname, int player_num);
 
-   void session_close_entry_server_full(int who, const char* hostname);
-   void session_update_entry_client_active(int p);
+
+
+   void session_add_entry(const char* address, const char* hostname, int p, int active, int inactive_reason);
 
 
    void session_add_log(int i);

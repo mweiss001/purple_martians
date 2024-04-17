@@ -109,9 +109,9 @@ void mwConfig::save_config(void)
       asci(SOUND, mSound.se_scaler)
       asci(SOUND, mSound.st_scaler)
 
-      al_set_config_value(cfg, "NETWORK", "server_IP", mNetgame.serveraddress);
+      al_set_config_value(cfg, "NETWORK", "server_IP", mNetgame.server_address);
 
-      asci(NETWORK, mNetgame.server_UDP_listen_port)
+      asci(NETWORK, mNetgame.server_port)
 
 
       asci(NETWORK, mPlayer.syn[0].player_vs_player_shots)
@@ -269,10 +269,10 @@ void mwConfig::load_config(void)
    agci(SOUND, mSound.st_scaler, 1)
 
    val = al_get_config_value(cfg, "NETWORK", "server_IP");
-   if (!val) sprintf(mNetgame.serveraddress, "purplemartians.org");
-   else sprintf(mNetgame.serveraddress, "%s", val);
+   if (!val) sprintf(mNetgame.server_address, "purplemartians.org");
+   else sprintf(mNetgame.server_address, "%s", val);
 
-   agci(NETWORK, mNetgame.server_UDP_listen_port, 24785)
+   agci(NETWORK, mNetgame.server_port, 24785)
 
    agci(NETWORK, mPlayer.syn[0].player_vs_player_shots, 1)
    agci(NETWORK, mPlayer.syn[0].player_vs_player_shot_damage, 5)

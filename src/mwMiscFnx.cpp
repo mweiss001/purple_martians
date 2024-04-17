@@ -1167,7 +1167,7 @@ void mwMiscFnx::edit_server_name(int x, int y)
    int tc = 10;
 
    char fst[80];
-   strcpy(fst, mNetgame.serveraddress);
+   strcpy(fst, mNetgame.server_address);
    int char_count = strlen(fst);
    int cursor_pos=0;
    int old_cp=0;
@@ -1246,7 +1246,7 @@ void mwMiscFnx::edit_server_name(int x, int y)
       }
       if (mInput.key[ALLEGRO_KEY_ENTER][3])
       {
-         strcpy(mNetgame.serveraddress, fst);
+         strcpy(mNetgame.server_address, fst);
          quit = 1;
       }
 

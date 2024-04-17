@@ -47938,6 +47938,803 @@ time for a new release...
 
 
 
+I just can't seem to let it go....
+
+I really want to know what is going on.  Why do clients need to open the big range of ports?
+
+When they receive something back from a ip:port that thet sent out on, it should just be let through.
+
+This is how it happens when they send out on 24785 and get something back on that...
+
+That is also how it happens on the server...
+The server sends the reply on a new dynamic port, and does not need to port forward to get the reply.
+
+
+I am going to revisit...
+
+
+first of lets get some sensible names for the packets:
+
+1234 cini (client init)
+5678 srep (server reply)
+
+cin1 - client init 1
+sin2 - server init 2
+
+cin1 - no changes from 1234
+client sends packet, no payload, only the clients IP and dynamic port
+nothing blocks it getting out, now clients router will accept replies on 24785
+when server receives it, pf rule lets it through
+
+server sets up new channel for client with IP and listen port
+server generates new dynamic port for itself
+
+sin2 - send new port for server but send it on listen channel
+server sends sin2, to client IP and port, but from server IP and listen port
+
+
+cin3 - client sends reply to the server on servers new port
+this is the first time the client sends out on this port
+
+server gets cin3 reply from client on new port
+server will need all these ports open as well
+
+sin4 - server sends reply to client
+this is the first time the server sends something on this port to the client
+
+
+
+
+
+---------------------------
+wait a tick here?
+
+what if the ports are the same?
+
+when the server gets the clients dynamic port, it uses that same port to reply?
+
+is this just crazy enough to work?
+
+is there any reason they need to be different?
+
+
+cin1
+dst:24785
+src:50001
+client sends packet, no payload, only the clients IP and dynamic port
+nothing blocks it getting out, now clients router will accept replies on 24785
+when server receives it, pf rule lets it through
+
+sin2
+server receives cin1
+sets up channel for client
+chan1
+dst:24785
+src:50001
+
+sends sin2 reply
+dst:24785
+src:50001
+
+
+cin3
+client receives sin2
+changes dst port to 50001
+
+client sends cin3
+dst:50001
+src:50001
+
+
+server receives cin3 (needs big pf)
+server changes
+chan1
+dst:50001
+src:50001
+
+sin4
+server sends reply to let client know it can communicate
+
+
+-------------------
+
+I want to try this method
+
+if I can get it to work it will mean:
+
+- clients do not need any port forwarding
+- multiple clients can be after same router
+
+disadvantages:
+- server will need all the pf rules
+
+
+
+--------------------------------------
+
+changed 1234 and 5678 to cin1 and sin2
+
+
+change...
+
+
+when server receives cin1
+it replies on the listen channel
+but it also need to set up client channel for listening on new port
+
+this is not a change, it is the same...
+
+
+------------------
+
+found this blurb and it made me think....
+Ultimately, using well-known ports for destination and ephemeral ports for source gives the most flexibility.
+
+what if all the data the server receives is on the same port?
+
+I would need to do some packet inspection to know where it is going, but....
+
+why do I really care about making all these differnt srever source ports
+
+would this work?
+
+I think it might break down if muliple clients had the same IP....
+like they were in the same LAN, behind a router
+no, that should not be an issue...they all have their own unique dynamic ports
+and when the server gets them, that will tell them apart...
+
+
+new proposal:
+
+
+server receives all data on port 24785
+listen and all client communication....
+
+clients have dynamic destination ports that are unique, but all have the same server IP and port
+
+
+could I try to test this right now?
+
+do I need to make any other changes?
+
+
+the servers listen and recieve loops will need modifictaion
+
+they will need to be merged into one....
+
+I will only listen on the one channel: 24785
+when I receive packets, I will use the src port and IP to determine what client they are...
+
+I will have my own lookup table to translate port numbers to internal clients
+like who, only instead of indexes to channels, they will be port numbers
+
+for server send to client, i will need a combination IP and port of the client
+
+----------------
+
+will this work?
+
+what is my assumption here?
+
+client1 sends:
+dst:24785
+src:50001
+
+server replies:
+dst:50001
+src:24785
+
+client2 sends:
+dst:24785
+src:50002
+
+server replies:
+dst:50002
+src:24785
+
+assumptions:
+only the server will need port 24785 open
+all traffic to the server is on 24785
+clients will allow replies with src port:24785 after they sent on 24785
+
+this sounds so much simpler...
+
+it will require a major rewrite to test....
+
+
+will it?
+
+what if i left
+
+https://stackoverflow.com/questions/20165699/why-a-single-socket-in-udp-servers
+
+---------------
+
+how would I implement this?
+
+on the server:
+
+a listen channel that receives everything
+
+all packets that come to the server come on port 24785
+src:ip
+src:port
+
+however they all have different dst IP:port
+
+
+when a packet arrive on port 24785
+- if it belongs to an existing client channel socket, mark it and put it in the packet buffer
+
+- if it does not (if ip and port are not a match) start the initiate connection stuff
+set up a channel for it
+
+
+
+
+----------------------
+
+test this assumption....
+
+no port forwarding rules on client
+
+client sends:
+24785
+50001
+
+
+server sends back
+50001
+24785
+
+client gets that with no forward...
+
+I think I have tested that works!!
+
+the reason the old method did not was the server changed the src port when its sent back
+then the client router did not have a record of sending to the new port only to 24785
+
+-----------
+
+we are onto to something here...
+
+it seems like such a huge task to implement this...
+
+
+client:
+never change anything.
+start with:
+server ip and port 24785
+client ip and dynamic port
+never change anything
+
+server will need lots of changes
+
+server will only have one channel
+always bound to local IP and 24785
+
+
+make a function to replace server listen and server recieve
+- listens on the listen port only
+
+when I want to send, I will replace the target of the channel
+
+I will need a place to save this target info
+
+its is a char array...
+
+make my own array of these...
+
+call it mwChannel
+
+its like I am duplicating the existing channels
+
+why am I doing that?
+
+
+I am assuming that I can't make more than one channel have the same local address...maybe I can
+if that is true, then there is so much less work to do...
+
+I get an error when trying to open a second channel with the same local port: 24785
+
+
+
+struct mwChannel
+{
+   int active;
+   int player_number;
+   char address[256];
+};
+
+struct mwChannel mwChannels[20];
+
+now when I receive something on port 24785
+- check if the address matches something in the list
+
+
+
+how to integrate this?
+
+
+right now packets are added to packet buffer
+for server, I should remove old listen and do it all there....
+
+   int pos = net_receive(ListenChannel, data, 1024, address);
+
+
+this is complex....
+
+when adding to packet buffer, who is used...
+
+who is an index into the old ClientChannel
+it only exists on the server to tell which client we are talking about
+now I need something like it as an index into the mwChannel
+
+
+this is totally neccesary:
+
+of all the packets that we receive:
+- if they match a channel put them in the buffer and mark with who
+- if they do not match an existing channel and if they are cjon...
+make a new channel and immed send sjon reply
+
+
+
+start at the very beginning:
+
+// receives all waiting packets and puts them in the rx buffer
+void mwPacketBuffer::add_to_rx_buffer(void)
+{
+   if (is_data_waiting())
+   {
+      double t0 = al_get_time();
+      lock_mutex();
+      char data[1024] = {0};
+      int who = -1;
+
+      char address[256];
+
+      if (mNetgame.ima_server)
+         while (net_receive(mNetgame.ListenChannel, data, 1024, address))
+         {
+            // look up who
+
+            add_to_rx_buffer_single(data, who);
+
+         }
+
+
+//      if (mNetgame.ima_server)
+//         while(mNetgame.ServerReceive(data, &who))
+//            add_to_rx_buffer_single(data, who);
+
+      if (mNetgame.ima_client)
+         while (mNetgame.ClientReceive(data))
+            add_to_rx_buffer_single(data, who);
+
+      unlock_mutex();
+      threadTally[1].add_data(al_get_time() - t0);
+   }
+}
+
+this is a good start
+
+what if I made the indexes of mwChannel match the player numbers?
+
+would this simplify things in any way?
+
+
+what I plan to do is:
+recive a packet
+check the from address against addresses in mwChannel
+if match set who in the received packet to the index of the match
+this index will also be the player number
+
+reserved index numbers:
+0 remote control
+1-7 for player clients
+
+then I do not really need who, I can just use the index number
+and it is also the player number
+
+
+
+
+make a function:
+
+int mwNetgame::check_address(char * address)
+{
+   for (int n=0; n<20; n++)
+      if ((mwChannel[n].active) && (strcmp(address, mwChannel[n].address) == 0)) return n;
+   return -1;
+}
+
+I think I am going to skip right to client initiating by sending cjon
+
+changed client setup
+now sends cjon and waits for sjon in client check response
+
+
+I am at the point where I need to change ServerSendTo
+
+omfg I can get a client to join....
+what next?
+
+server dies after a few seconds of client joining
+
+
+lets just change all ServerSendTo to the new version..done
+
+
+bug fix client sending cjon
+
+
+also the whole program state thing where the client goes throught states...
+
+old states:
+
+// PM_PROGRAM_STATE_CLIENT_NEW_GAME
+// PM_PROGRAM_STATE_CLIENT_WAIT_FOR_JOIN
+// PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP
+// PM_PROGRAM_STATE_CLIENT_WAIT_FOR_INITIAL_STATE
+
+
+new states:
+
+// PM_PROGRAM_STATE_CLIENT_NEW_GAME (this will set up the network and block until sjon rx'd)
+// PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP
+// PM_PROGRAM_STATE_CLIENT_WAIT_FOR_INITIAL_STATE
+
+now bug fix, the server is not sending stdf packets
+server did not make player active, fixed...
+
+
+
+now it works quite well...before going further, test over internet....
+
+it works!! with no port forward needed on the client's router!!!
+
+
+now I have a lot more work to do....
+
+
+get the ping stuff to work...
+
+client sends ping...no changes needed
+
+server rx ping
+when packets are rx'd by packet buffer, who is decoded from address
+who is the player number now...
+
+this makes its way to: void mwNetgame::server_proc_ping_packet(char *data, int who)
+here I no longer try to convert who to player, I just use it direct...
+
+also did the same in:
+void mwNetgame::server_proc_pang_packet(char *data, int who)
+
+
+I should find all places where I try to convert who to player....
+
+removed all:
+server_get_player_num_from_who(int who);
+void ServerListen(void);
+int  ServerReceive(void *data, int *sender);
+void ServerFlush(void);
+
+wow that is a lot....
+
+now what?
+
+how does multiple clients work?
+
+great on both LAN and WAN...omfg!!!
+
+lets make remote control work
+
+
+that seems to work...
+
+
+what else?
+
+
+what happens when server rx cdat
+
+basically, everything that the server receives and puts in packet buffer has who set to player number
+
+
+what next?
+
+should I do something about removing mwChannels when they are not used?
+
+what about the sessions stuff??
+
+bug fix, second client does not have proper data when server rx sjon
+
+
+redid all the packet get and put routines...do not use rx_buf 199..
+
+packet buffer no longer does anything with sjon
+
+can i also do sjrc yes
+
+client init setup is also used for remote control setup
+but it also does the cjon stuff...need to separate
+
+done...
+
+so much done, looking great....
+
+deploy this to the server...
+
+
+
+
+
+20240416  -  A landmark day!
+
+Major changes to netgame code.
+
+Server now only uses one socket for everything.
+Clients also, but that is how they have always been.
+
+
+The server uses the src address of the received packet to determine the client.
+
+When the server sends a packet, it changes the target of its one port, then sends.
+
+This will simplify my code considerably, once I clean it all up.
+
+But the biggest benefit is:
+
+Clients no longer need any port forwarding!!
+
+The client initiates contact with the server on port 24785.
+
+When it gets a reply from that port, it passes back through the router, beacuse the router sent something to it!
+
+
+I am going to start actually removing old code now that I see it is working so well.
+
+
+remove:
+int remote_join_reply = 0..done
+void mwNetgame::client_proc_sjrc_packet(int i)...done
+void mwNetgame::client_proc_sjon_packet(int i)...done
+
+void mwNetgame::server_proc_cjon_packet(int i)...done
+void mwNetgame::server_proc_cjrc_packet(int i)...done
+
+int mwNetgame::server_get_player_num_from_who(int who)...done
+
+re-do ServerFlush so it doesn't use server receive...done
+
+int mwNetgame::ServerReceive(void *data, int *sender)...done
+
+void mwNetgame::ServerListen(void)..done
+
+   // check and remove stale channels
+   for (int n=0; n<MAX_CLIENTS; n++)
+      if (mNetgame.ClientChannel[n])
+      {
+         int remove_channel = 0;
+
+         // last rx is more than 200 frames behind current frame
+         if ((mLoop.frame_num - mNetgame.ClientChannelLastRX[n]) > 200) remove_channel = 1;
+
+
+         // if channel is associated with active player do not remove channel
+         // this should never happen, unless something really strange is going on
+         // still, this check will prevent server from crashing
+         // which it will do if we try to send something to a client that has its channel deleted
+         if (server_get_player_num_from_who(n) != -1) remove_channel = 0;
+
+         if (remove_channel)
+         {
+            net_closechannel(ClientChannel[n]);
+            ClientChannel[n] = NULL;
+            ClientChannelLastRX[n] = 0;
+            mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Removed inactive client channel:%d", n);
+
+
+            // if removing remote control channel, make sure we turn off remote control
+            // or else server will keep trying to send snfo packets to the channel we just removed
+            if ((mMain.server_remote_control) && (mMain.server_remote_control_who == n))
+            {
+               mMain.server_remote_control = 0;
+               mMain.server_remote_control_who = -99;
+            }
+         }
+      }
+
+I don't think I need to worry about cleaning up old channels anymore...
+They are all bound to a specific thing 1-7 for clients 0 for remote control
+
+
+
+remove:
+int mwNetgame::ServerFindUnusedChannel(void)...
+
+get rid of the ClientChannel array...
+
+ClientChannel[n] = NULL;..done
+ClientChannelLastRX[n] = 0;...done
+
+#define MAX_CLIENTS 32 ..done
+
+
+
+now for a big rename:
+
+this is what I have right now:
+
+
+the client has:
+   NET_CHANNEL *ServerChannel = NULL;
+
+the server has:
+   NET_CHANNEL *ListenChannel = NULL;
+
+
+step 1: rename all ServerChannel to ClientChannel
+step 2: rename all ListenChannel to ServerChannel
+done....
+
+
+removed these:
+
+int mwNetgame::get_dynamic_port(void)
+{
+   return rand() % 16383 + 49152;
+}
+
+void mwNetgame::change_address_port(char * address, int port)
+{
+   printf("Old address:%s\n", address);
+   printf("New port:%d\n", port);
+
+   // find position of ':'
+   char* ret;
+   const char ch = ':';
+   ret = strchr(address, ch);
+
+   // terminate string after ':'
+   ret[1] = 0;
+
+   // add new port
+   char port_str[16];
+   sprintf(port_str, "%d", port);
+   strcat(address, port_str);
+
+   printf("New address:%s\n", address);
+}
+
+int mwNetgame::get_local_port_from_channel(NET_CHANNEL *chan)
+{
+   char local_port[256];
+   strcpy(local_port, net_getlocaladdress(chan));
+   local_port[0] = 32; // remove leading ':'
+   int port = atoi(local_port);  // convert to int
+   return port;
+}
+
+int mwNetgame::get_port_from_address(char * address)
+{
+   //printf("address:%s\n", address);
+   // find position of ':'
+   char* ret;
+   const char ch = ':';
+   ret = strchr(address, ch);
+   char local_port[256];
+   memcpy(local_port, ret+1, 6); // first char after :, copy 6 char to get NULL, assume 5 numbers....
+   int port = atoi(local_port);  // convert to int
+   //printf("port:%d\n", port);
+   return port;
+}
+
+separated client init from client join and remote join
+do something about server full....i think that is working well...
+
+
+bug remote control restart level crashes server...
+
+I am finding it hard to reproduce
+
+sometimes the remote control can control but not show stuff
+
+
+do the thing where you show the channels..done
+
+
+what about session stuff?
+
+sessions use who...and convert from player number
+just use player num, its the new who....
+
+there can be many client sessions, they dont have a one-one relationship with player num
+
+Do a write up about sessions...
+
+
+-----------------
+--- Sessions: ---
+-----------------
+
+I think they are only generated on a server.
+
+They are saved in logs/sessions
+
+One file per session.
+
+Created when the server gets the initial contact from the client (cjon).
+
+Uses a timestamp, IP, and port for the filename..
+
+then updated when?
+
+they used to have a field called who, but I want to change that to player..
+I have an array of sessions and I used to search for empty, but I think I can just have their indexes be player number
+
+also explicitly save player number in the data? why, would that be useful?
+
+status:
+
+0 - server send sjon full
+1 - server send sjon join
+
+what do I need status for?
+
+can i combine it with active?
+
+how about:
+active
+reason for inactive
+
+status does not really make any sense...it is active or not
+
+inactive_reason
+0 when still active (or if it crashes and nothing gets set)
+1 server_full
+2 client quit
+3 server quit
+...
+
+make the initial cover two cases: join and full
+join
+1 active
+0 inactive_reason
+
+full
+0 active
+1 inactive_reason
+
+I think I have the session stuff working
+
+
+what else should I do before I make a release and put it on the main server?
+
+just do it now...
+
+get all the bugs later...
+
+20240416
+
+massive chanages to netgame
+
+time for a new release....
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

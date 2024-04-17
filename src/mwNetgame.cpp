@@ -20,12 +20,10 @@ mwNetgame::mwNetgame()
    NetworkDriver = -1;
    ima_server = 0;
    ima_client = 0;
-   remote_join_reply = 0;
 
-   sprintf(serveraddress, "192.168.1.2");
+   sprintf(server_address, "purplemartians.org");
 
-   server_UDP_listen_port = 24785;
-
+   server_port = 24785;
 
    zlib_cmp = 7;
 
@@ -35,20 +33,9 @@ mwNetgame::mwNetgame()
    for (int i=0; i<16; i++)
       session_clear_entry(i);
 
+   ClientChannel = NULL;
    ServerChannel = NULL;
-
-   ListenChannel = NULL;
-
-   for (int n=0; n<MAX_CLIENTS; n++)
-   {
-      ClientChannel[n] = NULL;
-      ClientChannelLastRX[n] = 0;
-   }
 }
-
-
-
-
 
 // initialize libnet and setup a driver to use. Returns 0 on success.
 int mwNetgame::NetworkInit(void)
@@ -88,51 +75,6 @@ int mwNetgame::NetworkInit(void)
       return -1;
    }
 }
-
-int mwNetgame::get_dynamic_port(void)
-{
-   return rand() % 16383 + 49152;
-}
-
-void mwNetgame::change_address_port(char * address, int port)
-{
-   printf("Old address:%s\n", address);
-   printf("New port:%d\n", port);
-
-   // find position of ':'
-   char* ret;
-   const char ch = ':';
-   ret = strchr(address, ch);
-
-   // terminate string after ':'
-   ret[1] = 0;
-
-   // add new port
-   char port_str[16];
-   sprintf(port_str, "%d", port);
-   strcat(address, port_str);
-
-   printf("New address:%s\n", address);
-}
-
-int mwNetgame::get_local_port_from_channel(NET_CHANNEL *chan)
-{
-   char local_port[256];
-   strcpy(local_port, net_getlocaladdress(chan));
-   local_port[0] = 32; // remove leading ':'
-   int port = atoi(local_port);  // convert to int
-   return port;
-}
-
-
-
-
-
-
-
-
-
-
 
 
 void mwNetgame::game_vars_to_state(char * b)

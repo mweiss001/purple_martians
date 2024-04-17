@@ -12,13 +12,6 @@ In a case like this, I wish I could see what was going on internally without dis
 Like a console window.
 
 
-
-
-
-
-
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
@@ -27,8 +20,6 @@ Like a console window.
 
 How long has server been running?
 Keep some stats about that.
-
-
 
 
 what to do to release?
@@ -40,7 +31,6 @@ before I put it away and move on?
 What about the static IP? 96.45.13.220
 Should I describe it in the game (help screens)
 I should make it static on the Brooks Server
-
 
 
 

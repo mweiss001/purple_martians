@@ -31,12 +31,12 @@ int mwNetgame::ServerInitNetwork(void)
       return 0;
    }
 
-   // open the listening channel
+   // open the server channel
    char port[256];
-   sprintf(port, ":%d", server_UDP_listen_port);
-   if (!(ListenChannel = net_openchannel(NetworkDriver, port)))
+   sprintf(port, ":%d", server_port);
+   if (!(ServerChannel = net_openchannel(NetworkDriver, port)))
    {
-      sprintf(msg, "Error opening listening channel");
+      sprintf(msg, "Error opening server channel");
       mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
       mInput.m_err(msg);
       return 0;
@@ -56,15 +56,9 @@ void mwNetgame::ServerExitNetwork(void)
    mPacketBuffer.stop_packet_thread();
 
    mLog.add_header(LOG_NET, 0, 0, "Shutting down the server network");
-   for (int n=0; n<MAX_CLIENTS; n++)
-      if (ClientChannel[n])
-      {
-          net_closechannel(ClientChannel[n]);
-          ClientChannel[n] = NULL;
-          ClientChannelLastRX[n] = 0;
-      }
-   if (ListenChannel) net_closechannel(ListenChannel);
-   ListenChannel = NULL;
+
+   if (ServerChannel) net_closechannel(ServerChannel);
+   ServerChannel = NULL;
 
    ima_server = 0;
 
@@ -76,174 +70,43 @@ void mwNetgame::ServerExitNetwork(void)
 }
 
 
-int mwNetgame::ServerFindUnusedChannel(void)
+
+
+int mwNetgame::server_check_address(char * address)
 {
-   for (int n=0; n<MAX_CLIENTS; n++)
-      if (!ClientChannel[n]) return n;
+   for (int n=0; n<8; n++)
+      if ((mwChannels[n].active) && (strcmp(address, mwChannels[n].address) == 0)) return n;
    return -1;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void mwNetgame::ServerListen(void)
-{
-   char msg[256];
-   char address[32];
-   char data[1024] = {0};
-   int pos = net_receive(ListenChannel, data, 1024, address);
-   if (pos)
-   {
-      if (mPacketBuffer.PacketRead(data, "1234"))
-      {
-         mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received initial 1234 packet from '%s'", address);
-
-         int n = ServerFindUnusedChannel();
-
-         if (n == -1)
-         {
-            sprintf(msg, "Error: could not find empty channel\n");
-            mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
-            mInput.m_err(msg);
-            return;
-         }
-
-         if (!(ClientChannel[n] = net_openchannel(NetworkDriver, NULL))) // use dynamic source port
-         {
-            sprintf(msg, "Error: failed to open channel for %s\n", address);
-            mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
-            mInput.m_err(msg);
-            return;
-         }
-         if (net_assigntarget(ClientChannel[n], address))
-         {
-            sprintf(msg, "Error: couldn't assign target `%s' to channel\n", address);
-            mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
-            net_closechannel (ClientChannel[n]);
-            mInput.m_err(msg);
-            return;
-         }
-
-         ClientChannelLastRX[n] = mLoop.frame_num; // record time
-
-         mPacketBuffer.PacketName(data, pos, "5678");
-         ServerSendTo(data, pos, n);
-
-         mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server opened channel for `%s' and sent reply", address);
-         if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, n);
-      }
-   }
-
-   // check and remove stale channels
-   for (int n=0; n<MAX_CLIENTS; n++)
-      if (mNetgame.ClientChannel[n])
-      {
-         int remove_channel = 0;
-
-         // last rx is more than 200 frames behind current frame
-         if ((mLoop.frame_num - mNetgame.ClientChannelLastRX[n]) > 200) remove_channel = 1;
-
-
-         // if channel is associated with active player do not remove channel
-         // this should never happen, unless something really strange is going on
-         // still, this check will prevent server from crashing
-         // which it will do if we try to send something to a client that has its channel deleted
-         if (server_get_player_num_from_who(n) != -1) remove_channel = 0;
-
-         if (remove_channel)
-         {
-            net_closechannel(ClientChannel[n]);
-            ClientChannel[n] = NULL;
-            ClientChannelLastRX[n] = 0;
-            mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Removed inactive client channel:%d", n);
-
-
-            // if removing remote control channel, make sure we turn off remote control
-            // or else server will keep trying to send snfo packets to the channel we just removed
-            if ((mMain.server_remote_control) && (mMain.server_remote_control_who == n))
-            {
-               mMain.server_remote_control = 0;
-               mMain.server_remote_control_who = -99;
-            }
-         }
-      }
-}
-
-// receive waiting packets from clients, and store in provided array
-int mwNetgame::ServerReceive(void *data, int *sender)
-{
-   for (int n=0; n<MAX_CLIENTS; n++)
-      if (ClientChannel[n])
-      {
-         int len = net_receive(ClientChannel[n], data, 1024, NULL);
-         if (len > 0)
-         {
-            // add to server's counts
-            mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
-            mPlayer.loc[0].rx_current_packets_for_this_frame++;
-
-
-            ClientChannelLastRX[n] = mLoop.frame_num; // record time
-
-
-            // add to client's counts
-            int p = server_get_player_num_from_who(n);
-            if (p > -1)
-            {
-               mPlayer.loc[p].rx_current_bytes_for_this_frame += len;
-               mPlayer.loc[p].rx_current_packets_for_this_frame++;
-            }
-            *sender = n;
-            return len;
-         }
-      }
-	return 0;
-}
-
 
 // send data to a specific client
 void mwNetgame::ServerSendTo(void *data, int len, int who)
 {
-   net_send(ClientChannel[who], data, len);
+   // change the target of the ServerChannel
+   if (net_assigntarget(ServerChannel, mwChannels[who].address))
+   {
+      char msg[512];
+      sprintf(msg, "Error: couldn't assign target `%s' to ServerChannel\n", mwChannels[who].address);
+      mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
+      mInput.m_err(msg);
+   }
+   net_send(ServerChannel, data, len);
 
    // add to server's counts
    mPlayer.loc[0].tx_current_bytes_for_this_frame += len;
    mPlayer.loc[0].tx_current_packets_for_this_frame++;
 
-   int p = server_get_player_num_from_who(who);
-   if (p != -1)
-   {
-      // add to client's counts
-      mPlayer.loc[p].tx_current_bytes_for_this_frame += len;
-      mPlayer.loc[p].tx_current_packets_for_this_frame++;
-   }
-
+   // add to client's counts
+   mPlayer.loc[who].tx_current_bytes_for_this_frame += len;
+   mPlayer.loc[who].tx_current_packets_for_this_frame++;
 }
+
 void mwNetgame::ServerFlush(void)
 {
-   char data[1024]; int who;
-   while (ServerReceive(data, &who));
+   char data[1024] = {0};
+   while (net_receive(mNetgame.ServerChannel, data, 1024, NULL));
 }
 
-int mwNetgame::server_get_player_num_from_who(int who)
-{
-   for(int p=0; p<NUM_PLAYERS; p++)
-      if (mPlayer.loc[p].who == who) return p;
-   return -1;
-}
 
 // ---------------------------------------------------------------------------------------------------------------
 // ***************************************************************************************************************
@@ -262,12 +125,9 @@ void mwNetgame::headless_server_setup(void)
    mLog.set_log_type_action(LOG_NET_session, LOG_ACTION_LOG, 1);
 
 
-
 //   // add these for troubleshooting
 //   mLog.set_log_type_action(LOG_NET_stak, LOG_ACTION_LOG, 1);
 //   mLog.set_log_type_action(LOG_NET_stdf, LOG_ACTION_LOG, 1);
-
-
 
 
    mLog.autosave_log_on_level_done = 1;
@@ -412,7 +272,9 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
       memcpy(data+pos, cmp+start_byte, packet_data_size);
       pos += packet_data_size;
 
-      ServerSendTo(data, pos, mPlayer.loc[p].who);
+      //ServerSendTo(data, pos, mPlayer.loc[p].who);
+      ServerSendTo(data, pos, p);
+
 
       start_byte+=1000;
    }
@@ -705,7 +567,8 @@ void mwNetgame::server_proc_cdat_packet(int i)
    }
 }
 
-void mwNetgame::server_send_sjon_packet(int who, int level, int frame, int player_num, int player_color)
+
+void mwNetgame::server_send_sjon_packet(char* address, int level, int frame, int player_num, int player_color)
 {
    char data[1024] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "sjon");
@@ -714,43 +577,65 @@ void mwNetgame::server_send_sjon_packet(int who, int level, int frame, int playe
    mPacketBuffer.PacketPutByte(data, pos, player_num);
    mPacketBuffer.PacketPutByte(data, pos, player_color);
    mPacketBuffer.PacketPutByte(data, pos, mPlayer.syn[0].server_lev_seq_num);
-   ServerSendTo(data, pos, who);
+
+   if (net_assigntarget(ServerChannel, address))
+   {
+      char msg[256];
+      sprintf(msg, "Error: couldn't assign target `%s' to ServerChannel\n", address);
+      mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
+      mInput.m_err(msg);
+   }
+   net_send(ServerChannel, data, pos);
+
+
 }
 
-void mwNetgame::server_proc_cjon_packet(int i)
+void mwNetgame::server_proc_cjon_packet(char *data, char * address)
 {
-   int who    = mPacketBuffer.rx_buf[i].who;
-   int color  = mPacketBuffer.PacketGetByte(i);
-   char temp_name[16];
-   mPacketBuffer.PacketReadString(i, temp_name);
+   int pos = 4;
+   int color  = mPacketBuffer.PacketGetByte(data, pos);
+   char hostname[16];
+   mPacketBuffer.PacketReadString(data, pos, hostname);
 
    mLog.add_fwf(LOG_NET, 0, 76, 10, "+", "-", "");
-   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received join request from %s requesting color:%d", temp_name, color);
+   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received join request from %s requesting color:%d", hostname, color);
 
    int p = mPlayer.find_inactive_player();
    if (p == 99) // no inactive player found
    {
       mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
       mLog.add_fwf(LOG_NET, 0, 76, 10, "+", "-", "");
-      server_send_sjon_packet(who, 0, 0, 99, 0);
-      if (mLog.log_types[LOG_NET_session].action) session_close_entry_server_full(who, temp_name);
+      server_send_sjon_packet(address, 0, 0, 99, 0);
+
+      if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, 99, 0, 1);
+
+
    }
    else // inactive player found, proceed with join
    {
+      // set up channel, use the player number as the index to the channel
+      mwChannels[p].active = 1;
+      strcpy(mwChannels[p].address, address);
+
       // try to use requested color, unless already used by another player
       while (mPlayer.is_player_color_used(color)) if (++color > 15) color = 1;
 
       mPlayer.init_player(p, 1); // full player reset
       mStateHistory[p].initialize();
       mItem.set_player_start_pos(p);
+
+      mPlayer.syn[p].active = 1;
+
       mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
-      mPlayer.loc[p].who = who;
       mPlayer.loc[p].server_last_stak_rx_frame_num = mLoop.frame_num + 200;
-      sprintf(mPlayer.loc[p].hostname, "%s", temp_name);
+      sprintf(mPlayer.loc[p].hostname, "%s", hostname);
 
       mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, color); // add game move to make client active
 
-      server_send_sjon_packet(who, mLevel.play_level, mLoop.frame_num, p, color);
+      server_send_sjon_packet(address, mLevel.play_level, mLoop.frame_num, p, color);
+
+
+      if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, p, 1, 0);
 
       mLog.add_fwf(LOG_NET,               0, 76, 10, "|", " ", "Server replied with join invitation:");
       mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
@@ -762,15 +647,23 @@ void mwNetgame::server_proc_cjon_packet(int i)
    }
 }
 
-void mwNetgame::server_proc_cjrc_packet(int i)
+void mwNetgame::server_proc_cjrc_packet(char *data, char * address)
 {
+   int who = 0; // remote control channel index
+
+   // set up channel
+   mwChannels[who].active = 1;
+   strcpy(mwChannels[who].address, address);
+
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received remote control request");
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server replied with sjrc packet");
-   int who = mPacketBuffer.rx_buf[i].who;
+
    mMain.server_remote_control_who = who;
    mMain.server_remote_control = 1;
+
    server_send_sjrc_packet(who);
 }
+
 
 void mwNetgame::server_send_sjrc_packet(int who)
 {
@@ -782,36 +675,25 @@ void mwNetgame::server_send_sjrc_packet(int who)
 
 void mwNetgame::server_proc_ping_packet(char *data, int who)
 {
-   int p = server_get_player_num_from_who(who);
-   if (p != -1)
-   {
-      int pos = 4;
-      double t0 = mPacketBuffer.PacketGetDouble(data, pos);
-      double t1 = al_get_time();
-
-      mPacketBuffer.PacketName(data, pos, "pong");
-      mPacketBuffer.PacketPutDouble(data, pos, t0);
-      mPacketBuffer.PacketPutDouble(data, pos, t1);
-      ServerSendTo(data, pos, who);
-   }
+   int pos = 4;
+   double t0 = mPacketBuffer.PacketGetDouble(data, pos);
+   double t1 = al_get_time();
+   mPacketBuffer.PacketName(data, pos, "pong");
+   mPacketBuffer.PacketPutDouble(data, pos, t0);
+   mPacketBuffer.PacketPutDouble(data, pos, t1);
+   ServerSendTo(data, pos, who);
 }
 
 void mwNetgame::server_proc_pang_packet(char *data, int who)
 {
-   int p = server_get_player_num_from_who(who);
-   if (p != -1)
-   {
-      int pos = 4;
-      double t0 = mPacketBuffer.PacketGetDouble(data, pos);
-      mPacketBuffer.RA[p].add_data(al_get_time() - t0);
-   }
+   int pos = 4;
+   double t0 = mPacketBuffer.PacketGetDouble(data, pos);
+   mPacketBuffer.RA[who].add_data(al_get_time() - t0);
 }
-
 
 
 void mwNetgame::server_control()
 {
-   ServerListen();                        // listen for new client connections
    mPacketBuffer.proc_rx_buffer();        // process all packets in buffer
    server_rewind();                       // to replay and apply late client input
    server_proc_player_drop();             // check to see if we need to drop inactive clients
