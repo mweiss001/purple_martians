@@ -430,7 +430,17 @@ void mwLoop::proc_program_state(void)
 
       mEventQueue.reset_fps_timer();
 
+      for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
+      mPlayer.syn[0].active = 1;
+
+
       if (!mNetgame.ClientInitNetwork())
+      {
+         state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
+         return;
+      }
+
+      if (!mNetgame.ClientJoin())
       {
          state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
          return;
@@ -439,25 +449,7 @@ void mwLoop::proc_program_state(void)
       mRollingAverage[1].initialize(8); // ping rolling average
       mRollingAverage[2].initialize(8); // dsync rolling average
 
-      for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
-      mPlayer.syn[0].active = 1;
-
-      mNetgame.client_send_cjon_packet();
-
-      mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client sent join request to server with player color:[%2d]", mPlayer.syn[0].color);
-      mLog.add_fw (LOG_NET, 0, 76, 10, "+", "-", "");
-
-      state[0] = PM_PROGRAM_STATE_CLIENT_WAIT_FOR_JOIN;
-   }
-
-//-----------------------------------------------------------------
-// PM_PROGRAM_STATE_CLIENT_WAIT_FOR_JOIN
-//-----------------------------------------------------------------
-   if (state[1] == PM_PROGRAM_STATE_CLIENT_WAIT_FOR_JOIN)
-   {
-      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_WAIT_FOR_JOIN]\n");
-      mPacketBuffer.rx_and_proc();
-      if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) state[0] = PM_PROGRAM_STATE_CLIENT_EXIT; // give them an escape option
+      state[0] = PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP;
    }
 
 //-----------------------------------------------------------------
@@ -664,32 +656,20 @@ void mwLoop::proc_program_state(void)
       for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
 
 
-      // initialize driver with server address
+
       if (!mNetgame.ClientInitNetwork())
       {
          state[0] = PM_PROGRAM_STATE_QUIT; // quit
          return;
       }
 
-      mNetgame.client_send_cjrc_packet();
-
-      while (mNetgame.remote_join_reply)
+      if (!mNetgame.RemoteJoin())
       {
-         mPacketBuffer.rx_and_proc();
-
-         mEventQueue.proc(1);
-         al_set_target_backbuffer(mDisplay.display);
-         al_clear_to_color(al_map_rgb(0,0,0));
-         al_draw_textf(mFont.pr8, mColor.pc[10], 100, 80,  0, "Remote Control - Waiting for server reply");
-         al_flip_display();
-
-         if (mInput.key[ALLEGRO_KEY_ESCAPE][0])
-         {
-            while (mInput.key[ALLEGRO_KEY_ESCAPE][0]) mEventQueue.proc(1);
-            state[0] = PM_PROGRAM_STATE_QUIT;
-            return;
-         }
+         state[0] = PM_PROGRAM_STATE_QUIT; // quit
+         return;
       }
+
+
       state[0] = PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_RUN;
       printf("server remote control run\n");
       mLog.add(LOG_OTH_program_state, 0, "[State 40 - Server Remote Control Run]\n");

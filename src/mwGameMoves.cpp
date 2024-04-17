@@ -351,9 +351,6 @@ void mwGameMoves::proc_game_move_player_active(int x)
       if ((mNetgame.ima_server) || (mNetgame.ima_client))
          if (p != mPlayer.active_local_player) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
 
-      // update session when client becomes active on server
-      if ((mNetgame.ima_server) && (mLog.log_types[LOG_NET_session].action)) mNetgame.session_update_entry_client_active(p);
-
       // if player 0 is file play all added players will be too
       if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
 

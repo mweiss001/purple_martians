@@ -99,8 +99,6 @@ void mwPacketBuffer::proc_rx_buffer(void)
          {
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CDAT) mNetgame.server_proc_cdat_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STAK) mNetgame.server_proc_stak_packet(i);
-            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CJON) mNetgame.server_proc_cjon_packet(i);
-            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CJRC) mNetgame.server_proc_cjrc_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_RCTL) mNetgame.server_proc_rctl_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SFAK) mNetgame.server_proc_sfak_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CRFL) mNetgame.server_proc_crfl_packet(i);
@@ -108,8 +106,6 @@ void mwPacketBuffer::proc_rx_buffer(void)
          if (mNetgame.ima_client)
          {
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STDF) mNetgame.client_proc_stdf_packet(i);
-            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SJON) mNetgame.client_proc_sjon_packet(i);
-            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SJRC) mNetgame.client_proc_sjrc_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SNFO) mNetgame.client_proc_snfo_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SFIL) mNetgame.client_proc_sfil_packet(i);
          }
@@ -156,15 +152,8 @@ int mwPacketBuffer::is_data_waiting(void)
 {
    double t0 = al_get_time();
    int data_waiting = 0;
-   if (mNetgame.ima_server)
-   {
-      for (int n=0; n<MAX_CLIENTS; n++)
-         if ((mNetgame.ClientChannel[n]) && (net_query(mNetgame.ClientChannel[n]))) data_waiting = 1;
-   }
-   if (mNetgame.ima_client)
-   {
-      if (net_query(mNetgame.ServerChannel)) data_waiting = 1;
-   }
+   if ((mNetgame.ima_server) && (net_query(mNetgame.ServerChannel))) data_waiting = 1;
+   if ((mNetgame.ima_client) && (net_query(mNetgame.ClientChannel))) data_waiting = 1;
    threadTally[0].add_data(al_get_time() - t0);
    return data_waiting;
 }
@@ -177,10 +166,20 @@ void mwPacketBuffer::add_to_rx_buffer(void)
       double t0 = al_get_time();
       lock_mutex();
       char data[1024] = {0};
+      char address[256];
       int who = -1;
+
       if (mNetgame.ima_server)
-         while(mNetgame.ServerReceive(data, &who))
-            add_to_rx_buffer_single(data, who);
+         while (net_receive(mNetgame.ServerChannel, data, 1024, address))
+         {
+            who = mNetgame.server_check_address(address);
+            if (who == -1) // unknown address
+            {
+               if (PacketRead(data, "cjon")) mNetgame.server_proc_cjon_packet(data, address); // setup channel and replay with sjon
+               if (PacketRead(data, "cjrc")) mNetgame.server_proc_cjrc_packet(data, address); // setup channel and replay with sjrc
+            }
+            else add_to_rx_buffer_single(data, who);
+         }
 
       if (mNetgame.ima_client)
          while (mNetgame.ClientReceive(data))
@@ -213,13 +212,9 @@ void mwPacketBuffer::add_to_rx_buffer_single(char *data, int who)
    int type = 0;
    if (PacketRead(data, "cdat")) type = PM_NETGAME_PACKET_TYPE_CDAT;
    if (PacketRead(data, "stak")) type = PM_NETGAME_PACKET_TYPE_STAK;
-   if (PacketRead(data, "cjon")) type = PM_NETGAME_PACKET_TYPE_CJON;
-   if (PacketRead(data, "cjrc")) type = PM_NETGAME_PACKET_TYPE_CJRC;
    if (PacketRead(data, "rctl")) type = PM_NETGAME_PACKET_TYPE_RCTL;
    if (PacketRead(data, "sfak")) type = PM_NETGAME_PACKET_TYPE_SFAK;
    if (PacketRead(data, "stdf")) type = PM_NETGAME_PACKET_TYPE_STDF;
-   if (PacketRead(data, "sjon")) type = PM_NETGAME_PACKET_TYPE_SJON;
-   if (PacketRead(data, "sjrc")) type = PM_NETGAME_PACKET_TYPE_SJRC;
    if (PacketRead(data, "snfo")) type = PM_NETGAME_PACKET_TYPE_SNFO;
    if (PacketRead(data, "sfil")) type = PM_NETGAME_PACKET_TYPE_SFIL;
    if (PacketRead(data, "crfl")) type = PM_NETGAME_PACKET_TYPE_CRFL;
@@ -237,6 +232,7 @@ void mwPacketBuffer::add_to_rx_buffer_single(char *data, int who)
          memcpy(rx_buf[indx].data, data, 1024);
       }
    }
+   else printf("%d received unknown packet type!\n", mLoop.frame_num);
 }
 
 int mwPacketBuffer::find_empty_rx_packet_buffer(void)
@@ -249,13 +245,11 @@ int mwPacketBuffer::find_empty_rx_packet_buffer(void)
    // count types of packets in buffer
    int cdat_count = 0;
    int stak_count = 0;
-   int cjon_count = 0;
-   int cjrc_count = 0;
    int rctl_count = 0;
    int stdf_count = 0;
-   int sjon_count = 0;
-   int sjrc_count = 0;
    int snfo_count = 0;
+   int sfil_count = 0;
+   int crfl_count = 0;
    int all_count = 0;
 
    for (int i=0; i<200; i++)
@@ -264,23 +258,19 @@ int mwPacketBuffer::find_empty_rx_packet_buffer(void)
          all_count++;
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CDAT) cdat_count++;
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STAK) stak_count++;
-         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CJON) cjon_count++;
-         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CJRC) cjrc_count++;
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_RCTL) rctl_count++;
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STDF) stdf_count++;
-         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SJON) sjon_count++;
-         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SJRC) sjrc_count++;
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SNFO) snfo_count++;
+         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SFIL) sfil_count++;
+         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CRFL) crfl_count++;
       }
    mLog.addf(LOG_NET, 0, "[%d] cdat\n", cdat_count);
    mLog.addf(LOG_NET, 0, "[%d] stak\n", stak_count);
-   mLog.addf(LOG_NET, 0, "[%d] cjon\n", cjon_count);
-   mLog.addf(LOG_NET, 0, "[%d] cjrc\n", cjrc_count);
    mLog.addf(LOG_NET, 0, "[%d] rctl\n", rctl_count);
    mLog.addf(LOG_NET, 0, "[%d] stdf\n", stdf_count);
-   mLog.addf(LOG_NET, 0, "[%d] sjon\n", sjon_count);
-   mLog.addf(LOG_NET, 0, "[%d] sjrc\n", sjrc_count);
    mLog.addf(LOG_NET, 0, "[%d] snfo\n", snfo_count);
+   mLog.addf(LOG_NET, 0, "[%d] sfil\n", sfil_count);
+   mLog.addf(LOG_NET, 0, "[%d] crfl\n", crfl_count);
 
    return -1;
 }
@@ -333,6 +323,22 @@ int mwPacketBuffer::PacketRead(char *data, const char *id )
 	return 0;
 }
 
+
+
+
+// packet put and get byte functions
+// ---------------------------------
+void mwPacketBuffer::PacketPutByte(char *data, int &pos, char b)
+{
+	data[pos] = b;
+	pos++;
+}
+char mwPacketBuffer::PacketGetByte(char *data, int &pos)
+{
+	char b = data[pos];
+	pos++;
+	return b;
+}
 char mwPacketBuffer::PacketGetByte(int i)
 {
 	char b = rx_buf[i].data[rx_buf[i].packetpos];
@@ -340,28 +346,32 @@ char mwPacketBuffer::PacketGetByte(int i)
 	return b;
 }
 
-void mwPacketBuffer::PacketPutByte(char *data, int &pos, char b)
-{
-	data[pos] = b;
-	pos++;
-}
 
+
+// packet add and read string functions
+// -----------------------------------
 void mwPacketBuffer::PacketAddString(char *data, int &pos, char* s)
 {
    for (int a=0; a<15; a++) PacketPutByte(data, pos, s[a]); // copy first 15 char only
    PacketPutByte(data, pos, 0);                             // for safety terminate with NULL in case string is longer than 15
 }
-
+void mwPacketBuffer::PacketReadString(char *data, int &pos, char* s)
+{
+   for (int a=0; a<16; a++) s[a] = PacketGetByte(data, pos);
+}
 void mwPacketBuffer::PacketReadString(int i, char* s)
 {
    for (int a=0; a<16; a++) s[a] = PacketGetByte(i);
 }
 
-double mwPacketBuffer::PacketGetDouble(int i)
-{
-   return PacketGetDouble(rx_buf[i].data, rx_buf[i].packetpos);
-}
 
+// packet put and get double functions
+// -----------------------------------
+void mwPacketBuffer::PacketPutDouble(char *data, int &pos, double d)
+{
+   memcpy(data + pos, &d, 8);
+	pos+=8;
+}
 double mwPacketBuffer::PacketGetDouble(char *data, int &pos)
 {
    double d = 0;
@@ -369,19 +379,27 @@ double mwPacketBuffer::PacketGetDouble(char *data, int &pos)
 	pos+=8;
 	return d;
 }
-
-void mwPacketBuffer::PacketPutDouble(char *data, int &pos, double d)
+double mwPacketBuffer::PacketGetDouble(int i)
 {
-   memcpy(data + pos, &d, 8);
-	pos+=8;
+   return PacketGetDouble(rx_buf[i].data, rx_buf[i].packetpos);
 }
 
+
+
+// packet put and get 4 byte int functions
+// ---------------------------------------
 void mwPacketBuffer::PacketPutInt4(char *data, int &pos, int d)
 {
    memcpy(data + pos, &d, 4);
 	pos+=4;
 }
-
+int mwPacketBuffer::PacketGetInt4(char *data, int &pos)
+{
+   int d = 0;
+   memcpy(&d, data + pos, 4);
+	pos+=4;
+	return d;
+}
 int mwPacketBuffer::PacketGetInt4(int i)
 {
    int d = 0;
@@ -389,3 +407,15 @@ int mwPacketBuffer::PacketGetInt4(int i)
 	rx_buf[i].packetpos+=4;
 	return d;
 }
+
+
+
+
+
+
+
+
+
+
+
+

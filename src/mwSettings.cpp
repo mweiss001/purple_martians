@@ -839,7 +839,7 @@ void mwSettings::page_netgame(void)
    ya+=12;
 
    char msg[256];
-   sprintf(msg, "%s", mNetgame.serveraddress);
+   sprintf(msg, "%s", mNetgame.server_address);
 
    if (mWidget.buttontcb(cfp_txc - (strlen(msg)*4), ya, 0, 13,  0,0,0,0,  0,15,15,10,  1,0,1,0, msg))  mMiscFnx.edit_server_name(cfp_txc, ya-28);
 
