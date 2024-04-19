@@ -3,18 +3,35 @@
 ---------------------------------------------------------
 
 
-During a long netgame, a few clients lost connection to the server, but kept going on their own.
-For hours. The timer kept going up, the players were all moving randomly, but I am sure they were not connected to a server.
-Were they just playing game moves on a loop? Would fakekey make them act like that? Fakekey on a client could...
-
-
-In a case like this, I wish I could see what was going on internally without disturbing the running game.
-Like a console window.
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+Make links on the session table pages to link to each other
+
+
+Make the home page look better.
+
+Have a huge purplemartians.org logo somewhere
+
+Have a page for Multiplayer..
+
+Sections..
+
+Play on my server purplemartians.org
+
+Set up your own server:
+LAN
+Internet
+headless
+
+------------------------------------
+
+Redo my multiplayer videos...
+
+Now that port forwarding does not need to be setup...
+
 
 
 
@@ -28,14 +45,7 @@ what to do to release?
 before I put it away and move on?
 
 
-What about the static IP? 96.45.13.220
-Should I describe it in the game (help screens)
-I should make it static on the Brooks Server
-
-
-
 document netgame, yet again
-
 
 docs that have not been started
 -------------------------------
@@ -61,9 +71,6 @@ level_array.html
 level_done.html
 project_organization.html (make sure object list at end is correct)
 tiles.html (maybe good, needs to be checked)
-
-
-
 
 doc done
 --------
@@ -99,10 +106,6 @@ netgame_state_history.html
 netgame_state_and_dif.html
 
 
-
-
-
-
 can I make netem stuff work with a script on server??
 
 https://www.suse.com/support/kb/doc/?id=000016906
@@ -114,13 +117,10 @@ I want to be able to run tc netem
 but I need to be root...
 
 
-
 should I just abandon old syle cpu graph??
 it is nice that it does not reset when screen changes
 commented out for now...
 could I measure the time it takes to draw it?, like eco_draw?
-
-
 
 
 Where can I do one place to store version?
@@ -129,8 +129,6 @@ so it will show in the compiled program
 and also be used for lin and win build scripts
 
 right now I change it in three places...code (pm.h), win and lin make_release..
-
-
 
 
 make the cannon facing direction optional
@@ -145,16 +143,9 @@ make it so that demo current level on overworld does something besides open file
 maybe that is not so bad...
 
 
-
-
-
-
-
 --------------------------------------------------------
 --  Things that need to be finished before a release  --
 --------------------------------------------------------
-
-
 
 --------------------------------------------------------
 -- The best things about the game to show off --
@@ -162,8 +153,6 @@ maybe that is not so bad...
 - netgame
 - dynamic resizing
 - logging, graphing, profiling
-
-
 
 --------------------------------------------------------
 --  Help Screens To Do  --
@@ -197,9 +186,7 @@ should put that in its own file
 
 there is some major rewriting needed for events and inputs
 
-
 to do:
-
 
 done:
 logo
@@ -231,32 +218,6 @@ netgame join
 netgame server setup
 netgame control and monitoring
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ---------------------------------------------------------
 ------------------------ Tests --------------------------
 ---------------------------------------------------------
@@ -274,8 +235,6 @@ player join
 player shot player is reversed
 switched 3 calls to event 40 player hurt player
 ..fixed
-
-
 
 test all enemies collision with player..good
 ArchWagon-
@@ -351,10 +310,7 @@ I want this game to show off my awesome skills.
 So everything that is not perfect will reflect badly on me.
 This is why it is so hard to finish, it will never be perfect...
 
-
 add al_set_clipboard_text for info things
-
-
 
 
 I have a thought about program state and how I save in in an array that slides down so I can see previous states...
@@ -370,9 +326,6 @@ time:93s
 how long for all children to get in rocket?
 30s
 how long for rocket to fly
-
-
-
 
 
 should I redo my commandline stuff to have an arbitrary number of options in any order
@@ -392,9 +345,6 @@ each chuck should contain no whitespace, use that as a delimiter
 -c<host>
 
 
-
-
-
 Make some examples of vinepods to show off in levels
 vinepod triggering another vinepod in a chain
 vinepod triggering a group of vinepods in a star
@@ -403,10 +353,7 @@ vinepod getting out of the way of a shot aimed at it
 vinepod flower on good and evil?
 also on incinerator??
 
-
 I could also do an eco draw for vinepods....
-
-
 
 when a level is completed and sets a new time record < par and all purple coins collected
 auto save that level in a special folder
@@ -441,19 +388,12 @@ level002.pml
 level002_Switch_Nest.pml
 
 
-
-
-
-
 I am thinking of having some more buttons on the top of the edit menu
 
 be able to toggle scroll at screen edge on/off
 lock screen pos
 scroll level by click and drag
 zoom level with mouse wheel
-
-
-
 
 
 working on making the ft_sel look better
@@ -490,12 +430,9 @@ what would it take to extend lifts to use splines?
 
 I would also like to make splines have more control points, maybe I'll have to make my own..
 
-
 here is a huge one:
 can level editor be brought under the program state umbrella?
 I sort of duplicate level editor modes with program states
-
-
 
 I want to see if I can make the player motion more smooth..
 especially when riding lifts
@@ -509,8 +446,6 @@ but I would need to figure out how to do that as non-root
 
 If I did I could even do cool things like run training sessions with different network settings...
 
-
-
 make a way to force x axis to show either frames or sec..
 make a way to measure on graph
 like CTRL SHIFT DRAG will display info about box size
@@ -519,9 +454,6 @@ make log in settings better:
 - make a way to load most recent ping graph with one click
 log like cpu, but with a multicolored bar...move, draw, other, all added up
 ...more
-
-
-
 
 Things to add to settings:
 
@@ -701,12 +633,6 @@ make a way to click and drag to move le window
 make a button to have le window show current item in center
 
 
-
-
-
-
-
-
 I have been thinking about a major re-ordering of levels...
 I have so many mediocre ones mixed in with the great ones...
 I just want to re-arrange and put some more of them in the extra categories....
@@ -724,18 +650,6 @@ right now I have:
 what if I was to remove 8 from regular and add them to extra
 
 which 8
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -788,7 +702,6 @@ maybe I could send the level file, it is already compressed...
 
 the biggest levels are only 8K
 I can already send the state broken up into packets, why not the level??
-
 
 
 
@@ -949,23 +862,6 @@ client rx stdf link to fpl...done
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 --------------------------------------------------------
 ------------------- reduce globals ----------------------
 ---------------------------------------------------------
@@ -1012,7 +908,6 @@ It can be adjusted just like when the game is running
 ---------------------------------------------------------
 ---------------------- Wish List ------------------------
 ---------------------------------------------------------
-
 
 end of level stats:
 

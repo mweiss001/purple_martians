@@ -881,11 +881,11 @@ void mwScreen::draw_server_debug_overlay(int &cx, int &cy)
    if (mSettings.overlay_grid[7][mLoop.show_debug_overlay]) draw_bandwidth_stats(cx, cy); // bandwidth stats
 
    // draw channel info
-   for (int n=0; n<8; n++)
-   {
-      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "Channel:%d active:%d address:%s", n, mNetgame.mwChannels[n].active, mNetgame.mwChannels[n].address);
-      cy+=9;
-   }
+//   for (int n=0; n<8; n++)
+//   {
+//      al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "Channel:%d active:%d address:%s", n, mNetgame.mwChannels[n].active, mNetgame.mwChannels[n].address);
+//      cy+=9;
+//   }
 
 
 }
