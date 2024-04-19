@@ -21,31 +21,26 @@
 struct client_session
 {
    int active;
-   int inactive_reason;
-
-   int player_num;
-
-   char session_name[64];
-
-   char timestamp[16];
-   char ip[16];
-   int port;
-
-   char host_name[16];
 
    double start_time;
    double end_time;
-   double duration;
+   char session_name[64];
 
-   int next_levels;
-   int exits;
+   char timestamp[16];
+   double duration;
+   char ip[16];
+   int port;
+   char hostname[16];
+
+   int endreason;
 
    int cdats_rx;
-
+   int player_num;
+   int next_levels;
+   int exits;
    int respawns;
    int shots_fired;
    int enemy_hits;
-
    int player_hits;
    int self_hits;
    int purple_coins;

@@ -1,0 +1,189 @@
+
+
+https://datatables.net/
+
+
+from the download page:
+
+select:
+
+Styling framework:
+DataTables
+
+Packages:
+jQuery3
+DataTables
+
+Extensions:
+Buttons -> Column Visibility
+HTML5 export
+ColReorder
+Responsive
+
+Download Method:
+
+Download files
+	
+<link href="DataTables/datatables.min.css" rel="stylesheet">
+ 
+<script src="DataTables/datatables.min.js"></script>
+
+extract and put in /var/www/html/DataTables
+
+contains:
+datatables.css
+datatables.js
+datatables.min.css
+datatables.min.js
+
+also find:
+jquery-3.7.1.min.js
+
+and put it in the same dir:
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+   <script src="DataTables/jquery-3.7.1.min.js"></script>
+   <link rel="stylesheet" href="/DataTables/datatables.css" />
+   <script src="/DataTables/datatables.js"></script>
+   <script>$(document).ready( function ()
+   {
+      $('#myTable').DataTable(
+      {
+          layout: { topStart: { buttons: ['colvis'] } },
+          colReorder: true
+
+      }  );
+   } );</script>
+
+</head>
+<body>
+<?php
+
+   $srvrname = "localhost";
+   $database = "session_db";
+   $username = "msq";
+   $password = "zaiden";
+
+   $col_list = "timestamp, duration, ip, port, hostname, endreason, cdat_rx";
+
+   // Create a connection
+   $conn = mysqli_connect($srvrname, $username, $password, $database);
+
+   // Check the connection
+   if (!$conn) die("Connection failed: " . mysqli_connect_error());
+   // echo "Connected to database\n";
+
+   echo "<h2>SESSIONS</h2><hr>";
+
+   echo "<table id='myTable' class='cell-border' style='width:90%'>";
+
+
+
+
+Default Table Styling Options:
+
+https://datatables.net/manual/styling/classes
+
+Class name	Description
+
+
+display 	Short-hand for the stripe, hover, row-border and order-column classes.
+cell-border 	Border around all four sides of each cell
+compact 	Reduce the amount of white-space the default styling for the DataTable uses, increasing the information density on screen (since 1.10.1)
+hover 	Row highlighting on mouse over
+nowrap 	Disable wrapping of content in the table, so all text in the cells is on a single line (since 1.10.1)
+order-column 	Highlight the column that the table data is currently ordered on
+row-border 	Border around only the top an bottom of each each (i.e. for the rows). Note cell-border and row-border are mutually exclusive and cannot be used together.
+stripe 	Row striping
+
+apply to <table> 
+
+echo "<table id='myTable' class='display cell-border' style='width:90%'>";
+
+
+
+
+Cell classes
+
+In addition to the full table styling options above, the DataTable stylesheet also has basic options for the styling of cells. These can be applied to class individually using HTML, or use columns.className to apply them to all cells in a column.
+Class name	Description
+dt[-head|-body]-left 	Left aligned text
+dt[-head|-body]-center 	Center aligned text
+dt[-head|-body]-right 	Right aligned text
+dt[-head|-body]-justify 	Justify aligned text
+dt[-head|-body]-nowrap 	nowrap aligned text
+
+For convenience when using columns.className, optionally you can use -head or -body in the class name to indicate if the text alignment should be applied to the cells in the thead or tbody of the table. Omit either option to have it apply to both (as columns.className is added to the header and body cells). For example:
+
+    dt-right - Right align text in the header and body.
+    dt-head-right - Right align text in the header only
+    dt-body-right - Right align text in the body only.
+
+Example column alignment
+The following shows the columns.className option being used to right align the text in the final column of a table:
+
+
+I cannot for the life of me get the 'dt-center' to work....it does nothing....
+I have to use: [dt-head-center dt-body-center]
+	
+	
+$('#myTable').DataTable( {
+  columnDefs: [
+    {
+        targets: -1,
+        className: 'dt-body-center'
+    }
+  ]
+} );
+
+
+
+$('#myTable').DataTable( {
+  columnDefs: [
+    {
+        targets: _all,
+        className: 'dt-body-center dt-head-center'
+    }
+  ]
+} );
+
+I cannot for the life of me get the '_all' to work....it does nothing....
+
+what else do I want to look at?
+
+column auto width?
+
+Im good for now....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

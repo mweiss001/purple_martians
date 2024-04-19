@@ -5,15 +5,11 @@ Setting up a remote headless server
 Follow the instructions to set up a dev system on ubuntu:
 'pm_docs\dev setup\linux\ubuntu_dev_setup_20230824.txt'
 
-
 This will be a non-gui version of ubuntu.
 
 You will do all administering remotely, via ssh and other tools.
 
 So obviously you need to know the IP address, and ideally it should be static.
-
-
-
 
 When I do the official pm server, I will get a static IP and save with the release.
 
@@ -25,13 +21,8 @@ The place to save it is in the config:
    if (!val) sprintf(mNetgame.serveraddress, "96.45.13.220");
    else sprintf(mNetgame.serveraddress, "%s", val);
 
-
-
-
-
 ssh into the server
 cd ~/dev/purple_martians
-
 
 
 ---------------------------------------------------------
@@ -41,13 +32,11 @@ Starting and stopping the purple martians server process
 ssh into the server
 cd ~/dev/purple_martians
 
-
 ./pm -sh
 (this will only run as long as the ssh session is alive)
 
 nohup ./pm -sh &
 (this will stay running after the ssh session is ended)
-
 
 top
 (to show the process running)
@@ -56,6 +45,34 @@ kill <PID>
 (to stop the process)
 
 trying to run a 2nd instance fails when a opening a listening channel...
+
+
+-------------------------------------
+- Using systemd to run as a service -
+-------------------------------------
+
+sudo nano /etc/systemd/system/pm.service
+
+# pm.service
+
+[Unit]
+Description= Purple Martians server
+Documentation= purplemartians.org
+
+[Service]
+Type= simple
+User= m
+ExecStart= /home/m/dev/purple_martians/pm -sh
+
+[Install]
+WantedBy= multi-user.target
+
+sudo systemctl daemon-reload
+
+sudo systemctl start pm
+sudo systemctl stop pm
+
+sudo systemctl enable pm
 
 
 
@@ -71,8 +88,6 @@ pm -rc
 
 linux
 ./pm -rc 
-
-
 
 
 ---------------------------------------------------------
@@ -151,44 +166,16 @@ client can request this in two places
 
 
 
+setup a cron job to scrape seession logs and add to database
+
+crontab -e
+
+*/5 * * * * php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/cronoutput.txt 2>&1
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+this is an amazing one line script to change files ending in *.txt.bak to end in *.txt
+for f in *.txt.bak; do mv -- "$f" "${f%.txt.bak}.txt"; done
 
 
 

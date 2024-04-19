@@ -48724,92 +48724,2522 @@ massive chanages to netgame
 time for a new release....
 
 
-
 bug...why is remote not getting snfo packets
-
-
 they are getting to wireshark on the server
+fixed..I have to actually set 'iamclient' to recieve packets
 
 
 
 
 
 
+--------------------------------
 
+setup on the server to run as a service...
 
+Systemd Services to the Rescue
 
+Let’s start off by making a systemd service you can run (manually) as a regular user and build up from there.
 
+Services you can run without admin privileges live in ~/.config/systemd/user/, so start by creating that directory:
 
+cd
+mkdir -p ~/.config/systemd/user/
 
+There are several types of systemd units (the formal name of systemd scripts), such as timers, paths, and so on; but what you want is a service. Create a file in ~/.config/systemd/user/ called minetest.service and open it with your text editor and type the following into it:
 
+# minetest.service
 
+[Unit]
+Description= Minetest server
+Documentation= https://wiki.minetest.net/Main_Page
 
+[Service]
+Type= simple
+ExecStart= /usr/games/minetest --server
 
+Notice how units have different sections: The [Unit] section is mainly informative. It contains information for users describing what the unit is and where you can read more about it.
 
+# pm.service
 
+[Unit]
+Description= Purple Martians server
+Documentation= purplemartians.org
 
+[Service]
+Type= simple
+ExecStart= /home/m/dev/purple_martians/pm -sh
 
 
 
 
+Although only 6 lines long, your minetest.service is already a fully functional systemd unit. You can run it by executing
 
+systemctl --user start pm
 
+And stop it with
 
+systemd --user stop pm
 
+The --user option tells systemd to look for the service in your own directories and to execute the service with your user’s privileges.
 
 
+m@pmh:~/.config/systemd/user$ systemctl --user start pm
+Warning: The unit file, source configuration file or drop-ins of pm.service changed on disk. Run 'systemctl --user daemon-reload' to reload units.
 
+systemctl --user daemon-reload
 
 
+I am not sure that pm is unique enough.  i am going to rename it..did not help...
 
 
+this is what I havge so far:
 
+# pm.service
 
+[Unit]
+Description= Purple Martians server
+Documentation= purplemartians.org
 
+[Service]
+Type= simple
+ExecStart= /home/m/dev/purple_martians/pm -sh
 
+systemctl --user start pm
+systemctl --user stop pm
 
 
 
 
 
+Starting at Boot
 
+The next step is to make your service available as soon as the machine boots up, and close down when you switch it off at night.
 
+Start be moving your service out to where the system services live, The directory youa re looking for is /etc/systemd/system/:
 
+sudo mv /home/<username>/.config/systemd/user/minetest.service /etc/systemd/system/
 
+If you were to try and run the service now, it would have to be with superuser privileges:
 
+sudo systemctl start minetest
 
+But, what’s more, if you check your service’s status with
 
+sudo systemctl status minetest
 
+You would see it had failed miserably. This is because systemd does not have any context, no links to worlds, textures, configuration files, or details of the specific user running the service. You can solve this problem by adding the User directive to your unit:
 
+# minetest.service
 
+[Unit]
+Description= Minetest server
+Documentation= https://wiki.minetest.net/Main_Page
 
+[Service]
+Type= simple
+User= <username>
 
+ExecStart= /usr/games/minetest --server
+ExecStartPost= /home/<username>/bin/mtsendmail.sh "Ready to rumble?"
+        "Minetest Starting up"
 
+TimeoutStopSec= 180
+ExecStop= /home/<username>/bin/mtsendmail.sh "Off to bed. Nightie night!"
+        "Minetest Stopping in 2 minutes"
+ExecStop= /bin/sleep 120
+ExecStop= /bin/kill -2 $MAINPID
 
 
 
+sudo mv /home/m/.config/systemd/user/pm.service /etc/systemd/system/
 
 
+sudo nano /etc/systemd/system/pm.service
+added User= m
 
+sudo systemctl start pm
 
+seems to work...
 
 
 
 
+The next step is to make your service start when you boot up and stop when you power down your computer. To do that you need to enable your service, but, before you can do that, you have to tell systemd where to install it.
 
+In systemd parlance, installing means telling systemd when in the boot sequence should your service become activated.
+For example the cups.service, the service for the Common UNIX Printing System, will have to be brought up after the network framework is activated, but before any other printing services are enabled.
+Likewise, the minetest.service uses a user’s email (among other things) and will have to be slotted in when the network is up and services for regular users become available.
 
+You do all that by adding a new section and directive to your unit:
 
+...
+[Install]
+WantedBy= multi-user.target
 
+You can read this as “wait until we have everything ready for a multiples user system.”
+Targets in systemd are like the old run levels and can be used to put your machine into one state or another, or, like here, to tell your service to wait until a certain state has been reached.
 
 
 
 
+# pm.service
 
+[Unit]
+Description= Purple Martians server
+Documentation= purplemartians.org
 
+[Service]
+Type= simple
+ExecStart= /home/m/dev/purple_martians/pm -sh
 
+[Install]
+WantedBy= multi-user.target
 
 
+sudo systemctl enable pm
 
+rebooted system
+
+it seems to be working
+
+
+how about restarting if stopped?
+
+https://www.redhat.com/sysadmin/systemd-automate-recovery
+
+
+[Unit]
+Description=My App
+StartLimitIntervalSec=30
+StartLimitBurst=2
+
+[Service]
+ExecStart=/usr/local/sbin/my-app.sh
+Restart=on-failure
+
+Check out the systemd service documentation for more restart options.
+
+The StartLimitBurst=2 and StartLimitIntervalSec=30 settings tell systemd that if the service unsuccessfully tries to restart itself twice within 30 seconds, it should enter a failed state and no longer try to restart.
+This ensures that if the service is truly broken, systemd won't continuously try to restart it. You should always tune these settings to values that make sense for your workload.
+
+You can restart the failed counter with the systemctl reset-failed command.
+
+# pm.service
+
+[Unit]
+Description= Purple Martians server
+Documentation= purplemartians.org
+StartLimitIntervalSec=30
+StartLimitBurst=2
+
+
+[Service]
+Type= simple
+User= m
+ExecStart= /home/m/dev/purple_martians/pm -sh
+Restart=on-failure
+
+
+[Install]
+WantedBy= multi-user.target
+m@pmh:~$
+
+
+I think I am going to remove this:
+
+back to:
+
+# pm.service
+
+[Unit]
+Description= Purple Martians server
+Documentation= purplemartians.org
+
+[Service]
+Type= simple
+User= m
+ExecStart= /home/m/dev/purple_martians/pm -sh
+
+[Install]
+WantedBy= multi-user.target
+m@pmh:~$
+
+add this to headless server docs...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------
+
+I want to make some active content on my website.
+
+How about showing statistics about who was playing and activity...etc?
+
+
+This could be a big difficult thing to do...
+
+LAMP? linux, apache, mysql, perl (python) PHP
+
+
+
+
+Here is what I want to do:
+
+
+The result:
+
+Have a page on the website that shows a table of sessions.
+The table can be sorted by different columns, like date, name, time connected, etc..
+
+The database will consist of text that is scraped from the session folder.
+
+Each file will be attempted to be added, but the filenames will be unique, so if one exists it will be make a duplicate.
+Actually if it exists already it should update the record.
+
+
+I will need a script to scrape and add this to the database.
+
+Should I learn PHP?, its popular and there are many examples out there.
+
+I already have apache2, pick versions of mysql and PHP and install them....
+
+
+https://www.digitalocean.com/community/tutorials/how-to-install-lamp-stack-on-ubuntu
+
+sudo apt install mysql-server
+
+on ubuntu 22.04 i get:
+mysql  Ver 8.0.36-0ubuntu0.22.04.1 for Linux on x86_64 ((Ubuntu))
+
+
+    sudo mysql
+
+Then run the following ALTER USER command to change the root user’s authentication method to one that uses a password. The following example changes the authentication method to mysql_native_password:
+
+    ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'tomjonesdavis';
+
+After making this change, exit the MySQL prompt:
+
+    exit
+
+
+
+sudo mysql_secure_installation
+
+VALIDATE PASSWORD PLUGIN : no
+
+change password for root? no
+
+enter y for all remaining questions.
+
+
+mysql -u root -p
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH auth_socket;
+mysql> exit
+
+m@pmh:~/dev/purple_martians/logs/session$ sudo mysql
+
+
+did not setup database use yet......
+
+
+
+PHP
+
+
+Step 3 — Installing PHP
+
+You have Apache installed to serve your content and MySQL installed to store and manage your data. PHP is the component of our setup that will process code to display dynamic content to the final user. In addition to the php package, you’ll need php-mysql, a PHP module that allows PHP to communicate with MySQL-based databases. You’ll also need libapache2-mod-php to enable Apache to handle PHP files. Core PHP packages will automatically be installed as dependencies.
+
+To install these packages, run the following command:
+
+    sudo apt install php libapache2-mod-php php-mysql
+
+Once the installation is finished, run the following command to confirm your PHP version:
+
+    php -v
+
+m@pmh:~/dev/purple_martians/logs/session$ php -v
+PHP 8.1.2-1ubuntu2.15 (cli) (built: Feb 23 2024 17:26:53) (NTS)
+Copyright (c) The PHP Group
+Zend Engine v4.1.2, Copyright (c) Zend Technologies
+    with Zend OPcache v8.1.2-1ubuntu2.15, Copyright (c), by Zend Technologies
+
+
+
+
+
+I want to use a pre made table thing instead of rolling my own
+
+there is a really nice one here:
+
+https://datatables.net/
+
+but i think is needs java??
+
+
+
+
+
+lets start simple....
+
+
+make a database user
+--------------------
+
+sudo mysql
+
+CREATE USER 'msq'@'localhost' IDENTIFIED WITH auth_socket;
+
+GRANT ALL PRIVILEGES ON *.* TO 'msq'@'localhost' WITH GRANT OPTION;
+
+exit
+
+mysql -u msq -p
+
+ALTER USER 'msq'@'localhost' IDENTIFIED WITH mysql_native_password BY 'zaiden';
+
+systemctl status mysql.service
+
+sudo mysqladmin -p -u msq version
+
+
+
+
+
+
+
+
+
+
+make a database
+---------------
+
+I think I only want one table
+with all the elements the sessions text files have, one column each...
+
+database name: sessiondb
+table name: sessiontb
+
+columns:
+
+filename
+timestamp
+duration
+IP
+Port
+Host Name
+
+lets start small for now with only these 6 columns
+
+
+I should be able to create databases as this user
+
+mysql -u msq -p
+
+CREATE DATABASE session_db;
+
+SHOW DATABASES;
+
+
+    CREATE TABLE session_db.session_tb (
+      id        INT AUTO_INCREMENT,
+      filename  VARCHAR(255),
+      timestamp VARCHAR(255),
+      duration  VARCHAR(255),
+      IP        VARCHAR(255),
+      Port      VARCHAR(255),
+      Hostname  VARCHAR(255),
+      PRIMARY KEY(id)
+    );
+
+
+
+INSERT INTO session_db.session_tb (filename) VALUES ("2024");
+
+SELECT * FROM session_db.session_tb;
+
+nano /var/www/html/test.php
+
+<?php
+$user = "msq";
+$password = "zaiden";
+$database = "session_db";
+$table = "session_tb";
+
+try {
+  $db = new PDO("mysql:host=localhost;dbname=$database", $user, $password);
+  echo "<h2>TEST</h2><ol>";
+  foreach($db->query("SELECT filename FROM $table") as $row) {
+    echo "<li>" . $row['filename'] . "</li>";
+  }
+  echo "</ol>";
+} catch (PDOException $e) {
+    print "Error!: " . $e->getMessage() . "<br/>";
+    die();
+}
+m@pmh:/var/www/html$
+
+
+goddamn it works!!!
+
+
+
+now what?
+
+try to figure out a scraping php thing...
+
+<?php
+
+$path	= '/home/m/dev/purplemartians/logs/session/';
+
+
+$dir	= opendir($path);
+
+
+
+/* Loop through the directory using a while loop if $dir exists */
+while (false !== ($file = readdir($dir))) {
+
+//Read the files in the directory
+$the_text = file_get_contents($path.$file);
+
+  //Now need to insert into the database. This is the problem area!!
+  list($headline, $subheading, $the_text) = explode(PHP_EOL, $the_text);
+
+echo '<pre>'; print_r($the_text); echo '</pre>';
+
+
+
+<?php
+$dir = "/etc/php5/";
+
+// Open a known directory, and proceed to read its contents
+if (is_dir($dir)) {
+    if ($dh = opendir($dir)) {
+        while (($file = readdir($dh)) !== false)
+        {
+            echo "filename: $file : filetype: " . filetype($dir . $file) . "\n";
+
+            $section = file_get_contents($file, FALSE, NULL, 20, 14);
+            var_dump($section);
+
+
+        }
+        closedir($dh);
+    }
+}
+?>
+
+
+
+/home/m/dev/purple_martians/logs/session:
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+$dir = "/home/m/dev/purple_martians/logs/session/";
+
+// Open a known directory, and proceed to read its contents
+if (is_dir($dir)) {
+    if ($dh = opendir($dir)) {
+        while (($file = readdir($dh)) !== false)
+        {
+
+
+$file_handle = fopen($dir.$file, "r");
+while (!feof($file_handle))
+{
+   $line = fgets($file_handle);
+   echo $line;
+
+
+   if (str_starts_with($line, "Timestamp:"))
+   {
+      // echo "found timestamp\n";
+      $new_line = str_replace("Timestamp:", "", $line);
+      echo "Timestamp:new line:$new_line\n";
+   }
+
+
+
+
+
+}
+fclose($file_handle);
+
+
+
+
+        }
+        closedir($dh);
+    }
+}
+?>
+
+
+
+
+
+
+
+
+I think to make this easier:
+
+Modify the session text files to start with
+name:
+
+this name should be unique and will be the exact column name
+
+
+For now, just do the first five.
+
+Filename: 20240416-200536-96.45.15.155-56484.txt
+Timestamp:20240416-200536
+Duration:33682.9s
+IP:96.45.15.155
+Port:56484
+Hostname:o7040
+
+
+I have fixed all of the session log output stuff.....
+
+
+test it, then deploy
+then get some new text data....
+
+timestamp:20240417-112002
+duration:4.1s
+ip:192.168.1.122
+port:56311
+hostname:o7040
+endreason:server dropped (player inactive)
+cdat_rx:36
+player_num:1
+next_levels:0
+exits_activated:0
+respawns:0
+shots_fired:4
+enemy_hits:0
+player_hits:0
+self_hits:0
+purple_coins:0
+tx_bytes_total:  85 k
+tx_bytes_avg_per_sec:  21 k
+tx_bytes_max_per_frame:   3 k
+rx_bytes_total:    0
+rx_bytes_avg_per_sec:    0
+rx_bytes_max_per_frame:    0
+tx_packets_total:  192
+tx_packets_avg_per_sec:   47
+tx_packets_max_per_frame:    4
+rx_packets_total:    0
+rx_packets_avg_per_sec:    0
+rx_packets_max_per_frame:    0
+
+
+deploy...done
+
+get more seesion logs...done
+
+
+make my scrape script only get txt files
+
+
+
+
+
+<?php
+
+$dir = "/home/m/dev/purple_martians/logs/session/";
+
+// Open a known directory, and proceed to read its contents
+if (is_dir($dir))
+{
+   if ($dh = opendir($dir))
+   {
+      while (($file = readdir($dh)) !== false)
+      {
+         if (str_ends_with($file, ".txt"))
+         {
+            $file_handle = fopen($dir.$file, "r");
+            while (!feof($file_handle))
+            {
+               $line = fgets($file_handle);
+               echo $line;
+
+               if (str_starts_with($line, "Timestamp:"))
+               {
+                  // echo "found timestamp\n";
+                  $new_line = str_replace("Timestamp:", "", $line);
+                  echo "Timestamp:new line:$new_line\n";
+               }
+            }
+            fclose($file_handle);
+         }
+      }
+      closedir($dh);
+   }
+   else echo "error opening $dir\n";
+}
+else echo "$dir is not a directory\n";
+
+?>
+
+
+<?php
+
+$dir = "/home/m/dev/purple_martians/logs/session/";
+
+// Open a known directory, and proceed to read its contents
+if (is_dir($dir))
+{
+   if ($dh = opendir($dir))
+   {
+      while (($file = readdir($dh)) !== false)
+      {
+         if (str_ends_with($file, ".txt"))
+         {
+            echo "filename: $file\n";
+
+            $file_handle = fopen($dir.$file, "r");
+            while (!feof($file_handle))
+            {
+               $line = fgets($file_handle);
+               // echo $line;
+
+               if (str_starts_with($line, "timestamp:"))
+               {
+                  // echo "found timestamp\n";
+                  $timestamp = str_replace("timestamp:", "", $line);
+                  echo "timestamp: $timestamp\n";
+               }
+
+               if (str_starts_with($line, "duration:"))
+               {
+                  // echo "found duration\n";
+                  $duration = str_replace("duration:", "", $line);
+                  echo "duration: $duration\n";
+               }
+
+               if (str_starts_with($line, "ip:"))
+               {
+                  // echo "found ip\n";
+                  $ip = str_replace("ip:", "", $line);
+                  echo "ip: $ip\n";
+               }
+
+
+
+
+
+               duration:4.1s
+ip:192.168.1.122
+port:56311
+
+
+
+
+
+            }
+            fclose($file_handle);
+         }
+         else echo "file does not end in .txt\n";
+
+
+      }
+      closedir($dh);
+   }
+   else echo "error opening $dir\n";
+}
+else echo "$dir is not a directory\n";
+
+?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+m@pmh:~$ nano ./scr4.php
+m@pmh:~$ cat ./scr4.php
+
+<?php
+
+$dir = "/home/m/dev/purple_martians/logs/session/";
+
+// Open a known directory, and proceed to read its contents
+if (is_dir($dir))
+{
+   if ($dh = opendir($dir))
+   {
+      while (($file = readdir($dh)) !== false)
+      {
+         if (str_ends_with($file, ".txt"))
+         {
+            echo "\nfilename: $file\n";
+
+            $file_handle = fopen($dir.$file, "r");
+            while (!feof($file_handle))
+            {
+               $line = fgets($file_handle);
+               //echo $line;
+
+               if (str_starts_with($line, "timestamp:"))
+               {
+                  $repl = array("timestamp:", "\n");
+                  $timestamp = str_replace($repl, "", $line);
+                  echo "timestamp: $timestamp\n";
+               }
+
+
+
+               if (str_starts_with($line, "duration:"))
+               {
+                  $repl = array("duration:", "\n");
+                  $duration = str_replace($repl, "", $line);
+                  echo "duration: $duration\n";
+               }
+
+
+
+               if (str_starts_with($line, "ip:"))
+               {
+                  $repl = array("ip:", "\n");
+                  $ip = str_replace($repl, "", $line);
+                  echo "ip: $ip\n";
+               }
+
+
+
+
+
+
+            }
+            fclose($file_handle);
+         }
+         else echo "file does not end in .txt\n";
+
+
+      }
+      closedir($dh);
+   }
+   else echo "error opening $dir\n";
+}
+else echo "$dir is not a directory\n";
+
+?>
+
+
+OK now I want to add these to the database
+
+
+wait, first make the database
+
+
+mysql -u msq -p
+
+SHOW DATABASES;
+
+CREATE DATABASE session_db;
+
+    CREATE TABLE session_db.session_tb (
+      id        INT AUTO_INCREMENT,
+      filename  VARCHAR(255),
+      timestamp VARCHAR(255),
+      duration  VARCHAR(255),
+      ip        VARCHAR(255),
+      PRIMARY KEY(id)
+    );
+
+
+
+
+<?php
+$servername = "localhost";
+$database = "u123456789_mydatabase";
+$username = "u123456789_myuser";
+$password = "PasSw0rd123@";
+// Create a connection
+$conn = mysqli_connect($servername, $username, $password, $database);
+// Check the connection
+if (!$conn) {
+     die("Connection failed: " . mysqli_connect_error());
+}
+echo "Connected successfully";
+$sql = "INSERT INTO Students (name, lastName, email) VALUES ('Tom', 'Jackson', 'tom@jackson.tld')";
+if (mysqli_query($conn, $sql)) {
+     echo "New record created successfully";
+} else {
+     echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+}
+mysqli_close($conn);
+?>
+
+
+
+
+
+
+
+<?php
+
+$servername = "localhost";
+$database = "session_db";
+$username = "msq";
+$password = "zaiden";
+
+// Create a connection
+$conn = mysqli_connect($servername, $username, $password, $database);
+// Check the connection
+if (!$conn) {
+     die("Connection failed: " . mysqli_connect_error());
+}
+echo "Connected successfully";
+
+$dir = "/home/m/dev/purple_martians/logs/session/";
+
+// Open a known directory, and proceed to read its contents
+if (is_dir($dir))
+{
+   if ($dh = opendir($dir))
+   {
+      while (($file = readdir($dh)) !== false)
+      {
+         if (str_ends_with($file, ".txt"))
+         {
+            echo "\nfilename: $file\n";
+
+            $file_handle = fopen($dir.$file, "r");
+            while (!feof($file_handle))
+            {
+               $line = fgets($file_handle);
+               //echo $line;
+
+               if (str_starts_with($line, "timestamp:"))
+               {
+                  $repl = array("timestamp:", "\n");
+                  $timestamp = str_replace($repl, "", $line);
+                  echo "timestamp: $timestamp\n";
+               }
+
+
+
+               if (str_starts_with($line, "duration:"))
+               {
+                  $repl = array("duration:", "\n");
+                  $duration = str_replace($repl, "", $line);
+                  echo "duration: $duration\n";
+               }
+
+
+
+               if (str_starts_with($line, "ip:"))
+               {
+                  $repl = array("ip:", "\n");
+                  $ip = str_replace($repl, "", $line);
+                  echo "ip: $ip\n";
+
+
+
+                  $sql = "INSERT INTO session_tb (filename, timestamp, duration, ip) VALUES ($filename, $timestamp, $duration, $ip)";
+                  if (mysqli_query($conn, $sql))
+                  {
+                     echo "New record created successfully";
+                  }
+                  else
+                  {
+                     echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+                  }
+
+
+               }
+
+
+
+
+
+
+            }
+            fclose($file_handle);
+         }
+         else echo "file does not end in .txt\n";
+
+
+      }
+      closedir($dh);
+   }
+   else echo "error opening $dir\n";
+}
+else echo "$dir is not a directory\n";
+
+
+mysqli_close($conn);
+
+
+
+?>
+
+
+
+"INSERT INTO session_tb (filename, timestamp, duration, ip) VALUES ($file, $timestamp, $duration, $ip)"
+
+PHP Fatal error:  Uncaught mysqli_sql_exception:
+You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '.15.155-63317.txt, 20240417-131714, 10.5s, 96.45.15.155)' at line 1 in /home/m/scr5.php:62
+Stack trace:
+
+I might have to quote the variables
+
+
+
+lets try the
+
+
+
+
+
+
+
+
+
+
+
+New record created successfullyfile does not end in .txt
+
+m@pmh:~$ cat ./scr5.php
+<?php
+
+$servername = "localhost";
+$database = "session_db";
+$username = "msq";
+$password = "zaiden";
+
+// Create a connection
+$conn = mysqli_connect($servername, $username, $password, $database);
+// Check the connection
+if (!$conn) {
+     die("Connection failed: " . mysqli_connect_error());
+}
+echo "Connected successfully";
+
+$dir = "/home/m/dev/purple_martians/logs/session/";
+
+// Open a known directory, and proceed to read its contents
+if (is_dir($dir))
+{
+   if ($dh = opendir($dir))
+   {
+      while (($file = readdir($dh)) !== false)
+      {
+         if (str_ends_with($file, ".txt"))
+         {
+            echo "\nfilename: $file\n";
+
+            $file_handle = fopen($dir.$file, "r");
+            while (!feof($file_handle))
+            {
+               $line = fgets($file_handle);
+               //echo $line;
+
+               if (str_starts_with($line, "timestamp:"))
+               {
+                  $repl = array("timestamp:", "\n");
+                  $timestamp = str_replace($repl, "", $line);
+                  echo "timestamp: $timestamp\n";
+               }
+
+
+
+               if (str_starts_with($line, "duration:"))
+               {
+                  $repl = array("duration:", "\n");
+                  $duration = str_replace($repl, "", $line);
+                  echo "duration: $duration\n";
+               }
+
+
+
+               if (str_starts_with($line, "ip:"))
+               {
+                  $repl = array("ip:", "\n");
+                  $ip = str_replace($repl, "", $line);
+                  echo "ip: $ip\n";
+
+
+                  $sql = "SELECT * FROM session_tb WHERE filename='$file'";
+                  $check = mysqli_query($conn, $sql);
+                  echo "check: $check\n";
+
+
+
+                  /*
+
+                  $sql = "INSERT INTO session_tb (filename, timestamp, duration, ip) VALUES ('$file', '$timestamp', '$duration', '$ip')";
+                  if (mysqli_query($conn, $sql))
+                  {
+                     echo "New record created successfully";
+                  }
+                  else
+                  {
+                     echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+                  }
+*/
+
+               }
+
+
+
+
+
+
+            }
+            fclose($file_handle);
+         }
+         else echo "file does not end in .txt\n";
+
+
+      }
+      closedir($dh);
+   }
+   else echo "error opening $dir\n";
+}
+else echo "$dir is not a directory\n";
+
+mysqli_close($conn);
+
+?>
+
+
+this works...
+
+
+mysql -u msq -p
+
+SHOW DATABASES;
+
+SELECT * FROM session_db.session_tb;
+
+
+
+
+
+
+here is the final script:
+
+
+
+<?php
+
+$srvrname = "localhost";
+$database = "session_db";
+$username = "msq";
+$password = "zaiden";
+
+// Create a connection
+$conn = mysqli_connect($srvrname, $username, $password, $database);
+
+// Check the connection
+if (!$conn) die("Connection failed: " . mysqli_connect_error());
+echo "Connected to database\n";
+
+function parse_line($line, $tag, &$var)
+{
+   if (str_starts_with($line, $tag))
+   {
+      $repl = array($tag, "\n");              // pattern to remove the tag and /n at the end
+      $tmp = str_replace($repl, "", $line);   // do the replace
+      $tag = str_replace(":", "", $tag);      // remove the : from tag
+      $var[$tag] = $tmp;                      // add to array
+   }
+}
+
+function add_to_db(&$var)
+{
+   // show the values in the array
+   echo "\n";
+
+   foreach ($var as $x => $y) echo "$x $y\n";
+
+   // first check if filename is exists in db
+   $fn = $var['filename'];
+   $sql = "SELECT id FROM session_tb WHERE filename='$fn'";
+   global $conn;
+   $result = mysqli_query($conn, $sql);
+
+   if ($result->num_rows == 0)
+   {
+      echo "Filename not found in db, inserting\n";
+      unset($ak);
+      unset($av);
+      // make a list of the key values and pairs
+     foreach ($var as $x => $y)
+	  {
+         $ak .= $x . ", ";
+         $av .= "'" . $y . "', ";
+	  }
+      $ak = substr($ak, 0, -2); // chop lat 2 char
+      $av = substr($av, 0, -2); // chop lat 2 char
+      $sql = "INSERT INTO session_tb ($ak) VALUES ($av)";
+      echo "sql: $sql\n";
+	  if (mysqli_query($conn, $sql)) echo "New record created successfully\n";
+ 	  else echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+   }
+   else
+   {
+      echo "Filename found in db, updating\n";
+      $row = $result->fetch_assoc();
+      $id = $row['id'];
+      echo "id: $id\n";
+      $sql = "UPDATE session_tb SET ";
+      foreach ($var as $x => $y)
+        $sql .= $x . "='" . $y . "', ";
+      $sql = substr($sql, 0, -2); // chop lat 2 char
+      $sql .= " WHERE id=$id";
+      echo "sql: $sql\n";
+	  if (mysqli_query($conn, $sql)) echo "Record updated successfully\n";
+ 	  else echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+
+   }
+}
+
+// Open directory and iterate files
+
+$dir = "/home/m/dev/purple_martians/logs/session/";
+if (is_dir($dir))
+{
+   if ($dh = opendir($dir))
+   {
+      while (($file = readdir($dh)) !== false)
+      {
+         if (str_ends_with($file, ".txt"))
+         {
+            // make an associative array and clear it
+            $aa_data;
+
+            unset($aa_data);
+            $aa_data['filename'] = $file;
+
+            $file_handle = fopen($dir.$file, "r");
+            while (!feof($file_handle))
+            {
+               $line = fgets($file_handle);
+               //echo $line;
+
+               parse_line($line, "timestamp:", $aa_data);
+               parse_line($line, "duration:",  $aa_data);
+               parse_line($line, "ip:",        $aa_data);
+            }
+            fclose($file_handle);
+
+
+            add_to_db($aa_data);
+
+         }
+         // else echo "file does not end in .txt\n";
+      }
+      closedir($dh);
+   }
+   else echo "error opening $dir\n";
+}
+else echo "$dir is not a directory\n";
+
+
+now what?
+
+make this script show all the database
+
+
+
+<?php
+$user = "msq";
+$password = "zaiden";
+$database = "session_db";
+$table = "session_tb";
+
+try {
+  $db = new PDO("mysql:host=localhost;dbname=$database", $user, $password);
+  echo "<h2>TEST</h2><ol>";
+
+
+  foreach($db->query("SELECT filename FROM $table") as $row) {
+    echo "<li>" . $row['filename'] . "</li>";
+
+  }
+  echo "</ol>";
+} catch (PDOException $e) {
+    print "Error!: " . $e->getMessage() . "<br/>";
+    die();
+}
+
+
+    $sql = "select * from cpu";  //edit your table name here
+    $res = $mysqli->query($sql);
+
+    while ($row = $res->fetch_assoc()) {
+        foreach($row as $ind => $val)
+        {
+            echo "Column name: $ind, Column Value: $val<br />";
+        }
+        echo "<hr />";
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+
+$srvrname = "localhost";
+$database = "session_db";
+$username = "msq";
+$password = "zaiden";
+
+// Create a connection
+$conn = mysqli_connect($srvrname, $username, $password, $database);
+
+// Check the connection
+if (!$conn) die("Connection failed: " . mysqli_connect_error());
+echo "Connected to database\n";
+
+$sql = "SELECT * FROM session_tb";
+$res = mysqli_query($conn, $sql);
+
+echo "<h2>TEST</h2><hr>";
+
+echo "<table>";
+   echo "<thead>";
+      echo "<tr>";
+         $row = $res->fetch_assoc();
+         foreach($row as $col => $val)
+            echo "<th>" . $col . "</th>";
+      echo "</tr>";
+   echo "</thead>";
+   echo "<tbody>";
+      while ($row = $res->fetch_assoc())
+      {
+         echo "<tr>";
+         foreach($row as $col => $val)
+            echo "<td>" . $val . "</td>";
+         echo "</tr>";
+      }
+   echo "</tbody>";
+echo "</table>";
+
+
+
+
+
+this works just like I expected...now I think that is the pre-requisites for starting to figure out DataTables
+
+
+downloaded the files needed: I want to host them locally
+
+<link href="DataTables/datatables.min.css" rel="stylesheet">
+
+<script src="DataTables/datatables.min.js"></script>
+
+
+
+copy to temp location:
+pscp -r -pw zaiden c:\pm\docs\* m@96.45.9.166:sht
+
+copy to final place
+m@pmh:~$ sudo cp -r ~/sht/* /var/www/html
+
+
+
+echo "$(document).ready( function () {
+    $('#myTable').DataTable();
+} );";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+echo "<link href="DataTables/datatables.min.css" rel="stylesheet">";
+echo "<script src="DataTables/datatables.min.js"></script>";
+
+
+$srvrname = "localhost";
+$database = "session_db";
+$username = "msq";
+$password = "zaiden";
+
+// Create a connection
+$conn = mysqli_connect($srvrname, $username, $password, $database);
+
+// Check the connection
+if (!$conn) die("Connection failed: " . mysqli_connect_error());
+echo "Connected to database\n";
+
+$sql = "SELECT * FROM session_tb";
+$res = mysqli_query($conn, $sql);
+
+echo "<h2>TEST</h2><hr>";
+
+echo "<table id="myTable" class="display">
+
+   echo "<thead>";
+      echo "<tr>";
+         $row = $res->fetch_assoc();
+         foreach($row as $col => $val)
+            echo "<th>" . $col . "</th>";
+      echo "</tr>";
+   echo "</thead>";
+   echo "<tbody>";
+      while ($row = $res->fetch_assoc())
+      {
+         echo "<tr>";
+         foreach($row as $col => $val)
+            echo "<td>" . $val . "</td>";
+         echo "</tr>";
+      }
+   echo "</tbody>";
+echo "</table>";
+
+
+
+
+
+echo "$(document).ready( function () {
+    $('#myTable').DataTable();
+} );";
+
+
+
+
+
+
+at least this doesn't have syntax errors
+
+
+<?php
+
+echo "<head>";"
+
+echo "<script src='DataTables/jquery-3.7.1.min.js'></script>";
+echo "<link href='DataTables/datatables.min.css' rel='stylesheet'>";
+echo "<script src='DataTables/datatables.min.js'></script>";
+
+echo "</head>";"
+
+
+
+
+$srvrname = "localhost";
+$database = "session_db";
+$username = "msq";
+$password = "zaiden";
+
+// Create a connection
+$conn = mysqli_connect($srvrname, $username, $password, $database);
+
+// Check the connection
+if (!$conn) die("Connection failed: " . mysqli_connect_error());
+echo "Connected to database\n";
+
+$sql = "SELECT * FROM session_tb";
+$res = mysqli_query($conn, $sql);
+
+echo "<h2>TEST</h2><hr>";
+
+echo "<table id='myTable' class='display'>";
+
+   echo "<thead>";
+      echo "<tr>";
+         $row = $res->fetch_assoc();
+         foreach($row as $col => $val)
+            echo "<th>" . $col . "</th>";
+      echo "</tr>";
+   echo "</thead>";
+   echo "<tbody>";
+      while ($row = $res->fetch_assoc())
+      {
+         echo "<tr>";
+         foreach($row as $col => $val)
+            echo "<td>" . $val . "</td>";
+         echo "</tr>";
+      }
+   echo "</tbody>";
+echo "</table>";
+
+echo "$(document).ready( function () {     $('#myTable').DataTable(); } );";
+
+echo "new DataTable('#myTable')";
+
+echo "$('#myTable').DataTable();";
+
+
+
+
+DataTables has most features enabled by default,
+so all you need to do to use it with your own tables is to
+
+call the construction function: new DataTable('#myTable') for plain Javascript
+
+or $('#myTable').DataTable(); when using jQuery.
+
+
+
+
+Adding jQuery to Your Web Pages
+
+There are several ways to start using jQuery on your web site. You can:
+
+    Download the jQuery library from jQuery.com
+    Include jQuery from a CDN, like Google
+
+Downloading jQuery
+
+There are two versions of jQuery available for downloading:
+
+    Production version - this is for your live website because it has been minified and compressed
+    Development version - this is for testing and development (uncompressed and readable code)
+
+Both versions can be downloaded from jQuery.com.
+
+The jQuery library is a single JavaScript file, and you reference it with the HTML <script> tag (notice that the <script> tag should be inside the <head> section):
+<head>
+<script src="jquery-3.7.1.min.js"></script>
+</head>
+
+Tip: Place the downloaded file in the same directory as the pages where you wish to use it.
+jQuery CDN
+
+If you don't want to download and host jQuery yourself, you can include it from a CDN (Content Delivery Network).
+
+Google is an example of someone who host jQuery:
+Google CDN:
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+
+
+
+sudo apt install libjs-jquery
+
+
+
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+
+
+
+
+
+I don't need to have a lot off stuff inside the <?php tag
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+lets try this all over again:
+
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script src="DataTables/jquery-3.7.1.min.js"></script>
+
+
+//echo "new DataTable('#myTable')";
+
+echo "$('#myTable').DataTable();";
+
+old:???
+   <link href="DataTables/datatables.min.css" rel="stylesheet">
+   <script src="DataTables/datatables.min.js"></script>
+
+
+   new DataTable('#myTable', {
+    info: false,
+    ordering: false,
+    paging: false
+});
+
+
+
+   $('#myTable').DataTable();
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+   <script src="DataTables/jquery-3.7.1.min.js"></script>
+   <link rel="stylesheet" href="/DataTables/datatables.css" />
+   <script src="/DataTables/datatables.js"></script>
+   <script>$(document).ready( function () {     $('#myTable').DataTable(); } );</script>
+
+</head>
+<body>
+<?php
+
+   $srvrname = "localhost";
+   $database = "session_db";
+   $username = "msq";
+   $password = "zaiden";
+
+   // Create a connection
+   $conn = mysqli_connect($srvrname, $username, $password, $database);
+
+   // Check the connection
+   if (!$conn) die("Connection failed: " . mysqli_connect_error());
+   // echo "Connected to database\n";
+
+   $sql = "SELECT * FROM session_tb";
+   $res = mysqli_query($conn, $sql);
+
+   echo "<h2>TEST</h2><hr>";
+
+   echo "<table id='myTable' class='display'>";
+
+      echo "<thead>";
+         echo "<tr>";
+            $row = $res->fetch_assoc();
+            foreach($row as $col => $val)
+               echo "<th>" . $col . "</th>";
+         echo "</tr>";
+      echo "</thead>";
+      echo "<tbody>";
+         while ($row = $res->fetch_assoc())
+         {
+            echo "<tr>";
+            foreach($row as $col => $val)
+               echo "<td>" . $val . "</td>";
+            echo "</tr>";
+         }
+      echo "</tbody>";
+   echo "</table>";
+
+?>
+</body>
+</html>
+
+
+
+
+
+
+
+$ is not defined
+
+$ is an alias for jQuery in code. In some cases, it can just help to replace $ with jQuery to solve the issue.
+
+In most other cases, $ is not defined is a variant of jQuery is not defined, and the suggestions below apply the same way.
+
+
+
+
+OMFG!!!
+
+I have to wrap the code in <script> tags!!
+
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+   <script src="DataTables/jquery-3.7.1.min.js"></script>
+   <link rel="stylesheet" href="/DataTables/datatables.css" />
+   <script src="/DataTables/datatables.js"></script>
+   <script>
+      $(document).ready
+      (
+         function ()
+         {
+            $('#myTable').DataTable
+            (
+               {
+                  layout: { topStart: { buttons: ['colvis'] } },
+                  colReorder: true
+               }
+            );
+         }
+      );
+   </script>
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+<?php
+
+   $srvrname = "localhost";
+   $database = "session_db";
+   $username = "msq";
+   $password = "zaiden";
+
+   // Create a connection
+   $conn = mysqli_connect($srvrname, $username, $password, $database);
+
+   // Check the connection
+   if (!$conn) die("Connection failed: " . mysqli_connect_error());
+   // echo "Connected to database\n";
+
+   echo "<h2>TEST</h2><hr>";
+
+   echo "<table id='myTable' class='cell-border'>";
+
+      echo "<thead>";
+         echo "<tr>";
+            $sql = "SELECT * FROM session_tb";
+            $res = mysqli_query($conn, $sql);
+            $row = $res->fetch_assoc();
+            foreach($row as $col => $val)
+               echo "<th>" . $col . "</th>";
+         echo "</tr>";
+      echo "</thead>";
+      echo "<tbody>";
+         $sql = "SELECT * FROM session_tb";
+         $res = mysqli_query($conn, $sql);
+         while ($row = $res->fetch_assoc())
+         {
+            echo "<tr>";
+            foreach($row as $col => $val)
+               echo "<td>" . $val . "</td>";
+            echo "</tr>";
+         }
+      echo "</tbody>";
+   echo "</table>";
+
+?>
+</body>
+</html>
+
+
+
+now what else can i do with this??
+
+
+new DataTable('#myTable', {
+    layout: {
+        topStart: {
+            buttons: ['colvis']
+        }
+    }
+});
+
+
+
+
+I think I will not just add every column.
+
+I can have separate pages for custom stuff...
+
+one where I want to know where my visitors are coming from
+
+one where I can see all the cool player data...
+
+
+what do I need for that?
+
+
+I thinks all the data is in the files...
+
+
+add columns to database
+
+
+I will have to remove and recreate the table
+
+well I donr have to, but I will...
+
+
+
+
+mysql -u msq -p
+
+SHOW DATABASES;
+
+CREATE DATABASE session_db;
+
+    CREATE TABLE session_db.session_tb (
+      id                INT AUTO_INCREMENT,
+      filename          VARCHAR(255),
+      timestamp         VARCHAR(255),
+      duration          INT,
+      ip                VARCHAR(255),
+      port              INT,
+      hostname          VARCHAR(255),
+      endreason         VARCHAR(255),
+      cdat_rx           INT,
+      player_num        INT,
+      next_levels       INT,
+      exits_activated   INT,
+      respawns          INT,
+      shots_fired       INT,
+      enemy_hits        INT,
+      player_hits       INT,
+      self_hits         INT,
+      purple_coins      INT,
+
+      PRIMARY KEY(id)
+    );
+
+
+make duration not have an s at the end...done
+
+deploy to server
+
+erase sessions
+
+make new sessions
+
+
+add new columns to scrape
+
+
+
+
+
+
+
+
+
+<?php
+
+$srvrname = "localhost";
+$database = "session_db";
+$username = "msq";
+$password = "zaiden";
+
+// Create a connection
+$conn = mysqli_connect($srvrname, $username, $password, $database);
+
+// Check the connection
+if (!$conn) die("Connection failed: " . mysqli_connect_error());
+echo "Connected to database\n";
+
+function parse_line($line, $tag, &$var)
+{
+   if (str_starts_with($line, $tag))
+   {
+      $repl = array($tag, "\n");              // pattern to remove the tag and /n at the end
+      $tmp = str_replace($repl, "", $line);   // do the replace
+      $tag = str_replace(":", "", $tag);      // remove the : from tag
+      $var[$tag] = $tmp;                      // add to array
+   }
+}
+
+function add_to_db(&$var)
+{
+   // show the values in the array
+   echo "\n";
+
+   foreach ($var as $x => $y) echo "$x $y\n";
+
+   // first check if filename is exists in db
+   $fn = $var['filename'];
+   $sql = "SELECT id FROM session_tb WHERE filename='$fn'";
+   global $conn;
+   $result = mysqli_query($conn, $sql);
+
+   if ($result->num_rows == 0)
+   {
+      echo "Filename not found in db, inserting\n";
+      $ak = "";
+      $av = "";
+      // make a list of the key values and pairs
+      foreach ($var as $x => $y)
+      {
+         $ak .= $x . ", ";
+         $av .= "'" . $y . "', ";
+      }
+      $ak = substr($ak, 0, -2); // chop lat 2 char
+      $av = substr($av, 0, -2); // chop lat 2 char
+      $sql = "INSERT INTO session_tb ($ak) VALUES ($av)";
+      echo "sql: $sql\n";
+      if (mysqli_query($conn, $sql)) echo "New record created successfully\n";
+      else echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+   }
+   else
+   {
+      echo "Filename found in db, updating\n";
+      $row = $result->fetch_assoc();
+      $id = $row['id'];
+      echo "id: $id\n";
+      $sql = "UPDATE session_tb SET ";
+      foreach ($var as $x => $y)
+         $sql .= $x . "='" . $y . "', ";
+      $sql = substr($sql, 0, -2); // chop lat 2 char
+      $sql .= " WHERE id=$id";
+      echo "sql: $sql\n";
+      if (mysqli_query($conn, $sql)) echo "Record updated successfully\n";
+      else echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+   }
+}
+
+// Open directory and iterate files
+
+$dir = "/home/m/dev/purple_martians/logs/session/";
+if (is_dir($dir))
+{
+   if ($dh = opendir($dir))
+   {
+      while (($file = readdir($dh)) !== false)
+      {
+         if (str_ends_with($file, ".txt"))
+         {
+            // make an associative array and clear it
+            $aa_data;
+
+            unset($aa_data);
+            $aa_data['filename'] = $file;
+
+            $file_handle = fopen($dir.$file, "r");
+            while (!feof($file_handle))
+            {
+               $line = fgets($file_handle);
+               //echo $line;
+
+               parse_line($line, "timestamp:",         $aa_data);
+               parse_line($line, "duration:",          $aa_data);
+               parse_line($line, "ip:",                $aa_data);
+               parse_line($line, "port:",              $aa_data);
+               parse_line($line, "hostname:",          $aa_data);
+               parse_line($line, "endreason:",         $aa_data);
+               parse_line($line, "cdat_rx:",           $aa_data);
+               parse_line($line, "player_num:",        $aa_data);
+               parse_line($line, "next_level:",        $aa_data);
+               parse_line($line, "exits_activated:",   $aa_data);
+               parse_line($line, "respawns:",          $aa_data);
+               parse_line($line, "shots_fired:",       $aa_data);
+               parse_line($line, "enemy_hits:",        $aa_data);
+               parse_line($line, "player_hits:",       $aa_data);
+               parse_line($line, "self_hits:",         $aa_data);
+               parse_line($line, "purple_coins:",      $aa_data);
+
+               parse_line($line, "tx_bytes_total:",          $aa_data);
+               parse_line($line, "tx_bytes_avg_per_sec:",    $aa_data);
+               parse_line($line, "tx_bytes_max_per_frame:",  $aa_data);
+               parse_line($line, "rx_bytes_total:",          $aa_data);
+               parse_line($line, "rx_bytes_avg_per_sec:",    $aa_data);
+               parse_line($line, "rx_bytes_max_per_frame:",  $aa_data);
+
+               parse_line($line, "tx_packets_total:",          $aa_data);
+               parse_line($line, "tx_packets_avg_per_sec:",    $aa_data);
+               parse_line($line, "tx_packets_max_per_frame:",  $aa_data);
+               parse_line($line, "rx_packets_total:",          $aa_data);
+               parse_line($line, "rx_packets_avg_per_sec:",    $aa_data);
+               parse_line($line, "rx_packets_max_per_frame:",  $aa_data);
+
+
+            }
+            fclose($file_handle);
+
+
+            add_to_db($aa_data);
+
+         }
+         // else echo "file does not end in .txt\n";
+      }
+      closedir($dh);
+   }
+   else echo "error opening $dir\n";
+}
+else echo "$dir is not a directory\n";
+
+
+20240418
+
+to do:
+- add all the lines to the database
+- make custom table pages
+
+
+I just realized I have decimals in the file, but ints in the database...
+make all decimals ints.....
+only really affects duration and avg's
+done...
+
+the database table varaible names are already correct:
+
+but I should delete all rows..done
+
+then redo scrape..done...
+
+
+
+now make custom page...
+
+
+
+
+m@pmh:~$ sudo nano /var/www/html/test6.php
+[sudo] password for m:
+m@pmh:~$ cat /var/www/html/test6.php
+<!DOCTYPE html>
+<html>
+<head>
+   <script src="DataTables/jquery-3.7.1.min.js"></script>
+   <link rel="stylesheet" href="/DataTables/datatables.css" />
+   <script src="/DataTables/datatables.js"></script>
+   <script>$(document).ready( function ()
+   {
+      $('#myTable').DataTable(
+      {
+          layout: { topStart: { buttons: ['colvis'] } },
+          colReorder: true
+
+      }  );
+   } );</script>
+
+
+</head>
+<body>
+<?php
+
+   $srvrname = "localhost";
+   $database = "session_db";
+   $username = "msq";
+   $password = "zaiden";
+
+   $col_list = "timestamp, duration, ip, port, hostname, endreason, cdat_rx";
+
+   // Create a connection
+   $conn = mysqli_connect($srvrname, $username, $password, $database);
+
+   // Check the connection
+   if (!$conn) die("Connection failed: " . mysqli_connect_error());
+   // echo "Connected to database\n";
+
+   echo "<h2>SESSIONS</h2><hr>";
+
+   echo "<table id='myTable' class='cell-border' style='width:90%'>";
+
+      echo "<thead>";
+         echo "<tr>";
+            $sql = "SELECT $col_list FROM session_tb";
+            $res = mysqli_query($conn, $sql);
+            $row = $res->fetch_assoc();
+            foreach($row as $col => $val)
+               echo "<th>" . $col . "</th>";
+         echo "</tr>";
+      echo "</thead>";
+      echo "<tbody>";
+         $sql = "SELECT $col_list FROM session_tb";
+         $res = mysqli_query($conn, $sql);
+         while ($row = $res->fetch_assoc())
+         {
+            echo "<tr>";
+            foreach($row as $col => $val)
+               echo "<td>" . $val . "</td>";
+            echo "</tr>";
+         }
+      echo "</tbody>";
+   echo "</table>";
+
+?>
+</body>
+</html>
+m@pmh:~$
+
+
+that works, but now I am still wanting to make the tabel look nicer..
+
+
+make a how to for DataTables...done...
+
+
+now I use the simple styling...
+
+can I change that?
+
+centering columns...done
+
+
+table pages:
+
+all
+
+session
+
+all but bandwidth
+
+
+
+what am i going to name them?
+
+
+sessions.php
+sessions_all.php
+sessions_plr.php (all but bandwidth)
+sessions_bnd.php (no player)
+
+$col_list = "timestamp, duration, ip, port, hostname, endreason, cdat_rx";
+$col_list .= "player_num, next_levels, exits_activated, respawns, shots_fired, enemy_hits, player_hits, self_hits, purple_coins";
+$col_list .= ", tx_bytes_total, tx_bytes_avg_per_sec, tx_bytes_max_per_frame, rx_bytes_total, rx_bytes_avg_per_sec, rx_bytes_max_per_frame";
+$col_list .= ", tx_packets_total, tx_packets_avg_per_sec, tx_packets_max_per_frame, rx_packets_total, rx_packets_avg_per_sec, rx_packets_max_per_frame";
+
+done:
+
+
+now where am I going to patch in the scrape function?
+
+session_scrape.php
+
+it does not want to run in the /var/www/html dir
+
+Connected to database
+
+/home/m/dev/purple_martians/logs/session/ is not a directory
+
+this could be a huge issue, letting scripts from there have access to the filesystem...
+
+what am I going to do?
+
+
+run it with cron?
+run it from the server?
+
+I really want it to be real time...
+
+I also need to eventually have some method to not continually scrape the same files over and over...
+
+does it matter who runs it?
+
+I can run it in that folder as long as 'm'
+
+its probably just that the user that runs apache can't
+
+apachectl -S
+
+m@pmh:~$ apachectl -S
+AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.1.1. Set the 'ServerName' directive globally to suppress this message
+VirtualHost configuration:
+*:80                   127.0.1.1 (/etc/apache2/sites-enabled/000-default.conf:1)
+ServerRoot: "/etc/apache2"
+Main DocumentRoot: "/var/www/html"
+Main ErrorLog: "/var/log/apache2/error.log"
+Mutex default: dir="/var/run/apache2/" mechanism=default
+Mutex mpm-accept: using_defaults
+Mutex watchdog-callback: using_defaults
+PidFile: "/var/run/apache2/apache2.pid"
+Define: DUMP_VHOSTS
+Define: DUMP_RUN_CFG
+User: name="www-data" id=33 not_used
+Group: name="www-data" id=33 not_used
+m@pmh:~$ cd ..
+
+
+
+
+
+
+I need to do some clean up here:
+
+This copying of php files to the live web server to test is kind of iffy.
+
+I need to have them in the source docs folder
+
+make a nicer way to copy just them to the server
+
+a one liner, that also can be pruned to not copy everything
+
+it will need to run on windows though...
+
+how do I do it now?
+
+copy to temp location:
+pscp -r -pw zaiden c:\pm\docs\* m@96.45.9.166:sht
+
+copy to final place
+m@pmh:~$ sudo cp -r ~/sht/* /var/www/html
+
+pscp -r -pw zaiden  m@96.45.9.166:sht/*.php c:\pm\docs
+
+
+
+ok I have removed all php from live server and temp place sht
+the only place it exists in in the docs folder and all 4 of those files are the read only versions
+
+try putting them back in place:
+
+pscp -r -pw zaiden c:\pm\docs\* m@96.45.9.166:sht
+
+that seems to work....
+
+I still don't have a good way to run the scrape thing...
+
+
+
+I also have a lot of .pl scripts in my html dir...
+
+
+
+
+crontab -e
+
+use nano...
+
+* * * * * php /home/m/session_scrape.php >> home/m/cronoutput.txt 2>&1
+
+
+
+
+
+
+
+tion
+Follow
+edited Oct 16, 2023 at 22:27
+sotirov's user avatar
+sotirov
+3,18977 gold badges1717 silver badges3232 bronze badges
+asked Sep 17, 2023 at 22:41
+Hawk007's user avatar
+Hawk007
+15933 silver badges2020 bronze badges
+
+    You can send cron job errors to a log file. Put this in your crontab - */5 * * * * /usr/bin/php -f /var/www/mail.domain.com/admin/cron/cron.php 2>&1 >> /home/username/cronoutput.txt –
+    stumblebee
+    Sep 17, 2023 at 23:22
+    thanks @stumblebee. I'll give that a go. How do I get it to use php7.3? instead of the default 8.2? –
+    Hawk007
+    Sep 18, 2023 at 1:42
+
+I actually tried it and it output the file with the following content: An internal error occured. Please contact your administrator and describe the steps you took before you encounter this error message.</p><p>Error msg: Call to undefined function get_magic_quotes_gpc() And as far as I know thats because magic_quotes was deprecated at php7.4. And the default php being used in the cron is 8.2. 7.3 would have magic_quotes as far as I know? –
+Hawk007
+Sep 18, 2023 at 1:54
+When I try: */5 * * * * /usr/bin/php7.3 -f /var/www/mail.domain.com/admin/cron/cron.php 2>&1 >> /home/username/cronoutput.txt the created text file is empty. –
+Hawk007
+Sep 18, 2023 at 2:06
+1
+If the intent is to capture both stdout and stderr to the file, you'll need to swap the order of redirections i.e. ... >> /home/username/cronoutput.txt 2>&1. See for example In what order does the shell execute commands and stream redirection? –
+steeldriver
+Sep 18, 2023 at 7:24
+
+Show 4 more comments
+
+
+
+--------------------------
+
+crontab is working
+
+
+now I want a way to move closed files somewhere so it doesn't continually try to re parse them..
+
+basically if the session is closed....end_reason anything but zero...
+
+move them to another folder
+
+or rename them and add .bal to the end...
+
+
+
+
+how can I tell time in php
+elapsed microtime
+
+
+I want to know how long open session have been open....
+
+anothe way of doing it would have been to see when the last time the table was update
+
+ALTER TABLE NAMEYOURTABLE
+   ADD COLUMN last_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+not really, that changes everytime I scrape
+
+
+change all 4 table to use this for duration:
+
+SELECT SEC_TO_TIME(2378);
+
+also don't look up column names except when doing *
+
+done.....
+
+now back to parsing??
+
+
+
+if the date time hour interval m
+
+use date time interval hour x 60 x 60 to get seconds since session start
+
+use reported duration (in seconds)
+
+
+if is 4 hours more than 2
+
+(sec_since_session_start - duration ) > 4 hours (4*60*60)
+
+
+I think I have the scrape thing functioning
+
+now what?
+
+
+to finish the scrape thing....
+
+leave it it the pm root folder
+
+make the cron script run it from there...
+
+crontab -e
+
+*/5 * * * * php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/cronoutput.txt 2>&1
+
+
+
+make a new release:
+
+
+20240418
 
 
 

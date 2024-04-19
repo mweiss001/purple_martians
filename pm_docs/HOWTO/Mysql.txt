@@ -1,0 +1,88 @@
+mysql -u msq -p
+
+SHOW DATABASES;
+
+CREATE DATABASE session_db;
+
+DROP TABLE session_db.session_tb;
+
+CREATE TABLE session_db.session_tb (
+  id                INT AUTO_INCREMENT,
+  filename          VARCHAR(255),
+  timestamp         VARCHAR(255),
+  duration          INT,
+  ip                VARCHAR(255),
+  port              INT,
+  hostname          VARCHAR(255),
+  endreason         VARCHAR(255),
+  cdat_rx           INT,
+  player_num        INT,
+  next_levels       INT,
+  exits_activated   INT,
+  respawns          INT,
+  shots_fired       INT,
+  enemy_hits        INT,
+  player_hits       INT,
+  self_hits         INT,
+  purple_coins      INT,
+  tx_bytes_total            INT,
+  tx_bytes_avg_per_sec      INT,
+  tx_bytes_max_per_frame    INT,
+  rx_bytes_total            INT,
+  rx_bytes_avg_per_sec      INT,
+  rx_bytes_max_per_frame    INT,
+  tx_packets_total          INT,
+  tx_packets_avg_per_sec    INT,
+  tx_packets_max_per_frame  INT,
+  rx_packets_total          INT,
+  rx_packets_avg_per_sec    INT,
+  rx_packets_max_per_frame  INT,
+
+  PRIMARY KEY(id)
+);
+
+SELECT * FROM session_db.session_tb;
+
+DROP DATABASE session_db;
+
+DELETE * FROM session_db.session_tb;
+
+make a non-priveledge user to read with php...
+
+
+sudo mysql
+
+CREATE USER 'php_ro'@'localhost' IDENTIFIED WITH mysql_native_password BY 'readonly';
+
+GRANT SELECT ON session_db.session_tb TO 'php_ro'@'localhost'
+
+exit
+mysql -u msq -p
+
+ALTER USER 'msq'@'localhost' IDENTIFIED WITH mysql_native_password BY 'zaiden';
+
+systemctl status mysql.service
+
+sudo mysqladmin -p -u msq version
+
+
+
+ALTER USER 'jeffrey'@'localhost' WITH MAX_QUERIES_PER_HOUR 90;
+
+
+
+
+copy to temp location:
+
+
+copy all
+pscp -r -pw zaiden c:\pm\docs\* m@96.45.9.166:sht
+
+copy only *.php
+pscp -r -pw zaiden c:\pm\docs\* m@96.45.9.166:sht
+
+
+copy to final place
+m@pmh:~$ sudo cp -r ~/sht/* /var/www/html
+
+

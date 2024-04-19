@@ -5,6 +5,7 @@
 #include "mwNetgame.h"
 #include "mwLoop.h"
 #include "mwLog.h"
+#include "mwPlayer.h"
 
 #include <thread>
 #include <chrono>
@@ -170,15 +171,25 @@ void mwPacketBuffer::add_to_rx_buffer(void)
       int who = -1;
 
       if (mNetgame.ima_server)
-         while (net_receive(mNetgame.ServerChannel, data, 1024, address))
+         while (int len = net_receive(mNetgame.ServerChannel, data, 1024, address))
          {
+
             who = mNetgame.server_check_address(address);
             if (who == -1) // unknown address
             {
                if (PacketRead(data, "cjon")) mNetgame.server_proc_cjon_packet(data, address); // setup channel and replay with sjon
                if (PacketRead(data, "cjrc")) mNetgame.server_proc_cjrc_packet(data, address); // setup channel and replay with sjrc
             }
-            else add_to_rx_buffer_single(data, who);
+            else
+            {
+               add_to_rx_buffer_single(data, who);
+
+               mPlayer.loc[who].rx_current_bytes_for_this_frame += len;
+               mPlayer.loc[who].rx_current_packets_for_this_frame++;
+
+               mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
+               mPlayer.loc[0].rx_current_packets_for_this_frame++;
+            }
          }
 
       if (mNetgame.ima_client)
