@@ -51237,9 +51237,742 @@ crontab -e
 
 
 make a new release:
-
-
 20240418
+done...
+
+now what?
+
+
+
+
+ftp access through notepad++
+
+free web editor tools
+
+Bootstrap
+
+free open source
+
+
+
+
+
+
+I think I am going to do i myself with css
+
+I want to redo the main page with css boxes and grids
+
+start with index2
+
+
+css selector:
+
+
+
+
+I really think I need to plan my web site better, especially the home page:
+
+
+Title
+
+then 3 columns
+
+what it is
+
+demo video
+
+
+
+
+HTML and css resources:
+
+https://blog.hubspot.com/website/css-tutorial
+
+css selectors:
+
+* universal selector (selects all elements in a document)
+
+
+Universal Selector Syntax
+A universal selector can have the following syntax:
+
+* or *|* { style properties } - matches all elements
+ns|* { style properties } - matches all elements in the namespace ns
+|* { style properties } - matches all elements without any defined namespac
+
+
+Type Selector Syntax
+The syntax of a type selector is:
+
+element { style properties }
+
+span {
+  background-color: red;
+}
+
+<span>One span. </span>
+
+
+Class Selector Syntax
+The syntax of a class selector is:
+
+.classname { style properties }
+<h1>Not blue</h1>
+<h1 class="pastoral"> Blue</h1>
+
+CSS
+.pastoral {
+  color: blue;
+}
+
+
+ID Selector Syntax
+The syntax of an ID selector is:
+
+#idname { style properties }
+ID Selector Example
+Let’s say I want to change the color and alignment of the element with the id "hubspot.".
+
+<h1 id = "hubspot"> #id selector</h1>
+
+#hubspot {
+  color:orange;
+  text-align:right;
+}
+
+
+
+I have figured out how to make thhe title look the way I want it to..
+fonts autosize with container
+line-height on text
+
+
+I think I want to have a navigation bar across the top, above the title...
+
+Home, Download, Multiplayer, About....etc
+
+
+Download should take you to a new page with instructions on downloading and running and a link to github.
+
+Multiplayer should take you to a page with instruction on the different types of multuplayer.
+
+Home is where you are now.
+
+About should have more info on credits, software used, license.
+
+
+can I do a grid within a grid?
+
+I want to equally space the top_nav_elements...
+
+that took a while but I think I've got it!
+
+That are children of elements with the GridviewSort class. What you want is to target <a> tags that have that class.
+
+This should work:
+
+a.GridviewSort:link {
+    text-decoration: underline;
+    color: white;
+}
+
+a.GridviewSort:visited {
+    text-decoration: underline;
+    color: white;
+}
+
+
+
+next....
+
+
+what default boxes to have on home page?
+
+What it is
+
+Features
+
+Demo video and links to more vides
+
+
+Purple Martians is free 2D platform style video game, with a mix of puzzle solving and shoot-em-up.
+
+ Features:
+ - over 70 fun and challenging levels
+ - single player or networked multiplayer with up to eight players
+ - an excellent level editor to edit and create new levels
+ - works identically across windows and linux
+ - very smooth graphics
+ - dynamically resizable display, moveable, zoomable during gameplay
+ - works with screen resolutions from 320x240 to 4K and higher
+
+
+
+Purple Martians is free 2D platform style video game, with a mix of puzzle solving and shoot-em-up.
+
+Key Features:
+
+- Single player or networked multiplayer with up to eight players
+- Over 70 fun and challenging levels
+- Fully featured level editor to edit and create new levels
+
+- Completely free
+- Made entirely with free software
+- Works identically in linux and windows
+
+
+
+    width: 100vw;
+    height: 56.25vw; /* 100/56.25 = 560/315 = 1.778 */
+
+
+    1920/1080 = 1.7777 *60
+
+    .iframe-video {
+    width: 755px;
+    height: 424px;
+    max-width: 100%;
+    max-height: calc((100vw - 40px) / (16/9));
+}
+
+
+    .iframe-video {
+    width: 960px;
+    height: 540px;
+    max-width: 100%;
+    max-height: calc((100vw - 40px) / (16/9));
+}
+
+
+
+
+
+
+
+
+
+With css aspect-ratio it's easy.
+
+iframe {
+  height: auto;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+Share
+Improve this answer
+Follow
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I am trying colors:
+
+background, frame
+
+Cornsilk, BlanchedAlmond -- too yellow
+
+Gray, LightGray -- ok
+
+DimGray, Gray -- too dark the text does not contrast enough
+
+what about a very light purple??
+
+
+from 6500cc
+d7b3ff f2e6ff -- too pink
+
+b3b3ff ccccff -- that looks good!
+
+
+I now have the main page and links to three other pages and it looks really good...
+
+now I need to flesh out:
+download
+multiplayer
+about
+
+
+
+Download.
+-------------------
+
+
+The latest release can be downloaded from github.
+
+Show link.
+
+Choose the windows or linux version.
+
+After downloading, extract to a folder and run the executable.
+
+There is nothing to install, the game is self contained in its folder.
+
+It does not store or change anything outside of that folder.
+
+Windows instructions:
+
+Download and extract the contents of the zip file.
+
+In the extracted folder double click on pm.exe.
+
+
+Linux instructions:
+
+Download and extract the contents of the zip file.
+
+Open a terminal in the extracted folder and type ./pm
+
+And I will need a video to go with this....
+
+
+GitHub_Logo_White.png
+
+1000x410
+
+100x41
+
+width="100" height="41"
+
+
+github-mark-white.png
+
+230x225
+
+115x112
+
+57x 56
+
+
+ <p style="background-image: url('images/github-mark-white.png');">
+
+
+
+
+
+
+
+
+
+just played a long game with linzie in vancouver...the server crashed hard during the final rocket escape
+
+
+I want logs, but there are none when it crashes...
+
+where does standard output go to when run from systemd?
+
+
+journalctl ftw!!!
+
+
+
+Apr 20 21:56:21 pmh pm[40035]: [10][2][8924]+--------------------------------------------------------------------------+
+Apr 20 21:56:21 pmh pm[40035]: [10][0][9522]+--------------------------------------------------------------------------+
+Apr 20 21:56:21 pmh pm[40035]: [10][0][9522]|                                                                          |
+Apr 20 21:56:21 pmh pm[40035]: [10][0][9522]|                              NEXT LEVEL:1                                |
+Apr 20 21:56:21 pmh pm[40035]: [10][0][9522]|                                                                          |
+Apr 20 21:56:21 pmh pm[40035]: [10][0][9522]+--------------------------------------------------------------------------+
+Apr 20 21:56:21 pmh pm[40035]: logs/20240420-215239-[28][pmh].txt saved
+Apr 20 21:56:21 pmh pm[40035]: saved:savegame/20240420-215239-[28]-autosave on level done.gm
+Apr 20 21:56:21 pmh pm[40035]: [10][0][0]+--------------------------------------------------------------------------+
+Apr 20 21:56:21 pmh pm[40035]: [10][0][0]|                                                                          |
+Apr 20 21:56:21 pmh pm[40035]: [10][0][0]|                            LEVEL 1 STARTED                               |
+Apr 20 21:56:21 pmh pm[40035]: [10][0][0]|                                                                          |
+Apr 20 21:56:21 pmh pm[40035]: [10][0][0]+--------------------------------------------------------------------------+
+Apr 20 21:56:21 pmh pm[40035]: starting file transfer [savegame/20240420-215239-[28]-autosave on level done.gm]
+Apr 20 21:56:21 pmh pm[40035]: starting file transfer [savegame/20240420-215239-[28]-autosave on level done.gm]
+Apr 20 21:56:21 pmh pm[40035]: starting file transfer [savegame/20240420-215239-[28]-autosave on level done.gm]
+Apr 20 21:56:21 pmh pm[40035]: [10][0][8896]+--------------------------------------------------------------------------+
+Apr 20 21:56:21 pmh pm[40035]: [10][0][8896]|                                                                          |
+Apr 20 21:56:21 pmh pm[40035]: [10][0][8896]|                             NEXT LEVEL:64                                |
+Apr 20 21:56:21 pmh pm[40035]: [10][0][8896]|                                                                          |
+Apr 20 21:56:21 pmh pm[40035]: [10][0][8896]+--------------------------------------------------------------------------+
+Apr 20 21:56:21 pmh pm[40035]: logs/20240420-215621-[1][pmh].txt saved
+Apr 20 21:56:21 pmh pm[40035]: [10][0][0]+--------------------------------------------------------------------------+
+Apr 20 21:56:21 pmh pm[40035]: [10][0][0]|                                                                          |
+Apr 20 21:56:21 pmh pm[40035]: [10][0][0]|                            LEVEL 64 STARTED                              |
+
+
+
+Apr 20 21:56:22 pmh sshd[74360]: Failed password for root from 61.177.172.160 port 60725 ssh2
+Apr 20 21:56:26 pmh sshd[74360]: Failed password for root from 61.177.172.160 port 60725 ssh2
+Apr 20 21:56:27 pmh sshd[74360]: Received disconnect from 61.177.172.160 port 60725:11:  [preauth]
+Apr 20 21:56:27 pmh sshd[74360]: Disconnected from authenticating user root 61.177.172.160 port 60725 [preauth]
+Apr 20 21:56:27 pmh sshd[74360]: PAM 2 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=61.177.172.160  user=root
+Apr 20 21:56:28 pmh sshd[74362]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=61.177.172.160  user=root
+Apr 20 21:56:30 pmh sshd[74362]: Failed password for root from 61.177.172.160 port 16669 ssh2
+Apr 20 21:56:33 pmh sshd[74362]: Failed password for root from 61.177.172.160 port 16669 ssh2
+Apr 20 21:56:36 pmh sshd[74362]: Failed password for root from 61.177.172.160 port 16669 ssh2
+Apr 20 21:56:37 pmh sshd[74362]: Received disconnect from 61.177.172.160 port 16669:11:  [preauth]
+Apr 20 21:56:37 pmh sshd[74362]: Disconnected from authenticating user root 61.177.172.160 port 16669 [preauth]
+Apr 20 21:56:37 pmh sshd[74362]: PAM 2 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=61.177.172.160  user=root
+Apr 20 21:58:41 pmh sshd[74364]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=218.92.0.118  user=root
+Apr 20 21:58:44 pmh sshd[74364]: Failed password for root from 218.92.0.118 port 54597 ssh2
+Apr 20 21:58:46 pmh sshd[74364]: Failed password for root from 218.92.0.118 port 54597 ssh2
+Apr 20 21:58:51 pmh sshd[74364]: Failed password for root from 218.92.0.118 port 54597 ssh2
+Apr 20 21:58:51 pmh sshd[74364]: Received disconnect from 218.92.0.118 port 54597:11:  [preauth]
+Apr 20 21:58:51 pmh sshd[74364]: Disconnected from authenticating user root 218.92.0.118 port 54597 [preauth]
+Apr 20 21:58:51 pmh sshd[74364]: PAM 2 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=218.92.0.118  user=root
+Apr 20 21:58:53 pmh sshd[74366]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=218.92.0.118  user=root
+Apr 20 21:58:55 pmh sshd[74366]: Failed password for root from 218.92.0.118 port 58654 ssh2
+Apr 20 21:58:59 pmh sshd[74366]: Failed password for root from 218.92.0.118 port 58654 ssh2
+Apr 20 21:59:02 pmh sshd[74366]: Failed password for root from 218.92.0.118 port 58654 ssh2
+Apr 20 21:59:03 pmh sshd[74366]: Received disconnect from 218.92.0.118 port 58654:11:  [preauth]
+Apr 20 21:59:03 pmh sshd[74366]: Disconnected from authenticating user root 218.92.0.118 port 58654 [preauth]
+Apr 20 21:59:03 pmh sshd[74366]: PAM 2 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=218.92.0.118  user=root
+Apr 20 21:59:06 pmh sshd[74368]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=218.92.0.118  user=root
+Apr 20 21:59:08 pmh sshd[74368]: Failed password for root from 218.92.0.118 port 11006 ssh2
+Apr 20 21:59:11 pmh sshd[74368]: Failed password for root from 218.92.0.118 port 11006 ssh2
+Apr 20 21:59:14 pmh sshd[74368]: Failed password for root from 218.92.0.118 port 11006 ssh2
+Apr 20 21:59:15 pmh sshd[74368]: Received disconnect from 218.92.0.118 port 11006:11:  [preauth]
+Apr 20 21:59:15 pmh sshd[74368]: Disconnected from authenticating user root 218.92.0.118 port 11006 [preauth]
+Apr 20 21:59:15 pmh sshd[74368]: PAM 2 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=218.92.0.118  user=root
+
+Apr 20 22:00:01 pmh CRON[74370]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+Apr 20 22:00:01 pmh CRON[74373]: (m) CMD (php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/cronoutput.txt 2>&1)
+Apr 20 22:00:01 pmh CRON[74370]: pam_unix(cron:session): session closed for user m
+Apr 20 22:05:01 pmh CRON[74377]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+Apr 20 22:05:01 pmh CRON[74379]: (m) CMD (php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/cronoutput.txt 2>&1)
+Apr 20 22:05:01 pmh CRON[74377]: pam_unix(cron:session): session closed for user m
+
+
+Apr 20 22:08:14 pmh kernel: pm[40035]: segfault at 30 ip 00007f97bebf7f9f sp 00007ffcdd534868 error 4 in liballegro_monolith.so.5.2.9[7f97bebed000+ee000]
+Apr 20 22:08:14 pmh kernel: Code: f3 0f 11 1c 24 0f 28 dc e8 4e fb ff ff 48 83 c4 38 c3 66 0f 1f 84 00 00 00 00 00 f3 0f 1e fa 66 0f ef ed 66 0f ef e4 0f 28 fb <f3> 0f 2a 6f 30 66 0f ef db 0f 28 f2 f3 0f 2a 67 2c 0f 28 d3 e9 88
+Apr 20 22:08:14 pmh pm[40035]: [10][0][0]|
+Apr 20 22:08:14 pmh systemd[1]: pm.service: Main process exited, code=dumped, status=11/SEGV
+Apr 20 22:08:14 pmh systemd[1]: pm.service: Failed with result 'core-dump'.
+Apr 20 22:08:14 pmh systemd[1]: pm.service: Consumed 2d 3h 35min 29.787s CPU time.
+
+
+Apr 20 22:09:01 pmh CRON[74384]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+Apr 20 22:09:01 pmh CRON[74385]: (root) CMD (  [ -x /usr/lib/php/sessionclean ] && if [ ! -d /run/systemd/system ]; then /usr/lib/php/sessionclean; fi)
+Apr 20 22:09:01 pmh CRON[74384]: pam_unix(cron:session): session closed for user root
+Apr 20 22:09:09 pmh systemd[1]: Starting Clean php session files...
+Apr 20 22:09:09 pmh systemd[1]: phpsessionclean.service: Deactivated successfully.
+Apr 20 22:09:09 pmh systemd[1]: Finished Clean php session files.
+
+
+
+
+
+
+make the about page have more grid containers
+
+
+
+I think I will need to make another sub constainer
+
+description and description col2
+
+good news! they already exist
+
+
+make desc contain
+
+desc_r1 and desc r2
+
+
+done...
+
+still has a few issues like
+
+both containers desc1 and desc2 want to be the same length and will stretch their content.
+
+also both in desc2 I want to force to have the same width
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
