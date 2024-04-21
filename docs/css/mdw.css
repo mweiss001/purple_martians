@@ -1,6 +1,5 @@
 /* mdw.css */
 
-
         * {
             box-sizing: border-box; 
         }
@@ -95,6 +94,7 @@
 
 
 
+
         mh10 {
             font-family: Saucer;
             font-size: 300%;
@@ -109,7 +109,6 @@
             font-size: 150%;
         }
 
-	
 
 
         mh3 {
@@ -125,7 +124,7 @@
             white-space: pre-wrap; 
         }
 
-		
+	
 		
 		
         mh5 {
