@@ -80,13 +80,13 @@ int mwNetgame::server_check_address(char * address)
 }
 
 // send data to a specific client
-void mwNetgame::ServerSendTo(void *data, int len, int who)
+void mwNetgame::ServerSendTo(void *data, int len, int p)
 {
    // change the target of the ServerChannel
-   if (net_assigntarget(ServerChannel, mwChannels[who].address))
+   if (net_assigntarget(ServerChannel, mwChannels[p].address))
    {
       char msg[512];
-      sprintf(msg, "Error: couldn't assign target `%s' to ServerChannel\n", mwChannels[who].address);
+      sprintf(msg, "Error: couldn't assign target `%s' to ServerChannel\n", mwChannels[p].address);
       mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
       mInput.m_err(msg);
    }
@@ -97,8 +97,8 @@ void mwNetgame::ServerSendTo(void *data, int len, int who)
    mPlayer.loc[0].tx_current_packets_for_this_frame++;
 
    // add to client's counts
-   mPlayer.loc[who].tx_current_bytes_for_this_frame += len;
-   mPlayer.loc[who].tx_current_packets_for_this_frame++;
+   mPlayer.loc[p].tx_current_bytes_for_this_frame += len;
+   mPlayer.loc[p].tx_current_packets_for_this_frame++;
 }
 
 void mwNetgame::ServerFlush(void)
@@ -128,7 +128,7 @@ void mwNetgame::headless_server_setup(void)
 //   // add these for troubleshooting
 //   mLog.set_log_type_action(LOG_NET_stak, LOG_ACTION_LOG, 1);
 //   mLog.set_log_type_action(LOG_NET_stdf, LOG_ACTION_LOG, 1);
-
+//   mLog.set_log_type_action(LOG_OTH_level_done, LOG_ACTION_PRINT, 1);
 
    mLog.autosave_log_on_level_done = 1;
    mLog.autosave_log_on_level_quit = 1;
@@ -660,15 +660,15 @@ void mwNetgame::server_proc_cjrc_packet(char *data, char * address)
 }
 
 
-void mwNetgame::server_send_sjrc_packet(int who)
+void mwNetgame::server_send_sjrc_packet(int p)
 {
    char data[1024] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "sjrc");
    mPacketBuffer.PacketPutDouble(data, pos, 0);
-   ServerSendTo(data, pos, who);
+   ServerSendTo(data, pos, p);
 }
 
-void mwNetgame::server_proc_ping_packet(char *data, int who)
+void mwNetgame::server_proc_ping_packet(char *data, int p)
 {
    int pos = 4;
    double t0 = mPacketBuffer.PacketGetDouble(data, pos);
@@ -676,14 +676,14 @@ void mwNetgame::server_proc_ping_packet(char *data, int who)
    mPacketBuffer.PacketName(data, pos, "pong");
    mPacketBuffer.PacketPutDouble(data, pos, t0);
    mPacketBuffer.PacketPutDouble(data, pos, t1);
-   ServerSendTo(data, pos, who);
+   ServerSendTo(data, pos, p);
 }
 
-void mwNetgame::server_proc_pang_packet(char *data, int who)
+void mwNetgame::server_proc_pang_packet(char *data, int p)
 {
    int pos = 4;
    double t0 = mPacketBuffer.PacketGetDouble(data, pos);
-   mPacketBuffer.RA[who].add_data(al_get_time() - t0);
+   mPacketBuffer.RA[p].add_data(al_get_time() - t0);
 }
 
 
@@ -707,7 +707,7 @@ void mwNetgame::server_control()
          {
             char data[1024] = {0}; int pos;
             mPacketBuffer.PacketName(data, pos, "extr");
-            ServerSendTo(data, pos + srv_exp_siz, mPlayer.loc[p].who);
+            ServerSendTo(data, pos + srv_exp_siz, p);
          }
 
    for (int p=0; p<NUM_PLAYERS; p++) if (mPlayer.syn[p].active) process_bandwidth_counters(p);

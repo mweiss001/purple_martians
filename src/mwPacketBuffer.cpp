@@ -39,7 +39,7 @@ void mwPacketBuffer::init_packet_buffer(void)
       rx_buf[i].active = 0;
       rx_buf[i].type = 0;
       rx_buf[i].timestamp = 0;
-      rx_buf[i].who = 0;
+      rx_buf[i].p = 0;
       rx_buf[i].packetsize = 0;
       rx_buf[i].packetpos = 0;
       rx_buf[i].data[0] = 0;
@@ -168,24 +168,24 @@ void mwPacketBuffer::add_to_rx_buffer(void)
       lock_mutex();
       char data[1024] = {0};
       char address[256];
-      int who = -1;
+      int p = -1;
 
       if (mNetgame.ima_server)
          while (int len = net_receive(mNetgame.ServerChannel, data, 1024, address))
          {
 
-            who = mNetgame.server_check_address(address);
-            if (who == -1) // unknown address
+            p = mNetgame.server_check_address(address);
+            if (p == -1) // unknown address
             {
                if (PacketRead(data, "cjon")) mNetgame.server_proc_cjon_packet(data, address); // setup channel and replay with sjon
                if (PacketRead(data, "cjrc")) mNetgame.server_proc_cjrc_packet(data, address); // setup channel and replay with sjrc
             }
             else
             {
-               add_to_rx_buffer_single(data, who);
+               add_to_rx_buffer_single(data, p);
 
-               mPlayer.loc[who].rx_current_bytes_for_this_frame += len;
-               mPlayer.loc[who].rx_current_packets_for_this_frame++;
+               mPlayer.loc[p].rx_current_bytes_for_this_frame += len;
+               mPlayer.loc[p].rx_current_packets_for_this_frame++;
 
                mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
                mPlayer.loc[0].rx_current_packets_for_this_frame++;
@@ -194,24 +194,24 @@ void mwPacketBuffer::add_to_rx_buffer(void)
 
       if (mNetgame.ima_client)
          while (mNetgame.ClientReceive(data))
-            add_to_rx_buffer_single(data, who);
+            add_to_rx_buffer_single(data, p);
 
       unlock_mutex();
       threadTally[1].add_data(al_get_time() - t0);
    }
 }
 
-void mwPacketBuffer::add_to_rx_buffer_single(char *data, int who)
+void mwPacketBuffer::add_to_rx_buffer_single(char *data, int p)
 {
    // process these immediately and do not add to buffer
    if (PacketRead(data, "ping"))
    {
-      mNetgame.server_proc_ping_packet(data, who);
+      mNetgame.server_proc_ping_packet(data, p);
       return;
    }
    if (PacketRead(data, "pang"))
    {
-      mNetgame.server_proc_pang_packet(data, who);
+      mNetgame.server_proc_pang_packet(data, p);
       return;
    }
    if (PacketRead(data, "pong"))
@@ -239,7 +239,7 @@ void mwPacketBuffer::add_to_rx_buffer_single(char *data, int who)
          rx_buf[indx].active = 1;
          rx_buf[indx].type = type;
          rx_buf[indx].timestamp = al_get_time();
-         rx_buf[indx].who = who;
+         rx_buf[indx].p = p;
          memcpy(rx_buf[indx].data, data, 1024);
       }
    }

@@ -287,14 +287,6 @@ void mwScreen::sdg_show_column(int col, int &x, int y)
       x+=3*8;
    }
 
-   if (col == 5) // who
-   {
-      al_draw_text( mFont.pr8, c1,            x, y+=8, 0, "[wh]");
-      al_draw_textf(mFont.pr8, c2,            x, y+=8, 0, "[  ]");
-      for (int p=1; p<NUM_PLAYERS; p++)
-         al_draw_textf(mFont.pr8, col_clr(p), x, y+=8, 0, "[%d]", mPlayer.loc[p].who);
-      x+=4*8;
-   }
 
    if (col == 7) // client chase fps
    {
@@ -541,7 +533,6 @@ void mwScreen::sdg_show(int x, int y) // server debug grid
 //   sdg_show_column(2, x, y); // active
 //   sdg_show_column(3, x, y); // color
 //   sdg_show_column(4, x, y); // control method
-//   sdg_show_column(5, x, y); // who
 //   sdg_show_column(7, x, y); // client chase fps
 //   sdg_show_column(8, x, y); // server_game_move_sync
 

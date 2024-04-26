@@ -372,9 +372,8 @@ void mwLog::log_player_array(int type)
       if (p == mPlayer.active_local_player) sprintf(ms, " <-- active local player (me!)");
       if (p == 0) sprintf(ms, " <-- server");
 
-      sprintf(msg, "[%d][%2d][%d][%2d][%d] - %s %s",
+      sprintf(msg, "[%d][%d][%2d][%d] - %s %s",
                                               p,
-                                              mPlayer.loc[p].who,
                                               mPlayer.syn[p].active,
                                               mPlayer.syn[p].color,
                                               mPlayer.syn[p].control_method,

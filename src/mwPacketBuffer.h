@@ -12,7 +12,7 @@ struct packet_buffer
    int active;
    int type;
    double timestamp;
-   int who;
+   int p;
    int packetsize;
    int packetpos;
    char data[1024];
@@ -92,7 +92,7 @@ class mwPacketBuffer
    int is_data_waiting(void);
 
    void add_to_rx_buffer(void);
-   void add_to_rx_buffer_single(char *data, int who);
+   void add_to_rx_buffer_single(char *data, int p);
    int find_empty_rx_packet_buffer(void);
    void rx_and_proc(void);
    void proc_rx_buffer(void);

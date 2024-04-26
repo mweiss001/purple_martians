@@ -500,29 +500,22 @@ char* mwGameMoves::get_gm_text(int gm, char* tmp)
 
 void mwGameMoves::save_gm_txt(const char *sfname)
 {
-   char tmp[100];
-
+   // change extension to .txt
    char fname[128];
    sprintf(fname, "%s", sfname);
-
-   // change extension to .txt
    ALLEGRO_PATH *path = al_create_path(fname);
    al_set_path_extension(path, ".txt");
    sprintf(fname, "%s", al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
 
-   FILE *filepntr = fopen(fname,"w");
+   FILE *filepntr = fopen(fname, "w");
    fprintf(filepntr,"number of entries %d\n", entry_pos);
    fprintf(filepntr,"[ gm][frame][t][p][cm]\n");
+
+   char tmp[100];
    for (int x=0; x<entry_pos; x++)
       fprintf(filepntr, "%s\n", get_gm_text(x, tmp));
-   fclose(filepntr);
 
-   if (mNetgame.ima_server) // if server, send to all active clients
-   {
-      for (int p=1; p<NUM_PLAYERS; p++)
-         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
-            mNetgame.server_add_file_to_send(fname, mPlayer.loc[p].who);
-   }
+   fclose(filepntr);
 }
 
 
@@ -557,7 +550,7 @@ void mwGameMoves::save_gm(const char *fname)
          {
             for (int p=1; p<NUM_PLAYERS; p++)
                if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
-                  mNetgame.server_add_file_to_send(fname, mPlayer.loc[p].who);
+                  mNetgame.server_add_file_to_send(fname, p);
          }
 
          sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname); // update the name

@@ -58,6 +58,10 @@ int mwWindowManager::loop(int edit_level)
 {
    mLoop.level_editor_running = 1;
    al_show_mouse_cursor(mDisplay.display);
+
+   mEventQueue.reset_fps_timer();
+
+
    initialize(edit_level);
    if (mLoop.autosave_level_editor_state) load_mW();
    active = 1;
