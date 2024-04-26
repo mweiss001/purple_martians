@@ -33,11 +33,15 @@ void mwLoop::proc_level_done_mode(void)
 
       mLevel.add_play_data_record(mLevel.play_level, 1);
 
-
       mPlayer.syn[0].level_done_timer = 0; // immediate next mode
-      cutscene_original_zoom = mDisplay.scale_factor_current;
 
-      mDisplay.set_custom_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/2000, 100);
+
+      if (!mDisplay.no_display)
+      {
+         cutscene_original_zoom = mDisplay.scale_factor_current;
+         mDisplay.set_custom_scale_factor((float)(mDisplay.SCREEN_H - BORDER_WIDTH*2)/2000, 100);
+      }
+
 
       // bring other netgame players home
       int c = mPlayer.syn[0].level_done_player; // captain of the ship!
@@ -80,15 +84,20 @@ void mwLoop::proc_level_done_mode(void)
    if (mPlayer.syn[0].level_done_mode == 28) // set up for rocket move
    {
       mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Setup for rocket move\n", frame_num, mPlayer.syn[0].level_done_mode);
-      // create bitmap of the background
-      if (!cutscene_background) cutscene_background = al_create_bitmap(2000, 2000);
-      al_set_target_bitmap(cutscene_background);
-      al_clear_to_color(al_map_rgba(0,0,0,0));
-      al_draw_bitmap(mBitmap.level_buffer, 0, 0, 0);
 
-      // erase the rocket area
-      al_draw_filled_rectangle(20, 0, 380, 1980, mColor.Black);
-      al_convert_mask_to_alpha(cutscene_background, mColor.Black);
+      if (!mDisplay.no_display)
+      {
+         // create bitmap of the background
+         if (!cutscene_background) cutscene_background = al_create_bitmap(2000, 2000);
+         al_set_target_bitmap(cutscene_background);
+         al_clear_to_color(al_map_rgba(0,0,0,0));
+         al_draw_bitmap(mBitmap.level_buffer, 0, 0, 0);
+
+         // erase the rocket area
+         al_draw_filled_rectangle(20, 0, 380, 1980, mColor.Black);
+         al_convert_mask_to_alpha(cutscene_background, mColor.Black);
+      }
+
 
       // actually erase everything else from level
       for (int i=0; i<100; i++) if (mEnemy.Ei[i][0] != 19) mEnemy.Ei[i][0] = 0; // enemies (except crew)
@@ -104,36 +113,40 @@ void mwLoop::proc_level_done_mode(void)
             mLevel.l[x][y] = 0;
       for (int x=0; x<100; x++) mLevel.l[x][0] = 0; // top line
       for (int x=0; x<100; x++) mLevel.l[x][99] = 0; // bottom line
-      mScreen.init_level_background();
 
-      cutscene_accel = 1.0;
-      cutscene_bg_x =  0.0;
-
+      if (!mDisplay.no_display)
+      {
+         mScreen.init_level_background();
+         cutscene_accel = 1.0;
+         cutscene_bg_x =  0.0;
+      }
    }
 
    if (mPlayer.syn[0].level_done_mode == 27) // rocket move
    {
       mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Rocket move\n", frame_num, mPlayer.syn[0].level_done_mode);
-      mScreen.get_new_background(1);
-
-      cutscene_bg_x += cutscene_accel;
-      cutscene_accel += 0.07;
-      al_draw_bitmap(cutscene_background, 0, cutscene_bg_x, 0);
-
-      mEnemy.draw_enemies();
-      mPlayer.draw_players();
-      mItem.draw_items();
-
-      mScreen.draw_scaled_level_region_to_display(0);
-      mScreen.draw_screen_overlay();
-
-      al_flip_display();
-
+      if (!mDisplay.no_display)
+      {
+         mScreen.get_new_background(1);
+         cutscene_bg_x += cutscene_accel;
+         cutscene_accel += 0.07;
+         al_draw_bitmap(cutscene_background, 0, cutscene_bg_x, 0);
+         mEnemy.draw_enemies();
+         mPlayer.draw_players();
+         mItem.draw_items();
+         mScreen.draw_scaled_level_region_to_display(0);
+         mScreen.draw_screen_overlay();
+         al_flip_display();
+      }
    }
    if (mPlayer.syn[0].level_done_mode == 26)
    {
       mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Setup for zoom in\n", frame_num, mPlayer.syn[0].level_done_mode);
-      mDisplay.set_custom_scale_factor(cutscene_original_zoom, 100); // set up for zoom in
+
+      if (!mDisplay.no_display)
+      {
+         mDisplay.set_custom_scale_factor(cutscene_original_zoom, 100); // set up for zoom in
+      }
    }
    if (mPlayer.syn[0].level_done_mode == 25)
    {

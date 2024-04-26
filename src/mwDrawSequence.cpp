@@ -209,10 +209,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       if (setup_only) add_names(i, "d-plyr", "draw_players");
       else { mPlayer.draw_players_direct_to_screen(); add(i); }
 
-
-
       mPacketBuffer.check_for_packets();
-
 
       mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw npc direct to screen\n", mLoop.frame_num);
       // draw npc directly on the screen, so they scale nicely

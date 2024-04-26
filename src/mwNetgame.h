@@ -71,7 +71,7 @@ struct file_to_send
    int attempts;
    int last_sent_frame;
    int id;
-   int who;
+   int p;
    char name[256];
 };
 
@@ -188,7 +188,7 @@ class mwNetgame
 
    int  ServerInitNetwork(void);
    void ServerExitNetwork(void);
-   void ServerSendTo(void *data, int len, int who);
+   void ServerSendTo(void *data, int len, int p);
    void ServerFlush(void);
 
    int ServerGetNewDynamicPort(void);
@@ -210,10 +210,10 @@ class mwNetgame
 
    void server_send_snfo_packet(void);
    void server_send_sjon_packet(char* address, int level, int frame, int player_num, int player_color);
-   void server_send_sjrc_packet(int who);
+   void server_send_sjrc_packet(int p);
 
-   void server_proc_ping_packet(char *data, int who);
-   void server_proc_pang_packet(char *data, int who);
+   void server_proc_ping_packet(char *data, int p);
+   void server_proc_pang_packet(char *data, int p);
 
    void server_proc_cdat_packet(int i);
    void server_proc_stak_packet(int i);
@@ -230,11 +230,6 @@ class mwNetgame
    // ---   mwNetgameSessionLog.cpp  -------------------------------------
    // --------------------------------------------------------------------
    void session_clear_entry(int i);
-
-//   void session_add_entry(const char* address, int who);
-//   void session_update_entry(int who, int status, const char* hostname, int player_num);
-
-
 
    void session_add_entry(const char* address, const char* hostname, int p, int active, int inactive_reason);
 
@@ -255,7 +250,7 @@ class mwNetgame
    // --------------------------------------------------------------------
    void server_proc_files_to_send(void);
    void server_send_file(int i);
-   void server_add_file_to_send(const char * filename, int who);
+   void server_add_file_to_send(const char * filename, int p);
    void server_proc_crfl_packet(int i);
    void server_proc_sfak_packet(int i);
 

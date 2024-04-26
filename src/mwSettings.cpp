@@ -1789,7 +1789,6 @@ void mwSettings::page_speed(void)
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, tc);
 
 
-
    mWidget.toggle(cfp_x1+100, ya, cfp_x2-100, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mLoop.speed_control_lock, "Speed Control Unlocked", "Speed Control Locked", 15, 15, uc, lc);
    ya-=2;
 

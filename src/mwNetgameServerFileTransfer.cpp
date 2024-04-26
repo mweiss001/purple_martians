@@ -77,7 +77,7 @@ void mwNetgame::server_send_file(int i)
          memcpy(data+pos, dst+start_byte, packet_data_size);
          pos += packet_data_size;
 
-         ServerSendTo(data, pos, files_to_send[i].who);
+         ServerSendTo(data, pos, files_to_send[i].p);
 
          start_byte+=1000;
       }
@@ -102,7 +102,7 @@ void mwNetgame::server_proc_crfl_packet(int i)
    mGameMoves.save_gm_make_fn("server save on rx crfl packet");
 }
 
-void mwNetgame::server_add_file_to_send(const char * filename, int who)
+void mwNetgame::server_add_file_to_send(const char * filename, int p)
 {
    // does the file exist?
    ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(filename);
@@ -126,7 +126,7 @@ void mwNetgame::server_add_file_to_send(const char * filename, int who)
          files_to_send[i].id = rand(); // random id
          files_to_send[i].active = 1;
          files_to_send[i].attempts = 0;
-         files_to_send[i].who = who;
+         files_to_send[i].p = p;
          sprintf(files_to_send[i].name, "%s", filename);
          return;
       }

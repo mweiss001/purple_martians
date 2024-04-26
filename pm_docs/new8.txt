@@ -51702,6 +51702,145 @@ also both in desc2 I want to force to have the same width
 
 
 
+20240425
+bug  -  headless server crashes on final cutscene
+make a test setup...
+conditionally remove all draw code from cutscene if no display...done...
+I am pretty sure I have that fixed
+revert all the test setup...done
+
+
+
+
+copy savegame to client, is it broken?
+how does it work?
+
+there is a variable called: mGameMoves.server_send_gm_to_clients
+and it can be set on the setting, demo tab
+
+void mwGameMoves::save_gm(const char *fname)
+{
+   if ((mNetgame.ima_server) && (mGameMoves.server_send_gm_to_clients)) // if server, send to all active clients
+   {
+      for (int p=1; p<NUM_PLAYERS; p++)
+         if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
+            mNetgame.server_add_file_to_send(fname, mPlayer.loc[p].who);
+   }
+
+Then the server sends it...
+
+
+I really want to replace who with p wherever I can...it makes things less clear...
+
+what about the one in player struct...it is not used anymore so if I rename it I will find all bad uses...
+
+now who is not used in code anymore
+
+it appears that file transfer is now working
+
+what is the crfl packet?
+
+when the client has set autosave on level quit, and the client quits...
+the client requests the server send it the current game file before exiting
+
+this all seems to work, but is complicated and would benefit from having this written down somewhere...
+
+...it appears that it is all working though...
+
+
+before I leave this I want to grab the savegames from when linzie and I and zaiden were playing...when was that?
+20240420...done
+
+
+
+
+
+
+bug double drawing player in demo mode
+
+this is a very complicated issue...way more complicated than it needs to be...
+
+I have 2 methods for drawing players
+
+one draws on the level_buffer and then gets scaled with the entire level_buffer
+the other draws directly to the screen and scales much nicer
+
+
+there is also some setup code that determines the players shape...
+
+I want to simplify all of this...
+
+to add to the nonsense, the direct to screen does not always line up nicely with the level floor...
+
+---what if I decided which one to use based on player scale? for scale == 1 use the one that lines up nicer....
+
+
+
+
+
+
+
+
+I think the way it will need to be in draw sequence:
+
+do the normal draw first, set shapes, do overlays...
+but only draw if scale and rot are zero
+
+
+then in the direct to screen part, only draw if rot and scale are not zero
+
+like rocket ride door travel death...
+
+mwPlayer::draw_player(int p)
+is only called by:
+mwPlayer::draw_players(void)
+
+
+mwPlayer::draw_players(void)
+called by:
+draw seq
+if (mPlayer.syn[0].level_done_mode == 27) // rocket move
+void mwScreen::draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players)
+
+void mwPlayer::draw_players_direct_to_screen(void)
+is only called from draw sequence
+
+
+void mwDrawSequence::ds_draw(int setup_only, int flip)
+called once from loop
+called 2 times from demo mode
+called 3 times from demo record
+
+
+with this info I think I am ready...
+modify draw to skip only if
+
+
+list all of the times that player has scale and rot that are not default:
+- riding rocket
+- door travel
+- death sequence
+
+am I missing anything?
+
+I think I have this all fixed....
+
+bug -- reset speed to default when starting level editor..done
+
+
+finish this all up and do another release...
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

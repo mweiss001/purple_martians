@@ -112,12 +112,11 @@ struct ploc // not synced between server and client (but synced from server to r
 
    int up_key, down_key, left_key, right_key, jump_key, fire_key, menu_key;
 
-
    int comp_move;
 
    int fake_keypress_mode;
 
-   int who; // for network id of clients
+   int who_old; // for network id of clients -- not used anymore, now just use player number...
    char hostname[16];
 
    int server_last_stak_rx_frame_num;     // used by server to see if client is still responding

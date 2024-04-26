@@ -985,30 +985,49 @@ void mwPlayer::move_players(void)
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwPlayer::draw_player(int p)
 {
    if (syn[p].paused_type != 3)
    {
-
       al_set_target_bitmap(mBitmap.level_buffer);
       int px = syn[p].x;
       int py = syn[p].y;
       set_players_shape(p);
 
-      int old_draw_method = 1;
-      if (mLoop.state[0] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) old_draw_method = 0;
-      if ((mLoop.state[0] == PM_PROGRAM_STATE_DEMO_RECORD) && (mDemoRecord.play)) old_draw_method = 0;
-      if (syn[0].level_done_mode == 27) old_draw_method = 1;
 
-      if (old_draw_method)
+
+//      int old_draw_method = 1;
+//      if (mLoop.state[0] == PM_PROGRAM_STATE_MAIN_GAME_LOOP) old_draw_method = 0;
+//      if ((mLoop.state[0] == PM_PROGRAM_STATE_DEMO_RECORD) && (mDemoRecord.play)) old_draw_method = 0;
+//      if (syn[0].level_done_mode == 27) old_draw_method = 1;
+//      int old_draw_method = 0;
+//      if (syn[0].level_done_mode == 27) old_draw_method = 1;
+//      if (old_draw_method)
+
+      float scale = syn[p].draw_scale;
+      float rot = syn[p].draw_rot;
+      if ((scale == 1) && (rot == 0))
       {
-         float scale = syn[p].draw_scale;
-         float rot = syn[p].draw_rot;
          int flags = ALLEGRO_FLIP_HORIZONTAL;
          if (syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-   //      printf("color:%d shape:%d\n", syn[p].color, syn[p].shape );
          al_draw_scaled_rotated_bitmap(mBitmap.player_tile[syn[p].color][syn[p].shape], 10, 10, px+10, py+10, scale, scale, rot, flags);
 
+
+   //      printf("color:%d shape:%d\n", syn[p].color, syn[p].shape );
 
          /*
 
@@ -1069,7 +1088,7 @@ void mwPlayer::draw_player(int p)
       }
 
 
-      if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD) // game loop running
+      if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
       {
          if (p == mDemoRecord.record_player_number)
          {
@@ -1077,6 +1096,8 @@ void mwPlayer::draw_player(int p)
             al_draw_textf(mFont.pr8, mColor.pc[15], px+10, py-30, ALLEGRO_ALIGN_CENTER, "xi:%2.1f yi:%2.1f", syn[p].xinc, syn[p].yinc);
          }
       }
+
+
 
 
       // death sequence star overlay
@@ -1093,6 +1114,7 @@ void mwPlayer::draw_player(int p)
       }
 
 
+      // health bar overlay
       if (loc[p].health_display > 0)
       {
          loc[p].health_display--;
@@ -1132,25 +1154,29 @@ void mwPlayer::draw_players(void)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
       if (syn[p].active) draw_player(p);
-
-//   draw_player(active_local_player); // do this so that that local player is always drawn on top
+   draw_player(active_local_player); // do this so that that local player is always drawn on top
 
    // in some weird cases (demo record) active local player might not be active
-   if (syn[active_local_player].active) draw_player(active_local_player);
-
-
+   if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
+      if (syn[active_local_player].active) draw_player(active_local_player);
 }
 
 void mwPlayer::draw_player_direct_to_screen(int p)
 {
    if (syn[p].paused_type != 3)
    {
-      float px, py;
-      mScreen.calc_actual_screen_position(syn[p].x+10, syn[p].y+10, px, py);
-      float scale = mPlayer.syn[p].draw_scale * mDisplay.scale_factor_current;
-      int flags = ALLEGRO_FLIP_HORIZONTAL;
-      if (mPlayer.syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-      al_draw_scaled_rotated_bitmap(mBitmap.player_tile[mPlayer.syn[p].color][mPlayer.syn[p].shape], 10, 10, px, py, scale, scale, mPlayer.syn[p].draw_rot, flags);
+      float scale = syn[p].draw_scale;
+      float rot = syn[p].draw_rot;
+      if ((scale != 1) || (rot != 0))
+      {
+         float px, py;
+         mScreen.calc_actual_screen_position(syn[p].x+10, syn[p].y+10, px, py);
+         float scale = mPlayer.syn[p].draw_scale * mDisplay.scale_factor_current;
+         int flags = ALLEGRO_FLIP_HORIZONTAL;
+         if (mPlayer.syn[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+         al_draw_scaled_rotated_bitmap(mBitmap.player_tile[mPlayer.syn[p].color][mPlayer.syn[p].shape], 10, 10, px, py, scale, scale, mPlayer.syn[p].draw_rot, flags);
+         // printf("%d - draw direct\n", mLoop.frame_num);
+      }
    }
 }
 
@@ -1161,32 +1187,12 @@ void mwPlayer::draw_players_direct_to_screen(void)
       if (syn[p].active) draw_player_direct_to_screen(p);
 
    // do this so that that local player is always drawn on top
-//      mPlayer.draw_player_direct_to_screen(mPlayer.active_local_player);
+   mPlayer.draw_player_direct_to_screen(mPlayer.active_local_player);
 
    // in some weird cases (demo record) active local player might not be active
-   if (syn[active_local_player].active) draw_player_direct_to_screen(active_local_player);
+   if (mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD)
+      if (syn[active_local_player].active) draw_player_direct_to_screen(active_local_player);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1276,7 +1282,6 @@ void mwPlayer::init_player(int p, int t)
       syn[p].health = 100;
 
       loc[p].hostname[0] = 0;
-      loc[p].who = 99;
       loc[p].fake_keypress_mode = 0;
       syn[p].server_force_fakekey = 0;
 

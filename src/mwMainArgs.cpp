@@ -109,7 +109,7 @@ void mwMain::copy_files_to_clients(int type)
 
 //   sprintf(client[num_clients++], "\\\\i990\\pm_client32");  // win 7
 
-   sprintf(client[num_clients++], "\\\\e6430-w10\\pm_client50");  // win 10
+//   sprintf(client[num_clients++], "\\\\e6430-w10\\pm_client50");  // win 10
    sprintf(client[num_clients++], "\\\\o7040\\pm_client51");  // win 10
 
 
