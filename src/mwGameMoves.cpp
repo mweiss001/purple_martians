@@ -523,11 +523,19 @@ void mwGameMoves::save_gm(const char *fname)
 {
    int print_level = 1;
 
+
    int skip = 0;
-   if (mNetgame.ima_client)     { skip = 1;  if (print_level > 1) printf("Never save demo for client\n");        } // do not save for client, the gm is missing data and is not playable
+
    if (entry_pos == 0)          { skip = 1;  if (print_level > 1) printf("No game moves to save\n");             }
    if (mLevel.play_level == 1)  { skip = 1;  if (print_level > 1) printf("Never save demo for overworld\n");     }
    if (mDemoMode.mode)          { skip = 1;  if (print_level > 1) printf("Never save demo when in demo mode\n"); }
+
+   // if not skipped so far and client, send request
+   if ((!skip) && (mNetgame.ima_client)) mNetgame.client_send_crfl();
+
+   if (mNetgame.ima_client)     { skip = 1;  if (print_level > 1) printf("Never save demo for client\n");        } // do not save for client, the gm is missing data and is not playable
+
+
 
    if (!skip)
    {
@@ -546,12 +554,12 @@ void mwGameMoves::save_gm(const char *fname)
 
          if (print_level) printf("saved:%s\n", fname);
 
-         if ((mNetgame.ima_server) && (mGameMoves.server_send_gm_to_clients)) // if server, send to all active clients
-         {
-            for (int p=1; p<NUM_PLAYERS; p++)
-               if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
-                  mNetgame.server_add_file_to_send(fname, p);
-         }
+//         if ((mNetgame.ima_server) && (mGameMoves.server_send_gm_to_clients)) // if server, send to all active clients
+//         {
+//            for (int p=1; p<NUM_PLAYERS; p++)
+//               if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
+//                  mNetgame.server_add_file_to_send(fname, p);
+//         }
 
          sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname); // update the name
 
