@@ -118,8 +118,8 @@
 		
 
         mh4 {
-            font-family: Source;
-            font-size: 120%;
+            font-family: Source;  
+            font-size: 140%;
             font-weight: bold;
             white-space: pre-wrap; 
         }
@@ -128,7 +128,7 @@
 		
 		
         mh5 {
-            font-family: Source;
+            font-family: Source;  
             color: #017b55;
             font-size: 130%;
             font-weight: bold;
@@ -159,7 +159,6 @@
             
         }
 
-
         me1 {
             padding-top: .1em;
             padding-bottom: .1em;
@@ -169,6 +168,8 @@
             font-size: 130%;
             background: #f2d4a4;
         }
+
+
 
 
         pk0 {

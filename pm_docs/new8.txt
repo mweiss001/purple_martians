@@ -51836,6 +51836,86 @@ finish this all up and do another release...
 
 
 
+Can I make the send files to clients optional?
+
+it kind of is...
+
+
+What I would like to do is make the whole thing optional on the server.
+If it is disabled at this point nothing ever happens.
+
+If it is enabled, only if the client requests it, will the server send it.
+
+
+If disabled on the server, the server will respond with a packet so the client knows that.
+
+existing variable called: mGameMoves.server_send_gm_to_clients
+
+
+make a new variable called:
+server_client_file_transfer_enabled
+
+but still only send to clients that request it with clrf
+
+
+this could work....
+
+
+
+
+change from server sending automatically to client requesting....
+- when client completes a level
+- when client quits
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

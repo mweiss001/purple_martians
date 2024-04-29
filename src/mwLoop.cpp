@@ -383,7 +383,7 @@ void mwLoop::proc_program_state(void)
 //-----------------------------------------------------------------
    if (state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT1)
    {
-      if (mGameMoves.autosave_game_on_level_quit)
+      if ((mGameMoves.autosave_game_on_level_quit) && (mLevel.play_level != 1)) // not overworld
       {
          // when client quits with escape, send a file request to the server to get the gm file
          mNetgame.client_send_crfl();
