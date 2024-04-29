@@ -1,0 +1,232 @@
+<!doctype html>
+<title>Netgame - State and dif</title>
+
+<html>    <script  src="../assets/js/prism.js"></script>
+    <link href = "../assets/css/prism.css" rel="stylesheet" />
+    <link href = "../assets/css/mdw.css"      rel="stylesheet" type = "text/css" />
+<body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="../index.html"        target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="../download.html"     target="_top">Download</a></div>    
+<div style="text-align: center;"><a href="../multiplayer.html"  target="_top">Multiplayer</a></div>    
+<div style="text-align: center;"><a href="../about.html"        target="_top">About</a></div>    
+<div style="text-align: center;"><a href="../more.html"         target="_top">More</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
+
+</mdw_lhs_nav>
+
+        </nav>
+
+
+
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Netgame - State and Dif</mh8>
+<mh3><hr><mdw_file_toc> <a href="netgame_state_and_dif.html#The game state" target="_top">The game state</a>
+ <a href="netgame_state_and_dif.html#Game state variables" target="_top">Game state variables</a>
+ <a href="netgame_state_and_dif.html#Combining game state variables into 'state'" target="_top">Combining game state variables into 'state'</a>
+ <a href="netgame_state_and_dif.html#State variables" target="_top">State variables</a>
+ <a href="netgame_state_and_dif.html#State compression methods" target="_top">State compression methods</a>
+ <a href="netgame_state_and_dif.html#The differential method" target="_top">The differential method</a>
+</mdw_file_toc><hr></mh3>
+
+
+
+<a name="The game state"></a><mh7>The game state</mh7>
+
+<mh3>
+The game state is all of the data required to replicate the game between server and client.
+
+It consists of all the relevant variables for the level, players, enemies, items, bullets, etc.
+
+The server's game state is periodically sent to clients to keep them in sync.
+
+</mh3>    
+
+
+<a name="Game state variables"></a>
+<mh7>Game state variables</mh7>
+
+<pre><code class="language-cpp">// Variables used for netgame state exchange
+
+mPlayer.syn         :  2304
+mEnemy.Ei           : 12800
+mEnemy.Ef           :  6400
+mItem.item          : 32000
+mItem.itemf         :  8000
+mLift.cur           :  4480
+mLevel.l            : 40000
+mShot.p             :  1200
+mShot.e             :  1200
+mTriggerEvent.event :  4000
+--------------------:------
+total               :112384 bytes</code></pre>
+
+
+<a name="Combining game state variables into 'state'"></a>
+<mh7>Combining game state variables into 'state'</mh7>
+
+
+<mh3>
+The game state variables are copied into a character array with memcpy.
+This is so that they can be processed as a single chunk of data, rather than individually.
+
+I refer to these large chunks of data as 'states'.
+They contain the entire game state for a specific frame.
+
+This is how data is put into a 'state', and how it is retrieved:
+</mh3>
+
+<pre><code class="language-cpp">#define STATE_SIZE 112384
+
+char state[STATE_SIZE];
+
+game_vars_to_state(state) // put game variables into 'state'
+state_to_game_vars(state) // get game variables from 'state'
+
+void mwNetgame::game_vars_to_state(char * b)
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(mPlayer.syn);         memcpy(b+offset, mPlayer.syn,         sz);
+   offset += sz; sz = sizeof(mEnemy.Ei);           memcpy(b+offset, mEnemy.Ei,           sz);
+   offset += sz; sz = sizeof(mEnemy.Ef);           memcpy(b+offset, mEnemy.Ef,           sz);
+   offset += sz; sz = sizeof(mItem.item);          memcpy(b+offset, mItem.item,          sz);
+   offset += sz; sz = sizeof(mItem.itemf);         memcpy(b+offset, mItem.itemf,         sz);
+   offset += sz; sz = sizeof(mLift.cur);           memcpy(b+offset, mLift.cur,           sz);
+   offset += sz; sz = sizeof(mLevel.l);            memcpy(b+offset, mLevel.l,            sz);
+   offset += sz; sz = sizeof(mShot.p);             memcpy(b+offset, mShot.p,             sz);
+   offset += sz; sz = sizeof(mShot.e);             memcpy(b+offset, mShot.e,             sz);
+   offset += sz; sz = sizeof(mTriggerEvent.event); memcpy(b+offset, mTriggerEvent.event, sz);
+}
+
+void mwNetgame::state_to_game_vars(char * b)
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(mPlayer.syn);         memcpy(mPlayer.syn,         b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ei);           memcpy(mEnemy.Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ef);           memcpy(mEnemy.Ef,           b+offset, sz); offset += sz;
+   sz = sizeof(mItem.item);          memcpy(mItem.item,          b+offset, sz); offset += sz;
+   sz = sizeof(mItem.itemf);         memcpy(mItem.itemf,         b+offset, sz); offset += sz;
+   sz = sizeof(mLift.cur);           memcpy(mLift.cur,           b+offset, sz); offset += sz;
+   sz = sizeof(mLevel.l);            memcpy(mLevel.l,            b+offset, sz); offset += sz;
+   sz = sizeof(mShot.p);             memcpy(mShot.p,             b+offset, sz); offset += sz;
+   sz = sizeof(mShot.e);             memcpy(mShot.e,             b+offset, sz); offset += sz;
+   sz = sizeof(mTriggerEvent.event); memcpy(mTriggerEvent.event, b+offset, sz); offset += sz;
+}
+</code></pre>
+
+
+<a name="State variables"></a>
+<mh7>State variables</mh7>
+
+<mh3>
+<a href="netgame_state_history.html" target="_top">State History</a> keeps a history of states for both server and clients. 
+
+Clients also use 2 local states for building and decompressing difs
+</mh3>
+<pre><code class="language-cpp">#define STATE_SIZE 112384
+
+// local client's buffer for building compressed dif from packets
+char client_state_buffer[STATE_SIZE];
+int  client_state_buffer_pieces[16];   // to mark packet pieces as received
+
+// local client's uncompressed dif
+char client_state_dif[STATE_SIZE];
+int  client_state_dif_src;          // src frame_num
+int  client_state_dif_dst;          // dst frame_num</code></pre>
+
+<a name="State compression methods"></a>
+<mh7>State compression methods</mh7>
+
+
+
+<mh3>
+States are quite large, (over 100K) so two methods of compression are used before sending them over the network.
+
+I use the amazing compression library 'zlib' for this.
+
+zlib is: (from their own documentation at zlib.net)
+
+A Massively Spiffy Yet Delicately Unobtrusive Compression Library (Also Free, Not to Mention Unencumbered by Patents)
+
+zlib alone will compress the 100K to approximately 6-8K.
+
+Using a differential method before compressing with zlib results in approximately 500-1100 bytes.
+
+</mh3>
+<a name="The differential method"></a>
+<mh7>The differential method</mh7>
+
+<mh3>
+The differential method subtracts one state from another, resulting in a state that only contains differences between the the two.
+
+Whenever the two states have the same value, the dif will have a zero. Only changed values are non-zero.
+
+This results in a dif that is mostly zero's and compresses much better.
+
+Most of the time, the dif is less than 1K and can be sent in a single packet.
+
+This method requires that both the server and the client keep a common previous state that the dif can be applied to.
+</mh3>
+<pre><code class="language-cpp">void mwNetgame::get_state_dif(char *a, char *b, char *c, int size)
+{
+   for (int i=0; i < size; i++) c[i] = a[i] - b[i];
+}
+
+void mwNetgame::apply_state_dif(char *a, char *c, int size)
+{
+   for (int i=0; i < size; i++) a[i] -= c[i];
+}
+</code></pre>
+
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2024, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

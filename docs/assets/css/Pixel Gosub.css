@@ -1,0 +1,8 @@
+@font-face {
+	font-family: 'Pixel Gosub';
+	src: url(../../assets/fonts/Pixel%20Gosub-4920483040d29e0fdd51985c991f9ada.woff2) format('woff2'),
+	url(../../assets/fonts/Pixel%20Gosub-26e39b0dd2553859acdb97299ce43ceb.woff) format('woff');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}

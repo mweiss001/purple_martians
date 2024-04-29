@@ -1,0 +1,237 @@
+<!doctype html>
+<title>Netgame - Packet Buffer</title>
+
+<html>    <script  src="../assets/js/prism.js"></script>
+    <link href = "../assets/css/prism.css" rel="stylesheet" />
+    <link href = "../assets/css/mdw.css"      rel="stylesheet" type = "text/css" />
+<body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="../index.html"        target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="../download.html"     target="_top">Download</a></div>    
+<div style="text-align: center;"><a href="../multiplayer.html"  target="_top">Multiplayer</a></div>    
+<div style="text-align: center;"><a href="../about.html"        target="_top">About</a></div>    
+<div style="text-align: center;"><a href="../more.html"         target="_top">More</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
+
+</mdw_lhs_nav>
+
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Netgame - Packet Buffer</mh8>
+
+<mh3><hr><mdw_file_toc> <a href="netgame_packet_buffer.html#Overview" target="_top">Overview</a>
+ <a href="netgame_packet_buffer.html#Check for new packets" target="_top">Check for new packets</a>
+ <a href="netgame_packet_buffer.html#Where 'add_to_rx_buffer()' is called" target="_top">Where 'add_to_rx_buffer()' is called</a>
+ <a href="netgame_packet_buffer.html#Processing packets in the buffer" target="_top">Processing packets in the buffer</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
+<mh7>Overview</mh7>
+
+<mh3>
+Packet buffer was created to solve one problem; the old method I had for reading packets only checked for new packets once per frame.
+
+This worked fine for almost everything, but there were a few cases where I wanted to process packets faster than once every 25 ms.
+
+Thus packet buffer was born. It runs much faster (as fast as the OS will let it!) and marks each packet received with a timestamp.
+This gives a much finer time of arrival than just knowing what frame it was received on.
+With just frame numbers, the smallest time I could measure was 25ms, which is an eternity in computer and network time. 
+
+If packet buffer does not immediately process a packet, it stores it in a buffer with its timestamp.
+Then when the main game loop runs, the server or client will process all packets waiting in the buffer.
+
+</mh3>    
+
+
+<a name="Check for new packets"></a>
+<mh7>Check for new packets</mh7>
+<mh3>
+This function is called to check for new packets.
+
+Both the client and the server use it.
+</mh3>    
+    
+<pre><code class="language-cpp">void mwPacketBuffer::add_to_rx_buffer(void)
+{
+   if (is_data_waiting())
+   {
+      char data[1024] = {0};
+      int who = -1;
+      if (mNetgame.ima_server)
+         while(mNetgame.ServerReceive(data, &who))
+            add_to_rx_buffer_single(data, who);
+
+      if (mNetgame.ima_client)
+         while (mNetgame.ClientReceive(data))
+            add_to_rx_buffer_single(data, who);
+   }
+}
+
+int mwPacketBuffer::is_data_waiting(void)
+{
+   int data_waiting = 0;
+   if (mNetgame.ima_server)
+   {
+      for (int n=0; n < mNetgame.ClientNum; n++)
+         if ((mNetgame.ClientChannel[n]) && (net_query(mNetgame.ClientChannel[n]))) data_waiting = 1;
+   }
+   if (mNetgame.ima_client)
+   {
+      if (net_query(mNetgame.ServerChannel)) data_waiting = 1;
+   }
+   return data_waiting;
+}
+
+void mwPacketBuffer::add_to_rx_buffer_single(char *data, int who)
+{
+   // process these immediately and do not add to buffer
+   if (PacketRead(data, "ping"))
+   {
+      mNetgame.server_proc_ping_packet(data, who);
+      return;
+   }
+   if (PacketRead(data, "pang"))
+   {
+      mNetgame.server_proc_pang_packet(data, who);
+      return;
+   }
+   if (PacketRead(data, "pong"))
+   {
+      mNetgame.client_proc_pong_packet(data);
+      return;
+   }
+
+   int type = 0;
+   if (PacketRead(data, "cdat")) type = 1;
+   if (PacketRead(data, "stak")) type = 2;
+   if (PacketRead(data, "cjon")) type = 3;
+   if (PacketRead(data, "cjrc")) type = 4;
+   if (PacketRead(data, "rctl")) type = 5;
+   if (PacketRead(data, "stdf")) type = 11;
+   if (PacketRead(data, "sjon")) type = 12;
+   if (PacketRead(data, "sjrc")) type = 13;
+   if (PacketRead(data, "snfo")) type = 14;
+
+   if (type)
+   {
+      int indx = find_empty_rx_packet_buffer();
+      if (indx != -1)
+      {
+         rx_buf[indx].active = 1;
+         rx_buf[indx].type = type;
+         rx_buf[indx].timestamp = al_get_time();
+         rx_buf[indx].who = who;
+         memcpy(rx_buf[indx].data, data, 1024);
+      }
+   }
+}</code></pre>
+
+
+
+<a name="Where 'add_to_rx_buffer()' is called"></a>
+<mh7>Where 'add_to_rx_buffer()' is called</mh7>
+
+<mh3>
+I have experimented with calling it in separate thread, but ultimately decided not to go that way.
+
+It is called outside the game loop, so it is not constrained to running at 40 fps.
+
+I also call it multiple times at various places within the game_loop.
+
+This is done so that if the game_loop takes a significant amount of time to complete, I won't have to wait until game_loop is done to check for new packets.
+</mh3>    
+
+<pre><code class="language-cpp">void mwPacketBuffer::check_for_packets(void)
+{
+   if ((thread_type == 0) && ((mNetgame.ima_server) || (mNetgame.ima_client))) add_to_rx_buffer();
+}</code></pre>
+
+<a name="Processing packets in the buffer"></a>
+<mh7>Processing packets in the buffer</mh7>
+
+<mh3>
+Both the server and the client process all packets waiting in the buffer by calling 'proc_rx_buffer()' once per frame.
+</mh3>    
+
+<pre><code class="language-cpp">void mwPacketBuffer::proc_rx_buffer(void)
+{
+   for (int i=0; i < 200; i++)
+      if (rx_buf[i].active)
+      {
+         rx_buf[i].packetpos = 4;
+         if (mNetgame.ima_server)
+         {
+            if (rx_buf[i].type == 1) mNetgame.server_proc_cdat_packet(i);
+            if (rx_buf[i].type == 2) mNetgame.server_proc_stak_packet(i);
+            if (rx_buf[i].type == 3) mNetgame.server_proc_cjon_packet(i);
+            if (rx_buf[i].type == 4) mNetgame.server_proc_cjrc_packet(i);
+            if (rx_buf[i].type == 5) mNetgame.server_proc_rctl_packet(i);
+
+         }
+         if (mNetgame.ima_client)
+         {
+            if (rx_buf[i].type == 11) mNetgame.client_proc_stdf_packet(i);
+            if (rx_buf[i].type == 12) mNetgame.client_proc_sjon_packet(i);
+            if (rx_buf[i].type == 13) mNetgame.client_proc_sjrc_packet(i);
+            if (rx_buf[i].type == 14) mNetgame.client_proc_snfo_packet(i);
+         }
+         rx_buf[i].active = 0;
+      }
+}</code></pre>
+
+
+
+
+</mh3>    
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2024, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

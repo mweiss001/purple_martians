@@ -1,0 +1,336 @@
+<!doctype html>
+<title>Block Flags</title>
+
+<html>    <script  src="../assets/js/prism.js"></script>
+    <link href = "../assets/css/prism.css" rel="stylesheet" />
+    <link href = "../assets/css/mdw.css"      rel="stylesheet" type = "text/css" />
+<body>
+
+        <nav class="col-1">
+            
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="../index.html"        target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="../download.html"     target="_top">Download</a></div>    
+<div style="text-align: center;"><a href="../multiplayer.html"  target="_top">Multiplayer</a></div>    
+<div style="text-align: center;"><a href="../about.html"        target="_top">About</a></div>    
+<div style="text-align: center;"><a href="../more.html"         target="_top">More</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
+
+</mdw_lhs_nav>
+
+        </nav>
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Block Flags</mh8>
+<mh3><hr><mdw_file_toc> <a href="block_flags.html#Overview" target="_top">Overview</a>
+ <a href="block_flags.html#Original Method" target="_top">Original Method</a>
+ <a href="block_flags.html#New Method" target="_top">New Method</a>
+ <a href="block_flags.html#Flag Setup" target="_top">Flag Setup</a>
+ <a href="block_flags.html#Using Flags" target="_top">Using Flags</a>
+ <a href="block_flags.html#Default Block Flags" target="_top">Default Block Flags</a>
+ <a href="block_flags.html#Changing Block Flags" target="_top">Changing Block Flags</a>
+ <a href="block_flags.html#Block Sources in Level Editor" target="_top">Block Sources in Level Editor</a>
+ <a href="block_flags.html#Changing Default Flags (advanced)" target="_top">Changing Default Flags (advanced)</a>
+ <a href="block_flags.html#Block Tile Editor (advanced)" target="_top">Block Tile Editor (advanced)</a>
+ <a href="block_flags.html#Show Non-Default Blocks" target="_top">Show Non-Default Blocks</a>
+ <a href="block_flags.html#Conclusion" target="_top">Conclusion</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a><mh7>Overview</mh7>
+        
+
+<mh3>
+Each level is made up of a grid of 100 x 100 blocks stored in an array of integers.
+</mh3>    
+<pre><code class="language-cpp">int mLevel.l[100][100];</code></pre>
+<mh3>Each integer is an index to the tile that is drawn at that position on the level. (see <a href="tiles.html" target="_top">tiles</a>)
+
+</mh3>
+
+<a name="Original Method"></a><mh7>Original Method</mh7>
+<mh3>    
+The original method used the tile number to control the attributes of the block. 	
+	
+Different ranges had different properties:
+</mh3>
+<pre><code class="language-cpp">0  - 31  - empty
+32 - 63  - semi-solid (players and enemies can jump through from below)
+64 - 95  - bombable   (will be destroyed by bombs)
+96 - 127 - breakable  (will be destroyed by bullets)
+128+     - solid  
+</code></pre>
+<mh3>    
+</mh3>
+
+<a name="New Method"></a><mh7>New Method</mh7>
+
+<mh3>    
+The new method uses bit flags stored in the higher, unused bits of the integers.
+
+1024 possible tiles (0-1023) uses 9 bits which leaves 23 bits free to be used for various flags.
+
+</mh3>    
+<a name="Flag Setup"></a><mh7>Flag Setup</mh7>
+<mh3>    
+This is how the flags are setup:
+</mh3>
+
+<pre><code class="language-cpp">#define PM_BTILE_SOLID_PLAYER      0b00000000000000010000000000000000
+#define PM_BTILE_SOLID_ENEMY       0b00000000000000100000000000000000
+#define PM_BTILE_SOLID_ITEM        0b00000000000001000000000000000000
+#define PM_BTILE_SOLID_PBUL        0b00000000000010000000000000000000
+#define PM_BTILE_SOLID_EBUL        0b00000000000100000000000000000000
+#define PM_BTILE_SEMISOLID_PLAYER  0b00000000001000000000000000000000
+#define PM_BTILE_SEMISOLID_ENEMY   0b00000000010000000000000000000000
+#define PM_BTILE_SEMISOLID_ITEM    0b00000000100000000000000000000000
+#define PM_BTILE_BOMBABLE          0b00000001000000000000000000000000
+#define PM_BTILE_BREAKABLE_PBUL    0b00000010000000000000000000000000
+#define PM_BTILE_BREAKABLE_EBUL    0b00000100000000000000000000000000
+#define PM_BTILE_LADDER_MOVE       0b00001000000000000000000000000000
+#define PM_BTILE_ROPE_MOVE         0b00010000000000000000000000000000
+#define PM_BTILE_SECRET            0b00100000000000000000000000000000
+#define PM_BTILE_SHOW_SELECT_WIN   0b01000000000000000000000000000000
+#define PM_BTILE_MOST_FLAGS        0b00111111111111110000000000000000
+#define PM_BTILE_ALL_FLAGS         0b01111111111111110000000000000000
+#define PM_BTILE_ALL_SOLID         0b00000000000111110000000000000000
+#define PM_BTILE_ALL_SEMI          0b00000000111001110000000000000000
+</code></pre>
+
+<mh3>These flags are combined with the tile number and put into the level array l[100][100] to make a level.
+
+</mh3>
+<a name="Using Flags"></a><mh7>Using Flags</mh7>
+<mh3>    
+When drawing a tile, this is how I get just the tile number (the lowest 9 bits)
+</mh3>    
+<pre><code class="language-cpp">int tile_number = mLevel.l[x][y] & 1023;
+al_draw_bitmap(mBitmap.tile[tile_number], x*20, y*20, 0 );
+</code></pre>
+
+<mh3>
+To check a flag:     
+</mh3>    
+<pre><code class="language-cpp">if   (l[x][y] & PM_BTILE_SOLID_PLAYER)  // flag is set
+if (!(l[x][y] & PM_BTILE_SOLID_PLAYER)) // flag is clear
+</code></pre>
+
+
+<mh3>    
+To manipulate flags:
+</mh3>    
+<pre><code class="language-cpp">l[x][y] |=  PM_BTILE_SOLID_PLAYER; // set flag
+l[x][y] &= ~PM_BTILE_SOLID_PLAYER; // clear flag
+l[x][y] ^=  PM_BTILE_SOLID_PLAYER; // toggle flag
+</code></pre>
+
+<mh3>    
+</mh3>
+
+<a name="Default Block Flags"></a><mh7>Default Block Flags</mh7>
+
+<mh3>    
+There are a lot of possibilities here, but for now most blocks just have simple default flags.
+</mh3>    
+<pre><code class="language-cpp">// default empty blocks have no flags set
+
+// ladder blocks are empty except for
+l[x][y] |= PM_BTILE_LADDER_MOVE;
+
+// rope blocks are empty except for
+l[x][y] |= PM_BTILE_ROPE_MOVE;
+
+// default solid blocks
+l[x][y] |= PM_BTILE_SOLID_PLAYER;
+l[x][y] |= PM_BTILE_SOLID_ENEMY;
+l[x][y] |= PM_BTILE_SOLID_ITEM;
+l[x][y] |= PM_BTILE_SOLID_PBUL;
+l[x][y] |= PM_BTILE_SOLID_EBUL;
+
+// default semi-solid blocks
+l[x][y] |= PM_BTILE_SOLID_PLAYER;
+l[x][y] |= PM_BTILE_SOLID_ENEMY;
+l[x][y] |= PM_BTILE_SOLID_ITEM;
+l[x][y] |= PM_BTILE_SEMISOLID_PLAYER;
+l[x][y] |= PM_BTILE_SEMISOLID_ENEMY;
+l[x][y] |= PM_BTILE_SEMISOLID_ITEM;
+
+// default bombable blocks
+l[x][y] |= PM_BTILE_SOLID_PLAYER;
+l[x][y] |= PM_BTILE_SOLID_ENEMY;
+l[x][y] |= PM_BTILE_SOLID_ITEM;
+l[x][y] |= PM_BTILE_SOLID_PBUL;
+l[x][y] |= PM_BTILE_SOLID_EBUL;
+l[x][y] |= PM_BTILE_BOMBABLE;
+
+// default breakable blocks
+l[x][y] |= PM_BTILE_SOLID_PLAYER;
+l[x][y] |= PM_BTILE_SOLID_ENEMY;
+l[x][y] |= PM_BTILE_SOLID_ITEM;
+l[x][y] |= PM_BTILE_SOLID_PBUL;
+l[x][y] |= PM_BTILE_SOLID_EBUL;
+l[x][y] |= PM_BTILE_BREAKABLE_PBUL;
+l[x][y] |= PM_BTILE_BREAKABLE_EBUL;</code></pre>
+
+<a name="Changing Block Flags"></a><mh7>Changing Block Flags</mh7>
+
+<mh3>    
+In the level editor, the block flags can be changed from their default values.
+
+To toggle the block flag overlay, right click on the status window and choose 'Show Block Flags'.
+
+When on, you will see the flags for the pointer item, draw item, and selection window block items.
+
+<img src="../assets/img/flags.png" alt="flags" width="664" height="391">
+
+The only flags that can be modified are the draw item flags.
+
+Click on the rectangles to toggle the flags.
+
+Then when you put the draw item somewhere in the level, it will have those flags.
+
+To modify a tile already placed in the level:
+- click the tile with the right mouse button (b2) to copy it to the draw item
+- modify the draw item flags
+- place the draw item back in the level with the left mouse button (b1)
+
+</mh3>    
+
+<a name="Block Sources in Level Editor"></a><mh7>Block Sources in Level Editor</mh7>
+
+<mh3>    
+In the level editor, you can get a block into the draw item from one of two places.
+
+You can copy an existing block from anywhere in the level.
+
+Or you can get it from "Block Selection" area in the "Selection Window".
+
+<img src="../assets/img/block_selection.png" alt="block_selection" width="663" height="943">
+
+</mh3>    
+
+<a name="Changing Default Flags (advanced)"></a><mh7>Changing Default Flags (advanced)</mh7>
+
+
+<mh3>    
+In level editor choose "Default Flag Editor" from the menu.
+
+<img src="../assets/img/default_block_flag_editor.png" alt="default_block_flag_editor" width="894" height="702">
+
+Here you can see a 32x32 grid of all the block tiles, and you can change the default flags for any of them.
+
+Notice the bottom flag "SELECT_WIN_SHOW"
+This is used to determine which blocks populate the Selection Window in the level editor.
+
+When you are done, click "Save Changes"
+
+The default flags are stored in an array (int sa[1024][2]) and are saved to disk.
+
+They are only used by level editor to populate the Selection Window.
+
+</mh3>    
+
+<a name="Block Tile Editor (advanced)"></a><mh7>Block Tile Editor (advanced)</mh7>
+
+<mh3>    
+You can manually work with block tiles with an external editor like GIMP.
+They are in a 32x32 grid of 20x20 pixel tiles in the file 'block_tiles.bmp'
+
+There is also a simple block tile editor built into the level editor to copy and move tiles.
+
+In level editor choose "Block Tile Editor" from the menu.
+
+<img src="../assets/img/block_tile_editor.png" alt="block_tile_editor" width="1181" height="671">
+
+On the left is the 32x32 grid of all the block tiles.
+
+On the right is a second grid that you can load from any bmp file.
+
+You can copy a tile from either grid with mouse b2.
+
+You can paste a tile into the main grid with mouse b1.
+
+Click "Save Changes" to commit your edits.
+
+Warning! If you move tiles around, existing levels will not work!
+
+</mh3>    
+
+
+<a name="Show Non-Default Block"></a><mh7>Show Non-Default Blocks</mh7>
+
+<mh3>    
+In the level editor, you can see the flags for any block by putting the mouse on that block.
+
+For the great majority of the time though, the flags will be identical to the default flags.
+You can turn off the flag display to get a less cluttered view.
+To toggle the block flag overlay, right click on the status window and choose 'Hide|Show Block Flags'.
+
+When you are working with modified flags, there is another handy feature called: "Show Non-Default Blocks"
+To toggle the Non-Default Blocks overlay, right click on the status window and choose 'Hide|Show Non-Default Blocks'.
+When enabled, any blocks that do not have the default flags are marked to make them easier to find and work with.
+
+<img src="../assets/img/sndb.png" alt="show non default block flags" width="664" height="690">
+
+This example shows normally solid blocks that have been marked not solid for players only.
+
+</mh3>    
+
+
+<a name="Conclusion"></a><mh7>Conclusion</mh7>
+<mh3>    
+There are so many possibilities that this opens up.
+
+- blocks that players can pass through that enemies cannot.
+- blocks that players bullets cannot pass through but enemies bullets can.
+- blocks that can be destroyed by bullets, or bombs.
+- blocks that can act like rope or ladders.
+
+There are so many possible combinations!
+
+</mh3>    
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2024, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

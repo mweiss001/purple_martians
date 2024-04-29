@@ -15,14 +15,14 @@
     <link rel="stylesheet" href="assets/css/prism.css">
 </head>
 
-<body style="background: var(--bs-black);">
+<body style="background: black;">
     <div class="container" style="color: rgb(41,33,33);background: var(--bs-black);">
         <nav class="navbar navbar-expand bg-black py-3" style="background: var(--bs-black);">
             <div class="container">
                 <ul class="navbar-nav mx-auto" style="background: var(--bs-black);color: var(--bs-navbar-active-color);">
-                    <li class="nav-item"><a class="nav-link active mw_link_active" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active mw_link_inactive" href="index.html">Home</a></li>
                     <li class="nav-item"><a class="nav-link mw_link_inactive" href="download.html">Download</a></li>
-                    <li class="nav-item"><a class="nav-link mw_link_inactive" href="multiplayer.html">Multiplayer</a></li>
+                    <li class="nav-item"><a class="nav-link mw_link_active" href="multiplayer.html">Multiplayer</a></li>
                     <li class="nav-item"><a class="nav-link mw_link_inactive" href="about.html">About</a></li>
                     <li class="nav-item"><a class="nav-link mw_link_inactive" href="more.html">More</a></li>
                 </ul>
@@ -35,28 +35,45 @@
             <p id="pm_banner_byline" style="text-align: center;font-family: saucer_bbregular;color: #191fb7;">by Michael David Weiss</p>
         </div>
     </div>
-    <div class="container d-sm-flex d-md-flex d-lg-flex justify-content-sm-center align-items-sm-start justify-content-md-start align-items-md-start" style="padding-top: 16px;">
+    <div class="container d-lg-flex justify-content-lg-start align-items-lg-start" style="margin-top: 16px;">
         <div class="row d-flex flex-row flex-grow-1 align-items-stretch">
             <div class="col">
-                <div class="card mw_card mw_card_color_grey1">
-                    <div class="card-header">
-                        <h5 class="mb-0">Description</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">A free 2D platform style video game, with a mix of puzzle solving and shooting.</p>
-                    </div>
-                </div>
                 <div class="card mw_card mw_card_color_blue1">
                     <div class="card-header">
-                        <h5 class="mb-0">Key Features</h5>
+                        <h5 class="mb-0">Multiplayer Overview</h5>
                     </div>
                     <div class="card-body">
-                        <p class="card-text">- Single player or multiplayer with up to 8 players<br><br>- Over 70 fun and challenging levels<br><br>- Fully featured level editor to create new levels<br><br>- Completely free<br><br>- Made entirely with free software<br><br>- Works identically in linux and windows</p>
+                        <p style="margin-bottom: 0px;">Up to 8 players can play together.<br><br>Players can cooperate, or compete.<br><br>There is one server and up to 7 clients can join.<br><br>Clients need the server's IP or hostname.</p>
+                    </div>
+                </div>
+                <div class="card mw_card mw_card_color_purple1">
+                    <div class="card-header">
+                        <h5 class="mb-0">Official Purple Martians Server</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text" style="margin-bottom: 4px;">The official Purple Martians server is:</p>
+                        <p class="card-text" style="font-size: 30px;">purplemartians.org</p>
+                    </div>
+                </div>
+                <div class="card mw_card mw_card_color_grey1">
+                    <div class="card-header">
+                        <h5 class="mb-0">Host your own server in a LAN</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Pick one computer to be the server and determine its local IP address.<br><br>On the clients, set the server IP to that IP.</p>
+                    </div>
+                </div>
+                <div class="card mw_card mw_card_color_green1">
+                    <div class="card-header">
+                        <h5 class="mb-0">Host your own server over the internet</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Determine your external IP address.<br><br>On your router, set up a port forwarding rule to allow incoming UDP traffic on port 24785 to be forwarded to your server's local IP address.<br><br>On the remote clients, set the server IP to the external IP address.&nbsp;</p>
                     </div>
                 </div>
             </div>
-            <div class="col-auto col-xl-6 d-flex flex-column flex-grow-1">
-                <div class="card float-none" style="border-radius: 17px;border-width: 5px;border-color: rgb(104,91,154);min-width: 300px;max-width: none;margin: 8px;"><iframe allowfullscreen="" frameborder="0" src="https://www.youtube.com/embed/G4-NbqeFa3c" class="mw_card_iframe" width="100%" height="auto" style="border-radius: 14px;"></iframe></div>
+            <div class="col-auto col-xxl-7 d-flex flex-column flex-grow-1" style="border-style: none;">
+                <div class="card float-none" style="border-radius: 17px;border-width: 5px;border-color: rgb(104,91,154);min-width: 300px;max-width: none;margin: 8px;"><iframe allowfullscreen="" frameborder="0" src="https://www.youtube.com/embed/jUkTy3F70I8" class="mw_card_iframe" width="100%" height="auto" style="border-radius: 14px;"></iframe></div>
             </div>
         </div>
     </div>

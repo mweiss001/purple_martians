@@ -1,0 +1,8 @@
+@font-face {
+	font-family: 'Pristine';
+	src: url(../../assets/fonts/Pristine-5e74ab1db57ac800415e35ad5cc180e5.woff2) format('woff2'),
+	url(../../assets/fonts/Pristine-c185307dd6e12fc133dc3f4248bbc1ad.woff) format('woff');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}

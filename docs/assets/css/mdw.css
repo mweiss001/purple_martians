@@ -1,0 +1,155 @@
+/* mdw.css */
+
+        * {
+            box-sizing: border-box; 
+        }
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: row;
+            margin: 0;
+        }
+        .col-1 {
+            min-width: 180px;
+            background: #D7E8D4;
+        }
+        .col-2 {
+            min-width: 480px;
+            display: flex;
+            flex-direction: column;
+            flex: 5;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .content > article {
+            flex: 4;
+            min-height: 60vh;
+        }
+
+
+        header{
+            background: #d4e6f0;
+            height: 200px; 
+            white-space:nowrap;
+            
+        }
+        footer {
+            background: #d4e6f0;
+            height: 200px; 
+            white-space:nowrap;
+        }
+        header, footer, article, nav {
+            padding: 1em;
+        }
+
+
+
+
+        @font-face {
+            font-family: "Source";
+            src: url("../fonts/SourceCodePro-Regular.ttf");
+        }
+
+
+
+        @font-face {
+            font-family: "Saucer";
+            src: url("../fonts/SaucerBB.ttf");
+        }
+
+        mh10 {
+            font-family: Saucer;
+            font-size: 300%;
+            color:#191fb7;
+        }
+        mh11 {
+            font-family: Saucer;
+            font-size: 600%;
+            color:#7600ff;
+        }
+        mh12 {
+            font-size: 150%;
+        }
+
+
+
+        mh3 {
+            font-size: 120%;
+            white-space: pre-wrap; 
+        }
+		
+
+        mh4 {
+            font-family: Source;
+            font-size: 120%;
+            font-weight: bold;
+            white-space: pre-wrap; 
+        }
+
+	
+		
+		
+        mh5 {
+            font-family: Source;
+            color: #017b55;
+            font-size: 130%;
+            font-weight: bold;
+            white-space: pre-wrap; 
+            padding-bottom: .5em;
+        }
+
+		
+
+        mh7 {
+            font-size: 150%;
+            font-weight: bold;
+            color: #09146c;
+            background: #d4e6f0;
+            padding-bottom: .3em;
+            padding-top: .3em;
+            padding-left: .3em;
+            
+        }
+
+        mh8 {
+            font-size: 300%;
+            font-weight: bold;
+            color: black;
+            padding-bottom: .3em;
+            padding-top: .3em;
+            padding-left: .3em;
+            
+        }
+
+
+        me1 {
+            padding-top: .1em;
+            padding-bottom: .1em;
+            white-space: pre-wrap; 
+            width: 30%; 
+
+            font-size: 130%;
+            background: #f2d4a4;
+        }
+
+
+        pk0 {
+            font-family: Source;
+            white-space: pre-wrap; 
+            font-size: 100%;
+            background: #fdc5c5;
+        }
+        pk1 {
+            font-family: Source;
+            white-space: pre-wrap; 
+            font-size: 80%;
+            background: #ffe3e3;
+        }
+
+        
+
+

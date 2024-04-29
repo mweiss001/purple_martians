@@ -1,0 +1,8 @@
+@font-face {
+	font-family: 'A Charming Font';
+	src: url(../../assets/fonts/A%20Charming%20Font-4df1dab3cee22c8b76ee234f5f4c0dce.woff2) format('woff2'),
+	url(../../assets/fonts/A%20Charming%20Font-5b0ce018f6a1d462aef381b3e0b90839.woff) format('woff');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}

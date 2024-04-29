@@ -1,0 +1,356 @@
+<!doctype html>
+<title>Project Organization</title>
+
+<html>    <script  src="../assets/js/prism.js"></script>
+    <link href = "../assets/css/prism.css" rel="stylesheet" />
+    <link href = "../assets/css/mdw.css"      rel="stylesheet" type = "text/css" />
+<body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="../index.html"        target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="../download.html"     target="_top">Download</a></div>    
+<div style="text-align: center;"><a href="../multiplayer.html"  target="_top">Multiplayer</a></div>    
+<div style="text-align: center;"><a href="../about.html"        target="_top">About</a></div>    
+<div style="text-align: center;"><a href="../more.html"         target="_top">More</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
+
+</mdw_lhs_nav>
+            
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+<mh3><hr></mh3>
+<mh8>Project Organization</mh8>
+<mh3><hr><mdw_file_toc> <a href="project_organization.html#Software and Libraries" target="_top">Software and Libraries</a>
+ <a href="project_organization.html#Allegro" target="_top">Allegro</a>
+ <a href="project_organization.html#MinGW-w64" target="_top">MinGW-w64</a>
+ <a href="project_organization.html#Code::Blocks" target="_top">Code::Blocks</a>
+ <a href="project_organization.html#libnet" target="_top">libnet</a>
+ <a href="project_organization.html#zlib" target="_top">zlib</a>
+ <a href="project_organization.html#Source files" target="_top">Source files</a>
+ <a href="project_organization.html#Class Naming Conventions" target="_top">Class Naming Conventions</a>
+ <a href="project_organization.html#Main" target="_top">Main</a>
+ <a href="project_organization.html#Game Objects" target="_top">Game Objects</a>
+</mdw_file_toc><hr></mh3>
+
+
+
+
+<a name="Software and Libraries"></a>
+<mh7>Software and Libraries</mh7>
+<mh3>
+Purple Martians is written in C++ and is complied with gcc, the gnu C compiler.
+
+It uses the Allegro game library for display creation, drawing, input, sound, etc...
+
+Because Allegro is a cross platform library, I use the exact same source code to generate the windows and linux versions.
+
+On windows, I use MinGW-w64 port of gcc.
+
+I use Code::Blocks as my IDE, it has windows and linux versions, and the same project file works for both.
+
+All software used is free and open source.
+
+</mh3>
+
+
+<a name="Allegro"></a>
+<mh7>Allegro</mh7>
+<mh4>
+<a href="https://liballeg.org" target="_top">Allegro</a> - A Game Programming Library</mh4>
+<mh3>
+Allegro is a cross-platform library mainly aimed at video game and multimedia programming. It handles common, low-level tasks such as creating windows, accepting user input, loading data, drawing images, playing sounds, etc. and generally abstracting away the underlying platform. However, Allegro is not a game engine: you are free to design and structure your program as you like.
+
+</mh3>
+
+
+<a name="MinGW-w64"></a>
+<mh7>MinGW-w64</mh7>
+<mh4>
+<a href="https://www.mingw-w64.org" target="_top">MinGW-w64</a> - A complete runtime environment for GCC & LLVM for 32 and 64 bit Windows</mh4>
+
+<mh3>
+Mingw-w64 is an advancement of the original mingw.org project, created to support the GCC compiler on Windows systems. It has forked it in 2007 in order to provide support for 64 bits and new APIs. It has since then gained widespread use and distribution.
+
+</mh3>
+
+<a name="Code::Blocks"></a>
+<mh7>Code::Blocks</mh7>
+<mh4>
+<a href="https://www.codeblocks.org/" target="_top">Code::Blocks</a> - The free C/C++ and Fortran IDE.</mh4>
+
+<mh3>
+Code::Blocks is a free C/C++ and Fortran IDE built to meet the most demanding needs of its users. It is designed to be very extensible and fully configurable.
+
+</mh3>
+
+
+
+<a name="libnet"></a>
+<mh7>libnet</mh7>
+<mh4>
+<a href="https://libnet.sourceforge.net/libnet.html" target="_top">libnet 0.10.2</a> - A generic interface to a variety of network drivers.</mh4>
+<mh3>
+</mh3>
+
+
+
+<a name="zlib"></a>
+<mh7>zlib</mh7>
+<mh4>
+<a href="https://www.zlib.net/" target="_top">zlib</a> - A Massively Spiffy Yet Delicately Unobtrusive Compression Library</mh4>
+
+<mh3>
+</mh3>
+
+
+
+
+
+
+
+
+
+
+<a name="Source files"></a>
+<mh7>Source files</mh7>
+<mh3>
+All the source and header files are in the 'src' directory and all compile and link to a single executable.
+
+'pm.exe' for windows
+
+'pm' for linux 
+
+</mh3>
+
+
+
+
+<a name="Class Naming Conventions"></a>
+<mh7>Class Naming Conventions</mh7>
+<mh3>
+Classes are declared and defined in a pair of .cpp and .h files with the same name as the class.
+
+Then an instance is defined and externally declared.
+
+
+For example, class name: 'mwFont'
+
+
+Declared in 'mwFont.h'
+</mh3>
+
+<pre><code class="language-cpp">// mwFont.h
+class mwFont
+{
+   public:
+   void load_fonts(void);
+   ALLEGRO_FONT *pixl;
+};
+extern mwFont mFont;</code></pre>           
+
+
+
+<mh3>
+Implemented in 'mwFont.cpp'
+</mh3>
+<pre><code class="language-cpp">// mwFont.cpp
+#include "mwFont.h"
+mwFont mFont;
+void mwFont::load_fonts(void)
+{
+   al_destroy_font(pixl);
+   pixl = al_load_ttf_font("bitmaps/PixelGosub.otf", 7, ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_KERNING);
+   if (!pixl) mInput.m_err("Failed to load font from bitmaps/PixelGosub.otf");
+   .....
+}</code></pre>           
+
+
+<mh3>
+An instance 'mFont' is defined in 'mwFont.cpp' and externally declared in 'mwFont.h'
+
+Then any source file that uses mwFont just needs to include:
+</mh3>
+<pre><code class="language-cpp">#include "mwFont.h"</code></pre>           
+<mh3>
+And then it refers to the object members like:
+</mh3>
+<pre><code class="language-cpp">mFont.load_fonts()
+mFont.pixl</code></pre>           
+
+
+<a name="Main"></a>
+<mh7>Main</mh7>
+<mh3>
+The function 'main' is found in the file: 'main.cpp'.
+</mh3>
+<pre><code class="language-cpp">int main(int argument_count, char **argument_array)
+{
+   mMain.pm_main(argument_count, argument_array);
+}</code></pre>           
+
+<mh3>
+It just directly calls 'mMain.pm_main'
+
+</mh3>
+
+<pre><code class="language-cpp">int mwMain::pm_main(int argument_count, char **argument_array)
+{
+   proc_command_line_args1(argument_count, argument_array); // these args get processed before initial setup is called
+   if (initial_setup())
+   {
+      proc_command_line_args2(argument_count, argument_array); // these args get processed after initial setup is called
+      if (mLoop.state[0] == 0) // nothing set by command line args
+      {
+         mLoop.state[1] = mLoop.state[0] = 1; // set up for menu
+      }
+      mLoop.main_loop();
+   }
+   if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
+   mConfig.save();
+   final_wrapup();
+   exit(0);
+}</code></pre>           
+
+
+<a name="Game Objects"></a>
+<mh7>Game Objects</mh7>
+<mh3>
+There are 5 categories of game objects:
+
+
+</mh3><mh4>Players</mh4><mh3>
+class: mwPlayer
+instance: mPlayer
+
+files:
+mwPlayer.h
+mwPlayer.cpp
+
+There are data structures for 8 players. 
+The class contains two arrays of structures for each player. One local and one synced in netgame.
+struct psyn syn[NUM_PLAYERS];
+struct ploc loc[NUM_PLAYERS];
+
+</mh3><mh4>Enemies</mh4><mh3>
+class: mwEnemy
+instance: mEnemy
+
+files:
+mwEnemy.h
+mwEnemy.cpp
+mwEnemyArchwagon.cpp
+mwEnemyCannon.cpp
+mwEnemyCloner.cpp
+mwEnemyEditorFnx.cpp
+mwEnemyFlapper.cpp
+mwEnemyFnx.cpp
+mwEnemyJumpworm.cpp
+mwEnemyTrakbot.cpp
+mwEnemyVinePod.cpp
+
+There are data structures for 100 enemies. 
+Each enemy has an array of 32 integers and 16 floats
+int Ei[100][32];        // enemy ints
+float Ef[100][16];      // enemy floats
+
+</mh3><mh4>Items</mh4><mh3>
+class: mwItem
+instance: mItem
+
+files:
+mwItem.h
+mwItemBombRocket.cpp
+mwItemDoor.cpp
+mwItemEditorFnx.cpp
+mwItemKeySwitch.cpp
+mwItemMessage.cpp
+mwItemStartExitGate.cpp
+mwItemTrigger.cpp
+
+There are data structures for 500 items. 
+Each item has an array of 16 integers and 4 floats
+int item[500][16];    // item ints
+float itemf[500][4];  // item floats
+
+</mh3><mh4>Shots</mh4><mh3>
+class: mwShot
+instance: mShot
+
+files:
+mwShot.h
+mwShot.cpp
+
+There are data structures for 50 player shots and 50 enemy shots
+struct eshot e[50];
+struct pshot p[50];
+
+</mh3><mh4>Lifts</mh4><mh3>
+class: mwLift
+instance: mLift
+
+files:
+mwLift.h
+mwLift.cpp
+
+There are data structures for 40 lifts, each containing 40 lift steps
+struct lift       cur[NUM_LIFTS];
+struct lift_step  stp[NUM_LIFTS][40];
+
+
+</mh3>
+
+
+
+
+
+
+
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2024, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

@@ -1,0 +1,1775 @@
+
+
+I am going to buy bootstrap studio for USD$29  CAN$41
+
+
+Make a new blank project.
+
+add font saucerBB
+
+
+Add container, then 2 headings
+Purple Martians
+center, color #6500ec
+
+
+by Michael David Weiss
+center, color #191fb7
+
+
+
+I want to make the entire page width have min and max
+
+but then the elements do not size nicely beacuse they are based on the viewport size..
+
+I want them to scale based on the container size..
+
+
+
+
+min(max(30px, 8vw), 70px)
+
+
+min(max(30px, 8vw), 70px)
+
+min(7vw, 100px)
+
+
+Or if not those terms exactly, then at least the next best thing. In 2020 this is now very straightforward using the CSS math functions: min(), max(), and clamp().
+
+A min calculation picks the smallest from a comma separated list of values (of any length). This can be used to define a max-padding or max-margin rule:
+
+padding-right: min(50px, 5%);
+A max calculation similarly picks the largest from a comma separated list of values (of any length). This can be used to define a min-padding or min-margin rule:
+
+padding-right: max(15px, 5%);
+A clamp takes three values; the minimum, preferred, and maximum values, in that order.
+
+padding-right: clamp(15px, 5%, 50px);
+MDN specifies that clamp is actually just shorthand for:
+
+max(MINIMUM, min(PREFERRED, MAXIMUM))
+Here is a clamp being used to contain a 25vw margin between the values 100px and 200px:
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  width: 100vw;
+  border: 2px dashed red;
+}
+
+.margin {
+  width: auto;
+  min-width: min-content;
+  background-color: lightblue;
+  padding: 10px;
+  margin-right: clamp(100px, 25vw, 200px);
+
+
+
+
+
+
+--------------------
+
+I finally have the purple martian header doing what I want....
+
+body and container are defaults
+
+heading
+Purple Martians
+center, color #6500ec
+margin-bottom: clamp(-40px, -1.6vw, -8px)
+font-size: min(7vw, 120px)
+
+heading
+by Michael David Weiss
+center, color #191fb7
+font-size: min(3vw, 51px)
+
+
+120/7 = 17.14 * 3 = 51.4
+
+yay!! time to move on
+
+
+
+icon??
+
+
+
+min(7vw, 120px)
+change to clamp:
+clamp(30px, 7vw, 120px)
+
+
+min(3vw, 51px)
+change to clamp:
+clamp(12px, 3vw, 50px)
+
+
+
+clamp(32px, 3vw, 48px)
+
+
+
+48px
+
+
+omg move on!!!!!
+
+
+make some nice tiles now
+
+
+
+
+
+
+
+
+
+create style.css
+
+
+I am not sure what I want to do here:
+
+
+make some custom css for specific id's??
+
+.container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+  --bs-gutter-x: 1.5rem;
+  --bs-gutter-y: 0;
+  width: 100%;
+  padding-right: calc(var(--bs-gutter-x) * .5);
+  padding-left: calc(var(--bs-gutter-x) * .5);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+
+find a specific p tag
+
+add id in html inspector mdw_divid1
+
+
+
+
+now make one for the paragraph:
+
+mdw_par_id1
+
+make a selector
+
+with that id and one of these
+
+mdw_par_id1.container-sm {
+
+
+}
+
+
+.container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+  --bs-gutter-x: 1.5rem;
+  --bs-gutter-y: 0;
+  width: 100%;
+  padding-right: calc(var(--bs-gutter-x) * .5);
+  padding-left: calc(var(--bs-gutter-x) * .5);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+
+
+
+
+
+
+// Example: Hide starting at `min-width: 0`, and then show at the `sm` breakpoint
+.custom-class {
+  display: none;
+}
+@include media-breakpoint-up(sm) {
+  .custom-class {
+    display: block;
+  }
+}
+
+
+
+media-breakpoint-only(sm) 
+
+
+
+The way to do this is to style the th element as you would have it on the large screen and then set the media query to apply a different style for smaller screens.
+
+th{
+  font-size: large-font-size;
+}
+
+
+Then now write the different styles to be applied on smaller screens.
+
+@media screen and (max-width: 700px) {
+    font-size: smaller-font-size;
+  } 
+
+
+
+I really dont have this figured out yet...
+
+
+I'm going to make my own css file....with blackjack and hookers...lol
+
+
+
+ /* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {...}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {...}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {...}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {...}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {...} 
+
+
+
+min-width will match the size and higher...
+
+max-width will match the size and less
+
+
+
+
+so what do I want to do?
+
+
+make a simpler p item
+
+id=partst
+
+fisrt one sets size = 20 bt default
+
+then if masize > 300, 30
+
+
+
+/*  less than 300 */
+@media (min-width: 300px) {
+  #partst {
+    font-size: 10px;
+  }
+}
+
+/*  more than 300 */
+@media (max-width: 301px) {
+  #partst {
+    font-size: 20px;
+  }
+}
+
+
+
+the goddamn style thing in studio is wonky...do it by hand
+
+
+
+@media (min-width: 400px) (max_width: 599px  {
+   #partst {
+      font-size: 10px;
+   }
+}
+
+@media (min-width: 600px) (max_width: 699px  {
+   #partst {
+      font-size: 20px;
+   }
+}
+
+@media (min-width: 700px) (max_width: 799px  {
+   #partst {
+      font-size: 30px;
+   }
+}
+
+
+
+The following media queries are equivalent:
+css
+
+@media (min-width: 30em) and (max-width: 50em) {
+  /* … */
+}
+
+@media (30em <= width <= 50em) {
+  /* … */
+
+
+
+
+
+
+
+
+
+
+
+this works!!!
+@media (800px <= width <= 1000px) {
+
+this does not:
+@media (min-width: 800px) and (max-width: 899) {
+
+   
+what are the built in bs breakpoints?
+
+
+
+:root {
+  --bs-breakpoint-xs: 0;
+  --bs-breakpoint-sm: 576px;
+  --bs-breakpoint-md: 768px;
+  --bs-breakpoint-lg: 992px;
+  --bs-breakpoint-xl: 1200px;
+  --bs-breakpoint-xxl: 1400px;
+}
+
+
+lets try this:
+
+#partst {
+@media (0px <= width <= 576) { font-size: 10px }
+@media (577 <= width <= 768) { font-size: 10px }
+
+}
+
+
+@media (width <= 576px) { 
+   #partst { font-size: 30px; }
+}
+@media (576px < width <= 768px) {
+   #partst {  font-size: 26px;  }
+}
+@media (768px < width <= 992px) {
+   #partst {  font-size: 22px;  }
+}
+@media (992px < width <= 1200px) {
+   #partst {  font-size: 18px;   }
+}
+@media (1200px < width <= 1400px) {
+   #partst {   font-size: 14px;   }
+}
+@media (width > 1400px) {
+   #partst {  font-size: 12px;    }
+}
+
+
+@media (width <= 576px) { 
+   #pm_banner_title   { font-size: 3em; }
+   #pm_banner_byline  { font-size: 2em; }
+}
+@media (576px < width <= 768px) {
+   #pm_banner_title   { font-size: 30px; }
+   #pm_banner_byline  { font-size: 30px; }
+}
+@media (768px < width <= 992px) {
+   #pm_banner_title   { font-size: 30px; }
+   #pm_banner_byline  { font-size: 30px; }
+}
+@media (992px < width <= 1200px) {
+   #pm_banner_title   { font-size: 30px; }
+   #pm_banner_byline  { font-size: 30px; }
+}
+@media (1200px < width <= 1400px) {
+   #pm_banner_title   { font-size: 30px; }
+   #pm_banner_byline  { font-size: 30px; }
+}
+@media (width > 1400px) {
+   #pm_banner_title   { font-size: 30px; }
+   #pm_banner_byline  { font-size: 30px; }
+}
+
+
+
+
+
+
+@media (width <= 576px) { 
+   #pm_banner_title   { font-size: 30px; margin-bottom: -23px; }
+   #pm_banner_byline  { font-size: 16px; margin-bottom: 7px; }
+}
+@media (576px < width <= 768px) {
+   #pm_banner_title   { font-size: 48px; margin-bottom: -23px; }
+   #pm_banner_byline  { font-size: 26px; margin-bottom:   7px; }
+}
+@media (768px < width <= 992px) {
+   #pm_banner_title   { font-size: 66px; margin-bottom: -23px; }
+   #pm_banner_byline  { font-size: 34px; margin-bottom: -23px; }
+}
+@media (992px < width <= 1200px) {
+   #pm_banner_title   { font-size: 88px; margin-bottom: -23px; }
+   #pm_banner_byline  { font-size: 46px; margin-bottom: -23px; }
+}
+@media (1200px < width <= 1400px) {
+   #pm_banner_title   { font-size: 104px; margin-bottom: -23px; }
+   #pm_banner_byline  { font-size: 56px; margin-bottom: -23px; }
+}
+@media (width > 1400px) {
+   #pm_banner_title   { font-size: 122px; margin-bottom: -23px; }
+   #pm_banner_byline  { font-size: 64px; margin-bottom: -23px; }
+}
+
+
+
+
+@media (width <= 576px) { 
+   #pm_banner_title   { font-size: 30px; margin-bottom: -14px; }
+   #pm_banner_byline  { font-size: 16px; margin-bottom:   4px; }
+}
+@media (576px < width <= 768px) {
+   #pm_banner_title   { font-size: 48px; margin-bottom: -23px; }
+   #pm_banner_byline  { font-size: 26px; margin-bottom:   7px; }
+}
+@media (768px < width <= 992px) {
+   #pm_banner_title   { font-size: 66px; margin-bottom: -26px; }
+   #pm_banner_byline  { font-size: 34px; margin-bottom:   9px; }
+}
+@media (992px < width <= 1200px) {
+   #pm_banner_title   { font-size: 88px; margin-bottom: -40px; }
+   #pm_banner_byline  { font-size: 46px; margin-bottom:  10px; }
+}
+@media (1200px < width <= 1400px) {
+   #pm_banner_title   { font-size: 104px; margin-bottom: -56px; }
+   #pm_banner_byline  { font-size: 56px;  margin-bottom:  20px; }
+}
+@media (width > 1400px) {
+   #pm_banner_title   { font-size: 122px; margin-bottom: -64px; }
+   #pm_banner_byline  { font-size: 64px;  margin-bottom:  24px; }
+}
+
+
+https://www.youtube.com/embed/G4-NbqeFa3c
+
+in video settings:
+
+width: 100%
+height: auto
+
+had to make custom css to apply:
+apsect-ratio: 16/9
+
+
+
+
+I think I have the youtube frame how I like it:
+
+I will need to figure out how to arrange these tiles nicely, probably with some @media queries....
+
+but next I want to work on the nav bar 
+
+
+can I make a highlight based on what page it is on?
+found the css link.active and copied it to styles.css then added border...
+
+
+now I want to make the download page...
+
+start by copying everythimg from index
+
+the css link active thing did not work
+
+make a class 'mw_link_active' and add it to the local link on the page your are on
+
+.mw_link_active {
+  outline: 1px, solid #6500ec;
+  border-radius: 4px;
+}
+
+this worked....
+
+
+
+I now have the download page blocked in...
+
+
+Did the framework for the about page
+
+Before I go much further, I want to figure out some resposive panel aligning....
+
+
+nav bar and header do not need to change, I just want to align panels in the content section
+
+I have a container there, that I hope to adjust
+
+I should give it a very specific id and make a class for that....
+
+id = "mw_home_content_container"
+
+
+then a css sheet with
+
+mw_home_content_container.css
+
+narrow: single column
+
+
+I think I want to create some rows and columns in that container
+
+
+
+create unique id's for the panels
+then put them in rows and columns with css
+
+
+I don't think bootstrap or studio will help me out here at all.
+
+
+I need to manually make my own css stuff...
+
+
+
+I might have a simpler solution:
+
+
+container
+  row
+    col1
+    col2
+    
+That out of the box seems to work nice!
+
+
+col1 is the size of my panels
+
+
+I want col2 to expand to take up the remaining space for the video
+
+
+did that for index, now do again for download...
+
+
+
+row:
+
+row options:
+Gutters
+-------
+Align columns (Y): stretch
+
+responsive display
+------------------
+display: flex
+
+flexbox
+-------
+flex container: flex
+direction: row
+grow: yes
+align items: stretch
+
+
+
+column 2:
+
+column options:
+---------------
+width: auto
+
+responsive display
+------------------
+display: flex
+
+flexbox
+-------
+flex container: flex
+direction: column
+grow: yes
+
+
+Then go to the video item and change max width to initial....
+
+
+
+
+
+
+I am very happy with how those 2 pages are working....
+
+
+maybe reduce the gap between title and content...
+
+
+
+get rid of section wrapper of content...cant adjust the padding
+
+now container, and padding top adjusted to 16...looks better...
+
+video panel margins to 10
+then left margin to 5
+
+all panels in col1:
+right margin 5
+
+
+Its looking pretty good.
+
+Now I'm fixated on why the split between the 2 section is not what I want.
+
+
+Who cares? Let move on to about...
+
+
+
+I want to make a custom class for my panels:
+
+that was I can adjust the min amd max size in one place
+and also I could do some media enquires....
+
+
+now min width is 400 unless:
+
+@media (width <= 576px) {
+   .mw_card {
+       min-width: 300px;
+
+  }
+}
+
+
+
+I have the about page blocked in, but I did not make it fit nice with small sizes...
+
+
+One thing I want to do is make the borders go away in very small size
+
+it is not the conatiner, I think it is the col
+
+
+
+
+
+
+multiplayer - what does that page look like?
+
+
+omg i just found out about container queries
+
+
+why am I even using bootstrap, when I want to overide almost everything??
+
+
+
+I want to make a few default color css things to apply to panels
+
+mw_panel_color
+
+i already have mw_card
+
+how about
+mw_card_color_red
+mw_card_color_green
+mw_card_color_blue
+
+make them id's
+
+
+panel color   rgb(136,187,163)
+
+can I convert to hsv
+
+rgb(136,187,163)
+
+
+
+
+this is the text color
+hsv(152, 27%, 73%)
+
+this is the background color
+hsv(165.65, 80.7%, 22.35%) 
+
+
+do the same for the red...
+
+background
+rgb(67,11,18)
+hsv(352.5, 83.58%, 26.27%)
+
+
+the frame automatically is colored based on the background color...leave it...
+
+text color (set on panel)
+rgb(222,166,176)
+
+hsv(349.29, 25.23%, 87.06%)
+
+
+
+
+this looks good for a faded red
+back
+rgb(85,15,24)
+text
+rgb(235,154,168)
+
+
+this looks good for mild green
+rgb(11,57,46)
+rgb(138,203,171)
+
+
+dark purple
+rgb(26,11,67)
+rgb(192,182,218)
+
+medblue
+rgb(136,187,163)
+rgb(170,209,227)
+
+
+yellow
+rgb(54,55,10)
+rgb(216,217,189)
+
+
+
+
+
+20240426----------------------------------
+
+What do I want to accomplish?
+
+
+figure out the sizing and coloring 
+
+
+I reuse panel a lot
+
+do I even care if it looks good on mobile?
+
+I should just pick a minimum width and make everything look good at that...
+
+
+
+340 is just too limiting....
+
+
+panel: fonts used looks good at 340
+panel: software used is a little pinched at 340
+it would be better if the items were stacked vertically
+
+I would dearly love to figure out how to do that
+
+easiest would be to change from horizontal to vertical once it got small enough
+
+
+I have 2 different panels....
+how can I switch which one is shown
+
+display:none
+
+give both of them ids
+
+
+panel_fonts_used_small
+panel_fonts_used_regular
+
+
+
+
+@media (width <= 576px) { 
+   #panel_fonts_used_small   { diplay:default; }
+   #panel_fonts_used_regular { diplay:none; }
+}
+
+@media (width > 576px) { 
+   #panel_fonts_used_small   { diplay:none; }
+   #panel_fonts_used_regular { diplay:default; }
+}
+
+
+
+
+this did not work and was a real pita to try in bss
+
+
+
+I think I found a way to do it in bss
+
+I have 2 panels:
+panel_fonts_used_small
+panel_fonts_used_regular
+
+in options -> responsive display
+
+I can set display none, default or block for different screen size....
+
+Now I want to make them both look nice...
+
+
+small looks good...
+
+
+background color
+rgb(54,55,10)
+
+font color
+rgb(216,217,189)
+
+table body
+rgb(32,33,7)
+
+
+
+I now have 2 versions of fonts used and they both look good and swap when they should...
+
+
+I am happy with my software used panel also, only one version...
+
+
+
+index:
+make first color med blue
+
+med blue:
+
+bkg
+rgb(16,60,79)
+fnt
+rgb(170,209,227)
+
+
+dark purple
+rgb(26,11,67)
+rgb(192,182,218)
+
+
+
+try making software used have only one background
+
+
+darker table background
+
+rgb(35,5,50)
+#230532
+
+old su
+
+background: rgb(35,5,50);color: rgb(187,148,205);
+
+
+I can now apply mw_card color to software used also
+
+
+how about fonts used?
+old:
+background: rgb(32,33,7);color: rgb(216,217,189);
+
+
+Ok now I can do that to fonts used also...
+
+
+It is looking nice, and I can change panel colors with one line..
+
+
+.mw_card.mw_card_color_red1 {
+  background: rgb(67,11,18);
+  color: rgb(222,166,176);
+}
+
+.mw_card.mw_card_color_purple1 {
+  background: rgb(26,11,67);
+  color: rgb(192,182,218);
+}
+
+.mw_card.mw_card_color_blue1 {
+  background: rgb(16,60,79);
+  color: rgb(170,209,227);
+}
+
+.mw_card.mw_card_color_yellow1 {
+  background: rgb(54,55,10);
+  color: rgb(216,217,189);
+}
+
+.mw_card.mw_card_color_green1 {
+  background: rgb(11,57,46);
+  color: rgb(136, 187, 163);
+}
+
+.mw_card.mw_card_color_grey1 {
+  background: rgb(25,29,34);
+  color: rgb(174,187,200);
+}
+
+
+
+
+I am so happy with this so far....
+
+
+moving on to muliplayer....
+
+
+I will have 4 sections, each with a panel and a video
+
+
+
+section:
+multiplayer card and video
+
+section:
+official server and video
+
+section:
+LAN setup and video
+
+section:
+WAN setup and video
+
+
+
+I am using the id #mw_iframe, but I am using it more than once...try to make it a class:
+mw_card_iframe
+
+done...
+
+
+
+
+now what?
+
+
+I need to make more videos
+
+multiplayer overview
+
+done
+
+
+The 4 pages are looking good...
+
+Still some weird issues with resizing that I don't have figured out yet.
+
+
+I want to do something about the link bar at the top....
+
+first of all, kill the stupid active highlight, what even is active??
+make all text shiny like that...
+
+
+done...
+
+
+now add another item...more
+
+make a new page more.html
+
+
+am I ready to add this to my main html docs thing?? no...
+
+make the last 4 page custom thing have its own name space by prepending v2_ to all files
+
+
+move all v2 stuff into its own folder...it is stand alone and can run from there with css fonts and a few images
+
+
+add supported systems to about
+
+
+add history page...
+
+
+from here on I want to make everything new link to the more page...
+
+did the history page....
+needs a lot of work....
+
+
+
+
+
+
+
+
+
+
+I looked at stntax highlighter and prism.js is still higly recommended..
+
+
+what version do I have:
+
+JS 1.14.0
+
+* PrismJS 1.14.0
+
+
+get  a newer version...
+
+1.29
+
+
+put in bs_new
+
+
+this is in the header of the old stuff:
+
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+
+
+    <script src="prism.js"></script>
+
+
+
+
+
+
+<pre><code class="language-cpp">
+
+void mwNetgame::server_send_sjon_packet(int who, int level, int frame, int player_num, int player_color)
+{
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "sjon");
+   mPacketBuffer.PacketPutInt2(data, pos, level);
+   mPacketBuffer.PacketPutInt4(data, pos, frame);
+   mPacketBuffer.PacketPutInt1(data, pos, player_num);
+   mPacketBuffer.PacketPutInt1(data, pos, player_color);
+   ServerSendTo(data, pos, who);
+}
+
+</code></pre>
+
+
+insert this into a custom code element and it renders, but does not display in studio....
+
+
+<pre><code class="language-cpp">void mwNetgame::server_send_sjon_packet(int who, int level, int frame, int player_num, int player_color)
+{
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "sjon");
+   mPacketBuffer.PacketPutInt2(data, pos, level);
+   mPacketBuffer.PacketPutInt4(data, pos, frame);
+   mPacketBuffer.PacketPutInt1(data, pos, player_num);
+   mPacketBuffer.PacketPutInt1(data, pos, player_color);
+   ServerSendTo(data, pos, who);
+}</code></pre>
+
+
+
+I think I have it working.....
+
+what theme though?, should I go dark? no...
+
+
+make a test code page:
+
+dcd_events.html
+
+
+
+
+
+
+I think I have events done...
+
+I copied all new code from the sources to make sure.
+There are some links in the text that look like they will work but right now don't point to anything.
+
+
+I want to make a few classes:
+
+text size for the code sections
+
+text size for the other text
+
+
+I also want to make some headers in the page and have a short list at the top...
+like I did on the last pages
+
+
+Am i going to be dissapointed by studio again and find that doing it manually is the easiest?
+studio might actually make it harder...
+
+What if I just used headings...
+
+
+I want to be able to do the best of both worlds...
+
+So I should make a class for headings
+give them each a unique name also
+then manually collect them and make a toc at the top of each page?
+
+
+What if I leave all those pages the way that they are right now?
+
+maybe give them a prefix like dcd_
+
+they all link to each other nicely, lets just keep studio's hands off them....
+
+I could even use my awesome perl scripting stuff to add nice bs common stuff...
+
+
+
+
+made a copy of all the dcd in a folder called dcd
+copied over the font suacer_bb and mdw.css
+
+
+I want to see what I can remove from that and not break things....
+
+what do I use source code pro for?
+mh4 and mh5
+mh4 is only used in project org
+mh5 is only used in netgame config
+replace the fonts for those with the generic font 
+also used for packets so just leave it.....
+
+
+
+
+
+I want to edit my perl scripts to iterate the files in the dcd dir....
+
+
+
+
+
+<html>
+
+    <script  src="../assets/js/prism.js"></script>
+    <link href = "../assets/css/prism.css" rel="stylesheet" />
+    <link href = "../assets/css/mdw.css"      rel="stylesheet" type = "text/css" />
+    
+    <body>
+
+
+replace everything between <html> and <body> with:
+
+
+    <script  src="../assets/js/prism.js"></script>
+    <link href = "../assets/css/prism.css" rel="stylesheet" />
+    <link href = "../assets/css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+
+
+I now have:
+update_header.pl
+update_footer.pl
+update_lhs_nav.pl
+
+and they use:
+new_header.txt
+new_footer.txt
+new_lhs_nav.txt
+
+also
+make_toc.pl works!!
+
+
+I should switch back to the normal default prism style, it looks better....
+
+
+I am loving my self made tools!!!
+
+
+20240429
+
+
+What I am working towards is replacing everything in docs (the web page stuff) with the new version
+
+
+Once I have everything working in the bs_new folder
+
+Still to do:
+
+Supported systems...added panel for that...
+
+Datatables...
+
+can't really tell until I copy it to server....
+
+am I ready for that?
+
+make some nicer links on more pages..done
+
+add more to lhs_nav...done
+
+
+copied all session php to new sessions folder
+
+
+change the header to this:
+
+   <script src="../assets/js/jquery-3.7.1.min.js"></script>
+   <link rel="stylesheet" href="../assets/css/datatables.css" />
+   <script src="../assets/js/datatables.js"></script>
+
+
+copied all js and css to approprioate folders...
+
+
+when I click on it, it just opens the php source file in a browser....
+
+I have done all I can do without copying it to the server.....
+
+
+ok lets do that...
+
+
+pscp -r -pw zaiden C:\Users\m\Desktop\bs_new\* m@96.45.9.166:sht
+
+copy to final place
+m@pmh:~$ sudo cp -r ~/sht/* /var/www/html
+
+m@pmh:~$ cd sht/
+m@pmh:~/sht$ ll
+total 680
+drwxrwxr-x 8 m m  4096 Apr 18 13:18 ./
+drwxr-x--- 9 m m  4096 Apr 27 21:28 ../
+
+m@pmh:~/sht$ rm -r ./*
+m@pmh:~/sht$ ll
+total 8
+drwxrwxr-x 2 m m 4096 Apr 29 05:06 ./
+drwxr-x--- 9 m m 4096 Apr 27 21:28 ../
+m@pmh:~/sht$ cd /var/www/html
+m@pmh:/var/www/html$ ll
+total 680
+drwxr-xr-x 8 root root  4096 Apr 18 16:02 ./
+drwxr-xr-x 3 root root  4096 Apr 14 08:31 ../
+-rw-r--r-- 1 root root  5121 Apr 18 16:36 blank.html
+-rw-r--r-- 1 root root 15311 Apr 18 16:36 block_flags.html
+drwxr-xr-x 2 root root  4096 Apr 14 09:24 css/
+drwxr-xr-x 2 root root  4096 Apr 17 21:55 DataTables/
+-rw-r--r-- 1 root root 16544 Apr 18 16:36 display.html
+-rw-r--r-- 1 root root 10860 Apr 18 16:36 events.html
+-rw-r--r-- 1 root root   561 Apr 18 16:36 update_footer.pl
+-rw-r--r-- 1 root root   582 Apr 18 16:36 update_lhs_nav.pl
+m@pmh:/var/www/html$ rm -r ./*
+rm: remove write-protected regular file './blank.html'? y
+rm: cannot remove './blank.html': Permission denied
+rm: remove write-protected regular file './block_flags.html'? ^C
+m@pmh:/var/www/html$ sudo rm -r ./*
+[sudo] password for m:
+m@pmh:/var/www/html$ ll
+total 8
+drwxr-xr-x 2 root root 4096 Apr 29 05:08 ./
+drwxr-xr-x 3 root root 4096 Apr 14 08:31 ../
+m@pmh:/var/www/html$
+
+
+
+it works....
+
+now what?
+
+can I remove all the old stuff??
+
+how about I put the v2 folder in the the new stuff....done...
+
+now what else?
+
+
+old versions? 15M worth....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

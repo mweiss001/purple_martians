@@ -1,0 +1,210 @@
+<!doctype html>
+<title>Netgame - Ping</title>
+
+<html>    <script  src="../assets/js/prism.js"></script>
+    <link href = "../assets/css/prism.css" rel="stylesheet" />
+    <link href = "../assets/css/mdw.css"      rel="stylesheet" type = "text/css" />
+<body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="../index.html"        target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="../download.html"     target="_top">Download</a></div>    
+<div style="text-align: center;"><a href="../multiplayer.html"  target="_top">Multiplayer</a></div>    
+<div style="text-align: center;"><a href="../about.html"        target="_top">About</a></div>    
+<div style="text-align: center;"><a href="../more.html"         target="_top">More</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
+
+</mdw_lhs_nav>
+
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Netgame - Ping</mh8>
+<mh3><hr><mdw_file_toc> <a href="netgame_ping.html#Overview" target="_top">Overview</a>
+ <a href="netgame_ping.html#Client initiates by sending 'ping'" target="_top">Client initiates by sending 'ping'</a>
+ <a href="netgame_ping.html#Server receives 'ping' and sends 'pong'" target="_top">Server receives 'ping' and sends 'pong'</a>
+ <a href="netgame_ping.html#Client receives 'pong' and sends 'pang'" target="_top">Client receives 'pong' and sends 'pang'</a>
+ <a href="netgame_ping.html#Server receives 'pang'" target="_top">Server receives 'pang'</a>
+ <a href="netgame_ping.html#Rolling averages put in player struct" target="_top">Rolling averages put in player struct</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
+<mh7>Overview</mh7>
+
+
+<mh3>
+Netgame needs to know packet transit times times between client and server, to monitor and adjust timing offset.
+
+Clients measure and keep track of the round trip time it takes to send a packet to the server and get a reply.
+
+The server measures and keeps track of ping times for each active client.
+
+</mh3>    
+<a name="Client initiates by sending 'ping'"></a>
+<mh7>Client initiates by sending 'ping'</mh7>
+
+<mh3>
+The client starts the process by sending a 'ping' packet containing the client's local timestamp from when the packet was sent.
+</mh3>    
+
+<pre><code class="language-cpp">void mwNetgame::client_send_ping(void)
+{
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "ping");
+   mPacketBuffer.PacketPutDouble(data, pos, al_get_time());
+   ClientSend(data, pos);}</code></pre>
+
+<mh3>
+The ping is sent whenever the 1Hz timer fires.
+</mh3>    
+<pre><code class="language-cpp">      // ----------------------------------------------------------
+      // do things based on the 1 Hz sec_timer event
+      // ----------------------------------------------------------
+      if (mNetgame.ima_client) mNetgame.client_send_ping();</code></pre>
+
+<a name="Server receives 'ping' and sends 'pong'"></a>
+<mh7>Server receives 'ping' and sends 'pong'</mh7>
+
+<mh3>
+When the server receives a 'ping' packet, it immediately replies with a 'pong' packet that contains:
+
+- the timestamp from the 'ping' packet it is replying to, and 
+
+- the server's local timestamp from when it sends the 'pong' packet
+</mh3>    
+<pre><code class="language-cpp">void mwNetgame::server_proc_ping_packet(char *data, int who)
+{
+   int p = server_get_player_num_from_who(who);
+   if (p != -1)
+   {
+      int pos = 4;
+      double t0 = mPacketBuffer.PacketGetDouble(data, pos);
+      double t1 = al_get_time();
+      mPacketBuffer.PacketName(data, pos, "pong");
+      mPacketBuffer.PacketPutDouble(data, pos, t0);
+      mPacketBuffer.PacketPutDouble(data, pos, t1);
+      ServerSendTo(data, pos, who);
+   }
+}</code></pre>
+
+
+
+
+<a name="Client receives 'pong' and sends 'pang'"></a>
+<mh7>Client receives 'pong' and sends 'pang'</mh7>
+
+<mh3>
+When the client receives a 'pong' packet, it calculates the round trip transit time from the client to the server and back.
+
+Then adds the value to the rolling average algorithm.
+
+Then immediately replies with a 'pang' packet that contains the timestamp from the 'pong' packet it is replying to.
+</mh3>    
+<pre><code class="language-cpp">void mwNetgame::client_proc_pong_packet(char *data)
+{
+   int pos = 4;
+   double t0 = mPacketBuffer.PacketGetDouble(data, pos);
+   double t1 = mPacketBuffer.PacketGetDouble(data, pos);
+
+   mPacketBuffer.RA[mPlayer.active_local_player].add_data(al_get_time() - t0);
+
+   mPacketBuffer.PacketName(data, pos, "pang");
+   mPacketBuffer.PacketPutDouble(data, pos, t1);
+   ClientSend(data, pos);
+}</code></pre>
+
+
+
+<a name="Server receives 'pang'"></a>
+<mh7>Server receives 'pang'</mh7>
+
+<mh3>
+When the server receives a 'pang' packet, it calculates the round trip transit time from the server to the client and back.
+
+Then adds the value to the rolling average algorithm.
+</mh3>    
+<pre><code class="language-cpp">void mwNetgame::server_proc_pang_packet(char *data, int who)
+{
+   int p = server_get_player_num_from_who(who);
+   if (p != -1)
+   {
+      int pos = 4;
+      double t0 = mPacketBuffer.PacketGetDouble(data, pos);
+      mPacketBuffer.RA[p].add_data(al_get_time() - t0);
+   }
+}</code></pre>
+
+
+
+<a name="Rolling averages put in player struct"></a>
+<mh7>Rolling averages put in player struct</mh7>
+
+<mh3>
+Because ping times fluctuate from frame to frame, we don't want to use the raw value.
+
+Instead we run it through a <a href="rolling_average.html" target="_top">rolling average</a> algorithm and use that instead.
+
+Once per frame the current and average ping times are copied from the rolling average objects into player structure variables.
+
+The client has its one local ping time, and the server has a ping time for each active client.
+</mh3>    
+<pre><code class="language-cpp">for (int p=0; p < NUM_PLAYERS; p++)
+{
+   mPlayer.loc[p].ping = mPacketBuffer.RA[p].last_input;
+   mPlayer.loc[p].ping_avg = mPacketBuffer.RA[p].avg;
+}</code></pre>
+
+<mh3>
+In  <a href="netgame_client_timing_sync.html#Determine the setpoint" target="_top">client_timer_adjust()</a>, 'ping_avg' is used to adjust the timing offset.
+
+</mh3>
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2024, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

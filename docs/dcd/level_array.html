@@ -1,0 +1,542 @@
+<!doctype html>
+<title>Level Array</title>
+
+<html>    <script  src="../assets/js/prism.js"></script>
+    <link href = "../assets/css/prism.css" rel="stylesheet" />
+    <link href = "../assets/css/mdw.css"      rel="stylesheet" type = "text/css" />
+<body>
+
+        <nav class="col-1">
+            
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="../index.html"        target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="../download.html"     target="_top">Download</a></div>    
+<div style="text-align: center;"><a href="../multiplayer.html"  target="_top">Multiplayer</a></div>    
+<div style="text-align: center;"><a href="../about.html"        target="_top">About</a></div>    
+<div style="text-align: center;"><a href="../more.html"         target="_top">More</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
+
+</mdw_lhs_nav>
+
+        </nav>
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Level Array</mh8>
+<mh3><hr><mdw_file_toc> <a href="level_array.html#Overview" target="_top">Overview</a>
+ <a href="level_array.html#Drawing the level" target="_top">Drawing the level</a>
+ <a href="level_array.html#Drawing sequence in game loop" target="_top">Drawing sequence in game loop</a>
+ <a href="level_array.html#Get new background" target="_top">Get new background</a>
+ <a href="level_array.html#Draw scaled level region to display" target="_top">Draw scaled level region to display</a>
+ <a href="level_array.html#Scale factor" target="_top">Scale factor</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a><mh7>Overview</mh7>
+        
+
+<mh3>
+Each level is 100 x 100 tiles or 2000 x 2000 pixels.
+
+The level array is a 100 x 100 array of integers, one for each tile in the level.
+</mh3>    
+<pre><code class="language-cpp">int mLevel.l[100][100];</code></pre>
+<mh3>
+Each integer is an index to the tile that is drawn at that position on the level. (see <a href="tiles.html" target="_top">tiles</a> and <a href="block_flags.html" target="_top">blocks</a>)
+ </mh3>      
+<a name="Drawing the level"></a><mh7>Drawing the level</mh7>
+
+<mh3>
+Two bitmaps are used, each the size of the entire level (2000x2000):
+</mh3>
+<pre><code class="language-cpp">   level_background = al_create_bitmap(2000,2000);
+   level_buffer = al_create_bitmap(2000,2000);
+</code></pre>
+<mh3>
+When a level is loaded, all 10,000 tiles are drawn to the level_background.
+</mh3>
+<pre><code class="language-cpp">void init_level_background(void) // fill level_background with blocks and lift lines
+{
+   al_set_target_bitmap(level_background);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   for (int x=0; x<100; x++)
+      for (int y=0; y<100; y++)
+         al_draw_bitmap(tile[l[x][y]], x*20, y*20, 0);
+   draw_lift_lines();
+}</code></pre>
+<mh3>
+Because of the time it takes to draw all 10,00 tiles, they are predrawn on the level_background and only redrawn if they have to be.
+
+(For example, when the screen size is changed, or blocks change in the level).
+
+This is the base background that is copied to level_buffer every frame and then drawn on.
+
+</mh3>
+
+<a name="Drawing sequence in game loop"></a><mh7>Drawing sequence in game loop</mh7>
+<mh3>
+This happens every frame.
+</mh3>
+<pre><code class="language-cpp">void mwDrawSequence::draw(int setup_only)
+{
+   mScreen.get_new_background(1);
+   mLift.draw_lifts();
+   mItem.draw_items();
+   mEnemy.draw_enemies();
+   mShot.draw_eshots();
+   mShot.draw_pshots();
+   mPlayer.draw_players();
+   mItem.erase_hider_areas();
+
+   // draw gate info
+   for (int p=0; p < NUM_PLAYERS; p++)
+	  if ((mPlayer.syn[p].active) && (mPlayer.syn[p].marked_gate != -1))
+         mItem.draw_gate_info(mPlayer.syn[p].marked_gate);
+
+   // draw level stats
+   for (int i=0; i < 500; i++)
+      if ((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16)))
+         mItem.draw_message(i, 0, 0, 0);
+
+   mScreen.draw_scaled_level_region_to_display(0);
+
+   // draw purple coins directly on the screen, so they scale nicely
+   for (int c=0; c < 500; c++)
+      if ((mItem.item[c][0] == 2) && (mItem.item[c][6] == 3)) mItem.draw_purple_coin_screen_direct(c);
+
+   // draw players directly on the screen, so they scale nicely
+   for (int p=0; p < NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].active) mPlayer.draw_player_direct_to_screen(p);
+
+   // do this so that that local player is always drawn on top
+   mPlayer.draw_player_direct_to_screen(mPlayer.active_local_player);
+
+   // draw npc crew directly on the screen, so they scale nicely
+   for (int e=0; e < 100; e++)
+      if (mEnemy.Ei[e][0] == 19) mEnemy.draw_crew_screen_direct(e);
+
+   mScreen.draw_screen_overlay();
+   al_flip_display();
+}</code></pre>
+
+<mh3>
+- level_buffer is overwritten with a fresh copy of level_background by calling: 'get_new_background()'
+
+- most objects are drawn on level_buffer (lifts, items, enemies, shots...)
+
+- the visible region of level_buffer is scaled to the screen buffer by calling: 'mScreen.draw_scaled_level_region_to_display(0)'
+
+- some objects are drawn directly to the screen buffer so they scale nicely
+
+- the screen overlays are drawn on the screen buffer with 'draw_screen_overlay()'
+
+- the screen buffer is swapped to the screen with 'al_flip_display()'
+
+</mh3>
+
+<a name="Get new background"></a><mh7>Get new background</mh7>
+<pre><code class="language-cpp">void mwScreen::get_new_background(int full)
+{
+   al_set_target_bitmap(mBitmap.level_buffer);
+   if (full) al_draw_bitmap(mBitmap.level_background, 0, 0, 0);
+   else
+   {
+      // this only grabs the visible region, in the interests of speed
+      int x = level_display_region_x - 20; if (x < 0) x = 0;
+      int y = level_display_region_y - 20; if (y < 0) y = 0;
+      int w = level_display_region_w + 40; if (x+w > 2000) w = 2000-x;
+      int h = level_display_region_h + 40; if (y+h > 2000) h = 2000-y;
+      al_draw_bitmap_region(mBitmap.level_background, x, y, w, h, x, y, 0);
+   }
+}</code></pre>
+
+
+<mh3>
+</mh3>
+
+
+<a name="Draw scaled level region to display"></a><mh7>Draw scaled level region to display</mh7>
+<pre><code class="language-cpp">void mwScreen::draw_scaled_level_region_to_display(int type)
+{
+   set_screen_display_variables();
+   if (type != 3) set_level_display_region_xy();
+
+   al_set_target_backbuffer(mDisplay.display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   draw_screen_frame();
+
+   int ldrx = level_display_region_x;
+   int ldry = level_display_region_y;
+   int ldrw = level_display_region_w;
+   int ldrh = level_display_region_h;
+
+   // draw the level region from level buffer to display
+   al_draw_scaled_bitmap(mBitmap.level_buffer, ldrx, ldry, ldrw, ldrh, screen_display_x, screen_display_y, screen_display_w, screen_display_h, 0);
+
+
+   // show viewport hysteresis rectangle
+   if ((viewport_show_hyst) && (viewport_mode != 0))
+   {
+      int col = 12;
+
+      int x_size = ldrw * viewport_x_div/2;
+      int y_size = ldrh * viewport_y_div/2;
+      float hx1 = mDisplay.SCREEN_W/2 - x_size * mDisplay.scale_factor_current;
+      float hx2 = mDisplay.SCREEN_W/2 + x_size * mDisplay.scale_factor_current;
+      float hy1 = mDisplay.SCREEN_H/2 - y_size * mDisplay.scale_factor_current;
+      float hy2 = mDisplay.SCREEN_H/2 + y_size * mDisplay.scale_factor_current;
+      al_draw_rectangle(hx1, hy1, hx2, hy2, mColor.pc[col], 0);
+
+      // if clamped by hyst region show line in different color
+      col = 10;
+      if (ldr_xmn_h) al_draw_line(hx1, hy1, hx1, hy2, mColor.pc[col], 1 );
+      if (ldr_xmx_h) al_draw_line(hx2, hy1, hx2, hy2, mColor.pc[col], 1 );
+      if (ldr_ymn_h) al_draw_line(hx1, hy1, hx2, hy1, mColor.pc[col], 1 );
+      if (ldr_ymx_h) al_draw_line(hx1, hy2, hx2, hy2, mColor.pc[col], 1 );
+
+      // if clamped by entire region show line in  in different color and one pixel bigger
+      col = 14;
+      if (ldr_xmn_a) al_draw_line(hx1-1, hy1, hx1-1, hy2, mColor.pc[col], 1 );
+      if (ldr_xmx_a) al_draw_line(hx2+1, hy1, hx2+1, hy2, mColor.pc[col], 1 );
+      if (ldr_ymn_a) al_draw_line(hx1, hy1-1, hx2, hy1-1, mColor.pc[col], 1 );
+      if (ldr_ymx_a) al_draw_line(hx1, hy2+1, hx2, hy2+1, mColor.pc[col], 1 );
+   }
+
+
+   // in level editor mode, if the level is smaller than the screen edges, draw thin lines to show where it ends...
+   if (type == 3)
+   {
+      int c = mPlayer.syn[mPlayer.active_local_player].color;
+      int bw = BORDER_WIDTH;
+      int sbx = screen_display_x;
+      int sby = screen_display_y;
+      int sbw = mDisplay.SCREEN_W-bw*2; // recalc because these have been modified
+      int sbh = mDisplay.SCREEN_H-bw*2;
+      int xdraw = 0;
+      int ydraw = 0;
+      int xl=mDisplay.SCREEN_W-bw; // default screen edge positions
+      int yl=mDisplay.SCREEN_H-bw;
+      float sls = mDisplay.scale_factor_current * 2000; // sls = scaled level size
+      if (sls < sbw)
+      {
+         xl = sbx+sls;
+         xdraw = 1;
+      }
+      if (sls < sbh)
+      {
+         yl = sby+sls;
+         ydraw = 1;
+      }
+      if (xdraw) al_draw_line(xl, bw, xl, yl, mColor.pc[c], 0);
+      if (ydraw) al_draw_line(bw, yl, xl, yl, mColor.pc[c], 0);
+   }
+}
+
+
+void mwScreen::set_screen_display_variables(void)
+{
+// ----------------------------------------------------------------------
+// step 1 - determine x, y, width and height to draw on the screen
+// if width or height is bigger than scaled level, clamp to that size
+// also shift x and y to center, but only if not in level editor
+// ----------------------------------------------------------------------
+
+   // default place and size to draw on screen
+   int bw = BORDER_WIDTH;
+   screen_display_x = bw;
+   screen_display_y = bw;
+   screen_display_w = mDisplay.SCREEN_W-bw*2;
+   screen_display_h = mDisplay.SCREEN_H-bw*2;
+
+   float sls = mDisplay.scale_factor_current * 2000;                      // get the scaled size of the entire level
+
+   if (screen_display_w > sls) // is screen_display_w greater than entire level width?
+   {
+      float a = screen_display_w - sls;                          // how much greater?
+      screen_display_w = sls;                                    // new screen_display_w = sls
+      if (!mLoop.level_editor_running) screen_display_x += a/2;  // new screen_display_x draw xpos
+   }
+
+   if (screen_display_h > sls) // is screen_display_h greater than entire level height?
+   {
+      float a = screen_display_h - sls;                          // how much greater?
+      screen_display_h = sls;                                    // new screen_display_h = sls
+      if (!mLoop.level_editor_running) screen_display_y += a/2;  // new screen_display_y draw ypos
+   }
+
+// ----------------------------------------------------------------------
+// step 2 - now that we know the screen buffer width and height
+// scale that to find out the size of the region to grab from level buffer
+// clamp to not grab more than entire level
+// ----------------------------------------------------------------------
+   level_display_region_w = (float) screen_display_w / mDisplay.scale_factor_current;
+   level_display_region_h = (float) screen_display_h / mDisplay.scale_factor_current;
+   if (level_display_region_w > 2000) level_display_region_w = 2000;
+   if (level_display_region_h > 2000) level_display_region_h = 2000;
+}
+
+void mwScreen::set_level_display_region_xy(void)
+{
+// ----------------------------------------------------------------------
+// use active local player to find where to grab the region from level buffer
+// sets:
+// mDisplay.level_display_region_x
+// mDisplay.level_display_region_y
+// ----------------------------------------------------------------------
+
+   // shorter variable names
+   int p = mPlayer.active_local_player;
+   float px = mPlayer.syn[p].x + 10;
+   float py = mPlayer.syn[p].y + 10;
+   int w = level_display_region_w;
+   int h = level_display_region_h;
+
+   float pvx = mPlayer.syn[p].xinc;
+   float pvy = mPlayer.syn[p].yinc;
+
+   if (viewport_mode == 0) // this method always has the player in the middle of the screen
+   {
+      level_display_region_x = px - w/2 - 10;
+      level_display_region_y = py - h/2 - 10;
+   }
+   else // scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
+   {
+      // if this is active, dont do any others
+      if ((viewport_look_rocket) && (mPlayer.is_player_riding_rocket(p)))
+      {
+         level_display_region_x += mPlayer.syn[p].xinc * 1.8;
+         level_display_region_y += mPlayer.syn[p].yinc * 1.8;
+      }
+      else
+      {
+         if (viewport_look_player_motion)
+         {
+            float im = 0.05;
+            level_display_region_xinc += pvx * im;
+            level_display_region_yinc += pvy * im;
+         }
+
+         if (viewport_look_up_down)
+         {
+            float shift_speed = .5;
+            if (mPlayer.syn[p].up)   level_display_region_yinc -= shift_speed;
+            if (mPlayer.syn[p].down) level_display_region_yinc += shift_speed;
+         }
+
+         if (viewport_look_player_facing_left_right)
+         {
+            float shift_speed = 0.2;
+            if (mPlayer.syn[p].left_right) level_display_region_xinc += shift_speed;
+            else                           level_display_region_xinc -= shift_speed;
+         }
+      }
+
+      // maximum incs
+      float mxi = 6;
+      if (level_display_region_xinc > mxi)  level_display_region_xinc = mxi;
+      if (level_display_region_xinc < -mxi) level_display_region_xinc = -mxi;
+
+      float myi = 12;
+      if (pvy < -8) myi = abs(pvy) * 1.5;
+      if (level_display_region_yinc > myi)  level_display_region_yinc = myi;
+      if (level_display_region_yinc < -myi) level_display_region_yinc = -myi;
+
+      // inc decays
+      if ((viewport_look_player_facing_left_right == 0) || (ldr_xmn_h) || (ldr_xmx_h))
+      {
+         if (pvx == 0) level_display_region_xinc *= 0.9; // decay when not moving
+         if ((level_display_region_xinc > 0) && (pvx < 0)) level_display_region_xinc *= 0.2; // decay faster when switching direction
+         if ((level_display_region_xinc < 0) && (pvx > 0)) level_display_region_xinc *= 0.2; // decay faster when switching direction
+      }
+
+      if (pvy == 0) level_display_region_yinc *= 0.9; // decay when not moving
+      if ((level_display_region_yinc > 0) && (pvy < 0)) level_display_region_yinc *= 0.2; // decay faster when switching direction
+      if ((level_display_region_yinc < 0) && (pvy > 0)) level_display_region_yinc *= 0.2; // decay faster when switching direction
+
+      // apply x and y increments
+      level_display_region_x += level_display_region_xinc;
+      level_display_region_y += level_display_region_yinc;
+
+      // get hyst variables
+      float x_size = w * viewport_x_div/2;
+      float y_size = h * viewport_y_div/2;
+
+      // adjust to hyst borders
+      float re = px - w/2 - x_size; // right edge
+      ldr_xmx_h = 0;
+      if (level_display_region_x <= re) // hit right edge (or equal to)
+      {
+         level_display_region_x = re;  // clamp to max
+         ldr_xmx_h = 1;
+      }
+      float le = px - w/2 + x_size; // left edge
+      ldr_xmn_h = 0;
+      if (level_display_region_x >= le) // hit left edge (or equal to)
+      {
+         level_display_region_x = le;  // clamp to min
+         ldr_xmn_h = 1;
+      }
+      float be = py - h/2 - y_size; // bottom edge
+      ldr_ymx_h = 0;
+      if (level_display_region_y <= be) // hit bottom edge (or equal to)
+      {
+         level_display_region_y = be;  // clamp to max
+         ldr_ymx_h = 1;
+      }
+      float te = py - h/2 + y_size; // top edge
+      ldr_ymn_h = 0;
+      if (level_display_region_y >= te) // hit top edge (or equal to)
+      {
+         level_display_region_y = te;  // clamp to min
+         ldr_ymn_h = 1;
+      }
+   }
+
+   // clamp to entire level borders (to ensure viewport region is not out of bounds)
+   ldr_xmn_a = 0;
+   if (level_display_region_x <= 0)
+   {
+      level_display_region_x = 0;
+      ldr_xmn_a = 1;
+   }
+   ldr_xmx_a = 0;
+   if (level_display_region_x >= 2000 - w)
+   {
+      level_display_region_x = 2000 - w;
+      ldr_xmx_a = 1;
+   }
+   ldr_ymn_a = 0;
+   if (level_display_region_y <= 0)
+   {
+      level_display_region_y = 0;
+      ldr_ymn_a = 1;
+   }
+   ldr_ymx_a = 0;
+   if (level_display_region_y >= 2000 - h)
+   {
+      level_display_region_y = 2000 - h;
+      ldr_ymx_a = 1;
+   }
+}</code></pre>
+
+<mh3>
+</mh3>
+
+
+<a name="Scale factor"></a><mh7>Scale factor</mh7>
+<mh3>
+Scale factor controls how much the of the level is shown on the screen.
+
+At scale factor 1.00 everything is drawn at a 1:1 ratio.
+At values more than 1.00 all of the level elements appear larger and less of the level is shown.
+At values less than 1.00 all of the level elements appear smaller and more of the level is shown.
+
+This only applies to the level view while the game is playing and in the level editor.
+Menu's and screen overlays are not affected.
+
+While the game is running, F5 decreases scale factor and F6 increases it.
+Pressing F5 and F6 at the same time resets scale factor to 1.00.
+
+These keys can be changed in 'Settings' -> 'Controls 2'.
+
+
+These are the global variables used by this code:
+</mh3>
+<pre><code class="language-cpp">
+float scale_factor;         // the target scale_factor
+float scale_factor_current; // the current scale_factor
+float scale_factor_inc;     // how fast the current scale_factor changes to meet the target scale_factor
+int show_scale_factor;      // used to briefly display the scale_factor on the screen overlay when it changes
+</code></pre>
+
+<mh3>
+This is how F5 and F6 change scale factor:
+</mh3>
+<pre><code class="language-cpp">if (key[function_key_zoom_out][0]) mDisplay.set_scale_factor(mDisplay.scale_factor * .90, 0);
+if (key[function_key_zoom_in][0])  mDisplay.set_scale_factor(mDisplay.scale_factor * 1.1, 0);
+if ((key[function_key_zoom_out][0]) && (key[function_key_zoom_in][0])) mDisplay.set_scale_factor(1, 1);
+</code></pre>
+
+<mh3>
+This is how scale factor is set, bounds checked and saved to config file:
+</mh3>
+<pre><code class="language-cpp">void mwDisplay::set_scale_factor(float new_scale_factor, int instant)
+{
+   if ((scale_factor_holdoff <= 0) || (instant))
+   {
+      scale_factor = new_scale_factor;
+      scale_factor_holdoff = 10;
+      // enforce max and min
+      if (scale_factor < .2) scale_factor = .2;
+      if (scale_factor > 40) scale_factor = 40;
+      show_scale_factor = 80;
+      mConfig.save();
+      if (instant) scale_factor_current = scale_factor;
+   }
+}</code></pre>
+
+
+<mh3>
+This is called once every game loop to make scale_factor_current gradually change to match scale_factor
+</mh3>
+
+<pre><code class="language-cpp">void mwDisplay::proc_scale_factor_change(void)
+{
+   if (show_scale_factor    > 0) show_scale_factor--;
+   if (scale_factor_holdoff > 0) scale_factor_holdoff--;
+
+   if (scale_factor_current < scale_factor)
+   {
+       scale_factor_current *= (1.0 + scale_factor_mlt);
+       if (scale_factor_current > scale_factor) scale_factor_current = scale_factor; // if we overshoot set to exact to prevent oscillation
+   }
+   if (scale_factor_current > scale_factor)
+   {
+       scale_factor_current *= (1.0 - scale_factor_mlt);
+       if (scale_factor_current < scale_factor) scale_factor_current = scale_factor; // if we overshoot set to exact to prevent oscillation
+   }
+}</code></pre>
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2024, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

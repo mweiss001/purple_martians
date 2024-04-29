@@ -1,0 +1,544 @@
+<!doctype html>
+<title>Netgame - Client State</title>
+
+<html>    <script  src="../assets/js/prism.js"></script>
+    <link href = "../assets/css/prism.css" rel="stylesheet" />
+    <link href = "../assets/css/mdw.css"      rel="stylesheet" type = "text/css" />
+<body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="../index.html"        target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="../download.html"     target="_top">Download</a></div>    
+<div style="text-align: center;"><a href="../multiplayer.html"  target="_top">Multiplayer</a></div>    
+<div style="text-align: center;"><a href="../about.html"        target="_top">About</a></div>    
+<div style="text-align: center;"><a href="../more.html"         target="_top">More</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
+
+</mdw_lhs_nav>
+
+        </nav>
+
+
+
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Netgame - Client State</mh8>
+<mh3><hr><mdw_file_toc> <a href="netgame_client_state.html#Overview" target="_top">Overview</a>
+ <a href="netgame_client_state.html#How a client gets a new state from the server" target="_top">How a client gets a new state from the server</a>
+ <a href="netgame_client_state.html#How a client applies the new state" target="_top">How a client applies the new state</a>
+ <a href="netgame_client_state.html#The entire function 'client_apply_dif'" target="_top">The entire function 'client_apply_dif'</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
+<mh7>Overview</mh7>
+
+<mh3>
+The server consolidates input from all clients and syncs the official server <a href="netgame_state_and_dif.html" target="_top">state</a> back to clients.
+
+Clients run independently in between receiving states from the server.
+
+During that time, the client's control changes are applied locally and sent to the server.
+
+When a client receives a new state from the server, it overwrites its local game state.
+
+</mh3>    
+
+<a name="How a client gets a new state from the server"></a>
+<mh7>How a client gets a new state from the server</mh7>
+<mh3>
+A client receives 'stdf' packets from the server.  Each packet contains pieces of a compressed dif state.
+These packets have up to 1000 bytes of data each and are put into 'client_state_buffer' at the appropriate offset.
+
+When all the pieces have been received, 'client_state_buffer' is decompressed into 'client_state_dif'.
+The source and destination frame of 'client_state_dif' are updated to mark it as valid.
+</mh3>
+
+<pre><code class="language-cpp">void mwNetgame::client_process_stdf_packet(int i)
+{
+   int p       = mPlayer.active_local_player;
+   int src     = mPacketBuffer.PacketGetInt4(i);
+   int dst     = mPacketBuffer.PacketGetInt4(i);
+   int seq     = mPacketBuffer.PacketGetInt1(i);
+   int max_seq = mPacketBuffer.PacketGetInt1(i);
+   int sb      = mPacketBuffer.PacketGetInt4(i);
+   int sz      = mPacketBuffer.PacketGetInt4(i);
+
+   mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", seq+1, max_seq, src, dst, sb, sz);
+   mPlayer.loc[p].client_last_stdf_rx_frame_num = mLoop.frame_num;      // client keeps track of last stdf rx'd and quits if too long
+   memcpy(client_state_buffer + sb, mPacketBuffer.rx_buf[i].data+22, sz);   // put the piece of data in the buffer
+
+   client_state_buffer_pieces[seq] = dst;                     // mark it with destination mLoop.frame_num
+   int complete = 1;                                          // did we just get the last packet? (yes by default)
+   for (int i=0; i< max_seq; i++)
+      if (client_state_buffer_pieces[i] != dst) complete = 0; // no, if any piece not at latest frame_num
+
+   if (complete)
+   {
+      // uncompress client_state_buffer to dif
+      uLongf destLen = sizeof(client_state_dif);
+      uncompress((Bytef*)client_state_dif, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
+
+      if (destLen == STATE_SIZE)
+      {
+         mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] dsync[%3.1fms] - uncompressed\n", src, dst, mPlayer.loc[p].dsync*1000);
+         client_state_dif_src = src; // mark dif data with new src and dst
+         client_state_dif_dst = dst;
+      }
+      else
+      {
+         mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] dsync[%3.1f] - bad uncompress\n", src, dst, mPlayer.loc[p].dsync*1000);
+         client_state_dif_src = -1; // mark dif data as bad
+         client_state_dif_dst = -1;
+      }
+   }
+}</code></pre>
+
+<a name="How a client applies the new state"></a>
+<mh7>How a client applies the new state</mh7>
+
+<mh3>
+Every frame the client checks its locally stored dif.
+
+First it checks if the dif is valid and newer than the last applied dif:
+</mh3>
+<pre><code class="language-cpp">void mwNetgame::client_apply_dif(void)
+{
+   int p = mPlayer.active_local_player;
+
+   mLog.addf(LOG_NET_dif_applied, p, "----- Apply dif [%d to %d] ", client_state_dif_src, client_state_dif_dst);
+
+   // check if dif is valid
+   if ((client_state_dif_src == -1) || (client_state_dif_dst == -1))
+   {
+      mLog.app(LOG_NET_dif_not_applied, "[not applied] [dif not valid]\n");
+      return;
+   }
+
+   // check if dif_dest has already been applied (check if dif_dest is less than or equal to newest_state_frame_num)
+   if (client_state_dif_dst <= mStateHistory[p].newest_state_frame_num)
+   {
+      mLog.app(LOG_NET_dif_not_applied, "[not applied] [not newer than last dif applied]\n");
+      return;
+   }
+</code></pre>
+
+<mh3>
+Next the dif destination is compared to the current frame number.
+</mh3>
+<pre><code class="language-cpp">   int ff = mPlayer.loc[p].rewind = mLoop.frame_num - client_state_dif_dst;
+   char tmsg[64];
+   if (ff == 0) sprintf(tmsg, "exact frame match [%d]", mLoop.frame_num);
+   if (ff > 0)  sprintf(tmsg, "rewound [%d] frames", ff);
+   if (ff < 0)
+   {
+      if (mLoop.frame_num == 0) sprintf(tmsg, "initial state");
+      else                      sprintf(tmsg, "jumped ahead %d frames", -ff);
+   }
+</code></pre>
+
+<mh3>
+Next, we check to see if we have a base state that matches the dif source. (Also see <a href="netgame_state_history.html#Client applies dif state" target="_top">State History</a>)
+</mh3>
+
+<pre><code class="language-cpp">   char base[STATE_SIZE] = {0};
+   int base_frame_num = 0;
+
+   // finds and sets base matching 'client_state_dif_src' -- if not found, leaves base as is (zero)
+   mStateHistory[p].get_base_state(base, base_frame_num, client_state_dif_src);
+
+   if (base_frame_num == 0)
+   {
+      mPlayer.loc[p].client_base_resets++;
+      if (client_state_dif_src != 0)
+      {
+         int fn = mStateHistory[p].newest_state_frame_num;
+         mLog.appf(LOG_NET_dif_not_applied, "[not applied] [base not found] - resending stak [%d]\n", fn);
+         client_send_stak(fn);
+         return;
+      }</code></pre>
+
+<mh3>
+At this point we have everything needed to apply the dif.
+
+But first we need to save some things so they can be restored after the dif is applied.
+</mh3>
+<pre><code class="language-cpp">   // ------------------------------------------------
+   // save things before applying dif
+   // ------------------------------------------------
+
+   // make a copy of level array l[][]
+   int old_l[100][100];
+   memcpy(old_l, mLevel.l, sizeof(mLevel.l));
+
+   // make a copy of players' pos
+   for (int pp=0; pp < NUM_PLAYERS; pp++)
+      if (mPlayer.syn[pp].active)
+      {
+         mPlayer.loc[pp].old_x = mPlayer.syn[pp].x;
+         mPlayer.loc[pp].old_y = mPlayer.syn[pp].y;
+      }</code></pre>
+
+
+<mh3>
+Finally we can apply the dif to the base state.
+
+This just subtracts the dif from the base state.
+</mh3>
+<pre><code class="language-cpp">   // apply dif to base
+   apply_state_dif(base, client_state_dif, STATE_SIZE);
+
+void mwNetgame::apply_state_dif(char *a, char *c, int size)
+{
+   for (int i=0; i < size; i++) a[i] -= c[i];
+}</code></pre>
+
+
+<mh3>
+Next, our modified base state is copied to the game variables and the current frame number is updated.
+</mh3>
+
+<pre><code class="language-cpp">   // copy to game vars and set new frame number
+   state_to_game_vars(base);
+   mLoop.frame_num = client_state_dif_dst;
+
+void mwNetgame::state_to_game_vars(char * b)
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(mPlayer.syn);         memcpy(mPlayer.syn,         b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ei);           memcpy(mEnemy.Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(mEnemy.Ef);           memcpy(mEnemy.Ef,           b+offset, sz); offset += sz;
+   sz = sizeof(mItem.item);          memcpy(mItem.item,          b+offset, sz); offset += sz;
+   sz = sizeof(mItem.itemf);         memcpy(mItem.itemf,         b+offset, sz); offset += sz;
+   sz = sizeof(mLift.cur);           memcpy(mLift.cur,           b+offset, sz); offset += sz;
+   sz = sizeof(mLevel.l);            memcpy(mLevel.l,            b+offset, sz); offset += sz;
+   sz = sizeof(mShot.p);             memcpy(mShot.p,             b+offset, sz); offset += sz;
+   sz = sizeof(mShot.e);             memcpy(mShot.e,             b+offset, sz); offset += sz;
+   sz = sizeof(mTriggerEvent.event); memcpy(mTriggerEvent.event, b+offset, sz); offset += sz;
+}</code></pre>
+
+<mh3>
+Then this new state is saved in history to be used as a base for future difs.
+</mh3>
+<pre><code class="language-cpp">   // save to history
+   mStateHistory[p].add_state(mLoop.frame_num);
+
+   // keep track of frame number when last client dif was applied
+   mPlayer.loc[p].client_last_dif_applied = mLoop.frame_num;
+
+   // add log entry
+   mLog.appf(LOG_NET_dif_not_applied, "[applied] [%s]\n", tmsg);
+</code></pre>
+
+<mh3>
+Saved things from earlier are restored. 
+</mh3>
+<pre><code class="language-cpp">   // ------------------------------------------------
+   // restore things after applying dif
+   // ------------------------------------------------
+
+   // fix control methods
+   mPlayer.syn[0].control_method = 2; // on client, server is always control method 2
+   if (mPlayer.syn[p].control_method == 2) mPlayer.syn[p].control_method = 4;
+   if (mPlayer.syn[p].control_method == 8) mLoop.state[0] = 1; // server quit
+
+   // compare old_l to l and redraw changed tiles
+   al_set_target_bitmap(mBitmap.level_background);
+   for (int x=0; x < 100; x++)
+      for (int y=0; y < 100; y++)
+         if (mLevel.l[x][y] != old_l[x][y])
+         {
+            al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
+            al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
+         }</code></pre>
+<mh3>
+Next, if the state we just applied was from the past, we will fast forward to the current frame.
+
+If the client has game moves saved for these frames, they will be applied as they are played back.
+</mh3>
+<pre><code class="language-cpp">   // ------------------------------------------------
+   // if we rewound time, play it back
+   // ------------------------------------------------
+   if (ff>0) mLoop.loop_frame(ff);
+</code></pre>
+
+<mh3>
+Next, we send an acknowledgment packet to let the server know we have applied the state and have a copy of it that can be used as a base for future difs the server sends.
+
+Also we send various monitoring information about the client at the same time.
+</mh3>
+<pre><code class="language-cpp">   // send acknowledgment
+   client_send_stak(client_state_dif_dst);
+   
+void mwNetgame::client_send_stak(int ack_frame)
+{
+   int p = mPlayer.active_local_player;
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "stak");
+   mPacketBuffer.PacketPutInt1(data, pos, p);
+   mPacketBuffer.PacketPutInt4(data, pos, ack_frame);
+   mPacketBuffer.PacketPutInt4(data, pos, mLoop.frame_num);
+   mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].client_chase_fps);
+   mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].dsync_avg);
+   mPacketBuffer.PacketPutInt1(data, pos, mPlayer.loc[p].rewind);
+   mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].client_loc_plr_cor);
+   mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].client_rmt_plr_cor);
+   mPacketBuffer.PacketPutDouble(data, pos, mPlayer.loc[p].cpu);
+   ClientSend(data, pos);
+   mLog.addf(LOG_NET_stak, p, "tx stak p:%d ack:[%d] cur:[%d]\n", p, ack_frame, mLoop.frame_num);
+}</code></pre>
+
+<mh3>
+Now the fun part!!
+
+Before we applied the dif, the players' positions were saved.
+
+Now we compare them and calculate how much they were corrected.
+
+This is a very good measure of how playable the netgame is.
+
+If the corrections are large the players will appear to be warping around as they get corrected by new states from the server.
+
+There are two types of corrections calculated. The local client's correction and the correction of any remote players.
+
+These raw values are added to a Tally object, and once per second, the maximum and average are calculated.
+
+You can view these variables on the debug overlay.
+</mh3>
+
+
+<pre><code class="language-cpp">   // ------------------------------------------------
+   // calc players' corrections
+   // ------------------------------------------------
+   mPlayer.loc[p].client_rmt_plr_cor = 0; // reset max remote
+   for (int pp=0; pp < NUM_PLAYERS; pp++)
+      if (mPlayer.syn[pp].active)
+      {
+         float cor = sqrt(pow((mPlayer.loc[pp].old_x - mPlayer.syn[pp].x), 2) + pow((mPlayer.loc[pp].old_y - mPlayer.syn[pp].y), 2));  // hypotenuse distance
+         if (p == pp) mPlayer.loc[p].client_loc_plr_cor = cor; // save local cor
+         else if (cor > mPlayer.loc[p].client_rmt_plr_cor) mPlayer.loc[p].client_rmt_plr_cor = cor; // save max remote cor
+      }
+
+   // add data to tally
+   mTally_client_loc_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_loc_plr_cor);
+   mTally_client_rmt_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_rmt_plr_cor);
+}
+
+      // ----------------------------------------------------------
+      // do things based on the 1 Hz sec_timer event
+      // ----------------------------------------------------------
+
+            if (mNetgame.ima_client)
+            {
+               mNetgame.client_send_ping();
+               int p = mPlayer.active_local_player;
+               mPlayer.loc[p].client_loc_plr_cor_avg = mTally_client_loc_plr_cor_last_sec[p].get_avg(0);
+               mPlayer.loc[p].client_rmt_plr_cor_avg = mTally_client_rmt_plr_cor_last_sec[p].get_avg(0);
+               mPlayer.loc[p].client_loc_plr_cor_max = mTally_client_loc_plr_cor_last_sec[p].get_max(1);
+               mPlayer.loc[p].client_rmt_plr_cor_max = mTally_client_rmt_plr_cor_last_sec[p].get_max(1);
+            }
+            if (mNetgame.ima_server)
+            {
+               // tally late cdats and game move dsync
+               for (int p=1; p < NUM_PLAYERS; p++)
+                  if (mPlayer.syn[p].control_method == 2)
+                  {
+                     mPlayer.syn[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally(1);
+                     mPlayer.loc[p].game_move_dsync_avg_last_sec = mTally_game_move_dsync_avg_last_sec[p].get_avg(1);
+
+                     mPlayer.loc[p].client_loc_plr_cor_avg = mTally_client_loc_plr_cor_last_sec[p].get_avg(0);
+                     mPlayer.loc[p].client_rmt_plr_cor_avg = mTally_client_rmt_plr_cor_last_sec[p].get_avg(0);
+
+                     mPlayer.loc[p].client_loc_plr_cor_max = mTally_client_loc_plr_cor_last_sec[p].get_max(1);
+                     mPlayer.loc[p].client_rmt_plr_cor_max = mTally_client_rmt_plr_cor_last_sec[p].get_max(1);
+                  }
+            }
+
+</code></pre>
+
+
+<a name="The entire function 'client_apply_dif()'"></a>
+<mh7>The entire function 'client_apply_dif'</mh7>
+
+<pre><code class="language-cpp">void mwNetgame::client_apply_dif(void)
+{
+   int p = mPlayer.active_local_player;
+
+   mLog.addf(LOG_NET_dif_applied, p, "----- Apply dif [%d to %d] ", client_state_dif_src, client_state_dif_dst);
+
+   // check if dif is valid
+   if ((client_state_dif_src == -1) || (client_state_dif_dst == -1))
+   {
+      mLog.app(LOG_NET_dif_not_applied, "[not applied] [dif not valid]\n");
+      return;
+   }
+
+   // check if dif_dest has already been applied (check if dif_dest is less than or equal to newest_state_frame_num)
+   if (client_state_dif_dst <= mStateHistory[p].newest_state_frame_num)
+   {
+      mLog.app(LOG_NET_dif_not_applied, "[not applied] [not newer than last dif applied]\n");
+      return;
+   }
+
+   // if we got this far, we know that dif is valid and dif destination is newer than last applied dif
+
+   // compare dif destination to current frame number
+   int ff = mPlayer.loc[p].rewind = mLoop.frame_num - client_state_dif_dst;
+   char tmsg[64];
+   if (ff == 0) sprintf(tmsg, "exact frame match [%d]", mLoop.frame_num);
+   if (ff > 0)  sprintf(tmsg, "rewound [%d] frames", ff);
+   if (ff < 0)
+   {
+      if (mLoop.frame_num == 0) sprintf(tmsg, "initial state");
+      else                      sprintf(tmsg, "jumped ahead %d frames", -ff);
+   }
+
+   // now check if we have a base state that matches dif source
+   char base[STATE_SIZE] = {0};
+   int base_frame_num = 0;
+
+   // finds and sets base matching 'client_state_dif_src' -- if not found, leaves base as is (zero)
+   mStateHistory[p].get_base_state(base, base_frame_num, client_state_dif_src);
+
+   if (base_frame_num == 0)
+   {
+      mPlayer.loc[p].client_base_resets++;
+      if (client_state_dif_src != 0)
+      {
+         int fn = mStateHistory[p].newest_state_frame_num;
+         mLog.appf(LOG_NET_dif_not_applied, "[not applied] [base not found] - resending stak [%d]\n", fn);
+         client_send_stak(fn);
+         return;
+      }
+   }
+
+   // ------------------------------------------------
+   // save things before applying dif
+   // ------------------------------------------------
+
+   // make a copy of level array l[][]
+   int old_l[100][100];
+   memcpy(old_l, mLevel.l, sizeof(mLevel.l));
+
+   // make a copy of players' pos
+   for (int pp=0; pp < NUM_PLAYERS; pp++)
+      if (mPlayer.syn[pp].active)
+      {
+         mPlayer.loc[pp].old_x = mPlayer.syn[pp].x;
+         mPlayer.loc[pp].old_y = mPlayer.syn[pp].y;
+      }
+
+   // apply dif to base
+   apply_state_dif(base, client_state_dif, STATE_SIZE);
+
+   // copy to game vars and set new frame number
+   state_to_game_vars(base);
+   mLoop.frame_num = client_state_dif_dst;
+
+   // keep track of frame number when last client dif was applied
+   mPlayer.loc[p].client_last_dif_applied = mLoop.frame_num;
+
+   // save to history
+   mStateHistory[p].add_state(mLoop.frame_num);
+
+
+   // add log entry
+   mLog.appf(LOG_NET_dif_not_applied, "[applied] [%s]\n", tmsg);
+
+   // ------------------------------------------------
+   // restore things after applying dif
+   // ------------------------------------------------
+
+   // fix control methods
+   mPlayer.syn[0].control_method = 2; // on client, server is always control method 2
+   if (mPlayer.syn[p].control_method == 2) mPlayer.syn[p].control_method = 4;
+   if (mPlayer.syn[p].control_method == 8) mLoop.state[0] = 1; // server quit
+
+
+   // compare old_l to l and redraw changed tiles
+   // double t0 = al_get_time();
+   al_set_target_bitmap(mBitmap.level_background);
+   for (int x=0; x < 100; x++)
+      for (int y=0; y < 100; y++)
+         if (mLevel.l[x][y] != old_l[x][y])
+         {
+            // printf("dif at x:%d y:%d\n", x, y);
+            al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mColor.pc[0]);
+            al_draw_bitmap(mBitmap.btile[mLevel.l[x][y] & 1023], x*20, y*20, 0);
+         }
+   // mLog.add_log_TMR(al_get_time() - t0, "oldl", 0);
+
+   // ------------------------------------------------
+   // if we rewound time, play it back
+   // ------------------------------------------------
+   if (ff>0) mLoop.loop_frame(ff);
+
+   // send acknowledgment
+   client_send_stak(client_state_dif_dst);
+
+   // ------------------------------------------------
+   // calc players' corrections
+   // ------------------------------------------------
+   mPlayer.loc[p].client_rmt_plr_cor = 0; // reset max remote
+   for (int pp=0; pp < NUM_PLAYERS; pp++)
+      if (mPlayer.syn[pp].active)
+      {
+         float cor = sqrt(pow((mPlayer.loc[pp].old_x - mPlayer.syn[pp].x), 2) + pow((mPlayer.loc[pp].old_y - mPlayer.syn[pp].y), 2));  // hypotenuse distance
+         if (p == pp) mPlayer.loc[p].client_loc_plr_cor = cor; // save local cor
+         else if (cor > mPlayer.loc[p].client_rmt_plr_cor) mPlayer.loc[p].client_rmt_plr_cor = cor; // save max remote cor
+      }
+
+   // add data to tally
+   mTally_client_loc_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_loc_plr_cor);
+   mTally_client_rmt_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_rmt_plr_cor);
+}</code></pre>
+
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2024, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>
