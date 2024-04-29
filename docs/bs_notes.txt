@@ -1281,110 +1281,183 @@ how about I put the v2 folder in the the new stuff....done...
 
 now what else?
 
-
 old versions? 15M worth....
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+I have now replaced the old webpages with the new and committed to github
+
+I should have made a copy on the desktop of the old...I want the old history to copy older versions html from...
+that is all I can think is missing....
+
+
+
+<a name="Older Versions"></a>        
+<br><mh7>Older Versions</mh7>
+<mh3>
+Click on a date to download.
+
+Note: You will need <a href="https://www.dosbox.com/">DOSBOX</a> to run version 4 and earlier.
+</mh3>            
+                    <style>
+                        table, th, td {
+                            border: 1px solid black;
+                            border-collapse: collapse;
+                        }
+                        th, td {
+                            padding: 5px;
+                            text-align: center;
+
+
+                        }
+                        th {
+                            font-weight: bold;
+                        }
+                    </style>
+
+                    <table style="width:100%">
+                        <tr>
+                            <th>Version</th>
+                            <th>Date</th> 
+                            <th>Platform</th>
+                            <th>Allegro Version</th>
+                            <th>Compiler</th>
+                            <th>IDE</th>
+                            <th>Screen Modes</th>
+                            <th>Level Editor</th>
+                            <th>Multiplayer</th>
+                            <th>Linux</th>
+                            <th>Notes</th>
+                        </tr>
+                        <tr>
+                            <td>-</td>
+                            <td><a href="old_versions/pm0_19980922.zip">19980922</a></td> 
+                            <td>DOS/WIN98</td>
+                            <td>2.2</td>
+                            <td>DJGPP</td>
+                            <td>RHIDE</td>
+                            <td>320x200</td>
+                            <td>integrated</td>
+                            <td>no</td>
+                            <td>no</td>
+                            <td>Earliest surviving version (no sources)</td>
+                        </tr>
+                        <tr>
+                            <td>-</td>
+                            <td><a href="old_versions/pm0_19981112.zip">19981112</a></td> 
+                            <td>DOS/WIN98</td>
+                            <td>2.2</td>
+                            <td>DJGPP</td>
+                            <td>RHIDE</td>
+                            <td>320x200</td>
+                            <td>integrated</td>
+                            <td>no</td>
+                            <td>no</td>
+                            <td>Earliest surviving version with sources</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td><a href="old_versions/pm1_19981120.zip">19981120</a></td> 
+                            <td>DOS/WIN98</td>
+                            <td>2.2</td>
+                            <td>DJGPP</td>
+                            <td>RHIDE</td>
+                            <td>320x200</td>
+                            <td>integrated</td>
+                            <td>no</td>
+                            <td>no</td>
+                            <td>Not released. Mentions shareware and full versions but not implemented</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><a href="old_versions/pm2_19991202.zip">19991202</a></td> 
+                            <td>DOS/WIN98</td>
+                            <td>2.2</td>
+                            <td>DJGPP</td>
+                            <td>RHIDE</td>
+                            <td>640x480 800x600 1024x768</td>
+                            <td>standalone</td>
+                            <td>no</td>
+                            <td>no</td>
+                            <td>First version actually released. Has shareware and full version for $10</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><a href="old_versions/pm3_20000404.zip">20000404</a></td> 
+                            <td>DOS/WIN98</td>
+                            <td>3.12</td>
+                            <td>DJGPP</td>
+                            <td>RHIDE</td>
+                            <td>Allegro Screen Mode GUI</td>
+                            <td>standalone</td>
+                            <td>no</td>
+                            <td>no</td>
+                            <td>Changed to free from now on</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td><a href="old_versions/pm4_20010301.zip">20010301</a></td> 
+                            <td>DOS/WIN98</td>
+                            <td>3.12</td>
+                            <td>DJGPP</td>
+                            <td>RHIDE</td>
+                            <td>Allegro Screen Mode GUI</td>
+                            <td>standalone</td>
+                            <td>no</td>
+                            <td>no</td>
+                            <td>More levels, added sliders in level editor</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td><a href="old_versions/pm5_20030622.zip">20030622</a></td> 
+                            <td>WIN98/WINXP/linux</td>
+                            <td>4.0</td>
+                            <td>MinGW</td>
+                            <td>Dev-Cpp</td>
+                            <td>Allegro Screen Mode GUI with windowed mode</td>
+                            <td>standalone</td>
+                            <td>2 player split screen</td>
+                            <td>source</td>
+                            <td>First linux version, 2 player split screen</td>
+                        </tr>
+                        <td>6</td>
+                        <td><a href="old_versions/pm6_20180311.zip">20180311</a></td> 
+                        <td>WINXP/WIN7/WIN10/linux</td>
+                        <td>4.4.2</td>
+                        <td>MinGW</td>
+                        <td>Dev-Cpp</td>
+                        <td>Allegro Screen Mode GUI with windowed mode</td>
+                        <td>integrated</td>
+                        <td>8 player netgame</td>
+                        <td>source</td>
+                        <td>Finally got netplay to work! Many other changes.</td>
+                        </tr>
+                    <td>7</td>
+                    <td><a href="https://mweiss001.itch.io/purple-martians">20180422</a></td> 
+                    <td>WINXP/WIN7/WIN10/linux</td>
+                    <td>5.2.4</td>
+                    <td>MinGW-w64</td>
+                    <td>Code::Blocks</td>
+                    <td>Dynamically resizeable window and fullscreen</td>
+                    <td>integrated</td>
+                    <td>8 player netgame</td>
+                    <td>binary</td>
+                    <td>Ported to Allegro 5.</td>
+                    </tr>
+                </table>
+
+
+well it is there, but it does not look nice...yet!!
+
+I imported it into BS and made it look nice....
+
+now on the history page I have collapsible sections...
+
+and one of them is older versions
+
+This is looking good...
+
+
+lets deploy it...
 
 
 
