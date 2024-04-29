@@ -1,0 +1,295 @@
+<!doctype html>
+<title>Netgame - Server Setup</title>
+
+<html>    <script  src="../assets/js/prism.js"></script>
+    <link href = "../assets/css/prism.css" rel="stylesheet" />
+    <link href = "../assets/css/mdw.css"      rel="stylesheet" type = "text/css" />
+<body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="../index.html"        target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="../download.html"     target="_top">Download</a></div>    
+<div style="text-align: center;"><a href="../multiplayer.html"  target="_top">Multiplayer</a></div>    
+<div style="text-align: center;"><a href="../about.html"        target="_top">About</a></div>    
+<div style="text-align: center;"><a href="../more.html"         target="_top">More</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
+
+</mdw_lhs_nav>
+            
+        </nav>
+      
+        <div class="col-2">
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Netgame - Server Setup</mh8>
+<mh3><hr><mdw_file_toc> <a href="netgame_server_setup.html#Overview" target="_top">Overview</a>
+ <a href="netgame_server_setup.html#Program states for server" target="_top">Program states for server</a>
+ <a href="netgame_server_setup.html#Server initializes network" target="_top">Server initializes network</a>
+ <a href="netgame_server_setup.html#Server listens" target="_top">Server listens</a>
+ <a href="netgame_server_setup.html#Program State 20 - Server start new game" target="_top">Program State 20 - Server start new game</a>
+ <a href="netgame_server_setup.html#Program State 19 - Server exit" target="_top">Program State 19 - Server exit</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
+<mh7>Overview</mh7>
+<mh3>
+The server initializes the network.
+The server listens for connections from clients.
+
+</mh3>
+
+
+<a name="Program states for server"></a>
+<mh7>Program states for server</mh7>
+
+<mh3>
+The program states used by a server are:
+
+20 - server start new game
+11 - main game loop
+19 - server exit
+
+</mh3>
+
+
+<a name="Server initializes network"></a>
+<mh7>Server initializes network</mh7>
+
+<mh3>
+When a server game is started, the first thing that happens is the network initialization.
+</mh3>
+
+<pre><code class="language-cpp">int mwNetgame::ServerInitNetwork(void)
+{
+   mLog.log_versions();
+   mLog.add_fw (LOG_NET, 0, 76, 10, "+", "-", "");
+   mLog.add_fw (LOG_NET, 0, 76, 10, "|", " ", "Server mode started");
+   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server hostname:    [%s]", mLoop.local_hostname);
+   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Level:              [%d]", mLevel.play_level);
+
+   char msg[256];
+   if (NetworkInit())
+   {
+      sprintf(msg, "Error: failed to initialize network");
+      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
+      mInput.m_err(msg);
+      return 0;
+   }
+   // open the listening channel
+   if (!(ListenChannel = net_openchannel(NetworkDriver, "")))
+   {
+      sprintf(msg, "Error opening listening channel");
+      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
+      mInput.m_err(msg);
+      return 0;
+   }
+   if (net_assigntarget(ListenChannel, ""))
+   {
+      sprintf(msg, "Error assigning target to listening channel");
+      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
+      net_closechannel(ListenChannel);
+      mInput.m_err(msg);
+      return 0;
+   }
+   mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Server network initialized");
+   mLog.add_fw(LOG_NET, 0, 76, 10, "+", "-", "");
+
+   ima_server = 1;
+
+   mPacketBuffer.start_packet_thread();
+
+   // still needed or client dies at joining   ---------- i should test this....seems OK without it...
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "JUNK");
+   ServerBroadcast(data, pos);
+
+   return 1;
+}</code></pre>
+
+
+
+
+<a name="Server listens"></a>
+<mh7>Server listens</mh7>
+
+<mh3>
+The server listens for new channels by calling this once per frame in the game loop.
+</mh3>
+<pre><code class="language-cpp">void mwNetgame::ServerListen()
+{
+   char msg[256];
+   char address[32];
+   char data[1024] = {0};
+   int pos = net_receive(ListenChannel, data, 1024, address);
+   if (pos)
+   {
+      if (mPacketBuffer.PacketRead(data, "1234"))
+      {
+         mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received initial 1234 packet from '%s'",address);
+         if (!(ClientChannel[ClientNum] = net_openchannel(NetworkDriver, NULL)))
+         {
+            sprintf(msg, "Error: failed to open channel for %s\n", address);
+            mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
+            mInput.m_err(msg);
+            return;
+         }
+         if (net_assigntarget (ClientChannel[ClientNum], address))
+         {
+            sprintf(msg, "Error: couldn't assign target `%s' to channel\n", address);
+            mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
+            net_closechannel (ClientChannel[ClientNum]);
+            mInput.m_err(msg);
+            return;
+         }
+         mPacketBuffer.PacketName(data, pos, "5678");
+         ServerSendTo(data, pos, ClientNum);
+         ClientNum++;
+         mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server opened channel for `%s' and sent reply", address);
+      }
+   }
+}</code></pre>
+
+
+
+
+
+<a name="Program State 20 - Server start new game"></a>
+<mh7>Program State 20 - Server start new game</mh7>
+
+<mh3></mh3>
+<pre><code class="language-cpp">   //---------------------------------------
+   // 20 - server new game
+   //---------------------------------------
+   if (state[1] == 20)
+   {
+      mLog.add(LOG_OTH_program_state, 0, "[State 20 - Server New Game]\n");
+      if (!mNetgame.ServerInitNetwork())
+      {
+         mNetgame.ServerExitNetwork();
+         state[0] = 19;
+         return;
+      }
+
+      mLevel.set_start_level();
+
+      // reset players
+      for (int p=0; p < NUM_PLAYERS; p++)
+      {
+         mPlayer.init_player(p, 1);           // full reset
+         mPlayer.set_player_start_pos(p, 0);  // set starting position for all players, active or not
+      }
+
+      mPlayer.syn[0].active = 1;
+      mPlayer.syn[0].control_method = 3;
+      strncpy(mPlayer.loc[0].hostname, local_hostname, 16);
+
+      mGameMoves.initialize();
+      frame_num = 0;
+      mNetgame.reset_states();
+      mShot.clear_shots();
+
+      mBottomMessage.initialize();
+      mInput.initialize();
+      mTriggerEvent.initialize();
+
+      initialize_graphs();
+
+      mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
+
+      // save colors in game moves array
+      for (int p=0; p < NUM_PLAYERS; p++)
+         if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, 1, p, mPlayer.syn[p].color); // 1 - player_state and color
+
+      mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
+
+
+      mScreen.player_text_overlay_timer = 0;
+
+      mSound.start_music(0); // rewind and start theme
+      state[0] = 11;
+
+   }</code></pre>
+
+
+<a name="Program State 19 - Server exit"></a>
+<mh7>Program State 19 - Server exit</mh7>
+
+<mh3></mh3>
+<pre><code class="language-cpp">   //---------------------------------------
+   // 19 - server exit
+   //---------------------------------------
+   if (state[1] == 19) // server exit
+   {
+      mLog.add(LOG_OTH_program_state, 0, "[State 19 - Server Exit]\n");
+      mNetgame.ServerExitNetwork();
+      state[0] = 1;
+   }
+   
+void mwNetgame::ServerExitNetwork(void)
+{
+   mPacketBuffer.stop_packet_thread();
+
+   mLog.add_header(LOG_NET, 0, 0, "Shutting down the server network");
+   for (int n=0; n < ClientNum; n++)
+      if (ClientChannel[n])
+      {
+          net_closechannel(ClientChannel[n]);
+          ClientChannel[n] = NULL;
+      }
+   if (ListenChannel) net_closechannel(ListenChannel);
+   ListenChannel = NULL;
+
+   ima_server = 0;
+
+   // reset player data
+   for (int p=0; p < NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
+   mPlayer.syn[0].active = 1;
+}</code></pre>
+
+
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2024, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

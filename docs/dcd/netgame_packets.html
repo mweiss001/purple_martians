@@ -1,0 +1,239 @@
+<!doctype html>
+<title>Netgame - Packets</title>
+
+<html>    <script  src="../assets/js/prism.js"></script>
+    <link href = "../assets/css/prism.css" rel="stylesheet" />
+    <link href = "../assets/css/mdw.css"      rel="stylesheet" type = "text/css" />
+<body>
+
+        <nav class="col-1">
+    
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="../index.html"        target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="../download.html"     target="_top">Download</a></div>    
+<div style="text-align: center;"><a href="../multiplayer.html"  target="_top">Multiplayer</a></div>    
+<div style="text-align: center;"><a href="../about.html"        target="_top">About</a></div>    
+<div style="text-align: center;"><a href="../more.html"         target="_top">More</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
+
+</mdw_lhs_nav>
+            
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+
+<mh8>Netgame - Packets</mh8>
+<mh3><mdw_file_toc> <a href="netgame_packets.html#Overview" target="_top">Overview</a>
+ <a href="netgame_packets.html#Client Data" target="_top">Client Data</a>
+ <a href="netgame_packets.html#State Exchange" target="_top">State Exchange</a>
+ <a href="netgame_packets.html#New Client Setup" target="_top">New Client Setup</a>
+ <a href="netgame_packets.html#Ping, Pang and Pong" target="_top">Ping, Pang and Pong</a>
+ <a href="netgame_packets.html#Server Remote Control and Monitoring" target="_top">Server Remote Control and Monitoring</a>
+ <a href="netgame_packets.html#Server Client File Transfer" target="_top">Server Client File Transfer</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
+<mh7>Overview</mh7>
+<mh3>
+Detailed descriptions of all of the packet types used in netgame.
+
+</mh3>
+
+
+<a name="Client Data"></a><mh7>Client Data</mh7><div style="height: 12px"></div>
+
+<pk0>Packet: 'cdat'</pk0>
+<pk1>description: 'client data'
+direction: client to server
+- 1 byte  (player)
+- 4 bytes (frame_num)
+- 1 byte  (comp move of control change)
+</pk1><div style="height: 12px"></div>
+
+
+<a name="State Exchange"></a><mh7>State Exchange</mh7><div style="height: 12px"></div>
+
+<pk0>Packet: 'stdf'</pk0>
+<pk1>description: 'state dif'
+direction: server to client
+- 4 bytes (source frame_num)
+- 4 bytes (destination frame_num)
+- 1 byte  (packet sequence num)
+- 1 byte  (packet sequence total)
+- 4 bytes (data start byte)
+- 4 bytes (data size)
+- up to 1000 bytes of data
+</pk1><div style="height: 12px"></div>
+
+<pk0>Packet: 'stak'</pk0>
+<pk1>description: 'state acknowledge'
+direction: client to server
+- 1 byte  (player)
+- 4 bytes (client_state_base_frame_num)
+- 4 bytes (client_frame_num)
+- 8 bytes double (client_chase_fps)
+- 8 bytes double (dsync_avg)
+- 1 byte  (rewind)
+- 8 bytes double (client_loc_plr_cor)
+- 8 bytes double (client_rmt_plr_cor)
+- 8 bytes double (cpu)
+</pk1><div style="height: 12px"></div>
+
+
+<a name="New Client Setup"></a><mh7>New Client Setup</mh7><div style="height: 12px"></div>
+
+<pk0>Packet: 'cjon'</pk0>
+<pk1>description: 'client join'
+direction: client to server
+- 1 byte   (requested color)
+- 16 bytes (client hostname)
+</pk1><div style="height: 12px"></div>
+        
+<pk0>Packet: 'sjon'</pk0>
+<pk1>description: 'server join'
+direction: server to client
+- 4 bytes (play level)
+- 4 bytes (server frame_num)
+- 1 byte  (player number)
+- 1 byte  (player color)
+</pk1><div style="height: 12px"></div>
+
+
+<a name="Ping, Pang and Pong"></a><mh7>Ping, Pang and Pong</mh7><div style="height: 12px"></div>
+
+<pk0>Packet: 'ping'</pk0>
+<pk1>description: 'ping'
+direction: client to server
+- 8 bytes double (ping timestamp)
+</pk1><div style="height: 12px"></div>
+
+<pk0>Packet: 'pong'</pk0>
+<pk1>description: 'pong'
+direction: server to client
+- 8 bytes double (ping timestamp)
+- 8 bytes double (pong timestamp)
+</pk1><div style="height: 12px"></div>
+
+<pk0>Packet: 'pang'</pk0>
+<pk1>description: 'pang'
+direction: client to server
+- 8 bytes double (pong timestamp)
+</pk1><div style="height: 12px"></div>
+
+
+<a name="Server Remote Control and Monitoring"></a><mh7>Server Remote Control and Monitoring</mh7><div style="height: 12px"></div>
+
+<pk0>Packet: 'cjrc'</pk0>
+<pk1>description: 'client join remote control'
+direction: client to server
+no data
+</pk1><div style="height: 12px"></div>
+
+<pk0>Packet: 'sjrc'</pk0>
+<pk1>description: 'server accept client join remote control'
+direction: server to client
+no data
+</pk1><div style="height: 12px"></div>
+
+<pk0>Packet: 'snfo'</pk0>
+<pk1>description: 'server info'
+direction: server to client
+- 4 bytes (frame_num)
+- 1 byte  (packet sequence num)
+- 1 byte  (packet sequence total)
+- 4 bytes (data start byte)
+- 4 bytes (data size)
+- up to 1000 bytes of data
+</pk1><div style="height: 12px"></div>
+
+<pk0>Packet: 'rctl'</pk0>
+<pk1>description: 'server remote control'
+direction: client to server
+- 4 bytes (type)
+- 8 bytes double (val)
+</pk1><div style="height: 12px"></div>
+
+
+
+<a name="Server Client File Transfer"></a><mh7>Server Client File Transfer</mh7><div style="height: 12px"></div>
+
+<pk0>Packet: 'clrf'</pk0>
+<pk1>description: 'client request file'
+direction: client to server
+no data
+</pk1><div style="height: 12px"></div>
+
+
+<pk0>Packet: 'sfil'</pk0>
+<pk1>description: 'server file'
+direction: server to client
+- 4 bytes (id)
+- 1 byte  (packet sequence num)
+- 1 byte  (packet sequence total)
+- 4 bytes (data start byte)
+- 4 bytes (data size)
+- 4 bytes (uncompressed file size)
+- up to 1000 bytes of data
+</pk1><div style="height: 12px"></div>
+
+<pk0>Packet: 'sfak'</pk0>
+<pk1>description: 'sfil acknowledge'
+direction: client to server
+- 4 bytes (id)
+</pk1><div style="height: 12px"></div>
+
+
+
+
+
+
+
+
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2024, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

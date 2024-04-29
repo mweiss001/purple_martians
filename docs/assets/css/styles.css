@@ -1,0 +1,87 @@
+.mw_card_iframe {
+  aspect-ratio: 16 / 9;
+}
+
+.mw_link_inactive {
+  color: white;
+}
+
+.mw_link_active {
+  color: white;
+  outline: 1px solid #6500ec;
+  border-radius: 4px;
+}
+
+.mw_card {
+  min-width: 400px;
+  max-width: 600px;
+  border-width: 5px;
+  border-radius: 17px;
+  margin: 8px;
+}
+
+@media (width <= 576px) {
+  .mw_card {
+    min-width: 300px;
+  }
+}
+
+.mw_card.mw_card_color_red1 {
+  background: rgb(67,11,18);
+  color: rgb(222,166,176);
+}
+
+.mw_card.mw_card_color_purple1 {
+  background: rgb(26,11,67);
+  color: rgb(192,182,218);
+}
+
+.mw_card.mw_card_color_blue1 {
+  background: rgb(16,60,79);
+  color: rgb(170,209,227);
+}
+
+.mw_card.mw_card_color_yellow1 {
+  background: rgb(54,55,10);
+  color: rgb(216,217,189);
+}
+
+.mw_card.mw_card_color_green1 {
+  background: rgb(11,57,46);
+  color: rgb(136, 187, 163);
+}
+
+.mw_card.mw_card_color_grey1 {
+  background: rgb(25,29,34);
+  color: rgb(174,187,200);
+}
+
+.mw_card.mw_card_color_light {
+  background: rgb(241,243,245);
+  color: rgb(112,128,143);
+}
+
+.mw_mp_cont_color_blue1 {
+  background: rgb(9,36,48);
+  border: 3px solid rgb(14,47,62);
+  border-radius: 8px;
+}
+
+.mw_mp_cont_color_purple1 {
+  background: rgb(26,11,67);
+  border: 3px solid rgb(40,18,101);
+  border-radius: 8px;
+}
+
+.mw_mp_cont_color_red1 {
+  background: rgb(67,11,18);
+  border: 3px solid rgb(85,16,25);
+  border-radius: 8px;
+}
+
+.mw_link_inactive {
+}
+
+.mw_card_color_light {
+}
+

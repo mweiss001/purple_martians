@@ -1,0 +1,8 @@
+@font-face {
+	font-family: 'saucer_bbregular';
+	src: url(../../assets/fonts/saucer_bbregular-600f8878e5054840cf726afa328d2fac.woff2) format('woff2'),
+	url(../../assets/fonts/saucer_bbregular-6c224ca9062e0ae5c747a544eac630c3.woff) format('woff');
+	font-weight: normal;
+	font-style: normal;
+	font-display: auto;
+}

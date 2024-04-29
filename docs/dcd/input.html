@@ -1,0 +1,444 @@
+<!doctype html>
+<title>Input</title>
+
+<html>    <script  src="../assets/js/prism.js"></script>
+    <link href = "../assets/css/prism.css" rel="stylesheet" />
+    <link href = "../assets/css/mdw.css"      rel="stylesheet" type = "text/css" />
+<body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="../index.html"        target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="../download.html"     target="_top">Download</a></div>    
+<div style="text-align: center;"><a href="../multiplayer.html"  target="_top">Multiplayer</a></div>    
+<div style="text-align: center;"><a href="../about.html"        target="_top">About</a></div>    
+<div style="text-align: center;"><a href="../more.html"         target="_top">More</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
+
+</mdw_lhs_nav>
+            
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+	
+<mh3><hr></mh3>
+<mh8>Input</mh8>
+<mh3><hr><mdw_file_toc> <a href="input.html#Overview" target="_top">Overview</a>
+ <a href="input.html#Keyboard input" target="_top">Keyboard input</a>
+ <a href="input.html#Keys held array" target="_top">Keys held array</a>
+ <a href="input.html#Mouse input" target="_top">Mouse input</a>
+ <a href="input.html#Joystick input" target="_top">Joystick input</a>
+ <a href="input.html#Key bindings vs controls" target="_top">Key bindings vs controls</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a><mh7>Overview</mh7>
+
+<mh3>
+I really missed the way that Allegro 4 handled input, so I recreated parts of it.
+
+Allegro 4 had global variables that were updated asynchronously:
+</mh3>
+<pre><code class="language-cpp">extern volatile char key[KEY_MAX];
+extern volatile int mouse_x;
+extern volatile int mouse_y;
+extern volatile int mouse_z;
+extern volatile int mouse_b;
+extern JOYSTICK_INFO joy[n];
+</code></pre>
+<mh3>
+I recreated most of these, or similar equivalents, and update them when I process the event queue. (see <a href="events.html#Processing events" target="_top">Processing events</a>)
+
+</mh3>
+
+
+<a name="Keyboard input"></a><mh7>Keyboard input</mh7>
+
+<mh3>
+In Allegro 4, there is an array of key flags that are updated asynchronously:</mh3>    
+<pre><code class="language-cpp">extern volatile char key[KEY_MAX];</code></pre>   
+<mh3>
+You could do stuff like:
+</mh3>    
+<pre><code class="language-cpp">if (key[KEY_I])
+{
+   while (key[KEY_I]); // wait for key to be released
+   // do something
+}</code></pre>
+    
+<mh3>
+I wanted to do something similar in Allegro 5, I made my own key array and set it with keyboard events like this:
+</mh3>    
+    
+<pre><code class="language-cpp">bool mInput.key[ALLEGRO_KEY_MAX][4];
+
+void mwInput::proc_input_events(ALLEGRO_EVENT ev)
+{
+   if (ev.type == ALLEGRO_EVENT_KEY_DOWN) key[ev.keyboard.keycode][0] = true;
+   if (ev.type == ALLEGRO_EVENT_KEY_UP)   key[ev.keyboard.keycode][0] = false;
+...</code></pre>
+
+<mh3>
+</mh3>
+
+
+<a name="Keys held array"></a><mh7>Keys held array</mh7>
+
+<mh3>
+For each key (and mouse button), I detect not only if the key is pressed, but also if it has been just pressed, or just released.
+</mh3>    
+<pre><code class="language-cpp">// mInput.key[][0] current value 
+// mInput.key[][1] previous value 
+// mInput.key[][2] just pressed
+// mInput.key[][3] just released
+
+void mwInput::proc_keys_held(void)
+{
+   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++)
+   {
+      if ((key[k][0] == true) && (key[k][1] == false)) key[k][2] = true; // just pressed
+      else key[k][2] = false;
+      if ((key[k][0] == false) && (key[k][1] == true)) key[k][3] = true; // just released
+      else key[k][3] = false;
+      key[k][1] = key[k][0]; // previous for next time
+   }
+   for (int m=1; m<5; m++)
+   {
+      if ((mouse_b[m][0] == true) && (mouse_b[m][1] == false)) mouse_b[m][2] = true; // just pressed
+      else mouse_b[m][2] = false;
+      if ((mouse_b[m][0] == false) && (mouse_b[m][1] == true)) mouse_b[m][3] = true; // just released
+      else mouse_b[m][3] = false;
+      mouse_b[m][1] = mouse_b[m][0]; // previous for next time
+   }
+}</code></pre>   
+
+<mh3>
+Now in Allegro 5, I can do something similar to what I used to do in Allegro 4:
+</mh3>    
+
+<pre><code class="language-cpp">mEvent.proc();
+
+if (mInput.key[ALLEGRO_KEY_I][0])
+{
+   while (mInput.key[ALLEGRO_KEY_I][0]) mEvent.proc(); // wait for key to be released
+   // do something
+}</code></pre>
+
+
+<mh3>
+And if I use the key held functionality, it can make it even simpler:
+</mh3>    
+
+<pre><code class="language-cpp">mEvent.proc();
+
+if (mInput.key[ALLEGRO_KEY_I][3]) // key has just been released
+{
+   // do something
+}</code></pre>
+
+                        
+<mh3>
+</mh3>
+
+
+						
+<a name="Mouse input"></a><mh7>Mouse input</mh7>
+
+<mh3>
+For mouse input, I do something similar to what I do for keyboard.
+    
+Allegro 4 has external variables for mouse position and button state that are asynchronously updated.
+
+In Allegro 5, I re-implement them and set them with mouse events:
+</mh3>    
+        
+            
+<pre><code class="language-cpp">int mInput.mouse_x
+int mInput.mouse_y
+int mInput.mouse_z
+int mInput.mouse_dx
+int mInput.mouse_dy
+int mInput.mouse_dz
+bool mInput.mouse_b[5][4]
+
+void mwInput::proc_input_events(ALLEGRO_EVENT ev)
+{
+   if (ev.type == ALLEGRO_EVENT_MOUSE_WARPED)
+   {
+      mouse_x = ev.mouse.x / mDisplay.display_transform_double;
+      mouse_y = ev.mouse.y / mDisplay.display_transform_double;
+   }
+   if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
+   {
+      mouse_x = ev.mouse.x / mDisplay.display_transform_double;
+      mouse_y = ev.mouse.y / mDisplay.display_transform_double;
+      mouse_z = ev.mouse.z / mDisplay.display_transform_double;
+      mouse_dx = ev.mouse.dx;
+      mouse_dy = ev.mouse.dy;
+      mouse_dz = ev.mouse.dz;
+   }
+   if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+   {
+      if (ev.mouse.button == 1) mouse_b[1][0] = true;
+      if (ev.mouse.button == 2) mouse_b[2][0] = true;
+      if (ev.mouse.button == 3) mouse_b[3][0] = true;
+      if (ev.mouse.button == 4) mouse_b[4][0] = true;
+   }
+   if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+   {
+      if (ev.mouse.button == 1) mouse_b[1][0] = false;
+      if (ev.mouse.button == 2) mouse_b[2][0] = false;
+      if (ev.mouse.button == 3) mouse_b[3][0] = false;
+      if (ev.mouse.button == 4) mouse_b[4][0] = false;
+   }
+}</code></pre>
+
+<mh3>Note that the mouse positions are divided by mDisplay.display_transform_double.
+
+This is to account for an orthographic screen tranformation. (see <a href="display.html#Display transform double" target="_top"> Display Transform Double</a>)
+
+</mh3>    
+
+
+
+<a name="Joystick input"></a><mh7>Joystick input</mh7>
+
+<mh3>
+I do something really weird for the joystick.  I've done it for many years.
+
+I take a section of usused key codes (I use from 128 to 167) and map them to to joystick inputs:
+</mh3>
+
+    
+<pre><code class="language-cpp">char *key_names[] =
+{
+  (char*) "(none)",     (char*) "A",         (char*) "B",         (char*) "C",
+  (char*) "D",          (char*) "E",         (char*) "F",         (char*) "G",
+  (char*) "H",          (char*) "I",         (char*) "J",         (char*) "K",
+  (char*) "L",          (char*) "M",         (char*) "N",         (char*) "O",
+  (char*) "P",          (char*) "Q",         (char*) "R",         (char*) "S",
+  (char*) "T",          (char*) "U",         (char*) "V",         (char*) "W",
+  (char*) "X",          (char*) "Y",         (char*) "Z",         (char*) "0",
+  (char*) "1",          (char*) "2",         (char*) "3",         (char*) "4",
+  (char*) "5",          (char*) "6",         (char*) "7",         (char*) "8",
+  (char*) "9",          (char*) "PAD 0",     (char*) "PAD 1",     (char*) "PAD 2",
+  (char*) "PAD 3",      (char*) "PAD 4",     (char*) "PAD 5",     (char*) "PAD 6",
+  (char*) "PAD 7",      (char*) "PAD 8",     (char*) "PAD 9",     (char*) "F1",
+  (char*) "F2",         (char*) "F3",        (char*) "F4",        (char*) "F5",
+  (char*) "F6",         (char*) "F7",        (char*) "F8",        (char*) "F9",
+  (char*) "F10",        (char*) "F11",       (char*) "F12",       (char*) "ESCAPE",
+  (char*) "KEY60",      (char*) "KEY61",     (char*) "KEY62",     (char*) "BACKSPACE",
+  (char*) "TAB",        (char*) "KEY65",     (char*) "KEY66",     (char*) "ENTER",
+  (char*) "KEY68",      (char*) "KEY69",     (char*) "BACKSLASH", (char*) "KEY71",
+  (char*) "KEY72",      (char*) "KEY73",     (char*) "KEY74",     (char*) "SPACE",
+  (char*) "INSERT",     (char*) "DELETE",    (char*) "HOME",      (char*) "END",
+  (char*) "PGUP",       (char*) "PGDN",      (char*) "LEFT",      (char*) "RIGHT",
+  (char*) "UP",         (char*) "DOWN",      (char*) "PAD /",     (char*) "PAD *",
+  (char*) "PAD -",      (char*) "PAD +",     (char*) "PAD DELETE",(char*) "PAD ENTER",
+  (char*) "PRINTSCREEN",(char*) "PAUSE",     (char*) "KEY94",     (char*) "KEY95",
+  (char*) "KEY96",      (char*) "KEY97",     (char*) "KEY98",     (char*) "KEY99",
+  (char*) "KEY100",     (char*) "KEY101",    (char*) "KEY102",    (char*) "PAD =",
+  (char*) "KEY104",     (char*) "KEY105",    (char*) "KEY106",    (char*) "KEY107",
+  (char*) "KEY108",     (char*) "KEY109",    (char*) "KEY110",    (char*) "KEY111",
+  (char*) "KEY112",     (char*) "KEY113",    (char*) "KEY114",    (char*) "KEY115",
+  (char*) "KEY116",     (char*) "KEY117",    (char*) "KEY118",    (char*) "KEY119",
+  (char*) "KEY120",     (char*) "KEY121",    (char*) "KEY122",    (char*) "KEY123",
+  (char*) "KEY124",     (char*) "KEY125",    (char*) "KEY126",    (char*) "KEY127",
+
+   // joystick equivalents
+   // 128-
+          (char*) "joy1-up", (char*) "joy1-down",(char*) "joy1-left",(char*) "joy1-right",
+          (char*) "joy1-b0", (char*) "joy1-b1",  (char*) "joy1-b2",  (char*) "joy1-b3",
+          (char*) "joy1-b4", (char*) "joy1-b5",  (char*) "joy1-b6",  (char*) "joy1-b7",
+          (char*) "joy1-b8", (char*) "joy1-b9",  (char*) "joy1-b10", (char*) "joy1-b11",
+          (char*) "joy1-b12",(char*) "joy1-b13", (char*) "joy1-b14", (char*) "joy1-b15",
+   // 148-
+          (char*) "joy2-up", (char*) "joy2-down",(char*) "joy2-left",(char*) "joy2-right",
+          (char*) "joy2-b0", (char*) "joy2-b1",  (char*) "joy2-b2",  (char*) "joy2-b3",
+          (char*) "joy2-b4", (char*) "joy2-b5",  (char*) "joy2-b6",  (char*) "joy2-b7",
+          (char*) "joy2-b8", (char*) "joy2-b9",  (char*) "joy2-b10", (char*) "joy2-b11",
+          (char*) "joy2-b12",(char*) "joy2-b13", (char*) "joy2-b14", (char*) "joy2-b15",
+
+//  (char*) "KEY128",    (char*) "KEY129",    (char*) "KEY130",    (char*) "KEY131",
+//  (char*) "KEY132",    (char*) "KEY133",    (char*) "KEY134",    (char*) "KEY135",
+//  (char*) "KEY136",    (char*) "KEY137",    (char*) "KEY138",    (char*) "KEY139",
+//  (char*) "KEY140",    (char*) "KEY141",    (char*) "KEY142",    (char*) "KEY143",
+//  (char*) "KEY144",    (char*) "KEY145",    (char*) "KEY146",    (char*) "KEY147",
+//
+//  (char*) "KEY148",    (char*) "KEY149",    (char*) "KEY150",    (char*) "KEY151",
+//  (char*) "KEY152",    (char*) "KEY153",    (char*) "KEY154",    (char*) "KEY155",
+//  (char*) "KEY156",    (char*) "KEY157",    (char*) "KEY158",    (char*) "KEY159",
+//  (char*) "KEY160",    (char*) "KEY161",    (char*) "KEY162",    (char*) "KEY163",
+//  (char*) "KEY164",    (char*) "KEY165",    (char*) "KEY166",    (char*) "KEY167",
+
+  (char*) "KEY168",    (char*) "KEY169",    (char*) "KEY170",    (char*) "KEY171",
+  (char*) "KEY172",    (char*) "KEY173",    (char*) "KEY174",    (char*) "KEY175",
+  (char*) "KEY176",    (char*) "KEY177",    (char*) "KEY178",    (char*) "KEY179",
+  (char*) "KEY180",    (char*) "KEY181",    (char*) "KEY182",    (char*) "KEY183",
+  (char*) "KEY184",    (char*) "KEY185",    (char*) "KEY186",    (char*) "KEY187",
+  (char*) "KEY188",    (char*) "KEY189",    (char*) "KEY190",    (char*) "KEY191",
+  (char*) "KEY192",    (char*) "KEY193",    (char*) "KEY194",    (char*) "KEY195",
+  (char*) "KEY196",    (char*) "KEY197",    (char*) "KEY198",    (char*) "KEY199",
+  (char*) "KEY200",    (char*) "KEY201",    (char*) "KEY202",    (char*) "KEY203",
+  (char*) "KEY204",    (char*) "KEY205",    (char*) "KEY206",    (char*) "KEY207",
+  (char*) "KEY208",    (char*) "KEY209",    (char*) "KEY210",    (char*) "KEY211",
+  (char*) "KEY212",    (char*) "KEY213",    (char*) "KEY214",    (char*) "LSHIFT",
+  (char*) "RSHIFT",    (char*) "LCTRL",     (char*) "RCTRL",     (char*) "ALT",
+  (char*) "ALTGR",     (char*) "LWIN",      (char*) "RWIN",      (char*) "MENU",
+  (char*) "SCROLLLOCK",(char*) "NUMLOCK",   (char*) "CAPSLOCK"
+};</code></pre>
+
+<mh3>    
+In my key array, when a key is pressed, its index in the array is set TRUE and when the key is released it's set FALSE.
+
+I do the exact same thing with joystick inputs.
+
+When a joystick control is pressed, its index in the key array is set TRUE, and when released, FALSE.
+
+This method makes it easier to set up the controller bindings for the game.
+
+For example, the game control [FIRE] could be mapped to a keyboard key like "C" or a joystick control like "joy-b5", and the code to detect that would be the same.  I just check if that key array index is set.
+
+When I display or change the key bindings I use the char array above and both key and joystick bindings show a text description.
+
+Here is how I use joystick events to set joystick controls in the key array:
+</mh3>
+
+<pre><code class="language-cpp">if (ev.type == ALLEGRO_EVENT_JOYSTICK_AXIS)
+{
+   int jy = getJoystickNum(ev.joystick.id);
+   int jo = 0; // offset
+   if (jy == 0) jo = 0;
+   if (jy == 1) jo = 20;
+   int ax = ev.joystick.axis;
+   float pos = ev.joystick.pos;
+   if (ax == 0) // x axis
+   {
+      key[130+jo] = false;
+      key[131+jo] = false;
+      if (pos > 0) key[131+jo] = true;
+      if (pos < 0) key[130+jo] = true;
+   }
+   if (ax == 1) // y axis
+   {
+      key[128+jo] = false;
+      key[129+jo] = false;
+      if (pos > 0) key[129+jo] = true;
+      if (pos < 0) key[128+jo] = true;
+   }
+}
+if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN)
+{
+   int jy = getJoystickNum(ev.joystick.id);
+   int sc = get_scan_code_from_joystick(jy, 1, ev.joystick.button);
+   key[sc] = true;
+}
+if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_UP)
+{
+   int jy = getJoystickNum(ev.joystick.id);
+   int sc = get_scan_code_from_joystick(jy, 1, ev.joystick.button);
+   key[sc] = false;
+}
+
+int getJoystickNum(ALLEGRO_JOYSTICK* joy) // Thanks Edgar Reynaldo!
+{
+   for (int i=0; i < al_get_num_joysticks(); ++i)
+   {
+      if (joy == al_get_joystick(i)) {return i;}
+   }
+   return -1;
+}
+
+int get_scan_code_from_joystick(int joy, int button, int num)
+{
+   int ret = 0;
+   int base = 128;
+   if (joy == 0) base = 128;
+   if (joy == 1) base = 148;
+   if (button) ret = num + 4;
+   return base + ret;
+}</code></pre>
+
+
+<mh3>
+</mh3>
+
+<a name="Key bindings vs controls"></a><mh7>Key bindings vs controls</mh7>
+
+<mh3>
+There is a clear distinction between the key bindings and the controls.
+
+In the player struct, for each player we have the key bindings:</mh3>
+<pre><code class="language-cpp">mPlayer.loc[p].up_key
+mPlayer.loc[p].down_key
+mPlayer.loc[p].left_key
+mPlayer.loc[p].right_key
+mPlayer.loc[p].jump_key
+mPlayer.loc[p].fire_key
+mPlayer.loc[p].menu_key</code></pre>
+
+<mh3>
+And then we have variables to indicate if a particular control is active for that frame: </mh3>
+<pre><code class="language-cpp">mPlayer.syn[p].up
+mPlayer.syn[p].down
+mPlayer.syn[p].left
+mPlayer.syn[p].right
+mPlayer.syn[p].jump
+mPlayer.syn[p].fire
+mPlayer.syn[p].menu</code></pre>
+
+<mh3>
+The game used to have a very simple method of checking if a key was pressed and then setting the corresponding control.
+
+That has been superceded by the game moves array control method.
+
+For an in depth description of how controls are set, see: <a href="game_moves_array.html" target="_top">Game Moves Array</a>
+
+</mh3>
+
+            
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2024, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

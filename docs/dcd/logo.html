@@ -1,0 +1,540 @@
+<!doctype html>
+<title>Logo</title>
+
+<html>    <script  src="../assets/js/prism.js"></script>
+    <link href = "../assets/css/prism.css" rel="stylesheet" />
+    <link href = "../assets/css/mdw.css"      rel="stylesheet" type = "text/css" />
+<body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="../index.html"        target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="../download.html"     target="_top">Download</a></div>    
+<div style="text-align: center;"><a href="../multiplayer.html"  target="_top">Multiplayer</a></div>    
+<div style="text-align: center;"><a href="../about.html"        target="_top">About</a></div>    
+<div style="text-align: center;"><a href="../more.html"         target="_top">More</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="shots.html" target="_top">Shots</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+<div style="text-align: center;"><a href="netgame_main.html"                     target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"            target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_state_history.html"            target="_top">Netgame - State History</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"             target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html"    target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"       target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"                  target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_packet_buffer.html"            target="_top">Netgame - Packet Buffer</a></div>    
+<div style="text-align: center;"><a href="netgame_server_setup.html"             target="_top">Netgame - Server Setup</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                     target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                     target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                   target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_control_and_monitoring.html"   target="_top">Netgame - Control and Monitoring</a></div>    
+
+</mdw_lhs_nav>
+            
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3><mh8>Logo</mh8>
+<mh3><hr><mdw_file_toc> <a href="logo.html#Overview" target="_top">Overview</a>
+ <a href="logo.html#Demo Video" target="_top">Demo Video</a>
+ <a href="logo.html#Splines" target="_top">Splines</a>
+ <a href="logo.html#Spline wrapper funtions" target="_top">Spline wrapper funtions</a>
+ <a href="logo.html#Setup of points on the grid" target="_top">Setup of points on the grid</a>
+ <a href="logo.html#Drawing the small letters" target="_top">Drawing the small letters</a>
+ <a href="logo.html#Function to draw the entire static logo" target="_top">Function to draw the entire static logo</a>
+ <a href="logo.html#Function to draw animated spinning logo" target="_top">Function to draw animated spinning logo</a>
+</mdw_file_toc><hr></mh3>
+
+
+
+<a name="Overview"></a><mh7>Overview</mh7>
+
+<mh3>
+The animated splash screen logo of my name is made with a few different techniques:
+
+-the large capital letters (M, D, W) are generated with splines.
+
+-the small letters are font based and drawn by a function that scales x and y independantly and mirrors if the scales are negative.
+
+</mh3>
+
+
+
+<a name="Demo Video"></a><mh7>Demo Video</mh7>
+     
+<div style="text-align: left;"><video src="../assets/img/logo.mp4" poster="../assets/img/logo1.png" controls width="800" height="600" preload="auto"></video></div>
+
+<mh3>
+</mh3>
+
+
+<a name="Splines"></a><mh7>Splines</mh7>
+
+<mh3>                        
+In Allegro5, in the 'drawing primitives add-on', I use the function: 'al_draw_spline()'
+</mh3>
+
+<pre><code class="language-cpp">void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
+Draws a Bézier spline given 4 control points.
+Parameters:
+points - An array of 4 pairs of coordinates of the 4 control points
+color - Color of the spline
+thickness - Thickness of the spline</code></pre>
+<mh3>The bezier spline is specified by the four x/y control points in the points array:
+points[0] and points[1] contain the coordinates of the first control point, points[2] and points[3] are the second point, etc.
+
+Control points 0 and 3 are the ends of the spline, and points 1 and 2 are guides.
+
+The curve probably won't pass through points 1 and 2, but they affect the shape of the curve between points 0 and 3
+The easiest way to think of it is that the curve starts at p0, heading in the direction of p1, but curves round so that it arrives at p3 from the direction of p2.
+
+</mh3>
+
+<a name="Spline wrapper funtions"></a><mh7>Spline wrapper funtions</mh7>
+
+<mh3>
+I made a wrapper function for al_draw_spline() to add circles at the ends of the splines:</mh3>
+<pre><code class="language-cpp">void mwLogo::mspline(float *par, ALLEGRO_COLOR col, int thickness)
+{
+   al_draw_spline(par, col, thickness);
+   float r = (float)thickness * .8;
+   al_draw_filled_circle(par[0], par[1], r, col);
+   al_draw_filled_circle(par[6], par[7], r, col);
+}</code></pre>
+
+<mh3>
+Then I made another wrapper function to add a fading effect:</mh3>
+<pre><code class="language-cpp">void mwLogo::mfspline(float *par, int col, int thickness)
+{
+   ALLEGRO_COLOR c = mColor.pc[col];
+   float r, g, b;
+   al_unmap_rgb_f(c, &r, &g, &b);
+
+   for (int a = thickness; a>0; a--)
+   {
+      float f = (float)(a) / (float)(thickness); // fade in
+      mspline(par, al_map_rgb_f(r*f, g*f, b*f), a);
+   }
+}</code></pre>
+
+<mh3>
+</mh3>
+
+            
+<a name="Setup of points on the grid"></a><mh7>Setup of points on the grid</mh7>
+            
+<mh3>
+I set up an array with space for 9 splines.</mh3>
+<pre><code class="language-cpp">float points[9][8];</code></pre>
+<mh3>The "M" and "W" are each made of 4 splines.
+The "D" is made from one spline.
+
+All of the points for these splines are on cartesian grid with the center at 0,0.
+The upper left corner is -200, -200 and the lower right corner is +200, +200.
+This was chosen so that the entire grid can be scaled in the x and y axis independently by multiplying x or y coordinates by a scaling value.
+
+There are only 3 seed splines.
+- the large outer arms of 'M' and 'W' are mirrored copies of spline 0 (0, 1, 4, 5)
+- the small inner arms of 'M' and 'W' are mirrored copies of spline 2 (2, 3, 6, 7)
+- 'D' is made from spline 8 with the lower points mirrored from the top ones
+
+The other splines are derived from these seed splines, using x and y axis mirroring and translation.
+
+All of the constants in 'seed_logo()', I got from another function I wrote to set up the splines graphically.
+I adjusted the control points until I liked how they looked, then hard coded them into seed_mdw().
+</mh3>
+<pre><code class="language-cpp">void mwLogo::seed_logo(void)
+{
+// 0 1 'M' outer arms
+// 2 3 'M' inner arms
+// 4 5 'W' outer arms
+// 6 7 'W' inner arms
+// 8   'D'
+
+// 0 is copied to 1 4 5
+// 2 is copied to 3 6 7
+
+// the height and width of M and W are 200
+// they meet at the lower right corner of M and the upper left corner of W
+// that spot is the origin (0, 0) and also the center of the entire grid
+// this makes scaling easy as I can mutlipy all the values by a scaler
+// or just all the x or y values
+
+   // outer arms start and end pos are all fixed
+   points[0][0] = -200;
+   points[0][1] = 0;
+   points[0][6] = -200;
+   points[0][7] = -200;
+
+   points[1][0] = 0;
+   points[1][1] = 0;
+   points[1][6] = 0;
+   points[1][7] = -200;
+
+   points[4][0] = 0;
+   points[4][1] = 0;
+   points[4][6] = 0;
+   points[4][7] = 200;
+
+   points[5][0] = 200;
+   points[5][1] = 0;
+   points[5][6] = 200;
+   points[5][7] = 200;
+
+   // outer arm (spline 0) control points
+   points[0][2] = -115;
+   points[0][3] = -93;
+   points[0][4] = -105;
+   points[0][5] = -169;
+
+   // inner arm (spline 2) control points
+   points[2][0] = -170;
+   points[2][1] = -170;
+   points[2][2] = -123;
+   points[2][3] = -168;
+   points[2][4] = -107;
+   points[2][5] = -147;
+   points[2][6] = -91;
+   points[2][7] = -131;
+
+   // 'D' has only 1 spline, start point and first control point are mirrored in the y axis
+   points[8][0] = -70;
+   points[8][1] = -40;
+   points[8][2] = 132;
+   points[8][3] = -88;
+}</code></pre>
+
+<mh3>                    
+Then I set up all of the mirrored splines.
+</mh3>                    
+
+<pre><code class="language-cpp">void mwLogo::fill_logo(void)
+{
+   // --- outer arms ---
+   // mirror spline 0 to 1, 4, 5
+
+   // get control points from spline 0
+   float cp1x = points[0][0] - points[0][2];
+   float cp1y = points[0][1] - points[0][3];
+   float cp2x = points[0][0] - points[0][4];
+   float cp2y = points[0][1] - points[0][5];
+
+   // apply to other splines
+   points[1][2] = points[1][0] + cp1x;
+   points[1][3] = points[1][1] - cp1y;
+   points[1][4] = points[1][0] + cp2x;
+   points[1][5] = points[1][1] - cp2y;
+
+   points[4][2] = points[4][0] - cp1x;
+   points[4][3] = points[4][1] + cp1y;
+   points[4][4] = points[4][0] - cp2x;
+   points[4][5] = points[4][1] + cp2y;
+
+   points[5][2] = points[5][0] + cp1x;
+   points[5][3] = points[5][1] + cp1y;
+   points[5][4] = points[5][0] + cp2x;
+   points[5][5] = points[5][1] + cp2y;
+
+   // --- inner arms ---
+   // mirror spline 2 to 3, 6, 7
+
+   // get inner arm offsets from outer arm
+   float ia1x = points[0][0] - points[2][0]; // inner arm x1
+   float ia1y = points[0][1] - points[2][1]; // inner arm y1
+   float ia2x = points[0][0] - points[2][6]; // inner arm x2
+   float ia2y = points[0][1] - points[2][7]; // inner arm y2
+
+   // get inner arm control points
+   cp1x = points[2][0] - points[2][2]; // inner arm x1
+   cp1y = points[2][1] - points[2][3]; // inner arm y1
+   cp2x = points[2][0] - points[2][4]; // inner arm x2
+   cp2y = points[2][1] - points[2][5]; // inner arm y2
+
+   // apply to other inner arms
+   points[3][0] = points[1][0] + ia1x;
+   points[3][1] = points[1][1] - ia1y;
+   points[3][6] = points[1][0] + ia2x;
+   points[3][7] = points[1][1] - ia2y;
+
+   points[3][2] = points[3][0] + cp1x;
+   points[3][3] = points[3][1] - cp1y;
+   points[3][4] = points[3][0] + cp2x;
+   points[3][5] = points[3][1] - cp2y;
+
+   points[6][0] = points[4][0] - ia1x;
+   points[6][1] = points[4][1] + ia1y;
+   points[6][6] = points[4][0] - ia2x;
+   points[6][7] = points[4][1] + ia2y;
+
+   points[6][2] = points[6][0] - cp1x;
+   points[6][3] = points[6][1] + cp1y;
+   points[6][4] = points[6][0] - cp2x;
+   points[6][5] = points[6][1] + cp2y;
+
+   points[7][0] = points[5][0] + ia1x;
+   points[7][1] = points[5][1] + ia1y;
+   points[7][6] = points[5][0] + ia2x;
+   points[7][7] = points[5][1] + ia2y;
+
+   points[7][2] = points[7][0] + cp1x;
+   points[7][3] = points[7][1] + cp1y;
+   points[7][4] = points[7][0] + cp2x;
+   points[7][5] = points[7][1] + cp2y;
+
+   // --- spline 8 - used for 'd'
+   // mirror upper points to lower with same x
+   points[8][6] =  points[8][0]; // same x
+   points[8][7] = -points[8][1]; // mirror y
+   points[8][4] =  points[8][2]; // same x
+   points[8][5] = -points[8][3]; // mirror y
+} </code></pre>
+
+<mh3>
+</mh3>
+
+
+<a name="Drawing the small letters"></a><mh7>Drawing the small letters</mh7>
+
+<mh3>
+To draw the small letters, I use the function 'idw()' to draw scaled text.
+
+X and Y can be scaled independantly, and if either scale is negative the text is mirrored.
+
+The text bitmaps are generated only once, as it was too slow to generate them every time.
+</mh3>
+<pre><code class="language-cpp">void mwLogo::idw(int txt, float x, float y, float x_scale, float y_scale)
+{
+   int bbx1, bby1, bbw1, bbh1;
+   al_get_text_dimensions(mFont.acha, "ichael", &bbx1, &bby1, &bbw1, &bbh1);
+
+   if (logo_text_bitmaps_create)
+   {
+      logo_text_bitmaps_create = 0;
+
+      al_destroy_bitmap(logo_ichael);
+      logo_ichael = al_create_bitmap(bbw1,bbh1);
+      al_set_target_bitmap(logo_ichael);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+      al_draw_text(mFont.acha, mColor.pc[8], 0-bbx1, 0-bby1, 0, "ichael");
+
+      al_destroy_bitmap(logo_avid);
+      logo_avid = al_create_bitmap(bbw1,bbh1);
+      al_set_target_bitmap(logo_avid);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+      al_draw_text(mFont.acha, mColor.pc[90], 0-bbx1, 0-bby1, 0, "avid");
+
+      al_destroy_bitmap(logo_eiss);
+      logo_eiss = al_create_bitmap(bbw1,bbh1);
+      al_set_target_bitmap(logo_eiss);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+      al_draw_text(mFont.acha, mColor.pc[8], 0-bbx1, 0-bby1, 0, "eiss");
+   }
+
+   // scale the scale...
+   x_scale *=  72 / (float) al_get_font_line_height(mFont.acha);
+   y_scale *=  24 / (float) al_get_font_line_height(mFont.acha);
+
+   int flags = 0;
+   if (x_scale < 0) flags |= ALLEGRO_FLIP_HORIZONTAL;
+   if (y_scale < 0) flags |= ALLEGRO_FLIP_VERTICAL;
+
+   // offset x pos if scale is negative
+   if (x_scale < 0) x -= abs( (int) ((float)bbw1 * x_scale) );
+
+   // offset y pos if scale is negative
+   if (y_scale < 0) y -= abs( (int) ((float)bbh1 * y_scale) );
+
+   al_set_target_backbuffer(mDisplay.display);
+
+   if (txt == 1) al_draw_scaled_rotated_bitmap(logo_ichael, 0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
+   if (txt == 2) al_draw_scaled_rotated_bitmap(logo_avid,   0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
+   if (txt == 3) al_draw_scaled_rotated_bitmap(logo_eiss,   0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
+}</code></pre>
+
+<mh3>
+</mh3>
+
+
+<a name="Function to draw the entire static logo"></a><mh7>Function to draw the entire static logo</mh7>
+<mh3>                    
+Finally here is the function that draws the whole thing:
+</mh3>
+
+<pre><code class="language-cpp">void mwLogo::draw_logo(float x, float y, float x_scale, float y_scale)
+{
+   int c1 = 10; //color 1 (red)
+   int c2 = 8;  //color 2 (purple)
+
+   // get thickness from max scale, x or y
+   float max_scale = fabs(x_scale);
+   if (fabs(y_scale) > fabs(x_scale)) max_scale = fabs(y_scale);
+   float t = 1 + max_scale * 9;
+
+   float draw_points[9][8];
+
+   // apply scale
+   for (int j=0; j<9; j++)
+      for (int i=0; i<8; i+=2)
+      {
+         draw_points[j][i]   = points[j][i]   * x_scale;
+         draw_points[j][i+1] = points[j][i+1] * y_scale;
+      }
+
+   // apply offset
+   for (int j=0; j<9; j++)
+      for (int i=0; i<8; i+=2)
+      {
+         draw_points[j][i]   += x;
+         draw_points[j][i+1] += y;
+      }
+
+   // drawing order
+   int order = 0; // normal with inner arms in front
+   if (x_scale < 0) order = !order;
+   if (y_scale < 0) order = !order;
+
+   if (order)
+   {
+      mfspline(draw_points[8], c1, t);
+      mfspline(draw_points[2], c1, t);
+      mfspline(draw_points[3], c1, t);
+      mfspline(draw_points[6], c1, t);
+      mfspline(draw_points[7], c1, t);
+      mfspline(draw_points[0], c2, t);
+      mfspline(draw_points[1], c2, t);
+      mfspline(draw_points[4], c2, t);
+      mfspline(draw_points[5], c2, t);
+   }
+   else
+   {
+      mfspline(draw_points[0], c2, t);
+      mfspline(draw_points[1], c2, t);
+      mfspline(draw_points[4], c2, t);
+      mfspline(draw_points[5], c2, t);
+      mfspline(draw_points[8], c1, t);
+      mfspline(draw_points[2], c1, t);
+      mfspline(draw_points[3], c1, t);
+      mfspline(draw_points[6], c1, t);
+      mfspline(draw_points[7], c1, t);
+   }
+
+   // show the rest of the name
+   float xs = x_scale * 2;
+   float ys = y_scale * 3;
+   idw(1, (int)(x - 54  * x_scale), (int)(y - 130 * y_scale), xs, ys); // ichael
+   idw(2, (int)(x + 90  * x_scale), (int)(y -  15 * y_scale), xs, ys); // avid
+   idw(3, (int)(x + 146 * x_scale), (int)(y + 120 * y_scale), xs, ys); // eiss
+}</code></pre>
+
+<mh3>
+</mh3>
+
+<a name="Function to draw animated spinning logo"></a><mh7>Function to draw animated spinning logo</mh7>
+
+<mh3>
+This function is non-blocking and needs to be called in a loop, so it can do other things like process the event loop, etc.
+</mh3>
+
+<pre><code class="language-cpp">int mwLogo::mdw_an2(void)
+{
+   float x_scale = mScreen.splash_logo_scale;
+   float y_scale = mScreen.splash_logo_scale;
+
+   // 1st grow while rotating 256   0    - 255
+   // 2nd xlink                64   256  - 319
+   // 3nd static              128   320  - 447
+   // 4th spin back for dual  192   448  - 639
+   // 5th dual flip           256   640  - 895
+   // 6th spin back to orig    64   896  - 959
+   // total shrink frames 320 (mode 5 and 6)
+
+   if (++mdw_an_seq > 959) return 1;
+
+   // grow and spin in both axis
+   if ((mdw_an_seq > -1) && (mdw_an_seq < 256))
+   {
+      float nt = ((float)(mdw_an_seq - 0) / 256) * ALLEGRO_PI*2;
+      float s = (float)mdw_an_seq / 320;
+      if (s > 1) s = 1;
+      x_scale = s * mScreen.splash_logo_scale * sin(nt);
+      y_scale = s * mScreen.splash_logo_scale * cos(nt);
+   }
+   // fix x scale
+   if ((mdw_an_seq > 255) && (mdw_an_seq < 319))
+   {
+      float nt = ((float)(mdw_an_seq - 256) / 256) * ALLEGRO_PI*2;
+      float s = (float)mdw_an_seq / 320;
+      if (s > 1) s = 1;
+      x_scale = s * mScreen.splash_logo_scale * sin(nt);
+      y_scale = s * mScreen.splash_logo_scale;
+   }
+   // freeze
+   if ((mdw_an_seq > 319) && (mdw_an_seq < 448))
+   {
+      x_scale = mScreen.splash_logo_scale;
+      y_scale = mScreen.splash_logo_scale;
+   }
+   // spin back to prepare for dual flip...
+   if ((mdw_an_seq > 447) && (mdw_an_seq < 640))
+   {
+      float nt = ((float)(mdw_an_seq - 448) / 256) * ALLEGRO_PI*2;
+      x_scale = mScreen.splash_logo_scale * cos(nt);
+   }
+   // shrink and move
+   if ((mdw_an_seq > 639) && (mdw_an_seq < 960))
+   {
+      mScreen.splash_logo_x     -= mScreen.splash_logo_x_dec;
+      mScreen.splash_logo_y     -= mScreen.splash_logo_y_dec;
+      mScreen.splash_logo_scale -= mScreen.splash_logo_scale_dec;
+   }
+   // dual flip
+   if ((mdw_an_seq > 639) && (mdw_an_seq < 896))
+   {
+      float nt = ((float)(mdw_an_seq - 640) / 256) * ALLEGRO_PI*2;
+      x_scale = mScreen.splash_logo_scale * sin(nt);
+      y_scale = mScreen.splash_logo_scale * cos(nt);
+   }
+   // back to original
+   if ((mdw_an_seq > 895) && (mdw_an_seq < 960))
+   {
+      float nt = ((float)(mdw_an_seq - 896) / 256) * ALLEGRO_PI*2;
+      x_scale = mScreen.splash_logo_scale * sin(nt);
+      y_scale = mScreen.splash_logo_scale;
+   }
+   draw_logo(mScreen.splash_logo_x, mScreen.splash_logo_y, x_scale, y_scale);
+   return 0;
+}</code></pre>
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2024, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>
