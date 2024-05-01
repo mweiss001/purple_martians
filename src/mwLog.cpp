@@ -184,12 +184,16 @@ void mwLog::app(int type, const char *txt)
 // adds text string
 void mwLog::add(int type, int player, const char *txt)
 {
+   if (player == -1) player = mPlayer.active_local_player;
    appf(type, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
 }
 
 // adds printf style text string
 void mwLog::addf(int type, int player, const char *format, ...)
 {
+   if (player == -1) player = mPlayer.active_local_player;
+
+
    char smsg[200];
    va_list args;
    va_start(args, format);
@@ -202,6 +206,8 @@ void mwLog::addf(int type, int player, const char *format, ...)
 // adds fixed width formatted printf style text string
 void mwLog::add_fwf(int type, int player, int width, int pos, const char *border, const char *fill, const char *format, ...)
 {
+   if (player == -1) player = mPlayer.active_local_player;
+
    char smsg[200];
    va_list args;
    va_start(args, format);
@@ -213,6 +219,7 @@ void mwLog::add_fwf(int type, int player, int width, int pos, const char *border
 // adds fixed width formatted text string
 void mwLog::add_fw(int type, int player, int width, int pos, const char *border, const char *fill, const char *txt)
 {
+   if (player == -1) player = mPlayer.active_local_player;
    int l = strlen(txt);
    int j1 = pos-2;
    int j2 = width - l - pos;
@@ -255,6 +262,7 @@ void mwLog::add_fw(int type, int player, int width, int pos, const char *border,
 
 void mwLog::add_headerf(int type, int player, int blank_lines, const char *format, ...)
 {
+   if (player == -1) player = mPlayer.active_local_player;
    char smsg[200];
    va_list args;
    va_start(args, format);
@@ -265,6 +273,7 @@ void mwLog::add_headerf(int type, int player, int blank_lines, const char *forma
 
 void mwLog::add_header(int type, int player, int blank_lines, const char *txt)
 {
+   if (player == -1) player = mPlayer.active_local_player;
    add_fw(type, player, 76, 10, "+", "-", "");
    for (int i=0; i<blank_lines; i++) add_fw(type, player, 76, 10, "|", " ", "");
    add_fw(type, player, 76, (76 - strlen(txt))/2, "|", " ", txt);
@@ -295,6 +304,7 @@ void mwLog::log_versions(void)
 
 void mwLog::log_ending_stats_client(int type, int p)
 {
+   if (p == -1) p = mPlayer.active_local_player;
    add_headerf(type, 0, 0, "Client %d (%s) ending stats", p, mPlayer.loc[p].hostname);
 
    add_fwf(type, p, 76, 10, "|", " ", "total game frames.........[%d]", mLoop.frame_num);
@@ -414,6 +424,7 @@ void mwLog::log_player_array3(int type)
 
 void mwLog::log_reason_for_player_quit(int type, int p)
 {
+   if (p == -1) p = mPlayer.active_local_player;
    char tmsg[80];
    sprintf(tmsg,"unknown");
    int r = mPlayer.loc[p].quit_reason;
@@ -426,6 +437,7 @@ void mwLog::log_reason_for_player_quit(int type, int p)
 
 void mwLog::log_bandwidth_stats(int type, int p)
 {
+   if (p == -1) p = mPlayer.active_local_player;
    add_fwf(type, p, 76, 10, "|", " ", "total tx bytes............[%d]", mPlayer.loc[p].tx_total_bytes);
    add_fwf(type, p, 76, 10, "|", " ", "max tx bytes per frame....[%d]", mPlayer.loc[p].tx_max_bytes_per_frame);
    add_fwf(type, p, 76, 10, "|", " ", "avg tx bytes per frame....[%d]", mPlayer.loc[p].tx_total_bytes / mLoop.frame_num);
@@ -446,12 +458,14 @@ void mwLog::log_bandwidth_stats(int type, int p)
 
 void mwLog::add_log_TMR(double dt, const char *tag, int p)
 {
+   if (p == -1) p = mPlayer.active_local_player;
    addf(44, p, "tmst %s:[%0.4f]\n", tag, dt*1000);
 }
 
 // for single tags
 void mwLog::add_tmr1(int type, int p, const char *tag, double dt)
 {
+   if (p == -1) p = mPlayer.active_local_player;
    char txt[500];
    sprintf(txt, "%s:[%0.4f]\n", tag, dt*1000);
    add_tmr(type, p, txt);
@@ -460,6 +474,7 @@ void mwLog::add_tmr1(int type, int p, const char *tag, double dt)
 // takes a printf format
 void mwLog::add_tmrf(int type, int p, const char *format, ...)
 {
+   if (p == -1) p = mPlayer.active_local_player;
    char smsg[200];
    va_list args;
    va_start(args, format);
@@ -471,6 +486,7 @@ void mwLog::add_tmrf(int type, int p, const char *format, ...)
 // takes an already formatted string
 void mwLog::add_tmr(int type, int p, const char *txt)
 {
+   if (p == -1) p = mPlayer.active_local_player;
    if (log_types[type].action & LOG_ACTION_PRINT) printf("%s", txt);
    if (log_types[type].action & LOG_ACTION_LOG)
    {

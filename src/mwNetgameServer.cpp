@@ -137,7 +137,7 @@ void mwNetgame::headless_server_setup(void)
    // make sure we are always saving games
    mGameMoves.autosave_game_on_level_done = 1;
 
-   mGameMoves.server_send_gm_to_clients = 1;
+   mGameMoves.server_send_files_to_clients = 1;
 
    mConfig.save_config();
 }

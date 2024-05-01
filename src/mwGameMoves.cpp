@@ -542,7 +542,7 @@ int mwGameMoves::save_gm(const char *fname, int sendto)
    if (mDemoMode.mode)          ret = 3; // Never save demo when in demo mode
    if (mNetgame.ima_client)     ret = 4; // Never save demo locally for client
 
-   if ((sendto) && (!server_send_gm_to_clients)) ret = 5; // trying to send to client and file transfer disabled
+   if ((sendto) && (!server_send_files_to_clients)) ret = 5; // trying to send to client and file transfer disabled
 
    // only log here if file will not be saved
    if (ret) mLog.addf(LOG_NET_file_transfer, sendto, "save:txt:%s\n", get_save_txt(ret, msg));

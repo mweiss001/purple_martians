@@ -33,7 +33,7 @@ class mwGameMoves
 
    int autosave_game_on_level_done = 0;
    int autosave_game_on_level_quit = 0;
-   int server_send_gm_to_clients = 0;
+   int server_send_files_to_clients = 0;
 
    char* get_gm_text2(int gm, int f, int t, int p, int v, char* tmp);
    char* get_gm_text(int gm, char* tmp);

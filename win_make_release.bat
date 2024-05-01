@@ -1,4 +1,4 @@
-set version=7.24.0426.1
+set version=7.24.0501.1
 
 mkdir purple_martians_%version%_windows
 mkdir purple_martians_%version%_windows\screenshots
@@ -10,7 +10,6 @@ mkdir purple_martians_%version%_windows\savegame\demo
 xcopy data\level_icons_100.bmp purple_martians_%version%_windows\data  /y /i
 xcopy data\level_icons_200.bmp purple_martians_%version%_windows\data  /y /i
 
-
 xcopy pm.exe purple_martians_%version%_windows\  /y /i
 xcopy license.txt purple_martians_%version%_windows\  /y /i
 #xcopy pm.cfg purple_martians_%version%_windows\  /y /i
@@ -21,6 +20,3 @@ xcopy savegame\demo purple_martians_%version%_windows\savegame\demo /y /i /s
 xcopy snd purple_martians_%version%_windows\snd /y /i
 
 xcopy levels\level0* purple_martians_%version%_windows\levels  /y /i
-
-
-
