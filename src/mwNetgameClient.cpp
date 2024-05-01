@@ -16,7 +16,7 @@
 #include "mwConfig.h"
 #include "mwLoop.h"
 #include "mwQuickGraph2.h"
-
+#include "mwGameMoves.h"
 
 
 int mwNetgame::ClientInitNetwork(void)
@@ -255,6 +255,41 @@ void mwNetgame::client_proc_pong_packet(char *data)
 }
 
 
+
+void mwNetgame::client_proc_srrf_packet(int i)
+{
+   int p = mPlayer.active_local_player;
+   int val = mPacketBuffer.PacketGetByte(i);
+
+   char msg[256];
+   mLog.addf(LOG_NET_file_transfer, p, "rx srrf - %s\n", mGameMoves.get_save_txt(val, msg)) ;
+
+   // if blocking in CLIENT_PREEXIT2 state, advance to next state
+   if ((val) && (mLoop.state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT2)) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
+}
+
+//
+//   if (val == 0) mLog.addf(LOG_NET_file_transfer, p, "rx srrf - file will be sent\n");
+//
+//
+//   if (val == 0) mLog.addf(LOG_NET_file_transfer, p, "rx srrf - file will be sent\n");
+//   else
+//   {
+//      if (val == 1) mLog.addf(LOG_NET_file_transfer, p, "rx srrf - file not sent - no game moves to send\n");
+//      if (val == 2) mLog.addf(LOG_NET_file_transfer, p, "rx srrf - file not sent - never send overworld game moves\n");
+//      if (val == 4) mLog.addf(LOG_NET_file_transfer, p, "rx srrf - file not sent - server client file transfer disabled\n");
+//
+//      // if blocking in CLIENT_PREEXIT2 state, advance to next state
+//      if (mLoop.state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT2) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
+//   }
+//}
+//
+//
+//
+//
+
+
+
 int mwNetgame::client_proc_sjon_packet(char * data)
 {
    int pos = 4;
@@ -427,7 +462,10 @@ void mwNetgame::client_proc_sfil_packet(int i)
       char fname[256];
       memcpy(fname, dmp, sizeof(fname));
 
-      printf("Client received filename:[%s] size:[%d] id:[%d]\n", fname, fsize, id);
+//      printf("Client received filename:[%s] size:[%d] id:[%d]\n", fname, fsize, id);
+
+      mLog.addf(LOG_NET_file_transfer, mPlayer.active_local_player, "rx %s size:[%d] id:[%d]\n", fname, fsize, id);
+
 
       // write to file
       FILE *fp = fopen(fname, "wb");
@@ -457,7 +495,7 @@ void mwNetgame::client_send_sfak_packet(int id)
 
 void mwNetgame::client_send_crfl(void)
 {
-   printf("Client request file\n");
+   mLog.addf(LOG_NET_file_transfer, mPlayer.active_local_player, "tx clrf - client request file\n");
    char data[1024] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "crfl");
    ClientSend(data, pos);

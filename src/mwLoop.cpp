@@ -327,12 +327,9 @@ void mwLoop::proc_program_state(void)
       {
          mLog.add(LOG_OTH_program_state, 0, "[State 1 - Game Menu]\n");
 
-         if (mNetgame.ima_server) mNetgame.ServerExitNetwork();
-         if (mNetgame.ima_client) mNetgame.ClientExitNetwork();
 
          if (mLog.autosave_log_on_level_quit) mLog.save_log_file();
 
-         if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit");
 
          mSound.stop_sound();
 
@@ -399,10 +396,14 @@ void mwLoop::proc_program_state(void)
    {
       mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "Waiting for file from server");
       al_flip_display();
-      mPacketBuffer.rx_and_proc(); // when file is received, state will be set to exit
+
+      mPacketBuffer.rx_and_proc();
+
+      // when file is received, or srrf packet is received indicating file will not be sent
+      // state will be advanced from CLIENT_PREEXIT2 to CLIENT_EXIT
 
       mEventQueue.proc(1);
-      if (mInput.key[ALLEGRO_KEY_ESCAPE][2]) state[0] = PM_PROGRAM_STATE_CLIENT_EXIT; // give them an escape option
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][2]) state[0] = PM_PROGRAM_STATE_CLIENT_EXIT; // give an escape option
    }
 
 //-----------------------------------------------------------------
@@ -411,6 +412,7 @@ void mwLoop::proc_program_state(void)
    if (state[1] == PM_PROGRAM_STATE_CLIENT_EXIT)
    {
       mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_EXIT]\n");
+
       mNetgame.ClientExitNetwork();
 
       quit_action = 1; // to prevent quitting clients from automatically going to overworld
@@ -505,6 +507,9 @@ void mwLoop::proc_program_state(void)
    if (state[1] == PM_PROGRAM_STATE_SERVER_EXIT)
    {
       mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SERVER_EXIT]\n");
+
+      if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
+
       mNetgame.ServerExitNetwork();
       state[0] = PM_PROGRAM_STATE_MENU;
    }
@@ -553,7 +558,8 @@ void mwLoop::proc_program_state(void)
          if (mLog.log_types[LOG_NET_session].action) mNetgame.session_save_active_at_level_done();
       }
       if (mLog.autosave_log_on_level_done) mLog.save_log_file();
-      if (mGameMoves.autosave_game_on_level_done) mGameMoves.save_gm_make_fn("autosave on level done");
+
+      if (mGameMoves.autosave_game_on_level_done) mGameMoves.save_gm_make_fn("autosave on level done", 0);
 
 
 // --------------------------------------------------------
@@ -644,6 +650,40 @@ void mwLoop::proc_program_state(void)
       mScreen.transition_cutscene(2, 1); // menu to game
       state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
    }
+
+
+   //---------------------------------------
+   // PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT
+   //---------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT)
+   {
+      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT]\n");
+
+      mLevel.resume_allowed = 1;
+
+      if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
+
+      state[0] = PM_PROGRAM_STATE_MENU;
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
    //-------------------------------------------------------
    // PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP

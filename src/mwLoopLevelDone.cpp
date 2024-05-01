@@ -18,6 +18,9 @@
 #include "mwLevel.h"
 #include "mwShot.h"
 
+#include "mwGameMoves.h"
+
+
 
 
 void mwLoop::proc_level_done_mode(void)
@@ -165,6 +168,9 @@ void mwLoop::proc_level_done_mode(void)
       mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - pause player and setup exit xyincs\n", frame_num, mPlayer.syn[0].level_done_mode);
       mScreen.add_player_text_overlay(mPlayer.syn[0].level_done_player, 2);
       mLevel.add_play_data_record(mLevel.play_level, 1);
+
+      if ((mGameMoves.autosave_game_on_level_done) && (mNetgame.ima_client) && (!mLoop.ff_state)) mNetgame.client_send_crfl();
+
 
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((mPlayer.syn[p].active) && (mPlayer.syn[p].paused_type != 3))

@@ -168,6 +168,10 @@ class mwNetgame
 
    int client_proc_sjon_packet(char *data);
 
+   void client_proc_srrf_packet(int i);
+
+
+
    void client_proc_stdf_packet(int i);
 
    void client_proc_sfil_packet(int i);
@@ -212,6 +216,7 @@ class mwNetgame
    void server_send_sjon_packet(char* address, int level, int frame, int player_num, int player_color);
    void server_send_sjrc_packet(int p);
 
+
    void server_proc_ping_packet(char *data, int p);
    void server_proc_pang_packet(char *data, int p);
 
@@ -254,7 +259,7 @@ class mwNetgame
    void server_proc_crfl_packet(int i);
    void server_proc_sfak_packet(int i);
 
-
+   void server_send_srrf_packet(int p, int val);
 
 
 

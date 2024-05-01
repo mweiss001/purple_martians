@@ -51869,132 +51869,316 @@ change from server sending automatically to client requesting....
 
 
 
+20240429
+did a huge amount of changing to the web pages....
 
+I want to finish the client requesting files from the server
 
 
 
 
+here is what I want:
 
+no file transfer unless requested by the client
 
+when client quits or at the end of a level
 
+do the end of level stuff while level down counter is happening
 
+server should reply even if server is not going to send file...
 
+during level done, the packet exchange and all this is still happening, right?
 
+variables:
 
+one for the server to enable or disable sending files
 
+one for the client to request files (maybe one for quit and one for level done)
 
+another packet from the server to tell client it wont be sending the file...
+or the client could just timeout
 
 
+-----------------
 
+first disable the auto send from server
+done...it was in save gm
 
 
+now this variable has no effect:
+mGameMoves.server_send_gm_to_clients
 
 
+then move where client sends clrf to level done from savegm....
+did it in mode 9, should be there only one frame
+also do it when not in ff_state...done
 
+now what happens on the server when it recieves that...
 
+if in level done mode just send the most recent file??
 
 
+how about when calling savegm_makfile, I check if the file already exists...
+this would stop me from generating a new one whenever server gets clrf....
 
+also when calling it, make some way to return filename so I can pass it to sendfile
 
+this is complex, would it not be simpler to:
+force server to save whenever it gets clrf and send it from there?
 
+add an int to the function to do this
 
+the int will be what client to send it to, if 0 do nothing...
 
 
+this seems to work...
 
+does it still work for client quittig
 
+it does, but also saves on client???
 
 
+changed the order of these:
 
+         if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
 
+         if (mNetgame.ima_server) mNetgame.ServerExitNetwork();
+         if (mNetgame.ima_client) mNetgame.ClientExitNetwork();
 
 
+when going to menu...but client exit is also called at the end of client....
 
+I am going to make that the only place...
 
 
+I need to move
+         if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
 
+to the end of server and single player...not common in program state go to menu....
 
+I don't have a program state for single player exit....made one....
 
+---------
 
+now where am I at?
 
+"autosave_game_on_level_quit" is used 3 times:
 
+   //---------------------------------------
+   // PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT
+   //---------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT)
+   {
+      if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
+   }
 
+//---------------------------------------
+// PM_PROGRAM_STATE_SERVER_EXIT
+//---------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_SERVER_EXIT)
+   {
+      if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
+   }
 
+//-----------------------------------------------------------------
+// PM_PROGRAM_STATE_CLIENT_PREEXIT1
+//-----------------------------------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT1)
+   {
+      if ((mGameMoves.autosave_game_on_level_quit) && (mLevel.play_level != 1)) // not overworld
+      {
+         // when client quits with escape, send a file request to the server to get the gm file
+         mNetgame.client_send_crfl();
 
 
 
+"autosave_game_on_level_done" is used only once in:
 
+//----------------------------------------------------------------------------------------------------------
+// PM_PROGRAM_STATE_NEXT_LEVEL
+//----------------------------------------------------------------------------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_NEXT_LEVEL)
+   {
+      if (mGameMoves.autosave_game_on_level_done) mGameMoves.save_gm_make_fn("autosave on level done", 0);
 
 
 
+remove "autosave_game_on_program_exit"...done
 
+I plan to use:
+autosave_game_on_level_done
+autosave_game_on_level_quit
+for all cases
 
+the only difference is when imaclient, it will send clrf packet
 
+"save_gm_make_fn" is called:
+demo record
+function_key_force_save
+single player exit
+server exit
+level done
+when server rx clrf
 
+rename server_send_gm_to_clients...no it is ok...
 
 
+in "save_gm_make_fn"
 
+makes filename
+runs save_gm()
+if ((mNetgame.ima_server) && (sendto)) mNetgame.server_add_file_to_send(filename, sendto);
 
 
+this is where i want to send a reply?
 
+how about if save_gm skips, it should return the reason it skipped...
+then do not run servr add file to send
 
 
+   int ret = save_gm(filename);
 
+   if ((mNetgame.ima_server) && (sendto))
+   {
+      if (!server_send_gm_to_clients)
+      {
+         // send reply 'server client file transfer disabled'
+      }
+      else
+      {
+         if (ret == 0) mNetgame.server_add_file_to_send(filename, sendto);
+         if (ret == 1) // send reply 'no game moves to send'
+         if (ret == 2) // send reply 'never send overworld game moves'
+      }
+   }
 
 
+now make up a packet to return
+srrf (server reply file)
+add a single btye:
+0 expect a file to be tranferred
+1 no game moves to send'
+2 never send overworld game moves
+3 file transfer disabled
 
 
 
 
+so many different cases to try:
 
+case: server is not automatically saving files, but has client file transfer on
+result: server will save file when requested and send it...
 
+case: server is automatically saving files, and has client file transfer on
+will duplicates be saved on the server?
+if they have the same filename will they overwrite?
+they are a few seconds apart and have different filename and are save and are duplicates..
 
+case: client requests file at level done, but server file tranfer is off
+result: client does not block when it doesn't get the file
 
 
 
+case: client requests file at level quit, but server file tranfer is off
+result: client blocks when it doesn't get the file
 
+fix this:
 
+add reading and processing srrf packet
 
+rename the setting description to: 'Enable server send file to clients'
 
 
+I think this is all working
 
+can I wrap all the console printing in a log wrapper??
 
+#define LOG_NET_file_transfer      39
 
 
 
+what about the code in level done mode 9!!  .........
 
+where should client send the clrf?
 
+next level might not be the right place
 
 
+It all seemed to be working but now I am worried about where I do level done.....
 
+this is how it is:
 
+//----------------------------------------------------------------------------------------------------------
+// PM_PROGRAM_STATE_NEXT_LEVEL
+//----------------------------------------------------------------------------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_NEXT_LEVEL)
+   {
 
+      if (mNetgame.ima_client)
+      {
+         mNetgame.ClientFlush();
+         mLog.log_ending_stats_client(LOG_NET_ending_stats, mPlayer.active_local_player);
+         if (++mPlayer.syn[0].server_lev_seq_num > 255) mPlayer.syn[0].server_lev_seq_num = 0;
+      }
+      if (mNetgame.ima_server)
+      {
+         mNetgame.ServerFlush();
+         mLog.log_ending_stats_server(LOG_NET_ending_stats);
+         if (++mPlayer.syn[0].server_lev_seq_num > 255) mPlayer.syn[0].server_lev_seq_num = 0;
+         if (mLog.log_types[LOG_NET_session].action) mNetgame.session_save_active_at_level_done();
+      }
+      if (mLog.autosave_log_on_level_done) mLog.save_log_file();
 
+      if (mGameMoves.autosave_game_on_level_done) mGameMoves.save_gm_make_fn("autosave on level done", 0);
 
 
+but them I also have this call:
 
+   if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
+   {
+      if ((mNetgame.ima_client) && (!mLoop.ff_state)) mNetgame.client_send_crfl();
 
 
 
+I think I get it.....
 
+the one in level_done_mode == 9 is for clients only, because I want to do the transfer in the middle of the level done pause
 
+the one in PM_PROGRAM_STATE_NEXT_LEVEL tiggers all the time, but in save_gm_make_fn() does nothing if imaclient
 
 
 
+I just need to add this:
+      if ((mGameMoves.autosave_game_on_level_done) && (mNetgame.ima_client) && (!mLoop.ff_state)) mNetgame.client_send_crfl();
 
 
 
+OK now I think it is better...
 
+should I also log the saving of files...i mean add it to log file transfer...it is cluttering up the display
+yes...do it
 
 
 
+I do this manually so many times...make it common
 
 
+0 = file will be saved/sent
+1 = no game moves
+2 = never in ove
+3 = never in demo
+4 = never for client
+5 = file transfer disabled
 
 
 
 
 
 
+   if (entry_pos == 0)          { skip = 1;  ret = 1; if (print_level > 1) printf("No game moves to save\n");             }
+   if (mLevel.play_level == 1)  { skip = 1;  ret = 2; if (print_level > 1) printf("Never save demo for overworld\n");     }
+   if (mDemoMode.mode)          { skip = 1;  ret = 3; if (print_level > 1) printf("Never save demo when in demo mode\n"); }
+   if (mNetgame.ima_client)     { skip = 1;  ret = 4; if (print_level > 1) printf("Never save demo for client\n");        } // do not save for client, the gm is missing data and is not playable
 
 
 
@@ -52008,68 +52192,222 @@ change from server sending automatically to client requesting....
 
 
 
+-------------------------------
 
+document it all over again:
 
 
 
+variables:
+----------
 
+mGameMoves.autosave_game_on_level_done
+mGameMoves.autosave_game_on_level_quit
+mGameMoves.server_send_gm_to_clients
 
 
 
+Level Done:
+-----------
 
 
+This code applies to all (client, server, single)
 
+//----------------------------------------------------------------------------------------------------------
+// PM_PROGRAM_STATE_NEXT_LEVEL
+//----------------------------------------------------------------------------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_NEXT_LEVEL)
+   {
+      if (mGameMoves.autosave_game_on_level_done) mGameMoves.save_gm_make_fn("autosave on level done", 0);
 
 
+This code only applies to client:
 
+   if (mPlayer.syn[0].level_done_mode == 9) // pause players and set up exit xyincs
+   {
+      if ((mGameMoves.autosave_game_on_level_done) && (mNetgame.ima_client) && (!mLoop.ff_state)) mNetgame.client_send_crfl();
 
 
+Level Quit:
+-----------
 
 
+//-----------------------------------------------------------------
+// PM_PROGRAM_STATE_CLIENT_PREEXIT1
+//-----------------------------------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT1)
+   {
+      if ((mGameMoves.autosave_game_on_level_quit) && (mLevel.play_level != 1)) // not overworld
+      {
+         // when client quits with escape, send a file request to the server to get the gm file
+         mNetgame.client_send_crfl();
+         state[0] = PM_PROGRAM_STATE_CLIENT_PREEXIT2;
+      }
+      else state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
+   }
 
+//---------------------------------------
+// PM_PROGRAM_STATE_SERVER_EXIT
+//---------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_SERVER_EXIT)
+   {
+      if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
 
 
+   //---------------------------------------
+   // PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT
+   //---------------------------------------
+   if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT)
+   {
+      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT]\n");
 
+      mLevel.resume_allowed = 1;
 
+      if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
 
 
 
+void mwNetgame::client_send_crfl(void)
+{
+   mLog.addf(LOG_NET_file_transfer, mPlayer.active_local_player, "tx clrf - client request file\n");
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "crfl");
+   ClientSend(data, pos);
+}
 
 
+void mwNetgame::server_proc_crfl_packet(int i)
+{
+   int p = mPacketBuffer.rx_buf[i].p;
+   mLog.addf(LOG_NET_file_transfer, p, "rx clrf - client requested file\n");
+   mGameMoves.save_gm_make_fn("server save on rx crfl packet", p);
+}
 
 
 
 
+void mwGameMoves::save_gm_make_fn(const char* description, int sendto)
+{
+   char timestamp[40];
+   struct tm *timenow;
+   time_t now = time(NULL);
+   timenow = localtime(&now);
+   strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
+   char filename[120];
+   sprintf(filename, "savegame/%s-[%02d]-%s.gm", timestamp, mLevel.play_level, description);
 
+   int ret = save_gm(filename);
 
+   if (!server_send_gm_to_clients) ret = 5;
 
+   if ((mNetgame.ima_server) && (sendto))
+   {
+      mNetgame.server_send_srrf_packet(sendto, ret);
+      if (ret == 0) mNetgame.server_add_file_to_send(filename, sendto);
+      char msg[256];
+      mLog.addf(LOG_NET_file_transfer, sendto, "%s\n", get_save_txt(ret, msg)) ;
+   }
+}
 
 
+void mwNetgame::server_send_srrf_packet(int p, int val)
+{
+   // printf("sending srrf packet with val:%d\n", val);
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "srrf");
+   mPacketBuffer.PacketPutByte(data, pos, val);
+   ServerSendTo(data, pos, p);
+}
 
+void mwNetgame::client_proc_srrf_packet(int i)
+{
+   int p = mPlayer.active_local_player;
+   int val = mPacketBuffer.PacketGetByte(i);
 
+   char msg[256];
+   mLog.addf(LOG_NET_file_transfer, p, "rx srrf - %s\n", mGameMoves.get_save_txt(val, msg)) ;
 
+   // if blocking in CLIENT_PREEXIT2 state, advance to next state
+   if ((val) && (mLoop.state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT2)) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
+}
 
 
 
+[39][1][768]rx clrf - client requested file
+[39][0][768]save:txt:File will be saved
+[39][0][768]saved:savegame/20240501-065003-[47]-server save on rx crfl packet.gm
+[39][1][768]Server file transfer disabled
 
 
+this looks funny...why do I save if I wont transfer?
 
 
+I think I want to pass sendto to save_gm and do the stuff there
 
+not sure why I do it in make_fn
 
+this is the old:
 
+int mwGameMoves::save_gm(const char *fname)
+{
 
+   int ret = 0; // good return by default
+   if (entry_pos == 0)          ret = 1; // No game moves to save
+   if (mLevel.play_level == 1)  ret = 2; // Never save demo for overworld
+   if (mDemoMode.mode)          ret = 3; // Never save demo when in demo mode
+   if (mNetgame.ima_client)     ret = 4; // Never save demo locally for client
 
+   char msg[256];
+   int p = mPlayer.active_local_player;
+   mLog.addf(LOG_NET_file_transfer, p, "save:txt:%s\n", get_save_txt(ret, msg)) ;
 
 
+   if (!ret)
+   {
+      gm_sort();
 
+      FILE *filepntr = fopen(fname,"w");
+      if (filepntr == NULL) printf("Error opening file:%s\n", fname);
+      else
+      {
+         fprintf(filepntr,"%d\n", entry_pos);  // num_entries
+         for (int x=0; x<entry_pos; x++)
+            for (int y=0; y<4; y++)
+               fprintf(filepntr,"%d\n", arr[x][y]);
+         fclose(filepntr);
 
+         mLog.addf(LOG_NET_file_transfer, p, "saved:%s\n", fname);
 
+         sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname); // update the name
 
+         //save_gm_txt(fname); // also save as a human readable text file
+      }
+   }
+   return ret;
+}
 
+void mwGameMoves::save_gm_make_fn(const char* description, int sendto)
+{
+   char timestamp[40];
+   struct tm *timenow;
+   time_t now = time(NULL);
+   timenow = localtime(&now);
+   strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
+   char filename[120];
+   sprintf(filename, "savegame/%s-[%02d]-%s.gm", timestamp, mLevel.play_level, description);
 
+   int ret = save_gm(filename);
 
+   if (!server_send_gm_to_clients) ret = 5;
 
+   if ((mNetgame.ima_server) && (sendto))
+   {
+      mNetgame.server_send_srrf_packet(sendto, ret);
+      if (ret == 0) mNetgame.server_add_file_to_send(filename, sendto);
+      char msg[256];
+      mLog.addf(LOG_NET_file_transfer, sendto, "%s\n", get_save_txt(ret, msg)) ;
+   }
+}
 
 
 
@@ -52078,232 +52416,147 @@ change from server sending automatically to client requesting....
 
 
 
+modified version...seems to work
 
 
 
+int mwGameMoves::save_gm(const char *fname, int sendto)
+{
 
+   int ret = 0; // good return by default
+   if (entry_pos == 0)          ret = 1; // No game moves to save
+   if (mLevel.play_level == 1)  ret = 2; // Never save demo for overworld
+   if (mDemoMode.mode)          ret = 3; // Never save demo when in demo mode
+   if (mNetgame.ima_client)     ret = 4; // Never save demo locally for client
 
+   if ((sendto) && (!server_send_gm_to_clients)) ret = 5; // trying to send to client and file transfer disabled
 
+   char msg[256];
+   int p = mPlayer.active_local_player;
+   mLog.addf(LOG_NET_file_transfer, p, "save:txt:%s\n", get_save_txt(ret, msg)) ;
 
+   if (sendto) mNetgame.server_send_srrf_packet(sendto, ret);
 
+   if (!ret)
+   {
+      gm_sort();
 
+      FILE *filepntr = fopen(fname,"w");
+      if (filepntr == NULL) printf("Error opening file:%s\n", fname);
+      else
+      {
+         fprintf(filepntr,"%d\n", entry_pos);  // num_entries
+         for (int x=0; x<entry_pos; x++)
+            for (int y=0; y<4; y++)
+               fprintf(filepntr,"%d\n", arr[x][y]);
+         fclose(filepntr);
+         mLog.addf(LOG_NET_file_transfer, p, "saved:%s\n", fname);
 
+         sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname); // update current loaded demo filename
 
+         //save_gm_txt(fname); // also save as a human readable text file
+      }
 
+      if (sendto)
+      {
+         mNetgame.server_add_file_to_send(fname, sendto);
+         char msg[256];
+         mLog.addf(LOG_NET_file_transfer, sendto, "%s\n", get_save_txt(ret, msg)) ;
+      }
+   }
+   return ret;
+}
 
+void mwGameMoves::save_gm_make_fn(const char* description, int sendto)
+{
+   char timestamp[40];
+   struct tm *timenow;
+   time_t now = time(NULL);
+   timenow = localtime(&now);
+   strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
+   char filename[120];
+   sprintf(filename, "savegame/%s-[%02d]-%s.gm", timestamp, mLevel.play_level, description);
+   save_gm(filename, sendto);
+}
 
 
 
+This is even better, does not duplicate log mesaages as much:
 
 
+char * mwGameMoves::get_save_txt(int num, char *txt)
+{
+   if (num == 0) sprintf(txt, "File will be saved");
+   if (num == 1) sprintf(txt, "No game moves to save");
+   if (num == 2) sprintf(txt, "Never save demo for overworld");
+   if (num == 3) sprintf(txt, "Never save demo in demo mode");
+   if (num == 4) sprintf(txt, "Never save demo locally for client");
+   if (num == 5) sprintf(txt, "Server file transfer disabled");
+   return txt;
+}
 
 
+int mwGameMoves::save_gm(const char *fname, int sendto)
+{
+   char msg[256];
+   int ret = 0; // good return by default
+   if (entry_pos == 0)          ret = 1; // No game moves to save
+   if (mLevel.play_level == 1)  ret = 2; // Never save demo for overworld
+   if (mDemoMode.mode)          ret = 3; // Never save demo when in demo mode
+   if (mNetgame.ima_client)     ret = 4; // Never save demo locally for client
 
+   if ((sendto) && (!server_send_gm_to_clients)) ret = 5; // trying to send to client and file transfer disabled
 
+   // only log here if file will not be saved
+   if (ret) mLog.addf(LOG_NET_file_transfer, sendto, "save:txt:%s\n", get_save_txt(ret, msg));
 
+   if (sendto) mNetgame.server_send_srrf_packet(sendto, ret);
 
+   if (!ret)
+   {
+      gm_sort();
 
+      FILE *filepntr = fopen(fname,"w");
+      if (filepntr == NULL) printf("Error opening file:%s\n", fname);
+      else
+      {
+         fprintf(filepntr,"%d\n", entry_pos);  // num_entries
+         for (int x=0; x<entry_pos; x++)
+            for (int y=0; y<4; y++)
+               fprintf(filepntr,"%d\n", arr[x][y]);
+         fclose(filepntr);
+         mLog.addf(LOG_NET_file_transfer, sendto, "saved:%s\n", fname);
 
+         sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname); // update current loaded demo filename
 
+         //save_gm_txt(fname); // also save as a human readable text file
+      }
+      if (sendto) mNetgame.server_add_file_to_send(fname, sendto);
+   }
+   return ret;
+}
 
+void mwGameMoves::save_gm_make_fn(const char* description, int sendto)
+{
+   char timestamp[40];
+   struct tm *timenow;
+   time_t now = time(NULL);
+   timenow = localtime(&now);
+   strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
+   char filename[120];
+   sprintf(filename, "savegame/%s-[%02d]-%s.gm", timestamp, mLevel.play_level, description);
+   save_gm(filename, sendto);
+}
 
 
 
+I think this feature is all done....
 
+now what?
 
+are the client level done files saved in level done mode 9 any different than the ones saved in next level??
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+am i missing the acknowledge?
 
 
 

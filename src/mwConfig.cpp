@@ -131,7 +131,6 @@ void mwConfig::save_config(void)
 
       asci(DEMO, mGameMoves.autosave_game_on_level_done)
       asci(DEMO, mGameMoves.autosave_game_on_level_quit)
-      asci(DEMO, mGameMoves.autosave_game_on_program_exit)
       asci(DEMO, mGameMoves.server_send_gm_to_clients)
 
 
@@ -290,7 +289,6 @@ void mwConfig::load_config(void)
 
    agci(DEMO, mGameMoves.autosave_game_on_level_done, 0)
    agci(DEMO, mGameMoves.autosave_game_on_level_quit, 0)
-   agci(DEMO, mGameMoves.autosave_game_on_program_exit, 0)
    agci(DEMO, mGameMoves.server_send_gm_to_clients, 0)
 
 
