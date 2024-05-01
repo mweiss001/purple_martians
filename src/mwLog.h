@@ -28,7 +28,7 @@
 #define LOG_NET_client_ping        36
 #define LOG_NET_timer_adjust       37
 
-
+#define LOG_NET_file_transfer      39
 
 
 #define LOG_TMR                    44

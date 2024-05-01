@@ -237,7 +237,7 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
          printf(" -tc       (copies config only eg: 'pm.exe -tc')\n");
 
 
-         mMain.fast_exit();
+         fast_exit();
       }
    }
 }
@@ -253,19 +253,19 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          printf("running level editor for level:%d\n", mLevel.start_level);
          mLevel.set_start_level(mWM.loop(mLevel.start_level));
-         mMain.fast_exit();
+         fast_exit();
       }
 
       if (strcmp(argument_array[1],"-h") == 0 )  // help
       {
          mHelp.help("Command Line");
-         mMain.fast_exit();
+         fast_exit();
       }
 
       if (strcmp(argument_array[1],"-test") == 0 )  // temp test
       {
          temp_test();
-         mMain.fast_exit();
+         fast_exit();
       }
 
       if (strcmp(argument_array[1],"-ts") == 0 )  // copy to clients and run server
@@ -279,13 +279,13 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-l") == 0 )  // log file viewer
       {
          mLog.log_file_viewer(1);
-         mMain.fast_exit();
+         fast_exit();
       }
 
       if (strcmp(argument_array[1],"-lr") == 0 )  // log file viewer most recent
       {
          mLog.log_file_viewer(2);
-         mMain.fast_exit();
+         fast_exit();
       }
 
       // join netgame - no server specified, use server from config file
@@ -549,330 +549,6 @@ void mwMain::temp_test(void)
 //
 
 
-//   mColor.show_palette();
-//   al_flip_display();
-//   mInput.tsw();
-
-
-
-   // netgame frame timing
-
-   // two time scales
-   // top for server
-   // bottom for client
-
-   // draw static frame number scale on top // 100 - 110
-
-   // draw rect fron server last state till current server frame number
-
-/*
-
-   int quit = 0;
-
-
-   int s_ls = 100;     // server last state mLoop.frame_num
-   int s_fn = 100;     // server mLoop.frame_num
-   int s_ms = 2500;    // server ms_num
-
-   int s_freq = 3;
-
-
-   int ping = 0;
-
-   int co = 10-ping; // client offset
-
-
-   int stl_x = 100; // server time legend x
-   int stl_y = 100; // server time legend y
-   int fw = 100; // frame width
-
-   int stl_base_frame = 100;
-
-
-   int ctl_x = 100; // client time legend x
-   int ctl_y = 200; // client time legend y
-
-
-   while (!quit)
-   {
-      al_draw_textf(mFont.pr8, mColor.pc[15], 10, 10, 0, "%d server current frame", s_fn);
-      al_draw_textf(mFont.pr8, mColor.pc[15], 10, 18, 0, "%d server last state frame", s_ls);
-      al_draw_textf(mFont.pr8, mColor.pc[15], 10, 26, 0, "%d server currrent ms", s_ms);
-
-      al_draw_textf(mFont.pr8, mColor.pc[15], 10, 36, 0, "%d ping ms", ping);
-      al_draw_textf(mFont.pr8, mColor.pc[15], 10, 44, 0, "%d client offset ms", co);
-
-      // draw server time legend
-      for (int i=0; i<10; i++)
-      {
-         int x1 = stl_x + i * fw;
-         al_draw_textf(mFont.pr8, mColor.pc[15], x1, stl_y, ALLEGRO_ALIGN_CENTER, "%d", stl_base_frame+i);
-         al_draw_line(x1, stl_y+10, x1, stl_y+20, mColor.pc[15], 1);
-      }
-
-      // draw client time legend
-      for (int i=0; i<10; i++)
-      {
-         int x1 = (stl_x + i * fw) + co*fw / 25;
-
-         al_draw_textf(mFont.pr8, mColor.pc[15], x1, ctl_y, ALLEGRO_ALIGN_CENTER, "%d", stl_base_frame+i);
-         al_draw_line(x1, ctl_y+10, x1, ctl_y+20, mColor.pc[15], 1);
-      }
-
-      // draw rect from server last frame num to current ms_num
-      int x1 = stl_x + (s_ls - stl_base_frame) * fw;  // (last state - base frame) x frame width
-      int x2 = stl_x + ((s_ms - stl_base_frame*25) * fw)/25;  // ((current ms - base frame*25) x frame width)/25
-      al_draw_rectangle(x1, stl_y+20, x2, stl_y+30, mColor.pc[15], 1);
-
-      // mark current server time with line
-      al_draw_line(x2, stl_y-20, x2, ctl_y+120, mColor.pc[15], 1);
-      al_draw_textf(mFont.pixl, mColor.pc[15], x2, stl_y-30, ALLEGRO_ALIGN_CENTER, "now");
-
-
-      // mark server last state with line
-      al_draw_line(x1, stl_y-10, x1, ctl_y+120, mColor.pc[15], 1);
-      al_draw_textf(mFont.pixl, mColor.pc[15], x1, stl_y-20, ALLEGRO_ALIGN_CENTER, "last state");
-
-
-
-
-
-
-      if (mInput.key[ALLEGRO_KEY_SPACE][1]) s_ms++; // step time by 1ms
-      if ((s_ms / 25) >= s_ls+s_freq) s_ls += s_freq;       // check if time to make a new state
-
-      s_fn = s_ms / 25;
-
-
-
-
-
-      al_flip_display();
-      al_clear_to_color(mColor.pc[0]);
-      mEventQueue.proc(1);
-      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
-
-   }
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   /*
-
-
-
-
-// netgame simulation
-   int quit = 0;
-
-
-   int sfn = 100;
-   int cfn = 101;
-
-
-   int last_state = 100;
-   int s1 = 4;
-   int s2 = 3;
-   int s3 = s1+s2;
-
-   int ls = 10; // line spacing
-
-
-   int sr = 0; // server rewind
-
-
-   int cr = 0; // client rewind
-
-
-   int cfn_b4_rewind = 0;
-   int sfn_b4_rewind = 0;
-
-   char cmsg[128] = {0};
-   char smsg[128] = {0};
-
-
-   while (!quit)
-   {
-      if (cr)
-      {
-         if (cr == 1)
-         {
-//            cfn--;
-            sprintf(cmsg, "Receives State:%d", last_state);
-            cfn_b4_rewind = cfn;
-         }
-         if (cr == 2)
-         {
-            sprintf(cmsg, "Rewinds to State:%d", last_state);
-            cfn = last_state;
-         }
-         if (cr == 3)
-         {
-            sprintf(cmsg, "Replays to last fn before rewind:%d", cfn_b4_rewind);
-            if (cfn > cfn_b4_rewind) cr = 0;
-         }
-      }
-      else // not client
-      {
-         if (sr == 0) // server
-         {
-            if (sfn == last_state + s3)
-            {
-               sr = 1; // start server rewind
-               sfn_b4_rewind = sfn;
-               sfn = last_state;
-               cfn--;
-            }
-         }
-         if (sr == 1)
-         {
-            sprintf(smsg, "Rewind to Last State:%d", last_state);
-            if (sfn > last_state) sr = 2;
-         }
-         else if (sr == 2)
-         {
-            sprintf(smsg, "Play to s1:%d",last_state + s1);
-            if (sfn == last_state + s1) sr = 3;
-         }
-         else if (sr == 3)
-         {
-            sprintf(smsg, "Create New State:%d",last_state + s1);
-            if (sfn > last_state + s1)
-            {
-               last_state += s1;
-               sr = 4;
-               // jump to client now
-               cr = 1;
-            }
-         }
-         else if (sr == 4)
-         {
-            sprintf(smsg, "Replays to last fn before rewind");
-            if (sfn > last_state + s2)
-            {
-               sr = 0;
-               cfn++;
-            }
-         }
-      }
-
-      int cmc = 15;
-      if ((!cr) && (!sr)) sprintf(cmsg, "Normal Move");
-      if ((!cr) && (sr))  sprintf(cmsg, "paused");
-      if (cr) cmc = 10;
-      al_draw_textf(mFont.pr8, mColor.pc[cmc], 400, 0, 0, "Client %s",cmsg);
-
-
-      int smc = 15;
-      if ((!cr) && (!sr)) sprintf(smsg, "Normal Move");
-      if (cr)             sprintf(smsg, "paused");
-      if ((sr) && (!cr))  smc = 10;
-      al_draw_textf(mFont.pr8, mColor.pc[smc], 0, 0, 0, "Server %s", smsg);
-
-
-      if (mInput.key[ALLEGRO_KEY_SPACE][3])
-      {
-         if (cr) // when in cr mode pause server
-         {
-            if      (cr == 1) cr = 2;
-            else if (cr == 2) cr = 3;
-            else cfn++;
-         }
-         else
-         {
-            if (sr) sfn++; // server only
-            else // both in normal move
-            {
-               cfn++;
-               sfn++;
-            }
-         }
-      }
-
-      // draw server column
-      for (int i=100; i<180; i++)
-      {
-         int sc = 15;
-         if (i == sfn) sc = 10;
-         al_draw_textf(mFont.pr8, mColor.pc[sc], 0,   10+(i-100)*ls, 0, "%3d", i);
-      }
-
-      // draw client column
-      for (int i=100; i<180; i++)
-      {
-         int sc = 15;
-         if (i+1 == cfn) sc = 10;
-         al_draw_textf(mFont.pr8, mColor.pc[sc], 400, 10+(i-100)*ls, 0, "%3d", i+1);
-      }
-
-
-      // draw last state and boxes
-      int lsy1 = 10+(last_state    -100)*ls;
-      int lsy2 = 10+(last_state+s1 -100)*ls;
-      int lsy3 = 10+(last_state+s3 -100)*ls;
-
-      al_draw_rectangle(0, lsy1-1, 100, lsy3-1, mColor.pc[15], 1);
-      //al_draw_rectangle(0, lsy2-1, 200, lsy3-1, mColor.pc[15], 1);
-
-      al_draw_textf(mFont.pr8, mColor.pc[9], 102, lsy1, 0, "last state:%d", last_state);
-      al_draw_rectangle(0, lsy1-1, 240, lsy1+ls-1, mColor.pc[9], 1);
-
-
-      // current frame server
-      int cfy1 = 10+(sfn-100)*ls-2;
-      al_draw_textf(mFont.pr8, mColor.pc[10], 260, cfy1, 0, "current frame");
-      al_draw_line(0, cfy1+ls/2, 262, cfy1+ls/2, mColor.pc[10], 1);
-
-      // current frame client
-      cfy1 = 10+(cfn-101)*ls-2;
-      al_draw_textf(mFont.pr8, mColor.pc[10], 660, cfy1, 0, "current frame");
-      al_draw_line(400, cfy1+ls/2, 662, cfy1+ls/2, mColor.pc[10], 1);
-
-
-      if ((sr != 4) && (sr != 0))
-      {
-         al_draw_textf(mFont.pr8, mColor.pc[8], 102, lsy2, 0, "s1");
-         al_draw_rectangle(0, lsy2-1, 200, lsy2+ls-1, mColor.pc[8], 1);
-      }
-
-      if ((sr) && (!cr))
-      {
-         int yp = 10+(sfn_b4_rewind-100)*ls;
-         al_draw_textf(mFont.pr8, mColor.pc[13], 102, yp, 0, "fn before rewind");
-         al_draw_rectangle(0, yp-1, 240, yp+ls-1, mColor.pc[13], 1);
-      }
-
-      if (cr)
-      {
-         int yp = 10+(cfn_b4_rewind-101)*ls;
-         al_draw_textf(mFont.pr8, mColor.pc[13], 502, yp, 0, "fn before rewind");
-         al_draw_rectangle(400, yp-1, 640, yp+ls-1, mColor.pc[13], 1);
-      }
-
-      al_flip_display();
-
-      al_clear_to_color(mColor.pc[0]);
-      mEventQueue.proc(1);
-      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
-
-   }
-
-
-*/
 
 
 
@@ -893,18 +569,6 @@ void mwMain::temp_test(void)
 //
 //   al_flip_display();
 //   mInput.tsw();
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //   ALLEGRO_FONT *f = mFont.pr8;
@@ -1073,212 +737,5 @@ void mwMain::temp_test(void)
 //
 //
 
-
-
-
-
-
-
-
-
-
-
-
-
-//   int ml=0;
-//   for (int i=0; i<256; i++)
-//   {
-//      if (strlen(key_names[i]) > ml)
-//      {
-//         ml = strlen(key_names[i]);
-//
-//         printf("i:%d len:%d txt:%s\n", i, ml, key_names[i]);
-//
-//      }
-//
-//   }
-
-
-
-
-
-//   double round_to_nearest(double in, double nr);
-//   for (double i=50; i>-50; i-=1) round_to_nearest(i, 10);
-
-//   double t0 = 0.000123;
-//   printf("1 - ps:%d pp:%d sot:%d t0:%f\n", packetsize1, packetpos1, sizeof(t0), t0);
-//
-//   PacketPutDouble1(t0);
-//   printf("2 - ps:%d pp:%d sot:%d t0:%f\n", packetsize1, packetpos1, sizeof(t0), t0);
-//
-//
-//   double t1 = PacketGetDouble1();
-//   printf("3 - ps:%d pp:%d sot:%d t1:%f\n", packetsize1, packetpos1, sizeof(t1), t1);
-//
-//
-//
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//   mdw_message_box_2("Hello", "poo", "pee");
-
-
- //  exit_level_editor_dialog();
-
- //
-
-
-//   for (int b=0; b<1024; b+=256)
-//   {
-//      al_set_target_backbuffer(mDisplay.display);
-//      al_clear_to_color(al_map_rgb(0,0,0));
-//
-//      int x = 100;
-//      int y = 0;
-//
-//      for (int a=b; a<b+128; a++)
-//         al_draw_textf(mFont.pr8, mColor.pc[15], x, y+=8, 0, "%d-[%c] %d-[%c]", a, a, a+128, a+128);
-//      al_flip_display();
-//      mInput.tsw();
-//   }
-
-
-
-/*
-
-int it13=0;
-
-printBits(4, &it13);
-printf("b0:[%s]\n",msg);
-
-set_int_3216(it13, 65535, 64000);
-
-printBits(4, &it13);
-printf("b1:[%s]\n",msg);
-
-
-
-
-int tc = 0;
-int fc = 0;
-get_int_3216(it13, tc, fc);
-
-printBits(4, &tc);
-printf("b2:[%s]\n",msg);
-
-printBits(4, &fc);
-printf("b3:[%s]\n",msg);
-
-printf("--- %d  %d\n", tc, fc);
-
-*/
-
-
-/*
-   int test = 0;
-   printBits(4, &test);
-
-   printf("b4:[%s]\n",msg);
-
-   test |= PM_LIFT_NO_DRAW;
-
-
-   printBits(4, &test);
-
-   printf("af:'%s'\n",msg);
-
-*/
-
-
-
-//   void colorize_tile(void);
-//   colorize_tile();
-
-
-//void combine_tile(void);
-//   combine_tile();
-
-
-
-/*
-   load_level(start_level, 0, 0);
-   group_edit();
-
-*/
-
-/*
-
-void show_level_done(void);
-
-   al_set_target_backbuffer(mDisplay.display);
-
-   int quit = 0;
-   while (!quit)
-   {
-      mEventQueue.proc(1);
-      al_clear_to_color(al_map_rgb(0,0,0));
-      show_level_done();
-      al_flip_display();
-
-      while ((mInput.key[ALLEGRO_KEY_ESCAPE][0]) || (mInput.mouse_b[2][0]))
-      {
-         mEventQueue.proc(1);
-         quit = 1;
-      }
-      if (mInput.key[ALLEGRO_KEY_1][3]) mPlayer.syn[1].active = !mPlayer.syn[1].active;
-      if (mInput.key[ALLEGRO_KEY_2][3]) mPlayer.syn[2].active = !mPlayer.syn[2].active;
-      if (mInput.key[ALLEGRO_KEY_3][3]) mPlayer.syn[3].active = !mPlayer.syn[3].active;
-      if (mInput.key[ALLEGRO_KEY_4][3]) mPlayer.syn[4].active = !mPlayer.syn[4].active;
-      if (mInput.key[ALLEGRO_KEY_5][3]) mPlayer.syn[5].active = !mPlayer.syn[5].active;
-      if (mInput.key[ALLEGRO_KEY_6][3]) mPlayer.syn[6].active = !mPlayer.syn[6].active;
-      if (mInput.key[ALLEGRO_KEY_7][3]) mPlayer.syn[7].active = !mPlayer.syn[7].active;
-   }
-
-*/
-
-//   char tst[20];
-//   printf("sizeof %d\n", sizeof(tst));
-
-
-
-   //tile_editor();
-
-//   edit_tile_attributes();
-
-  // copy_tiles();
-
-//            play_level = start_level;
-//            set_start_level(play_level);
-//            printf("running level editor for level:%d\n", play_level);
-//            play_level = edit_menu(play_level);
-//            set_start_level(play_level);
-//            mMain.fast_exit();
-
-
-
-//   al_show_mouse_cursor(mDisplay.display);
-//   load_level(start_level, 0, 0);
-//   lift_viewer(4);
 
 }

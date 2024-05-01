@@ -4,6 +4,37 @@
 
 
 
+
+mLog.addf(
+
+for these function I spend a lot of time making sure I have active local player...
+
+what about if I send -1, have the function automaticall fill in active loacl player.....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 waiting on file from server??
 
 I think what is happening is client is requesting from overworld and server will not do savegame from overworld

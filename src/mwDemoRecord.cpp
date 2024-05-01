@@ -99,7 +99,7 @@ void mwDemoRecord::gdt(void)
 
       // add shot config and save
       //mGameMoves.add_game_move_shot_config(1);
-      //mGameMoves.save_gm(current_loaded_demo_file);
+      //mGameMoves.save_gm(current_loaded_demo_file, 0);
 
 
 
@@ -109,7 +109,7 @@ void mwDemoRecord::gdt(void)
 //         {
 //            mGameMoves.arr[x][2] = 0;
 //         }
-//      mGameMoves.save_gm(current_loaded_demo_file);
+//      mGameMoves.save_gm(current_loaded_demo_file, 0);
 
 
 
@@ -120,7 +120,7 @@ void mwDemoRecord::gdt(void)
 //      printf("pvs:%d pvs:%d dmg:%d\n", mPlayer.syn[0].player_vs_player_shots, mPlayer.syn[0].player_vs_self_shots, mPlayer.syn[0].player_vs_player_shot_damage);
 
 
-//      mGameMoves.save_gm(current_loaded_demo_file);
+//      mGameMoves.save_gm(current_loaded_demo_file, 0);
 
 
 
@@ -1478,13 +1478,13 @@ int mwDemoRecord::draw_file_details(int x1, int y1)
    c = 4;
    if (mWidget.buttont(xa, ya, xa2, bts,  0,0,0,0,  0,c,15, 0,  1,0,1,0, "Save (overwrite current)"))
    {
-      mGameMoves.save_gm(current_loaded_demo_file);
+      mGameMoves.save_gm(current_loaded_demo_file, 0);
       mGameMoves.load_gm(current_loaded_demo_file);
       refresh();
    }
    if (mWidget.buttont(xa, ya, xa2, bts,  0,0,0,0,  0,c,15, 0,  1,0,1,0, "Save (auto new name)"))
    {
-      mGameMoves.save_gm_make_fn("new copy");
+      mGameMoves.save_gm_make_fn("new copy", 0);
       mGameMoves.load_gm(current_loaded_demo_file);
       refresh();
    }

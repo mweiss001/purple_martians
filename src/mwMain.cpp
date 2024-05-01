@@ -93,8 +93,6 @@ void mwMain::final_wrapup(void)
 void mwMain::fast_exit(void)
 {
    if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
-   if (mGameMoves.autosave_game_on_program_exit) mGameMoves.save_gm_make_fn("autosave on program exit");
-
    final_wrapup();
    exit(0);
 }
@@ -317,7 +315,6 @@ int mwMain::pm_main(int argument_count, char **argument_array)
       mLoop.main_loop();
    }
    if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
-   if (mGameMoves.autosave_game_on_program_exit) mGameMoves.save_gm_make_fn("autosave on program exit");
 
    mConfig.save_config();
 

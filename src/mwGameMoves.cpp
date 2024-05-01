@@ -247,8 +247,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
       // ----------------------------------------------------------------------------------------
       if ((mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) && (mPlayer.active_local_player == 0))
       {
-         mLoop.state[0] = PM_PROGRAM_STATE_MENU;
-         mLevel.resume_allowed = 1;
+         mLoop.state[0] = PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT;
          return;
       }
 
@@ -519,25 +518,38 @@ void mwGameMoves::save_gm_txt(const char *sfname)
 }
 
 
-void mwGameMoves::save_gm(const char *fname)
+
+
+
+char * mwGameMoves::get_save_txt(int num, char *txt)
 {
-   int print_level = 1;
+   if (num == 0) sprintf(txt, "File will be saved");
+   if (num == 1) sprintf(txt, "No game moves to save");
+   if (num == 2) sprintf(txt, "Never save demo for overworld");
+   if (num == 3) sprintf(txt, "Never save demo in demo mode");
+   if (num == 4) sprintf(txt, "Never save demo locally for client");
+   if (num == 5) sprintf(txt, "Server file transfer disabled");
+   return txt;
+}
 
 
-   int skip = 0;
+int mwGameMoves::save_gm(const char *fname, int sendto)
+{
+   char msg[256];
+   int ret = 0; // good return by default
+   if (entry_pos == 0)          ret = 1; // No game moves to save
+   if (mLevel.play_level == 1)  ret = 2; // Never save demo for overworld
+   if (mDemoMode.mode)          ret = 3; // Never save demo when in demo mode
+   if (mNetgame.ima_client)     ret = 4; // Never save demo locally for client
 
-   if (entry_pos == 0)          { skip = 1;  if (print_level > 1) printf("No game moves to save\n");             }
-   if (mLevel.play_level == 1)  { skip = 1;  if (print_level > 1) printf("Never save demo for overworld\n");     }
-   if (mDemoMode.mode)          { skip = 1;  if (print_level > 1) printf("Never save demo when in demo mode\n"); }
+   if ((sendto) && (!server_send_gm_to_clients)) ret = 5; // trying to send to client and file transfer disabled
 
-   // if not skipped so far and client, send request
-   if ((!skip) && (mNetgame.ima_client)) mNetgame.client_send_crfl();
+   // only log here if file will not be saved
+   if (ret) mLog.addf(LOG_NET_file_transfer, sendto, "save:txt:%s\n", get_save_txt(ret, msg));
 
-   if (mNetgame.ima_client)     { skip = 1;  if (print_level > 1) printf("Never save demo for client\n");        } // do not save for client, the gm is missing data and is not playable
+   if (sendto) mNetgame.server_send_srrf_packet(sendto, ret);
 
-
-
-   if (!skip)
+   if (!ret)
    {
       gm_sort();
 
@@ -546,27 +558,33 @@ void mwGameMoves::save_gm(const char *fname)
       else
       {
          fprintf(filepntr,"%d\n", entry_pos);  // num_entries
-
          for (int x=0; x<entry_pos; x++)
             for (int y=0; y<4; y++)
                fprintf(filepntr,"%d\n", arr[x][y]);
          fclose(filepntr);
+         mLog.addf(LOG_NET_file_transfer, sendto, "saved:%s\n", fname);
 
-         if (print_level) printf("saved:%s\n", fname);
+         sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname); // update current loaded demo filename
 
-//         if ((mNetgame.ima_server) && (mGameMoves.server_send_gm_to_clients)) // if server, send to all active clients
-//         {
-//            for (int p=1; p<NUM_PLAYERS; p++)
-//               if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
-//                  mNetgame.server_add_file_to_send(fname, p);
-//         }
-
-         sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname); // update the name
-
-         if (0) save_gm_txt(fname); // also save as a human readable text file
+         //save_gm_txt(fname); // also save as a human readable text file
       }
+      if (sendto) mNetgame.server_add_file_to_send(fname, sendto);
    }
+   return ret;
 }
+
+void mwGameMoves::save_gm_make_fn(const char* description, int sendto)
+{
+   char timestamp[40];
+   struct tm *timenow;
+   time_t now = time(NULL);
+   timenow = localtime(&now);
+   strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
+   char filename[120];
+   sprintf(filename, "savegame/%s-[%02d]-%s.gm", timestamp, mLevel.play_level, description);
+   save_gm(filename, sendto);
+}
+
 
 void mwGameMoves::save_gm_file_select(void)
 {
@@ -584,24 +602,15 @@ void mwGameMoves::save_gm_file_select(void)
       {
          sprintf(fname, "%s.gm", al_get_native_file_dialog_path(afc, 0));
          printf("file and path selected:%s\n", fname);
-         save_gm(fname);
+         save_gm(fname, 0);
       }
    }
    else printf("file select cancelled\n");
    al_destroy_native_file_dialog(afc);
 }
 
-void mwGameMoves::save_gm_make_fn(const char* description)
-{
-   char timestamp[40];
-   struct tm *timenow;
-   time_t now = time(NULL);
-   timenow = localtime(&now);
-   strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
-   char filename[120];
-   sprintf(filename, "savegame/%s-[%02d]-%s.gm", timestamp, mLevel.play_level, description);
-   save_gm(filename);
-}
+
+
 
 
 int mwGameMoves::load_demo_level(int lev)

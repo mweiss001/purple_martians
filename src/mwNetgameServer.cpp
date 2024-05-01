@@ -136,7 +136,6 @@ void mwNetgame::headless_server_setup(void)
 
    // make sure we are always saving games
    mGameMoves.autosave_game_on_level_done = 1;
-   mGameMoves.autosave_game_on_program_exit = 1;
 
    mGameMoves.server_send_gm_to_clients = 1;
 
@@ -667,6 +666,16 @@ void mwNetgame::server_send_sjrc_packet(int p)
    mPacketBuffer.PacketPutDouble(data, pos, 0);
    ServerSendTo(data, pos, p);
 }
+
+void mwNetgame::server_send_srrf_packet(int p, int val)
+{
+   // printf("sending srrf packet with val:%d\n", val);
+   char data[1024] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "srrf");
+   mPacketBuffer.PacketPutByte(data, pos, val);
+   ServerSendTo(data, pos, p);
+}
+
 
 void mwNetgame::server_proc_ping_packet(char *data, int p)
 {

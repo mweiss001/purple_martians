@@ -109,6 +109,7 @@ void mwPacketBuffer::proc_rx_buffer(void)
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STDF) mNetgame.client_proc_stdf_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SNFO) mNetgame.client_proc_snfo_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SFIL) mNetgame.client_proc_sfil_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SRRF) mNetgame.client_proc_srrf_packet(i);
          }
          rx_buf[i].active = 0;
       }
@@ -228,6 +229,7 @@ void mwPacketBuffer::add_to_rx_buffer_single(char *data, int p)
    if (PacketRead(data, "stdf")) type = PM_NETGAME_PACKET_TYPE_STDF;
    if (PacketRead(data, "snfo")) type = PM_NETGAME_PACKET_TYPE_SNFO;
    if (PacketRead(data, "sfil")) type = PM_NETGAME_PACKET_TYPE_SFIL;
+   if (PacketRead(data, "srrf")) type = PM_NETGAME_PACKET_TYPE_SRRF;
    if (PacketRead(data, "crfl")) type = PM_NETGAME_PACKET_TYPE_CRFL;
 
    if (type)
@@ -260,6 +262,7 @@ int mwPacketBuffer::find_empty_rx_packet_buffer(void)
    int stdf_count = 0;
    int snfo_count = 0;
    int sfil_count = 0;
+   int srrf_count = 0;
    int crfl_count = 0;
    int all_count = 0;
 
@@ -273,6 +276,7 @@ int mwPacketBuffer::find_empty_rx_packet_buffer(void)
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STDF) stdf_count++;
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SNFO) snfo_count++;
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SFIL) sfil_count++;
+         if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SRRF) srrf_count++;
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CRFL) crfl_count++;
       }
    mLog.addf(LOG_NET, 0, "[%d] cdat\n", cdat_count);
@@ -281,6 +285,7 @@ int mwPacketBuffer::find_empty_rx_packet_buffer(void)
    mLog.addf(LOG_NET, 0, "[%d] stdf\n", stdf_count);
    mLog.addf(LOG_NET, 0, "[%d] snfo\n", snfo_count);
    mLog.addf(LOG_NET, 0, "[%d] sfil\n", sfil_count);
+   mLog.addf(LOG_NET, 0, "[%d] srrf\n", srrf_count);
    mLog.addf(LOG_NET, 0, "[%d] crfl\n", crfl_count);
 
    return -1;
