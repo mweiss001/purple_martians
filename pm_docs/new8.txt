@@ -52560,6 +52560,33 @@ am i missing the acknowledge?
 
 
 
+mLog.addf(
+
+for these function I spend a lot of time making sure I have active local player...
+
+what about if I send -1, have the function automaticall fill in active loacl player.....
+
+83 mentions....
+
+added to all the helper function in mwLog.cpp:
+
+if (p == -1) p = mPlayer.active_local_player;
+
+
+committed....20240501 10:00AM
+
+
+new version 0501.1
+
+
+
+
+
+
+
+
+
+
 
 
 

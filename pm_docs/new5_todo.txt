@@ -3,152 +3,20 @@
 ---------------------------------------------------------
 
 
-
-
-mLog.addf(
-
-for these function I spend a lot of time making sure I have active local player...
-
-what about if I send -1, have the function automaticall fill in active loacl player.....
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-waiting on file from server??
-
-I think what is happening is client is requesting from overworld and server will not do savegame from overworld
-so client never gets response....
-
-how to fix...
-
-
-// PM_PROGRAM_STATE_CLIENT_PREEXIT1
-//-----------------------------------------------------------------
-   if (state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT1)
-   {
-      if ((mGameMoves.autosave_game_on_level_quit) && (mLevel.play_level != 1)) // not overworld
-      {
-         // when client quits with escape, send a file request to the server to get the gm file
-         mNetgame.client_send_crfl();
-         state[0] = PM_PROGRAM_STATE_CLIENT_PREEXIT2;
-      }
-      else state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
-   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 Make links on the session table pages to link to each other
 
 
-Make the home page look better.
 
-Have a huge purplemartians.org logo somewhere
-
-Have a page for Multiplayer..
-
-Sections..
-
-Play on my server purplemartians.org
-
-Set up your own server:
-LAN
-Internet
-headless
-
-------------------------------------
-
-Redo my multiplayer videos...
-
-Now that port forwarding does not need to be setup...
 
 
 
+------------------------------------
 
 How long has server been running?
 Keep some stats about that.

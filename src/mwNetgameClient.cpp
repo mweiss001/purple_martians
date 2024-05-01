@@ -258,35 +258,12 @@ void mwNetgame::client_proc_pong_packet(char *data)
 
 void mwNetgame::client_proc_srrf_packet(int i)
 {
-   int p = mPlayer.active_local_player;
    int val = mPacketBuffer.PacketGetByte(i);
-
    char msg[256];
-   mLog.addf(LOG_NET_file_transfer, p, "rx srrf - %s\n", mGameMoves.get_save_txt(val, msg)) ;
-
+   mLog.addf(LOG_NET_file_transfer, -1, "rx srrf - %s\n", mGameMoves.get_save_txt(val, msg)) ;
    // if blocking in CLIENT_PREEXIT2 state, advance to next state
    if ((val) && (mLoop.state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT2)) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
 }
-
-//
-//   if (val == 0) mLog.addf(LOG_NET_file_transfer, p, "rx srrf - file will be sent\n");
-//
-//
-//   if (val == 0) mLog.addf(LOG_NET_file_transfer, p, "rx srrf - file will be sent\n");
-//   else
-//   {
-//      if (val == 1) mLog.addf(LOG_NET_file_transfer, p, "rx srrf - file not sent - no game moves to send\n");
-//      if (val == 2) mLog.addf(LOG_NET_file_transfer, p, "rx srrf - file not sent - never send overworld game moves\n");
-//      if (val == 4) mLog.addf(LOG_NET_file_transfer, p, "rx srrf - file not sent - server client file transfer disabled\n");
-//
-//      // if blocking in CLIENT_PREEXIT2 state, advance to next state
-//      if (mLoop.state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT2) mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
-//   }
-//}
-//
-//
-//
-//
 
 
 
@@ -464,7 +441,7 @@ void mwNetgame::client_proc_sfil_packet(int i)
 
 //      printf("Client received filename:[%s] size:[%d] id:[%d]\n", fname, fsize, id);
 
-      mLog.addf(LOG_NET_file_transfer, mPlayer.active_local_player, "rx %s size:[%d] id:[%d]\n", fname, fsize, id);
+      mLog.addf(LOG_NET_file_transfer, -1, "rx %s size:[%d] id:[%d]\n", fname, fsize, id);
 
 
       // write to file
@@ -495,7 +472,7 @@ void mwNetgame::client_send_sfak_packet(int id)
 
 void mwNetgame::client_send_crfl(void)
 {
-   mLog.addf(LOG_NET_file_transfer, mPlayer.active_local_player, "tx clrf - client request file\n");
+   mLog.addf(LOG_NET_file_transfer, -1, "tx clrf - client request file\n");
    char data[1024] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "crfl");
    ClientSend(data, pos);
@@ -504,7 +481,6 @@ void mwNetgame::client_send_crfl(void)
 
 void mwNetgame::client_proc_stdf_packet(int i)
 {
-   int p       = mPlayer.active_local_player;
    int src     = mPacketBuffer.PacketGetInt4(i);
    int dst     = mPacketBuffer.PacketGetInt4(i);
    int seq     = mPacketBuffer.PacketGetByte(i);
@@ -516,12 +492,12 @@ void mwNetgame::client_proc_stdf_packet(int i)
    if (slsn != mPlayer.syn[0].server_lev_seq_num)
    {
       //printf("stdf from wrong seq! rx:%d should be:%d\n", slsn, mPlayer.syn[0].server_lev_seq_num);
-      mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d wrong seq:%d should be:%d\n", seq+1, max_seq, src, dst, sb, sz, slsn, mPlayer.syn[0].server_lev_seq_num);
+      mLog.addf(LOG_NET_stdf_packets, -1, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d wrong seq:%d should be:%d\n", seq+1, max_seq, src, dst, sb, sz, slsn, mPlayer.syn[0].server_lev_seq_num);
    }
    else
    {
 
-      mLog.addf(LOG_NET_stdf_packets, p, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", seq+1, max_seq, src, dst, sb, sz);
+      mLog.addf(LOG_NET_stdf_packets, -1, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", seq+1, max_seq, src, dst, sb, sz);
       memcpy(client_state_buffer + sb, mPacketBuffer.rx_buf[i].data+23, sz);   // put the piece of data in the buffer
 
       client_state_buffer_pieces[seq] = dst;                     // mark it with destination mLoop.frame_num
@@ -537,13 +513,13 @@ void mwNetgame::client_proc_stdf_packet(int i)
 
          if (destLen == STATE_SIZE)
          {
-            mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] - uncompressed\n", src, dst);
+            mLog.addf(LOG_NET_stdf, -1, "rx dif complete [%d to %d] - uncompressed\n", src, dst);
             client_state_dif_src = src; // mark dif data with new src and dst
             client_state_dif_dst = dst;
          }
          else
          {
-            mLog.addf(LOG_NET_stdf, p, "rx dif complete [%d to %d] - bad uncompress\n", src, dst);
+            mLog.addf(LOG_NET_stdf, -1, "rx dif complete [%d to %d] - bad uncompress\n", src, dst);
             client_state_dif_src = -1; // mark dif data as bad
             client_state_dif_dst = -1;
          }

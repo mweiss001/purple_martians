@@ -935,7 +935,7 @@ int mwSettings::page_demo(void)
    mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mGameMoves.autosave_game_on_level_done,   "Autosave on level done", tc, 14);
    mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mGameMoves.autosave_game_on_level_quit,   "Autosave on level quit", tc, 14);
 
-   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mGameMoves.server_send_gm_to_clients,     "Enable server send files to clients", tc, 14);
+   mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mGameMoves.server_send_files_to_clients,     "Enable server send files to clients", tc, 14);
 
 
 
