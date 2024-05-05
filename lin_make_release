@@ -3,7 +3,7 @@ mkdir linux_libs/
 cp /usr/lib/liballegro_monolith.so.5.2 ./linux_libs/
 cp /lib/x86_64-linux-gnu/libOpenGL.so.0 ./linux_libs/
 
-version=7.24.0505.1
+version=7.24.0505.2
 
 fd='purple_martians_'"$version"'_linux'
 
@@ -26,9 +26,6 @@ cp snd/*           "$fd"/snd
 cp levels/level0*  "$fd"/levels
 cp linux_libs/*    "$fd"/linux_libs
 cp -r savegame/demo/* "$fd"/savegame/demo
-
-cp data/level_icons_100.bmp "$fd"/data
-cp data/level_icons_200.bmp "$fd"/data
 
 cp pm "$fd"/
 cp readme_linux "$fd"/

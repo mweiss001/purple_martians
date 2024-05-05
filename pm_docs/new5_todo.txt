@@ -59,6 +59,12 @@ autosave game and log options
 
 
 
+
+
+
+
+
+
 ------------------------------------
 
 

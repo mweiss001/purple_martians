@@ -333,7 +333,7 @@ void mwNetgame::client_proc_snfo_packet(int i)
          if (complete)
          {
             //printf("rx snfo complete - frame:[%d]\n", fn);
-            char dmp[5400];
+            char dmp[5500];
             // uncompress
             uLongf destLen = sizeof(dmp);
             uncompress((Bytef*)dmp, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
