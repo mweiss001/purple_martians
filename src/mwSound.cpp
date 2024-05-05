@@ -68,21 +68,31 @@ void mwSound::load_sound() // load sound driver and samples
 //         pm_theme_stream = al_load_audio_stream("snd/pm.mp3", 8, 1024);
 //         if (pm_theme_stream == NULL) mInput.m_err("Error loading snd/pm.xm\n");
 
-
 //         pm_theme_stream = al_load_audio_stream("snd/pm.wav", 8, 1024);
 //         if (pm_theme_stream == NULL) mInput.m_err("Error loading snd/pm.wav\n");
 
+
+         soundtrack_on = 1;
          pm_theme_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
-         if (pm_theme_stream == NULL) mInput.m_err("Error loading snd/pm.xm\n");
+         if (pm_theme_stream == NULL)
+         {
+            printf("Error loading snd/pm.xm ... trying to load snd/pm.wav\n");
+            pm_theme_stream = al_load_audio_stream("snd/pm.wav", 8, 1024);
+            if (pm_theme_stream == NULL)
+            {
+               printf("Error loading snd/pm.wav .. soundtrack disabled\n");
+               soundtrack_on = 0;
+            }
+         }
 
-
-
-         al_set_audio_stream_playmode(pm_theme_stream, ALLEGRO_PLAYMODE_LOOP);
-         al_set_audio_stream_playing(pm_theme_stream, 0);
-         al_attach_audio_stream_to_mixer(pm_theme_stream, st_mixer);
-
-         set_se_scaler();
-         set_st_scaler();
+         if (soundtrack_on)
+         {
+            al_set_audio_stream_playmode(pm_theme_stream, ALLEGRO_PLAYMODE_LOOP);
+            al_set_audio_stream_playing(pm_theme_stream, 0);
+            al_attach_audio_stream_to_mixer(pm_theme_stream, st_mixer);
+            set_se_scaler();
+            set_st_scaler();
+         }
       }
    }
 }
@@ -95,7 +105,7 @@ void mwSound::set_se_scaler(void)
 
 void mwSound::set_st_scaler(void)
 {
-   if (sound_on) al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
+   if ((sound_on) && (soundtrack_on)) al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
    mConfig.save_config();
 }
 
@@ -108,7 +118,7 @@ void mwSound::start_music(int resume)
 
       // reset sound counters
       for (int c=0; c<8; c++) sample_delay[c] = mLoop.frame_num;
-      if (sound_on)
+      if ((sound_on) && (soundtrack_on))
       {
          if (!resume) al_rewind_audio_stream(pm_theme_stream);
          al_set_audio_stream_playing(pm_theme_stream, 1);
@@ -120,7 +130,7 @@ void mwSound::stop_sound(void)
 {
    if (sound_on)
    {
-      al_set_audio_stream_playing(pm_theme_stream, 0);
+      if (soundtrack_on) al_set_audio_stream_playing(pm_theme_stream, 0);
       al_set_sample_instance_playing(sid_hiss, 0);
    }
 }

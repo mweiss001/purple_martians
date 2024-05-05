@@ -52487,6 +52487,182 @@ removed these lines from lin_make_release
 cp data/level_icons_100.bmp "$fd"/data
 cp data/level_icons_200.bmp "$fd"/data
 
+the linux version is 3.1M? holy shit!
+
+the linux executable is 1.5M compared to 15M for windows...
+
+
+did a newer release 7.24.0505.02
+
+
+It works on u22, but not on mint....
+error loading pm.xm
+
+
+Discord
+game dev net
+name: Michael Weiss
+mweiss001@gmail.com zaiden1
+
+says the password is too weak???
+
+lets try linzieZK123
+reconfirmed and changed password..
+
+
+
+I am having some problems playing .xm files on linux.
+I get an error loading them.
+
+I have theme music for my game that was created by someone else specifically for my game.
+It is an .xm file and it is quite small. (500K)
+
+Years ago I used DUMB to play this .xm file in Allegro, but a few years ago, I could not get it to work anymore.
+So I converted it to a wav file (29M) and and mp3 file (4M).
+
+I also had problems playing mp3 with Allegro. So I just went with the wav file, which just works.
+
+The problem I have is the wav file is huge (29M)!
+OK that's not really that big, but when compared to the rest of my project, it easily doubles the size of the release.
+
+So recently I went back and tried to see if I could get .xm to work again.
+
+My project is cross platform (windows and linux) so my solution will need to work on both.
+
+Right now it works fine on windows, but would not load on linux.
+
+This is how I am loading it:
+
+`
+         pm_theme_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
+         if (pm_theme_stream == NULL)
+         {
+            printf("Error loading snd/pm.xm ... trying to load snd/pm.wav\n");
+            pm_theme_stream = al_load_audio_stream("snd/pm.wav", 8, 1024);
+            if (pm_theme_stream == NULL)
+            {
+               printf("Error loading snd/pm.wav .. soundtrack disabled\n");
+               soundtrack_on = 0;
+            }
+         }
+`
+
+Like I said it works on windows, but on my ubuntu 20.04 dev machine I got an error trying to load it.
+
+So I went back to where I built Allegro from source and changed:
+-DWANT_MODAUDIO=OFF
+to
+-DWANT_MODAUDIO=ON
+
+Then recomplied Allegro and now it loads the .xm with no errors and plays perfectly on ubuntu 20.04
+
+So I thought I had solved the problem!
+
+But when I tested on a different linux machine running Linux Mint 21.2, it fails loading the file.
+
+I am using:
+Allegro version 5.2.9.0 built from source for the linux target
+Allegro version 5.2.8.1 for the windows target
+
+I am completely lost here.
+I have no idea what is required to get .xm to play on different linux targets.
+The easiest thing for me to do is give up and use the huge .wav file. It just works.
+The only reason I want to get .xm working is that is is so small.
+But if it is going to cause issues where it won't play on some systems, that is a deal breaker.
+
+
+
+SiegeLord
+
+What did you do on Linux Mint 21.2?
+Did you build Allegro from source there as well?
+
+No. I just bundled everything into a release, copied it there and tried to run it.
+This method works for me for all other aspects of my project.
+I have succesfully done that for:
+
+windows 7, 10, 11
+ubuntu 20.04, 22.04
+Linux Mint 20.3
+Manjaro 21.2.4
+MX-21
+Fedora 35
+
+-----------------
+
+
+make a new release?
+
+
+
+
+
+
+
+try to record a very old version with DOSBOX
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
