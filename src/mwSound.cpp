@@ -76,14 +76,18 @@ void mwSound::load_sound() // load sound driver and samples
          pm_theme_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
          if (pm_theme_stream == NULL)
          {
-            printf("Error loading snd/pm.xm ... trying to load snd/pm.wav\n");
-            pm_theme_stream = al_load_audio_stream("snd/pm.wav", 8, 1024);
-            if (pm_theme_stream == NULL)
-            {
-               printf("Error loading snd/pm.wav .. soundtrack disabled\n");
-               soundtrack_on = 0;
-            }
+            printf("Error loading snd/pm.xm ... soundtrack disabled\n");
+            soundtrack_on = 0;
          }
+//            printf("Error loading snd/pm.xm ... trying to load snd/pm.wav\n");
+//            pm_theme_stream = al_load_audio_stream("snd/pm.wav", 8, 1024);
+//            if (pm_theme_stream == NULL)
+//            {
+//               printf("Error loading snd/pm.wav .. soundtrack disabled\n");
+//               printf("Error loading snd/pm.wav .. soundtrack disabled\n");
+//               soundtrack_on = 0;
+//            }
+//         }
 
          if (soundtrack_on)
          {

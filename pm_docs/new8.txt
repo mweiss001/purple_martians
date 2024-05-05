@@ -52598,6 +52598,115 @@ make a new release?
 
 
 
+I finally got somewhere! Thank you so much for your help. I just needed a pointer in the right direction.
+
+First of all I could not get allegro to make the log.
+
+Then I realized I had to recompile allegro with Debug instead of Release.
+
+Then I had to link to liballegro_monolith-debug.so.5.2.
+
+Then I had to copy that with release.
+
+Finally after doing all that I still could not get allegro to make the log file.
+But I got something even better! An error!
+An error that tells me exactly what the problem is:
+
+error while loading shared libraries: libdumb.so.1: cannot open shared object file: No such file or directory
+
+Funny how I did not get that error in the Release version, only in the Debug version.
+
+
+
+
+
+
+m@e6510:~/Downloads/purple_martians_7.24.0505.3_linux$ ./pm
+./pm: error while loading shared libraries: liballegro_monolith-debug.so.5.2: cannot open shared object file: No such file or directory
+m@e6510:~/Downloads/purple_martians_7.24.0505.3_linux$
+
+
+
+./pm: error while loading shared libraries: liballegro_monolith-debug.so.5.2: cannot open shared object file: No such file or directory
+m@e6510:~/Downloads/purple_martians_7.24.0505.3_linux$
+m@e6510:~/Downloads/purple_martians_7.24.0505.3_linux$ ./pml
+./pm: error while loading shared libraries: libdumb.so.1: cannot open shared object file: No such file or directory
+m@e6510:~/Downloads/purple_martians_7.24.0505.3_linux$
+
+
+
+
+
+m@scat:~/dev$ find /usr/ -name libdumb.*
+/usr/lib/x86_64-linux-gnu/libdumb.a
+/usr/lib/x86_64-linux-gnu/libdumb.so
+/usr/lib/x86_64-linux-gnu/libdumb.so.1.0.0
+/usr/lib/x86_64-linux-gnu/libdumb.so.1
+
+
+m@scat:/usr/lib/x86_64-linux-gnu$ ll libdumb*
+-rw-r--r-- 1 root root 301168 Aug 31  2019 libdumb.a
+lrwxrwxrwx 1 root root     12 Aug 31  2019 libdumb.so -> libdumb.so.1
+lrwxrwxrwx 1 root root     16 Aug 31  2019 libdumb.so.1 -> libdumb.so.1.0.0
+-rw-r--r-- 1 root root 214080 Aug 31  2019 libdumb.so.1.0.0
+
+size 214K
+
+so add this to the lin_make_release
+
+cp /usr/lib/x86_64-linux-gnu/libdumb.so.1 ./linux_libs/
+
+
+
+
+
+
+
+
+
+
+
+OK now that I confiremd that works....
+
+lets put everything back
+
+recompile allegro with release
+
+change the linker back
+
+change lin_make_release to not copy monolith-debug
+
+remove pm.wav from the snd dir...
+
+update all to version 6
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 try to record a very old version with DOSBOX
 
