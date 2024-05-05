@@ -82,7 +82,7 @@ messing around trying to get netgame to work
 (not that it was synchronized, they just all connected)
 then make the player have different color
 
-up to aroung line 3500....
+up to around line 3500....
 
 added the new screen message thing, its like bmsg, but shows on screen where the thing happened
 
@@ -388,7 +388,7 @@ level done took a lot to get working
 
 20221228 - testing ping with fast packet loop
 
-20221230 - measuring sync more accuratley with fast packet loop
+20221230 - measuring sync more accurately with fast packet loop
 
 20221231 - make custom graphs into a generic class
 
@@ -429,7 +429,7 @@ refactored all functions in screen_overlay
 finally got rid of all references to proc_controllers and used my key[][4] array
 
 20230205 - refactor of level editor and mwWindow system, created a mwWindowManager class to handle all of the windows as a group
-coneverting to classes to get rid of globals
+converting to classes to get rid of globals
 mwLogo, mwBottomMessage, mwDemoMode, mwDisplay, mwBitmap, mwFont....
 
 20230212 - all global variables and function prototypes are gone from pm.h !!
@@ -453,7 +453,6 @@ mwLogo, mwBottomMessage, mwDemoMode, mwDisplay, mwBitmap, mwFont....
 20230312 - new items, wrap line and warp rectangles, eventually gave up and removed
 
 no dev for a while, working on another project, bsd or bank statement data
-
 
 20230416 - roll back and remove all traces of wrap
 
@@ -498,6 +497,331 @@ made a bunch of viewport changes and setting page for them
 changed some player x y move code and had to redo all my demo levels!!
 
 refactored where everything is drawn on the main game menu screen
+
+20230622 - Start of the whole level data comcept
+locked or completed, perfect, best times
+show info on gate
+added to settings: game mode and stats
+hidden unlocked areas on overworld
+
+20230705 - refactoring things that take too long to draw
+level icons for vls and overworld
+eco draw for vinwpods and lifts
+
+
+20230707 - made new release 7.24.237
+
+20230710 - moved purple coins and npc draw screen direct out of overlay and into draw seq
+
+20230721 - settings pages refactor and rename variables
+add game mode to main page and remove that tab entirely
+working on viewport
+tried unsucessfully to fix shaky movement when riding lift
+made changes to player xy move code
+broke a lot of demos and had to redo
+show official time at end of level press any thing
+fixed bugs in level editor link translation code
+changed layout of main screen, for both classic and story
+chasing down extra lines when drawing scaled sub-bitmaps
+re-did tile bitmaps to have a 1 pxel border around each tile
+started headless server 
+adjusting s1, s2 client_offset
+
+20230825 linux dev setup complete and documented
+started making printf wrappers for adding log entries
+made settimgs file to avoid having many enries in pm.cfg
+made LOG defines for each type
+add rebuild_bitmaps to profile timers
+
+20230827 testing s1, s2 stdf freq
+implemented maxcor to see how much the clients are jumping around
+
+20230910 made a new class mwStateHistory that I use for both server rewind and client history
+changed packet put and get functions
+
+
+20230918 trying to fix this one bug for a while now
+when netgame plays for a while, the server gets in this mode where it will send full difs based on zero
+
+20230920 start on server remote control
+
+20230924 fixed bug where things that draw direct to screen draw on top of border
+working on remote control
+made non blocking buttons in widget class
+
+20231001 - looking at threads again
+lots of testing of fast timers
+eventually abandoned
+added defines for PM_GAMEMOVE_TYPE_* and PM_PLAYER_CONTROL_METHOD_*
+
+20231010 released version 7.24.1010.2
+
+20231017 had trouble with netgame and davis's router had to make specific port forward to one computer to get it to work
+testing at home with different router setups
+
+
+20231022 bump version and do new release
+
+20231119 bug - playing back muliplayer games does not work
+removed PM_GAMEMOVE_TYPE_CLIENT_JOIN and PM_GAMEMOVE_TYPE_CLIENT_QUIT
+now only use ACTIVE and INACTIVE
+
+20231121 new version and push
+cleaning up autosave game on level done and quit
+started file transfer from server to client for savegame files
+started the layered demo recording thing
+
+20231201
+changed shot config to be a game move entered in the game moves array
+PM_GAMEMOVE_TYPE_SHOT_CONFIG
+
+20231209 - still working on demo record
+
+20231217 - remove demo play from the main program state stuff and make it its own loop
+
+20231226 - fixed weird bug when tossing lit exploding bomb upward and it hits ceiling then ttl gets set
+
+20231231 - add shift at current pos, shifts everything after +1 or -1 frame
+
+20240210 - Move some of demo record into its own file (now demo_mode is 2700 lines)
+
+20240217 - fixing a bug where dif from previous level were causing problems by adding lev seq number to difs
+
+20240218 - added session logging
+
+20240220 - made dedicated youtube channel
+
+20240222 - changed player text overlay to use player struct variable, now can be more than one
+
+20240224 - working on bugs with dual screen in linux and windows
+
+20240325 - deep dive into port numbers and channels
+MAX_CLIENTS and made method to release unused channels
+
+20240402 - lots of unsucessful expermentation about reducing the number of port needed to open
+
+20210414 - bought purplemartians.org
+finally came up with single server channel method
+
+20240416  -  A landmark day!
+
+Major changes to netgame code.
+
+Server now only uses one socket for everything.
+Clients also, but that is how they have always been.
+
+The server uses the src address of the received packet to determine the client.
+
+When the server sends a packet, it changes the target of its one port, then sends.
+
+This will simplify my code considerably, once I clean it all up.
+
+But the biggest benefit is:
+
+Clients no longer need any port forwarding!!
+
+The client initiates contact with the server on port 24785.
+
+When it gets a reply from that port, it passes back through the router, beacuse the router sent something to it!
+
+20240418 
+setting up LAMP on purplemartians server
+adding sessions text files to database and showing on webpage
+working on webpage
+
+20240420 played remote game with linzie and zaiden
+
+20240425 - fixed bug where ending cutscene crashed headless server because it was trying to draw
+
+20240501 - big refactor of server sending files to client at level done and level quit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,0 +1,166 @@
+
+<h1> Multiplayer </h1> 
+
+I always wanted to do multiplayer. It had to be simultaneous multiplayer like Bubble Bobble.
+Just taking turns did not appeal to me at all.
+
+Around 2000 I implemented split screen multiplayer. Both players on the same machine.
+This required a huge refactor of the codebase. Everything had been written assuming there would only ever be one player.
+
+This worked, but was not as good as I had hoped. I started thinking about how cool it would be to do multiplayer across two computers.
+
+I found this networking library called libnet and crudely patched in into my code.
+
+Libnet is very low level, all it does it setup and exchange packets. Everything else you have to do on your own.
+
+I initially just passed inputs from one machine to the other to prove I could do it.
+
+The passing of packets back and forth turned out to be trivial, very easily accomplished.
+
+So I naively assumed that implementing multiplayer with packet exchange would not be that hard.
+
+I was wrong. It is very complicated.
+
+I wanted to figure it out on my own. 
+
+I tried so many different high level approaches and algorithms, writing code and patching it into the game.
+If I knew how many thousand of hours this would consume, I might have never started!
+
+I gave up a few times over the years, but then I would find myself randomly thinking about it.
+Wondering why the concepts I was sure would work, did not work. Wondering how I could test and monitor and figure out why it did not.
+
+At first I was sure this concept called 'Deterministic Lockstep' should work.
+
+The idea is that for a specfic set of input, you should always get the same results.
+More specifically:
+
+- Every frame, the player can press any combination of controls.
+- Every frame, I will record the frame number and the controls pressed
+- I should be able to play back the game with the exact same set of inputs and get the same result.
+
+This actually works. It is how I save demo playbacks of levels.
+
+So my plan was to make sure both computers had the exact set of inputs and they should be perfectly syncronized.
+
+I would use my packet exchange to make sure both sets of inputs were exactly the same.
+
+The clients would send their inputs to the server.
+The server would considate all moves and send them back to clients
+Then the clients would execute the moves.
+
+In theory this should have worked.
+
+In reality the client's state would drift from the server and all was lost.
+
+For years I tried so many things to determine why.
+Replaced floats with fixed point numbers, in an attempt to be more deterministic.
+Implemented a comprehensive logging system.
+
+Eventually I came up with an idea for the server to share with the clients the location of the players.
+I used a separate packet excahnge for this.
+
+Then on the clients, I could tell immediately if where the server thought the players should be differed from where the client did.
+
+This did not solve the going out of sync, but I could tell exactly when it was happening.
+
+I still could not figure out why they were drifting though. 
+
+Then I thought, I will just correct the players position on the clients with what the server says they should be.
+This worked, but there were many other objects other than the players that would also go out of sync.
+
+So then I thought (and this was huge!) what if I sent the entire game state from the server to the client?
+
+I had not considered that before. I had just assumed that was such a huge amount of data that it would not be possible.
+
+But now I was going to try.
+
+I never designed the game with that in mind, and the structures and arrays holding all of that data were huge.
+
+100 enemies, each with 16 ints and 32 fixed_point
+500 items,   each with 16 ints and 4 fixed_point
+40 lifts structures, each with up to 40 steps
+the level block array (100x100) ints
+8 player data structures
+
+All of that came in at over 100k.  Way too much to sync with 1K packets.
+
+I did some research and decided to try to use zlib to compress it. That got my 100K down to around 6-12K.
+I wrote code to split it into 1K packets and reassemble them on the clients.  It worked, but it was still too much data and was too slow.
+At this point I was only using it to check and see if the game had gone out of sync.
+
+Then I came up with a dif method.  Instead of sending the whole 100K, I would only send what had changed.
+
+So basically I just subtracted one entire state from another, call that a dif, and compress that.
+
+That gave me around 600 to 1800 bytes. I would only need 1 or 2 packets!
+
+When I got that working, I decided instead of just checking if I am out of sync, why don't I just use that to correct the state on the clients?
+
+That worked vey well! Finally I could fix clients when they drifted.
+
+So I had two things going on between server and clinet
+
+The first one just sync's the clients inputs.  Every frame, if the clients controls change, a packet with that control change is sent to the server. The server then consolidates all client inputs, and syncs that back to each client independently.
+
+The second method periodically sends a new complete state to each client in the form of a dif from the last acknowledged one.
+
+Between these two methods, I could now play very long games, with up to 8 players, across all windows and linux versions, and it works perfectly!
+
+Finally for the first time, I could call muliplayer working!
+
+I released Version 6 March 11, 2018 
+
+Then I immediately ported the entire project to Allegro 5 and release version 7 and few months later.
+No changes to the netgame code.
+
+I made no changes for a few years until 2022 when I wanted to record some multiplayer videos for youtube.
+
+I enlisted my son to play with me. He found the input lag very noticeable and hard to play with.
+I always knew there was some lag, but I dismissed it as acceptable and unavoidable.
+
+Now that he brought it to my attention, I found I was not unsatisfied with it and set out to do something about it.
+
+
+The reason there is lag is because clients never apply any moves directly.
+
+They send their input to the server, the server consolidates all input, then syncs that back to the clients.
+Only then does the client actually apply the input. This round trip through the server takes 2-3 frames at the bare minimum.
+Which translates to 50-75ms of delay. It is definitely noticeable.
+
+This is also the reason the game cannot work over the internet. It just barely has enough time to do that in a LAN.
+
+
+So after a lot of experimenting this is how it works now:
+
+
+There is no more syncing of game moves back to the clients.
+
+The server has the master game state and sync's that back to the clients every frame.
+
+When the clients inputs change, the client applies them directly to itself and also sends the input to the server.
+
+The client predicts where all the objects will be, but when it gets a new state from the server, everything is corrected.
+
+
+Both the client and the servr have the ability to rewind and replay if needed.
+
+The server might get input from a client after it has already rendered a frame.
+In that case the server will rewind to an earlier state and play back to apply the new input
+
+The client might get a frame a few frames back from its current frame.
+In that case it rewinds and plays back, applying all local moves made since that frame.
+
+The timing sync between the client and the server is controlled by the client and is based on the ping time between the two. 
+
+
+With this new method, netgame has very low input lag and is playable over the internet.
+
+
+
+
+
+
+
+
+
+

@@ -544,28 +544,31 @@ Bombs and rockets will destroy these blocks.
 <c15>_________________________________
 
 
-<c15>For a LAN is is pretty easy to set up.
+<c15>The easiest way to play is to use the official server at:
 
-<c15>If the computers can ping each other, (and firewall rules are set)
-
-<c15>that is all that is needed.
+<c08>purplemartians.org
 
 <c15>_________________________________
 
 
-<c15>To make it work over the internet is non-trivial.
+<c15>Or you can host your own server in a LAN
 
-<c15>With port forwarding, DMZ's and other tricks and hacks, it can be done.
+<c15>Just make sure the clients have the server's IP address set.
 
-<c15>This is an issue that has nothing to do with this game and everything
+<c15>_________________________________
 
-<c15>to do with Peer-to-Peer Communication Across Network Address Translators.
 
-<c15>The method I used was to have the server in a DMZ, or directly
+<c15>To host your own server over the internet you will need to setup
 
-<c15>connected to the internet (no router).
+<c15>port forwarding on the server's router to allow incoming UDP
+
+<c15>traffic on port 24785 to be forwarded to your server.
+
+<c15>Then set the clients to point at the server's external IP address.
+
 
 <b15>
+
 
 <c15>Netgame has couple of specific game options:
 
@@ -736,10 +739,9 @@ Bombs and rockets will destroy these blocks.
 
 <c13>It is self contained and does not store anything outside this folder.
 
-
 <c15>_____________________________________________________________________
 
-<c15>Here is a recnt list of systems the game has been tested on:
+<c15>Here is a recent list of systems the game has been tested on:
 
 <c15>Windows 7
 <c15>Windows 10
@@ -752,15 +754,26 @@ Bombs and rockets will destroy these blocks.
 <c15>_____________________________________________________________________
 
 
-<c15>To run in windows, extract and run 'pm.exe'
+<c15>For Windows, extract, then open the extracted
+
+<c15>folder and double-click pm.exe
+
+
+<c15>If Windows complains about an unrecognized app,
+
+<c15>click 'More info' then 'Run anyway'
 
 <c15>_____________________________________________________________________
 
 
-<c15>To run in linux, extract and run 'pm'
+<c15>For linux, extract, then open a terminal in the
+
+<c15>extracted folder and type './pm'
+
 
 <c15>If it complains about missing libraries, start the game with the script
-<c15>'pml', which sets up a local library path first
+
+<c15>'./pml', which sets up a local library path first
 
 
 
@@ -2397,7 +2410,7 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>    Description:
 
-<l15> Gives the player a collectable purple coin.
+<l15> Gives the player a collectible purple coin.
 
 
 
@@ -3312,7 +3325,7 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <l04>    Description:
 
-<l15> A lift is a moveable solid rectangular block.
+<l15> A lift is a movable solid rectangular block.
 
 <l15> In most ways, lifts act like regular solid blocks, except they move.
 
@@ -3792,29 +3805,30 @@ https://mweiss001.github.io/purple_martians/
 <c15>Music by Russel Hoy - Copyright 2000
 <c08>________________________________________
 
-<c15>Last Update: Feb 25, 2024 to version 7.24.0225.4
-<c08>________________________________________
-
-
-
+<c15>Last Update: May 1, 2024 to version 7.24.0501.1
 <c08>_________________________________________________________
 
 <c15>Released under the zlib license (see license.txt)
 <c08>_________________________________________________________
 
+
+
+<c08>______________________________________________
+
+<c15>Official website and multiplayer server:
+
+<c10>purplemartians.org
+<c08>______________________________________________
+
 <c15>Official Master Repository:
 
 <c15>https://github.com/mweiss001/purple_martians
-<c08>_________________________________________________________
-
-<c15>Documentation pages:
-
-<c15>https://mweiss001.github.io/purple_martians/
-<c08>_________________________________________________________
+<c08>_______________________________________________
 
 
 
-<c08>Created with:
+
+<c13>Created with:
 <c08>_______________________________________________________________________
 
 <c11>Allegro 5.2.8
@@ -3863,7 +3877,7 @@ https://mweiss001.github.io/purple_martians/
 
 
 
-<c08>Contact Information:
+<c13>Contact Information:
 <c08>________________________
 
 <c15> mweiss001@gmail.com

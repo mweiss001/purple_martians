@@ -26823,9 +26823,6 @@ old:
    if ((mWM.mW[1].draw_item_type == 1)  && (mWM.mW[1].show_flag_details)) mBitmapTools.draw_flags(x1+4,   y1+47, mWM.mW[1].draw_item_num,  mow, 0, 1, 0); // flags
 
 
-
-
-
 what is a nice sensible value for transitions for release
 
 right now I use:
@@ -26920,7 +26917,6 @@ this is great...
 with overlay off I get 20% cpu on slowest(4230)
 
 
-
 now test on slowest and see if it is playable...
 
 yes, it looks good
@@ -26968,7 +26964,6 @@ profile stats display
 added all things in draw sequence
 
 test how that works on slower
-
 
 
 level stats, all levels reset and unlocked
@@ -27776,9 +27771,6 @@ level 9 needs cosmetic work..done
 
 
 
-
-
-
 20230707 9:00PM
 
 
@@ -27793,7 +27785,6 @@ that is all!!!
 After I release I will need to redo so much of the videos....
 
 re-arranged the stats message thing on overworld level
-
 
 
 what version should I call it?
@@ -28382,7 +28373,7 @@ same at 5:14??
 do 23, reduced from 7:57 to 5:58
 
 
-reduce part times:
+reduce par times:
 
 15 smash is not a fun level
 added a bit more
@@ -28702,15 +28693,14 @@ bug - demo for blue key fall has huge # of killed enemies / only sometimes
 probably an array out if bounds, hard to fix, because it only occur occasionally...
 
 can I print out the level data and see where the error occurs?
+
 2031791
 
 I never seem to get playdata with that value, just level data..
 
-
 I found the culprit...
 
 switch block range too large....
-
 
 find them with glt...fix them manually
 
@@ -29106,7 +29096,6 @@ rearrange items
 add stuff like enemy counts. etc...
 
 
-
 why don't I just add all these extra fields to level_data??
 
 
@@ -29196,7 +29185,6 @@ looking good...
 
 
 add the level name to vls..done
-
 
 
 re-did the project organization html page
@@ -29745,9 +29733,6 @@ scat: 0.11
 
 
 
-
-
-
 in netgame make current gate set for all players when any player enters gate??
 or should each player keep track of the last gate they touched?
 not sure that is what is happening either...look into it later
@@ -29835,8 +29820,6 @@ replaced demo mode in classic mode with demo current level
 seems to fit in nicely...transitions could be better...
 make transitions like starting game...
 seems to be working now
-
-
 
 
 
@@ -30111,21 +30094,15 @@ pscp -r c:\pm\data\level_data.pm m@96.45.13.253:dev/pm/data/level_data.pm
 looking at client sync graph, it is ony available on server...doh
 
 
-
-
-
 client disappears after first level...
 actually...when client quits...they go back to overworld, but not in a netgame anymore and invisible...
 server stays on level...
-
-
 
 
 how do I make adjustments to netgame?
 
 
 stdf freq?
-
 
 
 Tests of netgame on a real internet connection...
@@ -30204,8 +30181,6 @@ what is the effect and consequneces of adjusting server state frequency?
 
 if I go too low I get base resets
 1 is every frame and is too much
-
-
 
 
 if I go too high the corrections will be bigger
@@ -32133,7 +32108,6 @@ I only ever load from the oldest anyway...
 
 
 
-
 load earliest state
 
 ff and save rewind states up for current
@@ -33921,7 +33895,6 @@ I could try to predict that the controls will stay the same as they were when th
 but that would not be accurate....
 
 
-
 class mwStateHistory
 
 I want a variable that always has the highest frame number, the lowest frame number and indexes to both
@@ -35704,10 +35677,6 @@ Do I need internet to reproduce?
 
 
 
-
-
-
-
 -----------------------------------------------------------
 I also would like to know where in the history my hits or lookups occur.
 -----------------------------------------------------------
@@ -35734,10 +35703,6 @@ the current frame?
 the oldest frame in history?
 the newest frame in history?
 the dst frame?
-
-
-
-
 
 
 
@@ -35915,9 +35880,6 @@ periodically send a burst to client and see how many got through
 - put all my tx packets in a buffer and send at the end of the frame (i dont think this will do anything)
 
 - put all stdf packets in a buffer, then if too many run send stdf again (this will not help, only increasing s1 will)
-
-
-
 
 
 
@@ -36296,9 +36258,6 @@ I got a lot done today: 20230923
 
 big things today 20230924
 
-
-
-
 BUG - things that draw direct to screen draw on top of border
 the function:
 void mwScreen::draw_scaled_level_region_to_display(int type)
@@ -36310,7 +36269,6 @@ I also want to do a little cleanup
 only two calls are for game, the remaining 14 are for level editor
 just make it so that frame only gets draw in level editor mode
 and change from 3 to 1...done
-
 
 
 button for reload level and debug that
@@ -36348,9 +36306,6 @@ test more...
 add button to rc
 
 I can now reload server levels remotely and it works great
-
-
-
 
 
 
@@ -39008,12 +38963,6 @@ both client inits..done
 
 
 
-
-
-
-
-
-
 stak sends dsync avg to server
 
 
@@ -39041,11 +38990,6 @@ server uses pdsync to lock client
 but that is the one that client sent and has been averaged already
 
 what can I do to uncomplicate this?
-
-
-
-
-
 
 
 #define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE    1
@@ -39385,8 +39329,6 @@ give up
 
 
 right arrow on menu does not advance level past 10...fixed, set to 199
-
-
 
 
 
@@ -42767,20 +42709,6 @@ re do level 49 single
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 20231226
 
 weird bug when tossing lit exploding bomb upward and it hits ceiling then ttl gets set...why??
@@ -42882,6 +42810,8 @@ move all overlay to halfway pos, in mode 5
 I am in the middle of re-making level 55, ancient ruins
 
 
+
+
 20240210
 
 Move some of demo record into its own file (now demo_mode is 2700 lines)
@@ -42936,11 +42866,6 @@ context pop up menu for timeline
 
 figure out what is happening with autosaving...I think it is in a not complete state....
 
-
-
-
-
-
 start with with -c
 exit to menu
 start server from menu
@@ -42948,7 +42873,6 @@ cannot use esc to quit
 actually cannot use esc to quit server at any time
 
 actually its even worse, running server has no local control at at all!! WTF why?
-
 
 
 
@@ -46338,7 +46262,6 @@ each video I want to make should be in its own folder
 copied all the stuff from m36
 
 
-
 a few more changes:
 
 add al_inhibit_screensaver
@@ -46986,13 +46909,12 @@ after all that I am incrementing the release
 today at work I changed the radio and the static IP changed, now 96.45.9.166 (used to be 96.45.13.220)
 
 
-I ran a sppedtest ony my radio while full fakekey game...game went stupid while test was running but recovered....
+I ran a speedtest ony my radio while full fakekey game...game went stupid while test was running but recovered....
 
 got 323/93 on speedtest
 
 i normally get 4 down and 1 up while running ffg
 the server radio gets the reverse 3.3 up and 0.3 down
-
 
 
 can I fix the stuttering of the plyer txt messages by not decrementing unless not ff...no...
@@ -48969,157 +48891,6 @@ add this to headless server docs...
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 -------------------------------------
 
 I want to make some active content on my website.
@@ -49130,7 +48901,6 @@ How about showing statistics about who was playing and activity...etc?
 This could be a big difficult thing to do...
 
 LAMP? linux, apache, mysql, perl (python) PHP
-
 
 
 
@@ -51536,6 +51306,7 @@ In the extracted folder double click on pm.exe.
 
 Linux instructions:
 
+
 Download and extract the contents of the zip file.
 
 Open a terminal in the extracted folder and type ./pm
@@ -52577,6 +52348,39 @@ committed....20240501 10:00AM
 
 
 new version 0501.1
+
+updated help.txt...should be all up to date now....
+
+
+Bug - on headless server, if no clients are playing a level, go back to overworld...fixed
+
+changed : if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) num_clients++;
+to      : if (mPlayer.syn[p].active) num_clients++;
+
+      // if headless server and not overworld and no clients, go back to overworld
+      if ((mMain.headless_server) && (mLevel.play_level != 1))
+      {
+         int num_clients = 0;
+         for (int p=1; p<NUM_PLAYERS; p++)
+//            if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) num_clients++;
+            if (mPlayer.syn[p].active) num_clients++;
+         if (num_clients == 0)
+         {
+            mLog.add_headerf(LOG_NET, 0, 1, "Headless Server with no clients! - Reload");
+            reload = 1;
+         }
+      }
+
+
+Make links on the session table pages to link to each other..done
+
+I really want to do a good version of history...
+I have so many slightly different versions
+I want to have only one...done
+
+
+
+
 
 
 

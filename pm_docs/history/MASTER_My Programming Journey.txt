@@ -1,0 +1,215 @@
+last edit: 20240502
+
+
+
+
+
+https://en.wikipedia.org/wiki/Commodore_PET
+
+
+
+
+
+In 1980, when I was 12, my dad brought home a <a href="https://en.wikipedia.org/wiki/Commodore_PET" target="_top">Commodore Pet</a> from the college where he taught electronics. We spent a lot of time figuring 
+
+
+
+My Programming Journey
+
+
+
+
+<h1> Introduction </h1> 
+
+
+
+Purple Martians was started in the winter of 1997 in a cold, dark, rented room in a basement in Victoria, BC, Canada.
+
+I was on a seasonal layoff from a construction job, waiting on unemployment benefits, and I had some time on my hands. This was 1997 so a high end PC was a Pentium 120 with 16M of RAM. I had an old 486 Compaq laptop with 8M of RAM.
+
+1997 was when I first connected the internet. I had a dial-up account with Pacific Coast Net.
+
+It's amazing when I think of the time before the internet. What did we do without it?
+
+
+<h1> The Very Beginning </h1> 
+
+I was unusual in that I had access to computers at a much earlier age than almost anyone I knew.
+
+In 1980, when I was 12, my dad brought home a <a href="https://en.wikipedia.org/wiki/Commodore_PET" target="_top">Commodore Pet</a> from the college where he taught electronics.
+
+We spent a lot of time figuring out what we could do with it. That was my first exposure to programming.
+The language was BASIC. It seems so simplistic and crude now.
+But the joy of typing in commands and seeing the results instantly was something I fell in love with.
+
+All you could do was print text, get input, do math...
+But with just that I printed my name forwards and backwards, made a mad-libs type program, made a 'pico, fermi, bagels' type number guessing game.
+
+A few years later the Commodore PET was replaced with an <a href="https://en.wikipedia.org/wiki/Apple_II" target="_top">Apple II.</a>
+
+The biggest difference was the Apple II had 280x192 hi-res color graphics!
+This was huge. Now I could draw pixels and lines instead of just text.
+I created some programs that drew string art-moiré patterns.
+
+But what I really wanted to do was make a video game.
+
+I had a few games to play on the Apple. A pac man clone called Snoggle. Lode Runner...
+So I knew it was possible make a video game on the Apple.
+
+I drew a very simplistic character with a few lines and pixels, then tried to move it across the screen. It was painfully slow.
+
+The problem was that BASIC on the Apple II, being an interpreted language, was far too slow to make a video game.
+Bypassing BASIC and going straight to machine code was necessary.
+I taught myself assembly language. This was considerably more difficult than BASIC.
+
+The Apple II had some built in vector based shape table functions and I experimented with those.
+I spent hundreds of hours trying to get something working.
+I could draw my sprite and move it back and forth at a reasonable speed.
+Now I wanted to implement floors and walls, collison detection, etc...
+I was not successful.
+Trying to implement such complex concepts (for!) while learning assembly at the same time was beyond my abilities.
+
+I never really gave up. It was more like ran out of time and access to a computer.
+At this point I had never owned a computer.
+They were either borrowed (the ones my dad brought home from the college) or ones I was able to use in the computer lab at school.
+
+<h1> The Long Break </h1> 
+
+I used computers in the course of my electronics career, but mostly just to perform a specific task.
+Like designing circuit boards when I studied electronics in college.
+Running manufacturing equipment when I worked at Novatel.
+Testing racks of telephone switching equipment when I worked at Northern Telecom.
+
+<h1> Digital Audio Recording </h1> 
+
+What got me back into computers was digital audio. I had been writing and recording music with multitrack analog tape recorders for years.
+I was very interested in digital audio. Unlimited tracks, non-linear editing, digital effects.
+As soon as it was possible and affordable and I had enough money, I setup my first DAW (Digital Audio Workstation) 
+I started that with a Pentium 100 with 8M of RAM and a huge 1.2G HD.
+I bought Cakewalk Pro Audio and a Soundblaster from Radio Shack.
+
+At that time, consumer computer technology was just barely fast enough to record audio.
+There was a lot of pain setting things up, and even at the best, it just barely worked.
+
+This when I developed a strong dislike for Creative Labs.
+The SoundBlaster I bought was advertised as full duplex, windows compatible.
+Cakewalk said that all it required was a full duplex windows sound card.
+It just would not work. It would record and it would play back, but it would not do both at once.
+After spending many hours on the phone with tech support, I finally discovered that by design, this card could only do full duplex by severely degrading the recording quality. So I returned it and bought a much more expensive sound card that just simply did what it was supposed to.
+
+
+<h1> The Internet </h1> 
+
+In the process of getting tech support over the phone, the people that were helping me told me about these on-line tech support forums, that would probably help me more than telephone tech support.
+
+And that was the catalyst. That was the reason I got a dial up internet connection. I think it was $25 a month.
+The forums were great, many people running the same software, running into the same issues, and discussing solutions.
+
+I was able to get my DAW fully functional and did quite a lot of recording for a few months before my computer and lots of other valuable things were stolen.
+
+
+<h1> The Basement </h1> 
+
+Months later, when I had been laid off for the winter (it happened every year), I moved into a room in a basement. Cold, dark, dingy...sketchy people that lived in the other rooms. The landlady that lived upstairs complained about the tiniest noise. She literally complained one time about the music being too loud when I was wearing headphones!
+
+I had this old broke down 486 laptop, plenty of time on my hands, and I still had my internet account. The entirety of the world's information just waiting to be explored. I thought about the game I had wanted to create years ago, and wondered what modern tools there were to do something like that. How hard could it be to make some shapes and draw them on the screen? It had been many years since the Apple 
+II days. The last time I had tried to program. That was probably around 1987 or so, 10 years earlier.
+
+I can't remember all the things I looked at then, but I do remember that even back then, I did not like Microsoft.
+What they did in the browser wars, plus many other lowdown shady tactics, plus just using windows and getting annoyed at all the
+stupid design decisions, locked in data, predatory business practices. But the worst for me was the crap software.
+Barely functional, riddled with bugs, and only successful because they were the largest installed base.
+
+But if I had to use something microsoft to make my game, I resigned myself to give it a shot.
+
+<h1> Allegro, DJGPP, RHIDE </h1> 
+
+What I found instead was Allegro, a small project by Shawn Hargreaves. It was exactly what I was looking for.
+I did not want a game engine, what I wanted was a game programming library.
+Some simple functions to draw shapes on the screen. Fast.
+
+Allegro is completely free. Thus began my lifelong love of open source, freely distributable software. The opposite of windows!
+
+In order to use Allegro, I would have to learn to program in C.
+
+I followed the instructions and setup gcc for DOS (DJGPP), installed Allegro 2.0, and set up RHIDE as my integrated development editor.
+
+The best way to learn is by doing. I had a book on C and worked through a bunch of examples, but then just focused on getting things done.
+
+Like for example:
+
+Create a display and change its color. Then draw some different colored lines on it. Then some other graphics primitives like rectangle and circle.
+This is pretty cool! Now back to the first days with the Apple II, I recreated some string art moire patterns. They looked great!
+OK, enough with primitives, I want to create some sprites and draw them to the screen. That worked great also.
+
+Then in the spirit of doing everything from scratch, I built tools to create, save and edit my own sprites.
+I saved and loaded them one get_pixel and set_pixel at a time.
+I learned how to save things to disk, file handles, iostreams, data formats.  All new and all so very cool.
+
+And also I was learning C at the same time.
+
+C is so simple and elegant, I like to compare it to chess.
+
+Chess has a very simple set of rules about how each piece can move. Those rules can be learned very quickly.
+However the strategies of playing the game can take a lifetime to master.
+
+C is similar in that the core functionality of the language is very simple.
+How you use those very simple building blocks to create more complex things is an art that can take a lifetime to master.
+
+I had some bad habits from BASIC, but I soon overcame them. Now 25 years later I am still improving all the time.
+
+I love to program. To me all of programming is 'managing complexity'
+
+To simplify, abstract, to make very complex things easier to understand, implement, and maintain.
+
+Now, my project uses C++ objects and has over 40k lines of code.
+
+I can't count the number of times I have refactored, I am continually learning and improving.
+
+I go back and look at code I have written years ago, it sometimes seems like it was written by someone else.
+
+Why did I do it that way? Would it not be much simpler and easier to understand if I did it this way?
+
+When I first wrote these functions they did this. Now they also do this and this. It looks like a complicated mess.
+Lets refactor them and make something simpler, easier to follow, easier to debug and extend.
+
+
+
+
+
+
+<h1> Purple Martians </h1> 
+
+The game I had in mind all these years was simply a little player jumping around from level to level, shooting and avoiding enemies, solving puzzles....
+
+Lode Runner had a big influence on the game I wanted to create. Simple, block based, puzzle solving, integrated level editor...
+Other games that had a huge influence are the Mario series, Doom, and Bubble Bobble.
+Bubble Bobble is so amazing with all of the secrets and special items. I consider it a masterpiece.
+But the biggest Bubble Bobble influence was 2 players playing at the same time.
+
+Writing a video game is much different from other types of programming.
+Programs are usually more linear, to do something you sequentially go through the program's instructions.
+
+In a game, things have to happen on a recurring basis. Objects that move can't just have a function that moves them from one place to another. Every frame they need to move a little bit, then pass control to everything else that needs to happen during that frame.
+
+Everything has to happen in small time slices.
+
+The frame rate is 40fps
+In hindsight 30 or 60fps would probabaly have been a better choice.
+I used to have the frame rate adjustable, but when I made netgame, I had to have a fixed speed and chose 40fps.
+As a consequence of this, the reciprocal of 40Hz is 25ms, which is how much time each frame has to process and draw.
+
+
+Some design decisions made way back in 1997 have stuck with the project all this time.
+
+Sprites are 20x20.
+I really wish that I had chosen 16 or 32.
+16 seemed too small for the detail I wanted for each sprite.
+32 seemed like it would use too much memory and I would be limited to how many I could show on the screen at a time.
+
+The level is a 100x100 grid of blocks.
+Only the area around the player would be visible.
+Originally the screen size was fixed at 320x200 which translated to 16x10 blocks.
+
+The first sprite I drew after creating my own routines to draw and save sprites was the purple martian dude.
+This is the reason I decided to name the game Purple Martians.

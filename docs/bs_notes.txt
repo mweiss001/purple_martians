@@ -1463,6 +1463,71 @@ lets deploy it...done...
 now what am I working on?
 
 
+pscp -r -pw zaiden C:\pm\docs* m@96.45.9.166:sht
+
+copy to final place
+m@pmh:~$ sudo cp -r ~/sht/* /var/www/html
+
+
+
+
+
+
+
+// echo "<div style=\"text-align: center;\"><a href=\"netgame_control_and_monitoring.html\"   target=\"_top\">Netgame - Control and Monitoring</a></div>";    
+
+
+
+
+
+
+
+
+
+
+
+I am doing so much goddamn fighting with goddamn bootstrap...
+
+Why cant I just get it to do what I want?
+
+
+what do I want?
+
+on the about page:
+when I get smaller than a certain size I want all the panels to be in a vertical line
+I want them to be centered and have a max width until they get really narrow, then the width of the display
+
+larger than that cutoff point I want 2 equally sized columns
+with a min and max width.
+
+
+I think I might have figured some stuff out...I tried resizintg things with the mouse in each screen size with good results...
+
+I still hate fighting with this stuff, but it is looking good enough for right now...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

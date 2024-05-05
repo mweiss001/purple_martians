@@ -14,7 +14,7 @@
 
 .mw_card {
   min-width: 400px;
-  max-width: 600px;
+  max-width: 700px;
   border-width: 5px;
   border-radius: 17px;
   margin: 8px;
@@ -83,5 +83,11 @@
 }
 
 .mw_card_color_light {
+}
+
+.mw_hist_H1 {
+  font-size: 24px;
+  margin: 0px;
+  background: #2e2b40;
 }
 
