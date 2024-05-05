@@ -56,34 +56,43 @@
 
 <mh3><hr></mh3>
 <mh8>Netgame - Server Setup</mh8>
-<mh3><hr><mdw_file_toc> <a href="netgame_server_setup.html#Overview" target="_top">Overview</a>
- <a href="netgame_server_setup.html#Program states for server" target="_top">Program states for server</a>
+<mh3><hr><mdw_file_toc> <a href="netgame_server_setup.html#Program states for server" target="_top">Program states for server</a>
+ <a href="netgame_server_setup.html#PM_PROGRAM_STATE_SERVER_NEW_GAME" target="_top">PM_PROGRAM_STATE_SERVER_NEW_GAME</a>
  <a href="netgame_server_setup.html#Server initializes network" target="_top">Server initializes network</a>
- <a href="netgame_server_setup.html#Server listens" target="_top">Server listens</a>
- <a href="netgame_server_setup.html#Program State 20 - Server start new game" target="_top">Program State 20 - Server start new game</a>
- <a href="netgame_server_setup.html#Program State 19 - Server exit" target="_top">Program State 19 - Server exit</a>
+ <a href="netgame_server_setup.html#Server adds new clients" target="_top">Server adds new clients</a>
+ <a href="netgame_server_setup.html#PM_PROGRAM_STATE_SERVER_EXIT" target="_top">PM_PROGRAM_STATE_SERVER_EXIT</a>
 </mdw_file_toc><hr></mh3>
 
-<a name="Overview"></a>
-<mh7>Overview</mh7>
-<mh3>
-The server initializes the network.
-The server listens for connections from clients.
-
-</mh3>
 
 
 <a name="Program states for server"></a>
 <mh7>Program states for server</mh7>
 
 <mh3>
-The program states used by a server are:
+The program states used by the server are:
 
-20 - server start new game
-11 - main game loop
-19 - server exit
+PM_PROGRAM_STATE_SERVER_NEW_GAME
+PM_PROGRAM_STATE_MAIN_GAME_LOOP
+PM_PROGRAM_STATE_SERVER_EXIT
 
 </mh3>
+
+
+
+<a name="PM_PROGRAM_STATE_SERVER_NEW_GAME"></a>
+<mh7>PM_PROGRAM_STATE_SERVER_NEW_GAME</mh7>
+
+<pre><code class="language-cpp">   if (state[1] == PM_PROGRAM_STATE_SERVER_NEW_GAME)
+   {
+      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SERVER_NEW_GAME]\n");
+      if (!mNetgame.ServerInitNetwork())
+      {
+         state[0] = PM_PROGRAM_STATE_SERVER_EXIT;
+         return;
+      }
+      mEventQueue.reset_fps_timer();
+      if (!load_and_setup_level(mLevel.play_level, 3)) state[0] = PM_PROGRAM_STATE_SERVER_EXIT;
+   }</code></pre>
 
 
 <a name="Server initializes network"></a>
@@ -109,19 +118,14 @@ When a server game is started, the first thing that happens is the network initi
       mInput.m_err(msg);
       return 0;
    }
-   // open the listening channel
-   if (!(ListenChannel = net_openchannel(NetworkDriver, "")))
+
+   // open the server channel
+   char port[256];
+   sprintf(port, ":%d", server_port);
+   if (!(ServerChannel = net_openchannel(NetworkDriver, port)))
    {
-      sprintf(msg, "Error opening listening channel");
+      sprintf(msg, "Error opening server channel");
       mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
-      mInput.m_err(msg);
-      return 0;
-   }
-   if (net_assigntarget(ListenChannel, ""))
-   {
-      sprintf(msg, "Error assigning target to listening channel");
-      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
-      net_closechannel(ListenChannel);
       mInput.m_err(msg);
       return 0;
    }
@@ -129,57 +133,83 @@ When a server game is started, the first thing that happens is the network initi
    mLog.add_fw(LOG_NET, 0, 76, 10, "+", "-", "");
 
    ima_server = 1;
-
-   mPacketBuffer.start_packet_thread();
-
-   // still needed or client dies at joining   ---------- i should test this....seems OK without it...
-   char data[1024] = {0}; int pos;
-   mPacketBuffer.PacketName(data, pos, "JUNK");
-   ServerBroadcast(data, pos);
-
    return 1;
 }</code></pre>
 
 
 
 
-<a name="Server listens"></a>
-<mh7>Server listens</mh7>
+<a name="Server adds new clients"></a>
+<mh7>Server adds new clients</mh7>
 
 <mh3>
-The server listens for new channels by calling this once per frame in the game loop.
+When the server receives a cjon packet from an unknown address, it sets up a channel and replies.
 </mh3>
-<pre><code class="language-cpp">void mwNetgame::ServerListen()
+<pre><code class="language-cpp">
+void mwPacketBuffer::add_to_rx_buffer(void)
 {
-   char msg[256];
-   char address[32];
    char data[1024] = {0};
-   int pos = net_receive(ListenChannel, data, 1024, address);
-   if (pos)
-   {
-      if (mPacketBuffer.PacketRead(data, "1234"))
+   char address[256];
+   if (mNetgame.ima_server)
+      while (int len = net_receive(mNetgame.ServerChannel, data, 1024, address))
       {
-         mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received initial 1234 packet from '%s'",address);
-         if (!(ClientChannel[ClientNum] = net_openchannel(NetworkDriver, NULL)))
+         int p = mNetgame.server_check_address(address);
+         if (p == -1) // unknown address
          {
-            sprintf(msg, "Error: failed to open channel for %s\n", address);
-            mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
-            mInput.m_err(msg);
-            return;
+            if (PacketRead(data, "cjon")) mNetgame.server_proc_cjon_packet(data, address); // setup channel and reply with sjon
          }
-         if (net_assigntarget (ClientChannel[ClientNum], address))
-         {
-            sprintf(msg, "Error: couldn't assign target `%s' to channel\n", address);
-            mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
-            net_closechannel (ClientChannel[ClientNum]);
-            mInput.m_err(msg);
-            return;
-         }
-         mPacketBuffer.PacketName(data, pos, "5678");
-         ServerSendTo(data, pos, ClientNum);
-         ClientNum++;
-         mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server opened channel for `%s' and sent reply", address);
-      }
+....
+
+void mwNetgame::server_proc_cjon_packet(char *data, char * address)
+{
+   int pos = 4;
+   int color  = mPacketBuffer.PacketGetByte(data, pos);
+   char hostname[16];
+   mPacketBuffer.PacketReadString(data, pos, hostname);
+
+   mLog.add_fwf(LOG_NET, 0, 76, 10, "+", "-", "");
+   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Server received join request from %s requesting color:%d", hostname, color);
+
+   int p = mPlayer.find_inactive_player();
+   if (p == 99) // no inactive player found
+   {
+      mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
+      mLog.add_fwf(LOG_NET, 0, 76, 10, "+", "-", "");
+      server_send_sjon_packet(address, 0, 0, 99, 0);
+      if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, 99, 0, 1);
+   }
+   else // inactive player found, proceed with join
+   {
+      // set up channel, use the player number as the index to the channel
+      mwChannels[p].active = 1;
+      strcpy(mwChannels[p].address, address);
+
+      // try to use requested color, unless already used by another player
+      while (mPlayer.is_player_color_used(color)) if (++color > 15) color = 1;
+
+      mPlayer.init_player(p, 1); // full player reset
+      mStateHistory[p].initialize();
+      mItem.set_player_start_pos(p);
+
+      mPlayer.syn[p].active = 1;
+
+      mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
+      mPlayer.loc[p].server_last_stak_rx_frame_num = mLoop.frame_num + 200;
+      sprintf(mPlayer.loc[p].hostname, "%s", hostname);
+
+      mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, color); // add game move to make client active
+
+      server_send_sjon_packet(address, mLevel.play_level, mLoop.frame_num, p, color);
+
+      if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, p, 1, 0);
+
+      mLog.add_fwf(LOG_NET,               0, 76, 10, "|", " ", "Server replied with join invitation:");
+      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
+      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Number:[%d]", p);
+      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Color:[%d]", color);
+      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Frame:[%d]", mLoop.frame_num);
+      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Level Sequence Num:[%d]", mPlayer.syn[0].server_lev_seq_num);
+      mLog.add_fwf(LOG_NET,               0, 76, 10, "+", "-", "");
    }
 }</code></pre>
 
@@ -187,97 +217,34 @@ The server listens for new channels by calling this once per frame in the game l
 
 
 
-<a name="Program State 20 - Server start new game"></a>
-<mh7>Program State 20 - Server start new game</mh7>
 
-<mh3></mh3>
-<pre><code class="language-cpp">   //---------------------------------------
-   // 20 - server new game
-   //---------------------------------------
-   if (state[1] == 20)
+
+<a name="PM_PROGRAM_STATE_SERVER_EXIT"></a>
+<mh7>PM_PROGRAM_STATE_SERVER_EXIT</mh7>
+<pre><code class="language-cpp">   if (state[1] == PM_PROGRAM_STATE_SERVER_EXIT)
    {
-      mLog.add(LOG_OTH_program_state, 0, "[State 20 - Server New Game]\n");
-      if (!mNetgame.ServerInitNetwork())
-      {
-         mNetgame.ServerExitNetwork();
-         state[0] = 19;
-         return;
-      }
+      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SERVER_EXIT]\n");
 
-      mLevel.set_start_level();
+      if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
 
-      // reset players
-      for (int p=0; p < NUM_PLAYERS; p++)
-      {
-         mPlayer.init_player(p, 1);           // full reset
-         mPlayer.set_player_start_pos(p, 0);  // set starting position for all players, active or not
-      }
-
-      mPlayer.syn[0].active = 1;
-      mPlayer.syn[0].control_method = 3;
-      strncpy(mPlayer.loc[0].hostname, local_hostname, 16);
-
-      mGameMoves.initialize();
-      frame_num = 0;
-      mNetgame.reset_states();
-      mShot.clear_shots();
-
-      mBottomMessage.initialize();
-      mInput.initialize();
-      mTriggerEvent.initialize();
-
-      initialize_graphs();
-
-      mGameMoves.add_game_move(0, 0, 0, mLevel.play_level);       // [00] game_start
-
-      // save colors in game moves array
-      for (int p=0; p < NUM_PLAYERS; p++)
-         if (mPlayer.syn[p].active) mGameMoves.add_game_move(0, 1, p, mPlayer.syn[p].color); // 1 - player_state and color
-
-      mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
-
-
-      mScreen.player_text_overlay_timer = 0;
-
-      mSound.start_music(0); // rewind and start theme
-      state[0] = 11;
-
-   }</code></pre>
-
-
-<a name="Program State 19 - Server exit"></a>
-<mh7>Program State 19 - Server exit</mh7>
-
-<mh3></mh3>
-<pre><code class="language-cpp">   //---------------------------------------
-   // 19 - server exit
-   //---------------------------------------
-   if (state[1] == 19) // server exit
-   {
-      mLog.add(LOG_OTH_program_state, 0, "[State 19 - Server Exit]\n");
       mNetgame.ServerExitNetwork();
-      state[0] = 1;
+      state[0] = PM_PROGRAM_STATE_MENU;
    }
-   
+
 void mwNetgame::ServerExitNetwork(void)
 {
-   mPacketBuffer.stop_packet_thread();
-
    mLog.add_header(LOG_NET, 0, 0, "Shutting down the server network");
-   for (int n=0; n < ClientNum; n++)
-      if (ClientChannel[n])
-      {
-          net_closechannel(ClientChannel[n]);
-          ClientChannel[n] = NULL;
-      }
-   if (ListenChannel) net_closechannel(ListenChannel);
-   ListenChannel = NULL;
+
+   if (ServerChannel) net_closechannel(ServerChannel);
+   ServerChannel = NULL;
 
    ima_server = 0;
 
    // reset player data
    for (int p=0; p < NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
    mPlayer.syn[0].active = 1;
+
+   if (mLog.log_types[LOG_NET_session].action) session_flush_active_at_server_exit();
 }</code></pre>
 
 

@@ -15,21 +15,11 @@ mwPacketBuffer mPacketBuffer;
 mwPacketBuffer::mwPacketBuffer() // default constructor
 {
    init_packet_buffer();
-   rx_mutex = al_create_mutex();
-   if (thread_type == 2)
-   {
-      t1 = std::thread(&mwPacketBuffer::c_rx_thread_func, this);
-      thread_running = 1;
-   }
 }
 
 mwPacketBuffer::~mwPacketBuffer() // default deconstructor
 {
-   if (thread_type == 2)
-   {
-      thread_running = 0;
-      t1.join();
-   }
+
 }
 
 void mwPacketBuffer::init_packet_buffer(void)
@@ -47,51 +37,15 @@ void mwPacketBuffer::init_packet_buffer(void)
    for (int p=0; p<NUM_PLAYERS; p++) RA[p].initialize(8);
 }
 
-void *mwPacketBuffer::al_rx_thread_func(ALLEGRO_THREAD *thr, void *arg)
-{
-   while (1)
-   {
-      al_rest(0.001);
-      mPacketBuffer.add_to_rx_buffer();
-   }
-}
-
-void mwPacketBuffer::c_rx_thread_func(void)
-{
-   while (thread_running)
-   {
-      if (thread_working) mPacketBuffer.add_to_rx_buffer();
-      std::this_thread::sleep_for(std::chrono::microseconds((int)thread_wait_microseconds));
-   }
-}
-
-void mwPacketBuffer::start_packet_thread(void)
-{
-   if (thread_type == 1)
-   {
-      int junk = 0;
-      rx_thread = al_create_thread(al_rx_thread_func, &junk);
-      al_start_thread(rx_thread);
-   }
-   if (thread_type == 2) thread_working = 1;
-}
-
-void mwPacketBuffer::stop_packet_thread(void)
-{
-   if (thread_type == 1) al_set_thread_should_stop(rx_thread);
-   if (thread_type == 2) thread_working = 0;
-}
-
 void mwPacketBuffer::rx_and_proc(void)
 {
-   if (!thread_type) add_to_rx_buffer();
+   add_to_rx_buffer();
    proc_rx_buffer();
 }
 
 // processes all packets waiting in rx buffer
 void mwPacketBuffer::proc_rx_buffer(void)
 {
-   lock_mutex();
    for (int i=0; i<200; i++)
       if (rx_buf[i].active)
       {
@@ -113,113 +67,50 @@ void mwPacketBuffer::proc_rx_buffer(void)
          }
          rx_buf[i].active = 0;
       }
-   unlock_mutex();
 }
 
 // call from loop - many places
-// only does something if not already called from thread
 void mwPacketBuffer::check_for_packets(void)
 {
-   if ((thread_type == 0) && ((mNetgame.ima_server) || (mNetgame.ima_client))) add_to_rx_buffer();
-}
-
-
-// this gets called once per second in the main loop
-// to display how many times add_rx was called
-void mwPacketBuffer::process_tally(void)
-{
-//   printf("add_rx_buf chek:%d tot:%0.3fms  avg:%0.3fus  proc:%d tot:%0.3fms  avg:%0.3fus twus:%f\n",
-//          threadTally[0].num, threadTally[0].get_tally(0)*1000, threadTally[0].get_avg(0)*1000000,
-//          threadTally[1].num, threadTally[1].get_tally(0)*1000, threadTally[1].get_avg(0)*1000000, thread_wait_microseconds);
-
-//   int act_tps = threadTally[0].num; // actual threads per second
-//   if (act_tps > 9000)
-//   {
-//      thread_wait_microseconds = thread_wait_microseconds * 1.05;
-//   }
-//
-//   if (act_tps < 9100)
-//   {
-//      thread_wait_microseconds = thread_wait_microseconds * 0.95;
-//   }
-//
-//
-   // reset tallies
-   threadTally[0].initialize();
-   threadTally[1].initialize();
-}
-
-
-int mwPacketBuffer::is_data_waiting(void)
-{
-   double t0 = al_get_time();
-   int data_waiting = 0;
-   if ((mNetgame.ima_server) && (net_query(mNetgame.ServerChannel))) data_waiting = 1;
-   if ((mNetgame.ima_client) && (net_query(mNetgame.ClientChannel))) data_waiting = 1;
-   threadTally[0].add_data(al_get_time() - t0);
-   return data_waiting;
+   if ((mNetgame.ima_server) || (mNetgame.ima_client)) add_to_rx_buffer();
 }
 
 // receives all waiting packets and puts them in the rx buffer
 void mwPacketBuffer::add_to_rx_buffer(void)
 {
-   if (is_data_waiting())
-   {
-      double t0 = al_get_time();
-      lock_mutex();
-      char data[1024] = {0};
-      char address[256];
-      int p = -1;
+   char data[1024] = {0};
+   char address[256];
 
-      if (mNetgame.ima_server)
-         while (int len = net_receive(mNetgame.ServerChannel, data, 1024, address))
+   if (mNetgame.ima_server)
+      while (int len = net_receive(mNetgame.Channel, data, 1024, address))
+      {
+         int p = mNetgame.server_check_address(address);
+         if (p == -1) // unknown address
          {
-
-            p = mNetgame.server_check_address(address);
-            if (p == -1) // unknown address
-            {
-               if (PacketRead(data, "cjon")) mNetgame.server_proc_cjon_packet(data, address); // setup channel and replay with sjon
-               if (PacketRead(data, "cjrc")) mNetgame.server_proc_cjrc_packet(data, address); // setup channel and replay with sjrc
-            }
-            else
-            {
-               add_to_rx_buffer_single(data, p);
-
-               mPlayer.loc[p].rx_current_bytes_for_this_frame += len;
-               mPlayer.loc[p].rx_current_packets_for_this_frame++;
-
-               mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
-               mPlayer.loc[0].rx_current_packets_for_this_frame++;
-            }
+            if (PacketRead(data, "cjon")) mNetgame.server_proc_cjon_packet(data, address); // setup channel and replay with sjon
+            if (PacketRead(data, "cjrc")) mNetgame.server_proc_cjrc_packet(data, address); // setup channel and replay with sjrc
          }
-
-      if (mNetgame.ima_client)
-         while (mNetgame.ClientReceive(data))
+         else
+         {
             add_to_rx_buffer_single(data, p);
+            mPlayer.loc[p].rx_current_bytes_for_this_frame += len;
+            mPlayer.loc[p].rx_current_packets_for_this_frame++;
+            mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
+            mPlayer.loc[0].rx_current_packets_for_this_frame++;
+         }
+      }
 
-      unlock_mutex();
-      threadTally[1].add_data(al_get_time() - t0);
-   }
+   if (mNetgame.ima_client)
+      while (mNetgame.ClientReceive(data))
+         add_to_rx_buffer_single(data, mPlayer.active_local_player);
 }
 
 void mwPacketBuffer::add_to_rx_buffer_single(char *data, int p)
 {
    // process these immediately and do not add to buffer
-   if (PacketRead(data, "ping"))
-   {
-      mNetgame.server_proc_ping_packet(data, p);
-      return;
-   }
-   if (PacketRead(data, "pang"))
-   {
-      mNetgame.server_proc_pang_packet(data, p);
-      return;
-   }
-   if (PacketRead(data, "pong"))
-   {
-      mNetgame.client_proc_pong_packet(data);
-      return;
-   }
+   if (PacketRead(data, "ping")) { mNetgame.server_proc_ping_packet(data, p);  return;  }
+   if (PacketRead(data, "pang")) { mNetgame.server_proc_pang_packet(data, p);  return;  }
+   if (PacketRead(data, "pong")) { mNetgame.client_proc_pong_packet(data);     return;  }
 
    int type = 0;
    if (PacketRead(data, "cdat")) type = PM_NETGAME_PACKET_TYPE_CDAT;
@@ -291,22 +182,10 @@ int mwPacketBuffer::find_empty_rx_packet_buffer(void)
    return -1;
 }
 
-void mwPacketBuffer::lock_mutex(void)
-{
-   if (thread_type == 1) al_lock_mutex(rx_mutex);
-   if (thread_type == 2) m.lock();
-}
-
-void mwPacketBuffer::unlock_mutex(void)
-{
-   if (thread_type == 1) al_unlock_mutex(rx_mutex);
-   if (thread_type == 2) m.unlock();
-}
 
 float mwPacketBuffer::get_max_dsync(void)
 {
    float max_dsync = -1000;
-   lock_mutex();
 
    // iterate all stdf packets, calc dysnc and max dysnc
    for (int i=0; i<200; i++)
@@ -322,7 +201,6 @@ float mwPacketBuffer::get_max_dsync(void)
          if (dsync > max_dsync) max_dsync = dsync;
       }
 
-   unlock_mutex();
    return max_dsync;
 }
 

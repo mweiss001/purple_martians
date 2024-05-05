@@ -8,7 +8,7 @@
    {
       $('#myTable').DataTable(
       {
-         layout: { topStart: { buttons: ['colvis'] } },
+         layout: {  topStart: { buttons: ['colvis'] }, bottomStart: 'pageLength' },
          colReorder: true,
          columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18] } ]
       }  );
@@ -44,10 +44,12 @@
    echo "<table>";
       echo "<tbody>";
          echo "<tr>";
-            echo "<td style='padding:8px; border: 1px solid black;'> <a href=\"sessions.php\"       target=\"_top\">Main</a> </td>";
-            echo "<td style='padding:8px; border: 1px solid black;'> <a href=\"sessions_plr.php\"   target=\"_top\">Player</a> </td>";
-            echo "<td style='padding:8px; border: 1px solid black;'> <a href=\"sessions_bnd.php\"   target=\"_top\">Bandwidth</a></td>";
-            echo "<td style='padding:8px; border: 1px solid black;'> <a href=\"sessions_all.php\"   target=\"_top\">All</a> </td>";
+            echo "<td style='padding:2px 8px;' > <a href=\"sessions.php\"      >Main</a> </td>";
+            echo "<td style='padding:2px 8px;' > <a href=\"sessions_plr.php\"  >Player</a> </td>";
+            echo "<td style='padding:2px 8px;' > <a href=\"sessions_bnd.php\"  >Bandwidth</a></td>";
+            echo "<td style='padding:2px 8px;' > <a href=\"sessions_all.php\"  >All</a> </td>";
+            echo "<td style='padding:2px 12px;'>  </td>";
+            echo "<td style='padding:2px 8px;' > <a href=\"../index.html\"     >Home</a> </td>";
          echo "</tr>";
       echo "</tbody>";
    echo "</table>";

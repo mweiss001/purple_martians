@@ -13,6 +13,10 @@
 #include "mwConfig.h"
 #include "mwItem.h"
 #include "mwScreen.h"
+#include "mwEnemy.h"
+
+
+
 
 int mwNetgame::ServerInitNetwork(void)
 {
@@ -34,7 +38,7 @@ int mwNetgame::ServerInitNetwork(void)
    // open the server channel
    char port[256];
    sprintf(port, ":%d", server_port);
-   if (!(ServerChannel = net_openchannel(NetworkDriver, port)))
+   if (!(Channel = net_openchannel(NetworkDriver, port)))
    {
       sprintf(msg, "Error opening server channel");
       mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
@@ -45,20 +49,16 @@ int mwNetgame::ServerInitNetwork(void)
    mLog.add_fw(LOG_NET, 0, 76, 10, "+", "-", "");
 
    ima_server = 1;
-
-   mPacketBuffer.start_packet_thread();
-
    return 1;
 }
 
 void mwNetgame::ServerExitNetwork(void)
 {
-   mPacketBuffer.stop_packet_thread();
 
    mLog.add_header(LOG_NET, 0, 0, "Shutting down the server network");
 
-   if (ServerChannel) net_closechannel(ServerChannel);
-   ServerChannel = NULL;
+   if (Channel) net_closechannel(Channel);
+   Channel = NULL;
 
    ima_server = 0;
 
@@ -83,14 +83,14 @@ int mwNetgame::server_check_address(char * address)
 void mwNetgame::ServerSendTo(void *data, int len, int p)
 {
    // change the target of the ServerChannel
-   if (net_assigntarget(ServerChannel, mwChannels[p].address))
+   if (net_assigntarget(Channel, mwChannels[p].address))
    {
       char msg[512];
       sprintf(msg, "Error: couldn't assign target `%s' to ServerChannel\n", mwChannels[p].address);
       mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
       mInput.m_err(msg);
    }
-   net_send(ServerChannel, data, len);
+   net_send(Channel, data, len);
 
    // add to server's counts
    mPlayer.loc[0].tx_current_bytes_for_this_frame += len;
@@ -101,11 +101,6 @@ void mwNetgame::ServerSendTo(void *data, int len, int p)
    mPlayer.loc[p].tx_current_packets_for_this_frame++;
 }
 
-void mwNetgame::ServerFlush(void)
-{
-   char data[1024] = {0};
-   while (net_receive(mNetgame.ServerChannel, data, 1024, NULL));
-}
 
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -286,9 +281,15 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
    mPlayer.loc[0].srv_zlib_cmp = mNetgame.zlib_cmp;
    mPlayer.loc[0].srv_extra_packets_num = mNetgame.srv_exp_num;
    mPlayer.loc[0].srv_extra_packets_size = mNetgame.srv_exp_siz;
+   mPlayer.loc[0].srv_uptime = al_get_time();
+   sprintf(mPlayer.loc[0].srv_version, PM_VERSION);
 
-   char src[5400];
-   char dst[5400];
+   mPlayer.loc[0].srv_num_enemy = mEnemy.num_enemy;
+
+
+
+   char src[5500];
+   char dst[5500];
 
    int sz=0, offset=0;
    offset += sz; sz = sizeof(mPlayer.syn); memcpy(src + offset, mPlayer.syn, sz);
@@ -575,14 +576,14 @@ void mwNetgame::server_send_sjon_packet(char* address, int level, int frame, int
    mPacketBuffer.PacketPutByte(data, pos, player_color);
    mPacketBuffer.PacketPutByte(data, pos, mPlayer.syn[0].server_lev_seq_num);
 
-   if (net_assigntarget(ServerChannel, address))
+   if (net_assigntarget(Channel, address))
    {
       char msg[256];
       sprintf(msg, "Error: couldn't assign target `%s' to ServerChannel\n", address);
       mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
       mInput.m_err(msg);
    }
-   net_send(ServerChannel, data, pos);
+   net_send(Channel, data, pos);
 
 
 }

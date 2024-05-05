@@ -8,6 +8,32 @@
 ---------------------------------------------------------
 
 
+remove all passwords from the sources...
+or better yet change all your passwords to something new....
+
+
+
+where am I going to put all my videos where I show off cool stuff?
+
+ideas for those videos:
+logging
+netgame stress test
+netgame max cor
+profiling
+logo
+
+level editor
+
+historic:
+original sprite and palette editor from 1997
+original enemy group edit
+split screen multiplayer
+what the game looked like in different versions
+
+
+
+
+write the multiplayer history
 
 
 
@@ -15,7 +41,13 @@
 
 
 
+improve server remote
+- changing more settings remotely
+what exactly do you want to do?
 
+these are all the things I can think of:
+logging options
+autosave game and log options
 
 
 
@@ -28,9 +60,6 @@
 
 
 ------------------------------------
-
-How long has server been running?
-Keep some stats about that.
 
 
 what to do to release?

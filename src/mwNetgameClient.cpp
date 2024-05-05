@@ -30,8 +30,8 @@ int mwNetgame::ClientInitNetwork(void)
       mInput.m_err(msg);
       return -1;
    }
-   ClientChannel = net_openchannel(NetworkDriver, NULL); // dynamic port
-   if (ClientChannel == NULL)
+   Channel = net_openchannel(NetworkDriver, NULL); // dynamic port
+   if (Channel == NULL)
    {
       sprintf(msg, "Error: Client failed to create NetChannel");
       mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
@@ -41,7 +41,7 @@ int mwNetgame::ClientInitNetwork(void)
 
    char target[300];
    sprintf(target, "%s:%d", server_address, server_port);
-   if (net_assigntarget(ClientChannel, target))
+   if (net_assigntarget(Channel, target))
    {
       sprintf(msg, "Error: Client failed to set NetChannel target:[%s]", target);
       mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
@@ -49,7 +49,7 @@ int mwNetgame::ClientInitNetwork(void)
       return 0;
    }
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client network initialized -- target:[%s]", target);
-   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Local address:[%s]", net_getlocaladdress(ClientChannel));
+   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Local address:[%s]", net_getlocaladdress(Channel));
 
    return 1;
 }
@@ -100,7 +100,6 @@ int mwNetgame::ClientJoin(void)
    }
 
    ima_client = 1;
-   mPacketBuffer.start_packet_thread();
    return 1;
 }
 
@@ -129,7 +128,7 @@ int mwNetgame::ClientCheckResponse(void) // check for a response from the server
       mEventQueue.proc(1);
       if (mInput.key[ALLEGRO_KEY_ESCAPE][1]) return -2; // cancelled
 
-      if (net_receive(ClientChannel, data, 1024, address))
+      if (net_receive(Channel, data, 1024, address))
       {
          if (mPacketBuffer.PacketRead(data, "sjon"))
          {
@@ -152,7 +151,7 @@ int mwNetgame::RemoteJoin(void)
    while (!reply)
    {
       char data[1024];
-      if (net_receive(ClientChannel, data, 1024, NULL))
+      if (net_receive(Channel, data, 1024, NULL))
          if (mPacketBuffer.PacketRead(data, "sjrc")) reply = 1;
 
       mEventQueue.proc(1);
@@ -172,10 +171,9 @@ int mwNetgame::RemoteJoin(void)
 
 void mwNetgame::ClientExitNetwork(void)
 {
-   mPacketBuffer.stop_packet_thread();
    mLog.add_header(LOG_NET, 0, 0, "Shutting down the client network");
-   if(ClientChannel) net_closechannel(ClientChannel);
-   ClientChannel = NULL;
+   if (Channel) net_closechannel(Channel);
+   Channel = NULL;
    net_shutdown();
 
    ima_client = 0;
@@ -188,7 +186,7 @@ void mwNetgame::ClientExitNetwork(void)
 
 int mwNetgame::ClientReceive(void *data)
 {
-   int len = net_receive(ClientChannel, data, 1024, NULL);
+   int len = net_receive(Channel, data, 1024, NULL);
    if (len > 0)
    {
       mPlayer.loc[mPlayer.active_local_player].rx_current_bytes_for_this_frame+= len;
@@ -199,17 +197,11 @@ int mwNetgame::ClientReceive(void *data)
 
 void mwNetgame::ClientSend(void *data, int len)
 {
-   net_send(ClientChannel, data, len);
+   net_send(Channel, data, len);
    mPlayer.loc[mPlayer.active_local_player].tx_current_bytes_for_this_frame+= len;
    mPlayer.loc[mPlayer.active_local_player].tx_current_packets_for_this_frame++;
 }
 
-// read and discard all waiting packets
-void mwNetgame::ClientFlush(void)
-{
-   char data[1024];
-   while (ClientReceive(data));
-}
 
 // ---------------------------------------------------------------------------------------------------------------
 // ***************************************************************************************************************
@@ -270,7 +262,6 @@ void mwNetgame::client_proc_srrf_packet(int i)
 int mwNetgame::client_proc_sjon_packet(char * data)
 {
    int pos = 4;
-
    int pl     = mPacketBuffer.PacketGetInt4(data, pos);  // play level
    int sfnum  = mPacketBuffer.PacketGetInt4(data, pos);  // server join frame number
    int p      = mPacketBuffer.PacketGetByte(data, pos);  // client player number

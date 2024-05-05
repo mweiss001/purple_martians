@@ -1463,13 +1463,14 @@ lets deploy it...done...
 now what am I working on?
 
 
-pscp -r -pw zaiden C:\pm\docs* m@96.45.9.166:sht
+pscp -r -pw zaiden C:\pm\docs\* m@96.45.9.166:sht
 
 copy to final place
 m@pmh:~$ sudo cp -r ~/sht/* /var/www/html
 
 
 
+sudo rm -r /var/www/html/*
 
 
 

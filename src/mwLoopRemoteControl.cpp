@@ -41,8 +41,9 @@ void mwLoop::remote_control_loop(void)
 
    int cx = 10, cy = 10;
 
-   al_draw_textf(mFont.pr8, mColor.pc[13], cx, cy, 0, "Server Remote Control ");
-   al_draw_textf(mFont.pr8, mColor.pc[15], cx+180, cy, 0, "Level:[%d] - Time:[%s] - Frame:[%d] - Moves:[%d]", mPlayer.loc[0].srv_level, mMiscFnx.chrms(fn, msg), fn, mPlayer.loc[0].srv_total_game_moves); cy+=20;
+   al_draw_textf(mFont.pr8, mColor.pc[13], cx,     cy, 0, "Server Remote Control ");
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx+180, cy, 0, "Version:%s  Uptime:%s", mPlayer.loc[0].srv_version, mMiscFnx.chrmhd(mPlayer.loc[0].srv_uptime, msg));
+   al_draw_textf(mFont.pr8, mColor.pc[15], cx,   cy+10, 0, "Level:[%d] - Time:[%s] - Moves:[%d] - Enemies:[%d]", mPlayer.loc[0].srv_level, mMiscFnx.chrms(fn, msg), mPlayer.loc[0].srv_total_game_moves, mPlayer.loc[0].srv_num_enemy); cy+=20;
 
    mScreen.sdg_show(cx, cy); // server debug grid
 
