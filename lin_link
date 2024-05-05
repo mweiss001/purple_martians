@@ -5,7 +5,7 @@ for filename in o/src/*.o; do
 gc+="$filename"' ' 
 done
 
-gc+="-lallegro_monolith -lz -lnet -lpthread -Wl,-rpath='./linux_libs' "
+gc+="-lallegro_monolith-debug -lz -lnet -lpthread -Wl,-rpath='./linux_libs' "
 
 echo $gc
 $gc
