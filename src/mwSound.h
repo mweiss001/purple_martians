@@ -16,7 +16,9 @@ class mwSound
    int se_scaler=5;
    int st_scaler=5;
    int lit_item;
+
    int sound_on = 1;
+   int soundtrack_on = 1;
 
    void start_music(int resume);
    void stop_sound(void);

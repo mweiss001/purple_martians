@@ -161,10 +161,14 @@ very easy....
 
 20240505
 
-
 I want to be able to play .xm on linux
-
 what do I need to add?
+
+
+I added -DWANT_MODAUDIO=ON
+
+and that worked but only for ubuntu 20..
+I still get load errors on mint
 
 
 
