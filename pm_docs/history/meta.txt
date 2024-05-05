@@ -1,0 +1,49 @@
+
+20240502
+
+I am having a hard time working on these history documents...
+
+I have so many different versions, and when I edit one, the changes do not apply to the others...
+
+I have tried many times and got lost....
+
+
+What if I tried to make smaller documents?
+
+Like I have one just covers purple martians through its develeopment...
+
+Those files I should prefix with MASTER and only change them...
+
+
+MASTER_Brief History
+Deals with Purple Martians only.
+Years, versions, software, features
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

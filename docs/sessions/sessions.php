@@ -33,7 +33,20 @@
    if (!$conn) die("Connection failed: " . mysqli_connect_error());
    // echo "Connected to database\n";
 
-   echo "<hr><h2>Sessions</h2><hr>";
+   echo "<hr><h2>Sessions - Main</h2><hr>";
+
+   echo "<table>";
+      echo "<tbody>";
+         echo "<tr>";
+            echo "<td style='padding:8px; border: 1px solid black;'> <a href=\"sessions.php\"       target=\"_top\">Main</a> </td>";
+            echo "<td style='padding:8px; border: 1px solid black;'> <a href=\"sessions_plr.php\"   target=\"_top\">Player</a> </td>";
+            echo "<td style='padding:8px; border: 1px solid black;'> <a href=\"sessions_bnd.php\"   target=\"_top\">Bandwidth</a></td>";
+            echo "<td style='padding:8px; border: 1px solid black;'> <a href=\"sessions_all.php\"   target=\"_top\">All</a> </td>";
+         echo "</tr>";
+      echo "</tbody>";
+   echo "</table>";
+
+   echo "<hr>";
 
    echo "<table id='myTable' class='display cell-border compact' style='width:90%'>";
       echo "<thead>";

@@ -56,8 +56,8 @@ function add_to_db(&$var)
          $ak .= $x . ", ";
          $av .= "'" . $y . "', ";
       }
-      $ak = substr($ak, 0, -2); // chop lat 2 char
-      $av = substr($av, 0, -2); // chop lat 2 char
+      $ak = substr($ak, 0, -2); // chop last 2 char
+      $av = substr($av, 0, -2); // chop last 2 char
       $sql = "INSERT INTO session_tb ($ak) VALUES ($av)";
       //echo "sql: $sql\n";
       if (mysqli_query($conn, $sql)) echo "New record created successfully\n";
@@ -72,7 +72,7 @@ function add_to_db(&$var)
       $sql = "UPDATE session_tb SET ";
       foreach ($var as $x => $y)
          $sql .= $x . "='" . $y . "', ";
-      $sql = substr($sql, 0, -2); // chop lat 2 char
+      $sql = substr($sql, 0, -2); // chop last 2 char
       $sql .= " WHERE id=$id";
       //echo "sql: $sql\n";
       if (mysqli_query($conn, $sql)) echo "Record updated successfully\n";

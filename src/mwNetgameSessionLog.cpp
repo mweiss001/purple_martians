@@ -310,7 +310,6 @@ void mwNetgame::session_drop_player(int p)
 }
 
 
-
 // this is called every frame from server_control() to check and clean up active sessions
 void mwNetgame::session_check_active(void)
 {
@@ -320,10 +319,7 @@ void mwNetgame::session_check_active(void)
          if (!mPlayer.syn[p].active) // client is not active anymore
          {
             client_sessions[p].active = 0;
-
             client_sessions[p].endreason = 6;
-
-
             session_tally(p);
             session_add_log(p);
          }

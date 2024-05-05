@@ -137,13 +137,10 @@ can't see bitmap editor because it is commented out...
 
 
 
-
-
-
 pm_20000404
 Version 3.01
 
-now more full and shareware, free from now on
+no more full and shareware, free from now on
 
 game now has allegro gui select for screen size
 level editor has 3 static sizes  640, 800, 1024

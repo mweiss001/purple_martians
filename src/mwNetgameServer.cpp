@@ -485,7 +485,7 @@ void mwNetgame::server_proc_limits(void)
       {
          int num_clients = 0;
          for (int p=1; p<NUM_PLAYERS; p++)
-            if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) num_clients++;
+            if (mPlayer.syn[p].active) num_clients++;
          if (num_clients == 0)
          {
             mLog.add_headerf(LOG_NET, 0, 1, "Headless Server with no clients! - Reload");
@@ -702,11 +702,8 @@ void mwNetgame::server_control()
    server_rewind();                       // to replay and apply late client input
    server_proc_player_drop();             // check to see if we need to drop inactive clients
    server_proc_limits();                  // check to see if we need to reload level
-
    server_proc_files_to_send();
-
    if (mLog.log_types[LOG_NET_session].action) session_check_active();
-
    if (mMain.server_remote_control) server_send_snfo_packet();
 
    // send extra packets (testing and debug only)
