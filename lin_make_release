@@ -1,11 +1,11 @@
 mkdir linux_libs/
 
-
+cp /usr/lib/x86_64-linux-gnu/usr/lib/libdumb.so.1 ./linux_libs/
 cp /usr/lib/liballegro_monolith-debug.so.5.2 ./linux_libs/
 cp /usr/lib/liballegro_monolith.so.5.2 ./linux_libs/
 cp /lib/x86_64-linux-gnu/libOpenGL.so.0 ./linux_libs/
 
-version=7.24.0505.3
+version=7.24.0505.4
 
 fd='purple_martians_'"$version"'_linux'
 
@@ -22,11 +22,11 @@ mkdir "$fd"/screenshots
 mkdir "$fd"/sel
 mkdir "$fd"/snd
 
-cp bitmaps/*       "$fd"/bitmaps
-cp help/*          "$fd"/help
-cp snd/*           "$fd"/snd
-cp levels/level0*  "$fd"/levels
-cp linux_libs/*    "$fd"/linux_libs
+cp bitmaps/*          "$fd"/bitmaps
+cp help/*             "$fd"/help
+cp snd/*              "$fd"/snd
+cp levels/level0*     "$fd"/levels
+cp linux_libs/*       "$fd"/linux_libs
 cp -r savegame/demo/* "$fd"/savegame/demo
 
 cp pm "$fd"/
@@ -36,4 +36,3 @@ cp pml "$fd"/
 cp lin_install_libs "$fd"/
 
 tar -zcvf ./"$fd".tar.gz ./"$fd"/*
-
