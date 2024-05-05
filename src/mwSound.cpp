@@ -68,8 +68,14 @@ void mwSound::load_sound() // load sound driver and samples
 //         pm_theme_stream = al_load_audio_stream("snd/pm.mp3", 8, 1024);
 //         if (pm_theme_stream == NULL) mInput.m_err("Error loading snd/pm.xm\n");
 
-         pm_theme_stream = al_load_audio_stream("snd/pm.wav", 8, 1024);
-         if (pm_theme_stream == NULL) mInput.m_err("Error loading snd/pm.wav\n");
+
+//         pm_theme_stream = al_load_audio_stream("snd/pm.wav", 8, 1024);
+//         if (pm_theme_stream == NULL) mInput.m_err("Error loading snd/pm.wav\n");
+
+         pm_theme_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
+         if (pm_theme_stream == NULL) mInput.m_err("Error loading snd/pm.xm\n");
+
+
 
          al_set_audio_stream_playmode(pm_theme_stream, ALLEGRO_PLAYMODE_LOOP);
          al_set_audio_stream_playing(pm_theme_stream, 0);

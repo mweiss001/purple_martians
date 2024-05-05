@@ -52415,6 +52415,114 @@ Time for a new version to apply these changes...
 
 
 
+what if I tried to reduce the size of my release?
+right now 36M zip
+
+29M  pm.wav
+4M   pm.mp3
+12M level_icons_200
+3M  level_icons_100
+
+remove these and zip...
+now release is 11M
+
+how hard is it to play mp3's????
+or even xm?
+
+lets try this on windows first
+
+this is literally all I had to do:
+
+//         pm_theme_stream = al_load_audio_stream("snd/pm.wav", 8, 1024);
+//         if (pm_theme_stream == NULL) mInput.m_err("Error loading snd/pm.wav\n");
+
+         pm_theme_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
+         if (pm_theme_stream == NULL) mInput.m_err("Error loading snd/pm.xm\n");
+
+
+now the big question, will it work on linux?
+
+error loading and hard crash....
+
+go back to dev env for linux
+
+$ cd allegro5/build/
+m@mr5mx1:~/Desktop/allegro5/build
+$ ccmake -DCMAKE_INSTALL_PREFIX=/usr ..
+
+changed WANT_MODAUDIO to ON
+
+c e q
+
+make
+
+sudo make install
+
+recompile my project
+
+
+now it works!!!
+
+changed this line in the dev setup instructions to add
+
+-DWANT_MODAUDIO=ON
+
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DWANT_MONOLITH=ON -DWANT_D3D=OFF -DWANT_D3D9EX=OFF -DWANT_DEMO=OFF -DWANT_DLL_TLS=OFF -DWANT_DOCS=OFF -DWANT_DOCS_HTML=OFF -DWANT_DOCS_INFO=OFF -DWANT_DOCS_MAN=OFF -DWANT_DOCS_PDF=OFF -DWANT_DOCS_PDF_PAPER=OFF -DWANT_NATIVE_IMAGE_LOADER=OFF -DWANT_OPENAL=OFF -DWANT_VIDEO=OFF -DWANT_VORBIS=OFF -DWANT_IMAGE_FREEIMAGE=OFF -DWANT_IMAGE_JPG=OFF -DWANT_IMAGE_PNG=OFF -DWANT_IMAGE_WEBP=OFF -DWANT_LUAJIT=OFF -DWANT_MEMFILE=OFF -DWANT_MODAUDIO=ON -DWANT_EMBED=OFF -DWANT_EXAMPLES=OFF -DWANT_FLAC=OFF  -DFREETYPE_BZIP2=OFF -DFREETYPE_HARFBUZZ=OFF -DFREETYPE_PNG=OFF -DFREETYPE_ZLIB=OFF -DWANT_ALSA=OFF -DWANT_AQUEUE=OFF -DWANT_FRAMEWORKS=OFF -DWANT_GLES3=OFF -DWANT_MP3=OFF -DWANT_MUDFLAP=OFF -DWANT_OPENSL=OFF -DWANT_OPUS=OFF -DWANT_OSS=OFF -DWANT_PHYSFS=OFF -DWANT_POPUP_EXAMPLES=OFF -DWANT_PYTHON_WRAPPER=OFF -DWANT_RELEASE_LOGGING=OFF -DWANT_SHADERS_D3D=OFF -DWANT_STATIC_RUNTIME=OFF -DWANT_TESTS=OFF -DWANT_TREMOR=OFF -DWANT_WAIT_EVENT_SLEEP=OFF -DSTRICT_WARN=OFF -DWANT_ACODEC_DYNAMIC_LOAD=OFF ..
+make
+
+
+
+
+removed these lines from win_make_release
+
+xcopy data\level_icons_100.bmp purple_martians_%version%_windows\data  /y /i
+xcopy data\level_icons_200.bmp purple_martians_%version%_windows\data  /y /i
+
+now the windows release is 7.3M!!!
+
+
+removed these lines from lin_make_release
+
+cp data/level_icons_100.bmp "$fd"/data
+cp data/level_icons_200.bmp "$fd"/data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
