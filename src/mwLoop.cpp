@@ -546,13 +546,13 @@ void mwLoop::proc_program_state(void)
 
       if (mNetgame.ima_client)
       {
-         mNetgame.ClientFlush();
+         mNetgame.ChannelFlush();
          mLog.log_ending_stats_client(LOG_NET_ending_stats, mPlayer.active_local_player);
          if (++mPlayer.syn[0].server_lev_seq_num > 255) mPlayer.syn[0].server_lev_seq_num = 0;
       }
       if (mNetgame.ima_server)
       {
-         mNetgame.ServerFlush();
+         mNetgame.ChannelFlush();
          mLog.log_ending_stats_server(LOG_NET_ending_stats);
          if (++mPlayer.syn[0].server_lev_seq_num > 255) mPlayer.syn[0].server_lev_seq_num = 0;
          if (mLog.log_types[LOG_NET_session].action) mNetgame.session_save_active_at_level_done();
@@ -1072,7 +1072,6 @@ void mwLoop::main_loop(void)
          {
             if (mNetgame.ima_client)
             {
-               mPacketBuffer.process_tally();
                mNetgame.client_send_ping_packet();
                int p = mPlayer.active_local_player;
                mPlayer.loc[p].client_loc_plr_cor_avg = mTally_client_loc_plr_cor_last_sec[p].get_avg(0);
@@ -1082,7 +1081,6 @@ void mwLoop::main_loop(void)
             }
             if (mNetgame.ima_server)
             {
-               mPacketBuffer.process_tally();
                // tally late cdats and game move dsync
                for (int p=1; p<NUM_PLAYERS; p++)
                   if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)

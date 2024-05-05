@@ -6,8 +6,8 @@ $dir = "/home/m/dev/purple_martians/logs/session/";
 
 $srvrname = "localhost";
 $database = "session_db";
-$username = "msq";
-$password = "zaiden";
+$username = "php_add";
+$password = "addonly";
 
 $date = new DateTime("now");
 echo "\nSession log scrape: " . $date->format('Ymd-His') . "\n";

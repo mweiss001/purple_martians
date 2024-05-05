@@ -91,79 +91,69 @@ This function is called to check for new packets.
 Both the client and the server use it.
 </mh3>    
     
-<pre><code class="language-cpp">void mwPacketBuffer::add_to_rx_buffer(void)
+<pre><code class="language-cpp">// receives all waiting packets and puts them in the rx buffer
+void mwPacketBuffer::add_to_rx_buffer(void)
 {
-   if (is_data_waiting())
-   {
-      char data[1024] = {0};
-      int who = -1;
-      if (mNetgame.ima_server)
-         while(mNetgame.ServerReceive(data, &who))
-            add_to_rx_buffer_single(data, who);
+   char data[1024] = {0};
+   char address[256];
 
-      if (mNetgame.ima_client)
-         while (mNetgame.ClientReceive(data))
-            add_to_rx_buffer_single(data, who);
-   }
-}
-
-int mwPacketBuffer::is_data_waiting(void)
-{
-   int data_waiting = 0;
    if (mNetgame.ima_server)
-   {
-      for (int n=0; n < mNetgame.ClientNum; n++)
-         if ((mNetgame.ClientChannel[n]) && (net_query(mNetgame.ClientChannel[n]))) data_waiting = 1;
-   }
+      while (int len = net_receive(mNetgame.ServerChannel, data, 1024, address))
+      {
+         int p = mNetgame.server_check_address(address);
+         if (p == -1) // unknown address
+         {
+            if (PacketRead(data, "cjon")) mNetgame.server_proc_cjon_packet(data, address); // setup channel and replay with sjon
+            if (PacketRead(data, "cjrc")) mNetgame.server_proc_cjrc_packet(data, address); // setup channel and replay with sjrc
+         }
+         else
+         {
+            add_to_rx_buffer_single(data, p);
+            mPlayer.loc[p].rx_current_bytes_for_this_frame += len;
+            mPlayer.loc[p].rx_current_packets_for_this_frame++;
+            mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
+            mPlayer.loc[0].rx_current_packets_for_this_frame++;
+         }
+      }
+
    if (mNetgame.ima_client)
-   {
-      if (net_query(mNetgame.ServerChannel)) data_waiting = 1;
-   }
-   return data_waiting;
+      while (mNetgame.ClientReceive(data))
+         add_to_rx_buffer_single(data, mPlayer.active_local_player);
 }
 
-void mwPacketBuffer::add_to_rx_buffer_single(char *data, int who)
+
+void mwPacketBuffer::add_to_rx_buffer_single(char *data, int p)
 {
    // process these immediately and do not add to buffer
-   if (PacketRead(data, "ping"))
-   {
-      mNetgame.server_proc_ping_packet(data, who);
-      return;
-   }
-   if (PacketRead(data, "pang"))
-   {
-      mNetgame.server_proc_pang_packet(data, who);
-      return;
-   }
-   if (PacketRead(data, "pong"))
-   {
-      mNetgame.client_proc_pong_packet(data);
-      return;
-   }
+   if (PacketRead(data, "ping")) { mNetgame.server_proc_ping_packet(data, p);  return;  }
+   if (PacketRead(data, "pang")) { mNetgame.server_proc_pang_packet(data, p);  return;  }
+   if (PacketRead(data, "pong")) { mNetgame.client_proc_pong_packet(data);     return;  }
 
    int type = 0;
-   if (PacketRead(data, "cdat")) type = 1;
-   if (PacketRead(data, "stak")) type = 2;
-   if (PacketRead(data, "cjon")) type = 3;
-   if (PacketRead(data, "cjrc")) type = 4;
-   if (PacketRead(data, "rctl")) type = 5;
-   if (PacketRead(data, "stdf")) type = 11;
-   if (PacketRead(data, "sjon")) type = 12;
-   if (PacketRead(data, "sjrc")) type = 13;
-   if (PacketRead(data, "snfo")) type = 14;
+   if (PacketRead(data, "cdat")) type = PM_NETGAME_PACKET_TYPE_CDAT;
+   if (PacketRead(data, "stak")) type = PM_NETGAME_PACKET_TYPE_STAK;
+   if (PacketRead(data, "rctl")) type = PM_NETGAME_PACKET_TYPE_RCTL;
+   if (PacketRead(data, "sfak")) type = PM_NETGAME_PACKET_TYPE_SFAK;
+   if (PacketRead(data, "stdf")) type = PM_NETGAME_PACKET_TYPE_STDF;
+   if (PacketRead(data, "snfo")) type = PM_NETGAME_PACKET_TYPE_SNFO;
+   if (PacketRead(data, "sfil")) type = PM_NETGAME_PACKET_TYPE_SFIL;
+   if (PacketRead(data, "srrf")) type = PM_NETGAME_PACKET_TYPE_SRRF;
+   if (PacketRead(data, "crfl")) type = PM_NETGAME_PACKET_TYPE_CRFL;
 
    if (type)
    {
       int indx = find_empty_rx_packet_buffer();
       if (indx != -1)
       {
+         //printf("%d stored rx packet:%d size:%d type:%d\n", mLoop.frame_num, indx, mNetgame.packetsize, type);
          rx_buf[indx].active = 1;
          rx_buf[indx].type = type;
          rx_buf[indx].timestamp = al_get_time();
-         rx_buf[indx].who = who;
+         rx_buf[indx].p = p;
          memcpy(rx_buf[indx].data, data, 1024);
       }
    }
+   else printf("%d received unknown packet type!\n", mLoop.frame_num);
 }</code></pre>
 
 
@@ -183,7 +173,7 @@ This is done so that if the game_loop takes a significant amount of time to comp
 
 <pre><code class="language-cpp">void mwPacketBuffer::check_for_packets(void)
 {
-   if ((thread_type == 0) && ((mNetgame.ima_server) || (mNetgame.ima_client))) add_to_rx_buffer();
+   if ((mNetgame.ima_server) || (mNetgame.ima_client)) add_to_rx_buffer();
 }</code></pre>
 
 <a name="Processing packets in the buffer"></a>
@@ -195,25 +185,24 @@ Both the server and the client process all packets waiting in the buffer by call
 
 <pre><code class="language-cpp">void mwPacketBuffer::proc_rx_buffer(void)
 {
-   for (int i=0; i < 200; i++)
+   for (int i=0; i<200; i++)
       if (rx_buf[i].active)
       {
          rx_buf[i].packetpos = 4;
          if (mNetgame.ima_server)
          {
-            if (rx_buf[i].type == 1) mNetgame.server_proc_cdat_packet(i);
-            if (rx_buf[i].type == 2) mNetgame.server_proc_stak_packet(i);
-            if (rx_buf[i].type == 3) mNetgame.server_proc_cjon_packet(i);
-            if (rx_buf[i].type == 4) mNetgame.server_proc_cjrc_packet(i);
-            if (rx_buf[i].type == 5) mNetgame.server_proc_rctl_packet(i);
-
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CDAT) mNetgame.server_proc_cdat_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STAK) mNetgame.server_proc_stak_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_RCTL) mNetgame.server_proc_rctl_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SFAK) mNetgame.server_proc_sfak_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CRFL) mNetgame.server_proc_crfl_packet(i);
          }
          if (mNetgame.ima_client)
          {
-            if (rx_buf[i].type == 11) mNetgame.client_proc_stdf_packet(i);
-            if (rx_buf[i].type == 12) mNetgame.client_proc_sjon_packet(i);
-            if (rx_buf[i].type == 13) mNetgame.client_proc_sjrc_packet(i);
-            if (rx_buf[i].type == 14) mNetgame.client_proc_snfo_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STDF) mNetgame.client_proc_stdf_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SNFO) mNetgame.client_proc_snfo_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SFIL) mNetgame.client_proc_sfil_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SRRF) mNetgame.client_proc_srrf_packet(i);
          }
          rx_buf[i].active = 0;
       }
@@ -221,8 +210,6 @@ Both the server and the client process all packets waiting in the buffer by call
 
 
 
-
-</mh3>    
 
 
                <footer>                <mh11>Purple Martians</mh11><hr>

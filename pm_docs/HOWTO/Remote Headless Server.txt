@@ -147,7 +147,6 @@ void mwNetgame::server_proc_crfl_packet(int i)
 client can request this in two places
 
 
-
    if (state[1] == PM_PROGRAM_STATE_CLIENT_PREEXIT1)
    {
       if (mGameMoves.autosave_game_on_level_quit)
@@ -163,10 +162,7 @@ client can request this in two places
 
 
 
-
-
-
-setup a cron job to scrape seession logs and add to database
+setup a cron job to scrape session logs and add to database
 
 crontab -e
 

@@ -72,6 +72,27 @@ char * mwMiscFnx::chrms(int time, char* ft)
 
 
 
+// format time from seconds to minutes, hours, days
+char * mwMiscFnx::chrmhd(int s, char* ft)
+{
+   int d = 0;
+   int h = 0;
+   int m = 0;
+   while (s > 86400) { s-= 86400; d++; }
+   while (s > 3660)  { s-= 3660;  h++; }
+   while (s > 60)    { s-= 60;    m++; }
+   sprintf(ft, "%d:%02d:%02d:%02d", d, h, m, s);
+   return ft;
+}
+
+
+
+
+
+
+
+
+
 // format number from k to M to G
 char * mwMiscFnx::chrsi(int num, char* ft)
 {

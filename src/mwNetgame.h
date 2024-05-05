@@ -135,52 +135,41 @@ class mwNetgame
    void process_bandwidth_counters(int p);
 
 
+   NET_CHANNEL *Channel = NULL;                   // common channel
+   void ChannelFlush(void);
 
    // --------------------------------------------------------------------
    // ---   mwNetgameClient.cpp  -----------------------------------------
    // --------------------------------------------------------------------
-   NET_CHANNEL *ClientChannel = NULL;
 
    int ClientInitNetwork(void);
    int ClientJoin(void);
    int RemoteJoin(void);
 
-
    void ClientExitNetwork(void);
    int  ClientCheckResponse(void);
    int  ClientReceive(void *data);
    void ClientSend(void *data, int len);
-   void ClientFlush(void);
 
    void client_timer_adjust(void);
    void client_apply_dif();
 
    void client_send_ping_packet(void);
    void client_send_cjon_packet(void);
-
    void client_send_cjrc_packet(void);
    void client_send_rctl_packet(int type, double val);
    void client_send_stak_packet(int ack_frame);
    void client_send_cdat_packet(int p);
-
-   void client_proc_pong_packet(char *data);
-
-
-   int client_proc_sjon_packet(char *data);
-
-   void client_proc_srrf_packet(int i);
-
-
-
-   void client_proc_stdf_packet(int i);
-
-   void client_proc_sfil_packet(int i);
-
    void client_send_sfak_packet(int id);
    void client_send_crfl(void);
 
-
+   void client_proc_pong_packet(char *data);
+   int  client_proc_sjon_packet(char *data);
+   void client_proc_srrf_packet(int i);
+   void client_proc_stdf_packet(int i);
+   void client_proc_sfil_packet(int i);
    void client_proc_snfo_packet(int i);
+
    void client_proc_player_drop(void);
    void client_control(void);
 
@@ -188,12 +177,9 @@ class mwNetgame
    // ---   mwNetgameServer.cpp  -----------------------------------------
    // --------------------------------------------------------------------
 
-   NET_CHANNEL *ServerChannel = NULL;                   // listen channel
-
    int  ServerInitNetwork(void);
    void ServerExitNetwork(void);
    void ServerSendTo(void *data, int len, int p);
-   void ServerFlush(void);
 
    int ServerGetNewDynamicPort(void);
 

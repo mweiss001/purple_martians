@@ -172,6 +172,11 @@ struct ploc // not synced between server and client (but synced from server to r
    int srv_extra_packets_num;
    int srv_extra_packets_size;
 
+   char srv_version[16];
+   int srv_uptime;
+
+   int srv_num_enemy;
+
 
    // bandwidth counters and tallies
 

@@ -33,8 +33,11 @@ mwNetgame::mwNetgame()
    for (int i=0; i<16; i++)
       session_clear_entry(i);
 
-   ClientChannel = NULL;
-   ServerChannel = NULL;
+//   ClientChannel = NULL;
+//   ServerChannel = NULL;
+
+   Channel = NULL;
+
 }
 
 // initialize libnet and setup a driver to use. Returns 0 on success.
@@ -74,6 +77,13 @@ int mwNetgame::NetworkInit(void)
       mInput.m_err(msg);
       return -1;
    }
+}
+
+// read and discard all waiting packets
+void mwNetgame::ChannelFlush(void)
+{
+   char data[1024] = {0};
+   while (net_receive(Channel, data, 1024, NULL));
 }
 
 

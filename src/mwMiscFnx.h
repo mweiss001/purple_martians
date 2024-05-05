@@ -17,6 +17,9 @@ class mwMiscFnx
    char* chrsi(int num, char* ft);
 
 
+   char * chrmhd(int time, char* ft);
+
+
 
 
    int round20(int val);

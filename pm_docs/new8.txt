@@ -52380,6 +52380,47 @@ I want to have only one...done
 
 
 
+should i remove all the thread stuff?
+I really dont think I will ever reenable it
+
+also get rid of check for data waiting, it serves no purpose
+
+done...should I test?..simple test...looks like it is working
+
+I was just thinking....now that the server has only one channel, and the client only has one channel...could they not be they same channel?...why do I need to define 2?
+done...replaced with just channel...also made common flush...
+
+Make the number of rows on session changeable..done
+make a button to leave sessions and go back..done
+redo the muliplayer tcd pages..done
+
+
+
+improve server remote
+- how long has server been running?
+- what software version
+- how many enemies alive in current level
+these are done....
+
+
+make a user for mysql that scrapes and adds sessions, make that as limited as possible...done
+
+Time for a new version to apply these changes...
+
+7.24.0505.1
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

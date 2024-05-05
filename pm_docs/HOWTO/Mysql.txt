@@ -47,27 +47,22 @@ DROP DATABASE session_db;
 
 DELETE * FROM session_db.session_tb;
 
-make a non-priveledge user to read with php...
 
 
+
+make a user to read with php, as limited as possible...
 sudo mysql
-
 CREATE USER 'php_ro'@'localhost' IDENTIFIED WITH mysql_native_password BY 'readonly';
-
 GRANT SELECT ON session_db.session_tb TO 'php_ro'@'localhost'
-
 exit
-mysql -u msq -p
-
-ALTER USER 'msq'@'localhost' IDENTIFIED WITH mysql_native_password BY 'zaiden';
-
-systemctl status mysql.service
-
-sudo mysqladmin -p -u msq version
 
 
+make a user to add records with php, as limited as possible...
+sudo mysql
+CREATE USER 'php_add'@'localhost' IDENTIFIED WITH mysql_native_password BY 'addonly';
+GRANT SELECT, INSERT, UPDATE ON session_db.session_tb TO 'php_add'@'localhost';
+exit
 
-ALTER USER 'jeffrey'@'localhost' WITH MAX_QUERIES_PER_HOUR 90;
 
 
 
@@ -84,5 +79,15 @@ pscp -r -pw zaiden c:\pm\docs\* m@96.45.9.166:sht
 
 copy to final place
 m@pmh:~$ sudo cp -r ~/sht/* /var/www/html
+
+
+
+
+
+
+
+
+
+
 
 
