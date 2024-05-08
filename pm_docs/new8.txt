@@ -52656,16 +52656,6 @@ so add this to the lin_make_release
 
 cp /usr/lib/x86_64-linux-gnu/libdumb.so.1 ./linux_libs/
 
-
-
-
-
-
-
-
-
-
-
 OK now that I confiremd that works....
 
 lets put everything back
@@ -52680,84 +52670,98 @@ remove pm.wav from the snd dir...
 
 update all to version 6
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 try to record a very old version with DOSBOX
 
 
 
+I am thinking about doing a lot more with my official server...
+
+Like setting up rsyslog.
+
+Could I actually make all the log calls in pm write to syslog and end up in a mysql db?
+Would that be a performance hit?
+
+I know when I am dumping log stuff to the console, it can impact performance.
+
+The advantage I could see is displaying logs and filtering, kind of like I do already with text files.
 
 
 
 
+why does the title of my web pages say bs_new?..fixed...
+
+why do I still have a debug overlay option for server stdf freq adjust?
+
+
+it does
+force client offset
+client offset
+zlib comp
+extra packets
+extra packet size
+
+I should call it server debug controls or something like that...done
 
 
 
 
+I am running into the high ping issue on the server again
+pings go to the hundreds, base resets happen, difs are very large, cpu goes over 100
+
+this is happening using o7040 as server on dedicated internet connection to bro-sec-02
+lev 70 with 100 enemies...
+
+no wait, it happens through the ciso router....
+bypass the router and it still happens...
+
+
+bytes/sec  tx 2M     rx 6-10K
+packets/s  tx 2000   rx 400
+
+drop 2 clients (down to 5 clients)
+
+bytes/sec  tx 1.4M     rx 6-10K
+packets/s  tx 1500     rx 300
+
+
+drop 2 more client (down to 3 clients)
+
+still happens...
+
+when I run a ping to server I see ping times jump into the hundreds....
+
+could it be the nature of the cambium radio?
+
+it happens on lev 33...try that on pmh
+
+it does not seem to happen on pmh
+
+level 33 3 minutes
+
+bytes/sec  tx .5M     rx 14K
+packets/s  tx 700     rx 500
+
+it started happening around 5 min
+they are pretty rare
+
+I don't know what or why...I am not going to worry about it for now...
+
+
+In headless server make the hidden server player not purple...
+So that the joining clients start as purple...done, need to test
 
 
 
 
+should I do one more release?
 
+level 70, should I leave it as a netgame test level..yes...
 
+make sessions by default show newest first...done
 
+do release
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+7.24.0507.1
 
 
 

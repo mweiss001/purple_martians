@@ -1638,7 +1638,7 @@ void mwSettings::page_overlay(void)
    cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 3, "debug grid (client, server)");
    cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 4, "sync graph (client only)");
    cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 5, "sync adjust (client only");
-   cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 6, "state freq adj (server only)");
+   cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 6, "server debug controls (server only)");
    cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 7, "bandwidth stats (client, server)");
    cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 8, "miscellaneous");
 

@@ -212,6 +212,47 @@ void mwInput::serial_key_check(int key)
    }
 
 
+
+   if (serial_key_test("win800"))
+   {
+      mDisplay.disp_w_wind = 800;
+      mDisplay.disp_h_wind = 600;
+      mConfig.save_config();
+      mDisplay.set_windowed();
+      mDisplay.proc_display_change();
+   }
+
+   if (serial_key_test("win1024"))
+   {
+      mDisplay.disp_w_wind = 1024;
+      mDisplay.disp_h_wind = 768;
+      mConfig.save_config();
+      mDisplay.set_windowed();
+      mDisplay.proc_display_change();
+   }
+
+   if (serial_key_test("win1280"))
+   {
+      mDisplay.disp_w_wind = 1280;
+      mDisplay.disp_h_wind = 1024;
+      mConfig.save_config();
+      mDisplay.set_windowed();
+      mDisplay.proc_display_change();
+   }
+
+   if (serial_key_test("win1920"))
+   {
+      mDisplay.disp_w_wind = 1920;
+      mDisplay.disp_h_wind = 1080;
+      mConfig.save_config();
+      mDisplay.set_windowed();
+      mDisplay.proc_display_change();
+   }
+
+
+
+
+
    if (serial_key_test("demr"))
    {
       if (mLoop.state[1] != PM_PROGRAM_STATE_DEMO_RECORD) mLoop.state[0] = PM_PROGRAM_STATE_DEMO_RECORD;

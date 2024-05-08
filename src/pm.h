@@ -1,6 +1,6 @@
 // pm.h
 
-#define PM_VERSION "7.24.0505.6"
+#define PM_VERSION "7.24.0507.1"
 
 #include <stdio.h>
 #include <math.h>

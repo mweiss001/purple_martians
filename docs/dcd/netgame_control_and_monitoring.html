@@ -91,8 +91,7 @@ mPlayer.loc[p].dsync_avg
 <me1>Code</me1>
 <mh3>See <a href="netgame_client_timing_sync.html" target="_top">Client Timing Sync</a>
 The client uses dsync_avg to adjust it's timing offset with reference to the server.
-The server uses dsync to control when joining clients become active like this: <a href="netgame_join.html#Client chase and lock" target="_top">Client chase and lock</a>
-
+The server uses dsync for display over.
 </mh3>
 
 
@@ -112,7 +111,6 @@ mPlayer.loc[p].ping_avg
 <me1>Code</me1>
 <mh3>The method of calculating ping is described here: <a href="netgame_ping.html" target="_top">ping</a>
 The client uses the ping average to set client_chase_offset here: <a href="netgame_client_timing_sync.html#Determine the setpoint" target="_top">Determine the setpoint</a>
-
 </mh3>
 
 
@@ -181,7 +179,7 @@ float mPlayer.loc[p].client_rmt_plr_cor_avg;
 <a name="Server late cdats"></a><mh7>Server late cdats</mh7><div style="height: 12px"></div>
 
 <me1>Description</me1>
-<mh3>On the server, when a cdat packet is processed and it is too late to be applied, it is discarded and counted.
+<mh3>On the server, when a cdat packet is received too late to be applied, it is discarded and counted.
 </mh3>
 
 
@@ -214,9 +212,9 @@ float mPlayer.loc[p].client_rmt_plr_cor_avg;
 <a name="Client base resets"></a><mh7>Client base resets</mh7><div style="height: 12px"></div>
 
 <me1>Description</me1>
-<mh3>When the client receives a dif state based on zero, or the server does not have a valid last_ack_state for a client and has to send a dif state based on zero, then client_base_resets is incremented.
+<mh3>When the server does not have a valid last_ack_state for a client and has to send a dif state based on zero, client_base_resets is incremented.
 Dif states based on zero are much larger than regular difs.
-They typically take 7-8 1000 byte packets to send, vs 1-2 for regular state difs.
+They typically take 7-8 packets to send, vs 1-2 packets for regular state difs.
 </mh3>
 
 <me1>Variables</me1>

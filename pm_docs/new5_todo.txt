@@ -3,9 +3,16 @@
 ---------------------------------------------------------
 
 
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+
+
+
+
 
 
 remove all passwords from the sources...
@@ -38,16 +45,54 @@ write the multiplayer history
 
 
 
+--------------------
+can i temporarily change all the msg for unlocked areas?
 
 
 
-improve server remote
+
+
+
+
+
+
+
+improve server remote control
+
 - changing more settings remotely
 what exactly do you want to do?
 
 these are all the things I can think of:
 logging options
 autosave game and log options
+
+
+sections:
+
+controls
+segregate netgame debug controls
+
+collapsible panels
+
+like for graphs
+
+how about if client is the first to join headless server
+then server should change to match that client, like color, shots, level...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

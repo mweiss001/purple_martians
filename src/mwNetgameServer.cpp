@@ -604,10 +604,7 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
       mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
       mLog.add_fwf(LOG_NET, 0, 76, 10, "+", "-", "");
       server_send_sjon_packet(address, 0, 0, 99, 0);
-
       if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, 99, 0, 1);
-
-
    }
    else // inactive player found, proceed with join
    {
