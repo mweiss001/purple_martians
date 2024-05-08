@@ -1271,6 +1271,34 @@ int mwPlayer::is_player_color_used(int color)
 }
 
 
+
+
+int mwPlayer::get_new_client_color(int color)
+{
+   // try to use requested color, unless already used by another player
+   if (!is_player_color_used(color)) return color;
+
+   // custom list of what colors to try next
+   if (!is_player_color_used(8))  return 8;  // purple
+   if (!is_player_color_used(10)) return 10; // red
+   if (!is_player_color_used(12)) return 12; // dark blue
+   if (!is_player_color_used(9))  return 9;  // lt green
+   if (!is_player_color_used(13)) return 13; // lt blue
+   if (!is_player_color_used(14)) return 14; // yellow
+   if (!is_player_color_used(15)) return 15; // white
+   if (!is_player_color_used(6))  return 6;  // taan
+
+   // if all these fail, just search for next unused
+   while (mPlayer.is_player_color_used(color)) if (++color > 15) color = 1;
+
+   return color;
+}
+
+
+
+
+
+
 void mwPlayer::init_player(int p, int t)
 {
    if (t == 1) // new game

@@ -250,6 +250,9 @@ class mwPlayer
    void set_players_shape(int p);
    int find_inactive_player(void);
    int is_player_color_used(int color);
+
+   int get_new_client_color(int requested_color);
+
    void init_player(int p, int t);
    void set_default_player_colors(void);
    bool if_players_ctrl_just_pressed(int p, int ctrl);
