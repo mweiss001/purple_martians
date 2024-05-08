@@ -334,11 +334,8 @@ void mwGameMoves::proc_game_move_player_hidden(int x)
 
 void mwGameMoves::proc_game_move_player_active(int x)
 {
-   int p = arr[x][2];  // player number
-   int c = arr[x][3];  // color
-
-   // if player was already active, just change the color
-   mPlayer.syn[p].color = c; // color
+   int p                = arr[x][2]; // player number
+   mPlayer.syn[p].color = arr[x][3]; // color
 
    // player was inactive before and just now changes to active
    if (mPlayer.syn[p].active == 0)
