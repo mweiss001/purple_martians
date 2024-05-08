@@ -116,11 +116,14 @@ void mwNetgame::headless_server_setup(void)
    mLog.clear_all_log_actions();
    mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG, 1);
 
+
+
+
    // always have session logging on
    mLog.set_log_type_action(LOG_NET_session, LOG_ACTION_LOG, 1);
 
-
 //   // add these for troubleshooting
+//   mLog.set_log_type_action(LOG_NET_join_details, LOG_ACTION_PRINT | LOG_ACTION_LOG, 1);
 //   mLog.set_log_type_action(LOG_NET_stak, LOG_ACTION_LOG, 1);
 //   mLog.set_log_type_action(LOG_NET_stdf, LOG_ACTION_LOG, 1);
 //   mLog.set_log_type_action(LOG_OTH_level_done, LOG_ACTION_PRINT, 1);
@@ -566,6 +569,9 @@ void mwNetgame::server_proc_cdat_packet(int i)
 }
 
 
+
+
+// this send function is different because if server full, there is no client channel address setup, so we send sjon directly to the cjon address
 void mwNetgame::server_send_sjon_packet(char* address, int level, int frame, int player_num, int player_color)
 {
    char data[1024] = {0}; int pos;
@@ -579,13 +585,11 @@ void mwNetgame::server_send_sjon_packet(char* address, int level, int frame, int
    if (net_assigntarget(Channel, address))
    {
       char msg[256];
-      sprintf(msg, "Error: couldn't assign target `%s' to ServerChannel\n", address);
+      sprintf(msg, "Error: couldn't assign target `%s' to Channel\n", address);
       mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
       mInput.m_err(msg);
    }
    net_send(Channel, data, pos);
-
-
 }
 
 void mwNetgame::server_proc_cjon_packet(char *data, char * address)
@@ -601,35 +605,40 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
    int p = mPlayer.find_inactive_player();
    if (p == 99) // no inactive player found
    {
+      // send sjon reply
+      server_send_sjon_packet(address, 0, 0, 99, 0);
+
+      // add session log
+      if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, 99, 0, 1);
+
       mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
       mLog.add_fwf(LOG_NET, 0, 76, 10, "+", "-", "");
-      server_send_sjon_packet(address, 0, 0, 99, 0);
-      if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, 99, 0, 1);
    }
    else // inactive player found, proceed with join
    {
-      // set up channel, use the player number as the index to the channel
+      // set channel address
       mwChannels[p].active = 1;
       strcpy(mwChannels[p].address, address);
 
-      // try to use requested color, unless already used by another player
-      while (mPlayer.is_player_color_used(color)) if (++color > 15) color = 1;
-
-      mPlayer.init_player(p, 1); // full player reset
       mStateHistory[p].initialize();
-      mItem.set_player_start_pos(p);
 
-      mPlayer.syn[p].active = 1;
+      mPlayer.init_player(p, 1);
+      mItem.set_player_start_pos(p);
 
       mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
       mPlayer.loc[p].server_last_stak_rx_frame_num = mLoop.frame_num + 200;
       sprintf(mPlayer.loc[p].hostname, "%s", hostname);
 
-      mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, color); // add game move to make client active
+      // try to use requested color, unless already used by another player
+      while (mPlayer.is_player_color_used(color)) if (++color > 15) color = 1;
 
+      // add game move to make client active and set color, next frame
+      mGameMoves.add_game_move(mLoop.frame_num + 1, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, color);
+
+      // send sjon reply
       server_send_sjon_packet(address, mLevel.play_level, mLoop.frame_num, p, color);
 
-
+      // start session log
       if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, p, 1, 0);
 
       mLog.add_fwf(LOG_NET,               0, 76, 10, "|", " ", "Server replied with join invitation:");

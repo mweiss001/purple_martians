@@ -3,6 +3,21 @@
 ---------------------------------------------------------
 
 
+the last release I did, somehow on the headless server, everything is purple perfect...
+
+also I want to not have headless server show locked areas...
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------

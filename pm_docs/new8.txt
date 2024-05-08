@@ -52763,6 +52763,17 @@ do release
 
 7.24.0507.1
 
+still have an issue with the server setting the clients color at join
+
+I doesn't matter at at all what color the server sends back with sjon...
+
+all that matters is what the server sets in the local player.syn...that will get synced to the client to the client
+
+fixed...it was server adding client relied and adding ACTIVE game move, but that was never processed until setting it to frame + 1
+
+7.24.0507.2
+
+
 
 
 
