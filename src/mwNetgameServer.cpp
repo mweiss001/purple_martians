@@ -620,20 +620,26 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
       mwChannels[p].active = 1;
       strcpy(mwChannels[p].address, address);
 
+      // copy hostname to player struct
+      strcpy(mPlayer.loc[p].hostname, hostname);
+
+      // initialize state history
       mStateHistory[p].initialize();
 
-      mPlayer.init_player(p, 1);
-      mItem.set_player_start_pos(p);
-
-      mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
+      // to prevent dropping newly added player for the first 5s
       mPlayer.loc[p].server_last_stak_rx_frame_num = mLoop.frame_num + 200;
-      sprintf(mPlayer.loc[p].hostname, "%s", hostname);
+
+      // keep track of when client joined
+      mPlayer.loc[p].join_frame = mLoop.frame_num;
 
       // try to use requested color, unless already used by another player
-      while (mPlayer.is_player_color_used(color)) if (++color > 15) color = 1;
+      color = mPlayer.get_new_client_color(color);
 
-      // add game move to make client active and set color, next frame
-      mGameMoves.add_game_move(mLoop.frame_num + 1, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, color);
+      // add game move to make client active and set color
+      mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, color);
+
+      // game move will skip being applied because its set to current frame, so force it to be applied right now
+      mGameMoves.proc_game_move_player_active(p, color);
 
       // send sjon reply
       server_send_sjon_packet(address, mLevel.play_level, mLoop.frame_num, p, color);

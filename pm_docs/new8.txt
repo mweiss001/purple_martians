@@ -52776,6 +52776,36 @@ fixed...it was server adding client relied and adding ACTIVE game move, but that
 
 
 
+I broke session logs
+
+when server rx cjon and sets up client, I wait until the next frame to make client active when game move does it..
+because the client is not active yet the session gets closed immediately by the cleanup function
+
+
+I could fake my way past this by setting the frame to now, not +1 and just calling the make player active function manually
+done...
+
+made color chosen to follow a list of prefered colors
+
+
+
+7.24.0508.1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

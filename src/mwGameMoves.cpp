@@ -177,7 +177,7 @@ void mwGameMoves::proc(void)
 
          switch (arr[x][1])
          {
-            case PM_GAMEMOVE_TYPE_PLAYER_ACTIVE:    proc_game_move_player_active(x); break;
+            case PM_GAMEMOVE_TYPE_PLAYER_ACTIVE:    proc_game_move_player_active(arr[x][2], arr[x][3]); break;
             case PM_GAMEMOVE_TYPE_PLAYER_INACTIVE:  proc_game_move_player_inactive(x); break;
             case PM_GAMEMOVE_TYPE_PLAYER_HIDDEN:    proc_game_move_player_hidden(x); break;
             case PM_GAMEMOVE_TYPE_SHOT_CONFIG:      proc_game_move_shot_config(x); break;
@@ -332,10 +332,13 @@ void mwGameMoves::proc_game_move_player_hidden(int x)
    mPlayer.syn[p].paused_type = 3;
 }
 
-void mwGameMoves::proc_game_move_player_active(int x)
+void mwGameMoves::proc_game_move_player_active(int p, int color)
 {
-   int p                = arr[x][2]; // player number
-   mPlayer.syn[p].color = arr[x][3]; // color
+//   int p                = arr[x][2]; // player number
+//   mPlayer.syn[p].color = arr[x][3]; // color
+
+   mPlayer.syn[p].color = color;
+
 
    // player was inactive before and just now changes to active
    if (mPlayer.syn[p].active == 0)
@@ -358,6 +361,11 @@ void mwGameMoves::proc_game_move_player_active(int x)
       }
    }
 }
+
+
+
+
+
 
 void mwGameMoves::proc_game_move_player_inactive(int x)
 {

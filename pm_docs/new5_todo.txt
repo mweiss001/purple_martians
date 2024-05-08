@@ -4,13 +4,9 @@
 
 
 the last release I did, somehow on the headless server, everything is purple perfect...
-
 also I want to not have headless server show locked areas...
-
-
-
-
-
+before I commit, reset all level data, then unlock all levels....
+that made things look better
 
 
 
@@ -22,6 +18,36 @@ also I want to not have headless server show locked areas...
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+I want to have a permanently saved log graph like the temporary one on remote
+
+once per frame, a single log message that has all the stuff needed to make graph
+actually it will need to have one for each client as well...
+
+
+
+
+
+
+
+
+
+then I will need a method to get server logs off the server so I can view them
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
