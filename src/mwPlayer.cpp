@@ -1265,10 +1265,11 @@ int mwPlayer::find_inactive_player(void)
 int mwPlayer::is_player_color_used(int color)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
-      if ((syn[p].active) || (syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
+      if ((syn[p].active) && (syn[p].paused_type != 3)) // active and not hidden player in server headless
          if (color == syn[p].color) return 1;
    return 0;
 }
+
 
 void mwPlayer::init_player(int p, int t)
 {

@@ -10,13 +10,16 @@
       {
          layout: {  topStart: { buttons: ['colvis'] }, bottomStart: 'pageLength' },
          colReorder: true,
-         columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: [0, 1, 2, 3, 4, 5, 6]  } ]
+         columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: [0, 1, 2, 3, 4, 5, 6]  } ],
+         order: [  [0, 'desc'] ]
       }  );
    } );</script>
+
 
 </head>
 <body>
 <?php
+
 
    $srvrname = "localhost";
    $database = "session_db";
@@ -34,6 +37,8 @@
    // echo "Connected to database\n";
 
    echo "<hr><h2>Sessions - Main</h2><hr>";
+
+
 
    echo "<table>";
       echo "<tbody>";

@@ -1469,7 +1469,6 @@ copy to final place
 m@pmh:~$ sudo cp -r ~/sht/* /var/www/html
 
 
-
 sudo rm -r /var/www/html/*
 
 
@@ -1505,6 +1504,251 @@ with a min and max width.
 I think I might have figured some stuff out...I tried resizintg things with the mouse in each screen size with good results...
 
 I still hate fighting with this stuff, but it is looking good enough for right now...
+
+
+
+
+
+
+
+
+20240506
+
+I am happy with the main 4 pages and don't want to mess with them.
+
+Add more to 'More' page
+
+
+link to youtube channel and videos
+
+
+
+link to pages that showw off a certain feature
+does it have to be pages? could it be youtube links?
+
+I am not sure which way I want to go with this...
+
+
+
+lets just pick one and work on it:
+
+logo...
+
+I think this one could benefit from having more diagrams and pictures
+And a video...
+
+
+how about making a panel on more. With a title, some text description and youtube video.
+
+
+Do one for netgame stress test.
+
+Netgame Stress Test Demonstration.
+
+A demonstation of how Netgame performs under full load.
+
+In this video we will demonstrate Purple Martians Multiplayer Netgame under full load.
+
+Setup:
+
+We will have the maximum 1 server and 7 clients connected over the internet.
+
+We will pick a busy level with 100 enemies.
+
+To full stress test, all players will be generating random control inputs every frame.
+
+Clients only send cdat packets to the server when their controls change, so this will ensure every client
+sends a cdat packet every frame.
+
+The game runs at 40 frames per second, or 40Hz, so that means each clients sends 40 cdats packets per second.
+
+40 packets * 7 clients = 280 packets per second recieved by the server.
+
+Mind you, cdat packets are very small, the payload is only 6 bytes...
+
+The server will receive all these packets from the clients, enter the moves into the master game moves array, rewind and replay to apply late input..
+Then send compressed diferential states to each client.
+
+So here we go.
+
+Start the server, then add 7 clients.
+
+At idle this is how much data is passsing through.
+
+Now lets turn on fake key mode.
+
+Now this is how much data is passing.
+
+When clients receive a new state from the server, it can cause players and other objects to suddenly jump or warp as they are corrected.
+
+A good way of telling how well Netgame is working is to measure how much warping the player experince when corrected.
+
+As you can see the local player warps less than the remote player.
+
+Lower ping times between the server and clients result in less corrections.
+
+With this random keypress demonstration what we are seeing here is the worst case.
+
+
+
+How am I going to record this?
+
+
+o7040 server...
+
+but it is fast enough to record at the same time?
+
+I could do 1024x768 with smallest screen double
+that way the debug grid will be fully across the screen....
+
+
+
+
+pscp -r -pw zaiden C:\pm\docs\sessions\* m@96.45.9.166:sht/sessions
+
+copy to final place
+m@pmh:~$ sudo cp -r ~/sht/* /var/www/html
+
+sudo rm -r /var/www/html/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
