@@ -109,14 +109,14 @@ void mwMain::copy_files_to_clients(int type)
 
 //   sprintf(client[num_clients++], "\\\\i990\\pm_client32");  // win 7
 
-   sprintf(client[num_clients++], "\\\\e6430-w10\\pm_client50");  // win 10
+//   sprintf(client[num_clients++], "\\\\e6430-w10\\pm_client50");  // win 10
    sprintf(client[num_clients++], "\\\\o7040\\pm_client51");  // win 10
 
-   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
-   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
-   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
-   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
 
 
 
@@ -502,6 +502,28 @@ memcpy(&out,arr2,sizeof(out));
 
 void mwMain::temp_test(void)
 {
+
+   int a = 100;
+
+   int mn = std::numeric_limits<int>::max();
+   int mx = std::numeric_limits<int>::lowest();
+
+   int sz = sizeof(a);
+
+   printf("min:%d max:%d size:%d\n", mn, mx, sz);
+
+
+   int64_t b = 100;
+
+   int64_t bmn = std::numeric_limits<int64_t>::max();
+   int64_t bmx = std::numeric_limits<int64_t>::lowest();
+
+   sz = sizeof(b);
+
+   printf("min:%lld max:%lld size:%d\n", bmn, bmx, sz);
+
+
+
 
 //
 //

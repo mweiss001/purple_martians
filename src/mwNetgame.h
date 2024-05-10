@@ -45,13 +45,13 @@ struct client_session
    int self_hits;
    int purple_coins;
 
-   int tx_total_bytes;
-   int tx_total_packets;
+   int64_t tx_total_bytes;
+   int64_t tx_total_packets;
    int tx_max_bytes_per_frame;
    int tx_max_packets_per_frame;
 
-   int rx_total_bytes;
-   int rx_total_packets;
+   int64_t rx_total_bytes;
+   int64_t rx_total_packets;
    int rx_max_bytes_per_frame;
    int rx_max_packets_per_frame;
 

@@ -82,10 +82,9 @@ int mwNetgame::NetworkInit(void)
 // read and discard all waiting packets
 void mwNetgame::ChannelFlush(void)
 {
-   char data[1024] = {0};
-   while (net_receive(Channel, data, 1024, NULL));
+   char data[PACKET_BUFFER_SIZE] = {0};
+   while (net_receive(Channel, data, PACKET_BUFFER_SIZE, NULL));
 }
-
 
 void mwNetgame::game_vars_to_state(char * b)
 {

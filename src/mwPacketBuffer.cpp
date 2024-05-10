@@ -78,11 +78,11 @@ void mwPacketBuffer::check_for_packets(void)
 // receives all waiting packets and puts them in the rx buffer
 void mwPacketBuffer::add_to_rx_buffer(void)
 {
-   char data[1024] = {0};
+   char data[PACKET_BUFFER_SIZE] = {0};
    char address[256];
 
    if (mNetgame.ima_server)
-      while (int len = net_receive(mNetgame.Channel, data, 1024, address))
+      while (int len = net_receive(mNetgame.Channel, data, PACKET_BUFFER_SIZE, address))
       {
          int p = mNetgame.server_check_address(address);
          if (p == -1) // unknown address
@@ -93,9 +93,9 @@ void mwPacketBuffer::add_to_rx_buffer(void)
          else
          {
             add_to_rx_buffer_single(data, p);
-            mPlayer.loc[p].rx_current_bytes_for_this_frame += len;
+            mPlayer.loc[p].rx_current_bytes_for_this_frame += (len + 42);
             mPlayer.loc[p].rx_current_packets_for_this_frame++;
-            mPlayer.loc[0].rx_current_bytes_for_this_frame += len;
+            mPlayer.loc[0].rx_current_bytes_for_this_frame += (len + 42);
             mPlayer.loc[0].rx_current_packets_for_this_frame++;
          }
       }
@@ -133,7 +133,7 @@ void mwPacketBuffer::add_to_rx_buffer_single(char *data, int p)
          rx_buf[indx].type = type;
          rx_buf[indx].timestamp = al_get_time();
          rx_buf[indx].p = p;
-         memcpy(rx_buf[indx].data, data, 1024);
+         memcpy(rx_buf[indx].data, data, PACKET_BUFFER_SIZE);
       }
    }
    else printf("%d received unknown packet type!\n", mLoop.frame_num);
