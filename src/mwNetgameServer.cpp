@@ -93,11 +93,11 @@ void mwNetgame::ServerSendTo(void *data, int len, int p)
    net_send(Channel, data, len);
 
    // add to server's counts
-   mPlayer.loc[0].tx_current_bytes_for_this_frame += len;
+   mPlayer.loc[0].tx_current_bytes_for_this_frame += (len + 42);
    mPlayer.loc[0].tx_current_packets_for_this_frame++;
 
    // add to client's counts
-   mPlayer.loc[p].tx_current_bytes_for_this_frame += len;
+   mPlayer.loc[p].tx_current_bytes_for_this_frame += (len + 42);
    mPlayer.loc[p].tx_current_packets_for_this_frame++;
 }
 
@@ -241,7 +241,7 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
    float cr = (float)cmp_size*100 / (float)STATE_SIZE; // compression ratio
 
    // break compressed dif into smaller pieces
-   int num_packets = (cmp_size / 1000) + 1;
+   int num_packets = (cmp_size / PACKET_PAYLOAD_CHUNK_SIZE) + 1;
 
    mPlayer.loc[p].cmp_dif_size = cmp_size;
    mPlayer.loc[p].num_dif_packets = num_packets;
@@ -251,12 +251,12 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
    int start_byte = 0;
    for (int packet_num=0; packet_num < num_packets; packet_num++)
    {
-      int packet_data_size = 1000; // default size
+      int packet_data_size = PACKET_PAYLOAD_CHUNK_SIZE; // default size
       if (start_byte + packet_data_size > cmp_size) packet_data_size = cmp_size - start_byte; // last piece is smaller
 
       mLog.addf(LOG_NET_stdf_packets, p, "tx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", packet_num+1, num_packets, src, dst, start_byte, packet_data_size);
 
-      char data[1024] = {0}; int pos;
+      char data[PACKET_BUFFER_SIZE] = {0}; int pos;
       mPacketBuffer.PacketName(data, pos, "stdf");
       mPacketBuffer.PacketPutInt4(data, pos, src);
       mPacketBuffer.PacketPutInt4(data, pos, dst);
@@ -271,7 +271,7 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
 
       ServerSendTo(data, pos, p);
 
-      start_byte+=1000;
+      start_byte+=PACKET_PAYLOAD_CHUNK_SIZE;
    }
 }
 
@@ -289,8 +289,6 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
 
    mPlayer.loc[0].srv_num_enemy = mEnemy.num_enemy;
 
-
-
    char src[5500];
    char dst[5500];
 
@@ -304,7 +302,7 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
    int dst_size = destLen;
 
    // break compressed dst into smaller pieces
-   int num_packets = (dst_size / 1000) + 1;
+   int num_packets = (dst_size / PACKET_PAYLOAD_CHUNK_SIZE) + 1;
 
    //float cr = (float)dst_size*100 / (float)5400; // compression ratio
    //printf("tx snfo fn:[%d] size:[%d] ratio:[%3.2f] [%d packets needed]\n", mLoop.frame_num, dst_size, cr, num_packets);
@@ -312,12 +310,12 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
    int start_byte = 0;
    for (int packet_num=0; packet_num < num_packets; packet_num++)
    {
-      int packet_data_size = 1000; // default size
+      int packet_data_size = PACKET_PAYLOAD_CHUNK_SIZE; // default size
       if (start_byte + packet_data_size > dst_size) packet_data_size = dst_size - start_byte; // last piece is smaller
 
       //printf("tx snfo piece fn:[%d] packet:[%d of %d]\n", mLoop.frame_num, packet_num+1, num_packets);
 
-      char data[1024] = {0}; int pos;
+      char data[PACKET_BUFFER_SIZE] = {0}; int pos;
       mPacketBuffer.PacketName(data, pos, "snfo");
       mPacketBuffer.PacketPutInt4(data, pos, mLoop.frame_num);
       mPacketBuffer.PacketPutByte(data, pos, packet_num);
@@ -330,7 +328,7 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
 
       ServerSendTo(data, pos, 0);
 
-      start_byte+=1000;
+      start_byte+=PACKET_PAYLOAD_CHUNK_SIZE;
    }
 }
 
@@ -574,7 +572,7 @@ void mwNetgame::server_proc_cdat_packet(int i)
 // this send function is different because if server full, there is no client channel address setup, so we send sjon directly to the cjon address
 void mwNetgame::server_send_sjon_packet(char* address, int level, int frame, int player_num, int player_color)
 {
-   char data[1024] = {0}; int pos;
+   char data[PACKET_BUFFER_SIZE] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "sjon");
    mPacketBuffer.PacketPutInt4(data, pos, level);
    mPacketBuffer.PacketPutInt4(data, pos, frame);
@@ -674,7 +672,7 @@ void mwNetgame::server_proc_cjrc_packet(char *data, char * address)
 
 void mwNetgame::server_send_sjrc_packet(int p)
 {
-   char data[1024] = {0}; int pos;
+   char data[PACKET_BUFFER_SIZE] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "sjrc");
    mPacketBuffer.PacketPutDouble(data, pos, 0);
    ServerSendTo(data, pos, p);
@@ -683,7 +681,7 @@ void mwNetgame::server_send_sjrc_packet(int p)
 void mwNetgame::server_send_srrf_packet(int p, int val)
 {
    // printf("sending srrf packet with val:%d\n", val);
-   char data[1024] = {0}; int pos;
+   char data[PACKET_BUFFER_SIZE] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "srrf");
    mPacketBuffer.PacketPutByte(data, pos, val);
    ServerSendTo(data, pos, p);
@@ -724,7 +722,7 @@ void mwNetgame::server_control()
       for (int p=1; p<NUM_PLAYERS; p++)
          if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE))
          {
-            char data[1024] = {0}; int pos;
+            char data[PACKET_BUFFER_SIZE] = {0}; int pos;
             mPacketBuffer.PacketName(data, pos, "extr");
             ServerSendTo(data, pos + srv_exp_siz, p);
          }

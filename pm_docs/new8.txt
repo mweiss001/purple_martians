@@ -52795,6 +52795,358 @@ made color chosen to follow a list of prefered colors
 
 
 
+20240509
+
+
+my bytes tranferred measure does not count the packet overhead...
+
+
+how much data is actually transfered?
+
+outgoing cjon packet captured with wireshark
+
+0000   9c 3d cf 2a a7 7b 04 42 1a 09 3a 3a 08 00 45 00   .=.*.{.B..::..E.
+0010   00 31 fa 78 00 00 80 11 00 00 c0 a8 01 24 60 2d   .1.x.........$`-
+0020   09 a6 f8 f7 60 d1 00 1d 2b ce 63 6a 6f 6e 06 6d   ....`...+.cjon.m
+0030   33 36 00 00 00 00 00 00 00 00 00 00 00 00 00      36.............
+
+
+actual pay load: 21 bytes
+4 bytes 'cjon'
+1 byte color 6
+16 bytes hostname
+---
+21
+
+full size = 63 bytes
+
+63-21 = 42 overhead
+ip = 20
+udp = 8
+ethernet = 14
+
+
+lets dissect this a bit more with wireshark
+
+from the bottom:
+data 21 (bytes)
+UDP length 29 (added 8)
+IP length 49 (added 20)
+ethernet 63 (added 14)
+
+
+
+
+incoming sjon packet captured with wireshark
+0000   04 42 1a 09 3a 3a 9c 3d cf 2a a7 7b 08 00 45 00   .B..::.=.*.{..E.
+0010   00 2b 82 20 40 00 3e 11 8f 02 60 2d 09 a6 c0 a8   .+. @.>...`-....
+0020   01 24 60 d1 f8 f7 00 17 02 7e 73 6a 6f 6e 00 00   .$`......~sjon..
+0030   00 00 00 00 00 00 63 00 32 64 f8 a4               ......c.2d..
+
+
+actual pay load: 15 bytes
+4 bytes 'sjon'
+4 bytes play level
+4 bytes server frame number
+1 byte player num
+1 byte player color
+1 byte server level seq
+-----
+15 bytes
+
+
+full size = 60 bytes
+
+60-15 = 45 overhead
+ip = 20
+udp = 8
+ethernet = 17
+
+lets dissect this a bit more with wireshark
+
+from the bottom:
+data 15 (bytes)
+UDP length 23 (added 8)
+IP length 43 (added 20)
+ethernet 60 (added 17)
+    Trailer: 64f8a4
+        [Expert Info (Note/Protocol): Didn't find padding of zeros, and an undecoded trailer exists. There may be padding of non-zeros.]
+
+
+
+
+
+?????
+
+anyway, I was thinking:
+I break thing in to 1000 byte chunks and send
+why?
+
+because I have always done it that way
+
+I have a packet buffer that is 1024
+
+
+I want to make this adjustable...
+
+I think I could safely make the packet buffer 1500 and the max size of chunks 1400...
+
+this would reduce the number of packets needed...
+
+
+1 - 1400
+2 - 2800
+3 - 3600
+
+
+old
+1 - 1000
+2 - 2000
+3 - 3000
+4 - 4000
+
+#define PACKET_BUFFER_SIZE 1024
+#define PACKET_PAYLOAD_CHUNK_SIZE 1000
+
+
+// mwPacketBuffer.h
+struct packet_buffer
+{
+   int active;
+   int type;
+   double timestamp;
+   int p;
+   int packetsize;
+   int packetpos;
+   char data[PACKET_BUFFER_SIZE];
+};
+
+// read and discard all waiting packets
+void mwNetgame::ChannelFlush(void)
+{
+   char data[PACKET_BUFFER_SIZE] = {0};
+   while (net_receive(Channel, data, PACKET_BUFFER_SIZE, NULL));
+}
+
+
+I think I have all the PACKET_BUFFER_SIZE fixed
+
+
+Now to replace 1000 with PACKET_PAYLOAD_CHUNK_SIZE
+
+start on server...
+I only needed 3 in:
+void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) // send dif to a client
+
+client had none...
+
+all compilies and still runs
+
+
+now change:
+
+#define PACKET_BUFFER_SIZE 1500
+#define PACKET_PAYLOAD_CHUNK_SIZE 1400
+
+It looks like it is working...
+
+[27][1][449]tx stdf p:1 [s:443 d:450] cmp:1882 ratio:1.67 [2 packets needed]
+[28][1][449]tx stdf piece [1 of 2] [443 to 450] st:   0 sz:1400
+[28][1][449]tx stdf piece [2 of 2] [443 to 450] st:1400 sz: 482
+[27][0][450]stdf rewind [none]
+[27][0][450]stdf save state:451
+[27][1][450]tx stdf p:1 [s:0 d:451] cmp:6303 ratio:5.60 [5 packets needed]
+[28][1][450]tx stdf piece [1 of 5] [0 to 451] st:   0 sz:1400
+[28][1][450]tx stdf piece [2 of 5] [0 to 451] st:1400 sz:1400
+[28][1][450]tx stdf piece [3 of 5] [0 to 451] st:2800 sz:1400
+[28][1][450]tx stdf piece [4 of 5] [0 to 451] st:4200 sz:1400
+[28][1][450]tx stdf piece [5 of 5] [0 to 451] st:5600 sz: 703
+[27][0][451]stdf rewind [none]
+[27][0][451]stdf save state:452
+[27][1][451]tx stdf p:1 [s:0 d:452] cmp:6307 ratio:5.61 [5 packets needed]
+[28][1][451]tx stdf piece [1 of 5] [0 to 452] st:   0 sz:1400
+[28][1][451]tx stdf piece [2 of 5] [0 to 452] st:1400 sz:1400
+[28][1][451]tx stdf piece [3 of 5] [0 to 452] st:2800 sz:1400
+[28][1][451]tx stdf piece [4 of 5] [0 to 452] st:4200 sz:1400
+[28][1][451]tx stdf piece [5 of 5] [0 to 452] st:5600 sz: 707
+
+that was too easy...
+
+now do it for server file tranfer and snfo
+
+3 changes in each:
+void mwNetgame::server_send_snfo_packet(void) // send info to remote control
+void mwNetgame::server_send_file(int i)
+
+should I add 28 bytes to each packet rx and tx for overhead??
+
+8 UDP
+20 IP
+14-18 ethernet
+
+
+lets go with the optomistic 14...its closer to reality than skipping all the overhead...
+28+14 = 42....but what is the question?
+
+add 42bytes every time a packet is received or sent...
+
+where is that?
+
+void mwNetgame::ServerSendTo(void *data, int len, int p)
+void mwNetgame::ClientSend(void *data, int len)
+int mwNetgame::ClientReceive(void *data)
+void mwPacketBuffer::add_to_rx_buffer(void)
+
+added 42 to all...
+
+
+
+looking at the actual usage on the radio looks like 2.2 Mbps
+
+server sez 310 * 8 = 2480
+
+
+
+
+the last release I did, somehow on the headless server, everything is purple perfect...
+also I want to not have headless server show locked areas...
+before I commit, reset all level data, then unlock all levels....
+that made things look better
+
+In a very long session tx_bytes_total wrapped...
+tx_packets total: 11 794 277
+
+what varaiables are used for this?
+
+
+
+int
+
+min:2147483647 max:-2 147 483 648
+
+
+
+   int a = 100;
+
+   int mn = std::numeric_limits<int>::max();
+   int mx = std::numeric_limits<int>::lowest();
+
+   int sz = sizeof(a);
+
+   printf("min:%d max:%d size:%d\n", mn, mx, sz);
+
+
+   int64_t b = 100;
+
+   int64_t bmn = std::numeric_limits<int64_t>::max();
+   int64_t bmx = std::numeric_limits<int64_t>::lowest();
+
+   sz = sizeof(b);
+
+   printf("min:%lld max:%lld size:%d\n", bmn, bmx, sz);
+
+
+min:2147483647 max:-2147483648 size:4
+min:9223372036854775807 max:-9223372036854775808 size:8
+
+
+
+
+OK what next?  try to implement that...
+
+
+   int64_t tx_total_bytes;
+   int64_t tx_total_packets;
+   int64_t rx_total_bytes;
+   int64_t rx_total_packets;
+
+and when writtem to file they now use %lld instead of %d
+
+what about mysql?
+
+
+I am using INT which is 32 bits, I should switch to BIGINT which is 64...
+
+can I do this without losing all my existing sessions?
+
+- make a temp table and copy everything there
+- DROP the old table
+- recreate the table with bigger ints
+- copy data from old table to new table..
+
+CREATE TABLE mytable_new LIKE mytable;
+ALTER TABLE mytable_new MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE mytable RENAME mytable_old;
+INSERT INTO mytable_new SELECT * FROM mytable_old;
+ALTER TABLE mytable_new RENAME mytable;
+DROP TABLE mytable_old;
+
+OMG I think I did it....
+
+you know what that means...new release....
+
+7.24.0510.1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -122,7 +122,7 @@ When a server game is started, the first thing that happens is the network initi
    // open the server channel
    char port[256];
    sprintf(port, ":%d", server_port);
-   if (!(ServerChannel = net_openchannel(NetworkDriver, port)))
+   if (!(Channel = net_openchannel(NetworkDriver, port)))
    {
       sprintf(msg, "Error opening server channel");
       mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
@@ -151,7 +151,7 @@ void mwPacketBuffer::add_to_rx_buffer(void)
    char data[1024] = {0};
    char address[256];
    if (mNetgame.ima_server)
-      while (int len = net_receive(mNetgame.ServerChannel, data, 1024, address))
+      while (int len = net_receive(mNetgame.Channel, data, 1024, address))
       {
          int p = mNetgame.server_check_address(address);
          if (p == -1) // unknown address
@@ -235,8 +235,8 @@ void mwNetgame::ServerExitNetwork(void)
 {
    mLog.add_header(LOG_NET, 0, 0, "Shutting down the server network");
 
-   if (ServerChannel) net_closechannel(ServerChannel);
-   ServerChannel = NULL;
+   if (Channel) net_closechannel(Channel);
+   Channel = NULL;
 
    ima_server = 0;
 

@@ -11,7 +11,7 @@ struct packet_buffer
    int p;
    int packetsize;
    int packetpos;
-   char data[1024];
+   char data[PACKET_BUFFER_SIZE];
 };
 
 class mwPacketBuffer

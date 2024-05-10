@@ -52,7 +52,7 @@ void mwNetgame::server_send_file(int i)
    //printf("Compressed size:%d\n", dst_size);
 
    // break into pieces and send
-   int num_packets = (dst_size / 1000) + 1;
+   int num_packets = (dst_size / PACKET_PAYLOAD_CHUNK_SIZE) + 1;
 
    if (num_packets > 250) printf("File [%s] transfer aborted (more than 250 packets required)\n", fname);
    else
@@ -63,12 +63,12 @@ void mwNetgame::server_send_file(int i)
       int start_byte = 0;
       for (int packet_num=0; packet_num < num_packets; packet_num++)
       {
-         int packet_data_size = 1000; // default size
+         int packet_data_size = PACKET_PAYLOAD_CHUNK_SIZE; // default size
          if (start_byte + packet_data_size > dst_size) packet_data_size = dst_size - start_byte; // last piece is smaller
 
          //printf("tx sfil piece fn:[%d] packet:[%d of %d]\n", mLoop.frame_num, packet_num+1, num_packets);
 
-         char data[1024] = {0}; int pos;
+         char data[PACKET_BUFFER_SIZE] = {0}; int pos;
          mPacketBuffer.PacketName(data, pos, "sfil");
          mPacketBuffer.PacketPutInt4(data, pos, files_to_send[i].id);
          mPacketBuffer.PacketPutByte(data, pos, packet_num);
@@ -82,7 +82,7 @@ void mwNetgame::server_send_file(int i)
 
          ServerSendTo(data, pos, files_to_send[i].p);
 
-         start_byte+=1000;
+         start_byte+=PACKET_PAYLOAD_CHUNK_SIZE;
       }
    }
 }

@@ -3,21 +3,28 @@
 ---------------------------------------------------------
 
 
-the last release I did, somehow on the headless server, everything is purple perfect...
-also I want to not have headless server show locked areas...
-before I commit, reset all level data, then unlock all levels....
-that made things look better
-
-
-
-
-
-
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+redo docs:
+ClientChannel, ServerChannel
+#define PACKET_BUFFER_SIZE 1500
+#define PACKET_PAYLOAD_CHUNK_SIZE 1400
+
+
+did:
+netgame_join
+netgame_server_setup
+
+
+
+
+
+
+
+
 
 
 I want to have a permanently saved log graph like the temporary one on remote

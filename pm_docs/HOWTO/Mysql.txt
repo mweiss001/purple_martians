@@ -84,8 +84,191 @@ m@pmh:~$ sudo cp -r ~/sht/* /var/www/html
 
 
 
+Altering table to change 4 columns from INT to BIGINT
+
+  tx_bytes_total            INT,
+  rx_bytes_total            INT,
+  tx_packets_total          INT,
+  rx_packets_total          INT,
 
 
+
+CREATE TABLE mytable_new LIKE mytable;
+ALTER TABLE mytable_new MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE mytable RENAME mytable_old;
+INSERT INTO mytable_new SELECT * FROM mytable_old;
+ALTER TABLE mytable_new RENAME mytable;
+DROP TABLE mytable_old;
+
+
+session_db.session_tb
+
+
+CREATE TABLE session_db.session_tb_new LIKE session_db.session_tb;
+
+ALTER TABLE session_db.session_tb_new MODIFY COLUMN tx_bytes_total BIGINT;
+ALTER TABLE session_db.session_tb_new MODIFY COLUMN rx_bytes_total BIGINT;
+ALTER TABLE session_db.session_tb_new MODIFY COLUMN tx_packets_total BIGINT;
+ALTER TABLE session_db.session_tb_new MODIFY COLUMN rx_packets_total BIGINT;
+
+
+ALTER TABLE session_db.session_tb RENAME session_db.session_tb_old;
+INSERT INTO session_db.session_tb_new SELECT * FROM session_db.session_tb_old;
+ALTER TABLE session_db.session_tb_new RENAME session_db.session_tb;
+DROP TABLE session_db.session_tb_old;
+
+
+----------------
+
+
+USE session_db;
+
+SELECT DATABASE();
+show currently select database
+
+SHOW TABLES;
+
+
+
+
+mysql> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| session_db         |
+| sys                |
++--------------------+
+5 rows in set (0.00 sec)
+
+mysql> USE session_db;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> SELECT DATABASE();
++------------+
+| DATABASE() |
++------------+
+| session_db |
++------------+
+1 row in set (0.00 sec)
+
+mysql> SHOW TABLES;
++----------------------+
+| Tables_in_session_db |
++----------------------+
+| session_tb           |
+| session_tb_new       |
++----------------------+
+2 rows in set (0.01 sec)
+
+mysql> DESCRIBE session_db;
+ERROR 1146 (42S02): Table 'session_db.session_db' doesn't exist
+mysql> DESCRIBE session_tb;
++--------------------------+--------------+------+-----+---------+----------------+
+| Field                    | Type         | Null | Key | Default | Extra          |
++--------------------------+--------------+------+-----+---------+----------------+
+| id                       | int          | NO   | PRI | NULL    | auto_increment |
+| filename                 | varchar(255) | YES  |     | NULL    |                |
+| timestamp                | varchar(255) | YES  |     | NULL    |                |
+| duration                 | int          | YES  |     | NULL    |                |
+| ip                       | varchar(255) | YES  |     | NULL    |                |
+| port                     | int          | YES  |     | NULL    |                |
+| hostname                 | varchar(255) | YES  |     | NULL    |                |
+| endreason                | varchar(255) | YES  |     | NULL    |                |
+| cdat_rx                  | int          | YES  |     | NULL    |                |
+| player_num               | int          | YES  |     | NULL    |                |
+| next_levels              | int          | YES  |     | NULL    |                |
+| exits_activated          | int          | YES  |     | NULL    |                |
+| respawns                 | int          | YES  |     | NULL    |                |
+| shots_fired              | int          | YES  |     | NULL    |                |
+| enemy_hits               | int          | YES  |     | NULL    |                |
+| player_hits              | int          | YES  |     | NULL    |                |
+| self_hits                | int          | YES  |     | NULL    |                |
+| purple_coins             | int          | YES  |     | NULL    |                |
+| tx_bytes_total           | int          | YES  |     | NULL    |                |
+| tx_bytes_avg_per_sec     | int          | YES  |     | NULL    |                |
+| tx_bytes_max_per_frame   | int          | YES  |     | NULL    |                |
+| rx_bytes_total           | int          | YES  |     | NULL    |                |
+| rx_bytes_avg_per_sec     | int          | YES  |     | NULL    |                |
+| rx_bytes_max_per_frame   | int          | YES  |     | NULL    |                |
+| tx_packets_total         | int          | YES  |     | NULL    |                |
+| tx_packets_avg_per_sec   | int          | YES  |     | NULL    |                |
+| tx_packets_max_per_frame | int          | YES  |     | NULL    |                |
+| rx_packets_total         | int          | YES  |     | NULL    |                |
+| rx_packets_avg_per_sec   | int          | YES  |     | NULL    |                |
+| rx_packets_max_per_frame | int          | YES  |     | NULL    |                |
++--------------------------+--------------+------+-----+---------+----------------+
+30 rows in set (0.00 sec)
+
+mysql>
+
+
+
+
+
++--------------------------+--------------+------+-----+---------+----------------+
+30 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql> ALTER TABLE session_db.session_tb_new MODIFY COLUMN tx_bytes_total BIGINT;
+Query OK, 0 rows affected (0.06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE session_db.session_tb_new MODIFY COLUMN rx_bytes_total BIGINT;
+Query OK, 0 rows affected (0.06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE session_db.session_tb_new MODIFY COLUMN tx_packets_total BIGINT;
+Query OK, 0 rows affected (0.05 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE session_db.session_tb_new MODIFY COLUMN rx_packets_total BIGINT;
+Query OK, 0 rows affected (0.05 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> DESCRIBE session_tb_new;
++--------------------------+--------------+------+-----+---------+----------------+
+| Field                    | Type         | Null | Key | Default | Extra          |
++--------------------------+--------------+------+-----+---------+----------------+
+| id                       | int          | NO   | PRI | NULL    | auto_increment |
+| filename                 | varchar(255) | YES  |     | NULL    |                |
+| timestamp                | varchar(255) | YES  |     | NULL    |                |
+| duration                 | int          | YES  |     | NULL    |                |
+| ip                       | varchar(255) | YES  |     | NULL    |                |
+| port                     | int          | YES  |     | NULL    |                |
+| hostname                 | varchar(255) | YES  |     | NULL    |                |
+| endreason                | varchar(255) | YES  |     | NULL    |                |
+| cdat_rx                  | int          | YES  |     | NULL    |                |
+| player_num               | int          | YES  |     | NULL    |                |
+| next_levels              | int          | YES  |     | NULL    |                |
+| exits_activated          | int          | YES  |     | NULL    |                |
+| respawns                 | int          | YES  |     | NULL    |                |
+| shots_fired              | int          | YES  |     | NULL    |                |
+| enemy_hits               | int          | YES  |     | NULL    |                |
+| player_hits              | int          | YES  |     | NULL    |                |
+| self_hits                | int          | YES  |     | NULL    |                |
+| purple_coins             | int          | YES  |     | NULL    |                |
+| tx_bytes_total           | bigint       | YES  |     | NULL    |                |
+| tx_bytes_avg_per_sec     | int          | YES  |     | NULL    |                |
+| tx_bytes_max_per_frame   | int          | YES  |     | NULL    |                |
+| rx_bytes_total           | bigint       | YES  |     | NULL    |                |
+| rx_bytes_avg_per_sec     | int          | YES  |     | NULL    |                |
+| rx_bytes_max_per_frame   | int          | YES  |     | NULL    |                |
+| tx_packets_total         | bigint       | YES  |     | NULL    |                |
+| tx_packets_avg_per_sec   | int          | YES  |     | NULL    |                |
+| tx_packets_max_per_frame | int          | YES  |     | NULL    |                |
+| rx_packets_total         | bigint       | YES  |     | NULL    |                |
+| rx_packets_avg_per_sec   | int          | YES  |     | NULL    |                |
+| rx_packets_max_per_frame | int          | YES  |     | NULL    |                |
++--------------------------+--------------+------+-----+---------+----------------+
+30 rows in set (0.01 sec)
+
+mysql>
 
 
 
