@@ -70,11 +70,11 @@ void mwNetgame::server_send_file(int i)
 
          char data[PACKET_BUFFER_SIZE] = {0}; int pos;
          mPacketBuffer.PacketName(data, pos, "sfil");
-         mPacketBuffer.PacketPutInt4(data, pos, files_to_send[i].id);
          mPacketBuffer.PacketPutByte(data, pos, packet_num);
          mPacketBuffer.PacketPutByte(data, pos, num_packets);
          mPacketBuffer.PacketPutInt4(data, pos, start_byte);
          mPacketBuffer.PacketPutInt4(data, pos, packet_data_size);
+         mPacketBuffer.PacketPutInt4(data, pos, files_to_send[i].id);
          mPacketBuffer.PacketPutInt4(data, pos, fsize); // uncompressed file size
 
          memcpy(data+pos, dst+start_byte, packet_data_size);

@@ -53089,6 +53089,164 @@ you know what that means...new release....
 
 
 
+wtf!!
+
+||=== Build: windows_static in pm (compiler: GNU GCC Compiler) ===|
+C:\pm\src\mwNetgameSessionLog.cpp||In member function 'void mwNetgame::session_add_log(int)':|
+C:\pm\src\mwNetgameSessionLog.cpp|208|warning: format '%ld' expects argument of type 'long int', but argument 3 has type 'int64_t' {aka 'long long int'} [-Wformat=]|
+C:\pm\src\mwNetgameSessionLog.cpp|212|warning: format '%ld' expects argument of type 'long int', but argument 3 has type 'int64_t' {aka 'long long int'} [-Wformat=]|
+C:\pm\src\mwNetgameSessionLog.cpp|216|warning: format '%ld' expects argument of type 'long int', but argument 3 has type 'int64_t' {aka 'long long int'} [-Wformat=]|
+C:\pm\src\mwNetgameSessionLog.cpp|220|warning: format '%ld' expects argument of type 'long int', but argument 3 has type 'int64_t' {aka 'long long int'} [-Wformat=]|
+||=== Build finished: 0 error(s), 4 warning(s) (0 minute(s), 1 second(s)) ===|
+||=== Run: windows_static in pm (compiler: GNU GCC Compiler) ===|
+
+
+g++ -Wall -c src/mwNetgameSessionLog.cpp -o o/src/mwNetgameSessionLog.o
+src/mwNetgameSessionLog.cpp: In member function ‘void mwNetgame::session_add_log(int)’:
+src/mwNetgameSessionLog.cpp:208:44: warning: format ‘%lld’ expects argument of type ‘long long int’, but argument 3 has type ‘int64_t’ {aka ‘long int’} [-Wformat=]
+  208 |       fprintf(filepntr, "tx_bytes_total:%lld\n",           client_sessions[i].tx_total_bytes);
+      |                                         ~~~^               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                            |                                  |
+      |                                            long long int                      int64_t {aka long int}
+      |                                         %ld
+src/mwNetgameSessionLog.cpp:212:44: warning: format ‘%lld’ expects argument of type ‘long long int’, but argument 3 has type ‘int64_t’ {aka ‘long int’} [-Wformat=]
+  212 |       fprintf(filepntr, "rx_bytes_total:%lld\n",           client_sessions[i].rx_total_bytes);
+      |                                         ~~~^               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                            |                                  |
+      |                                            long long int                      int64_t {aka long int}
+      |                                         %ld
+src/mwNetgameSessionLog.cpp:216:46: warning: format ‘%lld’ expects argument of type ‘long long int’, but argument 3 has type ‘int64_t’ {aka ‘long int’} [-Wformat=]
+  216 |       fprintf(filepntr, "tx_packets_total:%lld\n",         client_sessions[i].tx_total_packets);
+      |                                           ~~~^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                              |                                |
+      |                                              long long int                    int64_t {aka long int}
+      |                                           %ld
+src/mwNetgameSessionLog.cpp:220:46: warning: format ‘%lld’ expects argument of type ‘long long int’, but argument 3 has type ‘int64_t’ {aka ‘long int’} [-Wformat=]
+  220 |       fprintf(filepntr, "rx_packets_total:%lld\n",         client_sessions[i].rx_total_packets);
+      |                                           ~~~^             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                              |                                |
+      |                                              long long int                    int64_t {aka long int}
+      |                                           %ld
+g++ -Wall -c src/mwPacketBuffer.cpp -o o/src/mwPacketBuffer.o
+g++ -Wall -c src/mwPDE.cpp -o o/src/mwPDE.o
+g++ -Wall -c src/mwPlayer.cpp -o o/src/mwPlayer.o
+
+
+#include <inttypes.h>
+int64_t t;
+printf("%" PRId64 "\n", t);
+
+I am thinking I have differences between linux and windows...
+
+what if I print
+
+short int si;
+int i;
+long int li;
+long long int lli;
+printf("si:%d i:%d li%d lli:%d\n", (int) sizeof(si), (int) sizeof(i), (int) sizeof(li), (int) sizeof(lli));
+
+win: si:2 i:4 li4 lli:8
+lin: si:2 i:4 li8 lli:8
+
+you see the dilemma I have here?
+
+should i force all ints to be 32?
+then when I want a long, use 64
+
+
+
+   short int si;
+   int i;
+   long int li;
+   long long int lli;
+   printf("si:%d i:%d li%d lli:%d\n", (int) sizeof(si), (int) sizeof(i), (int) sizeof(li), (int) sizeof(lli));
+
+   int8_t i8;
+   int16_t i16;
+   int32_t i32;
+   int64_t i64;
+   printf("i8:%d i16:%d i32:%d i64:%d\n", (int) sizeof(i8), (int) sizeof(i16), (int) sizeof(i32), (int) sizeof(i64));
+
+win:
+si:2 i:4 li4 lli:8
+i8:1 i16:2 i32:4 i64:8
+
+lin:
+si:2 i:4 li8 lli:8
+i8:1 i16:2 i32:4 i64:8
+
+OK that is what I will do for 4 cases I need a 64bit int....
+
+now make some code to test printing them...
+
+   int64_t bmn = -9223372036854775807;
+   int64_t bmx =  9223372036854775807;
+   printf("min:%" PRId64 " max:%" PRId64 "\n", bmn, bmx);
+
+this seems to work on both, no warnings...
+
+
+OK put it in place and finish the release...
+
+
+
+redo docs:
+ClientChannel, ServerChannel
+
+did:
+netgame_join
+netgame_server_setup
+
+did a search and replace ind dcd for:
+ClientChannel, ServerChannel
+none found
+
+#define PACKET_BUFFER_SIZE 1500
+#define PACKET_PAYLOAD_CHUNK_SIZE 1400
+the server breaking up the payload in chunks and sending it is never described in dcd...
+
+done...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

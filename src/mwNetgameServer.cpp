@@ -116,8 +116,8 @@ void mwNetgame::headless_server_setup(void)
    mLog.clear_all_log_actions();
    mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG, 1);
 
-
-
+   // make the hidden server player color taan (6)
+   mPlayer.syn[0].color = 6;
 
    // always have session logging on
    mLog.set_log_type_action(LOG_NET_session, LOG_ACTION_LOG, 1);
@@ -258,13 +258,13 @@ void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) /
 
       char data[PACKET_BUFFER_SIZE] = {0}; int pos;
       mPacketBuffer.PacketName(data, pos, "stdf");
-      mPacketBuffer.PacketPutInt4(data, pos, src);
-      mPacketBuffer.PacketPutInt4(data, pos, dst);
       mPacketBuffer.PacketPutByte(data, pos, packet_num);
       mPacketBuffer.PacketPutByte(data, pos, num_packets);
-      mPacketBuffer.PacketPutByte(data, pos, mPlayer.syn[0].server_lev_seq_num);
       mPacketBuffer.PacketPutInt4(data, pos, start_byte);
       mPacketBuffer.PacketPutInt4(data, pos, packet_data_size);
+      mPacketBuffer.PacketPutInt4(data, pos, dst);
+      mPacketBuffer.PacketPutInt4(data, pos, src);
+      mPacketBuffer.PacketPutByte(data, pos, mPlayer.syn[0].server_lev_seq_num);
 
       memcpy(data+pos, cmp+start_byte, packet_data_size);
       pos += packet_data_size;
@@ -317,11 +317,11 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
 
       char data[PACKET_BUFFER_SIZE] = {0}; int pos;
       mPacketBuffer.PacketName(data, pos, "snfo");
-      mPacketBuffer.PacketPutInt4(data, pos, mLoop.frame_num);
       mPacketBuffer.PacketPutByte(data, pos, packet_num);
       mPacketBuffer.PacketPutByte(data, pos, num_packets);
       mPacketBuffer.PacketPutInt4(data, pos, start_byte);
       mPacketBuffer.PacketPutInt4(data, pos, packet_data_size);
+      mPacketBuffer.PacketPutInt4(data, pos, mLoop.frame_num);
 
       memcpy(data+pos, dst+start_byte, packet_data_size);
       pos += packet_data_size;

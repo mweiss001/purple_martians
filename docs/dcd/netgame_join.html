@@ -174,7 +174,7 @@ When a client game is started, the first thing that happens is the network initi
       return 0;
    }
    mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client network initialized -- target:[%s]", target);
-   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Local address:[%s]", net_getlocaladdress(ClientChannel));
+   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Local address:[%s]", net_getlocaladdress(Channel));
 
    return 1;
 }</code></pre>
