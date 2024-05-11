@@ -192,7 +192,7 @@ float mwPacketBuffer::get_max_dsync(void)
       if ((rx_buf[i].active) && (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STDF))
       {
          int dst = 0;
-         memcpy(&dst, rx_buf[i].data+8, 4); // memcpy dst
+         memcpy(&dst, rx_buf[i].data+14, 4); // memcpy dst
 
          // calc dysnc
          float csync = (float)(dst - mLoop.frame_num) * 0.025;                     // crude integer sync based on frame numbers
