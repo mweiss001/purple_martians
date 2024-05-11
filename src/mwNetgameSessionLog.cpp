@@ -205,19 +205,19 @@ void mwNetgame::session_add_log(int i)
          rp_avg = (float)client_sessions[i].rx_total_packets / dur;
       }
 
-      fprintf(filepntr, "tx_bytes_total:%lld\n",           client_sessions[i].tx_total_bytes);
+      fprintf(filepntr, "tx_bytes_total:%" PRId64 "\n",           client_sessions[i].tx_total_bytes);
       fprintf(filepntr, "tx_bytes_avg_per_sec:%d\n",       (int) tb_avg);
       fprintf(filepntr, "tx_bytes_max_per_frame:%d\n",     client_sessions[i].tx_max_bytes_per_frame);
 
-      fprintf(filepntr, "rx_bytes_total:%lld\n",           client_sessions[i].rx_total_bytes);
+      fprintf(filepntr, "rx_bytes_total:%" PRId64 "\n",           client_sessions[i].rx_total_bytes);
       fprintf(filepntr, "rx_bytes_avg_per_sec:%d\n",       (int) rb_avg);
       fprintf(filepntr, "rx_bytes_max_per_frame:%d\n",     client_sessions[i].rx_max_bytes_per_frame);
 
-      fprintf(filepntr, "tx_packets_total:%lld\n",         client_sessions[i].tx_total_packets);
+      fprintf(filepntr, "tx_packets_total:%" PRId64 "\n",         client_sessions[i].tx_total_packets);
       fprintf(filepntr, "tx_packets_avg_per_sec:%d\n",     (int) tp_avg);
       fprintf(filepntr, "tx_packets_max_per_frame:%d\n",   client_sessions[i].tx_max_packets_per_frame);
 
-      fprintf(filepntr, "rx_packets_total:%lld\n",         client_sessions[i].rx_total_packets);
+      fprintf(filepntr, "rx_packets_total:%" PRId64 "\n",         client_sessions[i].rx_total_packets);
       fprintf(filepntr, "rx_packets_avg_per_sec:%d\n",     (int) rp_avg);
       fprintf(filepntr, "rx_packets_max_per_frame:%d\n",   client_sessions[i].rx_max_packets_per_frame);
 

@@ -98,7 +98,7 @@ void mwPacketBuffer::add_to_rx_buffer(void)
    char address[256];
 
    if (mNetgame.ima_server)
-      while (int len = net_receive(mNetgame.ServerChannel, data, 1024, address))
+      while (int len = net_receive(mNetgame.Channel, data, 1024, address))
       {
          int p = mNetgame.server_check_address(address);
          if (p == -1) // unknown address

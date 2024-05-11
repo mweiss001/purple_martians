@@ -503,24 +503,23 @@ memcpy(&out,arr2,sizeof(out));
 void mwMain::temp_test(void)
 {
 
-   int a = 100;
+//   short int si;
+//   int i;
+//   long int li;
+//   long long int lli;
+//   printf("si:%d i:%d li%d lli:%d\n", (int) sizeof(si), (int) sizeof(i), (int) sizeof(li), (int) sizeof(lli));
+//
+//   int8_t i8;
+//   int16_t i16;
+//   int32_t i32;
+//   int64_t i64;
+//   printf("i8:%d i16:%d i32:%d i64:%d\n", (int) sizeof(i8), (int) sizeof(i16), (int) sizeof(i32), (int) sizeof(i64));
+//
+//
+//   int64_t bmn = -9223372036854775807;
+//   int64_t bmx =  9223372036854775807;
+//   printf("min:%" PRId64 " max:%" PRId64 "\n", bmn, bmx);
 
-   int mn = std::numeric_limits<int>::max();
-   int mx = std::numeric_limits<int>::lowest();
-
-   int sz = sizeof(a);
-
-   printf("min:%d max:%d size:%d\n", mn, mx, sz);
-
-
-   int64_t b = 100;
-
-   int64_t bmn = std::numeric_limits<int64_t>::max();
-   int64_t bmx = std::numeric_limits<int64_t>::lowest();
-
-   sz = sizeof(b);
-
-   printf("min:%lld max:%lld size:%d\n", bmn, bmx, sz);
 
 
 

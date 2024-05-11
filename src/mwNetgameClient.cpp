@@ -303,11 +303,11 @@ void mwNetgame::client_proc_snfo_packet(int i)
 {
    if (mLoop.state[1] == PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_RUN)
    {
-      int fn      = mPacketBuffer.PacketGetInt4(i); // frame_num
       int seq     = mPacketBuffer.PacketGetByte(i);
       int max_seq = mPacketBuffer.PacketGetByte(i);
       int sb      = mPacketBuffer.PacketGetInt4(i);
       int sz      = mPacketBuffer.PacketGetInt4(i);
+      int fn      = mPacketBuffer.PacketGetInt4(i); // frame_num
 
       //printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d\n", seq+1, max_seq, fn, sb, sz);
 
@@ -403,11 +403,11 @@ void mwNetgame::client_proc_snfo_packet(int i)
 
 void mwNetgame::client_proc_sfil_packet(int i)
 {
-   int id      = mPacketBuffer.PacketGetInt4(i);
    int seq     = mPacketBuffer.PacketGetByte(i);
    int max_seq = mPacketBuffer.PacketGetByte(i);
    int sb      = mPacketBuffer.PacketGetInt4(i);
    int sz      = mPacketBuffer.PacketGetInt4(i);
+   int id      = mPacketBuffer.PacketGetInt4(i);
    int fsize   = mPacketBuffer.PacketGetInt4(i); // uncompressed file size
 
    //printf("rx sfil piece [%d of %d] id:[%d] st:%4d sz:%4d fsz:%4d\n", seq+1, max_seq, id, sb, sz, fsize);
@@ -433,7 +433,6 @@ void mwNetgame::client_proc_sfil_packet(int i)
 //      printf("Client received filename:[%s] size:[%d] id:[%d]\n", fname, fsize, id);
 
       mLog.addf(LOG_NET_file_transfer, -1, "rx %s size:[%d] id:[%d]\n", fname, fsize, id);
-
 
       // write to file
       FILE *fp = fopen(fname, "wb");
@@ -472,13 +471,13 @@ void mwNetgame::client_send_crfl(void)
 
 void mwNetgame::client_proc_stdf_packet(int i)
 {
-   int src     = mPacketBuffer.PacketGetInt4(i);
-   int dst     = mPacketBuffer.PacketGetInt4(i);
    int seq     = mPacketBuffer.PacketGetByte(i);
    int max_seq = mPacketBuffer.PacketGetByte(i);
-   int slsn    = mPacketBuffer.PacketGetByte(i); // server level sequence num
    int sb      = mPacketBuffer.PacketGetInt4(i);
    int sz      = mPacketBuffer.PacketGetInt4(i);
+   int dst     = mPacketBuffer.PacketGetInt4(i);
+   int src     = mPacketBuffer.PacketGetInt4(i);
+   int slsn    = mPacketBuffer.PacketGetByte(i); // server level sequence num
 
    if (slsn != mPlayer.syn[0].server_lev_seq_num)
    {
