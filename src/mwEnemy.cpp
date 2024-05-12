@@ -56,161 +56,122 @@ void mwEnemy::draw_enemy(int e, int custom, int cx, int cy)
       }
       else al_draw_scaled_rotated_bitmap(mBitmap.tile[tn], 10, 10, x+10, y+10, sc, sc, rot, flags);
 
-
-
       // if enemy is expiring show how many seconds it has left
       if ((!mLoop.level_editor_running) && (Ei[e][27])) al_draw_textf(mFont.pixl, mColor.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
 
 
-   /*
-      if (Ei[e][0] == 5) // jumpworm
-      {
-         // enemy position (add 10 to get the center)
-         int x1 = Ef[e][0];
-         int y1 = Ef[e][1];
-         int x2 = x1 + 20;
-         int y2 = y1 + 20;
-         al_draw_rectangle(x1, y1, x2, y2, mColor.pc[14], 1);
-      }
-   */
-
+//      if (Ei[e][0] == 5) // jumpworm
+//      {
+//         // enemy position (add 10 to get the center)
+//         int x1 = Ef[e][0];
+//         int y1 = Ef[e][1];
+//         int x2 = x1 + 20;
+//         int y2 = y1 + 20;
+//         al_draw_rectangle(x1, y1, x2, y2, mColor.pc[14], 1);
+//      }
 
 //      if (Ei[e][0] == 2) // cannon
 //      {
 //         if (Ei[e][10] > -1)
 //         {
-//
-//             enemy position
+//            // enemy position
 //            int ex = Ef[e][0] + 10;
 //            int ey = Ef[e][1] + 10;
 //
-//             targetted player's position
+//            // targetted player's position
 //            int p = Ei[e][10];
 //            float px = mPlayer.syn[p].x + 10;
 //            float py = mPlayer.syn[p].y + 10;
 //
-//             projected players position
+//            // projected players position
 //            float px1, py1;
 //            mShot.calc_where_player_will_be(e, p, px1, py1);
 //
 //            al_draw_line(ex, ey, px, py, mColor.pc[15], 0);
 //            al_draw_line(ex, ey, px1+10, py1+10, mColor.pc[10], 0);
-//
-//
 //         }
-//
 //      }
 
 
-      #ifdef SHOW_CANNON_COLLISION_BOX
-      if (Ei[e][0] == 2) // cannon
-      {
-         // draw some test rects here
-         int cbs = Ei[e][29]; // collision box size
-
-         // enemy position (add 10 to get the center)
-         int x1 = Ef[e][0] + 10;
-         int y1 = Ef[e][1] + 10;
-
-         int il = cbs;
-         int color = 11;
-         //  printf("x1:%d  y1:%d il:%d  color:%d\n",x1, y1, il, color);
-
-         // check for collision with player
-         int b = Ei[e][29]; // collision box size
-         for (int p=0; p<NUM_PLAYERS; p++)
-            if ((mPlayer.syn[p].active) && (!mPlayer.syn[p].paused))
-            {
-               float px = mPlayer.syn[p].PX;
-               float py = mPlayer.syn[p].PY;
-
-               float ex1 = Ef[e][0] - b;
-               float ex2 = Ef[e][0] + b;
-               float ey1 = Ef[e][1] - b;
-               float ey2 = Ef[e][1] + b;
-
-               // if player in collision box color = red
-               if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) color = 10;
-         }
-         al_draw_rectangle(x1-il, y1-il, x1+il, y1+il, mColor.pc[color], 1);
-      }
-      #endif
-
-   /*
-      if (Ei[e][0] == 3) // archwagon
-      {
-         al_draw_textf(mFont.pr8, mColor.pc[15], EXint+30, EYint+10, 0, "%d", Ei[e][5]);
-      }
-   */
 
 
-      #ifdef SHOW_FLAPPER_DEBUG
-      if (Ei[e][0] == 6) // flapper
-      {
-         int prox = Ei[e][17];
-         int color = 14;        // default color
-         int ex = EXint+10;
-         int ey = EYint+10;
-         float pi = ALLEGRO_PI;
-
-         float th1 = -pi/4;   // 45 deg
-         float th2 = th1+pi;  // 225 deg
-         float thd = pi / 2;  // 90 deg
-
-         // draw flap height
-         int base =  Ei[e][14]+10;
-         int y1 = base - Ei[e][21];
-         int y2 = base + Ei[e][21];
-
-         al_draw_line(EXint-140, base, EXint+140, base, mColor.pc[11], 1);
-         al_draw_rectangle(EXint-40, y1, EXint+40, y2, mColor.pc[11], 1);
-
-         // draw height above player
-         int hab =  Ei[e][20];
-         al_draw_line(EXint-40, base+hab, EXint+40, base+hab, mColor.pc[12], 1);
-
-         int p = find_closest_player_flapper(e);
-         if (p != -1)
-         {
-            color = 10;
-            bomb_crosshairs(mPlayer.syn[p].x+10, mPlayer.syn[p].y+10); // mark targetted player
-         }
-         if (Ef[e][2] > 0) al_draw_pieslice(ex, ey, prox, th1, thd, mColor.pc[color], 1);
-         else              al_draw_pieslice(ex, ey, prox, th2, thd, mColor.pc[color], 1);
-      }
-      #endif
-
-      #ifdef SHOW_TRAKBOT_BULLET_TRIGGER_CIRCLE
-      if (Ei[e][0] == 8) // trakbot
-      {
-         int prox = Ei[e][17];
-         int color = 14;        // default color
-         int ex = EXint+10;
-         int ey = EYint+10;
-         float pi = ALLEGRO_PI;
-         // is any player in range?
-         int p = find_closest_player_trakbot(e);
-         if (p != -1)
-         {
-            color = 10;
-            bomb_crosshairs(mPlayer.syn[p].x+10, mPlayer.syn[p].y+10); // mark targetted player
-         }
+//      if (Ei[e][0] == 3) // archwagon
+//      {
+//         al_draw_textf(mFont.pr8, mColor.pc[15], EXint+30, EYint+10, 0, "%d", Ei[e][5]);
+//      }
 
 
-         int quad;
-         switch (Ei[e][5]) // mode
-         {
-            case 0: case 5: quad = 1; break; // floor right, lwall up
-            case 1: case 4: quad = 2; break; // rwall up floor left
-            case 2: case 7: quad = 3; break; // ceil left, rwall down
-            case 3: case 6: quad = 4; break; // lwall down, ceil right
-         }
-         if (quad == 1) al_draw_pieslice(ex, ey, prox, -pi/2, pi/2, mColor.pc[color], 0);
-         if (quad == 4) al_draw_pieslice(ex, ey, prox, 0,     pi/2, mColor.pc[color], 0);
-         if (quad == 3) al_draw_pieslice(ex, ey, prox, pi/2,  pi/2, mColor.pc[color], 0);
-         if (quad == 2) al_draw_pieslice(ex, ey, prox, pi,    pi/2, mColor.pc[color], 0);
-      }
-      #endif
+//      // flapper debug
+//      if (Ei[e][0] == 6) // flapper
+//      {
+//         int prox = Ei[e][17];
+//         int color = 14;        // default color
+//         int ex = Ef[e][0]+10;
+//         int ey = Ef[e][1]+10;
+//         float pi = ALLEGRO_PI;
+//
+//         float th1 = -pi/4;   // 45 deg
+//         float th2 = th1+pi;  // 225 deg
+//         float thd = pi / 2;  // 90 deg
+//
+//         // draw flap height
+//         int base =  Ei[e][14]+10;
+//         int y1 = base - Ei[e][21];
+//         int y2 = base + Ei[e][21];
+//
+//         al_draw_line(Ef[e][0]-140, base, Ef[e][0]+140, base, mColor.pc[11], 1);
+//         al_draw_rectangle(Ef[e][0]-40, y1, Ef[e][0]+40, y2, mColor.pc[11], 1);
+//
+//         // draw height above player
+//         int hab =  Ei[e][20];
+//         al_draw_line(Ef[e][0]-40, base+hab, Ef[e][0]+40, base+hab, mColor.pc[12], 1);
+//
+//         int p = find_closest_player_flapper(e);
+//         if (p != -1)
+//         {
+//            color = 10;
+//            mItem.bomb_crosshairs(mPlayer.syn[p].x+10, mPlayer.syn[p].y+10); // mark targetted player
+//         }
+//         if (Ef[e][2] > 0) al_draw_pieslice(ex, ey, prox, th1, thd, mColor.pc[color], 1);
+//         else              al_draw_pieslice(ex, ey, prox, th2, thd, mColor.pc[color], 1);
+//      }
+//      #endif
+
+
+
+//      // trakbot shot trigger pieslice
+//      if (Ei[e][0] == 8) // trakbot
+//      {
+//         int prox = Ei[e][17];
+//         int color = 14;        // default color
+//         int ex = Ef[e][0]+10;
+//         int ey = Ef[e][1]+10;
+//         float pi = ALLEGRO_PI;
+//         // is any player in range?
+//         int p = find_closest_player_trakbot(e);
+//         if (p != -1)
+//         {
+//            color = 10;
+//            mItem.bomb_crosshairs(mPlayer.syn[p].x+10, mPlayer.syn[p].y+10); // mark targetted player
+//         }
+//
+//
+//         int quad;
+//         switch (Ei[e][5]) // mode
+//         {
+//            case 0: case 5: quad = 1; break; // floor right, lwall up
+//            case 1: case 4: quad = 2; break; // rwall up floor left
+//            case 2: case 7: quad = 3; break; // ceil left, rwall down
+//            case 3: case 6: quad = 4; break; // lwall down, ceil right
+//         }
+//         if (quad == 1) al_draw_pieslice(ex, ey, prox, -pi/2, pi/2, mColor.pc[color], 0);
+//         if (quad == 4) al_draw_pieslice(ex, ey, prox, 0,     pi/2, mColor.pc[color], 0);
+//         if (quad == 3) al_draw_pieslice(ex, ey, prox, pi/2,  pi/2, mColor.pc[color], 0);
+//         if (quad == 2) al_draw_pieslice(ex, ey, prox, pi,    pi/2, mColor.pc[color], 0);
+//      }
+
+
+
 
    }
 }

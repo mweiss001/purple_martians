@@ -36,7 +36,7 @@ void mwLevel::set_start_level(int s)
    play_level = start_level = s;
    load_level(s, 0, 0);
    resume_allowed = 0;
-   mConfig.save_config();
+   mConfig.save_config(PM_CFG_SAVE_START_LEVEL);
 }
 
 int level_exists(int level)

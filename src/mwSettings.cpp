@@ -45,6 +45,9 @@ void mwSettings::load_settings(void)
    {
       printf("error loading data/settings.pm -- recreating\n");
       mLog.init_log_types();
+
+      reset_overlay_settings();
+
       mBottomMessage.init_filter_events();
       save_settings();
    }
@@ -64,6 +67,19 @@ void mwSettings::save_settings(void)
    }
    printf("Error saving data/settings.pm\n");
 }
+
+
+void mwSettings::reset_overlay_settings(void)
+{
+   for (int i=0; i<10; i++)
+      for (int j=0; j<4; j++)
+         overlay_grid[i][j] = 0;
+   overlay_grid[0][1] = 1;
+   number_of_debug_overlay_modes = 2;
+}
+
+
+
 
 void mwSettings::redraw_one_fcontrol(int x, int y, int &ya, int bts, int tc, int show_buttons, int num, int num_lines, int i, int &key, const char* nam)
 {
@@ -400,7 +416,7 @@ void mwSettings::settings_pages(int set_page)
          {
             while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
             current_page = mouse_on_tab;
-            mConfig.save_config();
+            mConfig.save_config(0);
          }
       }
 
@@ -439,7 +455,7 @@ void mwSettings::settings_pages(int set_page)
       }
    }
    al_hide_mouse_cursor(mDisplay.display);
-   mConfig.save_config();
+   mConfig.save_config(0);
    mLoop.state[0] = PM_PROGRAM_STATE_MENU;
 }
 
@@ -951,7 +967,7 @@ int mwSettings::page_demo(void)
    float old_overlay_opacity = mDemoMode.overlay_opacity;
    if ((mInput.mouse_x > xa) && (mInput.mouse_x < xb) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts)) mScreen.draw_large_text_overlay(3, 15);
    mWidget.sliderfnb(xa, ya, xb, bts,  2,0,0,0,  0,12,15,15,  0,0,1,0, mDemoMode.overlay_opacity, 0.4, 0, .01, "");
-   if (old_overlay_opacity != mDemoMode.overlay_opacity) mConfig.save_config();
+   if (old_overlay_opacity != mDemoMode.overlay_opacity) mConfig.save_config(0);
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -1658,14 +1674,7 @@ void mwSettings::page_overlay(void)
 
    bts = 20;
    mWidget.slideri(xb-140, ya, xb, bts,  0,0,0,0,  0,11,15,15, 0,0,0,0, number_of_debug_overlay_modes, 4, 2, 1, "Active modes:");
-   if (mWidget.buttont(xa+20, ya, xa+200, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Reset to Defaults"))
-   {
-      for (int i=0; i<10; i++)
-         for (int j=0; j<4; j++)
-            overlay_grid[i][j] = 0;
-      overlay_grid[0][1] = 1;
-      number_of_debug_overlay_modes = 2;
-   }
+   if (mWidget.buttont(xa+20, ya, xa+200, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Reset to Defaults")) reset_overlay_settings();
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 }
 
@@ -2048,7 +2057,7 @@ int mwSettings::page_log(void)
       mLoop.quit_action = 3; // settings
       mLoop.done_action = 3; // settings
       al_hide_mouse_cursor(mDisplay.display);
-      mConfig.save_config();
+      mConfig.save_config(0);
       return 1;
    }
 
@@ -2058,7 +2067,7 @@ int mwSettings::page_log(void)
    {
       mLoop.state[0] = PM_PROGRAM_STATE_SERVER_NEW_GAME;
       al_hide_mouse_cursor(mDisplay.display);
-      mConfig.save_config();
+      mConfig.save_config(0);
       return 1;
    }
    xa = xa+200;
@@ -2067,7 +2076,7 @@ int mwSettings::page_log(void)
    {
       mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_NEW_GAME;
       al_hide_mouse_cursor(mDisplay.display);
-      mConfig.save_config();
+      mConfig.save_config(0);
       return 1;
    }
    return 0;

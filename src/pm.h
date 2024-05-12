@@ -1,6 +1,6 @@
 // pm.h
 
-#define PM_VERSION "7.24.0510.1"
+#define PM_VERSION "7.24.0512.1"
 
 #include <stdio.h>
 #include <math.h>
@@ -24,17 +24,8 @@
 
 #define STATE_SIZE 112480
 
-
 #define PACKET_BUFFER_SIZE 1500
 #define PACKET_PAYLOAD_CHUNK_SIZE 1400
-
-
-
-
-// enemy debug stuff
-//#define SHOW_CANNON_COLLISION_BOX
-//#define SHOW_FLAPPER_DEBUG
-//#define SHOW_TRAKBOT_BULLET_TRIGGER_CIRCLE
 
 #define PM_COMPMOVE_LEFT   0b00000001
 #define PM_COMPMOVE_RIGHT  0b00000010
@@ -103,8 +94,6 @@
 #define PM_PROGRAM_STATE_NEXT_LEVEL                    12
 #define PM_PROGRAM_STATE_RESUME                        13
 #define PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT            14
-
-
 
 
 #define PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP   40
@@ -226,4 +215,16 @@
 #define PM_ITEM_PMSG_FRAME2        0b00000000000100000
 #define PM_ITEM_PMSG_FRAME4        0b00000000001000000
 #define PM_ITEM_PMSG_FRAME12       0b00000000010000000
+
+#define PM_CFG_SAVE_DISPLAY                     1
+#define PM_CFG_SAVE_SOUND                       2
+#define PM_CFG_SAVE_CONTROLS                    3
+#define PM_CFG_SAVE_BOTTOM_MESSAGE              4
+#define PM_CFG_SAVE_START_LEVEL                 6
+#define PM_CFG_SAVE_SERVER_ADDRESS              7
+#define PM_CFG_SAVE_NETGAME_SHOTS               8
+#define PM_CFG_SAVE_NETGAME_CLIENT_CHASE_OFFSET 9
+
+
+
 

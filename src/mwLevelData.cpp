@@ -18,6 +18,7 @@
 #include "mwVisualLevel.h"
 #include "mwDemoMode.h"
 #include "mwMain.h"
+#include "mwNetgame.h"
 
 
 void mwLevel::reset_level_data(void)
@@ -253,7 +254,6 @@ void mwLevel::update_level_status(int lev)
 
 
 
-
 void mwLevel::sob_hline(int x1, int x2, int y, int a)
 {
    for(int x=x1; x<x2+1; x++)
@@ -332,7 +332,7 @@ void mwLevel::sob_area_msg(int area, int x, int y)
 
    int cmp = 0; // count how many levels in this area are complete
    int pct = 0; // count total purple coins in this area
-   int pcc = 0; // count max purple coins clooected in this area
+   int pcc = 0; // count max purple coins collected in this area
    int tmr = 0; // count how many levels in this area have below par time
 
    int nl = 0;
@@ -348,7 +348,7 @@ void mwLevel::sob_area_msg(int area, int x, int y)
       }
 
    int col = 10;
-   if ((area_locks[area]) && (area != 16) && (area != 17)) // locked
+   if ((area_locks[area]) && (area != 16) && (area != 17) && (!mNetgame.ima_client)) // locked
    {
       sprintf(msg2, "(Locked)");
       col = 10;

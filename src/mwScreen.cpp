@@ -135,8 +135,13 @@ void mwScreen::transition_cutscene(int i, int f)
 void mwScreen::draw_screen_frame(void)
 {
    int c = mPlayer.syn[mPlayer.active_local_player].color;
+
    for (int x=0; x<BORDER_WIDTH; x++)
       al_draw_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f, mColor.pc[c + (x * 16)], 1);
+
+//   for (int x=0; x<BORDER_WIDTH; x++)
+//      al_draw_rounded_rectangle(x+0.5f, x+0.5f, (mDisplay.SCREEN_W-1-x)+0.5f, (mDisplay.SCREEN_H-1-x)+0.5f, 8, 8, mColor.pc[c + (x * 16)], 1);
+
 }
 
 void mwScreen::do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, float num_steps, float delay)

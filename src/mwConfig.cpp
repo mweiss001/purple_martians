@@ -23,7 +23,9 @@
 
 mwConfig mConfig;
 
-void mwConfig::save_config(void)
+
+
+void mwConfig::save_config(int type)
 {
    //printf("save cfg\n");
 
@@ -39,29 +41,37 @@ void mwConfig::save_config(void)
    }
    else
    {
-      asci(SCREEN, mDisplay.disp_x_wind)
-      asci(SCREEN, mDisplay.disp_y_wind)
-      asci(SCREEN, mDisplay.disp_w_wind)
-      asci(SCREEN, mDisplay.disp_h_wind)
-      ascf(SCREEN, mDisplay.scale_factor)
-      asci(SCREEN, mDisplay.fullscreen)
-      asci(SCREEN, mDisplay.fullscreen_monitor_num)
-      asci(SCREEN, mLogo.show_splash_screen)
 
-      asci(SCREEN, mDisplay.saved_display_transform_double)
-      asci(SCREEN, mDisplay.display_transform_double_max)
+      if ((type == 0) || (type == PM_CFG_SAVE_DISPLAY))
+      {
+         asci(SCREEN, mDisplay.disp_x_wind)
+         asci(SCREEN, mDisplay.disp_y_wind)
+         asci(SCREEN, mDisplay.disp_w_wind)
+         asci(SCREEN, mDisplay.disp_h_wind)
+         ascf(SCREEN, mDisplay.scale_factor)
+         asci(SCREEN, mDisplay.fullscreen)
+         asci(SCREEN, mDisplay.fullscreen_monitor_num)
+         asci(SCREEN, mLogo.show_splash_screen)
+
+         asci(SCREEN, mDisplay.saved_display_transform_double)
+         asci(SCREEN, mDisplay.display_transform_double_max)
+      }
+
+
 
       asci(GAME, mPlayer.syn[0].color)
-      asci(GAME, mLevel.start_level)
+
+      if ((type == 0) || (type == PM_CFG_SAVE_DISPLAY))
+      {
+         asci(GAME, mLevel.start_level)
+      }
 
       asci(GAME, mPlayer.syn[0].overworld_last_touched_gate)
-
 
       asci(GAME, mMain.classic_mode)
 
       asci(GAME, mScreen.transition_num_steps)
       asci(GAME, mScreen.transition_delay)
-
 
       asci(GAME, mScreen.viewport_mode)
       asci(GAME, mScreen.viewport_show_hyst)
@@ -76,14 +86,10 @@ void mwConfig::save_config(void)
       asci(GAME, mLoop.speed_control_lock)
       asci(GAME, mLoop.frame_speed)
 
-
       asci(GAME, mLoop.reset_frame_speed_at_program_start)
-
-
 
       asci(GAME, mVisualLevel.max_level_num)
       asci(GAME, mVisualLevel.level_icon_size)
-
 
       asci(GAMECONTROLS, mPlayer.loc[0].up_key)
       asci(GAMECONTROLS, mPlayer.loc[0].down_key)
@@ -105,20 +111,38 @@ void mwConfig::save_config(void)
       asci(FUNCTIONKEYS, mInput.function_key_speed_dec)
       asci(FUNCTIONKEYS, mInput.function_key_speed_inc)
 
-      asci(SOUND, mSound.sound_on)
-      asci(SOUND, mSound.se_scaler)
-      asci(SOUND, mSound.st_scaler)
 
-      al_set_config_value(cfg, "NETWORK", "server_IP", mNetgame.server_address);
+
+
+      if ((type == 0) || (type == PM_CFG_SAVE_DISPLAY))
+      {
+         asci(SOUND, mSound.sound_on)
+         asci(SOUND, mSound.se_scaler)
+         asci(SOUND, mSound.st_scaler)
+      }
+
+
+      if ((type == 0) || (type == PM_CFG_SAVE_SERVER_ADDRESS))
+      {
+         al_set_config_value(cfg, "NETWORK", "server_IP", mNetgame.server_address);
+      }
+
+
+      if ((type == 0) || (type == PM_CFG_SAVE_NETGAME_SHOTS))
+      {
+         asci(NETWORK, mPlayer.syn[0].player_vs_player_shots)
+         asci(NETWORK, mPlayer.syn[0].player_vs_player_shot_damage)
+         asci(NETWORK, mPlayer.syn[0].player_vs_self_shots)
+      }
+
+      if ((type == 0) || (type == PM_CFG_SAVE_NETGAME_CLIENT_CHASE_OFFSET))
+      {
+         ascf(NETWORK, mNetgame.client_chase_offset)
+      }
+
 
       asci(NETWORK, mNetgame.server_port)
 
-
-      asci(NETWORK, mPlayer.syn[0].player_vs_player_shots)
-      asci(NETWORK, mPlayer.syn[0].player_vs_player_shot_damage)
-      asci(NETWORK, mPlayer.syn[0].player_vs_self_shots)
-
-      ascf(NETWORK, mNetgame.client_chase_offset)
       ascf(NETWORK, mNetgame.client_chase_offset_auto_offset)
       asci(NETWORK, mNetgame.client_chase_offset_mode)
 
@@ -163,11 +187,9 @@ void mwConfig::save_config(void)
 
       asci(LEVEL_EDITOR, mLoop.autosave_level_editor_state);
 
+      al_save_config_file("pm.cfg", cfg);
+      al_destroy_config(cfg);
    }
-   al_save_config_file("pm.cfg", cfg);
-   al_destroy_config(cfg);
-
-
 }
 
 void mwConfig::load_config(void)
@@ -321,6 +343,6 @@ void mwConfig::load_config(void)
 
    al_destroy_config(cfg);
 
-   save_config(); // to save default values
+   save_config(0); // to save default values
 
 }

@@ -53321,7 +53321,43 @@ old:
    mPacketBuffer.PacketPutByte(data, pos, mPlayer.syn[0].server_lev_seq_num);
 
 
-done... do the release again...
+done... do the release again...done...
+
+
+I might have broken snfo...fixed, it was rejecting packets with size > 1000
+
+resetting everything does not reset overlay modes
+I have fixed that...
+
+
+Client gets local player set to taan...
+I have not actually been able to reproduce this...
+
+Wait I just did...
+
+how?
+
+on client reset level_data and settings
+
+
+start game on remote server
+
+when you come back you are taan...
+
+I think it is because serial key check ijkl saves config and therefore saves p0 color from server
+
+how about some finer grained things
+only save keys
+
+or add new variables to non synced player struct
+local color
+local keys (wait they are already local)
+
+made a new save config that only saves keys
+
+that fixed it for that reason but still happens
+
+made another for display only...
 
 
 
@@ -53334,29 +53370,94 @@ done... do the release again...
 
 
 
+void mwItem::proc_gate_collision(int p, int i)
+{
+   mPlayer.syn[p].marked_gate = i;
+   set_gate_level_icon_position(i);
+   int lev = item[i][6];
+
+   if (mPlayer.syn[p].overworld_last_touched_gate != lev)
+   {
+      mPlayer.syn[p].overworld_last_touched_gate = lev;
+      if (p == 0) mConfig.save_config(); // clients do not save to config
+   }
 
 
 
 
+I don't want a bunch of different functions that save different things
+
+make a parameter to send to save that control what it saves...
+
+how though?
+
+if 0 do all, other wise just do the one section called...
+
+do tests for sections like this:
+
+if (()type == 0) || (type == PM_CFG_SAVE_DISPLAY))
+
+
+make defines
+
+PM_CFG_SAVE_XXX
+
+PM_CFG_SAVE_DISPLAY
+PM_CFG_SAVE_SOUND
+
+PM_CFG_SAVE_CONTROLS
+
+PM_CFG_SAVE_BOTTOM_MESSAGE
+
+PM_CFG_SAVE_NETWORK
+
+this is done
 
 
 
 
+I want to prevent client from saving anything while in client mode
+especially color, or last gate touched
 
 
+client last gate touched in cfg could be set to a level the client cannot access later....
 
 
+void mwItem::proc_gate_collision(int p, int i)
+{
+   mPlayer.syn[p].marked_gate = i;
+   set_gate_level_icon_position(i);
+   int lev = item[i][6];
+
+   if (mPlayer.syn[p].overworld_last_touched_gate != lev)
+   {
+      mPlayer.syn[p].overworld_last_touched_gate = lev;
+      if (p == 0) mConfig.save_config(); // clients do not save to config
+   }
+
+I think this should work...clients do not save anywhere..should get read back from cfg when client ends
+
+why does player sometimes get stuck in invisible area of overworld?
+I think I have that fixed...last gate touched for server was getting saved on clients p0
+
+Areas still locked on client.
+where is that stored and how does that work?
 
 
+   int col = 10;
+   if ((area_locks[area]) && (area != 16) && (area != 17) && (!mNetgame.ima_client)) // locked
+   {
+      sprintf(msg2, "(Locked)");
+      col = 10;
+   }
+   else
+
+I think I fixed it with one line....
 
 
+make new release...
 
-
-
-
-
-
-
+7.24.0512.1
 
 
 

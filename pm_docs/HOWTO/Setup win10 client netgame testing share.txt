@@ -1,0 +1,67 @@
+
+How to setup local shares for windows machines in your local network.
+
+This is used when testing, debugging and developing netgame.
+
+Changes are made on the development machine, then copied to clients via a windows share.
+
+
+look in mwMainArgs.cpp for the function 
+
+void mwMain::copy_files_to_clients(int type)
+
+and find a name to use:
+
+examples:
+
+   sprintf(client[num_clients++], "\\\\e6430-w10\\pm_client50");
+   sprintf(client[num_clients++], "\\\\o7040\\pm_client51");
+
+I am going to use pm_client52 
+
+Now on the client machine:
+
+Network and Sharing Center
+Make sure the network profile is set to private
+Click Advanced Sharing Options
+Under 'Private' profile turn on file and print sharing
+Under "All networks' turn off password protected sharing
+
+On the desktop create a folder called pm_client_52
+
+right-clieck -> properties -> sharing tab
+
+click share
+
+select everyone from drop down list and add
+
+change from read to read/write
+
+then click share
+
+at this point the share works, but the path is: \\zulu\Users\m\Desktop\pm_client52
+
+then go to advanced sharing
+- check share this folder
+- click permissions and chose full control for everyone
+
+now the share is: \\zulu\pm_client52
+
+
+right-click on desktop and create shortcut
+C:\Windows\System32\cmd.exe
+name:pm
+
+then right click and change Start in: to C:\Users\m\Desktop\pm_client52
+
+
+
+
+
+
+
+
+
+
+
+

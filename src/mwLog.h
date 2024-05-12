@@ -92,7 +92,7 @@ class mwLog
    void init_log_types(void);
 
 
-   void set_log_type_action(int type, int action, int save);
+   void set_log_type_action(int type, int action);
    void clear_all_log_actions(void);
 
 
