@@ -1066,7 +1066,6 @@ void mwScreen::draw_client_debug_overlay(int &cx, int &cy)
          if (mWidget.buttont_nb(csx1+23, ya, csx2-23, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, msg))
          {
             if (++mNetgame.client_chase_offset_mode > 1) mNetgame.client_chase_offset_mode = 0;
-            mConfig.save_config();
          }
          if (mNetgame.client_chase_offset_mode == 1)
             al_draw_textf(mFont.pr8, mColor.pc[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "ping offset:%+3.0fms", mNetgame.client_chase_offset_auto_offset*1000);

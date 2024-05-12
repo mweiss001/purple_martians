@@ -1501,12 +1501,9 @@ larger than that cutoff point I want 2 equally sized columns
 with a min and max width.
 
 
-I think I might have figured some stuff out...I tried resizintg things with the mouse in each screen size with good results...
+I think I might have figured some stuff out...I tried resizing things with the mouse in each screen size with good results...
 
 I still hate fighting with this stuff, but it is looking good enough for right now...
-
-
-
 
 
 
@@ -1518,9 +1515,7 @@ I am happy with the main 4 pages and don't want to mess with them.
 
 Add more to 'More' page
 
-
 link to youtube channel and videos
-
 
 
 link to pages that showw off a certain feature
@@ -1545,14 +1540,15 @@ Do one for netgame stress test.
 
 Netgame Stress Test Demonstration.
 
-
-
 pscp -r -pw zaiden C:\pm\docs\sessions\* m@96.45.9.166:sht/sessions
 
 copy to final place
 m@pmh:~$ sudo cp -r ~/sht/* /var/www/html
 
 sudo rm -r /var/www/html/*
+
+
+stress test is done...
 
 
 

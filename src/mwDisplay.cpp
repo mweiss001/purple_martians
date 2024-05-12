@@ -38,7 +38,7 @@ void mwDisplay::set_scale_factor(float new_scale_factor, int instant)
       if (scale_factor < .2) scale_factor = .2;
       if (scale_factor > 40) scale_factor = 40;
       show_scale_factor = 80;
-      mConfig.save_config();
+      mConfig.save_config(PM_CFG_SAVE_DISPLAY);
       if (instant) scale_factor_current = scale_factor;
    }
 }
@@ -125,7 +125,7 @@ void mwDisplay::set_saved_display_transform(int sdt)
    float old_display_transform_double = display_transform_double;
 
    saved_display_transform_double = sdt;
-   mConfig.save_config();
+   mConfig.save_config(PM_CFG_SAVE_DISPLAY);
 
    set_display_transform();
 
@@ -145,7 +145,7 @@ void mwDisplay::cycle_display_transform(void)
    float old_display_transform_double = display_transform_double;
 
    if (++saved_display_transform_double>display_transform_double_max) saved_display_transform_double = 0;
-   mConfig.save_config();
+   mConfig.save_config(PM_CFG_SAVE_DISPLAY);
 
    set_display_transform();
 
@@ -269,7 +269,7 @@ int mwDisplay::init_display(void)
    al_apply_window_constraints(display, 1);
 
    refresh_window_position_and_size();
-   mConfig.save_config();
+   mConfig.save_config(PM_CFG_SAVE_DISPLAY);
 
 
    //printf("x:%d y:%d w:%d h:%4d\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
@@ -297,7 +297,7 @@ void mwDisplay::proc_display_change(void)
    refresh_window_position_and_size();
    set_display_transform();
    mBitmap.rebuild_bitmaps();
-   mConfig.save_config();
+   mConfig.save_config(PM_CFG_SAVE_DISPLAY);
    //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
    set_window_title();
 }

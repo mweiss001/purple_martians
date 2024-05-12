@@ -21,7 +21,7 @@ mwMain mMain;
 void mwMain::final_wrapup(void)
 {
    mDisplay.refresh_window_position_and_size();
-   mConfig.save_config();
+   mConfig.save_config(0);
 
    al_destroy_audio_stream(mSound.pm_theme_stream);
 /*
@@ -315,8 +315,6 @@ int mwMain::pm_main(int argument_count, char **argument_array)
       mLoop.main_loop();
    }
    if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
-
-   mConfig.save_config();
 
    final_wrapup();
    exit(0);

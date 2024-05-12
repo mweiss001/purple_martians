@@ -25,6 +25,10 @@ class mwSettings
    void load_settings(void);
    void save_settings(void);
 
+
+   void reset_overlay_settings(void);
+
+
    int log_group = 1;
 
    void redraw_one_fcontrol(int x, int y, int &ya, int bts, int tc, int show_buttons, int num, int num_lines, int i, int &key, const char* nam);

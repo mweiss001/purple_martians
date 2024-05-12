@@ -9,8 +9,8 @@
 #define PM_RCTL_PACKET_TYPE_force_client_offset    1
 #define PM_RCTL_PACKET_TYPE_client_offset_adj      2
 #define PM_RCTL_PACKET_TYPE_zlib_compression_adj   3
-#define PM_RCTL_PACKET_TYPE_exra_packet_num_adj    4
-#define PM_RCTL_PACKET_TYPE_exra_packet_siz_adj    5
+#define PM_RCTL_PACKET_TYPE_extra_packet_num_adj   4
+#define PM_RCTL_PACKET_TYPE_extra_packet_siz_adj   5
 #define PM_RCTL_PACKET_TYPE_pvp_shot_damage_adj    6
 
 #define PM_RCTL_PACKET_TYPE_pvp_shots_toggle       10

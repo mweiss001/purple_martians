@@ -181,7 +181,10 @@ void mwNetgame::ClientExitNetwork(void)
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
    mPlayer.syn[0].active = 1; // local_control
    mPlayer.active_local_player = 0;
-   mConfig.load_config(); // to restore colors and other settings
+   mConfig.load_config(); // to restore local player color, last gate touched, and other settings
+
+
+
 }
 
 int mwNetgame::ClientReceive(void *data)
@@ -316,7 +319,7 @@ void mwNetgame::client_proc_snfo_packet(int i)
       if ((max_seq < 1) || (max_seq > 6)) bad_data = 1;
       if ((seq < 0) || (seq > 6) || (seq > max_seq)) bad_data = 1;
       if ((sb < 0) || (sb > 5000)) bad_data = 1;
-      if ((sz < 0) || (sz > 1000)) bad_data = 1;
+      if ((sz < 0) || (sz > PACKET_PAYLOAD_CHUNK_SIZE)) bad_data = 1;
 
       if (bad_data) printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d  --- Bad Data!\n", seq+1, max_seq, fn, sb, sz);
       else
@@ -429,8 +432,6 @@ void mwNetgame::client_proc_sfil_packet(int i)
       // copy to variables
       char fname[256];
       memcpy(fname, dmp, sizeof(fname));
-
-//      printf("Client received filename:[%s] size:[%d] id:[%d]\n", fname, fsize, id);
 
       mLog.addf(LOG_NET_file_transfer, -1, "rx %s size:[%d] id:[%d]\n", fname, fsize, id);
 

@@ -29,6 +29,9 @@ void mwNetgame::server_send_file(int i)
    // buffer for uncompressed file and filename
    char buf[fsize + 128];
 
+   // add filename at the start of the buffer
+   sprintf(buf, "%s", fname);
+
    // read the file into the buffer
    FILE *fp = fopen(fname, "rb");
    if (!fp)
@@ -39,8 +42,6 @@ void mwNetgame::server_send_file(int i)
    fread(buf + 128, sizeof(buf), 1, fp);
    fclose(fp);
 
-   // add filename at the start of the buffer
-   sprintf(buf, "%s", fname);
 
    // destination for the compressed data structure
    char dst[fsize + 128];

@@ -39,10 +39,6 @@ void mwBottomMessage::init_filter_events(void)
    filter_event[42] = 1; // player killed enemy
 }
 
-
-
-
-
 void mwBottomMessage::create_test_mode_list(void)
 {
    initialize();

@@ -199,8 +199,9 @@ void mwInput::serial_key_check(int key)
 
    if ((serial_key_test("ijkl c")) || (serial_key_test("IJKL C")))
    {
+
       set_controls_to_custom_sets(4);
-      mConfig.save_config();
+      mConfig.save_config(PM_CFG_SAVE_CONTROLS);
    }
 
    if ((mNetgame.ima_client) && (serial_key_test("sendfile"))) mNetgame.client_send_crfl();
@@ -211,13 +212,10 @@ void mwInput::serial_key_check(int key)
       printf("fake keypress mode:%d\n", mPlayer.loc[mPlayer.active_local_player].fake_keypress_mode);
    }
 
-
-
    if (serial_key_test("win800"))
    {
       mDisplay.disp_w_wind = 800;
       mDisplay.disp_h_wind = 600;
-      mConfig.save_config();
       mDisplay.set_windowed();
       mDisplay.proc_display_change();
    }
@@ -226,7 +224,6 @@ void mwInput::serial_key_check(int key)
    {
       mDisplay.disp_w_wind = 1024;
       mDisplay.disp_h_wind = 768;
-      mConfig.save_config();
       mDisplay.set_windowed();
       mDisplay.proc_display_change();
    }
@@ -235,7 +232,6 @@ void mwInput::serial_key_check(int key)
    {
       mDisplay.disp_w_wind = 1280;
       mDisplay.disp_h_wind = 1024;
-      mConfig.save_config();
       mDisplay.set_windowed();
       mDisplay.proc_display_change();
    }
@@ -244,12 +240,9 @@ void mwInput::serial_key_check(int key)
    {
       mDisplay.disp_w_wind = 1920;
       mDisplay.disp_h_wind = 1080;
-      mConfig.save_config();
       mDisplay.set_windowed();
       mDisplay.proc_display_change();
    }
-
-
 
 
 
@@ -563,14 +556,11 @@ int mwInput::is_key_used(int k)
 void mwInput::get_all_keys(int x, int y, int tc, int bts) // prompts for all seven keys
 {
    int k=0;
-
    while (k<7)
    {
       if (my_readkey2(x,y,tc,bts,k)) k++;  // iterate the keys
    }
-
-//   for (int k=0; k<7; k++) my_readkey2(x,y,tc,bts,k);  // iterate the keys
-   mConfig.save_config();
+   mConfig.save_config(PM_CFG_SAVE_CONTROLS);
 }
 
 void mwInput::test_keys(int x, int sy)

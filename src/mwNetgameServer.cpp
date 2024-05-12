@@ -114,19 +114,20 @@ void mwNetgame::headless_server_setup(void)
 
    // ensure that only the basic LOG_NET is active and is printing to console as well as saving to file
    mLog.clear_all_log_actions();
-   mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG, 1);
+   mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG);
+
 
    // make the hidden server player color taan (6)
    mPlayer.syn[0].color = 6;
 
    // always have session logging on
-   mLog.set_log_type_action(LOG_NET_session, LOG_ACTION_LOG, 1);
+   mLog.set_log_type_action(LOG_NET_session, LOG_ACTION_LOG);
 
 //   // add these for troubleshooting
-//   mLog.set_log_type_action(LOG_NET_join_details, LOG_ACTION_PRINT | LOG_ACTION_LOG, 1);
-//   mLog.set_log_type_action(LOG_NET_stak, LOG_ACTION_LOG, 1);
-//   mLog.set_log_type_action(LOG_NET_stdf, LOG_ACTION_LOG, 1);
-//   mLog.set_log_type_action(LOG_OTH_level_done, LOG_ACTION_PRINT, 1);
+//   mLog.set_log_type_action(LOG_NET_join_details, LOG_ACTION_PRINT | LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_stak, LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_stdf, LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_OTH_level_done, LOG_ACTION_PRINT);
 
    mLog.autosave_log_on_level_done = 1;
    mLog.autosave_log_on_level_quit = 1;
@@ -137,7 +138,7 @@ void mwNetgame::headless_server_setup(void)
 
    mGameMoves.server_send_files_to_clients = 1;
 
-   mConfig.save_config();
+   mConfig.save_config(0);
 }
 
 
@@ -340,6 +341,7 @@ void mwNetgame::server_proc_rctl_packet(int i)
    if (type == PM_RCTL_PACKET_TYPE_client_offset_adj)
    {
       mPlayer.syn[0].client_chase_offset += val;
+      mConfig.save_config(PM_CFG_SAVE_NETGAME_CLIENT_CHASE_OFFSET);
    }
 
    if (type == PM_RCTL_PACKET_TYPE_zlib_compression_adj)
@@ -349,14 +351,14 @@ void mwNetgame::server_proc_rctl_packet(int i)
       if (mNetgame.zlib_cmp > 9)  mNetgame.zlib_cmp = 9;
    }
 
-   if (type == PM_RCTL_PACKET_TYPE_exra_packet_num_adj)
+   if (type == PM_RCTL_PACKET_TYPE_extra_packet_num_adj)
    {
       mNetgame.srv_exp_num += val;
       if (mNetgame.srv_exp_num < 0)    mNetgame.srv_exp_num = 0;
       if (mNetgame.srv_exp_num > 500)  mNetgame.srv_exp_num = 500;
    }
 
-   if (type == PM_RCTL_PACKET_TYPE_exra_packet_siz_adj)
+   if (type == PM_RCTL_PACKET_TYPE_extra_packet_siz_adj)
    {
       mNetgame.srv_exp_siz += val;
       if (mNetgame.srv_exp_siz < 0)     mNetgame.srv_exp_siz = 0;
@@ -395,12 +397,11 @@ void mwNetgame::server_proc_rctl_packet(int i)
       if (new_pvp) sc |= 0b01;
       if (new_pvs) sc |= 0b10;
       mGameMoves.add_game_move2(mLoop.frame_num+1, PM_GAMEMOVE_TYPE_SHOT_CONFIG, sc, new_dmg);
+      mConfig.save_config(PM_CFG_SAVE_NETGAME_SHOTS);
    }
    if (type == PM_RCTL_PACKET_TYPE_server_reload) server_reload((int)val);
    if (type == PM_RCTL_PACKET_TYPE_fakekey_toggle) mPlayer.syn[0].server_force_fakekey = !mPlayer.syn[0].server_force_fakekey;
    if (type == PM_RCTL_PACKET_TYPE_force_client_offset) mPlayer.syn[0].server_force_client_offset = !mPlayer.syn[0].server_force_client_offset;
-
-   mConfig.save_config();
 }
 
 void mwNetgame::server_proc_stak_packet(int i)
