@@ -226,7 +226,7 @@ class mwNetgame
 
 
    void session_add_log(int i);
-   void session_drop_player(int p);
+   void session_close(int p, int reason);
 
    void session_check_active(void);
 

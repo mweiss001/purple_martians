@@ -58,15 +58,26 @@ void mwConfig::save_config(int type)
       }
 
 
+      // these are different, only save if specifically requested to, not with all
+      if (type == PM_CFG_SAVE_LOCAL_PLAYER_COLOR)
+      {
+         asci(GAME, mPlayer.syn[0].color)
+      }
+      if (type == PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED)
+      {
+         asci(GAME, mPlayer.syn[0].overworld_last_touched_gate)
+      }
 
-      asci(GAME, mPlayer.syn[0].color)
 
-      if ((type == 0) || (type == PM_CFG_SAVE_DISPLAY))
+
+
+      if ((type == 0) || (type == PM_CFG_SAVE_START_LEVEL))
       {
          asci(GAME, mLevel.start_level)
       }
 
-      asci(GAME, mPlayer.syn[0].overworld_last_touched_gate)
+
+
 
       asci(GAME, mMain.classic_mode)
 
@@ -203,9 +214,12 @@ void mwConfig::load_config(void)
 
    char msg[1024];
    ALLEGRO_CONFIG * cfg = NULL;
+
+   int recreate = 0;
    cfg = al_load_config_file("pm.cfg");
    if (!cfg)
    {
+      recreate = 1;
       sprintf(msg, "error loading pm.cfg -- recreating");
       printf("%s\n", msg);
       cfg = al_create_config();
@@ -344,5 +358,14 @@ void mwConfig::load_config(void)
    al_destroy_config(cfg);
 
    save_config(0); // to save default values
+
+   if (recreate)
+   {
+      // these are not saved with save_config(0);
+      save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
+      save_config(PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED);
+   }
+
+
 
 }

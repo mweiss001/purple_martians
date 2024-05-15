@@ -75,10 +75,6 @@ Ei[][18]
 Lift Step type 5
 
 
-
-
-
-
 to specify an object I will need three variables:
 obj_type
 obj_num

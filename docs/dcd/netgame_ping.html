@@ -85,12 +85,13 @@ The server measures and keeps track of ping times for each active client.
 The client starts the process by sending a 'ping' packet containing the client's local timestamp from when the packet was sent.
 </mh3>    
 
-<pre><code class="language-cpp">void mwNetgame::client_send_ping(void)
+<pre><code class="language-cpp">void mwNetgame::client_send_ping_packet(void)
 {
-   char data[1024] = {0}; int pos;
+   char data[PACKET_BUFFER_SIZE] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "ping");
    mPacketBuffer.PacketPutDouble(data, pos, al_get_time());
-   ClientSend(data, pos);}</code></pre>
+   ClientSend(data, pos);
+}</code></pre>
 
 <mh3>
 The ping is sent whenever the 1Hz timer fires.
@@ -98,7 +99,7 @@ The ping is sent whenever the 1Hz timer fires.
 <pre><code class="language-cpp">      // ----------------------------------------------------------
       // do things based on the 1 Hz sec_timer event
       // ----------------------------------------------------------
-      if (mNetgame.ima_client) mNetgame.client_send_ping();</code></pre>
+      if (mNetgame.ima_client) mNetgame.client_send_ping_packet();</code></pre>
 
 <a name="Server receives 'ping' and sends 'pong'"></a>
 <mh7>Server receives 'ping' and sends 'pong'</mh7>

@@ -578,6 +578,8 @@ void mwLevel::clear_data(void)
    fill_area_array();
 
    mPlayer.syn[0].overworld_last_touched_gate = 0; // no gate will be found and player will start from start block
+   mConfig.save_config(PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED);
+
 
    for(int i=0; i<100; i++)
    {

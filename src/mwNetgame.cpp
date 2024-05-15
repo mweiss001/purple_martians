@@ -30,14 +30,10 @@ mwNetgame::mwNetgame()
    for (int i=0; i<20; i++)
       files_to_send[i].active = 0;
 
-   for (int i=0; i<16; i++)
+   for (int i=0; i<10; i++)
       session_clear_entry(i);
 
-//   ClientChannel = NULL;
-//   ServerChannel = NULL;
-
    Channel = NULL;
-
 }
 
 // initialize libnet and setup a driver to use. Returns 0 on success.

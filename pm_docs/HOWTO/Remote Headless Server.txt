@@ -79,12 +79,12 @@ sudo systemctl enable pm
 ---------------------------------------------------------
 Remote control and monitoring 
 ---------------------------------------------------------
-From another computer with a gui (win or lin)
+From another computer with a display
 
 start purple martians with the option -rc
 
 windows:
-pm -rc
+pm -rc 
 
 linux
 ./pm -rc 
@@ -93,7 +93,6 @@ linux
 ---------------------------------------------------------
 Forced Settings on headless server
 ---------------------------------------------------------
-
 void mwNetgame::headless_server_setup(void)
 {
    mMain.classic_mode = 0;
@@ -101,25 +100,38 @@ void mwNetgame::headless_server_setup(void)
 
    // ensure that only the basic LOG_NET is active and is printing to console as well as saving to file
    mLog.clear_all_log_actions();
-   mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG, 1);
+   mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG);
+
+   // make the hidden server player color taan (6)
+   mPlayer.syn[0].color = 6;
+
+   // always have session logging on
+   mLog.set_log_type_action(LOG_NET_session, LOG_ACTION_LOG);
+
+//   // add these for troubleshooting
+//   mLog.set_log_type_action(LOG_NET_join_details, LOG_ACTION_PRINT | LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_stak, LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_stdf, LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_OTH_level_done, LOG_ACTION_PRINT);
+
    mLog.autosave_log_on_level_done = 1;
    mLog.autosave_log_on_level_quit = 1;
    mLog.autosave_log_on_program_exit = 1;
 
    // make sure we are always saving games
    mGameMoves.autosave_game_on_level_done = 1;
-   mGameMoves.autosave_game_on_program_exit = 1;
 
-   mConfig.save_config();
+   mGameMoves.server_send_files_to_clients = 1;
+
+   mConfig.save_config(0);
 }
-
-
-
 
 
 ---------------------------------------------------------
 Server copies files to clients
 ---------------------------------------------------------
+This section has all been completely changed....
+
 Who initiates this?
 
 It looks like the function:
@@ -162,13 +174,18 @@ client can request this in two places
 
 
 
+
+
+
+---------------------------------------------------------
+Setup a cron job to scrape session logs and add to database
+---------------------------------------------------------
+
 setup a cron job to scrape session logs and add to database
 
 crontab -e
 
 */5 * * * * php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/cronoutput.txt 2>&1
-
-
 
 this is an amazing one line script to change files ending in *.txt.bak to end in *.txt
 for f in *.txt.bak; do mv -- "$f" "${f%.txt.bak}.txt"; done

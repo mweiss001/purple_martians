@@ -540,6 +540,7 @@ void mwSettings::page_main(void)
       {
          while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
          mPlayer.syn[0].color = i;
+         mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       }
       px1 += spacing;
       if (px1 > (spacing * 4))
