@@ -1548,8 +1548,6 @@ m@pmh:~$ sudo cp -r ~/sht/* /var/www/html
 sudo rm -r /var/www/html/*
 
 
-stress test is done...
-
 
 
 

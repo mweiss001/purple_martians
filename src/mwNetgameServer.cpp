@@ -456,7 +456,7 @@ void mwNetgame::server_proc_player_drop(void)
          {
             mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 71); // make client inactive (reason no stak for x frames)
             mLog.add_headerf(LOG_NET, p, 1, "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
-            if (mLog.log_types[LOG_NET_session].action) session_drop_player(p);
+            if (mLog.log_types[LOG_NET_session].action) session_close(p, 4); // reason 4 - comm loss
          }
    }
 
@@ -608,7 +608,7 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
       server_send_sjon_packet(address, 0, 0, 99, 0);
 
       // add session log
-      if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, 99, 0, 1);
+      if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, 9, 0, 1);
 
       mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
       mLog.add_fwf(LOG_NET, 0, 76, 10, "+", "-", "");

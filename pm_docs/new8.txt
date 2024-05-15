@@ -53457,7 +53457,563 @@ I think I fixed it with one line....
 
 make new release...
 
-7.24.0512.1
+7.24.0512.1..done
+
+
+
+bug - session log when server full tries to use p=99, this is not good...
+
+
+   struct client_session client_sessions[8];
+
+make 10 instead of 8
+
+   struct client_session client_sessions[10];
+
+   for (int i=0; i<10; i++)
+      session_clear_entry(i);
+
+
+server full change from 99 to 9
+      if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, 9, 0, 1);
+
+void mwNetgame::session_add_entry(const char* address, const char* hostname, int p, int active, int endreason)
+{
+   session_clear_entry(p);
+
+I think this will fix it....
+
+
+also how about the only time local player color gets set is from settings
+make this casee different, in that save all does not save it, only specfic save..done...
+
+
+do the same with gate, there should only be one place that changes it...
+
+
+
+why are so many session logs end_reason 'server dropped - player inactive'?
+
+I also have:
+server full
+unknown (for ones in progress)
+server dropped comm loss
+
+
+// this is called every frame from server_control() to check and clean up active sessions
+void mwNetgame::session_check_active(void)
+{
+   for (int p=1; p<8; p++)
+      if (client_sessions[p].active)
+      {
+         if (!mPlayer.syn[p].active) // client is not active anymore
+         {
+            client_sessions[p].active = 0;
+            client_sessions[p].endreason = 6;
+            session_tally(p);
+            session_add_log(p);
+         }
+      }
+}
+
+there was not even a reason for client quit...all were being caught by cleanup
+
+added this reason
+      if (er == 2) sprintf(endreason, "client quit");
+
+now where am I going to set it?
+
+
+
+      // ----------------------------------------------------------------------------------------
+      // local server
+      // ----------------------------------------------------------------------------------------
+      if (mNetgame.ima_server)
+      {
+         if (p == 0) // server quitting
+         {
+            // first set all connected clients to inactive
+            for (int p=1; p<NUM_PLAYERS; p++)
+               if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
+               {
+                  mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON; // this lets the clients quit gracefully instead of timing out with lost server connection
+                  add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, PM_PLAYER_QUIT_REASON_SERVER_ENDED_GAME);
+               }
+
+            // then set server to inactive in future
+            add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, 0, PM_PLAYER_QUIT_REASON_SERVER_ENDED_GAME);
+            return;
+         }
+         else // client quitting
+         {
+            add_game_move2(frame + 2, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, PM_PLAYER_QUIT_REASON_CLIENT_ENDED_GAME);
+            return;
+         }
+      }
+
+that code should be cleaned up now...
+
+
+
+I should do a new release...what is msking me wait is how long I have had a server running...
+
+as of 20240513 6:00AM I have 2 clients with 29 hours up uptime
+the previuos record was 59 hours...
+
+screw it, redo it..
+you know, if I let the server run in fakekey mode, no one else can play it on it....
+I think I have done enough changes that I would like to see then in action...
+what would it hurt to wait for a few days...
+
+
+
+
+20240415 5:44 AM
+
+the server has been running for 3:05:16:08
+
+i was trying to see how long of a session I could do...
+
+e6410 is still running, but the server thinks it is inactive
+even though it is inactive there is still a ping running to it
+the server moves keep increasing
+the client shows a time of 15:20:35
+
+the client shows a ping
+the server is on level 1
+the client is on level 64
+
+
+look at server logs from 15H ago...
+
+
+-rw-r--r--  1 m m   876 May 14 07:03 '20240514-070310-[1][pmh].txt'
+-rw-r--r--  1 m m   876 May 14 08:03 '20240514-080310-[1][pmh].txt'
+-rw-r--r--  1 m m  1356 May 14 08:03 '20240514-080310-[64][pmh].txt'
+-rw-r--r--  1 m m   876 May 14 09:03 '20240514-090311-[1][pmh].txt'
+-rw-r--r--  1 m m  1816 May 14 09:03 '20240514-090311-[64][pmh].txt'
+-rw-r--r--  1 m m  1356 May 14 10:03 '20240514-100312-[64][pmh].txt'
+-rw-r--r--  1 m m   876 May 14 10:03 '20240514-100313-[1][pmh].txt'
+-rw-r--r--  1 m m  1356 May 14 11:03 '20240514-110313-[64][pmh].txt'
+-rw-r--r--  1 m m   876 May 14 11:03 '20240514-110314-[1][pmh].txt'
+-rw-r--r--  1 m m  1356 May 14 12:03 '20240514-120314-[64][pmh].txt'
+-rw-r--r--  1 m m   876 May 14 12:03 '20240514-120315-[1][pmh].txt'
+-rw-r--r--  1 m m   876 May 14 13:03 '20240514-130315-[1][pmh].txt'
+
+
+-rw-r--r--  1 m m  1356 May 14 13:03 '20240514-130315-[64][pmh].txt'
+
+-rw-r--r--  1 m m   876 May 14 14:03 '20240514-140316-[1][pmh].txt'
+-rw-r--r--  1 m m  1356 May 14 14:03 '20240514-140316-[64][pmh].txt'
+-rw-r--r--  1 m m  3818 May 14 14:03 '20240514-140324-[64][pmh].txt'
+
+-rw-r--r--  1 m m  1356 May 14 15:03 '20240514-150324-[1][pmh].txt'
+-rw-r--r--  1 m m  1356 May 14 16:03 '20240514-160324-[1][pmh].txt'
+-rw-r--r--  1 m m  1356 May 14 17:03 '20240514-170325-[1][pmh].txt'
+-rw-r--r--  1 m m  1356 May 14 18:03 '20240514-180325-[1][pmh].txt'
+-rw-r--r--  1 m m  1356 May 14 19:03 '20240514-190325-[1][pmh].txt'
+-rw-r--r--  1 m m  1356 May 14 20:03 '20240514-200326-[1][pmh].txt'
+-rw-r--r--  1 m m  1356 May 14 21:03 '20240514-210326-[1][pmh].txt'
+-rw-r--r--  1 m m  1356 May 14 22:03 '20240514-220326-[1][pmh].txt'
+
+
+
+
+
+m@pmh:~/dev/purple_martians/logs$ cat 20240514-130315-\[64\]\[pmh\].txt
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 64 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][144001]+--------------------------------------------------------------------------+
+[10][0][144001]|                                                                          |
+[10][0][144001]|               Server Approaching 144000 frames! - Reload                 |
+[10][0][144001]|                                                                          |
+[10][0][144001]+--------------------------------------------------------------------------+
+[10][0][144011]+--------------------------------------------------------------------------+
+[10][0][144011]|                                                                          |
+[10][0][144011]|                              NEXT LEVEL:1                                |
+[10][0][144011]|                                                                          |
+[10][0][144011]+--------------------------------------------------------------------------+
+
+
+[m@pmh:~/dev/purple_martians/logs$ cat 20240514-140316-\[1\]\[pmh\].txt
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 1 STARTED                               |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][14]+--------------------------------------------------------------------------+
+[10][0][14]|                                                                          |
+[10][0][14]|                             NEXT LEVEL:64                                |
+[10][0][14]|                                                                          |
+[10][0][14]+--------------------------------------------------------------------------+
+
+m@pmh:~/dev/purple_martians/logs$ cat 20240514-140316-\[64\]\[pmh\].txt
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 64 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][144001]+--------------------------------------------------------------------------+
+[10][0][144001]|                                                                          |
+[10][0][144001]|               Server Approaching 144000 frames! - Reload                 |
+[10][0][144001]|                                                                          |
+[10][0][144001]+--------------------------------------------------------------------------+
+[10][0][144011]+--------------------------------------------------------------------------+
+[10][0][144011]|                                                                          |
+[10][0][144011]|                              NEXT LEVEL:1                                |
+[10][0][144011]|                                                                          |
+[10][0][144011]+--------------------------------------------------------------------------+
+
+
+I don't get this:
+
+how does the one above look like it runs for 1H
+but the one below starts 8s later and only runs for 300 frames before dropping last client
+
+remember the timestamp is from when it was saved, not when it started
+
+the one above ends at 03:16
+the one below ends at 03:24
+
+that makes much more sense...
+
+still does not help me figure out what heppened
+level 64 started and 300 frames later the server dropped p2 for no comm...
+
+yet p2 is still sending cdats and pings..and the server is still processing them
+
+I used to have some code where a client would quit after a while of not getting any server reply, what happened to that?
+
+it is still there...why is is not triggering?
+is the server still sending stdf's...
+
+now clients can join but drop after a few seconds
+
+
+
+
+m@pmh:~/dev/purple_martians/logs$ cat 20240514-140324-\[64\]\[pmh\].txt
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 64 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[10][2][301]+--------------------------------------------------------------------------+
+[10][2][301]|                                                                          |
+[10][2][301]|                Server dropped player:2 (last stak rx:0)                  |
+[10][2][301]|                                                                          |
+[10][2][301]+--------------------------------------------------------------------------+
+[10][2][302]+--------------------------------------------------------------------------+
+[10][2][302]|                                                                          |
+[10][2][302]|                Server dropped player:2 (last stak rx:0)                  |
+[10][2][302]|                                                                          |
+[10][2][302]+--------------------------------------------------------------------------+
+[10][2][303]+--------------------------------------------------------------------------+
+[10][2][303]|                                                                          |
+[10][2][303]|                Server dropped player:2 (last stak rx:0)                  |
+[10][2][303]|                                                                          |
+[10][2][303]+--------------------------------------------------------------------------+
+[10][2][304]+--------------------------------------------------------------------------+
+[10][2][304]|                                                                          |
+[10][2][304]|                Server dropped player:2 (last stak rx:0)                  |
+[10][2][304]|                                                                          |
+[10][2][304]+--------------------------------------------------------------------------+
+[10][2][305]+--------------------------------------------------------------------------+
+[10][2][305]|                                                                          |
+[10][2][305]|                Server dropped player:2 (last stak rx:0)                  |
+[10][2][305]|                                                                          |
+[10][2][305]+--------------------------------------------------------------------------+
+[10][2][305]+--------------------------------------------------------------------------+
+[10][2][305]|        Player:2 became INACTIVE!                                         |
+[10][2][305]+--------------------------------------------------------------------------+
+[10][0][306]+--------------------------------------------------------------------------+
+[10][0][306]|                                                                          |
+[10][0][306]|               Headless Server with no clients! - Reload                  |
+[10][0][306]|                                                                          |
+[10][0][306]+--------------------------------------------------------------------------+
+[10][0][316]+--------------------------------------------------------------------------+
+[10][0][316]|                                                                          |
+[10][0][316]|                              NEXT LEVEL:1                                |
+[10][0][316]|                                                                          |
+[10][0][316]+--------------------------------------------------------------------------+
+
+
+
+
+
+
+
+
+m@pmh:~/dev/purple_martians/logs$ cat 20240514-150324-\[1\]\[pmh\].txt
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 1 STARTED                               |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][144001]+--------------------------------------------------------------------------+
+[10][0][144001]|                                                                          |
+[10][0][144001]|               Server Approaching 144000 frames! - Reload                 |
+[10][0][144001]|                                                                          |
+[10][0][144001]+--------------------------------------------------------------------------+
+[10][0][144011]+--------------------------------------------------------------------------+
+[10][0][144011]|                                                                          |
+[10][0][144011]|                              NEXT LEVEL:1                                |
+[10][0][144011]|                                                                          |
+[10][0][144011]+--------------------------------------------------------------------------+
+
+
+
+
+weird bugs after server runs for 3 days....
+
+do the next release. it has been long enough
+
+
+7.24.0515.1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+also what is my next video?
+
+
+The core game design.
+
+Tiles 20x20
+why
+
+levels 100x100
+
+the original screen size fixed 320x200 16x10 tiles
+
+game objects
+
+players, items, enemies, bullets, lifts
+
+storing them in arrays
+
+
+How things used to work for graphics.
+When I atarted with Allegro in 1997, the way that videogame graphics worked was a lot different that how things are now.
+In both cases, most of the underlying low level drawing was absracted away by allegro.
+I just had to create a bitmap and draw it.
+
+But in the old days, drawing to the screen was expensive and slow.
+So the recommended way of doing things was to make a memory bitmap the size of the screen and draw everything to that.
+Then one per game frame you would draw that bitmap to the screen.
+
+
+
+set_gfx_mode(GFX_VGA,320,200,0,0);
+clear(screen);
+level_2000 = create_bitmap(2000,2000);
+scrn_buffer = create_bitmap(320,200);
+blit(level_2000, scrn_buffer, WX, WY, 0, 0, 320, 200);
+blit(scrn_buffer, screen, 0,0,0,0,320,200);
+
+
+All of the drawing and manipulating of bitmaps were done with memory bitmaps, because that was so much faster than drawing to video memeory.
+
+This worked great for many years.
+
+I don't remember when things changed
+
+Now, working with memory bitmaps is much slower. The prefered method is to use video bitmaps.
+Bitmaps that are created in the video card's memory.
+Then when allegro draws them, the low level instructions are translated to tell the video card to do it internally.
+This is much faster and efficient that keeping the bitmaps in the computers RAM then tranferring it to the video crad when drawing.
+
+With the modern allegro, you specify what type of bitmap you want when you create it.
+
+ALLEGRO_MEMORY_BITMAP
+Create a bitmap residing in system memory. Operations on, and with, memory bitmaps will not be hardware accelerated. However, direct pixel access can be relatively quick compared to video bitmaps, which depend on the display driver in use.
+
+ALLEGRO_VIDEO_BITMAP
+Creates a bitmap that resides in the video card memory. These types of bitmaps receive the greatest benefit from hardware acceleration.
+
+ALLEGRO_NO_PRESERVE_TEXTURE
+Normally, every effort is taken to preserve the contents of bitmaps, since some platforms may forget them. This can take extra processing time. If you know it doesn’t matter if a bitmap keeps its pixel data, for example when it’s a temporary buffer, use this flag to tell Allegro not to attempt to preserve its contents.
+
+I still use memory bitmaps, but for one purpose only:
+
+Whenever the display is resized, video bitmaps are lost. I don't know why that happens, it just does.
+So I keep a copy of my bitmaps as memory bitmaps and use them to restore the video bitmaps when they are lost.
+I could just read them back from disk, but this method is faster.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

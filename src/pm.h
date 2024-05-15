@@ -1,6 +1,6 @@
 // pm.h
 
-#define PM_VERSION "7.24.0512.1"
+#define PM_VERSION "7.24.0515.1"
 
 #include <stdio.h>
 #include <math.h>
@@ -220,11 +220,12 @@
 #define PM_CFG_SAVE_SOUND                       2
 #define PM_CFG_SAVE_CONTROLS                    3
 #define PM_CFG_SAVE_BOTTOM_MESSAGE              4
+#define PM_CFG_SAVE_LOCAL_PLAYER_COLOR          5
 #define PM_CFG_SAVE_START_LEVEL                 6
 #define PM_CFG_SAVE_SERVER_ADDRESS              7
 #define PM_CFG_SAVE_NETGAME_SHOTS               8
 #define PM_CFG_SAVE_NETGAME_CLIENT_CHASE_OFFSET 9
-
+#define PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED 10
 
 
 

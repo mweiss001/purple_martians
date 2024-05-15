@@ -102,6 +102,8 @@ void mwNetgame::session_save_active_at_level_done(void)
 
 void mwNetgame::session_add_entry(const char* address, const char* hostname, int p, int active, int endreason)
 {
+   session_clear_entry(p);
+
    client_sessions[p].active = active;
    client_sessions[p].endreason = endreason;
    client_sessions[p].player_num = p;
@@ -175,8 +177,11 @@ void mwNetgame::session_add_log(int i)
       char endreason[256];
       if (er == 0) sprintf(endreason, "unknown");
       if (er == 1) sprintf(endreason, "server full");
-      if (er == 4) sprintf(endreason, "server dropped (comm loss)");
-      if (er == 6) sprintf(endreason, "server dropped (player inactive)");
+      if (er == 2) sprintf(endreason, "client quit");
+      if (er == 4) sprintf(endreason, "comm loss");
+      if (er == 6) sprintf(endreason, "inactive");
+
+
       if (er == 8) sprintf(endreason, "server quit");
       fprintf(filepntr, "endreason:%s\n", endreason);
 
@@ -221,56 +226,6 @@ void mwNetgame::session_add_log(int i)
       fprintf(filepntr, "rx_packets_avg_per_sec:%d\n",     (int) rp_avg);
       fprintf(filepntr, "rx_packets_max_per_frame:%d\n",   client_sessions[i].rx_max_packets_per_frame);
 
-//
-//      char msg[80];
-//
-//      fprintf(filepntr, "tx_bytes_total:%6s\n", mMiscFnx.chrsi(client_sessions[i].tx_total_bytes, msg));
-//      fprintf(filepntr, "tx_bytes_avg_per_sec:%6s\n", mMiscFnx.chrsi((int)tb_avg, msg));
-//      fprintf(filepntr, "tx_bytes_max_per_frame:%6s\n", mMiscFnx.chrsi(client_sessions[i].tx_max_bytes_per_frame, msg));
-//
-//      fprintf(filepntr, "rx_bytes_total:%6s\n", mMiscFnx.chrsi(client_sessions[i].rx_total_bytes, msg));
-//      fprintf(filepntr, "rx_bytes_avg_per_sec:%6s\n", mMiscFnx.chrsi((int)rb_avg, msg));
-//      fprintf(filepntr, "rx_bytes_max_per_frame:%6s\n", mMiscFnx.chrsi(client_sessions[i].rx_max_bytes_per_frame, msg));
-//
-//      fprintf(filepntr, "tx_packets_total:%6s\n", mMiscFnx.chrsi(client_sessions[i].tx_total_packets, msg));
-//      fprintf(filepntr, "tx_packets_avg_per_sec:%6s\n", mMiscFnx.chrsi((int)tp_avg, msg));
-//      fprintf(filepntr, "tx_packets_max_per_frame:%6s\n", mMiscFnx.chrsi(client_sessions[i].tx_max_packets_per_frame, msg));
-//
-//      fprintf(filepntr, "rx_packets_total:%6s\n", mMiscFnx.chrsi(client_sessions[i].rx_total_packets, msg));
-//      fprintf(filepntr, "rx_packets_avg_per_sec:%6s\n", mMiscFnx.chrsi((int)rp_avg, msg));
-//      fprintf(filepntr, "rx_packets_max_per_frame:%6s\n", mMiscFnx.chrsi(client_sessions[i].rx_max_packets_per_frame, msg));
-//
-
-//   int tx_total_bytes;
-//   int tx_total_packets;
-//   int tx_max_bytes_per_frame;
-//   int tx_max_packets_per_frame;
-//
-//   int rx_total_bytes;
-//   int rx_total_packets;
-//   int rx_max_bytes_per_frame;
-//   int rx_max_packets_per_frame;
-
-//      fprintf(filepntr, "\nBytes Sent\n----------\n" );
-//      fprintf(filepntr, "%6s  Total\n", mMiscFnx.chrsi(client_sessions[i].tx_total_bytes, msg));
-//      fprintf(filepntr, "%6s  Avg per second\n", mMiscFnx.chrsi((int)tb_avg, msg));
-//      fprintf(filepntr, "%6s  Max per frame\n", mMiscFnx.chrsi(client_sessions[i].tx_max_bytes_per_frame, msg));
-//
-//      fprintf(filepntr, "\nBytes Received\n--------------\n" );
-//      fprintf(filepntr, "%6s  Total\n", mMiscFnx.chrsi(client_sessions[i].rx_total_bytes, msg));
-//      fprintf(filepntr, "%6s  Avg per second\n", mMiscFnx.chrsi((int)rb_avg, msg));
-//      fprintf(filepntr, "%6s  Max per frame\n", mMiscFnx.chrsi(client_sessions[i].rx_max_bytes_per_frame, msg));
-//
-//      fprintf(filepntr, "\nPackets Sent\n------------\n" );
-//      fprintf(filepntr, "%6s  Total\n", mMiscFnx.chrsi(client_sessions[i].tx_total_packets, msg));
-//      fprintf(filepntr, "%6s  Avg per second\n", mMiscFnx.chrsi((int)tp_avg, msg));
-//      fprintf(filepntr, "%6s  Max per frame\n", mMiscFnx.chrsi(client_sessions[i].tx_max_packets_per_frame, msg));
-//
-//      fprintf(filepntr, "\nPackets Received\n----------------\n" );
-//      fprintf(filepntr, "%6s  Total\n", mMiscFnx.chrsi(client_sessions[i].rx_total_packets, msg));
-//      fprintf(filepntr, "%6s  Avg per second\n", mMiscFnx.chrsi((int)rp_avg, msg));
-//      fprintf(filepntr, "%6s  Max per frame\n", mMiscFnx.chrsi(client_sessions[i].rx_max_packets_per_frame, msg));
-
       fclose(filepntr);
 
       if (mLog.log_types[LOG_NET_session].action & LOG_ACTION_PRINT) // open the file and print it
@@ -301,11 +256,12 @@ void mwNetgame::session_add_log(int i)
    }
 }
 
-void mwNetgame::session_drop_player(int p)
+void mwNetgame::session_close(int p, int reason)
 {
    client_sessions[p].active = 0;
-   client_sessions[p].endreason = 4;
+   client_sessions[p].endreason = reason;
    client_sessions[p].duration = al_get_time() - client_sessions[p].start_time;
+   session_tally(p);
    session_add_log(p);
 }
 
@@ -314,15 +270,6 @@ void mwNetgame::session_drop_player(int p)
 void mwNetgame::session_check_active(void)
 {
    for (int p=1; p<8; p++)
-      if (client_sessions[p].active)
-      {
-         if (!mPlayer.syn[p].active) // client is not active anymore
-         {
-            client_sessions[p].active = 0;
-            client_sessions[p].endreason = 6;
-            session_tally(p);
-            session_add_log(p);
-         }
-      }
+      if ((client_sessions[p].active) && (!mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
 }
 

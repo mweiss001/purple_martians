@@ -3,25 +3,32 @@
 ---------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+
+
+
+
+remove all passwords from the sources...
+or better yet change all your passwords to something new....
+
+could I have a veracrypt section in the sources?
+
+what passwords are we talking about here?
+github password has never been saved anywhere insecure
+root password of the server this is the big one I should change
+mysql - i think this one is good the way it is..
+
+I should also set up a firewall on the server
+
+Do something about server remote so that people cannot fuck it up...
+
+
+
+
 
 
 I want to have a permanently saved log graph like the temporary one on remote
@@ -31,8 +38,6 @@ actually it will need to have one for each client as well...
 
 then I will need a method to get server logs off the server so I can view them
 
-remove all passwords from the sources...
-or better yet change all your passwords to something new....
 
 
 where am I going to put all my videos where I show off cool stuff?
