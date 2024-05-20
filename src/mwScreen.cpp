@@ -170,8 +170,9 @@ void mwScreen::do_transition(float fmxi, float fmyi, float fmxf, float fmyf, flo
       fmxi += fmxinc;
       fmyi += fmyinc;
       al_clear_to_color(al_map_rgb(0,0,0));
-      draw_screen_frame();
       draw_level_centered_on_player_pos(fmxi, fmyi, sci);
+      draw_screen_overlay();
+//      draw_screen_frame();
       al_flip_display();
       al_rest(delay);
    }
@@ -377,15 +378,14 @@ void mwScreen::set_level_display_region_xy(void)
    }
 }
 
-void mwScreen::draw_scaled_level_region_to_display(int type)
+void mwScreen::draw_scaled_level_region_to_display(void)
 {
    set_screen_display_variables();
-   if (!type) set_level_display_region_xy();
+
+   if (!mLoop.level_editor_running) set_level_display_region_xy();
 
    al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgb(0,0,0));
-
-   if (type) draw_screen_frame();
 
    int ldrx = level_display_region_x;
    int ldry = level_display_region_y;
@@ -394,6 +394,11 @@ void mwScreen::draw_scaled_level_region_to_display(int type)
 
    // draw the level region from level buffer to display
    al_draw_scaled_bitmap(mBitmap.level_buffer, ldrx, ldry, ldrw, ldrh, screen_display_x, screen_display_y, screen_display_w, screen_display_h, 0);
+
+
+   // do not draw frame when game is running, only in level editor mode
+   // it is drawn later in screen overlay to ensure it is on top of any direct draw objects
+   if (mLoop.level_editor_running) draw_screen_frame();
 
    // show viewport hysteresis rectangle
    if ((viewport_show_hyst) && (viewport_mode != 0))
@@ -425,7 +430,7 @@ void mwScreen::draw_scaled_level_region_to_display(int type)
 
 
    // in level editor mode, if the level is smaller than the screen edges, draw thin lines to show where it ends...
-   if (type)
+   if (mLoop.level_editor_running)
    {
       int c = mPlayer.syn[mPlayer.active_local_player].color;
       int bw = BORDER_WIDTH;

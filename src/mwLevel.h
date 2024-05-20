@@ -166,6 +166,8 @@ class mwLevel
    ALLEGRO_BITMAP * level_icon_100[100];
    ALLEGRO_BITMAP * level_icon_200[100];
 
+   int level_icons_loaded = 0;
+
 
    ALLEGRO_BITMAP * level_stats_bitmap = NULL;
    int level_stats_bmp_msg_type = 0;

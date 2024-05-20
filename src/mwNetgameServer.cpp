@@ -177,7 +177,7 @@ void mwNetgame::server_rewind(void)
          mPlayer.syn[pp].late_cdats_last_sec = lcd[pp][1];
       }
 
-   mLog.add_tmr1(LOG_TMR_rwnd, 0, "rwnd", al_get_time() - t0);
+   mLog.add_tmr1(LOG_TMR_rwnd, "rwnd", al_get_time() - t0);
 }
 
 void mwNetgame::server_create_new_state(void)
@@ -206,7 +206,7 @@ void mwNetgame::server_create_new_state(void)
 
 void mwNetgame::server_send_dif(int frame_num)
 {
-  for (int p=1; p<NUM_PLAYERS; p++)
+   for (int p=1; p<NUM_PLAYERS; p++)
       if ((mPlayer.syn[p].active) && ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) || (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON)))
       {
          // save current state in history as base for next clients send
@@ -233,9 +233,8 @@ void mwNetgame::server_send_dif(int frame_num)
 
 void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) // send dif to a client
 {
-   char cmp[STATE_SIZE];
-
    // compress dif to cmp
+   char cmp[STATE_SIZE];
    uLongf destLen= sizeof(cmp);
    compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)dif, STATE_SIZE, zlib_cmp);
    int cmp_size = destLen;

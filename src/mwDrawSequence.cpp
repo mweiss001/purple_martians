@@ -164,7 +164,6 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       mPacketBuffer.check_for_packets();
 
 
-
       mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Level Stats\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-lsta", "level stats");
       else
@@ -179,7 +178,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
       mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw scaled level region to display\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-buff", "scale_buff_to_display");
-      else { mScreen.draw_scaled_level_region_to_display(0); add(i); }
+      else { mScreen.draw_scaled_level_region_to_display(); add(i); }
 
       mPacketBuffer.check_for_packets();
 
@@ -248,20 +247,14 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
       // profile draw all
       // build log entry
-      mLog.add_tmr(LOG_TMR_draw_all, 0, "");
+      mLog.add_tmr(LOG_TMR_draw_all, "");
       for (int i=1; i<ns-1; i++)
          mLog.appf(LOG_TMR_draw_all, "%s:[%0.4f] " , name[0][i], (ts[i] - ts[i-1]) * 1000);
       mLog.app(LOG_TMR_draw_all, "\n");
 
-   //   // profile draw all
-   //   char msg[1024] = {0};
-   //   for (int i=1; i<ns-1; i++)
-   //      sprintf(msg, "%s%s:[%0.4f] " , msg, name[0][i], (ts[i] - ts[i-1]) * 1000 );
-   //   sprintf   (msg, "%s%s:[%0.4f]\n", msg, name[0][ns-1], totl * 1000);  // total
-   //   mLog.add_tmr(LOG_TMR_draw_all, 0, msg);
 
       // profile draw total
-      mLog.add_tmr1(LOG_TMR_draw_tot, 0, "draw", totl);
+      mLog.add_tmr1(LOG_TMR_draw_tot, "draw", totl);
    }
 }
 

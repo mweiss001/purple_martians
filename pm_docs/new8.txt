@@ -53800,33 +53800,6 @@ do the next release. it has been long enough
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 also what is my next video?
 
 
@@ -53846,35 +53819,104 @@ players, items, enemies, bullets, lifts
 storing them in arrays
 
 
-How things used to work for graphics.
-When I atarted with Allegro in 1997, the way that videogame graphics worked was a lot different that how things are now.
-In both cases, most of the underlying low level drawing was absracted away by allegro.
-I just had to create a bitmap and draw it.
 
-But in the old days, drawing to the screen was expensive and slow.
-So the recommended way of doing things was to make a memory bitmap the size of the screen and draw everything to that.
+
+
+
+
+The core game design.
+
+When I first started with Allegro in 1997, the feature I was most interested in was drawing bitmaps to the screen.
+
+This was the one critical piece that was missing in all my previous attempts at making a video game.
+
+But before I got into drawing bitmaps, I started with setting up the screen and drawing some pixels and lines.
+
+In Allegro 2 this was very simple:
+
+   allegro_init();
+   set_gfx_mode(GFX_VGA,320,200,0,0);
+   set_pallete(desktop_pallete);
+   clear(screen);
+   putpixel(screen, x, y, color);
+   line(screen, x1, y1, x2, y2, color);
+
+That is literally all the code required.
+
+Next I created some bitmaps and drew them to the screen.
+
+   /* make a memory bitmap sized 20x20 */
+   BITMAP *memory_bitmap = create_bitmap(20, 20);
+
+   /* draw some circles onto it */
+   clear(memory_bitmap);
+   for (x=0; x<16; x++)
+      circle(memory_bitmap, 10, 10, x, x);
+
+   /* blit lots of copies of it onto the screen */
+   for (y=0; y<SCREEN_H; y+=20)
+      for (x=0; x<SCREEN_W; x+=20)
+	 blit(memory_bitmap, screen, 0, 0, x, y, 20, 20);
+
+
+This worked great. And the code was so simple and direct.
+
+I experimented with drawing a bitmap in a loop then moving it across the screen.
+It was so fast I had to put in a delay so I could even see it happen.
+
+   for (x=20; x<300; x+=20)
+   {
+      blit(memory_bitmap, screen, 0, 0, x, y, 20, 20);
+      rest (500); // rest for 500 ms
+      clear(screen);
+   }
+
+
+
+
+
+
+
+Then I crudely expertimented with moving the bitmap based on keyboard input.
+
+I noticed strange flickering and artifacts while doing this, so I experimented with double buffering.
+
+- create a bitmap called scrn_buffer, the same size as the screen
+- do all of your drawing on that scrn_buffer
+- copy scrn_buffer to screen
+
+   BITMAP *scrn_buffer = create_bitmap(320,200);
+
+   for (x=20; x<300; x+=20)
+   {
+      blit(memory_bitmap, scrn_buffer, 0, 0, x, y, 20, 20); // draw on the screen buffer
+      blit(scrn_buffer, screen, 0,0,0,0,320,200);           // draw the screen buffer to the screen
+      rest (500); // rest for 500 ms
+      clear(scrn_buffer);
+   }
+
+
+That worked a lot better.
+
+Back then, the way that videogame graphics worked was a lot different that how things are now.
+In both cases, the underlying low level drawing is abstracted away by Allegro.
+
+In the old days, your bitmaps were in the main computer RAM and when you drew them, it would copy that data to the videocard.
+That was the bottleneck, copying data to the videocard memory.
+
+The best practice was to make a bitmap the size of the screen and draw everything to that.
+These operations in RAM were relatively fast.
+
 Then one per game frame you would draw that bitmap to the screen.
+Then you only had that expensive copy operation once.
 
+Also everything was drawn at the same time and you did not get the flickering associated with sequentially drawing bitmaps.
 
+This method is not in common use anymore.
+Now with modern graphic cards, opengl and directx, using hardware acceleration on the video card is much faster.
 
-set_gfx_mode(GFX_VGA,320,200,0,0);
-clear(screen);
-level_2000 = create_bitmap(2000,2000);
-scrn_buffer = create_bitmap(320,200);
-blit(level_2000, scrn_buffer, WX, WY, 0, 0, 320, 200);
-blit(scrn_buffer, screen, 0,0,0,0,320,200);
-
-
-All of the drawing and manipulating of bitmaps were done with memory bitmaps, because that was so much faster than drawing to video memeory.
-
-This worked great for many years.
-
-I don't remember when things changed
-
-Now, working with memory bitmaps is much slower. The prefered method is to use video bitmaps.
-Bitmaps that are created in the video card's memory.
-Then when allegro draws them, the low level instructions are translated to tell the video card to do it internally.
-This is much faster and efficient that keeping the bitmaps in the computers RAM then tranferring it to the video crad when drawing.
+Allegro still has the same functions to draw bitmaps and graphic primitives like pixels, lines, circles etc.
+But now they are translated to opengl or directx calls that work directly on the video card.
 
 With the modern allegro, you specify what type of bitmap you want when you create it.
 
@@ -53884,14 +53926,969 @@ Create a bitmap residing in system memory. Operations on, and with, memory bitma
 ALLEGRO_VIDEO_BITMAP
 Creates a bitmap that resides in the video card memory. These types of bitmaps receive the greatest benefit from hardware acceleration.
 
-ALLEGRO_NO_PRESERVE_TEXTURE
-Normally, every effort is taken to preserve the contents of bitmaps, since some platforms may forget them. This can take extra processing time. If you know it doesn’t matter if a bitmap keeps its pixel data, for example when it’s a temporary buffer, use this flag to tell Allegro not to attempt to preserve its contents.
 
 I still use memory bitmaps, but for one purpose only:
 
 Whenever the display is resized, video bitmaps are lost. I don't know why that happens, it just does.
 So I keep a copy of my bitmaps as memory bitmaps and use them to restore the video bitmaps when they are lost.
 I could just read them back from disk, but this method is faster.
+
+
+
+
+At this point, I knew I could easily draw fast enough to do what I wanted.
+
+So I started making bitmaps to use in the game.
+
+I initially tried creating them with primitives like putpixel, line, circle, etc..
+But that was a very painful and slow method to design and make bitmaps.
+
+So I created my own custom bitmap editor.
+
+This was quite a complicated bit of code for me at the time. Even more so because I was learning C at the same time!
+But the best way to learn is by actually trying to create something.
+
+
+
+It was at this time I decided the size of my tiles would be 20x20.
+It would have been nice to have them a nice power of 2 like 16 or 32, but...
+16 seemed too small. I wanted more detail than I could get with only 16.
+32 seemed too large. Back them I was worried about using too many resources.
+Also I was using a fixed screen size of 320x200 and that would have resulted in only being able to display 10x6 tiles on the screen.
+20x20 seemed like a good compromise. I could draw 16x10 tiles on the screen at a time.
+
+I drew the bitmap on the screen, then drew an enlarged version of it so that I could change each pixel.
+At this point I started using the allegro mouse routines.
+
+
+
+They were as easy as the rest of allegro.
+
+install_mouse();
+
+extern volatile int mouse_x;
+extern volatile int mouse_y;
+extern volatile int mouse_b;
+   Global variables containing the current mouse position and button state.
+   The mouse_x and mouse_y positions are integers ranging from zero to the
+   bottom right corner of the screen. The mouse_b variable is a bitfield
+   indicating the state of each button: bit 0 is the left button, bit 1 the
+   right, and bit 2 the middle button. For example:
+
+      if (mouse_b & 1)
+	 printf("Left button is pressed\n");
+
+      if (!(mouse_b & 2))
+	 printf("Right button is not pressed\n");
+
+
+The basic concept was to draw on the bitmap with mouse button 1 and get a color with mouse button 2
+
+Then i came up with a way to save the bitmaps to disk.
+
+I looked up some file io tutorials on the internet and cobbled together a very crude method that saved and loaded the bitmaps one get_pixel and put_pixel at a time.
+It was very clunky and inefficent, but it worked!
+
+I originally started with 256 tiles, but later increased to 512 then 1024.
+
+they were accessed by number like this
+
+blit(memory_bitmap[256], scrn_buffer, 0, 0, x, y, 20, 20);
+
+
+At the same time I had to deal with color.
+
+Back then allegro only supported 8 bit color.
+Each pixel was one byte (0-255) and was simply an index to the current palette.
+Each palette entry was an RGB color with 5 bits (0-63) for each color.
+
+So I also made a custom palette editor to create the colors I would use.
+I ended up with 16 base colors, then I used the rest of the palette to fade each color to black.
+
+For example, color 10 is red. And if you keep adding 16 to it, you get 16 faded versions of the same red color.
+
+
+
+
+Another very early design decison I made was to make levels an 100x100 array of tiles.
+
+The idea was that only a small portion would be visible at a time, and it would scroll as the player moved around.
+
+Also the entire 100x100 grid did not need to be completely used, you could just use what you needed.
+But the entire grid was always there.
+
+I created the level editor and used it to place tiles in the 100x100 grid and to save and load them.
+
+The data structure of the level was a 100x100 array of integers.
+
+Each integer represented the tile that would be drawn at that location.
+
+Ranges of tiles had different properties:
+0-7 was an empty space.
+8-255 was a solid block
+
+256-511 were reserved for tiles used for other things, like drawing items and enemies...
+
+The level is 2000x2000 pixels, a grid of 100x100 tiles.
+
+The next step was to make a player and make it interact with the level.
+
+This was the fun part! The part I had been wanting to do for so many years.
+Now that I had the drawing bitmaps part sorted, finally I could get into the bit where objects interact with the level and each other.
+
+
+The player location is x and y from 0-2000.
+
+I used floats for the position. If I used integers the movement would not be smooth, unless the player only moved in integer steps.
+
+When drawing, I used the integer position, discarding the fractional part.
+
+
+I built some helper functions to determine if blocks above, below, to the left and right are solid.
+
+So based on that x and y position, I would call these function and they would calculate if the floor below the player was solid, etc....
+
+
+
+Right from the start I was going to have 2 types of objects: enemies and items (think doors, keys, switches, etc)
+
+I implemented these with arrays. My default method of doing things.
+
+Items had 16 integers
+Enemies has 16 integers and 8 floats
+
+I allocated space for 100 enemies and 500 items.
+
+I don't know if I had lifts in the earliest version 19980922 but I did in 19981120
+
+A lift is just a moveable rectangular block.
+They have different sizes, colors, names and move from position to position at different speeds and optionally wait for time time or the player.
+
+
+
+The drawing sequence.
+
+I was only showing a 16x10 area of the full 100x100 level.
+
+
+So I didn't need to draw all the background block.
+I found that even redrawing all the visible background blocks one at at time to take too much time
+So the solution I came up with was to predraw the entire level backgound.
+
+The level is 100x100 tiles or 2000x2000 pixels.
+
+So I created a 2000x2000 bitmap.
+I remember at the time being amazed that I could create a bitmap that large. 4 million pixels.
+This was on a 486 laptop with only 8M of memory.
+
+I called this bitmap level_2000 and I drew all the tiles on to it only once when I loaded the level.
+
+Then after that, every frame I would copy only the visible section to my screen_buffer bitmap.
+
+Then I would draw the game objects (player, items, enemies...) on the screen buffer.
+
+Then I would copy the screen buffer to the screen.
+
+This seemed to work well, the graphics were smooth, flicker free, and plenty fast enough to work.
+
+I had to do some tricky code when drawing the objects.
+
+First I had to determine if they were on the visible part of the level.
+If they werent, I did not draw them.
+
+If they were on the screen I had to calculate their screen position, relative to the visible part of the level.
+
+This all worked well and I kept this method for many years.
+
+
+As the game progressed I noticed something else I wanted to address.
+
+In large levels, you could not see what was happening outside of your little window into the level.
+You didn't know where other areas, item and enemies were unless you moved your player there.
+
+So I made a map. It was a 100x100 pixel representation of the entire level.
+I pixel was one block.
+
+This was displayed as an overlay you could turn on and off.
+
+Originally this was just white blocks, but later I added color.
+You could see the moving enemies and shots also.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I have some bugs in Netgame still..
+
+something about doing next level when fakekey is active...
+
+it might have something to do with fakekey immediately skipping level done...
+but i don't think so...there is an unskippable pause...
+what if it is because cdat are still sent...
+
+here is how I discovered the bug and can hopefully reproduce it...
+
+
+pmh server with 2 clients running fakekey at home (local fake key)
+
+connected 3rd client at my desk at work, no local fakekey
+
+completed the level with that client...
+
+clients 1 and 2 dropped...
+
+tried unsucesfully to reproduce
+
+could it be that client is triggering a different gate locally
+
+do I explicitly allow/disallow a client to trigger a gate locally?
+
+there could be a race condition where one client does on thing and another does something different
+
+how can I prevent this?
+
+its not like I can rewind starting a new level can I?
+
+
+are you sure this is the problem before you try to fix it?
+
+
+
+client presses up on gate
+
+keypress is acted on immediately and also sent to server
+
+
+   // if UP pressed, enter gate
+   if ((mPlayer.syn[p].up) && (status > 0))
+   {
+      // immediate next level to gate level
+      mPlayer.syn[0].level_done_mode = 3;
+      mPlayer.syn[0].level_done_timer = 0;
+      mPlayer.syn[0].level_done_next_level = lev;
+
+      mLoop.quit_action = 2;
+      mLoop.done_action = 2;
+   }
+
+
+what if I put a small pause here?
+
+maybe only if client?
+
+give enough time for the server to reply with the authoritative...
+
+
+what if I made clients not able to do this at all?
+
+the only way they can do this is by letting the server tell them they are in this level done mode
+
+experiment with not letting client enter gate
+
+
+   // if UP pressed, enter gate (client can never locally enter gate)
+   if ((mPlayer.syn[p].up) && (status > 0) && (!mNetgame.ima_client) )
+   {
+      // immediate next level to gate level
+      mPlayer.syn[0].level_done_mode = 3;
+      mPlayer.syn[0].level_done_timer = 0;
+      mPlayer.syn[0].level_done_next_level = lev;
+
+      mLoop.quit_action = 2;
+      mLoop.done_action = 2;
+   }
+
+
+seems to work...
+
+
+what about exit?
+
+should I prevent client from being able to trigger exit locally?
+
+void mwItem::proc_exit_collision(int p, int i)
+{
+   int exit_enemys_left = mEnemy.num_enemy - item[i][8];
+   if (exit_enemys_left <= 0)
+   {
+      if ((mPlayer.syn[0].level_done_mode == 0) && (!mNetgame.ima_client)) // only trigger from mode 0 and client can never locally exit
+
+
+done...
+
+hopefully this does not cause any other bugs and fixes the weird issue....
+
+won't know till you test it....
+
+
+20240518
+update docs for game moves array to make it accurate...done
+
+what am I going to do about making more videos?
+
+I need a place to keep all the ideas and work in progress things...
+
+
+
+
+I wonder if I should replace ints with more specific ints....
+I am assuming that ints are all 32 bit, but that is just an assumption that has worked for me so far...
+
+It is very important that some things (like netgame) are exactly 32...
+
+int32_t
+this is the signed version and should be what I am using already
+
+what if I made a define in pm.h so I could replace them all at once.....
+
+// #define mwInt int32_t
+#define mwInt int
+
+
+that seems to work..
+
+went through mwBitmap.cpp and mwBitmap.h ... seems to work...
+also mwBitmapTools.cpp and mwBitmapTools.h
+
+before I go any further, do I really want to do this?
+
+I don't need all ints done, just ones that must be 32 bit
+
+players, enemies, items, shots, lifts...
+
+basically anything that can be part of STATE
+
+well that seems like so much work...
+as a proof of concept, I now know it would work
+but lets just undo it and leave it for now....done
+
+
+
+
+
+
+where does draw_frame get called?
+
+I think it might be called twice, once when drawing scaled and once in overlay
+
+
+void mwScreen::do_transition(float fmxi, float fmyi, float fmxf, float fmyf, float sci, float scf, float num_steps, float delay)
+
+
+void mwScreen::draw_scaled_level_region_to_display(int type)
+   if (type) draw_screen_frame();
+
+
+void mwScreen::frame_and_title(void)
+   draw_screen_frame();
+
+void mwScreen::draw_screen_overlay(void)
+   draw_screen_frame();
+
+what if I remove it from screen overlay? it is gone...
+
+why does void mwScreen::draw_scaled_level_region_to_display(int type) only draw sometimes??
+
+I think type = 1 means we are in level editor mode..
+
+the only times it is called with 0 are:
+draw_seq
+demo record
+level done rocket move
+
+called with 0 means do not draw frame
+
+what are you thinking here?
+
+make it always draw frame?
+
+
+do it for draw seq for now and remove draw frame from overlay,,,
+
+that seems to work...
+
+
+why am I doing this?
+
+to make things simpler?
+
+draw frame was not getting counted in screen overlay
+
+
+
+
+   if (mPlayer.syn[0].level_done_mode == 27) // rocket move
+   {
+      mLog.addf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Rocket move\n", frame_num, mPlayer.syn[0].level_done_mode);
+      if (!mDisplay.no_display)
+      {
+         mScreen.get_new_background(1);
+         cutscene_bg_x += cutscene_accel;
+         cutscene_accel += 0.07;
+         al_draw_bitmap(cutscene_background, 0, cutscene_bg_x, 0);
+         mEnemy.draw_enemies();
+         mPlayer.draw_players();
+         mItem.draw_items();
+         mScreen.draw_scaled_level_region_to_display(0);
+         mScreen.draw_screen_overlay();
+         al_flip_display();
+
+in this case it makes no sense to force it to skip with 0 then draw it in overlay
+i think I could safely change it to:
+
+         mScreen.draw_scaled_level_region_to_display(1);
+         mScreen.draw_screen_overlay();
+
+done...
+
+
+wait...is it not doing more than that?
+
+
+I think I want to keep type 0, but just always draw frame...
+
+
+this is how it is done in demo_record
+
+         {
+            al_clear_to_color(al_map_rgb(0, 0, 0));
+            mScreen.draw_scaled_level_region_to_display(0);
+            mScreen.draw_screen_overlay();
+         }
+
+I think I am all good here.
+
+The only changes I made are:
+- always draw_frame in draw_scaled_level_region_to_display(int type)
+- remove draw_frame from draw_screen_overlay(void)
+
+
+Now that I think about it, there might have been a very good reason for doing it the way I do...
+
+when I draw objects directly to the screen, they sometimes are on top of the frame!!
+
+that is exactly it!!
+
+So either revert or find another way to do this...
+
+
+It really does belong in screen_overlay...it is an overlay...
+
+
+how about change type passed to draw_frame in draw_scaled_level_region_to_display(int type)
+call it something to let us know it is level_editor mode
+
+then add another param to draw frame or not
+
+or I could check in the function if level_editor mode
+
+what is a reliable way of doing that?
+
+mLoop.level_editor_running
+
+did that in 2 places in draw_frame in draw_scaled_level_region_to_display(int type)
+
+
+void mwScreen::draw_scaled_level_region_to_display(int type)
+{
+   set_screen_display_variables();
+
+   if (!mLoop.level_editor_running) set_level_display_region_xy();
+//   if (!type) set_level_display_region_xy();
+
+...
+
+   // in level editor mode, if the level is smaller than the screen edges, draw thin lines to show where it ends...
+//   if (type)
+   if (!mLoop.level_editor_running)
+   {
+      int c = mPlayer.syn[mPlayer.active_local_player].color;
+      int bw = BORDER_WIDTH;
+      int sbx = screen_display_x;
+      int sby = screen_display_y;
+      int sbw = mDisplay.SCREEN_W-bw*2; // recalc because these have been modified
+      int sbh = mDisplay.SCREEN_H-bw*2;
+      int xdraw = 0;
+
+
+
+now the value passed has no effect...
+
+repurpose it to draw_frame
+
+all lev edit modes will do that
+
+all others will not and let screen overlay do it...
+
+you can get rid of parameter commpletely
+
+leave comments explaining why draw frame is skipped
+done...
+
+
+made transitions draw frame last and it looks good.
+made transition draw screen overlay and it looks even better....
+
+
+now make the draw frame part of the profiling for screen overlay
+
+things do not add up for screen overlay and it is using the most time...
+
+
+added a bunch of other stuff and finally figured out it was the profile log message printted to the console!!!!
+
+that was taking up to 6-8ms to send all that text to the console...
+
+once I disabled that the entire screen_overlay is less than 200us with spikes to 270us
+
+
+
+
+in settings you do not return to the same logging group, fixed by saving in config
+
+when in settings and calling start server or client, you do not return to settings
+
+in client exit...
+
+      //quit_action = 1; // to prevent quitting clients from automatically going to overworld
+      // do it like this so we can go back to settings if called from there
+      if (quit_action != 3) quit_action == 1; // to prevent quitting clients from automatically going to overworld
+
+i think I fixed both of these....
+
+
+
+--------------------
+
+look into the various types of graphs...
+
+Client Server Sync Graph
+------------------------
+needs log types 10 and 33
+replace with define names LOG_NET and LOG_NET_stak..done
+
+need to change where it parsed fps_chase and dysnc from log line
+it works!
+needs LOG_NET and LOG_NET_stak
+server only
+
+
+
+Ping Graph
+----------
+needs log types 36 and 37
+replace with define names LOG_NET_client_ping and LOG_NET_timer_adjust
+
+are these client only?
+
+LOG_NET_client_ping does not exist...
+
+I am questioning the usefullness of this, but...
+
+what am I looking for:
+ping and avg, ok I re added them...
+
+OK I think I have it working:
+Client only
+needs LOG_NET_client_ping and LOG_NET_timer_adjust
+
+2 graphs
+1st show ping and ping average
+2nd shows:
+dysnc
+dsync_avg
+client chase offset
+fps chase
+
+
+
+Bandwidth Graph
+---------------
+server and client
+needs log line LOG_NET_bandwidth
+
+
+
+what is Timestamp Graph
+needs 45
+tmst
+void mwLog::run_timestamp_graph(void)
+I think it might have been superseeded by profile graph
+removed all traces of it....
+
+There are still issues with things not working
+
+profile
+
+cpu good
+rebuild bitmaps - works but looks funny because it only record a data point when changing
+looking at this one...what is icons? is that the vls icons, gate icons...??? 100 and 200
+i think 100 and 200 are only needed on overworld...???
+could I delay loading them if not on overworld?
+
+what would I save? 30-50ms on every rebuild... that is almost half
+
+test it on a slow machine...
+
+total 600ms icons 171ms
+
+have a flag that determines if they are loaded or not...
+
+they are declared in mLevel
+
+   ALLEGRO_BITMAP * level_icon_100[100];
+   ALLEGRO_BITMAP * level_icon_200[100];
+
+
+how about this?
+
+make a flag if they are valid
+
+int level_icons_valid
+
+when rebuilding bitmaps set that flag to true, unl
+when rebuilding bitmaps if not on overworld set that flag to false
+
+
+when rebuilding bitmaps:
+if current level = overworld load and set to true
+otherwise leave false and do not load
+
+if loading overworld level and falg is not set, load them and set flag...
+
+
+OK I think I can do that...
+
+   int level_icons_loaded = 0;
+
+
+
+where is load_level_icons called:
+
+void mwBitmap::rebuild_bitmaps(void)
+void mwLevel::setup_data(void)
+void mwLevel::create_level_icons(void)
+
+I think in load_level_icons, I should set the flags to true
+
+OK done...
+
+now in rebuild_bitmaps
+either load or set flag false
+
+do I want to use: mLevel.play_level or last_level_loaded;
+
+lets go with last_level_loaded
+
+   if (mLevel.last_level_loaded == 1) mLevel.load_level_icons();
+   else mLevel.level_icons_loaded = 0;
+   t[3] = al_get_time();
+
+now make it when loading overworld and flag is not set, call load_level_icons
+
+      if (level_num == 1)
+      {
+         set_overworld_barriers();
+         if (!level_icons_loaded) load_level_icons();
+      }
+
+
+this seems to work....
+
+now total 60ms on m36, almost half
+now total 340 on 4230, almost half
+
+yay!!
+
+moving on...
+mov_tot - good only one value
+mov_all - good
+mov_enem - good
+draw_tot - good only one
+draw_all - good
+bmsg_add - good
+bmsg_draw - good
+scrn_overlay - good
+
+sdif - good one value server only
+cdif - no data...
+I can add client_proc_stdf and client_apply_dif
+yes..do both
+cdif - good
+
+rwnd
+on client rewind is part of cdif
+on server...it works...
+
+
+client timer adjust:
+
+has
+dsc
+dsa
+sp
+er
+ta
+
+what the hell is going on?
+
+dsc dsync
+dsa dsync_avg
+sp set point (client chase offset)
+er error
+ta total adjust to fps
+
+I don't know how usefull it is, but it works...
+client_ping...not used...just use custom one...but what if I want to combine it with other profile...fine...make it work
+client_ping - good
+
+proc_rx_buffer is good but sometimes crashes the graph viewer..idk why...
+
+
+----------------------------------------
+do an new release
+
+
+7.24.0520.1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

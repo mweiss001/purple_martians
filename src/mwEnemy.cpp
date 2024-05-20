@@ -272,7 +272,7 @@ void mwEnemy::move_enemies()
    // build log entry
    if (LOG_TMR_move_enem)
    {
-      mLog.add_tmr(LOG_TMR_move_enem, 0, "");
+      mLog.add_tmr(LOG_TMR_move_enem, "");
       for (int i=0; i<100; i++)
          if (tmr_tally[i][1] > 0)
 //            mLog.appf(LOG_TMR_move_enem, "m-%s:[%0.4f] ", enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000); // average time for one enemy in each type

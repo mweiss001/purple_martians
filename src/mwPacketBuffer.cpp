@@ -46,6 +46,8 @@ void mwPacketBuffer::rx_and_proc(void)
 // processes all packets waiting in rx buffer
 void mwPacketBuffer::proc_rx_buffer(void)
 {
+   double t0 = al_get_time();
+
    for (int i=0; i<200; i++)
       if (rx_buf[i].active)
       {
@@ -67,6 +69,10 @@ void mwPacketBuffer::proc_rx_buffer(void)
          }
          rx_buf[i].active = 0;
       }
+
+   if (mLoop.frame_num) mLog.add_tmr1(LOG_TMR_proc_rx_buffer, "prox_rx_buffer", al_get_time() - t0);
+
+
 }
 
 // call from loop - many places

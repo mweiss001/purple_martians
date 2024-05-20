@@ -20,16 +20,17 @@ class mwGameMoves
    int has_player_acknowledged(int p);
    int arr[GAME_MOVES_SIZE][4];
    int entry_pos = 0;
-   int current_pos = 0; // for savegame running only
+   int current_pos = 0;
+
    void proc(void);
 
    void add_game_move2(int frame, int type, int data1, int data2);
    void add_game_move(int frame, int type, int data1, int data2);
 
    void proc_game_move_player_active(int p, int color);
-   void proc_game_move_player_inactive(int x);
-   void proc_game_move_player_hidden(int x);
-   void proc_game_move_shot_config(int i);
+   void proc_game_move_player_inactive(int p, int reason);
+   void proc_game_move_player_hidden(int p);
+   void proc_game_move_shot_config(int shot, int damg);
 
    int autosave_game_on_level_done = 0;
    int autosave_game_on_level_quit = 0;

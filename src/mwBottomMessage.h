@@ -42,7 +42,7 @@ class mwBottomMessage
    void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4);
 
    void add(int ev, int x, int y, int z1, int z2, int z3, int z4);
-   void draw(int outline);
+   int bmsg_draw(int outline);
 
    void draw_player(int p, int &xpos);
    void bm_draw_enemy(int e_type, int &xpos);

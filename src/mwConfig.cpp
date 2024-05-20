@@ -57,7 +57,6 @@ void mwConfig::save_config(int type)
          asci(SCREEN, mDisplay.display_transform_double_max)
       }
 
-
       // these are different, only save if specifically requested to, not with all
       if (type == PM_CFG_SAVE_LOCAL_PLAYER_COLOR)
       {
@@ -67,9 +66,6 @@ void mwConfig::save_config(int type)
       {
          asci(GAME, mPlayer.syn[0].overworld_last_touched_gate)
       }
-
-
-
 
       if ((type == 0) || (type == PM_CFG_SAVE_START_LEVEL))
       {
@@ -193,6 +189,10 @@ void mwConfig::save_config(int type)
       asci(SETTINGS, mSettings.current_page)
       asci(SETTINGS, mSettings.show_advanced)
       asci(SETTINGS, mSettings.show_debug)
+
+      asci(SETTINGS, mSettings.log_group)
+
+
 
       asci(OVERLAY, mSettings.number_of_debug_overlay_modes);
 
@@ -350,6 +350,7 @@ void mwConfig::load_config(void)
    agci(SETTINGS, mSettings.current_page, 0)
    agci(SETTINGS, mSettings.show_advanced, 0)
    agci(SETTINGS, mSettings.show_debug, 0)
+   agci(SETTINGS, mSettings.log_group, 1)
 
    agci(OVERLAY, mSettings.number_of_debug_overlay_modes, 2);
 

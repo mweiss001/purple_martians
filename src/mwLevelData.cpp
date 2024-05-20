@@ -1165,6 +1165,7 @@ void mwLevel::load_level_icons(void)
         al_destroy_bitmap(tmp);
       }
    }
+   level_icons_loaded = 1;
 }
 
 

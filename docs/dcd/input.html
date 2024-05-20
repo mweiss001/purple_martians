@@ -161,7 +161,7 @@ if (mInput.key[ALLEGRO_KEY_I][0])
 
 
 <mh3>
-And if I use the key held functionality, it can make it even simpler:
+And if I use the key held functionality, I can make it even simpler:
 </mh3>    
 
 <pre><code class="language-cpp">mEvent.proc();
@@ -403,14 +403,14 @@ int get_scan_code_from_joystick(int joy, int button, int num)
 <mh3>
 There is a clear distinction between the key bindings and the controls.
 
-In the player struct, for each player we have the key bindings:</mh3>
-<pre><code class="language-cpp">mPlayer.loc[p].up_key
-mPlayer.loc[p].down_key
-mPlayer.loc[p].left_key
-mPlayer.loc[p].right_key
-mPlayer.loc[p].jump_key
-mPlayer.loc[p].fire_key
-mPlayer.loc[p].menu_key</code></pre>
+In the player struct, we have the key bindings:</mh3>
+<pre><code class="language-cpp">mPlayer.loc[0].up_key
+mPlayer.loc[0].down_key
+mPlayer.loc[0].left_key
+mPlayer.loc[0].right_key
+mPlayer.loc[0].jump_key
+mPlayer.loc[0].fire_key
+mPlayer.loc[0].menu_key</code></pre>
 
 <mh3>
 And then we have variables to indicate if a particular control is active for that frame: </mh3>

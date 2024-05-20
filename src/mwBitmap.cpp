@@ -93,8 +93,13 @@ void mwBitmap::rebuild_bitmaps(void)
    mFont.load_fonts();
    t[2] = al_get_time();
 
-   mLevel.load_level_icons();
+
+
+   if (mLevel.last_level_loaded == 1) mLevel.load_level_icons();
+   else mLevel.level_icons_loaded = 0;
    t[3] = al_get_time();
+
+
 
    mScreen.init_level_background();
    t[4] = al_get_time();
@@ -108,7 +113,7 @@ void mwBitmap::rebuild_bitmaps(void)
    mLevel.level_stats_bmp_msg_type = 0;
    t[5] = al_get_time();
 
-   mLog.add_tmrf(LOG_TMR_rebuild_bitmaps, 0, "tiles:[%0.4f] fonts:[%0.4f] icons:[%0.4f] lvbk:[%0.4f] misc:[%0.4f] totl:[%0.4f]\n",
+   mLog.add_tmrf(LOG_TMR_rebuild_bitmaps, "tiles:[%0.4f] fonts:[%0.4f] icons:[%0.4f] lvbk:[%0.4f] misc:[%0.4f] totl:[%0.4f]\n",
                    (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[5]-t[0])*1000);
 }
 
