@@ -1,6 +1,6 @@
 // pm.h
 
-#define PM_VERSION "7.24.0515.1"
+#define PM_VERSION "7.24.0520.1"
 
 #include <stdio.h>
 #include <math.h>
@@ -15,6 +15,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
+
 
 #define NUM_SPRITES 1024
 #define NUM_ANS 256
@@ -35,6 +36,7 @@
 #define PM_COMPMOVE_FIRE   0b00100000
 #define PM_COMPMOVE_MENU   0b01000000
 
+
 #define PM_GAMEMOVE_TYPE_LEVEL_START      0
 #define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE    1
 #define PM_GAMEMOVE_TYPE_PLAYER_INACTIVE  2
@@ -42,6 +44,8 @@
 #define PM_GAMEMOVE_TYPE_PLAYER_MOVE      5
 #define PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK   8
 #define PM_GAMEMOVE_TYPE_SHOT_CONFIG      9
+
+
 
 #define PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER  0
 #define PM_PLAYER_CONTROL_METHOD_DEMO_MODE      1

@@ -48,7 +48,6 @@ void mwLog::init_log_types(void)
    i = LOG_NET_timer_adjust;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_timer_adjust");
    i = LOG_NET_file_transfer;       log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_file_transfer");
 
-
    i = LOG_TMR_cpu;                 log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_cpu");
    i = LOG_TMR_rebuild_bitmaps;     log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_rebuild_bitmaps");
    i = LOG_TMR_move_tot;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_move_tot");
@@ -64,7 +63,6 @@ void mwLog::init_log_types(void)
    i = LOG_TMR_rwnd;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_rwnd");
    i = LOG_TMR_client_timer_adj;    log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_timer_adj");
    i = LOG_TMR_client_ping;         log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_ping");
-
    i = LOG_TMR_proc_rx_buffer;      log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_proc_rx_buffer");
 
    i = LOG_OTH_program_state;       log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_program_state");
@@ -191,8 +189,6 @@ void mwLog::add(int type, int player, const char *txt)
 void mwLog::addf(int type, int player, const char *format, ...)
 {
    if (player == -1) player = mPlayer.active_local_player;
-
-
    char smsg[200];
    va_list args;
    va_start(args, format);
@@ -455,37 +451,31 @@ void mwLog::log_bandwidth_stats(int type, int p)
    add_fwf(type, p, 76, 10, "|", " ", "max rx packets per second.[%d]", mPlayer.loc[p].rx_max_packets_per_tally);
 }
 
-void mwLog::add_log_TMR(double dt, const char *tag, int p)
-{
-   if (p == -1) p = mPlayer.active_local_player;
-   addf(44, p, "tmst %s:[%0.4f]\n", tag, dt*1000);
-}
 
 // for single tags
-void mwLog::add_tmr1(int type, int p, const char *tag, double dt)
+void mwLog::add_tmr1(int type, const char *tag, double dt)
 {
-   if (p == -1) p = mPlayer.active_local_player;
    char txt[500];
    sprintf(txt, "%s:[%0.4f]\n", tag, dt*1000);
-   add_tmr(type, p, txt);
+   add_tmr(type, txt);
 }
 
 // takes a printf format
-void mwLog::add_tmrf(int type, int p, const char *format, ...)
+void mwLog::add_tmrf(int type, const char *format, ...)
 {
-   if (p == -1) p = mPlayer.active_local_player;
    char smsg[200];
    va_list args;
    va_start(args, format);
    vsprintf(smsg, format, args);
    va_end(args);
-   add_tmr(type, p, smsg);
+   add_tmr(type, smsg);
 }
 
 // takes an already formatted string
-void mwLog::add_tmr(int type, int p, const char *txt)
+void mwLog::add_tmr(int type, const char *txt)
 {
-   if (p == -1) p = mPlayer.active_local_player;
+   int p = mPlayer.active_local_player;
+
    if (log_types[type].action & LOG_ACTION_PRINT) printf("%s", txt);
    if (log_types[type].action & LOG_ACTION_LOG)
    {

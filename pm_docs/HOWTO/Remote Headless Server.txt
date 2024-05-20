@@ -191,4 +191,90 @@ this is an amazing one line script to change files ending in *.txt.bak to end in
 for f in *.txt.bak; do mv -- "$f" "${f%.txt.bak}.txt"; done
 
 
+-------------------------------------
+Setup ufw firewall on server
+-------------------------------------
+
+
+Making Sure IPv6 is Enabled
+
+In recent versions of Ubuntu, IPv6 is enabled by default. In practice that means most firewall rules added to the server will include both an IPv4 and an IPv6 version, the latter identified by v6 within the output of UFW’s status command. To make sure IPv6 is enabled, you can check your UFW configuration file at /etc/default/ufw. Open this file using nano or your favorite command line editor:
+
+sudo nano /etc/default/ufw
+IPV6=yes
+this was already set...
+
+
+sudo ufw show added (for when ufw is not running)
+
+sudo ufw status verbose (for when ufw is running)
+
+sudo ufw enable (do not enable over ssh, until you are sure there is a openssh rule)
+
+m@pmh:~$ sudo ufw app list
+Available applications:
+  Apache
+  Apache Full
+  Apache Secure
+  OpenSSH
+m@pmh:~$
+m@pmh:~$ sudo ufw allow OpenSSH
+Skipping adding existing rule
+Skipping adding existing rule (v6)
+m@pmh:~$ sudo ufw show added
+Added user rules (see 'ufw status' for running firewall):
+ufw allow 22/tcp
+ufw allow Apache
+ufw allow OpenSSH
+m@pmh:~$
+
+m@pmh:~$ sudo ufw enable
+Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
+Firewall is active and enabled on system startup
+
+
+
+To allow netgame to work, I don't need a port forward...IP and port will remain the same...I just need to allow it through....
+sudo ufw allow 24785
+
+Now can I make it so that ssh only works on a restricted ip range?
+sudo ufw allow from 96.45.0.0/20 to any port 22
+
+m@pmh:~$ sudo ufw status verbose
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere
+80/tcp (Apache)            ALLOW IN    Anywhere
+22/tcp (OpenSSH)           ALLOW IN    Anywhere
+24785                      ALLOW IN    Anywhere
+22                         ALLOW IN    96.45.0.0/20
+22/tcp (v6)                ALLOW IN    Anywhere (v6)
+80/tcp (Apache (v6))       ALLOW IN    Anywhere (v6)
+22/tcp (OpenSSH (v6))      ALLOW IN    Anywhere (v6)
+24785 (v6)                 ALLOW IN    Anywhere (v6)
+
+
+
+Deleting Rules
+
+sudo ufw status numbered
+sudo ufw delete 2
+
+m@pmh:~$ sudo ufw status numbered
+Status: active
+
+     To                         Action      From
+     --                         ------      ----
+[ 1] Apache                     ALLOW IN    Anywhere
+[ 2] 24785                      ALLOW IN    Anywhere
+[ 3] 22                         ALLOW IN    96.45.0.0/20
+[ 4] Apache (v6)                ALLOW IN    Anywhere (v6)
+[ 5] 24785 (v6)                 ALLOW IN    Anywhere (v6)
+
+I should not be able to ssh in from something outside the subnet
 

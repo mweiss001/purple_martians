@@ -137,7 +137,7 @@ void mwLoop::proc_level_done_mode(void)
          mEnemy.draw_enemies();
          mPlayer.draw_players();
          mItem.draw_items();
-         mScreen.draw_scaled_level_region_to_display(0);
+         mScreen.draw_scaled_level_region_to_display();
          mScreen.draw_screen_overlay();
          al_flip_display();
       }

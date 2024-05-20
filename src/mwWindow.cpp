@@ -118,7 +118,7 @@ void mwWindow::process_mouse(void)
             {
                set_pos(mInput.mouse_x-mxo, mInput.mouse_y-myo);
                mWM.redraw_level_editor_background(0);
-               mScreen.draw_scaled_level_region_to_display(1);
+               mScreen.draw_scaled_level_region_to_display();
                mWM.cycle_windows(1); // draw only
             }
             moving = 0;
@@ -136,7 +136,7 @@ void mwWindow::process_mouse(void)
                w = x2 - x1;
                h = y2 - y1;
                mWM.redraw_level_editor_background(0);
-               mScreen.draw_scaled_level_region_to_display(1);
+               mScreen.draw_scaled_level_region_to_display();
                mWM.cycle_windows(1); // draw only
             }
          }

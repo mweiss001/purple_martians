@@ -389,7 +389,7 @@ void mwBitmapTools::select_bitmap(int &tn)
    {
       mWM.redraw_level_editor_background(0);
       mMiscFnx.crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
-      mScreen.draw_scaled_level_region_to_display(1);
+      mScreen.draw_scaled_level_region_to_display();
 
       int local_point_item_type = 1;
       int local_point_item_num = mLevel.l[mWM.gx][mWM.gy];

@@ -108,10 +108,10 @@ void mwLoop::move_frame(void)
       mLog.addf(LOG_OTH_move, 0, "[%4d]Move items\n", frame_num);
       mItem.move_items();       t[6] = al_get_time();
 
-      mLog.add_tmrf(LOG_TMR_move_all, 0, "m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
+      mLog.add_tmrf(LOG_TMR_move_all, "m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
                       (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[6]-t[5])*1000, (t[6]-t[0])*1000);
 
-      mLog.add_tmr1(LOG_TMR_move_tot, 0, "move", al_get_time() - t[0]);
+      mLog.add_tmr1(LOG_TMR_move_tot, "move", al_get_time() - t[0]);
    }
 }
 
@@ -373,8 +373,6 @@ void mwLoop::proc_program_state(void)
    if (state[1] == PM_PROGRAM_STATE_DEMO_RECORD) mDemoRecord.demo_record(); // blocks
 
 
-
-
 //-----------------------------------------------------------------
 // PM_PROGRAM_STATE_CLIENT_PREEXIT1
 //-----------------------------------------------------------------
@@ -415,7 +413,10 @@ void mwLoop::proc_program_state(void)
 
       mNetgame.ClientExitNetwork();
 
-      quit_action = 1; // to prevent quitting clients from automatically going to overworld
+      //quit_action = 1; // to prevent quitting clients from automatically going to overworld
+      // do it like this so we can go back to settings if called from there
+      if (quit_action != 3) quit_action = 1; // to prevent quitting clients from automatically going to overworld
+
       state[0] = PM_PROGRAM_STATE_MENU;
    }
 
@@ -1024,7 +1025,7 @@ void mwLoop::main_loop(void)
             {
                double t0 = al_get_time();
                mNetgame.server_create_new_state();
-               mLog.add_tmr1(LOG_TMR_sdif, 0, "sdif", al_get_time() - t0);
+               mLog.add_tmr1(LOG_TMR_sdif, "sdif", al_get_time() - t0);
             }
 
             // ------------------------------
@@ -1040,7 +1041,7 @@ void mwLoop::main_loop(void)
             // measure time to process loop
             // --------------------------------------------
             double pt = al_get_time() - frame_start_timestamp;
-            mLog.add_tmr1(LOG_TMR_cpu, 0, "cpu", pt);
+            mLog.add_tmr1(LOG_TMR_cpu, "cpu", pt);
 
             // convert to 'cpu', a percent of the total frame time (25ms)
             float cpu = (pt / 0.025) * 100;

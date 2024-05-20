@@ -67,21 +67,9 @@ struct log_type
    char name[40];
 };
 
-
-
-
-
-
 class mwLog
 {
-
    public:
-
-
-
-
-
-
 
    mwLog(); // default constructor
 
@@ -91,15 +79,11 @@ class mwLog
 
    void init_log_types(void);
 
-
    void set_log_type_action(int type, int action);
    void clear_all_log_actions(void);
 
-
    void appf(int type, const char *format, ...);
    void app(int type, const char *txt);
-
-
 
 
    void addf(int type, int player, const char *format, ...);
@@ -122,9 +106,11 @@ class mwLog
    char log_lines[NUM_LOG_LINES][100];  // for log file viewer
    int log_lines_int[NUM_LOG_LINES][3]; // for log file viewer
 
-   void add_tmrf(int type, int p, const char *format, ...);
-   void add_tmr1(int type, int p, const char *tag, double dt);
-   void add_tmr(int type, int p, const char *txt);
+
+   void add_tmrf(int type, const char *format, ...);
+   void add_tmr1(int type, const char *tag, double dt);
+   void add_tmr(int type, const char *txt);
+
 
    int autosave_log_on_level_done = 0;
    int autosave_log_on_level_quit = 0;
@@ -156,10 +142,6 @@ class mwLog
 
    void run_bandwidth_graph(int num_lines, int both);
    int load_bandwidth_graph(int num_lines, int both);
-
-   // not used
-   void run_timestamp_graph(void);
-   void log_timestamp_graph(int num_lines);
 
 
    // in mwLogViewer.cpp

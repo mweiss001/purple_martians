@@ -2,13 +2,9 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
-
-
-
 
 
 
@@ -22,9 +18,16 @@ github password has never been saved anywhere insecure
 root password of the server this is the big one I should change
 mysql - i think this one is good the way it is..
 
-I should also set up a firewall on the server
-
 Do something about server remote so that people cannot fuck it up...
+
+
+
+I should also set up a firewall on the server
+I think a lot of things could be solved with setting up firewall on server.
+most importantly, make it so that ssh only works for 96.45.xxxx...done
+
+
+
 
 
 
@@ -740,6 +743,85 @@ right now I have:
 what if I was to remove 8 from regular and add them to extra
 
 which 8
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+game moves array current has each entry an 4 bytes integer
+
+16 bytes or 128 bits
+
+that is a little excessive...
+
+frame number needs to be large
+
+what do I have now?
+
+max 32 bit unsigned int 4,294,967,295
+
+I get over 5000 years
+
+/40 (s)
+/3600 (h)
+/24 (d)
+/365 (y)
+
+
+what would I get with 16 bits?
+65536
+/40
+/60
+27 minutes
+
+what would I get with 24 bits?
+65536
+4.8 days
+
+
+so as ineffiectnt as it is 32 bits for frame is what we will use
+
+but the rest:
+game move type
+player num
+compmove
+
+
+player num is 0-7 and could fit in 3 bits
+compmove (7 bits)
+game move type 7 unique types could fit in 3 bits
+
+total 13 bits and I use 96
+
+how about:
+8 bits for game move type
+8 for compmove
+8 for player num
+
+this is a nice idea, but it would make the code more complicated
+and would have no noticeable improvement
+
+when I allocate 1,000,000 game moves having each one use only 64 bits instead of 128 would use half the memory.
+
+----------------
+
+
 
 
 

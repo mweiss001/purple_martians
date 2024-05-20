@@ -173,7 +173,7 @@ void mwItem::proc_exit_collision(int p, int i)
    int exit_enemys_left = mEnemy.num_enemy - item[i][8];
    if (exit_enemys_left <= 0)
    {
-      if (mPlayer.syn[0].level_done_mode == 0)
+      if ((mPlayer.syn[0].level_done_mode == 0) && (!mNetgame.ima_client)) // only trigger from mode 0 and client can never locally exit
       {
          mPlayer.syn[0].level_done_mode = 9;
          mPlayer.syn[0].level_done_timer = 0;
@@ -240,8 +240,8 @@ void mwItem::proc_gate_collision(int p, int i)
       if (status < 2) status = 2;
    }
 
-   // if UP pressed, enter gate
-   if ((mPlayer.syn[p].up) && (status > 0))
+   // if UP pressed, enter gate (client can never locally enter gate)
+   if ((mPlayer.syn[p].up) && (status > 0) && (!mNetgame.ima_client) )
    {
       // immediate next level to gate level
       mPlayer.syn[0].level_done_mode = 3;

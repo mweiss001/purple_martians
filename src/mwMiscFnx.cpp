@@ -522,7 +522,7 @@ int mwMiscFnx::get_block_range(const char *txt, int *x1, int *y1, int *x2, int *
    {
       mWM.redraw_level_editor_background(0);
       crosshairs_full(mWM.gx*20+10, mWM.gy*20+10, 15, 1);
-      mScreen.draw_scaled_level_region_to_display(1);
+      mScreen.draw_scaled_level_region_to_display();
 
       al_draw_filled_rectangle(tx-90, 70, tx+90, 170, mColor.pc[0]);
       al_draw_rectangle(       tx-90, 70, tx+90, 170, mColor.pc[15], 1);
@@ -739,7 +739,7 @@ int mwMiscFnx::getxy(const char *txt, int obj_type, int sub_type, int num)
          al_draw_line(ex, ey, dx, dy, mColor.pc[10], 1);   // connect with line
       }
 
-      mScreen.draw_scaled_level_region_to_display(1);
+      mScreen.draw_scaled_level_region_to_display();
 
       al_draw_filled_rectangle(tx-100, 70, tx+100, 128, mColor.pc[0]);
       al_draw_rectangle(       tx-100, 70, tx+100, 128, mColor.pc[15], 1);
@@ -966,7 +966,7 @@ int mwMiscFnx::get_item(int obj_type, int sub_type, int num )
 
       if (mouse_on_item) al_draw_line(x2, y2, itx+10, ity+10, mColor.pc[10], 2);
 
-      mScreen.draw_scaled_level_region_to_display(1);
+      mScreen.draw_scaled_level_region_to_display();
 
       al_draw_filled_rectangle(tx-110, 78, tx+110, 146, mColor.pc[0]);
       al_draw_rectangle(       tx-110, 78, tx+110, 146, mColor.pc[15], 1);

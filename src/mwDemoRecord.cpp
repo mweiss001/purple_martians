@@ -2042,7 +2042,7 @@ void mwDemoRecord::demo_record(void)
          else
          {
             al_clear_to_color(al_map_rgb(0, 0, 0));
-            mScreen.draw_scaled_level_region_to_display(0);
+            mScreen.draw_scaled_level_region_to_display();
             mScreen.draw_screen_overlay();
          }
          proc_cpu_time(frame_start_timestamp);

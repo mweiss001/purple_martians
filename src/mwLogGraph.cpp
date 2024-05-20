@@ -20,8 +20,9 @@ void mwLog::run_ping_graph(int num_lines)
 
       int sc = 13;
       mGraph[0].set_series(0, "dsync", 10, 0);
-      mGraph[0].set_series(1, "offset", 11, 0);
-      mGraph[0].set_series(2, "chase", 14, 0);
+      mGraph[0].set_series(1, "dsync_avg", 12, 0);
+      mGraph[0].set_series(2, "offset", 11, 0);
+      mGraph[0].set_series(3, "chase", 14, 0);
       mGraph[0].calc_data_range();
       mGraph[0].autorange_axis(1, 1);
       mGraph[0].set_title("Timer Adjust", 2, sc, sc);          // text, text_color, frame_color
@@ -116,7 +117,7 @@ int mwLog::load_ping_graph(int num_lines)
       char tll[200]; // temp log line
       char res[80];
 
-      if (type == 36) // tmaj
+      if (type == LOG_NET_timer_adjust)
       {
          sprintf(tll, "%s", log_lines[i]);
 
@@ -124,21 +125,25 @@ int mwLog::load_ping_graph(int num_lines)
          double sync = atof(res);
 
          mMiscFnx.get_tag_text(tll, res, 0);
+         double sync_avg = atof(res);
+
+         mMiscFnx.get_tag_text(tll, res, 0);
          double offset = atof(res);
 
          mMiscFnx.get_tag_text(tll, res, 0);
          double fps_chase = atof(res);
 
-         //printf("d:%f o:%f c:%f\n", dsync, offset, fps_chase);
+         printf("d:%f da:%f o:%f c:%f\n", sync, sync_avg, offset, fps_chase);
 
          if (sync < 100) // ignore stupidly high ones at start
          {
             mGraph[0].add_data_point(0, (double) fn, sync);
-            mGraph[0].add_data_point(1, (double) fn, offset);
-            mGraph[0].add_data_point(2, (double) fn, fps_chase);
+            mGraph[0].add_data_point(1, (double) fn, sync_avg);
+            mGraph[0].add_data_point(2, (double) fn, offset);
+            mGraph[0].add_data_point(3, (double) fn, fps_chase);
          }
       }
-      if (type == 37) // cpng
+      if (type == LOG_NET_client_ping)
       {
          sprintf(tll, "%s", log_lines[i]);
 
@@ -148,7 +153,7 @@ int mwLog::load_ping_graph(int num_lines)
          mMiscFnx.get_tag_text(tll, res, 0);
          double avg = atof(res);
 
-         //printf("ping:%f avg:%f\n", ping, avg);
+         printf("ping:%f avg:%f\n", ping, avg);
          mGraph[1].add_data_point(0, (double) fn, ping);
          mGraph[1].add_data_point(1, (double) fn, avg);
       }
@@ -265,7 +270,7 @@ int mwLog::load_bandwidth_graph(int num_lines, int both)
 
    // iterate all log lines and build array of data points
    for (int i=0; i<num_lines; i++)
-      if (log_lines_int[i][0] == 23)
+      if (log_lines_int[i][0] == LOG_NET_bandwidth)
       {
          int p = log_lines_int[i][1];
          int fn = log_lines_int[i][2];
@@ -290,8 +295,6 @@ int mwLog::load_bandwidth_graph(int num_lines, int both)
 //         // get fourth tag - rx_pak
 //         mMiscFnx.get_tag_text(tll, res, 0);
 //         int rxp = atoi(res);
-
-
 
          // enter one array data point
          mGraph[0].add_data_point(p, (double) fn, (double) tx);
@@ -496,11 +499,12 @@ int mwLog::load_client_server_sync_graph(int num_lines)
       char res[80];
       sprintf(tll, "%s", log_lines[i]);
 
+
       // find where players became active
-      if (log_lines_int[i][0] == 10)
+      if (log_lines_int[i][0] == LOG_NET)
       {
          int p = log_lines_int[i][1];
-         int fn = log_lines_int[i][2];
+         double fn = (double) log_lines_int[i][2];
          const char act[10] = "ACTIVE";
          const char ict[10] = "INACTIVE";
          char * ar = strstr(tll, act);
@@ -508,32 +512,32 @@ int mwLog::load_client_server_sync_graph(int num_lines)
          if ((ar) && (!ir))
          {
             // printf("p:%d inactive:%d active:%d", p, fn-1, fn);
-            mGraph[0].add_data_point(p, (double) fn-1, 0); // inactive
-            mGraph[0].add_data_point(p, (double) fn, 1); // active
+            mGraph[0].add_data_point(p, fn-1, 0); // inactive
+            mGraph[0].add_data_point(p, fn, 1);   // active
             pa[p] = 1;
          }
       }
 
-
-      if (log_lines_int[i][0] == 33) // stak line
+      if (log_lines_int[i][0] == LOG_NET_stak)
       {
          int p = log_lines_int[i][1];
-         int fn = log_lines_int[i][2];
+         double fn = (double) log_lines_int[i][2];
+
+         mMiscFnx.get_tag_text(tll, res, 0); // skip 1st tag
+         mMiscFnx.get_tag_text(tll, res, 0); // skip 2nd tag
 
          mMiscFnx.get_tag_text(tll, res, 0); // dsync
-         double dsy = atof(res);
+         mGraph[1].add_data_point(p, fn, atof(res));
 
          mMiscFnx.get_tag_text(tll, res, 0); // fps_chase
-         double fc = atof(res);
+         mGraph[2].add_data_point(p, fn, atof(res));
 
-         mGraph[1].add_data_point(p, (double) fn, dsy); // dsync
-         mGraph[2].add_data_point(p, (double) fn, fc);  // fps chase
       }
    }
 
-   int last_fn = log_lines_int[num_lines-1][2];
+   double last_fn = (double) log_lines_int[num_lines-1][2];
    for (int p=0; p<8; p++)
-      mGraph[0].add_data_point(p, (double) last_fn, pa[p]); // active
+      mGraph[0].add_data_point(p, last_fn, pa[p]); // active
 
    if ((mGraph[0].calc_data_range()) && (mGraph[1].calc_data_range()) && (mGraph[2].calc_data_range())) return 1;
    return 0;
@@ -625,7 +629,7 @@ int mwLog::load_profile_graph(int choose)
          mMiscFnx.get_tag_text(buff, res, 0); // get third tag - mLoop.frame_num
          double fn = atof(res);
 
-         if (type == 44) // tmst
+         if (type == LOG_TMR)
          {
             while (strlen(buff) > 4) // keep getting more tags
             {
@@ -655,179 +659,11 @@ int mwLog::load_profile_graph(int choose)
                }
                // at this point, if we don't have a match or an empty just do nothing
             } // end of log line
-         } // end of type 44
+         } // end of type LOG_TMR
       }
    }
    fclose(filepntr);
-//   if (mGraph[0].calc_data_range())  run_profile_graph();
    if (mGraph[0].calc_data_range()) return 1;
    else return 0;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void mwLog::run_timestamp_graph(void)
-{
-
-   int c1 = 10;
-   mGraph[0].calc_data_range();
-   mGraph[0].autorange_axis(1, 1);
-   mGraph[0].set_title("Draw Time", 2, c1, c1);              // text, text_color, frame_color
-   mGraph[0].set_x_axis_legend("Time", "frames", 0, 15, 0);  // text, font, text_color, frame_color
-   mGraph[0].set_y_axis_legend("Time", "ms", 0, c1, 0);      // text, font, text_color, frame_color
-   mGraph[0].set_x_axis_labels(1, 1, 2, 15);                 // type, font, tick_size, color
-   mGraph[0].set_y_axis_labels(3, 1, 2, c1);                 // type, font, tick_size, color
-   mGraph[0].linked_group_id = 17;
-
-
-//   int c1 = 10;
-//   mGraph[0].set_series(0, "draw time", c1, 0);
-//   mGraph[0].calc_data_range();
-//   mGraph[0].autorange_axis(1, 1);
-//   mGraph[0].set_title("Draw Time", 2, c1, c1);              // text, text_color, frame_color
-//   mGraph[0].set_x_axis_legend("Time", "frames", 0, 15, 0);  // text, font, text_color, frame_color
-//   mGraph[0].set_y_axis_legend("Time", "ms", 0, c1, 0);      // text, font, text_color, frame_color
-//   mGraph[0].set_x_axis_labels(1, 1, 2, 15);                 // type, font, tick_size, color
-//   mGraph[0].set_y_axis_labels(3, 1, 2, c1);                 // type, font, tick_size, color
-//   mGraph[0].linked_group_id = 17;
-//
-//   int c2 = 13;
-//   mGraph[1].set_series(0, "move time", c2, 0);
-//   mGraph[1].calc_data_range();
-//   mGraph[1].autorange_axis(1, 1);
-//   mGraph[1].set_title("Move Time", 2, c2, c2);              // text, text_color, frame_color
-//   mGraph[1].set_x_axis_legend("Time", "frames", 0, 15, 0);  // text, font, text_color, frame_color
-//   mGraph[1].set_y_axis_legend("Time", "ms", 0, c2, 0);      // text, font, text_color, frame_color
-//   mGraph[1].set_x_axis_labels(1, 1, 2, 15);                 // type, font, tick_size, color
-//   mGraph[1].set_y_axis_labels(3, 1, 2, c2);                 // type, font, tick_size, color
-//   mGraph[1].x_axis_slave = 100;
-//   mGraph[1].series_legend_slave = 100;
-//   mGraph[1].x_axis_legend_draw_on = 0;
-//   mGraph[1].linked_group_id = 17;
-//   mGraph[1].x_axis_grid_draw_on = 1;
-//   mGraph[1].x_axis_grid_label_draw_on = 0;
-
-   int quit = 0;
-   while (!quit)
-   {
-      al_set_target_backbuffer(mDisplay.display);
-      al_clear_to_color(al_map_rgb(0, 0, 0));
-
-      mGraph[0].set_graph_pos(0, 0, mDisplay.SCREEN_W, mDisplay.SCREEN_H);
-      mGraph[0].proc_graph();
-
-
-//      mGraph[0].set_graph_pos(0, mDisplay.SCREEN_H/2, mDisplay.SCREEN_W, mDisplay.SCREEN_H);
-//      mGraph[1].set_graph_pos(0, 0,          mDisplay.SCREEN_W, mDisplay.SCREEN_H/2);
-//      mGraph[0].proc_graph();
-//      mGraph[1].proc_graph();
-
-
-      al_flip_display();
-      mEventQueue.proc(1);
-      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
-   }
-}
-
-
-void mwLog::log_timestamp_graph(int num_lines)
-{
-   mGraph[0].initialize();
-   mGraph[0].set_series(0, "stdf time", 10, 0);
-   mGraph[0].set_series(1, "base0", 11, 0);
-   mGraph[0].set_series(2, "cmp_size", 12, 0);
-   mGraph[0].set_series(3, "packets", 13, 0);
-
-
-//   mGraph[0].initialize();
-//   mGraph[0].set_series(0, "draw time", 10, 0);
-//
-//   mGraph[1].initialize();
-//   mGraph[1].set_series(0, "move time", 10, 0);
-
-   // iterate all log lines and build array of data points
-   for (int i=0; i<num_lines; i++)
-   {
-      int type = log_lines_int[i][0];
-      int fn = log_lines_int[i][2];
-      char tll[200]; // temp log line
-      char res[80];
-
-      if (type == 45) // tmst
-      {
-         sprintf(tll, "%s", log_lines[i]);
-
-         mMiscFnx.get_tag_text(tll, res, 0);
-         double stdf = atof(res);
-
-         mMiscFnx.get_tag_text(tll, res, 0);
-         double base = atof(res);
-
-         mMiscFnx.get_tag_text(tll, res, 0);
-         double cmp_sz = atof(res) / 1000;
-
-         mMiscFnx.get_tag_text(tll, res, 0);
-         double np = atof(res);
-
-        //printf("td:%f tm:%f tt:%f\n", td, tm, tt);
-
-         mGraph[0].add_data_point(0, (double) fn, stdf);
-         mGraph[0].add_data_point(1, (double) fn, base);
-         mGraph[0].add_data_point(2, (double) fn, cmp_sz);
-         mGraph[0].add_data_point(3, (double) fn, np);
-
-
-
-//         mGraph[0].add_data_point(2, (double) fn, tt);
-//         get_tag_text(tll, res, 0);
-//         double td = atof(res);
-//
-//         get_tag_text(tll, res, 0);
-//         double tm = atof(res);
-//
-//         get_tag_text(tll, res, 0);
-//         //double tt = atof(res);
-//
-//        //printf("td:%f tm:%f tt:%f\n", td, tm, tt);
-//
-//         mGraph[0].add_data_point(0, (double) fn, td);
-//         mGraph[1].add_data_point(0, (double) fn, tm);
-////         mGraph[0].add_data_point(2, (double) fn, tt);
-      }
-   }
-   if ((mGraph[0].calc_data_range()) && (mGraph[0].calc_data_range())) run_timestamp_graph();
 }
 

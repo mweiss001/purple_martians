@@ -240,13 +240,21 @@ void mwNetgame::client_send_rctl_packet(int type, double val)
 
 void mwNetgame::client_proc_pong_packet(char *data)
 {
+   int p = mPlayer.active_local_player;
+
    int pos = 4;
    double t0 = mPacketBuffer.PacketGetDouble(data, pos);
    double t1 = mPacketBuffer.PacketGetDouble(data, pos);
-   mPacketBuffer.RA[mPlayer.active_local_player].add_data(al_get_time() - t0);
+
+   double ping = al_get_time() - t0;
+
+   mPacketBuffer.RA[p].add_data(ping);
    mPacketBuffer.PacketName(data, pos, "pang");
    mPacketBuffer.PacketPutDouble(data, pos, t1);
    ClientSend(data, pos);
+
+   mLog.addf(LOG_NET_client_ping, p, "client ping[%5.1f] avg[%5.1f]\n", ping*1000, mPlayer.loc[p].ping_avg*1000);
+   mLog.add_tmrf(LOG_TMR_client_ping, "ping:[%5.1f] avg:[%5.1f]\n", ping*1000, mPlayer.loc[p].ping_avg*1000);
 }
 
 
@@ -472,6 +480,8 @@ void mwNetgame::client_send_crfl(void)
 
 void mwNetgame::client_proc_stdf_packet(int i)
 {
+   double t0 = al_get_time();
+
    int seq     = mPacketBuffer.PacketGetByte(i);
    int max_seq = mPacketBuffer.PacketGetByte(i);
    int sb      = mPacketBuffer.PacketGetInt4(i);
@@ -516,11 +526,16 @@ void mwNetgame::client_proc_stdf_packet(int i)
          }
       }
    }
+
+   if (mLoop.frame_num) mLog.add_tmr1(LOG_TMR_cdif, "stdf", al_get_time() - t0);
+
 }
 
 
 void mwNetgame::client_apply_dif(void)
 {
+   double t0 = al_get_time();
+
    int p = mPlayer.active_local_player;
 
    char log_msg_txt1[64];
@@ -586,7 +601,6 @@ void mwNetgame::client_apply_dif(void)
 
 
    // if we got this far, a valid base has been found and we will be applying the dif
-
 
    // ------------------------------------------------
    // save things before applying dif
@@ -677,6 +691,11 @@ void mwNetgame::client_apply_dif(void)
    // add data to tally
    mTally_client_loc_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_loc_plr_cor);
    mTally_client_rmt_plr_cor_last_sec[p].add_data(mPlayer.loc[p].client_rmt_plr_cor);
+
+
+   mLog.add_tmr1(LOG_TMR_cdif, "cdif", al_get_time() - t0);
+
+
 }
 
 void mwNetgame::client_send_cdat_packet(int p)
@@ -754,7 +773,7 @@ void mwNetgame::client_timer_adjust(void)
       // save value in player struct
       mPlayer.loc[p].client_chase_fps = fps_chase;
 
-      mLog.add_tmrf(LOG_TMR_client_timer_adj, 0, "dsc:[%5.2f] dsa:[%5.2f] sp:[%5.2f] er:[%6.2f] ta:[%6.2f]\n", mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].pdsync_avg*1000, sp*1000, err*1000, t_adj);
+      mLog.add_tmrf(LOG_TMR_client_timer_adj, "dsc:[%5.2f] dsa:[%5.2f] sp:[%5.2f] er:[%6.2f] ta:[%6.2f]\n", mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].pdsync_avg*1000, sp*1000, err*1000, t_adj);
       mLog.addf(LOG_NET_timer_adjust, p, "timer adjust dsc[%5.1f] dsa[%5.1f] off[%3.1f] chs[%3.3f]\n", mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].pdsync_avg*1000, sp*1000, fps_chase);
    }
    // else mLog.addf(LOG_NET_timer_adjust, p, "timer adjust no stdf packets this frame dsc[%5.1f] dsa[%5.1f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].dsync_avg*1000);

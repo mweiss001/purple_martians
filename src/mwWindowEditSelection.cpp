@@ -123,7 +123,7 @@ void mwWindow::es_do_brf(int x, int y, int flood_block)
 
          mScreen.init_level_background();
          mScreen.get_new_background(0);
-         mScreen.draw_scaled_level_region_to_display(1);
+         mScreen.draw_scaled_level_region_to_display();
          al_flip_display();
          al_rest(.04);
       }

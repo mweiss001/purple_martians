@@ -1024,7 +1024,7 @@ void mwSettings::page_level_bottom_msg(void)
 
 
    mBottomMessage.bottom_msg_timer = 10;
-   mBottomMessage.draw(1);
+   mBottomMessage.bmsg_draw(1);
 
    int reload = 0;
 
@@ -2056,7 +2056,6 @@ int mwSettings::page_log(void)
    {
       mLoop.state[0] = PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME;
       mLoop.quit_action = 3; // settings
-      mLoop.done_action = 3; // settings
       al_hide_mouse_cursor(mDisplay.display);
       mConfig.save_config(0);
       return 1;
@@ -2067,6 +2066,7 @@ int mwSettings::page_log(void)
    if (mWidget.buttont(xa+20, ya, xb, 16,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
    {
       mLoop.state[0] = PM_PROGRAM_STATE_SERVER_NEW_GAME;
+      mLoop.quit_action = 3; // settings
       al_hide_mouse_cursor(mDisplay.display);
       mConfig.save_config(0);
       return 1;
@@ -2076,6 +2076,7 @@ int mwSettings::page_log(void)
    if (mWidget.buttont(xa, ya, xb, 16,  0,0,0,0,  0,8,15, 0,  1,0,1,0, "Join Network Game"))
    {
       mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_NEW_GAME;
+      mLoop.quit_action = 3; // settings
       al_hide_mouse_cursor(mDisplay.display);
       mConfig.save_config(0);
       return 1;

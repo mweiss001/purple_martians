@@ -112,7 +112,7 @@ class mwScreen
 
 
 
-   void draw_scaled_level_region_to_display(int type);
+   void draw_scaled_level_region_to_display(void);
    void set_map_var(void);
    void mark_non_default_block(int x, int y);
 
@@ -156,8 +156,7 @@ class mwScreen
 
    void proc_player_text_overlay_timer(int p);
 
-
-   void draw_player_text_overlay(void);
+   int draw_player_text_overlay(void);
 
    int dif_from_now_to_nl();
    void show_player_stat_box(int tx, int y, int p);

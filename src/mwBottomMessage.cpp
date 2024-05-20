@@ -473,11 +473,13 @@ void mwBottomMessage::add(int ev, int wx, int wy, int z1, int z2, int z3, int z4
          }
       }
    }
-   mLog.add_tmr1(LOG_TMR_bmsg_add, 0, "bmsg_add4", al_get_time() - t0);
+   mLog.add_tmr1(LOG_TMR_bmsg_add, "bmsg_add4", al_get_time() - t0);
 }
 
-void mwBottomMessage::draw(int outline)
+int mwBottomMessage::bmsg_draw(int outline)
 {
+   int drawn = 0;
+
    double t0 = al_get_time();
    if (bottom_msg_on)
    {
@@ -485,6 +487,7 @@ void mwBottomMessage::draw(int outline)
       if (bottom_msg_timer > 0)
       {
          bottom_msg_timer--;
+         drawn = 1;
 
          int nb = num_lines;  // number of bottom message lines to display (max 20)
 
@@ -528,6 +531,9 @@ void mwBottomMessage::draw(int outline)
          }
       }
    }
-   mLog.add_tmr1(LOG_TMR_bmsg_draw, 0, "bmsg_draw", al_get_time() - t0);
+   mLog.add_tmr1(LOG_TMR_bmsg_draw, "bmsg_draw", al_get_time() - t0);
+   return drawn;
 }
+
+
 
