@@ -274,3 +274,62 @@ mysql>
 
 
 
+
+
+
+
+
+
+
+----------------------------------------
+how to manually delete specific rows
+----------------------------------------
+
+m@pmh:~$ mysql -u msq -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+
+mysql> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| session_db         |
+| sys                |
++--------------------+
+5 rows in set (0.00 sec)
+
+mysql> USE session_db;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> SHOW TABLES;
++----------------------+
+| Tables_in_session_db |
++----------------------+
+| session_tb           |
++----------------------+
+1 row in set (0.00 sec)
+
+
+SELECT * FROM session_tb;
+SELECT * FROM session_tb WHERE id = 48;
+
+SELECT filename, timestamp FROM session_tb WHERE id = 48;
+DELETE                     FROM session_tb WHERE id = 48;
+
+SELECT id, filename, timestamp FROM session_tb WHERE tx_bytes_total < 0;
+DELETE                         FROM session_tb WHERE tx_bytes_total < 0;
+
+SELECT id, filename, timestamp FROM session_tb WHERE port = 49901;
+DELETE                         FROM session_tb WHERE port = 49901;
+
+
+
+
+
+
+

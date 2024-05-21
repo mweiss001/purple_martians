@@ -211,19 +211,13 @@ void mwDisplay::enforce_valid_window_pos(void)
 
 int mwDisplay::init_display(void)
 {
-   if (mMain.headless_server)
-   {
-      no_display = 1;
-      return 0;
-   }
-
    int num_adapters = al_get_num_video_adapters();
    if (num_adapters == 0)
    {
       printf("No Display Adapters Found!\n");
-      no_display = 1;
       return 0;
    }
+
    al_set_new_display_adapter(0);
    if (fullscreen_monitor_num > num_adapters) fullscreen_monitor_num = 0;
 
@@ -254,12 +248,10 @@ int mwDisplay::init_display(void)
 
    al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
    display = al_create_display(disp_w_wind, disp_h_wind);
-
-
-   if(!display)
+   if (!display)
    {
-      mInput.m_err("Error creating display");
-      exit(0);
+      printf("Error creating display!\n");
+      return 0;
    }
 
    if (fullscreen) set_fullscreen();
@@ -284,7 +276,7 @@ int mwDisplay::init_display(void)
 //   printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
 
    //printf("init screen\n");
-   mBitmap.create_bitmaps();
+   //mBitmap.create_bitmaps();
    return 1;
 }
 

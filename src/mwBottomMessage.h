@@ -32,7 +32,7 @@ class mwBottomMessage
 
    void create_test_mode_list(void);
 
-   void create_bitmaps(void);
+   void bmsg_create_bitmaps(void);
    void initialize(void);
 
 

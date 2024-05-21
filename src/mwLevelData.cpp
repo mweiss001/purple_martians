@@ -1049,8 +1049,6 @@ void mwLevel::dump_level_data(void)
       printf("i:%d %d \n", i, area_locks[i]);
 
 
-
-
 }
 
 void mwLevel::create_level_icons(void)
@@ -1067,9 +1065,11 @@ void mwLevel::create_level_icons(void)
    al_set_target_bitmap(tmp_200);
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
-
    int x=0;
    int y=0;
+
+   level_icons_loaded = 1; // this has to be here to prevent a recursive loop when load level gets called 100 times
+
    for (int i=0; i<100; i++)
    {
       if (mLevel.load_level(i, 0, 1))
@@ -1086,6 +1086,7 @@ void mwLevel::create_level_icons(void)
       al_draw_text(mFont.pr8, mColor.pc[15], mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating Level Icons");
       al_flip_display();
 
+      // iterate through the rows and columns
       if (++x > 9)
       {
          x = 0;
@@ -1103,69 +1104,40 @@ void mwLevel::create_level_icons(void)
    load_level_icons();
 }
 
-
-
 void mwLevel::load_level_icons(void)
 {
    if (!mDisplay.no_display)
    {
-      int sz = 100;
-      ALLEGRO_BITMAP *tmp = al_load_bitmap("data/level_icons_100.bmp");
-      if (!tmp)
+      ALLEGRO_BITMAP *tmp_100 = al_load_bitmap("data/level_icons_100.bmp");
+      ALLEGRO_BITMAP *tmp_200 = al_load_bitmap("data/level_icons_200.bmp");
+      if ((!tmp_100) || (!tmp_200))
       {
-         printf("Error loading tiles from: level_icons_100.bmp - recreating\n");
+         printf("Error loading level_icon bitmaps - recreating\n");
          create_level_icons();
       }
       else
       {
-         int x=0;
-         int y=0;
+         int x=0, y=0;
          for (int i=0; i<100; i++)
          {
-            if (!level_icon_100[i]) level_icon_100[i] = al_create_bitmap(sz, sz);
-
             al_set_target_bitmap(level_icon_100[i]);
             al_clear_to_color(al_map_rgba(0,0,0,0));
-
-            al_draw_bitmap_region(tmp, x*sz, y*sz, sz, sz, 0, 0, 0);
-            if (++x > 9)
-            {
-               x = 0;
-               y++;
-            }
-        }
-        al_destroy_bitmap(tmp);
-      }
-
-      sz = 200;
-      tmp = al_load_bitmap("data/level_icons_200.bmp");
-      if (!tmp)
-      {
-         printf("Error loading tiles from:level_icons_200.bmp - recreating\n");
-         create_level_icons();
-      }
-      else
-      {
-         int x=0;
-         int y=0;
-         for (int i=0; i<100; i++)
-         {
-            if (!level_icon_200[i]) level_icon_200[i] = al_create_bitmap(sz, sz);
+            al_draw_bitmap_region(tmp_100, x*100, y*100, 100, 100, 0, 0, 0);
 
             al_set_target_bitmap(level_icon_200[i]);
             al_clear_to_color(al_map_rgba(0,0,0,0));
+            al_draw_bitmap_region(tmp_200, x*200, y*200, 200, 200, 0, 0, 0);
 
-            al_draw_bitmap_region(tmp, x*sz, y*sz, sz, sz, 0, 0, 0);
+            // iterate through the rows and columns
             if (++x > 9)
             {
                x = 0;
                y++;
             }
-        }
-        al_destroy_bitmap(tmp);
+         }
+         al_destroy_bitmap(tmp_100);
+         al_destroy_bitmap(tmp_200);
+         level_icons_loaded = 1;
       }
    }
-   level_icons_loaded = 1;
 }
-
-

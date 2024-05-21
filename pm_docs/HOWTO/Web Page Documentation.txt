@@ -1,13 +1,12 @@
 How to work with web pages:
 
 The web pages are in the folder 'docs'.
-This was forced on me by github. It cannot be named anything else.
+This was forced on me by github. It cannot be named anything else if I want to use the free github webpage host.
 
 In my project I renamed my old 'docs' folder to 'pm_docs, that is where all the other documentation is.
 
 To make changes, I manually edit the web pages in the docs folder.
 When I commit the web pages are automatically updated.
-
 
 I have perl scripts to automate some tasks like rebuilding indexes.
 
@@ -39,13 +38,27 @@ shows where all mh7 tags are in all .html files
 shows where all [tag] tags are in all .html files
 
 
-
-
 I have used various perl distributions, the latest one is used I set up like this:
 20230128 win 10
 strawberry-perl-5.32.1.1.-64bit.msi
 setx path "%path%;C:\Strawberry\perl\bin"
 
+
+I now have my own domain name: purplemartians.org
+
+I host an official netgame server and my webpages.
+
+To edit and change web pages:
+They are still in pm/docs
+
+Edit them in place on your dev machine.
+When committing they will still get hosted on github automatically.
+
+Here is how to manually copy them from my windows dev machine to my server at purplemartians.org
+
+win_copy_to_pmh.bat html_delete_all
+win_copy_to_pmh.bat html_copy_all
+win_copy_to_pmh.bat html_copy_html
 
 
 
