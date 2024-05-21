@@ -54703,6 +54703,163 @@ do an new release
 
 
 7.24.0520.1
+put it on the server
+
+erase some dumb entries in the sessions log...done
+copy new webpages to final place...done
+
+
+
+
+
+
+
+I have A HUGE BUG!
+
+on lin and win versions
+
+dies trying to create level_icon bitmaps...
+
+C:\Users\m\Downloads\purple_martians_7.24.0520.1_windows\purple_martians_7.24.0520.1_windows>pm
+
+Purple Martians Version 7.24.0520.1
+Allegro Version: 5.2.8.1
+System ID: Windows
+Desktop Resolution: 3840x2160
+Error loading data/level_data.pm, recreating....
+Error loading tiles from: level_icons_100.bmp - recreating
+
+C:\Users\m\Downloads\purple_martians_7.24.0520.1_windows\purple_martians_7.24.0520.1_windows>
+
+
+
+
+
+recursive loop ???
+
+void mwLevel::create_level_icons(void)
+{
+   //double t0 = al_get_time();
+
+   printf("test 1\n");
+
+
+   int sz1 = 100;
+   ALLEGRO_BITMAP *tmp_100 = al_create_bitmap(sz1*10, sz1*10);
+   al_set_target_bitmap(tmp_100);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+
+   printf("test 2\n");
+
+
+   int sz2 = 200;
+   ALLEGRO_BITMAP *tmp_200 = al_create_bitmap(sz2*10, sz2*10);
+   al_set_target_bitmap(tmp_200);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+
+
+   int x=0;
+   int y=0;
+   for (int i=0; i<100; i++)
+   {
+      if (mLevel.load_level(i, 0, 1))
+      {
+         mScreen.draw_level2(tmp_100,  x*sz1, y*sz1, sz1, 1, 1, 1, 1, 0);
+         mScreen.draw_level2(tmp_200,  x*sz2, y*sz2, sz2, 1, 1, 1, 1, 0);
+      }
+
+      // show progress bar
+      int pc = (i*100 + 1) / 100;
+
+
+
+what is going on here?
+
+I should only create them at the beginning if they are not created already
+in initial setup
+at the end of initial setup...
+
+after that, just load and give error if you cant...
+
+
+i want to understand what is wrong first...
+
+i am in load level, and I call
+if (!level_icons_loaded) load_level_icons();
+then when i find they are not created, i run
+void mwLevel::create_level_icons(void)
+which calls load level 100 times...
+then in load level, the loop repeats...
+
+I want to move the bitmap creation to the same place all the other bitmaps get created
+
+Then I will load them for the first time and they will be created on disk if they do not exist yet...
+
+I could just make a call to
+void mwLevel::load_level_icons(void)
+
+from bitmap creation...
+
+
+
+/ done only once at start
+void mwBitmap::create_bitmaps(void)
+{
+   // create level_icon bitmaps
+   for (int i=0; i<100; i++)
+   {
+      mLevel.level_icon_100[i] = create_and_clear_bitmap(100, 100);
+      mLevel.level_icon_200[i] = create_and_clear_bitmap(200, 200);
+   }
+
+I think the main thing I did to fix it was:
+when recreating bitmaps, set level_icons_loaded, so it won't try to recursively call itself when loading 100 bitmaps
+
+but lots of other stuff got cleaned up at the same time...
+
+
+
+20240520 new release
+
+7.24.0520.2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

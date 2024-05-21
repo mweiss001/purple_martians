@@ -19,19 +19,12 @@ struct level_data
    int times_beat;
    int times_quit;
 
-
-//   int time_record;
-
    int time_par;
    int time_best;
    int time_best_all_coins;
    int time_worst;
    int time_average;
    int time_total;
-
-
-
-
 };
 
 
@@ -161,7 +154,6 @@ class mwLevel
    void check_achievments(void);
 
    void update_level_status(int lev);
-
 
    ALLEGRO_BITMAP * level_icon_100[100];
    ALLEGRO_BITMAP * level_icon_200[100];

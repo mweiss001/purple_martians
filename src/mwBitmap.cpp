@@ -53,11 +53,18 @@ void mwBitmap::create_bitmaps(void)
    dtilemap = create_and_clear_bitmap(176, 704);
 
    // create bottom message bitmaps
-   mBottomMessage.create_bitmaps();
+   mBottomMessage.bmsg_create_bitmaps();
 
    // create level_background and level_buffer bitmaps
    level_background  = create_and_clear_bitmap(2000, 2000);
    level_buffer      = create_and_clear_bitmap(2000, 2000);
+
+   // create level_icon bitmaps
+   for (int i=0; i<100; i++)
+   {
+      mLevel.level_icon_100[i] = create_and_clear_bitmap(100, 100);
+      mLevel.level_icon_200[i] = create_and_clear_bitmap(200, 200);
+   }
 }
 
 
@@ -92,7 +99,6 @@ void mwBitmap::rebuild_bitmaps(void)
 
    mFont.load_fonts();
    t[2] = al_get_time();
-
 
 
    if (mLevel.last_level_loaded == 1) mLevel.load_level_icons();
@@ -154,14 +160,12 @@ void mwBitmap::update_animation(void)
 
 int mwBitmap::load_tiles(void)
 {
-   int load_error = 0;
-
    // get main tiles
    tilemap = al_load_bitmap("bitmaps/tiles.bmp");
    if (!tilemap)
    {
       mInput.m_err("Can't load tiles from bitmaps/tiles.bmp");
-      load_error = 1;
+      return 0;
    }
    else
    {
@@ -178,7 +182,7 @@ int mwBitmap::load_tiles(void)
    if (!btilemap)
    {
       mInput.m_err("Can't load tiles from bitmaps/block_tiles.bmp");
-      load_error = 1;
+      return 0;
    }
    else
    {
@@ -195,7 +199,7 @@ int mwBitmap::load_tiles(void)
    if (!ptilemap)
    {
       mInput.m_err("Can't load tiles from bitmaps/player_tiles.bmp");
-      load_error = 1;
+      return 0;
    }
    else
    {
@@ -212,7 +216,7 @@ int mwBitmap::load_tiles(void)
    if (!dtilemap)
    {
       mInput.m_err("Can't load tiles from bitmaps/door_tiles.bmp");
-      load_error = 1;
+      return 0;
    }
    else
    {
@@ -226,9 +230,9 @@ int mwBitmap::load_tiles(void)
             door_tile[1][a][b] = al_create_sub_bitmap(dtilemap, b*22+1, (a+16)*22+1, 20, 20);
          }
    }
-   load_sprit(); // get animation sequences and shape attributes
-   if (load_error) return 0;
-   else return 1;
+   if (!load_sprit()) return 0; // get animation sequences and shape attributes
+
+   return 1;
 }
 
 
@@ -255,7 +259,7 @@ void mwBitmap::save_sprit(void)
    fclose(fp);
 }
 
-void mwBitmap::load_sprit(void)
+int mwBitmap::load_sprit(void)
 {
    FILE *fp = fopen("bitmaps/sprit001.pm", "rb");
    if (fp)
@@ -263,8 +267,13 @@ void mwBitmap::load_sprit(void)
       fread(zz, sizeof(zz), 1, fp);
       fread(sa, sizeof(sa), 1, fp);
       fclose(fp);
+      return 1;
    }
-   else printf("error opening bitmaps/sprit001.pm\n");
+   else
+   {
+      printf("error opening bitmaps/sprit001.pm\n");
+      return 0;
+   }
 }
 
 void mwBitmap::spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle)

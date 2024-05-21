@@ -220,13 +220,15 @@ int mwLevel::load_level(int level_num, int load_only, int fail_silently)
       // copy to game variables
       pml_to_var(pml);
 
-      if (level_num == 1)
-      {
-         set_overworld_barriers();
-         if (!level_icons_loaded) load_level_icons();
-      }
       if (!load_only)
       {
+
+         if (level_num == 1)
+         {
+            set_overworld_barriers();
+            if (!level_icons_loaded) load_level_icons();
+         }
+
          mLevel.valid_level_loaded = 1;
          mLift.lift_setup();
          for (int x=0; x<500; x++)

@@ -1542,10 +1542,16 @@ Netgame Stress Test Demonstration.
 
 pscp -r -pw zaiden C:\pm\docs\sessions\* m@96.45.9.166:sht/sessions
 
+
 copy to final place
 m@pmh:~$ sudo cp -r ~/sht/* /var/www/html
 
 sudo rm -r /var/www/html/*
+
+
+
+
+
 
 
 

@@ -9,7 +9,7 @@ class mwBitmap
 
    int load_tiles(void);
    void save_sprit(void);
-   void load_sprit(void);
+   int load_sprit(void);
 
    void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle);
 

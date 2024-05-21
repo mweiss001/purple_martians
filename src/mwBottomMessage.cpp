@@ -124,7 +124,7 @@ void mwBottomMessage::create_test_mode_list(void)
 
 
 
-void mwBottomMessage::create_bitmaps(void)
+void mwBottomMessage::bmsg_create_bitmaps(void)
 {
    for (int x=0; x<BMSG_MAX_LINES; x++)
    {

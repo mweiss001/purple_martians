@@ -22,73 +22,10 @@ void mwMain::final_wrapup(void)
 {
    mDisplay.refresh_window_position_and_size();
    mConfig.save_config(0);
-
    al_destroy_audio_stream(mSound.pm_theme_stream);
-/*
-   printf("al_uninstall_audio()\n");
-   al_uninstall_audio();
-
-   printf("al_destroy_font()\n");
-   al_destroy_font(font);
-   al_destroy_font(f1);
-   al_destroy_font(f2);
-   al_destroy_font(f3);
-
-   printf("al_shutdown_ttf_addon()\n");
-   al_shutdown_ttf_addon();
-
-   printf("al_shutdown_font_addon()\n");
-   al_shutdown_font_addon();
-
-   printf("al_shutdown_image_addon()\n");
-   al_shutdown_image_addon();
-
-   printf("al_shutdown_native_dialog_addon()\n");
-   al_shutdown_native_dialog_addon();
-
-   printf("al_shutdown_primitives_addon()\n");
-   al_shutdown_primitives_addon();
-
-   printf("al_unregister_event_source(event_queue, al_get_keyboard_event_source())\n");
-   al_unregister_event_source(event_queue, al_get_keyboard_event_source());
-
-   printf("al_uninstall_keyboard()\n");
-   al_uninstall_keyboard();
-
-   printf("al_unregister_event_source(event_queue, al_get_mouse_event_source())\n");
-   al_unregister_event_source(event_queue, al_get_mouse_event_source());
-
-   printf("al_uninstall_mouse()\n");
-   al_uninstall_mouse();
-
-   printf("al_unregister_event_source(event_queue, al_get_joystick_event_source())\n");
-   al_unregister_event_source(event_queue, al_get_joystick_event_source());
-
-   printf("al_uninstall_joystick()\n");
-   al_uninstall_joystick();
-
-   printf("al_unregister_event_source(event_queue, al_get_timer_event_source(mnu_timer));\n");
-   al_unregister_event_source(event_queue, al_get_timer_event_source(mnu_timer));
-
-   printf("al_unregister_event_source(event_queue, al_get_display_event_source(mDisplay.display))\n");
-   al_unregister_event_source(event_queue, al_get_display_event_source(mDisplay.display));
-
-   printf("al_destroy_display()\n");
-   al_destroy_display(mDisplay.display);
-
-   printf("al_destroy_event_queue(event_queue)\n");
-   al_destroy_event_queue(event_queue);
-
-  // printf("\nBefore al_uninstall_system()\n");
-   al_uninstall_system();
-  // printf("\nAfter al_uninstall_system()\n");
-
-  */
-
    al_inhibit_screensaver(false);
    al_uninstall_system();
 }
-
 
 void mwMain::fast_exit(void)
 {
@@ -155,15 +92,18 @@ int mwMain::initial_setup(void)
 {
    //al_set_config_value(al_get_system_config(), "trace", "level", "debug");
 
-   al_init();
+   if (!al_init())
+   {
+      printf("Failed to initialize allegro.\n");
+      return 0;
+   }
+
    set_exe_path();
    set_and_get_versions();
-
 
    mConfig.load_config();
 
    show_system_id();
-
    srand(time(NULL));
 
    // --- event queue ----------------
@@ -174,32 +114,30 @@ int mwMain::initial_setup(void)
       return 0;
    }
 
+   // --- timers -------------
    mEventQueue.create_timers();
 
-
-
-
-
-
    // --- display --------------------
-   mDisplay.init_display();
-
-   if ((mDisplay.no_display) && (!headless_server))
+   if (headless_server)
+   {
+      mDisplay.no_display = 1;
+      printf("Starting Headless Server.\n");
+      mSound.sound_on = 0;
+      mBitmap.load_sprit(); // get animation sequences and shape attributes
+   }
+   else if (!mDisplay.init_display())
    {
       printf("Failed to initialize display.\n");
       return 0;
    }
 
-   al_inhibit_screensaver(true);
+   // --- things that depend on a display ---------------
+   if (!mDisplay.no_display)
+   {
+      mBitmap.create_bitmaps();
 
-   if (headless_server)
-   {
-      printf("Starting Headless Server.\n");
-      mSound.sound_on = 0;
-      mBitmap.load_sprit(); // get animation sequences and shape attributes
-   }
-   else if (!mDisplay.no_display) // normal
-   {
+      al_inhibit_screensaver(true);
+
       al_register_event_source(mEventQueue.event_queue, al_get_display_event_source(mDisplay.display));
 
       // --- allegro add ons ------------
@@ -208,7 +146,6 @@ int mwMain::initial_setup(void)
          mInput.m_err("Failed to initialize native dialog addon.\n");
          return 0;
       }
-
       if(!al_init_primitives_addon())
       {
          mInput.m_err("Failed to initialize primitives addon.\n");
@@ -254,7 +191,6 @@ int mwMain::initial_setup(void)
       al_register_event_source(mEventQueue.event_queue, al_get_mouse_event_source());
       al_hide_mouse_cursor(mDisplay.display);
 
-
       // --- joystick -------------------
       if (!al_install_joystick())
       {
@@ -281,15 +217,13 @@ int mwMain::initial_setup(void)
       al_set_display_icon(mDisplay.display, mBitmap.tile[401]);
 
       mSound.load_sound();
-
    }
+
 
    // init players
    mPlayer.set_default_player_colors();
    for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1);
    mPlayer.syn[0].active = 1;
-
-
 
    mDemoMode.autoplay_enabled = mDemoMode.config_autoplay_enabled; // set only at startup from config file
 
