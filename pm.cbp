@@ -18,9 +18,6 @@
 					<Add directory="C:/Program Files/CodeBlocks/MinGW/include" />
 				</Compiler>
 				<Linker>
-					<Add option="-static-libstdc++" />
-					<Add option="-static-libgcc" />
-					<Add option="-static" />
 					<Add option="-lallegro_monolith-static" />
 					<Add option="-ldumb" />
 					<Add option="-lfreetype" />

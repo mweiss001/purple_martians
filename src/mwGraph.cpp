@@ -9,7 +9,7 @@
 #include "mwEventQueue.h"
 #include "mwMenu.h"
 #include "mwMulticolorLine.h"
-
+#include "mwHelp.h"
 
 
 mwGraph mGraph[10];
@@ -1343,6 +1343,8 @@ void mwGraph::proc_plot_menu(void)
       sprintf(mMenu.menu_string[3],"Auto Range X Axis");
       sprintf(mMenu.menu_string[4],"Auto Range Y Axis");
 
+
+
       if (plot_show_performance) sprintf(mMenu.menu_string[5],"Hide Performance Stats");
       else                       sprintf(mMenu.menu_string[5],"Show Performance Stats");
 
@@ -1382,7 +1384,13 @@ void mwGraph::proc_plot_menu(void)
       else                       sprintf(mMenu.menu_string[ya],"-- X Axis: [Locked] --");
       if (x_axis_slave)          sprintf(mMenu.menu_string[ya],"-- X Axis: [Slave] --");
 
-      sprintf(mMenu.menu_string[13],"end");
+
+
+
+      sprintf(mMenu.menu_string[13],"Help");
+
+
+      sprintf(mMenu.menu_string[14],"end");
       switch (mMenu.pmenu(5, 13, -20, 2))
       {
          case 2: autorange_axis(1, 1); break;
@@ -1405,9 +1413,11 @@ void mwGraph::proc_plot_menu(void)
             else if (y_axis_zoom_lock == 2) y_axis_zoom_lock = 1;  // auto to locked
          break;
          case 12: if (!x_axis_slave) x_axis_zoom_lock =! x_axis_zoom_lock; break;
+         case 13: mHelp.help("Graph Controls"); break;
       }
    }
 }
+
 
 void mwGraph::proc_plot_mouse_cursor_crosshairs(double mx1, double my1)
 {

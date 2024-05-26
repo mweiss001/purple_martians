@@ -304,6 +304,27 @@ hold off...don't care
 
 
 
+compiler options for the windows_static target:
+
+need:
+static libgcc
+static libstdc++
+static linking
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

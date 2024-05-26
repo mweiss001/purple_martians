@@ -271,7 +271,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
             for (int p=1; p<NUM_PLAYERS; p++)
                if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
                {
-                  mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON; // this lets the clients quit gracefully instead of timing out with lost server connection
+                  mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN; // this lets the clients quit gracefully instead of timing out with lost server connection
                   add_game_move2(frame + 10, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, PM_PLAYER_QUIT_REASON_SERVER_ENDED_GAME);
                }
 

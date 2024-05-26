@@ -19,6 +19,8 @@
 #include "mwLog.h"
 #include "mwVisualLevel.h"
 #include "mwMain.h"
+#include "mwEventQueue.h"
+
 
 
 mwDisplay mDisplay;
@@ -283,16 +285,40 @@ int mwDisplay::init_display(void)
 
 void mwDisplay::proc_display_change(void)
 {
-   //printf("proc_display_change\n");
-   al_acknowledge_resize(display); // important that this is here, later and it does not work as intended
+   if (last_display_change_frame != mLoop.frame_num - 1) // skip if just changed last frame
+   {
+      last_display_change_frame = mLoop.frame_num;
 
-   refresh_window_position_and_size();
-   set_display_transform();
-   mBitmap.rebuild_bitmaps();
-   mConfig.save_config(PM_CFG_SAVE_DISPLAY);
-   //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
-   set_window_title();
+      al_acknowledge_resize(display); // important that this is here, later and it does not work as intended
+
+      refresh_window_position_and_size();
+      set_display_transform();
+      mBitmap.rebuild_bitmaps();
+      mConfig.save_config(PM_CFG_SAVE_DISPLAY);
+      //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
+      set_window_title();
+   }
 }
+
+//   if (last_display_change_frame == mLoop.frame_num - 1) // just changed last frame
+//   {
+//      //printf("skipping display change on frame:%d - just changed last frame:%d\n", mLoop.frame_num, last_display_change_frame);
+//   }
+//   else
+//   {
+//      last_display_change_frame = mLoop.frame_num;
+//
+//      //printf("%d - proc_display_change\n", mLoop.frame_num);
+//      al_acknowledge_resize(display); // important that this is here, later and it does not work as intended
+//
+//      refresh_window_position_and_size();
+//      set_display_transform();
+//      mBitmap.rebuild_bitmaps();
+//      mConfig.save_config(PM_CFG_SAVE_DISPLAY);
+//      //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
+//      set_window_title();
+//   }
+//}
 
 
 // when the window is moved, no events are sent (in linux)
@@ -321,18 +347,22 @@ void mwDisplay::refresh_window_position_and_size(void)
 
 void mwDisplay::toggle_fullscreen(void)
 {
+   //printf("toggle fullscreen\n");
    if (fullscreen) // change from fullscreen to windowed
    {
       set_windowed();
+      //printf("toggle fullscreen to window\n");
    }
    else // change from windowed to fullscreen
    {
+      //printf("toggle window to fullscreen\n");
       // update current position of window (this line is needed for linux)
       al_get_window_position(display, &disp_x_wind, &disp_y_wind);
       if (al_get_system_id() != ALLEGRO_SYSTEM_ID_XGLX) set_fullscreen_monitor_num_to_monitor_current_window_is_on();
       set_fullscreen();
    }
    proc_display_change();
+
 }
 
 void mwDisplay::set_windowed(void)

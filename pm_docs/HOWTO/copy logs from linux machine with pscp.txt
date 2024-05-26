@@ -1,0 +1,1 @@
+C:\pm>pscp -pw zaiden m@scat:dev/purple_martians/logs/* c:\pm\logs

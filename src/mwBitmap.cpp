@@ -11,6 +11,8 @@
 #include "mwInput.h"
 #include "mwLevel.h"
 #include "mwLoop.h"
+#include "mwHelp.h"
+
 
 mwBitmap mBitmap;
 
@@ -37,14 +39,8 @@ void mwBitmap::create_bitmaps(void)
    M_ptilemap = create_and_clear_bitmap(528, 352);
    M_dtilemap = create_and_clear_bitmap(176, 704);
 
-
-   //this bitmap format is used for tiles
-   //al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP | ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR | ALLEGRO_MIPMAP);
-   //al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP | ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
-
    // this bitmap format is used for all other bitmaps
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
-
 
    // create tilemap bitmaps
    tilemap  = create_and_clear_bitmap(704, 704);
@@ -95,26 +91,28 @@ void mwBitmap::rebuild_bitmaps(void)
    al_draw_bitmap(M_dtilemap, 0, 0, 0);
 
    t[1] = al_get_time();
-   //printf("restore tile array time:%f\n", al_get_time() - t[0]);
 
+
+   // rebuild fonts
    mFont.load_fonts();
    t[2] = al_get_time();
 
-
+   // rebuild level_icons
    if (mLevel.last_level_loaded == 1) mLevel.load_level_icons();
    else mLevel.level_icons_loaded = 0;
    t[3] = al_get_time();
 
-
-
+   // rebuild level_background
    mScreen.init_level_background();
    t[4] = al_get_time();
 
+   // misc setup
    mDisplay.set_display_transform();
-   mLogo.logo_text_bitmaps_create = 1;
-   large_text_overlay_state = 0;
-   text_title_bitmaps_create = 1;
    mScreen.set_map_var();
+   mLogo.logo_text_bitmaps_create = 1;
+   text_title_bitmaps_create = 1;
+   large_text_overlay_state = 0;
+   mHelp.help_bitmap_reload = 1;
    mVisualLevel.load_visual_level_select_done = 0;
    mLevel.level_stats_bmp_msg_type = 0;
    t[5] = al_get_time();
@@ -278,7 +276,7 @@ int mwBitmap::load_sprit(void)
 
 void mwBitmap::spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle)
 {
-   int cti = cycle; // how many frame a full spin takes
+   int cti = cycle; // how many frames a full spin takes
 
    float ct = (int)cti; //cycle time
    float ct1 = ct/4;    // 20

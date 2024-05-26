@@ -71,35 +71,14 @@ void mwEventQueue::proc_menu(void)
    mPlayer.set_controls_from_player_key_check(mPlayer.active_local_player);
 }
 
-
-
 void mwEventQueue::adjust_fps_timer(int new_fps)
 {
    mLoop.frame_speed = new_fps;
    al_set_timer_speed(mEventQueue.fps_timer, (1 / (double) mLoop.frame_speed));
 }
 
-
 void mwEventQueue::reset_fps_timer(void)
 {
    mLoop.frame_speed = 40;
    al_set_timer_speed(mEventQueue.fps_timer, (1 / (double) mLoop.frame_speed));
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

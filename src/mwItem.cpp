@@ -122,7 +122,6 @@ void mwItem::draw_items(void)
    for (int i=0; i<500; i++)
       if ((item[i][0]) && (!((mItem.item[i][0] == 10) && (!strncmp(mItem.pmsgtext[i], "Level Statistics", 16))))) // skip drawing level stats message here, do it later
          draw_item(i, 0, 0, 0);
-
 }
 
 
@@ -140,28 +139,24 @@ void mwItem::draw_item(int i, int custom, int cx, int cy)
       y = cy;
    }
    int drawn = 0;
-   if (type == PM_ITEM_TYPE_DOOR)   drawn = draw_door         (i, x, y, custom);
-   if (type == PM_ITEM_TYPE_BONUS)  drawn = draw_bonus        (i, x, y, shape);
-   if (type == PM_ITEM_TYPE_EXIT)   drawn = draw_exit         (i, x, y, shape);
-   if (type == PM_ITEM_TYPE_KEY)    drawn = draw_key          (i, x, y, shape);
-   if (type == PM_ITEM_TYPE_START)  drawn = draw_start        (i, x, y, shape);
-   if (type == PM_ITEM_TYPE_ORB)    drawn = draw_orb          (i, x, y);
-   if (type == PM_ITEM_TYPE_BOMB)   drawn = draw_bomb         (i, x, y, shape);
-   if (type == PM_ITEM_TYPE_TRIGGR) drawn = draw_trigger      (i, x, y, custom);
-   if (type == PM_ITEM_TYPE_MSG)    drawn = draw_message      (i, x, y, custom);
-   if (type == PM_ITEM_TYPE_ROCKET) drawn = draw_rocket       (i, x, y, shape);
-   if (type == PM_ITEM_TYPE_TIMER)  drawn = draw_timer        (i, x, y, custom);
-   if (type == PM_ITEM_TYPE_BLKMNP) drawn = draw_block_manip  (i, x, y);
-   if (type == PM_ITEM_TYPE_BLKDMG) drawn = draw_block_damage (i, x, y, custom);
-
-//   if (type == PM_ITEM_TYPE_GATE) drawn = draw_gate         (i, x, y, custom);
-
-   if (type == PM_ITEM_TYPE_GATE) drawn = 1;
-
-   if (type == PM_ITEM_TYPE_HIDER) drawn = draw_hider        (i, x, y, shape);
-
+   if (type == PM_ITEM_TYPE_DOOR)     drawn = draw_door         (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_BONUS)    drawn = draw_bonus        (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_EXIT)     drawn = draw_exit         (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_KEY)      drawn = draw_key          (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_START)    drawn = draw_start        (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_ORB)      drawn = draw_orb          (i, x, y);
+   if (type == PM_ITEM_TYPE_BOMB)     drawn = draw_bomb         (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_TRIGGR)   drawn = draw_trigger      (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_MSG)      drawn = draw_message      (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_ROCKET)   drawn = draw_rocket       (i, x, y, shape);
+   if (type == PM_ITEM_TYPE_TIMER)    drawn = draw_timer        (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_BLKMNP)   drawn = draw_block_manip  (i, x, y);
+   if (type == PM_ITEM_TYPE_BLKDMG)   drawn = draw_block_damage (i, x, y, custom);
+   if (type == PM_ITEM_TYPE_HIDER)    drawn = draw_hider        (i, x, y, shape);
    if (type == PM_ITEM_TYPE_LIT_RCKT) drawn = draw_rocket       (i, x, y, shape);
    if (type == PM_ITEM_TYPE_LIT_BOMB) drawn = draw_lit_bomb     (i);
+   if (type == PM_ITEM_TYPE_GATE)     drawn = 1;
+
 
    // default draw if nothing else has drawn it up to now
    if (!drawn) al_draw_bitmap(mBitmap.tile[shape], x, y, 0);
