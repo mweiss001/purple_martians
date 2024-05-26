@@ -307,8 +307,6 @@ In 'Settings' -> 'Main' you can choose between 2 different Game Modes:
 
 <l15>        [F10] - Toggle the debug overlay
 
-<l05>[PRINTSCREEN] - Saves a screen shot
-
 <b15>
 
 <c15>You can customize these controls in 'Settings' -> 'Controls 2'
@@ -3606,7 +3604,7 @@ the player number.
 
 <l15>Click and drag - scrolls the graph
 
-<l15>Shift click and drag - zooms to the selected x region
+<l15>Shift click and drag - zooms to the selected region
 
 <l15>Right click and hold - pop up menu
 
@@ -3639,9 +3637,42 @@ the player number.
 
 <l15>Click and drag - scrolls the graph
 
-<l15>Shift click and drag - zooms to the selected x region
+<l15>Shift click and drag - zooms to the selected region
 
 <l15>Right click and hold - pop up menu
+
+
+<section>Graph Controls
+
+
+
+<c09>While viewing a graph, the following controls are available:
+
+
+<l15>You can use the horizontal and vertical scroll bars to move and resize.
+
+
+<l14>Mouse wheel<l15> - zooms in and out, centered on mouse position
+
+<l14>Left click and drag<l15> - scrolls the graph
+
+<l14>Shift left click and drag<l15> - zooms to the selected region
+
+<l14>Right click and hold<l15> - pop up menu
+
+
+<l15>You lock the x or y axis to prevent scrolling and resizing.
+<l15>(this is usefull to only resize in one axis while the other is locked)
+
+
+<l15>You can toggle items in the legend by clicking on them.
+
+
+<l15>There is also a legend pop-up menu acessible by right clicking on legend.
+
+
+
+<l15>Exit the graph with <l14>[ESC]
 
 
 

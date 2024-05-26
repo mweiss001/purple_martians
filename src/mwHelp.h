@@ -5,6 +5,8 @@ class mwHelp
    public:
    void help(const char *topic);
 
+   int help_bitmap_reload = 1;
+
    private:
    void load_help(void);
 

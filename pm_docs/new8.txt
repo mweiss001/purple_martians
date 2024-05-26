@@ -54713,7 +54713,6 @@ copy new webpages to final place...done
 
 
 
-
 I have A HUGE BUG!
 
 on lin and win versions
@@ -54822,37 +54821,60 @@ but lots of other stuff got cleaned up at the same time...
 20240520 new release
 
 7.24.0520.2
+seems to work better now, no crashing on start!!
 
+removed [PRINTSCREEN] from help
 
+can I implement help on graph?...yes...done
 
+BUG - status window and help window bitmap disappear in help screens when resized...fixed
 
 
 
 
 
+code blocks compiler settings for target windows static:
 
+I had these three things checked:
 
+Static libgcc [-static-libgcc]
+Static libstdc++ [-static-libstdc++]
+Static Linking [-static]
 
+why?
 
+removing them still seems to work....
 
+now the only setting I have is -Wall
 
 
 
+what is the max amount of lines in the legend for profile graph
 
 
+only 20 series are defined in graph class
 
 
 
 
+20240525  i dont think I am erasing the log enough...
 
+right now I only do it after saving
 
+I need to do it when?
 
+added to mwLog constructor
 
+how about at start new game (single, server, client)...im going to hold off on that for now...
 
 
+why does rebuild bitmaps get called twice?
 
+void mwBitmap::rebuild_bitmaps(void)
 
+only one call, from:
 
+void mwDisplay::proc_display_change(void)
 
 
 
@@ -54861,475 +54883,165 @@ but lots of other stuff got cleaned up at the same time...
 
 
 
+This is when I am only printing to console:
+no doubles, no ev RESIZE
 
+toggle fullscreen
+119 - proc_display_change
+tiles:[32.8866] fonts:[28.4368] icons:[0.0006] lvbk:[0.8281] misc:[0.0062] totl:[62.1583]
 
+toggle fullscreen
+151 - proc_display_change
+tiles:[14.4986] fonts:[4.1954] icons:[0.0006] lvbk:[0.7998] misc:[0.0049] totl:[19.4993]
 
+toggle fullscreen
+184 - proc_display_change
+tiles:[15.6377] fonts:[4.4110] icons:[0.0005] lvbk:[0.8858] misc:[0.0056] totl:[20.9406]
 
+toggle fullscreen
+218 - proc_display_change
+tiles:[16.2459] fonts:[4.5883] icons:[0.0010] lvbk:[0.7805] misc:[0.0055] totl:[21.6212]
 
+toggle fullscreen
+246 - proc_display_change
+tiles:[16.5001] fonts:[4.4376] icons:[0.0006] lvbk:[0.8403] misc:[0.0054] totl:[21.7840]
 
+toggle fullscreen
+274 - proc_display_change
+tiles:[16.9489] fonts:[4.7004] icons:[0.0005] lvbk:[1.0885] misc:[0.0048] totl:[22.7431]
 
 
+This is when I am printing to console and logging to file:
+double and ev RESIZE
 
+toggle fullscreen
+66 - proc_display_change
+tiles:[30.9405] fonts:[30.5978] icons:[0.0010] lvbk:[0.8532] misc:[0.0045] totl:[62.3970]
+ev: ALLEGRO_EVENT_DISPLAY_RESIZE
+67 - proc_display_change
+tiles:[65.2586] fonts:[11.2803] icons:[0.0006] lvbk:[0.6581] misc:[0.0051] totl:[77.2027]
 
+toggle fullscreen
+102 - proc_display_change
+tiles:[14.6503] fonts:[4.2338] icons:[0.0007] lvbk:[0.6699] misc:[0.0046] totl:[19.5593]
 
+toggle fullscreen
+146 - proc_display_change
+tiles:[15.0356] fonts:[4.4141] icons:[0.0008] lvbk:[0.6890] misc:[0.0046] totl:[20.1441]
+ev: ALLEGRO_EVENT_DISPLAY_RESIZE
+147 - proc_display_change
+tiles:[12.9714] fonts:[3.7344] icons:[0.0005] lvbk:[0.7400] misc:[0.0043] totl:[17.4506]
 
+toggle fullscreen
+188 - proc_display_change
+tiles:[16.8720] fonts:[4.4325] icons:[0.0006] lvbk:[0.6546] misc:[0.0039] totl:[21.9636]
+ev: ALLEGRO_EVENT_DISPLAY_RESIZE
+189 - proc_display_change
+tiles:[12.2489] fonts:[4.6949] icons:[0.0004] lvbk:[0.6493] misc:[0.0037] totl:[17.5972]
+logs/20240526-061637-[2][m36].txt saved
 
 
+Why??
 
 
+what if I manually look for and remove ev:ALLEGRO_EVENT_DISPLAY_RESIZE when changing the screen.
+that did not seem to work...
+remove the event killer function...done
 
 
+what if I detect if I just resized last frame, then don't do it again this frame...
 
+int last_display_change_frame.
 
 
+toggle window to fullscreen
+54 - proc_display_change
+tiles:[24.8067] fonts:[28.8572] icons:[0.0008] lvbk:[1.0481] misc:[0.0063] totl:[54.7191]
+ev: ALLEGRO_EVENT_DISPLAY_RESIZE
+skipping display change on frame:55 - just changed last frame:54
 
+toggle fullscreen to window
+77 - proc_display_change
+tiles:[31.8057] fonts:[6.4178] icons:[0.0006] lvbk:[0.6835] misc:[0.0048] totl:[38.9124]
 
+toggle window to fullscreen
+98 - proc_display_change
+tiles:[31.0961] fonts:[5.7901] icons:[0.0006] lvbk:[0.7054] misc:[0.0047] totl:[37.5969]
+ev: ALLEGRO_EVENT_DISPLAY_RESIZE
+skipping display change on frame:99 - just changed last frame:98
 
+toggle fullscreen to window
+121 - proc_display_change
+tiles:[34.2622] fonts:[10.7651] icons:[0.0006] lvbk:[0.7647] misc:[0.0045] totl:[45.7971]
+ev: ALLEGRO_EVENT_DISPLAY_RESIZE
+skipping display change on frame:122 - just changed last frame:121
 
+toggle window to fullscreen
+142 - proc_display_change
+tiles:[30.0533] fonts:[11.9988] icons:[0.0006] lvbk:[0.7551] misc:[0.0042] totl:[42.8120]
+ev: ALLEGRO_EVENT_DISPLAY_RESIZE
+skipping display change on frame:143 - just changed last frame:142
 
+toggle fullscreen to window
+165 - proc_display_change
+tiles:[37.7754] fonts:[6.5914] icons:[0.0005] lvbk:[0.7714] misc:[0.0050] totl:[45.1437]
+ev: ALLEGRO_EVENT_DISPLAY_RESIZE
+skipping display change on frame:166 - just changed last frame:165
 
 
+how does it work on linux, it seems to work...
 
+this code seems to do what I want
 
+void mwDisplay::proc_display_change(void)
+{
+   if (last_display_change_frame == mLoop.frame_num - 1) // just changed last frame
+   {
+      printf("skipping display change on frame:%d - just changed last frame:%d\n", mLoop.frame_num, last_display_change_frame);
+   }
+   else
+   {
+      last_display_change_frame = mLoop.frame_num;
 
+      printf("%d - proc_display_change\n", mLoop.frame_num);
+      al_acknowledge_resize(display); // important that this is here, later and it does not work as intended
 
+      refresh_window_position_and_size();
+      set_display_transform();
+      mBitmap.rebuild_bitmaps();
+      mConfig.save_config(PM_CFG_SAVE_DISPLAY);
+      //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
+      set_window_title();
+   }
+}
 
+it only works when the game is running and frame_number can be used to tell last frame.
+this is not the case in menu and I still get doubles there....
 
+what can I do about that? make a special frame counter for menu?
+ignore it?
 
+lets go with ignore for now...
 
+test on many machines...
 
+tiles can take 25ms first time but then 16 after that...
 
+remove the console printing..done
 
+OK this one is pretty much ready
 
+what the hell does CPU do? measure the time to process the loop. even when proc_display change take 60ms cpu never goes over 2 or 3...???
+i think it is because the event queue is processed outside of the main game loop
 
+move_tot
 
 
+do a new version then shut off scat and record....
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+7.24.0526.1
 
 
 

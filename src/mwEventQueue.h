@@ -19,10 +19,8 @@ class mwEventQueue
    void proc(int pch);
    void proc_menu(void);
 
-
    void adjust_fps_timer(int new_fps);
    void reset_fps_timer(void);
-
 
    private:
    void proc_events(ALLEGRO_EVENT ev);

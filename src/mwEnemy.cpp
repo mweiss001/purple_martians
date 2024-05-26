@@ -228,13 +228,17 @@ void mwEnemy::move_enemies()
       if (Ei[e][0])
       {
          double t0 = al_get_time();
+
+         int enemy_type = Ei[e][0];
+
          num_enemy++; // enemy count
-         if (Ei[e][0] < 50) proc_enemy_collision_with_pshot(e);
+         if (enemy_type < 50) proc_enemy_collision_with_pshot(e);
+
          // check for time to live
          int ttl = Ei[e][27];
          if (ttl)
          {
-            if (ttl < 11)
+            if (ttl < 11) // start enemy expired sequence
             {
                Ei[e][0] = 66;      // change to different type to prevent use
                Ef[e][4] = 0;       // cant hurt anymore
@@ -246,26 +250,29 @@ void mwEnemy::move_enemies()
             Ei[e][27]--;
          }
 
+
          // check for out of bounds
          if ((Ef[e][0] < 0) || (Ef[e][0] > 1980)) Ei[e][0]=0;
          if ((Ef[e][1] < 0) || (Ef[e][1] > 1980)) Ei[e][0]=0;
 
-         switch (Ei[e][0])
+
+
+         switch (enemy_type)
          {
-            case 1:  move_bouncer(e);   break;
-            case 2:  move_cannon(e);    break;
-            case 3:  move_archwagon(e); break;
-            case 4:  move_blokwalk(e);  break;
-            case 5:  move_jumpworm(e);  break;
-            case 6:  move_flapper(e);   break;
-            case 7:  move_vinepod(e);  break;
-            case 8:  move_trakbot(e);  break;
-            case 9:  move_cloner(e);  break;
-            case 19:  move_crew(e);  break;
-            case 99: enemy_deathcount(e); break;
+            case 1:   move_bouncer(e);     break;
+            case 2:   move_cannon(e);      break;
+            case 3:   move_archwagon(e);   break;
+            case 4:   move_blokwalk(e);    break;
+            case 5:   move_jumpworm(e);    break;
+            case 6:   move_flapper(e);     break;
+            case 7:   move_vinepod(e);     break;
+            case 8:   move_trakbot(e);     break;
+            case 9:   move_cloner(e);      break;
+            case 19:  move_crew(e);        break;
+            case 99:  enemy_deathcount(e); break;
          }
-         tmr_tally[Ei[e][0]][0]++;
-         tmr_tally[Ei[e][0]][1]+= al_get_time()-t0;
+         tmr_tally[enemy_type][0]++;                  // tally number of enemies of this type
+         tmr_tally[enemy_type][1]+= al_get_time()-t0; // tally proc time for enemies of this type
       }
 
 

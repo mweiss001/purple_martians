@@ -150,12 +150,7 @@ class mwScreen
    // screen overlay
    int player_text_overlay_timer_reset_val = 80;
    void add_player_text_overlay(int p, int type);
-
-
-//   void proc_player_text_overlay_timers(void);
-
    void proc_player_text_overlay_timer(int p);
-
    int draw_player_text_overlay(void);
 
    int dif_from_now_to_nl();
@@ -178,7 +173,7 @@ class mwScreen
    void cdg_show(int x, int y);
    void draw_top_frame(int p);
    void draw_bottom_frame(int p);
-   void draw_common_debug_overlay(int p, int &cx, int &cy);
+   int draw_common_debug_overlay(int p, int &cx, int &cy);
 
    void draw_viewport_debug_overlay(int p, int &cx, int &cy);
    void draw_bandwidth_stats(int &cx, int &cy);

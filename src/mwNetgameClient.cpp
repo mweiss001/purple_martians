@@ -651,7 +651,7 @@ void mwNetgame::client_apply_dif(void)
    if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL;
 
    // server quit
-   if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON) mLoop.state[0] = PM_PROGRAM_STATE_MENU;
+   if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN) mLoop.state[0] = PM_PROGRAM_STATE_MENU;
 
 
    // compare old_l to l and redraw changed tiles
@@ -782,7 +782,7 @@ void mwNetgame::client_timer_adjust(void)
 void mwNetgame::client_proc_player_drop(void)
 {
    int p = mPlayer.active_local_player;
-   if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON)
+   if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN)
    {
       mPlayer.loc[p].quit_reason = PM_PLAYER_QUIT_REASON_SERVER_ENDED_GAME;
       mLog.log_ending_stats_client(LOG_NET_ending_stats, p);

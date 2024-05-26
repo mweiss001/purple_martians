@@ -32,6 +32,10 @@ class mwDisplay
    int fullscreen = 1;
    int fullscreen_monitor_num = 0;
 
+
+   int last_display_change_frame = 0;
+
+
    int show_scale_factor;
    int scale_factor_holdoff;
 

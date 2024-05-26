@@ -16,6 +16,9 @@ mwLog mLog;
 mwLog::mwLog()
 {
    // init_log_types(); // now only done when recreating settings.pm
+
+   erase_log();
+
 }
 
 void mwLog::init_log_types(void)
@@ -82,35 +85,31 @@ void mwLog::erase_log(void)
 
 void mwLog::save_log_file(void)
 {
-   al_make_directory("logs"); // create if not already created
-   FILE *filepntr;
-
-   char filename[256];
-   struct tm *timenow;
-   time_t now = time(NULL);
-   timenow = localtime(&now);
-   strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S", timenow);
-
-   char lh[16];
-   strncpy(lh, mLoop.local_hostname, 16); // to remove compiler error in case local_hostname is too long
-
-   char ph[80];
-   sprintf(ph, "-[%d][%s].txt", mLevel.play_level, lh );
-
-   strcat(filename, ph);
-
    if (strlen(log_msg) > 0)
    {
-      filepntr = fopen(filename,"w");
+      al_make_directory("logs"); // create if not already created
+
+      char filename[256];
+      time_t now = time(NULL);
+      struct tm *timenow = localtime(&now);
+      strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S", timenow);
+
+      char lh[16];
+      strncpy(lh, mLoop.local_hostname, 16); // only get max 16 char of local_hostname
+
+      char ph[80];
+      sprintf(ph, "-[%d][%s].txt", mLevel.play_level, lh );
+
+      strcat(filename, ph);
+
+      FILE *filepntr = fopen(filename,"w");
       fprintf(filepntr, "%s", log_msg);
       fclose(filepntr);
+
       printf("%s saved \n", filename);
+      erase_log();
    }
-   erase_log();
 }
-
-
-
 
 void mwLog::set_log_type_action(int type, int action)
 {
@@ -163,7 +162,6 @@ void mwLog::app(int type, const char *txt)
       {
          printf("log array full, > %d char\n", NUM_LOG_CHAR);
          save_log_file();
-         erase_log();
       }
       else
       {
@@ -334,7 +332,7 @@ void mwLog::log_ending_stats_server(int type)
 
    for (int p=1; p<NUM_PLAYERS; p++)
    {
-      if ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) || (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON))
+      if ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) || (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN))
       {
          add_fwf(type, p, 76, 10, "|", " ", "Player:%d (%s)", p, mPlayer.loc[p].hostname);
          add_fwf(type, p, 76, 10, "|", " ", "frame when client joined..[%d]", mPlayer.loc[p].join_frame);
@@ -452,42 +450,40 @@ void mwLog::log_bandwidth_stats(int type, int p)
 }
 
 
+
+// takes a printf style format
+void mwLog::add_tmrf(int type, const char *format, ...)
+{
+   char msg[200];
+   va_list args;
+   va_start(args, format);
+   vsprintf(msg, format, args);
+   va_end(args);
+   add_tmr(type, msg);
+}
+
 // for single tags
 void mwLog::add_tmr1(int type, const char *tag, double dt)
 {
-   char txt[500];
-   sprintf(txt, "%s:[%0.4f]\n", tag, dt*1000);
-   add_tmr(type, txt);
-}
-
-// takes a printf format
-void mwLog::add_tmrf(int type, const char *format, ...)
-{
-   char smsg[200];
-   va_list args;
-   va_start(args, format);
-   vsprintf(smsg, format, args);
-   va_end(args);
-   add_tmr(type, smsg);
+   char msg[500];
+   sprintf(msg, "%s:[%0.4f]\n", tag, dt*1000);
+   add_tmr(type, msg);
 }
 
 // takes an already formatted string
 void mwLog::add_tmr(int type, const char *txt)
 {
-   int p = mPlayer.active_local_player;
-
    if (log_types[type].action & LOG_ACTION_PRINT) printf("%s", txt);
    if (log_types[type].action & LOG_ACTION_LOG)
    {
-      char tmsg[500];
-      sprintf(tmsg, "[%2d][%d][%d]tmst %s", 44, p, mLoop.frame_num, txt); // force type 44
-
-      if ((log_msg_pos + strlen(tmsg)) >= NUM_LOG_CHAR) printf("log array full, > %d char\n", NUM_LOG_CHAR);
+      char msg[500];
+      sprintf(msg, "[%2d][%d][%d]tmst %s", LOG_TMR, mPlayer.active_local_player, mLoop.frame_num, txt);
+      if ((log_msg_pos + strlen(msg)) >= NUM_LOG_CHAR) printf("log array full, > %d char\n", NUM_LOG_CHAR);
       else
       {
-         memcpy(log_msg + log_msg_pos, tmsg, strlen(tmsg));
-         log_msg_pos += strlen(tmsg);
-         log_msg[log_msg_pos+1] = 0; // NULL terminate
+         memcpy(log_msg + log_msg_pos, msg, strlen(msg));
+         log_msg_pos += strlen(msg);
+         log_msg[log_msg_pos + 1] = 0; // NULL terminate
       }
    }
 }

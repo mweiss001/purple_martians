@@ -104,7 +104,9 @@ void mwHelp::help(const char *topic)
    char buff2[200];
    char msg[200];
 
-   int redraw = 1;
+
+   help_bitmap_reload = 1;
+
 
    ALLEGRO_BITMAP * hlift = NULL;
    ALLEGRO_BITMAP * status_window = NULL;
@@ -129,9 +131,11 @@ void mwHelp::help(const char *topic)
 
    while (!quit)
    {
-      if (redraw)
+
+
+      if (help_bitmap_reload)
       {
-         redraw = 0;
+         help_bitmap_reload = 0;
          al_destroy_bitmap(hlift);
          hlift = al_load_bitmap("help/Lift.bmp");
          al_destroy_bitmap(status_window);

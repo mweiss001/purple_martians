@@ -703,10 +703,13 @@ void mwScreen::draw_viewport_debug_overlay(int p, int &cx, int &cy)
 
 }
 
-void mwScreen::draw_common_debug_overlay(int p, int &cx, int &cy)
+int mwScreen::draw_common_debug_overlay(int p, int &cx, int &cy)
 {
+   int drawn = 0;
+
    if (mSettings.overlay_grid[1][mLoop.show_debug_overlay]) // display
    {
+      drawn = 1;
       double t1 = al_get_time();
       al_draw_filled_rectangle(cx, cy, cx+168, cy+47, mColor.pc[0]); cy+=2;
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy, 0, "display: %d x %d ", al_get_display_width(mDisplay.display), al_get_display_height(mDisplay.display)); cy+=9;
@@ -757,6 +760,7 @@ void mwScreen::draw_common_debug_overlay(int p, int &cx, int &cy)
    }
    if (mSettings.overlay_grid[2][mLoop.show_debug_overlay])
    {
+       drawn = 1;
        double t1 = al_get_time();
        mDrawSequence.show_text(cx, cy); // show draw profile times
        cy+=100;
@@ -765,6 +769,7 @@ void mwScreen::draw_common_debug_overlay(int p, int &cx, int &cy)
    }
    if (mSettings.overlay_grid[0][mLoop.show_debug_overlay]) // cpu graph
    {
+      drawn = 1;
       double t1 = al_get_time();
 
 //      // original style
@@ -778,6 +783,7 @@ void mwScreen::draw_common_debug_overlay(int p, int &cx, int &cy)
       mQuickGraph2[9].draw_graph();
       mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_CPU2", al_get_time() - t1);
    }
+   return drawn;
 }
 
 void mwScreen::draw_server_debug_overlay(int &cx, int &cy)
@@ -1267,7 +1273,6 @@ void mwScreen::calc_actual_screen_position(float ex, float ey, float &ex1, float
    ey1 = screen_display_y + (ey - level_display_region_y) * mDisplay.scale_factor_current;
 }
 
-
 void mwScreen::draw_screen_overlay(void)
 {
    int p = mPlayer.active_local_player;
@@ -1315,13 +1320,13 @@ void mwScreen::draw_screen_overlay(void)
    {
       t1 = al_get_time();
       draw_server_debug_overlay(cx, cy);
-      mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_srv_dbg", al_get_time() - t1);
+      mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_dbg_srv", al_get_time() - t1);
    }
    if (mNetgame.ima_client)
    {
       t1 = al_get_time();
       draw_client_debug_overlay(cx, cy);
-      mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_clt_dbg", al_get_time() - t1);
+      mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_dbg_clt", al_get_time() - t1);
    }
 
 
@@ -1329,14 +1334,58 @@ void mwScreen::draw_screen_overlay(void)
    {
       t1 = al_get_time();
       draw_demo_debug_overlay(p, cx, cy);
-      mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_dmo_dbg", al_get_time() - t1);
+      mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_dbg_dmo", al_get_time() - t1);
    }
 
 
    t1 = al_get_time();
-   draw_common_debug_overlay(p, cx, cy);
-   mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_common", al_get_time() - t1);
+   if (draw_common_debug_overlay(p, cx, cy))
+      mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_dbg_com", al_get_time() - t1);
 
-   mLog.add_tmr1(LOG_TMR_scrn_overlay, "scrn_overlay_all", al_get_time() - t0);
+
+   mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_total", al_get_time() - t0);
 
 }
+
+
+
+//
+//   compress((Bytef*)buf, (uLongf*)&destLen, (Bytef*)dif, STATE_SIZE);
+//
+//   uncompress((Bytef*)dif, (uLongf*)&destLen, (Bytef*)buf, sizeof(buf));
+//
+//
+//
+//
+//
+//
+//
+//void mwScreen::draw_screen_overlay(void)
+//{
+//   double t0 = al_get_time(); // for the entire function
+//
+//   double t1 = al_get_time();
+//   draw_screen_frame();
+//   double elapsed_time = al_get_time() - t1;
+//   mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_drw_frm", elapsed_time);
+//
+//   t1 = al_get_time();
+//   draw_top_frame(p);
+//   elapsed_time = al_get_time() - t1;
+//   mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_top_frm", elapsed_time);
+//
+//   t1 = al_get_time();
+//   draw_bottom_frame(p);
+//   elapsed_time = al_get_time() - t1;
+//   mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_bot_frm", elapsed_time);
+//
+//   elapsed_time = al_get_time() - t0;
+//   mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_total", elapsed_time);
+//}
+//
+//
+//
+//
+//
+//
+

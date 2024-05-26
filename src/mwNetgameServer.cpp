@@ -207,7 +207,7 @@ void mwNetgame::server_create_new_state(void)
 void mwNetgame::server_send_dif(int frame_num)
 {
    for (int p=1; p<NUM_PLAYERS; p++)
-      if ((mPlayer.syn[p].active) && ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) || (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_THAT_SERVER_QUIT_ON)))
+      if ((mPlayer.syn[p].active) && ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) || (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN)))
       {
          // save current state in history as base for next clients send
          mStateHistory[p].add_state(frame_num);

@@ -3,6 +3,7 @@
 #define mwLog_H
 
 
+
 //#define NUM_LOG_CHAR  100000000
 //#define NUM_LOG_LINES 2000000
 
