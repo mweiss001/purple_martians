@@ -1,0 +1,21 @@
+
+journalctl --since yesterday
+
+find the pid of the process you are interested in:
+
+journalctl _PID=756 --since yesterday
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

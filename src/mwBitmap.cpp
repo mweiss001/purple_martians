@@ -24,7 +24,7 @@ ALLEGRO_BITMAP * mwBitmap::create_and_clear_bitmap(int x, int y)
    return bmp;
 }
 
-// done only once at start
+// done only once in initial_setup
 void mwBitmap::create_bitmaps(void)
 {
    // this bitmap format will be used for all bitmaps, it is never changed
@@ -63,99 +63,7 @@ void mwBitmap::create_bitmaps(void)
    }
 }
 
-
-
-void mwBitmap::rebuild_bitmaps(void)
-{
-   double t[8] = { 0 };
-   t[0] = al_get_time();
-
-   // rebuild main tiles
-   al_set_target_bitmap(tilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-   al_draw_bitmap(M_tilemap, 0, 0, 0);
-
-   // rebuild block tiles
-   al_set_target_bitmap(btilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-   al_draw_bitmap(M_btilemap, 0, 0, 0);
-
-   // rebuild player tiles
-   al_set_target_bitmap(ptilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-   al_draw_bitmap(M_ptilemap, 0, 0, 0);
-
-   // rebuild door tiles
-   al_set_target_bitmap(dtilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-   al_draw_bitmap(M_dtilemap, 0, 0, 0);
-
-   t[1] = al_get_time();
-
-
-   // rebuild fonts
-   mFont.load_fonts();
-   t[2] = al_get_time();
-
-   // rebuild level_icons
-   if (mLevel.last_level_loaded == 1) mLevel.load_level_icons();
-   else mLevel.level_icons_loaded = 0;
-   t[3] = al_get_time();
-
-   // rebuild level_background
-   mScreen.init_level_background();
-   t[4] = al_get_time();
-
-   // misc setup
-   mDisplay.set_display_transform();
-   mScreen.set_map_var();
-   mLogo.logo_text_bitmaps_create = 1;
-   text_title_bitmaps_create = 1;
-   large_text_overlay_state = 0;
-   mHelp.help_bitmap_reload = 1;
-   mVisualLevel.load_visual_level_select_done = 0;
-   mLevel.level_stats_bmp_msg_type = 0;
-   t[5] = al_get_time();
-
-   mLog.add_tmrf(LOG_TMR_rebuild_bitmaps, "tiles:[%0.4f] fonts:[%0.4f] icons:[%0.4f] lvbk:[%0.4f] misc:[%0.4f] totl:[%0.4f]\n",
-                   (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[5]-t[0])*1000);
-}
-
-void mwBitmap::reset_animation_sequences(void)
-{
-   for (int c=0; c<NUM_ANS; c++)
-   {
-     zz[2][c] = 0;        // reset the tally
-     zz[1][c] = 0;        // set the bitmap index to 0
-     zz[0][c] = zz[5][c]; // put the first shape in 0
-   }
-}
-
-void mwBitmap::update_animation(void)
-{
-   // 0 = current shape
-   // 1 = current shape index
-   // 2 = count tally
-   // 3 = seq change delay count
-   // 4 = num of shapes in seq (15 shapes max)
-   // 5 = shape 0
-   // 19 = shape 14
-
-   // printf("update_animation :%d\n", mLoop.frame_num);
-
-   for (int y=0; y<NUM_ANS; y++)
-      if (zz[4][y] != 0)
-      {
-         if ((++zz[2][y]) > zz[3][y])
-         {
-            zz[2][y] = 0;                             // reset tally
-            zz[1][y]++;                               // next bitmap
-            if (zz[1][y] > zz[4][y]) zz[1][y] = 0;    // is bitmap past end?
-            zz[0][y] = zz[ 5 + zz[1][y] ] [y];        // put shape in 0
-         }
-      }
-}
-
+// done only once in initial_setup
 int mwBitmap::load_tiles(void)
 {
    // get main tiles
@@ -234,6 +142,87 @@ int mwBitmap::load_tiles(void)
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void mwBitmap::rebuild_bitmaps(void)
+{
+   double t[8] = { 0 };
+
+   t[0] = al_get_time();
+
+   // rebuild main tiles
+   al_set_target_bitmap(tilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_tilemap, 0, 0, 0);
+
+   // rebuild block tiles
+   al_set_target_bitmap(btilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_btilemap, 0, 0, 0);
+
+   // rebuild player tiles
+   al_set_target_bitmap(ptilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_ptilemap, 0, 0, 0);
+
+   // rebuild door tiles
+   al_set_target_bitmap(dtilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_dtilemap, 0, 0, 0);
+
+   t[1] = al_get_time();
+
+   // rebuild fonts
+   mFont.load_fonts();
+   t[2] = al_get_time();
+
+   // rebuild level_icons
+
+   if (mLevel.last_level_loaded == 1) mLevel.load_level_icons();
+
+
+   else mLevel.level_icons_loaded = 0;
+
+   t[3] = al_get_time();
+
+   // rebuild level_background
+   mScreen.init_level_background();
+   t[4] = al_get_time();
+
+   // misc setup
+   mDisplay.set_display_transform();
+   mScreen.set_map_var();
+   mLogo.logo_text_bitmaps_create = 1;
+   text_title_bitmaps_create = 1;
+   large_text_overlay_state = 0;
+   mHelp.help_bitmap_reload = 1;
+   mVisualLevel.load_visual_level_select_done = 0;
+   mLevel.level_stats_bmp_msg_type = 0;
+   t[5] = al_get_time();
+
+   mLog.add_tmrf(LOG_TMR_rebuild_bitmaps, "tiles:[%0.4f] fonts:[%0.4f] icons:[%0.4f] lvbk:[%0.4f] misc:[%0.4f] totl:[%0.4f]\n",
+                   (t[1]-t[0])*1000, (t[2]-t[1])*1000, (t[3]-t[2])*1000, (t[4]-t[3])*1000, (t[5]-t[4])*1000, (t[5]-t[0])*1000);
+}
+
+
+
 void mwBitmap::save_sprit(void)
 {
    //printf("saving sprit001.pm\n");
@@ -273,6 +262,61 @@ int mwBitmap::load_sprit(void)
       return 0;
    }
 }
+
+
+
+
+
+void mwBitmap::reset_animation_sequences(void)
+{
+   for (int c=0; c<NUM_ANS; c++)
+   {
+     zz[2][c] = 0;        // reset the tally
+     zz[1][c] = 0;        // set the bitmap index to 0
+     zz[0][c] = zz[5][c]; // put the first shape in 0
+   }
+}
+
+void mwBitmap::update_animation(void)
+{
+   // 0 = current shape
+   // 1 = current shape index
+   // 2 = count tally
+   // 3 = seq change delay count
+   // 4 = num of shapes in seq (15 shapes max)
+   // 5 = shape 0
+   // 19 = shape 14
+
+   // printf("update_animation :%d\n", mLoop.frame_num);
+
+   for (int y=0; y<NUM_ANS; y++)
+      if (zz[4][y] != 0)
+      {
+         if ((++zz[2][y]) > zz[3][y])
+         {
+            zz[2][y] = 0;                             // reset tally
+            zz[1][y]++;                               // next bitmap
+            if (zz[1][y] > zz[4][y]) zz[1][y] = 0;    // is bitmap past end?
+            zz[0][y] = zz[ 5 + zz[1][y] ] [y];        // put shape in 0
+         }
+      }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void mwBitmap::spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle)
 {

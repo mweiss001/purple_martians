@@ -277,8 +277,6 @@ int mwDisplay::init_display(void)
 //   show_display_orienation();
 //   printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
 
-   //printf("init screen\n");
-   //mBitmap.create_bitmaps();
    return 1;
 }
 

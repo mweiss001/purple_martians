@@ -490,15 +490,20 @@ void mwNetgame::client_proc_stdf_packet(int i)
    int src     = mPacketBuffer.PacketGetInt4(i);
    int slsn    = mPacketBuffer.PacketGetByte(i); // server level sequence num
 
+   char log_msg_txt1[64];
+   sprintf(log_msg_txt1, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d slsn:%d", seq+1, max_seq, src, dst, sb, sz, slsn);
+
    if (slsn != mPlayer.syn[0].server_lev_seq_num)
    {
       //printf("stdf from wrong seq! rx:%d should be:%d\n", slsn, mPlayer.syn[0].server_lev_seq_num);
-      mLog.addf(LOG_NET_stdf_packets, -1, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d wrong seq:%d should be:%d\n", seq+1, max_seq, src, dst, sb, sz, slsn, mPlayer.syn[0].server_lev_seq_num);
+      //mLog.addf(LOG_NET_stdf_packets, -1, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d wrong seq:%d should be:%d\n", seq+1, max_seq, src, dst, sb, sz, slsn, mPlayer.syn[0].server_lev_seq_num);
+      mLog.addf(LOG_NET_stdf_packets, -1, "%sx[%d]bad!\n",log_msg_txt1, mPlayer.syn[0].server_lev_seq_num);
    }
    else
    {
+      //mLog.addf(LOG_NET_stdf_packets, -1, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", seq+1, max_seq, src, dst, sb, sz);
+      mLog.addf(LOG_NET_stdf_packets, -1, "%s\n", log_msg_txt1);
 
-      mLog.addf(LOG_NET_stdf_packets, -1, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d\n", seq+1, max_seq, src, dst, sb, sz);
       memcpy(client_state_buffer + sb, mPacketBuffer.rx_buf[i].data+23, sz);   // put the piece of data in the buffer
 
       client_state_buffer_pieces[seq] = dst;                     // mark it with destination mLoop.frame_num
@@ -544,19 +549,19 @@ void mwNetgame::client_apply_dif(void)
    // check if dif is valid
    if ((client_state_dif_src == -1) || (client_state_dif_dst == -1))
    {
-      mLog.appf(LOG_NET_dif_not_applied, "%s [not applied] [dif not valid]\n", log_msg_txt1);
+      mLog.addf(LOG_NET_dif_not_applied, -1, "%s [not applied] [dif not valid]\n", log_msg_txt1);
       return;
    }
 
    // check if dif_dest has already been applied (check if dif_dest is less than or equal to newest_state_frame_num)
    if (client_state_dif_dst <= mStateHistory[p].newest_state_frame_num)
    {
-      mLog.appf(LOG_NET_dif_not_applied, "%s [not applied] [not newer than last dif applied]\n", log_msg_txt1);
+      mLog.addf(LOG_NET_dif_not_applied, -1, "%s dd[not applied] [not newer than last dif applied]\n", log_msg_txt1);
       return;
    }
 
 
-   // if we got this far, we know that dif is valid and dif destination is newer than last applied dif
+   // if we get this far, we know that dif is valid and dif destination is newer than last applied dif
 
 
    // compare dif destination to current frame number
@@ -588,11 +593,11 @@ void mwNetgame::client_apply_dif(void)
          if (fn == -1) // no valid base states at all
          {
             fn = 0; // do not sent stak with -1 send it with 0
-            mLog.appf(LOG_NET_dif_not_applied, "%s [not applied] [no bases found] - resending stak [%d]\n", log_msg_txt1, fn);
+            mLog.addf(LOG_NET_dif_not_applied, -1, "%s [not applied] [no bases found] - resending stak [%d]\n", log_msg_txt1, fn);
          }
          else
          {
-            mLog.appf(LOG_NET_dif_not_applied, "%s [not applied] [base not found] - resending stak [%d]\n", log_msg_txt1, fn);
+            mLog.addf(LOG_NET_dif_not_applied, -1, "%s [not applied] [base not found] - resending stak [%d]\n", log_msg_txt1, fn);
          }
          client_send_stak_packet(fn);
          return;
@@ -634,7 +639,7 @@ void mwNetgame::client_apply_dif(void)
    //mStateHistory[p].show_states("save frame:%d to history\n", mLoop.frame_num);
 
    // add log entry
-   mLog.appf(LOG_NET_dif_not_applied, "%s [applied] [%s]\n", log_msg_txt1, log_msg_txt2);
+   mLog.addf(LOG_NET_dif_not_applied, -1, "%s [applied] [%s]\n", log_msg_txt1, log_msg_txt2);
 
 
 

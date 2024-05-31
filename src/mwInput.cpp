@@ -199,7 +199,6 @@ void mwInput::serial_key_check(int key)
 
    if ((serial_key_test("ijkl c")) || (serial_key_test("IJKL C")))
    {
-
       set_controls_to_custom_sets(4);
       mConfig.save_config(PM_CFG_SAVE_CONTROLS);
    }
@@ -236,10 +235,35 @@ void mwInput::serial_key_check(int key)
       mDisplay.proc_display_change();
    }
 
+
+   if (serial_key_test("win1600"))
+   {
+      mDisplay.disp_w_wind = 1600;
+      mDisplay.disp_h_wind = 1200;
+      mDisplay.set_windowed();
+      mDisplay.proc_display_change();
+   }
+
+   if (serial_key_test("win1680"))
+   {
+      mDisplay.disp_w_wind = 1680;
+      mDisplay.disp_h_wind = 1050;
+      mDisplay.set_windowed();
+      mDisplay.proc_display_change();
+   }
+
    if (serial_key_test("win1920"))
    {
       mDisplay.disp_w_wind = 1920;
       mDisplay.disp_h_wind = 1080;
+      mDisplay.set_windowed();
+      mDisplay.proc_display_change();
+   }
+
+   if (serial_key_test("win2560"))
+   {
+      mDisplay.disp_w_wind = 2560;
+      mDisplay.disp_h_wind = 1440;
       mDisplay.set_windowed();
       mDisplay.proc_display_change();
    }
