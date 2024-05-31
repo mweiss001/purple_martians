@@ -55039,9 +55039,418 @@ move_tot
 
 do a new version then shut off scat and record....
 
-
-
 7.24.0526.1
+
+new release done and also put new version on server
+tested on mint and 4230 with new release...
+
+shut down scat and record...
+
+
+
+20240530
+
+
+I think I might have introduced a bug.
+
+I am having problems keeping clients running for long periods of time on my headless server.
+
+they either quit and disspapper completely MWEISS-16
+or freeze and show connection lost e6430
+both those had local fakekey enabled
+
+then e6430 with no fakekey, is still running but on overworld with only level200_icon of level64 shwowing and no way of moving left or right
+or entering level, when jumping level_icon200 briefly disappears...the ping is 14-30 and moving, but the sync is frozen at -78.3
+
+also I just zoomed way out on client and I can see the top row of levels.
+and level icon 200 for the level 2 as well as level 64
+
+
+remote control on server shows p1 is not active, but its ping keeps updating...
+
+20240529-200909	96.45.15.155	51993	e6430-w10	comm loss	01:37:41	2
+
+8:09 PM + 1:37 = 9:46PM
+
+May 29 20:09:09 pmh pm[756]: [10][0][0]+--------------------------------------------------------------------------+
+May 29 20:09:09 pmh pm[756]: [10][0][0]|                                                                          |
+May 29 20:09:09 pmh pm[756]: [10][0][0]|                            LEVEL 1 STARTED                               |
+May 29 20:09:09 pmh pm[756]: [10][0][0]|                                                                          |
+May 29 20:09:09 pmh pm[756]: [10][0][0]+--------------------------------------------------------------------------+
+May 29 20:09:09 pmh pm[756]: [10][0][53881]+--------------------------------------------------------------------------+
+May 29 20:09:09 pmh pm[756]: [10][0][53881]|        Server received join request from e6430-w10 requesting color:8    |
+May 29 20:09:09 pmh pm[756]: [10][1][53881]+--------------------------------------------------------------------------+
+May 29 20:09:09 pmh pm[756]: [10][1][53881]|        Player:1 became ACTIVE!                                           |
+May 29 21:46:51 pmh pm[756]: [10][1][53881]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][0][53881]|        Server replied with join invitation:                              |
+May 29 21:46:51 pmh pm[756]: [10][0][53881]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][0][144001]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][0][144001]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][0][144001]|               Server Approaching 144000 frames! - Reload                 |
+May 29 21:46:51 pmh pm[756]: [10][0][144001]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][0][144001]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][0][144011]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][0][144011]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][0][144011]|                              NEXT LEVEL:1                                |
+May 29 21:46:51 pmh pm[756]: [10][0][144011]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][0][144011]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: logs/20240529-204643-[1][pmh].txt saved
+May 29 21:46:51 pmh pm[756]: [10][0][0]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][0][0]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][0][0]|                            LEVEL 1 STARTED                               |
+May 29 21:46:51 pmh pm[756]: [10][0][0]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][0][0]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][0][144001]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][0][144001]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][0][144001]|               Server Approaching 144000 frames! - Reload                 |
+May 29 21:46:51 pmh pm[756]: [10][0][144001]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][0][144001]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][0][144011]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][0][144011]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][0][144011]|                              NEXT LEVEL:1                                |
+May 29 21:46:51 pmh pm[756]: [10][0][144011]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][0][144011]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: logs/20240529-214643-[1][pmh].txt saved
+May 29 21:46:51 pmh pm[756]: [10][0][0]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][0][0]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][0][0]|                            LEVEL 1 STARTED                               |
+May 29 21:46:51 pmh pm[756]: [10][0][0]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][0][0]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][1][301]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][1][301]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][1][301]|               Server dropped player:1 (last stak rx:23)                  |
+May 29 21:46:51 pmh pm[756]: [10][1][301]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][1][301]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][1][302]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][1][302]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][1][302]|               Server dropped player:1 (last stak rx:23)                  |
+May 29 21:46:51 pmh pm[756]: [10][1][302]|                                                                          |
+May 29 21:46:51 pmh pm[756]: [10][1][302]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][1][303]+--------------------------------------------------------------------------+
+May 29 21:46:51 pmh pm[756]: [10][1][303]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][1][303]|               Server dropped player:1 (last stak rx:23)                  |
+May 29 23:46:43 pmh pm[756]: [10][1][303]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][1][303]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][1][304]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][1][304]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][1][304]|               Server dropped player:1 (last stak rx:23)                  |
+May 29 23:46:43 pmh pm[756]: [10][1][304]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][1][304]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][1][305]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][1][305]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][1][305]|               Server dropped player:1 (last stak rx:23)                  |
+May 29 23:46:43 pmh pm[756]: [10][1][305]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][1][305]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][1][305]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][1][305]|        Player:1 became INACTIVE!                                         |
+May 29 23:46:43 pmh pm[756]: [10][1][305]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][0][144001]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][0][144001]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][0][144001]|               Server Approaching 144000 frames! - Reload                 |
+May 29 23:46:43 pmh pm[756]: [10][0][144001]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][0][144001]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][0][144011]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][0][144011]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][0][144011]|                              NEXT LEVEL:1                                |
+May 29 23:46:43 pmh pm[756]: [10][0][144011]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][0][144011]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: logs/20240529-224643-[1][pmh].txt saved
+May 29 23:46:43 pmh pm[756]: [10][0][0]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][0][0]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][0][0]|                            LEVEL 1 STARTED                               |
+May 29 23:46:43 pmh pm[756]: [10][0][0]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][0][0]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][0][144001]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][0][144001]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][0][144001]|               Server Approaching 144000 frames! - Reload                 |
+May 29 23:46:43 pmh pm[756]: [10][0][144001]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][0][144001]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][0][144011]+--------------------------------------------------------------------------+
+May 29 23:46:43 pmh pm[756]: [10][0][144011]|                                                                          |
+May 29 23:46:43 pmh pm[756]: [10][0][144011]|                              NEXT LEVEL:1                                |
+May 29 23:46:43 pmh pm[756]: [10][0][144011]|                                                                          |
+
+
+
+the timestamps from journalctl are useless...
+
+use the frame numbers.
+
+new level started, ran for 301 frames then dropped p1
+
+questions:
+- why is server responding to pings from inactive player?
+- why does client still think it is active?
+
+it is harder to tell but the server is still sending data to the client also...
+on remote control I see 38.6kbps
+
+maybe this is the remote control...
+
+kill the client and see what changes?
+
+tx cur 38-40k rx cur 108-224
+tx pak 81     rx pak 2-4
+
+tx cur 38-40k rx cur 0-116
+tx pak 80     rx pak 0-2
+
+
+------------------------------
+
+
+I think I should turn on more logging on the client and try to reproduce
+also more debug on client
+
+when client joins, it quits again after timing out...
+both e6430 and m36 cannot join
+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|        Purple Martians Version 7.24.0526.1                               |
+[10][0][0]|        Allegro Version: 5.2.8.1                                          |
+[10][0][0]|        Date and time: 2024-05-30  06:41:32                               |
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|        Client mode started on localhost:[m36]                            |
+[10][0][0]|        Client network initialized -- target:[purplemartians.org:24785]   |
+[10][0][0]|        Local address:[:54892]                                            |
+[10][0][0]|        Sent initial 'cjon' packet to server                              |
+[10][0][0]|        Waiting for reply                                                 |
+[10][0][0]|        Client received join invitation from server                       |
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 1 STARTED                               |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[27][1][0]rx dif complete [0 to 13553] - uncompressed
+[27][1][0]rx dif complete [0 to 13554] - uncompressed
+----- Apply dif [0 to 13554] [applied] [initial state]
+----- Apply dif [0 to 13554] [not applied] [not newer than last dif applied]
+----- Apply dif [0 to 13554] [not applied] [not newer than last dif applied]
+
+----- Apply dif [0 to 13554] [not applied] [not newer than last dif applied]
+----- Apply dif [0 to 13554] [not applied] [not newer than last dif applied]
+----- Apply dif [0 to 13554] [not applied] [not newer than last dif applied]
+[10][1][13755]+--------------------------------------------------------------------------+
+[10][1][13755]|        Local Player Client 1 Lost Server Connection!                     |
+[10][1][13755]|        last_dif_applied:[13554]                                          |
+[10][1][13755]+--------------------------------------------------------------------------+
+[10][0][13755]+--------------------------------------------------------------------------+
+[10][0][13755]|                    Shutting down the client network                      |
+[10][0][13755]+--------------------------------------------------------------------------+
+
+
+
+client gets initial state and applies it
+then starts game
+
+
+after that all stdf's received have wrong sequence
+
+
+
+how does that work??
+
+
+int mPlayer.syn[0].server_lev_seq_num = 0;
+
+loop:
+set to 0 when server starts new game
+both client and server next_level++ and >255 to 0
+
+server sends it as part of sjon
+server sends it with stdf
+
+when client proc sjon, it sets local mPlayer.syn[0].server_lev_seq_num from that
+this is questionable...why set syn variable?
+It is needed so that the client will not reject stdf with that slsn
+
+when client proc sjon, it rejects any that do not match slsn...
+
+that is all...
+
+
+
+i need to print them on client...
+
+
+
+at sjon rx...at stdf rx...
+
+
+
+
+
+[31][1][30922]----- Apply dif [0 to 30922] [applied] [initial state]
+[33][1][30922]tx stak p:1 ack:[30922] cur:[30922]
+[31][1][30923]----- Apply dif [0 to 30922] dd[not applied] [not newer than last dif applied]
+[28][1][30924]rx stdf piece [2 of 3] [0 to 30923] st:1400 sz:1400 slsn:-102x[154]bad!
+[28][1][30924]rx stdf piece [3 of 3] [0 to 30923] st:2800 sz: 582 slsn:-102x[154]bad!
+[28][1][30924]rx stdf piece [1 of 3] [0 to 30924] st:   0 sz:1400 slsn:-102x[154]bad!
+[31][1][30924]----- Apply dif [0 to 30922] dd[not applied] [not newer than last dif applied]
+[28][1][30925]rx stdf piece [2 of 3] [0 to 30924] st:1400 sz:1400 slsn:-102x[154]bad!
+[28][1][30925]rx stdf piece [3 of 3] [0 to 30924] st:2800 sz: 584 slsn:-102x[154]bad!
+[28][1][30925]rx stdf piece [1 of 1] [30922 to 30925] st:   0 sz: 332 slsn:-102x[154]bad!
+[28][1][30925]rx stdf piece [1 of 1] [30922 to 30926] st:   0 sz: 343 slsn:-102x[154]bad!
+[31][1][30925]----- Apply dif [0 to 30922] dd[not applied] [not newer than last dif applied]
+[28][1][30926]rx stdf piece [1 of 1] [30922 to 30927] st:   0 sz: 361 slsn:-102x[154]bad!
+[31][1][30926]----- Apply dif [0 to 30922] dd[not applied] [not newer than last dif applied]
+[28][1][30927]rx stdf piece [1 of 1] [30922 to 30928] st:   0 sz: 366 slsn:-102x[154]bad!
+
+do next level on server:
+
+[12][0][0]|        Level:[1]                                                         |
+[12][0][0]|        Player Number:[1]                                                 |
+[12][0][0]|        Player Color:[8]                                                  |
+[12][0][0]|        Server Frame Num:[1276]                                           |
+[12][0][0]|        Server Level Sequence Num:[-101]                                  |
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 1 STARTED                               |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[28][1][0]rx stdf piece [1 of 3] [0 to 1278] st:   0 sz:1400 slsn:-101
+[28][1][0]rx stdf piece [2 of 3] [0 to 1278] st:1400 sz:1400 slsn:-101
+[28][1][0]rx stdf piece [3 of 3] [0 to 1278] st:2800 sz: 591 slsn:-101
+[27][1][0]rx dif complete [0 to 1278] - uncompressed
+[28][1][0]rx stdf piece [1 of 3] [0 to 1279] st:   0 sz:1400 slsn:-101
+[28][1][0]rx stdf piece [2 of 3] [0 to 1279] st:1400 sz:1400 slsn:-101
+[31][1][1278]----- Apply dif [0 to 1278] [applied] [initial state]
+[33][1][1278]tx stak p:1 ack:[1278] cur:[1278]
+[28][1][1279]rx stdf piece [3 of 3] [0 to 1279] st:2800 sz: 590 slsn:-101x[155]bad!
+[28][1][1279]rx stdf piece [1 of 3] [0 to 1280] st:   0 sz:1400 slsn:-101x[155]bad!
+[31][1][1279]----- Apply dif [0 to 1278] dd[not applied] [not newer than last dif applied]
+[28][1][1280]rx stdf piece [2 of 3] [0 to 1280] st:1400 sz:1400 slsn:-101x[155]bad!
+[28][1][1280]rx stdf piece [3 of 3] [0 to 1280] st:2800 sz: 595 slsn:-101x[155]bad!
+[31][1][1280]----- Apply dif [0 to 1278] dd[not applied] [not newer than last dif applied]
+[28][1][1281]rx stdf piece [1 of 3] [0 to 1281] st:   0 sz:1400 slsn:-101x[155]bad!
+[28][1][1281]rx stdf piece [2 of 3] [0 to 1281] st:1400 sz:1400 slsn:-101x[155]bad!
+[28][1][1281]rx stdf piece [3 of 3] [0 to 1281] st:2800 sz: 594 slsn:-101x[155]bad!
+[28][1][1281]rx stdf piece [1 of 1] [1278 to 1282] st:   0 sz: 385 slsn:-101x[155]bad!
+
+
+
+what is this pattern?
+
+-102 154
+-101 155
+
+signed vs unsigned?
+
+   for (int i =0; i<256; i++)
+   {
+      int8_t i8 = i;
+      uint8_t ui8 = i;
+      printf("i8:%d ui8:%d\n", i8, ui8);
+   }
+
+i8:-106 ui8:150
+i8:-105 ui8:151
+i8:-104 ui8:152
+i8:-103 ui8:153
+i8:-102 ui8:154
+i8:-101 ui8:155
+i8:-100 ui8:156
+i8:-99 ui8:157
+i8:-98 ui8:158
+i8:-97 ui8:159
+i8:-96 ui8:160
+
+bingo!!!
+
+so where am I screwing it up?
+
+
+server uses put byte twice stdf and sjon
+client uses get byte twice same
+
+
+
+int mwNetgame::client_proc_sjon_packet(char * data)
+{
+   int pos = 4;
+   int pl     = mPacketBuffer.PacketGetInt4(data, pos);  // play level
+   int sfnum  = mPacketBuffer.PacketGetInt4(data, pos);  // server join frame number
+   int p      = mPacketBuffer.PacketGetByte(data, pos);  // client player number
+   int color  = mPacketBuffer.PacketGetByte(data, pos);  // client player color
+   int slsn   = mPacketBuffer.PacketGetByte(data, pos);  // server level sequence number
+
+void mwNetgame::client_proc_stdf_packet(int i)
+{
+   int seq     = mPacketBuffer.PacketGetByte(i);
+   int max_seq = mPacketBuffer.PacketGetByte(i);
+   int sb      = mPacketBuffer.PacketGetInt4(i);
+   int sz      = mPacketBuffer.PacketGetInt4(i);
+   int dst     = mPacketBuffer.PacketGetInt4(i);
+   int src     = mPacketBuffer.PacketGetInt4(i);
+   int slsn    = mPacketBuffer.PacketGetByte(i); // server level sequence num
+
+
+
+void mwNetgame::server_send_compressed_dif(int p, int src, int dst, char* dif) // send dif to a client
+{
+      char data[PACKET_BUFFER_SIZE] = {0}; int pos;
+      mPacketBuffer.PacketName(data, pos, "stdf");
+      mPacketBuffer.PacketPutByte(data, pos, packet_num);
+      mPacketBuffer.PacketPutByte(data, pos, num_packets);
+      mPacketBuffer.PacketPutInt4(data, pos, start_byte);
+      mPacketBuffer.PacketPutInt4(data, pos, packet_data_size);
+      mPacketBuffer.PacketPutInt4(data, pos, dst);
+      mPacketBuffer.PacketPutInt4(data, pos, src);
+      mPacketBuffer.PacketPutByte(data, pos, mPlayer.syn[0].server_lev_seq_num);
+
+void mwNetgame::server_send_sjon_packet(char* address, int level, int frame, int player_num, int player_color)
+{
+   char data[PACKET_BUFFER_SIZE] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "sjon");
+   mPacketBuffer.PacketPutInt4(data, pos, level);
+   mPacketBuffer.PacketPutInt4(data, pos, frame);
+   mPacketBuffer.PacketPutByte(data, pos, player_num);
+   mPacketBuffer.PacketPutByte(data, pos, player_color);
+   mPacketBuffer.PacketPutByte(data, pos, mPlayer.syn[0].server_lev_seq_num);
+
+
+
+
+I am not seeing the bug...
+
+
+
+I use byte packet exchange for other things like:
+- color
+- player number
+- comp move
+- rewind
+- packet_num
+- num_packets
+- srrf (0-4)
+- char in a string
+
+none of these thing are over 128...
+I could make the max slsn 127 or even less like 32..
+
+I think I am having issues when it gets over 127...
+
+
+i changed it in both places to reset to 0 when > 7...
+
+
+is this worth a new release?  yes...
+
+so I can test it and look for other bugs....
+
+7.24.0530.1
+
+
+
+
+
+
+
+
+
 
 
 
