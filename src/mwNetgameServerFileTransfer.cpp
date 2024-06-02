@@ -71,12 +71,12 @@ void mwNetgame::server_send_file(int i)
 
          char data[PACKET_BUFFER_SIZE] = {0}; int pos;
          mPacketBuffer.PacketName(data, pos, "sfil");
-         mPacketBuffer.PacketPutByte(data, pos, packet_num);
-         mPacketBuffer.PacketPutByte(data, pos, num_packets);
-         mPacketBuffer.PacketPutInt4(data, pos, start_byte);
-         mPacketBuffer.PacketPutInt4(data, pos, packet_data_size);
-         mPacketBuffer.PacketPutInt4(data, pos, files_to_send[i].id);
-         mPacketBuffer.PacketPutInt4(data, pos, fsize); // uncompressed file size
+         mPacketBuffer.PacketPutInt32(data, pos, packet_num);
+         mPacketBuffer.PacketPutInt32(data, pos, num_packets);
+         mPacketBuffer.PacketPutInt32(data, pos, start_byte);
+         mPacketBuffer.PacketPutInt32(data, pos, packet_data_size);
+         mPacketBuffer.PacketPutInt32(data, pos, files_to_send[i].id);
+         mPacketBuffer.PacketPutInt32(data, pos, fsize); // uncompressed file size
 
          memcpy(data+pos, dst+start_byte, packet_data_size);
          pos += packet_data_size;
@@ -91,8 +91,8 @@ void mwNetgame::server_send_file(int i)
 void mwNetgame::server_proc_sfak_packet(int i)
 {
    int p = mPlayer.active_local_player;
-   int id = mPacketBuffer.PacketGetInt4(i);  // client has acknowledged getting this file id
-   mLog.addf(LOG_NET_file_transfer, p, "rx sfak - client acknowledged getting file id:%d\n", id);
+   int id = mPacketBuffer.PacketGetInt32(i);  // client has acknowledged getting this file id
+   mLog.log_add_prefixed_textf(LOG_NET_file_transfer, p, "rx sfak - client acknowledged getting file id:%d\n", id);
    for (int i=0; i<20; i++)
       if (files_to_send[i].id == id)
       {
@@ -105,7 +105,7 @@ void mwNetgame::server_proc_sfak_packet(int i)
 void mwNetgame::server_proc_crfl_packet(int i)
 {
    int p = mPacketBuffer.rx_buf[i].p;
-   mLog.addf(LOG_NET_file_transfer, p, "rx clrf - client requested file\n");
+   mLog.log_add_prefixed_textf(LOG_NET_file_transfer, p, "rx clrf - client requested file\n");
    mGameMoves.save_gm_make_fn("server save on rx crfl packet", p);
 }
 
@@ -115,7 +115,7 @@ void mwNetgame::server_add_file_to_send(const char * filename, int p)
    ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(filename);
    if (!al_fs_entry_exists(FS_fname))
    {
-      mLog.addf(LOG_NET_file_transfer, p, "file:%s does not exist\n", filename);
+      mLog.log_add_prefixed_textf(LOG_NET_file_transfer, p, "file:%s does not exist\n", filename);
       printf("file:%s does not exist\n", filename);
       return;
    }
@@ -124,7 +124,7 @@ void mwNetgame::server_add_file_to_send(const char * filename, int p)
    int fsize = al_get_fs_entry_size(FS_fname);
    if (fsize > 200000)
    {
-      mLog.addf(LOG_NET_file_transfer, p, "file:%s too large %d > 200,000\n", filename, fsize);
+      mLog.log_add_prefixed_textf(LOG_NET_file_transfer, p, "file:%s too large %d > 200,000\n", filename, fsize);
       printf("file:%s too large %d > 200,000\n", filename, fsize);
       return;
    }
@@ -163,7 +163,7 @@ void mwNetgame::server_proc_files_to_send(void)
       for (int i=0; i<20; i++)
          if (files_to_send[i].active == 1)
          {
-            mLog.addf(LOG_NET_file_transfer, mPlayer.active_local_player, "starting file transfer [%s]\n", files_to_send[i].name);
+            mLog.log_add_prefixed_textf(LOG_NET_file_transfer, mPlayer.active_local_player, "starting file transfer [%s]\n", files_to_send[i].name);
             //printf("starting file transfer [%s]\n", files_to_send[i].name);
             server_send_file(i);
          }

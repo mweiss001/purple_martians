@@ -90,22 +90,22 @@ void mwLoop::move_frame(void)
       double t[8] = { 0 };
       t[0] = al_get_time();
 
-      mLog.addf(LOG_OTH_move, 0, "[%4d]Move eshots\n", frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move eshots\n", frame_num);
       mShot.move_eshots();      t[1] = al_get_time();
 
-      mLog.addf(LOG_OTH_move, 0, "[%4d]Move pshots\n", frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move pshots\n", frame_num);
       mShot.move_pshots();      t[2] = al_get_time();
 
-      mLog.addf(LOG_OTH_move, 0, "[%4d]Move lifts\n", frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move lifts\n", frame_num);
       mLift.move_lifts(0);      t[3] = al_get_time();
 
-      mLog.addf(LOG_OTH_move, 0, "[%4d]Move players\n", frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move players\n", frame_num);
       mPlayer.move_players();   t[4] = al_get_time();
 
-      mLog.addf(LOG_OTH_move, 0, "[%4d]Move enemies\n", frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move enemies\n", frame_num);
       mEnemy.move_enemies();    t[5] = al_get_time();
 
-      mLog.addf(LOG_OTH_move, 0, "[%4d]Move items\n", frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_move, 0, "[%4d]Move items\n", frame_num);
       mItem.move_items();       t[6] = al_get_time();
 
       mLog.add_tmrf(LOG_TMR_move_all, "m-esht:[%0.4f] m-psht:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
@@ -316,16 +316,16 @@ void mwLoop::proc_program_state(void)
    // ----------------------------------------------------------
    if (state[0] != state[1])
    {
-      mLog.addf(LOG_OTH_program_state, 0, "[%4d] --- State change from %2d to %2d  ----  ", mLoop.frame_num, state[1], state[0]);
-      for (int i=0; i<8; i++) mLog.appf(LOG_OTH_program_state, "%2d ", state[i]);
-      mLog.appf(LOG_OTH_program_state, " --- [qa:%d] [da:%d]\n", quit_action, done_action);
+      mLog.log_add_prefixed_textf(LOG_OTH_program_state, 0, "[%4d] --- State change from %2d to %2d  ----  ", mLoop.frame_num, state[1], state[0]);
+      for (int i=0; i<8; i++) mLog.log_append_textf(LOG_OTH_program_state, "%2d ", state[i]);
+      mLog.log_append_textf(LOG_OTH_program_state, " --- [qa:%d] [da:%d]\n", quit_action, done_action);
 
       // slide all down (now state[0] == state[1])
       for (int i=7; i>0; i--) state[i] = state[i-1];
 
       if (state[1] == PM_PROGRAM_STATE_MENU) // game menu or fast exit
       {
-         mLog.add(LOG_OTH_program_state, 0, "[State 1 - Game Menu]\n");
+         mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[State 1 - Game Menu]\n");
 
 
          if (mLog.autosave_log_on_level_quit) mLog.save_log_file();
@@ -347,7 +347,7 @@ void mwLoop::proc_program_state(void)
          }
          if (quit_action == 2)  // overworld
          {
-            mLog.add(LOG_OTH_program_state, 0, "instead of menu, go to overworld\n");
+            mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "instead of menu, go to overworld\n");
             mPlayer.syn[0].level_done_next_level = 1;
             state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;      // next level
             quit_action = 1;    // menu
@@ -358,7 +358,7 @@ void mwLoop::proc_program_state(void)
 
          if (quit_action == 3)  // settings
          {
-            mLog.add(LOG_OTH_program_state, 0, "instead of menu, go to settings\n");
+            mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "instead of menu, go to settings\n");
             state[0] = PM_PROGRAM_STATE_CONFIG;
             quit_action = 1; // set new quit action to menu
             return;
@@ -409,7 +409,7 @@ void mwLoop::proc_program_state(void)
 //-----------------------------------------------------------------
    if (state[1] == PM_PROGRAM_STATE_CLIENT_EXIT)
    {
-      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_EXIT]\n");
+      mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_EXIT]\n");
 
       mNetgame.ClientExitNetwork();
 
@@ -425,7 +425,7 @@ void mwLoop::proc_program_state(void)
 //-----------------------------------------------------------------
    if (state[1] == PM_PROGRAM_STATE_CLIENT_NEW_GAME)
    {
-      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_NEW_GAME]\n");
+      mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_NEW_GAME]\n");
 
       mLog.log_versions();
       mLog.add_fw (LOG_NET, 0, 76, 10, "+", "-", "");
@@ -460,7 +460,7 @@ void mwLoop::proc_program_state(void)
 //-----------------------------------------------------------------
    if (state[1] == PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP)
    {
-      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP]\n");
+      mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_LEVEL_SETUP]\n");
 
       if (load_and_setup_level(mLevel.play_level, 2)) state[0] = PM_PROGRAM_STATE_CLIENT_WAIT_FOR_INITIAL_STATE;
       else state[0] = PM_PROGRAM_STATE_CLIENT_EXIT;
@@ -471,7 +471,7 @@ void mwLoop::proc_program_state(void)
 //-----------------------------------------------------------------
    if (state[1] == PM_PROGRAM_STATE_CLIENT_WAIT_FOR_INITIAL_STATE)
    {
-      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_WAIT_FOR_INITIAL_STATE]\n");
+      mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_WAIT_FOR_INITIAL_STATE]\n");
 
       mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "Waiting for game state from server");
       al_flip_display();
@@ -489,7 +489,7 @@ void mwLoop::proc_program_state(void)
 //---------------------------------------
    if (state[1] == PM_PROGRAM_STATE_SERVER_NEW_GAME)
    {
-      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SERVER_NEW_GAME]\n");
+      mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SERVER_NEW_GAME]\n");
       if (!mNetgame.ServerInitNetwork())
       {
          state[0] = PM_PROGRAM_STATE_SERVER_EXIT;
@@ -507,7 +507,7 @@ void mwLoop::proc_program_state(void)
 //---------------------------------------
    if (state[1] == PM_PROGRAM_STATE_SERVER_EXIT)
    {
-      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SERVER_EXIT]\n");
+      mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SERVER_EXIT]\n");
 
       if (mGameMoves.autosave_game_on_level_quit) mGameMoves.save_gm_make_fn("autosave on level quit", 0);
 
@@ -520,7 +520,7 @@ void mwLoop::proc_program_state(void)
 //---------------------------------------
    if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME)
    {
-      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME]\n");
+      mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME]\n");
 
       if (!mMain.classic_mode) mLevel.start_level = mLevel.play_level = 1;
 
@@ -535,7 +535,7 @@ void mwLoop::proc_program_state(void)
 //----------------------------------------------------------------------------------------------------------
    if (state[1] == PM_PROGRAM_STATE_NEXT_LEVEL)
    {
-      mLog.addf(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_NEXT_LEVEL]  [play lev:%d]  [next lev:%d]\n", mLevel.play_level, mPlayer.syn[0].level_done_next_level);
+      mLog.log_add_prefixed_textf(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_NEXT_LEVEL]  [play lev:%d]  [next lev:%d]\n", mLevel.play_level, mPlayer.syn[0].level_done_next_level);
 
 // --------------------------------------------------------
 // cleanup after level done
@@ -549,18 +549,19 @@ void mwLoop::proc_program_state(void)
       {
          mNetgame.ChannelFlush();
          mLog.log_ending_stats_client(LOG_NET_ending_stats, mPlayer.active_local_player);
-         if (++mPlayer.syn[0].server_lev_seq_num > 7) mPlayer.syn[0].server_lev_seq_num = 0;
+         mNetgame.server_lev_seq_num++;
       }
       if (mNetgame.ima_server)
       {
          mNetgame.ChannelFlush();
          mLog.log_ending_stats_server(LOG_NET_ending_stats);
-         if (++mPlayer.syn[0].server_lev_seq_num > 7) mPlayer.syn[0].server_lev_seq_num = 0;
+         mNetgame.server_lev_seq_num++;
          if (mLog.log_types[LOG_NET_session].action) mNetgame.session_save_active_at_level_done();
       }
       if (mLog.autosave_log_on_level_done) mLog.save_log_file();
 
       if (mGameMoves.autosave_game_on_level_done) mGameMoves.save_gm_make_fn("autosave on level done", 0);
+
 
 
 // --------------------------------------------------------
@@ -569,7 +570,7 @@ void mwLoop::proc_program_state(void)
 // --------------------------------------------------------
       if (done_action == 0) // command line
       {
-         mLog.add(LOG_OTH_program_state, 0, "command line exit\n");
+         mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "command line exit\n");
          state[0] = PM_PROGRAM_STATE_QUIT; // exit
          mScreen.transition_cutscene(1, 0); // game to nothing
          return; // to exit immediately
@@ -591,7 +592,7 @@ void mwLoop::proc_program_state(void)
 // ----------------------------------------------------------
       if (mPlayer.syn[0].level_done_next_level == 1)
       {
-         mLog.add(LOG_OTH_transitions, 0, "Next level to overworld\n");
+         mLog.log_add_prefixed_text(LOG_OTH_transitions, 0, "Next level to overworld\n");
          pre_load_transistion_initial = 1; // game
          pre_load_transistion_final   = 3; // gate
       }
@@ -601,7 +602,7 @@ void mwLoop::proc_program_state(void)
 // -----------------------------------------------------------------------------------------------------
       if ((mLevel.play_level == 1) && (mPlayer.syn[0].level_done_next_level != 1))
       {
-         mLog.add(LOG_OTH_transitions, 0, "Next level from overworld\n");
+         mLog.log_add_prefixed_text(LOG_OTH_transitions, 0, "Next level from overworld\n");
          post_load_transistion_initial = 3; // gate
          post_load_transistion_final   = 1; // game
       }
@@ -612,7 +613,7 @@ void mwLoop::proc_program_state(void)
 // -----------------------------------------------------------------------------------------------------
       if ((mLevel.play_level != 1) && (mPlayer.syn[0].level_done_next_level != 1) && (state[2] == PM_PROGRAM_STATE_MAIN_GAME_LOOP))
       {
-         mLog.add(LOG_OTH_transitions, 0, "Level to level (no overworld)\n");
+         mLog.log_add_prefixed_text(LOG_OTH_transitions, 0, "Level to level (no overworld)\n");
          pre_load_transistion_initial  = 1; // game
          pre_load_transistion_final    = 0; // nothing
          post_load_transistion_initial = 0; // nothing
@@ -622,7 +623,7 @@ void mwLoop::proc_program_state(void)
 // ------------------------------------------------------------------------------------------------------------------------------------
 // ---   pre load transition
 // ------------------------------------------------------------------------------------------------------------------------------------
-      mLog.add(LOG_OTH_transitions, 0, "pre-load ");
+      mLog.log_add_prefixed_text(LOG_OTH_transitions, 0, "pre-load ");
       mScreen.transition_cutscene(pre_load_transistion_initial, pre_load_transistion_final);
 
 // ---------------------------------------------------
@@ -636,7 +637,7 @@ void mwLoop::proc_program_state(void)
 // ----------------------------------------
 // post-load transition
 // ----------------------------------------
-      mLog.add(LOG_OTH_transitions, 0, "post-load ");
+      mLog.log_add_prefixed_text(LOG_OTH_transitions, 0, "post-load ");
       mScreen.transition_cutscene(post_load_transistion_initial, post_load_transistion_final);
    }
 
@@ -646,7 +647,7 @@ void mwLoop::proc_program_state(void)
    //---------------------------------------
    if (state[1] == PM_PROGRAM_STATE_RESUME)
    {
-      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_RESUME]\n");
+      mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_RESUME]\n");
       mSound.start_music(1); // resume theme
       mScreen.transition_cutscene(2, 1); // menu to game
       state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
@@ -658,7 +659,7 @@ void mwLoop::proc_program_state(void)
    //---------------------------------------
    if (state[1] == PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT)
    {
-      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT]\n");
+      mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SINGLE_PLAYER_EXIT]\n");
 
       mLevel.resume_allowed = 1;
 
@@ -673,7 +674,7 @@ void mwLoop::proc_program_state(void)
    //-------------------------------------------------------
    if (state[1] == PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP)
    {
-      mLog.add(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP]\n");
+      mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_SETUP]\n");
       printf("server remote control setup\n");
 
       for (int p=0; p<NUM_PLAYERS; p++) mPlayer.init_player(p, 1); // full reset
@@ -696,7 +697,7 @@ void mwLoop::proc_program_state(void)
 
       state[0] = PM_PROGRAM_STATE_SERVER_REMOTE_CONTROL_RUN;
       printf("server remote control run\n");
-      mLog.add(LOG_OTH_program_state, 0, "[State 40 - Server Remote Control Run]\n");
+      mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[State 40 - Server Remote Control Run]\n");
       initialize_graphs();
    }
 }
@@ -740,7 +741,7 @@ int mwLoop::load_and_setup_level(int level, int type)
          setup_players_after_level_load(1); // type 1 full reset,
          strncpy(mPlayer.loc[0].hostname, local_hostname, 16);
          mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL;
-         mPlayer.syn[0].server_lev_seq_num = 0;
+         mNetgame.server_lev_seq_num = 0;
       }
 
       if (type == 4) // DEMO

@@ -60,8 +60,8 @@ struct client_session
 
 struct mwChannel
 {
-   int active;
-   char address[256];
+   int channel_active;
+   char channel_address[256];
 };
 
 
@@ -91,6 +91,9 @@ class mwNetgame
    int NetworkDriver;
    int NetworkInit();
 
+
+   void clear_channel(int c);
+
    mwStateHistory mStateHistory[8];
 
    // debug testing of sending more packets
@@ -110,6 +113,10 @@ class mwNetgame
    int client_chase_offset_mode; // 0 = manual, 1 = auto, 2 = server
 
    int server_dirty_frame = 0;
+
+   int server_lev_seq_num = 0;
+
+
 
    // local client's buffer for building compressed dif from packets
    char client_state_buffer[STATE_SIZE];

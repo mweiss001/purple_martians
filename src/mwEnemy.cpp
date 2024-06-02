@@ -275,16 +275,13 @@ void mwEnemy::move_enemies()
          tmr_tally[enemy_type][1]+= al_get_time()-t0; // tally proc time for enemies of this type
       }
 
-
-   // build log entry
-   if (LOG_TMR_move_enem)
+   if (LOG_TMR_move_enem) // build log entry
    {
       mLog.add_tmr(LOG_TMR_move_enem, "");
       for (int i=0; i<100; i++)
          if (tmr_tally[i][1] > 0)
-//            mLog.appf(LOG_TMR_move_enem, "m-%s:[%0.4f] ", enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000); // average time for one enemy in each type
-            mLog.appf(LOG_TMR_move_enem, "m-%s:[%0.4f] ", enemy_name[i][1], tmr_tally[i][1]*1000); // total time per enemy type
-      mLog.app(LOG_TMR_move_enem, "\n");
+            mLog.log_append_textf(LOG_TMR_move_enem, "m-%s:[%0.4f] ", enemy_name[i][1], tmr_tally[i][1]*1000); // total time per enemy type
+      mLog.log_append_text(LOG_TMR_move_enem, "\n");
    }
 }
 

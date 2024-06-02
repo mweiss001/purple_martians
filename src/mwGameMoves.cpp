@@ -539,7 +539,7 @@ int mwGameMoves::save_gm(const char *fname, int sendto)
    if ((sendto) && (!server_send_files_to_clients)) ret = 5; // trying to send to client and file transfer disabled
 
    // only log here if file will not be saved
-   if (ret) mLog.addf(LOG_NET_file_transfer, sendto, "save:txt:%s\n", get_save_txt(ret, msg));
+   if (ret) mLog.log_add_prefixed_textf(LOG_NET_file_transfer, sendto, "save:txt:%s\n", get_save_txt(ret, msg));
 
    if (sendto) mNetgame.server_send_srrf_packet(sendto, ret);
 
@@ -556,7 +556,7 @@ int mwGameMoves::save_gm(const char *fname, int sendto)
             for (int y=0; y<4; y++)
                fprintf(filepntr,"%d\n", arr[x][y]);
          fclose(filepntr);
-         mLog.addf(LOG_NET_file_transfer, sendto, "saved:%s\n", fname);
+         mLog.log_add_prefixed_textf(LOG_NET_file_transfer, sendto, "saved:%s\n", fname);
 
          sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname); // update current loaded demo filename
 

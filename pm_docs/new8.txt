@@ -37215,7 +37215,7 @@ old:
    void PacketReadString(char*);
    int PacketGetInt1(void);
    int PacketGetInt2(void);
-   int PacketGetInt4(void);
+   int PacketGetInt32(void);
    double PacketGetDouble(void);
 
 new:
@@ -55441,7 +55441,1855 @@ is this worth a new release?  yes...
 
 so I can test it and look for other bugs....
 
-7.24.0530.1
+7.24.0530.1..done and deployed to server...
+
+now test...
+
+also deploy to test machines...
+
+
+
+can I let this go, or do I want to experiment...
+
+this is what I want to test...
+
+when sending an integer as a byte and the integer is over 127, it will be decoded on the other side as a signed int and 128 will actually be -127
+
+
+
+test locally by setting slsn to 126 and letting it roll over...
+
+it happened...
+
+not when next leveling, but when starting new game
+
+i dont get that...
+the int is incremented in both s and c, but the stdf's now should be coming with the wrong value
+
+I could just be safe and use my int4 and not even check and let it roll over...
+
+that would make some packets bigger...
+
+I wonder if I should do something safer...
+
+
+what if I made a set of put and get that explicitly used unsigned 8 bit ints instead of char...
+
+this is the proper way to do it, but is it a lot of work for minimal benefit?
+
+wait a tick, I think it happens because signed is the default, not unsigned.
+
+
+if I leave it like its is, I just need to make a note that when using btye to set ints:
+if I send one larger than 127, it will come out the other side as negative
+
+maybe I could make a more explicit type packet send, or just use the big int...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------
+BUG - server force fakekey also makes hidden server player on remote headless server make moves....
+
+modify this to make it not do that....
+
+void mwPlayer::proc_player_input(void)
+{
+   if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (syn[p].active) // cycle all active players
+         {
+            int cm = syn[p].control_method;
+            if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) || (cm == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL) || (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)) // these are the only local control methods
+            {
+               set_comp_move_from_player_key_check(p);
+
+               // fakekey mode
+               if ((loc[p].fake_keypress_mode) || (syn[0].server_force_fakekey))
+               {
+                  // even in fakekey mode allow ESC or menu
+                  if ((!mInput.key[loc[p].menu_key][0]) && (!mInput.key[ALLEGRO_KEY_ESCAPE][0])) loc[p].comp_move = rand() % 64;
+               }
+
+               if (loc[p].comp_move != comp_move_from_players_current_controls(p))   // player's controls have changed
+               {
+                  mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_MOVE, p, loc[p].comp_move); // add to game moves array
+
+
+I think this one change will fix it.....
+
+         if ((syn[p].active) && (syn[p].paused_type != 3)) // cycle all active players except hidden player in headless server
+--------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+BUG -
+
+tried to join at work, joined but I had never seen this behaviour before, client was frozen.
+could move just a tiny bit then corrected to nothing...
+
+what is going on?
+
+tried at home with scat as rc and m36 and e6430 as clients...
+
+ran into a situation where
+m36 would stay joined on the server even when it would quit...
+then it could rejoin and have multiple m36 listed on remote...
+
+I don't even know how to start troubleshooting this...
+
+
+newgame
+all 3 clients lost server connection at 1:00:03 on level 64
+
+why do I have all these:
+
+May 31 15:23:49 pmh pm[757]: [10][1][64954]+--------------------------------------------------------------------------+
+May 31 15:23:49 pmh pm[757]: [10][1][64954]|                                                                          |
+May 31 15:23:49 pmh pm[757]: [10][1][64954]|              Server dropped player:1 (last stak rx:43642)                |
+May 31 15:23:49 pmh pm[757]: [10][1][64954]|                                                                          |
+May 31 15:23:49 pmh pm[757]: [10][1][64954]+--------------------------------------------------------------------------+
+May 31 15:23:49 pmh pm[757]: [10][2][64954]+--------------------------------------------------------------------------+
+May 31 15:23:49 pmh pm[757]: [10][2][64954]|                                                                          |
+May 31 15:23:49 pmh pm[757]: [10][2][64954]|              Server dropped player:2 (last stak rx:44485)                |
+May 31 15:23:49 pmh pm[757]: [10][2][64954]|                                                                          |
+May 31 15:23:49 pmh pm[757]: [10][2][64954]+--------------------------------------------------------------------------+
+
+May 31 15:23:49 pmh pm[757]: [10][1][64955]+--------------------------------------------------------------------------+
+May 31 15:23:49 pmh pm[757]: [10][1][64955]|                                                                          |
+May 31 15:23:49 pmh pm[757]: [10][1][64955]|              Server dropped player:1 (last stak rx:43642)                |
+May 31 15:23:49 pmh pm[757]: [10][1][64955]|                                                                          |
+May 31 15:23:49 pmh pm[757]: [10][1][64955]+--------------------------------------------------------------------------+
+May 31 15:23:49 pmh pm[757]: [10][2][64955]+--------------------------------------------------------------------------+
+May 31 15:23:49 pmh pm[757]: [10][2][64955]|                                                                          |
+May 31 15:23:49 pmh pm[757]: [10][2][64955]|              Server dropped player:2 (last stak rx:44485)                |
+May 31 15:23:49 pmh pm[757]: [10][2][64955]|                                                                          |
+May 31 15:23:49 pmh pm[757]: [10][2][64955]+--------------------------------------------------------------------------+
+
+
+
+Here is where I lost the three clients:
+
+Jun 01 04:03:13 pmh pm[757]: [10][0][12]|                             NEXT LEVEL:64                                |
+Jun 01 04:03:13 pmh pm[757]: [10][0][12]|                                                                          |
+Jun 01 04:03:13 pmh pm[757]: [10][0][12]+--------------------------------------------------------------------------+
+Jun 01 04:03:13 pmh pm[757]: logs/20240601-030306-[1][pmh].txt saved
+Jun 01 04:03:13 pmh pm[757]: [10][0][0]+--------------------------------------------------------------------------+
+Jun 01 04:03:13 pmh pm[757]: [10][0][0]|                                                                          |
+Jun 01 04:03:13 pmh pm[757]: [10][0][0]|                            LEVEL 64 STARTED                              |
+Jun 01 04:03:13 pmh pm[757]: [10][0][0]|                                                                          |
+Jun 01 04:03:13 pmh pm[757]: [10][0][0]+--------------------------------------------------------------------------+
+Jun 01 04:03:13 pmh pm[757]: [10][0][144001]+--------------------------------------------------------------------------+
+Jun 01 04:03:13 pmh pm[757]: [10][0][144001]|                                                                          |
+Jun 01 04:03:13 pmh pm[757]: [10][0][144001]|               Server Approaching 144000 frames! - Reload                 |
+Jun 01 04:03:13 pmh pm[757]: [10][0][144001]|                                                                          |
+Jun 01 04:03:13 pmh pm[757]: [10][0][144001]+--------------------------------------------------------------------------+
+Jun 01 04:03:13 pmh pm[757]: [10][0][144011]+--------------------------------------------------------------------------+
+Jun 01 04:03:13 pmh pm[757]: [10][0][144011]|                                                                          |
+Jun 01 04:03:13 pmh pm[757]: [10][0][144011]|                              NEXT LEVEL:1                                |
+Jun 01 04:03:13 pmh pm[757]: [10][0][144011]|                                                                          |
+Jun 01 04:03:13 pmh pm[757]: [10][0][144011]+--------------------------------------------------------------------------+
+Jun 01 04:03:13 pmh pm[757]: logs/20240601-040306-[64][pmh].txt saved
+Jun 01 04:03:13 pmh pm[757]: [10][0][0]+--------------------------------------------------------------------------+
+Jun 01 04:03:13 pmh pm[757]: [10][0][0]|                                                                          |
+Jun 01 04:03:13 pmh pm[757]: [10][0][0]|                            LEVEL 1 STARTED                               |
+Jun 01 04:03:13 pmh pm[757]: [10][0][0]|                                                                          |
+Jun 01 04:03:13 pmh pm[757]: [10][0][0]+--------------------------------------------------------------------------+
+Jun 01 04:03:13 pmh pm[757]: [10][1][301]+--------------------------------------------------------------------------+
+Jun 01 04:03:13 pmh pm[757]: [10][1][301]|                                                                          |
+Jun 01 04:03:13 pmh pm[757]: [10][1][301]|                Server dropped player:1 (last stak rx:0)                  |
+Jun 01 04:03:13 pmh pm[757]: [10][1][301]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][1][301]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][2][301]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][2][301]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][2][301]|                Server dropped player:2 (last stak rx:0)                  |
+Jun 01 04:03:14 pmh pm[757]: [10][2][301]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][2][301]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][3][301]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][3][301]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][3][301]|                Server dropped player:3 (last stak rx:0)                  |
+Jun 01 04:03:14 pmh pm[757]: [10][3][301]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][3][301]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][1][302]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][1][302]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][1][302]|                Server dropped player:1 (last stak rx:0)                  |
+Jun 01 04:03:14 pmh pm[757]: [10][1][302]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][1][302]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][2][302]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][2][302]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][2][302]|                Server dropped player:2 (last stak rx:0)                  |
+Jun 01 04:03:14 pmh pm[757]: [10][2][302]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][2][302]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][3][302]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][3][302]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][3][302]|                Server dropped player:3 (last stak rx:0)                  |
+Jun 01 04:03:14 pmh pm[757]: [10][3][302]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][3][302]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][1][303]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][1][303]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][1][303]|                Server dropped player:1 (last stak rx:0)                  |
+Jun 01 04:03:14 pmh pm[757]: [10][1][303]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][1][303]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][2][303]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][2][303]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][2][303]|                Server dropped player:2 (last stak rx:0)                  |
+Jun 01 04:03:14 pmh pm[757]: [10][2][303]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][2][303]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][3][303]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][3][303]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][3][303]|                Server dropped player:3 (last stak rx:0)                  |
+Jun 01 04:03:14 pmh pm[757]: [10][3][303]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][3][303]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][1][304]+--------------------------------------------------------------------------+
+Jun 01 04:03:14 pmh pm[757]: [10][1][304]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][1][304]|                Server dropped player:1 (last stak rx:0)                  |
+Jun 01 04:03:14 pmh pm[757]: [10][1][304]|                                                                          |
+Jun 01 04:03:14 pmh pm[757]: [10][1][304]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][2][304]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][2][304]|                                                                          |
+Jun 01 05:03:06 pmh pm[757]: [10][2][304]|                Server dropped player:2 (last stak rx:0)                  |
+Jun 01 05:03:06 pmh pm[757]: [10][2][304]|                                                                          |
+Jun 01 05:03:06 pmh pm[757]: [10][2][304]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][3][304]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][3][304]|                                                                          |
+Jun 01 05:03:06 pmh pm[757]: [10][3][304]|                Server dropped player:3 (last stak rx:0)                  |
+Jun 01 05:03:06 pmh pm[757]: [10][3][304]|                                                                          |
+Jun 01 05:03:06 pmh pm[757]: [10][3][304]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][1][305]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][1][305]|                                                                          |
+Jun 01 05:03:06 pmh pm[757]: [10][1][305]|                Server dropped player:1 (last stak rx:0)                  |
+Jun 01 05:03:06 pmh pm[757]: [10][1][305]|                                                                          |
+Jun 01 05:03:06 pmh pm[757]: [10][1][305]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][2][305]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][2][305]|                                                                          |
+Jun 01 05:03:06 pmh pm[757]: [10][2][305]|                Server dropped player:2 (last stak rx:0)                  |
+Jun 01 05:03:06 pmh pm[757]: [10][2][305]|                                                                          |
+Jun 01 05:03:06 pmh pm[757]: [10][2][305]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][3][305]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][3][305]|                                                                          |
+Jun 01 05:03:06 pmh pm[757]: [10][3][305]|                Server dropped player:3 (last stak rx:0)                  |
+Jun 01 05:03:06 pmh pm[757]: [10][3][305]|                                                                          |
+Jun 01 05:03:06 pmh pm[757]: [10][3][305]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][3][305]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][3][305]|        Player:3 became INACTIVE!                                         |
+Jun 01 05:03:06 pmh pm[757]: [10][3][305]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][2][305]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][2][305]|        Player:2 became INACTIVE!                                         |
+Jun 01 05:03:06 pmh pm[757]: [10][2][305]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][1][305]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][1][305]|        Player:1 became INACTIVE!                                         |
+Jun 01 05:03:06 pmh pm[757]: [10][1][305]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][0][144001]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][0][144001]|                                                                          |
+Jun 01 05:03:06 pmh pm[757]: [10][0][144001]|               Server Approaching 144000 frames! - Reload                 |
+Jun 01 05:03:06 pmh pm[757]: [10][0][144001]|                                                                          |
+Jun 01 05:03:06 pmh pm[757]: [10][0][144001]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][0][144011]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: [10][0][144011]|                                                                          |
+Jun 01 05:03:06 pmh pm[757]: [10][0][144011]|                              NEXT LEVEL:1                                |
+Jun 01 05:03:06 pmh pm[757]: [10][0][144011]|                                                                          |
+Jun 01 05:03:06 pmh pm[757]: [10][0][144011]+--------------------------------------------------------------------------+
+Jun 01 05:03:06 pmh pm[757]: logs/20240601-050306-[1][pmh].txt saved
+Jun 01 05:03:06 pmh pm[757]: [10][0][0]+--------------------------------------------------------------------------+
+lines 113-235/235 (END)
+
+
+Here is a client log from when it happened:
+
+
+[27][3][143951]rx dif complete [143947 to 143949] - uncompressed
+[31][3][143949]----- Apply dif [143947 to 143949] [applied] [rewound [2] frames]
+[33][3][143951]tx stak p:3 ack:[143949] cur:[143951]
+[28][3][143952]rx stdf piece [1 of 1] [143948 to 143950] st:   0 sz: 865 slsn:0
+[27][3][143952]rx dif complete [143948 to 143950] - uncompressed
+[31][3][143950]----- Apply dif [143948 to 143950] [applied] [rewound [2] frames]
+[33][3][143952]tx stak p:3 ack:[143950] cur:[143952]
+[28][3][143953]rx stdf piece [1 of 1] [143949 to 143951] st:   0 sz: 863 slsn:0
+[27][3][143953]rx dif complete [143949 to 143951] - uncompressed
+[31][3][143951]----- Apply dif [143949 to 143951] [applied] [rewound [2] frames]
+[33][3][143953]tx stak p:3 ack:[143951] cur:[143953]
+[28][3][143954]rx stdf piece [1 of 1] [143950 to 143952] st:   0 sz: 850 slsn:0
+[27][3][143954]rx dif complete [143950 to 143952] - uncompressed
+[31][3][143952]----- Apply dif [143950 to 143952] [applied] [rewound [2] frames]
+[33][3][143954]tx stak p:3 ack:[143952] cur:[143954]
+[31][3][143955]----- Apply dif [143950 to 143952] dd[not applied] [not newer than last dif applied]
+[31][3][143956]----- Apply dif [143950 to 143952] dd[not applied] [not newer than last dif applied]
+[31][3][143957]----- Apply dif [143950 to 143952] dd[not applied] [not newer than last dif applied]
+
+...
+
+[31][3][144150]----- Apply dif [143950 to 143952] dd[not applied] [not newer than last dif applied]
+[31][3][144151]----- Apply dif [143950 to 143952] dd[not applied] [not newer than last dif applied]
+[31][3][144152]----- Apply dif [143950 to 143952] dd[not applied] [not newer than last dif applied]
+[31][3][144153]----- Apply dif [143950 to 143952] dd[not applied] [not newer than last dif applied]
+[10][3][144153]+--------------------------------------------------------------------------+
+[10][3][144153]|        Local Player Client 3 Lost Server Connection!                     |
+[10][3][144153]|        last_dif_applied:[143952]                                         |
+[10][3][144153]+--------------------------------------------------------------------------+
+[10][0][144153]+--------------------------------------------------------------------------+
+[10][0][144153]|                    Shutting down the client network                      |
+[10][0][144153]+--------------------------------------------------------------------------+
+
+
+
+I think I know one bug I could fix...
+I think the clients were not quitting when getting stdf's with wrong slsn, because getting them reset the counter....
+No that is not valid...this is how it goes
+
+   // client keeps track of last dif applied and uses that to quit if no dif applied for a period of time
+   mPlayer.loc[p].client_last_dif_applied_frame_num = mLoop.frame_num;
+
+So in this last example, all I can tell is that client stopped receiving stdf's
+
+it was receiving them for level 64 with slsn of 0
+then stopped...
+
+I wish I could see what was happening on the server at that time...
+
+
+can I try to duplicate with logging on?
+
+
+I have a guess. seems to happen going to overworld and with fakekey. maybe fakekey is triggering very soon after starting overworld??
+
+
+I enabled all logging on pmh and started server again....
+
+
+then started 3 clients on level 1 with fakekey and they go to level 64
+then on remote, i force reload of level 1, which then they immediately go to level 64...
+did this many times, but cannot reproduce the bug....
+
+
+one thing I notice is that clients start in different places on overworld...
+...because of last gate touched...
+could that have something to do with it?
+
+what if I make one client sit on first training level, and one on 64, then try??
+then force reload of overworld...
+dpeneding on which client presses up first, either level can be started...
+tested this many times and do not trigger bug..
+
+
+what to do now? I can't seem to reprocuce anything.....does it need to run longer?
+
+set up three clients on three different gates...cannot make it fail...wtf...
+
+kind of hard to troubleshoot when it won't fail!
+
+
+I got a fail!!
+
+
+all 3 clients lost server connection. 23:41 into level 64
+
+
+this is client m36 doing a successfull next level when server reset
+
+[28][1][144009]rx stdf piece [1 of 1] [144006 to 144008] st:   0 sz: 135 slsn:1
+[27][1][144009]rx dif complete [144006 to 144008] - uncompressed
+[31][1][144008]----- Apply dif [144006 to 144008] [applied] [rewound [1] frames]
+[33][1][144009]tx stak p:1 ack:[144008] cur:[144009]
+[28][1][144010]rx stdf piece [1 of 1] [144007 to 144009] st:   0 sz: 135 slsn:1
+[27][1][144010]rx dif complete [144007 to 144009] - uncompressed
+[31][1][144009]----- Apply dif [144007 to 144009] [applied] [rewound [1] frames]
+[33][1][144010]tx stak p:1 ack:[144009] cur:[144010]
+[28][1][144011]rx stdf piece [1 of 1] [144008 to 144010] st:   0 sz: 135 slsn:1
+[27][1][144011]rx dif complete [144008 to 144010] - uncompressed
+[31][1][144010]----- Apply dif [144008 to 144010] [applied] [rewound [1] frames]
+[33][1][144011]tx stak p:1 ack:[144010] cur:[144011]
+[10][0][144011]+--------------------------------------------------------------------------+
+[10][0][144011]|                                                                          |
+[10][0][144011]|                              NEXT LEVEL:1                                |
+[10][0][144011]|                                                                          |
+[10][0][144011]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 1 STARTED                               |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[28][1][1]rx stdf piece [1 of 1] [144009 to 144011] st:   0 sz: 135 slsn:1x[2]bad!
+[31][1][1]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][2]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][3]rx stdf piece [1 of 1] [144010 to 144012] st:   0 sz: 138 slsn:1x[2]bad!
+[31][1][3]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][4]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][5]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][6]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][7]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][8]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][9]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][10]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][11]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][12]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][13]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][14]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][15]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][16]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][17]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][18]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][19]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][20]rx stdf piece [1 of 3] [0 to 2] st:   0 sz:1400 slsn:2
+[31][1][20]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][21]rx stdf piece [2 of 3] [0 to 2] st:1400 sz:1400 slsn:2
+[31][1][21]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][22]rx stdf piece [3 of 3] [0 to 2] st:2800 sz: 660 slsn:2
+[27][1][22]rx dif complete [0 to 2] - uncompressed
+[31][1][2]----- Apply dif [0 to 2] [applied] [rewound [20] frames]
+[33][1][22]tx stak p:1 ack:[2] cur:[22]
+[10][0][22]+--------------------------------------------------------------------------+
+[10][0][22]|                                                                          |
+[10][0][22]|                             NEXT LEVEL:64                                |
+[10][0][22]|                                                                          |
+[10][0][22]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 64 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[31][1][1]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][2]rx stdf piece [1 of 3] [0 to 3] st:   0 sz:1400 slsn:2x[3]bad!
+[31][1][2]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][3]rx stdf piece [2 of 3] [0 to 3] st:1400 sz:1400 slsn:2x[3]bad!
+[28][1][3]rx stdf piece [3 of 3] [0 to 3] st:2800 sz: 653 slsn:2x[3]bad!
+[31][1][3]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][4]rx stdf piece [1 of 3] [0 to 4] st:   0 sz:1400 slsn:2x[3]bad!
+[31][1][4]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][5]rx stdf piece [2 of 3] [0 to 4] st:1400 sz:1400 slsn:2x[3]bad!
+[28][1][5]rx stdf piece [3 of 3] [0 to 4] st:2800 sz: 643 slsn:2x[3]bad!
+[31][1][5]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][6]rx stdf piece [1 of 3] [0 to 5] st:   0 sz:1400 slsn:2x[3]bad!
+[31][1][6]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][7]rx stdf piece [2 of 3] [0 to 5] st:1400 sz:1400 slsn:2x[3]bad!
+[28][1][7]rx stdf piece [3 of 3] [0 to 5] st:2800 sz: 649 slsn:2x[3]bad!
+[28][1][7]rx stdf piece [1 of 1] [2 to 6] st:   0 sz: 198 slsn:2x[3]bad!
+[28][1][7]rx stdf piece [1 of 1] [2 to 7] st:   0 sz: 188 slsn:2x[3]bad!
+[31][1][7]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][8]rx stdf piece [1 of 1] [2 to 8] st:   0 sz: 196 slsn:2x[3]bad!
+[28][1][8]rx stdf piece [1 of 1] [2 to 9] st:   0 sz: 188 slsn:2x[3]bad!
+[28][1][8]rx stdf piece [1 of 3] [0 to 10] st:   0 sz:1400 slsn:2x[3]bad!
+[28][1][8]rx stdf piece [2 of 3] [0 to 10] st:1400 sz:1400 slsn:2x[3]bad!
+[28][1][8]rx stdf piece [3 of 3] [0 to 10] st:2800 sz: 651 slsn:2x[3]bad!
+[31][1][8]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][9]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][10]rx stdf piece [1 of 3] [0 to 11] st:   0 sz:1400 slsn:2x[3]bad!
+[28][1][10]rx stdf piece [2 of 3] [0 to 11] st:1400 sz:1400 slsn:2x[3]bad!
+[28][1][10]rx stdf piece [3 of 3] [0 to 11] st:2800 sz: 655 slsn:2x[3]bad!
+[31][1][10]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[31][1][11]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][12]rx stdf piece [1 of 3] [0 to 12] st:   0 sz:1400 slsn:2x[3]bad!
+[28][1][12]rx stdf piece [2 of 3] [0 to 12] st:1400 sz:1400 slsn:2x[3]bad!
+[28][1][12]rx stdf piece [3 of 3] [0 to 12] st:2800 sz: 655 slsn:2x[3]bad!
+[31][1][12]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][13]rx stdf piece [1 of 3] [0 to 13] st:   0 sz:1400 slsn:2x[3]bad!
+[28][1][13]rx stdf piece [2 of 3] [0 to 13] st:1400 sz:1400 slsn:2x[3]bad!
+[28][1][13]rx stdf piece [3 of 3] [0 to 13] st:2800 sz: 653 slsn:2x[3]bad!
+[31][1][13]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][14]rx stdf piece [1 of 6] [0 to 2] st:   0 sz:1400 slsn:3
+[28][1][14]rx stdf piece [2 of 6] [0 to 2] st:1400 sz:1400 slsn:3
+[28][1][14]rx stdf piece [3 of 6] [0 to 2] st:2800 sz:1400 slsn:3
+[31][1][14]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][1][15]rx stdf piece [4 of 6] [0 to 2] st:4200 sz:1400 slsn:3
+[28][1][15]rx stdf piece [5 of 6] [0 to 2] st:5600 sz:1400 slsn:3
+[28][1][15]rx stdf piece [6 of 6] [0 to 2] st:7000 sz: 384 slsn:3
+[27][1][15]rx dif complete [0 to 2] - uncompressed
+[31][1][2]----- Apply dif [0 to 2] [applied] [rewound [13] frames]
+[33][1][15]tx stak p:1 ack:[2] cur:[15]
+[28][1][16]rx stdf piece [1 of 6] [0 to 3] st:   0 sz:1400 slsn:3
+[31][1][16]----- Apply dif [0 to 2] dd[not applied] [not newer than last dif applied]
+[28][1][17]rx stdf piece [2 of 6] [0 to 3] st:1400 sz:1400 slsn:3
+[28][1][17]rx stdf piece [3 of 6] [0 to 3] st:2800 sz:1400 slsn:3
+[28][1][17]rx stdf piece [4 of 6] [0 to 3] st:4200 sz:1400 slsn:3
+[28][1][17]rx stdf piece [5 of 6] [0 to 3] st:5600 sz:1400 slsn:3
+[28][1][17]rx stdf piece [6 of 6] [0 to 3] st:7000 sz: 456 slsn:3
+[27][1][17]rx dif complete [0 to 3] - uncompressed
+[31][1][3]----- Apply dif [0 to 3] [applied] [rewound [14] frames]
+[33][1][17]tx stak p:1 ack:[3] cur:[17]
+[28][1][18]rx stdf piece [1 of 6] [0 to 4] st:   0 sz:1400 slsn:3
+[28][1][18]rx stdf piece [2 of 6] [0 to 4] st:1400 sz:1400 slsn:3
+[31][1][18]----- Apply dif [0 to 3] dd[not applied] [not newer than last dif applied]
+[28][1][19]rx stdf piece [3 of 6] [0 to 4] st:2800 sz:1400 slsn:3
+[28][1][19]rx stdf piece [4 of 6] [0 to 4] st:4200 sz:1400 slsn:3
+
+
+--------------------------------------------------
+Just a thought here:
+what if server changes to level 1, but client misses it, before server starts another level...
+---------------------------------------------------
+
+
+
+
+
+looking at when the client lost comm and quit
+
+
+
+
+
+56428 got stdf
+56433 got stdf (missed 4 frames of stdf?) rewound 6 frames
+from then on rewind 7 then 8 frames on every dif
+then got some 6 packet difs that were too late
+lots of packets in a single frame like 18 stdfs
+
+then over 80 frames where no stdf were received
+56545 then finally got all 6 pieces and decoded a valid dif and applied and rewound 86 frames!!
+
+then a bunch of dif from zero and rewinding 80-60
+
+
+56564 43 stdf's rx in a single frame !!!
+
+56565 54 stdf's rx in a single frame !!!
+
+then full difs up to 56599 rewind down to 2
+
+then increased to jumping ahead still full difs
+
+56673 got last stdfs, decoded and applied to frame 56675 (ahead 2)
+
+56876 client quit due to lost comm last dif 56675
+
+
+what do I see on the server?
+
+it stopped getting stak...why???
+
+what would it take to get proper timestamps and host names in my log files??
+
+8 char YYYYMMDD
+8 char HHMMSS.ss
+
+32 more char, 16 for TS and 16 for hostname..
+
+how long are my log lines already??
+
+profile complains if > 500
+
+other graphs have room for 200
+
+this was all very inconclusive....
+
+it could have been caused by laggy internet
+
+I don't see any real problem
+
+moving on and trying to get something else to debug....
+
+
+same test but made it so that the server reloads after 1000 moves...
+
+here is something strange, maybe...
+the client does not save logs when the level is reloaded
+this is because the client does not actually do next level?
+it just relies on the server telling it what to do...
+is this something?
+
+
+it finally died...it took a long time....
+1:15 started
+2:10PM it died, it was reloading every 7 seconds....
+
+
+[31][3][358]----- Apply dif [0 to 358] [applied] [rewound [57] frames]
+[33][3][415]tx stak p:3 ack:[358] cur:[415]
+[28][3][416]rx stdf piece [1 of 2] [0 to 359] st:   0 sz:1400 slsn:5
+[28][3][416]rx stdf piece [2 of 2] [0 to 359] st:1400 sz: 491 slsn:5
+[27][3][416]rx dif complete [0 to 359] - uncompressed
+[28][3][416]rx stdf piece [1 of 2] [0 to 360] st:   0 sz:1400 slsn:5
+[28][3][416]rx stdf piece [2 of 2] [0 to 360] st:1400 sz: 490 slsn:5
+[27][3][416]rx dif complete [0 to 360] - uncompressed
+[28][3][416]rx stdf piece [1 of 2] [0 to 361] st:   0 sz:1400 slsn:5
+[28][3][416]rx stdf piece [2 of 2] [0 to 361] st:1400 sz: 490 slsn:5
+[27][3][416]rx dif complete [0 to 361] - uncompressed
+[31][3][361]----- Apply dif [0 to 361] [applied] [rewound [55] frames]
+[33][3][416]tx stak p:3 ack:[361] cur:[416]
+[10][0][416]+--------------------------------------------------------------------------+
+[10][0][416]|                                                                          |
+[10][0][416]|                              NEXT LEVEL:1                                |
+[10][0][416]|                                                                          |
+[10][0][416]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 1 STARTED                               |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[28][3][1]rx stdf piece [1 of 2] [0 to 362] st:   0 sz:1400 slsn:5x[6]bad!
+[28][3][1]rx stdf piece [2 of 2] [0 to 362] st:1400 sz: 491 slsn:5x[6]bad!
+[28][3][1]rx stdf piece [1 of 2] [0 to 363] st:   0 sz:1400 slsn:5x[6]bad!
+[28][3][1]rx stdf piece [2 of 2] [0 to 363] st:1400 sz: 489 slsn:5x[6]bad!
+[28][3][1]rx stdf piece [1 of 2] [0 to 364] st:   0 sz:1400 slsn:5x[6]bad!
+[28][3][1]rx stdf piece [2 of 2] [0 to 364] st:1400 sz: 489 slsn:5x[6]bad!
+[31][3][1]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][3][2]rx stdf piece [1 of 2] [0 to 365] st:   0 sz:1400 slsn:5x[6]bad!
+[28][3][2]rx stdf piece [2 of 2] [0 to 365] st:1400 sz: 492 slsn:5x[6]bad!
+[28][3][2]rx stdf piece [1 of 2] [0 to 366] st:   0 sz:1400 slsn:5x[6]bad!
+[28][3][2]rx stdf piece [2 of 2] [0 to 366] st:1400 sz: 489 slsn:5x[6]bad!
+[28][3][2]rx stdf piece [1 of 2] [0 to 367] st:   0 sz:1400 slsn:5x[6]bad!
+[28][3][2]rx stdf piece [2 of 2] [0 to 367] st:1400 sz: 488 slsn:5x[6]bad!
+[28][3][2]rx stdf piece [1 of 2] [0 to 368] st:   0 sz:1400 slsn:5x[6]bad!
+[28][3][2]rx stdf piece [2 of 2] [0 to 368] st:1400 sz: 489 slsn:5x[6]bad!
+[31][3][2]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[28][3][3]rx stdf piece [1 of 2] [0 to 369] st:   0 sz:1400 slsn:5x[6]bad!
+[28][3][3]rx stdf piece [2 of 2] [0 to 369] st:1400 sz: 487 slsn:5x[6]bad!
+[28][3][3]rx stdf piece [1 of 3] [0 to 2] st:   0 sz:1400 slsn:6
+[28][3][3]rx stdf piece [2 of 3] [0 to 2] st:1400 sz:1400 slsn:6
+[28][3][3]rx stdf piece [3 of 3] [0 to 2] st:2800 sz: 564 slsn:6
+[27][3][3]rx dif complete [0 to 2] - uncompressed
+[31][3][2]----- Apply dif [0 to 2] [applied] [rewound [1] frames]
+[33][3][3]tx stak p:3 ack:[2] cur:[3]
+[28][3][4]rx stdf piece [1 of 3] [0 to 3] st:   0 sz:1400 slsn:6
+[28][3][4]rx stdf piece [2 of 3] [0 to 3] st:1400 sz:1400 slsn:6
+
+
+
+[28][3][302]rx stdf piece [2 of 3] [0 to 304] st:1400 sz:1400 slsn:6
+[28][3][302]rx stdf piece [3 of 3] [0 to 304] st:2800 sz: 618 slsn:6
+[27][3][302]rx dif complete [0 to 304] - uncompressed
+[28][3][302]rx stdf piece [1 of 3] [0 to 305] st:   0 sz:1400 slsn:6
+[28][3][302]rx stdf piece [2 of 3] [0 to 305] st:1400 sz:1400 slsn:6
+[28][3][302]rx stdf piece [3 of 3] [0 to 305] st:2800 sz: 617 slsn:6
+[27][3][302]rx dif complete [0 to 305] - uncompressed
+[31][3][305]----- Apply dif [0 to 305] [applied] [jumped ahead 3 frames]
+[33][3][305]tx stak p:3 ack:[305] cur:[305]
+[31][3][306]----- Apply dif [0 to 305] dd[not applied] [not newer than last dif applied]
+[31][3][307]----- Apply dif [0 to 305] dd[not applied] [not newer than last dif applied]
+[31][3][308]----- Apply dif [0 to 305] dd[not applied] [not newer than last dif applied]
+[31][3][309]----- Apply dif [0 to 305] dd[not applied] [not newer than last dif applied]
+[31][3][310]----- Apply dif [0 to 305] dd[not applied] [not newer than last dif applied]
+[31][3][311]----- Apply dif [0 to 305] dd[not applied] [not newer than last dif applied]
+[31][3][312]----- Apply dif [0 to 305] dd[not applied] [not newer than last dif applied]
+[31][3][313]----- Apply dif [0 to 305] dd[not applied] [not newer than last dif applied]
+[31][3][314]----- Apply dif [0 to 305] dd[not applied] [not newer than last dif applied]
+[31][3][315]----- Apply dif [0 to 305] dd[not applied] [not newer than last dif applied]
+[31][3][316]----- Apply dif [0 to 305] dd[not applied] [not newer than last dif applied]
+
+
+
+why do i not see ant stak rx on server??
+
+
+
+
+made some changes and azm trying to get another failure...
+
+started at 4:02
+
+
+when it goes, all clients go at the same time...kind of like a network thing...
+
+
+i noticed at 6:45 11.8 seconds into level 80 all three clients died....
+
+
+
+[10][0][12]+--------------------------------------------------------------------------+
+[10][0][12]|                                                                          |
+[10][0][12]|                             NEXT LEVEL:80                                |
+[10][0][12]|                                                                          |
+[10][0][12]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 80 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[28][3][1]rx stdf piece [1 of 3] [0 to 4] st:   0 sz:1400 slsn:2x[3]bad!
+[31][3][1]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[35][3][1]tx cdat - move:63
+[28][3][2]rx stdf piece [2 of 3] [0 to 4] st:1400 sz:1400 slsn:2x[3]bad!
+[28][3][2]rx stdf piece [3 of 3] [0 to 4] st:2800 sz: 579 slsn:2x[3]bad!
+[28][3][2]rx stdf piece [1 of 3] [0 to 5] st:   0 sz:1400 slsn:2x[3]bad!
+[28][3][2]rx stdf piece [2 of 3] [0 to 5] st:1400 sz:1400 slsn:2x[3]bad!
+[31][3][2]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[35][3][2]tx cdat - move:53
+[28][3][3]rx stdf piece [3 of 3] [0 to 5] st:2800 sz: 584 slsn:2x[3]bad!
+[28][3][3]rx stdf piece [1 of 1] [2 to 6] st:   0 sz: 185 slsn:2x[3]bad!
+[28][3][3]rx stdf piece [1 of 1] [3 to 7] st:   0 sz: 178 slsn:2x[3]bad!
+[31][3][3]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[35][3][3]tx cdat - move:48
+[31][3][4]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[35][3][4]tx cdat - move:27
+[31][3][5]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[35][3][5]tx cdat - move:56
+[28][3][6]rx stdf piece [1 of 1] [3 to 8] st:   0 sz: 176 slsn:2x[3]bad!
+[31][3][6]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[35][3][6]tx cdat - move:50
+[28][3][7]rx stdf piece [1 of 1] [3 to 9] st:   0 sz: 183 slsn:2x[3]bad!
+[28][3][7]rx stdf piece [1 of 1] [3 to 10] st:   0 sz: 185 slsn:2x[3]bad!
+[31][3][7]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[35][3][7]tx cdat - move:3
+[31][3][8]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[35][3][8]tx cdat - move:6
+[28][3][9]rx stdf piece [1 of 3] [0 to 11] st:   0 sz:1400 slsn:2x[3]bad!
+[31][3][9]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[35][3][9]tx cdat - move:13
+[28][3][10]rx stdf piece [2 of 3] [0 to 11] st:1400 sz:1400 slsn:2x[3]bad!
+[28][3][10]rx stdf piece [3 of 3] [0 to 11] st:2800 sz: 584 slsn:2x[3]bad!
+[31][3][10]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+
+getting stdf's from prev level...
+
+...
+
+[35][3][14]tx cdat - move:21
+[28][3][15]rx stdf piece [2 of 3] [0 to 13] st:1400 sz:1400 slsn:2x[3]bad!
+[28][3][15]rx stdf piece [3 of 3] [0 to 13] st:2800 sz: 586 slsn:2x[3]bad!
+[31][3][15]----- Apply dif [-1 to -1] [not applied] [dif not valid]
+[35][3][15]tx cdat - move:55
+[28][3][16]rx stdf piece [1 of 2] [0 to 2] st:   0 sz:1400 slsn:3
+[28][3][16]rx stdf piece [2 of 2] [0 to 2] st:1400 sz: 198 slsn:3
+[27][3][16]rx dif complete [0 to 2] - uncompressed
+[28][3][16]rx stdf piece [1 of 2] [0 to 3] st:   0 sz:1400 slsn:3
+[28][3][16]rx stdf piece [2 of 2] [0 to 3] st:1400 sz: 183 slsn:3
+[27][3][16]rx dif complete [0 to 3] - uncompressed
+[31][3][3]----- Apply dif [0 to 3] [applied] [rewound [13] frames]
+[33][3][16]tx stak p:3 ack:[3] cur:[16]
+[35][3][16]tx cdat - move:15
+[28][3][17]rx stdf piece [1 of 2] [0 to 4] st:   0 sz:1400 slsn:3
+[28][3][17]rx stdf piece [2 of 2] [0 to 4] st:1400 sz: 185 slsn:3
+[27][3][17]rx dif complete [0 to 4] - uncompressed
+[28][3][17]rx stdf piece [1 of 2] [0 to 5] st:   0 sz:1400 slsn:3
+[28][3][17]rx stdf piece [2 of 2] [0 to 5] st:1400 sz: 184 slsn:3
+[27][3][17]rx dif complete [0 to 5] - uncompressed
+[31][3][5]----- Apply dif [0 to 5] [applied] [rewound [12] frames]
+[33][3][17]tx stak p:3 ack:[5] cur:[17]
+[35][3][17]tx cdat - move:59
+
+finally got a good one and applied
+
+
+[28][3][268]rx stdf piece [1 of 2] [0 to 254] st:   0 sz:1400 slsn:3
+[28][3][268]rx stdf piece [2 of 2] [0 to 254] st:1400 sz: 492 slsn:3
+[27][3][268]rx dif complete [0 to 254] - uncompressed
+[28][3][268]rx stdf piece [1 of 2] [0 to 255] st:   0 sz:1400 slsn:3
+[28][3][268]rx stdf piece [2 of 2] [0 to 255] st:1400 sz: 494 slsn:3
+[27][3][268]rx dif complete [0 to 255] - uncompressed
+[28][3][268]rx stdf piece [1 of 2] [0 to 256] st:   0 sz:1400 slsn:3
+[28][3][268]rx stdf piece [2 of 2] [0 to 256] st:1400 sz: 498 slsn:3
+[27][3][268]rx dif complete [0 to 256] - uncompressed
+[31][3][256]----- Apply dif [0 to 256] [applied] [rewound [12] frames]
+[33][3][268]tx stak p:3 ack:[256] cur:[268]
+[35][3][268]tx cdat - move:34
+[28][3][269]rx stdf piece [1 of 2] [0 to 257] st:   0 sz:1400 slsn:3
+[28][3][269]rx stdf piece [2 of 2] [0 to 257] st:1400 sz: 494 slsn:3
+[27][3][269]rx dif complete [0 to 257] - uncompressed
+[28][3][269]rx stdf piece [1 of 2] [0 to 258] st:   0 sz:1400 slsn:3
+[28][3][269]rx stdf piece [2 of 2] [0 to 258] st:1400 sz: 491 slsn:3
+[27][3][269]rx dif complete [0 to 258] - uncompressed
+[28][3][269]rx stdf piece [1 of 2] [0 to 259] st:   0 sz:1400 slsn:3
+[28][3][269]rx stdf piece [2 of 2] [0 to 259] st:1400 sz: 500 slsn:3
+[27][3][269]rx dif complete [0 to 259] - uncompressed
+[28][3][269]rx stdf piece [1 of 2] [0 to 260] st:   0 sz:1400 slsn:3
+[28][3][269]rx stdf piece [2 of 2] [0 to 260] st:1400 sz: 495 slsn:3
+[27][3][269]rx dif complete [0 to 260] - uncompressed
+[28][3][269]rx stdf piece [1 of 2] [0 to 261] st:   0 sz:1400 slsn:3
+[28][3][269]rx stdf piece [2 of 2] [0 to 261] st:1400 sz: 493 slsn:3
+[27][3][269]rx dif complete [0 to 261] - uncompressed
+[28][3][269]rx stdf piece [1 of 2] [0 to 262] st:   0 sz:1400 slsn:3
+[28][3][269]rx stdf piece [2 of 2] [0 to 262] st:1400 sz: 494 slsn:3
+[27][3][269]rx dif complete [0 to 262] - uncompressed
+[28][3][269]rx stdf piece [1 of 2] [0 to 263] st:   0 sz:1400 slsn:3
+[28][3][269]rx stdf piece [2 of 2] [0 to 263] st:1400 sz: 494 slsn:3
+[27][3][269]rx dif complete [0 to 263] - uncompressed
+[28][3][269]rx stdf piece [1 of 2] [0 to 264] st:   0 sz:1400 slsn:3
+[28][3][269]rx stdf piece [2 of 2] [0 to 264] st:1400 sz: 492 slsn:3
+[27][3][269]rx dif complete [0 to 264] - uncompressed
+[28][3][269]rx stdf piece [1 of 2] [0 to 265] st:   0 sz:1400 slsn:3
+[28][3][269]rx stdf piece [2 of 2] [0 to 265] st:1400 sz: 486 slsn:3
+[27][3][269]rx dif complete [0 to 265] - uncompressed
+[28][3][269]rx stdf piece [1 of 2] [0 to 266] st:   0 sz:1400 slsn:3
+[28][3][269]rx stdf piece [2 of 2] [0 to 266] st:1400 sz: 491 slsn:3
+[27][3][269]rx dif complete [0 to 266] - uncompressed
+[28][3][269]rx stdf piece [1 of 2] [0 to 267] st:   0 sz:1400 slsn:3
+[28][3][269]rx stdf piece [2 of 2] [0 to 267] st:1400 sz: 490 slsn:3
+[27][3][269]rx dif complete [0 to 267] - uncompressed
+[28][3][269]rx stdf piece [1 of 2] [0 to 268] st:   0 sz:1400 slsn:3
+[28][3][269]rx stdf piece [2 of 2] [0 to 268] st:1400 sz: 488 slsn:3
+[27][3][269]rx dif complete [0 to 268] - uncompressed
+[28][3][269]rx stdf piece [1 of 2] [0 to 269] st:   0 sz:1400 slsn:3
+[28][3][269]rx stdf piece [2 of 2] [0 to 269] st:1400 sz: 486 slsn:3
+[27][3][269]rx dif complete [0 to 269] - uncompressed
+[28][3][269]rx stdf piece [1 of 2] [0 to 270] st:   0 sz:1400 slsn:3
+[28][3][269]rx stdf piece [2 of 2] [0 to 270] st:1400 sz: 481 slsn:3
+[27][3][269]rx dif complete [0 to 270] - uncompressed
+[28][3][269]rx stdf piece [1 of 3] [0 to 2] st:   0 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [2 of 3] [0 to 2] st:1400 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [3 of 3] [0 to 2] st:2800 sz: 559 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [1 of 3] [0 to 3] st:   0 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [2 of 3] [0 to 3] st:1400 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [3 of 3] [0 to 3] st:2800 sz: 575 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [1 of 3] [0 to 4] st:   0 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [2 of 3] [0 to 4] st:1400 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [3 of 3] [0 to 4] st:2800 sz: 571 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [1 of 3] [0 to 5] st:   0 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [2 of 3] [0 to 5] st:1400 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [3 of 3] [0 to 5] st:2800 sz: 575 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [1 of 3] [0 to 6] st:   0 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [2 of 3] [0 to 6] st:1400 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [3 of 3] [0 to 6] st:2800 sz: 577 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [1 of 3] [0 to 7] st:   0 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [2 of 3] [0 to 7] st:1400 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [3 of 3] [0 to 7] st:2800 sz: 569 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [1 of 3] [0 to 8] st:   0 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [2 of 3] [0 to 8] st:1400 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [3 of 3] [0 to 8] st:2800 sz: 580 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [1 of 3] [0 to 9] st:   0 sz:1400 slsn:4x[3]bad!
+[28][3][269]rx stdf piece [2 of 3] [0 to 9] st:1400 sz:1400 slsn:4x[3]bad!
+[31][3][270]----- Apply dif [0 to 270] [applied] [jumped ahead 1 frames]
+[33][3][270]tx stak p:3 ack:[270] cur:[270]
+[28][3][271]rx stdf piece [3 of 3] [0 to 9] st:2800 sz: 571 slsn:4x[3]bad!
+[28][3][271]rx stdf piece [1 of 3] [0 to 10] st:   0 sz:1400 slsn:4x[3]bad!
+[28][3][271]rx stdf piece [2 of 3] [0 to 10] st:1400 sz:1400 slsn:4x[3]bad!
+[28][3][271]rx stdf piece [3 of 3] [0 to 10] st:2800 sz: 579 slsn:4x[3]bad!
+[28][3][271]rx stdf piece [1 of 3] [0 to 11] st:   0 sz:1400 slsn:4x[3]bad!
+[31][3][271]----- Apply dif [0 to 270] dd[not applied] [not newer than last dif applied]
+[35][3][271]tx cdat - move:17
+[28][3][272]rx stdf piece [2 of 3] [0 to 11] st:1400 sz:1400 slsn:4x[3]bad!
+[28][3][272]rx stdf piece [3 of 3] [0 to 11] st:2800 sz: 586 slsn:4x[3]bad!
+[28][3][272]rx stdf piece [1 of 3] [0 to 12] st:   0 sz:1400 slsn:4x[3]bad!
+[28][3][272]rx stdf piece [2 of 3] [0 to 12] st:1400 sz:1400 slsn:4x[3]bad!
+
+then what the hell is this? why am I getting stdf for a 4 now....
+
+when I look at the the last time it worked, I think the next level came through as part of the dif...
+is that what's going on?
+
+
+
+182543
+server on frame 269 sent last dif from level 80 (3) (0-270)
+sent it to all three clients
+then on that same frame next level happens and the log ends
+
+[28][3][268]tx stdf piece [1 of 2] [0 to 269] st:   0 sz:1400 slsn:3
+[28][3][268]tx stdf piece [2 of 2] [0 to 269] st:1400 sz: 486 slsn:3
+[33][3][269]rx stak p:3 ack:[249] cur:[266] dsync:[-390.6] chase:[13.2]
+[33][3][269]rx stak2 p:3 ack:[249] cur:[266]
+[35][3][269]rx cdat p:3 fn:[266] sync:[-3] gmep:[1020] - entered
+[27][0][269]stdf rewind to:266 [-3]
+[52][0][266][ 266] Level Done Mode:2 - delay to load next level
+[52][0][267][ 267] Level Done Mode:2 - delay to load next level
+[52][0][268][ 268] Level Done Mode:2 - delay to load next level
+[52][0][269][ 269] Level Done Mode:2 - delay to load next level
+[52][0][269][ 269] Level Done Mode:1 - Load lext level
+[27][0][269]stdf save state:270
+[27][1][269]tx stdf p:1 [s:0 d:270] cmp:1881 ratio:1.67 [2 packets needed]
+[28][1][269]tx stdf piece [1 of 2] [0 to 270] st:   0 sz:1400 slsn:3
+[28][1][269]tx stdf piece [2 of 2] [0 to 270] st:1400 sz: 481 slsn:3
+[27][2][269]tx stdf p:2 [s:0 d:270] cmp:1881 ratio:1.67 [2 packets needed]
+[28][2][269]tx stdf piece [1 of 2] [0 to 270] st:   0 sz:1400 slsn:3
+[28][2][269]tx stdf piece [2 of 2] [0 to 270] st:1400 sz: 481 slsn:3
+[27][3][269]tx stdf p:3 [s:0 d:270] cmp:1881 ratio:1.67 [2 packets needed]
+[28][3][269]tx stdf piece [1 of 2] [0 to 270] st:   0 sz:1400 slsn:3
+[28][3][269]tx stdf piece [2 of 2] [0 to 270] st:1400 sz: 481 slsn:3
+[10][0][269]+--------------------------------------------------------------------------+
+[10][0][269]|                                                                          |
+[10][0][269]|                              NEXT LEVEL:1                                |
+[10][0][269]|                                                                          |
+[10][0][269]+--------------------------------------------------------------------------+
+
+
+182602
+
+stak received but it is from previous level
+cdat rx but also from previous level
+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 1 STARTED                               |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[27][0][1]stdf save state:2
+[27][1][1]tx stdf p:1 [s:0 d:2] cmp:3359 ratio:2.99 [3 packets needed]
+[28][1][1]tx stdf piece [1 of 3] [0 to 2] st:   0 sz:1400 slsn:4
+[28][1][1]tx stdf piece [2 of 3] [0 to 2] st:1400 sz:1400 slsn:4
+[28][1][1]tx stdf piece [3 of 3] [0 to 2] st:2800 sz: 559 slsn:4
+[27][2][1]tx stdf p:2 [s:0 d:2] cmp:3359 ratio:2.99 [3 packets needed]
+[28][2][1]tx stdf piece [1 of 3] [0 to 2] st:   0 sz:1400 slsn:4
+[28][2][1]tx stdf piece [2 of 3] [0 to 2] st:1400 sz:1400 slsn:4
+[28][2][1]tx stdf piece [3 of 3] [0 to 2] st:2800 sz: 559 slsn:4
+[27][3][1]tx stdf p:3 [s:0 d:2] cmp:3359 ratio:2.99 [3 packets needed]
+[28][3][1]tx stdf piece [1 of 3] [0 to 2] st:   0 sz:1400 slsn:4
+[28][3][1]tx stdf piece [2 of 3] [0 to 2] st:1400 sz:1400 slsn:4
+[28][3][1]tx stdf piece [3 of 3] [0 to 2] st:2800 sz: 559 slsn:4
+[33][2][2]rx stak p:2 ack:[250] cur:[266] dsync:[-412.9] chase:[11.7]
+[33][2][2]rx stak2 p:2 ack:[250] cur:[266]
+[35][2][2]rx cdat p:2 fn:[266] sync:[264] gmep:[9] - entered
+[33][1][2]rx stak p:1 ack:[251] cur:[266] dsync:[-396.4] chase:[12.4]
+[33][1][2]rx stak2 p:1 ack:[251] cur:[266]
+[35][1][2]rx cdat p:1 fn:[266] sync:[264] gmep:[10] - entered
+[27][0][2]stdf rewind [none]
+[27][0][2]stdf save state:3
+[27][1][2]tx stdf p:1 [s:0 d:3] cmp:3375 ratio:3.00 [3 packets needed]
+[28][1][2]tx stdf piece [1 of 3] [0 to 3] st:   0 sz:1400 slsn:4
+[28][1][2]tx stdf piece [2 of 3] [0 to 3] st:1400 sz:1400 slsn:4
+[28][1][2]tx stdf piece [3 of 3] [0 to 3] st:2800 sz: 575 slsn:4
+[27][2][2]tx stdf p:2 [s:0 d:3] cmp:3375 ratio:3.00 [3 packets needed]
+[28][2][2]tx stdf piece [1 of 3] [0 to 3] st:   0 sz:1400 slsn:4
+[28][2][2]tx stdf piece [2 of 3] [0 to 3] st:1400 sz:1400 slsn:4
+[28][2][2]tx stdf piece [3 of 3] [0 to 3] st:2800 sz: 575 slsn:4
+[27][3][2]tx stdf p:3 [s:0 d:3] cmp:3375 ratio:3.00 [3 packets needed]
+[28][3][2]tx stdf piece [1 of 3] [0 to 3] st:   0 sz:1400 slsn:4
+[28][3][2]tx stdf piece [2 of 3] [0 to 3] st:1400 sz:1400 slsn:4
+[28][3][2]tx stdf piece [3 of 3] [0 to 3] st:2800 sz: 575 slsn:4
+[33][3][3]rx stak p:3 ack:[252] cur:[267] dsync:[-413.8] chase:[11.4]
+[33][3][3]rx stak2 p:3 ack:[252] cur:[267]
+[35][3][3]rx cdat p:3 fn:[267] sync:[264] gmep:[12] - entered
+[27][0][3]stdf rewind [none]
+[27][0][3]stdf save state:4
+[27][1][3]tx stdf p:1 [s:0 d:4] cmp:3371 ratio:3.00 [3 packets needed]
+[28][1][3]tx stdf piece [1 of 3] [0 to 4] st:   0 sz:1400 slsn:4
+[28][1][3]tx stdf piece [2 of 3] [0 to 4] st:1400 sz:1400 slsn:4
+[28][1][3]tx stdf piece [3 of 3] [0 to 4] st:2800 sz: 571 slsn:4
+[27][2][3]tx stdf p:2 [s:0 d:4] cmp:3371 ratio:3.00 [3 packets needed]
+[28][2][3]tx stdf piece [1 of 3] [0 to 4] st:   0 sz:1400 slsn:4
+[28][2][3]tx stdf piece [2 of 3] [0 to 4] st:1400 sz:1400 slsn:4
+[28][2][3]tx stdf piece [3 of 3] [0 to 4] st:2800 sz: 571 slsn:4
+[27][3][3]tx stdf p:3 [s:0 d:4] cmp:3371 ratio:3.00 [3 packets needed]
+[28][3][3]tx stdf piece [1 of 3] [0 to 4] st:   0 sz:1400 slsn:4
+[28][3][3]tx stdf piece [2 of 3] [0 to 4] st:1400 sz:1400 slsn:4
+[28][3][3]tx stdf piece [3 of 3] [0 to 4] st:2800 sz: 571 slsn:4
+[27][0][4]stdf rewind [none]
+[27][0][4]stdf save state:5
+[27][1][4]tx stdf p:1 [s:0 d:5] cmp:3375 ratio:3.00 [3 packets needed]
+[28][1][4]tx stdf piece [1 of 3] [0 to 5] st:   0 sz:1400 slsn:4
+[28][1][4]tx stdf piece [2 of 3] [0 to 5] st:1400 sz:1400 slsn:4
+[28][1][4]tx stdf piece [3 of 3] [0 to 5] st:2800 sz: 575 slsn:4
+[27][2][4]tx stdf p:2 [s:0 d:5] cmp:3375 ratio:3.00 [3 packets needed]
+[28][2][4]tx stdf piece [1 of 3] [0 to 5] st:   0 sz:1400 slsn:4
+[28][2][4]tx stdf piece [2 of 3] [0 to 5] st:1400 sz:1400 slsn:4
+[28][2][4]tx stdf piece [3 of 3] [0 to 5] st:2800 sz: 575 slsn:4
+[27][3][4]tx stdf p:3 [s:0 d:5] cmp:3375 ratio:3.00 [3 packets needed]
+[28][3][4]tx stdf piece [1 of 3] [0 to 5] st:   0 sz:1400 slsn:4
+[28][3][4]tx stdf piece [2 of 3] [0 to 5] st:1400 sz:1400 slsn:4
+[28][3][4]tx stdf piece [3 of 3] [0 to 5] st:2800 sz: 575 slsn:4
+[33][1][5]rx stak p:1 ack:[255] cur:[267] dsync:[-386.0] chase:[13.3]
+[33][1][5]rx stak2 p:1 ack:[255] cur:[267]
+[35][1][5]rx cdat p:1 fn:[267] sync:[262] gmep:[15] - entered
+[33][2][5]rx stak p:2 ack:[255] cur:[267] dsync:[-395.0] chase:[13.1]
+[33][2][5]rx stak2 p:2 ack:[255] cur:[267]
+[35][2][5]rx cdat p:2 fn:[267] sync:[262] gmep:[16] - entered
+[27][0][5]stdf rewind [none]
+[27][0][5]stdf save state:6
+[27][1][5]tx stdf p:1 [s:0 d:6] cmp:3377 ratio:3.00 [3 packets needed]
+[28][1][5]tx stdf piece [1 of 3] [0 to 6] st:   0 sz:1400 slsn:4
+[28][1][5]tx stdf piece [2 of 3] [0 to 6] st:1400 sz:1400 slsn:4
+[28][1][5]tx stdf piece [3 of 3] [0 to 6] st:2800 sz: 577 slsn:4
+[27][2][5]tx stdf p:2 [s:0 d:6] cmp:3377 ratio:3.00 [3 packets needed]
+[28][2][5]tx stdf piece [1 of 3] [0 to 6] st:   0 sz:1400 slsn:4
+[28][2][5]tx stdf piece [2 of 3] [0 to 6] st:1400 sz:1400 slsn:4
+[28][2][5]tx stdf piece [3 of 3] [0 to 6] st:2800 sz: 577 slsn:4
+[27][3][5]tx stdf p:3 [s:0 d:6] cmp:3377 ratio:3.00 [3 packets needed]
+[28][3][5]tx stdf piece [1 of 3] [0 to 6] st:   0 sz:1400 slsn:4
+[28][3][5]tx stdf piece [2 of 3] [0 to 6] st:1400 sz:1400 slsn:4
+[28][3][5]tx stdf piece [3 of 3] [0 to 6] st:2800 sz: 577 slsn:4
+[27][0][6]stdf rewind [none]
+[27][0][6]stdf save state:7
+[27][1][6]tx stdf p:1 [s:0 d:7] cmp:3369 ratio:3.00 [3 packets needed]
+[28][1][6]tx stdf piece [1 of 3] [0 to 7] st:   0 sz:1400 slsn:4
+[28][1][6]tx stdf piece [2 of 3] [0 to 7] st:1400 sz:1400 slsn:4
+[28][1][6]tx stdf piece [3 of 3] [0 to 7] st:2800 sz: 569 slsn:4
+[27][2][6]tx stdf p:2 [s:0 d:7] cmp:3369 ratio:3.00 [3 packets needed]
+[28][2][6]tx stdf piece [1 of 3] [0 to 7] st:   0 sz:1400 slsn:4
+[28][2][6]tx stdf piece [2 of 3] [0 to 7] st:1400 sz:1400 slsn:4
+[28][2][6]tx stdf piece [3 of 3] [0 to 7] st:2800 sz: 569 slsn:4
+[27][3][6]tx stdf p:3 [s:0 d:7] cmp:3369 ratio:3.00 [3 packets needed]
+[28][3][6]tx stdf piece [1 of 3] [0 to 7] st:   0 sz:1400 slsn:4
+[28][3][6]tx stdf piece [2 of 3] [0 to 7] st:1400 sz:1400 slsn:4
+[28][3][6]tx stdf piece [3 of 3] [0 to 7] st:2800 sz: 569 slsn:4
+[33][3][7]rx stak p:3 ack:[256] cur:[268] dsync:[-393.8] chase:[13.0]
+[33][3][7]rx stak2 p:3 ack:[256] cur:[268]
+[35][3][7]rx cdat p:3 fn:[268] sync:[261] gmep:[19] - entered
+[27][0][7]stdf rewind [none]
+[27][0][7]stdf save state:8
+[27][1][7]tx stdf p:1 [s:0 d:8] cmp:3380 ratio:3.00 [3 packets needed]
+[28][1][7]tx stdf piece [1 of 3] [0 to 8] st:   0 sz:1400 slsn:4
+[28][1][7]tx stdf piece [2 of 3] [0 to 8] st:1400 sz:1400 slsn:4
+[28][1][7]tx stdf piece [3 of 3] [0 to 8] st:2800 sz: 580 slsn:4
+[27][2][7]tx stdf p:2 [s:0 d:8] cmp:3380 ratio:3.00 [3 packets needed]
+[28][2][7]tx stdf piece [1 of 3] [0 to 8] st:   0 sz:1400 slsn:4
+[28][2][7]tx stdf piece [2 of 3] [0 to 8] st:1400 sz:1400 slsn:4
+[28][2][7]tx stdf piece [3 of 3] [0 to 8] st:2800 sz: 580 slsn:4
+[27][3][7]tx stdf p:3 [s:0 d:8] cmp:3380 ratio:3.00 [3 packets needed]
+[28][3][7]tx stdf piece [1 of 3] [0 to 8] st:   0 sz:1400 slsn:4
+[28][3][7]tx stdf piece [2 of 3] [0 to 8] st:1400 sz:1400 slsn:4
+[28][3][7]tx stdf piece [3 of 3] [0 to 8] st:2800 sz: 580 slsn:4
+[33][1][8]rx stak p:1 ack:[270] cur:[270] dsync:[-324.4] chase:[18.2]
+[33][1][8]rx stak2 p:1 ack:[270] cur:[270]
+[33][2][8]rx stak p:2 ack:[270] cur:[270] dsync:[-331.3] chase:[18.2]
+[33][2][8]rx stak2 p:2 ack:[270] cur:[270]
+[27][0][8]stdf rewind [none]
+[27][0][8]stdf save state:9
+[27][1][8]tx stdf p:1 [s:0 d:9] cmp:3371 ratio:3.00 [3 packets needed]
+[28][1][8]tx stdf piece [1 of 3] [0 to 9] st:   0 sz:1400 slsn:4
+[28][1][8]tx stdf piece [2 of 3] [0 to 9] st:1400 sz:1400 slsn:4
+[28][1][8]tx stdf piece [3 of 3] [0 to 9] st:2800 sz: 571 slsn:4
+[27][2][8]tx stdf p:2 [s:0 d:9] cmp:3371 ratio:3.00 [3 packets needed]
+[28][2][8]tx stdf piece [1 of 3] [0 to 9] st:   0 sz:1400 slsn:4
+[28][2][8]tx stdf piece [2 of 3] [0 to 9] st:1400 sz:1400 slsn:4
+[28][2][8]tx stdf piece [3 of 3] [0 to 9] st:2800 sz: 571 slsn:4
+[27][3][8]tx stdf p:3 [s:0 d:9] cmp:3371 ratio:3.00 [3 packets needed]
+[28][3][8]tx stdf piece [1 of 3] [0 to 9] st:   0 sz:1400 slsn:4
+[28][3][8]tx stdf piece [2 of 3] [0 to 9] st:1400 sz:1400 slsn:4
+[28][3][8]tx stdf piece [3 of 3] [0 to 9] st:2800 sz: 571 slsn:4
+[27][0][9]stdf rewind [none]
+[27][0][9]stdf save state:10
+[27][1][9]tx stdf p:1 [s:0 d:10] cmp:3379 ratio:3.00 [3 packets needed]
+[28][1][9]tx stdf piece [1 of 3] [0 to 10] st:   0 sz:1400 slsn:4
+[28][1][9]tx stdf piece [2 of 3] [0 to 10] st:1400 sz:1400 slsn:4
+[28][1][9]tx stdf piece [3 of 3] [0 to 10] st:2800 sz: 579 slsn:4
+[27][2][9]tx stdf p:2 [s:0 d:10] cmp:3379 ratio:3.00 [3 packets needed]
+[28][2][9]tx stdf piece [1 of 3] [0 to 10] st:   0 sz:1400 slsn:4
+[28][2][9]tx stdf piece [2 of 3] [0 to 10] st:1400 sz:1400 slsn:4
+[28][2][9]tx stdf piece [3 of 3] [0 to 10] st:2800 sz: 579 slsn:4
+[27][3][9]tx stdf p:3 [s:0 d:10] cmp:3379 ratio:3.00 [3 packets needed]
+[28][3][9]tx stdf piece [1 of 3] [0 to 10] st:   0 sz:1400 slsn:4
+[28][3][9]tx stdf piece [2 of 3] [0 to 10] st:1400 sz:1400 slsn:4
+[28][3][9]tx stdf piece [3 of 3] [0 to 10] st:2800 sz: 579 slsn:4
+[33][3][10]rx stak p:3 ack:[270] cur:[270] dsync:[-328.9] chase:[18.2]
+[33][3][10]rx stak2 p:3 ack:[270] cur:[270]
+[35][1][10]rx cdat p:1 fn:[271] sync:[261] gmep:[23] - entered
+[35][2][10]rx cdat p:2 fn:[271] sync:[261] gmep:[24] - entered
+[27][0][10]stdf rewind [none]
+[27][0][10]stdf save state:11
+[27][1][10]tx stdf p:1 [s:0 d:11] cmp:3386 ratio:3.01 [3 packets needed]
+[28][1][10]tx stdf piece [1 of 3] [0 to 11] st:   0 sz:1400 slsn:4
+[28][1][10]tx stdf piece [2 of 3] [0 to 11] st:1400 sz:1400 slsn:4
+[28][1][10]tx stdf piece [3 of 3] [0 to 11] st:2800 sz: 586 slsn:4
+[27][2][10]tx stdf p:2 [s:0 d:11] cmp:3386 ratio:3.01 [3 packets needed]
+[28][2][10]tx stdf piece [1 of 3] [0 to 11] st:   0 sz:1400 slsn:4
+[28][2][10]tx stdf piece [2 of 3] [0 to 11] st:1400 sz:1400 slsn:4
+[28][2][10]tx stdf piece [3 of 3] [0 to 11] st:2800 sz: 586 slsn:4
+[27][3][10]tx stdf p:3 [s:0 d:11] cmp:3386 ratio:3.01 [3 packets needed]
+[28][3][10]tx stdf piece [1 of 3] [0 to 11] st:   0 sz:1400 slsn:4
+[28][3][10]tx stdf piece [2 of 3] [0 to 11] st:1400 sz:1400 slsn:4
+[28][3][10]tx stdf piece [3 of 3] [0 to 11] st:2800 sz: 586 slsn:4
+[27][0][11]stdf rewind [none]
+[27][0][11]stdf save state:12
+[27][1][11]tx stdf p:1 [s:0 d:12] cmp:3384 ratio:3.01 [3 packets needed]
+[28][1][11]tx stdf piece [1 of 3] [0 to 12] st:   0 sz:1400 slsn:4
+[28][1][11]tx stdf piece [2 of 3] [0 to 12] st:1400 sz:1400 slsn:4
+[28][1][11]tx stdf piece [3 of 3] [0 to 12] st:2800 sz: 584 slsn:4
+[27][2][11]tx stdf p:2 [s:0 d:12] cmp:3384 ratio:3.01 [3 packets needed]
+[28][2][11]tx stdf piece [1 of 3] [0 to 12] st:   0 sz:1400 slsn:4
+[28][2][11]tx stdf piece [2 of 3] [0 to 12] st:1400 sz:1400 slsn:4
+[28][2][11]tx stdf piece [3 of 3] [0 to 12] st:2800 sz: 584 slsn:4
+[27][3][11]tx stdf p:3 [s:0 d:12] cmp:3384 ratio:3.01 [3 packets needed]
+[28][3][11]tx stdf piece [1 of 3] [0 to 12] st:   0 sz:1400 slsn:4
+[28][3][11]tx stdf piece [2 of 3] [0 to 12] st:1400 sz:1400 slsn:4
+[28][3][11]tx stdf piece [3 of 3] [0 to 12] st:2800 sz: 584 slsn:4
+[35][3][12]rx cdat p:3 fn:[271] sync:[259] gmep:[27] - entered
+[27][0][12]stdf rewind [none]
+[27][0][12]stdf save state:13
+[27][1][12]tx stdf p:1 [s:0 d:13] cmp:3383 ratio:3.01 [3 packets needed]
+[28][1][12]tx stdf piece [1 of 3] [0 to 13] st:   0 sz:1400 slsn:4
+[28][1][12]tx stdf piece [2 of 3] [0 to 13] st:1400 sz:1400 slsn:4
+[28][1][12]tx stdf piece [3 of 3] [0 to 13] st:2800 sz: 583 slsn:4
+[27][2][12]tx stdf p:2 [s:0 d:13] cmp:3383 ratio:3.01 [3 packets needed]
+[28][2][12]tx stdf piece [1 of 3] [0 to 13] st:   0 sz:1400 slsn:4
+[28][2][12]tx stdf piece [2 of 3] [0 to 13] st:1400 sz:1400 slsn:4
+[28][2][12]tx stdf piece [3 of 3] [0 to 13] st:2800 sz: 583 slsn:4
+[27][3][12]tx stdf p:3 [s:0 d:13] cmp:3383 ratio:3.01 [3 packets needed]
+[28][3][12]tx stdf piece [1 of 3] [0 to 13] st:   0 sz:1400 slsn:4
+[28][3][12]tx stdf piece [2 of 3] [0 to 13] st:1400 sz:1400 slsn:4
+[28][3][12]tx stdf piece [3 of 3] [0 to 13] st:2800 sz: 583 slsn:4
+[27][0][13]stdf rewind [none]
+[27][0][13]stdf save state:14
+[27][1][13]tx stdf p:1 [s:0 d:14] cmp:3387 ratio:3.01 [3 packets needed]
+[28][1][13]tx stdf piece [1 of 3] [0 to 14] st:   0 sz:1400 slsn:4
+[28][1][13]tx stdf piece [2 of 3] [0 to 14] st:1400 sz:1400 slsn:4
+[28][1][13]tx stdf piece [3 of 3] [0 to 14] st:2800 sz: 587 slsn:4
+[27][2][13]tx stdf p:2 [s:0 d:14] cmp:3387 ratio:3.01 [3 packets needed]
+[28][2][13]tx stdf piece [1 of 3] [0 to 14] st:   0 sz:1400 slsn:4
+[28][2][13]tx stdf piece [2 of 3] [0 to 14] st:1400 sz:1400 slsn:4
+[28][2][13]tx stdf piece [3 of 3] [0 to 14] st:2800 sz: 587 slsn:4
+[27][3][13]tx stdf p:3 [s:0 d:14] cmp:3387 ratio:3.01 [3 packets needed]
+[28][3][13]tx stdf piece [1 of 3] [0 to 14] st:   0 sz:1400 slsn:4
+[28][3][13]tx stdf piece [2 of 3] [0 to 14] st:1400 sz:1400 slsn:4
+[28][3][13]tx stdf piece [3 of 3] [0 to 14] st:2800 sz: 587 slsn:4
+[35][1][14]rx cdat p:1 fn:[272] sync:[258] gmep:[30] - entered
+[35][2][14]rx cdat p:2 fn:[272] sync:[258] gmep:[31] - entered
+[27][0][14]stdf rewind [none]
+[27][0][14]stdf save state:15
+[27][1][14]tx stdf p:1 [s:0 d:15] cmp:3389 ratio:3.01 [3 packets needed]
+[28][1][14]tx stdf piece [1 of 3] [0 to 15] st:   0 sz:1400 slsn:4
+[28][1][14]tx stdf piece [2 of 3] [0 to 15] st:1400 sz:1400 slsn:4
+[28][1][14]tx stdf piece [3 of 3] [0 to 15] st:2800 sz: 589 slsn:4
+[27][2][14]tx stdf p:2 [s:0 d:15] cmp:3389 ratio:3.01 [3 packets needed]
+[28][2][14]tx stdf piece [1 of 3] [0 to 15] st:   0 sz:1400 slsn:4
+[28][2][14]tx stdf piece [2 of 3] [0 to 15] st:1400 sz:1400 slsn:4
+[28][2][14]tx stdf piece [3 of 3] [0 to 15] st:2800 sz: 589 slsn:4
+[27][3][14]tx stdf p:3 [s:0 d:15] cmp:3389 ratio:3.01 [3 packets needed]
+[28][3][14]tx stdf piece [1 of 3] [0 to 15] st:   0 sz:1400 slsn:4
+[28][3][14]tx stdf piece [2 of 3] [0 to 15] st:1400 sz:1400 slsn:4
+[28][3][14]tx stdf piece [3 of 3] [0 to 15] st:2800 sz: 589 slsn:4
+[27][0][15]stdf rewind [none]
+[27][0][15]stdf save state:16
+[27][1][15]tx stdf p:1 [s:0 d:16] cmp:3384 ratio:3.01 [3 packets needed]
+[28][1][15]tx stdf piece [1 of 3] [0 to 16] st:   0 sz:1400 slsn:4
+[28][1][15]tx stdf piece [2 of 3] [0 to 16] st:1400 sz:1400 slsn:4
+[28][1][15]tx stdf piece [3 of 3] [0 to 16] st:2800 sz: 584 slsn:4
+[27][2][15]tx stdf p:2 [s:0 d:16] cmp:3384 ratio:3.01 [3 packets needed]
+[28][2][15]tx stdf piece [1 of 3] [0 to 16] st:   0 sz:1400 slsn:4
+[28][2][15]tx stdf piece [2 of 3] [0 to 16] st:1400 sz:1400 slsn:4
+[28][2][15]tx stdf piece [3 of 3] [0 to 16] st:2800 sz: 584 slsn:4
+[27][3][15]tx stdf p:3 [s:0 d:16] cmp:3384 ratio:3.01 [3 packets needed]
+[28][3][15]tx stdf piece [1 of 3] [0 to 16] st:   0 sz:1400 slsn:4
+[28][3][15]tx stdf piece [2 of 3] [0 to 16] st:1400 sz:1400 slsn:4
+[28][3][15]tx stdf piece [3 of 3] [0 to 16] st:2800 sz: 584 slsn:4
+[35][3][16]rx cdat p:3 fn:[272] sync:[256] gmep:[34] - entered
+[27][0][16]stdf rewind [none]
+[27][0][16]stdf save state:17
+[27][1][16]tx stdf p:1 [s:0 d:17] cmp:3378 ratio:3.00 [3 packets needed]
+[28][1][16]tx stdf piece [1 of 3] [0 to 17] st:   0 sz:1400 slsn:4
+[28][1][16]tx stdf piece [2 of 3] [0 to 17] st:1400 sz:1400 slsn:4
+[28][1][16]tx stdf piece [3 of 3] [0 to 17] st:2800 sz: 578 slsn:4
+[27][2][16]tx stdf p:2 [s:0 d:17] cmp:3378 ratio:3.00 [3 packets needed]
+[28][2][16]tx stdf piece [1 of 3] [0 to 17] st:   0 sz:1400 slsn:4
+[28][2][16]tx stdf piece [2 of 3] [0 to 17] st:1400 sz:1400 slsn:4
+[28][2][16]tx stdf piece [3 of 3] [0 to 17] st:2800 sz: 578 slsn:4
+[27][3][16]tx stdf p:3 [s:0 d:17] cmp:3378 ratio:3.00 [3 packets needed]
+[28][3][16]tx stdf piece [1 of 3] [0 to 17] st:   0 sz:1400 slsn:4
+[28][3][16]tx stdf piece [2 of 3] [0 to 17] st:1400 sz:1400 slsn:4
+[28][3][16]tx stdf piece [3 of 3] [0 to 17] st:2800 sz: 578 slsn:4
+[27][0][17]stdf rewind [none]
+[27][0][17]stdf save state:18
+[27][1][17]tx stdf p:1 [s:0 d:18] cmp:3393 ratio:3.02 [3 packets needed]
+[28][1][17]tx stdf piece [1 of 3] [0 to 18] st:   0 sz:1400 slsn:4
+[28][1][17]tx stdf piece [2 of 3] [0 to 18] st:1400 sz:1400 slsn:4
+[28][1][17]tx stdf piece [3 of 3] [0 to 18] st:2800 sz: 593 slsn:4
+[27][2][17]tx stdf p:2 [s:0 d:18] cmp:3393 ratio:3.02 [3 packets needed]
+[28][2][17]tx stdf piece [1 of 3] [0 to 18] st:   0 sz:1400 slsn:4
+[28][2][17]tx stdf piece [2 of 3] [0 to 18] st:1400 sz:1400 slsn:4
+[28][2][17]tx stdf piece [3 of 3] [0 to 18] st:2800 sz: 593 slsn:4
+[27][3][17]tx stdf p:3 [s:0 d:18] cmp:3393 ratio:3.02 [3 packets needed]
+[28][3][17]tx stdf piece [1 of 3] [0 to 18] st:   0 sz:1400 slsn:4
+[28][3][17]tx stdf piece [2 of 3] [0 to 18] st:1400 sz:1400 slsn:4
+[28][3][17]tx stdf piece [3 of 3] [0 to 18] st:2800 sz: 593 slsn:4
+[35][1][18]rx cdat p:1 fn:[273] sync:[255] gmep:[37] - entered
+[35][2][18]rx cdat p:2 fn:[273] sync:[255] gmep:[38] - entered
+[27][0][18]stdf rewind [none]
+[27][0][18]stdf save state:19
+[27][1][18]tx stdf p:1 [s:0 d:19] cmp:3383 ratio:3.01 [3 packets needed]
+[28][1][18]tx stdf piece [1 of 3] [0 to 19] st:   0 sz:1400 slsn:4
+[28][1][18]tx stdf piece [2 of 3] [0 to 19] st:1400 sz:1400 slsn:4
+[28][1][18]tx stdf piece [3 of 3] [0 to 19] st:2800 sz: 583 slsn:4
+[27][2][18]tx stdf p:2 [s:0 d:19] cmp:3383 ratio:3.01 [3 packets needed]
+[28][2][18]tx stdf piece [1 of 3] [0 to 19] st:   0 sz:1400 slsn:4
+[28][2][18]tx stdf piece [2 of 3] [0 to 19] st:1400 sz:1400 slsn:4
+[28][2][18]tx stdf piece [3 of 3] [0 to 19] st:2800 sz: 583 slsn:4
+[27][3][18]tx stdf p:3 [s:0 d:19] cmp:3383 ratio:3.01 [3 packets needed]
+[28][3][18]tx stdf piece [1 of 3] [0 to 19] st:   0 sz:1400 slsn:4
+[28][3][18]tx stdf piece [2 of 3] [0 to 19] st:1400 sz:1400 slsn:4
+[28][3][18]tx stdf piece [3 of 3] [0 to 19] st:2800 sz: 583 slsn:4
+[27][0][19]stdf rewind [none]
+[27][0][19]stdf save state:20
+[27][1][19]tx stdf p:1 [s:0 d:20] cmp:3382 ratio:3.01 [3 packets needed]
+[28][1][19]tx stdf piece [1 of 3] [0 to 20] st:   0 sz:1400 slsn:4
+[28][1][19]tx stdf piece [2 of 3] [0 to 20] st:1400 sz:1400 slsn:4
+[28][1][19]tx stdf piece [3 of 3] [0 to 20] st:2800 sz: 582 slsn:4
+[27][2][19]tx stdf p:2 [s:0 d:20] cmp:3382 ratio:3.01 [3 packets needed]
+[28][2][19]tx stdf piece [1 of 3] [0 to 20] st:   0 sz:1400 slsn:4
+[28][2][19]tx stdf piece [2 of 3] [0 to 20] st:1400 sz:1400 slsn:4
+[28][2][19]tx stdf piece [3 of 3] [0 to 20] st:2800 sz: 582 slsn:4
+[27][3][19]tx stdf p:3 [s:0 d:20] cmp:3382 ratio:3.01 [3 packets needed]
+[28][3][19]tx stdf piece [1 of 3] [0 to 20] st:   0 sz:1400 slsn:4
+[28][3][19]tx stdf piece [2 of 3] [0 to 20] st:1400 sz:1400 slsn:4
+[28][3][19]tx stdf piece [3 of 3] [0 to 20] st:2800 sz: 582 slsn:4
+[35][3][20]rx cdat p:3 fn:[273] sync:[253] gmep:[41] - entered
+[27][0][20]stdf rewind [none]
+[27][0][20]stdf save state:21
+[27][1][20]tx stdf p:1 [s:0 d:21] cmp:3384 ratio:3.01 [3 packets needed]
+[28][1][20]tx stdf piece [1 of 3] [0 to 21] st:   0 sz:1400 slsn:4
+[28][1][20]tx stdf piece [2 of 3] [0 to 21] st:1400 sz:1400 slsn:4
+[28][1][20]tx stdf piece [3 of 3] [0 to 21] st:2800 sz: 584 slsn:4
+[27][2][20]tx stdf p:2 [s:0 d:21] cmp:3384 ratio:3.01 [3 packets needed]
+[28][2][20]tx stdf piece [1 of 3] [0 to 21] st:   0 sz:1400 slsn:4
+[28][2][20]tx stdf piece [2 of 3] [0 to 21] st:1400 sz:1400 slsn:4
+[28][2][20]tx stdf piece [3 of 3] [0 to 21] st:2800 sz: 584 slsn:4
+[27][3][20]tx stdf p:3 [s:0 d:21] cmp:3384 ratio:3.01 [3 packets needed]
+[28][3][20]tx stdf piece [1 of 3] [0 to 21] st:   0 sz:1400 slsn:4
+[28][3][20]tx stdf piece [2 of 3] [0 to 21] st:1400 sz:1400 slsn:4
+[28][3][20]tx stdf piece [3 of 3] [0 to 21] st:2800 sz: 584 slsn:4
+[27][0][21]stdf rewind [none]
+[27][0][21]stdf save state:22
+[27][1][21]tx stdf p:1 [s:0 d:22] cmp:3385 ratio:3.01 [3 packets needed]
+[28][1][21]tx stdf piece [1 of 3] [0 to 22] st:   0 sz:1400 slsn:4
+[28][1][21]tx stdf piece [2 of 3] [0 to 22] st:1400 sz:1400 slsn:4
+[28][1][21]tx stdf piece [3 of 3] [0 to 22] st:2800 sz: 585 slsn:4
+[27][2][21]tx stdf p:2 [s:0 d:22] cmp:3385 ratio:3.01 [3 packets needed]
+[28][2][21]tx stdf piece [1 of 3] [0 to 22] st:   0 sz:1400 slsn:4
+[28][2][21]tx stdf piece [2 of 3] [0 to 22] st:1400 sz:1400 slsn:4
+[28][2][21]tx stdf piece [3 of 3] [0 to 22] st:2800 sz: 585 slsn:4
+[27][3][21]tx stdf p:3 [s:0 d:22] cmp:3385 ratio:3.01 [3 packets needed]
+[28][3][21]tx stdf piece [1 of 3] [0 to 22] st:   0 sz:1400 slsn:4
+[28][3][21]tx stdf piece [2 of 3] [0 to 22] st:1400 sz:1400 slsn:4
+[28][3][21]tx stdf piece [3 of 3] [0 to 22] st:2800 sz: 585 slsn:4
+[35][1][22]rx cdat p:1 fn:[274] sync:[252] gmep:[44] - entered
+[35][2][22]rx cdat p:2 fn:[274] sync:[252] gmep:[45] - entered
+[27][0][22]stdf rewind [none]
+[27][0][22]stdf save state:23
+[27][1][22]tx stdf p:1 [s:0 d:23] cmp:3381 ratio:3.01 [3 packets needed]
+[28][1][22]tx stdf piece [1 of 3] [0 to 23] st:   0 sz:1400 slsn:4
+[28][1][22]tx stdf piece [2 of 3] [0 to 23] st:1400 sz:1400 slsn:4
+[28][1][22]tx stdf piece [3 of 3] [0 to 23] st:2800 sz: 581 slsn:4
+[27][2][22]tx stdf p:2 [s:0 d:23] cmp:3381 ratio:3.01 [3 packets needed]
+[28][2][22]tx stdf piece [1 of 3] [0 to 23] st:   0 sz:1400 slsn:4
+[28][2][22]tx stdf piece [2 of 3] [0 to 23] st:1400 sz:1400 slsn:4
+[28][2][22]tx stdf piece [3 of 3] [0 to 23] st:2800 sz: 581 slsn:4
+[27][3][22]tx stdf p:3 [s:0 d:23] cmp:3381 ratio:3.01 [3 packets needed]
+[28][3][22]tx stdf piece [1 of 3] [0 to 23] st:   0 sz:1400 slsn:4
+[28][3][22]tx stdf piece [2 of 3] [0 to 23] st:1400 sz:1400 slsn:4
+[28][3][22]tx stdf piece [3 of 3] [0 to 23] st:2800 sz: 581 slsn:4
+[27][0][23]stdf rewind [none]
+[27][0][23]stdf save state:24
+[27][1][23]tx stdf p:1 [s:0 d:24] cmp:3397 ratio:3.02 [3 packets needed]
+[28][1][23]tx stdf piece [1 of 3] [0 to 24] st:   0 sz:1400 slsn:4
+[28][1][23]tx stdf piece [2 of 3] [0 to 24] st:1400 sz:1400 slsn:4
+[28][1][23]tx stdf piece [3 of 3] [0 to 24] st:2800 sz: 597 slsn:4
+[27][2][23]tx stdf p:2 [s:0 d:24] cmp:3397 ratio:3.02 [3 packets needed]
+[28][2][23]tx stdf piece [1 of 3] [0 to 24] st:   0 sz:1400 slsn:4
+[28][2][23]tx stdf piece [2 of 3] [0 to 24] st:1400 sz:1400 slsn:4
+[28][2][23]tx stdf piece [3 of 3] [0 to 24] st:2800 sz: 597 slsn:4
+[27][3][23]tx stdf p:3 [s:0 d:24] cmp:3397 ratio:3.02 [3 packets needed]
+[28][3][23]tx stdf piece [1 of 3] [0 to 24] st:   0 sz:1400 slsn:4
+[28][3][23]tx stdf piece [2 of 3] [0 to 24] st:1400 sz:1400 slsn:4
+[28][3][23]tx stdf piece [3 of 3] [0 to 24] st:2800 sz: 597 slsn:4
+[35][3][24]rx cdat p:3 fn:[274] sync:[250] gmep:[48] - entered
+[27][0][24]stdf rewind [none]
+[27][0][24]stdf save state:25
+[27][1][24]tx stdf p:1 [s:0 d:25] cmp:3404 ratio:3.03 [3 packets needed]
+[28][1][24]tx stdf piece [1 of 3] [0 to 25] st:   0 sz:1400 slsn:4
+[28][1][24]tx stdf piece [2 of 3] [0 to 25] st:1400 sz:1400 slsn:4
+[28][1][24]tx stdf piece [3 of 3] [0 to 25] st:2800 sz: 604 slsn:4
+[27][2][24]tx stdf p:2 [s:0 d:25] cmp:3404 ratio:3.03 [3 packets needed]
+[28][2][24]tx stdf piece [1 of 3] [0 to 25] st:   0 sz:1400 slsn:4
+[28][2][24]tx stdf piece [2 of 3] [0 to 25] st:1400 sz:1400 slsn:4
+[28][2][24]tx stdf piece [3 of 3] [0 to 25] st:2800 sz: 604 slsn:4
+[27][3][24]tx stdf p:3 [s:0 d:25] cmp:3404 ratio:3.03 [3 packets needed]
+[28][3][24]tx stdf piece [1 of 3] [0 to 25] st:   0 sz:1400 slsn:4
+[28][3][24]tx stdf piece [2 of 3] [0 to 25] st:1400 sz:1400 slsn:4
+[28][3][24]tx stdf piece [3 of 3] [0 to 25] st:2800 sz: 604 slsn:4
+[27][0][25]stdf rewind [none]
+[27][0][25]stdf save state:26
+[27][1][25]tx stdf p:1 [s:0 d:26] cmp:3407 ratio:3.03 [3 packets needed]
+[28][1][25]tx stdf piece [1 of 3] [0 to 26] st:   0 sz:1400 slsn:4
+[28][1][25]tx stdf piece [2 of 3] [0 to 26] st:1400 sz:1400 slsn:4
+[28][1][25]tx stdf piece [3 of 3] [0 to 26] st:2800 sz: 607 slsn:4
+[27][2][25]tx stdf p:2 [s:0 d:26] cmp:3407 ratio:3.03 [3 packets needed]
+[28][2][25]tx stdf piece [1 of 3] [0 to 26] st:   0 sz:1400 slsn:4
+[28][2][25]tx stdf piece [2 of 3] [0 to 26] st:1400 sz:1400 slsn:4
+[28][2][25]tx stdf piece [3 of 3] [0 to 26] st:2800 sz: 607 slsn:4
+[27][3][25]tx stdf p:3 [s:0 d:26] cmp:3407 ratio:3.03 [3 packets needed]
+[28][3][25]tx stdf piece [1 of 3] [0 to 26] st:   0 sz:1400 slsn:4
+[28][3][25]tx stdf piece [2 of 3] [0 to 26] st:1400 sz:1400 slsn:4
+[28][3][25]tx stdf piece [3 of 3] [0 to 26] st:2800 sz: 607 slsn:4
+[35][1][26]rx cdat p:1 fn:[275] sync:[249] gmep:[51] - entered
+[35][2][26]rx cdat p:2 fn:[275] sync:[249] gmep:[52] - entered
+[27][0][26]stdf rewind [none]
+[27][0][26]stdf save state:27
+[27][1][26]tx stdf p:1 [s:0 d:27] cmp:3414 ratio:3.04 [3 packets needed]
+[28][1][26]tx stdf piece [1 of 3] [0 to 27] st:   0 sz:1400 slsn:4
+[28][1][26]tx stdf piece [2 of 3] [0 to 27] st:1400 sz:1400 slsn:4
+[28][1][26]tx stdf piece [3 of 3] [0 to 27] st:2800 sz: 614 slsn:4
+[27][2][26]tx stdf p:2 [s:0 d:27] cmp:3414 ratio:3.04 [3 packets needed]
+[28][2][26]tx stdf piece [1 of 3] [0 to 27] st:   0 sz:1400 slsn:4
+[28][2][26]tx stdf piece [2 of 3] [0 to 27] st:1400 sz:1400 slsn:4
+[28][2][26]tx stdf piece [3 of 3] [0 to 27] st:2800 sz: 614 slsn:4
+[27][3][26]tx stdf p:3 [s:0 d:27] cmp:3414 ratio:3.04 [3 packets needed]
+[28][3][26]tx stdf piece [1 of 3] [0 to 27] st:   0 sz:1400 slsn:4
+[28][3][26]tx stdf piece [2 of 3] [0 to 27] st:1400 sz:1400 slsn:4
+[28][3][26]tx stdf piece [3 of 3] [0 to 27] st:2800 sz: 614 slsn:4
+[27][0][27]stdf rewind [none]
+[27][0][27]stdf save state:28
+[27][1][27]tx stdf p:1 [s:0 d:28] cmp:3408 ratio:3.03 [3 packets needed]
+[28][1][27]tx stdf piece [1 of 3] [0 to 28] st:   0 sz:1400 slsn:4
+[28][1][27]tx stdf piece [2 of 3] [0 to 28] st:1400 sz:1400 slsn:4
+[28][1][27]tx stdf piece [3 of 3] [0 to 28] st:2800 sz: 608 slsn:4
+[27][2][27]tx stdf p:2 [s:0 d:28] cmp:3408 ratio:3.03 [3 packets needed]
+[28][2][27]tx stdf piece [1 of 3] [0 to 28] st:   0 sz:1400 slsn:4
+[28][2][27]tx stdf piece [2 of 3] [0 to 28] st:1400 sz:1400 slsn:4
+[28][2][27]tx stdf piece [3 of 3] [0 to 28] st:2800 sz: 608 slsn:4
+[27][3][27]tx stdf p:3 [s:0 d:28] cmp:3408 ratio:3.03 [3 packets needed]
+[28][3][27]tx stdf piece [1 of 3] [0 to 28] st:   0 sz:1400 slsn:4
+[28][3][27]tx stdf piece [2 of 3] [0 to 28] st:1400 sz:1400 slsn:4
+[28][3][27]tx stdf piece [3 of 3] [0 to 28] st:2800 sz: 608 slsn:4
+[35][3][28]rx cdat p:3 fn:[275] sync:[247] gmep:[55] - entered
+[27][0][28]stdf rewind [none]
+[27][0][28]stdf save state:29
+[27][1][28]tx stdf p:1 [s:0 d:29] cmp:3399 ratio:3.02 [3 packets needed]
+[28][1][28]tx stdf piece [1 of 3] [0 to 29] st:   0 sz:1400 slsn:4
+[28][1][28]tx stdf piece [2 of 3] [0 to 29] st:1400 sz:1400 slsn:4
+[28][1][28]tx stdf piece [3 of 3] [0 to 29] st:2800 sz: 599 slsn:4
+[27][2][28]tx stdf p:2 [s:0 d:29] cmp:3399 ratio:3.02 [3 packets needed]
+[28][2][28]tx stdf piece [1 of 3] [0 to 29] st:   0 sz:1400 slsn:4
+[28][2][28]tx stdf piece [2 of 3] [0 to 29] st:1400 sz:1400 slsn:4
+[28][2][28]tx stdf piece [3 of 3] [0 to 29] st:2800 sz: 599 slsn:4
+[27][3][28]tx stdf p:3 [s:0 d:29] cmp:3399 ratio:3.02 [3 packets needed]
+[28][3][28]tx stdf piece [1 of 3] [0 to 29] st:   0 sz:1400 slsn:4
+[28][3][28]tx stdf piece [2 of 3] [0 to 29] st:1400 sz:1400 slsn:4
+[28][3][28]tx stdf piece [3 of 3] [0 to 29] st:2800 sz: 599 slsn:4
+[27][0][29]stdf rewind [none]
+[27][0][29]stdf save state:30
+[27][1][29]tx stdf p:1 [s:0 d:30] cmp:3403 ratio:3.03 [3 packets needed]
+[28][1][29]tx stdf piece [1 of 3] [0 to 30] st:   0 sz:1400 slsn:4
+[28][1][29]tx stdf piece [2 of 3] [0 to 30] st:1400 sz:1400 slsn:4
+[28][1][29]tx stdf piece [3 of 3] [0 to 30] st:2800 sz: 603 slsn:4
+[27][2][29]tx stdf p:2 [s:0 d:30] cmp:3403 ratio:3.03 [3 packets needed]
+[28][2][29]tx stdf piece [1 of 3] [0 to 30] st:   0 sz:1400 slsn:4
+[28][2][29]tx stdf piece [2 of 3] [0 to 30] st:1400 sz:1400 slsn:4
+[28][2][29]tx stdf piece [3 of 3] [0 to 30] st:2800 sz: 603 slsn:4
+[27][3][29]tx stdf p:3 [s:0 d:30] cmp:3403 ratio:3.03 [3 packets needed]
+[28][3][29]tx stdf piece [1 of 3] [0 to 30] st:   0 sz:1400 slsn:4
+[28][3][29]tx stdf piece [2 of 3] [0 to 30] st:1400 sz:1400 slsn:4
+[28][3][29]tx stdf piece [3 of 3] [0 to 30] st:2800 sz: 603 slsn:4
+[35][1][30]rx cdat p:1 fn:[276] sync:[246] gmep:[58] - entered
+[35][2][30]rx cdat p:2 fn:[276] sync:[246] gmep:[59] - entered
+[27][0][30]stdf rewind [none]
+[27][0][30]stdf save state:31
+[27][1][30]tx stdf p:1 [s:0 d:31] cmp:3406 ratio:3.03 [3 packets needed]
+[28][1][30]tx stdf piece [1 of 3] [0 to 31] st:   0 sz:1400 slsn:4
+[28][1][30]tx stdf piece [2 of 3] [0 to 31] st:1400 sz:1400 slsn:4
+[28][1][30]tx stdf piece [3 of 3] [0 to 31] st:2800 sz: 606 slsn:4
+[27][2][30]tx stdf p:2 [s:0 d:31] cmp:3406 ratio:3.03 [3 packets needed]
+[28][2][30]tx stdf piece [1 of 3] [0 to 31] st:   0 sz:1400 slsn:4
+[28][2][30]tx stdf piece [2 of 3] [0 to 31] st:1400 sz:1400 slsn:4
+[28][2][30]tx stdf piece [3 of 3] [0 to 31] st:2800 sz: 606 slsn:4
+[27][3][30]tx stdf p:3 [s:0 d:31] cmp:3406 ratio:3.03 [3 packets needed]
+[28][3][30]tx stdf piece [1 of 3] [0 to 31] st:   0 sz:1400 slsn:4
+[28][3][30]tx stdf piece [2 of 3] [0 to 31] st:1400 sz:1400 slsn:4
+[28][3][30]tx stdf piece [3 of 3] [0 to 31] st:2800 sz: 606 slsn:4
+[27][0][31]stdf rewind [none]
+[27][0][31]stdf save state:32
+[27][1][31]tx stdf p:1 [s:0 d:32] cmp:3396 ratio:3.02 [3 packets needed]
+[28][1][31]tx stdf piece [1 of 3] [0 to 32] st:   0 sz:1400 slsn:4
+[28][1][31]tx stdf piece [2 of 3] [0 to 32] st:1400 sz:1400 slsn:4
+[28][1][31]tx stdf piece [3 of 3] [0 to 32] st:2800 sz: 596 slsn:4
+[27][2][31]tx stdf p:2 [s:0 d:32] cmp:3396 ratio:3.02 [3 packets needed]
+[28][2][31]tx stdf piece [1 of 3] [0 to 32] st:   0 sz:1400 slsn:4
+[28][2][31]tx stdf piece [2 of 3] [0 to 32] st:1400 sz:1400 slsn:4
+[28][2][31]tx stdf piece [3 of 3] [0 to 32] st:2800 sz: 596 slsn:4
+[27][3][31]tx stdf p:3 [s:0 d:32] cmp:3396 ratio:3.02 [3 packets needed]
+[28][3][31]tx stdf piece [1 of 3] [0 to 32] st:   0 sz:1400 slsn:4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The level done procedure could have some better explanation as to how it happens in netgame...
+
+
+- as always the server controls everything
+
+- initiated by:
+- exit (9)
+- gate (3)
+- orb on level 64 (30)
+- server reload level (3)
+
+all of these cannot be initiated by client
+
+- these variable are part of the player structure that is synced to clients
+
+   int level_done_mode;
+   int level_done_timer;
+   int level_done_ack;
+   int level_done_x;
+   int level_done_y;
+   int level_done_player;
+   int level_done_frame;
+   int level_done_next_level;
+
+- both server and client call proc_level_done_mode, decrement the timer...
+
+the thing is, its a race condition
+
+
+the client has to get the last state from the server telling it to go to the next level...
+or does it? wouldn't it just time out on its own?
+
+maybe the problem is that the next state comes before the client can get the level done...
+
+
+
+
+-------------------------------
+high level redo the way server level sequence works
+
+- make it a full 4 bit int and never roll it over
+- server increments with every level load
+- client ignores any lower than its current
+- if client gets higher slsn, it flushes everything and increments its own slsn
+
+what I am trying to do is make it so that client does not have to get a specific level done from server...
+it should be able to tell that from the context of difs sent
+
+-------------------------------------
+
+
+I have so much stuff crammed into the player structure, what's another?
+
+   int server_dif_lev_num;
+
+
+
+
+
+      mPacketBuffer.PacketName(data, pos, "stdf");
+      mPacketBuffer.PacketPutByte(data, pos, packet_num);
+      mPacketBuffer.PacketPutByte(data, pos, num_packets);
+      mPacketBuffer.PacketPutInt4(data, pos, start_byte);
+      mPacketBuffer.PacketPutInt4(data, pos, packet_data_size);
+      mPacketBuffer.PacketPutInt4(data, pos, dst);
+      mPacketBuffer.PacketPutInt4(data, pos, src);
+      mPacketBuffer.PacketPutByte(data, pos, mPlayer.syn[0].server_lev_seq_num);
+
+4 name
+1
+1
+4
+4
+4
+4
+1
+--
+23
+
+
+4 name
+4
+4
+4
+4
+4
+4
+4
+--
+32
+
+
+
+I have introduced a bug...
+
+client loses server connection soon after join...
+
+
+client gets dif and does not apply them beacuse it thinks they are not newer, but they should be...
+
+
+
+[10][0][0]+--------------------------------------------------------------------------+
+[28][1][0]rx stdf piece [1 of 3] [0 to 231] st:   0 sz:1400 slsn:0
+[28][1][0]rx stdf piece [2 of 3] [0 to 231] st:1400 sz:1400 slsn:0
+[28][1][0]rx stdf piece [3 of 3] [0 to 231] st:2800 sz: 543 slsn:0
+[27][1][0]rx dif complete [0 to 231] - uncompressed
+[31][1][231]----- Apply dif [0 to 231] [applied] [initial state]
+[33][1][231]tx stak p:1 ack:[231] cur:[231]
+
+
+[28][1][232]rx stdf piece [1 of 1] [231 to 232] st:   0 sz: 303 slsn:0
+[27][1][232]rx dif complete [231 to 232] - uncompressed
+[31][1][232]----- Apply dif [231 to 232] [applied] [exact frame match [232]]
+[33][1][232]tx stak p:1 ack:[232] cur:[232]
+
+[28][1][233]rx stdf piece [1 of 1] [232 to 233] st:   0 sz: 312 slsn:0
+[27][1][233]rx dif complete [232 to 233] - uncompressed
+[31][1][233]----- Apply dif [232 to 233] [applied] [exact frame match [233]]
+[33][1][233]tx stak p:1 ack:[233] cur:[233]
+
+[28][1][234]rx stdf piece [1 of 1] [233 to 234] st:   0 sz: 319 slsn:0
+[27][1][234]rx dif complete [233 to 234] - uncompressed
+[31][1][234]----- Apply dif [233 to 234] [applied] [exact frame match [234]]
+[33][1][234]tx stak p:1 ack:[234] cur:[234]
+
+[28][1][235]rx stdf piece [1 of 1] [234 to 235] st:   0 sz: 298 slsn:0
+[27][1][235]rx dif complete [234 to 235] - uncompressed
+[31][1][235]----- Apply dif [234 to 235] [applied] [exact frame match [235]]
+[33][1][235]tx stak p:1 ack:[235] cur:[235]
+
+[28][1][236]rx stdf piece [1 of 1] [235 to 236] st:   0 sz: 294 slsn:0
+[27][1][236]rx dif complete [235 to 236] - uncompressed
+[31][1][236]----- Apply dif [235 to 236] [applied] [exact frame match [236]]
+[33][1][236]tx stak p:1 ack:[236] cur:[236]
+
+[28][1][237]rx stdf piece [1 of 1] [236 to 237] st:   0 sz: 301 slsn:0
+[27][1][237]rx dif complete [236 to 237] - uncompressed
+[31][1][237]----- Apply dif [236 to 237] [applied] [exact frame match [237]]
+[33][1][237]tx stak p:1 ack:[237] cur:[237]
+
+[28][1][238]rx stdf piece [1 of 3] [0 to 238] st:   0 sz:1400 slsn:0
+[28][1][238]rx stdf piece [2 of 3] [0 to 238] st:1400 sz:1400 slsn:0
+[28][1][238]rx stdf piece [3 of 3] [0 to 238] st:2800 sz: 541 slsn:0
+[27][1][238]rx dif complete [0 to 238] - uncompressed
+[31][1][238]----- Apply dif [0 to 238] [applied] [exact frame match [238]]
+[33][1][238]tx stak p:1 ack:[238] cur:[238]
+
+[28][1][239]rx stdf piece [1 of 1] [238 to 239] st:   0 sz: 298 slsn:0
+[27][1][239]rx dif complete [238 to 239] - uncompressed
+[31][1][239]----- Apply dif [238 to 239] dd[not applied] [not newer than last dif applied]
+
+[28][1][240]rx stdf piece [1 of 1] [238 to 240] st:   0 sz: 303 slsn:0
+[27][1][240]rx dif complete [238 to 240] - uncompressed
+[31][1][240]----- Apply dif [238 to 240] dd[not applied] [not newer than last dif applied]
+
+[28][1][241]rx stdf piece [1 of 1] [238 to 241] st:   0 sz: 311 slsn:0
+[27][1][241]rx dif complete [238 to 241] - uncompressed
+[31][1][241]----- Apply dif [238 to 241] dd[not applied] [not newer than last dif applied]
+
+[28][1][242]rx stdf piece [1 of 1] [238 to 242] st:   0 sz: 336 slsn:0
+[27][1][242]rx dif complete [238 to 242] - uncompressed
+[31][1][242]----- Apply dif [238 to 242] dd[not applied] [not newer than last dif applied]
+
+[28][1][243]rx stdf piece [1 of 1] [238 to 243] st:   0 sz: 348 slsn:0
+[27][1][243]rx dif complete [238 to 243] - uncompressed
+[31][1][243]----- Apply dif [238 to 243] dd[not applied] [not newer than last dif applied]
+
+
+client frame 237
+gets 236-237 applies
+acks 237
+
+client frame 238
+gets 0-238 applies
+ack 238
+
+client frame 239
+gets 238-239 not applied, not newer???
+no ack sent
+
+
+
+[27][0][230]stdf rewind [none]
+[27][0][230]stdf save state:231
+[27][1][230]tx stdf p:1 [s:0 d:231] cmp:3343 ratio:2.97 [3 packets needed]
+[28][1][230]tx stdf piece [1 of 3] [0 to 231] st:   0 sz:1400 slsn:0
+[28][1][230]tx stdf piece [2 of 3] [0 to 231] st:1400 sz:1400 slsn:0
+[28][1][230]tx stdf piece [3 of 3] [0 to 231] st:2800 sz: 543 slsn:0
+
+[33][1][231]rx stak p:1 ack:[231] cur:[231] dsync:[ 0.0] chase:[ 0.0]
+[27][0][231]stdf rewind [none]
+[27][0][231]stdf save state:232
+[27][1][231]tx stdf p:1 [s:231 d:232] cmp:303 ratio:0.27 [1 packets needed]
+[28][1][231]tx stdf piece [1 of 1] [231 to 232] st:   0 sz: 303 slsn:0
+
+[33][1][232]rx stak p:1 ack:[232] cur:[232] dsync:[11.0] chase:[41.3]
+[27][0][232]stdf rewind [none]
+[27][0][232]stdf save state:233
+[27][1][232]tx stdf p:1 [s:232 d:233] cmp:312 ratio:0.28 [1 packets needed]
+[28][1][232]tx stdf piece [1 of 1] [232 to 233] st:   0 sz: 312 slsn:0
+
+[33][1][233]rx stak p:1 ack:[233] cur:[233] dsync:[10.6] chase:[41.2]
+[27][0][233]stdf rewind [none]
+[27][0][233]stdf save state:234
+[27][1][233]tx stdf p:1 [s:233 d:234] cmp:319 ratio:0.28 [1 packets needed]
+[28][1][233]tx stdf piece [1 of 1] [233 to 234] st:   0 sz: 319 slsn:0
+
+[33][1][234]rx stak p:1 ack:[234] cur:[234] dsync:[10.4] chase:[41.2]
+[27][0][234]stdf rewind [none]
+[27][0][234]stdf save state:235
+[27][1][234]tx stdf p:1 [s:234 d:235] cmp:298 ratio:0.26 [1 packets needed]
+[28][1][234]tx stdf piece [1 of 1] [234 to 235] st:   0 sz: 298 slsn:0
+
+[33][1][235]rx stak p:1 ack:[235] cur:[235] dsync:[10.0] chase:[41.2]
+[27][0][235]stdf rewind [none]
+[27][0][235]stdf save state:236
+[27][1][235]tx stdf p:1 [s:235 d:236] cmp:294 ratio:0.26 [1 packets needed]
+[28][1][235]tx stdf piece [1 of 1] [235 to 236] st:   0 sz: 294 slsn:0
+
+[33][1][236]rx stak p:1 ack:[236] cur:[236] dsync:[ 9.6] chase:[41.2]
+[27][0][236]stdf rewind [none]
+[27][0][236]stdf save state:237
+[27][1][236]tx stdf p:1 [s:236 d:237] cmp:301 ratio:0.27 [1 packets needed]
+[28][1][236]tx stdf piece [1 of 1] [236 to 237] st:   0 sz: 301 slsn:0
+
+[33][1][237]rx stak p:1 ack:[237] cur:[237] dsync:[ 9.2] chase:[41.1]
+[27][0][237]stdf rewind [none]
+[27][0][237]stdf save state:238
+[27][1][237]tx stdf p:1 [s:0 d:238] cmp:3341 ratio:2.97 [3 packets needed]
+[28][1][237]tx stdf piece [1 of 3] [0 to 238] st:   0 sz:1400 slsn:0
+[28][1][237]tx stdf piece [2 of 3] [0 to 238] st:1400 sz:1400 slsn:0
+[28][1][237]tx stdf piece [3 of 3] [0 to 238] st:2800 sz: 541 slsn:0
+
+[33][1][238]rx stak p:1 ack:[238] cur:[238] dsync:[ 8.8] chase:[41.1]
+[27][0][238]stdf rewind [none]
+[27][0][238]stdf save state:239
+[27][1][238]tx stdf p:1 [s:238 d:239] cmp:298 ratio:0.26 [1 packets needed]
+[28][1][238]tx stdf piece [1 of 1] [238 to 239] st:   0 sz: 298 slsn:0
+
+[27][0][239]stdf rewind [none]
+[27][0][239]stdf save state:240
+[27][1][239]tx stdf p:1 [s:238 d:240] cmp:303 ratio:0.27 [1 packets needed]
+[28][1][239]tx stdf piece [1 of 1] [238 to 240] st:   0 sz: 303 slsn:0
+
+
+
+
+server on frame 236
+rx ack for 236
+sends 236-237
+
+server on frame 237
+rx ack for 237
+sends 0-238
+why?, does it not have base 237?
+
+server on frame 238
+rx ack for 238
+sends 238-239
+
+
+
+
+
+
+I found something!!!
+
+[ 621] [  -1] [  -1] [  -1] [  -1] [  -1] [  -1] [  -1] save frame:621 to history
+[ 621] [ 622] [  -1] [  -1] [  -1] [  -1] [  -1] [  -1] save frame:622 to history
+[ 621] [ 622] [ 623] [  -1] [  -1] [  -1] [  -1] [  -1] save frame:623 to history
+[ 621] [ 622] [ 623] [ 624] [  -1] [  -1] [  -1] [  -1] save frame:624 to history
+[ 621] [ 622] [ 623] [ 624] [ 625] [  -1] [  -1] [  -1] save frame:625 to history
+[ 621] [ 622] [ 623] [ 624] [ 625] [ 626] [  -1] [  -1] save frame:626 to history
+[ 621] [ 622] [ 623] [ 624] [ 625] [ 626] [ 627] [  -1] save frame:627 to history
+[1667332197] [1919295604] [543518049] [1668571501] [911941736] [6109234] [1667590512] [ 628] save frame:628 to history
+
+I did not remove spare int when I added to syn...duh!!!
+
+OK now do the rest of the bytes...
+
+19 matches for get Byte
+sjon done
+cjon done
+srrf done
+snfo done
+sfil done
+stak done
+cdat done
+
+now packet getbyte and putbyte are only used by put and get string in packet buffer...
+
+
+
+made it so that slsn only increases
+
+
+
+next, I want to add my two variable that determine what level and seq we are on..
+
+add them to cdat, stak, and stdf
+
+most of the time they will not be necessary, they are just an extra check
+so the server can reject cdats and staks from the wrong level_seq
+
+so on the client use slsn and last loaded level
+
+
+actually I am going to skip sdfn for now...
+
+just add slsn to cdat and stak
+
+cdat done...
+stak done...
+
+now the server will not process cdat and stak packets from the wrong (previous) level
+
+what is the other part I want to do?
+
+if client receives stdf's from the next slsn....
+should I automatically increment clients ssln?
+
+i need to do more than that...
+
+I need to actually process next level
+
+test:
+client rx stdf with ssln 1 higher than clients current ssln
+
+process...do the whole next level thing...
+this will replace the old method...??
+
+
+also in proc_level_done, don't let client change the counter locally, rely on server to do that and sync to client
+
+
+
+----
+start impementing...
+
+have server actually send current level with stdf
+
+why did I need to make slsn and sdfn part of syn?
+
+I don't think I need to...
+
+for now take sdfn out...
+
+server will just send last loaded level...done
+
+now on client...
+
+when it receives slsn one higher, call level done??
+if client gets muliple stdf on same frame, it will set state to next level for all of them
+they won;t execute untill next frame...
+this seems to work...
+
+changed level done procedure so that client never decs counter or changes level done mode...that is all done on server...
+
+seems to work...
+
+test more...
+
+
+describe more in detail:
+
+client level done:
+
+
+when client starts getting stdfs from the next slsn, client locally calls next level
+this is the only way that client gets next level
+
+the old way was to wait for server to sync level_done_mode to client, then client would do next level.
+sometimes (rarely) this missed...
+
+this new way should be more robust. more immune to race conditions...
+when the stream of stdf packets from the server to the client now has a new slsn, the client will next level to that level...
+
+then client still follows all of the level done modes like before, but now never decrements the counter locally, the server does and it is syncd to the client.
+
+One more thing...
+
+slsn is part of the syn...why?
+
+the client should have a non-sync local slsn
+
+make it part of netgame class and share the varaible...done...
+
+
+now how can I clean up the code...
+
+errors on server when getting wrong cdat or stak
+
+made that look pretty
+
+when client rx stdf and does next level...done...
+
+
+now for testing....
+
+
+20240602
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

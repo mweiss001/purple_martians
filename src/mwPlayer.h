@@ -90,14 +90,13 @@ struct psyn // synced between server and client
    int server_force_client_offset = 0;
    float client_chase_offset = -0.02;
 
-   int server_lev_seq_num;
-
    int player_text_overlay_timer;
    int player_text_overlay_type;
 
    int spare_int1;
-//   int spare_int2;
+   int spare_int2;
 //   int spare_int3;
+
 };
 
 struct ploc // not synced between server and client (but synced from server to remote)

@@ -144,7 +144,7 @@ void mwStateHistory::apply_rewind_state(int frame_num)
    // if same frame as current frame, do nothing
    if (ff == 0)
    {
-      mLog.addf(LOG_NET_stdf, 0, "stdf rewind [none]\n");
+      mLog.log_add_prefixed_text(LOG_NET_stdf, 0, "stdf rewind [none]\n");
       return;
    }
 
@@ -155,15 +155,15 @@ void mwStateHistory::apply_rewind_state(int frame_num)
 
    if (indx == -1)
    {
-      mLog.addf(LOG_NET_stdf, 0, "stdf rewind [%d] not found - ", frame_num);
+      mLog.log_add_prefixed_textf(LOG_NET_stdf, 0, "stdf rewind [%d] not found - ", frame_num);
       indx = oldest_state_index;
-      if (indx == -1) mLog.app(LOG_NET_stdf, "oldest frame not valid\n");
-      else mLog.appf(LOG_NET_stdf, "using oldest frame [%d]\n", history_state_frame_num[indx]);
+      if (indx == -1) mLog.log_append_text(LOG_NET_stdf, "oldest frame not valid\n");
+      else mLog.log_append_textf(LOG_NET_stdf, "using oldest frame [%d]\n", history_state_frame_num[indx]);
    }
 
    if (indx > -1)
    {
-      mLog.addf(LOG_NET_stdf, 0, "stdf rewind to:%d [%d]\n", frame_num, -ff);
+      mLog.log_add_prefixed_textf(LOG_NET_stdf, 0, "stdf rewind to:%d [%d]\n", frame_num, -ff);
 
       mNetgame.state_to_game_vars(history_state[indx]);
       mLoop.frame_num = history_state_frame_num[indx];

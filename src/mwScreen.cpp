@@ -49,7 +49,7 @@ void mwScreen::transition_cutscene(int i, int f)
       if (LOG_OTH_transitions)
       {
          const char* tcn[5] = {"nothing", "game", "menu", "gate"};
-         mLog.addf(LOG_OTH_transitions, 0, "transition from %s to %s\n", tcn[i], tcn[f]);
+         mLog.log_add_prefixed_textf(LOG_OTH_transitions, 0, "transition from %s to %s\n", tcn[i], tcn[f]);
       }
 
       if ((i) || (f)) // only if not both 0

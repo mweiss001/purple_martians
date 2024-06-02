@@ -65,13 +65,13 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
       float totl = 0;
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Get new background\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - Get new background\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-bkgr", "get_new_background");
       else { mScreen.get_new_background(1);  add(i); }
 
       mPacketBuffer.check_for_packets();
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Lifts\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - Lifts\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-lift", "draw_lifts");
       else { mLift.draw_lifts();  add(i); }
 
@@ -79,7 +79,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
       mPacketBuffer.check_for_packets();
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Items\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - Items\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-item", "draw_items");
       else { mItem.draw_items(); add(i); }
 
@@ -119,27 +119,27 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       mPacketBuffer.check_for_packets();
 
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Enemies\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - Enemies\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-enem", "draw_enemies");
       else { mEnemy.draw_enemies(); add(i); }
 
       mPacketBuffer.check_for_packets();
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - eshots\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - eshots\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-esht", "draw_eshots");
       else { mShot.draw_eshots(); add(i); }
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - pshots\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - pshots\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-psht", "draw_pshots");
       else { mShot.draw_pshots(); add(i); }
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - players\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - players\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-plyr", "draw_players");
       else { mPlayer.draw_players(); add(i); }
 
       mPacketBuffer.check_for_packets();
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Erase Hidden\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - Erase Hidden\n", mLoop.frame_num);
 
       if (setup_only) add_names(i, "d-erhd", "erase hidden");
       else
@@ -150,7 +150,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
       mPacketBuffer.check_for_packets();
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Gate Info\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - Gate Info\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-gnfo", "gate info");
       else
       {
@@ -164,7 +164,7 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       mPacketBuffer.check_for_packets();
 
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Level Stats\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - Level Stats\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-lsta", "level stats");
       else
       {
@@ -176,14 +176,14 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
       mPacketBuffer.check_for_packets();
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw scaled level region to display\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - Draw scaled level region to display\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-buff", "scale_buff_to_display");
       else { mScreen.draw_scaled_level_region_to_display(); add(i); }
 
       mPacketBuffer.check_for_packets();
 
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw purple coins direct to screen\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - Draw purple coins direct to screen\n", mLoop.frame_num);
       // draw purple coins directly on the screen, so they scale nicely
       if (setup_only) add_names(i, "d-pcds", "purple coins direct to screen");
       else
@@ -204,13 +204,13 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
       mPacketBuffer.check_for_packets();
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw players direct to screen\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - Draw players direct to screen\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-plyr", "draw_players");
       else { mPlayer.draw_players_direct_to_screen(); add(i); }
 
       mPacketBuffer.check_for_packets();
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw npc direct to screen\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - Draw npc direct to screen\n", mLoop.frame_num);
       // draw npc directly on the screen, so they scale nicely
       if (setup_only) add_names(i, "d-npcd", "npc direct to screen");
       else
@@ -223,13 +223,13 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
       mPacketBuffer.check_for_packets();
 
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Draw screen overlay\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - Draw screen overlay\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-ovrl", "draw_screen_overlay");
       else { mScreen.draw_screen_overlay(); add(i); }
 
       mPacketBuffer.check_for_packets();
 
-      mLog.addf(LOG_OTH_draw, 0, "[%4d]Draw - Flip display\n", mLoop.frame_num);
+      mLog.log_add_prefixed_textf(LOG_OTH_draw, 0, "[%4d]Draw - Flip display\n", mLoop.frame_num);
       if (setup_only) add_names(i, "d-flip", "al_flip_display");
       else { if (flip) al_flip_display(); add(i); }
 
@@ -245,12 +245,14 @@ void mwDrawSequence::ds_draw(int setup_only, int flip)
 
       ns = i; // number of items
 
-      // profile draw all
-      // build log entry
-      mLog.add_tmr(LOG_TMR_draw_all, "");
-      for (int i=1; i<ns-1; i++)
-         mLog.appf(LOG_TMR_draw_all, "%s:[%0.4f] " , name[0][i], (ts[i] - ts[i-1]) * 1000);
-      mLog.app(LOG_TMR_draw_all, "\n");
+
+      if (LOG_TMR_draw_all) // profile draw all
+      {
+         mLog.add_tmr(LOG_TMR_draw_all, ""); // header
+         for (int i=1; i<ns-1; i++)
+            mLog.log_append_textf(LOG_TMR_draw_all, "%s:[%0.4f] " , name[0][i], (ts[i] - ts[i-1]) * 1000);
+         mLog.log_append_text(LOG_TMR_draw_all, "\n"); // final lf
+      }
 
 
       // profile draw total

@@ -1561,7 +1561,7 @@ void mwPlayer::proc_player_input(void)
 {
    if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
       for (int p=0; p<NUM_PLAYERS; p++)
-         if (syn[p].active) // cycle all active players
+         if ((syn[p].active) && (syn[p].paused_type != 3)) // cycle all active players except hidden player in headless server
          {
             int cm = syn[p].control_method;
             if ((cm == PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER) || (cm == PM_PLAYER_CONTROL_METHOD_SERVER_LOCAL) || (cm == PM_PLAYER_CONTROL_METHOD_CLIENT_LOCAL)) // these are the only local control methods
