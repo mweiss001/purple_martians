@@ -247,7 +247,7 @@ void mwLoop::proc_level_done_mode(void)
          if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600; // skippable 15s delay;
          if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;
          if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;
-         if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 10;  // delay to load next level
+         if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 0;  // delay to load next level (was 10, lets try without it as of 20240602)
          if (mPlayer.syn[0].level_done_mode == 1)
          {
             mLog.log_add_prefixed_textf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Load lext level\n", frame_num, mPlayer.syn[0].level_done_mode);

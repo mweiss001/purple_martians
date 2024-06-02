@@ -458,14 +458,14 @@ This is enough time for the data to propagate to the client, so they can load th
    if (--mPlayer.syn[0].level_done_timer <= 0) // time to change to next level_done_mode
    {
       mPlayer.syn[0].level_done_mode--;
-      if (mPlayer.syn[0].level_done_mode == 8) mPlayer.syn[0].level_done_timer = 60; // players seek exit
-      if (mPlayer.syn[0].level_done_mode == 7) mPlayer.syn[0].level_done_timer = 20; // players shrink and rotate into exit
+      if (mPlayer.syn[0].level_done_mode == 8) mPlayer.syn[0].level_done_timer = 60;   // players seek exit
+      if (mPlayer.syn[0].level_done_mode == 7) mPlayer.syn[0].level_done_timer = 20;   // players shrink and rotate into exit
       if (mPlayer.syn[0].level_done_mode == 6) mPlayer.syn[0].level_done_timer = 0;
-      if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600; // skippable 15s delay;
+      if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600;  // skippable 15s delay;
       if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;
       if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;
-      if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 10;  // delay to load next level
-      if (mPlayer.syn[0].level_done_mode == 1) mLoop.program_state = 12;              // load new level
+      if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 10;   // delay to load next level
+      if (mPlayer.syn[0].level_done_mode == 1) state[0] = PM_PROGRAM_STATE_NEXT_LEVEL; // load new level
    }
 }
 </code></pre>
@@ -479,16 +479,17 @@ This is enough time for the data to propagate to the client, so they can load th
 
 
 <mh3>
-In 'program_state == 12'  we do all the cleanup, resetting, loading and preparing for the next level.
+In  'PM_PROGRAM_STATE_NEXT_LEVEL'  we do all the cleanup, resetting, loading and preparing for the next level.
 </mh3>
 
-<pre><code class="language-cpp">if (mLoop.program_state == 12)
+<pre><code class="language-cpp">if (state[1] == PM_PROGRAM_STATE_NEXT_LEVEL)
    {
       mPlayer.syn[0].level_done_mode = 0;
       mLevel.play_level = mPlayer.syn[0].level_done_next_level;
       mLevel.load_level(mLevel.play_level, 0, 0);
       ...
-      mLoop.program_state = 11;
+
+      state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
    }
 }
 </code></pre>
