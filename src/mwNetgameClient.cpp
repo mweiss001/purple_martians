@@ -492,7 +492,7 @@ void mwNetgame::client_proc_stdf_packet(int i)
    int sdln    = mPacketBuffer.PacketGetInt32(i); // server last level loaded
 
 
-   char log_msg_txt1[64];
+   char log_msg_txt1[128];
    sprintf(log_msg_txt1, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d sdln:%d slsn:%d", seq+1, max_seq, src, dst, sb, sz, sdln, slsn);
 
 
@@ -500,7 +500,7 @@ void mwNetgame::client_proc_stdf_packet(int i)
    {
       if (slsn == server_lev_seq_num +1)
       {
-         mLog.log_add_prefixed_textf(LOG_NET_stdf_packets, -1, " slsn is from next level - setting next level:%d\n\n", log_msg_txt1, sdln);
+         mLog.log_add_prefixed_textf(LOG_NET_stdf_packets, -1, "%s slsn is from next level - setting next level:%d\n", log_msg_txt1, sdln);
 
          mPlayer.syn[0].level_done_next_level = sdln;
          mLoop.state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;

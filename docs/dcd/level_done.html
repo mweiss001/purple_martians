@@ -65,8 +65,10 @@
  <a href="level_done.html#Mode 9 and 8 - Players Seek Exit" target="_top">Mode 9 and 8 - Players Seek Exit</a>
  <a href="level_done.html#Mode 7 - Players Shrink and Rotate into Exit" target="_top">Mode 7 - Players Shrink and Rotate into Exit</a>
  <a href="level_done.html#Mode 5 - Skippable Delay" target="_top">Mode 5 - Skippable Delay</a>
- <a href="level_done.html#Mode 2 - Delay to Load Next Level" target="_top">Mode 2 - Delay to Load Next Level</a>
  <a href="level_done.html#Mode 1 - Load and start next level" target="_top">Mode 1 - Load and start next level</a>
+ <a href="level_done.html#Other Uses" target="_top">Other Uses</a>
+ <a href="level_done.html#End of Game Cutscene" target="_top">End of Game Cutscene</a>
+ <a href="level_done.html#Special Netgame Considerations" target="_top">Special Netgame Considerations</a>
  <a href="level_done.html#Conclusion and Notes" target="_top">Conclusion and Notes</a>
 </mdw_file_toc><hr></mh3>
 
@@ -127,8 +129,8 @@ level_done_mode = 6; // not used, place holder for future features
 level_done_mode = 5; // skippable 15s delay while level end stats show
 level_done_mode = 4; // not used, place holder for future features
 level_done_mode = 3; // not used, place holder for future features
-level_done_mode = 2; // delay to load next level
-level_done_mode = 1; // call proc_next_level() to load next level
+level_done_mode = 2; // not used, place holder for future features
+level_done_mode = 1; // set state to PM_PROGRAM_STATE_NEXT_LEVEL to load next level
 level_done_mode = 0; // normal game play
 </code></pre>
 <mh3>
@@ -146,7 +148,7 @@ This can only be initiated from mode 0, to prevent re-triggering.
    int exit_enemys_left = mEnemy.num_enemy - item[i][8];
    if (exit_enemys_left <= 0)
    {
-      if (mPlayer.syn[0].level_done_mode == 0)
+      if ((mPlayer.syn[0].level_done_mode == 0) && (!mNetgame.ima_client)) // only trigger from mode 0 and client can never locally exit
       {
          mPlayer.syn[0].level_done_mode = 9;
          mPlayer.syn[0].level_done_timer = 0;
@@ -155,12 +157,10 @@ This can only be initiated from mode 0, to prevent re-triggering.
          mPlayer.syn[0].level_done_player = p;
          mPlayer.syn[0].level_done_frame = mLoop.frame_num;
 
-         if (mLevel.prev_level_loaded == 1) mPlayer.syn[0].level_done_next_level = 1;           // if started from overworld, return there
-         else mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level);  // otherwise do next chron level
-         mGameEvent.add(4, 0, 0, 0, 0, 0, 0);
+         if (!mMain.classic_mode) mPlayer.syn[0].level_done_next_level = 1;                             // in story mode all exits return to overworld
+         else mPlayer.syn[0].level_done_next_level = mLevel.get_next_level(mLevel.play_level, 199, 1);  // otherwise do next chron level
       }
    }
-   else mGameEvent.add(23, 0, 0, p, i, exit_enemys_left, 0); // not enough dead yet
 }</code></pre>
 
 <mh3>
@@ -171,24 +171,29 @@ This can only be initiated from mode 0, to prevent re-triggering.
 
 
 <mh3>    
-Once the procedure is started, 'level_done_mode' works its way back to 1 where the next level is loaded and finally 0 for normal game_play.
-
-In the main game loop, if 'level_done_mode' is non-zero, 'proc_level_done_mode()' is called.
+In the main game loop, if  'level_done_mode'  is non-zero,  'proc_level_done_mode()'  is called.
 
 Otherwise all the objects in the game get moved.
+
+This has the effect of freezing everything when in level done mode.
 </mh3>    
 
-<pre><code class="language-cpp">void mwLoop::main_loop(void)
+<pre><code class="language-cpp">void mwLoop::move_frame(void)
 {
-....
    if (mPlayer.syn[0].level_done_mode) proc_level_done_mode();
-   else move_frame();
-</code></pre>
-<mh3>This has the effect of freezing everything when in level done mode.
+   else
+   {
+      mShot.move_eshots();
+      mShot.move_pshots();
+      mLift.move_lifts(0);
+      mPlayer.move_players();
+      mEnemy.move_enemies();
+      mItem.move_items();
+   }
+}</code></pre>
+<mh3>
 
-
-
-In 'process_level_done_mode()' the timer is decremented and modes are switched until mode 1 when program_state=12 is set to load the next level.
+In  'proc_level_done_mode()'  the timer is decremented and modes are switched
 </mh3>
 
 <pre><code class="language-cpp">void mwLoop::proc_level_done_mode(void)
@@ -197,14 +202,14 @@ In 'process_level_done_mode()' the timer is decremented and modes are switched u
    if (--mPlayer.syn[0].level_done_timer <= 0) // time to change to next level_done_mode
    {
       mPlayer.syn[0].level_done_mode--;
-      if (mPlayer.syn[0].level_done_mode == 8) mPlayer.syn[0].level_done_timer = 60; // players seek exit
-      if (mPlayer.syn[0].level_done_mode == 7) mPlayer.syn[0].level_done_timer = 20; // players shrink and rotate into exit
+      if (mPlayer.syn[0].level_done_mode == 8) mPlayer.syn[0].level_done_timer = 60;   // players seek exit
+      if (mPlayer.syn[0].level_done_mode == 7) mPlayer.syn[0].level_done_timer = 20;   // players shrink and rotate into exit
       if (mPlayer.syn[0].level_done_mode == 6) mPlayer.syn[0].level_done_timer = 0;
-      if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600; // skippable 15s delay;
+      if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600;  // skippable 15s delay;
       if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;
       if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;
-      if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 10;  // delay to load next level
-      if (mPlayer.syn[0].level_done_mode == 1) mLoop.program_state = 12;              // load new level
+      if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 0;  
+      if (mPlayer.syn[0].level_done_mode == 1) state[0] = PM_PROGRAM_STATE_NEXT_LEVEL; // load new level
    }
 }
 </code></pre>
@@ -296,32 +301,26 @@ Here is the test in 'proc_player_input()' to only allow input in level_done_mode
 
 <pre><code class="language-cpp">void mwPlayer::proc_player_input(void)
 {
-   for (int p=0; p< NUM_PLAYERS; p++)
-      if (syn[p].active) // cycle all active players
-      {
-         if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
-         {
+   if ((syn[0].level_done_mode == 0) || (syn[0].level_done_mode == 5)) // only allow player input in these modes
 </code></pre>
 
 
 <mh3>    
-All players inputs are entered into the game_moves array.
-
-However when in level_done_mode 5, the game move entered is modified to be a special 'ack' type game move.
+In mode 5, players' inputs are modified to be a special 'ack' type game move when they are entered into the game_moves_array.
 </mh3>
 
 <pre><code class="language-cpp">void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 {
-   // ----------------------------------------------------------------------------------------
-   // if we are in level_done_mode 5, all moves are converted to type 8, level done acknowledge
-   // ----------------------------------------------------------------------------------------
-   if ((mPlayer.syn[0].level_done_mode == 5) && (type == 5) && (data2)) // all move type inputs are acks in this mode
+...
+   // -----------------------------------------------------------------------------------------------------------------
+   // if we are in level_done_mode 5, all PM_GAMEMOVE_TYPE_PLAYER_MOVE are converted to PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK
+   // -----------------------------------------------------------------------------------------------------------------
+   if ((mPlayer.syn[0].level_done_mode == 5) && (type == PM_GAMEMOVE_TYPE_PLAYER_MOVE) && (data2))
    {
-      if (!has_player_acknowledged(data1)) // to prevent multiple acks
-         add_game_move2(frame, 8, data1, 0); // type 8 - acknowledge level done
-      return; // to exit immediately
-   }
-</code></pre>
+      if (!has_player_acknowledged(p)) // to prevent multiple acks
+         add_game_move2(frame, PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK, p, 0);
+      return; // exit immediately
+   }</code></pre>
 
 
 <mh3>
@@ -334,7 +333,7 @@ Then there is a function to check if a specific player has acknowledged:
    int end_pos = start_pos - 1000;
    if (end_pos < 0) end_pos = 0;
    for (int x=start_pos; x>end_pos; x--) // look back for ack
-      if ((arr[x][1] == 8) && (arr[x][2] == p)) return 1;
+      if ((arr[x][1] == PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK) && (arr[x][2] == p)) return 1;
    return 0;
 }
 </code></pre>
@@ -384,7 +383,7 @@ This is only done on the server, and then synced back to clients as part of the 
 </code></pre>
 
 
-<mh3>Also each player is individually checked for acknowledge and the variable 'level_done_ack' is set in the player struct.
+<mh3>Also when each player is individually checked for acknowledge the variable 'level_done_ack' is set in the player struct.
 
 This is used to display which players have acknowledged in the level done stats.
 </mh3>
@@ -433,24 +432,7 @@ Once all players have acknowledged or timed out we progress to the next level_do
 </mh3>
 
 
-
-
-
-
-<a name="Mode 2 - Delay to Load Next Level"></a><mh7>Mode 2 - Delay to Load Next Level</mh7>
-
-
-<mh3>
-Now we are done with the delays and end of level statistics and we are ready to load the next level.
-(If we got here by touching a warp instead of an exit, all the previous modes will have been skipped.)
-
-The server cannot just immediately load a new level, the clients will be stuck on the old level and timeout.
-
-So we set a timer for 10 frames in the future when the new level loading will take effect.
-
-This is enough time for the data to propagate to the client, so they can load the new level also and follow the server.
-</mh3>
-
+<a name="Mode 1 - Load and start next level"></a><mh7>Mode 1 - Load and start next level</mh7>
 
 <pre><code class="language-cpp">void mwLoop::proc_level_done_mode(void)
 {
@@ -464,17 +446,11 @@ This is enough time for the data to propagate to the client, so they can load th
       if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600;  // skippable 15s delay;
       if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;
       if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;
-      if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 10;   // delay to load next level
+      if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 0;  
       if (mPlayer.syn[0].level_done_mode == 1) state[0] = PM_PROGRAM_STATE_NEXT_LEVEL; // load new level
    }
 }
 </code></pre>
-
-<mh3>
-</mh3>
-
-<a name="Mode 1 - Load and start next level"></a><mh7>Mode 1 - Load and start next level</mh7>
-
 
 
 
@@ -498,35 +474,197 @@ In  'PM_PROGRAM_STATE_NEXT_LEVEL'  we do all the cleanup, resetting, loading and
 </mh3>
 
 
+
+<a name="Other Uses"></a><mh7>Other Uses</mh7>
+
+<mh3>
+This procedure is also used for gates on level 1 (overworld). Gates take you immediately to a new level.
+
+They use the exact same procedure, but they jump to mode 3 instantly.
+</mh3>
+
+<pre><code class="language-cpp">void mwItem::proc_gate_collision(int p, int i)
+{
+   int lev = item[i][6];
+   if ((mPlayer.syn[p].up) && (status > 0) && (!mNetgame.ima_client) )    // if UP pressed, enter gate (client can never locally enter gate)
+   {
+      // immediate next level to gate level
+      mPlayer.syn[0].level_done_mode = 3;
+      mPlayer.syn[0].level_done_timer = 0;
+      mPlayer.syn[0].level_done_next_level = lev;
+   }
+}</code></pre>
+
+
+<mh3>
+This procedure is also used when the server needs to reload a level for whatever reason.
+
+Again its uses the exact same procedure, but starts on mode 3.
+</mh3>
+
+
+<pre><code class="language-cpp">void mwNetgame::server_reload(int level)
+{
+   //  1-99 level num
+   //  0 nothing
+   // -1 current level
+   // -2 next level
+
+   if ((level != 0) && (mPlayer.syn[0].level_done_mode == 0)) // only trigger from level done mode 0
+   {
+      if (level == -2) level = mLevel.get_next_level(mLevel.play_level, 199, 1);
+      if (level == -1) level = mLevel.play_level;
+      mPlayer.syn[0].level_done_mode = 3;
+      mPlayer.syn[0].level_done_timer = 0;
+      mPlayer.syn[0].level_done_next_level = level;
+   }
+}</code></pre>
+
+<mh3>
+</mh3>
+
+<a name="End of Game Cutscene"></a><mh7>End of Game Cutscene</mh7>
+
+<mh3>
+I extended the level done algorithm to make to cutscene at the end of the game.
+
+It is triggered by a special orb on level 64.
+</mh3>
+
+<pre><code class="language-cpp">void mwItem::proc_orb_collision(int p, int i)
+{
+   if ((item[i][12] == 99) && (!mNetgame.ima_client))
+   {
+      mPlayer.syn[0].level_done_mode = 30;
+      mPlayer.syn[0].level_done_player = p;
+      mPlayer.syn[0].level_done_frame = mLoop.frame_num;
+      mPlayer.syn[0].level_done_next_level = 1;
+   }
+}</code></pre>
+
+<mh3>
+It goes through level_done_modes 30 to 24, then jumps to mode 6 to join the normal level done procedure.
+</mh3>
+
+<pre><code class="language-cpp">if (mPlayer.syn[0].level_done_mode == 30) mPlayer.syn[0].level_done_timer = 0;   // set up for player move and zoom out
+if (mPlayer.syn[0].level_done_mode == 29) mPlayer.syn[0].level_done_timer = 100; // player move and zoom out
+if (mPlayer.syn[0].level_done_mode == 28) mPlayer.syn[0].level_done_timer = 0;   // set up for rocket move
+if (mPlayer.syn[0].level_done_mode == 27) mPlayer.syn[0].level_done_timer = 240; // rocket move
+if (mPlayer.syn[0].level_done_mode == 26) mPlayer.syn[0].level_done_timer = 0;   // set up for zoom in
+if (mPlayer.syn[0].level_done_mode == 25) mPlayer.syn[0].level_done_timer = 100; // zoom in
+if (mPlayer.syn[0].level_done_mode == 24) mPlayer.syn[0].level_done_timer = 0;   // jump to mode 6</code></pre>
+
+
+<mh3>
+</mh3>
+
+
+<a name="Special Netgame Considerations"></a><mh7>Special Netgame Considerations</mh7>
+
+
+<mh3>
+A client cannot start the level done procedure locally. The server is always in control.
+</mh3>
+<pre><code class="language-cpp">void mwItem::proc_exit_collision(int p, int i)
+{
+   if ((mPlayer.syn[0].level_done_mode == 0) && (!mNetgame.ima_client)) // only trigger from mode 0 and client can never locally exit
+
+...
+
+void mwItem::proc_gate_collision(int p, int i)
+{
+   if ((mPlayer.syn[p].up) && (status > 0) && (!mNetgame.ima_client) )    // if UP pressed, enter gate (client can never locally enter gate)
+
+...
+
+void mwItem::proc_orb_collision(int p, int i)
+{
+   if ((item[i][12] == 99) && (!mNetgame.ima_client))
+</code></pre>
+<mh3>This mostly because the client could possibly be rewound by the server and end up not triggering level done.
+
+All of the variables that control level done are synced to the client from the server.
+</mh3>
+
+<pre><code class="language-cpp">mPlayer.syn[0].level_done_mode
+mPlayer.syn[0].level_done_timer
+mPlayer.syn[0].level_done_ack
+mPlayer.syn[0].level_done_x
+mPlayer.syn[0].level_done_y
+mPlayer.syn[0].level_done_player
+mPlayer.syn[0].level_done_frame;
+mPlayer.syn[0].level_done_next_level
+</code></pre>
+
+
+
+
+<mh3>
+The client also does not decrement the timer to get to the next level done mode, or set PM_PROGRAM_STATE_NEXT_LEVEL
+
+The server does that, then syncs the variables to the client.
+</mh3>
+
+<pre><code class="language-cpp">
+   if (!mNetgame.ima_client)
+      if (--mPlayer.syn[0].level_done_timer <= 0)
+      {
+         mPlayer.syn[0].level_done_mode--;
+
+         if (mPlayer.syn[0].level_done_mode == 8) mPlayer.syn[0].level_done_timer = 60;  // players seek exit
+         if (mPlayer.syn[0].level_done_mode == 7) mPlayer.syn[0].level_done_timer = 20;  // players shrink and rotate into exit
+         if (mPlayer.syn[0].level_done_mode == 6) mPlayer.syn[0].level_done_timer = 0;
+         if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600; // skippable 15s delay;
+         if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;
+         if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;
+         if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 0;  // delay to load next level (was 10, lets try without it as of 20240602)
+         if (mPlayer.syn[0].level_done_mode == 1)
+         {
+            mLog.log_add_prefixed_textf(LOG_OTH_level_done, 0, "[%4d] Level Done Mode:%d - Load lext level\n", frame_num, mPlayer.syn[0].level_done_mode);
+            state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
+         }
+      }
+</code></pre>
+
+
+<mh3>
+The client used to also set PM_PROGRAM_STATE_NEXT_LEVEL, but that method was abandoned because of the race conditions it caused.
+
+It would need to get the state from the server to tell it to go to the next level.
+
+So it needed a pause to ensure that it got that info. Still sometimes it would miss and get stuck.
+
+The more robust method I came up with is to have the client automatically call next level when it started getting states from the server for the new level.
+</mh3>
+
+
+<pre><code class="language-cpp">void mwNetgame::client_proc_stdf_packet(int i)
+{
+   int slsn    = mPacketBuffer.PacketGetInt32(i); // server level sequence num
+   int sdln    = mPacketBuffer.PacketGetInt32(i); // server last level loaded
+   if (slsn == server_lev_seq_num + 1)
+   {
+      mLog.log_add_prefixed_textf(LOG_NET_stdf_packets, -1, "slsn is from next level - setting next level:%d\n\n", sdln);
+      mPlayer.syn[0].level_done_next_level = sdln;
+      mLoop.state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
+      return;
+   }
+}</code></pre>
+
+
 <a name="Conclusion and Notes"></a><mh7>Conclusion and Notes</mh7>
 
 <mh3>
-This entire process may seem overly complicated. I have tried to simplify it in as many ways as I can.
+This entire process may seem overly complicated. I have tried a few times to simplify it.
 
-I once spent an entire day refactoring the entire procedure. It looked great and was slightly simpler. But it did not work for netgame.
-It is very complicated to get this procedure to work with client and server, when either one can rewind and replay frames in order to make multiplayer work.
-As I slowly changed pieces of the simpler system, trying to make it work again, it got more complex, until it was essentially the same algorithm.
-Only I had lost an entire day chasing bugs, banging my head against the wall, until I realized why I had to do it this way in the first place.
-
-There is one more bit of code.
-When the client or server has to rewind and replay frames, the level_done procedure has to be replayed also.
-Here is what that looks like:
+I once spent a few days refactoring the entire procedure. It looked great and was simpler. But it didn't work for netgame.
+It is very complicated to get this procedure to work with client and server, when either one can rewind and replay the game state.
+As I changed pieces of the simpler system, trying to make it work again, it got more complex, until it was essentially the same algorithm.
+Only I had lost an entire day chasing bugs, banging my head against the wall, until I realized why I did it this way in the first place.
 
 </mh3>
 
-<pre><code class="language-cpp">void mwLoop::loop_frame(int times) // used for fast forwarding after rewind
-{
-   ff_state = 1;
-   for (int i=0; i< times; i++)
-   {
-      mGameMoves.proc();
-      if (mPlayer.syn[0].level_done_mode) proc_level_done_mode();
-      else move_frame();
-      mLoop.frame_num++;
-   }
-   ff_state = 0;
-}
-</code></pre>
+
 
                <footer>                <mh11>Purple Martians</mh11><hr>
                 <div id="copyright">
