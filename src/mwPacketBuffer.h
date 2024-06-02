@@ -34,9 +34,9 @@ class mwPacketBuffer
    char PacketGetByte(char *data, int &pos);
    char PacketGetByte(int i);
 
-   void PacketPutInt4(char *data, int &pos, int d);
-   int PacketGetInt4(char *data, int &pos);
-   int PacketGetInt4(int i);
+   void PacketPutInt32(char *data, int &pos, int d);
+   int PacketGetInt32(char *data, int &pos);
+   int PacketGetInt32(int i);
 
    void PacketPutDouble(char *data, int &pos, double d);
    double PacketGetDouble(char *data, int &pos);

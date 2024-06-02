@@ -69,13 +69,10 @@ void mwPacketBuffer::proc_rx_buffer(void)
          }
          rx_buf[i].active = 0;
       }
-
    if (mLoop.frame_num) mLog.add_tmr1(LOG_TMR_proc_rx_buffer, "prox_rx_buffer", al_get_time() - t0);
-
-
 }
 
-// call from loop - many places
+// called from many places
 void mwPacketBuffer::check_for_packets(void)
 {
    if ((mNetgame.ima_server) || (mNetgame.ima_client)) add_to_rx_buffer();
@@ -149,7 +146,7 @@ int mwPacketBuffer::find_empty_rx_packet_buffer(void)
 {
    for (int i=0; i<200; i++) if (!rx_buf[i].active) return i;
 
-   mLog.add(LOG_NET, 0, "rx packet buffer full!\n");
+   mLog.log_add_prefixed_text(LOG_NET, 0, "rx packet buffer full!\n");
    printf("[%d] rx packet buffer full!\n", mLoop.frame_num);
 
    // count types of packets in buffer
@@ -176,14 +173,14 @@ int mwPacketBuffer::find_empty_rx_packet_buffer(void)
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SRRF) srrf_count++;
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CRFL) crfl_count++;
       }
-   mLog.addf(LOG_NET, 0, "[%d] cdat\n", cdat_count);
-   mLog.addf(LOG_NET, 0, "[%d] stak\n", stak_count);
-   mLog.addf(LOG_NET, 0, "[%d] rctl\n", rctl_count);
-   mLog.addf(LOG_NET, 0, "[%d] stdf\n", stdf_count);
-   mLog.addf(LOG_NET, 0, "[%d] snfo\n", snfo_count);
-   mLog.addf(LOG_NET, 0, "[%d] sfil\n", sfil_count);
-   mLog.addf(LOG_NET, 0, "[%d] srrf\n", srrf_count);
-   mLog.addf(LOG_NET, 0, "[%d] crfl\n", crfl_count);
+   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] cdat\n", cdat_count);
+   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] stak\n", stak_count);
+   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] rctl\n", rctl_count);
+   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] stdf\n", stdf_count);
+   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] snfo\n", snfo_count);
+   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] sfil\n", sfil_count);
+   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] srrf\n", srrf_count);
+   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] crfl\n", crfl_count);
 
    return -1;
 }
@@ -198,7 +195,7 @@ float mwPacketBuffer::get_max_dsync(void)
       if ((rx_buf[i].active) && (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_STDF))
       {
          int dst = 0;
-         memcpy(&dst, rx_buf[i].data+14, 4); // memcpy dst
+         memcpy(&dst, rx_buf[i].data+20, 4); // memcpy dst
 
          // calc dysnc
          float csync = (float)(dst - mLoop.frame_num) * 0.025;                     // crude integer sync based on frame numbers
@@ -210,13 +207,15 @@ float mwPacketBuffer::get_max_dsync(void)
    return max_dsync;
 }
 
+
+// add 4 char name to packet
 void mwPacketBuffer::PacketName(char *data, int &pos, const char *name)
 {
    sprintf(data, "%s", name);
    pos = 4;
 }
 
-// check if a packet has the given id
+// check if a packet has the given name
 int mwPacketBuffer::PacketRead(char *data, const char *id )
 {
    if (!strncmp(data, id, 4)) return 1;
@@ -285,34 +284,24 @@ double mwPacketBuffer::PacketGetDouble(int i)
 }
 
 
-
-// packet put and get 4 byte int functions
+// packet put and get 32 bit int functions
 // ---------------------------------------
-void mwPacketBuffer::PacketPutInt4(char *data, int &pos, int d)
+void mwPacketBuffer::PacketPutInt32(char *data, int &pos, int d)
 {
    memcpy(data + pos, &d, 4);
 	pos+=4;
 }
-int mwPacketBuffer::PacketGetInt4(char *data, int &pos)
+int mwPacketBuffer::PacketGetInt32(char *data, int &pos)
 {
    int d = 0;
    memcpy(&d, data + pos, 4);
 	pos+=4;
 	return d;
 }
-int mwPacketBuffer::PacketGetInt4(int i)
+int mwPacketBuffer::PacketGetInt32(int i)
 {
-   int d = 0;
-   memcpy(&d, rx_buf[i].data + rx_buf[i].packetpos, 4);
-	rx_buf[i].packetpos+=4;
-	return d;
+   return PacketGetInt32(rx_buf[i].data, rx_buf[i].packetpos);
 }
-
-
-
-
-
-
 
 
 

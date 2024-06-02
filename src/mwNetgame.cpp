@@ -27,14 +27,17 @@ mwNetgame::mwNetgame()
 
    zlib_cmp = 7;
 
-   for (int i=0; i<20; i++)
-      files_to_send[i].active = 0;
+   for (int i=0; i<20; i++) files_to_send[i].active = 0;
 
-   for (int i=0; i<10; i++)
-      session_clear_entry(i);
+   for (int i=0; i<10; i++) session_clear_entry(i);
+
+   for (int i=0; i<8; i++) clear_channel(i);
 
    Channel = NULL;
 }
+
+
+
 
 // initialize libnet and setup a driver to use. Returns 0 on success.
 int mwNetgame::NetworkInit(void)
@@ -81,6 +84,29 @@ void mwNetgame::ChannelFlush(void)
    char data[PACKET_BUFFER_SIZE] = {0};
    while (net_receive(Channel, data, PACKET_BUFFER_SIZE, NULL));
 }
+
+
+
+void mwNetgame::clear_channel(int c)
+{
+   mwChannels[c].channel_active = 0;
+   strcpy(mwChannels[c].channel_address, "");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void mwNetgame::game_vars_to_state(char * b)
 {
@@ -179,7 +205,7 @@ void mwNetgame::process_bandwidth_counters(int p)
       mPlayer.loc[p].tx_packets_per_tally = mPlayer.loc[p].tx_packets_tally;
       mPlayer.loc[p].rx_packets_per_tally = mPlayer.loc[p].rx_packets_tally;
 
-      mLog.addf(LOG_NET_bandwidth, p, "bandwidth txb:[%d] rxb:[%d] txp:[%d] rxp:[%d]\n", mPlayer.loc[p].tx_bytes_per_tally, mPlayer.loc[p].rx_bytes_per_tally, mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].rx_packets_per_tally);
+      mLog.log_add_prefixed_textf(LOG_NET_bandwidth, p, "bandwidth txb:[%d] rxb:[%d] txp:[%d] rxp:[%d]\n", mPlayer.loc[p].tx_bytes_per_tally, mPlayer.loc[p].rx_bytes_per_tally, mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].rx_packets_per_tally);
 
       // reset tallies
       mPlayer.loc[p].tx_bytes_tally   = 0;

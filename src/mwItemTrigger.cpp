@@ -17,6 +17,8 @@
 #include "mwShot.h"
 #include "mwDemoMode.h"
 #include "mwDemoRecord.h"
+#include "mwNetgame.h"
+
 
 
 
@@ -194,7 +196,7 @@ void mwItem::proc_orb_collision(int p, int i)
         ((item[i][2] & PM_ITEM_ORB_TRIG_DOWN) && (mPlayer.syn[p].down)) )
    {
       item[i][2] |= PM_ITEM_ORB_TRIG_CURR;
-      if (item[i][12] == 99)
+      if ((item[i][12] == 99) && (!mNetgame.ima_client))
       {
          mPlayer.syn[0].level_done_mode = 30;
          mPlayer.syn[0].level_done_player = p;

@@ -131,60 +131,47 @@ void mwLog::clear_all_log_actions(void)
 
 
 
-
-
-
-
-
-
-
-
-// these are for appending text to lines
-
-// appends printf style text string
-void mwLog::appf(int type, const char *format, ...)
-{
-   char smsg[200];
-   va_list args;
-   va_start(args, format);
-   vsprintf(smsg, format, args);
-   va_end(args);
-   app(type, smsg);
-}
-
-// appends text string
-void mwLog::app(int type, const char *txt)
+// appends passed text string to log array
+// this is only function that actually prints to console or adds to log array
+// also checks if log array is full and flushes to disk
+void mwLog::log_append_text(int type, const char *txt)
 {
    if (log_types[type].action & LOG_ACTION_PRINT) printf("%s", txt);
    if (log_types[type].action & LOG_ACTION_LOG)
    {
       if ((log_msg_pos + strlen(txt)) >= NUM_LOG_CHAR)
       {
-         printf("log array full, > %d char\n", NUM_LOG_CHAR);
+         printf("log array full, > %d char ... saving\n", NUM_LOG_CHAR);
          save_log_file();
       }
-      else
-      {
-         memcpy(log_msg + log_msg_pos, txt, strlen(txt));
-         log_msg_pos += strlen(txt);
-         log_msg[log_msg_pos+1] = 0; // NULL terminate
-      }
+      memcpy(log_msg + log_msg_pos, txt, strlen(txt));
+      log_msg_pos += strlen(txt);
+      log_msg[log_msg_pos+1] = 0; // NULL terminate
    }
 }
 
-
-// these are for adding lines with the prefix...
-// [%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
-
-// adds text string
-void mwLog::add(int type, int player, const char *txt)
+// wrapper for 'log_append_text'  that takes a printf style format
+void mwLog::log_append_textf(int type, const char *format, ...)
 {
-   if (player == -1) player = mPlayer.active_local_player;
-   appf(type, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
+   char smsg[500];
+   va_list args;
+   va_start(args, format);
+   vsprintf(smsg, format, args);
+   va_end(args);
+   log_append_text(type, smsg);
 }
 
-// adds printf style text string
-void mwLog::addf(int type, int player, const char *format, ...)
+
+// adds text string with prefix
+// [%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
+void mwLog::log_add_prefixed_text(int type, int player, const char *txt)
+{
+   if (player == -1) player = mPlayer.active_local_player;
+   log_append_textf(type, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
+}
+
+// wrapper for 'log_add_prefixed_text' that takes a printf style format
+void mwLog::log_add_prefixed_textf(int type, int player, const char *format, ...)
 {
    if (player == -1) player = mPlayer.active_local_player;
    char smsg[200];
@@ -192,8 +179,82 @@ void mwLog::addf(int type, int player, const char *format, ...)
    va_start(args, format);
    vsprintf(smsg, format, args);
    va_end(args);
-   add(type, player, smsg);
+   log_add_prefixed_text(type, player, smsg);
 }
+
+
+
+// adds text string with profile timer prefix prefix
+// [%2d][%d][%d]tmst %s", type, player, mLoop.frame_num, txt);
+void mwLog::add_tmr(int type, const char *txt)
+{
+   log_append_textf(type, "[%2d][%d][%d]tmst %s", LOG_TMR, mPlayer.active_local_player, mLoop.frame_num, txt);
+}
+
+// wrapper for 'add_tmr' that takes a printf style format
+void mwLog::add_tmrf(int type, const char *format, ...)
+{
+   char msg[500];
+   va_list args;
+   va_start(args, format);
+   vsprintf(msg, format, args);
+   va_end(args);
+   add_tmr(type, msg);
+}
+
+// adds a single profile timer log entry
+void mwLog::add_tmr1(int type, const char *tag, double dt)
+{
+   char msg[500];
+   sprintf(msg, "%s:[%0.4f]\n", tag, dt*1000);
+   add_tmr(type, msg);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // adds fixed width formatted printf style text string
@@ -249,7 +310,7 @@ void mwLog::add_fw(int type, int player, int width, int pos, const char *border,
       strcat(ftxt, border);
       strcat(ftxt, "\n");
    }
-   add(type, player, ftxt);
+   log_add_prefixed_text(type, player, ftxt);
 }
 
 
@@ -448,45 +509,4 @@ void mwLog::log_bandwidth_stats(int type, int p)
    add_fwf(type, p, 76, 10, "|", " ", "max rx packets per frame..[%d]", mPlayer.loc[p].rx_max_packets_per_frame);
    add_fwf(type, p, 76, 10, "|", " ", "max rx packets per second.[%d]", mPlayer.loc[p].rx_max_packets_per_tally);
 }
-
-
-
-// takes a printf style format
-void mwLog::add_tmrf(int type, const char *format, ...)
-{
-   char msg[200];
-   va_list args;
-   va_start(args, format);
-   vsprintf(msg, format, args);
-   va_end(args);
-   add_tmr(type, msg);
-}
-
-// for single tags
-void mwLog::add_tmr1(int type, const char *tag, double dt)
-{
-   char msg[500];
-   sprintf(msg, "%s:[%0.4f]\n", tag, dt*1000);
-   add_tmr(type, msg);
-}
-
-// takes an already formatted string
-void mwLog::add_tmr(int type, const char *txt)
-{
-   if (log_types[type].action & LOG_ACTION_PRINT) printf("%s", txt);
-   if (log_types[type].action & LOG_ACTION_LOG)
-   {
-      char msg[500];
-      sprintf(msg, "[%2d][%d][%d]tmst %s", LOG_TMR, mPlayer.active_local_player, mLoop.frame_num, txt);
-      if ((log_msg_pos + strlen(msg)) >= NUM_LOG_CHAR) printf("log array full, > %d char\n", NUM_LOG_CHAR);
-      else
-      {
-         memcpy(log_msg + log_msg_pos, msg, strlen(msg));
-         log_msg_pos += strlen(msg);
-         log_msg[log_msg_pos + 1] = 0; // NULL terminate
-      }
-   }
-}
-
-
 

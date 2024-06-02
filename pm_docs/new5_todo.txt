@@ -126,9 +126,251 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------
+
+side quest, what about when client is not active on server, yet server keeps getting packets from it, like ping...
+
+--------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+I am thinking I would like to improve my logging.
+- add actual timestamps
+- add hostname
+
+put them in a database? or something like that so I can combine server and client logs....
+
+how fast can the enter to database be?
+
+or I could just do it from the text file when saved to disk...
+
+
+what I really need to do is add those two fields:
+timestamp and hostname
+
+this will probably mess with everything that uses logs...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -149,11 +391,6 @@ Do something about server remote so that people cannot fuck it up...
 I should also set up a firewall on the server
 I think a lot of things could be solved with setting up firewall on server.
 most importantly, make it so that ssh only works for 96.45.xxxx...done
-
-
-
-
-
 
 
 
@@ -202,6 +439,17 @@ what exactly do you want to do?
 these are all the things I can think of:
 logging options
 autosave game and log options
+
+
+I have these forced when headless server starts, that would override logging options I change...
+
+
+when level reloads, frames (time) and moves
+
+auto load overworld when no clients connected
+
+
+
 
 
 sections:

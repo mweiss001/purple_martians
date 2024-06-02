@@ -83,12 +83,15 @@ class mwLog
    void set_log_type_action(int type, int action);
    void clear_all_log_actions(void);
 
-   void appf(int type, const char *format, ...);
-   void app(int type, const char *txt);
+   void log_append_textf(int type, const char *format, ...);
+   void log_append_text(int type, const char *txt);
+
+   void log_add_prefixed_textf(int type, int player, const char *format, ...);
+   void log_add_prefixed_text(int type, int player, const char *msg);
 
 
-   void addf(int type, int player, const char *format, ...);
-   void add(int type, int player, const char *msg);
+
+
 
    void add_fwf(int type, int player, int width, int pos, const char *border, const char *fill, const char *format, ...);
    void add_fw(int type, int player, int width, int pos, const char *border, const char *fill, const char *txt);
