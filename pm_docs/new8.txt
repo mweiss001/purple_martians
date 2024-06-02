@@ -57241,6 +57241,143 @@ now for testing....
 
 20240602
 
+new release
+
+
+I broke remote control...segfault when connecting
+
+actually it works on m36 but I bet something is funny in snfo
+
+
+when I went full screen on m36 it died, now won't even start!!
+
+
+erased config and now it will
+
+
+it looks like dif size is off....
+
+
+this is the problem in cfg when it won't start
+
+[GAMECONTROLS]
+mPlayer.loc[0].up_key=-1029196740
+mPlayer.loc[0].down_key=664
+mPlayer.loc[0].left_key=1166010736
+mPlayer.loc[0].right_key=173
+mPlayer.loc[0].jump_key=1166010456
+mPlayer.loc[0].fire_key=173
+mPlayer.loc[0].menu_key=1166010480
+
+
+forgot to adjust the offset in rx snfo from 18 to 24 now that bytes are replaced with int32
+now it works...
+
+do the same for sfil....
+
+it used to be
+1
+1
+4
+4
+4
+4
+
+which should add up to 18
+22 with the id
+now when I add 6 it should be 28...done...not tested...
+
+
+
+
+How level done works in netgame:
+
+
+
+
+
+
+
+client level done:
+
+
+when client starts getting stdfs from the next slsn, client locally calls next level
+this is the only way that client gets next level
+
+the old way was to wait for server to sync level_done_mode to client, then client would do next level.
+sometimes (rarely) this missed...
+
+this new way should be more robust. more immune to race conditions...
+when the stream of stdf packets from the server to the client now has a new slsn, the client will next level to that level...
+
+then client still follows all of the level done modes like before, but now never decrements the counter locally, the server does and it is syncd to the client.
+
+One more thing...
+
+slsn is part of the syn...why?
+
+the client should have a non-sync local slsn
+
+make it part of netgame class and share the varaible...done...
+
+
+
+
+
+
+this is from the old description:
+
+The server cannot just immediately load a new level, the clients will be stuck on the old level and timeout.
+So we set a timer for 10 frames in the future when the new level loading will take effect.
+This is enough time for the data to propagate to the client, so they can load the new level also and follow the server.
+
+   if (--mPlayer.syn[0].level_done_timer <= 0) // time to change to next level_done_mode
+   {
+      mPlayer.syn[0].level_done_mode--;
+      if (mPlayer.syn[0].level_done_mode == 8) mPlayer.syn[0].level_done_timer = 60;   // players seek exit
+      if (mPlayer.syn[0].level_done_mode == 7) mPlayer.syn[0].level_done_timer = 20;   // players shrink and rotate into exit
+      if (mPlayer.syn[0].level_done_mode == 6) mPlayer.syn[0].level_done_timer = 0;
+      if (mPlayer.syn[0].level_done_mode == 5) mPlayer.syn[0].level_done_timer = 600;  // skippable 15s delay;
+      if (mPlayer.syn[0].level_done_mode == 4) mPlayer.syn[0].level_done_timer = 0;
+      if (mPlayer.syn[0].level_done_mode == 3) mPlayer.syn[0].level_done_timer = 0;
+      if (mPlayer.syn[0].level_done_mode == 2) mPlayer.syn[0].level_done_timer = 10;   // delay to load next level
+      if (mPlayer.syn[0].level_done_mode == 1) state[0] = PM_PROGRAM_STATE_NEXT_LEVEL; // load new level
+   }
+
+I don't think I need that 10 frame delay anymore...lets try without it....
+
+
+
+
+
+
+exit - 9
+gate - 3
+
+final orb - 30
+
+after final cutscene jump to 6
+
+server reload - 3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

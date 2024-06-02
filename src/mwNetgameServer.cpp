@@ -491,7 +491,7 @@ void mwNetgame::server_proc_limits(void)
          }
       }
 
-      int gm_limit = 1000; //GAME_MOVES_SIZE - 100;
+      int gm_limit = GAME_MOVES_SIZE - 100;
       if (mGameMoves.entry_pos > gm_limit)
       {
          mLog.add_headerf(LOG_NET, 0, 1, "Server Approaching %d Game Moves! - Reload", gm_limit);

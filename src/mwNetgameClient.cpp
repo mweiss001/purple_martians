@@ -334,7 +334,7 @@ void mwNetgame::client_proc_snfo_packet(int i)
       {
          //printf("rx snfo piece [%d of %d] frame:[%d] st:%4d sz:%4d\n", seq+1, max_seq, fn, sb, sz);
 
-         memcpy(client_state_buffer + sb, mPacketBuffer.rx_buf[i].data+18, sz);    // put the piece of data in the buffer
+         memcpy(client_state_buffer + sb, mPacketBuffer.rx_buf[i].data+24, sz);    // put the piece of data in the buffer
          client_state_buffer_pieces[seq] = fn;                                     // mark it with frame_num
 
          int complete = 1;                                         // did we just get the last packet? (yes by default)
@@ -423,7 +423,7 @@ void mwNetgame::client_proc_sfil_packet(int i)
 
    //printf("rx sfil piece [%d of %d] id:[%d] st:%4d sz:%4d fsz:%4d\n", seq+1, max_seq, id, sb, sz, fsize);
 
-   memcpy(client_sfil_buffer + sb, mPacketBuffer.rx_buf[i].data+22, sz);    // put the piece of data in the buffer
+   memcpy(client_sfil_buffer + sb, mPacketBuffer.rx_buf[i].data+28, sz);    // put the piece of data in the buffer
    client_sfil_buffer_pieces[seq] = id;                                     // mark it with id
 
    int complete = 1;                                         // did we just get the last piece? (yes by default)
