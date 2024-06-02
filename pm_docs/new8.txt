@@ -57344,10 +57344,7 @@ This is enough time for the data to propagate to the client, so they can load th
       if (mPlayer.syn[0].level_done_mode == 1) state[0] = PM_PROGRAM_STATE_NEXT_LEVEL; // load new level
    }
 
-I don't think I need that 10 frame delay anymore...lets try without it....
-
-
-
+I don't think I need that 10 frame delay anymore...lets try without it....it seems to work...
 
 
 
@@ -57359,6 +57356,120 @@ final orb - 30
 after final cutscene jump to 6
 
 server reload - 3
+
+
+
+did a new release
+v7.24.0602.2
+
+
+document how level done in netgame works now....done....
+
+
+I ran a game with a few clients and it died with lost server connection...makes me wonder if its not just flaky internet...
+died on level 64 41:44
+
+I have no client logs, i forget to renable them... lets see what I have for server logs...
+
+dropped around 100200, last stak rx arounf 100000
+
+still getting cdats from clients.....
+
+sending full difs of 7 packets each to 4 clients
+
+
+I guess I need to enable lots of logging and try again....
+
+OMG!! it died again at 41:44 in level 64, is that a coincidence that is almost 100,000 frames??
+
+44s + 41m*60 =
+
+
+
+
+This makes no fucking sense to me at all:
+
+
+[27][1][99798]rx dif complete [0 to 99794] - uncompressed
+[28][1][99798]rx stdf piece [1 of 1] [99789 to 99795] st:   0 sz:1092 sdln:64 slsn:15[15]bad!
+[28][1][99798]rx stdf piece [1 of 1] [99791 to 99796] st:   0 sz:1230 sdln:64 slsn:15[15]bad!
+[31][1][99794]----- Apply dif [0 to 99794] [applied] [rewound [4] frames]
+[33][1][99798]tx stak p:1 ack:[99794] cur:[99798]
+[31][1][99799]----- Apply dif [0 to 99794] dd[not applied] [not newer than last dif applied]
+[31][1][99800]----- Apply dif [0 to 99794] dd[not applied] [not newer than last dif applied]
+[28][1][99801]rx stdf piece [1 of 1] [99793 to 99797] st:   0 sz:1213 sdln:64 slsn:15[15]bad!
+[31][1][99801]----- Apply dif [0 to 99794] dd[not applied] [not newer than last dif applied]
+[31][1][99802]----- Apply dif [0 to 99794] dd[not applied] [not newer than last dif applied]
+[28][1][99803]rx stdf piece [1 of 1] [99794 to 99798] st:   0 sz:1141 sdln:64 slsn:15[15]bad!
+
+
+
+how in the ever loving FUCK?
+
+does slns != server_lev_seq_num AND slsn:15[15]bad!
+
+
+void mwNetgame::client_proc_stdf_packet(int i)
+{
+   double t0 = al_get_time();
+
+   int seq     = mPacketBuffer.PacketGetInt32(i);
+   int max_seq = mPacketBuffer.PacketGetInt32(i);
+   int sb      = mPacketBuffer.PacketGetInt32(i);
+   int sz      = mPacketBuffer.PacketGetInt32(i);
+   int dst     = mPacketBuffer.PacketGetInt32(i);
+   int src     = mPacketBuffer.PacketGetInt32(i);
+   int slsn    = mPacketBuffer.PacketGetInt32(i); // server level sequence num
+   int sdln    = mPacketBuffer.PacketGetInt32(i); // server last level loaded
+
+
+   char log_msg_txt1[64];
+   sprintf(log_msg_txt1, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d sdln:%d slsn:%d", seq+1, max_seq, src, dst, sb, sz, sdln, slsn);
+
+
+   if (slsn != server_lev_seq_num)
+   {
+      if (slsn == server_lev_seq_num +1)
+      {
+         mLog.log_add_prefixed_textf(LOG_NET_stdf_packets, -1, "%s slsn is from next level - setting next level:%d\n", log_msg_txt1, sdln);
+
+         mPlayer.syn[0].level_done_next_level = sdln;
+         mLoop.state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
+      }
+      else
+      {
+         mLog.log_add_prefixed_textf(LOG_NET_stdf_packets, -1, "%s[%d]bad!\n",log_msg_txt1, server_lev_seq_num);
+      }
+      return;
+   }
+
+
+
+I think this might be the culprit:
+   char log_msg_txt1[64];
+
+I am printing more than 64 char to it ... duh !!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

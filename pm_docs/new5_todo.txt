@@ -12,7 +12,7 @@
 ---------------------------------------------------------
 
 
-document how level done in netgame works now....
+
 
 
 I am thinking I would like to improve my logging.

@@ -416,13 +416,13 @@ void mwNetgame::server_proc_stak_packet(int i)
    int ack_frame_num                 = mPacketBuffer.PacketGetInt32(i);  // client has acknowledged getting and applying this base
    int client_frame_num              = mPacketBuffer.PacketGetInt32(i);
 
-   char log_msg_txt1[64];
-   sprintf(log_msg_txt1, "rx stak p:%d ack:[%d] cur:[%d] slsn:[%d]\n", p, ack_frame_num, client_frame_num, slsn);
+   char log_msg_txt1[128];
+   sprintf(log_msg_txt1, "rx stak p:%d ack:[%d] cur:[%d] slsn:[%d]", p, ack_frame_num, client_frame_num, slsn);
 
 
    if (slsn != server_lev_seq_num)
    {
-      mLog.log_add_prefixed_textf(LOG_NET_stak, p, "%s wrong slsn:[%d] - ignoring \n", log_msg_txt1, server_lev_seq_num);
+      mLog.log_add_prefixed_textf(LOG_NET_stak, p, " %s wrong slsn:[%d] - ignoring \n", log_msg_txt1, server_lev_seq_num);
       return;
    }
 
@@ -534,8 +534,8 @@ void mwNetgame::server_proc_cdat_packet(int i)
    int cm             = mPacketBuffer.PacketGetInt32(i);
    double timestamp   = mPacketBuffer.rx_buf[i].timestamp;
 
-   char log_msg_txt1[64];
-   sprintf(log_msg_txt1, "rx cdat p:%d fn:[%d] sync:[%d] slsn:[%d]\n", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, slsn);
+   char log_msg_txt1[128];
+   sprintf(log_msg_txt1, "rx cdat p:%d fn:[%d] sync:[%d] slsn:[%d]", p, cdat_frame_num, mPlayer.loc[p].server_game_move_sync, slsn);
 
    // reject cdats if server_lev_seq_num does not match
    if (slsn != server_lev_seq_num)
