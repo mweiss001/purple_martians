@@ -144,7 +144,7 @@ void mwStateHistory::apply_rewind_state(int frame_num)
    // if same frame as current frame, do nothing
    if (ff == 0)
    {
-      mLog.log_add_prefixed_text(LOG_NET_stdf, 0, "stdf rewind [none]\n");
+      mLog.log_add_prefixed_text(LOG_NET_stdf_rewind, -1, "stdf rewind [none]\n");
       return;
    }
 
@@ -152,18 +152,30 @@ void mwStateHistory::apply_rewind_state(int frame_num)
    int indx = -1;
    for (int i=0; i<NUM_HISTORY_STATES; i++) if (frame_num == history_state_frame_num[i]) indx = i;
 
-
    if (indx == -1)
    {
-      mLog.log_add_prefixed_textf(LOG_NET_stdf, 0, "stdf rewind [%d] not found - ", frame_num);
       indx = oldest_state_index;
-      if (indx == -1) mLog.log_append_text(LOG_NET_stdf, "oldest frame not valid\n");
-      else mLog.log_append_textf(LOG_NET_stdf, "using oldest frame [%d]\n", history_state_frame_num[indx]);
+      if (indx == -1) mLog.log_add_prefixed_textf(LOG_NET_stdf_rewind, -1, "stdf rewind [%d] not found - oldest frame not valid\n", frame_num);
+      else            mLog.log_add_prefixed_textf(LOG_NET_stdf_rewind, -1, "stdf rewind [%d] not found - using oldest frame [%d]\n", frame_num, history_state_frame_num[indx]);
+
+//      char not_found[200];
+//      char why[200];
+//      sprintf(not_found, "stdf rewind [%d] not found - ", frame_num);
+//      indx = oldest_state_index;
+//      if (indx == -1) sprintf(why, "oldest frame not valid");
+//      else            sprintf(why, "using oldest frame [%d]", history_state_frame_num[indx]);
+//      mLog.log_add_prefixed_textf(LOG_NET_stdf, -1, "%s %s\n", not_found, why);
+
+//      mLog.log_add_prefixed_textf(LOG_NET_stdf, 0, "stdf rewind [%d] not found - ", frame_num);
+//      indx = oldest_state_index;
+//      if (indx == -1) mLog.log_append_text(LOG_NET_stdf, "oldest frame not valid\n");
+//      else mLog.log_append_textf(LOG_NET_stdf, "using oldest frame [%d]\n", history_state_frame_num[indx]);
+
    }
 
    if (indx > -1)
    {
-      mLog.log_add_prefixed_textf(LOG_NET_stdf, 0, "stdf rewind to:%d [%d]\n", frame_num, -ff);
+      mLog.log_add_prefixed_textf(LOG_NET_stdf_rewind, -1, "stdf rewind to:%d [%d]\n", frame_num, -ff);
 
       mNetgame.state_to_game_vars(history_state[indx]);
       mLoop.frame_num = history_state_frame_num[indx];

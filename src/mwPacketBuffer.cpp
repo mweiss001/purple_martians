@@ -39,7 +39,7 @@ void mwPacketBuffer::init_packet_buffer(void)
 
 void mwPacketBuffer::rx_and_proc(void)
 {
-   add_to_rx_buffer();
+   check_for_packets();
    proc_rx_buffer();
 }
 
@@ -72,20 +72,18 @@ void mwPacketBuffer::proc_rx_buffer(void)
    if (mLoop.frame_num) mLog.add_tmr1(LOG_TMR_proc_rx_buffer, "prox_rx_buffer", al_get_time() - t0);
 }
 
-// called from many places
+// called from many places in the game loop, does nothing and returns immediately if not client or server
+// receives all waiting packets and puts them in the rx buffer or processes them immediatley
 void mwPacketBuffer::check_for_packets(void)
 {
-   if ((mNetgame.ima_server) || (mNetgame.ima_client)) add_to_rx_buffer();
-}
+   if ((!mNetgame.ima_server) && (!mNetgame.ima_client)) return;
 
-// receives all waiting packets and puts them in the rx buffer
-void mwPacketBuffer::add_to_rx_buffer(void)
-{
    char data[PACKET_BUFFER_SIZE] = {0};
    char address[256];
 
-   if (mNetgame.ima_server)
-      while (int len = net_receive(mNetgame.Channel, data, PACKET_BUFFER_SIZE, address))
+   while (int len = net_receive(mNetgame.Channel, data, PACKET_BUFFER_SIZE, address))
+   {
+      if (mNetgame.ima_server)
       {
          int p = mNetgame.server_check_address(address);
          if (p == -1) // unknown address
@@ -103,10 +101,16 @@ void mwPacketBuffer::add_to_rx_buffer(void)
          }
       }
 
-   if (mNetgame.ima_client)
-      while (mNetgame.ClientReceive(data))
-         add_to_rx_buffer_single(data, mPlayer.active_local_player);
+      if (mNetgame.ima_client)
+      {
+         int p = mPlayer.active_local_player;
+         add_to_rx_buffer_single(data, p);
+         mPlayer.loc[p].rx_current_bytes_for_this_frame+= (len + 42);
+         mPlayer.loc[p].rx_current_packets_for_this_frame++;
+      }
+   }
 }
+
 
 void mwPacketBuffer::add_to_rx_buffer_single(char *data, int p)
 {
@@ -146,7 +150,7 @@ int mwPacketBuffer::find_empty_rx_packet_buffer(void)
 {
    for (int i=0; i<200; i++) if (!rx_buf[i].active) return i;
 
-   mLog.log_add_prefixed_text(LOG_NET, 0, "rx packet buffer full!\n");
+   mLog.log_add_prefixed_text(LOG_NET, -1, "rx packet buffer full!\n");
    printf("[%d] rx packet buffer full!\n", mLoop.frame_num);
 
    // count types of packets in buffer
@@ -173,14 +177,14 @@ int mwPacketBuffer::find_empty_rx_packet_buffer(void)
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SRRF) srrf_count++;
          if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CRFL) crfl_count++;
       }
-   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] cdat\n", cdat_count);
-   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] stak\n", stak_count);
-   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] rctl\n", rctl_count);
-   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] stdf\n", stdf_count);
-   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] snfo\n", snfo_count);
-   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] sfil\n", sfil_count);
-   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] srrf\n", srrf_count);
-   mLog.log_add_prefixed_textf(LOG_NET, 0, "[%d] crfl\n", crfl_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] cdat\n", cdat_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] stak\n", stak_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] rctl\n", rctl_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] stdf\n", stdf_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] snfo\n", snfo_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] sfil\n", sfil_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] srrf\n", srrf_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] crfl\n", crfl_count);
 
    return -1;
 }

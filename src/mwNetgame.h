@@ -89,7 +89,9 @@ class mwNetgame
    struct client_session client_sessions[8];
 
    int NetworkDriver;
-   int NetworkInit();
+   int NetworkInit(void);
+   void NetworkExit(void);
+
 
 
    void clear_channel(int c);
@@ -142,7 +144,9 @@ class mwNetgame
    void process_bandwidth_counters(int p);
 
 
-   NET_CHANNEL *Channel = NULL;                   // common channel
+   NET_CHANNEL *Channel = NULL;                   // main channel
+   NET_CHANNEL *LoggingChannel = NULL;            // logging channel
+
    void ChannelFlush(void);
 
    // --------------------------------------------------------------------
@@ -155,7 +159,6 @@ class mwNetgame
 
    void ClientExitNetwork(void);
    int  ClientCheckResponse(void);
-   int  ClientReceive(void *data);
    void ClientSend(void *data, int len);
 
    void client_timer_adjust(void);

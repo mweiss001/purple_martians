@@ -26,7 +26,7 @@ int mwNetgame::ClientInitNetwork(void)
    if (NetworkInit())
    {
       sprintf(msg, "Error: failed to initialize network");
-      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
+      mLog.add_fw(LOG_error, -1, 76, 10, "|", " ", msg);
       mInput.m_err(msg);
       return -1;
    }
@@ -34,7 +34,7 @@ int mwNetgame::ClientInitNetwork(void)
    if (Channel == NULL)
    {
       sprintf(msg, "Error: Client failed to create NetChannel");
-      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
+      mLog.add_fw(LOG_error, -1, 76, 10, "|", " ", msg);
       mInput.m_err(msg);
       return 0;
    }
@@ -44,12 +44,12 @@ int mwNetgame::ClientInitNetwork(void)
    if (net_assigntarget(Channel, target))
    {
       sprintf(msg, "Error: Client failed to set NetChannel target:[%s]", target);
-      mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
+      mLog.add_fw(LOG_error, -1, 76, 10, "|", " ", msg);
       mInput.m_err(msg);
       return 0;
    }
-   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client network initialized -- target:[%s]", target);
-   mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Local address:[%s]", net_getlocaladdress(Channel));
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Client network initialized -- target:[%s]", target);
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Local address:[%s]", net_getlocaladdress(Channel));
 
    return 1;
 }
@@ -63,12 +63,12 @@ int mwNetgame::ClientJoin(void)
    int got_reply = 0;
    while (!got_reply)
    {
-      //mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "ClientCheckResponse %d", tries);
+      //mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "ClientCheckResponse %d", tries);
       int ccr = ClientCheckResponse();
       if (ccr == 1)
       {
          got_reply = 1;
-         // mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Got 'join accepted' reply from server");
+         // mLog.add_fw(LOG_NET, -1, 76, 10, "|", " ", "Got 'join accepted' reply from server");
       }
       if (ccr == 0)
       {
@@ -76,25 +76,25 @@ int mwNetgame::ClientJoin(void)
          if (++tries > 2)
          {
             sprintf(msg, "Did not get reply from server");
-            mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
+            mLog.add_fw(LOG_error, -1, 76, 10, "|", " ", msg);
             mInput.m_err(msg);
 
-            mLog.add_fw(LOG_NET, 0, 76, 10, "+", "-", "");
+            mLog.add_fw(LOG_NET, -1, 76, 10, "+", "-", "");
             return 0;
          }
       }
       if (ccr == -1)
       {
          sprintf(msg, "Got 'server full' reply from server");
-         mLog.add_fw(LOG_error, 0, 76, 10, "|", " ", msg);
-         mLog.add_fw(LOG_NET, 0, 76, 10, "+", "-", "");
+         mLog.add_fw(LOG_error, -1, 76, 10, "|", " ", msg);
+         mLog.add_fw(LOG_NET, -1, 76, 10, "+", "-", "");
          mInput.m_err(msg);
          return 0;
       }
       if (ccr == -2)
       {
-         mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Cancelled");
-         mLog.add_fw(LOG_NET, 0, 76, 10, "+", "-", "");
+         mLog.add_fw(LOG_NET, -1, 76, 10, "|", " ", "Cancelled");
+         mLog.add_fw(LOG_NET, -1, 76, 10, "+", "-", "");
          return 0;
       }
    }
@@ -107,8 +107,8 @@ int mwNetgame::ClientCheckResponse(void) // check for a response from the server
 {
    client_send_cjon_packet();
 
-   mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Sent initial 'cjon' packet to server");
-   mLog.add_fw(LOG_NET, 0, 76, 10, "|", " ", "Waiting for reply");
+   mLog.add_fw(LOG_NET, -1, 76, 10, "|", " ", "Sent initial 'cjon' packet to server");
+   mLog.add_fw(LOG_NET, -1, 76, 10, "|", " ", "Waiting for reply");
 
    al_set_target_backbuffer(mDisplay.display);
    al_clear_to_color(al_map_rgb(0,0,0));
@@ -171,10 +171,9 @@ int mwNetgame::RemoteJoin(void)
 
 void mwNetgame::ClientExitNetwork(void)
 {
-   mLog.add_header(LOG_NET, 0, 0, "Shutting down the client network");
-   if (Channel) net_closechannel(Channel);
-   Channel = NULL;
-   net_shutdown();
+   mLog.add_header(LOG_NET, -1, 0, "Shutting down the client network");
+
+   NetworkExit();
 
    ima_client = 0;
    // reset player data
@@ -182,20 +181,6 @@ void mwNetgame::ClientExitNetwork(void)
    mPlayer.syn[0].active = 1; // local_control
    mPlayer.active_local_player = 0;
    mConfig.load_config(); // to restore local player color, last gate touched, and other settings
-
-
-
-}
-
-int mwNetgame::ClientReceive(void *data)
-{
-   int len = net_receive(Channel, data, PACKET_BUFFER_SIZE, NULL);
-   if (len > 0)
-   {
-      mPlayer.loc[mPlayer.active_local_player].rx_current_bytes_for_this_frame+= (len + 42);
-      mPlayer.loc[mPlayer.active_local_player].rx_current_packets_for_this_frame++;
-   }
-	return len;
 }
 
 void mwNetgame::ClientSend(void *data, int len)
@@ -290,13 +275,13 @@ int mwNetgame::client_proc_sjon_packet(char * data)
       strncpy(mPlayer.loc[0].hostname, server_address, 16);
       strncpy(mPlayer.loc[p].hostname, mLoop.local_hostname, 16);
       mLevel.play_level = pl;
-      mLog.add_fwf(LOG_NET,               0, 76, 10, "|", " ", "Client received join invitation from server");
-      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
-      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Number:[%d]", p);
-      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Player Color:[%d]", color);
-      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Frame Num:[%d]", sfnum);
-      mLog.add_fwf(LOG_NET_join_details,  0, 76, 10, "|", " ", "Server Level Sequence Num:[%d]", slsn);
-      mLog.add_fwf(LOG_NET,               0, 76, 10, "+", "-", "");
+      mLog.add_fwf(LOG_NET,               -1, 76, 10, "|", " ", "Client received join invitation from server");
+      mLog.add_fwf(LOG_NET_join_details,  -1, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
+      mLog.add_fwf(LOG_NET_join_details,  -1, 76, 10, "|", " ", "Player Number:[%d]", p);
+      mLog.add_fwf(LOG_NET_join_details,  -1, 76, 10, "|", " ", "Player Color:[%d]", color);
+      mLog.add_fwf(LOG_NET_join_details,  -1, 76, 10, "|", " ", "Server Frame Num:[%d]", sfnum);
+      mLog.add_fwf(LOG_NET_join_details,  -1, 76, 10, "|", " ", "Server Level Sequence Num:[%d]", slsn);
+      mLog.add_fwf(LOG_NET,               -1, 76, 10, "+", "-", "");
       return 1;
    }
 }
@@ -558,14 +543,14 @@ void mwNetgame::client_apply_dif(void)
    // check if dif is valid
    if ((client_state_dif_src == -1) || (client_state_dif_dst == -1))
    {
-      mLog.log_add_prefixed_textf(LOG_NET_dif_not_applied, -1, "%s [not applied] [dif not valid]\n", log_msg_txt1);
+      mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s [not applied] [dif not valid]\n", log_msg_txt1);
       return;
    }
 
    // check if dif_dest has already been applied (check if dif_dest is less than or equal to newest_state_frame_num)
    if (client_state_dif_dst <= mStateHistory[p].newest_state_frame_num)
    {
-      mLog.log_add_prefixed_textf(LOG_NET_dif_not_applied, -1, "%s dd[not applied] [not newer than last dif applied]\n", log_msg_txt1);
+      mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s dd[not applied] [not newer than last dif applied]\n", log_msg_txt1);
       return;
    }
 
@@ -602,11 +587,11 @@ void mwNetgame::client_apply_dif(void)
          if (fn == -1) // no valid base states at all
          {
             fn = 0; // do not sent stak with -1 send it with 0
-            mLog.log_add_prefixed_textf(LOG_NET_dif_not_applied, -1, "%s [not applied] [no bases found] - resending stak [%d]\n", log_msg_txt1, fn);
+            mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s [not applied] [no bases found] - resending stak [%d]\n", log_msg_txt1, fn);
          }
          else
          {
-            mLog.log_add_prefixed_textf(LOG_NET_dif_not_applied, -1, "%s [not applied] [base not found] - resending stak [%d]\n", log_msg_txt1, fn);
+            mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s [not applied] [base not found] - resending stak [%d]\n", log_msg_txt1, fn);
          }
          client_send_stak_packet(fn);
          return;
@@ -648,7 +633,7 @@ void mwNetgame::client_apply_dif(void)
    //mStateHistory[p].show_states("save frame:%d to history\n", mLoop.frame_num);
 
    // add log entry
-   mLog.log_add_prefixed_textf(LOG_NET_dif_not_applied, -1, "%s [applied] [%s]\n", log_msg_txt1, log_msg_txt2);
+   mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s [applied] [%s]\n", log_msg_txt1, log_msg_txt2);
 
 
 
@@ -816,10 +801,10 @@ void mwNetgame::client_proc_player_drop(void)
       if (ss > 200)
       {
          mPlayer.loc[p].quit_reason = PM_PLAYER_QUIT_REASON_CLIENT_LOST_SERVER_CONNECTION;
-         mLog.add_fwf(LOG_NET, p, 76, 10, "+", "-", "");
-         mLog.add_fwf(LOG_NET, p, 76, 10, "|", " ", "Local Player Client %d Lost Server Connection!", p);
-         mLog.add_fwf(LOG_NET, p, 76, 10, "|", " ", "last_dif_applied:[%d]", lda);
-         mLog.add_fwf(LOG_NET, p, 76, 10, "+", "-", "");
+         mLog.add_fwf(LOG_NET, -1, 76, 10, "+", "-", "");
+         mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Local Player Client %d Lost Server Connection!", p);
+         mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "last_dif_applied:[%d]", lda);
+         mLog.add_fwf(LOG_NET, -1, 76, 10, "+", "-", "");
          mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
 
          mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "LOST SERVER CONNECTION!");

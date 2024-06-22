@@ -7,9 +7,8 @@
 #include "mwLoop.h"
 #include "mwLevel.h"
 #include "mwInput.h"
-
 #include "mwConfig.h"
-
+#include "mwNetgame.h"
 
 mwLog mLog;
 
@@ -41,10 +40,15 @@ void mwLog::init_log_types(void)
 
    i = LOG_NET_ending_stats;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_ending_stats");
    i = LOG_NET_bandwidth;           log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_bandwidth");
+
+   i = LOG_NET_stdf_rewind;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf_rewind");
+   i = LOG_NET_stdf_create;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf_create");
+
+
    i = LOG_NET_stdf;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf");
    i = LOG_NET_stdf_packets;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf_packets");
-   i = LOG_NET_dif_applied;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_dif_applied");
-   i = LOG_NET_dif_not_applied;     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_dif_not_applied");
+   i = LOG_NET_dif_apply;           log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_dif_apply");
+
    i = LOG_NET_stak;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stak");
    i = LOG_NET_cdat;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_cdat");
    i = LOG_NET_client_ping;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_client_ping");
@@ -130,7 +134,6 @@ void mwLog::clear_all_log_actions(void)
 }
 
 
-
 // appends passed text string to log array
 // this is only function that actually prints to console or adds to log array
 // also checks if log array is full and flushes to disk
@@ -148,7 +151,34 @@ void mwLog::log_append_text(int type, const char *txt)
       log_msg_pos += strlen(txt);
       log_msg[log_msg_pos+1] = 0; // NULL terminate
    }
+
+//   printf("log type:%d\n", type);
+//   net_send(mNetgame.LoggingChannel, txt, strlen(txt));
+
+//   if (type == LOG_NET_cdat)
+//   if ((type >= 10) && (type < 40))
+
+
+   if ((mNetgame.ima_client) || (mNetgame.ima_server))
+//      if (type == 10)
+      if ((type >= 10) && (type < 40))
+      {
+         //printf("log type:%d\n", type);
+
+         // add to the thing
+
+         char t2[500];
+         sprintf(t2, "<1>1 - - pm - - - [%0.7f]%s", al_get_time(), txt);
+
+//            sprintf(data, "<1>1 - - myapplication - - - message4");
+
+
+         net_send(mNetgame.LoggingChannel, t2, strlen(t2));
+      }
 }
+
+
+
 
 // wrapper for 'log_append_text'  that takes a printf style format
 void mwLog::log_append_textf(int type, const char *format, ...)
@@ -169,6 +199,8 @@ void mwLog::log_add_prefixed_text(int type, int player, const char *txt)
    if (player == -1) player = mPlayer.active_local_player;
    log_append_textf(type, "[%2d][%d][%d]%s", type, player, mLoop.frame_num, txt);
 }
+
+
 
 // wrapper for 'log_add_prefixed_text' that takes a printf style format
 void mwLog::log_add_prefixed_textf(int type, int player, const char *format, ...)

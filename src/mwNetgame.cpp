@@ -60,8 +60,7 @@ int mwNetgame::NetworkInit(void)
 
    if (NetworkDriver >= 0)
    {
-      if (net_initdriver(NetworkDriver)) return 0;
-      else
+      if (!net_initdriver(NetworkDriver))
       {
          sprintf(msg, "Error: Couldn't initialize network driver\n");
          mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
@@ -76,7 +75,41 @@ int mwNetgame::NetworkInit(void)
       mInput.m_err(msg);
       return -1;
    }
+
+   // setup the logging channel
+   LoggingChannel = net_openchannel(mNetgame.NetworkDriver, NULL); // dynamic port
+   if (LoggingChannel == NULL)
+   {
+      printf("Error: Failed to create logging channel\n");
+   }
+
+   char target[300];
+   sprintf(target, "%s:%d", "purplemartians.org", 514);
+   if (net_assigntarget(LoggingChannel, target))
+   {
+      printf("Error: Failed to set logging channel target:[%s]\n", target);
+   }
+   printf("Logging Channel initialized -- target:[%s]\n", target);
+   printf("Local address:[%s]\n", net_getlocaladdress(LoggingChannel));
+
+   return 0;
 }
+
+
+void mwNetgame::NetworkExit(void)
+{
+   if (Channel) net_closechannel(Channel);
+   Channel = NULL;
+
+   if (LoggingChannel) net_closechannel(LoggingChannel);
+   LoggingChannel = NULL;
+
+   net_shutdown();
+}
+
+
+
+
 
 // read and discard all waiting packets
 void mwNetgame::ChannelFlush(void)

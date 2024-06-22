@@ -3,7 +3,6 @@
 #define mwLog_H
 
 
-
 //#define NUM_LOG_CHAR  100000000
 //#define NUM_LOG_LINES 2000000
 
@@ -20,10 +19,14 @@
 #define LOG_NET_session            14
 #define LOG_NET_ending_stats       22
 #define LOG_NET_bandwidth          23
+
+#define LOG_NET_stdf_rewind        25
+#define LOG_NET_stdf_create        26
 #define LOG_NET_stdf               27
 #define LOG_NET_stdf_packets       28
-#define LOG_NET_dif_applied        30
-#define LOG_NET_dif_not_applied    31
+
+#define LOG_NET_dif_apply          30
+
 #define LOG_NET_stak               33
 #define LOG_NET_cdat               35
 #define LOG_NET_client_ping        36
@@ -88,10 +91,6 @@ class mwLog
 
    void log_add_prefixed_textf(int type, int player, const char *format, ...);
    void log_add_prefixed_text(int type, int player, const char *msg);
-
-
-
-
 
    void add_fwf(int type, int player, int width, int pos, const char *border, const char *fill, const char *format, ...);
    void add_fw(int type, int player, int width, int pos, const char *border, const char *fill, const char *txt);

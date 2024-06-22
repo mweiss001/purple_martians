@@ -1,0 +1,682 @@
+
+rsyslog
+rsyslog-mysql
+
+setup on linux machine 
+
+add logs with UDP
+
+
+it was very easy to do with arduino
+
+can I easily do it here also?
+
+I have ubuntu server 22.04 with mysql already installed
+
+
+
+I have not done this:
+firewall setup for mysql
+sudo ufw allow mysql
+
+
+
+Create user to access database
+sudo mysql
+CREATE USER 'pete'@'%' IDENTIFIED BY 'park';
+GRANT ALL PRIVILEGES ON *.* TO 'pete'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+exit
+--did this
+
+
+
+do this with external IP:
+Step 4 - Grant acces over LAN
+find ip with ifconfig - 192.168.1.105
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+bind-address            =  192.168.1.105
+sudo /etc/init.d/mysql restart
+
+Grant access over WAN
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+bind-address            =  purplemartians.org
+sudo /etc/init.d/mysql restart
+
+I am not sure about this...
+
+right now it listens on localhost 127.0.0.1
+
+if I change this, then will my php stuff break?
+
+
+try it....
+
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+bind-address            =  purplemartians.org
+sudo /etc/init.d/mysql restart
+
+It looks like I can still read the database from sessions.php
+but will it still update? it would seem that it can...
+
+
+Step 5 install rsyslog
+
+m@pmh:~$ sudo apt install rsyslog
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+rsyslog is already the newest version (8.2112.0-2ubuntu2.2).
+rsyslog set to manually installed.
+0 upgraded, 0 newly installed, 0 to remove and 123 not upgraded.
+m@pmh:~$
+
+
+
+sudo apt install rsyslog-mysql
+
+chose let it set up database for me
+MySQL application password for rsyslog-mysql: leave blank so it set random password
+
+Pending kernel upgrade?
+The currently running kernel version is 5.15.0-107-generic which is not the expected kernel version 5.15.0-112-generic.
+Restarting the system to load the new kernel will not be handled automatically, so you should consider rebooting.
+
+ 
+Daemons using outdated libraries
+
+Which services should be restarted?
+[*] pm.service
+
+WTF? ...unselected....
+
+
+Enabling remote logging
+
+sudo nano /etc/rsyslog.conf
+
+Look for these lines near the type of the configuration file, and uncomment them by removing the # symbol at the start of the line:
+
+    # provides UDP syslog reception
+    module(load="imudp")
+    input(type="imudp" port="514")
+
+sudo service rsyslog restart
+
+sudo ufw allow 514/udp
+
+
+
+----------------
+
+now what?
+
+what tables have been created?
+
+
+sudo mysql
+
+SHOW DATABASES;
+
+mysql> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| Syslog             |
+| information_schema |
+| mysql              |
+| performance_schema |
+| session_db         |
+| sys                |
++--------------------+
+6 rows in set (0.00 sec)
+
+mysql>
+mysql> USE Syslog;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+mysql> SHOW TABLES;
++------------------------+
+| Tables_in_Syslog       |
++------------------------+
+| SystemEvents           |
+| SystemEventsProperties |
++------------------------+
+2 rows in set (0.00 sec)
+
+mysql> DESCRIBE SystemEvents;
++--------------------+--------------+------+-----+---------+----------------+
+| Field              | Type         | Null | Key | Default | Extra          |
++--------------------+--------------+------+-----+---------+----------------+
+| ID                 | int unsigned | NO   | PRI | NULL    | auto_increment |
+| CustomerID         | bigint       | YES  |     | NULL    |                |
+| ReceivedAt         | datetime     | YES  |     | NULL    |                |
+| DeviceReportedTime | datetime     | YES  |     | NULL    |                |
+| Facility           | smallint     | YES  |     | NULL    |                |
+| Priority           | smallint     | YES  |     | NULL    |                |
+| FromHost           | varchar(60)  | YES  |     | NULL    |                |
+| Message            | text         | YES  |     | NULL    |                |
+| NTSeverity         | int          | YES  |     | NULL    |                |
+| Importance         | int          | YES  |     | NULL    |                |
+| EventSource        | varchar(60)  | YES  |     | NULL    |                |
+| EventUser          | varchar(60)  | YES  |     | NULL    |                |
+| EventCategory      | int          | YES  |     | NULL    |                |
+| EventID            | int          | YES  |     | NULL    |                |
+| EventBinaryData    | text         | YES  |     | NULL    |                |
+| MaxAvailable       | int          | YES  |     | NULL    |                |
+| CurrUsage          | int          | YES  |     | NULL    |                |
+| MinUsage           | int          | YES  |     | NULL    |                |
+| MaxUsage           | int          | YES  |     | NULL    |                |
+| InfoUnitID         | int          | YES  |     | NULL    |                |
+| SysLogTag          | varchar(60)  | YES  |     | NULL    |                |
+| EventLogType       | varchar(60)  | YES  |     | NULL    |                |
+| GenericFileName    | varchar(60)  | YES  |     | NULL    |                |
+| SystemID           | int          | YES  |     | NULL    |                |
++--------------------+--------------+------+-----+---------+----------------+
+24 rows in set (0.00 sec)
+
+mysql> DESCRIBE SystemEventsProperties;
++---------------+--------------+------+-----+---------+----------------+
+| Field         | Type         | Null | Key | Default | Extra          |
++---------------+--------------+------+-----+---------+----------------+
+| ID            | int unsigned | NO   | PRI | NULL    | auto_increment |
+| SystemEventID | int          | YES  |     | NULL    |                |
+| ParamName     | varchar(255) | YES  |     | NULL    |                |
+| ParamValue    | text         | YES  |     | NULL    |                |
++---------------+--------------+------+-----+---------+----------------+
+4 rows in set (0.00 sec)
+
+SELECT * FROM SystemEvents;
+
+it already has 110 events, looks like journalctl stuff...
+
+
+|  93 |       NULL | 2024-06-09 08:49:08 | 2024-06-09 08:49:08 |        0 |        4 | pmh      | [592150.902457] [UFW BLOCK] IN=enp2s0 OUT= MAC=c8:1f:66:4a:87:6d:dc:77:4c:08:db:e8:08:00 SRC=176.113.115.195 DST=96.45.9.166 LEN=40 TOS=0x00 PREC=0x00 TTL=237 ID=18209 PROTO=TCP SPT=44412 DPT=52164 WINDOW=1024 RES=0x00 SYN URGP=0   |       NULL |       NULL | NULL        | NULL      |          NULL |    NULL | NULL            |         NULL |      NULL |     NULL |     NULL |          1 | kernel:      | NULL         | NULL            |     NULL |
+|  94 |       NULL | 2024-06-09 08:49:20 | 2024-06-09 08:49:20 |        0 |        4 | pmh      | [592162.952240] [UFW BLOCK] IN=enp2s0 OUT= MAC=c8:1f:66:4a:87:6d:dc:77:4c:08:db:e8:08:00 SRC=194.26.135.66 DST=96.45.9.166 LEN=40 TOS=0x00 PREC=0x00 TTL=236 ID=14049 PROTO=TCP SPT=44559 DPT=65321 WINDOW=1024 RES=0x00 SYN URGP=0     |       NULL |       NULL | NULL        | NULL      |          NULL |    NULL | NULL            |         NULL |      NULL |     NULL |     NULL |          1 | kernel:      | NULL         | NULL            |     NULL |
+
+SELECT * FROM SystemEventsProperties;
+nothing...
+
+
+OK now what if I try to add to syslog...
+
+echo hello | nc -u purplemartians.org 514
+
+
+SELECT ID, Message FROM SystemEvents;
+
+It works!
+
+m@pmh:~$ nc -u purplemartians.org 514
+test message 123
+^C
+m@pmh:~$ nc -u purplemartians.org 514
+OMFG
+^C
+m@pmh:~$ nc -u purplemartians.org 514
+MOFG 1234 5678
+^C
+m@pmh:~$ echo "TESTing 12367 189289" | nc -u purplemartians.org 514
+
+mysql> SELECT * FROM SystemEvents WHERE ID=269;
++-----+------------+---------------------+---------------------+----------+----------+----------+---------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+-----------+--------------+-----------------+----------+
+| ID  | CustomerID | ReceivedAt          | DeviceReportedTime  | Facility | Priority | FromHost | Message | NTSeverity | Importance | EventSource | EventUser | EventCategory | EventID | EventBinaryData | MaxAvailable | CurrUsage | MinUsage | MaxUsage | InfoUnitID | SysLogTag | EventLogType | GenericFileName | SystemID |
++-----+------------+---------------------+---------------------+----------+----------+----------+---------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+-----------+--------------+-----------------+----------+
+| 269 |       NULL | 2024-06-09 09:19:06 | 2024-06-09 09:19:06 |        1 |        5 | TESTing  |  189289 |       NULL |       NULL | NULL        | NULL      |          NULL |    NULL | NULL            |         NULL |      NULL |     NULL |     NULL |          1 | 12367     | NULL         | NULL            |     NULL |
++-----+------------+---------------------+---------------------+----------+----------+----------+---------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+-----------+--------------+-----------------+----------+
+1 row in set (0.00 sec)
+
+What happens though, is the first string is FromHost, 2nd is SysLogTag and 3rd is Message
+
+
+
+I can totally send a UDP packet from pm on a windows machine!!!!
+
+same issue of how to format the shit I send with it...
+
+
+faking out remote syslog via netcat
+
+Here’s how to create UDP syslog messages via nc, netcat:
+
+echo ‘<14>sourcehost message text’ | nc -v -u -w 0 localhost 514
+
+
+I think the only thing I need to do for sure is:
+
+<> as the first thing
+
+Start with <PRIVAL>version
+
+I should just do <0>1 for now....
+
+lets see what I get...
+
+
+sprintf(data, "<1>1 Test123 From456 Remote789\n"); // 26 char inc /n
+
+
+-+--------------+-----------+----------+----------+------------+-----------+--------------+-----------------+----------+
+| ID  | CustomerID | ReceivedAt          | DeviceReportedTime  | Facility | Priority | FromHost                    | Message                                                                                              
++-----+------------+---------------------+---------------------+----------+----------+-----------------------------+--------------------------------------------------------------------------------------------------------------+-
+| 509 |       NULL | 2024-06-09 10:19:40 | 2024-06-09 10:19:40 |        0 |        1 | host96-45-15-155-eidnet.org | Test123 From456 Remote789#012#000#000#000#000#000#000#000#000#000#000#000#000#000#000#000#000#000#000 |      | 
++-----+------------+---------------------+---------------------+----------+----------+-----------------------------+-------------------------------------------------------------------------------------------------------+--------
+
+
+18 x 000 after 012
+
+5 char for 
+
+don't send /n and only send proper char...
+
+   char data[50] = {0};
+   sprintf(data, "<1>1 Testyour mama poop nuggest");
+   net_send(mNetgame.Channel, data, strlen(data));
+
+mysql> SELECT * FROM SystemEvents WHERE ID=543;
++-----+------------+---------------------+---------------------+----------+----------+-----------------------------+----------------------------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+-----------+--------------+-----------------+----------+
+| ID  | CustomerID | ReceivedAt          | DeviceReportedTime  | Facility | Priority | FromHost                    | Message                    | NTSeverity | Importance | EventSource | EventUser | EventCategory | EventID | EventBinaryData | MaxAvailable | CurrUsage | MinUsage | MaxUsage | InfoUnitID | SysLogTag | EventLogType | GenericFileName | SystemID |
++-----+------------+---------------------+---------------------+----------+----------+-----------------------------+----------------------------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+-----------+--------------+-----------------+----------+
+| 543 |       NULL | 2024-06-09 10:28:06 | 2024-06-09 10:28:06 |        0 |        1 | host96-45-15-155-eidnet.org | Testyour mama poop nuggest |       NULL |       NULL | NULL        | NULL      |          NULL |    NULL | NULL            |         NULL |      NULL |     NULL |     NULL |          1 |           | NULL         | NULL            |     NULL |
++-----+------------+---------------------+---------------------+----------+----------+-----------------------------+----------------------------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+-----------+--------------+-----------------+----------+
+1 row in set (0.00 sec)
+
+OK I am getting somewhere now....
+
+
+now I absolutely need to add what machine it came from...I have the IP but I want the hostname also...
+
+
+try adding something in [], see what happens
+
+just part of msg
+
+
+BOM
+
+try adding BOM
+
+BOM             = %xEF.BB.BF
+
+UTF-8[a] 	EF BB BF 	239 187 191 	ï»¿
+
+
+
+
+
+   sprintf(data, "<1>1 2003-10-11T22:14:15.003Z mymachine myapplication  message");
+
++-----+------------+---------------------+---------------------+----------+----------+-----------+---------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+-----------------+--------------+-----------------+----------+
+| ID  | CustomerID | ReceivedAt          | DeviceReportedTime  | Facility | Priority | FromHost  | Message | NTSeverity | Importance | EventSource | EventUser | EventCategory | EventID | EventBinaryData | MaxAvailable | CurrUsage | MinUsage | MaxUsage | InfoUnitID | SysLogTag       | EventLogType | GenericFileName | SystemID |
++-----+------------+---------------------+---------------------+----------+----------+-----------+---------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+-----------------+--------------+-----------------+----------+
+| 812 |       NULL | 2024-06-09 11:21:52 | 2003-10-11 22:14:15 |        0 |        1 | mymachine |         |       NULL |       NULL | NULL        | NULL      |          NULL |    NULL | NULL            |         NULL |      NULL |     NULL |     NULL |          1 | myapplication[] | NULL         | NULL            |     NULL |
++-----+------------+---------------------+---------------------+----------+----------+-----------+---------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+-----------------+--------------+-----------------+----------+
+
+
+
+   sprintf(data, "<1>1 2003-10-11T22:17:15.003Z mymachine myapplication - - - message");
+
++-----+------------+---------------------+---------------------+----------+----------+-----------+---------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+---------------+--------------+-----------------+----------+
+| ID  | CustomerID | ReceivedAt          | DeviceReportedTime  | Facility | Priority | FromHost  | Message | NTSeverity | Importance | EventSource | EventUser | EventCategory | EventID | EventBinaryData | MaxAvailable | CurrUsage | MinUsage | MaxUsage | InfoUnitID | SysLogTag     | EventLogType | GenericFileName | SystemID |
++-----+------------+---------------------+---------------------+----------+----------+-----------+---------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+---------------+--------------+-----------------+----------+
+| 821 |       NULL | 2024-06-09 11:24:35 | 2003-10-11 22:17:15 |        0 |        1 | mymachine | message |       NULL |       NULL | NULL        | NULL      |          NULL |    NULL | NULL            |         NULL |      NULL |     NULL |     NULL |          1 | myapplication | NULL         | NULL            |     NULL |
++-----+------------+---------------------+---------------------+----------+----------+-----------+---------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+---------------+--------------+-----------------+----------+
+
+now I am getting somewhere!!
+
+
+what if I just put - in some other fields
+
+try drt
+
+   sprintf(data, "<1>1 - mymachine myapplication - - - message3");
+
++-----+------------+---------------------+---------------------+----------+----------+-----------+----------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+---------------+--------------+-----------------+----------+
+| ID  | CustomerID | ReceivedAt          | DeviceReportedTime  | Facility | Priority | FromHost  | Message  | NTSeverity | Importance | EventSource | EventUser | EventCategory | EventID | EventBinaryData | MaxAvailable | CurrUsage | MinUsage | MaxUsage | InfoUnitID | SysLogTag     | EventLogType | GenericFileName | SystemID |
++-----+------------+---------------------+---------------------+----------+----------+-----------+----------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+---------------+--------------+-----------------+----------+
+| 856 |       NULL | 2024-06-09 11:33:05 | 2024-06-09 11:33:05 |        0 |        1 | mymachine | message3 |       NULL |       NULL | NULL        | NULL      |          NULL |    NULL | NULL            |         NULL |      NULL |     NULL |     NULL |          1 | myapplication | NULL         | NULL            |     NULL |
++-----+------------+---------------------+---------------------+----------+----------+-----------+----------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+---------------+--------------+-----------------+----------+
+
+if I leave the drt blank it gets filled in on the server same as ra
+
+
+
+
+
+replace from host with -
+
+   sprintf(data, "<1>1 - - myapplication - - - message4");
+
++-----+------------+---------------------+---------------------+----------+----------+----------+----------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+---------------+--------------+-----------------+----------+
+| ID  | CustomerID | ReceivedAt          | DeviceReportedTime  | Facility | Priority | FromHost | Message  | NTSeverity | Importance | EventSource | EventUser | EventCategory | EventID | EventBinaryData | MaxAvailable | CurrUsage | MinUsage | MaxUsage | InfoUnitID | SysLogTag     | EventLogType | GenericFileName | SystemID |
++-----+------------+---------------------+---------------------+----------+----------+----------+----------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+---------------+--------------+-----------------+----------+
+| 870 |       NULL | 2024-06-09 11:36:25 | 2024-06-09 11:36:25 |        0 |        1 | -        | message4 |       NULL |       NULL | NULL        | NULL      |          NULL |    NULL | NULL            |         NULL |      NULL |     NULL |     NULL |          1 | myapplication | NULL         | NULL            |     NULL |
++-----+------------+---------------------+---------------------+----------+----------+----------+----------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+---------------+--------------+-----------------+----------+
+
+did not work as expected!!
+
+
+
+
+
+
+
+   sprintf(data, "<1>1 - mymachine myapplication my1 my2 my3 message5");
+
++-----+------------+---------------------+---------------------+----------+----------+-----------+--------------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+--------------------+--------------+-----------------+----------+
+| ID  | CustomerID | ReceivedAt          | DeviceReportedTime  | Facility | Priority | FromHost  | Message      | NTSeverity | Importance | EventSource | EventUser | EventCategory | EventID | EventBinaryData | MaxAvailable | CurrUsage | MinUsage | MaxUsage | InfoUnitID | SysLogTag          | EventLogType | GenericFileName | SystemID |
++-----+------------+---------------------+---------------------+----------+----------+-----------+--------------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+--------------------+--------------+-----------------+----------+
+| 903 |       NULL | 2024-06-09 11:44:35 | 2024-06-09 11:44:35 |        0 |        1 | mymachine | my3 message5 |       NULL |       NULL | NULL        | NULL      |          NULL |    NULL | NULL            |         NULL |      NULL |     NULL |     NULL |          1 | myapplication[my1] | NULL         | NULL            |     NULL |
++-----+------------+---------------------+---------------------+----------+----------+-----------+--------------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+--------------------+--------------+-----------------+----------+
+
+
+
+   sprintf(data, "<1>1 - mymachine myapplication 234 567 89 message6");
+
++-----+------------+---------------------+---------------------+----------+----------+-----------+-------------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+--------------------+--------------+-----------------+----------+
+| ID  | CustomerID | ReceivedAt          | DeviceReportedTime  | Facility | Priority | FromHost  | Message     | NTSeverity | Importance | EventSource | EventUser | EventCategory | EventID | EventBinaryData | MaxAvailable | CurrUsage | MinUsage | MaxUsage | InfoUnitID | SysLogTag          | EventLogType | GenericFileName | SystemID |
++-----+------------+---------------------+---------------------+----------+----------+-----------+-------------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+--------------------+--------------+-----------------+----------+
+| 917 |       NULL | 2024-06-09 11:47:27 | 2024-06-09 11:47:27 |        0 |        1 | mymachine | 89 message6 |       NULL |       NULL | NULL        | NULL      |          NULL |    NULL | NULL            |         NULL |      NULL |     NULL |     NULL |          1 | myapplication[234] | NULL         | NULL            |     NULL |
++-----+------------+---------------------+---------------------+----------+----------+-----------+-------------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+--------------------+--------------+-----------------+----------+
+
+
+
+fuckit, im done here
+
+What are the fields that I can use?
+
+
+Time rx
+time drt
+FromHost - so I can tell what client it came from
+SysLogTag - I can use this for whatever I want
+
+I wish I could do better...use more fields, etc...
+
+what if I skipped all this syslog crap and entered directly into database...
+
+
+or I could just have everything I need encoded in the message part....
+then I would probably want to process all these and put them in another database when I wanted to review....
+
+
+Lets get the hostname thing working
+I want IP:port:hostname
+
+what do I get when I let server do it?
+
+   sprintf(data, "<1>1 message8");
+
++------+------------+---------------------+---------------------+----------+----------+-----------------------------+----------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+-----------+--------------+-----------------+----------+
+| ID   | CustomerID | ReceivedAt          | DeviceReportedTime  | Facility | Priority | FromHost                    | Message  | NTSeverity | Importance | EventSource | EventUser | EventCategory | EventID | EventBinaryData | MaxAvailable | CurrUsage | MinUsage | MaxUsage | InfoUnitID | SysLogTag | EventLogType | GenericFileName | SystemID |
++------+------------+---------------------+---------------------+----------+----------+-----------------------------+----------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+-----------+--------------+-----------------+----------+
+| 1015 |       NULL | 2024-06-09 12:00:53 | 2024-06-09 12:00:53 |        0 |        1 | host96-45-15-155-eidnet.org | message8 |       NULL |       NULL | NULL        | NULL      |          NULL |    NULL | NULL            |         NULL |      NULL |     NULL |     NULL |          1 |           | NULL         | NULL            |     NULL |
++------+------------+---------------------+---------------------+----------+----------+-----------------------------+----------+------------+------------+-------------+-----------+---------------+---------+-----------------+--------------+-----------+----------+----------+------------+-----------+--------------+-----------------+----------+
+
+
+I think I am going to do everything in the message field...
+
+OK now what?
+
+I should use the 
+
+
+
+
+
+have some food and think......
+
+
+how do I integrate this into the game...
+
+make another logging action: udp rsyslog
+
+make all multipart logging entries into single line...
+
+make a way to connect to the rsyslog server...done
+
+test how much time spent sending logs...
+
+fake test 100 packets per frame
+
+
+      char msg[1000];
+      for (int i=0; i<1000; i++) msg[i] = 'A';
+      msg[999] = 0;
+      double t0 = al_get_time();
+      for (int i=0; i<100; i++)
+         net_send(mNetgame.LoggingChannel, msg, strlen(msg));
+      double et = al_get_time() - t0;
+      printf("et:%5.4f\n", et*1000000);
+
+
+
+
+sending 100 packets takes around .4ms or 400us
+seems fast enough...
+
+
+
+
+
+
+1000byte packets * 100 = 100Kbytes * 40fps = 4MBps
+win task manager say I am using 32mbps / 8 = 4MBps
+the math works out
+
+100 packets * 1000 --- 32mbps, 10cpu, time sending packets < 400us
+
+100 packets * 500  --- 17mbps, 10cpu, time sending packets < 400us
+
+50 packets * 1000  --- 17mbps, 10cpu, time sending packets < 200us
+
+If this works as well on slower hardware there should be no issues at all....
+
+
+
+
+ok now I want to tag all these with something like pm so I can filter...
+
+right now in the database I have 2633 lines
+
+killed everything....!!!
+
+what if I use pm[PID]
+
+
+
+should I just assume that all logs on the server will be related?
+what if out in the wild some clients with their own custom server send me logs!
+
+I want to have a unique way of identifying:
+i was thinking of a specfic unique ID that the server could have.
+it would be generated on server start.
+all clients would also use that id
+all logs would be stamped with that id also...
+
+how about a random 32bit int
+
+when server starts generate and save...
+
+when clients join pass to them....
+
+all logs are stamped with this
+
+
+-----------------
+is that really necessary?
+I can probabaly do it based on times.
+-----------------------
+
+I need a way of marking that the log entries came from pm and not something else...
+
+how about I just use SysLogTag and make it 'pm'
+
+then I need to make sure I am saving the real hostname
+
+I kind of sounds like I might be overlapping with sessions
+
+how about to keep the main log lines shorter, link to another table that has more info about each client, etc...
+
+
+can I just do it with player number?
+the way that it is already?
+
+I should have enough info in the logs that when a player joins, I know all about it.
+from that point on, until the client drops all I need is the player number...
+
+
+lets go through all the client file and make sure they all do single line
+
+
+
+Actually they all look good...
+
+
+I just enabled all log net messages from 10-49
+
+and client stuff looks good...
+
+
+
+OMG should I just do server as well and restart it....done
+
+
+I have a big log!
+Its past the time I can look at it without special tools
+
+OK, so start making those tools....
+
+
+what framework?
+what language?
+
+it all has to be centered around some text box widgets
+I don't really want to learn any new languages
+
+I would love to be able to do in in html, but that probably implies javascript or something evil like that...
+
+
+- one or more text boxes in the middle of the screen
+
+- buttons and controls to filter types of log messages and color code them
+
+- controls to set the date range
+
+
+
+
+
+I want to allow ODBC connection to mysql database
+I think I need TCP and port 3306
+
+
+
+make a new user that only has read access on Syslog
+rsyl rsyl
+then I need to allow mysql to accept connections on a specific IP
+
+make a user to read with php, as limited as possible...
+sudo mysql
+CREATE USER 'rsyslog_ro'@'96.45.15.155' IDENTIFIED WITH mysql_native_password BY 'readonly';
+GRANT SELECT ON Syslog.SystemEvents TO 'rsyslog_ro'@'96.45.15.155'
+exit
+
+
+all I needed to do was sudo ufw allow mysql and my odbc now tests good.
+
+name: rsyslog_odbc
+
+purplemartians.org port 3306
+
+pete park
+
+database Syslog
+
+
+
+
+USE Syslog;
+
+mysql> SELECT COUNT(*) FROM SystemEvents;
++----------+
+| COUNT(*) |
++----------+
+| 25265041 |
++----------+
+1 row in set (6.23 sec)
+
+mysql>
+mysql> DELETE FROM SystemEvents;
+Query OK, 25278555 rows affected (7 min 44.47 sec)
+
+
+mysql>
+mysql> SELECT COUNT(*) FROM SystemEvents;
++----------+
+| COUNT(*) |
++----------+
+|        7 |
++----------+
+1 row in set (8.76 sec)
+
+mysql>
+mysql> mysql> SELECT COUNT(*) FROM SystemEvents;
++----------+
+1 row in set (18.73 sec)
+
+mysql>
+mysql> SELECT COUNT(*) FROM SystemEvents;
++----------+
+| COUNT(*) |
++----------+
+|        7 |
++----------+
+1 row in set (8.76 sec)
+
+mysql>
+
+why is it taking so long? is mysql cleaning up in the background?
+
+now it is back to normal....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

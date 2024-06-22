@@ -44682,8 +44682,6 @@ I did it again and they seem to work fine now...
 
 
 
-
-
 20240228
 
 Have the server log information about client sessions
@@ -57444,12 +57442,187 @@ void mwNetgame::client_proc_stdf_packet(int i)
    }
 
 
-
 I think this might be the culprit:
    char log_msg_txt1[64];
 
 I am printing more than 64 char to it ... duh !!!
 
+that would explain why I was having issues when the log line got longer....
+
+
+----------------
+
+new version 7.24.0602.3
+
+
+ran for hours then died at 20:43 on lev 64
+
+look into logs....
+
+client...
+
+[27][1][49381]rx dif complete [0 to 49373] - uncompressed
+[31][1][49373]----- Apply dif [0 to 49373] [applied] [rewound [8] frames]
+[33][1][49381]tx stak p:1 ack:[49373] cur:[49381]
+[28][1][49382]rx stdf piece [1 of 6] [0 to 49374] st:   0 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [2 of 6] [0 to 49374] st:1400 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [3 of 6] [0 to 49374] st:2800 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [4 of 6] [0 to 49374] st:4200 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [5 of 6] [0 to 49374] st:5600 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [6 of 6] [0 to 49374] st:7000 sz:1306 sdln:64 slsn:6
+[27][1][49382]rx dif complete [0 to 49374] - uncompressed
+[28][1][49382]rx stdf piece [1 of 6] [0 to 49378] st:   0 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [2 of 6] [0 to 49378] st:1400 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [3 of 6] [0 to 49378] st:2800 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [4 of 6] [0 to 49378] st:4200 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [5 of 6] [0 to 49378] st:5600 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [6 of 6] [0 to 49378] st:7000 sz:1293 sdln:64 slsn:6
+[27][1][49382]rx dif complete [0 to 49378] - uncompressed
+[28][1][49382]rx stdf piece [2 of 6] [0 to 49392] st:1400 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [3 of 6] [0 to 49392] st:2800 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [4 of 6] [0 to 49392] st:4200 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [5 of 6] [0 to 49392] st:5600 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [6 of 6] [0 to 49392] st:7000 sz:1305 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [1 of 6] [0 to 49405] st:   0 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [2 of 6] [0 to 49405] st:1400 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [3 of 6] [0 to 49405] st:2800 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [4 of 6] [0 to 49405] st:4200 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [5 of 6] [0 to 49405] st:5600 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [6 of 6] [0 to 49405] st:7000 sz:1310 sdln:64 slsn:6
+[27][1][49382]rx dif complete [0 to 49405] - uncompressed
+[28][1][49382]rx stdf piece [5 of 6] [0 to 49416] st:5600 sz:1400 sdln:64 slsn:6
+[28][1][49382]rx stdf piece [6 of 6] [0 to 49416] st:7000 sz:1281 sdln:64 slsn:6
+[31][1][49405]----- Apply dif [0 to 49405] [applied] [jumped ahead 23 frames]
+[33][1][49405]tx stak p:1 ack:[49405] cur:[49405]
+[28][1][49406]rx stdf piece [1 of 6] [0 to 49427] st:   0 sz:1400 sdln:64 slsn:6
+[28][1][49406]rx stdf piece [1 of 6] [0 to 49442] st:   0 sz:1400 sdln:64 slsn:6
+[28][1][49406]rx stdf piece [2 of 6] [0 to 49442] st:1400 sz:1400 sdln:64 slsn:6
+[28][1][49406]rx stdf piece [3 of 6] [0 to 49442] st:2800 sz:1400 sdln:64 slsn:6
+[28][1][49406]rx stdf piece [4 of 6] [0 to 49442] st:4200 sz:1400 sdln:64 slsn:6
+[28][1][49406]rx stdf piece [5 of 6] [0 to 49442] st:5600 sz:1400 sdln:64 slsn:6
+[28][1][49406]rx stdf piece [6 of 6] [0 to 49442] st:7000 sz:1303 sdln:64 slsn:6
+[27][1][49406]rx dif complete [0 to 49442] - uncompressed
+[28][1][49406]rx stdf piece [1 of 6] [0 to 49501] st:   0 sz:1400 sdln:64 slsn:6
+[28][1][49406]rx stdf piece [2 of 6] [0 to 49501] st:1400 sz:1400 sdln:64 slsn:6
+[28][1][49406]rx stdf piece [3 of 6] [0 to 49501] st:2800 sz:1400 sdln:64 slsn:6
+[28][1][49406]rx stdf piece [4 of 6] [0 to 49501] st:4200 sz:1400 sdln:64 slsn:6
+[28][1][49406]rx stdf piece [5 of 6] [0 to 49501] st:5600 sz:1400 sdln:64 slsn:6
+[28][1][49406]rx stdf piece [6 of 6] [0 to 49501] st:7000 sz:1304 sdln:64 slsn:6
+[27][1][49406]rx dif complete [0 to 49501] - uncompressed
+[31][1][49501]----- Apply dif [0 to 49501] [applied] [jumped ahead 95 frames]
+[33][1][49501]tx stak p:1 ack:[49501] cur:[49501]
+[28][1][49502]rx stdf piece [5 of 6] [0 to 49522] st:5600 sz:1400 sdln:64 slsn:6
+[28][1][49502]rx stdf piece [6 of 6] [0 to 49522] st:7000 sz:1274 sdln:64 slsn:6
+[28][1][49502]rx stdf piece [1 of 6] [0 to 49528] st:   0 sz:1400 sdln:64 slsn:6
+[28][1][49502]rx stdf piece [2 of 6] [0 to 49528] st:1400 sz:1400 sdln:64 slsn:6
+[28][1][49502]rx stdf piece [3 of 6] [0 to 49528] st:2800 sz:1400 sdln:64 slsn:6
+[28][1][49502]rx stdf piece [4 of 6] [0 to 49528] st:4200 sz:1400 sdln:64 slsn:6
+[28][1][49502]rx stdf piece [5 of 6] [0 to 49528] st:5600 sz:1400 sdln:64 slsn:6
+[28][1][49502]rx stdf piece [6 of 6] [0 to 49528] st:7000 sz:1276 sdln:64 slsn:6
+[27][1][49502]rx dif complete [0 to 49528] - uncompressed
+[31][1][49528]----- Apply dif [0 to 49528] [applied] [jumped ahead 26 frames]
+[33][1][49528]tx stak p:1 ack:[49528] cur:[49528]
+[31][1][49529]----- Apply dif [0 to 49528] dd[not applied] [not newer than last dif applied]
+[31][1][49530]----- Apply dif [0 to 49528] dd[not applied] [not newer than last dif applied]
+
+.....
+
+[31][1][49726]----- Apply dif [0 to 49528] dd[not applied] [not newer than last dif applied]
+[31][1][49727]----- Apply dif [0 to 49528] dd[not applied] [not newer than last dif applied]
+[31][1][49728]----- Apply dif [0 to 49528] dd[not applied] [not newer than last dif applied]
+[31][1][49729]----- Apply dif [0 to 49528] dd[not applied] [not newer than last dif applied]
+[10][1][49729]+--------------------------------------------------------------------------+
+[10][1][49729]|        Local Player Client 1 Lost Server Connection!                     |
+[10][1][49729]|        last_dif_applied:[49528]                                          |
+[10][1][49729]+--------------------------------------------------------------------------+
+[10][0][49729]+--------------------------------------------------------------------------+
+[10][0][49729]|                    Shutting down the client network                      |
+[10][0][49729]+--------------------------------------------------------------------------+
+
+
+
+
+
+server logs here:
+
+[28][5][49524]tx stdf piece [6 of 6] [0 to 49525] st:7000 sz:1272 slsn:6
+[35][5][49525]rx cdat p:5 fn:[49285] sync:[-6] slsn:[6] late - dropped
+[27][0][49525]stdf rewind [none]
+[10][1][49525]+--------------------------------------------------------------------------+
+[10][1][49525]|                                                                          |
+[10][1][49525]|              Server dropped player:1 (last stak rx:49324)                |
+[10][1][49525]|                                                                          |
+[10][1][49525]+--------------------------------------------------------------------------+
+[27][0][49525]stdf save state:49526
+[27][1][49525]tx stdf p:1 [s:0 d:49526] cmp:8272 ratio:7.35 [6 packets needed]
+
+
+client
+
+[28][1][49323]rx stdf piece [6 of 6] [0 to 49215] st:7000 sz:1314 sdln:64 slsn:6
+[27][1][49323]rx dif complete [0 to 49215] - uncompressed
+[31][1][49215]----- Apply dif [0 to 49215] [applied] [rewound [108] frames]
+[33][1][49323]tx stak p:1 ack:[49215] cur:[49323]
+[28][1][49324]rx stdf piece [1 of 6] [0 to 49216] st:   0 sz:1400 sdln:64 slsn:6
+[28][1][49324]rx stdf piece [2 of 6] [0 to 49216] st:1400 sz:1400 sdln:64 slsn:6
+[28][1][49324]rx stdf piece [3 of 6] [0 to 49216] st:2800 sz:1400 sdln:64 slsn:6
+[28][1][49324]rx stdf piece [4 of 6] [0 to 49216] st:4200 sz:1400 sdln:64 slsn:6
+[28][1][49324]rx stdf piece [5 of 6] [0 to 49216] st:5600 sz:1400 sdln:64 slsn:6
+[28][1][49324]rx stdf piece [6 of 6] [0 to 49216] st:7000 sz:1304 sdln:64 slsn:6
+[27][1][49324]rx dif complete [0 to 49216] - uncompressed
+[28][1][49324]rx stdf piece [1 of 6] [0 to 49217] st:   0 sz:1400 sdln:64 slsn:6
+[28][1][49324]rx stdf piece [2 of 6] [0 to 49217] st:1400 sz:1400 sdln:64 slsn:6
+[28][1][49324]rx stdf piece [3 of 6] [0 to 49217] st:2800 sz:1400 sdln:64 slsn:6
+[28][1][49324]rx stdf piece [4 of 6] [0 to 49217] st:4200 sz:1400 sdln:64 slsn:6
+[28][1][49324]rx stdf piece [5 of 6] [0 to 49217] st:5600 sz:1400 sdln:64 slsn:6
+[28][1][49324]rx stdf piece [6 of 6] [0 to 49217] st:7000 sz:1323 sdln:64 slsn:6
+[27][1][49324]rx dif complete [0 to 49217] - uncompressed
+[31][1][49217]----- Apply dif [0 to 49217] [applied] [rewound [107] frames]
+[33][1][49324]tx stak p:1 ack:[49217] cur:[49324]
+[28][1][49325]rx stdf piece [1 of 6] [0 to 49218] st:   0 sz:1400 sdln:64 slsn:6
+[28][1][49325]rx stdf piece [2 of 6] [0 to 49218] st:1400 sz:1400 sdln:64 slsn:6
+[28][1][49325]rx stdf piece [3 of 6] [0 to 49218] st:2800 sz:1400 sdln:64 slsn:6
+[28][1][49325]rx stdf piece [4 of 6] [0 to 49218] st:4200 sz:1400 sdln:64 slsn:6
+[28][1][49325]rx stdf piece [5 of 6] [0 to 49218] st:5600 sz:1400 sdln:64 slsn:6
+[28][1][49325]rx stdf piece [6 of 6] [0 to 49218] st:7000 sz:1342 sdln:64 slsn:6
+[27][1][49325]rx dif complete [0 to 49218] - uncompressed
+[28][1][49325]rx stdf piece [1 of 6] [0 to 49219] st:   0 sz:1400 sdln:64 slsn:6
+[28][1][49325]rx stdf piece [2 of 6] [0 to 49219] st:1400 sz:1400 sdln:64 slsn:6
+[28][1][49325]rx stdf piece [3 of 6] [0 to 49219] st:2800 sz:1400 sdln:64 slsn:6
+[28][1][49325]rx stdf piece [4 of 6] [0 to 49219] st:4200 sz:1400 sdln:64 slsn:6
+[28][1][49325]rx stdf piece [5 of 6] [0 to 49219] st:5600 sz:1400 sdln:64 slsn:6
+[28][1][49325]rx stdf piece [6 of 6] [0 to 49219] st:7000 sz:1307 sdln:64 slsn:6
+[27][1][49325]rx dif complete [0 to 49219] - uncompressed
+[31][1][49219]----- Apply dif [0 to 49219] [applied] [rewound [106] frames]
+[33][1][49325]tx stak p:1 ack:[49219] cur:[49325]
+
+
+
+-----------------------
+I want to know more about when the server state when the game goes screwy
+kind of like the remote graph..
+
+I also want to have timestamps...
+
+
+
+20240604
+
+I have had e6430 running for 32 hours now...fakekey from the server and all
+
+during that same time, I connected MWEISS-16 at work and twice and had it stop both times after 4-5 hours
+I am confused about what happens there, the entire process just disappears console and game
+
+It seems like netgame is a little more stable after the recent changes I have made.
+
+I think I'll leave it for a while, but still run long netgame tests and try to investigate bugs.
+
+
+20240608 e6430 has been running for 34 hours
+
+I am back to working on profile video..made a few minor changes to log profiling
+
+removed ClientReceive and integrated into packet buffer rx...
 
 
 
@@ -57457,6 +57630,1115 @@ I am printing more than 64 char to it ... duh !!!
 
 
 
+NetworkInit() is called by
+
+int mwNetgame::ClientInitNetwork(void)
+int mwNetgame::ServerInitNetwork(void)
+
+I should set up the logging channel there...done
+
+made common network exit called by both server and client
+cleaned up there
+
+made cdats only send automatically
+
+-----------------
+
+I am so frustrated by trying to get qt to read mysql database....
+it looks like I might need to compile qt from source, and maybe the same with mysql...
+are there better ways to do it? probably
+
+I figured it out and it is not that hard...
+
+
+I am keeping text of all the different things I am working on in many different places..
+
+C:\pm\pm_docs\HOWTO
+rsyslog.txt
+qt.txt
+mysql.txt
+
+
+---------------------
+
+20240613
+
+I am working on changing how I send log messages with UDP in my game.
+
+I want to add 'pm' to SysLogTag so they are all marked as a group
+
+
+right now it looks like I am sending the log message with nothing extra in UDP packet
+
+
+this is what I am doing to view how they get added to the database:
+
+SELECT ID, ReceivedAt, FromHost, SysLogTag, Message FROM SystemEvents;
+
+SyslogTag is always blank..
+
+I modified the line to add:
+
+         char t2[500];
+         sprintf(t2, "<1>1 - - pm - - - %s", txt);
+
+
+Now I get pm in SysLogTag, but I lose FromHost and DeviceReportedTime
+
+I can live with this.
+
+Now the only columns that I care about are:
+ReceivedAt, Message and SysLogTag
+
+And I only use SysLogTag to filter so really I only have 2...
+
+I will use the info in Message to do everything...
+
+One thing I noticed is that clients sometimes have player 0 in their logs....
+
+I will need to fix that, it is very important, that field will be all that I have to tell what machine a log entry came from...
+
+
+I think I have done that, went through client and server and LEVEL STARTED...
+
+what about NEXT LEVEL and others in loop???...done...
+
+now I want to add more of a header fo udp messages
+
+like at the least the timestamp from al_get_time()
+
+
+SELECT ID, ReceivedAt, Message FROM SystemEvents WHERE SysLogTag = 'pm';
+
+DELETE FROM SystemEvents WHERE SysLogTag = 'pm';
+
+
+
+OK, now I have that part ready...server and clint are putting out log messages in a format I can use for now...
+
+
+
+Now at this point I want to use my Qt app to read, parse, add to new database and remove from old...
+
+I think I also want to squash any multiline log entries
+
+
+
+20240615
+
+saturday and I should have a block of time
+
+I want to add stuff to second database
+
+lets start with that...
+
+| received_at  | datetime | YES  |     | NULL    |                |
+| agt          | double   | YES  |     | NULL    |                |
+| player_num   | int      | YES  |     | NULL    |                |
+| message_type | int      | YES  |     | NULL    |                |
+| frame_num    | int      | YES  |     | NULL    |                |
+| message      | text     | YES  |     | NULL    |                |
+
+
+OK I have that done and it was not that hard...
+
+make a tab just for the new database
+
+how many records view them with arbitrary sql
+
+delete them all...
+
+
+10:00 AM
+
+I have tabs for pm_log and SystemEvent tables
+each can view rows, get countm delete all..
+
+I have a tab for mang db with a progress bar and textBrowser for debug text...
+
+what next?
+
+
+make mang check on add to not insert duplicates
+or
+delete from SystemEvents after adding
+or both...
+
+
+It takes 9ms per record to read and parse only
+
+when I add the insert to the other table it jumps to 100ms per record
+
+when I add delete also it jumps to 190ms
+
+this is unacceptable...I need to figure out a faster way to do it...
+
+
+
+Right now, I don't know if it is the database itself, that fact I am remotely connecting, or even Qt is slowing it down.
+Or maybe I could get a better way to do my inserts, like multiple...
+
+I plan to have lots of rows, thousands and more....
+
+10 logs per frame x 40pfs x 60spm x 60 mph = 1.4 million
+
+
+-------------
+
+crazy idea...
+they say that importing from a file is very fast, can I save my logs in a format that allows for this?
+
+
+
+
+What if I made the parse thing in PHP and put it on the server?
+
+// microtime(true) returns the unix timestamp plus milliseconds as a float
+$starttime = microtime(true);
+/* do stuff here */
+$endtime = microtime(true);
+$timediff = $endtime - $starttime;
+
+
+
+OK lets switch gears and do this in php...
+
+how?
+
+I will need the php executable on the server
+
+how did I do it for sessions?
+
+around feb 20th line 45000
+
+49000 for php...
+
+I will have the executable php file in the main pm dir
+
+i will call it log_scrape.php
+
+edit it locally, then how to copy to server to test?
+
+pscp -pw zaiden c:\pm\log_scrape.php m@purplemartians.org:dev/purple_martians
+
+
+
+
+45 records in .170 seconds (but no delete)
+3.8ms per record
+what if I disable all print to console?
+still the same...
+
+that is 25 times faster...
+
+
+OK lets try with delete...
+now I get 0.073 (almost twice as long, but still 25 time faster than qt)
+
+
+now...lets turn on more logging...
+
+all of it!!!
+
+started server and client, ran for 38s...got 8500 log lines
+took 72s to convert 0.008 per line...
+
+I might have to rethink this whole logging concept...I have a huge amount of log lines....
+
+It takes longer to convert them than it did to create them....
+
+How many log entries would make the qt app slow?
+
+
+Using TableView I load a table with 250,000 records in a few seconds and it is useable...
+
+
+can I do a time to load?
+
+not much!!
+
+
+I am going to try to play with data I have already...
+
+Total rows, viewed rows, start time fileds...
+
+
+
+
+Lets start making some sensible variables.
+
+I want a bool for each message type
+
+This sounds like a structure.
+
+name
+number
+color
+enabled
+
+#define LOG_error                  9
+#define LOG_NET                    10
+#define LOG_NET_join_details       12
+#define LOG_NET_session            14
+#define LOG_NET_ending_stats       22
+#define LOG_NET_bandwidth          23
+#define LOG_NET_stdf               27
+#define LOG_NET_stdf_packets       28
+#define LOG_NET_dif_applied        30
+#define LOG_NET_dif_not_applied    31
+#define LOG_NET_stak               33
+#define LOG_NET_cdat               35
+#define LOG_NET_client_ping        36
+#define LOG_NET_timer_adjust       37
+
+#define LOG_NET_file_transfer      39
+
+
+
+
+struct log_type
+{
+   int active; // 0=hidden. shown
+   int num; // how many entries in the current loaded view
+   char name[40];
+   QColor color;
+};
+
+
+lets make room for 100...
+
+struct log_type log_types[100];
+
+the index is the type
+
+
+void mwLog::init_log_types(void)
+{
+   //printf("init log types\n");
+   int i;
+   for (i=0; i<100; i++)
+   {
+      log_types[i].group = 0;
+      log_types[i].action = 0;
+      strcpy(log_types[i].name, "");
+   }
+
+   i = LOG_error;                   log_types[i].group = 9;   strcpy(log_types[i].name, "LOG_error"); log_types[i].action = 3;   // always both actions
+
+   i = LOG_NET;                     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET");
+   i = LOG_NET_join_details;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_join_details");
+
+   i = LOG_NET_session;             log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_session");
+
+   i = LOG_NET_ending_stats;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_ending_stats");
+   i = LOG_NET_bandwidth;           log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_bandwidth");
+   i = LOG_NET_stdf;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf");
+   i = LOG_NET_stdf_packets;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf_packets");
+   i = LOG_NET_dif_applied;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_dif_applied");
+   i = LOG_NET_dif_not_applied;     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_dif_not_applied");
+   i = LOG_NET_stak;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stak");
+   i = LOG_NET_cdat;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_cdat");
+   i = LOG_NET_client_ping;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_client_ping");
+   i = LOG_NET_timer_adjust;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_timer_adjust");
+   i = LOG_NET_file_transfer;       log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_file_transfer");
+
+   i = LOG_TMR_cpu;                 log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_cpu");
+   i = LOG_TMR_rebuild_bitmaps;     log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_rebuild_bitmaps");
+   i = LOG_TMR_move_tot;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_move_tot");
+   i = LOG_TMR_move_all;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_move_all");
+   i = LOG_TMR_move_enem;           log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_move_enem");
+   i = LOG_TMR_draw_tot;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_draw_tot");
+   i = LOG_TMR_draw_all;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_draw_all");
+   i = LOG_TMR_bmsg_add;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_bmsg_add");
+   i = LOG_TMR_bmsg_draw;           log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_bmsg_draw");
+   i = LOG_TMR_scrn_overlay;        log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_scrn_overlay");
+   i = LOG_TMR_sdif;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_sdif");
+   i = LOG_TMR_cdif;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_cdif");
+   i = LOG_TMR_rwnd;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_rwnd");
+   i = LOG_TMR_client_timer_adj;    log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_timer_adj");
+   i = LOG_TMR_client_ping;         log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_ping");
+   i = LOG_TMR_proc_rx_buffer;      log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_proc_rx_buffer");
+
+   i = LOG_OTH_program_state;       log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_program_state");
+   i = LOG_OTH_transitions;         log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_transitions");
+   i = LOG_OTH_level_done;          log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_level_done");
+   i = LOG_OTH_move;                log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_move");
+   i = LOG_OTH_draw;                log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_draw");
+
+
+}
+
+
+
+
+
+
+OK I have that done...
+
+
+Now I want to dynamically create a group of buttons...
+based on this list
+
+do it on tabWidget->tab_5
+
+
+I have spent many hours and I am making progress, but slowly....
+
+I think I want to make my own class to do this
+
+subclass widget
+
+Lets try a simple example..
+
+Log_message_type_selector
+
+MLogMessageTypeSelector
+
+it inherits widget
+
+then groupBox then an array of chekboxes
+
+create a new class, subclass widget, include QOBJECT
+
+
+
+
+The usual way of doing this is to sub-class QWidget (or QFrame).
+
+class CustomWidget: public QWidget {
+ Q_OBJECT
+
+ CustomWidget(QWidget *parent)
+  : QWidget(parent) {
+    combo = new QComboBox(...);
+    list  = new QListWidget(...);
+    // create the appropriate layout
+    // add the widgets to it
+    setLayout(layout);
+ }
+
+ private:
+  QComboBox *combo;
+  QListWidget *list;
+
+};
+
+
+
+
+
+
+#ifndef MLOGMESSAGETYPESELECTOR_H
+#define MLOGMESSAGETYPESELECTOR_H
+
+#include <QWidget>
+#include <QGroupBox>
+#include <QCheckBox>
+#include <QVBoxLayout>
+
+class MLogMessageTypeSelector : public QWidget
+{
+   Q_OBJECT
+   public:
+   explicit MLogMessageTypeSelector(QWidget *parent = nullptr);
+
+   signals:
+
+   private slots:
+   void on_cb_tog(Qt::CheckState);
+
+   private:
+   QGroupBox * mlts_gb;
+   QCheckBox * mlts_cb[100];
+};
+
+#endif // MLOGMESSAGETYPESELECTOR_H
+
+
+
+#include "mlogmessagetypeselector.h"
+#include "m_base.h"
+
+MLogMessageTypeSelector::MLogMessageTypeSelector(QWidget *parent)
+    : QWidget{parent}
+{
+   this->setGeometry(10, 10, 200, 400);
+
+   mlts_gb = new QGroupBox("Log Message Types", this);
+   mlts_gb->setGeometry(10, 10, 180, 380);
+
+   QVBoxLayout *vbox = new QVBoxLayout;
+
+   for (int i=10; i<40; i++)
+   {
+      if (mbase.log_types[i].valid)
+      {
+         mlts_cb[i] = new QCheckBox(mbase.log_types[i].name, mlts_gb);
+         mlts_cb[i]->setChecked(mbase.log_types[i].shown);
+         vbox->addWidget(mlts_cb[i]);
+         connect(mlts_cb[i], SIGNAL (checkStateChanged(Qt::CheckState)), this, SLOT (on_cb_tog(Qt::CheckState))) ;
+      }
+   }
+   vbox->addStretch(1);
+   mlts_gb->setLayout(vbox);
+}
+
+void MLogMessageTypeSelector::on_cb_tog(Qt::CheckState)
+{
+   for (int i=10; i<40; i++)
+      if (mbase.log_types[i].valid)
+      {
+         if (mlts_cb[i]->checkState()) mbase.log_types[i].shown = 1;
+         else                          mbase.log_types[i].shown = 0;
+      }
+}
+
+
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+
+   ui->setupUi(this);
+
+   ui->label->setText(mbase.sql);
+   ui->lineEdit_sql->setText(mbase.sql);
+
+   mbase.setup_db();
+
+   mbase.init_log_types();
+
+   mlts = new MLogMessageTypeSelector(ui->tab_5);
+
+
+
+
+OK, based on this success I want to do something more challenging:
+
+A class for the log view tab..
+
+It will have a sql statement made of pieces:
+
+SELECT
+what columns
+FROM pm_log WHERE
+what types
+what time range
+ORDER BY RecievedAT
+LIMIT
+limit
+
+
+
+class
+MPMLogView
+
+
+
+make a helper function to create WHERE
+
+WHERE
+
+message_type = 10
+
+OR
+
+message_type = 11
+
+....
+
+done and implemented
+now I want set all and none buttons
+done...
+also did a hbox in a vbox layout and it looks good!
+
+
+now lets try to figure out the date time range thing..
+
+also show how many records are in the box
+
+
+the date time thing only shows minutes int the list
+
+and all 8000 records are from the same minute
+
+2024-06-15 13:46:39
+
+DATETIME[(fsp)]
+
+A date and time combination. The supported range is '1000-01-01 00:00:00.000000' to '9999-12-31 23:59:59.499999'.
+MySQL displays DATETIME values in 'YYYY-MM-DD hh:mm:ss[.fraction]' format, but permits assignment of values to DATETIME columns using either strings or numbers.
+
+An optional fsp value in the range from 0 to 6 may be given to specify fractional seconds precision. A value of 0 signifies that there is no fractional part. If omitted, the default precision is 0.
+
+Automatic initialization and updating to the current date and time for DATETIME columns can be specified using DEFAULT and ON UPDATE column definition clauses,
+as described in Section 13.2.5, “Automatic Initialization and Updating for TIMESTAMP and DATETIME”.
+
+WHERE received_at BETWEEN '2024-06-15 13:46:38' AND '2024-06-15 13:46:39'
+this works exactly like it should
+
+now how to get a widget to set these values?
+
+" WHERE received_at BETWEEN 2024-06-15 13:46:38.0 AND 2024-06-15 13:46:39.0"
+
+I have got it working!!
+
+
+Next I want to have a button by the second one to copy from the first
+
+I want to show the intermediate sql for types, date range,
+
+Then I want to make the same for player...
+
+then for columns
+
+then I want to make the window resizable
+
+
+
+
+int main(int argc, char **argv){
+  QApplication app(argc, argv);
+  QMainWindow mw;
+  mw.layout()->setSizeConstraint(QLayout::SetFixedSize);
+  Widget *w = new Widget;
+  mw.setCentralWidget(w);
+  mw.show();
+  return app.exec();
+}
+
+
+
+    Reimplement QWidget::sizeHint() to return the preferred size of the widget.
+    Reimplement QWidget::minimumSizeHint() to return the smallest size the widget can have.
+    Call QWidget::setSizePolicy() to specify the space requirements of the widget.
+
+   I think I had them under slots...
+
+   const QSize sizeHint();
+   const QSize minimumSizeHint();
+
+   const QSize MLogMessageTypeSelector::sizeHint()
+   {
+      return QSize(200, 440);
+   }
+
+
+   const QSize MLogMessageTypeSelector::minimumSizeHint()
+   {
+      return QSize(200, 440);
+   }
+
+
+This is the proper way to do it all in the header...
+
+   QSize minimumSizeHint() const
+   {
+      qDebug() << "minSizeHint";
+      return QSize(200, 420);
+   }
+   QSize minimumSize () const
+   {
+      qDebug() << "minSize";
+      return QSize(200, 420);
+   }
+
+
+
+
+I think I finally figured out how to get the resizing to work...
+Needed to make tab_5 have a layout manually in code...
+and pmlv to be part of that layout
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+
+   ui->setupUi(this);
+
+   ui->label->setText(mbase.sql);
+   ui->lineEdit_sql->setText(mbase.sql);
+
+   mbase.setup_db();
+
+   mbase.init_log_types();
+
+   pmlv = new MPMLogView(ui->tab_5);
+
+   QHBoxLayout *hbox = new QHBoxLayout;
+   ui->tab_5->setLayout(hbox);
+   hbox->addWidget(pmlv);
+
+
+
+make some WHERE time helper buttons
+- set start to earliest time in db ..done
+
+now make a class for all my date range stuff
+
+mLogDateRange
+
+
+I have done that!!!
+
+next
+make the sql work for that
+make groups and labels for beg and end...
+done...
+
+
+next:
+make the sql thing its own widget class???
+show all sql lines
+
+
+mLogDateRange
+add range...
+
+
+
+new class
+
+MSQLWidget
+
+
+----at around 10:00 pm I can no longer connect to my server pmh with name
+purplemartians.org
+
+but the IP works fine...96.45.9.166
+why??
+
+ping 96.45.9.166
+ping purplemartians.org
+
+the next day at 6:24AM tested and it is working again...
+
+----------------------------------
+
+MSQLWidget is working, but all it does it show the SQL and have a fill button to update
+I seem to need the execute button on the same level as the TableView
+
+
+make a class to specify the SELECT columns
+
+MPMSelect
+
+
+Do I want to dynamically do it like the log message types...
+
+
+
+
+---------------------------
+
+figure out how to color rows in TableView
+
+Delegate??
+
+trying to get something working from the Star Delegate Example...
+
+
+I need to create a delegate class
+
+
+I would like to do it for a row rather than an item...
+
+let try the item from star delegate for now...
+
+make a class:
+
+
+class StarDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override;
+    QSize sizeHint(const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const override;
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const override;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+                      const QModelIndex &index) const override;
+
+private slots:
+    void commitAndCloseEditor();
+};
+
+
+
+this is great read: https://doc.qt.io/qt-6/model-view-programming.html
+
+https://doc.qt.io/qt-6/qtwidgets-itemviews-stardelegate-example.html
+
+
+
+
+I will trim this down:
+
+class mDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override;
+
+    QSize sizeHint(const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const override;
+
+};
+
+
+
+
+
+// another idea
+// set it in the model....Qt::BackgroundRole
+
+ui->view->setItemDelegateForColumn(5, new Custom_Two_Delegate(this));
+
+void MyClass::color_row()
+{
+  for(int row = 0; row < model->rowCount(); row++)
+    {
+      QSqlRecord record = model->record(i);
+
+      if (mycheck)
+        {
+          for(int column = 0; column < model->columnCount(); column++)
+            {
+              model->setData(model->index(row,column),QColor(Qt::red), Qt::BackgroundRole);
+            }
+        }
+
+    }
+}
+
+
+model->setData(model->index(row,column),QColor(Qt::red), Qt::BackgroundRole);
+
+
+I finally figured out a method!
+
+mdelegate.cpp
+
+#include "mdelegate.h"
+#include <QPainter>
+mDelegate::mDelegate() {}
+void mDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+   // find message_type sibling in column 2
+   QModelIndex qmi = index.siblingAtColumn(2);
+   QVariant v = index.model()->data(qmi, Qt::DisplayRole);
+   int type = v.toInt();
+   if (type == 10) painter->fillRect(option.rect, QColor(255, 0, 0, 50));
+   if (type == 27) painter->fillRect(option.rect, QColor(0, 255, 0, 50));
+   QStyledItemDelegate::paint(painter, option, index);
+}
+
+
+mdelegate.h
+
+#ifndef MDELEGATE_H
+#define MDELEGATE_H
+
+#include <QStyledItemDelegate>
+
+class mDelegate : public QStyledItemDelegate
+{
+   Q_OBJECT
+   public:
+   mDelegate();
+   using QStyledItemDelegate::QStyledItemDelegate;
+   void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+};
+
+#endif // MDELEGATE_H
+
+
+
+
+that is pretty simple....
+
+
+
+The next thing I want to do is make colors in the type selection structure and widget
+
+
+I want to start with beg and end set
+
+
+
+
+I never want to have to manually fill sql...
+make it part of execute...done...but not really what I was going for...
+
+start with date stuff...when that changes call fill sql also...
+
+where can these things see each other...
+
+
+this is getting confusing with all the classes and relations to each other
+
+msqlwidget is almost entirely display...only has fill button...
+all fill button does it conact strings and display...
+
+move the concat update thing to m_base..done
+
+I need to make MPMLogView
+
+have a custom public slot? that updates the TableView
+
+on_pb_exec_clicked()
+{
+   mbase.concat_sql();
+   model->setQuery(mbase.pml_sql_all);
+}
+
+it already does...
+
+   public slots:
+   void on_pb_exec_clicked();
+
+now I need to connect it to something, like dte->changed
+
+
+   signals:
+   void dte_changed(void);
+
+void MLogDateRange::on_dte_changed(const QDateTime &dateTime)
+{
+   emit dte_changed();
+
+
+   // date range widget
+   mldr = new MLogDateRange(this);
+   connect(mldr, SIGNAL (dte_changed()), this, SLOT (on_pb_exec_clicked()));
+
+
+
+yay it works!!
+
+I want to do it differently....
+
+
+make all the things that can change the sql, call mbase.update_sql()
+
+// date range
+// message line type selector
+// column select
+
+then in that function, if the sql actually changed emit a signal
+
+then in logview:
+- update the sql widget
+- either update TableView immediately or mark that it manually needs to be refreshed
+
+sql widget has been changed...now all it does is display and has one function update()
+
+go through and clean up all the setters...done...
+
+implement the checkbox for auto update TableView
+also list how many rows are in TableView
+
+OK I have that done...
+
+now what?
+
+I still want to show in log message type selector how many of each type...
+
+
+force type to always be in col 0 and change code
+
+try making other columns hidden
+
+continue with color lines...
+
+stretch final row...done
+
+
+
+
+redo column select...
+always get all columns, but get them in a specific order
+
+   i = 0;   col_types[i].valid = 1; col_types[i].shown = 0; strcpy(col_types[i].db_name, "id");            strcpy(col_types[i].display_name, "id");
+   i = 1;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "message_type");  strcpy(col_types[i].display_name, "message_type");
+   i = 2;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "received_at");   strcpy(col_types[i].display_name, "received_at");
+   i = 3;   col_types[i].valid = 1; col_types[i].shown = 0; strcpy(col_types[i].db_name, "agt");           strcpy(col_types[i].display_name, "agt");
+   i = 4;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "frame_num");     strcpy(col_types[i].display_name, "frame_num");
+   i = 5;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "player_num");    strcpy(col_types[i].display_name, "player_num");
+   i = 6;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "message");       strcpy(col_types[i].display_name, "message");
+
+
+
+
+show DateTime the way I want it in TableView
+https://stackoverflow.com/questions/40494687/format-date-time-value-shown-by-a-qtableview
+
+It is possible to return date formatted as you wish in this virtual method of QAbstractItemModel:
+
+QVariant QAbstractItemModel::data(const QModelIndex &item, int role = Qt::DisplayRole) const;
+
+You'll have to subclass your own model from QSqlTableModel and override this method. Code shold be something as follows:
+
+QVariant MySubclassedMode::data(const QModelIndex& item, int role = Qt::DisplayRole) const{
+
+    if(role == Qt::DisplayRole && itemBelongsTodateTimeColumn(item)){
+
+        QDateTime* dateTime = retrieveDateTimeObjectForModelIndex(item);
+        return QVariant(dateTime.toString("d MMM YYYY, h:mm"));
+    }
+
+    return QSqlTableModel::data(item, role)
+}
+
+This approach will allow you to easily change how the object will be displayed in table view.
+
+
+
+This is the final result that worked for me
+
+add this to my delegate.h
+
+    QString displayText(const QVariant& value, const QLocale& locale) const override
+    {
+       if (value.typeId() == QMetaType::QDateTime) return value.toDateTime().toString("yyyy-MM-dd HH:mm:ss");
+       else return QStyledItemDelegate::displayText(value, locale);
+    }
+
+
+Made my delegate only an .h file
+
+
+#ifndef MDELEGATE_H
+#define MDELEGATE_H
+
+#include <QStyledItemDelegate>
+#include <QPainter>
+#include <QDateTime>
+#include "m_base.h"
+
+class mDelegate : public QStyledItemDelegate
+{
+   Q_OBJECT
+   public:
+   mDelegate() {}
+   using QStyledItemDelegate::QStyledItemDelegate;
+
+   void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
+   {
+      // find message_type sibling in column 1
+      QModelIndex qmi = index.siblingAtColumn(1);
+      QVariant v = index.model()->data(qmi, Qt::DisplayRole);
+      int type = v.toInt();
+      painter->fillRect(option.rect, mbase.log_types[type].color);
+
+      QStyledItemDelegate::paint(painter, option, index);
+   }
+
+   QString displayText(const QVariant& value, const QLocale& locale) const override
+   {
+      if (value.typeId() == QMetaType::QDateTime) return value.toDateTime().toString("yyyy-MM-dd HH:mm:ss");
+      else return QStyledItemDelegate::displayText(value, locale);
+   }
+
+};
+
+#endif // MDELEGATE_H
+
+
+20240622
+
+I have got colors working from name..
+
+to do today:
+
+splitter?
+save config?
+resize the damn thing...
+
+separate sql query, slow
+make hiding types just hide in table...
+
+make size controls for table, row height, font...
+
+
+-------
+save config...
+
+QSettings...
+
+
+QSettings settings("mwSoft", "pml");
+
+add
+
+settings.setValue("editor/wrapMargin", 68);
+
+read with default
+
+int margin = settings.value("editor/wrapMargin", 80).toInt();
+
+
+force INI, local
+
+QSettings settings(QSettings::IniFormat, QSettings::UserScope, "mwSoft", "pml");
+
+
+
+void MainWindow::writeSettings()
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "mwSoft", "pml");
+
+
+    settings.beginGroup("MainWindow");
+    settings.setValue("geometry", saveGeometry());
+    settings.endGroup();
+}
+
+void MainWindow::readSettings()
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "mwSoft", "pml");
+
+    settings.beginGroup("MainWindow");
+    const auto geometry = settings.value("geometry", QByteArray()).toByteArray();
+    if (geometry.isEmpty())
+        setGeometry(200, 200, 400, 400);
+    else
+        restoreGeometry(geometry)
+    settings.endGroup();
+}
+
+I have it working...remembering the main window size and position
+
+
+-----------------------
+I want to make the TableView dynaically size....
+
+It actually does resize, maybe there is a max size hint or something
+
+subclass and reimplement sizeHint()
+
+subclass TableView
+was not needed
+-------------
+in the ui designer
+tab5
+QWidget max size was set to 1000 height....
+
+-------------
+
+
+make size controls for table, row height, font...
+what if I just make font size and let row height be adjusted automatically
 
 
 
@@ -57464,12 +58746,35 @@ I am printing more than 64 char to it ... duh !!!
 
 
 
+to do:
+-----
+
+I have a lot of messages from the server when it rewinds and make a new state
+2 for each of those actually
+
+and I don't really care that much about either of them
+combine them and make them optional...with their own type...
+
+
+what is going on with dif applied (or not)
+found the bug in the code and fixed it...but...
+do I really need to separate them?
 
 
 
+this is the new:
+
+#define LOG_NET_stdf_rewind        25
+#define LOG_NET_stdf_create        26
+#define LOG_NET_stdf               27
+#define LOG_NET_stdf_packets       28
+
+#define LOG_NET_dif_apply          30
 
 
+I think I have that done...
 
+commit, but no new release...
 
 
 
