@@ -275,7 +275,7 @@ void mwEnemy::move_enemies()
          tmr_tally[enemy_type][1]+= al_get_time()-t0; // tally proc time for enemies of this type
       }
 
-   if (LOG_TMR_move_enem) // build log entry
+   if (mLog.log_types[LOG_TMR_move_enem].action) // build log entry
    {
       mLog.add_tmr(LOG_TMR_move_enem, "");
       for (int i=0; i<100; i++)

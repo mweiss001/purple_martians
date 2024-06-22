@@ -1,0 +1,303 @@
+proof of concept
+
+make an app that can display logs...
+
+couldn't get past the qt download page, it just rubs me the wrong way...
+
+mweiss001#gmail.com
+
+Blargit1
+
+
+https://stackoverflow.com/questions/71208815/how-to-connecte-my-application-qt-cmake-to-mysql-database
+
+
+
+
+Place
+
+find_package(Qt6 REQUIRED COMPONENTS Sql)
+
+before this code
+
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(appName MANUAL_FINALIZATION ${PROJECT_SOURCES})
+else()
+    if(ANDROID)
+        add_library(appName SHARED ${PROJECT_SOURCES})
+    else()
+        add_executable(appName ${PROJECT_SOURCES})
+    endif()
+endif() 
+
+and then add
+
+target_link_libraries(appName PRIVATE Qt6::Sql)
+
+
+
+
+
+
+
+#include <QSqlDatabase>
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
+    db.setHostName("bigblue");
+    db.setDatabaseName("flightdb");
+    db.setUserName("acarlson");
+    db.setPassword("1uTbSbAs");
+    bool ok = db.open();    
+
+
+QSqlDatabase db = QSqlDatabase::addDatabase("QODBC");
+db.setDatabaseName("Driver={MySQL ODBC 5.3 Unicode Driver};DATABASE=test;");
+db.setUserName("root");
+db.setPassword("password");
+if (!db.open()) {
+    qDebug() << db.lastError().text();
+} else {
+    qDebug("success");
+}
+
+
+
+database error: "[Microsoft][ODBC Driver Manager] Data source name not found and no default driver specified, IM002 QODBC: Unable to connect"
+
+
+db = QSqlDatabase::addDatabase("QODBC");
+db.setDatabaseName("Driver={MySQL ODBC 5.1 Driver};DATABASE=agp-dbserver01;");
+db.setUserName("xcdr");
+db.setPassword("xcdr");@
+
+
+
+
+
+installed the mysql connector odbc 8.4
+
+Running as Admin
+Changing the directory...
+Registering Unicode driver
+Checking if "MySQL ODBC 8.4 Unicode Driver" is not already registered
+Registering "MySQL ODBC 8.4 Unicode Driver"
+Success: Usage count is 1
+Registering ANSI driver
+Checking if "MySQL ODBC 8.4 ANSI Driver" is not already registered
+Registering "MySQL ODBC 8.4 ANSI Driver"
+Success: Usage count is 1
++-----------------------------------------------------+
+| DONE                                                |
++-----------------------------------------------------+
+|                                                     |
+| Hopefully things went well; the Connector/ODBC      |
+| driver has been registered.                         |
+|                                                     |
+| Connector/ODBC is ready to use.                     |
+|                                                     |
+| The most common thing to do next is to go to the    |
+| Control Panel and find the ODBC Administrator -     |
+| then use it to create a Data Source Name (DSN)      |
+| so you (and your application) can connect to a      |
+| MySQL server.                                       |
+|                                                     |
+| Alternatively you can use the MyODBC Installer      |
+| utility to define data sources.                     |
+|                                                     |
++-----------------------------------------------------+
+Press any key to continue . . .
+
+
+
+
+---------------------------------------
+
+https://github.com/thecodemonkey86/qt_mysql_driver/releases
+
+Since the Qt Company cannot provide qsqlmysql.dll / libqsqlmysql.so in binary form, you have to build it on your own, which can be a pain. Here is a build for various Qt versions. Get precompiled qsqlmysql.dll for Windows / libqsqlmysql.so for Linux from releases. Be sure to match your Qt version and compiler (Microsoft Visual C++/MSVC, MinGW) EXACTLY. For example if you use Qt 6.4.2, you cannot use driver version 6.4.1 or 6.4.3
+
+
+how do I know what compiler I have? Does this mean I have to build Qt?
+
+When I installed Qt it also installed Qt maintenance tool.
+Ran that and found my qt version is 6.7.1 and my MinGW version is 11.2.0 64bit
+
+but there is nothing in there about mysql..
+
+
+
+Deployment
+
+    copy qsqlmysql.dll (release build) / MSVC: qsqlmysqld.dll, MinGW: qsqlmysql.dll+qsqlmysql.debug (debug build) to subdirectory "sqldrivers" of application directory (or build directory while developing)
+
+    copy libmysql.dll (MySQL library) and the libcrypto/libssl OpenSSL libraries from zip file (or from https://dev.mysql.com and https://kb.firedaemon.com/support/solutions/articles/4000121705 respectively) to application directory (or more generally, any directory that is registered in PATH environment variable)
+
+
+this is what i downloaded:
+qsqlmysql.dll_Qt_SQL_driver_6.7.1_MinGW_11.2.0_64-bit.zip
+
+then I copied the files and put them in the same dir as executable
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
+    db.setHostName("purplemartians.org");
+    db.setDatabaseName("Syslog");
+    db.setUserName("pete");
+    db.setPassword("park");
+    bool ok = db.open();
+
+06:18:00: Starting C:\Users\m\Documents\test1\build\Desktop_Qt_6_7_1_MinGW_64_bit-Debug\test1.exe...
+QSqlDatabase: QMYSQL driver not loaded
+QSqlDatabase: available drivers: QSQLITE QMIMER QODBC QPSQL
+database error: "Driver not loaded Driver not loaded"
+       
+
+
+OMFG I got it to work!!!!
+I copied the sqldrivers directory and the three other flies to the same dir as my executable
+
+
+
+
+
+
+
+/*
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QODBC");
+    //    db.setDatabaseName("SystemEvents");
+//    db.setHostName("purplemartians.org");
+
+    db.setDatabaseName("Driver={MySQL ODBC 8.4 ANSI Driver};DATABASE=rsyslog_odbc;");
+    db.setUserName("pete");
+    db.setPassword("park");
+    bool ok = db.open();
+*/
+
+
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
+    db.setHostName("purplemartians.org");
+    db.setDatabaseName("Syslog");
+    db.setUserName("pete");
+    db.setPassword("park");
+    bool ok = db.open();
+
+    if (!ok) qDebug() << "database error:" << db.lastError().text();
+    else
+    {
+        QSqlQuery query;
+        query.exec("SELECT Message FROM SystemEvents WHERE ID = 120895");
+        while (query.next()) {
+            QString name = query.value(0).toString();
+            ui->textBrowser->setPlainText(name);
+        }
+    }
+}
+
+
+
+
+I am trying to figure out how to call some code in my own functions in qt...
+also some place to store variables
+
+make a class?
+
+m_base.cpp
+m_base.h
+
+right click on source and add new...class..called m_base
+
+make it visible with .h
+
+
+18526863
+18548837
+
+SELECT MAX(ID) FROM SystemEvents
+
+
+the server is doing this 40 times per second: rew and save state..
+I have 18 million rows in SystemEvents
+
+
+It is time to work on getting the data from SystemEvents to a custom database on my own...
+
+I will need code to scrape SystemEvents and do this. What Language?
+
+I have some cron called PHP on the server already...
+I could do it in c++ with the Qt app...
+
+What will my main table look like?
+
+First what feilds from System Events do I want do keep?
+
+
+Message
+ReceivedAt
+Device Reported Time? (not unless I actually record and add it)
+
+I need to make something to mark the ones that come from purplemartians
+
+I think I will use SysLogTag
+
+I don't feel like any other fields can be reliably set when I pass UDP packets, so I plan to do the rest in the message field.
+I might keep FromHost, but lets rslsylog fill it out on the server..
+
+new table
+
+ID
+ReceivedAt
+RawMessage
+
+player number
+frame
+log message line type
+trunc message
+
+this looks pretty simple...
+
+what if I have extra fields for number that are specific to certain message types
+like 8 ints and 8 floats?
+
+can be a later thing....
+
+
+
+what do I need to do first?
+
+make my logging add purplemartians in SysLogTag
+
+what if I shortened it to pm? done
+
+
+Make the new table.
+
+Make it under the same DATABASE?...idk..yes for now
+
+CREATE TABLE pm_log (
+  id                INT AUTO_INCREMENT,
+  received_at       DATETIME,
+  agt               DOUBLE, 
+  player_num        INT,
+  message_type      INT,
+  frame_num         INT,    
+  message           text,
+  PRIMARY KEY(id)
+);
+
+done...
+
+ use indexOf. Is th
+
+
+
+
+
+
+
+
+
+
+
+
+

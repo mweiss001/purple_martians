@@ -1,3 +1,177 @@
+
+
+https://www.digitalocean.com/community/tutorials/how-to-install-lamp-stack-on-ubuntu
+
+sudo apt install mysql-server
+
+on ubuntu 22.04 i get:
+mysql  Ver 8.0.36-0ubuntu0.22.04.1 for Linux on x86_64 ((Ubuntu))
+
+    sudo mysql
+
+Then run the following ALTER USER command to change the root user’s authentication method to one that uses a password. The following example changes the authentication method to mysql_native_password:
+
+    ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'tomjonesdavis';
+
+After making this change, exit the MySQL prompt:
+
+    exit
+
+sudo mysql_secure_installation
+
+VALIDATE PASSWORD PLUGIN : no
+
+change password for root? no
+
+enter y for all remaining questions.
+
+
+mysql -u root -p
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH auth_socket;
+mysql> exit
+
+
+
+
+make a database user
+--------------------
+
+sudo mysql
+
+CREATE USER 'msq'@'localhost' IDENTIFIED WITH auth_socket;
+
+GRANT ALL PRIVILEGES ON *.* TO 'msq'@'localhost' WITH GRANT OPTION;
+
+exit
+
+mysql -u msq -p
+
+ALTER USER 'msq'@'localhost' IDENTIFIED WITH mysql_native_password BY 'zaiden';
+
+systemctl status mysql.service
+
+sudo mysqladmin -p -u msq version
+
+
+
+I think I am missing some things here:
+
+How can I show what users I have setup?
+
+select * from information_schema.user_privileges;
+
+gets a big long list
+
+
+
+look like I have setup user: msq that has lots of privileges, like root...
+
+also php_ro and php_add
+
+
+mysql> SHOW GRANTS FOR 'php_ro'@'localhost';
++-------------------------------------------------------------------+
+| Grants for php_ro@localhost                                       |
++-------------------------------------------------------------------+
+| GRANT USAGE ON *.* TO `php_ro`@`localhost`                        |
+| GRANT SELECT ON `session_db`.`session_tb` TO `php_ro`@`localhost` |
++-------------------------------------------------------------------+
+2 rows in set (0.00 sec)
+
+mysql> SHOW GRANTS FOR 'php_add'@'localhost';
++------------------------------------------------------------------------------------+
+| Grants for php_add@localhost                                                       |
++------------------------------------------------------------------------------------+
+| GRANT USAGE ON *.* TO `php_add`@`localhost`                                        |
+| GRANT SELECT, INSERT, UPDATE ON `session_db`.`session_tb` TO `php_add`@`localhost` |
++------------------------------------------------------------------------------------+
+2 rows in set (0.00 sec)
+
+mysql>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 mysql -u msq -p
 
 SHOW DATABASES;
@@ -326,6 +500,66 @@ DELETE                         FROM session_tb WHERE tx_bytes_total < 0;
 
 SELECT id, filename, timestamp FROM session_tb WHERE port = 49901;
 DELETE                         FROM session_tb WHERE port = 49901;
+
+
+
+
+USE Syslog;
+SELECT ID, ReceivedAt, FromHost, SysLogTag, Message FROM SystemEvents;
+
+
+
+
+mysql> DESCRIBE pm_log;
+
++--------------+----------+------+-----+---------+----------------+
+| Field        | Type     | Null | Key | Default | Extra          |
++--------------+----------+------+-----+---------+----------------+
+| id           | int      | NO   | PRI | NULL    | auto_increment |
+| received_at  | datetime | YES  |     | NULL    |                |
+| agt          | double   | YES  |     | NULL    |                |
+| player_num   | int      | YES  |     | NULL    |                |
+| message_type | int      | YES  |     | NULL    |                |
+| frame_num    | int      | YES  |     | NULL    |                |
+| message      | text     | YES  |     | NULL    |                |
++--------------+----------+------+-----+---------+----------------+
+7 rows in set (0.00 sec)
+
+mysql>
+
+
+
+
+InnoDB vs miasm
+
+mysql>
+mysql> SHOW TABLE STATUS WHERE Name = 'pm_log';
++--------+--------+---------+------------+------+----------------+-------------+-----------------+--------------+-----------+----------------+---------------------+---------------------+------------+--------------------+----------+----------------+---------+
+| Name   | Engine | Version | Row_format | Rows | Avg_row_length | Data_length | Max_data_length | Index_length | Data_free | Auto_increment | Create_time         | Update_time         | Check_time | Collation          | Checksum | Create_options | Comment |
++--------+--------+---------+------------+------+----------------+-------------+-----------------+--------------+-----------+----------------+---------------------+---------------------+------------+--------------------+----------+----------------+---------+
+| pm_log | InnoDB |      10 | Dynamic    |   18 |            910 |       16384 |               0 |            0 |         0 |           1573 | 2024-06-14 06:24:03 | 2024-06-15 10:52:42 | NULL       | utf8mb4_0900_ai_ci |     NULL |                |         |
++--------+--------+---------+------------+------+----------------+-------------+-----------------+--------------+-----------+----------------+---------------------+---------------------+------------+--------------------+----------+----------------+---------+
+1 row in set (0.00 sec)
+
+
+
+
+Disabling Redo Logging
+
+As of MySQL 8.0.21, you can disable redo logging using the ALTER INSTANCE DISABLE INNODB REDO_LOG statement. This functionality is intended for loading data into a new MySQL instance. Disabling redo logging speeds up data loading by avoiding redo log writes and doublewrite buffering. 
+
+
+
+ALTER INSTANCE DISABLE INNODB REDO_LOG;
+
+SHOW GLOBAL STATUS LIKE 'Innodb_redo_log_enabled';
+
+
+it got worse: now 256ms
+
+
+
+
 
 
 

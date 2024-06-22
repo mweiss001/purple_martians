@@ -428,8 +428,8 @@ void mwLoop::proc_program_state(void)
       mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[PM_PROGRAM_STATE_CLIENT_NEW_GAME]\n");
 
       mLog.log_versions();
-      mLog.add_fw (LOG_NET, 0, 76, 10, "+", "-", "");
-      mLog.add_fwf(LOG_NET, 0, 76, 10, "|", " ", "Client mode started on localhost:[%s]", mLoop.local_hostname);
+      mLog.add_fw (LOG_NET, -1, 76, 10, "+", "-", "");
+      mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Client mode started on localhost:[%s]", mLoop.local_hostname);
 
       mEventQueue.reset_fps_timer();
 
@@ -543,7 +543,7 @@ void mwLoop::proc_program_state(void)
       mSound.stop_sound();
       mPlayer.syn[0].level_done_mode = 0;
 
-      mLog.add_headerf(LOG_NET, 0, 1, "NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level);
+      mLog.add_headerf(LOG_NET, -1, 1, "NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level);
 
       if (mNetgame.ima_client)
       {
@@ -772,7 +772,7 @@ int mwLoop::load_and_setup_level(int level, int type)
          state[0] = PM_PROGRAM_STATE_MAIN_GAME_LOOP;
          // add initial special game moves
 
-         mLog.add_headerf(LOG_NET, 0, 1, "LEVEL %d STARTED", mLevel.play_level);
+         mLog.add_headerf(LOG_NET, -1, 1, "LEVEL %d STARTED", mLevel.play_level);
 
          mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
 
@@ -975,24 +975,23 @@ void mwLoop::main_loop(void)
             frame_num++;
             frame_start_timestamp = al_get_time();
 
-            // -----------------------------------
-            // update animation and process sound
-            // -----------------------------------
             if (!mDisplay.no_display)
             {
+
+               // -----------------------------------
+               // update animation and process sound
+               // -----------------------------------
                mBitmap.update_animation();
                mSound.proc_sound();
-            }
 
-            // -----------------------------------
-            // process scale factor changes
-            // -----------------------------------
-            int ldm = mPlayer.syn[0].level_done_mode;
-            if (!mDisplay.no_display)
-            {
+               // -----------------------------------
+               // process scale factor changes
+               // -----------------------------------
+               int ldm = mPlayer.syn[0].level_done_mode;
                if ((ldm == 30) || (ldm == 25)) mDisplay.proc_custom_scale_factor_change();
                else                            mDisplay.proc_scale_factor_change();
             }
+
 
             mPacketBuffer.check_for_packets();
 
@@ -1053,7 +1052,10 @@ void mwLoop::main_loop(void)
             // store in local cpu variables
             add_local_cpu_data(cpu);
 
-            // why is this all the time? only when client?, server, both??
+
+            // --------------------------------------------
+            // update ping variables
+            // --------------------------------------------
             if ((mNetgame.ima_server) || (mNetgame.ima_client))
                for (int p=0; p<NUM_PLAYERS; p++)
                {

@@ -46,7 +46,6 @@ class mwPacketBuffer
 
    void check_for_packets(void);
 
-   void add_to_rx_buffer(void);
    void add_to_rx_buffer_single(char *data, int p);
    int find_empty_rx_packet_buffer(void);
    void rx_and_proc(void);

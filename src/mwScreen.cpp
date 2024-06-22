@@ -46,7 +46,7 @@ void mwScreen::transition_cutscene(int i, int f)
 {
    if ((!mNetgame.ima_server) && (!mNetgame.ima_client) && (!mDisplay.no_display))
    {
-      if (LOG_OTH_transitions)
+      if (mLog.log_types[LOG_OTH_transitions].action)
       {
          const char* tcn[5] = {"nothing", "game", "menu", "gate"};
          mLog.log_add_prefixed_textf(LOG_OTH_transitions, 0, "transition from %s to %s\n", tcn[i], tcn[f]);

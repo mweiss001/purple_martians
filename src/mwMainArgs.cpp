@@ -109,17 +109,17 @@ void mwMain::copy_files_to_clients(int type)
 
 //   sprintf(client[num_clients++], "\\\\i990\\pm_client32");  // win 7
 
-   sprintf(client[num_clients++], "\\\\zulu\\pm_client52");  // win 10
-   sprintf(client[num_clients++], "\\\\e6430\\pm_client50");  // win 10
+//   sprintf(client[num_clients++], "\\\\zulu\\pm_client52");  // win 10
+//   sprintf(client[num_clients++], "\\\\e6430\\pm_client50");  // win 10
 
   // sprintf(client[num_clients++], "\\\\o7040\\pm_client51");  // win 10
 
-   sprintf(client[num_clients++], "\\\\asp3\\pm_client53");  // win 10
+//   sprintf(client[num_clients++], "\\\\asp3\\pm_client53");  // win 10
 
 
 //   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
 //   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
 //   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
 //   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
 
@@ -429,10 +429,6 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       }
 
 
-
-
-
-
    } // end of argument_count == 3
 }
 
@@ -507,6 +503,83 @@ memcpy(&out,arr2,sizeof(out));
 
 void mwMain::temp_test(void)
 {
+
+
+//   if (mNetgame.NetworkInit())
+//   {
+//      printf("Error: failed to initialize network\n");
+//   }
+//   mNetgame.Channel = net_openchannel(mNetgame.NetworkDriver, NULL); // dynamic port
+//   if (mNetgame.Channel == NULL)
+//   {
+//      printf("Error: Client failed to create NetChannel\n");
+//   }
+//
+//   char target[300];
+//   sprintf(target, "%s:%d", "purplemartians.org", 514);
+//   if (net_assigntarget(mNetgame.Channel, target))
+//   {
+//      printf("Error: Client failed to set NetChannel target:[%s]\n", target);
+//   }
+//   printf("Client network initialized -- target:[%s]\n", target);
+//   printf("Local address:[%s]\n", net_getlocaladdress(mNetgame.Channel));
+
+
+//   char BOM[3];
+//   BOM[0] = 239;
+//   BOM[1] = 187;
+//   BOM[2] = 191;
+
+
+//    unsigned char bom[] = { 0xEF,0xBB,0xBF };
+//    f.write((char*)bom, sizeof(bom));
+
+
+//   char data[50] = {0};
+//   sprintf(data, "<1>1 grr %c%c%c arrgs [nice]", 239, 187, 191);
+//
+//   for (int i=0; i<(int)strlen(data); i++)
+//   {
+//      printf("%d %d %c\n", i, (int)data[i], data[i]);
+//   }
+
+
+
+
+
+
+
+//   char data[50] = {0};
+//   sprintf(data, "<1>1 grr - - - arrgs [nice]");
+//   net_send(mNetgame.Channel, data, strlen(data));
+
+
+//   char data[1000] = {0};
+//   sprintf(data, "<1>1 2003-10-11T22:17:15.003Z mymachine myapplication - - - message");
+//   net_send(mNetgame.Channel, data, strlen(data));
+
+
+
+//   char data[1000] = {0};
+//   sprintf(data, "<1>1 - mymachie myapplication - - - message3");
+//   sprintf(data, "<1>1 - mymachine myapplication - - - message7");
+//   sprintf(data, "<1>1 message8");
+//   net_send(mNetgame.Channel, data, strlen(data));
+
+
+
+
+
+//   char msg[256];
+//   time_t now = time(NULL);
+//   struct tm *timenow = localtime(&now);
+//   strftime(msg, sizeof(msg), "%Y%m%d-%H%M%S", timenow);
+//   printf("%s\n", msg);
+
+
+
+
+
 
 //   for (int i =0; i<256; i++)
 //   {

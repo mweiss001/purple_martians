@@ -762,7 +762,7 @@ int mwScreen::draw_common_debug_overlay(int p, int &cx, int &cy)
    {
        drawn = 1;
        double t1 = al_get_time();
-       mDrawSequence.show_text(cx, cy); // show draw profile times
+       mDrawSequence.ds_show_text(cx, cy); // show draw profile times
        cy+=100;
        mLog.add_tmr1(LOG_TMR_scrn_overlay, "scov_draw_pt", al_get_time() - t1);
 

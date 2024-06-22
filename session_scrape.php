@@ -199,3 +199,5 @@ else echo "$dir is not a directory\n";
 
 $et = microtime(true) - $start_time;
 echo "\nSession scrape completed in: $et seconds\n\n";
+
+
