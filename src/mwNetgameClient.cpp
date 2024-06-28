@@ -275,13 +275,13 @@ int mwNetgame::client_proc_sjon_packet(char * data)
       strncpy(mPlayer.loc[0].hostname, server_address, 16);
       strncpy(mPlayer.loc[p].hostname, mLoop.local_hostname, 16);
       mLevel.play_level = pl;
-      mLog.add_fwf(LOG_NET,               -1, 76, 10, "|", " ", "Client received join invitation from server");
-      mLog.add_fwf(LOG_NET_join_details,  -1, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
-      mLog.add_fwf(LOG_NET_join_details,  -1, 76, 10, "|", " ", "Player Number:[%d]", p);
-      mLog.add_fwf(LOG_NET_join_details,  -1, 76, 10, "|", " ", "Player Color:[%d]", color);
-      mLog.add_fwf(LOG_NET_join_details,  -1, 76, 10, "|", " ", "Server Frame Num:[%d]", sfnum);
-      mLog.add_fwf(LOG_NET_join_details,  -1, 76, 10, "|", " ", "Server Level Sequence Num:[%d]", slsn);
-      mLog.add_fwf(LOG_NET,               -1, 76, 10, "+", "-", "");
+      mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Client received join invitation from server");
+      mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
+      mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Player Number:[%d]", p);
+      mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Player Color:[%d]", color);
+      mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Server Frame Num:[%d]", sfnum);
+      mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Server Level Sequence Num:[%d]", slsn);
+      mLog.add_fwf(LOG_NET,  -1, 76, 10, "+", "-", "");
       return 1;
    }
 }

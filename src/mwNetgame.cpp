@@ -20,24 +20,14 @@ mwNetgame::mwNetgame()
    NetworkDriver = -1;
    ima_server = 0;
    ima_client = 0;
-
    sprintf(server_address, "purplemartians.org");
-
    server_port = 24785;
-
    zlib_cmp = 7;
-
    for (int i=0; i<20; i++) files_to_send[i].active = 0;
-
    for (int i=0; i<10; i++) session_clear_entry(i);
-
    for (int i=0; i<8; i++) clear_channel(i);
-
    Channel = NULL;
 }
-
-
-
 
 // initialize libnet and setup a driver to use. Returns 0 on success.
 int mwNetgame::NetworkInit(void)
@@ -95,21 +85,14 @@ int mwNetgame::NetworkInit(void)
    return 0;
 }
 
-
 void mwNetgame::NetworkExit(void)
 {
    if (Channel) net_closechannel(Channel);
    Channel = NULL;
-
    if (LoggingChannel) net_closechannel(LoggingChannel);
    LoggingChannel = NULL;
-
    net_shutdown();
 }
-
-
-
-
 
 // read and discard all waiting packets
 void mwNetgame::ChannelFlush(void)
@@ -117,8 +100,6 @@ void mwNetgame::ChannelFlush(void)
    char data[PACKET_BUFFER_SIZE] = {0};
    while (net_receive(Channel, data, PACKET_BUFFER_SIZE, NULL));
 }
-
-
 
 void mwNetgame::clear_channel(int c)
 {

@@ -176,9 +176,9 @@ void mwNetgame::session_add_log(int i)
       int er = client_sessions[i].endreason;
       char endreason[256];
       if (er == 0) sprintf(endreason, "unknown");
-      if (er == 1) sprintf(endreason, "server full");
-      if (er == 2) sprintf(endreason, "client quit");
-      if (er == 4) sprintf(endreason, "comm loss");
+      if (er == 1) sprintf(endreason, "server_full");
+      if (er == 2) sprintf(endreason, "client_quit");
+      if (er == 4) sprintf(endreason, "comm_loss");
       if (er == 6) sprintf(endreason, "inactive");
 
 
@@ -210,19 +210,19 @@ void mwNetgame::session_add_log(int i)
          rp_avg = (float)client_sessions[i].rx_total_packets / dur;
       }
 
-      fprintf(filepntr, "tx_bytes_total:%" PRId64 "\n",           client_sessions[i].tx_total_bytes);
+      fprintf(filepntr, "tx_bytes_total:%" PRId64 "\n",    client_sessions[i].tx_total_bytes);
       fprintf(filepntr, "tx_bytes_avg_per_sec:%d\n",       (int) tb_avg);
       fprintf(filepntr, "tx_bytes_max_per_frame:%d\n",     client_sessions[i].tx_max_bytes_per_frame);
 
-      fprintf(filepntr, "rx_bytes_total:%" PRId64 "\n",           client_sessions[i].rx_total_bytes);
+      fprintf(filepntr, "rx_bytes_total:%" PRId64 "\n",    client_sessions[i].rx_total_bytes);
       fprintf(filepntr, "rx_bytes_avg_per_sec:%d\n",       (int) rb_avg);
       fprintf(filepntr, "rx_bytes_max_per_frame:%d\n",     client_sessions[i].rx_max_bytes_per_frame);
 
-      fprintf(filepntr, "tx_packets_total:%" PRId64 "\n",         client_sessions[i].tx_total_packets);
+      fprintf(filepntr, "tx_packets_total:%" PRId64 "\n",  client_sessions[i].tx_total_packets);
       fprintf(filepntr, "tx_packets_avg_per_sec:%d\n",     (int) tp_avg);
       fprintf(filepntr, "tx_packets_max_per_frame:%d\n",   client_sessions[i].tx_max_packets_per_frame);
 
-      fprintf(filepntr, "rx_packets_total:%" PRId64 "\n",         client_sessions[i].rx_total_packets);
+      fprintf(filepntr, "rx_packets_total:%" PRId64 "\n",  client_sessions[i].rx_total_packets);
       fprintf(filepntr, "rx_packets_avg_per_sec:%d\n",     (int) rp_avg);
       fprintf(filepntr, "rx_packets_max_per_frame:%d\n",   client_sessions[i].rx_max_packets_per_frame);
 
@@ -230,7 +230,14 @@ void mwNetgame::session_add_log(int i)
 
       if (mLog.log_types[LOG_NET_session].action & LOG_ACTION_PRINT) // open the file and print it
       {
+
+         char msg[1000];
+         sprintf(msg, "filename:%s", filename);
+
+
          printf("\nAdded Log Entry:%s\n", filename);
+
+//         mLog.log_add_prefixed_textf(LOG_NET_session, -1, "Session filename:%s\n", filename);
 
          filepntr = fopen(filename,"r");
          int done = 0;
@@ -245,10 +252,26 @@ void mwNetgame::session_add_log(int i)
                ch = fgetc(filepntr);
             }
             buff[loop] = 0; // terminate the string
-            printf("%s\n", buff);
+
             if (ch == EOF) done = 1;
+            else
+            {
+               char msg1[201];
+               sprintf(msg1, " %s", buff);
+               strcat(msg, msg1);
+
+
+//               mLog.log_add_prefixed_textf(LOG_NET_session, -1, "%s\n", buff);
+               printf("%s\n", buff);
+            }
          }
          fclose(filepntr);
+
+         printf("msg[%d]:%s\n", (int)strlen(msg), msg);
+
+         mLog.log_add_prefixed_textf(LOG_NET_session, -1, "%s\n", msg);
+
+
       }
 
       // erase if inactive

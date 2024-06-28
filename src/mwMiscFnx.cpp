@@ -36,6 +36,31 @@ af:'00001000 00000000 00000000 00000000 '
 */
 
 
+
+
+// get timestamp from now in db friendly format
+char * mwMiscFnx::chr_dt(char* dt)
+{
+   time_t now = time(NULL);
+   struct tm *timenow = localtime(&now);
+   strftime(dt, sizeof(dt), "%Y%m%d %H%M%S", timenow);
+   return dt;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void mwMiscFnx::chop_first_x_char(char *str, int n)
 {
    char tmp[500];

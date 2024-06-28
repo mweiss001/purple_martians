@@ -13,6 +13,8 @@ class mwMiscFnx
    int get_tag_text2(char *str, char *res, char *res1, int show);
 
 
+   char * chr_dt(char* dt);
+
    char* chrms(int time, char* ft);
    char* chrsi(int num, char* ft);
 

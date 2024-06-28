@@ -15,7 +15,6 @@
 
 #define LOG_error                  9
 #define LOG_NET                    10
-#define LOG_NET_join_details       12
 #define LOG_NET_session            14
 #define LOG_NET_ending_stats       22
 #define LOG_NET_bandwidth          23
@@ -101,6 +100,17 @@ class mwLog
    void log_time_date_stamp(void);
    void log_versions(void);
 
+
+   void add_lognet_db_row(int type, int sub_type, int client, const char *format, ...);
+
+
+
+
+   char lognet_msg[NUM_LOG_CHAR];
+   int lognet_msg_pos = 0;
+   int lognet_msg_num_lines = 0;
+
+
    ALLEGRO_FS_ENTRY *filenames[1000];
    int num_filenames;
 
@@ -120,7 +130,10 @@ class mwLog
    int autosave_log_on_program_exit = 0;
 
    void erase_log(void);
+   void erase_lognet(void);
+
    void save_log_file(void);
+   void save_lognet_file(void);
 
    void log_player_array(int type);
    void log_player_array2(int type);
