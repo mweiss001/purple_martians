@@ -4,5 +4,7 @@ pscp -pw zaiden m@purplemartians.org:dev/purple_martians/logs/* c:\pm\logs
 
 pscp -pw zaiden m@purplemartians.org:dev/purple_martians/logs/20240601-1556* c:\pm\logs
 
+pscp -pw zaiden c:\pm\log_scrape.php  m@purplemartians.org:dev/purple_martians/log_scrape.php
 
 
+pscp -pw zaiden c:\pm\new_log_scrape.php  m@purplemartians.org:dev/purple_martians

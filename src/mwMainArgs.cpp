@@ -21,6 +21,7 @@
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 
+// #include "sqlite3.h"
 
 
 void mwMain::pm_copy_src(const char* filepath)
@@ -166,6 +167,12 @@ void mwMain::copy_files_to_clients(int type)
 
 void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
 {
+
+
+
+
+
+
    if ((argument_count > 1) && (strcmp(argument_array[1],"-sh") == 0 )) headless_server = 1;
 
 //   if ((argument_count > 1) && (strcmp(argument_array[1],"-rc") == 0 )) server_remote_control = 1;
@@ -173,6 +180,17 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
 
    if (argument_count == 2) // example 'pmwin x'
    {
+
+
+      if (strcmp(argument_array[1],"-test") == 0 )  // temp test
+      {
+         temp_test();
+         exit(0);
+      }
+
+
+
+
       if (strcmp(argument_array[1],"-t")  == 0 ) { copy_files_to_clients(1); exit(0); } // exe only
       if (strcmp(argument_array[1],"-tl") == 0 ) { copy_files_to_clients(2); exit(0); } // exe and levels
       if (strcmp(argument_array[1],"-tr") == 0 ) { copy_files_to_clients(3); exit(0); } // del all and copy like release
@@ -498,11 +516,174 @@ memcpy(&out,arr2,sizeof(out));
 //}
 //
 
+/*
+static int callback(void* data, int argc, char** argv, char** azColName)
+{
+    int i;
+    fprintf(stderr, "%s: ", (const char*)data);
 
+    for (i = 0; i < argc; i++) {
+        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+    }
 
+    printf("\n");
+    return 0;
+}
+
+*/
 
 void mwMain::temp_test(void)
 {
+
+
+
+/*
+
+   sqlite3 *db;
+   sqlite3_stmt* stmt;
+
+
+   char q[1000];
+	char* err;
+   int exit;
+
+
+   int row = 0;
+   int dat;
+
+   int rc = sqlite3_open("test.db", &db);
+
+   if (rc)
+   {
+      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+      return;
+   }
+
+   fprintf(stderr, "Opened database successfully\n");
+
+//
+//   sprintf(q,  "DROP TABLE pm_log");
+//
+//   printf("Query: %s\n", q);
+//	exit = sqlite3_exec(db, q, NULL, 0, &err);
+//	if (exit != SQLITE_OK) printf("Error! (%s)\n", err);
+//	else                   printf("Success!\n");
+//
+//
+//
+//   sprintf(q,"CREATE TABLE pm_log("
+//  "id           INTEGER PRIMARY KEY,"
+//  "received_at  datetime,"
+//  "agt          double, "
+//  "player_num   INTEGER,"
+//  "message_type INTEGER,"
+//  "frame_num    INTEGER,"
+//  "message      TEXT); ");
+
+
+//   printf("Query: %s\n", q);
+//	exit = sqlite3_exec(db, q, NULL, 0, &err);
+//	if (exit != SQLITE_OK) printf("Error! (%s)\n", err);
+//	else                   printf("Success!\n");
+
+
+   sprintf(q, "INSERT INTO pm_log (frame_num, player_num) VALUES(23, 7);"
+              "INSERT INTO pm_log (frame_num, player_num) VALUES(24, 9);" );
+
+   printf("Query: %s\n", q);
+	exit = sqlite3_exec(db, q, NULL, 0, &err);
+	if (exit != SQLITE_OK) printf("Error! (%s)\n", err);
+	else                   printf("Success!\n");
+
+
+
+
+   sprintf(q, "SELECT * FROM pm_log;");
+
+   printf("STATE OF TABLE\n");
+
+   sqlite3_exec(db, q, callback, NULL, NULL);
+
+
+      sqlite3_close(db);
+
+*/
+
+
+
+   /*
+
+
+  sprintf(q,  "CREATE TABLE PERSON("
+					"ID INT PRIMARY KEY	 NOT NULL, "
+					"NAME		 TEXT NOT NULL, "
+					"SURNAME		 TEXT	 NOT NULL, "
+					"AGE		 INT	 NOT NULL, "
+					"ADDRESS	 CHAR(50), "
+					"SALARY		 REAL );");
+
+   printf("Create query: %s\n", q);
+
+	char* mError;
+	int exit = sqlite3_exec(db, q, NULL, 0, &mError);
+
+	if (exit != SQLITE_OK)
+   {
+      printf("Error Creating Table (%s)\n", mError);
+		sqlite3_free(mError);
+	}
+	else
+   {
+      printf("Table created Successfully\n");
+   }
+*/
+
+
+
+   /*
+
+
+   sprintf(q, "SELECT player_num FROM pm_log");
+
+   printf("Query: %s\n", q);
+
+   sqlite3_prepare(db, q, sizeof q, &stmt, NULL);
+
+    bool done = false;
+    while (!done)
+    {
+
+         printf("In select while\n");
+         switch (sqlite3_step (stmt))
+         {
+            case SQLITE_ROW:
+            dat = sqlite3_column_bytes(stmt, 0);
+            printf ("row %d: %d\n", row, dat);
+            row++;
+            break;
+
+            case SQLITE_DONE:
+               done = true;
+            break;
+
+            default:
+               fprintf(stderr, "Failed.\n");
+            return;
+        }
+    }
+
+    sqlite3_finalize(stmt);
+
+*/
+
+
+
+
+
+
+
+
+
 
 
 //   if (mNetgame.NetworkInit())

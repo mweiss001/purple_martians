@@ -1,5 +1,213 @@
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+Some common things to do with mysql:
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+installing
+-----------------
+
+sudo apt install mysql-server
+
+doing this on scat ubuntu 20.04
+
+sudo mysql
+
+got version 8.0.37
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+make a database user
+--------------------
+
+sudo mysql
+CREATE USER 'msq'@'localhost' IDENTIFIED WITH auth_socket;
+GRANT ALL PRIVILEGES ON *.* TO 'msq'@'localhost' WITH GRANT OPTION;
+
+
+
+login to myslq as user
+----------------------
+mysql -u<user> -p<pwd>
+
+
+
+
+
+USE session_db;
+
+SELECT DATABASE();
+show currently select database
+
+SHOW TABLES;
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+How to setup for pm logging:
+--------------------------------------------------------------------------------------------------------------------------------
+
+CREATE DATABASE pm;
+
+USE pm
+
+DROP TABLE logs;
+
+CREATE TABLE logs
+(
+  `id` int NOT NULL AUTO_INCREMENT,
+  `msg_type` int DEFAULT NULL,
+  `sub_type` int DEFAULT NULL,
+
+  `created` datetime DEFAULT NULL,
+  `agt` double DEFAULT NULL,
+  `frame_num` int DEFAULT NULL,
+
+  `player` int DEFAULT NULL,
+  `client` int DEFAULT NULL,
+  `message` text,
+
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE sessions (
+  id                INT AUTO_INCREMENT,
+  filename          VARCHAR(255),
+  timestamp         VARCHAR(255),
+  duration          INT,
+  ip                VARCHAR(255),
+  port              INT,
+  hostname          VARCHAR(255),
+  endreason         VARCHAR(255),
+  cdat_rx           INT,
+  player_num        INT,
+  next_levels       INT,
+  exits_activated   INT,
+  respawns          INT,
+  shots_fired       INT,
+  enemy_hits        INT,
+  player_hits       INT,
+  self_hits         INT,
+  purple_coins      INT,
+  tx_bytes_total            INT,
+  tx_bytes_avg_per_sec      INT,
+  tx_bytes_max_per_frame    INT,
+  rx_bytes_total            INT,
+  rx_bytes_avg_per_sec      INT,
+  rx_bytes_max_per_frame    INT,
+  tx_packets_total          INT,
+  tx_packets_avg_per_sec    INT,
+  tx_packets_max_per_frame  INT,
+  rx_packets_total          INT,
+  rx_packets_avg_per_sec    INT,
+  rx_packets_max_per_frame  INT,
+
+  PRIMARY KEY(id)
+);
+
+
+what users should I set up for this?
+
+the bash script that enters logs will need write access
+
+pmdb_rw
+pmdb_ro
+
+
+make a read only user
+
+DROP USER 'pmdb_ro'@'localhost';
+
+CREATE USER 'pmdb_ro'@'localhost' IDENTIFIED WITH mysql_native_password BY 'readonly';
+GRANT SELECT ON pm.* TO 'pmdb_ro'@'localhost';
+SHOW GRANTS FOR pmdb_ro@localhost;
+
+
+make a read / write user to add records
+
+DROP USER 'pmdb_rw'@'localhost';
+
+CREATE USER 'pmdb_rw'@'localhost' IDENTIFIED WITH mysql_native_password BY 'readwrite';
+GRANT SELECT, INSERT, UPDATE ON pm.* TO 'pmdb_rw'@'localhost';
+SHOW GRANTS FOR pmdb_rw@localhost;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 https://www.digitalocean.com/community/tutorials/how-to-install-lamp-stack-on-ubuntu
 
 sudo apt install mysql-server
@@ -557,6 +765,146 @@ SHOW GLOBAL STATUS LIKE 'Innodb_redo_log_enabled';
 
 it got worse: now 256ms
 
+
+
+20240622
+---------------------------------------------------------------------------------
+redo the pml databases...
+---------------------------------------------------------------------------------
+
+mysql> USE Syslog;
+
+mysql> SHOW tables;
++------------------------+
+| Tables_in_Syslog       |
++------------------------+
+| SystemEvents           |
+| SystemEventsProperties |
+| pm_log                 |
++------------------------+
+
+mysql> SELECT COUNT(*) FROM pm_log;
++----------+
+| COUNT(*) |
++----------+
+|     8524 |
++----------+
+
+mysql> SELECT COUNT(*) FROM SystemEvents;
++----------+
+| COUNT(*) |
++----------+
+| 43338108 |
++----------+
+
+mysql> SHOW CREATE TABLE pm_log;
++--------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Table  | Create Table                                                                                                                                                                                                                                                                                                                                                       |
++--------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| pm_log | CREATE TABLE `pm_log` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `received_at` datetime DEFAULT NULL,
+  `agt` double DEFAULT NULL,
+  `player_num` int DEFAULT NULL,
+  `message_type` int DEFAULT NULL,
+  `frame_num` int DEFAULT NULL,
+  `message` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10556 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci |
++--------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.01 sec)
+
+SELECT COUNT(*) FROM pm_log;
+SELECT COUNT(*) FROM SystemEvents;
+
+
+
+DROP TABLE `pm_log`;
+CREATE TABLE `pm_log`
+(
+  `id` int NOT NULL AUTO_INCREMENT,
+  `received_at` datetime DEFAULT NULL,
+  `agt` double DEFAULT NULL,
+  `player_num` int DEFAULT NULL,
+  `message_type` int DEFAULT NULL,
+  `frame_num` int DEFAULT NULL,
+  `message` text,
+  PRIMARY KEY (`id`)
+);
+
+DROP TABLE `SystemEvents`;
+CREATE TABLE `SystemEvents`
+(
+  `ID` int unsigned NOT NULL AUTO_INCREMENT,
+  `CustomerID` bigint DEFAULT NULL,
+  `ReceivedAt` datetime DEFAULT NULL,
+  `DeviceReportedTime` datetime DEFAULT NULL,
+  `Facility` smallint DEFAULT NULL,
+  `Priority` smallint DEFAULT NULL,
+  `FromHost` varchar(60) DEFAULT NULL,
+  `Message` text,
+  `NTSeverity` int DEFAULT NULL,
+  `Importance` int DEFAULT NULL,
+  `EventSource` varchar(60) DEFAULT NULL,
+  `EventUser` varchar(60) DEFAULT NULL,
+  `EventCategory` int DEFAULT NULL,
+  `EventID` int DEFAULT NULL,
+  `EventBinaryData` text,
+  `MaxAvailable` int DEFAULT NULL,
+  `CurrUsage` int DEFAULT NULL,
+  `MinUsage` int DEFAULT NULL,
+  `MaxUsage` int DEFAULT NULL,
+  `InfoUnitID` int DEFAULT NULL,
+  `SysLogTag` varchar(60) DEFAULT NULL,
+  `EventLogType` varchar(60) DEFAULT NULL,
+  `GenericFileName` varchar(60) DEFAULT NULL,
+  `SystemID` int DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+
+
+DROP TABLE `pm_session`;
+CREATE TABLE pm_session (
+  id                INT AUTO_INCREMENT,
+  filename          VARCHAR(255),
+  dt_start          DATETIME,
+  dt_end            DATETIME,
+  duration          INT,
+  ip                VARCHAR(255),
+  port              INT,
+  hostname          VARCHAR(255),
+  endreason         VARCHAR(255),
+  cdat_rx           INT,
+  player_num        INT,
+  next_levels       INT,
+  exits_activated   INT,
+  respawns          INT,
+  shots_fired       INT,
+  enemy_hits        INT,
+  player_hits       INT,
+  self_hits         INT,
+  purple_coins      INT,
+  tx_bytes_total            INT,
+  tx_bytes_avg_per_sec      INT,
+  tx_bytes_max_per_frame    INT,
+  rx_bytes_total            INT,
+  rx_bytes_avg_per_sec      INT,
+  rx_bytes_max_per_frame    INT,
+  tx_packets_total          INT,
+  tx_packets_avg_per_sec    INT,
+  tx_packets_max_per_frame  INT,
+  rx_packets_total          INT,
+  rx_packets_avg_per_sec    INT,
+  rx_packets_max_per_frame  INT,
+
+  PRIMARY KEY(id)
+);
+
+
+SELECT COUNT(*) FROM SystemEvents;
+SELECT COUNT(*) FROM pm_log;
+SELECT COUNT(*) FROM pm_session;
 
 
 

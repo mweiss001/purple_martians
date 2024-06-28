@@ -132,7 +132,6 @@ int mwLog::log_file_viewer(int type)
 
    // always on
    i = LOG_NET;                 tags[i][0] = 1; tags[i][1] = 15; // network
-   i = LOG_NET_join_details;    tags[i][0] = 1; tags[i][1] = 15; // join details
    i = LOG_NET_ending_stats;    tags[i][0] = 1; tags[i][1] = 15; // ending stats
 
    i = LOG_NET_bandwidth;       tags[i][0] = 0; tags[i][1] = 15; tags[i][3] = 66; sprintf(ctags[i], "band"); // bandwidth    (B) [CS]

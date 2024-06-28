@@ -17,7 +17,7 @@ mwLog::mwLog()
    // init_log_types(); // now only done when recreating settings.pm
 
    erase_log();
-
+   erase_lognet();
 }
 
 void mwLog::init_log_types(void)
@@ -34,7 +34,6 @@ void mwLog::init_log_types(void)
    i = LOG_error;                   log_types[i].group = 9;   strcpy(log_types[i].name, "LOG_error"); log_types[i].action = 3;   // always both actions
 
    i = LOG_NET;                     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET");
-   i = LOG_NET_join_details;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_join_details");
 
    i = LOG_NET_session;             log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_session");
 
@@ -87,6 +86,14 @@ void mwLog::erase_log(void)
    log_msg_pos = 0;
 }
 
+void mwLog::erase_lognet(void)
+{
+   lognet_msg[0] = 0;
+   lognet_msg_pos = 0;
+   lognet_msg_num_lines = 0;
+}
+
+
 void mwLog::save_log_file(void)
 {
    if (strlen(log_msg) > 0)
@@ -114,6 +121,47 @@ void mwLog::save_log_file(void)
       erase_log();
    }
 }
+
+void mwLog::save_lognet_file(void)
+{
+   if (strlen(lognet_msg) > 0)
+   {
+      al_make_directory("logs"); // create if not already created
+
+      char filename[256];
+      time_t now = time(NULL);
+      struct tm *timenow = localtime(&now);
+      strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S", timenow);
+
+      char lh[16];
+      strncpy(lh, mLoop.local_hostname, 16); // only get max 16 char of local_hostname
+
+      char ph[80];
+      sprintf(ph, "-[%d][%s].csv", mLevel.play_level, lh );
+
+      strcat(filename, ph);
+
+      FILE *filepntr = fopen(filename,"w");
+      fprintf(filepntr, "%s", lognet_msg);
+      fclose(filepntr);
+
+      printf("%s saved \n", filename);
+      erase_lognet();
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void mwLog::set_log_type_action(int type, int action)
 {
@@ -167,7 +215,7 @@ void mwLog::log_append_text(int type, const char *txt)
 
          // add to the thing
 
-         char t2[500];
+         char t2[1000];
          sprintf(t2, "<1>1 - - pm - - - [%0.7f]%s", al_get_time(), txt);
 
 //            sprintf(data, "<1>1 - - myapplication - - - message4");
@@ -178,12 +226,10 @@ void mwLog::log_append_text(int type, const char *txt)
 }
 
 
-
-
 // wrapper for 'log_append_text'  that takes a printf style format
 void mwLog::log_append_textf(int type, const char *format, ...)
 {
-   char smsg[500];
+   char smsg[1000];
    va_list args;
    va_start(args, format);
    vsprintf(smsg, format, args);
@@ -206,7 +252,7 @@ void mwLog::log_add_prefixed_text(int type, int player, const char *txt)
 void mwLog::log_add_prefixed_textf(int type, int player, const char *format, ...)
 {
    if (player == -1) player = mPlayer.active_local_player;
-   char smsg[200];
+   char smsg[1000];
    va_list args;
    va_start(args, format);
    vsprintf(smsg, format, args);
@@ -299,6 +345,9 @@ void mwLog::add_fwf(int type, int player, int width, int pos, const char *border
    va_start(args, format);
    vsprintf(smsg, format, args);
    va_end(args);
+
+
+
    add_fw(type, player, width, pos, border, fill, smsg);
 }
 
@@ -391,7 +440,7 @@ void mwLog::log_versions(void)
 void mwLog::log_ending_stats_client(int type, int p)
 {
    if (p == -1) p = mPlayer.active_local_player;
-   add_headerf(type, 0, 0, "Client %d (%s) ending stats", p, mPlayer.loc[p].hostname);
+   add_headerf(type, p, 0, "Client %d (%s) ending stats", p, mPlayer.loc[p].hostname);
 
    add_fwf(type, p, 76, 10, "|", " ", "total game frames.........[%d]", mLoop.frame_num);
    add_fwf(type, p, 76, 10, "|", " ", "frame when client joined..[%d]", mPlayer.loc[p].join_frame);
@@ -406,7 +455,7 @@ void mwLog::log_ending_stats_client(int type, int p)
    add_fwf(type, p, 76, 10, "|", " ", "cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
 
    log_bandwidth_stats(type, p);
-   add_fwf(type, 0, 76, 10, "+", "-", "");
+   add_fwf(type, p, 76, 10, "+", "-", "");
 }
 
 
@@ -427,17 +476,17 @@ void mwLog::log_ending_stats_server(int type)
    {
       if ((mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) || (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_CLIENT_ORPHAN))
       {
-         add_fwf(type, p, 76, 10, "|", " ", "Player:%d (%s)", p, mPlayer.loc[p].hostname);
-         add_fwf(type, p, 76, 10, "|", " ", "frame when client joined..[%d]", mPlayer.loc[p].join_frame);
+         add_fwf(type, 0, 76, 10, "|", " ", "Player:%d (%s)", p, mPlayer.loc[p].hostname);
+         add_fwf(type, 0, 76, 10, "|", " ", "frame when client joined..[%d]", mPlayer.loc[p].join_frame);
 
          if (mPlayer.loc[p].quit_frame == 0) mPlayer.loc[p].quit_frame = mLoop.frame_num;
-         add_fwf(type, p, 76, 10, "|", " ", "frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
+         add_fwf(type, 0, 76, 10, "|", " ", "frame when client quit....[%d]", mPlayer.loc[p].quit_frame);
 
          log_reason_for_player_quit(type, p);
 
-         add_fwf(type, p, 76, 10, "|", " ", "frames client was active..[%d]", mPlayer.loc[p].quit_frame - mPlayer.loc[p].join_frame);
-         add_fwf(type, p, 76, 10, "|", " ", "cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
-         add_fwf(type, p, 76, 10, "|", " ", "cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
+         add_fwf(type, 0, 76, 10, "|", " ", "frames client was active..[%d]", mPlayer.loc[p].quit_frame - mPlayer.loc[p].join_frame);
+         add_fwf(type, 0, 76, 10, "|", " ", "cdat packets total........[%d]", mPlayer.loc[p].client_cdat_packets_tx);
+         add_fwf(type, 0, 76, 10, "|", " ", "cdat packets late.........[%d]", mPlayer.syn[p].late_cdats);
 
          log_bandwidth_stats(type, p);
 
@@ -541,4 +590,168 @@ void mwLog::log_bandwidth_stats(int type, int p)
    add_fwf(type, p, 76, 10, "|", " ", "max rx packets per frame..[%d]", mPlayer.loc[p].rx_max_packets_per_frame);
    add_fwf(type, p, 76, 10, "|", " ", "max rx packets per second.[%d]", mPlayer.loc[p].rx_max_packets_per_tally);
 }
+
+
+
+
+
+
+
+
+// this will be called directly from all the places I want to log from
+// server will add directly and client will send packet
+// frame, player, agt and dt will all be recorded here...
+
+
+void mwLog::add_lognet_db_row(int type, int sub_type, int client, const char *format, ...)
+{
+   char dt[100];
+   time_t now = time(NULL);
+   struct tm *timenow = localtime(&now);
+   strftime(dt, sizeof(dt), "%Y-%m-%d %H:%M:%S", timenow);
+
+   double agt = al_get_time();
+   int f = mLoop.frame_num;
+   int p = mPlayer.active_local_player;
+
+
+   char smsg[800];
+   va_list args;
+   va_start(args, format);
+   vsprintf(smsg, format, args);
+   va_end(args);
+
+
+   char txt[1000];
+//   sprintf(db, "INSERT INTO pm_log (msg_type, sub_type, created, agt, frame_num, player, client, message) VALUES(%d, %d, %s, %f, %d, %d, %d, %s)\n", type, sub_type, dt, agt, f, p, client, smsg);
+   sprintf(txt, "%d,%d,%s,%f,%d,%d,%d,%s\n", type, sub_type, dt, agt, f, p, client, smsg);
+
+   printf("%s", txt);
+
+
+//   int limit = 2000;
+//   if ((lognet_msg_pos + (int)strlen(txt)) >= limit)
+//   {
+//      printf("lognet array full, > %d char ... saving\n", limit);
+//      save_lognet_file();
+//   }
+
+
+   int line_limit = 1000;
+   if (lognet_msg_num_lines > line_limit)
+   {
+      printf("%d lognet lines...dumping to file\n", line_limit);
+      save_lognet_file();
+   }
+
+
+
+
+
+   memcpy(lognet_msg + lognet_msg_pos, txt, strlen(txt));
+   lognet_msg_pos += strlen(txt);
+   lognet_msg[lognet_msg_pos+1] = 0; // NULL terminate
+
+
+   lognet_msg_num_lines++;
+
+}
+
+
+
+/*
+
+
+  msg_type, sub_type, created, agt, frame_num, player, client, message
+
+
+CREATE TABLE `pm_log`
+(
+  `id` int NOT NULL AUTO_INCREMENT,
+  `msg_type` int DEFAULT NULL,
+  `sub_type` int DEFAULT NULL,
+
+  `created` datetime DEFAULT NULL,
+  `agt` double DEFAULT NULL,
+  `frame_num` int DEFAULT NULL,
+
+  `player` int DEFAULT NULL,
+  `client` int DEFAULT NULL,
+  `message` text,
+
+  PRIMARY KEY (`id`)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+// wrapper for 'log_add_prefixed_text' that takes a printf style format
+void mwLog::log_add_prefixed_textf(int type, int player, const char *format, ...)
+{
+   if (player == -1) player = mPlayer.active_local_player;
+   char smsg[1000];
+   va_list args;
+   va_start(args, format);
+   vsprintf(smsg, format, args);
+   va_end(args);
+   log_add_prefixed_text(type, player, smsg);
+}
+
+
+
+
+pc
+0 0 server
+0 1 sever related to certain client
+1-7 0 client
+
+
+
+
+
+void mwLog::log_add_prefixed_text(int type, int player, const char *txt)
+
+
+int type
+int subtype
+double agt
+DATETIME createdAt
+int frame
+int player
+text message
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

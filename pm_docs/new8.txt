@@ -58777,6 +58777,1862 @@ I think I have that done...
 commit, but no new release...
 
 
+done...
+
+
+check the db...
+
+mysql> USE Syslog;
+
+mysql> SHOW tables;
++------------------------+
+| Tables_in_Syslog       |
++------------------------+
+| SystemEvents           |
+| SystemEventsProperties |
+| pm_log                 |
++------------------------+
+
+
+mysql> SELECT COUNT(*) FROM SystemEvents;
++----------+
+| COUNT(*) |
++----------+
+| 43338108 |
++----------+
+
+mysql> SELECT COUNT(*) FROM pm_log;
++----------+
+| COUNT(*) |
++----------+
+|     8524 |
++----------+
+
+
+erase and recreate:
+
+mysql> SHOW CREATE TABLE pm_log;
++--------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Table  | Create Table                                                                                                                                                                                                                                                                                                                                                       |
++--------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| pm_log | CREATE TABLE `pm_log` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `received_at` datetime DEFAULT NULL,
+  `agt` double DEFAULT NULL,
+  `player_num` int DEFAULT NULL,
+  `message_type` int DEFAULT NULL,
+  `frame_num` int DEFAULT NULL,
+  `message` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10556 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci |
++--------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.01 sec)
+
+
+DROP TABLE `pm_log`;
+CREATE TABLE `pm_log`
+(
+  `id` int NOT NULL AUTO_INCREMENT,
+  `received_at` datetime DEFAULT NULL,
+  `agt` double DEFAULT NULL,
+  `player_num` int DEFAULT NULL,
+  `message_type` int DEFAULT NULL,
+  `frame_num` int DEFAULT NULL,
+  `message` text,
+  PRIMARY KEY (`id`)
+);
+
+DROP TABLE `SystemEvents`;
+CREATE TABLE `SystemEvents`
+(
+  `ID` int unsigned NOT NULL AUTO_INCREMENT,
+  `CustomerID` bigint DEFAULT NULL,
+  `ReceivedAt` datetime DEFAULT NULL,
+  `DeviceReportedTime` datetime DEFAULT NULL,
+  `Facility` smallint DEFAULT NULL,
+  `Priority` smallint DEFAULT NULL,
+  `FromHost` varchar(60) DEFAULT NULL,
+  `Message` text,
+  `NTSeverity` int DEFAULT NULL,
+  `Importance` int DEFAULT NULL,
+  `EventSource` varchar(60) DEFAULT NULL,
+  `EventUser` varchar(60) DEFAULT NULL,
+  `EventCategory` int DEFAULT NULL,
+  `EventID` int DEFAULT NULL,
+  `EventBinaryData` text,
+  `MaxAvailable` int DEFAULT NULL,
+  `CurrUsage` int DEFAULT NULL,
+  `MinUsage` int DEFAULT NULL,
+  `MaxUsage` int DEFAULT NULL,
+  `InfoUnitID` int DEFAULT NULL,
+  `SysLogTag` varchar(60) DEFAULT NULL,
+  `EventLogType` varchar(60) DEFAULT NULL,
+  `GenericFileName` varchar(60) DEFAULT NULL,
+  `SystemID` int DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+
+
+
+start server and run for a few, connect client, next level then quit...
+
+m@pmh:~/dev/purple_martians$ php log_scrape.php
+
+Log scrape: 20240622-115601
+Found 8185 new log lines in SystemEvents
+
+Log scrape completed in: 63.068418979645 seconds
+
+0.0077053657885944 per record
+
+
+modified qt app and looks good...
+
+
+now I would like to have 2 TableViews side by side
+
+client and server
+
+
+keep the same data model, but different views
+filter by player
+
+I have 2 tableviews!!
+
+I want them to be wider....
+
+
+
+BUG -- player became active log message was using p when it should be using -1
+this log message should never show on client....
+fixed...
+
+recompile, deploy and generate test data again, is some missing??
+compare to log file...
+
+I think it is all good...
+
+now what?
+
+One big problem is that it takes as long to scrape from one db to another as it does to create the logs in the first place
+
+with all logging on, i get more than 10k lines per minute
+
+
+I need a way to manage this huge amount of data.
+
+with only 1000 lines in my model it already is sort of laggy...
+
+
+
+experiment with number of rows in model
+
+try 5000...
+
+
+
+
+How about showing some metadata?
+
+start and end of entire data set in table
+
+Total number of records in the table
+
+
+Table: pm_log
+Number of records:
+First timestamp:
+Last timestamp:
+
+Max number of rows to load into model:1000
+Starting timestamp:
+
+Actual number of rows in model: 1000
+Timespan of data in model:
+
+Rows to exclude when loading into model:
+
+
+add to sql widget:
+
+
+
+
+
+
+
+------------------------
+
+How about a graphical representation?
+Only count when there is at a least one client connected.
+
+Scrape the entire table and find all LEVEL STARTS
+
+It would greatly help if it was easier to find:
+LEVEL START
+NEXT LEVEL
+Player Became Active
+Player Became Inactive
+
+SERVER START
+CLIENT START
+
+I could show a list:
+
+earliest ts
+
+ranges where clients were active (like sessions?? !!)
+I think I've got it!!
+
+
+
+latest ts
+
+
+I should go back to pm and make sessions log
+
+also remove join details and make it part of LOG_NET....done
+
+
+
+
+
+
+LOG_NET_sessions
+
+calls
+
+
+if (mLog.log_types[LOG_NET_session].action) mNetgame.session_close(p, 2); // reason 2 - client quit
+if (mLog.log_types[LOG_NET_session].action) mNetgame.session_save_active_at_level_done();
+if (mLog.log_types[LOG_NET_session].action) session_flush_active_at_server_exit();
+
+if (mLog.log_types[LOG_NET_session].action) session_close(p, 4); // reason 4 - comm loss
+
+
+if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, p, 1, 0);
+if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, 9, 0, 1); // server full
+
+
+if (mLog.log_types[LOG_NET_session].action) session_check_active();
+
+I think I can hijack it at add_log...it seems like everything passes through there
+
+only instead of printing to console, send it to db
+
+OK I now have the sessions in the log like all the rest....
+
+now what?
+
+should I put them in their own table?
+duplicate the old log sessions....
+
+
+this would all be so much easier if I could just put them directly into the database...
+bypassing the syslog thing...
+
+
+
+
+OK now what?
+
+make a php to read pm_log and make sessions
+
+basically it can overwrite, just need the last one
+
+
+CREATE TABLE pm_session (
+  id                INT AUTO_INCREMENT,
+  filename          VARCHAR(255),
+  dt_start          DATETIME,
+  dt_end            DATETIME,
+  duration          INT,
+  ip                VARCHAR(255),
+  port              INT,
+  hostname          VARCHAR(255),
+  endreason         VARCHAR(255),
+  cdat_rx           INT,
+  player_num        INT,
+  next_levels       INT,
+  exits_activated   INT,
+  respawns          INT,
+  shots_fired       INT,
+  enemy_hits        INT,
+  player_hits       INT,
+  self_hits         INT,
+  purple_coins      INT,
+  tx_bytes_total            INT,
+  tx_bytes_avg_per_sec      INT,
+  tx_bytes_max_per_frame    INT,
+  rx_bytes_total            INT,
+  rx_bytes_avg_per_sec      INT,
+  rx_bytes_max_per_frame    INT,
+  tx_packets_total          INT,
+  tx_packets_avg_per_sec    INT,
+  tx_packets_max_per_frame  INT,
+  rx_packets_total          INT,
+  rx_packets_avg_per_sec    INT,
+  rx_packets_max_per_frame  INT,
+
+  PRIMARY KEY(id)
+);
+
+
+
+OK I think I have that done...now what?
+
+something in the app to see sessions
+
+another TableView thing..started and looking good...
+
+
+I want to have some new sections:
+
+describe the model, which is loaded from the sql
+
+max number of lines loaded
+
+
+in the sessions widget:
+
+for each session, also show how many log lines are in the time range
+
+
+
+
+The huge problem I still have is:
+
+With full logging, I could expect:
+every frame:
+server:
+1 rewind
+1 create
+
+server per client
+1 cdat (7)
+1 stak (7)
+1 stdf tx (7)
+1-5 stdf pieces (7-35)
+
+client per client
+1 cdat (7)
+1 stak (7)
+1-5 stdf pieces (7-35)
+1 stdf decode (7)
+1 dif apply (7)
+1 timer adjut (7)
+
+
+best case (1 packet, 1 client)
+------------------------------
+server:
+1 rewind
+1 create
+
+server per client
+1 cdat
+1 stak
+1 stdf tx
+1 stdf pieces
+
+client per client
+1 cdat
+1 stak
+1 stdf pieces
+1 stdf decode
+1 dif apply
+1 timer adjust
+------
+10 log lines per frame
+400 per second
+2400 per minute
+
+
+worst case (5 packets, 7 client)
+------------------------------
+server:
+1 rewind
+1 create
+--
+2
+
+server per client
+7 cdat (7)
+7 stak (7)
+7 stdf tx (7)
+35 stdf pieces (7-35)
+--
+56
+
+client per client
+7 cdat (7)
+7 stak (7)
+35 stdf pieces (7-35)
+7 stdf decode (7)
+7 dif apply (7)
+7 timer adjut (7)
+--
+70
+
+128 log lines per frame
+5120 per second
+307,200 per minute
+
+my function that scrapes from one db to another takes 7ms per line
+
+
+307,200 x .007 = 2150s = 35min to parse 1 minute
+
+2400 x 0.07 = 16.8s to parse 1 minute
+
+how can I speed up the conversion?
+
+
+I could probably do it as a stored procedure in mysql
+
+redo all of the code I have already done in php....
+
+
+what does it do? high level
+
+SELECT ID, ReceivedAt, Message FROM SystemEvents WHERE SysLogTag ='pm'
+
+parse message into:
+      get_tag($Message, "agt",           $aa_data);
+      get_tag($Message, "message_type",  $aa_data);
+      get_tag($Message, "player_num",    $aa_data);
+      get_tag($Message, "frame_num",     $aa_data);
+      $aa_data["message"] = $Message;
+
+then either add to pm_log or pm_sessions
+
+if (message_type == 14) add to pm_sessions
+else                    add to pm_log
+
+then delete from SystemEvents
+DELETE FROM SystemEvents WHERE ID = '$ID'
+
+
+add to pm_log
+INSERT INTO pm_log ($ak) VALUES ($av)
+
+
+add or update pm_sessions
+SELECT id FROM pm_session WHERE filename='$fn'
+
+
+" not found in db, inserting\n";
+"INSERT INTO pm_session ($ak) VALUES ($av)";
+
+" found in db, updating\n";
+"UPDATE pm_session SET ... WHERE id=$id
+
+
+
+
+
+
+OK lets see what we can do....
+
+I think I will make the procedure here in a text editor then copy it over ssh....
+
+
+
+DELIMITER //
+CREATE PROCEDURE test()
+BEGIN
+    SELECT * FROM pm_session;
+END //
+DELIMITER ;
+
+
+
+
+DECLARE Cursor CURSOR FOR SELECT ID, ReceivedAt, Message INTO ID, ReceivedAt, Message FROM SystemEvents WHERE SysLogTag ='pm';
+
+
+
+
+
+
+CALL test();
+
+SELECT ("test");
+
+tmp = LOCATE(mMessage, "]");
+
+SELECT (tmp);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE test;
+
+DELIMITER //
+CREATE PROCEDURE test()
+
+BEGIN
+DECLARE finished INT DEFAULT 0;
+DECLARE mID INT DEFAULT 0;
+DECLARE mReceivedAt DATETIME DEFAULT NULL;
+DECLARE mMessage TEXT DEFAULT NULL;
+
+DECLARE magt TEXT DEFAULT NULL;
+DECLARE mmessage_type INT DEFAULT 0;
+DECLARE mplayer_num INT DEFAULT 0;
+DECLARE mframe_num INT DEFAULT 0;
+
+DECLARE tmp INT DEFAULT 0;
+DECLARE y INT;
+/*SET y = 0;*/
+
+DECLARE myCursor CURSOR FOR SELECT ID, ReceivedAt, Message FROM SystemEvents WHERE SysLogTag = "pm";
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET finished = 1;
+
+OPEN myCursor;
+
+myLoop: LOOP
+  FETCH myCursor INTO mID, mReceivedAt, mMessage;
+   IF finished = 1 THEN
+      LEAVE myLoop;
+   END IF;
+
+SELECT (SUBSTR(mMessage, 2)) INTO mMessage;
+
+SELECT (LOCATE(']', mMessage)) INTO tmp ;
+SELECT (SUBSTR(mMessage, 1, tmp-1)) INTO magt;
+SELECT (SUBSTR(mMessage, tmp+2)) INTO mMessage;
+
+SELECT (LOCATE(']', mMessage)) INTO tmp ;
+SELECT (SUBSTR(mMessage, 1, tmp-1)) INTO mmessage_type;
+SELECT (SUBSTR(mMessage, tmp+2)) INTO mMessage;
+
+SELECT (LOCATE(']', mMessage)) INTO tmp ;
+SELECT (SUBSTR(mMessage, 1, tmp-1)) INTO mplayer_num;
+SELECT (SUBSTR(mMessage, tmp+2)) INTO mMessage;
+
+SELECT (LOCATE(']', mMessage)) INTO tmp ;
+SELECT (SUBSTR(mMessage, 1, tmp-1)) INTO mframe_num;
+SELECT (SUBSTR(mMessage, tmp+1)) INTO mMessage;
+
+/*
+SELECT (mframe_num);
+SELECT (mmessage_type);
+SELECT (mMessage);
+SELECT (mplayer_num);
+SELECT (mID);
+SELECT (mReceivedAt);
+SELECT (mMessage);
+*/
+
+INSERT INTO pm_log(received_at, agt, player_num, message_type, frame_num, message) VALUES (mReceivedAt, magt, mplayer_num, mmessage_type, mframe_num, mMessage);
+
+END LOOP myLoop;
+
+CLOSE myCursor;
+
+SELECT ("Count");
+SELECT ("cnt");
+
+END //
+DELIMITER ;
+
+
+
+CALL test();
+
+
+9193 took 33s
+3.5ms per record
+
+
+better....!
+
+
+
+
+
+
+
+
+here is my thought:
+
+
+if the server has a connection to the client, why don't I send the log messages that way
+
+
+
+just a short simple UDP packet...this is the way that it already is....
+
+
+then the server will be responsible for adding all messages to the database
+and I will make a method that puts them in the tables that i want right from the start...
+
+this passing through syslog, then having to move them from one table to another is more complicated than needed and slow
+
+
+So how to I go about that?
+
+
+first of all...
+
+find out how to add from my code....
+
+you heard it right, execute queries from my project....
+
+this will be a huge change, it will need some non allegro, maybe non portable code....
+
+looking into it...sqlite is being heavily recommended...
+
+Do I want it only on the server?
+
+
+
+
+----------------------
+
+
+
+Do not change existing logging.
+
+Add to it.
+
+Clients will send existing log entries but add Datetime and agt.
+
+Make struct like planned. The main things to add are DateTime and agt.
+
+It will live only on server.
+
+
+Server will add to new struct in addition to what it already does.
+Server will add log messages received from client in the same manner.
+
+Periodically, or when the struct gets a certain number of entries it will be flushed to disk.
+
+I also want to make a new log entry that has all the info to make scrolling graphs on the remote.
+
+
+This will be in addition to the existing logging.
+
+This will only be for logging related to Netgame.
+
+
+make a function that gets called whenever one of these log entries gets called...
+
+add_log_net_entry
+
+if it gets called on the server, it will add to the struct
+if it gets called on the client, it will send a packet
+
+
+
+
+
+struct lognet_db_rows
+
+int type
+int subtype
+double agt
+DATETIME createdAt
+int frame
+int player
+text message
+
+
+-----------------------
+
+where do I start?
+
+
+one more adjustment...why do I need the struct?...save to flat text log...
+
+
+create a new function add_lognet_db_row..
+
+create a new char array to save to...
+
+
+make a function to return DATETIME in the most common format for entering into db YYYY-MM-DD hh:mm:ss
+or could I just make it something number of seconds??
+
+
+what is the final version of the columns in the pm_log table?
+
+this was the pevious one:
+
+DROP TABLE `pm_log`;
+CREATE TABLE `pm_log`
+(
+  `id` int NOT NULL AUTO_INCREMENT,
+  `received_at` datetime DEFAULT NULL,
+  `agt` double DEFAULT NULL,
+  `player_num` int DEFAULT NULL,
+  `message_type` int DEFAULT NULL,
+  `frame_num` int DEFAULT NULL,
+  `message` text,
+  PRIMARY KEY (`id`)
+);
+
+
+This looks good for the new one...
+
+
+
+DROP TABLE `pm_log`;
+CREATE TABLE `pm_log`
+(
+  `id` int NOT NULL AUTO_INCREMENT,
+  `msg_type` int DEFAULT NULL,
+  `sub_type` int DEFAULT NULL,
+
+  `created` datetime DEFAULT NULL,
+  `agt` double DEFAULT NULL,
+  `frame_num` int DEFAULT NULL,
+
+  `player` int DEFAULT NULL,
+  `client` int DEFAULT NULL,
+  `message` text,
+
+  PRIMARY KEY (`id`)
+);
+
+
+it looks like the best format to save the file is is csv
+
+char lognet_db_msg[NUM_LOG_CHAR];
+int lognet_db_msglog_msg_pos = 0;
+
+
+
+I now have the rough framework of creating files...
+
+Now make php to load into db...
+
+
+first of all make the table...done...
+
+now make some logs on the server..
+
+
+done
+
+-rw-rw-r--  1 m m   100017 Jun 22 23:28 '20240622-232811-[8][pmh].txt'
+-rw-rw-r--  1 m m   133755 Jun 23 03:52 '20240623-035215-[1][pmh].txt'
+-rw-rw-r--  1 m m   128856 Jun 23 03:52 '20240623-035225-[20][pmh].txt'
+-rw-rw-r--  1 m m     1993 Jun 25 05:12 '20240625-051247-[1][pmh].csv'
+-rw-rw-r--  1 m m     1944 Jun 25 05:12 '20240625-051248-[1][pmh].csv'
+-rw-rw-r--  1 m m     1981 Jun 25 05:12 '20240625-051249-[1][pmh].csv'
+-rw-rw-r--  1 m m     1933 Jun 25 05:12 '20240625-051250-[1][pmh].csv'
+drwxr-xr-x  2 m m     4096 Jun 23 03:55  session/
+
+
+/home/m/dev/purple_martians/logs/'20240625-051250-[1][pmh].csv'
+
+now try to import into db...
+
+LOAD DATA INFILE "/home/m/dev/purple_martians/logs/20240625-051250-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n';
+
+ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot execute this statement
+
+
+
+LOAD DATA LOCAL INFILE "/home/m/dev/purple_martians/logs/20240625-051250-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n';
+
+ERROR 3948 (42000): Loading local data is disabled; this must be enabled on both the client and server sides
+
+
+
+
+edit /ect/mysql/my.cnf and add:
+--secure-file-priv /home/m/dev/purple_martians/logs/
+
+
+
+
+!includedir /etc/mysql/conf.d/
+!includedir /etc/mysql/mysql.conf.d/
+m@pmh:~$ nano /etc/mysql/my.cnf
+m@pmh:~$ sudo nano /etc/mysql/my.cnf
+
+I think I found something at:
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+add:
+
+secure-file-priv = /home/m/dev/purple_martians/logs/
+this cause mysql to not start...
+
+
+
+mysqld --verbose --help
+
+shows:
+secure-file-priv /var/lib/mysql-files
+
+and also:
+
+To see what values a running MySQL server is using, type
+'mysqladmin variables' instead of 'mysqld --verbose --help'.
+
+this showed the same thing....
+
+ /var/lib/mysql-files
+
+
+cp /home/m/dev/purple_martians/logs/20240625-051250-[1][pmh].csv /var/lib/mysql-files
+
+needed sudo...
+
+
+now try
+
+LOAD DATA INFILE "/var/lib/mysql-files/20240625-051250-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n';
+
+
+mysql>
+mysql> use Syslog;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> LOAD DATA INFILE "20240625-051250-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n';
+ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot execute this statement
+mysql> LOAD DATA INFILE "/var/lib/mysql-files/20240625-051250-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n';
+ERROR 1265 (01000): Data truncated for column 'sub_type' at row 1
+mysql>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+try adding a leading comma
+
+
+
+
+
+
+
+
+26, 0, 2024-06-25 17:19:17, 3.682748, 124, 0, 0, stdf save state:125
+
+26, 0, 2024-06-25 17:19:17, 3.707752, 125, 0, 0, stdf save state:126
+
+
+
+
+  `id` int NOT NULL AUTO_INCREMENT,
+  `msg_type` int DEFAULT NULL,
+  `sub_type` int DEFAULT NULL,
+
+  `created` datetime DEFAULT NULL,
+  `agt` double DEFAULT NULL,
+  `frame_num` int DEFAULT NULL,
+
+  `player` int DEFAULT NULL,
+  `client` int DEFAULT NULL,
+  `message` text,
+
+
+
+
+
+
+
+
+
+drwxr-xr-x  3 m m 36864 Jun 25 17:39  ./
+drwxrwxrwx 16 m m  4096 Jun 25 17:37  ../
+-rw-rw-r--  1 m m  6957 Jun 25 17:39 '20240625-173900-[1][pmh].csv'
+drwxr-xr-x  2 m m  4096 Jun 23 03:55  session/
+m@pmh:~/dev/purple_martians/logs$ cp
+
+
+
+sudo cp /home/m/dev/purple_martians/logs/20240625-173900-[1][pmh].csv /var/lib/mysql-files
+
+
+LOAD DATA INFILE "/var/lib/mysql-files/20240625-173900-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message) ;
+
+(msg_type, sub_type, created, agt, frame_num, player, client, message)
+
+
+
+
+
+
+-rw-rw-r--  1 m m  6957 Jun 25 17:39 '20240625-173900-[1][pmh].csv'
+-rw-rw-r--  1 m m  3400 Jun 25 18:08 '20240625-180815-[1][pmh].csv'
+-rw-rw-r--  1 m m  3424 Jun 25 18:08 '20240625-180817-[1][pmh].csv'
+drwxr-xr-x  2 m m  4096 Jun 23 03:55  session/
+
+
+sudo cp /home/m/dev/purple_martians/logs/20240625-180817-[1][pmh].csv /var/lib/mysql-files
+
+LOAD DATA INFILE "/var/lib/mysql-files/20240625-180817-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message) ;
+
+
+
+
+mysql> LOAD DATA INFILE "/var/lib/mysql-files/20240625-180817-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message) ;
+Query OK, 51 rows affected, 51 warnings (0.01 sec)
+Records: 51  Deleted: 0  Skipped: 0  Warnings: 51
+
+10ms to do 50... 0.2ms per entry...way better than 7 or 3.5 I was getting
+
+mysql> SHOW WARNINGS;
++---------+------+---------------------------------------------------------------------------------------------------------------------------------+
+| Level   | Code | Message                                                                                                                         |
++---------+------+---------------------------------------------------------------------------------------------------------------------------------+
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:15' at row 1 is superfluous and is deprecated. Please remove.  |
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:15' at row 2 is superfluous and is deprecated. Please remove.  |
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:15' at row 3 is superfluous and is deprecated. Please remove.  |
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:15' at row 4 is superfluous and is deprecated. Please remove.  |
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:15' at row 5 is superfluous and is deprecated. Please remove.  |
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:15' at row 6 is superfluous and is deprecated. Please remove.  |
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:15' at row 7 is superfluous and is deprecated. Please remove.  |
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:15' at row 8 is superfluous and is deprecated. Please remove.  |
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:16' at row 9 is superfluous and is deprecated. Please remove.  |
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:16' at row 10 is superfluous and is deprecated. Please remove. |
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:16' at row 11 is superfluous and is deprecated. Please remove. |
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:16' at row 12 is superfluous and is deprecated. Please remove. |
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:16' at row 13 is superfluous and is deprecated. Please remove. |
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:16' at row 14 is superfluous and is deprecated. Please remove. |
+| Warning | 4096 | Delimiter ' ' in position 0 in datetime value ' 2024-06-25 18:08:16' at row 15 is superfluous and is deprecated. Please remove. |
+
+
+
+mysql>
+mysql> SELECT * FROM pm_log;
++----+----------+----------+---------------------+----------+-----------+--------+--------+----------------------+
+| id | msg_type | sub_type | created             | agt      | frame_num | player | client | message              |
++----+----------+----------+---------------------+----------+-----------+--------+--------+----------------------+
+|  1 |       26 |        0 | 2024-06-25 18:08:15 | 1.402517 |        52 |      0 |      0 |  stdf save state:53  |
+|  2 |       26 |        0 | 2024-06-25 18:08:15 | 1.427501 |        53 |      0 |      0 |  stdf save state:54  |
+|  3 |       26 |        0 | 2024-06-25 18:08:15 | 1.452506 |        54 |      0 |      0 |  stdf save state:55  |
+|  4 |       26 |        0 | 2024-06-25 18:08:15 | 1.477511 |        55 |      0 |      0 |  stdf save state:56  |
+|  5 |       26 |        0 | 2024-06-25 18:08:15 | 1.502499 |        56 |      0 |      0 |  stdf save state:57  |
+|  6 |       26 |        0 | 2024-06-25 18:08:15 | 1.527499 |        57 |      0 |      0 |  stdf save state:58  |
+|  7 |       26 |        0 | 2024-06-25 18:08:15 | 1.552507 |        58 |      0 |      0 |  stdf save state:59  |
+|  8 |       26 |        0 | 2024-06-25 18:08:15 | 1.577508 |        59 |      0 |      0 |  stdf save state:60  |
+|  9 |       26 |        0 | 2024-06-25 18:08:16 |  1.60252 |        60 |      0 |      0 |  stdf save state:61  |
+| 10 |       26 |        0 | 2024-06-25 18:08:16 | 1.627495 |        61 |      0 |      0 |  stdf save state:62  |
+| 11 |       26 |        0 | 2024-06-25 18:08:16 | 1.652517 |        62 |      0 |      0 |  stdf save state:63  |
+| 12 |       26 |        0 | 2024-06-25 18:08:16 | 1.677506 |        63 |      0 |      0 |  stdf save state:64  |
+| 13 |       26 |        0 | 2024-06-25 18:08:16 | 1.702498 |        64 |      0 |      0 |  stdf save state:65  |
+| 14 |       26 |        0 | 2024-06-25 18:08:16 | 1.727496 |        65 |      0 |      0 |  stdf save state:66  |
+| 15 |       26 |        0 | 2024-06-25 18:08:16 | 1.752519 |        66 |
+
+
+
+
+
+
+next do 1000 with no commas:
+
+-rw-rw-r--  1 m m  6957 Jun 25 17:39 '20240625-173900-[1][pmh].csv'
+-rw-rw-r--  1 m m  3400 Jun 25 18:08 '20240625-180815-[1][pmh].csv'
+-rw-rw-r--  1 m m  3424 Jun 25 18:08 '20240625-180817-[1][pmh].csv'
+-rw-rw-r--  1 m m 62458 Jun 25 18:17 '20240625-181723-[1][pmh].csv'
+
+sudo cp /home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv /var/lib/mysql-files
+
+LOAD DATA INFILE "/var/lib/mysql-files/20240625-181723-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message) ;
+
+mysql> LOAD DATA INFILE "/var/lib/mysql-files/20240625-181723-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message) ;
+Query OK, 1001 rows affected (0.04 sec)
+Records: 1001  Deleted: 0  Skipped: 0  Warnings: 0
+
+1000 records in 40ms = 0.04ms per entry, now we are getting somewhere
+
+
+I thinn this is working as a proof of concept, next:
+
+fix the string size error...done
+
+get mysql to read these files from any dir...
+
+
+
+Security Requirements
+
+For a non-LOCAL load operation, the server reads a text file located on the server host, so these security requirements must be satisfied:
+
+    You must have the FILE privilege. See Section 8.2.2, “Privileges Provided by MySQL”.
+
+    The operation is subject to the secure_file_priv system variable setting:
+
+        If the variable value is a nonempty directory name, the file must be located in that directory.
+
+        If the variable value is empty (which is insecure), the file need only be readable by the server.
+
+For a LOCAL load operation, the client program reads a text file located on the client host. Because the file contents are sent over the connection by the client to the server, using LOCAL is a bit slower than when the server accesses the file directly. On the other hand, you do not need the FILE privilege, and the file can be located in any directory the client program can access.
+
+
+
+so to start with try doing the same file with the LOCAL
+
+LOAD DATA LOCAL INFILE "/home/m/dev/purple_martians/logs//20240625-181723-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message) ;
+
+
+ERROR 3948 (42000): Loading local data is disabled; this must be enabled on both the client and server sides
+
+
+    nano /etc/mysql/mysql.conf.d/mysqld.cnf
+    in the [mysqld] section add this line:
+
+local_infile    = 1
+
+    add to the bottom of the file these two lines:
+
+[client]
+
+local_infile    = 1
+
+    run this command from my client: SET GLOBAL local_infile=1;
+
+NOTE: revised the above to include extra step to make sure local_infile=1 is added to the [mysqld] section. This saves me having to run SET GLOBAL local_infile=1; after each reboot.
+
+
+ndowTileHelper.o o/src/sqlite.o -lallegro_monolith -lz -lnet -lpthread -Wl,-rpath='./linux_libs'
+m@pmh:~/dev/purple_martians$ sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+[sudo] password for m:
+m@pmh:~/dev/purple_martians$ sudo systemctl status mysql.service
+● mysql.service - MySQL Community Server
+     Loaded: loaded (/lib/systemd/system/mysql.service; enabled; vendor preset: enabled)
+     Active: active (running) since Tue 2024-06-25 12:38:18 MDT; 6h ago
+    Process: 748 ExecStartPre=/usr/share/mysql/mysql-systemd-start pre (code=exited, status=0/SUCCESS)
+   Main PID: 867 (mysqld)
+     Status: "Server is operational"
+      Tasks: 40 (limit: 9291)
+     Memory: 459.7M
+        CPU: 4min 27.089s
+     CGroup: /system.slice/mysql.service
+             └─867 /usr/sbin/mysqld
+
+Jun 25 12:38:16 pmh systemd[1]: Starting MySQL Community Server...
+Jun 25 12:38:18 pmh systemd[1]: Started MySQL Community Server.
+m@pmh:~/dev/purple_martians$ sudo systemctl restart mysql.service
+m@pmh:~/dev/purple_martians$
+
+
+
+
+
+
+mysql> LOAD DATA LOCAL INFILE "/home/m/dev/purple_martians/logs//20240625-181723-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message) ;
+ERROR 3948 (42000): Loading local data is disabled; this must be enabled on both the client and server sides
+mysql> LOAD DATA LOCAL INFILE "/home/m/dev/purple_martians/logs//20240625-181723-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message) ;
+ERROR 2013 (HY000): Lost connection to MySQL server during query
+No connection. Trying to reconnect...
+Connection id:    8
+Current database: Syslog
+
+ERROR 2068 (HY000): LOAD DATA LOCAL INFILE file request rejected due to restrictions on access.
+mysql> LOAD DATA LOCAL INFILE "/home/m/dev/purple_martians/logs//20240625-181723-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message) ;
+ERROR 2068 (HY000): LOAD DATA LOCAL INFILE file request rejected due to restrictions on access.
+mysql>
+
+
+
+
+
+New log scrape: 20240626-054507
+/home/m/dev/purple_martians/logs.20240625-181723-[1][pmh].csv
+LOAD DATA INFILE '/home/m/dev/purple_martians/logs.20240625-181723-[1][pmh].csv' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);
+PHP Fatal error:  Uncaught mysqli_sql_exception: Can't get stat of '/home/m/dev/purple_martians/logs.20240625-181723-[1][pmh].csv' (OS errno 13 - Permission denied) in /home/m/dev/purple_martians/new_log_scrape.php:43
+Stack trace:
+#0 /home/m/dev/purple_martians/new_log_scrape.php(43): mysqli_query()
+#1 {main}
+  thrown in /home/m/dev/purple_martians/new_log_scrape.php on line 43
+m@pmh:~/dev/purple_martians$
+
+
+
+cat /home/m/dev/purple_martians/logs.20240625-181723-[1][pmh].csv
+
+
+
+
+
+
+
+
+
+m@pmh:~/dev/purple_martians$
+m@pmh:~/dev/purple_martians$ php new_log_scrape.php
+
+New log scrape: 20240626-055022
+/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv
+LOAD DATA INFILE '/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);
+PHP Fatal error:  Uncaught mysqli_sql_exception: Can't get stat of '/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv' (OS errno 13 - Permission denied) in /home/m/dev/purple_martians/new_log_scrape.php:40
+Stack trace:
+#0 /home/m/dev/purple_martians/new_log_scrape.php(40): mysqli_query()
+#1 {main}
+  thrown in /home/m/dev/purple_martians/new_log_scrape.php on line 40
+m@pmh:~/dev/purple_martians$
+
+
+cat /home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv
+
+
+php <?php echo exec('whoami'); ?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ERROR 2068 (HY000): LOAD DATA LOCAL INFILE file request rejected due to restrictions on access.
+mysql> LOAD DATA INFILE "/home/m/dev/purple_martians/logs//20240625-181723-[1][pmh].csv" INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message) ;
+ERROR 13 (HY000): Can't get stat of '/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv' (OS errno 13 - Permission denied)
+mysql>
+
+
+
+
+secure-file-priv = ""
+this works...
+
+however if I change it to something else mysql does not start...
+
+try
+
+
+secure-file-priv = /home/m/dev/purple_martians/logs
+
+
+
+
+
+00 PREC=0x00 TTL=56 ID=3706 PROTO=TCP SPT=40192 DPT=372>
+Jun 25 20:57:11 pmh sudo[4787]: pam_unix(sudo:session): session closed for user root
+
+Jun 25 20:57:13 pmh sudo[4793]:        m : TTY=pts/2 ; PWD=/home/m/dev/purple_martians ; USER=root ; COMMAND=/usr/bin/systemctl restart mysql.service
+Jun 25 20:57:13 pmh sudo[4793]: pam_unix(sudo:session): session opened for user root(uid=0) by m(uid=1000)
+Jun 25 20:57:13 pmh systemd[1]: Stopping MySQL Community Server...
+Jun 25 20:57:13 pmh rsyslogd[755]: ommysql: db error (2002): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (2)  [v8.2112.0]
+Jun 25 20:57:13 pmh rsyslogd[755]: action 'action-8-ommysql' suspended (module 'ommysql'), retry 0. There should be messages before this one giving the reason for suspension. [v8.2112.0 try https://www.rs>
+Jun 25 20:57:13 pmh rsyslogd[755]: action 'action-8-ommysql' suspended (module 'ommysql'), next retry is Tue Jun 25 20:57:43 2024, retry nbr 0. There should be messages before this one giving the reason f>
+Jun 25 20:57:13 pmh rsyslogd[755]: action 'action-8-ommysql' suspended (module 'ommysql'), retry 1. There should be messages before this one giving the reason for suspension. [v8.2112.0 try https://www.rs>
+
+
+Jun 25 20:57:17 pmh systemd[1]: mysql.service: Deactivated successfully.
+Jun 25 20:57:17 pmh systemd[1]: Stopped MySQL Community Server.
+Jun 25 20:57:17 pmh systemd[1]: mysql.service: Consumed 1.437s CPU time.
+Jun 25 20:57:17 pmh systemd[1]: Starting MySQL Community Server...
+Jun 25 20:57:17 pmh mysqld[4805]: mysqld: Error on realpath() on '/home/m/dev/purple_martians/logs' (Error 13 - Permission denied)
+Jun 25 20:57:17 pmh systemd[1]: mysql.service: Main process exited, code=exited, status=1/FAILURE
+Jun 25 20:57:17 pmh systemd[1]: mysql.service: Failed with result 'exit-code'.
+Jun 25 20:57:17 pmh systemd[1]: Failed to start MySQL Community Server.
+Jun 25 20:57:17 pmh sudo[4793]: pam_unix(sudo:session): session closed for user root
+Jun 25 20:57:17 pmh systemd[1]: mysql.service: Scheduled restart job, restart counter is at 1.
+Jun 25 20:57:17 pmh systemd[1]: Stopped MySQL Community Server.
+Jun 25 20:57:17 pmh systemd[1]: Starting MySQL Community Server...
+Jun 25 20:57:17 pmh mysqld[4817]: mysqld: Error on realpath() on '/home/m/dev/purple_martians/logs' (Error 13 - Permission denied)
+Jun 25 20:57:17 pmh systemd[1]: mysql.service: Main process exited, code=exited, status=1/FAILURE
+Jun 25 20:57:17 pmh systemd[1]: mysql.service: Failed with result 'exit-code'.
+Jun 25 20:57:17 pmh systemd[1]: Failed to start MySQL Community Server.
+
+Jun 25 20:57:18 pmh systemd[1]: mysql.service: Scheduled restart job, restart counter is at 2.
+Jun 25 20:57:18 pmh systemd[1]: Stopped MySQL Community Server.
+Jun 25 20:57:18 pmh systemd[1]: Starting MySQL Community Server...
+Jun 25 20:57:18 pmh mysqld[4827]: mysqld: Error on realpath() on '/home/m/dev/purple_martians/logs' (Error 13 - Permission denied)
+Jun 25 20:57:18 pmh systemd[1]: mysql.service: Main process exited, code=exited, status=1/FAILURE
+Jun 25 20:57:18 pmh systemd[1]: mysql.service: Failed with result 'exit-code'.
+Jun 25 20:57:18 pmh systemd[1]: Failed to start MySQL Community Server.
+Jun 25 20:57:18 pmh systemd[1]: mysql.service: Scheduled restart job, restart counter is at 3.
+Jun 25 20:57:18 pmh systemd[1]: Stopped MySQL Community Server.
+Jun 25 20:57:18 pmh systemd[1]: Starting MySQL Community Server...
+Jun 25 20:57:18 pmh mysqld[4836]: mysqld: Error on realpath() on '/home/m/dev/purple_martians/logs' (Error 13 - Permission denied)
+Jun 25 20:57:18 pmh systemd[1]: mysql.service: Main process exited, code=exited, status=1/FAILURE
+Jun 25 20:57:18 pmh systemd[1]: mysql.service: Failed with result 'exit-code'.
+Jun 25 20:57:18 pmh systemd[1]: Failed to start MySQL Community Server.
+
+Jun 25 20:57:19 pmh systemd[1]: mysql.service: Scheduled restart job, restart counter is at 4.
+Jun 25 20:57:19 pmh systemd[1]: Stopped MySQL Community Server.
+Jun 25 20:57:19 pmh systemd[1]: Starting MySQL Community Server...
+Jun 25 20:57:19 pmh mysqld[4846]: mysqld: Error on realpath() on '/home/m/dev/purple_martians/logs' (Error 13 - Permission denied)
+Jun 25 20:57:19 pmh systemd[1]: mysql.service: Main process exited, code=exited, status=1/FAILURE
+Jun 25 20:57:19 pmh systemd[1]: mysql.service: Failed with result 'exit-code'.
+Jun 25 20:57:19 pmh systemd[1]: Failed to start MySQL Community Server.
+Jun 25 20:57:19 pmh systemd[1]: mysql.service: Scheduled restart job, restart counter is at 5.
+Jun 25 20:57:19 pmh systemd[1]: Stopped MySQL Community Server.
+lines 1-93
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+so what if I make a php script to add all csv files in logs dir...
+
+
+
+m@pmh:~/dev/purple_martians$ php new_log_scrape.php
+
+New log scrape: 20240626-054038
+/home/m/dev/purple_martians/logs.20240625-181723-[1][pmh].csv
+LOAD DATA INFILE '/home/m/dev/purple_martians/logs.20240625-181723-[1][pmh].csv' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);
+PHP Fatal error:  Uncaught mysqli_sql_exception: The MySQL server is running with the --secure-file-priv option so it cannot execute this statement in /home/m/dev/purple_martians/new_log_scrape.php:43
+Stack trace:
+#0 /home/m/dev/purple_martians/new_log_scrape.php(43): mysqli_query()
+#1 {main}
+  thrown in /home/m/dev/purple_martians/new_log_scrape.php on line 43
+m@pmh:~/dev/purple_martians$
+
+
+
+
+why am i still getting this error?
+
+
+
+
+
+
+
+
+
+m@pmh:~/dev/purple_martians$ sudo php new_log_scrape.php
+
+New log scrape: 20240626-064001
+checking user:
+rootchecking user: root
+/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv
+LOAD DATA INFILE '/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);
+PHP Fatal error:  Uncaught mysqli_sql_exception: Can't get stat of '/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv' (OS errno 13 - Permission denied) in /home/m/dev/purple_martians/new_log_scrape.php:54
+Stack trace:
+#0 /home/m/dev/purple_martians/new_log_scrape.php(54): mysqli_query()
+#1 {main}
+  thrown in /home/m/dev/purple_martians/new_log_scrape.php on line 54
+m@pmh:~/dev/purple_martians$
+
+
+runnig as root and I still get the error...
+
+I can run the command from the mysql command line as pete park
+
+
+
+could it be how mysql parses the filename
+
+
+
+
+
+cat /home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv
+
+
+
+
+mkfifo /mysql/data/db1/ls.dat
+chmod 666 /mysql/data/db1/ls.dat
+find / -ls > /mysql/data/db1/ls.dat &
+mysql -e "LOAD DATA INFILE 'ls.dat' INTO TABLE t1" db1
+
+
+
+#!/bin/bash
+mysql -u root -p xxxxxxx testdb --local_infile=1 -e"LOAD DATA LOCAL INFILE '/mnt/mysqldb/mysqldb-new/mysql/CK-BATCH-FTP/Acelity/activity.csv'
+INTO TABLE acelity_activity
+FIELDS TERMINATED BY ';'
+ENCLOSED BY '\"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;"
+
+
+
+
+mysql -u pete -ppark --local_infile=1 -e"LOAD DATA LOCAL INFILE '/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv' INTO TABLE Syslog.pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);"
+
+this works!!!
+
+it is nice to do it in one line, but...
+- I would like some feedback on what it did
+- time
+- iterate directory
+- erase file on success
+
+try to exceute this line from php..
+
+
+mysql -u pete -ppark Syslog --local_infile=1 -e"LOAD DATA LOCAL INFILE '/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);"
+
+
+
+I am think of making it a bash script, why do I need php?
+
+
+if I run it in my main pm dir and run it as root, I could copy all csv to the mysql dir and then execute them, kind of like this:
+
+wget -O table.csv "http://www.example.com/table.csv"
+
+sleep 40
+
+mysql -u<user> -p<password> dataBase <<QUERY_INPUT
+
+load data local infile 'table.csv' into table testing
+fields terminated by ','
+enclosed by '"'
+lines terminated by '\n'
+IGNORE 1 ROWS
+(column1, column2, column3, column4, column5, column6, column7)
+QUERY_INPUT
+
+
+
+#!/bin/sh
+
+start_time=$(date +%s%3N)  # start time in milliseconds
+
+
+dbusr=pete
+dbpwd=park
+dbtbl=Syslog
+
+base_cmd=mysql -u $dbusr -p$dbpwd $dbtbl --local_infile=1 -e"LOAD DATA LOCAL INFILE '
+end_cmd=' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);"
+
+filename=/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv
+
+cmd=$base_cmd$filename$end_cmd
+
+echo command:$cmd
+
+end_time=$(date +%s%3N)  # # end time in milliseconds
+duration_ms=$((end_time - start_time))  # duration in milliseconds
+
+echo "Execution time in ms: $duration_ms"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+base_cmd=mysql -u $dbusr -p$dbpwd $dbtbl --local_infile=1 -e"LOAD DATA LOCAL INFILE '
+
+end_cmd=' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);"
+
+
+
+ mysql -u $dbusr -p$dbpwd $dbtbl -vv --local_infile=1 -e"LOAD DATA LOCAL INFILE '/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);"
+
+
+
+mysql -u $dbusr -p$dbpwd $dbtbl --local_infile=1 -e"LOAD DATA LOCAL INFILE '/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);"
+
+
+
+
+start_time=$(date +%s%3N)  # start time in milliseconds
+
+sleep 1  # <-- code for measuring is here
+
+end_time=$(date +%s%3N)  # # end time in milliseconds
+duration_ms=$((end_time - start_time))  # duration in milliseconds
+
+echo "Execution time in ms: $duration_ms"
+
+
+for filename in log/*.csv; do
+
+# source filename with path and extension
+fnc=$filename
+
+#echo fnc:$fnc
+
+done
+
+
+
+
+version=7.24.0602.3
+
+fd='purple_martians_'"$version"'_linux'
+
+
+$: sql=$'LOAD DATA INFILE \'data.csv\' INTO TABLE tbl_name FIELDS TERMINATED BY \',\' ENCLOSED BY \'\"\' LINES TERMINATED BY \'\\r\\n\' IGNORE 1 LINES;'
+$: echo "$sql"
+LOAD DATA INFILE 'data.csv' INTO TABLE tbl_name FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES;
+
+
+
+
+
+
+
+
+
+
+m@pmh:~/dev/purple_martians$ ./scrape
+mysql: [Warning] Using a password on the command line interface can be insecure.
+--------------
+LOAD DATA LOCAL INFILE '/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message)
+--------------
+
+Query OK, 1001 rows affected (0.02 sec)
+Records: 1001  Deleted: 0  Skipped: 0  Warnings: 0
+
+Bye
+Execution time in ms: 26
+
+
+
+
+
+mysql: [Warning] Using a password on the command line interface can be insecure.
+--------------
+LOAD DATA LOCAL INFILE /home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message)
+--------------
+
+ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv INTO TABLE pm_log ' at line 1
+Bye
+Execution time in ms: 8
+m@pmh:~/dev/purple_martians$ nano scrape
+m@pmh:~/dev/purple_martians$
+
+
+
+
+THIS WORKS!!
+
+#!/bin/sh
+
+start_time=$(date +%s%3N)  # start time in milliseconds
+
+dbusr=pete
+dbpwd=park
+dbtbl=Syslog
+
+filename="/home/m/dev/purple_martians/logs/20240625-181723-[1][pmh].csv"
+
+mysql -u $dbusr -p$dbpwd $dbtbl -vv --local_infile=1 -e"LOAD DATA LOCAL INFILE '$filename' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);"
+
+end_time=$(date +%s%3N)  # # end time in milliseconds
+duration_ms=$((end_time - start_time))  # duration in milliseconds
+
+echo "Execution time in ms: $duration_ms"
+
+
+
+
+
+now patch in loop...
+
+
+
+
+
+#!/bin/sh
+
+start_time=$(date +%s%3N)  # start time in milliseconds
+
+dbusr=pete
+dbpwd=park
+dbtbl=Syslog
+
+
+for filename in logs/*.csv; do
+
+mysql -u $dbusr -p$dbpwd $dbtbl -vv --local_infile=1 -e"LOAD DATA LOCAL INFILE '$filename' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);"
+
+done
+
+
+end_time=$(date +%s%3N)  # # end time in milliseconds
+duration_ms=$((end_time - start_time))  # duration in milliseconds
+
+echo "Execution time in ms: $duration_ms"
+
+
+
+this also workls great!!
+
+the filenames are relative though, wonder how it would work if called by root in cron,,
+
+
+
+
+filename:logs/20240625-181723-[1][pmh].csv
+mysql: [Warning] Using a password on the command line interface can be insecure.
+--------------
+LOAD DATA LOCAL INFILE 'logs/20240625-181723-[1][pmh].csv' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message)
+--------------
+
+
+it seems to work when called by sudo
+
+added to cron
+
+does not find the stuff  change to full path...now it works...
+
+
+
+
+
+
+
+ERROR 2 (HY000) at line 1: File 'logs/*.csv' not found (OS errno 2 - No such file or directory)
+Bye
+Execution time in ms: 6
+m@pmh:~/dev/purple_martians$ cat scrape_cronoutput.txt
+filename:logs/*.csv
+mysql: [Warning] Using a password on the command line interface can be insecure.
+--------------
+LOAD DATA LOCAL INFILE 'logs/*.csv' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message)
+--------------
+
+ERROR 2 (HY000) at line 1: File 'logs/*.csv' not found (OS errno 2 - No such file or directory)
+Bye
+Execution time in ms: 6
+filename:logs/*.csv
+mysql: [Warning] Using a password on the command line interface can be insecure.
+--------------
+LOAD DATA LOCAL INFILE 'logs/*.csv' INTO TABLE pm_log COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message)
+--------------
+
+ERROR 2 (HY000) at line 1: File 'logs/*.csv' not found (OS errno 2 - No such file or directory)
+Bye
+Execution time in ms: 6
+m@pmh:~/dev/purple_martians$
+
+
+
+
+-----------------
+
+next...
+
+remove all csv files from logs dir
+delete files after adding to database
+add logging to all server types
+add packet from client to server
+make a new database for this, so I don't share Syslog
+
+what if I make a rule to not record rewind and state log messages when server has no clients...
+
+
+flush to disk every 10s or 1000 log entries
+
+-----------------
+
+first of all...database and table definitions:
+
+
+
+keep last iteration of pm_log table
+
+what about sessions?
+
+
+mysql -u msq -p
+
+SHOW DATABASES;
+
+CREATE DATABASE session_db;
+
+DROP TABLE session_db.session_tb;
+
+CREATE TABLE session_db.session_tb (
+  id                INT AUTO_INCREMENT,
+  filename          VARCHAR(255),
+  timestamp         VARCHAR(255),
+  duration          INT,
+  ip                VARCHAR(255),
+  port              INT,
+  hostname          VARCHAR(255),
+  endreason         VARCHAR(255),
+  cdat_rx           INT,
+  player_num        INT,
+  next_levels       INT,
+  exits_activated   INT,
+  respawns          INT,
+  shots_fired       INT,
+  enemy_hits        INT,
+  player_hits       INT,
+  self_hits         INT,
+  purple_coins      INT,
+  tx_bytes_total            INT,
+  tx_bytes_avg_per_sec      INT,
+  tx_bytes_max_per_frame    INT,
+  rx_bytes_total            INT,
+  rx_bytes_avg_per_sec      INT,
+  rx_bytes_max_per_frame    INT,
+  tx_packets_total          INT,
+  tx_packets_avg_per_sec    INT,
+  tx_packets_max_per_frame  INT,
+  rx_packets_total          INT,
+  rx_packets_avg_per_sec    INT,
+  rx_packets_max_per_frame  INT,
+
+  PRIMARY KEY(id)
+);
+
+SELECT * FROM session_db.session_tb;
+
+DROP DATABASE session_db;
+
+DELETE * FROM session_db.session_tb;
+
+
+
+what about database 'pm' and tables 'logs' and 'sessions'
+
+
+done
+
+
+#!/bin/sh
+
+start_time=$(date +%s%3N)  # start time in milliseconds
+
+dbusr=pmdb_rw
+dbpwd=readwrite
+dbnam=pm
+
+for filename in /home/m/dev/purple_martians/logs/*.csv; do
+
+mysql -u $dbusr -p$dbpwd $dbnam -vv --local_infile=1 -e"LOAD DATA LOCAL INFILE '$filename' INTO TABLE logs COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);"
+
+mw $filename $filename.bak
+
+done
+
+end_time=$(date +%s%3N)  # # end time in milliseconds
+duration_ms=$((end_time - start_time))  # duration in milliseconds
+
+echo "Execution time in ms: $duration_ms"
+
+
+
+///now remove all csv in logs dir..done
+
+
+now add more logging in game
+
+what logs are all these NULL's
+
+
+|  53936 |        0 |     NULL | NULL                |       NULL |      NULL |   NULL |   NULL | NULL                                                                    |
+|  53937 |       26 |        0 | 2024-06-27 19:26:38 | 167.852605 |      6714 |      0 |      0 | stdf save state:6715                                                    |
+|  53938 |       27 |        0 | 2024-06-27 19:26:38 | 167.853543 |      6714 |      0 |      1 | tx stdf p:1 [s:6713 d:6715] cmp:341 ratio:0.30 [1 packets needed]       |
+|  53939 |       28 |        0 | 2024-06-27 19:26:38 | 167.853567 |      6714 |      0 |      1 | tx stdf p:1 piece [1 of 1] [6713 to 6715] st:   0 sz: 341 slsn:0        |
+|  53940 |        0 |     NULL | NULL                |       NULL |      NULL |   NULL |   NULL | NULL                                                                    |
+|  53941 |       33 |        0 | 2024-06-27 19:26:38 | 167.877492 |      6715 |      0 |      1 | rx stak p:1 ack:[6714] cur:[6716] slsn:[0] dsync:[-32.8] chase:[39.8]   |
+|  53942 |        0 |     NULL | NULL                |       NULL |      NULL |   NULL |   NULL | NULL                                                                    |
+|  53943 |       26 |        0 | 2024-06-27 19:26:38 | 167.877592 |      6715 |      0 |      0 | stdf save state:6716                                                    |
+|  53944 |       27 |        0 | 2024-06-27 19:26:38 | 167.878654 |      6715 |      0 |      1 | tx stdf p:1 [s:6714 d:6716] cmp:357 ratio:0.32 [1 packets needed]       |
+|  53945 |       28 |        0 | 2024-06-27 19:26:38 |  167.87867 |      6715 |      0 |      1 | tx stdf p:1 piece [1 of 1] [6714 to 6716] st:   0 sz: 357 slsn:0        |
+|  53946 |        0 |     NULL | NULL                |       NULL |      NULL |   NULL |   NULL | NULL                                                                    |
+|  53947 |       33 |        0 | 2024-06-27 19:26:38 | 167.902475 |      6716 |      0 |      1 | rx stak p:1 ack:[6715] cur:[6717] slsn:[0] dsync:[-31.5] chase:[39.9]   |
+|  53948 |        0 |     NULL | NULL                |       NULL |      NULL |   NULL |   NULL | NULL                                                                    |
+|  53949 |       26 |        0 | 2024-06-27 19:26:38 | 167.902595 |      6716 |      0 |      0 | stdf save state:6717                                                    |
+|  53950 |       27 |        0 | 2024-06-27 19:26:38 | 167.903613 |      6716 |      0 |      1 | tx stdf p:1 [s:6715 d:6717] cmp:329 ratio:0.29 [1 packets needed]       |
+
+
+I have been through everything in server file
+
+
+
+my cron scipt is not running because I have a relative path to logs, make it absolute
+
+/home/m/dev/purple_martians/logs
+
+now it works...
+
+
+am I brave enough to delete when done?
+what if I could detect duplicataes and not enter them?
+what fields to check?
+I think that doing all that when entering would slow it down...
+
+so yes, i think i should remove, move, or rename the csv file when done..
+
+
+mv $filename $filename.bak
+
+than works...
+
+I want to figure out why this command just returns itself if no files are found
+
+for filename in /home/m/dev/purple_martians/logs/*.csv; do
+
+m@pmh:~/dev/purple_martians$ ./scrape
+mysql: [Warning] Using a password on the command line interface can be insecure.
+--------------
+LOAD DATA LOCAL INFILE '/home/m/dev/purple_martians/logs/*.csv' INTO TABLE logs COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message)
+--------------
+
+ERROR 2 (HY000) at line 1: File '/home/m/dev/purple_martians/logs/*.csv' not found (OS errno 2 - No such file or directory)
+Bye
+mv: target '/home/m/dev/purple_martians/logs/20240627-213807-[44][pmh].csv.bak' is not a directory
+Execution time in ms: 9
+
+
+
+
+
+
+#!/bin/sh
+
+files=(/home/m/dev/purple_martians/logs/*.csv)                                           # All files names in array $files
+
+[ -f "$files" ] || die "No files found."            # Exit if no files found
+
+for file in "${files[@]}";do                        # foreach file:
+    echo Process "$file"                            #   Process file
+done
+
+
+
+
+
+
+
+
+this works....
+renames to .bak
+does nothing if no files found
+
+
+#!/bin/bash
+
+die() { echo "$*" 1>&2 ; exit 1; }
+
+start_time=$(date +%s%3N)  # start time in milliseconds
+
+dbusr=pmdb_rw
+dbpwd=readwrite
+dbnam=pm
+
+files=(/home/m/dev/purple_martians/logs/*.bak)       # All files names in array $files
+
+[ -e "$files" ] || die "No files found."            # Exit if no files found
+
+for file in "${files[@]}";do                        # foreach file:
+
+mysql -u $dbusr -p$dbpwd $dbnam -vv --local_infile=1 -e"LOAD DATA LOCAL INFILE '$file' INTO TABLE logs COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);"
+
+mw $file $file.bak
+
+done
+
+end_time=$(date +%s%3N)  # # end time in milliseconds
+duration_ms=$((end_time - start_time))  # duration in milliseconds
+
+echo "Execution time in ms: $duration_ms"
+
+
+
+next:
+add more server logging...
+
+did stdf rewind in state history
+
+
+
+------------------
+how hard would this be to do on scat for testing?
+scat is 118, but also seems to resolve nicely to scat
+------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

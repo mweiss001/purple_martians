@@ -1,0 +1,582 @@
+
+
+Install sqlite on windows.
+
+    Step 1 − Go to SQLite download page, and download precompiled binaries from Windows section.
+
+    Step 2 − Download sqlite-shell-win32-*.zip and sqlite-dll-win32-*.zip zipped files.
+
+    Step 3 − Create a folder C:\>sqlite and unzip above two zipped files in this folder, which will give you sqlite3.def, sqlite3.dll and sqlite3.exe files.
+
+    Step 4 − Add C:\>sqlite in your PATH environment variable and finally go to the command prompt and issue sqlite3 command, which should display the following result.
+
+C:\>sqlite3
+SQLite version 3.7.15.2 2013-01-09 11:53:05
+Enter ".help" for instructions
+Enter SQL statements terminated with a ";"
+sqlite>
+
+
+
+
+
+
+C:\pm>PATH
+
+PATH=C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files\Oculus\Support\oculus-runtime;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin;C:\Program Files\gs\gs10.00.0\bin;C:\Program Files\Calibre2\;C:\Program Files\MySQL\MySQL Shell 8.0\bin\;C:\Program Files\Oculus\Support\oculus-runtime;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin;C:\Users\m\AppData\Local\Microsoft\WindowsApps;;C:\Strawberry\perl\bin
+
+C:\pm>setx /M path "%path%;C:\sqlite"
+
+WARNING: The data being saved is truncated to 1024 characters.
+ERROR: Access to the registry path is denied.
+
+C:\pm>
+
+
+This is trimmed down a little:
+
+run as admin:
+
+setx path "C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\gs\gs10.00.0\bin;C:\Program Files\Calibre2\;C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin;C:\Users\m\AppData\Local\Microsoft\WindowsApps;C:\sqlite;"
+
+
+
+
+
+
+
+
+
+
+
+create a database:
+
+sqlite3 test.db
+
+do this from regular command prompt.
+
+when done you will be at the sqlite> prompt
+
+C:\pm>sqlite3 test.db
+SQLite version 3.46.0 2024-05-23 13:25:27 (UTF-16 console I/O)
+Enter ".help" for usage hints.
+sqlite> .database
+main: C:\pm\test.db r/w
+sqlite>
+
+
+CREATE TABLE `pm_log`
+(
+  id           int PRIMARY KEY NOT NULL,
+  received_at  datetime NOT NULL,
+  agt          double NOT NULL,
+  player_num   int NOT NULL,
+  message_type int NOT NULL,
+  frame_num    int NOT NULL,
+  message      text NOT NULL
+);
+
+
+CREATE TABLE `pm_log`
+(
+  id           int PRIMARY KEY,
+  received_at  datetime,
+  agt          double,
+  player_num   int,
+  message_type int,
+  frame_num    int,
+  message      text
+);
+
+INSERT INTO pm_log (player_num) VALUES(23);
+
+SELECT * FROM pm_log;
+
+
+INSERT INTO pm_log (player_num, frame_num) VALUES(23, 1001);
+
+
+sqlite> CREATE TABLE `pm_log`
+   ...> (
+(x1...>   id           int PRIMARY KEY,
+(x1...>   received_at  datetime,
+(x1...>   agt          double,
+(x1...>   player_num   int,
+(x1...>   message_type int,
+(x1...>   frame_num    int,
+(x1...>   message      text
+(x1...> );
+sqlite>
+sqlite> INSERT INTO pm_log (player_num) VALUES(23);
+sqlite> SELECT * FROM pm_log;
+|||23|||
+sqlite> INSERT INTO pm_log (player_num, frame_num) VALUES(23, 1001);
+sqlite> SELECT * FROM pm_log;
+|||23|||
+|||23||1001|
+sqlite>
+
+
+
+
+
+OK now what?
+
+try to connect with c++
+
+
+#include <stdio.h>
+#include <sqlite3.h> 
+
+int main(int argc, char* argv[]) {
+   sqlite3 *db;
+   char *zErrMsg = 0;
+   int rc;
+
+   rc = sqlite3_open("test.db", &db);
+
+   if( rc ) {
+      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+      return(0);
+   } else {
+      fprintf(stderr, "Opened database successfully\n");
+   }
+   sqlite3_close(db);
+}
+
+
+
+
+
+
+
+
+downloaded the amalgamation
+put sqlite.c and sqlite.h in my source dir
+added sqlite.c to the project
+
+#include <sqlite3.h> 
+
+void mwMain::temp_test(void)
+{
+
+   sqlite3 *db;
+   char *zErrMsg = 0;
+   int rc;
+
+   rc = sqlite3_open("test.db", &db);
+
+   if( rc ) {
+      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+      return;
+   } else {
+      fprintf(stderr, "Opened database successfully\n");
+   }
+   sqlite3_close(db);
+
+
+compiles and works....
+
+what did it do to my executable?
+
+
+pm.exe is now 16.3M
+removed and now it is 15.2M
+
+
+
+
+
+
+
+
+I have worked through tutorials to connect to database, create and drop tables insert and select...
+
+now lets see what I have to do to get it to work on linux....
+
+copy all the sources to pmh
+
+
+
+
+had to manually compile with this line:
+gcc -Wall -c src/sqlite3.c -o o/src/sqlite.o
+
+many errors if trying to compile with g++
+
+it fucking works!!
+
+it makes test.db in the pm dir
+
+so now what?
+
+can something else on the server read the database?
+
+what should I do next...
+
+...........
+
+how do I get qt to read that database?
+
+
+
+here is the answer....
+sql is not a network database....
+
+
+OK..does this invalidate everything I have been doing up to here?
+
+Do I absolutely need the remote access to the database?
+
+If I view it in a web context I can use php and read the db locally...
+
+When I want to look at the data with my qt app, then I probably need to connect to a remote database.
+Other ways of doing it:
+copy the sqlite database file from the server to the machine running qt..
+this is not that far fetched...
+I could have smaller database files, rotate them, 
+
+The other way would be to stick with mysql...
+Figure out how to do database stuff in c++
+
+This would be nice if the clients could send a packet to the server and the server would enter into the database
+Still there is the issue of a lot of log entries filling up the database
+
+
+I had an idea:
+
+First of all, just make sure that the clients send all their log messages to the server.
+
+Then on the server, you can do whatever you want, you will have all the log messages.
+
+You could:
+- use syslog udp packets to insert them into syslog. then parse and move them to other tables
+- figure out how to insert them into the right databases from c++ code.
+- save them to disk in a format that is easy to import directly into a database of your choice
+
+
+This sounds good enough that I think I will try to implement it.
+
+The first thing is how do I get all the log lines from the client to the server...
+
+Naive first thought is to just blast them out with 1 packet as they happen.
+Its kind of like how I am alreay doing it.
+
+I am thinking about making a structure in my game for log lines.
+kind of mirror what I do in pm_log
+
+
+timestamp
+frame_num
+player_num
+client_num (only valid on server)
+message_type
+message text
+
+then I could send a few of these in a compressed packet...
+
+
+the reasons for converting my log system to a structure of lines
+- when I send them to the server I can do more than one line per packet
+- i know when the server has got them with an acknowledge
+- when I go to dump them to disk they are already structured...
+
+
+this all sounds like a huge rewrite of the logging system
+
+it might be worth it...
+
+
+at all the places in the code where log messages are created, I should have a single simple way of doing that...
+
+add_log_entry(p1 p2 frame agt message_type, message)
+
+then if they are printed do one thing
+logged to file, do another
+added to struct for db insert file 
+
+
+---------------------
+
+what is the simplest thing I could do next?
+make client send logs in a new packet type as they occur...
+
+make server receive and process these new log lines
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+You could save them to file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

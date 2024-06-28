@@ -145,6 +145,8 @@ void mwStateHistory::apply_rewind_state(int frame_num)
    if (ff == 0)
    {
       mLog.log_add_prefixed_text(LOG_NET_stdf_rewind, -1, "stdf rewind [none]\n");
+      mLog.add_lognet_db_row(LOG_NET_stdf_rewind, 0, 0,   "stdf rewind [none]");
+
       return;
    }
 
@@ -152,11 +154,20 @@ void mwStateHistory::apply_rewind_state(int frame_num)
    int indx = -1;
    for (int i=0; i<NUM_HISTORY_STATES; i++) if (frame_num == history_state_frame_num[i]) indx = i;
 
+
+   char msg[200];
+
+
    if (indx == -1)
    {
       indx = oldest_state_index;
-      if (indx == -1) mLog.log_add_prefixed_textf(LOG_NET_stdf_rewind, -1, "stdf rewind [%d] not found - oldest frame not valid\n", frame_num);
-      else            mLog.log_add_prefixed_textf(LOG_NET_stdf_rewind, -1, "stdf rewind [%d] not found - using oldest frame [%d]\n", frame_num, history_state_frame_num[indx]);
+//      if (indx == -1) mLog.log_add_prefixed_textf(LOG_NET_stdf_rewind, -1, "stdf rewind [%d] not found - oldest frame not valid\n", frame_num);
+//      else            mLog.log_add_prefixed_textf(LOG_NET_stdf_rewind, -1, "stdf rewind [%d] not found - using oldest frame [%d]\n", frame_num, history_state_frame_num[indx]);
+
+
+      if (indx == -1) sprintf(msg, "stdf rewind [%d] not found - oldest frame not valid", frame_num);
+      else            sprintf(msg, "stdf rewind [%d] not found - using oldest frame [%d]", frame_num, history_state_frame_num[indx]);
+
 
 //      char not_found[200];
 //      char why[200];
@@ -175,7 +186,10 @@ void mwStateHistory::apply_rewind_state(int frame_num)
 
    if (indx > -1)
    {
-      mLog.log_add_prefixed_textf(LOG_NET_stdf_rewind, -1, "stdf rewind to:%d [%d]\n", frame_num, -ff);
+
+      sprintf(msg, "stdf rewind to:%d [%d]\n", frame_num, -ff);
+
+//      mLog.log_add_prefixed_textf(LOG_NET_stdf_rewind, -1, "stdf rewind to:%d [%d]\n", frame_num, -ff);
 
       mNetgame.state_to_game_vars(history_state[indx]);
       mLoop.frame_num = history_state_frame_num[indx];
@@ -187,6 +201,16 @@ void mwStateHistory::apply_rewind_state(int frame_num)
          add_state(mLoop.frame_num);
       }
    }
+
+
+
+   mLog.log_add_prefixed_textf(LOG_NET_stdf_rewind, -1, "%s\n", msg);
+   mLog.add_lognet_db_row(LOG_NET_stdf_rewind, 0, 0,    "%s", msg);
+
+
+
+
+
 }
 
 
