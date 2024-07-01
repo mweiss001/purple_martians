@@ -1,56 +1,17 @@
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 --------------------------------------------------------------------------------------------------------------------------------
 Some common things to do with mysql:
 --------------------------------------------------------------------------------------------------------------------------------
 
 
+----------------
 installing
 -----------------
 
 sudo apt install mysql-server
-
 doing this on scat ubuntu 20.04
-
 sudo mysql
-
 got version 8.0.37
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -91,28 +52,26 @@ CREATE DATABASE pm;
 USE pm
 
 DROP TABLE logs;
-
 CREATE TABLE logs
 (
   `id` int NOT NULL AUTO_INCREMENT,
   `msg_type` int DEFAULT NULL,
   `sub_type` int DEFAULT NULL,
-
   `created` datetime DEFAULT NULL,
   `agt` double DEFAULT NULL,
   `frame_num` int DEFAULT NULL,
-
   `player` int DEFAULT NULL,
   `client` int DEFAULT NULL,
   `message` text,
-
   PRIMARY KEY (`id`)
 );
 
+DROP TABLE sessions;
 CREATE TABLE sessions (
   id                INT AUTO_INCREMENT,
   filename          VARCHAR(255),
-  timestamp         VARCHAR(255),
+  dt_start          DATETIME,
+  dt_end            DATETIME,
   duration          INT,
   ip                VARCHAR(255),
   port              INT,
@@ -140,9 +99,47 @@ CREATE TABLE sessions (
   rx_packets_total          INT,
   rx_packets_avg_per_sec    INT,
   rx_packets_max_per_frame  INT,
-
   PRIMARY KEY(id)
 );
+
+
+DROP TABLE status;
+CREATE TABLE status (
+  id                INT AUTO_INCREMENT,
+  timestamp         DATETIME,
+  frame             INT,
+  player            INT,
+  rwnd              INT,
+  cpu               FLOAT,
+  sync              FLOAT,
+  ping              FLOAT,
+  difs              FLOAT,
+  lcor              FLOAT,
+  rcor              FLOAT,
+  txbf              FLOAT,
+  rxbf              FLOAT,
+  txpf              FLOAT,
+  rxpf              FLOAT,
+  PRIMARY KEY(id)
+);
+
+
+
+
+
+
+SELECT COUNT(*) FROM logs;
+SELECT COUNT(*) FROM sessions;
+SELECT COUNT(*) FROM status;
+
+
+rm logs/session/*
+rm logs/*
+
+rm -rf ./logs/*
+
+
+
 
 
 what users should I set up for this?
@@ -154,12 +151,30 @@ pmdb_ro
 
 
 make a read only user
+DROP USER 'pmdb_ro'
 
-DROP USER 'pmdb_ro'@'localhost';
+CREATE USER 'pmdb_ro' IDENTIFIED WITH mysql_native_password BY 'readonly';
+GRANT SELECT ON pm.* TO 'pmdb_ro';
+SHOW GRANTS FOR pmdb_ro;
 
-CREATE USER 'pmdb_ro'@'localhost' IDENTIFIED WITH mysql_native_password BY 'readonly';
-GRANT SELECT ON pm.* TO 'pmdb_ro'@'localhost';
-SHOW GRANTS FOR pmdb_ro@localhost;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 make a read / write user to add records
@@ -172,6 +187,48 @@ SHOW GRANTS FOR pmdb_rw@localhost;
 
 
 
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+
+in the [mysqld] section add this line:
+local_infile    = 1
+
+
+add to the bottom of the file these two lines:
+[client]
+local_infile    = 1
+
+
+
+systemctl status mysql
+systemctl start mysql
+systemctl stop mysql
+systemctl restart mysql
+
+
+
+
+---------------------------------------
+how to setup remote access to database
+---------------------------------------
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+
+bind-address = 0.0.0.0
+
+was:
+localhost? 127.0.0.0?
+
+this is what I have on pmh
+bind-address            = purplemartians.org
+
+
+----------------------------
+show all users and hosts
+----------------------------
+SELECT user,host FROM mysql.user;
+
+host % means any host...
+
+if I don't specify the host it gets set to %
 
 
 
@@ -187,17 +244,19 @@ SHOW GRANTS FOR pmdb_rw@localhost;
 
 
 
+---------------------------------------------
+installing php to communicate with mysql
+---------------------------------------------
 
+sudo apt install --no-install-recommends php
+i did this on u20.04 and got 7.4.3
 
+sudo install php-mysql
+got version 7.4
 
-
-
-
-
-
-
-
-
+had to replace a few function that were php 8 only:
+function str_starts_with($str, $txt) {  return (substr($str, 0, strlen($txt) ) == $txt); }
+function str_ends_with($str, $txt)   {  return (substr($str,   -strlen($txt) ) == $txt); }
 
 
 

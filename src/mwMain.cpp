@@ -20,18 +20,26 @@ mwMain mMain;
 
 void mwMain::final_wrapup(void)
 {
-   mDisplay.refresh_window_position_and_size();
+   if (!headless_server)
+   {
+      mDisplay.refresh_window_position_and_size();
+      al_destroy_audio_stream(mSound.pm_theme_stream);
+      al_inhibit_screensaver(false);
+   }
    mConfig.save_config(0);
-   al_destroy_audio_stream(mSound.pm_theme_stream);
-   al_inhibit_screensaver(false);
    al_uninstall_system();
 }
 
-void mwMain::fast_exit(void)
+
+
+void mwMain::fast_exit(int type)
 {
-   if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
+   if (type == 2)  printf("\n\nReceived SIGINT - terminating...\n\n");
+   if (type == 6)  printf("\n\nReceived SIGABRT - terminating...\n\n");
+   if (type == 15) printf("\n\nReceived SIGTERM - terminating...\n\n");
+   if (mLog.autosave_log_on_program_exit) mLog.flush_logs();
    final_wrapup();
-   exit(0);
+   exit(type);
 }
 
 void mwMain::show_system_id(void)
@@ -248,7 +256,7 @@ int mwMain::pm_main(int argument_count, char **argument_array)
       }
       mLoop.main_loop();
    }
-   if (mLog.autosave_log_on_program_exit) mLog.save_log_file();
+   if (mLog.autosave_log_on_program_exit) mLog.flush_logs();
 
    final_wrapup();
    exit(0);

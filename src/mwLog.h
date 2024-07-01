@@ -101,14 +101,24 @@ class mwLog
    void log_versions(void);
 
 
-   void add_lognet_db_row(int type, int sub_type, int client, const char *format, ...);
 
 
 
+   char log_status_msg[NUM_LOG_CHAR];
+   int log_status_msg_pos = 0;
+   int log_status_msg_num_lines = 0;
+   void add_log_status_db_rows(void);
 
-   char lognet_msg[NUM_LOG_CHAR];
-   int lognet_msg_pos = 0;
-   int lognet_msg_num_lines = 0;
+
+
+   char log_net_msg[NUM_LOG_CHAR];
+   int log_net_msg_pos = 0;
+   int log_net_msg_num_lines = 0;
+   void add_log_net_db_row(int type, int sub_type, int client, const char *format, ...);
+   void add_log_net_db_row2(int type, int sub_type, double agt, int frame, int player, int client, const char* msg);
+
+
+
 
 
    ALLEGRO_FS_ENTRY *filenames[1000];
@@ -129,11 +139,16 @@ class mwLog
    int autosave_log_on_level_quit = 0;
    int autosave_log_on_program_exit = 0;
 
+
+   void flush_logs(void);
+
    void erase_log(void);
-   void erase_lognet(void);
+   void erase_log_net(void);
+   void erase_log_status(void);
 
    void save_log_file(void);
-   void save_lognet_file(void);
+   void save_log_net_file(void);
+   void save_log_status_file(void);
 
    void log_player_array(int type);
    void log_player_array2(int type);

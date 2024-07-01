@@ -9,6 +9,7 @@ mweiss001#gmail.com
 Blargit1
 
 
+
 https://stackoverflow.com/questions/71208815/how-to-connecte-my-application-qt-cmake-to-mysql-database
 
 

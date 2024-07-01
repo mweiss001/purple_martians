@@ -1,11 +1,21 @@
 // pm.h
 
-#define PM_VERSION "7.24.0622.1"
+#define PM_VERSION "7.24.0701.1"
 
 #include <stdio.h>
 #include <math.h>
+#include <chrono>
 #include <libnet.h>
 #include <zlib.h>
+
+
+
+
+
+
+
+
+
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
@@ -64,6 +74,8 @@
 #define PM_NETGAME_PACKET_TYPE_RCTL 5
 #define PM_NETGAME_PACKET_TYPE_SFAK 6
 #define PM_NETGAME_PACKET_TYPE_CRFL 7
+#define PM_NETGAME_PACKET_TYPE_CLOG 8
+
 
 #define PM_NETGAME_PACKET_TYPE_STDF 11
 #define PM_NETGAME_PACKET_TYPE_SJON 12

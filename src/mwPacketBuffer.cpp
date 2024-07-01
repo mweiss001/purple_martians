@@ -59,6 +59,7 @@ void mwPacketBuffer::proc_rx_buffer(void)
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_RCTL) mNetgame.server_proc_rctl_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_SFAK) mNetgame.server_proc_sfak_packet(i);
             if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CRFL) mNetgame.server_proc_crfl_packet(i);
+            if (rx_buf[i].type == PM_NETGAME_PACKET_TYPE_CLOG) mNetgame.server_proc_clog_packet(i);
          }
          if (mNetgame.ima_client)
          {
@@ -129,6 +130,7 @@ void mwPacketBuffer::add_to_rx_buffer_single(char *data, int p)
    if (PacketRead(data, "sfil")) type = PM_NETGAME_PACKET_TYPE_SFIL;
    if (PacketRead(data, "srrf")) type = PM_NETGAME_PACKET_TYPE_SRRF;
    if (PacketRead(data, "crfl")) type = PM_NETGAME_PACKET_TYPE_CRFL;
+   if (PacketRead(data, "clog")) type = PM_NETGAME_PACKET_TYPE_CLOG;
 
    if (type)
    {
@@ -266,6 +268,30 @@ void mwPacketBuffer::PacketReadString(int i, char* s)
 {
    for (int a=0; a<16; a++) s[a] = PacketGetByte(i);
 }
+
+
+
+// adds a string of arbitrary length
+// preceded by an int of the string length
+void mwPacketBuffer::PacketAddStringN(char *data, int &pos, char* s)
+{
+   int len = strlen(s);
+   PacketPutInt32(data, pos, len);
+   for (int a=0; a<len; a++) PacketPutByte(data, pos, s[a]);
+   PacketPutByte(data, pos, 0); // for safety terminate with NULL
+}
+
+void mwPacketBuffer::PacketReadStringN(int i, char* s)
+{
+   int len = PacketGetInt32(i);
+   for (int a=0; a<len; a++) s[a] = PacketGetByte(i);
+   s[len] = 0; // for safety terminate with NULL
+}
+
+
+
+
+
 
 
 // packet put and get double functions

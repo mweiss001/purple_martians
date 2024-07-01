@@ -328,7 +328,7 @@ void mwLoop::proc_program_state(void)
          mLog.log_add_prefixed_text(LOG_OTH_program_state, 0, "[State 1 - Game Menu]\n");
 
 
-         if (mLog.autosave_log_on_level_quit) mLog.save_log_file();
+         if (mLog.autosave_log_on_level_quit) mLog.flush_logs();
 
 
          mSound.stop_sound();
@@ -544,6 +544,9 @@ void mwLoop::proc_program_state(void)
       mPlayer.syn[0].level_done_mode = 0;
 
       mLog.add_headerf(LOG_NET, -1, 1, "NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level);
+      mLog.add_log_net_db_row(LOG_NET, 0, 0, "NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level);
+
+
 
       if (mNetgame.ima_client)
       {
@@ -558,7 +561,7 @@ void mwLoop::proc_program_state(void)
          mNetgame.server_lev_seq_num++;
          if (mLog.log_types[LOG_NET_session].action) mNetgame.session_save_active_at_level_done();
       }
-      if (mLog.autosave_log_on_level_done) mLog.save_log_file();
+      if (mLog.autosave_log_on_level_done) mLog.flush_logs();
 
       if (mGameMoves.autosave_game_on_level_done) mGameMoves.save_gm_make_fn("autosave on level done", 0);
 
@@ -773,6 +776,9 @@ int mwLoop::load_and_setup_level(int level, int type)
          // add initial special game moves
 
          mLog.add_headerf(LOG_NET, -1, 1, "LEVEL %d STARTED", mLevel.play_level);
+         mLog.add_log_net_db_row(LOG_NET, 0, 0, "LEVEL %d STARTED", mLevel.play_level);
+
+
 
          mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
 

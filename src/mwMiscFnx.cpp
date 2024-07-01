@@ -17,6 +17,8 @@
 #include "mwScreen.h"
 #include "mwNetgame.h"
 
+
+
 mwMiscFnx mMiscFnx;
 
 
@@ -36,21 +38,70 @@ af:'00001000 00000000 00000000 00000000 '
 */
 
 
-
-
 // get timestamp from now in db friendly format
+// YYYY-MM-DD HH:MM:SS.zzz
 char * mwMiscFnx::chr_dt(char* dt)
 {
+   char t[256];
+
+   auto cnow = std::chrono::system_clock::now();
+   int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(cnow).time_since_epoch().count() % 1000;
+
+   auto now_in_time_t = std::chrono::system_clock::to_time_t(cnow);
+   struct tm *timenow = localtime(&now_in_time_t);
+   strftime(t, sizeof(t), "%Y-%m-%d %H:%M:%S", timenow);
+
+   sprintf(dt, "%s.%d", t, ms);
+   return dt;
+
+/*
+   char t[256];
    time_t now = time(NULL);
    struct tm *timenow = localtime(&now);
-   strftime(dt, sizeof(dt), "%Y%m%d %H%M%S", timenow);
+   strftime(t, sizeof(t), "%Y%m%d %H%M%S", timenow);
+   auto currentDateTime = std::chrono::system_clock::now();
+   int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(currentDateTime).time_since_epoch().count() % 1000;
+   sprintf(dt, "%s.%d", t, ms);
    return dt;
+
+*/
+
+
+
 }
 
 
+/*
+
+
+#include <chrono>  // chrono::system_clock
+#include <ctime>   // localtime
+#include <sstream> // stringstream
+#include <iomanip> // put_time
+#include <string>  // string
+
+std::string return_current_time_and_date()
+{
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
+    return ss.str();
 
 
 
+
+      char filename[256];
+      time_t now = time(NULL);
+      struct tm *timenow = localtime(&now);
+      strftime(filename, sizeof(filename), "logs/status/%Y%m%d-%H%M%S", timenow);
+
+      auto currentDateTime = std::chrono::system_clock::now();
+      int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(currentDateTime).time_since_epoch().count() % 1000;
+
+
+*/
 
 
 

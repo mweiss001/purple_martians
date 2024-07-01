@@ -334,7 +334,7 @@ void mwInput::function_key_check(void)
    if (key[function_key_force_save][3])
    {
       mGameMoves.save_gm_make_fn("F key force save", 0);
-      mLog.save_log_file();
+      mLog.flush_logs();
    }
 
 
@@ -425,7 +425,7 @@ int mwInput::my_readkey(void) // only get key or joystick bindings
          ALLEGRO_EVENT ev;
          if (al_get_next_event(mEventQueue.event_queue, &ev))
          {
-             if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) mMain.fast_exit();
+             if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) mMain.fast_exit(0);
              if (ev.type == ALLEGRO_EVENT_KEY_UP)
              {
                 ret = ev.keyboard.keycode;
@@ -730,7 +730,7 @@ void mwInput::tsw(void)
          ALLEGRO_EVENT ev;
          if (al_get_next_event(mEventQueue.event_queue, &ev))
          {
-             if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) mMain.fast_exit();
+             if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) mMain.fast_exit(0);
              if (ev.type == ALLEGRO_EVENT_KEY_DOWN) quit = 1;
          }
       }

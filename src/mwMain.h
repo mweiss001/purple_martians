@@ -5,7 +5,7 @@ class mwMain
    public:
 
    void final_wrapup(void);
-   void fast_exit(void);
+   void fast_exit(int type);
    void show_system_id();
    void set_exe_path(void);
    void set_and_get_versions(void);

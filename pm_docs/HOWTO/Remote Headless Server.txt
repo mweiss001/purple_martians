@@ -185,10 +185,31 @@ setup a cron job to scrape session logs and add to database
 
 crontab -e
 
-*/5 * * * * php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/cronoutput.txt 2>&1
+*/1 * * * * php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/session_scrape_cronoutput.txt 2>&1
+*/1 * * * * /home/m/dev/purple_martians/scrape >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1
+
+
 
 this is an amazing one line script to change files ending in *.txt.bak to end in *.txt
 for f in *.txt.bak; do mv -- "$f" "${f%.txt.bak}.txt"; done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 -------------------------------------
