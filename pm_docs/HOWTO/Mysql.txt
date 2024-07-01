@@ -54,16 +54,36 @@ USE pm
 DROP TABLE logs;
 CREATE TABLE logs
 (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `msg_type` int DEFAULT NULL,
-  `sub_type` int DEFAULT NULL,
-  `created` datetime DEFAULT NULL,
-  `agt` double DEFAULT NULL,
-  `frame_num` int DEFAULT NULL,
-  `player` int DEFAULT NULL,
-  `client` int DEFAULT NULL,
-  `message` text,
-  PRIMARY KEY (`id`)
+  id              INT AUTO_INCREMENT,
+  msg_type        INT,
+  sub_type        INT,
+  created         DATETIME(3),
+  agt             DOUBLE,
+  frame_num       INT,
+  player          INT,
+  client          INT,
+  message         TEXT,
+  PRIMARY KEY (id)
+);
+
+DROP TABLE status;
+CREATE TABLE status (
+  id                INT AUTO_INCREMENT,
+  timestamp         DATETIME(3),
+  frame             INT,
+  player            INT,
+  rwnd              INT,
+  cpu               FLOAT,
+  sync              FLOAT,
+  ping              FLOAT,
+  difs              FLOAT,
+  lcor              FLOAT,
+  rcor              FLOAT,
+  txbf              FLOAT,
+  rxbf              FLOAT,
+  txpf              FLOAT,
+  rxpf              FLOAT,
+  PRIMARY KEY(id)
 );
 
 DROP TABLE sessions;
@@ -102,35 +122,9 @@ CREATE TABLE sessions (
   PRIMARY KEY(id)
 );
 
-
-DROP TABLE status;
-CREATE TABLE status (
-  id                INT AUTO_INCREMENT,
-  timestamp         DATETIME,
-  frame             INT,
-  player            INT,
-  rwnd              INT,
-  cpu               FLOAT,
-  sync              FLOAT,
-  ping              FLOAT,
-  difs              FLOAT,
-  lcor              FLOAT,
-  rcor              FLOAT,
-  txbf              FLOAT,
-  rxbf              FLOAT,
-  txpf              FLOAT,
-  rxpf              FLOAT,
-  PRIMARY KEY(id)
-);
-
-
-
-
-
-
 SELECT COUNT(*) FROM logs;
-SELECT COUNT(*) FROM sessions;
 SELECT COUNT(*) FROM status;
+SELECT COUNT(*) FROM sessions;
 
 
 rm logs/session/*
