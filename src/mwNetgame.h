@@ -119,6 +119,9 @@ class mwNetgame
    int server_lev_seq_num = 0;
 
 
+   int server_num_clients = 0;
+
+
 
    // local client's buffer for building compressed dif from packets
    char client_state_buffer[STATE_SIZE];
@@ -143,9 +146,7 @@ class mwNetgame
 
    void process_bandwidth_counters(int p);
 
-
    NET_CHANNEL *Channel = NULL;                   // main channel
-   NET_CHANNEL *LoggingChannel = NULL;            // logging channel
 
    void ChannelFlush(void);
 
@@ -172,6 +173,9 @@ class mwNetgame
    void client_send_cdat_packet(int p);
    void client_send_sfak_packet(int id);
    void client_send_crfl(void);
+
+   void client_send_clog_packet(int type, int sub_type, int f, double agt, char* smsg);
+
 
    void client_proc_pong_packet(char *data);
    int  client_proc_sjon_packet(char *data);
@@ -221,9 +225,15 @@ class mwNetgame
 
 
    void server_proc_cjon_packet(char* data, char* address);
-   void server_proc_cjrc_packet(char* data, char* address);;
+   void server_proc_cjrc_packet(char* data, char* address);
+
+   void server_proc_clog_packet(int i);
+
 
    void server_proc_rctl_packet(int i);
+
+   void server_count_clients();
+
    void server_control();
 
 

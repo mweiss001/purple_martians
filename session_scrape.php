@@ -1,13 +1,17 @@
 <?php
 
+// if using php < version 8
+function str_starts_with($str, $txt) {   return (substr($str, 0, strlen($txt) ) == $txt); }
+function str_ends_with($str, $txt)   {   return (substr($str,   -strlen($txt) ) == $txt); }
+
 $start_time = microtime(true);
 
 $dir = "/home/m/dev/purple_martians/logs/session/";
 
 $srvrname = "localhost";
-$database = "session_db";
-$username = "php_add";
-$password = "addonly";
+$database = "pm";
+$username = "pmdb_rw";
+$password = "readwrite";
 
 $date = new DateTime("now");
 echo "\nSession log scrape: " . $date->format('Ymd-His') . "\n";
@@ -36,12 +40,26 @@ function add_to_db(&$var)
    // show the values in the array
    //foreach ($var as $x => $y) echo "$x $y\n";
 
+   // convert the datetime to something mysql likes
+   $date2 = DateTime::createFromFormat('Ymd-His', $var['dt_start']);
+   $var['dt_start'] =  $date2->format('Y-m-d H:i:s');
+
+
+   // calculate and set dt_end
+   $dur = $var['duration'];
+   $date3 = $date2->add(DateInterval::createFromDateString("$dur seconds"));
+   $var['dt_end'] =  $date3->format('Y-m-d H:i:s');
+
+   // show the values in the array
+   //foreach ($var as $x => $y) echo "$x $y\n";
+
+
    // first check if filename is exists in db
    $fn = $var['filename'];
 
    echo "Filename $fn";
 
-   $sql = "SELECT id FROM session_tb WHERE filename='$fn'";
+   $sql = "SELECT id FROM sessions WHERE filename='$fn'";
    global $conn;
    $result = mysqli_query($conn, $sql);
 
@@ -58,7 +76,7 @@ function add_to_db(&$var)
       }
       $ak = substr($ak, 0, -2); // chop last 2 char
       $av = substr($av, 0, -2); // chop last 2 char
-      $sql = "INSERT INTO session_tb ($ak) VALUES ($av)";
+      $sql = "INSERT INTO sessions ($ak) VALUES ($av)";
       //echo "sql: $sql\n";
       if (mysqli_query($conn, $sql)) echo "New record created successfully\n";
       else echo "Error: " . $sql . "<br>" . mysqli_error($conn);
@@ -69,7 +87,7 @@ function add_to_db(&$var)
       $row = $result->fetch_assoc();
       $id = $row['id'];
       //echo "id: $id\n";
-      $sql = "UPDATE session_tb SET ";
+      $sql = "UPDATE sessions SET ";
       foreach ($var as $x => $y)
          $sql .= $x . "='" . $y . "', ";
       $sql = substr($sql, 0, -2); // chop last 2 char
@@ -90,12 +108,11 @@ function add_to_db(&$var)
        // if session is really old give up and move it also
 
       $date1 = new DateTime("now");
-      $format = 'Ymd-His';
-      $date2 = DateTime::createFromFormat($format, $var['timestamp']);
-      // echo "Format: $format; " . $date2->format('Y-m-d H:i:s') . "\n";
+
+      $date2 = DateTime::createFromFormat('Y-m-d H:i:s', $var['dt_start']);
+      // echo $date2->format('Y-m-d H:i:s') . "\n";
       $interval = $date1->diff($date2);
       $age_in_hours = $interval->h;
-
 
       //echo "Session has been open for $age_in_hours hours.\n";
       //echo "Session has been open for $interval->i minutes.\n";
@@ -150,7 +167,7 @@ if (is_dir($dir))
                $line = fgets($file_handle);
                //echo $line;
 
-               parse_line($line, "timestamp:",         $aa_data);
+               parse_line($line, "dt_start:",          $aa_data);
                parse_line($line, "duration:",          $aa_data);
                parse_line($line, "ip:",                $aa_data);
                parse_line($line, "port:",              $aa_data);
@@ -199,5 +216,3 @@ else echo "$dir is not a directory\n";
 
 $et = microtime(true) - $start_time;
 echo "\nSession scrape completed in: $et seconds\n\n";
-
-

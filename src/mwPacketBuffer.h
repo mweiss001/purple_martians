@@ -30,6 +30,10 @@ class mwPacketBuffer
    void PacketReadString(char *data, int &pos, char* s);
    void PacketReadString(int i, char* s);
 
+   void PacketAddStringN(char *data, int &pos, char* s);
+   void PacketReadStringN(int i, char* s);
+
+
    void PacketPutByte(char *data, int &pos, char b);
    char PacketGetByte(char *data, int &pos);
    char PacketGetByte(int i);

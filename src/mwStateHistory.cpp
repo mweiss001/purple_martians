@@ -145,7 +145,7 @@ void mwStateHistory::apply_rewind_state(int frame_num)
    if (ff == 0)
    {
       mLog.log_add_prefixed_text(LOG_NET_stdf_rewind, -1, "stdf rewind [none]\n");
-      mLog.add_lognet_db_row(LOG_NET_stdf_rewind, 0, 0,   "stdf rewind [none]");
+      mLog.add_log_net_db_row(LOG_NET_stdf_rewind, 0, 0,   "stdf rewind [none]");
 
       return;
    }
@@ -205,7 +205,7 @@ void mwStateHistory::apply_rewind_state(int frame_num)
 
 
    mLog.log_add_prefixed_textf(LOG_NET_stdf_rewind, -1, "%s\n", msg);
-   mLog.add_lognet_db_row(LOG_NET_stdf_rewind, 0, 0,    "%s", msg);
+   mLog.add_log_net_db_row(LOG_NET_stdf_rewind, 0, 0,    "%s", msg);
 
 
 

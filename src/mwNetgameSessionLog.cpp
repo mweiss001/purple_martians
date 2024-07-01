@@ -159,7 +159,6 @@ void mwNetgame::session_add_log(int i)
 
    if (mLog.log_types[LOG_NET_session].action & LOG_ACTION_LOG)
    {
-
       al_make_directory("logs/session"); // create if not already created
       char filename[256];
       sprintf(filename, "logs/session/%s.txt", client_sessions[i].session_name);
@@ -167,7 +166,7 @@ void mwNetgame::session_add_log(int i)
       FILE *filepntr;
       filepntr = fopen(filename,"w");
 
-      fprintf(filepntr, "timestamp:%s\n",     client_sessions[i].timestamp);
+      fprintf(filepntr, "dt_start:%s\n",      client_sessions[i].timestamp);
       fprintf(filepntr, "duration:%d\n",      (int) client_sessions[i].duration);
       fprintf(filepntr, "ip:%s\n",            client_sessions[i].ip);
       fprintf(filepntr, "port:%d\n",          client_sessions[i].port);
@@ -230,14 +229,7 @@ void mwNetgame::session_add_log(int i)
 
       if (mLog.log_types[LOG_NET_session].action & LOG_ACTION_PRINT) // open the file and print it
       {
-
-         char msg[1000];
-         sprintf(msg, "filename:%s", filename);
-
-
-         printf("\nAdded Log Entry:%s\n", filename);
-
-//         mLog.log_add_prefixed_textf(LOG_NET_session, -1, "Session filename:%s\n", filename);
+         printf("filename:%s", filename);
 
          filepntr = fopen(filename,"r");
          int done = 0;
@@ -256,22 +248,10 @@ void mwNetgame::session_add_log(int i)
             if (ch == EOF) done = 1;
             else
             {
-               char msg1[201];
-               sprintf(msg1, " %s", buff);
-               strcat(msg, msg1);
-
-
-//               mLog.log_add_prefixed_textf(LOG_NET_session, -1, "%s\n", buff);
                printf("%s\n", buff);
             }
          }
          fclose(filepntr);
-
-         printf("msg[%d]:%s\n", (int)strlen(msg), msg);
-
-         mLog.log_add_prefixed_textf(LOG_NET_session, -1, "%s\n", msg);
-
-
       }
 
       // erase if inactive

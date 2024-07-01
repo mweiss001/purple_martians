@@ -282,6 +282,11 @@ int mwNetgame::client_proc_sjon_packet(char * data)
       mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Server Frame Num:[%d]", sfnum);
       mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Server Level Sequence Num:[%d]", slsn);
       mLog.add_fwf(LOG_NET,  -1, 76, 10, "+", "-", "");
+
+      mLog.add_log_net_db_row(LOG_NET, 0, p, "Client received join invitation from server");
+      mLog.add_log_net_db_row(LOG_NET, 0, p, "Player Number:[%d] - Player Color:[%d]", p, color);
+      mLog.add_log_net_db_row(LOG_NET, 0, p, "Lev:[%d] Frame:[%d] slsn:[%d]", mLevel.play_level, sfnum, slsn);
+
       return 1;
    }
 }
@@ -486,6 +491,7 @@ void mwNetgame::client_proc_stdf_packet(int i)
       if (slsn == server_lev_seq_num +1)
       {
          mLog.log_add_prefixed_textf(LOG_NET_stdf_packets, -1, "%s slsn is from next level - setting next level:%d\n", log_msg_txt1, sdln);
+         mLog.add_log_net_db_row(LOG_NET_stdf_packets, 0, 0, "%s slsn is from next level - setting next level:%d", log_msg_txt1, sdln);
 
          mPlayer.syn[0].level_done_next_level = sdln;
          mLoop.state[0] = PM_PROGRAM_STATE_NEXT_LEVEL;
@@ -493,12 +499,19 @@ void mwNetgame::client_proc_stdf_packet(int i)
       else
       {
          mLog.log_add_prefixed_textf(LOG_NET_stdf_packets, -1, "%s[%d]bad!\n",log_msg_txt1, server_lev_seq_num);
+         mLog.add_log_net_db_row(LOG_NET_stdf_packets, 0, 0, "%s[%d]bad!",log_msg_txt1, server_lev_seq_num);
       }
       return;
    }
 
 
+
+
    mLog.log_add_prefixed_textf(LOG_NET_stdf_packets, -1, "%s\n", log_msg_txt1);
+   mLog.add_log_net_db_row(LOG_NET_stdf_packets, 0, 0, "%s",log_msg_txt1);
+
+
+
 
    memcpy(client_state_buffer + sb, mPacketBuffer.rx_buf[i].data+36, sz);   // put the piece of data in the buffer
 
@@ -516,18 +529,27 @@ void mwNetgame::client_proc_stdf_packet(int i)
       if (destLen == STATE_SIZE)
       {
          mLog.log_add_prefixed_textf(LOG_NET_stdf, -1, "rx dif complete [%d to %d] - uncompressed\n", src, dst);
+         mLog.add_log_net_db_row(LOG_NET_stdf, 0, 0, "rx dif complete [%d to %d] - uncompressed", src, dst);
+
+
+
          client_state_dif_src = src; // mark dif data with new src and dst
          client_state_dif_dst = dst;
       }
       else
       {
          mLog.log_add_prefixed_textf(LOG_NET_stdf, -1, "rx dif complete [%d to %d] - bad uncompress\n", src, dst);
+         mLog.add_log_net_db_row(LOG_NET_stdf, 0, 0, "rx dif complete [%d to %d] - bad uncompress", src, dst);
+
          client_state_dif_src = -1; // mark dif data as bad
          client_state_dif_dst = -1;
       }
    }
 
    if (mLoop.frame_num) mLog.add_tmr1(LOG_TMR_cdif, "stdf", al_get_time() - t0);
+
+
+
 }
 
 
@@ -544,13 +566,15 @@ void mwNetgame::client_apply_dif(void)
    if ((client_state_dif_src == -1) || (client_state_dif_dst == -1))
    {
       mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s [not applied] [dif not valid]\n", log_msg_txt1);
+      mLog.add_log_net_db_row(LOG_NET_dif_apply, 0, 0, "%s [not applied] [dif not valid]", log_msg_txt1);
       return;
    }
 
    // check if dif_dest has already been applied (check if dif_dest is less than or equal to newest_state_frame_num)
    if (client_state_dif_dst <= mStateHistory[p].newest_state_frame_num)
    {
-      mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s dd[not applied] [not newer than last dif applied]\n", log_msg_txt1);
+      mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s [not applied] [not newer than last dif applied]\n", log_msg_txt1);
+      mLog.add_log_net_db_row(LOG_NET_dif_apply, 0, 0, "%s [not applied] [not newer than last dif applied]", log_msg_txt1);
       return;
    }
 
@@ -588,10 +612,12 @@ void mwNetgame::client_apply_dif(void)
          {
             fn = 0; // do not sent stak with -1 send it with 0
             mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s [not applied] [no bases found] - resending stak [%d]\n", log_msg_txt1, fn);
+            mLog.add_log_net_db_row(LOG_NET_dif_apply, 0, 0, "%s [not applied] [no bases found] - resending stak [%d]", log_msg_txt1, fn);
          }
          else
          {
             mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s [not applied] [base not found] - resending stak [%d]\n", log_msg_txt1, fn);
+            mLog.add_log_net_db_row(LOG_NET_dif_apply, 0, 0, "%s [not applied] [base not found] - resending stak [%d]", log_msg_txt1, fn);
          }
          client_send_stak_packet(fn);
          return;
@@ -634,6 +660,7 @@ void mwNetgame::client_apply_dif(void)
 
    // add log entry
    mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s [applied] [%s]\n", log_msg_txt1, log_msg_txt2);
+   mLog.add_log_net_db_row(LOG_NET_dif_apply, 0, 0, "%s [applied] [%s]", log_msg_txt1, log_msg_txt2);
 
 
 
@@ -709,7 +736,42 @@ void mwNetgame::client_send_cdat_packet(int p)
    ClientSend(data, pos);
    mPlayer.loc[p].client_cdat_packets_tx++;
    mLog.log_add_prefixed_textf(LOG_NET_cdat, p, "tx cdat - move:%d\n", mPlayer.loc[p].comp_move);
+   mLog.add_log_net_db_row(LOG_NET_cdat, 0, 0, "tx cdat - move:%d", mPlayer.loc[p].comp_move);
 }
+
+
+
+void mwNetgame::client_send_clog_packet(int type, int sub_type, int f, double agt, char* smsg)
+{
+   char data[PACKET_BUFFER_SIZE] = {0}; int pos;
+   mPacketBuffer.PacketName(data, pos, "clog");
+   mPacketBuffer.PacketPutInt32(data, pos, type);
+   mPacketBuffer.PacketPutInt32(data, pos, sub_type);
+   mPacketBuffer.PacketPutInt32(data, pos, f);
+   mPacketBuffer.PacketPutDouble(data, pos, agt);
+   mPacketBuffer.PacketAddStringN(data, pos, smsg);
+   ClientSend(data, pos);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void mwNetgame::client_send_stak_packet(int ack_frame)
 {
@@ -730,6 +792,9 @@ void mwNetgame::client_send_stak_packet(int ack_frame)
    ClientSend(data, pos);
 
    mLog.log_add_prefixed_textf(LOG_NET_stak, p, "tx stak p:%d ack:[%d] cur:[%d]\n", p, ack_frame, mLoop.frame_num);
+   mLog.add_log_net_db_row(LOG_NET_stak, 0, 0, "tx stak p:%d ack:[%d] cur:[%d]", p, ack_frame, mLoop.frame_num);
+
+
 }
 
 
@@ -777,6 +842,11 @@ void mwNetgame::client_timer_adjust(void)
 
       mLog.add_tmrf(LOG_TMR_client_timer_adj, "dsc:[%5.2f] dsa:[%5.2f] sp:[%5.2f] er:[%6.2f] ta:[%6.2f]\n", mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].pdsync_avg*1000, sp*1000, err*1000, t_adj);
       mLog.log_add_prefixed_textf(LOG_NET_timer_adjust, p, "timer adjust dsc[%5.1f] dsa[%5.1f] off[%3.1f] chs[%3.3f]\n", mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].pdsync_avg*1000, sp*1000, fps_chase);
+
+      mLog.add_log_net_db_row(LOG_NET_timer_adjust, 0, 0, "timer adjust dsc[%5.1f] dsa[%5.1f] off[%3.1f] chs[%3.3f]", mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].pdsync_avg*1000, sp*1000, fps_chase);
+
+
+
    }
    // else mLog.addf(LOG_NET_timer_adjust, p, "timer adjust no stdf packets this frame dsc[%5.1f] dsa[%5.1f]\n", mPlayer.loc[p].dsync*1000, mPlayer.loc[p].dsync_avg*1000);
 }
@@ -806,6 +876,9 @@ void mwNetgame::client_proc_player_drop(void)
          mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "last_dif_applied:[%d]", lda);
          mLog.add_fwf(LOG_NET, -1, 76, 10, "+", "-", "");
          mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
+
+         mLog.add_log_net_db_row(LOG_NET, 0, 0, "Lost Server Connection! - last dif applied:[%d]", lda);
+
 
          mScreen.rtextout_centre(mFont.bltn, NULL, mDisplay.SCREEN_W/2, mDisplay.SCREEN_H/2, 10, -2, 1, "LOST SERVER CONNECTION!");
          al_flip_display();

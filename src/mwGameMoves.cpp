@@ -349,7 +349,11 @@ void mwGameMoves::proc_game_move_player_active(int p, int color)
       {
          mScreen.add_player_text_overlay(p, 1);
          mGameEvent.add(6, 0, 0, p, 0, 0, 0);
-         if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, -1, 0, "Player:%d became ACTIVE!                                ", p);
+         if (!mLoop.ff_state)
+         {
+            mLog.add_headerf(LOG_NET, -1, 0, "Player:%d became ACTIVE!                                ", p);
+            mLog.add_log_net_db_row(LOG_NET, 0, p, "Player:%d became ACTIVE!", p);
+         }
       }
    }
 }
@@ -364,7 +368,17 @@ void mwGameMoves::proc_game_move_player_inactive(int p, int reason)
 
    if (mPlayer.syn[p].active)
    {
-      if (!mLoop.ff_state) mLog.add_headerf(LOG_NET, -1, 0, "Player:%d became INACTIVE!                              ", p);
+      if (!mLoop.ff_state)
+      {
+         mLog.add_headerf(LOG_NET, -1, 0, "Player:%d became INACTIVE!                              ", p);
+         mLog.add_log_net_db_row(LOG_NET, 0, p, "Player:%d became INACTIVE!", p);
+
+      }
+
+
+      mScreen.add_player_text_overlay(p, 0);
+      mGameEvent.add(7, 0, 0, p, 0, 0, 0);
+
       mPlayer.syn[p].active = 0;
 
       if (mNetgame.ima_server)
@@ -405,8 +419,6 @@ void mwGameMoves::proc_game_move_player_inactive(int p, int reason)
             }
          }
       }
-      mScreen.add_player_text_overlay(p, 0);
-      mGameEvent.add(7, 0, 0, p, 0, 0, 0);
    }
 }
 

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+die() { echo "$*" 1>&2 ; exit 1; }
+
+start_time=$(date +%s%3N)  # start time in milliseconds
+
+dbusr=pmdb_rw
+dbpwd=readwrite
+dbnam=pm
+
+files=(/home/m/dev/purple_martians/logs/status/*.csv)   # Put all filenames in array $files
+
+[ -e "$files" ] || die "No files found."                # Exit if no files found
+
+for file in "${files[@]}";do                            # foreach file:
+
+mysql -u $dbusr -p$dbpwd $dbnam -vv --local_infile=1 -e"LOAD DATA LOCAL INFILE '$file' INTO TABLE status COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (timestamp, frame, player, rwnd, cpu, sync, ping, difs, lcor, rcor, txbf, rxbf, txpf, rxpf );"
+
+mv $file $file.bak
+
+done
+
+end_time=$(date +%s%3N)  # # end time in milliseconds
+duration_ms=$((end_time - start_time))  # duration in milliseconds
+
+echo "Execution time in ms: $duration_ms"
+
+
+

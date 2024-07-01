@@ -59796,7 +59796,6 @@ LOAD DATA LOCAL INFILE "/home/m/dev/purple_martians/logs//20240625-181723-[1][pm
 
 ERROR 3948 (42000): Loading local data is disabled; this must be enabled on both the client and server sides
 
-
     nano /etc/mysql/mysql.conf.d/mysqld.cnf
     in the [mysqld] section add this line:
 
@@ -60570,7 +60569,7 @@ dbusr=pmdb_rw
 dbpwd=readwrite
 dbnam=pm
 
-files=(/home/m/dev/purple_martians/logs/*.bak)       # All files names in array $files
+files=(/home/m/dev/purple_martians/logs/*.csv)       # All files names in array $files
 
 [ -e "$files" ] || die "No files found."            # Exit if no files found
 
@@ -60578,7 +60577,7 @@ for file in "${files[@]}";do                        # foreach file:
 
 mysql -u $dbusr -p$dbpwd $dbnam -vv --local_infile=1 -e"LOAD DATA LOCAL INFILE '$file' INTO TABLE logs COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);"
 
-mw $file $file.bak
+mv $file $file.bak
 
 done
 
@@ -60600,6 +60599,2397 @@ did stdf rewind in state history
 how hard would this be to do on scat for testing?
 scat is 118, but also seems to resolve nicely to scat
 ------------------
+
+installed and setup db, tables and users...
+
+I need to do something to fix this:
+
+ERROR 3948 (42000) at line 1: Loading local data is disabled; this must be enabled on both the client and server sides
+Bye
+
+fixed...
+
+
+now I am doing this on scat, hopefully dev should be faster...
+
+
+now i need to setup remote access on scat...
+
+
+
+
+QSqlQuery::exec: database not open
+16:20:29: C:\Users\m\Documents\test1\build\Desktop_Qt_6_7_1_MinGW_64_bit-Debug\test1.exe exited with code 0
+
+16:20:33: Starting C:\Users\m\Documents\test1\build\Desktop_Qt_6_7_1_MinGW_64_bit-Debug\test1.exe...
+database error: "Can't connect to MySQL server on 'scat:3306' (10061) QMYSQL: Unable to connect"
+QSqlQuery::exec: database not open
+QSqlQuery::exec: database not open
+16:27:08: The process was ended forcefully.
+
+16:27:09: Starting C:\Users\m\Documents\test1\build\Desktop_Qt_6_7_1_MinGW_64_bit-Debug\test1.exe...
+database error: "Host '192.168.1.36' is not allowed to connect to this MySQL server QMYSQL: Unable to connect"
+QSqlQuery::exec: database not open
+QSqlQuery::exec: database not open
+
+
+what were the permissions for pete park...
+
+
+what I needed to do was not specify host so it would be wildcard %
+
+
+
+now I have the app reading and displaying from database
+
+finish logging in the game
+
+did gamemoves inactive and active
+
+did LEVEL STARTED and NEXT LEVEL in loop
+
+I will need to modify mLog.add_lognet_db_row(
+so that it only does something if in client or server mode
+
+
+on client, logging wont start until client rx sjon
+
+I think I have all client done also...
+
+
+now make the packet exchange
+
+packet clog
+
+
+I think I am done having the server add log entries, but I need to test it...
+
+I think it is working... I can see all the messages in qtapp
+
+now convert sessions to use the same new database
+
+
+I think I can leave everything as it saves to disk the same??
+
+what did I do??
+
+I had some stuff where after saving to disk, I would open the file and print it
+then I sent that to print a log line...
+
+I removed that...
+
+also remove all the stuff that does syslog....done...
+
+sessions is still being saved to disk, need to make sure the session scrape is modified to work with new database...
+session_scrape.php ..done
+and the sessions are loading in qtapp..done
+
+
+now enable cron to make both called every minute
+
+
+# m h  dom mon dow   command
+
+*/1 * * * * php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/session_scrape_cronoutput.txt 2>&1
+*/1 * * * * /home/m/dev/purple_martians/scrape >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1
+
+
+
+now what?
+
+
+erase all data in tables:
+
+
+DROP TABLE logs;
+CREATE TABLE logs
+(
+  `id` int NOT NULL AUTO_INCREMENT,
+  `msg_type` int DEFAULT NULL,
+  `sub_type` int DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `agt` double DEFAULT NULL,
+  `frame_num` int DEFAULT NULL,
+  `player` int DEFAULT NULL,
+  `client` int DEFAULT NULL,
+  `message` text,
+  PRIMARY KEY (`id`)
+);
+
+DROP TABLE sessions;
+CREATE TABLE sessions (
+  id                INT AUTO_INCREMENT,
+  filename          VARCHAR(255),
+  timestamp         VARCHAR(255),
+  duration          INT,
+  ip                VARCHAR(255),
+  port              INT,
+  hostname          VARCHAR(255),
+  endreason         VARCHAR(255),
+  cdat_rx           INT,
+  player_num        INT,
+  next_levels       INT,
+  exits_activated   INT,
+  respawns          INT,
+  shots_fired       INT,
+  enemy_hits        INT,
+  player_hits       INT,
+  self_hits         INT,
+  purple_coins      INT,
+  tx_bytes_total            INT,
+  tx_bytes_avg_per_sec      INT,
+  tx_bytes_max_per_frame    INT,
+  rx_bytes_total            INT,
+  rx_bytes_avg_per_sec      INT,
+  rx_bytes_max_per_frame    INT,
+  tx_packets_total          INT,
+  tx_packets_avg_per_sec    INT,
+  tx_packets_max_per_frame  INT,
+  rx_packets_total          INT,
+  rx_packets_avg_per_sec    INT,
+  rx_packets_max_per_frame  INT,
+  PRIMARY KEY(id)
+);
+
+SELECT COUNT(*) FROM logs;
+SELECT COUNT(*) FROM sessions;
+
+
+then remove all files in logs dir.
+
+create some data...
+
+one thing I want to work on is flushing logs to disk on server...
+currently I wait till it fills up...
+
+
+this all seems to be working well now...
+
+make sure 'scrape' and 'session_scrape.php' are the versions in the main pm folder
+
+cat scrape
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#!/bin/bash
+
+die() { echo "$*" 1>&2 ; exit 1; }
+
+start_time=$(date +%s%3N)  # start time in milliseconds
+
+dbusr=pmdb_rw
+dbpwd=readwrite
+dbnam=pm
+
+files=(/home/m/dev/purple_martians/logs/*.csv)       # All files names in array $files
+
+[ -e "$files" ] || die "No files found."            # Exit if no files found
+
+for file in "${files[@]}";do                        # foreach file:
+
+mysql -u $dbusr -p$dbpwd $dbnam -vv --local_infile=1 -e"LOAD DATA LOCAL INFILE '$file' INTO TABLE logs COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);"
+
+mv $file $file.bak
+
+done
+
+end_time=$(date +%s%3N)  # # end time in milliseconds
+duration_ms=$((end_time - start_time))  # duration in milliseconds
+
+echo "Execution time in ms: $duration_ms"
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+cat session_scrape.php
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+<?php
+
+// if using php < version 8
+function str_starts_with($str, $txt) {   return (substr($str, 0, strlen($txt) ) == $txt); }
+function str_ends_with($str, $txt)   {   return (substr($str,   -strlen($txt) ) == $txt); }
+
+
+$start_time = microtime(true);
+
+$dir = "/home/m/dev/purple_martians/logs/session/";
+
+$srvrname = "localhost";
+$database = "pm";
+$username = "pmdb_rw";
+$password = "readwrite";
+
+$date = new DateTime("now");
+echo "\nSession log scrape: " . $date->format('Ymd-His') . "\n";
+
+// Create a connection
+$conn = mysqli_connect($srvrname, $username, $password, $database);
+
+// Check the connection
+if (!$conn) die("Database connection failed: " . mysqli_connect_error());
+
+function parse_line($line, $tag, &$var)
+{
+   if (str_starts_with($line, $tag))
+   {
+      $repl = array($tag, "\n");              // pattern to remove the tag and /n at the end
+      $tmp = str_replace($repl, "", $line);   // do the replace
+      $tag = str_replace(":", "", $tag);      // remove the : from tag
+      $var[$tag] = $tmp;                      // add to array
+   }
+}
+
+function add_to_db(&$var)
+{
+   echo "\n";
+
+   // show the values in the array
+   // foreach ($var as $x => $y) echo "$x $y\n";
+
+   // first check if filename is exists in db
+   $fn = $var['filename'];
+
+   echo "Filename $fn";
+
+   $sql = "SELECT id FROM sessions WHERE filename='$fn'";
+   global $conn;
+   $result = mysqli_query($conn, $sql);
+
+   if ($result->num_rows == 0)
+   {
+      echo " not found in db, inserting\n";
+      $ak = "";
+      $av = "";
+      // make a list of the key values and pairs
+      foreach ($var as $x => $y)
+      {
+         $ak .= $x . ", ";
+         $av .= "'" . $y . "', ";
+      }
+      $ak = substr($ak, 0, -2); // chop last 2 char
+      $av = substr($av, 0, -2); // chop last 2 char
+      $sql = "INSERT INTO sessions ($ak) VALUES ($av)";
+      //echo "sql: $sql\n";
+      if (mysqli_query($conn, $sql)) echo "New record created successfully\n";
+      else echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+   }
+   else
+   {
+      echo " found in db, updating\n";
+      $row = $result->fetch_assoc();
+      $id = $row['id'];
+      //echo "id: $id\n";
+      $sql = "UPDATE sessions SET ";
+      foreach ($var as $x => $y)
+         $sql .= $x . "='" . $y . "', ";
+      $sql = substr($sql, 0, -2); // chop last 2 char
+      $sql .= " WHERE id=$id";
+      //echo "sql: $sql\n";
+      if (mysqli_query($conn, $sql)) echo "Record updated successfully\n";
+      else echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+   }
+
+
+   // after adding to db, check if session is closed
+   // if it is, we are done with this file and will move it somewhere so it doesnt get scraped again..
+
+   $move = 0;
+   if ($var['endreason'] == "unknown")
+   {
+      echo "Session is still open!\n";
+       // if session is really old give up and move it also
+
+      $date1 = new DateTime("now");
+      $format = 'Ymd-His';
+      $date2 = DateTime::createFromFormat($format, $var['timestamp']);
+      // echo "Format: $format; " . $date2->format('Y-m-d H:i:s') . "\n";
+      $interval = $date1->diff($date2);
+      $age_in_hours = $interval->h;
+
+
+      //echo "Session has been open for $age_in_hours hours.\n";
+      //echo "Session has been open for $interval->i minutes.\n";
+      //echo "Session has been open for $interval->s seconds.\n";
+
+
+      $sec_since_session_start = $interval->s + $interval->i * 60 + $interval->h * 3600;
+      //echo "Seconds since session start: $sec_since_session_start\n";
+
+      $duration = $var['duration'];
+      //echo "Session reports a duration of $duration seconds.\n";
+
+      $dif = ($sec_since_session_start - $duration) / 60;
+
+      echo "Session has been running $dif/120 minutes longer than reported duration.\n";
+
+      if ($dif > 7200) $move = 1; // more than 2 hours difference
+   }
+   else
+   {
+      echo "Session is closed!\n";
+      $move = 1;
+   }
+   if ($move)
+   {
+      global $dir;
+      $fn = $dir . $var['filename'];
+      echo "Moving and renaming session log file\n";
+      rename($fn, $fn . ".bak");
+   }
+}
+
+// Open directory and iterate files
+$dir = "/home/m/dev/purple_martians/logs/session/";
+if (is_dir($dir))
+{
+   if ($dh = opendir($dir))
+   {
+      while (($file = readdir($dh)) !== false)
+      {
+         if (str_ends_with($file, ".txt"))
+         {
+            // make an associative array and clear it
+            $aa_data;
+
+            unset($aa_data);
+            $aa_data['filename'] = $file;
+
+            $file_handle = fopen($dir.$file, "r");
+            while (!feof($file_handle))
+            {
+               $line = fgets($file_handle);
+               //echo $line;
+
+               parse_line($line, "timestamp:",         $aa_data);
+               parse_line($line, "duration:",          $aa_data);
+               parse_line($line, "ip:",                $aa_data);
+               parse_line($line, "port:",              $aa_data);
+               parse_line($line, "hostname:",          $aa_data);
+               parse_line($line, "endreason:",         $aa_data);
+               parse_line($line, "cdat_rx:",           $aa_data);
+               parse_line($line, "player_num:",        $aa_data);
+               parse_line($line, "next_levels:",       $aa_data);
+               parse_line($line, "exits_activated:",   $aa_data);
+               parse_line($line, "respawns:",          $aa_data);
+               parse_line($line, "shots_fired:",       $aa_data);
+               parse_line($line, "enemy_hits:",        $aa_data);
+               parse_line($line, "player_hits:",       $aa_data);
+               parse_line($line, "self_hits:",         $aa_data);
+               parse_line($line, "purple_coins:",      $aa_data);
+
+               parse_line($line, "tx_bytes_total:",          $aa_data);
+               parse_line($line, "tx_bytes_avg_per_sec:",    $aa_data);
+               parse_line($line, "tx_bytes_max_per_frame:",  $aa_data);
+               parse_line($line, "rx_bytes_total:",          $aa_data);
+               parse_line($line, "rx_bytes_avg_per_sec:",    $aa_data);
+               parse_line($line, "rx_bytes_max_per_frame:",  $aa_data);
+
+               parse_line($line, "tx_packets_total:",          $aa_data);
+               parse_line($line, "tx_packets_avg_per_sec:",    $aa_data);
+               parse_line($line, "tx_packets_max_per_frame:",  $aa_data);
+               parse_line($line, "rx_packets_total:",          $aa_data);
+               parse_line($line, "rx_packets_avg_per_sec:",    $aa_data);
+               parse_line($line, "rx_packets_max_per_frame:",  $aa_data);
+
+
+            }
+            fclose($file_handle);
+
+
+            add_to_db($aa_data);
+
+         }
+         // else echo "file does not end in .txt\n";
+      }
+      closedir($dh);
+   }
+   else echo "error opening $dir\n";
+}
+else echo "$dir is not a directory\n";
+
+$et = microtime(true) - $start_time;
+echo "\nSession scrape completed in: $et seconds\n\n";
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+now is it time to do more in qt app??
+
+I really don't want it to load massive amounts of data into model...
+
+something better with sessions?
+
+how about its own tab?
+
+list of sessions:
+
+currently selected session
+
+details about currently selected session
+time range, start and end
+how many log entries
+
+graphical view of sessions in timeline graph
+
+
+--------------------------
+
+
+size of csv files? they are already close to 100K and I don;t have full logging
+
+they are getting saved 2s apart, if much more they wont have unique names
+
+remove lev num and host from filename
+
+look for more resolution in time stamp...
+
+this is how they are being saved now:
+
+1000 lognet lines...dumping to file
+logs/20240629-110558.492.csv saved
+1000 lognet lines...dumping to file
+logs/20240629-110600.992.csv saved
+1000 lognet lines...dumping to file
+logs/20240629-110603.417.csv saved
+
+
+this is what I needed to do:
+
+
+      char filename[256];
+      time_t now = time(NULL);
+      struct tm *timenow = localtime(&now);
+      strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S", timenow);
+
+      auto currentDateTime = std::chrono::system_clock::now();
+      int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(currentDateTime).time_since_epoch().count() % 1000;
+
+      char sms[64];
+      sprintf(sms, ".%d.csv", ms);
+
+      strcat(filename, sms);
+
+
+now what about when it is flushed to file?
+
+I actually have NUM_LOG_CHAR set to 100 million!!!
+
+   int size_limit = NUM_LOG_CHAR;
+   size_limit = 1000000;
+   if ((lognet_msg_pos + (int)strlen(txt)) >= size_limit)
+   {
+      printf("lognet array size > %d char ... dumping to file\n", size_limit);
+      save_lognet_file();
+   }
+
+   int line_limit = 2000;
+   if (lognet_msg_num_lines > line_limit)
+   {
+      printf("lognet array lines > %d ... dumping to file\n", line_limit);
+      save_lognet_file();
+   }
+
+I can flush at any time by calling save_lognet_file();
+
+
+if I have the number of lognet lines set to 1000 and LOG_NET saves rewind and save every frame at a minimum...
+
+1000 / 2 = 500 frame / 40 = 12.5 seconds before this will trigger a forced save...
+
+what if I manually trigger it when server resets due to no clients? done
+
+now what if I don't save rewind and save states when server has no clients?
+
+
+
+
+
+
+
+2 rows in set (0.00 sec)
+
+mysql> SELECT timestamp, duration, timestamp AS endtime FROM sessions ORDER by timestamp;
++-----------------+----------+-----------------+
+| timestamp       | duration | endtime         |
++-----------------+----------+-----------------+
+| 20240629-110557 |       10 | 20240629-110557 |
+| 20240629-114130 |       22 | 20240629-114130 |
++-----------------+----------+-----------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT timestamp, duration, timestamp+duration AS endtime FROM sessions ORDER by timestamp;
++-----------------+----------+----------+
+| timestamp       | duration | endtime  |
++-----------------+----------+----------+
+| 20240629-110557 |       10 | 20240639 |
+| 20240629-114130 |       22 | 20240651 |
++-----------------+----------+----------+
+2 rows in set, 2 warnings (0.00 sec)
+
+mysql> SELECT timestamp, duration, ADDTIME(timestamp, duration) AS endtime FROM sessions ORDER by timestamp;
++-----------------+----------+-----------+
+| timestamp       | duration | endtime   |
++-----------------+----------+-----------+
+| 20240629-110557 |       10 | 838:59:59 |
+| 20240629-114130 |       22 | 838:59:59 |
++-----------------+----------+-----------+
+2 rows in set, 4 warnings (0.00 sec)
+
+mysql> SELECT timestamp, duration, DATEADD(timestamp, interval duration seconds) AS endtime FROM sessions ORDER by timestamp;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'seconds) AS endtime FROM sessions ORDER by timestamp' at line 1
+mysql>
+
+
+
+SELECT timestamp, duration, DATEADD(timestamp, INTERVAL (duration) SECONDS) AS endtime FROM sessions;
+
+
+
+SELECT timestamp, duration, DATEADD(timestamp, INTERVAL 12 SECONDS) AS endtime FROM sessions;
+
+
+
+
+SELECT timestamp, duration, DATEADD(timestamp, INTERVAL 12 SECONDS) AS endtime FROM sessions;
+
+
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SECONDS) AS endtime FROM sessions' at line 1
+
+
+
+
+
+SELECT timestamp, duration, DATE_ADD(timestamp, INTERVAL 12 SECOND) AS endtime FROM sessions;
++-----------------+----------+---------+
+| timestamp       | duration | endtime |
++-----------------+----------+---------+
+| 20240629-110557 |       10 | NULL    |
+| 20240629-114130 |       22 | NULL    |
++-----------------+----------+---------+
+2 rows in set, 2 warnings (0.00 sec)
+
+finally I got the syntax right, but the results are not...
+
+
+why is the goddamn timestamp stored as varchar in mysql
+
+
+
+mysql> describe sessions;
++--------------------------+--------------+------+-----+---------+----------------+
+| Field                    | Type         | Null | Key | Default | Extra          |
++--------------------------+--------------+------+-----+---------+----------------+
+| id                       | int          | NO   | PRI | NULL    | auto_increment |
+| filename                 | varchar(255) | YES  |     | NULL    |                |
+| timestamp                | varchar(255) | YES  |     | NULL    |                |
+| duration                 | int          | YES  |     | NULL    |                |
+| ip                       | varchar(255) | YES  |     | NULL    |                |
+| port                     | int          | YES  |     | NULL    |                |
+| hostname                 | varchar(255) | YES  |     | NULL    |                |
+| endreason                | varchar(255) | YES  |     | NULL    |                |
+| cdat_rx                  | int          | YES  |     | NULL    |                |
+| player_num               | int          | YES  |     | NULL    |                |
+| next_levels              | int          | YES  |     | NULL    |                |
+| exits_activated          | int          | YES  |     | NULL    |                |
+| respawns                 | int          | YES  |     | NULL    |                |
+| shots_fired              | int          | YES  |     | NULL    |                |
+| enemy_hits               | int          | YES  |     | NULL    |                |
+| player_hits              | int          | YES  |     | NULL    |                |
+| self_hits                | int          | YES  |     | NULL    |                |
+| purple_coins             | int          | YES  |     | NULL    |                |
+| tx_bytes_total           | int          | YES  |     | NULL    |                |
+| tx_bytes_avg_per_sec     | int          | YES  |     | NULL    |                |
+| tx_bytes_max_per_frame   | int          | YES  |     | NULL    |                |
+| rx_bytes_total           | int          | YES  |     | NULL    |                |
+| rx_bytes_avg_per_sec     | int          | YES  |     | NULL    |                |
+| rx_bytes_max_per_frame   | int          | YES  |     | NULL    |                |
+| tx_packets_total         | int          | YES  |     | NULL    |                |
+| tx_packets_avg_per_sec   | int          | YES  |     | NULL    |                |
+| tx_packets_max_per_frame | int          | YES  |     | NULL    |                |
+| rx_packets_total         | int          | YES  |     | NULL    |                |
+| rx_packets_avg_per_sec   | int          | YES  |     | NULL    |                |
+| rx_packets_max_per_frame | int          | YES  |     | NULL    |                |
++--------------------------+--------------+------+-----+---------+----------------+
+30 rows in set (0.00 sec)
+
+mysql>
+
+
+
+I found the new one....
+
+
+CREATE TABLE pm_session (
+  id                INT AUTO_INCREMENT,
+  filename          VARCHAR(255),
+  dt_start          DATETIME,
+  dt_end            DATETIME,
+  duration          INT,
+  ip                VARCHAR(255),
+  port              INT,
+  hostname          VARCHAR(255),
+  endreason         VARCHAR(255),
+  cdat_rx           INT,
+  player_num        INT,
+  next_levels       INT,
+  exits_activated   INT,
+  respawns          INT,
+  shots_fired       INT,
+  enemy_hits        INT,
+  player_hits       INT,
+  self_hits         INT,
+  purple_coins      INT,
+  tx_bytes_total            INT,
+  tx_bytes_avg_per_sec      INT,
+  tx_bytes_max_per_frame    INT,
+  rx_bytes_total            INT,
+  rx_bytes_avg_per_sec      INT,
+  rx_bytes_max_per_frame    INT,
+  tx_packets_total          INT,
+  tx_packets_avg_per_sec    INT,
+  tx_packets_max_per_frame  INT,
+  rx_packets_total          INT,
+  rx_packets_avg_per_sec    INT,
+  rx_packets_max_per_frame  INT,
+
+  PRIMARY KEY(id)
+);
+
+
+OK lets change this....
+
+this is how it is stored in the file: dt_start:20240629-122346
+
+I am tempted to store it in a manner that mysql likes, but I am afraid that would break other stuff??
+
+I think I can convert it in php when adding it to the database...
+that should be easy enough....done...
+
+stored the same in file: YYYYMMDD-HHMMSS
+php converts to YYYY-MM-DD HH:MM:SS and stores in table sessions as mysql DATETIME
+php also calculates and stores dt_end
+
+erase log files, tables and get more data
+
+this is the newest version of: session_scrape.php
+-----------------------------------------------------------------------------------------------------------------------
+<?php
+
+
+// if using php < version 8
+function str_starts_with($str, $txt) {   return (substr($str, 0, strlen($txt) ) == $txt); }
+function str_ends_with($str, $txt)   {   return (substr($str,   -strlen($txt) ) == $txt); }
+
+
+
+$start_time = microtime(true);
+
+$dir = "/home/m/dev/purple_martians/logs/session/";
+
+$srvrname = "localhost";
+$database = "pm";
+$username = "pmdb_rw";
+$password = "readwrite";
+
+$date = new DateTime("now");
+echo "\nSession log scrape: " . $date->format('Ymd-His') . "\n";
+
+// Create a connection
+$conn = mysqli_connect($srvrname, $username, $password, $database);
+
+// Check the connection
+if (!$conn) die("Database connection failed: " . mysqli_connect_error());
+
+function parse_line($line, $tag, &$var)
+{
+   if (str_starts_with($line, $tag))
+   {
+      $repl = array($tag, "\n");              // pattern to remove the tag and /n at the end
+      $tmp = str_replace($repl, "", $line);   // do the replace
+      $tag = str_replace(":", "", $tag);      // remove the : from tag
+      $var[$tag] = $tmp;                      // add to array
+   }
+}
+
+function add_to_db(&$var)
+{
+   echo "\n";
+
+   // show the values in the array
+   //foreach ($var as $x => $y) echo "$x $y\n";
+
+   // convert the datetime to something mysql likes
+   $date2 = DateTime::createFromFormat('Ymd-His', $var['dt_start']);
+   $var['dt_start'] =  $date2->format('Y-m-d H:i:s');
+
+
+   // calculate and set dt_end
+   $dur = $var['duration'];
+   $date3 = $date2->add(DateInterval::createFromDateString("$dur seconds"));
+   $var['dt_end'] =  $date3->format('Y-m-d H:i:s');
+
+   // show the values in the array
+   //foreach ($var as $x => $y) echo "$x $y\n";
+
+
+   // first check if filename is exists in db
+   $fn = $var['filename'];
+
+   echo "Filename $fn";
+
+   $sql = "SELECT id FROM sessions WHERE filename='$fn'";
+   global $conn;
+   $result = mysqli_query($conn, $sql);
+
+   if ($result->num_rows == 0)
+   {
+      echo " not found in db, inserting\n";
+      $ak = "";
+      $av = "";
+      // make a list of the key values and pairs
+      foreach ($var as $x => $y)
+      {
+         $ak .= $x . ", ";
+         $av .= "'" . $y . "', ";
+      }
+      $ak = substr($ak, 0, -2); // chop last 2 char
+      $av = substr($av, 0, -2); // chop last 2 char
+      $sql = "INSERT INTO sessions ($ak) VALUES ($av)";
+      //echo "sql: $sql\n";
+      if (mysqli_query($conn, $sql)) echo "New record created successfully\n";
+      else echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+   }
+   else
+   {
+      echo " found in db, updating\n";
+      $row = $result->fetch_assoc();
+      $id = $row['id'];
+      //echo "id: $id\n";
+      $sql = "UPDATE sessions SET ";
+      foreach ($var as $x => $y)
+         $sql .= $x . "='" . $y . "', ";
+      $sql = substr($sql, 0, -2); // chop last 2 char
+      $sql .= " WHERE id=$id";
+      //echo "sql: $sql\n";
+      if (mysqli_query($conn, $sql)) echo "Record updated successfully\n";
+      else echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+   }
+
+
+   // after adding to db, check if session is closed
+   // if it is, we are done with this file and will move it somewhere so it doesnt get scraped again..
+
+   $move = 0;
+   if ($var['endreason'] == "unknown")
+   {
+      echo "Session is still open!\n";
+       // if session is really old give up and move it also
+
+      $date1 = new DateTime("now");
+
+      $date2 = DateTime::createFromFormat('Y-m-d H:i:s', $var['dt_start']);
+      // echo $date2->format('Y-m-d H:i:s') . "\n";
+      $interval = $date1->diff($date2);
+      $age_in_hours = $interval->h;
+
+      //echo "Session has been open for $age_in_hours hours.\n";
+      //echo "Session has been open for $interval->i minutes.\n";
+      //echo "Session has been open for $interval->s seconds.\n";
+
+
+      $sec_since_session_start = $interval->s + $interval->i * 60 + $interval->h * 3600;
+      //echo "Seconds since session start: $sec_since_session_start\n";
+
+      $duration = $var['duration'];
+      //echo "Session reports a duration of $duration seconds.\n";
+
+      $dif = ($sec_since_session_start - $duration) / 60;
+
+      echo "Session has been running $dif/120 minutes longer than reported duration.\n";
+
+      if ($dif > 7200) $move = 1; // more than 2 hours difference
+   }
+   else
+   {
+      echo "Session is closed!\n";
+      $move = 1;
+   }
+   if ($move)
+   {
+      global $dir;
+      $fn = $dir . $var['filename'];
+      echo "Moving and renaming session log file\n";
+      rename($fn, $fn . ".bak");
+   }
+}
+
+// Open directory and iterate files
+$dir = "/home/m/dev/purple_martians/logs/session/";
+if (is_dir($dir))
+{
+   if ($dh = opendir($dir))
+   {
+      while (($file = readdir($dh)) !== false)
+      {
+         if (str_ends_with($file, ".txt"))
+         {
+            // make an associative array and clear it
+            $aa_data;
+
+            unset($aa_data);
+            $aa_data['filename'] = $file;
+
+            $file_handle = fopen($dir.$file, "r");
+            while (!feof($file_handle))
+            {
+               $line = fgets($file_handle);
+               //echo $line;
+
+               parse_line($line, "dt_start:",          $aa_data);
+               parse_line($line, "duration:",          $aa_data);
+               parse_line($line, "ip:",                $aa_data);
+               parse_line($line, "port:",              $aa_data);
+               parse_line($line, "hostname:",          $aa_data);
+               parse_line($line, "endreason:",         $aa_data);
+               parse_line($line, "cdat_rx:",           $aa_data);
+               parse_line($line, "player_num:",        $aa_data);
+               parse_line($line, "next_levels:",       $aa_data);
+               parse_line($line, "exits_activated:",   $aa_data);
+               parse_line($line, "respawns:",          $aa_data);
+               parse_line($line, "shots_fired:",       $aa_data);
+               parse_line($line, "enemy_hits:",        $aa_data);
+               parse_line($line, "player_hits:",       $aa_data);
+               parse_line($line, "self_hits:",         $aa_data);
+               parse_line($line, "purple_coins:",      $aa_data);
+
+               parse_line($line, "tx_bytes_total:",          $aa_data);
+               parse_line($line, "tx_bytes_avg_per_sec:",    $aa_data);
+               parse_line($line, "tx_bytes_max_per_frame:",  $aa_data);
+               parse_line($line, "rx_bytes_total:",          $aa_data);
+               parse_line($line, "rx_bytes_avg_per_sec:",    $aa_data);
+               parse_line($line, "rx_bytes_max_per_frame:",  $aa_data);
+
+               parse_line($line, "tx_packets_total:",          $aa_data);
+               parse_line($line, "tx_packets_avg_per_sec:",    $aa_data);
+               parse_line($line, "tx_packets_max_per_frame:",  $aa_data);
+               parse_line($line, "rx_packets_total:",          $aa_data);
+               parse_line($line, "rx_packets_avg_per_sec:",    $aa_data);
+               parse_line($line, "rx_packets_max_per_frame:",  $aa_data);
+
+
+            }
+            fclose($file_handle);
+
+
+            add_to_db($aa_data);
+
+         }
+         // else echo "file does not end in .txt\n";
+      }
+      closedir($dh);
+   }
+   else echo "error opening $dir\n";
+}
+else echo "$dir is not a directory\n";
+
+$et = microtime(true) - $start_time;
+echo "\nSession scrape completed in: $et seconds\n\n";
+
+-----------------------------------------------------------------------------------------------------------------------
+
+
+
+show full datetime in sessions in qtapp
+
+did it by making another delegate for that tableview
+
+make that tableview columns expand
+
+
+
+I need a whole bunch more settings:
+
+database:
+hostname
+databasename:
+user name and password:
+then on that page I could also show the total number of rows in the logs and sessions table
+
+
+then I want a group to show what we are loading into the model:
+date range, columns, rows(types)
+then the total amount of rows in the view
+
+I want to do things graphically, show rectangles, etc...
+
+Looking into qt charts. I want Date time on the x axis and rectangular section showing when session start end end.
+Did not find anything i could use.
+
+
+What about just drawing anything, rectangles, etc...?
+What do you need to do to get that top work?
+
+What about adding logging for remote line graphs..that would be cool..then I could try to get that data into some qt charts...
+
+
+What data?
+
+per player per frame
+
+cpu
+sync
+ping
+difs
+tkbs
+rwnd
+lcor
+lcra
+lcrm
+rcor
+rcrm
+rcra
+base
+lcdt
+
+bandwidth
+B/s
+tx cur
+tx max
+rx cur
+rx max
+P/s
+tx cur
+tx max
+rx cur
+rx max
+
+instead of 8 in bandwidth I will lose max and go with 4
+
+14 + 4 = 18 numbers per frame
+
+there will be no server-client transfers needed, the server already has all the data....
+
+the server just needs to log it...
+
+I think a similar approach as log_net will work..
+only skip the structure and write to log char array directly
+wait, i never did that....
+
+what other metadata should I record?
+
+datetime timestamp
+frame number
+
+these will be the same for all player rows captured at the same time
+
+
+CREATE TABLE status (
+  id                INT AUTO_INCREMENT,
+  timestamp         DATETIME,
+  frame             INT,
+  player            INT,
+  rwnd              INT,
+  base              INT,
+  lcdt              INT,
+  cpu               FLOAT,
+  sync              FLOAT,
+  ping              FLOAT,
+  difs              FLOAT,
+  lcor              FLOAT,
+  rcor              FLOAT,
+  txbf              FLOAT,
+  rxbf              FLOAT,
+  txpf              FLOAT,
+  rxpf              FLOAT,
+  PRIMARY KEY(id)
+);
+
+
+
+I am thinking that I should only keep the per frame things in the status table
+
+corrections:
+only lcor and rcor
+
+bandwidth:
+only
+tx bytes this frame
+tx packets this frame
+rx bytes this frame
+rx packets this frame
+
+
+how about a separate table for bandwidth?
+
+I have a lot of stuff there
+
+   // used to add up until frame end
+   int tx_current_bytes_for_this_frame;
+   int tx_current_packets_for_this_frame;
+   int tx_max_bytes_per_frame;
+   int tx_max_packets_per_frame;
+
+   int rx_current_bytes_for_this_frame;
+   int rx_current_packets_for_this_frame;
+   int rx_max_bytes_per_frame;
+   int rx_max_packets_per_frame;
+
+   // used to add up until tally end
+   int tx_packets_tally;
+   int tx_bytes_tally;
+   int tx_max_packets_per_tally;
+   int tx_max_bytes_per_tally;
+   int rx_packets_tally;
+   int rx_bytes_tally;
+   int rx_max_packets_per_tally;
+   int rx_max_bytes_per_tally;
+
+   // used for display
+   int tx_packets_per_tally;
+   int tx_bytes_per_tally;
+   int rx_packets_per_tally;
+   int rx_bytes_per_tally;
+
+   // grand totals
+   int tx_total_bytes;
+   int tx_total_packets;
+   int rx_total_bytes;
+   int rx_total_packets;
+
+
+
+
+
+
+This is what I have decided on:
+
+
+DROP TABLE status;
+CREATE TABLE status (
+  id                INT AUTO_INCREMENT,
+  timestamp         DATETIME,
+  frame             INT,
+  player            INT,
+  rwnd              INT,
+  cpu               FLOAT,
+  sync              FLOAT,
+  ping              FLOAT,
+  difs              FLOAT,
+  lcor              FLOAT,
+  rcor              FLOAT,
+  txbf              FLOAT,
+  rxbf              FLOAT,
+  txpf              FLOAT,
+  rxpf              FLOAT,
+  PRIMARY KEY(id)
+);
+
+
+make it so that it uses its own folder
+
+
+right now:
+
+sessions uses logs/session *.txt
+
+lognet uses logs*.csv
+
+I want to make:
+
+logs/lognet
+logs/status
+
+where are these dir created?
+
+
+
+now I want to not store anything if there are no clients
+
+how do I check that?
+
+
+
+
+
+
+
+
+#!/bin/bash
+
+die() { echo "$*" 1>&2 ; exit 1; }
+
+start_time=$(date +%s%3N)  # start time in milliseconds
+
+dbusr=pmdb_rw
+dbpwd=readwrite
+dbnam=pm
+
+files=(/home/m/dev/purple_martians/logs/lognet/*.csv)   # Put all filenames in array $files
+
+[ -e "$files" ] || die "No files found."                # Exit if no files found
+
+for file in "${files[@]}";do                            # foreach file:
+
+mysql -u $dbusr -p$dbpwd $dbnam -vv --local_infile=1 -e"LOAD DATA LOCAL INFILE '$file' INTO TABLE logs COLUMNS TERMINATED BY ',' LINES TERMINATED BY '\n' (msg_type, sub_type, created, agt, frame_num, player, client, message);"
+
+mv $file $file.bak
+
+done
+
+end_time=$(date +%s%3N)  # # end time in milliseconds
+duration_ms=$((end_time - start_time))  # duration in milliseconds
+
+echo "Execution time in ms: $duration_ms"
+
+
+
+
+
+
+
+
+
+there is a zero on a line all by itself...
+at the end of the file
+
+
+new line:||2024-06-30 07:22:22,103,0,0,136.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+||log status array lines > 4 ... dumping to file
+logs/status/20240630-072222.973.csv saved
+nl:0 0
+b4
+||||
+af
+||2024-06-30 07:22:22,103,0,0,136.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+2||
+new line:||2024-06-30 07:22:22,103,1,0,24.2,1.0,0.0,1330,0.0,0.0,  0,  0,  0,  0
+||nl:1 70
+b4
+||2024-06-30 07:22:22,103,0,0,136.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+2||
+af
+||2024-06-30 07:22:22,103,0,0,136.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,103,1,0,24.2,1.0,0.0,1330,0.0,0.0,  0,  0,  0,  0
+2||
+new line:||2024-06-30 07:22:22,104,0,0,64.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+||nl:2 140
+b4
+||2024-06-30 07:22:22,103,0,0,136.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,103,1,0,24.2,1.0,0.0,1330,0.0,0.0,  0,  0,  0,  0
+2||
+af
+||2024-06-30 07:22:22,103,0,0,136.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,103,1,0,24.2,1.0,0.0,1330,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,104,0,0,64.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+
+||
+new line:||2024-06-30 07:22:22,104,1,0,24.2,1.0,0.0,1340,0.0,0.0,  0,  0,  0,  0
+||nl:3 209
+b4
+||2024-06-30 07:22:22,103,0,0,136.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,103,1,0,24.2,1.0,0.0,1330,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,104,0,0,64.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+
+||
+af
+||2024-06-30 07:22:22,103,0,0,136.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,103,1,0,24.2,1.0,0.0,1330,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,104,0,0,64.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,104,1,0,24.2,1.0,0.0,1340,0.0,0.0,  0,  0,  0,  0
+2||
+new line:||2024-06-30 07:22:23,105,0,0,114.3,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+||nl:4 279
+b4
+||2024-06-30 07:22:22,103,0,0,136.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,103,1,0,24.2,1.0,0.0,1330,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,104,0,0,64.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,104,1,0,24.2,1.0,0.0,1340,0.0,0.0,  0,  0,  0,  0
+2||
+af
+||2024-06-30 07:22:22,103,0,0,136.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,103,1,0,24.2,1.0,0.0,1330,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,104,0,0,64.7,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:22,104,1,0,24.2,1.0,0.0,1340,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:23,105,0,0,114.3,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+||
+new line:||2024-06-30 07:22:23,105,1,0,24.2,1.0,0.0,4101,0.0,0.0,  0,  0,  0,  0
+||log status array lines > 4 ... dumping to file
+logs/status/20240630-072223.35.csv saved
+nl:0 0
+b4
+||||
+af
+||2024-06-30 07:22:23,105,1,0,24.2,1.0,0.0,4101,0.0,0.0,  0,  0,  0,  0
+2||
+new line:||2024-06-30 07:22:23,106,0,0,109.8,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+||nl:1 70
+b4
+||2024-06-30 07:22:23,105,1,0,24.2,1.0,0.0,4101,0.0,0.0,  0,  0,  0,  0
+2||
+af
+||2024-06-30 07:22:23,105,1,0,24.2,1.0,0.0,4101,0.0,0.0,  0,  0,  0,  0
+2024-06-30 07:22:23,106,0,0,109.8,0.0,0.0,  0,0.0,0.0,  0,  0,  0,  0
+
+
+
+
+
+
+
+
+
+
+
+
+new line:||Poop
+||log status array lines > 4 ... dumping to file
+logs/status/20240630-073116.106.csv saved
+nl:0 0
+b4
+||||
+af
+||Poop
+P||
+new line:||Poop
+||nl:1 5
+b4
+||Poop
+P||
+af
+||Poop
+Poop
+P||
+new line:||Poop
+||nl:2 10
+b4
+||Poop
+Poop
+P||
+af
+||Poop
+Poop
+Poop
+P||
+new line:||Poop
+||nl:3 15
+b4
+||Poop
+Poop
+Poop
+P||
+af
+||Poop
+Poop
+Poop
+Poop
+P||
+new line:||Poop
+||nl:4 20
+b4
+||Poop
+Poop
+Poop
+Poop
+P||
+af
+||Poop
+Poop
+Poop
+Poop
+Poop
+||
+new line:||Poop
+||log status array lines > 4 ... dumping to file
+logs/status/20240630-073116.231.csv saved
+nl:0 0
+b4
+||||
+af
+||Poop
+P||
+
+
+
+why do I not have this issue with log_net
+why do I not have this issue unless it does multiple players
+
+
+
+Poop
+||
+new line:||Poop
+||log status array lines > 4 ... dumping to file
+logs/status/20240630-073448.470.csv saved
+nl:0 0
+b4
+||||
+af
+||Poop
+P||
+new line:||Poop
+||nl:1 5
+b4
+||Poop
+P||
+af
+||Poop
+Poop
+P||
+new line:||Poop
+||nl:2 10
+b4
+||Poop
+Poop
+P||
+af
+||Poop
+Poop
+Poop
+P||
+new line:||Poop
+||nl:3 15
+b4
+||Poop
+Poop
+Poop
+P||
+af
+||Poop
+Poop
+Poop
+Poop
+P||
+
+C:\pm>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Poop
+Poop
+Poop
+||
+new line:||Poop
+||log status array lines > 4 ... dumping to file
+logs/status/20240630-073718.404.csv saved
+nl:0 0
+b4
+||||
+af
+||Poop
+||
+new line:||Poop
+||nl:1 5
+b4
+||Poop
+||
+af
+||Poop
+Poop
+||
+new line:||Poop
+||nl:2 10
+b4
+||Poop
+Poop
+||
+af
+||Poop
+Poop
+Poop
+||
+new line:||Poop
+||nl:3 15
+b4
+||Poop
+Poop
+Poop
+||
+af
+||Poop
+Poop
+Poop
+Poop
+||
+new line:||Poop
+||nl:4 20
+b4
+||Poop
+Poop
+Poop
+Poop
+||
+af
+||Poop
+Poop
+Poop
+Poop
+Poop
+||
+new line:||Poop
+||log status array lines > 4 ... dumping to file
+logs/status/20240630-073718.456.csv saved
+nl:0 0
+b4
+||||
+
+
+
+
+changed from :
+
+         memcpy(log_status_msg + log_status_msg_pos, txt, strlen(txt));
+         log_status_msg_pos += strlen(txt);
+         log_status_msg[log_status_msg_pos+1] = 0; // NULL terminate
+         log_status_msg_num_lines++;
+
+to :
+
+         memcpy(log_status_msg + log_status_msg_pos, txt, strlen(txt));
+         log_status_msg_pos += strlen(txt);
+         log_status_msg[log_status_msg_pos] = 0; // NULL terminate
+         log_status_msg_num_lines++;
+
+
+and it seems to work???
+
+
+but why?
+
+
+and why does the other one not have an issue?
+
+log_net
+
+actually it does the same...fixed all three...
+
+
+finally got all that bullshit sorted.... it took three hours chasing that bug...
+
+
+now make status only record when client > 0 done
+
+
+now can I do something with this data in qtapp?
+
+
+start with a simple graph...cpu...
+
+
+
+
+
+
+
+
+
+
+
+To create a line chart, a QLineSeries instance is needed. Let's create one.
+
+auto series = new QLineSeries;
+
+Then we add data to the series. We can use the append() member function or use the stream operator.
+
+series->append(0, 6);
+series->append(2, 4);
+series->append(3, 8);
+series->append(7, 4);
+series->append(10, 5);
+*series << QPointF(11, 1) << QPointF(13, 3) << QPointF(17, 6) << QPointF(18, 3) << QPointF(20, 2);
+
+To present the data on the chart we need a QChart instance. We add the series to it, create the default axes, and set the title of the chart.
+
+auto chart = new QChart;
+chart->legend()->hide();
+chart->addSeries(series);
+chart->createDefaultAxes();
+chart->setTitle("Simple Line Chart");
+
+Then we create a QChartView object with QChart as a parameter. This way we don't need to create a QGraphicsView scene ourselves.
+
+createDefaultChartView(chart);
+
+The chart is ready to be shown.
+
+
+
+
+
+
+added to CMakeLists.txt
+
+find_package(Qt6 REQUIRED COMPONENTS Sql, Charts)
+
+target_link_libraries(test1 PRIVATE Qt6::Charts)
+
+in mbase.h
+
+#include <QChart>
+#include <QLineSeries>
+
+QLineSeries* series;
+
+in mbase.cpp
+
+   series = new QLineSeries;
+
+   series->append(0, 6);
+   series->append(2, 4);
+   series->append(3, 8);
+   series->append(7, 4);
+   series->append(10, 5);
+
+
+
+in mpmlogview.h
+#include <QChart>
+#include <QChartView>
+
+QChart* chart;
+QChartView* chartView;
+
+
+
+in mpmlogview.cpp
+
+   chart = new QChart;
+   chart->legend()->hide();
+   chart->addSeries(mbase.series);
+   chart->createDefaultAxes();
+   chart->setTitle("Simple Line Chart");
+
+   chartView = new QChartView(chart);
+
+   vbox->addWidget(chartView);
+
+
+
+that was all I needed to display a chart....
+
+
+
+now how can I make a chart display from a model
+
+
+first of all...
+
+I should make this code somewhat segregated...
+
+load the model from my new status table
+
+
+ok now I have a thingy...
+
+my model has muliple players
+
+load a different model for each player?
+
+i need a different line series for each player...
+is this the best way to do it?
+
+it seems to work...
+
+
+can I make the graph resizable
+
+
+This functionality is provided by QChartView:
+
+QChartView v;
+v.setRubberBand(QChartView::HorizontalRubberBand);
+this is awesome, but how do I zoom back out?
+left click and drag - zoom in to selection
+right click - zoom out...
+
+I want to be able to drag also
+
+maybe later
+
+
+what else for now?
+
+
+should I put this on its own tab
+
+or at least its own widget that I can put where I want...
+
+
+how am i going to handle this proliferation of variables, classes and the like?
+
+
+
+make all common stuff live in mbase...
+
+make classes for things you could display in many places
+
+
+I want to have common:
+sessions
+it would be nice if I had a session_id that was part of every table
+
+I think I can handle it by having start and end dt and player number
+
+I will have a way of selecting which sessions I want to look at...
+I can select more than one.
+
+This tab will be called the data selection tab
+
+At the top you can set the ip, db, usr, pwd...
+
+It will show you the total range of the data
+
+Then it will show you the sessions and some data for each...
+
+Then you can select one or more sessions...
+
+also the limit of the number of records to load into the log models and the status models
+
+this seems like to much to cram into one thing, how about just start and end ranges of data to load into models?
+
+
+
+
+
+
+bar chart horizontal with datetime axis...
+
+
+I think I need to figure out more about graphs then simply using model to drive them...
+
+create my own line series from a model...
+
+then I could make it a datetime axis
+
+
+if my datetime axis only has a resolution of 1 second....
+
+can I do better? I should be able to...
+
+anyway I have datetime x axis figured out
+
+now I want to get horizontal boxes
+
+
+I am going to ask on the Qt forums...
+
+
+Word it well....
+
+
+
+I am trying to create a specific type of chart with QCharts.
+The x axis needs to be DateTime, I have figured out how to do that.
+I have data called 'sessions' that has a start and endtime in DateTime format.
+These sessions are from multiple clients and the time ranges can overlap.
+I would like to show them as horizontal rectangles that span the start and end times.
+Then I would like to be able to select one or more of them and extract the earliest and latest datetimes.
+
+I am fairly new to Qt and would appreciate if anyone with more experience could point me in the right direction.
+
+
+
+
+
+------------------
+
+
+make a class and a widget for sessions, but keep the data in mbase so others can use it...
+
+
+while I am at it, nail down some naming conventions...
+
+
+this new class:
+
+
+
+
+
+
+
+
+QModelIndexList selection = yourTableView->selectionModel()->selectedRows();
+
+// Multiple rows can be selected
+for(int i=0; i< selection.count(); i++)
+{
+    QModelIndex index = selection.at(i);
+    qDebug() << index.row();
+}
+
+now I want to connect selection changed
+
+this is so painfull...it takes so long to do such simple things....
+
+
+now I want to have a global start and end datetime
+
+make up names
+declare in mbase
+
+set them when changing session list..
+
+use them as filters when doing sql queries...
+
+
+
+I already have most of this functionality in my daterange widget....
+
+what if I just add actual QDate time thing to mbase and make them both use it..
+
+QDateTime dtStart;
+QDateTime dtEnd;
+
+---------------
+Monday July 1
+what to do today?
+
+I could kind of finish with the main program...
+I think it is logging how I want now.
+make logs only happen when clients > 0
+add auto scrape for status
+
+should I add decimal seconds?
+
+where would I do that?
+only one place...where server adds to the char array
+then would I would need to change anything about scraping and the database? maybe not...
+
+why would I do that?
+right now there are times when there are many rows in logs and status that have the same datetime
+I know the frame number is unique...but what about dt? would it not be more useful if it had higher resolution
+
+should I add session_id?
+why?
+I could identify all log entries belonging to a session with a simple index...
+well, all client ones...server ones would not be unique...
+this seems overly complex and not much benefit. I would still need to filter by date range
+
+make a function to get a nice formatted datetime with sub seconds...
+
+alter the database table to include that precision...
+
+now I have ms in status in the db...
+and it looks like I automatically works in qt
+
+now do the same with 'created' in logs
+
+dont do the ones in session, they are stored and read from file and I don;t want to mess with them...
+
+
+
+now what?
+
+add status_scrape to cron...
+
+*/1 * * * * php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/session_scrape_cronoutput.txt 2>&1
+*/1 * * * * /home/m/dev/purple_martians/scrape >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1
+*/1 * * * * /home/m/dev/purple_martians/scrape_status >> /home/m/dev/purple_martians/scrape_status_cronoutput.txt 2>&1
+
+
+make it so the server does not log rewind and create if no clients
+can I just remove them completely?? what good do they do?
+
+
+can I make a simple way to tell how many clients the server has?
+
+make it a part of the class and only update once per frame?
+
+int mNetgame.server_num_clients = 0;
+done...
+
+
+where do I flush to disk? server reload
+
+what if I do it whenever a level is started
+like next level?
+
+
+I have these autosave variables for logs...
+
+I think I should just force save of these 2 new ones, log_net and log_status at next level and level_quit
+
+then remove them from reload, it is redundant as that calls next level...
+
+make a function, flush_logs that does all of them...done
+
+this still wont work for quitting the server forcefully in headless mode
+
+
+
+
+
+// CPP Program to demonstrate the signal() function
+#include <csignal>
+#include <iostream>
+using namespace std;
+
+void signal_handler(int signal_num)
+{
+    cout << "The interrupt signal is (" << signal_num
+         << "). \n";
+
+    // It terminates the  program
+    exit(signal_num);
+}
+
+int main()
+{
+    // register signal SIGABRT and signal handler
+    signal(SIGABRT, signal_handler);
+
+    while (true)
+        cout << "Hello GeeksforGeeks..." << endl;
+    return 0;
+}
+
+It looks like I can detect SIGINT, but not SIGABRT or SIGTERM
+
+
+so now I have that working...
+
+// main.cpp
+
+#include "mwMain.h"
+#include <csignal>
+
+void signal_handler(int signal)
+{
+   mMain.fast_exit(signal);
+}
+
+int main(int argument_count, char **argument_array)
+{
+   signal(SIGINT, signal_handler);
+   signal(SIGABRT, signal_handler);
+   signal(SIGTERM, signal_handler);
+   mMain.pm_main(argument_count, argument_array);
+   return 1;
+}
+
+
+void mwMain::fast_exit(int type)
+{
+   if (type == 2) printf("\n\nReceived SIGINT - terminating...\n\n");
+   if (type == 6)  printf("\n\nReceived SIGABRT - terminating...\n\n");
+   if (type == 15) printf("\n\nReceived SIGTERM - terminating...\n\n");
+   if (mLog.autosave_log_on_program_exit) mLog.flush_logs();
+   final_wrapup();
+   exit(type);
+}
+
+
+I don't know how it would work if started from systemctl, how could I send it signal...with the kill command?
+lets add some more: SIGABRT 6 SIGTERM 15..done
+
+kill pid works with SIGTERM
+
+kill -9 pid does not get trapped
+
+i will need to test what systemctl does when stopped with that....
+
+back to what I was doing....
+
+set line limits to 1000 for logs and status...done
+
+erase all and make some new logs
+
+also do git commit and bump version
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      mLog.save_log_status_file();
+      mLog.save_log_net_file();
+      mLog.save_log_file();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

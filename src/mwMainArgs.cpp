@@ -258,7 +258,7 @@ void mwMain::proc_command_line_args1(int argument_count, char **argument_array)
          printf(" -tc       (copies config only eg: 'pm.exe -tc')\n");
 
 
-         fast_exit();
+         fast_exit(0);
       }
    }
 }
@@ -274,19 +274,19 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          printf("running level editor for level:%d\n", mLevel.start_level);
          mLevel.set_start_level(mWM.loop(mLevel.start_level));
-         fast_exit();
+         fast_exit(0);
       }
 
       if (strcmp(argument_array[1],"-h") == 0 )  // help
       {
          mHelp.help("Command Line");
-         fast_exit();
+         fast_exit(0);
       }
 
       if (strcmp(argument_array[1],"-test") == 0 )  // temp test
       {
          temp_test();
-         fast_exit();
+         fast_exit(0);
       }
 
       if (strcmp(argument_array[1],"-ts") == 0 )  // copy to clients and run server
@@ -300,13 +300,13 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-l") == 0 )  // log file viewer
       {
          mLog.log_file_viewer(1);
-         fast_exit();
+         fast_exit(0);
       }
 
       if (strcmp(argument_array[1],"-lr") == 0 )  // log file viewer most recent
       {
          mLog.log_file_viewer(2);
-         fast_exit();
+         fast_exit(0);
       }
 
       // join netgame - no server specified, use server from config file
@@ -350,7 +350,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       {
          mLogo.show_splash_screen = 0;
          mDemoMode.run_single_from_cmd_prompt();
-         fast_exit();
+         fast_exit(0);
       }
 
       // keep this last so if no other single flag matches try to run like it an int level...
@@ -371,7 +371,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          printf("trying to run as a demo file\n");
          mLogo.show_splash_screen = 0;
          mDemoMode.run_single_from_cmd_fn(argument_array[1]);
-         fast_exit();
+         fast_exit(0);
       }
    } // end of argument_count == 2
 
@@ -386,7 +386,7 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
             mLevel.set_start_level(pl);
             printf("running level editor for level:%d\n", pl);
             mLevel.set_start_level(mWM.loop(mLevel.start_level));
-            fast_exit();
+            fast_exit(0);
          }
          else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
       }
@@ -532,8 +532,54 @@ static int callback(void* data, int argc, char** argv, char** azColName)
 
 */
 
+#include "mwMiscFnx.h"
+
 void mwMain::temp_test(void)
 {
+
+   char ts[256];
+   printf("test time %s\n", mMiscFnx.chr_dt(ts));
+
+
+/*
+#include <chrono>
+
+   char ts[256];
+   time_t now = time(NULL);
+   struct tm *timenow = localtime(&now);
+   strftime(ts, sizeof(ts), "%Y%m%d-%H%M%S", timenow);
+
+//   printf("test time %s\n", ts);
+
+   auto currentDateTime = std::chrono::system_clock::now();
+   int ms = std::chrono::time_point_cast<std::chrono::milliseconds>(currentDateTime).time_since_epoch().count() % 1000;
+
+   printf("test time %s.%d\n", ts, ms);
+
+std::string get_current_time_and_date()
+{
+    auto const time = std::chrono::current_zone()
+        ->to_local(std::chrono::system_clock::now());
+
+
+    return std::format("{:%Y-%m-%d %X}", time);
+}
+
+auto currentDateTime = std::chrono::system_clock::now();
+
+auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(currentDateTime).time_since_epoch().count() % 1000;
+
+printf("ms: %d\n", ms);
+
+currentDateTime = std::chrono::system_clock::now();
+ms = std::chrono::time_point_cast<std::chrono::milliseconds>(currentDateTime).time_since_epoch().count() % 1000;
+printf("ms: %d\n", ms);
+
+//
+//std::clog << std::put_time(&currentDateTimeLocalTime, "%Y%m%d_%H%M%S")
+//    << "." << std::setfill('0') << std::setw(3) << ms << std::endl;
+
+*/
 
 
 
