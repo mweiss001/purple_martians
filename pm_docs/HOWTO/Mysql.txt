@@ -145,8 +145,7 @@ pmdb_ro
 
 
 make a read only user
-DROP USER 'pmdb_ro'
-
+DROP USER 'pmdb_ro';
 CREATE USER 'pmdb_ro' IDENTIFIED WITH mysql_native_password BY 'readonly';
 GRANT SELECT ON pm.* TO 'pmdb_ro';
 SHOW GRANTS FOR pmdb_ro;
@@ -159,25 +158,13 @@ SHOW GRANTS FOR pmdb_ro;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 make a read / write user to add records
 
-DROP USER 'pmdb_rw'@'localhost';
+DROP USER 'pmdb_rw';
 
-CREATE USER 'pmdb_rw'@'localhost' IDENTIFIED WITH mysql_native_password BY 'readwrite';
-GRANT SELECT, INSERT, UPDATE ON pm.* TO 'pmdb_rw'@'localhost';
-SHOW GRANTS FOR pmdb_rw@localhost;
+CREATE USER 'pmdb_rw' IDENTIFIED WITH mysql_native_password BY 'readwrite';
+GRANT SELECT, INSERT, UPDATE ON pm.* TO 'pmdb_rw';
+SHOW GRANTS FOR pmdb_rw;
 
 
 
@@ -228,7 +215,25 @@ if I don't specify the host it gets set to %
 
 
 
+--------------------------------------------------------------------------------------------------------------------------------
+How to dump database to file
+--------------------------------------------------------------------------------------------------------------------------------
 
+this is not a sql command it is a command line option
+sudo mysqldump --no-defaults pm > pm_dump.sql
+
+sudo mysqladmin --no-defaults create pm
+
+sudo mysql pm < pm_dump.sql
+
+
+
+
+
+
+
+
+ 
 
 
 

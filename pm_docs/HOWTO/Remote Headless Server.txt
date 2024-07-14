@@ -181,12 +181,17 @@ client can request this in two places
 Setup a cron job to scrape session logs and add to database
 ---------------------------------------------------------
 
-setup a cron job to scrape session logs and add to database
+setup a cron job to scrape logs and add to database
 
 crontab -e
 
 */1 * * * * php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/session_scrape_cronoutput.txt 2>&1
-*/1 * * * * /home/m/dev/purple_martians/scrape >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1
+*/1 * * * *     /home/m/dev/purple_martians/scrape             >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1
+*/1 * * * *     /home/m/dev/purple_martians/scrape_status      >> /home/m/dev/purple_martians/scrape_status_cronoutput.txt 2>&1
+
+
+
+
 
 
 

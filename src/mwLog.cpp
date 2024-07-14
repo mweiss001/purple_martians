@@ -710,6 +710,8 @@ void mwLog::add_log_status_db_rows(void)
          sprintf(txt, "%s,%d,%d,%d,%3.1f,%3.1f,%3.1f,%3.0f,%3.1f,%3.1f,%3.0f,%3.0f,%3.0f,%3.0f\n",
                        d, f, p, r, cpu,  sync, ping, difs, lcor, rcor, txbf, rxbf, txpf, rxpf);
 
+         // printf("added log_status line: %d  %s\n", log_status_msg_num_lines,  txt);
+
          int size_limit = NUM_LOG_CHAR;
          if ((log_status_msg_pos + (int)strlen(txt)) >= size_limit)
          {
@@ -717,7 +719,7 @@ void mwLog::add_log_status_db_rows(void)
             save_log_status_file();
          }
 
-         int line_limit = 1000;
+         int line_limit = 1000; // 25 seconds
          if (log_status_msg_num_lines > line_limit)
          {
             printf("log status array lines > %d ... dumping to file\n", line_limit);

@@ -154,7 +154,7 @@ database error: "Driver not loaded Driver not loaded"
 
 
 OMFG I got it to work!!!!
-I copied the sqldrivers directory and the three other flies to the same dir as my executable
+I copied the sqldrivers directory and the three other files to the same dir as my executable
 
 
 
@@ -194,6 +194,40 @@ I copied the sqldrivers directory and the three other flies to the same dir as m
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -289,6 +323,983 @@ CREATE TABLE pm_log (
 done...
 
  use indexOf. Is th
+
+
+
+
+
+
+
+
+
+To create a line chart, a QLineSeries instance is needed. Let's create one.
+
+auto series = new QLineSeries;
+
+Then we add data to the series. We can use the append() member function or use the stream operator.
+
+series->append(0, 6);
+series->append(2, 4);
+series->append(3, 8);
+series->append(7, 4);
+series->append(10, 5);
+*series << QPointF(11, 1) << QPointF(13, 3) << QPointF(17, 6) << QPointF(18, 3) << QPointF(20, 2);
+
+To present the data on the chart we need a QChart instance. We add the series to it, create the default axes, and set the title of the chart.
+
+auto chart = new QChart;
+chart->legend()->hide();
+chart->addSeries(series);
+chart->createDefaultAxes();
+chart->setTitle("Simple Line Chart");
+
+Then we create a QChartView object with QChart as a parameter. This way we don't need to create a QGraphicsView scene ourselves.
+
+createDefaultChartView(chart);
+
+The chart is ready to be shown.
+
+
+
+
+
+
+added to CMakeLists.txt
+
+find_package(Qt6 REQUIRED COMPONENTS Sql, Charts)
+
+target_link_libraries(test1 PRIVATE Qt6::Charts)
+
+in mbase.h
+
+#include <QChart>
+#include <QLineSeries>
+
+QLineSeries* series;
+
+in mbase.cpp
+
+   series = new QLineSeries;
+
+   series->append(0, 6);
+   series->append(2, 4);
+   series->append(3, 8);
+   series->append(7, 4);
+   series->append(10, 5);
+
+
+
+in mpmlogview.h
+#include <QChart>
+#include <QChartView>
+
+QChart* chart;
+QChartView* chartView;
+
+
+
+in mpmlogview.cpp
+
+   chart = new QChart;
+   chart->legend()->hide();
+   chart->addSeries(mbase.series);
+   chart->createDefaultAxes();
+   chart->setTitle("Simple Line Chart");
+
+   chartView = new QChartView(chart);
+
+   vbox->addWidget(chartView);
+
+
+
+that was all I needed to display a chart....
+
+
+
+now how can I make a chart display from a model
+
+
+first of all...
+
+I should make this code somewhat segregated...
+
+load the model from my new status table
+
+
+ok now I have a thingy...
+
+my model has muliple players
+
+load a different model for each player?
+
+i need a different line series for each player...
+is this the best way to do it?
+
+it seems to work...
+
+
+can I make the graph resizable
+
+
+This functionality is provided by QChartView:
+
+QChartView v;
+v.setRubberBand(QChartView::HorizontalRubberBand);
+this is awesome, but how do I zoom back out?
+left click and drag - zoom in to selection
+right click - zoom out...
+
+I want to be able to drag also
+
+maybe later
+
+
+what else for now?
+
+
+should I put this on its own tab
+
+or at least its own widget that I can put where I want...
+
+
+how am i going to handle this proliferation of variables, classes and the like?
+
+
+
+make all common stuff live in mbase...
+
+make classes for things you could display in many places
+
+
+I want to have common:
+sessions
+it would be nice if I had a session_id that was part of every table
+
+I think I can handle it by having start and end dt and player number
+
+I will have a way of selecting which sessions I want to look at...
+I can select more than one.
+
+This tab will be called the data selection tab
+
+At the top you can set the ip, db, usr, pwd...
+
+It will show you the total range of the data
+
+Then it will show you the sessions and some data for each...
+
+Then you can select one or more sessions...
+
+also the limit of the number of records to load into the log models and the status models
+
+this seems like to much to cram into one thing, how about just start and end ranges of data to load into models?
+
+
+
+
+
+
+bar chart horizontal with datetime axis...
+
+
+I think I need to figure out more about graphs then simply using model to drive them...
+
+create my own line series from a model...
+
+then I could make it a datetime axis
+
+
+if my datetime axis only has a resolution of 1 second....
+
+can I do better? I should be able to...
+
+anyway I have datetime x axis figured out
+
+now I want to get horizontal boxes
+
+
+I am going to ask on the Qt forums...
+
+
+Word it well....
+
+
+
+I am trying to create a specific type of chart with QCharts.
+The x axis needs to be DateTime, I have figured out how to do that.
+I have data called 'sessions' that has a start and endtime in DateTime format.
+These sessions are from multiple clients and the time ranges can overlap.
+I would like to show them as horizontal rectangles that span the start and end times.
+Then I would like to be able to select one or more of them and extract the earliest and latest datetimes.
+
+I am fairly new to Qt and would appreciate if anyone with more experience could point me in the right direction.
+
+
+
+
+
+------------------
+
+
+make a class and a widget for sessions, but keep the data in mbase so others can use it...
+
+
+while I am at it, nail down some naming conventions...
+
+
+this new class:
+
+
+
+QModelIndexList selection = yourTableView->selectionModel()->selectedRows();
+
+// Multiple rows can be selected
+for(int i=0; i< selection.count(); i++)
+{
+    QModelIndex index = selection.at(i);
+    qDebug() << index.row();
+}
+
+now I want to connect selection changed
+
+this is so painfull...it takes so long to do such simple things....
+
+
+now I want to have a global start and end datetime
+
+make up names
+declare in mbase
+
+set them when changing session list..
+
+use them as filters when doing sql queries...
+
+
+
+I already have most of this functionality in my daterange widget....
+
+what if I just add actual QDate time thing to mbase and make them both use it..
+
+QDateTime dtStart;
+QDateTime dtEnd;
+
+
+
+---------------
+
+
+I just lost a huge section of info about what I was working on when I copied and pasted from notes in pm to here...damn....
+
+20240712
+
+
+what am I working on now?
+
+
+resizing charts with splitter
+
+working on min height, etc...
+
+
+how do I get series colors after I apply a theme, so I can use them to color my custom legend?
+
+
+how do I backup this project?
+
+it was in c:/users/m/decouments/test1
+size 65M
+133k sources only
+
+
+
+how do I make a standalone executable?
+
+--------------------------------------------
+---   how to copy and relocate sources   ---
+--------------------------------------------
+
+copy the folder to a new place
+
+delete the build dir
+delete CMakeList.txt.user
+
+rename all occurances of executable name 'test1' to 'pm_log' in CMakeList.txt
+
+open project in Qt Creator by opening CMakeList.txt
+
+on the Configure Project page leave all targets selected then click 'configure project'
+
+choose a target and build...
+
+12:27:31: Starting C:\Users\m\Desktop\pm_log\build\Desktop_Qt_6_7_1_MinGW_64_bit-Debug\pm_log.exe...
+QSqlDatabase: QMYSQL driver not loaded
+QSqlDatabase: available drivers: QSQLITE QMIMER QODBC QPSQL
+database error: "Driver not loaded Driver not loaded"
+QSqlQuery::exec: database not open
+12:27:39: C:\Users\m\Desktop\pm_log\build\Desktop_Qt_6_7_1_MinGW_64_bit-Debug\pm_log.exe exited with code 0
+
+copy 3 files and one dir to same folder as executable:
+
+libmysql.dll
+libssl-3-x64.dll
+libcrypto-3-x64.dll
+sqldrivers (folder)
+
+
+-----------------------------------------------
+---   how to make a standalone executable   ---
+-----------------------------------------------
+
+C:\Qt\6.7.1\mingw_64\bin\windeployqt C:\Users\m\Desktop\pm_log\build\Desktop_Qt_6_7_1_MinGW_64_bit-Debug
+
+now I can run pm_log.exe from its folder without qt creator running
+
+the whole folder is over 100M
+but this is the debug target...
+
+start over:
+
+delete build folder
+target Debug
+30M
+add sql drivers:
+44M
+C:\Qt\6.7.1\mingw_64\bin\windeployqt C:\Users\m\Desktop\pm_log\build\Desktop_Qt_6_7_1_MinGW_64_bit-Debug
+108M
+
+try min_release
+target MinSizeRel
+8M
+add sql drivers:
+24M
+C:\Qt\6.7.1\mingw_64\bin\windeployqt C:\Users\m\Desktop\pm_log\build\Desktop_Qt_6_7_1_MinGW_64_bit-MinSizeRel
+84M
+
+
+
+---------------------------
+
+what am I working on next?
+
+
+resizing charts with splitter
+working on min height, etc...
+when I adjust a chart larger, what happens to other charts? especially if they are already minimum size??
+
+
+how do I get series colors after I apply a theme, so I can use them to color my custom legend?
+
+frame as x axis
+
+
+pop up dialog for db setting
+
+save chart selection
+
+
+
+20240713
+
+save charts visible is working, how about saving size as well....
+
+I could save the size list from the splitter...
+I would need to make the splitter visible, maybe declare it in mbase
+or do I?
+could I just get the init code to read it from the settings file?
+
+made QSettings * settings declared and created in mbase, so it is visible for the whole program...
+how about I make the splitter save to it when resized?
+and load from it when created?
+this works perfectly!
+
+I think I found someting I am doing wrong...
+when the charts are clicked on or off, all I do is set visible in mbase
+
+but when I resize the charts with splitter it is based on size > 0
+fixed this is auto size stuff but still have issues when enabling a chart
+its size is zero..
+
+should I make another function that looks at the splitter and if any visible are size 0, sets them to min size
+
+I did not need to do this, this one setting did it for me:
+
+childrenCollapsible : bool
+This property holds whether child widgets can be resized down to size 0 by the user
+By default, children are collapsible. It is possible to enable and disable the collapsing of individual children using setCollapsible().
+
+
+I am very happy with how this is working out...
+
+now about the series colors....
+- I could force my colors back after changing theme
+that was so easy to do, just called controlsChanged after setting theme
+
+or I could see if I can get the colors somehow
+if I could, what would I do with them? overwrite my array colors? yes...
+
+
+I have it done:
+
+added color setup to updateLegend() as well as constructor
+
+void mChartsWidgetControlWidget::updateLegend()
+{
+   for (int i=0; i<8; i++)
+   {
+      QPalette p = legendSel[i]->palette();
+      p.setColor(QPalette::Active, QPalette::WindowText, mbase.statChartSeriesStructArray[i].col);
+      legendSel[i]->setPalette(p);
+
+
+
+
+void mChartsWidget::changeTheme()
+{
+   qDebug() << "mChartsWidget::changeTheme()";
+   for (int i=0; i<NUM_CHARTS; i++)
+      statChartView[i]->chart()->setTheme(static_cast<QChart::ChartTheme>(mbase.mChartsWidgetChartTheme));
+
+   // find series colors
+   for (int s=0; s<8; s++)
+      mbase.statChartSeriesStructArray[s].col = statChartSeries[0][s]->color();
+   
+   // change all series colors   
+   controlsChanged();
+   
+   // change legend colors
+   mbase.updateLegendFunction();
+}
+
+I can easily make my original colors persist by commenting out:
+
+   // find series colors
+//   for (int s=0; s<8; s++)
+//      mbase.statChartSeriesStructArray[s].col = statChartSeries[0][s]->color();
+
+
+
+
+-------------------
+
+make a group box for theme
+make a checkbox 'allow theme to change series color'
+or maybe 'my series colors'
+then make something to reload them...
+
+this will reload them:
+void m_base::initStatChartSeriesStructArray(void)
+
+
+
+is seems to work:
+
+when checked, selecting a new them keeps the original color
+when not checked, selecting a new them changes colors
+
+if color are set by a theme, clicking the box reverts them to original
+
+but if colors are original, clicking the box does not set them to the theme???
+
+i think the theme is not applied if it is the same...
+
+
+
+void mChartsWidgetControlWidget::keepSeriesColorsClicked()
+{
+   bool checked = keepSeriesColors->isChecked();
+   mbase.mChartsWidgetForceMySeriesColors = checked;
+
+   if (!checked) // force theme reload to get theme colors
+   {
+      mbase.mChartsWidgetChartTheme++;
+      mbase.updateChartThemeFunction();
+      mbase.mChartsWidgetChartTheme--;
+   }
+   mbase.updateChartThemeFunction();
+}
+
+move this to where theme is actually changed....
+
+void mChartsWidget::changeTheme()
+{
+   qDebug() << "mChartsWidget::changeTheme()";
+
+   // test if theme is the same as current theme
+
+   int newTheme = mbase.mChartsWidgetChartTheme;
+   int oldTheme = statChartView[0]->chart()->theme();
+
+   qDebug() << "old theme:" << oldTheme << "  new theme:" << newTheme;
+
+   if (oldTheme == newTheme)
+   {
+      qDebug() << "new theme is the same as old theme";
+
+      int tmpTheme = newTheme + 1;
+      if (tmpTheme > 7) tmpTheme = 0;
+
+      qDebug() << "setting tmpTheme:" << tmpTheme;
+
+
+      // set temp theme
+      for (int i=0; i<NUM_CHARTS; i++)
+         statChartView[i]->chart()->setTheme(static_cast<QChart::ChartTheme>(tmpTheme));
+   }
+
+
+   qDebug() << "setting newTheme:" << newTheme;
+
+   for (int i=0; i<NUM_CHARTS; i++)
+      statChartView[i]->chart()->setTheme(static_cast<QChart::ChartTheme>(newTheme));
+
+
+
+
+ok, now how about saving:
+theme
+line size
+keep series colors
+
+
+save line size when it changes
+
+void mChartsWidgetControlWidget::lineSizeChanged()
+{
+   //qDebug() << "Line Size Changed" << lineSizeSpinBox->value();
+   mbase.mChartsWidgetPlotLineSize = lineSizeSpinBox->value();
+   mbase.settings->setValue("mChartsWidgetPlotLineSize", mbase.mChartsWidgetPlotLineSize);
+   mbase.chartsWidgetsControlsChangedFunction();
+}
+
+read line size when creating
+
+   // Create spinbox to modify line size
+   lineSizeSpinBox = new QDoubleSpinBox(this);
+
+   // get initial value from settings
+   mbase.mChartsWidgetPlotLineSize = mbase.settings->value("mChartsWidgetPlotLineSize", 1).toFloat();
+   lineSizeSpinBox->setValue(mbase.mChartsWidgetPlotLineSize);
+
+
+that was so easy!!
+
+now do keep series colors...should be just as easy...done
+
+now theme...
+
+Now I have so much done:
+theme, line size, keep colors, visible charts, splitter sizes, are all saved and restored
+
+clean up the constructor and rearrange the layout grid...done...
+
+now what?
+
+
+
+
+
+
+
+------------------------
+
+downloaded stlyesheet from 
+
+https://qss-stock.devsecstudio.com/documentation.php
+
+copied Darkeum.qss file to same dir as exe
+
+
+#include "mMainWindow.h"
+#include <QApplication>
+#include <QFile>
+
+int main(int argc, char *argv[])
+{
+   QFile file("Darkeum.qss");
+   file.open(QFile::ReadOnly);
+   QString styleSheet { QLatin1String(file.readAll()) };
+   
+   QApplication a(argc, argv);
+
+   a.setStyleSheet(styleSheet);
+   
+   mMainWindow w;
+   w.setWindowTitle("pm logs");
+   w.show();
+   return a.exec();
+}
+
+
+
+
+
+
+
+
+
+Download/clone the project and copy the following files to your application directory (keep the existing directory hierarchy). Substitute the all the THEME words by the currently available (dark/light) the theme you need to use.
+
+        qdarkstyle/THEME/THEMEstyle.qss
+        qdarkstyle/THEME/THEMEstyle.qrc
+        qdarkstyle/THEME/rc/ (the whole directory)
+
+Add qdarkstyle/THEME/THEMEstyle.qrc to your .pro file as follows:
+
+    RESOURCES += qdarkstyle/THEME/THEMEstyle.qrc
+
+what I did was add:
+
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(pm_log
+        MANUAL_FINALIZATION
+        ${PROJECT_SOURCES}
+        m_base.h m_base.cpp
+        mlogmessagetypeselector.h mlogmessagetypeselector.cpp
+        mLogView.h mLogView.cpp
+        mlogdaterange.h mlogdaterange.cpp
+        msqlwidget.h msqlwidget.cpp
+        mpmselect.h mpmselect.cpp
+        mdelegate.h
+
+        mSessionsWidget.h mSessionsWidget.cpp
+        mdelegate2.h
+        mChartView.h
+        mChart.h
+
+        mChartsWidget.h mChartsWidget.cpp
+        mChartViewCrosshairs.h mChartViewCrosshairs.cpp
+        mChartsWidgetControlWidget.h mChartsWidgetControlWidget.cpp
+
+        qdarkstyle/dark/darkstyle.qrc
+
+
+
+Load the stylesheet:
+
+    QFile f(":qdarkstyle/THEME/THEMEstyle.qss");
+
+    if (!f.exists())   {
+        printf("Unable to set stylesheet, file not found\n");
+    }
+    else   {
+        f.open(QFile::ReadOnly | QFile::Text);
+        QTextStream ts(&f);
+        qApp->setStyleSheet(ts.readAll());
+    }
+
+Note: The ":" in the file name is necessary to define that file as a resource library. For more information see the discussion here.
+
+
+
+What about defining a const string and changing only the color ?
+
+const QString ss = "QComboBox::drop-down {border-width: 0px;} QComboBox::down-arrow {image: url(noimg); border-width: 0px;} QComboBox { background:%1 }";
+QColor c(Qt::red);  
+//Set background red
+ui->comboBox_0->setStyleSheet(ss.arg(c.name()));
+
+//...
+ c = QColor(Qt::blue); 
+//Set background blue
+ui->comboBox_0->setStyleSheet(ss.arg(c.name()));
+
+const QString ss = "QComboBox::drop-down {border-width: 0px;} QComboBox::down-arrow {image: url(noimg); border-width: 0px;} QComboBox { background:%1 }";
+
+
+fixed the legend colors with drawstyle stylesheet!!
+
+      const QString ss = "QCheckBox {  color: %1 }";
+      legendSel[i]->setStyleSheet(legendSel[i]->styleSheet() + ss.arg(mbase.statChartSeriesStructArray[i].col.name()));
+      
+      // this method works, but will not override the stylesheet      
+      // QPalette p = legendSel[i]->palette();
+      // p.setColor(QPalette::Active, QPalette::WindowText, mbase.statChartSeriesStructArray[i].col);
+      // legendSel[i]->setPalette(p);
+
+
+
+
+
+can I implement the frame x axis?
+
+make a check box to toggle it, a variable to hold it and save in settings...done...
+
+removed crosshairs for now...
+
+
+in ChartsWidget I create a DateTimeAxis...how do I get around that?
+remove it and create another one?
+
+
+I am thinking I will probably need to reload all the data if I change the axis anyway
+
+so make creating the X axis part of the update stuff
+
+
+
+how are charts, chartview, series, axis all related?
+
+I want to redo axis, how far do I have to go?
+
+- create chart
+- create axis and add to chart
+- create series
+- attach axis to series
+
+- create chartview
+- add chart to chartview
+
+- add chartview to splitter
+
+if I redo everything, how do I clean up first?
+
+- delete series
+- remove axis from charts
+- delete axis
+- delete charts
+- delete chartview
+
+delete splitter...
+
+actually the only thing I had to do was delete the main layout:
+
+   delete(this->layout());
+
+then I use the same code to build in the constructor as I do when i update the sql
+
+i changed the x and y axis to being created just as needed
+it used to be an array in the header..
+
+then when I create the x axis it could be datetime or value
+
+      if (mbase.mChartsWidgetXAxisFrame)
+      {
+         QValueAxis * statChartXaxis = new QValueAxis;
+         statChartXaxis->setTitleText("Frame");
+         statChart[i]->addAxis(statChartXaxis, Qt::AlignBottom);
+      }
+      else
+      {
+         QDateTimeAxis * statChartXaxis = new QDateTimeAxis;
+         statChartXaxis->setTitleText("Time");
+         statChartXaxis->setFormat("HH:mm:ss.zzz");
+         statChart[i]->addAxis(statChartXaxis, Qt::AlignBottom);
+      }
+
+then when I need to use the axes after that, I get them with: 
+
+   // set the range for all charts
+   // -----------------------------------
+   for (int i=0; i<NUM_CHARTS; i++)
+   {
+      // get the first x axis from the chart
+      QList qlxa = this->statChart[i]->axes(Qt::Horizontal);
+      qlxa.at(0)->setRange(mbase.sessionsDtStart, last);
+
+      // get the first y axis from the chart
+      QList qlya = this->statChart[i]->axes(Qt::Vertical);
+      qlya.at(0)->setRange(statChartMinY[i], statChartMaxY[i]);
+   }
+
+      if (mbase.mChartsWidgetXAxisFrame)
+      {
+         qDebug() << "value axis";
+
+//         statChartXaxis[i] = new QValueAxis;
+//         statChartXaxis[i]->setTitleText("Frame");
+//         statChart[i]->addAxis(statChartXaxis[i], Qt::AlignBottom);
+         QValueAxis * statChartXaxis = new QValueAxis;
+         statChartXaxis->setTitleText("Frame");
+         statChart[i]->addAxis(statChartXaxis, Qt::AlignBottom);
+      }
+      else
+      {
+         qDebug() << "datetime axis";
+//         statChartXaxis[i] = new QDateTimeAxis;
+//         statChartXaxis[i]->setTitleText("Time");
+//         statChartXaxis[i]->setFormat("HH:mm:ss.zzz");
+//         statChart[i]->addAxis(statChartXaxis[i], Qt::AlignBottom);
+
+         QDateTimeAxis * statChartXaxis = new QDateTimeAxis;
+         statChartXaxis->setTitleText("Time");
+         statChartXaxis->setFormat("HH:mm:ss.zzz");
+         statChart[i]->addAxis(statChartXaxis, Qt::AlignBottom);
+      }
+
+//      statChartXaxis[i]->setTitleFont(labelsFont);
+      // statChartXaxis[i]->setVisible(false);
+
+      QValueAxis * statChartYaxis = new QValueAxis;
+      statChartYaxis->setTitleText(mbase.statChartGraphTypeArray[i].display_name);
+      statChartYaxis->setLabelFormat("%3.1f");
+      statChart[i]->addAxis(statChartYaxis, Qt::AlignLeft);
+
+
+
+      // statChartYaxis[i] = new QValueAxis;
+      // statChartYaxis[i]->setTitleText(mbase.statChartGraphTypeArray[i].display_name);
+      // statChartYaxis[i]->setLabelFormat("%3.1f");
+      // statChart[i]->addAxis(statChartYaxis[i], Qt::AlignLeft);
+
+
+
+
+now make the crosshairs and mouse wheel scroll work again...done
+
+
+next... adjustable number of records in the model, and show the time range of that 
+
+what do i call that?
+
+
+
+
+
+
+I have a memory leak...probably due to me not freeing new object when I update graphs
+
+
+some stats:
+25.7M no charts loaded
+36.7M load last one in chart
+46.3  load second last one
+55.7  load last one
+65.4  load 2nd last
+
+approx 10M per chart reload
+
+add this code to delete all charts
+
+   for (int i=0; i<NUM_CHARTS; i++)
+      delete statChart[i];
+
+
+24.3M no charts loaded
+30.2M load last one in chart
+31.8  load second last one
+33.6  load last one
+34.9  load 2nd last
+
+approx 1.5M per chart reload
+
+
+what else can I destroy?
+
+   for (int i=0; i<NUM_CHARTS; i++)
+   {
+      delete statChart[i];
+      delete statChartView[i];
+   }
+
+25.7
+30.1
+30.3
+30.2
+30.3
+30.5
+30.4
+
+
+way better!!
+
+
+i have a bug though
+
+when in frame mode the last charts all look the same...is is because they all start at frame 0??
+
+
+
+I want some way to see both frame and time at the same time and why is there such a difference?
+
+
+
+
+these status logs are just what the server records, once per frame, they should not be out of order
+
+
+do one more graph called frame to check if they are...
+
+I found some cases of frame 0 in the middle of the data...how can I fix this?
+order by id?
+
+wait...why is there random frame 0 in the middle of the data? this is not what should happen?
+
+lets add back in the table view and see what happens around this time...
+
+
+
+
+
+I have 3 widgets now:
+mSessionsWidget
+mChartsWidget
+mChartsWidgetControlWidget
+
+mSessionsWidget is common
+
+they are all children of mLogView
+
+I want to add:
+2 tableviews
+
+   // message line type selector
+
+   // column select widget
+   
+   // sql execute button
+
+   // auto exec check box
+
+   // number of rows label
+   
+   // font size spin box
+
+
+could I make these into a widget:
+
+
+
+
+
+rename some classes:
+
+mpmselect to mTableColumnSelectWidget ..done
+
+mlogmessagetypeselector to mTableRowSelectWidget 
+
+done...
+
+make their selections saved
+
+
+make table2 able to do other players than 1 
+
+do col sel first
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

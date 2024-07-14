@@ -8,3 +8,10 @@ pscp -pw zaiden c:\pm\log_scrape.php  m@purplemartians.org:dev/purple_martians/l
 
 
 pscp -pw zaiden c:\pm\new_log_scrape.php  m@purplemartians.org:dev/purple_martians
+
+
+
+pscp -pw zaiden m@purplemartians.org:pm_dump.sql c:\pm\
+
+pscp -pw zaiden c:\pm\pm_dump.sql m@scat:pm_dump.sql 
+
