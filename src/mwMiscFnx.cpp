@@ -51,7 +51,7 @@ char * mwMiscFnx::chr_dt(char* dt)
    struct tm *timenow = localtime(&now_in_time_t);
    strftime(t, sizeof(t), "%Y-%m-%d %H:%M:%S", timenow);
 
-   sprintf(dt, "%s.%d", t, ms);
+   sprintf(dt, "%s.%03d", t, ms);
    return dt;
 
 /*
