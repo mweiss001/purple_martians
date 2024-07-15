@@ -13,8 +13,6 @@ mSessionsWidget::mSessionsWidget(QWidget *parent)
    sessionsModel = new QSqlQueryModel();
    sessionsModel->setQuery("SELECT dt_start, dt_end, duration AS dur, hostname AS host, endreason FROM sessions ORDER by dt_start");
 
-
-   // pm_log TableView
    sessionsTableView = new QTableView(this);
    sessionsTableView->setModel(sessionsModel);
    sessionsTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -23,15 +21,6 @@ mSessionsWidget::mSessionsWidget(QWidget *parent)
 
    connect(sessionsTableView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this,
                                                 SLOT    (on_stv_changed(const QItemSelection &, const QItemSelection &)));
-
-
-
-
-//   connect(sessionsTableView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this,
-  //         SLOT    (on_stv_changed(QItemSelection,QItemSelection)));
-
-
-
 
    vbox->addWidget(sessionsTableView);
 
@@ -70,9 +59,6 @@ mSessionsWidget::mSessionsWidget(QWidget *parent)
 }
 
 
-//void mSessionsWidget::on_stv_changed(QItemSelection, QItemSelection)
-
-
 void mSessionsWidget::on_stv_changed(const QItemSelection & sel, const QItemSelection & dsel)
 {
    // cycle the selected rows and set mbase.sessionsDtStart and mbase.sessionsDtEnd
@@ -109,13 +95,15 @@ void mSessionsWidget::on_stv_changed(const QItemSelection & sel, const QItemSele
    if (mbase.sessionsRange.isValid()) mpss_lb_range->setText(mbase.sessionsRange.toString("hh:mm:ss"));
    else                               mpss_lb_range->setText("not valid");
 
-
-   mbase.update_sql();
-
-
-
-
+   mbase.sessionSelectionChanged();
 }
+
+
+
+
+
+
+
 
 
 

@@ -9,7 +9,11 @@ QRectF mChartViewCrosshairs::boundingRect() const
 
 void mChartViewCrosshairs::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-   painter->setBrush(QColor(255, 255, 255));
+//   painter->setBrush(QColor(255, 255, 255));
+
+   painter->setBrush(QColor(100, 100, 100));
+
+
    QRectF pa = m_chart->plotArea();
    QPainterPath path;
 
@@ -27,7 +31,9 @@ void mChartViewCrosshairs::paint(QPainter *painter, const QStyleOptionGraphicsIt
 
 void mChartViewCrosshairs::setXAxisText()
 {
-   XAxisText = XAxisVal.toString("mm:ss.zzz");
+   if (mbase.mChartsWidgetXAxisFrame) XAxisText.setNum((int)XAxisVal);
+   else XAxisText = QDateTime::fromMSecsSinceEpoch(XAxisVal).toString("mm:ss.zzz");
+
    XAxisTextPos = QPointF(mousePos.x(), m_chart->plotArea().bottom()+1);
 
    QFontMetrics metrics(m_font);
@@ -91,7 +97,11 @@ void mChartViewCrosshairs::setMousePos(QPointF pos)
    mousePos = pos;
    // map mouse position to chart values
    QPointF val = m_chart->mapToValue(pos);
-   XAxisVal = QDateTime::fromMSecsSinceEpoch(val.x());
+
+
+
+
+   XAxisVal = val.x();
    YAxisVal = val.y();
 
    setXAxisText();

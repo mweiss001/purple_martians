@@ -17,7 +17,7 @@ class mMainWindow : public QMainWindow
 
    public:
       mMainWindow(QWidget *parent = nullptr);
-      ~mMainWindow();
+       ~mMainWindow() { };
       void writeSettings();
       void readSettings();
       void closeEvent(QCloseEvent *event);
@@ -27,15 +27,13 @@ class mMainWindow : public QMainWindow
       void menuUpdateChartTheme()
       {
          qDebug("menuUpdateChartTheme()");
-         mbase.updateChartThemeFunction();
+         mbase.mChartsWidgetChangeThemeFunction();
       }
       void menuResetChartSize()
       {
          qDebug("menuResetChartSize()");
-         mbase.resetChartSizeFunction();
+         mbase.mChartsWidgetResetSplitterFunction();
       }
-
-
 
    private:
        QWidget * centralWidget;

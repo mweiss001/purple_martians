@@ -17,30 +17,30 @@
 class mSessionsWidget : public QWidget
 {
    Q_OBJECT
-public:
-   explicit mSessionsWidget(QWidget *parent = nullptr);
+   public:
+      explicit mSessionsWidget(QWidget *parent = nullptr);
 
 
-   int VSIZE = 600;
-   int HSIZE = 280;
-   QSize minimumSizeHint() const {      return QSize(VSIZE, HSIZE);   }
-   QSize minimumSize () const    {      return QSize(VSIZE, HSIZE);   }
+      int VSIZE = 600;
+      int HSIZE = 280;
+      QSize minimumSizeHint() const {      return QSize(VSIZE, HSIZE);   }
+      QSize minimumSize () const    {      return QSize(VSIZE, HSIZE);   }
 
-private slots:
-   void on_stv_changed(const QItemSelection &sel, const QItemSelection &dsel);
+   private slots:
+      void on_stv_changed(const QItemSelection &sel, const QItemSelection &dsel);
 
-signals:
+   signals:
 
-private:
-   QGroupBox * mpss_gb;
-   QTableView * sessionsTableView;
-   QSqlQueryModel *sessionsModel;
+   private:
+      QGroupBox * mpss_gb;
+      QTableView * sessionsTableView;
+      QSqlQueryModel *sessionsModel;
 
-   QLabel * mpss_lb_start;
-   QLabel * mpss_lb_end;
-   QLabel * mpss_lb_range;
-   QGroupBox * mpss_gb_start;
-   QGroupBox * mpss_gb_end;
-   QGroupBox * mpss_gb_range;
+      QLabel * mpss_lb_start;
+      QLabel * mpss_lb_end;
+      QLabel * mpss_lb_range;
+      QGroupBox * mpss_gb_start;
+      QGroupBox * mpss_gb_end;
+      QGroupBox * mpss_gb_range;
 };
 #endif // MSESSIONSWIDGET_H

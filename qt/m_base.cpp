@@ -10,27 +10,25 @@ m_base mbase;
 // constructor
 m_base::m_base()
 {
-   sql.assign("SELECT Message FROM SystemEvents WHERE ID = 120895");
    init_log_types();
    init_col_types();
    initStatChartSeriesStructArray();
    initStatChartGraphTypeArray();
-   set_font();
+   setFont();
+   settings = new QSettings("pm_log.ini", QSettings::IniFormat);
 }
 
 void m_base::setup_db(void)
 {
    db = QSqlDatabase::addDatabase("QMYSQL");
-   //db.setHostName("96.45.9.166");
-   //db.setHostName("scat");
-   db.setHostName("purplemartians.org");
+//   db.setHostName("96.45.9.166");
+   db.setHostName("scat");
+//   db.setHostName("purplemartians.org");
    db.setDatabaseName("pm");
    db.setUserName("pmdb_ro");
    db.setPassword("readonly");
-
    if (!db.open()) qDebug() << "database error:" << db.lastError().text();
 }
-
 
 
 void m_base::init_log_types(void)
@@ -105,30 +103,30 @@ void m_base::init_col_types(void)
    i = 6;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "player");    strcpy(col_types[i].display_name, "player");
    i = 7;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "client");    strcpy(col_types[i].display_name, "client");
    i = 8;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "message");   strcpy(col_types[i].display_name, "message");
-
 }
 
-
+void m_base::setStatChartSeriesStructArrayColors(void)
+{
+   statChartSeriesStructArray[0].col = QColorConstants::Svg::darkviolet;
+   statChartSeriesStructArray[1].col = QColorConstants::Svg::red;
+   statChartSeriesStructArray[2].col = QColorConstants::Svg::royalblue;
+   statChartSeriesStructArray[3].col = QColorConstants::Svg::chartreuse;
+   statChartSeriesStructArray[4].col = QColorConstants::Svg::cyan;
+   statChartSeriesStructArray[5].col = QColorConstants::Svg::yellow;
+   statChartSeriesStructArray[6].col = QColorConstants::Svg::mistyrose;
+   statChartSeriesStructArray[7].col = QColorConstants::Svg::tan;
+}
 
 void m_base::initStatChartSeriesStructArray(void)
 {
    statChartSeriesStructArray[0].name = "P0";
-   statChartSeriesStructArray[0].col = QColorConstants::Svg::darkviolet;
    statChartSeriesStructArray[1].name = "P1";
-   statChartSeriesStructArray[1].col = QColorConstants::Svg::red;
    statChartSeriesStructArray[2].name = "P2";
-   statChartSeriesStructArray[2].col = QColorConstants::Svg::royalblue;
    statChartSeriesStructArray[3].name = "P3";
-   statChartSeriesStructArray[3].col = QColorConstants::Svg::chartreuse;
    statChartSeriesStructArray[4].name = "P4";
-   statChartSeriesStructArray[4].col = QColorConstants::Svg::cyan;
    statChartSeriesStructArray[5].name = "P5";
-   statChartSeriesStructArray[5].col = QColorConstants::Svg::yellow;
    statChartSeriesStructArray[6].name = "P6";
-   statChartSeriesStructArray[6].col = QColorConstants::Svg::mistyrose;
    statChartSeriesStructArray[7].name = "P7";
-   statChartSeriesStructArray[7].col = QColorConstants::Svg::tan;
-
 
    for (int i=0; i<8; i++)
    {
@@ -136,6 +134,7 @@ void m_base::initStatChartSeriesStructArray(void)
       statChartSeriesStructArray[i].active = false;
       statChartSeriesStructArray[i].visible = false;
    }
+   setStatChartSeriesStructArrayColors();
 }
 
 void m_base::initStatChartGraphTypeArray(void)
@@ -144,7 +143,6 @@ void m_base::initStatChartGraphTypeArray(void)
    for (i=0; i<NUM_CHARTS; i++)
    {
       statChartGraphTypeArray[i].active = 0;
-      statChartGraphTypeArray[i].visible = 0;
       statChartGraphTypeArray[i].db_name = "";
       statChartGraphTypeArray[i].display_name = "";
       statChartGraphTypeArray[i].color = Qt::black;
@@ -153,7 +151,6 @@ void m_base::initStatChartGraphTypeArray(void)
 
    i=0;
    statChartGraphTypeArray[i].active = 1;
-   statChartGraphTypeArray[i].visible = 1;
    statChartGraphTypeArray[i].sql_col_index = 5;
    statChartGraphTypeArray[i].db_name = "cpu";
    statChartGraphTypeArray[i].display_name = "cpu";
@@ -161,7 +158,6 @@ void m_base::initStatChartGraphTypeArray(void)
 
    i++;
    statChartGraphTypeArray[i].active = 1;
-   statChartGraphTypeArray[i].visible = 1;
    statChartGraphTypeArray[i].sql_col_index = 6;
    statChartGraphTypeArray[i].db_name = "sync";
    statChartGraphTypeArray[i].display_name = "sync";
@@ -169,7 +165,6 @@ void m_base::initStatChartGraphTypeArray(void)
 
    i++;
    statChartGraphTypeArray[i].active = 1;
-   statChartGraphTypeArray[i].visible = 1;
    statChartGraphTypeArray[i].sql_col_index = 7;
    statChartGraphTypeArray[i].db_name = "ping";
    statChartGraphTypeArray[i].display_name = "ping";
@@ -178,7 +173,6 @@ void m_base::initStatChartGraphTypeArray(void)
 
    i++;
    statChartGraphTypeArray[i].active = 1;
-   statChartGraphTypeArray[i].visible = 1;
    statChartGraphTypeArray[i].sql_col_index = 4;
    statChartGraphTypeArray[i].db_name = "rwnd";
    statChartGraphTypeArray[i].display_name = "rwnd";
@@ -186,7 +180,6 @@ void m_base::initStatChartGraphTypeArray(void)
 
    i++;
    statChartGraphTypeArray[i].active = 1;
-   statChartGraphTypeArray[i].visible = 1;
    statChartGraphTypeArray[i].sql_col_index = 8;
    statChartGraphTypeArray[i].db_name = "difs";
    statChartGraphTypeArray[i].display_name = "dif size";
@@ -194,7 +187,6 @@ void m_base::initStatChartGraphTypeArray(void)
 
    i++;
    statChartGraphTypeArray[i].active = 1;
-   statChartGraphTypeArray[i].visible = 1;
    statChartGraphTypeArray[i].sql_col_index = 9;
    statChartGraphTypeArray[i].db_name = "locr";
    statChartGraphTypeArray[i].display_name = "locr";
@@ -202,7 +194,6 @@ void m_base::initStatChartGraphTypeArray(void)
 
    i++;
    statChartGraphTypeArray[i].active = 1;
-   statChartGraphTypeArray[i].visible = 1;
    statChartGraphTypeArray[i].sql_col_index = 10;
    statChartGraphTypeArray[i].db_name = "rcor";
    statChartGraphTypeArray[i].display_name = "rcor";
@@ -210,7 +201,6 @@ void m_base::initStatChartGraphTypeArray(void)
 
    i++;
    statChartGraphTypeArray[i].active = 1;
-   statChartGraphTypeArray[i].visible = 1;
    statChartGraphTypeArray[i].sql_col_index = 11;
    statChartGraphTypeArray[i].db_name = "txbf";
    statChartGraphTypeArray[i].display_name = "txbf";
@@ -218,7 +208,6 @@ void m_base::initStatChartGraphTypeArray(void)
 
    i++;
    statChartGraphTypeArray[i].active = 1;
-   statChartGraphTypeArray[i].visible = 1;
    statChartGraphTypeArray[i].sql_col_index = 12;
    statChartGraphTypeArray[i].db_name = "rxbf";
    statChartGraphTypeArray[i].display_name = "rxbf";
@@ -226,7 +215,6 @@ void m_base::initStatChartGraphTypeArray(void)
 
    i++;
    statChartGraphTypeArray[i].active = 1;
-   statChartGraphTypeArray[i].visible = 1;
    statChartGraphTypeArray[i].sql_col_index = 13;
    statChartGraphTypeArray[i].db_name = "txpf";
    statChartGraphTypeArray[i].display_name = "txpf";
@@ -234,49 +222,52 @@ void m_base::initStatChartGraphTypeArray(void)
 
    i++;
    statChartGraphTypeArray[i].active = 1;
-   statChartGraphTypeArray[i].visible = 1;
    statChartGraphTypeArray[i].sql_col_index = 14;
    statChartGraphTypeArray[i].db_name = "rxpf";
    statChartGraphTypeArray[i].display_name = "rxpf";
    statChartGraphTypeArray[i].color = Qt::green;
 
+
+   i++;
+   statChartGraphTypeArray[i].active = 1;
+   statChartGraphTypeArray[i].sql_col_index = 2;
+   statChartGraphTypeArray[i].db_name = "frame";
+   statChartGraphTypeArray[i].display_name = "frame";
+   statChartGraphTypeArray[i].color = Qt::white;
+
+
    int hstep = 360/(i+1);
 
    for (int h=0; h<=i; h++)
       statChartGraphTypeArray[h].color.setHsv(h*hstep, 255, 255);
-
 }
 
 
 
-
-void m_base::update_sql(void)
+void m_base::sessionSelectionChanged(void)
 {
-   QString sql = "created BETWEEN '";
-   sql += sessionsDtStart.toString("yyyy-MM-dd HH:mm:ss.z");
+   QString sql = " BETWEEN '";
+   sql += mbase.sessionsDtStart.toString("yyyy-MM-dd HH:mm:ss.z");
    sql += "' AND '";
-   sql += sessionsDtEnd.toString("yyyy-MM-dd HH:mm:ss.z");
-   sql += "'";
-   pml_sql_where_date = sql;
+   sql += mbase.sessionsDtEnd.toString("yyyy-MM-dd HH:mm:ss.z");
+   sql += "' ";
 
-   QString select = "id, msg_type, sub_type, created, agt, frame_num, player, client, message";
+   sessionsSqlWhereDateClause = sql;
 
-   QString old_sql = pml_sql_all;
-
-   pml_sql_all =  "SELECT " + select;
-   pml_sql_all += " FROM logs WHERE " + pml_sql_where_date;
-   pml_sql_all += " AND " + pml_sql_where_type;
-   pml_sql_all += " ORDER BY id ";
-   pml_sql_all += " LIMIT ";
-   pml_sql_all += QString::number(max_model_rows);
-
-   if (pml_sql_all != old_sql) emit sql_changed();
+   emit mChartsWidgetUpdateSignal();
+   emit mTablesWidgetUpdateSignal();
 }
 
-void m_base::set_font(void)
+
+
+void m_base::setFont(void)
 {
-   font = QFont{ "Courier", font_size, QFont::Monospace };
+   mTablesWidgetFont = QFont{ "Courier", mTablesWidgetFontSize, QFont::Monospace };
 }
+
+
+
+
 
 QImage m_base::rectangle(qreal imageSize, const QColor &color)
 {

@@ -227,6 +227,28 @@ sudo mysqladmin --no-defaults create pm
 sudo mysql pm < pm_dump.sql
 
 
+copy from pmh to scat for testing:
+
+on pmh:
+sudo mysqldump --no-defaults pm > pm_dump.sql
+
+then use m36 to copy to scat:
+pscp -pw zaiden m@purplemartians.org:pm_dump.sql c:\pm\
+pscp -pw zaiden c:\pm\pm_dump.sql m@scat:pm_dump.sql 
+
+then on scat:
+sudo mysql
+use drop database pm;
+leave mysql...
+
+sudo mysqladmin --no-defaults create pm
+
+sudo mysql pm < pm_dump.sql
+
+
+
+
+
 
 
 

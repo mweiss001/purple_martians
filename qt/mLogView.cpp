@@ -1,164 +1,200 @@
 #include "mLogView.h"
 
-mLogView::mLogView(QWidget *parent)
-    : QWidget{parent}
+mLogView::mLogView(QWidget *parent) : QWidget{parent}
 {
-
-/*
-
-   // sql widget
-   msqw = new MSQLWidget(this);
-
-   model = new QSqlQueryModel();
-
-
-
-   // pm_log TableView
-   tableView1 = new QTableView(this);
-   tableView1->setItemDelegate(new mDelegate);
-   tableView1->setModel(model);
-   tableView1->horizontalHeader()->setStretchLastSection(true);
-   tableView1->verticalHeader()->setVisible(false);
-   tableView1->verticalHeader()->setSectionResizeMode( QHeaderView::Fixed );
-   tableView1->setSelectionBehavior(QAbstractItemView::SelectRows);
-
-   tableView2 = new QTableView(this);
-   tableView2->setItemDelegate(new mDelegate);
-   tableView2->setModel(model);
-   tableView2->horizontalHeader()->setStretchLastSection(true);
-   tableView2->verticalHeader()->setVisible(false);
-   tableView2->verticalHeader()->setSectionResizeMode( QHeaderView::Fixed );
-   tableView2->setSelectionBehavior(QAbstractItemView::SelectRows);
-
-
-   setStyleSheet("QTableView {selection-background-color: plum;}");
-
-   connect(tableView1, SIGNAL(clicked(QModelIndex)), this, SLOT (on_tb1_clicked(QModelIndex)));
-   connect(tableView2, SIGNAL(clicked(QModelIndex)), this, SLOT (on_tb2_clicked(QModelIndex)));
-
-   // message line type selector
-   mlts = new MLogMessageTypeSelector(this);
-
-   // column select widget
-   mpms = new MPMSelect(this);
-
-   // sessions widget
-   mpss = new MPMSessions(this);
-
-   // sql execute button
-   pb_exec =  new QPushButton("Execute", this);
-   connect(pb_exec, SIGNAL (clicked()), this, SLOT (pb_exec_clicked()));
-
-   // auto exec check box
-   cb_autoexec = new QCheckBox("Auto Execute", this);
-   cb_autoexec->setChecked(true);
-
-   // number of rows label
-   lb_num_rows = new QLabel("num rows");
-
-   connect(&mbase, SIGNAL (sql_changed()), this, SLOT (do_sql_changed() ));
-
-   connect(mpms, SIGNAL (sel_changed()), this, SLOT (update_table_hidden_columns() ));
-
-   // font size spin box
-   sb_font_size =  new QSpinBox();
-   sb_font_size->setRange(4, 20);
-   sb_font_size->setValue(mbase.font_size);
-   connect(sb_font_size, SIGNAL (valueChanged(int)), this, SLOT (font_size_changed(int)));
 
    // horizontal box layout
    QHBoxLayout *hbox = new QHBoxLayout;
    this->setLayout(hbox);
 
-   // put table view on lhs
-   hbox->addWidget(tableView1);
-   hbox->addWidget(tableView2);
+   // make a splitter and add it to hbox
+   splitter = new QSplitter(this);
+   splitter->setChildrenCollapsible(false);
+   splitter->setOrientation(Qt::Horizontal);
+   hbox->addWidget(splitter);
 
 
-   // make v box for rhs
+   // ---------------------------------------------------------------------
+   // mTablesWidget
+   // ---------------------------------------------------------------------
+   mTablesWidget * mTablesWidgetInstance = new mTablesWidget(this);
+   hbox->addWidget(mTablesWidgetInstance);
+
+   // add to splitter
+   splitter->addWidget(mTablesWidgetInstance);
+
+   // qDebug() << splitter->handleWidth();
+   splitter->setHandleWidth(8); // 5 is default
+
+   // make a frame middle panel
+
+   QFrame * frame = new QFrame();
+   frame->setLineWidth(0);
+   frame->setMidLineWidth(0);
+   frame->setFrameStyle(QFrame::Panel);
+   frame->setMaximumWidth(640);
+
+   // add frame to splitter
+   splitter->addWidget(frame);
+
+   // make vbox for frame
    QVBoxLayout *vbox = new QVBoxLayout;
-   hbox->addLayout(vbox);
 
-   // make hbox for mlts and mldr
-   QHBoxLayout *hbox1 = new QHBoxLayout;
-   vbox->addLayout(hbox1);
+   // add vbox layout to frame
+   frame->setLayout(vbox);
 
-   hbox1->addWidget(mlts);
-   hbox1->addWidget(mpms);
+   // ---------------------------------------------------------------------
+   // mTablesWidgetControlWidget
+   // ---------------------------------------------------------------------
+   mTablesWidgetControlWidget * mTablesWidgetControlWidgetInstance = new mTablesWidgetControlWidget(this);
+   vbox->addWidget(mTablesWidgetControlWidgetInstance);
 
-
-   // make hbox for pb_exec and cb_autoexec
-   QHBoxLayout *hbox2 = new QHBoxLayout;
-   vbox->addLayout(hbox2);
-
-   hbox2->addWidget(pb_exec);
-   hbox2->addWidget(cb_autoexec);
-
-   vbox->addWidget(lb_num_rows);
-
-   vbox->addWidget(sb_font_size);
-
-
-
-   vbox->addWidget(mpss);
-
-
-   // charts widget
-   mchw = new mChartsWidget(this);
-   vbox->addWidget(mchw);
-
-
-*/
-
-
-
-
-   // minimalistic for testing...
-
-   QVBoxLayout *vbox = new QVBoxLayout;
-   this->setLayout(vbox);
-
-
-
-
-
-
+   // ---------------------------------------------------
    // sessions widget
+   // ---------------------------------------------------
    mSessionsWidgetInstance = new mSessionsWidget(this);
+   vbox->addWidget(mSessionsWidgetInstance);
 
-   connect(&mbase, SIGNAL (sql_changed()), this, SLOT (do_sql_changed() ));
-
-
-
-
+   // ---------------------------------------------------
+   // charts controls widget
+   // ---------------------------------------------------
    mChartsWidgetControlWidgetInstance = new mChartsWidgetControlWidget(this);
 
+   // put it in its own hbox so I can push it over to the right
+   QHBoxLayout *hbox3 = new QHBoxLayout;
+   vbox->addLayout(hbox3);
+   hbox3->addStretch();
+   hbox3->addWidget(mChartsWidgetControlWidgetInstance);
 
 
 
+   // ---------------------------------------------------
    // charts widget
+   // ---------------------------------------------------
    mChartsWidgetInstance = new mChartsWidget(this);
 
+   // add to splitter
+   splitter->addWidget(mChartsWidgetInstance);
 
-   QHBoxLayout *hbox = new QHBoxLayout;
-
-   hbox->addWidget(mSessionsWidgetInstance);
-
-   hbox->addWidget(mChartsWidgetControlWidgetInstance);
-
-
-   vbox->addLayout(hbox);
-
-   vbox->addWidget(mChartsWidgetInstance);
-
-
-
-
-
-
-//   vbox->addWidget(msqw);
-//   pb_exec_clicked();
+   readSplitterSizes();
+   connect(splitter, SIGNAL(splitterMoved(int, int)), this, SLOT(saveSplitterSizes(int, int)));
 }
+
+void mLogView::saveSplitterSizes(int pos, int index)
+{
+   //qDebug() << "void mChartsWidget::saveSplitterSizes()";
+
+   // get a list of all splitter sizes
+   QList <int> sizes = splitter->sizes();
+
+   mbase.settings->beginWriteArray("logview_splitter");
+   for (int i=0; i<splitter->count(); i++)
+   {
+      mbase.settings->setArrayIndex(i);
+      mbase.settings->setValue("size", sizes[i]);
+      //qDebug() << "w:" << i << " - " << sizes[i];
+   }
+   mbase.settings->endArray();
+}
+
+void mLogView::readSplitterSizes()
+{
+   //qDebug() << "void mChartsWidget::readSplitterSizes()";
+   // get a list of all splitter sizes
+   QList <int> sizes = splitter->sizes();
+
+   int size = mbase.settings->beginReadArray("logview_splitter");
+   for (int i = 0; i < size; ++i)
+   {
+      mbase.settings->setArrayIndex(i);
+      sizes[i] = mbase.settings->value("size", 0).toInt();
+      //qDebug() << "r:" << i << " - " << sizes[i];
+   }
+   mbase.settings->endArray();
+   splitter->setSizes(sizes);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
 
 void mLogView::pb_exec_clicked()
 {
@@ -177,141 +213,55 @@ void mLogView::do_sql_changed()
    update_table();
 }
 
-void mLogView::update_table()
-{
-   //qDebug() << "update_table()";
-
-   mChartsWidgetInstance->update();
-
-   /*
-   model->setQuery(mbase.pml_sql_all);
-
-   for (int i=0; i<10; i++)
-   {
-      if ((mbase.col_types[i].valid) && (mbase.col_types[i].shown == 0)) tableView1->hideColumn(i);
-      if ((mbase.col_types[i].valid) && (mbase.col_types[i].shown == 0)) tableView2->hideColumn(i);
-   }
-
-   QString txt = QString("rows:%1").arg(QString::number(model->rowCount()));
-   lb_num_rows->setText(txt);
-
-   update_table_hidden_columns();
-
-   font_size_changed(mbase.font_size);
-
-
-   tableView1->resizeColumnsToContents();
-   tableView2->resizeColumnsToContents();
 */
 
-}
-
-void mLogView::font_size_changed(int size)
-{
-   mbase.font_size = size;
-   mbase.set_font();
-
-   tableView1->setFont(mbase.font);
-   tableView2->setFont(mbase.font);
-
-   // get new row height
-   QFontMetrics fm(mbase.font);
-   int height = fm.height() - 2;
-
-   tableView1->verticalHeader()->setMinimumSectionSize( height );
-   tableView1->verticalHeader()->setMaximumSectionSize( height );
-   tableView1->verticalHeader()->setDefaultSectionSize( height );
-   tableView1->resizeColumnsToContents();
-   tableView1->viewport()->update();
-
-   tableView2->verticalHeader()->setMinimumSectionSize( height );
-   tableView2->verticalHeader()->setMaximumSectionSize( height );
-   tableView2->verticalHeader()->setDefaultSectionSize( height );
-   tableView2->resizeColumnsToContents();
-   tableView2->viewport()->update();
-}
 
 
 
 
 
-void mLogView::update_table_hidden_columns()
-{
-   for (int i=0; i<10; i++)
-      if (mbase.col_types[i].valid)
-      {
-         if (mbase.col_types[i].shown == 0)
-         {
-            tableView1->hideColumn(i);
-            tableView2->hideColumn(i);
-         }
-         else
-         {
-            tableView1->showColumn(i);
-            tableView2->showColumn(i);
-         }
-      }
-
-   // and rows
-   for(int i=0; i<model->rowCount(); i++)
-   {
-      // get player number from column 6
-      QModelIndex qmi = model->index(i, 6);
-      QVariant v = qmi.model()->data(qmi, Qt::DisplayRole);
-      int p = v.toInt();
-
-//      qDebug() << p;
-
-      if (p == 0)
-      {
-         tableView1->showRow(i);
-         tableView2->hideRow(i);
-      }
-      if (p == 1)
-      {
-         tableView1->hideRow(i);
-         tableView2->showRow(i);
-      }
-   }
-}
 
 
-void mLogView::on_tb1_clicked(QModelIndex indx)
-{
-   QModelIndexList selection = tableView1->selectionModel()->selectedRows();            // list of selected items
-   QModelIndex index = selection.at(0);                                                 // only use first row in selection
-
-   int row = index.row(); // starting row
-   int wd = 100;          // max num of rows to look through
-   while ((tableView2->isRowHidden(++row)) && (--wd > 0));
-
-   if (!(tableView2->isRowHidden(row))) // did we find a non hidden row?
-   {
-      //   qDebug() << "first unhidden row in table2" << row;
-      tableView2->selectRow(row);
-      tableView2->scrollTo(model->index(row, 0));
-   }
- //  else qDebug() << "no unhidden rows in table2";
-}
 
 
-void mLogView::on_tb2_clicked(QModelIndex indx)
-{
-   QModelIndexList selection = tableView2->selectionModel()->selectedRows();            // list of selected items
-   QModelIndex index = selection.at(0);                                                 // only use first row in selection
 
-   int row = index.row(); // starting row
-   int wd = 100;          // max num of rows to look through
-   while ((tableView1->isRowHidden(++row)) && (--wd > 0));
 
-   if (!(tableView1->isRowHidden(row))) // did we find a non hidden row?
-   {
-      //   qDebug() << "first unhidden row in table1" << row;
-      tableView1->selectRow(row);
-      tableView1->scrollTo(model->index(row, 0));
-   }
-   //  else qDebug() << "no unhidden rows in table1";
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
 
