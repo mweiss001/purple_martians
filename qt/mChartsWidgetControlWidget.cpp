@@ -1,86 +1,49 @@
 #include "mChartsWidgetControlWidget.h"
 
-
 mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
     : QWidget{parent}
 {
-
-
    connect(&mbase, SIGNAL(updateLegendSignal()), this, SLOT(updateLegend()));
 
 
 
+   // -------------------------------------------------------------
+   // - top level grid
+   // -------------------------------------------------------------
+/*
+   row, col (y, x)
+   0, 0 chart selection
+   0, 1 legend
+   1, 0, 1, 2 form layout
+
+*/
 
    // top level group box to contain everything
    QGroupBox* topGroupBox = new QGroupBox("Charts Controls", this);
    topGroupBox->setGeometry(10, 10, HSIZE-20, VSIZE-20);
 
-   // layout for topGroupBox
-//   QVBoxLayout* topVBoxLayout = new QVBoxLayout;
-//   topGroupBox->setLayout(topVBoxLayout);
-
-   // layout for topGroupBox
+   // grid layout for topGroupBox
    QGridLayout* topGridLayout = new QGridLayout;
    topGroupBox->setLayout(topGridLayout);
 
-
-
-   // group box for line size
-   QGroupBox* lineSizeGroupBox = new QGroupBox("Line Size", this);
-   lineSizeGroupBox->setMaximumHeight(60);
-//   topVBoxLayout->addWidget(lineSizeGroupBox);
-
-   topGridLayout->addWidget(lineSizeGroupBox, 0, 0);
-
-
-   // layout for lineSizeGroupBox
-   QVBoxLayout * lineSizeVBoxLayout = new QVBoxLayout;
-   lineSizeGroupBox->setLayout(lineSizeVBoxLayout);
-
-
-
-   // Create spinbox to modify line size
-   lineSizeSpinBox = new QDoubleSpinBox(this);
-   lineSizeSpinBox->setValue(1);
-   lineSizeSpinBox->setRange(0, 4);
-
-   connect(lineSizeSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
-           this, &mChartsWidgetControlWidget::lineSizeChanged);
-
-
-   lineSizeVBoxLayout->addWidget(lineSizeSpinBox);
-
-
+   // -------------------------------------------------------------
+   // - chart selection
+   // -------------------------------------------------------------
 
    // group box for chart selection
-   QGroupBox * chartSelGroupBox = new QGroupBox("Chart Selection", this);
-
+   QGroupBox * chartSelGroupBox = new QGroupBox("Visible Charts", this);
    chartSelGroupBox->setMaximumHeight(160);
 
-   // add Chart Selection Group Box to Top Level Group Box Layout
-//   topVBoxLayout->addWidget(chartSelGroupBox);
+   // add to top layout grid
+   topGridLayout->addWidget(chartSelGroupBox, 0, 0);
 
-
-
-   topGridLayout->addWidget(chartSelGroupBox, 1, 0);
-
-
-
-
-
-
-
-
-   // create layout for Chart Selection Group Box
+   // layout for chartSelGroupBox
    QVBoxLayout * chartSelVBoxLayout = new QVBoxLayout;
-
-   // set layout for Chart Selection Group Box
    chartSelGroupBox->setLayout(chartSelVBoxLayout);
 
 
-
-   // create all and none buttons
-
+   // all and none buttons
+   // -----------------------------------------------------
 
    // create a hbox for all and none buttons
    QHBoxLayout *anbHBoxLayout = new QHBoxLayout;
@@ -89,8 +52,8 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
    chartSelVBoxLayout->addLayout(anbHBoxLayout);
 
    // create all and none buttons and connections
-   chartSelAll  = new QPushButton("all", this);
-   chartSelNone  = new QPushButton("none", this);
+   QPushButton * chartSelAll  = new QPushButton("all", this);
+   QPushButton * chartSelNone  = new QPushButton("none", this);
    connect(chartSelAll, SIGNAL (clicked()), this, SLOT (chartSelAllClicked()));
    connect(chartSelNone, SIGNAL (clicked()), this, SLOT (chartSelNoneClicked()));
 
@@ -99,23 +62,8 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
    anbHBoxLayout->addWidget(chartSelAll);
 
 
-
-
-   // for (int i=0; i<NUM_CHARTS; i++)
-   // {
-   //    if (mbase.statChartGraphTypeArray[i].active)
-   //    {
-   //       chartSel[i] = new QCheckBox(mbase.statChartGraphTypeArray[i].db_name, this);
-   //       chartSel[i]->setChecked(mbase.statChartGraphTypeArray[i].visible);
-   //       chartSelVBoxLayout->addWidget(chartSel[i]);
-   //       connect(chartSel[i], SIGNAL (checkStateChanged(Qt::CheckState)), this, SLOT (chartSelToggle(Qt::CheckState))) ;
-   //    }
-   // }
-
-
-   // can I put these in a grid??
-
-
+   // chart checkboxes
+   // -----------------------------------------------------
 
    // create a grid layout for charts checkboxes
    QGridLayout* chartsCheckBoxesGridLayout = new QGridLayout;
@@ -140,64 +88,62 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
 
 
 
-   // legend ----------------------------------------
-
+   // -------------------------------------------------------------
+   // - legend
+   // -------------------------------------------------------------
 
    // group box for legend
    QGroupBox * legendGroupBox = new QGroupBox("Legend", this);
-
    legendGroupBox->setMaximumHeight(160);
 
-   // add Legend Group Box to Top Level Group Box Layout
-//   topVBoxLayout->addWidget(legendGroupBox);
-   topGridLayout->addWidget(legendGroupBox, 0, 1, 2, 1);
+   // add to top layout grid
+   topGridLayout->addWidget(legendGroupBox, 0, 1);
 
+   // grid layout for legendGroupBox
+   QGridLayout* legendGridLayout = new QGridLayout;
+   legendGroupBox->setLayout(legendGridLayout);
 
-
-
-// create layout for Chart Selection Group Box
-   QVBoxLayout * legendVBoxLayout = new QVBoxLayout;
-
-// set layout for Chart Selection Group Box
-   legendGroupBox->setLayout(legendVBoxLayout);
-
-
-  // // create a grid layout for charts checkboxes
-  //   QGridLayout* legendGridLayout = new QGridLayout;
-
-  //  // add it to its parent
-  //  legendGroupBox->setLayout(legendGridLayout);
-
-  //  row = 0;
-  //  col = 0;
-
+   row = 0;
+   col = 0;
 
    for (int i=0; i<8; i++)
    {
       legendSel[i] = new QCheckBox(mbase.statChartSeriesStructArray[i].name, this);
+
       QPalette p = legendSel[i]->palette();
-
-      QColor col = mbase.statChartSeriesStructArray[i].col;
-
-      // see if I can set color from series
-      // that way if I have theme, the legend will have the same colors
-
-      p.setColor(QPalette::Active, QPalette::WindowText, col);
+      p.setColor(QPalette::Active, QPalette::WindowText, mbase.statChartSeriesStructArray[i].col);
       legendSel[i]->setPalette(p);
+
       legendSel[i]->setVisible(false);
       connect(legendSel[i], SIGNAL (clicked()), this, SLOT (legendSelClicked())) ;
 
-//      legendGridLayout->addWidget(legendSel[i], row, col);
-//      if (++col > 3) { col = 0;  row++; }
-
-      legendVBoxLayout->addWidget(legendSel[i]);
+      legendGridLayout->addWidget(legendSel[i], row, col);
+      if (++row > 3) { row = 0;  col++; }
    }
 
 
 
 
-   themeComboBox = new QComboBox;
 
+   // group box for form layout
+   QGroupBox * formLayoutGroupBox = new QGroupBox("Settings", this);
+
+   // add to top layout grid
+   topGridLayout->addWidget(formLayoutGroupBox, 1, 0, 1, 2);
+
+   // create form layout
+   QFormLayout *formLayout = new QFormLayout(this);
+   formLayout->setLabelAlignment(Qt::AlignRight);
+
+   // apply layout to formLayoutGroupBox
+   formLayoutGroupBox->setLayout(formLayout);
+
+   // -------------------------------------------------------------
+   // - theme combo box
+   // -------------------------------------------------------------
+
+   // create theme combo box
+   QComboBox * themeComboBox = new QComboBox;
    themeComboBox->addItem("Light", QChart::ChartThemeLight);
    themeComboBox->addItem("Blue Cerulean", QChart::ChartThemeBlueCerulean);
    themeComboBox->addItem("Dark", QChart::ChartThemeDark);
@@ -207,31 +153,121 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
    themeComboBox->addItem("Blue Icy", QChart::ChartThemeBlueIcy);
    themeComboBox->addItem("Qt", QChart::ChartThemeQt);
 
+   // get initial state from settings
+   mbase.mChartsWidgetChartTheme = mbase.settings->value("mChartsWidgetChartTheme", 0).toInt();
+   themeComboBox->setCurrentIndex(mbase.mChartsWidgetChartTheme);
+
    connect(themeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(themeComboBoxChanged(int)));
 
-
-   topGridLayout->addWidget(themeComboBox, 2, 0, 1, 1);
-
+   formLayout->addRow(tr("Theme:"), themeComboBox);
 
 
+
+
+   // -------------------------------------------------------------
+   // - Series colors combobox
+   // -------------------------------------------------------------
+
+   // create combobox for series colors
+   QComboBox * seriesColorsComboBox = new QComboBox;
+   seriesColorsComboBox->addItem("From Theme", 0);
+   seriesColorsComboBox->addItem("Original", 1);
+
+   // get initial state from settings
+   mbase.mChartsWidgetForceMySeriesColors = mbase.settings->value("mChartsWidgetForceMySeriesColors", true).toBool();
+   seriesColorsComboBox->setCurrentIndex(mbase.mChartsWidgetForceMySeriesColors);
+
+   connect(seriesColorsComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(seriesColorsComboBoxChanged(int)));
+   formLayout->addRow(tr("Series Colors:"), seriesColorsComboBox);
+
+
+   // -------------------------------------------------------------
+   // - line size
+   // -------------------------------------------------------------
+
+   // Create spinbox to modify line size
+   QSpinBox * lineSizeSpinBox = new QSpinBox(this);
+   lineSizeSpinBox->setRange(0, 4);
+
+   // get initial value from settings
+   mbase.mChartsWidgetPlotLineSize = mbase.settings->value("mChartsWidgetPlotLineSize", 1).toInt();
+   lineSizeSpinBox->setValue(mbase.mChartsWidgetPlotLineSize);
+
+   connect(lineSizeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(lineSizeChanged(int)));
+   formLayout->addRow(tr("Plot Line Size:"), lineSizeSpinBox);
+
+
+   // -------------------------------------------------------------
+   // - x axis frame
+   // -------------------------------------------------------------
+
+   // create a axis frame combo box
+   QComboBox * xAxisFrameComboBox = new QComboBox;
+   xAxisFrameComboBox->addItem("DateTime", 0);
+   xAxisFrameComboBox->addItem("Frames", 1);
+
+   // get initial state from settings
+   mbase.mChartsWidgetXAxisFrame = mbase.settings->value("mChartsWidgetXAxisFrame", true).toInt();
+   xAxisFrameComboBox->setCurrentIndex(mbase.mChartsWidgetXAxisFrame);
+
+   connect(xAxisFrameComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(xAxisFrameComboBoxChanged(int)));
+   formLayout->addRow(tr("X Axis Format:"), xAxisFrameComboBox);
+
+   // -------------------------------------------------------------
+   // - sql LIMIT clause
+   // -------------------------------------------------------------
+
+   // Create spinbox to modify sql Limit
+   QSpinBox * sqlLimitSpinBox = new QSpinBox(this);
+   sqlLimitSpinBox->setRange(100, 2000);
+   sqlLimitSpinBox->setSingleStep(100);
+
+   // get initial value from settings
+   mbase.mChartsWidgetSqlModelLimit = mbase.settings->value("mChartsWidgetSqlModelLimit", 200).toInt();
+   sqlLimitSpinBox->setValue(mbase.mChartsWidgetSqlModelLimit);
+
+   connect(sqlLimitSpinBox, SIGNAL(valueChanged(int)), this, SLOT(sqlLimitChanged(int)));
+
+   // add spinbox to layout
+   formLayout->addRow(tr("SQL Model Limit:"), sqlLimitSpinBox);
+
+   // -------------------------------------------------------------
+   // - model x axis label
+   // -------------------------------------------------------------
+
+   xAxisModel = new QLabel("-", this);
+   formLayout->addRow(tr("Model Range:"), xAxisModel);
 }
 
+void mChartsWidgetControlWidget::xAxisFrameComboBoxChanged(int val)
+{
+   mbase.mChartsWidgetXAxisFrame = val;
+   mbase.settings->setValue("mChartsWidgetXAxisFrame", mbase.mChartsWidgetXAxisFrame);
+   mbase.mChartsWidgetUpdateFunction();
+}
+
+void mChartsWidgetControlWidget::seriesColorsComboBoxChanged(int val)
+{
+   mbase.mChartsWidgetForceMySeriesColors = val;
+   mbase.settings->setValue("mChartsWidgetForceMySeriesColors", mbase.mChartsWidgetForceMySeriesColors);
+   mbase.mChartsWidgetChangeThemeFunction();
+}
 
 void mChartsWidgetControlWidget::themeComboBoxChanged(int index)
 {
    mbase.mChartsWidgetChartTheme = index;
-   mbase.updateChartThemeFunction();
+   mbase.settings->setValue("mChartsWidgetChartTheme", mbase.mChartsWidgetChartTheme);
+   mbase.mChartsWidgetChangeThemeFunction();
 }
-
-
-
 
 void mChartsWidgetControlWidget::updateLegend()
 {
-   qDebug() << "void mChartsWidgetControlWidget::updateLegend()";
-
+//   qDebug() << "void mChartsWidgetControlWidget::updateLegend()";
    for (int i=0; i<8; i++)
    {
+      const QString ss = "QCheckBox {  color: %1 }";
+      legendSel[i]->setStyleSheet(legendSel[i]->styleSheet() + ss.arg(mbase.statChartSeriesStructArray[i].col.name()));
+
       if (mbase.statChartSeriesStructArray[i].active)
       {
          legendSel[i]->setVisible(true);
@@ -239,23 +275,30 @@ void mChartsWidgetControlWidget::updateLegend()
       }
       else legendSel[i]->setVisible(false);
    }
+
+   double d_rng = mbase.mChartsWidgetModelXAxisDateTimeEnd.toMSecsSinceEpoch() - mbase.mChartsWidgetModelXAxisDateTimeStart.toMSecsSinceEpoch();
+   char dmsg[100];
+   sprintf(dmsg, "%.1fs  -  ", d_rng/1000);
+
+   int f_rng = mbase.mChartsWidgetModelXAxisFrameEnd - mbase.mChartsWidgetModelXAxisFrameStart;
+   char fmsg[100];
+   sprintf(fmsg, "%d frames", f_rng);
+
+   QString txt = dmsg;
+   txt += fmsg;
+   xAxisModel->setText(txt);
 }
 
 void mChartsWidgetControlWidget::legendSelClicked()
 {
-   qDebug() << "legend sel clicked";
+   //qDebug() << "legend sel clicked";
    for (int i=0; i<8; i++)
    {
       if (mbase.statChartGraphTypeArray[i].active)
          mbase.statChartSeriesStructArray[i].visible = legendSel[i]->isChecked();
    }
-   mbase.chartsWidgetsControlsChangedFunction();
+   mbase.mChartsWidgetControlsChangedFunction();
 }
-
-
-
-
-
 
 void mChartsWidgetControlWidget::set_array_from_cb(void)
 {
@@ -263,34 +306,55 @@ void mChartsWidgetControlWidget::set_array_from_cb(void)
       if (mbase.statChartGraphTypeArray[i].active) mbase.statChartGraphTypeArray[i].visible = chartSel[i]->checkState();
 }
 
-
 void mChartsWidgetControlWidget::chartSelAllClicked()
 {
-   qDebug() << "chart sel all";
+   //qDebug() << "chart sel all";
    for (int i=0; i<NUM_CHARTS; i++)
       if (mbase.statChartGraphTypeArray[i].active) chartSel[i]->setChecked(true);
 }
 
 void mChartsWidgetControlWidget::chartSelNoneClicked()
 {
-   qDebug() << "chart sel none";
+   //qDebug() << "chart sel none";
    for (int i=0; i<NUM_CHARTS; i++)
       if (mbase.statChartGraphTypeArray[i].active) chartSel[i]->setChecked(false);
 }
 
 void mChartsWidgetControlWidget::chartSelToggle(Qt::CheckState)
 {
-   qDebug() << "chart sel toggle";
+   //qDebug() << "chart sel toggle";
    set_array_from_cb();
-   mbase.chartsWidgetsControlsChangedFunction();
+   mbase.mChartsWidgetControlsChangedFunction();
 }
 
-
-
-
-void mChartsWidgetControlWidget::lineSizeChanged()
+void mChartsWidgetControlWidget::lineSizeChanged(int val)
 {
-   //qDebug() << "Line Size Changed" << lineSizeSpinBox->value();
-   mbase.mChartsWidgetPlotLineSize = lineSizeSpinBox->value();
-   mbase.chartsWidgetsControlsChangedFunction();
+   //qDebug() << "Line Size Changed" << val;
+   mbase.mChartsWidgetPlotLineSize = val;
+   mbase.settings->setValue("mChartsWidgetPlotLineSize", mbase.mChartsWidgetPlotLineSize);
+   mbase.mChartsWidgetControlsChangedFunction();
 }
+
+void mChartsWidgetControlWidget::sqlLimitChanged(int val)
+{
+   qDebug() << "sql Limit Changed:" << val;
+   mbase.mChartsWidgetSqlModelLimit = val;
+   mbase.settings->setValue("mChartsWidgetSqlModelLimit", mbase.mChartsWidgetSqlModelLimit);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

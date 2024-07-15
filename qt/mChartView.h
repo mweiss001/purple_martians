@@ -3,6 +3,9 @@
 
 #include <QChartView>
 #include <QMenu>
+#include <QValueAxis>
+
+
 
 #include "m_base.h"
 
@@ -60,19 +63,25 @@ protected:
 
    void wheelEvent(QWheelEvent *event)
    {
-      // get pointer to datetime axis of chart
-      QList qla = this->chart()->axes(Qt::Horizontal);
-      const auto dta = static_cast<QDateTimeAxis*>(qla.at(0));
+       // get first x axis axis of chart
+      QList qlxa = this->chart()->axes(Qt::Horizontal);
 
+      // cast to QValueAxis to get min and max
+      const auto va = static_cast<QValueAxis*>(qlxa.at(0));
 
-      // scroll in x axis with SHIFT
+      // find min, max and range
+      double min = va->min();
+      double max = va->max();
+      double rng = max - min;
+
+      // --- scroll in x axis with SHIFT ---------------
       if (event->modifiers() & Qt::ShiftModifier)
       {
          QPoint numDegrees = event->angleDelta() / 8;
          int y = numDegrees.ry();
          this->chart()->scroll(y, 0);
       }
-      // zoom in x axis centered on mouse pos
+      // --- zoom in x axis centered on mouse pos -------
       else
       {
          // get amount and direction of mouse wheel scroll
@@ -84,17 +93,12 @@ protected:
          // get value at position
          QPointF val = chart()->mapToValue(mousePos);
 
-         // find min, max and range of x axis
-         QDateTime dtmn = dta->min();
-         QDateTime dtmx = dta->max();
-         double rng = dtmx.toMSecsSinceEpoch() - dtmn.toMSecsSinceEpoch();
-
-         // get 20% of range with mouseScroll sign
+         // get 10% of range with mouseScroll sign
          double rng_inc = rng * 0.1;
          if (mouseScroll > 0) rng_inc = rng * -0.1;
 
          // adjust axis min and max with rng_inc
-         dta->setRange(dtmn.addMSecs(rng_inc), dtmx.addMSecs(-rng_inc));
+         va->setRange(min+rng_inc, max-rng_inc);
 
          // find the new screen position of the original value
          QPointF newpos = chart()->mapToPosition(val);
@@ -106,24 +110,24 @@ protected:
          item->setMousePos(mousePos);
       }
 
-      // find min, max and range of x axis
-      mbase.mChartsWidgetXAxisMin = dta->min();
-      mbase.mChartsWidgetXAxisMax = dta->max();
-      mbase.chartsWidgetsControlsChangedFunction();
+      // find new min and max
+      mbase.mChartsWidgetXAxisMin = va->min();
+      mbase.mChartsWidgetXAxisMax = va->max();
+      mbase.mChartsWidgetControlsChangedFunction();
    }
 
 private slots:
    void resetAllCharts()
    {
       qDebug("Reset All Charts");
-      mbase.updateChartsWidgetFunction();
+      mbase.mChartsWidgetUpdateFunction();
    }
 
    void hideThisChart()
    {
       qDebug("Hide This Chart");
       mbase.statChartGraphTypeArray[series_index].visible = 0;
-      mbase.chartsWidgetsControlsChangedFunction();
+      mbase.mChartsWidgetControlsChangedFunction();
    }
 
    void ShowContextMenu(const QPoint &pos)

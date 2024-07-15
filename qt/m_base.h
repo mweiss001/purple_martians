@@ -10,6 +10,9 @@
 #include <QDateTime>
 #include <QPainter>
 
+#include <QSettings>
+
+
 #define LOG_error                  9
 #define LOG_NET                    10
 #define LOG_NET_ending_stats       22
@@ -28,7 +31,7 @@
 #define LOG_NET_timer_adjust       37
 #define LOG_NET_file_transfer      39
 
-#define NUM_CHARTS 11
+#define NUM_CHARTS 12
 
 
 struct log_type
@@ -76,83 +79,108 @@ class m_base : public QObject
 
       m_base();
 
+      QSqlDatabase db;
       void setup_db(void);
 
-      void update_sql(void);
+      QSettings * settings;
 
 
-      void init_log_types(void);
+
       struct log_type log_types[100];
+      void init_log_types(void);
 
-      void init_col_types(void);
       struct col_type col_types[10];
+      void init_col_types(void);
 
-
-      int max_model_rows = 400;
-
-      QFont font;
-      int font_size = 8;
-
-      void set_font(void);
 
       QImage rectangle(qreal imageSize, const QColor &color);
       QImage circle(qreal imageSize, const QColor &color);
 
-      QString sql;
-      QSqlDatabase db;
+      // mTablesWidget
+      //------------------------------------------------------------
+      QFont mTablesWidgetFont;
+      int mTablesWidgetFontSize = 8;
+      void setFont(void);
 
-      QString pml_sql_all;
-      QString pml_sql_where_type;
-      QString pml_sql_where_date;
-
-      QString sqlWhereDt;
-      QDateTime dtStart;
-      QDateTime dtEnd;
-
+      // mTablesWidgetControlWidget
+      //------------------------------------------------------------
+      QString mTablesWidgetControlWidgetSqlWhereTypeClause;
+      int mTablesWidgetSqlModelLimit = 400;
 
 
       // mSessionsWidget
-      // this is the time range set by selecting one or more sessions
+      // -----------------------------------------------------------
+
+      // time range set by selecting one or more sessions
       QDateTime sessionsDtStart;
       QDateTime sessionsDtEnd;
       QTime     sessionsRange;
+      QString   sessionsSqlWhereDateClause;
+
+      void sessionSelectionChanged(); // this emits 2 signals !!!
+
 
 
       // mChartsWidget
-      // charts types
+      //------------------------------------------------------------
+
+      // chart types
       struct statChartGraphType statChartGraphTypeArray[NUM_CHARTS];
       void initStatChartGraphTypeArray(void);
 
       // series types
       void initStatChartSeriesStructArray(void);
+      void setStatChartSeriesStructArrayColors(void);
       struct statChartSeriesStruct statChartSeriesStructArray[8];
+
+      // x axis ranges of sql model
+      QDateTime mChartsWidgetModelXAxisDateTimeStart;
+      QDateTime mChartsWidgetModelXAxisDateTimeEnd;
+      int mChartsWidgetModelXAxisFrameStart;
+      int mChartsWidgetModelXAxisFrameEnd;
 
 
       // mChartsWidgetControlsWidget
-      QDateTime mChartsWidgetXAxisMin;
-      QDateTime mChartsWidgetXAxisMax;
-
+      //------------------------------------------------------------
+      double mChartsWidgetXAxisMin;
+      double mChartsWidgetXAxisMax;
       int mChartsWidgetPlotLineSize = 1;
+      int mChartsWidgetChartTheme = 0;
+      bool mChartsWidgetForceMySeriesColors = true;
+      bool mChartsWidgetXAxisFrame = false;
+      int mChartsWidgetSqlModelLimit = 200;
 
-      int mChartsWidgetChartTheme = 2;
 
-      void chartsWidgetsControlsChangedFunction()           {  emit chartsWidgetsControlsChangedSignal();   }
-      void updateChartsWidgetFunction()                     {  emit updateChartsWidgetSignal();   }
+
+      // functions to emit signals
+      //------------------------------------------------------------
+
+      void mChartsWidgetUpdateFunction()                    {  emit mChartsWidgetUpdateSignal();   }
+      void mChartsWidgetControlsChangedFunction()           {  emit mChartsWidgetControlsChangedSignal();   }
+      void mChartsWidgetChangeThemeFunction()               {  emit mChartsWidgetChangeThemeSignal();   }
+      void mChartsWidgetResetSplitterFunction()             {  emit mChartsWidgetResetSplitterSignal();   }
+
+      void mTablesWidgetUpdateFunction()                    {  emit mTablesWidgetUpdateSignal();   }
+      void mTablesWidgetUpdateColumnsFunction()             {  emit mTablesWidgetUpdateColumnsSignal();   }
+      void mTablesWidgetFontChangeFunction()                {  emit mTablesWidgetFontChangeSignal();   }
+
       void updateLegendFunction()                           {  emit updateLegendSignal();   }
-      void updateChartThemeFunction()                       {  emit updateChartThemeSignal();   }
-      void resetChartSizeFunction()                         {  emit resetChartSizeSignal();   }
+
+
+
 
    signals:
-      void chartsWidgetsControlsChangedSignal();
-      void updateChartsWidgetSignal(void);
-      void sql_changed(void);
-      void updateLegendSignal(void);
-      void updateChartThemeSignal(void);
-      void resetChartSizeSignal(void);
+      void mChartsWidgetUpdateSignal();
+      void mChartsWidgetControlsChangedSignal();
+      void mChartsWidgetChangeThemeSignal();
+      void mChartsWidgetResetSplitterSignal();
+
+      void mTablesWidgetUpdateSignal();
+      void mTablesWidgetUpdateColumnsSignal();
+      void mTablesWidgetFontChangeSignal();
+
+      void updateLegendSignal();
 
 };
-
-
 #endif // M_BASE_H
-
 extern m_base mbase;

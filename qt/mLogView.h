@@ -12,12 +12,17 @@
 #include <QLabel>
 #include <QDateTime>
 
-#include "mlogmessagetypeselector.h"
-#include "mpmselect.h"
+#include "mTableRowSelectWidget.h"
+#include "mTableColumnSelectWidget.h"
 #include "msqlwidget.h"
 #include "mSessionsWidget.h"
 #include "mChartsWidget.h"
 #include "mChartsWidgetControlWidget.h"
+
+
+#include "mTablesWidget.h"
+#include "mTablesWidgetControlWidget.h"
+
 
 #include "m_base.h"
 #include "mdelegate.h"
@@ -26,43 +31,33 @@
 class mLogView : public QWidget
 {
    Q_OBJECT
-public:
-   explicit mLogView(QWidget *parent = nullptr);
 
-public slots:
-   void pb_exec_clicked();
-   void do_sql_changed();
-   void update_table();
-   void update_table_hidden_columns();
-   void font_size_changed(int);
+   public:
+      explicit mLogView(QWidget *parent = nullptr);
 
-signals:
+   public slots:
 
-private slots:
-   void on_tb1_clicked(QModelIndex index);
-   void on_tb2_clicked(QModelIndex index);
+   signals:
 
+   private slots:
 
-private:
-   MLogMessageTypeSelector * mlts;
-   MPMSelect * mpms;
-   MSQLWidget * msqw;
+      void saveSplitterSizes(int, int);
+      void readSplitterSizes();
 
-   mSessionsWidget * mSessionsWidgetInstance;
-   mChartsWidget * mChartsWidgetInstance;
-   mChartsWidgetControlWidget * mChartsWidgetControlWidgetInstance;
+   private:
+      mTableRowSelectWidget * mTableRowSelectWidgetInstance;
+      mTableColumnSelectWidget * mTableColumnSelectWidgetInstance;
+      MSQLWidget * msqw;
 
-   QTableView * tableView1;
-   QTableView * tableView2;
+      mSessionsWidget * mSessionsWidgetInstance;
+      mChartsWidget * mChartsWidgetInstance;
+      mChartsWidgetControlWidget * mChartsWidgetControlWidgetInstance;
 
-   QSqlQueryModel *model;
-   QCheckBox * cb_autoexec;
-   QPushButton * pb_exec;
-   QLabel * lb_num_rows;
-   QSpinBox * sb_font_size;
+      QImage rectangle(qreal imageSize, const QColor &color);
+      QImage circle(qreal imageSize, const QColor &color);
 
-   QImage rectangle(qreal imageSize, const QColor &color);
-   QImage circle(qreal imageSize, const QColor &color);
+      QSplitter * splitter;
+
 
 };
 

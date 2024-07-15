@@ -12,41 +12,42 @@
 
 #include "m_base.h"
 
-
 class mChartsWidget : public QWidget
 {
    Q_OBJECT
 
-public:
-   explicit mChartsWidget(QWidget *parent = nullptr);
+   public:
+      explicit mChartsWidget(QWidget *parent = nullptr);
 
-signals:
+   signals:
 
-protected:
-   void resizeEvent(QResizeEvent *event) override;
+   protected:
 
-public slots:
-   void update();
-   void controlsChanged();
-   void resetSplitter();
+   public slots:
+      void update();
+      void controlsChanged();
+      void changeTheme();
+      void resetSplitter();
+      void saveSplitterSizes(int pos, int index);
+      void readSplitterSizes();
 
-   void changeTheme();
+   private:
 
-private:
-   void extract_series(int i, int r, int c, int p, QDateTime ts);
-   QVBoxLayout * vbox;
-   QSplitter * splitter;
+      void buildCharts();
 
-   QSqlQueryModel* statChartModel;
-   QChart* statChart[NUM_CHARTS];
-   QChartView* statChartView[NUM_CHARTS];
+      void extract_series(int i, int r, int c, int p, double xAxisVal);
+      QVBoxLayout * vbox;
+      QSplitter * splitter = nullptr;
 
-   QDateTimeAxis* statChartXaxis[NUM_CHARTS];
-   QValueAxis*    statChartYaxis[NUM_CHARTS];
-   QLineSeries* statChartSeries[NUM_CHARTS][8];
+      QSqlQueryModel * statChartModel;
 
-   float statChartMinY[NUM_CHARTS];
-   float statChartMaxY[NUM_CHARTS];
+      QChart* statChart[NUM_CHARTS] = {nullptr};
+      QChartView* statChartView[NUM_CHARTS] = {nullptr};
+
+      QLineSeries* statChartSeries[NUM_CHARTS][8] = {nullptr};
+
+      float statChartMinY[NUM_CHARTS];
+      float statChartMaxY[NUM_CHARTS];
 };
 
 #endif // MCHARTSWIDGET_H

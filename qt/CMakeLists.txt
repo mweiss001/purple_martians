@@ -22,16 +22,17 @@ set(PROJECT_SOURCES
 )
 
 
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(pm_log
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         m_base.h m_base.cpp
-        mlogmessagetypeselector.h mlogmessagetypeselector.cpp
+        mTableRowSelectWidget.h mTableRowSelectWidget.cpp
         mLogView.h mLogView.cpp
         mlogdaterange.h mlogdaterange.cpp
         msqlwidget.h msqlwidget.cpp
-        mpmselect.h mpmselect.cpp
+        mTableColumnSelectWidget.h mTableColumnSelectWidget.cpp
         mdelegate.h
 
         mSessionsWidget.h mSessionsWidget.cpp
@@ -42,6 +43,13 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         mChartsWidget.h mChartsWidget.cpp
         mChartViewCrosshairs.h mChartViewCrosshairs.cpp
         mChartsWidgetControlWidget.h mChartsWidgetControlWidget.cpp
+
+
+        qdarkstyle/dark/darkstyle.qrc
+        mTablesWidgetControlWidget.h mTablesWidgetControlWidget.cpp
+        mTablesWidget.h mTablesWidget.cpp
+
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET test1 APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

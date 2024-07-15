@@ -15,3 +15,11 @@ pscp -pw zaiden m@purplemartians.org:pm_dump.sql c:\pm\
 
 pscp -pw zaiden c:\pm\pm_dump.sql m@scat:pm_dump.sql 
 
+
+
+
+
+
+pscp -pw zaiden m@scat:dev/purple_martians/logs/status/20240701* c:\pm\logs
+
+

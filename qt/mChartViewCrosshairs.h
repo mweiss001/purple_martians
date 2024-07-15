@@ -9,6 +9,8 @@
 #include <QDateTimeAxis>
 #include <QLineSeries>
 
+#include "m_base.h"
+
 class mChartViewCrosshairs : public QGraphicsItem
 {
 
@@ -32,7 +34,10 @@ private:
    QPointF mousePos;
 
    double YAxisVal;
-   QDateTime XAxisVal;
+   double XAxisVal;
+
+
+
 
    QString XAxisText;
    QString YAxisText;

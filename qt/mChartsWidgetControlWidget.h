@@ -3,57 +3,50 @@
 
 #include <QWidget>
 #include <QBoxLayout>
+#include <QFormLayout>
 #include <QGroupBox>
-#include <QDoubleSpinBox>
+#include <QSpinBox>
 #include <QCheckBox>
 #include <QPushButton>
 #include <QComboBox>
 #include <QChart>
 
+#include <QLabel>
+
 
 #include "m_base.h"
-
 
 class mChartsWidgetControlWidget : public QWidget
 {
    Q_OBJECT
-public:
-   explicit mChartsWidgetControlWidget(QWidget *parent = nullptr);
+   public:
+      explicit mChartsWidgetControlWidget(QWidget *parent = nullptr);
+      int HSIZE = 320;
+      int VSIZE = 440;
+      QSize minimumSizeHint() const {      return QSize(HSIZE, VSIZE);   }
+      QSize minimumSize () const    {      return QSize(HSIZE, VSIZE);   }
 
-   int HSIZE = 320;
-   int VSIZE = 300;
-   QSize minimumSizeHint() const {      return QSize(HSIZE, VSIZE);   }
-   QSize minimumSize () const    {      return QSize(HSIZE, VSIZE);   }
+   public slots:
+      void lineSizeChanged(int);
+      void chartSelToggle(Qt::CheckState);
+      void chartSelNoneClicked();
+      void chartSelAllClicked();
+      void legendSelClicked();
+      void updateLegend();
+      void themeComboBoxChanged(int);
+      void seriesColorsComboBoxChanged(int);
+      void sqlLimitChanged(int);
+      void xAxisFrameComboBoxChanged(int);
 
-public slots:
-   void lineSizeChanged();
-   void chartSelToggle(Qt::CheckState);
-   void chartSelNoneClicked();
-   void chartSelAllClicked();
-   void legendSelClicked();
-   void updateLegend();
+   signals:
 
+   private slots:
 
-   void themeComboBoxChanged(int index);
-
-
-
-signals:
-
-private slots:
-
-private:
-   void set_array_from_cb(void);
-   QDoubleSpinBox * lineSizeSpinBox;
-   QCheckBox * chartSel[12];
-   QPushButton * chartSelAll;
-   QPushButton * chartSelNone;
-   QCheckBox * legendSel[8];
-
-   QComboBox * themeComboBox;
-
-
-
+   private:
+      void set_array_from_cb(void);
+      QCheckBox * chartSel[12];
+      QCheckBox * legendSel[8];
+      QLabel * xAxisModel;
 };
 
 #endif // MCHARTSWIDGETCONTROLWIDGET_H

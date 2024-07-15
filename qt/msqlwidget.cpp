@@ -38,7 +38,7 @@ MSQLWidget::MSQLWidget(QWidget *parent)
 
 void MSQLWidget::update(void)
 {
-   msqw1_tb->setText(mbase.pml_sql_all);
-   msqw2_tb->setText(mbase.pml_sql_where_date);
-   msqw3_tb->setText(mbase.pml_sql_where_type);
+//   msqw1_tb->setText(mbase.pml_sql_all);
+//   msqw2_tb->setText(mbase.pml_sql_where_date);
+//   msqw3_tb->setText(mbase.mTablesWidgetControlWidgetSqlWhereType);
 }
