@@ -5,6 +5,7 @@
 #include <QString>
 #include <QSqlDatabase>
 #include <QSqlError>
+#include <QSqlQueryModel>
 #include <QDebug>
 #include <QColor>
 #include <QDateTime>
@@ -96,11 +97,23 @@ class m_base : public QObject
       QImage rectangle(qreal imageSize, const QColor &color);
       QImage circle(qreal imageSize, const QColor &color);
 
+
+      // Global Cursor DateTime Position
+      //------------------------------------------------------------
+      QDateTime globalPosition;
+
+      void updateGlobalPosition(QDateTime pos);
+
+
       // mTablesWidget
       //------------------------------------------------------------
       QFont mTablesWidgetFont;
       int mTablesWidgetFontSize = 8;
-      void setFont(void);
+      void mTablesWidgetFontChangeFunction(int fontSize);
+
+      // x axis ranges of sql model
+      QDateTime mTablesWidgetModelXAxisDateTimeStart;
+      QDateTime mTablesWidgetModelXAxisDateTimeEnd;
 
       // mTablesWidgetControlWidget
       //------------------------------------------------------------
@@ -111,13 +124,16 @@ class m_base : public QObject
       // mSessionsWidget
       // -----------------------------------------------------------
 
+      QSqlQueryModel *sessionsModel = nullptr;
+
+
       // time range set by selecting one or more sessions
       QDateTime sessionsDtStart;
       QDateTime sessionsDtEnd;
       QTime     sessionsRange;
       QString   sessionsSqlWhereDateClause;
 
-      void sessionSelectionChanged(); // this emits 2 signals !!!
+      void sessionSelectionChanged(); // this emits 3 signals !!!
 
 
 
@@ -136,9 +152,6 @@ class m_base : public QObject
       // x axis ranges of sql model
       QDateTime mChartsWidgetModelXAxisDateTimeStart;
       QDateTime mChartsWidgetModelXAxisDateTimeEnd;
-      int mChartsWidgetModelXAxisFrameStart;
-      int mChartsWidgetModelXAxisFrameEnd;
-
 
       // mChartsWidgetControlsWidget
       //------------------------------------------------------------
@@ -147,7 +160,6 @@ class m_base : public QObject
       int mChartsWidgetPlotLineSize = 1;
       int mChartsWidgetChartTheme = 0;
       bool mChartsWidgetForceMySeriesColors = true;
-      bool mChartsWidgetXAxisFrame = false;
       int mChartsWidgetSqlModelLimit = 200;
 
 
@@ -155,18 +167,17 @@ class m_base : public QObject
       // functions to emit signals
       //------------------------------------------------------------
 
-      void mChartsWidgetUpdateFunction()                    {  emit mChartsWidgetUpdateSignal();   }
+      void mChartsWidgetUpdateFunction()                    {  emit mChartsWidgetUpdateSignal(); emit mCurrentSessionTimelineWidgetUpdateSignal(); }
       void mChartsWidgetControlsChangedFunction()           {  emit mChartsWidgetControlsChangedSignal();   }
       void mChartsWidgetChangeThemeFunction()               {  emit mChartsWidgetChangeThemeSignal();   }
       void mChartsWidgetResetSplitterFunction()             {  emit mChartsWidgetResetSplitterSignal();   }
 
-      void mTablesWidgetUpdateFunction()                    {  emit mTablesWidgetUpdateSignal();   }
+      void mChartsWidgetControlWidgetUpdateFunction()       { emit mChartsWidgetControlWidgetUpdateSignal(); }
+
+      void mTablesWidgetUpdateFunction()                    {  emit mTablesWidgetUpdateSignal(); emit mCurrentSessionTimelineWidgetUpdateSignal();  }
       void mTablesWidgetUpdateColumnsFunction()             {  emit mTablesWidgetUpdateColumnsSignal();   }
-      void mTablesWidgetFontChangeFunction()                {  emit mTablesWidgetFontChangeSignal();   }
 
-      void updateLegendFunction()                           {  emit updateLegendSignal();   }
-
-
+      void mTablesWidgetControlWidgetUpdateFunction()       { emit mTablesWidgetControlWidgetUpdateSignal(); }
 
 
    signals:
@@ -175,11 +186,29 @@ class m_base : public QObject
       void mChartsWidgetChangeThemeSignal();
       void mChartsWidgetResetSplitterSignal();
 
+      void mChartsWidgetControlWidgetUpdateSignal();
+
       void mTablesWidgetUpdateSignal();
       void mTablesWidgetUpdateColumnsSignal();
       void mTablesWidgetFontChangeSignal();
 
-      void updateLegendSignal();
+      void mTablesWidgetControlWidgetUpdateSignal();
+
+      void mCurrentSessionTimelineWidgetUpdateSignal();
+
+      void updateGlobalPositionSignal();
+
+
+
+
+
+
+
+
+
+
+
+
 
 };
 #endif // M_BASE_H

@@ -6,7 +6,7 @@ mTableRowSelectWidget::mTableRowSelectWidget(QWidget *parent) : QWidget{parent}
    QHBoxLayout *hbox = new QHBoxLayout;
 
    QGroupBox * mlts_gb = new QGroupBox("Log Message Types", this);
-   mlts_gb->setGeometry(10, 10, VSIZE-20, HSIZE-20);
+   mlts_gb->setGeometry(0, 0, HSIZE, VSIZE);
    mlts_gb->setLayout(vbox);
 
 

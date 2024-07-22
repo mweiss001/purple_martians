@@ -23,9 +23,11 @@ public:
 
       QStyleOptionViewItem myOption = option;
 
-      if (index.column() == 1) myOption.displayAlignment = Qt::AlignCenter | Qt::AlignVCenter;
-      if (index.column() == 4) myOption.displayAlignment = Qt::AlignCenter | Qt::AlignVCenter;
-      if (index.column() == 5) myOption.displayAlignment = Qt::AlignCenter | Qt::AlignVCenter;
+      if (index.column() == 1) myOption.displayAlignment = Qt::AlignCenter | Qt::AlignVCenter; // msg_type
+      if (index.column() == 4) myOption.displayAlignment = Qt::AlignCenter | Qt::AlignVCenter; // agt
+      if (index.column() == 5) myOption.displayAlignment = Qt::AlignCenter | Qt::AlignVCenter; // frame
+      if (index.column() == 6) myOption.displayAlignment = Qt::AlignCenter | Qt::AlignVCenter; // player AS p
+      if (index.column() == 7) myOption.displayAlignment = Qt::AlignCenter | Qt::AlignVCenter; // client AS c
 
 //      if (index.column() == 6) myOption.font = QFont{ "Courier", 9, QFont::Monospace };
 //      myOption.font = QFont{ "Courier", mbase.font_size, QFont::Monospace };

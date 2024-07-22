@@ -22,25 +22,20 @@ class mChartsWidgetControlWidget : public QWidget
    public:
       explicit mChartsWidgetControlWidget(QWidget *parent = nullptr);
       int HSIZE = 320;
-      int VSIZE = 440;
+      int VSIZE = 380;
       QSize minimumSizeHint() const {      return QSize(HSIZE, VSIZE);   }
       QSize minimumSize () const    {      return QSize(HSIZE, VSIZE);   }
 
    public slots:
       void lineSizeChanged(int);
-      void chartSelToggle(Qt::CheckState);
+      void chartSelClicked();
       void chartSelNoneClicked();
       void chartSelAllClicked();
       void legendSelClicked();
-      void updateLegend();
+      void update();
       void themeComboBoxChanged(int);
       void seriesColorsComboBoxChanged(int);
       void sqlLimitChanged(int);
-      void xAxisFrameComboBoxChanged(int);
-
-   signals:
-
-   private slots:
 
    private:
       void set_array_from_cb(void);

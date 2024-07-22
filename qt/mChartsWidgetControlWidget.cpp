@@ -3,9 +3,7 @@
 mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
     : QWidget{parent}
 {
-   connect(&mbase, SIGNAL(updateLegendSignal()), this, SLOT(updateLegend()));
-
-
+   connect(&mbase, SIGNAL(mChartsWidgetControlWidgetUpdateSignal()), this, SLOT(update()));
 
    // -------------------------------------------------------------
    // - top level grid
@@ -82,7 +80,8 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
          chartSel[i]->setChecked(mbase.statChartGraphTypeArray[i].visible);
          chartsCheckBoxesGridLayout->addWidget(chartSel[i], row, col);
          if (++row > 3) { row = 0;  col++; }
-         connect(chartSel[i], SIGNAL (checkStateChanged(Qt::CheckState)), this, SLOT (chartSelToggle(Qt::CheckState))) ;
+         //connect(chartSel[i], SIGNAL (checkStateChanged(Qt::CheckState)), this, SLOT (chartSelToggle(Qt::CheckState))) ;
+         connect(chartSel[i], SIGNAL(clicked()), this, SLOT (chartSelClicked())) ;
       }
    }
 
@@ -105,28 +104,21 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
 
    row = 0;
    col = 0;
-
    for (int i=0; i<8; i++)
    {
       legendSel[i] = new QCheckBox(mbase.statChartSeriesStructArray[i].name, this);
-
-      QPalette p = legendSel[i]->palette();
-      p.setColor(QPalette::Active, QPalette::WindowText, mbase.statChartSeriesStructArray[i].col);
-      legendSel[i]->setPalette(p);
-
       legendSel[i]->setVisible(false);
       connect(legendSel[i], SIGNAL (clicked()), this, SLOT (legendSelClicked())) ;
-
       legendGridLayout->addWidget(legendSel[i], row, col);
       if (++row > 3) { row = 0;  col++; }
    }
 
 
-
-
-
    // group box for form layout
    QGroupBox * formLayoutGroupBox = new QGroupBox("Settings", this);
+   formLayoutGroupBox->setMaximumHeight(160);
+
+
 
    // add to top layout grid
    topGridLayout->addWidget(formLayoutGroupBox, 1, 0, 1, 2);
@@ -197,21 +189,6 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
    formLayout->addRow(tr("Plot Line Size:"), lineSizeSpinBox);
 
 
-   // -------------------------------------------------------------
-   // - x axis frame
-   // -------------------------------------------------------------
-
-   // create a axis frame combo box
-   QComboBox * xAxisFrameComboBox = new QComboBox;
-   xAxisFrameComboBox->addItem("DateTime", 0);
-   xAxisFrameComboBox->addItem("Frames", 1);
-
-   // get initial state from settings
-   mbase.mChartsWidgetXAxisFrame = mbase.settings->value("mChartsWidgetXAxisFrame", true).toInt();
-   xAxisFrameComboBox->setCurrentIndex(mbase.mChartsWidgetXAxisFrame);
-
-   connect(xAxisFrameComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(xAxisFrameComboBoxChanged(int)));
-   formLayout->addRow(tr("X Axis Format:"), xAxisFrameComboBox);
 
    // -------------------------------------------------------------
    // - sql LIMIT clause
@@ -232,18 +209,11 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
    formLayout->addRow(tr("SQL Model Limit:"), sqlLimitSpinBox);
 
    // -------------------------------------------------------------
-   // - model x axis label
+   // - model x axis range label
    // -------------------------------------------------------------
 
    xAxisModel = new QLabel("-", this);
    formLayout->addRow(tr("Model Range:"), xAxisModel);
-}
-
-void mChartsWidgetControlWidget::xAxisFrameComboBoxChanged(int val)
-{
-   mbase.mChartsWidgetXAxisFrame = val;
-   mbase.settings->setValue("mChartsWidgetXAxisFrame", mbase.mChartsWidgetXAxisFrame);
-   mbase.mChartsWidgetUpdateFunction();
 }
 
 void mChartsWidgetControlWidget::seriesColorsComboBoxChanged(int val)
@@ -260,9 +230,11 @@ void mChartsWidgetControlWidget::themeComboBoxChanged(int index)
    mbase.mChartsWidgetChangeThemeFunction();
 }
 
-void mChartsWidgetControlWidget::updateLegend()
+void mChartsWidgetControlWidget::update()
 {
-//   qDebug() << "void mChartsWidgetControlWidget::updateLegend()";
+//   qDebug() << "void mChartsWidgetControlWidget::update()";
+
+   // update legend
    for (int i=0; i<8; i++)
    {
       const QString ss = "QCheckBox {  color: %1 }";
@@ -276,22 +248,17 @@ void mChartsWidgetControlWidget::updateLegend()
       else legendSel[i]->setVisible(false);
    }
 
+   // update the model range label
    double d_rng = mbase.mChartsWidgetModelXAxisDateTimeEnd.toMSecsSinceEpoch() - mbase.mChartsWidgetModelXAxisDateTimeStart.toMSecsSinceEpoch();
    char dmsg[100];
-   sprintf(dmsg, "%.1fs  -  ", d_rng/1000);
+   sprintf(dmsg, "%.1fs", d_rng/1000);
+   xAxisModel->setText(dmsg);
 
-   int f_rng = mbase.mChartsWidgetModelXAxisFrameEnd - mbase.mChartsWidgetModelXAxisFrameStart;
-   char fmsg[100];
-   sprintf(fmsg, "%d frames", f_rng);
-
-   QString txt = dmsg;
-   txt += fmsg;
-   xAxisModel->setText(txt);
 }
 
 void mChartsWidgetControlWidget::legendSelClicked()
 {
-   //qDebug() << "legend sel clicked";
+   //qDebug() << "void mChartsWidgetControlWidget::legendSelClicked()";
    for (int i=0; i<8; i++)
    {
       if (mbase.statChartGraphTypeArray[i].active)
@@ -308,21 +275,23 @@ void mChartsWidgetControlWidget::set_array_from_cb(void)
 
 void mChartsWidgetControlWidget::chartSelAllClicked()
 {
-   //qDebug() << "chart sel all";
+   //qDebug() << "void mChartsWidgetControlWidget::chartSelAllClicked()"
    for (int i=0; i<NUM_CHARTS; i++)
       if (mbase.statChartGraphTypeArray[i].active) chartSel[i]->setChecked(true);
+   chartSelClicked();
 }
 
 void mChartsWidgetControlWidget::chartSelNoneClicked()
 {
-   //qDebug() << "chart sel none";
+   //qDebug() << "void mChartsWidgetControlWidget::chartSelNoneClicked()";
    for (int i=0; i<NUM_CHARTS; i++)
       if (mbase.statChartGraphTypeArray[i].active) chartSel[i]->setChecked(false);
+   chartSelClicked();
 }
 
-void mChartsWidgetControlWidget::chartSelToggle(Qt::CheckState)
+void mChartsWidgetControlWidget::chartSelClicked()
 {
-   //qDebug() << "chart sel toggle";
+   //qDebug() << "void mChartsWidgetControlWidget::chartSelClicked()";
    set_array_from_cb();
    mbase.mChartsWidgetControlsChangedFunction();
 }
@@ -337,22 +306,11 @@ void mChartsWidgetControlWidget::lineSizeChanged(int val)
 
 void mChartsWidgetControlWidget::sqlLimitChanged(int val)
 {
-   qDebug() << "sql Limit Changed:" << val;
+   // qDebug() << "sql Limit Changed:" << val;
    mbase.mChartsWidgetSqlModelLimit = val;
    mbase.settings->setValue("mChartsWidgetSqlModelLimit", mbase.mChartsWidgetSqlModelLimit);
+   mbase.mChartsWidgetUpdateFunction();
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -3,57 +3,44 @@
 mLogView::mLogView(QWidget *parent) : QWidget{parent}
 {
 
-   // horizontal box layout
-   QHBoxLayout *hbox = new QHBoxLayout;
-   this->setLayout(hbox);
+// ---------------------------------------------------
+// first create all the things I will show here
+// ---------------------------------------------------
 
-   // make a splitter and add it to hbox
-   splitter = new QSplitter(this);
-   splitter->setChildrenCollapsible(false);
-   splitter->setOrientation(Qt::Horizontal);
-   hbox->addWidget(splitter);
+   mCurrentSessionTimelineWidget * mCurrentSessionTimelineWidgetInstance = new mCurrentSessionTimelineWidget(this);
 
-
-   // ---------------------------------------------------------------------
-   // mTablesWidget
-   // ---------------------------------------------------------------------
    mTablesWidget * mTablesWidgetInstance = new mTablesWidget(this);
-   hbox->addWidget(mTablesWidgetInstance);
 
-   // add to splitter
-   splitter->addWidget(mTablesWidgetInstance);
+   mChartsWidgetInstance = new mChartsWidget(this);
 
-   // qDebug() << splitter->handleWidth();
-   splitter->setHandleWidth(8); // 5 is default
 
-   // make a frame middle panel
+   // ---------------------------------------------------------
+   // middle panel
+   // ---------------------------------------------------------
+   QFrame * middlePanelFrame = new QFrame();
+   middlePanelFrame->setLineWidth(0);
+   middlePanelFrame->setMidLineWidth(0);
+   middlePanelFrame->setFrameStyle(QFrame::Panel);
+   middlePanelFrame->setMaximumWidth(640);
 
-   QFrame * frame = new QFrame();
-   frame->setLineWidth(0);
-   frame->setMidLineWidth(0);
-   frame->setFrameStyle(QFrame::Panel);
-   frame->setMaximumWidth(640);
-
-   // add frame to splitter
-   splitter->addWidget(frame);
 
    // make vbox for frame
-   QVBoxLayout *vbox = new QVBoxLayout;
+   QVBoxLayout *MPFvbox = new QVBoxLayout;
 
    // add vbox layout to frame
-   frame->setLayout(vbox);
+   middlePanelFrame->setLayout(MPFvbox);
 
    // ---------------------------------------------------------------------
    // mTablesWidgetControlWidget
    // ---------------------------------------------------------------------
    mTablesWidgetControlWidget * mTablesWidgetControlWidgetInstance = new mTablesWidgetControlWidget(this);
-   vbox->addWidget(mTablesWidgetControlWidgetInstance);
+   MPFvbox->addWidget(mTablesWidgetControlWidgetInstance);
 
    // ---------------------------------------------------
    // sessions widget
    // ---------------------------------------------------
    mSessionsWidgetInstance = new mSessionsWidget(this);
-   vbox->addWidget(mSessionsWidgetInstance);
+   MPFvbox->addWidget(mSessionsWidgetInstance);
 
    // ---------------------------------------------------
    // charts controls widget
@@ -61,24 +48,92 @@ mLogView::mLogView(QWidget *parent) : QWidget{parent}
    mChartsWidgetControlWidgetInstance = new mChartsWidgetControlWidget(this);
 
    // put it in its own hbox so I can push it over to the right
-   QHBoxLayout *hbox3 = new QHBoxLayout;
-   vbox->addLayout(hbox3);
-   hbox3->addStretch();
-   hbox3->addWidget(mChartsWidgetControlWidgetInstance);
+   QHBoxLayout *MPFhbox = new QHBoxLayout;
+   MPFvbox->addLayout(MPFhbox);
+
+   MPFhbox->addStretch();
+   MPFhbox->addWidget(mChartsWidgetControlWidgetInstance);
 
 
 
-   // ---------------------------------------------------
-   // charts widget
-   // ---------------------------------------------------
-   mChartsWidgetInstance = new mChartsWidget(this);
 
-   // add to splitter
+// --------------------------------------------------------------------------
+// layout
+// --------------------------------------------------------------------------
+
+   //-------------------------------------
+   // make a frame to contain lower items
+   //-------------------------------------
+
+
+   // create frame
+   QFrame * lowerFrame = new QFrame(this);
+   lowerFrame->setLineWidth(0);
+   lowerFrame->setMidLineWidth(0);
+   lowerFrame->setFrameStyle(QFrame::Panel);
+
+   // create layout and apply to frame
+   QHBoxLayout *lowerFrameLayout = new QHBoxLayout;
+   lowerFrame->setLayout(lowerFrameLayout);
+
+   // instantiate splitter and add to layout
+   splitter = new QSplitter(this);
+   splitter->setChildrenCollapsible(false);
+   splitter->setOrientation(Qt::Horizontal);
+   splitter->setHandleWidth(8); // 5 is default
+   lowerFrameLayout->addWidget(splitter);
+
+   // add widgets to splitter
+   splitter->addWidget(mTablesWidgetInstance);
+   splitter->addWidget(middlePanelFrame);
    splitter->addWidget(mChartsWidgetInstance);
+
+
+
+
+   //-------------------------------------
+   // top level layout
+   //-------------------------------------
+
+   // create topLayout and apply to this->
+   QVBoxLayout *topLayout = new QVBoxLayout;
+   this->setLayout(topLayout);
+
+
+   // when I do it this way the lower frame expands
+
+   // make vertical splitter and add to layout
+   QSplitter * vSplitter = new QSplitter(this);
+   vSplitter->setChildrenCollapsible(false);
+   vSplitter->setOrientation(Qt::Vertical);
+   topLayout->addWidget(vSplitter);
+
+   // add widgets to vsplitter
+   vSplitter->addWidget(mCurrentSessionTimelineWidgetInstance);
+   vSplitter->addWidget(lowerFrame);
+
+
+
+   // when I do it this way, the lower frame does not expand
+
+   // // add widgets to layout
+   // topLayout->addWidget(mCurrentSessionTimelineWidgetInstance);
+   // topLayout->addWidget(lowerFrame);
+
+
+
+
 
    readSplitterSizes();
    connect(splitter, SIGNAL(splitterMoved(int, int)), this, SLOT(saveSplitterSizes(int, int)));
 }
+
+
+
+
+
+
+
 
 void mLogView::saveSplitterSizes(int pos, int index)
 {

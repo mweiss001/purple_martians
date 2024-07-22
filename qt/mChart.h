@@ -6,11 +6,11 @@
 class mChart : public QChart
 {
    Q_OBJECT
-public:
-   mChart() {}
-   using QChart::QChart;
-protected:
-private:
+   public:
+      mChart() {}
+      using QChart::QChart;
+   protected:
+   private:
 };
 
 #endif // MCHART_H

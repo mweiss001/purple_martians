@@ -17,10 +17,10 @@ class mTableColumnSelectWidget : public QWidget
    public:
       explicit mTableColumnSelectWidget(QWidget *parent = nullptr);
 
-      int VSIZE = 200;
-      int HSIZE = 320;
-      QSize minimumSizeHint() const {      return QSize(VSIZE, HSIZE);   }
-      QSize minimumSize () const    {      return QSize(VSIZE, HSIZE);   }
+      int HSIZE = 90;
+      int VSIZE = 320;
+      QSize minimumSizeHint() const { return QSize(HSIZE, VSIZE); }
+      QSize minimumSize()     const { return QSize(HSIZE, VSIZE); }
 
    signals:
 

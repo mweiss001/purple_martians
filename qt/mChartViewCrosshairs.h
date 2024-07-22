@@ -13,44 +13,39 @@
 
 class mChartViewCrosshairs : public QGraphicsItem
 {
+   public:
+      mChartViewCrosshairs(QChart *chart) : QGraphicsItem(chart), m_chart(chart) { }
 
-public:
-   mChartViewCrosshairs(QChart *parent);
+      QRectF boundingRect() const override;
+      void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+      void setMousePos(QPointF pos);
 
-   QRectF boundingRect() const override;
-   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
-   void setMousePos(QPointF pos);
+   protected:
 
-protected:
+   private:
 
-private:
+      void setXAxisText();
+      void setYAxisText();
 
-   void setXAxisText();
-   void setYAxisText();
+      QFont m_font;
+      QChart *m_chart = nullptr;
 
-   QFont m_font;
-   QChart *m_chart = nullptr;
+      QPointF mousePos;
 
-   QPointF mousePos;
+      double YAxisVal;
+      double XAxisVal;
 
-   double YAxisVal;
-   double XAxisVal;
-
-
-
-
-   QString XAxisText;
-   QString YAxisText;
+      QString XAxisText;
+      QString YAxisText;
 
 
-   QRectF XAxisTextRect;
-   QRectF XAxisRect;
-   QPointF XAxisTextPos;
+      QRectF XAxisTextRect;
+      QRectF XAxisRect;
+      QPointF XAxisTextPos;
 
-
-   QRectF YAxisTextRect;
-   QRectF YAxisRect;
-   QPointF YAxisTextPos;
+      QRectF YAxisTextRect;
+      QRectF YAxisRect;
+      QPointF YAxisTextPos;
 };
 
 #endif // MCHARTVIEWCROSSHAIRS_H

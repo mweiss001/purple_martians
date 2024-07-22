@@ -1591,6 +1591,2639 @@ copy all sources to pm folder and do a push
 
 
 
+20240715
+
+wtf is going on? how did I lose my last typing? CTRL-R == reload from disk...
+
+
+I reall want to make a global position that persists between charts and tables
+
+in tables I have the highlight, but its not super noticeable
+
+in charts I have the crosshairs
+
+
+
+could I do something like crosshairs for tables?
+
+also something better for charts...
+something that persists
+
+also something that removes the mouse crosshairs when the mouse is not there.
+or always diplays crosshairs!!, but uses global position when mouse is not on chart
+
+also I want to have the same crosshairs on all charts...
+you know what else would be nice? only one x axis...
+they are all common anyway so why do I need to show them all...
+
+then on mTableView...
+- customize number of tables
+- first one can be all players or only p0
+- second and more can be customized to be p1, p2 etc...
+
+
+
+
+make model range only based on datetime...done
+show model range for tables also
+make a function to update mTablesWidgetControlWidget
+then connect a signal to it...done
+
+
+making highlight on charts and making global cursor position
+
+try making higlight black...
+
+I was unable to make any changes to the TableView with my global dark theme
+
+I think I will subclass QTableView...I wanted to do it anyway to draw overlays...
+
+very similar to what I did with ChartView
+
+
+mTableView has been added
+
+now make mTableViewOverlay
+
+
+I am having some issues:
+
+when creating a graphicsItem I cant set the parent the to QTableView like I could with QChartView
+
+then in my subclass mTableView I don't seem to have a scene....
+
+I think there are some answer in here:
+
+https://stackoverflow.com/questions/61216527/drawing-qgraphicslineitem-on-a-qtableview
+
+
+
+what if I overload painter in mTableView...
+
+
+I got nowhere.....giving up....
+
+
+
+I think I figured something out:
+QChartView is special. I can add scenes to it.
+
+
+QChartView inherits QGraphicsView which has scene()
+
+
+----------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------
+
+
+The QGraphicsView class provides a widget for displaying the contents of a QGraphicsScene
+QGraphicsView visualizes the contents of a QGraphicsScene in a scrollable viewport. To create a scene with geometrical items, see QGraphicsScene's documentation. QGraphicsView is part of the Graphics View Framework.
+To visualize a scene, you start by constructing a QGraphicsView object, passing the address of the scene you want to visualize to QGraphicsView's constructor. Alternatively, you can call setScene() to set the scene at a later point. After you call show(), the view will by default scroll to the center of the scene and display any items that are visible at this point. For example:
+
+
+The QGraphicsScene class provides a surface for managing a large number of 2D graphical items.
+The class serves as a container for QGraphicsItems. It is used together with QGraphicsView for visualizing graphical items, such as lines, rectangles, text, or even custom items, on a 2D surface
+
+
+The QGraphicsItem class is the base class for all graphical items in a QGraphicsScene.
+It provides a light-weight foundation for writing your own custom items. This includes defining the item's geometry, collision detection, its painting implementation and item interaction through its event handlers.
+
+
+
+So how do I do it in my mChartViewCrosshairs ?
+
+I make a QGraphicsItem class:
+
+class mChartViewCrosshairs : public QGraphicsItem
+
+Then I make an instance in mChartView:
+then I add that instance to mChartView's scene
+(mChartView has a scene() because it inherits one from QChartView which inherits one from QGraphicsView)
+
+class mChartView : public QChartView
+{
+   Q_OBJECT
+   public:
+
+      mChartView(QChart* chart = 0, QWidget* parent = 0, int index = 0) : QChartView(chart, parent)
+      {
+         mChartViewCrosshairsInstance = new mChartViewCrosshairs(chart);
+         mChartViewCrosshairsInstance->setZValue(100); // to draw on top
+         mChartViewCrosshairsInstance->setVisible(false);
+
+         // if no scene has been set, set scene
+         if (!mChartViewCrosshairsInstance->scene()) scene()->addItem(mChartViewCrosshairsInstance);
+
+
+
+   private:
+      mChartViewCrosshairs * mChartViewCrosshairsInstance = nullptr;
+
+};
+
+
+I think I know what is going on here...but does this help me draw on TableView?
+
+do I want to draw on TableView? Is that the best way to do it?
+
+
+OK so if I can't do it like that, how about my derived class mTableView and 
+overide the painter...I think I tried to do that...
+
+
+https://stackoverflow.com/questions/32653267/paintevent-in-qtableview-derived-class-paint-device-returned-engine-0-type
+
+As QTableView is a subclass of QAbstractScrollArea you should open QPainter on its viewport:
+
+void CDerivedFromQTableView::paintEvent(QPaintEvent *event)
+{
+    QTableView::paintEvent(event); // draw original content
+
+    QPainter p(this->viewport());
+    p.drawRect(0, 0, 20, 20);
+}
+
+OMG! that was it!!! it now works!!!
+
+
+
+20240717 7:00AM
+
+now I spent a few more hours figuring ou how to get the viewport size...this is it:
+
+
+#ifndef MTABLEVIEW_H
+#define MTABLEVIEW_H
+
+#include <QTableView>
+#include <QPainter>
+#include <QGraphicsItem>
+
+#include "m_base.h"
+
+class mTableView : public QTableView
+{
+//   Q_OBJECT
+
+   public:
+//   explicit  mTableView(QWidget *parent = nullptr) {  }
+
+   protected:
+      void paintEvent(QPaintEvent *event)
+      {
+//         Q_UNUSED(event);
+
+         QTableView::paintEvent(event); // draw original content
+
+         QPainter painter(this->viewport());
+
+         int w = this->viewport()->width() - 1;
+         int h = this->viewport()->height() - 1;
+
+         painter.setBrush(QColor(0, 0, 0));
+         painter.setPen(QColor(255, 0, 0));
+
+         QPainterPath path;
+
+         /*
+
+         QRect pa2(0, 0, w, h);
+
+         path.addRect(pa2);
+         painter.setPen(QColor(255, 0, 0));
+         painter.drawPath(path);
+
+         path.clear();
+         pa2.adjust(2, 2, -2, -2);
+         path.addRect(pa2);
+
+         painter.setPen(QColor(255, 255, 0));
+         painter.drawPath(path);
+
+         path.clear();
+         pa2.adjust(24, 24, -24, -24);
+         path.addRoundedRect(pa2, 5, 5);
+
+         path.moveTo(100, pa2.top());
+         path.lineTo(100, pa2.bottom());
+         path.moveTo(pa2.left(), 200);
+         path.lineTo(pa2.right(), 200);
+
+         painter.setPen(QColor(255, 0, 255));
+         painter.drawPath(path);
+*/
+
+         QRectF pa(100, 100, 200, 200);
+         path.clear();
+         path.addRoundedRect(pa, 5, 5);
+
+         painter.setPen(QColor(255, 255, 255));
+         painter.setBrush(QColor(100, 100, 100));
+
+         painter.drawPath(path);
+
+
+
+now see if I can get some screen positions of cells, expecially selected cells...
+
+Should I do that here, or in parent?
+
+for now, here,
+
+when drawing, look for selected items...
+
+I can list the selected item index....
+
+
+ 
+
+[pure virtual]
+QRect QAbstractItemView::visualRect(const QModelIndex &index) const
+
+Returns the rectangle on the viewport occupied by the item at index.
+
+If your item is displayed in several areas then visualRect should return the primary area that contains index and not the complete area that index might encompasses, touch or cause drawing.
+
+In the base class this is a pure virtual function.
+
+See also indexAt() and visualRegionForSelection().
+[pure virtual protected]
+QRegion QAbstractItemView::visualRegionForSelection(const QItemSelection &selection) const
+
+Returns the region from the viewport of the items in the giv
+
+
+I finally have a simple way of drawing my own highlight of selected item:
+
+#ifndef MTABLEVIEW_H
+#define MTABLEVIEW_H
+
+#include <QTableView>
+#include <QPainter>
+#include <QGraphicsItem>
+
+#include "m_base.h"
+
+class mTableView : public QTableView
+{
+   public:
+   protected:
+      void paintEvent(QPaintEvent *event)
+      {
+         QTableView::paintEvent(event); // draw original content
+
+         QPainter painter(this->viewport());
+
+         int w = this->viewport()->width() - 1;
+         int h = this->viewport()->height() - 1;
+
+         painter.setBrush(QColor(0, 0, 0, 0));
+         painter.setPen(QColor(255, 255, 255));
+
+         // get first item from list of selected items
+         QModelIndexList selection = this->selectionModel()->selectedRows();
+         if (selection.size())
+         {
+            QModelIndex index = selection.at(0);
+            QRect rgr = visualRect(selection.at(0));
+            rgr.setWidth(w);
+            QPainterPath p;
+            p.addRect(rgr);
+            painter.drawPath(p);
+         }
+      }
+   private:
+};
+#endif // MTABLEVIEW_H
+
+
+
+Now what?
+
+
+make the selected thing save a global cursor position (probabaly a datetime)
+that I will show in all other things (other tableviews, charts)  
+
+
+      // Global Cursor DateTime Position
+      //------------------------------------------------------------
+      QDateTime globalPosition;
+
+
+Now set it when tableview it clicked..done...
+
+now show it in charts
+
+
+
+I dont think I will do it in crosshairs, i think I will make a new one called x axis cursor or something like that
+
+mChartViewCursor
+
+I think it is working, but how do I trigger a redraw...
+
+
+how about in mbase, make a function to set globalPosition, then send signals to redraw...or update, or whatever
+
+
+void m_base::updateGlobalPosition(QDateTime pos)
+{
+   globalPosition = pos;
+   emit updateGlobalPositionSignal();
+}
+
+
+OK I think I have that done....
+
+
+now make it so that clicking on chart sets globalPosition
+
+
+in mChartView
+
+       void mousePressEvent(QMouseEvent *event)
+       {
+          // call the main handler for this event
+          QChartView::mousePressEvent(event);
+
+
+          // set global cursor position
+          if (event->button() == Qt::MouseButton::LeftButton)
+          {
+
+             qDebug() << "mChartView left mouse press event";
+
+             qDebug() << "event->position" << event->position();
+
+             QPointF val = chart()->mapToValue(event->position());
+
+             qDebug() << "val: " << val;
+
+             QDateTime cp = QDateTime::fromMSecsSinceEpoch(val.x());
+
+             qDebug() << "cp: " << cp;
+
+             mbase.updateGlobalPosition(cp);
+
+------------------
+
+much simpler....
+
+       void mousePressEvent(QMouseEvent *event)
+       {
+          // call the main handler for this event
+          QChartView::mousePressEvent(event);
+          if (event->button() == Qt::MouseButton::LeftButton)
+          {
+             // set global cursor position
+             QPointF val = chart()->mapToValue(event->position());
+             mbase.updateGlobalPosition(QDateTime::fromMSecsSinceEpoch(val.x()));
+          }
+       }
+
+
+
+Now make it so that table highlight is set when 
+
+void m_base::updateGlobalPosition(QDateTime pos)
+
+is called...
+
+
+right now when a table is clicked, I have some custom code for each table
+that finds the next model index that is not hidden on that table..
+
+
+I need to to modify so that a click sets void m_base::updateGlobalPosition(QDateTime pos)
+then calls something apropriate to set selected row on tables
+
+
+I already have mousePressEvent in mTableView setting the globalPosition
+
+
+make function in mTableWidget to update table selected rows
+
+
+void mTablesWidget::updateRowSelection()
+{
+   // find the the first match >= mbase.globalPosition that is not hidden for each table and set selected row
+
+   bool foundt1 = 0;
+   bool foundt2 = 0;
+
+   // cycle all rows in model
+   for(int i=0; i<mTablesWidgetSqlQueryModel->rowCount(); i++)
+   {
+      if ((!foundt1) && (!foundt2))
+      {
+         // get player number from column 6
+         QModelIndex qmi = mTablesWidgetSqlQueryModel->index(i, 6);
+         QVariant v = qmi.model()->data(qmi, Qt::DisplayRole);
+         int p = v.toInt();
+
+         // get created from column 3
+         qmi = mTablesWidgetSqlQueryModel->index(i, 3);
+         v = qmi.model()->data(qmi, Qt::DisplayRole);
+         QDateTime rdt = v.toDateTime();
+
+         if (rdt >= mbase.globalPosition)
+         {
+            if ((p==0) && (!foundt1) && (!mTablesWidgetTableView1->isRowHidden(i)))
+            {
+               mTablesWidgetTableView1->selectRow(i);
+               mTablesWidgetTableView1->update();
+               foundt1 = true;
+               qDebug() << "setting table1 selection to index:" << i << "  - time:" << rdt;
+            }
+
+            if ((p==1) && (!foundt2) && (!mTablesWidgetTableView2->isRowHidden(i)))
+            {
+               mTablesWidgetTableView2->selectRow(i);
+               mTablesWidgetTableView2->update();
+               foundt2 = true;
+               qDebug() << "setting table2 selection to index:" << i << "  - time:" << rdt;
+            }
+         }
+      }
+   }
+}
+
+this does it!!
+
+
+remove this:
+
+void mTablesWidget::on_tb1_clicked(QModelIndex indx)
+{
+   // get first item from list of selected items
+   QModelIndexList selection = mTablesWidgetTableView1->selectionModel()->selectedRows();
+   QModelIndex index = selection.at(0);
+
+   int row = index.row(); // starting row
+   int wd = 100;          // max num of rows to look through
+   while ((mTablesWidgetTableView2->isRowHidden(++row)) && (--wd > 0));
+
+   if (!(mTablesWidgetTableView2->isRowHidden(row))) // did we find a non hidden row?
+   {
+      //   qDebug() << "first unhidden row in table2" << row;
+      mTablesWidgetTableView2->selectRow(row);
+      mTablesWidgetTableView2->scrollTo(mTablesWidgetSqlQueryModel->index(row, 0));
+   }
+   //  else qDebug() << "no unhidden rows in table2";
+}
+
+void mTablesWidget::on_tb2_clicked(QModelIndex indx)
+{
+   // get first item from list of selected items
+   QModelIndexList selection = mTablesWidgetTableView2->selectionModel()->selectedRows();
+   QModelIndex index = selection.at(0);
+
+   int row = index.row(); // starting row
+   int wd = 100;          // max num of rows to look through
+   while ((mTablesWidgetTableView1->isRowHidden(++row)) && (--wd > 0));
+
+   if (!(mTablesWidgetTableView1->isRowHidden(row))) // did we find a non hidden row?
+   {
+      //   qDebug() << "first unhidden row in table1" << row;
+      mTablesWidgetTableView1->selectRow(row);
+      mTablesWidgetTableView1->scrollTo(mTablesWidgetSqlQueryModel->index(row, 0));
+   }
+   //  else qDebug() << "no unhidden rows in table1";
+}
+
+// how can I overide global style here:...
+//   setStyleSheet("QTableView {selection-background-color: plum;}");
+//   setStyleSheet("QTableView {selection-background-color: red;}");
+//   setStyleSheet("QTableView {selection-background-color: red;}");
+
+//   connect(mTablesWidgetTableView1, SIGNAL(clicked(QModelIndex)), this, SLOT (on_tb1_clicked(QModelIndex)));
+//   connect(mTablesWidgetTableView2, SIGNAL(clicked(QModelIndex)), this, SLOT (on_tb2_clicked(QModelIndex)));
+
+   //  colors
+
+//   const QString ss = "QCheckBox {  color: %1 }";
+//   legendSel[i]->setStyleSheet(legendSel[i]->styleSheet() + ss.arg(mbase.statChartSeriesStructArray[i].col.name()));
+
+//   const QString ss = "QCheckBox {  color: %1 }";
+//   mTablesWidgetTableView1->setStyleSheet(mTablesWidgetTableView1->styleSheet() + ss.arg(mbase.statChartSeriesStructArray[i].col.name()));
+
+//   const QString ss = "QTableView#test1 { selection-background-color: red;}";
+//   mTablesWidgetTableView1->setStyleSheet(mTablesWidgetTableView1->styleSheet() + ss);
+
+
+//   mTablesWidgetTableView1->setStyleSheet("QTableView { selection-background-color: red;}");
+
+
+//   setStyleSheet("QTableView#test1 { selection-background-color: red;}");
+
+
+
+
+
+bug - why does my highlight not work if id column is hidden?
+bug - why does clicking on t2 not update t1 fixed
+
+
+
+what happens is the selection seems to default to column zero, and if column zero is hidden the size returned is zero
+
+         // get first item from list of selected items
+         QModelIndexList selection = this->selectionModel()->selectedRows();
+         if (selection.size())
+         {
+            QModelIndex index = selection.at(0);
+            QRect rgr = visualRect(index);
+
+
+if I manually find a sibling that is not hidden is seems to work:
+
+            QModelIndex index = selection.at(0).siblingAtColumn(3);
+
+
+so a fix is to find the first visible column and use that...done...
+
+
+         // get first item from list of selected items
+         QModelIndexList selection = this->selectionModel()->selectedRows();
+         qDebug() << "selection.size()" << selection.size();
+         if (selection.size())
+         {
+            // find first non hidden column
+            int col = -1;
+            for (int i=9; i>-1; i--)
+               if (mbase.col_types[i].valid)
+                  if (mbase.col_types[i].shown) col = i;
+
+            if (col != -1)
+            {
+               QModelIndex index = selection.at(0).siblingAtColumn(col);
+               QRect rgr = visualRect(index);
+               rgr.setWidth(this->viewport()->width() - 1);
+               QPainterPath path;
+               path.addRect(rgr);
+               painter.drawPath(path);
+            }
+         }
+      }
+
+
+
+now I need to figure out what tables are actually doing for player filter
+right now table 1 also has some player 2 stuff
+added code to hide from both tables if p>1
+
+where can I add player selection for tables?
+
+- number of tables (1-4)
+
+players to show in each table
+
+all, selected only...
+
+20240719 7:35
+
+It looks like the next 2 big things are:
+
+- number of tables and player filters for each table
+
+- session widget visual stuff:
+show sessions visually.
+show regions of that with viewable rectangles and global position
+
+
+
+
+-------
+
+tableViews. what variables do I need?
+
+
+how many tableViews? (int)  limit 4?
+array of structs for each
+includes
+
+mTableView
+somthing to filter players for each tableview
+
+
+
+
+
+------------------
+resizing columns
+
+I had this code at the end 
+
+void mTablesWidget::updateTablesHiddenColumns()
+{
+   for (int i=0; i<10; i++)
+      if (mbase.col_types[i].valid)
+      {
+         if (mbase.col_types[i].shown == 0)
+         {
+            mTablesWidgetTableView1->hideColumn(i);
+            mTablesWidgetTableView2->hideColumn(i);
+         }
+         else
+         {
+            mTablesWidgetTableView1->showColumn(i);
+            mTablesWidgetTableView2->showColumn(i);
+         }
+      }
+//   mTablesWidgetTableView1->resizeColumnsToContents();
+//   mTablesWidgetTableView2->resizeColumnsToContents();
+}
+
+
+but it doesn't seem to do anything...
+
+QHeaderView.ResizeToContents
+
+QHeaderView::setResizeContentsPrecision(int precision)
+
+
+is this part of chartView?
+
+I want to try this
+
+also I want to also adjust header font...
+
+
+
+
+
+
+
+
+-----
+why does header font size not kick in until first font change, what get called then that never gets called before?
+
+its not:
+void mTablesWidget::doFontSizeChange(void)
+
+I cant figure it out...
+
+make it simpler...
+
+only one function to set table font in mbase, not 2
+
+pass it the font size..
+
+done...
+
+now this whole set font thing is much simpler:
+
+
+in m_base:
+
+      // mTablesWidget
+      //------------------------------------------------------------
+      QFont mTablesWidgetFont;
+      int mTablesWidgetFontSize = 8;
+      void mTablesWidgetFontChangeFunction(int fontSize);
+
+I have this function to do it:
+
+void m_base::mTablesWidgetFontChangeFunction(int fontSize)
+{
+   qDebug() << "void m_base::mTablesWidgetFontChangeFunction(int fontSize)" << fontSize;
+   mTablesWidgetFontSize = fontSize;
+   mTablesWidgetFont = QFont{ "Courier", mTablesWidgetFontSize, QFont::Monospace };
+   emit mTablesWidgetFontChangeSignal();
+}
+
+in mTablesWidgetControlWidget:
+
+initialize:
+
+   // -----------------------------------------------------------------------
+   // font size spin box
+   // -----------------------------------------------------------------------
+   QSpinBox * fontSizeSpinBox = new QSpinBox();
+   fontSizeSpinBox->setRange(4, 20);
+
+   // get initial value from settings
+   int fontSize = mbase.settings->value("mTablesWidgetFontSize", 10).toInt();
+   mbase.mTablesWidgetFontChangeFunction(fontSize);
+   fontSizeSpinBox->setValue(fontSize);
+
+   formLayout->addRow(tr("Table Font Size:"), fontSizeSpinBox);
+   connect(fontSizeSpinBox, SIGNAL (valueChanged(int)), this, SLOT (fontSizeChanged(int)));
+
+change:
+
+void mTablesWidgetControlWidget::fontSizeChanged(int val)
+{
+   qDebug() << "void mTablesWidgetControlWidget::fontSizeChanged(int val)";
+   mbase.mTablesWidgetFontChangeFunction(val);
+   mbase.settings->setValue("mTablesWidgetFontSize", mbase.mTablesWidgetFontSize);
+}
+
+
+in mTablesWidget:
+
+mTablesWidget::mTablesWidget(QWidget *parent) : QWidget{parent}
+{
+   connect(&mbase, SIGNAL(mTablesWidgetFontChangeSignal()),     this, SLOT(doFontSizeChange()));
+
+void mTablesWidget::doFontSizeChange(void)
+{
+   // qDebug() << "void mTablesWidget::doFontSizeChange(void)";
+
+   mTablesWidgetTableView1->setFont(mbase.mTablesWidgetFont);
+   mTablesWidgetTableView2->setFont(mbase.mTablesWidgetFont);
+
+   // get new row height
+   QFontMetrics fm(mbase.mTablesWidgetFont);
+   int height = fm.height() - 2;
+
+   mTablesWidgetTableView1->verticalHeader()->setMinimumSectionSize( height );
+   mTablesWidgetTableView1->verticalHeader()->setMaximumSectionSize( height );
+   mTablesWidgetTableView1->verticalHeader()->setDefaultSectionSize( height );
+
+//   mTablesWidgetTableView1->resizeRowsToContents();
+
+   mTablesWidgetTableView1->resizeColumnsToContents();
+
+
+//   mTablesWidgetTableView1->horizontalHeader()->setFont(mbase.mTablesWidgetFont);
+
+
+   mTablesWidgetTableView1->viewport()->update();
+
+   mTablesWidgetTableView2->verticalHeader()->setMinimumSectionSize( height );
+   mTablesWidgetTableView2->verticalHeader()->setMaximumSectionSize( height );
+   mTablesWidgetTableView2->verticalHeader()->setDefaultSectionSize( height );
+   mTablesWidgetTableView2->resizeColumnsToContents();
+   mTablesWidgetTableView2->viewport()->update();
+
+//   mTablesWidgetTableView1->horizontalHeader()->setMinimumSectionSize(-1);
+
+}
+void mTablesWidget::updateTables()
+{
+   //qDebug() << "mTablesWidget::updateTables()";
+
+   doFontSizeChange();
+   updateTablesHiddenColumns();
+   showHideRowsBasedOnPlayer();
+
+so now that this is simplified, fonts seem to load initially properly
+
+onto the next issue:
+
+this line seems necesary:
+
+   mTablesWidgetTableView1->resizeColumnsToContents();
+
+
+
+
+
+QHeaderView::ResizeMode QHeaderView::sectionResizeMode(int logicalIndex) const
+
+
+Constant	Value	Description
+QHeaderView::Interactive	0	The user can resize the section. The section can also be resized programmatically using resizeSection(). The section size defaults to defaultSectionSize. (See also cascadingSectionResizes.)
+QHeaderView::Fixed	2	The user cannot resize the section. The section can only be resized programmatically using resizeSection(). The section size defaults to defaultSectionSize.
+QHeaderView::Stretch	1	QHeaderView will automatically resize the section to fill the available space. The size cannot be changed by the user or programmatically.
+QHeaderView::ResizeToContents	3	QHeaderView will automatically resize the section to its optimal size based on the contents of the entire column or row. The size cannot be changed by the user or programmatically. (This value was introduced in 4.2)
+
+
+are these the same?
+   mTablesWidgetTableView1->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+   mTablesWidgetTableView1->resizeColumnsToContents();
+
+the second one still allows manual adjusting afterwards and needs to be called repeatedly
+
+the first one can be called only once in mTableView constructor...do that...
+
+I can't seem to get darkstyle to not mess with things...
+mostly the font size of the header will not follow the size of the rest of the table
+also the column width does not resize...
+
+screw it, I don't want to waste time on this...
+
+
+Now without the style I cant see the selected row in table...
+made it red and thicker lines
+
+
+
+
+20240720
+
+lets work on the big one, visual session, model loaded range...
+
+I should make sure I define exactly what I want before I start.
+
+As a beginning test, make a new widget that displays rectangles
+
+Do I want a graphicsView...I think I do?
+
+
+A class that derives graphics view?
+
+A widget that just draws itself?
+
+
+made a new class mtest
+
+
+The QGraphicsView class provides a widget for displaying the contents of a QGraphicsScene
+QGraphicsView visualizes the contents of a QGraphicsScene in a scrollable viewport. To create a scene with geometrical items, see QGraphicsScene's documentation. QGraphicsView is part of the Graphics View Framework.
+To visualize a scene, you start by constructing a QGraphicsView object, passing the address of the scene you want to visualize to QGraphicsView's constructor. Alternatively, you can call setScene() to set the scene at a later point. After you call show(), the view will by default scroll to the center of the scene and display any items that are visible at this point. For example:
+
+
+The QGraphicsScene class provides a surface for managing a large number of 2D graphical items.
+The class serves as a container for QGraphicsItems. It is used together with QGraphicsView for visualizing graphical items, such as lines, rectangles, text, or even custom items, on a 2D surface
+
+
+The QGraphicsItem class is the base class for all graphical items in a QGraphicsScene.
+It provides a light-weight foundation for writing your own custom items. This includes defining the item's geometry, collision detection, its painting implementation and item interaction through its event handlers.
+
+
+
+make a graphics scene
+
+then add items to it
+
+then make a graphics view
+
+
+I have got that working...
+
+now I want to make rectangles and detect if the mouse is on them
+
+
+
+I think I need to connect to scene signal...
+
+I am lost here...
+
+do I need to subclass QGraphicsScene to re-implement mouseEvents??
+
+I think this is the way....
+
+https://stackoverflow.com/questions/26079807/function-getting-clicked-object-from-qgraphicsscene
+
+
+No, you do it wrong. I wrote small example. You should subclass QGraphicsScene and reimplement mousePressEvent and process clicks in it. For example:
+
+*.h
+
+#ifndef GRAPHICSSCENE_H
+#define GRAPHICSSCENE_H
+
+#include <QGraphicsScene>
+#include <QPoint>
+#include <QMouseEvent>
+class GraphicsScene : public QGraphicsScene
+{
+    Q_OBJECT
+public:
+    explicit GraphicsScene(QObject *parent = 0);
+
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent);
+};
+
+#endif // GRAPHICSSCENE_H
+
+In cpp
+
+void GraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
+{
+    //qDebug() << "in";
+    if (mouseEvent->button() == Qt::LeftButton)
+    {
+        QGraphicsItem *item = itemAt(mouseEvent->scenePos(), QTransform());// it is your clicked item, you can do everything what you want. for example send it somewhere
+        QGraphicsEllipseItem *ell = qgraphicsitem_cast<QGraphicsEllipseItem *>(item);
+        if(ell)
+        {
+            ell->setBrush(QBrush(Qt::black));
+        }
+        else
+            qDebug() << "not ell" << mouseEvent->scenePos();
+        }
+
+}
+
+On the scene there are a few ellipses, when you click somewhere in scene we get item under cursor and check it is it ellipse for example. If is, then we set new background to it.
+
+Main idea are itemAt method and qgraphicsitem_cast
+
+
+
+This worked for me! I am on the right track!
+
+
+I think I am ready to make the real thing.
+
+Plan:
+
+sessions
+
+add all sessions to a scene
+view only the section I want...
+I already have sessions table in a model
+
+iterate and add graphics items to a scene
+
+what should I call this?
+
+mSessionsTimelineWidget
+
+
+
+coming along nicely...
+
+
+do I need to make 2 models? or can I share?
+
+I want player num also...
+just add it to common
+
+
+//      qDebug() << dts << dte;
+
+      qint64 ds = dts.toSecsSinceEpoch();
+      qint64 de = dte.toSecsSinceEpoch();
+
+      qDebug() << p << ds << de;
+
+      int he = 20;
+
+
+      QPoint tl(ds, p*he);
+      QPoint br(de, (p+1)*he-4);
+
+
+      QRect r(tl, br);
+      scene->addRect(r, pen);
+      
+
+
+
+-------------
+
+so know when I click on one of those rectangles, I what to do something...
+
+first of all
+
+
+static const int ObjectName = 0;
+
+QGraphicsItem *item = scene.itemAt(100, 50);
+if (item->data(ObjectName).toString().isEmpty()) {
+    if (qgraphicsitem_cast<ButtonItem *>(item))
+        item->setData(ObjectName, "Button");
+}
+
+
+
+
+
+
+
+
+See also acceptTouchEvents().
+void QGraphicsItem::setAcceptedMouseButtons(Qt::MouseButtons buttons)
+
+Sets the mouse buttons that this item accepts mouse events for.
+
+By default, all mouse buttons are accepted. If an item accepts a mouse button, it will become the mouse grabber item when a mouse press event is delivered for that button. However, if the item does not accept the mouse button, QGraphicsScene will forward the mouse events to the first item beneath it that does.
+
+To disable mouse events for an item (i.e., make it transparent for mouse events), call setAcceptedMouseButtons(0).
+
+See also acceptedMouseButtons() and mousePressEvent().
+
+
+I think this does not work because I am not looking for events from QGraphicsItem, I am looking for events from QGraphisScene...
+
+
+should I change it?
+
+I would need to subclass mGraphicsItem, then re-implement mousePressEvent
+
+it seems less hacky...???
+
+
+what if I just let a mouse click select the item?
+I think that is where I want to go any way...
+
+
+do I still need to subclass mGraphicsItem??
+I think I should...do it kind of like crosshairs
+
+
+OK do it:
+
+mSessionsGraphicsItem
+
+now implement mousePressed...nice
+
+
+now how about selected?
+
+how to set and clear?
+
+how to show?
+
+
+void QGraphicsItem::setFlags(QGraphicsItem::GraphicsItemFlags flags)
+
+Sets the item flags to flags. All flags in flags are enabled; all flags not in flags are disabled.
+
+If the item had focus and flags does not enable ItemIsFocusable, the item loses focus as a result of calling this function. Similarly, if the item was selected, and flags does not enabled ItemIsSelectable, the item is automatically unselected.
+
+By default, no flags are enabled. (QGraphicsWidget enables the ItemSendsGeometryChanges flag by default in order to track position changes.)
+
+See also flags() and setFlag().
+
+
+
+
+this->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+if (this->isSelected()) framePen.setWidthF(3.8);
+
+
+this was all I had to do!!!
+
+CTRL allows multiple selections
+
+
+now how to get min and max of all selected
+
+connect to selection changed in scene
+
+
+   scene = new QGraphicsScene();
+   connect(scene, SIGNAL (selectionChanged()), this, SLOT (onSelectionChanged()));
+
+
+void mSessionsTimelineWidget::onSelectionChanged()
+{
+   // qDebug() << "void mSessionsTimelineWidget::onSelectionChanged()";
+
+   mbase.sessionsDtStart = QDateTime::fromString("2100", "yyyy"); // set start to max
+   mbase.sessionsDtEnd   = QDateTime::fromString("1900", "yyyy"); // set end to min
+
+   QList<QGraphicsItem *> items = scene->selectedItems();
+   if (items.count())
+   {
+      for (int i=0; i<items.count(); i++)
+      {
+         QRectF br = items[i]->boundingRect();
+         QDateTime dts = QDateTime::fromSecsSinceEpoch(br.left());
+         QDateTime dte = QDateTime::fromSecsSinceEpoch(br.right());
+         if (dts < mbase.sessionsDtStart) mbase.sessionsDtStart = dts;
+         if (dte > mbase.sessionsDtEnd)   mbase.sessionsDtEnd = dte;
+      }
+      mbase.sessionSelectionChanged();
+   }
+}
+
+
+this is working well!!  now what?
+
+I might use this as the main thing and not use the tableview...
+I don't want to figure out how to syncronize the 2
+
+
+what next?
+
+I would like to be able to scroll and zoom sessions just like charts....
+
+I also would like an x axis...
+
+what if I overlaid all I have done so far on top of a chart
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+#include <QObject>
+#include <QGraphicsView>
+
+/*!
+ * This class adds ability to zoom QGraphicsView using mouse wheel. The point under cursor
+ * remains motionless while it's possible.
+ *
+ * Note that it becomes not possible when the scene's
+ * size is not large enough comparing to the viewport size. QGraphicsView centers the picture
+ * when it's smaller than the view. And QGraphicsView's scrolls boundaries don't allow to
+ * put any picture point at any viewport position.
+ *
+ * When the user starts scrolling, this class remembers original scene position and
+ * keeps it until scrolling is completed. It's better than getting original scene position at
+ * each scrolling step because that approach leads to position errors due to before-mentioned
+ * positioning restrictions.
+ *
+ * When zommed using scroll, this class emits zoomed() signal.
+ *
+ * Usage:
+ *
+ *   new Graphics_view_zoom(view);
+ *
+ * The object will be deleted automatically when the view is deleted.
+ *
+ * You can set keyboard modifiers used for zooming using set_modified(). Zooming will be
+ * performed only on exact match of modifiers combination. The default modifier is Ctrl.
+ *
+ * You can change zoom velocity by calling set_zoom_factor_base().
+ * Zoom coefficient is calculated as zoom_factor_base^angle_delta
+ * (see QWheelEvent::angleDelta).
+ * The default zoom factor base is 1.0015.
+ */
+class Graphics_view_zoom : public QObject {
+  Q_OBJECT
+public:
+  Graphics_view_zoom(QGraphicsView* view);
+  void gentle_zoom(double factor);
+  void set_modifiers(Qt::KeyboardModifiers modifiers);
+  void set_zoom_factor_base(double value);
+
+private:
+  QGraphicsView* _view;
+  Qt::KeyboardModifiers _modifiers;
+  double _zoom_factor_base;
+  QPointF target_scene_pos, target_viewport_pos;
+  bool eventFilter(QObject* object, QEvent* event);
+
+signals:
+  void zoomed();
+
+
+
+#include "Graphics_view_zoom.h"
+#include <QMouseEvent>
+#include <QApplication>
+#include <QScrollBar>
+#include <qmath.h>
+
+Graphics_view_zoom::Graphics_view_zoom(QGraphicsView* view)
+  : QObject(view), _view(view)
+{
+  _view->viewport()->installEventFilter(this);
+  _view->setMouseTracking(true);
+  _modifiers = Qt::ControlModifier;
+  _zoom_factor_base = 1.0015;
+}
+
+void Graphics_view_zoom::gentle_zoom(double factor) {
+  _view->scale(factor, factor);
+  _view->centerOn(target_scene_pos);
+  QPointF delta_viewport_pos = target_viewport_pos - QPointF(_view->viewport()->width() / 2.0,
+                                                             _view->viewport()->height() / 2.0);
+  QPointF viewport_center = _view->mapFromScene(target_scene_pos) - delta_viewport_pos;
+  _view->centerOn(_view->mapToScene(viewport_center.toPoint()));
+  emit zoomed();
+}
+
+void Graphics_view_zoom::set_modifiers(Qt::KeyboardModifiers modifiers) {
+  _modifiers = modifiers;
+
+}
+
+void Graphics_view_zoom::set_zoom_factor_base(double value) {
+  _zoom_factor_base = value;
+}
+
+bool Graphics_view_zoom::eventFilter(QObject *object, QEvent *event) {
+  if (event->type() == QEvent::MouseMove) {
+    QMouseEvent* mouse_event = static_cast<QMouseEvent*>(event);
+    QPointF delta = target_viewport_pos - mouse_event->pos();
+    if (qAbs(delta.x()) > 5 || qAbs(delta.y()) > 5) {
+      target_viewport_pos = mouse_event->pos();
+      target_scene_pos = _view->mapToScene(mouse_event->pos());
+    }
+  } else if (event->type() == QEvent::Wheel) {
+    QWheelEvent* wheel_event = static_cast<QWheelEvent*>(event);
+    if (QApplication::keyboardModifiers() == _modifiers) {
+      if (wheel_event->orientation() == Qt::Vertical) {
+        double angle = wheel_event->angleDelta().y();
+        double factor = qPow(_zoom_factor_base, angle);
+        gentle_zoom(factor);
+        return true;
+      }
+    }
+  }
+  Q_UNUSED(object)
+  return false;
+}
+
+Usage example:
+
+Graphics_view_zoom* z = new Graphics_view_zoom(ui->graphicsView);
+z->set_modifiers(Qt::NoModifier);
+
+
+pasted it in and I am vert happy with how it works...
+
+now remove y axis zoom
+
+
+
+
+havins issues with the whole thing...
+
+first lets get the container to be the right size and not extend past the edge...
+
+It seems like right now, the size of the graphic view controls the size of the containing group box
+
+do i need to pass parent??
+
+
+
+#include "m_base.h"
+
+class mChartViewCrosshairs : public QGraphicsItem
+{
+   public:
+      mChartViewCrosshairs(QChart *chart) : QGraphicsItem(chart), m_chart(chart) { }
+
+      QRectF boundingRect() const override;
+      void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+      void setMousePos(QPointF pos);
+
+   protected:
+
+   private:
+
+      void setXAxisText();
+      void setYAxisText();
+
+      QFont m_font;
+      QChart *m_chart = nullptr;
+
+      QPointF mousePos;
+
+
+
+
+
+I have been banging my head against the wall with this for quite a while:
+
+Write it all down.
+
+
+I have a QGraphicsView. It all seems to work fine.
+
+
+What I cannot seem to make happen is the make the size of the QGraphicsView span the entire width of my main window.
+
+Changing all the containers and layouts that it is in has no effect.
+
+The only thing that does work is calling
+
+view->setGeometry(0, 0, pa.width()-20, 200);
+
+I can't do that in the contructor, the size of its parent is not valid yet.
+
+
+
+
+After all that pain, I figured it out.
+I added another wdiget after it and they were drawn on top of each other.
+I did not set the hbox layout for this!!! not this all works...
+
+   QHBoxLayout *hbox = new QHBoxLayout;
+   this->setLayout(hbox);
+
+   view = new QGraphicsView(scene, this);
+   view->setRenderHint(QPainter::Antialiasing);
+   view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+   view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+   view->setDragMode(QGraphicsView::ScrollHandDrag);
+
+   hbox->addWidget(view);
+
+that is all....
+
+
+
+
+
+
+now I am having troubles with the hand mouse move
+
+   view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+   view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+   view->setDragMode(QGrahicsView::ScrollHandDrag);
+
+It just does not work....
+
+I set scale to 2,1 
+
+I don't even get any indication on the scrollbar that it is capable of scrolling
+
+
+I want to try this:
+
+https://stackoverflow.com/questions/55007339/allow-qgraphicsview-to-move-outside-scene/55043082#55043082
+
+
+class CustomGraphicsView : public QGraphicsView
+
+
+
+
+#ifndef CUSTOMGRAPHICSVIEW_H
+#define CUSTOMGRAPHICSVIEW_H
+
+#include <QGraphicsView>
+
+class CustomGraphicsView : public QGraphicsView
+{
+  Q_OBJECT
+public:
+  CustomGraphicsView(QWidget* parent = nullptr);
+
+protected:
+  virtual void wheelEvent(QWheelEvent* event) override;
+  virtual void mouseMoveEvent(QMouseEvent* event) override;
+  virtual void mousePressEvent(QMouseEvent* event) override;
+  virtual void mouseReleaseEvent(QMouseEvent* event) override;
+
+  void autocomputeSceneSize(const QList<QRectF>& region);
+};
+
+#endif  // CUSTOMGRAPHICSVIEW_H
+
+
+
+#include "customview.h"
+
+#include <QWheelEvent>
+
+CustomGraphicsView::CustomGraphicsView(QWidget* parent) : QGraphicsView(parent)
+{
+  // Set up new scene
+  setScene(new QGraphicsScene);
+
+  // Do not show scroll bars
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+  // Connect scene update to autoresize
+  connect(scene(), &QGraphicsScene::changed, this, &CustomGraphicsView::autocomputeSceneSize);
+}
+
+void CustomGraphicsView::wheelEvent(QWheelEvent* event)
+{
+  // if ctrl pressed, use original functionality
+  if (event->modifiers() & Qt::ControlModifier)
+    QGraphicsView::wheelEvent(event);
+  // Rotate scene
+  else if (event->modifiers() & Qt::ShiftModifier)
+  {
+    if (event->delta() > 0)
+    {
+      rotate(1);
+    }
+    else
+    {
+      rotate(-1);
+    }
+  }
+  // Zoom
+  else
+  {
+    ViewportAnchor previous_anchor = transformationAnchor();
+    setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    if (event->delta() > 0)
+    {
+      scale(1.1, 1.1);
+    }
+    else
+    {
+      scale(0.9, 0.9);
+    }
+    setTransformationAnchor(previous_anchor);
+  }
+}
+
+void CustomGraphicsView::mouseMoveEvent(QMouseEvent* event)
+{
+  QGraphicsView::mouseMoveEvent(event);
+  if (event->buttons() & Qt::LeftButton)
+    // If we are moveing with the left button down, update the scene to trigger autocompute
+    scene()->update(mapToScene(rect()).boundingRect());
+}
+
+void CustomGraphicsView::mousePressEvent(QMouseEvent* event)
+{
+  if (event->buttons() & Qt::LeftButton)
+    // Set drag mode when left button is pressed
+    setDragMode(QGraphicsView::ScrollHandDrag);
+  QGraphicsView::mousePressEvent(event);
+}
+
+void CustomGraphicsView::mouseReleaseEvent(QMouseEvent* event)
+{
+  if (dragMode() & QGraphicsView::ScrollHandDrag)
+    // Unset drag mode when left button is released
+    setDragMode(QGraphicsView::NoDrag);
+  QGraphicsView::mouseReleaseEvent(event);
+}
+
+void CustomGraphicsView::autocomputeSceneSize(const QList<QRectF>& region)
+{
+  Q_UNUSED(region);
+
+  // Widget viewport recangle
+  QRectF widget_rect_in_scene(mapToScene(-20, -20), mapToScene(rect().bottomRight() + QPoint(20, 20)));
+
+  // Copy the new size from the old one
+  QPointF new_top_left(sceneRect().topLeft());
+  QPointF new_bottom_right(sceneRect().bottomRight());
+
+  // Check that the scene has a bigger limit in the top side
+  if (sceneRect().top() > widget_rect_in_scene.top())
+    new_top_left.setY(widget_rect_in_scene.top());
+
+  // Check that the scene has a bigger limit in the bottom side
+  if (sceneRect().bottom() < widget_rect_in_scene.bottom())
+    new_bottom_right.setY(widget_rect_in_scene.bottom());
+
+  // Check that the scene has a bigger limit in the left side
+  if (sceneRect().left() > widget_rect_in_scene.left())
+    new_top_left.setX(widget_rect_in_scene.left());
+
+  // Check that the scene has a bigger limit in the right side
+  if (sceneRect().right() < widget_rect_in_scene.right())
+    new_bottom_right.setX(widget_rect_in_scene.right());
+
+  // Set new scene size
+  setSceneRect(QRectF(new_top_left, new_bottom_right));
+}
+
+
+
+
+
+this still has some of the same issues...
+
+the thing is...if I can see the scrollbars with a grey area, I can drag scroll...
+
+
+
+I can understand zooming out too much, then all the scene is visible and scrolling does not make sense...
+
+
+but zooming in too much? why do my scroll bars dissappear when I do that?
+
+is is because of the very large numbers I am using?
+
+debug print them and see...
+
+1 720 962 827
+
+lets try dividing by 1000 before I put them in...it seems to work
+
+I don't want to lose that much precision...can I just do an offset?
+
+
+ C:\Users\m\Desktop\pm_log\build\Desktop_Qt_6_7_1_MinGW_64_bit-MinSizeRel\pm_log.exe...
+ds 4102470000
+de -2208963600
+
+
+it looks like Qt uses qreal and QRectF...maybe I should too....
+
+where will I do that?
+
+tried that but it still has issues...
+
+
+let me try an offset...
+
+
+ds 4 102 470 000
+de -2 208 963 600
+
+those numbers are def too big!!
+
+
+
+dsr 4102470000
+der -2208963600
+
+
+ QDateTime dts = QDateTime::fromString("2100", "yyyy"); // set start to max
+   QDateTime dte = QDateTime::fromString("1900", "yyyy"); // set end to min
+
+   qDebug() << "dts" << dts;
+   qDebug() << "dte" << dte;
+
+   qDebug() << "dts.toSecsSinceEpoch()" << dts.toSecsSinceEpoch();
+   qDebug() << "dte.toSecsSinceEpoch()" << dts.toSecsSinceEpoch();
+
+   qint64 dsi = dts.toSecsSinceEpoch();
+   qint64 dei = dte.toSecsSinceEpoch();
+
+   qDebug() << "dts_qint64" << dsi;
+   qDebug() << "dte_qint64" << dei;
+
+   qreal dsr = dts.toSecsSinceEpoch();
+   qreal der = dte.toSecsSinceEpoch();
+
+   qDebug() << "dts_real" << dsr;
+   qDebug() << "dte_real" << der;
+
+dts QDateTime(2100-01-01 00:00:00.000 Mountain Standard Time Qt::LocalTime)
+dte QDateTime(1900-01-01 00:00:00.000 Mountain Standard Time Qt::LocalTime)
+dts.toSecsSinceEpoch() 4102470000
+dte.toSecsSinceEpoch() -2208963600
+dts_qint64 4102470000
+dte_qint64 -2208963600
+dts_real 4.10247e+09
+dte_real -2.20896e+09
+
+
+
+dt QDateTime(2020-01-01 00:00:00.000 Mountain Standard Time Qt::LocalTime)
+dt.toSecsSinceEpoch() 1 577 862 000
+ds_qint64 1577862000
+dts_real 1.57786e+09
+
+even if it did work, scaling like this distorts the rectangles that I am drawing
+
+what if, instead of scaling I change region of the scene
+that does not seem to work
+
+
+
+
+-----------------------------
+
+I had a crazy idea...try to do this in a QChart
+
+Also another idea, I should create more session data to text large date gaps...
+
+I did that...
+
+
+now my main clump of sessions is from 2024-07-14 and I have a new one from 2024-07-21
+
+what if I restrict the range of session data I put in timeline widget
+
+like maybe 1 hour, 1 day, etc then scroll that
+
+the main problem is that the sessions are very small compared to the large gaps in between them
+
+---------------------------
+for now put this on hold
+
+it is not crtical, I can still select sessions with the table
+
+what I want to do now is:
+
+the thing that displays the current selected session range as a large horizontal rectangle 
+and shows the current position within that range
+
+and shows the range of data loaded into the table model and charts model
+
+what will I call this?
+
+mCurrentSessionTimelineWidget
+
+
+do it....
+
+
+
+here is the thing... sure it is nice to scroll and zoom a view into a scene, but then the lines and text get distorted...
+what if I took care of all the translation of coordinates myself..
+
+like, treat my scene as 0,0 to width, height, then map those to actual dt_msec
+
+
+
+
+map function
+
+I should keep these values in my class
+
+
+these are the 
+
+      QDateTime sessionsDtStart;
+      QDateTime sessionsDtEnd;
+
+input start
+input end
+input range 
+
+converted to mSecsinceEpoch
+
+output start = 0;
+output end = width of viewport (and scene)
+
+
+    f(x) = (x - input_start) / (input_end - input_start) * (output_end - output_start) + output_start
+
+
+OK implement it...
+
+first make your class able to take a signal to update itself..done
+
+now when we update, the first thing we should do is get the mapping variables and save them locally for convenience
+
+
+moving right along, I have a great start
+entire range, table model, chart model, global pos
+
+
+now what?
+
+well wasnt one of the main points of this to allow moving of those windows?
+
+what about clicking to set new global pos?
+
+then if that is out of the range of the models, move the model start position...
+
+now we are getting into some core functionality that has been sorely needed!!
+
+
+
+
+implement click ...
+
+can I connect to viewport clicked?
+viewport mouse press event
+
+it looks like no matter how I do it I will need to subclass something, scene, view, item...
+
+I think I will do it at view
+
+mGraphicsViewSessionTimeline
+maybe an h only??
+
+I have the mouse event and position, now translate back to val...
+
+I could have the view emit a signal and look for it in timeline widget
+there I could translate back to val and updat globalpos
+
+yes...do that...done...
+
+#ifndef MGRAPHICSVIEWSESSIONTIMELINE_H
+#define MGRAPHICSVIEWSESSIONTIMELINE_H
+
+#include <QGraphicsView>
+#include <QMouseEvent>
+
+class mGraphicsViewSessionTimeline : public QGraphicsView
+{
+   Q_OBJECT
+   public:
+      mGraphicsViewSessionTimeline(QWidget* parent = nullptr) { }
+
+   protected:
+      virtual void mousePressEvent(QMouseEvent* event) override
+      {
+         emit timelineClicked(event->pos().rx());
+      }
+
+   signals:
+      void timelineClicked(int xpos);
+
+};
+#endif // MGRAPHICSVIEWSESSIONTIMELINE_H
+
+
+   view = new mGraphicsViewSessionTimeline(this);
+   connect(view, SIGNAL(timelineClicked(int)), this, SLOT(onTimelineClicked(int)));
+
+void mCurrentSessionTimelineWidget::onTimelineClicked(int pos)
+{
+   mbase.updateGlobalPosition(QDateTime::fromMSecsSinceEpoch(mapToVal(pos)));
+}
+
+this was pretty simple...
+
+
+next...
+when clicking on timeline and tables, charts are not updated
+actually they are, but the line does not move until mouse over the charts
+fixed..
+
+
+now implement the model offset
+
+each model has a certain start, end, and range
+now add offset...
+could it be just another DateTime? I think it should
+
+
+right now these values are calculated, not set
+
+      // x axis ranges of sql model
+      QDateTime mChartsWidgetModelXAxisDateTimeStart;
+      QDateTime mChartsWidgetModelXAxisDateTimeEnd;
+
+when I do the query I could just use globalPos...try that as a start...
+
+
+right now the sql uses start and end from
+sessionsDtStart and End then has a limit
+
+
+
+I made charts update its model
+
+charts does not like to reload the model, but only when triggered from clicking on itself
+
+
+lets follow that through
+
+
+click on chart comes from where?
+
+mChartView mousePressedEvent calls:
+mbase.updateGlobalPosition(QDateTime::fromMSecsSinceEpoch(val.x()));
+
+that emits updateGlobalPositionSignal();
+
+which in mChartsWidget is connected to updateCursor
+
+updateCursor calls reload
+
+reload calls build charts, which deletes and rebuilds the very chartView this started from
+
+to test it, temp disable that delete
+
+what if I just went higher up before emitting that signal...
+it works when the other 2 things emit it...
+
+
+
+how would i do that?
+
+what if Chartview signaled chartWidget and we did it from there...
+
+remind me why I am deleteing and rebuilding charts??
+I think it was so that I could change the x axis type
+
+I should just abandon that...having frame number as x axis was never going to work well...was it?
+I don't think it was...the problem was that frame numbers can get reset when a new level is started...
+
+
+go ahead and remove all that....done
+
+now remove all the deleting and recreating...done
+done and working....
+
+
+now I would like to make the start point a little earlier than the cursor, but how to do that?
+
+a static amount, proportional amount
+
+   // start 1 second before the cursor
+   QDateTime start = mbase.globalPosition.addSecs(-1);
+
+   // don't let start be before session start
+   if (start < mbase.sessionsDtStart) start = mbase.sessionsDtStart;
+
+this is not ideal...
+
+the best way would be:
+- find the index of the datetime that matches the cursor
+probably wont be exact match...how about minimum dif between timestamp and cursor
+- start the query at id - LIMIT/2
+SELECT * FROM status WHERE id BETWEEN id_start AND id_end
+this assumes that all id's and timestamps are sequential and well formed
+
+
+
+SELECT id FROM status WHERE min ABS(timestamp-cursor)
+
+SELECT id, ABS(timestamp - '2024-07-14 07:24:25') FROM status
+
+SELECT id, MIN(ABS(TIMESTAMPDIFF(SECOND, timestamp, '2024-07-14 07:24:25'))) FROM status;
+
+SELECT id FROM status where MIN(ABS(TIMESTAMPDIFF(SECOND, timestamp, '2024-07-14 07:24:25')));
+
+"2024-07-14 07:24:25.0"
+
+'2009-06-29 04:00:44';
+
+From temp where mydate > STR_TO_DATE('2009-06-29 04:00:44', '%Y-%m-%d %H:%i:%s');
+
+There are functions TIMEDIFF(expr1,expr2), which returns the value of expr1-expr2, and TIME_TO_SEC(expr3), which expresses expr3 in seconds.
+
+Note that expr1 and expr2 are datetime values, and expr3 is a time value only.
+
+Check this link for more info.
+Share
+Improve this answer
+Follow
+edited Apr 29, 2021 at 2:51
+Gamopo's user avatar
+Gamopo
+1,59811 gold badge1414 silver badges2323 bronze badges
+answered Jun 11, 2009 at 14:05
+Matthew Jones's user avatar
+Matthew Jones
+26k1717 gold badges104104 silver badges156156 bronze badges
+Add a comment
+79
+
+TIMESTAMPDIFF is like TIMEDIFF which Matthew states, except it returns the difference of the two datetimes in whatever units you desire (seconds, minutes, hours, etc).
+
+For example,
+
+SELECT TIMESTAMPDIFF(MINUTE,LogOutTime,LogInTime) AS TimeLoggedIn
+FROM LogTable
+
+Would return the number of minutes the user was logged in (assuming you stored this kind of thing in a table like that).
+
+
+
+
+
+SELECT TOP 1 id, price FROM price WHERE id_quote=36 ORDER BY price ASC
+
+
+
+SELECT TOP 1 id, ABS(TIMESTAMPDIFF(MICROSECOND, timestamp, '2024-07-14 07:24:25')) as mt FROM status ORDER BY mt ASC;
+
+
+SELECT TOP 1 id, timestamp AS mt FROM status ORDER BY mt ASC;
+
+
+SELECT p.*
+FROM price p
+WHERE p.id_quote = 36 AND
+      p.price = (SELECT MIN(p2.price) FROM price p2 WHERE p2.id_quote = p.id_quote);
+
+SELECT id, timestamp FROM status WHERE MIN(ABS(TIMESTAMPDIFF(MICROSECOND, timestamp, '2024-07-14 07:24:25'))) = (SELECT MIN(ABS(TIMESTAMPDIFF(MICROSECOND, timestamp, '2024-07-14 07:24:25'))) FROM status);
+
+mallest number is this:
+
+SELECT Id, name, price
+FROM sampleTable
+ORDER BY price ASC 
+LIMIT 1;
+
+finally after all that headaches I got this:
+
+SELECT id, ABS(TIMESTAMPDIFF(MICROSECOND, timestamp, '2024-07-14 07:24:25')) as mt FROM status ORDER by mt ASC LIMIT 1;
+
+now can I embed this in another query?
+
+SELECT id, timestamp FROM status WHERE id BETWEEN 
+
+((SELECT id, ABS(TIMESTAMPDIFF(MICROSECOND, timestamp, '2024-07-14 07:24:25')) as mt FROM status ORDER by mt ASC LIMIT 1)-10)
+
+AND
+
+((SELECT id, ABS(TIMESTAMPDIFF(MICROSECOND, timestamp, '2024-07-14 07:24:25')) as mt FROM status ORDER by mt ASC LIMIT 1)+10);
+
+i think this does not work because the SELECT should return one value
+
+ERROR 1241 (21000): Operand should contain 1 column(s)
+
+SELECT id, ABS(TIMESTAMPDIFF(MICROSECOND, timestamp, '2024-07-14 07:24:25.0')) as mt FROM status ORDER by mt ASC LIMIT 1;
+
+id_start = id-LIMIT/2
+id_end = id+LIMIT/2
+
+
+
+
+Here is the final result:
+
+   // first get the id of the record closest to the cursor
+   // ----------------------------------------------------   
+   QString sql = "SELECT id, ABS(TIMESTAMPDIFF(MICROSECOND, timestamp, '";
+   sql += mbase.globalPosition.toString("yyyy-MM-dd HH:mm:ss.z");
+   sql += "')) as mt FROM status ORDER by mt ASC LIMIT 1;";
+   // qDebug() << "sql:" << sql;
+   QSqlQuery query;
+   if (!query.exec(sql)) { qDebug() << query.lastError(); }
+   query.next();
+   int id = query.value(0).toInt();
+   // qDebug() << "id:" << id;
+   
+   // update the sql model
+   // ----------------------------
+   sql = "SELECT * FROM status WHERE id BETWEEN ";
+   int lim = mbase.mChartsWidgetSqlModelLimit / 2;
+   sql += QString::number(id - lim);
+   sql += " AND ";
+   sql += QString::number(id + lim);
+   // qDebug() << "sql:" << sql;
+   statChartModel->setQuery(sql);
+
+
+now do it for tables also
+
+it does not work as well there...
+
+If I use indexes lower than the start weird things happen
+
+new algorithm:
+
+- get the id of the record closest to the cursor
+- get the id of the session start
+- get the id of the session end
+
+set start to cursor - lim/2
+if less than session start set to session start
+
+set end to start + lim
+if end > session end set end to session end
+
+
+
+I had a bunch on NULL in logs that were screwing things up...
+
+now make changing timeline also change tables...
+
+
+
+
+For each of tables and charts
+
+
+when the session change reload model
+
+when global position changes, only reload model if new pos is outside model...
+
+start with tables...done
+now charts
+
+
+I have a bug in the tables filter shit
+
+if I go from startid to end id and I hide lots of rows, I am not gaining anything
+
+I need to use LIMIT
+
+this whole thing does not make much sense for table...
+going back half the limit, rarely will center it...and it takes a long time...
+
+
+removed all this and went back to just using created as a filter
+
+int mTablesWidget::getClosestIndexToDateTime(QDateTime dt)
+{
+   QString sql = "SELECT id, ABS(TIMESTAMPDIFF(MICROSECOND, created, '";
+   sql += dt.toString("yyyy-MM-dd HH:mm:ss.z");
+   sql += "')) as mt FROM logs ORDER by mt ASC LIMIT 1;";
+   //qDebug() << "sql:" << sql;
+   QSqlQuery query;
+   if (!query.exec(sql)) { qDebug() << query.lastError(); }
+   query.next();
+   int id = query.value(0).toInt();
+   // qDebug() << "id:" << id;
+   return id;
+}
+
+void mTablesWidget::updateTables()
+{
+   qDebug() << "mTablesWidget::updateTables()";
+
+   /*
+
+   QElapsedTimer timer;
+   timer.start();
+
+   int cursorId       = getClosestIndexToDateTime(mbase.globalPosition);
+   int sessionStartId = getClosestIndexToDateTime(mbase.sessionsDtStart);
+
+   qDebug() << "2 sql queries took" << timer.elapsed() << "milliseconds";
+
+
+
+   int sqlLimit = mbase.mTablesWidgetSqlModelLimit;
+
+   // qDebug() << "cursorId:" << cursorId;
+   // qDebug() << "sessionStartId:" << sessionStartId;
+   // qDebug() << "sqlLimit:" << sqlLimit;
+
+   // start at 1/2 limit less than cursor
+   int sqlStartId = cursorId - sqlLimit / 2;
+
+   // if less than session start, clamp to session start
+   if (sqlStartId < sessionStartId) sqlStartId = sessionStartId;
+
+   QString sql = "SELECT id, msg_type, sub_type, created, agt, frame_num AS frame, player AS p, client AS c, message";
+
+   sql += " FROM logs WHERE id > ";
+   sql += QString::number(sqlStartId);
+
+   */
+
+ok now to clean up charts the same way...it is looking great
+
+
+what next?
+
+bugs
+
+
+changing visible charts
+line size
+all need me to reload the charts to see anything..
+
+
+working on sizing the shit in logview
+
+
+
+----------------------------
+
+I am really wondering if somethings might be easier the ui layout
+
+I have many nested layout
+
+I got it to work with code only...
+
+
+
+mLogView::mLogView(QWidget *parent) : QWidget{parent}
+{
+   
+// ---------------------------------------------------
+// first create all the things I will show here
+// ---------------------------------------------------
+
+   mCurrentSessionTimelineWidget * mCurrentSessionTimelineWidgetInstance = new mCurrentSessionTimelineWidget(this);
+
+   mTablesWidget * mTablesWidgetInstance = new mTablesWidget(this);
+
+   mChartsWidgetInstance = new mChartsWidget(this);
+
+
+   // ---------------------------------------------------------
+   // middle panel
+   // ---------------------------------------------------------
+   QFrame * middlePanelFrame = new QFrame();
+   middlePanelFrame->setLineWidth(0);
+   middlePanelFrame->setMidLineWidth(0);
+   middlePanelFrame->setFrameStyle(QFrame::Panel);
+   middlePanelFrame->setMaximumWidth(640);
+
+
+   // make vbox for frame
+   QVBoxLayout *MPFvbox = new QVBoxLayout;
+
+   // add vbox layout to frame
+   middlePanelFrame->setLayout(MPFvbox);
+
+   // ---------------------------------------------------------------------
+   // mTablesWidgetControlWidget
+   // ---------------------------------------------------------------------
+   mTablesWidgetControlWidget * mTablesWidgetControlWidgetInstance = new mTablesWidgetControlWidget(this);
+   MPFvbox->addWidget(mTablesWidgetControlWidgetInstance);
+
+   // ---------------------------------------------------
+   // sessions widget
+   // ---------------------------------------------------
+   mSessionsWidgetInstance = new mSessionsWidget(this);
+   MPFvbox->addWidget(mSessionsWidgetInstance);
+
+   // ---------------------------------------------------
+   // charts controls widget
+   // ---------------------------------------------------
+   mChartsWidgetControlWidgetInstance = new mChartsWidgetControlWidget(this);
+
+   // put it in its own hbox so I can push it over to the right
+   QHBoxLayout *MPFhbox = new QHBoxLayout;
+   MPFvbox->addLayout(MPFhbox);
+
+   MPFhbox->addStretch();
+   MPFhbox->addWidget(mChartsWidgetControlWidgetInstance);
+
+
+
+
+// --------------------------------------------------------------------------
+// layout
+// --------------------------------------------------------------------------
+   
+   //-------------------------------------
+   // make a frame to contain lower items
+   //-------------------------------------
+   
+   
+   // create frame
+   QFrame * lowerFrame = new QFrame(this);
+   lowerFrame->setLineWidth(0);
+   lowerFrame->setMidLineWidth(0);
+   lowerFrame->setFrameStyle(QFrame::Panel);
+
+   // create layout and apply to frame
+   QHBoxLayout *lowerFrameLayout = new QHBoxLayout;
+   lowerFrame->setLayout(lowerFrameLayout);
+   
+   // instantiate splitter and add to layout
+   splitter = new QSplitter(this);
+   splitter->setChildrenCollapsible(false);
+   splitter->setOrientation(Qt::Horizontal);
+   splitter->setHandleWidth(8); // 5 is default
+   lowerFrameLayout->addWidget(splitter);
+
+   // add widgets to splitter
+   splitter->addWidget(mTablesWidgetInstance);
+   splitter->addWidget(middlePanelFrame);
+   splitter->addWidget(mChartsWidgetInstance);
+   
+   
+   
+   
+   //-------------------------------------
+   // top level layout
+   //-------------------------------------
+   
+   // create topLayout and apply to this->
+   QVBoxLayout *topLayout = new QVBoxLayout;
+   this->setLayout(topLayout);
+   
+   
+   // when I do it this way the lower frame expands
+   
+   // make vertical splitter and add to layout
+   QSplitter * vSplitter = new QSplitter(this);
+   vSplitter->setChildrenCollapsible(false);
+   vSplitter->setOrientation(Qt::Vertical);
+   topLayout->addWidget(vSplitter);
+
+   // add widgets to vsplitter
+   vSplitter->addWidget(mCurrentSessionTimelineWidgetInstance);
+   vSplitter->addWidget(lowerFrame);
+
+
+
+   // when I do it this way, the lower frame does not expand
+
+   // // add widgets to layout
+   // topLayout->addWidget(mCurrentSessionTimelineWidgetInstance);
+   // topLayout->addWidget(lowerFrame);
+
+
+   readSplitterSizes();
+   connect(splitter, SIGNAL(splitterMoved(int, int)), this, SLOT(saveSplitterSizes(int, int)));
+}
+
+
+
+
+
+--------------------------
+
+
+20240722 6:51AM
+
+I should push all these recent changes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

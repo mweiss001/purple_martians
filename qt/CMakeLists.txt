@@ -30,8 +30,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         m_base.h m_base.cpp
         mTableRowSelectWidget.h mTableRowSelectWidget.cpp
         mLogView.h mLogView.cpp
-        mlogdaterange.h mlogdaterange.cpp
-        msqlwidget.h msqlwidget.cpp
+
+
         mTableColumnSelectWidget.h mTableColumnSelectWidget.cpp
         mdelegate.h
 
@@ -48,6 +48,21 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         qdarkstyle/dark/darkstyle.qrc
         mTablesWidgetControlWidget.h mTablesWidgetControlWidget.cpp
         mTablesWidget.h mTablesWidget.cpp
+        mTableView.h
+        mTableViewOverlay.h mTableViewOverlay.cpp
+        mChartViewCursor.h mChartViewCursor.cpp
+        mtest.h mtest.cpp
+        mGraphicsScene.h
+        mSessionsTimelineWidget.h mSessionsTimelineWidget.cpp
+        mSessionsGraphicsItem.h
+        mGraphicsViewZoom.h mGraphicsViewZoom.cpp
+        customgraphicsview.h customgraphicsview.cpp
+        mCurrentSessionTimelineWidget.h mCurrentSessionTimelineWidget.cpp
+        mGraphicsViewSessionTimeline.h
+        form.h form.cpp form.ui
+
+
+
 
 
     )

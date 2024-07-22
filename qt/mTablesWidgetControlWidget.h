@@ -7,6 +7,7 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QSpinBox>
+#include <QLabel>
 
 
 
@@ -18,20 +19,25 @@ class mTablesWidgetControlWidget : public QWidget
    Q_OBJECT
    public:
       explicit mTablesWidgetControlWidget(QWidget *parent = nullptr);
-      int HSIZE = 600;
-      int VSIZE = 600;
+      int HSIZE = 336;
+      int VSIZE = 464;
       QSize minimumSizeHint() const {      return QSize(HSIZE, VSIZE);   }
       QSize minimumSize () const    {      return QSize(HSIZE, VSIZE);   }
 
-   public slots:
-   signals:
+
    private slots:
       void fontSizeChanged(int);
       void sqlLimitChanged(int);
 
+      void update();
+
+
+
    private:
       mTableRowSelectWidget * mTableRowSelectWidgetInstance;
       mTableColumnSelectWidget * mTableColumnSelectWidgetInstance;
+      QLabel * xAxisModel;
+
 };
 
 #endif // MTABLESWIDGETCONTROLWIDGET_H
