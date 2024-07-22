@@ -14,7 +14,6 @@
 
 #include "mTableRowSelectWidget.h"
 #include "mTableColumnSelectWidget.h"
-#include "msqlwidget.h"
 #include "mSessionsWidget.h"
 #include "mChartsWidget.h"
 #include "mChartsWidgetControlWidget.h"
@@ -25,7 +24,12 @@
 
 
 #include "m_base.h"
-#include "mdelegate.h"
+
+#include "mSessionsTimelineWidget.h"
+
+#include "mCurrentSessionTimelineWidget.h"
+
+
 
 
 class mLogView : public QWidget
@@ -47,7 +51,6 @@ class mLogView : public QWidget
    private:
       mTableRowSelectWidget * mTableRowSelectWidgetInstance;
       mTableColumnSelectWidget * mTableColumnSelectWidgetInstance;
-      MSQLWidget * msqw;
 
       mSessionsWidget * mSessionsWidgetInstance;
       mChartsWidget * mChartsWidgetInstance;

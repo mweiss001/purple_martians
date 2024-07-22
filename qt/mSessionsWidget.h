@@ -19,8 +19,6 @@ class mSessionsWidget : public QWidget
    Q_OBJECT
    public:
       explicit mSessionsWidget(QWidget *parent = nullptr);
-
-
       int VSIZE = 600;
       int HSIZE = 280;
       QSize minimumSizeHint() const {      return QSize(VSIZE, HSIZE);   }
@@ -34,8 +32,6 @@ class mSessionsWidget : public QWidget
    private:
       QGroupBox * mpss_gb;
       QTableView * sessionsTableView;
-      QSqlQueryModel *sessionsModel;
-
       QLabel * mpss_lb_start;
       QLabel * mpss_lb_end;
       QLabel * mpss_lb_range;

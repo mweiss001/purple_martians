@@ -15,10 +15,10 @@ class mTableRowSelectWidget : public QWidget
       explicit mTableRowSelectWidget(QWidget *parent = nullptr);
       void set_sql_where_types(void);
       void set_array_from_cb(void);
-      int VSIZE = 200;
-      int HSIZE = 440;
-      QSize minimumSizeHint() const  {  return QSize(VSIZE, HSIZE);   }
-      QSize minimumSize () const     {  return QSize(VSIZE, HSIZE);   }
+      int HSIZE = 200;
+      int VSIZE = 300;
+      QSize minimumSizeHint() const  {  return QSize(HSIZE, VSIZE);   }
+      QSize minimumSize () const     {  return QSize(HSIZE, VSIZE);   }
 
    signals:
 

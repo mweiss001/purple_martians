@@ -3,10 +3,11 @@
 mTableColumnSelectWidget::mTableColumnSelectWidget(QWidget *parent) : QWidget{parent}
 {
    QVBoxLayout *vbox = new QVBoxLayout;
-   QHBoxLayout *hbox = new QHBoxLayout;
+
+//   QHBoxLayout *hbox = new QHBoxLayout;
 
    QGroupBox * mpms_gb = new QGroupBox("Column Select", this);
-   mpms_gb->setGeometry(10, 10, VSIZE-20, HSIZE-20);
+   mpms_gb->setGeometry(0, 0, HSIZE, VSIZE);
    mpms_gb->setLayout(vbox);
 
    QPushButton * all  = new QPushButton("all", this);
@@ -14,10 +15,14 @@ mTableColumnSelectWidget::mTableColumnSelectWidget(QWidget *parent) : QWidget{pa
    QPushButton * none = new QPushButton("none", this);
    connect(none, SIGNAL (clicked()), this, SLOT (none_clicked()));
 
-   hbox->addWidget(none);
-   hbox->addWidget(all);
+   vbox->addWidget(none);
+   vbox->addWidget(all);
 
-   vbox->addLayout(hbox);
+  // vbox->addLayout(hbox);
+
+
+
+
 
    readColumnSelection();
 

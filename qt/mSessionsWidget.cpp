@@ -10,11 +10,11 @@ mSessionsWidget::mSessionsWidget(QWidget *parent)
    mpss_gb->setGeometry(10, 10, VSIZE-20, HSIZE-20);
    mpss_gb->setLayout(vbox);
 
-   sessionsModel = new QSqlQueryModel();
-   sessionsModel->setQuery("SELECT dt_start, dt_end, duration AS dur, hostname AS host, endreason FROM sessions ORDER by dt_start");
+//   mbase.sessionsModel = new QSqlQueryModel();
+//   mbase.sessionsModel->setQuery("SELECT dt_start, dt_end, duration AS dur, hostname AS host, endreason FROM sessions ORDER by dt_start");
 
    sessionsTableView = new QTableView(this);
-   sessionsTableView->setModel(sessionsModel);
+   sessionsTableView->setModel(mbase.sessionsModel);
    sessionsTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
    sessionsTableView->setItemDelegate(new mDelegate2);
    sessionsTableView->horizontalHeader()->setStretchLastSection(true);
@@ -72,12 +72,12 @@ void mSessionsWidget::on_stv_changed(const QItemSelection & sel, const QItemSele
       QModelIndex index = selection.at(i);
 
       // get datetime start
-      QString ds = sessionsModel->data(index, Qt::DisplayRole).toString();
+      QString ds = mbase.sessionsModel->data(index, Qt::DisplayRole).toString();
       QDateTime dts = QDateTime::fromString(ds, "yyyy-MM-ddTHH:mm:ss.zzz");
 
       // get datetime end
       QModelIndex qmi = index.siblingAtColumn(1);
-      QString de = sessionsModel->data(qmi, Qt::DisplayRole).toString();
+      QString de = mbase.sessionsModel->data(qmi, Qt::DisplayRole).toString();
       QDateTime dte = QDateTime::fromString(de, "yyyy-MM-ddTHH:mm:ss.zzz");
 
       if (dts < mbase.sessionsDtStart) mbase.sessionsDtStart = dts;

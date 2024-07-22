@@ -14,8 +14,11 @@ m_base::m_base()
    init_col_types();
    initStatChartSeriesStructArray();
    initStatChartGraphTypeArray();
-   setFont();
    settings = new QSettings("pm_log.ini", QSettings::IniFormat);
+
+
+
+
 }
 
 void m_base::setup_db(void)
@@ -28,6 +31,11 @@ void m_base::setup_db(void)
    db.setUserName("pmdb_ro");
    db.setPassword("readonly");
    if (!db.open()) qDebug() << "database error:" << db.lastError().text();
+
+   sessionsModel = new QSqlQueryModel();
+   sessionsModel->setQuery("SELECT dt_start, dt_end, duration AS dur, player_num AS p, hostname AS host, endreason FROM sessions ORDER by dt_start");
+
+
 }
 
 
@@ -47,7 +55,7 @@ void m_base::init_log_types(void)
    i = LOG_error;                      log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_error");
    i = LOG_NET;                        log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_NET");
    i = LOG_NET_ending_stats;           log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_NET_ending_stats");
-   i = LOG_NET_bandwidth;              log_types[i].valid = 1; log_types[i].shown = 0;  strcpy(log_types[i].name, "LOG_NET_bandwidth");
+   i = LOG_NET_bandwidth;              log_types[i].valid = 0; log_types[i].shown = 0;  strcpy(log_types[i].name, "LOG_NET_bandwidth");
 
    i = LOG_NET_stdf_rewind;            log_types[i].valid = 1; log_types[i].shown = 0;  strcpy(log_types[i].name, "LOG_NET_stdf_rewind");
    i = LOG_NET_stdf_create;            log_types[i].valid = 1; log_types[i].shown = 0;  strcpy(log_types[i].name, "LOG_NET_stdf_create");
@@ -60,7 +68,7 @@ void m_base::init_log_types(void)
    i = LOG_NET_cdat;                   log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_NET_cdat");
    i = LOG_NET_client_ping;            log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_NET_client_ping");
    i = LOG_NET_timer_adjust;           log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_NET_timer_adjust");
-   i = LOG_NET_file_transfer;          log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_NET_file_transfer");
+   i = LOG_NET_file_transfer;          log_types[i].valid = 0; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_NET_file_transfer");
 
    i = LOG_NET;                        log_types[i].color = QColor::fromString("lightblue");
    i = LOG_NET_ending_stats;           log_types[i].color = QColor::fromString("dodgerblue");
@@ -99,7 +107,7 @@ void m_base::init_col_types(void)
    i = 2;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "sub_type");  strcpy(col_types[i].display_name, "sub_type");
    i = 3;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "created");   strcpy(col_types[i].display_name, "created");
    i = 4;   col_types[i].valid = 1; col_types[i].shown = 0; strcpy(col_types[i].db_name, "agt");       strcpy(col_types[i].display_name, "agt");
-   i = 5;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "frame_num"); strcpy(col_types[i].display_name, "frame_num");
+   i = 5;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "frame");     strcpy(col_types[i].display_name, "frame");
    i = 6;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "player");    strcpy(col_types[i].display_name, "player");
    i = 7;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "client");    strcpy(col_types[i].display_name, "client");
    i = 8;   col_types[i].valid = 1; col_types[i].shown = 1; strcpy(col_types[i].db_name, "message");   strcpy(col_types[i].display_name, "message");
@@ -246,26 +254,38 @@ void m_base::initStatChartGraphTypeArray(void)
 
 void m_base::sessionSelectionChanged(void)
 {
+   globalPosition = sessionsDtStart;
+
    QString sql = " BETWEEN '";
-   sql += mbase.sessionsDtStart.toString("yyyy-MM-dd HH:mm:ss.z");
+   sql += sessionsDtStart.toString("yyyy-MM-dd HH:mm:ss.z");
    sql += "' AND '";
-   sql += mbase.sessionsDtEnd.toString("yyyy-MM-dd HH:mm:ss.z");
+   sql += sessionsDtEnd.toString("yyyy-MM-dd HH:mm:ss.z");
    sql += "' ";
 
    sessionsSqlWhereDateClause = sql;
 
    emit mChartsWidgetUpdateSignal();
    emit mTablesWidgetUpdateSignal();
+   emit mCurrentSessionTimelineWidgetUpdateSignal();
 }
 
 
 
-void m_base::setFont(void)
+void m_base::updateGlobalPosition(QDateTime pos)
 {
-   mTablesWidgetFont = QFont{ "Courier", mTablesWidgetFontSize, QFont::Monospace };
+   globalPosition = pos;
+   emit updateGlobalPositionSignal();
+   emit mCurrentSessionTimelineWidgetUpdateSignal();
+
 }
 
-
+void m_base::mTablesWidgetFontChangeFunction(int fontSize)
+{
+   // qDebug() << "void m_base::mTablesWidgetFontChangeFunction(int fontSize)" << fontSize;
+   mTablesWidgetFontSize = fontSize;
+   mTablesWidgetFont = QFont{ "Courier", mTablesWidgetFontSize, QFont::Monospace };
+   emit mTablesWidgetFontChangeSignal();
+}
 
 
 

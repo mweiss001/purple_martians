@@ -6,6 +6,8 @@
 #include <QBoxLayout>
 #include <QSplitter>
 #include <QSqlQueryModel>
+#include <QSqlQuery>
+
 
 #include "mChartView.h"
 #include "mChart.h"
@@ -24,18 +26,28 @@ class mChartsWidget : public QWidget
    protected:
 
    public slots:
-      void update();
+      void reload();
       void controlsChanged();
       void changeTheme();
       void resetSplitter();
       void saveSplitterSizes(int pos, int index);
       void readSplitterSizes();
 
+      void updateCursor();
+
+
+
    private:
 
       void buildCharts();
 
       void extract_series(int i, int r, int c, int p, double xAxisVal);
+
+
+      int getClosestIndexToDateTime(QDateTime dt);
+
+
+
       QVBoxLayout * vbox;
       QSplitter * splitter = nullptr;
 

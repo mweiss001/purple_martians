@@ -5,150 +5,162 @@
 #include <QMenu>
 #include <QValueAxis>
 
-
-
 #include "m_base.h"
-
 #include "mChartViewCrosshairs.h"
+#include "mChartViewCursor.h"
 
 class mChartView : public QChartView
 {
    Q_OBJECT
-public:
+   public:
 
-   mChartView(QChart* chart = 0, QWidget* parent = 0, int index = 0) : QChartView(chart, parent)
-   {
-      // qDebug() << "mChartView(QChart*) constructor";
-
-      series_index = index;
-
-      item = new mChartViewCrosshairs(chart);
-      item->setZValue(100); // to draw on top
-      item->setVisible(false);
-
-      if (!item->scene()) scene()->addItem(item);
-
-      this->setRenderHint(QPainter::Antialiasing);
-
-      setContextMenuPolicy(Qt::CustomContextMenu);
-      connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(ShowContextMenu(QPoint)));
-   }
-
-protected:
-
-   void mouseMoveEvent(QMouseEvent *event)
-   {
-      // detect if on plot area
-      QRectF pa = chart()->plotArea();
-      if (pa.contains(event->position()))
+      mChartView(QChart* chart = 0, QWidget* parent = 0, int index = 0) : QChartView(chart, parent)
       {
-         item->setVisible(true);
-         item->setMousePos(event->position());
-         event->accept();
-      }
-      else item->setVisible(false);
-   }
+         // qDebug() << "mChartView(QChart*) constructor";
 
-   void keyPressEvent(QKeyEvent *event)
-   {
-      switch (event->key())
-      {
-//         case Qt::Key_Plus:   chart()->zoomIn();      break;
-//         case Qt::Key_Minus:  chart()->zoomOut();     break;
-//         case Qt::Key_R:      chart()->zoomReset();   break;
-      }
-   }
+         series_index = index;
 
+         mChartViewCrosshairsInstance = new mChartViewCrosshairs(chart);
+         mChartViewCrosshairsInstance->setZValue(100); // to draw on top
+         mChartViewCrosshairsInstance->setVisible(false);
 
+         // if no scene has been set, set scene
+         if (!mChartViewCrosshairsInstance->scene()) scene()->addItem(mChartViewCrosshairsInstance);
 
-   void wheelEvent(QWheelEvent *event)
-   {
-       // get first x axis axis of chart
-      QList qlxa = this->chart()->axes(Qt::Horizontal);
+         mChartViewCursorInstance = new mChartViewCursor(chart);
+         mChartViewCursorInstance->setZValue(100); // to draw on top
 
-      // cast to QValueAxis to get min and max
-      const auto va = static_cast<QValueAxis*>(qlxa.at(0));
+         // if no scene has been set, set scene
+         if (!mChartViewCursorInstance->scene()) scene()->addItem(mChartViewCursorInstance);
 
-      // find min, max and range
-      double min = va->min();
-      double max = va->max();
-      double rng = max - min;
+         this->setRenderHint(QPainter::Antialiasing);
 
-      // --- scroll in x axis with SHIFT ---------------
-      if (event->modifiers() & Qt::ShiftModifier)
-      {
-         QPoint numDegrees = event->angleDelta() / 8;
-         int y = numDegrees.ry();
-         this->chart()->scroll(y, 0);
-      }
-      // --- zoom in x axis centered on mouse pos -------
-      else
-      {
-         // get amount and direction of mouse wheel scroll
-         int mouseScroll = event->angleDelta().ry();
-
-         // get mouse position
-         QPointF mousePos = event->position();
-
-         // get value at position
-         QPointF val = chart()->mapToValue(mousePos);
-
-         // get 10% of range with mouseScroll sign
-         double rng_inc = rng * 0.1;
-         if (mouseScroll > 0) rng_inc = rng * -0.1;
-
-         // adjust axis min and max with rng_inc
-         va->setRange(min+rng_inc, max-rng_inc);
-
-         // find the new screen position of the original value
-         QPointF newpos = chart()->mapToPosition(val);
-
-         // scroll the chart by the difference between newpos and original mouse position
-         this->chart()->scroll(newpos.x() - mousePos.x(), 0);
-
-         // update the chart as if the mouse moved
-         item->setMousePos(mousePos);
+         setContextMenuPolicy(Qt::CustomContextMenu);
+         connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(ShowContextMenu(QPoint)));
       }
 
-      // find new min and max
-      mbase.mChartsWidgetXAxisMin = va->min();
-      mbase.mChartsWidgetXAxisMax = va->max();
-      mbase.mChartsWidgetControlsChangedFunction();
-   }
+   protected:
 
-private slots:
-   void resetAllCharts()
-   {
-      qDebug("Reset All Charts");
-      mbase.mChartsWidgetUpdateFunction();
-   }
 
-   void hideThisChart()
-   {
-      qDebug("Hide This Chart");
-      mbase.statChartGraphTypeArray[series_index].visible = 0;
-      mbase.mChartsWidgetControlsChangedFunction();
-   }
 
-   void ShowContextMenu(const QPoint &pos)
-   {
-      QMenu contextMenu(this);
+       void mousePressEvent(QMouseEvent *event)
+       {
+          // call the main handler for this event
+          QChartView::mousePressEvent(event);
+          if (event->button() == Qt::MouseButton::LeftButton)
+          {
+             // set global cursor position
+             QPointF val = chart()->mapToValue(event->position());
+             mbase.updateGlobalPosition(QDateTime::fromMSecsSinceEpoch(val.x()));
+          }
+       }
 
-      QAction action1("Reset All Charts", this);
-      connect(&action1, SIGNAL(triggered()), this, SLOT(resetAllCharts()));
-      contextMenu.addAction(&action1);
 
-      QAction action2("Hide This Chart", this);
-      connect(&action2, SIGNAL(triggered()), this, SLOT(hideThisChart()));
-      contextMenu.addAction(&action2);
+      void mouseMoveEvent(QMouseEvent *event)
+      {
+         // detect if on plot area
+         QRectF pa = chart()->plotArea();
+         if (pa.contains(event->position()))
+         {
+            mChartViewCrosshairsInstance->setVisible(true);
+            mChartViewCrosshairsInstance->setMousePos(event->position());
+            event->accept();
+         }
+         else mChartViewCrosshairsInstance->setVisible(false);
+      }
 
-      contextMenu.exec(mapToGlobal(pos));
-   }
+      void keyPressEvent(QKeyEvent *event)
+      {
+         switch (event->key())
+         {
+   //         case Qt::Key_Plus:   chart()->zoomIn();      break;
+   //         case Qt::Key_Minus:  chart()->zoomOut();     break;
+   //         case Qt::Key_R:      chart()->zoomReset();   break;
+         }
+      }
 
-private:
-   mChartViewCrosshairs * item = nullptr;
-   QChart * m_chart = nullptr;
-   int series_index;
+
+
+      void wheelEvent(QWheelEvent *event)
+      {
+          // get first x axis axis of chart
+         QList qlxa = this->chart()->axes(Qt::Horizontal);
+
+         // cast to QValueAxis to get min and max
+         const auto va = static_cast<QValueAxis*>(qlxa.at(0));
+
+         // find min, max and range
+         double min = va->min();
+         double max = va->max();
+         double rng = max - min;
+
+         // --- scroll in x axis with SHIFT ---------------
+         if (event->modifiers() & Qt::ShiftModifier)
+         {
+            QPoint numDegrees = event->angleDelta() / 8;
+            int y = numDegrees.ry();
+            this->chart()->scroll(y, 0);
+         }
+         // --- zoom in x axis centered on mouse pos -------
+         else
+         {
+            // get amount and direction of mouse wheel scroll
+            int mouseScroll = event->angleDelta().ry();
+
+            // get mouse position
+            QPointF mousePos = event->position();
+
+            // get value at position
+            QPointF val = chart()->mapToValue(mousePos);
+
+            // get 10% of range with mouseScroll sign
+            double rng_inc = rng * 0.1;
+            if (mouseScroll > 0) rng_inc = rng * -0.1;
+
+            // adjust axis min and max with rng_inc
+            va->setRange(min+rng_inc, max-rng_inc);
+
+            // find the new screen position of the original value
+            QPointF newpos = chart()->mapToPosition(val);
+
+            // scroll the chart by the difference between newpos and original mouse position
+            this->chart()->scroll(newpos.x() - mousePos.x(), 0);
+
+            // update the chart as if the mouse moved
+            mChartViewCrosshairsInstance->setMousePos(mousePos);
+         }
+
+         // find new min and max
+         mbase.mChartsWidgetXAxisMin = va->min();
+         mbase.mChartsWidgetXAxisMax = va->max();
+         mbase.mChartsWidgetControlsChangedFunction();
+      }
+
+   private slots:
+
+      void hideThisChart()
+      {
+         qDebug("Hide This Chart");
+         mbase.statChartGraphTypeArray[series_index].visible = 0;
+         mbase.mChartsWidgetControlsChangedFunction();
+      }
+
+      void ShowContextMenu(const QPoint &pos)
+      {
+         QMenu contextMenu(this);
+
+         QAction action2("Hide This Chart", this);
+         connect(&action2, SIGNAL(triggered()), this, SLOT(hideThisChart()));
+         contextMenu.addAction(&action2);
+
+         contextMenu.exec(mapToGlobal(pos));
+      }
+
+   private:
+      mChartViewCrosshairs * mChartViewCrosshairsInstance = nullptr;
+      mChartViewCursor * mChartViewCursorInstance = nullptr;
+      QChart * m_chart = nullptr;
+      int series_index;
 };
 #endif // MCHARTVIEW_H
 
