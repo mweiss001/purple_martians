@@ -2,38 +2,44 @@
 
 mTablesWidget::mTablesWidget(QWidget *parent) : QWidget{parent}
 {
-   connect(&mbase, SIGNAL(mTablesWidgetUpdateSignal()),         this, SLOT(updateTables()));
-   connect(&mbase, SIGNAL(mTablesWidgetUpdateColumnsSignal()),  this, SLOT(updateTablesHiddenColumns()));
-   connect(&mbase, SIGNAL(mTablesWidgetFontChangeSignal()),     this, SLOT(doFontSizeChange()));
-   connect(&mbase, SIGNAL(updateGlobalPositionSignal()),        this, SLOT(updateGlobalPosition()));
+   connect(&mbase, SIGNAL(mTablesWidgetReloadModelSignal()),         this, SLOT(reloadModel()));
+   connect(&mbase, SIGNAL(updateGlobalPositionSignal()),             this, SLOT(updateGlobalPosition()));
+   connect(&mbase, SIGNAL(mTablesWidgetUpdateUISignal()),            this, SLOT(updateUI()));
 
    mTablesWidgetSqlQueryModel = new QSqlQueryModel();
-
-   mTablesWidgetTableView1 = new mTableView();
-   mTablesWidgetTableView1->setModel(mTablesWidgetSqlQueryModel);
-   mTablesWidgetTableView2 = new mTableView();
-   mTablesWidgetTableView2->setModel(mTablesWidgetSqlQueryModel);
 
    // horizontal box layout
    QHBoxLayout *hbox = new QHBoxLayout;
    this->setLayout(hbox);
-   hbox->addWidget(mTablesWidgetTableView1);
-   hbox->addWidget(mTablesWidgetTableView2);
+
+   mbase.loadFilters();
+
+   for (int i=0; i<NUM_TABLES; i++)
+   {
+      mTablesWidgetTables[i] = new mTablesWidgetTable(this, i, mTablesWidgetSqlQueryModel);
+      hbox->addWidget(mTablesWidgetTables[i]);
+   }
 }
 
 
 void mTablesWidget::updateGlobalPosition()
 {
-   if (!updateSelectedRow()) updateTables();    // if globalPosition is not in model
+   // is new global position in model range
+   if ((mbase.globalPosition >= mbase.mTablesWidgetModelXAxisDateTimeStart) && (mbase.globalPosition <= mbase.mTablesWidgetModelXAxisDateTimeEnd))
+   {
+      updateSelectedRow();
+   }
+   else reloadModel();
 }
 
-void mTablesWidget::updateTables()
+void mTablesWidget::reloadModel()
 {
    // qDebug() << "mTablesWidget::updateTables()";
 
    QString sql = "SELECT id, msg_type, sub_type, created, agt, frame_num AS frame, player AS p, client AS c, message";
 
    sql += " FROM logs WHERE created BETWEEN '";
+
    sql += mbase.globalPosition.toString("yyyy-MM-dd HH:mm:ss.z");
    sql += "' AND '";
    sql += mbase.sessionsDtEnd.toString("yyyy-MM-dd HH:mm:ss.z");
@@ -54,13 +60,13 @@ void mTablesWidget::updateTables()
 
    if (rowCount == 0)
    {
-      qDebug() << "Error in mTablesWidget::updateTables(): no rows for query\n" << sql;
+      // qDebug() << "Error in mTablesWidget::updateTables(): no rows for query\n" << sql;
       return;
    }
 
-   doFontSizeChange();
-   updateTablesHiddenColumns();
-   showHideRowsBasedOnPlayer();
+
+   updateUI();
+
    updateSelectedRow();
 
    // get x axis ranges of sql model
@@ -74,143 +80,112 @@ void mTablesWidget::updateTables()
 }
 
 
-void mTablesWidget::showHideRowsBasedOnPlayer()
-{
-   // show/hide rows in each TableView based on player
-   for(int i=0; i<mTablesWidgetSqlQueryModel->rowCount(); i++)
-   {
-      // get player number from column 6
-      QModelIndex qmi = mTablesWidgetSqlQueryModel->index(i, 6);
-      QVariant v = qmi.model()->data(qmi, Qt::DisplayRole);
-      int p = v.toInt();
-      //qDebug() << p;
-      if (p == 0)
-      {
-         mTablesWidgetTableView1->showRow(i);
-         mTablesWidgetTableView2->hideRow(i);
-      }
-      if (p == 1)
-      {
-         mTablesWidgetTableView1->hideRow(i);
-         mTablesWidgetTableView2->showRow(i);
-      }
-
-      if (p > 1)
-      {
-         mTablesWidgetTableView1->hideRow(i);
-         mTablesWidgetTableView2->hideRow(i);
-      }
 
 
-
-   }
-}
-
-void mTablesWidget::updateTablesHiddenColumns()
-{
-   for (int i=0; i<10; i++)
-      if (mbase.col_types[i].valid)
-      {
-         if (mbase.col_types[i].shown == 0)
-         {
-            mTablesWidgetTableView1->hideColumn(i);
-            mTablesWidgetTableView2->hideColumn(i);
-         }
-         else
-         {
-            mTablesWidgetTableView1->showColumn(i);
-            mTablesWidgetTableView2->showColumn(i);
-         }
-      }
-}
-
-
-int mTablesWidget::updateSelectedRow()
+void mTablesWidget::updateSelectedRow()
 {
    //qDebug() << "mTablesWidget::updateSelectedRow()";
-
-   int foundt1 = -1;
-   int foundt2 = -1;
-
+   bool found[4] = { false };
    // cycle all rows in model
-   for(int i=0; i<mTablesWidgetSqlQueryModel->rowCount(); i++)
+   for (int r=0; r<mTablesWidgetSqlQueryModel->rowCount(); r++)
    {
-      if ((foundt1 == -1) || (foundt2 == -1))
+      // get created from column 3
+      QModelIndex qmi = mTablesWidgetSqlQueryModel->index(r, 3);
+      QDateTime rdt = qmi.model()->data(qmi, Qt::DisplayRole).toDateTime();
+
+      if (rdt >= mbase.globalPosition)
+         for (int t=0; t<4; t++)
+            if ((!found[t]) && (!mTablesWidgetTables[t]->tableView->isRowHidden(r)))
+            {
+               mTablesWidgetTables[t]->tableView->selectRow(r);
+               found[t] = true;
+            }
+   }
+   for (int t=0; t<4; t++)
+      mTablesWidgetTables[t]->tableView->update();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void mTablesWidget::updateUI()
+{
+   // cycle tables and update filters
+   for (int t=0; t<NUM_TABLES; t++)
+      mTablesWidgetTables[t]->tableFilter->updateCheckBoxesFromArray();
+
+
+   // change row height based on font height
+   int height = QFontMetrics(mbase.mTablesWidgetFont).height() - 2;
+   for (int t=0; t<NUM_TABLES; t++)
+      if (mTablesWidgetTables[t]->isVisible())
       {
-         // get player number from column 6
-         QModelIndex qmi = mTablesWidgetSqlQueryModel->index(i, 6);
-         QVariant v = qmi.model()->data(qmi, Qt::DisplayRole);
-         int p = v.toInt();
+         mTablesWidgetTables[t]->tableView->setFont(mbase.mTablesWidgetFont);
+         mTablesWidgetTables[t]->tableView->verticalHeader()->setMinimumSectionSize( height );
+         mTablesWidgetTables[t]->tableView->verticalHeader()->setMaximumSectionSize( height );
+         mTablesWidgetTables[t]->tableView->verticalHeader()->setDefaultSectionSize( height );
+         mTablesWidgetTables[t]->tableView->viewport()->update();
+      }
 
-         // get created from column 3
-         qmi = mTablesWidgetSqlQueryModel->index(i, 3);
-         v = qmi.model()->data(qmi, Qt::DisplayRole);
-         QDateTime rdt = v.toDateTime();
 
-         if (rdt >= mbase.globalPosition)
-         {
-            if ((p==0) && (foundt1 == -1) && (!mTablesWidgetTableView1->isRowHidden(i)))
+   // show/hide columns
+   for (int c=0; c<10; c++)
+      if (mbase.col_types[c].valid)
+         for (int t=0; t<NUM_TABLES; t++)
+            if (mTablesWidgetTables[t]->isVisible())
             {
-               mTablesWidgetTableView1->selectRow(i);
-               foundt1 = i;
-               // qDebug() << "found1_at:" << i;
+               if (mbase.col_types[c].shown == 0) mTablesWidgetTables[t]->tableView->hideColumn(c);
+               else                               mTablesWidgetTables[t]->tableView->showColumn(c);
             }
 
-            if ((p==1) && (foundt2 == -1) && (!mTablesWidgetTableView2->isRowHidden(i)))
-            {
-               mTablesWidgetTableView2->selectRow(i);
-               foundt2 = i;
-               // qDebug() << "found2_at:" << i;
-            }
-         }
+   // update number of visible tables and show/hide filter controls
+   for (int i=0; i<NUM_TABLES; i++)
+   {
+      if (i < mbase.numVisibleTables) mTablesWidgetTables[i]->frame->show();
+      else mTablesWidgetTables[i]->frame->hide();
+
+      // also do show/hide of filter controls
+      if (mbase.showFilterControls)
+      {
+         mTablesWidgetTables[i]->tableFilter->pGb->show();
+         mTablesWidgetTables[i]->tableFilter->cGb->show();
+      }
+      else
+      {
+         mTablesWidgetTables[i]->tableFilter->pGb->hide();
+         mTablesWidgetTables[i]->tableFilter->cGb->hide();
       }
    }
 
-   if ((foundt1 < 10) || (foundt2 < 10))
+   // show/hide rows in each TableView based on player and client filters
+   for (int r=0; r<mTablesWidgetSqlQueryModel->rowCount(); r++)
    {
-      // qDebug() << "mTablesWidget::updateSelectedRow()  --  not found in model -- reloading ";
-      return 0;
+      // get player number from column 6
+      QModelIndex qmi = mTablesWidgetSqlQueryModel->index(r, 6);
+      int p = qmi.model()->data(qmi, Qt::DisplayRole).toInt();
+
+      // get client number from column 7
+      qmi = mTablesWidgetSqlQueryModel->index(r, 7);
+      int c = qmi.model()->data(qmi, Qt::DisplayRole).toInt();
+      //qDebug() << "p:" << p << " - c:" << c;
+
+      // cycle tables
+      for (int t=0; t<NUM_TABLES; t++)
+         if (mTablesWidgetTables[t]->isVisible())
+         {
+            if ((mbase.mTablesWidgetTableFilter[t][0][p]) && (mbase.mTablesWidgetTableFilter[t][1][c]))
+               mTablesWidgetTables[t]->tableView->showRow(r);
+            else
+               mTablesWidgetTables[t]->tableView->hideRow(r);
+         }
    }
-
-   mTablesWidgetTableView1->update();
-   mTablesWidgetTableView2->update();
-
-   return 1;
 }
-
-
-void mTablesWidget::doFontSizeChange(void)
-{
-   // qDebug() << "void mTablesWidget::doFontSizeChange(void)";
-
-   // get new row height
-   QFontMetrics fm(mbase.mTablesWidgetFont);
-   int height = fm.height() - 2;
-
-   mTablesWidgetTableView1->setFont(mbase.mTablesWidgetFont);
-   mTablesWidgetTableView1->verticalHeader()->setMinimumSectionSize( height );
-   mTablesWidgetTableView1->verticalHeader()->setMaximumSectionSize( height );
-   mTablesWidgetTableView1->verticalHeader()->setDefaultSectionSize( height );
-   mTablesWidgetTableView1->viewport()->update();
-
-   mTablesWidgetTableView2->setFont(mbase.mTablesWidgetFont);
-   mTablesWidgetTableView2->verticalHeader()->setMinimumSectionSize( height );
-   mTablesWidgetTableView2->verticalHeader()->setMaximumSectionSize( height );
-   mTablesWidgetTableView2->verticalHeader()->setDefaultSectionSize( height );
-   mTablesWidgetTableView2->viewport()->update();
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

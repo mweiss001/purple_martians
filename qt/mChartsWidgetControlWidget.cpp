@@ -309,7 +309,7 @@ void mChartsWidgetControlWidget::sqlLimitChanged(int val)
    // qDebug() << "sql Limit Changed:" << val;
    mbase.mChartsWidgetSqlModelLimit = val;
    mbase.settings->setValue("mChartsWidgetSqlModelLimit", mbase.mChartsWidgetSqlModelLimit);
-   mbase.mChartsWidgetUpdateFunction();
+   mbase.mChartsWidgetReloadModelFunction();
 }
 
 

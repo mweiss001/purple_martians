@@ -35,6 +35,9 @@
 #define NUM_CHARTS 12
 
 
+#define NUM_TABLES 4
+
+
 struct log_type
 {
    int valid;
@@ -108,8 +111,17 @@ class m_base : public QObject
       // mTablesWidget
       //------------------------------------------------------------
       QFont mTablesWidgetFont;
-      int mTablesWidgetFontSize = 8;
-      void mTablesWidgetFontChangeFunction(int fontSize);
+      void mTablesWidgetFontChangeFunction();
+
+
+      bool mTablesWidgetTableFilter[NUM_TABLES][2][8] = { 0 };
+
+      void saveFilters();
+      void loadFilters();
+
+
+      void setDefaultFilters(int type);
+
 
       // x axis ranges of sql model
       QDateTime mTablesWidgetModelXAxisDateTimeStart;
@@ -117,8 +129,21 @@ class m_base : public QObject
 
       // mTablesWidgetControlWidget
       //------------------------------------------------------------
+      int numVisibleTables = 2;
+      bool showFilterControls = true;
+      int mTablesWidgetFontSize = 8;
+
+
+
+
+
+
       QString mTablesWidgetControlWidgetSqlWhereTypeClause;
       int mTablesWidgetSqlModelLimit = 400;
+
+
+
+
 
 
       // mSessionsWidget
@@ -167,47 +192,38 @@ class m_base : public QObject
       // functions to emit signals
       //------------------------------------------------------------
 
-      void mChartsWidgetUpdateFunction()                    {  emit mChartsWidgetUpdateSignal(); emit mCurrentSessionTimelineWidgetUpdateSignal(); }
+      void mChartsWidgetReloadModelFunction()               {  emit mChartsWidgetReloadModelSignal(); emit mCurrentSessionTimelineWidgetUpdateSignal(); }
       void mChartsWidgetControlsChangedFunction()           {  emit mChartsWidgetControlsChangedSignal();   }
       void mChartsWidgetChangeThemeFunction()               {  emit mChartsWidgetChangeThemeSignal();   }
       void mChartsWidgetResetSplitterFunction()             {  emit mChartsWidgetResetSplitterSignal();   }
 
       void mChartsWidgetControlWidgetUpdateFunction()       { emit mChartsWidgetControlWidgetUpdateSignal(); }
 
-      void mTablesWidgetUpdateFunction()                    {  emit mTablesWidgetUpdateSignal(); emit mCurrentSessionTimelineWidgetUpdateSignal();  }
-      void mTablesWidgetUpdateColumnsFunction()             {  emit mTablesWidgetUpdateColumnsSignal();   }
+      void mTablesWidgetReloadModelFunction()               {  emit mTablesWidgetReloadModelSignal(); emit mCurrentSessionTimelineWidgetUpdateSignal();  }
+      void mTablesWidgetUpdateUIFunction()                  {  emit mTablesWidgetUpdateUISignal();  }
 
-      void mTablesWidgetControlWidgetUpdateFunction()       { emit mTablesWidgetControlWidgetUpdateSignal(); }
+      void mTablesWidgetTableFiltersChangeFunction();
+
+      void mTablesWidgetControlWidgetUpdateFunction()       {  emit mTablesWidgetControlWidgetUpdateSignal(); }
+
 
 
    signals:
-      void mChartsWidgetUpdateSignal();
+      void mChartsWidgetReloadModelSignal();
       void mChartsWidgetControlsChangedSignal();
       void mChartsWidgetChangeThemeSignal();
       void mChartsWidgetResetSplitterSignal();
 
       void mChartsWidgetControlWidgetUpdateSignal();
 
-      void mTablesWidgetUpdateSignal();
-      void mTablesWidgetUpdateColumnsSignal();
-      void mTablesWidgetFontChangeSignal();
+      void mTablesWidgetReloadModelSignal();
+      void mTablesWidgetUpdateUISignal();
 
       void mTablesWidgetControlWidgetUpdateSignal();
 
       void mCurrentSessionTimelineWidgetUpdateSignal();
 
       void updateGlobalPositionSignal();
-
-
-
-
-
-
-
-
-
-
-
 
 
 };

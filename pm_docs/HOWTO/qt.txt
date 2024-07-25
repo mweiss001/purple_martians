@@ -3794,124 +3794,1077 @@ mLogView::mLogView(QWidget *parent) : QWidget{parent}
 
 I should push all these recent changes
 
+done
 
 
+next:
 
+move sessions tableview to top area
 
+legend for current session timeline
 
+hide show config popups
 
+do a sql setup modal dialog from menu
 
+try dockable stuff
 
+can I do a top level window?
 
+floating...
 
 
+It was trivial to make current session timeline widget its own window
 
+- when instantiating, do not set parent:
 
+//   mCurrentSessionTimelineWidget * mCurrentSessionTimelineWidgetInstance = new mCurrentSessionTimelineWidget(this);
+   mCurrentSessionTimelineWidget * mCurrentSessionTimelineWidgetInstance = new mCurrentSessionTimelineWidget();
+   mCurrentSessionTimelineWidgetInstance->setWindowFlags(windowFlags() | Qt::Window);
+   mCurrentSessionTimelineWidgetInstance->show();
 
 
 
+this is awesome!
 
+I really want to try the dockable stuff....
 
 
 
 
 
 
+in mainwindow set one widget a central:
 
+setCentralWidget(textEdit);
 
 
 
+ QDockWidget *dock = new QDockWidget(tr("Customers"), this);
+    dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    customerList = new QListWidget(dock);
+    customerList->addItems(QStringList()
+            << "John Doe, Harmony Enterprises, 12 Lakeside, Ambleton"
+            << "Jane Doe, Memorabilia, 23 Watersedge, Beaton"
+            << "Tammy Shea, Tiblanka, 38 Sea Views, Carlton"
+            << "Tim Sheen, Caraba Gifts, 48 Ocean Way, Deal"
+            << "Sol Harvey, Chicos Coffee, 53 New Springs, Eccleston"
+            << "Sally Hobart, Tiroli Tea, 67 Long River, Fedula");
+    dock->setWidget(customerList);
+    addDockWidget(Qt::RightDockWidgetArea, dock);
+    viewMenu->addAction(dock->toggleViewAction());
 
 
+first of all this I changed the way I did things from:
 
+   // centralWidget = new QWidget;
+   // setCentralWidget(centralWidget);
 
+   // // logview
+   // mLogViewInstance = new mLogView(this);
+   // QHBoxLayout *hbox = new QHBoxLayout;
+   // centralWidget->setLayout(hbox);
+   // hbox->addWidget(mLogViewInstance);
 
+to:
+   // logview
+   mLogViewInstance = new mLogView(this);
+   setCentralWidget(mLogViewInstance);
 
 
 
+this works!!
 
+   auto viewMenu = menuBar()->addMenu(tr("&View"));
 
+   // sessions table
+   QDockWidget *dock = new QDockWidget(tr("Sessions"), this);
+   mSessionsWidget * mSessionsWidgetInstance = new mSessionsWidget(dock);
+   dock->setWidget(mSessionsWidgetInstance);
+   addDockWidget(Qt::RightDockWidgetArea, dock);
+   viewMenu->addAction(dock->toggleViewAction());
 
+   // sessions timeline
+   dock = new QDockWidget(tr("Sessions Timeline"), this);
+   mCurrentSessionTimelineWidget * mCurrentSessionTimelineWidgetInstance = new mCurrentSessionTimelineWidget(dock);
+   dock->setWidget(mCurrentSessionTimelineWidgetInstance);
+   addDockWidget(Qt::TopDockWidgetArea, dock);
+   viewMenu->addAction(dock->toggleViewAction());
 
+now I want to clean up logview by removing all the unnecsary frame and group boxes, but first save a copy here...
 
 
 
+// ---------------------------------------------------
+// first create all the things I will show here
+// ---------------------------------------------------
 
+//   mCurrentSessionTimelineWidget * mCurrentSessionTimelineWidgetInstance = new mCurrentSessionTimelineWidget(this);
 
+   // mCurrentSessionTimelineWidget * mCurrentSessionTimelineWidgetInstance = new mCurrentSessionTimelineWidget();
+   // mCurrentSessionTimelineWidgetInstance->setWindowFlags(windowFlags() | Qt::Window);
+   // mCurrentSessionTimelineWidgetInstance->show();
 
 
 
+   mTablesWidget * mTablesWidgetInstance = new mTablesWidget(this);
 
+   mChartsWidgetInstance = new mChartsWidget(this);
 
 
+   // ---------------------------------------------------------
+   // middle panel
+   // ---------------------------------------------------------
+   QFrame * middlePanelFrame = new QFrame();
+   middlePanelFrame->setLineWidth(0);
+   middlePanelFrame->setMidLineWidth(0);
+   middlePanelFrame->setFrameStyle(QFrame::Panel);
 
 
+//   middlePanelFrame->setMaximumWidth(640);
+   middlePanelFrame->setMaximumWidth(360);
 
 
+   // make vbox for frame
+   QVBoxLayout *MPFvbox = new QVBoxLayout;
 
+   // add vbox layout to frame
+   middlePanelFrame->setLayout(MPFvbox);
 
+   // ---------------------------------------------------------------------
+   // mTablesWidgetControlWidget
+   // ---------------------------------------------------------------------
+   mTablesWidgetControlWidget * mTablesWidgetControlWidgetInstance = new mTablesWidgetControlWidget(this);
+   MPFvbox->addWidget(mTablesWidgetControlWidgetInstance);
 
+   // ---------------------------------------------------
+   // sessions widget
+   // ---------------------------------------------------
+//   mSessionsWidgetInstance = new mSessionsWidget(this);
+//   MPFvbox->addWidget(mSessionsWidgetInstance);
 
 
+   // mSessionsWidgetInstance = new mSessionsWidget();
+   // mSessionsWidgetInstance->setWindowFlags(windowFlags() | Qt::Window);
+   // mSessionsWidgetInstance->show();
 
 
+   // ---------------------------------------------------
+   // charts controls widget
+   // ---------------------------------------------------
+   mChartsWidgetControlWidgetInstance = new mChartsWidgetControlWidget(this);
 
+   // put it in its own hbox so I can push it over to the right
+   QHBoxLayout *MPFhbox = new QHBoxLayout;
+   MPFvbox->addLayout(MPFhbox);
 
+   MPFhbox->addStretch();
+   MPFhbox->addWidget(mChartsWidgetControlWidgetInstance);
 
 
 
 
+// --------------------------------------------------------------------------
+// layout
+// --------------------------------------------------------------------------
 
+   //-------------------------------------
+   // make a frame to contain lower items
+   //-------------------------------------
 
 
+   // create frame
+   QFrame * lowerFrame = new QFrame(this);
+   lowerFrame->setLineWidth(0);
+   lowerFrame->setMidLineWidth(0);
+   lowerFrame->setFrameStyle(QFrame::Panel);
 
+   // create layout and apply to frame
+   QHBoxLayout *lowerFrameLayout = new QHBoxLayout;
+   lowerFrame->setLayout(lowerFrameLayout);
 
+   // instantiate splitter and add to layout
+   splitter = new QSplitter(this);
+   splitter->setChildrenCollapsible(false);
+   splitter->setOrientation(Qt::Horizontal);
+   splitter->setHandleWidth(8); // 5 is default
+   lowerFrameLayout->addWidget(splitter);
 
+   // add widgets to splitter
+   splitter->addWidget(mTablesWidgetInstance);
+   splitter->addWidget(middlePanelFrame);
+   splitter->addWidget(mChartsWidgetInstance);
 
 
 
 
+   //-------------------------------------
+   // top level layout
+   //-------------------------------------
 
+   // create topLayout and apply to this->
+   QVBoxLayout *topLayout = new QVBoxLayout;
+   this->setLayout(topLayout);
 
 
+   // when I do it this way the lower frame expands
 
+   // make vertical splitter and add to layout
+   QSplitter * vSplitter = new QSplitter(this);
+   vSplitter->setChildrenCollapsible(false);
+   vSplitter->setOrientation(Qt::Vertical);
+   topLayout->addWidget(vSplitter);
 
+   // add widgets to vsplitter
+//   vSplitter->addWidget(mCurrentSessionTimelineWidgetInstance);
+   vSplitter->addWidget(lowerFrame);
 
 
 
+   // when I do it this way, the lower frame does not expand
 
+   // // add widgets to layout
+   // topLayout->addWidget(mCurrentSessionTimelineWidgetInstance);
+   // topLayout->addWidget(lowerFrame);
 
+   readSplitterSizes();
+   connect(splitter, SIGNAL(splitterMoved(int, int)), this, SLOT(saveSplitterSizes(int, int)));
+}
 
 
+figured out how to save dock widgets state...
 
 
 
+20240723 6:52 AM
 
+I am so happy with dock widgets!!!
 
+now what?
 
+add to table controls...multiple tables in array instead of static 2 tables
 
+tableViews. what variables do I need?
 
+how many tableViews? (int)  limit 4?
+array of structs for each
+includes
 
+mTableView
+somthing to filter players for each tableview
 
 
+in class mTableWidget
 
 
 
+filters:
 
+player, client
 
+client filter will only come into play is player is zero (server)
 
+should each filter be an array of 8 bools?
 
+this would be the max
 
 
 
+most common setups:
 
+server and one client
+---------------------
+2 tables
+table 0  p:0 c:x
+table 1  p:x c:dont care
 
 
+all in one table
+----------------
+table 0 p:all c:all
 
 
+server and all clients
+----------------------
+table 0  p:0 c:all
+table 1  p>0
 
+should I make one control for all tables or one for each table
 
 
+how will I handle tableviews that I do not show?
+
+should I create them and not show them?
+
+
+
+how do I do it with charts?
+
+
+make all tables active and create them
+
+then only show visible...that seems to work...
+
+
+now controls:
+
+what about a strip on top of each table?
+P 0 1 2 3 4 5 6 7 ALL NONE
+C 0 1 2 3 4 5 6 7 ALL NONE
+
+and even better only show for data that exists...
+
+add number of tables control to controls 0-4
+
+when this changes in controls, i will need to signal widgets...
+
+this is all done...I can easily change the number of tables
+
+now add filter to the top of each table
+
+should I put each table in a frame?
+
+should i make this table filter its own widget class?
+
+class...mTablesWidgetTableFilter
+
+
+
+do i need to put each table and controls in a frame then hide/show the frame?
+
+
+
+am I thinking about this wrong?
+what is the progression? struct -> class
+
+should I make each table a class instead of a struct?
+and include a frame and controls...yes do that...
+
+mTablesWidgetTable
+
+changed struct to class and added all struct var as public in class
+
+runs...
+
+now make fraem and filter part of class...
+
+
+
+I think a bug that I run into quite often is not setting a layout for a widget...
+
+
+
+I am having visibility issues again...I think I am going to put filters in mbase
+
+wait, are they not members of ....
+
+
+what if I just declare my instance of mTablesWidget in mbase
+
+then I should be able to get everything else
+
+now its is declared and instantiated in logView
+
+   mTablesWidget * mTablesWidgetInstance = new mTablesWidget(this);
+
+
+if I move the declaration to mbase, then I could do something like this:
+
+mbase.mTablesWidgetInstance->mTablesWidgetTables[]->tableFilter[]
+
+is this helping or making things more complicated?
+
+would it be simpler to pass a pointer to the array to filter, so i could modify it there?
+
+try that...
+
+
+
+
+or I could fall back on the method I have been using else where:
+- read from settings file when creating the control
+- write to settings file when changing the control
+- read from settings file when attempting to use values
+
+this way I do not have to worry aboput what can see what, becasue everything can see the settings file...
+
+
+
+lets do this for filters...
+first figure out saving and restoring
+
+
+
+
+void mTableWidgetsTable::saveFilter()
+{
+   //qDebug() << "mTableColumnSelectWidget::saveColumnSelection()";
+   mbase.settings->beginWriteArray("mTableColumnSelect");
+   for (int i=0; i<10; i++)
+   {
+      mbase.settings->setArrayIndex(i);
+      mbase.settings->setValue("sel", mbase.col_types[i].shown);
+      //qDebug() << "w:" << i << " - " << mbase.col_types[i].shown;
+   }
+   mbase.settings->endArray();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void mTableColumnSelectWidget::readColumnSelection()
+{
+   //qDebug() << "mTableColumnSelectWidget::readColumnSelection()";
+   mbase.settings->beginReadArray("mTableColumnSelect");
+   for (int i=0; i<10; i++)
+   {
+      mbase.settings->setArrayIndex(i);
+      mbase.col_types[i].shown = mbase.settings->value("sel", 1).toInt();
+      //qDebug() << "r:" << i << " - " << mbase.col_types[i].shown;
+   }
+   mbase.settings->endArray();
+
+
+
+
+
+
+declare in mbase:
+      bool mTablesWidgetTableFilter[NUM_TABLES][2][8] = { 0 };
+
+0 = player
+1 = client
+      
+fix so that everything that uses it points there...done...
+
+now save...
+
+
+I never use active for tables, just remove it...
+
+for that matter, what about visible? what is that used for..removed also...
+
+now do something when checkboxes are changed
+
+I think I have that working!!!
+
+now make all none buttons work...
+
+all the functionality is working and it is not too complex...
+
+
+
+here it is in 90 lines:
+
+
+#ifndef MTABLESWIDGETTABLEFILTER_H
+#define MTABLESWIDGETTABLEFILTER_H
+
+#include <QWidget>
+#include <QBoxLayout>
+#include <QGroupBox>
+#include <QCheckBox>
+#include <QPushButton>
+#include "m_base.h"
+
+class mTablesWidgetTableFilter : public QWidget
+{
+   Q_OBJECT
+   public:
+      mTablesWidgetTableFilter(QWidget *parent = nullptr, int id = 0)
+      {
+         // qDebug() << "mTablesWidgetTableFilter::mTablesWidgetTableFilter(QWidget *parent) : QWidget{parent}";
+
+         tableId = id;
+
+         // top level vbox
+         QVBoxLayout *vbox = new QVBoxLayout;
+         this->setLayout(vbox);
+
+         // player filters GroupBox and hbox layout
+         QHBoxLayout *pHbox = new QHBoxLayout;
+         QGroupBox * pGb = new QGroupBox("Player Filter", this);
+         pGb->setLayout(pHbox);
+         vbox->addWidget(pGb);
+
+         QPushButton * allP  = new QPushButton("all", this);
+         QPushButton * noneP = new QPushButton("none", this);
+         connect(allP,  SIGNAL (clicked()), this, SLOT (onPAllClicked()));
+         connect(noneP, SIGNAL (clicked()), this, SLOT (onPNoneClicked()));
+         pHbox->addWidget(noneP);
+         pHbox->addWidget(allP);
+
+         for (int i=0; i<8; i++)
+         {
+            pCb[i] = new QCheckBox(QString::number(i), this);
+            pCb[i]->setChecked(mbase.mTablesWidgetTableFilter[tableId][0][i]);
+            connect(pCb[i], SIGNAL (clicked()), this, SLOT (onPCbClicked()));
+            pHbox->addWidget(pCb[i]);
+         }
+
+
+         // client filters GroupBox and hbox layout
+         QHBoxLayout *cHbox = new QHBoxLayout;
+         QGroupBox * cGb = new QGroupBox("Client Filter", this);
+         cGb->setLayout(cHbox);
+         vbox->addWidget(cGb);
+
+         QPushButton * allC  = new QPushButton("all", this);
+         QPushButton * noneC = new QPushButton("none", this);
+         connect(allC, SIGNAL  (clicked()), this, SLOT (onCAllClicked()));
+         connect(noneC, SIGNAL (clicked()), this, SLOT (onCNoneClicked()));
+         cHbox->addWidget(noneC);
+         cHbox->addWidget(allC);
+
+         for (int i=0; i<8; i++)
+         {
+            cCb[i] = new QCheckBox(QString::number(i), this);
+            cCb[i]->setChecked(mbase.mTablesWidgetTableFilter[tableId][1][i]);
+            connect(cCb[i], SIGNAL (clicked()), this, SLOT (onCCbClicked()));
+            cHbox->addWidget(cCb[i]);
+         }
+      }
+
+   private slots:
+      void onPAllClicked()   { for (int i=0; i<8; i++) pCb[i]->setChecked(true);   onPCbClicked();  }
+      void onPNoneClicked()  { for (int i=0; i<8; i++) pCb[i]->setChecked(false);  onPCbClicked();  }
+      void onPCbClicked()
+      {
+         for (int i=0; i<8; i++) mbase.mTablesWidgetTableFilter[tableId][0][i] = pCb[i]->checkState();
+         mbase.mTablesWidgetTableFiltersChangeFunction();
+      }
+      void onCAllClicked()   { for (int i=0; i<8; i++) cCb[i]->setChecked(true);   onCCbClicked();  }
+      void onCNoneClicked()  { for (int i=0; i<8; i++) cCb[i]->setChecked(false);  onCCbClicked();  }
+      void onCCbClicked()
+      {
+         for (int i=0; i<8; i++) mbase.mTablesWidgetTableFilter[tableId][1][i] = pCb[i]->checkState();
+         mbase.mTablesWidgetTableFiltersChangeFunction();
+      }
+
+   private:
+   int tableId;
+   QCheckBox * pCb[8];
+   QCheckBox * cCb[8];
+};
+#endif // MTABLESWIDGETTABLEFILTER_H
+
+
+
+
+void m_base::mTablesWidgetTableFiltersChangeFunction()
+{
+   //qDebug() << "void m_base::mTablesWidgetTableFiltersChangeFunction()";
+   saveFilters();
+   emit mTablesWidgetTableFiltersChangeSignal();
+}
+
+void m_base::saveFilters()
+{
+   // qDebug() << "void mbase::saveFilters()";
+   for (int t=0; t<NUM_TABLES; t++)
+      for (int f=0; f<2; f++)
+      {
+         QString id = "mTableFilter";
+         id += QString::number(t);
+         id += QString::number(f);
+
+         mbase.settings->beginWriteArray(id);
+         for (int p=0; p<8; p++)
+         {
+            mbase.settings->setArrayIndex(p);
+            mbase.settings->setValue("val", mbase.mTablesWidgetTableFilter[t][f][p]);
+            // qDebug() << "w:" << id << p << " - " << mbase.mTablesWidgetTableFilter[t][f][p];
+         }
+         mbase.settings->endArray();
+      }
+}
+
+void m_base::loadFilters()
+{
+   // qDebug() << "void mbase::loadFilters()";
+   for (int t=0; t<NUM_TABLES; t++)
+      for (int f=0; f<2; f++)
+      {
+         QString id = "mTableFilter";
+         id += QString::number(t);
+         id += QString::number(f);
+
+         mbase.settings->beginWriteArray(id);
+         for (int p=0; p<8; p++)
+         {
+            mbase.settings->setArrayIndex(p);
+            mbase.mTablesWidgetTableFilter[t][f][p] = mbase.settings->value("val", 1).toBool();
+            // qDebug() << "r:" << id << p << " - " << mbase.mTablesWidgetTableFilter[t][f][p];
+         }
+         mbase.settings->endArray();
+      }
+}
+
+
+
+#ifndef MTABLESWIDGETTABLE_H
+#define MTABLESWIDGETTABLE_H
+
+#include <QWidget>
+#include <QBoxLayout>
+#include <QGroupBox>
+#include "m_base.h"
+
+#include "mTableView.h"
+#include "mTablesWidgetTableFilter.h"
+
+class mTablesWidgetTable : public QWidget
+{
+   Q_OBJECT
+   public:
+      mTablesWidgetTable(QWidget *parent = nullptr, int id = 0, QSqlQueryModel * qm = nullptr)
+      {
+         tableId = id;
+
+         QVBoxLayout *vbox1 = new QVBoxLayout;
+         this->setLayout(vbox1);
+
+         QString gbTitle = "Table:";
+         gbTitle += QString::number(tableId);
+         gb = new QGroupBox(gbTitle);
+         vbox1->addWidget(gb);
+
+         QVBoxLayout *vbox = new QVBoxLayout;
+         gb->setLayout(vbox);
+
+         tableFilter = new mTablesWidgetTableFilter(this, tableId);
+         vbox->addWidget(tableFilter);
+
+         tableView = new mTableView();
+         tableView->setModel(qm);
+         vbox->addWidget(tableView);
+      }
+   int tableId;
+   QGroupBox * gb;
+   mTableView * tableView = nullptr;
+   mTablesWidgetTableFilter * tableFilter = nullptr;
+};
+#endif // MTABLESWIDGETTABLE_H
+
+now make a button in controls to show hide filters..done
+
+
+
+make message header left justified, where?
+it looks like I can set the alignment of them all with setDefaultAlignment, but not individually....
+I can do the cells with my delegate, but that does not affect the header...
+
+
+See also QStyleOption::initFrom() and initStyleOptionForIndex().
+[virtual protected, since 6.0]
+void QHeaderView::initStyleOptionForIndex(QStyleOptionHeader *option, int logicalIndex) const
+
+Initializes the style option from the specified logicalIndex. This function is called by the default implementation of paintSection after initStyleOption has been called.
+This function was introduced in Qt 6.0.
+
+I am giving up on this, too much work to simply change alignment of one column
+
+//         this->horizontalHeader()->initStyleOptionForIndex(QStyleOptionHeader *option, 7);
+//         this->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
+//         this->horizontalHeader()->setAlignment(Qt::AlignLeft);
+
+
+bug where if number of table is zero, nothing happens?? all four show up...fixed
+
+
+now see if I can remove group box to get more room
+maybe make it a frame
+
+ok spent some time making that look nice
+
+now how about some helper functions to quickly set up some defaults 
+
+call them from menu...
+
+
+2 chart defaults
+
+0
+p0 and all client 
+
+1
+p1 and all clients
+
+
+ 
+it works, but I need a way to make the stuff update back to the control widget....
+
+update number of tables
+update filters
+
+what am I calling now?
+
+   mTablesWidgetTableFiltersChangeFunction();
+
+
+make a function in table filter to update check boxes...done...
+
+but this will need to be called for every table....
+
+what if I make its parent do it....mWidgetsTable...maybe even one higher...mTablesWidget...
+this might get cyclic...this function is also called when filters change like this:
+
+   connect(&mbase, SIGNAL(mTablesWidgetTableFiltersChangeSignal()),  this, SLOT(showHideRowsBasedOnPlayer()));
+
+
+this seems to work, when I get this signal I call the function to reload filter cb from array....
+
+
+niow I want to update the numtbales also...
+
+
+now I need to also reload the numtable spinbox on controls
+
+I think I jave that working but it is a huige tangled mess of signals and slots
+
+
+I want to have one function that updates everything that can be updated in the UI
+
+I will call it updateUI
+
+stick it right under the constructor
+
+use it to update all the widgets
+
+this means that all the widgets need to have a pointer and a variable in mbase...
+
+
+
+Lets start from the top of the list and work down:
+
+
+variable in mbase:
+
+      int numVisibleTables = 2;      
+
+load from settings in updateUI:
+
+   mbase.numVisibleTables = mbase.settings->value("numVisibleTables", 2).toInt();
+   numTablesSpinBox->setValue(mbase.numVisibleTables);
+
+
+   
+   // -----------------------------------------------------------------------
+   // number of tables spin box
+   // -----------------------------------------------------------------------
+   numTablesSpinBox = new QSpinBox();
+   numTablespinBox->setRange(0, 4);
+   connect(numTablesSpinBox, SIGNAL (clicked()), this, SLOT (numTablesClicked()));
+   formLayout->addRow(tr("Number of Tables:"), numTablesSpinBox);
+
+
+void mTablesWidgetControlWidget::numTablesClicked()
+{
+   // qDebug() << "void mTablesWidgetControlWidget::numTablesClicked()";
+   mbase.numVisibleTables = numTablesSpinBox->value();   
+   mbase.settings->setValue("mTablesWidgetNumTables", mbase.numVisibleTables);
+   mbase.mTablesWidgetNumTablesChangeFunction();
+}
+
+   
+the one last thing to do it fix the reload the first time
+
+if 0 it does not work...fixed...
+
+
+
+next one on the list...
+
+   // -----------------------------------------------------------------------
+   // show hide filter controls
+   // -----------------------------------------------------------------------
+   showHideFilterControls = new QPushButton("Show");
+   showHideFilterControls->setCheckable(true);
+   connect(showHideFilterControls, SIGNAL (toggled(bool)), this, SLOT (showHideFilterControlsToggled(bool)));
+   formLayout->addRow(tr("Filter Controls:"), showHideFilterControls);
+
+
+variable in mbase:
+
+      bool showFilterControls = true;
+
+load from settings in updateUI:
+
+
+next one on the list
+
+   // -----------------------------------------------------------------------
+   // font size spin box
+   // -----------------------------------------------------------------------
+
+
+
+
+now I have all the controls on mTableWidgetControlWidget done
+except for the 2 sub widgets row and column
+I have been through them as well
+
+
+now when I click default table filters, what happens?
+
+it does show hide rows...
+that could be cleaned up as well....
+
+
+
+
+how about I have one update for mTablesWidget...or fewer...
+
+I def need one for sql changed
+this is the highest level and reloads everything
+
+'updateNewSession'
+
+also globalPosition is set to start of session externally
+
+
+
+
+
+
+
+
+
+
+
+
+
+then one for current pos changed
+this checks if new pos is in model range, and reloads model if it is not
+'currentPositionChanged'
+
+then one for font, columns, num tables, 
+basically changes that should never have to reload the model...
+'updateUI'
+
+if row selection changed the model will need to be reloaded...
+
+
+
+
+
+I basically want less entry points
+
+cases that I want to force model reload:
+- new session
+- row selection changed
+- current pos not in model range
+
+
+
+cases where I am sure no model reload is needed:
+- font change
+- column change
+- numtables change
+- table filters changes
+- show hide filter controls
+
+
+
+
+these should all be lumped together as updateUI
+lets start there
+coming along nicely...now table filters..done
+
+this is working great... now what?
+
+are charts and charts controls just as messed up?
+did a little cleanup...
+
+table selected rows do not work past first 2 tables...
+
+
+I need to rethink the whole algorithm
+
+separate the part where I check if the new position is in the model
+
+
+void mTablesWidget::updateGlobalPosition()
+{
+   // is new global position in model range
+   if ((mbase.globalPosition >= mbase.mTablesWidgetModelXAxisDateTimeStart) && (mbase.globalPosition <= mbase.mTablesWidgetModelXAxisDateTimeEnd))
+   {
+      updateSelectedRow();
+   }
+   else reloadModel();
+}
+
+done...
+
+now what?
+
+
+cycle all rows in model and get created time
+
+if row time >= global pos
+
+for each active table:
+   if model row is visible in that table: set selected row
+   
+   
+   but only do the first one of each
+
+
+void mTablesWidget::updateSelectedRow()
+{
+   //qDebug() << "mTablesWidget::updateSelectedRow()";
+   bool found[4] = { false };
+   // cycle all rows in model
+   for (int r=0; r<mTablesWidgetSqlQueryModel->rowCount(); r++)
+   {
+      // get created from column 3
+      QModelIndex qmi = mTablesWidgetSqlQueryModel->index(r, 3);
+      QDateTime rdt = qmi.model()->data(qmi, Qt::DisplayRole).toDateTime();
+
+      if (rdt >= mbase.globalPosition)
+         for (int t=0; t<4; t++)
+            if ((!found[t]) && (!mTablesWidgetTables[t]->tableView->isRowHidden(r)))
+            {
+               mTablesWidgetTables[t]->tableView->selectRow(r);
+               found[t] = true;
+            }
+   }
+   for (int t=0; t<4; t++)
+      mTablesWidgetTables[t]->tableView->update();
+}
+
+this does it...
+
+
+time to get ready for work...commit...
+
+20240725 7:18 AM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
 
 
 

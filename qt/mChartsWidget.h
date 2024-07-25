@@ -26,7 +26,7 @@ class mChartsWidget : public QWidget
    protected:
 
    public slots:
-      void reload();
+      void reloadModel();
       void controlsChanged();
       void changeTheme();
       void resetSplitter();

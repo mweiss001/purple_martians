@@ -28,22 +28,26 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         m_base.h m_base.cpp
-        mTableRowSelectWidget.h mTableRowSelectWidget.cpp
+
         mLogView.h mLogView.cpp
 
 
-        mTableColumnSelectWidget.h mTableColumnSelectWidget.cpp
-        mdelegate.h
+        mTableRowSelectWidget.h
+        mTableColumnSelectWidget.h
 
-        mSessionsWidget.h mSessionsWidget.cpp
+
+        mdelegate.h
         mdelegate2.h
+
         mChartView.h
         mChart.h
+
+        mSessionsWidget.h mSessionsWidget.cpp
+
 
         mChartsWidget.h mChartsWidget.cpp
         mChartViewCrosshairs.h mChartViewCrosshairs.cpp
         mChartsWidgetControlWidget.h mChartsWidgetControlWidget.cpp
-
 
         qdarkstyle/dark/darkstyle.qrc
         mTablesWidgetControlWidget.h mTablesWidgetControlWidget.cpp
@@ -51,7 +55,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         mTableView.h
         mTableViewOverlay.h mTableViewOverlay.cpp
         mChartViewCursor.h mChartViewCursor.cpp
-        mtest.h mtest.cpp
+
         mGraphicsScene.h
         mSessionsTimelineWidget.h mSessionsTimelineWidget.cpp
         mSessionsGraphicsItem.h
@@ -59,11 +63,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         customgraphicsview.h customgraphicsview.cpp
         mCurrentSessionTimelineWidget.h mCurrentSessionTimelineWidget.cpp
         mGraphicsViewSessionTimeline.h
-        form.h form.cpp form.ui
 
-
-
-
+        mTablesWidgetTableFilter.h
+        mTablesWidgetTable.h
 
     )
 # Define target properties for Android with Qt 6 as:
