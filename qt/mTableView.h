@@ -29,14 +29,11 @@ class mTableView : public QTableView
 
          this->setSelectionBehavior(QAbstractItemView::SelectRows);
          this->setSelectionMode(QAbstractItemView::QAbstractItemView::SingleSelection);
-
-
       }
 
-   protected:
+  protected:
       void paintEvent(QPaintEvent *event)
       {
-
 //         qDebug() << "mTableView::paintEvent(QPaintEvent *event)";
 
          // call the main handler for this event

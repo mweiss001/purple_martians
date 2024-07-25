@@ -2,7 +2,11 @@
 
 mChartsWidget::mChartsWidget(QWidget *parent) : QWidget{parent}
 {
-   connect(&mbase, SIGNAL(mChartsWidgetUpdateSignal()),           this, SLOT(reload()));
+   connect(&mbase, SIGNAL(mChartsWidgetReloadModelSignal()),      this, SLOT(reloadModel()));
+
+
+
+
    connect(&mbase, SIGNAL(mChartsWidgetControlsChangedSignal()),  this, SLOT(controlsChanged()));
    connect(&mbase, SIGNAL(mChartsWidgetChangeThemeSignal()),      this, SLOT(changeTheme()));
    connect(&mbase, SIGNAL(mChartsWidgetResetSplitterSignal()),    this, SLOT(resetSplitter()));
@@ -118,7 +122,7 @@ int mChartsWidget::getClosestIndexToDateTime(QDateTime dt)
 
 
 
-void mChartsWidget::reload()
+void mChartsWidget::reloadModel()
 {
    //qDebug() << "mChartsWidget::reload()";
 
@@ -151,39 +155,14 @@ void mChartsWidget::reload()
    // qDebug() << "sql:" << sql;
    statChartModel->setQuery(sql);
 
+   int rowCount = statChartModel->rowCount();
 
+   if (rowCount == 0)
+   {
+      // qDebug() << "Error in mChartsWidget::reloadModel(): no rows for query\n" << sql;
+      //return;
+   }
 
-
-/*
-
-//   QString sql = "SELECT * FROM status WHERE timestamp " + mbase.sessionsSqlWhereDateClause;
-
-   // start 1 second before the cursor
-   QDateTime start = mbase.globalPosition.addSecs(-1);
-
-   // don't let start be before session start
-   if (start < mbase.sessionsDtStart) start = mbase.sessionsDtStart;
-
-   qDebug() << start.toString("yyyy-MM-dd HH:mm:ss.z");
-   QString sql = "SELECT * FROM status WHERE timestamp ";
-
-   sql += " BETWEEN '";
-   sql += start.toString("yyyy-MM-dd HH:mm:ss.z");
-   sql += "' AND '";
-   sql += mbase.sessionsDtEnd.toString("yyyy-MM-dd HH:mm:ss.z");
-   sql += "' ";
-
-   sql += " ORDER BY id LIMIT ";
-
-//   if (mbase.mChartsWidgetXAxisFrame) sql += " ORDER BY frame LIMIT ";
-//   else sql += " ORDER BY timestamp LIMIT ";
-
-   sql += QString::number(mbase.mChartsWidgetSqlModelLimit);
-
-   // qDebug() << "sql: " << sql;
-   statChartModel->setQuery(sql);
-
-*/
 
    // clear the series and reset min max
    // -----------------------------------
@@ -327,17 +306,12 @@ void mChartsWidget::updateCursor()
 {
    // qDebug() << "void mChartsWidget::updateCursor()";
 
-   // check if new global position is not in model and reload if it is
+   // is new global position in model range
    if ((mbase.globalPosition >= mbase.mChartsWidgetModelXAxisDateTimeStart) && (mbase.globalPosition <= mbase.mChartsWidgetModelXAxisDateTimeEnd))
    {
-      // qDebug() << "void mChartsWidget::updateCursor() -- update charts";
       for (int i=0; i<NUM_CHARTS; i++) statChart[i]->update();
    }
-   else
-   {
-      // qDebug() << "void mChartsWidget::updateCursor() -- reload";
-      reload();
-   }
+   else reloadModel();
 }
 
 void mChartsWidget::controlsChanged()

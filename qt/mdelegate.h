@@ -17,17 +17,26 @@ public:
    {
       // find message_type sibling in column 1
       QModelIndex qmi = index.siblingAtColumn(1);
-      QVariant v = index.model()->data(qmi, Qt::DisplayRole);
-      int type = v.toInt();
+      int type = index.model()->data(qmi, Qt::DisplayRole).toInt();
+
+      // use message_type to set background color
       painter->fillRect(option.rect, mbase.log_types[type].color);
 
-      QStyleOptionViewItem myOption = option;
 
+      QStyleOptionViewItem myOption = option;
+      myOption.displayAlignment = Qt::AlignCenter | Qt::AlignVCenter;
+
+      if (index.column() == 8) myOption.displayAlignment = Qt::AlignLeft   | Qt::AlignVCenter; // message
+
+      /*
       if (index.column() == 1) myOption.displayAlignment = Qt::AlignCenter | Qt::AlignVCenter; // msg_type
       if (index.column() == 4) myOption.displayAlignment = Qt::AlignCenter | Qt::AlignVCenter; // agt
       if (index.column() == 5) myOption.displayAlignment = Qt::AlignCenter | Qt::AlignVCenter; // frame
       if (index.column() == 6) myOption.displayAlignment = Qt::AlignCenter | Qt::AlignVCenter; // player AS p
       if (index.column() == 7) myOption.displayAlignment = Qt::AlignCenter | Qt::AlignVCenter; // client AS c
+      if (index.column() == 8) myOption.displayAlignment = Qt::AlignLeft   | Qt::AlignVCenter; // message
+
+*/
 
 //      if (index.column() == 6) myOption.font = QFont{ "Courier", 9, QFont::Monospace };
 //      myOption.font = QFont{ "Courier", mbase.font_size, QFont::Monospace };

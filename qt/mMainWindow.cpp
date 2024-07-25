@@ -2,16 +2,15 @@
 
 mMainWindow::mMainWindow(QWidget *parent) : QMainWindow(parent)
 {
-   centralWidget = new QWidget;
-   setCentralWidget(centralWidget);
-
    // setup database
    mbase.setup_db();
 
    readSettings();
 
+
    // menu
    auto miscMenu = menuBar()->addMenu(tr("&Misc"));
+   auto viewMenu = menuBar()->addMenu(tr("&View"));
 
    QAction* act1 = new QAction("Update Charts Theme");
    miscMenu->addAction(act1);
@@ -21,15 +20,37 @@ mMainWindow::mMainWindow(QWidget *parent) : QMainWindow(parent)
    miscMenu->addAction(act2);
    connect(act2, SIGNAL(triggered()), this, SLOT(menuResetChartSize()));
 
-//   auto submenu = fileMenu->addMenu("Submenu");
-//   submenu->addAction(new QAction("action1"));
-//   submenu->addAction(new QAction("action2"));
+   QAction* act3 = new QAction("Default Table Filters");
+   miscMenu->addAction(act3);
+   connect(act3, SIGNAL(triggered()), this, SLOT(menuDefaultFilters()));
+
+
+
+
 
    // logview
-   mLogViewInstance = new mLogView(this);
-   QHBoxLayout *hbox = new QHBoxLayout;
-   centralWidget->setLayout(hbox);
-   hbox->addWidget(mLogViewInstance);
+   mLogView * mLogViewInstance = new mLogView(this);
+   setCentralWidget(mLogViewInstance);
+
+   // sessions table
+   QDockWidget * dock = new QDockWidget(tr("Sessions"), this);
+   mSessionsWidget * mSessionsWidgetInstance = new mSessionsWidget(dock);
+   dock->setWidget(mSessionsWidgetInstance);
+   dock->setObjectName("sessions");
+   addDockWidget(Qt::TopDockWidgetArea, dock);
+   viewMenu->addAction(dock->toggleViewAction());
+
+   // sessions timeline
+   dock = new QDockWidget(tr("Sessions Timeline"), this);
+   dock->setObjectName("sessionsTimeline");
+   mCurrentSessionTimelineWidget * mCurrentSessionTimelineWidgetInstance = new mCurrentSessionTimelineWidget(dock);
+   dock->setWidget(mCurrentSessionTimelineWidgetInstance);
+   addDockWidget(Qt::TopDockWidgetArea, dock);
+   viewMenu->addAction(dock->toggleViewAction());
+
+   readSettings();
+
+
 }
 
 
@@ -37,6 +58,7 @@ void mMainWindow::writeSettings()
 {
    mbase.settings->beginGroup("MainWindow");
    mbase.settings->setValue("geometry", saveGeometry());
+   mbase.settings->setValue("state", saveState());
    mbase.settings->endGroup();
 
    mbase.settings->beginWriteArray("charts");
@@ -51,11 +73,8 @@ void mMainWindow::writeSettings()
 
 void mMainWindow::readSettings()
 {
-   mbase.settings->beginGroup("MainWindow");
-   const auto geometry = mbase.settings->value("geometry", QByteArray()).toByteArray();
-   if (geometry.isEmpty()) setGeometry(200, 200, 400, 400);
-   else restoreGeometry(geometry);
-   mbase.settings->endGroup();
+   restoreGeometry(mbase.settings->value("MainWindow/geometry").toByteArray());
+   restoreState(mbase.settings->value("MainWindow/state").toByteArray());
 
    int size = mbase.settings->beginReadArray("charts");
    for (int i = 0; i < size; ++i)
@@ -65,11 +84,7 @@ void mMainWindow::readSettings()
       // qDebug() << "r:" << i << " - " << mbase.statChartGraphTypeArray[i].visible;
    }
    mbase.settings->endArray();
-
    mbase.mChartsWidgetChartTheme = mbase.settings->value("mChartsWidgetChartTheme", 0).toInt();
-
-
-
 }
 
 void mMainWindow::closeEvent(QCloseEvent *event)

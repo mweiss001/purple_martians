@@ -6,9 +6,9 @@
 #include <QGridLayout>
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QPushButton>
 #include <QSpinBox>
 #include <QLabel>
-
 
 
 #include "mTableRowSelectWidget.h"
@@ -19,24 +19,25 @@ class mTablesWidgetControlWidget : public QWidget
    Q_OBJECT
    public:
       explicit mTablesWidgetControlWidget(QWidget *parent = nullptr);
-      int HSIZE = 336;
-      int VSIZE = 464;
-      QSize minimumSizeHint() const {      return QSize(HSIZE, VSIZE);   }
-      QSize minimumSize () const    {      return QSize(HSIZE, VSIZE);   }
-
 
    private slots:
+      void showHideFilterControlsToggled(bool);
       void fontSizeChanged(int);
       void sqlLimitChanged(int);
+      void numTablesChanged(int);
 
-      void update();
+      void updateUI();
 
-
-
-   private:
+  private:
       mTableRowSelectWidget * mTableRowSelectWidgetInstance;
       mTableColumnSelectWidget * mTableColumnSelectWidgetInstance;
       QLabel * xAxisModel;
+
+
+      QSpinBox * numTablesSpinBox;
+      QPushButton * showHideFilterControls;
+      QSpinBox * fontSizeSpinBox;
+      QSpinBox * sqlLimitSpinBox;
 
 };
 

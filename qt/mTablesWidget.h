@@ -5,28 +5,35 @@
 #include <QSqlQueryModel>
 #include <QSqlQuery>
 #include <QBoxLayout>
+
+
+#include <QCheckBox>
+
+
 #include "m_base.h"
 
-#include "mTableView.h"
+
+#include "mTablesWidgetTableFilter.h"
+
+#include "mTablesWidgetTable.h"
+
 
 class mTablesWidget : public QWidget
 {
    Q_OBJECT
    public:
       explicit mTablesWidget(QWidget *parent = nullptr);
-      int updateSelectedRow();
-      void showHideRowsBasedOnPlayer();
+      mTablesWidgetTable * mTablesWidgetTables[NUM_TABLES];
 
    private slots:
-      void updateTables();
-      void updateTablesHiddenColumns();
-      void doFontSizeChange();
+      void reloadModel();
       void updateGlobalPosition();
+      void updateUI();
+
 
    private:
       QSqlQueryModel * mTablesWidgetSqlQueryModel;
-      mTableView * mTablesWidgetTableView1;
-      mTableView * mTablesWidgetTableView2;
+      void updateSelectedRow();
 };
 
 #endif // MTABLESWIDGET_H

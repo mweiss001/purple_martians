@@ -15,10 +15,6 @@ m_base::m_base()
    initStatChartSeriesStructArray();
    initStatChartGraphTypeArray();
    settings = new QSettings("pm_log.ini", QSettings::IniFormat);
-
-
-
-
 }
 
 void m_base::setup_db(void)
@@ -34,8 +30,6 @@ void m_base::setup_db(void)
 
    sessionsModel = new QSqlQueryModel();
    sessionsModel->setQuery("SELECT dt_start, dt_end, duration AS dur, player_num AS p, hostname AS host, endreason FROM sessions ORDER by dt_start");
-
-
 }
 
 
@@ -264,8 +258,8 @@ void m_base::sessionSelectionChanged(void)
 
    sessionsSqlWhereDateClause = sql;
 
-   emit mChartsWidgetUpdateSignal();
-   emit mTablesWidgetUpdateSignal();
+   emit mChartsWidgetReloadModelSignal();
+   emit mTablesWidgetReloadModelSignal();
    emit mCurrentSessionTimelineWidgetUpdateSignal();
 }
 
@@ -279,13 +273,119 @@ void m_base::updateGlobalPosition(QDateTime pos)
 
 }
 
-void m_base::mTablesWidgetFontChangeFunction(int fontSize)
+void m_base::mTablesWidgetFontChangeFunction()
 {
-   // qDebug() << "void m_base::mTablesWidgetFontChangeFunction(int fontSize)" << fontSize;
-   mTablesWidgetFontSize = fontSize;
+   // qDebug() << "void m_base::mTablesWidgetFontChangeFunction(int fontSize)" << mTablesWidgetFontSize;
    mTablesWidgetFont = QFont{ "Courier", mTablesWidgetFontSize, QFont::Monospace };
-   emit mTablesWidgetFontChangeSignal();
+   emit mTablesWidgetUpdateUISignal();
 }
+
+
+void m_base::mTablesWidgetTableFiltersChangeFunction()
+{
+   //qDebug() << "void m_base::mTablesWidgetTableFiltersChangeFunction()";
+   saveFilters();
+   emit mTablesWidgetUpdateUISignal();
+   emit mTablesWidgetControlWidgetUpdateSignal();
+}
+
+void m_base::saveFilters()
+{
+   // qDebug() << "void mbase::saveFilters()";
+   for (int t=0; t<NUM_TABLES; t++)
+      for (int f=0; f<2; f++)
+      {
+         QString id = "mTableFilter";
+         id += QString::number(t);
+         id += QString::number(f);
+
+         mbase.settings->beginWriteArray(id);
+         for (int p=0; p<8; p++)
+         {
+            mbase.settings->setArrayIndex(p);
+            mbase.settings->setValue("val", mbase.mTablesWidgetTableFilter[t][f][p]);
+            // qDebug() << "w:" << id << p << " - " << mbase.mTablesWidgetTableFilter[t][f][p];
+         }
+         mbase.settings->endArray();
+      }
+}
+
+void m_base::loadFilters()
+{
+   // qDebug() << "void mbase::loadFilters()";
+   for (int t=0; t<NUM_TABLES; t++)
+      for (int f=0; f<2; f++)
+      {
+         QString id = "mTableFilter";
+         id += QString::number(t);
+         id += QString::number(f);
+
+         mbase.settings->beginWriteArray(id);
+         for (int p=0; p<8; p++)
+         {
+            mbase.settings->setArrayIndex(p);
+            mbase.mTablesWidgetTableFilter[t][f][p] = mbase.settings->value("val", 1).toBool();
+            // qDebug() << "r:" << id << p << " - " << mbase.mTablesWidgetTableFilter[t][f][p];
+         }
+         mbase.settings->endArray();
+      }
+}
+
+
+
+
+
+void m_base::setDefaultFilters(int type = 1)
+{
+   qDebug() << "setDefaultFilters()";
+
+
+   // all player filters off and and all client filters on
+   for (int t=0; t<NUM_TABLES; t++)
+      for (int p=0; p<8; p++)
+      {
+         mTablesWidgetTableFilter[t][0][p] = false;
+         mTablesWidgetTableFilter[t][1][p] = true;
+      }
+
+   if (type == 1)
+   {
+      numVisibleTables = 2;
+      settings->setValue("numVisibleTables", numVisibleTables);
+
+      // table 0
+      mTablesWidgetTableFilter[0][0][0] = true; // server player 0
+
+      // table 1
+      mTablesWidgetTableFilter[1][0][1] = true; // client player 1
+   }
+
+
+   mTablesWidgetTableFiltersChangeFunction();
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

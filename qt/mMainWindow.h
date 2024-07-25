@@ -2,12 +2,17 @@
 #define MMAINWINDOW_H
 
 #include <QMainWindow>
+#include <QDockWidget>
 #include <QSettings>
 #include <QCloseEvent>
 #include <QMenuBar>
 
 #include "m_base.h"
 #include "mLogView.h"
+
+#include "mSessionsWidget.h"
+#include "mCurrentSessionTimelineWidget.h"
+
 
 
 
@@ -23,7 +28,6 @@ class mMainWindow : public QMainWindow
       void closeEvent(QCloseEvent *event);
 
    private slots:
-
       void menuUpdateChartTheme()
       {
          qDebug("menuUpdateChartTheme()");
@@ -35,9 +39,17 @@ class mMainWindow : public QMainWindow
          mbase.mChartsWidgetResetSplitterFunction();
       }
 
+
+      void menuDefaultFilters()
+      {
+         qDebug("menuDefaultFilters()");
+         mbase.setDefaultFilters(1);
+      }
+
+
+
    private:
-       QWidget * centralWidget;
-       mLogView * mLogViewInstance;
+
 };
 
 #endif // MMAINWINDOW_H
