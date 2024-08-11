@@ -12,9 +12,11 @@ mMainWindow::mMainWindow(QWidget *parent) : QMainWindow(parent)
    auto miscMenu = menuBar()->addMenu(tr("&Misc"));
    auto viewMenu = menuBar()->addMenu(tr("&View"));
 
-   QAction* act1 = new QAction("Update Charts Theme");
+
+   QAction* act1 = new QAction("Settings");
    miscMenu->addAction(act1);
-   connect(act1, SIGNAL(triggered()), this, SLOT(menuUpdateChartTheme()));
+   connect(act1, SIGNAL(triggered()), this, SLOT(menuSettings()));
+
 
    QAction* act2 = new QAction("Reset Charts Size");
    miscMenu->addAction(act2);
@@ -23,9 +25,6 @@ mMainWindow::mMainWindow(QWidget *parent) : QMainWindow(parent)
    QAction* act3 = new QAction("Default Table Filters");
    miscMenu->addAction(act3);
    connect(act3, SIGNAL(triggered()), this, SLOT(menuDefaultFilters()));
-
-
-
 
 
    // logview

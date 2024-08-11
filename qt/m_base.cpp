@@ -19,13 +19,16 @@ m_base::m_base()
 
 void m_base::setup_db(void)
 {
+   dbHostName     = settings->value("dbHostName",     "purplemartians.org").toString();
+   dbDatabaseName = settings->value("dbDatabaseName", "pm").toString();
+   dbUserName     = settings->value("dbUserName",     "pmdb_ro").toString();
+   dbPassword     = settings->value("dbPassword",     "readonly").toString();
+
    db = QSqlDatabase::addDatabase("QMYSQL");
-//   db.setHostName("96.45.9.166");
-   db.setHostName("scat");
-//   db.setHostName("purplemartians.org");
-   db.setDatabaseName("pm");
-   db.setUserName("pmdb_ro");
-   db.setPassword("readonly");
+   db.setHostName(dbHostName);
+   db.setDatabaseName(dbDatabaseName);
+   db.setUserName(dbUserName);
+   db.setPassword(dbPassword);
    if (!db.open()) qDebug() << "database error:" << db.lastError().text();
 
    sessionsModel = new QSqlQueryModel();
@@ -45,10 +48,10 @@ void m_base::init_log_types(void)
       log_types[i].color.setRgbF(1, 1, 1, 1);
       strcpy(log_types[i].name, "");
    }
-
+/*
    i = LOG_error;                      log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_error");
    i = LOG_NET;                        log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_NET");
-   i = LOG_NET_ending_stats;           log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_NET_ending_stats");
+   i = LOG_NET_ending_stats;           log_types[i].valid = 0; log_types[i].shown = 0;  strcpy(log_types[i].name, "LOG_NET_ending_stats");
    i = LOG_NET_bandwidth;              log_types[i].valid = 0; log_types[i].shown = 0;  strcpy(log_types[i].name, "LOG_NET_bandwidth");
 
    i = LOG_NET_stdf_rewind;            log_types[i].valid = 1; log_types[i].shown = 0;  strcpy(log_types[i].name, "LOG_NET_stdf_rewind");
@@ -60,9 +63,40 @@ void m_base::init_log_types(void)
 
    i = LOG_NET_stak;                   log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_NET_stak");
    i = LOG_NET_cdat;                   log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_NET_cdat");
-   i = LOG_NET_client_ping;            log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_NET_client_ping");
+   i = LOG_NET_client_ping;            log_types[i].valid = 0; log_types[i].shown = 0;  strcpy(log_types[i].name, "LOG_NET_client_ping");
    i = LOG_NET_timer_adjust;           log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_NET_timer_adjust");
    i = LOG_NET_file_transfer;          log_types[i].valid = 0; log_types[i].shown = 1;  strcpy(log_types[i].name, "LOG_NET_file_transfer");
+
+  */
+
+
+
+
+   i = LOG_NET;                        log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "main");
+   i = LOG_NET_stdf_rewind;            log_types[i].valid = 1; log_types[i].shown = 0;  strcpy(log_types[i].name, "stdf_rewind");
+   i = LOG_NET_stdf_create;            log_types[i].valid = 1; log_types[i].shown = 0;  strcpy(log_types[i].name, "stdf_create");
+   i = LOG_NET_stdf;                   log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "stdf");
+   i = LOG_NET_stdf_packets;           log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "stdf_packets");
+   i = LOG_NET_dif_apply;              log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "dif_apply");
+   i = LOG_NET_stak;                   log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "stak");
+   i = LOG_NET_cdat;                   log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "cdat");
+   i = LOG_NET_timer_adjust;           log_types[i].valid = 1; log_types[i].shown = 1;  strcpy(log_types[i].name, "timer_adjust");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
    i = LOG_NET;                        log_types[i].color = QColor::fromString("lightblue");
    i = LOG_NET_ending_stats;           log_types[i].color = QColor::fromString("dodgerblue");
@@ -264,6 +298,29 @@ void m_base::sessionSelectionChanged(void)
 }
 
 
+QString m_base::getRangeText(QDateTime start, QDateTime end, int precision)
+{
+   QString txt;
+   int days = start.daysTo(end);
+   if (days)
+   {
+      txt += QString::number(days);
+      txt += "d ";
+   }
+
+   double msecs = end.toMSecsSinceEpoch() - start.toMSecsSinceEpoch();
+   msecs = qRound(msecs/precision) * precision; // round to precision (100 = .1s)
+   QTime timeRange = QTime::fromString("0", "s");
+   timeRange = timeRange.addMSecs(msecs);
+
+   if (precision == 1000) txt += timeRange.toString("hh:mm:ss");
+   else txt += timeRange.toString("hh:mm:ss.zzz");
+
+   return txt;
+}
+
+
+
 
 void m_base::updateGlobalPosition(QDateTime pos)
 {
@@ -279,6 +336,7 @@ void m_base::mTablesWidgetFontChangeFunction()
    mTablesWidgetFont = QFont{ "Courier", mTablesWidgetFontSize, QFont::Monospace };
    emit mTablesWidgetUpdateUISignal();
 }
+
 
 
 void m_base::mTablesWidgetTableFiltersChangeFunction()
@@ -330,10 +388,6 @@ void m_base::loadFilters()
          mbase.settings->endArray();
       }
 }
-
-
-
-
 
 void m_base::setDefaultFilters(int type = 1)
 {

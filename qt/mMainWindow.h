@@ -7,13 +7,17 @@
 #include <QCloseEvent>
 #include <QMenuBar>
 
+#include <QDialog>
+#include <QDialogButtonBox>
+
+
 #include "m_base.h"
 #include "mLogView.h"
 
 #include "mSessionsWidget.h"
 #include "mCurrentSessionTimelineWidget.h"
 
-
+#include "mSettingsDialog.h"
 
 
 class mMainWindow : public QMainWindow
@@ -28,17 +32,12 @@ class mMainWindow : public QMainWindow
       void closeEvent(QCloseEvent *event);
 
    private slots:
-      void menuUpdateChartTheme()
-      {
-         qDebug("menuUpdateChartTheme()");
-         mbase.mChartsWidgetChangeThemeFunction();
-      }
+
       void menuResetChartSize()
       {
          qDebug("menuResetChartSize()");
          mbase.mChartsWidgetResetSplitterFunction();
       }
-
 
       void menuDefaultFilters()
       {
@@ -46,6 +45,12 @@ class mMainWindow : public QMainWindow
          mbase.setDefaultFilters(1);
       }
 
+
+      void menuSettings()
+      {
+         qDebug("menuSettings()");
+         mSettingsDialog dialog;
+      }
 
 
    private:

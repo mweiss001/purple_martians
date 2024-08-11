@@ -6,11 +6,13 @@ mLogView::mLogView(QWidget *parent) : QWidget{parent}
 // ---------------------------------------------------
 // first create all the things I will show here
 // ---------------------------------------------------
-   mTablesWidget * mTablesWidgetInstance = new mTablesWidget(this);
-   mChartsWidget * mChartsWidgetInstance = new mChartsWidget(this);
+   mTablesWidget * mTablesWidgetInstance = new mTablesWidget();
+   mChartsWidget * mChartsWidgetInstance = new mChartsWidget();
+   mTablesWidgetControlWidget * mTablesWidgetControlWidgetInstance = new mTablesWidgetControlWidget();
+   mChartsWidgetControlWidget * mChartsWidgetControlWidgetInstance = new mChartsWidgetControlWidget();
 
    // ---------------------------------------------------------
-   // middle panel
+   // middle panel frame
    // ---------------------------------------------------------
    QFrame * middlePanelFrame = new QFrame();
    middlePanelFrame->setLineWidth(0);
@@ -18,29 +20,24 @@ mLogView::mLogView(QWidget *parent) : QWidget{parent}
    middlePanelFrame->setFrameStyle(QFrame::Panel);
    middlePanelFrame->setMaximumWidth(360);
 
-   // make vbox for frame
-   QVBoxLayout *MPFvbox = new QVBoxLayout;
+   // create and apply layout for middle panel frame
+   QVBoxLayout *middlePanelFrameLayout = new QVBoxLayout;
+   middlePanelFrameLayout->setContentsMargins(0, 0, 0, 0);
+   middlePanelFrame->setLayout(middlePanelFrameLayout);
 
-   // add vbox layout to frame
-   middlePanelFrame->setLayout(MPFvbox);
+   // make hbox layout for mTablesWidgetControlWidget so I can left align it
+   QHBoxLayout *mTablesWidgetControlWidgetLayout = new QHBoxLayout;
+   middlePanelFrameLayout->addLayout(mTablesWidgetControlWidgetLayout);
+   mTablesWidgetControlWidgetLayout->addWidget(mTablesWidgetControlWidgetInstance);
+   mTablesWidgetControlWidgetLayout->addStretch();
 
-   // ---------------------------------------------------------------------
-   // mTablesWidgetControlWidget
-   // ---------------------------------------------------------------------
-   mTablesWidgetControlWidget * mTablesWidgetControlWidgetInstance = new mTablesWidgetControlWidget(this);
-   MPFvbox->addWidget(mTablesWidgetControlWidgetInstance);
+   middlePanelFrameLayout->addStretch();
 
-   // ---------------------------------------------------
-   // mChartsWidgetControlWidgetInstance
-   // ---------------------------------------------------
-   mChartsWidgetControlWidget * mChartsWidgetControlWidgetInstance = new mChartsWidgetControlWidget(this);
-
-   // put it in its own hbox so I can push it over to the right
-   QHBoxLayout *MPFhbox = new QHBoxLayout;
-   MPFvbox->addLayout(MPFhbox);
-
-   MPFhbox->addStretch();
-   MPFhbox->addWidget(mChartsWidgetControlWidgetInstance);
+   // make hbox layout for mChartsWidgetControlWidget so I can right align it
+   QHBoxLayout *mChartsWidgetControlWidgetLayout = new QHBoxLayout;
+   middlePanelFrameLayout->addLayout(mChartsWidgetControlWidgetLayout);
+   mChartsWidgetControlWidgetLayout->addStretch();
+   mChartsWidgetControlWidgetLayout->addWidget(mChartsWidgetControlWidgetInstance);
 
 
 // --------------------------------------------------------------------------
@@ -49,14 +46,16 @@ mLogView::mLogView(QWidget *parent) : QWidget{parent}
 
    // create layout and apply to this
    QHBoxLayout *hbox = new QHBoxLayout;
+   hbox->setContentsMargins(0, 0, 0, 0);
    this->setLayout(hbox);
 
    // instantiate splitter and add to layout
-   splitter = new QSplitter(this);
+   splitter = new QSplitter();
    splitter->setChildrenCollapsible(false);
    splitter->setOrientation(Qt::Horizontal);
    splitter->setHandleWidth(8); // 5 is default
    hbox->addWidget(splitter);
+
 
    // add widgets to splitter
    splitter->addWidget(mTablesWidgetInstance);

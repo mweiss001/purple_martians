@@ -84,11 +84,10 @@ class m_base : public QObject
       m_base();
 
       QSqlDatabase db;
+      QString dbHostName, dbDatabaseName, dbUserName, dbPassword;
       void setup_db(void);
 
       QSettings * settings;
-
-
 
       struct log_type log_types[100];
       void init_log_types(void);
@@ -96,6 +95,7 @@ class m_base : public QObject
       struct col_type col_types[10];
       void init_col_types(void);
 
+      QString getRangeText(QDateTime start, QDateTime end, int precision);
 
       QImage rectangle(qreal imageSize, const QColor &color);
       QImage circle(qreal imageSize, const QColor &color);
@@ -104,28 +104,38 @@ class m_base : public QObject
       // Global Cursor DateTime Position
       //------------------------------------------------------------
       QDateTime globalPosition;
-
       void updateGlobalPosition(QDateTime pos);
+//      QColor globalPositionColor = QColorConstants::Svg::purple;
+
+      QColor globalPositionColor = QColor(150, 0, 255);
+
+
 
 
       // mTablesWidget
       //------------------------------------------------------------
+
+
+      QColor mTablesWidgetColor = Qt::green;
+
+
+
       QFont mTablesWidgetFont;
       void mTablesWidgetFontChangeFunction();
-
 
       bool mTablesWidgetTableFilter[NUM_TABLES][2][8] = { 0 };
 
       void saveFilters();
       void loadFilters();
 
-
       void setDefaultFilters(int type);
-
 
       // x axis ranges of sql model
       QDateTime mTablesWidgetModelXAxisDateTimeStart;
       QDateTime mTablesWidgetModelXAxisDateTimeEnd;
+
+
+
 
       // mTablesWidgetControlWidget
       //------------------------------------------------------------
@@ -133,16 +143,8 @@ class m_base : public QObject
       bool showFilterControls = true;
       int mTablesWidgetFontSize = 8;
 
-
-
-
-
-
       QString mTablesWidgetControlWidgetSqlWhereTypeClause;
       int mTablesWidgetSqlModelLimit = 400;
-
-
-
 
 
 
@@ -151,19 +153,21 @@ class m_base : public QObject
 
       QSqlQueryModel *sessionsModel = nullptr;
 
-
       // time range set by selecting one or more sessions
       QDateTime sessionsDtStart;
       QDateTime sessionsDtEnd;
-      QTime     sessionsRange;
       QString   sessionsSqlWhereDateClause;
 
       void sessionSelectionChanged(); // this emits 3 signals !!!
+
+      QColor sessionsColor = Qt::blue;
 
 
 
       // mChartsWidget
       //------------------------------------------------------------
+
+      QColor mChartsWidgetColor = Qt::red;
 
       // chart types
       struct statChartGraphType statChartGraphTypeArray[NUM_CHARTS];

@@ -40,21 +40,21 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         mdelegate2.h
 
         mChartView.h
-        mChart.h
 
-        mSessionsWidget.h mSessionsWidget.cpp
+
+        mSessionsWidget.h
 
 
         mChartsWidget.h mChartsWidget.cpp
-        mChartViewCrosshairs.h mChartViewCrosshairs.cpp
+        mChartViewCrosshairs.h
         mChartsWidgetControlWidget.h mChartsWidgetControlWidget.cpp
 
         qdarkstyle/dark/darkstyle.qrc
         mTablesWidgetControlWidget.h mTablesWidgetControlWidget.cpp
         mTablesWidget.h mTablesWidget.cpp
         mTableView.h
-        mTableViewOverlay.h mTableViewOverlay.cpp
-        mChartViewCursor.h mChartViewCursor.cpp
+
+        mChartViewCursor.h
 
         mGraphicsScene.h
         mSessionsTimelineWidget.h mSessionsTimelineWidget.cpp
@@ -66,6 +66,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
         mTablesWidgetTableFilter.h
         mTablesWidgetTable.h
+        mSettingsDialog.h
 
     )
 # Define target properties for Android with Qt 6 as:

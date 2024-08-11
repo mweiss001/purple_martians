@@ -1,20 +1,12 @@
 // pm.h
 
-#define PM_VERSION "7.24.0701.2"
+#define PM_VERSION "7.24.0811.1"
 
 #include <stdio.h>
 #include <math.h>
 #include <chrono>
 #include <libnet.h>
 #include <zlib.h>
-
-
-
-
-
-
-
-
 
 
 #include <allegro5/allegro.h>

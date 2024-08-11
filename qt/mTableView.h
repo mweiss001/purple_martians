@@ -40,15 +40,11 @@ class mTableView : public QTableView
          QTableView::paintEvent(event);
 
          // draw a frame to highlight the selection
-
-         QPainter painter(this->viewport());
+         QPainter painter(viewport());
          painter.setBrush(QColor(0, 0, 0, 0));
 
-
-         QPen pen(QColor(255, 0, 0));
+         QPen pen(mbase.globalPositionColor);
          pen.setWidthF(1.8);
-
-
          painter.setPen(pen);
 
 

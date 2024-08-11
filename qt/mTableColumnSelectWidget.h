@@ -15,18 +15,32 @@ class mTableColumnSelectWidget : public QWidget
    public:
       explicit mTableColumnSelectWidget(QWidget *parent = nullptr)
       {
-         QVBoxLayout *vbox = new QVBoxLayout;
+         //qDebug() << "mTableColumnSelectWidget::constructor()";
 
-         QGroupBox * mpms_gb = new QGroupBox("Column Select", this);
-         mpms_gb->setLayout(vbox);
+         // create top laout and add to this->
+         QVBoxLayout *topLayout = new QVBoxLayout;
+         topLayout->setContentsMargins(0, 0, 0, 0);
+
+         this->setLayout(topLayout);
+
+         // create top level groupbox add to top layout
+         QGroupBox * topLayoutGroupBox = new QGroupBox("Column Select", this);
+         topLayoutGroupBox->setMinimumSize(100, 300);
+         topLayoutGroupBox->setMaximumSize(100, 300);
+         topLayout->addWidget(topLayoutGroupBox);
+
+         // create vertical layout for inside groupbox
+         QVBoxLayout *topLayoutGroupBoxLayout = new QVBoxLayout;
+         topLayoutGroupBox->setLayout(topLayoutGroupBoxLayout);
+
+         // create and add buttons to layout
+         QPushButton * none = new QPushButton("none", this);
+         connect(none, SIGNAL (clicked()), this, SLOT (noneClicked()));
+         topLayoutGroupBoxLayout->addWidget(none);
 
          QPushButton * all  = new QPushButton("all", this);
          connect(all, SIGNAL (clicked()), this, SLOT (allClicked()));
-         QPushButton * none = new QPushButton("none", this);
-         connect(none, SIGNAL (clicked()), this, SLOT (noneClicked()));
-
-         vbox->addWidget(none);
-         vbox->addWidget(all);
+         topLayoutGroupBoxLayout->addWidget(all);
 
          readColumnSelection();
 
@@ -34,15 +48,15 @@ class mTableColumnSelectWidget : public QWidget
          {
             if (mbase.col_types[i].valid)
             {
-               mpms_cb[i] = new QCheckBox(mbase.col_types[i].db_name, mpms_gb);
+               mpms_cb[i] = new QCheckBox(mbase.col_types[i].db_name);
                mpms_cb[i]->setChecked(mbase.col_types[i].shown);
-               vbox->addWidget(mpms_cb[i]);
+               mpms_cb[i]->setStyleSheet("border: 2px ;");
+
+               topLayoutGroupBoxLayout->addWidget(mpms_cb[i]);
                connect(mpms_cb[i], SIGNAL(clicked()), this, SLOT (cbClicked())) ;
             }
          }
       }
-
-      QSize minimumSizeHint() const { return QSize(100, 330); }
 
    private slots:
       void cbClicked()
