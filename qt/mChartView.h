@@ -56,6 +56,14 @@ class mChartView : public QChartView
        }
 
 
+      void leaveEvent(QEvent *event)
+      {
+         //qDebug() << "leaveEvent";
+         mChartViewCrosshairsInstance->setVisible(false);
+      }
+
+
+
       void mouseMoveEvent(QMouseEvent *event)
       {
          // detect if on plot area
@@ -130,7 +138,7 @@ class mChartView : public QChartView
             mChartViewCrosshairsInstance->setMousePos(mousePos);
          }
 
-         // find new min and max
+         // set new min and max
          mbase.mChartsWidgetXAxisMin = va->min();
          mbase.mChartsWidgetXAxisMax = va->max();
          mbase.mChartsWidgetControlsChangedFunction();

@@ -61495,6 +61495,51 @@ echo "\nSession scrape completed in: $et seconds\n\n";
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 show full datetime in sessions in qtapp
 
 did it by making another delegate for that tableview
@@ -62397,6 +62442,11 @@ time for another commit...but not release...
 then deploy to server and generate more data...
 
 
+
+20240811
+made a few changes to demo level 089
+
+do a new release...
 
 
 

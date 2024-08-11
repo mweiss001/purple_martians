@@ -3,10 +3,6 @@
 mChartsWidget::mChartsWidget(QWidget *parent) : QWidget{parent}
 {
    connect(&mbase, SIGNAL(mChartsWidgetReloadModelSignal()),      this, SLOT(reloadModel()));
-
-
-
-
    connect(&mbase, SIGNAL(mChartsWidgetControlsChangedSignal()),  this, SLOT(controlsChanged()));
    connect(&mbase, SIGNAL(mChartsWidgetChangeThemeSignal()),      this, SLOT(changeTheme()));
    connect(&mbase, SIGNAL(mChartsWidgetResetSplitterSignal()),    this, SLOT(resetSplitter()));
@@ -19,15 +15,43 @@ mChartsWidget::mChartsWidget(QWidget *parent) : QWidget{parent}
 
 void mChartsWidget::buildCharts()
 {
-
    // vertical box layout
    vbox = new QVBoxLayout;
+   vbox->setContentsMargins(0, 0, 0, 0);
    this->setLayout(vbox);
 
-   splitter = new QSplitter(this);
+
+
+   // create groupBox and add to topLayout
+   QGroupBox * topGroupBox = new QGroupBox("Charts");
+   vbox->addWidget(topGroupBox);
+   topGroupBox->setObjectName("t1");
+   QString style = "QGroupBox#t1 { border: 1px solid " + mbase.mChartsWidgetColor.name();
+   style += "; margin: 0px; margin-top:4px; background-color:" + mbase.mChartsWidgetColor.lighter(195).name();
+   style += "; } QGroupBox#t1::title { left: 10px; top: -8px; }";
+   topGroupBox->setStyleSheet(style);
+
+   // create layout for topGroupBox
+   QHBoxLayout *topGroupBoxLayout = new QHBoxLayout;
+   topGroupBox->setLayout(topGroupBoxLayout);
+   topGroupBoxLayout->setContentsMargins(4, 8, 4, 4);
+
+
+
+
+
+
+
+
+
+   splitter = new QSplitter();
    splitter->setChildrenCollapsible(false);
    splitter->setOrientation(Qt::Vertical);
-   vbox->addWidget(splitter);
+
+   topGroupBoxLayout->addWidget(splitter);
+
+
+
 
    for (int i=0; i<NUM_CHARTS; i++)
    {
@@ -38,13 +62,12 @@ void mChartsWidget::buildCharts()
 
       int m = 1;
       statChart[i]->layout()->setContentsMargins(m, m, m, m);
-
       m = 0;
       statChart[i]->setMargins(QMargins(m, m, m, m));
 
       statChart[i]->legend()->setVisible(false);
 
-      //statChart[i]->setTitle(mbase.statChartGraphTypeArray[i].display_name);
+//      statChart[i]->setTitle(mbase.statChartGraphTypeArray[i].display_name);
 
       statChart[i]->setBackgroundRoundness(2);
 
@@ -55,6 +78,8 @@ void mChartsWidget::buildCharts()
       QDateTimeAxis * statChartXaxis = new QDateTimeAxis;
       statChartXaxis->setFormat("HH:mm:ss.zzz");
       statChart[i]->addAxis(statChartXaxis, Qt::AlignBottom);
+      statChartXaxis->hide();
+
 
       QValueAxis * statChartYaxis = new QValueAxis;
       statChartYaxis->setTitleText(mbase.statChartGraphTypeArray[i].display_name);
@@ -68,9 +93,6 @@ void mChartsWidget::buildCharts()
       statChartYaxis->setTitleFont(labelsFont);
       statChartYaxis->setTitleBrush(col.darker(150));
 
-      // get the first x axis from the chart
-      QList qlxa = this->statChart[i]->axes(Qt::Horizontal);
-
       for (int s=0; s<8; s++)
       {
          statChartSeries[i][s] = new QLineSeries;
@@ -78,24 +100,15 @@ void mChartsWidget::buildCharts()
          statChartSeries[i][s]->setName(mbase.statChartSeriesStructArray[s].name);
          statChartSeries[i][s]->setPen(QPen(mbase.statChartSeriesStructArray[s].col, mbase.mChartsWidgetPlotLineSize));
          statChartSeries[i][s]->setPointsVisible(true);
-
-         //statChartSeries[i][s]->setColor(mbase.statChartSeriesStructArray[s].col);
-         // constexpr qreal marker_size = 4.;
-         // statChartSeries[i][s]->setLightMarker(mbase.circle(marker_size, mbase.statChartSeriesStructArray[s].col));
-         // statChartSeries[i][s]->setMarkerSize(marker_size);
-
-         statChartSeries[i][s]->attachAxis(qlxa.at(0));
+         statChartSeries[i][s]->attachAxis(statChartXaxis);
          statChartSeries[i][s]->attachAxis(statChartYaxis);
       }
-
       statChartView[i] = new mChartView(statChart[i], this, i);
       statChartView[i]->setMinimumHeight(100);
       statChartView[i]->setVisible(mbase.statChartGraphTypeArray[i].active);
       statChartView[i]->chart()->setTheme(static_cast<QChart::ChartTheme>(mbase.mChartsWidgetChartTheme));
-
       splitter->addWidget(statChartView[i]);
    }
-
    readSplitterSizes();
    connect(splitter, SIGNAL(splitterMoved(int, int)), this, SLOT(saveSplitterSizes(int, int)));
    controlsChanged();
@@ -189,6 +202,11 @@ void mChartsWidget::reloadModel()
    mbase.mChartsWidgetModelXAxisDateTimeEnd   = QDateTime::fromString("1900", "yyyy");
 
 
+
+
+
+
+
    // iterate all rows in the model and fill series
    // ---------------------------------------------
    for (int r=0; r<statChartModel->rowCount(); r++)
@@ -198,8 +216,12 @@ void mChartsWidget::reloadModel()
       QDateTime ts = statChartModel->data(index, Qt::DisplayRole).toDateTime();
 
       // check and update dateTimeStart and dateTimeEnd
-      if (ts < mbase.mChartsWidgetModelXAxisDateTimeStart) mbase.mChartsWidgetModelXAxisDateTimeStart = ts;
-      if (ts > mbase.mChartsWidgetModelXAxisDateTimeEnd)   mbase.mChartsWidgetModelXAxisDateTimeEnd   = ts;
+      // if (ts < mbase.mChartsWidgetModelXAxisDateTimeStart) mbase.mChartsWidgetModelXAxisDateTimeStart = ts;
+      // if (ts > mbase.mChartsWidgetModelXAxisDateTimeEnd)   mbase.mChartsWidgetModelXAxisDateTimeEnd   = ts;
+
+      mbase.mChartsWidgetModelXAxisDateTimeStart = qMin(ts, mbase.mChartsWidgetModelXAxisDateTimeStart);
+      mbase.mChartsWidgetModelXAxisDateTimeEnd   = qMax(ts, mbase.mChartsWidgetModelXAxisDateTimeEnd);
+
 
       // get player number from column 3
       index = statChartModel->index(r, 3);
@@ -215,18 +237,39 @@ void mChartsWidget::reloadModel()
 
    }
 
+
    // set the range for all charts
    // -----------------------------------
    for (int i=0; i<NUM_CHARTS; i++)
    {
       // get the first x axis from the chart
-      QList qlxa = this->statChart[i]->axes(Qt::Horizontal);
+      QList qlxa = statChart[i]->axes(Qt::Horizontal);
       qlxa.at(0)->setRange(mbase.mChartsWidgetModelXAxisDateTimeStart, mbase.mChartsWidgetModelXAxisDateTimeEnd);
 
       // get the first y axis from the chart
-      QList qlya = this->statChart[i]->axes(Qt::Vertical);
+      QList qlya = statChart[i]->axes(Qt::Vertical);
       qlya.at(0)->setRange(statChartMinY[i], statChartMaxY[i]);
    }
+
+
+   // set x axis range in mbase
+   // get first x axis axis of first chart
+   QList qlxa = statChart[0]->axes(Qt::Horizontal);
+
+   // cast to QValueAxis to get min and max
+   const auto va = static_cast<QValueAxis*>(qlxa.at(0));
+
+   // set new min and max
+   mbase.mChartsWidgetXAxisMin = va->min();
+   mbase.mChartsWidgetXAxisMax = va->max();
+
+
+
+
+
+
+
+
    mbase.mChartsWidgetControlWidgetUpdateFunction();
 }
 
@@ -322,19 +365,23 @@ void mChartsWidget::controlsChanged()
       // set charts visible
       statChartView[i]->setVisible(mbase.statChartGraphTypeArray[i].visible);
 
-      // get the first x axis from the chart
-      QList qlxa = this->statChart[i]->axes(Qt::Horizontal);
-
-      // set charts common x axis range
-      qlxa.at(0)->setRange(QDateTime::fromMSecsSinceEpoch(mbase.mChartsWidgetXAxisMin), QDateTime::fromMSecsSinceEpoch(mbase.mChartsWidgetXAxisMax));
-
       for (int s=0; s<8; s++)
       {
-         // series visible or not
+         // set series visible
          statChartSeries[i][s]->setVisible(mbase.statChartSeriesStructArray[s].visible);
 
-         // series line size
+         // set series line size
          statChartSeries[i][s]->setPen(QPen(mbase.statChartSeriesStructArray[s].col, mbase.mChartsWidgetPlotLineSize));
+      }
+
+      // set charts common x axis range
+      double s = mbase.mChartsWidgetXAxisMin;
+      double e = mbase.mChartsWidgetXAxisMax;
+      if (e - s > 0) // check if range > 0
+      {
+         // get the first x axis from the chart
+         QList qlxa = statChart[i]->axes(Qt::Horizontal);
+         qlxa.at(0)->setRange(QDateTime::fromMSecsSinceEpoch(s), QDateTime::fromMSecsSinceEpoch(e));
       }
    }
 }

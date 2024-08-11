@@ -5,6 +5,21 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
 {
    connect(&mbase, SIGNAL(mChartsWidgetControlWidgetUpdateSignal()), this, SLOT(update()));
 
+   // create topLayout and apply to this->
+   QHBoxLayout *topLayout = new QHBoxLayout;
+   this->setLayout(topLayout);
+   topLayout->setContentsMargins(0, 0, 0, 0);
+
+   // create groupBox and add to topLayout
+   QGroupBox* topGroupBox = new QGroupBox("Charts Controls");
+
+   topLayout->addWidget(topGroupBox);
+   topGroupBox->setObjectName("t2");
+   QString style = "QGroupBox#t2 { border: 1px solid " + mbase.mChartsWidgetColor.name();
+   style += "; margin: 0px; margin-top:4px; background-color:" + mbase.mChartsWidgetColor.lighter(195).name();
+   style += "; } QGroupBox#t2::title { left: 10px; top: -8px; }";
+   topGroupBox->setStyleSheet(style);
+
    // -------------------------------------------------------------
    // - top level grid
    // -------------------------------------------------------------
@@ -13,12 +28,7 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
    0, 0 chart selection
    0, 1 legend
    1, 0, 1, 2 form layout
-
 */
-
-   // top level group box to contain everything
-   QGroupBox* topGroupBox = new QGroupBox("Charts Controls", this);
-   topGroupBox->setGeometry(10, 10, HSIZE-20, VSIZE-20);
 
    // grid layout for topGroupBox
    QGridLayout* topGridLayout = new QGridLayout;
@@ -29,7 +39,7 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
    // -------------------------------------------------------------
 
    // group box for chart selection
-   QGroupBox * chartSelGroupBox = new QGroupBox("Visible Charts", this);
+   QGroupBox * chartSelGroupBox = new QGroupBox("Visible Charts");
    chartSelGroupBox->setMaximumHeight(160);
 
    // add to top layout grid
@@ -50,8 +60,8 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
    chartSelVBoxLayout->addLayout(anbHBoxLayout);
 
    // create all and none buttons and connections
-   QPushButton * chartSelAll  = new QPushButton("all", this);
-   QPushButton * chartSelNone  = new QPushButton("none", this);
+   QPushButton * chartSelAll  = new QPushButton("all");
+   QPushButton * chartSelNone  = new QPushButton("none");
    connect(chartSelAll, SIGNAL (clicked()), this, SLOT (chartSelAllClicked()));
    connect(chartSelNone, SIGNAL (clicked()), this, SLOT (chartSelNoneClicked()));
 
@@ -76,11 +86,10 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
    {
       if (mbase.statChartGraphTypeArray[i].active)
       {
-         chartSel[i] = new QCheckBox(mbase.statChartGraphTypeArray[i].db_name, this);
+         chartSel[i] = new QCheckBox(mbase.statChartGraphTypeArray[i].db_name);
          chartSel[i]->setChecked(mbase.statChartGraphTypeArray[i].visible);
          chartsCheckBoxesGridLayout->addWidget(chartSel[i], row, col);
          if (++row > 3) { row = 0;  col++; }
-         //connect(chartSel[i], SIGNAL (checkStateChanged(Qt::CheckState)), this, SLOT (chartSelToggle(Qt::CheckState))) ;
          connect(chartSel[i], SIGNAL(clicked()), this, SLOT (chartSelClicked())) ;
       }
    }
@@ -92,7 +101,7 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
    // -------------------------------------------------------------
 
    // group box for legend
-   QGroupBox * legendGroupBox = new QGroupBox("Legend", this);
+   QGroupBox * legendGroupBox = new QGroupBox("Legend");
    legendGroupBox->setMaximumHeight(160);
 
    // add to top layout grid
@@ -106,7 +115,7 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
    col = 0;
    for (int i=0; i<8; i++)
    {
-      legendSel[i] = new QCheckBox(mbase.statChartSeriesStructArray[i].name, this);
+      legendSel[i] = new QCheckBox(mbase.statChartSeriesStructArray[i].name);
       legendSel[i]->setVisible(false);
       connect(legendSel[i], SIGNAL (clicked()), this, SLOT (legendSelClicked())) ;
       legendGridLayout->addWidget(legendSel[i], row, col);
@@ -115,7 +124,7 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
 
 
    // group box for form layout
-   QGroupBox * formLayoutGroupBox = new QGroupBox("Settings", this);
+   QGroupBox * formLayoutGroupBox = new QGroupBox("Settings");
    formLayoutGroupBox->setMaximumHeight(160);
 
 
@@ -124,7 +133,7 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
    topGridLayout->addWidget(formLayoutGroupBox, 1, 0, 1, 2);
 
    // create form layout
-   QFormLayout *formLayout = new QFormLayout(this);
+   QFormLayout *formLayout = new QFormLayout();
    formLayout->setLabelAlignment(Qt::AlignRight);
 
    // apply layout to formLayoutGroupBox
@@ -178,7 +187,7 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
    // -------------------------------------------------------------
 
    // Create spinbox to modify line size
-   QSpinBox * lineSizeSpinBox = new QSpinBox(this);
+   QSpinBox * lineSizeSpinBox = new QSpinBox();
    lineSizeSpinBox->setRange(0, 4);
 
    // get initial value from settings
@@ -195,7 +204,7 @@ mChartsWidgetControlWidget::mChartsWidgetControlWidget(QWidget *parent)
    // -------------------------------------------------------------
 
    // Create spinbox to modify sql Limit
-   QSpinBox * sqlLimitSpinBox = new QSpinBox(this);
+   QSpinBox * sqlLimitSpinBox = new QSpinBox();
    sqlLimitSpinBox->setRange(100, 2000);
    sqlLimitSpinBox->setSingleStep(100);
 

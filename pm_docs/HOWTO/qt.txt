@@ -4755,6 +4755,234 @@ time to get ready for work...commit...
 20240725 7:18 AM
 
 
+remove update charts theme from menu...done
+
+fix crosshairs alignment of lower and background color
+also make crosshairs disapear when mouse leaves area
+
+remove text boxes from bottom of session and add to sessions timeline
+make variable for all three ranges and set when setting start and end
+
+better yet, a function that you give 2 QDateTime and returns QString
+
+QString mbase.getRangeText(QDateTime start, QDateTime end)
+
+
+
+
+
+
+
+
+
+
+
+
+
+make session widget stretchbale in y axis...done
+
+
+make highlight line in charts and selscted bow color in tables have a common color
+
+
+
+
+
+
+
+
+
+
+
+
+why can I not find where I make the y axis in the charts not visible?
+because I never did that...
+
+
+the problem is in the code that sets all the chart to have a common axis
+
+it uses: 
+mbase.mChartsWidgetXAxisMin
+mbase.mChartsWidgetXAxisMax
+
+and this works when mouse wheel changes them, but I need to set these other places also....
+
+          // get first x axis axis of chart
+         QList qlxa = this->chart()->axes(Qt::Horizontal);
+
+         // cast to QValueAxis to get min and max
+         const auto va = static_cast<QValueAxis*>(qlxa.at(0));
+
+         // set new min and max
+         mbase.mChartsWidgetXAxisMin = va->min();
+         mbase.mChartsWidgetXAxisMax = va->max();
+
+now that I've finally got that figured out....
+
+
+
+can I make the crosshairs disspear when no mouse is present?
+
+      void leaveEvent(QEvent *event)
+      {
+         //qDebug() << "leaveEvent";
+         mChartViewCrosshairsInstance->setVisible(false);
+      }
+
+it was that simple...
+
+now can I line up the bottom crosshair label even if no x axis labels...yes
+
+now make the crosshairs have one place where I set color
+p and b
+
+
+
+now make a clor for sessions...
+
+
+
+
+
+
+I found this exmaple a while ago on the internet, but now I think there is a much better way to do it:
+
+QColor c = mbase.log_types[i].color;
+mlts_cb[i]->setStyleSheet(QString("background-color: rgba(%1,%2,%3,%4); border:  2px;").arg(c.red()).arg(c.green()).arg(c.blue()).arg(c.alpha()));
+
+
+mlts_cb[i]->setStyleSheet("background-color: " + mbase.log_types[i].color.name(QColor::HexArgbQColor::HexArgb) + " ; border: 2px ;");
+
+
+
+
+
+20240806
+
+I took a break for a while. Seemed to be at a logical stopping place.
+
+Today I came back and played with the alignments of row and column select, table controls and log view
+renamed and rearranged groupboxes and layouts...code looks better now...
+
+
+
+I want to do the modal pop up form for database setting and save in config...
+
+
+
+minor annoyances:
+the group of up to 4 tables...
+there is extra space at the end when not all tables are shown
+
+the spacing in the middle frame should always shrink to the minimum when moving splitters
+
+
+why am I getting the warning about setting layouts twice?
+creating layouts with 2nd parameter, "this" just dont do it....fixed
+
+
+
+20240807
+
+working on settings modal dialog with tabbed pages
+
+added "Settings" to misc menu
+
+made a class mSettingsDialog
+
+figured out how to add tab widget, buttons, formlayout
+
+
+
+20240808
+
+figured out how to handle exec and accept with the class...
+
+now I need a way to load and store values I change here to the settings file...
+
+
+first make variables for all the database settings:
+      
+      QString dbHostName = "purplemartians.org";
+      QString dbDatabaseName = "pm";
+      QString dbUserName = "pmdb_ro";
+      QString dbPassword = "readonly";
+
+then load them from settings:
+
+void m_base::setup_db(void)
+{
+   dbHostName     = settings->value("dbHostName",     "purplemartians.org").toString();
+   dbDatabaseName = settings->value("dbDatabaseName", "pm").toString();
+   dbUserName     = settings->value("dbUserName",     "pmdb_ro").toString();
+   dbPassword     = settings->value("dbPassword",     "readonly").toString();
+
+   db = QSqlDatabase::addDatabase("QMYSQL");
+   db.setHostName(dbHostName);
+   db.setDatabaseName(dbDatabaseName);
+   db.setUserName(dbUserName);
+   db.setPassword(dbPassword);
+   if (!db.open()) qDebug() << "database error:" << db.lastError().text();
+
+   sessionsModel = new QSqlQueryModel();
+   sessionsModel->setQuery("SELECT dt_start, dt_end, duration AS dur, player_num AS p, hostname AS host, endreason FROM sessions ORDER by dt_start");
+}
+
+
+then in settings dialog, save them to file and call setup_db...
+
+this works, but the reload after changing database parameters does not...
+works fine when program is restarted
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

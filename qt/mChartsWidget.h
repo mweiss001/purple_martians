@@ -3,14 +3,16 @@
 
 #include <QValueAxis>
 #include <QGraphicsLayout>
+
 #include <QBoxLayout>
+#include <QGroupBox>
 #include <QSplitter>
 #include <QSqlQueryModel>
 #include <QSqlQuery>
 
 
 #include "mChartView.h"
-#include "mChart.h"
+//#include "mChart.h"
 
 #include "m_base.h"
 
@@ -36,17 +38,10 @@ class mChartsWidget : public QWidget
       void updateCursor();
 
 
-
    private:
-
       void buildCharts();
-
       void extract_series(int i, int r, int c, int p, double xAxisVal);
-
-
       int getClosestIndexToDateTime(QDateTime dt);
-
-
 
       QVBoxLayout * vbox;
       QSplitter * splitter = nullptr;
@@ -54,7 +49,7 @@ class mChartsWidget : public QWidget
       QSqlQueryModel * statChartModel;
 
       QChart* statChart[NUM_CHARTS] = {nullptr};
-      QChartView* statChartView[NUM_CHARTS] = {nullptr};
+      mChartView* statChartView[NUM_CHARTS] = {nullptr};
 
       QLineSeries* statChartSeries[NUM_CHARTS][8] = {nullptr};
 

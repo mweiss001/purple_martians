@@ -14,41 +14,47 @@ class mTableRowSelectWidget : public QWidget
    public:
       explicit mTableRowSelectWidget(QWidget *parent = nullptr)
       {
-         QVBoxLayout *vbox = new QVBoxLayout;
-         QHBoxLayout *hbox = new QHBoxLayout;
+         // create top laout and add to this->
+         QVBoxLayout *topLayout = new QVBoxLayout;
+         topLayout->setContentsMargins(0, 0, 0, 0);
+         this->setLayout(topLayout);
 
-         QGroupBox * mlts_gb = new QGroupBox("Log Message Types", this);
-         mlts_gb->setLayout(vbox);
+         // create top level groupbox add to top layout
+         QGroupBox * topLayoutGroupBox = new QGroupBox("Message Types", this);
 
-         QPushButton * all  = new QPushButton("all", this);
-         connect(all, SIGNAL (clicked()), this, SLOT (allClicked()));
-         hbox->addWidget(all);
+         topLayoutGroupBox->setMinimumSize(108, 300);
+         topLayoutGroupBox->setMaximumSize(108, 300);
+         topLayout->addWidget(topLayoutGroupBox);
 
-         QPushButton * none = new QPushButton("none", this);
+         // create vertical layout for inside groupbox
+         QVBoxLayout *topLayoutGroupBoxLayout = new QVBoxLayout;
+         topLayoutGroupBox->setLayout(topLayoutGroupBoxLayout);
+
+
+         // create and add buttons to layout
+         QPushButton * none = new QPushButton("none");
          connect(none, SIGNAL (clicked()), this, SLOT (noneClicked()));
-         hbox->addWidget(none);
+         topLayoutGroupBoxLayout->addWidget(none);
 
-         vbox->addLayout(hbox);
+         QPushButton * all  = new QPushButton("all");
+         connect(all, SIGNAL (clicked()), this, SLOT (allClicked()));
+         topLayoutGroupBoxLayout->addWidget(all);
 
+
+         // create and add checkboxes to layout
          readRowSelection();
          for (int i=10; i<40; i++)
             if (mbase.log_types[i].valid)
             {
                mlts_cb[i] = new QCheckBox(mbase.log_types[i].name);
                mlts_cb[i]->setChecked(mbase.log_types[i].shown);
-
-               QColor c = mbase.log_types[i].color;
-               mlts_cb[i]->setStyleSheet(QString("background-color: rgba(%1,%2,%3,%4); border: 2px ;").arg(c.red()).arg(c.green()).arg(c.blue()).arg(c.alpha()));
-
-               vbox->addWidget(mlts_cb[i]);
+               mlts_cb[i]->setStyleSheet("background-color: " + mbase.log_types[i].color.name(QColor::HexArgb) + " ; border: 2px ;");
+               topLayoutGroupBoxLayout->addWidget(mlts_cb[i]);
                connect(mlts_cb[i], SIGNAL(clicked()), this, SLOT(cbClicked()));
             }
-         vbox->addStretch(1);
+//         topLayoutGroupBoxLayout->addStretch(1);
          set_sql_where_types();
       }
-
-      QSize minimumSizeHint() const  {  return QSize(200, 310);   }
-      QSize minimumSize () const     {  return QSize(200, 310);   }
 
    private slots:
       void allClicked()

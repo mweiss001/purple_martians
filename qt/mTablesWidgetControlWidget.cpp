@@ -2,51 +2,54 @@
 
 mTablesWidgetControlWidget::mTablesWidgetControlWidget(QWidget *parent) : QWidget{parent}
 {
+   // qDebug() << "mTablesWidgetControlWidget::constructor()";
+
    connect(&mbase, SIGNAL(mTablesWidgetControlWidgetUpdateSignal()), this, SLOT(updateUI()));
 
-   // top level group box to contain everything
-   QGroupBox* topGroupBox = new QGroupBox("Tables Controls", this);
+   // create topLayout and apply to this->
+   QHBoxLayout *topLayout = new QHBoxLayout;
+   topLayout->setContentsMargins(0, 0, 0, 0);
+   this->setLayout(topLayout);
 
-   // hbox layout for inside main groupbox
-   QHBoxLayout * hBox = new QHBoxLayout();
-   topGroupBox->setLayout(hBox);
+   // create groupBox and add to topLayout
+   QGroupBox* topGroupBox = new QGroupBox("Tables Controls");
+   topGroupBox->setMinimumSize(230,484);
+   topGroupBox->setMaximumSize(230,484);
+   topGroupBox->setObjectName("t2");
+   QString style = "QGroupBox#t2 { border: 1px solid " + mbase.mTablesWidgetColor.name();
+   style += "; margin: 0px; margin-top:4px; background-color:" + mbase.mTablesWidgetColor.lighter(195).name();
+   style += "; } QGroupBox#t2::title { left: 10px; top: -8px; }";
+   topGroupBox->setStyleSheet(style);
+   topLayout->addWidget(topGroupBox);
 
-   // vbox layout for lhs
-   QVBoxLayout * vBox = new QVBoxLayout();
-   hBox->addLayout(vBox);
 
-   // vbox layout for rhs
-   QVBoxLayout * vBox2 = new QVBoxLayout();
-   hBox->addLayout(vBox2);
+   // create layout for topGroupBox
+   QVBoxLayout *topGroupBoxLayout = new QVBoxLayout;
+   topGroupBoxLayout->setContentsMargins(4, 8, 4, 4);
+   topGroupBox->setLayout(topGroupBoxLayout);
 
-   // message line type selector
-   mTableRowSelectWidgetInstance = new mTableRowSelectWidget(this);
+   // hbox layout for row and col
+   QHBoxLayout * hBoxRC = new QHBoxLayout();
+   topGroupBoxLayout->addLayout(hBoxRC);
 
-   // add to layout
-   vBox->addWidget(mTableRowSelectWidgetInstance);
+   // row select widget
+   mTableRowSelectWidgetInstance = new mTableRowSelectWidget();
+   hBoxRC->addWidget(mTableRowSelectWidgetInstance);
+
+   hBoxRC->addStretch();
 
    // column select widget
-   mTableColumnSelectWidgetInstance = new mTableColumnSelectWidget(this);
-
-   // add to layout
-   vBox2->addWidget(mTableColumnSelectWidgetInstance);
-   vBox2->addStretch();
-   hBox->addStretch();
-
+   mTableColumnSelectWidgetInstance = new mTableColumnSelectWidget();
+   hBoxRC->addWidget(mTableColumnSelectWidgetInstance);
 
    // group box for form layout
-   QGroupBox * formLayoutGroupBox = new QGroupBox("Settings", this);
-   formLayoutGroupBox->setMaximumWidth(200);
-   vBox->addWidget(formLayoutGroupBox);
-   vBox->addStretch();
+   QGroupBox * formLayoutGroupBox = new QGroupBox("Settings");
+   topGroupBoxLayout->addWidget(formLayoutGroupBox);
 
-   // create form layout
-   QFormLayout *formLayout = new QFormLayout(this);
+   // create form layout and apply
+   QFormLayout *formLayout = new QFormLayout();
    formLayout->setLabelAlignment(Qt::AlignRight);
-
-   // apply layout to formLayoutGroupBox
    formLayoutGroupBox->setLayout(formLayout);
-
 
    // -----------------------------------------------------------------------
    // number of tables spin box
@@ -90,14 +93,13 @@ mTablesWidgetControlWidget::mTablesWidgetControlWidget(QWidget *parent) : QWidge
    xAxisModel = new QLabel("-", this);
    formLayout->addRow(tr("Model Range:"), xAxisModel);
 
-
    updateUI();
 
 }
 
 void mTablesWidgetControlWidget::updateUI()
 {
-   //qDebug() << "void mTablesWidgetControlWidget::update()";
+   // qDebug() << "void mTablesWidgetControlWidget::update()";
 
 
    // all of these sections should follow this format:

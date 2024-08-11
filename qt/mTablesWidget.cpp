@@ -8,16 +8,32 @@ mTablesWidget::mTablesWidget(QWidget *parent) : QWidget{parent}
 
    mTablesWidgetSqlQueryModel = new QSqlQueryModel();
 
-   // horizontal box layout
-   QHBoxLayout *hbox = new QHBoxLayout;
-   this->setLayout(hbox);
+   // create topLayout and apply to this->
+   QHBoxLayout *topLayout = new QHBoxLayout;
+   this->setLayout(topLayout);
+   topLayout->setContentsMargins(0, 0, 0, 0);
+
+   // create groupBox and add to topLayout
+   QGroupBox * topGroupBox = new QGroupBox("Tables", this);
+   topLayout->addWidget(topGroupBox);
+   topGroupBox->setObjectName("t1");
+   QString style = "QGroupBox#t1 { border: 1px solid " + mbase.mTablesWidgetColor.name();
+   style += "; margin: 0px; margin-top:4px; background-color:" + mbase.mTablesWidgetColor.lighter(195).name();
+   style += "; } QGroupBox#t1::title { left: 10px; top: -8px; }";
+   topGroupBox->setStyleSheet(style);
+
+   // create layout for topGroupBox
+   QHBoxLayout *topGroupBoxLayout = new QHBoxLayout;
+   topGroupBox->setLayout(topGroupBoxLayout);
+   topGroupBoxLayout->setContentsMargins(4, 8, 4, 4);
+
 
    mbase.loadFilters();
 
    for (int i=0; i<NUM_TABLES; i++)
    {
       mTablesWidgetTables[i] = new mTablesWidgetTable(this, i, mTablesWidgetSqlQueryModel);
-      hbox->addWidget(mTablesWidgetTables[i]);
+      topGroupBoxLayout->addWidget(mTablesWidgetTables[i]);
    }
 }
 

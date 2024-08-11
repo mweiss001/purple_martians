@@ -21,10 +21,6 @@ class mChartsWidgetControlWidget : public QWidget
    Q_OBJECT
    public:
       explicit mChartsWidgetControlWidget(QWidget *parent = nullptr);
-      int HSIZE = 320;
-      int VSIZE = 380;
-      QSize minimumSizeHint() const {      return QSize(HSIZE, VSIZE);   }
-      QSize minimumSize () const    {      return QSize(HSIZE, VSIZE);   }
 
    public slots:
       void lineSizeChanged(int);
