@@ -10,7 +10,7 @@
 
 
 #include "m_base.h"
-#include "mdelegate.h"
+#include "mTableViewDelegate.h"
 
 
 class mTableView : public QTableView
@@ -18,7 +18,7 @@ class mTableView : public QTableView
    public:
       mTableView()
       {
-         this->setItemDelegate(new mDelegate);
+         this->setItemDelegate(new mTableViewDelegate);
 
          this->horizontalHeader()->setStretchLastSection(true);
          this->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);

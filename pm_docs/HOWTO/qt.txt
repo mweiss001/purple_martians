@@ -4935,6 +4935,614 @@ this works, but the reload after changing database parameters does not...
 works fine when program is restarted
 
 
+20240811 
+
+remove a couple of classes from project...make copies here in here you need them later
+
+
+#ifndef CUSTOMGRAPHICSVIEW_H
+#define CUSTOMGRAPHICSVIEW_H
+
+#include <QGraphicsView>
+
+class CustomGraphicsView : public QGraphicsView
+{
+   Q_OBJECT
+   public:
+   CustomGraphicsView(QWidget* parent = nullptr);
+
+   protected:
+   virtual void wheelEvent(QWheelEvent* event) override;
+   virtual void mouseMoveEvent(QMouseEvent* event) override;
+   virtual void mousePressEvent(QMouseEvent* event) override;
+   virtual void mouseReleaseEvent(QMouseEvent* event) override;
+
+   void autocomputeSceneSize(const QList<QRectF>& region);
+};
+
+#endif  // CUSTOMGRAPHICSVIEW_H
+
+
+#include "customgraphicsview.h"
+
+#include <QWheelEvent>
+
+CustomGraphicsView::CustomGraphicsView(QWidget* parent) : QGraphicsView(parent)
+{
+   // Set up new scene
+   setScene(new QGraphicsScene);
+
+   // Do not show scroll bars
+   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+   // Connect scene update to autoresize
+   connect(scene(), &QGraphicsScene::changed, this, &CustomGraphicsView::autocomputeSceneSize);
+}
+
+void CustomGraphicsView::wheelEvent(QWheelEvent* event)
+{
+   // if ctrl pressed, use original functionality
+   if (event->modifiers() & Qt::ControlModifier)
+      QGraphicsView::wheelEvent(event);
+   // Rotate scene
+   else if (event->modifiers() & Qt::ShiftModifier)
+   {
+      if (event->angleDelta().ry() > 0)
+      {
+         rotate(1);
+      }
+      else
+      {
+         rotate(-1);
+      }
+   }
+   // Zoom
+   else
+   {
+      // ViewportAnchor previous_anchor = transformationAnchor();
+      // setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+
+      if (event->angleDelta().ry() > 0)
+      {
+         scale(1.1, 1.0);
+
+         // qDebug() << "up";
+         // QRectF sr = sceneRect();
+         // qDebug() << sr;
+         // sr.adjust(200, 0, -200, 0);
+         // qDebug() << sr;
+         // setSceneRect(sr);
+         // this->update();
+
+
+      }
+      else
+      {
+         scale(0.9, 1.0);
+
+         // QRectF sr = sceneRect();
+         // sr.adjust(-200, 0, 200, 0);
+         // setSceneRect(sr);
+
+
+      }
+//      setTransformationAnchor(previous_anchor);
+
+   }
+}
+
+void CustomGraphicsView::mouseMoveEvent(QMouseEvent* event)
+{
+   QGraphicsView::mouseMoveEvent(event);
+   if (event->buttons() & Qt::LeftButton)
+      // If we are moveing with the left button down, update the scene to trigger autocompute
+      scene()->update(mapToScene(rect()).boundingRect());
+}
+
+void CustomGraphicsView::mousePressEvent(QMouseEvent* event)
+{
+   if (event->buttons() & Qt::LeftButton)
+      // Set drag mode when left button is pressed
+      setDragMode(QGraphicsView::ScrollHandDrag);
+   QGraphicsView::mousePressEvent(event);
+}
+
+void CustomGraphicsView::mouseReleaseEvent(QMouseEvent* event)
+{
+   if (dragMode() & QGraphicsView::ScrollHandDrag)
+      // Unset drag mode when left button is released
+      setDragMode(QGraphicsView::NoDrag);
+   QGraphicsView::mouseReleaseEvent(event);
+}
+
+void CustomGraphicsView::autocomputeSceneSize(const QList<QRectF>& region)
+{
+   Q_UNUSED(region);
+
+   // Widget viewport recangle
+   QRectF widget_rect_in_scene(mapToScene(-20, 0), mapToScene(rect().bottomRight() + QPoint(20, 0)));
+
+//   qDebug() << widget_rect_in_scene;
+
+
+
+   // Copy the new size from the old one
+   QPointF new_top_left(sceneRect().topLeft());
+   QPointF new_bottom_right(sceneRect().bottomRight());
+
+   // Check that the scene has a bigger limit in the top side
+   if (sceneRect().top() > widget_rect_in_scene.top())
+      new_top_left.setY(widget_rect_in_scene.top());
+
+   // Check that the scene has a bigger limit in the bottom side
+   if (sceneRect().bottom() < widget_rect_in_scene.bottom())
+      new_bottom_right.setY(widget_rect_in_scene.bottom());
+
+   // Check that the scene has a bigger limit in the left side
+   if (sceneRect().left() > widget_rect_in_scene.left())
+      new_top_left.setX(widget_rect_in_scene.left());
+
+   // Check that the scene has a bigger limit in the right side
+   if (sceneRect().right() < widget_rect_in_scene.right())
+      new_bottom_right.setX(widget_rect_in_scene.right());
+
+   // Set new scene size
+   setSceneRect(QRectF(new_top_left, new_bottom_right));
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifndef MSESSIONSTIMELINEWIDGET_H
+#define MSESSIONSTIMELINEWIDGET_H
+
+#include <QWidget>
+#include <QGroupBox>
+#include <QBoxLayout>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+
+#include "m_base.h"
+#include "mSessionsGraphicsItem.h"
+
+
+class mSessionsTimelineWidget : public QWidget
+{
+   Q_OBJECT
+   public:
+   mSessionsTimelineWidget(QWidget *parent = nullptr);
+
+   private slots:
+   void onSelectionChanged();
+
+   private:
+   QGraphicsScene * scene;
+   QGraphicsView * view;
+};
+
+#endif // MSESSIONSTIMELINEWIDGET_H
+
+
+#include "mSessionsTimelineWidget.h"
+#include "mGraphicsViewZoom.h"
+
+#include "customgraphicsview.h"
+
+
+
+mSessionsTimelineWidget::mSessionsTimelineWidget(QWidget *parent) : QWidget{parent}
+{
+   scene = new QGraphicsScene();
+   connect(scene, SIGNAL (selectionChanged()), this, SLOT (onSelectionChanged()));
+
+   // add rects from session model
+   // cycle all rows in model
+   for(int i=0; i<mbase.sessionsModel->rowCount(); i++)
+   {
+      // get dt_start from column 0
+      QModelIndex qmi = mbase.sessionsModel->index(i, 0);
+      QVariant v = qmi.model()->data(qmi, Qt::DisplayRole);
+      QDateTime dts = v.toDateTime();
+
+      // get dt_end from column 1
+      qmi = mbase.sessionsModel->index(i, 1);
+      v = qmi.model()->data(qmi, Qt::DisplayRole);
+      QDateTime dte = v.toDateTime();
+
+      // get player_num from column 3
+      qmi = mbase.sessionsModel->index(i, 3);
+      v = qmi.model()->data(qmi, Qt::DisplayRole);
+      int p = v.toInt();
+
+      // get host from column 4
+      qmi = mbase.sessionsModel->index(i, 4);
+      v = qmi.model()->data(qmi, Qt::DisplayRole);
+      QString host = v.toString();
+
+      // get color from player num
+      QColor col = mbase.statChartSeriesStructArray[p].col;
+
+      qreal ds = dts.toSecsSinceEpoch()/100;
+      qreal de = dte.toSecsSinceEpoch()/100;
+
+      qreal rectHeight = 20;
+
+      QPointF topLeft(ds, p * rectHeight);
+      QPointF bottomRight(de, (p+1) * rectHeight - 4);
+
+      QRectF r(topLeft, bottomRight);
+
+      mSessionsGraphicsItem * temp = new mSessionsGraphicsItem(i, r, host, col);
+      scene->addItem(temp);
+   }
+
+   // top level hbox
+   QHBoxLayout *topHBox = new QHBoxLayout;
+   this->setLayout(topHBox);
+
+
+   QGroupBox * gb = new QGroupBox("Sessions", this);
+   topHBox->addWidget(gb);
+
+
+   QHBoxLayout *hbox = new QHBoxLayout;
+   gb->setLayout(hbox);
+
+
+   view = new CustomGraphicsView(this);
+   view->setScene(scene);
+
+//   view = new QGraphicsView(scene, this);
+
+   view->setRenderHint(QPainter::Antialiasing);
+
+   // view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+   // view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+   // view->setDragMode(QGraphicsView::ScrollHandDrag);
+   view->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+   view->setMinimumHeight(156);
+   view->scale(1, 1);
+
+   hbox->addWidget(view);
+
+//   mGraphicsViewZoom * z = new mGraphicsViewZoom(view);
+//   z->set_modifiers(Qt::NoModifier);
+
+
+}
+void mSessionsTimelineWidget::onSelectionChanged()
+{
+/*
+   QDateTime dts = QDateTime::fromString("2100", "yyyy"); // set start to max
+   QDateTime dte = QDateTime::fromString("1900", "yyyy"); // set end to min
+
+   qDebug() << "dts" << dts;
+   qDebug() << "dte" << dte;
+
+   qDebug() << "dts.toSecsSinceEpoch()" << dts.toSecsSinceEpoch();
+   qDebug() << "dte.toSecsSinceEpoch()" << dte.toSecsSinceEpoch();
+
+   qint64 dsi = dts.toSecsSinceEpoch();
+   qint64 dei = dte.toSecsSinceEpoch();
+
+   qDebug() << "dts_qint64" << dsi;
+   qDebug() << "dte_qint64" << dei;
+
+   qreal dsr = dts.toSecsSinceEpoch();
+   qreal der = dte.toSecsSinceEpoch();
+
+   qDebug() << "dts_real" << dsr;
+   qDebug() << "dte_real" << der;
+  */
+
+   QDateTime dt = QDateTime::fromString("2020", "yyyy");
+   qDebug() << "dt" << dt;
+   qDebug() << "dt.toSecsSinceEpoch()" << dt.toSecsSinceEpoch();
+   qint64 ds = dt.toSecsSinceEpoch();
+   qDebug() << "ds_qint64" << ds;
+   qreal dr = dt.toSecsSinceEpoch();
+   qDebug() << "dts_real" << dr;
+
+
+   QList<QGraphicsItem *> items = scene->selectedItems();
+   if (items.count())
+   {
+      for (int i=0; i<items.count(); i++)
+      {
+         QRectF br = items[i]->boundingRect();
+         QDateTime dts = QDateTime::fromSecsSinceEpoch(br.left());
+         QDateTime dte = QDateTime::fromSecsSinceEpoch(br.right());
+         if (dts < mbase.sessionsDtStart) mbase.sessionsDtStart = dts;
+         if (dte > mbase.sessionsDtEnd)   mbase.sessionsDtEnd = dte;
+      }
+      mbase.sessionSelectionChanged();
+   }
+}
+
+
+
+#ifndef MGRAPHICSVIEWZOOM_H
+#define MGRAPHICSVIEWZOOM_H
+
+
+#include <QObject>
+#include <QGraphicsView>
+
+/*!
+ * This class adds ability to zoom QGraphicsView using mouse wheel. The point under cursor
+ * remains motionless while it's possible.
+ *
+ * Note that it becomes not possible when the scene's
+ * size is not large enough comparing to the viewport size. QGraphicsView centers the picture
+ * when it's smaller than the view. And QGraphicsView's scrolls boundaries don't allow to
+ * put any picture point at any viewport position.
+ *
+ * When the user starts scrolling, this class remembers original scene position and
+ * keeps it until scrolling is completed. It's better than getting original scene position at
+ * each scrolling step because that approach leads to position errors due to before-mentioned
+ * positioning restrictions.
+ *
+ * When zommed using scroll, this class emits zoomed() signal.
+ *
+ * Usage:
+ *
+ *   new Graphics_view_zoom(view);
+ *
+ * The object will be deleted automatically when the view is deleted.
+ *
+ * You can set keyboard modifiers used for zooming using set_modified(). Zooming will be
+ * performed only on exact match of modifiers combination. The default modifier is Ctrl.
+ *
+ * You can change zoom velocity by calling set_zoom_factor_base().
+ * Zoom coefficient is calculated as zoom_factor_base^angle_delta
+ * (see QWheelEvent::angleDelta).
+ * The default zoom factor base is 1.0015.
+ */
+
+
+class mGraphicsViewZoom : public QObject
+{
+   Q_OBJECT
+   public:
+   mGraphicsViewZoom(QGraphicsView* view);
+   void gentle_zoom(double factor);
+   void set_modifiers(Qt::KeyboardModifiers modifiers);
+   void set_zoom_factor_base(double value);
+
+   private:
+   QGraphicsView* _view;
+   Qt::KeyboardModifiers _modifiers;
+   double _zoom_factor_base;
+   QPointF target_scene_pos, target_viewport_pos;
+   bool eventFilter(QObject* object, QEvent* event);
+
+   signals:
+   void zoomed();
+
+};
+
+#endif // MGRAPHICSVIEWZOOM_H
+
+
+
+#include "mGraphicsViewZoom.h"
+
+#include <QMouseEvent>
+#include <QApplication>
+#include <QScrollBar>
+#include <qmath.h>
+
+
+
+mGraphicsViewZoom::mGraphicsViewZoom(QGraphicsView* view)
+    : QObject(view), _view(view)
+{
+   _view->viewport()->installEventFilter(this);
+   _view->setMouseTracking(true);
+   _modifiers = Qt::ControlModifier;
+   _zoom_factor_base = 1.0015;
+}
+
+void mGraphicsViewZoom::gentle_zoom(double factor)
+{
+   _view->scale(factor, 1.0);
+   _view->centerOn(target_scene_pos);
+   QPointF delta_viewport_pos = target_viewport_pos - QPointF(_view->viewport()->width() / 2.0,
+                                                              _view->viewport()->height() / 1.0);
+   QPointF viewport_center = _view->mapFromScene(target_scene_pos) - delta_viewport_pos;
+   _view->centerOn(_view->mapToScene(viewport_center.toPoint()));
+   emit zoomed();
+}
+
+void mGraphicsViewZoom::set_modifiers(Qt::KeyboardModifiers modifiers)
+{
+   _modifiers = modifiers;
+}
+
+void mGraphicsViewZoom::set_zoom_factor_base(double value)
+{
+   _zoom_factor_base = value;
+}
+
+bool mGraphicsViewZoom::eventFilter(QObject *object, QEvent *event)
+{
+   if (event->type() == QEvent::MouseMove)
+   {
+      // qDebug() << "QEvent::MouseMove";
+
+      QMouseEvent* mouse_event = static_cast<QMouseEvent*>(event);
+      QPointF delta = target_viewport_pos - mouse_event->pos();
+      if (qAbs(delta.x()) > 5 || qAbs(delta.y()) > 5)
+      {
+         target_viewport_pos = mouse_event->pos();
+         target_scene_pos = _view->mapToScene(mouse_event->pos());
+      }
+   }
+   else if (event->type() == QEvent::Wheel)
+   {
+      // qDebug() << "QEvent::Wheel";
+      QWheelEvent* wheel_event = static_cast<QWheelEvent*>(event);
+      if (QApplication::keyboardModifiers() == _modifiers)
+      {
+//         if (wheel_event->orientation() == Qt::Vertical)
+         {
+            double angle = wheel_event->angleDelta().y();
+            double factor = qPow(_zoom_factor_base, angle);
+            gentle_zoom(factor);
+            return true;
+         }
+      }
+   }
+   Q_UNUSED(object)
+   return false;
+}
+
+
+
+
+#ifndef MGRAPHICSSCENE_H
+#define MGRAPHICSSCENE_H
+
+#include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsItem>
+
+
+#include <QPoint>
+#include <QMouseEvent>
+
+class mGraphicsScene : public QGraphicsScene
+{
+   Q_OBJECT
+   public:
+   explicit mGraphicsScene(QObject *parent = 0) {}
+
+   protected:
+
+/*
+
+
+       void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
+       {
+         qDebug() << "void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)";
+
+//         QGraphicsScene::mousePressEvent(mouseEvent);
+//         mouseEvent->setAccepted(false);
+
+         if (mouseEvent->button() == Qt::LeftButton)
+         {
+
+            qDebug() << "(mouseEvent->button() == Qt::LeftButton)";
+
+            QGraphicsItem *item = itemAt(mouseEvent->scenePos(), QTransform());
+
+            qDebug() << "item at:" << item;
+
+            QString dta = item->data(0).toString();
+
+            qDebug() << "data" << dta;
+
+
+
+
+         }
+       }
+*/
+
+
+
+};
+
+#endif // MGRAPHICSSCENE_H
+
+
+
+
+
+
+#ifndef MSESSIONSGRAPHICSITEM_H
+#define MSESSIONSGRAPHICSITEM_H
+
+#include <QGraphicsItem>
+#include <QPainter>
+#include <QGraphicsSceneMouseEvent>
+
+
+class mSessionsGraphicsItem : public QGraphicsItem
+{
+   public:
+      mSessionsGraphicsItem(int p_index, QRectF p_rect, QString p_txt, QColor p_col)
+      {
+         index = p_index;
+         rect = p_rect;
+         txt = p_txt;
+         col = p_col;
+         this->setFlag(QGraphicsItem::ItemIsSelectable, true);
+      }
+
+      QRectF boundingRect() const override  {  return rect; }
+
+      void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override
+      {
+         // frame
+         QPen framePen(col);
+         framePen.setWidthF(1.8);
+         if (this->isSelected()) framePen.setWidthF(3.8);
+         painter->setPen(framePen);
+         painter->drawRect(rect);
+
+         // text
+         framePen.setColor(Qt::black);
+         painter->setPen(framePen);
+         painter->drawText(rect.adjusted(2, 0, 0, 0), txt);
+      }
+
+
+      // void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) override
+      // {
+      //    if (mouseEvent->button() == Qt::LeftButton)
+      //    {
+      //       qDebug() << "left mouse button pressed on:" << index << txt;
+      //    }
+      // }
+
+
+
+      int index;
+      QRectF rect;
+      QString txt;
+      QColor col;
+
+};
+#endif // MSESSIONSGRAPHICSITEM_H
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
