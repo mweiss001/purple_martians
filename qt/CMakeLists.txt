@@ -29,44 +29,32 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         m_base.h m_base.cpp
 
+        qdarkstyle/dark/darkstyle.qrc
+
         mLogView.h mLogView.cpp
 
+        mSettingsDialog.h
 
-        mTableRowSelectWidget.h
-        mTableColumnSelectWidget.h
-
-
-        mdelegate.h
-        mdelegate2.h
-
-        mChartView.h
-
-
+        mSessionsWidgetTableViewDelegate.h
         mSessionsWidget.h
 
+        mCurrentSessionTimelineWidget.h mCurrentSessionTimelineWidget.cpp
+        mCurrentSessionTimelineGraphicsView.h
 
         mChartsWidget.h mChartsWidget.cpp
-        mChartViewCrosshairs.h
         mChartsWidgetControlWidget.h mChartsWidgetControlWidget.cpp
-
-        qdarkstyle/dark/darkstyle.qrc
-        mTablesWidgetControlWidget.h mTablesWidgetControlWidget.cpp
-        mTablesWidget.h mTablesWidget.cpp
-        mTableView.h
-
+        mChartView.h
+        mChartViewCrosshairs.h
         mChartViewCursor.h
 
-        mGraphicsScene.h
-        mSessionsTimelineWidget.h mSessionsTimelineWidget.cpp
-        mSessionsGraphicsItem.h
-        mGraphicsViewZoom.h mGraphicsViewZoom.cpp
-        customgraphicsview.h customgraphicsview.cpp
-        mCurrentSessionTimelineWidget.h mCurrentSessionTimelineWidget.cpp
-        mGraphicsViewSessionTimeline.h
-
+        mTablesWidget.h mTablesWidget.cpp
+        mTablesWidgetControlWidget.h mTablesWidgetControlWidget.cpp
+        mTableView.h
+        mTableViewDelegate.h
         mTablesWidgetTableFilter.h
         mTablesWidgetTable.h
-        mSettingsDialog.h
+        mTableRowSelectWidget.h
+        mTableColumnSelectWidget.h
 
     )
 # Define target properties for Android with Qt 6 as:

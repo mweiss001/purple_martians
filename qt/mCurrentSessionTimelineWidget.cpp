@@ -8,7 +8,7 @@ mCurrentSessionTimelineWidget::mCurrentSessionTimelineWidget(QWidget *parent) : 
    scene = new QGraphicsScene();
 
    // create view and add scene
-   view = new mGraphicsViewSessionTimeline(this);
+   view = new mCurrentSessionTimelineGraphicsView(this);
    view->setRenderHint(QPainter::Antialiasing);
    view->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
    view->setMinimumHeight(timelineHeight);

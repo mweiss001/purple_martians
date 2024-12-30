@@ -9,7 +9,7 @@
 #include <QGraphicsView>
 #include <QLabel>
 #include "m_base.h"
-#include "mGraphicsViewSessionTimeline.h"
+#include "mCurrentSessionTimelineGraphicsView.h"
 
 class mCurrentSessionTimelineWidget : public QWidget
 {
@@ -23,7 +23,7 @@ class mCurrentSessionTimelineWidget : public QWidget
 
    private:
       QGraphicsScene * scene;
-      mGraphicsViewSessionTimeline * view;
+      mCurrentSessionTimelineGraphicsView * view;
       qreal timelineHeight = 40;
       qreal mapInStart, mapInEnd, mapOutStart, mapOutEnd;
       qreal mapToPos(qreal val) { return (val - mapInStart) / (mapInEnd - mapInStart) * (mapOutEnd - mapOutStart) + mapOutStart; }

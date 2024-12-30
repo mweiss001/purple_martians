@@ -8,7 +8,7 @@
 #include <QSqlQueryModel>
 #include <QHeaderView>
 
-#include "mdelegate2.h"
+#include "mSessionsWidgetTableViewDelegate.h"
 
 class mSessionsWidget : public QWidget
 {
@@ -35,8 +35,6 @@ class mSessionsWidget : public QWidget
 
          groupBox->setStyleSheet(style);
 
-
-
          // create layout for groupBox
          QVBoxLayout *groupBoxLayout = new QVBoxLayout;
          groupBox->setLayout(groupBoxLayout);
@@ -44,7 +42,7 @@ class mSessionsWidget : public QWidget
          tableView = new QTableView(this);
          tableView->setModel(mbase.sessionsModel);
          tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-         tableView->setItemDelegate(new mDelegate2);
+         tableView->setItemDelegate(new SessionsWidgetTableViewDelegate);
          tableView->horizontalHeader()->setStretchLastSection(true);
          tableView->resizeColumnsToContents();
          tableView->viewport()->update();

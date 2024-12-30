@@ -62445,8 +62445,32 @@ then deploy to server and generate more data...
 
 20240811
 made a few changes to demo level 089
-
 do a new release...
+
+
+20241230
+been away for a while now, just want to make sure I have everything committed to github...
+I think I need to copy the folder "pm_log" from desktop to "qt" in the project...done
+
+do a commit...done 
+
+what about build?  
+put that in my stuff on x...
+made a new folder on x also
+
+done...all should be backed up now...
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

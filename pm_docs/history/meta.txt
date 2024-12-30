@@ -22,6 +22,20 @@ Years, versions, software, features
 
 
 
+I found some more info!
+An old paper notebook with some dates..
+
+19971124 - got first allegro example to compile and run
+
+19980107
+10 source files
+256 shapes
+32 ans
+500 spec
+100 enemies
+
+
+
 
 
 
