@@ -2,23 +2,21 @@
 <BrowseTracker_layout_file>
 	<ActiveTarget name="windows_static" />
 	<File name="pm_docs\new8.txt" open="1" top="1" tabpos="1">
-		<Cursor position="1799361" topLine="62432" />
+		<Cursor position="1800333" topLine="62456" />
 		<BrowseMarks positions="1475372,1477153,1485901,1517142,1517680,1687422,1688986,1702897,1704343,1725084,1730909,1783809,1789645" />
 	</File>
-	<File name="pm_docs\new5_todo.txt" open="1" top="0" tabpos="2">
-		<Cursor position="1427" topLine="0" />
-		<BrowseMarks positions="1700" />
+	<File name="src\mwLevelData.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="26706" topLine="798" />
 	</File>
 	<File name="src\pm.h" open="1" top="0" tabpos="3">
 		<Cursor position="42" topLine="0" />
 		<BrowseMarks positions="951" />
 	</File>
+	<File name="pm_docs\new5_todo.txt" open="1" top="0" tabpos="2">
+		<Cursor position="1427" topLine="0" />
+		<BrowseMarks positions="1700" />
+	</File>
 	<File name="src\mwLoop.cpp" open="1" top="0" tabpos="4">
 		<Cursor position="26211" topLine="752" />
-		<BrowseMarks positions="" />
-	</File>
-	<File name="src\mwLevelData.cpp" open="1" top="0" tabpos="5">
-		<Cursor position="26706" topLine="798" />
-		<BrowseMarks positions="" />
 	</File>
 </BrowseTracker_layout_file>

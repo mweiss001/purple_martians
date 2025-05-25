@@ -62503,6 +62503,42 @@ that is because the client has its own local copy of level data...
 would be nice for clients to show the server level stats....
 
 
+after playing a few games, the server quit running again...
+
+I started it with sudo systemctl start pm
+but when it came up, level001 was fucky again....
+
+this time I am going to copy a new version of level_data.pm
+
+on my dev machine:
+- reset all level data
+- unlock all levels
+
+pscp -pw zaiden c:\pm\levels\level001.pml m@purplemartians.org:dev/purple_martians/levels/level001.pml
+pscp -pw zaiden c:\pm\data\level_data.pm m@purplemartians.org:dev/purple_martians/data/level_data.pm
+
+C:\pm>pscp -pw zaiden c:\pm\levels\level001.pml m@purplemartians.org:dev/purple_martians/levels/level001.pml
+level001.pml              | 5 kB |   5.5 kB/s | ETA: 00:00:00 | 100%
+error while writing: failure
+
+I rebooted and now level001.pml copied, but level_data.pm still gave the write error
+erased level_data.pm but the copy still failed...
+rebooted and seems good now.
+actually deleting and rebooting should recreated the file...
+
+see how this works....
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
