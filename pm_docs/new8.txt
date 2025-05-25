@@ -62528,6 +62528,206 @@ actually deleting and rebooting should recreated the file...
 
 see how this works....
 
+the first game I played died like 2 minutes in...
+
+mysqld is always running, using 7% cpu
+
+MiB Swap:   4096.0 total,   4096.0 free,      0.0 used.   6794.9 avail Mem
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+    874 mysql     20   0 2873212 480420  36360 S   6.6   6.0   0:48.94 mysqld
+    348 root      20   0       0      0      0 S   2.6   0.0   0:22.64 jbd2/dm-0-8
+   1754 root      20   0       0      0      0 I   0.7   0.0   0:01.48 kworker/2:1-kdmflush
+     14 root      20   0       0      0      0 I   0.3   0.0   0:02.73 rcu_sched
+    190 root       0 -20       0      0      0 I   0.3   0.0   0:03.64 kworker/2:1H-kblockd
+    249 root       0 -20       0      0      0 I   0.3   0.0   0:00.36 kworker/3:1H-kblockd
+   1927 m         20   0   10792   4160   3292 R   0.3   0.1   0:00.31 top
+      1 root      20   0  166400  11812   8380 S   0.0   0.1   0:01.50 systemd
+      2 root      20   0       0      0      0 S   0.0   0.0   0:00.00 kthreadd
+      3 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 rcu_gp
+      4 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 rcu_par_gp
+      5 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 slub_flushwq
+      6 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 netns
+
+
+why?
+
+
+May 25 09:59:36 pmh pm[753]: logs/net/20250525-095933.1.csv saved
+May 25 09:59:36 pmh pm[753]: log_net array lines > 1000 ... dumping to file
+May 25 09:59:52 pmh kernel: [UFW BLOCK] IN=enp2s0 OUT= MAC=c8:1f:66:4a:87:6d:dc:77:4c:08:db:ed:08:00 SRC=23.95.197.198 DST=96.45.13.253 LEN=40 TOS=0x00 PREC=0x00 TTL=240 ID=22965 PROTO=TCP SPT=49039 DPT=18769 WINDOW=1024 RES=0x>
+May 25 10:00:01 pmh CRON[1727]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 10:00:01 pmh CRON[1729]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 10:00:01 pmh CRON[1728]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 10:00:01 pmh CRON[1730]: (m) CMD (php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/session_scrape_cronoutput.txt 2>&1)
+May 25 10:00:01 pmh CRON[1731]: (m) CMD (/home/m/dev/purple_martians/scrape             >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1)
+May 25 10:00:01 pmh CRON[1733]: (m) CMD (/home/m/dev/purple_martians/scrape_status      >> /home/m/dev/purple_martians/scrape_status_cronoutput.txt 2>&1)
+May 25 10:00:01 pmh CRON[1729]: pam_unix(cron:session): session closed for user m
+May 25 10:00:01 pmh CRON[1727]: pam_unix(cron:session): session closed for user m
+May 25 10:00:03 pmh kernel: pm[753]: segfault at 0 ip 00007f37cf878a1c sp 00007ffc4088bc10 error 4 in libc.so.6[7f37cf821000+195000]
+May 25 10:00:03 pmh kernel: Code: bd 08 00 00 00 e9 7b ff ff ff 0f 1f 40 00 f3 0f 1e fa 41 55 41 54 55 48 89 fd 53 48 89 f3 48 83 ec 08 e8 77 8a fa ff 49 89 c4 <8b> 03 25 00 80 00 00 75 34 64 4c 8b 2c 25 10 00 00 00 48 8b bb 88
+May 25 10:00:03 pmh pm[753]: logs/ne
+May 25 10:00:03 pmh systemd[1]: pm.service: Main process exited, code=dumped, status=11/SEGV
+May 25 10:00:03 pmh systemd[1]: pm.service: Failed with result 'core-dump'.
+May 25 10:00:03 pmh systemd[1]: pm.service: Consumed 34min 24.358s CPU time.
+May 25 10:00:07 pmh kernel: [UFW BLOCK] IN=enp2s0 OUT= MAC=c8:1f:66:4a:87:6d:dc:77:4c:08:db:ed:08:00 SRC=104.156.155.4 DST=96.45.13.253 LEN=40 TOS=0x00 PREC=0x00 TTL=240 ID=962 PROTO=TCP SPT=42754 DPT=2560 WINDOW=1024 RES=0x00 >
+May 25 10:00:26 pmh kernel: [UFW BLOCK] IN=enp2s0 OUT= MAC=c8:1f:66:4a:87:6d:dc:77:4c:08:db:ed:08:00 SRC=198.12.88.147 DST=96.45.13.253 LEN=40 TOS=0x00 PREC=0x00 TTL=241 ID=44985 PROTO=TCP SPT=45248 DPT=6184 WINDOW=1024 RES=0x0>
+May 25 10:00:58 pmh sshd[1755]: Accepted password for m from 96.45.9.164 port 52350 ssh2
+May 25 10:00:58 pmh sshd[1755]: pam_unix(sshd:session): session opened for user m(uid=1000) by (uid=0)
+May 25 10:00:58 pmh systemd[1]: Created slice User Slice of UID 1000.
+May 25 10:00:58 pmh systemd[1]: Starting User Runtime Directory /run/user/1000...
+May 25 10:00:58 pmh systemd-logind[768]: New session 107 of user m.
+May 25 10:00:58 pmh systemd[1]: Finished User Runtime Directory /run/user/1000.
+
+
+this one happened 2s after the cron scrapes
+
+
+
+
+May 25 09:05:37 pmh pm[755]: log_net array lines > 1000 ... dumping to file
+May 25 09:05:37 pmh pm[755]: logs/net/20250525-090533.940.csv saved
+May 25 09:05:37 pmh pm[755]: log_net array lines > 1000 ... dumping to file
+May 25 09:05:37 pmh pm[755]: logs/net/20250525-090536.564.csv saved
+May 25 09:05:50 pmh kernel: [UFW BLOCK] IN=enp2s0 OUT= MAC=c8:1f:66:4a:87:6d:dc:77:4c:08:db:ed:08:00 SRC=198.144.189.66 DST=96.45.13.253 LEN=40 TOS=0x00 PREC=0x00 TTL=241 ID=21480 PROTO=TCP SPT=41596 DPT=24732 WINDOW=1024 RES=0>
+May 25 09:06:01 pmh CRON[4781]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 09:06:01 pmh CRON[4782]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 09:06:01 pmh CRON[4783]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 09:06:01 pmh CRON[4784]: (m) CMD (/home/m/dev/purple_martians/scrape             >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1)
+May 25 09:06:01 pmh CRON[4785]: (m) CMD (php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/session_scrape_cronoutput.txt 2>&1)
+May 25 09:06:01 pmh CRON[4788]: (m) CMD (/home/m/dev/purple_martians/scrape_status      >> /home/m/dev/purple_martians/scrape_status_cronoutput.txt 2>&1)
+May 25 09:06:01 pmh CRON[4783]: pam_unix(cron:session): session closed for user m
+May 25 09:06:01 pmh CRON[4781]: pam_unix(cron:session): session closed for user m
+May 25 09:06:01 pmh CRON[4782]: pam_unix(cron:session): session closed for user m
+May 25 09:06:10 pmh kernel: pm[755]: segfault at 0 ip 00007f88620f9a1c sp 00007ffd851d3ae0 error 4 in libc.so.6[7f88620a2000+195000]
+May 25 09:06:10 pmh kernel: Code: bd 08 00 00 00 e9 7b ff ff ff 0f 1f 40 00 f3 0f 1e fa 41 55 41 54 55 48 89 fd 53 48 89 f3 48 83 ec 08 e8 77 8a fa ff 49 89 c4 <8b> 03 25 00 80 00 00 75 34 64 4c 8b 2c 25 10 00 00 00 48 8b bb 88
+May 25 09:06:10 pmh pm[755]: log status array l
+May 25 09:06:10 pmh systemd[1]: pm.service: Main process exited, code=dumped, status=11/SEGV
+May 25 09:06:10 pmh systemd[1]: pm.service: Failed with result 'core-dump'.
+May 25 09:06:10 pmh systemd[1]: pm.service: Consumed 2h 17min 36.584s CPU time.
+May 25 09:06:18 pmh kernel: [UFW BLOCK] IN=enp2s0 OUT= MAC=c8:1f:66:4a:87:6d:dc:77:4c:08:db:ed:08:00 SRC=104.156.155.4 DST=96.45.13.253 LEN=40 TOS=0x00 PREC=0x00 TTL=240 ID=33674 PROTO=TCP SPT=42754 DPT=3080 WINDOW=1024 RES=0x0>
+May 25 09:06:36 pmh kernel: [UFW BLOCK] IN=enp2s0 OUT= MAC=c8:1f:66:4a:87:6d:dc:77:4c:08:db:ed:08:00 SRC=104.156.155.4 DST=96.45.13.253 LEN=40 TOS=0x00 PREC=0x00 TTL=240 ID=60575 PROTO=TCP SPT=42754 DPT=2761 WINDOW=1024 RES=0x0>
+May 25 09:06:49 pmh kernel: [UFW BLOCK] IN=enp2s0 OUT= MAC=c8:1f:66:4a:87:6d:dc:77:4c:08:db:ed:08:00 SRC=104.156.155.4 DST=96.45.13.253 LEN=40 TOS=0x00 PREC=0x00 TTL=240 ID=50670 PROTO=TCP SPT=42754 DPT=88 WINDOW=1024 RES=0x00 >
+May 25 09:07:01 pmh CRON[4860]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 09:07:01 pmh CRON[4859]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 09:07:01 pmh CRON[4858]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 09:07:01 pmh CRON[4862]: (m) CMD (/home/m/dev/purple_martians/scrape             >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1)
+May 25 09:07:01 pmh CRON[4861]: (m) CMD (php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/session_scrape_cronoutput.txt 2>&1)
+May 25 09:07:01 pmh CRON[4863]: (m) CMD (/home/m/dev/purple_martians/scrape_status      >> /home/m/dev/purple_martians/scrape_status_cronoutput.txt 2>&1)
+May 25 09:07:01 pmh CRON[4860]: pam_unix(cron:session): session closed for user m
+May 25 09:07:01 pmh CRON[4858]: pam_unix(cron:session): session closed for user m
+May 25 09:07:01 pmh CRON[4859]: pam_unix(cron:session): session closed for user m
+May 25 09:07:18 pmh kernel: [UFW BLOCK] IN=enp2s0 OUT= MAC=c8:1f:66:4a:87:6d:dc:77:4c:08:db:ed:08:00 SRC=198.12.88.147 DST=96.45.13.253 LEN=40 TOS=0x00 PREC=0x00 TTL=240 ID=51965 PROTO=TCP SPT=45248 DPT=7615 WINDOW=1024 RES=0x0>
+May 25 09:07:35 pmh sshd[4893]: Accepted password for m from 96.45.9.164 port 51917 ssh2
+May 25 09:07:35 pmh sshd[4893]: pam_unix(sshd:session): session opened for user m(uid=1000) by (uid=0)
+May 25 09:07:35 pmh systemd[1]: Created slice User Slice of UID 1000.
+May 25 09:07:35 pmh systemd[1]: Starting User Runtime Directory /run/user/1000...
+
+this one happened 9s after the cron scrapes
+
+could it be that the cronoutput files are getting huge? > 100M
+
+
+drwxrwxrwx  3 m m     24576 May 25 09:06 savegame/
+-rwxrwxrwx  1 m m       815 Jul 14  2024 scrape*
+-rw-rw-r--  1 m m  28938240 May 25 10:25 scrape_cronoutput.txt
+-rwxrwxrwx  1 m m       839 Jul 14  2024 scrape_status*
+-rw-rw-r--  1 m m  10960896 May 25 10:25 scrape_status_cronoutput.txt
+-rw-rw-r--  1 m m 100462592 May 25 10:25 session_scrape_cronoutput.txt
+-rwxrwxrwx  1 m m      7328 Jul 14  2024 session_scrape.php*
+drwxrwxrwx  2 m m      4096 Jul 14  2024 snd/
+drwxrwxrwx  2 m m      4096 Jul 14  2024 src/
+-rwxrwxrwx  1 m m      4863 Jul 14  2024 win_copy_to_pmh.bat*
+-rwxrwxrwx  1 m m       825 Jul 14  2024 win_make_release.bat*
+
+c:\pm>pscp -pw zaiden m@purplemartians.org:dev/purple_martians/*_cronoutput.txt c:\pm\
+scrape_status_cronoutput. | 10704 kB | 2676.0 kB/s | ETA: 00:00:00 | 100%
+session_scrape_cronoutput | 98108 kB | 7007.7 kB/s | ETA: 00:00:00 | 100%
+scrape_cronoutput.txt     | 28260 kB | 7065.0 kB/s | ETA: 00:00:00 | 100%
+
+rm ./*_cronoutput.txt
+
+
+May 25 11:01:01 pmh CRON[3238]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 11:01:01 pmh CRON[3241]: (m) CMD (/home/m/dev/purple_martians/scrape             >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1)
+May 25 11:01:01 pmh CRON[3243]: (m) CMD (/home/m/dev/purple_martians/scrape_status      >> /home/m/dev/purple_martians/scrape_status_cronoutput.txt 2>&1)
+May 25 11:00:59 pmh kernel: [UFW BLOCK] IN=enp2s0 OUT= MAC=c8:1f:66:4a:87:6d:dc:77:4c:08:db:ed:08:00 SRC=198.144.189.66 DST=96.45.13.253 LEN=40 TOS=0x00 PREC=0x00 TTL=240 ID=2>
+May 25 11:01:01 pmh CRON[3239]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 11:01:01 pmh CRON[3240]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 11:01:01 pmh CRON[3242]: (m) CMD (php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/session_scrape_cronoutput.txt 2>&1)
+May 25 11:01:01 pmh CRON[3238]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 11:01:01 pmh CRON[3241]: (m) CMD (/home/m/dev/purple_martians/scrape             >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1)
+May 25 11:01:01 pmh CRON[3243]: (m) CMD (/home/m/dev/purple_martians/scrape_status      >> /home/m/dev/purple_martians/scrape_status_cronoutput.txt 2>&1)
+May 25 11:01:01 pmh CRON[3240]: pam_unix(cron:session): session closed for user m
+May 25 11:01:01 pmh CRON[3238]: pam_unix(cron:session): session closed for user m
+May 25 11:01:01 pmh CRON[3239]: pam_unix(cron:session): session closed for user m
+May 25 11:01:29 pmh kernel: [UFW BLOCK] IN=enp2s0 OUT= MAC=c8:1f:66:4a:87:6d:dc:77:4c:08:db:ed:08:00 SRC=198.12.88.155 DST=96.45.13.253 LEN=40 TOS=0x00 PREC=0x00 TTL=241 ID=11>
+May 25 11:01:49 pmh kernel: pm[758]: segfault at 0 ip 00007f4c696a5a1c sp 00007ffeda2e54f0 error 4 in libc.so.6[7f4c6964e000+195000]
+May 25 11:01:49 pmh kernel: Code: bd 08 00 00 00 e9 7b ff ff ff 0f 1f 40 00 f3 0f 1e fa 41 55 41 54 55 48 89 fd 53 48 89 f3 48 83 ec 08 e8 77 8a fa ff 49 89 c4 <8b> 03 25 00 8>
+May 25 11:01:49 pmh pm[758]: log_net arra
+May 25 11:01:49 pmh systemd[1]: pm.service: Main process exited, code=dumped, status=11/SEGV
+May 25 11:01:49 pmh systemd[1]: pm.service: Failed with result 'core-dump'.
+May 25 11:01:49 pmh systemd[1]: pm.service: Consumed 30min 47.310s CPU time.
+May 25 11:01:58 pmh kernel: [UFW BLOCK] IN=enp2s0 OUT= MAC=c8:1f:66:4a:87:6d:dc:77:4c:08:db:ed:08:00 SRC=104.156.155.4 DST=96.45.13.253 LEN=40 TOS=0x00 PREC=0x00 TTL=240 ID=42>
+May 25 11:02:01 pmh CRON[3321]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 11:02:01 pmh CRON[3323]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 11:02:01 pmh CRON[3322]: pam_unix(cron:session): session opened for user m(uid=1000) by (uid=0)
+May 25 11:02:01 pmh CRON[3324]: (m) CMD (/home/m/dev/purple_martians/scrape_status      >> /home/m/dev/purple_martians/scrape_status_cronoutput.txt 2>&1)
+May 25 11:02:01 pmh CRON[3325]: (m) CMD (php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/session_scrape_cronoutput.txt 2>&1)
+May 25 11:02:01 pmh CRON[3326]: (m) CMD (/home/m/dev/purple_martians/scrape             >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1)
+May 25 11:02:01 pmh CRON[3323]: pam_unix(cron:session): session closed for user m
+
+this one happened 48s after the cron scrapes
+
+what other files could be getting large....
+
+
+tar cvzf logz.tar.gz logs/
+
+
+
+maybe its cause I am out of space??
+
+m@pmh:~/dev/purple_martians$ df -H
+Filesystem                         Size  Used Avail Use% Mounted on
+tmpfs                              824M  1.4M  823M   1% /run
+/dev/mapper/ubuntu--vg-ubuntu--lv  106G  100G     0 100% /
+tmpfs                              4.2G     0  4.2G   0% /dev/shm
+tmpfs                              5.3M     0  5.3M   0% /run/lock
+/dev/sda2                          2.1G  257M  1.7G  14% /boot
+tmpfs                              824M  4.1k  824M   1% /run/user/1000
+m@pmh:~/dev/purple_martians$
+
+I have 71G in the logs dir!!!!
+
+4.6G    net
+356K    session
+655M    status
+m@pmh:~/dev/purple_martians/logs$
+
+71G     logs
+0       logz.tar.gz
+
+rm -rf logs
+
+reboot...
+
+
+I think that was the problem...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
