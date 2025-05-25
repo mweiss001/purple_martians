@@ -62452,13 +62452,66 @@ do a new release...
 been away for a while now, just want to make sure I have everything committed to github...
 I think I need to copy the folder "pm_log" from desktop to "qt" in the project...done
 
-do a commit...done 
+do a commit...done
 
-what about build?  
+what about build?
 put that in my stuff on x...
 made a new folder on x also
 
 done...all should be backed up now...
+
+
+
+
+
+20250525
+----------------------------------
+The server stops running if I leave it for a long time.
+The web server keeps going and I can ssh in, but the game server stops running.
+I have been able to fix it by restarting the server.
+I have not tried simply restarting the game server.
+I have not been able to find out why the game quits.
+
+This last time after restarting, the overworld level is missing blocks.
+Like almost every block! Only a few vertical bars on the extreme left and right are left..
+All the other levels seem to be OK.
+
+Why?
+
+Do I have code that rewrites the overworld level? Yes I do..
+
+How to fix?
+reset all level data
+
+first copy old stuff...
+
+pscp -pw zaiden m@purplemartians.org:dev/purple_martians/data/level_data.pm c:\pm\
+when I load this file locally it shows 361 plays and 361 completions
+
+pscp -pw zaiden m@purplemartians.org:dev/purple_martians/levels/level001.pml c:\pm\
+This has nothing...probably got corrupted somehow...??
+
+copy new one back to the server....
+
+pscp -pw zaiden c:\pm\levels\level001.pml m@purplemartians.org:dev/purple_martians/levels/level001.pml
+
+now it seems to be working...
+
+
+server has no stats on levels?
+that is because the client has its own local copy of level data...
+would be nice for clients to show the server level stats....
+
+
+
+
+
+
+
+
+
+
+
 
 
 
