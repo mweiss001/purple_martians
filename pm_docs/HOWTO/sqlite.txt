@@ -32,18 +32,11 @@ ERROR: Access to the registry path is denied.
 
 C:\pm>
 
-
 This is trimmed down a little:
 
 run as admin:
 
 setx path "C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\gs\gs10.00.0\bin;C:\Program Files\Calibre2\;C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin;C:\Users\m\AppData\Local\Microsoft\WindowsApps;C:\sqlite;"
-
-
-
-
-
-
 
 
 
@@ -63,6 +56,7 @@ Enter ".help" for usage hints.
 sqlite> .database
 main: C:\pm\test.db r/w
 sqlite>
+
 
 
 CREATE TABLE `pm_log`
@@ -115,11 +109,6 @@ sqlite> SELECT * FROM pm_log;
 |||23|||
 |||23||1001|
 sqlite>
-
-
-
-
-
 OK now what?
 
 try to connect with c++
@@ -143,11 +132,6 @@ int main(int argc, char* argv[]) {
    }
    sqlite3_close(db);
 }
-
-
-
-
-
 
 
 
@@ -182,12 +166,6 @@ what did it do to my executable?
 
 pm.exe is now 16.3M
 removed and now it is 15.2M
-
-
-
-
-
-
 
 
 I have worked through tutorials to connect to database, create and drop tables insert and select...
@@ -276,6 +254,7 @@ message text
 then I could send a few of these in a compressed packet...
 
 
+
 the reasons for converting my log system to a structure of lines
 - when I send them to the server I can do more than one line per packet
 - i know when the server has got them with an acknowledge
@@ -302,281 +281,4 @@ what is the simplest thing I could do next?
 make client send logs in a new packet type as they occur...
 
 make server receive and process these new log lines
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-You could save them to file
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

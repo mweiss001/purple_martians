@@ -14,7 +14,6 @@ can I easily do it here also?
 I have ubuntu server 22.04 with mysql already installed
 
 
-
 I have not done this:
 firewall setup for mysql
 sudo ufw allow mysql
@@ -566,8 +565,6 @@ I would love to be able to do in in html, but that probably implies javascript o
 
 
 
-
-
 I want to allow ODBC connection to mysql database
 I think I need TCP and port 3306
 
@@ -640,40 +637,6 @@ mysql>
 why is it taking so long? is mysql cleaning up in the background?
 
 now it is back to normal....
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

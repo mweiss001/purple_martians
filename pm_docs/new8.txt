@@ -62716,6 +62716,57 @@ reboot...
 I think that was the problem...
 
 
+2025-12-08 21:12:34
+
+add to howto how to check and clear logs
+
+
+
+
+Using username "m".
+m@purplemartians.org's password:
+Welcome to Ubuntu 22.04.1 LTS (GNU/Linux 5.15.0-160-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Mon Dec  8 09:17:46 PM MST 2025
+
+  System load:  1.0                Temperature:             40.0 C
+  Usage of /:   75.0% of 97.87GB   Processes:               140
+  Memory usage: 14%                Users logged in:         0
+  Swap usage:   0%                 IPv4 address for enp2s0: 96.45.1.50
+
+ * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
+   just raised the bar for easy, resilient and secure K8s cluster deployment.
+
+   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
+
+134 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+
+*** System restart required ***
+Last login: Tue Oct 28 10:38:35 2025
+m@pmh:~$ upptime
+Command 'upptime' not found, did you mean:
+  command 'uptime' from deb procps (2:3.3.17-6ubuntu2.1)
+Try: sudo apt install <deb name>
+m@pmh:~$ uptime
+ 21:18:23 up 38 days,  4:18,  1 user,  load average: 1.00, 1.00, 1.00
+m@pmh:~$ df -h
+Filesystem                         Size  Used Avail Use% Mounted on
+tmpfs                              786M  1.4M  785M   1% /run
+/dev/mapper/ubuntu--vg-ubuntu--lv   98G   74G   20G  80% /
+tmpfs                              3.9G     0  3.9G   0% /dev/shm
+tmpfs                              5.0M     0  5.0M   0% /run/lock
+/dev/sda2                          2.0G  252M  1.6G  14% /boot
+tmpfs                              786M  4.0K  786M   1% /run/user/1000
+m@pmh:~$
+
+
+
 
 
 
