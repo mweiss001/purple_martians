@@ -7,6 +7,35 @@
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+20251209
+
+I have come back after a long time away...
+
+There are a few things I want to do...
+
+
+LOGGING
+-------
+Do something about the logging so it doesn't slowly take up all the drive space.
+I am not so worried about the actual netgame logging stuff, that generates a lot of info
+What I really want is to keep track of when anyone actually plays, and show that on the webpage.
+All I have is their hostname and ip.
+Could I implement a name somehow? Something the clients can set if they want.
+with a max char limit of something sensible
+
+Make the logging HOWTO show how to configure what is being logged.
+and how to check and clear the logs
+
+
+
+
+
+
+
+
+-----------------------------
+older 
+
 
 remove all passwords from the sources...
 or better yet change all your passwords to something new....

@@ -132,6 +132,7 @@ Server copies files to clients
 ---------------------------------------------------------
 This section has all been completely changed....
 
+
 Who initiates this?
 
 It looks like the function:
@@ -190,13 +191,10 @@ crontab -e
 */1 * * * *     /home/m/dev/purple_martians/scrape_status      >> /home/m/dev/purple_martians/scrape_status_cronoutput.txt 2>&1
 
 
-
-
-
-
-
 this is an amazing one line script to change files ending in *.txt.bak to end in *.txt
 for f in *.txt.bak; do mv -- "$f" "${f%.txt.bak}.txt"; done
+
+
 
 
 
@@ -311,30 +309,6 @@ now that I have asp3 built again, test that tether to the phone...
 it is blocked on ssh, but the game works fine...
 
 I can see ufw blocking in journalctl....
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -1,13 +1,11 @@
 Server Client File Transfer
 
 
-A method to transfer a file between server and client with an estabilished connection.
+A method to transfer a file between server and client with an established connection.
 
 Why?
 
-
 I was thinking of using this also to send logs, but that has not yet been implemented.
-
 
 
 --------------------------------------------------------
