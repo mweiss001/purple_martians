@@ -24,6 +24,9 @@ sudo apt install gcc
                  libxinerama-dev \
                  libxpm-dev \
 
+
+
+
 # remove and recreate dev directory
 cd ~
 rm -rf dev

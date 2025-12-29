@@ -40,6 +40,16 @@ function add_to_db(&$var)
    // show the values in the array
    //foreach ($var as $x => $y) echo "$x $y\n";
 
+   // echo "Add to db: filename: " . $var['filename'] . "\n";
+
+   // test if we can create a valid DateTime
+   if (!DateTime::createFromFormat('Ymd-His', $var['dt_start']))
+   {
+      echo "Error parsing dates\n";
+      foreach ($var as $x => $y) echo "$x $y\n";
+      return;
+   }
+
    // convert the datetime to something mysql likes
    $date2 = DateTime::createFromFormat('Ymd-His', $var['dt_start']);
    $var['dt_start'] =  $date2->format('Y-m-d H:i:s');

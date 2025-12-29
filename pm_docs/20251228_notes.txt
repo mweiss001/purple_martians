@@ -1,0 +1,364 @@
+20251228
+
+I am back baby!
+
+But just for a few quick things...
+
+
+See if I remeber how to work with this project
+
+I think the first thing I will do is see if I can commit to github
+
+
+open Git Gui
+
+rescan
+stage
+sing off
+commit
+push
+
+I have password, but what is name? mweiss001
+
+done...
+
+now can I open the project on m36 and recompile
+
+a complete rebuild is 5s! suck that qt creator!
+
+now what?
+
+go through setting up a linux dev machine...
+
+C:\pm\pm_docs\dev setup\linux\ubuntu_dev_setup_20230824.txt
+
+after a bunch of troubleshooting, found I needed to add 'sudo apt install libpulse-dev'
+
+made a new one:
+C:\pm\pm_docs\dev setup\linux\ubuntu_dev_setup_20251228.txt
+
+the server is working!!!
+and it takes 7W!!
+
+C:\pm\pm_docs\HOWTO\Remote Headless Server.txt
+
+
+now what?
+
+I want to do something about logging.
+
+What am I logging? Why so much?
+
+there is more...how to setup the webserver
+
+made a guide:
+
+C:\pm\pm_docs\HOWTO\Setup Apache on headless server.txt
+
+I wish I had a good doc that described what logging is happening.
+
+make one now...
+
+LOG_NET_SESSION
+
+what do I really want?
+
+I want to know when a player joined and how long they played for.
+I want to keep this info in a database table for display
+
+I also want to keep demo files for all the sessions...
+
+I have something like that already....
+
+mNetGameSessionLog
+
+m@o3000:~/dev/purple_martians/logs$ ll
+total 17608
+drwxr-xr-x  5 m m    4096 Dec 28 21:18  ./
+drwxrwxrwx 17 m m    4096 Dec 28 20:13  ../
+-rw-rw-r--  1 m m    5740 Dec 28 20:13 '20251228-201303-[58][o3000].txt'
+-rw-rw-r--  1 m m 7917793 Dec 28 20:24 '20251228-202406-[1][o3000].txt'
+-rw-rw-r--  1 m m  338773 Dec 28 20:24 '20251228-202433-[2][o3000].txt'
+-rw-rw-r--  1 m m  182515 Dec 28 20:25 '20251228-202508-[1][o3000].txt'
+-rw-rw-r--  1 m m 3499306 Dec 28 20:29 '20251228-202946-[2][o3000].txt'
+-rw-rw-r--  1 m m  164623 Dec 28 20:29 '20251228-202959-[1][o3000].txt'
+-rw-rw-r--  1 m m 3313788 Dec 28 20:34 '20251228-203420-[20][o3000].txt'
+-rw-rw-r--  1 m m 1786876 Dec 28 20:45 '20251228-204501-[1][o3000].txt'
+-rw-rw-r--  1 m m  142306 Dec 28 21:13 '20251228-211355-[1][o3000].txt'
+-rw-rw-r--  1 m m  152580 Dec 28 21:16 '20251228-211653-[1][o3000].txt'
+-rw-rw-r--  1 m m  457191 Dec 28 21:18 '20251228-211800-[1][o3000].txt'
+drwxr-xr-x  2 m m   24576 Dec 28 21:18  net/
+drwxr-xr-x  2 m m    4096 Dec 28 21:17  session/
+drwxr-xr-x  2 m m    4096 Dec 28 21:18  status/
+m@o3000:~/dev/purple_martians/logs$ cd session/
+m@o3000:~/dev/purple_martians/logs/session$ ll
+total 28
+drwxr-xr-x 2 m m 4096 Dec 28 21:17 ./
+drwxr-xr-x 5 m m 4096 Dec 28 21:18 ../
+-rw-rw-r-- 1 m m  504 Dec 28 21:17 .txt
+-rw-rw-r-- 1 m m  549 Dec 28 20:24 20251228-201352-192.168.1.36-59650.txt
+-rw-rw-r-- 1 m m  553 Dec 28 20:34 20251228-202459-192.168.1.36-62843.txt
+-rw-rw-r-- 1 m m  538 Dec 28 21:16 20251228-211638-192.168.1.36-64444.txt
+-rw-rw-r-- 1 m m  538 Dec 28 21:17 20251228-211716-192.168.1.36-62627.txt
+m@o3000:~/dev/purple_martians/logs/session$ cat 20251228-211716-192.168.1.36-62627.txt
+dt_start:20251228-211716
+duration:32
+ip:192.168.1.36
+port:62627
+hostname:m36
+endreason:comm_loss
+cdat_rx:0
+player_num:1
+next_levels:0
+exits_activated:0
+respawns:0
+shots_fired:0
+enemy_hits:0
+player_hits:0
+self_hits:0
+purple_coins:0
+tx_bytes_total:1199179
+tx_bytes_avg_per_sec:36349
+tx_bytes_max_per_frame:3650
+rx_bytes_total:768772
+rx_bytes_avg_per_sec:23303
+rx_bytes_max_per_frame:1695
+tx_packets_total:1768
+tx_packets_avg_per_sec:53
+tx_packets_max_per_frame:4
+rx_packets_total:6400
+rx_packets_avg_per_sec:193
+rx_packets_max_per_frame:14
+m@o3000:~/dev/purple_martians/logs/session$
+
+and I think I have a cron job to scrape and add these to a database...
+
+so how do I enable, disable this...
+
+---------------------------------------------------------
+Forced Settings on headless server
+---------------------------------------------------------
+void mwNetgame::headless_server_setup(void)
+{
+   mMain.classic_mode = 0;
+   mLevel.unlock_all_levels();
+
+   // ensure that only the basic LOG_NET is active and is printing to console as well as saving to file
+   mLog.clear_all_log_actions();
+   mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG);
+
+   // make the hidden server player color taan (6)
+   mPlayer.syn[0].color = 6;
+
+   // always have session logging on
+   mLog.set_log_type_action(LOG_NET_session, LOG_ACTION_LOG);
+
+//   // add these for troubleshooting
+//   mLog.set_log_type_action(LOG_NET_join_details, LOG_ACTION_PRINT | LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_stak, LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_stdf, LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_OTH_level_done, LOG_ACTION_PRINT);
+
+   mLog.autosave_log_on_level_done = 1;
+   mLog.autosave_log_on_level_quit = 1;
+   mLog.autosave_log_on_program_exit = 1;
+
+   // make sure we are always saving games
+   mGameMoves.autosave_game_on_level_done = 1;
+
+   mGameMoves.server_send_files_to_clients = 1;
+
+   mConfig.save_config(0);
+
+
+
+
+I think I have everything I need already
+
+I want to keep the basic logging on 'LOG_NET'
+but I should have a cleanup script to erase older ones to keep from using too much disk space
+
+the LOG_SESSIONS ones I should just insert into the database and remove
+
+the savegames I want to have a way to download them from the webserver
+
+look up the scrape functions
+
+I think they are PHP
+
+
+
+---------------------------------------------------------
+Setup a cron job to scrape session logs and add to database
+---------------------------------------------------------
+
+setup a cron job to scrape logs and add to database
+
+crontab -e
+
+*/1 * * * * php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/session_scrape_cronoutput.txt 2>&1
+*/1 * * * *     /home/m/dev/purple_martians/scrape             >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1
+*/1 * * * *     /home/m/dev/purple_martians/scrape_status      >> /home/m/dev/purple_martians/scrape_status_cronoutput.txt 2>&1
+
+
+this is an amazing one line script to change files ending in *.txt.bak to end in *.txt
+for f in *.txt.bak; do mv -- "$f" "${f%.txt.bak}.txt"; done
+
+
+I want to make a new folder in docs
+
+server
+
+like dev setup
+
+
+
+
+2025-12-28 19:16:48
+
+
+What do I have so far?
+
+The server is making session logs and saving them to disk
+cron is calling php scrape and adding them to database
+I sometimes get some php errors that I am trying to figure out
+can I make the php script output some more useful data
+fixed a bug where a bad date would kill the whole batch scrape
+
+   // test if we can create a valid date time
+   if (!DateTime::createFromFormat('Ymd-His', $var['dt_start']))
+   {
+      echo "Error parsing dates\n";
+      foreach ($var as $x => $y) echo "$x $y\n";
+      return;
+   }
+
+2025-12-28 21:30:05
+
+OK now what?
+
+what do I do with the data in the database
+
+
+I'm looking at the sessions.php in the web page
+
+
+   $srvrname = "localhost";
+   $database = "session_db";
+   $username = "php_ro";
+   $password = "readonly";
+
+   $col_list = array("Start Time", "IP address", "port", "hostname", "Session End Reason", "duration",            "cdat");
+   $row_list =      "timestamp,     ip,           port,   hostname,   endreason,            SEC_TO_TIME(duration), cdat_rx";
+
+
+   $conn = mysqli_connect($srvrname, $username, $password, $database);
+
+   $sql = "SELECT $row_list FROM session_tb";
+
+
+I should change that to:
+
+
+
+
+   $srvrname = "localhost";
+   $database = "pm";
+   $username = "pmdb_ro";
+   $password = "readonly";
+
+   $col_list = array("Start Time", "IP address", "port", "hostname", "Session End Reason", "duration",            "cdat");
+   $row_list =      "dt_start,     ip,           port,   hostname,   endreason,            SEC_TO_TIME(duration), cdat_rx";
+
+   $conn = mysqli_connect($srvrname, $username, $password, $database);
+
+   $sql = "SELECT $row_list FROM sessions";
+
+
+
+CREATE TABLE sessions (
+  id                INT AUTO_INCREMENT,
+  filename          VARCHAR(255),
+  dt_start          DATETIME,
+  dt_end            DATETIME,
+  duration          INT,
+  ip                VARCHAR(255),
+  port              INT,
+  hostname          VARCHAR(255),
+  endreason         VARCHAR(255),
+  cdat_rx           INT,
+  player_num        INT,
+  next_levels       INT,
+  exits_activated   INT,
+  respawns          INT,
+  shots_fired       INT,
+  enemy_hits        INT,
+  player_hits       INT,
+  self_hits         INT,
+  purple_coins      INT,
+  tx_bytes_total            INT,
+  tx_bytes_avg_per_sec      INT,
+  tx_bytes_max_per_frame    INT,
+  rx_bytes_total            INT,
+  rx_bytes_avg_per_sec      INT,
+  rx_bytes_max_per_frame    INT,
+  tx_packets_total          INT,
+  tx_packets_avg_per_sec    INT,
+  tx_packets_max_per_frame  INT,
+  rx_packets_total          INT,
+  rx_packets_avg_per_sec    INT,
+  rx_packets_max_per_frame  INT,
+  PRIMARY KEY(id)
+);
+
+where do I want to do this?
+
+on my live server
+
+do I have sessions?
+
+omfg it works!!!
+
+2025-12-28 22:01:09
+
+well I am making some progress
+
+
+fix the php scripts..done..now deploy to live server
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

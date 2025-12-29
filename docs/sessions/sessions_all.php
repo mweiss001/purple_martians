@@ -22,8 +22,8 @@
 <?php
 
    $srvrname = "localhost";
-   $database = "session_db";
-   $username = "php_ro";
+   $database = "pm";
+   $username = "pmdb_ro";
    $password = "readonly";
 
    // Create a connection
@@ -65,7 +65,7 @@
          echo "</tr>";
       echo "</thead>";
       echo "<tbody>";
-         $sql = "SELECT * FROM session_tb";
+         $sql = "SELECT * FROM sessions";
          $res = mysqli_query($conn, $sql);
          while ($row = $res->fetch_assoc())
          {
