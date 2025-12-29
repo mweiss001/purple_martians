@@ -337,10 +337,33 @@ almost 100K cdats per client
 must have generated a bunch of new logs
 
 
+sudo systemctl stop pm
+cd ~/dev
+rm -r purple_martians
+
+git clone --depth=1 https://github.com/mweiss001/purple_martians
+cd purple_martians
+
+# fix permissions
+chmod 777 ./op
+sudo ./op
+
+# compile and install libnet
+cd libnet
+make clean
+make lib
+sudo make install
+
+# build puple martians
+cd ~/dev/purple_martians
+./lin_build_all
+
+sudo cp -r ~/dev/purple_martians/docs/* /var/www/html
+
+sudo systemctl start pm
+
+2025-12-29 15:21:28
 
 
-
-
-
-
+I think I have logging documented much better and able to disable status and net
 

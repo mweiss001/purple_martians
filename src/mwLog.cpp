@@ -662,6 +662,8 @@ void mwLog::add_log_net_db_row(int type, int sub_type, int client, const char *f
 // called both by server directly and when server rx's clog
 void mwLog::add_log_net_db_row2(int type, int sub_type, double agt, int f, int p, int client, const char* msg)
 {
+   if (!mLog.log_types[LOG_NET_CSV].action) return;
+
    char d[100];
    mMiscFnx.chr_dt(d);
 
