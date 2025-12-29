@@ -1,31 +1,14 @@
-20230824
+20251228
 
-This is common to all usages.
-
-Will work for ubuntu desktop as well as ubuntu server.
-
-Start with ubuntu 22.04 desktop or server install.
-
+Started with ubuntu 24.04.2 server minimal install.
 Do bare bones minimal install, make sure openssh is installed.
-
 As soon as the install and updates are done, you can do the rest over ssh.
 
-sudo apt install gcc
-                 git \
-                 cmake \
-				 build-essential \
-                 libfreetype6-dev \
-                 libgl1-mesa-dev \
-                 libglu1-mesa-dev \
-                 libgtk-3-dev \
-                 libxext-dev \
-                 libxxf86vm-dev \
-                 libxrandr-dev \
-                 libxinerama-dev \
-                 libxpm-dev \
-
-
-
+# install required packages
+sudo apt install gcc git cmake build-essential 
+sudo apt install libfreetype6-dev libgl1-mesa-dev libglu1-mesa-dev
+sudo apt install libgtk-3-dev libxext-dev libxxf86vm-dev libxrandr-dev
+sudo apt install libxinerama-dev libxpm-dev libpulse-dev
 
 # remove and recreate dev directory
 cd ~
@@ -41,7 +24,6 @@ cd build
 cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DWANT_MONOLITH=ON -DWANT_D3D=OFF -DWANT_D3D9EX=OFF -DWANT_DEMO=OFF -DWANT_DLL_TLS=OFF -DWANT_DOCS=OFF -DWANT_DOCS_HTML=OFF -DWANT_DOCS_INFO=OFF -DWANT_DOCS_MAN=OFF -DWANT_DOCS_PDF=OFF -DWANT_DOCS_PDF_PAPER=OFF -DWANT_NATIVE_IMAGE_LOADER=OFF -DWANT_OPENAL=OFF -DWANT_VIDEO=OFF -DWANT_VORBIS=OFF -DWANT_IMAGE_FREEIMAGE=OFF -DWANT_IMAGE_JPG=OFF -DWANT_IMAGE_PNG=OFF -DWANT_IMAGE_WEBP=OFF -DWANT_LUAJIT=OFF -DWANT_MEMFILE=OFF -DWANT_MODAUDIO=ON -DWANT_EMBED=OFF -DWANT_EXAMPLES=OFF -DWANT_FLAC=OFF  -DFREETYPE_BZIP2=OFF -DFREETYPE_HARFBUZZ=OFF -DFREETYPE_PNG=OFF -DFREETYPE_ZLIB=OFF -DWANT_ALSA=OFF -DWANT_AQUEUE=OFF -DWANT_FRAMEWORKS=OFF -DWANT_GLES3=OFF -DWANT_MP3=OFF -DWANT_MUDFLAP=OFF -DWANT_OPENSL=OFF -DWANT_OPUS=OFF -DWANT_OSS=OFF -DWANT_PHYSFS=OFF -DWANT_POPUP_EXAMPLES=OFF -DWANT_PYTHON_WRAPPER=OFF -DWANT_RELEASE_LOGGING=OFF -DWANT_SHADERS_D3D=OFF -DWANT_STATIC_RUNTIME=OFF -DWANT_TESTS=OFF -DWANT_TREMOR=OFF -DWANT_WAIT_EVENT_SLEEP=OFF -DSTRICT_WARN=OFF -DWANT_ACODEC_DYNAMIC_LOAD=OFF ..
 make
 sudo make install
-
 
 # get pm
 cd ~/dev
@@ -60,7 +42,6 @@ sudo make install
 
 # build puple martians
 cd ~/dev/purple_martians
-
 ./lin_build_all
 
 
@@ -78,7 +59,6 @@ Run a headless server:
 Locally make a linux release:
 -----------------------------
 ./lin_make_release
-
 
 Install code::blocks and open the project (only in desktop ubuntu) 
 ------------------------------------------------------------------
@@ -130,8 +110,6 @@ win_copy_to_pmh.bat lin_build_and_release
 
 
 
-
-
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
 To make a linux release:
@@ -142,29 +120,12 @@ Make sure the sources on the linux machine are up to date.
 
 Its probabaly best to also make sure they are the version committed to git.
 
-
 win_copy_to_pmh.bat git_reclone
 win_copy_to_pmh.bat lin_build_and_release
 
 then upload the targz file to github as a release
 
 very easy....
-
-
-
------------------------------
-
-
-20240505
-
-I want to be able to play .xm on linux
-what do I need to add?
-
-
-I added -DWANT_MODAUDIO=ON
-
-and that worked but only for ubuntu 20..
-I still get load errors on mint
 
 
 

@@ -2,27 +2,8 @@ Setting up a remote headless server
 
 20240211
 
-Follow the instructions to set up a dev system on ubuntu:
+Follow the most recent instructions to set up a dev system on ubuntu:
 'pm_docs\dev setup\linux\ubuntu_dev_setup_20230824.txt'
-
-This will be a non-gui version of ubuntu.
-
-You will do all administering remotely, via ssh and other tools.
-
-So obviously you need to know the IP address, and ideally it should be static.
-
-When I do the official pm server, I will get a static IP and save with the release.
-
-96.45.13.220
-
-The place to save it is in the config:
-
-   val = al_get_config_value(cfg, "NETWORK", "server_IP");
-   if (!val) sprintf(mNetgame.serveraddress, "96.45.13.220");
-   else sprintf(mNetgame.serveraddress, "%s", val);
-
-ssh into the server
-cd ~/dev/purple_martians
 
 
 ---------------------------------------------------------
@@ -132,7 +113,6 @@ Server copies files to clients
 ---------------------------------------------------------
 This section has all been completely changed....
 
-
 Who initiates this?
 
 It looks like the function:
@@ -176,10 +156,8 @@ client can request this in two places
 
 
 
-
-
 ---------------------------------------------------------
-Setup a cron job to scrape session logs and add to database
+Setup a cron jobs to scrape session logs and add to database
 ---------------------------------------------------------
 
 setup a cron job to scrape logs and add to database
@@ -190,35 +168,12 @@ crontab -e
 */1 * * * *     /home/m/dev/purple_martians/scrape             >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1
 */1 * * * *     /home/m/dev/purple_martians/scrape_status      >> /home/m/dev/purple_martians/scrape_status_cronoutput.txt 2>&1
 
-
 this is an amazing one line script to change files ending in *.txt.bak to end in *.txt
 for f in *.txt.bak; do mv -- "$f" "${f%.txt.bak}.txt"; done
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 -------------------------------------
 Setup ufw firewall on server
 -------------------------------------
-
 
 Making Sure IPv6 is Enabled
 
@@ -282,8 +237,6 @@ To                         Action      From
 22/tcp (OpenSSH (v6))      ALLOW IN    Anywhere (v6)
 24785 (v6)                 ALLOW IN    Anywhere (v6)
 
-
-
 Deleting Rules
 
 sudo ufw status numbered
@@ -304,11 +257,12 @@ I should not be able to ssh in from something outside the subnet
 
 
 
-now that I have asp3 built again, test that tether to the phone...
 
-it is blocked on ssh, but the game works fine...
 
-I can see ufw blocking in journalctl....
+
+
+
+
 
 
 

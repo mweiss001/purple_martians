@@ -20,12 +20,13 @@
 <?php
 
    $srvrname = "localhost";
-   $database = "session_db";
+   $database = "pm";
+   $username = "pmdb_ro";
    $username = "php_ro";
    $password = "readonly";
 
    $col_list = array("Start Time", "IP address", "port", "hostname", "Session End Reason", "duration",            "cdat",  "tx_bytes_total", "tx_bytes_avg_per_sec", "tx_bytes_max_per_frame", "rx_bytes_total", "rx_bytes_avg_per_sec", "rx_bytes_max_per_frame", "tx_packets_total", "tx_packets_avg_per_sec", "tx_packets_max_per_frame", "rx_packets_total", "rx_packets_avg_per_sec", "rx_packets_max_per_frame");
-   $row_list =       "timestamp,    ip,           port,   hostname,   endreason,            SEC_TO_TIME(duration), cdat_rx, tx_bytes_total,   tx_bytes_avg_per_sec,   tx_bytes_max_per_frame,   rx_bytes_total,   rx_bytes_avg_per_sec,   rx_bytes_max_per_frame,   tx_packets_total,   tx_packets_avg_per_sec,   tx_packets_max_per_frame,   rx_packets_total,   rx_packets_avg_per_sec,   rx_packets_max_per_frame";
+   $row_list =       "dt_start,     ip,           port,   hostname,   endreason,            SEC_TO_TIME(duration), cdat_rx, tx_bytes_total,   tx_bytes_avg_per_sec,   tx_bytes_max_per_frame,   rx_bytes_total,   rx_bytes_avg_per_sec,   rx_bytes_max_per_frame,   tx_packets_total,   tx_packets_avg_per_sec,   tx_packets_max_per_frame,   rx_packets_total,   rx_packets_avg_per_sec,   rx_packets_max_per_frame";
 
 //   $col_list .= ", tx_bytes_total", "tx_bytes_avg_per_sec", "tx_bytes_max_per_frame", "rx_bytes_total", "rx_bytes_avg_per_sec", "rx_bytes_max_per_frame";
 //   $row_list .= ", tx_bytes_total,   tx_bytes_avg_per_sec,   tx_bytes_max_per_frame,   rx_bytes_total,   rx_bytes_avg_per_sec,   rx_bytes_max_per_frame";
@@ -68,7 +69,7 @@
          echo "</tr>";
       echo "</thead align='center'>";
       echo "<tbody>";
-         $sql = "SELECT $row_list FROM session_tb";
+         $sql = "SELECT $row_list FROM sessions";
          $res = mysqli_query($conn, $sql);
          while ($row = $res->fetch_assoc())
          {

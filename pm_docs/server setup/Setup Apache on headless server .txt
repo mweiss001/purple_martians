@@ -1,0 +1,119 @@
+20251228
+
+sudo apt update
+
+sudo apt install apache2
+
+sudo apt install ufw
+
+m@pmh:~$ sudo ufw app list
+Available applications:
+  Apache
+  Apache Full
+  Apache Secure
+  OpenSSH
+
+m@pmh:~$ sudo ufw allow 'Apache'
+Rules updated
+Rules updated (v6)
+
+m@pmh:~$ sudo ufw status
+Status: inactive
+
+m@pmh:~$ sudo ufw allow 'OpenSSH'
+Rules updated
+Rules updated (v6)
+
+I am scared to turn it on, my server is remote...
+
+Just leave it for now..
+
+sudo ufw enable
+
+
+m@pmh:~$ sudo systemctl status apache2
+● apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; enabled; vendor preset: enabled)
+     Active: active (running) since Sun 2024-04-14 08:31:03 MDT; 8min ago
+       Docs: https://httpd.apache.org/docs/2.4/
+   Main PID: 2020 (apache2)
+      Tasks: 55 (limit: 9292)
+     Memory: 5.5M
+        CPU: 52ms
+     CGroup: /system.slice/apache2.service
+             ├─2020 /usr/sbin/apache2 -k start
+             ├─2021 /usr/sbin/apache2 -k start
+             └─2022 /usr/sbin/apache2 -k start
+
+Apr 14 08:31:03 pmh systemd[1]: Starting The Apache HTTP Server...
+Apr 14 08:31:03 pmh apachectl[2019]: AH00558: apache2: Could not reliably determine the server's fully qualified domain >
+Apr 14 08:31:03 pmh systemd[1]: Started The Apache HTTP Server.
+lines 1-16/16 (END)
+
+
+To stop your web server, type:
+
+    sudo systemctl stop apache2
+
+To start the web server when it is stopped, type:
+
+    sudo systemctl start apache2
+
+To stop and then start the service again, type:
+
+    sudo systemctl restart apache2
+
+If you are simply making configuration changes, Apache can often reload without dropping connections. To do this, use this command:
+
+    sudo systemctl reload apache2
+
+By default, Apache is configured to start automatically when the server boots. If this is not what you want, disable this behavior by typing:
+
+    sudo systemctl disable apache2
+
+To re-enable the service to start up at boot, type:
+
+sudo systemctl enable apache2
+
+/var/www/html
+
+now what is an easy way to get files to and from the server?
+
+on server make a temp dir: ~/tmp
+
+2 steps:
+
+From the a windows machine, copy to the tmp location:
+pscp -r -pw zaiden c:\pm\docs\* m@192.168.1.146:tmp
+
+On the server, copy to the final place
+m@pmh:~$ sudo cp -r ~/tmp/* /var/www/html
+
+
+----------------------------------------------------------------------------------------------------
+setup php and mysql on server...
+----------------------------------------------------------------------------------------------------
+See C:\pm\pm_docs\server setup\Mysql.txt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+----------------------------------------------------------------------------------------------------
+
+
+
+---------------------------------------------------------
+Setup a cron job to scrape session logs and add to database
+---------------------------------------------------------
+
+setup a cron job to scrape logs and add to database
+
+sudo apt install cron
+
+crontab -e
+
+*/1 * * * * php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/session_scrape_cronoutput.txt 2>&1
+*/1 * * * *     /home/m/dev/purple_martians/scrape             >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1
+*/1 * * * *     /home/m/dev/purple_martians/scrape_status      >> /home/m/dev/purple_martians/scrape_status_cronoutput.txt 2>&1
+
+this is an amazing one line script to change files ending in *.txt.bak to end in *.txt
+for f in *.txt.bak; do mv -- "$f" "${f%.txt.bak}.txt"; done
+
+
+

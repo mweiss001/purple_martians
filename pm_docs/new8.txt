@@ -49027,10 +49027,6 @@ sudo mysqladmin -p -u msq version
 
 
 
-
-
-
-
 make a database
 ---------------
 
@@ -62398,7 +62394,6 @@ ok now it seems to be working....lets just let this run and use it...
 20240714
 
 
-
 I have a bug in status logging
 
 fractional seconds need the leading zero....
@@ -62459,8 +62454,6 @@ put that in my stuff on x...
 made a new folder on x also
 
 done...all should be backed up now...
-
-
 
 
 

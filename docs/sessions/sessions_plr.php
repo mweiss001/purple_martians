@@ -20,12 +20,12 @@
 <?php
 
    $srvrname = "localhost";
-   $database = "session_db";
-   $username = "php_ro";
+   $database = "pm";
+   $username = "pmdb_ro";
    $password = "readonly";
 
    $col_list = array("Start Time", "IP address", "port", "hostname", "Session End Reason", "duration",            "cdat",  "player_num", "next_levels", "exits_activated", "respawns", "shots_fired", "enemy_hits", "player_hits", "self_hits", "purple_coins");
-   $row_list =       "timestamp,    ip,           port,   hostname,   endreason,            SEC_TO_TIME(duration), cdat_rx, player_num,   next_levels,   exits_activated,   respawns,   shots_fired,   enemy_hits,   player_hits,   self_hits,   purple_coins";
+   $row_list =       "dt_start,     ip,           port,   hostname,   endreason,            SEC_TO_TIME(duration), cdat_rx, player_num,   next_levels,   exits_activated,   respawns,   shots_fired,   enemy_hits,   player_hits,   self_hits,   purple_coins";
 
    // Create a connection
    $conn = mysqli_connect($srvrname, $username, $password, $database);
@@ -61,7 +61,7 @@
          echo "</tr>";
       echo "</thead align='center'>";
       echo "<tbody>";
-         $sql = "SELECT $row_list FROM session_tb";
+         $sql = "SELECT $row_list FROM sessions";
          $res = mysqli_query($conn, $sql);
          while ($row = $res->fetch_assoc())
          {
