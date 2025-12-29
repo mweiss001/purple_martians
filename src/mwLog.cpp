@@ -628,7 +628,7 @@ void mwLog::log_bandwidth_stats(int type, int p)
 // server will add directly and client will send packet
 void mwLog::add_log_net_db_row(int type, int sub_type, int client, const char *format, ...)
 {
-   if (!mLog.log_types[LOG_NET_CSV]) return;
+   if (!mLog.log_types[LOG_NET_CSV].action) return;
 
    // skip these message types if server with no clients
    if ((mNetgame.ima_server) && (mNetgame.server_num_clients == 0))
@@ -691,7 +691,7 @@ void mwLog::add_log_net_db_row2(int type, int sub_type, double agt, int f, int p
 
 void mwLog::add_log_status_db_rows(void)
 {
-   if (!mLog.log_types[LOG_NET_CSV]) return;
+   if (!mLog.log_types[LOG_NET_CSV].action) return;
 
    // do not log status unless at least one client is connected
    if (mNetgame.server_num_clients == 0) return;
