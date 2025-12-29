@@ -115,10 +115,10 @@ void mwNetgame::headless_server_setup(void)
    mLog.clear_all_log_actions();
 
    // always have the basic LOG_NET active and printing to console as well as saving to file
-   mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG);
 
   // always have session logging on
-//   mLog.set_log_type_action(LOG_NET_session, LOG_ACTION_LOG);
+   mLog.set_log_type_action(LOG_NET_session, LOG_ACTION_LOG);
 //
 //   // add these for troubleshooting
 //   mLog.set_log_type_action(LOG_NET_ending_stats,  LOG_ACTION_LOG);
