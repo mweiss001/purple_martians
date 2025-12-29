@@ -32,13 +32,9 @@ mwNetgame::mwNetgame()
 // initialize libnet and setup a driver to use. Returns 0 on success.
 int mwNetgame::NetworkInit(void)
 {
-   char msg[256];
-
    if (net_init()) // initialize libnet
    {
-      sprintf(msg, "Error: Couldn't initialize libnet\n");
-      mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
-      mInput.m_err(msg);
+      mLog.log_error("Couldn't initialize libnet\n");
       return -1;
    }
 
@@ -52,17 +48,13 @@ int mwNetgame::NetworkInit(void)
    {
       if (!net_initdriver(NetworkDriver))
       {
-         sprintf(msg, "Error: Couldn't initialize network driver\n");
-         mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
-         mInput.m_err(msg);
+         mLog.log_error("Couldn't initialize network driver\n");
          return -1;
       }
    }
    else
    {
-      sprintf(msg, "Error: Found no driver in the internet network class\n");
-      mLog.add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
-      mInput.m_err(msg);
+      mLog.log_error("Found no driver in the internet network class\n");
       return -1;
    }
    return 0;

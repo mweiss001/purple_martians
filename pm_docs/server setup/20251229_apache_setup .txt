@@ -4,6 +4,7 @@ sudo apt update
 
 sudo apt install apache2 ufw
 
+
 m@pmh:~$ sudo ufw app list
 Available applications:
   Apache
@@ -76,9 +77,6 @@ sudo systemctl enable apache2
 /var/www/html
 
 
-
-
-
 ----------------------------------------------------------------------------------------------------
 transfer files to and from the server?
 ----------------------------------------------------------------------------------------------------
@@ -101,8 +99,6 @@ setup php and mysql on server...
 See C:\pm\pm_docs\server setup\Mysql.txt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ----------------------------------------------------------------------------------------------------
 
-
-
 ---------------------------------------------------------
 Setup a cron job to scrape session logs and add to database
 ---------------------------------------------------------
@@ -119,6 +115,4 @@ crontab -e
 
 this is an amazing one line script to change files ending in *.txt.bak to end in *.txt
 for f in *.txt.bak; do mv -- "$f" "${f%.txt.bak}.txt"; done
-
-
 

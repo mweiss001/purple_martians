@@ -3,19 +3,45 @@
 ------------------------------------------------------------------------------
 TO DO
 ------------------------------------------------------------------------------
-------------------------------------------------------------------------------
+document logging better
+make a folder called logging
+
+
+
+
+
 ------------------------------------------------------------------------------
 make a way of cleaning up log files periodically
 ------------------------------------------------------------------------------
-finish the notes about how to create server
-see if I have the right php permissions
-the answer is yes!!!
-redo everything
+make a variable or 2 to kill log_net and log_status
+
+
+#define LOG_OTH_draw               54
+#define LOG_NET_CSV                66
+
+   i = LOG_OTH_draw;                log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_draw");
+   i = LOG_NET_CSV;                 log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_NET_CSV"); log_types[i].action = 0;
+
+now it shows up at the bottom of OTH
+it is off by default
+
+
+try this....
+
+
+
+
+
+
+
+
 
 
 
 ------------------------------------------------------------------------------
-
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 
 
 right now I should kill all the one on the main pm server...
@@ -37,14 +63,31 @@ in the net folder there are logs also??
 why so many and what are they for?
 
 
-
-
 ------------------------------------------------------------------------------
-fix the php scripts..done..now deploy to live server
 ------------------------------------------------------------------------------
 download played game from server
 ------------------------------------------------------------------------------
-finish the notes about how to create server
+
+I want to change the directory structure of my project.
+docs will now have all the doss
+web will now have the webpage
+the only reason I changed it was because github was hosting my page...
+At the time it seemed like a good idea to have a free host site for my project docs
+but now that I have my own server, I don't care about that anymore
+change hard link in pmhelp
+------------------------------------------------------------------------------
+it is a little convoluted how I do session logs
+save them to disk, then process them periodically with cron and php
+in conjunction with database..
+
+if I could just do all that from the server and C++ and a database connection it could be much simpler
+I have not done that beacuse I did not want to tie up the server
+but really, how much overhead could it take to enter a few things in a database
+
+is there really any reason to use mysql? why do I need remote network access to the database
+anything the webpage shows will be on the same physical machine
+
+
 ------------------------------------------------------------------------------
 Qt WASM 
 ------------------------------------------------------------------------------
@@ -59,5 +102,17 @@ Qt WASM
 ------------------------------------------------------------------------------
 DONE
 ------------------------------------------------------------------------------
+finish the notes about how to create server
+see if I have the right php permissions
+the answer is yes!!!
+redo everything
 ------------------------------------------------------------------------------
+fix the php scripts..done..now deploy to live server
 ------------------------------------------------------------------------------
+
+exclude scrapes from git backup
+in .gitignore
+/scrape_cronoutput.txt
+/scrape_status_cronoutput.txt
+/session_scrape_cronoutput.txt
+

@@ -54,7 +54,6 @@ struct client_session
    int64_t rx_total_packets;
    int rx_max_bytes_per_frame;
    int rx_max_packets_per_frame;
-
 };
 
 

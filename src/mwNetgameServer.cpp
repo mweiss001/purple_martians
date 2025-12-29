@@ -28,12 +28,9 @@ int mwNetgame::ServerInitNetwork(void)
 
    mLog.add_log_net_db_row(LOG_NET, 0, 0, "Server mode started - hostname:%s", mLoop.local_hostname);
 
-   char msg[256];
    if (NetworkInit())
    {
-      sprintf(msg, "Error: failed to initialize network");
-      mLog.add_fw(LOG_error, -1, 76, 10, "|", " ", msg);
-      mInput.m_err(msg);
+      mLog.log_error("failed to initialize network");
       return 0;
    }
 
@@ -42,9 +39,7 @@ int mwNetgame::ServerInitNetwork(void)
    sprintf(port, ":%d", server_port);
    if (!(Channel = net_openchannel(NetworkDriver, port)))
    {
-      sprintf(msg, "Error opening server channel");
-      mLog.add_fw(LOG_error, -1, 76, 10, "|", " ", msg);
-      mInput.m_err(msg);
+      mLog.log_error("failed to open server channel");
       return 0;
    }
    mLog.add_fw(LOG_NET, -1, 76, 10, "|", " ", "Server network initialized");
@@ -90,8 +85,7 @@ void mwNetgame::ServerSendTo(void *data, int len, int p)
    {
       char msg[512];
       sprintf(msg, "Error: couldn't assign target `%s' to ServerChannel\n", mwChannels[p].channel_address);
-      mLog.add_fwf(LOG_error, -1, 76, 10, "|", "-", msg);
-      mInput.m_err(msg);
+      mLog.log_error(msg, 0);
    }
    net_send(Channel, data, len);
 
@@ -118,36 +112,33 @@ void mwNetgame::headless_server_setup(void)
    // make the hidden server player color taan (6)
    mPlayer.syn[0].color = 6;
 
-
    mLog.clear_all_log_actions();
 
    // always have the basic LOG_NET active and printing to console as well as saving to file
    mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG);
 
   // always have session logging on
-   mLog.set_log_type_action(LOG_NET_session, LOG_ACTION_LOG);
-
-   // add these for troubleshooting
-   mLog.set_log_type_action(LOG_NET_ending_stats,  LOG_ACTION_LOG);
-   mLog.set_log_type_action(LOG_NET_bandwidth,     LOG_ACTION_LOG);
-
-   mLog.set_log_type_action(LOG_NET_stdf_rewind,   LOG_ACTION_LOG);
-   mLog.set_log_type_action(LOG_NET_stdf_create,   LOG_ACTION_LOG);
-   mLog.set_log_type_action(LOG_NET_stdf,          LOG_ACTION_LOG);
-   mLog.set_log_type_action(LOG_NET_stdf_packets,  LOG_ACTION_LOG);
-
-   mLog.set_log_type_action(LOG_NET_dif_apply,     LOG_ACTION_LOG);
-
-   mLog.set_log_type_action(LOG_NET_cdat,          LOG_ACTION_LOG);
-   mLog.set_log_type_action(LOG_NET_stak,          LOG_ACTION_LOG);
-   mLog.set_log_type_action(LOG_NET_client_ping,   LOG_ACTION_LOG);
-   mLog.set_log_type_action(LOG_NET_timer_adjust,  LOG_ACTION_LOG);
-
-   mLog.set_log_type_action(LOG_NET_file_transfer, LOG_ACTION_LOG);
-
+//   mLog.set_log_type_action(LOG_NET_session, LOG_ACTION_LOG);
+//
+//   // add these for troubleshooting
+//   mLog.set_log_type_action(LOG_NET_ending_stats,  LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_bandwidth,     LOG_ACTION_LOG);
+//
+//   mLog.set_log_type_action(LOG_NET_stdf_rewind,   LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_stdf_create,   LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_stdf,          LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_stdf_packets,  LOG_ACTION_LOG);
+//
+//   mLog.set_log_type_action(LOG_NET_dif_apply,     LOG_ACTION_LOG);
+//
+//   mLog.set_log_type_action(LOG_NET_cdat,          LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_stak,          LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_client_ping,   LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_timer_adjust,  LOG_ACTION_LOG);
+//
+//   mLog.set_log_type_action(LOG_NET_file_transfer, LOG_ACTION_LOG);
 
 //   mLog.set_log_type_action(LOG_OTH_level_done,   LOG_ACTION_LOG);
-
 
    mLog.autosave_log_on_level_done = 1;
    mLog.autosave_log_on_level_quit = 1;
@@ -498,7 +489,7 @@ void mwNetgame::server_proc_player_drop(void)
          if ((mPlayer.syn[p].active) && (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE) && (mPlayer.loc[p].server_last_stak_rx_frame_num < drop_frame_limit))
          {
             mGameMoves.add_game_move(mLoop.frame_num + 4, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, p, 71); // make client inactive (reason no stak for x frames)
-            if (mLog.log_types[LOG_NET_session].action) session_close(p, 4); // reason 4 - comm loss
+            session_close(p, 4); // reason 4 - comm loss
 
             mLog.add_headerf(LOG_NET, -1, 1,       "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
             mLog.add_log_net_db_row(LOG_NET, 0, p,  "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
@@ -636,10 +627,9 @@ void mwNetgame::server_send_sjon_packet(char* address, int level, int frame, int
 
    if (net_assigntarget(Channel, address))
    {
-      char msg[256];
+      char msg[512];
       sprintf(msg, "Error: couldn't assign target `%s' to Channel\n", address);
-      mLog.add_fwf(LOG_error, -1, 76, 10, "|", "-", msg);
-      mInput.m_err(msg);
+      mLog.log_error(msg, 0);
    }
    net_send(Channel, data, pos);
 }
@@ -662,7 +652,7 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
       server_send_sjon_packet(address, 0, 0, 99, 0);
 
       // add session log
-      if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, 9, 0, 1);
+      session_add_entry(address, hostname, 9, 0, 1);
 
       mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
       mLog.add_log_net_db_row(LOG_NET, 0, 0,       "Reply sent: 'SERVER FULL'");
@@ -701,7 +691,7 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
       server_send_sjon_packet(address, mLevel.play_level, mLoop.frame_num, p, color);
 
       // start session log
-      if (mLog.log_types[LOG_NET_session].action) session_add_entry(address, hostname, p, 1, 0);
+      session_add_entry(address, hostname, p, 1, 0);
 
       mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Server replied with join invitation:");
       mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
@@ -806,7 +796,10 @@ void mwNetgame::server_control()
    server_proc_player_drop();             // check to see if we need to drop inactive clients
    server_proc_limits();                  // check to see if we need to reload level
    server_proc_files_to_send();
-   if (mLog.log_types[LOG_NET_session].action) session_check_active();
+
+   session_check_active();
+
+
    if (mMain.server_remote_control) server_send_snfo_packet();
 
    // send extra packets (testing and debug only)

@@ -1,7 +1,6 @@
 Cutscene transistions
 
-
-One thing that make the game look great are the transitions between levels...
+One thing that makes the game look great are the transitions between levels...
 
 Menu to game, level done, etc. All of these have a smooth transition instead a jarring jump.
 
@@ -14,7 +13,6 @@ void mwScreen::transition_cutscene(int i, int f, int num_steps, float delay)
 //1 - game
 //2 - map
 //3 - gate icon
-
 
    float fmxi=0;
    float fmyi=0;
@@ -31,7 +29,6 @@ void mwScreen::transition_cutscene(int i, int f, int num_steps, float delay)
    // player's position in level
    float px = mPlayer.syn[mPlayer.active_local_player].x+10;
    float py = mPlayer.syn[mPlayer.active_local_player].y+10;
-
 
    if (i == 0) // nothing
    {
@@ -176,15 +173,5 @@ then after then next level is loaded, the cutscene uses the saved position and p
       fmsf = 200.0 / 2000.0; // level icon size = 200;
       fmxf = gate_transition_x + px * fmsf;
       fmyf = gate_transition_y + py * fmsf;
-
-
-
-
-
-
-
-
-
-
 
 
