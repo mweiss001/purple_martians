@@ -1,8 +1,8 @@
 <?php
 
 // if using php < version 8
-function str_starts_with($str, $txt) {   return (substr($str, 0, strlen($txt) ) == $txt); }
-function str_ends_with($str, $txt)   {   return (substr($str,   -strlen($txt) ) == $txt); }
+//function str_starts_with($str, $txt) {   return (substr($str, 0, strlen($txt) ) == $txt); }
+//function str_ends_with($str, $txt)   {   return (substr($str,   -strlen($txt) ) == $txt); }
 
 $start_time = microtime(true);
 

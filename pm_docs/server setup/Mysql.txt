@@ -341,47 +341,27 @@ GRANT SELECT, INSERT, UPDATE ON pm.* TO 'pmdb_rw';
 SHOW GRANTS FOR pmdb_rw;
 
 
-sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
 
-in the [mysqld] section add this line:
-local_infile    = 1
-
-
-add to the bottom of the file these two lines:
-[client]
-local_infile    = 1
 
 
 systemctl status mysql
 systemctl start mysql
 systemctl stop mysql
 systemctl restart mysql
-
-
 
 
 
 ---------------------------------------
 how to fix infile 
 ---------------------------------------
-
 sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
 
 in the [mysqld] section add this line:
 local_infile    = 1
 
-
 add to the bottom of the file these two lines:
 [client]
 local_infile    = 1
-
-
-systemctl status mysql
-systemctl start mysql
-systemctl stop mysql
-systemctl restart mysql
-
-
 
 
 ---------------------------------------
@@ -396,6 +376,15 @@ localhost? 127.0.0.0?
 
 this is what I have on pmh
 bind-address            = purplemartians.org
+
+
+systemctl status mysql
+systemctl start mysql
+systemctl stop mysql
+systemctl restart mysql
+
+
+
 
 
 ----------------------------
