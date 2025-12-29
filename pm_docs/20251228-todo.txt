@@ -6,6 +6,16 @@ TO DO
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 make a way of cleaning up log files periodically
+------------------------------------------------------------------------------
+finish the notes about how to create server
+see if I have the right php permissions
+the answer is yes!!!
+redo everything
+
+
+
+------------------------------------------------------------------------------
+
 
 
 right now I should kill all the one on the main pm server...

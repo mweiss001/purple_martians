@@ -2,9 +2,7 @@
 
 sudo apt update
 
-sudo apt install apache2
-
-sudo apt install ufw
+sudo apt install apache2 ufw
 
 m@pmh:~$ sudo ufw app list
 Available applications:
@@ -77,17 +75,24 @@ sudo systemctl enable apache2
 
 /var/www/html
 
-now what is an easy way to get files to and from the server?
+
+
+
+
+----------------------------------------------------------------------------------------------------
+transfer files to and from the server?
+----------------------------------------------------------------------------------------------------
 
 on server make a temp dir: ~/tmp
 
 2 steps:
 
 From the a windows machine, copy to the tmp location:
+pscp -r -pw zaiden c:\pm\docs\* m@purplemartians.org:tmp
 pscp -r -pw zaiden c:\pm\docs\* m@192.168.1.146:tmp
 
 On the server, copy to the final place
-m@pmh:~$ sudo cp -r ~/tmp/* /var/www/html
+sudo cp -r ~/tmp/* /var/www/html
 
 
 ----------------------------------------------------------------------------------------------------
