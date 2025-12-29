@@ -1,6 +1,5 @@
 https://github.com/liballeg/allegro_wiki/wiki/Debugging-and-logging-with-A5
 
-
 To enable logging of allegro's runtime messages, you need to use either the debugging version or the release version with debugging symbols. When building with CMake, these are specified by -DCMAKE_BUILD_TYPE = {Debug | Release | RelWithDebInfo}
 
 I used Debug
@@ -10,13 +9,11 @@ remade the library...
 make
 sudo make install
 
-
 In the game:
 compiler options: -Wall -g
 link with -lallegro_monolith_debug
 
 installed gdb with sudo apt-get install gdb
-
 
 then in a terminal gdb ./pm
 
@@ -25,7 +22,6 @@ then run
 when it crashes, type CTRL-C
 
 then bt or where
-
 
 Other useful commands in gdb :
 

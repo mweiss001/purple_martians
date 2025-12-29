@@ -13,6 +13,8 @@
 #define NUM_LOG_CHAR  100000000
 #define NUM_LOG_LINES 1000000
 
+
+
 #define LOG_error                  9
 #define LOG_NET                    10
 #define LOG_NET_session            14
@@ -60,6 +62,12 @@
 #define LOG_OTH_move               53
 #define LOG_OTH_draw               54
 
+#define LOG_NET_CSV                66
+
+
+
+
+
 #define LOG_ACTION_PRINT  0b001
 #define LOG_ACTION_LOG    0b010
 
@@ -85,11 +93,17 @@ class mwLog
    void set_log_type_action(int type, int action);
    void clear_all_log_actions(void);
 
+   void log_error(const char *txt, bool dialog = 1);
+
    void log_append_textf(int type, const char *format, ...);
    void log_append_text(int type, const char *txt);
 
    void log_add_prefixed_textf(int type, int player, const char *format, ...);
    void log_add_prefixed_text(int type, int player, const char *msg);
+
+
+
+
 
    void add_fwf(int type, int player, int width, int pos, const char *border, const char *fill, const char *format, ...);
    void add_fw(int type, int player, int width, int pos, const char *border, const char *fill, const char *txt);
@@ -101,21 +115,20 @@ class mwLog
    void log_versions(void);
 
 
-
-
-
    char log_status_msg[NUM_LOG_CHAR];
    int log_status_msg_pos = 0;
    int log_status_msg_num_lines = 0;
+
    void add_log_status_db_rows(void);
 
+   void add_log_net_db_row(int type, int sub_type, int client, const char *format, ...);
+   void add_log_net_db_row2(int type, int sub_type, double agt, int frame, int player, int client, const char* msg);
 
 
    char log_net_msg[NUM_LOG_CHAR];
    int log_net_msg_pos = 0;
    int log_net_msg_num_lines = 0;
-   void add_log_net_db_row(int type, int sub_type, int client, const char *format, ...);
-   void add_log_net_db_row2(int type, int sub_type, double agt, int frame, int player, int client, const char* msg);
+
 
 
 

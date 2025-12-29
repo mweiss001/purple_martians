@@ -1,0 +1,299 @@
+20251229 mysql setup
+
+--------------------
+installing mysql
+--------------------
+
+sudo apt install mysql-server
+
+check version
+--------------
+sudo mysql
+
+---------------------------------------------
+installing php to communicate with mysql
+---------------------------------------------
+
+sudo apt install --no-install-recommends php
+sudo apt install php-mysql
+
+had to replace a few functions that were php 8 only:
+function str_starts_with($str, $txt) {  return (substr($str, 0, strlen($txt) ) == $txt); }
+function str_ends_with($str, $txt)   {  return (substr($str,   -strlen($txt) ) == $txt); }
+
+--------------------------------------------------------------------------------------------------------------------------------
+Here is the actual script to run to setup pm logging:
+last updated 20251228
+(run as root)
+sudo mysql
+--------------------------------------------------------------------------------------------------------------------------------
+
+to cleanup: (if you are not doing this for the first time)
+----------------------------------------------
+USE pm;
+DROP TABLE logs;
+DROP TABLE status;
+DROP TABLE sessions;
+DROP USER 'pmdb_ro';
+DROP USER 'pmdb_rw';
+DROP DATABASE pm;
+----------------------------------------------
+
+to create everything
+----------------------------------------------
+
+CREATE DATABASE pm;
+USE pm;
+
+CREATE TABLE logs
+(
+  id              INT AUTO_INCREMENT,
+  msg_type        INT,
+  sub_type        INT,
+  created         DATETIME(3),
+  agt             DOUBLE,
+  frame_num       INT,
+  player          INT,
+  client          INT,
+  message         TEXT,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE status (
+  id                INT AUTO_INCREMENT,
+  timestamp         DATETIME(3),
+  frame             INT,
+  player            INT,
+  rwnd              INT,
+  cpu               FLOAT,
+  sync              FLOAT,
+  ping              FLOAT,
+  difs              FLOAT,
+  lcor              FLOAT,
+  rcor              FLOAT,
+  txbf              FLOAT,
+  rxbf              FLOAT,
+  txpf              FLOAT,
+  rxpf              FLOAT,
+  PRIMARY KEY(id)
+);
+
+CREATE TABLE sessions (
+  id                INT AUTO_INCREMENT,
+  filename          VARCHAR(255),
+  dt_start          DATETIME,
+  dt_end            DATETIME,
+  duration          INT,
+  ip                VARCHAR(255),
+  port              INT,
+  hostname          VARCHAR(255),
+  endreason         VARCHAR(255),
+  cdat_rx           INT,
+  player_num        INT,
+  next_levels       INT,
+  exits_activated   INT,
+  respawns          INT,
+  shots_fired       INT,
+  enemy_hits        INT,
+  player_hits       INT,
+  self_hits         INT,
+  purple_coins      INT,
+  tx_bytes_total            INT,
+  tx_bytes_avg_per_sec      INT,
+  tx_bytes_max_per_frame    INT,
+  rx_bytes_total            INT,
+  rx_bytes_avg_per_sec      INT,
+  rx_bytes_max_per_frame    INT,
+  tx_packets_total          INT,
+  tx_packets_avg_per_sec    INT,
+  tx_packets_max_per_frame  INT,
+  rx_packets_total          INT,
+  rx_packets_avg_per_sec    INT,
+  rx_packets_max_per_frame  INT,
+  PRIMARY KEY(id)
+);
+
+CREATE USER 'pmdb_ro' IDENTIFIED WITH mysql_native_password BY 'readonly';
+GRANT SELECT ON pm.* TO 'pmdb_ro';
+
+CREATE USER 'pmdb_rw' IDENTIFIED WITH mysql_native_password BY 'readwrite';
+GRANT SELECT, INSERT, UPDATE ON pm.* TO 'pmdb_rw';
+
+
+check:
+----------------------------------------------
+SHOW DATABASES;
+use pm;
+
+SHOW TABLES;
+
+DESCRIBE logs;
+DESCRIBE status;
+DESCRIBE sessions;
+
+SELECT COUNT(*) FROM logs;
+SELECT COUNT(*) FROM status;
+SELECT COUNT(*) FROM sessions;
+
+SHOW GRANTS FOR pmdb_ro;
+SHOW GRANTS FOR pmdb_rw;
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+rm logs/session/*
+rm logs/*
+rm -rf ./logs/*
+
+
+SELECT dt_start, duration, hostname, exits_activated FROM sessions ORDER by dt_start;
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+Some common things to do with mysql:
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+make a database user
+--------------------
+sudo mysql
+CREATE USER 'msq'@'localhost' IDENTIFIED WITH auth_socket;
+GRANT ALL PRIVILEGES ON *.* TO 'msq'@'localhost' WITH GRANT OPTION;
+
+
+login to myslq as user
+----------------------
+mysql -u<user> -p<pwd>
+
+
+login to myslq as root
+----------------------
+sudo mysql
+
+
+show users
+-----------
+SELECT * FROM information_schema.user_privileges;
+
+
+show users grants:
+---------------------
+SHOW GRANTS FOR 'pmdb_ro';
++-----------------------------------------+
+| Grants for pmdb_ro@%                    |
++-----------------------------------------+
+| GRANT USAGE ON *.* TO `pmdb_ro`@`%`     |
+| GRANT SELECT ON `pm`.* TO `pmdb_ro`@`%` |
++-----------------------------------------+
+
+
+mysql> SHOW GRANTS FOR 'pmdb_rw';
++---------------------------------------------------------+
+| Grants for pmdb_rw@%                                    |
++---------------------------------------------------------+
+| GRANT USAGE ON *.* TO `pmdb_rw`@`%`                     |
+| GRANT SELECT, INSERT, UPDATE ON `pm`.* TO `pmdb_rw`@`%` |
++---------------------------------------------------------+
+
+
+SHOW DATABASES;
+
+USE session_db;
+
+SELECT DATABASE();
+show currently selected database
+
+SHOW TABLES;
+
+DESCRIBE sessions
+
+
+
+
+
+systemctl status mysql
+systemctl start mysql
+systemctl stop mysql
+systemctl restart mysql
+
+
+
+---------------------------------------
+how to fix infile 
+---------------------------------------
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+
+in the [mysqld] section add this line:
+local_infile    = 1
+
+add to the bottom of the file these two lines:
+[client]
+local_infile    = 1
+
+
+---------------------------------------
+how to setup remote access to database
+---------------------------------------
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+
+bind-address = 0.0.0.0
+
+was:
+localhost? 127.0.0.0?
+
+this is what I have on pmh
+bind-address            = purplemartians.org
+
+systemctl status mysql
+systemctl start mysql
+systemctl stop mysql
+systemctl restart mysql
+
+
+show users
+---------------------------------------------------
+SELECT * FROM information_schema.user_privileges;
+
+
+----------------------------
+show all users and hosts
+----------------------------
+SELECT user,host FROM mysql.user;
+
+host % means any host...
+
+if I don't specify the host it gets set to %
+
+--------------------------------------------------------------------------------------------------------------------------------
+How to dump database to file
+--------------------------------------------------------------------------------------------------------------------------------
+
+this is not a sql command it is a command line option
+sudo mysqldump --no-defaults pm > pm_dump.sql
+
+sudo mysqladmin --no-defaults create pm
+
+sudo mysql pm < pm_dump.sql
+
+--------------------------------------------------------------------------------------------------------------------------------
+How to copy database to another computer for testing
+--------------------------------------------------------------------------------------------------------------------------------
+
+copy from pmh to scat for testing:
+
+on pmh:
+sudo mysqldump --no-defaults pm > pm_dump.sql
+
+then use m36 to copy to scat:
+pscp -pw zaiden m@purplemartians.org:pm_dump.sql c:\pm\
+pscp -pw zaiden c:\pm\pm_dump.sql m@scat:pm_dump.sql 
+
+then on scat:
+sudo mysql
+use drop database pm;
+leave mysql...
+
+sudo mysqladmin --no-defaults create pm
+
+sudo mysql pm < pm_dump.sql
+

@@ -161,7 +161,7 @@ void mwStateHistory::apply_rewind_state(int frame_num)
    if (indx == -1)
    {
       indx = oldest_state_index;
-//      if (indx == -1) mLog.log_add_prefixed_textf(LOG_NET_stdf_rewind, -1, "stdf rewind [%d] not found - oldest frame not valid\n", frame_num);
+//      if (indx == -1) mLog.log_add_prefi\xed_textf(LOG_NET_stdf_rewind, -1, "stdf rewind [%d] not found - oldest frame not valid\n", frame_num);
 //      else            mLog.log_add_prefixed_textf(LOG_NET_stdf_rewind, -1, "stdf rewind [%d] not found - using oldest frame [%d]\n", frame_num, history_state_frame_num[indx]);
 
 

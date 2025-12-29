@@ -1,0 +1,37 @@
+
+---------------------------------------------------------
+Forced Settings on headless server
+---------------------------------------------------------
+void mwNetgame::headless_server_setup(void)
+{
+   mLog.clear_all_log_actions();
+
+   // ensure that only the basic LOG_NET is active and is printing to console as well as saving to file
+   mLog.set_log_type_action(LOG_NET, LOG_ACTION_PRINT | LOG_ACTION_LOG);
+
+   // always have session logging on
+   mLog.set_log_type_action(LOG_NET_session, LOG_ACTION_LOG);
+
+//   // add these for troubleshooting
+//   mLog.set_log_type_action(LOG_NET_join_details, LOG_ACTION_PRINT | LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_stak, LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_NET_stdf, LOG_ACTION_LOG);
+//   mLog.set_log_type_action(LOG_OTH_level_done, LOG_ACTION_PRINT);
+
+   mLog.autosave_log_on_level_done = 1;
+   mLog.autosave_log_on_level_quit = 1;
+   mLog.autosave_log_on_program_exit = 1;
+
+   // make sure we are always saving games
+   mGameMoves.autosave_game_on_level_done = 1;
+
+
+   mGameMoves.server_send_files_to_clients = 1;
+
+
+
+
+
+
+
+

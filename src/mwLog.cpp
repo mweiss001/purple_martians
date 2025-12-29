@@ -34,6 +34,7 @@ void mwLog::init_log_types(void)
       strcpy(log_types[i].name, "");
    }
 
+
    i = LOG_error;                   log_types[i].group = 9;   strcpy(log_types[i].name, "LOG_error"); log_types[i].action = 3;   // always both actions
 
    i = LOG_NET;                     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET");
@@ -78,12 +79,19 @@ void mwLog::init_log_types(void)
    i = LOG_OTH_level_done;          log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_level_done");
    i = LOG_OTH_move;                log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_move");
    i = LOG_OTH_draw;                log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_draw");
+
+   i = LOG_NET_CSV;                 log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_NET_CSV"); log_types[i].action = 0;
+
+
 }
 
 void mwLog::set_log_type_action(int type, int action)
 {
    log_types[type].action = action;
 }
+
+
+
 
 void mwLog::clear_all_log_actions(void)
 {
@@ -217,6 +225,16 @@ void mwLog::save_log_status_file(void)
       erase_log_status();
    }
 }
+
+
+void mwLog::log_error(const char *txt, bool dialog)
+{
+   char msg[256];
+   sprintf(msg, "Error: %s", txt);
+   add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
+   if (dialog) mInput.m_err(txt);
+}
+
 
 
 

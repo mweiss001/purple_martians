@@ -102,6 +102,8 @@ void mwNetgame::session_save_active_at_level_done(void)
 
 void mwNetgame::session_add_entry(const char* address, const char* hostname, int p, int active, int endreason)
 {
+   if (!mLog.log_types[LOG_NET_session].action) return;
+
    session_clear_entry(p);
 
    client_sessions[p].active = active;
@@ -153,8 +155,8 @@ void mwNetgame::session_add_log(int i)
 {
    // this is different from other log tyeps
    // files are used as temp persistant storage until the session is closed
-   // if file is not on, nothing will be saved
-   // if only print is on, nothing will happen
+   // if LOG_ACTION_LOG is not on, nothing will be saved
+   // if only LOG_ACTION_PRINT is on, nothing will happen
    // if both are on, the file will be printed to console after it is saved
 
    if (mLog.log_types[LOG_NET_session].action & LOG_ACTION_LOG)
@@ -261,6 +263,7 @@ void mwNetgame::session_add_log(int i)
 
 void mwNetgame::session_close(int p, int reason)
 {
+   if (!mLog.log_types[LOG_NET_session].action) return;
    client_sessions[p].active = 0;
    client_sessions[p].endreason = reason;
    client_sessions[p].duration = al_get_time() - client_sessions[p].start_time;
@@ -272,6 +275,7 @@ void mwNetgame::session_close(int p, int reason)
 // this is called every frame from server_control() to check and clean up active sessions
 void mwNetgame::session_check_active(void)
 {
+   if (!mLog.log_types[LOG_NET_session].action) return;
    for (int p=1; p<8; p++)
       if ((client_sessions[p].active) && (!mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
 }

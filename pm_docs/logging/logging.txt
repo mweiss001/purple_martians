@@ -1,0 +1,932 @@
+---------------------------------------------------------------------------------
+----------  The current documentation of how logging works: ---------------------
+---------------------------------------------------------------------------------
+Last updated 20251229
+
+
+#define LOG_error                  9
+#define LOG_NET                    10
+#define LOG_NET_session            14
+#define LOG_NET_ending_stats       22
+#define LOG_NET_bandwidth          23
+
+#define LOG_NET_stdf_rewind        25
+#define LOG_NET_stdf_create        26
+#define LOG_NET_stdf               27
+#define LOG_NET_stdf_packets       28
+
+#define LOG_NET_dif_apply          30
+
+#define LOG_NET_stak               33
+#define LOG_NET_cdat               35
+#define LOG_NET_client_ping        36
+#define LOG_NET_timer_adjust       37
+
+#define LOG_NET_file_transfer      39
+
+
+
+
+
+#define LOG_TMR                    44
+#define LOG_TMR_cpu                70
+#define LOG_TMR_rebuild_bitmaps    72
+#define LOG_TMR_move_tot           74
+#define LOG_TMR_move_all           75
+#define LOG_TMR_move_enem          76
+#define LOG_TMR_draw_tot           80
+#define LOG_TMR_draw_all           81
+#define LOG_TMR_bmsg_add           84
+#define LOG_TMR_bmsg_draw          85
+#define LOG_TMR_scrn_overlay       87
+#define LOG_TMR_sdif               90
+#define LOG_TMR_cdif               91
+#define LOG_TMR_rwnd               92
+#define LOG_TMR_client_timer_adj   95
+#define LOG_TMR_client_ping        96
+
+#define LOG_TMR_proc_rx_buffer     97
+
+#define LOG_OTH_program_state      50
+#define LOG_OTH_transitions        51
+#define LOG_OTH_level_done         52
+#define LOG_OTH_move               53
+#define LOG_OTH_draw               54
+
+#define LOG_ACTION_PRINT  0b001
+#define LOG_ACTION_LOG    0b010
+
+
+In mwLog there is an array of stucts for each log type:
+I use the defines for the array index, so that it is human readable in code.
+
+struct log_type
+{
+   int group; // 0=unused, 1=net, 2=timer, 3=other
+   int action; // 001=print_to_console, 010=log_to_file
+   char name[40];
+};
+
+
+struct log_type log_types[100];
+
+This array is saved to file in settings.pm.
+When initially created it is set up with this code:
+
+void mwLog::init_log_types(void)
+{
+   //printf("init log types\n");
+   int i;
+   for (i=0; i<100; i++)
+   {
+      log_types[i].group = 0;
+      log_types[i].action = 0;
+      strcpy(log_types[i].name, "");
+   }
+
+   i = LOG_error;                   log_types[i].group = 9;   strcpy(log_types[i].name, "LOG_error"); log_types[i].action = 3;   // always both actions
+
+   i = LOG_NET;                     log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET");
+
+   i = LOG_NET_session;             log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_session");
+
+   i = LOG_NET_ending_stats;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_ending_stats");
+   i = LOG_NET_bandwidth;           log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_bandwidth");
+
+   i = LOG_NET_stdf_rewind;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf_rewind");
+   i = LOG_NET_stdf_create;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf_create");
+
+   i = LOG_NET_stdf;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf");
+   i = LOG_NET_stdf_packets;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stdf_packets");
+   i = LOG_NET_dif_apply;           log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_dif_apply");
+
+   i = LOG_NET_stak;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_stak");
+   i = LOG_NET_cdat;                log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_cdat");
+   i = LOG_NET_client_ping;         log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_client_ping");
+   i = LOG_NET_timer_adjust;        log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_timer_adjust");
+   i = LOG_NET_file_transfer;       log_types[i].group = 1;   strcpy(log_types[i].name, "LOG_NET_file_transfer");
+
+   i = LOG_TMR_cpu;                 log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_cpu");
+   i = LOG_TMR_rebuild_bitmaps;     log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_rebuild_bitmaps");
+   i = LOG_TMR_move_tot;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_move_tot");
+   i = LOG_TMR_move_all;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_move_all");
+   i = LOG_TMR_move_enem;           log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_move_enem");
+   i = LOG_TMR_draw_tot;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_draw_tot");
+   i = LOG_TMR_draw_all;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_draw_all");
+   i = LOG_TMR_bmsg_add;            log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_bmsg_add");
+   i = LOG_TMR_bmsg_draw;           log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_bmsg_draw");
+   i = LOG_TMR_scrn_overlay;        log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_scrn_overlay");
+   i = LOG_TMR_sdif;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_sdif");
+   i = LOG_TMR_cdif;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_cdif");
+   i = LOG_TMR_rwnd;                log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_rwnd");
+   i = LOG_TMR_client_timer_adj;    log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_timer_adj");
+   i = LOG_TMR_client_ping;         log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_client_ping");
+   i = LOG_TMR_proc_rx_buffer;      log_types[i].group = 2;   strcpy(log_types[i].name, "LOG_TMR_proc_rx_buffer");
+
+   i = LOG_OTH_program_state;       log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_program_state");
+   i = LOG_OTH_transitions;         log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_transitions");
+   i = LOG_OTH_level_done;          log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_level_done");
+   i = LOG_OTH_move;                log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_move");
+   i = LOG_OTH_draw;                log_types[i].group = 3;   strcpy(log_types[i].name, "LOG_OTH_draw");
+}
+
+
+
+Each type has an action that is made of these bitfields:
+
+#define LOG_ACTION_PRINT  0b001
+#define LOG_ACTION_LOG    0b010
+
+
+
+These are all configureable from the settings pages.
+
+Then in code, when I want to log something, I can do it with a single line like this:
+
+mLog.addf(LOG_NET_stdf, 0, "stdf saved server state[1]:%d\n", frame_num);
+
+Depending on the actions for that type, it will print to console, or save to file..
+
+
+
+
+
+--------------------------------------------------------
+LOG_error [9] [both]
+--------------------------------------------------------
+this is always on and always does both actions, print and log
+
+Only used for client and server setup
+
+void mwLog::log_error(const char *txt, bool dialog = 1)
+{
+   char msg[256];
+   sprintf(msg, "Error: %s", txt);
+   add_fwf(LOG_error, 0, 76, 10, "|", "-", msg);
+   if (dialog) mInput.m_err(txt);
+}
+
+mNetGame:
+      mLog.log_error("Couldn't initialize libnet\n");
+      mLog.log_error("Couldn't initialize network driver\n");
+      mLog.log_error("Found no driver in the internet network class\n");
+
+
+mNetGameClient:
+      mLog.log_error("Failed to initialize network");
+      mLog.log_error("Failed to create NetChannel");
+      sprintf(msg, "Client failed to set NetChannel target:[%s]", target);
+      mLog.log_error(msg);
+      mLog.log_error("Did not get reply from server");
+      mLog.log_error("Got 'server full' reply from server");
+
+mNetGameServer:
+      mLog.log_error("failed to initialize network");
+      mLog.log_error("failed to open server channel");
+      sprintf(msg, "Error: couldn't assign target `%s' to ServerChannel\n", mwChannels[p].channel_address);
+      mLog.log_error(msg, 0);
+      sprintf(msg, "Error: couldn't assign target `%s' to Channel\n", address);
+      mLog.log_error(msg, 0);
+
+
+
+
+
+
+--------------------------------------------------------
+LOG_NET [10] [many]
+--------------------------------------------------------
+
+mwGameMoves:
+   mLog.add_headerf(LOG_NET, -1, 0, "Player:%d became ACTIVE!                                ", p);
+   mLog.add_log_net_db_row(LOG_NET, 0, p, "Player:%d became ACTIVE!", p);
+
+   mLog.add_headerf(LOG_NET, -1, 0, "Player:%d became INACTIVE!                              ", p);
+   mLog.add_log_net_db_row(LOG_NET, 0, p, "Player:%d became INACTIVE!", p);
+
+
+mwLoop:
+   mLog.add_fw (LOG_NET, -1, 76, 10, "+", "-", "");
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Client mode started on localhost:[%s]", mLoop.local_hostname);
+
+   mLog.add_headerf(LOG_NET, -1, 1, "NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level);
+   mLog.add_log_net_db_row(LOG_NET, 0, 0, "NEXT LEVEL:%d", mPlayer.syn[0].level_done_next_level);
+
+   mLog.add_headerf(LOG_NET, -1, 1, "LEVEL %d STARTED", mLevel.play_level);
+   mLog.add_log_net_db_row(LOG_NET, 0, 0, "LEVEL %d STARTED", mLevel.play_level);
+
+mwNetgameClient:
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Client network initialized -- target:[%s]", target);
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Local address:[%s]", net_getlocaladdress(Channel));
+   //mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "ClientCheckResponse %d", tries);
+   //mLog.add_fw(LOG_NET, -1, 76, 10, "|", " ", "Got 'join accepted' reply from server");
+   mLog.add_fw(LOG_NET, -1, 76, 10, "|", " ", "Cancelled");
+
+   mLog.add_fw(LOG_NET, -1, 76, 10, "|", " ", "Sent initial 'cjon' packet to server");
+   mLog.add_fw(LOG_NET, -1, 76, 10, "|", " ", "Waiting for reply");
+
+   mLog.add_header(LOG_NET, -1, 0, "Shutting down the client network");
+
+   mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Client received join invitation from server");
+   mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
+   mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Player Number:[%d]", p);
+   mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Player Color:[%d]", color);
+   mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Server Frame Num:[%d]", sfnum);
+   mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Server Level Sequence Num:[%d]", slsn);
+   mLog.add_fwf(LOG_NET,  -1, 76, 10, "+", "-", "");
+
+   mLog.add_log_net_db_row(LOG_NET, 0, p, "Client received join invitation from server");
+   mLog.add_log_net_db_row(LOG_NET, 0, p, "Player Number:[%d] - Player Color:[%d]", p, color);
+   mLog.add_log_net_db_row(LOG_NET, 0, p, "Lev:[%d] Frame:[%d] slsn:[%d]", mLevel.play_level, sfnum, slsn);
+
+   mPlayer.loc[p].quit_reason = PM_PLAYER_QUIT_REASON_CLIENT_LOST_SERVER_CONNECTION;
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "+", "-", "");
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Local Player Client %d Lost Server Connection!", p);
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "last_dif_applied:[%d]", lda);
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "+", "-", "");
+   mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
+
+   mLog.add_log_net_db_row(LOG_NET, 0, 0, "Lost Server Connection! - last dif applied:[%d]", lda);
+
+mwNetgameServer:
+
+   mLog.add_fw (LOG_NET, -1, 76, 10, "+", "-", "");
+   mLog.add_fw (LOG_NET, -1, 76, 10, "|", " ", "Server mode started");
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Server hostname:    [%s]", mLoop.local_hostname);
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Level:              [%d]", mLevel.play_level);
+
+   mLog.add_log_net_db_row(LOG_NET, 0, 0, "Server mode started - hostname:%s", mLoop.local_hostname);
+
+   mLog.add_fw(LOG_NET, -1, 76, 10, "|", " ", "Server network initialized");
+
+   mLog.add_header(LOG_NET, -1, 0,        "Shutting down the server network");
+   mLog.add_log_net_db_row(LOG_NET, 0, 0, "Shutting down the server network");
+
+   mLog.add_headerf(LOG_NET, -1, 1,        "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
+   mLog.add_log_net_db_row(LOG_NET, 0, p,  "Server dropped player:%d (last stak rx:%d)", p, mPlayer.loc[p].server_last_stak_rx_frame_num);
+
+   mLog.add_headerf(LOG_NET, -1, 1,        "Headless Server with no clients! - Reload");
+   mLog.add_log_net_db_row(LOG_NET, 0, 0,  "Headless Server with no clients! - Reload");
+
+   mLog.add_headerf(LOG_NET, -1, 1,        "Server Approaching %d Game Moves! - Reload", gm_limit);
+   mLog.add_log_net_db_row(LOG_NET, 0, 0,  "Server Approaching %d Game Moves! - Reload", gm_limit);
+
+   mLog.add_headerf(LOG_NET, -1, 1,        "Server Approaching %d frames! - Reload", tm_limit);
+
+   mLog.add_log_net_db_row(LOG_NET, 0, 0,  "Server Approaching %d frames! - Reload", tm_limit);
+
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ",  "Server received join request from %s requesting color:%d", hostname, color);
+   mLog.add_log_net_db_row(LOG_NET, 0, 0,       "Server received join request from %s requesting color:%d", hostname, color);
+
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
+   mLog.add_log_net_db_row(LOG_NET, 0, 0,      "Reply sent: 'SERVER FULL'");
+
+   mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Server replied with join invitation:");
+   mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);
+   mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Player Number:[%d]", p);
+   mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Player Color:[%d]", color);
+   mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Server Frame:[%d]", mLoop.frame_num);
+   mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Server Level Sequence Num:[%d]", server_lev_seq_num);
+   mLog.add_fwf(LOG_NET,  -1, 76, 10, "+", "-", "");
+
+   mLog.add_log_net_db_row(LOG_NET, 0, p,       "Server replied with join invitation:");
+   mLog.add_log_net_db_row(LOG_NET, 0, p,       "Level:[%d] Frame:[%d] SLSN:[%d]", mLevel.play_level, mLoop.frame_num, server_lev_seq_num);
+   mLog.add_log_net_db_row(LOG_NET, 0, p,       "Player Number:[%d] Player Color:[%d]", p, color);
+
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Server received remote control request");
+   mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Server replied with sjrc packet");
+
+
+mwPacketBuffer:
+   mLog.log_add_prefixed_text(LOG_NET, -1, "rx packet buffer full!\n");
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] cdat\n", cdat_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] stak\n", stak_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] rctl\n", rctl_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] stdf\n", stdf_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] snfo\n", snfo_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] sfil\n", sfil_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] srrf\n", srrf_count);
+   mLog.log_add_prefixed_textf(LOG_NET, -1, "[%d] crfl\n", crfl_count);
+
+mwPlayer:
+   mLog.add_headerf(LOG_NET, -1, 0, "PLAYER:%d DIED!", p);
+   mLog.add_log_net_db_row(LOG_NET, 0, p, "PLAYER:%d DIED!", p);
+
+
+--------------------------------------------------------
+LOG_NET_stdf [27]
+--------------------------------------------------------
+
+mwNetgameClient:
+   mLog.log_add_prefixed_textf(LOG_NET_stdf, -1, "rx dif complete [%d to %d] - uncompressed\n", src, dst);
+   mLog.add_log_net_db_row(LOG_NET_stdf, 0, 0, "rx dif complete [%d to %d] - uncompressed", src, dst);
+
+   mLog.log_add_prefixed_textf(LOG_NET_stdf, -1, "rx dif complete [%d to %d] - bad uncompress\n", src, dst);
+   mLog.add_log_net_db_row(LOG_NET_stdf, 0, 0, "rx dif complete [%d to %d] - bad uncompress", src, dst);
+
+mwNetgameServer:
+   mLog.log_add_prefixed_textf(LOG_NET_stdf, -1, "tx stdf p:%d [s:%d d:%d] cmp:%d ratio:%3.2f [%d packets needed]\n", p, src, dst, cmp_size, cr, num_packets);
+   mLog.add_log_net_db_row(LOG_NET_stdf, 0, p,    "tx stdf p:%d [s:%d d:%d] cmp:%d ratio:%3.2f [%d packets needed]", p, src, dst, cmp_size, cr, num_packets);
+
+--------------------------------------------------------
+LOG_NET_stdf_rewind [25]
+--------------------------------------------------------
+mwStateHistory:
+   mLog.log_add_prefixed_text(LOG_NET_stdf_rewind, -1, "stdf rewind [none]\n");
+   mLog.add_log_net_db_row(LOG_NET_stdf_rewind, 0, 0,   "stdf rewind [none]");
+   mLog.log_add_prefixed_textf(LOG_NET_stdf_rewind, -1, "%s\n", msg);
+   mLog.add_log_net_db_row(LOG_NET_stdf_rewind, 0, 0,    "%s", msg);
+
+--------------------------------------------------------
+LOG_NET_stdf_create [26]
+--------------------------------------------------------
+mwNetgameServer:
+   mLog.log_add_prefixed_textf(LOG_NET_stdf_create, -1, "stdf save state:%d\n", frame_num);
+   mLog.add_log_net_db_row(LOG_NET_stdf_create, 0, 0,    "stdf save state:%d", frame_num);
+
+
+--------------------------------------------------------
+LOG_NET_stdf_packets [28]
+--------------------------------------------------------
+mwNetgameClient:
+   mLog.log_add_prefixed_textf(LOG_NET_stdf_packets, -1, "%s slsn is from next level - setting next level:%d\n", log_msg_txt1, sdln);
+   mLog.add_log_net_db_row(LOG_NET_stdf_packets, 0, 0, "%s slsn is from next level - setting next level:%d", log_msg_txt1, sdln);
+
+   mLog.log_add_prefixed_textf(LOG_NET_stdf_packets, -1, "%s[%d]bad!\n",log_msg_txt1, server_lev_seq_num);
+   mLog.add_log_net_db_row(LOG_NET_stdf_packets, 0, 0, "%s[%d]bad!",log_msg_txt1, server_lev_seq_num);
+
+   mLog.log_add_prefixed_textf(LOG_NET_stdf_packets, -1, "%s\n", log_msg_txt1);
+   mLog.add_log_net_db_row(LOG_NET_stdf_packets, 0, 0, "%s",log_msg_txt1);
+
+mwNetgameServer:
+   mLog.log_add_prefixed_textf(LOG_NET_stdf_packets, -1, "tx stdf p:%d piece [%d of %d] [%d to %d] st:%4d sz:%4d slsn:%d\n", p, packet_num+1, num_packets, src, dst, start_byte, packet_data_size, server_lev_seq_num);
+   mLog.add_log_net_db_row(LOG_NET_stdf_packets, 0, p,    "tx stdf p:%d piece [%d of %d] [%d to %d] st:%4d sz:%4d slsn:%d", p, packet_num+1, num_packets, src, dst, start_byte, packet_data_size, server_lev_seq_num);
+
+
+--------------------------------------------------------
+LOG_NET_dif_apply [30]
+--------------------------------------------------------
+mwNetgameClient:
+   mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s [not applied] [dif not valid]\n", log_msg_txt1);
+   mLog.add_log_net_db_row(LOG_NET_dif_apply, 0, 0, "%s [not applied] [dif not valid]", log_msg_txt1);
+
+   mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s [not applied] [not newer than last dif applied]\n", log_msg_txt1);
+   mLog.add_log_net_db_row(LOG_NET_dif_apply, 0, 0, "%s [not applied] [not newer than last dif applied]", log_msg_txt1);
+
+   mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s [not applied] [no bases found] - resending stak [%d]\n", log_msg_txt1, fn);
+   mLog.add_log_net_db_row(LOG_NET_dif_apply, 0, 0, "%s [not applied] [no bases found] - resending stak [%d]", log_msg_txt1, fn);
+
+   mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s [not applied] [base not found] - resending stak [%d]\n", log_msg_txt1, fn);
+   mLog.add_log_net_db_row(LOG_NET_dif_apply, 0, 0, "%s [not applied] [base not found] - resending stak [%d]", log_msg_txt1, fn);
+
+   mLog.log_add_prefixed_textf(LOG_NET_dif_apply, -1, "%s [applied] [%s]\n", log_msg_txt1, log_msg_txt2);
+   mLog.add_log_net_db_row(LOG_NET_dif_apply, 0, 0, "%s [applied] [%s]", log_msg_txt1, log_msg_txt2);
+
+
+--------------------------------------------------------
+LOG_NET_stak [33]
+--------------------------------------------------------
+mwNetgameClient:
+   mLog.log_add_prefixed_textf(LOG_NET_stak, p, "tx stak p:%d ack:[%d] cur:[%d]\n", p, ack_frame, mLoop.frame_num);
+   mLog.add_log_net_db_row(LOG_NET_stak, 0, 0, "tx stak p:%d ack:[%d] cur:[%d]", p, ack_frame, mLoop.frame_num);
+
+mwNetgameServer:
+   mLog.log_add_prefixed_textf(LOG_NET_stak, -1, "%s - wrong slsn:[%d] - ignoring\n", log_msg_txt1, server_lev_seq_num);
+   mLog.add_log_net_db_row(LOG_NET_stak, 0, p,    "%s - wrong slsn:[%d] - ignoring", log_msg_txt1, server_lev_seq_num);
+
+   mLog.log_add_prefixed_textf(LOG_NET_stak, -1, "%s dsync:[%4.1f] chase:[%4.1f]\n", log_msg_txt1, mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].client_chase_fps);
+   mLog.add_log_net_db_row(LOG_NET_stak, 0, p,    "%s dsync:[%4.1f] chase:[%4.1f]", log_msg_txt1, mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].client_chase_fps);
+
+--------------------------------------------------------
+LOG_NET_cdat [35]
+--------------------------------------------------------
+mwNetgameClient:
+   mLog.log_add_prefixed_textf(LOG_NET_cdat, p, "tx cdat - move:%d\n", mPlayer.loc[p].comp_move);
+   mLog.add_log_net_db_row(LOG_NET_cdat, 0, 0, "tx cdat - move:%d", mPlayer.loc[p].comp_move);
+
+mwNetgameServer:
+   mLog.log_add_prefixed_textf(LOG_NET_cdat, -1, "%s - wrong slsn:[%d] - dropped\n", log_msg_txt1, server_lev_seq_num);
+   mLog.add_log_net_db_row(LOG_NET_cdat, 0, p,    "%s - wrong slsn:[%d] - dropped", log_msg_txt1, server_lev_seq_num);
+
+   mLog.log_add_prefixed_textf(LOG_NET_cdat, -1, "%s late - dropped\n", log_msg_txt1);
+   mLog.add_log_net_db_row(LOG_NET_cdat, 0, p,    "%s late - dropped", log_msg_txt1);
+
+   mLog.log_add_prefixed_textf(LOG_NET_cdat, -1, "%s gmep:[%d] - entered\n", log_msg_txt1, mGameMoves.entry_pos);
+   mLog.add_log_net_db_row(LOG_NET_cdat, 0, p,    "%s gmep:[%d] - entered", log_msg_txt1, mGameMoves.entry_pos);
+
+--------------------------------------------------------
+LOG_NET_client_ping [36]
+--------------------------------------------------------
+mwNetgameClient:
+   mLog.log_add_prefixed_textf(LOG_NET_client_ping, p, "client ping[%5.1f] avg[%5.1f]\n", ping*1000, mPlayer.loc[p].ping_avg*1000);
+
+--------------------------------------------------------
+LOG_NET_timer_adjust [37]
+--------------------------------------------------------
+mwNetgameClient:
+   mLog.log_add_prefixed_textf(LOG_NET_timer_adjust, p, "timer adjust dsc[%5.1f] dsa[%5.1f] off[%3.1f] chs[%3.3f]\n", mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].pdsync_avg*1000, sp*1000, fps_chase);
+   mLog.add_log_net_db_row(LOG_NET_timer_adjust, 0, 0, "timer adjust dsc[%5.1f] dsa[%5.1f] off[%3.1f] chs[%3.3f]", mPlayer.loc[p].pdsync*1000, mPlayer.loc[p].pdsync_avg*1000, sp*1000, fps_chase);
+
+
+
+
+--------------------------------------------------------
+LOG_NET_ending_stats [22]
+--------------------------------------------------------
+mwGameMoves:
+   if (!mLoop.ff_state) mLog.log_ending_stats_server(LOG_NET_ending_stats);
+   if (!mLoop.ff_state) mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
+
+mwLoop:
+   mLog.log_ending_stats_client(LOG_NET_ending_stats, mPlayer.active_local_player);
+   mLog.log_ending_stats_server(LOG_NET_ending_stats);
+
+mwNetgameClient:
+      mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
+      mLog.log_ending_stats_client(LOG_NET_ending_stats, p);
+
+
+--------------------------------------------------------
+LOG_NET_bandwidth [23]
+--------------------------------------------------------
+mwNetgame:
+   mLog.log_add_prefixed_textf(LOG_NET_bandwidth, p, "bandwidth txb:[%d] rxb:[%d] txp:[%d] rxp:[%d]\n", mPlayer.loc[p].tx_bytes_per_tally, mPlayer.loc[p].rx_bytes_per_tally, mPlayer.loc[p].tx_packets_per_tally, mPlayer.loc[p].rx_packets_per_tally);
+
+
+--------------------------------------------------------
+LOG_NET_file_transfer [39]
+--------------------------------------------------------
+mwGameMoves:
+   if (ret) mLog.log_add_prefixed_textf(LOG_NET_file_transfer, sendto, "save:txt:%s\n", get_save_txt(ret, msg));
+   mLog.log_add_prefixed_textf(LOG_NET_file_transfer, sendto, "saved:%s\n", fname);
+
+mwNetgameClient:
+   mLog.log_add_prefixed_textf(LOG_NET_file_transfer, -1, "rx srrf - %s\n", mGameMoves.get_save_txt(val, msg)) ;
+   mLog.log_add_prefixed_textf(LOG_NET_file_transfer, -1, "rx %s size:[%d] id:[%d]\n", fname, fsize, id);
+   mLog.log_add_prefixed_textf(LOG_NET_file_transfer, -1, "tx clrf - client request file\n");
+
+mwNetgameServer:
+   mLog.log_add_prefixed_textf(LOG_NET_file_transfer, p, "rx sfak - client acknowledged getting file id:%d\n", id);
+   mLog.log_add_prefixed_textf(LOG_NET_file_transfer, p, "rx clrf - client requested file\n");
+   mLog.log_add_prefixed_textf(LOG_NET_file_transfer, p, "file:%s does not exist\n", filename);
+   mLog.log_add_prefixed_textf(LOG_NET_file_transfer, p, "file:%s too large %d > 200,000\n", filename, fsize);
+   mLog.log_add_prefixed_textf(LOG_NET_file_transfer, mPlayer.active_local_player, "starting file transfer [%s]\n", files_to_send[i].name);
+
+
+--------------------------------------------------------
+LOG_NET_session [14]
+--------------------------------------------------------
+mwGameMoves:
+   if (mLog.log_types[LOG_NET_session].action) mNetgame.session_close(p, 2); // reason 2 - client quit
+
+mwLoop:
+   if (mNetgame.ima_server) if (mLog.log_types[LOG_NET_session].action) mNetgame.session_save_active_at_level_done();
+   
+mwNetgameServer:
+   if (mLog.log_types[LOG_NET_session].action) session_flush_active_at_server_exit();
+   if (mLog.log_types[LOG_NET_session].action) session_close(p, 4); // reason 4 - comm loss
+   session_add_entry(address, hostname, 9, 0, 1);
+   session_add_entry(address, hostname, p, 1, 0);
+   session_check_active();
+
+mwNetgameSessionLog:
+   if (mLog.log_types[LOG_NET_session].action & LOG_ACTION_LOG)
+   if (mLog.log_types[LOG_NET_session].action & LOG_ACTION_PRINT) // open the file and print it
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+status and net logs
+-------------------
+a recent addition
+an attempt to add all the info for a running chart like in server remote client view
+it looks like it is always on
+
+saves in .csv format that is easy to import into db
+
+
+net logs
+------------
+Many places in the code this function is called: mLog.add_log_net_db_row
+Usually at the same time as 'LOG_NET'
+
+On clients, a 'clog' packet is sent
+On the server, the function 'add_log_net_db_row2' is called directly and when receiving a 'clog' packet
+
+the function 'add_log_net_db_row2'
+
+adds the log info to the char array 'log_net_msg'
+when 'log_net_msg' gets to a certain size it is saved to /logs/net/
+
+
+status logs
+------------
+Once per frame in server control, 'mLog.add_log_status_db_rows()' is called
+it gathers info from all active players
+add one line per player to the char array 'log_status_msg'
+when 'log_status_msg' gets to a certain size it is saved to /logs/status/
+
+
+How can I disable this??
+for log_net, test at the start of add_log_net_db_row and do nothing
+for status, do not call 'mLog.add_log_status_db_rows()' in server control
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+session logs
+------------
+keeps logs for sessions
+a session is defined as when a client joins
+it lasts until the client session ends
+it can span many level
+
+only the server works with sessions
+
+This can easily be disabled
+
+set_log_type_action(LOG_NET_session, 0);
+set_log_type_action(LOG_NET_session, LOG_ACTION_LOG);
+
+
+
+starting:
+---------
+A session is started by calling:
+void mwNetgame::session_add_entry(const char* address, const char* hostname, int p, int active, int endreason)
+The server does this when replying to a join request.
+
+This clears and fills the array struct for the client.
+Then calls session_add_log(int i) to write it to disk.
+
+
+checking:
+--------
+Once per frame in server control, 'session_check_active()' is called
+if ((client_sessions[p].active) && (!mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
+it will close any open sessions where the player is no longer active
+
+ending:
+-------
+A session is closed by calling:
+void mwNetgame::session_close(int p, int reason)
+
+The server will do this on comm loss: session_close(p, 4); // reason 4 - comm loss
+mwGameMoves will do this when client quit: session_close(p, 2); // reason 2 - client quit
+It can also be closed by session_check_active()
+if ((client_sessions[p].active) && (!mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
+
+is the server exits, all sessions are closed and saved
+session_flush_active_at_server_exit(void)
+
+updating
+--------
+To update a session the function 'session_add_log()' is called again
+all the info from the struct is written to disk, overwriting the old stuff
+
+when a level is done, player data tallies are added to session and saved 
+session_save_active_at_level_done()
+
+
+
+how it works
+------------
+Log files are used as temporary persistant storage until the session is closed
+
+struct client_session
+{
+   int active;
+
+   double start_time;
+   double end_time;
+   char session_name[64];
+
+   char timestamp[16];
+   double duration;
+   char ip[16];
+   int port;
+   char hostname[16];
+
+   int endreason;
+
+   int cdats_rx;
+   int player_num;
+   int next_levels;
+   int exits;
+   int respawns;
+   int shots_fired;
+   int enemy_hits;
+   int player_hits;
+   int self_hits;
+   int purple_coins;
+
+   int64_t tx_total_bytes;
+   int64_t tx_total_packets;
+   int tx_max_bytes_per_frame;
+   int tx_max_packets_per_frame;
+
+   int64_t rx_total_bytes;
+   int64_t rx_total_packets;
+   int rx_max_bytes_per_frame;
+   int rx_max_packets_per_frame;
+
+};
+
+struct client_session client_sessions[8];
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------
+--------------------------------------------------------
+Profile Logging with LOG_TMR entries
+--------------------------------------------------------
+--------------------------------------------------------
+
+Last updated 20230902
+
+
+These work a little differently than other logging.
+They are used to record the time something took to complete.
+
+For example, how long it took to draw all items.
+
+These log files are meant to be opened in the profile graph viewer.
+
+All profile log entries are saved to the log file with type 44.
+
+The other type number is used in the code to determine whether or not they will be logged or ignored.
+
+#define LOG_TMR                    44
+#define LOG_TMR_cpu                70
+#define LOG_TMR_rebuild_bitmaps    72
+#define LOG_TMR_move_tot           74
+#define LOG_TMR_move_all           75
+#define LOG_TMR_move_enem          76
+#define LOG_TMR_draw_tot           80
+#define LOG_TMR_draw_all           81
+#define LOG_TMR_bmsg_add           84
+#define LOG_TMR_bmsg_draw          85
+#define LOG_TMR_scrn_overlay       87
+#define LOG_TMR_sdif               90
+#define LOG_TMR_cdif               91
+#define LOG_TMR_rwnd               92
+#define LOG_TMR_client_timer_adj   95
+#define LOG_TMR_client_ping        96
+
+
+--------------------------------------------------------
+LOG_TMR_cpu
+--------------------------------------------------------
+single entry cpu
+
+--------------------------------------------------------
+LOG_TMR_rebuild_bitmaps
+--------------------------------------------------------
+when the display changes and the bitmaps need to be rebuilt
+logs times for various things and total
+
+--------------------------------------------------------
+LOG_TMR_move_tot
+--------------------------------------------------------
+total time to move everything
+
+--------------------------------------------------------
+LOG_TMR_move_all
+--------------------------------------------------------
+time to move each object type and total
+
+
+--------------------------------------------------------
+LOG_TMR_move_enem
+--------------------------------------------------------
+time to move each enemy class
+
+
+--------------------------------------------------------
+LOG_TMR_draw_tot
+--------------------------------------------------------
+total time to draw everything
+
+
+--------------------------------------------------------
+LOG_TMR_draw_all
+--------------------------------------------------------
+time to draw each object type and total
+
+
+--------------------------------------------------------
+LOG_TMR_bmsg_add
+--------------------------------------------------------
+time to add a new bmsg
+
+
+--------------------------------------------------------
+LOG_TMR_bmsg_draw
+--------------------------------------------------------
+time to draw all bmsg
+
+
+--------------------------------------------------------
+LOG_TMR_scrn_overlay
+--------------------------------------------------------
+time to draw each element of screen overlay
+
+--------------------------------------------------------
+LOG_TMR_sdif
+--------------------------------------------------------
+server only
+
+the time it takes for: 
+
+mNetgame.server_create_new_state();
+
+which creates a new state and sends it to all clients
+
+
+
+--------------------------------------------------------
+LOG_TMR_rwnd
+--------------------------------------------------------
+server only
+
+the time it takes for: 
+
+void mwNetgame::server_rewind(void)
+
+
+
+
+
+
+--------------------------------------------------------
+LOG_TMR_cdif
+--------------------------------------------------------
+currently not used
+
+
+
+
+--------------------------------------------------------
+LOG_TMR_client_timer_adj
+--------------------------------------------------------
+client only
+
+shows variables used in: 
+
+void mwNetgame::client_timer_adjust(void)
+
+
+
+--------------------------------------------------------
+LOG_TMR_client_ping
+--------------------------------------------------------
+client only
+
+shows ping and ping average
+
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+special graphs
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+Bandwidth Graph
+------------------------------------------------------------------------
+server and client
+
+need to enable 'LOG_NET_bandwidth_bytes'
+
+open in log file viewer and click "Bandwidth Graph"
+
+currently nothing for packets
+
+
+------------------------------------------------------------------------
+Client Sync Graph
+------------------------------------------------------------------------
+server only
+
+need to enable 'LOG_NET' and 'LOG_NET_server_rx_stak'
+
+open in log file viewer and click "Client Sync Graph"
+
+shows per client:
+when they come active and inactive
+FPS chase
+D Sync
+
+
+
+------------------------------------------------------------------------
+Ping Graph
+------------------------------------------------------------------------
+client only
+
+need to enable 'LOG_TMR_client_timer_adj' and 'LOG_TMR_client_ping'
+
+open in log file viewer and click "Ping Graph"
+
+shows ping and ping average
+shows dsync, offset and chase
+

@@ -282,7 +282,7 @@ void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
          else // client quitting
          {
             add_game_move2(frame + 2, PM_GAMEMOVE_TYPE_PLAYER_INACTIVE, data1, PM_PLAYER_QUIT_REASON_CLIENT_ENDED_GAME);
-            if (mLog.log_types[LOG_NET_session].action) mNetgame.session_close(p, 2); // reason 2 - client quit
+            mNetgame.session_close(p, 2); // reason 2 - client quit
             return;
          }
       }

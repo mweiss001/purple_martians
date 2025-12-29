@@ -11,4 +11,13 @@
 
 /screenshots/*
 
+/scrape_cronoutput.txt
+/scrape_status_cronoutput.txt
+/session_scrape_cronoutput.txt
+
+
+
+
+
+
 

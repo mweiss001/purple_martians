@@ -25,17 +25,13 @@ int mwNetgame::ClientInitNetwork(void)
 
    if (NetworkInit())
    {
-      sprintf(msg, "Error: failed to initialize network");
-      mLog.add_fw(LOG_error, -1, 76, 10, "|", " ", msg);
-      mInput.m_err(msg);
+      mLog.log_error("failed to initialize network");
       return -1;
    }
    Channel = net_openchannel(NetworkDriver, NULL); // dynamic port
    if (Channel == NULL)
    {
-      sprintf(msg, "Error: Client failed to create NetChannel");
-      mLog.add_fw(LOG_error, -1, 76, 10, "|", " ", msg);
-      mInput.m_err(msg);
+      mLog.log_error("failed to create NetChannel");
       return 0;
    }
 
@@ -43,9 +39,8 @@ int mwNetgame::ClientInitNetwork(void)
    sprintf(target, "%s:%d", server_address, server_port);
    if (net_assigntarget(Channel, target))
    {
-      sprintf(msg, "Error: Client failed to set NetChannel target:[%s]", target);
-      mLog.add_fw(LOG_error, -1, 76, 10, "|", " ", msg);
-      mInput.m_err(msg);
+      sprintf(msg, "client failed to set NetChannel target:[%s]", target);
+      mLog.log_error(msg);
       return 0;
    }
    mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Client network initialized -- target:[%s]", target);
@@ -56,7 +51,6 @@ int mwNetgame::ClientInitNetwork(void)
 
 int mwNetgame::ClientJoin(void)
 {
-   char msg[512];
    // Check for reply from server
    int tries = 1;        // number of times to try
    float try_delay = 1;  // delay between tries
@@ -75,20 +69,15 @@ int mwNetgame::ClientJoin(void)
          al_rest(try_delay);
          if (++tries > 2)
          {
-            sprintf(msg, "Did not get reply from server");
-            mLog.add_fw(LOG_error, -1, 76, 10, "|", " ", msg);
-            mInput.m_err(msg);
-
+            mLog.log_error("not reply from server");
             mLog.add_fw(LOG_NET, -1, 76, 10, "+", "-", "");
             return 0;
          }
       }
       if (ccr == -1)
       {
-         sprintf(msg, "Got 'server full' reply from server");
-         mLog.add_fw(LOG_error, -1, 76, 10, "|", " ", msg);
+         mLog.log_error("'server full' reply from server");
          mLog.add_fw(LOG_NET, -1, 76, 10, "+", "-", "");
-         mInput.m_err(msg);
          return 0;
       }
       if (ccr == -2)
