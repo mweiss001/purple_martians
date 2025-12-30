@@ -14,11 +14,12 @@ Code::Blocks
 
 The master repository is here: https://github.com/mweiss001/purple_martians
 
-The main website is here: purplemartians.org
+The main website is here: http://purplemartians.org
 
 Official Purple Martians multiplayer server: purplemartians.org
 
 Youtube channel with Purple Martians videos: https://www.youtube.com/@PurpleMartians-mdw1968
 
 Please send me an email (mweiss001@gmail.com) with any comments, questions, suggestions, etc...
+
 
