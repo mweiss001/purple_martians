@@ -367,3 +367,596 @@ sudo systemctl start pm
 
 I think I have logging documented much better and able to disable status and net
 
+
+
+
+2025-12-29 17:19:23
+
+working on
+
+download played game from server
+
+<a href="/bs_notes.txt" download="poooop">
+    <button>Download Report</button>
+</a>
+
+
+pscp -r -pw zaiden c:\pm\docs\* m@192.168.1.146:tmp
+
+On the server, copy to the final place
+sudo cp -r ~/tmp/* /var/www/html
+
+
+
+
+2025-12-29 18:30:09
+
+
+what do I want for sessions?
+
+I want a nicer table
+
+
+For a session row, I want to be able to downaload the savegame file.
+
+There might be multiple...
+
+
+maybe I could have it take me to another page with download links
+
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+I have a really cool thing I want to try....
+
+Method 1: Using PHP and a Query String (Full Page Reload)
+This method uses a query string in the URL to determine which content to display.
+When a link is clicked, the page reloads, and the PHP script processes the request and outputs the appropriate content. 
+index.php
+php
+
+<?php
+// Function to sanitize and get the 'page' parameter from the URL
+function get_page_content($page) {
+    switch ($page) {
+        case 'about':
+            return 'include/about.php';
+        case 'contact':
+            return 'include/contact.php';
+        case 'home':
+        default:
+            return 'include/home.php';
+    }
+}
+
+// Get the page parameter, default to 'home' if not set
+$page = isset($_GET['page']) ? $_GET['page'] : 'home';
+$content_file = get_page_content($page);
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dynamic Content</title>
+</head>
+<body>
+
+<nav>
+    <!-- Links with query strings -->
+    <a href="index.php?page=home">Home</a> |
+    <a href="index.php?page=about">About</a> |
+    <a href="index.php?page=contact">Contact</a>
+</nav>
+
+<div id="content-container">
+    <?php
+    // Include the content file
+    if (file_exists($content_file)) {
+        include($content_file);
+    } else {
+        echo "<p>Content not found.</p>";
+    }
+    ?>
+</div>
+
+</body>
+</html>
+
+Include Files (create a folder named include): 
+
+    include/home.php: <h2>Home Page</h2><p>Welcome to the home page!</p>
+    include/about.php: <h2>About Page</h2><p>This is the about us information.</p>
+    include/contact.php: <h2>Contact Page</h2><p>Contact us here.</p>
+    
+    
+    
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+somehow that last example got garbled...
+
+try this:
+
+make dir /test/test23/index.php
+
+and have all three files there
+home.php: <h2>Home Page</h2><p>Welcome to the home page!</p>
+about.php: <h2>About Page</h2><p>This is the about us information.</p>
+contact.php: <h2>Contact Page</h2><p>Contact us here.</p>
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Dynamic Content Example</h1>
+
+<!-- Navigation Links -->
+<a href="index.php?page=home">Home</a> | 
+<a href="index.php?page=about">About</a> | 
+<a href="index.php?page=contact">Contact</a>
+
+<div id="content-area">
+    <?php
+    // Check if the 'page' parameter is set in the URL
+    if (isset($_GET['page'])) {
+        $page = $_GET['page'];
+
+        // Use a whitelist to prevent directory traversal vulnerabilities
+        $allowed_pages = ['home', 'about', 'contact'];
+
+        if (in_array($page, $allowed_pages)) {
+            // Include the corresponding PHP file
+            include($page . '.php');
+        } else {
+            echo "<p>Content not found.</p>";
+        }
+    } else {
+        // Default content if no parameter is set
+        include('home.php');
+    }
+    ?>
+</div>
+
+</body>
+</html>
+
+
+works!!!
+
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+next
+
+
+test24
+
+cannot get this to work
+
+
+index.html
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<script src="code.jquery.com"></script>
+</head>
+<body>
+
+<h1>AJAX Dynamic Content Example</h1>
+
+<!-- Links with a class to attach an event listener -->
+<a href="#" class="nav-link" data-page="home">Home</a> | 
+<a href="#" class="nav-link" data-page="about">About</a> | 
+<a href="#" class="nav-link" data-page="contact">Contact</a>
+
+<div id="content-area">
+    <!-- Content will be loaded here dynamically -->
+    <p>Select a link to load content.</p>
+</div>
+
+<script>
+$(document).ready(function(){
+    $('.nav-link').on('click', function(e){
+        e.preventDefault(); // Prevent the default link behavior (page reload)
+        var page = $(this).data('page'); // Get the page name from the data attribute
+
+        // Make an AJAX request to the PHP endpoint
+        $('#content-area').load('\test\test24\content.php?page=' + page);
+    });
+});
+</script>
+
+</body>
+</html>
+
+content.php
+
+<?php
+if (isset($_GET['page'])) {
+    $page = $_GET['page'];
+    $allowed_pages = ['home', 'about', 'contact'];
+
+    if (in_array($page, $allowed_pages)) {
+        // Return only the content snippet without a full HTML structure
+        include($page . '.php');
+    } else {
+        echo "<p>Content not found.</p>";
+    }
+}
+?>
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+anyway, i thoink i might be on to something here
+
+
+I could have one main html page
+
+load different sections
+
+like different types of tables
+
+like downloads links based on selected session
+
+
+2025-12-29 20:12:59
+
+
+
+2025-12-30 05:36:25
+
+when I click on a session link in the table
+
+I want to to dyanmically load a section that show downloads for that time range
+
+
+
+some smaller subtasks:
+- can I download from another dir
+
+
+datatables
+get new version?
+datatable.js on old site is version 3.7.0
+DataTables 2.3.6
+
+revisited datatable and updated notes in Datatable.txt
+
+
+Now I really want to figure out how to call one php script from another
+
+I want to have one sessions page the loads different tables
+
+i want to have a separate file that fills that section
+
+or maybe I will do something else first:
+do something with a click on the the table 
+
+made each cell an <a href tag
+
+now how to do something with that
+
+
+make a new section that is loaded from another php page 
+fill.php
+
+
+2025-12-30 07:51:32
+
+
+I am getting somewhere !!!
+
+my link in the table:
+
+echo "<td><a href=\"sessions.php?data=" . $val . "\">" . $val . "</a></td>";
+               
+reloads the current page with the 'data' parameter set in the url
+
+then I include
+
+include('fill.php');
+
+<?php
+
+   // Check if the 'data' parameter is set in the URL
+   if (isset($_GET['data']))
+   {
+      $data = $_GET['data'];
+      echo "<hr>" . $data . "<hr>";
+   }
+   else
+   {
+       // Default content if no parameter is set
+       echo "<hr>Default<hr>";
+   }
+?>
+
+2025-12-30 07:54:44
+
+next:
+
+make the links only in the date column
+
+            echo "<tr>";
+            foreach($row as $col => $val)
+            {
+               if ($col == "dt_start") echo "<td><a href=\"sessions.php?data=" . $val . "\">" . $val . "</a></td>"; 
+               else echo "<td>" . $val . "</td>";
+            }
+            echo "</tr>";
+
+
+2025-12-30 08:04:55
+
+next:
+
+do something in fill...
+
+
+find gms to download
+
+
+I think the way to do this is to have another script run in cron that adds the gm files to a database
+
+then I oould just look that up here
+
+table: gm_files
+
+filename
+timestamp (get from filename)
+level (get from filename)
+
+in the database make a way of knowing what sessions a gm belongs to
+
+this is not a one to one either way:
+
+sessions can have multiple gm's (when session is longer than one level)
+
+gm's can have muliple sessions (when more than one client)
+
+I could have a 3rd table to link them
+
+session_gm_links
+session_id
+gm_id
+
+
+what are the rules for populating this table
+
+for each closed session (with start and end)
+
+find gm's that date range fits into
+
+make a link from session to gm
+
+if I have gm's that do not match??
+
+figure that out later
+
+right now create these tables and test
+
+I have the gm table done and the php import script
+
+now how am I going to create the links?
+
+first of all create the table
+
+
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+mysql> DESCRIBE gm;
++-----------+--------------+------+-----+---------+----------------+
+| Field     | Type         | Null | Key | Default | Extra          |
++-----------+--------------+------+-----+---------+----------------+
+| id        | int          | NO   | PRI | NULL    | auto_increment |
+| filename  | varchar(255) | YES  |     | NULL    |                |
+| timestamp | datetime     | YES  |     | NULL    |                |
++-----------+--------------+------+-----+---------+----------------+
+3 rows in set (0.01 sec)
+
+mysql> DESCRIBE gm_sessions;
++------------+------+------+-----+---------+----------------+
+| Field      | Type | Null | Key | Default | Extra          |
++------------+------+------+-----+---------+----------------+
+| id         | int  | NO   | PRI | NULL    | auto_increment |
+| gm_id      | int  | YES  |     | NULL    |                |
+| session_id | int  | YES  |     | NULL    |                |
++------------+------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT * FROM gm;
++----+------------------------------------------------+---------------------+
+| id | filename                                       | timestamp           |
++----+------------------------------------------------+---------------------+
+|  1 | 20251229-151621-[32]-autosave on level done.gm | 2025-12-29 15:16:21 |
++----+------------------------------------------------+---------------------+
+1 row in set (0.00 sec)
+
+
+
+Where am I going to create the links? php?
+
+what is the high level algorithm
+
+iterate sessions
+each session will have a start and end date
+
+for each session
+iterate all the rows in gm
+
+if datetime is between start and end create link
+
+
+2025-12-30 10:04:32
+-------------------------------
+
+i could just leave this part for now
+
+I want to work on the part where I make links to downloads
+
+fill.php
+
+
+I really wish I had the session id here
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+               
+               
+               
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

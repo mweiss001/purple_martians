@@ -3814,7 +3814,7 @@ them in a nice graph.
 
 For a much more detailed history see the web page documentation...
 
-https://mweiss001.github.io/purple_martians/
+purplemartians.org/history.html
 
 
 
@@ -3853,7 +3853,7 @@ https://mweiss001.github.io/purple_martians/
 
 <c15>Official Master Repository:
 
-<c15>https://github.com/mweiss001/purple_martians
+<c15>github.com/mweiss001/purple_martians
 <c08>_______________________________________________
 
 

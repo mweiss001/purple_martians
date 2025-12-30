@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-   <script src="../assets/js/jquery-3.7.1.min.js"></script>
-   <link rel="stylesheet" href="../assets/css/datatables.css" />
-   <script src="../assets/js/datatables.js"></script>
+   <script src="../assets/js/jquery-3.7.1.slim.min.js"></script>
+   <link rel="stylesheet" href="../assets/css/datatables.min.css" />
+   <script src="../assets/js/datatables.min.js"></script>
    <script>$(document).ready( function ()
    {
       $('#myTable').DataTable(

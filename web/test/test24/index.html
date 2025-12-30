@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="code.jquery.com"></script>
+</head>
+<body>
+
+<h1>AJAX Dynamic Content Example</h1>
+
+<!-- Links with a class to attach an event listener -->
+<a href="#" class="nav-link" data-page="home">Home</a> | 
+<a href="#" class="nav-link" data-page="about">About</a> | 
+<a href="#" class="nav-link" data-page="contact">Contact</a>
+
+<div id="content-area">
+    <!-- Content will be loaded here dynamically -->
+    <p>Select a link to load content.</p>
+</div>
+
+<script>
+$(document).ready(function(){
+    $('.nav-link').on('click', function(e){
+        e.preventDefault(); // Prevent the default link behavior (page reload)
+        var page = $(this).data('page'); // Get the page name from the data attribute
+
+        // Make an AJAX request to the PHP endpoint
+        $('#content-area').load('\test\test24\content.php?page=' + page);
+    });
+});
+</script>
+
+</body>
+</html>

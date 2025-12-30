@@ -20,3 +20,10 @@ pscp -pw zaiden m@scat:dev/purple_martians/logs/status/20240701* c:\pm\logs
 
 
 pscp -pw zaiden m@purplemartians.org:dev/purple_martians/data/level_data.pm c:\pm\
+
+
+
+
+pscp -pw zaiden c:\pm\scrape\* m@192.168.1.146:dev/purple_martians/scrape
+
+

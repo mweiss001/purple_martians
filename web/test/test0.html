@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<hr>
+
+
+<a>some more stuff here</a>
+
+
+<a href="/bs_notes.txt" download="poooop.txt">
+    <button>Get Some pooop !!</button>
+</a>
+
+<hr>
+
+<a href="/bs_notes.txt" download="poooop.txt">
+    <button>Get Some pooop !!</button>
+</a>
+
+<hr>
+<p>
+<Directory /var/www/html/downloads>
+  Allow from all
+  Options Indexes
+  <Files "?*">
+    ForceType application/octet-stream
+    Header set Content-Disposition attachment
+  </Files>
+
+</Directory>
+
+</p>
+<hr>
+
+<p>
+<Directory "/var/www/html/downloads">
+    Options Indexes FollowSymLinks
+    AllowOverride None
+    Require all granted
+</Directory>
+
+</p>
+
+<hr>
+
+
+</body>
+</html>

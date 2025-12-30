@@ -187,11 +187,10 @@ setup cron
 
 crontab -e
 
-*/1 * * * * php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/session_scrape_cronoutput.txt 2>&1
-*/1 * * * *     /home/m/dev/purple_martians/scrape             >> /home/m/dev/purple_martians/scrape_cronoutput.txt 2>&1
-*/1 * * * *     /home/m/dev/purple_martians/scrape_status      >> /home/m/dev/purple_martians/scrape_status_cronoutput.txt 2>&1
-
-
+*/1 * * * * php /home/m/dev/purple_martians/scrape/scrape_sessions.php >> /home/m/dev/purple_martians/scrape/cronoutput_scrape_sessions.txt 2>&1
+*/1 * * * * php /home/m/dev/purple_martians/scrape/scrape_gm.php       >> /home/m/dev/purple_martians/scrape/cronoutput_scrape_gm.txt 2>&1
+#*/1 * * * *     /home/m/dev/purple_martians/scrape/scrape_net          >> /home/m/dev/purple_martians/scrape/cronoutput_scrape_net.txt 2>&1
+#*/1 * * * *     /home/m/dev/purple_martians/scrape/scrape_status       >> /home/m/dev/purple_martians/scrape/cronoutput_scrape_status.txt 2>&1
 
 -------------------------------------
 - Using systemd to run as a service -

@@ -3,6 +3,22 @@
 ------------------------------------------------------------------------------
 TO DO
 ------------------------------------------------------------------------------
+rename the godmamn scrape shit
+put them in their own dir
+
+Directory of C:\pm\scrape
+2025-12-30  09:55 AM             1,841 scrape_gm.php
+2024-07-14  10:28 PM               815 scrape_net
+2025-12-29  12:12 AM             7,611 scrape_session.php
+2024-07-14  10:28 PM               839 scrape_status
+
+rename the crom shit:
+
+
+
+
+
+
 ------------------------------------------------------------------------------
 make a way of cleaning up log files periodically
 ------------------------------------------------------------------------------
@@ -10,6 +26,19 @@ make a way of cleaning up log files periodically
 
 
 ------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+implement player name (Do it Fool!)
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+
+
+
+------------------------------------------------------------------------------
+even if I change servers, I want to always keep all the sessions and games files
+
+
+
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 make a way to change settings on remote server
@@ -19,7 +48,6 @@ what if I get the settings.pm file from the server
 edit it and send it back
 how big is it? settings is 1K
 
-
 ------------------------------------------------------------------------------
 
 
@@ -27,7 +55,6 @@ how big is it? settings is 1K
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 download played game from server
-
 
 <a href="/assets/report.zip" download="quarterly_report">
     <button>Download Report</button>
@@ -37,13 +64,7 @@ download played game from server
 
 
 ------------------------------------------------------------------------------
-I want to change the directory structure of my project.
-docs will now have all the doss
-web will now have the webpage
-the only reason I changed it was because github was hosting my page...
-At the time it seemed like a good idea to have a free host site for my project docs
-but now that I have my own server, I don't care about that anymore
-change hard link in pmhelp
+
 ------------------------------------------------------------------------------
 it is a little convoluted how I do session logs
 save them to disk, then process them periodically with cron and php
@@ -60,10 +81,15 @@ Qt WASM
 
 
 
-
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+I want to change the directory structure of my project.
+docs will now have all the doss
+web will now have the webpage
+the only reason I changed it was because github was hosting my page...
+At the time it seemed like a good idea to have a free host site for my project docs
+but now that I have my own server, I don't care about that anymore
+change hard link in pmhelp
 ------------------------------------------------------------------------------
 DONE
 ------------------------------------------------------------------------------

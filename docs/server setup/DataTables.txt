@@ -161,13 +161,210 @@ Im good for now....
 
 
 
+2025-12-30 05:59:34
+
+
+redoing it, lets see if there is anything new
+
+this is a header from current way I am doing it:
+
+   <script src="../assets/js/jquery-3.7.1.min.js"></script>
+   <link rel="stylesheet" href="../assets/css/datatables.css" />
+   <script src="../assets/js/datatables.js"></script>
+
+
+files:
+
+/assets/css/datatables.css
+/assets/css/datatables.min.css
+
+/assets/js/datatables.js
+/assets/js/datatables.min.js
+/assets/js/jquery-3.7.1.min.js
+
+
+on their webpage they suggest to use this:
+<link href="https://cdn.datatables.net/v/dt/dt-2.3.6/datatables.min.css" rel="stylesheet" integrity="sha384-kl/GL6Bf/pDfgmgFKZ4XzwANesvO6EBSlfZFyztPhoFTDcL7H8rdOAYRXwGyOfCK" crossorigin="anonymous">
+<script src="https://cdn.datatables.net/v/dt/dt-2.3.6/datatables.min.js" integrity="sha384-18AyDs6cawP/DD9zgSqUrUeo+moSbSkFr4pe43ttGuiPDGYQitDsvTjtrDnVzrZg" crossorigin="anonymous"></script>
 
 
 
 
 
 
+got new version 20251230
 
+Styling framework:
+DataTables
+
+Packages:
+jQuery3
+DataTables
+
+Extensions:
+Buttons -> Column Visibility
+ColReorder
+Responsive
+
+
+
+
+
+where do I find jquery?
+
+https://releases.jquery.com/
+
+3.7.1 is still the latest version
+
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+
+
+
+
+try this:
+
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+<link href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.3.6/b-3.2.6/b-colvis-3.2.6/cr-2.1.2/r-3.0.7/datatables.min.css" rel="stylesheet" integrity="sha384-oDsykCyy5rZoazpMyQjUrI1gp65bOMTr+AxxADhTgViR7P16Obdoxggu+sCzSpJY" crossorigin="anonymous">
+<script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.3.6/b-3.2.6/b-colvis-3.2.6/cr-2.1.2/r-3.0.7/datatables.min.js" integrity="sha384-5QOLPvgZ2qwHV/AdWKY8iKIQbNMAUj1JMfZVNLszTIPx2BjXmNGGCo/K6WthlNa+" crossorigin="anonymous"></script>
+
+
+works:
+
+now try the local version
+
+found it on the downloads page
+https://jquery.com/download/
+
+jquery-3.7.1.js
+
+279k
+
+this is the umcompressed version
+
+put it in 
+/assets/js/
+
+then from the latest download of datatable
+put datatables.css in /assets/css
+put datatables.js in /assets/js
+
+
+   <script src="../assets/js/jquery-3.7.1.js"></script>
+   <link rel="stylesheet" href="../assets/css/datatables.css" />
+   <script src="../assets/js/datatables.js"></script>
+
+also works:
+
+sizes:
+jquery-3.7.1.js 279k
+datatables.js   822k
+datatables.css   57k
+---------------------
+               1158k
+
+
+
+try minified
+
+jquery-3.7.1.slim.min.js  69k
+datatables.min.js        242k  
+datatables.min.css        50k  
+-----------------------------
+                         361k   
+
+   <script src="../assets/js/jquery-3.7.1.slim.min.js"></script>
+   <link rel="stylesheet" href="../assets/css/datatables.min.css" />
+   <script src="../assets/js/datatables.min.js"></script>
+
+works
+
+now what else can I do with it?
+
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+   <table>
+      <tbody>
+         <tr>
+            <td style='padding:2px 8px;' > <a href="sessions.php"      >Main</a> </td>
+            <td style='padding:2px 8px;' > <a href="sessions_plr.php"  >Player</a> </td>
+            <td style='padding:2px 8px;' > <a href="sessions_bnd.php"  >Bandwidth</a></td>
+            <td style='padding:2px 8px;' > <a href="sessions_all.php"  >All</a> </td>
+            <td style='padding:2px 12px;'>  </td>
+            <td style='padding:2px 8px;' > <a href="../index.html"     >Home</a> </td>
+         </tr>
+      </tbody>
+   </table>
+
+
+   <script src="../assets/js/jquery-3.7.1.slim.min.js"></script>
+   <link rel="stylesheet" href="../assets/css/datatables.min.css" />
+   <script src="../assets/js/datatables.min.js"></script>
+   <script>$(document).ready( function ()
+   {
+      $('#myTable').DataTable(
+      {
+         layout: {  topStart: { buttons: ['colvis'] }, bottomStart: 'pageLength' },
+         colReorder: true,
+         columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: [0, 1, 2, 3, 4, 5, 6]  } ],
+         order: [  [0, 'desc'] ]
+      }  );
+   } );</script>
+</head>
+
+
+<body>
+
+
+<?php
+
+   $srvrname = "localhost";
+   $database = "pm";
+   $username = "pmdb_ro";
+   $password = "readonly";
+
+   // Create a connection
+   $conn = mysqli_connect($srvrname, $username, $password, $database);
+
+   // Check the connection
+   if (!$conn) die("Connection failed: " . mysqli_connect_error());
+   // echo "Connected to database\n";
+
+   echo "<hr><h2>Sessions - Main</h2><hr>";
+
+   $col_list = array("Date",   "ip", "port", "host",     "endreason",            "duration", "cdat");
+   $row_list =       "dt_start, ip,   port,   hostname,   endreason,  SEC_TO_TIME(duration),  cdat_rx";
+
+   echo "<table id='myTable' class='display cell-border compact' style='width:90%'>";
+      echo "<thead>";
+         echo "<tr>";
+            foreach($col_list as $col)
+               echo "<th>$col</th>";
+         echo "</tr>";
+      echo "</thead align='center'>";
+      echo "<tbody>";
+         $sql = "SELECT $row_list FROM sessions";
+         $res = mysqli_query($conn, $sql);
+         while ($row = $res->fetch_assoc())
+         {
+            echo "<tr>";
+            foreach($row as $col => $val)
+               echo "<td>" . $val . "</td>";
+            echo "</tr>";
+         }
+      echo "</tbody>";
+   echo "</table>";
+
+   echo "<hr>";
+
+
+?>
+
+</body>
+</html>
 
 
 
