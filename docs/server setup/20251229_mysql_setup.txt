@@ -297,3 +297,90 @@ sudo mysqladmin --no-defaults create pm
 
 sudo mysql pm < pm_dump.sql
 
+
+
+
+
+
+2025-12-30 08:23:19
+
+I am going to add 2 more tables
+
+CREATE TABLE gm (
+  id             INT AUTO_INCREMENT,
+  filename       VARCHAR(255),
+  timestamp      DATETIME,
+  PRIMARY KEY(id)
+);
+
+CREATE TABLE gm_sessions (
+  id                INT AUTO_INCREMENT,
+  gm_id             INT,
+  session_id        INT,
+  PRIMARY KEY(id)
+);
+
+
+I want to use this to find which gm's belong to a specific session
+
+SELECT gm.filename FROM gm
+
+JOIN   gm_sessions ON gm.id = gm_sessions.gm_id
+
+JOIN   sessions ON gm_sessions.session_id = sessions.id
+
+WHERE sessions.id = %
+ 
+ 
+ 
+ 
+now make something to scrape and add to db
+
+
+
+modify
+sessions_scrape.php
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
