@@ -12,12 +12,13 @@ zlib
 libnet  
 Code::Blocks  
 
-The official master repository is: https://github.com/mweiss001/purple_martians
+The master repository is here: https://github.com/mweiss001/purple_martians
 
-The documentation pages are here: https://mweiss001.github.io/purple_martians/
+The main website is here: purplemartians.org
 
 Official Purple Martians multiplayer server: purplemartians.org
 
 Youtube channel with Purple Martians videos: https://www.youtube.com/@PurpleMartians-mdw1968
 
 Please send me an email (mweiss001@gmail.com) with any comments, questions, suggestions, etc...
+
