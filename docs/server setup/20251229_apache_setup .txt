@@ -116,3 +116,122 @@ crontab -e
 this is an amazing one line script to change files ending in *.txt.bak to end in *.txt
 for f in *.txt.bak; do mv -- "$f" "${f%.txt.bak}.txt"; done
 
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------------
+How to enable downloads from elsewhere
+----------------------------------------------------------------------------------------------------
+
+/home/m/dev/purple_martians/savegame
+
+where is apache config file?
+
+m@o3000:~/dev/purple_martians/savegame$ apache2ctl -V | grep SERVER_CONFIG_FILE
+ -D SERVER_CONFIG_FILE="apache2.conf"
+m@o3000:~/dev/purple_martians/savegame$ apache2ctl -V | grep HTTPD_ROOT
+ -D HTTPD_ROOT="/etc/apache2"
+
+/etc/apache2/apache.conf
+
+add to config:
+                    
+Alias "/downloads" "/home/m/dev/purple_martians/savegame"
+
+<Directory "/home/m/dev/purple_martians/savegame">
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride None
+    Require all granted
+</Directory>
+
+
+tail -f  /var/log/apache2/error.log
+
+[Tue Dec 30 13:12:54.255068 2025] [core:error] [pid 38411] (13)Permission denied: [client 192.168.1.36:63091]
+AH00035: access to /downloads denied (filesystem path '/home/m/dev') because search permissions are missing on a component of the path
+
+namei -l /home/m/dev/purple_martians/savegame
+
+m@o3000:~/dev/purple_martians$ namei -l /home/m/dev/purple_martians/savegame
+f: /home/m/dev/purple_martians/savegame
+drwxr-xr-x root root /
+drwxr-xr-x root root home
+drwxr-x--- m    m    m
+drwxrwxr-x m    m    dev
+drwxrwxrwx m    m    purple_martians
+drwxrwxrwx m    m    savegame
+m@o3000:~/dev/purple_martians$
+
+chmod o+x /home/m
+
+this was it!!!!
+
+
+
+
+-------------------------------------------------------------------------
+set up samba for easier web dev
+---------------------------------------------------
+
+
+sudo apt install samba
+sudo rm /etc/samba/smb.conf
+sudo nano /etc/samba/smb.conf
+
+[global]
+workgroup = WORKGROUP
+server string = %h
+map to guest = bad user
+
+[www]
+path = /var/www/html
+read only = no
+guest ok = yes
+force user = m
+
+sudo systemctl restart nmbd
+
+sudo ufw allow samba
+
+now I can see it at: \\192.168.1.146\www
+but it is read only
+
+namei -l /var/www/html
+
+m@o3000:/var/www/html/sessions$ namei -l /var/www/html
+f: /var/www/html
+drwxr-xr-x root root /
+drwxr-xr-x root root var
+drwxr-xr-x root root www
+drwxr-xr-x root root html
+m@o3000:/var/www/html/sessions$
+
+these did not work:
+sudo usermod -aG www-data m
+sudo chmod -R g+rw /var/www/html/ 
+
+hit it with a hammer:
+sudo chmod -r 777 /var/www/html/ 
+
+now it works!!!
+
+-------------------------------------------------------------------
+make sure that changes you make there get back to the dev machine
+-------------------------------------------------------------------
+
+On the server, copy to tmp folder
+sudo cp -r /var/www/html/* ~/tmp
+
+From the a windows machine, copy from tmp location to project:
+pscp -r -pw zaiden m@192.168.1.146:tmp/* c:\pm\web 
+
+
+
+
+
+
