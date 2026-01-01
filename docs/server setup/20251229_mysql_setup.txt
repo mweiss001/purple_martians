@@ -113,11 +113,30 @@ CREATE TABLE sessions (
   PRIMARY KEY(id)
 );
 
+CREATE TABLE gm (
+  id             INT AUTO_INCREMENT,
+  filename       VARCHAR(255),
+  dt_start       DATETIME,
+  dt_end         DATETIME,
+  duration       INT,
+  PRIMARY KEY(id)
+);
+
+CREATE TABLE gm_sessions (
+  id                INT AUTO_INCREMENT,
+  gm_id             INT,
+  session_id        INT,
+  PRIMARY KEY(id)
+);
+
+
+
+
 CREATE USER 'pmdb_ro' IDENTIFIED WITH mysql_native_password BY 'readonly';
 GRANT SELECT ON pm.* TO 'pmdb_ro';
 
 CREATE USER 'pmdb_rw' IDENTIFIED WITH mysql_native_password BY 'readwrite';
-GRANT SELECT, INSERT, UPDATE ON pm.* TO 'pmdb_rw';
+GRANT SELECT, INSERT, UPDATE, DELETE ON pm.* TO 'pmdb_rw';
 
 
 check:
@@ -309,7 +328,8 @@ I am going to add 2 more tables
 CREATE TABLE gm (
   id             INT AUTO_INCREMENT,
   filename       VARCHAR(255),
-  timestamp      DATETIME,
+  dt_start       DATETIME,
+  dt_end         DATETIME,
   PRIMARY KEY(id)
 );
 

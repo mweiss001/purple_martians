@@ -783,7 +783,6 @@ mysql> SELECT * FROM gm;
 1 row in set (0.00 sec)
 
 
-
 Where am I going to create the links? php?
 
 what is the high level algorithm
@@ -806,8 +805,646 @@ I want to work on the part where I make links to downloads
 
 fill.php
 
-
 I really wish I had the session id here
+
+now I do
+
+
+2025-12-30 11:42:28
+
+configure appache for downloads
+
+made an alias to map /downloads/  to /home/m/dev/purple_martians/savegame
+
+see apache file
+
+
+2025-12-30 13:30:30
+
+now I can download from there directly
+
+what next??
+
+-----------------------------------------------------------------------------
+
+do the database thing
+
+
+Where am I going to create the links? php?
+
+what is the high level algorithm
+
+iterate sessions
+each session will have a start and end date
+
+for each session
+iterate all the rows in gm
+
+if datetime is between start and end create link
+
+also remove dead link
+
+that could be its own script
+
+make a php file
+
+iterate all sessions
+
+
+
+
+
+lets thin about think for a minute, high level
+
+gm's are serial, none should ever overlap
+
+sessions are not, there can be mutiple simulatanouesly
+
+so for a session that spans a time range...
+
+you know what else???
+I can calculate the start time of a gm!!
+I have the end time and the length
+
+is this important, do I need it?...maybe
+
+maybe I should collect more meta data about gm's for the database
+start, end,
+joins
+quits
+max players
+deaths
+
+2025-12-30 15:00:07
+
+I am getting confused about how to tell if a gm belongs in a session
+
+if I captured the start also....
+then if either the start or the end is in the range...
+
+lets draw ascii art diagrams
+
+ [...se1..]
+         [...se2..................................]
+   [...se2.....................]
+[...se4.....................]
+[...gm1...][.gm2.][...gm3...][.gm4.][...gm5...]
+
+I think I need gm start...get it...
+
+I have done that..
+2025-12-30 16:36:07
+
+now I get start and end in gm database
+
+2025-12-30 16:57:45
+
+now back to link....
+
+
+
+for testing...
+remove all links,
+check for links
+show orphan gm
+show orphan sessions
+
+2025-12-30 19:10:55
+
+I think I am ready to implement on the web page
+
+when I click on a session make the info page show much more info
+
+2025-12-31 04:31:21
+
+I got quite a lot done yesterday.
+made 2 new tables 
+gm and gm_sessions
+make scripts to scrape and make links
+made downloads visible
+make a second section of sessions page, loaded from separate script
+
+
+today I want to:
+
+make the second section way better:
+show all info about the selected session
+including the list of associated gm files
+
+the list of gm files could have more info about each
+
+
+is there a way to make web faster?
+
+could I samba the entire www folder and edit direct on windows?
+try it, fool! done...
+
+2025-12-31 07:45:24
+
+I have the nice session description done with all data
+
+now onto the list of gm's
+
+done...
+
+
+I think I want to create some better data..
+
+but maybe first some debug tools
+
+php pages that show
+orphan session
+orphan gm
+all gm
+
+rename fill.php to show_session.php
+
+then make ones for these other things also
+
+
+2025-12-31 08:33:48
+I think I have the core functionality working:
+
+now what?
+
+show info for save game files?
+
+make like a table row with info and a clickable link
+
+
+should I also save duration in gm?
+if I do that where will I stop?
+just do that for now
+
+first of all, make sure you don't accidentally overwrite all the work done in www
+
+-------------------------------------------------------------------
+make sure that changes you make there get back to the dev machine
+-------------------------------------------------------------------
+
+save all files in windows
+
+On the server, copy to tmp folder
+sudo cp -r /var/www/html/* ~/tmp
+
+From the a windows machine, copy from tmp location to project:
+pscp -r -pw zaiden m@192.168.1.146:tmp/* c:\pm\web 
+
+change the gm table, drop and recreate ...done
+edit the scrape_gm.php file and edit the db insert .. done
+deploy to server
+
+C:\pm>pscp -pw zaiden c:\pm\scrape\* m@192.168.1.146:dev/purple_martians/scrape
+
+they are now in the db with the new column
+
+clean up link_gm.php and test...done
+
+add it to the cron done
+
+add to note in sewrver setup done
+
+thw only issue I could see is that the links are being deleted and recreated every time
+
+
+2025-12-31 10:35:40
+
+what next?
+
+make the link line look better somehow
+
+could I put it in a table?
+
+make a php script that puts a list of gm's in a table with download links
+why? do I think that will look better?
+
+If I can do that, then I can also do that for the main session table
+
+make my own varianle to tell what set of columns are shown 
+
+session_table_column_set
+
+
+
+the variables passed when a page is loaded, the query string, is reset when the page is reloaded
+
+I was using this for current session id
+
+I think I want to try a different method
+
+sessions?
+
+
+
+<?php
+// Start the session
+session_start();
+
+// Set session variables
+$_SESSION["favcolor"] = "green";
+$_SESSION["favanimal"] = "cat";
+$_SESSION['count'] = 1;
+
+echo "Session variables 'favcolor', 'favanimal', and 'count' are set.";
+echo '<br><a href="page2.php">Go to Page 2</a>';
+?>
+
+
+<?php
+// Start the session to access stored data
+session_start();
+
+// Access session data
+echo "Favorite color is: " . htmlspecialchars($_SESSION["favcolor"]) . ".<br>";
+echo "Favorite animal is: " . htmlspecialchars($_SESSION["favanimal"]) . ".<br>";
+
+// Update the counter variable
+if(isset($_SESSION['count'])) {
+    $_SESSION['count']++;
+    echo "You have visited these pages " . htmlspecialchars($_SESSION['count']) . " times in this session.";
+}
+?>
+
+
+
+2025-12-31 11:41:53
+
+I think I got something here...
+
+in main page sessions.php
+
+   session_start();
+
+   // if passed as query string set the session variable
+   if (isset($_GET['current_session_id'])) $_SESSION['current_session_id'] = $_GET['current_session_id'];
+
+
+show_current_sessions reads the sessions varaible
+
+// Check if the 'data' parameter is set in the URL
+//if (!isset($_GET['current_session_id'])) echo "<hr>no current session set<hr>";
+//else 
+//{
+//  $current_session_id = $_GET['current_session_id'];
+
+if(!isset($_SESSION['current_session_id'])) echo "<hr>no current session set<hr>";
+else 
+{
+   $current_session_id = $_SESSION['current_session_id'];
+
+
+
+when clicking on the table link to chande current session, nothing changes, still reloads main page with query
+
+            foreach($row as $col => $val)
+            {
+               if ($col == "id") echo "<td><a href=\"sessions.php?current_session_id=" . $val . "\">" . $val . "</a></td>"; 
+               else echo "<td>" . $val . "</td>";
+
+now bakc to using this for table columns
+done and I have killed all the oly files!!!
+
+
+
+
+
+
+now lets see if I can make all work...
+
+
+
+
+
+$t1 = array("id", "Date", "ip" );
+$t2 = array("23", "skiddo", "buddday" );
+var_dump($t1);
+var_dump($t2);
+$t3 = array_merge($t1, $t2);
+var_dump($t3);
+
+array(3) {
+  [0]=>
+  string(2) "id"
+  [1]=>
+  string(4) "Date"
+  [2]=>
+  string(2) "ip"
+}
+array(3) {
+  [0]=>
+  string(2) "23"
+  [1]=>
+  string(6) "skiddo"
+  [2]=>
+  string(7) "buddday"
+}
+array(6) {
+  [0]=>
+  string(2) "id"
+  [1]=>
+  string(4) "Date"
+  [2]=>
+  string(2) "ip"
+  [3]=>
+  string(2) "23"
+  [4]=>
+  string(6) "skiddo"
+  [5]=>
+  string(7) "buddday"
+}
+
+
+
+$t1 = "id, Date, ip";
+$t2 = "23, skiddo, buddday";
+var_dump($t1);
+var_dump($t2);
+$t3 = $t1 . $t2;
+var_dump($t3);
+
+string(12) "id, Date, ip"
+string(19) "23, skiddo, buddday"
+string(31) "id, Date, ip23, skiddo, buddday"
+
+
+2025-12-31 13:33:39
+
+I finally have the session table and columns thing figured out
+
+I think I am ready to work on the game moves table
+
+I have a script that make a link...
+
+2025-12-31 14:56:47
+I have the table done...
+
+just need to figure out how to filter it
+- all
+- orphan
+- link to session
+
+0 = all
+-1 = orphan
+anything else is a session id
+
+lets call it gm filter
+
+actually i dont need to save it, just pass it as a parameter
+
+sessions will already have current session id
+
+SELECT gm.id, filename, dt_start, dt_end, duration FROM gm LEFT JOIN gm_sessions ON gm.id = gm_sessions.gm_id WHERE gm_sessions.session_id=8 
+
+
+CREATE TEMPORARY TABLE TempFilteredResults AS
+SELECT column1, column2, ...
+FROM OriginalTable
+WHERE condition = 'filter_value'; -- Your filtering condition
+
+
+this just looks too stupid
+
+Im going to make my own table with balckjack and hookers
+
+
+<?php session_start(); ?>
+
+   <script src="../assets/js/jquery-3.7.1.slim.min.js"></script>
+   <link rel="stylesheet" href="../assets/css/datatables.min.css" />
+   <script src="../assets/js/datatables.min.js"></script>
+
+<?php
+
+function show_gm_table($filter)
+{
+   $col_list = array("id",   2025-12-31 15:21:53 "Filename", "Start Time",   "End Time",             "Duration"  );
+   $row_list =       "gm.id,   filename,  dt_start,        dt_end,     SEC_TO_TIME(duration)";
+
+
+
+   if ($filter == 0) $sql = "SELECT $row_list FROM gm";
+
+   if ($filter > 0)
+   {
+      $sql  = "SELECT gm.id, filename, dt_start, dt_end, duration FROM gm ";
+      $sql .= "LEFT JOIN gm_sessions ON gm.id = gm_sessions.gm_id ";
+      $sql .= "WHERE gm_sessions.session_id=$filter";
+   }
+
+   echo "sql: $sql\n";
+
+   echo "<script>$(document).ready( function ()
+         {
+            $('#myTable2').DataTable(
+            {
+               layout: {  topStart: { buttons: ['colvis'] }, bottomStart: 'pageLength' },
+               colReorder: true,
+               columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: [0, 1, 2, 3, 4] } ],
+               order: [  [0, 'desc'] ]
+            }  );
+         } );
+         </script> ";
+
+
+      echo "<table id='myTable2' class='display cell-border compact' style='width:90%'>";
+         echo "<thead>";
+            echo "<tr>";
+               foreach($col_list as $col)
+                  echo "<th>$col</th>";
+            echo "</tr>";
+         echo "</thead align='center'>";
+         echo "<tbody>";
+            $res = mysqli_query($conn, $sql);
+            while ($row = $res->fetch_assoc())
+            {
+               echo "<tr>";
+               foreach($row as $col => $val)
+               {
+                  if ($col == "filename")
+                  {
+                     $filename = $val;  
+                     $fullpath = "/downloads/$filename";
+                     echo "<td><a href=\"$fullpath\" download=\"$filename\">$filename</a></td>";
+                  }
+                  else echo "<td>" . $val . "</td>";
+               }
+               echo "</tr>";
+            }
+         echo "</tbody>";
+      echo "</table>";
+
+}
+?>
+
+
+here is a copy before I kill it all
+
+
+
+/*
+table {
+  font-family: Arial, sans-serif;
+  border-collapse: collapse; /* Merges borders */
+  width: 100%; /* Table takes full width */
+  margin-top: 15px; /* Adds space above the table */
+}
+
+caption {
+  padding: 10px;
+  font-weight: bold;
+  caption-side: top; /* Positions caption at the top */
+}
+
+th, td {
+  border: 1px solid #ddd; /* Light border color */
+  text-align: left; /* Aligns text to the left */
+  padding: 12px; /* Inner spacing */
+}
+
+thead th {
+  background-color: #4CAF50; /* Green background for headers */
+  color: white; /* White text for headers */
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f2f2f2; /* Gray background for even rows */
+}
+
+tbody tr:hover {
+  background-color: #ddd; /* Gray background when hovering over a row */
+}
+
+
+2025-12-31 16:49:20
+
+I think I have that tabel looking good
+
+
+now what?
+
+links at the top of sessions for navigation
+
+links by the sessions table for filters only
+
+// Check if 'current_session_id' is set in the $_SESSION
+if(!isset($_SESSION['current_session_id'])) echo "<hr>no current session set<hr>";
+else 
+{
+   $current_session_id = $_SESSION['current_session_id'];
+
+use the gm table for all and orphan...done
+
+
+2025-12-31 17:47:40
+
+wow this is coming along great...I should do a massive backup...
+
+
+
+I have only 5 files:
+
+sessions.php the main one
+show_sessions_table.php
+show_current_session.php
+show_gm_table.php
+
+and one more
+show orphaned sessions..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

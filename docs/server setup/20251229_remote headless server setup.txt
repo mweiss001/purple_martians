@@ -166,7 +166,7 @@ sudo systemctl enable apache2
 
 copy all web files to /var/www/html
 -----------------------------------------------------------------------------------------------
-sudo cp -r ~/dev/purple_martians/docs/* /var/www/html
+sudo cp -r ~/dev/purple_martians/web/* /var/www/html
 
 
 -----------------------------------------------------------------------------------------------
@@ -189,6 +189,8 @@ crontab -e
 
 */1 * * * * php /home/m/dev/purple_martians/scrape/scrape_sessions.php >> /home/m/dev/purple_martians/scrape/cronoutput_scrape_sessions.txt 2>&1
 */1 * * * * php /home/m/dev/purple_martians/scrape/scrape_gm.php       >> /home/m/dev/purple_martians/scrape/cronoutput_scrape_gm.txt 2>&1
+*/1 * * * * php /home/m/dev/purple_martians/scrape/link_gm.php         >> /home/m/dev/purple_martians/scrape/cronoutput_link_gm.txt 2>&1
+
 #*/1 * * * *     /home/m/dev/purple_martians/scrape/scrape_net          >> /home/m/dev/purple_martians/scrape/cronoutput_scrape_net.txt 2>&1
 #*/1 * * * *     /home/m/dev/purple_martians/scrape/scrape_status       >> /home/m/dev/purple_martians/scrape/cronoutput_scrape_status.txt 2>&1
 
