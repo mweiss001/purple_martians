@@ -38,6 +38,9 @@ struct psyn // synced between server and client
    int shape; // index to player_tile
    int color; // used to draw frames and stuff in players color
 
+   char name[9];
+
+
    int left_right; // determines the direction the player is facing
 
 
@@ -251,6 +254,9 @@ class mwPlayer
    int is_player_color_used(int color);
 
    int get_new_client_color(int requested_color);
+
+   char* get_player_name(int p, char * name, int width_field = 0);
+   char* get_player_name2(int p, char * name);
 
    void init_player(int p, int t);
    void set_default_player_colors(void);

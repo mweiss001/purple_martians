@@ -26,7 +26,6 @@ class mwGameMoves
 
    void add_game_move2(int frame, int type, int data1, int data2);
    void add_game_move(int frame, int type, int data1, int data2);
-
    void proc_game_move_player_active(int p, int color);
    void proc_game_move_player_inactive(int p, int reason);
    void proc_game_move_player_hidden(int p);

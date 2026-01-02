@@ -16,7 +16,8 @@
 #include "mwEnemy.h"
 #include "mwScreen.h"
 #include "mwNetgame.h"
-
+#include "mwPlayer.h"
+#include "mwConfig.h"
 
 
 mwMiscFnx mMiscFnx;
@@ -550,6 +551,128 @@ void mwMiscFnx::printBits(size_t const size, void const * const ptr)
    st[sc] = 0;
    sprintf(msg, "%s", st);
 }
+
+
+
+void mwMiscFnx::printBits2(size_t const size, void const * const ptr)
+{
+   char st[256] = {0};
+   int sc = 0;
+
+   unsigned char *b = (unsigned char*) ptr;
+   unsigned char byte;
+   int i, j;
+   for (i = size-1; i >= 0; i--)
+   {
+      for (j = 7; j >= 0; j--)
+      {
+         byte = (b[i] >> j) & 1;
+         st[sc] = byte+48;
+         sc++;
+      }
+      st[sc] = 32;
+      sc++;
+   }
+   st[sc] = 0;
+   printf("%s\n", st);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void mwMiscFnx::gma_to_val(int type, int d1, int d2, int &p, int &c, char * name)
+{
+   // get the player number and color from the bitfield
+   p =  type & 0b0000000000000111;        // mask all except lowest 3 bits
+   c = (type & 0b0000111100000000) / 256; // mask and shift 8
+
+   char n[9] = { 0 };
+   for (int i=0; i<4; i++)
+   {
+      n[i+0] = (d1 >> (i*8)) & 0xFF;
+      n[i+4] = (d2 >> (i*8)) & 0xFF;
+   }
+   snprintf(name, 9, n);
+   //printf("to val -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, n, type, d1, d2);
+}
+
+
+void mwMiscFnx::val_to_gma(int &type, int &d1, int &d2, int p, int c, char * name)
+{
+   type = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG; // start with flag
+   type    += p;     // add player number
+   type    += c * 256; // shift and add color
+
+   d1 = d2 = 0;
+   for (int i=0; i<4; i++)
+   {
+      d1 += name[i+0] << (i*8);
+      d2 += name[i+4] << (i*8);
+      //printf("name[%d]:%d of:%d dl:%d\n", i, name[i], of, d1);
+   }
+   //printf("to gma -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, name, type, d1, d2);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 float mwMiscFnx::get_sproingy_jump_height(int num)
 {
@@ -1351,6 +1474,156 @@ void mwMiscFnx::edit_server_name(int x, int y)
 
    }
 }
+
+
+
+
+
+
+
+
+void mwMiscFnx::edit_player_name(int x, int y, int p)
+{
+   int tc = 10;
+
+   char fst[80];
+   strcpy(fst, mPlayer.syn[p].name);
+   int char_count = strlen(fst);
+   int cursor_pos=0;
+   int old_cp=0;
+   int blink_count = 3;
+   int blink_counter = 0;
+   while (mInput.key[ALLEGRO_KEY_ENTER][0]) mEventQueue.proc(1);
+   int quit = 0;
+   while (!quit)
+   {
+      int tx = x;
+      int ty1 = y+20;
+      int w = (char_count+1)*4;
+
+      al_flip_display();
+
+      // clear text background
+      al_draw_filled_rectangle(tx-w-8, ty1-4-2, tx+w+18, ty1+4+3, mColor.pc[0]);
+
+      // frame text
+      al_draw_rectangle       (tx-w-1, ty1-4-1, tx+w+6, ty1+6, mColor.pc[tc], 1);
+
+      al_draw_text(mFont.pr8, mColor.pc[tc], tx, ty1+1-4, ALLEGRO_ALIGN_CENTER, fst);
+
+      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1-3, tc, 0);
+      else show_cursor(fst, cursor_pos, tx, ty1-3, tc, 1);
+      if (blink_counter> blink_count*2) blink_counter = 0;
+
+      if (cursor_pos != old_cp)
+      {
+         show_cursor(fst, old_cp, tx, ty1-3, tc, 1); // erase old blinking cursor if moved
+         old_cp = cursor_pos;
+         blink_counter = 0;
+      }
+
+      al_rest(.08);
+      mEventQueue.proc(1);
+      if (mInput.key[ALLEGRO_KEY_RIGHT][0])
+      {
+         if (++cursor_pos > char_count) cursor_pos = char_count;
+      }
+      if (mInput.key[ALLEGRO_KEY_LEFT][0])
+      {
+         if (--cursor_pos < 0) cursor_pos = 0;
+      }
+      if ((mInput.key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
+      {
+         for (int a = cursor_pos; a < char_count; a++)
+           fst[a]=fst[a+1];
+         --char_count;
+         fst[char_count] = (char)NULL; // set last to NULL
+      }
+      if ((mInput.key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
+      {
+         cursor_pos--;
+         for (int a = cursor_pos; a < char_count; a++)
+           fst[a]=fst[a+1];
+         char_count--;
+         fst[char_count] = (char)NULL; // set last to NULL
+      }
+
+      int k = mInput.key_pressed_ASCII;
+      if ((k>31) && (k<127)) // insert if alphanumeric or return
+      {
+         // move over to make room
+         for (int a = char_count; a>=cursor_pos; a--)
+            fst[a+1]=fst[a];
+
+         // set char
+         fst[cursor_pos] = k;
+
+         // inc both
+         cursor_pos++;
+         char_count++;
+
+         fst[char_count] = (char)NULL; // set last to NULL
+      }
+      if (mInput.key[ALLEGRO_KEY_ENTER][3])
+      {
+         snprintf(mPlayer.syn[p].name, 9, fst);
+         mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
+         quit = 1;
+      }
+
+      if (mInput.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 int mwMiscFnx::edit_lift_name(int lift, int y1, int x1, char *fst)

@@ -1118,6 +1118,15 @@ void mwPlayer::draw_player(int p)
       }
 
 
+      // player name overlay
+//      al_draw_textf(mFont.pixl, mColor.pc[syn[p].color], px+11, py-11, ALLEGRO_ALIGN_CENTER, "%s", syn[p].name);
+
+
+      if (p != active_local_player) al_draw_textf(mFont.pixl, mColor.pc[syn[p].color], px+11, py-11, ALLEGRO_ALIGN_CENTER, "%s", syn[p].name);
+
+
+
+
       // health bar overlay
       if (loc[p].health_display > 0)
       {
@@ -1151,6 +1160,11 @@ void mwPlayer::draw_player(int p)
             }
          }
       }
+      // player name overlay
+//      else al_draw_textf(mFont.pixl, mColor.pc[syn[p].color], px+11, py-11, ALLEGRO_ALIGN_CENTER, "%s", syn[p].name);
+
+
+
    }
 }
 
@@ -1276,6 +1290,34 @@ int mwPlayer::is_player_color_used(int color)
 
 
 
+// if name is blank or 'default' use original 'Player x'
+// field width is minimum width, will never be shorter than actual name
+// leave at default of 0 to get width exactly the same size as name
+// 8 is the maximum width, will never exceed that
+// negative values will left align in the field
+char* mwPlayer::get_player_name(int p, char * name, int width_field)
+{
+   snprintf(name, 9, "%s" , mPlayer.syn[p].name);
+   if ( (!strcmp(name, "default")) || (!strcmp(name, ""))) sprintf(name, "Player %d", p);
+
+   if (width_field > 8) width_field = 8;
+   snprintf(name, 9, "%*s" , width_field, name);
+   return name;
+}
+
+// this one is used for demo debug overlay
+// always starts with Px[] width in brackets is always 8 and left justified
+// if p = active local player, add <- active
+char* mwPlayer::get_player_name2(int p, char * name)
+{
+   char msg[9];
+   mPlayer.get_player_name(p, msg, -8);
+   sprintf(name, "P%d[%s]", p, msg);
+   if (p == active_local_player) strcat(name, " <- active");
+   return name;
+}
+
+
 
 int mwPlayer::get_new_client_color(int color)
 {
@@ -1313,6 +1355,11 @@ void mwPlayer::init_player(int p, int t)
 
       syn[p].old_health = 100;
       syn[p].health = 100;
+
+      sprintf(syn[p].name, "default");
+
+      if (p == 0) mConfig.load_config(); // to reset local name and color
+
 
       loc[p].hostname[0] = 0;
       loc[p].fake_keypress_mode = 0;

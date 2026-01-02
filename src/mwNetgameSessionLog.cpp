@@ -12,6 +12,7 @@ void mwNetgame::session_clear_entry(int i)
    client_sessions[i].active = 0;
    client_sessions[i].endreason = 0;
    client_sessions[i].player_num = 0;
+   client_sessions[i].player_color = 0;
 
    client_sessions[i].start_time = 0;
    client_sessions[i].end_time = 0;
@@ -41,6 +42,7 @@ void mwNetgame::session_clear_entry(int i)
    client_sessions[i].rx_max_packets_per_frame = 0;
 
    strcpy(client_sessions[i].session_name, "");
+   strcpy(client_sessions[i].player_name, "");
    strcpy(client_sessions[i].hostname, "");
    strcpy(client_sessions[i].timestamp, "");
    strcpy(client_sessions[i].ip, "");
@@ -109,8 +111,10 @@ void mwNetgame::session_add_entry(const char* address, const char* hostname, int
    client_sessions[p].active = active;
    client_sessions[p].endreason = endreason;
    client_sessions[p].player_num = p;
+   client_sessions[p].player_color = mPlayer.syn[p].color;
 
    sprintf(client_sessions[p].hostname, "%s", hostname);
+   sprintf(client_sessions[p].hostname, "%s", mPlayer.syn[p].name);
 
    client_sessions[p].start_time = al_get_time();
    client_sessions[p].end_time = al_get_time();
@@ -188,6 +192,9 @@ void mwNetgame::session_add_log(int i)
 
       fprintf(filepntr, "cdat_rx:%d\n",          client_sessions[i].cdats_rx);
       fprintf(filepntr, "player_num:%d\n",       client_sessions[i].player_num);
+      fprintf(filepntr, "player_name:%s\n",      client_sessions[i].player_name);
+      fprintf(filepntr, "player_color:%d\n",     client_sessions[i].player_color);
+
       fprintf(filepntr, "next_levels:%d\n",      client_sessions[i].next_levels);
       fprintf(filepntr, "exits_activated:%d\n",  client_sessions[i].exits);
       fprintf(filepntr, "respawns:%d\n",         client_sessions[i].respawns);

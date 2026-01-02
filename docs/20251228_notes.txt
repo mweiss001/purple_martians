@@ -1354,6 +1354,138 @@ show orphaned sessions..
 
 
 
+top menu
+Sessions Saved Games Debug Server Status Back to Main Menu
+
+
+2026-01-01 04:48:11
+
+should I just dive in and start on player name?
+
+How much data do I need?
+8 char * 8bits = 64bits
+
+can I do it in one game move?
+
+a game move entry is 4 ints
+each int is 32bits
+
+
+right now the most common use is:
+
+0 - frame
+1 - type
+2 - player num
+3 - data
+
+options:
+
+option 1: use multiple game moves
+on the same frame as player active have 4 more game moves:
+
+0 - frame
+1 - type (player name part 1)
+2 - player num
+3 - data (first 4 bytes of player name)
+
+0 - frame
+1 - type (player name part 2)
+2 - player num
+3 - data (last 4 bytes of player name)
+
+
+
+
+
+
+
+option 2: refactor and use one game move
+
+use the bits from type to encode
+set active, player number and color
+use the last 2 bytes for the name
+
+00000000 00000000 00000000 00000000
+
+I need:
+3 bits for player number (0-7)
+4 bits for color (0-15)
+
+1 bit to mark that it is a make active type
+
+then I can use the last 2 ints to get 64 bits for 8 char
+
+I like option 2
+
+when I process them I will just check for the one bit the tell me it is a active
+
+00000000 10000000 00000000 00000000 type active
+00000000 00000000 00000000 00000xxx player num
+00000000 00000000 0000xxxx 00000000 color
+
+
+      {
+         if (!(mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD))
+            if (x > current_pos) current_pos = x; // index of last used gm - keep this at the most recent one, never go back
+
+         switch (arr[x][1])
+         {
+            case PM_GAMEMOVE_TYPE_PLAYER_ACTIVE:    proc_game_move_player_active(        arr[x][2], arr[x][3] ); break;
+            case PM_GAMEMOVE_TYPE_PLAYER_INACTIVE:  proc_game_move_player_inactive(      arr[x][2], arr[x][3] ); break;
+            case PM_GAMEMOVE_TYPE_PLAYER_HIDDEN:    proc_game_move_player_hidden(        arr[x][2]            ); break;
+
+
+old:
+-----------------------------------------------------------------------------
+#define PM_GAMEMOVE_TYPE_LEVEL_START      0
+#define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE    1
+#define PM_GAMEMOVE_TYPE_PLAYER_INACTIVE  2
+#define PM_GAMEMOVE_TYPE_PLAYER_HIDDEN    3
+#define PM_GAMEMOVE_TYPE_PLAYER_MOVE      5
+#define PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK   8
+#define PM_GAMEMOVE_TYPE_SHOT_CONFIG      9
+
+switch (arr[x][1])
+{
+   case PM_GAMEMOVE_TYPE_PLAYER_ACTIVE:    proc_game_move_player_active(        arr[x][2], arr[x][3] ); break;
+   case PM_GAMEMOVE_TYPE_PLAYER_INACTIVE:  proc_game_move_player_inactive(      arr[x][2], arr[x][3] ); break;
+   case PM_GAMEMOVE_TYPE_PLAYER_HIDDEN:    proc_game_move_player_hidden(        arr[x][2]            ); break;
+   case PM_GAMEMOVE_TYPE_SHOT_CONFIG:      proc_game_move_shot_config(          arr[x][2], arr[x][3] ); break;
+   case PM_GAMEMOVE_TYPE_PLAYER_MOVE:      mPlayer.set_controls_from_comp_move( arr[x][2], arr[x][3] ); break;
+}
+
+
+
+
+void mwGameMoves::proc_game_move_player_active(int p, int color)
+{
+   mPlayer.syn[p].color = color;
+
+   // player was inactive before and just now changes to active
+   if (mPlayer.syn[p].active == 0)
+   {
+      mItem.set_player_start_pos(p);
+      mPlayer.syn[p].active = 1;
+      mPlayer.loc[p].join_frame = mLoop.frame_num;
+
+      if ((mNetgame.ima_server) || (mNetgame.ima_client))
+         if (p != mPlayer.active_local_player) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
+
+      // if player 0 is file play all added players will be too
+      if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
+
+      if (mLoop.frame_num > 1) // don't show notifications if player was made active at the start of the level
+      {
+         mScreen.add_player_text_overlay(p, 1);
+         mGameEvent.add(6, 0, 0, p, 0, 0, 0);
+         if (!mLoop.ff_state)
+         {
+            mLog.add_headerf(LOG_NET, -1, 0, "Player:%d became ACTIVE!                                ", p);
+            mLog.add_log_net_db_row(LOG_NET, 0, p, "Player:%d became ACTIVE!", p);
+         }
+      }
+   }
+}
 
 
 
@@ -1371,12 +1503,602 @@ show orphaned sessions..
 
 
 
+new:
+-----------------------------------------------------------------------------
+#define PM_GAMEMOVE_TYPE_LEVEL_START      0
+//                                                 3       2       1       0
+//                                          76543210765432107654321076543210
+#define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE    0b00000000100000000000000000000000
+#define PM_GAMEMOVE_TYPE_PLAYER_INACTIVE  2
+#define PM_GAMEMOVE_TYPE_PLAYER_HIDDEN    3
+#define PM_GAMEMOVE_TYPE_PLAYER_MOVE      5
+#define PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK   8
+#define PM_GAMEMOVE_TYPE_SHOT_CONFIG      9
+
+int t = arr[x][1];
+if (t &  PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)    proc_game_move_player_active(t,      arr[x][2], arr[x][3] ); break;
+if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)  proc_game_move_player_inactive(      arr[x][2], arr[x][3] ); break;
+if (t == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)    proc_game_move_player_hidden(        arr[x][2]            ); break;
+if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG)      proc_game_move_shot_config(          arr[x][2], arr[x][3] ); break;
+if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)      mPlayer.set_controls_from_comp_move( arr[x][2], arr[x][3] ); break;
 
 
+void mwGameMoves::proc_game_move_player_active(int p, int color)
+{
+   mPlayer.syn[p].color = color;
 
+   // player was inactive before and just now changes to active
+   if (mPlayer.syn[p].active == 0)
+   {
+      mItem.set_player_start_pos(p);
+      mPlayer.syn[p].active = 1;
+      mPlayer.loc[p].join_frame = mLoop.frame_num;
+
+      if ((mNetgame.ima_server) || (mNetgame.ima_client))
+         if (p != mPlayer.active_local_player) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE;
+
+      // if player 0 is file play all added players will be too
+      if (mPlayer.syn[0].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) mPlayer.syn[p].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
+
+      if (mLoop.frame_num > 1) // don't show notifications if player was made active at the start of the level
+      {
+         mScreen.add_player_text_overlay(p, 1);
+         mGameEvent.add(6, 0, 0, p, 0, 0, 0);
+         if (!mLoop.ff_state)
+         {
+            mLog.add_headerf(LOG_NET, -1, 0, "Player:%d became ACTIVE!                                ", p);
+            mLog.add_log_net_db_row(LOG_NET, 0, p, "Player:%d became ACTIVE!", p);
+         }
+      }
+   }
+}
 
 
  
+
+add to player struct:
+
+   char name[9];
+      
+now how do I change state size?
+
+
+show variables from settings?
+
+
+
+
+old:
+Variables used for netgame state exchange
+
+mPlayer.syn         :  2400
+mEnemy.Ei           : 12800
+mEnemy.Ef           :  6400
+mItem.item          : 32000
+mItem.itemf         :  8000
+mLift.cur           :  4480
+mLevel.l            : 40000
+mShot.p             :  1200
+mShot.e             :  1200
+mTriggerEvent.event :  4000
+--------------------:------
+total               :112480
+
+new:
+Variables used for netgame state exchange
+
+mPlayer.syn         :  2496
+mEnemy.Ei           : 12800
+mEnemy.Ef           :  6400
+mItem.item          : 32000
+mItem.itemf         :  8000
+mLift.cur           :  4480
+mLevel.l            : 40000
+mShot.p             :  1200
+mShot.e             :  1200
+mTriggerEvent.event :  4000
+--------------------:------
+total               :112576
+
+this does not add up...
+96/8 = 12bytes
+it should be 9
+I guess the min is 4 byte chunks
+
+1 int 
+mPlayer.syn         :  2432
+32/8 = 4 bytes
+
+changed 
+#define STATE_SIZE 112576
+
+done
+
+
+make a place to set it
+
+
+only clients make sense to save it
+every computer should save it as player 0
+save it to settings so it persists..done
+enforce length
+done when loading from disk
+do it when editting..done
+
+
+
+when adding game move
+
+
+
+leave the original the way it was   
+
+#define PM_GAMEMOVE_TYPE_LEVEL_START      0
+#define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE    1
+#define PM_GAMEMOVE_TYPE_PLAYER_INACTIVE  2
+#define PM_GAMEMOVE_TYPE_PLAYER_HIDDEN    3
+#define PM_GAMEMOVE_TYPE_PLAYER_MOVE      5
+#define PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK   8
+#define PM_GAMEMOVE_TYPE_SHOT_CONFIG      9
+
+add this:
+
+//                                                    3       2       1       0
+//                                             76543210765432107654321076543210
+#define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG  0b00000000100000000000000000000000
+
+
+when adding, leave the old calls the same
+
+intercept and add in new format
+
+
+void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
+{
+   int p = data1; // alias to improve readability
+   
+   if (type == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
+   {
+      add_game_move_player_active(frame, p, data2);
+      return;
+   }
+
+
+
+void mwGameMoves::add_game_move_player_active(int frame, int p, int c)
+{
+   // convert to new format
+
+   int type = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG; // start with flag
+   type    += p;     // add player number
+   type    += c * 8; // shift and add color
+
+   int data1 = 0;
+   for (int i=0; i<4; i++)
+   {
+      int of = (3-i) * 8;
+      data1 + mPlayer.syn[p].name[i] * of;
+   }
+   
+   int data2 = 0;
+   for (int i=0; i<4; i++)
+   {
+      int of = (3-i) * 8;
+      data2 + mPlayer.syn[p].name[i+4] * of;
+   }
+
+   add_game_move2(frame, type, data1, data2);
+   
+}
+
+
+next 
+
+
+
+
+make soem conversion routines and test
+
+input:
+player num
+color
+name
+
+output 
+type
+d1
+d2
+
+and back
+
+void gma_to_val(int type, int d1, int d2, int &p, int &c, char * name)
+{
+   // get the player number and color from the bitfield
+   p =  d1 & 0b0000000000000111;      // mask all except lowest 3 bits
+   c =  d1 & 0b0000111100000000) / 8; // mask and shift 8
+
+   char n[9] = { 0 };
+
+//   name[0] = (gm2 >> 24) & 0xFF;
+//   name[1] = (gm2 >> 16) & 0xFF;
+//   name[2] = (gm2 >> 8)  & 0xFF;
+//   name[3] = (gm2 >> 0)  & 0xFF;
+//
+//   name[4] = (gm3 >> 24) & 0xFF;
+//   name[5] = (gm3 >> 16) & 0xFF;
+//   name[6] = (gm3 >> 8)  & 0xFF;
+//   name[7] = (gm3 >> 0)  & 0xFF;
+
+   for (int i=0; i<4; i++)
+   {
+      int of = (3-i) * 8;
+      n[i+0] = (gm2 >> of) & 0xFF;
+      n[i+4] = (gm3 >> of) & 0xFF;
+   }
+
+   snprintf(name, 9, n);
+
+   printf("to val -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, n, type, d1, d2);
+
+}
+
+
+void val_to_gma(int &type, int &d1, int &d2, int p, int c, char * name)
+{
+   int type = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG; // start with flag
+   type    += p;     // add player number
+   type    += c * 8; // shift and add color
+
+   d1 = 0;
+   for (int i=0; i<4; i++)
+   {
+      int of = (3-i) * 8;
+      d1 += name[i] * of;
+   }
+
+   d2 = 0;
+   for (int i=0; i<4; i++)
+   {
+      int of = (3-i) * 8;
+      d2 += name[i+4] * of;
+   }
+
+   printf("to gma -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, n, type, d1, d2);
+
+}
+
+
+
+
+
+
+
+
+
+
+this is the final...
+
+
+void mwMiscFnx::gma_to_val(int type, int d1, int d2, int &p, int &c, char * name)
+{
+   // get the player number and color from the bitfield
+   p =  type & 0b0000000000000111;        // mask all except lowest 3 bits
+   c = (type & 0b0000111100000000) / 256; // mask and shift 8
+
+   char n[9] = { 0 };
+   for (int i=0; i<4; i++)
+   {
+      n[i+0] = (d1 >> (i*8)) & 0xFF;
+      n[i+4] = (d2 >> (i*8)) & 0xFF;
+   }
+   snprintf(name, 9, n);
+   //printf("to val -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, n, type, d1, d2);
+}
+
+
+void mwMiscFnx::val_to_gma(int &type, int &d1, int &d2, int p, int c, char * name)
+{
+   type = PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG; // start with flag
+   type    += p;     // add player number
+   type    += c * 256; // shift and add color
+
+   d1 = d2 = 0;
+   for (int i=0; i<4; i++)
+   {
+      d1 += name[i+0] << (i*8);
+      d2 += name[i+4] << (i*8);
+      //printf("name[%d]:%d of:%d dl:%d\n", i, name[i], of, d1);
+   }
+   //printf("to gma -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, name, type, d1, d2);
+}
+
+
+2026-01-01 09:40:43
+
+I have it patched into the game moves thing
+
+now let try something fun
+
+the died, etc messages
+
+
+make a function in player to get the right name
+
+char* mwPlayer::get_player_name(int p, char * name)
+{
+   snprintf(name, 9, "%s", mPlayer.syn[p].name);
+   if ( (!strcmp(name, "default")) || (!strcmp(name, ""))) sprintf(name, "Player %d", p);
+   return name;
+}
+
+looking good!!!
+now what else?
+bottom msg..done
+
+
+now what about saved games?
+the name persists and plays back
+but the color does not? apparantly not...it used to...fixed
+
+
+
+can I play back old demos?
+it looks like only first player comes active
+fix this...
+
+make something to interate all gm's and convert to new type
+
+use default player names 'default'
+
+I could make my code accept either type?? maybe?? hell yes!!!!
+
+2026-01-01 10:49:35
+
+now what?
+
+onto the netgame stuff
+
+cjon will now need to send name
+sjon rx name and set
+
+lets test...
+
+
+how?
+
+I need a few computers set up again...
+
+at least one client
+
+is asp on he list?
+
+
+
+server crashes when client tries to join
+
+i don't want that to happen  :(
+
+it dies when reading playername from packet
+buffer was too small 9 char
+examine packet...
+how and where?
+
+
+fixed some bugs and cleaned up code around packet buffer add and read strings...
+
+
+netgame with playername seems to working quite well...
+
+now what?
+
+is there something wrong with bottom msg?
+actually I think I hide it when player is in the way...
+commented out for now...
+
+what else is there to do?
+
+overlay for demo playback?
+
+end of level
+
+bug when playing back demo local player name overides player 0
+
+seems to work now?
+
+try with older demo
+
+I think it is saving in the cfg file
+
+no, maybe just saving in memory
+
+
+what to do?
+
+when doing a full reset, reset all players above 0 names to default
+reset local color and name
+
+where does this happen?
+make it so that name is never saved except in settings...done
+
+I think in player clear, reset all player names to 'default'
+when config is loaded it will be restored
+
+I think I have all this fixed now.
+The only time name is saved is when enter is pressed after editting.
+When resetting player, set all names to 'default'
+When resesting player 0, reload config to restore name
+
+next?
+
+
+add to sessions database field
+while i am at it I should also add color, that should not change for the session...
+then I can show the player name and color in sessions table
+
+
+  player_num        INT,
+
+added:
+  player_name       VARCHAR(255),
+  player_color      INT,
+
+drop and recreate table..
+
+
+alter the scrape...done
+
+alter the code that writes logs
+
+
+
+added to session struct:
+
+struct client_session
+{
+   char player_name[9];
+   int player_color;
+
+
+
+
+I think I have it done...
+deploy to server and test...
+
+might as well make release too...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

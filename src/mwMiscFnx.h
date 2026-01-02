@@ -19,7 +19,7 @@ class mwMiscFnx
    char* chrsi(int num, char* ft);
 
 
-   char * chrmhd(int time, char* ft);
+   char* chrmhd(int time, char* ft);
 
 
 
@@ -36,6 +36,23 @@ class mwMiscFnx
    void get_int_3216(int I32, int &H16, int &L16);
    void printBits(size_t const size, void const * const ptr);
 
+
+
+
+   void printBits2(size_t const size, void const * const ptr);
+
+
+   void gma_to_val(int type, int d1, int d2, int &p, int &c, char * name);
+   void val_to_gma(int &type, int &d1, int &d2, int p, int c, char * name);
+
+
+
+
+
+
+
+
+
    float get_sproingy_jump_height(int num);
    int get_sp(float jh);
 
@@ -50,7 +67,11 @@ class mwMiscFnx
    void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color, int clip_mode);
 
    void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore);
+
    void edit_server_name(int x, int y);
+   void edit_player_name(int x, int y, int p);
+
+
    int edit_lift_name(int lift, int step_ty, int bts, char *fst);
 
 };

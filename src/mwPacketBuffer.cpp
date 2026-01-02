@@ -12,15 +12,8 @@
 
 mwPacketBuffer mPacketBuffer;
 
-mwPacketBuffer::mwPacketBuffer() // default constructor
-{
-   init_packet_buffer();
-}
-
-mwPacketBuffer::~mwPacketBuffer() // default deconstructor
-{
-
-}
+mwPacketBuffer::mwPacketBuffer(){ init_packet_buffer(); }
+mwPacketBuffer::~mwPacketBuffer(){};
 
 void mwPacketBuffer::init_packet_buffer(void)
 {
@@ -231,6 +224,18 @@ int mwPacketBuffer::PacketRead(char *data, const char *id )
 
 
 
+// for all of the following get functions there are two versions
+//
+// one where the packet data to process is passed as an argument
+// char * data and and offset int &pos
+//
+// and another where an index to a packet buffer is passed
+// int i
+
+
+
+
+
 // packet put and get byte functions
 // ---------------------------------
 void mwPacketBuffer::PacketPutByte(char *data, int &pos, char b)
@@ -252,24 +257,8 @@ char mwPacketBuffer::PacketGetByte(int i)
 }
 
 
-
 // packet add and read string functions
 // -----------------------------------
-void mwPacketBuffer::PacketAddString(char *data, int &pos, char* s)
-{
-   for (int a=0; a<15; a++) PacketPutByte(data, pos, s[a]); // copy first 15 char only
-   PacketPutByte(data, pos, 0);                             // for safety terminate with NULL in case string is longer than 15
-}
-void mwPacketBuffer::PacketReadString(char *data, int &pos, char* s)
-{
-   for (int a=0; a<16; a++) s[a] = PacketGetByte(data, pos);
-}
-void mwPacketBuffer::PacketReadString(int i, char* s)
-{
-   for (int a=0; a<16; a++) s[a] = PacketGetByte(i);
-}
-
-
 
 // adds a string of arbitrary length
 // preceded by an int of the string length
@@ -281,17 +270,25 @@ void mwPacketBuffer::PacketAddStringN(char *data, int &pos, char* s)
    PacketPutByte(data, pos, 0); // for safety terminate with NULL
 }
 
+// reads a string of arbitrary length
+// preceded by an int of the string length
 void mwPacketBuffer::PacketReadStringN(int i, char* s)
 {
    int len = PacketGetInt32(i);
    for (int a=0; a<len; a++) s[a] = PacketGetByte(i);
    s[len] = 0; // for safety terminate with NULL
+   rx_buf[i].packetpos++;
 }
 
-
-
-
-
+// reads a string of arbitrary length
+// preceded by an int of the string length
+void mwPacketBuffer::PacketReadStringN(char *data, int &pos, char* s)
+{
+   int len = PacketGetInt32(data, pos);
+   for (int a=0; a<len; a++) s[a] = PacketGetByte(data, pos);
+   s[len] = 0; // for safety terminate with NULL
+   pos++;
+}
 
 
 // packet put and get double functions
@@ -334,7 +331,18 @@ int mwPacketBuffer::PacketGetInt32(int i)
 }
 
 
+void mwPacketBuffer::showData(char *data, int sz)
+{
+   //sz = strlen(data);
+   //sz = 100;
 
+   printf("size: %d\n", sz);
+
+   for (int i=0; i<sz; i++)
+      printf("%02d [%c] - %d\n", i, data[i], data[i]);
+
+
+}
 
 
 

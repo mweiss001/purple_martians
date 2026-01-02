@@ -751,6 +751,11 @@ int mwLoop::load_and_setup_level(int level, int type)
       {
          setup_players_after_level_load(1); // type 1 full reset,
          mPlayer.syn[0].control_method = PM_PLAYER_CONTROL_METHOD_DEMO_MODE;
+
+         // to overide local name
+         sprintf(mPlayer.syn[0].name, "default");
+
+
       }
 
       if (type == 5) // LOAD AND RESET ALL BUT DO NOT START LEVEL
@@ -778,10 +783,7 @@ int mwLoop::load_and_setup_level(int level, int type)
          mLog.add_headerf(LOG_NET, -1, 1, "LEVEL %d STARTED", mLevel.play_level);
          mLog.add_log_net_db_row(LOG_NET, 0, 0, "LEVEL %d STARTED", mLevel.play_level);
 
-
-
          mGameMoves.add_game_move(0, PM_GAMEMOVE_TYPE_LEVEL_START, 0, mLevel.play_level);
-
          mGameMoves.add_game_move(1, PM_GAMEMOVE_TYPE_SHOT_CONFIG, 0, 0);
 
          // save colors in game moves array

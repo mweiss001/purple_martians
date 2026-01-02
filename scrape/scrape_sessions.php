@@ -185,6 +185,8 @@ if (is_dir($dir))
                parse_line($line, "endreason:",         $aa_data);
                parse_line($line, "cdat_rx:",           $aa_data);
                parse_line($line, "player_num:",        $aa_data);
+               parse_line($line, "player_name:",       $aa_data);
+               parse_line($line, "player_color:",      $aa_data);
                parse_line($line, "next_levels:",       $aa_data);
                parse_line($line, "exits_activated:",   $aa_data);
                parse_line($line, "respawns:",          $aa_data);

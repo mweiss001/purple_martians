@@ -90,6 +90,8 @@ CREATE TABLE sessions (
   endreason         VARCHAR(255),
   cdat_rx           INT,
   player_num        INT,
+  player_name       VARCHAR(255),
+  player_color      INT,
   next_levels       INT,
   exits_activated   INT,
   respawns          INT,

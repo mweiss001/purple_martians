@@ -62,6 +62,12 @@ void mwConfig::save_config(int type)
       {
          asci(GAME, mPlayer.syn[0].color)
       }
+
+
+
+
+
+
       if (type == PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED)
       {
          asci(GAME, mPlayer.syn[0].overworld_last_touched_gate)
@@ -134,6 +140,12 @@ void mwConfig::save_config(int type)
          al_set_config_value(cfg, "NETWORK", "server_IP", mNetgame.server_address);
       }
 
+      if (type == PM_CFG_SAVE_PLAYER_NAME)
+      {
+         al_set_config_value(cfg, "NETWORK", "player_name", mPlayer.syn[0].name);
+      }
+
+
 
       if ((type == 0) || (type == PM_CFG_SAVE_NETGAME_SHOTS))
       {
@@ -149,7 +161,6 @@ void mwConfig::save_config(int type)
 
 
       asci(NETWORK, mNetgame.server_port)
-
       ascf(NETWORK, mNetgame.client_chase_offset_auto_offset)
       asci(NETWORK, mNetgame.client_chase_offset_mode)
 
@@ -303,9 +314,14 @@ void mwConfig::load_config(void)
    agci(SOUND, mSound.se_scaler, 3)
    agci(SOUND, mSound.st_scaler, 1)
 
+   val = al_get_config_value(cfg, "NETWORK", "player_name");
+   if (!val) sprintf(mPlayer.syn[0].name, "default");
+   else snprintf(mPlayer.syn[0].name, 9, "%s", val);
+
    val = al_get_config_value(cfg, "NETWORK", "server_IP");
    if (!val) sprintf(mNetgame.server_address, "purplemartians.org");
    else sprintf(mNetgame.server_address, "%s", val);
+
 
    agci(NETWORK, mNetgame.server_port, 24785)
 
