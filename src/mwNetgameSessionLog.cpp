@@ -114,7 +114,7 @@ void mwNetgame::session_add_entry(const char* address, const char* hostname, int
    client_sessions[p].player_color = mPlayer.syn[p].color;
 
    sprintf(client_sessions[p].hostname, "%s", hostname);
-   sprintf(client_sessions[p].hostname, "%s", mPlayer.syn[p].name);
+   sprintf(client_sessions[p].player_name, "%s", mPlayer.syn[p].name);
 
    client_sessions[p].start_time = al_get_time();
    client_sessions[p].end_time = al_get_time();
