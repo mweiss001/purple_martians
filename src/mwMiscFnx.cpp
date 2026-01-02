@@ -612,7 +612,7 @@ void mwMiscFnx::gma_to_val(int type, int d1, int d2, int &p, int &c, char * name
       n[i+0] = (d1 >> (i*8)) & 0xFF;
       n[i+4] = (d2 >> (i*8)) & 0xFF;
    }
-   snprintf(name, 9, n);
+   snprintf(name, 9, "%s", n);
    //printf("to val -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, n, type, d1, d2);
 }
 
@@ -1566,7 +1566,7 @@ void mwMiscFnx::edit_player_name(int x, int y, int p)
       }
       if (mInput.key[ALLEGRO_KEY_ENTER][3])
       {
-         snprintf(mPlayer.syn[p].name, 9, fst);
+         snprintf(mPlayer.syn[p].name, 9, "%s", fst);
          mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
          quit = 1;
       }

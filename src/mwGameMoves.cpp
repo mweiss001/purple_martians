@@ -183,7 +183,7 @@ void mwGameMoves::proc(void)
             int p, c;
             char name[9] = { 0 };
             mMiscFnx.gma_to_val(arr[x][1], arr[x][2], arr[x][3], p, c, name);
-            snprintf(mPlayer.syn[p].name, 9, name);
+            snprintf(mPlayer.syn[p].name, 9, "%s", name);
 
             //printf("proc gm p:%d c:%d name:%s nt:%d d1:%d d2:%d \n", p, c, name, arr[x][1], arr[x][2], arr[x][3]);
             proc_game_move_player_active(p, c);

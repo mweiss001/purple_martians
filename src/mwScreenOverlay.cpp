@@ -38,12 +38,12 @@ void mwScreen::show_player_stat_box(int tx, int y, int p)
    int c = 15;
 
    // get player name or blank string
-   char name[256];
+   char name[32];
    snprintf(name, 9, "%s" , mPlayer.syn[p].name);
    if (!strcmp(name, "default")) sprintf(name, "%s", "");
 
    // get hostname or blank string
-   char host[256] = { 0 };
+   char host[128] = { 0 };
    sprintf(host, "%s", "");
    if ((mNetgame.ima_server) || (mNetgame.ima_client)) sprintf(host, " [%s]", mPlayer.loc[p].hostname);
 

@@ -1297,11 +1297,11 @@ int mwPlayer::is_player_color_used(int color)
 // negative values will left align in the field
 char* mwPlayer::get_player_name(int p, char * name, int width_field)
 {
-   snprintf(name, 9, "%s" , mPlayer.syn[p].name);
-   if ( (!strcmp(name, "default")) || (!strcmp(name, ""))) sprintf(name, "Player %d", p);
-
+   char tmp[256];
+   snprintf(tmp, 9, "%s" , mPlayer.syn[p].name);
+   if ( (!strcmp(tmp, "default")) || (!strcmp(tmp, ""))) sprintf(tmp, "Player %d", p);
    if (width_field > 8) width_field = 8;
-   snprintf(name, 9, "%*s" , width_field, name);
+   snprintf(name, 9, "%*s" , width_field, tmp);
    return name;
 }
 
