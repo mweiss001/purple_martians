@@ -69,7 +69,7 @@ int mwNetgame::ClientJoin(void)
          al_rest(try_delay);
          if (++tries > 2)
          {
-            mLog.log_error("not reply from server");
+            mLog.log_error("no reply from server");
             mLog.add_fw(LOG_NET, -1, 76, 10, "+", "-", "");
             return 0;
          }
@@ -188,8 +188,9 @@ void mwNetgame::client_send_cjon_packet(void)
 {
    char data[PACKET_BUFFER_SIZE] = {0}; int pos;
    mPacketBuffer.PacketName(data, pos, "cjon");
-   mPacketBuffer.PacketPutInt32(data, pos, mPlayer.syn[0].color); // requested color
-   mPacketBuffer.PacketAddString(data, pos, mLoop.local_hostname);
+   mPacketBuffer.PacketPutInt32(  data, pos, mPlayer.syn[0].color); // requested color
+   mPacketBuffer.PacketAddStringN(data, pos, mPlayer.syn[0].name);  // player name
+   mPacketBuffer.PacketAddStringN(data, pos, mLoop.local_hostname); // hostname
    ClientSend(data, pos);
 }
 
@@ -323,7 +324,7 @@ void mwNetgame::client_proc_snfo_packet(int i)
          if (complete)
          {
             //printf("rx snfo complete - frame:[%d]\n", fn);
-            char dmp[5500];
+            char dmp[5600];
             // uncompress
             uLongf destLen = sizeof(dmp);
             uncompress((Bytef*)dmp, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));

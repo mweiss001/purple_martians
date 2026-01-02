@@ -4,54 +4,65 @@
 TO DO
 ------------------------------------------------------------------------------
 
+player name
+
+add to end of level stats...done
+
+add very small text name above player..done
+how to make this optional...
+how about only remote players have the label? I like that!!
+
+
+
+
+
+add to sessions database field
+while i am at it I should also add color, that should not change for the session...
+then I can show the player name and color in sessions table
+
+I can also show players in gm table now!!!
+
+
+I could also make a table of players
+
+then just link them to sessions and gm's !!!!
+
+
+
+
+
+
+
+
+
+
+
+
+
 ------------------------------------------------------------------------------
 make a way of cleaning up log files periodically
 -----------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
+do something about the script that links gm's and sessions
 ------------------------------------------------------------------------------
-implement player name (Do it Fool!)
-------------------------------------------------------------------------------
-Im thinking a fixed length of 8 char max
-add it to the player structure
-whe a pleyer joins the game move will now need the player name
-and it will need to be passed with the join packet
-
-set it in setting, if not set, have it set to 'default' and translate that to "Player 1" etc...
 
 ------------------------------------------------------------------------------
-when I do that, I would like to save the player name in more places
-like in the game moves files
-I also would like a meta block for gm files
-I have one already, but I want a better one
-append at the start when saving
-start time
-end time
-duration
-players
-player names
-finished?
 
-maybe each player section could include:
-name
-number
-color
-start frame
-end frame
-respawns
-purple coins collected
-enemies killed
-other players killed
-enemy hits
-self hits
-exits triggered
-
+------------------------------------------------------------------------------
 
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 even if I change servers, I want to always keep all the sessions and games files
+never lose them!!
+
+when I add player name to sessions, do not lose old data...
+
+
 ------------------------------------------------------------------------------
+
+
 ------------------------------------------------------------------------------
 make a way to change settings on remote server
 I mean, I have a way, but is it a good way?
@@ -73,6 +84,16 @@ Qt WASM
 ------------------------------------------------------------------------------
 DONE
 ------------------------------------------------------------------------------
+implement player name (Do it Fool!) ... did it fool !!!
+Im thinking a fixed length of 8 char max
+add it to the player structure
+whe a pleyer joins the game move will now need the player name
+and it will need to be passed with the join packet
+set it in setting, if not set, have it set to 'default' and translate that to "Player 1" etc...
+when I do that, I would like to save the player name in more places
+like in the game moves files
+
+
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -171,3 +192,27 @@ but really, how much overhead could it take to enter a few things in a database
 is there really any reason to use mysql? why do I need remote network access to the database
 anything the webpage shows will be on the same physical machine
 ------------------------------------------------------------------------------
+I also would like a meta block for gm files
+I have one already, but I want a better one
+append at the start when saving
+start time
+end time
+duration
+players
+player names
+finished?
+
+maybe each player section could include:
+name
+number
+color
+start frame
+end frame
+respawns
+purple coins collected
+enemies killed
+other players killed
+enemy hits
+self hits
+exits triggered
+

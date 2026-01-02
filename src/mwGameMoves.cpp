@@ -16,7 +16,7 @@
 #include "mwScreen.h"
 #include "mwMain.h"
 #include "mwItem.h"
-
+#include "mwMiscFnx.h"
 
 
 
@@ -172,17 +172,28 @@ void mwGameMoves::proc(void)
    {
       if (arr[x][0] == mLoop.frame_num) // found frame number that matches current frame
       {
+         int t = arr[x][1];
+
          if (!(mLoop.state[1] == PM_PROGRAM_STATE_DEMO_RECORD))
             if (x > current_pos) current_pos = x; // index of last used gm - keep this at the most recent one, never go back
 
-         switch (arr[x][1])
+         if (t & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) // new version with embedded name
          {
-            case PM_GAMEMOVE_TYPE_PLAYER_ACTIVE:    proc_game_move_player_active(        arr[x][2], arr[x][3] ); break;
-            case PM_GAMEMOVE_TYPE_PLAYER_INACTIVE:  proc_game_move_player_inactive(      arr[x][2], arr[x][3] ); break;
-            case PM_GAMEMOVE_TYPE_PLAYER_HIDDEN:    proc_game_move_player_hidden(        arr[x][2]            ); break;
-            case PM_GAMEMOVE_TYPE_SHOT_CONFIG:      proc_game_move_shot_config(          arr[x][2], arr[x][3] ); break;
-            case PM_GAMEMOVE_TYPE_PLAYER_MOVE:      mPlayer.set_controls_from_comp_move( arr[x][2], arr[x][3] ); break;
+            // decode and call original function
+            int p, c;
+            char name[9] = { 0 };
+            mMiscFnx.gma_to_val(arr[x][1], arr[x][2], arr[x][3], p, c, name);
+            snprintf(mPlayer.syn[p].name, 9, name);
+
+            //printf("proc gm p:%d c:%d name:%s nt:%d d1:%d d2:%d \n", p, c, name, arr[x][1], arr[x][2], arr[x][3]);
+            proc_game_move_player_active(p, c);
          }
+
+         if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   {  proc_game_move_player_active(        arr[x][2], arr[x][3] ); }
+         if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) {  proc_game_move_player_inactive(      arr[x][2], arr[x][3] ); }
+         if (t == PM_GAMEMOVE_TYPE_PLAYER_HIDDEN)   {  proc_game_move_player_hidden(        arr[x][2]            ); }
+         if (t == PM_GAMEMOVE_TYPE_SHOT_CONFIG)     {  proc_game_move_shot_config(          arr[x][2], arr[x][3] ); }
+         if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)     {  mPlayer.set_controls_from_comp_move( arr[x][2], arr[x][3] ); }
       }
    }
 
@@ -205,11 +216,25 @@ void mwGameMoves::add_game_move2(int frame, int type, int data1, int data2)
 }
 
 
+
+
+
+
 void mwGameMoves::add_game_move(int frame, int type, int data1, int data2)
 {
    char msg[1024];
-
    int p = data1; // alias to improve readability
+   int c = data2;
+
+   if (type == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
+   {
+      // convert to new player active type with embedded name
+      int t, d1, d2;
+      mMiscFnx.val_to_gma(t, d1, d2, p, c, mPlayer.syn[p].name);
+      add_game_move2(frame, t, d1, d2);
+      //printf("add gm p:%d c:%d name:%s nt:%d d1:%d d2:%d \n", p, c, mPlayer.syn[p].name, t, d1, d2);
+      return;
+   }
 
    if (type == PM_GAMEMOVE_TYPE_SHOT_CONFIG)
    {
@@ -328,6 +353,8 @@ void mwGameMoves::proc_game_move_player_hidden(int p)
    mPlayer.syn[p].paused_type = 3;
 }
 
+
+
 void mwGameMoves::proc_game_move_player_active(int p, int color)
 {
    mPlayer.syn[p].color = color;
@@ -357,8 +384,6 @@ void mwGameMoves::proc_game_move_player_active(int p, int color)
       }
    }
 }
-
-
 
 
 void mwGameMoves::proc_game_move_player_inactive(int p, int reason)

@@ -178,16 +178,14 @@ void mwBottomMessage::draw_bmp(ALLEGRO_BITMAP *tmp, int &xpos, int xo, int yo)
    xpos += 20;
 }
 
-
 void mwBottomMessage::draw_player(int p, int &xpos)
 {
    ALLEGRO_BITMAP *tmp = mBitmap.player_tile[mPlayer.syn[p].color][1];
 
    char msg[256];
    sprintf(msg, "P%d", p);
-   if (disp_player_text_long) sprintf(msg, "Player %d", p);
-
-   //sprintf(msg, "Player %d", p);
+//   if (disp_player_text_long) sprintf(msg, "Player %d", p);
+   if (disp_player_text_long) mPlayer.get_player_name(p, msg);
    int dp = disp_player;
    if (dp == 0) draw_bmp(tmp, xpos, 0, 0); // tile only
    if (dp == 1) draw_text(xpos, mPlayer.syn[p].color, msg); // text only
@@ -483,7 +481,7 @@ int mwBottomMessage::bmsg_draw(int outline)
    double t0 = al_get_time();
    if (bottom_msg_on)
    {
-      //bottom_msg_timer = 100; // always draw
+      bottom_msg_timer = 100; // always draw
       if (bottom_msg_timer > 0)
       {
          bottom_msg_timer--;
@@ -491,9 +489,13 @@ int mwBottomMessage::bmsg_draw(int outline)
 
          int nb = num_lines;  // number of bottom message lines to display (max 20)
 
-         int dfb = 2000 - mPlayer.syn[mPlayer.active_local_player].y; // player distance from bottom of level
-         if (dfb < 300)  nb = 4;
-         if (dfb < 200)  nb = 2;
+         if (0)
+         {
+            // shorten the list if the player is near the bottom of the screen
+            int dfb = 2000 - mPlayer.syn[mPlayer.active_local_player].y; // player distance from bottom of level
+            if (dfb < 300)  nb = 4;
+            if (dfb < 200)  nb = 2;
+         }
 
          int sw = 800; // string length in pixels
          int sh = 20;  // string height in pixels

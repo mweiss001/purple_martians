@@ -37,10 +37,22 @@ void mwScreen::show_player_stat_box(int tx, int y, int p)
 
    int c = 15;
 
-   if ((mNetgame.ima_server) || (mNetgame.ima_client))
-      al_draw_textf(mFont.pr8, mColor.pc[c], tx+2, y, 0, "Player:%d [%s]", p, mPlayer.loc[p].hostname);
-   else al_draw_textf(mFont.pr8, mColor.pc[c], tx+2, y, 0, "Player:%d", p);
+   // get player name or blank string
+   char name[256];
+   snprintf(name, 9, "%s" , mPlayer.syn[p].name);
+   if (!strcmp(name, "default")) sprintf(name, "%s", "");
 
+   // get hostname or blank string
+   char host[256] = { 0 };
+   sprintf(host, "%s", "");
+   if ((mNetgame.ima_server) || (mNetgame.ima_client)) sprintf(host, " [%s]", mPlayer.loc[p].hostname);
+
+   // always start with 'Player:x' then name then host, (if they exist)
+   char msg[256] = { 0 };
+   sprintf(msg, "Player:%d %s %s ", p, name, host);
+
+   // display it
+   al_draw_text(mFont.pr8, mColor.pc[c], tx+2, y, 0, msg);
 
    if (mPlayer.syn[0].level_done_mode == 5)
    {
@@ -197,12 +209,15 @@ int mwScreen::draw_player_text_overlay(void)
          int c =  mPlayer.syn[p].color;
          int ty = mPlayer.syn[p].player_text_overlay_type;
 
-         if (ty == 0) sprintf(msg, "Player %d left the game!", p);
-         if (ty == 1) sprintf(msg, "Player %d joined the game!", p);
-         if (ty == 2) sprintf(msg, "Player %d found the exit!", p);
-         if (ty == 3) sprintf(msg, "Player %d DIED!", p);
-         float stretch = ((float)mDisplay.SCREEN_W / (strlen(msg)*8)) * 0.9;
+         char name[9];
+         mPlayer.get_player_name(p, name);
 
+         if (ty == 0) sprintf(msg, "%s left the game!", name);
+         if (ty == 1) sprintf(msg, "%s joined the game!", name);
+         if (ty == 2) sprintf(msg, "%s found the exit!", name);
+         if (ty == 3) sprintf(msg, "%s DIED!", name);
+
+         float stretch = ((float)mDisplay.SCREEN_W / (strlen(msg)*8)) * 0.9;
          float tratio = (float)tm / (float)player_text_overlay_timer_reset_val;
 
          int y_pos = mDisplay.SCREEN_H/2;
@@ -946,9 +961,7 @@ void mwScreen::draw_demo_debug_overlay(int p, int &cx, int &cy)
       for (int ap=0; ap<NUM_PLAYERS; ap++)
          if (mPlayer.syn[ap].active)
          {
-            if (ap == mPlayer.active_local_player) sprintf(msg, "Player:%d <- active", ap);
-            else                           sprintf(msg, "Player:%d", ap);
-            al_draw_text(mFont.pr8, mColor.pc[mPlayer.syn[ap].color], cx+1, cy+1, 0, msg);
+            al_draw_text(mFont.pr8, mColor.pc[mPlayer.syn[ap].color], cx+1, cy+1, 0, mPlayer.get_player_name2(ap, msg) );
             cy+=9;
          }
       cy+=4;

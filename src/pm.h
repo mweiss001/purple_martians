@@ -25,7 +25,7 @@
 #define BORDER_WIDTH 14
 #define NUM_LIFTS 40
 
-#define STATE_SIZE 112480
+#define STATE_SIZE 112576
 
 #define PACKET_BUFFER_SIZE 1500
 #define PACKET_PAYLOAD_CHUNK_SIZE 1400
@@ -39,6 +39,11 @@
 #define PM_COMPMOVE_MENU   0b01000000
 
 
+
+
+
+
+
 #define PM_GAMEMOVE_TYPE_LEVEL_START      0
 #define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE    1
 #define PM_GAMEMOVE_TYPE_PLAYER_INACTIVE  2
@@ -46,6 +51,13 @@
 #define PM_GAMEMOVE_TYPE_PLAYER_MOVE      5
 #define PM_GAMEMOVE_TYPE_LEVEL_DONE_ACK   8
 #define PM_GAMEMOVE_TYPE_SHOT_CONFIG      9
+//                                                    3       2       1       0
+//                                             76543210765432107654321076543210
+#define PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG  0b00000000100000000000000000000000
+
+
+
+
 
 #define PM_PLAYER_CONTROL_METHOD_SINGLE_PLAYER  0
 #define PM_PLAYER_CONTROL_METHOD_DEMO_MODE      1
@@ -228,10 +240,17 @@
 #define PM_CFG_SAVE_BOTTOM_MESSAGE              4
 #define PM_CFG_SAVE_LOCAL_PLAYER_COLOR          5
 #define PM_CFG_SAVE_START_LEVEL                 6
+
 #define PM_CFG_SAVE_SERVER_ADDRESS              7
 #define PM_CFG_SAVE_NETGAME_SHOTS               8
 #define PM_CFG_SAVE_NETGAME_CLIENT_CHASE_OFFSET 9
 #define PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED 10
+
+#define PM_CFG_SAVE_PLAYER_NAME                 11
+
+
+
+
 
 
 

@@ -837,8 +837,8 @@ void mwSettings::page_controls2(void)
 // ---------------------------------------------------------------
 void mwSettings::page_netgame(void)
 {
-   int line_spacing = 10;
-//         line_spacing +=  mLoop.pct_y;
+   int line_spacing = 7;
+   //line_spacing +=  mLoop.pct_y;
    int tc = 13;
    int fc = 15;
    int xa = cfp_x1 + 10;
@@ -847,6 +847,9 @@ void mwSettings::page_netgame(void)
    int bts = 16;
 
 
+
+   // server name section
+   // top of frame
    fc = 8;
    ya += line_spacing;
    int frame_y1 = ya;
@@ -869,9 +872,40 @@ void mwSettings::page_netgame(void)
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
 
 
+   // player name section
+   // top of frame
+   fc = 8;
+   ya += line_spacing;
+   frame_y1 = ya;
+   ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
+
+   al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Player Name (max 8 char)");
+   ya+=12;
+
+
+   sprintf(msg, "%s", mPlayer.syn[0].name);
+   if (mWidget.buttontcb(cfp_txc - (strlen(msg)*4), ya, 0, 13,  0,0,0,0,  0,15,15,10,  1,0,1,0, msg))  mMiscFnx.edit_player_name(cfp_txc, ya-28, 0);
+
+   ya+=8;
+   al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Optional. Shown in netgame.");
+
+   ya += 8;
+   al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
+   al_draw_line(cfp_x2-4, frame_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[fc], 1 );
+   ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
+
+
+
+
+
+
+   // pvp section
+   // top of frame
    fc = 12;
    frame_y1 = ya;
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
+
+
 
    mWidget.togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mPlayer.syn[0].player_vs_player_shots, "Player vs Player shots", 15, 15);
    al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's shots affect other players?");
@@ -899,6 +933,11 @@ void mwSettings::page_netgame(void)
 
    ya+=18;
    if (mWidget.buttont(xa+120, ya, xb-120, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Netgame Help")) mHelp.help("Netgame");
+
+
+
+
+
 }
 
 

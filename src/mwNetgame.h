@@ -36,6 +36,8 @@ struct client_session
 
    int cdats_rx;
    int player_num;
+   char player_name[9];
+   int player_color;
    int next_levels;
    int exits;
    int respawns;

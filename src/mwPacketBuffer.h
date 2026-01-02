@@ -26,13 +26,9 @@ class mwPacketBuffer
    void PacketName(char *data, int &pos, const char *name);
    int PacketRead(char *data, const char *id);
 
-   void PacketAddString(char *data, int &pos, char* s);
-   void PacketReadString(char *data, int &pos, char* s);
-   void PacketReadString(int i, char* s);
-
    void PacketAddStringN(char *data, int &pos, char* s);
    void PacketReadStringN(int i, char* s);
-
+   void PacketReadStringN(char *data, int &pos, char* s);
 
    void PacketPutByte(char *data, int &pos, char b);
    char PacketGetByte(char *data, int &pos);
@@ -56,6 +52,9 @@ class mwPacketBuffer
    void proc_rx_buffer(void);
 
    float get_max_dsync(void);
+
+   void showData(char *data, int sz);
+
 
 };
 

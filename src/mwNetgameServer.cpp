@@ -146,6 +146,7 @@ void mwNetgame::headless_server_setup(void)
 
    // make sure we are always saving games
    mGameMoves.autosave_game_on_level_done = 1;
+   mGameMoves.autosave_game_on_level_quit = 1;
 
    mGameMoves.server_send_files_to_clients = 1;
 
@@ -311,8 +312,8 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
 
    mPlayer.loc[0].srv_num_enemy = mEnemy.num_enemy;
 
-   char src[5500];
-   char dst[5500];
+   char src[5600];
+   char dst[5600];
 
    int sz=0, offset=0;
    offset += sz; sz = sizeof(mPlayer.syn); memcpy(src + offset, mPlayer.syn, sz);
@@ -637,10 +638,11 @@ void mwNetgame::server_send_sjon_packet(char* address, int level, int frame, int
 void mwNetgame::server_proc_cjon_packet(char *data, char * address)
 {
    int pos = 4;
+   char playername[9];
+   char hostname[17];
    int color  = mPacketBuffer.PacketGetInt32(data, pos);
-   char hostname[16];
-   mPacketBuffer.PacketReadString(data, pos, hostname);
-
+   mPacketBuffer.PacketReadStringN(data, pos, playername);
+   mPacketBuffer.PacketReadStringN(data, pos, hostname);
    mLog.add_fwf(LOG_NET, -1, 76, 10, "+", "-", "");
    mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Server received join request from %s requesting color:%d", hostname, color);
    mLog.add_log_net_db_row(LOG_NET, 0, 0,       "Server received join request from %s requesting color:%d", hostname, color);
@@ -668,6 +670,9 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
 
       // copy hostname to player struct
       strcpy(mPlayer.loc[p].hostname, hostname);
+
+      // copy playername to player struct
+      strcpy(mPlayer.syn[p].name, playername);
 
       // initialize state history
       mStateHistory[p].initialize();
