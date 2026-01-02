@@ -1297,14 +1297,36 @@ int mwPlayer::is_player_color_used(int color)
 // negative values will left align in the field
 char* mwPlayer::get_player_name(int p, char * name, int width_field)
 {
+   // what a bunch of bullhit to go through to avoid compiler waanings
+/*
+src/mwPlayer.cpp:1306:23: warning: ‘%*s’ directive output may be truncated writing up to 2147483648 bytes into a region of size 9 [-Wformat-truncation=]
+ 1306 |    snprintf(tmp2, 9, "%*s" , width_field, tmp);
+      |                       ^~~                 ~~~
+src/mwPlayer.cpp:1306:22: note: assuming directive output of 31 bytes
+ 1306 |    snprintf(tmp2, 9, "%*s" , width_field, tmp);
+      |                      ^~~~~
+src/mwPlayer.cpp:1306:12: note: ‘snprintf’ output between 1 and 2147483649 bytes into a destinatio
+*/
+
+
+
    char tmp[32];
    snprintf(tmp, 9, "%s" , mPlayer.syn[p].name);
    if ( (!strcmp(tmp, "default")) || (!strcmp(tmp, ""))) sprintf(tmp, "Player %d", p);
-   if (width_field > 8) width_field = 8;
 
-   char tmp2[64];
-   snprintf(tmp2, 9, "%*s" , width_field, tmp);
-   strncpy(name, tmp2, 8); // copy at most 8 char
+   char tmp4[9];
+   strncpy(tmp4, tmp, 8); // copy at most 8 char
+   tmp4[8] = 0; // ensure 9th char is null
+
+   if (width_field > 8) width_field = 8;
+   char tmp6[32];
+   snprintf(tmp6, 9, "%*s" , width_field, tmp4);
+
+   char tmp8[9];
+   strncpy(tmp8, tmp6, 8); // copy at most 8 char
+   tmp8[8] = 0; // ensure 9th char is null
+
+   strncpy(name, tmp8, 8); // copy at most 8 char
    name[8] = 0; // ensure 9th char is null
    return name;
 }
