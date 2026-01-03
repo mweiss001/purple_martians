@@ -535,9 +535,45 @@ static int callback(void* data, int argc, char** argv, char** azColName)
 */
 
 #include "mwMiscFnx.h"
+#include "mwBitmapTools.h"
 
 void mwMain::temp_test(void)
 {
+
+
+
+
+   mBitmapTools.fill_player_tile();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //   void val_to_gma(int &type, int &d1, int &d2, int p, int c, char * name)
 //   void gma_to_val(int type, int d1, int d2, int &p, int &c, char * name)

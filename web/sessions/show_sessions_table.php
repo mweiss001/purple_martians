@@ -9,8 +9,8 @@
 $col_set = 0; // default
 if (isset($_SESSION['col_set'])) $col_set = $_SESSION['col_set'];
 
-$col_list_basic = array("id", "Start Time",         "duration", "ip", "host",     "Session End Reason", "cdat"    );
-$row_list_basic =       "id,   dt_start, SEC_TO_TIME(duration),  ip,   hostname,   endreason,            cdat_rx";
+$col_list_basic = array("id", "Player",     "player_name", "Start Time",         "duration", "ip", "host",     "Session End Reason", "cdat"    );
+$row_list_basic =       "id,   player_color, player_name,   dt_start, SEC_TO_TIME(duration),  ip,   hostname,   endreason,            cdat_rx";
 
 $col_list_basic2 = array("id", "Date",     "ip", "port", "host",     "endreason",            "duration",  "cdat");
 $row_list_basic2 =       "id,   dt_start,   ip,   port,   hostname,   endreason,  SEC_TO_TIME(duration),   cdat_rx";
@@ -53,33 +53,38 @@ if ($col_set == 3) // all
 }
 
 
-// make a list of column number to pass to table
+// make a list of column numbers to pass to table after 'targets: '
 //columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: [0, 1, 2, 3, 4, 5, 6]  } ],
 $cla = "[ ";
-for ($i = 0; $i < count($col_list); $i++)
-   $cla .= "$i, ";
+for ($i = 0; $i < (count($col_list)-1)  ; $i++) $cla .= "$i, ";
 $cla .= "]";
 //var_dump($cla);
 
+// setup the table
 echo "<script>$(document).ready( function ()
-      {
-         $('#myTable').DataTable(
-         {
-            layout: {  topStart: { buttons: ['colvis'] }, bottomStart: 'pageLength' },
-            colReorder: true,
-            columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: $cla } ],
-            order: [  [0, 'desc'] ]
-         }  );
-      } );
-      </script> ";
+{
+   $('#myTable').DataTable(
+   {
+      layout: {  topStart: { buttons: ['colvis'] }, bottomStart: 'pageLength' },
+      colReorder: true,
+      columnDefs: [ {  className: 'dt-head-center dt-body-center', targets: $cla } ],
+      order: [  [0, 'desc'] ]
+   }  );
+} );
+</script> ";
 
 
+   echo "<table id='myTable' class='display cell-border compact'  style='width:100%'>";
 
-   echo "<table id='myTable' class='display cell-border compact' style='width:90%'>";
-      echo "<thead>";
+      echo "<thead id=\"mdw123\">";
+//      echo "<thead class=\"sessions-table-head\">";
+
          echo "<tr>";
             foreach($col_list as $col)
+            {
+               if ($col == "player_name") continue;
                echo "<th>$col</th>";
+            }
          echo "</tr>";
       echo "</thead align='center'>";
       echo "<tbody>";
@@ -87,11 +92,32 @@ echo "<script>$(document).ready( function ()
          $res = mysqli_query($conn, $sql);
          while ($row = $res->fetch_assoc())
          {
-            echo "<tr>";
+            echo "<tr  id=\"mdw123\">";
             foreach($row as $col => $val)
             {
-               if ($col == "id") echo "<td><a href=\"sessions.php?current_session_id=" . $val . "\">" . $val . "</a></td>"; 
-               else echo "<td>" . $val . "</td>";
+               $id = $row['id'];
+
+               if ($col == "player_name") continue;
+               if ($col == "id")
+               {
+                  echo "<td><a href=\"sessions.php?current_session_id=" . $val . "\">" . $val . "</a></td>"; 
+                  continue;
+               }
+               if ($col == "player_color")
+               {
+                  $iconpath = "/assets/icons/player_icon_$val.png";
+                  $alt = "alt=\"icon not found\"";
+                  $name = $row['player_name'];
+                  echo "<td><a href=\"sessions.php?current_session_id=$id\"><div class=\"icon-text-container\">";
+
+                  echo "<img src=$iconpath $alt class=\"icon\">";
+                  echo "<span class=\"text\">$name</span>";
+
+                  echo "</div></a></td>";
+                  continue;
+               }
+                            
+               echo "<td>$val</td>";
             }
             echo "</tr>";
          }

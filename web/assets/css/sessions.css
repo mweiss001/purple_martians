@@ -1,0 +1,228 @@
+body
+{
+   background-color: #000000; /* Black background */
+   color: #FFFFFF; /* White body text */
+}
+a:link
+{
+   color: #77d7ff; /* A light blue for unvisited links */
+   text-decoration: underline; /* Always use an underline for accessibility */
+}
+a:visited
+{
+   color: #b39ddb; /* A light purple/violet for visited links */
+}
+a:hover
+{
+   color: #FFFFFF; /* White on hover */
+}
+
+
+/* ---------- container for all sections on page ---------- */
+.div-sessions-page
+{ 
+   display: flex;    
+   flex-direction:column;    
+   //border: 1px solid #FFFFFF;
+   gap: 10px; 
+   padding: 0px;
+}
+
+
+/* ---------- common containers for sections ---------- */
+.div-section-container
+{ 
+   display: flex;    
+   flex-direction:column;    
+   border: 2px solid #FFFFFF;
+
+
+   background-color: #00ff00;
+
+
+}
+.div-section-title-frame
+{ 
+
+
+}
+.div-section-title-body
+{ 
+   display: flex;    
+   flex-direction:column;    
+}
+
+#sessions
+{
+   background-color: #000a1a;
+   background-color: #ff0a1a;
+   border-color: #0062ff;
+}
+
+div#sessions-title
+{
+   background-color: #000a1a;
+   border: 2px solid #0062ff;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ---------- container for sessions section ---------- */
+.div-sessions
+{ 
+   display: flex;    
+   flex-direction:column;    
+   background-color: #000a1a;
+   border: 2px solid #0062ff;
+   padding: 0px 0px;
+}
+
+.div-sessions-title
+{
+   display: flex;    
+   color: #cce0ff;
+   border: none;
+   border-left: 4px solid #000000; /* for text spacing */
+   font-size: 2rem;
+   font-weight: bold;
+}
+
+.div-sessions-filter-links
+{
+   display: flex;    
+   justify-content: center;
+   gap: 30px;
+   border: none;
+   border-top: 2px solid #0062ff;
+   border-bottom: 2px solid #0062ff;
+}
+
+
+/* ---------- container for sessions table ---------- */
+.div-sessions-table
+{
+   display: flex;    
+   flex-direction:column;    
+   padding: 0px 12px;
+}
+
+/* ---------- styles for sessions table elements ---------- */
+thead#mdw123
+{
+   background-color: #001433; 
+   color: #FFFFFF;
+}
+tr#mdw123
+{
+   background-color: #000a1a;
+   color: #FFFFFF;
+}
+tr#mdw123:hover
+{
+   background-color: #001433;
+}
+
+
+
+/* ---------- containers for current session section ---------- */
+.div-current-session
+{
+   display: flex;    
+   flex-direction:column;    
+   background-color: #001a00;
+   border: 2px solid #00ff00;
+   padding: 0px 0px;
+}
+
+.div-current-session-title
+{
+   display: flex;    
+   color: #ccffcc;
+   border: none;
+   border-left: 4px solid #000000; /* for text spacing */
+   font-size: 2rem;
+   font-weight: bold;
+}
+
+.div-current-session-body
+{
+   display: flex;    
+   border: none;
+   border-top: 2px solid #00ff00;
+   font-size: 1rem;
+   display: block;
+   font-family: monospace;
+   white-space: pre;
+   padding: 4px;
+}
+
+.div-current-session-body-bandwidth
+{
+   color: #ccffcc;
+   border-top:  2px solid #00ff00;
+   font-size: 1.4rem;
+   font-weight: bold;
+}
+
+.div-current-session-body-bandwidth2
+{
+   border:  2px solid #000000;
+}
+
+
+
+
+
+  
+
+
+
+  
+
+/* ---------- container for gm table section ---------- */
+.div-gm-table
+{
+   display: flex;    
+   flex-direction:column;    
+   border: 2px solid #FF0000;
+   padding: 0px 4px;
+}
+.div-gm-table-title
+{
+   display: flex;    
+   border: 2px solid #00FF00;
+   font-size: 2rem;
+   font-weight: bold;
+}
+
+
+/* ---------- container for player icon and player name text ---------- */
+.icon-text-container
+{
+   display: flex;      
+   align-items: center;
+   gap: 10px;          
+}
+.icon { width: 20px; height: 20px; }
+.text { /*font-size: 1rem;*/ }
+
+/* ---------- hack because sometimes <hr> does not work in flexbox ---------- */
+.hack-hr
+{
+   color: #000000;
+   font-size: 1rem;
+   font-weight: normal;
+   line-height: 0;
+   margin: 0;
+}
+

@@ -23,6 +23,7 @@ void mwBitmapTools::fill_player_tile(void)
    //printf("fill player bitmap\n");
    int a, b, x, y;
 
+
    if (0) // load from disk
    {
       mBitmap.ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
@@ -117,7 +118,7 @@ void mwBitmapTools::fill_player_tile(void)
       }
    }
 
-   if (1)
+   if (0)
    {
        // show all new player shapes
        al_set_target_backbuffer(mDisplay.display);

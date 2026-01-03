@@ -66,6 +66,9 @@ void mwBitmap::create_bitmaps(void)
 // done only once in initial_setup
 int mwBitmap::load_tiles(void)
 {
+   printf("load tiles\n");
+
+
    // get main tiles
    tilemap = al_load_bitmap("bitmaps/tiles.bmp");
    if (!tilemap)
@@ -115,6 +118,17 @@ int mwBitmap::load_tiles(void)
       for (int a=0; a<16; a++)
          for (int b=0; b<24; b++)
             player_tile[a][b] = al_create_sub_bitmap(ptilemap, b*22+1, a*22+1, 20, 20);
+   }
+
+   if (0)
+   {
+      // save a set of icons to disk
+      for (int a=0; a<16; a++)
+      {
+         char fn[80];
+         sprintf(fn, "bitmaps/player_icon_%d.png", a);
+         al_save_bitmap(fn, player_tile[a][2]);
+      }
    }
 
    // get door tiles
