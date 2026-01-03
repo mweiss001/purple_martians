@@ -4,6 +4,8 @@
 TO DO
 ------------------------------------------------------------------------------
 
+related to player name:
+
 player name
 
 add to end of level stats...done
@@ -13,19 +15,61 @@ how to make this optional...
 how about only remote players have the label? I like that!!
 
 
+show the player name and color in sessions table, maybe even a little player icon
 
 
 
-add to sessions database field
-while i am at it I should also add color, that should not change for the session...
-then I can show the player name and color in sessions table
 
+
+
+
+//   .sessions-table
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------------------------------------
 I can also show players in gm table now!!!
+
 
 
 I could also make a table of players
 
 then just link them to sessions and gm's !!!!
+
+
+
+
+
+-------------------------------------------------------------
+while I am scraping gm's, I open the file to find the last frame
+
+I was thinking of doing more at that time
+
+- delete file if they contain no game moves or are less than 1s
+
+finding all of the players in the game file
+
+entering them into my new table players (if they do not already exist)
+and making links from this gm to the players in another table
+
+
+
+
+
+
 
 
 

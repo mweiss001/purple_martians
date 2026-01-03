@@ -21,23 +21,20 @@ function show_current_session($current_session_id)
 
    $row = $result->fetch_assoc();
 
-   echo "<hr>";
+   echo "<div id=\"current_session\"  class=\"div-section-sub-section-pretext\">";
 
-   echo "<p><h2>Current Session</h2></p>";
-
-   echo "<h3 style='line-height: 1.0; margin-top: 1px; margin-bottom: 1px;'><pre>";
-
-   echo "<hr>";
-
-   echo "Session Id      : "            . $row['id']          . "\n";
-   echo "Player Number   : "            . $row['player_num']    . "\n";
-   echo "Filename        : "            . $row['filename']    . "\n";
-   echo "End Reason      : "            . $row['endreason'] . "\n";
-
-   echo "<hr>";
-
+   echo "Session Id      : "            . $row['id']           . "\n";
+   echo "Filename        : "            . $row['filename']     . "\n";
    echo "hostname        : "            . $row['hostname']  . "\n";
    echo "ip:port         : "            . $row['ip'] . ":" . $row['port']  . "\n";
+   echo "End Reason      : "            . $row['endreason']    . "\n";
+   
+   echo "<hr>";
+
+   echo "Player Number   : "            . $row['player_num']   . "\n";
+   echo "Player Name     : "            . $row['player_name']  . "\n";
+   echo "Player Color    : "            . $row['player_color'] . "\n";
+
 
    echo "<hr>";
 
@@ -58,17 +55,11 @@ function show_current_session($current_session_id)
    echo "Self Hits       : "            . $row['self_hits']   . "\n";
    echo "Purple Coins    : "            . $row['purple_coins']   . "\n";
 
-   echo "<hr>";
-
-   echo "</pre></h3>";
-
+   echo "</div>";
    if (0)
    {
-
-      echo "<p><h3>Bandwidth</h3></p>";
-      echo "<h3 style='line-height: 1.0; margin-top: 1px; margin-bottom: 1px;'><pre>";
-
-      echo "<hr>";
+      echo "<div id=\"current_session\" class=\"div-section-sub-section-title-frame\">Bandwidth</div>";
+      echo "<div id=\"current_session\" class=\"div-section-sub-section-pretext\">";
 
       echo "Transmit Bytes\n";
       echo "<hr>";
@@ -96,11 +87,7 @@ function show_current_session($current_session_id)
       echo "Total          : "            . $row['rx_packets_total']         . "\n";
       echo "Avg per Second : "            . $row['rx_packets_avg_per_sec']   . "\n";
       echo "Max per Frame  : "            . $row['rx_packets_max_per_frame'] . "\n";
-      echo "<hr>";
-
-      echo "<hr>";
-
-      echo "</pre></h3>";
+      echo "</div>";
    }
 }
 ?>

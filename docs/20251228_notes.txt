@@ -336,7 +336,6 @@ almost 100K cdats per client
 
 must have generated a bunch of new logs
 
-
 sudo systemctl stop pm
 cd ~/dev
 rm -r purple_martians
@@ -1967,90 +1966,239 @@ deploy to server and test...
 might as well make release too...
 
 
+-----------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------
 
+cd ~
+rm -r tmp
+mkdir tmp
 
+sudo systemctl stop pm
+cd ~/dev
+rm -r purple_martians
 
+git clone --depth=1 https://github.com/mweiss001/purple_martians
+cd purple_martians
 
+chmod 777 ./op
+sudo ./op
 
+cd libnet
+make clean
+make lib
+sudo make install
 
+cd ~/dev/purple_martians
+./lin_build_all
 
+sudo cp -r ~/dev/purple_martians/web/* /var/www/html
 
+sudo systemctl start pm
 
 
+-----------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------
 
 
+2026-01-01 22:31:35
 
+I finally have the new values showing in the sessions table
 
 
+now what should I do with them?
 
+add them to sessions table of course
 
+bug
 
+now that I am storing big numbers in gm file, ill need another method for determining the length
 
+can I clamp it?
 
+what bit am I using now? 24
 
+2^24 = 16.7M
+/40 = 420k sec
+/60 = 6990 m
+/60 = 116h
 
+do I have a max time for game?
+server will reload in 1H
 
+so if I just toss any values > 16M from my end calc that should work...
 
+no
 
+-rw-r--r--  1 m m   57 Jan  1 22:29 '20260101-222933-[103]-autosave on level done.gm'
+m@o3000:~/dev/purple_martians/savegame$ cat 20260101-222933-\[103\]-autosave\ on\ level\ done.gm
+4
+0
+0
+0
+103
 
+1
+9
+0
+5
 
+1
+3
+0
+0
 
+1
+8389888
+1802398064
+7602297
+m@o3000:~/dev/purple_martians/savega
 
+what if I just go back chunks of 4 at a time
 
+the problem is how I write it to the disk
+i should realy just do line of 4 char separated by commas
+0,2,3,111
 
+this sounds like a major undertaking
 
+what if i got the last 80 char, split into array on newlines
 
+grouped them 4 at a time
 
+I think I am on my way to finding a better way to do that
 
 
 
 
+2026-01-02 06:35:32
 
+add player and color to sessions
 
+get player icons for all colors
+I know its a small thing but it will make things look so much better!!
 
 
+use code to generate
 
+   if (1)
+   {
+      // save as set of icons to disk
+      for (int a=0; a<16; a++)
+      {
+         char fn[80];
+         sprintf(fn, "bitmaps/player_icon_%02d.bmp", a );
+         al_save_bitmap(fn, player_tile[a][2]);
+      }
+   }
 
+done
 
+what about transparency? right now backgroud color is black
 
 
+can I also save as png?
 
+as simple a changing the extension
 
 
 
 
+why am i so against css?
 
+it seems like the easiest sollution many times...
 
+i can put it in the head:
 
 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Website</title>
+    <!-- Internal CSS styles -->
+    <style>
+        body {
+            background-color: lightblue;
+        }
+        h1 {
+            color: maroon;
+        }
+    </style>
+</head>
+<body>
+    <h1>This is a heading</h1>
+    <p>This is a paragraph.</p>
+</body>
+</html>
 
 
 
 
 
+.icon-text-container {
+  display: flex;       /* Enables Flexbox layout */
+  align-items: center; /* Vertically centers the items */
+  gap: 10px;           /* Adds space between the icon and text */
+  /* Optional styling for visibility */
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: fit-content;
+}
 
+.icon {
+  width: 24px;   /* Set desired icon size */
+  height: 24px;
+}
 
+.text {
+  /* Text styles */
+  font-size: 1rem;
+}
 
 
+<div class="icon-text-container">
+  <!-- Use an image, an icon font (like Font Awesome), or an SVG -->
+  <img src="path/to/your/icon.png" alt="Icon" class="icon">
+  <span class="text">Your Text Here</span>
+</div>
 
 
 
 
+flex is awesome...i want to use it for everything!!!
 
+https://css-tricks.com/snippets/css/a-guide-to-flexbox/
 
+make css in the head
+name containers for everything
+one for the page and then ones for all the elements
 
 
+I am working on current session...
 
+I have flex containers for:
+entire thing
+title
+text block
 
+2026-01-02 13:17:32
 
+I have current session and session table done
+not much I can do with the Datatables thing..
 
+I guess I can style individual elements, like head
 
+i have done head tr and tr hover...probably all I'll need
 
 
+Now I want to redo this all in a dark theme....
 
+I am loving it!!!
 
+at the top of sessions page:
 
 
+<html class="dark">
 
 
 
@@ -2058,6 +2206,124 @@ might as well make release too...
 
 
 
+<!-- 
+body {
+    background-color: #000000; /* Black background */
+    color: #FFFFFF; /* White body text */
+}
+
+a:link {
+    color: #77d7ff; /* A light blue for unvisited links */
+    text-decoration: underline; /* Always use an underline for accessibility */
+}
+
+a:visited {
+    color: #b39ddb; /* A light purple/violet for visited links */
+}
+
+a:hover {
+    color: #FFFFFF; /* White on hover */
+}
+
+
+
+ -->
+
+
+
+
+<!-- container for player icon and player name text -->
+
+.icon-text-container
+{
+   display: flex;      
+   align-items: center;
+   gap: 10px;          
+}
+.icon { width: 20px; height: 20px; }
+//.text { font-size: 1rem; }
+
+
+<!-- hack because sometimes hr do not work in flexbox -->
+.hack-hr
+{
+   font-size: 1rem;
+   font-weight: normal;
+   line-height: 0;
+   margin: 0;
+}
+
+
+
+
+2026-01-02 16:46:01
+
+
+I have spent so much time making everything line up and look nice...
+
+now do current session to look like session 
+
+pick a color
+
+
+I want to make a frame work to make these things easier..
+
+
+Frame around the whole section
+
+section at the top for title
+
+other section headers possible
+
+
+I think what I need to do is:
+
+One container for all
+one container for the title frame, draw only bottom border
+one container inside that to make the title have padding
+
+then for any sub sections
+
+one container for the sub section draw only bottom border
+one container inside that for padding
+
+I want to make this common, not custion for each instance
+
+css and php helper functions
+
+.section-frame
+.section-frame-title-frame
+.section-frame-title-body
+
+.section-frame-sub-title-frame
+.section-frame-sub-title-body
+
+2026-01-03 01:59:50
+
+I think I am done here....
+I have the common stuff done for css html and all sessions pages...
+
+it looks great...
+
+
+backup it the fuck up!!!
+
+copy from server to local and do a commit....
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------
+make sure that changes you make there get back to the dev machine
+--------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------
+
+save all files in windows
+
+On the server, copy to tmp folder
+sudo cp -r /var/www/html/* ~/tmp
+
+From the a windows machine, copy from tmp location to project:
+pscp -r -pw zaiden m@192.168.1.146:tmp/* c:\pm\web 
 
 
 

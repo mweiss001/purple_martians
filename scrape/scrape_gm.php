@@ -14,15 +14,41 @@ $conn = mysqli_connect($srvrname, $username, $password, $database);
 // Check the connection
 if (!$conn) die("Database connection failed: " . mysqli_connect_error());
 
+// this function used to just get the last handfull of ints and find the largest
+// now that I am embedding player name into moves, this no longer works
+// there are some huge numbers that sometimes are falsely detected as frames
+// my new method is to grab groups of 4 ints from the end
+// the first int in one of those groups should be the frame number
+// this seems to work well so far...
+// seek to end of file -50
+// read lines as ints and put in array
+// get array count, then last index is count - 1
+// last index -4 should be the largest frame
+  //$max = $lines[count($lines)-5];
+  //echo "last frame num: $max\n";
+//  $cnt = count($lines);
+//  $last = $cnt -1;
+//  echo "count: $cnt\n";
+//  echo "last: $lines[$last]\n";
+//  $k = $last -12;
+//  for ($j=$k; $j<$k+12; $j+=4)
+//  {
+//     for ($i=$j; $i<$j+4; $i++)
+//        echo "[$lines[$i]]";
+//     echo "\n";
+//  }
+
+
 function get_last_frame($filename)
 {
+  // echo "$filename  -  get last frame num\n";
   $fp = fopen($filename, 'r');
   if (!$fp) return 0;
   fseek($fp, -80, SEEK_END);
   $lines = array();  
-  while (!feof($fp)) array_push($lines, fgets($fp));
+  while (!feof($fp)) array_push($lines, (int)fgets($fp));
   fclose($fp);
-  return max($lines);
+  return $lines[count($lines)-5];
 }
 
 
@@ -79,16 +105,14 @@ function add_to_db($filename)
 
 
 // Open directory and iterate files
-$dir = "/home/m/dev/purple_martians/savegame/";
+$dir = "/home/m/dev/purple_martians/savegame";
+
 if (is_dir($dir))
 {
    if ($dh = opendir($dir))
    {
       while (($file = readdir($dh)) !== false)
-      {
          if (str_ends_with($file, ".gm")) add_to_db($file);
-         // else echo "file does not end in .gm\n";
-      }
       closedir($dh);
    }
    else echo "error opening $dir\n";
