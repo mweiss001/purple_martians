@@ -132,6 +132,30 @@ CREATE TABLE gm_sessions (
 );
 
 
+CREATE TABLE players (
+  id                INT AUTO_INCREMENT,
+  ip                VARCHAR(255),
+  port              INT,
+  hostname          VARCHAR(255),
+  player_num        INT,
+  player_name       VARCHAR(255),
+  player_color      INT,
+  PRIMARY KEY(id)
+);
+
+CREATE TABLE gm_players (
+  id                INT AUTO_INCREMENT,
+  gm_id             INT,
+  player_id         INT,
+  PRIMARY KEY(id)
+);
+
+
+
+
+
+
+
 
 
 CREATE USER 'pmdb_ro' IDENTIFIED WITH mysql_native_password BY 'readonly';

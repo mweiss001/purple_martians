@@ -1,25 +1,53 @@
 
 body
 {
-   background-color: #000000; /* Black background */
-   color: #FFFFFF; /* White body text */
+   background-color: #000000;
+   color: #FFFFFF;
 }
 
 a:link
 {
    color: #77d7ff; /* A light blue for unvisited links */
-   text-decoration: underline; /* Always use an underline for accessibility */
+   text-decoration: none;
 }
 
-a:visited
-{
-   color: #b39ddb; /* A light purple/violet for visited links */
+a:visited { color: #b39ddb; } /* A light purple/violet for visited links */
+a:hover { color: #FFFFFF; } /* White on hover */
+
+
+
+
+
+
+
+
+
+
+
+/* ---------- flex box for top page navigation link buttons  ---------- */
+.div-sessions-page-links
+{ 
+   display: flex;    
+   gap: 8px;
+   justify-content: center;
+   align-items: center;
 }
 
-a:hover
+#links_button
 {
-   color: #FFFFFF; /* White on hover */
+   color: #f0e6ff;
+   background-color: #140033;
+   border: 1px solid #6600FF;
 }
+#links_button:hover {  border-color: #f0e6ff; }
+
+
+
+
+
+
+
+
 
 /* ---------- container for all sections on page ---------- */
 .div-sessions-page
@@ -31,29 +59,66 @@ a:hover
    padding: 0px;
 }
 
+/* ---------- common containers for sections ----------- */
 
-/* ---------- common containers for sections ---------- */
+
+
+
+/* ---------- container for entire section -------------
+   has border and background
+   ----------------------------------------------------- */
 .div-section-container
 { 
    display: flex;    
    flex-direction:column;    
    border: 2px solid #FFFFFF;
 }
-.div-section-title-frame
+
+/* ---------- title section   ----------------------------- */
+
+
+/* ---------- title section frame   ---------- 
+   top level container for section       
+   draws the frame for the title section (actually just an underline)
+   ----------------------------------------------------- */
+.div-section-title-section-frame
 { 
    border-bottom: 2px solid #FFFFFF;
-   font-size: 1.6rem;
-   font-weight: bold;
-   padding-left: 4px;
 }
 
-.div-section-sub-section-links
+/* ---------- title section container   ---------- 
+   container for title section
+   contains 2 things:
+   - title frame   
+   - buttons frame
+   ----------------------------------------------------- */
+.div-section-title-section-container
 { 
    display: flex;    
-   justify-content: center;
-   gap: 30px;
-   border-bottom: 2px solid #FFFFFF;
+   justify-content: space-between;
+   padding: 0px 4px; 
 }
+
+/* ---------- frame for title text ---------- */
+.div-section-title-frame
+{ 
+   display: flex;    
+   gap: 12px;
+   font-size: 1.6rem;
+   font-weight: bold;
+}
+
+/* ---------- flex box for title frame buttons  ---------- */
+.div-section-title-frame-buttons-frame
+{ 
+   display: flex;    
+   gap: 8px;
+   justify-content: center;
+   align-items: center;
+}
+
+
+
 
 .div-section-sub-section-table
 { 
@@ -86,26 +151,68 @@ a:hover
 }
 
 
-div#sessions
+
+.button
 {
+   border-radius: 2px;
+   padding: 1px 8px;
+   text-align: center;
+   text-decoration: none;
+   cursor: pointer;
+   border: 1px solid #FFFFFF;
+}
+
+
+#sessions
+{
+   color: #cce0ff;
    background-color: #000a1a;
    border-color: #0062ff;
+}
+#sessions_button
+{
    color: #cce0ff;
+   background-color: #000a1a;
+   border-color: #0062ff;
 }
+#sessions_button:hover {  border-color: #cce0ff; }
 
-div#current_session
+
+
+
+#current_session
 {
-   background-color: ##001a00;
-   border-color: #00ff00;
    color: #ccffcc;
+   background-color: #001a00;
+   border-color: #00ff00;
 }
-
-div#gm_table
+#current_session_button
 {
+   color: #ccffcc;
+   background-color: #001a00;
+   border-color: #00ff00;
+}
+#current_session_button:hover { border-color: #ccffcc; }
+
+
+#gm_table
+{
+   color: #ffeecc;
    background-color: #1a1100;
    border-color: #ffaa00;
-   color: #ffeecc;
 }
+#gm_table_button
+{
+   color: #ffeecc;
+   background-color: #1a1100;
+   border-color: #ffaa00;
+}
+#gm_table_button:hover { border-color: #ffeecc; }
+
+
+
+
+
 
 
 
@@ -128,7 +235,6 @@ tr#mdw123:hover
 
 
 
-
 /* ---------- container for player icon and player name text ---------- */
 .icon-text-container
 {
@@ -137,18 +243,9 @@ tr#mdw123:hover
    gap: 10px;          
 }
 .icon { width: 20px; height: 20px; }
-.text { /*font-size: 1rem;*/ }
+.text { font-size: 16px; }
 
-/* ---------- hack because sometimes <hr> does not work in flexbox ---------- */
-.hack-hr
-{
-   color: #000000;
-   font-size: 1rem;
-   font-weight: normal;
-   line-height: 0;
-   margin: 0;
 
-}
 
 /* ---------- gm table styling ---------- */
 #mdw
@@ -162,19 +259,11 @@ tr#mdw123:hover
    font-size: .8rem;
 }
 
-#mdw td, th { padding: 2px;  border: 1px solid #ffa600; }
+#mdw td { padding: 2px;  border: 1px solid #ffa600; }
+#mdw th { padding: 2px;  border: 1px solid #ffa600; }
 
 #mdw tr:hover { background-color: #332100;}
 
 #mh_center, #md_center { text-align: center; }
 #mh_left,   #md_left   { text-align: left; }
-
-
-
-
-
-
-
-
-
 
