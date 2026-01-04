@@ -540,46 +540,11 @@ static int callback(void* data, int argc, char** argv, char** azColName)
 void mwMain::temp_test(void)
 {
 
-
-
-
-   mBitmapTools.fill_player_tile();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //   void val_to_gma(int &type, int &d1, int &d2, int p, int c, char * name)
 //   void gma_to_val(int type, int d1, int d2, int &p, int &c, char * name)
 
 //   char name[9];
-//   sprintf(name, "purple");
+//   sprintf(name, "purple23");
 //
 //   int p = 5;
 //   int c = 12;

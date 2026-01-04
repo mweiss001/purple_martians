@@ -14,8 +14,86 @@ add very small text name above player..done
 how to make this optional...
 how about only remote players have the label? I like that!!
 
+------------------------------------------------------------------------------
+I have beed think about redoing how I save gm files to disk
+currently:
+nothing but unordered integers, one per line
 
-show the player name and color in sessions table, maybe even a little player icon
+1320
+0
+0
+0
+9
+1
+9
+0
+5
+1
+3
+0
+0
+1
+8389888
+1802398064
+7602297
+1
+8392193
+1819043193
+7602287
+13
+5
+1
+4
+17
+5
+1
+0
+
+I was thinking of making it like this:
+
+1320
+0,0,0,9
+1,9,0,5
+1,3,0,0
+1,8389888,1802398064,7602297
+1,8392193,1819043193,7602287
+13,5,1,4
+17,5,1,0
+
+it should not take more disk space
+I would just be swapping crlf for ,
+
+when saved on windows the lines end with CRLF
+in linux its just LF
+
+if I make this change, what would it affect?
+-only the game saves and loads to disk,
+-once loaded into the array the way it is stored on disk is irrelevant
+-it would make it easier to parse later
+-----------------------------------------------------------------------------
+I have another crazy idea
+
+integrate a database into the game
+
+- i need to make sure that windows and linux versions are still the same
+- do I need a networked database like mysql? could i just use sqlite?
+
+why?
+what are the benefits:
+- make the way the server writes files to disk and later gets scraped a lot simpler
+- the server can just write directly to the database
+- make the way to adjust the config from headless mode
+- replace so much of the level stats bullshit with something much simpler
+
+cons:
+would take a lot of fucking work!!
+
+how can i start small?
+
+add sqlite to project and make sure it works in windows and linux
+then start adding things to it
+
+first of all, sessions
 
 
 
@@ -23,7 +101,6 @@ show the player name and color in sessions table, maybe even a little player ico
 
 
 
-//   .sessions-table
 
 
 
@@ -38,11 +115,35 @@ show the player name and color in sessions table, maybe even a little player ico
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+find players in save game
+------------------------------------------------------------------------------
+make new table player names (unique with ip, hostname, color???)
+------------------------------------------------------------------------------
+add players from sessions and gm
+------------------------------------------------------------------------------
 
 
 ----------------------------------------------
 I can also show players in gm table now!!!
-
 
 
 I could also make a table of players
@@ -116,18 +217,39 @@ how big is it? settings.pm is 8K
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-Qt WASM 
-------------------------------------------------------------------------------
 
 
 
 
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------   DONE   -----------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+show the player name and color in sessions table, maybe even a little player icon
+
+player name and icon of current session
+
+
+
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+show buttons instead of links for sessions table filter
 ------------------------------------------------------------------------------
-DONE
+top navigation row
 ------------------------------------------------------------------------------
+buttons to filter current session info
+
+move all of sessions section code to php file
+includes to all be at top
+include to just include function not actually show until function is called
+done...
+
+
+
 implement player name (Do it Fool!) ... did it fool !!!
 Im thinking a fixed length of 8 char max
 add it to the player structure
@@ -227,6 +349,16 @@ in .gitignore
 ------------------------------------------------------------------------------
 crazy ideas that I probably will never do
 ------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------
+Qt WASM 
+allegro in browser also
+------------------------------------------------------------------------------
+
+
+
+
 it is a little convoluted how I do session logs
 save them to disk, then process them periodically with cron and php
 in conjunction with database..

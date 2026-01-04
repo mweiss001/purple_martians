@@ -1,24 +1,48 @@
 <?php
-function show_gm_table($filter, $title)
+function show_gm_table()
 {
-   $col_list = array("id",    "Filename", "Start Time",              "Duration"  );
-   $row_list =       "gm.id,   filename,  dt_start,       SEC_TO_TIME(duration)";
+   $current_session_id = $GLOBALS['current_session_id'];
+   $gm_on  = $GLOBALS['gm_on'];
+   $gm_set = $GLOBALS['gm_set'];
 
-   $sql = "SELECT gm.id, filename, dt_start, dt_end, duration FROM gm ";
+   if (!$gm_on) return;
 
-   if ($filter > 0)
+   $title = "All Save Game Files";
+   $sql = "SELECT gm.id, dt_start, dt_end, duration, filename FROM gm ";
+
+   if ($gm_set == 1)
    {
+      $title = "Save Game Files for Current Session";
       $sql .= "LEFT JOIN gm_sessions ON gm.id = gm_sessions.gm_id ";
-      $sql .= "WHERE gm_sessions.session_id=$filter";
+      $sql .= "WHERE gm_sessions.session_id=$current_session_id";
+      
    }
-   if ($filter == -1)
+   if ($gm_set == 2)
    {
+      $title = "Orphaned Save Game Files (no matching session)";
       $sql .= "LEFT JOIN gm_sessions ON gm.id = gm_sessions.gm_id ";
       $sql .= "WHERE gm_sessions.gm_id IS NULL";
    }
 
+
+   $but = "class=\"button\" id=\"gm_table_button\"";
+
    echo "<div id=\"gm_table\"  class=\"div-section-container\">";
-      echo "<div id=\"gm_table\"  class=\"div-section-title-frame\">$title</div>";
+      echo "<div id=\"gm_table\"  class=\"div-section-title-section-frame\">";
+         echo "<div id=\"gm_table\"  class=\"div-section-title-section-container\">";
+            echo "<div id=\"gm_table\"  class=\"div-section-title-frame\">$title</div>";
+            echo "<div id=\"gm_table\"  class=\"div-section-title-frame-buttons-frame\">";
+
+               if ($gm_set == 0) echo "<a href=\"sessions.php?gm_set=1\" $but >Show All</a>";
+               if ($gm_set == 1) echo "<a href=\"sessions.php?gm_set=2\" $but >Show Current</a>";
+               if ($gm_set == 2) echo "<a href=\"sessions.php?gm_set=0\" $but >Show Orphan</a>";
+
+            echo "</div>";
+         echo "</div>";
+      echo "</div>";
+                    
+   $col_list = array("id",  "Start Time", "Duration", "Set Current", "Download", "Filename");
+           
       echo "<div id=\"gm_table\"  class=\"div-section-sub-section-gm_table\">";
          echo "<table id='mdw'>";
             echo "<thead'>";
@@ -35,17 +59,19 @@ function show_gm_table($filter, $title)
                if ($res->num_rows == 0) echo "<tr><td id='md_center'; > not found </td></tr>";
                while ($row = $res->fetch_assoc())
                {
+                  $id = $row['id'];
+                  $dt_start = $row['dt_start'];
+                  $duration = $row['duration'];
+                  $filename = $row['filename'];
+                  $fullpath = "/downloads/$filename";
+
                   echo "<tr>";
-                  foreach($row as $col => $val)
-                  {
-                     if ($col == "filename")
-                     {
-                        $filename = $val;  
-                        $fullpath = "/downloads/$filename";
-                        echo "<td id='md_left'; ><a href=\"$fullpath\" download=\"$filename\">$filename</a></td>";
-                     }
-                     else if (!($col == "dt_end")) echo "<td id='md_center'; >" . $val . "</td>";
-                  }
+                     echo "<td id='md_center'; >$id</td>";
+                     echo "<td id='md_center'; >$dt_start</td>";
+                     echo "<td id='md_center'; >$duration</td>";
+                     echo "<td id='md_center'; ><a href=\"sessions.php?current_gm_id=$id\">set current</a></td>";
+                     echo "<td id='md_center'; ><a href=\"$fullpath\" download=\"$filename\">download</a></td>";
+                     echo "<td id='md_left'; >$filename</td>";
                   echo "</tr>";
                }
             echo "</tbody>";

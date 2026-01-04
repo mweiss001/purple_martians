@@ -2325,6 +2325,559 @@ sudo cp -r /var/www/html/* ~/tmp
 From the a windows machine, copy from tmp location to project:
 pscp -r -pw zaiden m@192.168.1.146:tmp/* c:\pm\web 
 
+--------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------
+
+2026-01-03 08:12:38
+
+
+buttons...
+
+
+three methods:
+
+Method 1: Style an Anchor Tag (Recommended)
+
+This approach uses a standard hyperlink and applies CSS to give it the appearance and feel of a button.
+This is best for accessibility and ensures the link still works if JavaScript is disabled. 
+
+<a href="https://www.example.com" class="button">Go to Example</a>
+
+The target="_blank" attribute can be added to open the link in a new tab: 
+<a href="https://www.example.com" class="button" target="_blank">Open in New Tab</a>
+
+.button {
+  background-color: #4CAF50; /* Green background */
+  border: none; /* Remove default border */
+  color: white; /* White text */
+  padding: 15px 32px; /* Some padding */
+  text-align: center; /* Center the text */
+  text-decoration: none; /* Remove underline */
+  display: inline-block; /* Make it a block-level link */
+  font-size: 16px; /* Increase font size */
+  cursor: pointer; /* Add a hand cursor on hover */
+  border-radius: 8px; /* Rounded corners */
+}
+
+.button:hover {
+  background-color: #45a049; /* Darker green on hover */
+}
+
+
+Method 2: Use JavaScript with a Button Tag 
+
+This method uses the <button> element and adds a JavaScript onclick event to perform the redirection. 
+
+<button onclick="window.location.href='https://www.example.com'">
+  Go to Example
+</button>
+
+To open the link in a new tab, use the window.open() function: 
+
+<button onclick="window.open('https://www.example.com')">
+  Open in New Tab
+</button>
+
+This method requires JavaScript to be enabled in the user's browser to function.
+
+
+Method 3: Using a Form
+
+For simple navigation where JavaScript is not an option, you can wrap a submit button in a <form> tag and specify the destination in the action attribute. 
+
+<form action="https://www.example.com">
+  <button type="submit">Go to Example</button>
+</form>
+
+
+
+I did method 1 looks good,
+now I want to put the buttons in the title bar
+
+
+
+
+
+I I think I should do this by default for all...
+
+
+title frame
+flex box for title frame
+
+actual title
+flex frame for buttons
+
+
+2026-01-03 10:11:03
+
+that is so fucking beautiful!!
+I want to get button colors from id
+
+
+
+2026-01-03 10:34:18
+
+now do current session
+make buttons to show hide bandwidth
+
+2026-01-03 10:50:24
+
+all that hard work setting up the framework paid off
+it was quite easy to add this button
+
+now make one for player section and game moves also
+2026-01-03 11:27:04
+
+done
+
+now make gm have nice header like the rest
+
+all done...
+
+now what?
+
+work on top level link row
+
+add
+sessions (this) 
+debug (more table)
+all gm
+
+this is what I have now:
+
+<table><tbody><tr>
+<td style='padding:2px 8px;' > <a href="../index.html"  >Back to Main Page        </a> </td>
+</tr></tbody></table><hr>
+
+done
+now implement game moves and debug??  later...
+
+
+I think sessions is 100% done
+
+what did you want to do with game moves now?
+
+have a detailed section for them like current session, current savegame
+I need a good name to call these things:
+SavedGames
+
+implement the three way button for saved game list
+
+done
+
+
+
+
+make a detailed section for them like current session, current savegame
+I need a good name to call these things:
+Saved Games
+
+
+change the gm table list
+
+make a download button and one to select gm
+
+I will need a new section to show details of current gm
+
+Current Save Game
+$current_gm_id
+show_current_gm.php
+how to rearrange table?..done
+
+
+now what?
+
+when setting current gm, find players that are in the file...
+
+how?
+
+I think I should run an external PHP script that parses and adds to database
+for now only do it when looking at the file
+
+I will need another few tables:
+
+players
+(to keep track of unique players)
+but how unique?
+
+same name? (of course)
+same player_num and color (probably not)
+same host name?
+and what will I do if there is no player name, or it is default?
+
+
+I think I should start by saving as much data as I can
+i don't have to make use of it all
+
+CREATE TABLE players (
+  id                INT AUTO_INCREMENT,
+  ip                VARCHAR(255),
+  port              INT,
+  hostname          VARCHAR(255),
+  player_num        INT,
+  player_name       VARCHAR(255),
+  player_color      INT,
+  PRIMARY KEY(id)
+);
+
+I can get all fields from session table
+
+I can only get this from a gm file:
+  player_num        INT,
+  player_name       VARCHAR(255),
+  player_color      INT,
+
+
+create this then alter session_scrape to enter player info also...or...
+I could just get it from the table already
+
+it will be like a smaller sub table from sessions...
+only 6 columns and no uqique
+
+I really question if I need ip host port?
+
+if I am trying to find
+
+I don't think I will use them for matching...
+for sessions, get everything
+
+for finding a player in a gm, i might get multiple...just deal with it..list them all
+
+why do I even need this extra table?
+
+mostly because once I look something up I want to save it...
+
+-------------------
+
+make a php script to add player to db
+if exists find id
+in not create and find id
+
+---------------------------------
+
+wait I just thought of something...
+we can get all the info when sessions enters the player
+
+then when gm goes to look it up, it should aleady exist
+
+if there are multiple player matches when searching only for num, color and name, will it really matter?
+what am i planning on doing with this info anyway?
+
+
+
+I mostly want to be able to show seme meta data for gm files
+
+my plan is to parse the gm file and collect info
+
+right now all I was planning on doing was getting the three player variables
+
+why don't we just stick with that for now?
+
+I still want to add them to a database make a link table
+gm_player
+
+
+
+script
+
+parse_gm.php
+
+opens gm and looks for play moves
+
+to gma -- p:5 c:12 name:purple23 type:8391685 d1:1886549360 d2:858940780
+to val -- p:5 c:12 name:purple23 type:8391685 d1:1886549360 d2:858940780
+
+Process returned 0 (0x0)   execution time : 0.098 s
+Press any key to continue.
+
+
+
+else
+{
+
+   $found_null = 0;
+   for ($i=0; $i<8; $i++)
+   {
+      $ch = $n[$i];
+      $rf = ord($ch);   
+      echo "\n$ch --$rf\n";  
+   }
+
+
+
+
+
+
+
+   $n = "--------";
+
+   var_dump($n);
+
+   for ($i=0; $i<4; $i++)
+   {
+      $tv = $g2;
+      echo sprintf("0 - %032b\n", $tv);
+      $of = $i*8; 
+      $tm = $tv >> $of;
+      echo sprintf("2 - %032b\n", $tm);
+      $mk = $tm & 0xFF;
+      echo sprintf("3 - %032b\n", $mk);
+
+
+      $ch = chr($mk);
+      echo "4 - ch:$ch\n";
+
+      $n[$i+0] = chr( ($g1 >> ($i*8)) & 0xFF );
+      $n[$i+4] = chr( ($g2 >> ($i*8)) & 0xFF );
+
+//      $n[$i+0] = $ch;
+
+   }
+   var_dump($n);
+   echo $n;
+
+   $found_null = 0;
+   for ($i=0; $i<8; $i++)
+   {
+      $ch = $n[$i];
+      $rf = ord($ch);   
+      
+      echo "\n$ch --$rf\n";  
+
+      var_dump($rf);
+
+//      if ($rf == 0) $found_null = 1;
+//      if ($found_null) $n[$i] = 0x0;
+
+
+
+
+
+//      echo sprintf("[%d] - '%d' ' '%c'  fn:%d\n", $i, $n[$i], $n[$i], $found_null);
+
+//      if ($n[$i] == 0) $found_null = 1;
+//      if ($found_null) $n[$i] = 0;
+   }
+   
+   var_dump($n);
+   echo $n;
+
+
+/*
+   char n[9] = { 0 };
+   for (int i=0; i<4; i++)
+   {
+      n[i+0] = (d1 >> (i*8)) & 0xFF;
+      n[i+4] = (d2 >> (i*8)) & 0xFF;
+   }
+   snprintf(name, 9, "%s", n);
+   //printf("to val -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, n, type, d1, d2);
+
+*/
+
+
+//   echo "\n\nplayer: $p color:$c name:$n\n\n";
+
+}
+}
+
+
+I have the function done:
+
+
+function gma_to_val($t, $g1, $g2)
+{
+   echo "gma_to_val($t $g1 $g2)\n";
+
+   // get the player number and color from the bitfield
+   $p =  $t & 0b0000000000000111;        // mask all except lowest 3 bits
+   $c = ($t & 0b0000111100000000) / 256; // mask and shift 8
+
+
+   // get the player name form the next 2 32bit ints
+   $n = ""; 
+   for ($i=0; $i<4; $i++)
+   {
+      $n[$i+0] = chr( ($g1 >> ($i*8)) & 0xFF );
+      $n[$i+4] = chr( ($g2 >> ($i*8)) & 0xFF );
+   }
+   echo "\n\nplayer: $p color:$c name:$n\n\n";
+
+   // show values
+   for ($i=0; $i<8; $i++)
+      echo sprintf("[%d] - '%d' '%s' \n", $i, ord($n[$i]), $n[$i]);
+
+   // if zero somehwere in the data, write all zeros from then after
+   $found_null = 0;
+   for ($i=0; $i<8; $i++)
+   {
+      $ch = $n[$i];
+      if ( ord( $ch ) == 0)  $found_null = 1;
+      if ($found_null) $n[$i] = chr(0); 
+   }
+
+   // make sure 9th char is zero
+   $n[8] = chr(0); 
+
+   // show values
+   for ($i=0; $i<9; $i++)
+      echo sprintf("[%d] - '%d' '%s' \n", $i, ord($n[$i]), $n[$i]);
+
+
+}
+
+
+
+2026-01-04 03:18:19
+
+now what?
+
+I am not sure I am getting the right values from gm files
+
+
+better version
+
+
+function gma_to_val($t, $d1, $d2)
+{
+   echo "gma_to_val($t $d1 $d2)  --  ";
+
+   // get the player number and color from the bitfield
+   $p =  $t & 0b0000000000000111;        // mask all except lowest 3 bits
+   $c = ($t & 0b0000111100000000) / 256; // mask and shift 8
+
+   // get the player name from the next 2 32bit ints
+   
+   // make sure this is declared as a string
+   $n = "";
+   
+   // detect null and force all char after to also be null
+   $found_null = 0;   
+
+   // first 4 char from d1;
+   for ($i=0; $i<4; $i++)
+   {
+      // shift byte into place and mask
+      $ch = chr( ($d1 >> ($i*8)) & 0xFF ); 
+
+      // detect null
+      if (ord($ch) == 0) $found_null = 1;
+
+      // force to null
+      if ($found_null) $ch = chr(0);
+
+      // save in array
+      $n[$i] = $ch;
+   }
+
+
+   // second 4 char from d2;
+   for ($i=0; $i<4; $i++)
+   {
+      // shift byte into place and mask
+      $ch = chr( ($d2 >> ($i*8)) & 0xFF ); 
+
+      // detect null
+      if (ord($ch) == 0) $found_null = 1;
+
+      // force to null
+      if ($found_null) $ch = chr(0);
+
+      // save in array
+      $n[$i+4] = $ch;
+   }
+
+   // make sure 9th char is zero
+   $n[8] = chr(0); 
+
+   // show values
+   //for ($i=0; $i<9; $i++)
+   //   echo sprintf("[%d] - '%d' '%s' \n", $i, ord($n[$i]), $n[$i]);
+
+
+   echo "player: $p color:$c name:$n\n";
+
+}
+
+
+
+
+
+
+
+
+2026-01-04 04:09:13
+
+I am going to add sqlite to my project....
+
+first save all the work in progress and commit..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
