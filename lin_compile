@@ -40,4 +40,6 @@ fi
 
 done
 
+echo gcc -Wall -c src/sqlite3.c -o o/src/sqlite.o
+gcc -Wall -c src/sqlite3.c -o o/src/sqlite.o
 

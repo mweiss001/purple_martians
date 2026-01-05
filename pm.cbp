@@ -11,7 +11,7 @@
 				<Option object_output="o" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option use_console_runner="0" />
+				<Option parameters="-test" />
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-DALLEGRO_STATICLINK" />
@@ -200,6 +200,8 @@
 		<Unit filename="src/mwSolid.h" />
 		<Unit filename="src/mwSound.cpp" />
 		<Unit filename="src/mwSound.h" />
+		<Unit filename="src/mwSql.cpp" />
+		<Unit filename="src/mwSql.h" />
 		<Unit filename="src/mwStateHistory.cpp" />
 		<Unit filename="src/mwStateHistory.h" />
 		<Unit filename="src/mwTally.cpp" />
@@ -220,6 +222,10 @@
 		<Unit filename="src/mwWindowObjectViewer.cpp" />
 		<Unit filename="src/mwWindowTileHelper.cpp" />
 		<Unit filename="src/pm.h" />
+		<Unit filename="src/sqlite3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/sqlite3.h" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

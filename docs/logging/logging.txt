@@ -562,6 +562,8 @@ This clears and fills the array struct for the client.
 Then calls session_add_log(int i) to write it to disk.
 
 
+
+
 checking:
 --------
 Once per frame in server control, 'session_check_active()' is called
@@ -641,6 +643,117 @@ struct client_session client_sessions[8];
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+New version 20260104
+
+session logging has permanent been superceded by a database version
+
+Session logs
+------------
+Saves information about netgame sessions
+A session is defined as when a client joins and lasts until the client quits
+It can span many levels, but only has one player associated with it.
+The player info I collect is:
+- player number
+- player color
+- player name (set by the player) 
+- ip address and port (provided by network interface)
+- host name (computer name provided by network interface)
+
+
+TABLE sessions
+
+id                INTEGER PRIMARY KEY, \
+filename          VARCHAR(255), \
+dt_start          DATETIME, \
+dt_end            DATETIME, \
+duration          INT, \
+ip                VARCHAR(255), \
+port              INT, \
+hostname          VARCHAR(255), \
+endreason         VARCHAR(255),  \
+cdat_rx           INT, \
+player_num        INT, \
+player_name       VARCHAR(255), \
+player_color      INT, \
+next_levels       INT, \
+exits_activated   INT, \
+respawns          INT, \
+shots_fired       INT,  \
+enemy_hits        INT, \
+player_hits       INT, \
+self_hits         INT, \
+purple_coins      INT, \
+tx_bytes_total            INT, \
+tx_bytes_avg_per_sec      INT, \
+tx_bytes_max_per_frame    INT, \
+rx_bytes_total            INT, \
+rx_bytes_avg_per_sec      INT, \
+rx_bytes_max_per_frame    INT, \
+tx_packets_total          INT, \
+tx_packets_avg_per_sec    INT, \
+tx_packets_max_per_frame  INT, \
+rx_packets_total          INT, \
+rx_packets_avg_per_sec    INT, \
+rx_packets_max_per_frame  INT ); ");
+
+
+   void session_add(const char* address, const char* hostname, int p, int endreason);
+   void session_update(int p, char *end_reason = NULL);
+   void session_close(int p, int reason);
+   void session_check_active(void);
+   void session_save_active_at_level_done(void);
+   void session_flush_active_at_server_exit(void);
+
+
+The only place a session is started is when server is replying to clients join request
+void session_add(const char* address, const char* hostname, int p, int endreason)
+
+A session is updated when the session ends or a new level is started.
+void session_update(int p, char *end_reason = NULL);
+A bunch of player data and network stats are tallied and add to the session record
+
+The server keeps track of sessions for each client.
+When I new session record is added, the id of that record is save in the players.loc struture
+This make it easier for the server to update, and keep track of what sessions are open.
+If the players session id is not zero, it is open
+
+Start time is set when creating a new session record.
+Whenever it is updated, the current time used to set the end time and calculate the duration.
+
+End reason is an integer and a text field. When saved in the database it is text.
+
+How can I disable this with 
+added this to all the functions
+if (!mLog.log_types[LOG_NET_session].action) return;
+
+
+
+
+   
+   
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

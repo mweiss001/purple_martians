@@ -613,7 +613,7 @@ void mwMiscFnx::gma_to_val(int type, int d1, int d2, int &p, int &c, char * name
       n[i+4] = (d2 >> (i*8)) & 0xFF;
    }
    snprintf(name, 9, "%s", n);
-   printf("to val -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, n, type, d1, d2);
+   //printf("to val -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, n, type, d1, d2);
 }
 
 
@@ -630,7 +630,7 @@ void mwMiscFnx::val_to_gma(int &type, int &d1, int &d2, int p, int c, char * nam
       d2 += name[i+4] << (i*8);
       //printf("name[%d]:%d of:%d dl:%d\n", i, name[i], of, d1);
    }
-   printf("to gma -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, name, type, d1, d2);
+   //printf("to gma -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, name, type, d1, d2);
 }
 
 

@@ -18,45 +18,6 @@
 #define PM_RCTL_PACKET_TYPE_fakekey_toggle         12
 #define PM_RCTL_PACKET_TYPE_server_reload          20
 
-struct client_session
-{
-   int active;
-
-   double start_time;
-   double end_time;
-   char session_name[64];
-
-   char timestamp[16];
-   double duration;
-   char ip[16];
-   int port;
-   char hostname[16];
-
-   int endreason;
-
-   int cdats_rx;
-   int player_num;
-   char player_name[9];
-   int player_color;
-   int next_levels;
-   int exits;
-   int respawns;
-   int shots_fired;
-   int enemy_hits;
-   int player_hits;
-   int self_hits;
-   int purple_coins;
-
-   int64_t tx_total_bytes;
-   int64_t tx_total_packets;
-   int tx_max_bytes_per_frame;
-   int tx_max_packets_per_frame;
-
-   int64_t rx_total_bytes;
-   int64_t rx_total_packets;
-   int rx_max_bytes_per_frame;
-   int rx_max_packets_per_frame;
-};
 
 
 struct mwChannel
@@ -64,7 +25,6 @@ struct mwChannel
    int channel_active;
    char channel_address[256];
 };
-
 
 struct file_to_send
 {
@@ -87,13 +47,9 @@ class mwNetgame
 
    struct file_to_send files_to_send[20];
 
-   struct client_session client_sessions[8];
-
    int NetworkDriver;
    int NetworkInit(void);
    void NetworkExit(void);
-
-
 
    void clear_channel(int c);
 
@@ -241,20 +197,15 @@ class mwNetgame
    // --------------------------------------------------------------------
    // ---   mwNetgameSessionLog.cpp  -------------------------------------
    // --------------------------------------------------------------------
-   void session_clear_entry(int i);
 
-   void session_add_entry(const char* address, const char* hostname, int p, int active, int inactive_reason);
-
-
-   void session_add_log(int i);
+   void session_add(const char* address, const char* hostname, int p, int endreason);
+   void session_update(int p, char *end_reason = NULL);
    void session_close(int p, int reason);
-
    void session_check_active(void);
-
    void session_save_active_at_level_done(void);
    void session_flush_active_at_server_exit(void);
 
-   void session_tally(int i);
+
 
 
    // --------------------------------------------------------------------

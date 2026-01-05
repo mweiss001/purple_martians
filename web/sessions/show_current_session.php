@@ -10,7 +10,6 @@ function secondsToHMS($seconds)
 
 function show_player_icon_and_name($col, $name)
 {
-
    $iconpath = "/assets/icons/player_icon_$col.png";
    $alt = "alt=\"icon not found\"";
 
@@ -20,32 +19,26 @@ function show_player_icon_and_name($col, $name)
    echo "<span class=\"text\">$name</span>";
 
    echo "</div>";
-  
 }
-
-
-
-
 
 function show_current_session()
 {
    $current_session_id = $GLOBALS['current_session_id'];
 
-   // do this first so I have player name and color for title
-   $result = mysqli_query($GLOBALS['conn'], "SELECT * FROM sessions WHERE id=$current_session_id" );
-   if ($result->num_rows == 0) { echo " session not found \n";  return; }
-   $row = $result->fetch_assoc();
+   $res = $GLOBALS['db']->query("SELECT COUNT(*) FROM sessions WHERE id=$current_session_id");
+   if ($res->fetchColumn() == 0)  { echo " session [$current_session_id] not found \n";  return; } 
 
-   $col = $row['player_color'];
-   $name = $row['player_name'];
+   $res = $GLOBALS['db']->query("SELECT * FROM sessions WHERE id=$current_session_id");
+   $row = $res->fetch(PDO::FETCH_ASSOC);
 
+   $col    = $row['player_color'];
+   $name   = $row['player_name'];
 
    $bnd_on = $GLOBALS['bnd_on'];
    $plr_on = $GLOBALS['plr_on'];
    $gm_on  = $GLOBALS['gm_on'];
 
    $but = "class=\"button\" id=\"current_session_button\"";
-
    echo "<div id=\"current_session\"  class=\"div-section-container\">";
       echo "<div id=\"current_session\"  class=\"div-section-title-section-frame\">";
          echo "<div id=\"current_session\"  class=\"div-section-title-section-container\">";
@@ -64,7 +57,6 @@ function show_current_session()
             echo "</div>";
          echo "</div>";
       echo "</div>";
-
 
       echo "<div id=\"current_session\"  class=\"div-section-sub-section-pretext\">";
 
