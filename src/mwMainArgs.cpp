@@ -537,8 +537,22 @@ static int callback(void* data, int argc, char** argv, char** azColName)
 #include "mwMiscFnx.h"
 #include "mwBitmapTools.h"
 
+#include "mwSql.h"
+
+
+
 void mwMain::temp_test(void)
 {
+
+
+
+
+
+
+
+
+
+
 
 //   void val_to_gma(int &type, int &d1, int &d2, int p, int c, char * name)
 //   void gma_to_val(int type, int d1, int d2, int &p, int &c, char * name)

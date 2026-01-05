@@ -1,6 +1,6 @@
 <?php
 
-session_start();
+//session_start();
 
 $col_list = array();
 $row_list;
@@ -17,7 +17,15 @@ function setup_columns()
    if (isset($_SESSION['col_set'])) $col_set = $_SESSION['col_set'];
 
    $col_list_basic = array("id", "Player",     "player_name", "Start Time",         "duration", "ip", "host",     "Session End Reason", "cdat"    );
-   $row_list_basic =       "id,   player_color, player_name,   dt_start, SEC_TO_TIME(duration),  ip,   hostname,   endreason,            cdat_rx";
+   $row_list_basic =       "id,   player_color, player_name,   dt_start,             duration,  ip,   hostname,   endreason,            cdat_rx";
+
+
+
+//   $col_list_basic = array("id", "Player",     "player_name", "Start Time",         "duration", "ip", "host",     "Session End Reason", "cdat"    );
+//   $row_list_basic =       "id,   player_color, player_name,   dt_start, SEC_TO_TIME(duration),  ip,   hostname,   endreason,            cdat_rx";
+
+
+
 
    $col_list_basic2 = array("id", "Date",     "ip", "port", "host",     "endreason",            "duration",  "cdat");
    $row_list_basic2 =       "id,   dt_start,   ip,   port,   hostname,   endreason,  SEC_TO_TIME(duration),   cdat_rx";
@@ -126,8 +134,8 @@ function show_sessions_table()
             echo "</thead align='center'>";
             echo "<tbody>";
                $sql = "SELECT $row_list FROM sessions";
-               $res = mysqli_query($GLOBALS['conn'], $sql);
-               while ($row = $res->fetch_assoc())
+               $res = $GLOBALS['db']->query($sql);
+               while ($row = $res->fetch(PDO::FETCH_ASSOC))
                {
                   echo "<tr  id=\"mdw123\">";
                   foreach($row as $col => $val)

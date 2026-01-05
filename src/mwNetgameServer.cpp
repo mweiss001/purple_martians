@@ -312,8 +312,8 @@ void mwNetgame::server_send_snfo_packet(void) // send info to remote control
 
    mPlayer.loc[0].srv_num_enemy = mEnemy.num_enemy;
 
-   char src[5600];
-   char dst[5600];
+   char src[5700];
+   char dst[5700];
 
    int sz=0, offset=0;
    offset += sz; sz = sizeof(mPlayer.syn); memcpy(src + offset, mPlayer.syn, sz);
@@ -654,7 +654,7 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
       server_send_sjon_packet(address, 0, 0, 99, 0);
 
       // add session log
-      session_add_entry(address, hostname, 9, 0, 1);
+      session_add(address, hostname, 0, 1);
 
       mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
       mLog.add_log_net_db_row(LOG_NET, 0, 0,       "Reply sent: 'SERVER FULL'");
@@ -696,7 +696,9 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
       server_send_sjon_packet(address, mLevel.play_level, mLoop.frame_num, p, color);
 
       // start session log
-      session_add_entry(address, hostname, p, 1, 0);
+      session_add(address, hostname, p, 0);
+
+
 
       mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Server replied with join invitation:");
       mLog.add_fwf(LOG_NET,  -1, 76, 10, "|", " ", "Level:[%d]", mLevel.play_level);

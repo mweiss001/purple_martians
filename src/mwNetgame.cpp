@@ -24,7 +24,7 @@ mwNetgame::mwNetgame()
    server_port = 24785;
    zlib_cmp = 7;
    for (int i=0; i<20; i++) files_to_send[i].active = 0;
-   for (int i=0; i<10; i++) session_clear_entry(i);
+//   for (int i=0; i<10; i++) session_clear_entry(i);
    for (int i=0; i<8; i++) clear_channel(i);
    Channel = NULL;
 }

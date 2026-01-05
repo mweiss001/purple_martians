@@ -2812,9 +2812,136 @@ I am going to add sqlite to my project....
 
 first save all the work in progress and commit..
 
+2026-01-04 07:45:17
 
 
 
+
+
+
+2026-01-04 11:08:21
+
+i have the update function working...
+
+it only updates dt_end, duration, and endreason for now
+
+
+I want to call it from more places
+
+
+when I close a session, I should also set session_id to 0 in player loc
+then when I am checking for open sessions, I can check there
+
+
+I these in sessions
+
+         client_sessions[p].next_levels++;
+         if (p == mPlayer.syn[0].level_done_player) client_sessions[p].exits++;
+
+if that goes away, can I save it in player?
+
+set it in tally, then make sure it gets reset
+
+
+why are all these in syn?
+
+   int stat_respawns;
+   int stat_shots_fired;
+   int stat_enemy_hits;
+   int stat_player_hits;
+   int stat_self_hits;
+   int stat_purple_coins;
+
+   int stat_enemy_exploded;
+   int stat_player_exploded;
+   int stat_self_exploded;
+
+added:
+   int stat_next_levels;
+   int stat_exit;
+
+
+mItem.pmsgtext :250000
+---------------:------
+total          :384080
+
+Variables used for netgame state exchange
+
+mPlayer.syn         :  2624
+mEnemy.Ei           : 12800
+mEnemy.Ef           :  6400
+mItem.item          : 32000
+mItem.itemf         :  8000
+mLift.cur           :  4480
+mLevel.l            : 40000
+mShot.p             :  1200
+mShot.e             :  1200
+mTriggerEvent.event :  4000
+--------------------:------
+total               :112704
+
+Other Large Variables
+
+
+
+#define STATE_SIZE 112704
+
+
+
+
+I have been through the whole file: session log and done all I could
+I still need to do something about tally
+the sql method nevers call add log or tally or clear
+
+what calls it outside this file?
+
+
+mwGameMoves will do this when client quit: session_close(p, 2); // reason 2 - client quit
+
+this is still good
+
+
+omg should I deply to 146 and try?
+
+I should work on the tally shit now
+
+25 fucking variables to get from db, update, and put back...
+
+
+
+2026-01-04 16:05:44
+
+
+I think I am ready to remove all the old session stuff...
+
+
+2 calls to
+
+
+   void session_add_entry(const char* address, const char* hostname, int p, int active, int inactive_reason);
+
+      session_add_entry(address, hostname, 9, 0, 1); // server full
+      session_add_entry(address, hostname, p, 1, 0); // join invite     
+
+
+void mwNetgame::session_add_entry(const char* address, const char* hostname, int p, int active, int endreason)
+{
+   session_add_sql(address, hostname, p);
+
+
+changed to pass end reason also
+
+
+   session_add_sql(address, hostname, p, endreason);
+
+
+now replace those 2 calls with the sql version
+then deal with endreason
+done, I no longer use any of the old session stuff
+
+I should still make it optional
+
+how did I used to do that?
 
 
 

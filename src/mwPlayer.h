@@ -78,6 +78,9 @@ struct psyn // synced between server and client
    int stat_self_hits;
    int stat_purple_coins;
 
+   int stat_next_levels;
+   int stat_exits;
+
    int stat_enemy_exploded;
    int stat_player_exploded;
    int stat_self_exploded;
@@ -98,7 +101,8 @@ struct psyn // synced between server and client
 
    int spare_int1;
    int spare_int2;
-//   int spare_int3;
+   int spare_int3;
+   int spare_int4;
 
 };
 
@@ -163,6 +167,9 @@ struct ploc // not synced between server and client (but synced from server to r
    int cmp_dif_size;
 
    float cpu;
+
+   // used by server for session
+   int session_id;
 
 
    // used only by server remote_control

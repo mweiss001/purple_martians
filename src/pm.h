@@ -9,6 +9,8 @@
 #include <zlib.h>
 
 
+
+
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_image.h>
@@ -25,7 +27,7 @@
 #define BORDER_WIDTH 14
 #define NUM_LIFTS 40
 
-#define STATE_SIZE 112576
+#define STATE_SIZE 112704
 
 #define PACKET_BUFFER_SIZE 1500
 #define PACKET_PAYLOAD_CHUNK_SIZE 1400

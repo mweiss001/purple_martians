@@ -66,7 +66,7 @@ void mwBitmap::create_bitmaps(void)
 // done only once in initial_setup
 int mwBitmap::load_tiles(void)
 {
-   printf("load tiles\n");
+   //printf("load tiles\n");
 
 
    // get main tiles

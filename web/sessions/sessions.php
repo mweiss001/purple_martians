@@ -1,3 +1,9 @@
+<?php
+
+session_start();
+
+echo <<<TEXT
+
 <!DOCTYPE html>
 <html class="dark">
 
@@ -11,15 +17,12 @@
 </head>
 
 <body>
-
-<?php
-
-session_start();
+TEXT;
 
 include('show_sessions_table.php');
 include('show_current_session.php');
-include("show_gm_table.php");
-include('show_current_gm.php');
+//include("show_gm_table.php");
+//include('show_current_gm.php');
 
 // if passed as query string set the session variables
 if (isset($_GET['current_session_id']))   $_SESSION['current_session_id']  = $_GET['current_session_id'];
@@ -48,13 +51,9 @@ if (isset($_SESSION['gm_on']))              $gm_on              = $_SESSION['gm_
 
 
 // database setup
-$srvrname = "localhost";
-$database = "pm";
-$username = "pmdb_ro";
-$password = "readonly";
-$conn = mysqli_connect($srvrname, $username, $password, $database);
-if (!$conn) die("Connection failed: " . mysqli_connect_error());
+$db = new PDO("sqlite:./database.db");
 
+$db = new PDO("sqlite:/home/m/dev/purple_martians/data/database.db");
 
 echo "<div class=\"div-sessions-page\">";
 
@@ -71,8 +70,8 @@ $but = "class=\"button\" id=\"links_button\"";
    else
    {
       show_current_session();
-      show_gm_table();
-      show_current_gm();
+  //    show_gm_table();
+    //  show_current_gm();
 
    }
 
