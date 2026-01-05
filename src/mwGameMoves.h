@@ -22,6 +22,15 @@ class mwGameMoves
    int entry_pos = 0;
    int current_pos = 0;
 
+   char last_loaded_gm_filename[256];
+   int  last_loaded_gm_version;
+   int  last_loaded_gm_last_frame;
+
+
+
+
+
+
    void proc(void);
 
    void add_game_move2(int frame, int type, int data1, int data2);
@@ -44,12 +53,35 @@ class mwGameMoves
 
    void save_gm_file_select(void);
    void save_gm_make_fn(const char* desc, int sendto);
-   int save_gm(const char *sfname, int sendto);
    void save_gm_txt(const char *sfname);
 
    int load_demo_level(int lev);
    int load_gm(const char *sfname);
    int load_gm_file_select(void);
+
+   bool header_key_find(char* line, const char* key, int &val);
+
+   int  save_gm(const char *sfname, int sendto);
+   bool save_gm(const char *fname);
+
+
+   void find_player_info();
+   void convert_active_gamemoves();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 };
 extern mwGameMoves mGameMoves;
 

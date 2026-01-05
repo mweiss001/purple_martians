@@ -40,9 +40,6 @@ void mwDemoRecord::gdt(void)
 
       printf("GDT lev:[%2d] ----", mLevel.play_level);
 
-
-
-
 /*
 
 
@@ -60,13 +57,29 @@ void mwDemoRecord::gdt(void)
 */
 
 
-//        // show all player active game moves
-//      printf("GDT lev:[%2d] -----", mLevel.play_level);
-//      for (int x=0; x<mGameMoves.entry_pos; x++)
-//         if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
-//         {
-//            printf("[%d] p:%d active\n", mGameMoves.arr[x][0], mGameMoves.arr[x][2]);
-//         }
+        // show all player active game moves
+
+      int active_found = 0;
+      int active_found2 = 0;
+      for (int x=0; x<mGameMoves.entry_pos; x++)
+      {
+         if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
+         {
+            //printf("[%d] p:%d active\n", mGameMoves.arr[x][0], mGameMoves.arr[x][2]);
+            active_found++;
+         }
+
+         if (mGameMoves.arr[x][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG)
+         {
+            //printf("[%d] p:%d active\n", mGameMoves.arr[x][0], mGameMoves.arr[x][2]);
+            active_found2++;
+         }
+
+
+
+
+      }
+      printf("active found:%d %d\n", active_found, active_found2);
 
 
 

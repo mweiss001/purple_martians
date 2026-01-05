@@ -2803,6 +2803,29 @@ function gma_to_val($t, $d1, $d2)
 
 
 
+I have another crazy idea
+
+integrate a database into the game
+
+- i need to make sure that windows and linux versions are still the same
+- do I need a networked database like mysql? could i just use sqlite?
+
+why?
+what are the benefits:
+- make the way the server writes files to disk and later gets scraped a lot simpler
+- the server can just write directly to the database
+- make the way to adjust the config from headless mode
+- replace so much of the level stats bullshit with something much simpler
+
+cons:
+would take a lot of fucking work!!
+
+how can i start small?
+
+add sqlite to project and make sure it works in windows and linux
+then start adding things to it
+
+first of all, sessions
 
 
 
@@ -2942,6 +2965,548 @@ done, I no longer use any of the old session stuff
 I should still make it optional
 
 how did I used to do that?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I also would like a meta block for gm files
+I have one already, but I want a better one
+append at the start when saving
+start time
+end time
+duration
+players
+player names
+finished?
+
+maybe each player section could include:
+name
+number
+color
+start frame
+end frame
+respawns
+purple coins collected
+enemies killed
+other players killed
+enemy hits
+self hits
+exits triggered
+
+I have been think about redoing how I save gm files to disk
+currently:
+nothing but unordered integers, one per line
+
+1320
+0
+0
+0
+9
+1
+9
+0
+5
+1
+3
+0
+0
+1
+8389888
+1802398064
+7602297
+1
+8392193
+1819043193
+7602287
+13
+5
+1
+4
+17
+5
+1
+0
+
+I was thinking of making it like this:
+
+1320
+0,0,0,9
+1,9,0,5
+1,3,0,0
+1,8389888,1802398064,7602297
+1,8392193,1819043193,7602287
+13,5,1,4
+17,5,1,0
+
+it should not take more disk space
+I would just be swapping crlf for ,
+
+when saved on windows the lines end with CRLF
+in linux its just LF
+
+if I make this change, what would it affect?
+-only the game saves and loads to disk,
+-once loaded into the array the way it is stored on disk is irrelevant
+-it would make it easier to parse later
+
+
+
+what will 
+
+magic number to start file:
+PMSAVEGAME
+
+then the meta block up to
+
+in the meta block
+
+VERSION:1
+
+
+
+TIMESTAMP_START:
+TIMESTAMP_END:
+MAX_FRAME:
+LEVEL_NUM: 
+
+
+PLAYER_INFO_START:
+PLAYER_NUMBER:
+PLAYE_COLOR:
+PLAYER_NAME:
+FRAME_START:
+FRAME_END:
+DEATHS:
+PURPLE_COINS:
+PLAYER_INFO_END:
+
+
+
+GAME_DATA_NUM_ENTRIES:
+GAME_DATA_START:
+
+each line will be 4 commas separated ints, corresponding to an array line
+
+0,0,0,9
+1,9,0,5
+1,3,0,0
+
+
+most times reading the file, the header can be ignored
+
+the header can be modified with no ill effects
+
+if the header or magic number is missing, revert to old loading behaviour
+
+
+in load:
+
+first detect magic number:
+
+if missing do old load
+
+
+int mwGameMoves::load_gm(const char *sfname)
+
+
+
+
+I redid the old method, it had a read file pattern I used from my frist days of c programming:
+
+      int loop, ch;
+      char buff[2000];
+
+      initialize();
+
+      char fname[256];
+      sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
+
+      FILE *filepntr = fopen(fname, "r");
+      if (filepntr == NULL)
+      {
+         printf("Error opening file:%s\n", fname);
+         return 0;
+      }
+      else
+      {
+
+         // first get number of entries
+         loop = 0;
+         ch = fgetc(filepntr);
+         while((ch != '\n') && (ch != EOF))
+         {
+            buff[loop] = ch;
+            loop++;
+            ch = fgetc(filepntr);
+         }
+         buff[loop] = 0;
+         entry_pos = atoi(buff);
+
+
+         // then get all the entries
+         for (int x=0; x<entry_pos; x++)
+            for (int y=0; y<4; y++)
+            {
+               loop = 0;
+               ch = fgetc(filepntr);
+               while((ch != '\n') && (ch != EOF))
+               {
+                  buff[loop] = ch;
+                  loop++;
+                  ch = fgetc(filepntr);
+               }
+               buff[loop] = 0;
+               arr[x][y] = atoi(buff);
+            }
+         fclose(filepntr);
+
+ewww....
+
+new:
+
+      for (int x=0; x<entry_pos; x++)
+         for (int y=0; y<4; y++)
+            if (fgets(buffer, 100, file)) arr[x][y] = atoi(buffer);
+
+
+#include <stdio.h>
+
+int main() {
+    FILE *fp;
+    int id;
+    char firstname[50];
+    char lastname[50];
+    
+    // Open the file in read mode ("r")
+    fp = fopen("data.csv", "r");
+    if (fp == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+    
+    // Read data in a loop, checking the return value
+    // "%d,%49[^,],%49[^\\n]\\n" format:
+    // %d     -> read an integer
+    // ,      -> match a literal comma
+    // %49[^,] -> read up to 49 characters that are NOT commas
+    // %49[^\\n] -> read up to 49 characters that are NOT newlines
+    // \\n    -> consume the newline character at the end of the line
+    while (fscanf(fp, "%d,%49[^,],%49[^\\n]%*c", &id, firstname, lastname) == 3) {
+        printf("ID: %d, First Name: %s, Last Name: %s\n", id, firstname, lastname);
+    }
+
+    // Check if the loop terminated due to end-of-file or a reading error
+    if (!feof(fp)) {
+         fprintf(stderr, "Error reading data or format mismatch.\n");
+    }
+    
+    fclose(fp); // Close the file
+    return 0;
+}
+
+
+
+
+
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    FILE *fp;
+    char line[256]; // Buffer to hold one line
+    char *token;
+
+    fp = fopen("data.csv", "r");
+    if (fp == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+
+    // Read each line using fgets
+    while (fgets(line, sizeof(line), fp)) {
+        // Use strtok to parse the line using a comma as a delimiter
+        token = strtok(line, ",");
+        while (token != NULL) {
+            // Process each token (field)
+            printf("Field: %s\n", token);
+            // Get the next token
+            token = strtok(NULL, ",");
+        }
+    }
+
+    fclose(fp);
+    return 0;
+}
+
+
+
+now I want to convert to csv lines
+
+make a funtion to convert:
+
+I need some metadata from the header that I can use in the new file
+
+
+added these to the class:
+
+   char[256] last_loaded_gm_filename;   
+   int last_loaded_gm_version;
+   int last_loaded_gm_last_frame;
+
+set them in load
+
+
+I have it done
+
+version 0 oldest
+version 1 with header, data still 1 val per line
+version 2 with header and data 4 vals per line
+
+what else do I want to put in there?
+start time, last frame, duration
+player info
+
+
+I also want to make sure I do not overwrite any values in the header
+how about, read everything from header, change, write
+this is probably not needed, I will rarely resave one of these
+
+If there is a timestamp, do not overwrite
+
+TIMESTAMP_START:
+MAX_FRAME:
+LEVEL_NUM: 
+
+done
+
+
+
+
+now the hard part:
+
+PLAYER_INFO_START:
+PLAYER_NUMBER:
+PLAYE_COLOR:
+PLAYER_NAME:
+FRAME_START:
+FRAME_END:
+DEATHS:
+PURPLE_COINS:
+PLAYER_INFO_END:
+
+
+I also want to make all player active things the same (new version)
+
+I just found there might not be an active game move in a gm file...?
+
+
+
+I was playing with the gdt thing in demorecord to iterate all demo levels
+
+just the act of loading them triggered the resave
+
+
+fixed that...
+
+I just looked at all the ones in the demo folder and they are all ok
+
+what is going on?
+
+
+am i looking at client only ones?
+
+I don't think so, it has player 0
+
+maybe it just has new style ones...yes...
+
+
+2026-01-05 07:13:44
+I am running out of time for now:
+
+What I really want to do is convert all to the new format: version 2, with blackjack and hookers....
+
+I want to be sure everything will go smoothly though
+
+then run it on all in the savegame folder
+
+I still want to keep the old read stuff around
+
+I should make it so that whenever one is read,
+if it is the old version, convert it to the new version
+with a different filename?
+
+or rename the old to .old
+
+then once I have them all in the new format, get back to searching for players sessions within the gm
+
+
+
+2026-01-05 12:02:15
+
+do this one task...
+
+make it so that loading gm will save in new format
+
+do a few till you are sure it is working
+
+copy an old one from demo
+
+
+I think I got it....
+should I just run it and let it overwrite
+
+2026-01-05 12:54:46
+
+done..
+
+now all levels should be new format...
+
+make it so that any old ones loaded will get redone...
+
+done...
+all demos are now version 2
+anytime version 1 or earlier is loaded, it will be resaved as v2
+
+
+2026-01-05 13:25:08
+
+now back to looking for players in gm's
+
+while testing, patch it in load
+
+this might be more complicated than I thought
+
+I could have many players and even overlapping ones
+a thorough method would be by player
+player 0 
+
+
+wait, how about find all player_actives
+
+
+I really want to be able to dowlod from server again...why is it broken?
+
+I think I need to fix the gm scrape to work with sqlite
+
+remove the old sessions_scrape from cron...
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260104-172255' AND dt_start<'20260104-174355')  OR    (dt_end  >'20260104-172255' AND dt_end  <'20260104-174355');
+
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260104-172519' AND dt_start<'20260104-174358')  OR    (dt_end  >'20260104-172519' AND dt_end  <'20260104-174358');
+
+
+Session id:3   -   start:20260104-181242   -   end:20260104-185051   -
+
+
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260104-181242' AND dt_start<'20260104-185051')  OR    (dt_end  >'20260104-181242' AND dt_end  <'20260104-185051')
+Session id:4   -   start:20260104-181249   -   end:20260104-185052   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260104-181249' AND dt_start<'20260104-185052')  OR    (dt_end  >'20260104-181249' AND dt_end  <'20260104-185052')
+Session id:5   -   start:20260104-185146   -   end:20260104-185147   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260104-185146' AND dt_start<'20260104-185147')  OR    (dt_end  >'20260104-185146' AND dt_end  <'20260104-185147')
+Session id:6   -   start:20260105-072136   -   end:20260105-072146   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-072136' AND dt_start<'20260105-072146')  OR    (dt_end  >'20260105-072136' AND dt_end  <'20260105-072146')
+Session id:7   -   start:20260105-103756   -   end:20260105-104026   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-103756' AND dt_start<'20260105-104026')  OR    (dt_end  >'20260105-103756' AND dt_end  <'20260105-104026')
+Session id:8   -   start:20260105-103806   -   end:20260105-104015   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-103806' AND dt_start<'20260105-104015')  OR    (dt_end  >'20260105-103806' AND dt_end  <'20260105-104015')
+Session id:9   -   start:20260105-104042   -   end:20260105-104105   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-104042' AND dt_start<'20260105-104105')  OR    (dt_end  >'20260105-104042' AND dt_end  <'20260105-104105')
+Session id:10   -   start:20260105-104048   -   end:20260105-104103   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-104048' AND dt_start<'20260105-104103')  OR    (dt_end  >'20260105-104048' AND dt_end  <'20260105-104103')
+Session id:11   -   start:20260105-111037   -   end:20260105-111738   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-111037' AND dt_start<'20260105-111738')  OR    (dt_end  >'20260105-111037' AND dt_end  <'20260105-111738')
+Session id:12   -   start:20260105-111135   -   end:20260105-111418   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-111135' AND dt_start<'20260105-111418')  OR    (dt_end  >'20260105-111135' AND dt_end  <'20260105-111418')  m@o3000:~/dev/purple_martians/scrape$
+
+SELECT * FROM myTable WHERE myColumn BETWEEN '2023-01-01' AND '2023-02-01';
+
+
+
+delete all on server and start again...
+
+
+get all php from web
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -564,55 +564,10 @@ char * mwGameMoves::get_save_txt(int num, char *txt)
 }
 
 
-int mwGameMoves::save_gm(const char *fname, int sendto)
-{
-   char msg[256];
-   int ret = 0; // good return by default
-   if (entry_pos == 0)          ret = 1; // No game moves to save
-   if (mLevel.play_level == 1)  ret = 2; // Never save demo for overworld
-   if (mDemoMode.mode)          ret = 3; // Never save demo when in demo mode
-   if (mNetgame.ima_client)     ret = 4; // Never save demo locally for client
-
-   if ((sendto) && (!server_send_files_to_clients)) ret = 5; // trying to send to client and file transfer disabled
-
-   // only log here if file will not be saved
-   if (ret) mLog.log_add_prefixed_textf(LOG_NET_file_transfer, sendto, "save:txt:%s\n", get_save_txt(ret, msg));
-
-   if (sendto) mNetgame.server_send_srrf_packet(sendto, ret);
-
-   if (!ret)
-   {
-      gm_sort();
-
-      FILE *filepntr = fopen(fname,"w");
-      if (filepntr == NULL) printf("Error opening file:%s\n", fname);
-      else
-      {
-         fprintf(filepntr,"%d\n", entry_pos);  // num_entries
-         for (int x=0; x<entry_pos; x++)
-            for (int y=0; y<4; y++)
-               fprintf(filepntr,"%d\n", arr[x][y]);
-         fclose(filepntr);
-         mLog.log_add_prefixed_textf(LOG_NET_file_transfer, sendto, "saved:%s\n", fname);
-
-         sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname); // update current loaded demo filename
-
-         //save_gm_txt(fname); // also save as a human readable text file
-      }
-      if (sendto) mNetgame.server_add_file_to_send(fname, sendto);
-   }
-   return ret;
-}
-
 void mwGameMoves::save_gm_make_fn(const char* description, int sendto)
 {
-   char timestamp[40];
-   struct tm *timenow;
-   time_t now = time(NULL);
-   timenow = localtime(&now);
-   strftime(timestamp, sizeof(timestamp), "%Y%m%d-%H%M%S", timenow);
    char filename[120];
-   sprintf(filename, "savegame/%s-[%02d]-%s.gm", timestamp, mLevel.play_level, description);
+   sprintf(filename, "savegame/%s-[%02d]-%s.gm", mMiscFnx.get_timestamp(), mLevel.play_level, description);
    save_gm(filename, sendto);
 }
 
@@ -679,9 +634,10 @@ int mwGameMoves::load_gm_file_select(void)
 }
 
 
-
 int mwGameMoves::load_gm(const char *sfname)
 {
+//   printf("load_gm(%s)\n", sfname);
+
    // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
    ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(sfname);
    if (!al_fs_entry_exists(FS_fname))
@@ -689,60 +645,235 @@ int mwGameMoves::load_gm(const char *sfname)
       printf("%s does not exist\n", al_get_fs_entry_name(FS_fname));
       return 0;
    }
+
+   char fname[256];
+   sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
+   FILE *file = fopen(fname, "r");
+   if (file == NULL)
+   {
+      printf("Error opening file:%s\n", fname);
+      return 0;
+   }
+
+   // save filename
+   sprintf(last_loaded_gm_filename, fname);
+
+   // clear the game moves array
+   initialize();
+
+
+
+   char buffer[1024];
+   fgets(buffer, 100, file);
+   if (strncmp(buffer, "PMSAVEGAME", 10) == 0)
+   {
+      bool read_header = 1;
+      // read lines up to end of header
+      while ((read_header) && (fgets(buffer, 100, file)))
+      {
+         header_key_find(buffer, "VERSION:", last_loaded_gm_version);
+         header_key_find(buffer, "GAME_DATA_NUM_ENTRIES:", entry_pos);
+         if (strncmp(buffer, "GAME_DATA_START:", 16) == 0) read_header = 0;
+      }
+      if (entry_pos == 0) return 0;
+   }
    else
    {
-      int loop, ch;
-      char buff[2000];
+      last_loaded_gm_version = 0; // oldest version
 
-      initialize();
+      // get number entries from first line (already in buffer)
+      entry_pos = atoi(buffer);
+      if (entry_pos == 0) return 0;
 
-      char fname[256];
-      sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
-
-      FILE *filepntr = fopen(fname, "r");
-      if (filepntr == NULL)
-      {
-         printf("Error opening file:%s\n", fname);
-         return 0;
-      }
-      else
-      {
-         // first get number of entries
-         loop = 0;
-         ch = fgetc(filepntr);
-         while((ch != '\n') && (ch != EOF))
-         {
-            buff[loop] = ch;
-            loop++;
-            ch = fgetc(filepntr);
-         }
-         buff[loop] = 0;
-         entry_pos = atoi(buff);
-
-         // then get all the entries
-         for (int x=0; x<entry_pos; x++)
-            for (int y=0; y<4; y++)
+      last_loaded_gm_last_frame = 0;
+      for (int x=0; x<entry_pos; x++)
+         for (int y=0; y<4; y++)
+            if (fgets(buffer, 100, file))
             {
-               loop = 0;
-               ch = fgetc(filepntr);
-               while((ch != '\n') && (ch != EOF))
-               {
-                  buff[loop] = ch;
-                  loop++;
-                  ch = fgetc(filepntr);
-               }
-               buff[loop] = 0;
-               arr[x][y] = atoi(buff);
+               arr[x][y] = atoi(buffer);
+               if (y == 0) last_loaded_gm_last_frame = arr[x][y];
             }
-         fclose(filepntr);
 
-         mLevel.play_level = arr[0][3]; // set play level
-         mDemoMode.last_frame = arr[entry_pos-1][0];
-         //printf("dmlf:%d\n", mDemoMode.last_frame );
-         //printf("fname:%s\n", fname);
-         sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname);
-         return 1;
-      }
+      fclose(file);
+   }
+   if (last_loaded_gm_version == 2)
+   {
+      last_loaded_gm_last_frame = 0;
+      for (int x=0; x<entry_pos; x++)
+         if (fscanf(file, "%d,%d,%d,%d\n", &arr[x][0], &arr[x][1], &arr[x][2], &arr[x][3]) > 0) last_loaded_gm_last_frame = arr[x][0];
+      fclose(file);
+   }
+
+   mLevel.play_level = arr[0][3]; // set play level
+   mDemoMode.last_frame = last_loaded_gm_last_frame;
+   sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname);
+   //printf("play_level:%d entry_pos:%d last_frame:%d \n", mLevel.play_level, entry_pos, mDemoMode.last_frame);
+
+//   printf("Loaded version (%d) of demo file: %s\n", last_loaded_gm_version, fname);
+
+
+   if (last_loaded_gm_version < 2)
+   {
+      printf("Loaded old version (%d) of demo file: %s  --  resaving as version 2\n", last_loaded_gm_version, fname);
+      save_gm(fname);
+   }
+
+
+   find_player_info();
+
+
+
+   return 1;
+}
+
+
+
+
+bool mwGameMoves::header_key_find(char* line, const char* key, int &val)
+{
+   if (strncmp(line, key, strlen(key)) == 0)
+   {
+      mMiscFnx.chop_first_x_char(line, strlen(key));
+      val = atoi(line);
+      // printf("%s %d\n", key, val);
+      return 1;
    }
    return 0;
 }
+
+
+
+
+
+void mwGameMoves::find_player_info()
+{
+   printf("find_player_info()\n");
+   // looks in the loaded gm file and find all player active and inactive moves
+
+   int am_count = 0;
+   int im_count = 0;
+
+//   int par[10][10] = { 0 };
+
+
+   // first count active and inactive game moves
+   for (int x=0; x<entry_pos; x++)
+   {
+      if (mGameMoves.arr[x][1] &  PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) am_count++;
+      if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) im_count++;
+   }
+   printf("player active/inactive moves: %d %d\n", am_count, im_count);
+
+
+
+
+
+//      if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
+
+
+}
+
+
+
+void mwGameMoves::convert_active_gamemoves()
+{
+   // coverts all old style gm to new
+   for (int x=0; x<entry_pos; x++)
+   {
+      if (mGameMoves.arr[x][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG)
+      {
+         int t  = arr[x][1];
+         int d1 = arr[x][2];
+         int d2 = arr[x][3];
+
+         int p, c;
+         char name[16];
+
+         mMiscFnx.gma_to_val(t, d1, d2, p, c, name);
+
+         printf("found new gma -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, name, t, d1, d2);
+
+      }
+      if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
+      {
+
+         int p = arr[x][2];
+         int c = arr[x][3];
+
+         int type, d1, d2;
+         char name[16];
+         sprintf(name, "Player %d", p);
+
+         mMiscFnx.val_to_gma(type, d1, d2, p, c, name);
+
+         printf("found old gma -- p:%d c:%d -- new: name:%s type:%d d1:%d d2:%d \n", p, c, name, type, d1, d2);
+
+         arr[x][1] = type;
+         arr[x][2] = d1;
+         arr[x][3] = d2;
+      }
+   }
+}
+
+
+bool mwGameMoves::save_gm(const char *fname)
+{
+   printf("save_gm:%s\n", fname);
+   convert_active_gamemoves();
+
+   FILE *filepntr = fopen(fname,"w");
+   if (filepntr == NULL)
+   {
+      printf("Error opening file:%s\n", fname);
+      return 0;
+   }
+
+   fprintf(filepntr, "%s", "PMSAVEGAME\n");
+   fprintf(filepntr, "VERSION:%d\n", 2);
+   fprintf(filepntr, "TIMESTAMP:%s\n", mMiscFnx.get_timestamp());
+   fprintf(filepntr, "LEVEL_NUM:%d\n", arr[0][3]);
+   fprintf(filepntr, "LAST_FRAME:%d\n", arr[entry_pos-1][0]);
+   fprintf(filepntr, "GAME_DATA_NUM_ENTRIES:%d\n", entry_pos);
+   fprintf(filepntr, "%s", "GAME_DATA_START:\n");
+
+      for (int x=0; x<entry_pos; x++)
+         fprintf(filepntr,"%d,%d,%d,%d\n", arr[x][0], arr[x][1], arr[x][2], arr[x][3] );
+
+   fclose(filepntr);
+   return 1;
+}
+
+
+
+int mwGameMoves::save_gm(const char *fname, int sendto)
+{
+   char msg[256];
+   int ret = 0; // good return by default
+   if (entry_pos == 0)          ret = 1; // No game moves to save
+   if (mLevel.play_level == 1)  ret = 2; // Never save demo for overworld
+   if (mDemoMode.mode)          ret = 3; // Never save demo when in demo mode
+   if (mNetgame.ima_client)     ret = 4; // Never save demo locally for client
+
+   if ((sendto) && (!server_send_files_to_clients)) ret = 5; // trying to send to client and file transfer disabled
+
+   // only log here if file will not be saved
+   if (ret) mLog.log_add_prefixed_textf(LOG_NET_file_transfer, sendto, "save:txt:%s\n", get_save_txt(ret, msg));
+
+   if (sendto) mNetgame.server_send_srrf_packet(sendto, ret);
+
+   // actually do the save
+   if (!ret)
+   {
+      gm_sort();
+      save_gm(fname);
+
+      mLog.log_add_prefixed_textf(LOG_NET_file_transfer, sendto, "saved:%s\n", fname);
+      sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname); // update current loaded demo filename
+
+      //save_gm_txt(fname); // also save as a human readable text file
+      if (sendto) mNetgame.server_add_file_to_send(fname, sendto);
+   }
+   return ret;
+}
+
+

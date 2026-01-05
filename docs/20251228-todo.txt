@@ -14,89 +14,93 @@ add very small text name above player..done
 how to make this optional...
 how about only remote players have the label? I like that!!
 
+
 ------------------------------------------------------------------------------
-I have beed think about redoing how I save gm files to disk
-currently:
-nothing but unordered integers, one per line
 
-1320
-0
-0
-0
-9
-1
-9
-0
-5
-1
-3
-0
-0
-1
-8389888
-1802398064
-7602297
-1
-8392193
-1819043193
-7602287
-13
-5
-1
-4
-17
-5
-1
-0
 
-I was thinking of making it like this:
+meta section for gm files
 
-1320
-0,0,0,9
-1,9,0,5
-1,3,0,0
-1,8389888,1802398064,7602297
-1,8392193,1819043193,7602287
-13,5,1,4
-17,5,1,0
+store ints as rows
 
-it should not take more disk space
-I would just be swapping crlf for ,
 
-when saved on windows the lines end with CRLF
-in linux its just LF
+redo all gm files
 
-if I make this change, what would it affect?
--only the game saves and loads to disk,
--once loaded into the array the way it is stored on disk is irrelevant
--it would make it easier to parse later
+unique id in meta section for gm file version
+
+keep old reader along with new one
+save in new format
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------
+
+There is a lot of info in level stats that would be better suited in database. Just saying..
+
+
+
+
+------------------------------------------------------------------------------
+
+bug - play all levels and set stats is broken
+
+void mwLevel::add_play_data_record(int lev, int type)
+{
+   printf("void mwLevel::add_play_data_record(int lev, int type))\n");
+
+   int save_flag = 1;
+   if (mPlayer.syn[mPlayer.active_local_player].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) save_flag = 0; // if running demo mode, don't save data
+   if (mLevel.skc_trigger_demo_cheat) save_flag = 1;                        // in cheat mode save data
+   if (mDemoMode.demo_debug_running_demo_saves_level_data) save_flag = 1;   // or if this is option is set
+   if (lev == 1) save_flag = 0;                                             // never save data for overworld
+
+
+   printf("mDemoMode.demo_debug_running_demo_saves_level_data:%d\n", mDemoMode.demo_debug_running_demo_saves_level_data);
+
+
+   printf("void mwLevel::add_play_data_record(int lev, int type)) Save flag:%d  \n", save_flag);
+
+
+   save_flag = 1;                                             // never save data for overworld
+
+
+   if (save_flag)
+
+
+------------------------------------------------------------------------------
+
+
+add update to fire every second so I can see changes
+
+it seems like next level and exits stats are a bit high???
+
+
+------------------------------------------------------------------------------
+bug server not happy when database is erased
+server is seg faulting but only when started as service and client joins
+
+------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------
 -----------------------------------------------------------------------------
-I have another crazy idea
-
-integrate a database into the game
-
-- i need to make sure that windows and linux versions are still the same
-- do I need a networked database like mysql? could i just use sqlite?
-
-why?
-what are the benefits:
-- make the way the server writes files to disk and later gets scraped a lot simpler
-- the server can just write directly to the database
-- make the way to adjust the config from headless mode
-- replace so much of the level stats bullshit with something much simpler
-
-cons:
-would take a lot of fucking work!!
-
-how can i start small?
-
-add sqlite to project and make sure it works in windows and linux
-then start adding things to it
-
-first of all, sessions
-
-
-
 
 
 
@@ -228,6 +232,13 @@ how big is it? settings.pm is 8K
 ---------------------   DONE   -----------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+if database is erase, php will try to create it...i don't want that
+
+
+text duration in current session no longer lines up
+
+
 
 show the player name and color in sessions table, maybe even a little player icon
 
@@ -368,27 +379,3 @@ but really, how much overhead could it take to enter a few things in a database
 is there really any reason to use mysql? why do I need remote network access to the database
 anything the webpage shows will be on the same physical machine
 ------------------------------------------------------------------------------
-I also would like a meta block for gm files
-I have one already, but I want a better one
-append at the start when saving
-start time
-end time
-duration
-players
-player names
-finished?
-
-maybe each player section could include:
-name
-number
-color
-start frame
-end frame
-respawns
-purple coins collected
-enemies killed
-other players killed
-enemy hits
-self hits
-exits triggered
-

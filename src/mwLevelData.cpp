@@ -58,11 +58,20 @@ void mwLevel::level_start_data(void)
 
 void mwLevel::add_play_data_record(int lev, int type)
 {
+//   printf("void mwLevel::add_play_data_record(int lev, int type))\n");
+
    int save_flag = 1;
    if (mPlayer.syn[mPlayer.active_local_player].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) save_flag = 0; // if running demo mode, don't save data
    if (mLevel.skc_trigger_demo_cheat) save_flag = 1;                        // in cheat mode save data
    if (mDemoMode.demo_debug_running_demo_saves_level_data) save_flag = 1;   // or if this is option is set
    if (lev == 1) save_flag = 0;                                             // never save data for overworld
+
+
+//   printf("mDemoMode.demo_debug_running_demo_saves_level_data:%d\n", mDemoMode.demo_debug_running_demo_saves_level_data);
+
+//   printf("void mwLevel::add_play_data_record(int lev, int type)) Save flag:%d  \n", save_flag);
+
+   save_flag = 1;
 
 
    if (save_flag)

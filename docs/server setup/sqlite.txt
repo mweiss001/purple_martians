@@ -1,45 +1,173 @@
+Notes on using sqlite
+----------------------
 
 
-Install sqlite on windows.
+Windows:
 
-    Step 1 − Go to SQLite download page, and download precompiled binaries from Windows section.
 
-    Step 2 − Download sqlite-shell-win32-*.zip and sqlite-dll-win32-*.zip zipped files.
+downloaded version 3.35.1 amalgamation for windows
 
-    Step 3 − Create a folder C:\>sqlite and unzip above two zipped files in this folder, which will give you sqlite3.def, sqlite3.dll and sqlite3.exe files.
+put sqlite3.c and sqlite3.h in my source dir
+added sqlite3.c and sqlite3.h to the project
 
-    Step 4 − Add C:\>sqlite in your PATH environment variable and finally go to the command prompt and issue sqlite3 command, which should display the following result.
-
-C:\>sqlite3
-SQLite version 3.7.15.2 2013-01-09 11:53:05
-Enter ".help" for instructions
-Enter SQL statements terminated with a ";"
-sqlite>
+#include "sqlite3.h" 
 
 
 
-C:\pm>PATH
+   // prepare statement
+   const char* sql2 = "UPDATE sessions SET dt_end=?, duration=? WHERE id = ?";
+   sqlite3_prepare_v2(mSql.db, sql2, -1, &stmt, NULL);
 
-PATH=C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files\Oculus\Support\oculus-runtime;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin;C:\Program Files\gs\gs10.00.0\bin;C:\Program Files\Calibre2\;C:\Program Files\MySQL\MySQL Shell 8.0\bin\;C:\Program Files\Oculus\Support\oculus-runtime;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin;C:\Users\m\AppData\Local\Microsoft\WindowsApps;;C:\Strawberry\perl\bin
-
-C:\pm>setx /M path "%path%;C:\sqlite"
-
-WARNING: The data being saved is truncated to 1024 characters.
-ERROR: Access to the registry path is denied.
-
-C:\pm>
-
-This is trimmed down a little:
-
-run as admin:
-
-setx path "C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\gs\gs10.00.0\bin;C:\Program Files\Calibre2\;C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin;C:\Users\m\AppData\Local\Microsoft\WindowsApps;C:\sqlite;"
+   // bind parameters
+   sqlite3_bind_text(stmt, 1, te, -1, SQLITE_STATIC);
+   sqlite3_bind_int(stmt, 2, duration);
+   sqlite3_bind_int(stmt, 3, sid);
 
 
+   // execute and step through results
+   step_result = sqlite3_step(stmt);
+   if (step_result == SQLITE_ROW) printf("UPDATE SUCCESSFUL");
+   else if (step_result == SQLITE_DONE)
+   {
+      printf("No row found for the given ID.\n");
+   }
+   else
+   {
+      fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(mSql.db));
+   }
+
+   // finalize the statement
+   sqlite3_finalize(stmt);
 
 
 
-create a database:
+Linux:
+-------------------------------------------------------------------------------------
+
+C++
+---
+
+had to manually compile sqlite
+gcc -Wall -c src/sqlite3.c -o o/src/sqlite.o
+it takes 45s to compile on o3000
+
+
+how can I make it work without manual intervention?
+rename .c to .cpp? that did not work..
+
+all my cpp files are compiled with this
+g++ -Wall
+i need to use gcc
+
+added to ./lin_compile:
+
+gcc -Wall -c src/sqlite3.c -o o/src/sqlite.o
+
+
+
+php
+---
+
+sudo apt install sqlite3
+sudo apt install php-sqlite3
+
+here is what I have to do to replace mysql with sqlite
+
+- no built in SEC_TO_TIME in db
+not sure why I was using at anyway
+
+old connect:
+
+// database setup
+$srvrname = "localhost";
+$database = "pm";
+$username = "pmdb_ro";
+$password = "readonly";
+$conn = mysqli_connect($srvrname, $username, $password, $database);
+if (!$conn) die("Connection failed: " . mysqli_connect_error());
+
+
+new connect:
+
+// database setup
+$db_filepath = "/home/m/dev/purple_martians/data/database.db";
+if (!file_exists($db_filepath))
+{
+   echo "Database file: $filename not found.";
+   return;
+}
+$db = new PDO("sqlite:/home/m/dev/purple_martians/data/database.db");
+
+
+
+
+
+
+
+
+
+
+
+
+
+old:
+$res = mysqli_query($GLOBALS['conn'], $sql);
+while ($row = $res->fetch_assoc())
+
+new:
+$res = $GLOBALS['db']->query($sql);
+while ($row = $res->fetch(PDO::FETCH_ASSOC))
+
+old: this does not work
+if ($result->num_rows == 0) { echo " gm not found \n";  return; }
+
+
+new:
+$res = $GLOBALS['db']->query("SELECT COUNT(*) FROM sessions WHERE id=$current_session_id");
+if ($res->fetchColumn() == 0)  { echo " session [$current_session_id] not found \n";  return; } 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+older........
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 sqlite3 test.db
 
@@ -53,7 +181,6 @@ Enter ".help" for usage hints.
 sqlite> .database
 main: C:\pm\test.db r/w
 sqlite>
-
 
 
 CREATE TABLE `pm_log`
@@ -160,7 +287,6 @@ compiles and works....
 
 what did it do to my executable?
 
-
 pm.exe is now 16.3M
 removed and now it is 15.2M
 
@@ -170,7 +296,6 @@ I have worked through tutorials to connect to database, create and drop tables i
 now lets see what I have to do to get it to work on linux....
 
 copy all the sources to pmh
-
 
 
 had to manually compile with this line:
@@ -191,7 +316,6 @@ what should I do next...
 ...........
 
 how do I get qt to read that database?
-
 
 
 here is the answer....
@@ -239,7 +363,6 @@ Its kind of like how I am alreay doing it.
 I am thinking about making a structure in my game for log lines.
 kind of mirror what I do in pm_log
 
-
 timestamp
 frame_num
 player_num
@@ -248,7 +371,6 @@ message_type
 message text
 
 then I could send a few of these in a compressed packet...
-
 
 
 the reasons for converting my log system to a structure of lines
@@ -270,14 +392,12 @@ then if they are printed do one thing
 logged to file, do another
 added to struct for db insert file 
 
-
 ---------------------
 
 what is the simplest thing I could do next?
 make client send logs in a new packet type as they occur...
 
 make server receive and process these new log lines
-
 
 
 ---------------------------------------------------------------------------------------------------------------
@@ -378,7 +498,6 @@ int single_value_callback(void *val, int count, char** data, char** columns)
    return 0;
 }
 
-
 int callback(void* data, int argc, char** argv, char** azColName)
 {
    for (int i=0; i<argc; i++)
@@ -387,12 +506,9 @@ int callback(void* data, int argc, char** argv, char** azColName)
    return 0;
 }
 
-
-
 I think I should make a class for this:
 
 mwSql
-
 mwSql.cpp
 mwSql.h
 
@@ -401,456 +517,8 @@ mwSql.h
 
 I have a small test working, now see if I can do the same on linux
 
-
 how to I do that easily?
 
 C:\pm>win_copy_to_pmh.bat copy_src 192.168.1.146
 C:\pm>win_copy_to_pmh.bat lin_build 192.168.1.146
-
-would not link
-
-had to manually compile sqlite
-gcc -Wall -c src/sqlite3.c -o o/src/sqlite.o
-it takes 45s to compile on o3000
-
-
-now it links and runs and the tests work the same
-
-how can I make it work with intervention?
-
-rename .c to .cpp? that did not work..
-
-all my cpp files are compiled with this
-g++ -Wall
-i need to use gcc
-added to ./lin_compile
-gcc -Wall -c src/sqlite3.c -o o/src/sqlite.o
-
-
-done...
-
-2026-01-04 06:08:14
-
-now back to doing something useful with it...
-
-create the tables
-
-Table 'sessions' Created Successfully
-Table 'gm' Created Successfully
-Table 'gm_sessions' Created Successfully
-Table 'players' Created Successfully
-Table 'gm_players' Created Successfully
-
-2026-01-04 06:54:11
-
-next...
-
-bite the bullet and work on sessions?
-
-its huge....
-i could do a simple gm for now...
-
-hook into sessions and do both 
-
-
-starting:
----------
-A session is started by calling:
-void mwNetgame::session_add_entry(const char* address, const char* hostname, int p, int active, int endreason)
-The server does this when replying to a join request.
-
-This clears and fills the array struct for the client.
-Then calls session_add_log(int i) to write it to disk.
-
-
-checking:
---------
-Once per frame in server control, 'session_check_active()' is called
-if ((client_sessions[p].active) && (!mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
-it will close any open sessions where the player is no longer active
-
-ending:
--------
-A session is closed by calling:
-void mwNetgame::session_close(int p, int reason)
-
-The server will do this on comm loss: session_close(p, 4); // reason 4 - comm loss
-mwGameMoves will do this when client quit: session_close(p, 2); // reason 2 - client quit
-It can also be closed by session_check_active()
-if ((client_sessions[p].active) && (!mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
-
-is the server exits, all sessions are closed and saved
-session_flush_active_at_server_exit(void)
-
-updating
---------
-To update a session the function 'session_add_log()' is called again
-all the info from the struct is written to disk, overwriting the old stuff
-
-when a level is done, player data tallies are added to session and saved 
-session_save_active_at_level_done()
-
-
-void mwNetgame::session_add_entry(const char* address, const char* hostname, int p, int active, int endreason)
-
-modified to enter new record in database
-
-
-In think I want to add active to database, or I could use endreason
-if endreason == 0 session is still open
-
-
-
-am i planning on doing away with the sessions_struct entirely?
-
-should I save a link to the id of the one in the database?
-
-
-I have 8 copies of it, one per player...
-
-i think it explicitly shadows player number...
-
-should I keep it?
-
-the server is the only one that does anything with sessions
-
-could I add something in the local player struct to link to the session
-
-
-
-
-
-   strcpy(sql, "CREATE TABLE IF NOT EXISTS sessions( \
-               id                INTEGER PRIMARY KEY, \
-               filename          VARCHAR(255), \
-               dt_start          DATETIME, \
-               dt_end            DATETIME, \
-               duration          INT, \
-               ip                VARCHAR(255), \
-               port              INT, \
-               hostname          VARCHAR(255), \
-               endreason         VARCHAR(255),  \
-               cdat_rx           INT, \
-               player_num        INT, \
-               player_name       VARCHAR(255), \
-               player_color      INT, \
-               next_levels       INT, \
-               exits_activated   INT, \
-               respawns          INT, \
-               shots_fired       INT,  \
-               enemy_hits        INT, \
-               player_hits       INT, \
-               self_hits         INT, \
-               purple_coins      INT, \
-               tx_bytes_total            INT, \
-               tx_bytes_avg_per_sec      INT, \
-               tx_bytes_max_per_frame    INT, \
-               rx_bytes_total            INT, \
-               rx_bytes_avg_per_sec      INT, \
-               rx_bytes_max_per_frame    INT, \
-               tx_packets_total          INT, \
-               tx_packets_avg_per_sec    INT, \
-               tx_packets_max_per_frame  INT, \
-               rx_packets_total          INT, \
-               rx_packets_avg_per_sec    INT, \
-               rx_packets_max_per_frame  INT ); ");
-
-creating new:
-               dt_start          DATETIME, \
-               ip                VARCHAR(255), \
-               port              INT, \
-               hostname          VARCHAR(255), \
-               player_num        INT, \
-               player_name       VARCHAR(255), \
-               player_color      INT, \
-
-
-update or close
-              
-               
-               at level done
-               dt_end            DATETIME, \
-               duration          INT, \
-               cdat_rx           INT, \
-               next_levels       INT, \
-               exits_activated   INT, \
-               respawns          INT, \
-               shots_fired       INT,  \
-               enemy_hits        INT, \
-               player_hits       INT, \
-               self_hits         INT, \
-               purple_coins      INT, \
-               tx_bytes_total            INT, \
-               tx_bytes_avg_per_sec      INT, \
-               tx_bytes_max_per_frame    INT, \
-               rx_bytes_total            INT, \
-               rx_bytes_avg_per_sec      INT, \
-               rx_bytes_max_per_frame    INT, \
-               tx_packets_total          INT, \
-               tx_packets_avg_per_sec    INT, \
-               tx_packets_max_per_frame  INT, \
-               rx_packets_total          INT, \
-               rx_packets_avg_per_sec    INT, \
-               rx_packets_max_per_frame  INT ); ");
-
-
-
-
-I have add done
-now update will use session_id in player loc
-
-what else should I pass to update?
-endreason
-
-if zero keep open, otherwise just update everything
-
-for now, don;t worry about all the tallies, just do times, and endreason
-
-add to db, end_reason text..or I could just use what I have instead of int
-make it VARCHAR
-
-
-add to player loc, session_start, session_end...no
-
-
-
-
-
-now the big one...php and sqlite
-
-
-sudo apt install sqlite3
-sudo apt install php-sqlite3
-
-
-here is what I have to do to replace mysql with sqlite
-
-- no built in SEC_TO_TIME in db
-not sure why I was using at anyway
-
-old connect:
-
-// database setup
-$srvrname = "localhost";
-$database = "pm";
-$username = "pmdb_ro";
-$password = "readonly";
-$conn = mysqli_connect($srvrname, $username, $password, $database);
-if (!$conn) die("Connection failed: " . mysqli_connect_error());
-
-
-new:
-$db = new PDO("sqlite:./database.db");
-
-old:
-$res = mysqli_query($GLOBALS['conn'], $sql);
-while ($row = $res->fetch_assoc())
-
-new:
-$res = $GLOBALS['db']->query($sql);
-while ($row = $res->fetch(PDO::FETCH_ASSOC))
-
-that is all...
-
-
-next...
-
-very important...
-
-where is the database file going to live?
-
-where it already is:
-
-also in sqlite you cannot do:
-
-   if ($result->num_rows == 0) { echo " gm not found \n";  return; }
-
-do this instead:
-
-   $res = $GLOBALS['db']->query("SELECT COUNT(*) FROM sessions WHERE id=$current_session_id");
-   if ($res->fetchColumn() == 0)  { echo " session [$current_session_id] not found \n";  return; } 
-
-
-
-
-
-   // prepare statement
-   const char* sql2 = "UPDATE sessions SET dt_end=?, duration=? WHERE id = ?";
-   sqlite3_prepare_v2(mSql.db, sql2, -1, &stmt, NULL);
-
-   // bind parameters
-   sqlite3_bind_text(stmt, 1, te, -1, SQLITE_STATIC);
-   sqlite3_bind_int(stmt, 2, duration);
-   sqlite3_bind_int(stmt, 3, sid);
-
-
-   // execute and step through results
-   step_result = sqlite3_step(stmt);
-   if (step_result == SQLITE_ROW) printf("UPDATE SUCCESSFUL");
-   else if (step_result == SQLITE_DONE)
-   {
-      printf("No row found for the given ID.\n");
-   }
-   else
-   {
-      fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(mSql.db));
-   }
-
-
-   // finalize the statement
-   sqlite3_finalize(stmt);
-
-
-
-
-
-all seems well....
-
-now the big one...php and sqlite
-
-
-sudo apt install sqlite3
-sudo apt install php-sqlite3
-
-
-here is what I have to do to replace mysql with sqlite
-
-- no built in SEC_TO_TIME in db
-not sure why I was using at anyway
-
-old connect:
-
-// database setup
-$srvrname = "localhost";
-$database = "pm";
-$username = "pmdb_ro";
-$password = "readonly";
-$conn = mysqli_connect($srvrname, $username, $password, $database);
-if (!$conn) die("Connection failed: " . mysqli_connect_error());
-
-
-new:
-$db = new PDO("sqlite:./database.db");
-
-old:
-$res = mysqli_query($GLOBALS['conn'], $sql);
-while ($row = $res->fetch_assoc())
-
-new:
-$res = $GLOBALS['db']->query($sql);
-while ($row = $res->fetch(PDO::FETCH_ASSOC))
-
-that is all...
-
-
-next...
-
-very important...
-
-where is the database file going to live?
-
-where it already is:
-
-also in sqlite you cannot do:
-
-   if ($result->num_rows == 0) { echo " gm not found \n";  return; }
-
-do this instead:
-
-   $res = $GLOBALS['db']->query("SELECT COUNT(*) FROM sessions WHERE id=$current_session_id");
-   if ($res->fetchColumn() == 0)  { echo " session [$current_session_id] not found \n";  return; } 
-
-
-I am quite happy with how this is working...
-
-
-I am going to get the sqlite specific shit in this file, move it up then copy most of these notes to the project notes....
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
