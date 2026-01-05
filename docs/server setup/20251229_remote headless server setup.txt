@@ -489,3 +489,36 @@ Status: active
 I should not be able to ssh in from something outside the subnet
 
 
+
+
+
+
+
+
+
+
+
+
+
+// copy scrape files from dev machine to server for testing
+pscp -pw zaiden c:\pm\scrape\* m@192.168.1.146:dev/purple_martians/scrape
+
+--------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------
+make sure that changes you make on the server in /var/www/html get back to the dev machine
+--------------------------------------------------------------------------------------------------------------------------------------
+
+save all files in windows and close them in editors
+
+On the server, copy to tmp folder
+sudo cp -r /var/www/html/* ~/tmp
+
+From the a windows machine, copy from tmp location to project:
+pscp -r -pw zaiden m@192.168.1.146:tmp/* c:\pm\web 
+
+--------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------
+
+
+remove the database in windows and recreate blank before committing
+

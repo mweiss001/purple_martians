@@ -538,12 +538,14 @@ static int callback(void* data, int argc, char** argv, char** azColName)
 #include "mwBitmapTools.h"
 
 #include "mwSql.h"
-
+#include "mwDemoRecord.h"
 
 
 void mwMain::temp_test(void)
 {
 
+
+   mDemoRecord.gdt();
 
 
 

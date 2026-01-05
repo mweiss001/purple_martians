@@ -1122,7 +1122,7 @@ void mwPlayer::draw_player(int p)
 //      al_draw_textf(mFont.pixl, mColor.pc[syn[p].color], px+11, py-11, ALLEGRO_ALIGN_CENTER, "%s", syn[p].name);
 
 
-      if (p != active_local_player) al_draw_textf(mFont.pixl, mColor.pc[syn[p].color], px+11, py-11, ALLEGRO_ALIGN_CENTER, "%s", syn[p].name);
+ /*     if (p != active_local_player)  */al_draw_textf(mFont.pixl, mColor.pc[syn[p].color], px+11, py-11, ALLEGRO_ALIGN_CENTER, "%s", syn[p].name);
 
 
 

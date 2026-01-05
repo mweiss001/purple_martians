@@ -1,18 +1,32 @@
 <?php
 
-$srvrname = "localhost";
-$database = "pm";
-$username = "pmdb_rw";
-$password = "readwrite";
+//$srvrname = "localhost";
+//$database = "pm";
+//$username = "pmdb_rw";
+//$password = "readwrite";
+
+// Create a connection
+//$conn = mysqli_connect($srvrname, $username, $password, $database);
+
+// Check the connection
+//if (!$conn) die("Database connection failed: " . mysqli_connect_error());
+
+// database setup
+$db_filepath = "/home/m/dev/purple_martians/data/database.db";
+if (!file_exists($db_filepath))
+{
+   echo "Database file: $filename not found.";
+   return;
+}
+$db = new PDO("sqlite:/home/m/dev/purple_martians/data/database.db");
+
+
 
 $dt = new DateTime("now");
 echo "\nSession log scrape: " . $dt->format('Ymd-His') . "\n";
 
-// Create a connection
-$conn = mysqli_connect($srvrname, $username, $password, $database);
 
-// Check the connection
-if (!$conn) die("Database connection failed: " . mysqli_connect_error());
+
 
 // this function used to just get the last handfull of ints and find the largest
 // now that I am embedding player name into moves, this no longer works
@@ -57,7 +71,29 @@ function add_to_db($filename)
    echo "\nAdd to db: filename: $filename - ";
 
    // first check if filename exists in db
-   $sql = "SELECT id FROM gm WHERE filename='$filename'";
+   $sql = "SELECT COUNT(*) FROM gm WHERE filename='$filename'";
+   $res = $GLOBALS['db']->query($sql);
+   if ($res->fetchColumn())  { echo " session [$filename already in db\n";  return; } 
+
+
+
+/*
+
+   $res = $GLOBALS['db']->query($sql);
+   while ($row = $res->fetch(PDO::FETCH_ASSOC))
+
+old: this does not work
+if ($result->num_rows == 0) { echo " gm not found \n";  return; }
+
+
+
+
+
+
+
+
+
+
    global $conn;
    $result = mysqli_query($conn, $sql);
 
@@ -68,6 +104,8 @@ function add_to_db($filename)
    }
    else
    {   
+*/    
+
       echo " not found in db, inserting\n";
 
       // the filename should start with this timestamp '20251229-151621'
@@ -97,9 +135,15 @@ function add_to_db($filename)
 
       $sql = "INSERT INTO gm VALUES (NULL, '$filename', '$dt_start', '$dt_end', $sec )";
       echo "sql: $sql\n";
-      if (mysqli_query($conn, $sql)) echo "New record created successfully\n";
-      else echo "Error: " . $sql . "<br>" . mysqli_error($conn);
-   }
+      $res = $GLOBALS['db']->query($sql);
+
+
+//      if (mysqli_query($conn, $sql)) echo "New record created successfully\n";
+//      else echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+
+
+
+  // }
 
 }
 

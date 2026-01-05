@@ -24,6 +24,7 @@ pscp -pw zaiden m@purplemartians.org:dev/purple_martians/data/level_data.pm c:\p
 
 
 
+// copy scrape files from dev machine to server for testing
 pscp -pw zaiden c:\pm\scrape\* m@192.168.1.146:dev/purple_martians/scrape
 
 

@@ -55,9 +55,18 @@ function show_gm_table()
                echo "</tr>";
             echo "</thead>";
             echo "<tbody>";
-               $res = mysqli_query($GLOBALS['conn'], $sql);
-               if ($res->num_rows == 0) echo "<tr><td id='md_center'; > not found </td></tr>";
-               while ($row = $res->fetch_assoc())
+               
+//   $res = $GLOBALS['db']->query("SELECT COUNT(*) FROM gm WHERE id=$current_gm_id");
+//   if ($res->fetchColumn() == 0)  { echo " session [$current_gm_id] not found \n";  return; } 
+
+   $res = $GLOBALS['db']->query($sql);
+   while ($row = $res->fetch(PDO::FETCH_ASSOC))
+
+               
+               
+//               $res = mysqli_query($GLOBALS['conn'], $sql);
+//               if ($res->num_rows == 0) echo "<tr><td id='md_center'; > not found </td></tr>";
+//               while ($row = $res->fetch_assoc())
                {
                   $id = $row['id'];
                   $dt_start = $row['dt_start'];

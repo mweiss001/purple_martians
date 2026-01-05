@@ -122,6 +122,16 @@ void mwMiscFnx::chop_first_x_char(char *str, int n)
 }
 
 
+char * mwMiscFnx::get_timestamp()
+{
+   struct tm *timenow;
+   time_t now = time(NULL);
+   timenow = localtime(&now);
+   strftime(tmp_return_40, sizeof(tmp_return_40), "%Y%m%d-%H%M%S", timenow);
+   return tmp_return_40;
+}
+
+
 
 // format time from frames to seconds or minutes
 char * mwMiscFnx::chrms(int time, char* ft)
@@ -576,11 +586,6 @@ void mwMiscFnx::printBits2(size_t const size, void const * const ptr)
    st[sc] = 0;
    printf("%s\n", st);
 }
-
-
-
-
-
 
 
 
