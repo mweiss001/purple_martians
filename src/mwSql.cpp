@@ -65,33 +65,31 @@ void mwSql::create_tables(void)
    if (sqlite3_exec(db, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'sessions' \n");
    else printf("Table 'sessions' Created Successfully\n");
 
-   // make sure there is a row zero
-   //if (execute_sql_and_return_one_int("SELECT COUNT(*) FROM sessions") == 0)     execute_sql("INSERT INTO sessions (id) VALUES(NULL) ");
-
-
-
    strcpy(sql, "CREATE TABLE IF NOT EXISTS gm( \
-               id             INTEGER PRIMARY KEY, \
-               filename       VARCHAR(255), \
-               dt_start       DATETIME, \
-               dt_end         DATETIME, \
-               duration       INT ); ");
+               muid           TEXT PRIMARY KEY, \
+               filename       TEXT, \
+               dt_start       TEXT, \
+               dt_end         TEXT, \
+               duration       INT,  \
+               level          INT,  \
+               num_entries    INT ); ");
    if (sqlite3_exec(db, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'gm' \n");
    else printf("Table 'gm' Created Successfully\n");
 
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS gm_sessions( \
                id                INTEGER PRIMARY KEY, \
-               gm_id             INT, \
+               gm_muid           TEXT, \
                session_id        INT  ); ");
    if (sqlite3_exec(db, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'gm_sessions' \n");
    else printf("Table 'gm_sessions' Created Successfully\n");
 
+
+
+
+
    strcpy(sql, "CREATE TABLE IF NOT EXISTS players( \
                id                INTEGER PRIMARY KEY, \
-               ip                VARCHAR(255), \
-               port              INT,  \
-               hostname          VARCHAR(255),  \
                player_num        INT, \
                player_name       VARCHAR(255), \
                player_color      INT ); ");
@@ -101,7 +99,7 @@ void mwSql::create_tables(void)
    strcpy(sql, "CREATE TABLE IF NOT EXISTS gm_players( \
                id                INTEGER PRIMARY KEY, \
                gm_id             INT, \
-               player_id        INT  ); ");
+               player_id         INT  ); ");
    if (sqlite3_exec(db, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'gm_players' \n");
    else printf("Table 'gm_players' Created Successfully\n");
 }

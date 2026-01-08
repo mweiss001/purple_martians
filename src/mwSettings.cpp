@@ -1958,6 +1958,10 @@ void mwSettings::page_info(void)
    if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show fullscreen modes"))             mDisplay.show_fullscreen_modes();
    if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display adapters"))             mDisplay.show_display_adapters();
    if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show code statistics"))              mwCodeStats::run();
+
+   if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show RAND_MAX"))                     printf("RAND_MAX: %i\n", RAND_MAX);
+
+
 }
 
 

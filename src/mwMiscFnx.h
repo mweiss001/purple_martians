@@ -9,7 +9,6 @@ class mwMiscFnx
    char tmp_return_40[40];
 
 
-
    int exit_level_editor_dialog(void);
    int mw_file_select(const char * title, char * fn, const char * ext, int save);
 
@@ -37,7 +36,12 @@ class mwMiscFnx
    int enforce_limit(int val, int ll, int ul);
    int check_limit(int val, int ll, int ul);
    void swap_int(int *i1, int* i2);
+
    float mdw_rnd(float rmin, float rmax);
+
+   string generate_muid();
+
+
    void set_int_3216(int &I32, int H16, int L16);
    void get_int_3216(int I32, int &H16, int &L16);
    void printBits(size_t const size, void const * const ptr);

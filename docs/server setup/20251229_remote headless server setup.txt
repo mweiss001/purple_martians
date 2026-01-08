@@ -518,7 +518,51 @@ pscp -r -pw zaiden m@192.168.1.146:tmp/* c:\pm\web
 
 --------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------
-
-
 remove the database in windows and recreate blank before committing
+
+remove all in 
+/var/www/html
+/tmp
+
+stop pm and cron jobs
+
+crontab -e
+
+there is a big difference between  crontab -e  and sudo crontab -e...
+
+
+
+
+
+
+cd ~
+rm -r tmp
+mkdir tmp
+
+sudo systemctl stop pm
+cd ~/dev
+rm -r purple_martians
+
+git clone --depth=1 https://github.com/mweiss001/purple_martians
+cd purple_martians
+
+chmod 777 ./op
+sudo ./op
+
+cd libnet
+make clean
+make lib
+sudo make install
+
+cd ~/dev/purple_martians
+./lin_build_all
+
+sudo cp -r ~/dev/purple_martians/web/* /var/www/html
+
+sudo systemctl start pm
+
+
+
+
+
 

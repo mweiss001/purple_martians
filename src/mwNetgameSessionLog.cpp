@@ -203,7 +203,6 @@ void mwNetgame::session_update(int p, char * m_endreason)
    // now that I have all that....
 
 
-
    // create at tm struct from start date
    struct tm timestart = {0};
    std::stringstream ss(dt_start);
