@@ -146,6 +146,97 @@ if ($res->fetchColumn() == 0)  { echo " session [$current_session_id] not found 
 
 
 
+-------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------
+Command line stuff:
+
+linux:
+----------------------------
+sudo apt install sqlite3
+type sqlite
+.open <database>
+
+windows
+---------
+Get the standalone exe: 'sqlite3.exe'
+It is usually easiest to put it in the same folder as the database.
+You can run it from the command line like this:
+C:\pm>sqlite3 test.db
+Or you can just drop the database file on the executable.
+
+
+
+common
+---------
+
+.database
+
+will show you the current database
+
+sqlite> .database
+main: C:\pm\data\database.db r/w
+
+SQLite version 3.50.4 2025-07-30 19:33:53
+Enter ".help" for usage hints.
+Connected to a transient in-memory database.
+Use ".open FILENAME" to reopen on a persistent database.
+sqlite> .database
+main: "" r/w
+
+.schema will show you the tables and the commands used to create them
+
+.tables will show you a list of tables
+
+.mode MODE: Sets the output format for query results (e.g., csv, column, html, list, line).
+
+.quit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 older........
 
 

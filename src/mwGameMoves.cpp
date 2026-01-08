@@ -18,20 +18,46 @@
 #include "mwItem.h"
 #include "mwMiscFnx.h"
 
+#include "mwSql.h"
 
 
 mwGameMoves mGameMoves;
 
-mwGameMoves::mwGameMoves()
-{
-   initialize();
-}
+mwGameMoves::mwGameMoves() { initialize(); }
+
+
 
 void mwGameMoves::initialize(void)
 {
-   for (int x=0; x<GAME_MOVES_SIZE; x++) clear_single(x);
+   memset(arr, 0, sizeof arr);
+   //for (int x=0; x<GAME_MOVES_SIZE; x++) clear_single(x);
    entry_pos = 0;
    current_pos = 0;
+
+   HEADER_version = 0;
+   HEADER_muid.clear();
+   HEADER_create_timestamp.clear();
+   HEADER_modify_timestamp.clear();
+   HEADER_level = 0;
+   HEADER_last_frame = 0;
+   HEADER_num_entries = 0;
+
+   sprintf(last_loaded_gm_filename, "%s", "");
+   status = 0;
+}
+
+
+
+
+
+
+void mwGameMoves::new_level()
+{
+   initialize();
+   HEADER_create_timestamp = mMiscFnx.get_timestamp();
+   HEADER_muid = mMiscFnx.generate_muid();
+   HEADER_level = mLevel.play_level;
+   status = 1;
 }
 
 
@@ -463,7 +489,7 @@ char* mwGameMoves::get_gm_text2(int gm, int f, int t, int p, int v, char* tmp)
       int pvs = 0;
       if (p & 0b01) pvp = 1;
       if (p & 0b10) pvs = 1;
-                                              sprintf(dsc, " SHOTS P:%d S:%d D:%d", pvp, pvs, v);
+      sprintf(dsc, " SHOTS P:%d S:%d D:%d", pvp, pvs, v);
    }
 
    if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)
@@ -599,148 +625,6 @@ void mwGameMoves::save_gm_file_select(void)
 
 
 
-int mwGameMoves::load_demo_level(int lev)
-{
-   char msg[256];
-   sprintf(msg, "savegame/demo/lev%03d.gm", lev);
-   return load_gm(msg);
-}
-
-int mwGameMoves::load_gm_file_select(void)
-{
-   int good_load = 0;
-
-   char fname[1024];
-   sprintf(fname, "savegame/");
-   // convert to 'ALLEGRO_FS_ENTRY' (to make fully qualified path)
-   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
-   sprintf(fname, "%s\\", al_get_fs_entry_name(FS_fname));
-   //printf("FS_fname:%s\n", fname);
-
-   ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Run Demo Filename", "*.gm", 0);
-
-   if (al_show_native_file_dialog(mDisplay.display, afc))
-   {
-      if (al_get_native_file_dialog_count(afc) == 1)
-      {
-         sprintf(fname, "%s", al_get_native_file_dialog_path(afc, 0));
-         printf("file and path selected:%s\n", fname);
-         if (load_gm(fname)) good_load = 1;
-      }
-   }
-   else printf("file select cancelled\n" );
-   al_destroy_native_file_dialog(afc);
-   return good_load;
-}
-
-
-int mwGameMoves::load_gm(const char *sfname)
-{
-//   printf("load_gm(%s)\n", sfname);
-
-   // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
-   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(sfname);
-   if (!al_fs_entry_exists(FS_fname))
-   {
-      printf("%s does not exist\n", al_get_fs_entry_name(FS_fname));
-      return 0;
-   }
-
-   char fname[256];
-   sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
-   FILE *file = fopen(fname, "r");
-   if (file == NULL)
-   {
-      printf("Error opening file:%s\n", fname);
-      return 0;
-   }
-
-   // save filename
-   sprintf(last_loaded_gm_filename, fname);
-
-   // clear the game moves array
-   initialize();
-
-
-
-   char buffer[1024];
-   fgets(buffer, 100, file);
-   if (strncmp(buffer, "PMSAVEGAME", 10) == 0)
-   {
-      bool read_header = 1;
-      // read lines up to end of header
-      while ((read_header) && (fgets(buffer, 100, file)))
-      {
-         header_key_find(buffer, "VERSION:", last_loaded_gm_version);
-         header_key_find(buffer, "GAME_DATA_NUM_ENTRIES:", entry_pos);
-         if (strncmp(buffer, "GAME_DATA_START:", 16) == 0) read_header = 0;
-      }
-      if (entry_pos == 0) return 0;
-   }
-   else
-   {
-      last_loaded_gm_version = 0; // oldest version
-
-      // get number entries from first line (already in buffer)
-      entry_pos = atoi(buffer);
-      if (entry_pos == 0) return 0;
-
-      last_loaded_gm_last_frame = 0;
-      for (int x=0; x<entry_pos; x++)
-         for (int y=0; y<4; y++)
-            if (fgets(buffer, 100, file))
-            {
-               arr[x][y] = atoi(buffer);
-               if (y == 0) last_loaded_gm_last_frame = arr[x][y];
-            }
-
-      fclose(file);
-   }
-   if (last_loaded_gm_version == 2)
-   {
-      last_loaded_gm_last_frame = 0;
-      for (int x=0; x<entry_pos; x++)
-         if (fscanf(file, "%d,%d,%d,%d\n", &arr[x][0], &arr[x][1], &arr[x][2], &arr[x][3]) > 0) last_loaded_gm_last_frame = arr[x][0];
-      fclose(file);
-   }
-
-   mLevel.play_level = arr[0][3]; // set play level
-   mDemoMode.last_frame = last_loaded_gm_last_frame;
-   sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname);
-   //printf("play_level:%d entry_pos:%d last_frame:%d \n", mLevel.play_level, entry_pos, mDemoMode.last_frame);
-
-//   printf("Loaded version (%d) of demo file: %s\n", last_loaded_gm_version, fname);
-
-
-   if (last_loaded_gm_version < 2)
-   {
-      printf("Loaded old version (%d) of demo file: %s  --  resaving as version 2\n", last_loaded_gm_version, fname);
-      save_gm(fname);
-   }
-
-
-   find_player_info();
-
-
-
-   return 1;
-}
-
-
-
-
-bool mwGameMoves::header_key_find(char* line, const char* key, int &val)
-{
-   if (strncmp(line, key, strlen(key)) == 0)
-   {
-      mMiscFnx.chop_first_x_char(line, strlen(key));
-      val = atoi(line);
-      // printf("%s %d\n", key, val);
-      return 1;
-   }
-   return 0;
-}
-
 
 
 
@@ -763,85 +647,34 @@ void mwGameMoves::find_player_info()
       if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) im_count++;
    }
    printf("player active/inactive moves: %d %d\n", am_count, im_count);
-
-
-
-
-
 //      if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
-
-
 }
 
 
-
-void mwGameMoves::convert_active_gamemoves()
+// checks a single gma for old player active type and converts if found
+void mwGameMoves::check_gma(int x)
 {
-   // coverts all old style gm to new
-   for (int x=0; x<entry_pos; x++)
+   if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
    {
-      if (mGameMoves.arr[x][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG)
-      {
-         int t  = arr[x][1];
-         int d1 = arr[x][2];
-         int d2 = arr[x][3];
+      // old type only has player and color
+      int p = arr[x][2];
+      int c = arr[x][3];
 
-         int p, c;
-         char name[16];
+      // new type also encodes player name
+      char name[16];
+      sprintf(name, "Player %d", p);
 
-         mMiscFnx.gma_to_val(t, d1, d2, p, c, name);
+      // convert to new variables
+      int type, d1, d2;
+      mMiscFnx.val_to_gma(type, d1, d2, p, c, name);
+      arr[x][1] = type;
+      arr[x][2] = d1;
+      arr[x][3] = d2;
 
-         printf("found new gma -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, name, t, d1, d2);
-
-      }
-      if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
-      {
-
-         int p = arr[x][2];
-         int c = arr[x][3];
-
-         int type, d1, d2;
-         char name[16];
-         sprintf(name, "Player %d", p);
-
-         mMiscFnx.val_to_gma(type, d1, d2, p, c, name);
-
-         printf("found old gma -- p:%d c:%d -- new: name:%s type:%d d1:%d d2:%d \n", p, c, name, type, d1, d2);
-
-         arr[x][1] = type;
-         arr[x][2] = d1;
-         arr[x][3] = d2;
-      }
+      printf("found old gma -- p:%d c:%d -- new: name:%s type:%d d1:%d d2:%d \n", p, c, name, type, d1, d2);
    }
 }
 
-
-bool mwGameMoves::save_gm(const char *fname)
-{
-   printf("save_gm:%s\n", fname);
-   convert_active_gamemoves();
-
-   FILE *filepntr = fopen(fname,"w");
-   if (filepntr == NULL)
-   {
-      printf("Error opening file:%s\n", fname);
-      return 0;
-   }
-
-   fprintf(filepntr, "%s", "PMSAVEGAME\n");
-   fprintf(filepntr, "VERSION:%d\n", 2);
-   fprintf(filepntr, "TIMESTAMP:%s\n", mMiscFnx.get_timestamp());
-   fprintf(filepntr, "LEVEL_NUM:%d\n", arr[0][3]);
-   fprintf(filepntr, "LAST_FRAME:%d\n", arr[entry_pos-1][0]);
-   fprintf(filepntr, "GAME_DATA_NUM_ENTRIES:%d\n", entry_pos);
-   fprintf(filepntr, "%s", "GAME_DATA_START:\n");
-
-      for (int x=0; x<entry_pos; x++)
-         fprintf(filepntr,"%d,%d,%d,%d\n", arr[x][0], arr[x][1], arr[x][2], arr[x][3] );
-
-   fclose(filepntr);
-   return 1;
-}
 
 
 
@@ -875,5 +708,508 @@ int mwGameMoves::save_gm(const char *fname, int sendto)
    }
    return ret;
 }
+
+
+
+
+
+
+
+
+
+bool mwGameMoves::save_gm(const char *fname)
+{
+   printf("\nSaving gm:%s\n", fname);
+
+   // try to open file for writing
+   FILE *filepntr = fopen(fname,"w");
+   if (filepntr == NULL)
+   {
+      printf("Error opening file:%s\n", fname);
+      return 0;
+   }
+
+   // set version
+   HEADER_version = 3;
+
+   // set modified to now
+   HEADER_modify_timestamp = mMiscFnx.get_timestamp();
+
+   // if HEADER_create_timestamp is not set, set it here
+   if (HEADER_create_timestamp.empty())
+   {
+      printf("HEADER_create_timestamp was not set. Setting to '20260101-000000'\n");
+      HEADER_create_timestamp = "20260101-000000";
+   }
+
+   // if HEADER_muid is not set, create one here
+   if (HEADER_muid.empty())
+   {
+      HEADER_muid = mMiscFnx.generate_muid();
+      printf("HEADER_muid was not set. Setting to '%s'\n", HEADER_muid.c_str());
+   }
+
+   if (status == 1) // new level
+   {
+      HEADER_num_entries = entry_pos;
+      HEADER_last_frame = arr[entry_pos-1][0];
+   }
+
+   fprintf(filepntr, "%s", "PMSAVEGAME\n");
+   fprintf(filepntr,       "MUID:%s\n",                 HEADER_muid.c_str());
+   fprintf(filepntr,       "VERSION:%d\n",              HEADER_version);
+   fprintf(filepntr,       "CREATE_TIMESTAMP:%s\n",     HEADER_create_timestamp.c_str());
+   fprintf(filepntr,       "MODIFY_TIMESTAMP:%s\n",     HEADER_modify_timestamp.c_str());
+   fprintf(filepntr,       "LEVEL:%d\n",                HEADER_level);
+   fprintf(filepntr,       "LAST_FRAME:%d\n",           HEADER_last_frame);
+   fprintf(filepntr,       "GAMEMOVE_NUM_ENTRIES:%d\n", HEADER_num_entries);
+   fprintf(filepntr, "%s", "GAMEMOVE_DATA_START:\n");
+
+   for (int x=0; x<entry_pos; x++)
+   {
+      check_gma(x); // check for old type player active game moves
+      fprintf(filepntr,"%d,%d,%d,%d\n", arr[x][0], arr[x][1], arr[x][2], arr[x][3] );
+   }
+
+   fclose(filepntr);
+
+
+   add_gm_to_db();
+
+
+   return 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void mwGameMoves::print_header(void)
+{
+   printf("Filename            :%s\n",   last_loaded_gm_filename);
+   printf("MUID                :%s\n",   HEADER_muid.c_str());
+   printf("VERSION             :%d\n",   HEADER_version);
+   printf("CREATE_TIMESTAMP    :%s\n",   HEADER_create_timestamp.c_str());
+   printf("MODIFY_TIMESTAMP    :%s\n",   HEADER_modify_timestamp.c_str());
+   printf("LEVEL               :%d\n",   HEADER_level);
+   printf("LAST_FRAME          :%d\n",   HEADER_last_frame);
+   printf("GAMEMOVE_NUM_ENTRIES:%d\n",   HEADER_num_entries);
+}
+
+
+
+
+
+
+
+
+
+// ------------------------------------------------------------------------------------------------------
+// ---------- load file routines ------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------
+
+
+bool mwGameMoves::parse_header_line(const char * buf)
+{
+   // convert to string
+   string line(buf);
+
+   // remove any CR or LF from end of line
+   while (!line.empty() && (line.back() == '\r' || line.back() == '\n')) line.pop_back();
+
+   // Find the position of the token
+   size_t pos = line.find(':');
+
+   // Check if the token was found
+   if (pos != std::string::npos)
+   {
+      // Extract the part before the token
+      std::string key = line.substr(0, pos);
+
+      // Extract the part after the token ( adding 1 to pos skips the token itself)
+      std::string val = line.substr(pos + 1);
+
+      // printf("key:'%s' val:'%s'\n", key.c_str(), val.c_str());
+
+      if (!val.empty())
+      {
+         if (key == "VERSION")              HEADER_version = std::stoi(val);
+         if (key == "MUID")                 HEADER_muid = val;
+         if (key == "CREATE_TIMESTAMP")     HEADER_create_timestamp = val;
+         if (key == "MODIFY_TIMESTAMP")     HEADER_modify_timestamp = val;
+         if (key == "LEVEL")                HEADER_level = std::stoi(val);
+         if (key == "LAST_FRAME")           HEADER_last_frame = std::stoi(val);
+         if (key == "GAMEMOVE_NUM_ENTRIES") HEADER_num_entries = std::stoi(val);
+
+         // for old v2
+         if (key == "GAME_DATA_NUM_ENTRIES") HEADER_num_entries = std::stoi(val);
+
+      }
+      else
+      {
+         if (key == "GAMEMOVE_DATA_START") return false;
+
+         // for old v2
+         if (key == "GAME_DATA_START") return false;
+
+      }
+   }
+   return true;
+}
+
+
+// load level from integer level number
+int mwGameMoves::load_demo_level(int lev)
+{
+   char msg[256];
+   sprintf(msg, "savegame/demo/lev%03d.gm", lev);
+   return load_gm(msg);
+}
+
+// prompts for filename
+int mwGameMoves::load_gm_file_select(void)
+{
+   int good_load = 0;
+
+   char fname[1024];
+   sprintf(fname, "savegame/");
+   // convert to 'ALLEGRO_FS_ENTRY' (to make fully qualified path)
+   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
+   sprintf(fname, "%s\\", al_get_fs_entry_name(FS_fname));
+   //printf("FS_fname:%s\n", fname);
+
+   ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Run Demo Filename", "*.gm", 0);
+
+   if (al_show_native_file_dialog(mDisplay.display, afc))
+   {
+      if (al_get_native_file_dialog_count(afc) == 1)
+      {
+         sprintf(fname, "%s", al_get_native_file_dialog_path(afc, 0));
+         printf("file and path selected:%s\n", fname);
+         if (load_gm(fname)) good_load = 1;
+      }
+   }
+   else printf("file select cancelled\n" );
+   al_destroy_native_file_dialog(afc);
+   return good_load;
+}
+
+// this is the function that actual loads the gm from the the full file path
+// -------------------------------------------------------------------------
+
+
+int mwGameMoves::load_gm(const char *sfname)
+{
+   // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
+   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(sfname);
+   if (!al_fs_entry_exists(FS_fname))
+   {
+      printf("%s does not exist\n", al_get_fs_entry_name(FS_fname));
+      return 0;
+   }
+
+   char fname[256];
+   sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
+   FILE *file = fopen(fname, "r");
+   if (file == NULL)
+   {
+      printf("Error opening file:%s\n", fname);
+      return 0;
+   }
+
+   printf("\nLoading gm: '%s'\n", fname);
+
+
+
+
+   // clear the game moves array
+   initialize();
+
+   // save filename
+   sprintf(last_loaded_gm_filename, "%s", fname);
+
+
+   int read_last_frame = 0;
+
+   char buffer[1024];
+   fgets(buffer, 100, file);
+   if (strncmp(buffer, "PMSAVEGAME", 10) == 0)
+   {
+      // read lines up to end of header
+      bool read_header = 1;
+      while ((read_header) && (fgets(buffer, 100, file)))
+         read_header = parse_header_line(buffer);
+
+      if (HEADER_num_entries)
+         for (int x=0; x<HEADER_num_entries; x++)
+            if (fscanf(file, "%d,%d,%d,%d\n", &arr[x][0], &arr[x][1], &arr[x][2], &arr[x][3]) > 0) read_last_frame = arr[x][0];
+   }
+   else
+   {
+      // did not find "PMSAVEGAME" at start of file, this is the old legacy version
+
+      // get number entries from first line (already in buffer)
+      HEADER_num_entries = atoi(buffer);
+      if (HEADER_num_entries)
+         for (int x=0; x<HEADER_num_entries; x++)
+            for (int y=0; y<4; y++)
+               if (fgets(buffer, 100, file))
+               {
+                  arr[x][y] = atoi(buffer);
+                  if (y == 0) read_last_frame = arr[x][y];
+               }
+   }
+
+   fclose(file);
+
+   if (HEADER_num_entries == 0)
+   {
+      printf("Error! No game move entries found\n");
+      print_header();
+      initialize();
+      return 0;
+   }
+
+   entry_pos = HEADER_num_entries;
+
+
+   int trigger_resave = 0;
+
+   // if HEADER_last_frame was not set from header, set it here form the last frame read
+   if (HEADER_last_frame == 0)
+   {
+      printf("Last frame not set from header, setting to:%d\n", read_last_frame);
+      HEADER_last_frame = read_last_frame;
+      if (HEADER_last_frame == 0)
+      {
+         printf("Error! HEADER_last_frame:0\n");
+         print_header();
+         initialize();
+         return 0;
+      }
+      else trigger_resave = 1;
+   }
+
+   // if HEADER_level was not set from header, set it here from the first entry
+   if (HEADER_level == 0)
+   {
+      printf("Level number not set from header, setting to:%d\n", arr[0][3]);
+      HEADER_level = arr[0][3];
+      if (HEADER_level == 0)
+      {
+         printf("Error! LEVEL:0\n");
+         print_header();
+         initialize();
+         return 0;
+      }
+      else trigger_resave = 1;
+   }
+
+   // if HEADER_create_timestamp was not set from header, set it here
+   if (HEADER_create_timestamp.empty())
+   {
+      printf("HEADER_create_timestamp was not set. Setting to '20260101-000000'\n");
+      HEADER_create_timestamp = "20260101-000000";
+      trigger_resave = 1;
+   }
+
+   // if HEADER_muid was not set from header, create one here
+   if (HEADER_muid.empty())
+   {
+      HEADER_muid = mMiscFnx.generate_muid();
+      printf("HEADER_muid was not set. Setting to '%s'\n", HEADER_muid.c_str());
+      trigger_resave = 1;
+   }
+
+   if (HEADER_version < 3)
+   {
+      printf("Loaded old version of file: %s  --  resaving as new version\n", fname);
+      trigger_resave = 1;
+   }
+
+   if (trigger_resave)
+   {
+      printf("Resave triggered, resaving:%s\n", fname);
+      print_header();
+      save_gm(fname);
+   }
+
+
+   mLevel.play_level = HEADER_level; // set play level
+   mDemoMode.last_frame = HEADER_last_frame;
+   sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname);
+
+
+//   find_player_info();
+
+//   printf("Loaded gm file:%s\n", fname);
+
+   status = 2;
+
+
+// test print muid
+//   string t = mMiscFnx.generate_muid();
+//   printf("----'%s'\n", t.c_str());
+
+
+   add_gm_to_db();
+
+   return 1;
+}
+
+
+#include <iomanip>
+
+// call from load...or save..or somewhere we know HEADER is valid
+
+void mwGameMoves::add_gm_to_db(void)
+{
+   printf("\nDatabase add or update\n");
+
+   // first convert HEADER_create_timestamp and HEADER_last_frame to dt_start, dt_end, duration
+
+//   printf("HEADER_create_timestamp:'%s'\n", HEADER_create_timestamp.c_str());
+//   printf("HEADER_last_frame:'%d'\n", HEADER_last_frame);
+
+   char dts[32] = {0};
+   char dte[32] = {0};
+
+   // use HEADER_create_timestamp as is for dts
+   sprintf(dts, "%s", HEADER_create_timestamp.c_str());
+   int dur = HEADER_last_frame / 40;
+
+
+   // create stringstream 'ss' from dts
+   std::stringstream ss(dts);
+
+   // create struct tm 'timestart'
+   struct tm timestart = {0};
+
+   // push ss into get_time, which will convert based on format and put in timestart
+   ss >> std::get_time(&timestart, "%Y%m%d-%H%M%S");
+   if (ss.fail()) printf("Error parsing time\n");
+
+   // add duration to timestart
+   timestart.tm_sec += dur;
+
+   // normalize the struct
+   mktime(&timestart);
+
+   // put the result in dte
+   strftime(dte, sizeof(dte), "%Y%m%d-%H%M%S", &timestart);
+
+   printf("dts:'%s'\n", dts);
+   printf("dte:'%s'\n", dte);
+   printf("dur:%d\n", dur);
+
+
+   // check if muid already exists
+   char sql[500];
+   sprintf(sql, "SELECT COUNT(*) FROM gm WHERE muid='%s'", HEADER_muid.c_str());
+   if (mSql.execute_sql_and_return_one_int(sql))
+   {
+      printf("muid: '%s' exists  --  updating\n", HEADER_muid.c_str());
+
+      // exists
+
+
+   }
+   else
+   {
+      printf("muid: '%s' does not exist  --  inserting\n", HEADER_muid.c_str());
+
+      // does not exist
+      sprintf(sql, "INSERT INTO gm ( muid, filename, dt_start, dt_end, duration, level, num_entries ) \
+                             VALUES( '%s', '%s',     '%s',     '%s',   %d,       %d,    %d)" ,
+                                     HEADER_muid.c_str(),
+                                           last_loaded_gm_filename,
+                                                     dts,      dte,    dur,      HEADER_level,
+                                                                                        HEADER_num_entries);
+
+
+      printf("sql:%s\n", sql);
+
+      mSql.execute_sql(sql);
+
+
+      if (mNetgame.ima_server)
+      {
+         for (int p=1; p<8; p++)
+            if (mPlayer.loc[p].session_id)
+            {
+               sprintf(sql, "INSERT INTO gm_sessions ( NULL, gm_muid, session_id ) VALUES('%s', %d)", HEADER_muid.c_str(), mPlayer.loc[p].session_id);
+               printf("sql:%s\n", sql);
+               mSql.execute_sql(sql);
+            }
+      }
+
+
+
+
+
+
+
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

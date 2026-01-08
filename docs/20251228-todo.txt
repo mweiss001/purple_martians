@@ -33,6 +33,25 @@ save in new format
 
 
 
+------------------------------------------------------------------------------
+do something different with database creation in mSql class
+
+check for if databse file exists
+
+check if tables exist...
+
+don't show as much info if all is well
+
+
+------------------------------------------------------------------------------
+I have been thinking about c string vs c++ std:string
+
+in the words of Boromir, 'do you not suffer needlessly?'
+
+
+
+
+------------------------------------------------------------------------------
 
 
 

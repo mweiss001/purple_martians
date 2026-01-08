@@ -721,8 +721,7 @@ int mwLoop::load_and_setup_level(int level, int type)
    if (!mLevel.load_level(level, 0, 0)) return 0;
    else
    {
-
-      if (type != 4) mGameMoves.initialize(); // do not reset game moves in demo mode
+      if (type != 4) mGameMoves.new_level(); // do not reset game moves in demo mode
 
       if (type == 0) // SINGLE_PLAYER_NEW_GAME
       {

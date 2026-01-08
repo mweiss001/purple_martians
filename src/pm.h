@@ -8,7 +8,10 @@
 #include <libnet.h>
 #include <zlib.h>
 
+#include <string>
+using std::string;
 
+#include <random>
 
 
 #include <allegro5/allegro.h>

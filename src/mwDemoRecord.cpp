@@ -31,6 +31,8 @@ void mwDemoRecord::gdt(void)
 {
    if (!mDemoMode.load_demo_file_array()) return;
 
+   double t1 = al_get_time();
+
    for (int i=0; i<mDemoMode.num_demo_filenames; i++)
    {
       //printf("index:%d\n",i);
@@ -59,28 +61,28 @@ void mwDemoRecord::gdt(void)
 
         // show all player active game moves
 
-      int active_found = 0;
-      int active_found2 = 0;
-      for (int x=0; x<mGameMoves.entry_pos; x++)
-      {
-         if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
-         {
-            //printf("[%d] p:%d active\n", mGameMoves.arr[x][0], mGameMoves.arr[x][2]);
-            active_found++;
-         }
-
-         if (mGameMoves.arr[x][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG)
-         {
-            //printf("[%d] p:%d active\n", mGameMoves.arr[x][0], mGameMoves.arr[x][2]);
-            active_found2++;
-         }
-
-
-
-
-      }
-      printf("active found:%d %d\n", active_found, active_found2);
-
+//      int active_found = 0;
+//      int active_found2 = 0;
+//      for (int x=0; x<mGameMoves.entry_pos; x++)
+//      {
+//         if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
+//         {
+//            //printf("[%d] p:%d active\n", mGameMoves.arr[x][0], mGameMoves.arr[x][2]);
+//            active_found++;
+//         }
+//
+//         if (mGameMoves.arr[x][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG)
+//         {
+//            //printf("[%d] p:%d active\n", mGameMoves.arr[x][0], mGameMoves.arr[x][2]);
+//            active_found2++;
+//         }
+//
+//
+//
+//
+//      }
+//      printf("active found:%d %d\n", active_found, active_found2);
+//
 
 
 //      // find time bewteen level done and ack
@@ -138,6 +140,16 @@ void mwDemoRecord::gdt(void)
 
 
    }
+
+
+   float et = (float) ( (al_get_time() - t1) * 1);
+
+
+   printf("/ngdt took %f seconds to process %d files\n", et, mDemoMode.num_demo_filenames);
+
+
+
+
 }
 
 

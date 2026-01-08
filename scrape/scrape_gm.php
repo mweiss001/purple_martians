@@ -128,8 +128,15 @@ if ($result->num_rows == 0) { echo " gm not found \n";  return; }
       $dt_start = $dt_end->sub(new DateInterval('PT' . $sec . 'S'));
 
       // convert the datetimes to something mysql likes
-      $dt_end   = $dt_end->  format('Y-m-d H:i:s');
-      $dt_start = $dt_start->format('Y-m-d H:i:s');
+//      $dt_end   = $dt_end->  format('Y-m-d H:i:s');
+  //    $dt_start = $dt_start->format('Y-m-d H:i:s');
+
+
+      // convert the datetimes to something sqlite likes
+      $dt_end   = $dt_end->   format('Ymd-His');
+      $dt_start = $dt_start-> format('Ymd-His');
+
+
 
       // echo "dts: $dt_start   dte:$dt_end";
 

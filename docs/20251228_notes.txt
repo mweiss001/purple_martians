@@ -3467,8 +3467,1217 @@ SELECT * FROM myTable WHERE myColumn BETWEEN '2023-01-01' AND '2023-02-01';
 
 delete all on server and start again...
 
-
 get all php from web
+
+
+2026-01-05 15:22:40
+done
+
+
+-----------------------------
+pm still segfault when client joins, but only when run as service
+---------------------------------
+
+
+
+
+Session log scrape: 20260105-221501
+
+Session id:1   -   start:20260105-151441   -   end:   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-151441' AND dt_start<'')  OR    (dt_end  >'20260105-151441' AND dt_end  <'')
+Session log scrape: 20260105-221601
+
+Session id:1   -   start:20260105-151441   -   end:20260105-151538   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-151441' AND dt_start<'20260105-151538')  OR    (dt_end  >'20260105-151441' AND dt_end  <'20260105-151538')
+Session id:2   -   start:20260105-151508   -   end:20260105-151540   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-151508' AND dt_start<'20260105-151540')  OR    (dt_end  >'20260105-151508' AND dt_end  <'20260105-151540')
+Session log scrape: 20260105-221701
+
+Session id:1   -   start:20260105-151441   -   end:20260105-151538   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-151441' AND dt_start<'20260105-151538')  OR    (dt_end  >'20260105-151441' AND dt_end  <'20260105-151538')
+Session id:2   -   start:20260105-151508   -   end:20260105-151540   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-151508' AND dt_start<'20260105-151540')  OR    (dt_end  >'20260105-151508' AND dt_end  <'20260105-151540')
+Session log scrape: 20260105-221801
+
+Session id:1   -   start:20260105-151441   -   end:20260105-151538   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-151441' AND dt_start<'20260105-151538')  OR    (dt_end  >'20260105-151441' AND dt_end  <'20260105-151538')
+Session id:2   -   start:20260105-151508   -   end:20260105-151540   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-151508' AND dt_start<'20260105-151540')  OR    (dt_end  >'20260105-151508' AND dt_end  <'20260105-151540')
+Session log scrape: 20260105-221901
+
+Session id:1   -   start:20260105-151441   -   end:20260105-151538   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-151441' AND dt_start<'20260105-151538')  OR    (dt_end  >'20260105-151441' AND dt_end  <'20260105-151538')
+Session id:2   -   start:20260105-151508   -   end:20260105-151540   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-151508' AND dt_start<'20260105-151540')  OR    (dt_end  >'20260105-151508' AND dt_end  <'20260105-151540')
+Session log scrape: 20260105-222001
+
+I only have 2 sessions
+
+Session id:1   -   start:20260105-151441   -   end:20260105-151538   -
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-151441' AND dt_start<'20260105-151538')  OR    (dt_end  >'20260105-151441' AND dt_end  <'20260105-151538')
+Session id:2   -   start:20260105-151508   -   end:20260105-151540   -
+
+SELECT id, filename, dt_start, dt_end FROM gm WHERE (dt_start>'20260105-151508' AND dt_start<'20260105-151540')  OR    (dt_end  >'20260105-151508' AND dt_end  <'20260105-151540')  m@o3000:~/dev/purple_martians/scrape$
+                                                               2026-01-05 15:15:27
+
+sqlite> select * from gm;
+1|20260105-151541-[80]-autosave on level done.gm|2026-01-05 15:15:27|2026-01-05 15:15:41|14
+sqlite> select * from gm;
+
+
+20260105-151541
+
+2026-01-05 15:15:27
+2026-01-05 15:15:41
+20260105-151508
+
+
+there it is!!!
+
+save gm in a better date format
+
+      // convert the datetimes to something mysql likes
+//      $dt_end   = $dt_end->  format('Y-m-d H:i:s');
+  //    $dt_start = $dt_start->format('Y-m-d H:i:s');
+
+
+      // convert the datetimes to something sqlite likes
+      $dt_end   = $dt_end->  format('Ymd His');
+      $dt_start = $dt_start->format('Ymd His');
+
+
+
+sqlite> SELECT * FROM gm;
+1|20260105-151541-[80]-autosave on level done.gm|2026-01-05 15:15:27|2026-01-05 15:15:41|14
+sqlite>
+
+
+
+1|20260105-151541-[80]-autosave on level done.gm|20260105 151527|20260105 151541|14
+sqlite> SELECT * FROM gm_sessions;
+sqlite> SELECT * FROM gm;
+1|20260105-151541-[80]-autosave on level done.gm|20260105 151527|20260105 151541|14
+sqlite>
+
+forgot the goddamn dash...
+
+now it all works!!!
+
+
+I can make gm's and see them soon on server...
+
+
+
+2026-01-06 12:44:54
+
+
+I was having some big ideas:
+
+
+On the topic of parsing gm files and getting player info,
+I was planning on embedding this in the header.
+
+I am rethinking that...
+
+Maybe I could just keep it all in the database.
+
+CREATE TABLE player
+
+could be linked to gm and session
+
+how would all these foreign keys work?
+
+session starts and is assigned UUID
+player is created and linked to same UUID
+
+or...
+
+whenever a game is started:
+player is created with UUID
+
+nah...
+
+
+lets just do the 
+
+3 tables:
+session
+gm
+player
+
+
+all are linked, but how?
+
+1 session to 1 player
+1 session to many gm
+
+1 gm to many players
+1 gm to many sessions
+
+1 session to 1 pleyer
+
+
+how about each instance of purplemartians has its own UUID?
+when the program is first run and the config file is created from scratch
+create a UUID, save it in the config and never change it
+
+Then when a client joins he will send the UUID
+
+The server will create a pleyer with that UUID, and other info.
+later if that UUID instance changed other stuff about them that can be updated
+
+
+this is getting complicated, maybe overly complicated...
+what will I gain from doing this
+is there a simpler way?
+
+
+I want to link players to save game files
+player names are already embedded in the save game files
+
+to start with I could make a table with just those three things:
+
+name
+color
+number
+
+whenever I read a gm file...or enter it in the gm table
+make sure it has a unique id...already done
+
+then look for players in the file and add them if they do not exist and link them to 
+
+I think I can do this without any UUID's for now
+
+also I want to do this in the game, not in a scrape script
+
+
+
+2026-01-06 13:12:43
+
+what to do to make this happen?
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS players( \
+               id             INTEGER PRIMARY KEY, \
+               player_num        INT, \
+               player_name       VARCHAR(255), \
+               player_color      INT ); ");
+   if (sqlite3_exec(db, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'players' \n");
+   else printf("Table 'gm' Created Successfully\n");
+
+
+I already have this: (duh)
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS players( \
+               id                INTEGER PRIMARY KEY, \
+               ip                VARCHAR(255), \
+               port              INT,  \
+               hostname          VARCHAR(255),  \
+               player_num        INT, \
+               player_name       VARCHAR(255), \
+               player_color      INT ); ");
+   if (sqlite3_exec(db, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'players' \n");
+   else printf("Table 'players' Created Successfully\n");
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS gm_players( \
+               id                INTEGER PRIMARY KEY, \
+               gm_id             INT, \
+               player_id         INT  ); ");
+   if (sqlite3_exec(db, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'gm_players' \n");
+   else printf("Table 'gm_players' Created Successfully\n");
+
+
+remove the shit about ip, port, hostanme...leave that in sessions (which will have a 1 to 1 link with players)
+
+
+do it!!!
+
+OK this is what I have...
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS players( \
+               id                INTEGER PRIMARY KEY, \
+               player_num        INT, \
+               player_name       VARCHAR(255), \
+               player_color      INT ); ");
+   if (sqlite3_exec(db, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'players' \n");
+   else printf("Table 'players' Created Successfully\n");
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS gm_players( \
+               id                INTEGER PRIMARY KEY, \
+               gm_id             INT, \
+               player_id         INT  ); ");
+   if (sqlite3_exec(db, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'gm_players' \n");
+   else printf("Table 'gm_players' Created Successfully\n");
+
+next: remove any scrape and link things that I have in cron in the server, I am going to do this all in the game...
+
+next, where am I going to do the in the game?
+
+how about when reading or saving demo file?
+
+eventually it will be when saving only, but for testing do it when reading...
+
+
+void mwGameMoves::find_player_info()
+{
+   printf("find_player_info()\n");
+   // looks in the loaded gm file and find all player active and inactive moves
+
+   int am_count = 0;
+   int im_count = 0;
+
+//   int par[10][10] = { 0 };
+
+
+   // first count active and inactive game moves
+   for (int x=0; x<entry_pos; x++)
+   {
+      if (mGameMoves.arr[x][1] &  PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG) am_count++;
+      if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) im_count++;
+   }
+   printf("player active/inactive moves: %d %d\n", am_count, im_count);
+
+
+
+
+
+//      if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE)
+
+
+}
+
+
+
+
+the first thing I want to do is:
+
+make sure there is an entry for this in gm
+
+how can I tell if it is unique?
+I don't really want to rely on filename...
+
+
+
+
+
+I thought about it some more:
+
+when creating generate a UUID and stick it in the header
+
+
+when saving, does UUID already exist?
+
+
+have a gm class or struct in my game
+
+
+UUID is a member
+same as filenname etc..
+
+
+when loading, stick it in there and set stuff from file
+
+when saving...
+
+
+i have so many different thing I want to keep track of related to the game_moves array
+
+
+have methods to:
+clear
+start
+
+
+
+I already have that as game moves array class
+
+just make that work:
+
+
+have a flag to tell the status of the current array:
+
+int status;
+0 - clear
+1 - game in progress
+2 - client data only
+3 - loaded from demo file
+
+
+right now I have:
+entry_pos
+- indicates where next gm entry will go
+- is also the size of the gm array
+- used in demo mode to mark last entry
+
+current_pos
+used only when playing back in demo mode
+
+
+I want to have more data:
+level number
+UUID
+
+make some functions like
+
+start new file
+erases all
+sets level
+sets status
+generates UUID
+
+when loading from file the UUID
+
+remind me again why I need UUID at all...
+
+what am i trying to do here?
+
+
+why can't i just use regular autoinrementing
+
+I want to assign an ID to the gm file at creation that will never change...
+I will enter it in the database, using that as the primary key
+if the database gets lost later I will always have that id (if that happens...???)
+what will I do with it?
+
+link it to a session (which will also have a UUID)
+this will need a separate table
+
+link it to players
+
+
+
+
+
+
+
+step 1 make sure all gm's have in their header:
+UUID
+CREATION_TIMESTAMP
+MOFIDIFED_TIMESTAMP
+LEVEL
+LAST_FRAME
+NUM_ENTRIES
+NUM_PLAYERS
+
+step 2 make sure all new ones do also
+when saving just write these values
+
+instead of UUID just use auto
+
+
+can I just fake it and use my own pseudo UUID
+
+
+
+I am getting bogged down here....why is this so hard?
+
+
+
+I think I want UUID so I can assign something at creation that will never change
+why do I want that?
+so I can detect duplicates?
+so I persistantly link to other things?
+
+so I can add them to a database table with proper links preserved
+so I can update filepath location if it changes
+
+I think I am just going to use a random 32 or 64 bit number
+
+32bit 50% chance of collision after        77,000
+64bit 50% chance of collision after 5,100,000,000
+
+and even if I had a collision, what would that effect?
+
+
+
+uint64_t generate_random_u64(void) {
+    // Combine two 32-bit random numbers (assuming RAND_MAX is at least 32767)
+    // The cast to uint64_t is crucial to ensure correct shifting
+    uint64_t r1 = rand();
+    uint64_t r2 = rand();
+
+    // Shift the first random number to the upper 32 bits and combine with the second
+    // This provides a full 64 bits of potential randomness
+    return (r1 << 32) | r2;
+}
+
+int main(void) {
+    // Seed the random number generator once using the current time
+    // For better seeding, one could use a mix of time and other factors
+    srand(time(NULL));
+
+    uint64_t random_int = generate_random_u64();
+    printf("Random 64-bit integer: %llu\n", random_int);
+
+    return 0;
+
+
+
+I'm going with this...
+
+
+
+
+
+
+
+step 1 make sure all gm's have in their header:
+UUID
+CREATION_TIMESTAMP
+MOFIDIFED_TIMESTAMP
+LEVEL
+LAST_FRAME
+NUM_ENTRIES
+NUM_PLAYERS
+
+step 2 make sure all new ones do also
+when saving just write these values
+
+
+
+
+added to class
+
+
+   uint64_t HEADER_muid;
+   int      HEADER_version;
+   char*    HEADER_create_timestamp;
+   char*    HEADER_modify_timestamp;
+   int      HEADER_level;
+   int      HEADER_last_frame;
+   int      HEADER_num_entries;
+
+
+
+now implement this in save:
+
+   fprintf(filepntr, "%s", "PMSAVEGAME\n");
+
+   fprintf(filepntr,       "VERSION:%d\n",              HEADER_version);
+   fprintf(filepntr,       "CREATE_TIMESTAMP:%s\n",     HEADER_create_timestamp);
+   fprintf(filepntr,       "MODIFY_TIMESTAMP:%s\n",     mMiscFnx.get_timestamp());
+   fprintf(filepntr,       "LEVEL:%d\n",                HEADER_level);
+   fprintf(filepntr,       "LAST_FRAME:%d\n",           HEADER_last_frame);
+   fprintf(filepntr,       "GAMEMOVE_NUM_ENTRIES:%d\n", HEADER_num_entries);
+   fprintf(filepntr, "%s", "GAMEMOVE_DATA_START:\n");
+
+
+now load:
+
+first of all bump version....
+
+
+save in version 3 load in 2
+
+
+
+
+2026-01-07 04:09:08
+
+when reading,
+if muid == 0 (not set) make one up
+if createdate not set, use 20260101-000000
+
+
+if level not set, find it and set it
+
+
+
+before loading, call initialize
+in initialize set all header values to 0's
+if muid == 0 (not set) make one up
+if createdate not set, use 20260101-000000
+
+
+
+2026-01-07 04:46:29
+
+   // header variables
+   string   HEADER_create_timestamp;
+   string   HEADER_modify_timestamp;
+   uint64_t HEADER_muid;
+   int      HEADER_version;
+   int      HEADER_level;
+   int      HEADER_last_frame;
+   int      HEADER_num_entries;
+
+
+void mwGameMoves::initialize(void)
+{
+   memset(arr, 0, sizeof arr);
+   entry_pos = 0;
+   current_pos = 0;
+
+   HEADER_muid = 0;
+   HEADER_version = 0;
+   HEADER_create_timestamp.clear();
+   HEADER_modify_timestamp.clear();
+   HEADER_level = 0;
+   HEADER_last_frame = 0;
+   HEADER_num_entries = 0;
+
+   sprintf(last_loaded_gm_filename, "%s", "");
+
+}
+
+
+I think I want to change how I get stuff from header...
+
+this is what I have now:
+
+   void header_key_find_int(char* line, const char* key, int &val);
+   void header_key_find_string(char* line, const char* key, string &val);
+
+and I need to extend it to work with uint_64  
+
+
+what do I want to do:
+
+pass it a line (as string)
+
+it will look for keys and set varaiable
+
+if it finds the end it will return 0;
+
+bool parse_header_line(string line);
+
+
+2026-01-07 06:48:47
+
+I think I have it done
+
+load level works for old and new versions
+
+saves as version 3
+
+
+make some tests when saving about missing header values..done
+
+
+now I need to implement the status...
+
+status clear ..done
+
+   // 2 - demo loaded
+
+   // 1 - level started
+
+
+make a function for this:
+
+sets status
+creates muid
+sets created_timesatmp
+sets level
+
+void new_level
+
+
+void mwGameMoves::new_level()
+{
+   initialize();   
+   HEADER_create_timestamp = mMiscFnx.get_timestamp();
+   HEADER_muid = mMiscFnx.generate_random_u64();
+   HEADER_level = mLevel.play_level;
+   status = 1;   
+}
+
+
+
+where to call it?
+
+
+int mwLoop::load_and_setup_level(int level, int type)
+{
+   if (!mLevel.load_level(level, 0, 0)) return 0;
+   else
+   {
+      if (type != 4) mGameMoves.new_level(); // do not reset game moves in demo mode
+
+
+now in save, do different thing based on status...
+done....
+
+
+I think I might actually be getting somewhere....
+
+
+should I enter it in the database at this point?
+
+what does my table look like?
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS gm( \
+               id             INTEGER PRIMARY KEY, \
+               filename       VARCHAR(255), \
+               dt_start       DATETIME, \
+               dt_end         DATETIME, \
+               duration       INT ); ");
+   if (sqlite3_exec(db, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'gm' \n");
+   else printf("Table 'gm' Created Successfully\n");
+
+
+I was using start and end to figure out what session it might belong to...
+I can still keep that
+
+
+I should add all the other stuff
+
+
+I'll need a function is the game to iterate all the gm's 
+- check that they are in the database
+- make sure the filepath is up to date
+
+
+
+I think it will be driven by the game
+
+at the core it will have a function to do one gm
+
+
+2026-01-07 18:24:07
+
+
+   HEADER_muid = 0;
+   HEADER_version = 0;
+   HEADER_create_timestamp.clear();
+   HEADER_modify_timestamp.clear();
+   HEADER_level = 0;
+   HEADER_last_frame = 0;
+   HEADER_num_entries = 0;
+
+
+I am going to start over with the table....
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS gm( \
+               muid           INTEGER PRIMARY KEY, \
+               filename       TEXT, \
+               dt_start       TEXT, \
+               dt_end         TEXT, \
+               duration       INT,  \
+               level          INT,  \               
+               num_entries    INT ");
+   if (sqlite3_exec(db, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'gm' \n");
+   else printf("Table 'gm' Created Successfully\n");
+
+
+
+
+now a fucntion to add to the database
+
+void add_gm_to_db(const char* file)
+{
+   // first load_gm, this will check the data
+   
+   // check if muid already exists
+   
+   if yes update values
+   in no insert values
+}
+
+
+
+2026-01-08 03:23:04
+
+why do I feel like I am getting bogged down?
+
+is is because my plan is not fully formed?
+
+just pick on small task
+
+take timestamp and last frame and trun it into start, end, and duration
+
+where can I test this...
+
+load
+
+
+
+
+
+do something about check for old gma right now it is called on everysave
+options:
+-call only on version 0
+- inline check with every row written 
+done.. did inline
+I should just leave this forever
+
+removed old method, saving here
+
+
+void mwGameMoves::convert_active_gamemoves()
+{
+   // coverts all old style gm to new
+   for (int x=0; x<entry_pos; x++)
+   {
+      if (mGameMoves.arr[x][1] & PM_GAMEMOVE_TYPE_PLAYER_ACTIVE_FLAG)
+      {
+         int t  = arr[x][1];
+         int d1 = arr[x][2];
+         int d2 = arr[x][3];
+
+         int p, c;
+         char name[16];
+
+         mMiscFnx.gma_to_val(t, d1, d2, p, c, name);
+
+         printf("found new gma -- p:%d c:%d name:%s type:%d d1:%d d2:%d \n", p, c, name, t, d1, d2);
+
+      }
+      if (mGameMoves.arr[x][1] == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)
+      {
+
+         int p = arr[x][2];
+         int c = arr[x][3];
+
+         int type, d1, d2;
+         char name[16];
+         sprintf(name, "Player %d", p);
+
+         mMiscFnx.val_to_gma(type, d1, d2, p, c, name);
+
+         printf("found old gma -- p:%d c:%d -- new: name:%s type:%d d1:%d d2:%d \n", p, c, name, type, d1, d2);
+
+         arr[x][1] = type;
+         arr[x][2] = d1;
+         arr[x][3] = d2;
+      }
+   }
+}
+*/
+
+
+
+
+
+2026-01-08 03:57:36
+
+fixed some bugs, now I am actually saving and loading all header values
+
+
+what if I replaced my 64 bit muid with something else...
+
+options:
+
+
+10 char string [A-Z] 
+10^26 = 1.0 e26
+2^64 = 1.8 e19
+
+94274532147610
+52544629916126
+105437152168571
+62015032799880
+89777701388341
+126989298070705
+15 digits?
+
+108821586384139
+100759932765462
+24167781002446
+132229158166728
+24730421704635
+31181462578973
+'GLWITOJHHGWSWRIO'
+'VBQDBOWGANYPRZKQ'
+'XANMHOPTNCLVIZUA'
+'YDWNQAPQXVSVPJML'
+'GMOMXLGGAPWYCQUQ'
+'CPUHSVSJDHNVNUCZ'
+
+16^26 = 2 e31
+
+
+do it, replace uint64 with char[16]
+
+
+done...
+
+
+this is some date manip from sessions
+
+#include <iomanip>
+
+   // create at tm struct from start date
+   struct tm timestart = {0};
+   std::stringstream ss(dt_start);
+   ss >> std::get_time(&timestart, "%Y%m%d-%H%M%S");
+   if (ss.fail()) printf("Error parsing time\n");
+   time_t st = mktime(&timestart);
+
+   char ts[20];
+   strftime(ts, sizeof(ts), "%Y%m%d-%H%M%S", &timestart);
+
+   // create a tm struct from now
+   time_t now = time(NULL);
+   struct tm *timenow;
+   timenow = localtime(&now);
+   char dt_end[20];
+   strftime(dt_end, sizeof(dt_end), "%Y%m%d-%H%M%S", timenow);
+
+   int duration = difftime(now, st);
+
+
+
+
+
+
+
+
+
+I have some bugs...
+
+muid??
+
+Loading gm: 'C:\pm\lv2'
+----'YGSHQVDDEDPLKMFD'
+Last frame not set from header, setting to:3793
+Level number not set from header, setting to:2
+HEADER_create_timestamp was not set. Setting to '20260101-000000'
+HEADER_muid was not set. Setting to ''
+Loaded old version of file: C:\pm\lv2  --  resaving as new version
+Resave triggered, resaving:C:\pm\lv2
+Filename            :C:\pm\lv2
+MUID                :
+VERSION             :0
+CREATE_TIMESTAMP    :20260101-000000
+MODIFY_TIMESTAMP    :
+LEVEL               :2
+LAST_FRAME          :3793
+GAMEMOVE_NUM_ENTRIES:523
+
+Saving gm:C:\pm\lv2
+HEADER_muid was not set. Setting to ''
+
+C:\pm>
+
+
+
+string mwMiscFnx::generate_muid()
+{
+
+does not work (only works the first time)
+//   string tmp;
+//   for (int i=0; i<16; i++)
+//   {
+//     std::random_device seed;
+//     std::mt19937 gen{seed()}; // seed the generator
+//     std::uniform_int_distribution<> dist{65, 90}; // set min and max
+//     tmp[i] = dist(gen);
+//   }
+////   tmp[16] = 0;
+//   return tmp;
+
+
+
+works
+   char t[17];
+   for (int i=0; i<16; i++)
+   {
+     std::random_device seed;
+     std::mt19937 gen{seed()}; // seed the generator
+     std::uniform_int_distribution<> dist{65, 90}; // set min and max
+     t[i] = dist(gen);
+   }
+   t[16] = 0;
+   string tmp(t);
+   return tmp;
+
+
+works
+   string tmp;
+   for (int i=0; i<16; i++)
+   {
+     std::random_device seed;
+     std::mt19937 gen{seed()}; // seed the generator
+     std::uniform_int_distribution<> dist{65, 90}; // set min and max
+     tmp += (char)dist(gen);
+   }
+   return tmp;
+
+works
+   string tmp;
+   for (int i=0; i<16; i++)
+   {
+     std::random_device seed;
+     std::mt19937 gen{seed()}; // seed the generator
+     std::uniform_int_distribution<> dist{65, 90}; // set min and max
+     tmp.push_back((char)dist(gen));
+   }
+   return tmp;
+
+
+
+
+
+ok now i think it is working
+
+
+i can call gdt to iterate all levels...
+
+
+i want to time it:
+
+
+load only:
+gdt took 0.283832 seconds to process 96 files
+insert:
+gdt took 1.495548 seconds to process 96 files
+update:
+gdt took 0.621905 seconds to process 96 files
+
+
+
+
+2026-01-08 07:12:53
+
+now what?
+
+make update update the filenames
+
+what is the point, just erase and get them all again
+
+i could make update just overwrite everything...
+
+not sure what that would gain me...
+
+when am i planning on doing this?
+
+- when I load a gm
+- when I save a gm
+that will take care of any new ones
+
+
+what else do i want to do?
+
+I need to link them to sessions
+
+when adding to db,
+
+check if we are in server mode
+
+then look for active sessions
+
+i will have the row id in player struct
+
+then make a link
+
+old table:
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS gm_sessions( \
+               id                INTEGER PRIMARY KEY, \
+               gm_id             INT, \
+               session_id        INT  ); ");
+   if (sqlite3_exec(db, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'gm_sessions' \n");
+   else printf("Table 'gm_sessions' Created Successfully\n");
+
+new table:
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS gm_sessions( \
+               id                INTEGER PRIMARY KEY, \
+               gm_muid           TEXT, \
+               session_id        INT  ); ");
+   if (sqlite3_exec(db, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'gm_sessions' \n");
+   else printf("Table 'gm_sessions' Created Successfully\n");
+
+
+2026-01-08 07:22:52
+
+fist of all:
+modify table..done
+call from save...done
+
+check if server
+
+      if (mNetgame.ima_server)
+      {
+         for (int p=1; p<8; p++)
+            if (mPlayer.loc[p].session_id)
+            {
+               sprintf(sql, "INSERT INTO gm_sessions ( NULL, gm_muid, session_id ) VALUES('%s', %d)", HEADER_muid.c_str(), mPlayer.loc[p].session_id);
+               printf("sql:%s\n", sql);
+               mSql.execute_sql(sql);
+            }
+      }
+
+now to test....
+
+I should really do a backup...
+
+
+2026-01-08 07:32:13
+
+got to go...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -479,6 +479,21 @@ float mwMiscFnx::mdw_rnd(float rmin, float rmax)
    return res;
 }
 
+// returns a string of 16 random letters [A-Z] 65-90
+// 16 ^ 26 = 2e31
+string mwMiscFnx::generate_muid()
+{
+   string tmp;
+   for (int i=0; i<16; i++)
+   {
+     std::random_device seed;
+     std::mt19937 gen{seed()}; // seed the generator
+     std::uniform_int_distribution<> dist{65, 90}; // set min and max
+     tmp += (char)dist(gen);
+   }
+   return tmp;
+}
+
 
 
 

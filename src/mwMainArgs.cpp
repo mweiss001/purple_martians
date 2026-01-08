@@ -279,6 +279,17 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
          fast_exit(0);
       }
 
+
+
+      if (strcmp(argument_array[1],"-test2") == 0 )  // temp test
+      {
+         temp_test();
+         exit(0);
+      }
+
+
+
+
       if (strcmp(argument_array[1],"-h") == 0 )  // help
       {
          mHelp.help("Command Line");
