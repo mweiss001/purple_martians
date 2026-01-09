@@ -58,6 +58,9 @@ void mwGameMoves::new_level()
    HEADER_muid = mMiscFnx.generate_muid();
    HEADER_level = mLevel.play_level;
    status = 1;
+
+   create_gm_session_links();
+
 }
 
 
@@ -1077,18 +1080,11 @@ int mwGameMoves::load_gm(const char *sfname)
    mDemoMode.last_frame = HEADER_last_frame;
    sprintf(mDemoRecord.current_loaded_demo_file, "%s", fname);
 
-
 //   find_player_info();
 
 //   printf("Loaded gm file:%s\n", fname);
 
    status = 2;
-
-
-// test print muid
-//   string t = mMiscFnx.generate_muid();
-//   printf("----'%s'\n", t.c_str());
-
 
    add_gm_to_db();
 
@@ -1105,9 +1101,8 @@ void mwGameMoves::add_gm_to_db(void)
    printf("\nDatabase add or update\n");
 
    // first convert HEADER_create_timestamp and HEADER_last_frame to dt_start, dt_end, duration
-
-//   printf("HEADER_create_timestamp:'%s'\n", HEADER_create_timestamp.c_str());
-//   printf("HEADER_last_frame:'%d'\n", HEADER_last_frame);
+   //printf("HEADER_create_timestamp:'%s'\n", HEADER_create_timestamp.c_str());
+   //printf("HEADER_last_frame:'%d'\n", HEADER_last_frame);
 
    char dts[32] = {0};
    char dte[32] = {0};
@@ -1115,7 +1110,6 @@ void mwGameMoves::add_gm_to_db(void)
    // use HEADER_create_timestamp as is for dts
    sprintf(dts, "%s", HEADER_create_timestamp.c_str());
    int dur = HEADER_last_frame / 40;
-
 
    // create stringstream 'ss' from dts
    std::stringstream ss(dts);
@@ -1136,60 +1130,51 @@ void mwGameMoves::add_gm_to_db(void)
    // put the result in dte
    strftime(dte, sizeof(dte), "%Y%m%d-%H%M%S", &timestart);
 
-   printf("dts:'%s'\n", dts);
-   printf("dte:'%s'\n", dte);
-   printf("dur:%d\n", dur);
-
+//   printf("dts:'%s'\n", dts);
+//   printf("dte:'%s'\n", dte);
+//   printf("dur:%d\n", dur);
 
    // check if muid already exists
    char sql[500];
    sprintf(sql, "SELECT COUNT(*) FROM gm WHERE muid='%s'", HEADER_muid.c_str());
-   if (mSql.execute_sql_and_return_one_int(sql))
-   {
-      printf("muid: '%s' exists  --  updating\n", HEADER_muid.c_str());
-
-      // exists
-
-
-   }
+   if (mSql.execute_sql_and_return_one_int(sql)) printf("muid: '%s' exists\n", HEADER_muid.c_str());
    else
    {
       printf("muid: '%s' does not exist  --  inserting\n", HEADER_muid.c_str());
-
-      // does not exist
       sprintf(sql, "INSERT INTO gm ( muid, filename, dt_start, dt_end, duration, level, num_entries ) \
                              VALUES( '%s', '%s',     '%s',     '%s',   %d,       %d,    %d)" ,
                                      HEADER_muid.c_str(),
                                            last_loaded_gm_filename,
                                                      dts,      dte,    dur,      HEADER_level,
                                                                                         HEADER_num_entries);
-
-
-      printf("sql:%s\n", sql);
-
+      // printf("sql:%s\n", sql);
       mSql.execute_sql(sql);
 
-
-      if (mNetgame.ima_server)
-      {
-         for (int p=1; p<8; p++)
-            if (mPlayer.loc[p].session_id)
-            {
-               sprintf(sql, "INSERT INTO gm_sessions ( NULL, gm_muid, session_id ) VALUES('%s', %d)", HEADER_muid.c_str(), mPlayer.loc[p].session_id);
-               printf("sql:%s\n", sql);
-               mSql.execute_sql(sql);
-            }
-      }
-
-
-
-
-
-
-
+      create_gm_session_links();
    }
 }
 
+
+void mwGameMoves::create_gm_session_links()
+{
+   if (mNetgame.ima_server)
+      for (int p=1; p<8; p++)
+         if (mPlayer.loc[p].session_id) create_gm_session_link(mPlayer.loc[p].session_id);
+}
+
+
+void mwGameMoves::create_gm_session_link(int session_id)
+{
+   char sql[500];
+   sprintf(sql, "SELECT COUNT(*) FROM gm_sessions WHERE muid='%s' AND session_id=%d", HEADER_muid.c_str(), session_id);
+   if (mSql.execute_sql_and_return_one_int(sql)) printf("link exists: muid: '%s' session_d: %d\n", HEADER_muid.c_str(), session_id);
+   else
+   {
+      sprintf(sql, "INSERT INTO gm_sessions (id, gm_muid, session_id) VALUES(NULL, '%s', %d)", HEADER_muid.c_str(), session_id);
+      printf("sql:%s\n", sql);
+      mSql.execute_sql(sql);
+   }
+}
 
 
 

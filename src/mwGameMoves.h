@@ -77,6 +77,9 @@ public:
 
    void add_gm_to_db(void);
 
+   void create_gm_session_link(int session_id);
+   void create_gm_session_links();
+
 
    void new_level();
 
