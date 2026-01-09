@@ -4507,6 +4507,174 @@ I should really do a backup...
 got to go...
 
 
+testing...I should see if everything compiles on linux
+compiles clean, no warnings
+
+
+./pm 
+
+
+server tries to save game twice
+
+dte:'20260108-180304'
+dur:21
+muid: 'GDFQAYGTSLZXNIRV' does not exist  --  inserting
+sql:INSERT INTO gm ( muid, filename, dt_start, dt_end, duration, level, num_entries )                              VALUES( 'GDFQAYGTSLZXNIRV', '',     '20260108-180243',     '20260108-180304',   21,       80,    108)
+sql:INSERT INTO gm_sessions ( NULL, gm_muid, session_id ) VALUES('GDFQAYGTSLZXNIRV', 1)
+Error: near "NULL": syntax error
+INSERT INTO gm_sessions ( NULL, gm_muid, session_id ) VALUES('GDFQAYGTSLZXNIRV', 1)
+update sid:1  s:20260108-180228 e:20260108-180307 d:39
+
+
+.mode column
+SELECT * from gm;
+SELECT * from gm_sessions;
+SELECT id, dt_start, player_name FROM sessions;
+
+
+2026-01-08 18:17:00
+I did it!!!
+
+test on windows
+
+erase database
+
+start server
+
+on client join, play level and level done
+
+client quits, server quits
+
+1 gm
+1 session
+1 gm_session linking them!!!!
+
+sqlite> SELECT * from gm;
+muid              filename  dt_start         dt_end           duration  level  num_entries
+----------------  --------  ---------------  ---------------  --------  -----  -----------
+RACTOQKRHFYPWEJA            20260108-181608  20260108-181622  14        80     84
+
+sqlite> SELECT * from gm_sessions;
+id  gm_muid           session_id
+--  ----------------  ----------
+1   RACTOQKRHFYPWEJA  1
+
+sqlite> SELECT id, dt_start, player_name FROM sessions;
+id  dt_start         player_name
+--  ---------------  -----------
+1   20260108-181556  Forest
+sqlite>
+
+
+
+2 clients
+
+sqlite> SELECT * from gm;
+muid              filename  dt_start         dt_end           duration  level  num_entries
+----------------  --------  ---------------  ---------------  --------  -----  -----------
+RACTOQKRHFYPWEJA            20260108-181608  20260108-181622  14        80     84
+ACGKQEKIYXFFWRJS            20260108-182110  20260108-182120  10        80     30
+
+sqlite> SELECT * from gm_sessions;
+id  gm_muid           session_id
+--  ----------------  ----------
+1   RACTOQKRHFYPWEJA  1
+2   ACGKQEKIYXFFWRJS  2
+3   ACGKQEKIYXFFWRJS  3
+
+sqlite> SELECT id, dt_start, player_name FROM sessions;
+id  dt_start         player_name
+--  ---------------  -----------
+1   20260108-181556  Forest
+2   20260108-182049  Forest
+3   20260108-182059  jenny!
+sqlite>
+
+
+this works so well, can I make it work with the webpage?
+
+-- first a bit of house keeping:
+
+clean up the database creation stuff..
+
+
+not to get side tracked, but I think I have a better understanding now:
+sessions are like players, they have a lot of player info
+
+gm's are linked to sessions that were active when the gm was recorded
+
+I should do more than link when saving gm
+when gm is started I should link all active sessions then
+if more sessions start they should link to current gm
+when gm is saved
+
+- link to active sessions when level starts
+- link to active sessions when level ends (either by quitting or completing)
+- if a session starts, link it to current gm
+
+also when linking, check if link already exists first
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

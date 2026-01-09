@@ -534,6 +534,10 @@ there is a big difference between  crontab -e  and sudo crontab -e...
 
 
 
+----------------------------------------------------------------
+erase all on remote server, reclone from git and compile
+----------------------------------------------------------------
+
 
 cd ~
 rm -r tmp
