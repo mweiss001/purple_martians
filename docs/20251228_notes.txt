@@ -4616,6 +4616,44 @@ also when linking, check if link already exists first
 
 
 
+2026-01-08 19:38:50
+
+testing good on linux, just noticed I am not setting filename!
+
+fixed...
+
+
+running into issues on how I save the filepath
+
+save the filename name only
+it gets saved in savegame/
+
+on server savegame is mapped to webroot/downloads ...
+
+
+
+
+2026-01-08 21:35:27
+
+I have got it working!!!!
+
+but when I try to play the demo I just downloaded I get an crash when loading
+actually, its when load calls add to db...
+
+remind me again, why am I adding gm to db when loading?
+
+commented it out and it plays fine....
+
+
+go to bed....its really coming along well....
+
+
+2026-01-08 21:39:55
+
+
+
+
+
 
 
 

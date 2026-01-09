@@ -722,11 +722,20 @@ int mwGameMoves::save_gm(const char *fname, int sendto)
 
 bool mwGameMoves::save_gm(const char *fname)
 {
+
+
+//   // convert to 'ALLEGRO_FS_ENTRY' (makes fully qualified path)
+//   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(sfname);
+//   char fname[256];
+//   sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
+
+
+
    printf("\nSaving gm:%s\n", fname);
 
    // try to open file for writing
-   FILE *filepntr = fopen(fname,"w");
-   if (filepntr == NULL)
+   FILE *file = fopen(fname,"w");
+   if (file == NULL)
    {
       printf("Error opening file:%s\n", fname);
       return 0;
@@ -758,27 +767,37 @@ bool mwGameMoves::save_gm(const char *fname)
       HEADER_last_frame = arr[entry_pos-1][0];
    }
 
-   fprintf(filepntr, "%s", "PMSAVEGAME\n");
-   fprintf(filepntr,       "MUID:%s\n",                 HEADER_muid.c_str());
-   fprintf(filepntr,       "VERSION:%d\n",              HEADER_version);
-   fprintf(filepntr,       "CREATE_TIMESTAMP:%s\n",     HEADER_create_timestamp.c_str());
-   fprintf(filepntr,       "MODIFY_TIMESTAMP:%s\n",     HEADER_modify_timestamp.c_str());
-   fprintf(filepntr,       "LEVEL:%d\n",                HEADER_level);
-   fprintf(filepntr,       "LAST_FRAME:%d\n",           HEADER_last_frame);
-   fprintf(filepntr,       "GAMEMOVE_NUM_ENTRIES:%d\n", HEADER_num_entries);
-   fprintf(filepntr, "%s", "GAMEMOVE_DATA_START:\n");
+   fprintf(file, "%s", "PMSAVEGAME\n");
+   fprintf(file,       "MUID:%s\n",                 HEADER_muid.c_str());
+   fprintf(file,       "VERSION:%d\n",              HEADER_version);
+   fprintf(file,       "CREATE_TIMESTAMP:%s\n",     HEADER_create_timestamp.c_str());
+   fprintf(file,       "MODIFY_TIMESTAMP:%s\n",     HEADER_modify_timestamp.c_str());
+   fprintf(file,       "LEVEL:%d\n",                HEADER_level);
+   fprintf(file,       "LAST_FRAME:%d\n",           HEADER_last_frame);
+   fprintf(file,       "GAMEMOVE_NUM_ENTRIES:%d\n", HEADER_num_entries);
+   fprintf(file, "%s", "GAMEMOVE_DATA_START:\n");
 
    for (int x=0; x<entry_pos; x++)
    {
       check_gma(x); // check for old type player active game moves
-      fprintf(filepntr,"%d,%d,%d,%d\n", arr[x][0], arr[x][1], arr[x][2], arr[x][3] );
+      fprintf(file,"%d,%d,%d,%d\n", arr[x][0], arr[x][1], arr[x][2], arr[x][3] );
    }
 
-   fclose(filepntr);
+   fclose(file);
+
+   // convert to 'ALLEGRO_FS_ENTRY' (makes fully qualified path)
+   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
+   char fp[512];
+   sprintf(fp, "%s", al_get_fs_entry_name(FS_fname));
+
+   // create path so I can retrieve filename
+   ALLEGRO_PATH *path = al_create_path(fp);
+   char fn[256];
+   sprintf(fn, "%s", al_get_path_filename(path));
 
 
-   add_gm_to_db();
 
+   add_gm_to_db(fn);
 
    return 1;
 }
@@ -839,16 +858,9 @@ void mwGameMoves::print_header(void)
 
 
 
-
-
-
-
-
-
 // ------------------------------------------------------------------------------------------------------
 // ---------- load file routines ------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------
-
 
 bool mwGameMoves::parse_header_line(const char * buf)
 {
@@ -1086,7 +1098,7 @@ int mwGameMoves::load_gm(const char *sfname)
 
    status = 2;
 
-   add_gm_to_db();
+//   add_gm_to_db(fname);
 
    return 1;
 }
@@ -1096,7 +1108,7 @@ int mwGameMoves::load_gm(const char *sfname)
 
 // call from load...or save..or somewhere we know HEADER is valid
 
-void mwGameMoves::add_gm_to_db(void)
+void mwGameMoves::add_gm_to_db(const char *fname)
 {
    printf("\nDatabase add or update\n");
 
@@ -1137,17 +1149,18 @@ void mwGameMoves::add_gm_to_db(void)
    // check if muid already exists
    char sql[500];
    sprintf(sql, "SELECT COUNT(*) FROM gm WHERE muid='%s'", HEADER_muid.c_str());
-   if (mSql.execute_sql_and_return_one_int(sql)) printf("muid: '%s' exists\n", HEADER_muid.c_str());
+   if (mSql.execute_sql_and_return_one_int(sql))
+   {
+      //printf("muid: '%s' exists - updating filename\n", HEADER_muid.c_str());
+      //sprintf(sql, "UPDATE gm ( filename, dt_start, dt_end, duration, level, num_entries )
+   }
    else
    {
       printf("muid: '%s' does not exist  --  inserting\n", HEADER_muid.c_str());
       sprintf(sql, "INSERT INTO gm ( muid, filename, dt_start, dt_end, duration, level, num_entries ) \
                              VALUES( '%s', '%s',     '%s',     '%s',   %d,       %d,    %d)" ,
-                                     HEADER_muid.c_str(),
-                                           last_loaded_gm_filename,
-                                                     dts,      dte,    dur,      HEADER_level,
-                                                                                        HEADER_num_entries);
-      // printf("sql:%s\n", sql);
+                                     HEADER_muid.c_str(), fname, dts, dte, dur, HEADER_level, HEADER_num_entries);
+      printf("sql:%s\n", sql);
       mSql.execute_sql(sql);
 
       create_gm_session_links();
@@ -1166,7 +1179,7 @@ void mwGameMoves::create_gm_session_links()
 void mwGameMoves::create_gm_session_link(int session_id)
 {
    char sql[500];
-   sprintf(sql, "SELECT COUNT(*) FROM gm_sessions WHERE muid='%s' AND session_id=%d", HEADER_muid.c_str(), session_id);
+   sprintf(sql, "SELECT COUNT(*) FROM gm_sessions WHERE gm_muid='%s' AND session_id=%d", HEADER_muid.c_str(), session_id);
    if (mSql.execute_sql_and_return_one_int(sql)) printf("link exists: muid: '%s' session_d: %d\n", HEADER_muid.c_str(), session_id);
    else
    {
@@ -1175,26 +1188,4 @@ void mwGameMoves::create_gm_session_link(int session_id)
       mSql.execute_sql(sql);
    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

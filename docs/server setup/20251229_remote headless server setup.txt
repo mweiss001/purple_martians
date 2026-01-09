@@ -396,6 +396,8 @@ Setup a cron jobs to scrape session logs and add to database
 
 setup a cron job to scrape logs and add to database
 
+(there is a big difference between  crontab -e  and sudo crontab -e...)
+
 crontab -e
 
 */1 * * * * php /home/m/dev/purple_martians/session_scrape.php >> /home/m/dev/purple_martians/session_scrape_cronoutput.txt 2>&1
@@ -498,16 +500,15 @@ I should not be able to ssh in from something outside the subnet
 
 
 
-
-
-// copy scrape files from dev machine to server for testing
+--------------------------------------------------------------------------------------------
+copy scrape files from dev machine to server for testing
+--------------------------------------------------------------------------------------------
 pscp -pw zaiden c:\pm\scrape\* m@192.168.1.146:dev/purple_martians/scrape
 
---------------------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------------------------------
-make sure that changes you make on the server in /var/www/html get back to the dev machine
---------------------------------------------------------------------------------------------------------------------------------------
 
+--------------------------------------------------------------------------------------------
+make sure that changes you make on the server in /var/www/html get back to the dev machine
+--------------------------------------------------------------------------------------------
 save all files in windows and close them in editors
 
 On the server, copy to tmp folder
@@ -516,28 +517,9 @@ sudo cp -r /var/www/html/* ~/tmp
 From the a windows machine, copy from tmp location to project:
 pscp -r -pw zaiden m@192.168.1.146:tmp/* c:\pm\web 
 
---------------------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------------------------------
-remove the database in windows and recreate blank before committing
-
-remove all in 
-/var/www/html
-/tmp
-
-stop pm and cron jobs
-
-crontab -e
-
-there is a big difference between  crontab -e  and sudo crontab -e...
-
-
-
-
-
 ----------------------------------------------------------------
 erase all on remote server, reclone from git and compile
 ----------------------------------------------------------------
-
 
 cd ~
 rm -r tmp
@@ -564,6 +546,31 @@ cd ~/dev/purple_martians
 sudo cp -r ~/dev/purple_martians/web/* /var/www/html
 
 sudo systemctl start pm
+
+
+
+
+
+----------------------------------------------------------------
+copy src files to server 
+----------------------------------------------------------------
+
+win_copy_to_pmh.bat copy_src
+win_copy_to_pmh.bat lin_build
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
