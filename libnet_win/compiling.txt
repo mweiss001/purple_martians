@@ -29,3 +29,240 @@ copied that to C:\Program Files\CodeBlocks\MinGW\lib
 
 the header file libnet.h goes in C:\Program Files\CodeBlocks\MinGW\include
 
+
+
+
+
+20260110
+
+trying to get this working for CLion
+
+i think I might need to compile for newer mingversion???
+
+this is my current path:
+
+C:\pm>PATH
+PATH=C:\Windows\system32;
+C:\Program Files\dotnet\;
+C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;
+C:\CMake\bin;
+C:\Windows\system32;
+C:\Windows;
+C:\Windows\System32\Wbem;
+C:\Windows\System32\WindowsPowerShell\v1.0\;
+C:\Windows\System32\OpenSSH\;
+C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;
+C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;
+C:\Program Files\Git\cmd;
+C:\Program Files\dotnet\;
+C:\WINDOWS\system32;
+C:\WINDOWS;
+C:\WINDOWS\System32\Wbem;
+C:\WINDOWS\System32\WindowsPowerShell\v1.0\;
+C:\WINDOWS\System32\OpenSSH\;
+C:\Program Files\gs\gs10.00.0\bin;
+C:\Program Files\Calibre2\;
+C:\Strawberry\c\bin;
+C:\Strawberry\perl\site\bin;
+C:\Strawberry\perl\bin;
+C:\Users\m\AppData\Local\Microsoft\WindowsApps;
+C:\sqlite;
+
+
+
+I am going to try removing somethings from path...
+
+test:
+SET PATH=C:\Windows\system32;C:\Program Files\dotnet\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\CMake\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;:\WINDOWS\System32\OpenSSH\;C:\Program Files\gs\gs10.00.0\bin;C:\Program Files\Calibre2\;C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin;C:\Users\m\AppData\Local\Microsoft\WindowsApps;C:\sqlite;
+
+SET PATH=C:\Windows; C:\Windows\system32; C:\CMake\bin; C:\sqlite;
+
+
+
+I dont think this persists, unless you open as admin
+
+
+
+
+
+
+copy folder libnet to C:\
+
+copy mingw.mak from makfiles to top dir
+rename to port.mak
+edit file and remove -Werror
+
+
+I have CLion that came with mingw 11.0 w64
+
+open a command prompt window and cd to C:/libnet
+
+SET PATH=C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin
+SET MINGDIR=C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw
+
+
+then ran mingw32-make.exe from command line in libnet dir
+
+
+C:\libnet>mingw32-make.exe
+mingw32-make.exe -C lib/ lib
+mingw32-make[1]: Entering directory 'C:/libnet/lib'
+makefile:33: warning: overriding recipe for target 'C:/Program'
+makefile:29: warning: ignoring old recipe for target 'C:/Program'
+makefile:33: warning: overriding recipe for target 'Files/JetBrains/CLion'
+makefile:29: warning: ignoring old recipe for target 'Files/JetBrains/CLion'
+mingw32-make[1]: Nothing to be done for 'lib'.
+mingw32-make[1]: Leaving directory 'C:/libnet/lib'
+mingw32-make.exe -C tests/
+mingw32-make[1]: Entering directory 'C:/libnet/tests'
+gcc   getdrvnm.o ../lib/libnet.a  -lwsock32 -o getdrvnm.exe
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: getdrvnm.o: in function `main':
+/home/m/Desktop/pm_client7/libnet/tests/getdrvnm.c:11: undefined reference to `net_init'
+getdrvnm.o: in function `printf':
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:104:(.text.startup+0xc): relocation truncated to fit: R_X86_64_32 against `.rodata.str1.8'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: getdrvnm.o: in function `main':
+/home/m/Desktop/pm_client7/libnet/tests/getdrvnm.c:15: undefined reference to `net_drivers_all'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: /home/m/Desktop/pm_client7/libnet/tests/getdrvnm.c:15: undefined reference to `net_getdrivernames'
+getdrvnm.o: in function `printf':
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:104:(.text.startup+0x33): relocation truncated to fit: R_X86_64_32 against `.rodata.str1.1'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: /usr/include/x86_64-linux-gnu/bits/stdio2.h:104: undefined reference to `__printf_chk'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: getdrvnm.o: in function `main':
+/home/m/Desktop/pm_client7/libnet/tests/getdrvnm.c:19: undefined reference to `net_driver_class'
+getdrvnm.o: in function `printf':
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:104:(.text.startup+0x53): relocation truncated to fit: R_X86_64_32 against `.rodata.str1.1'+6
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: /usr/include/x86_64-linux-gnu/bits/stdio2.h:104: undefined reference to `net_classes'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: /usr/include/x86_64-linux-gnu/bits/stdio2.h:104: undefined reference to `__printf_chk'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: getdrvnm.o: in function `main':
+/home/m/Desktop/pm_client7/libnet/tests/getdrvnm.c:24: undefined reference to `net_shutdown'
+collect2.exe: error: ld returned 1 exit status
+mingw32-make[1]: *** [../port.mak:24: getdrvnm.exe] Error 1
+mingw32-make[1]: Leaving directory 'C:/libnet/tests'
+mingw32-make: *** [makefile:26: tests] Error 2
+
+C:\libnet>
+
+
+
+I think I am getting errors only related to tests...
+
+the lib seems to compile ok
+
+you can compile the lib only with:
+
+C:\libnet>mingw32-make.exe lib
+mingw32-make.exe -C lib/ lib
+mingw32-make[1]: Entering directory 'C:/libnet/lib'
+makefile:33: warning: overriding recipe for target 'C:/Program'
+makefile:29: warning: ignoring old recipe for target 'C:/Program'
+makefile:33: warning: overriding recipe for target 'Files/JetBrains/CLion'
+makefile:29: warning: ignoring old recipe for target 'Files/JetBrains/CLion'
+mingw32-make[1]: Nothing to be done for 'lib'.
+mingw32-make[1]: Leaving directory 'C:/libnet/lib'
+
+
+you can delete the lib at C:\libnet\lib\libnet.a
+
+then run it again:
+
+C:\libnet>mingw32-make.exe lib
+mingw32-make.exe -C lib/ lib
+mingw32-make[1]: Entering directory 'C:/libnet/lib'
+makefile:33: warning: overriding recipe for target 'C:/Program'
+makefile:29: warning: ignoring old recipe for target 'C:/Program'
+makefile:33: warning: overriding recipe for target 'Files/JetBrains/CLion'
+makefile:29: warning: ignoring old recipe for target 'Files/JetBrains/CLion'
+"Updating library..."
+ar rs ../lib/libnet.a core/core.o core/channels.o core/config.o core/conns.o core/lists.o core/connhelp.o core/timer.o core/fixaddr.o core/classes.o core/drivers.o core/threads.o core/wait.o core/address.o drivers/nonet.o drivers/wsockdos.o drivers/internet.o drivers/template.o drivers/ipx.o drivers/ipxsocks.o drivers/serial.o drivers/serdos.o drivers/serlinux.o drivers/local.o drivers/inetaddr.o
+ar: creating ../lib/libnet.a
+mingw32-make[1]: Leaving directory 'C:/libnet/lib'
+
+
+now what should I do with these files:
+
+
+libnet.a and libnet.h
+
+put them with allegro?
+include and lib
+
+I am sure the path is working:
+when I rename C:\allegro\lib\libnet2.a
+i get the error:
+
+"C:\Program Files\JetBrains\CLion 2025.3.1\bin\cmake\win\x64\bin\cmake.exe" --build C:\jbtest\pm\cmake-build-debug --target pm -j 10
+ninja: error: 'C:/allegro/lib/libnet.a', needed by 'pm.exe', missing and no known rule to make it
+
+so the problem is still undefined references:
+
+C:\WINDOWS\system32\cmd.exe /C "cd . && C:\PROGRA~1\JETBRA~1\CLION2~1.1\bin\mingw\bin\G__~1.EXE -g  CMakeFiles/pm.dir/src/main.cpp.obj CMakeFiles/pm.dir/src/mwBitmap.cpp.obj CMakeFiles/pm.dir/src/mwBitmapTools.cpp.obj CMakeFiles/pm.dir/src/mwBottomMessage.cpp.obj CMakeFiles/pm.dir/src/mwCodeStats.cpp.obj CMakeFiles/pm.dir/src/mwColor.cpp.obj CMakeFiles/pm.dir/src/mwConfig.cpp.obj CMakeFiles/pm.dir/src/mwDemoMode.cpp.obj CMakeFiles/pm.dir/src/mwDemoRecord.cpp.obj CMakeFiles/pm.dir/src/mwDisplay.cpp.obj CMakeFiles/pm.dir/src/mwDrawSequence.cpp.obj CMakeFiles/pm.dir/src/mwEnemy.cpp.obj CMakeFiles/pm.dir/src/mwEnemyArchwagon.cpp.obj CMakeFiles/pm.dir/src/mwEnemyCannon.cpp.obj CMakeFiles/pm.dir/src/mwEnemyCloner.cpp.obj CMakeFiles/pm.dir/src/mwEnemyEditorFnx.cpp.obj CMakeFiles/pm.dir/src/mwEnemyFlapper.cpp.obj CMakeFiles/pm.dir/src/mwEnemyFnx.cpp.obj CMakeFiles/pm.dir/src/mwEnemyJumpworm.cpp.obj CMakeFiles/pm.dir/src/mwEnemyTrakbot.cpp.obj CMakeFiles/pm.dir/src/mwEnemyVinePod.cpp.obj CMakeFiles/pm.dir/src/mwEventQueue.cpp.obj CMakeFiles/pm.dir/src/mwFileIterator.cpp.obj CMakeFiles/pm.dir/src/mwFont.cpp.obj CMakeFiles/pm.dir/src/mwGameEvent.cpp.obj CMakeFiles/pm.dir/src/mwGameMoves.cpp.obj CMakeFiles/pm.dir/src/mwGlobalLevelTool.cpp.obj CMakeFiles/pm.dir/src/mwGraph.cpp.obj CMakeFiles/pm.dir/src/mwHelp.cpp.obj CMakeFiles/pm.dir/src/mwInput.cpp.obj CMakeFiles/pm.dir/src/mwItem.cpp.obj CMakeFiles/pm.dir/src/mwItemBombRocket.cpp.obj CMakeFiles/pm.dir/src/mwItemDoor.cpp.obj CMakeFiles/pm.dir/src/mwItemEditorFnx.cpp.obj CMakeFiles/pm.dir/src/mwItemKeySwitch.cpp.obj CMakeFiles/pm.dir/src/mwItemMessage.cpp.obj CMakeFiles/pm.dir/src/mwItemStartExitGate.cpp.obj CMakeFiles/pm.dir/src/mwItemTrigger.cpp.obj CMakeFiles/pm.dir/src/mwLevel.cpp.obj CMakeFiles/pm.dir/src/mwLevelData.cpp.obj CMakeFiles/pm.dir/src/mwLevelDataStats.cpp.obj CMakeFiles/pm.dir/src/mwLift.cpp.obj CMakeFiles/pm.dir/src/mwLog.cpp.obj CMakeFiles/pm.dir/src/mwLogGraph.cpp.obj CMakeFiles/pm.dir/src/mwLogo.cpp.obj CMakeFiles/pm.dir/src/mwLogViewer.cpp.obj CMakeFiles/pm.dir/src/mwLoop.cpp.obj CMakeFiles/pm.dir/src/mwLoopLevelDone.cpp.obj CMakeFiles/pm.dir/src/mwLoopRemoteControl.cpp.obj CMakeFiles/pm.dir/src/mwMain.cpp.obj CMakeFiles/pm.dir/src/mwMainArgs.cpp.obj CMakeFiles/pm.dir/src/mwMenu.cpp.obj CMakeFiles/pm.dir/src/mwMiscFnx.cpp.obj CMakeFiles/pm.dir/src/mwMulticolorLine.cpp.obj CMakeFiles/pm.dir/src/mwNetgame.cpp.obj CMakeFiles/pm.dir/src/mwNetgameClient.cpp.obj CMakeFiles/pm.dir/src/mwNetgameServer.cpp.obj CMakeFiles/pm.dir/src/mwNetgameServerFileTransfer.cpp.obj CMakeFiles/pm.dir/src/mwNetgameSessionLog.cpp.obj CMakeFiles/pm.dir/src/mwPacketBuffer.cpp.obj CMakeFiles/pm.dir/src/mwPDE.cpp.obj CMakeFiles/pm.dir/src/mwPlayer.cpp.obj CMakeFiles/pm.dir/src/mwQuickGraph.cpp.obj CMakeFiles/pm.dir/src/mwQuickGraph2.cpp.obj CMakeFiles/pm.dir/src/mwRollingAverage.cpp.obj CMakeFiles/pm.dir/src/mwScreen.cpp.obj CMakeFiles/pm.dir/src/mwScreenOverlay.cpp.obj CMakeFiles/pm.dir/src/mwSettings.cpp.obj CMakeFiles/pm.dir/src/mwShot.cpp.obj CMakeFiles/pm.dir/src/mwSolid.cpp.obj CMakeFiles/pm.dir/src/mwSound.cpp.obj CMakeFiles/pm.dir/src/mwSql.cpp.obj CMakeFiles/pm.dir/src/mwStateHistory.cpp.obj CMakeFiles/pm.dir/src/mwTally.cpp.obj CMakeFiles/pm.dir/src/mwTriggerEvent.cpp.obj CMakeFiles/pm.dir/src/mwVisualLevel.cpp.obj CMakeFiles/pm.dir/src/mwWidget.cpp.obj CMakeFiles/pm.dir/src/mwWindow.cpp.obj CMakeFiles/pm.dir/src/mwWindowEditorMain.cpp.obj CMakeFiles/pm.dir/src/mwWindowEditSelection.cpp.obj CMakeFiles/pm.dir/src/mwWindowGroupEdit.cpp.obj CMakeFiles/pm.dir/src/mwWindowManager.cpp.obj CMakeFiles/pm.dir/src/mwWindowObjectViewer.cpp.obj CMakeFiles/pm.dir/src/mwWindowTileHelper.cpp.obj CMakeFiles/pm.dir/src/sqlite3.c.obj -o pm.exe -Wl,--out-implib,libpm.dll.a -Wl,--major-image-version,0,--minor-image-version,0 -LC:/allegro/lib -lallegro_monolith  -lzlib  -lnet  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 && cd ."
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: CMakeFiles/pm.dir/src/mwNetgame.cpp.obj: in function `mwNetgame::NetworkInit()':
+C:/jbtest/pm/src/mwNetgame.cpp:35: undefined reference to `net_init'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: C:/jbtest/pm/src/mwNetgame.cpp:42: undefined reference to `net_detectdrivers'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: C:/jbtest/pm/src/mwNetgame.cpp:43: undefined reference to `net_getdrivernames'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: C:/jbtest/pm/src/mwNetgame.cpp:49: undefined reference to `net_initdriver'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: CMakeFiles/pm.dir/src/mwNetgame.cpp.obj: in function `mwNetgame::NetworkExit()':
+C:/jbtest/pm/src/mwNetgame.cpp:65: undefined reference to `net_closechannel'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: C:/jbtest/pm/src/mwNetgame.cpp:67: undefined reference to `net_shutdown'
+
+
+did I build it right?
+
+try substituing the old one
+
+old:
+20240714 375K
+
+new:
+20260110 486K
+
+
+c:\libnet\lib/drivers/internet.c:234: undefined reference to `__imp_select'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: C:/allegro/lib/libnet.a(internet.o): in function `drv_send':
+c:\libnet\lib/drivers/internet.c:195: undefined reference to `__imp_sendto'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: C:/allegro/lib/libnet.a(internet.o): in function `update_target':
+c:\libnet\lib/drivers/internet.c:177: undefined reference to `__imp_htons'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: c:\libnet\lib/drivers/internet.c:178: undefined reference to `__imp_htonl'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: c:\libnet\lib/drivers/internet.c:172: undefined reference to `__imp_setsockopt'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: C:/allegro/lib/libnet.a(internet.o): in function `destroy_channel':
+c:\libnet\lib/drivers/internet.c:187: undefined reference to `__imp_closesocket'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: C:/allegro/lib/libnet.a(internet.o): in function `do_init_channel':
+c:\libnet\lib/drivers/internet.c:107: undefined reference to `__imp_socket'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: c:\libnet\lib/drivers/internet.c:116: undefined reference to `__imp_ioctlsocket'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: c:\libnet\lib/drivers/internet.c:126: undefined reference to `__imp_setsockopt'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: c:\libnet\lib/drivers/internet.c:129: undefined reference to `__imp_htons'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: c:\libnet\lib/drivers/internet.c:130: undefined reference to `__imp_htonl'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: c:\libnet\lib/drivers/internet.c:134: undefined reference to `__imp_bind'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: c:\libnet\lib/drivers/internet.c:140: undefined reference to `__imp_getsockname'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: c:\libnet\lib/drivers/internet.c:119: undefined reference to `__imp_closesocket'
+C:\Program Files\JetBrains\CLion 2025.3.1\bin\mingw\bin/ld.exe: c:\libnet\lib/drivers/internet.c:135: undefined reference to `__imp_closesocket'
+
+        net
+        wsock32
+
+finally got it to link!!!
+
+used the old version and wsock32 
+
+        net
+        wsock32
+
+
+when it runs, cant load bitmaps...
+that is just from the ide, it runs fine from command line, even netgame!!!
+
+
+2026-01-10 06:29:34
+
+holy shit batman! document this
+
+I used the old version from 20240714
+
+
+
+
+
+
+
+
+
+

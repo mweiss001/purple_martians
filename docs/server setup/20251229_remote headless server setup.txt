@@ -202,24 +202,23 @@ sudo nano /etc/systemd/system/pm.service
 
 # pm.service
 
+
 [Unit]
-Description= Purple Martians server
-Documentation= purplemartians.org
+Description=Purple Martians server
+Documentation=purplemartians.org
 
 [Service]
-Type= simple
-User= m
-ExecStart= /home/m/dev/purple_martians/pm -sh
+Type=simple
+User=m
+ExecStart=/home/m/dev/purple_martians/pm -sh
+WorkingDirectory=/home/m/dev/purple_martians
 
 [Install]
-WantedBy= multi-user.target
+WantedBy=multi-user.target
 
 sudo systemctl daemon-reload
 sudo systemctl enable pm
 sudo systemctl start pm
-
-
-
 
 ---------------------------------------------------------------------------------------------------------------
 end of install instructions    -------     extra notes below
@@ -496,6 +495,25 @@ I should not be able to ssh in from something outside the subnet
 
 
 
+----------------------------------------------------------------
+manualy work on the server database 
+----------------------------------------------------------------
+sqlite3 /home/m/purple_martians/data/database.db
+
+.mode column
+SELECT * FROM gm;
+SELECT * FROM gm_sessions;
+SELECT id, dt_start, player_name FROM sessions;
+
+DELETE FROM gm;
+DELETE FROM gm_sessions;
+DELETE FROM sessions;
+
+
+
+
+
+
 
 
 
@@ -516,6 +534,17 @@ sudo cp -r /var/www/html/* ~/tmp
 
 From the a windows machine, copy from tmp location to project:
 pscp -r -pw zaiden m@192.168.1.146:tmp/* c:\pm\web 
+
+----------------------------------------------------------------
+erase all web on remote server
+----------------------------------------------------------------
+
+sudo rm -r /var/www/html/*
+
+restore:
+
+cp -r ~/dev/purple_martians/web/* /var/www/html
+
 
 ----------------------------------------------------------------
 erase all on remote server, reclone from git and compile
@@ -548,22 +577,36 @@ sudo cp -r ~/dev/purple_martians/web/* /var/www/html
 sudo systemctl start pm
 
 
-
-
-
 ----------------------------------------------------------------
 copy src files to server 
 ----------------------------------------------------------------
-
 win_copy_to_pmh.bat copy_src
 win_copy_to_pmh.bat lin_build
 
 
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+Things you can do from windows dev machine batch script: win_copy_to_pmh.bat
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+
+Erase and reclone pm (shallow) from git
+---------------------------------------
+win_copy_to_pmh.bat git_reclone
 
 
+Copy things from windows dev machine to linux server
+----------------------------------------------------
 
+these all use scp
 
+win_copy_to_pmh.bat copy_all
+(uses scp recursive, also copies huge hidden .git dir...)
 
+win_copy_to_pmh.bat copy_src
+win_copy_to_pmh.bat copy_levels
+win_copy_to_pmh.bat copy_data
+win_copy_to_pmh.bat copy_cfg
 
 
 

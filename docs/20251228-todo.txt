@@ -1,57 +1,56 @@
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+BUGS!!
+------------------------------------------------------------------------------
+
+bug server not happy when database is erased (then don't do that :)
+test...
+cannot reproduce, worked fine when I tried it 20260109
+
+server is seg faulting but only when started as service and client joins
+happens everytime
+I wish I could easily turn on full logging
+
+I have all the logging on and I still don't know what happens...
+
+it dies before it can save any logs
+
+I cant see what it prints
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 TO DO
 ------------------------------------------------------------------------------
 
-related to player name:
-
-player name
-
-add to end of level stats...done
-
-add very small text name above player..done
-how to make this optional...
-how about only remote players have the label? I like that!!
 
 
 ------------------------------------------------------------------------------
+sessions and gm
+---------------
+
+add update session to fire every second so I can see changes
 
 
-meta section for gm files
-
-store ints as rows
+it seems like next level and exits stats are a bit high???
 
 
-redo all gm files
+gm add/update to database
+is it missing something?
+when a client quits and rejoins the same level, that should be a new session
 
-unique id in meta section for gm file version
-
-keep old reader along with new one
-save in new format
-
-
-
-
-------------------------------------------------------------------------------
-do something different with database creation in mSql class
-
-check for if databse file exists
-
-check if tables exist...
-
-don't show as much info if all is well
-
-
-------------------------------------------------------------------------------
-I have been thinking about c string vs c++ std:string
-
-in the words of Boromir, 'do you not suffer needlessly?'
-
-
-
-
-------------------------------------------------------------------------------
 
 
 
@@ -70,10 +69,19 @@ in the words of Boromir, 'do you not suffer needlessly?'
 
 
 ------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 
-There is a lot of info in level stats that would be better suited in database. Just saying..
+------------------------------------------------------------------------------
+figure out minimum permissions needed on server
+- web root and everything in path
+- path to database that is used in webroot
+- path to savegames that is aliased in webroot
+make a script to set these persmissions
+------------------------------------------------------------------------------
 
 
+
+------------------------------------------------------------------------------
 
 
 ------------------------------------------------------------------------------
@@ -104,52 +112,11 @@ void mwLevel::add_play_data_record(int lev, int type)
 
 
 ------------------------------------------------------------------------------
-
-
-add update to fire every second so I can see changes
-
-it seems like next level and exits stats are a bit high???
-
-
 ------------------------------------------------------------------------------
-bug server not happy when database is erased
-server is seg faulting but only when started as service and client joins
-
+player name - make small text label above player optional
 ------------------------------------------------------------------------------
-
-
 ------------------------------------------------------------------------------
 -----------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -164,55 +131,18 @@ make new table player names (unique with ip, hostname, color???)
 add players from sessions and gm
 ------------------------------------------------------------------------------
 
-
 ----------------------------------------------
 I can also show players in gm table now!!!
-
-
 I could also make a table of players
-
 then just link them to sessions and gm's !!!!
 
-
-
-
-
 -------------------------------------------------------------
-while I am scraping gm's, I open the file to find the last frame
-
-I was thinking of doing more at that time
-
-- delete file if they contain no game moves or are less than 1s
-
-finding all of the players in the game file
-
-entering them into my new table players (if they do not already exist)
-and making links from this gm to the players in another table
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ------------------------------------------------------------------------------
 make a way of cleaning up log files periodically
 -----------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
-do something about the script that links gm's and sessions
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
@@ -224,8 +154,6 @@ do something about the script that links gm's and sessions
 ------------------------------------------------------------------------------
 even if I change servers, I want to always keep all the sessions and games files
 never lose them!!
-
-when I add player name to sessions, do not lose old data...
 
 
 ------------------------------------------------------------------------------
@@ -246,11 +174,46 @@ how big is it? settings.pm is 8K
 
 
 
+
+
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------   DONE   -----------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+meta section for gm files
+store ints as rows
+redo all gm files
+unique id in meta section for gm file version
+keep old reader along with new one
+save in new format
+
+
+do something different with database creation in mSql class
+check for if databse file exists
+check if tables exist...
+don't show as much info if all is well
+
+
+add player name to end of level stats...done
+
+add very small text name above player..done
+how about only remote players have the label? I like that!!
+
+
+
+it is a little convoluted how I do session logs
+save them to disk, then process them periodically with cron and php
+in conjunction with database..
+if I could just do all that from the server and C++ and a database connection it could be much simpler
+I have not done that beacuse I did not want to tie up the server
+but really, how much overhead could it take to enter a few things in a database
+is there really any reason to use mysql? why do I need remote network access to the database
+anything the webpage shows will be on the same physical machine
+
+
+
 
 if database is erase, php will try to create it...i don't want that
 
@@ -277,6 +240,11 @@ move all of sessions section code to php file
 includes to all be at top
 include to just include function not actually show until function is called
 done...
+
+
+I have been thinking about c string vs c++ std:string
+in the words of Boromir, 'do you not suffer needlessly?'
+
 
 
 
@@ -387,14 +355,11 @@ allegro in browser also
 ------------------------------------------------------------------------------
 
 
+There is a lot of info in level stats that would be better suited in database. Just saying..
 
 
-it is a little convoluted how I do session logs
-save them to disk, then process them periodically with cron and php
-in conjunction with database..
-if I could just do all that from the server and C++ and a database connection it could be much simpler
-I have not done that beacuse I did not want to tie up the server
-but really, how much overhead could it take to enter a few things in a database
-is there really any reason to use mysql? why do I need remote network access to the database
-anything the webpage shows will be on the same physical machine
+
+
+
+
 ------------------------------------------------------------------------------

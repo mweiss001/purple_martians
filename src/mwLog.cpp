@@ -11,6 +11,7 @@
 #include "mwNetgame.h"
 #include "mwMiscFnx.h"
 
+#include "mwSql.h"
 
 
 mwLog mLog;
@@ -236,6 +237,25 @@ void mwLog::log_error(const char *txt, bool dialog)
 }
 
 
+void mwLog::log_append_text_to_db(int type, const char *txt)
+{
+   if (mSql.db_logs == NULL)
+   {
+      printf("Error! Cannot insert log into database. Database not open\n");
+      printf("log:%s\n", txt);
+      return;
+   }
+   char sql[1024];
+
+//   double agt = al_get_time();
+   double agt = 0;
+
+   char ts[256];
+   sprintf(ts, "%s", mMiscFnx.get_timestamp());
+   sprintf(sql, "INSERT INTO logs ( message, created, agt ) VALUES('%s', '%s', %f)" , txt, ts, agt);
+   printf("sql:%s\n", sql);
+   mSql.execute_sql(sql, mSql.db_logs);
+}
 
 
 // appends passed text string to log array
@@ -243,6 +263,15 @@ void mwLog::log_error(const char *txt, bool dialog)
 // also checks if log array is full and flushes to disk
 void mwLog::log_append_text(int type, const char *txt)
 {
+   // add to db...
+
+   // just add created, frame, agt, and text line
+
+   // log_append_text_to_db(type, txt);
+
+
+
+
    if (log_types[type].action & LOG_ACTION_PRINT) printf("%s", txt);
    if (log_types[type].action & LOG_ACTION_LOG)
    {
