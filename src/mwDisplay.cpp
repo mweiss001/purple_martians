@@ -21,6 +21,11 @@
 #include "mwMain.h"
 #include "mwEventQueue.h"
 
+#include "mwSettings.h"
+#include "mwBottomMessage.h"
+
+
+
 
 
 mwDisplay mDisplay;
@@ -634,20 +639,31 @@ void mwDisplay::show_var_sizes(void)
    printf("\nOther Large Variables\n\n");
 
 
+
    sz = (int)sizeof(mPlayer.loc);
-   printf("mPlayer.loc   :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+   printf("mPlayer.loc   :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
 
    sz = (int)sizeof(mGameMoves.arr);
-   printf("game_moves    :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+   printf("game_moves    :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
 
    sz = (int)sizeof(mLog.log_msg);
-   printf("log_msg       :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+   printf("log_msg       :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
 
    sz = (int)sizeof(mLog.log_lines);
-   printf("log_lines     :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+   printf("log_lines     :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
 
    sz = (int)sizeof(mLog.log_lines_int);
-   printf("log_lines_int :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+   printf("log_lines_int :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
+
+   sz = (int)sizeof(mLog.log_types);
+   printf("log_types     :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
+   sz = (int)sizeof(mSettings.overlay_grid);
+   printf("overlay_grid  :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
+   sz = (int)sizeof(mBottomMessage.filter_event);
+   printf("filter_event  :%12d  %9dK  %6dM \n", sz, sz/1000, sz/1000000 );
 }
 
 

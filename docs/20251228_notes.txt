@@ -4886,8 +4886,18 @@ WantedBy=multi-user.target
 
 update the docs.
 
-
 run sql through my custom exe functions in mwSql that will check if database is not open...done
+
+
+
+I am itching to try CLion....
+
+
+do it...
+
+
+
+
 
 
 

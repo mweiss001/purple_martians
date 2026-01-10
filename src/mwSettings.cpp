@@ -1962,6 +1962,12 @@ void mwSettings::page_info(void)
    if (mWidget.buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show RAND_MAX"))                     printf("RAND_MAX: %i\n", RAND_MAX);
 
 
+
+
+
+
+
+
 }
 
 

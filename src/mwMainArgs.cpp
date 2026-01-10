@@ -108,10 +108,13 @@ void mwMain::copy_files_to_clients(int type)
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 -- has stupid network issues, sometimes take 4s to get a packet reply
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
 
+//   sprintf(client[num_clients++], "\\\\4230x\\pm_client16");  // ubuntu 20.04 laptop no point in copying windows stuff to linux
+
+
 //   sprintf(client[num_clients++], "\\\\i990\\pm_client32");  // win 7
 
 //   sprintf(client[num_clients++], "\\\\zulu\\pm_client52");  // win 10
-//   sprintf(client[num_clients++], "\\\\e6430\\pm_client50");  // win 10
+
 
   // sprintf(client[num_clients++], "\\\\o7040\\pm_client51");  // win 10
 
@@ -124,11 +127,11 @@ void mwMain::copy_files_to_clients(int type)
 //   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
 
 
-   sprintf(client[num_clients++], "\\\\asp3\\pm_client53");  // win 10
-   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
+//   sprintf(client[num_clients++], "\\\\asp3\\pm_client53");  // win 10
+//   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
+   sprintf(client[num_clients++], "\\\\e6430\\pm_client50");  // win 10
 
 
-//   sprintf(client[num_clients++], "\\\\4230x\\pm_client16");  // ubuntu 20.04 laptop no point in copying windows stuff to linux
 
 
 

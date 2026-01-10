@@ -3,25 +3,16 @@
 ------------------------------------------------------------------------------
 BUGS!!
 ------------------------------------------------------------------------------
+playing demo levels does not restore original player color when done
 
-bug server not happy when database is erased (then don't do that :)
-test...
-cannot reproduce, worked fine when I tried it 20260109
-
-server is seg faulting but only when started as service and client joins
-happens everytime
-I wish I could easily turn on full logging
-
-I have all the logging on and I still don't know what happens...
-
-it dies before it can save any logs
-
-I cant see what it prints
+in netgame when a level is done and everyone returns to overworld,
+why do they all come abck at different places?
+was it where they were before they were sucked into the last level played?
+I think it was...
+should I leave it like that or force everyone to come back at the level they just played?
 
 
-
-
-
+on sessions web page, when current gm is not set make it say that instead of not found
 
 
 
@@ -43,29 +34,11 @@ sessions and gm
 
 add update session to fire every second so I can see changes
 
-
 it seems like next level and exits stats are a bit high???
-
 
 gm add/update to database
 is it missing something?
 when a client quits and rejoins the same level, that should be a new session
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ------------------------------------------------------------------------------
@@ -79,36 +52,9 @@ figure out minimum permissions needed on server
 make a script to set these persmissions
 ------------------------------------------------------------------------------
 
-
-
 ------------------------------------------------------------------------------
 
-
 ------------------------------------------------------------------------------
-
-bug - play all levels and set stats is broken
-
-void mwLevel::add_play_data_record(int lev, int type)
-{
-   printf("void mwLevel::add_play_data_record(int lev, int type))\n");
-
-   int save_flag = 1;
-   if (mPlayer.syn[mPlayer.active_local_player].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) save_flag = 0; // if running demo mode, don't save data
-   if (mLevel.skc_trigger_demo_cheat) save_flag = 1;                        // in cheat mode save data
-   if (mDemoMode.demo_debug_running_demo_saves_level_data) save_flag = 1;   // or if this is option is set
-   if (lev == 1) save_flag = 0;                                             // never save data for overworld
-
-
-   printf("mDemoMode.demo_debug_running_demo_saves_level_data:%d\n", mDemoMode.demo_debug_running_demo_saves_level_data);
-
-
-   printf("void mwLevel::add_play_data_record(int lev, int type)) Save flag:%d  \n", save_flag);
-
-
-   save_flag = 1;                                             // never save data for overworld
-
-
-   if (save_flag)
 
 
 ------------------------------------------------------------------------------
@@ -124,22 +70,11 @@ player name - make small text label above player optional
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
-find players in save game
-------------------------------------------------------------------------------
-make new table player names (unique with ip, hostname, color???)
-------------------------------------------------------------------------------
-add players from sessions and gm
-------------------------------------------------------------------------------
-
-----------------------------------------------
-I can also show players in gm table now!!!
-I could also make a table of players
-then just link them to sessions and gm's !!!!
-
--------------------------------------------------------------
 
 ------------------------------------------------------------------------------
 make a way of cleaning up log files periodically
+or just put them in the database....
+
 -----------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
@@ -182,27 +117,85 @@ how big is it? settings.pm is 8K
 ---------------------   DONE   -----------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+bug - play all levels and set stats is broken
+void mwLevel::add_play_data_record(int lev, int type)
+{
+   printf("void mwLevel::add_play_data_record(int lev, int type))\n");
+   int save_flag = 1;
+   if (mPlayer.syn[mPlayer.active_local_player].control_method == PM_PLAYER_CONTROL_METHOD_DEMO_MODE) save_flag = 0; // if running demo mode, don't save data
+   if (mLevel.skc_trigger_demo_cheat) save_flag = 1;                        // in cheat mode save data
+   if (mDemoMode.demo_debug_running_demo_saves_level_data) save_flag = 1;   // or if this is option is set
+   if (lev == 1) save_flag = 0;                                             // never save data for overworld
+   printf("mDemoMode.demo_debug_running_demo_saves_level_data:%d\n", mDemoMode.demo_debug_running_demo_saves_level_data);
+   printf("void mwLevel::add_play_data_record(int lev, int type)) Save flag:%d  \n", save_flag);
+   save_flag = 1;                                             // never save data for overworld
+   if (save_flag)
+fixed...not even a bug...there is a check box in misc called: "Running demo always saves level data"
+------------------------------------------------------------------------------------------------------------------------------------------------------------
 meta section for gm files
 store ints as rows
 redo all gm files
 unique id in meta section for gm file version
 keep old reader along with new one
 save in new format
-
-
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+bug server not happy when database is erased (then don't do that :)
+test...
+cannot reproduce, worked fine when I tried it 20260109
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+server is seg faulting but only when started as service and client joins
+happens everytime
+I wish I could easily turn on full logging
+I have all the logging on and I still don't know what happens...
+it dies before it can save any logs
+I cant see what it prints
+after many hours i divcovered I needed to set working dir for pm service
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+find players in save game (not needed anymore)
+------------------------------------------------------------------------------
+make new table player names (unique with ip, hostname, color???)
+------------------------------------------------------------------------------
+add players from sessions and gm
+------------------------------------------------------------------------------
+----------------------------------------------
+I can also show players in gm table now!!!
+I could also make a table of players
+then just link them to sessions and gm's !!!!
+-------------------------------------------------------------
 do something different with database creation in mSql class
 check for if databse file exists
 check if tables exist...
 don't show as much info if all is well
-
-
+------------------------------------------------------------------------------
 add player name to end of level stats...done
-
+------------------------------------------------------------------------------
 add very small text name above player..done
 how about only remote players have the label? I like that!!
-
-
-
+------------------------------------------------------------------------------
 it is a little convoluted how I do session logs
 save them to disk, then process them periodically with cron and php
 in conjunction with database..
