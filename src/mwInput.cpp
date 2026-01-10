@@ -19,6 +19,10 @@
 #include "mwDemoMode.h"
 #include "mwQuickGraph2.h"
 
+#include "mwBottomMessage.h"
+#include "mwLogo.h"
+#include "mwSound.h"
+
 
 
 mwInput mInput;
@@ -219,6 +223,47 @@ void mwInput::serial_key_check(int key)
       mDisplay.proc_display_change();
    }
 
+
+
+   if (serial_key_test("devset"))
+   {
+      mBottomMessage.bottom_msg_on = 0;
+      mDemoMode.config_autoplay_enabled = 0;
+      mLogo.show_splash_screen = 0;
+      mSound.sound_on = 0;
+      mDisplay.disp_w_wind = 800;
+      mDisplay.disp_h_wind = 600;
+      mDisplay.set_windowed();
+      mDisplay.proc_display_change();
+      mConfig.save_config(0);
+   }
+
+   if (serial_key_test("devset0"))
+   {
+      mPlayer.syn[0].color = 8;
+      sprintf(mPlayer.syn[0].name, "%s", "michael");
+      mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
+      mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
+   }
+
+
+
+   if (serial_key_test("devset1"))
+   {
+      mPlayer.syn[0].color = 3;
+      sprintf(mPlayer.syn[0].name, "%s", "Kaileb");
+      mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
+      mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
+   }
+
+   if (serial_key_test("devset2"))
+   {
+      mPlayer.syn[0].color = 4;
+      sprintf(mPlayer.syn[0].name, "%s", "Zaiden");
+      mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
+      mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
+   }
+
    if (serial_key_test("win1024"))
    {
       mDisplay.disp_w_wind = 1024;
@@ -234,7 +279,6 @@ void mwInput::serial_key_check(int key)
       mDisplay.set_windowed();
       mDisplay.proc_display_change();
    }
-
 
    if (serial_key_test("win1600"))
    {

@@ -26,7 +26,7 @@ include('show_current_gm.php');
 
 // if passed as query string set the session variables
 if (isset($_GET['current_session_id']))   $_SESSION['current_session_id']  = $_GET['current_session_id'];
-if (isset($_GET['current_gm_id']))        $_SESSION['current_gm_id']       = $_GET['current_gm_id'];
+if (isset($_GET['current_gm_muid']))      $_SESSION['current_gm_muid']     = $_GET['current_gm_muid'];
 
 
 if (isset($_GET['col_set']))              $_SESSION['col_set']             = $_GET['col_set'];
@@ -39,7 +39,7 @@ if (isset($_GET['gm_set']))               $_SESSION['gm_set']              = $_G
 $current_session_id = 0;
 if (isset($_SESSION['current_session_id'])) $current_session_id = $_SESSION['current_session_id'];
 $current_gm_id = 0;
-if (isset($_SESSION['current_gm_id']))      $current_gm_id      = $_SESSION['current_gm_id'];
+if (isset($_SESSION['current_gm_muid']))    $current_gm_muid    = $_SESSION['current_gm_muid'];
 $plr_on = 1;
 if (isset($_SESSION['plr_on']))             $plr_on             = $_SESSION['plr_on'];
 $bnd_on = 0;
@@ -51,13 +51,13 @@ if (isset($_SESSION['gm_on']))              $gm_on              = $_SESSION['gm_
 
 
 // database setup
-$db_filepath = "/home/m/dev/purple_martians/data/database.db";
+$db_filepath = "/home/m/dev/purple_martians/data/sessions.db";
 if (!file_exists($db_filepath))
 {
    echo "Database file: $filename not found.";
    return;
 }
-$db = new PDO("sqlite:/home/m/dev/purple_martians/data/database.db");
+$db = new PDO("sqlite:/home/m/dev/purple_martians/data/sessions.db");
 
 
 

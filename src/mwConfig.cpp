@@ -62,12 +62,6 @@ void mwConfig::save_config(int type)
       {
          asci(GAME, mPlayer.syn[0].color)
       }
-
-
-
-
-
-
       if (type == PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED)
       {
          asci(GAME, mPlayer.syn[0].overworld_last_touched_gate)

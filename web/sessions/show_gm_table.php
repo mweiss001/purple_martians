@@ -69,7 +69,7 @@ function show_gm_table()
                      echo "<td id='md_center'; >$muid</td>";
                      echo "<td id='md_center'; >$dt_start</td>";
                      echo "<td id='md_center'; >$duration</td>";
-                     echo "<td id='md_center'; ><a href=\"sessions.php?current_gm_id=$id\">set current</a></td>";
+                     echo "<td id='md_center'; ><a href=\"sessions.php?current_gm_muid=$muid\">set current</a></td>";
                      echo "<td id='md_center'; ><a href=\"$fullpath\" download=\"$filename\">download</a></td>";
                      echo "<td id='md_left'; >$filename</td>";
                   echo "</tr>";

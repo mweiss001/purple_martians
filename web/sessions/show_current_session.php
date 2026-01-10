@@ -67,11 +67,9 @@ function show_current_session()
 
          echo "<hr>";
 
-
          echo "Start           : "            . date('Y-m-d h:i:s', strtotime($row['dt_start'])) . "\n";
          echo "End             : "            . date('Y-m-d h:i:s', strtotime($row['dt_end'])) . "\n";
-         $dur = secondsToHMS($row['duration']);
-         echo "Duration        :            " . $dur              . "\n";
+         echo "Duration        :            " . secondsToHMS($row['duration']) . "\n";
          echo "End Reason      : "            . $row['endreason']    . "\n";
 
          if ($plr_on)

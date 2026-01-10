@@ -115,12 +115,9 @@ void mwMain::copy_files_to_clients(int type)
 
   // sprintf(client[num_clients++], "\\\\o7040\\pm_client51");  // win 10
 
-
-
 //   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
 //   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
 //   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
-
 
 
 //   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
@@ -129,6 +126,12 @@ void mwMain::copy_files_to_clients(int type)
 
    sprintf(client[num_clients++], "\\\\asp3\\pm_client53");  // win 10
    sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
+
+
+//   sprintf(client[num_clients++], "\\\\4230x\\pm_client16");  // ubuntu 20.04 laptop no point in copying windows stuff to linux
+
+
+
 
 
 
