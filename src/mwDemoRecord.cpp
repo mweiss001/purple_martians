@@ -1094,7 +1094,7 @@ void mwDemoRecord::fill_player_sections(void)
    // find sections of active players
    for (int p=0; p<NUM_PLAYERS; p++)
    {
-      int col; // = mPlayer.syn[p].color; // overwrite later
+      int col = 0; // = mPlayer.syn[p].color; // overwrite later
       int f1 = -1;
       int f2 = -1;
 
