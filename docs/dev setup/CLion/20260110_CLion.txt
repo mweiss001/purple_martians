@@ -1,0 +1,525 @@
+20260110
+
+Trying CLion
+
+CLion-2025.3.1.exe
+
+requires 6G
+
+C:\Program Files\JetBrains\CLion 2025.3.1
+
+Comes bundled with MinGW version 11.0 w64
+
+
+
+
+Get allegro
+-----------------------------
+
+https://github.com/liballeg/allegro5/releases
+
+downloaded binaries:
+allegro-x86_64-w64-mingw32-gcc-15.2.0-posix-seh-static-5.2.11.2.zip
+downloaded dependencies:
+allegro_deps-x86_64-w64-mingw32-gcc-15.2.0-posix-seh-1.16.0.zip
+
+copied to C:/allegro
+maintaining directory structure
+
+C:/allegro/bin
+C:/allegro/lib
+C:/allegro/include
+
+libnet
+-----------------------------
+copy 
+
+C:\pm\libnet_win\20220304 compiled with mingw 8.1.0\libnet.a
+to 
+C:/allegro/lib
+
+
+CMakeList.txt
+
+cmake_minimum_required(VERSION 4.1)
+project(pm)
+
+set(CMAKE_CXX_STANDARD 14)
+
+include_directories(src)
+
+set(ALLEGRO_ROOT_DIR "C:/allegro") # Update this path to your Allegro location
+include_directories(${ALLEGRO_ROOT_DIR}/include)
+link_directories(${ALLEGRO_ROOT_DIR}/lib)
+
+add_executable(pm
+        src/libnet.h
+        src/main.cpp
+        src/mwBitmap.cpp
+        src/mwBitmap.h
+        src/mwBitmapTools.cpp
+        src/mwBitmapTools.h
+        src/mwBottomMessage.cpp
+        src/mwBottomMessage.h
+        src/mwCodeStats.cpp
+        src/mwCodeStats.h
+        src/mwColor.cpp
+        src/mwColor.h
+        src/mwConfig.cpp
+        src/mwConfig.h
+        src/mwDemoMode.cpp
+        src/mwDemoMode.h
+        src/mwDemoRecord.cpp
+        src/mwDemoRecord.h
+        src/mwDisplay.cpp
+        src/mwDisplay.h
+        src/mwDrawSequence.cpp
+        src/mwDrawSequence.h
+        src/mwEnemy.cpp
+        src/mwEnemy.h
+        src/mwEnemyArchwagon.cpp
+        src/mwEnemyCannon.cpp
+        src/mwEnemyCloner.cpp
+        src/mwEnemyEditorFnx.cpp
+        src/mwEnemyFlapper.cpp
+        src/mwEnemyFnx.cpp
+        src/mwEnemyJumpworm.cpp
+        src/mwEnemyTrakbot.cpp
+        src/mwEnemyVinePod.cpp
+        src/mwEventQueue.cpp
+        src/mwEventQueue.h
+        src/mwFileIterator.cpp
+        src/mwFileIterator.h
+        src/mwFont.cpp
+        src/mwFont.h
+        src/mwGameEvent.cpp
+        src/mwGameEvent.h
+        src/mwGameMoves.cpp
+        src/mwGameMoves.h
+        src/mwGlobalLevelTool.cpp
+        src/mwGlobalLevelTool.h
+        src/mwGraph.cpp
+        src/mwGraph.h
+        src/mwHelp.cpp
+        src/mwHelp.h
+        src/mwInput.cpp
+        src/mwInput.h
+        src/mwItem.cpp
+        src/mwItem.h
+        src/mwItemBombRocket.cpp
+        src/mwItemDoor.cpp
+        src/mwItemEditorFnx.cpp
+        src/mwItemKeySwitch.cpp
+        src/mwItemMessage.cpp
+        src/mwItemStartExitGate.cpp
+        src/mwItemTrigger.cpp
+        src/mwLevel.cpp
+        src/mwLevel.h
+        src/mwLevelData.cpp
+        src/mwLevelDataStats.cpp
+        src/mwLift.cpp
+        src/mwLift.h
+        src/mwLog.cpp
+        src/mwLog.h
+        src/mwLogGraph.cpp
+        src/mwLogo.cpp
+        src/mwLogo.h
+        src/mwLogViewer.cpp
+        src/mwLoop.cpp
+        src/mwLoop.h
+        src/mwLoopLevelDone.cpp
+        src/mwLoopRemoteControl.cpp
+        src/mwMain.cpp
+        src/mwMain.h
+        src/mwMainArgs.cpp
+        src/mwMenu.cpp
+        src/mwMenu.h
+        src/mwMiscFnx.cpp
+        src/mwMiscFnx.h
+        src/mwMulticolorLine.cpp
+        src/mwMulticolorLine.h
+        src/mwNetgame.cpp
+        src/mwNetgame.h
+        src/mwNetgameClient.cpp
+        src/mwNetgameServer.cpp
+        src/mwNetgameServerFileTransfer.cpp
+        src/mwNetgameSessionLog.cpp
+        src/mwPacketBuffer.cpp
+        src/mwPacketBuffer.h
+        src/mwPDE.cpp
+        src/mwPDE.h
+        src/mwPlayer.cpp
+        src/mwPlayer.h
+        src/mwQuickGraph.cpp
+        src/mwQuickGraph.h
+        src/mwQuickGraph2.cpp
+        src/mwQuickGraph2.h
+        src/mwRollingAverage.cpp
+        src/mwRollingAverage.h
+        src/mwScreen.cpp
+        src/mwScreen.h
+        src/mwScreenOverlay.cpp
+        src/mwSettings.cpp
+        src/mwSettings.h
+        src/mwShot.cpp
+        src/mwShot.h
+        src/mwSolid.cpp
+        src/mwSolid.h
+        src/mwSound.cpp
+        src/mwSound.h
+        src/mwSql.cpp
+        src/mwSql.h
+        src/mwStateHistory.cpp
+        src/mwStateHistory.h
+        src/mwTally.cpp
+        src/mwTally.h
+        src/mwTriggerEvent.cpp
+        src/mwTriggerEvent.h
+        src/mwVisualLevel.cpp
+        src/mwVisualLevel.h
+        src/mwWidget.cpp
+        src/mwWidget.h
+        src/mwWindow.cpp
+        src/mwWindow.h
+        src/mwWindowEditorMain.cpp
+        src/mwWindowEditSelection.cpp
+        src/mwWindowGroupEdit.cpp
+        src/mwWindowManager.cpp
+        src/mwWindowManager.h
+        src/mwWindowObjectViewer.cpp
+        src/mwWindowTileHelper.cpp
+        src/pm.h
+        src/sqlite3.c
+        src/sqlite3.h)
+
+target_link_libraries(pm allegro_monolith zlib net wsock32)
+
+
+
+That is all...
+
+it compiles, but does not run from IDE
+
+needed to change link to this: 
+
+target_link_libraries(pm
+        allegro_monolith-static
+
+        dumb
+        freetype
+        png16
+        zlib
+        dsound
+        gdiplus
+        uuid
+        kernel32
+        winmm
+        psapi
+        opengl32
+        glu32
+        user32
+        comdlg32
+        gdi32
+        shell32
+        ole32
+        advapi32
+        ws2_32
+        shlwapi
+        jpeg
+        webp
+        webpdecoder
+        FLAC
+        theoradec
+        vorbisfile
+        vorbis
+        opusfile
+        opus
+        ogg
+
+        openmpt
+        sharpyuv
+
+        net
+        wsock32
+
+)
+
+
+now it runs, but errors opening bmp files
+
+probably because of exe location
+
+
+also when I run from cmd these are missing:
+
+libwinpthread-1.dll
+libgcc_s_seh-1.dll
+ibdstdc++-6.dll
+
+in the old project I had compiler options:
+
+-static-libgcc
+-static-libstdc++
+-static
+
+add this in CMakeLists.txt
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -static")
+
+works now...
+
+
+now how do I get CLion to put the exe where I want, but not put any other crap in base dir
+
+${CMAKE_SOURCE_DIR}: The top-level directory of your source tree where the project's root CMakeLists.txt is located.
+
+
+set_target_properties(pm PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}
+
+
+how do i get CLion to run from there after building?
+
+    Go to the main menu and select Run | Edit Configurations.
+
+Specify the New Executable Path:
+
+Update Working Directory (Optional but Recommended):
+    If your program depends on files in a specific directory (e.g., input
+
+
+
+OK all is goodly now...
+
+I can compile and run
+
+
+this is the final CMakeLists.txt
+
+cmake_minimum_required(VERSION 4.1)
+project(pm)
+
+set(CMAKE_CXX_STANDARD 14)
+
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -static")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -static")
+
+set(ALLEGRO_ROOT_DIR "C:/allegro") # Update this path to your Allegro location
+include_directories(${ALLEGRO_ROOT_DIR}/include)
+link_directories(${ALLEGRO_ROOT_DIR}/lib)
+
+add_executable(pm
+        src/libnet.h
+        src/main.cpp
+        src/mwBitmap.cpp
+        src/mwBitmap.h
+        src/mwBitmapTools.cpp
+        src/mwBitmapTools.h
+        src/mwBottomMessage.cpp
+        src/mwBottomMessage.h
+        src/mwCodeStats.cpp
+        src/mwCodeStats.h
+        src/mwColor.cpp
+        src/mwColor.h
+        src/mwConfig.cpp
+        src/mwConfig.h
+        src/mwDemoMode.cpp
+        src/mwDemoMode.h
+        src/mwDemoRecord.cpp
+        src/mwDemoRecord.h
+        src/mwDisplay.cpp
+        src/mwDisplay.h
+        src/mwDrawSequence.cpp
+        src/mwDrawSequence.h
+        src/mwEnemy.cpp
+        src/mwEnemy.h
+        src/mwEnemyArchwagon.cpp
+        src/mwEnemyCannon.cpp
+        src/mwEnemyCloner.cpp
+        src/mwEnemyEditorFnx.cpp
+        src/mwEnemyFlapper.cpp
+        src/mwEnemyFnx.cpp
+        src/mwEnemyJumpworm.cpp
+        src/mwEnemyTrakbot.cpp
+        src/mwEnemyVinePod.cpp
+        src/mwEventQueue.cpp
+        src/mwEventQueue.h
+        src/mwFileIterator.cpp
+        src/mwFileIterator.h
+        src/mwFont.cpp
+        src/mwFont.h
+        src/mwGameEvent.cpp
+        src/mwGameEvent.h
+        src/mwGameMoves.cpp
+        src/mwGameMoves.h
+        src/mwGlobalLevelTool.cpp
+        src/mwGlobalLevelTool.h
+        src/mwGraph.cpp
+        src/mwGraph.h
+        src/mwHelp.cpp
+        src/mwHelp.h
+        src/mwInput.cpp
+        src/mwInput.h
+        src/mwItem.cpp
+        src/mwItem.h
+        src/mwItemBombRocket.cpp
+        src/mwItemDoor.cpp
+        src/mwItemEditorFnx.cpp
+        src/mwItemKeySwitch.cpp
+        src/mwItemMessage.cpp
+        src/mwItemStartExitGate.cpp
+        src/mwItemTrigger.cpp
+        src/mwLevel.cpp
+        src/mwLevel.h
+        src/mwLevelData.cpp
+        src/mwLevelDataStats.cpp
+        src/mwLift.cpp
+        src/mwLift.h
+        src/mwLog.cpp
+        src/mwLog.h
+        src/mwLogGraph.cpp
+        src/mwLogo.cpp
+        src/mwLogo.h
+        src/mwLogViewer.cpp
+        src/mwLoop.cpp
+        src/mwLoop.h
+        src/mwLoopLevelDone.cpp
+        src/mwLoopRemoteControl.cpp
+        src/mwMain.cpp
+        src/mwMain.h
+        src/mwMainArgs.cpp
+        src/mwMenu.cpp
+        src/mwMenu.h
+        src/mwMiscFnx.cpp
+        src/mwMiscFnx.h
+        src/mwMulticolorLine.cpp
+        src/mwMulticolorLine.h
+        src/mwNetgame.cpp
+        src/mwNetgame.h
+        src/mwNetgameClient.cpp
+        src/mwNetgameServer.cpp
+        src/mwNetgameServerFileTransfer.cpp
+        src/mwNetgameSessionLog.cpp
+        src/mwPacketBuffer.cpp
+        src/mwPacketBuffer.h
+        src/mwPDE.cpp
+        src/mwPDE.h
+        src/mwPlayer.cpp
+        src/mwPlayer.h
+        src/mwQuickGraph.cpp
+        src/mwQuickGraph.h
+        src/mwQuickGraph2.cpp
+        src/mwQuickGraph2.h
+        src/mwRollingAverage.cpp
+        src/mwRollingAverage.h
+        src/mwScreen.cpp
+        src/mwScreen.h
+        src/mwScreenOverlay.cpp
+        src/mwSettings.cpp
+        src/mwSettings.h
+        src/mwShot.cpp
+        src/mwShot.h
+        src/mwSolid.cpp
+        src/mwSolid.h
+        src/mwSound.cpp
+        src/mwSound.h
+        src/mwSql.cpp
+        src/mwSql.h
+        src/mwStateHistory.cpp
+        src/mwStateHistory.h
+        src/mwTally.cpp
+        src/mwTally.h
+        src/mwTriggerEvent.cpp
+        src/mwTriggerEvent.h
+        src/mwVisualLevel.cpp
+        src/mwVisualLevel.h
+        src/mwWidget.cpp
+        src/mwWidget.h
+        src/mwWindow.cpp
+        src/mwWindow.h
+        src/mwWindowEditorMain.cpp
+        src/mwWindowEditSelection.cpp
+        src/mwWindowGroupEdit.cpp
+        src/mwWindowManager.cpp
+        src/mwWindowManager.h
+        src/mwWindowObjectViewer.cpp
+        src/mwWindowTileHelper.cpp
+        src/pm.h
+        src/sqlite3.c
+        src/sqlite3.h)
+
+target_link_libraries(pm
+        allegro_monolith-static
+        dumb
+        freetype
+        png16
+        zlib
+        dsound
+        gdiplus
+        uuid
+        kernel32
+        winmm
+        psapi
+        opengl32
+        glu32
+        user32
+        comdlg32
+        gdi32
+        shell32
+        ole32
+        advapi32
+        ws2_32
+        shlwapi
+        jpeg
+        webp
+        webpdecoder
+        FLAC
+        theoradec
+        vorbisfile
+        vorbis
+        opusfile
+        opus
+        ogg
+        openmpt
+        sharpyuv
+        net
+        wsock32
+)
+
+set_target_properties(pm PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}
+)
+
+
+I am going to put this one file in the main pm project
+as proof of concept, it works...
+2026-01-10 07:58:32
+
+I am going back to cb for now, but I plan to come back later...
+
+when I do:
+- figure out git integration
+- make release instaed of debug
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

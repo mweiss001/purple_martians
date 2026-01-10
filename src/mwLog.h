@@ -102,8 +102,7 @@ class mwLog
    void log_add_prefixed_text(int type, int player, const char *msg);
 
 
-
-
+   void log_append_text_to_db(int type, const char *txt);
 
    void add_fwf(int type, int player, int width, int pos, const char *border, const char *fill, const char *format, ...);
    void add_fw(int type, int player, int width, int pos, const char *border, const char *fill, const char *txt);

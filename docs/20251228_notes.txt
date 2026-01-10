@@ -4651,6 +4651,240 @@ go to bed....its really coming along well....
 2026-01-08 21:39:55
 
 
+2026-01-09 05:22:43
+
+backed up, deployed to server and tested...looking good
+
+
+
+2026-01-09 05:34:24
+
+now that all this is working...
+
+do I need a separate players table?
+
+I think my plan was so that I could show what players were in a gm file
+
+after implementing all my other stuff, i think there is another way
+
+sessions has player info, it is what I should use
+sessions is alrewady linked to gms
+
+fix show current gm and list linked sessions..done
+
+now show list of linked sessions (players) on show current gm
+
+   $sql  = "SELECT sessions.id, dt_start, dt_end, duration, player_name, player_num FROM sessions ";
+   $sql .= "LEFT JOIN gm_sessions ON sessions.id = session_id ";
+   $sql .= "WHERE gm_muid='$current_gm_muid'";
+
+
+actually a lot of the sessions info does not really apply to gm
+
+name
+number
+color
+host
+
+2026-01-09 07:29:42
+
+looking good!!!
+
+so what can I say?
+I do not need any scrape
+I do not need to write any files (except gm)
+
+session and gm's are working great
+no need for separate 'players'
+
+still to do:
+
+no need for filename in sessions
+all sqlite columns to be int or text
+list of players to be table
+
+
+journalctl -u <service-name>
+
+
+2026-01-10 02:35:53
+
+
+I am going to add logging to the database
+
+
+trying to troubleshoot why headless server crashes and I am getting nothing with regular logging
+
+can't get it to print to console or journalctl
+
+tried adding these lines to 
+
+sudo nano /etc/systemd/system/pm.service
+
+StandardOutput=journal+console
+StandardError=journal+console
+
+
+# pm.service
+
+[Unit]
+Description= Purple Martians server
+Documentation= purplemartians.org
+
+[Service]
+Type= simple
+User= m
+ExecStart= /home/m/dev/purple_martians/pm -sh
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy= multi-user.target
+
+sudo systemctl daemon-reload
+sudo systemctl enable pm
+sudo systemctl start pm
+
+
+
+
+
+
+2026-01-10 02:50:52
+
+
+this is what I used to have
+
+CREATE TABLE logs
+(
+  id              INT AUTO_INCREMENT,
+  msg_type        INT,
+  sub_type        INT,
+  created         DATETIME(3),
+  agt             DOUBLE,
+  frame_num       INT,
+  player          INT,
+  client          INT,
+  message         TEXT,
+  PRIMARY KEY (id)
+);
+
+
+
+
+// actually adds to char array
+// called both by server directly and when server rx's clog
+void mwLog::add_log_net_db_row2(int type, int sub_type, double agt, int f, int p, int client, const char* msg)
+{
+   if (!mLog.log_types[LOG_NET_CSV].action) return;
+
+
+   char txt[1000];
+   sprintf(txt, "%d,%d,%s,%f,%d,%d,%d,%s\n", type, sub_type, d, agt, f, p, client, msg);
+//         printf("%s", txt);
+
+
+
+
+
+should I make a separate database?
+
+maybe sessions and logs
+
+i don;t want to lose stuff in sessions
+
+
+2026-01-10 03:10:48
+
+now I have 
+   sprintf(filename, "%s", "data/sessions.db");
+   sprintf(filename, "%s", "data/logs.db");
+
+   sqlite3 *db;
+   sqlite3 *db_logs;
+
+
+   strcpy(sql, "CREATE TABLE IF NOT EXISTS logs( \
+               id              INTEGER PRIMARY KEY, \
+               msg_type        INT, \
+               sub_type        INT, \
+               created         TEXT, \
+               agt             REAL, \
+               frame_num       INT, \
+               player          INT, \
+               client          INT, \
+               message         TEXT ); ");
+   if (sqlite3_exec(db_logs, sql, NULL, 0, NULL) != SQLITE_OK) printf("Error Creating Table 'logs' \n");
+
+
+SELECT * FROM logs;
+
+SELECT created, message FROM logs;
+
+
+now add some stuff to it...
+
+
+when I enble LOG_NET_CSV
+
+10,0,2026-01-10 03:14:46.645,46.808684,0,0,0,LEVEL 1 STARTED
+10,0,2026-01-10 03:14:48.766,48.930611,85,0,0,Player:0 became INACTIVE!
+10,0,2026-01-10 03:14:48.879,49.043502,85,0,0,Shutting down the server network
+
+
+this is a very small subset of all the logs
+pretty much just LOG_NET
+
+
+I think I want to hook in where the main logging takes place...
+
+do it fool!!
+
+2026-01-10 08:08:48
+
+got message in db, now try on server...
+
+
+2026-01-10 09:22:07
+
+
+curiouser and curiouser....
+
+no databse shit is getting saved either when running as service
+
+I can see it in top
+running with user m 100%cpu
+
+and as soon as I tried to connect it dies
+
+when I run from shell like ./pm -sh
+runing as user m 13%cpu
+
+when client connects 17%cpu
+
+
+could it just be that the database won't open?
+it is a path thing?
+what is the difference
+
+YES!!!!!
+
+it was a dir thing....
+
+[Unit]
+Description=Purple Martians server
+Documentation=purplemartians.org
+
+[Service]
+Type=simple
+User=m
+ExecStart=/home/m/dev/purple_martians/pm -sh
+WorkingDirectory=/home/m/dev/purple_martians
+
+[Install]
+WantedBy=multi-user.target
+
+update the docs.
 
 
 

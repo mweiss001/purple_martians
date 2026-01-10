@@ -1149,7 +1149,7 @@ void mwGameMoves::add_gm_to_db(const char *fname)
    // check if muid already exists
    char sql[500];
    sprintf(sql, "SELECT COUNT(*) FROM gm WHERE muid='%s'", HEADER_muid.c_str());
-   if (mSql.execute_sql_and_return_one_int(sql))
+   if (mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions))
    {
       //printf("muid: '%s' exists - updating filename\n", HEADER_muid.c_str());
       //sprintf(sql, "UPDATE gm ( filename, dt_start, dt_end, duration, level, num_entries )
@@ -1161,7 +1161,7 @@ void mwGameMoves::add_gm_to_db(const char *fname)
                              VALUES( '%s', '%s',     '%s',     '%s',   %d,       %d,    %d)" ,
                                      HEADER_muid.c_str(), fname, dts, dte, dur, HEADER_level, HEADER_num_entries);
       printf("sql:%s\n", sql);
-      mSql.execute_sql(sql);
+      mSql.execute_sql(sql, mSql.db_sessions);
 
       create_gm_session_links();
    }
@@ -1180,12 +1180,12 @@ void mwGameMoves::create_gm_session_link(int session_id)
 {
    char sql[500];
    sprintf(sql, "SELECT COUNT(*) FROM gm_sessions WHERE gm_muid='%s' AND session_id=%d", HEADER_muid.c_str(), session_id);
-   if (mSql.execute_sql_and_return_one_int(sql)) printf("link exists: muid: '%s' session_d: %d\n", HEADER_muid.c_str(), session_id);
+   if (mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions)) printf("link exists: muid: '%s' session_d: %d\n", HEADER_muid.c_str(), session_id);
    else
    {
       sprintf(sql, "INSERT INTO gm_sessions (id, gm_muid, session_id) VALUES(NULL, '%s', %d)", HEADER_muid.c_str(), session_id);
       printf("sql:%s\n", sql);
-      mSql.execute_sql(sql);
+      mSql.execute_sql(sql, mSql.db_sessions);
    }
 }
 

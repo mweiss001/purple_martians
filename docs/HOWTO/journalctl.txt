@@ -15,9 +15,11 @@ journalctl --since "2025-05-25 10:00"
 
 Time Windows
 
-You can filter by arbitrary time limits using the --since and --until options, which restrict the entries displayed to those after or before the given time, respectively.
+You can filter by arbitrary time limits using the --since and --until options,
+which restrict the entries displayed to those after or before the given time, respectively.
 
-The time values can come in a variety of formats. For absolute time values, you should use the following format:
+The time values can come in a variety of formats.
+For absolute time values, you should use the following format:
 
     YYYY-MM-DD HH:MM:SS
 
@@ -25,11 +27,16 @@ For instance, we can see all of the entries since January 10th, 2015 at 5:15 PM 
 
     journalctl --since "2015-01-10 17:15:00"
 
-If components of the above format are left off, some defaults will be applied. For instance, if the date is omitted, the current date will be assumed. If the time component is missing, “00:00:00” (midnight) will be substituted. The seconds field can be left off as well to default to “00”:
+If components of the above format are left off, some defaults will be applied.
+For instance, if the date is omitted, the current date will be assumed.
+If the time component is missing, “00:00:00” (midnight) will be substituted.
+The seconds field can be left off as well to default to “00”:
 
     journalctl --since "2015-01-10" --until "2015-01-11 03:00"
 
-The journal also understands some relative values and named shortcuts. For instance, you can use the words “yesterday”, “today”, “tomorrow”, or “now”. You can do relative times by prepending “-” or “+” to a numbered value or using words like “ago” in a sentence construction.
+The journal also understands some relative values and named shortcuts.
+For instance, you can use the words “yesterday”, “today”, “tomorrow”, or “now”.
+You can do relative times by prepending “-” or “+” to a numbered value or using words like “ago” in a sentence construction.
 
 To get the data from yesterday, you could type:
 
@@ -40,5 +47,17 @@ If you received reports of a service interruption starting at 9:00 AM and contin
     journalctl --since 09:00 --until "1 hour ago"
 
 As you can see, it’s relatively straightforward to define flexible windows of time to filter the entries you wish to see.
+
+
+now I am trying to look at logs for pm service
+
+journalctl -u pm --since yesterday
+
+journalctl -u pm --since "10 min ago"
+
+
+
+
+
 
 

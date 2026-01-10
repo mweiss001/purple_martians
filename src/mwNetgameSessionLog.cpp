@@ -86,7 +86,7 @@ void mwNetgame::session_add(const char* address, const char* hostname, int p, in
    "INSERT INTO sessions (dt_start, ip, port, hostname, player_num, player_color,         player_name, endreason) VALUES('%s', '%s', %d, '%s', %d, %d, '%s', 'open') RETURNING id;" ,
                           ts,       ip, port, hostname, p,          mPlayer.syn[p].color, mPlayer.syn[p].name);
 
-   mPlayer.loc[p].session_id = mSql.execute_sql_and_return_one_int(sql);
+   mPlayer.loc[p].session_id = mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions);
 
    mGameMoves.create_gm_session_link(mPlayer.loc[p].session_id);
 
@@ -167,7 +167,7 @@ void mwNetgame::session_update(int p, char * m_endreason)
                         rx_packets_max_per_frame  , \
                         dt_start FROM sessions WHERE id=?";
 
-   sqlite3_prepare_v2(mSql.db, sql, -1, &stmt, NULL);
+   sqlite3_prepare_v2(mSql.db_sessions, sql, -1, &stmt, NULL);
 
    // bind parameters
    sqlite3_bind_int(stmt, 1, sid);
@@ -201,7 +201,7 @@ void mwNetgame::session_update(int p, char * m_endreason)
       sprintf(dt_start, "%s",    sqlite3_column_text(stmt, 21));
    }
    else if (step_result == SQLITE_DONE) printf("No row found for the given ID.\n");
-   else fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(mSql.db));
+   else fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(mSql.db_sessions));
    sqlite3_finalize(stmt);
 
 
@@ -294,7 +294,7 @@ void mwNetgame::session_update(int p, char * m_endreason)
       dt_end                   =?,\
       endreason                =? WHERE id=?";
 
-   sqlite3_prepare_v2(mSql.db, sql2, -1, &stmt, NULL);
+   sqlite3_prepare_v2(mSql.db_sessions, sql2, -1, &stmt, NULL);
 
    // bind parameters
 

@@ -123,7 +123,7 @@ void mwNetgame::headless_server_setup(void)
 //   // add these for troubleshooting
 //   mLog.set_log_type_action(LOG_NET_ending_stats,  LOG_ACTION_LOG);
 //   mLog.set_log_type_action(LOG_NET_bandwidth,     LOG_ACTION_LOG);
-//
+
 //   mLog.set_log_type_action(LOG_NET_stdf_rewind,   LOG_ACTION_LOG);
 //   mLog.set_log_type_action(LOG_NET_stdf_create,   LOG_ACTION_LOG);
 //   mLog.set_log_type_action(LOG_NET_stdf,          LOG_ACTION_LOG);
@@ -148,7 +148,7 @@ void mwNetgame::headless_server_setup(void)
    mGameMoves.autosave_game_on_level_done = 1;
    mGameMoves.autosave_game_on_level_quit = 1;
 
-   mGameMoves.server_send_files_to_clients = 1;
+//   mGameMoves.server_send_files_to_clients = 1;
 
    mConfig.save_config(0);
 }
