@@ -959,8 +959,8 @@ void mwScreen::draw_demo_debug_overlay(int p, int &cx, int &cy)
       al_draw_textf(mFont.pr8, mColor.pc[15], cx+1, cy+1, 0, "Moves:[%d%%] ", (mGameMoves.current_pos * 100) / mGameMoves.entry_pos); cy+=9;
       cy+=4;
       for (int ap=0; ap<NUM_PLAYERS; ap++)
-         if (mPlayer.syn[ap].active)
-         {
+         if ((mPlayer.syn[ap].active) && (!mPlayer.is_player_hidden(ap)))
+          {
             al_draw_text(mFont.pr8, mColor.pc[mPlayer.syn[ap].color], cx+1, cy+1, 0, mPlayer.get_player_name2(ap, msg) );
             cy+=9;
          }

@@ -119,8 +119,6 @@ void mwConfig::save_config(int type)
       asci(FUNCTIONKEYS, mInput.function_key_speed_inc)
 
 
-
-
       if ((type == 0) || (type == PM_CFG_SAVE_DISPLAY))
       {
          asci(SOUND, mSound.sound_on)
@@ -208,14 +206,14 @@ void mwConfig::save_config(int type)
    }
 }
 
-void mwConfig::load_config(void)
+void mwConfig::load_config(int type)
 {
    // this reads values and validates
    // after that, it immediately calls save in case values were not found and defaults were used
 
    mSettings.load_settings();
 
-   // printf("load cfg\n");
+   //printf("load cfg\n");
 
    char msg[1024];
    ALLEGRO_CONFIG * cfg = NULL;
@@ -232,6 +230,23 @@ void mwConfig::load_config(void)
    }
 
    const char* val;
+
+
+
+   // get player color and name first
+
+   val = al_get_config_value(cfg, "NETWORK", "player_name");
+   if (!val) sprintf(mPlayer.syn[0].name, "default");
+   else snprintf(mPlayer.syn[0].name, 9, "%s", val);
+
+   agci(GAME, mPlayer.syn[0].color, 8)
+
+   // if set, this is the only thing we will load
+   if (type == PM_CFG_LOAD_PLAYER_NAME_AND_COLOR) return;
+
+
+
+
 
    agci(SCREEN, mDisplay.disp_x_wind, 200)
    agci(SCREEN, mDisplay.disp_y_wind, 40)
@@ -259,7 +274,6 @@ void mwConfig::load_config(void)
    agci(GAME, mScreen.transition_num_steps, 80)
    agci(GAME, mScreen.transition_delay, 8)
 
-   agci(GAME, mPlayer.syn[0].color, 8)
 
    agci(GAME, mScreen.viewport_mode, 1)
    agci(GAME, mScreen.viewport_show_hyst, 0)
@@ -308,9 +322,6 @@ void mwConfig::load_config(void)
    agci(SOUND, mSound.se_scaler, 3)
    agci(SOUND, mSound.st_scaler, 1)
 
-   val = al_get_config_value(cfg, "NETWORK", "player_name");
-   if (!val) sprintf(mPlayer.syn[0].name, "default");
-   else snprintf(mPlayer.syn[0].name, 9, "%s", val);
 
    val = al_get_config_value(cfg, "NETWORK", "server_IP");
    if (!val) sprintf(mNetgame.server_address, "purplemartians.org");
@@ -366,9 +377,10 @@ void mwConfig::load_config(void)
 
    agci(LEVEL_EDITOR, mLoop.autosave_level_editor_state, 0);
 
+
    al_destroy_config(cfg);
 
-   save_config(0); // to save default values
+   save_config(); // to save default values
 
    if (recreate)
    {

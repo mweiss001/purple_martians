@@ -26,7 +26,7 @@ void mwMain::final_wrapup(void)
       al_destroy_audio_stream(mSound.pm_theme_stream);
       al_inhibit_screensaver(false);
    }
-   mConfig.save_config(0);
+   mConfig.save_config();
    al_uninstall_system();
 }
 

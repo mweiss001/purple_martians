@@ -243,6 +243,19 @@ void mwItem::proc_gate_collision(int p, int i)
    // if UP pressed, enter gate (client can never locally enter gate)
    if ((mPlayer.syn[p].up) && (status > 0) && (!mNetgame.ima_client) )
    {
+
+      // server to set last touched gate for all clients
+      if (mNetgame.ima_server)
+      {
+         for (int pp=1; pp<8; pp++)
+            if (mPlayer.syn[pp].active)
+            {
+               mPlayer.syn[pp].overworld_last_touched_gate = lev;
+            }
+      }
+
+
+
       // immediate next level to gate level
       mPlayer.syn[0].level_done_mode = 3;
       mPlayer.syn[0].level_done_timer = 0;

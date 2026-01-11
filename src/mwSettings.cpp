@@ -416,7 +416,7 @@ void mwSettings::settings_pages(int set_page)
          {
             while (mInput.mouse_b[1][0]) mEventQueue.proc(1);
             current_page = mouse_on_tab;
-            mConfig.save_config(0);
+            mConfig.save_config();
          }
       }
 
@@ -455,7 +455,7 @@ void mwSettings::settings_pages(int set_page)
       }
    }
    al_hide_mouse_cursor(mDisplay.display);
-   mConfig.save_config(0);
+   mConfig.save_config();
    mLoop.state[0] = PM_PROGRAM_STATE_MENU;
 }
 
@@ -1007,7 +1007,7 @@ int mwSettings::page_demo(void)
    float old_overlay_opacity = mDemoMode.overlay_opacity;
    if ((mInput.mouse_x > xa) && (mInput.mouse_x < xb) && (mInput.mouse_y > ya) && (mInput.mouse_y < ya + bts)) mScreen.draw_large_text_overlay(3, 15);
    mWidget.sliderfnb(xa, ya, xb, bts,  2,0,0,0,  0,12,15,15,  0,0,1,0, mDemoMode.overlay_opacity, 0.4, 0, .01, "");
-   if (old_overlay_opacity != mDemoMode.overlay_opacity) mConfig.save_config(0);
+   if (old_overlay_opacity != mDemoMode.overlay_opacity) mConfig.save_config();
 
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -2106,7 +2106,7 @@ int mwSettings::page_log(void)
       mLoop.state[0] = PM_PROGRAM_STATE_SINGLE_PLAYER_NEW_GAME;
       mLoop.quit_action = 3; // settings
       al_hide_mouse_cursor(mDisplay.display);
-      mConfig.save_config(0);
+      mConfig.save_config();
       return 1;
    }
 
@@ -2117,7 +2117,7 @@ int mwSettings::page_log(void)
       mLoop.state[0] = PM_PROGRAM_STATE_SERVER_NEW_GAME;
       mLoop.quit_action = 3; // settings
       al_hide_mouse_cursor(mDisplay.display);
-      mConfig.save_config(0);
+      mConfig.save_config();
       return 1;
    }
    xa = xa+200;
@@ -2127,7 +2127,7 @@ int mwSettings::page_log(void)
       mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_NEW_GAME;
       mLoop.quit_action = 3; // settings
       al_hide_mouse_cursor(mDisplay.display);
-      mConfig.save_config(0);
+      mConfig.save_config();
       return 1;
    }
    return 0;

@@ -150,7 +150,7 @@ void mwNetgame::headless_server_setup(void)
 
 //   mGameMoves.server_send_files_to_clients = 1;
 
-   mConfig.save_config(0);
+   mConfig.save_config();
 }
 
 

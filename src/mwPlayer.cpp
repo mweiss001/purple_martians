@@ -431,6 +431,13 @@ int mwPlayer::is_player_riding_rocket(int p)
    return 0;
 }
 
+int mwPlayer::is_player_hidden(int p)
+{
+   if ((syn[p].paused == 1) && (syn[p].paused_type == 3)) return 1;
+   return 0;
+}
+
+
 void mwPlayer::proc_player_stuck_in_blocks(int p)
 {
    int x = syn[p].x;
@@ -1299,13 +1306,13 @@ char* mwPlayer::get_player_name(int p, char * name, int width_field)
 {
    // what a bunch of bullhit to go through to avoid compiler waanings
 /*
-src/mwPlayer.cpp:1306:23: warning: ‘%*s’ directive output may be truncated writing up to 2147483648 bytes into a region of size 9 [-Wformat-truncation=]
+src/mwPlayer.cpp:1306:23: warning: ï¿½%*sï¿½ directive output may be truncated writing up to 2147483648 bytes into a region of size 9 [-Wformat-truncation=]
  1306 |    snprintf(tmp2, 9, "%*s" , width_field, tmp);
       |                       ^~~                 ~~~
 src/mwPlayer.cpp:1306:22: note: assuming directive output of 31 bytes
  1306 |    snprintf(tmp2, 9, "%*s" , width_field, tmp);
       |                      ^~~~~
-src/mwPlayer.cpp:1306:12: note: ‘snprintf’ output between 1 and 2147483649 bytes into a destinatio
+src/mwPlayer.cpp:1306:12: note: ï¿½snprintfï¿½ output between 1 and 2147483649 bytes into a destinatio
 */
 
 
@@ -1384,7 +1391,7 @@ void mwPlayer::init_player(int p, int t)
 
       sprintf(syn[p].name, "default");
 
-      if (p == 0) mConfig.load_config(); // to reset local name and color
+      if (p == 0) mConfig.load_config(PM_CFG_LOAD_PLAYER_NAME_AND_COLOR); // to reset local name and color only
 
 
       loc[p].hostname[0] = 0;

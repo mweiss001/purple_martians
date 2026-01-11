@@ -970,7 +970,7 @@ int mwGameMoves::load_gm(const char *sfname)
       return 0;
    }
 
-   printf("\nLoading gm: '%s'\n", fname);
+//   printf("\nLoading gm: '%s'\n", fname);
 
 
 

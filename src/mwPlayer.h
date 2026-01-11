@@ -251,6 +251,9 @@ class mwPlayer
    void proc_player_ladder(int p);
    void move_players(void);
 
+
+   int is_player_hidden(int p);
+
    void draw_player_direct_to_screen(int p);
    void draw_players_direct_to_screen(void);
 

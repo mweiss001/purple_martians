@@ -111,6 +111,8 @@ void mwDemoMode::play_demo_for_stats(void)
 
 void mwDemoMode::play_all_demos_and_save_stats(int x, int y)
 {
+   //printf("play_all_demos_and_save_stats(int x, int y)\n");
+
    if (!load_demo_file_array()) return;
    int old_demo_debug_running_demo_saves_level_data = demo_debug_running_demo_saves_level_data; // get initial state
    demo_debug_running_demo_saves_level_data = 1; // force save stats
@@ -122,6 +124,8 @@ void mwDemoMode::play_all_demos_and_save_stats(int x, int y)
       al_flip_display();
    }
    demo_debug_running_demo_saves_level_data = old_demo_debug_running_demo_saves_level_data; // restore initial state
+   mConfig.load_config(); // to restore player color and name
+
 }
 
 int mwDemoMode::load_random_demo(void)

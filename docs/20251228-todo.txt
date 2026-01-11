@@ -3,20 +3,6 @@
 ------------------------------------------------------------------------------
 BUGS!!
 ------------------------------------------------------------------------------
-playing demo levels does not restore original player color when done
-
-in netgame when a level is done and everyone returns to overworld,
-why do they all come abck at different places?
-was it where they were before they were sucked into the last level played?
-I think it was...
-should I leave it like that or force everyone to come back at the level they just played?
-
-
-on sessions web page, when current gm is not set make it say that instead of not found
-
-
-
-
 
 
 
@@ -25,6 +11,27 @@ on sessions web page, when current gm is not set make it say that instead of not
 ------------------------------------------------------------------------------
 TO DO
 ------------------------------------------------------------------------------
+test many thing about sessions, make sure all works like it should
+
+
+
+
+
+if no current session choose the most recent one..done
+gm table:
+show a small line of icons in a cell when showing gm table
+default for gm list is current session..done
+duration to be mm:ss..done
+
+when current gm is not set make it say that instead of not found..done
+have a download link on current gm title..done
+
+
+
+show a small line of icons in a cell when showing gm table...done
+
+
+
 
 
 
@@ -123,6 +130,7 @@ how big is it? settings.pm is 8K
 
 
 
+playing demo levels does not restore original player color when done
 
 
 
@@ -135,6 +143,9 @@ how big is it? settings.pm is 8K
 
 
 
+when playing back a demo made with a headless server, do not show server
+it mostly does not show, but its in the list of demo overlay
+lets see what I can do about that...
 
 
 
@@ -155,6 +166,39 @@ void mwLevel::add_play_data_record(int lev, int type)
    save_flag = 1;                                             // never save data for overworld
    if (save_flag)
 fixed...not even a bug...there is a check box in misc called: "Running demo always saves level data"
+
+
+also, look at this:
+
+it should override
+
+
+
+void mwDemoMode::play_all_demos_and_save_stats(int x, int y)
+{
+   printf("play_all_demos_and_save_stats(int x, int y)\n");
+
+   if (!load_demo_file_array()) return;
+   int old_demo_debug_running_demo_saves_level_data = demo_debug_running_demo_saves_level_data; // get initial state
+   demo_debug_running_demo_saves_level_data = 1; // force save stats
+   for (int i=0; i<num_demo_filenames; i++)
+   {
+      mGameMoves.load_gm(al_get_fs_entry_name(demo_FS_filenames[i]));
+      play_demo_for_stats();
+      mScreen.draw_percent_bar(x, y, 200, 20, (i+1)*100 / num_demo_filenames);
+      al_flip_display();
+   }
+   demo_debug_running_demo_saves_level_data = old_demo_debug_running_demo_saves_level_data; // restore initial state
+}
+
+there was more to this...you should be able to have this not set in settings and it will be
+overridden. it worked until I loaded config in player init to restore colors.
+then it reset 'demo_debug_running_demo_saves_level_data' as well
+changed load config so I can call it to just load player color and name...this is fixed
+
+
+
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 meta section for gm files
 store ints as rows
