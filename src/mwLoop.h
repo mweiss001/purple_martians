@@ -68,7 +68,7 @@ class mwLoop
 
    void add_local_cpu_data(double cpu);
 
-   int have_all_players_acknowledged(void);
+   static int have_all_players_acknowledged(void);
    void game_menu(void);
    void proc_level_done_mode(void);
    void proc_program_state(void);

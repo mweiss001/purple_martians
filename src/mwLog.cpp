@@ -104,7 +104,7 @@ void mwLog::clear_all_log_actions(void)
    autosave_log_on_level_quit = 0;
    autosave_log_on_program_exit = 0;
 
-   mConfig.save_config(0);
+   mConfig.save_config();
 }
 
 

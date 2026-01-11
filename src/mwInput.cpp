@@ -235,7 +235,7 @@ void mwInput::serial_key_check(int key)
       mDisplay.disp_h_wind = 600;
       mDisplay.set_windowed();
       mDisplay.proc_display_change();
-      mConfig.save_config(0);
+      mConfig.save_config();
    }
 
    if (serial_key_test("devset0"))
@@ -263,6 +263,45 @@ void mwInput::serial_key_check(int key)
       mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
    }
+
+
+   if (serial_key_test("devset3"))
+   {
+      mPlayer.syn[0].color = 7;
+      sprintf(mPlayer.syn[0].name, "%s", "jenny!");
+      mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
+      mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
+   }
+
+   if (serial_key_test("devset4"))
+   {
+      mPlayer.syn[0].color = 9;
+      sprintf(mPlayer.syn[0].name, "%s", "Forest");
+      mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
+      mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
+   }
+
+   if (serial_key_test("devset5"))
+   {
+      mPlayer.syn[0].color = 13;
+      sprintf(mPlayer.syn[0].name, "%s", "Aqualung");
+      mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
+      mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
+   }
+
+   if (serial_key_test("devset6"))
+   {
+      mPlayer.syn[0].color = 6;
+      sprintf(mPlayer.syn[0].name, "%s", "Tandoori");
+      mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
+      mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
+   }
+
+
+
+
+
+
 
    if (serial_key_test("win1024"))
    {

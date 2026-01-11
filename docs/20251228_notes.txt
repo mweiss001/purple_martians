@@ -4892,10 +4892,100 @@ run sql through my custom exe functions in mwSql that will check if database is 
 
 I am itching to try CLion....
 
-
 do it...
 
 
+2026-01-10 13:32:57
+
+its working
+
+
+I think I can lose any savegame files in the project that are not demo or TAS
+
+do it fool...done
+
+
+
+
+
+in netgame when a level is done and everyone returns to overworld,
+why do they all come back at different places?
+was it where they were before they were sucked into the last level played?
+I think it was...
+should I leave it like that or force everyone to come back at the level they just played?
+
+is it something about the last gate touched?
+
+mPlayer.syn[0].overworld_last_touched_gate
+it is saved in config also
+
+in 
+void mwItem::set_player_start_pos(int p)
+
+   // in overworld level, player starts at the last gate they touched
+   if (mLevel.play_level == 1)
+   {
+      for (int i=0; i<500; i++)
+         if ((item[i][0] == 18) && (item[i][6] == mPlayer.syn[p].overworld_last_touched_gate)) item_to_get_start_from = i;
+   }
+
+its a little complicated:
+item[i][6] is the level number of the gate
+the player stores that, the last level number
+then all 500 items are searched until a gate with that level number is located
+
+this seems overly complex, why would I not just store the item index of the gate?
+will it change? do I sort the items? sure i do in level editor...otherwise I can
+be pretty certain they will persist...
+
+
+
+void mwItem::proc_gate_collision(int p, int i)
+{
+   mPlayer.syn[p].marked_gate = i;
+   set_gate_level_icon_position(i);
+   int lev = item[i][6];
+
+   if (mPlayer.syn[p].overworld_last_touched_gate != lev)
+   {
+      mPlayer.syn[p].overworld_last_touched_gate = lev;
+      if (p == 0) mConfig.save_config(PM_CFG_SAVE_OVERWORLD_GATE_LAST_TOUCHED); // clients do not save to config
+   }
+
+when a gate is touched, store the level number of the gate in the player struct
+(but only locally)
+
+
+this is all mentions of the variable
+
+I think it would be safe to just store the index of the item
+
+look up item sort..not an issue
+
+
+anyway to do what I want it to do:
+
+I would have the server set it for all clients when a level is done
+or when a level is started...better
+
+where can I hook into that? up pressed on gate...
+
+   // if UP pressed, enter gate (client can never locally enter gate)
+   if ((mPlayer.syn[p].up) && (status > 0) && (!mNetgame.ima_client) )
+   {
+     
+      // server to set last touched gate for all clients
+      if (mNetgame.ima_server)
+      {
+         for (int pp=1; pp<8; pp++)
+            if (mPlayer.syn[pp].active)
+            {
+               mPlayer.syn[pp].overworld_last_touched_gate = lev;
+            }
+         }
+      }
+      
+I think that should do it...
 
 
 

@@ -253,6 +253,8 @@ using std::string;
 
 #define PM_CFG_SAVE_PLAYER_NAME                 11
 
+#define PM_CFG_LOAD_PLAYER_NAME_AND_COLOR       12
+
 
 
 
