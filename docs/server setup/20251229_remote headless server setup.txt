@@ -551,7 +551,7 @@ erase all on remote server, reclone from git and compile
 ----------------------------------------------------------------
 
 cd ~
-rm -r tmp
+sudo rm -r tmp
 mkdir tmp
 
 sudo systemctl stop pm

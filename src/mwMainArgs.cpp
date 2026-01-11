@@ -127,10 +127,9 @@ void mwMain::copy_files_to_clients(int type)
 //   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
 
 
-//   sprintf(client[num_clients++], "\\\\asp3\\pm_client53");  // win 10
-//   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
-//   sprintf(client[num_clients++], "\\\\e6430\\pm_client50");  // win 10
-
+   sprintf(client[num_clients++], "\\\\asp3\\pm_client53");  // win 10
+   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
+   sprintf(client[num_clients++], "\\\\e6430\\pm_client50");  // win 10
    sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
 
 

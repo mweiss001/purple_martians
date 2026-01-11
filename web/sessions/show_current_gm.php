@@ -1,15 +1,18 @@
 <?php
 
-function show_player_num_icon_name_host($num, $col, $name, $host)
+function show_player_num_icon_name_host($num, $col, $name, $sid, $host)
 {
    $iconpath = "/assets/icons/player_icon_$col.png";
    $alt = "alt=\"icon not found\"";
-   echo "<div class=\"icon-text-container\">";
-   echo "<span class=\"text\">$num</span>";
-   echo "<img src=$iconpath $alt class=\"icon\">";
-   echo "<span class=\"text\">$name</span>";
-   echo "<span class=\"text\">($host)</span>";
-   echo "</div>";
+   echo "<div style=\" display:flex; gap:40px; \">";
+      echo "<div class=\"icon-text-container\">";
+         echo "<span class=\"text\">$num</span>";
+         echo "<img src=$iconpath $alt class=\"icon\">";
+         echo "<span class=\"text\">$name</span>";
+     echo "</div>";
+
+   echo "<span class=\"text\">Session Id:$sid</span>";
+   echo "<span class=\"text\">Hostname:$host</span>";
 }
 
 function show_current_gm()
@@ -58,9 +61,6 @@ function show_current_gm()
             echo "Duration :            " . secondsToHMS($row['duration']) . "\n";
          echo "</div>";
 
-
-
-
       echo "</div>";
 
       echo "<div id=\"current_gm\" class=\"div-section-sub-section-title-frame\">Players</div>";
@@ -68,19 +68,26 @@ function show_current_gm()
       $sql = "SELECT sessions.id, player_name, player_num, player_color, hostname FROM sessions ";
       $sql .= "LEFT JOIN gm_sessions ON sessions.id = session_id ";
       $sql .= "WHERE gm_muid='$current_gm_muid'";
-      
 
       echo "<div id=\"current_gm\"  class=\"div-section-sub-section-gm_table\">";
-         echo "<table id=\"current_gm_table\"><tbody>";
+         echo "<table id=\"current_gm_table\">";
+            echo "<tbody>";
             $res = $GLOBALS['db']->query($sql);
             while ($row = $res->fetch(PDO::FETCH_ASSOC))
             {
-                echo "<tr><td style=\"text-align: left;\">";
-                show_player_num_icon_name_host($row['player_num'], $row['player_color'], $row['player_name'], $row['hostname']);
-                echo "</td></tr>";
+               $num = $row['player_num'];
+               $col = $row['player_color'];
+               $nam = $row['player_name'];
+               $hst = $row['hostname'];
+               $sid = $row['id'];
+               echo "<tr><td style=\"text-align: left;\">";
+               show_player_num_icon_name_host($num, $col, $nam, $sid, $hst);
+               echo "</td></tr>";
             }
          echo "</tbody></table>";
       echo "</div>";
    echo "</div>";
 }
 ?>
+
+

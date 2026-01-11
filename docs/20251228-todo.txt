@@ -3,9 +3,70 @@
 ------------------------------------------------------------------------------
 BUGS!!
 ------------------------------------------------------------------------------
+level icons are not copied. changed so they are commited...
 
 
-session bandwidth averages per second are all zeros
+first time returning to overworld, clients did not all go back to first gate
+2nd time they did
+
+
+i did this on the server and thought it would work
+
+      // server to set last touched gate for all clients
+      if (mNetgame.ima_server)
+      {
+         for (int pp=1; pp<8; pp++)
+            if (mPlayer.syn[pp].active)
+            {
+               mPlayer.syn[pp].overworld_last_touched_gate = lev;
+            }
+      }
+
+it could be that the server is resetting it, but...i have looked and can't see how or where?
+
+
+the only place a gate can be entered is here and only a server can do it...
+
+loading and saving to config only happen for player 0, the local player
+
+does it simply get erased and then try to load from level 0 and fail?
+
+when it starts from the start block, that means it was unable to find the specified level...
+
+I should just print what it actually looks for...
+
+maybe I should initialize it...
+you would think that when a new client joins they should start from where??
+
+added code to see when it fails and what the value is
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ------------------------------------------------------------------------------
@@ -16,35 +77,51 @@ TO DO
 test many thing about sessions, make sure all works like it should
 
 
+start one player on level 80
+then have other players join and quit a few times while first player stays...
+
+
+I have sessions for each time the player joined
+
+I have muliple players listed in the cell on save game for current session
+they all look the same, I should make the pop up show the session id
+
+same with on current game
+
+I think this is working like it supposed to...
+
+make those changes to also show session id so we know they are a different player
 
 
 
-show horizontal bar graph with players and how how they were active in the save game
-I think I can do this with div flex box and proportional widths
-
-how will I get this info?
-i have a gm that has max frame
-
-i can get frames of when players joined/quit
-
-for each one of those draw a bar proportial to the active time
-
-
-some test data
-
-
-total = 1000;
-
-p1 = 0-200
-p2 = 200-800;
-p3 = 400-1000;
 
 
 
-each will have 3 sections, pre session and post
-p1 0-0 0-200 200-1000  0 200 800
-p2 0-200 200-800 800-1000 200 600 200
-p3 0-400 400-1000 1000-1000 400 600 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -150,13 +227,15 @@ how big is it? settings.pm is 8K
 ------------------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------   DONE   -----------------------------------------------------------------------------------------------------------------------------
@@ -165,9 +244,13 @@ how big is it? settings.pm is 8K
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-
+session bandwidth averages per second are all zeros...fixed I think....
 
 details for current session
 - change from 3 player options to 2
@@ -484,3 +567,144 @@ There is a lot of info in level stats that would be better suited in database. J
 
 
 ------------------------------------------------------------------------------
+
+
+
+show horizontal bar graph with players and how how they were active in the save game
+I think I can do this with div flex box and proportional widths
+
+how will I get this info?
+i have a gm that has max frame
+
+i can get frames of when players joined/quit
+
+for each one of those draw a bar proportial to the active time
+
+
+some test data
+
+
+total = 1000;
+
+p1 = 0-200
+p2 = 200-800;
+p3 = 400-1000;
+
+
+
+each will have 3 sections, pre session and post
+p1 0-0 0-200 200-1000  0 200 800
+p2 0-200 200-800 800-1000 200 600 200
+p3 0-400 400-1000 1000-1000 400 600 0
+
+
+
+   echo "<div id=\"current_session\" style=\" display:flex  \"  >";
+      echo "<div style=\" flex:0;    border: 1px solid #00FF00;  \"  ></div>";
+      echo "<div style=\" flex:200;  border: 1px solid #FF0000;  \"  >session</div>";
+      echo "<div style=\" flex:800;  border: 1px solid #00FF00;  \"  ></div>";
+   echo "</div>";
+
+   echo "<div id=\"current_session\" style=\" display:flex  \"  >";
+      echo "<div style=\" flex:200;  border: 1px solid #00FF00;  \"  ></div>";
+      echo "<div style=\" flex:600;  border: 1px solid #FF0000;  \"  >session</div>";
+      echo "<div style=\" flex:200;  border: 1px solid #00FF00;  \"  ></div>";
+   echo "</div>";
+
+   echo "<div id=\"current_session\" style=\" display:flex  \"  >";
+      echo "<div style=\" flex:400;  border: 1px solid #00FF00;  \"  ></div>";
+      echo "<div style=\" flex:600;  border: 1px solid #FF0000;  \"  >session</div>";
+      echo "<div style=\" flex:0;  border: 1px solid #00FF00;  \"  ></div>";
+   echo "</div>";
+
+this works!!!
+
+now how will I get the data I need?
+
+start with gm file
+
+you know, it might be easiest to do this in the main game and save the results in the gm header
+I have as much space as I need and I will not break anything, other stuff can just ignore it..
+
+I imagine the header could look like this:
+
+PLAYER_START:
+player_num
+player_color
+player_name
+start_frame
+end_frame
+PLAYER_END:
+
+then as many of these sections as needed
+
+or another possibility is:
+
+I already have linked gm's with sessions (with player info)
+I could do some timestamp comparing...
+
+i think it is pretty simple...
+if the session start and end are outide the gm start and end then the player is 100%
+this should be the majority of the cases...
+
+if not then find what frame...
+
+could I just do an absolute timeline? I have all the data...
+
+session ------------------------------------------------
+[gm --------] [gm-  ]   [gm]]]
+
+
+there will never be concurrent gms
+
+
+
+                   
+
+
+------------------------
+
+i could do this whole thing for the sessions as well
+
+I'm looking at the table and wish I had a nice visual comparison of sessions and whether or not they overlap...
+
+and where the saved games fit into that as well
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

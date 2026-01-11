@@ -11,21 +11,21 @@ function show_player_cell($muid)
    $res = $GLOBALS['db']->query($sql);
    while ($row = $res->fetch(PDO::FETCH_ASSOC))
    {
+      $sid  = $row['id'];
       $num  = $row['player_num'];
       $col  = $row['player_color'];
       $name = $row['player_name'];
       $host = $row['hostname'];
-     
       $iconpath = "/assets/icons/player_icon_$col.png";
       $alt = "alt=\"icon not found\" ";
-      $title = "title=\"$num $name\n($host)\" ";
+      $title = " title=\" Player number: $num\nPlayer name: $name\nHostname: $host\nSession id: $sid\"  ";
       echo "<img src=$iconpath $alt $title class=\"players-cell-icon\">";
       echo "</a>";
    }
    echo "</div>";
 }
 
-
+ 
 function show_level_cell($level)
 {
    echo "<div class=\"level-cell\">";

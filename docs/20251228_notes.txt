@@ -5000,6 +5000,25 @@ put them in the icons
 I'm going to try the 200's
 
 
+2026-01-11 08:51:38
+
+
+I am going to test sessions, but first do a full backup...
+
+
+get the session stuff from server
+
+am I going to leave the level_icons in the assets/icons...yes
+
+
+
+
+
+
+
+
+
+
 
 
 
