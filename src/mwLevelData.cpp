@@ -1064,6 +1064,12 @@ void mwLevel::create_level_icons(void)
    al_set_target_bitmap(tmp_200);
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
+   // create icons for web pages
+   //al_make_directory("data/level_icons"); // create if not already created
+   //ALLEGRO_BITMAP *tmp_icon = al_create_bitmap(200, 200);
+   //al_set_target_bitmap(tmp_icon);
+   //al_clear_to_color(al_map_rgba(0,0,0,0));
+
    int x=0;
    int y=0;
 
@@ -1073,6 +1079,12 @@ void mwLevel::create_level_icons(void)
    {
       if (mLevel.load_level(i, 0, 1))
       {
+         // save icons for web pages
+         //mScreen.draw_level2(tmp_icon,  0, 0, 200, 1, 1, 1, 1, 0);
+         //char fname[256];
+         //sprintf(fname,"data/level_icons/lev%03d.png", i);
+         //al_save_bitmap(fname, tmp_icon);
+
          mScreen.draw_level2(tmp_100,  x*sz1, y*sz1, sz1, 1, 1, 1, 1, 0);
          mScreen.draw_level2(tmp_200,  x*sz2, y*sz2, sz2, 1, 1, 1, 1, 0);
       }
@@ -1086,11 +1098,7 @@ void mwLevel::create_level_icons(void)
       al_flip_display();
 
       // iterate through the rows and columns
-      if (++x > 9)
-      {
-         x = 0;
-         y++;
-      }
+      if (++x > 9) { x = 0; y++; }
    }
 
    al_save_bitmap("data/level_icons_100.bmp", tmp_100);

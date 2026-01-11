@@ -6,9 +6,6 @@ function show_player_cell($muid)
    $sql .= "LEFT JOIN gm_sessions ON sessions.id = session_id ";
    $sql .= "WHERE gm_muid='$muid'";
 
-
-//   echo "<div>";
-
    echo "<div class=\"players-cell\">";
 
    $res = $GLOBALS['db']->query($sql);
@@ -19,17 +16,25 @@ function show_player_cell($muid)
       $name = $row['player_name'];
       $host = $row['hostname'];
      
-
       $iconpath = "/assets/icons/player_icon_$col.png";
       $alt = "alt=\"icon not found\" ";
-      echo "<a href=\"\" download=\"\" $alt title=\"$num $name\n($host)\">";
-      echo "<img src=$iconpath $alt class=\"players-cell-icon\">";
+      $title = "title=\"$num $name\n($host)\" ";
+      echo "<img src=$iconpath $alt $title class=\"players-cell-icon\">";
       echo "</a>";
    }
    echo "</div>";
 }
 
 
+function show_level_cell($level)
+{
+   echo "<div class=\"level-cell\">";
+   $iconpath = sprintf("/assets/icons/lev%03d.png", $level );
+   $alt = "alt=\"icon not found\" ";
+   echo "<img src=$iconpath $alt class=\"players-cell-icon\" >";
+   echo sprintf("[%02d]", $level);
+   echo "</div>";
+}
 
 
 
@@ -42,7 +47,7 @@ function show_gm_table()
    if (!$gm_on) return;
 
    $title = "All Save Game Files";
-   $sql = "SELECT gm.muid, dt_start, dt_end, duration, filename FROM gm ";
+   $sql = "SELECT gm.muid, dt_start, dt_end, level, duration, filename FROM gm ";
 
    if ($gm_set == 1)
    {
@@ -75,9 +80,9 @@ function show_gm_table()
          echo "</div>";
       echo "</div>";
                     
-   $col_list = array("muid",  "Start Time", "Duration", "Set Current", "Download", "Filename", "Players");
 
-   $col_list = array("Start Time", "Duration", "Players", "Set Current", "Download", "Filename", "muid" );
+
+   $col_list = array("Start Time", "Duration", "Level", "Players", "Set Current", "Download", "Filename", "muid" );
 
 
            
@@ -87,7 +92,8 @@ function show_gm_table()
                echo "<tr>";
                   foreach($col_list as $col)
                   {
-                     if ($col == "Filename") echo "<th style=\"text-align: left;\">$col</th>";
+                     if (($col == "Filename") || ($col == "Players"))
+                        echo "<th style=\"text-align: left;\">$col</th>";
                      else echo "<th>$col</th>";
                   }
                echo "</tr>";
@@ -100,6 +106,9 @@ function show_gm_table()
                   $muid     = $row['muid'];
                   $dt_start = $row['dt_start'];
                   $duration = secondsToHMS($row['duration']);
+                  $level    = $row['level'];
+
+
                   $filename = $row['filename'];
                   $fullpath = "/downloads/$filename";
                   // if not set, set to the first one in the table
@@ -107,9 +116,15 @@ function show_gm_table()
                   echo "<tr>";
                      echo "<td>$dt_start</td>";
                      echo "<td>$duration</td>";
+
                      echo "<td>";
+                     show_level_cell($level);
+                     echo "</td>";
+
+                     echo "<td style=\"text-align: left;\">";
                      show_player_cell($muid);
                      echo "</td>";
+
                      echo "<td><a href=\"sessions.php?current_gm_muid=$muid\">set current</a></td>";
                      echo "<td><a href=\"$fullpath\" download=\"$filename\">download</a></td>";
                      echo "<td style=\"text-align: left;\">$filename</td>";

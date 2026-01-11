@@ -5,6 +5,8 @@ BUGS!!
 ------------------------------------------------------------------------------
 
 
+session bandwidth averages per second are all zeros
+
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -12,6 +14,49 @@ BUGS!!
 TO DO
 ------------------------------------------------------------------------------
 test many thing about sessions, make sure all works like it should
+
+
+
+
+
+show horizontal bar graph with players and how how they were active in the save game
+I think I can do this with div flex box and proportional widths
+
+how will I get this info?
+i have a gm that has max frame
+
+i can get frames of when players joined/quit
+
+for each one of those draw a bar proportial to the active time
+
+
+some test data
+
+
+total = 1000;
+
+p1 = 0-200
+p2 = 200-800;
+p3 = 400-1000;
+
+
+
+each will have 3 sections, pre session and post
+p1 0-0 0-200 200-1000  0 200 800
+p2 0-200 200-800 800-1000 200 600 200
+p3 0-400 400-1000 1000-1000 400 600 0
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -44,9 +89,20 @@ make a script to set these persmissions
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
+make a way to change settings on remote server
+I mean, I have a way, but is it a good way?
+what if I get the settings.pm file from the server
+edit it and send it back
+how big is it? settings.pm is 8K
 
 
 ------------------------------------------------------------------------------
+make a page to view things about the running headless server
+uptime, load, disk space
+
+
+
+
 ------------------------------------------------------------------------------
 player name - make small text label above player optional
 ------------------------------------------------------------------------------
@@ -109,6 +165,42 @@ how big is it? settings.pm is 8K
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+details for current session
+- change from 3 player options to 2
+from off minimal detailed to show player details ..done
+put num, icon, host in title .. done
+make session player text in title font mono ..don
+
+make saves on/off button also hide current gm section..done
+
+duration in sessions table...done
+
+show level icon in current saved game
+
+clicking on player icon in gm list downloads shit!! got ride of a href...fixed
+
+show level num in gm table..done
+show very tiny level icon also??..done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

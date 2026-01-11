@@ -27,14 +27,14 @@ void mwNetgame::session_close(int p, int er)
 }
 
 // this is called every frame from server_control() to check and clean up active sessions
-void mwNetgame::session_check_active(void)
+void mwNetgame::session_check_active()
 {
    if (!mLog.log_types[LOG_NET_session].action) return;
    for (int p=1; p<8; p++)
       if ((mPlayer.loc[p].session_id) && (!mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
 }
 
-void mwNetgame::session_flush_active_at_server_exit(void)
+void mwNetgame::session_flush_active_at_server_exit()
 {
    if (!mLog.log_types[LOG_NET_session].action) return;
    for (int p=1; p<8; p++)
@@ -42,7 +42,7 @@ void mwNetgame::session_flush_active_at_server_exit(void)
          session_close(p, 8);
 }
 
-void mwNetgame::session_save_active_at_level_done(void)
+void mwNetgame::session_save_active_at_level_done()
 {
    if (!mLog.log_types[LOG_NET_session].action) return;
    for (int p=1; p<8; p++)
@@ -116,28 +116,28 @@ void mwNetgame::session_update(int p, char * m_endreason)
    if (m_endreason != NULL) strcpy(endreason, m_endreason);
 
 
-   int cdats_rx;
-   int next_levels;
-   int exits;
-   int respawns;
-   int shots_fired;
-   int enemy_hits;
-   int player_hits;
-   int self_hits;
-   int purple_coins;
+   int cdats_rx=0;
+   int next_levels=0;
+   int exits=0;
+   int respawns=0;
+   int shots_fired=0;
+   int enemy_hits=0;
+   int player_hits=0;
+   int self_hits=0;
+   int purple_coins=0;
 
-   int tx_bytes_total;
-   int tx_bytes_avg_per_sec;
-   int tx_bytes_max_per_frame;
-   int rx_bytes_total;
-   int rx_bytes_avg_per_sec;
-   int rx_bytes_max_per_frame;
-   int tx_packets_total;
-   int tx_packets_avg_per_sec;
-   int tx_packets_max_per_frame;
-   int rx_packets_total;
-   int rx_packets_avg_per_sec;
-   int rx_packets_max_per_frame;
+   int tx_bytes_total=0;
+   int tx_bytes_avg_per_sec=0;
+   int tx_bytes_max_per_frame=0;
+   int rx_bytes_total=0;
+   int rx_bytes_avg_per_sec=0;
+   int rx_bytes_max_per_frame=0;
+   int tx_packets_total=0;
+   int tx_packets_avg_per_sec=0;
+   int tx_packets_max_per_frame=0;
+   int rx_packets_total=0;
+   int rx_packets_avg_per_sec=0;
+   int rx_packets_max_per_frame=0;
 
    char dt_start[80];
 
@@ -227,7 +227,7 @@ void mwNetgame::session_update(int p, char * m_endreason)
 
    int duration = difftime(now, st);
 
-   printf("update sid:%d  s:%s e:%s d:%d\n", sid, ts, dt_end, duration);
+   printf("update session id:%d  ts:%s te:%s dur:%d\n", sid, ts, dt_end, duration);
 
    cdats_rx     += mPlayer.loc[p].client_cdat_packets_tx;
    respawns     += mPlayer.syn[p].stat_respawns;
@@ -249,21 +249,15 @@ void mwNetgame::session_update(int p, char * m_endreason)
    if (mPlayer.loc[p].tx_max_packets_per_frame > tx_packets_max_per_frame) tx_packets_max_per_frame = mPlayer.loc[p].tx_max_packets_per_frame;
    if (mPlayer.loc[p].rx_max_packets_per_frame > rx_packets_max_per_frame) rx_packets_max_per_frame = mPlayer.loc[p].rx_max_packets_per_frame;
 
+   // average per seconds = totals / duration
 
-//   total averages (not used) total bytes/packet over total time
-//   float tb_avg = 0;
-//   float rb_avg = 0;
-//   float tp_avg = 0;
-//   float rp_avg = 0;
-//
-//   if (duration > 0)
-//   {
-//      tb_avg = (float)tx_bytes_total / duration;
-//      rb_avg = (float)rx_bytes_total / duration;
-//      tp_avg = (float)tx_packets_total / duration;
-//      rp_avg = (float)rx_packets_total / duration;
-//   }
-
+   if (duration > 0)
+   {
+      tx_bytes_avg_per_sec   = tx_bytes_total   / duration;
+      rx_bytes_avg_per_sec   = rx_bytes_total   / duration;
+      tx_packets_avg_per_sec = tx_packets_total / duration;
+      rx_packets_avg_per_sec = rx_packets_total / duration;
+   }
 
    // now update sessions with all this data
 

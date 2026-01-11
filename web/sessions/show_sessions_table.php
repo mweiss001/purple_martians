@@ -161,6 +161,13 @@ function show_sessions_table()
                         echo "</div></a></td>";
                         continue;
                      }
+                     if ($col == "duration")
+                     {
+                        echo "<td>" . secondsToHMS($val) . "</td>";
+                        continue;
+                     }
+                                  
+                                  
                                   
                      echo "<td>$val</td>";
                   }

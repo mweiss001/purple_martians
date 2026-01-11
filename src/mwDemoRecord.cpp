@@ -578,7 +578,7 @@ void mwDemoRecord::edit_gm(int gi)
 
          // game move type pop-up menu
          int t_x1 = tb_x1 + 24;
-         int t_x2;
+         int t_x2 = 0;
          if (t == PM_GAMEMOVE_TYPE_PLAYER_MOVE)     { t_x2 = t_x1+34; }
          if (t == PM_GAMEMOVE_TYPE_PLAYER_ACTIVE)   { t_x2 = t_x1+50; }
          if (t == PM_GAMEMOVE_TYPE_PLAYER_INACTIVE) { t_x2 = t_x1+68; }

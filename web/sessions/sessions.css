@@ -212,8 +212,8 @@ a:hover { color: #FFFFFF; } /* White on hover */
    font-family: sans-serif;
    font-size: .8rem;
 }
-#gm_tablet td { padding: 2px;  border: 1px solid  hsl(20, 100%, 50%);  text-align: center; }
-#gm_tablet th { padding: 2px;  border: 1px solid  hsl(20, 100%, 50%);  text-align: center; }
+#gm_tablet td { padding: 1px;  border: 1px solid  hsl(20, 100%, 50%);  text-align: center; }
+#gm_tablet th { padding: 1px;  border: 1px solid  hsl(20, 100%, 50%);  text-align: center; }
 #gm_tablet tr:hover { background-color:           hsl(20, 100%, 15%);}
 
 
@@ -239,11 +239,6 @@ a:hover { color: #FFFFFF; } /* White on hover */
 
 
 
-
-
-
-
-
 /* ---------- container for player icon and player name text ---------- */
 .icon-text-container
 {
@@ -252,7 +247,13 @@ a:hover { color: #FFFFFF; } /* White on hover */
    gap: 10px;
 }
 .icon { width: 20px; height: 20px; }
-.text { font-size: 16px; } 
+.text { font-family: monospace; font-weight: normal; font-size: 20px; padding-top:2px; } 
+
+
+
+
+
+
 
 
 
@@ -261,9 +262,20 @@ a:hover { color: #FFFFFF; } /* White on hover */
 {
    display: flex;      
    align-items: center;
-   gap: 4px;
+   gap: 2px;
+   padding: 0px;
 }
-.players-cell-icon { width: 16px; height: 16px; }
+.players-cell-icon { width: 20px; height: 20px; }
 
+
+/* ---------- container for level cell ---------- */
+.level-cell
+{
+   display: flex;      
+   align-items: center;
+   justify-content:center;
+   gap: 8px;
+   padding: 0px;
+}
 
 

@@ -8,16 +8,14 @@ function secondsToHMS($seconds)
    return sprintf ("%02d:%02d:%02d", $h, $m, $s);
 }
 
-function show_player_icon_and_name($col, $name)
+function show_player_icon_and_name($col, $name, $host)
 {
    $iconpath = "/assets/icons/player_icon_$col.png";
    $alt = "alt=\"icon not found\"";
-
    echo "<div class=\"icon-text-container\">";
-
    echo "<img src=$iconpath $alt class=\"icon\">";
    echo "<span class=\"text\">$name</span>";
-
+   echo "<span class=\"text\">($host)</span>";
    echo "</div>";
 }
 
@@ -33,6 +31,7 @@ function show_current_session()
 
    $col    = $row['player_color'];
    $name   = $row['player_name'];
+   $host   = $row['hostname'];
 
    $bnd_on = $GLOBALS['bnd_on'];
    $plr_on = $GLOBALS['plr_on'];
@@ -44,14 +43,13 @@ function show_current_session()
          echo "<div id=\"current_session\"  class=\"div-section-title-section-container\">";
             echo "<div id=\"current_session\"  class=\"div-section-title-frame\">";
                echo "Current Session";
-               show_player_icon_and_name($col, $name);
+               show_player_icon_and_name($col, $name, $host);
                echo "</div>";
             echo "<div id=\"current_session\"  class=\"div-section-title-frame-buttons-frame\">";
                if ($bnd_on)      echo "<a href=\"sessions.php?bnd_on=0\" $but >Bandwidth On </a>";
                else              echo "<a href=\"sessions.php?bnd_on=1\" $but >Bandwidth Off </a>";
                if ($plr_on == 0) echo "<a href=\"sessions.php?plr_on=1\" $but >Player Off </a>";
-               if ($plr_on == 1) echo "<a href=\"sessions.php?plr_on=2\" $but >Player Minimal </a>";
-               if ($plr_on == 2) echo "<a href=\"sessions.php?plr_on=0\" $but >Player Detailed </a>";
+               if ($plr_on == 1) echo "<a href=\"sessions.php?plr_on=0\" $but >Player Details </a>";
                if ($gm_on)       echo "<a href=\"sessions.php?gm_on=0\"  $but >Saves On </a>";
                else              echo "<a href=\"sessions.php?gm_on=1\"  $but >Saves Off </a>";
             echo "</div>";
@@ -78,9 +76,6 @@ function show_current_session()
             echo "Player Number   : "            . $row['player_num']   . "\n";
             echo "Player Name     : "            . $row['player_name']  . "\n";
             echo "Player Color    : "            . $row['player_color'] . "\n";
-         }
-         if ($plr_on > 1)
-         {
             echo "<hr>";
             echo "Moves           : "            . $row['cdat_rx']   . "\n";
             echo "Next Levels     : "            . $row['next_levels']   . "\n";
@@ -126,6 +121,11 @@ function show_current_session()
          echo "</div>";
       }
    echo "</div>";
+
+
+
+
+
 }
 ?>
 

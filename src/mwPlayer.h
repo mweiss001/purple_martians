@@ -222,6 +222,8 @@ struct ploc // not synced between server and client (but synced from server to r
    int rx_total_bytes;
    int rx_total_packets;
 
+
+
 };
 
 

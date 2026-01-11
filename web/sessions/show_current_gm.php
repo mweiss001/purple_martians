@@ -15,6 +15,9 @@ function show_player_num_icon_name_host($num, $col, $name, $host)
 function show_current_gm()
 {
    $current_gm_muid = $GLOBALS['current_gm_muid'];
+   $gm_on  = $GLOBALS['gm_on'];
+   if (!$gm_on) return;
+
 
    $res = $GLOBALS['db']->query("SELECT COUNT(*) FROM gm WHERE muid='$current_gm_muid'");
    if ($res->fetchColumn() == 0)  { echo " muid: [$current_gm_muid] not found \n";  return; } 
@@ -40,14 +43,24 @@ function show_current_gm()
          echo "</div>";
       echo "</div>";
 
-      echo "<div id=\"current_gm\"  class=\"div-section-sub-section-pretext\">";
-         echo "muid            : "            . $row['muid']             . "\n";
-         echo "Filename        : "            . $row['filename']         . "\n";
-         echo "Num Entries     : "            . $row['num_entries']      . "\n";
-         echo "Level           : "            . $row['level']            . "\n";
-         echo "Start           : "            . date('Y-m-d h:i:s', strtotime($row['dt_start'])) . "\n";
-         echo "End             : "            . date('Y-m-d h:i:s', strtotime($row['dt_end'])) . "\n";
-         echo "Duration        :            " . secondsToHMS($row['duration']) . "\n";
+      echo "<div style=\" display:flex; gap:2px;  padding:4px;\">";
+
+         $iconpath = sprintf("/assets/icons/lev%03d.png", $row['level'] );
+         echo "<img style=\" width: 160px; height: 160x;\" src=$iconpath alt=\"icon not found\" >";
+
+         echo "<div id=\"current_gm\"  class=\"div-section-sub-section-pretext\">";
+            echo "muid     : "            . $row['muid']             . "\n";
+            echo "Filename : "            . $row['filename']         . "\n";
+            echo "Level    : "            . $row['level']            . "\n";
+            echo "Moves    : "            . $row['num_entries']      . "\n";
+            echo "Start    : "            . date('Y-m-d h:i:s', strtotime($row['dt_start'])) . "\n";
+            echo "End      : "            . date('Y-m-d h:i:s', strtotime($row['dt_end'])) . "\n";
+            echo "Duration :            " . secondsToHMS($row['duration']) . "\n";
+         echo "</div>";
+
+
+
+
       echo "</div>";
 
       echo "<div id=\"current_gm\" class=\"div-section-sub-section-title-frame\">Players</div>";

@@ -4987,6 +4987,29 @@ where can I hook into that? up pressed on gate...
       
 I think that should do it...
 
+bitmaps cannot be manipulated on a machine with no display
+like headless server...find another way
+
+put them in the icons
+100 bmp 3M
+200 bmp 9M
+200 png 200k
+400 bmp 36M
+400 png 700k
+
+I'm going to try the 200's
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
