@@ -44,6 +44,38 @@ added code to see when it fails and what the value is
 
 
 
+jenny start go to level 80
+
+then when others join they do not have set from server because they werent there when someone enetred the gate!!!
+
+I think I get it now, new joining players need to have that set....
+to whatever level they are in now....unless its overworld...what then??..do nothing
+
+
+no, actually i think of you join while in overworld you should go to the last touched gate of any player...
+or maybe the last gate that was activated
+
+
+
+
+
+
+also when a client quits and rejoins the same happens
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -77,6 +109,15 @@ TO DO
 test many thing about sessions, make sure all works like it should
 
 
+
+remove filename from current session section
+
+
+
+
+
+
+
 start one player on level 80
 then have other players join and quit a few times while first player stays...
 
@@ -91,6 +132,36 @@ same with on current game
 I think this is working like it supposed to...
 
 make those changes to also show session id so we know they are a different player
+
+
+
+I just played lev 80 with 15 unique players and sessions
+
+one thing I noticed, when you come back you still have the same amount of health as you used to!!!
+
+I should try what happens if you join out if order...
+you get a different player number is all...
+
+i did a gm with 25 sessions!!!!
+
+
+three things to do:
+
+remove filename from current session section
+
+start new client game with full health and a good link to last gate touched
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

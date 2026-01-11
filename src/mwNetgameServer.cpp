@@ -650,6 +650,9 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
    int p = mPlayer.find_inactive_player();
    if (p == 99) // no inactive player found
    {
+      // initialize player
+      mPlayer.init_player(p, 1);
+
       // send sjon reply
       server_send_sjon_packet(address, 0, 0, 99, 0);
 
@@ -686,10 +689,13 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
       // try to use requested color, unless already used by another player
       color = mPlayer.get_new_client_color(color);
 
+      // set the last touched gate level
+      mPlayer.syn[p].overworld_last_touched_gate = mLevel.play_level;
+
       // add game move to make client active and set color
       mGameMoves.add_game_move(mLoop.frame_num, PM_GAMEMOVE_TYPE_PLAYER_ACTIVE, p, color);
 
-      // game move will skip being applied because its set to current frame, so force it to be applied right now
+      // game move will skip being applied because it's set to current frame, so force it to be applied right now
       mGameMoves.proc_game_move_player_active(p, color);
 
       // send sjon reply

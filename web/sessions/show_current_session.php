@@ -59,7 +59,6 @@ function show_current_session()
       echo "<div id=\"current_session\"  class=\"div-section-sub-section-pretext\">";
 
          echo "Session Id      : "            . $row['id']           . "\n";
-         echo "Filename        : "            . $row['filename']     . "\n";
          echo "hostname        : "            . $row['hostname']  . "\n";
          echo "ip:port         : "            . $row['ip'] . ":" . $row['port']  . "\n";
 

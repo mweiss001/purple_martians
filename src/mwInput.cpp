@@ -223,14 +223,15 @@ void mwInput::serial_key_check(int key)
       mDisplay.proc_display_change();
    }
 
-
-
    if (serial_key_test("devset"))
    {
       mBottomMessage.bottom_msg_on = 0;
       mDemoMode.config_autoplay_enabled = 0;
       mLogo.show_splash_screen = 0;
       mSound.sound_on = 0;
+      mScreen.transition_num_steps = 1;
+      mScreen.transition_delay = 1;
+      set_controls_to_custom_sets(4);
       mDisplay.disp_w_wind = 800;
       mDisplay.disp_h_wind = 600;
       mDisplay.set_windowed();
@@ -245,8 +246,6 @@ void mwInput::serial_key_check(int key)
       mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
    }
-
-
 
    if (serial_key_test("devset1"))
    {
@@ -297,6 +296,27 @@ void mwInput::serial_key_check(int key)
       mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
    }
 
+   if (serial_key_test("devset7"))
+   {
+      mPlayer.syn[0].color = 7;
+      sprintf(mPlayer.syn[0].name, "%s", "pinky");
+      mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
+      mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
+   }
+   if (serial_key_test("devset8"))
+   {
+      mPlayer.syn[0].color = 8;
+      sprintf(mPlayer.syn[0].name, "%s", "whitey");
+      mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
+      mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
+   }
+   if (serial_key_test("devset9"))
+   {
+      mPlayer.syn[0].color = 14;
+      sprintf(mPlayer.syn[0].name, "%s", "banana!");
+      mConfig.save_config(PM_CFG_SAVE_LOCAL_PLAYER_COLOR);
+      mConfig.save_config(PM_CFG_SAVE_PLAYER_NAME);
+   }
 
 
 

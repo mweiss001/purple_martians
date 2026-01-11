@@ -83,10 +83,12 @@ void mwItem::set_player_start_pos(int p)
       for (int i=0; i<500; i++)
          if ((item[i][0] == 18) && (item[i][6] == mPlayer.syn[p].overworld_last_touched_gate)) item_to_get_start_from = i;
 
-      if (item_to_get_start_from == -1)
-      {
-         printf("Player:%d entering overworld, but failed to find gate for level:%d\n", p, mPlayer.syn[p].overworld_last_touched_gate);
-      }
+
+      // if (item_to_get_start_from == -1)
+      // {
+      //    printf("Player:%d entering overworld, but failed to find gate for level:%d\n", p, mPlayer.syn[p].overworld_last_touched_gate);
+      // }
+
    }
 
    if (item_to_get_start_from == -1) // start item not found yet....
