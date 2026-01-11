@@ -227,7 +227,7 @@ void mwNetgame::session_update(int p, char * m_endreason)
 
    int duration = difftime(now, st);
 
-   printf("update session id:%d  ts:%s te:%s dur:%d\n", sid, ts, dt_end, duration);
+   //printf("update session id:%d  ts:%s te:%s dur:%d\n", sid, ts, dt_end, duration);
 
    cdats_rx     += mPlayer.loc[p].client_cdat_packets_tx;
    respawns     += mPlayer.syn[p].stat_respawns;

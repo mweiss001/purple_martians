@@ -650,9 +650,6 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
    int p = mPlayer.find_inactive_player();
    if (p == 99) // no inactive player found
    {
-      // initialize player
-      mPlayer.init_player(p, 1);
-
       // send sjon reply
       server_send_sjon_packet(address, 0, 0, 99, 0);
 
@@ -662,11 +659,13 @@ void mwNetgame::server_proc_cjon_packet(char *data, char * address)
       mLog.add_fwf(LOG_NET, -1, 76, 10, "|", " ", "Reply sent: 'SERVER FULL'");
       mLog.add_log_net_db_row(LOG_NET, 0, 0,       "Reply sent: 'SERVER FULL'");
 
-
       mLog.add_fwf(LOG_NET, -1, 76, 10, "+", "-", "");
    }
    else // inactive player found, proceed with join
    {
+      // initialize player
+      mPlayer.init_player(p, 1);
+
       // set channel address
       mwChannels[p].channel_active = 1;
       strcpy(mwChannels[p].channel_address, address);

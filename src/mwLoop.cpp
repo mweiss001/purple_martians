@@ -1099,7 +1099,7 @@ void mwLoop::main_loop(void)
                   if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
                   {
 
-                     //mNetgame.session_update_sql(p);
+                     mNetgame.session_update(p);
 
 
                      mPlayer.syn[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally(1);
