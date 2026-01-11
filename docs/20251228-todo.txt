@@ -15,26 +15,6 @@ test many thing about sessions, make sure all works like it should
 
 
 
-
-
-if no current session choose the most recent one..done
-gm table:
-show a small line of icons in a cell when showing gm table
-default for gm list is current session..done
-duration to be mm:ss..done
-
-when current gm is not set make it say that instead of not found..done
-have a download link on current gm title..done
-
-
-
-show a small line of icons in a cell when showing gm table...done
-
-
-
-
-
-
 ------------------------------------------------------------------------------
 sessions and gm
 ---------------
@@ -46,6 +26,8 @@ it seems like next level and exits stats are a bit high???
 gm add/update to database
 is it missing something?
 when a client quits and rejoins the same level, that should be a new session
+
+
 
 
 ------------------------------------------------------------------------------
@@ -134,6 +116,16 @@ playing demo levels does not restore original player color when done
 
 
 
+
+
+if no current session choose the most recent one..done
+gm table:
+show a small line of icons in a cell when showing gm table
+default for gm list is current session..done
+duration to be mm:ss..done
+when current gm is not set make it say that instead of not found..done
+have a download link on current gm title..done
+show a small line of icons in a cell when showing gm table...done
 
 
 
