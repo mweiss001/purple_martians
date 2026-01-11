@@ -123,7 +123,7 @@ function show_sessions_table()
 
       echo "<div id=\"sessions\"  class=\"div-section-sub-section-table\">";
          echo "<table id='myTable' class='display cell-border compact'  style='width:100%'>";
-            echo "<thead id=\"mdw123\">";
+            echo "<thead id=\"sessions_table_head\">";
                echo "<tr>";
                   foreach($col_list as $col)
                   {
@@ -137,7 +137,7 @@ function show_sessions_table()
                $res = $GLOBALS['db']->query($sql);
                while ($row = $res->fetch(PDO::FETCH_ASSOC))
                {
-                  echo "<tr  id=\"mdw123\">";
+                  echo "<tr  id=\"sessions_table_row\">";
                   foreach($row as $col => $val)
                   {
                      $id = $row['id'];

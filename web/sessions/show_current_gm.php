@@ -17,20 +17,30 @@ function show_current_gm()
    $current_gm_muid = $GLOBALS['current_gm_muid'];
 
    $res = $GLOBALS['db']->query("SELECT COUNT(*) FROM gm WHERE muid='$current_gm_muid'");
-   if ($res->fetchColumn() == 0)  { echo " session [$current_gm_muid] not found \n";  return; } 
+   if ($res->fetchColumn() == 0)  { echo " muid: [$current_gm_muid] not found \n";  return; } 
 
    $res = $GLOBALS['db']->query("SELECT * FROM gm WHERE muid='$current_gm_muid'");
    $row = $res->fetch(PDO::FETCH_ASSOC);
 
-   echo "<div id=\"current_session\"  class=\"div-section-container\">";
 
-      echo "<div id=\"current_session\"  class=\"div-section-title-section-frame\">";
-         echo "<div id=\"current_session\"  class=\"div-section-title-section-container\">";
-            echo "<div id=\"current_session\"  class=\"div-section-title-frame\">Current Saved Game</div>";
+
+   $but = "class=\"button\" id=\"current_gm_button\""; 
+
+   echo "<div id=\"current_gm\"  class=\"div-section-container\">";
+      echo "<div id=\"current_gm\"  class=\"div-section-title-section-frame\">";
+         echo "<div id=\"current_gm\"  class=\"div-section-title-section-container\">";
+            echo "<div id=\"current_gm\"  class=\"div-section-title-frame\">Current Saved Game</div>";
+
+            echo "<div id=\"current_gm\"  class=\"div-section-title-frame-buttons-frame\">";
+               $fullpath = "/downloads/" . $row['filename'];
+               if ($gm_set == 0) echo "<a href=\"$fullpath\" download=\"$filename\" $but >Download</a>";
+
+            echo "</div>";
+
          echo "</div>";
       echo "</div>";
 
-      echo "<div id=\"current_session\"  class=\"div-section-sub-section-pretext\">";
+      echo "<div id=\"current_gm\"  class=\"div-section-sub-section-pretext\">";
          echo "muid            : "            . $row['muid']             . "\n";
          echo "Filename        : "            . $row['filename']         . "\n";
          echo "Num Entries     : "            . $row['num_entries']      . "\n";
@@ -40,19 +50,19 @@ function show_current_gm()
          echo "Duration        :            " . secondsToHMS($row['duration']) . "\n";
       echo "</div>";
 
-      echo "<div id=\"current_session\" class=\"div-section-sub-section-title-frame\">Players</div>";
+      echo "<div id=\"current_gm\" class=\"div-section-sub-section-title-frame\">Players</div>";
 
       $sql = "SELECT sessions.id, player_name, player_num, player_color, hostname FROM sessions ";
       $sql .= "LEFT JOIN gm_sessions ON sessions.id = session_id ";
       $sql .= "WHERE gm_muid='$current_gm_muid'";
       
 
-      echo "<div id=\"gm_table\"  class=\"div-section-sub-section-gm_table\">";
-         echo "<table id='mdw2'><tbody>";
+      echo "<div id=\"current_gm\"  class=\"div-section-sub-section-gm_table\">";
+         echo "<table id=\"current_gm_table\"><tbody>";
             $res = $GLOBALS['db']->query($sql);
             while ($row = $res->fetch(PDO::FETCH_ASSOC))
             {
-                echo "<tr><td id='md_left2';>";
+                echo "<tr><td style=\"text-align: left;\">";
                 show_player_num_icon_name_host($row['player_num'], $row['player_color'], $row['player_name'], $row['hostname']);
                 echo "</td></tr>";
             }
@@ -61,4 +71,3 @@ function show_current_gm()
    echo "</div>";
 }
 ?>
-

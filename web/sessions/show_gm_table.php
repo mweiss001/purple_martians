@@ -1,4 +1,38 @@
 <?php
+
+function show_player_cell($muid)
+{
+   $sql = "SELECT sessions.id, player_name, player_num, player_color, hostname FROM sessions ";
+   $sql .= "LEFT JOIN gm_sessions ON sessions.id = session_id ";
+   $sql .= "WHERE gm_muid='$muid'";
+
+
+//   echo "<div>";
+
+   echo "<div class=\"players-cell\">";
+
+   $res = $GLOBALS['db']->query($sql);
+   while ($row = $res->fetch(PDO::FETCH_ASSOC))
+   {
+      $num  = $row['player_num'];
+      $col  = $row['player_color'];
+      $name = $row['player_name'];
+      $host = $row['hostname'];
+     
+
+      $iconpath = "/assets/icons/player_icon_$col.png";
+      $alt = "alt=\"icon not found\" ";
+      echo "<a href=\"\" download=\"\" $alt title=\"$num $name\n($host)\">";
+      echo "<img src=$iconpath $alt class=\"players-cell-icon\">";
+      echo "</a>";
+   }
+   echo "</div>";
+}
+
+
+
+
+
 function show_gm_table()
 {
    $current_session_id = $GLOBALS['current_session_id'];
@@ -41,15 +75,19 @@ function show_gm_table()
          echo "</div>";
       echo "</div>";
                     
-   $col_list = array("muid",  "Start Time", "Duration", "Set Current", "Download", "Filename");
+   $col_list = array("muid",  "Start Time", "Duration", "Set Current", "Download", "Filename", "Players");
+
+   $col_list = array("Start Time", "Duration", "Players", "Set Current", "Download", "Filename", "muid" );
+
+
            
       echo "<div id=\"gm_table\"  class=\"div-section-sub-section-gm_table\">";
-         echo "<table id='mdw'>";
+         echo "<table id='gm_tablet'>";
             echo "<thead'>";
                echo "<tr>";
                   foreach($col_list as $col)
                   {
-                     if ($col == "Filename") echo "<th  id='mh_left'>$col</th>";
+                     if ($col == "Filename") echo "<th style=\"text-align: left;\">$col</th>";
                      else echo "<th>$col</th>";
                   }
                echo "</tr>";
@@ -61,17 +99,22 @@ function show_gm_table()
                {
                   $muid     = $row['muid'];
                   $dt_start = $row['dt_start'];
-                  $duration = $row['duration'];
+                  $duration = secondsToHMS($row['duration']);
                   $filename = $row['filename'];
                   $fullpath = "/downloads/$filename";
-
+                  // if not set, set to the first one in the table
+                  if ($GLOBALS['current_gm_muid'] == 0) $GLOBALS['current_gm_muid'] = $muid;
                   echo "<tr>";
-                     echo "<td id='md_center'; >$muid</td>";
-                     echo "<td id='md_center'; >$dt_start</td>";
-                     echo "<td id='md_center'; >$duration</td>";
-                     echo "<td id='md_center'; ><a href=\"sessions.php?current_gm_muid=$muid\">set current</a></td>";
-                     echo "<td id='md_center'; ><a href=\"$fullpath\" download=\"$filename\">download</a></td>";
-                     echo "<td id='md_left'; >$filename</td>";
+                     echo "<td>$dt_start</td>";
+                     echo "<td>$duration</td>";
+                     echo "<td>";
+                     show_player_cell($muid);
+                     echo "</td>";
+                     echo "<td><a href=\"sessions.php?current_gm_muid=$muid\">set current</a></td>";
+                     echo "<td><a href=\"$fullpath\" download=\"$filename\">download</a></td>";
+                     echo "<td style=\"text-align: left;\">$filename</td>";
+                     echo "<td>$muid</td>";
+
                   echo "</tr>";
                }
             echo "</tbody>";
