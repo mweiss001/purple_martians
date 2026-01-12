@@ -7,9 +7,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter -pedantic -static")
 
 
-#// gcc -Wall -Wextra -Wno-unused-parameter my_file.c
-
-
 
 
 set(ALLEGRO_ROOT_DIR "C:/allegro") # Update this path to your Allegro location
@@ -17,6 +14,7 @@ include_directories(${ALLEGRO_ROOT_DIR}/include)
 link_directories(${ALLEGRO_ROOT_DIR}/lib)
 
 add_executable(pm
+        icon.rc
         src/libnet.h
         src/main.cpp
         src/mwBitmap.cpp

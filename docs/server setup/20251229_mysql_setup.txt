@@ -391,9 +391,170 @@ sessions_scrape.php
 
 
 
+---------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+
+2026-01-12 07:01:21
+
+I am leaving mysql for sqlite.
+
+here is the last dump from pmh before I blow it away.
+
+Last login: Mon Jan  5 07:22:55 2026 from 96.45.1.6
+m@pmh:~$
+m@pmh:~$
+m@pmh:~$ sudo mysql
+[sudo] password for m:
+Server version: 8.0.44-0ubuntu0.22.04.1 (Ubuntu)
+mysql>
+mysql> USE pm;
+mysql>
+mysql> SHOW TABLES;
++--------------+
+| Tables_in_pm |
++--------------+
+| logs         |
+| sessions     |
+| status       |
++--------------+
+3 rows in set (0.00 sec)
+
+mysql> DESCRIBE logs;
++-----------+-------------+------+-----+---------+----------------+
+| Field     | Type        | Null | Key | Default | Extra          |
++-----------+-------------+------+-----+---------+----------------+
+| id        | int         | NO   | PRI | NULL    | auto_increment |
+| msg_type  | int         | YES  |     | NULL    |                |
+| sub_type  | int         | YES  |     | NULL    |                |
+| created   | datetime(3) | YES  |     | NULL    |                |
+| agt       | double      | YES  |     | NULL    |                |
+| frame_num | int         | YES  |     | NULL    |                |
+| player    | int         | YES  |     | NULL    |                |
+| client    | int         | YES  |     | NULL    |                |
+| message   | text        | YES  |     | NULL    |                |
++-----------+-------------+------+-----+---------+----------------+
+9 rows in set (0.01 sec)
+
+mysql> DESCRIBE status;
++-----------+-------------+------+-----+---------+----------------+
+| Field     | Type        | Null | Key | Default | Extra          |
++-----------+-------------+------+-----+---------+----------------+
+| id        | int         | NO   | PRI | NULL    | auto_increment |
+| timestamp | datetime(3) | YES  |     | NULL    |                |
+| frame     | int         | YES  |     | NULL    |                |
+| player    | int         | YES  |     | NULL    |                |
+| rwnd      | int         | YES  |     | NULL    |                |
+| cpu       | float       | YES  |     | NULL    |                |
+| sync      | float       | YES  |     | NULL    |                |
+| ping      | float       | YES  |     | NULL    |                |
+| difs      | float       | YES  |     | NULL    |                |
+| lcor      | float       | YES  |     | NULL    |                |
+| rcor      | float       | YES  |     | NULL    |                |
+| txbf      | float       | YES  |     | NULL    |                |
+| rxbf      | float       | YES  |     | NULL    |                |
+| txpf      | float       | YES  |     | NULL    |                |
+| rxpf      | float       | YES  |     | NULL    |                |
++-----------+-------------+------+-----+---------+----------------+
+15 rows in set (0.00 sec)
+
+mysql> DESCRIBE sessions;
++--------------------------+--------------+------+-----+---------+----------------+
+| Field                    | Type         | Null | Key | Default | Extra          |
++--------------------------+--------------+------+-----+---------+----------------+
+| id                       | int          | NO   | PRI | NULL    | auto_increment |
+| filename                 | varchar(255) | YES  |     | NULL    |                |
+| dt_start                 | datetime     | YES  |     | NULL    |                |
+| dt_end                   | datetime     | YES  |     | NULL    |                |
+| duration                 | int          | YES  |     | NULL    |                |
+| ip                       | varchar(255) | YES  |     | NULL    |                |
+| port                     | int          | YES  |     | NULL    |                |
+| hostname                 | varchar(255) | YES  |     | NULL    |                |
+| endreason                | varchar(255) | YES  |     | NULL    |                |
+| cdat_rx                  | int          | YES  |     | NULL    |                |
+| player_num               | int          | YES  |     | NULL    |                |
+| next_levels              | int          | YES  |     | NULL    |                |
+| exits_activated          | int          | YES  |     | NULL    |                |
+| respawns                 | int          | YES  |     | NULL    |                |
+| shots_fired              | int          | YES  |     | NULL    |                |
+| enemy_hits               | int          | YES  |     | NULL    |                |
+| player_hits              | int          | YES  |     | NULL    |                |
+| self_hits                | int          | YES  |     | NULL    |                |
+| purple_coins             | int          | YES  |     | NULL    |                |
+| tx_bytes_total           | int          | YES  |     | NULL    |                |
+| tx_bytes_avg_per_sec     | int          | YES  |     | NULL    |                |
+| tx_bytes_max_per_frame   | int          | YES  |     | NULL    |                |
+| rx_bytes_total           | int          | YES  |     | NULL    |                |
+| rx_bytes_avg_per_sec     | int          | YES  |     | NULL    |                |
+| rx_bytes_max_per_frame   | int          | YES  |     | NULL    |                |
+| tx_packets_total         | int          | YES  |     | NULL    |                |
+| tx_packets_avg_per_sec   | int          | YES  |     | NULL    |                |
+| tx_packets_max_per_frame | int          | YES  |     | NULL    |                |
+| rx_packets_total         | int          | YES  |     | NULL    |                |
+| rx_packets_avg_per_sec   | int          | YES  |     | NULL    |                |
+| rx_packets_max_per_frame | int          | YES  |     | NULL    |                |
++--------------------------+--------------+------+-----+---------+----------------+
+31 rows in set (0.00 sec)
+
+mysql> SELECT COUNT(*) FROM sessions;
++----------+
+| COUNT(*) |
++----------+
+|       92 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> SELECT COUNT(*) FROM status;
++----------+
+| COUNT(*) |
++----------+
+| 12679487 |
++----------+
+1 row in set (4.94 sec)
 
 
+mysql> SELECT COUNT(*) FROM logs;
++----------+
+| COUNT(*) |
++----------+
+| 65950052 |
++----------+
+1 row in set (29.04 sec)
 
+i want to make a backup copy of sessions table
+
+m@pmh:~/tmp$ ll
+total 8
+drwxrwxr-x  2 m m 4096 Jan 12 07:11 ./
+drwxr-x--- 10 m m 4096 Jan  5 11:58 ../
+m@pmh:~/tmp$ sudo mysqldump --no-defaults pm sessions > pm_dump.sql
+m@pmh:~/tmp$ ll
+total 32
+drwxrwxr-x  2 m m  4096 Jan 12 07:11 ./
+drwxr-x--- 10 m m  4096 Jan  5 11:58 ../
+-rw-rw-r--  1 m m 23762 Jan 12 07:11 pm_dump.sql
+m@pmh:~/tmp$
+
+now copy to local dev machine
+pscp -pw zaiden m@purplemartians.org:tmp/pm_dump.sql c:\pm\
+
+also get gm's
+pscp -pw zaiden m@purplemartians.org:dev/purple_martians/savegame/* c:\pm\tmp\sg
+
+save in 
+\\x\mw\docs\aa_mdw_programs\pm\20260112_old pm server backup sessions and gm
+
+done...now I can blow it away....
 
 
 

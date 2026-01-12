@@ -1299,7 +1299,7 @@ int mwPlayer::is_player_color_used(int color)
 string mwPlayer::getName(int p)
 {
    string tmp(mPlayer.syn[p].name);
-   if (tmp == "default") tmp = "Player:" + std::to_string(p);
+   if (tmp == "default") tmp = "Player " + std::to_string(p);
    return tmp;
 }
 

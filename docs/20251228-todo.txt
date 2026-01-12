@@ -14,7 +14,23 @@ TO DO
 
 
 
+
+
 ------------------------------------------------------------------------------
+
+make it so that if you enter pm as server, it will expand to the full
+
+      if (strcmp(argument_array[1],"-c") == 0 )
+      {
+         char srv[256];
+         sprintf(srv, "%s", argument_array[2]);
+         if ((strlen(srv) == 2) && (strcmp(srv, "pm") == 0)) sprintf(srv, "%s", "purplemartians.org");
+
+         sprintf(mNetgame.server_address, "%s", srv);
+
+
+
+
 
 
 ------------------------------------------------------------------------------
@@ -44,6 +60,11 @@ uptime, load, disk space
 ------------------------------------------------------------------------------
 
 
+remove the executable from git (and other large things)
+recursively
+
+my git is getting to be almost 1G
+
 
 
 ------------------------------------------------------------------------------
@@ -62,6 +83,17 @@ uptime, load, disk space
 ------------------------------------------------------------------------------
 even if I change servers, I want to always keep all the sessions and games files
 never lose them!!
+
+
+
+
+
+
+
+
+
+
+
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -95,6 +127,11 @@ never lose them!!
 
 
 
+
+why is the icon for the executable not working...
+since I changed to clion
+i don't know how it used to work in in code blocks
+include pm.rc as a source file, it points to the icon
 
 
 

@@ -410,7 +410,13 @@ void mwMain::proc_command_line_args2(int argument_count, char **argument_array)
       }
       if (strcmp(argument_array[1],"-c") == 0 )
       {
-         sprintf(mNetgame.server_address, "%s", argument_array[2]);
+         char srv[256];
+         sprintf(srv, "%s", argument_array[2]);
+         if ((strlen(srv) == 2) && (strcmp(srv, "pm") == 0)) sprintf(srv, "%s", "purplemartians.org");
+
+         sprintf(mNetgame.server_address, "%s", srv);
+
+
          mConfig.save_config(PM_CFG_SAVE_SERVER_ADDRESS);
          mLogo.show_splash_screen = 0;
          mLoop.state[0] = PM_PROGRAM_STATE_CLIENT_NEW_GAME;

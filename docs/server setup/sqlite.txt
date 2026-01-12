@@ -12,8 +12,6 @@ added sqlite3.c and sqlite3.h to the project
 
 #include "sqlite3.h" 
 
-
-
    // prepare statement
    const char* sql2 = "UPDATE sessions SET dt_end=?, duration=? WHERE id = ?";
    sqlite3_prepare_v2(mSql.db, sql2, -1, &stmt, NULL);
@@ -70,6 +68,10 @@ php
 
 sudo apt install sqlite3
 sudo apt install php-sqlite3
+sudo apt install php libapache2-mod-php
+sudo a2enmod php8.3
+
+
 
 here is what I have to do to replace mysql with sqlite
 
@@ -97,7 +99,6 @@ if (!file_exists($db_filepath))
    return;
 }
 $db = new PDO("sqlite:/home/m/dev/purple_martians/data/database.db");
-
 
 
 

@@ -5132,6 +5132,109 @@ getting git 2.52.0 cause clion says my version 2.16.2 is unsupported...done
 made player name show above player optional with settings...
 
 
+2026-01-12 07:33:09
+
+I am planning on redoing the main pm server that has been running for a few years
+what should I keep?
+
+with the newer seesions stuff, I would just keep all the gm's and session database
+but the old one is different...
+
+is there anything worth keeping?
+
+the oldest looks like it is from 20240714
+
+backed up sessions table and gm file to x
+see mysql file for details
+
+
+2026-01-12 07:34:33
+I can now deply new to pmh
+
+
+do it fool!
+
+     Active: active (running) since Fri 2025-10-31 18:00:30 MDT; 2 months 11 days ago
+   Main PID: 762 (pm)
+      Tasks: 2 (limit: 9291)
+     Memory: 291.1M
+        CPU: 2month 1w 4d 19h 53min 44.491s
+     CGroup: /system.slice/pm.service
+             └─762 /home/m/dev/purple_martians/pm -sh
+
+Jan 12 07:00:16 pmh pm[762]: [10][0][102568]|        Player Color:[8]                                                  |
+Jan 12 07:00:16 pmh pm[762]: [10][0][102568]|        Server Frame:[102568]                                             |
+Jan 12 07:00:16 pmh pm[762]: [10][0][102568]|        Server Level Sequence Num:[1752]                                  |
+Jan 12 07:00:16 pmh pm[762]: [10][0][102568]+--------------------------------------------------------------------------+
+Jan 12 07:00:16 pmh pm[762]: log_net array lines > 1000 ... dumping to file
+Jan 12 07:00:16 pmh pm[762]: logs/net/20260112-070010.942.csv saved
+Jan 12 07:00:16 pmh pm[762]: log_net array lines > 1000 ... dumping to file
+Jan 12 07:00:16 pmh pm[762]: logs/net/20260112-070015.94.csv saved
+Jan 12 07:00:16 pmh pm[762]: [10][0][102969]+--------------------------------------------------------------------------+
+Jan 12 07:00:16 pmh pm[762]: [10][0][102969]|                                                                          |
+m@pmh:~/dev/purple_martians/savegame$
+
+                                               |
+
+m@pmh:~/dev/purple_martians/savegame$ sudo systemctl stop pm
+
+stop all cron...
+
+erased all and got new...
+
+had to redo the servioe to include working dir
+
+now how do I change permissions so php in web can see database
+
+and how to allow downloads?
+
+need to figure out and document, as well as all permissions needed...
+
+96.45.1.12
+is that right?
+no, it should be .50
+why??
+reboot
+same...why???
+figure it 
+
+
+
+
+
+2026-01-12 11:22:34
+
+im doing great, i just got the pmh server all rebuilt and better notes done
+
+also I now know better what to do about permissions
+
+I did not have to change anything in /var/www.....
+
+I just had to chmod o+x /home/m
+
+this allows php to see database files and downloads alias to work
+
+
+
+Do I really want the ':' in player...or should it be a space...it used to be a space...fixed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
