@@ -251,18 +251,18 @@ class mwPlayer
    void proc_player_ladder_move(int p);
    void proc_player_rope(int p);
    void proc_player_ladder(int p);
-   void move_players(void);
+   void move_players();
 
 
    int is_player_hidden(int p);
 
    void draw_player_direct_to_screen(int p);
-   void draw_players_direct_to_screen(void);
+   void draw_players_direct_to_screen();
 
    void draw_player(int p);
-   void draw_players(void);
+   void draw_players();
    void set_players_shape(int p);
-   int find_inactive_player(void);
+   int find_inactive_player();
    int is_player_color_used(int color);
 
    int get_new_client_color(int requested_color);
@@ -271,14 +271,14 @@ class mwPlayer
    char* get_player_name2(int p, char * name);
 
    void init_player(int p, int t);
-   void set_default_player_colors(void);
+   void set_default_player_colors();
    bool if_players_ctrl_just_pressed(int p, int ctrl);
    void clear_controls(int p);
    int comp_move_from_players_current_controls(int p);
    void set_controls_from_comp_move(int p, int comp_move);
    void set_comp_move_from_player_key_check(int p);
    void set_controls_from_player_key_check(int p);
-   void proc_player_input(void);
+   void proc_player_input();
 
 };
 extern mwPlayer mPlayer;

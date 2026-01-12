@@ -22,11 +22,11 @@ class mwSettings
    int overlay_grid[10][4] = {0};
    int number_of_debug_overlay_modes = 2;
 
-   void load_settings(void);
-   void save_settings(void);
+   void load_settings();
+   void save_settings();
 
 
-   void reset_overlay_settings(void);
+   void reset_overlay_settings();
 
 
    int log_group = 1;
@@ -69,22 +69,22 @@ class mwSettings
    void draw_tab(struct settings_tab st[], int p, int col, int text_color);
 
 
-   void page_main(void);
-   void page_mode(void);
-   void page_controls(void);
-   void page_controls2(void);
-   void page_netgame(void);
-   int page_demo(void);
-   void page_level_bottom_msg(void);
-   void page_level_stats(void);
-   void page_transitions(void);
-   void page_viewport(void);
-   void page_overlay(void);
-   void page_double(void);
-   void page_speed(void);
-   void page_info(void);
-   int page_log(void);
-   void page_misc(void);
+   void page_main();
+   void page_mode();
+   void page_controls();
+   void page_controls2();
+   void page_netgame();
+   int page_demo();
+   void page_level_bottom_msg();
+   void page_level_stats();
+   void page_transitions();
+   void page_viewport();
+   void page_overlay();
+   void page_double();
+   void page_speed();
+   void page_info();
+   int page_log();
+   void page_misc();
 
 
 };

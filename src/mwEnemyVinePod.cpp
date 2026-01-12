@@ -137,8 +137,8 @@ void mwEnemy::move_vinepod(int e)
    {
       // create and fill the spline array
       int np = Ei[e][17]+1; // number of points
-      float dest[np*2] = {0};
-      float pnts[8] = {0};
+      float dest[np*2] = {};
+      float pnts[8] = {};
       vinepod_fill_points_array(e, np, pnts, dest);
 
       // set position
@@ -441,8 +441,8 @@ void mwEnemy::draw_vinepod(int e, int x, int y, int custom)
       {
          // create and fill the spline array
          int np = Ei[e][17]+1; // number of points
-         float dest[np*2] = {0};
-         float pnts[8] = {0};
+         float dest[np*2] = {};
+         float pnts[8] = {};
          vinepod_fill_points_array(e, np, pnts, dest);
 
          // draw spline path outline
@@ -588,8 +588,8 @@ void mwEnemy::draw_vinepod_controls(int e, int legend_highlight)
    {
       // create and fill the spline array
       int np = 100; // number of points
-      float dest[np*2] = {0};
-      float pnts[8] = {0};
+      float dest[np*2] = {};
+      float pnts[8] = {};
       vinepod_fill_points_array(e, np, pnts, dest);
 
       al_draw_spline(pnts, mColor.pc[10], 0);

@@ -9,7 +9,7 @@ class mwMiscFnx
    char tmp_return_40[40];
 
 
-   int exit_level_editor_dialog(void);
+   int exit_level_editor_dialog();
    int mw_file_select(const char * title, char * fn, const char * ext, int save);
 
    void chop_first_x_char(char *str, int n);
@@ -21,7 +21,7 @@ class mwMiscFnx
    char * chr_dt(char* dt);
 
    char* chrms(int time, char* ft);
-   char* chrsi(int num, char* ft);
+//   char* chrsi(int num, char* ft);
 
 
    char * chrmhd(int time, char* ft);

@@ -11,10 +11,10 @@ class mwStateHistory
 {
    public:
 
-   void _set_newest_and_oldest(void);
+   void _set_newest_and_oldest();
 
    mwStateHistory(); // default constructor
-   void initialize(void);
+   void initialize();
 
    char history_state[NUM_HISTORY_STATES][STATE_SIZE];
    int history_state_frame_num[NUM_HISTORY_STATES];

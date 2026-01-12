@@ -1098,10 +1098,6 @@ void mwLoop::main_loop(void)
                for (int p=1; p<NUM_PLAYERS; p++)
                   if (mPlayer.syn[p].control_method == PM_PLAYER_CONTROL_METHOD_NETGAME_REMOTE)
                   {
-
-                     mNetgame.session_update(p);
-
-
                      mPlayer.syn[p].late_cdats_last_sec = mTally_late_cdats_last_sec[p].get_tally(1);
                      mPlayer.loc[p].game_move_dsync_avg_last_sec = mTally_game_move_dsync_avg_last_sec[p].get_avg(1);
 

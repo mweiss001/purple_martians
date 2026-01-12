@@ -28,7 +28,7 @@ class mwGraph
    int  title_frame_color;
    void draw_title(int set_size_only);
 
-   void draw_series_legend(void);
+   void draw_series_legend();
 
    int series_legend_slave;
    int series_legend_type;
@@ -105,7 +105,7 @@ class mwGraph
    int x_axis_scrollbar_y2;
    int x_axis_zoom_lock;
 
-   void x_axis_get_size_and_arrange_pos(void);
+   void x_axis_get_size_and_arrange_pos();
    void x_axis_draw_legend(int set_size_only);
    void x_axis_draw_gridlines_and_labels(int set_size_only);
    int  x_axis_draw_scrollbar(int set_size_only);
@@ -151,8 +151,8 @@ class mwGraph
    int y_axis_scrollbar_h;
    int y_axis_zoom_lock;
 
-   void y_axis_get_size_and_arrange_pos(void);
-   void y_axis_set_pos(void);
+   void y_axis_get_size_and_arrange_pos();
+   void y_axis_set_pos();
    void y_axis_draw_legend(int set_size_only);
    void y_axis_draw_gridlines_and_labels(int set_size_only);
    int  y_axis_draw_scrollbar(int set_size_only);
@@ -170,7 +170,7 @@ class mwGraph
       int min_visible_index;
       int max_visible_index;
    };
-   data_series series[20] = {0};
+   data_series series[20] = {};
 
    float plot_line_size;
    float plot_point_size;
@@ -211,23 +211,23 @@ class mwGraph
 
 
    mwGraph(); // default constructor
-   void initialize(void);
+   void initialize();
    void set_graph_pos(int x1, int y1, int x2, int y2);
 
    void draw_point_data(int x, int y, double mx, double my, int color, ALLEGRO_FONT *f, int s);
 
    void draw_graph(int draw_only);
-   void proc_graph(void);
+   void proc_graph();
 
-   void draw_plot_area(void);
+   void draw_plot_area();
    void proc_plot_area(int draw_only);
 
    void add_data_point(int series, double x, double y);
-   int calc_data_range(void);
+   int calc_data_range();
 
    void autorange_axis(int x, int y);
    void set_range_axis(double x_min, double x_max, double y_min, double y_max);
-   void enforce_axis_limits(void);
+   void enforce_axis_limits();
    void enforce_axis_limits(int type);
 
    char* x_axis_get_val_text(double val, int units, char*);
@@ -236,8 +236,8 @@ class mwGraph
    int find_closest_point_to_mouse(int &s, int &i);
 
    void proc_plot_mouse_cursor_crosshairs(double mx1, double my1);
-   void proc_plot_menu(void);
-   int proc_series_legend_menu(void);
+   void proc_plot_menu();
+   int proc_series_legend_menu();
 
    bool mouse_on_graph;
    bool mouse_on_scrollbar;

@@ -178,7 +178,12 @@ char * mwMiscFnx::chrmhd(int s, char* ft)
 
 
 
+/*
 
+this is wrong
+int cannot be an < 1000000000000)
+
+could be fixed bu its not used at the moment
 
 // format number from k to M to G
 char * mwMiscFnx::chrsi(int num, char* ft)
@@ -190,7 +195,7 @@ char * mwMiscFnx::chrsi(int num, char* ft)
    if ((an >= 1000000000) && (an < 1000000000000)) sprintf(ft, "%d G", num/1000000000 );
    return ft;
 }
-
+*/
 
 
 

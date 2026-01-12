@@ -25,7 +25,7 @@ class mwQuickGraph
       int color;
       char name[256];
    };
-   data_series series[4] = {0};
+   data_series series[4] = {};
 
 };
 extern mwQuickGraph mQuickGraph[10];

@@ -21,7 +21,7 @@ class mwPacketBuffer
 
    mwPacketBuffer(); // default constructor
    ~mwPacketBuffer(); // default deconstructor
-   void init_packet_buffer(void);
+   void init_packet_buffer();
 
    void PacketName(char *data, int &pos, const char *name);
    int PacketRead(char *data, const char *id);
@@ -44,14 +44,14 @@ class mwPacketBuffer
 
    struct packet_buffer rx_buf[200];
 
-   void check_for_packets(void);
+   void check_for_packets();
 
    void add_to_rx_buffer_single(char *data, int p);
-   int find_empty_rx_packet_buffer(void);
-   void rx_and_proc(void);
-   void proc_rx_buffer(void);
+   int find_empty_rx_packet_buffer();
+   void rx_and_proc();
+   void proc_rx_buffer();
 
-   float get_max_dsync(void);
+   float get_max_dsync();
 
    void showData(char *data, int sz);
 

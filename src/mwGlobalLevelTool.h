@@ -3,7 +3,7 @@
 class mwGlobalLevelTool
 {
    public:
-   void execute(void);
+   void execute();
 
    private:
    void show_block_list(int blt[]);

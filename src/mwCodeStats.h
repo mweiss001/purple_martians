@@ -19,7 +19,7 @@ struct code_stat
 class mwCodeStats
 {
    public:
-   static void run(void);
+   static void run();
 
    private:
    static void fill_stat_struct(struct code_stat &cs);

@@ -5,7 +5,7 @@ class mwFileIterator
    public:
 
    mwFileIterator(); // default constructor
-   void initialize(void);
+   void initialize();
 
    int iterate(const char* fname);
 

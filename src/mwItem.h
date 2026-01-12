@@ -5,7 +5,7 @@ class mwItem
    public:
 
    mwItem(); // default constructor
-   void initialize(void);
+   void initialize();
 
    int item[500][16];    // item ints
    float itemf[500][4];  // item floats
@@ -20,7 +20,7 @@ class mwItem
    int item_secondary67(int type);
    int item_secondary67_hires(int type);
 
-   void draw_items(void);
+   void draw_items();
    void draw_item(int i, int custom, int cx, int cy);
    int draw_bonus(int i, int x, int y, int shape);
    void draw_purple_coin_screen_direct(int i);
@@ -74,8 +74,8 @@ class mwItem
    void draw_rocket_lines(int i);
 
    int seq_color(int mod, int c1, int c2);
-   int seq_color2(void);
-   int seq_color3(void);
+   int seq_color2();
+   int seq_color3();
    void bomb_block_crosshairs(int e, int f);
    void bomb_blocks(int i, int t, int dr, float x, float y);
    void bomb_crosshairs(float x, float y);
@@ -101,7 +101,7 @@ class mwItem
 
    void proc_hider(int i);
    int draw_hider(int i, int x, int y, int tile);
-   void erase_hider_areas(void);
+   void erase_hider_areas();
 
 
 
@@ -159,12 +159,12 @@ class mwItem
 
    // mwItemEditorFnx.cpp
    int item_data(int x, int y);
-   void show_all_items(void);
+   void show_all_items();
    int sort_item(int set_pos);
-   int get_empty_item(void);
+   int get_empty_item();
    int get_empty_item(int type);
    void check_item(int i, int ct);
-   void test_items(void);
+   void test_items();
    void erase_item(int num);
    int create_trigger(int i);
    int create_timer(int i);
@@ -172,7 +172,7 @@ class mwItem
    int create_block_damage(int i);
    int create_start_block(int c);
    int create_exit(int c);
-   void show_all_pmsg(void);
+   void show_all_pmsg();
    int create_pmsg(int c);
    int create_door(int type);
    int create_item(int type);

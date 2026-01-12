@@ -43,13 +43,13 @@ class mwQuickGraph2
    float data_max;
    float data_rng;
 
-   void draw_graph(void);
+   void draw_graph();
 
    void change_range(float new_min, float new_max);
 
    void new_entry_pos();
 
-   void autorange(void);
+   void autorange();
 
 
    void add_data(int series, float d, int erase_only);
@@ -60,7 +60,7 @@ class mwQuickGraph2
       int active;
       int color;
    };
-   data_series series[10] = {0};
+   data_series series[10] = {};
 
 };
 extern mwQuickGraph2 mQuickGraph2[10];

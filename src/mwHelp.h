@@ -8,7 +8,7 @@ class mwHelp
    int help_bitmap_reload = 1;
 
    private:
-   void load_help(void);
+   void load_help();
 
 
    char help_string[5000][200];

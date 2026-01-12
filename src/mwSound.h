@@ -21,10 +21,10 @@ class mwSound
    int soundtrack_on = 1;
 
    void start_music(int resume);
-   void stop_sound(void);
-   void proc_sound(void);
-   void load_sound(void);
-   void set_se_scaler(void);
-   void set_st_scaler(void);
+   void stop_sound();
+   void proc_sound();
+   void load_sound();
+   void set_se_scaler();
+   void set_st_scaler();
 };
 extern mwSound mSound;

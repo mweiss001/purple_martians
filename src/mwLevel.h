@@ -62,7 +62,7 @@ class mwLevel
    void change_block(int x, int y, int block);
    int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy);
 
-   void set_start_level(void);
+   void set_start_level();
    void set_start_level(int s);
 
    int get_next_level(int lev, int max_lev, int wrap);
@@ -85,13 +85,13 @@ class mwLevel
    void show_level_stats_row(int i, int x1, int x2, int draw, int &max_x, int &y, int vline[], int &vli, int tally[][16], int msg_type);
 
    int show_level_data(int x_pos, int y_pos, int type);
-   void zero_level_data(void);
-   void level_check(void);
+   void zero_level_data();
+   void level_check();
 
 
    void faa_helper(int x1, int x2, int y1, int y2, int xasc, int &aai, int area);
 
-   void fill_area_array(void);
+   void fill_area_array();
 
    struct level_data data[100];
    struct level_play_data play_data[100000];
@@ -125,8 +125,8 @@ class mwLevel
    void unlock_all_level_in_area(int area);
 
 
-   void reset_level_data(void);
-   void unlock_all_levels(void);
+   void reset_level_data();
+   void unlock_all_levels();
 
    void draw_level_stats(int x1, int y1, int msg_type);
    void show_level_stats(int &w, int &h, int draw, int msg_type );
@@ -136,22 +136,22 @@ class mwLevel
    void sob_vline(int x, int y1, int y2, int a);
    void sob_create_msg(const char* txt, int col, int x, int y, int w, int h);
    void sob_area_msg(int area, int x, int y);
-   void set_overworld_barriers(void);
+   void set_overworld_barriers();
 
    int find_msg(const char* str);
 
-   void clear_data(void);
-   void load_data(void);
-   void save_data(void);
-   void setup_data(void);
+   void clear_data();
+   void load_data();
+   void save_data();
+   void setup_data();
 
-   void dump_level_data(void);
+   void dump_level_data();
 
-   void level_start_data(void);
+   void level_start_data();
 
    void add_play_data_record(int lev, int type);
    void calc_level_stats(int lev);
-   void check_achievments(void);
+   void check_achievments();
 
    void update_level_status(int lev);
 
@@ -166,8 +166,8 @@ class mwLevel
    int level_stats_bmp_w;
    int level_stats_bmp_h;
 
-   void load_level_icons(void);
-   void create_level_icons(void);
+   void load_level_icons();
+   void create_level_icons();
 
    int level_data_purple_coins_collected;
    int level_data_player_respawns;

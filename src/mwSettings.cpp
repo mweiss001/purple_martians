@@ -222,7 +222,7 @@ void mwSettings::settings_pages(int set_page)
 
    if (set_page != -1) current_page = set_page;
 
-   struct settings_tab st[20] = {0};
+   struct settings_tab st[20] = {};
 
    sprintf(st[0].title,  "Main");
    //sprintf(st[1].title,  "Mode");

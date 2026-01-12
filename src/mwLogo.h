@@ -5,7 +5,7 @@ class mwLogo
    public:
 
    mwLogo(); // default constructor
-   void initialize(void);
+   void initialize();
 
    ALLEGRO_BITMAP *logo_ichael;
    ALLEGRO_BITMAP *logo_avid;
@@ -15,8 +15,8 @@ class mwLogo
    int mdw_an_seq;      // animation sequence number
    float points[9][8];  // array of points for splines
 
-   void seed_logo(void);
-   void fill_logo(void);
+   void seed_logo();
+   void fill_logo();
 
    void draw_logo(float x, float y, float x_scale, float y_scale);
 
@@ -27,15 +27,15 @@ class mwLogo
    void mfspline(float *par, int col, int thickness);
 
    void mdw_an(float x, float y, float sc);
-   int mdw_an2(void);
-   void splash_screen(void);
+   int mdw_an2();
+   void splash_screen();
 
    int show_splash_screen = 1;
    int splash_screen_done = 0;
 
-   void spline_test(void);
+   void spline_test();
    void redraw_spline(int s);
-   void spline_adjust(void);
+   void spline_adjust();
 
 };
 

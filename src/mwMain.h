@@ -4,12 +4,12 @@ class mwMain
 {
    public:
 
-   void final_wrapup(void);
+   void final_wrapup();
    void fast_exit(int type);
    void show_system_id();
-   void set_exe_path(void);
-   void set_and_get_versions(void);
-   int initial_setup(void);
+   void set_exe_path();
+   void set_and_get_versions();
+   int initial_setup();
 
    int pm_main(int argument_count, char **argument_array);
 
@@ -31,7 +31,7 @@ class mwMain
 
    void proc_command_line_args1(int argument_count, char **argument_array);
    void proc_command_line_args2(int argument_count, char **argument_array);
-   void temp_test(void);
+   void temp_test();
 
 };
 extern mwMain mMain;

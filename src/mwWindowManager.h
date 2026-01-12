@@ -39,23 +39,23 @@ class mwWindowManager
    void set_windows(int mode);
    int loop(int edit_level);
 
-   void get_block_position_on_map(void);
-   void process_scrolledge(void);
+   void get_block_position_on_map();
+   void process_scrolledge();
    void show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
-   void get_new_box(void);
-   void process_mouse(void);
-   void process_keypress(void);
+   void get_new_box();
+   void process_mouse();
+   void process_keypress();
 
    void redraw_level_editor_background(int mode);
-   int redraw_level_editor_background(void);
+   int redraw_level_editor_background();
 
    void set_focus(int n);
-   int is_mouse_on_any_window(void);
-   int get_max_layer(void);
+   int is_mouse_on_any_window();
+   int get_max_layer();
    int cycle_windows(int draw_only);
 
-   void save_mW(void);
-   void load_mW(void);
+   void save_mW();
+   void load_mW();
 
 };
 extern mwWindowManager mWM;

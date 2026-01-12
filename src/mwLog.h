@@ -88,10 +88,10 @@ class mwLog
 
    struct log_type log_types[100];
 
-   void init_log_types(void);
+   void init_log_types();
 
    void set_log_type_action(int type, int action);
-   void clear_all_log_actions(void);
+   void clear_all_log_actions();
 
    void log_error(const char *txt, bool dialog = 1);
 
@@ -110,15 +110,15 @@ class mwLog
    void add_headerf(int type, int player, int blank_lines, const char *format, ...);
    void add_header(int type, int player, int blank_lines, const char *txt);
 
-   void log_time_date_stamp(void);
-   void log_versions(void);
+   void log_time_date_stamp();
+   void log_versions();
 
 
    char log_status_msg[NUM_LOG_CHAR];
    int log_status_msg_pos = 0;
    int log_status_msg_num_lines = 0;
 
-   void add_log_status_db_rows(void);
+   void add_log_status_db_rows();
 
    void add_log_net_db_row(int type, int sub_type, int client, const char *format, ...);
    void add_log_net_db_row2(int type, int sub_type, double agt, int frame, int player, int client, const char* msg);
@@ -152,15 +152,15 @@ class mwLog
    int autosave_log_on_program_exit = 0;
 
 
-   void flush_logs(void);
+   void flush_logs();
 
-   void erase_log(void);
-   void erase_log_net(void);
-   void erase_log_status(void);
+   void erase_log();
+   void erase_log_net();
+   void erase_log_status();
 
-   void save_log_file(void);
-   void save_log_net_file(void);
-   void save_log_status_file(void);
+   void save_log_file();
+   void save_log_net_file();
+   void save_log_status_file();
 
    void log_player_array(int type);
    void log_player_array2(int type);

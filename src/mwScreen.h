@@ -97,13 +97,11 @@ class mwScreen
 
 
 
-   void draw_hyst_rect(void);
+   void draw_hyst_rect();
 
-   void set_screen_display_variables(void);
+   void set_screen_display_variables();
 
-   void set_level_display_region_xy(void);
-
-
+   void set_level_display_region_xy();
 
 
 
@@ -112,26 +110,28 @@ class mwScreen
 
 
 
-   void draw_scaled_level_region_to_display(void);
-   void set_map_var(void);
+
+
+   void draw_scaled_level_region_to_display();
+   void set_map_var();
    void mark_non_default_block(int x, int y);
 
-   void init_level_background(void);
+   void init_level_background();
 
    void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players);
 
    void draw_level_centered_on_player_pos(int screen_x, int screen_y, float scale_factor);
 
-   void draw_level_map_under_menu(void);
+   void draw_level_map_under_menu();
 
 
-   void draw_screen_frame(void);
+   void draw_screen_frame();
 
-   void draw_line_of_players(void);
+   void draw_line_of_players();
 
-   void draw_level_info(void);
+   void draw_level_info();
 
-   void frame_and_title(void);
+   void frame_and_title();
 
    void rtextout_centref(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, int x, int y, int col, float scale, float op, const char *format, ...);
    void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, int x, int y, int col, float scale, float op, const char *txt);
@@ -151,15 +151,15 @@ class mwScreen
    int player_text_overlay_timer_reset_val = 80;
    void add_player_text_overlay(int p, int type);
    void proc_player_text_overlay_timer(int p);
-   int draw_player_text_overlay(void);
+   int draw_player_text_overlay();
 
    int dif_from_now_to_nl();
    void show_player_stat_box(int tx, int y, int p);
-   void show_level_done(void);
+   void show_level_done();
 
    void calc_actual_screen_position(float ex, float ey, float &ex1, float &ey1);
 
-   void draw_screen_overlay(void);
+   void draw_screen_overlay();
 
 
    ALLEGRO_COLOR col_clr(int p);

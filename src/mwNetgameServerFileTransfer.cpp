@@ -27,7 +27,12 @@ void mwNetgame::server_send_file(int i)
    //printf("%s exists -- size:%d \n", fname, fsize);
 
    // buffer for uncompressed file and filename
-   char buf[fsize + 128];
+//   char buf[fsize + 128];
+
+   char buf[200000];
+
+
+
 
    // add filename at the start of the buffer
    sprintf(buf, "%s", fname);
@@ -44,7 +49,10 @@ void mwNetgame::server_send_file(int i)
 
 
    // destination for the compressed data structure
-   char dst[fsize + 128];
+//   char dst[fsize + 128];
+   char dst[200000];
+
+
 
    // compress
    uLongf destLen = sizeof(dst);

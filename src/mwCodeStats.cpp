@@ -127,7 +127,7 @@ void mwCodeStats::fill_stat_struct(struct code_stat &cs)
 void mwCodeStats::run(void)
 {
    char msg[1024];
-   struct code_stat cs[200] = {0};
+   struct code_stat cs[200] = {};
 
    int num_files = mFileIterator.iterate("src/");
 

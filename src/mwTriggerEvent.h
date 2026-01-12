@@ -7,11 +7,11 @@ class mwTriggerEvent
    int event[1000];
 
    mwTriggerEvent(); // default constructor
-   void initialize(void);
+   void initialize();
 
 
    void show_event_line(int x, int &y, int ev, int type, int v1, int v2);
-   void show_all_events(void);
+   void show_all_events();
 
    int add_item_link_translation(int obt, int num, int ext, int src_ev, int clt[][5], int clt_last);
 
@@ -19,7 +19,7 @@ class mwTriggerEvent
    int check_clt_for_source_event(int ev, int clt[][5], int clt_last);
    int is_pm_event_used(int ev);
    int get_unused_pm_event_extended(int clt[][5], int clt_last);
-   int get_unused_pm_event(void);
+   int get_unused_pm_event();
 
 
    void find_event_txrs_for_event(int ev, int &evan, int eva[][2]);

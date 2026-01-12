@@ -5,10 +5,10 @@ class mwInput
    public:
 
    mwInput(); // default constructor
-   void initialize(void);
+   void initialize();
 
    void proc_input_events(ALLEGRO_EVENT ev);
-   void proc_keys_held(void);
+   void proc_keys_held();
 
 
 
@@ -16,7 +16,7 @@ class mwInput
    bool serial_key_test(const char *tst);
    void serial_key_check(int key);
 
-   void function_key_check(void);
+   void function_key_check();
 
 
    int getJoystickNum(ALLEGRO_JOYSTICK* joy);
@@ -24,7 +24,7 @@ class mwInput
 
    int is_key_used(int k);
 
-   int my_readkey(void);
+   int my_readkey();
    void my_readkey3(int x, int y, int tc, int bts, int num, int num_lines);
    bool my_readkey2(int x, int y, int tc, int bts, int num);
 
@@ -47,10 +47,10 @@ class mwInput
    int function_key_speed_dec;
 
 
-   int SHFT(void);
-   int CTRL(void);
+   int SHFT();
+   int CTRL();
 
-   void tsw(void);
+   void tsw();
    void m_err(const char * err_msg);
 
    ALLEGRO_JOYSTICK *joy0 = NULL;

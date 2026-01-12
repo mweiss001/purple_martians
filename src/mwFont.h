@@ -6,7 +6,7 @@ class mwFont
    void convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bmp_filename, int char_size);
 
    public:
-   void load_fonts(void);
+   void load_fonts();
 
    void mw_get_text_dimensions(ALLEGRO_FONT *f, const char* txt, int &bx, int &by, int &bw, int &bh);
 

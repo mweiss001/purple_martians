@@ -555,7 +555,7 @@ void mwWindow::em_find_point_item(void)
 
    int max_ob = 20;                  // max objects to find
    int ob = 0;                       // objects found
-   int mo[max_ob][2];                // array of objects found
+   int mo[20][2];                    // array of objects found
    for (int a=0; a<max_ob; a++)          // clear array
    {
        mo[a][0] = 0;

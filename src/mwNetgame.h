@@ -48,8 +48,8 @@ class mwNetgame
    struct file_to_send files_to_send[20];
 
    int NetworkDriver;
-   int NetworkInit(void);
-   void NetworkExit(void);
+   int NetworkInit();
+   void NetworkExit();
 
    void clear_channel(int c);
 
@@ -99,37 +99,37 @@ class mwNetgame
    void state_to_game_vars(char * b);
    void get_state_dif(char *a, char *b, char *c, int size);
    void apply_state_dif(char *a, char *c, int size);
-   void reset_states(void);
+   void reset_states();
 
    void process_bandwidth_counters(int p);
 
    NET_CHANNEL *Channel = NULL;                   // main channel
 
-   void ChannelFlush(void);
+   void ChannelFlush();
 
    // --------------------------------------------------------------------
    // ---   mwNetgameClient.cpp  -----------------------------------------
    // --------------------------------------------------------------------
 
-   int ClientInitNetwork(void);
-   int ClientJoin(void);
-   int RemoteJoin(void);
+   int ClientInitNetwork();
+   int ClientJoin();
+   int RemoteJoin();
 
-   void ClientExitNetwork(void);
-   int  ClientCheckResponse(void);
+   void ClientExitNetwork();
+   int  ClientCheckResponse();
    void ClientSend(void *data, int len);
 
-   void client_timer_adjust(void);
+   void client_timer_adjust();
    void client_apply_dif();
 
-   void client_send_ping_packet(void);
-   void client_send_cjon_packet(void);
-   void client_send_cjrc_packet(void);
+   void client_send_ping_packet();
+   void client_send_cjon_packet();
+   void client_send_cjrc_packet();
    void client_send_rctl_packet(int type, double val);
    void client_send_stak_packet(int ack_frame);
    void client_send_cdat_packet(int p);
    void client_send_sfak_packet(int id);
-   void client_send_crfl(void);
+   void client_send_crfl();
 
    void client_send_clog_packet(int type, int sub_type, int f, double agt, char* smsg);
 
@@ -141,35 +141,35 @@ class mwNetgame
    void client_proc_sfil_packet(int i);
    void client_proc_snfo_packet(int i);
 
-   void client_proc_player_drop(void);
-   void client_control(void);
+   void client_proc_player_drop();
+   void client_control();
 
    // --------------------------------------------------------------------
    // ---   mwNetgameServer.cpp  -----------------------------------------
    // --------------------------------------------------------------------
 
-   int  ServerInitNetwork(void);
-   void ServerExitNetwork(void);
+   int  ServerInitNetwork();
+   void ServerExitNetwork();
    void ServerSendTo(void *data, int len, int p);
 
-   int ServerGetNewDynamicPort(void);
+   int ServerGetNewDynamicPort();
 
    int server_check_address(char * address);
 
-   void headless_server_setup(void);
+   void headless_server_setup();
 
-   void server_rewind(void);
-   void server_create_new_state(void);
+   void server_rewind();
+   void server_create_new_state();
    void server_send_dif(int frame_num);
    void server_send_compressed_dif(int p, int src, int dst, char * dif);
 
 
-   void server_proc_player_drop(void);
-   void server_proc_limits(void);
+   void server_proc_player_drop();
+   void server_proc_limits();
    void server_reload(int level);
 
 
-   void server_send_snfo_packet(void);
+   void server_send_snfo_packet();
    void server_send_sjon_packet(char* address, int level, int frame, int player_num, int player_color);
    void server_send_sjrc_packet(int p);
 
@@ -201,9 +201,9 @@ class mwNetgame
    void session_add(const char* address, const char* hostname, int p, int endreason);
    void session_update(int p, char *end_reason = NULL);
    void session_close(int p, int reason);
-   void session_check_active(void);
-   void session_save_active_at_level_done(void);
-   void session_flush_active_at_server_exit(void);
+   void session_check_active();
+   void session_save_active_at_level_done();
+   void session_flush_active_at_server_exit();
 
 
 
@@ -211,7 +211,7 @@ class mwNetgame
    // --------------------------------------------------------------------
    // ---   mwNetgameServerFileTransfer.cpp  -----------------------------
    // --------------------------------------------------------------------
-   void server_proc_files_to_send(void);
+   void server_proc_files_to_send();
    void server_send_file(int i);
    void server_add_file_to_send(const char * filename, int p);
    void server_proc_crfl_packet(int i);

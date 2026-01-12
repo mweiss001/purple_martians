@@ -44,29 +44,29 @@ class mwDisplay
    int saved_display_transform_double;
    int show_dtd;
 
-   void enforce_valid_window_pos(void);
+   void enforce_valid_window_pos();
 
-   void refresh_window_position_and_size(void);
-
-
-
-   void set_fullscreen_monitor_num_to_monitor_current_window_is_on(void);
-
-   void set_fullscreen(void);
-   void set_windowed(void);
+   void refresh_window_position_and_size();
 
 
 
-   void set_window_title(void);
+   void set_fullscreen_monitor_num_to_monitor_current_window_is_on();
+
+   void set_fullscreen();
+   void set_windowed();
+
+
+
+   void set_window_title();
 
    float scale_factor;
    float scale_factor_current;
 
    void set_scale_factor(float new_scale_factor, int instant);
-   void proc_scale_factor_change(void);
+   void proc_scale_factor_change();
 
    float custom_scale_factor_mlt;
-   void proc_custom_scale_factor_change(void);
+   void proc_custom_scale_factor_change();
    void set_custom_scale_factor(float new_scale_factor, int time);
 
 
@@ -75,22 +75,22 @@ class mwDisplay
    void show_bitmap_flags(int flags);
    void show_pixel_format(int df);
    void show_display_flags(int flags);
-   void show_display_options(void);
-   void show_display_orienation(void);
-   void show_fullscreen_modes(void);
-   void show_var_sizes(void);
+   void show_display_options();
+   void show_display_orienation();
+   void show_fullscreen_modes();
+   void show_var_sizes();
 
-   void auto_set_display_transform_double(void);
+   void auto_set_display_transform_double();
    void set_saved_display_transform(int sdt);
-   void cycle_display_transform(void);
+   void cycle_display_transform();
    void set_display_transform();
    void show_disp_values(int fs, int disp, int curr, int wind, int full, char *head);
-   void show_display_adapters(void);
+   void show_display_adapters();
 
-   int init_display(void);
-   void proc_display_change(void);
+   int init_display();
+   void proc_display_change();
 
-   void toggle_fullscreen(void);
+   void toggle_fullscreen();
 
 };
 extern mwDisplay mDisplay;

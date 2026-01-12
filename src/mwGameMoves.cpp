@@ -1127,7 +1127,7 @@ void mwGameMoves::add_gm_to_db(const char *fname)
    std::stringstream ss(dts);
 
    // create struct tm 'timestart'
-   struct tm timestart = {0};
+   struct tm timestart = {};
 
    // push ss into get_time, which will convert based on format and put in timestart
    ss >> std::get_time(&timestart, "%Y%m%d-%H%M%S");
@@ -1183,7 +1183,7 @@ void mwGameMoves::create_gm_session_link(int session_id)
    if (mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions)) printf("link exists: muid: '%s' session_d: %d\n", HEADER_muid.c_str(), session_id);
    else
    {
-      sprintf(sql, "INSERT INTO gm_sessions (id, gm_muid, session_id) VALUES(NULL, '%s', %d)", HEADER_muid.c_str(), session_id);
+      sprintf(sql, "INSERT INTO gm_sessions (id, gm_muid, session_id) VALUES(nullptr, '%s', %d)", HEADER_muid.c_str(), session_id);
       printf("sql:%s\n", sql);
       mSql.execute_sql(sql, mSql.db_sessions);
    }

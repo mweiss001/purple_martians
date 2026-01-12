@@ -68,33 +68,33 @@ class mwDemoRecord
    int sh_overlay_in_play = 0;
    int sh_overlay_in_rec = 1;
 
-   void gdt(void);
+   void gdt();
    char * gettf(int frame, char* ft);
    void seek_to_frame(int frame, int draw);
 
-   int draw_overlay(void);
+   int draw_overlay();
 
-   void demo_record(void);
-   int load_demo_record(void);
-   void refresh(void);
-   void reload(void);
+   void demo_record();
+   int load_demo_record();
+   void refresh();
+   void reload();
 
-   void start_record(void);
-   void stop_transport(void);
+   void start_record();
+   void stop_transport();
 
    void set_active_section(int i);
 
    void range_tools_set_fire_moves(int f, int clear_set);
    void range_tools_do(int action);
-   void proc_range_tools_menu(void);
+   void proc_range_tools_menu();
    int draw_range_tools(int x1, int y1);
 
    void mark_timeline_position(int frame, int x1, int y1, int sb_y2, int col);
    void set_player_section(int i, int p, int c, int f1, int f2, int y, int end_type);
-   void fill_player_sections(void);
-   void get_more_player_section_info(void);
+   void fill_player_sections();
+   void get_more_player_section_info();
    void find_ack_moves(int i);
-   void find_level_done(void);
+   void find_level_done();
 
    void draw_gm_txt_lines(int x, int y, int dump);
    void proc_gm_list_menu(int gi);
@@ -108,20 +108,20 @@ class mwDemoRecord
    void mark_player_shot_used(int p, int f, int type);
    void remove_unused_fire_held_sections(int test);
 
-   void proc_file_details_menu(void);
+   void proc_file_details_menu();
    int draw_file_details(int x1, int y1);
 
-   void load_lnk_arr(void);
+   void load_lnk_arr();
    void proc_cpu_time(double frame_start_timestamp);
-   void proc_section_details_menu(void);
+   void proc_section_details_menu();
 
    int draw_section_details(int x, int y);
    void draw_section_details_one_line(int i, int x, int y);
 
    int draw_record_settings(int x, int y);
-   void draw_timeline(void);
+   void draw_timeline();
 
-   void proc_transport_menu(void);
+   void proc_transport_menu();
    int draw_transport_controls(int x, int y);
 
 };

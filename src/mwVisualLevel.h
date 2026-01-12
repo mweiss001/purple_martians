@@ -7,15 +7,15 @@ class mwVisualLevel
    public:
    int load_visual_level_select_done = 0;
 
-   int visual_level_select(void);
-   void level_viewer(void);
+   int visual_level_select();
+   void level_viewer();
 
    int max_level_num;
 
    ALLEGRO_BITMAP* level_icon_vls[100];
    int level_icon_size;
-   void create_level_icons_vls(void);
-   void load_level_icons_vls(void);
+   void create_level_icons_vls();
+   void load_level_icons_vls();
 
    private:
    ALLEGRO_BITMAP* grid_bmp = NULL;
@@ -33,13 +33,13 @@ class mwVisualLevel
    int vl_redraw = 1;
 
    void mark_rect(int sel, int color);
-   void show_cur(void);
-   void show_msel(void);
+   void show_cur();
+   void show_msel();
    void compare_curr(int sel);
-   void compare_all(void);
+   void compare_all();
    void lev_draw(int full);
    void show_cur_vs(int cur, int x1, int y1, int size, int fc);
-   void load_visual_level_select(void);
+   void load_visual_level_select();
 };
 extern mwVisualLevel mVisualLevel;
 

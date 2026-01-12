@@ -30,22 +30,22 @@ class mwShot
    int num_eshots;
    int num_pshots;
 
-   void clear_shots(void);
+   void clear_shots();
 
-   int find_empty_pshot(void);
-   int find_empty_eshot(void);
+   int find_empty_pshot();
+   int find_empty_eshot();
 
 
 
    void proc_player_shoot(int p);
 
    void proc_pshot_collision(int p, int b);
-   void move_pshots(void);
-   void draw_pshots(void);
+   void move_pshots();
+   void draw_pshots();
 
    void proc_eshot_collision(int p, int b);
-   void move_eshots(void);
-   void draw_eshots(void);
+   void move_eshots();
+   void draw_eshots();
 
    void fire_enemy_shotz(int e, int shot_ans, float px, float py);
    void fire_enemy_shota(int e, int shot_ans, int p);

@@ -16,7 +16,7 @@ class mwEnemy
 
 
    void draw_enemy(int e, int custom, int cx, int cy);
-   void draw_enemies(void);
+   void draw_enemies();
 
    void move_enemies();
 
@@ -102,15 +102,15 @@ class mwEnemy
    float deg_to_rad(float deg);
 
    // mwEnemyEditorFnx.cpp
-   void fill_strings(void);
+   void fill_strings();
    int show_enemy_data(int x_pos, int y_pos);
-   void show_all_enemies(void);
-   void sort_enemy(void);
+   void show_all_enemies();
+   void sort_enemy();
    void erase_enemy(int e);
-   int get_empty_enemy(void);
+   int get_empty_enemy();
    int get_empty_enemy(int type);
-   int create_cloner(void);
-   int create_vinepod(void);
+   int create_cloner();
+   int create_vinepod();
 
 };
 extern mwEnemy mEnemy;

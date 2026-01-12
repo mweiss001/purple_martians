@@ -10,7 +10,7 @@ class mwGameMoves
 
 private:
 
-   void initialize(void);
+   void initialize();
 public:
 
 
@@ -19,9 +19,9 @@ public:
 
    void gm_remove(int i);
    void gm_swap(int i, int j);
-   void gm_sort(void);
+   void gm_sort();
 
-   void remove_doubled_moves(void);
+   void remove_doubled_moves();
 
 
    int has_player_acknowledged(int p);
@@ -31,7 +31,7 @@ public:
    void add_game_move2(int frame, int type, int data1, int data2);
    void add_game_move(int frame, int type, int data1, int data2);
 
-   void proc(void);
+   void proc();
    void proc_game_move_player_active(int p, int color);
    void proc_game_move_player_inactive(int p, int reason);
    void proc_game_move_player_hidden(int p);
@@ -47,7 +47,7 @@ public:
 
 
 
-   void save_gm_file_select(void);
+   void save_gm_file_select();
    void save_gm_make_fn(const char* desc, int sendto);
    void save_gm_txt(const char *sfname);
 
@@ -71,7 +71,7 @@ public:
    bool parse_header_line(const char* buf);
 
    int load_demo_level(int lev);
-   int load_gm_file_select(void);
+   int load_gm_file_select();
    int load_gm(const char *sfname);
 
 

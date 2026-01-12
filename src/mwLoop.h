@@ -5,7 +5,7 @@ class mwLoop
    public:
 
    mwLoop(); // default constructor
-   void initialize(void);
+   void initialize();
 
    int state[8] = {0};
 
@@ -53,11 +53,11 @@ class mwLoop
    int load_and_setup_level(int level, int type);
    void setup_players_after_level_load(int type);
 
-   void move_frame(void);
+   void move_frame();
    void loop_frame(int);
 
 
-   void initialize_and_resize_remote_graphs(void);
+   void initialize_and_resize_remote_graphs();
 
    void initialize_graphs();
 
@@ -68,14 +68,14 @@ class mwLoop
 
    void add_local_cpu_data(double cpu);
 
-   static int have_all_players_acknowledged(void);
-   void game_menu(void);
-   void proc_level_done_mode(void);
-   void proc_program_state(void);
+   static int have_all_players_acknowledged();
+   void game_menu();
+   void proc_level_done_mode();
+   void proc_program_state();
 
-   void remote_control_loop(void);
+   void remote_control_loop();
 
-   void main_loop(void);
+   void main_loop();
 };
 extern mwLoop mLoop;
 

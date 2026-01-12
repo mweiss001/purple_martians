@@ -9,7 +9,7 @@ class mwTally
    public:
 
    mwTally(); // default constructor
-   void initialize(void);
+   void initialize();
 
    double get_tally(int reset);
    double get_avg(int reset);

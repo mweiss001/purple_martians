@@ -59,7 +59,7 @@ void mwNetgame::session_add(const char* address, const char* hostname, int p, in
    if (!mLog.log_types[LOG_NET_session].action) return;
    // get timestamp
    struct tm *timenow;
-   time_t now = time(NULL);
+   time_t now = time(nullptr);
    timenow = localtime(&now);
    char ts[20];
    strftime(ts, sizeof(ts), "%Y%m%d-%H%M%S", timenow);
@@ -90,15 +90,17 @@ void mwNetgame::session_add(const char* address, const char* hostname, int p, in
 
    mGameMoves.create_gm_session_link(mPlayer.loc[p].session_id);
 
-
    // close immediatley if server full endreason
    if (endreason == 1) session_close(p, endreason);
 }
 
 
+
 #include <iomanip>
 
-
+// called only when closing session or level done
+// adds all the player tallies, bandwidth tallies
+// if passed nullptr for endreason, session is still open
 void mwNetgame::session_update(int p, char * m_endreason)
 {
    if (!mLog.log_types[LOG_NET_session].action) return;
@@ -113,7 +115,7 @@ void mwNetgame::session_update(int p, char * m_endreason)
 
    char endreason[128];
    strcpy(endreason, "open");
-   if (m_endreason != NULL) strcpy(endreason, m_endreason);
+   if (m_endreason != nullptr) strcpy(endreason, m_endreason);
 
 
    int cdats_rx=0;
@@ -144,15 +146,15 @@ void mwNetgame::session_update(int p, char * m_endreason)
    // prepare statement
    sqlite3_stmt* stmt;
    const char* sql = "SELECT \
-                        cdat_rx           , \
-                        next_levels       , \
-                        exits_activated   , \
-                        respawns          , \
-                        shots_fired       , \
-                        enemy_hits        , \
-                        player_hits       , \
-                        self_hits         , \
-                        purple_coins      , \
+                        cdat_rx                   , \
+                        next_levels               , \
+                        exits_activated           , \
+                        respawns                  , \
+                        shots_fired               , \
+                        enemy_hits                , \
+                        player_hits               , \
+                        self_hits                 , \
+                        purple_coins              , \
                         tx_bytes_total            , \
                         tx_bytes_avg_per_sec      , \
                         tx_bytes_max_per_frame    , \
@@ -167,7 +169,7 @@ void mwNetgame::session_update(int p, char * m_endreason)
                         rx_packets_max_per_frame  , \
                         dt_start FROM sessions WHERE id=?";
 
-   sqlite3_prepare_v2(mSql.db_sessions, sql, -1, &stmt, NULL);
+   sqlite3_prepare_v2(mSql.db_sessions, sql, -1, &stmt, nullptr);
 
    // bind parameters
    sqlite3_bind_int(stmt, 1, sid);
@@ -176,40 +178,37 @@ void mwNetgame::session_update(int p, char * m_endreason)
    int step_result = sqlite3_step(stmt);
    if (step_result == SQLITE_ROW)
    {
-      cdats_rx     = sqlite3_column_int(stmt, 0);
-      next_levels  = sqlite3_column_int(stmt, 1);
-      exits        = sqlite3_column_int(stmt, 2);
-      respawns     = sqlite3_column_int(stmt, 3);
-      shots_fired  = sqlite3_column_int(stmt, 4);
-      enemy_hits   = sqlite3_column_int(stmt, 5);
-      player_hits  = sqlite3_column_int(stmt, 6);
-      self_hits    = sqlite3_column_int(stmt, 7);
-      purple_coins = sqlite3_column_int(stmt, 8);
-
-      tx_bytes_total            = sqlite3_column_int(stmt, 9);
-      tx_bytes_avg_per_sec      = sqlite3_column_int(stmt, 10);
-      tx_bytes_max_per_frame    = sqlite3_column_int(stmt, 11);
-      rx_bytes_total            = sqlite3_column_int(stmt, 12);
-      rx_bytes_avg_per_sec      = sqlite3_column_int(stmt, 13);
-      rx_bytes_max_per_frame    = sqlite3_column_int(stmt, 14);
-      tx_packets_total          = sqlite3_column_int(stmt, 15);
-      tx_packets_avg_per_sec    = sqlite3_column_int(stmt, 16);
-      tx_packets_max_per_frame  = sqlite3_column_int(stmt, 17);
-      rx_packets_total          = sqlite3_column_int(stmt, 18);
-      rx_packets_avg_per_sec    = sqlite3_column_int(stmt, 19);
-      rx_packets_max_per_frame  = sqlite3_column_int(stmt, 20);
-      sprintf(dt_start, "%s",    sqlite3_column_text(stmt, 21));
+      cdats_rx                    = sqlite3_column_int(stmt, 0);
+      next_levels                 = sqlite3_column_int(stmt, 1);
+      exits                       = sqlite3_column_int(stmt, 2);
+      respawns                    = sqlite3_column_int(stmt, 3);
+      shots_fired                 = sqlite3_column_int(stmt, 4);
+      enemy_hits                  = sqlite3_column_int(stmt, 5);
+      player_hits                 = sqlite3_column_int(stmt, 6);
+      self_hits                   = sqlite3_column_int(stmt, 7);
+      purple_coins                = sqlite3_column_int(stmt, 8);
+      tx_bytes_total              = sqlite3_column_int(stmt, 9);
+      tx_bytes_avg_per_sec        = sqlite3_column_int(stmt, 10);
+      tx_bytes_max_per_frame      = sqlite3_column_int(stmt, 11);
+      rx_bytes_total              = sqlite3_column_int(stmt, 12);
+      rx_bytes_avg_per_sec        = sqlite3_column_int(stmt, 13);
+      rx_bytes_max_per_frame      = sqlite3_column_int(stmt, 14);
+      tx_packets_total            = sqlite3_column_int(stmt, 15);
+      tx_packets_avg_per_sec      = sqlite3_column_int(stmt, 16);
+      tx_packets_max_per_frame    = sqlite3_column_int(stmt, 17);
+      rx_packets_total            = sqlite3_column_int(stmt, 18);
+      rx_packets_avg_per_sec      = sqlite3_column_int(stmt, 19);
+      rx_packets_max_per_frame    = sqlite3_column_int(stmt, 20);
+      sprintf(dt_start, "%s", sqlite3_column_text(stmt, 21));
    }
    else if (step_result == SQLITE_DONE) printf("No row found for the given ID.\n");
    else fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(mSql.db_sessions));
    sqlite3_finalize(stmt);
 
-
    // now that I have all that....
 
-
    // create at tm struct from start date
-   struct tm timestart = {0};
+   struct tm timestart = {};
    std::stringstream ss(dt_start);
    ss >> std::get_time(&timestart, "%Y%m%d-%H%M%S");
    if (ss.fail()) printf("Error parsing time\n");
@@ -219,7 +218,7 @@ void mwNetgame::session_update(int p, char * m_endreason)
    strftime(ts, sizeof(ts), "%Y%m%d-%H%M%S", &timestart);
 
    // create a tm struct from now
-   time_t now = time(NULL);
+   time_t now = time(nullptr);
    struct tm *timenow;
    timenow = localtime(&now);
    char dt_end[20];
@@ -263,15 +262,15 @@ void mwNetgame::session_update(int p, char * m_endreason)
 
    // prepare statement
    const char* sql2 ="UPDATE sessions SET \
-      cdat_rx          =?,\
-      next_levels      =?,\
-      exits_activated  =?,\
-      respawns         =?,\
-      shots_fired      =?,\
-      enemy_hits       =?,\
-      player_hits      =?,\
-      self_hits        =?,\
-      purple_coins     =?,\
+      cdat_rx                  =?,\
+      next_levels              =?,\
+      exits_activated          =?,\
+      respawns                 =?,\
+      shots_fired              =?,\
+      enemy_hits               =?,\
+      player_hits              =?,\
+      self_hits                =?,\
+      purple_coins             =?,\
       tx_bytes_total           =?,\
       tx_bytes_avg_per_sec     =?,\
       tx_bytes_max_per_frame   =?,\
@@ -288,42 +287,38 @@ void mwNetgame::session_update(int p, char * m_endreason)
       dt_end                   =?,\
       endreason                =? WHERE id=?";
 
-   sqlite3_prepare_v2(mSql.db_sessions, sql2, -1, &stmt, NULL);
+   sqlite3_prepare_v2(mSql.db_sessions, sql2, -1, &stmt, nullptr);
 
    // bind parameters
 
-   sqlite3_bind_int(stmt, 1,  cdats_rx);
-   sqlite3_bind_int(stmt, 2,  next_levels);
-   sqlite3_bind_int(stmt, 3,  exits);
-   sqlite3_bind_int(stmt, 4,  respawns);
-   sqlite3_bind_int(stmt, 5,  shots_fired);
-   sqlite3_bind_int(stmt, 6,  enemy_hits);
-   sqlite3_bind_int(stmt, 7,  player_hits);
-   sqlite3_bind_int(stmt, 8,  self_hits);
-   sqlite3_bind_int(stmt, 9,  purple_coins);
-
-   sqlite3_bind_int(stmt, 10,  tx_bytes_total);
-   sqlite3_bind_int(stmt, 11,  tx_bytes_avg_per_sec);
-   sqlite3_bind_int(stmt, 12,  tx_bytes_max_per_frame);
-   sqlite3_bind_int(stmt, 13,  rx_bytes_total);
-   sqlite3_bind_int(stmt, 14,  rx_bytes_avg_per_sec);
-   sqlite3_bind_int(stmt, 15,  rx_bytes_max_per_frame);
-   sqlite3_bind_int(stmt, 16,  tx_packets_total);
-   sqlite3_bind_int(stmt, 17,  tx_packets_avg_per_sec);
-   sqlite3_bind_int(stmt, 18,  tx_packets_max_per_frame);
-   sqlite3_bind_int(stmt, 19,  rx_packets_total);
-   sqlite3_bind_int(stmt, 20,  rx_packets_avg_per_sec);
-   sqlite3_bind_int(stmt, 21,  rx_packets_max_per_frame);
-   sqlite3_bind_int(stmt, 22,  duration);
+   sqlite3_bind_int(stmt,   1,  cdats_rx);
+   sqlite3_bind_int(stmt,   2,  next_levels);
+   sqlite3_bind_int(stmt,   3,  exits);
+   sqlite3_bind_int(stmt,   4,  respawns);
+   sqlite3_bind_int(stmt,   5,  shots_fired);
+   sqlite3_bind_int(stmt,   6,  enemy_hits);
+   sqlite3_bind_int(stmt,   7,  player_hits);
+   sqlite3_bind_int(stmt,   8,  self_hits);
+   sqlite3_bind_int(stmt,   9,  purple_coins);
+   sqlite3_bind_int(stmt,  10,  tx_bytes_total);
+   sqlite3_bind_int(stmt,  11,  tx_bytes_avg_per_sec);
+   sqlite3_bind_int(stmt,  12,  tx_bytes_max_per_frame);
+   sqlite3_bind_int(stmt,  13,  rx_bytes_total);
+   sqlite3_bind_int(stmt,  14,  rx_bytes_avg_per_sec);
+   sqlite3_bind_int(stmt,  15,  rx_bytes_max_per_frame);
+   sqlite3_bind_int(stmt,  16,  tx_packets_total);
+   sqlite3_bind_int(stmt,  17,  tx_packets_avg_per_sec);
+   sqlite3_bind_int(stmt,  18,  tx_packets_max_per_frame);
+   sqlite3_bind_int(stmt,  19,  rx_packets_total);
+   sqlite3_bind_int(stmt,  20,  rx_packets_avg_per_sec);
+   sqlite3_bind_int(stmt,  21,  rx_packets_max_per_frame);
+   sqlite3_bind_int(stmt,  22,  duration);
    sqlite3_bind_text(stmt, 23,  dt_end, -1, SQLITE_TRANSIENT);
    sqlite3_bind_text(stmt, 24,  endreason, -1, SQLITE_TRANSIENT);
-   sqlite3_bind_int(stmt, 25, sid);
+   sqlite3_bind_int(stmt,  25,  sid);
 
    // execute and step through results
    step_result = sqlite3_step(stmt);
-
-
-
 
 }
 

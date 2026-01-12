@@ -38,7 +38,7 @@ class mwLift
    public:
 
    mwLift(); // default constructor
-   void initialize(void);
+   void initialize();
 
    struct lift       cur[NUM_LIFTS];
    struct lift_step  stp[NUM_LIFTS][40];
@@ -60,21 +60,21 @@ class mwLift
    void draw_lifts();
 
    // this is used when loading and saving level and after run lifts in level editor, sets all lifts to step 0
-   void lift_setup(void);
+   void lift_setup();
 
    // used in level editor only
    int construct_lift(int l, char* lift_name);
    void clear_lift(int l);
-   int get_empty_lift(void);
-   int create_lift(void);
+   int get_empty_lift();
+   int create_lift();
    void erase_lift(int lift);
 
    void clear_lift_step(int l, int s);
    void delete_lift_step(int l, int s);
    int construct_lift_step(int l, int s, int type, int x, int y, int w, int h, int val);
 
-   void show_all_lifts(void);
-   int get_num_lifts(void);
+   void show_all_lifts();
+   int get_num_lifts();
    int get_next_lift(int l);
    int get_prev_lift(int l);
 

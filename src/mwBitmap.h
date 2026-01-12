@@ -4,13 +4,13 @@ class mwBitmap
 {
    public:
 
-   void create_bitmaps(void);
-   void rebuild_bitmaps(void);
+   void create_bitmaps();
+   void rebuild_bitmaps();
 
-   int load_tiles(void);
+   int load_tiles();
 
-   void save_sprit(void);
-   int load_sprit(void);
+   void save_sprit();
+   int load_sprit();
 
    void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle);
    void spin_shape2(int tn, float x, float y, float scale, float dim, int cycle);
@@ -44,8 +44,8 @@ class mwBitmap
    // animation sequence array
    int zz[20][NUM_ANS];
 
-   void reset_animation_sequences(void);
-   void update_animation(void);
+   void reset_animation_sequences();
+   void update_animation();
 
    int sa[NUM_SPRITES][2]; // shape attributes
 

@@ -104,7 +104,7 @@ extern NET_CLASS net_classes[];
 
 
 /* Core functions */
-int net_init (void);
+int net_init ();
 int net_register_driver (int num, NET_DRIVER *driver);
 int net_loadconfig (const char *filename);
 NET_DRIVERNAME *net_getdrivernames (NET_DRIVERLIST which);
@@ -112,11 +112,11 @@ NET_DRIVERLIST net_detectdrivers (NET_DRIVERLIST which);
 int net_detectdriver (int which);
 NET_DRIVERLIST net_initdrivers (NET_DRIVERLIST which);
 int net_initdriver (int which);
-int net_shutdown (void);
+int net_shutdown ();
 
 
 /* Driver list functions */
-NET_DRIVERLIST net_driverlist_create (void);
+NET_DRIVERLIST net_driverlist_create ();
 void net_driverlist_destroy (NET_DRIVERLIST list);
 int net_driverlist_clear (NET_DRIVERLIST list);
 int net_driverlist_add (NET_DRIVERLIST list, int driver);

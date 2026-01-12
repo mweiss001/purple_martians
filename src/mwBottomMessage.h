@@ -30,13 +30,13 @@ class mwBottomMessage
 
    int test_mode_list_created;
 
-   void create_test_mode_list(void);
+   void create_test_mode_list();
 
-   void bmsg_create_bitmaps(void);
-   void initialize(void);
+   void bmsg_create_bitmaps();
+   void initialize();
 
 
-   void init_filter_events(void);
+   void init_filter_events();
 
 
    void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4);

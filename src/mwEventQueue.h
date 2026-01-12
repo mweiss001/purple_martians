@@ -10,17 +10,17 @@ class mwEventQueue
    ALLEGRO_TIMER * sec_timer;  // used to do things on a 1 Hz schedule
    ALLEGRO_TIMER * mou_timer;  // used to control hiding the mouse cursor
 
-   void create_timers(void);
+   void create_timers();
 
    int program_update;
    int program_update_1s;
    int menu_update;
 
    void proc(int pch);
-   void proc_menu(void);
+   void proc_menu();
 
    void adjust_fps_timer(int new_fps);
-   void reset_fps_timer(void);
+   void reset_fps_timer();
 
    private:
    void proc_events(ALLEGRO_EVENT ev);

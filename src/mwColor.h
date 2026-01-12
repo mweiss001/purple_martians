@@ -5,8 +5,8 @@ class mwColor
    public:
    mwColor(); // constructor
 
-   void process_flash_color(void);
-   void show_palette(void);
+   void process_flash_color();
+   void show_palette();
    int get_contrasting_color(int color);
 
    ALLEGRO_COLOR pc[256];
