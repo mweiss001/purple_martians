@@ -1450,6 +1450,9 @@ void mwPlayer::init_player(int p, int t)
       syn[p].stat_self_hits = 0;
       syn[p].stat_purple_coins = 0;
 
+      syn[p].stat_next_levels = 0;
+      syn[p].stat_exits = 0;
+
       loc[p].comp_move = 0;
 
       loc[p].health_display = 0;
@@ -1484,10 +1487,6 @@ void mwPlayer::init_player(int p, int t)
 
       loc[p].client_chase_fps = 0;
       loc[p].server_game_move_sync = 0;
-
-
-
-
 
       loc[p].quit_frame = 0;
       loc[p].quit_reason = 0;

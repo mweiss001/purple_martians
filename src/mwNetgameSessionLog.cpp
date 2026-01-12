@@ -7,8 +7,8 @@
 #include "mwLog.h"
 #include "mwSql.h"
 #include "mwGameMoves.h"
-
-
+#include "mwLevel.h"
+#include "mwLoop.h"
 
 
 void mwNetgame::session_close(int p, int er)
@@ -34,6 +34,7 @@ void mwNetgame::session_check_active()
       if ((mPlayer.loc[p].session_id) && (!mPlayer.syn[p].active)) session_close(p, 6); // session still active, but player is not active anymore
 }
 
+
 void mwNetgame::session_flush_active_at_server_exit()
 {
    if (!mLog.log_types[LOG_NET_session].action) return;
@@ -42,16 +43,22 @@ void mwNetgame::session_flush_active_at_server_exit()
          session_close(p, 8);
 }
 
+
+// server can complets also, but there are no sessions for server
+// next_level and exits are only counted for clients
+// and are only used in sessions
 void mwNetgame::session_save_active_at_level_done()
 {
+   // printf("frame:%d - session_save_active_at_level_done() level:%d  ffs:%d  )\n ", mLoop.frame_num, mLevel.play_level, mLoop.ff_state);
    if (!mLog.log_types[LOG_NET_session].action) return;
    for (int p=1; p<8; p++)
       if (mPlayer.loc[p].session_id)
       {
-         mPlayer.syn[p].stat_next_levels++;
+         if (mLevel.play_level != 1) mPlayer.syn[p].stat_next_levels++;
          if (p == mPlayer.syn[0].level_done_player) mPlayer.syn[p].stat_exits++;
          session_update(p);
       }
+
 }
 
 void mwNetgame::session_add(const char* address, const char* hostname, int p, int endreason)
@@ -113,10 +120,13 @@ void mwNetgame::session_update(int p, char * m_endreason)
       return;
    }
 
+
+
    char endreason[128];
    strcpy(endreason, "open");
    if (m_endreason != nullptr) strcpy(endreason, m_endreason);
 
+   // printf("  p[%d] update session id:%d nl:%d  ex:%d   er:%s\n ", p, sid, mPlayer.syn[p].stat_next_levels, mPlayer.syn[p].stat_exits, endreason);
 
    int cdats_rx=0;
    int next_levels=0;
