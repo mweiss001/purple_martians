@@ -246,7 +246,7 @@ a:hover { color: #FFFFFF; } /* White on hover */
    gap: 10px;
 }
 .icon { width: 20px; height: 20px; }
-.text { font-family: monospace; font-weight: normal; font-size: 16px; padding-top:2px; } 
+.text { font-family: monospace; font-weight: normal; font-size: 16px; padding-top:2px; white-space:pre } 
 
 
 

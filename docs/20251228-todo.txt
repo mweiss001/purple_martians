@@ -3,102 +3,6 @@
 ------------------------------------------------------------------------------
 BUGS!!
 ------------------------------------------------------------------------------
-level icons are not copied. changed so they are commited...
-
-
-first time returning to overworld, clients did not all go back to first gate
-2nd time they did
-
-
-i did this on the server and thought it would work
-
-      // server to set last touched gate for all clients
-      if (mNetgame.ima_server)
-      {
-         for (int pp=1; pp<8; pp++)
-            if (mPlayer.syn[pp].active)
-            {
-               mPlayer.syn[pp].overworld_last_touched_gate = lev;
-            }
-      }
-
-it could be that the server is resetting it, but...i have looked and can't see how or where?
-
-
-the only place a gate can be entered is here and only a server can do it...
-
-loading and saving to config only happen for player 0, the local player
-
-does it simply get erased and then try to load from level 0 and fail?
-
-when it starts from the start block, that means it was unable to find the specified level...
-
-I should just print what it actually looks for...
-
-maybe I should initialize it...
-you would think that when a new client joins they should start from where??
-
-added code to see when it fails and what the value is
-
-
-
-
-
-jenny start go to level 80
-
-then when others join they do not have set from server because they werent there when someone enetred the gate!!!
-
-I think I get it now, new joining players need to have that set....
-to whatever level they are in now....unless its overworld...what then??..do nothing
-
-
-no, actually i think of you join while in overworld you should go to the last touched gate of any player...
-or maybe the last gate that was activated
-
-
-
-
-
-
-also when a client quits and rejoins the same happens
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ------------------------------------------------------------------------------
@@ -106,121 +10,11 @@ also when a client quits and rejoins the same happens
 ------------------------------------------------------------------------------
 TO DO
 ------------------------------------------------------------------------------
-test many thing about sessions, make sure all works like it should
-
-
-
-remove filename from current session section
-
-
-
-
-
-
-
-start one player on level 80
-then have other players join and quit a few times while first player stays...
-
-
-I have sessions for each time the player joined
-
-I have muliple players listed in the cell on save game for current session
-they all look the same, I should make the pop up show the session id
-
-same with on current game
-
-I think this is working like it supposed to...
-
-make those changes to also show session id so we know they are a different player
-
-
-
-I just played lev 80 with 15 unique players and sessions
-
-one thing I noticed, when you come back you still have the same amount of health as you used to!!!
-
-I should try what happens if you join out if order...
-you get a different player number is all...
-
-i did a gm with 25 sessions!!!!
-
-
-three things to do:
-
-remove filename from current session section
-
-start new client game with full health and a good link to last gate touched
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 
 ------------------------------------------------------------------------------
-sessions and gm
----------------
-
-add update session to fire every second so I can see changes
-
-it seems like next level and exits stats are a bit high???
-
-gm add/update to database
-is it missing something?
-when a client quits and rejoins the same level, that should be a new session
-
-
 
 
 ------------------------------------------------------------------------------
@@ -243,61 +37,36 @@ what if I get the settings.pm file from the server
 edit it and send it back
 how big is it? settings.pm is 8K
 
-
 ------------------------------------------------------------------------------
 make a page to view things about the running headless server
 uptime, load, disk space
 
-
-
-
 ------------------------------------------------------------------------------
-player name - make small text label above player optional
+
+
+
+
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 -----------------------------------------------------------------------------
-
-
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
-
 ------------------------------------------------------------------------------
-
 ------------------------------------------------------------------------------
-make a way of cleaning up log files periodically
-or just put them in the database....
-
 -----------------------------------------------------------------------------
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
-
 ------------------------------------------------------------------------------
-
 ------------------------------------------------------------------------------
-
-
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 even if I change servers, I want to always keep all the sessions and games files
 never lose them!!
-
-
-------------------------------------------------------------------------------
-
-
-------------------------------------------------------------------------------
-make a way to change settings on remote server
-I mean, I have a way, but is it a good way?
-what if I get the settings.pm file from the server
-edit it and send it back
-how big is it? settings.pm is 8K
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
-
-
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -319,6 +88,139 @@ how big is it? settings.pm is 8K
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sessions and gm
+---------------
+
+health after death...still broken..fixed it again, I think...yes its good
+gate levels..seem to be working
+should I get the server to update sessions every 60s or so?no
+
+
+add update session to fire every second so I can see changes
+it seems like next level and exits stats are a bit high???
+update adds all the tallies, only do at the when level done or closing session
+I supposed you could update other things...
+like what and why? leave it....
+
+gm add/update to database
+is it missing something?
+when a client quits and rejoins the same level, that should be a new session
+it is working properly
+
+
+
+
+player name - make small text label above player optional
+options:
+- never show (0)
+- remote players only (1)
+- always show (2)
+this could live in p[0] local - it only applies to how the local system draws players
+int name_display;
+save and load from config
+   agci(GAME, mPlayer.loc[0].name_display, 1)
+   asci(GAME, mPlayer.loc[0].name_display)
+now make a control in settings..done
+also do not show if health display is showing...
+
+
+
+
+
+
+
+test many thing about sessions, make sure all works like it should
+
+test purple coins
+
+      if (!mLoop.ff_state) mLevel.level_data_purple_coins_collected++;
+      mPlayer.syn[p].stat_purple_coins++;
+
+exits and levels
+way too high, is it getting called more than once?
+like with rewind and shit??
+
+i don;t think so...i think its not getting reset...
+do that in init player...done
+
+now tested locally and every gate or exit counts for 'next_level for all player'
+'exits' only count for actual exits back to overworld and only for player that triggered it...
+
+I am going to make it so that overworld gates do not count for next levels
+
+it seems like all this is working...next levels, purple coins, etc
+
+
+now do something about default player name
+
+leave it like that internally, but display it differently
+
+like in all the place it shows...start with labels above yo head
+
+I should have a funtion in mPlayer
+
+get_name(int p)
+
+I already do:
+
+   char* get_player_name(int p, char * name, int width_field = 0);
+   char* get_player_name2(int p, char * name);
+
+
+now I do this too:
+
+string mwPlayer::getName(int p)
+{
+   string tmp(mPlayer.syn[p].name);
+   if (tmp == "default") tmp = "Player:" + std::to_string(p);
+   return tmp;
+}
+
+where else should I show the name like that?
+
+in the sessions stuff...the only place in all that is player_name in sessions
+could I just catch it when creating new session...done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+remove filename from current session section..done
+
+
 
 
 session bandwidth averages per second are all zeros...fixed I think....

@@ -5016,6 +5016,163 @@ am I going to leave the level_icons in the assets/icons...yes
 
 
 
+start one player on level 80
+then have other players join and quit a few times while first player stays...
+
+
+I have sessions for each time the player joined
+
+I have muliple players listed in the cell on save game for current session
+they all look the same, I should make the pop up show the session id
+
+same with on current game
+
+I think this is working like it supposed to...
+
+make those changes to also show session id so we know they are a different player
+
+
+
+I just played lev 80 with 15 unique players and sessions
+
+one thing I noticed, when you come back you still have the same amount of health as you used to!!!
+
+I should try what happens if you join out if order...
+you get a different player number is all...
+
+i did a gm with 25 sessions!!!!
+
+
+three things to do:
+
+remove filename from current session section..done
+
+start new client game with full health and a good link to last gate touched..done
+
+where can i do that so it won't get overwritten...
+actually nothing overwrites it....
+where can I save a global last gate_activated?
+for use when a client joins and I want to send them to the last gate someone used
+I am thinking if a client joins when everyone is on the overworld
+where should I send them?
+default is good
+
+I fixed both where server sets up new client.
+As soon as server finds and empty player slot, i do a full init now
+and also set last overworld gate level to currently playing level
+
+
+
+
+level icons are not copied. changed so they are commited...done
+
+first time returning to overworld, clients did not all go back to first gate
+2nd time they did
+
+
+i did this on the server and thought it would work
+
+      // server to set last touched gate for all clients
+      if (mNetgame.ima_server)
+      {
+         for (int pp=1; pp<8; pp++)
+            if (mPlayer.syn[pp].active)
+            {
+               mPlayer.syn[pp].overworld_last_touched_gate = lev;
+            }
+      }
+
+it could be that the server is resetting it, but...i have looked and can't see how or where?
+
+
+the only place a gate can be entered is here and only a server can do it...
+
+loading and saving to config only happen for player 0, the local player
+
+does it simply get erased and then try to load from level 0 and fail?
+
+when it starts from the start block, that means it was unable to find the specified level...
+
+I should just print what it actually looks for...
+
+maybe I should initialize it...
+you would think that when a new client joins they should start from where??
+
+added code to see when it fails and what the value is
+
+
+
+
+
+jenny start go to level 80
+
+then when others join they do not have set from server because they werent there when someone enetred the gate!!!
+
+I think I get it now, new joining players need to have that set....
+to whatever level they are in now....unless its overworld...what then??..do nothing
+
+
+no, actually i think of you join while in overworld you should go to the last touched gate of any player...
+or maybe the last gate that was activated
+
+
+also when a client quits and rejoins the same happens
+
+set devset to also do:
+speedy transitions
+IJKL C
+
+updating sessions every 1s messed with the tallies...revert and test again do it fool!!
+
+2026-01-11 17:08:09
+
+getting git 2.52.0 cause clion says my version 2.16.2 is unsupported...done
+
+
+made player name show above player optional with settings...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

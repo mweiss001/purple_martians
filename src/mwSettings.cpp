@@ -837,7 +837,7 @@ void mwSettings::page_controls2(void)
 // ---------------------------------------------------------------
 void mwSettings::page_netgame(void)
 {
-   int line_spacing = 7;
+   int line_spacing = 6;
    //line_spacing +=  mLoop.pct_y;
    int tc = 13;
    int fc = 15;
@@ -889,7 +889,27 @@ void mwSettings::page_netgame(void)
    ya+=8;
    al_draw_text(mFont.pr8, mColor.pc[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Optional. Shown in netgame.");
 
+   ya+=8;
+
+   // line to separate sections
+   ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
+
+
+
+   al_draw_text(mFont.pr8, mColor.pc[15], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Show player name above players head.");
+
    ya += 8;
+
+   ya += line_spacing;
+
+   mWidget.buttonp(cfp_x1+110, ya, cfp_x2-110, bts,  17,0,0,0,  0,12,15,15, 0,0,0,0, mPlayer.loc[0].name_display);
+
+   ya += line_spacing;
+
+
+   ya += 8;
+
+
    al_draw_line(cfp_x1+4, frame_y1+line_spacing, cfp_x1+4, ya+line_spacing, mColor.pc[fc], 1 ); // draw the sides of the frame first
    al_draw_line(cfp_x2-4, frame_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[fc], 1 );
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
@@ -931,12 +951,8 @@ void mwSettings::page_netgame(void)
    al_draw_line(cfp_x2-4, frame_y1+line_spacing, cfp_x2-4, ya+line_spacing, mColor.pc[fc], 1 );
    ya = cfp_draw_line(cfp_x1+4, cfp_x2-4, ya, line_spacing, fc);
 
-   ya+=18;
+   ya+=8;
    if (mWidget.buttont(xa+120, ya, xb-120, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Netgame Help")) mHelp.help("Netgame");
-
-
-
-
 
 }
 

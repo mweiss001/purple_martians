@@ -2,17 +2,22 @@
 
 function show_player_num_icon_name_host($num, $col, $name, $sid, $host)
 {
+   $nm = str_pad($name, 8, " ", STR_PAD_RIGHT); 
+   $ss = "Session Id:$sid";
+   $ss = str_pad($ss, 15, " ", STR_PAD_RIGHT); 
+   $hn = "Hostname:$host";
+   $hn = str_pad($hn, 32, " ", STR_PAD_RIGHT); 
+
    $iconpath = "/assets/icons/player_icon_$col.png";
    $alt = "alt=\"icon not found\"";
-   echo "<div style=\" display:flex; gap:40px; \">";
+   echo "<div style=\" display:flex; gap:32px; \">";
       echo "<div class=\"icon-text-container\">";
          echo "<span class=\"text\">$num</span>";
          echo "<img src=$iconpath $alt class=\"icon\">";
-         echo "<span class=\"text\">$name</span>";
+         echo "<span class=\"text\">$nm</span>";
      echo "</div>";
-
-   echo "<span class=\"text\">Session Id:$sid</span>";
-   echo "<span class=\"text\">Hostname:$host</span>";
+   echo "<span class=\"text\">$ss</span>";
+   echo "<span class=\"text\">$hn</span>";
 }
 
 function show_current_gm()

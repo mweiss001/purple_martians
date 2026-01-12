@@ -1510,6 +1510,17 @@ int mwWidget::buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int typ
    }
 
 
+   if (bn == 17)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(msg,  "Never");
+      if (var == 1) sprintf(msg,  "Remote Players Only");
+      if (var == 2) sprintf(msg,  "Always");
+   }
+
+
+
 
    if (bn == 18)
    {

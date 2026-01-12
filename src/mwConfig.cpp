@@ -72,6 +72,7 @@ void mwConfig::save_config(int type)
          asci(GAME, mLevel.start_level)
       }
 
+      asci(GAME, mPlayer.loc[0].name_display)
 
 
 
@@ -264,6 +265,10 @@ void mwConfig::load_config(int type)
 
    agci(SCREEN, mLogo.show_splash_screen, 1)
    if (!mLogo.show_splash_screen) mLogo.splash_screen_done = 1;
+
+   agci(GAME, mPlayer.loc[0].name_display, 1)
+
+
 
    agci(GAME, mLevel.start_level, 1)
    agci(GAME, mPlayer.syn[0].overworld_last_touched_gate, 0)

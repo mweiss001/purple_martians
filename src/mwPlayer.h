@@ -112,6 +112,8 @@ struct ploc // not synced between server and client (but synced from server to r
    int last_health_adjust;
    int potential_bomb_damage;
 
+   int name_display;
+
    float damage_tally;
    int damage_holdoff;
    int damage_type;
@@ -147,7 +149,6 @@ struct ploc // not synced between server and client (but synced from server to r
 
    double client_chase_fps;
    double stak_dsync;
-
 
    int client_cdat_packets_tx;
 
@@ -269,6 +270,10 @@ class mwPlayer
 
    char* get_player_name(int p, char * name, int width_field = 0);
    char* get_player_name2(int p, char * name);
+
+   string getName(int p);
+
+
 
    void init_player(int p, int t);
    void set_default_player_colors();

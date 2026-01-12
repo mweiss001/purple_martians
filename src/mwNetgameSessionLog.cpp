@@ -88,16 +88,18 @@ void mwNetgame::session_add(const char* address, const char* hostname, int p, in
    mMiscFnx.chop_first_x_char(ad, c+1);
    int port = atoi(ad);
 
+   string name = mPlayer.getName(p);
+
    char sql[500];
    sprintf(sql,
    "INSERT INTO sessions (dt_start, ip, port, hostname, player_num, player_color,         player_name, endreason) VALUES('%s', '%s', %d, '%s', %d, %d, '%s', 'open') RETURNING id;" ,
-                          ts,       ip, port, hostname, p,          mPlayer.syn[p].color, mPlayer.syn[p].name);
+                          ts,       ip, port, hostname, p,          mPlayer.syn[p].color, name.c_str());
 
    mPlayer.loc[p].session_id = mSql.execute_sql_and_return_one_int(sql, mSql.db_sessions);
 
    mGameMoves.create_gm_session_link(mPlayer.loc[p].session_id);
 
-   // close immediatley if server full endreason
+   // close immediately if server full endreason
    if (endreason == 1) session_close(p, endreason);
 }
 

@@ -1125,13 +1125,6 @@ void mwPlayer::draw_player(int p)
       }
 
 
-      // player name overlay
-//      al_draw_textf(mFont.pixl, mColor.pc[syn[p].color], px+11, py-11, ALLEGRO_ALIGN_CENTER, "%s", syn[p].name);
-
-
- /*     if (p != active_local_player)  */al_draw_textf(mFont.pixl, mColor.pc[syn[p].color], px+11, py-11, ALLEGRO_ALIGN_CENTER, "%s", syn[p].name);
-
-
 
 
       // health bar overlay
@@ -1167,8 +1160,13 @@ void mwPlayer::draw_player(int p)
             }
          }
       }
-      // player name overlay
-//      else al_draw_textf(mFont.pixl, mColor.pc[syn[p].color], px+11, py-11, ALLEGRO_ALIGN_CENTER, "%s", syn[p].name);
+      // player name overlay -- 0-never  1-only_remote  2-always
+      else if ((loc[p].name_display == 2) || (loc[p].name_display == 1) && (p != active_local_player))
+      {
+         string name = getName(p);
+         al_draw_textf(mFont.pixl, mColor.pc[syn[p].color], px+11, py-11, ALLEGRO_ALIGN_CENTER, "%s", name.c_str());
+      }
+
 
 
 
@@ -1294,6 +1292,18 @@ int mwPlayer::is_player_color_used(int color)
          if (color == syn[p].color) return 1;
    return 0;
 }
+
+
+
+// do you not suffer needlessly?
+string mwPlayer::getName(int p)
+{
+   string tmp(mPlayer.syn[p].name);
+   if (tmp == "default") tmp = "Player:" + std::to_string(p);
+   return tmp;
+}
+
+
 
 
 

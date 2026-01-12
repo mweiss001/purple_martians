@@ -550,6 +550,8 @@ cp -r ~/dev/purple_martians/web/* /var/www/html
 erase all on remote server, reclone from git and compile
 ----------------------------------------------------------------
 
+sudo rm -r /var/www/html/*
+
 cd ~
 sudo rm -r tmp
 mkdir tmp
