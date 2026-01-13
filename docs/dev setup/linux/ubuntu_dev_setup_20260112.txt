@@ -1,0 +1,118 @@
+20260112
+
+Started with ubuntu 24.04.2 server minimal install.
+Do bare bones minimal install, make sure openssh is installed.
+As soon as the install and updates are done, you can do the rest over ssh.
+
+# install required packages
+sudo apt install cron nano ufw gcc git cmake build-essential libfreetype6-dev libgl1-mesa-dev libglu1-mesa-dev libgtk-3-dev libxext-dev libxxf86vm-dev libxrandr-dev libxinerama-dev libxpm-dev libpulse-dev apache2 sqlite3 php-sqlite3
+
+
+# remove and recreate dev directory
+cd ~
+rm -rf dev
+mkdir dev
+cd dev
+
+# get and compile allegro
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DWANT_MONOLITH=ON -DWANT_D3D=OFF -DWANT_D3D9EX=OFF -DWANT_DEMO=OFF -DWANT_DLL_TLS=OFF -DWANT_DOCS=OFF -DWANT_DOCS_HTML=OFF -DWANT_DOCS_INFO=OFF -DWANT_DOCS_MAN=OFF -DWANT_DOCS_PDF=OFF -DWANT_DOCS_PDF_PAPER=OFF -DWANT_NATIVE_IMAGE_LOADER=OFF -DWANT_OPENAL=OFF -DWANT_VIDEO=OFF -DWANT_VORBIS=OFF -DWANT_IMAGE_FREEIMAGE=OFF -DWANT_IMAGE_JPG=OFF -DWANT_IMAGE_PNG=OFF -DWANT_IMAGE_WEBP=OFF -DWANT_LUAJIT=OFF -DWANT_MEMFILE=OFF -DWANT_MODAUDIO=ON -DWANT_EMBED=OFF -DWANT_EXAMPLES=OFF -DWANT_FLAC=OFF  -DFREETYPE_BZIP2=OFF -DFREETYPE_HARFBUZZ=OFF -DFREETYPE_PNG=OFF -DFREETYPE_ZLIB=OFF -DWANT_ALSA=OFF -DWANT_AQUEUE=OFF -DWANT_FRAMEWORKS=OFF -DWANT_GLES3=OFF -DWANT_MP3=OFF -DWANT_MUDFLAP=OFF -DWANT_OPENSL=OFF -DWANT_OPUS=OFF -DWANT_OSS=OFF -DWANT_PHYSFS=OFF -DWANT_POPUP_EXAMPLES=OFF -DWANT_PYTHON_WRAPPER=OFF -DWANT_RELEASE_LOGGING=OFF -DWANT_SHADERS_D3D=OFF -DWANT_STATIC_RUNTIME=OFF -DWANT_TESTS=OFF -DWANT_TREMOR=OFF -DWANT_WAIT_EVENT_SLEEP=OFF -DSTRICT_WARN=OFF -DWANT_ACODEC_DYNAMIC_LOAD=OFF ..
+make
+sudo make install
+
+# get pm
+cd ~/dev
+git clone --depth=1 https://github.com/mweiss001/purple_martians
+cd purple_martians
+
+# fix permissions
+chmod 777 ./op
+sudo ./op
+
+# compile and install libnet
+cd libnet
+make clean
+make lib
+sudo make install
+
+# build puple martians
+cd ~/dev/purple_martians
+./lin_build_all
+
+
+------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
+
+specific things you can do with this:
+
+Run a headless server:
+---------------------
+./pm -sh
+
+
+Locally make a linux release:
+-----------------------------
+./lin_make_release
+
+
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+Things you can do from windows dev machine batch script: win_copy_to_pmh.bat
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+
+
+Erase and reclone pm (shallow) from git
+---------------------------------------
+win_copy_to_pmh.bat git_reclone
+
+
+Copy things from windows dev machine to linux server
+----------------------------------------------------
+
+these all use scp
+
+win_copy_to_pmh.bat copy_all
+(uses scp recursive, also copies huge hidden .git dir...)
+
+win_copy_to_pmh.bat copy_src
+win_copy_to_pmh.bat copy_levels
+win_copy_to_pmh.bat copy_data
+win_copy_to_pmh.bat copy_cfg
+
+
+Compile and Release
+--------------------------------------------
+
+win_copy_to_pmh.bat lin_build
+(compile and link)
+
+win_copy_to_pmh.bat lin_release
+(collect all files needed for release into dir, then compress and copy to windows machine)
+
+win_copy_to_pmh.bat lin_build_and_release
+(do both)
+
+
+
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+To make a linux release:
+
+Edit the version number manually in lin_make_release
+
+Make sure the sources on the linux machine are up to date.
+
+Its probabaly best to also make sure they are the version committed to git.
+
+win_copy_to_pmh.bat git_reclone
+win_copy_to_pmh.bat lin_build_and_release
+
+then upload the targz file to github as a release
+
+very easy....
+
