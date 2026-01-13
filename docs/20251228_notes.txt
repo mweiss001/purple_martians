@@ -5218,6 +5218,396 @@ this allows php to see database files and downloads alias to work
 
 Do I really want the ':' in player...or should it be a space...it used to be a space...fixed
 
+2026-01-12 11:38:08
+
+commit
+
+update on pmh
+
+
+
+
+
+having issues with static ip
+
+newer versions of ubuntu by default can randomize mac...
+
+
+
+
+m@pmh:/etc/netplan$ nano  /etc/netplan/50-cloud-init.yaml
+m@pmh:/etc/netplan$ sudo nano /etc/netplan/50-cloud-init.yaml
+[sudo] password for m:
+m@pmh:/etc/netplan$ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute
+       valid_lft forever preferred_lft forever
+
+
+2: enp2s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether c8:1f:66:4a:87:6d brd ff:ff:ff:ff:ff:ff
+    inet 96.45.1.12/26 metric 100 brd 96.45.1.63 scope global dynamic enp2s0
+       valid_lft 84062sec preferred_lft 84062sec
+    inet6 fe80::ca1f:66ff:fe4a:876d/64 scope link
+       valid_lft forever preferred_lft forever
+m@pmh:/etc/netplan$
+m@pmh:/etc/netplan$
+m@pmh:/etc/netplan$ cat /etc/resolv.conf
+# This is /run/systemd/resolve/stub-resolv.conf managed by man:systemd-resolved(8).
+# Do not edit.
+#
+# This file might be symlinked as /etc/resolv.conf. If you're looking at
+# /etc/resolv.conf and seeing this text, you have followed the symlink.
+#
+# This is a dynamic resolv.conf file for connecting local clients to the
+# internal DNS stub resolver of systemd-resolved. This file lists all
+# configured search domains.
+#
+# Run "resolvectl status" to see details about the uplink DNS servers
+# currently in use.
+#
+# Third party programs should typically not access this file directly, but only
+# through the symlink at /etc/resolv.conf. To manage man:resolv.conf(5) in a
+# different way, replace this symlink by a static file or a different symlink.
+#
+# See man:systemd-resolved.service(8) for details about the supported modes of
+# operation for /etc/resolv.conf.
+
+nameserver 127.0.0.53
+options edns0 trust-ad
+search .
+m@pmh:/etc/netplan$
+m@pmh:/etc/netplan$
+m@pmh:/etc/netplan$
+m@pmh:/etc/netplan$
+m@pmh:/etc/netplan$
+m@pmh:/etc/netplan$
+m@pmh:/etc/netplan$ resolvectl status
+Global
+         Protocols: -LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
+  resolv.conf mode: stub
+
+Link 2 (enp2s0)
+    Current Scopes: DNS
+         Protocols: +DefaultRoute -LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
+Current DNS Server: 208.67.222.222
+       DNS Servers: 208.67.222.222 208.67.220.220
+m@pmh:/etc/netplan$
+m@pmh:/etc/netplan$
+m@pmh:/etc/netplan$ sudo cat /etc/netplan/50-cloud-init.yaml
+network:
+  version: 2
+  ethernets:
+    enp2s0:
+      dhcp4: true
+m@pmh:/etc/netplan$
+
+
+
+here is something I might copy to try to make this static
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    en01:
+      addresses:
+        [192.168.0.4/26]
+      routes:
+        - to: default
+          via: 192.168.0.1
+          metric: 100
+      nameservers:
+        search: [local]
+        addresses:  [1.1.1.1, 192.168.0.1, 8.8.8.8, 8.8.4.4]
+      dhcp6: false 
+      dhcp4: false
+
+editted:
+
+network:
+  version: 2
+  ethernets:
+    enp2s0:
+      addresses:
+        [96.45.1.12/26]
+      routes:
+        - to: default
+          via: 96.45.1.63
+          metric: 100
+      nameservers:
+        search: [local]
+        addresses:  [8.8.8.8, 8.8.4.4]
+      dhcp6: false 
+      dhcp4: false
+      
+2026-01-12 17:11:55
+
+I am not going to change anything...
+
+this is here to try if it all borks later...
+
+actually I should try to reboot the server...
+
+
+
+These are results for ubuntu server 24 minimal how can i tell what mac address randomization is configured
+On Ubuntu Server 24.04, network configuration is typically managed by
+Netplan and the actual service is usually systemd-networkd.
+To determine the MAC address randomization setting, you need to inspect the relevant configuration files. 
+1. Check the active MAC address 
+First, check the current MAC address of your network interface(s) using the ip addr command: 
+bash
+
+ip addr show
+
+m@pmh:~$ ip addr show
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group defaul                                                    t qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute
+       valid_lft forever preferred_lft forever
+2: enp2s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP gr                                                    oup default qlen 1000
+    link/ether c8:1f:66:4a:87:6d brd ff:ff:ff:ff:ff:ff
+    inet 96.45.1.12/26 metric 100 brd 96.45.1.63 scope global dynamic enp2s0
+       valid_lft 45571sec preferred_lft 45571sec
+    inet6 fe80::ca1f:66ff:fe4a:876d/64 scope link
+       valid_lft forever preferred_lft forever
+m@pmh:~$
+
+
+
+
+Look for the link/ether field for your interface (e.g., enp... or eth0).
+If the second hexadecimal digit of the address is 2, 6, A (or a), or E (or e),
+the MAC address is a locally administered address, which often indicates it has been randomized or manually set. 
+
+link/ether c8:1f:66:4a:87:6d brd ff:ff:ff:ff:ff:ff
+
+2. Inspect Netplan configuration files 
+Ubuntu uses Netplan to abstract network configuration. Check the contents of your Netplan configuration files in the /etc/netplan/ directory. 
+
+List the files in the directory:
+
+ls /etc/netplan/
+
+m@pmh:~$ ls /etc/netplan/
+50-cloud-init.yaml
+
+
+View the content of your configuration file (replace 00-installer-config.yaml with your actual filename):
+m@pmh:~$ sudo cat /etc/netplan/50-cloud-init.yaml
+[sudo] password for m:
+network:
+  version: 2
+  ethernets:
+    enp2s0:
+      dhcp4: true
+
+Look for a macaddress or cloned-mac-address key under your interface's settings.
+Netplan's configuration for MAC addresses usually uses the macaddress key to set a specific address
+or might imply randomization if managed by systemd-networkd's default policies. 
+
+3. Check systemd-networkd configuration 
+Ubuntu Server generally uses systemd-networkd. You can check its configuration for specific MACAddressPolicy settings. 
+
+    Look for .link files in /etc/systemd/network/ or /usr/lib/systemd/network/:
+    bash
+
+ls /etc/systemd/network/ /usr/lib/systemd/network/
+
+
+m@pmh:~$ sudo ls /usr/lib/systemd/network/
+73-usb-net-by-mac.link              80-container-vb.network  80-wifi-adhoc.network            99-default.link
+80-6rd-tunnel.network               80-container-ve.network  80-wifi-ap.network.example
+80-auto-link-local.network.example  80-container-vz.network  80-wifi-station.network.example
+80-container-host0.network          80-vm-vt.network         89-ethernet.network.example
+m@pmh:~$
+
+
+
+
+
+View the content of relevant .link files. A common file to check is 99-default.link or a file specific to your interface name. Look for the MACAddressPolicy setting within the [Link] section:
+bash
+
+cat /usr/lib/systemd/network/99-default.link 
+# (or the name of your specific file)
+
+m@pmh:~$ cat /usr/lib/systemd/network/99-default.link
+# SPDX-License-Identifier: MIT-0
+#
+# This config file is installed as part of systemd.
+# It may be freely copied and edited (following the MIT No Attribution license).
+#
+# To make local modifications, one of the following methods may be used:
+# 1. add a drop-in file that extends this file by creating the
+#    /etc/systemd/network/99-default.link.d/ directory and creating a
+#    new .conf file there.
+# 2. copy this file into /etc/systemd/network or one of the other paths checked
+#    by systemd-udevd and edit it there.
+# This file should not be edited in place, because it'll be overwritten on upgrades.
+
+[Match]
+OriginalName=*
+
+[Link]
+NamePolicy=keep kernel database onboard slot path
+AlternativeNamesPolicy=database onboard slot path
+MACAddressPolicy=persistent
+m@pmh:~$
+
+The MACAddressPolicy can be set to values like persistent (the default, which uses the permanent hardware address), random, stable, or others. 
+
+looks like it is set to persistent
+
+
+
+
+
+2026-01-12 17:44:51
+
+I think I need to figure more things out, like how to get a button to do something
+with out reloading a page
+
+
+Basic Usage
+You can use the onclick attribute directly within the HTML tag to call a JavaScript function. 
+
+HTML:
+
+<button onclick="myFunction()">Click me</button>
+<p id="demo">The date and time will appear here.</p>
+
+
+JavaScript (within <script> tags or an external file):
+
+function myFunction() {
+  document.getElementById("demo").innerHTML = Date();
+}
+
+When the button is clicked, it calls the myFunction, which finds the HTML element with the ID demo and changes its content to the current date and time. 
+Key Concepts
+
+    Inline JavaScript: The script is written directly within the onclick attribute (e.g., onclick="alert('Hello!');"). While convenient for simple tasks, it's generally recommended to separate your HTML and JavaScript code for better organization and maintainability.
+    Calling a Function: You specify the name of the JavaScript function to run when the button is clicked, including parentheses () to invoke it.
+    Multiple Functions: You can execute multiple functions by separating them with a semicolon within the attribute (e.g., onclick="function1(); function2();" ).
+    this keyword: You can pass the element itself to the function using the this keyword, allowing the JavaScript function to manipulate the specific element that was clicked.
+        Example: <button onclick="changeColor(this)">Click me</button>
+    Redirecting to another page: To use a button to navigate to a new URL, you can use window.location.href within the onclick handler.
+        Example: <button onclick="window.location.href='https://www.example.com'">Go to Example.com</button> 
+
+found some intererting html input types like range
+
+
+
+what do i actually want to do:
+have a page that shows the server uptime and the currently connected client
+
+well then, I better have that data in the database
+
+status table
+uptime
+every second that updates
+number of connected clients
+current level
+how long in current level
+
+kind of like copying what I used to have in status and remote control
+
+
+looks like it gets sent every frame in remote control mode
+
+void mwNetgame::server_send_snfo_packet(void) // send info to remote control
+{
+   // copy values into loc
+   mPlayer.loc[0].srv_frame_num = mLoop.frame_num;
+   mPlayer.loc[0].srv_total_game_moves = mGameMoves.entry_pos;
+   mPlayer.loc[0].srv_level = mLevel.play_level;
+   mPlayer.loc[0].srv_zlib_cmp = mNetgame.zlib_cmp;
+   mPlayer.loc[0].srv_extra_packets_num = mNetgame.srv_exp_num;
+   mPlayer.loc[0].srv_extra_packets_size = mNetgame.srv_exp_siz;
+   mPlayer.loc[0].srv_uptime = al_get_time();
+   sprintf(mPlayer.loc[0].srv_version, PM_VERSION);
+
+   mPlayer.loc[0].srv_num_enemy = mEnemy.num_enemy;
+
+   char src[5700];
+
+
+this also happens once per frame
+
+void mwLog::add_log_status_db_rows(void)
+{
+   if (!mLog.log_types[LOG_NET_CSV].action) return;
+
+   // do not log status unless at least one client is connected
+   if (mNetgame.server_num_clients == 0) return;
+
+   char d[100];
+   mMiscFnx.chr_dt(d);
+
+   int f = mLoop.frame_num;
+
+   char txt[1000];
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (mPlayer.syn[p].active)
+      {
+         int r = mPlayer.loc[p].rewind;
+         float cpu  = mPlayer.loc[p].cpu;
+         float sync = mPlayer.loc[p].pdsync*1000;
+         float ping = mPlayer.loc[p].ping*1000;
+         float difs = mPlayer.loc[p].cmp_dif_size;
+         float lcor = mPlayer.loc[p].client_loc_plr_cor;
+         float rcor = mPlayer.loc[p].client_rmt_plr_cor;
+
+         float txbf = mPlayer.loc[p].tx_current_bytes_for_this_frame;
+         float rxbf = mPlayer.loc[p].rx_current_bytes_for_this_frame;
+         float txpf = mPlayer.loc[p].tx_current_packets_for_this_frame;
+         float rxpf = mPlayer.loc[p].rx_current_packets_for_this_frame;
+
+         // these values have no meaning for server
+         if (p == 0)
+         {
+            sync = 0;
+            ping = 0;
+            difs = 0;
+            lcor = 0;
+            rcor = 0;
+         }
+
+         sprintf(txt, "%s,%d,%d,%d,%3.1f,%3.1f,%3.1f,%3.0f,%3.1f,%3.1f,%3.0f,%3.0f,%3.0f,%3.0f\n",
+                       d, f, p, r, cpu,  sync, ping, difs, lcor, rcor, txbf, rxbf, txpf, rxpf);
+
+         // printf("added log_status line: %d  %s\n", log_status_msg_num_lines,  txt);
+
+
+
+
+
+I could simply put this into a database
+
+it would get full really quick, but then I could just delete the entries
+
+2026-01-13 04:28:19
+
+
+I have some thoughts:
+
+a web page with the lognet messages and a button to refresh
+
+
+where to start...
+
+
+I want to do status
+
+a small table
 
 
 
@@ -5227,6 +5617,154 @@ Do I really want the ':' in player...or should it be a space...it used to be a s
 
 
 
+
+
+
+
+To recursively remove a large file from your GitHub repository's history, the recommended method is to use the
+git filter-repo tool. This process rewrites your repository's history, so it's essential to coordinate with collaborators and ensure you have a backup. 
+The process involves the following high-level steps:
+Prerequisites
+
+    Install git-filter-repo: This tool is much faster and easier to use than the older git filter-branch. You can often install it using a package manager, for example:
+    bash
+
+sudo apt install git-filter-repo
+
+Steps to Remove the File
+
+    Navigate to Your Local Repository:
+    bash
+
+cd YOUR-REPOSITORY
+
+Run git filter-repo: To remove a specific file from all branches and tags, use the --invert-paths and --path arguments,
+replacing PATH-TO-YOUR-FILE with the actual path to the large file (e.g., src/data/large_file.zip).
+
+git filter-repo --invert-paths --path PATH-TO-YOUR-FILE
+
+If the file existed at multiple paths due to moves or renames,
+you may need to run the command again for each alternative path or add an extra --path argument.
+Force-Push the Changes to GitHub: Once you are satisfied with the local changes,
+force-push the rewritten history to overwrite the remote repository on GitHub.
+This is a destructive action that affects all branches and tags.
+
+git push --force --mirror origin
+
+Post-Cleanup
+
+    Coordinate with Collaborators: Alert all collaborators that the repository history has been rewritten.
+    They will need to re-clone the repository to get the new history.
+    Run Garbage Collection: GitHub will handle garbage collection on the server side to expunge the data from storage,
+    but for your local clone, the above process, followed by the force push, handles most of it.
+    Prevent Future Issues: Add the large file's pattern to your .gitignore file to prevent it from being
+    accidentally committed again.
+    Consider Git LFS: If the file is a necessary binary, consider using
+    Git Large File Storage (LFS) to manage it properly going forward. 
+
+    Cannot remove files from repository above quota #52302 - GitHub
+    Apr 7, 2023 — This command will show you the top 10 largest files in your repository.
+    Remove large files: Use git filter-branch or the BFG Repo-
+    GitHub
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+im going to try this on o3000
+
+delete and get the lastest
+
+sudo systemctl stop pm
+cd ~/dev
+rm -r purple_martians
+
+git clone --depth=1 https://github.com/mweiss001/purple_martians
+cd purple_martians
+ 
+
+
+
+I think the shallow clone --depth=1 is not getting the full
+
+m@o3000:~/dev/purple_martians$ du -sh .
+126M    .
+
+
+cd ~/dev
+sudo rm -r purple_martians
+
+git clone https://github.com/mweiss001/purple_martians
+
+
+
+m@o3000:~/dev$ git clone https://github.com/mweiss001/purple_martians
+Cloning into 'purple_martians'...
+remote: Enumerating objects: 16817, done.
+remote: Counting objects: 100% (20/20), done.
+remote: Compressing objects: 100% (20/20), done.
+remote: Total 16817 (delta 0), reused 2 (delta 0), pack-reused 16797 (from 3)
+Receiving objects: 100% (16817/16817), 700.42 MiB | 19.91 MiB/s, done.
+Resolving deltas: 100% (12022/12022), done.
+m@o3000:~/dev$ du -sh .
+866M    .
+
+now i've got it all....
+
+sudo apt install git-filter-repo
+
+git filter-repo --invert-paths --path pm.exe
+
+m@o3000:~/dev/purple_martians$ git filter-repo --invert-paths --path pm.exe
+Parsed 554 commits
+New history written in 0.86 seconds; now repacking/cleaning...
+Repacking your repo and cleaning out old unneeded objects
+HEAD is now at 9c11a137 no comment
+Enumerating objects: 16338, done.
+Counting objects: 100% (16338/16338), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (4718/4718), done.
+Writing objects: 100% (16338/16338), done.
+Total 16338 (delta 11549), reused 16323 (delta 11536), pack-reused 0
+Completely finished after 7.45 seconds.
+m@o3000:~/dev/purple_martians$ du -sh .
+229M    .
+
+here goes!!!
+
+git push --force --mirror origin
+
+git push --force --mirror https://github.com/mweiss001/purple_martians
+
+
+2026-01-13 05:54:53
+
+I did it!!!
+
+but I just realized I have uncomitted changes on m36...duh!!
+
+how to fix...
+
+
+add pm.exe to .gitignore
+
+
+try new push from m36
 
 
 

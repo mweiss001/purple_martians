@@ -10,6 +10,19 @@ BUGS!!
 ------------------------------------------------------------------------------
 TO DO
 ------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+Big things:
+- logging
+- server control/monitoring from web
+- level stats to use database
+- rearrange levels again (too many crappy ones polluting the good/great ones)
+- sessions timeline
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -17,31 +30,28 @@ TO DO
 
 
 ------------------------------------------------------------------------------
+server control from web:
+I could make buttons to display and change settings in a table
 
-make it so that if you enter pm as server, it will expand to the full
-
-      if (strcmp(argument_array[1],"-c") == 0 )
-      {
-         char srv[256];
-         sprintf(srv, "%s", argument_array[2]);
-         if ((strlen(srv) == 2) && (strcmp(srv, "pm") == 0)) sprintf(srv, "%s", "purplemartians.org");
-
-         sprintf(mNetgame.server_address, "%s", srv);
+I think I need to figure more things out, like how to get a button to do something
+with out reloading a page
 
 
 
 
 
 
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
+
+
+
+
 
 ------------------------------------------------------------------------------
-figure out minimum permissions needed on server
-- web root and everything in path
-- path to database that is used in webroot
-- path to savegames that is aliased in webroot
-make a script to set these persmissions
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+
+
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
@@ -59,12 +69,10 @@ uptime, load, disk space
 
 ------------------------------------------------------------------------------
 
-
 remove the executable from git (and other large things)
 recursively
 
 my git is getting to be almost 1G
-
 
 
 ------------------------------------------------------------------------------
@@ -120,6 +128,33 @@ never lose them!!
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+figure out minimum permissions needed on server
+- web root and everything in path
+- path to database that is used in webroot
+- path to savegames that is aliased in webroot
+make a script to set these persmissions
+I just did a new install and the only thing I had to change was:
+chmod o+x /home/m
+
+
+
+
+
+
+make it so that if you enter pm as server, it will expand to the full
+
+      if (strcmp(argument_array[1],"-c") == 0 )
+      {
+         char srv[256];
+         sprintf(srv, "%s", argument_array[2]);
+         if ((strlen(srv) == 2) && (strcmp(srv, "pm") == 0)) sprintf(srv, "%s", "purplemartians.org");
+
+         sprintf(mNetgame.server_address, "%s", srv);
+
+
+
 
 
 

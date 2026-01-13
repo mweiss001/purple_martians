@@ -505,6 +505,33 @@ when I do:
 
 
 
+2026-01-13 05:04:38
+
+I have been using clion exclusively for a few days now, no looking back...
+setup the non-commercial license, registered with google acct mweiss001
+
+
+to get icon for exe in windows:
+
+add_executable(pm
+        src/icon.rc
+        src/libnet.h
+
+contents of icon.rc:
+---------------------------------------
+#include <windows.h>
+allegro_icon  ICON  "../bitmaps/pm.ico"
+---------------------------------------
+
+
+
+
+
+
+
+
+
+
 
 
 

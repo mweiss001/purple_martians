@@ -14,7 +14,7 @@ include_directories(${ALLEGRO_ROOT_DIR}/include)
 link_directories(${ALLEGRO_ROOT_DIR}/lib)
 
 add_executable(pm
-        icon.rc
+        src/icon.rc
         src/libnet.h
         src/main.cpp
         src/mwBitmap.cpp
