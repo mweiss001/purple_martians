@@ -109,6 +109,11 @@ int mwMain::initial_setup(void)
    set_exe_path();
    set_and_get_versions();
 
+
+   al_make_directory("data"); // create if not already created
+
+
+
    mConfig.load_config();
 
    show_system_id();

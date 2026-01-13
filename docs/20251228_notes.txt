@@ -5786,3 +5786,395 @@ before that, save this file and commit from m36...
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+im going to try this on o3000
+
+delete and get the lastest
+
+sudo systemctl stop pm
+cd ~/dev
+rm -r purple_martians
+
+git clone --depth=1 https://github.com/mweiss001/purple_martians
+cd purple_martians
+ 
+
+
+
+I think the shallow clone --depth=1 is not getting the full
+
+m@o3000:~/dev/purple_martians$ du -sh .
+126M    .
+
+
+cd ~/dev
+sudo rm -r purple_martians
+
+git clone https://github.com/mweiss001/purple_martians
+
+
+
+m@o3000:~/dev$ git clone https://github.com/mweiss001/purple_martians
+Cloning into 'purple_martians'...
+remote: Enumerating objects: 16817, done.
+remote: Counting objects: 100% (20/20), done.
+remote: Compressing objects: 100% (20/20), done.
+remote: Total 16817 (delta 0), reused 2 (delta 0), pack-reused 16797 (from 3)
+Receiving objects: 100% (16817/16817), 700.42 MiB | 19.91 MiB/s, done.
+Resolving deltas: 100% (12022/12022), done.
+m@o3000:~/dev$ du -sh .
+866M    .
+
+now i've got it all....
+
+sudo apt install git-filter-repo
+
+git filter-repo --invert-paths --path pm.exe
+
+m@o3000:~/dev/purple_martians$ git filter-repo --invert-paths --path pm.exe
+Parsed 554 commits
+New history written in 0.86 seconds; now repacking/cleaning...
+Repacking your repo and cleaning out old unneeded objects
+HEAD is now at 9c11a137 no comment
+Enumerating objects: 16338, done.
+Counting objects: 100% (16338/16338), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (4718/4718), done.
+Writing objects: 100% (16338/16338), done.
+Total 16338 (delta 11549), reused 16323 (delta 11536), pack-reused 0
+Completely finished after 7.45 seconds.
+m@o3000:~/dev/purple_martians$ du -sh .
+229M    .
+
+here goes!!!
+
+git push --force --mirror origin
+
+git push --force --mirror https://github.com/mweiss001/purple_martians
+
+
+2026-01-13 05:54:53
+
+I did it!!!
+
+but I just realized I have uncomitted changes on m36...duh!!
+
+how to fix...
+
+
+add pm.exe to .gitignore
+
+try new push from m36...failed
+
+made a local copy on desktop
+removed and reclone to c:/pm
+manualy copied changes from desktop version to c:\pm
+committed...all looks good
+
+
+now see what else I can kill in repo
+
+
+back to o3000
+remove and reclone
+
+before that, save this file and commit from m36...
+
+
+
+git ls-files -s | awk '{print $2 " " $4}' | LC_ALL=C sort -nrk1 | head -n 10 | while read size oid file; do echo $(($(git cat-file -s $oid)/1024))KiB $file; done
+
+does not work:
+m@o3000:~/dev/purple_martians$
+m@o3000:~/dev/purple_martians$
+m@o3000:~/dev/purple_martians$
+m@o3000:~/dev/purple_martians$ git ls-files -s | awk '{print $2 " " $4}' | LC_ALL=C sort -nrk1 | head -n 10 | while read size oid file; do echo $(($(git cat-file -s $oid)/1024))KiB $file; done
+fatal: Not a valid object name docs/dev
+-bash: /1024: syntax error: operand expected (error token is "/1024")
+m@o3000:~/dev/purple_martians$
+
+
+git count-objects -vH
+du -ah .git/objects | sort -rh | head -n 10
+
+
+git rev-list --objects --all \
+| git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' \
+| sed -n 's/^blob //p' \
+| sort --numeric-sort --key=2 \
+| tail -n 10 \
+| cut -c 1-12,41- \
+| $(command -v gnumfmt || echo numfmt) --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest
+
+
+
+
+fd101e2ddf1c   11MiB data/level_icons_200.bmp
+fd8e5ce63e99   11MiB data/level_icons_200.bmp
+abcafd2ad249   12MiB savegame/bad_exit_20220613-183034-lev303.txt
+8285c9b0c4f9   14MiB pm_dump.sql
+c4ce6ca6a4bd   16MiB data/level_icons_vls.bmp
+41d6126b6473   27MiB snd/pm.wav
+e334b2b9bdbb   28MiB scrape_cronoutput.txt
+98f59065e5b2   32MiB purple_martians_7.24.0426.1_linux.tar.gz
+85865d59a222   36MiB purple_martians_7.24.0426.1_windows.zip
+ca70d91f2717   96MiB session_scrape_cronoutput.txt
+m@o3000:~/dev/purple_martians$
+
+ok...now I have some more things to remove...
+
+git filter-repo --invert-paths --path session_scrape_cronoutput.txt
+
+m@o3000:~/dev/purple_martians$ git filter-repo --invert-paths --path session_scrape_cronoutput.txt
+Parsed 557 commits
+New history written in 0.73 seconds; now repacking/cleaning...
+Repacking your repo and cleaning out old unneeded objects
+HEAD is now at a7e90fd no comment
+Enumerating objects: 16361, done.
+Counting objects: 100% (16361/16361), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (4453/4453), done.
+Writing objects: 100% (16361/16361), done.
+Total 16361 (delta 11827), reused 16312 (delta 11823), pack-reused 0
+Completely finished after 4.03 seconds.
+m@o3000:~/dev/purple_martians$ du -sh .
+225M
+
+git filter-repo --invert-paths --path scrape_cronoutput.txt
+m@o3000:~/dev/purple_martians$ du -sh .
+225M
+
+git filter-repo --invert-paths --path purple_martians_7.24.0426.1_linux.tar.gz
+193M
+
+git filter-repo --invert-paths --path purple_martians_7.24.0426.1_windows.zip
+158M
+
+lets stop here and test...
+
+git push --force --mirror https://github.com/mweiss001/purple_martians
+
+
+on m36 copy again to desktop and reclone...
+
+https://github.com/mweiss001/purple_martians
+
+
+2026-01-13 06:52:34
+
+worked
+160 before build
+do I need to add anything to .gitignore?
+
+the files I removed were one offs, should not re-occur
+
+anyway this is the file:
+
+/o
+/*.o
+
+pm.exe
+
+/logs/*
+
+/savegame/*.gm
+
+/gmon.out
+/pm.depend
+/pm.layout
+
+/screenshots/*
+
+/scrape_cronoutput.txt
+/scrape_status_cronoutput.txt
+/session_scrape_cronoutput.txt
+
+
+
+I have not made any more changes on m36 so no need to recommit
+
+back to o3000 to see what else there is...
+
+dfc07ace844a   11MiB data/level_icons_200.bmp
+e71982713aba   11MiB bitmaps/level_icons.bmp
+f13f83429959   11MiB bitmaps/level_icons.bmp
+f61a1cafa6da   11MiB data/level_icons_200.bmp
+fd101e2ddf1c   11MiB data/level_icons_200.bmp
+fd8e5ce63e99   11MiB data/level_icons_200.bmp
+abcafd2ad249   12MiB savegame/bad_exit_20220613-183034-lev303.txt
+8285c9b0c4f9   14MiB pm_dump.sql
+c4ce6ca6a4bd   16MiB data/level_icons_vls.bmp
+41d6126b6473   27MiB snd/pm.wav
+m@o3000:~/dev/purple_martians$
+
+i can actually lose everything in the data dir and it will be recreated (except the folder)
+
+
+git filter-repo --invert-paths --path data/level_icons_vls.bmp
+152M
+
+git filter-repo --invert-paths --path pm_dump.sql
+150M
+
+git filter-repo --invert-paths --path savegame/bad_exit_20220613-183034-lev303.txt
+149M
+
+git filter-repo --invert-paths --path data/level_icons_200.bmp
+137M
+ 
+git filter-repo --invert-paths --path data/level_icons.bmp
+137M
+
+git filter-repo --invert-paths --path bitmaps/level_icons.bmp
+136M
+
+
+
+
+f09d4b46ade9  4.6MiB data/level_data.pm
+f103d718452d  4.6MiB data/level_data.pm
+f31c666e78ea  4.6MiB data/level_data.pm
+f60439b7f67b  4.6MiB data/level_data.pm
+fd70cca1fd11  4.6MiB data/level_data.pm
+ff11da252e4b  4.6MiB data/level_data.pm
+1c0861029c7f  6.1MiB web/old_versions/pm6_20180311.zip
+912ac26944c6  9.0MiB src/sqlite3.c
+dab8021dc511   10MiB scrape_status_cronoutput.txt
+41d6126b6473   27MiB snd/pm.wav
+m@o3000:~/dev/purple_martians$
+
+
+git filter-repo --invert-paths --path scrape_status_cronoutput.txt
+git filter-repo --invert-paths --path data/level_data.pm
+136M
+
+
+git rev-list --objects --all \
+| git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' \
+| sed -n 's/^blob //p' \
+| sort --numeric-sort --key=2 \
+| tail -n 50 \
+| cut -c 1-12,41- \
+| $(command -v gnumfmt || echo numfmt) --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest
+
+fabb763dcd84  2.9MiB bitmaps/level_icons2.bmp
+51537afee800  3.7MiB data/sqlite3.exe
+7baf15648227  3.7MiB snd/pm.mp3
+62c998491439  4.6MiB bitmaps/level_data.pm
+84a1aad10801  4.6MiB bitmaps/level_data.pm
+db0420ff1fdd  4.6MiB bitmaps/level_data.pm
+e0cd72e970d4  4.6MiB pm_docs/20250525 troubleshooting/level_data.pm
+1c0861029c7f  6.1MiB web/old_versions/pm6_20180311.zip
+912ac26944c6  9.0MiB src/sqlite3.c
+41d6126b6473   27MiB snd/pm.wav
+m@o3000:~/dev/purple_martians$
+
+
+git filter-repo --invert-paths --path "pm_docs/20250525 troubleshooting/level_data.pm"
+git filter-repo --invert-paths --path bitmaps/level_data.pm
+git filter-repo --invert-paths --path bitmaps/level_icons2.bmp 
+136M
+
+
+
+
+| $(command -v gnumfmt || echo numfmt) --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest
+136e061f3000  1.4MiB pm_docs/new8.txt
+673c1cd2120f  1.4MiB pm_docs/new8.txt
+2775bb94e188  1.4MiB bitmaps/block_tiles.bmp
+d96de3481a60  1.4MiB bitmaps/tiles.bmp
+ae49b7075c49  1.4MiB pm_docs/new8.txt
+5ad6b1907b55  1.4MiB libnet/libnet.a
+88d4fe8e1c55  1.4MiB pm_docs/new8.txt
+ff21115208ec  1.4MiB web/old_versions/pm2_19991202.zip
+bf675f8b984d  1.4MiB pm_docs/new8.txt
+cd6badaf5fd9  1.5MiB pm_docs/new8.txt
+d1686e6a6e72  1.5MiB pm_docs/new8.txt
+d5897866827d  1.5MiB web/old_versions/pm5_20030622.zip
+807d4d3bc89f  1.6MiB bitmaps/tiles.bmp
+8a8a69c66eb5  1.6MiB bitmaps/tiles.bmp
+ffc7bafc9765  1.6MiB pm_docs/new8.txt
+47c70b1f4bdb  1.6MiB pm_docs/new8.txt
+34a9b217d3fa  1.6MiB pm_docs/new8.txt
+75fa5cdec634  1.6MiB pm_docs/new8.txt
+0d6ad192218a  1.6MiB web/old_versions/pm4_20010301.zip
+8365f1d7ccc3  1.7MiB pm_docs/new8.txt
+09e646caad8e  1.7MiB screenshots/20180423194754.bmp
+d0ca7fd66d53  1.7MiB linux_libs/liballegro_monolith.so.5.2
+0da90ec88b21  1.7MiB pm_docs/new8.txt
+022a9fdf4e14  1.7MiB pm_docs/new8.txt
+8e9eb811034f  1.7MiB pm_docs/new8.txt
+b77e8bb06463  1.7MiB pm_docs/new8.txt
+5bc2bf3f310c  1.7MiB pm_docs/new8.txt
+c794fc168e72  1.7MiB pm_docs/new8.txt
+bc17a74fe4f4  1.7MiB pm_docs/new8.txt
+c18cb595d5c7  1.7MiB pm_docs/new8.txt
+0bef794ca754  1.7MiB docs/new8.txt
+298398fdbd6c  1.7MiB pm_docs/new8.txt
+2f3b4594b7a0  1.8MiB liballegro_monolith.so
+07a98e4a5309  2.9MiB data/level_icons_100.bmp
+0a09b1091cd7  2.9MiB data/level_icons_100.bmp
+114370638890  2.9MiB data/level_icons_100.bmp
+4136f35ad1be  2.9MiB data/level_icons_100.bmp
+457af2dbbcc8  2.9MiB data/level_icons_100.bmp
+52d99314596e  2.9MiB data/level_icons_100.bmp
+5d085e971469  2.9MiB data/level_icons_100.bmp
+b0dcb0316f80  2.9MiB data/level_icons_100.bmp
+b1f448e7c9c5  2.9MiB data/level_icons_100.bmp
+cd83e51a91e7  2.9MiB data/level_icons_100.bmp
+d05668bfd9b1  2.9MiB data/level_icons_100.bmp
+f5478c2bd9f3  2.9MiB data/level_icons_100.bmp
+51537afee800  3.7MiB data/sqlite3.exe
+7baf15648227  3.7MiB snd/pm.mp3
+1c0861029c7f  6.1MiB web/old_versions/pm6_20180311.zip
+912ac26944c6  9.0MiB src/sqlite3.c
+41d6126b6473   27MiB snd/pm.wav
+m@o3000:~/dev/purple_martians$
+
+git filter-repo --invert-paths --path screenshots/20180423194754.bmp 
+git filter-repo --invert-paths --path data/level_icons_100.bmp
+133M
+
+
+I am done for now....
+
+git push --force --mirror https://github.com/mweiss001/purple_martians
+
+bak to m36
+
+reclone and add data to gitignore
+
+now 130M
+
+recreate /data if not exists...done
+
+
+2026-01-13 07:38:23
+
+recommit from m36
+
+
+
+
+
+
+
+
+
+
+
+
+
+
