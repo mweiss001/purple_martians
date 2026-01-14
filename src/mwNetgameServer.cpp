@@ -314,12 +314,14 @@ void mwNetgame::server_insert_status_row() // inserts row into status table
    int cpu = mRollingAverage[0].avg;
 
 
+   sprintf(mPlayer.loc[0].srv_version, PM_VERSION);
+
 
 
 
    char sql[1024];
 
-   sprintf(sql, "INSERT INTO status VALUES ('%s', %d, %d, %d, %d, %d, %d, %d)",ts.c_str(), upt, cpu, cli, lev, lvt, mov, enm );
+   sprintf(sql, "INSERT INTO status VALUES ('%s', '%s', %d, %d, %d, %d, %d, %d, %d)",ts.c_str(), PM_VERSION, upt, cpu, cli, lev, lvt, mov, enm );
 
    printf("%s\n", sql);
 

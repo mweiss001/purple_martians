@@ -6412,6 +6412,29 @@ added cpu to table..
 
 
 
+2026-01-14 05:29:04
+
+commit and deploy to o3000
+
+this is awseome!
+
+1% usage with no clients
+6 with 1
+12 with 2
+19 with 3
+21 with 3+ rc
+33 level 16 with 4 clients and rc and fakekey 
+
+deploy to pmh and compare...
+
+should I also do server version?...yes
+
+
+
+
+
+
+
 
 
 

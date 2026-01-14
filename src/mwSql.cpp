@@ -106,6 +106,7 @@ void mwSql::create_tables(void)
 
    strcpy(sql, "CREATE TABLE IF NOT EXISTS status( \
                timestamp     TEXT PRIMARY KEY, \
+               version       TEXT, \
                uptime        INT, \
                cpu           INT, \
                clients       INT, \

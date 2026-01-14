@@ -92,6 +92,7 @@ echo "<div class=\"div-sessions-page\">";
    $enemies    = $row['enemies'];
    $clients    = $row['clients'];
    $cpu        = $row['cpu'];
+   $version    = $row['version'];
 
    $but = "class=\"button\" id=\"status_page_button\""; 
 
@@ -108,9 +109,10 @@ echo "<div class=\"div-sessions-page\">";
 
       echo "<div style=\" display:flex; gap:2px;  padding:4px;\">";
          echo "<div id=\"status_page\"  class=\"div-section-sub-section-pretext\">";
-            echo "Last Update     : "         . date('Y-m-d h:i:s', strtotime($row['timestamp']))  . "\n";
-            echo "Server Uptime   :         " . secondsToDHMS($row['uptime'])    . "\n";
-            echo "Server Load     : $cpu%\n";
+            echo "Server Version : $version\n";
+            echo "Last Update    : "         . date('Y-m-d h:i:s', strtotime($row['timestamp']))  . "\n";
+            echo "Server Uptime  :         " . secondsToDHMS($row['uptime'])    . "\n";
+            echo "Server Load    : $cpu%\n";
          echo "</div>";
       echo "</div>";
 
