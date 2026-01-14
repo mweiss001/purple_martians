@@ -5,11 +5,15 @@
 
 mwSql mSql;
 
-mwSql::mwSql()
+mwSql::mwSql() { }
+
+int mwSql::init()
 {
    open_database();
    create_tables();
+   return 1;
 }
+
 
 int mwSql::open_database(void)
 {

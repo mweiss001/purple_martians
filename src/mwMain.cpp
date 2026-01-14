@@ -15,6 +15,7 @@
 #include "mwLoop.h"
 #include "mwLevel.h"
 #include "mwGameMoves.h"
+#include "mwSql.h"
 
 mwMain mMain;
 
@@ -112,6 +113,7 @@ int mwMain::initial_setup(void)
 
    al_make_directory("data"); // create if not already created
 
+   mSql.init();
 
 
    mConfig.load_config();
